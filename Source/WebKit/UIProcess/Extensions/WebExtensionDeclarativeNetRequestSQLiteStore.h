@@ -33,30 +33,32 @@
 
 namespace WebKit {
 
-enum class WebExtensionDataType : uint8_t;
+enum class WebExtensionDeclarativeNetRequestStorageType : uint8_t {
+    Dynamic,
+    Session
+};
 
-class WebExtensionStorageSQLiteStore final : public WebExtensionSQLiteStore {
-    WTF_MAKE_TZONE_ALLOCATED(WebExtensionStorageSQLiteStore);
+class WebExtensionDeclarativeNetRequestSQLiteStore final : public WebExtensionSQLiteStore {
+    WTF_MAKE_TZONE_ALLOCATED(WebExtensionDeclarativeNetRequestSQLiteStore);
 
 public:
     template<typename... Args>
-    static Ref<WebExtensionStorageSQLiteStore> create(Args&&... args)
+    static Ref<WebExtensionDeclarativeNetRequestSQLiteStore> create(Args&&... args)
     {
-        return adoptRef(*new WebExtensionStorageSQLiteStore(std::forward<Args>(args)...));
+        return adoptRef(*new WebExtensionDeclarativeNetRequestSQLiteStore(std::forward<Args>(args)...));
     }
-    virtual ~WebExtensionStorageSQLiteStore() = default;
-
-    void getAllKeys(CompletionHandler<void(Vector<String> keys, const String& errorMessage)>&&);
-    void getValuesForKeys(Vector<String> keys, CompletionHandler<void(HashMap<String, String> results, const String& errorMessage)>&&);
-    void getStorageSizeForKeys(Vector<String> keys, CompletionHandler<void(size_t storageSize, const String& errorMessage)>&&);
-    void getStorageSizeForAllKeys(HashMap<String, String> additionalKeyedData, CompletionHandler<void(size_t storageSize, int numberOfKeysIncludingAdditionalKeyedData, HashMap<String, String> existingKeysAndValues, const String& errorMessage)>&&);
-    void setKeyedData(HashMap<String, String> keyedData, CompletionHandler<void(Vector<String> keysSuccessfullySet, const String& errorMessage)>&&);
-    void deleteValuesForKeys(Vector<String> keys, CompletionHandler<void(const String& errorMessage)>&&);
+    virtual ~WebExtensionDeclarativeNetRequestSQLiteStore() = default;
 
     enum class UsesInMemoryDatabase : bool {
         No = false,
         Yes = true,
     };
+
+    void getRulesWithRuleIDs(Vector<double> ruleIDs, CompletionHandler<void(RefPtr<JSON::Array> rules, const String& errorMessage)>&&);
+    void updateRulesByRemovingIDs(Vector<double> ruleIDs, Ref<JSON::Array> rules, CompletionHandler<void(const String& errorMessage)>&&);
+
+    void addRules(Ref<JSON::Array> rules, CompletionHandler<void(const String& errorMessage)>&&);
+    void deleteRules(Vector<double> ruleIDs, CompletionHandler<void(const String& errorMessage)>&&);
 
 protected:
     SchemaVersion migrateToCurrentSchemaVersionIfNeeded() override;
@@ -68,15 +70,16 @@ protected:
     URL databaseURL() override;
 
 private:
-    WebExtensionStorageSQLiteStore(const String& uniqueIdentifier, WebExtensionDataType storageType, const String& directory, UsesInMemoryDatabase useInMemoryDatabase);
+    WebExtensionDeclarativeNetRequestSQLiteStore(const String& uniqueIdentifier, WebExtensionDeclarativeNetRequestStorageType, const String& directory, UsesInMemoryDatabase useInMemoryDatabase);
 
-    String insertOrUpdateValue(const String& value, const String& key, Ref<WebExtensionSQLiteDatabase>);
-    HashMap<String, String> getValuesForAllKeys(String& errorMessage);
-    HashMap<String, String> getValuesForKeysWithErrorMessage(Vector<String> keys, String& errorMessage);
-    HashMap<String, String> getKeysAndValuesFromRowIterator(Ref<WebExtensionSQLiteRowEnumerator> rows);
-    Vector<String> getAllKeysWithErrorMessage(String& errorMessage);
+    RefPtr<JSON::Array> getRulesWithRuleIDsInternal(Vector<double> ruleIDs, String& errorMessage);
+    Ref<JSON::Array> getKeysAndValuesFromRowIterator(Ref<WebExtensionSQLiteRowEnumerator> rows);
+    String insertRule(const JSON::Object& rule, Ref<WebExtensionSQLiteDatabase>);
 
-    WebExtensionDataType m_storageType;
+    WebExtensionDeclarativeNetRequestStorageType m_storageType;
+    String m_tableName;
+
+    void migrateData();
 };
 
 } // namespace WebKit

@@ -80,7 +80,6 @@
 #import "WebScriptMessageHandler.h"
 #import "WebUserContentControllerProxy.h"
 #import "_WKWebExtensionDeclarativeNetRequestRule.h"
-#import "_WKWebExtensionDeclarativeNetRequestSQLiteStore.h"
 #import "_WKWebExtensionDeclarativeNetRequestTranslator.h"
 #import "_WKWebExtensionRegisteredScriptsSQLiteStore.h"
 #import <UniformTypeIdentifiers/UTType.h>
@@ -4776,52 +4775,52 @@ void WebExtensionContext::loadDeclarativeNetRequestRules(CompletionHandler<void(
     };
 
     auto addDynamicAndStaticRules = [this, protectedThis = Ref { *this }, addStaticRulesets = WTFMove(addStaticRulesets), allJSONData = RetainPtr { allJSONData }] () mutable {
-        [declarativeNetRequestDynamicRulesStore() getRulesWithRuleIDs:@[] completionHandler:makeBlockPtr([this, protectedThis = Ref { *this }, addStaticRulesets = WTFMove(addStaticRulesets), allJSONData = RetainPtr { allJSONData }](NSArray *rules, NSString *errorMessage) mutable {
-            if (!rules.count) {
+        declarativeNetRequestDynamicRulesStore()->getRulesWithRuleIDs({ }, [this, protectedThis = Ref { *this }, addStaticRulesets = WTFMove(addStaticRulesets), allJSONData = RetainPtr { allJSONData }](RefPtr<JSON::Array> rules, const String& errorMessage) mutable {
+            if (!rules->length()) {
                 m_dynamicRulesIDs.clear();
                 addStaticRulesets();
                 return;
             }
 
             NSError *serializationError;
-            NSData *dynamicRulesAsData = encodeJSONData(rules, JSONOptions::FragmentsAllowed, &serializationError);
+            NSData *dynamicRulesAsData = ::WebKit::wrapper(API::Data::create(rules->toJSONString().utf8().span())).autorelease();
             if (serializationError)
                 RELEASE_LOG_ERROR(Extensions, "Unable to serialize dynamic declarativeNetRequest rules for extension with identifier %{private}@ with error: %{public}@", uniqueIdentifier().createNSString().get(), privacyPreservingDescription(serializationError));
             else
                 allJSONData.get()[dynamicRulesetID] = dynamicRulesAsData;
 
             HashSet<double> dynamicRuleIDs;
-            for (NSDictionary<NSString *, id> *rule in rules)
-                dynamicRuleIDs.add(objectForKey<NSNumber>(rule, @"id").doubleValue);
+            for (const auto& rule : *rules)
+                dynamicRuleIDs.add(*(rule->asObject()->getDouble("id"_s)));
 
             m_dynamicRulesIDs = WTFMove(dynamicRuleIDs);
 
             addStaticRulesets();
-        }).get()];
+        });
     };
 
-    [declarativeNetRequestSessionRulesStore() getRulesWithRuleIDs:@[] completionHandler:makeBlockPtr([this, protectedThis = Ref { *this }, addDynamicAndStaticRules = WTFMove(addDynamicAndStaticRules), allJSONData = RetainPtr { allJSONData }](NSArray *rules, NSString *errorMessage) mutable {
-        if (!rules.count) {
+    declarativeNetRequestSessionRulesStore()->getRulesWithRuleIDs({ }, [this, protectedThis = Ref { *this }, addDynamicAndStaticRules = WTFMove(addDynamicAndStaticRules), allJSONData = RetainPtr { allJSONData }](RefPtr<JSON::Array> rules, const String& errorMessage) mutable {
+        if (!rules->length()) {
             m_sessionRulesIDs.clear();
             addDynamicAndStaticRules();
             return;
         }
 
         NSError *serializationError;
-        NSData *sessionRulesAsData = encodeJSONData(rules, JSONOptions::FragmentsAllowed, &serializationError);
+        NSData *sessionRulesAsData = ::WebKit::wrapper(API::Data::create(rules->toJSONString().utf8().span())).autorelease();
         if (serializationError)
             RELEASE_LOG_ERROR(Extensions, "Unable to serialize session declarativeNetRequest rules for extension with identifier %{private}@ with error: %{public}@", uniqueIdentifier().createNSString().get(), privacyPreservingDescription(serializationError));
         else
             allJSONData.get()[sessionRulesetID] = sessionRulesAsData;
 
         HashSet<double> sessionRuleIDs;
-        for (NSDictionary<NSString *, id> *rule in rules)
-            sessionRuleIDs.add(objectForKey<NSNumber>(rule, @"id").doubleValue);
+        for (const auto& rule : *rules)
+            sessionRuleIDs.add(*(rule->asObject()->getDouble("id"_s)));
 
         m_sessionRulesIDs = WTFMove(sessionRuleIDs);
 
         addDynamicAndStaticRules();
-    }).get()];
+    });
 }
 
 #if ENABLE(DNR_ON_RULE_MATCHED_DEBUG)
