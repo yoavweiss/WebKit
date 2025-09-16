@@ -153,7 +153,11 @@ private:
     RetainPtr<UIView> _animatingView;
     RetainPtr<UIStackView> _stackView;
 #if ENABLE(FULLSCREEN_DISMISSAL_GESTURES)
+#if HAVE(UI_GLASS_EFFECT)
+    RetainPtr<UIVisualEffectView> _banner;
+#else
     RetainPtr<UIStackView> _banner;
+#endif
     RetainPtr<_WKInsetLabel> _bannerLabel;
     RetainPtr<UITapGestureRecognizer> _bannerTapToDismissRecognizer;
     MonotonicTime _bannerMinimumHideDelayTime;
@@ -827,18 +831,72 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
 
 #if ENABLE(FULLSCREEN_DISMISSAL_GESTURES)
-    _bannerLabel = adoptNS([[_WKInsetLabel alloc] initWithFrame:CGRectMake(0, 0, 100, 100)]);
-    [_bannerLabel setEdgeInsets:UIEdgeInsetsMake(16, 16, 16, 16)];
+    if (_banner) {
+        [_banner removeFromSuperview];
+        _banner = nil;
+        _bannerLabel = nil;
+        _bannerTapToDismissRecognizer = nil;
+    }
+
+    static constexpr CGFloat bannerLabelInset = 16;
+#if HAVE(UI_GLASS_EFFECT)
+    auto labelFrame = CGRectZero;
+#else
+    auto labelFrame = CGRectMake(0, 0, 100, 100);
+#endif
+    _bannerLabel = adoptNS([[_WKInsetLabel alloc] initWithFrame:labelFrame]);
     [_bannerLabel setBackgroundColor:[UIColor clearColor]];
+    [_bannerLabel setEdgeInsets:UIEdgeInsetsMake(bannerLabelInset, bannerLabelInset, bannerLabelInset, bannerLabelInset)];
     [_bannerLabel setNumberOfLines:0];
     [_bannerLabel setLineBreakMode:NSLineBreakByWordWrapping];
     [_bannerLabel setTextAlignment:NSTextAlignmentCenter];
+    [_bannerLabel setTranslatesAutoresizingMaskIntoConstraints:NO];
     [_bannerLabel setText:adoptNS([[NSString alloc] initWithFormat:WEB_UI_NSSTRING(@"”%@” is in full screen.\nSwipe down to exit.", "Full Screen Warning Banner Content Text"), self.location]).get()];
 
+#if HAVE(UI_GLASS_EFFECT)
+    RetainPtr glassEffect = adoptNS([[UIGlassEffect alloc] init]);
+
+    RetainPtr bannerEffectView = adoptNS([[UIVisualEffectView alloc] initWithEffect:glassEffect.get()]);
+    [bannerEffectView setClipsToBounds:YES];
+
+    _banner = WTFMove(bannerEffectView);
+
+    if (!_bannerLabel)
+        _bannerLabel = adoptNS([[_WKInsetLabel alloc] initWithFrame:CGRectZero]);
+    [_bannerLabel setTranslatesAutoresizingMaskIntoConstraints:NO];
+
+    [[_banner contentView] addSubview:_bannerLabel.get()];
+
+    UIView *content = [_banner contentView];
+    if (!content)
+        return;
+
+    RetainPtr constraints = adoptNS([NSMutableArray array]);
+
+    NSLayoutConstraint *leadingConstraint = [[_bannerLabel leadingAnchor] constraintEqualToAnchor:[content leadingAnchor] constant:bannerLabelInset];
+    if (leadingConstraint)
+        [constraints addObject:leadingConstraint];
+
+    NSLayoutConstraint *trailingConstraint = [[_bannerLabel trailingAnchor] constraintEqualToAnchor:[content trailingAnchor] constant:-bannerLabelInset];
+    if (trailingConstraint)
+        [constraints addObject:trailingConstraint];
+
+    NSLayoutConstraint *topConstraint =
+        [[_bannerLabel topAnchor] constraintEqualToAnchor:[content topAnchor] constant:bannerLabelInset];
+    if (topConstraint)
+        [constraints addObject:topConstraint];
+
+    NSLayoutConstraint *bottomConstraint = [[_bannerLabel bottomAnchor] constraintEqualToAnchor:[content bottomAnchor] constant:-bannerLabelInset];
+    if (bottomConstraint)
+        [constraints addObject:bottomConstraint];
+
+    [NSLayoutConstraint activateConstraints:constraints.get()];
+#else
+    // FIXME: Remove this fallback code when we bump to iOS 26, since all devices should support UI_GLASS_EFFECT by then.
     auto banner = adoptNS([[WKFullscreenStackView alloc] init]);
     [banner addArrangedSubview:_bannerLabel.get() applyingMaterialStyle:AVBackgroundViewMaterialStyleSecondary tintEffectStyle:AVBackgroundViewTintEffectStyleSecondary];
     _banner = WTFMove(banner);
-
+#endif
     _bannerTapToDismissRecognizer = adoptNS([[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(_bannerDismissalRecognized:)]);
     [_bannerTapToDismissRecognizer setDelegate:self];
     [_banner addGestureRecognizer:_bannerTapToDismissRecognizer.get()];
@@ -847,7 +905,6 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
     [_animatingView addSubview:_banner.get()];
 #endif
-
     UILayoutGuide *safeArea = self.view.safeAreaLayoutGuide;
     UILayoutGuide *margins = self.view.layoutMarginsGuide;
 
@@ -941,6 +998,13 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     [self._webView setFrame:[_animatingView bounds]];
 #if ENABLE(FULLSCREEN_DISMISSAL_GESTURES)
     [_bannerLabel setPreferredMaxLayoutWidth:self.view.bounds.size.width];
+
+#if HAVE(UI_GLASS_EFFECT)
+    if (_banner) {
+        CGFloat cornerRadius = [_banner layer].bounds.size.height / 2;
+        [[_banner layer] setCornerRadius:cornerRadius];
+    }
+#endif
 #endif
 }
 
