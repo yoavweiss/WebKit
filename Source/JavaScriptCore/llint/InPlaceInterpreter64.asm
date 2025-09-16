@@ -4613,6 +4613,8 @@ ipintOp(_simd_i8x16_eq, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmeq v16.16b, v16.16b, v17.16b"
+    elsif X86_64
+        emit "vpcmpeqb %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -4629,6 +4631,11 @@ ipintOp(_simd_i8x16_ne, macro()
         # Compare 16 bytes for equality, then invert the result
         emit "cmeq v16.16b, v16.16b, v17.16b"
         emit "mvn v16.16b, v16.16b"
+    elsif X86_64
+        # Compare for equality, then invert the result
+        emit "vpcmpeqb %xmm1, %xmm0, %xmm0"
+        emit "vpcmpeqb %xmm2, %xmm2, %xmm2"  # Set all bits to 1
+        emit "vpxor %xmm2, %xmm0, %xmm0"     # Invert result
     else
         break # Not implemented
     end
@@ -4644,6 +4651,9 @@ ipintOp(_simd_i8x16_lt_s, macro()
     if ARM64 or ARM64E
         # cmgt v17, v16 gives us v1 > v0, which is equivalent to v0 < v1
         emit "cmgt v16.16b, v17.16b, v16.16b"
+    elsif X86_64
+        # vpcmpgtb xmm1, xmm0 gives us xmm1 > xmm0, which is equivalent to xmm0 < xmm1
+        emit "vpcmpgtb %xmm0, %xmm1, %xmm0"
     else
         break # Not implemented
     end
@@ -4659,6 +4669,12 @@ ipintOp(_simd_i8x16_lt_u, macro()
     if ARM64 or ARM64E
         # cmhi v17, v16 gives us v1 > v0 (unsigned), which is equivalent to v0 < v1
         emit "cmhi v16.16b, v17.16b, v16.16b"
+    elsif X86_64
+        # For unsigned comparison, we need to use min/max approach since there's no direct unsigned compare
+        emit "vpminub %xmm1, %xmm0, %xmm2"   # min(xmm0, xmm1) -> xmm2
+        emit "vpcmpeqb %xmm0, %xmm2, %xmm2"  # xmm0 == min ? (xmm0 <= xmm1)
+        emit "vpcmpeqb %xmm1, %xmm0, %xmm0"  # xmm0 == xmm1 ?
+        emit "vpandn %xmm2, %xmm0, %xmm0"    # (xmm0 <= xmm1) && (xmm0 != xmm1) = (xmm0 < xmm1)
     else
         break # Not implemented
     end
@@ -4673,6 +4689,8 @@ ipintOp(_simd_i8x16_gt_s, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmgt v16.16b, v16.16b, v17.16b"
+    elsif X86_64
+        emit "vpcmpgtb %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -4687,6 +4705,12 @@ ipintOp(_simd_i8x16_gt_u, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmhi v16.16b, v16.16b, v17.16b"
+    elsif X86_64
+        # For unsigned comparison: xmm0 > xmm1 iff min(xmm0, xmm1) == xmm1 && xmm0 != xmm1
+        emit "vpminub %xmm1, %xmm0, %xmm2"   # min(xmm0, xmm1) -> xmm2
+        emit "vpcmpeqb %xmm1, %xmm2, %xmm2"  # xmm1 == min ? (xmm1 <= xmm0)
+        emit "vpcmpeqb %xmm1, %xmm0, %xmm0"  # xmm0 == xmm1 ?
+        emit "vpandn %xmm2, %xmm0, %xmm0"    # (xmm1 <= xmm0) && (xmm0 != xmm1) = (xmm0 > xmm1)
     else
         break # Not implemented
     end
@@ -4702,6 +4726,11 @@ ipintOp(_simd_i8x16_le_s, macro()
     if ARM64 or ARM64E
         # cmge v17, v16 gives us v1 >= v0, which is equivalent to v0 <= v1
         emit "cmge v16.16b, v17.16b, v16.16b"
+    elsif X86_64
+        # xmm0 <= xmm1 iff !(xmm0 > xmm1)
+        emit "vpcmpgtb %xmm1, %xmm0, %xmm0"  # xmm0 > xmm1
+        emit "vpcmpeqb %xmm2, %xmm2, %xmm2"  # Set all bits to 1
+        emit "vpxor %xmm2, %xmm0, %xmm0"     # Invert result: !(xmm0 > xmm1)
     else
         break # Not implemented
     end
@@ -4717,6 +4746,10 @@ ipintOp(_simd_i8x16_le_u, macro()
     if ARM64 or ARM64E
         # cmhs v17, v16 gives us v1 >= v0 (unsigned), which is equivalent to v0 <= v1
         emit "cmhs v16.16b, v17.16b, v16.16b"
+    elsif X86_64
+        # xmm0 <= xmm1 iff min(xmm0, xmm1) == xmm0
+        emit "vpminub %xmm1, %xmm0, %xmm2"   # min(xmm0, xmm1) -> xmm2
+        emit "vpcmpeqb %xmm0, %xmm2, %xmm0"  # xmm0 == min ? (xmm0 <= xmm1)
     else
         break # Not implemented
     end
@@ -4731,6 +4764,11 @@ ipintOp(_simd_i8x16_ge_s, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmge v16.16b, v16.16b, v17.16b"
+    elsif X86_64
+        # xmm0 >= xmm1 iff !(xmm0 < xmm1) iff !(xmm1 > xmm0)
+        emit "vpcmpgtb %xmm0, %xmm1, %xmm0"  # xmm1 > xmm0
+        emit "vpcmpeqb %xmm2, %xmm2, %xmm2"  # Set all bits to 1
+        emit "vpxor %xmm2, %xmm0, %xmm0"     # Invert result: !(xmm1 > xmm0)
     else
         break # Not implemented
     end
@@ -4745,6 +4783,10 @@ ipintOp(_simd_i8x16_ge_u, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmhs v16.16b, v16.16b, v17.16b"
+    elsif X86_64
+        # xmm0 >= xmm1 iff min(xmm0, xmm1) == xmm1
+        emit "vpminub %xmm1, %xmm0, %xmm2"   # min(xmm0, xmm1) -> xmm2
+        emit "vpcmpeqb %xmm1, %xmm2, %xmm0"  # xmm1 == min ? (xmm1 <= xmm0) = (xmm0 >= xmm1)
     else
         break # Not implemented
     end
@@ -4754,12 +4796,15 @@ ipintOp(_simd_i8x16_ge_u, macro()
 end)
 
 # 0xFD 0x2D - 0xFD 0x36: i8x16 operations
+
 ipintOp(_simd_i16x8_eq, macro()
     # i16x8.eq - compare 8 16-bit integers for equality
     popVec(v1)
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmeq v16.8h, v16.8h, v17.8h"
+    elsif X86_64
+        emit "vpcmpeqw %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -4775,6 +4820,11 @@ ipintOp(_simd_i16x8_ne, macro()
     if ARM64 or ARM64E
         emit "cmeq v16.8h, v16.8h, v17.8h"
         emit "mvn v16.16b, v16.16b"
+    elsif X86_64
+        # Compare for equality, then invert the result
+        emit "vpcmpeqw %xmm1, %xmm0, %xmm0"
+        emit "vpcmpeqw %xmm2, %xmm2, %xmm2"  # Set all bits to 1
+        emit "vpxor %xmm2, %xmm0, %xmm0"     # Invert result
     else
         break # Not implemented
     end
@@ -4790,6 +4840,9 @@ ipintOp(_simd_i16x8_lt_s, macro()
     if ARM64 or ARM64E
         # cmgt v17, v16 gives us v1 > v0, which is equivalent to v0 < v1
         emit "cmgt v16.8h, v17.8h, v16.8h"
+    elsif X86_64
+        # vpcmpgtw xmm1, xmm0 gives us xmm1 > xmm0, which is equivalent to xmm0 < xmm1
+        emit "vpcmpgtw %xmm0, %xmm1, %xmm0"
     else
         break # Not implemented
     end
@@ -4805,6 +4858,12 @@ ipintOp(_simd_i16x8_lt_u, macro()
     if ARM64 or ARM64E
         # cmhi v17, v16 gives us v1 > v0 (unsigned), which is equivalent to v0 < v1
         emit "cmhi v16.8h, v17.8h, v16.8h"
+    elsif X86_64
+        # For unsigned comparison, we need to use min/max approach since there's no direct unsigned compare
+        emit "vpminuw %xmm1, %xmm0, %xmm2"   # min(xmm0, xmm1) -> xmm2
+        emit "vpcmpeqw %xmm0, %xmm2, %xmm2"  # xmm0 == min ? (xmm0 <= xmm1)
+        emit "vpcmpeqw %xmm1, %xmm0, %xmm0"  # xmm0 == xmm1 ?
+        emit "vpandn %xmm2, %xmm0, %xmm0"    # (xmm0 <= xmm1) && (xmm0 != xmm1) = (xmm0 < xmm1)
     else
         break # Not implemented
     end
@@ -4819,6 +4878,8 @@ ipintOp(_simd_i16x8_gt_s, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmgt v16.8h, v16.8h, v17.8h"
+    elsif X86_64
+        emit "vpcmpgtw %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -4833,6 +4894,12 @@ ipintOp(_simd_i16x8_gt_u, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmhi v16.8h, v16.8h, v17.8h"
+    elsif X86_64
+        # For unsigned comparison: xmm0 > xmm1 iff min(xmm0, xmm1) == xmm1 && xmm0 != xmm1
+        emit "vpminuw %xmm1, %xmm0, %xmm2"   # min(xmm0, xmm1) -> xmm2
+        emit "vpcmpeqw %xmm1, %xmm2, %xmm2"  # xmm1 == min ? (xmm1 <= xmm0)
+        emit "vpcmpeqw %xmm1, %xmm0, %xmm0"  # xmm0 == xmm1 ?
+        emit "vpandn %xmm2, %xmm0, %xmm0"    # (xmm1 <= xmm0) && (xmm0 != xmm1) = (xmm0 > xmm1)
     else
         break # Not implemented
     end
@@ -4848,6 +4915,11 @@ ipintOp(_simd_i16x8_le_s, macro()
     if ARM64 or ARM64E
         # cmge v17, v16 gives us v1 >= v0, which is equivalent to v0 <= v1
         emit "cmge v16.8h, v17.8h, v16.8h"
+    elsif X86_64
+        # xmm0 <= xmm1 iff !(xmm0 > xmm1)
+        emit "vpcmpgtw %xmm1, %xmm0, %xmm0"  # xmm0 > xmm1
+        emit "vpcmpeqw %xmm2, %xmm2, %xmm2"  # Set all bits to 1
+        emit "vpxor %xmm2, %xmm0, %xmm0"     # Invert result: !(xmm0 > xmm1)
     else
         break # Not implemented
     end
@@ -4863,6 +4935,10 @@ ipintOp(_simd_i16x8_le_u, macro()
     if ARM64 or ARM64E
         # cmhs v17, v16 gives us v1 >= v0 (unsigned), which is equivalent to v0 <= v1
         emit "cmhs v16.8h, v17.8h, v16.8h"
+    elsif X86_64
+        # xmm0 <= xmm1 iff min(xmm0, xmm1) == xmm0
+        emit "vpminuw %xmm1, %xmm0, %xmm2"   # min(xmm0, xmm1) -> xmm2
+        emit "vpcmpeqw %xmm0, %xmm2, %xmm0"  # xmm0 == min ? (xmm0 <= xmm1)
     else
         break # Not implemented
     end
@@ -4877,6 +4953,11 @@ ipintOp(_simd_i16x8_ge_s, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmge v16.8h, v16.8h, v17.8h"
+    elsif X86_64
+        # xmm0 >= xmm1 iff !(xmm0 < xmm1) iff !(xmm1 > xmm0)
+        emit "vpcmpgtw %xmm0, %xmm1, %xmm0"  # xmm1 > xmm0
+        emit "vpcmpeqw %xmm2, %xmm2, %xmm2"  # Set all bits to 1
+        emit "vpxor %xmm2, %xmm0, %xmm0"     # Invert result: !(xmm1 > xmm0)
     else
         break # Not implemented
     end
@@ -4891,6 +4972,10 @@ ipintOp(_simd_i16x8_ge_u, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmhs v16.8h, v16.8h, v17.8h"
+    elsif X86_64
+        # xmm0 >= xmm1 iff min(xmm0, xmm1) == xmm1
+        emit "vpminuw %xmm1, %xmm0, %xmm2"   # min(xmm0, xmm1) -> xmm2
+        emit "vpcmpeqw %xmm1, %xmm2, %xmm0"  # xmm1 == min ? (xmm1 <= xmm0) = (xmm0 >= xmm1)
     else
         break # Not implemented
     end
@@ -4906,6 +4991,8 @@ ipintOp(_simd_i32x4_eq, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmeq v16.4s, v16.4s, v17.4s"
+    elsif X86_64
+        emit "vpcmpeqd %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -4921,6 +5008,11 @@ ipintOp(_simd_i32x4_ne, macro()
     if ARM64 or ARM64E
         emit "cmeq v16.4s, v16.4s, v17.4s"
         emit "mvn v16.16b, v16.16b"
+    elsif X86_64
+        # Compare for equality, then invert the result
+        emit "vpcmpeqd %xmm1, %xmm0, %xmm0"
+        emit "vpcmpeqd %xmm2, %xmm2, %xmm2"  # Set all bits to 1
+        emit "vpxor %xmm2, %xmm0, %xmm0"     # Invert result
     else
         break # Not implemented
     end
@@ -4936,6 +5028,9 @@ ipintOp(_simd_i32x4_lt_s, macro()
     if ARM64 or ARM64E
         # cmgt v17, v16 gives us v1 > v0, which is equivalent to v0 < v1
         emit "cmgt v16.4s, v17.4s, v16.4s"
+    elsif X86_64
+        # vpcmpgtd xmm1, xmm0 gives us xmm1 > xmm0, which is equivalent to xmm0 < xmm1
+        emit "vpcmpgtd %xmm0, %xmm1, %xmm0"
     else
         break # Not implemented
     end
@@ -4951,6 +5046,12 @@ ipintOp(_simd_i32x4_lt_u, macro()
     if ARM64 or ARM64E
         # cmhi v17, v16 gives us v1 > v0 (unsigned), which is equivalent to v0 < v1
         emit "cmhi v16.4s, v17.4s, v16.4s"
+    elsif X86_64
+        # For unsigned comparison, we need to use min/max approach
+        emit "vpminud %xmm1, %xmm0, %xmm2"   # min(xmm0, xmm1) -> xmm2
+        emit "vpcmpeqd %xmm0, %xmm2, %xmm2"  # xmm0 == min ? (xmm0 <= xmm1)
+        emit "vpcmpeqd %xmm1, %xmm0, %xmm0"  # xmm0 == xmm1 ?
+        emit "vpandn %xmm2, %xmm0, %xmm0"    # (xmm0 <= xmm1) && (xmm0 != xmm1) = (xmm0 < xmm1)
     else
         break # Not implemented
     end
@@ -4965,6 +5066,8 @@ ipintOp(_simd_i32x4_gt_s, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmgt v16.4s, v16.4s, v17.4s"
+    elsif X86_64
+        emit "vpcmpgtd %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -4979,6 +5082,12 @@ ipintOp(_simd_i32x4_gt_u, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmhi v16.4s, v16.4s, v17.4s"
+    elsif X86_64
+        # For unsigned comparison: xmm0 > xmm1 iff min(xmm0, xmm1) == xmm1 && xmm0 != xmm1
+        emit "vpminud %xmm1, %xmm0, %xmm2"   # min(xmm0, xmm1) -> xmm2
+        emit "vpcmpeqd %xmm1, %xmm2, %xmm2"  # xmm1 == min ? (xmm1 <= xmm0)
+        emit "vpcmpeqd %xmm1, %xmm0, %xmm0"  # xmm0 == xmm1 ?
+        emit "vpandn %xmm2, %xmm0, %xmm0"    # (xmm1 <= xmm0) && (xmm0 != xmm1) = (xmm0 > xmm1)
     else
         break # Not implemented
     end
@@ -4994,6 +5103,11 @@ ipintOp(_simd_i32x4_le_s, macro()
     if ARM64 or ARM64E
         # cmge v17, v16 gives us v1 >= v0, which is equivalent to v0 <= v1
         emit "cmge v16.4s, v17.4s, v16.4s"
+    elsif X86_64
+        # xmm0 <= xmm1 iff !(xmm0 > xmm1)
+        emit "vpcmpgtd %xmm1, %xmm0, %xmm0"  # xmm0 > xmm1
+        emit "vpcmpeqd %xmm2, %xmm2, %xmm2"  # Set all bits to 1
+        emit "vpxor %xmm2, %xmm0, %xmm0"     # Invert result: !(xmm0 > xmm1)
     else
         break # Not implemented
     end
@@ -5009,6 +5123,10 @@ ipintOp(_simd_i32x4_le_u, macro()
     if ARM64 or ARM64E
         # cmhs v17, v16 gives us v1 >= v0 (unsigned), which is equivalent to v0 <= v1
         emit "cmhs v16.4s, v17.4s, v16.4s"
+    elsif X86_64
+        # xmm0 <= xmm1 iff min(xmm0, xmm1) == xmm0
+        emit "vpminud %xmm1, %xmm0, %xmm2"   # min(xmm0, xmm1) -> xmm2
+        emit "vpcmpeqd %xmm0, %xmm2, %xmm0"  # xmm0 == min ? (xmm0 <= xmm1)
     else
         break # Not implemented
     end
@@ -5023,6 +5141,11 @@ ipintOp(_simd_i32x4_ge_s, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmge v16.4s, v16.4s, v17.4s"
+    elsif X86_64
+        # xmm0 >= xmm1 iff !(xmm0 < xmm1) iff !(xmm1 > xmm0)
+        emit "vpcmpgtd %xmm0, %xmm1, %xmm0"  # xmm1 > xmm0
+        emit "vpcmpeqd %xmm2, %xmm2, %xmm2"  # Set all bits to 1
+        emit "vpxor %xmm2, %xmm0, %xmm0"     # Invert result: !(xmm1 > xmm0)
     else
         break # Not implemented
     end
@@ -5037,6 +5160,10 @@ ipintOp(_simd_i32x4_ge_u, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmhs v16.4s, v16.4s, v17.4s"
+    elsif X86_64
+        # xmm0 >= xmm1 iff min(xmm0, xmm1) == xmm1
+        emit "vpminud %xmm1, %xmm0, %xmm2"   # min(xmm0, xmm1) -> xmm2
+        emit "vpcmpeqd %xmm1, %xmm2, %xmm0"  # xmm1 == min ? (xmm1 <= xmm0) = (xmm0 >= xmm1)
     else
         break # Not implemented
     end
@@ -5052,6 +5179,8 @@ ipintOp(_simd_f32x4_eq, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fcmeq v16.4s, v16.4s, v17.4s"
+    elsif X86_64
+        emit "vcmpeqps %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5067,6 +5196,8 @@ ipintOp(_simd_f32x4_ne, macro()
     if ARM64 or ARM64E
         emit "fcmeq v16.4s, v16.4s, v17.4s"
         emit "mvn v16.16b, v16.16b"
+    elsif X86_64
+        emit "vcmpneqps %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5082,6 +5213,8 @@ ipintOp(_simd_f32x4_lt, macro()
     if ARM64 or ARM64E
         # fcmgt v17, v16 gives us v1 > v0, which is equivalent to v0 < v1
         emit "fcmgt v16.4s, v17.4s, v16.4s"
+    elsif X86_64
+        emit "vcmpltps %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5096,6 +5229,8 @@ ipintOp(_simd_f32x4_gt, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fcmgt v16.4s, v16.4s, v17.4s"
+    elsif X86_64
+        emit "vcmpgtps %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5111,6 +5246,8 @@ ipintOp(_simd_f32x4_le, macro()
     if ARM64 or ARM64E
         # fcmge v17, v16 gives us v1 >= v0, which is equivalent to v0 <= v1
         emit "fcmge v16.4s, v17.4s, v16.4s"
+    elsif X86_64
+        emit "vcmpleps %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5125,6 +5262,8 @@ ipintOp(_simd_f32x4_ge, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fcmge v16.4s, v16.4s, v17.4s"
+    elsif X86_64
+        emit "vcmpgeps %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5140,6 +5279,8 @@ ipintOp(_simd_f64x2_eq, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fcmeq v16.2d, v16.2d, v17.2d"
+    elsif X86_64
+        emit "vcmpeqpd %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5155,6 +5296,8 @@ ipintOp(_simd_f64x2_ne, macro()
     if ARM64 or ARM64E
         emit "fcmeq v16.2d, v16.2d, v17.2d"
         emit "mvn v16.16b, v16.16b"
+    elsif X86_64
+        emit "vcmpneqpd %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5170,6 +5313,8 @@ ipintOp(_simd_f64x2_lt, macro()
     if ARM64 or ARM64E
         # fcmgt v17, v16 gives us v1 > v0, which is equivalent to v0 < v1
         emit "fcmgt v16.2d, v17.2d, v16.2d"
+    elsif X86_64
+        emit "vcmpltpd %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5184,6 +5329,8 @@ ipintOp(_simd_f64x2_gt, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fcmgt v16.2d, v16.2d, v17.2d"
+    elsif X86_64
+        emit "vcmpgtpd %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5199,6 +5346,8 @@ ipintOp(_simd_f64x2_le, macro()
     if ARM64 or ARM64E
         # fcmge v17, v16 gives us v1 >= v0, which is equivalent to v0 <= v1
         emit "fcmge v16.2d, v17.2d, v16.2d"
+    elsif X86_64
+        emit "vcmplepd %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5213,6 +5362,8 @@ ipintOp(_simd_f64x2_ge, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fcmge v16.2d, v16.2d, v17.2d"
+    elsif X86_64
+        emit "vcmpgepd %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5222,6 +5373,7 @@ ipintOp(_simd_f64x2_ge, macro()
 end)
 
 # 0xFD 0x4D - 0xFD 0x53: v128 operations
+
 ipintOp(_simd_v128_not, macro()
     # v128.not - bitwise NOT of 128-bit vector
     popVec(v0)
@@ -7183,6 +7335,8 @@ ipintOp(_simd_i64x2_eq, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmeq v16.2d, v16.2d, v17.2d"
+    elsif X86_64
+        emit "vpcmpeqq %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7198,6 +7352,11 @@ ipintOp(_simd_i64x2_ne, macro()
     if ARM64 or ARM64E
         emit "cmeq v16.2d, v16.2d, v17.2d"
         emit "mvn v16.16b, v16.16b"
+    elsif X86_64
+        # Compare for equality, then invert the result
+        emit "vpcmpeqq %xmm1, %xmm0, %xmm0"
+        emit "vpcmpeqq %xmm2, %xmm2, %xmm2"  # Set all bits to 1
+        emit "vpxor %xmm2, %xmm0, %xmm0"     # Invert result
     else
         break # Not implemented
     end
@@ -7213,6 +7372,9 @@ ipintOp(_simd_i64x2_lt_s, macro()
     if ARM64 or ARM64E
         # cmgt v17, v16 gives us v1 > v0, which is equivalent to v0 < v1
         emit "cmgt v16.2d, v17.2d, v16.2d"
+    elsif X86_64
+        # vpcmpgtq xmm1, xmm0 gives us xmm1 > xmm0, which is equivalent to xmm0 < xmm1
+        emit "vpcmpgtq %xmm0, %xmm1, %xmm0"
     else
         break # Not implemented
     end
@@ -7227,6 +7389,8 @@ ipintOp(_simd_i64x2_gt_s, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmgt v16.2d, v16.2d, v17.2d"
+    elsif X86_64
+        emit "vpcmpgtq %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7242,6 +7406,11 @@ ipintOp(_simd_i64x2_le_s, macro()
     if ARM64 or ARM64E
         # cmge v17, v16 gives us v1 >= v0, which is equivalent to v0 <= v1
         emit "cmge v16.2d, v17.2d, v16.2d"
+    elsif X86_64
+        # xmm0 <= xmm1 iff !(xmm0 > xmm1)
+        emit "vpcmpgtq %xmm1, %xmm0, %xmm0"  # xmm0 > xmm1
+        emit "vpcmpeqq %xmm2, %xmm2, %xmm2"  # Set all bits to 1
+        emit "vpxor %xmm2, %xmm0, %xmm0"     # Invert result: !(xmm0 > xmm1)
     else
         break # Not implemented
     end
@@ -7256,6 +7425,11 @@ ipintOp(_simd_i64x2_ge_s, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cmge v16.2d, v16.2d, v17.2d"
+    elsif X86_64
+        # xmm0 >= xmm1 iff !(xmm0 < xmm1) iff !(xmm1 > xmm0)
+        emit "vpcmpgtq %xmm0, %xmm1, %xmm0"  # xmm1 > xmm0
+        emit "vpcmpeqq %xmm2, %xmm2, %xmm2"  # Set all bits to 1
+        emit "vpxor %xmm2, %xmm0, %xmm0"     # Invert result: !(xmm1 > xmm0)
     else
         break # Not implemented
     end
