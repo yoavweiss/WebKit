@@ -6976,11 +6976,12 @@ void WebViewImpl::computeHasVisualSearchResults(const URL& imageURL, ShareableBi
     auto startTime = MonotonicTime::now();
     [ensureImageAnalyzer() processRequest:request.get() progressHandler:nil completionHandler:makeBlockPtr([completion = WTFMove(completion), startTime] (CocoaImageAnalysis *analysis, NSError *) mutable {
         BOOL result = [analysis hasResultsForAnalysisTypes:VKAnalysisTypeVisualSearch];
-        CFRunLoopPerformBlock(CFRunLoopGetMain(), (__bridge CFStringRef)NSEventTrackingRunLoopMode, makeBlockPtr([completion = WTFMove(completion), result, startTime] () mutable {
+        RetainPtr loop = CFRunLoopGetMain();
+        CFRunLoopPerformBlock(loop.get(), (__bridge CFStringRef)NSEventTrackingRunLoopMode, makeBlockPtr([completion = WTFMove(completion), result, startTime] () mutable {
             RELEASE_LOG(ImageAnalysis, "Image analysis completed in %.0f ms (found visual search results? %d)", (MonotonicTime::now() - startTime).milliseconds(), result);
             completion(result);
         }).get());
-        CFRunLoopWakeUp(CFRunLoopGetMain());
+        CFRunLoopWakeUp(loop.get());
     }).get()];
 }
 

@@ -140,7 +140,6 @@ UIProcess/RemoteLayerTree/mac/RemoteLayerTreeDrawingAreaProxyMac.mm
 UIProcess/RemoteLayerTree/mac/RemoteLayerTreeEventDispatcher.mm
 UIProcess/WebAuthentication/Cocoa/CcidConnection.mm
 UIProcess/WebAuthentication/Cocoa/HidConnection.mm
-UIProcess/WebAuthentication/Cocoa/HidService.mm
 UIProcess/WebAuthentication/Cocoa/LocalAuthenticator.mm
 UIProcess/WebAuthentication/Cocoa/LocalConnection.mm
 UIProcess/WebAuthentication/Cocoa/WebAuthenticatorCoordinatorProxy.mm
@@ -178,7 +177,6 @@ WebProcess/Plugins/PDF/WKAccessibilityPDFDocumentObject.mm
 WebProcess/WebPage/Cocoa/WebPageCocoa.mm
 WebProcess/WebPage/RemoteLayerTree/PlatformCAAnimationRemote.mm
 WebProcess/WebPage/RemoteLayerTree/PlatformCALayerRemoteCustom.mm
-WebProcess/WebPage/WebDisplayRefreshMonitor.cpp
 WebProcess/WebPage/WebPage.cpp
 WebProcess/WebPage/mac/PageBannerMac.mm
 WebProcess/WebPage/mac/TiledCoreAnimationDrawingArea.mm
@@ -191,4 +189,3 @@ webpushd/WebPushDaemon.mm
 webpushd/WebPushDaemonMain.mm
 webpushd/_WKMockUserNotificationCenter.mm
 webpushd/webpushtool/WebPushToolConnection.mm
-webpushd/webpushtool/WebPushToolMain.mm

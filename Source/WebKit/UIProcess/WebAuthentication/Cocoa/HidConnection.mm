@@ -76,7 +76,7 @@ void HidConnection::initialize()
 {
 #if HAVE(SECURITY_KEY_API)
     IOHIDDeviceOpen(m_device.get(), kIOHIDOptionsTypeSeizeDevice);
-    IOHIDDeviceScheduleWithRunLoop(m_device.get(), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+    IOHIDDeviceScheduleWithRunLoop(m_device.get(), retainPtr(CFRunLoopGetCurrent()).get(), kCFRunLoopDefaultMode);
     m_inputBuffer.resize(kHidMaxPacketSize);
     IOHIDDeviceRegisterInputReportCallback(m_device.get(), m_inputBuffer.mutableSpan().data(), m_inputBuffer.size(), &reportReceived, this);
 #endif
@@ -87,7 +87,7 @@ void HidConnection::terminate()
 {
 #if HAVE(SECURITY_KEY_API)
     IOHIDDeviceRegisterInputReportCallback(m_device.get(), m_inputBuffer.mutableSpan().data(), m_inputBuffer.size(), nullptr, nullptr);
-    IOHIDDeviceUnscheduleFromRunLoop(m_device.get(), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+    IOHIDDeviceUnscheduleFromRunLoop(m_device.get(), retainPtr(CFRunLoopGetCurrent()).get(), kCFRunLoopDefaultMode);
     IOHIDDeviceClose(m_device.get(), kIOHIDOptionsTypeNone);
 #endif
     m_isInitialized = false;
