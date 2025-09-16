@@ -4335,7 +4335,7 @@ ipintOp(_simd_i8x16_swizzle, macro()
     # i8x16.swizzle - swizzle bytes from first vector using indices from second vector
     popVec(v1)
     popVec(v0)
-    
+
     if ARM64 or ARM64E
         emit "tbl v16.16b, {v16.16b}, v17.16b"
     elsif X86_64
@@ -4343,7 +4343,7 @@ ipintOp(_simd_i8x16_swizzle, macro()
     else
         break # Not implemented
     end
-    
+
     pushVec(v0)
     advancePC(2)
     nextIPIntInstruction()
@@ -4352,7 +4352,7 @@ end)
 ipintOp(_simd_i8x16_splat, macro()
     # i8x16.splat - splat i32 value to all 16 8-bit lanes
     popInt32(t0, t1)
-    
+
     if ARM64 or ARM64E
         emit "dup v16.16b, w0"
     elsif X86_64
@@ -4361,7 +4361,7 @@ ipintOp(_simd_i8x16_splat, macro()
     else
         break # Not implemented
     end
-    
+
     pushVec(v0)
     advancePC(2)
     nextIPIntInstruction()
@@ -4370,7 +4370,7 @@ end)
 ipintOp(_simd_i16x8_splat, macro()
     # i16x8.splat - splat i32 value to all 8 16-bit lanes
     popInt32(t0, t1)
-    
+
     if ARM64 or ARM64E
         emit "dup v16.8h, w0"
     elsif X86_64
@@ -4379,7 +4379,7 @@ ipintOp(_simd_i16x8_splat, macro()
     else
         break # Not implemented
     end
-    
+
     pushVec(v0)
     advancePC(2)
     nextIPIntInstruction()
@@ -4388,7 +4388,7 @@ end)
 ipintOp(_simd_i32x4_splat, macro()
     # i32x4.splat - splat i32 value to all 4 32-bit lanes
     popInt32(t0, t1)
-    
+
     if ARM64 or ARM64E
         emit "dup v16.4s, w0"
     elsif X86_64
@@ -4397,7 +4397,7 @@ ipintOp(_simd_i32x4_splat, macro()
     else
         break # Not implemented
     end
-    
+
     pushVec(v0)
     advancePC(2)
     nextIPIntInstruction()
@@ -4406,7 +4406,7 @@ end)
 ipintOp(_simd_i64x2_splat, macro()
     # i64x2.splat - splat i64 value to all 2 64-bit lanes
     popInt64(t0, t1)
-    
+
     if ARM64 or ARM64E
         emit "dup v16.2d, x0"
     elsif X86_64
@@ -4415,7 +4415,7 @@ ipintOp(_simd_i64x2_splat, macro()
     else
         break # Not implemented
     end
-    
+
     pushVec(v0)
     advancePC(2)
     nextIPIntInstruction()
@@ -4424,7 +4424,7 @@ end)
 ipintOp(_simd_f32x4_splat, macro()
     # f32x4.splat - splat f32 value to all 4 32-bit float lanes
     popFloat32(ft0)
-    
+
     if ARM64 or ARM64E
         emit "dup v16.4s, v0.s[0]"
     elsif X86_64
@@ -4433,7 +4433,7 @@ ipintOp(_simd_f32x4_splat, macro()
     else
         break # Not implemented
     end
-    
+
     pushVec(v0)
     advancePC(2)
     nextIPIntInstruction()
@@ -4442,7 +4442,7 @@ end)
 ipintOp(_simd_f64x2_splat, macro()
     # f64x2.splat - splat f64 value to all 2 64-bit float lanes
     popFloat64(ft0)
-    
+
     if ARM64 or ARM64E
         emit "dup v16.2d, v0.d[0]"
     elsif X86_64
@@ -4451,7 +4451,7 @@ ipintOp(_simd_f64x2_splat, macro()
     else
         break # Not implemented
     end
-    
+
     pushVec(v0)
     advancePC(2)
     nextIPIntInstruction()
@@ -5379,6 +5379,9 @@ ipintOp(_simd_v128_not, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "mvn v16.16b, v16.16b"
+    elsif X86_64
+        emit "vpcmpeqb %xmm1, %xmm1, %xmm1"  # Set all bits to 1
+        emit "vpxor %xmm1, %xmm0, %xmm0"     # Invert all bits
     else
         break # Not implemented
     end
@@ -5393,6 +5396,8 @@ ipintOp(_simd_v128_and, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "and v16.16b, v16.16b, v17.16b"
+    elsif X86_64
+        emit "vpand %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5407,6 +5412,8 @@ ipintOp(_simd_v128_andnot, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "bic v16.16b, v16.16b, v17.16b"
+    elsif X86_64
+        emit "vpandn %xmm0, %xmm1, %xmm0"
     else
         break # Not implemented
     end
@@ -5421,6 +5428,8 @@ ipintOp(_simd_v128_or, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "orr v16.16b, v16.16b, v17.16b"
+    elsif X86_64
+        emit "vpor %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5435,6 +5444,8 @@ ipintOp(_simd_v128_xor, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "eor v16.16b, v16.16b, v17.16b"
+    elsif X86_64
+        emit "vpxor %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5456,6 +5467,10 @@ ipintOp(_simd_v128_bitselect, macro()
         emit "mov v18.16b, v18.16b"  # v2 -> v18 (selector)
         emit "bsl v18.16b, v16.16b, v17.16b"  # (c & a) | (~c & b)
         emit "mov v16.16b, v18.16b"  # result -> v0
+    elsif X86_64
+        emit "vpand %xmm2, %xmm0, %xmm3"     # xmm3 = a & c
+        emit "vpandn %xmm1, %xmm2, %xmm2"    # xmm2 = b & ~c (vpandn does ~src1 & src2)
+        emit "vpor %xmm2, %xmm3, %xmm0"      # xmm0 = (a & c) | (b & ~c)
     else
         break # Not implemented
     end
@@ -5475,6 +5490,10 @@ ipintOp(_simd_v128_any_true, macro()
         # Convert non-zero to 1
         emit "cmp w0, #0"
         emit "cset w0, ne"
+    elsif X86_64
+        emit "vptest %xmm0, %xmm0"
+        emit "setne %al"                  # Set AL to 1 if ZF=0 (any bit set), 0 if ZF=1 (all zero)
+        emit "movzbl %al, %eax"           # Zero-extend AL to EAX
     else
         break # Not implemented
     end
@@ -5506,7 +5525,7 @@ ipintOp(_simd_v128_load8_lane_mem, macro()
     # Push the result and then replace one lane of the result with the loaded value
     pushVec(v0)
     storeb t0, [sp, t1]
-    
+
     advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
     nextIPIntInstruction()
 end)
@@ -5532,7 +5551,7 @@ ipintOp(_simd_v128_load16_lane_mem, macro()
     # Push the result and then replace one lane of the result with the loaded value
     pushVec(v0)
     storeh t0, [sp, t1, 2]
-    
+
     advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
     nextIPIntInstruction()
 end)
@@ -5558,7 +5577,7 @@ ipintOp(_simd_v128_load32_lane_mem, macro()
     # Push the result and then replace one lane of the result with the loaded value
     pushVec(v0)
     storei t0, [sp, t1, 4]
-    
+
     advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
     nextIPIntInstruction()
 end)
@@ -5584,7 +5603,7 @@ ipintOp(_simd_v128_load64_lane_mem, macro()
     # Push the result and then replace one lane of the result with the loaded value
     pushVec(v0)
     storeq t0, [sp, t1, 8]
-    
+
     advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
     nextIPIntInstruction()
 end)
@@ -5607,9 +5626,9 @@ ipintOp(_simd_v128_store8_lane_mem, macro()
     loadi IPInt::Const32Metadata::value[MC], t2
     addp t2, t0
     ipintCheckMemoryBound(t0, t2, 1)
-       
+
     storeb t1, [memoryBase, t0]
-    
+
     advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
     nextIPIntInstruction()
 end)
@@ -5632,9 +5651,9 @@ ipintOp(_simd_v128_store16_lane_mem, macro()
     loadi IPInt::Const32Metadata::value[MC], t2
     addp t2, t0
     ipintCheckMemoryBound(t0, t2, 2)
-       
+
     storeh t1, [memoryBase, t0]
-    
+
     advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
     nextIPIntInstruction()
 end)
@@ -5657,9 +5676,9 @@ ipintOp(_simd_v128_store32_lane_mem, macro()
     loadi IPInt::Const32Metadata::value[MC], t2
     addp t2, t0
     ipintCheckMemoryBound(t0, t2, 4)
-       
+
     storei t1, [memoryBase, t0]
-    
+
     advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
     nextIPIntInstruction()
 end)
@@ -5681,9 +5700,9 @@ ipintOp(_simd_v128_store64_lane_mem, macro()
     loadi IPInt::Const32Metadata::value[MC], t2
     addp t2, t0
     ipintCheckMemoryBound(t0, t2, 8)
-       
+
     storeq t1, [memoryBase, t0]
-    
+
     advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
     nextIPIntInstruction()
 end)
@@ -5692,7 +5711,7 @@ ipintOp(_simd_v128_load32_zero_mem, macro()
     # v128.load32_zero - load 32-bit value from memory and zero-pad to 128 bits
     simdMemoryOp(4, macro()
         loadi [memoryBase, t0], t0
-        
+
         subp V128ISize, sp
         storei t0, [sp]
         storei 0, 4[sp]
@@ -5775,6 +5794,35 @@ ipintOp(_simd_i8x16_popcnt, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "cnt v16.16b, v16.16b"
+    elsif X86_64
+        # x86_64 does not natively support vector lanewise popcount, so we emulate it using
+        # lookup tables, similar to BBQ JIT implementation
+
+        # Create bottom nibble mask (0x0f repeated 16 times)
+        emit "movabsq $0x0f0f0f0f0f0f0f0f, %rax"
+        emit "vmovq %rax, %xmm1"
+        emit "vmovq %rax, %xmm4"
+        emit "vpunpcklqdq %xmm4, %xmm1, %xmm1"  # xmm1 = bottom nibble mask
+
+        # Create popcount lookup table
+        emit "movabsq $0x0302020102010100, %rax"   # Low 64 bits of lookup table
+        emit "vmovq %rax, %xmm2"
+        emit "movabsq $0x0403030203020201, %rax"   # High 64 bits of lookup table
+        emit "vmovq %rax, %xmm4"
+        emit "vpunpcklqdq %xmm4, %xmm2, %xmm2"  # xmm2 = popcount lookup table
+
+        # Split input into low and high nibbles
+        emit "vmovdqa %xmm0, %xmm3"              # xmm3 = copy of input
+        emit "vpand %xmm1, %xmm0, %xmm0"         # xmm0 = low nibbles (input & mask)
+        emit "vpsrlw $4, %xmm3, %xmm3"           # Shift right 4 bits
+        emit "vpand %xmm1, %xmm3, %xmm3"         # xmm3 = high nibbles ((input >> 4) & mask)
+
+        # Lookup popcount for both nibbles using pshufb
+        emit "vpshufb %xmm0, %xmm2, %xmm0"       # Lookup low nibbles
+        emit "vpshufb %xmm3, %xmm2, %xmm3"       # Lookup high nibbles
+
+        # Add the results
+        emit "vpaddb %xmm3, %xmm0, %xmm0"        # Add popcount of low and high nibbles
     else
         break # Not implemented
     end
@@ -5792,6 +5840,14 @@ ipintOp(_simd_i8x16_all_true, macro()
         emit "fmov w0, s17"               # Move to general register
         emit "cmp w0, #0"                 # Compare with 0
         emit "cset w0, eq"                # Set to 1 if equal (all lanes non-zero), 0 otherwise
+    elsif X86_64
+        # Compare each byte with zero to create mask of zero lanes
+        emit "vpxor %xmm1, %xmm1, %xmm1"      # Create zero vector
+        emit "vpcmpeqb %xmm1, %xmm0, %xmm0"   # Compare each byte with 0 (0xFF if zero, 0x00 if non-zero)
+        emit "vpmovmskb %xmm0, %eax"          # Extract sign bits to create 16-bit mask
+        emit "test %eax, %eax"                # Test if any bit is set (any lane was zero)
+        emit "sete %al"                       # Set AL to 1 if no bits set (all lanes non-zero), 0 otherwise
+        emit "movzbl %al, %eax"               # Zero-extend to full 32-bit register
     else
         break # Not implemented
     end
@@ -5803,26 +5859,25 @@ end)
 ipintOp(_simd_i8x16_bitmask, macro()
     # i8x16.bitmask - extract most significant bit from each 8-bit lane into a 16-bit integer
     # Simple loop over the 16 bytes on the stack
-    
+
     move 0, t0          # Initialize result
-    move 0, t1          # Byte counter
-    move sp, t2         # Pointer to vector data
-    
+    move 0, t3          # Byte counter
+
 .bitmask_i8x16_loop:
     # Load byte and check sign bit
-    loadb [t2, t1], t3
-    andq 0x80, t3       # Extract sign bit
-    btiz t3, .bitmask_i8x16_next
-    
+    loadb [sp, t3], t1
+    andq 0x80, t1       # Extract sign bit
+    btiz t1, .bitmask_i8x16_next
+
     # Set corresponding bit in result
-    move 1, t3
-    lshiftq t1, t3      # Shift to bit position
-    orq t3, t0
-    
+    move 1, t1
+    lshiftq t3, t1      # Shift to bit position
+    orq t1, t0
+
 .bitmask_i8x16_next:
-    addq 1, t1          # Next byte
-    bilt t1, 16, .bitmask_i8x16_loop
-    
+    addq 1, t3          # Next byte
+    bilt t3, 16, .bitmask_i8x16_loop
+
     addp V128ISize, sp  # Pop the vector
     pushInt32(t0)
     advancePC(2)
@@ -6353,6 +6408,16 @@ ipintOp(_simd_i16x8_all_true, macro()
         emit "fmov w0, s17"              # Move to general register
         emit "cmp w0, #0"                # Compare with 0
         emit "cset w0, eq"               # Set to 1 if equal (all lanes non-zero), 0 otherwise
+    elsif X86_64
+        # Compare each 16-bit lane with zero
+        emit "vpxor %xmm1, %xmm1, %xmm1"     # Create zero vector
+        emit "vpcmpeqw %xmm1, %xmm0, %xmm1"  # Compare each word with 0 (1 if zero, 0 if non-zero)
+
+        # Test if any lane is zero
+        emit "vpmovmskb %xmm1, %eax"         # Extract sign bits
+        emit "testl %eax, %eax"              # Test if any bits are set
+        emit "sete %al"                      # Set AL to 1 if no bits set (all lanes non-zero), 0 otherwise
+        emit "movzbl %al, %eax"              # Zero-extend to 32-bit
     else
         break # Not implemented
     end
@@ -6364,26 +6429,25 @@ end)
 ipintOp(_simd_i16x8_bitmask, macro()
     # i16x8.bitmask - extract most significant bit from each 16-bit lane into an 8-bit integer
     # Simple loop over the 8 16-bit values on the stack
-    
+
     move 0, t0          # Initialize result
-    move 0, t1          # Lane counter
-    move sp, t2         # Pointer to vector data
-    
+    move 0, t3          # Lane counter
+
 .bitmask_i16x8_loop:
     # Load 16-bit value and check sign bit
-    loadh [t2, t1, 2], t3  # Load 16-bit value at offset t1*2
-    andq 0x8000, t3     # Extract sign bit (bit 15)
-    btiz t3, .bitmask_i16x8_next
-    
+    loadh [sp, t3, 2], t1  # Load 16-bit value at offset t1*2
+    andq 0x8000, t1     # Extract sign bit (bit 15)
+    btiz t1, .bitmask_i16x8_next
+
     # Set corresponding bit in result
-    move 1, t3
-    lshiftq t1, t3      # Shift to bit position
-    orq t3, t0
-    
+    move 1, t1
+    lshiftq t3, t1      # Shift to bit position
+    orq t1, t0
+
 .bitmask_i16x8_next:
-    addq 1, t1          # Next lane
-    bilt t1, 8, .bitmask_i16x8_loop
-    
+    addq 1, t3          # Next lane
+    bilt t3, 8, .bitmask_i16x8_loop
+
     addp V128ISize, sp  # Pop the vector
     pushInt32(t0)
     advancePC(2)
@@ -6832,6 +6896,16 @@ ipintOp(_simd_i32x4_all_true, macro()
         emit "fmov w0, s17"              # Move to general register
         emit "cmp w0, #0"                # Compare with 0
         emit "cset w0, eq"               # Set to 1 if equal (all lanes non-zero), 0 otherwise
+    elsif X86_64
+        # Compare each 32-bit lane with zero
+        emit "vpxor %xmm1, %xmm1, %xmm1"     # Create zero vector
+        emit "vpcmpeqd %xmm1, %xmm0, %xmm1"  # Compare each dword with 0 (1 if zero, 0 if non-zero)
+
+        # Test if any lane is zero
+        emit "vpmovmskb %xmm1, %eax"         # Extract sign bits
+        emit "testl %eax, %eax"              # Test if any bits are set
+        emit "sete %al"                      # Set AL to 1 if no bits set (all lanes non-zero), 0 otherwise
+        emit "movzbl %al, %eax"              # Zero-extend to 32-bit
     else
         break # Not implemented
     end
@@ -6843,26 +6917,25 @@ end)
 ipintOp(_simd_i32x4_bitmask, macro()
     # i32x4.bitmask - extract most significant bit from each 32-bit lane into a 4-bit integer
     # Simple loop over the 4 32-bit values on the stack
-    
+
     move 0, t0          # Initialize result
-    move 0, t1          # Lane counter
-    move sp, t2         # Pointer to vector data
-    
+    move 0, t3          # Lane counter
+
 .bitmask_i32x4_loop:
     # Load 32-bit value and check sign bit
-    loadi [t2, t1, 4], t3  # Load 32-bit value at offset t1*4
-    andq 0x80000000, t3 # Extract sign bit (bit 31)
-    btiz t3, .bitmask_i32x4_next
-    
+    loadi [sp, t3, 4], t1  # Load 32-bit value at offset t1*4
+    andq 0x80000000, t1 # Extract sign bit (bit 31)
+    btiz t1, .bitmask_i32x4_next
+
     # Set corresponding bit in result
-    move 1, t3
-    lshiftq t1, t3      # Shift to bit position
-    orq t3, t0
-    
+    move 1, t1
+    lshiftq t3, t1      # Shift to bit position
+    orq t1, t0
+
 .bitmask_i32x4_next:
-    addq 1, t1          # Next lane
-    bilt t1, 4, .bitmask_i32x4_loop
-    
+    addq 1, t3          # Next lane
+    bilt t3, 4, .bitmask_i32x4_loop
+
     addp V128ISize, sp  # Pop the vector
     pushInt32(t0)
     advancePC(2)
@@ -7217,6 +7290,16 @@ ipintOp(_simd_i64x2_all_true, macro()
         emit "fmov x0, d17"              # Move to general register
         emit "cmp x0, #0"                # Compare with 0
         emit "cset w0, eq"               # Set to 1 if equal (all lanes non-zero), 0 otherwise
+    elsif X86_64
+        # Compare each 64-bit lane with zero
+        emit "vpxor %xmm1, %xmm1, %xmm1"     # Create zero vector
+        emit "vpcmpeqq %xmm1, %xmm0, %xmm1"  # Compare each qword with 0 (1 if zero, 0 if non-zero)
+
+        # Test if any lane is zero
+        emit "vpmovmskb %xmm1, %eax"         # Extract sign bits
+        emit "testl %eax, %eax"              # Test if any bits are set
+        emit "sete %al"                      # Set AL to 1 if no bits set (all lanes non-zero), 0 otherwise
+        emit "movzbl %al, %eax"              # Zero-extend to 32-bit
     else
         break # Not implemented
     end
@@ -7228,27 +7311,27 @@ end)
 ipintOp(_simd_i64x2_bitmask, macro()
     # i64x2.bitmask - extract most significant bit from each 64-bit lane into a 2-bit integer
     # Handle both 64-bit values directly
-    
+
     # Load both 64-bit values
     loadq [sp], t0      # Load lane 0
     loadq 8[sp], t1     # Load lane 1
     addp V128ISize, sp  # Pop the vector
-    
+
     # Initialize result
     move 0, t2
-    
+
     # Check lane 0 sign bit (bit 63)
     move 0x8000000000000000, t3
     andq t3, t0
     btqz t0, .bitmask_i64x2_lane1
     orq 1, t2           # Set bit 0
-    
+
 .bitmask_i64x2_lane1:
     # Check lane 1 sign bit (bit 63)
     andq t3, t1
     btqz t1, .bitmask_i64x2_done
     orq 2, t2           # Set bit 1
-    
+
 .bitmask_i64x2_done:
     pushInt32(t2)
     advancePC(2)
