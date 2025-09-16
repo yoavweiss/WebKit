@@ -107,6 +107,10 @@ NSString * const NSInspectorBarTextAlignmentItemIdentifier = @"NSInspectorBarTex
 @property (readonly) NSView *_presentingView;
 @end
 
+@interface NSScrollPocket : NSView
+@property (copy, nullable) NSColor *captureColor;
+@end
+
 #endif
 
 @protocol NSTextInputClient_Async_Staging_44648564
