@@ -4185,6 +4185,7 @@ JSC_DEFINE_JIT_OPERATION(operationCopyOnWriteArrayIndexOfString, UCPUStrictInt32
         }
 #if ASSERT_ENABLED
         UCPUStrictInt32 expected = arrayIndexOfString(globalObject, butterfly, searchElement, index);
+        OPERATION_RETURN_IF_EXCEPTION(scope, 0);
         ASSERT(expected == result);
 #endif
         OPERATION_RETURN(scope, result);
