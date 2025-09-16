@@ -25,9 +25,7 @@ platform/audio/cocoa/AudioEncoderCocoa.cpp
 platform/audio/cocoa/AudioFileReaderCocoa.cpp
 platform/audio/cocoa/PlatformRawAudioDataCocoa.cpp
 platform/cf/KeyedDecoderCF.cpp
-platform/cf/MediaAccessibilitySoftLink.cpp
 platform/cf/RunLoopObserverCF.cpp
-platform/cocoa/CoreVideoSoftLink.cpp
 platform/cocoa/DragImageCocoa.mm
 platform/cocoa/MIMETypeRegistryCocoa.mm
 platform/cocoa/PlatformPasteboardCocoa.mm
@@ -37,8 +35,6 @@ platform/cocoa/SearchPopupMenuCocoa.mm
 platform/cocoa/SerializedPlatformDataCueValue.mm
 platform/cocoa/SystemBattery.mm
 platform/cocoa/SystemVersion.mm
-platform/cocoa/VideoToolboxSoftLink.cpp
-platform/gamepad/cocoa/GameControllerSoftLink.mm
 platform/graphics/DestinationColorSpace.cpp
 platform/graphics/avfoundation/AVTrackPrivateAVFObjCImpl.mm
 platform/graphics/avfoundation/FormatDescriptionUtilities.cpp

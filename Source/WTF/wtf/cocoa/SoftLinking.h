@@ -561,7 +561,8 @@ static void* lib##Library() \
 
 #define SOFT_LINK_CONSTANT_MAY_FAIL_FOR_SOURCE_WITH_EXPORT(functionNamespace, framework, variableName, variableType, export) \
     namespace functionNamespace { \
-    static variableType constant##framework##variableName; \
+    struct Constant##framework##variableName##Wrapper { SUPPRESS_UNRETAINED_LOCAL variableType constant; }; \
+    static Constant##framework##variableName##Wrapper constant##framework##variableName; \
     bool init_##framework##_##variableName(); \
     bool init_##framework##_##variableName() \
     { \
@@ -569,7 +570,7 @@ static void* lib##Library() \
         void* constant = dlsym(framework##Library(), auditedName); \
         if (!constant) \
             return false; \
-        constant##framework##variableName = *static_cast<variableType const *>(constant); \
+        constant##framework##variableName.constant = *static_cast<variableType const *>(constant); \
         return true; \
     } \
     export bool canLoad_##framework##_##variableName(); \
@@ -581,7 +582,7 @@ static void* lib##Library() \
     export variableType get_##framework##_##variableName(); \
     variableType get_##framework##_##variableName() \
     { \
-        return constant##framework##variableName; \
+        return constant##framework##variableName.constant; \
     } \
     }
 
