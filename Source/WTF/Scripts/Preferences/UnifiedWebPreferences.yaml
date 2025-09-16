@@ -7803,6 +7803,20 @@ TextRecognitionInVideosEnabled:
   sharedPreferenceForWebProcess: true
   mediaPlaybackRelated: true
 
+TextShapingAcrossInlineBoxes:
+  type: bool
+  status: unstable
+  category: css
+  humanReadableName: "Text Shaping Across Inline Boxes"
+  humanReadableDescription: "Enable Text Shaping Across Inline Boxes"
+  defaultValue:
+    WebCore:
+      default: false
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+
 TextTracksInMSEEnabled:
   type: bool
   status: testable

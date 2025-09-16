@@ -834,6 +834,9 @@ Vector<std::pair<size_t, size_t>> LineBuilder::collectShapingRanges(const LineCa
 
 void LineBuilder::applyShapingIfNeeded(LineCandidate& lineCandidate)
 {
+    if (!layoutState().shouldShapeTextAcrossInlineBoxes())
+        return;
+
     if (!lineCandidate.inlineContent.isShapingCandidateByContent())
         return;
 
@@ -1407,6 +1410,9 @@ void LineBuilder::commitCandidateContent(const LineCandidate& lineCandidate, std
 
         if (auto* inlineTextItem = dynamicDowncast<InlineTextItem>(inlineItem)) {
             auto shapingBoundary = [&]() -> std::optional<Line::ShapingBoundary> {
+                if (!layoutState().shouldShapeTextAcrossInlineBoxes())
+                    return { };
+
                 // Special case trailing partial run as shaping end.
                 if (shapingBoundaryStart && partialTrailingContent && partialTrailingContent->trailingRunIndex == index)
                     return { Line::ShapingBoundary::End };
