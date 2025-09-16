@@ -76,7 +76,7 @@ public:
         DONE = 4
     };
 
-    virtual void didReachTimeout();
+    void didReachTimeout();
 
     enum EventTargetInterfaceType eventTargetInterface() const final { return EventTargetInterfaceType::XMLHttpRequest; }
     ScriptExecutionContext* scriptExecutionContext() const final;

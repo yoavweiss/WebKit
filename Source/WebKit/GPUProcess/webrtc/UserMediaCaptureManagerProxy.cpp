@@ -447,7 +447,6 @@ private:
     bool m_isObservingMedia { false };
     bool m_isStopped { false };
     bool m_isEnded { false };
-    bool m_shouldApplyRotation { false };
     std::atomic<bool> m_shouldReset { false };
 
     RealtimeMediaSourceIdentifier m_id;

@@ -186,9 +186,6 @@ private PUBLIC_IN_WEBGPU_SWIFT:
     NSMutableSet<id<MTLBuffer>> *m_managedBuffers { nil };
 #endif
 private:
-    id<MTLSharedEvent> m_abortCommandBuffer { nil };
-
-
     NSMutableSet<id<MTLIndirectCommandBuffer>> *m_retainedICBs { nil };
     NSMutableSet<id<MTLTexture>> *m_retainedTextures { nil };
     NSMutableSet<id<MTLBuffer>> *m_retainedBuffers { nil };

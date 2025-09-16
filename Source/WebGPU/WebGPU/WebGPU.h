@@ -1201,7 +1201,7 @@ typedef struct WGPUComputePassDescriptor {
     WGPU_NULLABLE WGPUComputePassTimestampWrites const * timestampWrites;
 } SWIFT_ESCAPABLE WGPUComputePassDescriptor WGPU_STRUCTURE_ATTRIBUTE;
 
-static inline WGPU_NULLABLE WGPUComputePassTimestampWrites const * _Nullable __counted_by(1) wgpuGetComputePassDescriptorTimestampWrites(const WGPUComputePassDescriptor * __attribute__((lifetimebound)) __counted_by(1) __attribute__((noescape)) descriptor) {
+static inline WGPU_NULLABLE WGPUComputePassTimestampWrites const * _Nullable __counted_by(1) wgpuGetComputePassDescriptorTimestampWrites(const WGPUComputePassDescriptor * __counted_by(1) descriptor LIFETIME_BOUND) {
     return descriptor->timestampWrites;
 }
 
@@ -1334,16 +1334,16 @@ typedef struct WGPURenderPassDescriptor {
     auto colorAttachmentsSpan() const { return unsafeMakeSpan(colorAttachments, colorAttachmentCount); }
 } SWIFT_ESCAPABLE WGPURenderPassDescriptor WGPU_STRUCTURE_ATTRIBUTE;
 
-inline WGPURenderPassTimestampWrites const * _Nullable __counted_by(1) wgpuGetRenderPassDescriptorTimestampWrites(const WGPURenderPassDescriptor * __attribute__((lifetimebound)) __counted_by(1) __attribute__((noescape)) descriptor) {
+inline WGPURenderPassTimestampWrites const * _Nullable __counted_by(1) wgpuGetRenderPassDescriptorTimestampWrites(const WGPURenderPassDescriptor * __counted_by(1) descriptor LIFETIME_BOUND) {
     return descriptor->timestampWrites;
 }
 
-inline WGPURenderPassColorAttachment const * __counted_by(count) wgpuGetRenderPassDescriptorColorAttachments(const WGPURenderPassDescriptor * __attribute__((lifetimebound)) __counted_by(1) __attribute__((noescape)) descriptor, size_t count) {
+inline WGPURenderPassColorAttachment const * __counted_by(count) wgpuGetRenderPassDescriptorColorAttachments(const WGPURenderPassDescriptor * __counted_by(1) descriptor LIFETIME_BOUND, size_t count) {
     ((void)count);
     return descriptor->colorAttachments;
 }
 
-inline WGPURenderPassDepthStencilAttachment const * _Nullable __counted_by(1) wgpuGetRenderPassDescriptorDepthSencilAttachment(const WGPURenderPassDescriptor * __attribute__((lifetimebound)) __counted_by(1) __attribute__((noescape)) descriptor) {
+inline WGPURenderPassDepthStencilAttachment const * _Nullable __counted_by(1) wgpuGetRenderPassDescriptorDepthSencilAttachment(const WGPURenderPassDescriptor * __counted_by(1) descriptor LIFETIME_BOUND) {
     return descriptor->depthStencilAttachment;
 }
 

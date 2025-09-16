@@ -106,7 +106,6 @@ private:
     RetainPtr<NSData> m_expiredSession;
     Vector<int> m_protocolVersions;
     int m_cdmVersion;
-    int32_t m_protectedTrackID { 1 };
     enum { Normal, KeyRelease } m_mode;
 
 #if !RELEASE_LOG_DISABLED
