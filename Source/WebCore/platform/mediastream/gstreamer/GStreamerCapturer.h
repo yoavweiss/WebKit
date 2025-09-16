@@ -91,6 +91,11 @@ public:
 
     void stopDevice(bool disconnectSignals);
 
+    struct SinkSignalsHolder {
+        unsigned long prerollSignalId;
+        unsigned long newSampleSignalId;
+    };
+
 protected:
     GRefPtr<GstElement> m_sink;
     GRefPtr<GstElement> m_src;
