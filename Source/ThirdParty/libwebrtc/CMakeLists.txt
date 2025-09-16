@@ -74,7 +74,6 @@ set(webrtc_SOURCES
     Source/third_party/abseil-cpp/absl/flags/usage_config.cc
     Source/third_party/abseil-cpp/absl/hash/internal/city.cc
     Source/third_party/abseil-cpp/absl/hash/internal/hash.cc
-    Source/third_party/abseil-cpp/absl/hash/internal/low_level_hash.cc
     Source/third_party/abseil-cpp/absl/hash/internal/print_hash_of.cc
     Source/third_party/abseil-cpp/absl/numeric/int128.cc
     Source/third_party/abseil-cpp/absl/profiling/internal/exponential_biased.cc
@@ -1446,7 +1445,6 @@ list(APPEND webrtc_SOURCES
 
 # Boringssl.
 list(APPEND webrtc_SOURCES
-    Source/third_party/boringssl/err_data.cc
     Source/third_party/boringssl/src/crypto/aes/aes.cc
     Source/third_party/boringssl/src/crypto/asn1/a_bitstr.cc
     Source/third_party/boringssl/src/crypto/asn1/a_bool.cc
@@ -2417,8 +2415,10 @@ set(libsrtp_SOURCES
     Source/third_party/libsrtp/crypto/cipher/aes_gcm_ossl.c
     Source/third_party/libsrtp/crypto/cipher/aes_icm_ossl.c
     Source/third_party/libsrtp/crypto/cipher/cipher.c
+    Source/third_party/libsrtp/crypto/cipher/cipher_test_cases.c
     Source/third_party/libsrtp/crypto/cipher/null_cipher.c
     Source/third_party/libsrtp/crypto/hash/auth.c
+    Source/third_party/libsrtp/crypto/hash/auth_test_cases.c
     Source/third_party/libsrtp/crypto/hash/hmac_ossl.c
     Source/third_party/libsrtp/crypto/hash/null_auth.c
     Source/third_party/libsrtp/crypto/kernel/alloc.c
@@ -2426,10 +2426,8 @@ set(libsrtp_SOURCES
     Source/third_party/libsrtp/crypto/kernel/err.c
     Source/third_party/libsrtp/crypto/kernel/key.c
     Source/third_party/libsrtp/crypto/math/datatypes.c
-    Source/third_party/libsrtp/crypto/math/stat.c
     Source/third_party/libsrtp/crypto/replay/rdb.c
     Source/third_party/libsrtp/crypto/replay/rdbx.c
-    Source/third_party/libsrtp/srtp/ekt.c
     Source/third_party/libsrtp/srtp/srtp.c
 )
 
