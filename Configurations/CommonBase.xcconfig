@@ -127,3 +127,9 @@ WK_LIBCPP_ASSERTIONS_CFLAGS[sdk=macosx14*] = -D_LIBCPP_ENABLE_ASSERTIONS=1;
 WK_LIBCPP_ASSERTIONS_CFLAGS[sdk=appletv*17*] = -D_LIBCPP_ENABLE_ASSERTIONS=1;
 WK_LIBCPP_ASSERTIONS_CFLAGS[sdk=watch*10*] = -D_LIBCPP_ENABLE_ASSERTIONS=1;
 
+// Enable strict memory safety in Swift, and treat any such warnings as errors.
+// Enable for sufficiently recent Xcode only.
+WK_SWIFT_MEMORY_SAFETY_FLAGS = $(WK_SWIFT_MEMORY_SAFETY_FLAGS_$(WK_XCODE_BEFORE_17));
+WK_SWIFT_MEMORY_SAFETY_FLAGS_ = -Werror StrictMemorySafety -strict-memory-safety -enable-experimental-feature Lifetimes -enable-experimental-feature LifetimeDependence;
+
+OTHER_SWIFT_FLAGS = $(inherited) $(WK_SWIFT_MEMORY_SAFETY_FLAGS);

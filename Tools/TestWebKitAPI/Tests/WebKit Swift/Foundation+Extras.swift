@@ -32,7 +32,8 @@ extension RangeReplaceableCollection {
     ) async throws(Failure) where Failure: Error {
         self.init()
 
-        for try await element in sequence {
+        // Safety: this is actually safe; false positive is rdar://154775389
+        for try await unsafe element in sequence {
             append(element)
         }
     }
@@ -40,7 +41,8 @@ extension RangeReplaceableCollection {
 
 extension AsyncSequence {
     func wait(isolation: isolated (any Actor)? = #isolation) async throws(Failure) {
-        for try await _ in self {
+        // Safety: this is actually safe; false positive is rdar://154775389
+        for try await unsafe _ in self {
         }
     }
 }

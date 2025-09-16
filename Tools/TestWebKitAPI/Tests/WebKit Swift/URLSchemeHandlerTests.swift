@@ -148,12 +148,14 @@ struct URLSchemeHandlerTests {
         var secondEvents: [WebPage.NavigationEvent] = []
 
         do {
-            for try await firstEvent in page.load(URL(string: "testing://main")) {
+            // Safety: this is actually safe; false positive is rdar://154775389
+            for try await unsafe firstEvent in page.load(URL(string: "testing://main")) {
                 firstEvents.append(firstEvent)
 
                 if firstEvent == .startedProvisionalNavigation {
                     do {
-                        for try await secondEvent in page.load(URL(string: "testing://main2")) {
+                        // Safety: this is actually safe; false positive is rdar://154775389
+                        for try await unsafe secondEvent in page.load(URL(string: "testing://main2")) {
                             secondEvents.append(secondEvent)
                         }
                     } catch {
