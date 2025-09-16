@@ -31,6 +31,7 @@
 #import "TestNavigationDelegate.h"
 #import "TestWKWebView.h"
 #import <WebKit/WKContentWorldPrivate.h>
+#import <WebKit/WKWebpagePreferencesPrivate.h>
 #import <WebKit/_WKContentWorldConfiguration.h>
 #import <WebKit/_WKFeature.h>
 #import <WebKit/_WKJSHandle.h>
@@ -154,6 +155,52 @@ TEST(JSHandle, Equality)
     RetainPtr otherWorld = [WKContentWorld _worldWithConfiguration:worldConfiguration.get()];
     EXPECT_NE(world.get(), otherWorld.get());
     EXPECT_TRUE([[webView objectByCallingAsyncFunction:@"return b === undefined" withArguments:@{ @"b" : b } inFrame:nil inContentWorld:otherWorld.get()] boolValue]);
+}
+
+TEST(JSHandle, WebpagePreferences)
+{
+    HTTPServer server({
+        { "/example"_s, { "<iframe src='https://webkit.org/webkit'></iframe>"_s } },
+        { "/webkit"_s, { "hi"_s } },
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectZero configuration:server.httpsProxyConfiguration()]);
+    RetainPtr navigationDelegate = adoptNS([TestNavigationDelegate new]);
+    [navigationDelegate allowAnyTLSCertificate];
+    webView.get().navigationDelegate = navigationDelegate.get();
+
+    __block bool allow = false;
+    navigationDelegate.get().decidePolicyForNavigationActionWithPreferences = ^(WKNavigationAction *, WKWebpagePreferences *preferences, void (^completionHandler)(WKNavigationActionPolicy, WKWebpagePreferences *)) {
+        preferences._allowsJSHandleCreationInPageWorld = allow;
+        completionHandler(WKNavigationActionPolicyAllow, preferences);
+    };
+
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/example"]];
+    NSString *checkClass = @"window.WebKitJSHandle === undefined";
+    NSString *checkWindowWebKit = @"window.webkit === undefined || window.webkit.jsHandle === undefined";
+
+    [webView loadRequest:request];
+    [navigationDelegate waitForDidFinishNavigation];
+    EXPECT_TRUE([[webView objectByEvaluatingJavaScript:checkClass] boolValue]);
+    EXPECT_TRUE([[webView objectByEvaluatingJavaScript:checkWindowWebKit] boolValue]);
+
+    allow = true;
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.org/example"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+    EXPECT_FALSE([[webView objectByEvaluatingJavaScript:checkClass] boolValue]);
+    EXPECT_FALSE([[webView objectByEvaluatingJavaScript:checkWindowWebKit] boolValue]);
+
+    allow = false;
+    [webView loadRequest:request];
+    [navigationDelegate waitForDidFinishNavigation];
+    EXPECT_TRUE([[webView objectByEvaluatingJavaScript:checkClass] boolValue]);
+    EXPECT_TRUE([[webView objectByEvaluatingJavaScript:checkWindowWebKit] boolValue]);
+
+    allow = true;
+    [webView loadRequest:request];
+    [navigationDelegate waitForDidFinishNavigation];
+    EXPECT_FALSE([[webView objectByEvaluatingJavaScript:checkClass] boolValue]);
+    EXPECT_FALSE([[webView objectByEvaluatingJavaScript:checkWindowWebKit] boolValue]);
 }
 
 }

@@ -2194,6 +2194,7 @@ sub NeedsRuntimeCheck
 
     return $context->extendedAttributes->{EnabledByDeprecatedGlobalSetting}
         || $context->extendedAttributes->{EnabledForContext}
+        || $context->extendedAttributes->{EnabledForGlobalObject}
         || $context->extendedAttributes->{EnabledForWorld}
         || $context->extendedAttributes->{EnabledBySetting}
         || $context->extendedAttributes->{EnabledByQuirk}
@@ -4378,6 +4379,14 @@ sub GenerateRuntimeEnableConditionalString
         AddToImplIncludes("DOMWrapperWorld.h");
 
         push(@conjuncts, "worldForDOMObject(*this)." . ToMethodName($context->extendedAttributes->{EnabledForWorld}) . "()");
+    }
+
+    if ($context->extendedAttributes->{EnabledForGlobalObject}) {
+        assert("Must specify value for EnabledForGlobalObject.") if $context->extendedAttributes->{EnabledForGlobalObject} eq "VALUE_IS_MISSING";
+
+        AddToImplIncludes("DOMWrapperWorld.h");
+
+        push(@conjuncts, "jsCast<JSDOMGlobalObject*>(this->globalObject())->" . ToMethodName($context->extendedAttributes->{EnabledForGlobalObject}) . "()");
     }
 
     if ($context->extendedAttributes->{EnabledBySetting}) {

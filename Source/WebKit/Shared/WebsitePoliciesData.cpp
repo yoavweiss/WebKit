@@ -76,6 +76,7 @@ void WebsitePoliciesData::applyToDocumentLoader(WebsitePoliciesData&& websitePol
 
     documentLoader.setAllowedAutoplayQuirks(quirks);
     documentLoader.setAutoplayPolicy(core(websitePolicies.autoplayPolicy));
+    documentLoader.setAllowsJSHandleCreationInPageWorld(websitePolicies.allowsJSHandleCreationInPageWorld);
 
     switch (websitePolicies.popUpPolicy) {
     case WebsitePopUpPolicy::Default:

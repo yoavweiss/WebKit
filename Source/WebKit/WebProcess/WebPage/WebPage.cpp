@@ -1179,8 +1179,6 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
         page->setOpenedByDOM();
     }
 
-    if (parameters.allowJSHandleInPageContentWorld)
-        InjectedBundleScriptWorld::normalWorldSingleton().setAllowJSHandleCreation();
     if (parameters.allowPostingLegacySynchronousMessages)
         InjectedBundleScriptWorld::normalWorldSingleton().setAllowPostingLegacySynchronousMessages();
 }

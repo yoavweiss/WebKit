@@ -1056,7 +1056,6 @@ WKRetainPtr<WKPageConfigurationRef> TestController::generatePageConfiguration(co
     if (options.allowTestOnlyIPC())
         WKPageConfigurationSetAllowTestOnlyIPC(pageConfiguration.get(), true);
     WKPageConfigurationSetShouldSendConsoleLogsToUIProcessForTesting(pageConfiguration.get(), true);
-    WKPageConfigurationSetAllowJSHandleInPageContentWorld(pageConfiguration.get(), true);
 
     m_userContentController = adoptWK(WKUserContentControllerCreate());
     WKPageConfigurationSetUserContentController(pageConfiguration.get(), userContentController());
@@ -3791,7 +3790,14 @@ void TestController::decidePolicyForNavigationAction(WKPageRef page, WKNavigatio
     WKRetainPtr<WKFramePolicyListenerRef> retainedListener { listener };
     WKRetainPtr<WKNavigationActionRef> retainedNavigationAction { navigationAction };
     const bool shouldIgnore { m_policyDelegateEnabled && !m_policyDelegatePermissive };
-    auto decisionFunction = [shouldIgnore, retainedListener, retainedNavigationAction, shouldSwapToEphemeralSessionOnNextNavigation = m_shouldSwapToEphemeralSessionOnNextNavigation, shouldSwapToDefaultSessionOnNextNavigation = m_shouldSwapToDefaultSessionOnNextNavigation]() {
+    auto decisionFunction = [
+        shouldIgnore,
+        retainedListener,
+        retainedNavigationAction,
+        shouldSwapToEphemeralSessionOnNextNavigation = m_shouldSwapToEphemeralSessionOnNextNavigation,
+        shouldSwapToDefaultSessionOnNextNavigation = m_shouldSwapToDefaultSessionOnNextNavigation,
+        page = WKRetainPtr { page }
+    ] {
         if (shouldIgnore)
             WKFramePolicyListenerIgnore(retainedListener.get());
         else if (WKNavigationActionShouldPerformDownload(retainedNavigationAction.get()))
@@ -3799,14 +3805,18 @@ void TestController::decidePolicyForNavigationAction(WKPageRef page, WKNavigatio
         else {
             if (shouldSwapToEphemeralSessionOnNextNavigation || shouldSwapToDefaultSessionOnNextNavigation) {
                 ASSERT(shouldSwapToEphemeralSessionOnNextNavigation != shouldSwapToDefaultSessionOnNextNavigation);
-                auto policies = adoptWK(WKWebsitePoliciesCreate());
+                WKRetainPtr policies = adoptWK(WKWebsitePoliciesCreate());
+                WKWebsitePoliciesSetAllowsJSHandleCreationInPageWorld(policies.get(), true);
                 WKRetainPtr<WKWebsiteDataStoreRef> newSession = TestController::defaultWebsiteDataStore();
                 if (shouldSwapToEphemeralSessionOnNextNavigation)
                     newSession = adoptWK(WKWebsiteDataStoreCreateNonPersistentDataStore());
                 WKWebsitePoliciesSetDataStore(policies.get(), newSession.get());
                 WKFramePolicyListenerUseWithPolicies(retainedListener.get(), policies.get());
-            } else
-                WKFramePolicyListenerUse(retainedListener.get());
+            } else {
+                WKRetainPtr policies = WKPageConfigurationGetDefaultWebsitePolicies(adoptWK(WKPageCopyPageConfiguration(page.get())).get());
+                WKWebsitePoliciesSetAllowsJSHandleCreationInPageWorld(policies.get(), true);
+                WKFramePolicyListenerUseWithPolicies(retainedListener.get(), policies.get());
+            }
         }
     };
     m_shouldSwapToEphemeralSessionOnNextNavigation = false;

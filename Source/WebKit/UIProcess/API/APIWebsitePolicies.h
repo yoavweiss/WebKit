@@ -158,6 +158,9 @@ public:
     const WebCore::ResourceRequest& alternateRequest() const;
     void setAlternateRequest(WebCore::ResourceRequest&&);
 
+    bool allowsJSHandleCreationInPageWorld() const { return m_data.allowsJSHandleCreationInPageWorld; }
+    void setAllowsJSHandleCreationInPageWorld(bool allows) { m_data.allowsJSHandleCreationInPageWorld = allows; }
+
 private:
     WebKit::WebsitePoliciesData m_data;
     RefPtr<WebKit::WebsiteDataStore> m_websiteDataStore;

@@ -838,9 +838,12 @@ VisualViewport& LocalDOMWindow::visualViewport()
 
 #if ENABLE(USER_MESSAGE_HANDLERS)
 
-bool LocalDOMWindow::shouldHaveWebKitNamespaceForWorld(DOMWrapperWorld& world)
+bool LocalDOMWindow::shouldHaveWebKitNamespaceForWorld(DOMWrapperWorld& world, JSC::JSGlobalObject* globalObject)
 {
-    if (world.allowJSHandleCreation() || world.allowNodeSerialization())
+    if (world.allowNodeSerialization())
+        return true;
+
+    if (jsCast<JSDOMGlobalObject*>(globalObject)->allowsJSHandleCreation())
         return true;
 
     RefPtr frame = this->frame();

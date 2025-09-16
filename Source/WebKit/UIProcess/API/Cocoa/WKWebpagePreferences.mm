@@ -802,4 +802,15 @@ static _WKWebsiteDeviceOrientationAndMotionAccessPolicy toWKWebsiteDeviceOrienta
     return _websitePolicies->alternateRequest().nsURLRequest(WebCore::HTTPBodyUpdatePolicy::UpdateHTTPBody);
 }
 
+
+- (void)_setAllowsJSHandleCreationInPageWorld:(BOOL)allows
+{
+    _websitePolicies->setAllowsJSHandleCreationInPageWorld(allows);
+}
+
+- (BOOL)_allowsJSHandleCreationInPageWorld
+{
+    return _websitePolicies->allowsJSHandleCreationInPageWorld();
+}
+
 @end

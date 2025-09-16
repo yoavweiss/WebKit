@@ -350,7 +350,7 @@ public:
 #endif
 
 #if ENABLE(USER_MESSAGE_HANDLERS)
-    bool shouldHaveWebKitNamespaceForWorld(DOMWrapperWorld&);
+    bool shouldHaveWebKitNamespaceForWorld(DOMWrapperWorld&, JSC::JSGlobalObject*);
     WebKitNamespace* webkitNamespace();
 #endif
 

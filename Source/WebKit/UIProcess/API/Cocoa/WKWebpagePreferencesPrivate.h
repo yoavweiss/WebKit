@@ -133,4 +133,6 @@ typedef NS_OPTIONS(NSUInteger, _WKWebsiteNetworkConnectionIntegrityPolicy) {
 
 @property (nonatomic, setter=_setAlternateRequest:) NSURLRequest *_alternateRequest WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
 
+@property (nonatomic, setter=_setAllowsJSHandleCreationInPageWorld:) BOOL _allowsJSHandleCreationInPageWorld WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
+
 @end

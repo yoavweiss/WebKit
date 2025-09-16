@@ -31,8 +31,10 @@
 #include "DeprecatedGlobalSettings.h"
 #include "Document.h"
 #include "DocumentInlines.h"
+#include "DocumentLoader.h"
 #include "FetchResponse.h"
 #include "FrameDestructionObserverInlines.h"
+#include "FrameLoader.h"
 #include "InternalWritableStream.h"
 #include "JSAbortAlgorithm.h"
 #include "JSAbortSignal.h"
@@ -850,6 +852,25 @@ JSDOMGlobalObject& legacyActiveGlobalObjectForAccessor(JSC::JSGlobalObject& lexi
     constexpr bool skipFirstFrame = false;
     constexpr bool lookUpFromVMEntryScope = true;
     return callerGlobalObject(lexicalGlobalObject, callFrame, skipFirstFrame, lookUpFromVMEntryScope);
+}
+
+bool JSDOMGlobalObject::allowsJSHandleCreation() const
+{
+    if (m_world->allowsJSHandleCreation()) {
+        ASSERT_WITH_MESSAGE(!m_world->isNormal(), "Page world should only have JSHandle creation enabled by WebsitePolicies");
+        return true;
+    }
+    if (!m_world->isNormal())
+        return false;
+    if (!inherits<JSDOMWindow>())
+        return false;
+    RefPtr localFrame = dynamicDowncast<LocalFrame>(jsCast<const JSDOMWindow*>(this)->wrapped().frame());
+    if (!localFrame)
+        return false;
+    RefPtr documentLoader = localFrame->loader().loaderForWebsitePolicies();
+    if (!documentLoader)
+        return false;
+    return documentLoader->allowsJSHandleCreationInPageWorld();
 }
 
 } // namespace WebCore
