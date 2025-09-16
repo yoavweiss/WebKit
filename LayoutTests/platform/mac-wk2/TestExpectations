@@ -2405,8 +2405,6 @@ webkit.org/b/298278 imported/w3c/web-platform-tests/html/anonymous-iframe/local-
 
 webkit.org/b/298292 [ Sequoia ] http/tests/webgpu/webgpu/api/operation/sampling/sampler_texture.html [ Pass ]
 
-webkit.org/b/298416 [ Debug ] http/tests/websocket/web-socket-loads-captured-in-per-page-domains.html [ Pass Crash ]
-
 webkit.org/b/298746 [ x86_64 ] fast/webgpu/nocrash/fuzz-298315.html [ Timeout ]
 
 # run as pass for now to catch subtest regressions. but some of these tests are still failing.
@@ -2423,3 +2421,5 @@ http/tests/webgpu/webgpu/web_platform/copyToTexture/ImageBitmap.html [ Pass Time
 [ x86_64 ] http/tests/webgpu/webgpu/web_platform/copyToTexture/video.html [ Skip ]
 
 webkit.org/b/298903 webrtc/video-rotation-black.html [ Pass Failure ]
+
+webkit.org/b/298416 [ Debug ] http/tests/websocket/construct-in-detached-frame.html [ Skip ]
