@@ -50,6 +50,7 @@ static JSC_DECLARE_HOST_FUNCTION(setProtoFuncEntries);
 static JSC_DECLARE_HOST_FUNCTION(setProtoFuncIntersection);
 static JSC_DECLARE_HOST_FUNCTION(setProtoFuncUnion);
 static JSC_DECLARE_HOST_FUNCTION(setProtoFuncDifference);
+static JSC_DECLARE_HOST_FUNCTION(setProtoFuncSymmetricDifference);
 static JSC_DECLARE_HOST_FUNCTION(setProtoFuncIsSubsetOf);
 static JSC_DECLARE_HOST_FUNCTION(setProtoFuncIsSupersetOf);
 static JSC_DECLARE_HOST_FUNCTION(setProtoFuncIsDisjointFrom);
@@ -103,7 +104,7 @@ void SetPrototype::finishCreation(VM& vm, JSGlobalObject* globalObject)
     JSC_NATIVE_FUNCTION_WITHOUT_TRANSITION("union"_s, setProtoFuncUnion, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public);
     JSC_NATIVE_FUNCTION_WITHOUT_TRANSITION("intersection"_s, setProtoFuncIntersection, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public);
     JSC_NATIVE_FUNCTION_WITHOUT_TRANSITION("difference"_s, setProtoFuncDifference, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public);
-    JSC_BUILTIN_FUNCTION_WITHOUT_TRANSITION(vm.propertyNames->builtinNames().symmetricDifferencePublicName(), setPrototypeSymmetricDifferenceCodeGenerator, static_cast<unsigned>(PropertyAttribute::DontEnum));
+    JSC_NATIVE_FUNCTION_WITHOUT_TRANSITION("symmetricDifference"_s, setProtoFuncSymmetricDifference, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public);
     JSC_NATIVE_FUNCTION_WITHOUT_TRANSITION("isSubsetOf"_s, setProtoFuncIsSubsetOf, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public);
     JSC_NATIVE_FUNCTION_WITHOUT_TRANSITION("isSupersetOf"_s, setProtoFuncIsSupersetOf, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public);
     JSC_NATIVE_FUNCTION_WITHOUT_TRANSITION("isDisjointFrom"_s, setProtoFuncIsDisjointFrom, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public);
@@ -645,6 +646,141 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncDifference, (JSGlobalObject* globalObject, 
                 result->remove(globalObject, value);
                 RETURN_IF_EXCEPTION(scope, { });
             }
+        }
+    }
+
+    return JSValue::encode(result);
+}
+
+static EncodedJSValue fastSetSymmetricDifference(JSGlobalObject* globalObject, JSSet* thisSet, JSSet* otherSet)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    JSSet* result = thisSet->clone(globalObject, vm, globalObject->setStructure());
+    RETURN_IF_EXCEPTION(scope, { });
+
+    JSCell* otherStorageCell = otherSet->storageOrSentinel(vm);
+    if (otherStorageCell != vm.orderedHashTableSentinel()) {
+        auto* otherStorage = jsCast<JSSet::Storage*>(otherStorageCell);
+        JSSet::Helper::Entry entry = 0;
+
+        while (true) {
+            otherStorageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, *otherStorage, entry);
+            if (otherStorageCell == vm.orderedHashTableSentinel())
+                break;
+
+            auto* currentStorage = jsCast<JSSet::Storage*>(otherStorageCell);
+            entry = JSSet::Helper::iterationEntry(*currentStorage) + 1;
+            JSValue entryKey = JSSet::Helper::getIterationEntryKey(*currentStorage);
+
+            bool thisHasEntry = thisSet->has(globalObject, entryKey);
+            RETURN_IF_EXCEPTION(scope, { });
+
+            if (thisHasEntry) {
+                result->remove(globalObject, entryKey);
+                RETURN_IF_EXCEPTION(scope, { });
+            } else {
+                result->add(globalObject, entryKey);
+                RETURN_IF_EXCEPTION(scope, { });
+            }
+
+            otherStorage = currentStorage;
+        }
+    }
+
+    return JSValue::encode(result);
+}
+
+JSC_DEFINE_HOST_FUNCTION(setProtoFuncSymmetricDifference, (JSGlobalObject* globalObject, CallFrame* callFrame))
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    JSSet* thisSet = getSet(globalObject, callFrame->thisValue());
+    RETURN_IF_EXCEPTION(scope, { });
+
+    JSValue otherValue = callFrame->argument(0);
+
+    if (otherValue.isCell()) [[likely]] {
+        if (auto* otherSet = jsDynamicCast<JSSet*>(otherValue.asCell())) [[likely]] {
+            if (setPrimordialWatchpointIsValid(vm, otherSet)) [[likely]] {
+                scope.release();
+                return fastSetSymmetricDifference(globalObject, thisSet, otherSet);
+            }
+        }
+    }
+
+    getSetSizeAsInt(globalObject, otherValue);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    ASSERT(otherValue.isObject());
+    JSObject* otherObject = asObject(otherValue);
+
+    JSValue has = otherObject->get(globalObject, vm.propertyNames->has);
+    RETURN_IF_EXCEPTION(scope, { });
+    if (!has.isCallable()) [[unlikely]]
+        return throwVMTypeError(globalObject, scope, "Set.prototype.symmetricDifference expects other.has to be callable"_s);
+
+    JSValue keys = otherObject->get(globalObject, vm.propertyNames->keys);
+    RETURN_IF_EXCEPTION(scope, { });
+    if (!keys.isCallable()) [[unlikely]]
+        return throwVMTypeError(globalObject, scope, "Set.prototype.symmetricDifference expects other.keys to be callable"_s);
+
+    CallData keysCallData = JSC::getCallData(keys);
+    MarkedArgumentBuffer keysArgs;
+    ASSERT(!keysArgs.hasOverflowed());
+    JSValue keysResult = call(globalObject, keys, keysCallData, otherValue, keysArgs);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    JSValue nextMethod = keysResult.get(globalObject, vm.propertyNames->next);
+    RETURN_IF_EXCEPTION(scope, { });
+    if (!nextMethod.isCallable()) [[unlikely]]
+        return throwVMTypeError(globalObject, scope, "Set.prototype.symmetricDifference expects other.keys().next to be callable"_s);
+
+    JSSet* result = thisSet->clone(globalObject, vm, globalObject->setStructure());
+    RETURN_IF_EXCEPTION(scope, { });
+
+    CallData nextCallData = JSC::getCallData(nextMethod);
+
+    std::optional<CachedCall> cachedNextCall;
+    if (nextCallData.type == CallData::Type::JS) [[likely]] {
+        cachedNextCall.emplace(globalObject, jsCast<JSFunction*>(nextMethod), 0);
+        RETURN_IF_EXCEPTION(scope, { });
+    }
+
+    while (true) {
+        JSValue nextResult;
+        if (cachedNextCall) [[likely]] {
+            nextResult = cachedNextCall->callWithArguments(globalObject, keysResult);
+            RETURN_IF_EXCEPTION(scope, { });
+        } else {
+            MarkedArgumentBuffer nextArgs;
+            ASSERT(!nextArgs.hasOverflowed());
+            nextResult = call(globalObject, nextMethod, nextCallData, keysResult, nextArgs);
+            RETURN_IF_EXCEPTION(scope, { });
+        }
+
+        JSValue doneValue = nextResult.get(globalObject, vm.propertyNames->done);
+        RETURN_IF_EXCEPTION(scope, { });
+
+        bool done = doneValue.toBoolean(globalObject);
+        RETURN_IF_EXCEPTION(scope, { });
+        if (done)
+            break;
+
+        JSValue value = nextResult.get(globalObject, vm.propertyNames->value);
+        RETURN_IF_EXCEPTION(scope, { });
+
+        bool thisHasValue = thisSet->has(globalObject, value);
+        RETURN_IF_EXCEPTION(scope, { });
+
+        if (thisHasValue) {
+            result->remove(globalObject, value);
+            RETURN_IF_EXCEPTION(scope, { });
+        } else {
+            result->add(globalObject, value);
+            RETURN_IF_EXCEPTION(scope, { });
         }
     }
 
