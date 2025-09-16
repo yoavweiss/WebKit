@@ -44,8 +44,8 @@ public:
 private:
     enum class SkipFloats : bool { No, Yes };
     void candidateContentForLine(LineCandidate&, std::pair<size_t, size_t> startEndIndex, const InlineItemRange& needsLayoutRange, InlineLayoutUnit currentLogicalRight, SkipFloats = SkipFloats::No);
-    InlineLayoutUnit leadingPunctuationWidthForLineCandiate(size_t firstInlineTextItemIndex, size_t candidateContentStartIndex) const;
-    InlineLayoutUnit trailingPunctuationOrStopOrCommaWidthForLineCandiate(size_t lastInlineTextItemIndex, size_t layoutRangeEnd) const;
+    InlineLayoutUnit leadingPunctuationWidthForLineCandiate(const LineCandidate&) const;
+    InlineLayoutUnit trailingPunctuationOrStopOrCommaWidthForLineCandiate(const LineCandidate&, size_t startIndexAfterCandidateContent,  size_t layoutRangeEnd) const;
 
     struct Result {
         InlineContentBreaker::IsEndOfLine isEndOfLine { InlineContentBreaker::IsEndOfLine::No };

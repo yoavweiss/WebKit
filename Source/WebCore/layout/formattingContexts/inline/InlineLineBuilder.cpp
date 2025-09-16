@@ -206,12 +206,17 @@ struct LineCandidate {
 
         void setMinimumRequiredWidth(InlineLayoutUnit minimumRequiredWidth) { m_continuousContent.setMinimumRequiredWidth(minimumRequiredWidth); }
 
+        std::optional<size_t> firstTextRunIndex() const { return m_firstTextRunIndex; }
+        std::optional<size_t> lastTextRunIndex() const { return m_lastTextRunIndex; }
+
     private:
         InlineContentBreaker::ContinuousContent m_continuousContent;
         const InlineItem* m_trailingLineBreak { nullptr };
         const InlineItem* m_trailingWordBreakOpportunity { nullptr };
         bool m_hasTrailingClonedDecoration { false };
         bool m_hasTrailingSoftWrapOpportunity { false };
+        std::optional<size_t> m_firstTextRunIndex { };
+        std::optional<size_t> m_lastTextRunIndex { };
     };
 
     // Candidate content is a collection of inline content or a float box.
@@ -224,8 +229,12 @@ inline void LineCandidate::InlineContent::appendInlineItem(const InlineItem& inl
     if (inlineItem.isAtomicInlineBox() || inlineItem.isInlineBoxStartOrEnd() || inlineItem.isOpaque())
         return m_continuousContent.append(inlineItem, style, logicalWidth, textSpacingAdjustment);
 
-    if (auto* inlineTextItem = dynamicDowncast<InlineTextItem>(inlineItem))
+    if (auto* inlineTextItem = dynamicDowncast<InlineTextItem>(inlineItem)) {
+        auto numberOfRuns = m_continuousContent.runs().size();
+        m_firstTextRunIndex = m_firstTextRunIndex.value_or(numberOfRuns);
+        m_lastTextRunIndex = numberOfRuns;
         return m_continuousContent.appendTextContent(*inlineTextItem, style, logicalWidth);
+    }
 
     if (inlineItem.isLineBreak()) {
         m_trailingLineBreak = &inlineItem;
@@ -247,6 +256,8 @@ inline void LineCandidate::InlineContent::reset()
     m_trailingWordBreakOpportunity = { };
     m_hasTrailingClonedDecoration = { };
     m_hasTrailingSoftWrapOpportunity = { };
+    m_firstTextRunIndex = { };
+    m_lastTextRunIndex = { };
 }
 
 inline void LineCandidate::reset()
@@ -610,48 +621,69 @@ UniqueRef<LineContent> LineBuilder::placeInlineAndFloatContent(const InlineItemR
     return lineContent;
 }
 
-InlineLayoutUnit LineBuilder::leadingPunctuationWidthForLineCandiate(size_t firstInlineTextItemIndex, size_t candidateContentStartIndex) const
+InlineLayoutUnit LineBuilder::leadingPunctuationWidthForLineCandiate(const LineCandidate& lineCandidate) const
 {
+    auto& inlineContent = lineCandidate.inlineContent;
+    auto firstTextRunIndex = inlineContent.firstTextRunIndex();
+    if (!firstTextRunIndex)
+        return { };
+
     auto isFirstLineFirstContent = isFirstFormattedLineCandidate() && !m_line.hasContent();
     if (!isFirstLineFirstContent)
         return { };
 
-    auto& inlineTextItem = downcast<InlineTextItem>(m_inlineItemList[firstInlineTextItemIndex]);
-    auto& style = isFirstFormattedLineCandidate() ? inlineTextItem.firstLineStyle() : inlineTextItem.style();
-    if (!TextUtil::hasHangablePunctuationStart(inlineTextItem, style))
+    auto& runs = inlineContent.continuousContent().runs();
+    auto* inlineTextItem = dynamicDowncast<InlineTextItem>(runs[*firstTextRunIndex].inlineItem);
+    if (!inlineTextItem) {
+        ASSERT_NOT_REACHED();
+        return { };
+    }
+    auto& style = isFirstFormattedLineCandidate() ? inlineTextItem->firstLineStyle() : inlineTextItem->style();
+    if (!TextUtil::hasHangablePunctuationStart(*inlineTextItem, style))
         return { };
 
-    if (firstInlineTextItemIndex) {
+    if (*firstTextRunIndex) {
         // The text content is not the first in the candidate list. However it may be the first contentful one.
-        for (size_t index = firstInlineTextItemIndex; index-- > candidateContentStartIndex;) {
-            if (isContentfulOrHasDecoration(m_inlineItemList[index], formattingContext()))
+        for (size_t index = *firstTextRunIndex; index--;) {
+            if (isContentfulOrHasDecoration(runs[index].inlineItem, formattingContext()))
                 return { };
         }
     }
     // This candidate leading content may have hanging punctuation start.
-    return TextUtil::hangablePunctuationStartWidth(inlineTextItem, style);
+    return TextUtil::hangablePunctuationStartWidth(*inlineTextItem, style);
 }
 
-InlineLayoutUnit LineBuilder::trailingPunctuationOrStopOrCommaWidthForLineCandiate(size_t lastInlineTextItemIndex, size_t layoutRangeEnd) const
+InlineLayoutUnit LineBuilder::trailingPunctuationOrStopOrCommaWidthForLineCandiate(const LineCandidate& lineCandidate, size_t startIndexAfterCandidateContent,  size_t layoutRangeEnd) const
 {
-    auto& inlineTextItem = downcast<InlineTextItem>(m_inlineItemList[lastInlineTextItemIndex]);
-    auto& style = isFirstFormattedLineCandidate() ? inlineTextItem.firstLineStyle() : inlineTextItem.style();
+    auto& inlineContent = lineCandidate.inlineContent;
+    auto lastTextRunIndex = inlineContent.lastTextRunIndex();
+    if (!lastTextRunIndex)
+        return { };
 
-    if (TextUtil::hasHangableStopOrCommaEnd(inlineTextItem, style)) {
-        // Stop or comma does apply to all lines not just the last formatted one.
-        return TextUtil::hangableStopOrCommaEndWidth(inlineTextItem, style);
+    auto& runs = inlineContent.continuousContent().runs();
+    auto* inlineTextItem = dynamicDowncast<InlineTextItem>(runs[*lastTextRunIndex].inlineItem);
+    if (!inlineTextItem) {
+        ASSERT_NOT_REACHED();
+        return { };
     }
 
-    if (TextUtil::hasHangablePunctuationEnd(inlineTextItem, style)) {
+    auto& style = isFirstFormattedLineCandidate() ? inlineTextItem->firstLineStyle() : inlineTextItem->style();
+
+    if (TextUtil::hasHangableStopOrCommaEnd(*inlineTextItem, style)) {
+        // Stop or comma does apply to all lines not just the last formatted one.
+        return TextUtil::hangableStopOrCommaEndWidth(*inlineTextItem, style);
+    }
+
+    if (TextUtil::hasHangablePunctuationEnd(*inlineTextItem, style)) {
         // FIXME: If this turns out to be problematic (finding out if this is the last formatted line that is), we
         // may have to fallback to a post-process setup, where after finishing laying out the content, we go back and re-layout
         // the last (2?) line(s) when there's trailing hanging punctuation.
         // For now let's probe the content all the way to layoutRangeEnd.
-        for (auto index = lastInlineTextItemIndex + 1; index < layoutRangeEnd; ++index) {
+        for (auto index = startIndexAfterCandidateContent; index < layoutRangeEnd; ++index) {
             if (isContentfulOrHasDecoration(m_inlineItemList[index], formattingContext()))
                 return { };
         }
-        return TextUtil::hangablePunctuationEndWidth(inlineTextItem, style);
+        return TextUtil::hangablePunctuationEndWidth(*inlineTextItem, style);
     }
 
     return { };
@@ -675,8 +707,6 @@ void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, std::pai
         ++startEndIndex.first;
     }
 
-    auto firstInlineTextItemIndex = std::optional<size_t> { };
-    auto lastInlineTextItemIndex = std::optional<size_t> { };
     auto trailingSoftHyphenInlineTextItemIndex = std::optional<size_t> { };
     auto textSpacingAdjustment = InlineLayoutUnit { };
     auto contentHasInlineItemsWithDecorationClone = !m_line.inlineBoxListWithClonedDecorationEnd().isEmpty();
@@ -713,8 +743,6 @@ void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, std::pai
             lineCandidate.inlineContent.appendInlineItem(*inlineTextItem, style, logicalWidth);
             // Word spacing does not make the run longer, but it produces an offset instead. See Line::appendTextContent as well.
             currentLogicalRight += logicalWidth + (inlineTextItem->isWordSeparator() ? style.fontCascade().wordSpacing() : 0.f);
-            firstInlineTextItemIndex = firstInlineTextItemIndex.value_or(index);
-            lastInlineTextItemIndex = index;
             trailingSoftHyphenInlineTextItemIndex = inlineTextItem->hasTrailingSoftHyphen() ? std::make_optional(index) : std::nullopt;
             continue;
         }
@@ -763,12 +791,12 @@ void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, std::pai
     lineCandidate.inlineContent.setHasTrailingClonedDecoration(contentHasInlineItemsWithDecorationClone);
 
     auto setLeadingAndTrailingHangingPunctuation = [&] {
-        auto hangingContentWidth = lineCandidate.inlineContent.continuousContent().hangingContentWidth();
+        auto& inlineContent = lineCandidate.inlineContent;
+        auto hangingContentWidth = inlineContent.continuousContent().hangingContentWidth();
         // Do not even try to check for trailing punctuation when the candidate content already has whitespace type of hanging content.
-        if (!hangingContentWidth && lastInlineTextItemIndex)
-            hangingContentWidth += trailingPunctuationOrStopOrCommaWidthForLineCandiate(*lastInlineTextItemIndex, layoutRange.endIndex());
-        if (firstInlineTextItemIndex)
-            hangingContentWidth += leadingPunctuationWidthForLineCandiate(*firstInlineTextItemIndex, startEndIndex.first);
+        if (!hangingContentWidth)
+            hangingContentWidth += trailingPunctuationOrStopOrCommaWidthForLineCandiate(lineCandidate, startEndIndex.second, layoutRange.endIndex());
+        hangingContentWidth += leadingPunctuationWidthForLineCandiate(lineCandidate);
         if (hangingContentWidth)
             lineCandidate.inlineContent.setHangingContentWidth(hangingContentWidth);
     };
