@@ -108,6 +108,7 @@ static Vector<int32_t> int32Operands()
         42,
         -42,
         64,
+        static_cast<int32_t>(0x80000000U),
         std::numeric_limits<int32_t>::max(),
         std::numeric_limits<int32_t>::min(),
     };
@@ -155,6 +156,7 @@ static Vector<int64_t> int64Operands()
         42,
         -42,
         64,
+        static_cast<int64_t>(0x8000000000000000ULL),
         std::numeric_limits<int32_t>::max(),
         std::numeric_limits<int32_t>::min(),
         std::numeric_limits<int64_t>::max(),
@@ -376,6 +378,128 @@ void testBranchTruncateDoubleToInt32(double val, int32_t expected)
         jit.ret();
     }), expected);
 }
+
+static void testBranch32()
+{
+    auto compare = [](CCallHelpers::RelationalCondition cond, int32_t v1, int32_t v2) -> int {
+        switch (cond) {
+        case CCallHelpers::LessThan:
+            return !!(static_cast<int32_t>(v1) < static_cast<int32_t>(v2));
+        case CCallHelpers::LessThanOrEqual:
+            return !!(static_cast<int32_t>(v1) <= static_cast<int32_t>(v2));
+        case CCallHelpers::GreaterThan:
+            return !!(static_cast<int32_t>(v1) > static_cast<int32_t>(v2));
+        case CCallHelpers::GreaterThanOrEqual:
+            return !!(static_cast<int32_t>(v1) >= static_cast<int32_t>(v2));
+        case CCallHelpers::Below:
+            return !!(static_cast<uint32_t>(v1) < static_cast<uint32_t>(v2));
+        case CCallHelpers::BelowOrEqual:
+            return !!(static_cast<uint32_t>(v1) <= static_cast<uint32_t>(v2));
+        case CCallHelpers::Above:
+            return !!(static_cast<uint32_t>(v1) > static_cast<uint32_t>(v2));
+        case CCallHelpers::AboveOrEqual:
+            return !!(static_cast<uint32_t>(v1) >= static_cast<uint32_t>(v2));
+        case CCallHelpers::Equal:
+            return !!(static_cast<uint32_t>(v1) == static_cast<uint32_t>(v2));
+        case CCallHelpers::NotEqual:
+            return !!(static_cast<uint32_t>(v1) != static_cast<uint32_t>(v2));
+        }
+        return 0;
+    };
+
+    for (auto value : int32Operands()) {
+        for (auto value2 : int32Operands()) {
+            auto tryTest = [&](CCallHelpers::RelationalCondition cond) {
+                auto test = compile([=](CCallHelpers& jit) {
+                    emitFunctionPrologue(jit);
+
+                    auto branch = jit.branch32(cond, GPRInfo::argumentGPR0, CCallHelpers::TrustedImm32(value2));
+                    jit.move(CCallHelpers::TrustedImm32(0), GPRInfo::returnValueGPR);
+                    auto done = jit.jump();
+                    branch.link(&jit);
+                    jit.move(CCallHelpers::TrustedImm32(1), GPRInfo::returnValueGPR);
+                    done.link(&jit);
+
+                    emitFunctionEpilogue(jit);
+                    jit.ret();
+                });
+                CHECK_EQ(invoke<int>(test, value), compare(cond, value, value2));
+            };
+            tryTest(CCallHelpers::LessThan);
+            tryTest(CCallHelpers::LessThanOrEqual);
+            tryTest(CCallHelpers::GreaterThan);
+            tryTest(CCallHelpers::GreaterThanOrEqual);
+            tryTest(CCallHelpers::Below);
+            tryTest(CCallHelpers::BelowOrEqual);
+            tryTest(CCallHelpers::Above);
+            tryTest(CCallHelpers::AboveOrEqual);
+            tryTest(CCallHelpers::Equal);
+            tryTest(CCallHelpers::NotEqual);
+        }
+    }
+}
+
+#if CPU(X86_64) || CPU(ARM64)
+static void testBranch64()
+{
+    auto compare = [](CCallHelpers::RelationalCondition cond, int64_t v1, int64_t v2) -> int {
+        switch (cond) {
+        case CCallHelpers::LessThan:
+            return !!(static_cast<int64_t>(v1) < static_cast<int64_t>(v2));
+        case CCallHelpers::LessThanOrEqual:
+            return !!(static_cast<int64_t>(v1) <= static_cast<int64_t>(v2));
+        case CCallHelpers::GreaterThan:
+            return !!(static_cast<int64_t>(v1) > static_cast<int64_t>(v2));
+        case CCallHelpers::GreaterThanOrEqual:
+            return !!(static_cast<int64_t>(v1) >= static_cast<int64_t>(v2));
+        case CCallHelpers::Below:
+            return !!(static_cast<uint64_t>(v1) < static_cast<uint64_t>(v2));
+        case CCallHelpers::BelowOrEqual:
+            return !!(static_cast<uint64_t>(v1) <= static_cast<uint64_t>(v2));
+        case CCallHelpers::Above:
+            return !!(static_cast<uint64_t>(v1) > static_cast<uint64_t>(v2));
+        case CCallHelpers::AboveOrEqual:
+            return !!(static_cast<uint64_t>(v1) >= static_cast<uint64_t>(v2));
+        case CCallHelpers::Equal:
+            return !!(static_cast<uint64_t>(v1) == static_cast<uint64_t>(v2));
+        case CCallHelpers::NotEqual:
+            return !!(static_cast<uint64_t>(v1) != static_cast<uint64_t>(v2));
+        }
+        return 0;
+    };
+
+    for (auto value : int64Operands()) {
+        for (auto value2 : int64Operands()) {
+            auto tryTest = [&](CCallHelpers::RelationalCondition cond) {
+                auto test = compile([=](CCallHelpers& jit) {
+                    emitFunctionPrologue(jit);
+
+                    auto branch = jit.branch64(cond, GPRInfo::argumentGPR0, CCallHelpers::TrustedImm64(value2));
+                    jit.move(CCallHelpers::TrustedImm32(0), GPRInfo::returnValueGPR);
+                    auto done = jit.jump();
+                    branch.link(&jit);
+                    jit.move(CCallHelpers::TrustedImm32(1), GPRInfo::returnValueGPR);
+                    done.link(&jit);
+
+                    emitFunctionEpilogue(jit);
+                    jit.ret();
+                });
+                CHECK_EQ(invoke<int>(test, value), compare(cond, value, value2));
+            };
+            tryTest(CCallHelpers::LessThan);
+            tryTest(CCallHelpers::LessThanOrEqual);
+            tryTest(CCallHelpers::GreaterThan);
+            tryTest(CCallHelpers::GreaterThanOrEqual);
+            tryTest(CCallHelpers::Below);
+            tryTest(CCallHelpers::BelowOrEqual);
+            tryTest(CCallHelpers::Above);
+            tryTest(CCallHelpers::AboveOrEqual);
+            tryTest(CCallHelpers::Equal);
+            tryTest(CCallHelpers::NotEqual);
+        }
+    }
+}
+#endif
 
 void testBranchTest8()
 {
@@ -6113,6 +6237,8 @@ void run(const char* filter) WTF_IGNORES_THREAD_SAFETY_ANALYSIS
     RUN(testLoadStorePair32());
     RUN(testSub32ArgImm());
 
+    RUN(testBranch32());
+
     RUN(testBranchTest8());
     RUN(testBranchTest16());
 
@@ -6126,6 +6252,7 @@ void run(const char* filter) WTF_IGNORES_THREAD_SAFETY_ANALYSIS
 #endif
 
 #if CPU(X86_64) || CPU(ARM64)
+    RUN(testBranch64());
     RUN(testClearBit64());
     RUN(testClearBits64WithMask());
     RUN(testClearBits64WithMaskTernary());
