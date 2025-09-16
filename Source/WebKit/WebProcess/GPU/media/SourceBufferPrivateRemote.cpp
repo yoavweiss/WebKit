@@ -384,6 +384,13 @@ Ref<SourceBufferPrivate::ComputeSeekPromise> SourceBufferPrivateRemote::computeS
     });
 }
 
+void SourceBufferPrivateRemote::seekToTime(const MediaTime& time)
+{
+    ensureWeakOnDispatcher([time](auto& buffer) {
+        buffer.sendToProxy(Messages::RemoteSourceBufferProxy::SeekToTime(time));
+    });
+}
+
 void SourceBufferPrivateRemote::updateTrackIds(Vector<std::pair<TrackID, TrackID>>&& trackIDPairs)
 {
     ensureWeakOnDispatcher([trackIDPairs = WTFMove(trackIDPairs)](auto& buffer) mutable {

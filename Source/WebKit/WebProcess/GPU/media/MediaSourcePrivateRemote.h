@@ -98,6 +98,7 @@ public:
         MessageReceiver(MediaSourcePrivateRemote&);
         void didReceiveMessage(IPC::Connection&, IPC::Decoder&) final;
         void proxyWaitForTarget(const WebCore::SeekTarget&, CompletionHandler<void(WebCore::MediaTimePromise::Result&&)>&&);
+        void proxySeekToTime(const MediaTime&, CompletionHandler<void(WebCore::MediaPromise::Result&&)>&&);
 
         RefPtr<WebCore::MediaSourcePrivateClient> client() const;
         ThreadSafeWeakPtr<MediaSourcePrivateRemote> m_parent;

@@ -100,6 +100,14 @@ Ref<MediaTimePromise> RemoteMediaSourceProxy::waitForTarget(const SeekTarget& ta
     return MediaTimePromise::createAndReject(PlatformMediaError::IPCError);
 }
 
+Ref<MediaPromise> RemoteMediaSourceProxy::seekToTime(const MediaTime& time)
+{
+    if (RefPtr connection = connectionToWebProcess())
+        return connection->connection().sendWithPromisedReply<MediaPromiseConverter>(Messages::MediaSourcePrivateRemoteMessageReceiver::ProxySeekToTime(time), m_identifier);
+
+    return MediaPromise::createAndReject(PlatformMediaError::IPCError);
+}
+
 #if !RELEASE_LOG_DISABLED
 void RemoteMediaSourceProxy::setLogIdentifier(uint64_t)
 {

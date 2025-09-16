@@ -242,21 +242,24 @@ void MockMediaPlayerMediaSource::seekToTarget(const SeekTarget& target)
         if (!protectedThis || !result)
             return;
 
-        const auto seekTime = *result;
-        protectedThis->protectedMediaSourcePrivate()->seekToTime(seekTime);
-        protectedThis->m_lastSeekTarget.reset();
-        protectedThis->m_currentTime = seekTime;
+        protectedThis->protectedMediaSourcePrivate()->seekToTime(*result)->whenSettled(RunLoop::currentSingleton(), [weakThis, seekTime = *result] {
+            RefPtr protectedThis = weakThis.get();
+            if (!protectedThis)
+                return;
+            protectedThis->m_lastSeekTarget.reset();
+            protectedThis->m_currentTime = seekTime;
 
-        if (RefPtr player = protectedThis->m_player.get()) {
-            player->seeked(seekTime);
-            player->timeChanged();
-        }
+            if (RefPtr player = protectedThis->m_player.get()) {
+                player->seeked(seekTime);
+                player->timeChanged();
+            }
 
-        if (protectedThis->m_playing) {
-            callOnMainThread([protectedThis = WTFMove(protectedThis)] {
-                protectedThis->advanceCurrentTime();
-            });
-        }
+            if (protectedThis->m_playing) {
+                callOnMainThread([protectedThis = WTFMove(protectedThis)] {
+                    protectedThis->advanceCurrentTime();
+                });
+            }
+        });
     });
 }
 

@@ -104,10 +104,11 @@ Ref<MediaTimePromise> MediaSourcePrivate::waitForTarget(const SeekTarget& target
     return MediaTimePromise::createAndReject(PlatformMediaError::ClientDisconnected);
 }
 
-void MediaSourcePrivate::seekToTime(const MediaTime& seekTime)
+Ref<MediaPromise> MediaSourcePrivate::seekToTime(const MediaTime& time)
 {
-    for (RefPtr sourceBuffer : m_activeSourceBuffers)
-        sourceBuffer->seekToTime(seekTime);
+    if (RefPtr client = this->client())
+        return client->seekToTime(time);
+    return MediaPromise::createAndReject(PlatformMediaError::ClientDisconnected);
 }
 
 void MediaSourcePrivate::removeSourceBuffer(SourceBufferPrivate& sourceBuffer)
