@@ -130,7 +130,6 @@ private:
     bool canAppend(uint64_t requiredSize) const final;
 
     Ref<ComputeSeekPromise> computeSeekTime(const WebCore::SeekTarget&) final;
-    void seekToTime(const MediaTime&) final;
 
     void updateTrackIds(Vector<std::pair<TrackID, TrackID>>&&) final;
     uint64_t totalTrackBufferSizeInBytes() const final;

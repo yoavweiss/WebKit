@@ -165,17 +165,6 @@ private:
         return promise;
     }
 
-    Ref<MediaPromise> seekToTime(const MediaTime& time) final
-    {
-        MediaPromise::AutoRejectProducer producer(PlatformMediaError::SourceRemoved);
-        auto promise = producer.promise();
-
-        ensureWeakOnDispatcher([producer = WTFMove(producer), time](MediaSource& parent) mutable {
-            parent.seekToTime(time)->chainTo(WTFMove(producer));
-        });
-        return promise;
-    }
-
     RefPtr<MediaSourcePrivate> mediaSourcePrivate() const final
     {
         Locker locker { m_lock };
@@ -470,13 +459,6 @@ void MediaSource::completeSeek()
     });
     promise->chainTo(WTFMove(*m_seekTargetPromise));
     m_seekTargetPromise.reset();
-}
-
-Ref<MediaPromise> MediaSource::seekToTime(const MediaTime& time)
-{
-    for (Ref sourceBuffer : m_activeSourceBuffers.get())
-        sourceBuffer->seekToTime(time);
-    return MediaPromise::createAndResolve();
 }
 
 PlatformTimeRanges MediaSource::seekable()

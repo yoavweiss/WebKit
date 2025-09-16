@@ -206,7 +206,6 @@ private:
     void removeSourceBufferWithOptionalDestruction(SourceBuffer&, bool withDestruction);
 
     Ref<MediaTimePromise> waitForTarget(const SeekTarget&);
-    Ref<MediaPromise> seekToTime(const MediaTime&);
     using RendererType = MediaSourcePrivateClient::RendererType;
     void failedToCreateRenderer(RendererType);
 

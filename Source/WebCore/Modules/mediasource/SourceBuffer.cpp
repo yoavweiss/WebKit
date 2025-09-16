@@ -599,12 +599,6 @@ Ref<SourceBuffer::ComputeSeekPromise> SourceBuffer::computeSeekTime(const SeekTa
     return m_private->computeSeekTime(target);
 }
 
-void SourceBuffer::seekToTime(const MediaTime& time)
-{
-    ALWAYS_LOG(LOGIDENTIFIER, time);
-    m_private->seekToTime(time);
-}
-
 bool SourceBuffer::virtualHasPendingActivity() const
 {
     return !!m_source;
