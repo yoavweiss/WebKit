@@ -2000,6 +2000,12 @@ bool Quirks::needsWebKitMediaTextTrackDisplayQuirk() const
     return needsQuirks() && m_quirksData.needsWebKitMediaTextTrackDisplayQuirk;
 }
 
+// logic-masters.de rdar://159975950
+bool Quirks::needsTextInputBoxSizingBorderBoxQuirk() const
+{
+    return needsQuirks() && m_quirksData.needsTextInputBoxSizingBorderBoxQuirk;
+}
+
 // rdar://138806698
 bool Quirks::shouldSupportHoverMediaQueries() const
 {
@@ -2710,6 +2716,14 @@ static void handleLiveQuirks(QuirksData& quirksData, const URL& quirksURL, const
 #endif
 }
 
+static void handleLogicMastersQuirks(QuirksData& quirksData, const URL&, const String& quirksDomainString, const URL&)
+{
+    if (quirksDomainString != "logic-masters.de"_s)
+        return;
+
+    quirksData.needsTextInputBoxSizingBorderBoxQuirk = true;
+}
+
 static void handleMarcusQuirks(QuirksData& quirksData, const URL& quirksURL, const String& quirksDomainString, const URL& documentURL)
 {
     if (quirksDomainString != "marcus.com"_s)
@@ -3131,6 +3145,7 @@ void Quirks::determineRelevantQuirks()
         { "instagram"_s, &handleInstagramQuirks },
 #endif
         { "live"_s, &handleLiveQuirks },
+        { "logic-masters"_s, &handleLogicMastersQuirks },
 #if PLATFORM(IOS_FAMILY)
         { "mailchimp"_s, &handleMailChimpQuirks },
 #endif
