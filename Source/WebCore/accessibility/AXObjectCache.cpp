@@ -1926,6 +1926,9 @@ void AXObjectCache::onStyleChange(Element& element, OptionSet<Style::Change> cha
 
     if (oldStyle->speakAs() != newStyle->speakAs())
         postNotification(*object, AXNotification::SpeakAsChanged);
+
+    if (oldStyle->cursorType() != newStyle->cursorType())
+        postNotification(*object, AXNotification::CursorTypeChanged);
 #endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 }
 
@@ -4819,6 +4822,9 @@ void AXObjectCache::updateIsolatedTree(const Vector<std::pair<Ref<AccessibilityO
             break;
         case AXNotification::CurrentStateChanged:
             tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::CurrentState });
+            break;
+        case AXNotification::CursorTypeChanged:
+            tree->updatePropertiesForSelfAndDescendants(notification.first.get(), { AXProperty::HasCursorPointer });
             break;
         case AXNotification::ColumnCountChanged:
             tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::AXColumnCount });

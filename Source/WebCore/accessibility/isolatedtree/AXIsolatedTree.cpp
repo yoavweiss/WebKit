@@ -786,6 +786,9 @@ void AXIsolatedTree::updateNodeProperties(AccessibilityObject& axObject, const A
         case AXProperty::CellScope:
             properties.append({ AXProperty::CellScope, axObject.cellScope().isolatedCopy() });
             break;
+        case AXProperty::HasCursorPointer:
+            properties.append({ AXProperty::HasCursorPointer, axObject.hasCursorPointer() });
+            break;
         case AXProperty::RadioButtonGroupMembers:
             properties.append({ AXProperty::RadioButtonGroupMembers, axIDs(axObject.radioButtonGroup()) });
             break;
@@ -1690,6 +1693,8 @@ std::optional<AXPropertyFlag> convertToPropertyFlag(AXProperty property)
         return AXPropertyFlag::HasBoldFont;
     case AXProperty::HasClickHandler:
         return AXPropertyFlag::HasClickHandler;
+    case AXProperty::HasCursorPointer:
+        return AXPropertyFlag::HasCursorPointer;
     case AXProperty::HasItalicFont:
         return AXPropertyFlag::HasItalicFont;
     case AXProperty::HasPlainText:
@@ -1844,6 +1849,7 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
 
         // These properties are cached for all objects, ignored and unignored.
         setProperty(AXProperty::HasClickHandler, object.hasClickHandler());
+        setProperty(AXProperty::HasCursorPointer, object.hasCursorPointer());
         auto elementName = object.elementName();
         if (shouldCacheElementName(elementName))
             setProperty(AXProperty::ElementName, elementName);

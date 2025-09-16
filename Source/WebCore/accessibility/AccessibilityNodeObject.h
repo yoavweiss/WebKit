@@ -193,6 +193,11 @@ public:
     bool hasAccNameAttribute() const;
     bool hasAttributesRequiredForInclusion() const final;
     bool hasClickHandler() const final;
+    bool hasCursorPointer() const final
+    {
+        CheckedPtr style = this->style();
+        return style && style->cursorType() == CursorType::Pointer;
+    }
     void setIsExpanded(bool) final;
 
     Element* actionElement() const override;

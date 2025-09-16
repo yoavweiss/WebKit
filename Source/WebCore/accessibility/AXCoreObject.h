@@ -1200,6 +1200,8 @@ public:
 #endif
 
     virtual bool hasClickHandler() const = 0;
+    virtual bool hasCursorPointer() const = 0;
+    AXCoreObject* clickableSelfOrNonInteractiveAncestor();
     virtual AXCoreObject* clickableSelfOrAncestor(ClickHandlerFilter = ClickHandlerFilter::ExcludeBody) const = 0;
     virtual AXCoreObject* focusableAncestor() = 0;
     virtual AXCoreObject* editableAncestor() const = 0;
@@ -1691,6 +1693,7 @@ WTF::TextStream& operator<<(WTF::TextStream&, AccessibilityRole);
 WTF::TextStream& operator<<(WTF::TextStream&, AccessibilitySearchDirection);
 WTF::TextStream& operator<<(WTF::TextStream&, AccessibilityObjectInclusion);
 WTF::TextStream& operator<<(WTF::TextStream&, const AXCoreObject&);
+WTF::TextStream& operator<<(WTF::TextStream&, Vector<AccessibilityText>&);
 WTF::TextStream& operator<<(WTF::TextStream&, AccessibilityText);
 WTF::TextStream& operator<<(WTF::TextStream&, AccessibilityTextSource);
 WTF::TextStream& operator<<(WTF::TextStream&, AXRelation);

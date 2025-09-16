@@ -1305,10 +1305,17 @@ bool AXCoreObject::supportsPressAction() const
         // other appropriate ARIA markup indicating interactivity (e.g. by applying role="button"). We can repair these
         // scenarios by checking for a clickable ancestor. But want to do so selectively, as naively exposing press on
         // every text can be annoying as some screenreaders read "clickable" for each static text.
-        if (RefPtr clickableAncestor = Accessibility::clickableSelfOrAncestor(*this, [&] (const auto& ancestor) {
-            // Stop iterating if we walk over an implicitly interactive element on our way to the click handler, as
-            // we can rely on the semantics of that element to imply pressability. Also stop when encountering the body
-            // or main to avoid exposing pressability for everything in web apps that implement an event-delegation mechanism.
+        if (!hasCursorPointer()) {
+            // If the author hasn't provided a pointer cursor, the visual experience also doesn't express
+            // pressability, so return.
+            return false;
+        }
+
+        if (RefPtr clickableAncestor = Accessibility::clickableSelfOrAncestor(*this, /* stopFunction */ [&] (const auto& ancestor) {
+            // Stop iterating and return nullptr if we walk over an implicitly interactive element on our way to the
+            // click handler, as we can rely on the semantics of that element to imply pressability. Also stop when
+            // encountering the body or main to avoid exposing pressability for everything in web apps that implement
+            // an event-delegation mechanism.
             return ancestor.isImplicitlyInteractive() || ancestor.role() == AccessibilityRole::LandmarkMain || ancestor.hasBodyTag();
         })) {
             unsigned matches = 0;
@@ -1316,18 +1323,35 @@ bool AXCoreObject::supportsPressAction() const
             RefPtr candidate = clickableAncestor;
             while ((candidate = candidate->nextInPreOrder(/* updateChildren */ true, /* stayWithin */ clickableAncestor.get()))) {
                 if (candidate->isStaticText() || candidate->isControl() || candidate->isImage() || candidate->isHeading() || candidate->isLink()) {
-                    if (!candidate->isIgnored())
+                    if (!candidate->isIgnored()) {
+                        if (!matches && this != candidate.get()) {
+                            // Only support press action for the first descendant. Some ATs, like VoiceOver, use the result of this function
+                            // to read "clickable", but reading it for every descendant of the clickable ancestor would be excessive.
+                            return false;
+                        }
                         ++matches;
+                    }
 
-                    if (matches >= 2)
+                    static constexpr unsigned MAX_MATCHES = 6;
+                    if (matches >= MAX_MATCHES) {
+                        // If something has more than the arbitrarily-chosen number of valid matches,
+                        // this click handler is probably too coarse to be useful.
                         return false;
+                    }
                 }
 
                 ++candidatesChecked;
-                if (candidatesChecked > 256)
+                static constexpr unsigned MAX_CANDIDATES = 256;
+                if (candidatesChecked > MAX_CANDIDATES) {
+                    // If we've walked over the arbitrarily-chosen max number of potential candidates,
+                    // this click handler is probably too coarse to be useful, and too much traversing
+                    // can harm performance.
                     return false;
+                }
             }
-            return true;
+            // If we get here, and matches is greater than zero, we can assume we were the first matching
+            // candidate for the click handler, and that there weren't too many matches or candidates checked.
+            return matches > 0;
         }
     }
     return false;

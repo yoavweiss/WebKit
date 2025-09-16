@@ -68,6 +68,7 @@ public:
     bool isTable() const final { return boolAttributeValue(AXProperty::IsTable); }
     bool isExposableTable() const final { return boolAttributeValue(AXProperty::IsExposableTable); }
     bool hasClickHandler() const final { return boolAttributeValue(AXProperty::HasClickHandler); }
+    bool hasCursorPointer() const final { return boolAttributeValue(AXProperty::HasCursorPointer);  }
     FloatRect relativeFrame() const final;
 
     bool hasAttachmentTag() const final { return elementName() == ElementName::HTML_attachment; }
