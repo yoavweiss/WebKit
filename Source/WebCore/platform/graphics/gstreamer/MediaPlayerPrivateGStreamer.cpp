@@ -3598,7 +3598,7 @@ void MediaPlayerPrivateGStreamer::acceleratedRenderingStateChanged()
     m_canRenderingBeAccelerated = player && player->acceleratedCompositingEnabled();
 }
 
-bool MediaPlayerPrivateGStreamer::performTaskAtTime(Function<void()>&& task, const MediaTime& time)
+bool MediaPlayerPrivateGStreamer::performTaskAtTime(Function<void(const MediaTime&)>&& task, const MediaTime& time)
 {
     ASSERT(isMainThread());
 
@@ -3610,8 +3610,10 @@ bool MediaPlayerPrivateGStreamer::performTaskAtTime(Function<void()>&& task, con
     std::optional<Function<void()>> taskToSchedule;
     {
         DataMutexLocker taskAtMediaTimeScheduler { m_TaskAtMediaTimeSchedulerDataMutex };
-        taskAtMediaTimeScheduler->setTask(WTFMove(task), time,
-            m_playbackRate >= 0 ? TaskAtMediaTimeScheduler::Forward : TaskAtMediaTimeScheduler::Backward);
+        taskAtMediaTimeScheduler->setTask([weakThis = ThreadSafeWeakPtr { *this }, task = WTFMove(task)]() mutable {
+            if (RefPtr protectedThis = weakThis.get())
+                task(protectedThis->currentTime());
+        }, time, m_playbackRate >= 0 ? TaskAtMediaTimeScheduler::Forward : TaskAtMediaTimeScheduler::Backward);
         taskToSchedule = taskAtMediaTimeScheduler->checkTaskForScheduling(currentTime);
     }
 

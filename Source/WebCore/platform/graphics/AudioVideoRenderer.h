@@ -48,10 +48,11 @@ class VideoFrame;
 
 class AudioInterface {
 public:
+    using PitchCorrectionAlgorithm = MediaPlayerPitchCorrectionAlgorithm;
     virtual ~AudioInterface() = default;
     virtual void setVolume(float) = 0;
     virtual void setMuted(bool) = 0;
-    virtual void setPreservesPitch(bool) { }
+    virtual void setPreservesPitchAndCorrectionAlgorithm(bool, std::optional<PitchCorrectionAlgorithm>) { }
 #if HAVE(AUDIO_OUTPUT_DEVICE_UNIQUE_ID)
     virtual void setOutputDeviceId(const String&) { }
 #endif
@@ -69,7 +70,7 @@ public:
     virtual void notifyWhenHasAvailableVideoFrame(Function<void(const MediaTime&, double)>&&) { }
     virtual void notifyWhenRequiresFlushToResume(Function<void()>&&) { }
     virtual void notifyRenderingModeChanged(Function<void()>&&) { }
-    virtual void setMinimumUpcomingPresentationTime(const MediaTime&) { }
+    virtual void expectMinimumUpcomingPresentationTime(const MediaTime&) { }
     virtual void notifySizeChanged(Function<void(const MediaTime&, FloatSize)>&&) { }
     virtual void setShouldDisableHDR(bool) { };
     virtual void setPlatformDynamicRangeLimit(const PlatformDynamicRangeLimit&) { };
@@ -96,13 +97,15 @@ public:
 class SynchronizerInterface {
 public:
     virtual ~SynchronizerInterface() = default;
-    virtual void play() = 0;
-    virtual void pause() = 0;
+    virtual void play(std::optional<MonotonicTime> hostTime = std::nullopt) = 0;
+    virtual void pause(std::optional<MonotonicTime> hostTime = std::nullopt) = 0;
     virtual bool paused() const = 0;
     virtual void setRate(double) = 0;
     virtual double effectiveRate() const = 0;
+    virtual void stall() { };
     virtual void prepareToSeek() { }
     virtual Ref<MediaTimePromise> seekTo(const MediaTime&) = 0;
+    virtual bool seeking() const = 0;
 };
 
 enum class SamplesRendererTrackIdentifierType { };
@@ -125,11 +128,14 @@ public:
     virtual bool isReadyForMoreSamples(TrackIdentifier) = 0;
     virtual void requestMediaDataWhenReady(TrackIdentifier, Function<void(TrackIdentifier)>&&) = 0;
     virtual void stopRequestingMediaData(TrackIdentifier) = 0;
+    virtual void notifyTrackNeedsReenqueuing(TrackIdentifier, Function<void(TrackIdentifier, const MediaTime&)>&&) { }
 
     virtual bool timeIsProgressing() const = 0;
+    virtual void notifyEffectiveRateChanged(Function<void(double)>&&) { }
     virtual MediaTime currentTime() const = 0;
-    virtual void setDuration(MediaTime) { }
-    virtual void notifyDurationReached(Function<void(const MediaTime&)>&&) = 0;
+    virtual void notifyTimeReachedAndStall(const MediaTime&, Function<void(const MediaTime&)>&&) { }
+    virtual void cancelTimeReachedAction() { }
+    virtual void performTaskAtTime(const MediaTime&, Function<void(const MediaTime&)>&&) { }
 
     virtual void flush() = 0;
     virtual void flushTrack(TrackIdentifier) = 0;

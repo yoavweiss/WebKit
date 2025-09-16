@@ -1868,7 +1868,7 @@ AVPlayer* MediaPlayer::objCAVFoundationAVPlayer() const
 
 #endif
 
-bool MediaPlayer::performTaskAtTime(Function<void()>&& task, const MediaTime& time)
+bool MediaPlayer::performTaskAtTime(Function<void(const MediaTime&)>&& task, const MediaTime& time)
 {
     return protectedPrivate()->performTaskAtTime(WTFMove(task), time);
 }

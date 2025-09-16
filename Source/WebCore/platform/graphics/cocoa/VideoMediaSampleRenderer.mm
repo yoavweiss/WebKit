@@ -358,15 +358,10 @@ void VideoMediaSampleRenderer::setTimebase(RetainPtr<CMTimebaseRef>&& timebase)
     });
     dispatch_activate(timerSource.get());
     PAL::CMTimebaseAddTimerDispatchSource(timebase.get(), timerSource.get());
-    m_effectiveRateChangedListener = EffectiveRateChangedListener::create([weakThis = ThreadSafeWeakPtr { *this }, dispatcher = dispatcher()] {
-        dispatcher->dispatch([weakThis] {
-            if (RefPtr protectedThis = weakThis.get()) {
-                RetainPtr timebase = protectedThis->timebase();
-                if (!timebase)
-                    return;
-                if (PAL::CMTimebaseGetRate(timebase.get()))
+    m_effectiveRateChangedListener = EffectiveRateChangedListener::create([weakThis = ThreadSafeWeakPtr { *this }, dispatcher = dispatcher()](double rate) {
+        dispatcher->dispatch([weakThis, rate] {
+            if (RefPtr protectedThis = weakThis.get(); protectedThis && rate)
                     protectedThis->purgeDecodedSampleQueue(protectedThis->m_flushId);
-            }
         });
     }, timebase.get());
     m_timebaseAndTimerSource = { WTFMove(timebase), WTFMove(timerSource) };

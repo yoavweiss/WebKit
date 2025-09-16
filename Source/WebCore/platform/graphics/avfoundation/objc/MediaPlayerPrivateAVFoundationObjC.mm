@@ -104,6 +104,7 @@
 #import <pal/spi/cocoa/QuartzCoreSPI.h>
 #import <pal/text/TextCodecUTF8.h>
 #import <wtf/BlockObjCExceptions.h>
+#import <wtf/BlockPtr.h>
 #import <wtf/CompletionHandler.h>
 #import <wtf/FileSystem.h>
 #import <wtf/Function.h>
@@ -3961,19 +3962,17 @@ auto MediaPlayerPrivateAVFoundationObjC::asyncVideoPlaybackQualityMetrics() -> R
     });
 }
 
-bool MediaPlayerPrivateAVFoundationObjC::performTaskAtTime(WTF::Function<void()>&& task, const MediaTime& time)
+bool MediaPlayerPrivateAVFoundationObjC::performTaskAtTime(WTF::Function<void(const MediaTime&)>&& task, const MediaTime& time)
 {
     if (!m_avPlayer)
         return false;
 
-    __block WTF::Function<void()> taskIn = WTFMove(task);
-
     if (m_timeObserver)
         [m_avPlayer removeTimeObserver:m_timeObserver.get()];
 
-    m_timeObserver = [m_avPlayer addBoundaryTimeObserverForTimes:@[[NSValue valueWithCMTime:PAL::toCMTime(time)]] queue:mainDispatchQueueSingleton() usingBlock:^{
-        taskIn();
-    }];
+    m_timeObserver = [m_avPlayer addBoundaryTimeObserverForTimes:@[[NSValue valueWithCMTime:PAL::toCMTime(time)]] queue:mainDispatchQueueSingleton() usingBlock:makeBlockPtr([task = WTFMove(task), avPlayer = m_avPlayer] {
+        task(PAL::toMediaTime([avPlayer currentTime]));
+    }).get()];
     return true;
 }
 

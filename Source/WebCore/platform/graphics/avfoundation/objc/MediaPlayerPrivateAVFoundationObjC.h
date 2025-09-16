@@ -339,7 +339,7 @@ private:
 
     AVPlayer *objCAVFoundationAVPlayer() const final { return m_avPlayer.get(); }
 
-    bool performTaskAtTime(Function<void()>&&, const MediaTime&) final;
+    bool performTaskAtTime(Function<void(const MediaTime&)>&&, const MediaTime&) final;
     void setShouldObserveTimeControlStatus(bool);
 
     void setPreferredDynamicRangeMode(DynamicRangeMode) final;

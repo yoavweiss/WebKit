@@ -184,7 +184,7 @@ public:
     unsigned decodedFrameCount() const final;
     unsigned droppedFrameCount() const final;
     void acceleratedRenderingStateChanged() final;
-    bool performTaskAtTime(Function<void()>&&, const MediaTime&) override;
+    bool performTaskAtTime(Function<void(const MediaTime&)>&&, const MediaTime&) override;
     void isLoopingChanged() final;
     void audioOutputDeviceChanged() final;
 

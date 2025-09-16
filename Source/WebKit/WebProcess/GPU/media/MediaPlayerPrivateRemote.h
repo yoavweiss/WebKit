@@ -458,7 +458,7 @@ private:
     AVPlayer *objCAVFoundationAVPlayer() const final { return nullptr; }
 #endif
 
-    bool performTaskAtTime(Function<void()>&&, const MediaTime&) final;
+    bool performTaskAtTime(Function<void(const MediaTime&)>&&, const MediaTime&) final;
 
     bool supportsPlayAtHostTime() const final { return m_configuration.supportsPlayAtHostTime; }
     bool supportsPauseAtHostTime() const final { return m_configuration.supportsPauseAtHostTime; }
