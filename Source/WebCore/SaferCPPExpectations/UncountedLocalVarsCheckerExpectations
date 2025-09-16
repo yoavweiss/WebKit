@@ -345,7 +345,6 @@ platform/graphics/avfoundation/objc/CDMInstanceFairPlayStreamingAVFObjC.mm
 platform/graphics/avfoundation/objc/MediaSourcePrivateAVFObjC.mm
 platform/graphics/ca/GraphicsLayerCA.cpp
 platform/graphics/ca/TileGrid.cpp
-platform/graphics/ca/cocoa/PlatformCALayerCocoa.mm
 platform/graphics/coreimage/FEColorMatrixCoreImageApplier.mm
 platform/graphics/coreimage/FEComponentTransferCoreImageApplier.mm
 platform/graphics/coreimage/SourceGraphicCoreImageApplier.mm

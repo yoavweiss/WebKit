@@ -56,7 +56,6 @@ Modules/webaudio/AudioWorkletMessagingProxy.cpp
 Modules/webaudio/AudioWorkletNode.cpp
 Modules/webaudio/BaseAudioContext.cpp
 Modules/webaudio/BiquadFilterNode.cpp
-Modules/webaudio/ChannelMergerNode.cpp
 Modules/webaudio/ConvolverNode.cpp
 Modules/webaudio/DefaultAudioDestinationNode.cpp
 Modules/webaudio/DelayNode.cpp
@@ -375,7 +374,6 @@ editing/ChangeListTypeCommand.cpp
 editing/CompositeEditCommand.cpp
 editing/CustomUndoStep.cpp
 editing/DeleteSelectionCommand.cpp
-editing/EditCommand.cpp
 editing/Editing.cpp
 editing/Editor.cpp
 editing/EditorCommand.cpp

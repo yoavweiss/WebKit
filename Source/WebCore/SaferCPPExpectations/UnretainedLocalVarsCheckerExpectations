@@ -52,7 +52,6 @@ platform/graphics/avfoundation/objc/LocalSampleBufferDisplayLayer.mm
 platform/graphics/avfoundation/objc/MediaPlayerPrivateAVFoundationObjC.mm
 platform/graphics/avfoundation/objc/MediaPlayerPrivateMediaSourceAVFObjC.mm
 platform/graphics/avfoundation/objc/MediaPlayerPrivateMediaStreamAVFObjC.mm
-platform/graphics/avfoundation/objc/QueuedVideoOutput.mm
 platform/graphics/avfoundation/objc/SourceBufferParserAVFObjC.mm
 platform/graphics/avfoundation/objc/SourceBufferPrivateAVFObjC.mm
 platform/graphics/ca/cocoa/PlatformCAAnimationCocoa.mm
@@ -63,7 +62,6 @@ platform/graphics/cg/GraphicsContextCG.cpp
 platform/graphics/cg/GraphicsContextGLCG.cpp
 platform/graphics/cg/ImageDecoderCG.cpp
 platform/graphics/cg/PathCG.cpp
-platform/graphics/cg/PatternCG.cpp
 platform/graphics/cg/ShareableBitmapCG.mm
 platform/graphics/cocoa/AV1UtilitiesCocoa.mm
 platform/graphics/cocoa/CMUtilities.mm
@@ -86,7 +84,6 @@ platform/graphics/cv/CVUtilities.mm
 platform/graphics/cv/ImageRotationSessionVT.mm
 platform/graphics/cv/ImageTransferSessionVT.mm
 platform/graphics/cv/VideoFrameCV.mm
-platform/graphics/mac/GraphicsChecksMac.cpp
 platform/graphics/mac/controls/ControlMac.mm
 platform/graphics/mac/controls/ImageControlsButtonMac.mm
 platform/graphics/mac/controls/MenuListButtonMac.mm
@@ -113,7 +110,6 @@ platform/mac/ScrollingMomentumCalculatorMac.mm
 platform/mac/SerializedPlatformDataCueMac.mm
 platform/mac/WebCoreNSFontManagerExtras.mm
 platform/mac/WidgetMac.mm
-platform/mediarecorder/cocoa/MediaRecorderPrivateWriterAVFObjC.mm
 platform/mediastream/mac/AVVideoCaptureSource.mm
 platform/mediastream/mac/CoreAudioSharedUnit.mm
 platform/mediastream/mac/RealtimeIncomingVideoSourceCocoa.mm
