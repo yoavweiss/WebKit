@@ -5,7 +5,7 @@
  *           (C) 1999 Lars Knoll (knoll@kde.org)
  *           (C) 1999 Antti Koivisto (koivisto@kde.org)
  * Copyright (C) 2003-2025 Apple Inc. All rights reserved.
- * Copyright (C) 2014 Google Inc. All rights reserved.
+ * Copyright (C) 2014-2018 Google Inc. All rights reserved.
  * Copyright (C) 2006 Alexey Proskuryakov (ap@nypop.com)
  *
  * This library is free software; you can redistribute it and/or
@@ -589,10 +589,20 @@ void RenderTableSection::layoutRows()
         if (RenderTableRow* rowRenderer = m_grid[rowIndex].rowRenderer) {
             // FIXME: the x() position of the row should be table()->hBorderSpacing() so that it can 
             // report the correct offsetLeft. However, that will require a lot of rebaselining of test results.
-            rowRenderer->setLogicalLeft(0_lu);
-            rowRenderer->setLogicalTop(m_rowPos[rowIndex]);
+            rowRenderer->setLogicalLocation({ 0_lu, m_rowPos[rowIndex] });
             rowRenderer->setLogicalWidth(logicalWidth());
-            rowRenderer->setLogicalHeight(m_rowPos[rowIndex + 1] - m_rowPos[rowIndex] - vspacing);
+
+            LayoutUnit rowLogicalHeight;
+            // If the row is collapsed then it has 0 height. vspacing was implicitly
+            // removed earlier, when m_rowPos[rowIndex+1] was set to m_rowPos[rowIndex].
+            auto rowHasVisibilityCollapse = [&](auto row) {
+                return (m_grid[row].rowRenderer && m_grid[row].rowRenderer->style().visibility() == Visibility::Collapse) || style().visibility() == Visibility::Collapse;
+            };
+            if (!rowHasVisibilityCollapse(rowIndex))
+                rowLogicalHeight = m_rowPos[rowIndex + 1] - m_rowPos[rowIndex] - vspacing;
+
+            ASSERT(rowLogicalHeight >= 0);
+            rowRenderer->setLogicalHeight(rowLogicalHeight);
             rowRenderer->updateLayerTransform();
             rowRenderer->clearOverflow();
             rowRenderer->addVisualEffectOverflow();
