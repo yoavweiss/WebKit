@@ -498,6 +498,11 @@ LayoutRect AnchorPositionEvaluator::computeAnchorRectRelativeToContainingBlock(C
             anchorLocation.moveBy(-anchorBox->view().frameView().scrollPositionRespectingCustomFixedPosition());
     }
 
+    if (CheckedPtr containingBox = dynamicDowncast<RenderBox>(containingBlock)) {
+        if (containingBox->shouldPlaceVerticalScrollbarOnLeft())
+            anchorLocation.move(-containingBox->verticalScrollbarWidth(), 0);
+    }
+
     return LayoutRect(anchorLocation, LayoutSize(anchorWidth, anchorHeight));
 }
 
@@ -659,7 +664,7 @@ static LayoutUnit computeInsetValue(CSSPropertyID insetPropertyID, CheckedRef<co
     if (constraints.startIsBefore() == isFlipped)
         anchorPercentage = 1 - anchorPercentage;
 
-    auto containingBlock = anchorPositionedRenderer->container();
+    CheckedPtr containingBlock = anchorPositionedRenderer->container();
     ASSERT(containingBlock);
     auto anchorRect = AnchorPositionEvaluator::computeAnchorRectRelativeToContainingBlock(anchorBox, *containingBlock, anchorPositionedRenderer.get());
     auto anchorRange = constraints.extractRange(anchorRect);
