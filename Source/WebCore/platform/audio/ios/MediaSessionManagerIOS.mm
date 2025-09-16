@@ -55,7 +55,7 @@ RefPtr<PlatformMediaSessionManager> PlatformMediaSessionManager::create(std::opt
 MediaSessionManageriOS::MediaSessionManageriOS()
     : MediaSessionManagerCocoa()
 {
-    AudioSession::singleton().addInterruptionObserver(*this);
+    AudioSession::addInterruptionObserver(*this);
 }
 
 MediaSessionManageriOS::~MediaSessionManageriOS()
@@ -63,7 +63,7 @@ MediaSessionManageriOS::~MediaSessionManageriOS()
     if (m_isMonitoringWirelessRoutes)
         MediaSessionHelper::sharedHelper().stopMonitoringWirelessRoutes();
     MediaSessionHelper::sharedHelper().removeClient(*this);
-    AudioSession::singleton().removeInterruptionObserver(*this);
+    AudioSession::removeInterruptionObserver(*this);
 }
 
 #if !PLATFORM(MACCATALYST)

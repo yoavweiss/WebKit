@@ -152,14 +152,20 @@ bool AudioSession::tryToSetActive(bool active)
     return true;
 }
 
+static WeakHashSet<AudioSessionInterruptionObserver>& audioSessionInterruptionObserversSingleton()
+{
+    static NeverDestroyed<WeakHashSet<AudioSessionInterruptionObserver>> audioSessionInterruptionObservers;
+    return audioSessionInterruptionObservers.get();
+}
+
 void AudioSession::addInterruptionObserver(AudioSessionInterruptionObserver& observer)
 {
-    m_interruptionObservers.add(observer);
+    audioSessionInterruptionObserversSingleton().add(observer);
 }
 
 void AudioSession::removeInterruptionObserver(AudioSessionInterruptionObserver& observer)
 {
-    m_interruptionObservers.remove(observer);
+    audioSessionInterruptionObserversSingleton().remove(observer);
 }
 
 void AudioSession::beginInterruption()
@@ -170,7 +176,7 @@ void AudioSession::beginInterruption()
         return;
     }
     m_isInterrupted = true;
-    for (auto& observer : m_interruptionObservers)
+    for (auto& observer : audioSessionInterruptionObserversSingleton())
         observer.beginAudioSessionInterruption();
 }
 
@@ -183,13 +189,13 @@ void AudioSession::endInterruption(MayResume mayResume)
     }
     m_isInterrupted = false;
 
-    for (auto& observer : m_interruptionObservers)
+    for (auto& observer : audioSessionInterruptionObserversSingleton())
         observer.endAudioSessionInterruption(mayResume);
 }
 
 void AudioSession::activeStateChanged()
 {
-    for (auto& observer : m_interruptionObservers)
+    for (auto& observer : audioSessionInterruptionObserversSingleton())
         observer.audioSessionActiveStateChanged();
 }
 
