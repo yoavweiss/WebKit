@@ -4051,7 +4051,7 @@ class WaitForCrashCollection(shell.CompileNewStyle):
         return super().getResultSummary()
 
 
-class RunWebKitTests(shell.Test, AddToLogMixin, ShellMixin):
+class RunWebKitTests(shell.TestNewStyle, AddToLogMixin, ShellMixin):
     name = 'layout-tests'
     description = ['layout-tests running']
     descriptionDone = ['layout-tests']
@@ -4092,7 +4092,6 @@ class RunWebKitTests(shell.Test, AddToLogMixin, ShellMixin):
         self.command += ['--debug-rwt-logging']
 
         patch_author = self.getProperty('patch_author')
-        self.maxTime = None
         if patch_author in ['webkit-wpt-import-bot@igalia.com']:
             self.command += ['imported/w3c/web-platform-tests']
         elif GitHub.NO_FAILURE_LIMITS_LABEL in self.getProperty('github_labels', []):
@@ -4122,14 +4121,16 @@ class RunWebKitTests(shell.Test, AddToLogMixin, ShellMixin):
             result['maxTime'] = self.maxTime
         return result
 
-    def start(self, BufferLogObserverClass=logobserver.BufferLogObserver):
+    @defer.inlineCallbacks
+    def run(self, BufferLogObserverClass=logobserver.BufferLogObserver):
         self.log_observer = BufferLogObserverClass(wantStderr=True)
         self.addLogObserver('stdio', self.log_observer)
         self.log_observer_json = logobserver.BufferLogObserver()
         self.addLogObserver('json', self.log_observer_json)
         self.setLayoutTestCommand()
         self.command = self.shell_command(' '.join(quote(str(c)) for c in self.command) + ' 2>&1 | Tools/Scripts/filter-test-logs layout')
-        return super().start()
+        rc = yield super().run()
+        defer.returnValue(rc)
 
     # FIXME: This will break if run-webkit-tests changes its default log formatter.
     nrwt_log_message_regexp = re.compile(r'\d{2}:\d{2}:\d{2}(\.\d+)?\s+\d+\s+(?P<message>.*)')
@@ -4183,7 +4184,7 @@ class RunWebKitTests(shell.Test, AddToLogMixin, ShellMixin):
             self.setProperty('first_run_failures', sorted(first_results.failing_tests))
             self.setProperty('first_run_flakies', sorted(first_results.flaky_tests))
             if first_results.failing_tests:
-                self._addToLog(self.test_failures_log_name, '\n'.join(first_results.failing_tests))
+                yield self._addToLog(self.test_failures_log_name, '\n'.join(first_results.failing_tests))
 
             if is_main and first_results.failing_tests and not first_results.did_exceed_test_failure_limit:
                 yield self.filter_failures_using_results_db(first_results.failing_tests)
@@ -4209,19 +4210,19 @@ class RunWebKitTests(shell.Test, AddToLogMixin, ShellMixin):
         else:
             configuration['flavor'] = 'wk2'
 
-        self._addToLog(self.results_db_log_name, f'Checking Results database for failing tests. Identifier: {identifier}, configuration: {configuration}')
+        yield self._addToLog(self.results_db_log_name, f'Checking Results database for failing tests. Identifier: {identifier}, configuration: {configuration}')
         has_commit = False
         if failing_tests and identifier:
             has_commit = yield ResultsDatabase.has_commit(commit=identifier)
             if not has_commit:
-                self._addToLog(self.results_db_log_name, f"'{identifier}' could not be found on the results database, falling back to tip-of-tree\n")
+                yield self._addToLog(self.results_db_log_name, f"'{identifier}' could not be found on the results database, falling back to tip-of-tree\n")
 
         for test in failing_tests:
             data = yield ResultsDatabase.is_test_pre_existing_failure(
                 test, configuration=configuration,
                 commit=identifier if has_commit else None,
             )
-            self._addToLog(self.results_db_log_name, f"\n{test}: pass_rate: {data['pass_rate']}, pre-existing-failure={data['is_existing_failure']}\nResponse from results-db: {data['raw_data']}\n{data['logs']}")
+            yield self._addToLog(self.results_db_log_name, f"\n{test}: pass_rate: {data['pass_rate']}, pre-existing-failure={data['is_existing_failure']}\nResponse from results-db: {data['raw_data']}\n{data['logs']}")
             if data['is_existing_failure']:
                 self.preexisting_failures_in_results_db.append(test)
                 self.failing_tests_filtered.remove(test)
@@ -4281,7 +4282,7 @@ class RunWebKitTests(shell.Test, AddToLogMixin, ShellMixin):
             if RunWebKitTestsInStressMode.FAILURE_MSG_IN_STRESS_MODE not in previous_build_summary:
                 self.setProperty('build_summary', message)
             steps_to_add += [ArchiveTestResults(), UploadTestResults(), ExtractTestResults()]
-            self.finished(WARNINGS)
+            return WARNINGS
         else:
             steps_to_add += [
                 ArchiveTestResults(),
@@ -4439,7 +4440,7 @@ class ReRunWebKitTests(RunWebKitTests):
                 self.setProperty('build_summary', message)
             steps_to_add += [ArchiveTestResults(), UploadTestResults(identifier='rerun'), ExtractTestResults(identifier='rerun')]
             self.build.addStepsAfterCurrentStep(steps_to_add)
-            self.finished(WARNINGS)
+            return WARNINGS
         else:
             if (first_results_failing_tests and second_results_failing_tests and len(tests_that_consistently_failed) == 0
                     and num_flaky_failures <= 10
@@ -4455,8 +4456,7 @@ class ReRunWebKitTests(RunWebKitTests):
                     self.setProperty('build_summary', message)
                 steps_to_add += [ArchiveTestResults(), UploadTestResults(identifier='rerun'), ExtractTestResults(identifier='rerun')]
                 self.build.addStepsAfterCurrentStep(steps_to_add)
-                self.finished(WARNINGS)
-                return rc
+                return WARNINGS
             steps_to_add += [
                 ArchiveTestResults(),
                 UploadTestResults(identifier='rerun'),
@@ -4474,7 +4474,7 @@ class ReRunWebKitTests(RunWebKitTests):
 
     @defer.inlineCallbacks
     def runCommand(self, command):
-        yield shell.Test.runCommand(self, command)
+        yield shell.TestNewStyle.runCommand(self, command)
 
         logText = self.log_observer.getStdout() + self.log_observer.getStderr()
         logTextJson = self.log_observer_json.getStdout()
@@ -4487,7 +4487,7 @@ class ReRunWebKitTests(RunWebKitTests):
             self.setProperty('second_run_failures', sorted(second_results.failing_tests))
             self.setProperty('second_run_flakies', sorted(second_results.flaky_tests))
             if second_results.failing_tests:
-                self._addToLog(self.test_failures_log_name, '\n'.join(second_results.failing_tests))
+                yield self._addToLog(self.test_failures_log_name, '\n'.join(second_results.failing_tests))
 
             if is_main and second_results.failing_tests and not second_results.did_exceed_test_failure_limit:
                 yield self.filter_failures_using_results_db(second_results.failing_tests)
@@ -4515,16 +4515,18 @@ class ReRunWebKitTests(RunWebKitTests):
 class RunWebKitTestsWithoutChange(RunWebKitTests):
     name = 'run-layout-tests-without-change'
 
-    def start(self):
+    @defer.inlineCallbacks
+    def run(self):
         api_key = os.getenv(RESULTS_SERVER_API_KEY)
         if api_key:
-            self.workerEnvironment[RESULTS_SERVER_API_KEY] = api_key
+            self.env[RESULTS_SERVER_API_KEY] = api_key
         else:
-            self._addToLog('stdio', 'No API key for {} found'.format(RESULTS_DB_URL))
-        return super().start()
+            yield self._addToLog('stdio', 'No API key for {} found'.format(RESULTS_DB_URL))
+        rc = yield super().run()
+        defer.returnValue(rc)
 
     def evaluateCommand(self, cmd):
-        rc = shell.Test.evaluateCommand(self, cmd)
+        rc = shell.TestNewStyle.evaluateCommand(self, cmd)
         steps_to_add = [
             GenerateS3URL(
                 f"{self.getProperty('fullPlatform')}-{self.getProperty('architecture')}-{self.getProperty('configuration')}-{self.name}",
@@ -4544,7 +4546,7 @@ class RunWebKitTestsWithoutChange(RunWebKitTests):
 
     @defer.inlineCallbacks
     def runCommand(self, command):
-        yield shell.Test.runCommand(self, command)
+        yield shell.TestNewStyle.runCommand(self, command)
 
         logText = self.log_observer.getStdout() + self.log_observer.getStderr()
         logTextJson = self.log_observer_json.getStdout()
@@ -4556,7 +4558,7 @@ class RunWebKitTestsWithoutChange(RunWebKitTests):
             self.setProperty('clean_tree_run_failures', clean_tree_results.failing_tests)
             self.setProperty('clean_tree_run_flakies', sorted(clean_tree_results.flaky_tests))
             if clean_tree_results.failing_tests:
-                self._addToLog(self.test_failures_log_name, '\n'.join(clean_tree_results.failing_tests))
+                yield self._addToLog(self.test_failures_log_name, '\n'.join(clean_tree_results.failing_tests))
         self._parseRunWebKitTestsOutput(logText)
 
     def setLayoutTestCommand(self):
@@ -4861,9 +4863,11 @@ class AnalyzeLayoutTestsResults(buildstep.BuildStep, BugzillaMixin, GitHubMixin)
 
 
 class RunWebKit1Tests(RunWebKitTests):
-    def start(self):
+    @defer.inlineCallbacks
+    def run(self):
         self.setProperty('use-dump-render-tree', True)
-        return RunWebKitTests.start(self)
+        rc = yield RunWebKitTests.run(self)
+        defer.returnValue(rc)
 
 
 # This is a specialized class designed to cope with a tree that is not always green.
@@ -4993,7 +4997,7 @@ class RunWebKitTestsRepeatFailuresRedTree(RunWebKitTestsRedTree):
 
     @defer.inlineCallbacks
     def runCommand(self, command):
-        yield shell.Test.runCommand(self, command)
+        yield shell.TestNewStyle.runCommand(self, command)
         logText = self.log_observer.getStdout() + self.log_observer.getStderr()
         logTextJson = self.log_observer_json.getStdout()
         with_change_repeat_failures_results = LayoutTestFailures.results_from_string(logTextJson)
@@ -5002,14 +5006,16 @@ class RunWebKitTestsRepeatFailuresRedTree(RunWebKitTestsRedTree):
             self.setProperty('with_change_repeat_failures_results_nonflaky_failures', sorted(with_change_repeat_failures_results.failing_tests))
             self.setProperty('with_change_repeat_failures_results_flakies', sorted(with_change_repeat_failures_results.flaky_tests))
             if with_change_repeat_failures_results.failing_tests:
-                self._addToLog(self.test_failures_log_name, '\n'.join(with_change_repeat_failures_results.failing_tests))
+                yield self._addToLog(self.test_failures_log_name, '\n'.join(with_change_repeat_failures_results.failing_tests))
         command_timedout = self._did_command_timed_out(self.log_observer.getHeaders())
         self.setProperty('with_change_repeat_failures_timedout', command_timedout)
         self._parseRunWebKitTestsOutput(logText)
 
-    def start(self):
+    @defer.inlineCallbacks
+    def run(self):
         # buildbot messages about timeout reached appear on the header stream of BufferLog
-        return super().start(BufferLogObserverClass=BufferLogHeaderObserver)
+        rc = yield super().run(BufferLogObserverClass=BufferLogHeaderObserver)
+        defer.returnValue(rc)
 
 
 class RunWebKitTestsRepeatFailuresWithoutChangeRedTree(RunWebKitTestsRedTree):
@@ -5056,7 +5062,7 @@ class RunWebKitTestsRepeatFailuresWithoutChangeRedTree(RunWebKitTestsRedTree):
 
     @defer.inlineCallbacks
     def runCommand(self, command):
-        yield shell.Test.runCommand(self, command)
+        yield shell.TestNewStyle.runCommand(self, command)
         logText = self.log_observer.getStdout() + self.log_observer.getStderr()
         logTextJson = self.log_observer_json.getStdout()
         without_change_repeat_failures_results = LayoutTestFailures.results_from_string(logTextJson)
@@ -5065,21 +5071,23 @@ class RunWebKitTestsRepeatFailuresWithoutChangeRedTree(RunWebKitTestsRedTree):
             self.setProperty('without_change_repeat_failures_results_nonflaky_failures', sorted(without_change_repeat_failures_results.failing_tests))
             self.setProperty('without_change_repeat_failures_results_flakies', sorted(without_change_repeat_failures_results.flaky_tests))
             if without_change_repeat_failures_results.failing_tests:
-                self._addToLog(self.test_failures_log_name, '\n'.join(without_change_repeat_failures_results.failing_tests))
+                yield self._addToLog(self.test_failures_log_name, '\n'.join(without_change_repeat_failures_results.failing_tests))
         command_timedout = self._did_command_timed_out(self.log_observer.getHeaders())
         self.setProperty('without_change_repeat_failures_timedout', command_timedout)
         self._parseRunWebKitTestsOutput(logText)
 
-    def start(self):
+    @defer.inlineCallbacks
+    def run(self):
         # buildbot messages about timeout reached appear on the header stream of BufferLog
-        return super().start(BufferLogObserverClass=BufferLogHeaderObserver)
+        rc = yield super().run(BufferLogObserverClass=BufferLogHeaderObserver)
+        defer.returnValue(rc)
 
 
 class RunWebKitTestsWithoutChangeRedTree(RunWebKitTestsWithoutChange):
     EXIT_AFTER_FAILURES = 500
 
     def evaluateCommand(self, cmd):
-        rc = shell.Test.evaluateCommand(self, cmd)
+        rc = shell.TestNewStyle.evaluateCommand(self, cmd)
         steps_to_add = [
             GenerateS3URL(
                 f"{self.getProperty('fullPlatform')}-{self.getProperty('architecture')}-{self.getProperty('configuration')}-{self.name}",
