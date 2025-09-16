@@ -1243,7 +1243,7 @@ void LineBuilder::commitCanidateContent(const LineCandidate& lineCandidate, std:
             m_line.setContentNeedsBidiReordering();
 
         if (auto* inlineTextItem = dynamicDowncast<InlineTextItem>(inlineItem)) {
-            m_line.appendText(*inlineTextItem, run.style, run.contentWidth());
+            m_line.appendText(*inlineTextItem, run.style, run.contentWidth(), { });
             return;
         }
 
@@ -1297,7 +1297,7 @@ void LineBuilder::commitCanidateContent(const LineCandidate& lineCandidate, std:
             // Create and commit partial trailing item.
             if (auto* trailingInlineTextItem = dynamicDowncast<InlineTextItem>(runs[trailingRunIndex].inlineItem)) {
                 auto partialTrailingTextItem = trailingInlineTextItem->left(partialRun->length);
-                m_line.appendText(partialTrailingTextItem, trailingInlineTextItem->style(), partialRun->logicalWidth);
+                m_line.appendText(partialTrailingTextItem, trailingInlineTextItem->style(), partialRun->logicalWidth, { });
                 if (trailingInlineTextItem->bidiLevel() != UBIDI_DEFAULT_LTR)
                     m_line.setContentNeedsBidiReordering();
             } else

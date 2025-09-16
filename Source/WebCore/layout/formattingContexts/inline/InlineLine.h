@@ -49,7 +49,7 @@ public:
     void initialize(const Vector<InlineItem, 1>& lineSpanningInlineBoxes, bool isFirstFormattedLine);
 
     enum class ShapingBoundary : uint8_t { Start, Middle, End };
-    void appendText(const InlineTextItem&, const RenderStyle&, InlineLayoutUnit logicalWidth);
+    void appendText(const InlineTextItem&, const RenderStyle&, InlineLayoutUnit logicalWidth, std::optional<ShapingBoundary>);
     void appendTextFast(const InlineTextItem&, const RenderStyle&, InlineLayoutUnit logicalWidth); // Reserved for TextOnlySimpleLineBuilder
     void appendAtomicInlineBox(const InlineItem&, const RenderStyle&, InlineLayoutUnit marginBoxLogicalWidth);
     void appendInlineBoxStart(const InlineItem&, const RenderStyle&, InlineLayoutUnit logicalWidth, InlineLayoutUnit textSpacingAdjustment);
@@ -149,10 +149,15 @@ public:
 
         UBiDiLevel bidiLevel() const { return m_bidiLevel; }
 
+        bool isShapingBoundaryStart() const { return isShapingBoundary() && *m_shapingBoundary == Line::ShapingBoundary::Start; }
+        bool isShapingBoundaryEnd() const { return isShapingBoundary() && *m_shapingBoundary == Line::ShapingBoundary::End; }
+        bool isBetweenShapingBoundaries() const { return isShapingBoundary() && *m_shapingBoundary == Line::ShapingBoundary::Middle; }
+        bool isShapingBoundary() const { return m_shapingBoundary.has_value(); }
+
         // FIXME: Maybe add create functions intead?
         Run(const InlineItem&, const RenderStyle&, InlineLayoutUnit logicalLeft);
         Run(const InlineItem& lineSpanningInlineBoxItem, InlineLayoutUnit logicalLeft, InlineLayoutUnit logicalWidth, InlineLayoutUnit textSpacingAdjustment = 0.f);
-        Run(const InlineTextItem&, const RenderStyle&, InlineLayoutUnit logicalLeft, InlineLayoutUnit logicalWidth, InlineLayoutUnit textSpacingAdjustment = 0.f);
+        Run(const InlineTextItem&, const RenderStyle&, InlineLayoutUnit logicalLeft, InlineLayoutUnit logicalWidth, InlineLayoutUnit textSpacingAdjustment = 0.f, std::optional<Line::ShapingBoundary> = std::nullopt);
 
     private:
         friend class Line;
@@ -201,6 +206,7 @@ public:
         std::optional<TrailingWhitespace> m_trailingWhitespace { };
         std::optional<size_t> m_lastNonWhitespaceContentStart { };
         std::optional<Text> m_textContent;
+        std::optional<Line::ShapingBoundary> m_shapingBoundary;
         InlineLayoutUnit m_textSpacingAdjustment { 0 };
     };
     using RunList = Vector<Run, 10>;
