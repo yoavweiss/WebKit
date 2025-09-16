@@ -8277,3 +8277,5 @@ fast/images/low-memory-decode.html [ Pass Timeout ]
 webkit.org/b/298608 imported/w3c/web-platform-tests/digital-credentials/create.tentative.https.html [ Pass Failure ]
 
 webkit.org/b/298903 [ Release ] webrtc/video-rotation-black.html [ Pass Failure ]
+
+webkit.org/b/298905 imported/w3c/web-platform-tests/html/semantics/popovers/label-in-invoker.html [ Pass Failure ]
