@@ -111,6 +111,8 @@ imported/w3c/web-platform-tests/css/css-will-change/will-change-abspos-cb-dynami
 imported/w3c/web-platform-tests/css/css-will-change/will-change-fixedpos-cb-003.html [ Pass ]
 imported/w3c/web-platform-tests/css/css-writing-modes/sizing-orthog-vlr-in-htb-008.xht [ Pass ]
 imported/w3c/web-platform-tests/css/css-writing-modes/text-combine-upright-rtl-002.html [ Pass ]
+imported/w3c/web-platform-tests/html/rendering/replaced-elements/the-select-element/customizable-select/min-height-in-flex.html [ Pass ]
+imported/w3c/web-platform-tests/html/rendering/replaced-elements/the-select-element/customizable-select/min-width-in-flex.html [ Pass ]
 imported/w3c/web-platform-tests/html/rendering/replaced-elements/the-select-element/select-button-min-height-001.html [ Pass ]
 imported/w3c/web-platform-tests/html/rendering/widgets/input-checkbox-zero-size.html [ Pass ]
 imported/w3c/web-platform-tests/html/rendering/widgets/the-select-element/option-add-label-quirks.html [ Pass ]
@@ -431,8 +433,6 @@ imported/w3c/web-platform-tests/quirks/line-height-trailing-collapsable-whitespa
 imported/w3c/web-platform-tests/quirks/text-decoration-doesnt-propagate-into-tables/standards.html [ Pass ]
 
 imported/w3c/web-platform-tests/web-animations/timing-model/animations/update-playback-rate-zero.html [ Pass ]
-
-imported/w3c/web-platform-tests/web-animations/animation-model/animation-types/interpolation-per-property-002.html [ DumpJSConsoleLogInStdErr ]
 
 # Tests that timeout on Apple platforms.
 webkit.org/b/185859 imported/w3c/web-platform-tests/css/selectors/focus-visible-002.html [ Pass ]
@@ -1097,7 +1097,6 @@ imported/w3c/web-platform-tests/css/CSS2/floats/line-pushed-by-floats-crash.html
 imported/w3c/web-platform-tests/css/css-text/hyphens/hyphens-vs-float-clearance-001.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-text/letter-spacing/letter-spacing-ligatures-001.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-text/line-break/line-break-anywhere-overrides-uax-behavior-015.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-text/line-breaking/line-breaking-023.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-text/text-align/text-align-last-justify-br.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-text/text-autospace/text-autospace-mixed-001.html [ Failure ]
 webkit.org/b/229389 imported/w3c/web-platform-tests/css/css-text/white-space/control-chars-001.html [ ImageOnlyFailure ]
@@ -1189,7 +1188,7 @@ webkit.org/b/230926 imported/w3c/web-platform-tests/css/css-fonts/palette-values
 
 webkit.org/b/230080 imported/w3c/web-platform-tests/css/css-transforms/individual-transform/animation/individual-transform-ordering.html [ ImageOnlyFailure ]
 
-webkit.org/b/234819 imported/w3c/web-platform-tests/css/css-transforms/animation/transform-interpolation-matrix.html [ ImageOnlyFailure ]
+webkit.org/b/234819 imported/w3c/web-platform-tests/css/css-transforms/animation/transform-interpolation-matrix.html [ ImageOnlyFailure Pass ]
 
 webkit.org/b/233478 imported/w3c/web-platform-tests/css/css-transforms/backface-visibility-hidden-child-will-change-transform.html [ ImageOnlyFailure ]
 
@@ -1210,6 +1209,11 @@ imported/w3c/web-platform-tests/css/css-images/gradient/conic-gradient-001.html 
 webkit.org/b/215799 imported/w3c/web-platform-tests/css/css-content/quotes-018.html [ ImageOnlyFailure ]
 webkit.org/b/215799 imported/w3c/web-platform-tests/css/css-content/quotes-025.html [ ImageOnlyFailure ]
 webkit.org/b/215799 imported/w3c/web-platform-tests/css/css-content/quotes-027.html [ ImageOnlyFailure ]
+
+imported/w3c/web-platform-tests/css/css-masking/mask-image/mask-mode-d.html [ Pass ]
+imported/w3c/web-platform-tests/css/css-text-decor/text-emphasis-style-property-013.html [ Pass ]
+imported/w3c/web-platform-tests/css/css-text-decor/text-emphasis-style-property-013a.html [ Pass ]
+imported/w3c/web-platform-tests/css/css-text-decor/text-emphasis-style-property-013b.html [ Pass ]
 
 webkit.org/b/237502 fast/dom/Range/getClientRects.html [ Failure ]
 
@@ -1814,43 +1818,6 @@ webkit.org/b/212080 mathml/presentation/href-style.html [ ImageOnlyFailure ]
 webkit.org/b/203146 fast/canvas/offscreen-enabled.html [ Pass ]
 webkit.org/b/203146 http/wpt/offscreen-canvas [ Pass ]
 
-# OffscreenCanvas tests that are flaky due to console output from unhandled Promise rejections due to unimplemented API.
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/compositing/2d.composite.canvas.destination-atop.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/compositing/2d.composite.canvas.destination-in.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/compositing/2d.composite.canvas.lighter.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/compositing/2d.composite.globalAlpha.imagepattern.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/compositing/2d.composite.uncovered.pattern.copy.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/compositing/2d.composite.uncovered.pattern.destination-atop.html [ DumpJSConsoleLogInStdErr  ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/compositing/2d.composite.uncovered.pattern.destination-in.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/compositing/2d.composite.uncovered.pattern.source-in.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/compositing/2d.composite.uncovered.pattern.source-out.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/drawing-images-to-the-canvas/2d.drawImage.3arg.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/drawing-images-to-the-canvas/2d.drawImage.broken.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/drawing-images-to-the-canvas/2d.drawImage.floatsource.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.basic.image.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.crosscanvas.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.norepeat.basic.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.norepeat.coord1.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.norepeat.coord2.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.norepeat.coord3.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.norepeat.outside.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.orientation.image.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.repeat.basic.html  [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.repeat.coord2.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.repeat.coord3.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.repeat.outside.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.repeatx.basic.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.repeatx.coord1.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.repeatx.outside.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.repeaty.basic.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.repeaty.coord1.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.paint.repeaty.outside.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/fill-and-stroke-styles/2d.pattern.repeat.empty.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/shadows/2d.shadow.pattern.alpha.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/shadows/2d.shadow.pattern.basic.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/shadows/2d.shadow.pattern.transparent.1.html [ DumpJSConsoleLogInStdErr ]
-webkit.org/b/209144 imported/w3c/web-platform-tests/html/canvas/offscreen/shadows/2d.shadow.pattern.transparent.2.html [ DumpJSConsoleLogInStdErr ]
-
 webkit.org/b/221311 [ Debug ] imported/w3c/web-platform-tests/html/canvas/offscreen/manual/filter/offscreencanvas.filter.w.html [ Slow ]
 
 webkit.org/b/245334 [ Debug ] imported/w3c/web-platform-tests/html/canvas/offscreen/2d.conformance.requirements.missingargs.html [ Crash ]
@@ -2140,68 +2107,9 @@ webkit.org/b/208182 fast/repaint/backgroundSizeRepaint.html [ ImageOnlyFailure P
 # SOUP and Networking-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
 
-imported/w3c/web-platform-tests/fetch/metadata/generated/css-font-face.https.sub.tentative.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/element-area.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/element-a.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/element-frame.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/element-img.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/element-input-image.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/element-picture.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/element-script.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/element-script.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/fetch.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/fetch.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/fetch-via-serviceworker.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/form-submission.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/header-link.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/header-link.https.sub.tentative.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/header-link.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/script-module-import-dynamic.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/script-module-import-dynamic.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/script-module-import-static.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/script-module-import-static.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/serviceworker.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/svg-image.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/window-location.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/worker-dedicated-constructor.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/worker-dedicated-constructor.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/worker-dedicated-importscripts.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/metadata/generated/worker-dedicated-importscripts.sub.html [ DumpJSConsoleLogInStdErr ]
+webkit.org/b/261024 imported/w3c/web-platform-tests/fetch/metadata/generated/css-font-face.https.sub.tentative.html [ Failure Pass ]
 
 imported/w3c/web-platform-tests/fetch/local-network-access/navigate.tentative.window.html [ Failure ]
-
-imported/w3c/web-platform-tests/fetch/private-network-access/service-worker-fetch.https.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/iframe.tentative.window.html [ DumpJSConsoleLogInStdErr ]
-
-imported/w3c/web-platform-tests/fetch/private-network-access/service-worker-update.https.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/service-worker-background-fetch.https.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/websocket.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/service-worker.https.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/fetch.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/worker.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/redirect.https.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/nested-worker.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/websocket.https.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/shared-worker.https.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/worker.https.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/shared-worker-fetch.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/xhr.https.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/iframe.tentative.https.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/xhr.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/nested-worker.https.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/preflight-cache.https.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/worker-fetch.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/worker-fetch.https.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/resources/worker-fetcher.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/resources/executor.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/resources/socket-opener.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/resources/shared-worker-fetcher.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/resources/service-worker-bridge.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/resources/fetcher.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/resources/xhr-sender.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/resources/iframed.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/resources/iframer.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/private-network-access/shared-worker.window.html [ DumpJSConsoleLogInStdErr ]
 
 # These tests allocate > 8 GB of RAM and cause OOM in test runner bots. Need to investigate as that shouldn't happen.
 webkit.org/b/282428 imported/w3c/web-platform-tests/fetch/api/crashtests/ [ Skip ]
@@ -2913,11 +2821,6 @@ imported/w3c/web-platform-tests/WebCryptoAPI/ [ Slow ]
 # Needs rebasing.
 imported/w3c/web-platform-tests/WebCryptoAPI/historical.any.sharedworker.html [ Failure ]
 
-# TODO: This failure exists in the general TestExpectations, I got in a GTK run.
-# I think marking the whole folder as 'Slow' makes the expected result for this test 'Pass'.
-imported/w3c/web-platform-tests/WebCryptoAPI/encrypt_decrypt/aes_ctr.https.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/WebCryptoAPI/encrypt_decrypt/aes_cbc.https.any.html [ DumpJSConsoleLogInStdErr ]
-
 webkit.org/b/280672 imported/w3c/web-platform-tests/WebCryptoAPI/sign_verify/eddsa_small_order_points.https.any.html [ Crash ]
 webkit.org/b/280672 imported/w3c/web-platform-tests/WebCryptoAPI/sign_verify/eddsa_small_order_points.https.any.worker.html [ Crash ]
 
@@ -2927,20 +2830,16 @@ webkit.org/b/202736 [ Release ] http/wpt/cache-storage/quota-third-party.https.h
 
 webkit.org/b/203240 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/shape-image-025.html [ ImageOnlyFailure Pass ]
 
-webkit.org/b/207623 imported/w3c/web-platform-tests/content-security-policy/reporting/report-same-origin-with-cookies.html [ Pass Failure ]
-
 # newly imported CSP tests failing on GTK and/or WPE.
 imported/w3c/web-platform-tests/content-security-policy/default-src/default-src-sri_hash.sub.html [ Failure ]
-imported/w3c/web-platform-tests/content-security-policy/form-action/form-action-src-blocked.sub.html [ Failure ]
 imported/w3c/web-platform-tests/content-security-policy/frame-ancestors/frame-ancestors-nested-cross-in-same-self-block.html [ Failure ]
 imported/w3c/web-platform-tests/content-security-policy/frame-src/frame-src-blocked-path-matching.sub.html [ Failure ]
-imported/w3c/web-platform-tests/content-security-policy/generic/image-document-ignores-csp.html [ Failure ]
-imported/w3c/web-platform-tests/content-security-policy/generic/policy-inherited-correctly-by-plznavigate.html [ Failure ]
 imported/w3c/web-platform-tests/content-security-policy/generic/src-trailing-dot.sub.any.sharedworker.html [ Failure ]
 imported/w3c/web-platform-tests/content-security-policy/generic/wildcard-host-part.sub.window.html [ Failure ]
 imported/w3c/web-platform-tests/content-security-policy/img-src/img-src-port-wildcard-allowed.sub.html [ Failure ]
 imported/w3c/web-platform-tests/content-security-policy/reporting/report-original-url-on-mixed-content-frame.https.sub.html [ Failure ]
-imported/w3c/web-platform-tests/content-security-policy/worker-src/service-worker-src-child-fallback.https.sub.html [ Failure ]
+
+webkit.org/b/231083 imported/w3c/web-platform-tests/content-security-policy/generic/policy-inherited-correctly-by-plznavigate.html [ Failure Pass ]
 
 # Failing since deferred async loading enabled until document is loaded enabled.
 webkit.org/b/208104 imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/execution-timing/085.html [ Failure Pass ]
@@ -2953,8 +2852,8 @@ webkit.org/b/211692 imported/w3c/web-platform-tests/xhr/event-timeout-order.any.
 webkit.org/b/212217 imported/w3c/web-platform-tests/fetch/api/redirect/redirect-location-escape.tentative.any.html [ Failure ]
 webkit.org/b/212217 imported/w3c/web-platform-tests/fetch/api/redirect/redirect-location-escape.tentative.any.worker.html [ Failure ]
 webkit.org/b/212806 imported/w3c/web-platform-tests/fetch/h1-parsing/resources-with-0x00-in-header.window.html [ Failure ]
-webkit.org/b/212807 imported/w3c/web-platform-tests/fetch/api/basic/header-value-null-byte.any.html [ Failure ]
-webkit.org/b/212807 imported/w3c/web-platform-tests/fetch/api/basic/header-value-null-byte.any.worker.html [ Failure ]
+webkit.org/b/212807 imported/w3c/web-platform-tests/fetch/api/basic/header-value-null-byte.any.html [ Failure Pass ]
+webkit.org/b/212807 imported/w3c/web-platform-tests/fetch/api/basic/header-value-null-byte.any.worker.html [ Failure Pass ]
 webkit.org/b/212807 imported/w3c/web-platform-tests/xhr/headers-normalize-response.htm [ Failure ]
 
 # As of r263626, the imported baseline based on Mojave fails for glib. Added custom baseline for it.
@@ -3091,44 +2990,6 @@ webkit.org/b/232346 fast/canvas/canvas-createPattern-video-modify.html [ Failure
 webkit.org/b/232346 media/video-canvas-createPattern.html [ Failure ]
 webkit.org/b/232346 media/video-canvas-drawing-output.html [ Failure ]
 webkit.org/b/232346 media/video-orientation-canvas.html [ Failure ]
-
-# These have randomly generated tokens in their URLs that make console messages unreliable.
-imported/w3c/web-platform-tests/cors/304.htm [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/cors/cors-safelisted-request-header.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/cors/cors-safelisted-request-header.any.worker.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/cors/redirect-preflight-2.htm [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/cors/simple-requests-ch.tentative.htm [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/api/abort/general.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/api/cors/cors-origin.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/api/cors/cors-preflight.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/api/cors/cors-preflight-redirect.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/api/cors/cors-preflight-response-validation.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/api/cors/cors-preflight-status.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/api/cors/cors-redirect-preflight.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/api/request/request-cache-only-if-cached.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/api/request/request-cache-only-if-cached.any.worker.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/range/general.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/range/general.any.worker.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/service-workers/service-worker/fetch-request-css-images.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/upgrade-insecure-requests/gen/iframe-blank-inherit.meta/upgrade/xhr.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/xhr/access-control-and-redirects-async.any.worker.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/xhr/access-control-preflight-async-header-denied.htm [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/xhr/access-control-preflight-async-method-denied.htm [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/xhr/access-control-preflight-async-not-supported.htm [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/xhr/access-control-preflight-sync-header-denied.htm [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/xhr/access-control-preflight-sync-method-denied.htm [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/xhr/access-control-preflight-sync-not-supported.htm [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/xhr/send-conditional-cors.htm [ DumpJSConsoleLogInStdErr ]
-
-# These tests print console messages in an unreliable order.
-imported/w3c/web-platform-tests/cors/preflight-failure.htm [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/cors/redirect-userinfo.htm [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/cors/status-async.htm [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/api/basic/block-mime-as-script.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/nosniff/script.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/fetch/nosniff/stylesheet.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/xhr/xmlhttprequest-sync-default-feature-policy.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/xhr/access-control-and-redirects-async.any.html [ DumpJSConsoleLogInStdErr ]
 
 # These are skipped globally as they only work with the web-platform.test domain.
 imported/w3c/web-platform-tests/fetch/metadata/fetch.https.sub.any.html [ Pass ]
@@ -3601,8 +3462,6 @@ webkit.org/b/264587 imported/w3c/web-platform-tests/html/semantics/document-meta
 webkit.org/b/264587 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/iframe_sandbox_navigation_download_block_downloads.sub.tentative.html [ Failure ]
 webkit.org/b/264587 imported/w3c/web-platform-tests/html/semantics/forms/textfieldselection/select-event.html [ Pass Failure ]
 
-webkit.org/b/264590 imported/w3c/web-platform-tests/navigation-timing/test_timing_xserver_redirect.html [ Failure ]
-
 webkit.org/b/264591 imported/w3c/web-platform-tests/storage/storagemanager-estimate.https.any.html [ Failure ]
 webkit.org/b/264591 imported/w3c/web-platform-tests/storage/storagemanager-estimate.https.any.worker.html [ Failure ]
 
@@ -3613,18 +3472,10 @@ webkit.org/b/49179 animations/stop-animation-on-suspend.html [ Failure Pass ]
 
 webkit.org/b/133151 js/cached-window-properties.html [ Skip ] # Timeout.
 
-imported/w3c/web-platform-tests/webaudio/the-audio-api/the-audionode-interface/audionode-disconnect-audioparam.html [ DumpJSConsoleLogInStdErr ]
-
 webkit.org/b/222638 js/throw-large-string-oom.html [ Pass Timeout ]
 
 # Fails when built with GCC but passes with Clang
 webkit.org/b/218220 editing/execCommand/switch-list-type-with-orphaned-li.html [ Failure ]
-
-# Console log lines may appear in a different order so we silence them.
-imported/w3c/web-platform-tests/html/semantics/embedded-content/the-embed-element/embed-network-error.sub.html [ DumpJSConsoleLogInStdErr ]
-
-# Remove console message: 'Navigator.getGamepads() will be removed from insecure contexts in a future release'.
-imported/w3c/web-platform-tests/gamepad/gamepad-secure-context.html [ DumpJSConsoleLogInStdErr ]
 
 # ENABLE(DRAGGABLE_REGION) is disabled
 Bug(GLIB) fast/css/draggable-region-parser.html [ Failure ]
@@ -3989,9 +3840,6 @@ webkit.org/b/262482 media/video-layer-crash.html [ Failure Pass ]
 
 webkit.org/b/194044 imported/w3c/web-platform-tests/media-source/mediasource-addsourcebuffer.html [ Failure ]
 
-# Removed from general TestExpectations in r276393, but console error message still happening in GLib.
-http/tests/cache-storage/page-cache-domcache-pending-promise.html [ DumpJSConsoleLogInStdErr ]
-
 # Added in r276357. Also marked as ImageOnlyFailure in iOS TestExpectations.
 fast/text/line-break-with-locale.html [ ImageOnlyFailure ]
 
@@ -4255,10 +4103,6 @@ imported/w3c/web-platform-tests/svg/painting/reftests/marker-path-022.svg [ Fail
 imported/w3c/web-platform-tests/svg/painting/reftests/marker-path-023.svg [ Failure ]
 svg/W3C-SVG-1.1/painting-marker-03-f.svg [ Failure ]
 
-imported/w3c/web-platform-tests/preload/onerror-event.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/preload/preload-time-to-fetch.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/preload/preload-type-match.html [ DumpJSConsoleLogInStdErr ]
-
 # Tests crashing in Debug only.
 [ Debug ] editing/pasteboard/copy-paste-across-shadow-boundaries-with-style-2.html [ Crash ]
 [ Debug ] http/tests/loading/sizes/preload-image-sizes-2x.html [ Crash ]
@@ -4303,7 +4147,6 @@ webkit.org/b/245032 imported/w3c/web-platform-tests/css/compositing/root-element
 
 imported/w3c/web-platform-tests/css/css-color/system-color-hightlights-vs-getSelection-001.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-color/system-color-hightlights-vs-getSelection-002.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-color/parsing/color-valid-relative-color.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-color/body-opacity-0-to-1-stacking-context.html [ Pass ImageOnlyFailure ]
 
 # Flakily crashing on GTK and WPE bots
@@ -4616,12 +4459,6 @@ imported/w3c/web-platform-tests/css/css-ruby/line-spacing.html [ Skip ]
 imported/w3c/web-platform-tests/css/css-ruby/position-relative.html [ Skip ]
 imported/w3c/web-platform-tests/css/css-ruby/rt-display-blockified.html [ Skip ]
 imported/w3c/web-platform-tests/css/css-ruby/ruby-bidi-003.html [ ImageOnlyFailure ]
-
-# render-blocking failures
-imported/w3c/web-platform-tests/html/dom/render-blocking/element-render-blocking-010.html [ Failure ]
-imported/w3c/web-platform-tests/html/dom/render-blocking/element-render-blocking-011.html [ Failure ]
-imported/w3c/web-platform-tests/html/dom/render-blocking/element-render-blocking-020.html [ Failure ]
-imported/w3c/web-platform-tests/html/dom/render-blocking/element-render-blocking-021.html [ Failure ]
 
 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/read-media/pageload-video.html [ Failure ]
 
