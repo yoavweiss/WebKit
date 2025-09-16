@@ -223,6 +223,13 @@
 #define WTF_EXTERN_C_END
 #endif
 
+/* CONCURRENT_SAFE */
+
+/* This is only used to annotate some functions as documentation that they are safe to call from any threads without additional
+ * synchronization. It also documents that these functions should not be altered in a way that breaks its concurrency promise.
+ * There isn't currently any compiler constructs that corresponds to this. */
+#define CONCURRENT_SAFE
+
 /* FALLTHROUGH */
 
 #if !defined(FALLTHROUGH) && !defined(__cplusplus)
