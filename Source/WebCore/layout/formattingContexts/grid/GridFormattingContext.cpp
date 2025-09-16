@@ -27,17 +27,46 @@
 #include "GridFormattingContext.h"
 
 #include "GridLayout.h"
+#include "LayoutChildIterator.h"
+#include "StylePrimitiveNumeric.h"
+#include "UnplacedGridItem.h"
+
+#include <wtf/Vector.h>
 
 namespace WebCore {
 namespace Layout {
 
-GridFormattingContext::GridFormattingContext(const ElementBox&)
+GridFormattingContext::GridFormattingContext(const ElementBox& gridBox)
+    : m_gridBox(gridBox)
 {
+}
+
+UnplacedGridItems GridFormattingContext::constructUnplacedGridItems() const
+{
+    struct GridItem {
+        CheckedRef<const ElementBox> layoutBox;
+        int order;
+    };
+
+    Vector<GridItem> gridItems;
+    for (CheckedRef gridItem : childrenOfType<ElementBox>(m_gridBox)) {
+        if (gridItem->isOutOfFlowPositioned())
+            continue;
+
+        gridItems.append({ gridItem, gridItem->style().order().value });
+    }
+
+    std::ranges::stable_sort(gridItems, { }, &GridItem::order);
+
+    return gridItems.map([](const GridItem& gridItem) -> UnplacedGridItem {
+        return UnplacedGridItem { gridItem.layoutBox.get() };
+    });
 }
 
 void GridFormattingContext::layout(GridLayoutConstraints layoutConstraints)
 {
-    GridLayout { *this }.layout(layoutConstraints);
+    auto unplacedGridItems = constructUnplacedGridItems();
+    GridLayout { *this }.layout(layoutConstraints, unplacedGridItems);
 }
 
 } // namespace Layout

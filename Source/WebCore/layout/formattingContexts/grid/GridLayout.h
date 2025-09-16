@@ -30,15 +30,17 @@
 namespace WebCore {
 namespace Layout {
 
+class UnplacedGridItem;
+using UnplacedGridItems = Vector<UnplacedGridItem>;
+
 class GridLayout {
 public:
     GridLayout(const GridFormattingContext&);
 
-    void layout(GridFormattingContext::GridLayoutConstraints);
+    void layout(GridFormattingContext::GridLayoutConstraints, UnplacedGridItems);
 private:
     const CheckedRef<const GridFormattingContext> m_gridFormattingContext;
 };
-
 
 }
 }

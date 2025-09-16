@@ -33,6 +33,6 @@ GridLayout::GridLayout(const GridFormattingContext& gridFormattingContext)
 {
 }
 
-void GridLayout::layout(GridFormattingContext::GridLayoutConstraints) { }
+void GridLayout::layout(GridFormattingContext::GridLayoutConstraints, UnplacedGridItems) { }
 } // namespace Layout
 } // namespace WebCore

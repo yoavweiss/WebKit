@@ -34,6 +34,9 @@ namespace Layout {
 
 class ElementBox;
 
+class UnplacedGridItem;
+using UnplacedGridItems = Vector<UnplacedGridItem>;
+
 class GridFormattingContext : public CanMakeCheckedPtr<GridFormattingContext> {
     WTF_MAKE_TZONE_OR_ISO_ALLOCATED(GridFormattingContext);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(GridFormattingContext);
@@ -47,6 +50,10 @@ public:
     GridFormattingContext(const ElementBox& gridBox);
 
     void layout(GridLayoutConstraints);
+private:
+    UnplacedGridItems constructUnplacedGridItems() const;
+
+    const CheckedRef<const ElementBox> m_gridBox;
 };
 
 } // namespace Layout
