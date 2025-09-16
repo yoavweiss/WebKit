@@ -4456,12 +4456,13 @@ void WebExtensionContext::addInjectedContent(const InjectedContentVector& inject
         RefPtr extension = m_extension;
 
         for (auto& scriptPath : injectedContentData.scriptPaths) {
-            RefPtr<API::Error> error;
-            auto scriptString = extension->resourceStringForPath(scriptPath, error, WebExtension::CacheResult::Yes);
-            if (!scriptString) {
-                recordErrorIfNeeded(error);
+            auto scriptStringResult = extension->resourceStringForPath(scriptPath, WebExtension::CacheResult::Yes);
+            if (!scriptStringResult) {
+                recordErrorIfNeeded(scriptStringResult.error());
                 continue;
             }
+
+            auto scriptString = scriptStringResult.value();
 
             Ref userScript = API::UserScript::create(WebCore::UserScript { WTFMove(scriptString), URL { m_baseURL, scriptPath }, makeVector<String>(includeMatchPatterns), makeVector<String>(excludeMatchPatterns), injectionTime, injectedFrames, matchParentFrame }, executionWorld);
             originInjectedScripts.append(userScript);
@@ -4480,12 +4481,13 @@ void WebExtensionContext::addInjectedContent(const InjectedContentVector& inject
         }
 
         for (auto& styleSheetPath : injectedContentData.styleSheetPaths) {
-            RefPtr<API::Error> error;
-            auto styleSheetString = extension->resourceStringForPath(styleSheetPath, error, WebExtension::CacheResult::Yes);
-            if (!styleSheetString) {
-                recordErrorIfNeeded(error);
+            auto styleSheetStringResult = extension->resourceStringForPath(styleSheetPath, WebExtension::CacheResult::Yes);
+            if (!styleSheetStringResult) {
+                recordErrorIfNeeded(styleSheetStringResult.error());
                 continue;
             }
+
+            auto styleSheetString = styleSheetStringResult.value();
 
             styleSheetString = localizedResourceString(styleSheetString, "text/css"_s);
 
@@ -4760,13 +4762,13 @@ void WebExtensionContext::loadDeclarativeNetRequestRules(CompletionHandler<void(
             if (!m_enabledStaticRulesetIDs.contains(ruleset.rulesetID))
                 continue;
 
-            RefPtr<API::Error> error;
-            RefPtr jsonData = extension->resourceDataForPath(ruleset.jsonPath, error);
-            if (!jsonData || error) {
-                recordErrorIfNeeded(error);
+            auto jsonDataResult = extension->resourceDataForPath(ruleset.jsonPath);
+            if (!jsonDataResult) {
+                recordErrorIfNeeded(jsonDataResult.error());
                 continue;
             }
 
+            Ref jsonData = jsonDataResult.value();
             allJSONData.get()[ruleset.rulesetID.createNSString().get()] = jsonData->wrapper();
         }
 
