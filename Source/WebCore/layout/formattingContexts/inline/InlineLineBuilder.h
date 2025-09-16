@@ -44,6 +44,8 @@ public:
 private:
     enum class SkipFloats : bool { No, Yes };
     void candidateContentForLine(LineCandidate&, std::pair<size_t, size_t> startEndIndex, const InlineItemRange& needsLayoutRange, InlineLayoutUnit currentLogicalRight, SkipFloats = SkipFloats::No);
+    void applyShapingIfNeeded(LineCandidate&);
+    Vector<std::pair<size_t, size_t>> collectShapingRanges(const LineCandidate&) const;
     InlineLayoutUnit leadingPunctuationWidthForLineCandiate(const LineCandidate&) const;
     InlineLayoutUnit trailingPunctuationOrStopOrCommaWidthForLineCandiate(const LineCandidate&, size_t startIndexAfterCandidateContent,  size_t layoutRangeEnd) const;
 
@@ -67,7 +69,7 @@ private:
     };
     RectAndFloatConstraints floatAvoidingRect(const InlineRect& lineLogicalRect, InlineLayoutUnit lineMarginStart) const;
     RectAndFloatConstraints adjustedLineRectWithCandidateInlineContent(const LineCandidate&) const;
-    void commitCanidateContent(const LineCandidate&, std::optional<InlineContentBreaker::Result::PartialTrailingContent>);
+    void commitCandidateContent(const LineCandidate&, std::optional<InlineContentBreaker::Result::PartialTrailingContent>);
     size_t rebuildLineWithInlineContent(const InlineItemRange& needsLayoutRange, const InlineItem& lastInlineItemToAdd);
     size_t rebuildLineForTrailingSoftHyphen(const InlineItemRange& layoutRange);
     void initialize(const InlineRect& initialLineLogicalRect, const InlineItemRange& needsLayoutRange, const std::optional<PreviousLine>&, bool isFirstFormattedLineCandidate);

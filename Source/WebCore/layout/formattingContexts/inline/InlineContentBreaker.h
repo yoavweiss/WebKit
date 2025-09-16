@@ -112,12 +112,15 @@ public:
             const RenderStyle& style;
             InlineLayoutUnit offset { 0 };
             InlineLayoutUnit textSpacingAdjustment { 0 };
+            enum class ShapingBoundary : bool { Start, End };
+            std::optional<ShapingBoundary> shapingBoundary { };
 
         private:
             InlineLayoutUnit m_contentWidth { 0 };
         };
         using RunList = Vector<Run, 3>;
         const RunList& runs() const { return m_runs; }
+        RunList& runs() { return m_runs; }
 
     private:
         void appendToRunList(const InlineItem&, const RenderStyle&, InlineLayoutUnit offset, InlineLayoutUnit contentWidth, InlineLayoutUnit textSpacingAdjustment = 0.f);

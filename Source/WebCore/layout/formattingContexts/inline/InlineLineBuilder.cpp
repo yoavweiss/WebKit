@@ -187,6 +187,7 @@ struct LineCandidate {
 
     struct InlineContent {
         const InlineContentBreaker::ContinuousContent& continuousContent() const { return m_continuousContent; }
+        InlineContentBreaker::ContinuousContent& continuousContent() { return m_continuousContent; }
         const InlineItem* trailingLineBreak() const { return m_trailingLineBreak; }
         const InlineItem* trailingWordBreakOpportunity() const { return m_trailingWordBreakOpportunity; }
 
@@ -209,6 +210,8 @@ struct LineCandidate {
         std::optional<size_t> firstTextRunIndex() const { return m_firstTextRunIndex; }
         std::optional<size_t> lastTextRunIndex() const { return m_lastTextRunIndex; }
 
+        bool isShapingCandidateByContent() const { return m_hasTextContentSpanningBoxes; }
+
     private:
         InlineContentBreaker::ContinuousContent m_continuousContent;
         const InlineItem* m_trailingLineBreak { nullptr };
@@ -217,6 +220,8 @@ struct LineCandidate {
         bool m_hasTrailingSoftWrapOpportunity { false };
         std::optional<size_t> m_firstTextRunIndex { };
         std::optional<size_t> m_lastTextRunIndex { };
+        std::optional<size_t> m_lastInlineBoxIndex { };
+        bool m_hasTextContentSpanningBoxes { false };
     };
 
     // Candidate content is a collection of inline content or a float box.
@@ -226,13 +231,22 @@ struct LineCandidate {
 
 inline void LineCandidate::InlineContent::appendInlineItem(const InlineItem& inlineItem, const RenderStyle& style, InlineLayoutUnit logicalWidth, InlineLayoutUnit textSpacingAdjustment)
 {
-    if (inlineItem.isAtomicInlineBox() || inlineItem.isInlineBoxStartOrEnd() || inlineItem.isOpaque())
+    if (inlineItem.isAtomicInlineBox() || inlineItem.isOpaque())
         return m_continuousContent.append(inlineItem, style, logicalWidth, textSpacingAdjustment);
+
+    if (inlineItem.isInlineBoxStartOrEnd()) {
+        auto numberOfRuns = m_continuousContent.runs().size();
+        m_hasTextContentSpanningBoxes = m_hasTextContentSpanningBoxes || (m_lastTextRunIndex && m_lastTextRunIndex == numberOfRuns - 1);
+        m_lastInlineBoxIndex = numberOfRuns;
+        m_continuousContent.append(inlineItem, style, logicalWidth, textSpacingAdjustment);
+        return;
+    }
 
     if (auto* inlineTextItem = dynamicDowncast<InlineTextItem>(inlineItem)) {
         auto numberOfRuns = m_continuousContent.runs().size();
         m_firstTextRunIndex = m_firstTextRunIndex.value_or(numberOfRuns);
         m_lastTextRunIndex = numberOfRuns;
+        m_hasTextContentSpanningBoxes = m_hasTextContentSpanningBoxes || (m_lastInlineBoxIndex && m_lastInlineBoxIndex == numberOfRuns - 1);
         return m_continuousContent.appendTextContent(*inlineTextItem, style, logicalWidth);
     }
 
@@ -258,6 +272,8 @@ inline void LineCandidate::InlineContent::reset()
     m_hasTrailingSoftWrapOpportunity = { };
     m_firstTextRunIndex = { };
     m_lastTextRunIndex = { };
+    m_lastInlineBoxIndex = { };
+    m_hasTextContentSpanningBoxes = { };
 }
 
 inline void LineCandidate::reset()
@@ -265,7 +281,6 @@ inline void LineCandidate::reset()
     floatItem = nullptr;
     inlineContent.reset();
 }
-
 
 LineBuilder::LineBuilder(InlineFormattingContext& inlineFormattingContext, HorizontalConstraints rootHorizontalConstraints, const InlineItemList& inlineItemList, TextSpacingContext textSpacingContext)
     : AbstractLineBuilder(inlineFormattingContext, inlineFormattingContext.root(), rootHorizontalConstraints, inlineItemList)
@@ -689,6 +704,151 @@ InlineLayoutUnit LineBuilder::trailingPunctuationOrStopOrCommaWidthForLineCandia
     return { };
 }
 
+Vector<std::pair<size_t, size_t>> LineBuilder::collectShapingRanges(const LineCandidate& lineCandidate) const
+{
+    // Normally candidate content is inline items between 2 soft wraping opportunities e.g.
+    // <div>some text<span>more text</span></div>
+    // where candidate contents are as follows: [some] [ ] [text<span>more] [ ] [text</span>]
+    // However when white space is preserved and/or no wrapping is allowed the entire content is
+    // one candidate content with all sorts of inline level content.
+
+    // Let's find shaping ranges by filtering out content that are not relevant to shaping,
+    // followed by processing this compressed list of [content , break, joint ] where
+    // 'content' means shapable content (text)
+    // 'break' means shape breaking gap (e.g. whitespace between 2 words)
+    // 'keep' means box that keeps adjacent inline items in the same shaping context ("text<span>more" <- inline box start)
+    auto& runs = lineCandidate.inlineContent.continuousContent().runs();
+
+    auto isFirstFormattedLineCandidate = this->isFirstFormattedLineCandidate();
+    enum class ShapingType : uint8_t { Content, Break, Keep };
+    struct Content {
+        ShapingType type { ShapingType::Break };
+        size_t index { 0 };
+    };
+    Vector<Content> contentList;
+    for (size_t index = 0; index < runs.size(); ++index) {
+        auto& inlineItem = runs[index].inlineItem;
+
+        auto type = std::optional<ShapingType> { };
+        switch (inlineItem.type()) {
+        case InlineItem::Type::Text:
+            type = downcast<InlineTextItem>(inlineItem).isWhitespace() ? ShapingType::Break : ShapingType::Content;
+            break;
+        case InlineItem::Type::AtomicInlineBox:
+            type = ShapingType::Break;
+            break;
+        case InlineItem::Type::InlineBoxStart: {
+            auto& boxGeometry = formattingContext().geometryForBox(inlineItem.layoutBox());
+            auto hasDecoration = boxGeometry.marginStart() || boxGeometry.borderStart() || boxGeometry.paddingStart();
+            type = hasDecoration ? ShapingType::Break : ShapingType::Keep;
+            break;
+        }
+        case InlineItem::Type::InlineBoxEnd: {
+            auto& boxGeometry = formattingContext().geometryForBox(inlineItem.layoutBox());
+            auto hasDecoration = boxGeometry.marginEnd() || boxGeometry.borderEnd() || boxGeometry.paddingEnd();
+            type = hasDecoration ? ShapingType::Break : ShapingType::Keep;
+            break;
+        }
+        case InlineItem::Type::HardLineBreak:
+        case InlineItem::Type::SoftLineBreak:
+        case InlineItem::Type::WordBreakOpportunity:
+        case InlineItem::Type::Float:
+        case InlineItem::Type::Opaque:
+            break;
+        default:
+            ASSERT_NOT_REACHED();
+        }
+
+        auto shouldIgnore = [&] {
+            if (!type)
+                return true;
+            if (*type == ShapingType::Content)
+                return false;
+            return contentList.isEmpty() || *type == contentList.last().type;
+        };
+        if (!shouldIgnore())
+            contentList.append(Content { *type, index });
+    }
+
+    // Trailing non-content entries should just be ignored.
+    while (!contentList.isEmpty()) {
+        if (contentList.last().type == ShapingType::Content)
+            break;
+        contentList.removeLast();
+    }
+
+    if (contentList.isEmpty())
+        return { };
+
+    ASSERT(contentList.first().type == ShapingType::Content && contentList.last().type == ShapingType::Content);
+    Vector<std::pair<size_t, size_t>> ranges;
+
+    CheckedPtr lastFontCascade = &rootStyle().fontCascade();
+    auto leadingContentRunIndex = std::optional<size_t> { };
+    auto trailingContentRunIndex = std::optional<size_t> { };
+    auto hasBoundaryBetween = false;
+    for (auto entry : contentList) {
+        switch (entry.type) {
+        case ShapingType::Break:
+            if (leadingContentRunIndex && trailingContentRunIndex && hasBoundaryBetween)
+                ranges.append({ *leadingContentRunIndex, *trailingContentRunIndex });
+            leadingContentRunIndex = { };
+            trailingContentRunIndex = { };
+            hasBoundaryBetween = false;
+            break;
+        case ShapingType::Keep:
+            if (hasBoundaryBetween) {
+                // Nested inline boxes e.g. <span>content<span>more<span>and some more
+                ASSERT(leadingContentRunIndex);
+                break;
+            }
+            if (leadingContentRunIndex)
+                hasBoundaryBetween = true;
+            break;
+        case ShapingType::Content:
+            if (!leadingContentRunIndex) {
+                auto& inlineTextItem = downcast<InlineTextItem>(runs[entry.index].inlineItem);
+                auto& inlineTextBox = inlineTextItem.inlineTextBox();
+                auto isEligibleText = !inlineTextBox.canUseSimpleFontCodePath() && !inlineTextBox.isCombined() && (inlineTextItem.bidiLevel() != UBIDI_DEFAULT_LTR && (inlineTextItem.bidiLevel() % 2));
+                if (isEligibleText)
+                    leadingContentRunIndex = entry.index;
+                lastFontCascade = isFirstFormattedLineCandidate ? &inlineTextItem.firstLineStyle().fontCascade() : &inlineTextItem.style().fontCascade();
+            } else if (hasBoundaryBetween) {
+                auto& inlineTextItem = downcast<InlineTextItem>(runs[entry.index].inlineItem);
+                if (*lastFontCascade.get() == (isFirstFormattedLineCandidate ? inlineTextItem.firstLineStyle().fontCascade() : inlineTextItem.style().fontCascade()))
+                    trailingContentRunIndex = entry.index;
+                else {
+                    leadingContentRunIndex = { };
+                    trailingContentRunIndex = { };
+                    hasBoundaryBetween = false;
+                }
+            }
+        }
+    }
+
+    if (leadingContentRunIndex && trailingContentRunIndex && hasBoundaryBetween)
+        ranges.append({ *leadingContentRunIndex, *trailingContentRunIndex });
+
+    return ranges;
+}
+
+void LineBuilder::applyShapingIfNeeded(LineCandidate& lineCandidate)
+{
+    if (!lineCandidate.inlineContent.isShapingCandidateByContent())
+        return;
+
+    auto& runs = lineCandidate.inlineContent.continuousContent().runs();
+    auto shapingRanges = collectShapingRanges(lineCandidate);
+    for (auto range : shapingRanges) {
+        if (range.first >= range.second || range.first >= runs.size() || range.second >= runs.size()) {
+            ASSERT_NOT_REACHED();
+            continue;
+        }
+        runs[range.first].shapingBoundary = InlineContentBreaker::ContinuousContent::Run::ShapingBoundary::Start;
+        runs[range.second].shapingBoundary = InlineContentBreaker::ContinuousContent::Run::ShapingBoundary::End;
+    }
+}
+
 void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, std::pair<size_t, size_t> startEndIndex, const InlineItemRange& layoutRange, InlineLayoutUnit currentLogicalRight, SkipFloats skipFloats)
 {
     ASSERT(startEndIndex.first < layoutRange.endIndex());
@@ -815,6 +975,7 @@ void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, std::pai
     };
     setTrailingSoftHyphenWidth();
     lineCandidate.inlineContent.setHasTrailingSoftWrapOpportunity(hasTrailingSoftWrapOpportunity(startEndIndex.second, layoutRange.endIndex(), m_inlineItemList));
+    applyShapingIfNeeded(lineCandidate);
 }
 
 static inline InlineLayoutUnit availableWidth(const Line& line, InlineLayoutUnit lineWidth, std::optional<IntrinsicWidthMode> intrinsicWidthMode)
@@ -1227,14 +1388,16 @@ InlineContentBreaker::Result LineBuilder::handleInlineContentWithClonedDecoratio
     return inlineContentBreaker().processInlineContent(continuousInlineContent, lineStatus);
 }
 
-void LineBuilder::commitCanidateContent(const LineCandidate& lineCandidate, std::optional<InlineContentBreaker::Result::PartialTrailingContent> partialTrailingContent)
+void LineBuilder::commitCandidateContent(const LineCandidate& lineCandidate, std::optional<InlineContentBreaker::Result::PartialTrailingContent> partialTrailingContent)
 {
-    auto& runs = lineCandidate.inlineContent.continuousContent().runs();
+    auto& inlineContent = lineCandidate.inlineContent;
+    auto& runs = inlineContent.continuousContent().runs();
     if (runs.isEmpty()) {
         ASSERT(!partialTrailingContent);
         return;
     }
 
+    auto shapingBoundaryStart = std::optional<size_t> { };
     auto appendRun = [&](auto& index) {
         auto& run = runs[index];
         auto& inlineItem = run.inlineItem;
@@ -1243,7 +1406,29 @@ void LineBuilder::commitCanidateContent(const LineCandidate& lineCandidate, std:
             m_line.setContentNeedsBidiReordering();
 
         if (auto* inlineTextItem = dynamicDowncast<InlineTextItem>(inlineItem)) {
-            m_line.appendText(*inlineTextItem, run.style, run.contentWidth(), { });
+            auto shapingBoundary = [&]() -> std::optional<Line::ShapingBoundary> {
+                // Special case trailing partial run as shaping end.
+                if (shapingBoundaryStart && partialTrailingContent && partialTrailingContent->trailingRunIndex == index)
+                    return { Line::ShapingBoundary::End };
+
+                if (run.shapingBoundary == InlineContentBreaker::ContinuousContent::Run::ShapingBoundary::Start) {
+                    ASSERT(!shapingBoundaryStart);
+                    shapingBoundaryStart = index;
+                    return { Line::ShapingBoundary::Start };
+                }
+
+                if (run.shapingBoundary == InlineContentBreaker::ContinuousContent::Run::ShapingBoundary::End) {
+                    ASSERT(shapingBoundaryStart);
+                    shapingBoundaryStart = { };
+                    return { Line::ShapingBoundary::End };
+                }
+
+                if (shapingBoundaryStart)
+                    return { Line::ShapingBoundary::Middle };
+
+                return { };
+            };
+            m_line.appendText(*inlineTextItem, run.style, run.contentWidth(), shapingBoundary());
             return;
         }
 
@@ -1297,7 +1482,7 @@ void LineBuilder::commitCanidateContent(const LineCandidate& lineCandidate, std:
             // Create and commit partial trailing item.
             if (auto* trailingInlineTextItem = dynamicDowncast<InlineTextItem>(runs[trailingRunIndex].inlineItem)) {
                 auto partialTrailingTextItem = trailingInlineTextItem->left(partialRun->length);
-                m_line.appendText(partialTrailingTextItem, trailingInlineTextItem->style(), partialRun->logicalWidth, { });
+                m_line.appendText(partialTrailingTextItem, trailingInlineTextItem->style(), partialRun->logicalWidth, shapingBoundaryStart ? std::make_optional(Line::ShapingBoundary::End) : std::nullopt);
                 if (trailingInlineTextItem->bidiLevel() != UBIDI_DEFAULT_LTR)
                     m_line.setContentNeedsBidiReordering();
             } else
@@ -1320,7 +1505,7 @@ LineBuilder::Result LineBuilder::processLineBreakingResult(const LineCandidate& 
     switch (lineBreakingResult.action) {
     case InlineContentBreaker::Result::Action::Keep: {
         // This continuous content can be fully placed on the current line.
-        commitCanidateContent(lineCandidate, lineBreakingResult.partialTrailingContent);
+        commitCandidateContent(lineCandidate, lineBreakingResult.partialTrailingContent);
         // We are keeping this content on the line but we need to check if we could have wrapped here
         // in order to be able to revert back to this position if needed.
         // Let's just ignore cases like collapsed leading whitespace for now.
@@ -1381,7 +1566,7 @@ LineBuilder::Result LineBuilder::processLineBreakingResult(const LineCandidate& 
         ASSERT(lineBreakingResult.isEndOfLine == InlineContentBreaker::IsEndOfLine::Yes);
         // Commit the combination of full and partial content on the current line.
         ASSERT(lineBreakingResult.partialTrailingContent);
-        commitCanidateContent(lineCandidate, lineBreakingResult.partialTrailingContent);
+        commitCandidateContent(lineCandidate, lineBreakingResult.partialTrailingContent);
         // When breaking multiple runs <span style="word-break: break-all">text</span><span>content</span>, we might end up breaking them at run boundary.
         // It simply means we don't really have a partial run. Partial content yes, but not partial run.
         auto trailingRunIndex = lineBreakingResult.partialTrailingContent->trailingRunIndex;
