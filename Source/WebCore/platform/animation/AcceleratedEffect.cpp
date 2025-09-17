@@ -266,6 +266,8 @@ AcceleratedEffect::AcceleratedEffect(AnimationEffectTiming timing, Vector<Keyfra
     , m_startTime(startTime)
     , m_holdTime(holdTime)
 {
+    // FIXME: pass in the timeline duration for scroll timelines.
+    m_timing.updateComputedProperties(std::nullopt, m_playbackRate);
 }
 
 AcceleratedEffect::AcceleratedEffect(const AcceleratedEffect& source, OptionSet<AcceleratedEffectProperty>& propertyFilter)
