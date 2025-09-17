@@ -309,7 +309,7 @@ extension WebGPU.CommandEncoder {
                 }
             }
 
-            mtlRenderPipelineDescriptor.vertexFunction = device.m_nopVertexFunction
+            mtlRenderPipelineDescriptor.vertexFunction = WebGPU.Device.nopVertexFunction(device.device())
             mtlRenderPipelineDescriptor.fragmentFunction = nil
 
             precondition(sampleCount != 0, "sampleCount must be non-zero")

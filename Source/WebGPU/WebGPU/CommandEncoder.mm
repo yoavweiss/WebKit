@@ -365,6 +365,25 @@ bool Device::isStencilOnlyFormat(MTLPixelFormat format)
     }
 }
 
+id<MTLFunction> Device::nopVertexFunction(id<MTLDevice> device)
+{
+    static id<MTLFunction> function = nil;
+    NSError *error = nil;
+    static std::once_flag onceFlag;
+    std::call_once(onceFlag, [&] {
+        MTLCompileOptions* options = [MTLCompileOptions new];
+        ALLOW_DEPRECATED_DECLARATIONS_BEGIN
+        options.fastMathEnabled = YES;
+        ALLOW_DEPRECATED_DECLARATIONS_END
+        id<MTLLibrary> library = [device newLibraryWithSource:@"[[vertex]] float4 vsNop() { return (float4)0; }" options:options error:&error];
+        if (error)
+            WTFLogAlways("%@", error); // NOLINT
+        function = [library newFunctionWithName:@"vsNop"];
+    });
+
+    return function;
+}
+
 static std::pair<id<MTLRenderPipelineState>, id<MTLDepthStencilState>> createSimplePso(NSMutableDictionary<NSNumber*, TextureAndClearColor*> *attachmentsToClear, id<MTLTexture> depthStencilAttachmentToClear, bool depthAttachmentToClear, bool stencilAttachmentToClear, id<MTLDevice> device)
 {
     MTLRenderPipelineDescriptor* mtlRenderPipelineDescriptor = [MTLRenderPipelineDescriptor new];
@@ -393,19 +412,7 @@ static std::pair<id<MTLRenderPipelineState>, id<MTLDepthStencilState>> createSim
             mtlRenderPipelineDescriptor.stencilAttachmentPixelFormat = t.pixelFormat;
     }
 
-    static id<MTLFunction> function = nil;
-    NSError *error = nil;
-    static std::once_flag onceFlag;
-    std::call_once(onceFlag, [&] {
-        MTLCompileOptions* options = [MTLCompileOptions new];
-        ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-        options.fastMathEnabled = YES;
-        ALLOW_DEPRECATED_DECLARATIONS_END
-        id<MTLLibrary> library = [device newLibraryWithSource:@"[[vertex]] float4 vsNop() { return (float4)0; }" options:options error:&error];
-        if (error)
-            WTFLogAlways("%@", error); // NOLINT
-        function = [library newFunctionWithName:@"vsNop"];
-    });
+    id<MTLFunction> function = Device::nopVertexFunction(device);
     RELEASE_ASSERT(function);
 
     mtlRenderPipelineDescriptor.vertexFunction = function;
@@ -415,6 +422,7 @@ static std::pair<id<MTLRenderPipelineState>, id<MTLDepthStencilState>> createSim
     mtlRenderPipelineDescriptor.rasterSampleCount = sampleCount;
     mtlRenderPipelineDescriptor.inputPrimitiveTopology = MTLPrimitiveTopologyClassPoint;
 
+    NSError* error;
     id<MTLRenderPipelineState> pso = [device newRenderPipelineStateWithDescriptor:mtlRenderPipelineDescriptor error:&error];
     id<MTLDepthStencilState> depthStencil = depthStencilDescriptor ? [device newDepthStencilStateWithDescriptor:depthStencilDescriptor] : nil;
     RELEASE_ASSERT(!error);
