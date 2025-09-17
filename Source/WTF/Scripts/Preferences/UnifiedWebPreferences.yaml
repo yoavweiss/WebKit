@@ -3266,7 +3266,7 @@ GoogleAntiFlickerOptimizationQuirkEnabled:
 
 GraphicsContextBlurFilterEnabled:
    type: bool
-   status: unstable
+   status: testable
    category: media
    webcoreOnChange: setNeedsRelayoutAllFrames
    humanReadableName: "GraphicsContext Blur Filter Rendering"
