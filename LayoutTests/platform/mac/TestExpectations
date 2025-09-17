@@ -2492,8 +2492,6 @@ webkit.org/b/296976 [ x86_64 ] imported/w3c/web-platform-tests/webaudio/the-audi
 
 webkit.org/b/297067 fast/forms/state-restore-form-associated-custom-elements.html [ Pass Timeout Failure ]
 
-webkit.org/b/297131 imported/w3c/web-platform-tests/web-locks/storage-buckets.tentative.https.any.worker.html [ Pass Failure ]
-
 # webkit.org/b/296017 7x imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/shape-image (layout-tests) are flakey image failures
 [ Release ] imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/shape-image-006.html [ Pass ImageOnlyFailure ]
 [ Release ] imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/shape-image-022.html [ Pass ImageOnlyFailure ]
