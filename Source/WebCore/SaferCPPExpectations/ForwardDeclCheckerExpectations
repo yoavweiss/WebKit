@@ -89,8 +89,6 @@ platform/Scrollbar.h
 platform/cocoa/TelephoneNumberDetectorCocoa.cpp
 platform/graphics/ImageBufferContextSwitcher.h
 platform/graphics/StringTruncator.cpp
-platform/graphics/angle/ANGLEUtilities.cpp
-platform/graphics/angle/GraphicsContextGLANGLE.cpp
 platform/graphics/ca/PlatformCALayer.h
 platform/graphics/ca/TileController.cpp
 platform/graphics/mac/LegacyDisplayRefreshMonitorMac.h
