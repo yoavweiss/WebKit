@@ -155,32 +155,32 @@ ARM64_EXTRA_FPRS = [SpecialRegister.new("q31")]
 class RegisterID
     def arm64Operand(kind)
         case @name
-        when 't0', 'a0', 'r0', 'wa0'
+        when 't0'
             arm64GPRName('x0', kind)
-        when 't1', 'a1', 'r1', 'wa1'
+        when 't1'
             arm64GPRName('x1', kind)
-        when 't2', 'a2', 'wa2'
+        when 't2'
             arm64GPRName('x2', kind)
-        when 't3', 'a3', 'wa3'
+        when 't3'
             arm64GPRName('x3', kind)
-        when 't4', 'a4', 'wa4'
+        when 't4'
             arm64GPRName('x4', kind)
-        when 't5', 'a5', 'wa5'
-          arm64GPRName('x5', kind)
-        when 't6', 'a6', 'wa6'
-          arm64GPRName('x6', kind)
-        when 't7', 'a7', 'wa7'
-          arm64GPRName('x7', kind)
+        when 't5'
+            arm64GPRName('x5', kind)
+        when 't6'
+            arm64GPRName('x6', kind)
+        when 't7'
+            arm64GPRName('x7', kind)
         when 't8'
-          arm64GPRName('x8', kind)
-        when 't9', 'ws0'
-          arm64GPRName('x9', kind)
-        when 't10', 'ws1'
-          arm64GPRName('x10', kind)
-        when 't11', 'ws2'
-          arm64GPRName('x11', kind)
-        when 't12', 'ws3'
-          arm64GPRName('x12', kind)
+            arm64GPRName('x8', kind)
+        when 't9'
+            arm64GPRName('x9', kind)
+        when 't10'
+            arm64GPRName('x10', kind)
+        when 't11'
+            arm64GPRName('x11', kind)
+        when 't12'
+            arm64GPRName('x12', kind)
         when 'cfr'
             arm64GPRName('x29', kind)
         when 'csr0'
@@ -216,21 +216,21 @@ end
 class FPRegisterID
     def arm64Operand(kind)
         case @name
-        when 'ft0', 'fr', 'fa0', 'wfa0'
+        when 'ft0'
             arm64FPRName('q0', kind)
-        when 'ft1', 'fa1', 'wfa1'
+        when 'ft1'
             arm64FPRName('q1', kind)
-        when 'ft2', 'fa2', 'wfa2'
+        when 'ft2'
             arm64FPRName('q2', kind)
-        when 'ft3', 'fa3', 'wfa3'
+        when 'ft3'
             arm64FPRName('q3', kind)
-        when 'ft4', 'wfa4'
+        when 'ft4'
             arm64FPRName('q4', kind)
-        when 'ft5', 'wfa5'
+        when 'ft5'
             arm64FPRName('q5', kind)
-        when 'wfa6'
+        when 'ft6'
             arm64FPRName('q6', kind)
-        when 'wfa7'
+        when 'ft7'
             arm64FPRName('q7', kind)
         when 'csfr0'
             arm64FPRName('q8', kind)

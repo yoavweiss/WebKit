@@ -381,7 +381,7 @@ class Parser
         if isRegister(@tokens[@idx])
             if @tokens[@idx] =~ VEC_PATTERN
                 result = VecRegisterID.forName(@tokens[@idx].codeOrigin, @tokens[@idx].string)
-            elsif @tokens[@idx] =~ FPR_PATTERN || @tokens[@idx] =~ WASM_FPR_PATTERN
+            elsif @tokens[@idx] =~ FPR_PATTERN
                 result = FPRegisterID.forName(@tokens[@idx].codeOrigin, @tokens[@idx].string)
             else
                 result = RegisterID.forName(@tokens[@idx].codeOrigin, @tokens[@idx].string)
