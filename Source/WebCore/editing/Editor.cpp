@@ -1990,18 +1990,40 @@ void Editor::toggleAutomaticSpellingCorrection()
         client()->toggleAutomaticSpellingCorrection();
 }
 
-bool Editor::isSmartListsEnabled()
-{
-    return client() && client()->isSmartListsEnabled();
-}
-
 void Editor::toggleSmartLists()
 {
+    Ref document = this->document();
+    RefPtr page = document->page();
+    if (!page || !page->isEditable())
+        return;
+
+    if (!document->settings().smartListsEnabled())
+        return;
+
     if (client())
         client()->toggleSmartLists();
 }
 
+#endif // USE(AUTOMATIC_TEXT_REPLACEMENT)
+
+#if PLATFORM(COCOA)
+bool Editor::isSmartListsEnabled()
+{
+    Ref document = this->document();
+    RefPtr page = document->page();
+    if (!page || !page->isEditable())
+        return false;
+
+    if (!document->settings().smartListsEnabled())
+        return false;
+
+#if PLATFORM(MAC)
+    return client() && client()->isSmartListsEnabled();
+#else
+    return true;
 #endif
+}
+#endif // PLATFORM(COCOA)
 
 bool Editor::shouldEndEditing(const SimpleRange& range)
 {

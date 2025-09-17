@@ -26,16 +26,22 @@
 #include "config.h"
 #include "InsertTextCommand.h"
 
+#include "CSSSerializationContext.h"
+#include "CSSValuePool.h"
 #include "Document.h"
 #include "Editing.h"
 #include "Editor.h"
+#include "FontAttributes.h"
 #include "HTMLElement.h"
 #include "HTMLImageElement.h"
 #include "HTMLInterchange.h"
 #include "LocalFrame.h"
+#include "MutableStyleProperties.h"
 #include "PositionInlines.h"
 #include "Text.h"
+#include "TextListParser.h"
 #include "VisibleUnits.h"
+#include <wtf/text/StringToIntegerConversion.h>
 
 namespace WebCore {
 
@@ -131,6 +137,98 @@ bool InsertTextCommand::performOverwrite(const String& text, bool selectInserted
     return true;
 }
 
+#if PLATFORM(COCOA)
+static AtomString inlineStyleForListStyleType(StyledElement& element, Style::ListStyleType styleType)
+{
+    CheckedPtr renderer = element.renderer();
+    if (!renderer) {
+        ASSERT_NOT_REACHED();
+        return WTF::nullAtom();
+    }
+
+    CheckedRef style = renderer->style();
+    auto& pool = CSSValuePool::singleton();
+
+    Ref value = Style::createCSSValue(pool, style, styleType);
+
+    RefPtr inlineStyle = element.inlineStyle() ? element.inlineStyle()->mutableCopy() : MutableStyleProperties::create();
+
+    inlineStyle->setProperty(CSSPropertyListStyleType, WTFMove(value));
+    return inlineStyle->asTextAtom(CSS::defaultSerializationContext());
+}
+
+bool InsertTextCommand::applySmartListsIfNeeded()
+{
+    if (!document().editor().isSmartListsEnabled())
+        return false;
+
+    if (m_text != " "_s) {
+        // Smart Lists can only be "activated" by a space character.
+        return false;
+    }
+
+    if (!endingSelection().isCaret()) {
+        // Smart Lists can only be "activated" if the selection does not contain any content.
+        return false;
+    }
+
+    auto lineStart = startOfLine(endingSelection().visibleBase());
+    if (lineStart.isNull() || lineStart.isOrphan()) {
+        ASSERT_NOT_REACHED();
+        return false;
+    }
+
+    // Get the range from the beginning of the line up until the current caret position,
+    // before `m_text` has been applied.
+    VisibleSelection line { lineStart, endingSelection().visibleExtent() };
+    auto range = line.firstRange();
+    if (!range) {
+        ASSERT_NOT_REACHED();
+        return false;
+    }
+
+    // First, convert the SimpleRange to a String, and then convert the String to a Style::ListStyleType
+    // (which itself is later converted to a CSSValue).
+
+    auto lineText = plainText(*range);
+    auto smartList = parseTextList(lineText);
+    if (!smartList) {
+        // The line content does not match the Smart List marker criteria.
+        return false;
+    }
+
+    Ref document = this->document();
+    auto listType = smartList->ordered ? InsertListCommand::Type::OrderedList : InsertListCommand::Type::UnorderedList;
+    applyCommandToComposite(InsertListCommand::create(document.copyRef(), listType), *range);
+
+    // This list is the one that was just created or modified.
+    RefPtr listElement = enclosingList(endingSelection().base().anchorNode());
+    if (!listElement) {
+        ASSERT_NOT_REACHED();
+        return false;
+    }
+
+    // Ordered lists must have an ordinal to use for their `start` attribute.
+    if (smartList->ordered) {
+        ASSERT(smartList->styleType.isDecimal());
+        ASSERT(smartList->startingItemNumber > 0);
+
+        auto start = AtomString::number(smartList->startingItemNumber);
+
+        // This is either a newly created list, or an existing list that was just appended to.
+        // In the case of the latter, the existing list's ordering takes precedent over any new elements.
+        if (!listElement->hasAttributeWithoutSynchronization(HTMLNames::startAttr))
+            setNodeAttribute(*listElement, HTMLNames::startAttr, start);
+    }
+
+    if (auto style = inlineStyleForListStyleType(*listElement, smartList->styleType); !style.isNull())
+        setNodeAttribute(*listElement, HTMLNames::styleAttr, style);
+
+    deleteSelection();
+    return true;
+}
+#endif // PLATFORM(COCOA)
+
 void InsertTextCommand::doApply()
 {
     ASSERT(m_text.find('\n') == notFound);
@@ -192,7 +290,23 @@ void InsertTextCommand::doApply()
         return;
 
     Position endPosition;
-    
+
+#if PLATFORM(COCOA)
+    if (applySmartListsIfNeeded()) {
+        // This branch is evaluated if Smart Lists are available, enabled, and contextually applicable.
+        //
+        // A Smart List is generated if the current input is the space character preceded by an eligible
+        // marker such as "2.", "-", "*", etc, at the beginning of a line.
+        //
+        // The start of the line, up to and including the space, is deleted from the DOM, and the corresponding
+        // list type (<ul> or <ol>) is inserted in it place, with a list element <li> contained within for the subsequent text.
+        //
+        // Since the space character acts as a "trigger" for Smart Lists, it should not actually be inserted.
+
+        return;
+    }
+#endif // PLATFORM(COCOA)
+
     if (m_text == "\t"_s) {
         endPosition = insertTab(startPosition);
         startPosition = endPosition.previous();

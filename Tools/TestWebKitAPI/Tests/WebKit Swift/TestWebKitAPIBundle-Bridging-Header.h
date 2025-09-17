@@ -24,4 +24,5 @@
  */
 
 #import "../../TestPDFDocument.h"
+#import "../WebKitCocoa/SmartListsSupport.h"
 #import <pal/spi/cg/CoreGraphicsSPI.h>

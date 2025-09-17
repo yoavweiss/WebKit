@@ -21,9 +21,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
 
-#if ENABLE_SWIFTUI && canImport(Testing) && compiler(>=6.0)
-
 import Foundation
+
+#if compiler(>=6.2)
 
 extension RangeReplaceableCollection {
     init<Failure>(
@@ -47,4 +47,4 @@ extension AsyncSequence {
     }
 }
 
-#endif // ENABLE_SWIFTUI && canImport(Testing) && compiler(>=6.0)
+#endif // compiler(>=6.2)

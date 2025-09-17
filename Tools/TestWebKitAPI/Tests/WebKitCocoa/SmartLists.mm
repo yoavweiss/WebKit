@@ -25,9 +25,11 @@
 
 #import "config.h"
 
-#if PLATFORM(MAC)
+#if PLATFORM(MAC) && ENABLE_SWIFTUI
 
+#import "DecomposedAttributedText.h"
 #import "PlatformUtilities.h"
+#import "SmartListsSupport.h"
 #import "Test.h"
 #import "TestUIDelegate.h"
 #import "TestWKWebView.h"
@@ -35,6 +37,9 @@
 #import <WebKit/WKPreferencesPrivate.h>
 #import <WebKit/WKWebViewPrivate.h>
 #import <WebKit/_WKFeature.h>
+#import <wtf/text/MakeString.h>
+#import <wtf/text/TextStream.h>
+#import <wtf/unicode/CharacterNames.h>
 
 static NSString* const WebSmartListsEnabled = @"WebSmartListsEnabled";
 
@@ -85,6 +90,26 @@ static RetainPtr<NSMenu> invokeContextMenu(TestWKWebView *webView)
     TestWebKitAPI::Util::run(&gotProposedMenu);
 
     return proposedMenu;
+}
+
+static void runTest(NSString *input, NSString *expectedHTML, NSString *expectedSelectionPath, NSInteger selectionOffset)
+{
+    RetainPtr expectedSelection = [SmartListsTestSelectionConfiguration caretSelectionWithPath:expectedSelectionPath offset:selectionOffset];
+    RetainPtr configuration = [[SmartListsTestConfiguration alloc] initWithExpectedHTML:expectedHTML expectedSelection:expectedSelection.get() input:input];
+
+    __block bool finished = false;
+    __block RetainPtr<SmartListsTestResult> result;
+    [SmartListsSupport processConfiguration:configuration.get() completionHandler:^(SmartListsTestResult *testResult, NSError *error) {
+        EXPECT_NULL(error);
+        result = testResult;
+        finished = true;
+    }];
+
+    TestWebKitAPI::Util::run(&finished);
+
+    TextStream stream;
+    stream << "expected " << [result actualHTML] << " to equal " << [result expectedHTML];
+    EXPECT_WK_STREQ([result expectedRenderTree], [result actualRenderTree]) << stream.release().utf8().data();
 }
 
 // MARK: Tests
@@ -260,6 +285,145 @@ TEST(SmartLists, ContextMenuItemStateIsConsistentWithAvailability)
         RetainPtr smartListsItem = [[substitutionMenu submenu] itemWithTitle:@"Smart Lists"];
         EXPECT_FALSE([smartListsItem isEnabled]);
     }
+}
+
+TEST(SmartLists, InsertingSpaceAndTextAfterBulletPointGeneratesListWithText)
+{
+    static constexpr auto expectedHTML = R"""(
+    <body>
+        <ul>
+            <li>Hello</li>
+        </ul>
+    </body>
+    )"""_s;
+
+    runTest(@"* Hello", expectedHTML.createNSString().get(), @"//body/ul/li/text()", [@"Hello" length]);
+
+    RetainPtr inputWithBullet = makeString(WTF::Unicode::bullet, " Hello"_s).createNSString();
+    runTest(inputWithBullet.get(), expectedHTML.createNSString().get(), @"//body/ul/li/text()", [@"Hello" length]);
+}
+
+TEST(SmartLists, InsertingSpaceAndTextAfterHyphenGeneratesDashedList)
+{
+    auto marker = WTF::makeString(WTF::Unicode::emDash, WTF::Unicode::noBreakSpace, WTF::Unicode::noBreakSpace);
+
+    static constexpr auto expectedHTMLTemplate = R"""(
+    <body>
+        <ul style="list-style-type: '<MARKER>';">
+            <li>Hello</li>
+        </ul>
+    </body>
+    )"""_s;
+
+    RetainPtr expectedHTML = WTF::makeStringByReplacingAll(expectedHTMLTemplate, "<MARKER>"_s, marker).createNSString();
+
+    runTest(@"- Hello", expectedHTML.get(), @"//body/ul/li/text()", [@"Hello" length]);
+}
+
+TEST(SmartLists, InsertingSpaceAfterBulletPointGeneratesEmptyList)
+{
+    static constexpr auto expectedHTML = R"""(
+    <body>
+        <ul style="list-style-type: disc;">
+            <li><br></li>
+        </ul>
+    </body>
+    )"""_s;
+
+    runTest(@"* ", expectedHTML.createNSString().get(), @"//body/ul/li/br", 0);
+}
+
+TEST(SmartLists, InsertingSpaceAfterBulletPointInMiddleOfSentenceDoesNotGenerateList)
+{
+    static constexpr auto expectedHTML = R"""(
+    <body>
+        ABC * DEF
+    </body>
+    )"""_s;
+
+    runTest(@"ABC * DEF", expectedHTML.createNSString().get(), @"//body/text()", [@"ABC * DEF" length]);
+}
+
+TEST(SmartLists, InsertingSpaceAfterPeriodAtStartOfSentenceDoesNotGenerateList)
+{
+    static constexpr auto expectedHTML = R"""(
+    <body>
+        . Hi
+    </body>
+    )"""_s;
+
+    runTest(@". Hi", expectedHTML.createNSString().get(), @"//body/text()", [@". Hi" length]);
+}
+
+TEST(SmartLists, InsertingSpaceAfterNumberGeneratesOrderedList)
+{
+    static constexpr auto expectedHTML = R"""(
+    <body>
+        <ol>
+            <li>Hello</li>
+        </ol>
+    </body>
+    )"""_s;
+
+    runTest(@"1. Hello", expectedHTML.createNSString().get(), @"//body/ol/li/text()", [@"Hello" length]);
+
+    runTest(@"1) Hello", expectedHTML.createNSString().get(), @"//body/ol/li/text()", [@"Hello" length]);
+}
+
+TEST(SmartLists, InsertingSpaceAfterMultipleDigitNumberGeneratesOrderedList)
+{
+    static constexpr auto expectedHTML = R"""(
+    <body>
+        <ol start="1234" style="list-style-type: decimal;">
+            <li>Hello</li>
+        </ol>
+    </body>
+    )"""_s;
+
+    runTest(@"1234. Hello", expectedHTML.createNSString().get(), @"//body/ol/li/text()", [@"Hello" length]);
+}
+
+TEST(SmartLists, InsertingSpaceAfterInvalidNumberDoesNotGenerateOrderedList)
+{
+    static constexpr auto expectedZeroHTML = R"""(
+    <body>0. Hello</body>
+    )"""_s;
+
+    runTest(@"0. Hello", expectedZeroHTML.createNSString().get(), @"//body/text()", @"0. Hello".length);
+
+    static constexpr auto expectedNegativeNumberHTML = R"""(
+    <body>-42. Hello</body>
+    )"""_s;
+
+    runTest(@"-42. Hello", expectedNegativeNumberHTML.createNSString().get(), @"//body/text()", @"-42. Hello".length);
+
+    static constexpr auto expectedPlusPrefixedHTML = R"""(
+    <body>+42. Hello</body>
+    )"""_s;
+
+    runTest(@"+42. Hello", expectedPlusPrefixedHTML.createNSString().get(), @"//body/text()", @"+42. Hello".length);
+}
+
+TEST(SmartLists, InsertingListMergesWithPreviousListIfPossible)
+{
+    static constexpr auto expectedHTML = R"""(
+    <body>
+        <ol start="1" style="list-style-type: decimal;">
+            <li>A</li>
+            <li>B</li>
+            <li>C</li>
+        </ol>
+    </body>
+    )"""_s;
+
+    RetainPtr input = @""
+    "1. A\n"
+    "B\n"
+    "\n"
+    "5. C"
+    "";
+
+    runTest(input.get(), expectedHTML.createNSString().get(), @"//body/ol/li[3]/text()", 1);
 }
 
 #endif // PLATFORM(MAC)
