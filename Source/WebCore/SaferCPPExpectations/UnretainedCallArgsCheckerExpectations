@@ -49,17 +49,14 @@ platform/cocoa/LocalizedStringsCocoa.mm
 platform/cocoa/NetworkExtensionContentFilter.mm
 platform/cocoa/ParentalControlsContentFilter.mm
 platform/cocoa/PlatformPasteboardCocoa.mm
-platform/cocoa/PlatformSpeechSynthesizerCocoa.mm
 platform/cocoa/SearchPopupMenuCocoa.mm
 platform/cocoa/SystemBattery.mm
 platform/cocoa/UserAgentCocoa.mm
-platform/cocoa/VideoFullscreenCaptions.mm
 platform/cocoa/WebAVPlayerLayer.mm
 platform/gamepad/cocoa/GameControllerGamepad.mm
 platform/gamepad/cocoa/GameControllerGamepadProvider.mm
 platform/gamepad/cocoa/GameControllerHapticEngines.mm
 platform/gamepad/mac/HIDGamepadElement.cpp
-platform/gamepad/mac/HIDGamepadProvider.mm
 platform/graphics/BitmapImageDescriptor.cpp
 platform/graphics/DestinationColorSpace.cpp
 platform/graphics/avfoundation/AVTrackPrivateAVFObjCImpl.mm

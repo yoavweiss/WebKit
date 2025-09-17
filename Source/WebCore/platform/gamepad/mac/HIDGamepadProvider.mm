@@ -143,7 +143,7 @@ void HIDGamepadProvider::openAndScheduleManager()
 
     m_initialGamepadsConnected = false;
 
-    IOHIDManagerScheduleWithRunLoop(m_manager.get(), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+    IOHIDManagerScheduleWithRunLoop(m_manager.get(), RetainPtr { CFRunLoopGetCurrent() }.get(), kCFRunLoopDefaultMode);
     IOHIDManagerOpen(m_manager.get(), kIOHIDOptionsTypeNone);
 
     // Any connections we are notified of within the connectionDelayInterval of listening likely represent
@@ -155,7 +155,7 @@ void HIDGamepadProvider::closeAndUnscheduleManager()
 {
     LOG(Gamepad, "HIDGamepadProvider closing/unscheduling HID manager");
 
-    IOHIDManagerUnscheduleFromRunLoop(m_manager.get(), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+    IOHIDManagerUnscheduleFromRunLoop(m_manager.get(), RetainPtr { CFRunLoopGetCurrent() }.get(), kCFRunLoopDefaultMode);
     IOHIDManagerClose(m_manager.get(), kIOHIDOptionsTypeNone);
 
     m_gamepadVector.clear();
@@ -287,7 +287,8 @@ void HIDGamepadProvider::deviceRemoved(IOHIDDeviceRef device)
 
 void HIDGamepadProvider::valuesChanged(IOHIDValueRef value)
 {
-    RetainPtr device = IOHIDElementGetDevice(IOHIDValueGetElement(value));
+    RetainPtr element = IOHIDValueGetElement(value);
+    RetainPtr device = IOHIDElementGetDevice(element.get());
 
     HIDGamepad* gamepad = m_gamepadMap.get(device.get());
 

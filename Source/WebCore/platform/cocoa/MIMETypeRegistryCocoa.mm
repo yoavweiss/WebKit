@@ -181,9 +181,9 @@ String MIMETypeRegistry::preferredExtensionForMIMEType(const String& type)
     if (isUSDMIMEType(type))
         return "usdz"_s;
 
-    NSString *preferredExtension = [[NSURLFileTypeMappings sharedMappings] preferredExtensionForMIMEType:type.createNSString().get()];
-    if (preferredExtension.length)
-        return preferredExtension;
+    RetainPtr preferredExtension = [[NSURLFileTypeMappings sharedMappings] preferredExtensionForMIMEType:type.createNSString().get()];
+    if ([preferredExtension length])
+        return preferredExtension.get();
 
     auto mapEntry = additionalExtensionsMap().find(type);
     if (mapEntry != additionalExtensionsMap().end())

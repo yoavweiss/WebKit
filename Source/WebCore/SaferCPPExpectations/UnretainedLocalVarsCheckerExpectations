@@ -25,11 +25,8 @@ platform/audio/cocoa/AudioEncoderCocoa.cpp
 platform/audio/cocoa/AudioFileReaderCocoa.cpp
 platform/audio/cocoa/PlatformRawAudioDataCocoa.cpp
 platform/cf/KeyedDecoderCF.cpp
-platform/cf/RunLoopObserverCF.cpp
 platform/cocoa/DragImageCocoa.mm
-platform/cocoa/MIMETypeRegistryCocoa.mm
 platform/cocoa/PlatformPasteboardCocoa.mm
-platform/cocoa/PlatformSpeechSynthesizerCocoa.mm
 platform/cocoa/RemoteCommandListenerCocoa.mm
 platform/cocoa/SearchPopupMenuCocoa.mm
 platform/cocoa/SerializedPlatformDataCueValue.mm

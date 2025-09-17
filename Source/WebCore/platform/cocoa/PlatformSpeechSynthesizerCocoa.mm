@@ -92,7 +92,7 @@ static float getAVSpeechUtteranceMaximumSpeechRate()
     m_synthesizerObject = synthesizer;
 
 #if HAVE(AVSPEECHSYNTHESIS_VOICES_CHANGE_NOTIFICATION)
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(availableVoicesDidChange) name:AVSpeechSynthesisAvailableVoicesDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(availableVoicesDidChange) name:RetainPtr { AVSpeechSynthesisAvailableVoicesDidChangeNotification }.get() object:nil];
 #endif
 
     return self;
@@ -150,13 +150,13 @@ static float getAVSpeechUtteranceMaximumSpeechRate()
     if (!avVoice)
         avVoice = [PAL::getAVSpeechSynthesisVoiceClassSingleton() voiceWithLanguage:voiceLanguage.get()];
 
-    AVSpeechUtterance *avUtterance = [PAL::getAVSpeechUtteranceClassSingleton() speechUtteranceWithString:utterance->text().createNSString().get()];
+    RetainPtr<AVSpeechUtterance> avUtterance = [PAL::getAVSpeechUtteranceClassSingleton() speechUtteranceWithString:utterance->text().createNSString().get()];
 
     [avUtterance setRate:[self mapSpeechRateToPlatformRate:utterance->rate()]];
     [avUtterance setVolume:utterance->volume()];
     [avUtterance setPitchMultiplier:utterance->pitch()];
     [avUtterance setVoice:avVoice];
-    utterance->setWrapper(avUtterance);
+    utterance->setWrapper(avUtterance.get());
     m_utterance = WTFMove(utterance);
 
     // macOS won't send a did start speaking callback for empty strings.
@@ -165,7 +165,7 @@ static float getAVSpeechUtteranceMaximumSpeechRate()
         m_synthesizerObject->client().didStartSpeaking(Ref { *m_utterance });
 #endif
 
-    [m_synthesizer speakUtterance:avUtterance];
+    [m_synthesizer speakUtterance:avUtterance.get()];
     END_BLOCK_OBJC_EXCEPTIONS
 }
 
