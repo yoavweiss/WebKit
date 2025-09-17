@@ -77,6 +77,7 @@ extension SmartListsTestResult {
 extension SmartListsSupport {
     @objc(processConfiguration:completionHandler:)
     open class func processConfiguration(_ configuration: SmartListsTestConfiguration) async throws -> SmartListsTestResult {
+        #if os(macOS)
         let page = WebPage()
 
         page.setWebFeature("SmartListsEnabled", enabled: true)
@@ -140,7 +141,10 @@ extension SmartListsSupport {
             expectedHTML: configuration.expectedHTML,
             actualHTML: actualHTML
         )
+        #else
+        fatalError()
+        #endif
     }
 }
 
-#endif // ENABLE_SWIFTUI
+#endif // ENABLE_SWIFTUI && compiler(>=6.0)
