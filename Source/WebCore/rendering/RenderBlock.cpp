@@ -773,9 +773,6 @@ bool RenderBlock::simplifiedLayout()
 
     updateScrollInfoAfterLayout();
 
-    if (Style::AnchorPositionEvaluator::isAnchorPositioned(style()))
-        Style::AnchorPositionEvaluator::captureScrollSnapshots(*this);
-
     clearNeedsLayout();
     return true;
 }

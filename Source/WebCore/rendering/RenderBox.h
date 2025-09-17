@@ -558,6 +558,7 @@ public:
     virtual bool shouldInvalidatePreferredWidths() const;
 
     ScrollPosition scrollPosition() const;
+    ScrollPosition constrainedScrollPosition() const;
     LayoutSize cachedSizeForOverflowClip() const;
 
     // Returns false if the rect has no intersection with the applied clip rect. When the context specifies edge-inclusive

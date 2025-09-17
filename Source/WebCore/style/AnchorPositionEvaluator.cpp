@@ -129,15 +129,24 @@ RenderBox* AnchorScrollAdjuster::anchored() const
     return m_anchored.ptr();
 }
 
+bool AnchorScrollAdjuster::recaptureDiffers(const AnchorScrollAdjuster& other) const
+{
+    bool same = m_anchored.ptr() == other.m_anchored.ptr()
+        && m_scrollSnapshots == other.m_scrollSnapshots
+        && m_stickySnapshot == other.m_stickySnapshot;
+    return !same;
+}
+
 void AnchorScrollAdjuster::addSnapshot(const RenderBox& scroller)
 {
     ASSERT(scroller.hasPotentiallyScrollableOverflow() && !is<RenderView>(scroller));
-    m_scrollSnapshots.constructAndAppend(scroller, scroller.scrollPosition());
+    m_scrollSnapshots.constructAndAppend(scroller, scroller.constrainedScrollPosition());
 }
 
 void AnchorScrollAdjuster::addViewportSnapshot(const RenderView& renderView)
 {
-    auto position = renderView.frameView().scrollPositionRespectingCustomFixedPosition();
+    auto& view = renderView.frameView();
+    auto position = view.constrainedScrollPosition(ScrollPosition(view.scrollPositionRespectingCustomFixedPosition()));
     m_scrollSnapshots.insert(0, AnchorScrollSnapshot { position });
     m_adjustForViewport = true;
 }
@@ -147,8 +156,9 @@ LayoutSize AnchorScrollAdjuster::adjustmentForViewport(const RenderView& renderV
     if (m_adjustForViewport) {
         // Viewport snapshot is stored in the first slot.
         ASSERT(m_scrollSnapshots.size() && !m_scrollSnapshots.first().m_scroller);
+        auto& view = renderView.frameView();
         return m_scrollSnapshots.first().m_scrollSnapshot
-            - renderView.frameView().scrollPositionRespectingCustomFixedPosition();
+            - view.constrainedScrollPosition(IntPoint(view.scrollPositionRespectingCustomFixedPosition()));
     }
     return { };
 }
@@ -230,21 +240,17 @@ static inline void clearAnchorScrollSnapshots(RenderBox& anchored)
     anchored.layoutContext().unregisterAnchorScrollAdjusterFor(anchored);
 }
 
-void AnchorPositionEvaluator::captureScrollSnapshots(RenderBox& anchored)
+void AnchorPositionEvaluator::captureScrollSnapshots(RenderBox& anchored, bool invalidateStyleForScrollPositionChanges)
 {
-    ASSERT(Style::AnchorPositionEvaluator::isAnchorPositioned(anchored.style()));
-
-    if (!anchored.layer()) {
-        ASSERT_NOT_REACHED();
+    if (!anchored.layer())
         return;
-    }
 
     CheckedPtr defaultAnchor = AnchorPositionEvaluator::defaultAnchorForBox(anchored);
     if (!defaultAnchor)
         return clearAnchorScrollSnapshots(anchored);
 
     AnchorScrollAdjuster adjuster(anchored, *defaultAnchor);
-    if (!adjuster.mayNeedAdjustment())
+    if (!adjuster.mayNeedAdjustment()) // Note: We sometimes hit this path during interleaved layout because style bits aren't set yet.
         return clearAnchorScrollSnapshots(anchored);
 
     CheckedPtr containingBlock = anchored.containingBlock();
@@ -269,7 +275,12 @@ void AnchorPositionEvaluator::captureScrollSnapshots(RenderBox& anchored)
     if (!anchored.style().positionTryFallbacks().isEmpty())
         adjuster.setFallbackLimits(anchored);
 
-    anchored.layoutContext().registerAnchorScrollAdjuster(WTFMove(adjuster));
+    auto captureDiff = anchored.layoutContext().registerAnchorScrollAdjuster(WTFMove(adjuster));
+    if (invalidateStyleForScrollPositionChanges && AnchorScrollAdjuster::SnapshotsDiffer == captureDiff && anchored.style().usesAnchorFunctions()) {
+        // Scroll positions changed since the last capture, which means anchor() resolution needs updating.
+        if (CheckedPtr element = anchored.element())
+            element->invalidateForAnchorRectChange();
+    }
     anchored.layer()->setAnchorScrollAdjustment({ });
 }
 
@@ -406,6 +417,12 @@ static LayoutSize offsetFromAncestorContainer(const RenderElement& descendantCon
             break;
         LayoutSize currentOffset = currentContainer->offsetFromContainer(*nextContainer, referencePoint);
 
+        if (CheckedPtr boxContainer = dynamicDowncast<RenderBox>(*nextContainer)) {
+            // Clamp overscroll so we don't layout into it.
+            if (boxContainer->hasPotentiallyScrollableOverflow())
+                currentOffset += boxContainer->scrollPosition() - boxContainer->constrainedScrollPosition();
+        }
+
         offset += currentOffset;
         referencePoint.move(currentOffset);
         currentContainer = WTFMove(nextContainer);
@@ -423,7 +440,7 @@ static LayoutSize offsetFromAncestorContainer(const RenderElement& descendantCon
     }
 
     if (auto ancestorBox = dynamicDowncast<RenderBox>(ancestorContainer)) // Zero out containing block scroll position.
-        offset += toLayoutSize(ancestorBox->scrollPosition());
+        offset += toLayoutSize(ancestorBox->constrainedScrollPosition());
 
     return offset;
 }
@@ -494,8 +511,10 @@ LayoutRect AnchorPositionEvaluator::computeAnchorRectRelativeToContainingBlock(C
                 break;
             }
         }
-        if (!isFixedAnchor)
-            anchorLocation.moveBy(-anchorBox->view().frameView().scrollPositionRespectingCustomFixedPosition());
+        if (!isFixedAnchor) {
+            auto& view = anchorBox->view().frameView();
+            anchorLocation.moveBy(-view.constrainedScrollPosition(ScrollPosition(view.scrollPositionRespectingCustomFixedPosition())));
+        }
     }
 
     if (CheckedPtr containingBox = dynamicDowncast<RenderBox>(containingBlock)) {
@@ -1239,8 +1258,13 @@ void AnchorPositionEvaluator::updateAnchorPositioningStatesAfterInterleavedLayou
             state.stage = renderer && renderer->style().usesAnchorFunctions() ? AnchorPositionResolutionStage::ResolveAnchorFunctions : AnchorPositionResolutionStage::Resolved;
             continue;
         }
-        if (state.stage == AnchorPositionResolutionStage::Resolved)
+        if (state.stage == AnchorPositionResolutionStage::Resolved) {
+            if (CheckedPtr anchored = elementAndState.key.first->renderer()) {
+                if (auto anchoredBox = dynamicDowncast<RenderBox>(anchored.get()))
+                    AnchorPositionEvaluator::captureScrollSnapshots(*anchoredBox, false);
+            }
             state.stage = AnchorPositionResolutionStage::Positioned;
+        }
     }
 }
 

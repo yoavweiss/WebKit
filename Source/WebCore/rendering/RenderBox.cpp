@@ -1255,6 +1255,19 @@ ScrollPosition RenderBox::scrollPosition() const
     return scrollableArea->scrollPosition();
 }
 
+ScrollPosition RenderBox::constrainedScrollPosition() const
+{
+    if (!hasPotentiallyScrollableOverflow())
+        return { 0, 0 };
+
+    ASSERT(hasLayer());
+    auto* scrollableArea = layer()->scrollableArea();
+    if (!scrollableArea)
+        return { 0, 0 };
+
+    return scrollableArea->constrainedScrollPosition(scrollableArea->scrollPosition());
+}
+
 LayoutSize RenderBox::cachedSizeForOverflowClip() const
 {
     ASSERT(hasNonVisibleOverflow());
