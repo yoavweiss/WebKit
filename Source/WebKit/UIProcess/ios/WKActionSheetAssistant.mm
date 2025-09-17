@@ -565,7 +565,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
 
     if ([elementInfo imageURL]) {
-        if (TCCAccessPreflight(WebKit::get_TCC_kTCCServicePhotos(), NULL) != kTCCAccessPreflightDenied)
+        if (TCCAccessPreflight(WebKit::get_TCC_kTCCServicePhotosSingleton(), NULL) != kTCCAccessPreflightDenied)
             [defaultActions addObject:[_WKElementAction _elementActionWithType:_WKElementActionTypeSaveImage info:elementInfo assistant:self]];
     }
 
@@ -606,7 +606,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     if ([getSSReadingListClassSingleton() supportsURL:targetURL])
         [defaultActions addObject:[_WKElementAction _elementActionWithType:_WKElementActionTypeAddToReadingList info:elementInfo assistant:self]];
 #endif
-    if (TCCAccessPreflight(WebKit::get_TCC_kTCCServicePhotos(), NULL) != kTCCAccessPreflightDenied)
+    if (TCCAccessPreflight(WebKit::get_TCC_kTCCServicePhotosSingleton(), NULL) != kTCCAccessPreflightDenied)
         [defaultActions addObject:[_WKElementAction _elementActionWithType:_WKElementActionTypeSaveImage info:elementInfo assistant:self]];
 
     [defaultActions addObject:[_WKElementAction _elementActionWithType:_WKElementActionTypeCopy info:elementInfo assistant:self]];

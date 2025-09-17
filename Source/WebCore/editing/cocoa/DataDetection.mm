@@ -456,7 +456,7 @@ void DataDetection::removeDataDetectedLinksInDocument(Document& document)
 
 std::optional<double> DataDetection::extractReferenceDate(NSDictionary *context)
 {
-    if (auto date = dynamic_objc_cast<NSDate>([context objectForKey:PAL::get_DataDetectorsUI_kDataDetectorsReferenceDateKey()]))
+    if (auto date = dynamic_objc_cast<NSDate>([context objectForKey:PAL::get_DataDetectorsUI_kDataDetectorsReferenceDateKeySingleton()]))
         return [date timeIntervalSince1970];
     return std::nullopt;
 }
@@ -549,7 +549,7 @@ static Vector<DDQueryFragmentCore> getFragmentsFromQuery(DDScanQueryRef scanQuer
 
 static NSArray * processDataDetectorScannerResults(DDScannerRef scanner, OptionSet<DataDetectorType> types, std::optional<double> referenceDateFromContext, DDScanQueryRef scanQuery, const SimpleRange& contextRange, const Vector<DDQueryFragmentCore>& oldFragments)
 {
-    RetainPtr scannerResults = adoptCF(PAL::softLink_DataDetectorsCore_DDScannerCopyResultsWithOptions(scanner, PAL::get_DataDetectorsCore_DDScannerCopyResultsOptionsForPassiveUse() | DDScannerCopyResultsOptionsCoalesceSignatures));
+    RetainPtr scannerResults = adoptCF(PAL::softLink_DataDetectorsCore_DDScannerCopyResultsWithOptions(scanner, PAL::get_DataDetectorsCore_DDScannerCopyResultsOptionsForPassiveUseSingleton() | DDScannerCopyResultsOptionsCoalesceSignatures));
 
     if (!scannerResults)
         return nil;

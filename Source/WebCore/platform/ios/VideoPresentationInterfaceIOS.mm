@@ -328,7 +328,7 @@ void VideoPresentationInterfaceIOS::doSetup()
         [m_window setRootViewController:m_viewController.get()];
         auto textEffectsWindowLevel = [&] {
             auto *textEffectsWindow = [PAL::getUITextEffectsWindowClassSingleton() sharedTextEffectsWindowForWindowScene:[m_window windowScene]];
-            return textEffectsWindow ? textEffectsWindow.windowLevel : PAL::get_UIKit_UITextEffectsBeneathStatusBarWindowLevel();
+            return textEffectsWindow ? textEffectsWindow.windowLevel : PAL::get_UIKit_UITextEffectsBeneathStatusBarWindowLevelSingleton();
         }();
         [m_window setWindowLevel:textEffectsWindowLevel - 1];
         [m_window makeKeyAndVisible];

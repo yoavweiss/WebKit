@@ -81,7 +81,7 @@ static void WebValidationBubbleViewController_viewDidLoad(WebValidationBubbleVie
     callSuper(instance, @selector(viewDidLoad));
 
     auto label = adoptNS([PAL::allocUILabelInstance() init]);
-    [label setFont:[PAL::getUIFontClassSingleton() preferredFontForTextStyle:PAL::get_UIKit_UIFontTextStyleCallout()]];
+    [label setFont:[PAL::getUIFontClassSingleton() preferredFontForTextStyle:PAL::get_UIKit_UIFontTextStyleCalloutSingleton()]];
     [label setLineBreakMode:NSLineBreakByTruncatingTail];
     [label setNumberOfLines:validationBubbleMaxNumberOfLines];
     [instance.view addSubview:label.get()];
@@ -201,7 +201,7 @@ void ValidationBubble::show()
         protectedThis->m_startingToPresentViewController = false;
     }];
 
-    PAL::softLinkUIKitUIAccessibilityPostNotification(PAL::get_UIKit_UIAccessibilityAnnouncementNotification(), m_message.createNSString().get());
+    PAL::softLinkUIKitUIAccessibilityPostNotification(PAL::get_UIKit_UIAccessibilityAnnouncementNotificationSingleton(), m_message.createNSString().get());
 }
 
 static UIViewController *fallbackViewController(UIView *view)

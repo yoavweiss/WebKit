@@ -513,7 +513,7 @@ inline static String pointerType(UITouchType type)
     if (_pointerLockState.isObservingNotifications)
         return;
     // Only observe when current mouse stops being current - we'll exit pointer lock
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_mouseDidStopBeingCurrent:) name:WebCore::get_GameController_GCMouseDidStopBeingCurrentNotification() object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_mouseDidStopBeingCurrent:) name:WebCore::get_GameController_GCMouseDidStopBeingCurrentNotificationSingleton() object:nil];
     _pointerLockState.isObservingNotifications = true;
 }
 
@@ -521,7 +521,7 @@ inline static String pointerType(UITouchType type)
 {
     if (!_pointerLockState.isObservingNotifications)
         return;
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:WebCore::get_GameController_GCMouseDidStopBeingCurrentNotification() object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:WebCore::get_GameController_GCMouseDidStopBeingCurrentNotificationSingleton() object:nil];
     _pointerLockState.isObservingNotifications = false;
 }
 

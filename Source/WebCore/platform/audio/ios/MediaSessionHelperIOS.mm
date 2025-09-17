@@ -389,16 +389,16 @@ void MediaSessionHelperIOS::externalOutputDeviceAvailableDidChange()
     _callback = callback;
 
     NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
-    [center addObserver:self selector:@selector(applicationWillEnterForeground:) name:PAL::get_UIKit_UIApplicationWillEnterForegroundNotification() object:nil];
+    [center addObserver:self selector:@selector(applicationWillEnterForeground:) name:PAL::get_UIKit_UIApplicationWillEnterForegroundNotificationSingleton() object:nil];
     [center addObserver:self selector:@selector(applicationWillEnterForeground:) name:WebUIApplicationWillEnterForegroundNotification object:nil];
-    [center addObserver:self selector:@selector(applicationDidBecomeActive:) name:PAL::get_UIKit_UIApplicationDidBecomeActiveNotification() object:nil];
+    [center addObserver:self selector:@selector(applicationDidBecomeActive:) name:PAL::get_UIKit_UIApplicationDidBecomeActiveNotificationSingleton() object:nil];
     [center addObserver:self selector:@selector(applicationDidBecomeActive:) name:WebUIApplicationDidBecomeActiveNotification object:nil];
-    [center addObserver:self selector:@selector(applicationWillResignActive:) name:PAL::get_UIKit_UIApplicationWillResignActiveNotification() object:nil];
+    [center addObserver:self selector:@selector(applicationWillResignActive:) name:PAL::get_UIKit_UIApplicationWillResignActiveNotificationSingleton() object:nil];
     [center addObserver:self selector:@selector(applicationWillResignActive:) name:WebUIApplicationWillResignActiveNotification object:nil];
-    [center addObserver:self selector:@selector(applicationDidEnterBackground:) name:PAL::get_UIKit_UIApplicationDidEnterBackgroundNotification() object:nil];
+    [center addObserver:self selector:@selector(applicationDidEnterBackground:) name:PAL::get_UIKit_UIApplicationDidEnterBackgroundNotificationSingleton() object:nil];
     [center addObserver:self selector:@selector(applicationDidEnterBackground:) name:WebUIApplicationDidEnterBackgroundNotification object:nil];
-    [center addObserver:self selector:@selector(activeOutputDeviceDidChange:) name:PAL::get_AVFoundation_AVAudioSessionRouteChangeNotification() object:nil];
-    [center addObserver:self selector:@selector(spatialPlaybackCapabilitiesChanged:) name:PAL::get_AVFoundation_AVAudioSessionSpatialPlaybackCapabilitiesChangedNotification() object:nil];
+    [center addObserver:self selector:@selector(activeOutputDeviceDidChange:) name:PAL::get_AVFoundation_AVAudioSessionRouteChangeNotificationSingleton() object:nil];
+    [center addObserver:self selector:@selector(spatialPlaybackCapabilitiesChanged:) name:PAL::get_AVFoundation_AVAudioSessionSpatialPlaybackCapabilitiesChangedNotificationSingleton() object:nil];
 
 #if HAVE(MEDIAEXPERIENCE_AVSYSTEMCONTROLLER)
     [center addObserver:self selector:@selector(mediaServerConnectionDied:) name:getAVSystemController_ServerConnectionDiedNotification() object:nil];

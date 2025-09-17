@@ -113,7 +113,7 @@ void Pasteboard::writeMarkup(const String&)
 
 std::unique_ptr<Pasteboard> Pasteboard::createForCopyAndPaste(std::unique_ptr<PasteboardContext>&& context)
 {
-    return makeUnique<Pasteboard>(WTFMove(context), PAL::get_UIKit_UIPasteboardNameGeneral());
+    return makeUnique<Pasteboard>(WTFMove(context), PAL::get_UIKit_UIPasteboardNameGeneralSingleton());
 }
 
 void Pasteboard::write(const PasteboardWebContent& content)

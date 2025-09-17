@@ -9059,7 +9059,7 @@ FORWARD(toggleUnderline)
 
 #if !ENABLE(REVEAL)
     if (PAL::canLoad_Lookup_LUNotificationPopoverWillClose())
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_dictionaryLookupPopoverWillClose:) name:PAL::get_Lookup_LUNotificationPopoverWillClose() object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_dictionaryLookupPopoverWillClose:) name:PAL::get_Lookup_LUNotificationPopoverWillCloseSingleton() object:nil];
 #endif // !ENABLE(REVEAL)
 
 }

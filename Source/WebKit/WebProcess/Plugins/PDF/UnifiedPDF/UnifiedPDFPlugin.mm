@@ -2266,7 +2266,7 @@ void UnifiedPDFPlugin::finishTrackingAnnotation(PDFAnnotation* annotationUnderMo
 
 void UnifiedPDFPlugin::revealPDFDestination(PDFDestination *destination)
 {
-    auto unspecifiedValue = get_PDFKit_kPDFDestinationUnspecifiedValue();
+    auto unspecifiedValue = get_PDFKit_kPDFDestinationUnspecifiedValueSingleton();
 
     auto pageIndex = [m_pdfDocument indexForPage:[destination page]];
     auto pointInPDFPageSpace = [destination point];
@@ -2779,7 +2779,7 @@ void UnifiedPDFPlugin::performContextMenuAction(ContextMenuItemTag tag, const In
 void UnifiedPDFPlugin::performCopyLinkOperation(const IntPoint& contextMenuEventRootViewPoint) const
 {
     if (![m_pdfDocument allowsCopying]) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:get_PDFKit_PDFViewCopyPermissionNotification() object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:get_PDFKit_PDFViewCopyPermissionNotificationSingleton() object:nil];
         return;
     }
 
@@ -2858,7 +2858,7 @@ bool UnifiedPDFPlugin::performCopyEditingOperation() const
         return false;
 
     if (![m_pdfDocument allowsCopying]) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:get_PDFKit_PDFViewCopyPermissionNotification() object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:get_PDFKit_PDFViewCopyPermissionNotificationSingleton() object:nil];
         return false;
     }
 

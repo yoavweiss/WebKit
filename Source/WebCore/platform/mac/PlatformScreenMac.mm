@@ -107,13 +107,13 @@ static DynamicRangeMode convertAVVideoRangeToEnum(NSString* range)
 {
     if (!range)
         return DynamicRangeMode::None;
-    if (PAL::canLoad_AVFoundation_AVVideoRangeSDR() && [range isEqualTo:PAL::get_AVFoundation_AVVideoRangeSDR()])
+    if (PAL::canLoad_AVFoundation_AVVideoRangeSDR() && [range isEqualTo:PAL::get_AVFoundation_AVVideoRangeSDRSingleton()])
         return DynamicRangeMode::Standard;
-    if (PAL::canLoad_AVFoundation_AVVideoRangeHLG() && [range isEqualTo:PAL::get_AVFoundation_AVVideoRangeHLG()])
+    if (PAL::canLoad_AVFoundation_AVVideoRangeHLG() && [range isEqualTo:PAL::get_AVFoundation_AVVideoRangeHLGSingleton()])
         return DynamicRangeMode::HLG;
-    if (PAL::canLoad_AVFoundation_AVVideoRangeHDR10() && [range isEqualTo:PAL::get_AVFoundation_AVVideoRangeHDR10()])
+    if (PAL::canLoad_AVFoundation_AVVideoRangeHDR10() && [range isEqualTo:PAL::get_AVFoundation_AVVideoRangeHDR10Singleton()])
         return DynamicRangeMode::HDR10;
-    if (PAL::canLoad_AVFoundation_AVVideoRangeDolbyVisionPQ() && [range isEqualTo:PAL::get_AVFoundation_AVVideoRangeDolbyVisionPQ()])
+    if (PAL::canLoad_AVFoundation_AVVideoRangeDolbyVisionPQ() && [range isEqualTo:PAL::get_AVFoundation_AVVideoRangeDolbyVisionPQSingleton()])
         return DynamicRangeMode::DolbyVisionPQ;
 
     ASSERT_NOT_REACHED();

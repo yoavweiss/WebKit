@@ -416,7 +416,7 @@ void requestPayloadForQRCode(CGImageRef image, CompletionHandler<void(NSString *
             }
 
             for (VNBarcodeObservation *result in request.results) {
-                if (![result.symbology isEqualToString:PAL::get_Vision_VNBarcodeSymbologyQR()])
+                if (![result.symbology isEqualToString:PAL::get_Vision_VNBarcodeSymbologyQRSingleton()])
                     continue;
 
                 callCompletionOnMainRunLoopWithResult(result.payloadStringValue);
@@ -427,7 +427,7 @@ void requestPayloadForQRCode(CGImageRef image, CompletionHandler<void(NSString *
         });
 
         auto request = adoptNS([PAL::allocVNDetectBarcodesRequestInstance() initWithCompletionHandler:completionHandler.get()]);
-        [request setSymbologies:@[ PAL::get_Vision_VNBarcodeSymbologyQR() ]];
+        [request setSymbologies:@[ PAL::get_Vision_VNBarcodeSymbologyQRSingleton() ]];
 
         NSError *error = nil;
         auto handler = adoptNS([PAL::allocVNImageRequestHandlerInstance() initWithCGImage:adjustedImage.get() options:@{ }]);

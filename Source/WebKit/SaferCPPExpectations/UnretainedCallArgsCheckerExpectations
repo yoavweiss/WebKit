@@ -11,9 +11,7 @@ NetworkProcess/webrtc/NetworkRTCTCPSocketCocoa.mm
 NetworkProcess/webrtc/NetworkRTCUDPSocketCocoa.mm
 Platform/IPC/cocoa/ConnectionCocoa.mm
 Platform/IPC/cocoa/DaemonConnectionCocoa.mm
-Platform/cocoa/ImageAnalysisUtilities.mm
 Platform/cocoa/PaymentAuthorizationPresenter.mm
-Platform/cocoa/WKPaymentAuthorizationDelegate.mm
 Platform/cocoa/WebPrivacyHelpers.mm
 Platform/mac/MenuUtilities.mm
 Shared/API/Cocoa/RemoteObjectRegistry.mm
@@ -38,7 +36,6 @@ Shared/Cocoa/CompletionHandlerCallChecker.mm
 Shared/Cocoa/CoreIPCContacts.mm
 Shared/Cocoa/CoreIPCPassKit.mm
 Shared/Cocoa/CoreIPCPersonNameComponents.mm
-Shared/Cocoa/DefaultWebBrowserChecks.mm
 Shared/Cocoa/RevealItem.mm
 Shared/Cocoa/WKNSError.mm
 Shared/Cocoa/WKNSURLRequest.mm

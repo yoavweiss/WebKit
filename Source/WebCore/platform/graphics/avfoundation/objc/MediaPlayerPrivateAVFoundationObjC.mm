@@ -1039,13 +1039,13 @@ static NSString* convertDynamicRangeModeEnumToAVVideoRange(DynamicRangeMode mode
     case DynamicRangeMode::None:
         return nil;
     case DynamicRangeMode::Standard:
-        return PAL::canLoad_AVFoundation_AVVideoRangeSDR() ? PAL::get_AVFoundation_AVVideoRangeSDR() : nil;
+        return PAL::canLoad_AVFoundation_AVVideoRangeSDR() ? PAL::get_AVFoundation_AVVideoRangeSDRSingleton() : nil;
     case DynamicRangeMode::HLG:
-        return PAL::canLoad_AVFoundation_AVVideoRangeHLG() ? PAL::get_AVFoundation_AVVideoRangeHLG() : nil;
+        return PAL::canLoad_AVFoundation_AVVideoRangeHLG() ? PAL::get_AVFoundation_AVVideoRangeHLGSingleton() : nil;
     case DynamicRangeMode::HDR10:
-        return PAL::canLoad_AVFoundation_AVVideoRangeHDR10() ? PAL::get_AVFoundation_AVVideoRangeHDR10() : nil;
+        return PAL::canLoad_AVFoundation_AVVideoRangeHDR10() ? PAL::get_AVFoundation_AVVideoRangeHDR10Singleton() : nil;
     case DynamicRangeMode::DolbyVisionPQ:
-        return PAL::canLoad_AVFoundation_AVVideoRangeDolbyVisionPQ() ? PAL::get_AVFoundation_AVVideoRangeDolbyVisionPQ() : nil;
+        return PAL::canLoad_AVFoundation_AVVideoRangeDolbyVisionPQ() ? PAL::get_AVFoundation_AVVideoRangeDolbyVisionPQSingleton() : nil;
     }
 
     ASSERT_NOT_REACHED();

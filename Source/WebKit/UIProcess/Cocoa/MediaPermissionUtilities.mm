@@ -87,7 +87,7 @@ bool checkUsageDescriptionStringForType(MediaPermissionType type)
 
     switch (type) {
     case MediaPermissionType::Audio:
-        static TCCAccessPreflightResult audioAccess = TCCAccessPreflight(get_TCC_kTCCServiceMicrophone(), NULL);
+        static TCCAccessPreflightResult audioAccess = TCCAccessPreflight(get_TCC_kTCCServiceMicrophoneSingleton(), NULL);
         if (audioAccess == kTCCAccessPreflightGranted)
             return true;
         std::call_once(audioDescriptionFlag, [] {
@@ -95,7 +95,7 @@ bool checkUsageDescriptionStringForType(MediaPermissionType type)
         });
         return hasMicrophoneDescriptionString;
     case MediaPermissionType::Video:
-        static TCCAccessPreflightResult videoAccess = TCCAccessPreflight(get_TCC_kTCCServiceCamera(), NULL);
+        static TCCAccessPreflightResult videoAccess = TCCAccessPreflight(get_TCC_kTCCServiceCameraSingleton(), NULL);
         if (videoAccess == kTCCAccessPreflightGranted)
             return true;
         std::call_once(videoDescriptionFlag, [] {

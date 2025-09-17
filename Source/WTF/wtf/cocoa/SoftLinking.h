@@ -529,13 +529,13 @@ static void* lib##Library() \
 
 #define SOFT_LINK_CONSTANT_FOR_HEADER(functionNamespace, framework, variableName, variableType) \
     namespace functionNamespace { \
-    variableType get_##framework##_##variableName(); \
+    variableType get_##framework##_##variableName##Singleton(); \
     }
 
 #define SOFT_LINK_CONSTANT_FOR_SOURCE_WITH_EXPORT(functionNamespace, framework, variableName, variableType, export) \
     namespace functionNamespace { \
-    export variableType get_##framework##_##variableName(); \
-    variableType get_##framework##_##variableName() \
+    export variableType get_##framework##_##variableName##Singleton(); \
+    variableType get_##framework##_##variableName##Singleton() \
     { \
         SUPPRESS_UNRETAINED_LOCAL static variableType constant##framework##variableName; \
         static dispatch_once_t once; \
@@ -556,7 +556,7 @@ static void* lib##Library() \
     namespace functionNamespace { \
     bool canLoad_##framework##_##variableName(); \
     bool init_##framework##_##variableName(); \
-    variableType get_##framework##_##variableName(); \
+    variableType get_##framework##_##variableName##Singleton(); \
     }
 
 #define SOFT_LINK_CONSTANT_MAY_FAIL_FOR_SOURCE_WITH_EXPORT(functionNamespace, framework, variableName, variableType, export) \
@@ -579,8 +579,8 @@ static void* lib##Library() \
         static bool loaded = init_##framework##_##variableName(); \
         return loaded; \
     } \
-    export variableType get_##framework##_##variableName(); \
-    variableType get_##framework##_##variableName() \
+    export variableType get_##framework##_##variableName##Singleton(); \
+    variableType get_##framework##_##variableName##Singleton() \
     { \
         return constant##framework##variableName.constant; \
     } \

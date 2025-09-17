@@ -162,7 +162,7 @@ public:
         // Ensure that the previous swizzler is destroyed before creating the new one.
         m_swizzler = nullptr;
         m_swizzler = makeUnique<InstanceMethodSwizzler>(PAL::getWPResourcesClassSingleton(), @selector(requestLinkFilteringData:completionHandler:), makeQueryParameterRequestHandler(parameters, domains, paths, m_didHandleRequest));
-        [[NSNotificationCenter defaultCenter] postNotificationName:PAL::get_WebPrivacy_WPResourceDataChangedNotificationName() object:nil userInfo:@{ PAL::get_WebPrivacy_WPNotificationUserInfoResourceTypeKey() : @(WPResourceTypeLinkFilteringData) }];
+        [[NSNotificationCenter defaultCenter] postNotificationName:PAL::get_WebPrivacy_WPResourceDataChangedNotificationNameSingleton() object:nil userInfo:@{ PAL::get_WebPrivacy_WPNotificationUserInfoResourceTypeKeySingleton() : @(WPResourceTypeLinkFilteringData) }];
     }
 
     void waitUntilDidHandleRequest()

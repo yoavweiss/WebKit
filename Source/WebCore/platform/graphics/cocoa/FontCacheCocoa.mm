@@ -36,7 +36,7 @@ namespace WebCore {
 #if PLATFORM(IOS_FAMILY)
 CFStringRef getUIContentSizeCategoryDidChangeNotificationName()
 {
-    return static_cast<CFStringRef>(PAL::get_UIKit_UIContentSizeCategoryDidChangeNotification());
+    return static_cast<CFStringRef>(PAL::get_UIKit_UIContentSizeCategoryDidChangeNotificationSingleton());
 }
 #endif
 

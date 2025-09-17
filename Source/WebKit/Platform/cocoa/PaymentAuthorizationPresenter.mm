@@ -181,7 +181,7 @@ static NSError *toNSError(const WebCore::ApplePayError& error)
                 return [PAL::getPKDisbursementRequestClassSingleton() disbursementContactInvalidErrorWithContactField:toPKContactField(error.contactField().value()) localizedDescription:error.message().createNSString().get()];
             break;
         default:
-            return [NSError errorWithDomain:PAL::get_PassKitCore_PKDisbursementErrorDomain() code:PKDisbursementUnknownError userInfo:userInfo.get()];
+            return [NSError errorWithDomain:PKDisbursementErrorDomain code:PKDisbursementUnknownError userInfo:userInfo.get()];
         }
     }
 #endif

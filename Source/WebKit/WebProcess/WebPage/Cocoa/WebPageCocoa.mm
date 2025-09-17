@@ -1326,7 +1326,7 @@ static void drawPDFPage(PDFDocument *pdfDocument, CFIndex pageIndex, CGContextRe
     CGAffineTransform transform = CGContextGetCTM(context);
 
     for (PDFAnnotation *annotation in [pdfPage annotations]) {
-        if (![[annotation valueForAnnotationKey:get_PDFKit_PDFAnnotationKeySubtype()] isEqualToString:get_PDFKit_PDFAnnotationSubtypeLink()])
+        if (![[annotation valueForAnnotationKey:get_PDFKit_PDFAnnotationKeySubtypeSingleton()] isEqualToString:get_PDFKit_PDFAnnotationSubtypeLinkSingleton()])
             continue;
 
         NSURL *url = annotation.URL;

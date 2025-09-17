@@ -4806,7 +4806,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
             return NO;
 
 #if !PLATFORM(MACCATALYST)
-        if ([(MCProfileConnection *)[PAL::getMCProfileConnectionClassSingleton() sharedConnection] effectiveBoolValueForSetting:PAL::get_ManagedConfiguration_MCFeatureDefinitionLookupAllowed()] == MCRestrictedBoolExplicitNo)
+        if ([(MCProfileConnection *)[PAL::getMCProfileConnectionClassSingleton() sharedConnection] effectiveBoolValueForSetting:PAL::get_ManagedConfiguration_MCFeatureDefinitionLookupAllowedSingleton()] == MCRestrictedBoolExplicitNo)
             return NO;
 #endif
             
@@ -4818,7 +4818,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
             return NO;
 
 #if !PLATFORM(MACCATALYST)
-        if ([(MCProfileConnection *)[PAL::getMCProfileConnectionClassSingleton() sharedConnection] effectiveBoolValueForSetting:PAL::get_ManagedConfiguration_MCFeatureDefinitionLookupAllowed()] == MCRestrictedBoolExplicitNo)
+        if ([(MCProfileConnection *)[PAL::getMCProfileConnectionClassSingleton() sharedConnection] effectiveBoolValueForSetting:PAL::get_ManagedConfiguration_MCFeatureDefinitionLookupAllowedSingleton()] == MCRestrictedBoolExplicitNo)
             return NO;
 #endif
 
@@ -10096,9 +10096,9 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
 #if ENABLE(DATA_DETECTION)
     if (!positionInformation.textBefore.isEmpty())
-        context.get()[PAL::get_DataDetectorsUI_kDataDetectorsLeadingText()] = positionInformation.textBefore.createNSString().get();
+        context.get()[PAL::get_DataDetectorsUI_kDataDetectorsLeadingTextSingleton()] = positionInformation.textBefore.createNSString().get();
     if (!positionInformation.textAfter.isEmpty())
-        context.get()[PAL::get_DataDetectorsUI_kDataDetectorsTrailingText()] = positionInformation.textAfter.createNSString().get();
+        context.get()[PAL::get_DataDetectorsUI_kDataDetectorsTrailingTextSingleton()] = positionInformation.textAfter.createNSString().get();
 
     auto canShowPreview = ^{
         if (!positionInformation.url.createNSURL().get().iTunesStoreURL)
@@ -10113,7 +10113,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     }();
 
     if (!canShowPreview)
-        context.get()[PAL::get_DataDetectorsUI_kDDContextMenuWantsPreviewKey()] = @NO;
+        context.get()[PAL::get_DataDetectorsUI_kDDContextMenuWantsPreviewKeySingleton()] = @NO;
 
     CGRect sourceRect;
     if (positionInformation.isLink && positionInformation.textIndicator)
@@ -15545,8 +15545,8 @@ ALLOW_DEPRECATED_DECLARATIONS_END
                 dataForPreview.get()[UIPreviewDataDDResult] = (__bridge id)ddResult;
             if (!_positionInformation.textBefore.isEmpty() || !_positionInformation.textAfter.isEmpty()) {
                 extendedContext = adoptNS([@{
-                    PAL::get_DataDetectorsUI_kDataDetectorsLeadingText() : _positionInformation.textBefore.createNSString().get(),
-                    PAL::get_DataDetectorsUI_kDataDetectorsTrailingText() : _positionInformation.textAfter.createNSString().get(),
+                    PAL::get_DataDetectorsUI_kDataDetectorsLeadingTextSingleton() : _positionInformation.textBefore.createNSString().get(),
+                    PAL::get_DataDetectorsUI_kDataDetectorsTrailingTextSingleton() : _positionInformation.textAfter.createNSString().get(),
                 } mutableCopy]);
                 
                 if (newContext)

@@ -573,7 +573,7 @@ static PlatformVideoColorSpace computeVideoFrameColorSpace(CVPixelBufferRef pixe
         transfer = PlatformVideoTransferCharacteristics::AribStdB67Hlg;
     else if (safeCFEqual(pixelTransfer, PAL::kCMFormatDescriptionTransferFunction_Linear))
         transfer = PlatformVideoTransferCharacteristics::Linear;
-    else if (PAL::canLoad_CoreMedia_kCMFormatDescriptionTransferFunction_sRGB() && safeCFEqual(pixelTransfer, PAL::get_CoreMedia_kCMFormatDescriptionTransferFunction_sRGB()))
+    else if (PAL::canLoad_CoreMedia_kCMFormatDescriptionTransferFunction_sRGB() && safeCFEqual(pixelTransfer, PAL::kCMFormatDescriptionTransferFunction_sRGB))
         transfer = PlatformVideoTransferCharacteristics::Iec6196621;
 
     std::optional<PlatformVideoMatrixCoefficients> matrix;
