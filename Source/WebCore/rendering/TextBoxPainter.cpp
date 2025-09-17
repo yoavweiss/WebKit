@@ -543,10 +543,85 @@ void TextBoxPainter::paintForeground(const StyledMarkedText& markedText)
         context.setAlpha(markedText.style.alpha);
     updateGraphicsContext(context, markedText.style.textStyles);
 
-    textPainter.setGlyphDisplayListIfNeeded(textBox().box(), m_paintInfo, m_style, m_paintTextRun);
-
+    auto& displayBox = textBox().box();
+    auto& textContent = displayBox.text();
+    auto shouldExpandPaintingRange = textContent.isAtShapingBoundaryStart() || textContent.isAtShapingBoundaryEnd() || textContent.isBetweenShapingBoundaries();
+    if (shouldExpandPaintingRange && paintForegroundForShapingRange(textPainter))
+        return;
+    textPainter.setGlyphDisplayListIfNeeded(displayBox, m_paintInfo, m_style, m_paintTextRun);
     // TextPainter wants the box rectangle and text origin of the entire line box.
     textPainter.paintRange(m_paintTextRun, m_paintRect, textOriginFromPaintRect(m_paintRect), markedText.startOffset, markedText.endOffset);
+}
+
+bool TextBoxPainter::paintForegroundForShapingRange(TextPainter& textPainter)
+{
+    ASSERT(m_document.settings().textShapingAcrossInlineBoxes());
+
+    auto& context = m_paintInfo.context();
+
+    context.save();
+    context.clip(m_paintRect);
+
+    StringBuilder textContent;
+    auto contentStartX = 0.f;
+
+    auto buildTextForShaping = [&] {
+        auto shapingBoundaryIterator = m_textBox;
+        auto& displayBox = shapingBoundaryIterator.box();
+
+        // 1. Find shaping boundary start when we are at the end or inside a shape range (note that we deal with
+        // rtl content hence the opposite direction walk)
+        // 2. Walk from the start to the end and build the text content.
+        if (displayBox.text().isAtShapingBoundaryEnd() || displayBox.text().isBetweenShapingBoundaries()) {
+            for (; !shapingBoundaryIterator.atEnd(); shapingBoundaryIterator.traverseNextLeafOnLine()) {
+                auto& displayBox = shapingBoundaryIterator.box();
+                if (displayBox.isText() && displayBox.text().isAtShapingBoundaryStart())
+                    break;
+            }
+        }
+
+        if (shapingBoundaryIterator.atEnd() || !shapingBoundaryIterator.isText()) {
+            ASSERT_NOT_REACHED();
+            return;
+        }
+
+        for (; !shapingBoundaryIterator.atEnd(); shapingBoundaryIterator.traversePreviousLeafOnLine()) {
+            auto& displayBox = shapingBoundaryIterator.box();
+            if (displayBox.isText()) {
+                auto& text = displayBox.text();
+
+                if (!(m_textBox.bidiLevel() % 2)) {
+                    ASSERT_NOT_REACHED();
+                    textContent.clear();
+                    return;
+                }
+
+                textContent.append(text.renderedContent());
+                if (text.isAtShapingBoundaryEnd()) {
+                    contentStartX = displayBox.visualRectIgnoringBlockDirection().x();
+                    return;
+                }
+            }
+        }
+        // We should always find the boundary end.
+        ASSERT_NOT_REACHED();
+        textContent.clear();
+    };
+    buildTextForShaping();
+
+    if (textContent.isEmpty())
+        return false;
+
+    auto paintRect = m_paintRect;
+    paintRect.shiftXEdgeTo(m_paintOffset.x() + contentStartX);
+
+    auto characterScanForCodePath = true;
+    auto expansion = m_textBox.box().expansion();
+    auto run = TextRun { textContent, paintRect.x(), expansion.horizontalExpansion, expansion.behavior, m_textBox.direction(), m_style.rtlOrdering() == Order::Visual, characterScanForCodePath };
+
+    textPainter.paintRange(run, paintRect, textOriginFromPaintRect(paintRect), 0, textContent.length());
+    context.restore();
+    return true;
 }
 
 TextDecorationPainter TextBoxPainter::createDecorationPainter(const StyledMarkedText& markedText, const FloatRect& clipOutRect)

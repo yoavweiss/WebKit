@@ -44,6 +44,7 @@ class RenderText;
 struct CompositionUnderline;
 struct MarkedText;
 struct StyledMarkedText;
+class TextPainter;
 
 class TextBoxPainter {
 public:
@@ -68,6 +69,7 @@ protected:
     void paintPlatformDocumentMarkers();
 
     void paintForeground(const StyledMarkedText&);
+    bool paintForegroundForShapingRange(TextPainter&);
     TextDecorationPainter createDecorationPainter(const StyledMarkedText&, const FloatRect&);
     void paintBackgroundDecorations(TextDecorationPainter&, const StyledMarkedText&, const FloatRect&);
     void paintForegroundDecorations(TextDecorationPainter&, const StyledMarkedText&, const FloatRect&);
