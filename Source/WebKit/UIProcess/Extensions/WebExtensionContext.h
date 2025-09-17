@@ -270,6 +270,18 @@ public:
         BackgroundContentFailedToLoad
     };
 
+    enum class PermissionNotification : uint8_t {
+        None = 0,
+        PermissionsWereGranted,
+        PermissionsWereDenied,
+        GrantedPermissionsWereRemoved,
+        DeniedPermissionsWereRemoved,
+        PermissionMatchPatternsWereGranted,
+        PermissionMatchPatternsWereDenied,
+        GrantedPermissionMatchPatternsWereRemoved,
+        DeniedPermissionMatchPatternsWereRemoved,
+    };
+
     enum class PermissionState : int8_t {
         DeniedExplicitly    = -3,
         DeniedImplicitly    = -2,
@@ -665,16 +677,14 @@ private:
     void determineInstallReasonDuringLoad();
     void moveLocalStorageIfNeeded(const URL& previousBaseURL, CompletionHandler<void()>&&);
 
-    void permissionsDidChange(NSString *notificationName, const PermissionsSet&);
-    void permissionsDidChange(NSString *notificationName, const MatchPatternSet&);
+    void permissionsDidChange(PermissionNotification, const PermissionsSet&);
+    void permissionsDidChange(PermissionNotification, const MatchPatternSet&);
 
-    bool removePermissions(PermissionsMap&, PermissionsSet&, WallTime& nextExpirationDate, NSString *notificationName);
-    bool removePermissionMatchPatterns(PermissionMatchPatternsMap&, MatchPatternSet&, EqualityOnly, WallTime& nextExpirationDate, NSString *notificationName);
+    bool removePermissions(PermissionsMap&, PermissionsSet&, WallTime& nextExpirationDate, PermissionNotification = PermissionNotification::None);
+    bool removePermissionMatchPatterns(PermissionMatchPatternsMap&, MatchPatternSet&, EqualityOnly, WallTime& nextExpirationDate, PermissionNotification = PermissionNotification::None);
 
-#if PLATFORM(COCOA)
-    PermissionsMap& removeExpired(PermissionsMap&, WallTime& nextExpirationDate, NSString *notificationName = nil);
-    PermissionMatchPatternsMap& removeExpired(PermissionMatchPatternsMap&, WallTime& nextExpirationDate, NSString *notificationName = nil);
-#endif
+    PermissionsMap& removeExpired(PermissionsMap&, WallTime& nextExpirationDate, PermissionNotification = PermissionNotification::None);
+    PermissionMatchPatternsMap& removeExpired(PermissionMatchPatternsMap&, WallTime& nextExpirationDate, PermissionNotification = PermissionNotification::None);
 
     void populateWindowsAndTabs();
 
