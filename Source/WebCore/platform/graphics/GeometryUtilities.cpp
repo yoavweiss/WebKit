@@ -374,7 +374,7 @@ float angleOfPointToSideOfIntersection(const FloatRect& boundingRect, const std:
 {
     auto angle = ray.second;
     auto side = intersectionSide(boundingRect, ray);
-    angle = toRelatedAcuteAngle(toPositiveAngle(angle));
+    angle = toRelatedAcuteAngle(angle);
     return side == BoxSide::Top || side == BoxSide::Bottom ? angle : 90 - angle;
 }
 
