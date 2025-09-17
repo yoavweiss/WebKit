@@ -282,7 +282,7 @@ static void __JSTRunLoopSourceCancelCallBack(void* info, CFRunLoopRef rl, CFStri
 - (void)_callCompletionHandler:(void(^)(NSError* error))completionHandler ifNeededWithError:(NSError*)error
 {
     if (completionHandler) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(globalDispatchQueueSingleton(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             completionHandler(error);
         });
     }

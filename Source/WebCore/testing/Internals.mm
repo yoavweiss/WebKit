@@ -287,7 +287,7 @@ bool Internals::emitWebCoreLogs(unsigned logCount, bool useMainThread) const
     if (useMainThread)
         dispatch_async(mainDispatchQueueSingleton(), blockPtr.get());
     else
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), blockPtr.get());
+        dispatch_async(globalDispatchQueueSingleton(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), blockPtr.get());
     return true;
 }
 
@@ -300,7 +300,7 @@ bool Internals::emitLogs(const String& logString, unsigned logCount, bool useMai
     if (useMainThread)
         dispatch_async(mainDispatchQueueSingleton(), blockPtr.get());
     else
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), blockPtr.get());
+        dispatch_async(globalDispatchQueueSingleton(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), blockPtr.get());
     return true;
 }
 #endif // ENABLE(LOGD_BLOCKING_IN_WEBCONTENT)

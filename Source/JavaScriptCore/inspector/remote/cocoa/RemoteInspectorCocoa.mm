@@ -201,7 +201,7 @@ void RemoteInspector::updateAutomaticInspectionCandidate(RemoteInspectionTarget*
         // In case debuggers fail to respond, or we cannot connect to webinspectord, assume a rejection for
         // automatic inspection after a short period of time.
         int64_t debuggerTimeoutDelay = 10;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, debuggerTimeoutDelay * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, debuggerTimeoutDelay * NSEC_PER_SEC), globalDispatchQueueSingleton(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             Locker locker { m_mutex };
             if (m_automaticInspectionCandidates.remove(targetIdentifier)) {
                 WTFLogAlways("Skipping Automatic Inspection Candidate with pageId(%u) because we failed to receive a response in time.", targetIdentifier);
@@ -457,7 +457,7 @@ void RemoteInspector::xpcConnectionFailed(RemoteInspectorXPCConnection* relayCon
     m_shouldReconnectToRelayOnFailure = false;
 
     // Schedule setting up a new connection, since we currently are holding a lock needed to create a new connection.
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), globalDispatchQueueSingleton(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         RemoteInspector::singleton().setupXPCConnectionIfNeeded();
     });
 }
@@ -597,7 +597,7 @@ void RemoteInspector::pushListingsSoon()
         return;
 
     m_pushScheduled = true;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2 * NSEC_PER_SEC), globalDispatchQueueSingleton(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         Locker locker { m_mutex };
         if (m_pushScheduled)
             pushListingsNow();
@@ -761,7 +761,7 @@ void RemoteInspector::receivedProxyApplicationSetupMessage(NSDictionary *)
         // We are a proxy application without parent process information.
         // Wait a bit for the information, but give up after a second.
         m_shouldSendParentProcessInformation = true;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), globalDispatchQueueSingleton(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             Locker locker { m_mutex };
             if (m_shouldSendParentProcessInformation)
                 stopInternal(StopSource::XPCMessage);

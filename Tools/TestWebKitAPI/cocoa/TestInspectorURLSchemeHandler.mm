@@ -52,7 +52,7 @@
 
     if (!_operationQueue) {
         _operationQueue = adoptNS([[NSOperationQueue alloc] init]);
-        _operationQueue.get().underlyingQueue = dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0);
+        _operationQueue.get().underlyingQueue = globalDispatchQueueSingleton(QOS_CLASS_USER_INTERACTIVE, 0);
         _operationQueue.get().qualityOfService = NSOperationQualityOfServiceUserInteractive;
 
         // The default value (NSOperationQueueDefaultMaxConcurrentOperationCount) results in a large number of threads
