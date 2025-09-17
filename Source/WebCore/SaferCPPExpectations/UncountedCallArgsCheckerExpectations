@@ -635,7 +635,6 @@ page/scrolling/AsyncScrollingCoordinator.h
 page/scrolling/ScrollAnchoringController.cpp
 page/scrolling/ScrollSnapOffsetsInfo.cpp
 page/scrolling/ScrollingCoordinator.cpp
-page/scrolling/ScrollingTree.cpp
 page/scrolling/ScrollingTreeGestureState.cpp
 page/scrolling/ThreadedScrollingCoordinator.cpp
 page/scrolling/mac/ScrollingCoordinatorMac.mm
