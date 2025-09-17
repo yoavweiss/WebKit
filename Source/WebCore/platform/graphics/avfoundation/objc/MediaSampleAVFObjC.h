@@ -64,6 +64,7 @@ public:
     WEBCORE_EXPORT Ref<MediaSample> createNonDisplayingCopy() const override;
 
     CMSampleBufferRef sampleBuffer() const { return m_sample.get(); }
+    RetainPtr<CMSampleBufferRef> protectedSampleBuffer() const { return m_sample; }
 
     bool isHomogeneous() const;
     Vector<Ref<MediaSampleAVFObjC>> divideIntoHomogeneousSamples();
