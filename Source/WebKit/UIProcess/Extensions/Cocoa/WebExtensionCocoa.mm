@@ -238,6 +238,9 @@ Expected<Ref<API::Data>, RefPtr<API::Error>> WebExtension::resourceDataForPath(c
         return API::Data::create(std::span<const uint8_t> { });
     }
 
+    if ([cocoaPath hasPrefix:@"symbol:"])
+        return makeUnexpected(nullptr);
+
     // Remove leading slash to normalize the path for lookup/storage in the cache dictionary.
     if ([cocoaPath hasPrefix:@"/"])
         cocoaPath = [cocoaPath substringFromIndex:1];
@@ -302,6 +305,27 @@ Expected<Ref<WebCore::Icon>, RefPtr<API::Error>> WebExtension::iconForPath(const
 {
     ASSERT(!imagePath.isEmpty());
 
+    constexpr auto symbolURLScheme = "symbol:"_s;
+    if (imagePath.startsWith(symbolURLScheme)) {
+        auto symbolName = imagePath.substring(symbolURLScheme.length());
+
+        // Strip off any query string (everything after '?') so we only use
+        // the raw symbol name. Query parameters may be handled in the future.
+        auto queryStringPosition = symbolName.find('?');
+        if (queryStringPosition != notFound)
+            symbolName = symbolName.left(queryStringPosition);
+
+#if USE(APPKIT)
+        auto *result = [NSImage imageWithSystemSymbolName:symbolName.createNSString().get() accessibilityDescription:nil];
+#else
+        auto *result = [UIImage systemImageNamed:symbolName.createNSString().get()];
+#endif
+
+        if (RefPtr iconResult = WebCore::Icon::create(result))
+            return iconResult.releaseNonNull();
+        return makeUnexpected(nullptr);
+    }
+
     auto dataResult = resourceDataForPath(imagePath);
     if (!dataResult)
         return makeUnexpected(dataResult.error());
@@ -344,7 +368,7 @@ Expected<Ref<WebCore::Icon>, RefPtr<API::Error>> WebExtension::iconForPath(const
         result.size = WebCore::FloatSize(originalSize.width * aspectRatio, originalSize.height * aspectRatio);
     }
 
-    if (RefPtr iconResult = WebCore::Icon::create(result); iconResult)
+    if (RefPtr iconResult = WebCore::Icon::create(result))
         return iconResult.releaseNonNull();
     return makeUnexpected(nullptr);
 #else
@@ -358,7 +382,7 @@ Expected<Ref<WebCore::Icon>, RefPtr<API::Error>> WebExtension::iconForPath(const
     if (!sizeForResizing.isZero() && WebCore::FloatSize(result.size) != sizeForResizing)
         result = [result imageByPreparingThumbnailOfSize:sizeForResizing];
 
-    if (RefPtr iconResult = WebCore::Icon::create(result); iconResult)
+    if (RefPtr iconResult = WebCore::Icon::create(result))
         return iconResult.releaseNonNull();
     return makeUnexpected(nullptr);
 #endif // not USE(APPKIT)

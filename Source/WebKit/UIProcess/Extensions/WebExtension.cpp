@@ -526,6 +526,11 @@ String WebExtension::resourceMIMETypeForPath(const String& path)
         return defaultMIMEType();
     }
 
+#if PLATFORM(COCOA)
+    if (path.startsWith("symbol:"_s))
+        return defaultMIMEType();
+#endif
+
     return MIMETypeRegistry::mimeTypeForPath(path);
 }
 

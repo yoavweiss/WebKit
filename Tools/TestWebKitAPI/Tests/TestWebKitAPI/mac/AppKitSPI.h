@@ -31,6 +31,7 @@ DECLARE_SYSTEM_HEADER
 
 #if USE(APPLE_INTERNAL_SDK)
 
+#import <AppKit/NSImage_Private.h>
 #import <AppKit/NSInspectorBar.h>
 #import <AppKit/NSInspectorBarItemController.h>
 #import <AppKit/NSInspectorBar_Private.h>
@@ -109,6 +110,10 @@ NSString * const NSInspectorBarTextAlignmentItemIdentifier = @"NSInspectorBarTex
 
 @interface NSScrollPocket : NSView
 @property (copy, nullable) NSColor *captureColor;
+@end
+
+@interface NSImage (SPI)
+@property (readonly, getter=_isSymbolImage) BOOL _symbolImage;
 @end
 
 #endif
