@@ -2267,7 +2267,7 @@ RenderBoxModelObject* RenderElement::offsetParent() const
     // A is the root element.
     // A is the HTML body element.
     // The computed value of the position property for element A is fixed.
-    if (isDocumentElementRenderer() || isBody() || isFixedPositioned())
+    if (isDocumentElementRenderer() || isBody() || (isFixedPositioned() && is<RenderView>(container())))
         return nullptr;
 
     // If A is an area HTML element which has a map HTML element somewhere in the ancestor
@@ -2278,6 +2278,7 @@ RenderBoxModelObject* RenderElement::offsetParent() const
     // true and stop this algorithm if such an ancestor is found:
     //     * The element is a containing block of absolutely-positioned descendants (regardless
     //       of whether there are any absolutely-positioned descendants).
+    //     * The element is a containing block of fixed-positioned descendants.
     //     * It is the HTML body element.
     //     * The computed value of the position property of A is static and the ancestor
     //       is one of the following HTML elements: td, th, or table.
@@ -2286,7 +2287,7 @@ RenderBoxModelObject* RenderElement::offsetParent() const
     bool skipTables = isPositioned();
     float currZoom = style().usedZoom();
     CheckedPtr current = parent();
-    while (current && (!current->element() || (!current->canContainAbsolutelyPositionedObjects() && !current->isBody()))) {
+    while (current && (!current->element() || (!current->isBody() && !(isFixedPositioned() ? current->canContainFixedPositionObjects() : current->canContainAbsolutelyPositionedObjects())))) {
         RefPtr element = current->element();
         if (!skipTables && element && (is<HTMLTableElement>(*element) || is<HTMLTableCellElement>(*element)))
             break;
