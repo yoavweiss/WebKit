@@ -208,6 +208,8 @@ extension WKTextExtractionContainerItem {
             containerString = "navigation"
         case .button:
             containerString = "button"
+        case .canvas:
+            containerString = "canvas"
         case .generic:
             break
         @unknown default:

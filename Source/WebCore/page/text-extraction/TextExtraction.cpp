@@ -44,6 +44,7 @@
 #include "HTMLAnchorElement.h"
 #include "HTMLBodyElement.h"
 #include "HTMLButtonElement.h"
+#include "HTMLCanvasElement.h"
 #include "HTMLFrameOwnerElement.h"
 #include "HTMLIFrameElement.h"
 #include "HTMLImageElement.h"
@@ -413,6 +414,9 @@ static inline Variant<SkipExtraction, ItemData, URL, Editable> extractItemData(N
             return { ItemData { ContainerType::Button } };
     }
 
+    if (is<HTMLCanvasElement>(element))
+        return { ItemData { ContainerType::Canvas } };
+
     if (CheckedPtr box = dynamicDowncast<RenderBox>(node.renderer()); box && box->canBeScrolledAndHasScrollableArea()) {
         if (CheckedPtr layer = box->layer(); layer && layer->scrollableArea())
             return { ScrollableItemData { layer->scrollableArea()->totalContentsSize() } };
@@ -466,6 +470,7 @@ static inline bool shouldIncludeNodeIdentifier(OptionSet<EventListenerCategory> 
             case ContainerType::Generic:
                 return eventListeners || AccessibilityObject::isARIAControl(role);
             case ContainerType::Button:
+            case ContainerType::Canvas:
                 return true;
             }
             ASSERT_NOT_REACHED();
@@ -665,8 +670,14 @@ static void pruneEmptyContainersRecursive(Item& item)
         if (!std::holds_alternative<ContainerType>(child.data))
             return false;
 
-        auto containerType = std::get<ContainerType>(child.data);
-        return containerType != ContainerType::Button;
+        switch (std::get<ContainerType>(child.data)) {
+        case ContainerType::Button:
+        case ContainerType::Canvas:
+            return false;
+        default:
+            break;
+        }
+        return true;
     });
 }
 

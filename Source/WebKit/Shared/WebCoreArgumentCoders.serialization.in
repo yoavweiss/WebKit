@@ -7141,6 +7141,7 @@ header: <WebCore/TextExtractionTypes.h>
     Section,
     Nav,
     Button,
+    Canvas,
     Generic
 };
 

@@ -59,6 +59,8 @@ inline static WKTextExtractionContainer containerType(TextExtraction::ContainerT
         return WKTextExtractionContainerNav;
     case TextExtraction::ContainerType::Button:
         return WKTextExtractionContainerButton;
+    case TextExtraction::ContainerType::Canvas:
+        return WKTextExtractionContainerCanvas;
     case TextExtraction::ContainerType::Generic:
         return WKTextExtractionContainerGeneric;
     }
