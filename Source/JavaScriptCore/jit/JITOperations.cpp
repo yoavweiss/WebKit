@@ -4524,7 +4524,7 @@ JSC_DEFINE_JIT_OPERATION(operationGetFromScope, EncodedJSValue, (JSGlobalObject*
             // When we can't statically prove we need a TDZ check, we must perform the check on the slow path.
             result = slot.getValue(globalObject, ident);
             if (result == jsTDZValue()) {
-                throwException(globalObject, scope, createTDZError(globalObject));
+                throwException(globalObject, scope, createTDZError(globalObject, ident.string()));
                 return jsUndefined();
             }
         }
@@ -4573,7 +4573,7 @@ JSC_DEFINE_JIT_OPERATION(operationPutToScope, void, (JSGlobalObject* globalObjec
         PropertySlot slot(jsScope, PropertySlot::InternalMethodType::Get);
         JSGlobalLexicalEnvironment::getOwnPropertySlot(jsScope, globalObject, ident, slot);
         if (slot.getValue(globalObject, ident) == jsTDZValue()) {
-            throwException(globalObject, scope, createTDZError(globalObject));
+            throwException(globalObject, scope, createTDZError(globalObject, ident.string()));
             OPERATION_RETURN(scope);
         }
     }

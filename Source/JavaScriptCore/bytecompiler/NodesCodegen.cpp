@@ -274,7 +274,9 @@ bool ResolveNode::getFromScopeCanThrow(BytecodeGenerator& generator) const
 RegisterID* ResolveNode::emitBytecode(BytecodeGenerator& generator, RegisterID* dst)
 {
     Variable var = generator.variable(m_ident);
+    JSTextPosition divot = m_start + m_ident.length();
     if (RegisterID* local = var.local()) {
+        generator.emitExpressionInfo(divot, m_start, divot);
         generator.emitTDZCheckIfNecessary(var, local, nullptr);
         if (dst == generator.ignoredResult())
             return nullptr;
@@ -283,7 +285,6 @@ RegisterID* ResolveNode::emitBytecode(BytecodeGenerator& generator, RegisterID* 
         return generator.move(dst, local);
     }
     
-    JSTextPosition divot = m_start + m_ident.length();
     generator.emitExpressionInfo(divot, m_start, divot);
     RefPtr<RegisterID> scope = generator.emitResolveScope(dst, var);
     RegisterID* finalDest = generator.finalDestination(dst);
@@ -1424,7 +1425,9 @@ RegisterID* FunctionCallResolveNode::emitBytecode(BytecodeGenerator& generator, 
     Variable var = generator.variable(m_ident);
     RefPtr<RegisterID> local = var.local();
     RefPtr<RegisterID> func;
+    JSTextPosition newDivot = divotStart() + m_ident.length();
     if (local) {
+        generator.emitExpressionInfo(newDivot, divotStart(), newDivot);
         generator.emitTDZCheckIfNecessary(var, local.get(), nullptr);
         if (m_args->hasAssignments())
             func = generator.move(generator.tempDestination(dst), local.get());
@@ -1440,7 +1443,6 @@ RegisterID* FunctionCallResolveNode::emitBytecode(BytecodeGenerator& generator, 
         // local variable, then it's not one of our built-in constructors.
         expectedFunction = NoExpectedFunction;
     } else {
-        JSTextPosition newDivot = divotStart() + m_ident.length();
         generator.emitExpressionInfo(newDivot, divotStart(), newDivot);
         generator.move(
             callArguments.thisRegister(),
@@ -2883,7 +2885,9 @@ RegisterID* PostfixNode::emitResolve(BytecodeGenerator& generator, RegisterID* d
     const Identifier& ident = resolve->identifier();
 
     Variable var = generator.variable(ident);
+    JSTextPosition newDivot = divotStart() + ident.length();
     if (RegisterID* local = var.local()) {
+        generator.emitExpressionInfo(newDivot, divotStart(), newDivot);
         generator.emitTDZCheckIfNecessary(var, local, nullptr);
         RefPtr<RegisterID> localReg = local;
         if (var.isReadOnly()) {
@@ -2895,7 +2899,7 @@ RegisterID* PostfixNode::emitResolve(BytecodeGenerator& generator, RegisterID* d
         return oldValue.get();
     }
 
-    generator.emitExpressionInfo(divot(), divotStart(), divotEnd());
+    generator.emitExpressionInfo(newDivot, divotStart(), newDivot);
     RefPtr<RegisterID> scope = generator.emitResolveScope(nullptr, var);
     RefPtr<RegisterID> value = generator.emitGetFromScope(generator.newTemporary(), scope.get(), var, ThrowIfNotFound);
     generator.emitTDZCheckIfNecessary(var, value.get(), nullptr);
@@ -3141,7 +3145,9 @@ RegisterID* VoidNode::emitBytecode(BytecodeGenerator& generator, RegisterID* dst
 RegisterID* TypeOfResolveNode::emitBytecode(BytecodeGenerator& generator, RegisterID* dst)
 {
     Variable var = generator.variable(m_ident);
+    JSTextPosition newDivot = divotEnd() - m_ident.length();
     if (RegisterID* local = var.local()) {
+        generator.emitExpressionInfo(newDivot, newDivot, divotEnd());
         generator.emitTDZCheckIfNecessary(var, local, nullptr);
         if (dst == generator.ignoredResult())
             return nullptr;
@@ -3150,6 +3156,7 @@ RegisterID* TypeOfResolveNode::emitBytecode(BytecodeGenerator& generator, Regist
 
     RefPtr<RegisterID> scope = generator.emitResolveScope(dst, var);
     RefPtr<RegisterID> value = generator.emitGetFromScope(generator.newTemporary(), scope.get(), var, DoNotThrowIfNotFound);
+    generator.emitExpressionInfo(newDivot, newDivot, divotEnd());
     generator.emitTDZCheckIfNecessary(var, value.get(), nullptr);
     if (dst == generator.ignoredResult())
         return nullptr;
@@ -4121,14 +4128,17 @@ RegisterID* AssignResolveNode::emitBytecode(BytecodeGenerator& generator, Regist
 {
     Variable var = generator.variable(m_ident);
     bool isReadOnly = var.isReadOnly() && m_assignmentContext != AssignmentContext::ConstDeclarationStatement;
+    JSTextPosition newDivot = divotStart() + m_ident.length();
     if (RegisterID* local = var.local()) {
         RegisterID* result = nullptr;
 
         if (isReadOnly) {
             result = generator.emitNode(dst, m_right); // Execute side effects first.
 
-            if (m_assignmentContext == AssignmentContext::AssignmentExpression)
+            if (m_assignmentContext == AssignmentContext::AssignmentExpression) {
+                generator.emitExpressionInfo(newDivot, divotStart(), newDivot);
                 generator.emitTDZCheckIfNecessary(var, local, nullptr);
+            }
 
             generator.emitReadOnlyExceptionIfNeeded(var);
             generator.emitProfileType(result, var, divotStart(), divotEnd());
@@ -4136,8 +4146,10 @@ RegisterID* AssignResolveNode::emitBytecode(BytecodeGenerator& generator, Regist
             RefPtr<RegisterID> tempDst = generator.tempDestination(dst);
             generator.emitNode(tempDst.get(), m_right); // Execute side effects first.
 
-            if (m_assignmentContext == AssignmentContext::AssignmentExpression)
+            if (m_assignmentContext == AssignmentContext::AssignmentExpression) {
+                generator.emitExpressionInfo(newDivot, divotStart(), newDivot);
                 generator.emitTDZCheckIfNecessary(var, local, nullptr);
+            }
 
             generator.move(local, tempDst.get());
             generator.emitProfileType(local, var, divotStart(), divotEnd());
@@ -4154,19 +4166,21 @@ RegisterID* AssignResolveNode::emitBytecode(BytecodeGenerator& generator, Regist
     }
 
     if (generator.ecmaMode().isStrict())
-        generator.emitExpressionInfo(divot(), divotStart(), divotEnd());
+        generator.emitExpressionInfo(newDivot, divotStart(), newDivot);
     RefPtr<RegisterID> scope = generator.emitResolveScope(nullptr, var);
-    if (m_assignmentContext == AssignmentContext::AssignmentExpression)
+    if (m_assignmentContext == AssignmentContext::AssignmentExpression) {
+        generator.emitExpressionInfo(newDivot, divotStart(), newDivot);
         generator.emitTDZCheckIfNecessary(var, nullptr, scope.get());
+    }
     if (dst == generator.ignoredResult())
         dst = nullptr;
     RefPtr<RegisterID> result = generator.emitNode(dst, m_right); // Execute side effects first.
+    generator.emitExpressionInfo(newDivot, divotStart(), newDivot);
     if (isReadOnly) {
         bool threwException = generator.emitReadOnlyExceptionIfNeeded(var);
         if (threwException)
             return result.get();
     }
-    generator.emitExpressionInfo(divot(), divotStart(), divotEnd());
     RegisterID* returnResult = result.get();
     if (!isReadOnly) {
         returnResult = generator.emitPutToScope(scope.get(), var, result.get(), generator.ecmaMode().isStrict() ? ThrowIfNotFound : DoNotThrowIfNotFound, initializationModeForAssignmentContext(m_assignmentContext));

@@ -55,6 +55,7 @@
 #include "ObjectConstructor.h"
 #include "ScopedArguments.h"
 #include "TypeProfilerLog.h"
+#include "runtime/Error.h"
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 
@@ -306,8 +307,16 @@ JSC_DEFINE_COMMON_SLOW_PATH(slow_path_check_tdz)
     auto bytecode = pc->as<OpCheckTdz>();
     if (bytecode.m_targetVirtualRegister == codeBlock->thisRegister())
         THROW(createReferenceError(globalObject, "'super()' must be called in derived constructor before accessing |this| or returning non-object."_s));
-    else
-        THROW(createTDZError(globalObject));
+    else {
+        auto [block, index] = getBytecodeIndex(codeBlock->vm(), callFrame);
+        auto info = block->expressionInfoForBytecodeIndex(index);
+        int expressionStart = info.divot - info.startOffset;
+        int expressionStop = info.divot + info.endOffset;
+
+        RefPtr provider = codeBlock->source().provider();
+        auto ident = provider->getRange(expressionStart, expressionStop);
+        THROW(createTDZError(globalObject, ident));
+    }
 }
 
 JSC_DEFINE_COMMON_SLOW_PATH(slow_path_throw_strict_mode_readonly_property_write_error)
