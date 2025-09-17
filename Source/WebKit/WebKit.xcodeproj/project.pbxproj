@@ -6791,6 +6791,7 @@
 		7BCF70CE2614935F00E4FB70 /* ScopedWebGLRenderingResourcesRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScopedWebGLRenderingResourcesRequest.h; sourceTree = "<group>"; };
 		7BDA50D42B5FF87F00B859E2 /* RemoteNativeImageBackendProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemoteNativeImageBackendProxy.h; sourceTree = "<group>"; };
 		7BDA50D52B5FF88000B859E2 /* RemoteNativeImageBackendProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RemoteNativeImageBackendProxy.cpp; sourceTree = "<group>"; };
+		7BDC88012E705C5600C7A37F /* RemoteGradientIdentifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemoteGradientIdentifier.h; sourceTree = "<group>"; };
 		7BDD9DDA28D205C6004CDF48 /* MessageObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageObserver.h; sourceTree = "<group>"; };
 		7BDD9DDB28D205C6004CDF48 /* WorkQueueMessageReceiver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorkQueueMessageReceiver.h; sourceTree = "<group>"; };
 		7BDDA33F275652EA0038659E /* AuxiliaryProcessCreationParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AuxiliaryProcessCreationParameters.h; sourceTree = "<group>"; };
@@ -13473,6 +13474,7 @@
 				86D1967629A4E7B50083B077 /* PrepareBackingStoreBuffersData.serialization.in */,
 				7BE005B62E5C4E050014F7CF /* RemoteDisplayListRecorderProxy.cpp */,
 				7BE005B52E5C4E050014F7CF /* RemoteDisplayListRecorderProxy.h */,
+				7BDC88012E705C5600C7A37F /* RemoteGradientIdentifier.h */,
 				7B904165254AFDEA006EEB8C /* RemoteGraphicsContextGLProxy.cpp */,
 				7B904166254AFDEB006EEB8C /* RemoteGraphicsContextGLProxy.h */,
 				7B904167254AFE17006EEB8C /* RemoteGraphicsContextGLProxy.messages.in */,

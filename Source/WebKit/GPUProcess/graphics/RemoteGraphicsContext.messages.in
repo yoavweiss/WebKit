@@ -37,13 +37,13 @@ messages -> RemoteGraphicsContext Stream {
     ConcatCTM(WebCore::AffineTransform ctm) StreamBatched
     SetFillPackedColor(struct WebCore::PackedColor::RGBA color) StreamBatched
     SetFillColor(WebCore::Color color) StreamBatched
-    SetFillCachedGradient(WebCore::RenderingResourceIdentifier gradientIdentifier, WebCore::AffineTransform spaceTransform) StreamBatched
+    SetFillCachedGradient(WebKit::RemoteGradientIdentifier identifier, WebCore::AffineTransform spaceTransform) StreamBatched
     SetFillGradient(Ref<WebCore::Gradient> gradient, WebCore::AffineTransform spaceTransform) StreamBatched
     SetFillPattern(WebCore::RenderingResourceIdentifier tileImageIdentifier, WebCore::PatternParameters pattern) StreamBatched
     SetFillRule(enum:bool WebCore::WindRule rule) StreamBatched
     SetStrokePackedColor(WebCore::PackedColor::RGBA color) StreamBatched
     SetStrokeColor(WebCore::Color color) StreamBatched
-    SetStrokeCachedGradient(WebCore::RenderingResourceIdentifier gradientIdentifier, WebCore::AffineTransform spaceTransform) StreamBatched
+    SetStrokeCachedGradient(WebKit::RemoteGradientIdentifier identifier, WebCore::AffineTransform spaceTransform) StreamBatched
     SetStrokeGradient(Ref<WebCore::Gradient> gradient, WebCore::AffineTransform spaceTransform) StreamBatched
     SetStrokePattern(WebCore::RenderingResourceIdentifier tileImageIdentifier, WebCore::PatternParameters pattern) StreamBatched
     SetStrokePackedColorAndThickness(WebCore::PackedColor::RGBA color, float thickness) StreamBatched

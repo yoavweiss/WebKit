@@ -36,6 +36,7 @@
 #include "MessageSender.h"
 #include "RemoteDisplayListIdentifier.h"
 #include "RemoteDisplayListRecorderIdentifier.h"
+#include "RemoteGradientIdentifier.h"
 #include "RemoteGraphicsContextIdentifier.h"
 #include "RemoteImageBufferSetIdentifier.h"
 #include "RemoteRenderingBackendIdentifier.h"
@@ -158,8 +159,8 @@ private:
     void destroyGetPixelBufferSharedMemory();
     void cacheNativeImage(WebCore::ShareableBitmap::Handle&&, WebCore::RenderingResourceIdentifier);
     void releaseNativeImage(WebCore::RenderingResourceIdentifier);
-    void cacheGradient(Ref<WebCore::Gradient>&&, WebCore::RenderingResourceIdentifier);
-    void releaseGradient(WebCore::RenderingResourceIdentifier);
+    void cacheGradient(Ref<WebCore::Gradient>&&, RemoteGradientIdentifier);
+    void releaseGradient(RemoteGradientIdentifier);
     void cacheFilter(Ref<WebCore::Filter>&&);
     void releaseFilter(WebCore::RenderingResourceIdentifier);
     void cacheFont(const WebCore::Font::Attributes&, WebCore::FontPlatformDataAttributes, std::optional<WebCore::RenderingResourceIdentifier>);

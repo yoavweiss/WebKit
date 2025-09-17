@@ -202,10 +202,11 @@ template: struct WebKit::GPUProcessConnectionIdentifierType
 template: enum class WebKit::LegacyCustomProtocolIDType
 template: struct WebKit::LibWebRTCResolverIdentifierType
 template: struct WebKit::LogStreamIdentifierType
+template: struct WebKit::RemoteGradientIdentifierType
+template: struct WebKit::RemoteGraphicsContextIdentifierType
 template: struct WebKit::RemoteDisplayListIdentifierType
 template: struct WebKit::RemoteDisplayListRecorderIdentifierType
 template: struct WebKit::RemoteGraphicsContextGLIdentifierType
-template: struct WebKit::RemoteGraphicsContextIdentifierType
 template: struct WebKit::RemoteRenderingBackendIdentifierType
 template: struct WebKit::RemoteSerializedImageBufferIdentifierType
 template: struct WebKit::RemoteVideoFrameIdentifierType
