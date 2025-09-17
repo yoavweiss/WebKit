@@ -6189,6 +6189,8 @@ imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/cs
 imported/w3c/web-platform-tests/import-maps/acquiring/modulepreload.html [ Skip ]
 imported/w3c/web-platform-tests/import-maps/acquiring/modulepreload-link-header.html [ Skip ]
 
+webkit.org/b/298948 imported/w3c/web-platform-tests/import-maps/http-url-like-specifiers.sub.html [ Failure Pass ]
+
 # WebKit2 Only
 fullscreen/fullscreen-enter-bottom-padding-animation.html [ Skip ]
 

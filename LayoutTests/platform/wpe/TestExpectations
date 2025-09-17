@@ -1024,6 +1024,8 @@ media/video-audio-session-mode.html [ Skip ] # Timeout.
 webgl/2.0.y/conformance/offscreencanvas/offscreencanvas-transfer-image-bitmap.html [ Skip ] # Timeout.
 webgl/2.0.y/conformance2/offscreencanvas/offscreencanvas-transfer-image-bitmap.html [ Skip ] # Timeout.
 
+fast/url/url-hostname-encoding.html [ Failure ]
+  
 imported/w3c/web-platform-tests/websockets/interfaces/WebSocket/constants/001.html?wss [ Pass Timeout ]
 webgl/2.0.y/conformance/uniforms/out-of-bounds-uniform-array-access.html [ Pass Timeout ]
 webgl/2.0.y/conformance/reading/read-pixels-test.html [ Pass Timeout ]
@@ -1065,11 +1067,6 @@ webkit.org/b/264680 imported/w3c/web-platform-tests/webaudio/the-audio-api/the-a
 webkit.org/b/264680 imported/w3c/web-platform-tests/webcodecs/videoFrame-construction.crossOriginSource.sub.html [ Failure Pass ]
 webkit.org/b/264680 imported/w3c/web-platform-tests/workers/WorkerGlobalScope_ErrorEvent_filename.htm [ Failure Pass ]
 webkit.org/b/264680 media/track/video-track-configuration-mp4-default-colorspace.html [ Failure Pass ]
-
-imported/w3c/web-platform-tests/css/css-masking/clip-path-svg-content/mask-objectboundingbox-content-clip-transform.svg [ Failure ]
-imported/w3c/web-platform-tests/css/css-masking/clip-path-svg-content/mask-objectboundingbox-content-clip.svg [ Failure ]
-imported/w3c/web-platform-tests/css/css-masking/clip-path-svg-content/mask-userspaceonuse-content-clip-transform.svg [ Failure ]
-imported/w3c/web-platform-tests/css/css-masking/clip-path-svg-content/mask-userspaceonuse-content-clip.svg [ Failure ]
 
 # Also webkit.org/b/266573
 webkit.org/b/266577 webgl/2.0.0/conformance2/textures/video/tex-2d-rgb16f-rgb-half_float.html [ Failure Timeout Pass ]
@@ -1145,19 +1142,20 @@ imported/w3c/web-platform-tests/css/css-scrollbars/scrollbar-width-paint-004.htm
 imported/w3c/web-platform-tests/css/css-scrollbars/scrollbar-width-paint-005.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-scrollbars/scrollbar-width-paint-006.html [ ImageOnlyFailure ]
 
+fast/events/mouse-cursor-pseudo-elements.html [ Failure Pass ]
+
 webkit.org/b/278719 fast/events/touch/touch-event-frames.html [ Failure ]
 
 webkit.org/b/278719 fast/events/touch/basic-multi-touch-events.html [ Failure ]
 webkit.org/b/278719 fast/events/touch/basic-multi-touch-events-limited.html [ Failure ]
 webkit.org/b/278719 fast/events/touch/frame-hover-update.html [ Failure ]
-webkit.org/b/278719 fast/events/touch/input-touch-target.html [ Pass Timeout ]
 
 webkit.org/b/278719 fast/events/touch/tap-highlight-color.html [ Pass Timeout ]
 webkit.org/b/278719 fast/events/touch/moved-touch-target.html [ Pass Timeout ]
 webkit.org/b/278719 fast/events/touch/inserted-fragment-touch-target.html [ Pass Timeout ]
-webkit.org/b/278719 fast/events/touch/multi-touch-grouped-targets.html [ Pass Timeout ]
+webkit.org/b/278719 fast/events/touch/multi-touch-grouped-targets.html [ Failure ]
 webkit.org/b/278719 fast/events/touch/multi-touch-inside-iframes.html [ Pass Timeout ]
-webkit.org/b/278719 fast/events/touch/multi-touch-inside-nested-iframes.html [ Pass Timeout  ]
+webkit.org/b/278719 fast/events/touch/multi-touch-inside-nested-iframes.html [ Failure ]
 webkit.org/b/278719 fast/events/touch/multi-touch-some-without-handlers.html [ Failure ]
 webkit.org/b/278719 fast/events/touch/ontouchstart-active-selector.html [ Failure  ]
 webkit.org/b/278719 fast/events/touch/send-oncancel-event.html [ Pass Timeout ]
@@ -1166,8 +1164,10 @@ webkit.org/b/278719 fast/events/touch/touch-fractional-coordinates.html [ Crash 
 webkit.org/b/278719 fast/events/touch/touch-target.html [ Pass Timeout ]
 webkit.org/b/278719 fast/events/touch/touch-slider.html [ Timeout Pass ]
 webkit.org/b/278719 fast/events/touch/touch-slider-no-js-touch-listener.html [ Pass Crash ]
-webkit.org/b/278719 fast/events/touch/touch-target-limited.html [ Pass Timeout ]
-webkit.org/b/278719 fast/events/touch/zoomed-touch-event-pageXY.html [ Pass Timeout ]
+webkit.org/b/278719 fast/events/touch/touch-target-limited.html [ Failure ]
+
+webkit.org/b/278719 fast/events/touch/input-touch-target.html [ Failure Pass ]
+webkit.org/b/278719 fast/events/touch/zoomed-touch-event-pageXY.html [ Timeout Failure ]
 
 # The assertion failure occurs to WPE only.
 webkit.org/b/279178 fast/scrolling/scroll-into-view-on-composited-scrollable-overflow-layer-crash.html [ Skip ]
@@ -1177,6 +1177,15 @@ webkit.org/b/279179 [ Debug ] imported/w3c/web-platform-tests/eventsource/events
 webkit.org/b/281053 imported/w3c/web-platform-tests/worklets/audio-worklet-referrer.https.html [ Crash Failure Pass ]
 
 fast/text/hyphenate-avoid-orphaned-word.html [ Failure ]
+
+fast/hidpi/filters-drop-shadow.html [ ImageOnlyFailure ]
+fast/inline/min-content-width-with-hypens.html [ ImageOnlyFailure ]
+fast/multicol/layers-split-across-columns.html [ ImageOnlyFailure ]
+fast/scrolling/scroll-corner-update-on-direction-change.html [ ImageOnlyFailure Pass ]
+imported/w3c/web-platform-tests/css/css-text/hyphens/hyphens-auto-last-word-001.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-text/hyphens/hyphens-character.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/mathml/relations/css-styling/color-003.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/mathml/relations/css-styling/color-004.tentative.html [ ImageOnlyFailure ]
 
 # Failures that happen with WEBKIT_SKIA_ENABLE_CPU_RENDERING=1 (which is enabled on the bots)
 webkit.org/b/287572 compositing/clipping/border-radius-async-overflow-stacking.html [ ImageOnlyFailure ]
