@@ -163,27 +163,13 @@ void AbstractInterpreter<AbstractStateType>::startExecuting()
 }
 
 template<typename AbstractStateType>
-class AbstractInterpreterExecuteEdgesFunc {
-public:
-    AbstractInterpreterExecuteEdgesFunc(AbstractInterpreter<AbstractStateType>& interpreter)
-        : m_interpreter(interpreter)
-    {
-    }
-    
-    // This func is manually written out so that we can put ALWAYS_INLINE on it.
-    ALWAYS_INLINE void operator()(Edge& edge) const
-    {
-        m_interpreter.filterEdgeByUse(edge);
-    }
-    
-private:
-    AbstractInterpreter<AbstractStateType>& m_interpreter;
-};
-
-template<typename AbstractStateType>
 void AbstractInterpreter<AbstractStateType>::executeEdges(Node* node)
 {
-    m_graph.doToChildren(node, AbstractInterpreterExecuteEdgesFunc<AbstractStateType>(*this));
+    m_graph.doToChildren(
+        node,
+        [&](Edge& edge) {
+            filterEdgeByUse(edge);
+        });
 }
 
 template<typename AbstractStateType>
@@ -196,7 +182,7 @@ void AbstractInterpreter<AbstractStateType>::executeKnownEdgeTypes(Node* node)
     // and FTL backends may emit checks in a node that lacks a valid exit origin.
     m_graph.doToChildren(
         node,
-        [&] (Edge& edge) {
+        [&](Edge& edge) {
             if (mayHaveTypeCheck(edge.useKind()))
                 return;
             
@@ -205,15 +191,18 @@ void AbstractInterpreter<AbstractStateType>::executeKnownEdgeTypes(Node* node)
 }
 
 template<typename AbstractStateType>
-ALWAYS_INLINE void AbstractInterpreter<AbstractStateType>::filterByType(Edge& edge, SpeculatedType type)
+ALWAYS_INLINE FiltrationResult AbstractInterpreter<AbstractStateType>::filterByType(Edge& edge, SpeculatedType type)
 {
     AbstractValue& value = m_state.forNodeWithoutFastForward(edge);
     if (value.isType(type)) {
         m_state.setProofStatus(edge, IsProved);
-        return;
+        return FiltrationOK;
     }
     m_state.setProofStatus(edge, NeedsCheck);
-    m_state.fastForwardAndFilterUnproven(value, type);
+    if (m_state.fastForwardAndFilterUnproven(value, type) == FiltrationOK)
+        return FiltrationOK;
+    m_state.setIsValid(false);
+    return Contradiction;
 }
 
 template<typename AbstractStateType>
