@@ -754,7 +754,7 @@ public:
     auto createCallPatchpoint(BasicBlock*, const TypeDefinition&, const CallInformation&, const ArgumentList& tmpArgs) -> CallPatchpointData;
     auto createTailCallPatchpoint(BasicBlock*, const TypeDefinition&, const CallInformation& wasmCallerInfoAsCallee, const CallInformation& wasmCalleeInfoAsCallee, const ArgumentList& tmpArgSourceLocations, Vector<B3::ConstrainedValue> patchArgs) -> CallPatchpointData;
 
-    bool canInline(FunctionSpaceIndex functionIndexSpace, unsigned callSlotIndex) const;
+    bool canInline(FunctionSpaceIndex functionIndexSpace, unsigned callProfileIndex) const;
     PartialResult WARN_UNUSED_RETURN emitInlineDirectCall(FunctionCodeIndex calleeIndex, const TypeDefinition&, ArgumentList& args, ResultList& results);
 
     void dump(const ControlStack&, const Stack* expressionStack);
@@ -5828,7 +5828,7 @@ auto OMGIRGenerator::emitInlineDirectCall(FunctionCodeIndex calleeFunctionIndex,
     return { };
 }
 
-auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex functionIndexSpace, const TypeDefinition& signature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
+auto OMGIRGenerator::addCall(unsigned callProfileIndex, FunctionSpaceIndex functionIndexSpace, const TypeDefinition& signature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
 {
     if (!m_info.isImportedFunctionFromFunctionIndexSpace(functionIndexSpace)) {
         // Record the callee so the callee knows to look for it in updateCallsitesToCallUs.
@@ -5971,7 +5971,7 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
         return { };
     }
 
-    if (callType == CallType::Call && canInline(functionIndexSpace, callSlotIndex)) {
+    if (callType == CallType::Call && canInline(functionIndexSpace, callProfileIndex)) {
         auto functionIndex = m_info.toCodeIndex(functionIndexSpace);
         dataLogLnIf(WasmOMGIRGeneratorInternal::verboseInlining, " inlining call to ", functionIndex, " from ", m_functionIndex, " depth ", m_inlineDepth);
         m_inlineRoot->m_inlinedBytes += m_info.functionWasmSizeImportSpace(functionIndexSpace);
@@ -6010,9 +6010,9 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
     return { };
 }
 
-auto OMGIRGenerator::addCallIndirect(unsigned callSlotIndex, unsigned tableIndex, const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
+auto OMGIRGenerator::addCallIndirect(unsigned callProfileIndex, unsigned tableIndex, const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
 {
-    UNUSED_PARAM(callSlotIndex);
+    UNUSED_PARAM(callProfileIndex);
     Value* calleeIndex = get(args.takeLast());
     const TypeDefinition& signature = originalSignature.expand();
     ASSERT(signature.as<FunctionSignature>()->argumentCount() == args.size());

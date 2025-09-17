@@ -46,7 +46,7 @@
 #include "RegisterSet.h"
 #include "WasmBBQDisassembler.h"
 #include "WasmBaselineData.h"
-#include "WasmCallSlot.h"
+#include "WasmCallProfile.h"
 #include "WasmCallingConvention.h"
 #include "WasmCompilationMode.h"
 #include "WasmFormat.h"
@@ -746,10 +746,10 @@ bool BBQJIT::canTierUpToOMG() const
     return true;
 }
 
-void BBQJIT::emitIncrementCallSlotCount(unsigned callSlotIndex)
+void BBQJIT::emitIncrementCallProfileCount(unsigned callProfileIndex)
 {
     ASSERT(m_profiledCallee.needsProfiling());
-    m_jit.add32(TrustedImm32(1), CCallHelpers::Address(GPRInfo::jitDataRegister, safeCast<int32_t>(BaselineData::offsetOfData() + sizeof(CallSlot) * callSlotIndex + CallSlot::offsetOfCount())));
+    m_jit.add32(TrustedImm32(1), CCallHelpers::Address(GPRInfo::jitDataRegister, safeCast<int32_t>(BaselineData::offsetOfData() + sizeof(CallProfile) * callProfileIndex + CallProfile::offsetOfCount())));
 }
 
 void BBQJIT::setParser(FunctionParser<BBQJIT>* parser)
@@ -4424,9 +4424,9 @@ void BBQJIT::emitTailCall(FunctionSpaceIndex functionIndexSpace, const TypeDefin
 }
 
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addCall(unsigned callSlotIndex, FunctionSpaceIndex functionIndexSpace, const TypeDefinition& signature, ArgumentList& arguments, ResultList& results, CallType callType)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addCall(unsigned callProfileIndex, FunctionSpaceIndex functionIndexSpace, const TypeDefinition& signature, ArgumentList& arguments, ResultList& results, CallType callType)
 {
-    emitIncrementCallSlotCount(callSlotIndex);
+    emitIncrementCallProfileCount(callProfileIndex);
     JIT_COMMENT(m_jit, "calling functionIndexSpace: ", functionIndexSpace, ConditionalDump(!m_info.isImportedFunctionFromFunctionIndexSpace(functionIndexSpace), " functionIndex: ", functionIndexSpace - m_info.importFunctionCount()));
 
     if (callType == CallType::TailCall) {
@@ -4483,7 +4483,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCall(unsigned callSlotIndex, Functio
     return { };
 }
 
-void BBQJIT::emitIndirectCall(const char* opcode, unsigned callSlotIndex, const Value& callee, GPRReg boxedCallee, GPRReg calleeInstance, GPRReg calleeCode, const TypeDefinition& signature, ArgumentList& arguments, ResultList& results)
+void BBQJIT::emitIndirectCall(const char* opcode, unsigned callProfileIndex, const Value& callee, GPRReg boxedCallee, GPRReg calleeInstance, GPRReg calleeCode, const TypeDefinition& signature, ArgumentList& arguments, ResultList& results)
 {
     ASSERT(!RegisterSetBuilder::argumentGPRs().contains(calleeCode, IgnoreVectors));
 
@@ -4492,7 +4492,7 @@ void BBQJIT::emitIndirectCall(const char* opcode, unsigned callSlotIndex, const 
     Checked<int32_t> calleeStackSize = WTF::roundUpToMultipleOf<stackAlignmentBytes()>(wasmCalleeInfo.headerAndArgumentStackSizeInBytes);
     m_maxCalleeStackSize = std::max<int>(calleeStackSize, m_maxCalleeStackSize);
 
-    if (m_profile->isMegamorphic(callSlotIndex)) {
+    if (m_profile->isMegamorphic(callProfileIndex)) {
         // Do a context switch if needed.
         Jump isSameInstanceBefore = m_jit.branchPtr(RelationalCondition::Equal, calleeInstance, GPRInfo::wasmContextInstancePointer);
         m_jit.move(calleeInstance, GPRInfo::wasmContextInstancePointer);
@@ -4513,18 +4513,18 @@ void BBQJIT::emitIndirectCall(const char* opcode, unsigned callSlotIndex, const 
         profilingGiveUp.append(m_jit.jump());
 
         isSameInstanceBefore.link(&m_jit);
-        m_jit.loadPtr(CCallHelpers::Address(GPRInfo::jitDataRegister, safeCast<int32_t>(BaselineData::offsetOfData() + sizeof(CallSlot) * callSlotIndex + CallSlot::offsetOfBoxedCallee())), wasmScratchGPR);
+        m_jit.loadPtr(CCallHelpers::Address(GPRInfo::jitDataRegister, safeCast<int32_t>(BaselineData::offsetOfData() + sizeof(CallProfile) * callProfileIndex + CallProfile::offsetOfBoxedCallee())), wasmScratchGPR);
         profilingDone.append(m_jit.branchPtr(CCallHelpers::Equal, wasmScratchGPR, boxedCallee));
-        profilingDone.append(m_jit.branchPtr(CCallHelpers::Equal, wasmScratchGPR, TrustedImmPtr(CallSlot::megamorphicCallee)));
+        profilingDone.append(m_jit.branchPtr(CCallHelpers::Equal, wasmScratchGPR, TrustedImmPtr(CallProfile::megamorphicCallee)));
         profilingGiveUp.append(m_jit.branchTestPtr(CCallHelpers::NonZero, wasmScratchGPR));
         m_jit.move(boxedCallee, wasmScratchGPR);
         auto store = m_jit.jump();
 
         profilingGiveUp.link(m_jit);
-        m_jit.move(TrustedImm32(CallSlot::megamorphicCallee), wasmScratchGPR);
+        m_jit.move(TrustedImm32(CallProfile::megamorphicCallee), wasmScratchGPR);
 
         store.link(m_jit);
-        m_jit.storePtr(wasmScratchGPR, CCallHelpers::Address(GPRInfo::jitDataRegister, safeCast<int32_t>(BaselineData::offsetOfData() + sizeof(CallSlot) * callSlotIndex + CallSlot::offsetOfBoxedCallee()))); // Give up for cross-instance indirect calls.
+        m_jit.storePtr(wasmScratchGPR, CCallHelpers::Address(GPRInfo::jitDataRegister, safeCast<int32_t>(BaselineData::offsetOfData() + sizeof(CallProfile) * callProfileIndex + CallProfile::offsetOfBoxedCallee()))); // Give up for cross-instance indirect calls.
         profilingDone.link(m_jit);
     }
 
@@ -4674,9 +4674,9 @@ void BBQJIT::emitIndirectTailCall(const char* opcode, const Value& callee, GPRRe
         consume(value);
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addCallIndirect(unsigned callSlotIndex, unsigned tableIndex, const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addCallIndirect(unsigned callProfileIndex, unsigned tableIndex, const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType)
 {
-    emitIncrementCallSlotCount(callSlotIndex);
+    emitIncrementCallProfileCount(callProfileIndex);
     Value calleeIndex = args.takeLast();
     const TypeDefinition& signature = originalSignature.expand();
     ASSERT(signature.as<FunctionSignature>()->argumentCount() == args.size());
@@ -4794,7 +4794,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCallIndirect(unsigned callSlotIndex,
 
     JIT_COMMENT(m_jit, "Finished loading callee code");
     if (callType == CallType::Call)
-        emitIndirectCall("CallIndirect", callSlotIndex, calleeIndex, calleeRTT, calleeInstance, calleeCode, signature, args, results);
+        emitIndirectCall("CallIndirect", callProfileIndex, calleeIndex, calleeRTT, calleeInstance, calleeCode, signature, args, results);
     else
         emitIndirectTailCall("ReturnCallIndirect", calleeIndex, calleeInstance, calleeCode, signature, args);
     return { };

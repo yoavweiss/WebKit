@@ -27,25 +27,52 @@
 
 #if ENABLE(WEBASSEMBLY)
 
-#include <JavaScriptCore/WasmBaselineData.h>
+#include <JavaScriptCore/WasmCallingConvention.h>
 #include <wtf/Expected.h>
 #include <wtf/text/WTFString.h>
 
 namespace JSC::Wasm {
 
-class Module;
-
-class ProfileCollection final : public ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr<ProfileCollection> {
-    WTF_MAKE_TZONE_ALLOCATED(ProfileCollection);
+class CallProfile {
 public:
-    static Ref<ProfileCollection> create(Module&);
+    uint32_t count() const { return m_count; }
 
-    RefPtr<BaselineData> tryGetBaselineData(FunctionCodeIndex);
-    void registerBaselineData(FunctionCodeIndex, Ref<BaselineData>&&);
+    void incrementCount()
+    {
+        ++m_count;
+    }
+
+    void observeCrossInstanceCall()
+    {
+        m_boxedCallee = megamorphicCallee;
+    }
+
+    void observeCallIndirect(EncodedJSValue boxedCallee)
+    {
+        if (m_boxedCallee == boxedCallee)
+            return;
+
+        if (!m_boxedCallee) {
+            m_boxedCallee = boxedCallee;
+            return;
+        }
+
+        // Initially, we are giving up for polymorphic calls.
+        m_boxedCallee = megamorphicCallee;
+    }
+
+    EncodedJSValue boxedCallee() const { return m_boxedCallee; }
+
+    static constexpr ptrdiff_t offsetOfCount() { return OBJECT_OFFSETOF(CallProfile, m_count); }
+    static constexpr ptrdiff_t offsetOfBoxedCallee() { return OBJECT_OFFSETOF(CallProfile, m_boxedCallee); }
+
+    static constexpr EncodedJSValue initCallee = 0b00;
+    static constexpr EncodedJSValue polymorphicCallee = 0b01;
+    static constexpr EncodedJSValue megamorphicCallee = 0b11;
 
 private:
-    UncheckedKeyHashMap<uint32_t, Ref<BaselineData>, DefaultHash<uint32_t>, WTF::UnsignedWithZeroKeyHashTraits<uint32_t>> m_collection;
-    mutable Lock m_lock;
+    uint32_t m_count { 0 };
+    EncodedJSValue m_boxedCallee { initCallee };
 };
 
 } // namespace JSC::Wasm

@@ -27,7 +27,7 @@
 
 #if ENABLE(WEBASSEMBLY)
 
-#include <JavaScriptCore/WasmCallSlot.h>
+#include <JavaScriptCore/WasmCallProfile.h>
 #include <JavaScriptCore/WasmCallee.h>
 #include <JavaScriptCore/WasmCallingConvention.h>
 #include <wtf/text/WTFString.h>
@@ -36,18 +36,16 @@ namespace JSC::Wasm {
 
 // Per-instance side data for wasm baseline execution (IPInt and BBQ).
 // Mainly for profiling / IC.
-class BaselineData final : public ThreadSafeRefCounted<BaselineData>, public TrailingArray<BaselineData, CallSlot> {
+class BaselineData final : public ThreadSafeRefCounted<BaselineData>, public TrailingArray<BaselineData, CallProfile> {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED(BaselineData);
     WTF_MAKE_NONMOVABLE(BaselineData);
-    using TrailingArrayType = TrailingArray<BaselineData, CallSlot>;
+    using TrailingArrayType = TrailingArray<BaselineData, CallProfile>;
     friend TrailingArrayType;
 public:
 
     static Ref<BaselineData> create(const IPIntCallee& callee)
     {
-        auto result = adoptRef(*new (fastMalloc(allocationSize(callee.numCallSlots()))) BaselineData(callee.numCallSlots()));
-        WTF::storeStoreFence();
-        return result;
+        return adoptRef(*new (fastMalloc(allocationSize(callee.numCallProfiles()))) BaselineData(callee.numCallProfiles()));
     }
 
 private:

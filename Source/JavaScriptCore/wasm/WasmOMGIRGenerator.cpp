@@ -59,7 +59,7 @@
 #include "ScratchRegisterAllocator.h"
 #include "WasmBaselineData.h"
 #include "WasmBranchHints.h"
-#include "WasmCallSlot.h"
+#include "WasmCallProfile.h"
 #include "WasmCallingConvention.h"
 #include "WasmContext.h"
 #include "WasmExceptionType.h"
@@ -753,7 +753,7 @@ public:
     auto createCallPatchpoint(BasicBlock*, const TypeDefinition&, const CallInformation&, const ArgumentList& tmpArgs) -> CallPatchpointData;
     auto createTailCallPatchpoint(BasicBlock*, const TypeDefinition&, const CallInformation& wasmCallerInfoAsCallee, const CallInformation& wasmCalleeInfoAsCallee, const ArgumentList& tmpArgSourceLocations, Vector<B3::ConstrainedValue> patchArgs) -> CallPatchpointData;
 
-    bool canInline(FunctionSpaceIndex functionIndexSpace, unsigned callSlotIndex) const;
+    bool canInline(FunctionSpaceIndex functionIndexSpace, unsigned callProfileIndex) const;
     PartialResult WARN_UNUSED_RETURN emitInlineDirectCall(FunctionCodeIndex calleeIndex, const TypeDefinition&, ArgumentList& args, ValueResults&);
 
     void dump(const ControlStack&, const Stack* expressionStack);
@@ -5560,7 +5560,7 @@ auto OMGIRGenerator::createTailCallPatchpoint(BasicBlock* block, const TypeDefin
     return { patchpoint, nullptr, WTFMove(prepareForCall) };
 }
 
-bool OMGIRGenerator::canInline(FunctionSpaceIndex functionIndexSpace, unsigned callSlotIndex) const
+bool OMGIRGenerator::canInline(FunctionSpaceIndex functionIndexSpace, unsigned callProfileIndex) const
 {
     ASSERT(!m_inlinedBytes || !m_inlineParent);
     if (!Options::useOMGInlining())
@@ -5586,7 +5586,7 @@ bool OMGIRGenerator::canInline(FunctionSpaceIndex functionIndexSpace, unsigned c
     // too small (then call sequence can be larger than the inlined content).
     // Also, we could eventually consider emitting OSR exit, and stop generating
     // the rest of the code for this and subsequent basic blocks.
-    if (!m_profile->isCalled(callSlotIndex))
+    if (!m_profile->isCalled(callProfileIndex))
         return false;
 
     if (m_inlineDepth >= Options::maximumWasmDepthForInlining())
@@ -5657,12 +5657,12 @@ auto OMGIRGenerator::emitInlineDirectCall(FunctionCodeIndex calleeFunctionIndex,
     return { };
 }
 
-auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex functionIndexSpace, const TypeDefinition& signature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
+auto OMGIRGenerator::addCall(unsigned callProfileIndex, FunctionSpaceIndex functionIndexSpace, const TypeDefinition& signature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
 {
     TRACE_CF("Call: entered with ", signature);
 
     ValueResults values;
-    auto result = emitDirectCall(callSlotIndex, functionIndexSpace, signature, args, values, callType);
+    auto result = emitDirectCall(callProfileIndex, functionIndexSpace, signature, args, values, callType);
     if (!result.has_value()) [[unlikely]]
         return result;
 
@@ -5679,7 +5679,7 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
     return { };
 }
 
-auto OMGIRGenerator::emitDirectCall(unsigned callSlotIndex, FunctionSpaceIndex functionIndexSpace, const TypeDefinition& signature, ArgumentList& args, ValueResults& results, CallType callType) -> PartialResult
+auto OMGIRGenerator::emitDirectCall(unsigned callProfileIndex, FunctionSpaceIndex functionIndexSpace, const TypeDefinition& signature, ArgumentList& args, ValueResults& results, CallType callType) -> PartialResult
 {
     if (!m_info.isImportedFunctionFromFunctionIndexSpace(functionIndexSpace)) {
         // Record the callee so the callee knows to look for it in updateCallsitesToCallUs.
@@ -5811,7 +5811,7 @@ auto OMGIRGenerator::emitDirectCall(unsigned callSlotIndex, FunctionSpaceIndex f
         return { };
     }
 
-    if (callType == CallType::Call && canInline(functionIndexSpace, callSlotIndex)) {
+    if (callType == CallType::Call && canInline(functionIndexSpace, callProfileIndex)) {
         auto functionIndex = m_info.toCodeIndex(functionIndexSpace);
         dataLogLnIf(WasmOMGIRGeneratorInternal::verboseInlining, " inlining call to ", functionIndex, " from ", m_functionIndex, " depth ", m_inlineDepth);
         m_inlineRoot->m_inlinedBytes += m_info.functionWasmSizeImportSpace(functionIndexSpace);
@@ -5838,9 +5838,9 @@ auto OMGIRGenerator::emitDirectCall(unsigned callSlotIndex, FunctionSpaceIndex f
     return { };
 }
 
-auto OMGIRGenerator::addCallIndirect(unsigned callSlotIndex, unsigned tableIndex, const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
+auto OMGIRGenerator::addCallIndirect(unsigned callProfileIndex, unsigned tableIndex, const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
 {
-    UNUSED_PARAM(callSlotIndex);
+    UNUSED_PARAM(callProfileIndex);
     Value* calleeIndex = get(args.takeLast());
     const TypeDefinition& signature = originalSignature.expand();
     const bool isTailCallRootCaller = callType == CallType::TailCall && !m_inlineParent;
@@ -5907,8 +5907,8 @@ auto OMGIRGenerator::addCallIndirect(unsigned callSlotIndex, unsigned tableIndex
     Value* calleeInstance = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), callableFunction, safeCast<int32_t>(FuncRefTable::Function::offsetOfFunction() + WasmToWasmImportableFunction::offsetOfTargetInstance()));
 
     ValueResults fastValues;
-    if (m_profile->isCalled(callSlotIndex)) {
-        if (auto* callee = m_profile->callee(callSlotIndex)) {
+    if (m_profile->isCalled(callProfileIndex)) {
+        if (auto* callee = m_profile->callee(callProfileIndex)) {
             if (callee->compilationMode() == Wasm::CompilationMode::IPIntMode) {
                 BasicBlock* slowCase = m_proc.addBlock();
                 BasicBlock* directCall = m_proc.addBlock();
@@ -5920,7 +5920,7 @@ auto OMGIRGenerator::addCallIndirect(unsigned callSlotIndex, unsigned tableIndex
                 slowCase->addPredecessor(m_currentBlock);
 
                 m_currentBlock = directCall;
-                auto result = emitDirectCall(callSlotIndex, callee->index(), signature, args, fastValues, callType);
+                auto result = emitDirectCall(callProfileIndex, callee->index(), signature, args, fastValues, callType);
                 if (!result.has_value()) [[unlikely]]
                     return result;
 
@@ -6019,9 +6019,9 @@ auto OMGIRGenerator::addCallIndirect(unsigned callSlotIndex, unsigned tableIndex
     return { };
 }
 
-auto OMGIRGenerator::addCallRef(unsigned callSlotIndex, const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
+auto OMGIRGenerator::addCallRef(unsigned callProfileIndex, const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
 {
-    UNUSED_PARAM(callSlotIndex);
+    UNUSED_PARAM(callProfileIndex);
     TypedExpression calleeArg = args.takeLast();
     Value* callee = get(calleeArg);
     TRACE_VALUE(Wasm::Types::Void, callee, "call_ref: ", originalSignature);
@@ -6047,8 +6047,8 @@ auto OMGIRGenerator::addCallRef(unsigned callSlotIndex, const TypeDefinition& or
     BasicBlock* continuation = m_proc.addBlock();
 
     ValueResults fastValues;
-    if (m_profile->isCalled(callSlotIndex)) {
-        if (auto* callee = m_profile->callee(callSlotIndex)) {
+    if (m_profile->isCalled(callProfileIndex)) {
+        if (auto* callee = m_profile->callee(callProfileIndex)) {
             if (callee->compilationMode() == Wasm::CompilationMode::IPIntMode) {
                 BasicBlock* slowCase = m_proc.addBlock();
                 BasicBlock* directCall = m_proc.addBlock();
@@ -6060,7 +6060,7 @@ auto OMGIRGenerator::addCallRef(unsigned callSlotIndex, const TypeDefinition& or
                 slowCase->addPredecessor(m_currentBlock);
 
                 m_currentBlock = directCall;
-                auto result = emitDirectCall(callSlotIndex, callee->index(), signature, args, fastValues, callType);
+                auto result = emitDirectCall(callProfileIndex, callee->index(), signature, args, fastValues, callType);
                 if (!result.has_value()) [[unlikely]]
                     return result;
 

@@ -37,10 +37,10 @@
 #include "WasmCreationMode.h"
 #include "WasmFormat.h"
 #include "WasmGlobal.h"
+#include "WasmInstanceAnchor.h"
 #include "WasmMemory.h"
 #include "WasmModule.h"
 #include "WasmModuleInformation.h"
-#include "WasmProfileCollection.h"
 #include "WasmTable.h"
 #include "WebAssemblyBuiltin.h"
 #include "WebAssemblyFunction.h"
@@ -405,7 +405,7 @@ private:
     uint32_t m_cachedTable0Length { 0 };
     const Ref<Wasm::Module> m_module;
     const Ref<const Wasm::ModuleInformation> m_moduleInformation;
-    const Ref<Wasm::ProfileCollection> m_profiles;
+    RefPtr<Wasm::InstanceAnchor> m_anchor;
     RefPtr<SourceProvider> m_sourceProvider;
 
     CallFrame* m_temporaryCallFrame { nullptr };

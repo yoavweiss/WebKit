@@ -71,7 +71,6 @@ JSWebAssemblyInstance::JSWebAssemblyInstance(VM& vm, Structure* structure, JSWeb
     , m_tables(module->module().moduleInformation().tableCount())
     , m_module(module->module())
     , m_moduleInformation(module->moduleInformation())
-    , m_profiles(m_module->createProfiles())
     , m_sourceProvider(sourceProvider)
     , m_globalsToMark(m_moduleInformation->globalCount())
     , m_globalsToBinding(m_moduleInformation->globalCount())
@@ -140,6 +139,9 @@ void JSWebAssemblyInstance::finishCreation(VM& vm)
     }
 
     m_vm->traps().registerMirror(m_stackMirror);
+
+    // Now, JSWebAssemblyInstance is fully initialized. Expose it to the concurrent compiler.
+    m_anchor = m_module->registerAnchor(this);
 }
 
 JSWebAssemblyInstance::~JSWebAssemblyInstance()
@@ -155,6 +157,11 @@ JSWebAssemblyInstance::~JSWebAssemblyInstance()
 
     for (auto& slot : baselineDatas())
         std::destroy_at(&slot);
+
+    if (m_anchor) {
+        m_anchor->tearDown();
+        m_anchor = nullptr;
+    }
 }
 
 void JSWebAssemblyInstance::destroy(JSCell* cell)
@@ -725,7 +732,7 @@ Wasm::BaselineData& JSWebAssemblyInstance::ensureBaselineData(Wasm::FunctionCode
     auto& slot = baselineData(index);
     if (!slot) [[unlikely]] {
         auto result = Wasm::BaselineData::create(m_module->ipintCallees().at(index.rawIndex()));
-        m_profiles->registerBaselineData(index, Ref { result });
+        WTF::storeStoreFence(); // Fully initialize BaselineData before exposing it to the concurrent compiler.
         slot = WTFMove(result);
     }
     return *slot;

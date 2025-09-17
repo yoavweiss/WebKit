@@ -40,7 +40,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 #include "LLIntExceptions.h"
 #include "WasmBBQPlan.h"
 #include "WasmBaselineData.h"
-#include "WasmCallSlot.h"
+#include "WasmCallProfile.h"
 #include "WasmCallee.h"
 #include "WasmCallingConvention.h"
 #include "WasmIPIntGenerator.h"
@@ -913,7 +913,7 @@ WASM_IPINT_EXTERN_CPP_DECL(ref_cast, int32_t heapType, bool allowNull, EncodedJS
 WASM_IPINT_EXTERN_CPP_DECL(prepare_call, CallFrame* callFrame, CallMetadata* call, Register* calleeAndWasmInstanceReturn)
 {
     auto* callee = IPINT_CALLEE(callFrame);
-    instance->ensureBaselineData(callee->functionIndex()).at(call->callSlotIndex).incrementCount();
+    instance->ensureBaselineData(callee->functionIndex()).at(call->callProfileIndex).incrementCount();
 
     Wasm::FunctionSpaceIndex functionIndex = call->functionIndex;
 
@@ -946,8 +946,8 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call, CallFrame* callFrame, CallMetadata* cal
 WASM_IPINT_EXTERN_CPP_DECL(prepare_call_indirect, CallFrame* callFrame, Wasm::FunctionSpaceIndex* functionIndex, CallIndirectMetadata* call)
 {
     auto* callee = IPINT_CALLEE(callFrame);
-    auto& callSlot = instance->ensureBaselineData(callee->functionIndex()).at(call->callSlotIndex);
-    callSlot.incrementCount();
+    auto& callProfile = instance->ensureBaselineData(callee->functionIndex()).at(call->callProfileIndex);
+    callProfile.incrementCount();
 
     unsigned tableIndex = call->tableIndex;
     const Wasm::FuncRefTable::Function* function = nullptr;
@@ -979,9 +979,9 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call_indirect, CallFrame* callFrame, Wasm::Fu
         auto* targetInstance = function->m_function.targetInstance.get();
         functionInfoSlot = targetInstance;
         if (instance != targetInstance)
-            callSlot.observeCrossInstanceCall();
+            callProfile.observeCrossInstanceCall();
         else
-            callSlot.observeCallIndirect(boxedCallee);
+            callProfile.observeCallIndirect(boxedCallee);
     }
 
     auto callTarget = *function->m_function.entrypointLoadLocation;
@@ -991,8 +991,8 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call_indirect, CallFrame* callFrame, Wasm::Fu
 WASM_IPINT_EXTERN_CPP_DECL(prepare_call_ref, CallFrame* callFrame, CallRefMetadata* call, IPIntStackEntry* sp)
 {
     auto* callee = IPINT_CALLEE(callFrame);
-    auto& callSlot = instance->ensureBaselineData(callee->functionIndex()).at(call->callSlotIndex);
-    callSlot.incrementCount();
+    auto& callProfile = instance->ensureBaselineData(callee->functionIndex()).at(call->callProfileIndex);
+    callProfile.incrementCount();
 
     JSValue targetReference = JSValue::decode(sp->ref);
 
@@ -1015,9 +1015,9 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call_ref, CallFrame* callFrame, CallRefMetada
         auto* targetInstance = function.targetInstance.get();
         functionInfoSlot = targetInstance;
         if (instance != targetInstance)
-            callSlot.observeCrossInstanceCall();
+            callProfile.observeCrossInstanceCall();
         else
-            callSlot.observeCallIndirect(boxedCallee);
+            callProfile.observeCallIndirect(boxedCallee);
     }
 
     auto callTarget = *function.entrypointLoadLocation;

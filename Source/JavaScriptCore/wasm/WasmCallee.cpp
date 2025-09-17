@@ -38,7 +38,7 @@
 #include "PCToCodeOriginMap.h"
 #include "VMManager.h"
 #include "WasmBaselineData.h"
-#include "WasmCallSlot.h"
+#include "WasmCallProfile.h"
 #include "WasmCallingConvention.h"
 #include "WasmModuleInformation.h"
 #include "WebAssemblyBuiltin.h"
@@ -238,7 +238,7 @@ IPIntCallee::IPIntCallee(FunctionIPIntMetadataGenerator& generator, FunctionSpac
     , m_numLocals(generator.m_numLocals)
     , m_numArgumentsOnStack(generator.m_numArgumentsOnStack)
     , m_maxFrameSizeInV128(generator.m_maxFrameSizeInV128)
-    , m_numCallSlots(generator.m_numCallSlots)
+    , m_numCallProfiles(generator.m_numCallProfiles)
     , m_tierUpCounter(WTFMove(generator.m_tierUpCounter))
 {
     if (size_t count = generator.m_exceptionHandlers.size()) {
@@ -289,7 +289,7 @@ const RegisterAtOffsetList* IPIntCallee::calleeSaveRegistersImpl()
 
 bool IPIntCallee::needsProfiling() const
 {
-    return m_numCallSlots;
+    return m_numCallProfiles;
 }
 
 #if ENABLE(WEBASSEMBLY_OMGJIT)

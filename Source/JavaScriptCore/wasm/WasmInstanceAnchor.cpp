@@ -23,58 +23,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "config.h"
+#include "WasmInstanceAnchor.h"
+
+#include <wtf/NeverDestroyed.h>
+#include <wtf/TZoneMallocInlines.h>
 
 #if ENABLE(WEBASSEMBLY)
 
-#include <JavaScriptCore/WasmCallingConvention.h>
-#include <wtf/Expected.h>
-#include <wtf/text/WTFString.h>
-
 namespace JSC::Wasm {
 
-class CallSlot {
-public:
-    uint32_t count() const { return m_count; }
+WTF_MAKE_TZONE_ALLOCATED_IMPL(InstanceAnchor);
 
-    void incrementCount()
-    {
-        ++m_count;
-    }
-
-    void observeCrossInstanceCall()
-    {
-        m_boxedCallee = megamorphicCallee;
-    }
-
-    void observeCallIndirect(EncodedJSValue boxedCallee)
-    {
-        if (m_boxedCallee == boxedCallee)
-            return;
-
-        if (!m_boxedCallee) {
-            m_boxedCallee = boxedCallee;
-            return;
-        }
-
-        // Initially, we are giving up for polymorphic calls.
-        m_boxedCallee = megamorphicCallee;
-    }
-
-    EncodedJSValue boxedCallee() const { return m_boxedCallee; }
-
-    static constexpr ptrdiff_t offsetOfCount() { return OBJECT_OFFSETOF(CallSlot, m_count); }
-    static constexpr ptrdiff_t offsetOfBoxedCallee() { return OBJECT_OFFSETOF(CallSlot, m_boxedCallee); }
-
-    static constexpr EncodedJSValue initCallee = 0b00;
-    static constexpr EncodedJSValue polymorphicCallee = 0b01;
-    static constexpr EncodedJSValue megamorphicCallee = 0b11;
-
-private:
-    uint32_t m_count { 0 };
-    EncodedJSValue m_boxedCallee { initCallee };
-};
+Ref<InstanceAnchor> InstanceAnchor::create(Module&, JSWebAssemblyInstance* instance)
+{
+    return adoptRef(*new InstanceAnchor(instance));
+}
 
 } // namespace JSC::Wasm
 
-#endif // ENABLE(WEBASSEMBLY)
+#endif

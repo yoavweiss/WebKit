@@ -5294,9 +5294,9 @@ void BBQJIT::emitMove(StorageType type, Value src, Address dst)
         emitStore(type, srcLocation, dst);
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addCallRef(unsigned callSlotIndex, const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addCallRef(unsigned callProfileIndex, const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType)
 {
-    emitIncrementCallSlotCount(callSlotIndex);
+    emitIncrementCallProfileCount(callProfileIndex);
     Value callee = args.takeLast();
     const TypeDefinition& signature = originalSignature.expand();
     ASSERT(signature.as<FunctionSignature>()->argumentCount() == args.size());
@@ -5339,7 +5339,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCallRef(unsigned callSlotIndex, cons
     }
 
     if (callType == CallType::Call)
-        emitIndirectCall("CallRef", callSlotIndex, callee, boxedCallee, calleeInstance, calleeCode, signature, args, results);
+        emitIndirectCall("CallRef", callProfileIndex, callee, boxedCallee, calleeInstance, calleeCode, signature, args, results);
     else
         emitIndirectTailCall("ReturnCallRef", callee, calleeInstance, calleeCode, signature, args);
     return { };

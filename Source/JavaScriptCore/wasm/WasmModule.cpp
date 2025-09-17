@@ -28,10 +28,11 @@
 
 #if ENABLE(WEBASSEMBLY)
 
+#include "JSWebAssemblyInstance.h"
 #include "WasmIPIntPlan.h"
+#include "WasmInstanceAnchor.h"
 #include "WasmMergedProfile.h"
 #include "WasmModuleInformation.h"
-#include "WasmProfileCollection.h"
 #include "WasmWorklist.h"
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
@@ -132,24 +133,31 @@ void Module::copyInitialCalleeGroupToAllMemoryModes(MemoryMode initialMode)
 }
 
 
-Ref<Wasm::ProfileCollection> Module::createProfiles()
+Ref<Wasm::InstanceAnchor> Module::registerAnchor(JSWebAssemblyInstance* instance)
 {
-    auto profiles = Wasm::ProfileCollection::create(*this);
+    auto anchor = Wasm::InstanceAnchor::create(*this, instance);
     WTF::storeStoreFence();
-    m_profiles.add(profiles.get());
-    return profiles;
+    m_anchors.add(anchor.get());
+    return anchor;
 }
 
 std::unique_ptr<MergedProfile> Module::createMergedProfile(IPIntCallee& callee)
 {
     auto result = makeUnique<MergedProfile>(callee);
-    for (auto& collection : m_profiles) {
-        if (auto data = collection.tryGetBaselineData(callee.functionIndex())) {
-            auto span = result->mutableSpan();
-            RELEASE_ASSERT(data->size() == result->mutableSpan().size());
-            for (unsigned i = 0; i < data->size(); ++i)
-                span[i].merge(data->at(i));
+    for (Ref anchor : m_anchors) {
+        RefPtr<BaselineData> data;
+        {
+            Locker locker { anchor->m_lock };
+            if (JSWebAssemblyInstance* instance = anchor->instance())
+                data = instance->baselineData(callee.functionIndex());
         }
+        if (!data)
+            continue;
+
+        auto span = result->mutableSpan();
+        RELEASE_ASSERT(data->size() == result->mutableSpan().size());
+        for (unsigned i = 0; i < data->size(); ++i)
+            span[i].merge(data->at(i));
     }
     return result;
 }

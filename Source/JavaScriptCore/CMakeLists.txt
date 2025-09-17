@@ -1400,7 +1400,7 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
 
     wasm/WasmBaselineData.h
     wasm/WasmBranchHints.h
-    wasm/WasmCallSlot.h
+    wasm/WasmCallProfile.h
     wasm/WasmCallee.h
     wasm/WasmCalleeGroup.h
     wasm/WasmCallingConvention.h
@@ -1414,8 +1414,9 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     wasm/WasmFunctionIPIntMetadataGenerator.h
     wasm/WasmHandlerInfo.h
     wasm/WasmIPIntGenerator.h
-    wasm/WasmIndexOrName.h
     wasm/WasmIPIntTierUpCounter.h
+    wasm/WasmIndexOrName.h
+    wasm/WasmInstanceAnchor.h
     wasm/WasmJS.h
     wasm/WasmLimits.h
     wasm/WasmMemory.h
@@ -1428,7 +1429,6 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     wasm/WasmOpcodeOrigin.h
     wasm/WasmParser.h
     wasm/WasmPlan.h
-    wasm/WasmProfileCollection.h
     wasm/WasmSIMDOpcodes.h
     wasm/WasmSections.h
     wasm/WasmSIMDOpcodes.h

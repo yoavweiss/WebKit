@@ -28,7 +28,7 @@
 #if ENABLE(WEBASSEMBLY)
 
 #include <JavaScriptCore/WasmBaselineData.h>
-#include <JavaScriptCore/WasmCallSlot.h>
+#include <JavaScriptCore/WasmCallProfile.h>
 #include <JavaScriptCore/WasmCallee.h>
 #include <wtf/text/WTFString.h>
 
@@ -43,7 +43,7 @@ class MergedProfile {
 public:
     class CallSite {
     public:
-        void merge(const CallSlot&);
+        void merge(const CallProfile&);
         uint32_t count() const { return m_count; }
 
         Callee* callee() const

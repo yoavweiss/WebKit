@@ -36,16 +36,16 @@ namespace JSC::Wasm {
 WTF_MAKE_TZONE_ALLOCATED_IMPL(MergedProfile);
 
 MergedProfile::MergedProfile(const IPIntCallee& callee)
-    : m_callSites(callee.numCallSlots())
+    : m_callSites(callee.numCallProfiles())
 {
 }
 
-void MergedProfile::CallSite::merge(const CallSlot& slot)
+void MergedProfile::CallSite::merge(const CallProfile& slot)
 {
     m_count += slot.count();
 
     auto bits = slot.boxedCallee();
-    if (bits == CallSlot::megamorphicCallee) {
+    if (bits == CallProfile::megamorphicCallee) {
         m_callee = megamorphic;
         return;
     }

@@ -23,35 +23,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-#include "WasmProfileCollection.h"
-
-#include <wtf/NeverDestroyed.h>
-#include <wtf/TZoneMallocInlines.h>
+#pragma once
 
 #if ENABLE(WEBASSEMBLY)
 
+#include <JavaScriptCore/WasmBaselineData.h>
+#include <wtf/Expected.h>
+#include <wtf/text/WTFString.h>
+
 namespace JSC::Wasm {
 
-WTF_MAKE_TZONE_ALLOCATED_IMPL(ProfileCollection);
+class Module;
 
-Ref<ProfileCollection> ProfileCollection::create(Module&)
-{
-    return adoptRef(*new ProfileCollection);
-}
+class InstanceAnchor final : public ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr<InstanceAnchor> {
+    WTF_MAKE_TZONE_ALLOCATED(InstanceAnchor);
+public:
+    static Ref<InstanceAnchor> create(Module&, JSWebAssemblyInstance*);
 
-RefPtr<BaselineData> ProfileCollection::tryGetBaselineData(FunctionCodeIndex index)
-{
-    Locker locker { m_lock };
-    return m_collection.get(index.rawIndex());
-}
+    JSWebAssemblyInstance* instance() const WTF_REQUIRES_LOCK(m_lock) { return m_instance; }
+    Lock& lock() const { return m_lock; }
 
-void ProfileCollection::registerBaselineData(FunctionCodeIndex index, Ref<BaselineData>&& data)
-{
-    Locker locker { m_lock };
-    m_collection.add(index.rawIndex(), WTFMove(data));
-}
+    void tearDown()
+    {
+        Locker locker { m_lock };
+        m_instance = nullptr;
+    }
+
+private:
+    InstanceAnchor(JSWebAssemblyInstance* instance)
+        : m_instance(instance)
+    {
+    }
+
+    JSWebAssemblyInstance* m_instance WTF_GUARDED_BY_LOCK(m_lock) { nullptr }; // Intentionally non-WriteBarrier<>. This field will be read by the concurrent compilers.
+public:
+    mutable Lock m_lock;
+};
 
 } // namespace JSC::Wasm
 
-#endif
+#endif // ENABLE(WEBASSEMBLY)
