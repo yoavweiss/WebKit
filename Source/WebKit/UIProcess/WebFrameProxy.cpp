@@ -59,6 +59,8 @@
 #include <WebCore/Image.h>
 #include <WebCore/MIMETypeRegistry.h>
 #include <WebCore/NavigationScheduler.h>
+#include <WebCore/ShareableBitmapHandle.h>
+#include <WebCore/WebKitJSHandle.h>
 #include <stdio.h>
 #include <wtf/CallbackAggregator.h>
 #include <wtf/CheckedPtr.h>
@@ -816,6 +818,14 @@ void WebFrameProxy::findFocusableElementDescendingIntoRemoteFrame(WebCore::Focus
 std::optional<SharedPreferencesForWebProcess> WebFrameProxy::sharedPreferencesForWebProcess() const
 {
     return process().sharedPreferencesForWebProcess();
+}
+
+void WebFrameProxy::takeSnapshotOfNode(JSHandleIdentifier identifier, CompletionHandler<void(std::optional<ShareableBitmapHandle>&&)>&& completion)
+{
+    if (!m_page)
+        return completion({ });
+
+    sendWithAsyncReply(Messages::WebFrame::TakeSnapshotOfNode(identifier), WTFMove(completion));
 }
 
 } // namespace WebKit

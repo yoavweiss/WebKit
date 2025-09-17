@@ -50,6 +50,7 @@
 #import "Logging.h"
 #import "MediaPlaybackState.h"
 #import "MediaUtilities.h"
+#import "MessageSenderInlines.h"
 #import "NavigationState.h"
 #import "NodeHitTestResult.h"
 #import "PDFPluginIdentifier.h"
@@ -6399,6 +6400,38 @@ static Vector<Ref<API::TargetedElementInfo>> elementsFromWKElements(NSArray<_WKT
 #endif
 }
 
+- (void)_takeSnapshotOfNode:(_WKJSHandle *)node completionHandler:(void (^)(CocoaImage *image, NSError *))completionHandler
+{
+    if (!node)
+        return completionHandler(nil, [NSError errorWithDomain:WKErrorDomain code:WKErrorUnknown userInfo:nil]);
+
+    auto info = node->_ref->info();
+    RefPtr webFrame = WebKit::WebFrameProxy::webFrame(info.frameInfo.frameID);
+    if (!webFrame)
+        return completionHandler(nil, [NSError errorWithDomain:WKErrorDomain code:WKErrorWebViewInvalidated userInfo:nil]);
+
+    webFrame->takeSnapshotOfNode(info.identifier, [completionHandler = makeBlockPtr(completionHandler)](auto&& handle) {
+        auto makeUnknownError = [] {
+            return [NSError errorWithDomain:WKErrorDomain code:WKErrorUnknown userInfo:nil];
+        };
+
+        if (!handle)
+            return completionHandler(nil, makeUnknownError());
+
+        RefPtr bitmap = WebCore::ShareableBitmap::create(WTFMove(*handle), WebCore::SharedMemory::Protection::ReadOnly);
+        if (!bitmap)
+            return completionHandler(nil, makeUnknownError());
+
+        RetainPtr cgImage = bitmap->createPlatformImage();
+#if PLATFORM(MAC)
+        RetainPtr image = adoptNS([[NSImage alloc] initWithCGImage:cgImage.get() size:bitmap->size()]);
+#else
+        RetainPtr image = adoptNS([[UIImage alloc] initWithCGImage:cgImage.get()]);
+#endif
+        completionHandler(image.get(), nil);
+    });
+}
+
 #if PLATFORM(MAC)
 - (NSUInteger)accessibilityRemoteChildTokenHash
 {
@@ -6419,10 +6452,6 @@ static Vector<Ref<API::TargetedElementInfo>> elementsFromWKElements(NSArray<_WKT
 {
     return _impl->hasRemoteAccessibilityChild();
 }
-
-#endif // PLATFORM(MAC)
-
-#if PLATFORM(MAC)
 
 - (RetainPtr<NSPopUpButtonCell>)_activePopupButtonCell
 {

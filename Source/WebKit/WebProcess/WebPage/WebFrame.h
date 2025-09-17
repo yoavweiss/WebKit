@@ -71,6 +71,10 @@ enum class FoundElementInRemoteFrame : bool;
 
 struct FocusEventData;
 struct GlobalWindowIdentifier;
+
+struct JSHandleIdentifierType;
+using WebProcessJSHandleIdentifier = ObjectIdentifier<JSHandleIdentifierType>;
+using JSHandleIdentifier = ProcessQualified<WebProcessJSHandleIdentifier>;
 }
 
 namespace WebKit {
@@ -265,6 +269,8 @@ public:
     void setAppBadge(const WebCore::SecurityOriginData&, std::optional<uint64_t> badge);
 
     std::optional<WebCore::ResourceResponse> resourceResponseForURL(const URL&) const;
+
+    void takeSnapshotOfNode(WebCore::JSHandleIdentifier, CompletionHandler<void(std::optional<WebCore::ShareableBitmapHandle>&&)>&&);
 
 private:
     WebFrame(WebPage&, WebCore::FrameIdentifier);

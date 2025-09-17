@@ -3736,14 +3736,6 @@ static void textInteractionPositionInformation(WebPage& page, const HTMLInputEle
         info.preventTextInteraction = true;
 }
 
-RefPtr<ShareableBitmap> WebPage::shareableBitmapSnapshotForNode(Element& element)
-{
-    // Ensure that the image contains at most 600K pixels, so that it is not too big.
-    if (auto snapshot = snapshotNode(element, SnapshotOption::Shareable, 600 * 1024))
-        return snapshot->bitmap();
-    return nullptr;
-}
-
 static bool canForceCaretForPosition(const VisiblePosition& position)
 {
     auto* node = position.deepEquivalent().anchorNode();

@@ -136,6 +136,7 @@ typedef NS_ENUM(NSInteger, _WKImmediateActionType) {
 @class _WKJSHandle;
 @class _WKRemoteObjectRegistry;
 @class _WKSafeBrowsingWarning;
+@class _WKSerializedNode;
 @class _WKSessionState;
 @class _WKSpatialBackdropSource;
 @class _WKTargetedElementInfo;
@@ -640,6 +641,12 @@ typedef NS_OPTIONS(NSUInteger, _WKWebViewDataType) {
 - (NSUInteger)accessibilityUIProcessLocalTokenHash;
 - (NSArray<NSNumber *> *)registeredRemoteAccessibilityPids;
 - (bool)hasRemoteAccessibilityChild;
+#endif
+
+#if TARGET_OS_IPHONE
+- (void)_takeSnapshotOfNode:(_WKJSHandle *)node completionHandler:(WK_SWIFT_UI_ACTOR void (^)(UIImage *, NSError *))completionHandler WK_SWIFT_ASYNC_NAME(_takeSnapshotOfNode(_:)) WK_API_AVAILABLE(ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
+#else
+- (void)_takeSnapshotOfNode:(_WKJSHandle *)node completionHandler:(WK_SWIFT_UI_ACTOR void (^)(NSImage *, NSError *))completionHandler WK_SWIFT_ASYNC_NAME(_takeSnapshotOfNode(_:)) WK_API_AVAILABLE(macos(WK_MAC_TBA));
 #endif
 
 - (void)_debugTextWithConfiguration:(_WKTextExtractionConfiguration *)configuration completionHandler:(WK_SWIFT_UI_ACTOR void(^)(NSString *))completionHandler WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA)) NS_SWIFT_NAME(_debugText(with:completionHandler:));

@@ -3052,6 +3052,14 @@ void WebPage::setFooterBannerHeight(int height)
 }
 #endif
 
+RefPtr<ShareableBitmap> WebPage::shareableBitmapSnapshotForNode(Node& node)
+{
+    // Ensure that the image contains at most 600K pixels, so that it is not too big.
+    if (auto snapshot = snapshotNode(node, SnapshotOption::Shareable, 600 * 1024))
+        return snapshot->bitmap();
+    return nullptr;
+}
+
 void WebPage::takeSnapshot(IntRect snapshotRect, IntSize bitmapSize, SnapshotOptions snapshotOptions, CompletionHandler<void(std::optional<ImageBufferBackendHandle>&&, Headroom)>&& completionHandler)
 {
     std::optional<ImageBufferBackendHandle> handle;

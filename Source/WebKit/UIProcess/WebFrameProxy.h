@@ -61,9 +61,11 @@ namespace WebCore {
 class FrameTreeSyncData;
 class ResourceRequest;
 class SecurityOriginData;
+class ShareableBitmapHandle;
 
 struct FocusEventData;
 struct FrameIdentifierType;
+struct JSHandleIdentifierType;
 struct NavigationIdentifierType;
 
 enum class FocusDirection : uint8_t;
@@ -76,6 +78,8 @@ enum class ScrollbarMode : uint8_t;
 using FrameIdentifier = ObjectIdentifier<FrameIdentifierType>;
 using NavigationIdentifier = ObjectIdentifier<NavigationIdentifierType, uint64_t>;
 using SandboxFlags = OptionSet<SandboxFlag>;
+using WebProcessJSHandleIdentifier = ObjectIdentifier<JSHandleIdentifierType>;
+using JSHandleIdentifier = ProcessQualified<WebProcessJSHandleIdentifier>;
 }
 
 namespace WebKit {
@@ -256,6 +260,8 @@ public:
     void disownOpener() { m_opener = nullptr; }
 
     std::optional<WebCore::IntSize> remoteFrameSize() const { return m_remoteFrameSize; }
+
+    void takeSnapshotOfNode(WebCore::JSHandleIdentifier, CompletionHandler<void(std::optional<WebCore::ShareableBitmapHandle>&&)>&&);
 
     void didReceiveMessage(IPC::Connection&, IPC::Decoder&);
     static void sendCancelReply(IPC::Connection&, IPC::Decoder&);
