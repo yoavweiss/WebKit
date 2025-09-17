@@ -1362,7 +1362,7 @@ class CheckChangeRelevance(AnalyzeChange):
             defer.returnValue(SUCCESS)
 
         if self._patch_is_relevant(patch, self.getProperty('buildername', '')):
-            self._addToLog('stdio', f'This {self.change_type.lower()} contains relevant changes.')
+            yield self._addToLog('stdio', f'This {self.change_type.lower()} contains relevant changes.')
             defer.returnValue(SUCCESS)
 
         yield self._addToLog('stdio', f'This {self.change_type.lower()} does not have relevant changes.')
@@ -1661,7 +1661,7 @@ class BugzillaMixin(AddToLogMixin):
                         self.addURL('Reviewed by: {}'.format(reviewer), '')
                     return defer.returnValue(1)
                 if review_status in ['-', '?']:
-                    self._addToLog('stdio', 'Patch {} is marked r{}.\n'.format(patch_id, review_status))
+                    yield self._addToLog('stdio', 'Patch {} is marked r{}.\n'.format(patch_id, review_status))
                     return defer.returnValue(0)
         return defer.returnValue(1)  # Patch without review flag is acceptable, since the ChangeLog might have 'Reviewed by' in it.
 
@@ -6738,8 +6738,8 @@ class ValidateCommitMessage(steps.ShellSequence, ShellMixin, AddToLogMixin):
 
         self.contributors, errors = yield Contributors.load(use_network=True)
         for error in errors:
-            self._addToLog('stdio', error)
-        self._addToLog('stdio', '\n')
+            yield self._addToLog('stdio', error)
+        yield self._addToLog('stdio', '\n')
 
         reviewers, log_text = self.extract_reviewers(self.log_observer.getStdout())
         log_text = log_text.rstrip()
@@ -7390,7 +7390,7 @@ class FindUnexpectedStaticAnalyzerResults(shell.ShellCommandNewStyle, AnalyzeCha
                     if not data:
                         yield self._addToLog(self.results_db_log_name, f"Failed to match results for {test_name}, falling back to tip-of-tree\n")
                         return defer.returnValue(None)
-                    self._addToLog(self.results_db_log_name, f"\n{test_name}: pre-existing={data['does_result_match']}\nResponse from results-db: {data}\n{data['logs']}")
+                    yield self._addToLog(self.results_db_log_name, f"\n{test_name}: pre-existing={data['does_result_match']}\nResponse from results-db: {data}\n{data['logs']}")
 
                     skip_filter = False
                     if (test_name in user_removed_tests and result_type == 'failures') or (test_name in user_added_tests and result_type == 'passes'):
