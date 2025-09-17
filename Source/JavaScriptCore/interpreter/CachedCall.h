@@ -131,7 +131,7 @@ public:
         m_protoCallFrame.setCodeBlock(codeBlock);
     }
 
-    template<typename... Args>
+    template<typename... Args> requires (std::is_convertible_v<Args, JSValue> && ...)
     ALWAYS_INLINE JSValue callWithArguments(JSGlobalObject* globalObject, JSValue thisValue, Args... args)
     {
         VM& vm = m_vm;
