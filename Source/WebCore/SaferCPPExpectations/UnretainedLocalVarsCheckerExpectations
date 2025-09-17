@@ -30,7 +30,6 @@ platform/cocoa/PlatformPasteboardCocoa.mm
 platform/cocoa/RemoteCommandListenerCocoa.mm
 platform/cocoa/SearchPopupMenuCocoa.mm
 platform/cocoa/SerializedPlatformDataCueValue.mm
-platform/cocoa/SystemBattery.mm
 platform/cocoa/SystemVersion.mm
 platform/graphics/DestinationColorSpace.cpp
 platform/graphics/avfoundation/AVTrackPrivateAVFObjCImpl.mm
