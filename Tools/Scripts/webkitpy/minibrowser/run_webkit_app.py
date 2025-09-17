@@ -48,6 +48,7 @@ def main(argv):
     option_parser.add_argument('url', metavar='url', type=lambda s: decode(s, 'utf8'), nargs='?',
                                help='Website URL to load')
     option_parser.add_argument('--site-isolation', action=argparse.BooleanOptionalAction, default=None, help='Enable Site Isolation')
+    option_parser.add_argument('--web-inspector', '-i', action="store_true", default=False, help='Open Web Inspector')
     options, args = option_parser.parse_known_args(argv)
 
     if not options.platform:
@@ -60,6 +61,8 @@ def main(argv):
     if options.platform == "mac" and options.site_isolation is not None:
         browser_args.append('--force-site-isolation')
         browser_args.append('YES' if options.site_isolation else 'NO')
+    if options.web_inspector:
+        browser_args.append('--web-inspector')
     if options.url:
         if options.platform == "mac":
             browser_args.append('--url')
