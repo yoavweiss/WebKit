@@ -56,7 +56,7 @@ class DarwinPort(ApplePort):
     def sharding_groups(self, suite=None):
         if suite == 'api-tests':
             return {
-                'system': lambda shard: shard.name.startswith('TestWebKitAPI') or shard.name.startswith('TestWGSL'),
+                'system': lambda shard: shard.name.startswith('TestWebKitAPI') or shard.name.startswith('TestWGSL') or shard.name.startswith('TestIPC'),
             }
         return {
             'media': lambda shard: 'media' in shard.name or 'webaudio' in shard.name,
