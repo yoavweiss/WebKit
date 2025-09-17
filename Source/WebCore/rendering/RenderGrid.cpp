@@ -33,6 +33,8 @@
 #include "GridMasonryLayout.h"
 #include "GridTrackSizingAlgorithm.h"
 #include "HitTestLocation.h"
+#include "LayoutIntegrationCoverage.h"
+#include "LayoutIntegrationGridLayout.h"
 #include "LayoutRange.h"
 #include "LayoutRepainter.h"
 #include "RenderChildIterator.h"
@@ -415,6 +417,9 @@ const std::optional<LayoutUnit> RenderGrid::availableLogicalHeightForContentBox(
 
 void RenderGrid::layoutGrid(RelayoutChildren relayoutChildren)
 {
+    if (layoutUsingGridFormattingContext())
+        return;
+
     LayoutRepainter repainter(*this);
     {
         LayoutStateMaintainer statePusher(*this, locationOffset(), isTransformed() || hasReflection() || writingMode().isBlockFlipped());
@@ -531,6 +536,19 @@ void RenderGrid::layoutGrid(RelayoutChildren relayoutChildren)
 
     m_trackSizingAlgorithm.clearBaselineItemsCache();
     m_baselineItemsCached = false;
+}
+
+bool RenderGrid::layoutUsingGridFormattingContext()
+{
+    if (!m_hasGridFormattingContextLayout.has_value())
+        m_hasGridFormattingContextLayout = LayoutIntegration::canUseForGridLayout(*this);
+
+    if (!*m_hasGridFormattingContextLayout)
+        return false;
+
+    auto gridLayout = LayoutIntegration::GridLayout { *this };
+    gridLayout.layout();
+    return true;
 }
 
 void RenderGrid::layoutMasonry(RelayoutChildren relayoutChildren)

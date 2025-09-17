@@ -1959,6 +1959,7 @@ layout/integration/LayoutIntegrationCoverage.cpp
 layout/integration/LayoutIntegrationFormattingContextLayout.cpp
 layout/integration/LayoutIntegrationUtils.cpp
 layout/integration/flex/LayoutIntegrationFlexLayout.cpp
+layout/integration/grid/LayoutIntegrationGridLayout.cpp
 layout/integration/inline/InlineIteratorBox.cpp
 layout/integration/inline/InlineIteratorInlineBox.cpp
 layout/integration/inline/InlineIteratorLineBox.cpp

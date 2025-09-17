@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,9 @@
 namespace WebCore {
 namespace Layout {
 
-GridFormattingContext::GridFormattingContext(const ElementBox& gridBox)
+GridFormattingContext::GridFormattingContext(const ElementBox& gridBox, LayoutState& layoutState)
     : m_gridBox(gridBox)
+    , m_globalLayoutState(layoutState)
 {
 }
 

@@ -25,37 +25,38 @@
 
 #pragma once
 
-#include "LayoutUnit.h"
-#include <wtf/CheckedRef.h>
+#include "LayoutState.h"
+#include <wtf/CheckedPtr.h>
 
 namespace WebCore {
+
+class RenderGrid;
+
 namespace Layout {
-
 class ElementBox;
-class LayoutState;
+}
 
-class UnplacedGridItem;
-using UnplacedGridItems = Vector<UnplacedGridItem>;
+namespace LayoutIntegration {
 
-class GridFormattingContext : public CanMakeCheckedPtr<GridFormattingContext> {
-    WTF_MAKE_TZONE_OR_ISO_ALLOCATED(GridFormattingContext);
-    WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(GridFormattingContext);
+class GridLayout {
 public:
+    GridLayout(RenderGrid&);
 
-    struct GridLayoutConstraints {
-        std::optional<LayoutUnit> inlineAxisAvailableSpace;
-        std::optional<LayoutUnit> blockAxisAvailableSpace;
-    };
+    void layout();
 
-    GridFormattingContext(const ElementBox& gridBox, LayoutState&);
-
-    void layout(GridLayoutConstraints);
 private:
-    UnplacedGridItems constructUnplacedGridItems() const;
+    const Layout::ElementBox& gridBox() const { return *m_gridBox; }
+    Layout::ElementBox& gridBox() { return *m_gridBox; }
 
-    const CheckedRef<const ElementBox> m_gridBox;
-    const CheckedRef<LayoutState> m_globalLayoutState;
+    const RenderGrid& gridBoxRenderer() const { return downcast<RenderGrid>(*m_gridBox->rendererForIntegration()); }
+    RenderGrid& gridBoxRenderer() { return downcast<RenderGrid>(*m_gridBox->rendererForIntegration()); }
+
+    const Layout::LayoutState& layoutState() const { return m_layoutState; }
+
+    const CheckedPtr<Layout::ElementBox> m_gridBox;
+    CheckedRef<Layout::LayoutState> m_layoutState;
 };
 
-} // namespace Layout
+} // namespace LayoutIntegration
+
 } // namespace WebCore

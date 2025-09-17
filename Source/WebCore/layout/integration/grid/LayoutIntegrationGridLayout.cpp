@@ -23,39 +23,27 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "config.h"
+#include "LayoutIntegrationGridLayout.h"
 
-#include "LayoutUnit.h"
-#include <wtf/CheckedRef.h>
+#include "LayoutIntegrationBoxTreeUpdater.h"
+#include "RenderGrid.h"
 
 namespace WebCore {
-namespace Layout {
 
-class ElementBox;
-class LayoutState;
+namespace LayoutIntegration {
 
-class UnplacedGridItem;
-using UnplacedGridItems = Vector<UnplacedGridItem>;
+GridLayout::GridLayout(RenderGrid& renderGrid)
+    : m_gridBox(BoxTreeUpdater { renderGrid }.build())
+    , m_layoutState(renderGrid.view().layoutState())
+{
+}
 
-class GridFormattingContext : public CanMakeCheckedPtr<GridFormattingContext> {
-    WTF_MAKE_TZONE_OR_ISO_ALLOCATED(GridFormattingContext);
-    WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(GridFormattingContext);
-public:
+void GridLayout::layout()
+{
+    // FIXME implement this
+}
 
-    struct GridLayoutConstraints {
-        std::optional<LayoutUnit> inlineAxisAvailableSpace;
-        std::optional<LayoutUnit> blockAxisAvailableSpace;
-    };
+} // namespace LayoutIntegration
 
-    GridFormattingContext(const ElementBox& gridBox, LayoutState&);
-
-    void layout(GridLayoutConstraints);
-private:
-    UnplacedGridItems constructUnplacedGridItems() const;
-
-    const CheckedRef<const ElementBox> m_gridBox;
-    const CheckedRef<LayoutState> m_globalLayoutState;
-};
-
-} // namespace Layout
 } // namespace WebCore

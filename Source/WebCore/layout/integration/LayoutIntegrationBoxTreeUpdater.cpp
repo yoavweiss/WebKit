@@ -38,6 +38,7 @@
 #include "RenderCounter.h"
 #include "RenderElementInlines.h"
 #include "RenderFlexibleBox.h"
+#include "RenderGrid.h"
 #include "RenderImage.h"
 #include "RenderLineBreak.h"
 #include "RenderListItem.h"
@@ -135,6 +136,8 @@ CheckedRef<Layout::ElementBox> BoxTreeUpdater::build()
         buildTreeForInlineContent();
     else if (is<RenderFlexibleBox>(m_rootRenderer))
         buildTreeForFlexContent();
+    else if (is<RenderGrid>(m_rootRenderer))
+        buildTreeForGridContent();
     else
         ASSERT_NOT_IMPLEMENTED_YET();
 
@@ -321,6 +324,11 @@ void BoxTreeUpdater::buildTreeForFlexContent()
         auto flexItemBox = makeUniqueRef<Layout::ElementBox>(elementAttributes(flexItemRenderer), WTFMove(style));
         insertChild(WTFMove(flexItemBox), flexItemRenderer, flexItemRenderer.previousSibling());
     }
+}
+
+void BoxTreeUpdater::buildTreeForGridContent()
+{
+    // FIXME: Implement this
 }
 
 void BoxTreeUpdater::insertChild(UniqueRef<Layout::Box> childBox, RenderObject& childRenderer, const RenderObject* beforeChild)
