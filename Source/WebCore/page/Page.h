@@ -1008,9 +1008,8 @@ public:
     PluginInfoProvider& pluginInfoProvider();
     Ref<PluginInfoProvider> protectedPluginInfoProvider() const;
 
-    WEBCORE_EXPORT UserContentProvider& userContentProvider();
-    WEBCORE_EXPORT Ref<UserContentProvider> protectedUserContentProvider();
-    WEBCORE_EXPORT void setUserContentProvider(Ref<UserContentProvider>&&);
+    WEBCORE_EXPORT Ref<UserContentProvider> protectedUserContentProviderForFrame();
+    WEBCORE_EXPORT void setUserContentProviderForWebKitLegacy(Ref<UserContentProvider>&&);
 
     ScreenOrientationManager* screenOrientationManager() const;
 

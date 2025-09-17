@@ -91,7 +91,7 @@ private:
     void forEachUserMessageHandler(NOESCAPE const Function<void(const WebCore::UserMessageHandlerDescriptor&)>&) const final;
 #endif
 #if ENABLE(CONTENT_EXTENSIONS)
-    WebCore::ContentExtensions::ContentExtensionsBackend& userContentExtensionBackend() override { return m_contentExtensionBackend; }
+    const WebCore::ContentExtensions::ContentExtensionsBackend& userContentExtensionBackend() const override { return m_contentExtensionBackend; }
 #endif
 
     // IPC::MessageReceiver.

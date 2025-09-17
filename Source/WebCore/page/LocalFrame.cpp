@@ -733,16 +733,35 @@ FloatSize LocalFrame::resizePageRectsKeepingRatio(const FloatSize& originalSize,
     return resultSize;
 }
 
+const UserContentProvider* LocalFrame::userContentProvider() const
+{
+    if (RefPtr page = this->page())
+        return page->protectedUserContentProviderForFrame().ptr();
+    return nullptr;
+}
+
+UserContentProvider* LocalFrame::userContentProvider()
+{
+    if (RefPtr page = this->page())
+        return page->protectedUserContentProviderForFrame().ptr();
+    return nullptr;
+}
+
+bool LocalFrame::hasUserContentProvider(const UserContentProvider& provider)
+{
+    return userContentProvider() == &provider;
+}
+
 void LocalFrame::injectUserScripts(UserScriptInjectionTime injectionTime)
 {
-    if (!page())
-        return;
-
     if (loader().stateMachine().creatingInitialEmptyDocument() && !settings().shouldInjectUserScriptsInInitialEmptyDocument())
         return;
 
-    RefPtr page = this->page();
-    page->protectedUserContentProvider()->forEachUserScript([this, injectionTime](DOMWrapperWorld& world, const UserScript& script) {
+    RefPtr userContentProvider = this->userContentProvider();
+    if (!userContentProvider)
+        return;
+
+    userContentProvider->forEachUserScript([this, injectionTime](DOMWrapperWorld& world, const UserScript& script) {
         if (script.injectionTime() == injectionTime)
             injectUserScriptImmediately(world, script);
     });

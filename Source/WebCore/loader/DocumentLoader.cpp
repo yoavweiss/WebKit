@@ -558,10 +558,13 @@ void DocumentLoader::handleSubstituteDataLoadNow()
         response = ResourceResponse(URL { m_request.url() }, String { m_substituteData.mimeType() }, m_substituteData.content()->size(), String { m_substituteData.textEncoding() });
 
 #if ENABLE(CONTENT_EXTENSIONS)
-    if (RefPtr page = m_frame ? m_frame->page() : nullptr) {
+    RefPtr frame = m_frame.get();
+    RefPtr page = frame ? frame->page() : nullptr;
+    RefPtr userContentProvider = frame ? frame->userContentProvider() : nullptr;
+    if (page && userContentProvider) {
         // We intentionally do nothing with the results of this call.
         // We want the CSS to be loaded for us, but we ignore any attempt to block or upgrade the connection since there is no connection.
-        page->protectedUserContentProvider()->processContentRuleListsForLoad(*page, response.url(), m_frame->isMainFrame() ? ContentExtensions::ResourceType::TopDocument : ContentExtensions::ResourceType::ChildDocument, *this);
+        userContentProvider->processContentRuleListsForLoad(*page, response.url(), frame->isMainFrame() ? ContentExtensions::ResourceType::TopDocument : ContentExtensions::ResourceType::ChildDocument, *this);
     }
 #endif
 

@@ -591,7 +591,7 @@ class EmptyUserContentProvider final : public UserContentProvider {
     void forEachUserMessageHandler(NOESCAPE const Function<void(const UserMessageHandlerDescriptor&)>&) const final { }
 #endif
 #if ENABLE(CONTENT_EXTENSIONS)
-    ContentExtensions::ContentExtensionsBackend& userContentExtensionBackend() final { static NeverDestroyed<ContentExtensions::ContentExtensionsBackend> backend; return backend.get(); };
+    const ContentExtensions::ContentExtensionsBackend& userContentExtensionBackend() const final { static NeverDestroyed<ContentExtensions::ContentExtensionsBackend> backend; return backend.get(); };
 #endif
 };
 

@@ -430,18 +430,17 @@ void ResourceLoader::willSendRequestInternal(ResourceRequest&& request, const Re
 
     RefPtr frameLoader = this->frameLoader();
 #if ENABLE(CONTENT_EXTENSIONS)
-    if (!redirectResponse.isNull() && frameLoader) {
-        RefPtr page = frameLoader->frame().page();
-        RefPtr documentLoader = m_documentLoader;
-        if (page && documentLoader) {
-            auto results = page->protectedUserContentProvider()->processContentRuleListsForLoad(*page, request.url(), m_resourceType, *documentLoader, redirectResponse.url());
-            ContentExtensions::applyResultsToRequest(WTFMove(results), page.get(), request);
-            if (results.shouldBlock()) {
-                RESOURCELOADER_RELEASE_LOG("willSendRequestInternal: resource load canceled because of content blocker");
-                didFail(blockedByContentBlockerError());
-                completionHandler({ });
-                return;
-            }
+    RefPtr userContentProvider = frameLoader ? frameLoader->frame().userContentProvider() : nullptr;
+    RefPtr page = frameLoader ? frameLoader->frame().page() : nullptr;
+    RefPtr documentLoader = m_documentLoader;
+    if (!redirectResponse.isNull() && frameLoader && page && userContentProvider && documentLoader) {
+        auto results = userContentProvider->processContentRuleListsForLoad(*page, request.url(), m_resourceType, *documentLoader, redirectResponse.url());
+        ContentExtensions::applyResultsToRequest(WTFMove(results), page.get(), request);
+        if (results.shouldBlock()) {
+            RESOURCELOADER_RELEASE_LOG("willSendRequestInternal: resource load canceled because of content blocker");
+            didFail(blockedByContentBlockerError());
+            completionHandler({ });
+            return;
         }
     }
 #endif

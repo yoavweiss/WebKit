@@ -92,6 +92,7 @@ class RenderWidget;
 class ResourceMonitor;
 class ScriptController;
 class SecurityOrigin;
+class UserContentProvider;
 class UserScript;
 class VisiblePosition;
 class Widget;
@@ -200,6 +201,9 @@ public:
 
     WEBCORE_EXPORT void injectUserScripts(UserScriptInjectionTime);
     WEBCORE_EXPORT void injectUserScriptImmediately(DOMWrapperWorld&, const UserScript&);
+    UserContentProvider* userContentProvider();
+    const UserContentProvider* userContentProvider() const;
+    WEBCORE_EXPORT bool hasUserContentProvider(const UserContentProvider&);
 
     WEBCORE_EXPORT String trackedRepaintRectsAsText() const;
 

@@ -85,15 +85,15 @@ UserMessageHandler* UserMessageHandlersNamespace::namedItem(DOMWrapperWorld& wor
     if (!frame)
         return nullptr;
 
-    RefPtr page = frame->page();
-    if (!page)
+    RefPtr userContentProvider = frame->userContentProvider();
+    if (!userContentProvider)
         return nullptr;
 
     RefPtr handler = m_messageHandlers.get({ name, &world });
     if (handler)
         return handler.get();
 
-    page->protectedUserContentProvider()->forEachUserMessageHandler([&](const UserMessageHandlerDescriptor& descriptor) {
+    userContentProvider->forEachUserMessageHandler([&](const UserMessageHandlerDescriptor& descriptor) {
         if (descriptor.name() != name || &descriptor.world() != &world)
             return;
         

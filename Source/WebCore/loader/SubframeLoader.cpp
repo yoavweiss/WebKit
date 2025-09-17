@@ -349,9 +349,9 @@ RefPtr<LocalFrame> FrameLoader::SubframeLoader::loadSubframe(HTMLFrameOwnerEleme
     frame->loader().loadURLIntoChildFrame(url, referrerToUse, *subFrame);
 
 #if ENABLE(CONTENT_EXTENSIONS)
-    RefPtr subFramePage = subFrame->page();
-    if ((url.isAboutBlank() || url.isAboutSrcDoc()) && subFramePage) {
-        subFramePage->protectedUserContentProvider()->userContentExtensionBackend().forEach([&] (const String& identifier, ContentExtensions::ContentExtension& extension) {
+    RefPtr userContentProvider = frame->userContentProvider();
+    if ((url.isAboutBlank() || url.isAboutSrcDoc()) && userContentProvider) {
+        userContentProvider->userContentExtensionBackend().forEach([&] (const String& identifier, ContentExtensions::ContentExtension& extension) {
             if (RefPtr styleSheetContents = extension.globalDisplayNoneStyleSheet())
                 subFrame->protectedDocument()->extensionStyleSheets().maybeAddContentExtensionSheet(identifier, *styleSheetContents);
         });

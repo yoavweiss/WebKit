@@ -148,14 +148,13 @@ void WebUserContentController::addContentWorlds(const Vector<ContentWorldData>& 
     for (auto& world : worlds) {
         if (RefPtr contentWorld = addContentWorld(world)) {
             Page::forEachPage([&] (auto& page) {
-                if (&page.userContentProvider() != this)
-                    return;
-
                 Ref mainFrame = page.mainFrame();
                 for (RefPtr frame = mainFrame.ptr(); frame; frame = frame->tree().traverseNext()) {
                     RefPtr localFrame = dynamicDowncast<LocalFrame>(frame);
                     if (!localFrame)
                         continue;
+                    if (!localFrame->hasUserContentProvider(*this))
+                        return;
                     localFrame->loader().client().dispatchGlobalObjectAvailable(contentWorld->coreWorld());
                 }
             });
@@ -480,19 +479,17 @@ void WebUserContentController::addUserScriptInternal(InjectedBundleScriptWorld& 
 {
     if (immediately == InjectUserScriptImmediately::Yes) {
         Page::forEachPage([&] (auto& page) {
-            if (&page.userContentProvider() != this)
-                return;
-
             if (userScript.injectedFrames() == UserContentInjectedFrames::InjectInTopFrameOnly) {
-                if (RefPtr localMainFrame = page.localMainFrame())
+                if (RefPtr localMainFrame = page.localMainFrame(); localMainFrame && localMainFrame->hasUserContentProvider(*this))
                     localMainFrame->injectUserScriptImmediately(world.coreWorld(), userScript);
                 return;
             }
-
             Ref mainFrame { page.mainFrame() };
             for (RefPtr frame = mainFrame.ptr(); frame; frame = frame->tree().traverseNext(mainFrame.ptr())) {
                 RefPtr localFrame = dynamicDowncast<LocalFrame>(frame);
                 if (!localFrame)
+                    continue;
+                if (!localFrame->hasUserContentProvider(*this))
                     continue;
                 Ref coreWorld = world.coreWorld();
                 localFrame->injectUserScriptImmediately(coreWorld, userScript);

@@ -42,6 +42,7 @@
 #include "StyleProperties.h"
 #include "StyleRule.h"
 #include "StyleRuleImport.h"
+#include "UserContentProvider.h"
 #include <wtf/Deque.h>
 #include <wtf/NeverDestroyed.h>
 #include <wtf/Ref.h>
@@ -598,7 +599,9 @@ bool StyleSheetContents::traverseSubresources(NOESCAPE const Function<bool(const
 
 bool StyleSheetContents::subresourcesAllowReuse(CachePolicy cachePolicy, FrameLoader& loader) const
 {
-    bool hasFailedOrExpiredResources = traverseSubresources([cachePolicy, &loader](const CachedResource& resource) {
+    RefPtr userContentProvider = loader.frame().userContentProvider();
+
+    bool hasFailedOrExpiredResources = traverseSubresources([cachePolicy, userContentProvider, &loader](const CachedResource& resource) {
         if (resource.loadFailedOrCanceled())
             return true;
         // We can't revalidate subresources individually so don't use reuse the parsed sheet if they need revalidation.
@@ -611,7 +614,7 @@ bool StyleSheetContents::subresourcesAllowReuse(CachePolicy cachePolicy, FrameLo
         auto* documentLoader = loader.documentLoader();
         if (page && documentLoader) {
             const auto& request = resource.resourceRequest();
-            auto results = page->protectedUserContentProvider()->processContentRuleListsForLoad(*page, request.url(), ContentExtensions::toResourceType(resource.type(), resource.resourceRequest().requester(), loader.frame().isMainFrame()), *documentLoader);
+            auto results = userContentProvider->processContentRuleListsForLoad(*page, request.url(), ContentExtensions::toResourceType(resource.type(), resource.resourceRequest().requester(), loader.frame().isMainFrame()), *documentLoader);
             if (results.shouldBlock() || results.summary.madeHTTPS)
                 return true;
         }

@@ -472,7 +472,7 @@ Page::Page(PageConfiguration&& pageConfiguration)
     updateTimerThrottlingState();
 
     protectedPluginInfoProvider()->addPage(*this);
-    protectedUserContentProvider()->addPage(*this);
+    Ref { m_userContentProvider }->addPage(*this);
     protectedVisitedLinkStore()->addPage(*this);
 
     static bool firstTimeInitializationRan = false;
@@ -556,7 +556,7 @@ Page::~Page()
         BackForwardCache::singleton().removeAllItemsForPage(*this);
 
     protectedPluginInfoProvider()->removePage(*this);
-    protectedUserContentProvider()->removePage(*this);
+    Ref { m_userContentProvider }->removePage(*this);
     protectedVisitedLinkStore()->removePage(*this);
 }
 
@@ -3957,21 +3957,16 @@ Ref<PluginInfoProvider> Page::protectedPluginInfoProvider() const
     return m_pluginInfoProvider;
 }
 
-UserContentProvider& Page::userContentProvider()
+Ref<UserContentProvider> Page::protectedUserContentProviderForFrame()
 {
     return m_userContentProvider;
 }
 
-Ref<UserContentProvider> Page::protectedUserContentProvider()
+void Page::setUserContentProviderForWebKitLegacy(Ref<UserContentProvider>&& userContentProvider)
 {
-    return m_userContentProvider;
-}
-
-void Page::setUserContentProvider(Ref<UserContentProvider>&& userContentProvider)
-{
-    protectedUserContentProvider()->removePage(*this);
+    Ref { m_userContentProvider }->removePage(*this);
     m_userContentProvider = WTFMove(userContentProvider);
-    protectedUserContentProvider()->addPage(*this);
+    Ref { m_userContentProvider }->addPage(*this);
 
     invalidateInjectedStyleSheetCacheInAllFrames();
 }
