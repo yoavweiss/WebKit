@@ -381,7 +381,7 @@ void WebUserContentControllerProxy::removeAllUserMessageHandlers()
     m_scriptMessageHandlers.clear();
 }
 
-void WebUserContentControllerProxy::didPostMessage(WebPageProxyIdentifier pageProxyID, FrameInfoData&& frameInfoData, ScriptMessageHandlerIdentifier messageHandlerID, JavaScriptEvaluationResult&& message, CompletionHandler<void(Expected<WebKit::JavaScriptEvaluationResult, String>&&)>&& reply)
+void WebUserContentControllerProxy::didPostMessage(WebPageProxyIdentifier pageProxyID, FrameInfoData&& frameInfoData, ScriptMessageHandlerIdentifier messageHandlerID, JavaScriptEvaluationResult&& message, CompletionHandler<void(Expected<WebKit::JavaScriptEvaluationResult, String>&&)>&& reply) const
 {
     auto page = WebProcessProxy::webPage(pageProxyID);
     if (!page)
@@ -397,7 +397,7 @@ void WebUserContentControllerProxy::didPostMessage(WebPageProxyIdentifier pagePr
     handler->client().didPostMessage(*page, WTFMove(frameInfoData), handler->world(), WTFMove(message), WTFMove(reply));
 }
 
-void WebUserContentControllerProxy::didPostLegacySynchronousMessage(WebPageProxyIdentifier webPageProxyID, FrameInfoData&& frameInfoData, ScriptMessageHandlerIdentifier messageHandlerID, JavaScriptEvaluationResult&& message, CompletionHandler<void(Expected<JavaScriptEvaluationResult, String>&&)>&& reply)
+void WebUserContentControllerProxy::didPostLegacySynchronousMessage(WebPageProxyIdentifier webPageProxyID, FrameInfoData&& frameInfoData, ScriptMessageHandlerIdentifier messageHandlerID, JavaScriptEvaluationResult&& message, CompletionHandler<void(Expected<JavaScriptEvaluationResult, String>&&)>&& reply) const
 {
     didPostMessage(webPageProxyID, WTFMove(frameInfoData), messageHandlerID, WTFMove(message), WTFMove(reply));
 }
