@@ -46,6 +46,7 @@ private:
     void candidateContentForLine(LineCandidate&, std::pair<size_t, size_t> startEndIndex, const InlineItemRange& needsLayoutRange, InlineLayoutUnit currentLogicalRight, SkipFloats = SkipFloats::No);
     void applyShapingIfNeeded(LineCandidate&);
     Vector<std::pair<size_t, size_t>> collectShapingRanges(const LineCandidate&) const;
+    void applyShapingOnRunRange(LineCandidate&, std::pair<size_t, size_t> range) const;
     InlineLayoutUnit leadingPunctuationWidthForLineCandiate(const LineCandidate&) const;
     InlineLayoutUnit trailingPunctuationOrStopOrCommaWidthForLineCandiate(const LineCandidate&, size_t startIndexAfterCandidateContent,  size_t layoutRangeEnd) const;
 

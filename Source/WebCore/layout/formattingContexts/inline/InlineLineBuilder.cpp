@@ -26,6 +26,7 @@
 #include "config.h"
 #include "InlineLineBuilder.h"
 
+#include "ComplexTextController.h"
 #include "InlineContentAligner.h"
 #include "InlineFormattingContext.h"
 #include "InlineFormattingUtils.h"
@@ -832,6 +833,54 @@ Vector<std::pair<size_t, size_t>> LineBuilder::collectShapingRanges(const LineCa
     return ranges;
 }
 
+void LineBuilder::applyShapingOnRunRange(LineCandidate& lineCandidate, std::pair<size_t, size_t> range) const
+{
+    auto& inlineContent = lineCandidate.inlineContent;
+    auto& runs = inlineContent.continuousContent().runs();
+    if (range.first >= range.second || range.first >= runs.size() || range.second >= runs.size()) {
+        ASSERT_NOT_REACHED();
+        return;
+    }
+    runs[range.first].shapingBoundary = InlineContentBreaker::ContinuousContent::Run::ShapingBoundary::Start;
+    runs[range.second].shapingBoundary = InlineContentBreaker::ContinuousContent::Run::ShapingBoundary::End;
+
+    StringBuilder textContent;
+    for (auto index = range.first; index <= range.second; ++index) {
+        if (auto* inlineTextItem = dynamicDowncast<InlineTextItem>(runs[index].inlineItem))
+            textContent.append(inlineTextItem->content());
+    }
+
+    ASSERT(!textContent.isEmpty());
+    auto characterScanForCodePath = true;
+    auto& style = isFirstFormattedLineCandidate() ? runs[range.first].inlineItem.firstLineStyle() : runs[range.first].inlineItem.style();
+    auto textRun = TextRun { textContent, m_lineLogicalRect.left(), { }, ExpansionBehavior::defaultBehavior(), TextDirection::RTL, style.rtlOrdering() == Order::Visual, characterScanForCodePath };
+    auto glyphSizes = ComplexTextController::glyphBoundsForTextRun(style.fontCascade(), textRun);
+
+    if (glyphSizes.size() != textRun.length()) {
+        ASSERT_NOT_REACHED();
+        return;
+    }
+
+    size_t glyphIndex = 0;
+    auto shapedContentWidth = InlineLayoutUnit { };
+    for (auto index = range.first; index < range.second; ++index) {
+        auto& run = runs[index];
+        auto* inlineTextItem = dynamicDowncast<InlineTextItem>(run.inlineItem);
+        if (!inlineTextItem) {
+            ASSERT(run.inlineItem.isInlineBoxStartOrEnd());
+            continue;
+        }
+        auto runWidth = InlineLayoutUnit { };
+        for (size_t i = 0; i < inlineTextItem->length(); ++i) {
+            runWidth += std::max(0.f, glyphSizes[glyphIndex]);
+            ++glyphIndex;
+        }
+        run.adjustContentWidth(runWidth);
+        shapedContentWidth += runWidth;
+    }
+    inlineContent.continuousContent().adjustLogicalWidth(shapedContentWidth);
+}
+
 void LineBuilder::applyShapingIfNeeded(LineCandidate& lineCandidate)
 {
     if (!layoutState().shouldShapeTextAcrossInlineBoxes())
@@ -840,16 +889,8 @@ void LineBuilder::applyShapingIfNeeded(LineCandidate& lineCandidate)
     if (!lineCandidate.inlineContent.isShapingCandidateByContent())
         return;
 
-    auto& runs = lineCandidate.inlineContent.continuousContent().runs();
-    auto shapingRanges = collectShapingRanges(lineCandidate);
-    for (auto range : shapingRanges) {
-        if (range.first >= range.second || range.first >= runs.size() || range.second >= runs.size()) {
-            ASSERT_NOT_REACHED();
-            continue;
-        }
-        runs[range.first].shapingBoundary = InlineContentBreaker::ContinuousContent::Run::ShapingBoundary::Start;
-        runs[range.second].shapingBoundary = InlineContentBreaker::ContinuousContent::Run::ShapingBoundary::End;
-    }
+    for (auto range : collectShapingRanges(lineCandidate))
+        applyShapingOnRunRange(lineCandidate, range);
 }
 
 void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, std::pair<size_t, size_t> startEndIndex, const InlineItemRange& layoutRange, InlineLayoutUnit currentLogicalRight, SkipFloats skipFloats)

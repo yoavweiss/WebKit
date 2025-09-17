@@ -81,6 +81,7 @@ public:
     // see https://drafts.csswg.org/css-text-3/#line-break-details
     struct ContinuousContent {
         InlineLayoutUnit logicalWidth() const { return m_logicalWidth; }
+        void adjustLogicalWidth(InlineLayoutUnit logicalWidth) { m_logicalWidth = logicalWidth; }
         std::optional<InlineLayoutUnit> minimumRequiredWidth() const { return m_minimumRequiredWidth; }
         InlineLayoutUnit leadingTrimmableWidth() const { return m_leadingTrimmableWidth; }
         InlineLayoutUnit trailingTrimmableWidth() const { return m_trailingTrimmableWidth; }
@@ -106,6 +107,7 @@ public:
             Run& operator=(const Run&);
 
             InlineLayoutUnit spaceRequired() const { return offset + contentWidth(); }
+            void adjustContentWidth(InlineLayoutUnit contentWidth) { m_contentWidth = contentWidth; }
             InlineLayoutUnit contentWidth() const { return m_contentWidth; }
 
             const InlineItem& inlineItem;
