@@ -97,7 +97,6 @@ interface TestRunner {
     undefined setPrinting();
 
     // Special DOM functions.
-    Promise<undefined> clearBackForwardList();
     undefined execCommand(DOMString name, DOMString showUI, DOMString value);
     boolean isCommandEnabled(DOMString name);
     unsigned long windowCount();
@@ -109,7 +108,6 @@ interface TestRunner {
     undefined testRepaint();
     undefined repaintSweepHorizontally();
     undefined display();
-    Promise<undefined> displayAndTrackRepaints();
     undefined displayOnLoadFinish();
     undefined dontForceRepaint();
 
@@ -164,24 +162,13 @@ interface TestRunner {
     readonly attribute boolean didReceiveServerRedirectForProvisionalNavigation;
     undefined clearDidReceiveServerRedirectForProvisionalNavigation();
 
-    // Focus testing.
-    undefined addChromeInputField(object callback);
-    undefined removeChromeInputField(object callback);
-    undefined focusWebView(object callback);
-    undefined setTextInChromeInputField(DOMString text, object callback);
-    undefined getSelectedTextInChromeInputField(object callback);
-    undefined selectChromeInputField(object callback);
-
     // Window/view state
-    undefined setBackingScaleFactor(double backingScaleFactor, object callback);
-
     undefined setWindowIsKey(boolean isKey);
     undefined setViewSize(double width, double height);
 
     // Cookies testing
     undefined setAlwaysAcceptCookies(boolean accept);
     undefined setOnlyAcceptFirstPartyCookies(boolean accept);
-    undefined removeAllCookies(object callback);
 
     // Page Visibility API
     undefined setPageVisibility(DOMString state);

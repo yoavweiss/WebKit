@@ -161,7 +161,6 @@ public:
     void setCustomUserAgent(JSStringRef);
 
     // Special DOM functions.
-    void clearBackForwardList(JSContextRef, JSValueRef callback);
     void execCommand(JSStringRef name, JSStringRef showUI, JSStringRef value);
     bool isCommandEnabled(JSStringRef name);
     unsigned windowCount();
@@ -170,7 +169,6 @@ public:
     void testRepaint() { m_testRepaint = true; }
     void repaintSweepHorizontally() { m_testRepaintSweepHorizontally = true; }
     void display();
-    void displayAndTrackRepaints(JSContextRef, JSValueRef callback);
     void displayOnLoadFinish() { m_displayOnLoadFinish = true; }
     bool shouldDisplayOnLoadFinish() { return m_displayOnLoadFinish; }
     void dontForceRepaint() { m_forceRepaint = false; }
@@ -279,16 +277,6 @@ public:
     double databaseMaxQuota() const { return m_databaseMaxQuota; }
     void setDatabaseMaxQuota(double quota) { m_databaseMaxQuota = quota; }
 
-    void addChromeInputField(JSContextRef, JSValueRef);
-    void removeChromeInputField(JSContextRef, JSValueRef);
-    void focusWebView(JSContextRef, JSValueRef);
-
-    void setTextInChromeInputField(JSContextRef, JSStringRef text, JSValueRef callback);
-    void selectChromeInputField(JSContextRef, JSValueRef callback);
-    void getSelectedTextInChromeInputField(JSContextRef, JSValueRef callback);
-
-    void setBackingScaleFactor(JSContextRef, double, JSValueRef);
-
     void setWindowIsKey(bool);
 
     void setViewSize(double width, double height);
@@ -298,7 +286,6 @@ public:
     // Cookies testing
     void setAlwaysAcceptCookies(bool);
     void setOnlyAcceptFirstPartyCookies(bool);
-    void removeAllCookies(JSContextRef, JSValueRef callback);
 
     // Web notifications.
     void grantWebNotificationPermission(JSStringRef origin);

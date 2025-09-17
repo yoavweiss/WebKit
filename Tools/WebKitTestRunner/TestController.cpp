@@ -1942,6 +1942,16 @@ if (window.testRunner) {
     testRunner.setBlockAllPlugins = value => post(['SetBlockAllPlugins', value]);
     testRunner.stopLoading = () => post(['StopLoading']);
     testRunner.dumpFullScreenCallbacks = () => post(['DumpFullScreenCallbacks']);
+    testRunner.displayAndTrackRepaints = () => post(['DisplayAndTrackRepaints']);
+    testRunner.clearBackForwardList = () => post(['ClearBackForwardList']);
+    testRunner.addChromeInputField = async (callback) => { await post(['AddChromeInputField']); callback?.(); }; // NOLINT
+    testRunner.removeChromeInputField = async (callback) => { await post(['RemoveChromeInputField']); callback?.(); }; // NOLINT
+    testRunner.setTextInChromeInputField = async (text, callback) => { await post(['SetTextInChromeInputField', text]); callback?.(); }; // NOLINT
+    testRunner.selectChromeInputField = async (callback) => { await post(['SelectChromeInputField']); callback?.(); }; // NOLINT
+    testRunner.getSelectedTextInChromeInputField = async (callback) => { const result = await post(['GetSelectedTextInChromeInputField']); callback?.(result); }; // NOLINT
+    testRunner.focusWebView = async (callback) => { await post(['FocusWebView']); callback?.(); }; // NOLINT
+    testRunner.setBackingScaleFactor = async (value, callback) => { await post(['SetBackingScaleFactor', value]); callback?.(); }; // NOLINT
+    testRunner.removeAllCookies = async (callback) => { await post(['RemoveAllCookies']); callback?.(); }; // NOLINT
 }
 )testRunnerJS";
 
@@ -1972,6 +1982,50 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
             completionHandler(adoptWK(WKBooleanCreate(found)).get());
         });
     }
+
+    if (WKStringIsEqualToUTF8CString(command, "RemoveAllCookies"))
+        return removeAllCookies(WTFMove(completionHandler));
+
+    if (WKStringIsEqualToUTF8CString(command, "AddChromeInputField")) {
+        mainWebView()->addChromeInputField();
+        return completionHandler(nullptr);
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "RemoveChromeInputField")) {
+        mainWebView()->removeChromeInputField();
+        return completionHandler(nullptr);
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "SetTextInChromeInputField")) {
+        mainWebView()->setTextInChromeInputField(toWTFString(stringValue(argument)));
+        return completionHandler(nullptr);
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "SelectChromeInputField")) {
+        mainWebView()->selectChromeInputField();
+        return completionHandler(nullptr);
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "GetSelectedTextInChromeInputField")) {
+        auto selectedText = mainWebView()->getSelectedTextInChromeInputField();
+        return completionHandler(toWK(selectedText).get());
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "FocusWebView")) {
+        mainWebView()->makeWebViewFirstResponder();
+        return completionHandler(nullptr);
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "SetBackingScaleFactor")) {
+        WKPageSetCustomBackingScaleFactorWithCallback(TestController::singleton().mainWebView()->page(), doubleValue(argument), completionHandler.leak(), adoptAndCallCompletionHandler);
+        return;
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "ClearBackForwardList"))
+        return WKPageClearBackForwardListForTesting(TestController::singleton().mainWebView()->page(), completionHandler.leak(), adoptAndCallCompletionHandler);
+
+    if (WKStringIsEqualToUTF8CString(command, "DisplayAndTrackRepaints"))
+        return WKPageDisplayAndTrackRepaintsForTesting(TestController::singleton().mainWebView()->page(), completionHandler.leak(), adoptAndCallCompletionHandler);
 
     if (WKStringIsEqualToUTF8CString(command, "InstallTooltipCallback")) {
         m_tooltipCallbacks.append(dynamic_wk_cast<WKJSHandleRef>(argument));
@@ -2596,8 +2650,6 @@ void TestController::didReceiveAsyncMessageFromInjectedBundle(WKStringRef messag
     if (WKStringIsEqualToUTF8CString(messageName, "GetAndClearReportedWindowProxyAccessDomains"))
         return completionHandler(getAndClearReportedWindowProxyAccessDomains().get());
 
-    if (WKStringIsEqualToUTF8CString(messageName, "RemoveAllCookies"))
-        return removeAllCookies(WTFMove(completionHandler));
 
     if (WKStringIsEqualToUTF8CString(messageName, "TakeViewPortSnapshot"))
         return completionHandler(takeViewPortSnapshot().get());
@@ -2727,49 +2779,14 @@ void TestController::didReceiveAsyncMessageFromInjectedBundle(WKStringRef messag
     if (WKStringIsEqualToUTF8CString(messageName, "StatisticsProcessStatisticsAndDataRecords"))
         return TestController::singleton().statisticsProcessStatisticsAndDataRecords(WTFMove(completionHandler));
 
-    if (WKStringIsEqualToUTF8CString(messageName, "AddChromeInputField")) {
-        mainWebView()->addChromeInputField();
-        return completionHandler(nullptr);
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetTextInChromeInputField")) {
-        mainWebView()->setTextInChromeInputField(toWTFString(stringValue(messageBody)));
-        return completionHandler(nullptr);
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SelectChromeInputField")) {
-        mainWebView()->selectChromeInputField();
-        return completionHandler(nullptr);
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "GetSelectedTextInChromeInputField")) {
-        auto selectedText = mainWebView()->getSelectedTextInChromeInputField();
-        return completionHandler(toWK(selectedText).get());
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "FocusWebView")) {
-        mainWebView()->makeWebViewFirstResponder();
-        return completionHandler(nullptr);
-    }
-
     if (WKStringIsEqualToUTF8CString(messageName, "LoadedSubresourceDomains"))
         return loadedSubresourceDomains(WTFMove(completionHandler));
-
-    if (WKStringIsEqualToUTF8CString(messageName, "RemoveChromeInputField")) {
-        mainWebView()->removeChromeInputField();
-        return completionHandler(nullptr);
-    }
 
     if (WKStringIsEqualToUTF8CString(messageName, "SetManagedDomains"))
         return setManagedDomains(arrayValue(messageBody), WTFMove(completionHandler));
 
     if (WKStringIsEqualToUTF8CString(messageName, "SetAppBoundDomains"))
         return setAppBoundDomains(arrayValue(messageBody), WTFMove(completionHandler));
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetBackingScaleFactor")) {
-        WKPageSetCustomBackingScaleFactorWithCallback(TestController::singleton().mainWebView()->page(), doubleValue(messageBody), completionHandler.leak(), adoptAndCallCompletionHandler);
-        return;
-    }
 
     if (WKStringIsEqualToUTF8CString(messageName, "RemoveAllSessionCredentials"))
         return TestController::singleton().removeAllSessionCredentials(WTFMove(completionHandler));
@@ -2783,11 +2800,6 @@ void TestController::didReceiveAsyncMessageFromInjectedBundle(WKStringRef messag
         return WKPageSetObscuredContentInsetsForTesting(TestController::singleton().mainWebView()->page(), top, right, bottom, left, completionHandler.leak(), adoptAndCallCompletionHandler);
     }
 
-    if (WKStringIsEqualToUTF8CString(messageName, "ClearBackForwardList"))
-        return WKPageClearBackForwardListForTesting(TestController::singleton().mainWebView()->page(), completionHandler.leak(), adoptAndCallCompletionHandler);
-
-    if (WKStringIsEqualToUTF8CString(messageName, "DisplayAndTrackRepaints"))
-        return WKPageDisplayAndTrackRepaintsForTesting(TestController::singleton().mainWebView()->page(), completionHandler.leak(), adoptAndCallCompletionHandler);
 
     if (WKStringIsEqualToUTF8CString(messageName, "SetResourceMonitorList"))
         return setResourceMonitorList(stringValue(messageBody), WTFMove(completionHandler));

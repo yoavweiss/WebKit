@@ -96,11 +96,6 @@ void TestRunner::display()
     WKBundlePageForceRepaint(page());
 }
 
-void TestRunner::displayAndTrackRepaints(JSContextRef context, JSValueRef callback)
-{
-    postMessageWithAsyncReply(context, "DisplayAndTrackRepaints", callback);
-}
-
 static WKRetainPtr<WKDoubleRef> toWK(double value)
 {
     return adoptWK(WKDoubleCreate(value));
@@ -477,11 +472,6 @@ unsigned TestRunner::windowCount()
     return InjectedBundle::singleton().pageCount();
 }
 
-void TestRunner::clearBackForwardList(JSContextRef context, JSValueRef callback)
-{
-    postMessageWithAsyncReply(context, "ClearBackForwardList", callback);
-}
-
 void TestRunner::makeWindowObject(JSContextRef context)
 {
     setGlobalObjectProperty(context, "testRunner", this);
@@ -644,41 +634,6 @@ void TestRunner::accummulateLogsForChannel(JSStringRef)
     // FIXME: Implement getting the call to all processes.
 }
 
-void TestRunner::addChromeInputField(JSContextRef context, JSValueRef callback)
-{
-    postMessageWithAsyncReply(context, "AddChromeInputField", callback);
-}
-
-void TestRunner::removeChromeInputField(JSContextRef context, JSValueRef callback)
-{
-    postMessageWithAsyncReply(context, "RemoveChromeInputField", callback);
-}
-
-void TestRunner::setTextInChromeInputField(JSContextRef context, JSStringRef text, JSValueRef callback)
-{
-    postMessageWithAsyncReply(context, "SetTextInChromeInputField", toWK(text), callback);
-}
-
-void TestRunner::selectChromeInputField(JSContextRef context, JSValueRef callback)
-{
-    postMessageWithAsyncReply(context, "SelectChromeInputField", callback);
-}
-
-void TestRunner::getSelectedTextInChromeInputField(JSContextRef context, JSValueRef callback)
-{
-    postMessageWithAsyncReply(context, "GetSelectedTextInChromeInputField", callback);
-}
-
-void TestRunner::focusWebView(JSContextRef context, JSValueRef callback)
-{
-    postMessageWithAsyncReply(context, "FocusWebView", callback);
-}
-
-void TestRunner::setBackingScaleFactor(JSContextRef context, double backingScaleFactor, JSValueRef callback)
-{
-    postMessageWithAsyncReply(context, "SetBackingScaleFactor", adoptWK(WKDoubleCreate(backingScaleFactor)), callback);
-}
-
 void TestRunner::setWindowIsKey(bool isKey)
 {
     InjectedBundle::singleton().postSetWindowIsKey(isKey);
@@ -697,11 +652,6 @@ void TestRunner::setAlwaysAcceptCookies(bool accept)
 void TestRunner::setOnlyAcceptFirstPartyCookies(bool accept)
 {
     postSynchronousMessage("SetOnlyAcceptFirstPartyCookies", accept);
-}
-
-void TestRunner::removeAllCookies(JSContextRef context, JSValueRef callback)
-{
-    postMessageWithAsyncReply(context, "RemoveAllCookies", callback);
 }
 
 double TestRunner::preciseTime()
