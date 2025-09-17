@@ -1563,6 +1563,7 @@ webkit.org/b/263396 css3/color/text.html [ Skip ]
 
 # WebGPU
 fast/webgpu/nocrash/fuzz-275294.html [ Pass ]
+[ x86_64 ] fast/webgpu/nocrash/fuzz-298315.html [ Skip ]
 
 # skipped due to infinite loop compute shaders normally not terminating on macOS, test must be run locally for now
 fast/webgpu/nocrash/fuzz-286820.html [ Skip ]
@@ -2404,8 +2405,6 @@ webkit.org/b/298269 imported/w3c/web-platform-tests/html/anonymous-iframe/sessio
 webkit.org/b/298278 imported/w3c/web-platform-tests/html/anonymous-iframe/local-storage.tentative.https.window.html [ Pass Failure ]
 
 webkit.org/b/298292 [ Sequoia ] http/tests/webgpu/webgpu/api/operation/sampling/sampler_texture.html [ Pass ]
-
-webkit.org/b/298746 [ x86_64 ] fast/webgpu/nocrash/fuzz-298315.html [ Timeout ]
 
 # run as pass for now to catch subtest regressions. but some of these tests are still failing.
 http/tests/webgpu/webgpu/web_platform/copyToTexture [ Pass Timeout ]
