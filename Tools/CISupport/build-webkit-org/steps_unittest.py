@@ -1244,7 +1244,7 @@ class TestRunAPITests(BuildStepMixinAdditions, unittest.TestCase):
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
                         logEnviron=False,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', command + ' > logs.txt 2>&1 ; grep "Ran " logs.txt'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', command + ' > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret'],
                         logfiles={'json': self.jsonFileName},
                         env={'RESULTS_SERVER_API_KEY': 'test-api-key'},
                         timeout=10800,

@@ -5680,7 +5680,7 @@ class RunAPITests(shell.TestNewStyle, AddToLogMixin, ShellMixin):
             if list_failed_tests_with_change:
                 self.command = self.command + list_failed_tests_with_change
         if SHOULD_FILTER_LOGS is True:
-            self.command = self.shell_command(' '.join(self.command) + ' > logs.txt 2>&1 ; grep "Ran " logs.txt')
+            self.command = self.shell_command(' '.join(self.command) + ' > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret')
 
         rc = yield super().run()
 

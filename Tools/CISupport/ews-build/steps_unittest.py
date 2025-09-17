@@ -5124,7 +5124,7 @@ class TestRunAPITests(BuildStepMixinAdditions, unittest.TestCase):
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
                         logEnviron=False,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --release --verbose --json-output={self.jsonFileName} > logs.txt 2>&1 ; grep "Ran " logs.txt'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --release --verbose --json-output={self.jsonFileName} > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret'],
                         logfiles={'json': self.jsonFileName},
                         timeout=3 * 60 * 60
                         )
@@ -5153,7 +5153,7 @@ All tests successfully passed!
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
                         logEnviron=False,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --debug --verbose --json-output={self.jsonFileName} --ios-simulator > logs.txt 2>&1 ; grep "Ran " logs.txt'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --debug --verbose --json-output={self.jsonFileName} --ios-simulator > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret'],
                         logfiles={'json': self.jsonFileName},
                         timeout=3 * 60 * 60
                         )
@@ -5182,7 +5182,7 @@ All tests successfully passed!
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
                         logEnviron=False,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-gtk-tests --release --json-output={self.jsonFileName} > logs.txt 2>&1 ; grep "Ran " logs.txt'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-gtk-tests --release --json-output={self.jsonFileName} > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret'],
                         logfiles={'json': self.jsonFileName},
                         timeout=3 * 60 * 60
                         )
@@ -5216,7 +5216,7 @@ Ran 1316 tests of 1318 with 1316 successful
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
                         logEnviron=False,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-wpe-tests --release --json-output={self.jsonFileName} > logs.txt 2>&1 ; grep "Ran " logs.txt'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-wpe-tests --release --json-output={self.jsonFileName} > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret'],
                         logfiles={'json': self.jsonFileName},
                         timeout=3 * 60 * 60
                         )
@@ -5250,7 +5250,7 @@ Ran 1316 tests of 1318 with 1316 successful
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
                         logEnviron=False,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --debug --verbose --json-output={self.jsonFileName} > logs.txt 2>&1 ; grep "Ran " logs.txt'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --debug --verbose --json-output={self.jsonFileName} > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret'],
                         logfiles={'json': self.jsonFileName},
                         timeout=3 * 60 * 60
                         )
@@ -5293,7 +5293,7 @@ Testing completed, Exit status: 3
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
                         logEnviron=False,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --debug --verbose --json-output={self.jsonFileName} > logs.txt 2>&1 ; grep "Ran " logs.txt'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --debug --verbose --json-output={self.jsonFileName} > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret'],
                         logfiles={'json': self.jsonFileName},
                         timeout=3 * 60 * 60
                         )
@@ -5350,7 +5350,7 @@ Testing completed, Exit status: 3
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
                         logEnviron=False,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --debug --verbose --json-output={self.jsonFileName} > logs.txt 2>&1 ; grep "Ran " logs.txt'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --debug --verbose --json-output={self.jsonFileName} > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret'],
                         logfiles={'json': self.jsonFileName},
                         timeout=3 * 60 * 60
                         )
@@ -5369,7 +5369,7 @@ Testing completed, Exit status: 3
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
                         logEnviron=False,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --debug --verbose --json-output={self.jsonFileName} > logs.txt 2>&1 ; grep "Ran " logs.txt'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --debug --verbose --json-output={self.jsonFileName} > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret'],
                         logfiles={'json': self.jsonFileName},
                         timeout=3 * 60 * 60
                         )
@@ -5414,7 +5414,7 @@ class TestRunAPITestsWithoutChange(BuildStepMixinAdditions, unittest.TestCase):
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
                         logEnviron=False,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --release --verbose --json-output={self.jsonFileName} suite.test1 suite.test2 suite.test3 suite.test4 suite.test5 > logs.txt 2>&1 ; grep "Ran " logs.txt'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --release --verbose --json-output={self.jsonFileName} suite.test1 suite.test2 suite.test3 suite.test4 suite.test5 > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret'],
                         logfiles={'json': self.jsonFileName},
                         timeout=3 * 60 * 60
                         )
@@ -5448,7 +5448,7 @@ All tests successfully passed!
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
                         logEnviron=False,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --debug --verbose --json-output={self.jsonFileName} suite.test-one-failure1 suite.test-one-failure2 > logs.txt 2>&1 ; grep "Ran " logs.txt'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --debug --verbose --json-output={self.jsonFileName} suite.test-one-failure1 suite.test-one-failure2 > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret'],
                         logfiles={'json': self.jsonFileName},
                         timeout=3 * 60 * 60
                         )
@@ -5494,7 +5494,7 @@ Testing completed, Exit status: 3
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
                         logEnviron=False,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-gtk-tests --debug --json-output={self.jsonFileName} > logs.txt 2>&1 ; grep "Ran " logs.txt'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-gtk-tests --debug --json-output={self.jsonFileName} > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret'],
                         logfiles={'json': self.jsonFileName},
                         timeout=3 * 60 * 60
                         )
@@ -5536,7 +5536,7 @@ Ran 1296 tests of 1298 with 1293 successful
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
                         logEnviron=False,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-wpe-tests --debug --json-output={self.jsonFileName} > logs.txt 2>&1 ; grep "Ran " logs.txt'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-wpe-tests --debug --json-output={self.jsonFileName} > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret'],
                         logfiles={'json': self.jsonFileName},
                         timeout=3 * 60 * 60
                         )

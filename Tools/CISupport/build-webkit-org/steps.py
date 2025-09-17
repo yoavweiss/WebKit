@@ -1076,7 +1076,7 @@ class RunAPITests(TestWithFailureCount, CustomFlagsMixin, ShellMixin):
         for additionalArgument in additionalArguments or []:
             if additionalArgument in self.VALID_ADDITIONAL_ARGUMENTS_LIST:
                 self.command += [additionalArgument]
-        self.command = self.shell_command(' '.join(self.command) + ' > logs.txt 2>&1 ; grep "Ran " logs.txt')
+        self.command = self.shell_command(' '.join(self.command) + ' > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret')
 
         rc = super().run()
 
