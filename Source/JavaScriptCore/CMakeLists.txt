@@ -898,6 +898,7 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     inspector/remote/RemoteInspectionTarget.h
     inspector/remote/RemoteInspector.h
 
+    interpreter/CachedCall.h
     interpreter/CalleeBits.h
     interpreter/CallFrame.h
     interpreter/CallFrameInlines.h
@@ -906,6 +907,8 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     interpreter/EntryFrame.h
     interpreter/FrameTracers.h
     interpreter/Interpreter.h
+    interpreter/ProtoCallFrame.h
+    interpreter/ProtoCallFrameInlines.h
     interpreter/Register.h
     interpreter/RegisterInlines.h
     interpreter/ShadowChicken.h
@@ -1412,6 +1415,7 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     wasm/WasmFaultSignalHandler.h
     wasm/WasmFormat.h
     wasm/WasmFunctionIPIntMetadataGenerator.h
+    wasm/WasmGlobal.h
     wasm/WasmHandlerInfo.h
     wasm/WasmIPIntGenerator.h
     wasm/WasmIPIntTierUpCounter.h
@@ -1442,13 +1446,20 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     wasm/WasmValueLocation.h
 
     wasm/js/JSWebAssembly.h
+    wasm/js/JSWebAssemblyGlobal.h
+    wasm/js/JSWebAssemblyInstance.h
     wasm/js/JSWebAssemblyLinkError.h
     wasm/js/JSWebAssemblyMemory.h
     wasm/js/JSWebAssemblyModule.h
+    wasm/js/JSWebAssemblyTable.h
+    wasm/js/WebAssemblyBuiltin.h
+    wasm/js/WebAssemblyFunction.h
+    wasm/js/WebAssemblyFunctionBase.h
     wasm/js/WebAssemblyGCStructure.h
     wasm/js/WebAssemblyLinkErrorConstructor.h
     wasm/js/WebAssemblyLinkErrorPrototype.h
     wasm/js/WebAssemblyModuleRecord.h
+    wasm/js/WebAssemblyWrapperFunction.h
 
     yarr/RegularExpression.h
     yarr/Yarr.h

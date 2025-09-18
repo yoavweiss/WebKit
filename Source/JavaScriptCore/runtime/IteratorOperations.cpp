@@ -27,8 +27,11 @@
 #include "config.h"
 #include "IteratorOperations.h"
 
+#include "CachedCall.h"
+#include "InterpreterInlines.h"
 #include "JSCInlines.h"
 #include "ObjectConstructor.h"
+#include "VMEntryScopeInlines.h"
 
 namespace JSC {
 
@@ -57,6 +60,28 @@ JSValue iteratorNext(JSGlobalObject* globalObject, IterationRecord iterationReco
     return result;
 }
 
+JSValue iteratorNextWithCachedCall(JSGlobalObject* globalObject, IterationRecord iterationRecord, CachedCall* cachedCall, JSValue argument)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    JSValue iterator = iterationRecord.iterator;
+
+    ASSERT(JSC::getCallData(iterationRecord.nextMethod).type == CallData::Type::JS);
+
+    JSValue result;
+    if (argument)
+        result = cachedCall->callWithArguments(globalObject, iterator, argument);
+    else
+        result = cachedCall->callWithArguments(globalObject, iterator);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    if (!result.isObject()) [[unlikely]]
+        return throwTypeError(globalObject, scope, "Iterator result interface is not an object."_s);
+
+    return result;
+}
+
 JSValue iteratorValue(JSGlobalObject* globalObject, JSValue iterResult)
 {
     return iterResult.get(globalObject, globalObject->vm().propertyNames->value);
@@ -77,6 +102,20 @@ JSValue iteratorStep(JSGlobalObject* globalObject, IterationRecord iterationReco
     auto scope = DECLARE_THROW_SCOPE(vm);
 
     JSValue result = iteratorNext(globalObject, iterationRecord);
+    RETURN_IF_EXCEPTION(scope, JSValue());
+    bool done = iteratorComplete(globalObject, result);
+    RETURN_IF_EXCEPTION(scope, JSValue());
+    if (done)
+        return jsBoolean(false);
+    return result;
+}
+
+JSValue iteratorStepWithCachedCall(JSGlobalObject* globalObject, IterationRecord iterationRecord, CachedCall* cachedCall)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    JSValue result = iteratorNextWithCachedCall(globalObject, iterationRecord, cachedCall);
     RETURN_IF_EXCEPTION(scope, JSValue());
     bool done = iteratorComplete(globalObject, result);
     RETURN_IF_EXCEPTION(scope, JSValue());

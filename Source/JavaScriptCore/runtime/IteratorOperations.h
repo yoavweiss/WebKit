@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <JavaScriptCore/CachedCall.h>
 #include <JavaScriptCore/IterationModeMetadata.h>
 #include <JavaScriptCore/JSArrayIterator.h>
 #include <JavaScriptCore/JSCJSValue.h>
@@ -47,9 +48,11 @@ struct IterationRecord {
 };
 
 JSValue iteratorNext(JSGlobalObject*, IterationRecord, JSValue argument = JSValue());
+JSValue iteratorNextWithCachedCall(JSGlobalObject*, IterationRecord, CachedCall*, JSValue argument = JSValue());
 JS_EXPORT_PRIVATE JSValue iteratorValue(JSGlobalObject*, JSValue iterResult);
 bool iteratorComplete(JSGlobalObject*, JSValue iterResult);
 JS_EXPORT_PRIVATE JSValue iteratorStep(JSGlobalObject*, IterationRecord);
+JS_EXPORT_PRIVATE JSValue iteratorStepWithCachedCall(JSGlobalObject*, IterationRecord, CachedCall*);
 JS_EXPORT_PRIVATE void iteratorClose(JSGlobalObject*, JSValue iterator);
 JS_EXPORT_PRIVATE JSObject* createIteratorResultObject(JSGlobalObject*, JSValue, bool done);
 
@@ -154,8 +157,25 @@ ALWAYS_INLINE void forEachInIterationRecord(JSGlobalObject* globalObject, Iterat
     auto& vm = getVM(globalObject);
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    JSValue nextMethod = iterationRecord.nextMethod;
+    auto callData = getCallData(nextMethod);
+
+    std::optional<CachedCall> cachedCallHolder;
+    CachedCall* cachedCall = nullptr;
+    if (callData.type == CallData::Type::JS) [[likely]] {
+        cachedCallHolder.emplace(globalObject, jsCast<JSFunction*>(nextMethod), 0);
+        if (scope.exception()) [[unlikely]]
+            return;
+        cachedCall = &cachedCallHolder.value();
+    }
+
     while (true) {
-        JSValue next = iteratorStep(globalObject, iterationRecord);
+        JSValue next;
+        if (cachedCall) [[likely]] {
+            cachedCall->clearArguments();
+            next = iteratorStepWithCachedCall(globalObject, iterationRecord, cachedCall);
+        } else
+            next = iteratorStep(globalObject, iterationRecord);
         if (scope.exception()) [[unlikely]]
             return;
         if (next.isFalse())
@@ -235,8 +255,26 @@ void forEachInIterable(JSGlobalObject& globalObject, JSObject* iterable, JSValue
 
     auto iterationRecord = iteratorForIterable(&globalObject, iterable, iteratorMethod);
     RETURN_IF_EXCEPTION(scope, void());
+
+    JSValue nextMethod = iterationRecord.nextMethod;
+    auto callData = getCallData(nextMethod);
+
+    std::optional<CachedCall> cachedCallHolder;
+    CachedCall* cachedCall = nullptr;
+    if (callData.type == CallData::Type::JS) [[likely]] {
+        cachedCallHolder.emplace(&globalObject, jsCast<JSFunction*>(nextMethod), 0);
+        if (scope.exception()) [[unlikely]]
+            return;
+        cachedCall = &cachedCallHolder.value();
+    }
+
     while (true) {
-        JSValue next = iteratorStep(&globalObject, iterationRecord);
+        JSValue next;
+        if (cachedCall) [[likely]] {
+            cachedCall->clearArguments();
+            next = iteratorStepWithCachedCall(&globalObject, iterationRecord, cachedCall);
+        } else
+            next = iteratorStep(&globalObject, iterationRecord);
         if (scope.exception()) [[unlikely]]
             return;
         if (next.isFalse())
