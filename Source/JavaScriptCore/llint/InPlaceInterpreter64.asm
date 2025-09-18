@@ -756,9 +756,9 @@ end)
 macro localGetPostDecode()
     # Index into locals
     mulq LocalSize, t0
-    loadq [PL, t0], t0
+    loadv [PL, t0], v0
     # Push to stack
-    pushQuad(t0)
+    pushVec(v0)
     nextIPIntInstruction()
 end
 
@@ -772,10 +772,10 @@ end)
 
 macro localSetPostDecode()
     # Pop from stack
-    popQuad(t2)
+    popVec(v0)
     # Store to locals
     mulq LocalSize, t0
-    storeq t2, [PL, t0]
+    storev v0, [PL, t0]
     nextIPIntInstruction()
 end
 
@@ -789,10 +789,10 @@ end)
 
 macro localTeePostDecode()
     # Load from stack
-    loadq [sp], t2
+    loadv [sp], v0
     # Store to locals
     mulq LocalSize, t0
-    storeq t2, [PL, t0]
+    storev v0, [PL, t0]
     nextIPIntInstruction()
 end
 
@@ -805,20 +805,25 @@ ipintOp(_local_tee, macro()
 end)
 
 ipintOp(_global_get, macro()
+    loadb IPInt::GlobalMetadata::instructionLength[MC], t0
+    advancePCByReg(t0)
+
     # Load pre-computed index from metadata
     loadb IPInt::GlobalMetadata::bindingMode[MC], t2
     loadi IPInt::GlobalMetadata::index[MC], t1
     loadp JSWebAssemblyInstance::m_globals[wasmInstance], t0
-    lshiftp 1, t1
-    loadq [t0, t1, 8], t0
-    bieq t2, 0, .ipint_global_get_embedded
-    loadq [t0], t0
-.ipint_global_get_embedded:
-    pushQuad(t0)
-
-    loadb IPInt::GlobalMetadata::instructionLength[MC], t0
-    advancePCByReg(t0)
     advanceMC(constexpr (sizeof(IPInt::GlobalMetadata)))
+
+    lshiftp 1, t1
+    bieq t2, 0, .ipint_global_get_embedded
+    loadp [t0, t1, 8], t0
+    loadv [t0], v0
+    pushVec(v0)
+    nextIPIntInstruction()
+
+.ipint_global_get_embedded:
+    loadv [t0, t1, 8], v0
+    pushVec(v0)
     nextIPIntInstruction()
 end)
 
@@ -831,21 +836,21 @@ ipintOp(_global_set, macro()
     # get global addr
     loadp JSWebAssemblyInstance::m_globals[wasmInstance], t0
     # get value to store
-    popQuad(t3)
+    popVec(v0)
     # get index
     loadi IPInt::GlobalMetadata::index[MC], t1
     lshiftp 1, t1
     bieq t2, 0, .ipint_global_set_embedded
     # portable: dereference then set
-    loadq [t0, t1, 8], t0
-    storeq t3, [t0]
+    loadp [t0, t1, 8], t0
+    storev v0, [t0]
     loadb IPInt::GlobalMetadata::instructionLength[MC], t0
     advancePCByReg(t0)
     advanceMC(constexpr (sizeof(IPInt::GlobalMetadata)))
     nextIPIntInstruction()
 .ipint_global_set_embedded:
     # embedded: set directly
-    storeq t3, [t0, t1, 8]
+    storev v0, [t0, t1, 8]
     loadb IPInt::GlobalMetadata::instructionLength[MC], t0
     advancePCByReg(t0)
     advanceMC(constexpr (sizeof(IPInt::GlobalMetadata)))
