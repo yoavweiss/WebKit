@@ -7770,6 +7770,18 @@ TextExtractionEnabled:
       "HAVE(UIINTELLIGENCESUPPORT_FRAMEWORK)": true
       default: false
 
+TextExtractionFilterEnabled:
+  type: bool
+  status: internal
+  humanReadableName: "Text Extraction Filter"
+  humanReadableDescription: "Enable Text Extraction Filter"
+  webcoreBinding: none
+  exposed: [ WebKit ]
+  defaultValue:
+    WebKit:
+      "ENABLE(TEXT_EXTRACTION_FILTER)": true
+      default: false
+
 TextInteractionEnabled:
   type: bool
   status: embedder

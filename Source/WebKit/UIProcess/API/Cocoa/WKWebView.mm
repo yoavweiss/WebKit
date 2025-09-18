@@ -6590,14 +6590,15 @@ static inline std::optional<WebCore::NodeIdentifier> toNodeIdentifier(const Stri
 - (void)_requestTextExtraction:(_WKTextExtractionConfiguration *)configuration completionHandler:(void(^)(WKTextExtractionResult *))completionHandler
 {
 #if USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
-    if (!self._isValid || !_page->protectedPreferences()->textExtractionEnabled())
+    Ref preferences = _page->preferences();
+    if (!self._isValid || !preferences->textExtractionEnabled())
         return completionHandler(nil);
 
     auto rectInWebView = configuration.targetRect;
     bool mergeParagraphs = configuration.mergeParagraphs;
     bool canIncludeIdentifiers = configuration.canIncludeIdentifiers;
     bool skipNearlyTransparentContent = configuration.skipNearlyTransparentContent;
-    bool shouldFilterText = configuration.shouldFilterText;
+    bool shouldFilterText = configuration.shouldFilterText && preferences->textExtractionFilterEnabled();
     auto rectInRootView = [&]() -> std::optional<WebCore::FloatRect> {
         if (CGRectIsNull(rectInWebView))
             return std::nullopt;
@@ -6678,6 +6679,10 @@ static inline std::optional<WebCore::NodeIdentifier> toNodeIdentifier(const Stri
 
             completionHandler(description.createNSString().get(), nil);
         });
+
+        RefPtr page = weakPage.get();
+        if (!page || !page->protectedPreferences()->textExtractionFilterEnabled())
+            return;
 
 #if ENABLE(TEXT_EXTRACTION_FILTER)
         for (auto& string : stringsToValidate) {
