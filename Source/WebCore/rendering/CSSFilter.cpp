@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2011-2025 Apple Inc. All rights reserved.
  * Copyright (C) 2013 Google Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -109,25 +109,16 @@ static RefPtr<FilterEffect> createBlurEffect(const BlurFilterOperation& blurOper
 
 static RefPtr<FilterEffect> createBrightnessEffect(const BasicComponentTransferFilterOperation& componentTransferOperation)
 {
-    ComponentTransferFunction transferFunction;
-    transferFunction.type = ComponentTransferType::FECOMPONENTTRANSFER_TYPE_LINEAR;
-    transferFunction.slope = narrowPrecisionToFloat(componentTransferOperation.amount());
-    transferFunction.intercept = 0;
-
-    ComponentTransferFunction nullFunction;
-    return FEComponentTransfer::create(transferFunction, transferFunction, transferFunction, nullFunction);
+    float amount = narrowPrecisionToFloat(componentTransferOperation.amount());
+    ColorMatrix<5, 4> brightnessMatrix = brightnessColorMatrix(amount);
+    return FEColorMatrix::create(ColorMatrixType::FECOLORMATRIX_TYPE_MATRIX, brightnessMatrix.data());
 }
 
 static RefPtr<FilterEffect> createContrastEffect(const BasicComponentTransferFilterOperation& componentTransferOperation)
 {
-    ComponentTransferFunction transferFunction;
-    transferFunction.type = ComponentTransferType::FECOMPONENTTRANSFER_TYPE_LINEAR;
     float amount = narrowPrecisionToFloat(componentTransferOperation.amount());
-    transferFunction.slope = amount;
-    transferFunction.intercept = -0.5 * amount + 0.5;
-
-    ComponentTransferFunction nullFunction;
-    return FEComponentTransfer::create(transferFunction, transferFunction, transferFunction, nullFunction);
+    ColorMatrix<5, 4> contrastMatrix = contrastColorMatrix(amount);
+    return FEColorMatrix::create(ColorMatrixType::FECOLORMATRIX_TYPE_MATRIX, contrastMatrix.data());
 }
 
 static RefPtr<FilterEffect> createDropShadowEffect(const DropShadowFilterOperation& dropShadowOperation)
@@ -163,26 +154,16 @@ static RefPtr<FilterEffect> createHueRotateEffect(const BasicColorMatrixFilterOp
 
 static RefPtr<FilterEffect> createInvertEffect(const BasicComponentTransferFilterOperation& componentTransferOperation)
 {
-    ComponentTransferFunction transferFunction;
-    transferFunction.type = ComponentTransferType::FECOMPONENTTRANSFER_TYPE_LINEAR;
     float amount = narrowPrecisionToFloat(componentTransferOperation.amount());
-    transferFunction.slope = 1 - 2 * amount;
-    transferFunction.intercept = amount;
-
-    ComponentTransferFunction nullFunction;
-    return FEComponentTransfer::create(transferFunction, transferFunction, transferFunction, nullFunction);
+    ColorMatrix<5, 4> invertMatrix = invertColorMatrix(amount);
+    return FEColorMatrix::create(ColorMatrixType::FECOLORMATRIX_TYPE_MATRIX, invertMatrix.data());
 }
 
 static RefPtr<FilterEffect> createOpacityEffect(const BasicComponentTransferFilterOperation& componentTransferOperation)
 {
-    ComponentTransferFunction transferFunction;
-    transferFunction.type = ComponentTransferType::FECOMPONENTTRANSFER_TYPE_LINEAR;
     float amount = narrowPrecisionToFloat(componentTransferOperation.amount());
-    transferFunction.slope = amount;
-    transferFunction.intercept = 0;
-
-    ComponentTransferFunction nullFunction;
-    return FEComponentTransfer::create(nullFunction, nullFunction, nullFunction, transferFunction);
+    ColorMatrix<5, 4> opacityMatrix = opacityColorMatrix(amount);
+    return FEColorMatrix::create(ColorMatrixType::FECOLORMATRIX_TYPE_MATRIX, opacityMatrix.data());
 }
 
 static RefPtr<FilterEffect> createSaturateEffect(const BasicColorMatrixFilterOperation& colorMatrixOperation)
