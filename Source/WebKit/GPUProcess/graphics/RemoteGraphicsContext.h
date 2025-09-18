@@ -154,7 +154,7 @@ public:
     void applyDeviceScaleFactor(float);
     std::optional<WebKit::SharedPreferencesForWebProcess> sharedPreferencesForWebProcess() const;
 
-    void beginPage(const WebCore::IntSize& pageSize);
+    void beginPage(const WebCore::FloatRect&);
     void endPage();
 
     void setURLForRect(const URL&, const WebCore::FloatRect&);

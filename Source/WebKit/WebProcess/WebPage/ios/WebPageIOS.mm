@@ -5454,9 +5454,9 @@ void WebPage::drawToPDFiOS(FrameIdentifier frameID, const PrintInfo& printInfo, 
         return;
     }
 
-    RetainPtr<CFMutableDataRef> pdfPageData;
+    RefPtr<SharedBuffer> pdfPageData;
     drawPagesToPDFImpl(frameID, printInfo, 0, pageCount, pdfPageData);
-    reply(SharedBuffer::create(pdfPageData.get()));
+    reply(WTFMove(pdfPageData));
 
     endPrinting();
 }

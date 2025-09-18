@@ -570,10 +570,10 @@ void BifurcatedGraphicsContext::drawDotsForDocumentMarker(const FloatRect& rect,
     VERIFY_STATE_SYNCHRONIZATION();
 }
 
-void BifurcatedGraphicsContext::beginPage(const IntSize& pageSize)
+void BifurcatedGraphicsContext::beginPage(const FloatRect& pageRect)
 {
-    m_primaryContext.beginPage(pageSize);
-    m_secondaryContext.beginPage(pageSize);
+    m_primaryContext.beginPage(pageRect);
+    m_secondaryContext.beginPage(pageRect);
 
     VERIFY_STATE_SYNCHRONIZATION();
 }

@@ -1480,7 +1480,7 @@ void GraphicsContextCG::strokeEllipse(const FloatRect& ellipse)
     CGContextStrokeEllipseInRect(context, ellipse);
 }
 
-void GraphicsContextCG::beginPage(const IntSize& pageSize)
+void GraphicsContextCG::beginPage(const FloatRect& pageRect)
 {
     CGContextRef context = platformContext();
 
@@ -1489,7 +1489,7 @@ void GraphicsContextCG::beginPage(const IntSize& pageSize)
         return;
     }
 
-    auto mediaBox = CGRectMake(0, 0, pageSize.width(), pageSize.height());
+    auto mediaBox = CGRectMake(pageRect.x(), pageRect.y(), pageRect.width(), pageRect.height());
     auto mediaBoxData = adoptCF(CFDataCreate(nullptr, (const UInt8 *)&mediaBox, sizeof(CGRect)));
 
     const void* key = kCGPDFContextMediaBox;

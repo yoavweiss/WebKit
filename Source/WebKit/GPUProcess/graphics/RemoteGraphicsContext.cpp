@@ -688,9 +688,9 @@ void RemoteGraphicsContext::applyDeviceScaleFactor(float scaleFactor)
     context().applyDeviceScaleFactor(scaleFactor);
 }
 
-void RemoteGraphicsContext::beginPage(const IntSize& pageSize)
+void RemoteGraphicsContext::beginPage(const FloatRect& pageRect)
 {
-    context().beginPage(pageSize);
+    context().beginPage(pageRect);
 }
 
 void RemoteGraphicsContext::endPage()

@@ -1363,7 +1363,9 @@ public:
     void drawRectToImageDuringDOMPrintOperation(WebCore::FrameIdentifier frameID, const PrintInfo& printInfo, const WebCore::IntRect& rect, const WebCore::IntSize& imageSize, CompletionHandler<void(std::optional<WebCore::ShareableBitmap::Handle>&&)>&& completionHandler) { drawRectToImage(frameID, printInfo, rect, imageSize, WTFMove(completionHandler)); }
     void drawPagesToPDF(WebCore::FrameIdentifier, const PrintInfo&, uint32_t first, uint32_t count, CompletionHandler<void(RefPtr<WebCore::SharedBuffer>&&)>&&);
     void drawPagesToPDFDuringDOMPrintOperation(WebCore::FrameIdentifier frameID, const PrintInfo& printInfo, uint32_t first, uint32_t count, CompletionHandler<void(RefPtr<WebCore::SharedBuffer>&&)>&& completionHandler) { drawPagesToPDF(frameID, printInfo, first, count, WTFMove(completionHandler)); }
-    void drawPagesToPDFImpl(WebCore::FrameIdentifier, const PrintInfo&, uint32_t first, uint32_t count, RetainPtr<CFMutableDataRef>& pdfPageData);
+    void drawPagesToPDFImpl(WebCore::FrameIdentifier, const PrintInfo&, uint32_t first, uint32_t count, RefPtr<WebCore::SharedBuffer>& pdfPageData);
+
+    void drawPrintContextPagesToGraphicsContext(WebCore::GraphicsContext&, const WebCore::FloatRect& pageRect, uint32_t first, uint32_t count);
 #endif
 
 #if PLATFORM(IOS_FAMILY)
@@ -2328,7 +2330,7 @@ private:
     RetainPtr<PDFDocument> pdfDocumentForPrintingFrame(WebCore::LocalFrame*);
     void computePagesForPrintingPDFDocument(WebCore::FrameIdentifier, const PrintInfo&, Vector<WebCore::IntRect>& resultPageRects);
     void drawPDFDocument(CGContextRef, PDFDocument *, const PrintInfo&, const WebCore::IntRect&);
-    void drawPagesToPDFFromPDFDocument(CGContextRef, PDFDocument *, const PrintInfo&, uint32_t first, uint32_t count);
+    void drawPagesToPDFFromPDFDocument(WebCore::GraphicsContext&, PDFDocument *, const PrintInfo&, const WebCore::FloatRect&, uint32_t first, uint32_t count);
 #endif
 
     void endPrintingImmediately();

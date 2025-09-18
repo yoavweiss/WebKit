@@ -424,10 +424,10 @@ void RecorderImpl::applyDeviceScaleFactor(float scaleFactor)
     m_items.append(ApplyDeviceScaleFactor(scaleFactor));
 }
 
-void RecorderImpl::beginPage(const IntSize& pageSize)
+void RecorderImpl::beginPage(const FloatRect& pageRect)
 {
     appendStateChangeItemIfNecessary();
-    m_items.append(BeginPage({ pageSize }));
+    m_items.append(BeginPage({ pageRect }));
 }
 
 void RecorderImpl::endPage()

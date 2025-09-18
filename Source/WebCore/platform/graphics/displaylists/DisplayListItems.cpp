@@ -728,12 +728,12 @@ void ApplyDeviceScaleFactor::dump(TextStream& ts, OptionSet<AsTextFlag>) const
 
 void BeginPage::apply(GraphicsContext& context) const
 {
-    context.beginPage(m_pageSize);
+    context.beginPage(m_pageRect);
 }
 
 void BeginPage::dump(TextStream& ts, OptionSet<AsTextFlag>) const
 {
-    ts.dumpProperty("page-size"_s, pageSize());
+    ts.dumpProperty("page-rect"_s, pageRect());
 }
 
 void EndPage::apply(GraphicsContext& context) const

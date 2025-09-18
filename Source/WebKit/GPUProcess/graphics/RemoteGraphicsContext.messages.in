@@ -128,7 +128,7 @@ messages -> RemoteGraphicsContext Stream {
 #endif
     ApplyDeviceScaleFactor(float scaleFactor)
 
-    BeginPage(WebCore::IntSize pageSize)
+    BeginPage(WebCore::FloatRect pageRect)
     EndPage()
     SetURLForRect(URL link, WebCore::FloatRect destRect)
 

@@ -610,7 +610,7 @@ void WebPage::pdfSnapshotAtSize(LocalFrame& localMainFrame, GraphicsContext& con
         rect.setHeight(bitmapSize.height());
         rect.setY(nextRectY);
 
-        context.beginPage(bitmapSize);
+        context.beginPage(FloatRect { { }, bitmapSize });
         context.scale({ 1, -1 });
         context.translate(0, -bitmapSize.height());
 
@@ -1359,18 +1359,16 @@ void WebPage::drawPDFDocument(CGContextRef context, PDFDocument *pdfDocument, co
     }
 }
 
-void WebPage::drawPagesToPDFFromPDFDocument(CGContextRef context, PDFDocument *pdfDocument, const PrintInfo& printInfo, uint32_t first, uint32_t count)
+void WebPage::drawPagesToPDFFromPDFDocument(GraphicsContext& context, PDFDocument *pdfDocument, const PrintInfo& printInfo, const WebCore::FloatRect& mediaBox, uint32_t first, uint32_t count)
 {
     NSUInteger pageCount = [pdfDocument pageCount];
     for (uint32_t page = first; page < first + count; ++page) {
         if (page >= pageCount)
             break;
 
-        RetainPtr pageInfo = adoptCF(CFDictionaryCreateMutable(0, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
-
-        CGPDFContextBeginPage(context, pageInfo.get());
-        drawPDFPage(pdfDocument, page, context, printInfo.pageSetupScaleFactor, CGSizeMake(printInfo.availablePaperWidth, printInfo.availablePaperHeight));
-        CGPDFContextEndPage(context);
+        context.beginPage(mediaBox);
+        drawPDFPage(pdfDocument, page, context.platformContext(), printInfo.pageSetupScaleFactor, CGSizeMake(printInfo.availablePaperWidth, printInfo.availablePaperHeight));
+        context.endPage();
     }
 }
 
@@ -1386,7 +1384,7 @@ void WebPage::computePagesForPrintingPDFDocument(WebCore::FrameIdentifier, const
     notImplemented();
 }
 
-void WebPage::drawPagesToPDFFromPDFDocument(CGContextRef, PDFDocument *, const PrintInfo&, uint32_t, uint32_t)
+void WebPage::drawPagesToPDFFromPDFDocument(GraphicsContext&, PDFDocument *, const PrintInfo&, const WebCore::FloatRect&, uint32_t, uint32_t)
 {
     notImplemented();
 }

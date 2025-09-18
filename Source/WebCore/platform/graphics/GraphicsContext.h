@@ -351,7 +351,7 @@ public:
     WEBCORE_EXPORT FloatSize scaleFactorForDrawing(const FloatRect& destRect, const FloatRect& srcRect) const;
 
     // PDF, printing and snapshotting
-    virtual void beginPage(const IntSize&) { }
+    virtual void beginPage(const FloatRect&) { }
     virtual void endPage() { }
 
     // Links

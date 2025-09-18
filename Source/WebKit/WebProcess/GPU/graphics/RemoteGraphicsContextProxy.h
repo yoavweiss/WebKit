@@ -138,7 +138,7 @@ private:
 #endif
     void applyDeviceScaleFactor(float) final;
 
-    void beginPage(const WebCore::IntSize& pageSize) final;
+    void beginPage(const WebCore::FloatRect&) final;
     void endPage() final;
     void setURLForRect(const URL&, const WebCore::FloatRect&) final;
 

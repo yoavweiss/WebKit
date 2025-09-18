@@ -122,7 +122,7 @@ public:
 
     void drawDotsForDocumentMarker(const FloatRect&, DocumentMarkerLineStyle) final;
 
-    void beginPage(const IntSize& pageSize) final;
+    void beginPage(const FloatRect& pageRect) final;
     void endPage() final;
 
     void setURLForRect(const URL&, const FloatRect&) final;

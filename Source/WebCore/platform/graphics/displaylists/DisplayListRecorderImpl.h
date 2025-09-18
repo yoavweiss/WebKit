@@ -110,7 +110,7 @@ public:
 #endif
     void applyDeviceScaleFactor(float) final;
 
-    void beginPage(const IntSize&) final;
+    void beginPage(const FloatRect&) final;
     void endPage() final;
 
     void setURLForRect(const URL&, const FloatRect&) final;

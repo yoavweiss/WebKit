@@ -6727,53 +6727,55 @@ void WebPage::drawRectToImage(FrameIdentifier frameID, const PrintInfo& printInf
 void WebPage::drawPagesToPDF(FrameIdentifier frameID, const PrintInfo& printInfo, uint32_t first, uint32_t count, CompletionHandler<void(RefPtr<WebCore::SharedBuffer>&&)>&& callback)
 {
     PrintContextAccessScope scope { *this };
-    RetainPtr<CFMutableDataRef> pdfPageData;
+    RefPtr<SharedBuffer> pdfPageData;
     drawPagesToPDFImpl(frameID, printInfo, first, count, pdfPageData);
-    callback(SharedBuffer::create(pdfPageData.get()));
+    callback(WTFMove(pdfPageData));
 }
 
-void WebPage::drawPagesToPDFImpl(FrameIdentifier frameID, const PrintInfo& printInfo, uint32_t first, uint32_t count, RetainPtr<CFMutableDataRef>& pdfPageData)
+void WebPage::drawPagesToPDFImpl(FrameIdentifier frameID, const PrintInfo& printInfo, uint32_t first, uint32_t count, RefPtr<SharedBuffer>& pdfPageData)
 {
     RefPtr frame = WebProcess::singleton().webFrame(frameID);
     RefPtr coreFrame = frame ? frame->coreLocalFrame() : 0;
 
-    pdfPageData = adoptCF(CFDataCreateMutable(0, 0));
-
 #if USE(CG)
     if (coreFrame) {
         ASSERT(coreFrame->document()->printing() || pdfDocumentForPrintingFrame(coreFrame.get()));
-        // FIXME: Use CGDataConsumerCreate with callbacks to avoid copying the data.
-        RetainPtr<CGDataConsumerRef> pdfDataConsumer = adoptCF(CGDataConsumerCreateWithCFData(pdfPageData.get()));
 
-        CGRect mediaBox = (m_printContext && m_printContext->pageCount()) ? m_printContext->pageRect(0) : CGRectMake(0, 0, printInfo.availablePaperWidth, printInfo.availablePaperHeight);
+        FloatRect mediaBox = (m_printContext && m_printContext->pageCount()) ? m_printContext->pageRect(0) : FloatRect { 0, 0, printInfo.availablePaperWidth, printInfo.availablePaperHeight };
 
-        RetainPtr<CGContextRef> context = adoptCF(CGPDFContextCreate(pdfDataConsumer.get(), &mediaBox, 0));
+        RefPtr buffer = ImageBuffer::create(mediaBox.size(), RenderingMode::PDFDocument, RenderingPurpose::Snapshot, 1, DestinationColorSpace::SRGB(), PixelFormat::BGRA8);
+        if (!buffer)
+            return;
+        GraphicsContext& context = buffer->context();
 
         if (RetainPtr<PDFDocument> pdfDocument = pdfDocumentForPrintingFrame(coreFrame.get())) {
             ASSERT(!m_printContext);
-            drawPagesToPDFFromPDFDocument(context.get(), pdfDocument.get(), printInfo, first, count);
+            drawPagesToPDFFromPDFDocument(context, pdfDocument.get(), printInfo, mediaBox, first, count);
         } else {
             if (!m_printContext)
                 return;
 
-            for (uint32_t page = first; page < first + count; ++page) {
-                if (page >= m_printContext->pageCount())
-                    break;
-
-                RetainPtr<CFDictionaryRef> pageInfo = adoptCF(CFDictionaryCreateMutable(0, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
-                CGPDFContextBeginPage(context.get(), pageInfo.get());
-
-                GraphicsContextCG ctx(context.get());
-                ctx.scale(FloatSize(1, -1));
-                ctx.translate(0, -m_printContext->pageRect(page).height());
-                m_printContext->spoolPage(ctx, page, m_printContext->pageRect(page).width());
-
-                CGPDFContextEndPage(context.get());
-            }
+            drawPrintContextPagesToGraphicsContext(context, mediaBox, first, count);
         }
-        CGPDFContextClose(context.get());
+        pdfPageData = ImageBuffer::sinkIntoPDFDocument(WTFMove(buffer));
     }
 #endif
+}
+
+void WebPage::drawPrintContextPagesToGraphicsContext(GraphicsContext& context, const FloatRect& pageRect, uint32_t first, uint32_t count)
+{
+    for (uint32_t page = first; page < first + count; ++page) {
+        if (page >= m_printContext->pageCount())
+            break;
+
+        context.beginPage(pageRect);
+
+        context.scale(FloatSize(1, -1));
+        context.translate(0, -m_printContext->pageRect(page).height());
+        m_printContext->spoolPage(context, page, m_printContext->pageRect(page).width());
+
+        context.endPage();
+    }
 }
 
 #elif PLATFORM(GTK)
