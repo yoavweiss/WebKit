@@ -28,6 +28,7 @@
 
 #include "GridLayout.h"
 #include "LayoutChildIterator.h"
+#include "RenderStyleInlines.h"
 #include "StylePrimitiveNumeric.h"
 #include "UnplacedGridItem.h"
 
@@ -59,9 +60,25 @@ UnplacedGridItems GridFormattingContext::constructUnplacedGridItems() const
 
     std::ranges::stable_sort(gridItems, { }, &GridItem::order);
 
-    return gridItems.map([](const GridItem& gridItem) -> UnplacedGridItem {
-        return UnplacedGridItem { gridItem.layoutBox.get() };
-    });
+    UnplacedGridItems unplacedGridItems;
+    for (auto& gridItem : gridItems) {
+        CheckedRef gridItemStyle = gridItem.layoutBox->style();
+
+        auto gridItemColumnStart = gridItemStyle->gridItemColumnStart();
+        auto gridItemColumnEnd = gridItemStyle->gridItemColumnEnd();
+        auto gridItemRowStart = gridItemStyle->gridItemRowStart();
+        auto gridItemRowEnd = gridItemStyle->gridItemRowEnd();
+
+        if (!gridItemColumnStart.isExplicit() || !gridItemColumnEnd.isExplicit()
+            || !gridItemRowStart.isExplicit() || !gridItemRowEnd.isExplicit()) {
+            ASSERT_NOT_IMPLEMENTED_YET();
+            return { };
+        }
+
+        unplacedGridItems.nonAutoPositionedItems.constructAndAppend(gridItem.layoutBox, gridItemStyle->gridItemColumnStart(), gridItemStyle->gridItemColumnEnd(),
+    gridItemStyle->gridItemRowStart(), gridItemStyle->gridItemRowEnd());
+    }
+    return unplacedGridItems;
 }
 
 void GridFormattingContext::layout(GridLayoutConstraints layoutConstraints)

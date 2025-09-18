@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "LayoutState.h"
 #include "LayoutUnit.h"
 #include <wtf/CheckedRef.h>
 
@@ -32,10 +33,9 @@ namespace WebCore {
 namespace Layout {
 
 class ElementBox;
-class LayoutState;
 
 class UnplacedGridItem;
-using UnplacedGridItems = Vector<UnplacedGridItem>;
+struct UnplacedGridItems;
 
 class GridFormattingContext : public CanMakeCheckedPtr<GridFormattingContext> {
     WTF_MAKE_TZONE_OR_ISO_ALLOCATED(GridFormattingContext);
@@ -50,6 +50,9 @@ public:
     GridFormattingContext(const ElementBox& gridBox, LayoutState&);
 
     void layout(GridLayoutConstraints);
+
+    const ElementBox& root() const { return m_gridBox; }
+
 private:
     UnplacedGridItems constructUnplacedGridItems() const;
 

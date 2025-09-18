@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,17 +25,42 @@
 
 #pragma once
 
-#include "LayoutElementBox.h"
 #include "StyleGridPosition.h"
 
 namespace WebCore {
 namespace Layout {
 
-class UnplacedGridItem {
+class ElementBox;
+
+class UnplacedGridItem : public CanMakeCheckedPtr<UnplacedGridItem> {
+    WTF_MAKE_TZONE_OR_ISO_ALLOCATED(UnplacedGridItem);
+    WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(UnplacedGridItem);
 public:
-    UnplacedGridItem(const ElementBox&);
+    UnplacedGridItem(const ElementBox&, Style::GridPosition columnStart, Style::GridPosition columnEnd, Style::GridPosition rowStart, Style::GridPosition rowEnd);
+
+    // The grammar for <grid-line>, which is used by the grid-{column, row}-{start-end}
+    // placement properties is 1-index in regards to line numbers. To allow for easy
+    // indexing from these line numbers into our structures we subtract 1 from them
+    // into these helper functions to make them 0-index. For example, grid-column-start: 1
+    // and grid-column-end: 2 would make to [0, 1] and place the grid item into
+    // Grid[rowIndex][0].
+    int explicitColumnStart() const;
+    int explicitColumnEnd() const;
+    int explicitRowStart() const;
+    int explicitRowEnd() const;
+
 private:
     const CheckedRef<const ElementBox> m_layoutBox;
+
+    // https://drafts.csswg.org/css-grid-1/#typedef-grid-row-start-grid-line
+    std::pair<Style::GridPosition, Style::GridPosition> m_columnPosition;
+    std::pair<Style::GridPosition, Style::GridPosition> m_rowPosition;
+
+    friend class PlacedGridItem;
+};
+
+struct UnplacedGridItems {
+    Vector<UnplacedGridItem> nonAutoPositionedItems;
 };
 
 }

@@ -28,17 +28,26 @@
 #include "GridFormattingContext.h"
 
 namespace WebCore {
+class RenderStyle;
+
 namespace Layout {
 
+class PlacedGridItem;
 class UnplacedGridItem;
-using UnplacedGridItems = Vector<UnplacedGridItem>;
+struct UnplacedGridItems;
 
 class GridLayout {
 public:
     GridLayout(const GridFormattingContext&);
 
-    void layout(GridFormattingContext::GridLayoutConstraints, UnplacedGridItems);
+    void layout(GridFormattingContext::GridLayoutConstraints, const UnplacedGridItems&);
 private:
+    using PlacedGridItems = Vector<PlacedGridItem>;
+    static PlacedGridItems placeGridItems(const UnplacedGridItems&, size_t gridTemplateColumnsTracksCount, size_t gridTemplateRowsTracksCount);
+
+    const ElementBox& gridContainer() const;
+    const RenderStyle& gridContainerStyle() const;
+
     const CheckedRef<const GridFormattingContext> m_gridFormattingContext;
 };
 

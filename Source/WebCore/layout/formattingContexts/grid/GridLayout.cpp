@@ -26,6 +26,12 @@
 #include "config.h"
 #include "GridLayout.h"
 
+#include "ImplicitGrid.h"
+#include "RenderStyleInlines.h"
+#include "LayoutElementBox.h"
+#include "UnplacedGridItem.h"
+#include <wtf/Vector.h>
+
 namespace WebCore {
 namespace Layout {
 GridLayout::GridLayout(const GridFormattingContext& gridFormattingContext)
@@ -33,6 +39,40 @@ GridLayout::GridLayout(const GridFormattingContext& gridFormattingContext)
 {
 }
 
-void GridLayout::layout(GridFormattingContext::GridLayoutConstraints, UnplacedGridItems) { }
+// https://drafts.csswg.org/css-grid-1/#layout-algorithm
+void GridLayout::layout(GridFormattingContext::GridLayoutConstraints, const UnplacedGridItems& unplacedGridItems)
+{
+    CheckedRef gridContainerStyle = this->gridContainerStyle();
+    auto& gridTemplateColumnsTrackSizes = gridContainerStyle->gridTemplateColumns().sizes;
+    auto& gridTemplateRowsTrackSizes = gridContainerStyle->gridTemplateRows().sizes;
+
+    // 1. Run the Grid Item Placement Algorithm to resolve the placement of all grid items in the grid.
+    auto placedGridItems = placeGridItems(unplacedGridItems, gridTemplateColumnsTrackSizes.size(), gridTemplateRowsTrackSizes.size());
+    UNUSED_VARIABLE(placedGridItems);
+}
+
+// 8.5. Grid Item Placement Algorithm.
+// https://drafts.csswg.org/css-grid-1/#auto-placement-algo
+GridLayout::PlacedGridItems GridLayout::placeGridItems(const UnplacedGridItems& unplacedGridItems, size_t gridTemplateColumnsTracksCount, size_t gridTemplateRowsTracksCount)
+{
+    ImplicitGrid implicitGrid(gridTemplateColumnsTracksCount, gridTemplateRowsTracksCount);
+
+    // 1. Position anything that’s not auto-positioned.
+    auto& nonAutoPositionedGridItems = unplacedGridItems.nonAutoPositionedItems;
+    for (CheckedRef nonAutoPositionedItem : nonAutoPositionedGridItems)
+        implicitGrid.insertUnplacedGridItem(nonAutoPositionedItem);
+    return implicitGrid.placedGridItems();
+}
+
+const ElementBox& GridLayout::gridContainer() const
+{
+    return m_gridFormattingContext->root();
+}
+
+const RenderStyle& GridLayout::gridContainerStyle() const
+{
+    return gridContainer().style();
+}
+
 } // namespace Layout
 } // namespace WebCore

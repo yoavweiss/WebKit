@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,9 +28,56 @@
 
 namespace WebCore {
 namespace Layout {
-UnplacedGridItem::UnplacedGridItem(const ElementBox& layoutBox)
+UnplacedGridItem::UnplacedGridItem(const ElementBox& layoutBox, Style::GridPosition columnStart, Style::GridPosition columnEnd,
+    Style::GridPosition rowStart, Style::GridPosition rowEnd)
     : m_layoutBox(layoutBox)
+    , m_columnPosition({ columnStart, columnEnd })
+    , m_rowPosition({ rowStart, rowEnd })
 {
+}
+
+int UnplacedGridItem::explicitColumnStart() const
+{
+    ASSERT(m_columnPosition.first.isExplicit());
+    auto explicitColumnStart = m_columnPosition.first.explicitPosition();
+    if (explicitColumnStart > 0)
+        return explicitColumnStart - 1;
+
+    ASSERT_NOT_IMPLEMENTED_YET();
+    return { };
+}
+
+int UnplacedGridItem::explicitColumnEnd() const
+{
+    ASSERT(m_columnPosition.second.isExplicit());
+    auto explicitColumnEnd = m_columnPosition.second.explicitPosition();
+    if (explicitColumnEnd > 0)
+        return explicitColumnEnd - 1;
+
+    ASSERT_NOT_IMPLEMENTED_YET();
+    return { };
+}
+
+int UnplacedGridItem::explicitRowStart() const
+{
+    ASSERT(m_rowPosition.first.isExplicit());
+    auto explicitRowStart = m_rowPosition.first.explicitPosition();
+    if (explicitRowStart > 0)
+        return explicitRowStart - 1;
+
+    ASSERT_NOT_IMPLEMENTED_YET();
+    return { };
+}
+
+int UnplacedGridItem::explicitRowEnd() const
+{
+    ASSERT(m_rowPosition.second.isExplicit());
+    auto explicitRowEnd = m_rowPosition.second.explicitPosition();
+    if (explicitRowEnd > 0)
+        return explicitRowEnd - 1;
+
+    ASSERT_NOT_IMPLEMENTED_YET();
+    return { };
 }
 
 } // namespace Layout
