@@ -1839,7 +1839,7 @@ void WebAutomationSession::setStorageAccessPermissionState(const Inspector::Prot
     auto frameID = webFrameIDForHandle(frameHandle, frameNotFound);
     ASYNC_FAIL_WITH_PREDEFINED_ERROR_IF(frameNotFound, FrameNotFound);
 
-    RefPtr frame = WebFrameProxy::webFrame(frameID);
+    RefPtr frame = frameID ? WebFrameProxy::webFrame(*frameID) : page->mainFrame();
     ASYNC_FAIL_WITH_PREDEFINED_ERROR_IF(!frame, FrameNotFound);
 
     Ref callbackAggregator = CallbackAggregator::create([callback = WTFMove(callback)] {
