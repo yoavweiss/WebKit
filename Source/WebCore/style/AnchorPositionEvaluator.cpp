@@ -738,7 +738,7 @@ CheckedPtr<RenderBoxModelObject> AnchorPositionEvaluator::findAnchorForAnchorFun
     bool isNewAnchorName = anchorPositionedState.anchorNames.add(resolvedAnchorName).isNewEntry;
 
     // If anchor resolution has progressed past FindAnchors, and we pick up a new anchor name, set the
-    // stage back to Initial. This restarts the resolution process to resolve newly added names.
+    // stage back to FindAnchors. This restarts the resolution process to resolve newly added names.
     if (isNewAnchorName)
         anchorPositionedState.stage = AnchorPositionResolutionStage::FindAnchors;
 
@@ -1230,7 +1230,9 @@ void AnchorPositionEvaluator::updateAnchorPositioningStatesAfterInterleavedLayou
 
     for (auto& elementAndState : anchorPositionedStates) {
         auto& state = *elementAndState.value;
-        if (state.stage == AnchorPositionResolutionStage::FindAnchors) {
+
+        switch (state.stage) {
+        case AnchorPositionResolutionStage::FindAnchors: {
             RefPtr element = elementAndState.key.first;
             if (elementAndState.key.second)
                 element = element->pseudoElementIfExists(*elementAndState.key.second);
@@ -1256,14 +1258,20 @@ void AnchorPositionEvaluator::updateAnchorPositioningStatesAfterInterleavedLayou
                 });
             }
             state.stage = renderer && renderer->style().usesAnchorFunctions() ? AnchorPositionResolutionStage::ResolveAnchorFunctions : AnchorPositionResolutionStage::Resolved;
-            continue;
+            break;
         }
-        if (state.stage == AnchorPositionResolutionStage::Resolved) {
+
+        case AnchorPositionResolutionStage::ResolveAnchorFunctions:
+        case AnchorPositionResolutionStage::Resolved:
             if (CheckedPtr anchored = elementAndState.key.first->renderer()) {
                 if (auto anchoredBox = dynamicDowncast<RenderBox>(anchored.get()))
                     AnchorPositionEvaluator::captureScrollSnapshots(*anchoredBox, false);
             }
             state.stage = AnchorPositionResolutionStage::Positioned;
+            break;
+
+        case AnchorPositionResolutionStage::Positioned:
+            break;
         }
     }
 }
@@ -1286,7 +1294,11 @@ void AnchorPositionEvaluator::updateAnchorPositionedStateForDefaultAnchorAndPosi
     if (shouldResolveDefaultAnchor) {
         // Always resolve the default anchor. Even if nothing is anchored to it we need it to compute the scroll compensation.
         auto resolvedDefaultAnchor = ResolvedScopedName::createFromScopedName(element, defaultAnchorName(style));
-        state->anchorNames.add(resolvedDefaultAnchor);
+        if (state->anchorNames.add(resolvedDefaultAnchor).isNewEntry) {
+            // If anchor resolution has progressed past FindAnchors, and we pick up a new anchor name, set the
+            // stage back to FindAnchors. This restarts the resolution process to resolve newly added names.
+            state->stage = AnchorPositionResolutionStage::FindAnchors;
+        }
     }
 }
 
