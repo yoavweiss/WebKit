@@ -38,7 +38,7 @@ namespace Layout {
 // implicit grid as exactly the explicit grid and allow placement to add implicit
 // tracks and grow the grid.
 ImplicitGrid::ImplicitGrid(size_t gridTemplateColumnsCount, size_t gridTemplateRowsCount)
-    : m_gridMatrix(Vector(gridTemplateRowsCount, Vector<CheckedPtr<const UnplacedGridItem>>(gridTemplateColumnsCount)))
+    : m_gridMatrix(Vector(gridTemplateRowsCount, Vector<std::optional<const UnplacedGridItem>>(gridTemplateColumnsCount)))
 {
 }
 
@@ -102,13 +102,13 @@ void ImplicitGrid::insertUnplacedGridItem(const UnplacedGridItem& unplacedGridIt
 
 PlacedGridItems ImplicitGrid::placedGridItems() const
 {
-    HashSet<CheckedRef<const UnplacedGridItem>> processedUnplacedGridItems;
+    HashSet<UnplacedGridItem> processedUnplacedGridItems;
     PlacedGridItems placedGridItems;
 
     for (size_t rowIndex = 0; rowIndex < m_gridMatrix.size(); ++rowIndex) {
         for (size_t columnIndex = 0; columnIndex < m_gridMatrix[rowIndex].size(); ++columnIndex) {
 
-            CheckedPtr unplacedGridItem = m_gridMatrix[rowIndex][columnIndex];
+            auto unplacedGridItem = m_gridMatrix[rowIndex][columnIndex];
             if (!unplacedGridItem || processedUnplacedGridItems.contains(*unplacedGridItem))
                 continue;
 

@@ -59,7 +59,7 @@ GridLayout::PlacedGridItems GridLayout::placeGridItems(const UnplacedGridItems& 
 
     // 1. Position anything that’s not auto-positioned.
     auto& nonAutoPositionedGridItems = unplacedGridItems.nonAutoPositionedItems;
-    for (CheckedRef nonAutoPositionedItem : nonAutoPositionedGridItems)
+    for (auto& nonAutoPositionedItem : nonAutoPositionedGridItems)
         implicitGrid.insertUnplacedGridItem(nonAutoPositionedItem);
     return implicitGrid.placedGridItems();
 }

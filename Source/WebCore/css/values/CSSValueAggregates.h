@@ -178,6 +178,8 @@ struct CustomIdentifier {
 };
 TextStream& operator<<(TextStream&, const CustomIdentifier&);
 
+void add(Hasher&, const CustomIdentifier&);
+
 template<CSSValueID C> TextStream& operator<<(TextStream& ts, const Constant<C>&)
 {
     return ts << nameLiteral(C);

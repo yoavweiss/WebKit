@@ -48,7 +48,7 @@ public:
     PlacedGridItems placedGridItems() const;
 
 private:
-    using GridMatrix = Vector<Vector<WTF::CheckedPtr<const UnplacedGridItem>>>;
+    using GridMatrix = Vector<Vector<std::optional<const UnplacedGridItem>>>;
     GridMatrix m_gridMatrix;
 };
 
