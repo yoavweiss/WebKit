@@ -818,7 +818,9 @@ void LocalFrame::injectUserScriptImmediately(DOMWrapperWorld& world, const UserS
     page->setHasInjectedUserScript();
     loader->client().willInjectUserScript(world);
 
+    WTFBeginSignpost(this, UserScript, "Loading user script: %u bytes, top frame only %d, doc start %d, %" PRIVATE_LOG_STRING, script.source().length(), script.injectedFrames() == UserContentInjectedFrames::InjectInTopFrameOnly, script.injectionTime() == UserScriptInjectionTime::DocumentStart, script.url().string().utf8().data());
     checkedScript()->evaluateInWorldIgnoringException(ScriptSourceCode(script.source(), JSC::SourceTaintedOrigin::Untainted, URL(script.url())), world);
+    WTFEndSignpost(this, UserScript);
 }
 
 RenderView* LocalFrame::contentRenderer() const
