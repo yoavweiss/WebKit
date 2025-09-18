@@ -244,8 +244,8 @@ struct AccessibilityTextOperation {
 
 enum class AccessibilityOrientation : uint8_t {
     Undefined,
-    Horizontal,
-    Vertical
+    Vertical,
+    Horizontal
 };
 
 enum class DidTimeout : bool { No, Yes };
@@ -955,6 +955,7 @@ public:
     // which inherently are horizontal or vertical.
     virtual std::optional<AccessibilityOrientation> explicitOrientation() const = 0;
     AccessibilityOrientation orientation() const;
+    std::optional<AccessibilityOrientation> defaultOrientation() const;
 
     virtual void increment() = 0;
     virtual void decrement() = 0;

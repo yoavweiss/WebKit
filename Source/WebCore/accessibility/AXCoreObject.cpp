@@ -932,6 +932,31 @@ bool AXCoreObject::selfOrAncestorLinkHasPopup() const
     return false;
 }
 
+std::optional<AccessibilityOrientation> AXCoreObject::defaultOrientation() const
+{
+    switch (role()) {
+    case AccessibilityRole::DescriptionList:
+    case AccessibilityRole::List:
+    case AccessibilityRole::ListBox:
+    case AccessibilityRole::Menu:
+    case AccessibilityRole::ScrollBar:
+    case AccessibilityRole::Tree:
+        return { AccessibilityOrientation::Vertical };
+    case AccessibilityRole::MenuBar:
+    case AccessibilityRole::Slider:
+    case AccessibilityRole::Splitter:
+    case AccessibilityRole::TabList:
+    case AccessibilityRole::Toolbar:
+        return { AccessibilityOrientation::Horizontal };
+    case AccessibilityRole::ComboBox:
+    case AccessibilityRole::RadioGroup:
+    case AccessibilityRole::TreeGrid:
+        return { AccessibilityOrientation::Undefined };
+    default:
+        return std::nullopt;
+    }
+}
+
 AccessibilityOrientation AXCoreObject::orientation() const
 {
     if (std::optional orientation = explicitOrientation())
@@ -940,14 +965,8 @@ AccessibilityOrientation AXCoreObject::orientation() const
     // In ARIA 1.1, the implicit value of aria-orientation changed from horizontal
     // to undefined on all roles that don't have their own role-specific values. In
     // addition, the implicit value of combobox became undefined.
-    if (isComboBox() || isRadioGroup() || isTreeGrid())
-        return AccessibilityOrientation::Undefined;
-
-    if (isScrollbar() || isList() || isListBox() || isMenu() || isTree())
-        return AccessibilityOrientation::Vertical;
-
-    if (isMenuBar() || isSplitter() || isTabList() || isToolbar() || isSlider())
-        return AccessibilityOrientation::Horizontal;
+    if (std::optional defaultOrientation = this->defaultOrientation())
+        return *defaultOrientation;
 
     // Lacking concrete evidence of orientation, horizontal means width > height. vertical is height > width;
     auto size = this->size();
