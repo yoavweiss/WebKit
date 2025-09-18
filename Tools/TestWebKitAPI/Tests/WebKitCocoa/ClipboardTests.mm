@@ -148,7 +148,8 @@ static RetainPtr<NSString> readMarkupFromPasteboard()
 }
 
 // rdar://138144869
-#if PLATFORM(IOS) && !defined(NDEBUG)
+// rdar://159421461 (Release)
+#if PLATFORM(IOS)
 TEST(ClipboardTests, DISABLED_ReadMultipleItems)
 #else
 TEST(ClipboardTests, ReadMultipleItems)

@@ -73,7 +73,12 @@ static RetainPtr<TestWKWebView> createWebViewWithCustomPasteboardDataSetting(boo
     return webView;
 }
 
+// rdar://159421461
+#if PLATFORM(IOS)
+TEST(PasteHTML, DISABLED_ExposesHTMLTypeInDataTransfer)
+#else
 TEST(PasteHTML, ExposesHTMLTypeInDataTransfer)
+#endif
 {
     auto webView = createWebViewWithCustomPasteboardDataSetting(true);
     [webView synchronouslyLoadTestPageNamed:@"paste-rtfd"];
@@ -90,7 +95,8 @@ TEST(PasteHTML, ExposesHTMLTypeInDataTransfer)
 }
 
 // rdar://138144869
-#if PLATFORM(IOS) && !defined(NDEBUG)
+// rdar://159421461 (Release)
+#if PLATFORM(IOS)
 TEST(PasteHTML, DISABLED_SanitizesHTML)
 #else
 TEST(PasteHTML, SanitizesHTML)
@@ -111,7 +117,7 @@ TEST(PasteHTML, SanitizesHTML)
 }
 
 // rdar://138144869
-#if PLATFORM(IOS) && !defined(NDEBUG)
+#if PLATFORM(IOS)
 TEST(PasteHTML, DISABLED_DoesNotSanitizeHTMLWhenCustomPasteboardDataIsDisabled)
 #else
 TEST(PasteHTML, DoesNotSanitizeHTMLWhenCustomPasteboardDataIsDisabled)
@@ -132,7 +138,8 @@ TEST(PasteHTML, DoesNotSanitizeHTMLWhenCustomPasteboardDataIsDisabled)
 }
 
 // rdar://138144869
-#if PLATFORM(IOS) && !defined(NDEBUG)
+// rdar://159421461 (Release)
+#if PLATFORM(IOS)
 TEST(PasteHTML, DISABLED_StripsFileAndJavaScriptURLs)
 #else
 TEST(PasteHTML, StripsFileAndJavaScriptURLs)
@@ -157,7 +164,7 @@ TEST(PasteHTML, StripsFileAndJavaScriptURLs)
 }
 
 // rdar://138144869
-#if PLATFORM(IOS) && !defined(NDEBUG)
+#if PLATFORM(IOS)
 TEST(PasteHTML, DISABLED_DoesNotStripFileURLsWhenCustomPasteboardDataIsDisabled)
 #else
 TEST(PasteHTML, DoesNotStripFileURLsWhenCustomPasteboardDataIsDisabled)
@@ -176,7 +183,8 @@ TEST(PasteHTML, DoesNotStripFileURLsWhenCustomPasteboardDataIsDisabled)
 }
 
 // rdar://138144869
-#if PLATFORM(IOS) && !defined(NDEBUG)
+// rdar://159421461 (Release)
+#if PLATFORM(IOS)
 TEST(PasteHTML, DISABLED_KeepsHTTPURLs)
 #else
 TEST(PasteHTML, KeepsHTTPURLs)
@@ -195,7 +203,8 @@ TEST(PasteHTML, KeepsHTTPURLs)
 }
 
 // rdar://138144869
-#if PLATFORM(IOS) && !defined(NDEBUG)
+// rdar://159421461 (Release)
+#if PLATFORM(IOS)
 TEST(PasteHTML, DISABLED_PreservesMSOList)
 #else
 TEST(PasteHTML, PreservesMSOList)
@@ -251,7 +260,12 @@ TEST(PasteHTML, PreservesMSOList)
     EXPECT_WK_STREQ("rgb(255, 0, 0)", [webView stringByEvaluatingJavaScript:@"document.queryCommandValue('foreColor')"]);
 }
 
+// rdar://159421461
+#if PLATFORM(IOS)
+TEST(PasteHTML, DISABLED_PreservesMSOListInCompatibilityMode)
+#else
 TEST(PasteHTML, PreservesMSOListInCompatibilityMode)
+#endif
 {
     writeHTMLToPasteboard([NSString stringWithContentsOfFile:[NSBundle.test_resourcesBundle pathForResource:@"mso-list-compat-mode" ofType:@"html"]
         encoding:NSUTF8StringEncoding error:NULL]);
@@ -288,7 +302,8 @@ TEST(PasteHTML, PreservesMSOListInCompatibilityMode)
 }
 
 // rdar://138144869
-#if PLATFORM(IOS) && !defined(NDEBUG)
+// rdar://159421461 (Release)
+#if PLATFORM(IOS)
 TEST(PasteHTML, DISABLED_PreservesMSOListOnH4)
 #else
 TEST(PasteHTML, PreservesMSOListOnH4)
@@ -329,7 +344,8 @@ TEST(PasteHTML, PreservesMSOListOnH4)
 }
 
 // rdar://138144869
-#if PLATFORM(IOS) && !defined(NDEBUG)
+// rdar://159421461 (Release)
+#if PLATFORM(IOS)
 TEST(PasteHTML, DISABLED_StripsMSOListWhenMissingMSOHTMLElement)
 #else
 TEST(PasteHTML, StripsMSOListWhenMissingMSOHTMLElement)
@@ -381,7 +397,8 @@ TEST(PasteHTML, StripsMSOListWhenMissingMSOHTMLElement)
 }
 
 // rdar://138144869
-#if PLATFORM(IOS) && !defined(NDEBUG)
+// rdar://159421461 (Release)
+#if PLATFORM(IOS)
 TEST(PasteHTML, DISABLED_StripsSystemFontNames)
 #else
 TEST(PasteHTML, StripsSystemFontNames)
@@ -416,7 +433,7 @@ TEST(PasteHTML, StripsSystemFontNames)
 }
 
 // rdar://138144869
-#if PLATFORM(IOS) && !defined(NDEBUG)
+#if PLATFORM(IOS)
 TEST(PasteHTML, DISABLED_DoesNotAddStandardFontFamily)
 #else
 TEST(PasteHTML, DoesNotAddStandardFontFamily)

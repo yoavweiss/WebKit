@@ -294,7 +294,7 @@ void SourceBufferPrivate::provideMediaData(TrackID trackID)
 
 void SourceBufferPrivate::provideMediaData(TrackBuffer& trackBuffer, TrackID trackID)
 {
-    if (isSeeking())
+    if (trackBuffer.needsReenqueueing() || isSeeking())
         return;
     RefPtr client = this->client();
     if (!client)
