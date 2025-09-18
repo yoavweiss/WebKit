@@ -8271,4 +8271,4 @@ webkit.org/b/298974 fast/forms/ios/keyboard-restoration-after-element-replacemen
 
 webkit.org/b/280234 imported/w3c/web-platform-tests/html/dom/idlharness.https.html [ Skip ]
 
-webkit.org/b/299110 [ Release ] webrtc/calling-peerconnection-once-closed.html? [ Pass Failure ]
+webkit.org/b/299110 webrtc/calling-peerconnection-once-closed.html? [ Pass Failure ]
