@@ -1089,7 +1089,7 @@ PlatformLayer* MediaPlayerPrivateRemote::platformLayer() const
 #if PLATFORM(COCOA)
     if (!m_videoLayer && m_layerHostingContext.contextID) {
         auto expandedVideoLayerSize = expandedIntSize(videoLayerSize());
-        m_videoLayer = createVideoLayerRemote(const_cast<MediaPlayerPrivateRemote*>(this), m_layerHostingContext.contextID, m_videoFullscreenGravity, expandedVideoLayerSize);
+        m_videoLayer = createVideoLayerRemote(const_cast<MediaPlayerPrivateRemote&>(*this), m_layerHostingContext.contextID, m_videoFullscreenGravity, expandedVideoLayerSize);
         m_videoLayerManager->setVideoLayer(m_videoLayer.get(), expandedVideoLayerSize);
     }
     return m_videoLayerManager->videoInlineLayer();
@@ -1570,16 +1570,14 @@ void MediaPlayerPrivateRemote::notifyActiveSourceBuffersChanged()
     connection().send(Messages::RemoteMediaPlayerProxy::NotifyActiveSourceBuffersChanged(), m_id);
 }
 
-#if PLATFORM(COCOA)
 bool MediaPlayerPrivateRemote::inVideoFullscreenOrPictureInPicture() const
 {
-#if ENABLE(VIDEO_PRESENTATION_MODE)
+#if PLATFORM(COCOA) && ENABLE(VIDEO_PRESENTATION_MODE)
     return !!m_videoLayerManager->videoFullscreenLayer();
 #else
     return false;
 #endif
 }
-#endif
 
 void MediaPlayerPrivateRemote::applicationWillResignActive()
 {
