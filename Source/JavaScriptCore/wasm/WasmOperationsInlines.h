@@ -270,7 +270,15 @@ inline EncodedJSValue arrayNewElem(JSWebAssemblyInstance* instance, uint32_t typ
     auto* array = JSWebAssemblyArray::tryCreate(vm, structure, arraySize);
     if (!array) [[unlikely]]
         return JSValue::encode(jsNull());
+#if ASSERT_ENABLED
+    array->setIsUnpopulated(true);
+    WTF::storeLoadFence();
+#endif
     instance->copyElementSegment(array, instance->module().moduleInformation().elements[elemSegmentIndex], offset, arraySize, array->span<uint64_t>().data());
+#if ASSERT_ENABLED
+    WTF::storeStoreFence();
+    array->setIsUnpopulated(false);
+#endif
     ASSERT(Wasm::isRefType(element->elementType));
     vm.writeBarrier(array);
     return JSValue::encode(array);
