@@ -286,6 +286,52 @@ IterationRecord iteratorDirect(JSGlobalObject* globalObject, JSValue object)
     return { object, object.get(globalObject, globalObject->vm().propertyNames->next) };
 }
 
+IterableValidationResult validateIterable(VM&, JSValue iterable, JSValue symbolIterator)
+{
+    if (!symbolIterator.isCallable()) [[unlikely]] {
+        if (iterable.isNumber())
+            return IterableValidationResult::NumberNotIterable;
+        if (iterable.isBoolean())
+            return IterableValidationResult::BooleanNotIterable;
+        if (iterable.isSymbol())
+            return IterableValidationResult::SymbolNotIterable;
+        if (iterable.isNull())
+            return IterableValidationResult::NullNotIterable;
+        if (iterable.isUndefined())
+            return IterableValidationResult::UndefinedNotIterable;
+        if (iterable.isObject())
+            return IterableValidationResult::ObjectNotIterable;
+        return IterableValidationResult::ValueNotIterable;
+    }
+
+    return IterableValidationResult::Valid;
+}
+
+
+ASCIILiteral getIteratorErrorMessage(IterableValidationResult result, JSValue iterable)
+{
+    switch (result) {
+    case IterableValidationResult::NullNotIterable:
+        return "null is not an object"_s;
+    case IterableValidationResult::UndefinedNotIterable:
+        return "undefined is not an object"_s;
+    case IterableValidationResult::NumberNotIterable:
+        return "number is not iterable"_s;
+    case IterableValidationResult::BooleanNotIterable:
+        return iterable.asBoolean() ? "true is not iterable"_s : "false is not iterable"_s;
+    case IterableValidationResult::SymbolNotIterable:
+        return "value is not iterable"_s;
+    case IterableValidationResult::ObjectNotIterable:
+        return "{} is not iterable"_s;
+    case IterableValidationResult::ValueNotIterable:
+        return "value is not iterable"_s;
+    case IterableValidationResult::Valid:
+        break;
+    }
+    RELEASE_ASSERT_NOT_REACHED();
+    return ""_s;
+}
+
 IterationMode getIterationMode(VM&, JSGlobalObject* globalObject, JSValue iterable, JSValue symbolIterator)
 {
     if (!isJSArray(iterable))
