@@ -34,6 +34,7 @@
 #include "DownloadProxyMap.h"
 #include "GPUProcessConnectionParameters.h"
 #include "GoToBackForwardItemParameters.h"
+#include "JavaScriptEvaluationResult.h"
 #include "LoadParameters.h"
 #include "Logging.h"
 #include "ModelProcessConnectionParameters.h"
@@ -699,10 +700,6 @@ void WebProcessProxy::shutDown()
     for (Ref page : mainPages())
         page->disconnectFramesFromPage();
 
-    for (Ref webUserContentControllerProxy : m_webUserContentControllerProxies)
-        webUserContentControllerProxy->removeProcess(*this);
-    m_webUserContentControllerProxies.clear();
-
     m_userInitiatedActionMap.clear();
 
     if (RefPtr webLockRegistry = m_webLockRegistry.get())
@@ -911,18 +908,6 @@ void WebProcessProxy::removeVisitedLinkStoreUser(VisitedLinkStore& visitedLinkSt
         m_visitedLinkStoresWithUsers.remove(it);
         visitedLinkStore.removeProcess(*this);
     }
-}
-
-void WebProcessProxy::addWebUserContentControllerProxy(WebUserContentControllerProxy& proxy)
-{
-    m_webUserContentControllerProxies.add(proxy);
-    proxy.addProcess(*this);
-}
-
-void WebProcessProxy::didDestroyWebUserContentControllerProxy(WebUserContentControllerProxy& proxy)
-{
-    ASSERT(m_webUserContentControllerProxies.contains(proxy));
-    m_webUserContentControllerProxies.remove(proxy);
 }
 
 static bool networkProcessWillCheckBlobFileAccess()
@@ -3132,6 +3117,22 @@ void WebProcessProxy::addSandboxExtensionForFile(const String& fileName, Sandbox
 void WebProcessProxy::clearSandboxExtensions()
 {
     m_fileSandboxExtensions.clear();
+}
+
+void WebProcessProxy::didPostMessage(WebPageProxyIdentifier pageID, UserContentControllerIdentifier identifier, FrameInfoData&& frameInfo, ScriptMessageHandlerIdentifier handlerID, JavaScriptEvaluationResult&& message, CompletionHandler<void(Expected<WebKit::JavaScriptEvaluationResult, String>&&)>&& completionHandler)
+{
+    RefPtr page = WebPageProxy::fromIdentifier(pageID);
+    if (!page)
+        return completionHandler(makeUnexpected(String()));
+    RefPtr controller = WebUserContentControllerProxy::get(identifier);
+    if (!controller)
+        return completionHandler(makeUnexpected(String()));
+    controller->didPostMessage(*page, WTFMove(frameInfo), handlerID, WTFMove(message), WTFMove(completionHandler));
+}
+
+void WebProcessProxy::didPostLegacySynchronousMessage(WebPageProxyIdentifier pageID, UserContentControllerIdentifier identifier, FrameInfoData&& frameInfo, ScriptMessageHandlerIdentifier handlerID, JavaScriptEvaluationResult&& message, CompletionHandler<void(Expected<JavaScriptEvaluationResult, String>&&)>&& completionHandler)
+{
+    didPostMessage(pageID, identifier, WTFMove(frameInfo), handlerID, WTFMove(message), WTFMove(completionHandler));
 }
 
 } // namespace WebKit

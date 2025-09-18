@@ -1680,7 +1680,6 @@
 		7C2413051AACFA9C00A58C15 /* _WKUserContentExtensionStoreInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 7C2413041AACFA9C00A58C15 /* _WKUserContentExtensionStoreInternal.h */; };
 		7C2413091AACFCB400A58C15 /* WKUserContentExtensionStoreRef.h in Headers */ = {isa = PBXBuildFile; fileRef = 7C2413071AACFCB400A58C15 /* WKUserContentExtensionStoreRef.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		7C361D731927FA360036A59D /* WebScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 7C361D701927FA360036A59D /* WebScriptMessageHandler.h */; };
-		7C361D79192803BD0036A59D /* WebUserContentControllerProxyMessages.h in Headers */ = {isa = PBXBuildFile; fileRef = 7C361D77192803BD0036A59D /* WebUserContentControllerProxyMessages.h */; };
 		7C3A06A81AAB903E009D74BA /* APIContentRuleListStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 7C3A06A61AAB903E009D74BA /* APIContentRuleListStore.h */; };
 		7C4694CA1A4B4EA100AD5845 /* WebPasteboardProxyMessages.h in Headers */ = {isa = PBXBuildFile; fileRef = 7C4694C81A4B4EA100AD5845 /* WebPasteboardProxyMessages.h */; };
 		7C4694D11A51E36800AD5845 /* WebPasteboardProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 7C4694CE1A51E36800AD5845 /* WebPasteboardProxy.h */; };
@@ -6830,9 +6829,6 @@
 		7C2413071AACFCB400A58C15 /* WKUserContentExtensionStoreRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKUserContentExtensionStoreRef.h; sourceTree = "<group>"; };
 		7C361D6F1927FA360036A59D /* WebScriptMessageHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebScriptMessageHandler.cpp; sourceTree = "<group>"; };
 		7C361D701927FA360036A59D /* WebScriptMessageHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebScriptMessageHandler.h; sourceTree = "<group>"; };
-		7C361D751928028B0036A59D /* WebUserContentControllerProxy.messages.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = WebUserContentControllerProxy.messages.in; sourceTree = "<group>"; };
-		7C361D76192803BD0036A59D /* WebUserContentControllerProxyMessageReceiver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebUserContentControllerProxyMessageReceiver.cpp; sourceTree = "<group>"; };
-		7C361D77192803BD0036A59D /* WebUserContentControllerProxyMessages.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebUserContentControllerProxyMessages.h; sourceTree = "<group>"; };
 		7C387433172F5615001BD88A /* PageBanner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PageBanner.cpp; sourceTree = "<group>"; };
 		7C3A06A51AAB903E009D74BA /* APIContentRuleListStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = APIContentRuleListStore.cpp; sourceTree = "<group>"; };
 		7C3A06A61AAB903E009D74BA /* APIContentRuleListStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APIContentRuleListStore.h; sourceTree = "<group>"; };
@@ -10053,7 +10049,6 @@
 				7C361D701927FA360036A59D /* WebScriptMessageHandler.h */,
 				1AAF089F192681D100B6390C /* WebUserContentControllerProxy.cpp */,
 				1AAF08A0192681D100B6390C /* WebUserContentControllerProxy.h */,
-				7C361D751928028B0036A59D /* WebUserContentControllerProxy.messages.in */,
 			);
 			path = UserContent;
 			sourceTree = "<group>";
@@ -16435,8 +16430,6 @@
 				515262BB1FB951310070E579 /* WebSWServerToContextConnectionMessages.h */,
 				1AAF08B519269E6D00B6390C /* WebUserContentControllerMessageReceiver.cpp */,
 				1AAF08B619269E6D00B6390C /* WebUserContentControllerMessages.h */,
-				7C361D76192803BD0036A59D /* WebUserContentControllerProxyMessageReceiver.cpp */,
-				7C361D77192803BD0036A59D /* WebUserContentControllerProxyMessages.h */,
 			);
 			name = "Derived Sources";
 			path = DerivedSources/WebKit;
@@ -18288,7 +18281,6 @@
 				7C065F2C1C8CD95F00C2D950 /* WebUserContentControllerDataTypes.h in Headers */,
 				1AAF08B819269E6D00B6390C /* WebUserContentControllerMessages.h in Headers */,
 				1AAF08A2192681D100B6390C /* WebUserContentControllerProxy.h in Headers */,
-				7C361D79192803BD0036A59D /* WebUserContentControllerProxyMessages.h in Headers */,
 				15739BBD1B42042D00D258C1 /* WebUserMediaClient.h in Headers */,
 				83EE575C1DB7D61100C74C50 /* WebValidationMessageClient.h in Headers */,
 				572FD44322265CE200A1ECC3 /* WebViewDidMoveToWindowObserver.h in Headers */,

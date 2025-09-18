@@ -934,4 +934,3 @@ WebSWContextManagerConnectionMessageReceiver.cpp
 WebSWServerConnectionMessageReceiver.cpp
 WebSWServerToContextConnectionMessageReceiver.cpp
 WebUserContentControllerMessageReceiver.cpp
-WebUserContentControllerProxyMessageReceiver.cpp

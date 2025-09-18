@@ -36,8 +36,8 @@
 #include "WebFrame.h"
 #include "WebPage.h"
 #include "WebProcess.h"
+#include "WebProcessProxyMessages.h"
 #include "WebUserContentControllerMessages.h"
-#include "WebUserContentControllerProxyMessages.h"
 #include <JavaScriptCore/APICast.h>
 #include <JavaScriptCore/JSContextRef.h>
 #include <JavaScriptCore/JSRetainPtr.h>
@@ -312,11 +312,11 @@ private:
         if (!message)
             return;
 
-        WebProcess::singleton().protectedParentProcessConnection()->sendWithAsyncReply(Messages::WebUserContentControllerProxy::DidPostMessage(webPage->webPageProxyIdentifier(), webFrame->info(), m_identifier, *message), [completionHandler = WTFMove(completionHandler), context](Expected<WebKit::JavaScriptEvaluationResult, String>&& result) {
+        WebProcess::singleton().protectedParentProcessConnection()->sendWithAsyncReply(Messages::WebProcessProxy::DidPostMessage(webPage->webPageProxyIdentifier(), m_controller->identifier(), webFrame->info(), m_identifier, *message), [completionHandler = WTFMove(completionHandler), context](Expected<WebKit::JavaScriptEvaluationResult, String>&& result) {
             if (!result)
                 return completionHandler(JSC::jsUndefined(), result.error());
             completionHandler(toJS(toJS(context.get()), result->toJS(context.get()).get()), { });
-        }, m_controller->identifier());
+        });
     }
 
     JSC::JSValue didPostLegacySynchronousMessage(WebCore::UserMessageHandler& handler, JSC::JSGlobalObject& globalObject, JSC::JSValue jsMessage) const override
@@ -338,7 +338,7 @@ private:
         if (!message)
             return JSC::jsUndefined();
 
-        auto sendResult = WebProcess::singleton().protectedParentProcessConnection()->sendSync(Messages::WebUserContentControllerProxy::DidPostLegacySynchronousMessage(webPage->webPageProxyIdentifier(), webFrame->info(), m_identifier, *message), m_controller->identifier());
+        auto sendResult = WebProcess::singleton().protectedParentProcessConnection()->sendSync(Messages::WebProcessProxy::DidPostLegacySynchronousMessage(webPage->webPageProxyIdentifier(), m_controller->identifier(), webFrame->info(), m_identifier, *message), 0);
         auto [result] = sendResult.takeReplyOr(makeUnexpected(String()));
         if (!result)
             return JSC::jsUndefined();

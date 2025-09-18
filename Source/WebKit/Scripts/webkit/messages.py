@@ -1708,7 +1708,7 @@ def generate_message_handler(receiver):
         result.append('    ASSERT(decoder.messageReceiverName() == IPC::ReceiverName::%s);\n' % (receiver.name))
         result.append('    switch (decoder.messageName()) {\n')
         for message in receiver.messages:
-            if message.reply_parameters is None:
+            if message.reply_parameters is None or message.has_attribute(SYNCHRONOUS_ATTRIBUTE):
                 continue
             result.append('    case IPC::MessageName::%s_%s: {\n' % (receiver.name, message.name))
             result.append('        auto arguments = decoder.decode<typename Messages::%s::%s::Arguments>();\n' % (receiver.name, message.name))

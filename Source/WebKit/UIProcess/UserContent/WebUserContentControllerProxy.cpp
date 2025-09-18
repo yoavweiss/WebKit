@@ -40,7 +40,6 @@
 #include "WebScriptMessageHandler.h"
 #include "WebUserContentControllerDataTypes.h"
 #include "WebUserContentControllerMessages.h"
-#include "WebUserContentControllerProxyMessages.h"
 #include <WebCore/SerializedScriptValue.h>
 #include <wtf/CheckedPtr.h>
 
@@ -84,10 +83,6 @@ WebUserContentControllerProxy::~WebUserContentControllerProxy()
     }
     
     webUserContentControllerProxies().remove(identifier());
-    for (Ref process : m_processes) {
-        process->removeMessageReceiver(Messages::WebUserContentControllerProxy::messageReceiverName(), identifier());
-        process->didDestroyWebUserContentControllerProxy(*this);
-    }
 #if ENABLE(CONTENT_EXTENSIONS)
     for (Ref process : m_networkProcesses)
         process->didDestroyWebUserContentControllerProxy(*this);
@@ -108,8 +103,7 @@ void WebUserContentControllerProxy::removeNetworkProcess(NetworkProcessProxy& pr
 
 void WebUserContentControllerProxy::addProcess(WebProcessProxy& webProcessProxy)
 {
-    if (m_processes.add(webProcessProxy).isNewEntry)
-        webProcessProxy.addMessageReceiver(Messages::WebUserContentControllerProxy::messageReceiverName(), identifier(), *this);
+    m_processes.add(webProcessProxy);
 }
 
 UserContentControllerParameters WebUserContentControllerProxy::parameters() const
@@ -152,14 +146,6 @@ Vector<std::pair<WebCompiledContentRuleListData, URL>> WebUserContentControllerP
     });
 }
 #endif
-
-void WebUserContentControllerProxy::removeProcess(WebProcessProxy& webProcessProxy)
-{
-    ASSERT(m_processes.contains(webProcessProxy));
-
-    m_processes.remove(webProcessProxy);
-    webProcessProxy.removeMessageReceiver(Messages::WebUserContentControllerProxy::messageReceiverName(), identifier());
-}
 
 void WebUserContentControllerProxy::addContentWorld(API::ContentWorld& world)
 {
@@ -341,7 +327,7 @@ bool WebUserContentControllerProxy::addUserScriptMessageHandler(WebScriptMessage
 
     addContentWorld(world);
 
-    m_scriptMessageHandlers.add(handler.identifier(), &handler);
+    m_scriptMessageHandlers.add(handler.identifier(), handler);
 
     for (Ref process : m_processes)
         process->send(Messages::WebUserContentController::AddUserScriptMessageHandlers({ { handler.identifier(), world->identifier(), handler.name() } }), identifier());
@@ -381,25 +367,12 @@ void WebUserContentControllerProxy::removeAllUserMessageHandlers()
     m_scriptMessageHandlers.clear();
 }
 
-void WebUserContentControllerProxy::didPostMessage(WebPageProxyIdentifier pageProxyID, FrameInfoData&& frameInfoData, ScriptMessageHandlerIdentifier messageHandlerID, JavaScriptEvaluationResult&& message, CompletionHandler<void(Expected<WebKit::JavaScriptEvaluationResult, String>&&)>&& reply) const
+void WebUserContentControllerProxy::didPostMessage(WebPageProxy& page, FrameInfoData&& frameInfoData, ScriptMessageHandlerIdentifier messageHandlerID, JavaScriptEvaluationResult&& message, CompletionHandler<void(Expected<WebKit::JavaScriptEvaluationResult, String>&&)>&& reply) const
 {
-    auto page = WebProcessProxy::webPage(pageProxyID);
-    if (!page)
-        return reply(makeUnexpected(String()));
-
-    if (!HashMap<ScriptMessageHandlerIdentifier, RefPtr<WebScriptMessageHandler>>::isValidKey(messageHandlerID))
-        return reply(makeUnexpected(String()));
-
-    RefPtr<WebScriptMessageHandler> handler = m_scriptMessageHandlers.get(messageHandlerID);
+    RefPtr handler = m_scriptMessageHandlers.get(messageHandlerID);
     if (!handler)
         return reply(makeUnexpected(String()));
-
-    handler->client().didPostMessage(*page, WTFMove(frameInfoData), handler->world(), WTFMove(message), WTFMove(reply));
-}
-
-void WebUserContentControllerProxy::didPostLegacySynchronousMessage(WebPageProxyIdentifier webPageProxyID, FrameInfoData&& frameInfoData, ScriptMessageHandlerIdentifier messageHandlerID, JavaScriptEvaluationResult&& message, CompletionHandler<void(Expected<JavaScriptEvaluationResult, String>&&)>&& reply) const
-{
-    didPostMessage(webPageProxyID, WTFMove(frameInfoData), messageHandlerID, WTFMove(message), WTFMove(reply));
+    handler->client().didPostMessage(page, WTFMove(frameInfoData), handler->world(), WTFMove(message), WTFMove(reply));
 }
 
 #if ENABLE(CONTENT_EXTENSIONS)

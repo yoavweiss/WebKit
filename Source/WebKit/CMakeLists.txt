@@ -316,8 +316,6 @@ set(WebKit_MESSAGES_IN_FILES
 
     UIProcess/Network/NetworkProcessProxy
 
-    UIProcess/UserContent/WebUserContentControllerProxy
-
     UIProcess/XR/PlatformXRSystem
 
     WebProcess/WebProcess
