@@ -4560,6 +4560,7 @@ class ReRunWebKitTests(RunWebKitTests):
     def runCommand(self, command):
         yield shell.TestNewStyle.runCommand(self, command)
 
+        yield self._addToLog('json', '\n')
         logText = self.log_observer.getStdout() + self.log_observer.getStderr()
         logTextJson = self.log_observer_json.getStdout()
 
@@ -4635,6 +4636,7 @@ class RunWebKitTestsWithoutChange(RunWebKitTests):
     def runCommand(self, command):
         yield shell.TestNewStyle.runCommand(self, command)
 
+        yield self._addToLog('json', '\n')
         logText = self.log_observer.getStdout() + self.log_observer.getStderr()
         logTextJson = self.log_observer_json.getStdout()
 
@@ -5092,6 +5094,7 @@ class RunWebKitTestsRepeatFailuresRedTree(RunWebKitTestsRedTree):
     @defer.inlineCallbacks
     def runCommand(self, command):
         yield shell.TestNewStyle.runCommand(self, command)
+        yield self._addToLog('json', '\n')
         logText = self.log_observer.getStdout() + self.log_observer.getStderr()
         logTextJson = self.log_observer_json.getStdout()
         with_change_repeat_failures_results = LayoutTestFailures.results_from_string(logTextJson)
@@ -5160,6 +5163,7 @@ class RunWebKitTestsRepeatFailuresWithoutChangeRedTree(RunWebKitTestsRedTree):
     @defer.inlineCallbacks
     def runCommand(self, command):
         yield shell.TestNewStyle.runCommand(self, command)
+        yield self._addToLog('json', '\n')
         logText = self.log_observer.getStdout() + self.log_observer.getStderr()
         logTextJson = self.log_observer_json.getStdout()
         without_change_repeat_failures_results = LayoutTestFailures.results_from_string(logTextJson)
