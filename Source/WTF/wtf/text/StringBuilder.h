@@ -60,7 +60,6 @@ public:
     void append(const String&);
     void append(StringView);
     void append(ASCIILiteral);
-    void append(CStringView);
     void append(const char*) = delete; // Pass ASCIILiteral or span instead.
     void append(char16_t);
     void append(LChar);
@@ -224,11 +223,6 @@ inline void StringBuilder::append(StringView string)
 }
 
 inline void StringBuilder::append(ASCIILiteral string)
-{
-    append(string.span8());
-}
-
-inline void StringBuilder::append(CStringView string)
 {
     append(string.span8());
 }

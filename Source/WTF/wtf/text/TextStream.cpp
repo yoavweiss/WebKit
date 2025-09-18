@@ -143,12 +143,6 @@ TextStream& TextStream::operator<<(ASCIILiteral string)
     return *this;
 }
 
-TextStream& TextStream::operator<<(CStringView string)
-{
-    m_text.append(string);
-    return *this;
-}
-
 TextStream& TextStream::operator<<(StringView string)
 {
     m_text.append(string);

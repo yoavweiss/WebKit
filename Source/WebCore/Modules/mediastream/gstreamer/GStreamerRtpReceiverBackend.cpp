@@ -75,8 +75,8 @@ RTCRtpParameters GStreamerRtpReceiverBackend::getParameters()
 
         auto media = gstStructureGetString(structure, "media"_s);
         auto encodingName = gstStructureGetString(structure, "encoding-name"_s);
-        if (!media.isEmpty() && !encodingName.isEmpty())
-            codec.mimeType = makeString(media, '/', encodingName.toString().convertToASCIILowercase());
+        if (media && encodingName)
+            codec.mimeType = makeString(media, '/', encodingName.convertToASCIILowercase());
 
         if (auto clockRate = gstStructureGet<uint64_t>(structure, "clock-rate"_s))
             codec.clockRate = *clockRate;

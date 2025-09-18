@@ -48,9 +48,8 @@ RefPtr<GStreamerVideoRTPPacketizer> GStreamerVideoRTPPacketizer::create(RefPtr<U
     GUniquePtr<GstStructure> codecParameters(gst_structure_copy(parameters));
     GST_DEBUG("Creating packetizer for codec: %" GST_PTR_FORMAT " and encoding parameters %" GST_PTR_FORMAT, codecParameters.get(), encodingParameters.get());
     String encoding;
-    auto encodingName = gstStructureGetString(codecParameters.get(), "encoding-name"_s);
-    if (encodingName)
-        encoding = encodingName.toString().convertToASCIILowercase();
+    if (auto encodingName = gstStructureGetString(codecParameters.get(), "encoding-name"_s))
+        encoding = encodingName.convertToASCIILowercase();
     else {
         GST_ERROR("encoding-name not found");
         return nullptr;
@@ -78,7 +77,7 @@ RefPtr<GStreamerVideoRTPPacketizer> GStreamerVideoRTPPacketizer::create(RefPtr<U
         VPCodecConfigurationRecord record;
         record.codecName = "vp09"_s;
         if (auto vp9Profile = gstStructureGetString(codecParameters.get(), "profile-id"_s)) {
-            if (auto profile = parseInteger<uint8_t>(vp9Profile.toString()))
+            if (auto profile = parseInteger<uint8_t>(vp9Profile))
                 record.profile = *profile;
         }
         codec = createVPCodecParametersString(record);

@@ -82,7 +82,6 @@ public:
     WTF_EXPORT_PRIVATE TextStream& operator<<(const String&);
     WTF_EXPORT_PRIVATE TextStream& operator<<(ASCIILiteral);
     WTF_EXPORT_PRIVATE TextStream& operator<<(StringView);
-    WTF_EXPORT_PRIVATE TextStream& operator<<(CStringView);
     WTF_EXPORT_PRIVATE TextStream& operator<<(const HexNumberBuffer&);
     WTF_EXPORT_PRIVATE TextStream& operator<<(const FormattedCSSNumber&);
     // Deprecated. Use the NumberRespectingIntegers FormattingFlag instead.
@@ -108,15 +107,6 @@ public:
 
     template<typename T>
     void dumpProperty(ASCIILiteral name, const T& value)
-    {
-        TextStream& ts = *this;
-        ts.startGroup();
-        ts << name << ' ' << value;
-        ts.endGroup();
-    }
-
-    template<typename T>
-    void dumpProperty(CStringView name, const T& value)
     {
         TextStream& ts = *this;
         ts.startGroup();

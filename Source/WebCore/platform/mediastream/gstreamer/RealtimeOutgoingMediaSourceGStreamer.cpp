@@ -433,7 +433,7 @@ void RealtimeOutgoingMediaSourceGStreamer::setParameters(GUniquePtr<GstStructure
         if (!rid)
             continue;
 
-        auto packetizer = getPacketizerForRid(rid.toString());
+        auto packetizer = getPacketizerForRid(rid);
         if (!packetizer)
             continue;
 
@@ -442,7 +442,7 @@ void RealtimeOutgoingMediaSourceGStreamer::setParameters(GUniquePtr<GstStructure
     m_parameters = WTFMove(parameters);
 }
 
-RefPtr<GStreamerRTPPacketizer> RealtimeOutgoingMediaSourceGStreamer::getPacketizerForRid(const String& rid)
+RefPtr<GStreamerRTPPacketizer> RealtimeOutgoingMediaSourceGStreamer::getPacketizerForRid(StringView rid)
 {
     for (auto& packetizer : m_packetizers) {
         if (packetizer->rtpStreamId() == rid)

@@ -585,7 +585,7 @@ uint32_t UniqueSSRCGenerator::generateSSRC()
     return std::numeric_limits<uint32_t>::max();
 }
 
-std::optional<int> payloadTypeForEncodingName(const String& encodingName)
+std::optional<int> payloadTypeForEncodingName(StringView encodingName)
 {
     static HashMap<String, int> staticPayloadTypes = {
         { "PCMU"_s, 0 },
@@ -593,8 +593,9 @@ std::optional<int> payloadTypeForEncodingName(const String& encodingName)
         { "G722"_s, 9 },
     };
 
-    if (staticPayloadTypes.contains(encodingName))
-        return staticPayloadTypes.get(encodingName);
+    const auto key = encodingName.toStringWithoutCopying();
+    if (staticPayloadTypes.contains(key))
+        return staticPayloadTypes.get(key);
     return { };
 }
 
@@ -617,7 +618,7 @@ GRefPtr<GstCaps> capsFromRtpCapabilities(const RTCRtpCapabilities& capabilities,
             gst_structure_set(codecStructure, "encoding-params", G_TYPE_STRING, makeString(*codec.channels).ascii().data(), nullptr);
 
         if (auto encodingName = gstStructureGetString(codecStructure, "encoding-name"_s)) {
-            if (auto payloadType = payloadTypeForEncodingName(encodingName.toString()))
+            if (auto payloadType = payloadTypeForEncodingName(encodingName))
                 gst_structure_set(codecStructure, "payload", G_TYPE_INT, *payloadType, nullptr);
         }
 
@@ -690,7 +691,7 @@ GRefPtr<GstCaps> capsFromSDPMedia(const GstSDPMedia* media)
                 "a-sendonly", "a-recvonly", "a-end-of-candidates", nullptr);
 
             if (auto name = gstStructureGetString(structure, "encoding-name"_s)) {
-                auto encodingName = name.toString().convertToASCIIUppercase();
+                auto encodingName = name.convertToASCIIUppercase();
                 gst_structure_set(structure, "encoding-name", G_TYPE_STRING, encodingName.ascii().data(), nullptr);
             }
 
@@ -1015,20 +1016,19 @@ GRefPtr<GstCaps> extractMidAndRidFromRTPBuffer(const GstMappedRtpBuffer& buffer,
         gst_sdp_media_attributes_to_caps(media, mediaCaps.get());
         auto s = gst_caps_get_structure(mediaCaps.get(), 0);
         for (int ii = 0; ii < gst_structure_n_fields(s); ii++) {
-            auto name = CStringView::unsafeFromUTF8(gst_structure_nth_field_name(s, ii));
-            auto nameAsString = name.toString();
-            if (!nameAsString.startsWith("extmap-"_s))
+            auto name = StringView::fromLatin1(gst_structure_nth_field_name(s, ii));
+            if (!name.startsWith("extmap-"_s))
                 continue;
 
             auto value = gstStructureGetString(s, name);
-            if (value == CStringView::unsafeFromUTF8(GST_RTP_HDREXT_BASE "sdes:mid")) {
-                auto id = parseInteger<uint8_t>(nameAsString.substring(7));
+            if (value == StringView::fromLatin1(GST_RTP_HDREXT_BASE "sdes:mid")) {
+                auto id = parseInteger<uint8_t>(name.substring(7));
                 if (!id) [[unlikely]]
                     continue;
                 if (*id && *id < 15)
                     midExtID = *id;
-            } else if (value == CStringView::unsafeFromUTF8(GST_RTP_HDREXT_BASE "sdes:rtp-stream-id")) {
-                auto id = parseInteger<uint8_t>(nameAsString.substring(7));
+            } else if (value == StringView::fromLatin1(GST_RTP_HDREXT_BASE "sdes:rtp-stream-id")) {
+                auto id = parseInteger<uint8_t>(name.substring(7));
                 if (!id) [[unlikely]]
                     continue;
                 if (*id && *id < 15)

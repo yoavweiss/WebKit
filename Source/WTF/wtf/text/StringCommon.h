@@ -37,7 +37,6 @@
 #include <wtf/UnalignedAccess.h>
 #include <wtf/text/ASCIIFastPath.h>
 #include <wtf/text/ASCIILiteral.h>
-#include <wtf/text/CStringView.h>
 
 namespace WTF {
 
@@ -134,10 +133,8 @@ template<typename StringClassA, typename StringClassB> bool equalIgnoringASCIICa
 
 template<typename CharacterType> bool equalLettersIgnoringASCIICase(std::span<const CharacterType>, std::span<const LChar> lowercaseLetters);
 template<typename CharacterType> bool equalLettersIgnoringASCIICase(std::span<const CharacterType>, ASCIILiteral);
-template<typename CharacterType> bool equalLettersIgnoringASCIICase(std::span<const CharacterType>, CStringView);
 
 template<typename StringClass> bool equalLettersIgnoringASCIICaseCommon(const StringClass&, ASCIILiteral);
-template<typename StringClass> bool equalLettersIgnoringASCIICaseCommon(const StringClass&, CStringView);
 
 bool equalIgnoringASCIICase(const char*, const char*);
 
@@ -794,11 +791,6 @@ template<typename CharacterType> inline bool equalLettersIgnoringASCIICase(std::
     return equalLettersIgnoringASCIICase(characters, lowercaseLetters.span8());
 }
 
-template<typename CharacterType> inline bool equalLettersIgnoringASCIICase(std::span<const CharacterType> characters, CStringView lowercaseLetters)
-{
-    return equalLettersIgnoringASCIICase(characters, lowercaseLetters.span8());
-}
-
 template<typename StringClass> bool inline hasPrefixWithLettersIgnoringASCIICaseCommon(const StringClass& string, std::span<const LChar> lowercaseLetters)
 {
 #if ASSERT_ENABLED
@@ -840,16 +832,6 @@ template<typename StringClass> inline bool startsWithLettersIgnoringASCIICaseCom
     return startsWithLettersIgnoringASCIICaseCommon(string, literal.span8());
 }
 
-template<typename StringClass> inline bool equalLettersIgnoringASCIICaseCommon(const StringClass& string, CStringView view)
-{
-    return equalLettersIgnoringASCIICaseCommon(string, view.span8());
-}
-
-template<typename StringClass> inline bool startsWithLettersIgnoringASCIICaseCommon(const StringClass& string, CStringView view)
-{
-    return startsWithLettersIgnoringASCIICaseCommon(string, view.span8());
-}
-
 inline bool equalIgnoringASCIICase(const char* a, const char* b)
 {
     return equalIgnoringASCIICase(unsafeSpan8(a), unsafeSpan8(b));
@@ -866,31 +848,6 @@ inline bool equalIgnoringASCIICase(const char* string, ASCIILiteral literal)
 }
 
 inline bool equalIgnoringASCIICase(ASCIILiteral a, ASCIILiteral b)
-{
-    return equalIgnoringASCIICase(a.span8(), b.span8());
-}
-
-inline bool equalIgnoringASCIICase(const char* string, CStringView view)
-{
-    return equalIgnoringASCIICase(unsafeSpan8(string), view.span8());
-}
-
-inline bool equalIgnoringASCIICase(CStringView a, CStringView b)
-{
-    return equalIgnoringASCIICase(a.span8(), b.span8());
-}
-
-inline bool equalLettersIgnoringASCIICase(CStringView a, ASCIILiteral b)
-{
-    return equalLettersIgnoringASCIICase(a.span8(), b.span8());
-}
-
-inline bool equalIgnoringASCIICase(CStringView a, ASCIILiteral b)
-{
-    return equalIgnoringASCIICase(a.span8(), b.span8());
-}
-
-inline bool equalIgnoringASCIICase(ASCIILiteral a, CStringView b)
 {
     return equalIgnoringASCIICase(a.span8(), b.span8());
 }
