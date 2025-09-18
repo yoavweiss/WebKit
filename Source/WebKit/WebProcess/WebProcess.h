@@ -323,8 +323,10 @@ public:
     ModelProcessConnection* existingModelProcessConnection() { return m_modelProcessConnection.get(); }
 #endif // ENABLE(MODEL_PROCESS)
 
+#if USE(LIBWEBRTC)
     LibWebRTCNetwork& libWebRTCNetwork();
     Ref<LibWebRTCNetwork> protectedLibWebRTCNetwork();
+#endif
 
     void setCacheModel(CacheModel);
 
@@ -826,7 +828,9 @@ private:
     const Ref<WebCookieJar> m_cookieJar;
     WebSocketChannelManager m_webSocketChannelManager;
 
+#if USE(LIBWEBRTC)
     const std::unique_ptr<LibWebRTCNetwork> m_libWebRTCNetwork;
+#endif
 
     HashSet<String> m_dnsPrefetchedHosts;
     PAL::HysteresisActivity m_dnsPrefetchHystereris;
