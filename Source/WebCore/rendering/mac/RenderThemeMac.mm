@@ -69,6 +69,7 @@
 #import <Carbon/Carbon.h>
 #import <Cocoa/Cocoa.h>
 #import <CoreServices/CoreServices.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <math.h>
 #import <pal/spi/cg/CoreGraphicsSPI.h>
 #import <pal/spi/mac/CoreUISPI.h>
@@ -1771,14 +1772,11 @@ static RefPtr<Icon> iconForAttachment(const String& fileName, const String& atta
 
     if (!attachmentType.isEmpty() && !equalLettersIgnoringASCIICase(attachmentType, "public.data"_s)) {
         if (equalLettersIgnoringASCIICase(attachmentType, "public.directory"_s) || equalLettersIgnoringASCIICase(attachmentType, "multipart/x-folder"_s) || equalLettersIgnoringASCIICase(attachmentType, "application/vnd.apple.folder"_s)) {
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-            auto type = kUTTypeFolder;
-ALLOW_DEPRECATED_DECLARATIONS_END
-            if (auto icon = Icon::createIconForUTI(type)) {
-                LOG_ATTACHMENT("-> Got icon for kUTTypeFolder");
+            if (auto icon = Icon::createIconForUTI(UTTypeFolder.identifier)) {
+                LOG_ATTACHMENT("-> Got icon for UTTypeFolder");
                 return icon;
             }
-            LOG_ATTACHMENT("-> No icon for kUTTypeFolder! Will fallback to filename or title...");
+            LOG_ATTACHMENT("-> No icon for UTTypeFolder! Will fallback to filename or title...");
         } else {
             String type;
             if (isDeclaredUTI(attachmentType))

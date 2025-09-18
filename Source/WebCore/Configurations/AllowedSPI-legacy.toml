@@ -783,7 +783,6 @@ symbols = [
     "_CFURLStorageSessionCopyCookieStorage",
     "_CFURLStorageSessionCreate",
     "_CFURLStorageSessionDisableCache",
-    "_UTCopyDeclaredTypeIdentifiers",
     "_kCFSystemVersionProductVersionKey",
     "_kCFURLCachePartitionKey",
     "_kCFURLConnectionPropertyShouldSniff",

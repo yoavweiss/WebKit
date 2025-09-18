@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2025 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,18 +28,14 @@
 DECLARE_SYSTEM_HEADER
 
 #if USE(APPLE_INTERNAL_SDK)
-#include <dirhelper_priv.h>
+#include <UniformTypeIdentifiers/UTTypePriv.h>
 #else
 
-WTF_EXTERN_C_BEGIN
-char *_get_user_dir_suffix();
-bool _set_user_dir_suffix(const char *user_dir_suffix);
-WTF_EXTERN_C_END
+@interface UTType ()
 
++ (void)_enumerateAllDeclaredTypesUsingBlock:(void (NS_NOESCAPE ^)(UTType *type, BOOL *stop))block;
+
+@property (readonly) NSOrderedSet<UTType *> *_parentTypes;
+
+@end
 #endif
-
-WTF_EXTERN_C_BEGIN
-
-void _CSCheckFixDisable();
-
-WTF_EXTERN_C_END

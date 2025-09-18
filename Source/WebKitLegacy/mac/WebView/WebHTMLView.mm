@@ -72,6 +72,7 @@
 #import "WebViewInternal.h"
 #import <JavaScriptCore/InitializeThreading.h>
 #import <QuartzCore/QuartzCore.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <WebCore/CSSStyleProperties.h>
 #import <WebCore/CachedImage.h>
 #import <WebCore/CachedResourceClient.h>
@@ -1201,10 +1202,8 @@ static NSControlStateValue kit(TriState state)
     if ([types containsObject:WebCore::legacyPDFPasteboardType()] && (fragment = [self _documentFragmentFromPasteboard:pasteboard forType:WebCore::legacyPDFPasteboardType() inContext:context subresources:0]))
         return fragment;
 
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-    if ([types containsObject:(NSString *)kUTTypePNG] && (fragment = [self _documentFragmentFromPasteboard:pasteboard forType:(NSString *)kUTTypePNG inContext:context subresources:0]))
+    if ([types containsObject:UTTypePNG.identifier] && (fragment = [self _documentFragmentFromPasteboard:pasteboard forType:UTTypePNG.identifier inContext:context subresources:0]))
         return fragment;
-ALLOW_DEPRECATED_DECLARATIONS_END
 
     if ([types containsObject:WebCore::legacyURLPasteboardType()] && (fragment = [self _documentFragmentFromPasteboard:pasteboard forType:WebCore::legacyURLPasteboardType() inContext:context subresources:0]))
         return fragment;
@@ -1966,7 +1965,7 @@ ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     static NeverDestroyed<RetainPtr<NSArray>> types = @[
         WebArchivePboardType, WebCore::legacyHTMLPasteboardType(), WebCore::legacyFilenamesPasteboardType(), WebCore::legacyTIFFPasteboardType(),
         WebCore::legacyPDFPasteboardType(), WebCore::legacyURLPasteboardType(), WebCore::legacyRTFDPasteboardType(), WebCore::legacyRTFPasteboardType(),
-        WebCore::legacyStringPasteboardType(), WebCore::legacyColorPasteboardType(), (NSString *)kUTTypePNG,
+        WebCore::legacyStringPasteboardType(), WebCore::legacyColorPasteboardType(), UTTypePNG.identifier,
     ];
 ALLOW_DEPRECATED_DECLARATIONS_END
     return types.get().get();
@@ -2351,10 +2350,8 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
         return [self _web_documentFragmentFromPasteboard:pasteboard pasteboardType:WebCore::legacyTIFFPasteboardType() imageMIMEType:@"image/tiff"];
     if ([pboardType isEqualToString:WebCore::legacyPDFPasteboardType()])
         return [self _web_documentFragmentFromPasteboard:pasteboard pasteboardType:WebCore::legacyPDFPasteboardType() imageMIMEType:@"application/pdf"];
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-    if ([pboardType isEqualToString:(NSString *)kUTTypePNG])
-        return [self _web_documentFragmentFromPasteboard:pasteboard pasteboardType:(NSString *)kUTTypePNG imageMIMEType:@"image/png"];
-ALLOW_DEPRECATED_DECLARATIONS_END
+    if ([pboardType isEqualToString:UTTypePNG.identifier])
+        return [self _web_documentFragmentFromPasteboard:pasteboard pasteboardType:UTTypePNG.identifier imageMIMEType:@"image/png"];
 
     if ([pboardType isEqualToString:WebCore::legacyURLPasteboardType()]) {
         NSURL *URL = [NSURL URLFromPasteboard:pasteboard];

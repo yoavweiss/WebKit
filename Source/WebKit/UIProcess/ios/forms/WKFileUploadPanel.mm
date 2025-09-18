@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2014-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -1286,7 +1286,7 @@ static RetainPtr<NSString> displayStringForDocumentsAtURLs(NSArray<NSURL *> *url
     }
 
     if (![mediaType conformsToType:UTTypeImage]) {
-        LOG_ERROR("WKFileUploadPanel: Unexpected media type. Expected image or video, got: %@", mediaType);
+        LOG_ERROR("WKFileUploadPanel: Unexpected media type. Expected image or video, got: %@", mediaType.identifier);
         ASSERT_NOT_REACHED();
         failureBlock();
         return;

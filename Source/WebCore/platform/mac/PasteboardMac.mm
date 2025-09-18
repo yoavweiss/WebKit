@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2006-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -41,6 +41,7 @@
 #import "SharedBuffer.h"
 #import "UTIUtilities.h"
 #import "WebNSAttributedStringExtras.h"
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <pal/spi/cg/CoreGraphicsSPI.h>
 #import <pal/spi/mac/HIServicesSPI.h>
 #import <wtf/MallocSpan.h>
@@ -48,6 +49,7 @@
 #import <wtf/RetainPtr.h>
 #import <wtf/StdLibExtras.h>
 #import <wtf/URL.h>
+#import <wtf/cocoa/TypeCastsCocoa.h>
 #import <wtf/text/StringBuilder.h>
 #import <wtf/unicode/CharacterNames.h>
 
@@ -143,10 +145,7 @@ void Pasteboard::write(const PasteboardWebContent& content)
         types.append(WebSmartPastePboardType);
     if (content.dataInWebArchiveFormat) {
         types.append(WebArchivePboardType);
-
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-        types.append(kUTTypeWebArchive);
-ALLOW_DEPRECATED_DECLARATIONS_END
+        types.append(UTTypeWebArchive.identifier);
     }
     if (content.dataInRTFDFormat)
         types.append(String(legacyRTFDPasteboardType()));
@@ -172,9 +171,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     if (content.dataInWebArchiveFormat) {
         m_changeCount = platformStrategies()->pasteboardStrategy()->setBufferForType(content.dataInWebArchiveFormat.get(), WebArchivePboardType, m_pasteboardName, context());
 
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-        m_changeCount = platformStrategies()->pasteboardStrategy()->setBufferForType(content.dataInWebArchiveFormat.get(), kUTTypeWebArchive, m_pasteboardName, context());
-ALLOW_DEPRECATED_DECLARATIONS_END
+        m_changeCount = platformStrategies()->pasteboardStrategy()->setBufferForType(content.dataInWebArchiveFormat.get(), UTTypeWebArchive.identifier, m_pasteboardName, context());
     }
     if (content.dataInRTFDFormat)
         m_changeCount = platformStrategies()->pasteboardStrategy()->setBufferForType(content.dataInRTFDFormat.get(), legacyRTFDPasteboardType(), m_pasteboardName, context());
@@ -283,20 +280,14 @@ void Pasteboard::write(const PasteboardImage& pasteboardImage)
     auto types = writableTypesForImage();
     if (pasteboardImage.dataInWebArchiveFormat) {
         types.append(WebArchivePboardType);
-
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-        types.append(kUTTypeWebArchive);
-ALLOW_DEPRECATED_DECLARATIONS_END
+        types.append(UTTypeWebArchive.identifier);
     }
 
     m_changeCount = writeURLForTypes(types, m_pasteboardName, pasteboardImage.url, context());
     m_changeCount = platformStrategies()->pasteboardStrategy()->setBufferForType(SharedBuffer::create(imageData).ptr(), legacyTIFFPasteboardType(), m_pasteboardName, context());
     if (auto archiveData = pasteboardImage.dataInWebArchiveFormat) {
         m_changeCount = platformStrategies()->pasteboardStrategy()->setBufferForType(archiveData.get(), WebArchivePboardType, m_pasteboardName, context());
-
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-        m_changeCount = platformStrategies()->pasteboardStrategy()->setBufferForType(archiveData.get(), kUTTypeWebArchive, m_pasteboardName, context());
-ALLOW_DEPRECATED_DECLARATIONS_END
+        m_changeCount = platformStrategies()->pasteboardStrategy()->setBufferForType(archiveData.get(), UTTypeWebArchive.identifier, m_pasteboardName, context());
     }
     if (!pasteboardImage.dataInHTMLFormat.isEmpty())
         m_changeCount = platformStrategies()->pasteboardStrategy()->setStringForType(pasteboardImage.dataInHTMLFormat, legacyHTMLPasteboardType(), m_pasteboardName, context());
@@ -474,14 +465,12 @@ void Pasteboard::read(PasteboardWebContentReader& reader, WebContentReadingPolic
         }
     }
 
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-    if (types.contains(String(kUTTypeWebArchive))) {
-        if (auto buffer = readBufferAtPreferredItemIndex(kUTTypeWebArchive, itemIndex, strategy.get(), m_pasteboardName, context())) {
+    if (types.contains(String(UTTypeWebArchive.identifier))) {
+        if (auto buffer = readBufferAtPreferredItemIndex(UTTypeWebArchive.identifier, itemIndex, strategy.get(), m_pasteboardName, context())) {
             if (m_changeCount != changeCount() || reader.readWebArchive(*buffer))
                 return;
         }
     }
-ALLOW_DEPRECATED_DECLARATIONS_END
 
     if (policy == WebContentReadingPolicy::AnyType && types.contains(String(legacyFilesPromisePasteboardType()))) {
         if (m_changeCount != changeCount() || reader.readFilePaths(m_promisedFilePaths))
@@ -539,16 +528,14 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         return;
 
     using ImageReadingInfo = std::tuple<String, ASCIILiteral>;
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     const std::array<ImageReadingInfo, 6> imageTypesToRead { {
         { String(legacyTIFFPasteboardType()), "image/tiff"_s },
         { String(NSPasteboardTypeTIFF), "image/tiff"_s },
         { String(legacyPDFPasteboardType()), "application/pdf"_s },
         { String(NSPasteboardTypePDF), "application/pdf"_s },
-        { String(kUTTypePNG), "image/png"_s },
-        { String(kUTTypeJPEG), "image/jpeg"_s }
+        { String(UTTypePNG.identifier), "image/png"_s },
+        { String(UTTypeJPEG.identifier), "image/jpeg"_s }
     } };
-ALLOW_DEPRECATED_DECLARATIONS_END
 
     auto tryToReadImage = [&] (const String& pasteboardType, ASCIILiteral mimeType) {
         if (!types.contains(pasteboardType))
@@ -592,13 +579,11 @@ ALLOW_DEPRECATED_DECLARATIONS_END
             return;
     }
 
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-    if (types.contains(String(kUTTypeUTF8PlainText))) {
-        String string = strategy->stringForType(kUTTypeUTF8PlainText, m_pasteboardName, context());
+    if (types.contains(String(UTTypeUTF8PlainText.identifier))) {
+        String string = strategy->stringForType(UTTypeUTF8PlainText.identifier, m_pasteboardName, context());
         if (m_changeCount != changeCount() || (!string.isNull() && reader.readPlainText(string)))
             return;
     }
-ALLOW_DEPRECATED_DECLARATIONS_END
 }
 
 bool Pasteboard::hasData()
@@ -702,8 +687,7 @@ void Pasteboard::writeString(const String& type, const String& data)
     const String& cocoaType = cocoaTypeFromHTMLClipboardType(type);
     String cocoaData = data;
 
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-    if (cocoaType == String(legacyURLPasteboardType()) || cocoaType == String(kUTTypeFileURL)) {
+    if (cocoaType == String(legacyURLPasteboardType()) || cocoaType == String(UTTypeFileURL.identifier)) {
         RetainPtr url = adoptNS([[NSURL alloc] initWithString:cocoaData.createNSString().get()]);
         if ([url isFileURL])
             return;
@@ -712,7 +696,6 @@ ALLOW_DEPRECATED_DECLARATIONS_BEGIN
 
         return;
     }
-ALLOW_DEPRECATED_DECLARATIONS_END
 
     if (!cocoaType.isEmpty()) {
         // everything else we know of goes on the pboard as a string
@@ -855,10 +838,8 @@ RefPtr<WebCore::SharedBuffer> Pasteboard::bufferConvertedToPasteboardType(const 
     if (pasteboardType != String(legacyTIFFPasteboardType()))
         return pasteboardBuffer.data;
 
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-    if (pasteboardBuffer.type == String(kUTTypeTIFF))
+    if (pasteboardBuffer.type == String(UTTypeTIFF.identifier))
         return pasteboardBuffer.data;
-ALLOW_DEPRECATED_DECLARATIONS_END
 
     auto sourceData = Ref { *pasteboardBuffer.data }->createCFData();
     auto sourceType = pasteboardBuffer.type.createCFString();
@@ -872,9 +853,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         return nullptr;
 
     auto data = adoptCF(CFDataCreateMutable(0, 0));
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-    auto destination = adoptCF(CGImageDestinationCreateWithData(data.get(), kUTTypeTIFF, 1, NULL));
-ALLOW_DEPRECATED_DECLARATIONS_END
+    auto destination = adoptCF(CGImageDestinationCreateWithData(data.get(), bridge_cast(UTTypeTIFF.identifier), 1, NULL));
     if (!destination)
         return nullptr;
 

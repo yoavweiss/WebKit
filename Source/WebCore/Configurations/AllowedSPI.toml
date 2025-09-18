@@ -65,3 +65,10 @@ symbols = [
     "CGDataProviderCreateWithCopyOfData",
 ]
 
+[[temporary-usage]]
+request = "rdar://159947920"
+cleanup = "rdar://159948141"
+selectors = [
+    { name = "_enumerateAllDeclaredTypesUsingBlock:", class = "UTType" },
+    { name = "_parentTypes", class = "UTType" },
+]

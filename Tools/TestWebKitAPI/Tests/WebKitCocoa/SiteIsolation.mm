@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Apple Inc. All rights reserved.
+ * Copyright (C) 2022-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -38,6 +38,7 @@
 #import "Utilities.h"
 #import "WKWebViewConfigurationExtras.h"
 #import "WKWebViewFindStringFindDelegate.h"
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <WebKit/WKFrameInfoPrivate.h>
 #import <WebKit/WKNavigationDelegatePrivate.h>
 #import <WebKit/WKNavigationPrivate.h>
@@ -1961,7 +1962,7 @@ TEST(SiteIsolation, PasteGIF)
     [webView waitForPendingMouseEvents];
 
     auto *data = [NSData dataWithContentsOfFile:[NSBundle.test_resourcesBundle pathForResource:@"sunset-in-cupertino-400px" ofType:@"gif"]];
-    writeImageDataToPasteboard((__bridge NSString *)kUTTypeGIF, data);
+    writeImageDataToPasteboard(UTTypeGIF.identifier, data);
     [webView paste:nil];
 
     [webView mouseEnterAtPoint:eventLocationInWindow];
@@ -5114,7 +5115,7 @@ TEST(SiteIsolation, DragAndDrop)
     [simulator runFrom:CGPointMake(100, 50) to:CGPointMake(100, 300)];
 
     NSArray *registeredTypes = [[simulator sourceItemProviders].firstObject registeredTypeIdentifiers];
-    EXPECT_WK_STREQ((__bridge NSString *)kUTTypeURL, [registeredTypes firstObject]);
+    EXPECT_WK_STREQ(UTTypeURL.identifier, [registeredTypes firstObject]);
 }
 #endif
 

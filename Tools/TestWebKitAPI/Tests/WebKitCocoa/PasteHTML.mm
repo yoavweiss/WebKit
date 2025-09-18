@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2018 Apple Inc. All rights reserved.
+ * Copyright (C) 2017-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,6 +29,7 @@
 
 #import "PlatformUtilities.h"
 #import "TestWKWebView.h"
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <WebCore/LegacyNSPasteboardTypes.h>
 #import <WebKit/WKPreferencesPrivate.h>
 #import <WebKit/WKPreferencesRefPrivate.h>
@@ -56,7 +57,7 @@ void writeHTMLToPasteboard(NSString *html)
 #else
 void writeHTMLToPasteboard(NSString *html)
 {
-    [[UIPasteboard generalPasteboard] setItems:@[@{ (__bridge NSString *)kUTTypeHTML : html}]];
+    [[UIPasteboard generalPasteboard] setItems:@[@{ UTTypeHTML.identifier : html }]];
 }
 #endif
 

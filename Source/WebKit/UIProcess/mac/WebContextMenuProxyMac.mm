@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2010-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -266,9 +266,8 @@ void WebContextMenuProxyMac::setupServicesMenu()
     bool hasControlledImage = m_context.controlledImage();
     bool isPDFAttachment = false;
     auto attachment = protectedPage()->attachmentForIdentifier(m_context.controlledImageAttachmentID());
-    if (attachment) {
+    if (attachment)
         isPDFAttachment = attachment->utiType() == String(UTTypePDF.identifier);
-    }
     NSArray *items = nil;
     RetainPtr<NSItemProvider> itemProvider;
     if (hasControlledImage) {
@@ -281,9 +280,7 @@ void WebContextMenuProxyMac::setupServicesMenu()
             RetainPtr cgImage = image->createPlatformImage(DontCopyBackingStore);
             auto nsImage = adoptNS([[NSImage alloc] initWithCGImage:cgImage.get() size:image->size()]);
 
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-            itemProvider = adoptNS([[NSItemProvider alloc] initWithItem:[nsImage TIFFRepresentation] typeIdentifier:(__bridge NSString *)kUTTypeTIFF]);
-ALLOW_DEPRECATED_DECLARATIONS_END
+            itemProvider = adoptNS([[NSItemProvider alloc] initWithItem:[nsImage TIFFRepresentation] typeIdentifier:UTTypeTIFF.identifier]);
         }
         items = @[ itemProvider.get() ];
         

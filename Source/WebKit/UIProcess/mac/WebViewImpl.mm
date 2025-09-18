@@ -87,6 +87,7 @@
 #import "_WKWarningView.h"
 #import "_WKWebViewTextInputNotifications.h"
 #import <Carbon/Carbon.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <WebCore/AXObjectCache.h>
 #import <WebCore/ActivityState.h>
 #import <WebCore/AttributedString.h>
@@ -4572,9 +4573,7 @@ void WebViewImpl::setPromisedDataForImage(WebCore::Image& image, NSString *filen
 
     if (archiveBuffer) {
         auto nsData = archiveBuffer->makeContiguous()->createNSData();
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-        [pasteboard setData:nsData.get() forType:(__bridge NSString *)kUTTypeWebArchive];
-ALLOW_DEPRECATED_DECLARATIONS_END
+        [pasteboard setData:nsData.get() forType:UTTypeWebArchive.identifier];
         [pasteboard setData:nsData.get() forType:PasteboardTypes::WebArchivePboardType];
     }
 
