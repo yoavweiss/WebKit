@@ -1322,7 +1322,6 @@ dom/NodeList.cpp
 dom/NodeRareData.cpp
 dom/NodeTraversal.cpp
 dom/Observable.cpp
-dom/OverflowEvent.cpp
 dom/PageRevealEvent.cpp
 dom/PageSwapEvent.cpp
 dom/PageTransitionEvent.cpp
@@ -4441,7 +4440,6 @@ JSOscillatorType.cpp
 JSOverSampleType.cpp
 JSOverconstrainedError.cpp
 JSOverconstrainedErrorEvent.cpp
-JSOverflowEvent.cpp
 JSPageRevealEvent.cpp
 JSPageSwapEvent.cpp
 JSPageTransitionEvent.cpp

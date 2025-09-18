@@ -176,7 +176,6 @@
     "online": { },
     "open": { },
     "orientationchange": { },
-    "overflowchanged": { },
     "pagehide": { },
     "pageshow": { },
     "pagereveal": { },
