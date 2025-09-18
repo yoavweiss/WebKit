@@ -58,17 +58,17 @@ RefPtr<NativeImage> RemoteResourceCache::cachedNativeImage(RenderingResourceIden
     return m_nativeImages.get(identifier);
 }
 
-bool RemoteResourceCache::cacheGradient(RemoteGradientIdentifier identifier, Ref<Gradient>&& gradient)
+bool RemoteResourceCache::cacheGradient(RenderingResourceIdentifier identifier, Ref<Gradient>&& gradient)
 {
     return m_gradients.add(identifier, WTFMove(gradient)).isNewEntry;
 }
 
-bool RemoteResourceCache::releaseGradient(RemoteGradientIdentifier identifier)
+bool RemoteResourceCache::releaseGradient(RenderingResourceIdentifier identifier)
 {
     return m_gradients.remove(identifier);
 }
 
-RefPtr<Gradient> RemoteResourceCache::cachedGradient(RemoteGradientIdentifier identifier) const
+RefPtr<Gradient> RemoteResourceCache::cachedGradient(RenderingResourceIdentifier identifier) const
 {
     return m_gradients.get(identifier);
 }

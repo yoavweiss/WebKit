@@ -438,12 +438,12 @@ void RemoteRenderingBackendProxy::releaseFontCustomPlatformData(RenderingResourc
     send(Messages::RemoteRenderingBackend::ReleaseFontCustomPlatformData(identifier));
 }
 
-void RemoteRenderingBackendProxy::cacheGradient(Ref<Gradient>&& gradient, RemoteGradientIdentifier identifier)
+void RemoteRenderingBackendProxy::cacheGradient(Ref<Gradient>&& gradient, RenderingResourceIdentifier identifier)
 {
     send(Messages::RemoteRenderingBackend::CacheGradient(WTFMove(gradient), identifier));
 }
 
-void RemoteRenderingBackendProxy::releaseGradient(RemoteGradientIdentifier identifier)
+void RemoteRenderingBackendProxy::releaseGradient(RenderingResourceIdentifier identifier)
 {
     if (!m_connection)
         return;

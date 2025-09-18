@@ -48,17 +48,12 @@ RemoteResourceCacheProxy::~RemoteResourceCacheProxy()
 {
 }
 
-RemoteGradientIdentifier RemoteResourceCacheProxy::recordGradientUse(Gradient& gradient)
+void RemoteResourceCacheProxy::recordGradientUse(Gradient& gradient)
 {
-    auto result = m_gradients.ensure(&gradient, [] {
-        return RemoteGradientIdentifier::generate();
-    });
-    auto identifier = result.iterator->value;
-    if (result.isNewEntry) {
+    if (m_gradients.add(gradient.renderingResourceIdentifier()).isNewEntry) {
         gradient.addObserver(m_resourceObserverWeakFactory.createWeakPtr(static_cast<RenderingResourceObserver&>(*this)).releaseNonNull());
-        m_remoteRenderingBackendProxy->cacheGradient(gradient, identifier);
+        m_remoteRenderingBackendProxy->cacheGradient(gradient, gradient.renderingResourceIdentifier());
     }
-    return identifier;
 }
 
 void RemoteResourceCacheProxy::recordFilterUse(Filter& filter)
@@ -171,11 +166,11 @@ void RemoteResourceCacheProxy::willDestroyNativeImage(RenderingResourceIdentifie
     m_remoteRenderingBackendProxy->releaseNativeImage(identifier);
 }
 
-void RemoteResourceCacheProxy::willDestroyGradient(const Gradient& gradient)
+void RemoteResourceCacheProxy::willDestroyGradient(RenderingResourceIdentifier identifier)
 {
-    auto identifier = m_gradients.take(&gradient);
-    RELEASE_ASSERT(identifier);
-    m_remoteRenderingBackendProxy->releaseGradient(*identifier);
+    bool removed = m_gradients.remove(identifier);
+    RELEASE_ASSERT(removed);
+    m_remoteRenderingBackendProxy->releaseGradient(identifier);
 }
 
 void RemoteResourceCacheProxy::willDestroyFilter(RenderingResourceIdentifier identifier)

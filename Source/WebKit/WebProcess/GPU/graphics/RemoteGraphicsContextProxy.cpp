@@ -691,17 +691,16 @@ bool RemoteGraphicsContextProxy::recordResourceUse(Font& font)
     return true;
 }
 
-std::optional<RemoteGradientIdentifier> RemoteGraphicsContextProxy::recordResourceUse(Gradient& gradient)
+bool RemoteGraphicsContextProxy::recordResourceUse(Gradient& gradient)
 {
-    if (gradient.isTransient())
-        return std::nullopt;
     RefPtr renderingBackend = m_renderingBackend.get();
     if (!renderingBackend) [[unlikely]] {
         ASSERT_NOT_REACHED();
-        return std::nullopt;
+        return false;
     }
 
-    return renderingBackend->remoteResourceCacheProxy().recordGradientUse(gradient);
+    renderingBackend->remoteResourceCacheProxy().recordGradientUse(gradient);
+    return true;
 }
 
 bool RemoteGraphicsContextProxy::recordResourceUse(Filter& filter)
@@ -768,9 +767,10 @@ void RemoteGraphicsContextProxy::appendStateChangeItemIfNecessary()
             recordResourceUse(pattern->tileImage());
             send(Messages::RemoteGraphicsContext::SetFillPattern(pattern->tileImage().imageIdentifier(), pattern->parameters()));
         } else if (RefPtr gradient = fillBrush.gradient()) {
-            if (auto identifier = recordResourceUse(*gradient))
-                send(Messages::RemoteGraphicsContext::SetFillCachedGradient(*identifier, fillBrush.gradientSpaceTransform()));
-            else
+            if (gradient->hasValidRenderingResourceIdentifier()) {
+                recordResourceUse(*gradient);
+                send(Messages::RemoteGraphicsContext::SetFillCachedGradient(gradient->renderingResourceIdentifier(), fillBrush.gradientSpaceTransform()));
+            } else
                 send(Messages::RemoteGraphicsContext::SetFillGradient(*gradient, fillBrush.gradientSpaceTransform()));
         } else
             send(Messages::RemoteGraphicsContext::SetFillColor(fillBrush.color()));
@@ -787,9 +787,10 @@ void RemoteGraphicsContextProxy::appendStateChangeItemIfNecessary()
             recordResourceUse(pattern->tileImage());
             send(Messages::RemoteGraphicsContext::SetStrokePattern(pattern->tileImage().imageIdentifier(), pattern->parameters()));
         } else if (RefPtr gradient = strokeBrush.gradient()) {
-            if (auto identifier = recordResourceUse(*gradient))
-                send(Messages::RemoteGraphicsContext::SetStrokeCachedGradient(*identifier, strokeBrush.gradientSpaceTransform()));
-            else
+            if (gradient->hasValidRenderingResourceIdentifier()) {
+                recordResourceUse(*gradient);
+                send(Messages::RemoteGraphicsContext::SetStrokeCachedGradient(gradient->renderingResourceIdentifier(), strokeBrush.gradientSpaceTransform()));
+            } else
                 send(Messages::RemoteGraphicsContext::SetStrokeGradient(*gradient, strokeBrush.gradientSpaceTransform()));
         } else
             send(Messages::RemoteGraphicsContext::SetStrokeColor(strokeBrush.color()));

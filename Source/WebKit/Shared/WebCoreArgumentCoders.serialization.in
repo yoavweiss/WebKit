@@ -3060,7 +3060,6 @@ class WebCore::TransformOperations {
     WebCore::ColorInterpolationMethod colorInterpolationMethod();
     WebCore::GradientSpreadMethod spreadMethod();
     WebCore::GradientColorStops stops();
-    bool isTransient();
 }
 
 header: <WebCore/Pattern.h>
