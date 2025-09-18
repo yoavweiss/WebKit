@@ -3344,7 +3344,7 @@ void WebViewImpl::toggleAutomaticTextReplacement()
 
 bool WebViewImpl::isSmartListsEnabled()
 {
-    if (!m_page->protectedPreferences()->smartListsEnabled() || !isEditable())
+    if (!m_page->protectedPreferences()->smartListsAvailable())
         return false;
 
     return TextChecker::state().contains(TextCheckerState::SmartListsEnabled);
@@ -3352,7 +3352,7 @@ bool WebViewImpl::isSmartListsEnabled()
 
 void WebViewImpl::setSmartListsEnabled(bool flag)
 {
-    if (!m_page->protectedPreferences()->smartListsEnabled() || !isEditable())
+    if (!m_page->protectedPreferences()->smartListsAvailable())
         return;
 
     if (flag == TextChecker::state().contains(TextCheckerState::SmartListsEnabled))
@@ -3364,7 +3364,7 @@ void WebViewImpl::setSmartListsEnabled(bool flag)
 
 void WebViewImpl::toggleSmartLists()
 {
-    if (!m_page->protectedPreferences()->smartListsEnabled() || !isEditable())
+    if (!m_page->protectedPreferences()->smartListsAvailable())
         return;
 
     TextChecker::setSmartListsEnabled(!TextChecker::state().contains(TextCheckerState::SmartListsEnabled));

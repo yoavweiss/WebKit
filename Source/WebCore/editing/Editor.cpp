@@ -1993,11 +1993,7 @@ void Editor::toggleAutomaticSpellingCorrection()
 void Editor::toggleSmartLists()
 {
     Ref document = this->document();
-    RefPtr page = document->page();
-    if (!page || !page->isEditable())
-        return;
-
-    if (!document->settings().smartListsEnabled())
+    if (!document->settings().smartListsAvailable())
         return;
 
     if (client())
@@ -2010,11 +2006,7 @@ void Editor::toggleSmartLists()
 bool Editor::isSmartListsEnabled()
 {
     Ref document = this->document();
-    RefPtr page = document->page();
-    if (!page || !page->isEditable())
-        return false;
-
-    if (!document->settings().smartListsEnabled())
+    if (!document->settings().smartListsAvailable())
         return false;
 
 #if PLATFORM(MAC)

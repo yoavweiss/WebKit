@@ -876,7 +876,7 @@ void ContextMenuController::createAndAppendSubstitutionsSubMenu(ContextMenuItem&
     appendItem(smartCopyPaste, &substitutionsMenu);
     appendItem(smartQuotes, &substitutionsMenu);
 
-    if (m_page->settings().smartListsEnabled() && m_page->isEditable())
+    if (m_page->settings().smartListsAvailable())
         appendItem(smartLists, &substitutionsMenu);
 
     appendItem(smartDashes, &substitutionsMenu);

@@ -80,11 +80,10 @@ extension SmartListsSupport {
         #if os(macOS)
         let page = WebPage()
 
-        page.setWebFeature("SmartListsEnabled", enabled: true)
-        page.isEditable = true
+        page.setWebFeature("SmartListsAvailable", enabled: true)
         page.smartListsEnabled = true
 
-        try await page.load(html: "<body></body>").wait()
+        try await page.load(html: "<body contenteditable></body>").wait()
 
         try await page.callJavaScript("document.body.focus()")
 

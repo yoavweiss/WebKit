@@ -49,7 +49,7 @@ static void setSmartListsPreference(WKWebViewConfiguration *configuration, BOOL 
 {
     auto preferences = [configuration preferences];
     for (_WKFeature *feature in [WKPreferences _features]) {
-        if ([feature.key isEqualToString:@"SmartListsEnabled"]) {
+        if ([feature.key isEqualToString:@"SmartListsAvailable"]) {
             [preferences _setEnabled:value forFeature:feature];
             break;
         }
@@ -121,9 +121,8 @@ TEST(SmartLists, EnablementIsLogicallyConsistentWhenInterfacedThroughResponder)
     [webView synchronouslyLoadHTMLString:@"<div>hi</div>"];
     [webView waitForNextPresentationUpdate];
 
-    // Case 1: _editable => false, user default => nil, preference => false
+    // Case 1: user default => nil, preference => false
 
-    [webView _setEditable:NO];
     setSmartListsPreference(configuration.get(), NO);
     resetUserDefaults();
 
@@ -134,22 +133,8 @@ TEST(SmartLists, EnablementIsLogicallyConsistentWhenInterfacedThroughResponder)
     EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_NULL(userDefaultsValue());
 
-    // Case 2: _editable => true, user default => nil, preference => false
+    // Case 2: user default => true, preference => false
 
-    [webView _setEditable:YES];
-    setSmartListsPreference(configuration.get(), NO);
-    resetUserDefaults();
-
-    EXPECT_FALSE([webView _isSmartListsEnabled]);
-    EXPECT_NULL(userDefaultsValue());
-
-    [webView _setSmartListsEnabled:YES];
-    EXPECT_FALSE([webView _isSmartListsEnabled]);
-    EXPECT_NULL(userDefaultsValue());
-
-    // Case 3: _editable => false, user default => true, preference => false
-
-    [webView _setEditable:NO];
     setSmartListsPreference(configuration.get(), NO);
     setUserDefaultsValue(YES);
 
@@ -160,35 +145,8 @@ TEST(SmartLists, EnablementIsLogicallyConsistentWhenInterfacedThroughResponder)
     EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_TRUE([userDefaultsValue() boolValue]);
 
-    // Case 4: _editable => true, user default => true, preference => false
+    // Case 3: _editable => true, user default => nil, preference => true
 
-    [webView _setEditable:YES];
-    setSmartListsPreference(configuration.get(), NO);
-    setUserDefaultsValue(YES);
-
-    EXPECT_FALSE([webView _isSmartListsEnabled]);
-    EXPECT_TRUE([userDefaultsValue() boolValue]);
-
-    [webView _setSmartListsEnabled:YES];
-    EXPECT_FALSE([webView _isSmartListsEnabled]);
-    EXPECT_TRUE([userDefaultsValue() boolValue]);
-
-    // Case 5: _editable => false, user default => nil, preference => true
-
-    [webView _setEditable:NO];
-    setSmartListsPreference(configuration.get(), YES);
-    resetUserDefaults();
-
-    EXPECT_FALSE([webView _isSmartListsEnabled]);
-    EXPECT_NULL(userDefaultsValue());
-
-    [webView _setSmartListsEnabled:YES];
-    EXPECT_FALSE([webView _isSmartListsEnabled]);
-    EXPECT_NULL(userDefaultsValue());
-
-    // Case 6: _editable => true, user default => nil, preference => true
-
-    [webView _setEditable:YES];
     setSmartListsPreference(configuration.get(), YES);
     resetUserDefaults();
 
@@ -203,22 +161,8 @@ TEST(SmartLists, EnablementIsLogicallyConsistentWhenInterfacedThroughResponder)
     EXPECT_TRUE([webView _isSmartListsEnabled]);
     EXPECT_TRUE([userDefaultsValue() boolValue]);
 
-    // Case 7: _editable => false, user default => true, preference => true
+    // Case 4: user default => true, preference => true
 
-    [webView _setEditable:NO];
-    setSmartListsPreference(configuration.get(), YES);
-    setUserDefaultsValue(YES);
-
-    EXPECT_FALSE([webView _isSmartListsEnabled]);
-    EXPECT_TRUE([userDefaultsValue() boolValue]);
-
-    [webView _setSmartListsEnabled:YES];
-    EXPECT_FALSE([webView _isSmartListsEnabled]);
-    EXPECT_TRUE([userDefaultsValue() boolValue]);
-
-    // Case 8: _editable => true, user default => true, preference => true
-
-    [webView _setEditable:YES];
     setSmartListsPreference(configuration.get(), YES);
     setUserDefaultsValue(YES);
 
@@ -238,25 +182,8 @@ TEST(SmartLists, ContextMenuItemStateIsConsistentWithAvailability)
     [webView synchronouslyLoadHTMLString:@"<body contenteditable>hi</body>"];
     [webView waitForNextPresentationUpdate];
 
-    // Case 1: Feature disabled
+    // Case 1: Available
     {
-        [webView _setEditable:NO];
-        setSmartListsPreference(configuration.get(), YES);
-
-        NSString *script = @"document.body.focus()";
-        [webView stringByEvaluatingJavaScript:script];
-
-        RetainPtr menu = invokeContextMenu(webView.get());
-        RetainPtr substitutionMenu = [menu itemWithTitle:@"Substitutions"];
-        EXPECT_NOT_NULL(substitutionMenu.get());
-
-        RetainPtr smartListsItem = [[substitutionMenu submenu] itemWithTitle:@"Smart Lists"];
-        EXPECT_NULL(smartListsItem);
-    }
-
-    // Case 2: Feature enabled, preference enabled
-    {
-        [webView _setEditable:YES];
         setSmartListsPreference(configuration.get(), YES);
 
         NSString *script = @"document.body.focus()";
@@ -270,9 +197,8 @@ TEST(SmartLists, ContextMenuItemStateIsConsistentWithAvailability)
         EXPECT_TRUE([smartListsItem isEnabled]);
     }
 
-    // Case 3: Feature enabled, preference disabled
+    // Case 2: Unavailable
     {
-        [webView _setEditable:YES];
         setSmartListsPreference(configuration.get(), NO);
 
         NSString *script = @"document.body.focus()";

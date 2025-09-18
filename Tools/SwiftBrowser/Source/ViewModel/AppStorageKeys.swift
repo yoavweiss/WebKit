@@ -30,5 +30,4 @@ enum AppStorageKeys {
     static let scrollBounceBehaviorBasedOnSize = "scrollBounceBehaviorBasedOnSize"
     static let backgroundHidden = "backgroundHidden"
     static let showColorInTabBar = "showColorInTabBar"
-    static let isEditable = "isEditable"
 }

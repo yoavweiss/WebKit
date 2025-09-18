@@ -7346,12 +7346,12 @@ SmartInsertDeleteEnabled:
     WebCore:
       default: true
 
-SmartListsEnabled:
+SmartListsAvailable:
   type: bool
   status: embedder
   category: dom
   humanReadableName: "Smart Lists"
-  humanReadableDescription: "Enable Smart Lists"
+  humanReadableDescription: "Allow Smart Lists to be enabled"
   defaultValue:
     WebKit:
       default: false

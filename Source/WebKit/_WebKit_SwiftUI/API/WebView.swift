@@ -249,7 +249,7 @@ extension WebView {
     @_spi(Testing)
     public struct WebPreferenceFeature<Value>: Sendable where Value: Sendable, Value: Codable {
         public static var allowSmartLists: WebPreferenceFeature<Bool> {
-            .init(rawValue: "SmartListsEnabled")
+            .init(rawValue: "SmartListsAvailable")
         }
 
         let rawValue: String

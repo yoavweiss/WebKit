@@ -32,9 +32,6 @@ struct SwiftBrowserApp: App {
     @AppStorage(AppStorageKeys.homepage)
     private var homepage = "https://www.webkit.org"
 
-    @AppStorage(AppStorageKeys.isEditable)
-    private var isEditable = false
-
     @State
     private var smartListsEnabled = true
 
@@ -78,12 +75,6 @@ struct SwiftBrowserApp: App {
                     focusedBrowserViewModel!.exportAsPDF()
                 }
                 .disabled(focusedBrowserViewModel == nil)
-            }
-
-            CommandGroup(before: .undoRedo) {
-                Toggle(isOn: $isEditable) {
-                    Label("Editable", systemImage: "pencil")
-                }
             }
 
             TextEditingCommands()
