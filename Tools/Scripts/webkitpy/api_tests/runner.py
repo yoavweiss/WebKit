@@ -51,7 +51,12 @@ def report_result(worker, test, status, output, elapsed=None):
     else:
         elapsed_log = ' (took {} seconds)'.format(round(elapsed, 1)) if elapsed > Runner.ELAPSED_THRESHOLD else ''
         Runner.instance.printer.writeln('{} {} {}{}'.format(worker, test, Runner.NAME_FOR_STATUS[status], elapsed_log))
-    Runner.instance.results[test] = status, output, elapsed
+    if test in Runner.instance.results:
+        existing_status = Runner.instance.results[test][0]
+        if status > existing_status or (status == existing_status and status != Runner.STATUS_PASSED):
+            Runner.instance.results[test] = status, output, elapsed
+    else:
+        Runner.instance.results[test] = status, output, elapsed
 
 
 def teardown_shard():

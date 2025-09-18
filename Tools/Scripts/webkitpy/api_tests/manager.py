@@ -220,7 +220,7 @@ class Manager(object):
 
         successful = runner.result_map_by_status(runner.STATUS_PASSED)
         disabled = len(runner.result_map_by_status(runner.STATUS_DISABLED))
-        _log.info('Ran {} tests of {} with {} successful'.format(len(runner.results) - disabled, len(test_names), len(successful)))
+        _log.info('Ran {} tests of {} with {} successful'.format(len(runner.results) - disabled, len(set(test_names)), len(successful)))
 
         result_dictionary = {
             'Skipped': [],
@@ -231,7 +231,7 @@ class Manager(object):
 
         self._stream.writeln('-' * 30)
         result = Manager.SUCCESS
-        if len(successful) * self._options.repeat_each + disabled == len(test_names):
+        if len(successful) + disabled == len(set(test_names)):
             self._stream.writeln('All tests successfully passed!')
             if json_output:
                 self.host.filesystem.write_text_file(json_output, json.dumps(result_dictionary, indent=4))
