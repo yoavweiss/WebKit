@@ -48,11 +48,13 @@ extension SmartListsTestConfiguration {
     fileprivate let expectedHTML: String
     fileprivate let expectedSelection: SmartListsTestSelectionConfiguration
     fileprivate let input: String
+    fileprivate let stylesheet: String?
 
-    init(expectedHTML: String, expectedSelection: SmartListsTestSelectionConfiguration, input: String) {
+    init(expectedHTML: String, expectedSelection: SmartListsTestSelectionConfiguration, input: String, stylesheet: String?) {
         self.expectedHTML = expectedHTML
         self.expectedSelection = expectedSelection
         self.input = input
+        self.stylesheet = stylesheet
     }
 }
 
@@ -83,7 +85,14 @@ extension SmartListsSupport {
         page.setWebFeature("SmartListsAvailable", enabled: true)
         page.smartListsEnabled = true
 
-        try await page.load(html: "<body contenteditable></body>").wait()
+        let template = """
+            <head>
+              <meta charset="UTF-8">
+            </head>
+            \(configuration.stylesheet ?? "")
+            """
+
+        try await page.load(html: "\(template)<body contenteditable></body>").wait()
 
         try await page.callJavaScript("document.body.focus()")
 
@@ -97,40 +106,16 @@ extension SmartListsSupport {
 
         let actualTree = try await page.renderTree()
 
-        let encoding = """
-            <head>
-              <meta charset="UTF-8">
-            </head>
-            """
-
         let collapsedExpectedHTML = configuration.expectedHTML
             .split(separator: "\n")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .joined()
 
-        let expectedHTMLWithEncoding = encoding + collapsedExpectedHTML
+        let expectedHTMLWithEncoding = template + collapsedExpectedHTML
 
         try await page.load(html: expectedHTMLWithEncoding).wait()
 
-        let setSelectionScript = """
-            const elementToPositionCaretAfter = document.evaluate(xPath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-
-            const range = document.createRange();
-            range.setStart(elementToPositionCaretAfter, offset);
-            range.setEnd(elementToPositionCaretAfter, offset);
-
-            let selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-            """
-
-        try await page.callJavaScript(
-            setSelectionScript,
-            arguments: [
-                "xPath": configuration.expectedSelection.path,
-                "offset": configuration.expectedSelection.offset,
-            ]
-        )
+        try await page.setCaretSelection(path: configuration.expectedSelection.path, offset: configuration.expectedSelection.offset)
 
         let expectedTree = try await page.renderTree()
 
@@ -143,6 +128,24 @@ extension SmartListsSupport {
         #else
         fatalError()
         #endif
+    }
+}
+
+extension WebPage {
+    fileprivate func setCaretSelection(path: String, offset: Int) async throws {
+        let setSelectionScript = """
+            const elementToPositionCaretAfter = document.evaluate(xPath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+            const range = document.createRange();
+            range.setStart(elementToPositionCaretAfter, offset);
+            range.setEnd(elementToPositionCaretAfter, offset);
+
+            let selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            """
+
+        try await callJavaScript(setSelectionScript, arguments: ["xPath": path, "offset": offset])
     }
 }
 

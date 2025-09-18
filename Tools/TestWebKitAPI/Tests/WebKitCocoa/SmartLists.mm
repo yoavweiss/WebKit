@@ -92,15 +92,19 @@ static RetainPtr<NSMenu> invokeContextMenu(TestWKWebView *webView)
     return proposedMenu;
 }
 
-static void runTest(NSString *input, NSString *expectedHTML, NSString *expectedSelectionPath, NSInteger selectionOffset)
+static void runTest(NSString *input, NSString *expectedHTML, NSString *expectedSelectionPath, NSInteger selectionOffset, NSString *stylesheet = nil)
 {
     RetainPtr expectedSelection = [SmartListsTestSelectionConfiguration caretSelectionWithPath:expectedSelectionPath offset:selectionOffset];
-    RetainPtr configuration = [[SmartListsTestConfiguration alloc] initWithExpectedHTML:expectedHTML expectedSelection:expectedSelection.get() input:input];
+    RetainPtr configuration = [[SmartListsTestConfiguration alloc] initWithExpectedHTML:expectedHTML expectedSelection:expectedSelection.get() input:input stylesheet:stylesheet];
 
     __block bool finished = false;
     __block RetainPtr<SmartListsTestResult> result;
     [SmartListsSupport processConfiguration:configuration.get() completionHandler:^(SmartListsTestResult *testResult, NSError *error) {
-        EXPECT_NULL(error);
+        if (error) {
+            TextStream errorMessage;
+            errorMessage << error;
+            EXPECT_NULL(error) << errorMessage.release().utf8().data();
+        }
         result = testResult;
         finished = true;
     }];
@@ -364,6 +368,41 @@ TEST(SmartLists, InsertingSpaceInsideListElementDoesNotActivateSmartLists)
     )"""_s;
 
     runTest(@"* A\n1. Hi", expectedHTML.createNSString().get(), @"//body/ul/li[2]/text()", @"1. Hi".length);
+}
+
+TEST(SmartLists, GeneratedSmartListsHaveAssociatedClassNames)
+{
+    auto dashMarker = WTF::makeString(WTF::Unicode::emDash, WTF::Unicode::noBreakSpace, WTF::Unicode::noBreakSpace);
+
+    static constexpr auto expectedHTMLTemplate = R"""(
+    <body contenteditable>
+        <ul class="Apple-disc-list" style="list-style-type: disc;">
+            <li>A</li>
+        </ul>
+        <div>
+            <ol class="Apple-decimal-list" start="1" style="list-style-type: decimal;">
+                <li>B</li>
+            </ol>
+            <div>
+                <ul class="Apple-dash-list" style="list-style-type: '<DASH_MARKER>';">
+                    <li>C</li>
+                </ul>
+            </div>
+        </div>
+    </body>
+    )"""_s;
+
+    static constexpr auto css = R"""(
+    <style>
+        .Apple-disc-list { color: red }
+        .Apple-dash-list { color: green }
+        .Apple-decimal-list { color: blue }
+    </style>
+    )"""_s;
+
+    RetainPtr expectedHTML = WTF::makeStringByReplacingAll(expectedHTMLTemplate, "<DASH_MARKER>"_s, dashMarker).createNSString();
+
+    runTest(@"* A\n\n1. B\n\n- C", expectedHTML.get(), @"//body/div/div/ul/li/text()", 1, css.createNSString().get());
 }
 
 #endif // PLATFORM(MAC)

@@ -157,6 +157,20 @@ static AtomString inlineStyleForListStyleType(StyledElement& element, Style::Lis
     return inlineStyle->asTextAtom(CSS::defaultSerializationContext());
 }
 
+static AtomString classNameForSmartList(const TextList& textList)
+{
+    if (textList.ordered) {
+        ASSERT(textList.styleType.isDecimal());
+        return "Apple-decimal-list"_s;
+    }
+
+    if (textList.styleType.isDisc())
+        return "Apple-disc-list"_s;
+
+    ASSERT(textList.styleType.isString());
+    return "Apple-dash-list"_s;
+}
+
 bool InsertTextCommand::applySmartListsIfNeeded()
 {
     if (!document().editor().isSmartListsEnabled())
@@ -228,6 +242,9 @@ bool InsertTextCommand::applySmartListsIfNeeded()
 
     if (auto style = inlineStyleForListStyleType(*listElement, smartList->styleType); !style.isNull())
         setNodeAttribute(*listElement, HTMLNames::styleAttr, style);
+
+    if (auto className = classNameForSmartList(*smartList); !className.isNull())
+        setNodeAttribute(*listElement, HTMLNames::classAttr, className);
 
     deleteSelection();
     return true;
