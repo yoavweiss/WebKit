@@ -223,10 +223,10 @@ TEST(SmartLists, InsertingSpaceAndTextAfterBulletPointGeneratesListWithText)
     </body>
     )"""_s;
 
-    runTest(@"* Hello", expectedHTML.createNSString().get(), @"//body/ul/li/text()", [@"Hello" length]);
+    runTest(@"* Hello", expectedHTML.createNSString().get(), @"//body/ul/li/text()", @"Hello".length);
 
     RetainPtr inputWithBullet = makeString(WTF::Unicode::bullet, " Hello"_s).createNSString();
-    runTest(inputWithBullet.get(), expectedHTML.createNSString().get(), @"//body/ul/li/text()", [@"Hello" length]);
+    runTest(inputWithBullet.get(), expectedHTML.createNSString().get(), @"//body/ul/li/text()", @"Hello".length);
 }
 
 TEST(SmartLists, InsertingSpaceAndTextAfterHyphenGeneratesDashedList)
@@ -243,7 +243,7 @@ TEST(SmartLists, InsertingSpaceAndTextAfterHyphenGeneratesDashedList)
 
     RetainPtr expectedHTML = WTF::makeStringByReplacingAll(expectedHTMLTemplate, "<MARKER>"_s, marker).createNSString();
 
-    runTest(@"- Hello", expectedHTML.get(), @"//body/ul/li/text()", [@"Hello" length]);
+    runTest(@"- Hello", expectedHTML.get(), @"//body/ul/li/text()", @"Hello".length);
 }
 
 TEST(SmartLists, InsertingSpaceAfterBulletPointGeneratesEmptyList)
@@ -267,7 +267,7 @@ TEST(SmartLists, InsertingSpaceAfterBulletPointInMiddleOfSentenceDoesNotGenerate
     </body>
     )"""_s;
 
-    runTest(@"ABC * DEF", expectedHTML.createNSString().get(), @"//body/text()", [@"ABC * DEF" length]);
+    runTest(@"ABC * DEF", expectedHTML.createNSString().get(), @"//body/text()", @"ABC * DEF".length);
 }
 
 TEST(SmartLists, InsertingSpaceAfterPeriodAtStartOfSentenceDoesNotGenerateList)
@@ -278,7 +278,7 @@ TEST(SmartLists, InsertingSpaceAfterPeriodAtStartOfSentenceDoesNotGenerateList)
     </body>
     )"""_s;
 
-    runTest(@". Hi", expectedHTML.createNSString().get(), @"//body/text()", [@". Hi" length]);
+    runTest(@". Hi", expectedHTML.createNSString().get(), @"//body/text()", @". Hi".length);
 }
 
 TEST(SmartLists, InsertingSpaceAfterNumberGeneratesOrderedList)
@@ -291,9 +291,9 @@ TEST(SmartLists, InsertingSpaceAfterNumberGeneratesOrderedList)
     </body>
     )"""_s;
 
-    runTest(@"1. Hello", expectedHTML.createNSString().get(), @"//body/ol/li/text()", [@"Hello" length]);
+    runTest(@"1. Hello", expectedHTML.createNSString().get(), @"//body/ol/li/text()", @"Hello".length);
 
-    runTest(@"1) Hello", expectedHTML.createNSString().get(), @"//body/ol/li/text()", [@"Hello" length]);
+    runTest(@"1) Hello", expectedHTML.createNSString().get(), @"//body/ol/li/text()", @"Hello".length);
 }
 
 TEST(SmartLists, InsertingSpaceAfterMultipleDigitNumberGeneratesOrderedList)
@@ -306,7 +306,7 @@ TEST(SmartLists, InsertingSpaceAfterMultipleDigitNumberGeneratesOrderedList)
     </body>
     )"""_s;
 
-    runTest(@"1234. Hello", expectedHTML.createNSString().get(), @"//body/ol/li/text()", [@"Hello" length]);
+    runTest(@"1234. Hello", expectedHTML.createNSString().get(), @"//body/ol/li/text()", @"Hello".length);
 }
 
 TEST(SmartLists, InsertingSpaceAfterInvalidNumberDoesNotGenerateOrderedList)
@@ -350,6 +350,20 @@ TEST(SmartLists, InsertingListMergesWithPreviousListIfPossible)
     "";
 
     runTest(input.get(), expectedHTML.createNSString().get(), @"//body/ol/li[3]/text()", 1);
+}
+
+TEST(SmartLists, InsertingSpaceInsideListElementDoesNotActivateSmartLists)
+{
+    static constexpr auto expectedHTML = R"""(
+    <body>
+        <ul>
+            <li>A</li>
+            <li>1. Hi</li>
+        </ul>
+    </body>
+    )"""_s;
+
+    runTest(@"* A\n1. Hi", expectedHTML.createNSString().get(), @"//body/ul/li[2]/text()", @"1. Hi".length);
 }
 
 #endif // PLATFORM(MAC)

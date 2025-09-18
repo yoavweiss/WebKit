@@ -172,6 +172,11 @@ bool InsertTextCommand::applySmartListsIfNeeded()
         return false;
     }
 
+    if (enclosingList(endingSelection().base().anchorNode())) {
+        // Smart Lists can not be "activated" if the selection is already within a list.
+        return false;
+    }
+
     auto lineStart = startOfLine(endingSelection().visibleBase());
     if (lineStart.isNull() || lineStart.isOrphan()) {
         ASSERT_NOT_REACHED();
