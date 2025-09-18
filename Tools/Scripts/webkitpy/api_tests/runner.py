@@ -141,10 +141,8 @@ class Runner(object):
                 raise RuntimeError('Cannot nest API test runners')
             Runner.instance = self
             mutually_exclusive_groups = list(self.port.sharding_groups(suite='api-tests').keys())
-            if mutually_exclusive_groups:
-                self._num_workers = min(num_workers if num_workers else self.port.default_child_processes(), len(shards))
-            else:
-                self._num_workers = min(num_workers if num_workers else self._num_workers, len(shards))
+            workers = (num_workers if num_workers and num_workers >= self._num_workers else max(self.port.default_child_processes() or self._num_workers, self._num_workers) if mutually_exclusive_groups else self._num_workers)
+            self._num_workers = min(workers, len(shards))
 
             devices = None
             if getattr(self.port, 'DEVICE_MANAGER', None):
