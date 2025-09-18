@@ -286,7 +286,12 @@ void PageClientImpl::modelProcessDidExit()
 
 void PageClientImpl::preferencesDidChange()
 {
+#if ENABLE(OVERLAY_REGIONS_IN_EVENT_REGION)
+    if (RetainPtr webView = this->webView())
+        [webView _updateOverlayRegions];
+#else
     notImplemented();
+#endif
 }
 
 void PageClientImpl::toolTipChanged(const String&, const String& newToolTip)
