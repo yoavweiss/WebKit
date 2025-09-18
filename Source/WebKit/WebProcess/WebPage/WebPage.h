@@ -2283,7 +2283,6 @@ private:
     void getResourceDataFromFrame(WebCore::FrameIdentifier, const String& resourceURL, CompletionHandler<void(const std::optional<IPC::SharedBufferReference>&)>&&);
     void getRenderTreeExternalRepresentation(CompletionHandler<void(const String&)>&&);
     void getSelectionOrContentsAsString(CompletionHandler<void(const String&)>&&);
-    void getSelectionAsWebArchiveData(CompletionHandler<void(const std::optional<IPC::SharedBufferReference>&)>&&);
     void getSourceForFrame(WebCore::FrameIdentifier, CompletionHandler<void(const String&)>&&);
     void getWebArchiveOfFrame(std::optional<WebCore::FrameIdentifier>, CompletionHandler<void(const std::optional<IPC::SharedBufferReference>&)>&&);
 #if PLATFORM(COCOA)

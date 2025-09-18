@@ -2819,10 +2819,6 @@ void WKPageGetSamplingProfilerOutput(WKPageRef pageRef, void* context, WKPageGet
 
 void WKPageGetSelectionAsWebArchiveData(WKPageRef pageRef, void* context, WKPageGetSelectionAsWebArchiveDataFunction callback)
 {
-    CRASH_IF_SUSPENDED;
-    toProtectedImpl(pageRef)->getSelectionAsWebArchiveData([context, callback] (API::Data* data) {
-        callback(toAPI(data), nullptr, context);
-    });
 }
 
 void WKPageGetContentsAsMHTMLData(WKPageRef pageRef, void* context, WKPageGetContentsAsMHTMLDataFunction callback)

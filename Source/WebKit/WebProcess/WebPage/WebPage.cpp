@@ -4550,22 +4550,6 @@ static RefPtr<LocalFrame> frameWithSelection(Page* page)
     return nullptr;
 }
 
-void WebPage::getSelectionAsWebArchiveData(CompletionHandler<void(const std::optional<IPC::SharedBufferReference>&)>&& callback)
-{
-#if PLATFORM(COCOA)
-    RetainPtr<CFDataRef> data;
-    if (RefPtr frame = frameWithSelection(m_page.get()))
-        data = LegacyWebArchive::createFromSelection(frame.get())->rawDataRepresentation();
-#endif
-
-    IPC::SharedBufferReference dataBuffer;
-#if PLATFORM(COCOA)
-    if (data)
-        dataBuffer = IPC::SharedBufferReference(SharedBuffer::create(data.get()));
-#endif
-    callback(dataBuffer);
-}
-
 void WebPage::copyLinkWithHighlight()
 {
     RefPtr page = m_page;

@@ -236,7 +236,6 @@ messages -> WebPage WantsAsyncDispatchMessage {
     GetResourceDataFromFrame(WebCore::FrameIdentifier frameID, String resourceURL) -> (std::optional<IPC::SharedBufferReference> buffer)
     GetRenderTreeExternalRepresentation() -> (String string)
     GetSelectionOrContentsAsString() -> (String string)
-    GetSelectionAsWebArchiveData() -> (std::optional<IPC::SharedBufferReference> data)
     GetSourceForFrame(WebCore::FrameIdentifier frameID) -> (String string)
     GetWebArchiveOfFrame(std::optional<WebCore::FrameIdentifier> frameID) -> (std::optional<IPC::SharedBufferReference> dataReference)
     GetWebArchiveOfFrameWithFileName(WebCore::FrameIdentifier frameID, Vector<WebCore::MarkupExclusionRule> markupExclusionRules, String fileName) -> (std::optional<IPC::SharedBufferReference> dataReference)

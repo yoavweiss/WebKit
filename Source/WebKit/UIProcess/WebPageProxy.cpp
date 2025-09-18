@@ -6478,11 +6478,6 @@ void WebPageProxy::getSelectionOrContentsAsString(CompletionHandler<void(const S
     sendWithAsyncReply(Messages::WebPage::GetSelectionOrContentsAsString(), callback);
 }
 
-void WebPageProxy::getSelectionAsWebArchiveData(CompletionHandler<void(API::Data*)>&& callback)
-{
-    sendWithAsyncReply(Messages::WebPage::GetSelectionAsWebArchiveData(), toAPIDataCallback(WTFMove(callback)));
-}
-
 void WebPageProxy::saveResources(WebFrameProxy* frame, const Vector<WebCore::MarkupExclusionRule>& markupExclusionRules, const String& directory, const String& suggestedMainResourceName, CompletionHandler<void(Expected<void, WebCore::ArchiveError>)>&& completionHandler)
 {
     if (!frame)
