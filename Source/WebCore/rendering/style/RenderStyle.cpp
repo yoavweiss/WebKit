@@ -1336,7 +1336,7 @@ bool RenderStyle::changeRequiresRepaint(const RenderStyle& other, OptionSet<Styl
     if (!requiresPainting(*this) && !requiresPainting(other))
         return false;
 
-    if (m_inheritedFlags.visibility != other.m_inheritedFlags.visibility
+    if (usedVisibility() != other.usedVisibility()
         || m_inheritedFlags.printColorAdjust != other.m_inheritedFlags.printColorAdjust
         || m_inheritedFlags.insideLink != other.m_inheritedFlags.insideLink)
         return true;
