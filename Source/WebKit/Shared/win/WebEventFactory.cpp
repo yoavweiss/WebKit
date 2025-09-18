@@ -470,7 +470,7 @@ WebKeyboardEvent WebEventFactory::createWebKeyboardEvent(HWND hwnd, UINT message
     String key = message == WM_CHAR ? windowsKeyNames().domKeyFromChar(wparam) : windowsKeyNames().domKeyFromParams(wparam, lparam);
     String code = windowsKeyNames().domCodeFromLParam(lparam);
     String keyIdentifier = keyIdentifierFromEvent(wparam, type);
-    int windowsVirtualKeyCode = static_cast<int>(wparam);
+    int windowsVirtualKeyCode = message == WM_CHAR ? 0 : static_cast<int>(wparam);
     int nativeVirtualKeyCode = static_cast<int>(wparam);
     int macCharCode = 0;
     bool autoRepeat = HIWORD(lparam) & KF_REPEAT;

@@ -239,7 +239,7 @@ PlatformKeyboardEvent::PlatformKeyboardEvent(HWND, WPARAM code, LPARAM keyData, 
     , m_key(type == PlatformEvent::Type::Char ? windowsKeyNames().domKeyFromChar(code) : windowsKeyNames().domKeyFromParams(code, keyData))
     , m_code(windowsKeyNames().domCodeFromLParam(keyData))
     , m_keyIdentifier((type == PlatformEvent::Type::Char) ? String() : keyIdentifierForWindowsKeyCode(code))
-    , m_windowsVirtualKeyCode((type == Type::RawKeyDown || type == Type::KeyUp) ? windowsKeycodeWithLocation(code, keyData) : 0)
+    , m_windowsVirtualKeyCode(windowsKeycodeWithLocation(code, keyData))
 {
 }
 

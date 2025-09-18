@@ -91,8 +91,9 @@ namespace WebCore {
 
         // Most compatible Windows virtual key code associated with the event.
         // Zero for Char events.
-        int windowsVirtualKeyCode() const { return m_windowsVirtualKeyCode; }
+        int windowsVirtualKeyCode() const { return m_type != Type::Char ? m_windowsVirtualKeyCode : 0; }
         void setWindowsVirtualKeyCode(int code) { m_windowsVirtualKeyCode = code; }
+        int windowsVirtualKeyCodeWithoutKeyPressOverride() const { return m_windowsVirtualKeyCode; }
 
 #if USE(APPKIT) || PLATFORM(IOS_FAMILY) || PLATFORM(GTK) || USE(LIBWPE)
         bool handledByInputMethod() const { return m_handledByInputMethod; }

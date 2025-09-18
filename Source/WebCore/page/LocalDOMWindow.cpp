@@ -2508,17 +2508,23 @@ EventTimingInteractionID LocalDOMWindow::computeInteractionID(Event& event, Even
         if (it == m_pendingKeyDowns.end())
             return { };
 
-        auto interactionID = it->value.interactionID.isUnassigned() ? generateInteractionID() : it->value.interactionID;
-        it->value.interactionID = interactionID;
-        m_performanceEventTimingCandidates.append(it->value);
+        auto interactionID = it->value.keyDown.interactionID.isUnassigned() ? generateInteractionID() : it->value.keyDown.interactionID;
+        it->value.keyDown.interactionID = interactionID;
+        m_performanceEventTimingCandidates.append(it->value.keyDown);
+        if (it->value.keyPress) {
+            it->value.keyPress->interactionID = interactionID;
+            m_performanceEventTimingCandidates.append(*it->value.keyPress);
+        }
         m_pendingKeyDowns.remove(it);
         keyboardEvent->setInteractionID(interactionID);
         return interactionID;
     }
     case EventType::compositionstart: {
-        for (auto& pendingEntry : m_pendingKeyDowns)
-            m_performanceEventTimingCandidates.append(pendingEntry.value);
-
+        for (auto& pendingEntry : m_pendingKeyDowns) {
+            m_performanceEventTimingCandidates.append(pendingEntry.value.keyDown);
+            if (pendingEntry.value.keyPress)
+                m_performanceEventTimingCandidates.append(*pendingEntry.value.keyPress);
+        }
         m_pendingKeyDowns.clear();
         return { };
     }
@@ -2660,12 +2666,27 @@ void LocalDOMWindow::finalizeEventTimingEntry(PerformanceEventTimingCandidate& e
         }
         auto it = m_pendingKeyDowns.find(keyCode);
         if (it != m_pendingKeyDowns.end()) {
-            it->value.interactionID = generateInteractionIDWithoutIncreasingInteractionCount();
-            m_performanceEventTimingCandidates.append(it->value);
-            it->value = entry;
+            it->value.keyDown.interactionID = generateInteractionIDWithoutIncreasingInteractionCount();
+            m_performanceEventTimingCandidates.append(it->value.keyDown);
+            if (it->value.keyPress) {
+                it->value.keyPress->interactionID = it->value.keyDown.interactionID;
+                m_performanceEventTimingCandidates.append(*it->value.keyPress);
+            }
+            it->value = { .keyDown = entry };
             return;
         }
-        m_pendingKeyDowns.set(keyCode, entry);
+        m_pendingKeyDowns.set(keyCode, PendingKeyDownState { .keyDown = entry });
+        return;
+    }
+    case EventType::keypress: {
+        auto keyboardEvent = downcast<KeyboardEvent>(&event);
+        auto keyCode = keyboardEvent->keyCodeForKeyDown();
+        auto it = m_pendingKeyDowns.find(keyCode);
+        if (it == m_pendingKeyDowns.end()) {
+            m_performanceEventTimingCandidates.append(entry);
+            return;
+        }
+        it->value.keyPress = entry;
         return;
     }
     default:

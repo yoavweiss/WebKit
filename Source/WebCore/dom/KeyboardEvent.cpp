@@ -208,6 +208,18 @@ int KeyboardEvent::keyCode() const
     return charCode();
 }
 
+int KeyboardEvent::keyCodeForKeyDown() const
+{
+    ASSERT(type() == eventNames().keypressEvent);
+    if (m_keyCode)
+        return m_keyCode.value();
+
+    if (!m_underlyingPlatformEvent)
+        return 0;
+
+    return windowsVirtualKeyCodeWithoutLocation(m_underlyingPlatformEvent->windowsVirtualKeyCodeWithoutKeyPressOverride());
+}
+
 int KeyboardEvent::charCode() const
 {
     if (m_charCode)

@@ -466,7 +466,11 @@ private:
 
     bool m_contextMenuTriggered { false };
 
-    HashMap<int64_t, PerformanceEventTimingCandidate, IntHash<int64_t>, WTF::SignedWithZeroKeyHashTraits<int64_t>> m_pendingKeyDowns;
+    struct PendingKeyDownState {
+        PerformanceEventTimingCandidate keyDown;
+        std::optional<PerformanceEventTimingCandidate> keyPress { std::nullopt };
+    };
+    HashMap<int64_t, PendingKeyDownState, IntHash<int64_t>, WTF::SignedWithZeroKeyHashTraits<int64_t>> m_pendingKeyDowns;
 
     EventTimingInteractionID m_userInteractionValue;
     uint64_t m_interactionCount { 0 };
