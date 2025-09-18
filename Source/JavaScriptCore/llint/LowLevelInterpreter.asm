@@ -300,10 +300,10 @@ if ARMv7
     const wa6 = invalidGPR
     const wa7 = invalidGPR
 
-    const ws0 = csr0 # ws0 must be a non-argument/non-return GPR
-    const ws1 = csr1
-    const ws2 = csr2
-    const ws3 = t7
+    const ws0 = t5 # ws0 must be a non-argument/non-return GPR
+    const ws1 = t6
+    const ws2 = csr0
+    const ws3 = csr1
 
     const r0 = a0
     const r1 = a1
