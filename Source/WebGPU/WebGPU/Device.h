@@ -294,7 +294,6 @@ private:
         std::optional<Error> error;
         const WGPUErrorFilter filter;
     };
-private:
     id<MTLDevice> m_device { nil };
     const Ref<Queue> m_defaultQueue;
 

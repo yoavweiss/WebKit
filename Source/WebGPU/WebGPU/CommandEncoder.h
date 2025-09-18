@@ -167,14 +167,10 @@ private:
     NSString* errorValidatingCopyTextureToBuffer(const WGPUImageCopyTexture&, const WGPUImageCopyBuffer&, const WGPUExtent3D&) const;
     NSString* errorValidatingCopyTextureToTexture(const WGPUImageCopyTexture& source, const WGPUImageCopyTexture& destination, const WGPUExtent3D& copySize) const;
 
-private PUBLIC_IN_WEBGPU_SWIFT:
     void discardCommandBuffer();
-private:
-
     RefPtr<CommandBuffer> protectedCachedCommandBuffer() const { return m_cachedCommandBuffer.get(); }
     void retainTimestampsForOneUpdateLoop();
 
-private PUBLIC_IN_WEBGPU_SWIFT:
     id<MTLCommandBuffer> m_commandBuffer { nil };
     id<MTLCommandEncoder> m_existingCommandEncoder { nil };
     id<MTLBlitCommandEncoder> m_blitCommandEncoder { nil };
@@ -194,7 +190,6 @@ private:
     Vector<Function<bool(CommandBuffer&, CommandEncoder&)>> m_onCommitHandlers;
     HashMap<uint64_t, Vector<DrawIndexCacheContainerValue>, DefaultHash<uint64_t>, WTF::UnsignedWithZeroKeyHashTraits<uint64_t>> m_skippedDrawIndexedValidationKeys;
     Vector<RefPtr<const BindGroup>> m_bindGroups;
-private PUBLIC_IN_WEBGPU_SWIFT:
     int m_bufferMapCount { 0 };
     bool m_makeSubmitInvalid { false };
     id<MTLSharedEvent> m_sharedEvent { nil };
@@ -204,8 +199,7 @@ private PUBLIC_IN_WEBGPU_SWIFT:
 #if ENABLE(WEBGPU_BY_DEFAULT)
     uint32_t m_currentResidencySetCount { 0 };
 #endif
-private:
-} SWIFT_SHARED_REFERENCE(refCommandEncoder, derefCommandEncoder);
+} SWIFT_SHARED_REFERENCE(refCommandEncoder, derefCommandEncoder) SWIFT_PRIVATE_FILEID("WebGPU/CommandEncoder.swift");
 
 } // namespace WebGPU
 
