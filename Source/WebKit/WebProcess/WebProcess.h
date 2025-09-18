@@ -160,6 +160,7 @@ class WebTransportSession;
 
 struct AccessibilityPreferences;
 struct AdditionalFonts;
+struct ContentWorldIdentifierType;
 struct RemoteWorkerInitializationData;
 struct UserMessage;
 struct WebProcessCreationParameters;
@@ -174,6 +175,7 @@ struct WebsiteDataStoreParameters;
 enum class RemoteWorkerType : uint8_t;
 enum class WebsiteDataType : uint32_t;
 
+using ContentWorldIdentifier = ObjectIdentifier<ContentWorldIdentifierType>;
 using WebTransportSessionIdentifier = AtomicObjectIdentifier<WebTransportSessionIdentifierType>;
 
 #if PLATFORM(IOS_FAMILY)
@@ -242,6 +244,8 @@ public:
     WebCore::ThirdPartyCookieBlockingMode thirdPartyCookieBlockingMode() const { return m_thirdPartyCookieBlockingMode; }
 
     bool fullKeyboardAccessEnabled() const { return m_fullKeyboardAccessEnabled; }
+
+    void contentWorldDestroyed(ContentWorldIdentifier);
 
 #if HAVE(MOUSE_DEVICE_OBSERVATION)
     bool hasMouseDevice() const { return m_hasMouseDevice; }

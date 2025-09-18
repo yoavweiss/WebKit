@@ -80,7 +80,7 @@ public:
 
     static WebUserContentControllerProxy* get(UserContentControllerIdentifier);
 
-    UserContentControllerParameters parameters() const;
+    UserContentControllerParameters parametersForProcess(WebProcessProxy&) const;
 
     void addProcess(WebProcessProxy&);
 
@@ -126,20 +126,15 @@ public:
     Vector<std::pair<WebCompiledContentRuleListData, URL>> contentRuleListData() const;
 #endif
 
-    void contentWorldDestroyed(API::ContentWorld&);
-
     bool operator==(const WebUserContentControllerProxy& other) const { return (this == &other); }
 
     void didPostMessage(WebPageProxy&, FrameInfoData&&, ScriptMessageHandlerIdentifier, JavaScriptEvaluationResult&&, CompletionHandler<void(Expected<JavaScriptEvaluationResult, String>&&)>&&) const;
 
 private:
-    void addContentWorld(API::ContentWorld&);
-
     WeakHashSet<WebProcessProxy> m_processes;
     const Ref<API::Array> m_userScripts;
     const Ref<API::Array> m_userStyleSheets;
     HashMap<ScriptMessageHandlerIdentifier, Ref<WebScriptMessageHandler>> m_scriptMessageHandlers;
-    HashSet<ContentWorldIdentifier> m_associatedContentWorlds;
 
 #if ENABLE(CONTENT_EXTENSIONS)
     WeakHashSet<NetworkProcessProxy> m_networkProcesses;

@@ -90,6 +90,7 @@
 #include "WebSharedWorkerContextManagerConnectionMessages.h"
 #include "WebSharedWorkerProvider.h"
 #include "WebTransportSession.h"
+#include "WebUserContentController.h"
 #include "WebsiteData.h"
 #include "WebsiteDataStoreParameters.h"
 #include "WebsiteDataType.h"
@@ -2669,6 +2670,11 @@ void WebProcess::didReceiveRemoteCommand(PlatformMediaSession::RemoteControlComm
 {
     for (auto& page : m_pageMap.values())
         page->didReceiveRemoteCommand(type, argument);
+}
+
+void WebProcess::contentWorldDestroyed(ContentWorldIdentifier identifier)
+{
+    WebUserContentController::removeContentWorld(identifier);
 }
 
 } // namespace WebKit

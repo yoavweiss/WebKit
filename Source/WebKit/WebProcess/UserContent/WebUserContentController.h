@@ -72,14 +72,15 @@ public:
 
     InjectedBundleScriptWorld* worldForIdentifier(ContentWorldIdentifier);
 
-    void addContentWorlds(const Vector<ContentWorldData>&);
-    InjectedBundleScriptWorld* addContentWorld(const ContentWorldData&);
+    void addContentWorldIfNecessary(const ContentWorldData&);
     void addUserScripts(Vector<WebUserScriptData>&&, InjectUserScriptImmediately);
     void addUserStyleSheets(const Vector<WebUserStyleSheetData>&);
     void addUserScriptMessageHandlers(const Vector<WebScriptMessageHandlerData>&);
 #if ENABLE(CONTENT_EXTENSIONS)
     void addContentRuleLists(Vector<std::pair<WebCompiledContentRuleListData, URL>>&&);
 #endif
+
+    static void removeContentWorld(ContentWorldIdentifier);
 
 private:
     explicit WebUserContentController(UserContentControllerIdentifier);
@@ -96,8 +97,6 @@ private:
 
     // IPC::MessageReceiver.
     void didReceiveMessage(IPC::Connection&, IPC::Decoder&) override;
-
-    void removeContentWorlds(const Vector<ContentWorldIdentifier>&);
 
     void removeUserScript(ContentWorldIdentifier, UserScriptIdentifier);
     void removeAllUserScripts(const Vector<ContentWorldIdentifier>&);

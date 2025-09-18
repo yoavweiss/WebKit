@@ -1121,7 +1121,6 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
     for (auto& scheme : parameters.urlSchemesWithLegacyCustomProtocolHandlers)
         LegacySchemeRegistry::registerURLSchemeAsHandledBySchemeHandler({ scheme });
 
-    m_userContentController->addContentWorlds(parameters.userContentControllerParameters.userContentWorlds);
     m_userContentController->addUserScripts(WTFMove(parameters.userContentControllerParameters.userScripts), InjectUserScriptImmediately::No);
     m_userContentController->addUserStyleSheets(parameters.userContentControllerParameters.userStyleSheets);
     m_userContentController->addUserScriptMessageHandlers(parameters.userContentControllerParameters.messageHandlers);
@@ -4496,13 +4495,7 @@ void WebPage::runJavaScriptInFrameInScriptWorld(RunJavaScriptParameters&& parame
     WEBPAGE_RELEASE_LOG(Process, "runJavaScriptInFrameInScriptWorld: frameID=%" PRIu64, frameID ? frameID->toUInt64() : 0);
     RefPtr webFrame = frameID ? WebProcess::singleton().webFrame(*frameID) : &mainWebFrame();
 
-    if (RefPtr newWorld = m_userContentController->addContentWorld(worldData)) {
-        Ref coreWorld = newWorld->coreWorld();
-        for (RefPtr<Frame> frame = mainFrame(); frame; frame = frame->tree().traverseNext()) {
-            if (RefPtr localFrame = dynamicDowncast<LocalFrame>(frame.get()))
-                localFrame->loader().client().dispatchGlobalObjectAvailable(coreWorld);
-        }
-    }
+    m_userContentController->addContentWorldIfNecessary(worldData);
 
     runJavaScript(webFrame.get(), WTFMove(parameters), worldData.identifier, wantsResult, [this, protectedThis = Ref { *this }, completionHandler = WTFMove(completionHandler)](auto&& result) mutable {
 #if RELEASE_LOG_DISABLED

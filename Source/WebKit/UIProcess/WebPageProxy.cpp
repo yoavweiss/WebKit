@@ -6368,7 +6368,7 @@ void WebPageProxy::runJavaScriptInFrameInScriptWorld(RunJavaScriptParameters&& p
         activity = processContainingFrame(frameID)->protectedThrottler()->foregroundActivity("WebPageProxy::runJavaScriptInFrameInScriptWorld"_s);
 #endif
 
-    sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::RunJavaScriptInFrameInScriptWorld(parameters, frameID, world.worldData(), wantsResult), [activity = WTFMove(activity), callbackFunction = WTFMove(callbackFunction)] (auto&& result) mutable {
+    sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::RunJavaScriptInFrameInScriptWorld(parameters, frameID, world.worldDataForProcess(processContainingFrame(frameID)), wantsResult), [activity = WTFMove(activity), callbackFunction = WTFMove(callbackFunction)] (auto&& result) mutable {
         callbackFunction(WTFMove(result));
     });
 }
@@ -11915,7 +11915,7 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
         .pageGroupData = m_pageGroup->data(),
         .visitedLinkTableID = m_visitedLinkStore->identifier(),
         .overrideReferrerForAllRequests = m_configuration->overrideReferrerForAllRequests(),
-        .userContentControllerParameters = userContentController->parameters(),
+        .userContentControllerParameters = userContentController->parametersForProcess(process),
         .mainFrameIdentifier = mainFrameIdentifier,
         .openedMainFrameName = m_openedMainFrameName,
         .initialSandboxFlags = m_mainFrame ? m_mainFrame->effectiveSandboxFlags() : SandboxFlags { },

@@ -173,6 +173,7 @@ extern "C" {
     M(TextInteraction) \
     M(Translation) \
     M(UIHitTesting) \
+    M(UserContentController) \
     M(ViewGestures) \
     M(ViewState) \
     M(ViewportSizing) \
