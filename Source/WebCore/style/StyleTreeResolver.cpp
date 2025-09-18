@@ -914,8 +914,9 @@ std::unique_ptr<RenderStyle> TreeResolver::resolveAgainInDifferentContext(const 
     auto newStyle = RenderStyle::createPtr();
     newStyle->inheritFrom(parentStyle);
 
-    if (styleable.pseudoElementIdentifier)
-        newStyle->setPseudoElementType(styleable.pseudoElementIdentifier->pseudoId);
+    newStyle->setPseudoElementType(resolvedStyle.style->pseudoElementType());
+    newStyle->setPseudoElementNameArgument(resolvedStyle.style->pseudoElementNameArgument());
+    newStyle->copyPseudoElementBitsFrom(*resolvedStyle.style);
 
     auto builderContext = BuilderContext {
         m_document.get(),
