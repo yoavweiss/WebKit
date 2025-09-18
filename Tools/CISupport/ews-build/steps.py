@@ -4244,6 +4244,8 @@ class RunWebKitTests(shell.TestNewStyle, AddToLogMixin, ShellMixin):
     def runCommand(self, command):
         yield super().runCommand(command)
 
+        yield self._addToLog('json', '\n')
+
         logText = self.log_observer.getStdout() + self.log_observer.getStderr()
         logTextJson = self.log_observer_json.getStdout()
 
