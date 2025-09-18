@@ -337,6 +337,7 @@ void GStreamerMediaEndpoint::teardownPipeline()
     m_remoteStreamsById.clear();
     m_webrtcBin = nullptr;
     m_pipeline = nullptr;
+    m_peerConnectionBackend = nullptr;
 }
 
 bool GStreamerMediaEndpoint::handleMessage(GstMessage* message)
@@ -1485,11 +1486,11 @@ void GStreamerMediaEndpoint::connectIncomingTrack(WebRTCTrackData& data)
     auto& source = track.privateTrack().source();
     if (source.isIncomingAudioSource()) {
         auto& audioSource = static_cast<RealtimeIncomingAudioSourceGStreamer&>(source);
-        if (!audioSource.setBin(mediaStreamBin))
+        if (!audioSource.setBin(WTFMove(mediaStreamBin)))
             return;
     } else if (source.isIncomingVideoSource()) {
         auto& videoSource = static_cast<RealtimeIncomingVideoSourceGStreamer&>(source);
-        if (!videoSource.setBin(mediaStreamBin))
+        if (!videoSource.setBin(WTFMove(mediaStreamBin)))
             return;
     }
 
