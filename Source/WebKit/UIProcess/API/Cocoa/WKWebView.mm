@@ -2202,7 +2202,7 @@ static RetainPtr<NSError> unknownError()
 - (void)createWebArchiveDataWithCompletionHandler:(void (^)(NSData *, NSError *))completionHandler
 {
     THROW_IF_SUSPENDED;
-    _page->getWebArchiveData([completionHandler = makeBlockPtr(completionHandler)](API::Data* data) {
+    _page->getWebArchive([completionHandler = makeBlockPtr(completionHandler)](API::Data* data) {
         if (data)
             completionHandler(wrapper(data), nil);
         else
@@ -5342,35 +5342,6 @@ static inline OptionSet<WebCore::LayoutMilestone> layoutMilestones(_WKRenderingP
 {
     THROW_IF_SUSPENDED;
     [self createWebArchiveDataWithCompletionHandler:completionHandler];
-}
-
-- (void)_createWebArchiveForFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSData *, NSError *))completionHandler
-{
-    THROW_IF_SUSPENDED;
-
-    std::optional<WebCore::FrameIdentifier> frameID;
-    if (frame && frame._handle && frame._handle->_frameHandle->frameID())
-        frameID = frame._handle->_frameHandle->frameID();
-
-    if (!frameID) {
-        NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Frame no longer exists." };
-        completionHandler(nil, adoptNS([[NSError alloc] initWithDomain:WKErrorDomain code:WKErrorUnknown userInfo:userInfo]).get());
-        return;
-    }
-
-    RefPtr webFrame = WebKit::WebFrameProxy::webFrame(*frameID);
-    if (!frame) {
-        NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Frame with specified identifier no longer exists.", };
-        completionHandler(nil, adoptNS([[NSError alloc] initWithDomain:WKErrorDomain code:WKErrorUnknown userInfo:userInfo]).get());
-        return;
-    }
-
-    _page->getWebArchiveDataWithFrame(*webFrame, [completionHandler = makeBlockPtr(completionHandler)](API::Data* data) {
-        if (data)
-            completionHandler(wrapper(data), nil);
-        else
-            completionHandler(nil, unknownError().get());
-    });
 }
 
 - (void)_getContentsAsStringWithCompletionHandler:(void (^)(NSString *, NSError *))completionHandler

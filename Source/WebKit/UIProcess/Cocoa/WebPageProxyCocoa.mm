@@ -1670,23 +1670,9 @@ void WebPageProxy::decodeImageData(Ref<WebCore::SharedBuffer>&& buffer, std::opt
 void WebPageProxy::getWebArchiveData(CompletionHandler<void(API::Data*)>&& completionHandler)
 {
     RefPtr mainFrame = m_mainFrame;
-    if (!mainFrame) {
-        // Return blank page data for backforward compatibility; see rdar://127469660.
-        launchInitialProcessIfNecessary();
-        protectedLegacyMainFrameProcess()->sendWithAsyncReply(Messages::WebPage::GetWebArchiveData(), [completionHandler = WTFMove(completionHandler)](auto&& result) mutable {
-            if (!result)
-                return completionHandler(nullptr);
+    if (!mainFrame)
+        return completionHandler(nullptr);
 
-            completionHandler(API::Data::create(result->span()).ptr());
-        }, webPageIDInMainFrameProcess());
-        return;
-    }
-
-    getWebArchiveDataWithFrame(*mainFrame, WTFMove(completionHandler));
-}
-
-void WebPageProxy::getWebArchiveDataWithFrame(WebFrameProxy& frame, CompletionHandler<void(API::Data*)>&& completionHandler)
-{
     class WebArchvieCallbackAggregator final : public ThreadSafeRefCounted<WebArchvieCallbackAggregator, WTF::DestructionThread::MainRunLoop> {
     public:
         using Callback = CompletionHandler<void(RefPtr<LegacyWebArchive>&&)>;
@@ -1733,7 +1719,7 @@ void WebPageProxy::getWebArchiveDataWithFrame(WebFrameProxy& frame, CompletionHa
         HashMap<WebCore::FrameIdentifier, Ref<WebCore::LegacyWebArchive>> m_frameArchives;
     };
 
-    auto callbackAggregator = WebArchvieCallbackAggregator::create(frame.frameID(), [completionHandler = WTFMove(completionHandler)](auto webArchive) mutable {
+    auto callbackAggregator = WebArchvieCallbackAggregator::create(mainFrame->frameID(), [completionHandler = WTFMove(completionHandler)](auto webArchive) mutable {
         if (!webArchive)
             return completionHandler(nullptr);
 
@@ -1742,25 +1728,11 @@ void WebPageProxy::getWebArchiveDataWithFrame(WebFrameProxy& frame, CompletionHa
             return completionHandler(nullptr);
         completionHandler(API::Data::create(span(data.get())).ptr());
     });
-
-    HashMap<Ref<WebProcessProxy>, Vector<WebCore::FrameIdentifier>> processFrames;
-    RefPtr currentFrame = &frame;
-    while (currentFrame) {
-        processFrames.ensure(currentFrame->protectedProcess(), [&] {
-            return Vector<WebCore::FrameIdentifier> { };
-        }).iterator->value.append(currentFrame->frameID());
-
-        currentFrame = currentFrame->traverseNext().frame;
-    }
-
-    for (auto& [process, frameIDs] : processFrames) {
-        Ref { process }->sendWithAsyncReply(Messages::WebPage::GetWebArchivesForFrames(frameIDs), [frameIDs, callbackAggregator](auto&& result) {
-            if (result.size() > frameIDs.size())
-                return;
-
+    forEachWebContentProcess([&](auto& webProcess, auto pageID) {
+        webProcess.sendWithAsyncReply(Messages::WebPage::GetWebArchives(), [callbackAggregator](auto&& result) {
             callbackAggregator->addResult(WTFMove(result));
-        }, webPageIDInProcess(process.get()));
-    }
+        }, pageID);
+    });
 }
 
 String WebPageProxy::presentingApplicationBundleIdentifier() const

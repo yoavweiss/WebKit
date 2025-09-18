@@ -362,13 +362,10 @@ WebFramePolicyListenerProxy& WebFrameProxy::setUpPolicyListenerProxy(CompletionH
 
 void WebFrameProxy::getWebArchive(CompletionHandler<void(API::Data*)>&& callback)
 {
-#if PLATFORM(COCOA)
-    if (RefPtr page = m_page.get()) {
-        page->getWebArchiveDataWithFrame(*this, WTFMove(callback));
-        return;
-    }
-#endif
-    callback(nullptr);
+    if (RefPtr page = m_page.get())
+        page->getWebArchiveOfFrame(this, WTFMove(callback));
+    else
+        callback(nullptr);
 }
 
 void WebFrameProxy::getMainResourceData(CompletionHandler<void(API::Data*)>&& callback)
