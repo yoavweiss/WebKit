@@ -1232,9 +1232,7 @@ void Page::analyzeImagesForFindInPage(Function<void()>&& callback)
     if (settings().imageAnalysisDuringFindInPageEnabled()) {
         Ref imageAnalysisQueue = this->imageAnalysisQueue();
         imageAnalysisQueue->setDidBecomeEmptyCallback(WTFMove(callback));
-        RefPtr localMainFrame = dynamicDowncast<LocalFrame>(m_mainFrame.get());
-        if (RefPtr mainDocument = localMainFrame ? localMainFrame->document() : nullptr)
-            imageAnalysisQueue->enqueueAllImagesIfNeeded(*mainDocument, { }, { });
+        imageAnalysisQueue->enqueueAllImagesIfNeeded(m_mainFrame.get(), { }, { });
     }
 }
 #endif

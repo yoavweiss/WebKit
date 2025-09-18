@@ -9377,8 +9377,11 @@ void WebPage::updateWithTextRecognitionResult(const TextRecognitionResult& resul
 
 void WebPage::startVisualTranslation(const String& sourceLanguageIdentifier, const String& targetLanguageIdentifier)
 {
-    if (RefPtr document = m_mainFrame->coreLocalFrame()->document())
-        protectedCorePage()->protectedImageAnalysisQueue()->enqueueAllImagesIfNeeded(*document, sourceLanguageIdentifier, targetLanguageIdentifier);
+    RefPtr frame = m_mainFrame->coreFrame();
+    if (!frame)
+        return;
+
+    protectedCorePage()->protectedImageAnalysisQueue()->enqueueAllImagesIfNeeded(*frame, sourceLanguageIdentifier, targetLanguageIdentifier);
 }
 
 #endif // ENABLE(IMAGE_ANALYSIS)

@@ -12895,8 +12895,10 @@ void WebPageProxy::updateWithTextRecognitionResult(TextRecognitionResult&& resul
 
 void WebPageProxy::startVisualTranslation(const String& sourceLanguageIdentifier, const String& targetLanguageIdentifier)
 {
-    if (hasRunningProcess())
-        send(Messages::WebPage::StartVisualTranslation(sourceLanguageIdentifier, targetLanguageIdentifier));
+    forEachWebContentProcess([&](auto& webProcess, auto pageID) {
+        if (hasRunningProcess())
+            webProcess.send(Messages::WebPage::StartVisualTranslation(sourceLanguageIdentifier, targetLanguageIdentifier), pageID);
+    });
 }
 
 #endif // ENABLE(IMAGE_ANALYSIS)

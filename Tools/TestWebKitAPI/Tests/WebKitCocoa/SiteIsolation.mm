@@ -62,6 +62,12 @@
 #import <wtf/BlockPtr.h>
 #import <wtf/text/MakeString.h>
 
+#if ENABLE(IMAGE_ANALYSIS)
+#import "ImageAnalysisTestingUtilities.h"
+#import <pal/spi/cocoa/VisionKitCoreSPI.h>
+#import <pal/cocoa/VisionKitCoreSoftLink.h>
+#endif
+
 #if PLATFORM(IOS_FAMILY)
 #import <MobileCoreServices/MobileCoreServices.h>
 #endif
@@ -131,6 +137,50 @@
 }
 
 @end
+
+#if ENABLE(IMAGE_ANALYSIS)
+
+static unsigned gDidProcessRequestCount = 0;
+
+static void processRequestWithResults(id, SEL, VKImageAnalyzerRequest *, void (^)(double progress), void (^completion)(VKImageAnalysis *, NSError *))
+{
+    gDidProcessRequestCount++;
+    completion(TestWebKitAPI::createImageAnalysisWithSimpleFixedResults().get(), nil);
+}
+
+static VKImageAnalyzerRequest *makeFakeRequest(id, SEL, CGImageRef image, VKImageOrientation orientation, VKAnalysisTypes requestTypes)
+{
+    return TestWebKitAPI::createRequest(image, orientation, requestTypes).leakRef();
+}
+
+template <typename FunctionType>
+std::pair<std::unique_ptr<InstanceMethodSwizzler>, std::unique_ptr<InstanceMethodSwizzler>> makeImageAnalysisRequestSwizzler(FunctionType function)
+{
+    return std::pair {
+        makeUnique<InstanceMethodSwizzler>(PAL::getVKImageAnalyzerClassSingleton(), @selector(processRequest:progressHandler:completionHandler:), reinterpret_cast<IMP>(function)),
+        makeUnique<InstanceMethodSwizzler>(PAL::getVKImageAnalyzerRequestClassSingleton(), @selector(initWithCGImage:orientation:requestType:), reinterpret_cast<IMP>(makeFakeRequest))
+    };
+}
+
+@interface TestWKWebViewImageAnalysisTests : TestWKWebView
+- (void)waitForImageAnalysisRequests:(unsigned)numberOfRequests;
+@end
+
+@implementation TestWKWebViewImageAnalysisTests
+
+- (void)waitForImageAnalysisRequests:(unsigned)numberOfRequests
+{
+    TestWebKitAPI::Util::waitForConditionWithLogging([&] {
+        return gDidProcessRequestCount == numberOfRequests;
+    }, 3, @"Timed out waiting for %u image analysis requests to complete, got %u", numberOfRequests, gDidProcessRequestCount);
+
+    [self waitForNextPresentationUpdate];
+    EXPECT_EQ(gDidProcessRequestCount, numberOfRequests);
+}
+
+@end
+
+#endif // ENABLE(IMAGE_ANALYSIS)
 
 namespace TestWebKitAPI {
 
@@ -5643,5 +5693,58 @@ TEST(SiteIsolation, StatusBarVisibility)
     EXPECT_TRUE([[opened.webView objectByEvaluatingJavaScript:statusBarVisible] boolValue]);
     EXPECT_TRUE([[opened.webView objectByEvaluatingJavaScript:statusBarVisible inFrame:[opened.webView firstChildFrame]] boolValue]);
 }
+
+#if ENABLE(IMAGE_ANALYSIS)
+
+static RetainPtr<WKWebViewConfiguration> createWebViewConfigurationWithTextRecognitionEnhancements()
+{
+    RetainPtr configuration = [WKWebViewConfiguration _test_configurationWithTestPlugInClassName:@"WebProcessPlugInWithInternals" configureJSCForTesting:YES];
+    for (_WKFeature *feature in WKPreferences._features) {
+        NSString *key = feature.key;
+        if ([key isEqualToString:@"TextRecognitionInVideosEnabled"] || [key isEqualToString:@"VisualTranslationEnabled"] || [key isEqualToString:@"RemoveBackgroundEnabled"])
+            [[configuration preferences] _setEnabled:YES forFeature:feature];
+    }
+    [configuration _setAttachmentElementEnabled:YES];
+#if ENABLE(SERVICE_CONTROLS)
+    [configuration _setImageControlsEnabled:YES];
+#endif
+    return configuration;
+}
+
+TEST(SiteIsolation, IframeImageTranslation)
+{
+    auto requestSwizzler = makeImageAnalysisRequestSwizzler(processRequestWithResults);
+
+    HTTPServer server({
+        { "/example"_s, { "<iframe src='https://apple.com/multiple-images.html'></iframe>"_s } },
+        { "/multiple-images.html"_s, { [NSData dataWithContentsOfURL:[NSBundle.test_resourcesBundle URLForResource:@"multiple-images" withExtension:@"html"]] } },
+        { "/large-red-square.png"_s, { [NSData dataWithContentsOfURL:[NSBundle.test_resourcesBundle URLForResource:@"large-red-square" withExtension:@"png"]] } },
+        { "/sunset-in-cupertino-200px.png"_s, { [NSData dataWithContentsOfURL:[NSBundle.test_resourcesBundle URLForResource:@"sunset-in-cupertino-200px" withExtension:@"png"]] } },
+        { "/test.jpg"_s, { [NSData dataWithContentsOfURL:[NSBundle.test_resourcesBundle URLForResource:@"test" withExtension:@"jpg"]] } },
+        { "/400x400-green.png"_s, { [NSData dataWithContentsOfURL:[NSBundle.test_resourcesBundle URLForResource:@"400x400-green" withExtension:@"png"]] } },
+        { "/sunset-in-cupertino-100px.tiff"_s, { [NSData dataWithContentsOfURL:[NSBundle.test_resourcesBundle URLForResource:@"sunset-in-cupertino-100px" withExtension:@"tiff"]] } }
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    RetainPtr configuration = createWebViewConfigurationWithTextRecognitionEnhancements();
+
+    auto storeConfiguration = adoptNS([[_WKWebsiteDataStoreConfiguration alloc] initNonPersistentConfiguration]);
+    [storeConfiguration setHTTPSProxy:[NSURL URLWithString:[NSString stringWithFormat:@"https://127.0.0.1:%d/", server.port()]]];
+    [configuration setWebsiteDataStore:adoptNS([[WKWebsiteDataStore alloc] _initWithConfiguration:storeConfiguration.get()]).get()];
+
+    RetainPtr navigationDelegate = adoptNS([TestNavigationDelegate new]);
+    [navigationDelegate allowAnyTLSCertificate];
+    enableSiteIsolation(configuration.get());
+
+    RetainPtr webView = adoptNS([[TestWKWebViewImageAnalysisTests alloc] initWithFrame:CGRectMake(0, 0, 600, 600) configuration:configuration.get()]);
+    webView.get().navigationDelegate = navigationDelegate.get();
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/example"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+
+    [webView _startImageAnalysis:nil target:nil];
+    [webView waitForImageAnalysisRequests:5];
+}
+
+#endif // ENABLE(IMAGE_ANALYSIS)
 
 }

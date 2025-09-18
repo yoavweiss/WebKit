@@ -30,6 +30,7 @@
 
 #include "Chrome.h"
 #include "ChromeClient.h"
+#include "Frame.h"
 #include "HTMLCollection.h"
 #include "HTMLImageElement.h"
 #include "ImageOverlay.h"
@@ -119,7 +120,7 @@ void ImageAnalysisQueue::resumeProcessingSoon()
     m_resumeProcessingTimer.startOneShot(resumeProcessingDelay);
 }
 
-void ImageAnalysisQueue::enqueueAllImagesIfNeeded(Document& document, const String& sourceLanguageIdentifier, const String& targetLanguageIdentifier)
+void ImageAnalysisQueue::enqueueAllImagesIfNeeded(Frame& frame, const String& sourceLanguageIdentifier, const String& targetLanguageIdentifier)
 {
     if (!m_page)
         return;
@@ -134,18 +135,21 @@ void ImageAnalysisQueue::enqueueAllImagesIfNeeded(Document& document, const Stri
 
     m_sourceLanguageIdentifier = sourceLanguageIdentifier;
     m_targetLanguageIdentifier = targetLanguageIdentifier;
-    enqueueAllImagesRecursive(document);
+    enqueueAllImagesRecursive(frame);
 }
 
-void ImageAnalysisQueue::enqueueAllImagesRecursive(Document& document)
+void ImageAnalysisQueue::enqueueAllImagesRecursive(Frame& frame)
 {
-    for (auto& image : descendantsOfType<HTMLImageElement>(document))
-        enqueueIfNeeded(image);
-
-    for (auto& frameOwner : descendantsOfType<HTMLFrameOwnerElement>(document)) {
-        if (RefPtr contentDocument = frameOwner.contentDocument())
-            enqueueAllImagesRecursive(*contentDocument);
+    RefPtr localFrame = dynamicDowncast<LocalFrame>(frame);
+    if (localFrame) {
+        if (RefPtr document = localFrame->document()) {
+            for (auto& image : descendantsOfType<HTMLImageElement>(*document))
+                enqueueIfNeeded(image);
+        }
     }
+
+    for (auto* nextFrame = frame.tree().firstChild(); nextFrame; nextFrame = nextFrame->tree().nextSibling())
+        enqueueAllImagesRecursive(*nextFrame);
 }
 
 void ImageAnalysisQueue::resumeProcessing()
