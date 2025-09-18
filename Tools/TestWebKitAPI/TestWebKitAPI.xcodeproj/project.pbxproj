@@ -726,6 +726,7 @@
 		A13EBBAB1B87434600097110 /* PlatformUtilitiesCocoa.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0F139E721A423A2B00F590F5 /* PlatformUtilitiesCocoa.mm */; };
 		A13EBBB01B87436F00097110 /* BundleParametersPlugIn.mm in Sources */ = {isa = PBXBuildFile; fileRef = A13EBBAE1B87436F00097110 /* BundleParametersPlugIn.mm */; };
 		A14FC58B1B89927100D107EB /* ContentFilteringPlugIn.mm in Sources */ = {isa = PBXBuildFile; fileRef = A14FC5891B89927100D107EB /* ContentFilteringPlugIn.mm */; };
+		A16E590E2E7B713C0093E45F /* remove-fullscreen-element-from-dom.html in Copy Resources */ = {isa = PBXBuildFile; fileRef = A16E590D2E7B71310093E45F /* remove-fullscreen-element-from-dom.html */; };
 		A170E3AA2ABA7857009EA799 /* VectorCocoa.mm in Sources */ = {isa = PBXBuildFile; fileRef = A170E3A22ABA7857009EA799 /* VectorCocoa.mm */; };
 		A17191AD2CD2DB090088944E /* WKWebViewLogging.mm in Sources */ = {isa = PBXBuildFile; fileRef = A17191AC2CD2DB090088944E /* WKWebViewLogging.mm */; };
 		A176D24B2D6D2A4E00C63915 /* GPUExtension.appex in Embed Extensions */ = {isa = PBXBuildFile; fileRef = A176D2472D6D295400C63915 /* GPUExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -2200,6 +2201,7 @@
 				A17C46E32C98E54B0023F3C7 /* qr-code.png in Copy Resources */,
 				A17C46E42C98E54B0023F3C7 /* red.html in Copy Resources */,
 				56EEE4832D8D706F003D4FB1 /* RemoteObjectRegistry-BadReplyBlock.html in Copy Resources */,
+				A16E590E2E7B713C0093E45F /* remove-fullscreen-element-from-dom.html in Copy Resources */,
 				A17C46E52C98E54B0023F3C7 /* remove-node-on-drop.html in Copy Resources */,
 				A17C47EF2C98E5C20023F3C7 /* rendered-image-excluding-overflow.html in Copy Resources */,
 				A17C47F02C98E5C20023F3C7 /* resourceLoadStatisticsMissingUniqueIndex.db in Copy Resources */,
@@ -3684,6 +3686,8 @@
 		A1508C532DAEF1A500C3E213 /* process-entitlements.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "process-entitlements.sh"; sourceTree = "<group>"; };
 		A15502281E05020B00A24C57 /* DuplicateCompletionHandlerCalls.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DuplicateCompletionHandlerCalls.mm; sourceTree = "<group>"; };
 		A155022B1E050BC500A24C57 /* duplicate-completion-handler-calls.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "duplicate-completion-handler-calls.html"; sourceTree = "<group>"; };
+		A16E59052E7B6F820093E45F /* RemoveFullscreenElementFromDOM.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RemoveFullscreenElementFromDOM.mm; sourceTree = "<group>"; };
+		A16E590D2E7B71310093E45F /* remove-fullscreen-element-from-dom.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "remove-fullscreen-element-from-dom.html"; sourceTree = "<group>"; };
 		A16F66B91C40EA2000BD4D24 /* ContentFiltering.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ContentFiltering.html; sourceTree = "<group>"; };
 		A170E3A22ABA7857009EA799 /* VectorCocoa.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorCocoa.mm; sourceTree = "<group>"; };
 		A17191AC2CD2DB090088944E /* WKWebViewLogging.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WKWebViewLogging.mm; sourceTree = "<group>"; };
@@ -4922,6 +4926,7 @@
 				1A4F81D01BDFFDCF004E672E /* RemoteObjectRegistry.h */,
 				1A4F81C81BDFFD18004E672E /* RemoteObjectRegistry.mm */,
 				1A4F81CD1BDFFD53004E672E /* RemoteObjectRegistryPlugIn.mm */,
+				A16E59052E7B6F820093E45F /* RemoveFullscreenElementFromDOM.mm */,
 				A12DDBF91E836F0700CF6CAE /* RenderedImageWithOptions.mm */,
 				A12DDBFC1E836FF100CF6CAE /* RenderedImageWithOptionsPlugIn.mm */,
 				A12DDC011E8374F500CF6CAE /* RenderedImageWithOptionsProtocol.h */,
@@ -5895,6 +5900,7 @@
 				F41AB9941EF4692C0083FA08 /* prevent-operation.html */,
 				F41AB99A1EF4692C0083FA08 /* prevent-start.html */,
 				56EEE4822D8D706F003D4FB1 /* RemoteObjectRegistry-BadReplyBlock.html */,
+				A16E590D2E7B71310093E45F /* remove-fullscreen-element-from-dom.html */,
 				A12DDBFF1E8373C100CF6CAE /* rendered-image-excluding-overflow.html */,
 				498D030926376B2C009CBFAD /* resourceLoadStatisticsMissingUniqueIndex.db */,
 				F46849BF1EEF5EDC00B937FE /* rich-and-plain-text.html */,
