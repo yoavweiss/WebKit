@@ -128,8 +128,12 @@ static bool shouldRepaintOnSizeChange(RenderReplaced& renderer)
 {
     if (is<RenderHTMLCanvas>(renderer))
         return true;
+
+#if ENABLE(VIDEO)
     if (auto* renderImage = dynamicDowncast<RenderImage>(renderer); renderImage && !is<RenderMedia>(*renderImage) && !renderImage->isShowingMissingOrImageError())
         return true;
+#endif
+
     return false;
 }
 
