@@ -117,13 +117,17 @@ class Runner(object):
         return args
 
     @staticmethod
-    def _shard_tests(tests):
+    def _shard_tests(tests, fully_parallel):
         shards = {}
         for test in tests:
             shard_prefix = '.'.join(test.split('.')[:-1])
             if shard_prefix not in shards:
                 shards[shard_prefix] = []
             shards[shard_prefix].append(test)
+        if fully_parallel:
+            shards = {}
+            for i, test in enumerate(tests):
+                shards[f"{test}.{i}"] = [test]
         return shards
 
     def run(self, tests, num_workers):
@@ -131,7 +135,7 @@ class Runner(object):
             return
 
         self.printer.write_update('Sharding tests ...')
-        shards = Runner._shard_tests(tests)
+        shards = Runner._shard_tests(tests, self.port.get_option('fully_parallel'))
 
         original_level = server_process_logger.level
         server_process_logger.setLevel(logging.CRITICAL)
@@ -161,7 +165,7 @@ class Runner(object):
                 # Dispatch shards from groups first, so we start dedicated groups running before all our other shards
                 for name, tests in iteritems(shards):
                     group = self.port.group_for_shard(type('Shard', (), {'name': name})(), suite='api-tests')
-                    if not group:
+                    if not group or self.port.get_option('fully_parallel'):
                         continue
 
                     was_sent.add(name)
