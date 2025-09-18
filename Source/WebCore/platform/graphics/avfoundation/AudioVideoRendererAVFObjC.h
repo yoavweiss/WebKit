@@ -28,6 +28,7 @@
 #include "AudioVideoRenderer.h"
 #include "PlatformDynamicRangeLimit.h"
 #include "ProcessIdentity.h"
+#include "TrackInfo.h"
 #include "WebAVSampleBufferListener.h"
 #include <wtf/Forward.h>
 #include <wtf/Function.h>
@@ -47,6 +48,7 @@ typedef struct CF_BRIDGED_TYPE(id) __CVBuffer *CVPixelBufferRef;
 namespace WebCore {
 
 class EffectiveRateChangedListener;
+class MediaSample;
 class PixelBufferConformerCV;
 class VideoLayerManagerObjC;
 class VideoMediaSampleRenderer;

@@ -39,6 +39,7 @@
 #include "SourceBufferPrivateClient.h"
 #include "TimeRanges.h"
 #include "TrackBuffer.h"
+#include "TrackInfo.h"
 #include "VideoTrackPrivate.h"
 #include <wtf/CheckedArithmetic.h>
 #include <wtf/IteratorRange.h>

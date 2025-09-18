@@ -36,6 +36,7 @@
 #include "MockMediaPlayerMediaSource.h"
 #include "MockMediaSourcePrivate.h"
 #include "MockTracks.h"
+#include "SharedBuffer.h"
 #include "SourceBufferPrivateClient.h"
 #include <JavaScriptCore/ArrayBuffer.h>
 #include <wtf/NativePromise.h>

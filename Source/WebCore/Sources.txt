@@ -2364,6 +2364,7 @@ platform/SleepDisablerClient.cpp
 platform/StaticPasteboard.cpp
 platform/StyleAppearance.cpp
 platform/SystemSoundManager.cpp
+platform/TrackInfo.cpp
 platform/Theme.cpp
 platform/ThemeTypes.cpp
 platform/ThermalMitigationNotifier.cpp

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <WebCore/MediaPlayerEnums.h>
+#include <WebCore/TrackInfo.h>
 #include <optional>
 #include <wtf/Forward.h>
 

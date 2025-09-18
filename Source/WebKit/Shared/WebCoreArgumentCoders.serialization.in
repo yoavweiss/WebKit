@@ -9274,7 +9274,7 @@ enum class WebCore::DOMAudioSessionType : uint8_t {
 };
 #endif
 
-header: <WebCore/MediaPlayerEnums.h>
+header: <WebCore/TrackInfo.h>
 [Nested] enum class WebCore::TrackInfoTrackType : uint8_t {
     Unknown,
     Audio,
@@ -9282,8 +9282,8 @@ header: <WebCore/MediaPlayerEnums.h>
     Text
 };
 
-header: <WebCore/MediaSample.h>
-[Nested] class WebCore::MediaSamplesBlock::MediaSampleItem {
+header: <WebCore/MediaSamplesBlock.h>
+[CustomHeader, Nested] class WebCore::MediaSamplesBlock::MediaSampleItem {
     MediaTime presentationTime;
     MediaTime decodeTime;
     MediaTime duration;

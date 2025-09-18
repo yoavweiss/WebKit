@@ -160,14 +160,6 @@ enum class VideoMediaSampleRendererPreference : uint8_t {
 };
 using VideoMediaSampleRendererPreferences = OptionSet<VideoMediaSampleRendererPreference>;
 
-enum class TrackInfoTrackType : uint8_t {
-    Unknown,
-    Audio,
-    Video,
-    Text
-};
-String convertEnumerationToString(TrackInfoTrackType);
-
 } // namespace WebCore
 
 
@@ -197,14 +189,6 @@ struct LogArgument<WebCore::MediaPlayerEnums::BufferingPolicy> {
     static String toString(const WebCore::MediaPlayerEnums::BufferingPolicy policy)
     {
         return convertEnumerationToString(policy);
-    }
-};
-
-template <>
-struct LogArgument<WebCore::TrackInfoTrackType> {
-    static String toString(const WebCore::TrackInfoTrackType type)
-    {
-        return convertEnumerationToString(type);
     }
 };
 

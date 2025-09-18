@@ -31,12 +31,14 @@
 #import "CAAudioStreamDescription.h"
 #import "Logging.h"
 #import "MediaSampleAVFObjC.h"
+#import "MediaSamplesBlock.h"
 #import "MediaUtilities.h"
 #import "SharedBuffer.h"
 #import "WebMAudioUtilitiesCocoa.h"
 #import <CoreMedia/CMFormatDescription.h>
 #import <pal/avfoundation/MediaTimeAVFoundation.h>
 #import <pal/spi/cocoa/AudioToolboxSPI.h>
+#import <wtf/Expected.h>
 #import <wtf/Scope.h>
 #import <wtf/TZoneMallocInlines.h>
 #import <wtf/cf/TypeCastsCF.h>

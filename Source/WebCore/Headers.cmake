@@ -2269,6 +2269,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/MediaDescription.h
     platform/MediaPromiseTypes.h
     platform/MediaSample.h
+    platform/MediaSamplesBlock.h
     platform/MediaSelectionOption.h
     platform/MediaSessionGroupIdentifier.h
     platform/MediaSessionIdentifier.h
@@ -2377,6 +2378,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/ThreadTimers.h
     platform/Timer.h
     platform/TouchAction.h
+    platform/TrackInfo.h
     platform/UserActivity.h
     platform/UserAgent.h
     platform/UserInterfaceLayoutDirection.h
