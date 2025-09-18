@@ -155,10 +155,9 @@ static GstCaps* transformCaps(GstBaseTransform* base, GstPadDirection direction,
             outgoingStructure = GUniquePtr<GstStructure>(gst_structure_copy(incomingStructure));
 
             if (!canDoPassthrough) {
-                auto originalMediaTypeView = WebCore::gstStructureGetString(outgoingStructure.get(), "original-media-type"_s);
-                RELEASE_ASSERT(originalMediaTypeView);
-                auto originalMediaType = originalMediaTypeView.utf8();
-                gst_structure_set_name(outgoingStructure.get(), originalMediaType.data());
+                auto originalMediaType = WebCore::gstStructureGetString(outgoingStructure.get(), "original-media-type"_s);
+                RELEASE_ASSERT(originalMediaType);
+                gst_structure_set_name(outgoingStructure.get(), originalMediaType.rawCharacters());
             }
 
             // Filter out the DRM related fields from the down-stream caps.
@@ -171,10 +170,9 @@ static GstCaps* transformCaps(GstBaseTransform* base, GstPadDirection direction,
                 // can cause caps negotiation failures with adaptive bitrate streams.
                 gst_structure_remove_fields(outgoingStructure.get(), "base-profile", "codec_data", "height", "framerate", "level", "pixel-aspect-ratio", "profile", "rate", "width", nullptr);
 
-                auto nameView = WebCore::gstStructureGetName(incomingStructure);
-                auto name = nameView.utf8();
+                auto name = WebCore::gstStructureGetName(incomingStructure);
                 gst_structure_set(outgoingStructure.get(), "protection-system", G_TYPE_STRING, klass->protectionSystemId(self),
-                    "original-media-type", G_TYPE_STRING, name.data() , nullptr);
+                    "original-media-type", G_TYPE_STRING, name.rawCharacters() , nullptr);
 
                 // GST_PROTECTION_UNSPECIFIED_SYSTEM_ID was added in the GStreamer
                 // developement git master which will ship as version 1.16.0.

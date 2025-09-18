@@ -3233,7 +3233,7 @@ String FrameLoader::userAgent(const URL& url) const
             auto topFullURLPath = topFullURL.path();
             if (RegistrableDomain(topFullURL).string() == "easyjet.com"_s && topFullURLPath.contains("routemap"_s)) {
                 auto urlDomainString = RegistrableDomain(url).string();
-                if (urlDomainString == "bing.com") {
+                if (urlDomainString == "bing.com"_s) {
                     // FIXME: Move this to a proper UA override singular mechanism
                     // https://bugs.webkit.org/show_bug.cgi?id=274374
                     userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:135.0) Gecko/20100101 Firefox/135.0"_s;

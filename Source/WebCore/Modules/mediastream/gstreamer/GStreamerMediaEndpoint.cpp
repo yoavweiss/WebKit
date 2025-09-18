@@ -1127,7 +1127,7 @@ GRefPtr<GstPad> GStreamerMediaEndpoint::requestPad(const GRefPtr<GstCaps>& allow
         }
         std::optional<int> payloadType;
         if (auto encodingName = gstStructureGetString(structure, "encoding-name"_s))
-            payloadType = payloadTypeForEncodingName(encodingName);
+            payloadType = payloadTypeForEncodingName(encodingName.toString());
 
         if (!payloadType) {
             if (availablePayloadType < 128)
@@ -1441,7 +1441,7 @@ void GStreamerMediaEndpoint::connectIncomingTrack(WebRTCTrackData& data)
     GST_DEBUG_OBJECT(m_pipeline.get(), "Connecting incoming track with mid '%s' and caps %" GST_PTR_FORMAT, data.mid.ascii().data(), caps.get());
     if (!gst_caps_is_empty(caps.get()) && !gst_caps_is_any(caps.get())) [[likely]] {
         const auto structure = gst_caps_get_structure(caps.get(), 0);
-        if (auto encodingName = gstStructureGetString(structure, "encoding-name")) {
+        if (auto encodingName = gstStructureGetString(structure, "encoding-name"_s)) {
             if (encodingName == "TELEPHONE-EVENT"_s) {
                 GST_DEBUG_OBJECT(pipeline(), "Starting incoming DTMF stream");
                 gst_element_set_state(m_pipeline.get(), GST_STATE_PLAYING);
@@ -2375,7 +2375,7 @@ GUniquePtr<GstStructure> GStreamerMediaEndpoint::preprocessStats(const GRefPtr<G
                 gst_structure_set(structure.get(), "frame-height", G_TYPE_UINT, *frameHeight, nullptr);
             auto trackIdentifier = gstStructureGetString(additionalStats.get(), "track-identifier"_s);
             if (!trackIdentifier.isEmpty())
-                gst_structure_set(structure.get(), "track-identifier", G_TYPE_STRING, trackIdentifier.toStringWithoutCopying().utf8().data(), nullptr);
+                gst_structure_set(structure.get(), "track-identifier", G_TYPE_STRING, trackIdentifier.rawCharacters(), nullptr);
             auto kind = gstStructureGetString(structure.get(), "kind"_s);
             if (kind == "audio"_s)
                 hasInboundAudioStats = true;
@@ -2415,9 +2415,9 @@ GUniquePtr<GstStructure> GStreamerMediaEndpoint::preprocessStats(const GRefPtr<G
                 gst_structure_set(structure.get(), "frames-per-second", G_TYPE_DOUBLE, *framesPerSecond, nullptr);
 
             if (auto midValue = gstStructureGetString(ssrcStats.get(), "mid"_s))
-                gst_structure_set(structure.get(), "mid", G_TYPE_STRING, midValue.toString().ascii().data(), nullptr);
+                gst_structure_set(structure.get(), "mid", G_TYPE_STRING, midValue.rawCharacters(), nullptr);
             if (auto ridValue = gstStructureGetString(ssrcStats.get(), "rid"_s))
-                gst_structure_set(structure.get(), "rid", G_TYPE_STRING, ridValue.toString().ascii().data(), nullptr);
+                gst_structure_set(structure.get(), "rid", G_TYPE_STRING, ridValue.rawCharacters(), nullptr);
             auto kind = gstStructureGetString(structure.get(), "kind"_s);
             if (kind == "audio"_s)
                 hasOutboundAudioStats = true;

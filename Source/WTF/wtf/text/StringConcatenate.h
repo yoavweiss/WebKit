@@ -297,6 +297,14 @@ public:
     }
 };
 
+template<> class StringTypeAdapter<CStringView, void> : public StringTypeAdapter<std::span<const char8_t>, void> {
+public:
+    StringTypeAdapter(CStringView characters)
+        : StringTypeAdapter<std::span<const char8_t>, void> { characters.span8() }
+    {
+    }
+};
+
 template<typename... StringTypes> class StringTypeAdapter<std::tuple<StringTypes...>, void> {
 public:
     StringTypeAdapter(const std::tuple<StringTypes...>& tuple)

@@ -2265,7 +2265,7 @@ void MediaPlayerPrivateGStreamer::handleMessage(GstMessage* message)
                     // handle it here, until we remove the webkit+ protocol
                     // prefix from webkitwebsrc.
                     if (auto contentLengthValue = gstStructureGetString(responseHeaders.get(), contentLengthHeaderName)) {
-                        if (auto parsedContentLength = parseInteger<uint64_t>(contentLengthValue))
+                        if (auto parsedContentLength = parseInteger<uint64_t>(contentLengthValue.toString()))
                             contentLength = *parsedContentLength;
                     }
                 } else
@@ -3019,7 +3019,7 @@ bool MediaPlayerPrivateGStreamer::loadNextLocation()
         return false;
 
     const GValue* locations = gst_structure_get_value(m_mediaLocations.get(), "locations");
-    StringView newLocation;
+    CStringView newLocation;
 
     if (!locations) {
         // Fallback on new-location string.
@@ -3028,7 +3028,7 @@ bool MediaPlayerPrivateGStreamer::loadNextLocation()
             return false;
     }
 
-    if (!newLocation) {
+    if (newLocation.isEmpty()) {
         if (m_mediaLocationCurrentIndex < 0) {
             m_mediaLocations.reset();
             return false;
@@ -3045,7 +3045,7 @@ bool MediaPlayerPrivateGStreamer::loadNextLocation()
         newLocation = gstStructureGetString(structure, "new-location"_s);
     }
 
-    if (newLocation) {
+    if (!newLocation.isEmpty()) {
         // Found a candidate. new-location is not always an absolute url
         // though. We need to take the base of the current url and
         // append the value of new-location to it.
