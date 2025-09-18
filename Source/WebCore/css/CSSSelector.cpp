@@ -31,6 +31,7 @@
 #include "CSSSelectorList.h"
 #include "CommonAtomStrings.h"
 #include "HTMLNames.h"
+#include "MutableCSSSelector.h"
 #include "SelectorPseudoTypeMap.h"
 #include <memory>
 #include <queue>
@@ -865,16 +866,20 @@ void CSSSelector::resolveNestingParentSelectors(const CSSSelectorList& parent)
     visitSimpleSelectors(WTFMove(replaceParentSelector), VisitFunctionalPseudoClasses::Yes);
 }
 
-void CSSSelector::replaceNestingParentByPseudoClassScope()
+void CSSSelector::replaceNestingSelectorByWhereScope()
 {
     auto replaceParentSelector = [] (CSSSelector& selector) {
         if (selector.match() == Match::NestingParent) {
-            // Replace by :scope
-            selector.setMatch(Match::PseudoClass);
-            selector.setPseudoClass(PseudoClass::Scope);
-            // Top-level nesting parent selector acts like :scope with zero specificity.
+            // Top-level nesting parent selector acts like :scope with zero specificity thanks to :where
             // https://github.com/w3c/csswg-drafts/issues/10196#issuecomment-2161119978
-            selector.setImplicit();
+            // Replace by :where(:scope)
+            auto scopeSelector = makeUnique<MutableCSSSelector>();
+            scopeSelector->setMatch(CSSSelector::Match::PseudoClass);
+            scopeSelector->setPseudoClass(CSSSelector::PseudoClass::Scope);
+
+            selector.setMatch(CSSSelector::Match::PseudoClass);
+            selector.setPseudoClass(CSSSelector::PseudoClass::Where);
+            selector.setSelectorList(makeUnique<CSSSelectorList>(MutableCSSSelectorList::from(WTFMove(scopeSelector))));
         }
         return false;
     };

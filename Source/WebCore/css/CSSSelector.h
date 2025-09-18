@@ -75,7 +75,7 @@ public:
     bool hasExplicitPseudoClassScope() const;
     bool hasScope() const;
     void resolveNestingParentSelectors(const CSSSelectorList& parent);
-    void replaceNestingParentByPseudoClassScope();
+    void replaceNestingSelectorByWhereScope();
 
     using PseudoClass = CSSSelectorPseudoClass;
     using PseudoElement = CSSSelectorPseudoElement;
