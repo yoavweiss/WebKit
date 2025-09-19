@@ -223,7 +223,7 @@ class WebPlatformTestExporter(object):
         self._remote = self._init_wpt_remote()
         if not self._remote:
             return 1
-        self._linter = self._linter(self._options.repository_directory, self._host.filesystem)
+        self._linter = self._linter(repository_directory, self._host.filesystem)
         return True
 
     def clean(self):
