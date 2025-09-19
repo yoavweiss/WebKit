@@ -24,15 +24,13 @@
 #if ENABLE_SWIFTUI
 
 internal import SwiftUI
+internal import os
 @_spi(CrossImportOverlay) import WebKit
 internal import WebKit_Private.WKPreferencesPrivate
 
-#if !USE_APPLE_INTERNAL_SDK
-// Stubs for behavior not implemented in open source.
-extension WebPageWebView {
-    public func configureScrollInputBehavior(_ behavior: Any, for input: Any) { }
+extension Logger {
+    fileprivate static let webView = Logger(subsystem: "com.apple.WebKit", category: "SwiftUIWebView")
 }
-#endif
 
 @MainActor
 struct WebViewRepresentable {
@@ -81,9 +79,15 @@ struct WebViewRepresentable {
         }
         #endif
 
+        #if os(visionOS)
         if let scrollInputBehavior = environment.webViewScrollInputBehaviorContext {
-            webView.configureScrollInputBehavior(scrollInputBehavior.behavior, for: scrollInputBehavior.input)
+            if scrollInputBehavior.input == .look {
+                webView.configuration.preferences._overlayRegionsEnabled = scrollInputBehavior.behavior != .disabled
+            } else {
+                Logger.webView.error("Only the `.look` ScrollInputKind is supported.")
+            }
         }
+        #endif
 
         #if os(macOS)
         if let scrollEdgeEffectStyle = environment.webViewScrollEdgeEffectStyleContext {
