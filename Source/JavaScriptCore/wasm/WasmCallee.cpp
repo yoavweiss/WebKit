@@ -374,6 +374,9 @@ const StackMap& OptimizingJITCallee::stackmap(CallSiteIndex callSiteIndex) const
 
 Box<PCToCodeOriginMap> OptimizingJITCallee::materializePCToOriginMap(B3::PCToOriginMap&& originMap, LinkBuffer& linkBuffer)
 {
+    constexpr bool verbose = false;
+    ASSERT(originMap.ranges().size());
+    dataLogLnIf(verbose, "Materializing PCToOriginMap of size: ", originMap.ranges().size());
     constexpr bool shouldBuildMapping = true;
     PCToCodeOriginMapBuilder builder(shouldBuildMapping);
     for (const B3::PCToOriginMap::OriginRange& originRange : originMap.ranges()) {
