@@ -82,8 +82,6 @@ public:
 
     UserContentControllerParameters parametersForProcess(WebProcessProxy&) const;
 
-    void addProcess(WebProcessProxy&);
-
     API::Array& userScripts() { return m_userScripts.get(); }
     void addUserScript(API::UserScript&, InjectUserScriptImmediately);
     void removeUserScript(API::UserScript&);
@@ -131,7 +129,7 @@ public:
     void didPostMessage(WebPageProxy&, FrameInfoData&&, ScriptMessageHandlerIdentifier, JavaScriptEvaluationResult&&, CompletionHandler<void(Expected<JavaScriptEvaluationResult, String>&&)>&&) const;
 
 private:
-    WeakHashSet<WebProcessProxy> m_processes;
+    mutable WeakHashSet<WebProcessProxy> m_processes;
     const Ref<API::Array> m_userScripts;
     const Ref<API::Array> m_userStyleSheets;
     HashMap<ScriptMessageHandlerIdentifier, Ref<WebScriptMessageHandler>> m_scriptMessageHandlers;

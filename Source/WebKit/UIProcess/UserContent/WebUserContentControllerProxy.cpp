@@ -95,13 +95,10 @@ void WebUserContentControllerProxy::removeNetworkProcess(NetworkProcessProxy& pr
 }
 #endif
 
-void WebUserContentControllerProxy::addProcess(WebProcessProxy& webProcessProxy)
-{
-    m_processes.add(webProcessProxy);
-}
-
 UserContentControllerParameters WebUserContentControllerProxy::parametersForProcess(WebProcessProxy& process) const
 {
+    m_processes.add(process);
+
     Vector<WebUserScriptData> userScripts;
     for (RefPtr userScript : m_userScripts->elementsOfType<API::UserScript>())
         userScripts.append({ userScript->identifier(), Ref { userScript->contentWorld() }->worldDataForProcess(process), userScript->userScript() });

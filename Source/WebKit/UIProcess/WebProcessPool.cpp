@@ -711,7 +711,7 @@ void WebProcessPool::establishRemoteWorkerContextConnectionToNetworkProcess(Remo
 
     auto useProcessForRemoteWorkers = [&](WebProcessProxy& process) {
         remoteWorkerProcessProxy = process;
-        process.enableRemoteWorkers(workerType, processPool->userContentControllerIdentifierForRemoteWorkers());
+        process.enableRemoteWorkers(workerType, processPool->userContentControllerForRemoteWorkers());
         if (process.isInProcessCache()) {
             processPool->webProcessCache().removeProcess(process, WebProcessCache::ShouldShutDownProcess::No);
             ASSERT(!process.isInProcessCache());
@@ -1277,12 +1277,12 @@ Ref<WebProcessProxy> WebProcessPool::processForSite(WebsiteDataStore& websiteDat
     return createNewWebProcess(&websiteDataStore, lockdownMode);
 }
 
-UserContentControllerIdentifier WebProcessPool::userContentControllerIdentifierForRemoteWorkers()
+Ref<WebUserContentControllerProxy> WebProcessPool::userContentControllerForRemoteWorkers()
 {
     if (!m_userContentControllerForRemoteWorkers)
         m_userContentControllerForRemoteWorkers = WebUserContentControllerProxy::create();
 
-    return m_userContentControllerForRemoteWorkers->identifier();
+    return *m_userContentControllerForRemoteWorkers;
 }
 
 Ref<WebPageProxy> WebProcessPool::createWebPage(PageClient& pageClient, Ref<API::PageConfiguration>&& pageConfiguration)

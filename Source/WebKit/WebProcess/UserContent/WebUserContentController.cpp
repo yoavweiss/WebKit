@@ -76,16 +76,23 @@ static WorldMap& worldMap()
     return map;
 }
 
-Ref<WebUserContentController> WebUserContentController::getOrCreate(UserContentControllerIdentifier identifier)
+Ref<WebUserContentController> WebUserContentController::getOrCreate(UserContentControllerParameters&& parameters)
 {
+    auto identifier = parameters.identifier;
     auto& userContentControllerPtr = userContentControllers().add(identifier, nullptr).iterator->value;
-    if (userContentControllerPtr)
-        return *userContentControllerPtr;
+        if (userContentControllerPtr)
+            return *userContentControllerPtr;
 
-    RefPtr<WebUserContentController> userContentController = adoptRef(new WebUserContentController(identifier));
+    Ref userContentController = adoptRef(*new WebUserContentController(identifier));
     userContentControllerPtr = userContentController.get();
 
-    return userContentController.releaseNonNull();
+    userContentController->addUserScripts(WTFMove(parameters.userScripts), InjectUserScriptImmediately::No);
+    userContentController->addUserStyleSheets(WTFMove(parameters.userStyleSheets));
+    userContentController->addUserScriptMessageHandlers(WTFMove(parameters.messageHandlers));
+#if ENABLE(CONTENT_EXTENSIONS)
+    userContentController->addContentRuleLists(WTFMove(parameters.contentRuleLists));
+#endif
+    return userContentController;
 }
 
 WebUserContentController::WebUserContentController(UserContentControllerIdentifier identifier)
@@ -207,7 +214,7 @@ void WebUserContentController::removeAllUserScripts(const Vector<ContentWorldIde
     }
 }
 
-void WebUserContentController::addUserStyleSheets(const Vector<WebUserStyleSheetData>& userStyleSheets)
+void WebUserContentController::addUserStyleSheets(Vector<WebUserStyleSheetData>&& userStyleSheets)
 {
     for (const auto& userStyleSheetData : userStyleSheets) {
         addContentWorldIfNecessary(userStyleSheetData.worldData);
@@ -333,7 +340,7 @@ private:
 };
 #endif
 
-void WebUserContentController::addUserScriptMessageHandlers(const Vector<WebScriptMessageHandlerData>& scriptMessageHandlers)
+void WebUserContentController::addUserScriptMessageHandlers(Vector<WebScriptMessageHandlerData>&& scriptMessageHandlers)
 {
 #if ENABLE(USER_MESSAGE_HANDLERS)
     for (auto& handler : scriptMessageHandlers) {

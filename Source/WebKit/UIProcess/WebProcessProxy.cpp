@@ -295,7 +295,7 @@ Ref<WebProcessProxy> WebProcessProxy::createForRemoteWorkers(RemoteWorkerType wo
 {
     Ref proxy = adoptRef(*new WebProcessProxy(processPool, &websiteDataStore, IsPrewarmed::No, CrossOriginMode::Shared, lockdownMode));
     proxy->m_site = WTFMove(site);
-    proxy->enableRemoteWorkers(workerType, processPool.userContentControllerIdentifierForRemoteWorkers());
+    proxy->enableRemoteWorkers(workerType, processPool.userContentControllerForRemoteWorkers());
     proxy->connect();
     return proxy;
 }
@@ -2713,23 +2713,7 @@ void WebProcessProxy::disableRemoteWorkers(OptionSet<RemoteWorkerType> workerTyp
     maybeShutDown();
 }
 
-#if ENABLE(CONTENT_EXTENSIONS)
-static Vector<std::pair<WebCompiledContentRuleListData, URL>> contentRuleListsFromIdentifier(const std::optional<UserContentControllerIdentifier>& userContentControllerIdentifier)
-{
-    if (!userContentControllerIdentifier) {
-        ASSERT_NOT_REACHED();
-        return { };
-    }
-
-    RefPtr userContentController = WebUserContentControllerProxy::get(*userContentControllerIdentifier);
-    if (!userContentController)
-        return { };
-
-    return userContentController->contentRuleListData();
-}
-#endif
-
-void WebProcessProxy::enableRemoteWorkers(RemoteWorkerType workerType, const UserContentControllerIdentifier& userContentControllerIdentifier)
+void WebProcessProxy::enableRemoteWorkers(RemoteWorkerType workerType, const WebUserContentControllerProxy& userContentController)
 {
     WEBPROCESSPROXY_RELEASE_LOG(ServiceWorker, "enableWorkers: workerType=%u", static_cast<unsigned>(workerType));
     auto& workerInformation = workerType == RemoteWorkerType::SharedWorker ? m_sharedWorkerInformation : m_serviceWorkerInformation;
@@ -2738,12 +2722,7 @@ void WebProcessProxy::enableRemoteWorkers(RemoteWorkerType workerType, const Use
     workerInformation = RemoteWorkerInformation {
         WebPageProxyIdentifier::generate(),
         PageIdentifier::generate(),
-        RemoteWorkerInitializationData {
-            userContentControllerIdentifier,
-#if ENABLE(CONTENT_EXTENSIONS)
-            contentRuleListsFromIdentifier(userContentControllerIdentifier),
-#endif
-        },
+        RemoteWorkerInitializationData { userContentController.parametersForProcess(*this) },
         nullptr,
         { }
     };

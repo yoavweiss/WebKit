@@ -11897,7 +11897,6 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
     Ref userContentController = m_userContentController;
     if (RefPtr userContentControllerFromWebsitePolicies = websitePolicies ? websitePolicies->userContentController() : nullptr)
         userContentController = userContentControllerFromWebsitePolicies.releaseNonNull();
-    userContentController->addProcess(process);
 
     if (m_sessionStateWasRestoredByAPIRequest)
         m_backForwardList->setItemsAsRestoredFromSession();
