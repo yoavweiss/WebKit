@@ -29,6 +29,7 @@
 
 #include "ArrayReferenceTuple.h"
 #include "RemoteDisplayListIdentifier.h"
+#include "RemoteGradientIdentifier.h"
 #include "RemoteGraphicsContextIdentifier.h"
 #include "RemoteRenderingBackend.h"
 #include "StreamMessageReceiver.h"
@@ -58,13 +59,13 @@ public:
     void concatCTM(const WebCore::AffineTransform&);
     void setFillPackedColor(WebCore::PackedColor::RGBA);
     void setFillColor(const WebCore::Color&);
-    void setFillCachedGradient(WebCore::RenderingResourceIdentifier, const WebCore::AffineTransform&);
+    void setFillCachedGradient(RemoteGradientIdentifier, const WebCore::AffineTransform&);
     void setFillGradient(Ref<WebCore::Gradient>&&, const WebCore::AffineTransform&);
     void setFillPattern(WebCore::RenderingResourceIdentifier tileImageIdentifier, const WebCore::PatternParameters&);
     void setFillRule(WebCore::WindRule);
     void setStrokePackedColor(WebCore::PackedColor::RGBA);
     void setStrokeColor(const WebCore::Color&);
-    void setStrokeCachedGradient(WebCore::RenderingResourceIdentifier, const WebCore::AffineTransform&);
+    void setStrokeCachedGradient(RemoteGradientIdentifier, const WebCore::AffineTransform&);
     void setStrokeGradient(Ref<WebCore::Gradient>&&, const WebCore::AffineTransform&);
     void setStrokePattern(WebCore::RenderingResourceIdentifier tileImageIdentifier, const WebCore::PatternParameters&);
     void setStrokePackedColorAndThickness(WebCore::PackedColor::RGBA, float);

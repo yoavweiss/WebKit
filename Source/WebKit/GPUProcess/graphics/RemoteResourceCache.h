@@ -28,6 +28,7 @@
 #if ENABLE(GPU_PROCESS)
 
 #include "RemoteDisplayListIdentifier.h"
+#include "RemoteGradientIdentifier.h"
 #include <WebCore/DisplayList.h>
 #include <WebCore/RenderingResourceIdentifier.h>
 #include <wtf/HashMap.h>
@@ -55,9 +56,9 @@ public:
     bool releaseNativeImage(WebCore::RenderingResourceIdentifier);
     RefPtr<WebCore::NativeImage> cachedNativeImage(WebCore::RenderingResourceIdentifier) const;
 
-    bool cacheGradient(WebCore::RenderingResourceIdentifier, Ref<WebCore::Gradient>&&);
-    bool releaseGradient(WebCore::RenderingResourceIdentifier);
-    RefPtr<WebCore::Gradient> cachedGradient(WebCore::RenderingResourceIdentifier) const;
+    bool cacheGradient(RemoteGradientIdentifier, Ref<WebCore::Gradient>&&);
+    bool releaseGradient(RemoteGradientIdentifier);
+    RefPtr<WebCore::Gradient> cachedGradient(RemoteGradientIdentifier) const;
 
     void cacheFilter(Ref<WebCore::Filter>&&);
     bool releaseFilter(WebCore::RenderingResourceIdentifier);
@@ -82,7 +83,7 @@ public:
 private:
     HashMap<WebCore::RenderingResourceIdentifier, Ref<WebCore::ImageBuffer>> m_imageBuffers;
     HashMap<WebCore::RenderingResourceIdentifier, Ref<WebCore::NativeImage>> m_nativeImages;
-    HashMap<WebCore::RenderingResourceIdentifier, Ref<WebCore::Gradient>> m_gradients;
+    HashMap<RemoteGradientIdentifier, Ref<WebCore::Gradient>> m_gradients;
     HashMap<WebCore::RenderingResourceIdentifier, Ref<WebCore::Filter>> m_filters;
     HashMap<WebCore::RenderingResourceIdentifier, Ref<WebCore::Font>> m_fonts;
     HashMap<WebCore::RenderingResourceIdentifier, Ref<WebCore::FontCustomPlatformData>> m_fontCustomPlatformDatas;
