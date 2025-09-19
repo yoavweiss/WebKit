@@ -4540,7 +4540,8 @@ int jscmain(int argc, char** argv)
 #if PLATFORM(COCOA)
     auto& memoryPressureHandler = MemoryPressureHandler::singleton();
     {
-        auto queue = adoptOSObject(dispatch_queue_create("jsc shell memory pressure handler", DISPATCH_QUEUE_SERIAL));
+        // FIXME: This is a false positive. rdar://160931336
+        SUPPRESS_RETAINPTR_CTOR_ADOPT auto queue = adoptOSObject(dispatch_queue_create("jsc shell memory pressure handler", DISPATCH_QUEUE_SERIAL));
         memoryPressureHandler.setDispatchQueue(WTFMove(queue));
     }
     Box<Critical> memoryPressureCriticalState = Box<Critical>::create(Critical::No);
