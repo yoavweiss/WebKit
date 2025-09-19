@@ -3761,7 +3761,8 @@ class RunJavaScriptCoreTests(shell.TestNewStyle, AddToLogMixin, ShellMixin):
             self.command = self.shell_command(' '.join(quote(str(c)) for c in self.command) + ' 2>&1 | Tools/Scripts/filter-test-logs jsc')
         rc = yield super().run()
 
-        logLines = self.log_observer_json.getStdout()
+        yield self._addToLog('json', '\n')
+        logLines = self.log_observer_json.getStdout().rstrip()
         json_text = ''.join([line for line in logLines.splitlines()])
         try:
             jsc_results = json.loads(json_text)
@@ -4245,9 +4246,8 @@ class RunWebKitTests(shell.TestNewStyle, AddToLogMixin, ShellMixin):
         yield super().runCommand(command)
 
         yield self._addToLog('json', '\n')
-
         logText = self.log_observer.getStdout() + self.log_observer.getStderr()
-        logTextJson = self.log_observer_json.getStdout()
+        logTextJson = self.log_observer_json.getStdout().rstrip()
 
         first_results = LayoutTestFailures.results_from_string(logTextJson)
         is_main = self.getProperty('github.base.ref', DEFAULT_BRANCH) == DEFAULT_BRANCH
@@ -4562,7 +4562,7 @@ class ReRunWebKitTests(RunWebKitTests):
 
         yield self._addToLog('json', '\n')
         logText = self.log_observer.getStdout() + self.log_observer.getStderr()
-        logTextJson = self.log_observer_json.getStdout()
+        logTextJson = self.log_observer_json.getStdout().rstrip()
 
         second_results = LayoutTestFailures.results_from_string(logTextJson)
         is_main = self.getProperty('github.base.ref', DEFAULT_BRANCH) == DEFAULT_BRANCH
@@ -4638,7 +4638,7 @@ class RunWebKitTestsWithoutChange(RunWebKitTests):
 
         yield self._addToLog('json', '\n')
         logText = self.log_observer.getStdout() + self.log_observer.getStderr()
-        logTextJson = self.log_observer_json.getStdout()
+        logTextJson = self.log_observer_json.getStdout().rstrip()
 
         clean_tree_results = LayoutTestFailures.results_from_string(logTextJson)
 
@@ -5096,7 +5096,7 @@ class RunWebKitTestsRepeatFailuresRedTree(RunWebKitTestsRedTree):
         yield shell.TestNewStyle.runCommand(self, command)
         yield self._addToLog('json', '\n')
         logText = self.log_observer.getStdout() + self.log_observer.getStderr()
-        logTextJson = self.log_observer_json.getStdout()
+        logTextJson = self.log_observer_json.getStdout().rstrip()
         with_change_repeat_failures_results = LayoutTestFailures.results_from_string(logTextJson)
         if with_change_repeat_failures_results:
             self.setProperty('with_change_repeat_failures_results_exceed_failure_limit', with_change_repeat_failures_results.did_exceed_test_failure_limit)
@@ -5165,7 +5165,7 @@ class RunWebKitTestsRepeatFailuresWithoutChangeRedTree(RunWebKitTestsRedTree):
         yield shell.TestNewStyle.runCommand(self, command)
         yield self._addToLog('json', '\n')
         logText = self.log_observer.getStdout() + self.log_observer.getStderr()
-        logTextJson = self.log_observer_json.getStdout()
+        logTextJson = self.log_observer_json.getStdout().rstrip()
         without_change_repeat_failures_results = LayoutTestFailures.results_from_string(logTextJson)
         if without_change_repeat_failures_results:
             self.setProperty('without_change_repeat_failures_results_exceed_failure_limit', without_change_repeat_failures_results.did_exceed_test_failure_limit)
@@ -5766,7 +5766,8 @@ class RunAPITests(shell.TestNewStyle, AddToLogMixin, ShellMixin):
 
     @defer.inlineCallbacks
     def analyze_failures_using_results_db(self):
-        logTextJson = self.log_observer_json.getStdout()
+        yield self._addToLog('json', '\n')
+        logTextJson = self.log_observer_json.getStdout().rstrip()
 
         failures = self.parse_api_failures_from_string(logTextJson)
         self.setProperty(f'{self.suffix}_failures', sorted(failures))
@@ -7409,7 +7410,8 @@ class FindUnexpectedStaticAnalyzerResults(shell.ShellCommandNewStyle, AnalyzeCha
 
     @defer.inlineCallbacks
     def decode_results_data(self):
-        logTextJson = self.log_observer_json.getStdout()
+        yield self._addToLog('json', '\n')
+        logTextJson = self.log_observer_json.getStdout().rstrip()
         if not logTextJson:
             yield self._addToLog(self.results_db_log_name, f'Failed to retrieve JSON output for unexpected results.\n')
             return defer.returnValue(None)
