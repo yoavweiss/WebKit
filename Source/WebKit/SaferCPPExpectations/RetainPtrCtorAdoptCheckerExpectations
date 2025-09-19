@@ -20,6 +20,5 @@ UIProcess/WebAuthentication/Cocoa/LocalConnection.mm
 UIProcess/WebAuthentication/Cocoa/WebAuthenticatorCoordinatorProxy.mm
 UIProcess/WebAuthentication/Mock/MockLocalConnection.mm
 UIProcess/WebAuthentication/Virtual/VirtualAuthenticatorUtils.mm
-UIProcess/mac/ServicesController.mm
 UIProcess/mac/WebViewImpl.mm
 webpushd/_WKMockUserNotificationCenter.mm

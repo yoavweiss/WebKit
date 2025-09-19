@@ -74,7 +74,7 @@ protected:
     bool isClientSandboxed();
 
     OSObjectPtr<xpc_connection_t> m_connection;
-    xpc_object_t m_initializerMessage;
+    OSObjectPtr<xpc_object_t> m_initializerMessage;
 };
 
 template<typename XPCServiceType>

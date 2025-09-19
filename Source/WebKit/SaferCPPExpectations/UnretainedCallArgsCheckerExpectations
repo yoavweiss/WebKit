@@ -38,7 +38,6 @@ Shared/Cocoa/RevealItem.mm
 Shared/Cocoa/WKNSError.mm
 Shared/Cocoa/WKNSURLRequest.mm
 Shared/EntryPointUtilities/Cocoa/Daemon/PCMDaemonEntryPoint.mm
-Shared/EntryPointUtilities/Cocoa/XPCService/XPCServiceEntryPoint.mm
 Shared/EntryPointUtilities/Cocoa/XPCService/XPCServiceMain.mm
 Shared/JavaScriptEvaluationResult.mm
 Shared/RemoteLayerTree/RemoteLayerTreePropertyApplier.mm
@@ -136,7 +135,6 @@ UIProcess/WebsiteData/Cocoa/WebsiteDataStoreCocoa.mm
 UIProcess/mac/DisplayCaptureSessionManager.mm
 UIProcess/mac/PageClientImplMac.mm
 UIProcess/mac/SecItemShimProxy.cpp
-UIProcess/mac/ServicesController.mm
 UIProcess/mac/TiledCoreAnimationDrawingAreaProxy.mm
 UIProcess/mac/ViewGestureControllerMac.mm
 UIProcess/mac/WKFullScreenWindowController.mm

@@ -127,7 +127,7 @@ RemoteInspector& RemoteInspector::singleton()
 }
 
 RemoteInspector::RemoteInspector()
-    : m_xpcQueue(dispatch_queue_create("com.apple.JavaScriptCore.remote-inspector-xpc", DISPATCH_QUEUE_SERIAL))
+    : m_xpcQueue(adoptOSObject(dispatch_queue_create("com.apple.JavaScriptCore.remote-inspector-xpc", DISPATCH_QUEUE_SERIAL)))
 {
 }
 
@@ -282,7 +282,7 @@ void RemoteInspector::start()
 
     m_enabled = true;
 
-    notify_register_dispatch(WIRServiceAvailableNotification, &m_notifyToken, m_xpcQueue, ^(int) {
+    notify_register_dispatch(WIRServiceAvailableNotification, &m_notifyToken, m_xpcQueue.get(), ^(int) {
         RemoteInspector::singleton().setupXPCConnectionIfNeeded();
     });
 
@@ -336,13 +336,13 @@ void RemoteInspector::setupXPCConnectionIfNeeded()
         return;
     }
 
-    auto connection = adoptOSObject(xpc_connection_create_mach_service(WIRXPCMachPortName, m_xpcQueue, 0));
+    auto connection = adoptOSObject(xpc_connection_create_mach_service(WIRXPCMachPortName, m_xpcQueue.get(), 0));
     if (!connection) {
         WTFLogAlways("RemoteInspector failed to create XPC connection.");
         return;
     }
 
-    m_relayConnection = adoptRef(new RemoteInspectorXPCConnection(connection.get(), m_xpcQueue, this));
+    m_relayConnection = adoptRef(new RemoteInspectorXPCConnection(connection.get(), m_xpcQueue.get(), this));
     m_relayConnection->sendMessage(@"syn", nil); // Send a simple message to initialize the XPC connection.
 
     if (m_automaticInspectionCandidates.size()) {
@@ -357,7 +357,7 @@ void RemoteInspector::setupXPCConnectionIfNeeded()
 
 void RemoteInspector::connectToWebInspector()
 {
-    dispatch_async(m_xpcQueue, ^{
+    dispatch_async(m_xpcQueue.get(), ^{
         RemoteInspector::singleton().setupXPCConnectionIfNeeded();
     });
 }

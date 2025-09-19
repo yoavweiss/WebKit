@@ -71,7 +71,7 @@ bool XPCServiceInitializerDelegate::checkEntitlements()
 
 bool XPCServiceInitializerDelegate::getConnectionIdentifier(IPC::Connection::Identifier& identifier)
 {
-    mach_port_t port = xpc_dictionary_copy_mach_send(m_initializerMessage, "server-port");
+    mach_port_t port = xpc_dictionary_copy_mach_send(m_initializerMessage.get(), "server-port");
     if (!MACH_PORT_VALID(port))
         return false;
 
@@ -81,19 +81,19 @@ bool XPCServiceInitializerDelegate::getConnectionIdentifier(IPC::Connection::Ide
 
 bool XPCServiceInitializerDelegate::getClientIdentifier(String& clientIdentifier)
 {
-    clientIdentifier = xpcDictionaryGetString(m_initializerMessage, "client-identifier"_s);
+    clientIdentifier = xpcDictionaryGetString(m_initializerMessage.get(), "client-identifier"_s);
     return !clientIdentifier.isEmpty();
 }
 
 bool XPCServiceInitializerDelegate::getClientBundleIdentifier(String& clientBundleIdentifier)
 {
-    clientBundleIdentifier = xpcDictionaryGetString(m_initializerMessage, "client-bundle-identifier"_s);
+    clientBundleIdentifier = xpcDictionaryGetString(m_initializerMessage.get(), "client-bundle-identifier"_s);
     return !clientBundleIdentifier.isEmpty();
 }
 
 bool XPCServiceInitializerDelegate::getClientSDKAlignedBehaviors(SDKAlignedBehaviors& behaviors)
 {
-    auto behaviorData = xpcDictionaryGetData(m_initializerMessage, "client-sdk-aligned-behaviors"_s);
+    auto behaviorData = xpcDictionaryGetData(m_initializerMessage.get(), "client-sdk-aligned-behaviors"_s);
     if (behaviorData.empty())
         return false;
     auto storageBytes = behaviors.storageBytes();
@@ -107,7 +107,7 @@ bool XPCServiceInitializerDelegate::getClientSDKAlignedBehaviors(SDKAlignedBehav
 
 bool XPCServiceInitializerDelegate::getProcessIdentifier(std::optional<WebCore::ProcessIdentifier>& identifier)
 {
-    auto parsedIdentifier = parseInteger<uint64_t>(xpcDictionaryGetString(m_initializerMessage, "process-identifier"_s));
+    auto parsedIdentifier = parseInteger<uint64_t>(xpcDictionaryGetString(m_initializerMessage.get(), "process-identifier"_s));
     if (!parsedIdentifier)
         return false;
     if (!ObjectIdentifier<WebCore::ProcessIdentifierType>::isValidIdentifier(*parsedIdentifier))
@@ -119,13 +119,13 @@ bool XPCServiceInitializerDelegate::getProcessIdentifier(std::optional<WebCore::
 
 bool XPCServiceInitializerDelegate::getClientProcessName(String& clientProcessName)
 {
-    clientProcessName = xpcDictionaryGetString(m_initializerMessage, "ui-process-name"_s);
+    clientProcessName = xpcDictionaryGetString(m_initializerMessage.get(), "ui-process-name"_s);
     return !clientProcessName.isEmpty();
 }
 
 bool XPCServiceInitializerDelegate::getExtraInitializationData(HashMap<String, String>& extraInitializationData)
 {
-    RetainPtr extraDataInitializationDataObject = xpc_dictionary_get_value(m_initializerMessage, "extra-initialization-data");
+    RetainPtr extraDataInitializationDataObject = xpc_dictionary_get_value(m_initializerMessage.get(), "extra-initialization-data");
 
     auto inspectorProcess = xpcDictionaryGetString(extraDataInitializationDataObject.get(), "inspector-process"_s);
     if (!inspectorProcess.isEmpty())
