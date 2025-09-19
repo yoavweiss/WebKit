@@ -137,14 +137,14 @@ GroupActivitiesCoordinator::GroupActivitiesCoordinator(GroupActivitiesSession& s
     , m_playbackCoordinator(adoptNS([PAL::allocAVDelegatingPlaybackCoordinatorInstance() initWithPlaybackControlDelegate:m_delegate.get()]))
     , m_stateChangeObserver([this] (auto& session, auto state) { sessionStateChanged(session, state); })
 {
-    [session.groupSession() coordinateWithCoordinator:m_playbackCoordinator.get()];
+    [session.protectedGroupSession() coordinateWithCoordinator:m_playbackCoordinator.get()];
     session.addStateChangeObserver(m_stateChangeObserver);
 }
 
 GroupActivitiesCoordinator::~GroupActivitiesCoordinator()
 {
-    m_session->groupSession().newActivityCallback = nil;
-    m_session->groupSession().stateChangedCallback = nil;
+    m_session->protectedGroupSession().get().newActivityCallback = nil;
+    m_session->protectedGroupSession().get().stateChangedCallback = nil;
 }
 
 void GroupActivitiesCoordinator::sessionStateChanged(const GroupActivitiesSession& session, GroupActivitiesSession::State state)
