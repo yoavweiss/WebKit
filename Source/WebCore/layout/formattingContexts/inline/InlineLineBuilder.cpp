@@ -863,7 +863,7 @@ void LineBuilder::applyShapingOnRunRange(LineCandidate& lineCandidate, std::pair
 
     size_t glyphIndex = 0;
     auto shapedContentWidth = InlineLayoutUnit { };
-    for (auto index = range.first; index < range.second; ++index) {
+    for (auto index = range.first; index <= range.second; ++index) {
         auto& run = runs[index];
         auto* inlineTextItem = dynamicDowncast<InlineTextItem>(run.inlineItem);
         if (!inlineTextItem) {
