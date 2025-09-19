@@ -5673,15 +5673,23 @@ void Document::flushDeferredResizeEvents()
     runResizeSteps();
 }
 
-void Document::addPendingScrollEventTarget(ContainerNode& target, ScrollEventType eventType)
+void Document::addPendingScrollEventTarget(ContainerNode& originalTarget, ScrollEventType eventType)
 {
     if (!m_pendingScrollEventTargetList)
         m_pendingScrollEventTargetList = makeUnique<PendingScrollEventTargetList>();
 
+    Ref target = [&] -> Ref<ContainerNode> {
+        if (RefPtr element = dynamicDowncast<HTMLElement>(originalTarget); element && element->isTextControlInnerTextElement()) {
+            if (RefPtr shadowHost = element->shadowHost())
+                return shadowHost.releaseNonNull();
+        }
+        return originalTarget;
+    }();
+
     auto& targets = m_pendingScrollEventTargetList->targets;
     auto it = targets.findIf([&] (auto& pair) {
         auto& [element, type] = pair;
-        return element.ptr() == &target && type == eventType;
+        return element.ptr() == target.ptr() && type == eventType;
     });
     if (it != notFound)
         return;
@@ -5689,7 +5697,7 @@ void Document::addPendingScrollEventTarget(ContainerNode& target, ScrollEventTyp
     if (targets.isEmpty())
         scheduleRenderingUpdate(RenderingUpdateStep::Scroll);
 
-    targets.append({ target, eventType });
+    targets.append({ target.get(), eventType });
 }
 
 void Document::setNeedsVisualViewportScrollEvent()

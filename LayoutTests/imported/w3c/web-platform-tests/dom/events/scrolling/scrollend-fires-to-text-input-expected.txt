@@ -2,6 +2,6 @@
 
 Harness Error (TIMEOUT), message = null
 
-TIMEOUT scrolled input field should receive scrollend. Test timed out
-NOTRUN scrolled input field should receive scrollend for animated scroll.
+PASS scrolled input field should receive scrollend.
+TIMEOUT scrolled input field should receive scrollend for animated scroll. Test timed out
 
