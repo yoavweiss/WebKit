@@ -11,7 +11,6 @@ platform/graphics/cg/ImageDecoderCG.cpp
 platform/graphics/cg/PatternCG.cpp
 platform/graphics/cocoa/VideoMediaSampleRenderer.mm
 platform/graphics/cv/PixelBufferConformerCV.cpp
-platform/graphics/mac/GraphicsChecksMac.cpp
 platform/mac/CursorMac.mm
 platform/mac/ScrollbarsControllerMac.mm
 platform/mediastream/mac/AVVideoCaptureSource.mm
