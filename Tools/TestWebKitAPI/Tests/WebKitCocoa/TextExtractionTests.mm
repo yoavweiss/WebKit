@@ -180,7 +180,7 @@ TEST(TextExtractionTests, InteractionDebugDescription)
 
         [interaction setNodeIdentifier:composeID.get()];
         description = [interaction debugDescriptionInWebView:webView.get() error:&error];
-        EXPECT_WK_STREQ("Click on editable div labeled 'Compose a new message', with rendered text 'Subject  Hello world.', containing child labeled 'Heading'", description);
+        EXPECT_WK_STREQ("Click on editable div labeled 'Compose a new message', with rendered text 'Subject  The quick brown fox jumped over the lazy dog', containing child labeled 'Heading'", description);
         EXPECT_NULL(error);
     }
     {
@@ -194,10 +194,10 @@ TEST(TextExtractionTests, InteractionDebugDescription)
         EXPECT_NULL(error);
 
         [interaction setNodeIdentifier:composeID.get()];
-        [interaction setText:@"Hello world"];
+        [interaction setText:@"«Testing»"];
         [interaction setReplaceAll:NO];
         description = [interaction debugDescriptionInWebView:webView.get() error:&error];
-        EXPECT_WK_STREQ("Enter text 'Hello world' into editable div labeled 'Compose a new message', with rendered text 'Subject  Hello world.', containing child labeled 'Heading'", description);
+        EXPECT_WK_STREQ("Enter text 'Testing' into editable div labeled 'Compose a new message', with rendered text 'Subject  The quick brown fox jumped over the lazy dog', containing child labeled 'Heading'", description);
         EXPECT_NULL(error);
     }
     {

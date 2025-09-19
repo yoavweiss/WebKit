@@ -1271,10 +1271,10 @@ static constexpr auto maxDescriptionLength = 512;
 
 static String normalizeText(const String& string)
 {
-    auto result = makeStringByReplacingAll(string, '\'', ""_s);
-    result = makeStringByReplacingAll(string, '\"', ""_s);
+    auto result = foldQuoteMarks(string);
+    for (auto character : { '"', '\'', '\r' })
+        result = makeStringByReplacingAll(result, character, ""_s);
     result = makeStringByReplacingAll(result, '\n', " "_s);
-    result = makeStringByReplacingAll(result, '\r', ""_s);
     result = result.trim(isASCIIWhitespace<char16_t>);
     if (result.length() <= maxDescriptionLength)
         return result;
