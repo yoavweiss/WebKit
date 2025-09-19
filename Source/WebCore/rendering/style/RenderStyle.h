@@ -49,7 +49,6 @@ class BorderData;
 class BorderValue;
 class Color;
 class Element;
-class FilterOperations;
 class FloatPoint;
 class FloatSize;
 class FloatPoint3D;
@@ -244,6 +243,7 @@ class CustomPropertyRegistry;
 
 struct Animation;
 struct AnchorNames;
+struct AppleColorFilter;
 struct AspectRatio;
 struct BackgroundLayer;
 struct BackgroundSize;
@@ -269,6 +269,7 @@ struct Content;
 struct CornerShapeValue;
 struct Cursor;
 struct DynamicRangeLimit;
+struct Filter;
 struct FlexBasis;
 struct GapGutter;
 struct GridPosition;
@@ -533,8 +534,6 @@ public:
     inline bool hasBorderImageOutsets() const;
     inline LayoutBoxExtent borderImageOutsets() const;
     inline LayoutBoxExtent maskBorderOutsets() const;
-
-    inline IntOutsets filterOutsets() const;
 
     Order rtlOrdering() const { return static_cast<Order>(m_inheritedFlags.rtlOrdering); }
     void setRTLOrdering(Order ordering) { m_inheritedFlags.rtlOrdering = static_cast<unsigned>(ordering); }
@@ -1192,15 +1191,14 @@ public:
 
     inline OptionSet<SpeakAs> speakAs() const;
 
-    inline const FilterOperations& filter() const;
+    inline const Style::Filter& filter() const;
     inline bool hasFilter() const;
-    bool hasReferenceFilterOnly() const;
 
-    inline const FilterOperations& appleColorFilter() const;
-    inline bool hasAppleColorFilter() const;
-
-    inline const FilterOperations& backdropFilter() const;
+    inline const Style::Filter& backdropFilter() const;
     inline bool hasBackdropFilter() const;
+
+    inline const Style::AppleColorFilter& appleColorFilter() const;
+    inline bool hasAppleColorFilter() const;
 
     inline void setBlendMode(BlendMode);
     inline bool isInSubtreeWithBlendMode() const;
@@ -1600,10 +1598,9 @@ public:
 
     inline void setTableLayout(TableLayoutType);
 
-    inline void setFilter(FilterOperations&&);
-    inline void setAppleColorFilter(FilterOperations&&);
-
-    inline void setBackdropFilter(FilterOperations&&);
+    inline void setFilter(Style::Filter&&);
+    inline void setBackdropFilter(Style::Filter&&);
+    inline void setAppleColorFilter(Style::AppleColorFilter&&);
 
     inline void setTabSize(const TabSize&);
 
@@ -2198,10 +2195,9 @@ public:
 
     static constexpr Style::ScrollBehavior initialScrollBehavior();
 
-    static inline FilterOperations initialFilter();
-    static inline FilterOperations initialAppleColorFilter();
-
-    static inline FilterOperations initialBackdropFilter();
+    static inline Style::Filter initialFilter();
+    static inline Style::Filter initialBackdropFilter();
+    static inline Style::AppleColorFilter initialAppleColorFilter();
 
     static constexpr BlendMode initialBlendMode();
     static constexpr Isolation initialIsolation();

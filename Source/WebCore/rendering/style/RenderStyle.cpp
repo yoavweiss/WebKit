@@ -1227,7 +1227,7 @@ bool RenderStyle::changeRequiresLayerRepaint(const RenderStyle& other, OptionSet
 
     bool currentColorDiffers = m_inheritedData->color != other.m_inheritedData->color;
     if (currentColorDiffers) {
-        if (filter().requiresRepaintForCurrentColorChange() || backdropFilter().requiresRepaintForCurrentColorChange())
+        if (filter().hasFilterThatRequiresRepaintForCurrentColorChange() || backdropFilter().hasFilterThatRequiresRepaintForCurrentColorChange())
             return true;
     }
 
@@ -3502,14 +3502,6 @@ void RenderStyle::setLineFitEdge(TextEdge value)
 TextEdge RenderStyle::initialLineFitEdge()
 {
     return { TextEdgeType::Leading, TextEdgeType::Leading };
-}
-
-bool RenderStyle::hasReferenceFilterOnly() const
-{
-    if (!hasFilter())
-        return false;
-    auto& filterOperations = m_nonInheritedData->miscData->filter->operations;
-    return filterOperations.size() == 1 && filterOperations.at(0)->type() == FilterOperation::Type::Reference;
 }
 
 Style::LineWidth RenderStyle::outlineWidth() const

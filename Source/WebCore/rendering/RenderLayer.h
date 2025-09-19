@@ -67,7 +67,6 @@ void outputLayerPositionTreeRecursive(TextStream&, const WebCore::RenderLayer&, 
 
 namespace WebCore {
 
-class CSSFilter;
 class ClipRects;
 class ClipRectsCache;
 class HitTestRequest;

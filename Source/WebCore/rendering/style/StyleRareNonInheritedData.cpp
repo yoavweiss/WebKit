@@ -383,7 +383,7 @@ OptionSet<Containment> StyleRareNonInheritedData::usedContain() const
 
 bool StyleRareNonInheritedData::hasBackdropFilters() const
 {
-    return !backdropFilter->operations.isEmpty();
+    return !backdropFilter->filter.isNone();
 }
 
 #if !LOG_DISABLED

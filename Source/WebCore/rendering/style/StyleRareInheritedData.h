@@ -79,7 +79,7 @@ class TextStream;
 
 namespace WebCore {
 
-class StyleFilterData;
+class StyleAppleColorFilterData;
 class StyleImage;
 
 // This struct is for rarely used inherited CSS3, CSS2, and WebKit-specific properties.
@@ -216,7 +216,7 @@ public:
 
     Style::Quotes quotes;
 
-    DataRef<StyleFilterData> appleColorFilter;
+    DataRef<StyleAppleColorFilterData> appleColorFilter;
 
     Style::WebkitLineGrid lineGrid;
     TabSize tabSize;

@@ -9439,9 +9439,9 @@
                 "aliases": [
                     "-webkit-filter"
                 ],
-                "animation-wrapper": "FilterWrapper",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-acceleration": "always",
-                "style-converter": "FilterOperations",
+                "style-converter": "StyleType<Filter>",
                 "parser-function": "consumeFilter",
                 "parser-grammar-unused": "none | <filter-value-list>",
                 "parser-grammar-unused-reason": "Needs support for the strong value representation."
@@ -9459,9 +9459,9 @@
                 "none"
             ],
             "codegen-properties": {
-                "animation-wrapper": "FilterWrapper",
+                "animation-wrapper": "StyleTypeWrapper",
                 "settings-flag": "colorFilterEnabled",
-                "style-converter": "AppleColorFilterOperations",
+                "style-converter": "StyleType<AppleColorFilter>",
                 "parser-function": "consumeAppleColorFilter",
                 "parser-grammar-unused": "none | <-apple-color-filter-value-list>",
                 "parser-grammar-unused-reason": "Needs support for the strong value representation."
@@ -9782,8 +9782,8 @@
             "codegen-properties": {
                 "cascade-alias": "backdrop-filter",
                 "skip-style-builder": true,
-                "style-extractor-converter": "FilterOperations",
-                "animation-wrapper": "FilterWrapper",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-extractor-converter": "StyleType<Filter>",
                 "parser-function": "consumeFilter",
                 "parser-grammar-unused": "none | <filter-value-list>",
                 "parser-grammar-unused-reason": "Needs support for the strong value representation."
@@ -9800,9 +9800,9 @@
             "animation-type": "see prose",
             "initial": "none",
             "codegen-properties": {
-                "animation-wrapper": "FilterWrapper",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-acceleration": "always",
-                "style-converter": "FilterOperations",
+                "style-converter": "StyleType<Filter>",
                 "parser-function": "consumeFilter",
                 "parser-grammar-unused": "none | <filter-value-list>",
                 "parser-grammar-unused-reason": "Needs support for the strong value representation.",

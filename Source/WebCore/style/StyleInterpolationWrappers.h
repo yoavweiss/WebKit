@@ -655,33 +655,6 @@ public:
 
 #endif
 
-class FilterWrapper final : public WrapperWithGetter<const FilterOperations&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FilterWrapper, Animation);
-public:
-    FilterWrapper(CSSPropertyID property, const FilterOperations& (RenderStyle::*getter)() const, void (RenderStyle::*setter)(FilterOperations&&))
-        : WrapperWithGetter<const FilterOperations&>(property, getter)
-        , m_setter(setter)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation compositeOperation) const final
-    {
-        return value(from).canInterpolate(value(to), compositeOperation);
-    }
-
-    bool requiresInterpolationForAccumulativeIteration(const RenderStyle&, const RenderStyle&) const final
-    {
-        return true;
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        (destination.*m_setter)(blendFunc(value(from), value(to), context));
-    }
-
-    void (RenderStyle::*m_setter)(FilterOperations&&);
-};
-
 inline const BoxShadow& shadowForInterpolation(const BoxShadow& shadowToMatch)
 {
     static NeverDestroyed<BoxShadow> defaultShadowData {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2024-2025 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -38,11 +38,11 @@ CSS::Blur toCSSBlur(Ref<BlurFilterOperation> operation, const RenderStyle& style
     return { CSS::Blur::Parameter { toCSS(Length<CSS::Nonnegative> { operation->stdDeviation() }, style) } };
 }
 
-Ref<FilterOperation> createFilterOperation(const CSS::Blur& filter, const Document&, RenderStyle&, const CSSToLengthConversionData& conversionData)
+Ref<FilterOperation> createFilterOperation(const CSS::Blur& filter, const BuilderState& state)
 {
     float stdDeviation = 0;
     if (auto parameter = filter.value)
-        stdDeviation = toStyle(*parameter, conversionData).value;
+        stdDeviation = toStyle(*parameter, state).value;
     else
         stdDeviation = filterFunctionDefaultValue<CSS::BlurFunction::name>().value;
 

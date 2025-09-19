@@ -861,7 +861,7 @@ crypto/keys/CryptoKeyOKP.cpp
 crypto/keys/CryptoKeyRSA.cpp
 crypto/keys/CryptoKeyRSAComponents.cpp
 crypto/keys/CryptoKeyRaw.cpp
-css/CSSAppleColorFilterPropertyValue.cpp
+css/CSSAppleColorFilterValue.cpp
 css/CSSAttrValue.cpp
 css/CSSBackgroundRepeatValue.cpp
 css/CSSBasicShapeValue.cpp
@@ -887,7 +887,7 @@ css/CSSCustomPropertyValue.cpp
 css/CSSDynamicRangeLimitValue.cpp
 css/CSSEasingFunctionValue.cpp
 css/CSSFilterImageValue.cpp
-css/CSSFilterPropertyValue.cpp
+css/CSSFilterValue.cpp
 css/CSSFontFace.cpp
 css/CSSFontFaceDescriptors.cpp
 css/CSSFontFaceRule.cpp
@@ -2790,7 +2790,7 @@ rendering/BorderEdge.cpp
 rendering/BorderPainter.cpp
 rendering/BorderShape.cpp
 rendering/BreakLines.cpp
-rendering/CSSFilter.cpp
+rendering/CSSFilterRenderer.cpp
 rendering/CaretRectComputation.cpp
 rendering/ClipRect.cpp
 rendering/ContentfulPaintChecker.cpp
@@ -2960,6 +2960,7 @@ rendering/style/RenderStyle.cpp
 rendering/style/RenderStyleConstants.cpp
 rendering/style/SVGRenderStyle.cpp
 rendering/style/SVGRenderStyleDefs.cpp
+rendering/style/StyleAppleColorFilterData.cpp
 rendering/style/StyleBackgroundData.cpp
 rendering/style/StyleBoxData.cpp
 rendering/style/StyleCachedImage.cpp
@@ -3184,13 +3185,13 @@ style/values/easing/StyleLinearEasingFunction.cpp
 style/values/easing/StyleSpringEasingFunction.cpp
 style/values/easing/StyleStepsEasingFunction.cpp
 style/values/fill-stroke/StyleStrokeWidth.cpp
-style/values/filter-effects/StyleAppleColorFilterProperty.cpp
+style/values/filter-effects/StyleAppleColorFilter.cpp
 style/values/filter-effects/StyleAppleInvertLightnessFunction.cpp
 style/values/filter-effects/StyleBlurFunction.cpp
 style/values/filter-effects/StyleBrightnessFunction.cpp
 style/values/filter-effects/StyleContrastFunction.cpp
 style/values/filter-effects/StyleDropShadowFunction.cpp
-style/values/filter-effects/StyleFilterProperty.cpp
+style/values/filter-effects/StyleFilter.cpp
 style/values/filter-effects/StyleFilterReference.cpp
 style/values/filter-effects/StyleGrayscaleFunction.cpp
 style/values/filter-effects/StyleHueRotateFunction.cpp
@@ -3427,7 +3428,7 @@ svg/graphics/SVGImage.cpp
 svg/graphics/SVGImageCache.cpp
 svg/graphics/SVGImageForContainer.cpp
 svg/graphics/SVGResourceImage.cpp
-svg/graphics/filters/SVGFilter.cpp
+svg/graphics/filters/SVGFilterRenderer.cpp
 svg/properties/SVGAnimatedProperty.cpp
 svg/properties/SVGAnimatedString.cpp
 svg/properties/SVGAnimationAdditiveValueFunctionImpl.cpp

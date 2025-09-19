@@ -41,7 +41,6 @@
 
 namespace WebCore {
 
-class FilterOperations;
 class FontCascadeDescription;
 class FontSelectionValue;
 class RenderStyle;
@@ -58,8 +57,8 @@ struct RandomCachingKey;
 }
 
 namespace CSS {
-struct AppleColorFilterProperty;
-struct FilterProperty;
+struct AppleColorFilter;
+struct Filter;
 }
 
 namespace Style {
@@ -119,10 +118,6 @@ public:
     ScopeOrdinal styleScopeOrdinal() const { return m_currentProperty->styleScopeOrdinal; }
 
     RefPtr<StyleImage> createStyleImage(const CSSValue&) const;
-    FilterOperations createFilterOperations(const CSS::FilterProperty&) const;
-    FilterOperations createFilterOperations(const CSSValue&) const;
-    FilterOperations createAppleColorFilterOperations(const CSS::AppleColorFilterProperty&) const;
-    FilterOperations createAppleColorFilterOperations(const CSSValue&) const;
 
     const Vector<AtomString>& registeredContentAttributes() const { return m_registeredContentAttributes; }
     void registerContentAttribute(const AtomString& attributeLocalName);

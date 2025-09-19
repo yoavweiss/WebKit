@@ -52,7 +52,7 @@
 #include "BorderShape.h"
 #include "BoxLayoutShape.h"
 #include "ContainerNodeInlines.h"
-#include "CSSFilter.h"
+#include "CSSFilterRenderer.h"
 #include "CSSPropertyNames.h"
 #include "Chrome.h"
 #include "DebugPageOverlays.h"
@@ -1031,7 +1031,7 @@ bool RenderLayer::canRender3DTransforms() const
 bool RenderLayer::shouldPaintWithFilters(OptionSet<PaintBehavior> paintBehavior) const
 {
     const auto& filter = renderer().style().filter();
-    if (filter.isEmpty())
+    if (filter.isNone())
         return false;
 
     if (renderer().isRenderOrLegacyRenderSVGRoot() && filter.isReferenceFilter())
@@ -6407,7 +6407,7 @@ void RenderLayer::updateFiltersAfterStyleChange(StyleDifference diff, const Rend
         if (oldStyle->filter() != renderer().style().filter())
             return true;
         auto currentColorChanged = oldStyle->color() != renderer().style().color();
-        if (currentColorChanged && oldStyle->filter().requiresRepaintForCurrentColorChange())
+        if (currentColorChanged && oldStyle->filter().hasFilterThatRequiresRepaintForCurrentColorChange())
             return true;
         return false;
     };
@@ -6462,7 +6462,7 @@ IntOutsets RenderLayer::filterOutsets() const
 {
     if (m_filters)
         return m_filters->calculateOutsets(renderer(), localBoundingBox());
-    return renderer().style().filterOutsets();
+    return renderer().style().filter().outsets();
 }
 
 static RenderLayer* parentLayerCrossFrame(const RenderLayer& layer)

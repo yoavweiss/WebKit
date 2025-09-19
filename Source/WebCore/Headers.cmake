@@ -3002,7 +3002,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     rendering/AccessibilityRegionContext.h
     rendering/BreakLines.h
-    rendering/CSSFilter.h
+    rendering/CSSFilterRenderer.h
     rendering/CSSValueKey.h
     rendering/CaretRectComputation.h
     rendering/ClipRect.h
@@ -3122,6 +3122,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/style/RenderStyleSetters.h
     rendering/style/SVGRenderStyle.h
     rendering/style/SVGRenderStyleDefs.h
+    rendering/style/StyleAppleColorFilterData.h
     rendering/style/StyleBackgroundData.h
     rendering/style/StyleBoxData.h
     rendering/style/StyleCachedImage.h
@@ -3250,6 +3251,9 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/fill-stroke/StyleStrokeMiterlimit.h
     style/values/fill-stroke/StyleStrokeWidth.h
+
+    style/values/filter-effects/StyleAppleColorFilter.h
+    style/values/filter-effects/StyleFilter.h
 
     style/values/flexbox/StyleFlexBasis.h
     style/values/flexbox/StyleFlexGrow.h
@@ -3453,8 +3457,9 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     svg/graphics/SVGImage.h
     svg/graphics/SVGImageCache.h
     svg/graphics/SVGImageForContainer.h
-    svg/graphics/filters/SVGFilter.h
+
     svg/graphics/filters/SVGFilterExpression.h
+    svg/graphics/filters/SVGFilterRenderer.h
 
     svg/properties/SVGList.h
     svg/properties/SVGPrimitiveList.h

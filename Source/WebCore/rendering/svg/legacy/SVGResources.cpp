@@ -257,9 +257,9 @@ std::unique_ptr<SVGResources> SVGResources::buildCachedResources(const RenderEle
         );
 
         if (style.hasFilter()) {
-            const FilterOperations& filterOperations = style.filter();
+            const auto& filterOperations = style.filter();
             if (filterOperations.size() == 1) {
-                if (RefPtr referenceFilterOperation = dynamicDowncast<Style::ReferenceFilterOperation>(*filterOperations.at(0))) {
+                if (RefPtr referenceFilterOperation = dynamicDowncast<Style::ReferenceFilterOperation>(filterOperations[0].platform())) {
                     auto id = referenceFilterOperation->fragment();
                     if (auto* filter = getRenderSVGResourceById<LegacyRenderSVGResourceFilter>(treeScope, id))
                         ensureResources(foundResources).setFilter(filter);

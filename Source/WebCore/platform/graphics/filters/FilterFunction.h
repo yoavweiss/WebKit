@@ -53,8 +53,8 @@ enum class FilterRepresentation : uint8_t {
 class FilterFunction : public RenderingResource {
 public:
     enum class Type : uint8_t {
-        CSSFilter,
-        SVGFilter,
+        CSSFilterRenderer,
+        SVGFilterRenderer,
 
         // These are filter effects
         FEBlend,
@@ -83,9 +83,9 @@ public:
 
     Type filterType() const { return m_filterType; }
 
-    bool isCSSFilter() const { return m_filterType == Type::CSSFilter; }
-    bool isSVGFilter() const { return m_filterType == Type::SVGFilter; }
-    bool isFilter() const override { return m_filterType == Type::CSSFilter || m_filterType == Type::SVGFilter; }
+    bool isCSSFilterRenderer() const { return m_filterType == Type::CSSFilterRenderer; }
+    bool isSVGFilterRenderer() const { return m_filterType == Type::SVGFilterRenderer; }
+    bool isFilter() const override { return m_filterType == Type::CSSFilterRenderer || m_filterType == Type::SVGFilterRenderer; }
     bool isFilterEffect() const { return m_filterType >= Type::FEBlend && m_filterType <= Type::SourceGraphic; }
 
     static AtomString filterName(Type);

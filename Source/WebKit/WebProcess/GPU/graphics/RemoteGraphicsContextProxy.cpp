@@ -43,7 +43,7 @@
 #include <WebCore/ImageBuffer.h>
 #include <WebCore/MediaPlayer.h>
 #include <WebCore/NotImplemented.h>
-#include <WebCore/SVGFilter.h>
+#include <WebCore/SVGFilterRenderer.h>
 #include <wtf/MathExtras.h>
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/URL.h>
@@ -246,7 +246,7 @@ void RemoteGraphicsContextProxy::drawFilteredImageBuffer(ImageBuffer* sourceImag
         }
     }
 
-    RefPtr svgFilter = dynamicDowncast<SVGFilter>(filter);
+    RefPtr svgFilter = dynamicDowncast<SVGFilterRenderer>(filter);
     if (svgFilter && svgFilter->hasValidRenderingResourceIdentifier())
         recordResourceUse(filter);
 

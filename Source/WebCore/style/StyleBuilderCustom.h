@@ -73,6 +73,7 @@ namespace Style {
 template<typename T> inline T forwardInheritedValue(T&& value) { return std::forward<T>(value); }
 template<auto R, typename V> inline Length<R, V> forwardInheritedValue(const Length<R, V>& value) { auto copy = value; return copy; }
 inline AnchorNames forwardInheritedValue(const AnchorNames& value) { auto copy = value; return copy; }
+inline AppleColorFilter forwardInheritedValue(const AppleColorFilter& value) { auto copy = value; return copy; }
 inline AspectRatio forwardInheritedValue(const AspectRatio& value) { auto copy = value; return copy; }
 inline BackgroundSize forwardInheritedValue(const BackgroundSize& value) { auto copy = value; return copy; }
 inline BlockEllipsis forwardInheritedValue(const BlockEllipsis& value) { auto copy = value; return copy; }
@@ -107,6 +108,7 @@ inline Translate forwardInheritedValue(const Translate& value) { auto copy = val
 inline PreferredSize forwardInheritedValue(const PreferredSize& value) { auto copy = value; return copy; }
 inline MinimumSize forwardInheritedValue(const MinimumSize& value) { auto copy = value; return copy; }
 inline MaximumSize forwardInheritedValue(const MaximumSize& value) { auto copy = value; return copy; }
+inline Filter forwardInheritedValue(const Filter& value) { auto copy = value; return copy; }
 inline FlexBasis forwardInheritedValue(const FlexBasis& value) { auto copy = value; return copy; }
 inline DynamicRangeLimit forwardInheritedValue(const DynamicRangeLimit& value) { auto copy = value; return copy; }
 inline Clip forwardInheritedValue(const Clip& value) { auto copy = value; return copy; }

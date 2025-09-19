@@ -496,7 +496,7 @@ rendering/AttachmentLayout.mm
 rendering/AutoTableLayout.cpp
 rendering/BackgroundPainter.cpp
 rendering/BorderPainter.cpp
-rendering/CSSFilter.cpp
+rendering/CSSFilterRenderer.cpp
 rendering/CaretRectComputation.cpp
 rendering/ContentfulPaintChecker.cpp
 rendering/CounterNode.cpp

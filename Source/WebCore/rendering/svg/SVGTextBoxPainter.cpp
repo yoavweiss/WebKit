@@ -608,7 +608,7 @@ void SVGTextBoxPainter<TextBoxPath>::paintTextWithShadows(const RenderStyle& sty
                 }
             }
 
-            ShadowApplier shadowApplier(style, *usedContext, shadow, nullptr, shadowRect, lastShadowInIteration);
+            ShadowApplier shadowApplier(style, *usedContext, shadow, Style::AppleColorFilter::none(), shadowRect, lastShadowInIteration);
 
             if (!shadowApplier.didSaveContext())
                 usedContext->save();

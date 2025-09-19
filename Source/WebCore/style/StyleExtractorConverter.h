@@ -31,12 +31,10 @@
 
 #pragma once
 
-#include "CSSAppleColorFilterPropertyValue.h"
 #include "CSSBorderImage.h"
 #include "CSSBorderImageSliceValue.h"
 #include "CSSCounterValue.h"
 #include "CSSEasingFunctionValue.h"
-#include "CSSFilterPropertyValue.h"
 #include "CSSFontFeatureValue.h"
 #include "CSSFontStyleWithAngleValue.h"
 #include "CSSFontValue.h"
@@ -77,7 +75,6 @@
 #include "SVGRenderStyle.h"
 #include "ScrollTimeline.h"
 #include "SkewTransformOperation.h"
-#include "StyleAppleColorFilterProperty.h"
 #include "StyleClipPath.h"
 #include "StyleColor.h"
 #include "StyleColorScheme.h"
@@ -85,7 +82,6 @@
 #include "StyleDynamicRangeLimit.h"
 #include "StyleEasingFunction.h"
 #include "StyleExtractorState.h"
-#include "StyleFilterProperty.h"
 #include "StyleFlexBasis.h"
 #include "StyleInset.h"
 #include "StyleLineBoxContain.h"
@@ -157,8 +153,6 @@ public:
     static Ref<CSSValue> convertGlyphOrientationOrAuto(ExtractorState&, GlyphOrientation);
     static Ref<CSSValue> convertMarginTrim(ExtractorState&, OptionSet<MarginTrimType>);
     static Ref<CSSValue> convertStrokeDashArray(ExtractorState&, const FixedVector<WebCore::Length>&);
-    static Ref<CSSValue> convertFilterOperations(ExtractorState&, const FilterOperations&);
-    static Ref<CSSValue> convertAppleColorFilterOperations(ExtractorState&, const FilterOperations&);
     static Ref<CSSValue> convertWebkitTextCombine(ExtractorState&, TextCombine);
     static Ref<CSSValue> convertImageOrientation(ExtractorState&, ImageOrientation);
     static Ref<CSSValue> convertContain(ExtractorState&, OptionSet<Containment>);
@@ -429,16 +423,6 @@ inline Ref<CSSValue> ExtractorConverter::convertStrokeDashArray(ExtractorState& 
     for (auto& dash : dashes)
         list.append(convertLength(state, dash));
     return CSSValueList::createCommaSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertFilterOperations(ExtractorState& state, const FilterOperations& filterOperations)
-{
-    return CSSFilterPropertyValue::create(toCSSFilterProperty(filterOperations, state.style));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertAppleColorFilterOperations(ExtractorState& state, const FilterOperations& filterOperations)
-{
-    return CSSAppleColorFilterPropertyValue::create(toCSSAppleColorFilterProperty(filterOperations, state.style));
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertWebkitTextCombine(ExtractorState& state, TextCombine textCombine)

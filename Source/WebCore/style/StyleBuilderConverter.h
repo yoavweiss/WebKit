@@ -144,8 +144,6 @@ public:
     // scrollbar-width converter is only needed for quirking.
     static ScrollbarWidth convertScrollbarWidth(BuilderState&, const CSSValue&);
     static GridAutoFlow convertGridAutoFlow(BuilderState&, const CSSValue&);
-    static FilterOperations convertFilterOperations(BuilderState&, const CSSValue&);
-    static FilterOperations convertAppleColorFilterOperations(BuilderState&, const CSSValue&);
 #if PLATFORM(IOS_FAMILY)
     static bool convertTouchCallout(BuilderState&, const CSSValue&);
 #endif
@@ -744,17 +742,6 @@ inline WebCore::Length BuilderConverter::convertTextLengthOrNormal(BuilderState&
         return WebCore::Length(primitiveValue->resolveAsNumber(conversionData), LengthType::Fixed);
     ASSERT_NOT_REACHED();
     return RenderStyle::zeroLength();
-}
-
-
-inline FilterOperations BuilderConverter::convertFilterOperations(BuilderState& builderState, const CSSValue& value)
-{
-    return builderState.createFilterOperations(value);
-}
-
-inline FilterOperations BuilderConverter::convertAppleColorFilterOperations(BuilderState& builderState, const CSSValue& value)
-{
-    return builderState.createAppleColorFilterOperations(value);
 }
 
 // The input value needs to parsed and valid, this function returns std::nullopt if the input was "normal".

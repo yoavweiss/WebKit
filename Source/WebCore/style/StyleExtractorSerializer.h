@@ -85,8 +85,6 @@ public:
     static void serializeGlyphOrientationOrAuto(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, GlyphOrientation);
     static void serializeMarginTrim(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<MarginTrimType>);
     static void serializeStrokeDashArray(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FixedVector<WebCore::Length>&);
-    static void serializeFilterOperations(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FilterOperations&);
-    static void serializeAppleColorFilterOperations(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FilterOperations&);
     static void serializeWebkitTextCombine(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, TextCombine);
     static void serializeImageOrientation(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, ImageOrientation);
     static void serializeContain(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<Containment>);
@@ -426,16 +424,6 @@ inline void ExtractorSerializer::serializeStrokeDashArray(ExtractorState& state,
     builder.append(interleave(dashes, [&](auto& builder, auto& dash) {
         serializeLength(state, builder, context, dash);
     }, ", "_s));
-}
-
-inline void ExtractorSerializer::serializeFilterOperations(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const FilterOperations& filterOperations)
-{
-    CSS::serializationForCSS(builder, context, toCSSFilterProperty(filterOperations, state.style));
-}
-
-inline void ExtractorSerializer::serializeAppleColorFilterOperations(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const FilterOperations& filterOperations)
-{
-    CSS::serializationForCSS(builder, context, toCSSAppleColorFilterProperty(filterOperations, state.style));
 }
 
 inline void ExtractorSerializer::serializeWebkitTextCombine(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, TextCombine textCombine)

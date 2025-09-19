@@ -481,7 +481,7 @@ static bool stringFromCSSValue(CSSValue& value, String& result)
                 return true;
             }
         }
-    } else if (value.isValueList() || value.isAppleColorFilterPropertyValue() || value.isFilterPropertyValue() || value.isTextShadowPropertyValue() || value.isBoxShadowPropertyValue() || value.isURL()) {
+    } else if (value.isValueList() || value.isAppleColorFilterValue() || value.isFilterValue() || value.isTextShadowPropertyValue() || value.isBoxShadowPropertyValue() || value.isURL()) {
         result = value.cssText(CSS::defaultSerializationContext());
         return true;
     }

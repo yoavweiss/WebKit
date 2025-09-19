@@ -241,6 +241,12 @@ template<typename T, size_t inlineCapacity = 0> struct SpaceSeparatedVector {
     {
     }
 
+    template<typename SizedRange, typename Mapper>
+    static SpaceSeparatedVector map(SizedRange&& range, NOESCAPE Mapper&& mapper)
+    {
+        return WTF::map<inlineCapacity>(std::forward<SizedRange>(range), std::forward<Mapper>(mapper));
+    }
+
     const_iterator begin() const { return value.begin(); }
     const_iterator end() const { return value.end(); }
     const_reverse_iterator rbegin() const { return value.rbegin(); }
@@ -277,6 +283,12 @@ template<typename T, size_t inlineCapacity = 0> struct CommaSeparatedVector {
     CommaSeparatedVector(Container&& value)
         : value { WTFMove(value) }
     {
+    }
+
+    template<typename SizedRange, typename Mapper>
+    static CommaSeparatedVector map(SizedRange&& range, NOESCAPE Mapper&& mapper)
+    {
+        return WTF::map<inlineCapacity>(std::forward<SizedRange>(range), std::forward<Mapper>(mapper));
     }
 
     const_iterator begin() const { return value.begin(); }

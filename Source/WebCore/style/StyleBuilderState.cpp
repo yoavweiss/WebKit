@@ -30,14 +30,12 @@
 #include "config.h"
 #include "StyleBuilderState.h"
 
-#include "CSSAppleColorFilterPropertyValue.h"
 #include "CSSCalcRandomCachingKey.h"
 #include "CSSCanvasValue.h"
 #include "CSSColorValue.h"
 #include "CSSCrossfadeValue.h"
 #include "CSSCursorImageValue.h"
 #include "CSSFilterImageValue.h"
-#include "CSSFilterPropertyValue.h"
 #include "CSSFontSelector.h"
 #include "CSSFunctionValue.h"
 #include "CSSGradientValue.h"
@@ -56,7 +54,6 @@
 #include "SVGElementTypeHelpers.h"
 #include "SVGSVGElement.h"
 #include "Settings.h"
-#include "StyleAppleColorFilterProperty.h"
 #include "StyleBuilder.h"
 #include "StyleCachedImage.h"
 #include "StyleCanvasImage.h"
@@ -64,7 +61,6 @@
 #include "StyleCrossfadeImage.h"
 #include "StyleCursorImage.h"
 #include "StyleFilterImage.h"
-#include "StyleFilterProperty.h"
 #include "StyleFontSizeFunctions.h"
 #include "StyleGeneratedImage.h"
 #include "StyleGradientImage.h"
@@ -126,38 +122,6 @@ RefPtr<StyleImage> BuilderState::createStyleImage(const CSSValue& value) const
     if (auto* paintImageValue = dynamicDowncast<CSSPaintImageValue>(value))
         return paintImageValue->createStyleImage(*this);
     return nullptr;
-}
-
-FilterOperations BuilderState::createFilterOperations(const CSS::FilterProperty& value) const
-{
-    return WebCore::Style::createFilterOperations(value, document(), m_style, m_cssToLengthConversionData);
-}
-
-FilterOperations BuilderState::createFilterOperations(const CSSValue& value) const
-{
-    if (RefPtr primitive = dynamicDowncast<CSSPrimitiveValue>(value)) {
-        ASSERT(primitive->valueID() == CSSValueNone);
-        return { };
-    }
-
-    Ref filterValue = downcast<CSSFilterPropertyValue>(value);
-    return createFilterOperations(filterValue->filter());
-}
-
-FilterOperations BuilderState::createAppleColorFilterOperations(const CSS::AppleColorFilterProperty& value) const
-{
-    return WebCore::Style::createAppleColorFilterOperations(value, document(), m_style, m_cssToLengthConversionData);
-}
-
-FilterOperations BuilderState::createAppleColorFilterOperations(const CSSValue& value) const
-{
-    if (RefPtr primitive = dynamicDowncast<CSSPrimitiveValue>(value)) {
-        ASSERT(primitive->valueID() == CSSValueNone);
-        return { };
-    }
-
-    Ref filterValue = downcast<CSSAppleColorFilterPropertyValue>(value);
-    return createAppleColorFilterOperations(filterValue->filter());
 }
 
 void BuilderState::registerContentAttribute(const AtomString& attributeLocalName)

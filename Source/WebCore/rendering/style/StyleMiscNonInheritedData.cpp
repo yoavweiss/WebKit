@@ -161,7 +161,7 @@ bool StyleMiscNonInheritedData::operator==(const StyleMiscNonInheritedData& o) c
 
 bool StyleMiscNonInheritedData::hasFilters() const
 {
-    return !filter->operations.isEmpty();
+    return !filter->filter.isNone();
 }
 
 #if !LOG_DISABLED

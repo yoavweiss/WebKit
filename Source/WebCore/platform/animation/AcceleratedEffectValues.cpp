@@ -142,8 +142,8 @@ AcceleratedEffectValues::AcceleratedEffectValues(const RenderStyle& style, const
         offsetDistance = { path ? path->length() : 0.0f, LengthType:: Fixed };
     }
 
-    filter = style.filter();
-    backdropFilter = style.backdropFilter();
+    filter = Style::toPlatform(style.filter());
+    backdropFilter = Style::toPlatform(style.backdropFilter());
 }
 
 TransformationMatrix AcceleratedEffectValues::computedTransformationMatrix(const FloatRect& boundingBox) const

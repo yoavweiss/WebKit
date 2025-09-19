@@ -36,6 +36,7 @@
 #include <WebCore/RenderStyle.h>
 #include <WebCore/ScrollTypes.h>
 #include <WebCore/StyleAppearance.h>
+#include <WebCore/StyleAppleColorFilterData.h>
 #include <WebCore/StyleBackgroundData.h>
 #include <WebCore/StyleBoxData.h>
 #include <WebCore/StyleDeprecatedFlexibleBoxData.h>
@@ -83,7 +84,7 @@ inline const Style::Animations& RenderStyle::animations() const { return m_nonIn
 inline const Style::AnchorNames& RenderStyle::anchorNames() const { return m_nonInheritedData->rareData->anchorNames; }
 inline const NameScope& RenderStyle::anchorScope() const { return m_nonInheritedData->rareData->anchorScope; }
 inline StyleAppearance RenderStyle::appearance() const { return static_cast<StyleAppearance>(m_nonInheritedData->miscData->appearance); }
-inline const FilterOperations& RenderStyle::appleColorFilter() const { return m_rareInheritedData->appleColorFilter->operations; }
+inline const Style::AppleColorFilter& RenderStyle::appleColorFilter() const { return m_rareInheritedData->appleColorFilter->appleColorFilter; }
 #if HAVE(CORE_MATERIAL)
 inline AppleVisualEffect RenderStyle::appleVisualEffect() const { return static_cast<AppleVisualEffect>(m_nonInheritedData->rareData->appleVisualEffect); }
 #endif
@@ -208,8 +209,7 @@ inline UserModify RenderStyle::usedUserModify() const { return effectiveInert() 
 inline float RenderStyle::usedZoom() const { return m_rareInheritedData->usedZoom; }
 inline OptionSet<EventListenerRegionType> RenderStyle::eventListenerRegionTypes() const { return m_rareInheritedData->eventListenerRegionTypes; }
 inline FieldSizing RenderStyle::fieldSizing() const { return static_cast<FieldSizing>(m_nonInheritedData->rareData->fieldSizing); }
-inline const FilterOperations& RenderStyle::filter() const { return m_nonInheritedData->miscData->filter->operations; }
-inline IntOutsets RenderStyle::filterOutsets() const { return hasFilter() ? filter().outsets() : IntOutsets(); }
+inline const Style::Filter& RenderStyle::filter() const { return m_nonInheritedData->miscData->filter->filter; }
 inline const Style::FlexBasis& RenderStyle::flexBasis() const { return m_nonInheritedData->miscData->flexibleBox->flexBasis; }
 inline FlexDirection RenderStyle::flexDirection() const { return static_cast<FlexDirection>(m_nonInheritedData->miscData->flexibleBox->flexDirection); }
 inline Style::FlexGrow RenderStyle::flexGrow() const { return m_nonInheritedData->miscData->flexibleBox->flexGrow; }
@@ -243,7 +243,7 @@ inline bool RenderStyle::hasAnimationsOrTransitions() const { return hasAnimatio
 inline bool RenderStyle::hasAnyPublicPseudoStyles() const { return m_nonInheritedFlags.hasAnyPublicPseudoStyles(); }
 // FIXME: Rename this function.
 inline bool RenderStyle::hasAppearance() const { return appearance() != StyleAppearance::None && appearance() != StyleAppearance::Base; }
-inline bool RenderStyle::hasAppleColorFilter() const { return !appleColorFilter().isEmpty(); }
+inline bool RenderStyle::hasAppleColorFilter() const { return !appleColorFilter().isNone(); }
 #if HAVE(CORE_MATERIAL)
 inline bool RenderStyle::hasAppleVisualEffect() const { return appleVisualEffect() != AppleVisualEffect::None; }
 inline bool RenderStyle::hasAppleVisualEffectRequiringBackdropFilter() const { return appleVisualEffectNeedsBackdrop(appleVisualEffect()); }
@@ -280,7 +280,7 @@ inline bool RenderStyle::hasExplicitlySetPaddingLeft() const { return m_nonInher
 inline bool RenderStyle::hasExplicitlySetPaddingRight() const { return m_nonInheritedData->surroundData->hasExplicitlySetPaddingRight; }
 inline bool RenderStyle::hasExplicitlySetPaddingTop() const { return m_nonInheritedData->surroundData->hasExplicitlySetPaddingTop; }
 inline bool RenderStyle::hasExplicitlySetStrokeColor() const { return m_rareInheritedData->hasSetStrokeColor; }
-inline bool RenderStyle::hasFilter() const { return !filter().isEmpty(); }
+inline bool RenderStyle::hasFilter() const { return !filter().isNone(); }
 inline bool RenderStyle::hasInFlowPosition() const { return position() == PositionType::Relative || position() == PositionType::Sticky; }
 inline bool RenderStyle::hasIsolation() const { return isolation() != Isolation::Auto; }
 inline bool RenderStyle::hasMargin() const { return !Style::isZero(marginBox()); }
@@ -325,7 +325,7 @@ constexpr StyleAppearance RenderStyle::initialAppearance() { return StyleAppeara
 #if HAVE(CORE_MATERIAL)
 constexpr AppleVisualEffect RenderStyle::initialAppleVisualEffect() { return AppleVisualEffect::None; }
 #endif
-inline FilterOperations RenderStyle::initialAppleColorFilter() { return { }; }
+inline Style::AppleColorFilter RenderStyle::initialAppleColorFilter() { return CSS::Keyword::None { }; }
 inline Style::AspectRatio RenderStyle::initialAspectRatio() { return CSS::Keyword::Auto { }; }
 constexpr BackfaceVisibility RenderStyle::initialBackfaceVisibility() { return BackfaceVisibility::Visible; }
 inline Style::Color RenderStyle::initialBackgroundColor() { return Color::transparentBlack; }
@@ -386,7 +386,7 @@ constexpr TextDirection RenderStyle::initialDirection() { return TextDirection::
 constexpr DisplayType RenderStyle::initialDisplay() { return DisplayType::Inline; }
 constexpr EmptyCell RenderStyle::initialEmptyCells() { return EmptyCell::Show; }
 constexpr FieldSizing RenderStyle::initialFieldSizing() { return FieldSizing::Fixed; }
-inline FilterOperations RenderStyle::initialFilter() { return { }; }
+inline Style::Filter RenderStyle::initialFilter() { return CSS::Keyword::None { }; }
 inline Style::FlexBasis RenderStyle::initialFlexBasis() { return CSS::Keyword::Auto { }; }
 constexpr FlexDirection RenderStyle::initialFlexDirection() { return FlexDirection::Row; }
 constexpr Style::FlexGrow RenderStyle::initialFlexGrow() { return 0_css_number; }
@@ -861,9 +861,9 @@ inline Style::ColorScheme RenderStyle::initialColorScheme() { return Style::Colo
 inline bool RenderStyle::hasExplicitlySetColorScheme() const { return m_nonInheritedData->miscData->hasExplicitlySetColorScheme; }
 #endif
 
-inline const FilterOperations& RenderStyle::backdropFilter() const { return m_nonInheritedData->rareData->backdropFilter->operations; }
-inline bool RenderStyle::hasBackdropFilter() const { return !backdropFilter().isEmpty(); }
-inline FilterOperations RenderStyle::initialBackdropFilter() { return { }; }
+inline const Style::Filter& RenderStyle::backdropFilter() const { return m_nonInheritedData->rareData->backdropFilter->filter; }
+inline bool RenderStyle::hasBackdropFilter() const { return !backdropFilter().isNone(); }
+inline Style::Filter RenderStyle::initialBackdropFilter() { return CSS::Keyword::None { }; }
 
 inline bool RenderStyle::hasExplicitlySetDirection() const { return m_nonInheritedData->miscData->hasExplicitlySetDirection; }
 inline bool RenderStyle::hasExplicitlySetWritingMode() const { return m_nonInheritedData->miscData->hasExplicitlySetWritingMode; }

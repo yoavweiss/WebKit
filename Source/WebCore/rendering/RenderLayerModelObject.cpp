@@ -484,11 +484,11 @@ RenderSVGResourceFilter* RenderLayerModelObject::svgFilterResourceFromStyle() co
     if (!document().settings().layerBasedSVGEngineEnabled())
         return nullptr;
 
-    const auto& operations = style().filter();
-    if (operations.size() != 1)
+    const auto& filter = style().filter();
+    if (filter.size() != 1)
         return nullptr;
 
-    RefPtr referenceFilterOperation = dynamicDowncast<Style::ReferenceFilterOperation>(operations.at(0));
+    RefPtr referenceFilterOperation = dynamicDowncast<Style::ReferenceFilterOperation>(filter[0].value);
     if (!referenceFilterOperation)
         return nullptr;
 
