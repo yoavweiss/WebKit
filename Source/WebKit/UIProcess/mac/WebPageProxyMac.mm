@@ -181,8 +181,8 @@ void WebPageProxy::searchTheWeb(const String& string)
     [pasteboard clearContents];
     if (sessionID().isEphemeral())
         [pasteboard _setExpirationDate:[NSDate dateWithTimeIntervalSinceNow:pasteboardExpirationDelay.seconds()]];
-    [pasteboard addTypes:@[legacyStringPasteboardType()] owner:nil];
-    [pasteboard setString:string.createNSString().get() forType:legacyStringPasteboardType()];
+    [pasteboard addTypes:@[legacyStringPasteboardTypeSingleton()] owner:nil];
+    [pasteboard setString:string.createNSString().get() forType:legacyStringPasteboardTypeSingleton()];
 
     NSPerformService(@"Search With %WebSearchProvider@", pasteboard.get());
 }

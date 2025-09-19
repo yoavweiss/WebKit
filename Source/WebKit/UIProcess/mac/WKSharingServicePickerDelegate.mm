@@ -135,7 +135,7 @@
         dataReference = span(data.get());
 
         types.append(NSPasteboardTypeRTFD);
-        types.append(WebCore::legacyRTFDPasteboardType());
+        types.append(WebCore::legacyRTFDPasteboardTypeSingleton());
     } else if (RetainPtr data = dynamic_objc_cast<NSData>(item.get())) {
         RetainPtr<CGImageSourceRef> source = adoptCF(CGImageSourceCreateWithData(bridge_cast(data.get()), NULL));
         RetainPtr<CGImageRef> image = adoptCF(CGImageSourceCreateImageAtIndex(source.get(), 0, NULL));

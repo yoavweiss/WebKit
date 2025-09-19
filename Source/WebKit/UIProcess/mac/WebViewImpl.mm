@@ -2817,10 +2817,10 @@ bool WebViewImpl::writeSelectionToPasteboard(NSPasteboard *pasteboard, NSArray *
         [pasteboard _setExpirationDate:[NSDate dateWithTimeIntervalSinceNow:pasteboardExpirationDelay.seconds()]];
     [pasteboard addTypes:types owner:nil];
     for (size_t i = 0; i < numTypes; ++i) {
-        BOOL wantsPlainText = [[types objectAtIndex:i] isEqualTo:WebCore::legacyStringPasteboardType()];
+        BOOL wantsPlainText = [[types objectAtIndex:i] isEqualTo:WebCore::legacyStringPasteboardTypeSingleton()];
         RELEASE_LOG(Pasteboard, "Synchronously requesting %{public}s for selected range", wantsPlainText ? "plain text" : "data");
         if (wantsPlainText)
-            [pasteboard setString:m_page->stringSelectionForPasteboard().createNSString().get() forType:WebCore::legacyStringPasteboardType()];
+            [pasteboard setString:m_page->stringSelectionForPasteboard().createNSString().get() forType:WebCore::legacyStringPasteboardTypeSingleton()];
         else {
             RefPtr<WebCore::SharedBuffer> buffer = m_page->dataSelectionForPasteboard([types objectAtIndex:i]);
             [pasteboard setData:buffer ? buffer->createNSData().get() : nil forType:[types objectAtIndex:i]];
@@ -2841,7 +2841,7 @@ id WebViewImpl::validRequestorForSendAndReturnTypes(NSString *sendType, NSString
 
     if (sendType && !editorState.selectionIsNone) {
         if (editorState.isInPlugin)
-            isValidSendType = [sendType isEqualToString:WebCore::legacyStringPasteboardType()];
+            isValidSendType = [sendType isEqualToString:WebCore::legacyStringPasteboardTypeSingleton()];
         else
             isValidSendType = [PasteboardTypes::forSelection() containsObject:sendType];
     }
@@ -2851,7 +2851,7 @@ id WebViewImpl::validRequestorForSendAndReturnTypes(NSString *sendType, NSString
         isValidReturnType = true;
     else if ([PasteboardTypes::forEditing() containsObject:returnType] && editorState.isContentEditable) {
         // We can insert strings in any editable context.  We can insert other types, like images, only in rich edit contexts.
-        isValidReturnType = editorState.isContentRichlyEditable || [returnType isEqualToString:WebCore::legacyStringPasteboardType()];
+        isValidReturnType = editorState.isContentRichlyEditable || [returnType isEqualToString:WebCore::legacyStringPasteboardTypeSingleton()];
     }
     if (isValidSendType && isValidReturnType)
         return m_view.getAutoreleased();
@@ -4283,10 +4283,10 @@ static void performDragWithLegacyFiles(WebPageProxy& page, Box<Vector<String>>&&
 
 static bool handleLegacyFilesPromisePasteboard(id<NSDraggingInfo> draggingInfo, Box<WebCore::DragData>&& dragData, WebPageProxy& page, RetainPtr<NSView<WebViewImplDelegate>> view)
 {
-    // FIXME: legacyFilesPromisePasteboardType() contains UTIs, not path names. Also, it's not
+    // FIXME: legacyFilesPromisePasteboardTypeSingleton() contains UTIs, not path names. Also, it's not
     // guaranteed that the count of UTIs equals the count of files, since some clients only write
     // unique UTIs.
-    RetainPtr files = dynamic_objc_cast<NSArray>([draggingInfo.draggingPasteboard propertyListForType:WebCore::legacyFilesPromisePasteboardType()]);
+    RetainPtr files = dynamic_objc_cast<NSArray>([draggingInfo.draggingPasteboard propertyListForType:WebCore::legacyFilesPromisePasteboardTypeSingleton()]);
     if (!files)
         return false;
 
@@ -4319,7 +4319,7 @@ static bool handleLegacyFilesPromisePasteboard(id<NSDraggingInfo> draggingInfo, 
 
 static bool handleLegacyFilesPasteboard(id<NSDraggingInfo> draggingInfo, Box<WebCore::DragData>&& dragData, WebPageProxy& page)
 {
-    RetainPtr files = dynamic_objc_cast<NSArray>([draggingInfo.draggingPasteboard propertyListForType:WebCore::legacyFilenamesPasteboardType()]);
+    RetainPtr files = dynamic_objc_cast<NSArray>([draggingInfo.draggingPasteboard propertyListForType:WebCore::legacyFilenamesPasteboardTypeSingleton()]);
     if (!files)
         return false;
 
@@ -4370,10 +4370,10 @@ bool WebViewImpl::performDragOperation(id<NSDraggingInfo> draggingInfo)
     SandboxExtension::Handle sandboxExtensionHandle;
     Vector<SandboxExtension::Handle> sandboxExtensionForUpload;
 
-    if (![types containsObject:PasteboardTypes::WebArchivePboardType] && [types containsObject:WebCore::legacyFilesPromisePasteboardType()])
+    if (![types containsObject:PasteboardTypes::WebArchivePboardType] && [types containsObject:WebCore::legacyFilesPromisePasteboardTypeSingleton()])
         return handleLegacyFilesPromisePasteboard(draggingInfo, WTFMove(dragData), page(), m_view.get());
 
-    if ([types containsObject:WebCore::legacyFilenamesPasteboardType()])
+    if ([types containsObject:WebCore::legacyFilenamesPasteboardTypeSingleton()])
         return handleLegacyFilesPasteboard(draggingInfo, WTFMove(dragData), page());
 
     String draggingPasteboardName = draggingInfo.draggingPasteboard.name;
@@ -4537,11 +4537,11 @@ void WebViewImpl::setFileAndURLTypes(NSString *filename, NSString *extension, NS
     else
         filenameWithExtension = [[filename stringByAppendingString:@"."] stringByAppendingString:extension];
 
-    [pasteboard setString:visibleURL forType:WebCore::legacyStringPasteboardType()];
+    [pasteboard setString:visibleURL forType:WebCore::legacyStringPasteboardTypeSingleton()];
     [pasteboard setString:visibleURL forType:PasteboardTypes::WebURLPboardType];
     [pasteboard setString:title forType:PasteboardTypes::WebURLNamePboardType];
     [pasteboard setPropertyList:@[@[visibleURL], @[title]] forType:PasteboardTypes::WebURLsWithTitlesPboardType];
-    [pasteboard setPropertyList:@[uti] forType:WebCore::legacyFilesPromisePasteboardType()];
+    [pasteboard setPropertyList:@[uti] forType:WebCore::legacyFilesPromisePasteboardTypeSingleton()];
     m_promisedFilename = filenameWithExtension.get();
     m_promisedURL = url;
 }
@@ -4549,7 +4549,7 @@ void WebViewImpl::setFileAndURLTypes(NSString *filename, NSString *extension, NS
 void WebViewImpl::setPromisedDataForImage(WebCore::Image& image, NSString *filename, NSString *extension, NSString *title, NSString *url, NSString *visibleURL, WebCore::FragmentedSharedBuffer* archiveBuffer, NSString *pasteboardName, NSString *originIdentifier)
 {
     RetainPtr pasteboard = [NSPasteboard pasteboardWithName:pasteboardName];
-    RetainPtr types = adoptNS([[NSMutableArray alloc] initWithObjects:WebCore::legacyFilesPromisePasteboardType(), nil]);
+    RetainPtr types = adoptNS([[NSMutableArray alloc] initWithObjects:WebCore::legacyFilesPromisePasteboardTypeSingleton(), nil]);
 
     auto uti = image.uti();
     if (!uti.isEmpty() && image.data() && !image.data()->isEmpty())
@@ -4607,8 +4607,8 @@ void WebViewImpl::provideDataForPasteboard(NSPasteboard *pasteboard, NSString *t
     }
 
     // FIXME: Need to support NSRTFDPboardType.
-    if ([type isEqual:WebCore::legacyTIFFPasteboardType()])
-        [pasteboard setData:(__bridge NSData *)promisedImage->adapter().tiffRepresentation() forType:WebCore::legacyTIFFPasteboardType()];
+    if ([type isEqual:WebCore::legacyTIFFPasteboardTypeSingleton()])
+        [pasteboard setData:(__bridge NSData *)promisedImage->adapter().tiffRepresentation() forType:WebCore::legacyTIFFPasteboardTypeSingleton()];
 }
 
 static BOOL fileExists(NSString *path)

@@ -6322,12 +6322,12 @@ static bool needsWebViewInitThreadWorkaround()
     auto* dragData = new WebCore::DragData(draggingInfo, client, global, coreDragOperationMask([draggingInfo draggingSourceOperationMask]), [self _applicationFlagsForDrag:draggingInfo]);
 
     NSArray* types = draggingInfo.draggingPasteboard.types;
-    if (![types containsObject:WebArchivePboardType] && [types containsObject:WebCore::legacyFilesPromisePasteboardType()]) {
+    if (![types containsObject:WebArchivePboardType] && [types containsObject:WebCore::legacyFilesPromisePasteboardTypeSingleton()]) {
 
-        // FIXME: legacyFilesPromisePasteboardType() contains UTIs, not path names. Also, it's not
+        // FIXME: legacyFilesPromisePasteboardTypeSingleton() contains UTIs, not path names. Also, it's not
         // guaranteed that the count of UTIs equals the count of files, since some clients only write
         // unique UTIs.
-        NSArray *files = [draggingInfo.draggingPasteboard propertyListForType:WebCore::legacyFilesPromisePasteboardType()];
+        NSArray *files = [draggingInfo.draggingPasteboard propertyListForType:WebCore::legacyFilesPromisePasteboardTypeSingleton()];
         if (![files isKindOfClass:[NSArray class]]) {
             delete dragData;
             return false;
@@ -8587,12 +8587,12 @@ FORWARD(toggleUnderline)
     }
 
     NSPasteboard *pasteboard = [NSPasteboard pasteboardWithUniqueName];
-    [pasteboard declareTypes:@[WebCore::legacyStringPasteboardType()] owner:nil];
+    [pasteboard declareTypes:@[WebCore::legacyStringPasteboardTypeSingleton()] owner:nil];
     auto s = adoptNS([selectedString mutableCopy]);
     const unichar nonBreakingSpaceCharacter = 0xA0;
     NSString *nonBreakingSpaceString = [NSString stringWithCharacters:&nonBreakingSpaceCharacter length:1];
     [s replaceOccurrencesOfString:nonBreakingSpaceString withString:@" " options:0 range:NSMakeRange(0, [s length])];
-    [pasteboard setString:s.get() forType:WebCore::legacyStringPasteboardType()];
+    [pasteboard setString:s.get() forType:WebCore::legacyStringPasteboardTypeSingleton()];
 
     // FIXME: seems fragile to use the service by name, but this is what AppKit does
     NSPerformService(@"Search With Google", pasteboard);

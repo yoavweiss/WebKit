@@ -86,11 +86,11 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
         // NSURLPboardType.
         if (NSURL *baseCocoaURL = nsURL.get().baseURL)
-            [pasteboardItem setPropertyList:@[ nsURL.get().relativeString, baseCocoaURL.absoluteString ] forType:toUTI(WebCore::legacyURLPasteboardType()).get()];
+            [pasteboardItem setPropertyList:@[ nsURL.get().relativeString, baseCocoaURL.absoluteString ] forType:toUTI(WebCore::legacyURLPasteboardTypeSingleton()).get()];
         else if (nsURL)
-            [pasteboardItem setPropertyList:@[ nsURL.get().absoluteString, @"" ] forType:toUTI(WebCore::legacyURLPasteboardType()).get()];
+            [pasteboardItem setPropertyList:@[ nsURL.get().absoluteString, @"" ] forType:toUTI(WebCore::legacyURLPasteboardTypeSingleton()).get()];
         else
-            [pasteboardItem setPropertyList:@[ @"", @"" ] forType:toUTI(WebCore::legacyURLPasteboardType()).get()];
+            [pasteboardItem setPropertyList:@[ @"", @"" ] forType:toUTI(WebCore::legacyURLPasteboardTypeSingleton()).get()];
 
         if (nsURL.get().fileURL)
             [pasteboardItem setString:nsURL.get().absoluteString forType:UTTypeFileURL.identifier];

@@ -140,7 +140,7 @@ static void writeMultipleObjectsToPlatformPasteboard()
 static RetainPtr<NSString> readMarkupFromPasteboard()
 {
 #if PLATFORM(MAC)
-    NSData *rawData = [NSPasteboard.generalPasteboard dataForType:WebCore::legacyHTMLPasteboardType()];
+    NSData *rawData = [NSPasteboard.generalPasteboard dataForType:WebCore::legacyHTMLPasteboardTypeSingleton()];
 #else
     NSData *rawData = [UIPasteboard.generalPasteboard dataForPasteboardType:UTTypeHTML.identifier];
 #endif

@@ -78,7 +78,6 @@ platform/mac/DataDetectorHighlight.mm
 platform/mac/HIDDevice.cpp
 platform/mac/PasteboardMac.mm
 platform/mac/PlatformEventFactoryMac.mm
-platform/mac/PlatformPasteboardMac.mm
 platform/mac/ScrollViewMac.mm
 platform/mac/ScrollbarThemeMac.mm
 platform/mac/ScrollbarsControllerMac.mm
