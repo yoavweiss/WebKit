@@ -77,6 +77,11 @@ static PAS_ALWAYS_INLINE kern_return_t PAS_WARN_UNUSED_RETURN pas_update_report_
  */
 kern_return_t pas_report_crash_extract_pgm_failure(vm_address_t fault_address, mach_vm_address_t pas_dead_root, unsigned version, task_t task, pas_report_crash_pgm_report* report, crash_reporter_memory_reader_t crm_reader)
 {
+    if (!report)
+        return KERN_INVALID_ARGUMENT;
+    if (!crm_reader)
+        return KERN_INVALID_ARGUMENT;
+
     memory_reader_t* reader = setup_memory_reader(crm_reader);
 
     pas_root* read_pas_dead_root = NULL;
@@ -89,6 +94,8 @@ kern_return_t pas_report_crash_extract_pgm_failure(vm_address_t fault_address, m
     kern_return_t kr = reader(task, pas_dead_root, sizeof(pas_root), (void**)&read_pas_dead_root);
     if (kr != KERN_SUCCESS)
         return KERN_FAILURE;
+    if (!read_pas_dead_root)
+        return KERN_FAILURE;
 
     unsigned dead_root_crash_report_version = read_pas_dead_root->pas_crash_report_version;
     if (version != dead_root_crash_report_version)
@@ -99,19 +106,29 @@ kern_return_t pas_report_crash_extract_pgm_failure(vm_address_t fault_address, m
 
     bool* temp_pgm_has_been_used_ptr = NULL;
     kr = reader(task, (vm_address_t)read_pas_dead_root->probabilistic_guard_malloc_has_been_used, sizeof(bool), (void**)&temp_pgm_has_been_used_ptr);
-    report->pgm_has_been_used = *temp_pgm_has_been_used_ptr;
     if (kr != KERN_SUCCESS)
         return KERN_FAILURE;
+    if (!temp_pgm_has_been_used_ptr)
+        return KERN_FAILURE;
+    report->pgm_has_been_used = *temp_pgm_has_been_used_ptr;
 
     kr = reader(task, (vm_address_t)read_pas_dead_root->pas_pgm_hash_map_instance, sizeof(pas_ptr_hash_map), (void**)&hash_map);
     if (kr != KERN_SUCCESS)
         return KERN_FAILURE;
+    if (!hash_map)
+        return KERN_FAILURE;
 
     table_size = hash_map->table_size;
+
+    /* Check if hash_map has a valid table before iterating */
+    if (!hash_map->table)
+        return KERN_FAILURE;
 
     for (size_t i = 0; i < table_size; i++) {
         kr = reader(task, (vm_address_t)(hash_map->table + i), sizeof(pas_ptr_hash_map_entry), (void**)&hash_map_entry);
         if (kr != KERN_SUCCESS)
+            return KERN_FAILURE;
+        if (!hash_map_entry)
             return KERN_FAILURE;
 
         /* Skip entry if not there */
@@ -120,6 +137,8 @@ kern_return_t pas_report_crash_extract_pgm_failure(vm_address_t fault_address, m
 
         kr = reader(task, (vm_address_t)hash_map_entry->value, sizeof(pas_pgm_storage), (void**)&pgm_metadata);
         if (kr != KERN_SUCCESS)
+            return KERN_FAILURE;
+        if (!pgm_metadata)
             return KERN_FAILURE;
 
         pas_backtrace_metadata* resolved_alloc_backtrace = NULL;
