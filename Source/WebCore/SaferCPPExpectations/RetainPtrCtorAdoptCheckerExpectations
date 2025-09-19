@@ -1,7 +1,5 @@
 PAL/pal/mac/DataDetectorsSoftLink.h
 platform/audio/cocoa/AudioSampleBufferConverter.mm
-platform/cocoa/FileMonitorCocoa.mm
-platform/cocoa/NetworkExtensionContentFilter.mm
 platform/graphics/avfoundation/AVTrackPrivateAVFObjCImpl.mm
 platform/graphics/avfoundation/objc/MediaPlayerPrivateAVFoundationObjC.mm
 platform/graphics/avfoundation/objc/QueuedVideoOutput.mm
@@ -9,10 +7,8 @@ platform/graphics/cg/GradientRendererCG.cpp
 platform/graphics/cg/GraphicsContextCG.cpp
 platform/graphics/cg/ImageDecoderCG.cpp
 platform/graphics/cg/PatternCG.cpp
-platform/graphics/cocoa/VideoMediaSampleRenderer.mm
 platform/graphics/cv/PixelBufferConformerCV.cpp
 platform/mac/CursorMac.mm
 platform/mac/ScrollbarsControllerMac.mm
 platform/mediastream/mac/AVVideoCaptureSource.mm
-platform/mediastream/mac/ScreenCaptureKitCaptureSource.mm
 platform/network/cf/DNSResolveQueueCFNet.cpp
