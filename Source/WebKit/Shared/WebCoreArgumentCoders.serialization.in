@@ -8281,7 +8281,7 @@ header: <WebCore/SharedBuffer.h>
     [Validator='WebCore::FilterOperation::isBasicComponentTransferFilterOperationType(*type)'] WebCore::FilterOperation::Type type();
 };
 [CustomHeader, RefCounted] class WebCore::BlurFilterOperation {
-    WebCore::Length stdDeviation();
+    float stdDeviation();
 };
 [CustomHeader, RefCounted] class WebCore::DropShadowFilterOperation {
     WebCore::IntPoint location();

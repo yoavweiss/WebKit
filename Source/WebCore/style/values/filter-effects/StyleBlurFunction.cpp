@@ -35,18 +35,18 @@ namespace Style {
 
 CSS::Blur toCSSBlur(Ref<BlurFilterOperation> operation, const RenderStyle& style)
 {
-    return { CSS::Blur::Parameter { toCSS(Length<CSS::Nonnegative> { operation->stdDeviation().value() }, style) } };
+    return { CSS::Blur::Parameter { toCSS(Length<CSS::Nonnegative> { operation->stdDeviation() }, style) } };
 }
 
 Ref<FilterOperation> createFilterOperation(const CSS::Blur& filter, const Document&, RenderStyle&, const CSSToLengthConversionData& conversionData)
 {
-    WebCore::Length stdDeviation;
+    float stdDeviation = 0;
     if (auto parameter = filter.value)
-        stdDeviation = WebCore::Length { toStyle(*parameter, conversionData).value, LengthType::Fixed };
+        stdDeviation = toStyle(*parameter, conversionData).value;
     else
-        stdDeviation = WebCore::Length { filterFunctionDefaultValue<CSS::BlurFunction::name>().value, LengthType::Fixed };
+        stdDeviation = filterFunctionDefaultValue<CSS::BlurFunction::name>().value;
 
-    return BlurFilterOperation::create(WTFMove(stdDeviation));
+    return BlurFilterOperation::create(stdDeviation);
 }
 
 } // namespace Style

@@ -103,7 +103,7 @@ CSSFilter::CSSFilter(Vector<Ref<FilterFunction>>&& functions, const FloatSize& f
 
 static RefPtr<FilterEffect> createBlurEffect(const BlurFilterOperation& blurOperation)
 {
-    float stdDeviation = floatValueForLength(blurOperation.stdDeviation(), 0);
+    float stdDeviation = blurOperation.stdDeviation();
     return FEGaussianBlur::create(stdDeviation, stdDeviation, EdgeModeType::None);
 }
 

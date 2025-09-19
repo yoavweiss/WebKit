@@ -76,7 +76,7 @@ IntOutsets FilterOperations::outsets() const
         switch (operation->type()) {
         case FilterOperation::Type::Blur: {
             auto& blurOperation = downcast<BlurFilterOperation>(operation.get());
-            float stdDeviation = floatValueForLength(blurOperation.stdDeviation(), 0);
+            float stdDeviation = blurOperation.stdDeviation();
             IntSize outsetSize = FEGaussianBlur::calculateOutsetSize({ stdDeviation, stdDeviation });
             IntOutsets outsets(outsetSize.height(), outsetSize.width(), outsetSize.height(), outsetSize.width());
             totalOutsets += outsets;
