@@ -416,7 +416,7 @@ RefPtr<MediaSessionManagerInterface> MediaSession::sessionManager() const
     if (!page)
         return nullptr;
 
-    return &page->mediaSessionManager();
+    return page->mediaSessionManager();
 }
 
 void MediaSession::metadataUpdated(const MediaMetadata& metadata)

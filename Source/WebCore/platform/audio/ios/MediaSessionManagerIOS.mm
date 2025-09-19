@@ -45,15 +45,15 @@ namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(MediaSessionManageriOS);
 
-RefPtr<PlatformMediaSessionManager> PlatformMediaSessionManager::create(std::optional<PageIdentifier>)
+RefPtr<PlatformMediaSessionManager> PlatformMediaSessionManager::create(PageIdentifier pageIdentifier)
 {
-    auto manager = adoptRef(new MediaSessionManageriOS);
+    auto manager = adoptRef(new MediaSessionManageriOS(pageIdentifier));
     MediaSessionHelper::sharedHelper().addClient(*manager);
     return manager;
 }
 
-MediaSessionManageriOS::MediaSessionManageriOS()
-    : MediaSessionManagerCocoa()
+MediaSessionManageriOS::MediaSessionManageriOS(PageIdentifier pageIdentifier)
+    : MediaSessionManagerCocoa(pageIdentifier)
 {
     AudioSession::addInterruptionObserver(*this);
 }

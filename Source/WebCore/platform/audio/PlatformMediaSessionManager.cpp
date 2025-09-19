@@ -55,14 +55,14 @@ namespace WebCore {
 WTF_MAKE_TZONE_ALLOCATED_IMPL(PlatformMediaSessionManager);
 
 #if !PLATFORM(COCOA) && (!USE(GLIB) || !ENABLE(MEDIA_SESSION))
-RefPtr<PlatformMediaSessionManager> PlatformMediaSessionManager::create(std::optional<PageIdentifier>)
+RefPtr<PlatformMediaSessionManager> PlatformMediaSessionManager::create(PageIdentifier pageIdentifier)
 {
-    return adoptRef(new PlatformMediaSessionManager);
+    return adoptRef(new PlatformMediaSessionManager(pageIdentifier));
 }
 #endif // !PLATFORM(COCOA) && (!USE(GLIB) || !ENABLE(MEDIA_SESSION))
 
-PlatformMediaSessionManager::PlatformMediaSessionManager()
-    : MediaSessionManagerInterface()
+PlatformMediaSessionManager::PlatformMediaSessionManager(PageIdentifier pageIdentifier)
+    : MediaSessionManagerInterface(pageIdentifier)
 {
 }
 

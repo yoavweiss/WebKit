@@ -10562,7 +10562,7 @@ void WebPage::frameViewLayoutOrVisualViewportChanged(const LocalFrameView& frame
 RefPtr<MediaSessionManagerInterface> WebPage::mediaSessionManager() const
 {
     RefPtr page { corePage() };
-    return page ? &page->mediaSessionManager() : nullptr;
+    return page ? page->mediaSessionManager() : nullptr;
 
 }
 

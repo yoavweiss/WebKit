@@ -10054,7 +10054,7 @@ bool HTMLMediaElement::limitedMatroskaSupportEnabled() const
 RefPtr<MediaSessionManagerInterface> HTMLMediaElement::sessionManager() const
 {
     if (RefPtr page = document().page())
-        return &page->mediaSessionManager();
+        return page->mediaSessionManager();
 
     return nullptr;
 }

@@ -99,7 +99,7 @@ class WebRTCProvider;
 
 enum class SandboxFlag : uint16_t;
 using SandboxFlags = OptionSet<SandboxFlag>;
-using MediaSessionManagerFactory = Function<RefPtr<MediaSessionManagerInterface> (std::optional<PageIdentifier>)>;
+using MediaSessionManagerFactory = Function<RefPtr<MediaSessionManagerInterface> (PageIdentifier)>;
 
 class PageConfiguration {
     WTF_MAKE_TZONE_ALLOCATED_EXPORT(PageConfiguration, WEBCORE_EXPORT);

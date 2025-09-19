@@ -620,21 +620,21 @@ void Internals::resetToConsistentState(Page& page)
         localMainFrame->editor().toggleOverwriteModeEnabled();
     localMainFrame->loader().clearTestingOverrides();
 
-    auto& sessionManager = page.mediaSessionManager();
+    RefPtr sessionManager = page.mediaSessionManager();
 #if ENABLE(VIDEO)
     page.group().ensureCaptionPreferences().setCaptionDisplayMode(CaptionUserPreferences::CaptionDisplayMode::ForcedOnly);
     page.group().ensureCaptionPreferences().setCaptionsStyleSheetOverride(emptyString());
 
-    sessionManager.resetHaveEverRegisteredAsNowPlayingApplicationForTesting();
-    sessionManager.resetRestrictions();
-    sessionManager.resetSessionState();
-    sessionManager.setWillIgnoreSystemInterruptions(true);
-    sessionManager.applicationWillEnterForeground(false);
+    sessionManager->resetHaveEverRegisteredAsNowPlayingApplicationForTesting();
+    sessionManager->resetRestrictions();
+    sessionManager->resetSessionState();
+    sessionManager->setWillIgnoreSystemInterruptions(true);
+    sessionManager->applicationWillEnterForeground(false);
     if (page.mediaPlaybackIsSuspended())
         page.resumeAllMediaPlayback();
 #endif
 #if ENABLE(VIDEO) || ENABLE(WEB_AUDIO)
-    sessionManager.setIsPlayingToAutomotiveHeadUnit(false);
+    sessionManager->setIsPlayingToAutomotiveHeadUnit(false);
 #endif
     AXObjectCache::setEnhancedUserInterfaceAccessibility(false);
     AXObjectCache::disableAccessibility();
@@ -8021,7 +8021,7 @@ RefPtr<MediaSessionManagerInterface> Internals::sessionManager() const
     if (!page)
         return nullptr;
 
-    return &page->mediaSessionManager();
+    return page->mediaSessionManager();
 }
 
 #if ENABLE(MODEL_ELEMENT)

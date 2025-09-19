@@ -671,7 +671,7 @@ RefPtr<MediaSessionManagerInterface> MediaStreamTrack::mediaSessionManager() con
     if (!page)
         return nullptr;
 
-    return &page->mediaSessionManager();
+    return page->mediaSessionManager();
 }
 
 ScriptExecutionContext* MediaStreamTrack::scriptExecutionContext() const

@@ -466,6 +466,7 @@ public:
 
     WEBCORE_EXPORT static void forEachPage(NOESCAPE const Function<void(Page&)>&);
     WEBCORE_EXPORT static unsigned nonUtilityPageCount();
+    static Page* fromPageIdentifier(PageIdentifier);
 
     unsigned subframeCount() const;
 
@@ -1355,10 +1356,9 @@ public:
 
     WEBCORE_EXPORT RefPtr<HTMLMediaElement> bestMediaElementForRemoteControls(PlatformMediaSessionPlaybackControlsPurpose, Document*);
 
-    WEBCORE_EXPORT MediaSessionManagerInterface& mediaSessionManager();
-    WEBCORE_EXPORT Ref<MediaSessionManagerInterface> protectedMediaSessionManager();
+    WEBCORE_EXPORT RefPtr<MediaSessionManagerInterface> mediaSessionManager();
     WEBCORE_EXPORT MediaSessionManagerInterface* mediaSessionManagerIfExists() const;
-    WEBCORE_EXPORT static MediaSessionManagerInterface* mediaSessionManagerForPageIdentifier(PageIdentifier);
+    WEBCORE_EXPORT static RefPtr<MediaSessionManagerInterface> mediaSessionManagerForPageIdentifier(PageIdentifier);
 
 #if ENABLE(MODEL_ELEMENT)
     bool shouldDisableModelLoadDelaysForTesting() const { return m_modelLoadDelaysDisabledForTesting; }
@@ -1837,7 +1837,7 @@ private:
     String m_presentingApplicationBundleIdentifier;
 #endif
 
-    using MediaSessionManagerFactory = Function<RefPtr<MediaSessionManagerInterface> (std::optional<PageIdentifier>)>;
+    using MediaSessionManagerFactory = Function<RefPtr<MediaSessionManagerInterface> (PageIdentifier)>;
     std::optional<MediaSessionManagerFactory> m_mediaSessionManagerFactory;
     RefPtr<MediaSessionManagerInterface> m_mediaSessionManager;
 

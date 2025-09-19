@@ -77,14 +77,15 @@ namespace WebCore {
 WTF_MAKE_TZONE_ALLOCATED_IMPL(MediaSessionManagerCocoa);
 
 #if PLATFORM(MAC)
-RefPtr<PlatformMediaSessionManager> PlatformMediaSessionManager::create(std::optional<PageIdentifier>)
+RefPtr<PlatformMediaSessionManager> PlatformMediaSessionManager::create(PageIdentifier pageIdentifier)
 {
-    return adoptRef(new MediaSessionManagerCocoa);
+    return adoptRef(new MediaSessionManagerCocoa(pageIdentifier));
 }
 #endif // !PLATFORM(MAC)
 
-MediaSessionManagerCocoa::MediaSessionManagerCocoa()
-    : m_nowPlayingManager(hasPlatformStrategies() ? platformStrategies()->mediaStrategy()->createNowPlayingManager() : nullptr)
+MediaSessionManagerCocoa::MediaSessionManagerCocoa(PageIdentifier pageIdentifier)
+    : PlatformMediaSessionManager(pageIdentifier)
+    , m_nowPlayingManager(hasPlatformStrategies() ? platformStrategies()->mediaStrategy()->createNowPlayingManager() : nullptr)
     , m_delayCategoryChangeTimer(RunLoop::mainSingleton(), "MediaSessionManagerCocoa::DelayCategoryChangeTimer"_s, this, &MediaSessionManagerCocoa::possiblyChangeAudioCategory)
 {
 }
@@ -285,7 +286,12 @@ void MediaSessionManagerCocoa::addSession(PlatformMediaSessionInterface& session
 void MediaSessionManagerCocoa::removeSession(PlatformMediaSessionInterface& session)
 {
     PlatformMediaSessionManager::removeSession(session);
-    session.setActiveNowPlayingSession(false);
+
+    if (session.isActiveNowPlayingSession()) {
+        session.setActiveNowPlayingSession(false);
+        if (RefPtr page = Page::fromPageIdentifier(pageIdentifier()))
+            page->hasActiveNowPlayingSessionChanged();
+    }
 
     if (hasNoSession()) {
         m_nowPlayingManager->removeClient(*this);
@@ -465,9 +471,18 @@ WeakPtr<PlatformMediaSessionInterface> MediaSessionManagerCocoa::nowPlayingEligi
 
 void MediaSessionManagerCocoa::updateActiveNowPlayingSession(RefPtr<PlatformMediaSessionInterface> activeNowPlayingSession)
 {
+    bool activeSessionChanged = false;
     forEachSession([&](auto& session) {
-        session.setActiveNowPlayingSession(&session == activeNowPlayingSession.get());
+        bool newSessionState = &session == activeNowPlayingSession.get();
+        if (session.isActiveNowPlayingSession() != newSessionState)
+            activeSessionChanged = true;
+        session.setActiveNowPlayingSession(newSessionState);
     });
+
+    if (activeSessionChanged) {
+        if (RefPtr page = Page::fromPageIdentifier(pageIdentifier()))
+            page->hasActiveNowPlayingSessionChanged();
+    }
 }
 
 void MediaSessionManagerCocoa::updateNowPlayingInfo()
