@@ -32,7 +32,7 @@ import subprocess
 
 from webkitcorepy import string_utils, run
 from webkitbugspy import Tracker, bugzilla
-from webkitscmpy import local, remote
+from webkitscmpy import local
 
 from webkitpy.common.host import Host
 from webkitpy.common.net.bugzilla import Bugzilla
@@ -76,11 +76,13 @@ class WebPlatformTestExporter(object):
                 commit = self._repository.find(options.git_commit)
                 issue = next((issue for issue in commit.issues if isinstance(issue.tracker, bugzilla.Tracker)), None)
                 if not issue:
-                    raise ValueError('Unable to find associated bug.')
+                    raise ValueError('Unable to find associated bug. Please provide a bug id using `--bug`.')
                 self._bug_id = issue.id
                 self._options.git_commit = commit.hash
 
-        if Tracker.instance() and (isinstance(self._bug_id, int) or string_utils.decode(self._bug_id).isnumeric()):
+        if not self._bug_id:
+            raise ValueError('Unable to find associated bug. Please provide a bug id using `--bug`.')
+        elif Tracker.instance() and (isinstance(self._bug_id, int) or string_utils.decode(self._bug_id).isnumeric()):
             issue = Tracker.instance().issue(int(self._bug_id))
         else:
             issue = Tracker.from_string(self._bug_id)
@@ -211,15 +213,13 @@ class WebPlatformTestExporter(object):
         self._filesystem.write_binary_file(patch_file, patch_data)
         return patch_file
 
-    def _ensure_wpt_repository(self):
-        if not self._options.repository_directory:
-            webkit_finder = WebKitFinder(self._filesystem)
-            self._options.repository_directory = WPTPaths.wpt_checkout_path(webkit_finder)
+    def _get_wpt_repository(self):
+        webkit_finder = WebKitFinder(self._filesystem)
+        repository_directory = WPTPaths.ensure_wpt_repository(webkit_finder, self._options.repository_directory, non_interactive=self._options.non_interactive)
+        if not repository_directory:
+            return
 
-        if not self._filesystem.exists(self._options.repository_directory):
-            run([local.Git.executable(), 'clone', f'{WPT_GH_URL}.git', os.path.abspath(self._options.repository_directory)])
-        self._wpt_repo = local.Git(self._options.repository_directory)
-
+        self._wpt_repo = local.Git(repository_directory)
         self._remote = self._init_wpt_remote()
         if not self._remote:
             return 1
@@ -345,7 +345,7 @@ class WebPlatformTestExporter(object):
             _log.error("Unable to create a patch to apply to web-platform-tests repository")
             return 1
 
-        if not self._ensure_wpt_repository():
+        if not self._get_wpt_repository():
             _log.error(f'Could not find WPT repository')
             return 1
 
@@ -399,7 +399,7 @@ class WebPlatformTestExporter(object):
 def parse_args(args):
     description = f"""Script to generate a pull request to W3C web-platform-tests repository
     'Tools/Scripts/export-w3c-test-changes -c -g HEAD -b XYZ' will do the following:
-    - Clone web-platform-tests repository if not done already and set it up for pushing branches.
+    - Clone web-platform-tests repository if not done already and set it up for pushing branches. By default, the repository will be cloned into the parent directory of your WebKit checkout (e.g. ~/WebKit/../wpt).
     - Gather WebKit bug id XYZ bug and changes to apply to web-platform-tests repository based on the HEAD commit
     - Create a remote branch named webkit-XYZ on https://github.com/USERNAME/{WPT_GH_REPO_NAME}.git repository based on the locally applied patch.
        * {WPT_GH_URL}.git should have already been cloned to https://github.com/USERNAME/{WPT_GH_REPO_NAME}.git.
@@ -421,7 +421,7 @@ def parse_args(args):
     parser.add_argument('-m', '--message', dest='message', default=None, help='Commit message')
     parser.add_argument('-r', '--remote', dest='repository_remote', default=None, help='repository origin to use to push')
     parser.add_argument('-u', '--remote-url', dest='repository_remote_url', default=None, help='repository url to use to push')
-    parser.add_argument('-d', '--repository', dest='repository_directory', default=None, help='repository directory')
+    parser.add_argument('-d', '--repository', dest='repository_directory', default=None, help='WPT repository directory. Default: In the parent of your WebKit checkout, e.g. `~/WebKit/../wpt`')
     parser.add_argument('-c', '--create-pr', dest='create_pull_request', action='store_true', default=False, help='create pull request to w3c web-platform-tests')
     parser.add_argument('--non-interactive', action='store_true', dest='non_interactive', default=False, help='Never prompt the user, fail as fast as possible.')
     parser.add_argument('--no-linter', action='store_false', dest='use_linter', default=True, help='Disable linter.')
@@ -442,7 +442,7 @@ def configure_logging():
                 return f'{record.levelname}: {record.getMessage()}'
             return record.getMessage()
 
-    logger = logging.getLogger('webkitpy.w3c.test_exporter')
+    logger = logging.getLogger('webkitpy.w3c')
     logger.propagate = False
     logger.setLevel(logging.INFO)
     handler = LogHandler()
