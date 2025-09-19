@@ -336,6 +336,7 @@ enum class ReferrerPolicySource : uint8_t;
 enum class RenderingUpdateStep : uint32_t;
 enum class RouteSharingPolicy : uint8_t;
 enum class ScheduleLocationChangeResult : uint8_t;
+enum class ScrollEventType : bool;
 enum class ShouldOpenExternalURLsPolicy : uint8_t;
 enum class StyleColorOptions : uint8_t;
 enum class ViolationReportType : uint8_t;
@@ -1639,8 +1640,7 @@ public:
     void runResizeSteps();
     void flushDeferredResizeEvents();
 
-    void addPendingScrollendEventTarget(ContainerNode&);
-    void addPendingScrollEventTarget(ContainerNode&);
+    void addPendingScrollEventTarget(ContainerNode&, ScrollEventType);
     void setNeedsVisualViewportScrollEvent();
     void runScrollSteps();
     void flushDeferredScrollEvents();
@@ -2548,7 +2548,6 @@ private:
 
     struct PendingScrollEventTargetList;
     std::unique_ptr<PendingScrollEventTargetList> m_pendingScrollEventTargetList;
-    std::unique_ptr<PendingScrollEventTargetList> m_pendingScrollendEventTargetList;
 
     WeakHashSet<ValidationMessage> m_validationMessagesToPosition;
 

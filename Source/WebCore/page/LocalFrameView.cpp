@@ -6180,7 +6180,7 @@ void LocalFrameView::scrollDidEnd()
     if (!m_frame->view())
         return;
     if (RefPtr document = m_frame->document())
-        document->addPendingScrollendEventTarget(*document);
+        document->addPendingScrollEventTarget(*document, ScrollEventType::Scrollend);
 }
 
 void LocalFrameView::scheduleScrollEvent()

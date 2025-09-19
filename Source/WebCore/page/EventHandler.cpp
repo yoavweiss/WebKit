@@ -5107,7 +5107,7 @@ void EventHandler::scheduleScrollEvent()
     if (!frame->view())
         return;
     if (RefPtr document = frame->document())
-        document->addPendingScrollEventTarget(*document);
+        document->addPendingScrollEventTarget(*document, ScrollEventType::Scroll);
 }
 
 void EventHandler::setFrameWasScrolledByUser()

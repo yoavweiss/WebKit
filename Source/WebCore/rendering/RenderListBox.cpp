@@ -844,7 +844,7 @@ void RenderListBox::scrollTo(const ScrollPosition& position)
     computeFirstIndexesVisibleInPaddingBeforeAfterAreas();
 
     repaint();
-    document().addPendingScrollEventTarget(selectElement());
+    document().addPendingScrollEventTarget(selectElement(), ScrollEventType::Scroll);
 }
 
 LayoutUnit RenderListBox::itemLogicalHeight() const
@@ -1224,7 +1224,7 @@ void RenderListBox::scrollDidEnd()
 {
     if (ScrollAnimator* scrollAnimator = existingScrollAnimator(); scrollAnimator && !scrollAnimator->isUserScrollInProgress() && !isAwaitingScrollend()) {
         setIsAwaitingScrollend(false);
-        selectElement().protectedDocument()->addPendingScrollendEventTarget(selectElement());
+        selectElement().protectedDocument()->addPendingScrollEventTarget(selectElement(), ScrollEventType::Scrollend);
     }
 }
 
