@@ -947,6 +947,10 @@ void run(const TestConfig* config)
         RUN(testMulHigh64());
         RUN(testUMulHigh32());
         RUN(testUMulHigh64());
+        RUN(testMemoryCopy());
+        RUN(testMemoryFill());
+        RUN(testMemoryCopyConstant());
+        RUN(testMemoryFillConstant());
     }
 
     Lock lock;
