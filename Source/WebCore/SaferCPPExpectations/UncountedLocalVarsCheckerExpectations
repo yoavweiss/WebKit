@@ -277,8 +277,8 @@ page/DeviceController.cpp
 page/DragController.cpp
 page/ElementTargetingController.cpp
 page/EventHandler.cpp
-page/FrameConsoleClient.cpp
 page/FocusController.cpp
+page/FrameConsoleClient.cpp
 page/FrameSnapshotting.cpp
 page/FrameView.cpp
 page/ImageAnalysisQueue.cpp
@@ -365,7 +365,6 @@ platform/graphics/filters/software/FETileSoftwareApplier.cpp
 platform/graphics/filters/software/FETurbulenceSoftwareApplier.cpp
 platform/graphics/filters/software/SourceAlphaSoftwareApplier.cpp
 platform/graphics/filters/software/SourceGraphicSoftwareApplier.cpp
-platform/graphics/mac/controls/ImageControlsButtonMac.mm
 platform/graphics/mac/controls/MeterMac.mm
 platform/graphics/mac/controls/ProgressBarMac.mm
 platform/graphics/mac/controls/SliderTrackMac.mm

@@ -5901,7 +5901,7 @@ JSValue Internals::cloneArrayBuffer(JSC::JSGlobalObject& lexicalGlobalObject, JS
 
 String Internals::resourceLoadStatisticsForURL(const DOMURL& url)
 {
-    return ResourceLoadObserver::shared().statisticsForURL(url.href());
+    return ResourceLoadObserver::singleton().statisticsForURL(url.href());
 }
 
 void Internals::setTrackingPreventionEnabled(bool enable)
@@ -6922,7 +6922,7 @@ ExceptionOr<unsigned> Internals::pluginScrollPositionY(Element& element)
 
 void Internals::notifyResourceLoadObserver()
 {
-    ResourceLoadObserver::shared().updateCentralStatisticsStore([] { });
+    ResourceLoadObserver::singleton().updateCentralStatisticsStore([] { });
 }
 
 unsigned Internals::primaryScreenDisplayID()

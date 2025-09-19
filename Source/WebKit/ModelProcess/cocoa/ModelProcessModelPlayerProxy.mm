@@ -679,7 +679,7 @@ void ModelProcessModelPlayerProxy::load(WebCore::Model& model, WebCore::LayoutSi
     RELEASE_LOG(ModelElement, "%p - ModelProcessModelPlayerProxy::load size=%zu id=%" PRIu64, this, model.data()->size(), m_id.toUInt64());
     sizeDidChange(layoutSize);
 
-    WKREEngine::shared().runWithSharedScene([this, protectedThis = Ref { *this }, model = Ref { model }] (RESceneRef scene) {
+    WKREEngine::singleton().runWithSharedScene([this, protectedThis = Ref { *this }, model = Ref { model }] (RESceneRef scene) {
         m_scene = scene;
         if ([getWKRKEntityClassSingleton() isLoadFromDataAvailable])
             m_loader = RKUSDModelLoadScheduler::singleton().scheduleModelLoad(model.get(), m_attributionTaskID, m_debugEntityMemoryLimit ? *m_debugEntityMemoryLimit : defaultEntityMemoryLimit, *this);

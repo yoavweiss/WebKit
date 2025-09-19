@@ -1427,7 +1427,7 @@ void WebProcessPool::postMessageToInjectedBundle(const String& messageName, API:
 static void loadRestrictedOpenerTypeDataIfNeeded()
 {
 #if ENABLE(ADVANCED_PRIVACY_PROTECTIONS)
-    RestrictedOpenerDomainsController::shared();
+    RestrictedOpenerDomainsController::singleton();
 #endif
 }
 

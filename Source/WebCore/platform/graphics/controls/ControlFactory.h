@@ -58,7 +58,7 @@ public:
     virtual ~ControlFactory() = default;
 
     WEBCORE_EXPORT static Ref<ControlFactory> create();
-    WEBCORE_EXPORT static ControlFactory& shared();
+    WEBCORE_EXPORT static ControlFactory& singleton();
 
 #if ENABLE(APPLE_PAY)
     virtual std::unique_ptr<PlatformControl> createPlatformApplePayButton(ApplePayButtonPart&) = 0;

@@ -5727,7 +5727,7 @@ void Page::setLastAuthentication(LoginStatus::AuthenticationType authType)
     m_lastAuthentication = loginStatus.releaseReturnValue().moveToUniquePtr();
 
     if (RefPtr document = localMainFrame() ? localMainFrame()->document() : nullptr)
-        ResourceLoadObserver::shared().logUserInteractionWithReducedTimeResolution(*document);
+        ResourceLoadObserver::singleton().logUserInteractionWithReducedTimeResolution(*document);
 }
 
 #if ENABLE(FULLSCREEN_API)

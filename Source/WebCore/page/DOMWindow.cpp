@@ -130,7 +130,7 @@ void DOMWindow::close()
     if (localFrame && !localFrame->loader().shouldClose())
         return;
 
-    ResourceLoadObserver::shared().updateCentralStatisticsStore([] { });
+    ResourceLoadObserver::singleton().updateCentralStatisticsStore([] { });
 
     page->setIsClosing();
     closePage();

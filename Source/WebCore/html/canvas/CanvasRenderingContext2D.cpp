@@ -270,8 +270,8 @@ Ref<TextMetrics> CanvasRenderingContext2D::measureText(const String& text)
     ScriptDisallowedScope::InMainThread scriptDisallowedScope;
 
     if (document->settings().webAPIStatisticsEnabled()) {
-        ResourceLoadObserver::shared().logCanvasWriteOrMeasure(document, text);
-        ResourceLoadObserver::shared().logCanvasRead(document);
+        ResourceLoadObserver::singleton().logCanvasWriteOrMeasure(document, text);
+        ResourceLoadObserver::singleton().logCanvasRead(document);
     }
 
     String normalizedText = normalizeSpaces(text);
@@ -303,7 +303,7 @@ void CanvasRenderingContext2D::drawTextInternal(const String& text, double x, do
     ScriptDisallowedScope::InMainThread scriptDisallowedScope;
 
     if (document->settings().webAPIStatisticsEnabled())
-        ResourceLoadObserver::shared().logCanvasWriteOrMeasure(document, text);
+        ResourceLoadObserver::singleton().logCanvasWriteOrMeasure(document, text);
 
     if (!canDrawText(x, y, fill, maxWidth))
         return;

@@ -334,7 +334,7 @@ void StorageAccessUserAgentStringQuirkController::updateList(CompletionHandler<v
     }];
 }
 
-RestrictedOpenerDomainsController& RestrictedOpenerDomainsController::shared()
+RestrictedOpenerDomainsController& RestrictedOpenerDomainsController::singleton()
 {
     static MainRunLoopNeverDestroyed<RestrictedOpenerDomainsController> sharedInstance;
     return sharedInstance.get();

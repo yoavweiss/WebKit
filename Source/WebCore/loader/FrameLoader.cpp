@@ -3670,7 +3670,7 @@ ResourceLoaderIdentifier FrameLoader::loadResourceSynchronously(const ResourceRe
         Vector<uint8_t> buffer;
         platformStrategies()->loaderStrategy()->loadResourceSynchronously(*this, identifier, newRequest, clientCredentialPolicy, options, originalRequestHeaders, error, response, buffer);
         data = SharedBuffer::create(WTFMove(buffer));
-        ResourceLoadObserver::shared().logSubresourceLoading(protectedFrame().ptr(), newRequest, response,
+        ResourceLoadObserver::singleton().logSubresourceLoading(protectedFrame().ptr(), newRequest, response,
             (isScriptLikeDestination(options.destination) ? ResourceLoadObserver::FetchDestinationIsScriptLike::Yes : ResourceLoadObserver::FetchDestinationIsScriptLike::No));
     }
 

@@ -45,7 +45,7 @@ class ControlFactoryMac final : public ControlFactoryCocoa, public CanMakeChecke
 public:
     using ControlFactoryCocoa::ControlFactoryCocoa;
 
-    static ControlFactoryMac& shared();
+    static ControlFactoryMac& singleton();
 
     NSView *drawingView(const FloatRect&, const ControlStyle&) const;
 

@@ -557,7 +557,7 @@ void GraphicsContext::drawLineForText(const FloatRect& rect, bool isPrinting, bo
 
 void GraphicsContext::drawDisplayList(const DisplayList::DisplayList& displayList)
 {
-    Ref controlFactory = ControlFactory::shared();
+    Ref controlFactory = ControlFactory::singleton();
     drawDisplayList(displayList, controlFactory);
 }
 

@@ -68,7 +68,7 @@ Recorder::~Recorder()
 
 void Recorder::appendDisplayList(const DisplayList& displayList)
 {
-    GraphicsContext::drawDisplayList(displayList, Ref { ControlFactory::shared() });
+    GraphicsContext::drawDisplayList(displayList, Ref { ControlFactory::singleton() });
 }
 
 const GraphicsContextState& Recorder::state() const

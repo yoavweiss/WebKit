@@ -367,7 +367,7 @@ void WebProcessPool::platformInitialize(NeedsGlobalStaticInitialization needsGlo
 
 #if ENABLE(ADVANCED_PRIVACY_PROTECTIONS)
     PAL::registerNotifyCallback("com.apple.WebKit.restrictedDomains"_s, ^{
-        RestrictedOpenerDomainsController::shared();
+        RestrictedOpenerDomainsController::singleton();
     });
 #endif
 

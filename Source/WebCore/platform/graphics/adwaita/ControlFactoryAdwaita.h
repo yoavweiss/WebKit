@@ -33,7 +33,7 @@ namespace WebCore {
 
 class ControlFactoryAdwaita final : public ControlFactory {
 public:
-    static ControlFactoryAdwaita& shared();
+    static ControlFactoryAdwaita& singleton();
 
 private:
     std::unique_ptr<PlatformControl> createPlatformButton(ButtonPart&) final;

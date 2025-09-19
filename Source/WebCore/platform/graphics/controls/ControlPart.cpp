@@ -38,7 +38,7 @@ ControlPart::ControlPart(StyleAppearance type)
 
 ControlFactory& ControlPart::controlFactory() const
 {
-    return m_overrideControlFactory ? *m_overrideControlFactory : ControlFactory::shared();
+    return m_overrideControlFactory ? *m_overrideControlFactory : ControlFactory::singleton();
 }
 
 Ref<ControlFactory> ControlPart::protectedControlFactory() const

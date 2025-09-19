@@ -2834,7 +2834,7 @@ RestrictedOpenerType WebsiteDataStore::openerTypeForDomain(const WebCore::Regist
     }
 
 #if ENABLE(ADVANCED_PRIVACY_PROTECTIONS)
-    return RestrictedOpenerDomainsController::shared().lookup(domain);
+    return RestrictedOpenerDomainsController::singleton().lookup(domain);
 #else
     return RestrictedOpenerType::Unrestricted;
 #endif

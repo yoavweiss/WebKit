@@ -209,7 +209,7 @@ void SubresourceLoader::willSendRequestInternal(ResourceRequest&& newRequest, co
     }
 
     if (newRequest.requester() != ResourceRequestRequester::Main) {
-        ResourceLoadObserver::shared().logSubresourceLoading(protectedFrame().get(), newRequest, redirectResponse,
+        ResourceLoadObserver::singleton().logSubresourceLoading(protectedFrame().get(), newRequest, redirectResponse,
             (isScriptLikeDestination(options().destination) ? ResourceLoadObserver::FetchDestinationIsScriptLike::Yes : ResourceLoadObserver::FetchDestinationIsScriptLike::No));
     }
 
