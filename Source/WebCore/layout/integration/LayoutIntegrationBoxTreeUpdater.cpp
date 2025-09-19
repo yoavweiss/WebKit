@@ -328,7 +328,15 @@ void BoxTreeUpdater::buildTreeForFlexContent()
 
 void BoxTreeUpdater::buildTreeForGridContent()
 {
-    // FIXME: Implement this
+    for (auto& gridItemRenderer : childrenOfType<RenderElement>(m_rootRenderer)) {
+        if (auto existingChildBox = gridItemRenderer.layoutBox()) {
+            insertChild(existingChildBox->removeFromParent(), gridItemRenderer, gridItemRenderer.previousSibling());
+            continue;
+        }
+        auto style = RenderStyle::clone(gridItemRenderer.style());
+        auto gridItemBox = makeUniqueRef<Layout::ElementBox>(elementAttributes(gridItemRenderer), WTFMove(style));
+        insertChild(WTFMove(gridItemBox), gridItemRenderer, gridItemRenderer.previousSibling());
+    }
 }
 
 void BoxTreeUpdater::insertChild(UniqueRef<Layout::Box> childBox, RenderObject& childRenderer, const RenderObject* beforeChild)
@@ -558,5 +566,3 @@ void showInlineContent(TextStream& stream, const InlineContent& inlineContent, s
 
 }
 }
-
-

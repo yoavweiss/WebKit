@@ -26,8 +26,12 @@
 #include "config.h"
 #include "LayoutIntegrationGridLayout.h"
 
+#include "FormattingContextBoxIterator.h"
 #include "LayoutIntegrationBoxTreeUpdater.h"
 #include "RenderGrid.h"
+#include <wtf/CheckedPtr.h>
+#include <wtf/CheckedRef.h>
+#include <wtf/text/TextStream.h>
 
 namespace WebCore {
 
@@ -41,7 +45,25 @@ GridLayout::GridLayout(RenderGrid& renderGrid)
 
 void GridLayout::layout()
 {
-    // FIXME implement this
+    // FIXME: implement this.
+}
+
+TextStream& operator<<(TextStream& stream, const GridLayout& layout)
+{
+    stream << "GridLayout@" << &layout;
+    stream << " gridBox=" << &layout.gridBox();
+    size_t index = 0;
+    for (CheckedRef box : Layout::formattingContextBoxes(layout.gridBox())) {
+        stream << "\n  [" << index++ << "] box=" << box.ptr();
+        stream << " anonymous=" << (box->isAnonymous() ? "yes" : "no");
+        stream << " establishesContext=" << (box->establishesFormattingContext() ? "yes" : "no");
+        stream << " display=" << box->style().display();
+        if (CheckedPtr renderer = box->rendererForIntegration())
+            stream << " renderer=" << renderer->renderName() << '@' << renderer.get();
+        else
+            stream << " renderer=<null>";
+    }
+    return stream;
 }
 
 } // namespace LayoutIntegration
