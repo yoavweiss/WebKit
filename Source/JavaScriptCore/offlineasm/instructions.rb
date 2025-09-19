@@ -459,6 +459,8 @@ ARM64_INSTRUCTIONS =
      "storepairi",
      "loadpaird",
      "storepaird",
+     "loadpairv",
+     "storepairv",
     ]
 
 ARM64_SIMD_INSTRUCTIONS =

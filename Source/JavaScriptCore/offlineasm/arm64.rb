@@ -444,8 +444,22 @@ end
 def isMalformedArm64LoadStorePairAddress(opcode, operand)
     malformed = false
     if operand.is_a? Address
-        malformed ||= (not (-512..504).include? operand.offset.value)
-        malformed ||= (not (operand.offset.value % 8).zero?)
+        case opcode
+        when /pairi$/
+            alignment = 4
+        when /pairq$/, /paird$/
+            alignment = 8
+        when /pairv$/
+            alignment = 16
+        else
+            raise "Unknown pair instruction #{opcode}"
+        end
+
+        # ARM64 load/store pair offset range is 7-bit signed imm * alignment
+        min_offset = -64 * alignment
+        max_offset = 63 * alignment
+        malformed ||= (not (min_offset..max_offset).include? operand.offset.value)
+        malformed ||= (not (operand.offset.value % alignment).zero?)
     end
     malformed
 end
@@ -590,9 +604,12 @@ class Sequence
                 "jmp", "call", "leap", "leaq", "loadlinkacqq", "storecondrelq", /^atomic[a-z]+q$/, "loadv", "storev"
                 size = $currentSettings["ADDRESS64"] ? 8 : 4
             when "loadpairi", "storepairi"
-                size = 8
+                size = 4
                 isLoadStorePairOp = true
             when "loadpairq", "storepairq", "loadpaird", "storepaird"
+                size = 8
+                isLoadStorePairOp = true
+            when "loadpairv", "storepairv"
                 size = 16
                 isLoadStorePairOp = true
             else
@@ -1680,6 +1697,10 @@ class Instruction
             $asm.puts "ldp #{operands[1].arm64Operand(:double)}, #{operands[2].arm64Operand(:double)}, #{operands[0].arm64PairAddressOperand(:double)}"
         when "storepaird"
             $asm.puts "stp #{operands[0].arm64Operand(:double)}, #{operands[1].arm64Operand(:double)}, #{operands[2].arm64PairAddressOperand(:double)}"
+        when "loadpairv"
+            $asm.puts "ldp #{operands[1].arm64Operand(:vector_with_interpretation)}, #{operands[2].arm64Operand(:vector_with_interpretation)}, #{operands[0].arm64PairAddressOperand(:vector_with_interpretation)}"
+        when "storepairv"
+            $asm.puts "stp #{operands[0].arm64Operand(:vector_with_interpretation)}, #{operands[1].arm64Operand(:vector_with_interpretation)}, #{operands[2].arm64PairAddressOperand(:vector_with_interpretation)}"
 
         ########
         # SIMD #

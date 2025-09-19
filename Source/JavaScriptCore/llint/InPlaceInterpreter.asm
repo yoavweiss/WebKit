@@ -388,10 +388,9 @@ macro operationCallMayThrow(fn)
 end
 
 macro operationCallMayThrowPreservingVolatileRegisters(fn)
-    // FIXME: preserveVolatileRegisters() and restoreVolatileRegisters() are not safe for SIMD.
-    preserveVolatileRegisters()
-    operationCallMayThrowImpl(fn, (NumberOfVolatileGPRs * MachineRegisterSize) + (NumberOfWasmArgumentFPRs * FPRRegisterSize))
-    restoreVolatileRegisters()
+    preserveWasmVolatileRegisters()
+    operationCallMayThrowImpl(fn, (NumberOfVolatileGPRs * MachineRegisterSize) + (NumberOfWasmArgumentFPRs * VectorRegisterSize))
+    restoreWasmVolatileRegisters()
 end
 
 # Exception handling
@@ -564,10 +563,13 @@ end
 macro preserveWasmFPRArgumentRegistersImpl(fprBaseOffset)
     forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
         if ARM64 or ARM64E
-            storepaird fpr1, fpr2, fprBaseOffset + index * FPRRegisterSize[sp]
+            storepairv fpr1, fpr2, fprBaseOffset + index * VectorRegisterSize[sp]
+        elsif X86_64
+            storev fpr1, fprBaseOffset + (index + 0) * VectorRegisterSize[sp]
+            storev fpr2, fprBaseOffset + (index + 1) * VectorRegisterSize[sp]
         else
-            stored fpr1, fprBaseOffset + (index + 0) * FPRRegisterSize[sp]
-            stored fpr2, fprBaseOffset + (index + 1) * FPRRegisterSize[sp]
+            stored fpr1, fprBaseOffset + (index + 0) * VectorRegisterSize[sp]
+            stored fpr2, fprBaseOffset + (index + 1) * VectorRegisterSize[sp]
         end
     end)
 end
@@ -575,50 +577,27 @@ end
 macro restoreWasmFPRArgumentRegistersImpl(fprBaseOffset)
     forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
         if ARM64 or ARM64E
-            loadpaird fprBaseOffset + index * FPRRegisterSize[sp], fpr1, fpr2
+            loadpairv fprBaseOffset + index * VectorRegisterSize[sp], fpr1, fpr2
+        elsif X86_64
+            loadv fprBaseOffset + (index + 0) * VectorRegisterSize[sp], fpr1
+            loadv fprBaseOffset + (index + 1) * VectorRegisterSize[sp], fpr2
         else
-            loadd fprBaseOffset + (index + 0) * FPRRegisterSize[sp], fpr1
-            loadd fprBaseOffset + (index + 1) * FPRRegisterSize[sp], fpr2
+            loadd fprBaseOffset + (index + 0) * VectorRegisterSize[sp], fpr1
+            loadd fprBaseOffset + (index + 1) * VectorRegisterSize[sp], fpr2
         end
     end)
 end
 
-
 macro preserveWasmArgumentRegisters()
     const gprStorageSize = NumberOfWasmArgumentGPRs * MachineRegisterSize
-    const fprStorageSize = NumberOfWasmArgumentFPRs * FPRRegisterSize
-
-    subp gprStorageSize + fprStorageSize, sp
-    preserveWasmGPRArgumentRegistersImpl()
-    preserveWasmFPRArgumentRegistersImpl(gprStorageSize)
-end
-
-macro preserveWasmArgumentRegistersForSIMD()
-    const gprStorageSize = NumberOfWasmArgumentGPRs * MachineRegisterSize
     const fprStorageSize = NumberOfWasmArgumentFPRs * VectorRegisterSize
 
     subp gprStorageSize + fprStorageSize, sp
     preserveWasmGPRArgumentRegistersImpl()
-    forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
-        storev fpr1, gprStorageSize + (index + 0) * VectorRegisterSize[sp]
-        storev fpr2, gprStorageSize + (index + 1) * VectorRegisterSize[sp]
-    end)
-end
-
-macro preserveVolatileRegisters()
-    const gprStorageSize = NumberOfVolatileGPRs * MachineRegisterSize
-    const fprStorageSize = NumberOfWasmArgumentFPRs * FPRRegisterSize
-
-    subp gprStorageSize + fprStorageSize, sp
-    preserveWasmGPRArgumentRegistersImpl()
-if X86_64
-    storeq ws0, (NumberOfWasmArgumentGPRs + 0) * MachineRegisterSize[sp]
-    storeq ws1, (NumberOfWasmArgumentGPRs + 1) * MachineRegisterSize[sp]
-end
     preserveWasmFPRArgumentRegistersImpl(gprStorageSize)
 end
 
-macro preserveVolatileRegistersForSIMD()
+macro preserveWasmVolatileRegisters()
     const gprStorageSize = NumberOfVolatileGPRs * MachineRegisterSize
     const fprStorageSize = NumberOfWasmArgumentFPRs * VectorRegisterSize
 
@@ -628,47 +607,19 @@ if X86_64
     storeq ws0, (NumberOfWasmArgumentGPRs + 0) * MachineRegisterSize[sp]
     storeq ws1, (NumberOfWasmArgumentGPRs + 1) * MachineRegisterSize[sp]
 end
-    forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
-        storev fpr1, gprStorageSize + (index + 0) * VectorRegisterSize[sp]
-        storev fpr2, gprStorageSize + (index + 1) * VectorRegisterSize[sp]
-    end)
+    preserveWasmFPRArgumentRegistersImpl(gprStorageSize)
 end
 
 macro restoreWasmArgumentRegisters()
     const gprStorageSize = NumberOfWasmArgumentGPRs * MachineRegisterSize
-    const fprStorageSize = NumberOfWasmArgumentFPRs * FPRRegisterSize
-
-    restoreWasmGPRArgumentRegistersImpl()
-    restoreWasmFPRArgumentRegistersImpl(gprStorageSize)
-    addp gprStorageSize + fprStorageSize, sp
-end
-
-macro restoreWasmArgumentRegistersForSIMD()
-    const gprStorageSize = NumberOfWasmArgumentGPRs * MachineRegisterSize
     const fprStorageSize = NumberOfWasmArgumentFPRs * VectorRegisterSize
 
     restoreWasmGPRArgumentRegistersImpl()
-    forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
-        loadv gprStorageSize + (index + 0) * VectorRegisterSize[sp], fpr1
-        loadv gprStorageSize + (index + 1) * VectorRegisterSize[sp], fpr2
-    end)
-    addp gprStorageSize + fprStorageSize, sp
-end
-
-macro restoreVolatileRegisters()
-    const gprStorageSize = NumberOfVolatileGPRs * MachineRegisterSize
-    const fprStorageSize = NumberOfWasmArgumentFPRs * FPRRegisterSize
-
-    restoreWasmGPRArgumentRegistersImpl()
-if X86_64
-    loadq (NumberOfWasmArgumentGPRs + 0) * MachineRegisterSize[sp], ws0
-    loadq (NumberOfWasmArgumentGPRs + 1) * MachineRegisterSize[sp], ws1
-end
     restoreWasmFPRArgumentRegistersImpl(gprStorageSize)
     addp gprStorageSize + fprStorageSize, sp
 end
 
-macro restoreVolatileRegistersForSIMD()
+macro restoreWasmVolatileRegisters()
     const gprStorageSize = NumberOfVolatileGPRs * MachineRegisterSize
     const fprStorageSize = NumberOfWasmArgumentFPRs * VectorRegisterSize
 
@@ -677,10 +628,7 @@ if X86_64
     loadq (NumberOfWasmArgumentGPRs + 0) * MachineRegisterSize[sp], ws0
     loadq (NumberOfWasmArgumentGPRs + 1) * MachineRegisterSize[sp], ws1
 end
-    forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
-        loadv gprStorageSize + (index + 0) * VectorRegisterSize[sp], fpr1
-        loadv gprStorageSize + (index + 1) * VectorRegisterSize[sp], fpr2
-    end)
+    restoreWasmFPRArgumentRegistersImpl(gprStorageSize)
     addp gprStorageSize + fprStorageSize, sp
 end
 
@@ -1360,13 +1308,13 @@ end
     bpbeq JSWebAssemblyInstance::m_stackMirror + StackManager::Mirror::m_trapAwareSoftStackLimit[wasmInstance], ws1, .stackHeightOK
 
 .checkStack:
-    preserveVolatileRegistersForSIMD()
+    preserveWasmVolatileRegisters()
     storei PC, CallSiteIndex[cfr]
     move wasmInstance, a0
     move ws1, a1
     cCall2(_ipint_extern_check_stack_and_vm_traps)
-    bpneq r1, (constexpr JSC::IPInt::SlowPathExceptionTag), .stackHeightOKAfterRestoringRegisters
-    restoreVolatileRegistersForSIMD()
+    bpneq r1, (constexpr JSC::IPInt::SlowPathExceptionTag), .stackHeightOKNeedRestoreRegisters
+    restoreWasmVolatileRegisters()
 
 .stackOverflow:
     # It's safe to request a StackOverflow error even if a TerminationException has
@@ -1378,11 +1326,11 @@ end
 .oom:
     throwException(OutOfMemory)
 
-.stackHeightOKAfterRestoringRegisters:
-    restoreVolatileRegistersForSIMD()
+.stackHeightOKNeedRestoreRegisters:
+    restoreWasmVolatileRegisters()
 
 .stackHeightOK:
-    preserveWasmArgumentRegistersForSIMD()
+    preserveWasmArgumentRegisters()
 
     move wasmInstance, a0
     move cfr, a1
@@ -1390,7 +1338,7 @@ end
     btpnz r1, .oom
     move r0, ws0
 
-    restoreWasmArgumentRegistersForSIMD()
+    restoreWasmArgumentRegisters()
     restoreIPIntRegisters()
     restoreCallerPCAndCFR()
     if ARM64E
