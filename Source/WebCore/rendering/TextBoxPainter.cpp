@@ -95,6 +95,85 @@ static std::optional<bool> emphasisMarkExistsAndIsAbove(const RenderText& render
     return isAbove;
 }
 
+struct ShapedContent {
+    StringBuilder text;
+    float visualLeft { 0.f }; // visual left of the shaped content.
+    size_t textBoxStartOffset { 0 }; // text box's position relative to the shaped content.
+    float textBoxVisualLeft { 0.f }; // text box's left relative to the visual left of the shaped content.
+};
+static void buildTextForShaping(ShapedContent& shapedContent, InlineIterator::BoxModernPath textBox, bool needsTextBoxVisualLeft = false)
+{
+    ASSERT(textBox.direction() == TextDirection::RTL);
+
+    auto shapingBoundaryIterator = textBox;
+    // 1. Find shaping boundary start when we are at the end or inside a shape range (note that we deal with
+    // rtl content hence the opposite direction walk)
+    // 2. Walk from the start to the end and build the text content.
+
+    auto moveToShapingBoundaryStart = [&] {
+        if (shapingBoundaryIterator.box().text().isAtShapingBoundaryStart())
+            return;
+
+        shapingBoundaryIterator.traverseNextLeafOnLine();
+        for (; !shapingBoundaryIterator.atEnd(); shapingBoundaryIterator.traverseNextLeafOnLine()) {
+            auto& displayBox = shapingBoundaryIterator.box();
+            if (displayBox.isText()) {
+                shapedContent.textBoxStartOffset += displayBox.text().length();
+                if (displayBox.text().isAtShapingBoundaryStart())
+                    break;
+            }
+        }
+    };
+    moveToShapingBoundaryStart();
+
+    if (shapingBoundaryIterator.atEnd() || !shapingBoundaryIterator.isText()) {
+        ASSERT_NOT_REACHED();
+        return;
+    }
+
+    auto buildTextContent = [&] {
+        for (; !shapingBoundaryIterator.atEnd(); shapingBoundaryIterator.traversePreviousLeafOnLine()) {
+            auto& displayBox = shapingBoundaryIterator.box();
+            if (!displayBox.isText())
+                continue;
+            auto& text = displayBox.text();
+            if (shapingBoundaryIterator.direction() == TextDirection::LTR) {
+                shapedContent.text.clear();
+                return;
+            }
+
+            shapedContent.text.append(text.renderedContent());
+            if (text.isAtShapingBoundaryEnd()) {
+                shapedContent.visualLeft = displayBox.visualRectIgnoringBlockDirection().x();
+                return;
+            }
+        }
+        // We should always find the boundary end.
+        ASSERT_NOT_REACHED();
+        shapedContent.text.clear();
+    };
+    buildTextContent();
+
+    if (shapedContent.text.isEmpty()) {
+        ASSERT_NOT_REACHED();
+        return;
+    }
+
+    auto computeVisualLeftForTextBox = [&] {
+        if (!needsTextBoxVisualLeft)
+            return;
+        // Starting from visual left, walk all the way to the current text box.
+        for (; !shapingBoundaryIterator.atEnd(); shapingBoundaryIterator.traverseNextLeafOnLine()) {
+            if (shapingBoundaryIterator == textBox)
+                return;
+            auto& displayBox = shapingBoundaryIterator.box();
+            if (displayBox.isText())
+                shapedContent.textBoxVisualLeft += displayBox.visualRectIgnoringBlockDirection().width();
+        }
+    };
+    computeVisualLeftForTextBox();
+}
+
 TextBoxPainter::TextBoxPainter(const LayoutIntegration::InlineContent& inlineContent, const InlineDisplay::Box& box, const RenderStyle& style, PaintInfo& paintInfo, const LayoutPoint& paintOffset)
     : m_textBox(InlineIterator::BoxModernPath { inlineContent, inlineContent.indexForBox(box) })
     , m_renderer(downcast<RenderText>(m_textBox.renderer()))
@@ -472,15 +551,8 @@ void TextBoxPainter::paintBackgroundFill()
         paintBackgroundFillForRange(markedText.startOffset, markedText.endOffset, markedText.style.backgroundColor, BackgroundStyle::Normal);
 }
 
-void TextBoxPainter::paintBackgroundFillForRange(unsigned startOffset, unsigned endOffset, const Color& color, BackgroundStyle backgroundStyle)
+LayoutRect TextBoxPainter::selectionRectForRange(unsigned startOffset, unsigned endOffset) const
 {
-    if (startOffset >= endOffset)
-        return;
-
-    GraphicsContext& context = m_paintInfo.context();
-    GraphicsContextStateSaver stateSaver { context };
-    updateGraphicsContext(context, TextPaintStyle { color }); // Don't draw text at all!
-
     // Note that if the text is truncated, we let the thing being painted in the truncation
     // draw its own highlight.
     auto lineBox = makeIterator()->lineBox();
@@ -491,16 +563,49 @@ void TextBoxPainter::paintBackgroundFillForRange(unsigned startOffset, unsigned 
     auto deltaY = LayoutUnit { writingMode().isLineInverted() ? selectionBottom - m_logicalRect.maxY() : m_logicalRect.y() - selectionTop };
     auto selectionHeight = LayoutUnit { std::max(0.f, selectionBottom - selectionTop) };
     auto selectionRect = LayoutRect { LayoutUnit(m_paintRect.x()), LayoutUnit(m_paintRect.y() - deltaY), LayoutUnit(m_logicalRect.width()), selectionHeight };
-    auto adjustedSelectionRect = selectionRect;
-    fontCascade().adjustSelectionRectForText(m_renderer.canUseSimplifiedTextMeasuring().value_or(false), m_paintTextRun, adjustedSelectionRect, startOffset, endOffset);
+
+    if (isInsideShapedContent()) {
+        auto shapedContent = ShapedContent { };
+
+        buildTextForShaping(shapedContent, m_textBox, true);
+        selectionRect.setX(selectionRect.x() - shapedContent.textBoxVisualLeft);
+        auto selectionLength = endOffset - startOffset;
+        auto adjustedStartOffset = shapedContent.textBoxStartOffset + startOffset;
+
+        auto characterScanForCodePath = true;
+        auto expansion = m_textBox.box().expansion();
+        auto paintRect = m_paintRect;
+        paintRect.shiftXEdgeTo(shapedContent.visualLeft);
+        auto run = TextRun { shapedContent.text, paintRect.x(), expansion.horizontalExpansion, expansion.behavior, m_textBox.direction(), m_style.rtlOrdering() == Order::Visual, characterScanForCodePath };
+
+        fontCascade().adjustSelectionRectForText(false, run, selectionRect, adjustedStartOffset, adjustedStartOffset + selectionLength);
+        return selectionRect;
+    }
+
+    fontCascade().adjustSelectionRectForText(m_renderer.canUseSimplifiedTextMeasuring().value_or(false), m_paintTextRun, selectionRect, startOffset, endOffset);
+    return selectionRect;
+}
+
+void TextBoxPainter::paintBackgroundFillForRange(unsigned startOffset, unsigned endOffset, const Color& color, BackgroundStyle backgroundStyle)
+{
+    if (startOffset >= endOffset)
+        return;
+
+    GraphicsContext& context = m_paintInfo.context();
+    GraphicsContextStateSaver stateSaver { context };
+    updateGraphicsContext(context, TextPaintStyle { color }); // Don't draw text at all!
+
+    auto selectionRect = selectionRectForRange(startOffset, endOffset);
+
     if (m_paintTextRun.length() == endOffset - startOffset) {
         // FIXME: We should reconsider re-measuring the content when non-whitespace runs are joined together (see webkit.org/b/251318).
-        auto visualRight = std::max(adjustedSelectionRect.maxX(), selectionRect.maxX());
-        adjustedSelectionRect.shiftMaxXEdgeTo(visualRight);
+        auto unAdjustedSelectionRectMaxX = LayoutUnit { m_paintRect.x() + m_logicalRect.width() };
+        auto visualRight = std::max(selectionRect.maxX(), unAdjustedSelectionRectMaxX);
+        selectionRect.shiftMaxXEdgeTo(visualRight);
     }
 
     // FIXME: Support painting combined text. See <https://bugs.webkit.org/show_bug.cgi?id=180993>.
-    auto backgroundRect = snapRectToDevicePixels(adjustedSelectionRect, m_document.deviceScaleFactor());
+    auto backgroundRect = snapRectToDevicePixels(selectionRect, m_document.deviceScaleFactor());
     if (backgroundStyle == BackgroundStyle::Rounded) {
         backgroundRect.expand(-1, -1);
         backgroundRect.move(0.5, 0.5);
@@ -543,17 +648,14 @@ void TextBoxPainter::paintForeground(const StyledMarkedText& markedText)
         context.setAlpha(markedText.style.alpha);
     updateGraphicsContext(context, markedText.style.textStyles);
 
-    auto& displayBox = textBox().box();
-    auto& textContent = displayBox.text();
-    auto shouldExpandPaintingRange = textContent.isAtShapingBoundaryStart() || textContent.isAtShapingBoundaryEnd() || textContent.isBetweenShapingBoundaries();
-    if (shouldExpandPaintingRange && paintForegroundForShapingRange(textPainter))
+    if (isInsideShapedContent() && paintForegroundForShapeRange(textPainter))
         return;
-    textPainter.setGlyphDisplayListIfNeeded(displayBox, m_paintInfo, m_style, m_paintTextRun);
+    textPainter.setGlyphDisplayListIfNeeded(textBox().box(), m_paintInfo, m_style, m_paintTextRun);
     // TextPainter wants the box rectangle and text origin of the entire line box.
     textPainter.paintRange(m_paintTextRun, m_paintRect, textOriginFromPaintRect(m_paintRect), markedText.startOffset, markedText.endOffset);
 }
 
-bool TextBoxPainter::paintForegroundForShapingRange(TextPainter& textPainter)
+bool TextBoxPainter::paintForegroundForShapeRange(TextPainter& textPainter)
 {
     ASSERT(m_document.settings().textShapingAcrossInlineBoxes());
     ASSERT(m_textBox.direction() == TextDirection::RTL);
@@ -563,64 +665,20 @@ bool TextBoxPainter::paintForegroundForShapingRange(TextPainter& textPainter)
     context.save();
     context.clip(m_paintRect);
 
-    StringBuilder textContent;
-    auto contentStartX = 0.f;
+    auto shapedContent = ShapedContent { };
+    buildTextForShaping(shapedContent, m_textBox);
 
-    auto buildTextForShaping = [&] {
-        auto shapingBoundaryIterator = m_textBox;
-        auto& displayBox = shapingBoundaryIterator.box();
-
-        // 1. Find shaping boundary start when we are at the end or inside a shape range (note that we deal with
-        // rtl content hence the opposite direction walk)
-        // 2. Walk from the start to the end and build the text content.
-        if (displayBox.text().isAtShapingBoundaryEnd() || displayBox.text().isBetweenShapingBoundaries()) {
-            for (; !shapingBoundaryIterator.atEnd(); shapingBoundaryIterator.traverseNextLeafOnLine()) {
-                auto& displayBox = shapingBoundaryIterator.box();
-                if (displayBox.isText() && displayBox.text().isAtShapingBoundaryStart())
-                    break;
-            }
-        }
-
-        if (shapingBoundaryIterator.atEnd() || !shapingBoundaryIterator.isText()) {
-            ASSERT_NOT_REACHED();
-            return;
-        }
-
-        for (; !shapingBoundaryIterator.atEnd(); shapingBoundaryIterator.traversePreviousLeafOnLine()) {
-            auto& displayBox = shapingBoundaryIterator.box();
-            if (displayBox.isText()) {
-                auto& text = displayBox.text();
-
-                if (shapingBoundaryIterator.direction() == TextDirection::LTR) {
-                    ASSERT_NOT_REACHED();
-                    textContent.clear();
-                    return;
-                }
-
-                textContent.append(text.renderedContent());
-                if (text.isAtShapingBoundaryEnd()) {
-                    contentStartX = displayBox.visualRectIgnoringBlockDirection().x();
-                    return;
-                }
-            }
-        }
-        // We should always find the boundary end.
-        ASSERT_NOT_REACHED();
-        textContent.clear();
-    };
-    buildTextForShaping();
-
-    if (textContent.isEmpty())
+    if (shapedContent.text.isEmpty())
         return false;
 
     auto paintRect = m_paintRect;
-    paintRect.shiftXEdgeTo(m_paintOffset.x() + contentStartX);
+    paintRect.shiftXEdgeTo(m_paintOffset.x() + shapedContent.visualLeft);
 
     auto characterScanForCodePath = true;
     auto expansion = m_textBox.box().expansion();
-    auto run = TextRun { textContent, paintRect.x(), expansion.horizontalExpansion, expansion.behavior, m_textBox.direction(), m_style.rtlOrdering() == Order::Visual, characterScanForCodePath };
+    auto run = TextRun { shapedContent.text, paintRect.x(), expansion.horizontalExpansion, expansion.behavior, m_textBox.direction(), m_style.rtlOrdering() == Order::Visual, characterScanForCodePath };
 
-    textPainter.paintRange(run, paintRect, textOriginFromPaintRect(paintRect), 0, textContent.length());
+    textPainter.paintRange(run, paintRect, textOriginFromPaintRect(paintRect), 0, shapedContent.text.length());
     context.restore();
     return true;
 }
@@ -1327,6 +1385,12 @@ FloatPoint TextBoxPainter::textOriginFromPaintRect(const FloatRect& paintRect) c
         textOrigin.setX(roundToDevicePixel(LayoutUnit { textOrigin.x() }, m_document.deviceScaleFactor()));
 
     return textOrigin;
+}
+
+bool TextBoxPainter::isInsideShapedContent() const
+{
+    auto& textContent = textBox().box().text();
+    return textContent.isAtShapingBoundaryStart() || textContent.isAtShapingBoundaryEnd() || textContent.isBetweenShapingBoundaries();
 }
 
 }

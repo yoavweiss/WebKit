@@ -69,13 +69,14 @@ protected:
     void paintPlatformDocumentMarkers();
 
     void paintForeground(const StyledMarkedText&);
-    bool paintForegroundForShapingRange(TextPainter&);
+    bool paintForegroundForShapeRange(TextPainter&);
     TextDecorationPainter createDecorationPainter(const StyledMarkedText&, const FloatRect&);
     void paintBackgroundDecorations(TextDecorationPainter&, const StyledMarkedText&, const FloatRect&);
     void paintForegroundDecorations(TextDecorationPainter&, const StyledMarkedText&, const FloatRect&);
     void paintCompositionUnderline(const CompositionUnderline&, const FloatRoundedRect::Radii&, bool hasLiveConversion);
     void fillCompositionUnderline(float start, float width, const CompositionUnderline&, const FloatRoundedRect::Radii&, bool hasLiveConversion) const;
     void paintPlatformDocumentMarker(const MarkedText&);
+    LayoutRect selectionRectForRange(unsigned startOffset, unsigned endOffset) const;
 
     float textPosition();
     FloatRect computePaintRect(const LayoutPoint& paintOffset);
@@ -85,6 +86,7 @@ protected:
     const FontCascade& fontCascade() const;
     WritingMode writingMode() const { return m_style.writingMode(); }
     FloatPoint textOriginFromPaintRect(const FloatRect&) const;
+    bool isInsideShapedContent() const;
 
     struct DecoratingBox {
         InlineIterator::InlineBoxIterator inlineBox;
