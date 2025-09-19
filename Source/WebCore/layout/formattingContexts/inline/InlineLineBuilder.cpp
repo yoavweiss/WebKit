@@ -810,7 +810,7 @@ Vector<std::pair<size_t, size_t>> LineBuilder::collectShapingRanges(const LineCa
             if (!leadingContentRunIndex) {
                 auto& inlineTextItem = downcast<InlineTextItem>(runs[entry.index].inlineItem);
                 auto& inlineTextBox = inlineTextItem.inlineTextBox();
-                auto isEligibleText = !inlineTextBox.canUseSimpleFontCodePath() && !inlineTextBox.isCombined() && (inlineTextItem.bidiLevel() != UBIDI_DEFAULT_LTR && (inlineTextItem.bidiLevel() % 2));
+                auto isEligibleText = !inlineTextBox.canUseSimpleFontCodePath() && !inlineTextBox.isCombined() && inlineTextItem.direction() == TextDirection::RTL;
                 if (isEligibleText)
                     leadingContentRunIndex = entry.index;
                 lastFontCascade = isFirstFormattedLineCandidate ? &inlineTextItem.firstLineStyle().fontCascade() : &inlineTextItem.style().fontCascade();

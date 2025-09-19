@@ -556,6 +556,7 @@ void TextBoxPainter::paintForeground(const StyledMarkedText& markedText)
 bool TextBoxPainter::paintForegroundForShapingRange(TextPainter& textPainter)
 {
     ASSERT(m_document.settings().textShapingAcrossInlineBoxes());
+    ASSERT(m_textBox.direction() == TextDirection::RTL);
 
     auto& context = m_paintInfo.context();
 
@@ -590,7 +591,7 @@ bool TextBoxPainter::paintForegroundForShapingRange(TextPainter& textPainter)
             if (displayBox.isText()) {
                 auto& text = displayBox.text();
 
-                if (!(m_textBox.bidiLevel() % 2)) {
+                if (shapingBoundaryIterator.direction() == TextDirection::LTR) {
                     ASSERT_NOT_REACHED();
                     textContent.clear();
                     return;
