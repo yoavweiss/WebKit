@@ -426,7 +426,7 @@ std::optional<FloatRect> LegacyRenderSVGRoot::computeFloatVisibleRectInContainer
 
     // Apply initial viewport clip
     if (shouldApplyViewportClip()) {
-        if (context.options.contains(VisibleRectContextOption::UseEdgeInclusiveIntersection)) {
+        if (context.options.contains(VisibleRectContext::Option::UseEdgeInclusiveIntersection)) {
             if (!adjustedRect.edgeInclusiveIntersect(snappedIntRect(borderBoxRect())))
                 return std::nullopt;
         } else

@@ -30,6 +30,7 @@
 #include <WebCore/PlatformLayerIdentifier.h>
 #include <WebCore/RenderObjectEnums.h>
 #include <WebCore/RenderStyleConstants.h>
+#include <WebCore/RepaintRectCalculation.h>
 #include <wtf/CheckedPtr.h>
 #include <wtf/Platform.h>
 #include <wtf/TZoneMalloc.h>
@@ -88,9 +89,9 @@ class SelectionGeometry;
 
 struct InlineBoxAndOffset;
 struct PaintInfo;
-struct SimpleRange;
-
 struct ScrollRectToVisibleOptions;
+struct SimpleRange;
+struct VisibleRectContext;
 
 namespace Layout {
 class Box;
@@ -102,7 +103,6 @@ class PseudoElementRequest;
 
 enum class Affinity : bool;
 enum class HitTestSource : bool;
-enum class RepaintRectCalculation : bool { Fast, Accurate };
 enum class RepaintOutlineBounds : bool { No, Yes };
 enum class PointerEvents : uint8_t;
 enum class RequiresFullRepaint : bool { No, Yes };
@@ -899,34 +899,6 @@ public:
     // Repaint a slow repaint object, which, at this time, means we are repainting an object with background-attachment:fixed.
     void repaintSlowRepaintObject() const;
 
-    enum class VisibleRectContextOption {
-        UseEdgeInclusiveIntersection        = 1 << 0,
-        ApplyCompositedClips                = 1 << 1,
-        ApplyCompositedContainerScrolls     = 1 << 2,
-        ApplyContainerClip                  = 1 << 3,
-        CalculateAccurateRepaintRect        = 1 << 4,
-    };
-    struct VisibleRectContext {
-        VisibleRectContext(bool hasPositionFixedDescendant = false, bool dirtyRectIsFlipped = false, OptionSet<VisibleRectContextOption> options = { }, const std::optional<LengthBox>& scrollMargin = std::nullopt)
-            : hasPositionFixedDescendant(hasPositionFixedDescendant)
-            , dirtyRectIsFlipped(dirtyRectIsFlipped)
-            , options(options)
-            , scrollMargin(scrollMargin)
-            {
-            }
-
-        RepaintRectCalculation repaintRectCalculation() const
-        {
-            return options.contains(VisibleRectContextOption::CalculateAccurateRepaintRect) ? RepaintRectCalculation::Accurate : RepaintRectCalculation::Fast;
-        }
-
-        bool hasPositionFixedDescendant { false };
-        bool dirtyRectIsFlipped { false };
-        bool descendantNeedsEnclosingIntRect { false };
-        OptionSet<VisibleRectContextOption> options;
-        std::optional<LengthBox> scrollMargin;
-    };
-
     struct RepaintRects {
         LayoutRect clippedOverflowRect; // Some rect (normally the visual overflow rect) mapped up to the repaint container, respecting clipping.
         std::optional<LayoutRect> outlineBoundsRect; // A rect representing the extent of outlines and shadows, mapped to the repaint container, but not clipped.
@@ -1007,14 +979,14 @@ public:
 
     // Returns the rect that should be repainted whenever this object changes. The rect is in the view's
     // coordinate space. This method deals with outlines and overflow.
-    LayoutRect absoluteClippedOverflowRectForRepaint() const { return clippedOverflowRect(nullptr, visibleRectContextForRepaint()); }
-    LayoutRect absoluteClippedOverflowRectForSpatialNavigation() const { return clippedOverflowRect(nullptr, visibleRectContextForSpatialNavigation()); }
-    LayoutRect absoluteClippedOverflowRectForRenderTreeAsText() const { return clippedOverflowRect(nullptr, visibleRectContextForRenderTreeAsText()); }
+    inline LayoutRect absoluteClippedOverflowRectForRepaint() const;
+    inline LayoutRect absoluteClippedOverflowRectForSpatialNavigation() const;
+    inline LayoutRect absoluteClippedOverflowRectForRenderTreeAsText() const;
 
     WEBCORE_EXPORT IntRect pixelSnappedAbsoluteClippedOverflowRect() const;
 
     virtual LayoutRect clippedOverflowRect(const RenderLayerModelObject* repaintContainer, VisibleRectContext) const;
-    LayoutRect clippedOverflowRectForRepaint(const RenderLayerModelObject* repaintContainer) const { return clippedOverflowRect(repaintContainer, visibleRectContextForRepaint()); }
+    inline LayoutRect clippedOverflowRectForRepaint(const RenderLayerModelObject* repaintContainer) const;
     virtual LayoutRect rectWithOutlineForRepaint(const RenderLayerModelObject* repaintContainer, LayoutUnit outlineWidth) const;
     virtual LayoutRect outlineBoundsForRepaint(const RenderLayerModelObject* /*repaintContainer*/, const RenderGeometryMap* = nullptr) const { return { }; }
 
@@ -1022,7 +994,7 @@ public:
     // of repaintContainer suitable for the given VisibleRectContext.
     RepaintRects computeRects(const RepaintRects&, const RenderLayerModelObject* repaintContainer, VisibleRectContext) const;
 
-    LayoutRect computeRectForRepaint(const LayoutRect& rect, const RenderLayerModelObject* repaintContainer) const { return computeRects({ rect }, repaintContainer, visibleRectContextForRepaint()).clippedOverflowRect; }
+    inline LayoutRect computeRectForRepaint(const LayoutRect& rect, const RenderLayerModelObject* repaintContainer) const;
     FloatRect computeFloatRectForRepaint(const FloatRect&, const RenderLayerModelObject* repaintContainer) const;
 
     virtual RepaintRects rectsForRepaintingAfterLayout(const RenderLayerModelObject* repaintContainer, RepaintOutlineBounds) const;
@@ -1378,20 +1350,6 @@ inline void RenderObject::setPositionState(PositionType position)
     m_stateBitfields.setPositionedState(position);
 }
 
-inline auto RenderObject::visibleRectContextForRepaint() -> VisibleRectContext
-{
-    return { false, false, { VisibleRectContextOption::ApplyContainerClip, VisibleRectContextOption::ApplyCompositedContainerScrolls } };
-}
-
-inline auto RenderObject::visibleRectContextForSpatialNavigation() -> VisibleRectContext
-{
-    return { false, false, { VisibleRectContextOption::ApplyContainerClip, VisibleRectContextOption::ApplyCompositedContainerScrolls, VisibleRectContextOption::ApplyCompositedClips } };
-}
-
-inline auto RenderObject::visibleRectContextForRenderTreeAsText() -> VisibleRectContext
-{
-    return { false, false, { VisibleRectContextOption::ApplyContainerClip, VisibleRectContextOption::ApplyCompositedContainerScrolls, VisibleRectContextOption::ApplyCompositedClips, VisibleRectContextOption::CalculateAccurateRepaintRect  } };
-}
 
 inline bool RenderObject::isSetNeedsLayoutForbidden() const
 {

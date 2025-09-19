@@ -592,7 +592,7 @@ auto RenderTableCell::computeVisibleRectsInContainer(const RepaintRects& rects, 
         return rects;
 
     auto adjustedRects = rects;
-    if ((!view().frameView().layoutContext().isPaintOffsetCacheEnabled() || container || context.options.contains(VisibleRectContextOption::UseEdgeInclusiveIntersection)) && parent())
+    if ((!view().frameView().layoutContext().isPaintOffsetCacheEnabled() || container || context.options.contains(VisibleRectContext::Option::UseEdgeInclusiveIntersection)) && parent())
         adjustedRects.moveBy(-parentBox()->location()); // Rows are in the same coordinate space, so don't add their offset in.
 
     return RenderBlockFlow::computeVisibleRectsInContainer(adjustedRects, container, context);

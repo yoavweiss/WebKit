@@ -32,6 +32,7 @@
 #include <WebCore/RenderReplaced.h>
 #include <WebCore/RenderStyleInlines.h>
 #include <WebCore/RenderView.h>
+#include <WebCore/VisibleRectContext.h>
 
 namespace WebCore {
 
@@ -108,6 +109,76 @@ inline bool RenderObject::isNonReplacedAtomicInlineLevelBox() const
 {
     // FIXME: Check if iframe should really behave like non-replaced here.
     return (is<RenderIFrame>(*this) && isInline()) || (!is<RenderReplaced>(*this) && isAtomicInlineLevelBox());
+}
+
+inline auto RenderObject::visibleRectContextForRepaint() -> VisibleRectContext
+{
+    return {
+        .hasPositionFixedDescendant = false,
+        .dirtyRectIsFlipped = false,
+        .descendantNeedsEnclosingIntRect = false,
+        .options = {
+            VisibleRectContext::Option::ApplyContainerClip,
+            VisibleRectContext::Option::ApplyCompositedContainerScrolls
+        },
+        .scrollMargin = { },
+    };
+}
+
+inline auto RenderObject::visibleRectContextForSpatialNavigation() -> VisibleRectContext
+{
+    return {
+        .hasPositionFixedDescendant = false,
+        .dirtyRectIsFlipped = false,
+        .descendantNeedsEnclosingIntRect = false,
+        .options = {
+            VisibleRectContext::Option::ApplyContainerClip,
+            VisibleRectContext::Option::ApplyCompositedContainerScrolls,
+            VisibleRectContext::Option::ApplyCompositedClips
+        },
+        .scrollMargin = { },
+    };
+}
+
+inline auto RenderObject::visibleRectContextForRenderTreeAsText() -> VisibleRectContext
+{
+    return {
+        .hasPositionFixedDescendant = false,
+        .dirtyRectIsFlipped = false,
+        .descendantNeedsEnclosingIntRect = false,
+        .options = {
+            VisibleRectContext::Option::ApplyContainerClip,
+            VisibleRectContext::Option::ApplyCompositedContainerScrolls,
+            VisibleRectContext::Option::ApplyCompositedClips,
+            VisibleRectContext::Option::CalculateAccurateRepaintRect
+        },
+        .scrollMargin = { },
+    };
+}
+
+inline LayoutRect RenderObject::absoluteClippedOverflowRectForRepaint() const
+{
+    return clippedOverflowRect(nullptr, visibleRectContextForRepaint());
+}
+
+inline LayoutRect RenderObject::absoluteClippedOverflowRectForSpatialNavigation() const
+{
+    return clippedOverflowRect(nullptr, visibleRectContextForSpatialNavigation());
+}
+
+inline LayoutRect RenderObject::absoluteClippedOverflowRectForRenderTreeAsText() const
+{
+    return clippedOverflowRect(nullptr, visibleRectContextForRenderTreeAsText());
+}
+
+inline LayoutRect RenderObject::clippedOverflowRectForRepaint(const RenderLayerModelObject* repaintContainer) const
+{
+    return clippedOverflowRect(repaintContainer, visibleRectContextForRepaint());
+}
+
+inline LayoutRect RenderObject::computeRectForRepaint(const LayoutRect& rect, const RenderLayerModelObject* repaintContainer) const
+{
+    return computeRects({ rect }, repaintContainer, visibleRectContextForRepaint()).clippedOverflowRect;
 }
 
 } // namespace WebCore

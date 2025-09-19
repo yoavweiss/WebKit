@@ -668,7 +668,7 @@ auto RenderInline::computeVisibleRectsUsingPaintOffset(const RepaintRects& rects
 auto RenderInline::computeVisibleRectsInContainer(const RepaintRects& rects, const RenderLayerModelObject* container, VisibleRectContext context) const -> std::optional<RepaintRects>
 {
     // Repaint offset cache is only valid for root-relative repainting
-    if (view().frameView().layoutContext().isPaintOffsetCacheEnabled() && !container && !context.options.contains(VisibleRectContextOption::UseEdgeInclusiveIntersection))
+    if (view().frameView().layoutContext().isPaintOffsetCacheEnabled() && !container && !context.options.contains(VisibleRectContext::Option::UseEdgeInclusiveIntersection))
         return computeVisibleRectsUsingPaintOffset(rects);
 
     if (container == this)
@@ -691,10 +691,10 @@ auto RenderInline::computeVisibleRectsInContainer(const RepaintRects& rects, con
 
     if (localContainer->hasNonVisibleOverflow()) {
         // FIXME: Respect the value of context.options.
-        SetForScope change(context.options, context.options | VisibleRectContextOption::ApplyCompositedContainerScrolls);
+        SetForScope change(context.options, context.options | VisibleRectContext::Option::ApplyCompositedContainerScrolls);
         bool isEmpty = !downcast<RenderLayerModelObject>(*localContainer).applyCachedClipAndScrollPosition(adjustedRects, container, context);
         if (isEmpty) {
-            if (context.options.contains(VisibleRectContextOption::UseEdgeInclusiveIntersection))
+            if (context.options.contains(VisibleRectContext::Option::UseEdgeInclusiveIntersection))
                 return std::nullopt;
             return adjustedRects;
         }

@@ -44,6 +44,7 @@
 #include "RenderInline.h"
 #include "RenderLayer.h"
 #include "RenderLayerScrollableArea.h"
+#include "RenderObjectInlines.h"
 #include "RenderStyleInlines.h"
 #include "Settings.h"
 

@@ -2041,6 +2041,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     page/ImmediateActionStage.h
     page/IntelligenceTextEffectsSupport.h
     page/InteractionRegion.h
+    page/IntersectionObserverMarginBox.h
     page/IsLoggedIn.h
     page/LayoutMilestone.h
     page/LinkDecorationFilteringData.h
@@ -3087,9 +3088,11 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/RenderViewTransitionCapture.h
     rendering/RenderWidget.h
     rendering/RenderWidgetInlines.h
+    rendering/RepaintRectCalculation.h
     rendering/TextBoxSelectableRange.h
     rendering/TextBoxTrimmer.h
     rendering/TransformOperationData.h
+    rendering/VisibleRectContext.h
 
     rendering/line/LineWidth.h
     rendering/line/TrailingObjects.h

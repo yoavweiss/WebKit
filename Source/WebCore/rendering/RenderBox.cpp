@@ -1279,12 +1279,12 @@ bool RenderBox::applyCachedClipAndScrollPosition(RepaintRects& rects, const Rend
 {
     flipForWritingMode(rects);
 
-    if (context.options.contains(VisibleRectContextOption::ApplyCompositedContainerScrolls) || this != container || !usesCompositedScrolling())
+    if (context.options.contains(VisibleRectContext::Option::ApplyCompositedContainerScrolls) || this != container || !usesCompositedScrolling())
         rects.moveBy(-scrollPosition()); // For overflow:auto/scroll/hidden.
 
     // Do not clip scroll layer contents to reduce the number of repaints while scrolling.
-    if ((!context.options.contains(VisibleRectContextOption::ApplyCompositedClips) && usesCompositedScrolling())
-        || (!context.options.contains(VisibleRectContextOption::ApplyContainerClip) && this == container)) {
+    if ((!context.options.contains(VisibleRectContext::Option::ApplyCompositedClips) && usesCompositedScrolling())
+        || (!context.options.contains(VisibleRectContext::Option::ApplyContainerClip) && this == container)) {
         flipForWritingMode(rects);
         return true;
     }
@@ -1302,20 +1302,18 @@ bool RenderBox::applyCachedClipAndScrollPosition(RepaintRects& rects, const Rend
         auto borderWidths = this->borderWidths();
         clipRect.contract(borderWidths);
 
-        auto scrollMargin = context.scrollMargin.value();
-
         auto scrollMarginEdges = LayoutBoxExtent {
-            valueForLength(scrollMargin.top(), clipRect.height()),
-            valueForLength(scrollMargin.right(), clipRect.width()),
-            valueForLength(scrollMargin.bottom(), clipRect.height()),
-            valueForLength(scrollMargin.left(), clipRect.width())
+            Style::evaluate(context.scrollMargin->top(), clipRect.height()),
+            Style::evaluate(context.scrollMargin->right(), clipRect.width()),
+            Style::evaluate(context.scrollMargin->bottom(), clipRect.height()),
+            Style::evaluate(context.scrollMargin->left(), clipRect.width())
         };
 
         clipRect.expand(scrollMarginEdges);
     }
 
     bool intersects;
-    if (context.options.contains(VisibleRectContextOption::UseEdgeInclusiveIntersection))
+    if (context.options.contains(VisibleRectContext::Option::UseEdgeInclusiveIntersection))
         intersects = rects.edgeInclusiveIntersect(clipRect);
     else
         intersects = rects.intersect(clipRect);
@@ -2569,7 +2567,7 @@ auto RenderBox::computeVisibleRectsInContainer(const RepaintRects& rects, const 
     // physical coordinate space of the container.
     const RenderStyle& styleToUse = style();
     // Paint offset cache is only valid for root-relative, non-fixed position repainting
-    if (view().frameView().layoutContext().isPaintOffsetCacheEnabled() && !container && styleToUse.position() != PositionType::Fixed && !context.options.contains(VisibleRectContextOption::UseEdgeInclusiveIntersection))
+    if (view().frameView().layoutContext().isPaintOffsetCacheEnabled() && !container && styleToUse.position() != PositionType::Fixed && !context.options.contains(VisibleRectContext::Option::UseEdgeInclusiveIntersection))
         return computeVisibleRectsUsingPaintOffset(rects);
 
     auto adjustedRects = rects;
@@ -2646,7 +2644,7 @@ auto RenderBox::computeVisibleRectsInContainer(const RepaintRects& rects, const 
     if (localContainer->hasNonVisibleOverflow()) {
         bool isEmpty = !downcast<RenderLayerModelObject>(*localContainer).applyCachedClipAndScrollPosition(adjustedRects, container, context);
         if (isEmpty) {
-            if (context.options.contains(VisibleRectContextOption::UseEdgeInclusiveIntersection))
+            if (context.options.contains(VisibleRectContext::Option::UseEdgeInclusiveIntersection))
                 return std::nullopt;
             return adjustedRects;
         }

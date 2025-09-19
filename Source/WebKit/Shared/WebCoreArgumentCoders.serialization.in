@@ -8046,7 +8046,7 @@ enum class WebCore::PaginationMode : uint8_t {
     BottomToTopPaginated
 };
 
-header: <WebCore/RenderObject.h>
+header: <WebCore/RepaintRectCalculation.h>
 enum class WebCore::RepaintRectCalculation : bool;
 
 [Nested] enum class WebCore::HdrMetadataType : uint8_t {
