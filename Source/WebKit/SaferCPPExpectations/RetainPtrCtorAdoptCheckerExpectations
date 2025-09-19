@@ -9,7 +9,6 @@ Shared/API/c/cg/WKImageCG.cpp
 Shared/Cocoa/APIObject.mm
 Shared/Cocoa/WKNSString.mm
 Shared/Daemon/DaemonUtilities.mm
-Shared/EntryPointUtilities/Cocoa/XPCService/XPCServiceMain.mm
 Shared/RemoteLayerTree/RemoteLayerTreePropertyApplier.mm
 UIProcess/API/Cocoa/NSAttributedString.mm
 UIProcess/API/Cocoa/WKBackForwardListItem.mm
@@ -23,5 +22,4 @@ UIProcess/WebAuthentication/Mock/MockLocalConnection.mm
 UIProcess/WebAuthentication/Virtual/VirtualAuthenticatorUtils.mm
 UIProcess/mac/ServicesController.mm
 UIProcess/mac/WebViewImpl.mm
-webpushd/WebPushDaemon.mm
 webpushd/_WKMockUserNotificationCenter.mm
