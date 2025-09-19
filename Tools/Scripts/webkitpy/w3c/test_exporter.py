@@ -28,6 +28,7 @@ import argparse
 import logging
 import os
 import sys
+import subprocess
 
 from webkitcorepy import string_utils, run
 from webkitbugspy import Tracker, bugzilla
@@ -156,7 +157,9 @@ class WebPlatformTestExporter(object):
             return
         return remote
 
-    def _run_wpt_git(self, commands, capture_output=False):
+    def _run_wpt_git(self, commands, capture_output=False, stderr=None):
+        if stderr:
+            return run([local.Git.executable()] + commands, cwd=self._wpt_repo.path, stderr=stderr)
         return run([local.Git.executable()] + commands, cwd=self._wpt_repo.path, capture_output=capture_output)
 
     def has_wpt_changes(self):
@@ -240,13 +243,28 @@ class WebPlatformTestExporter(object):
             self._run_wpt_git(['checkout', '-b', self._branch_name])
 
         try:
-            self._run_wpt_git(['apply', '--index', patch, '-3'])
+            output = self._run_wpt_git(['apply', '--index', patch, '-3'], stderr=subprocess.STDOUT)
+            if output.returncode:
+                _log.error(f'Failed to apply patch!')
+                _log.error(f"{output.stdout.decode('utf-8', 'replace')}")
+                return False
         except Exception as e:
             _log.warning(e)
             return False
-        if self._run_wpt_git(['commit', '-a', '-m', self._commit_message]).returncode:
-            _log.error('No changes to commit! Exiting...')
+
+        # Check if there are no changes to commit
+        if self._run_wpt_git(['add', '--all']).returncode:
+            _log.error('Failed to add changes')
             return False
+
+        if not self._run_wpt_git(['diff', '--cached', '--quiet']).returncode:
+            _log.warning('No changes to upstream detected! Cancelling export.')
+            self.delete_local_branch(is_success=True)
+            sys.exit(0)
+
+        if self._run_wpt_git(['commit', '-m', self._commit_message]).returncode:
+            return False
+
         return True
 
     def set_up_wpt_fork(self):
@@ -316,7 +334,7 @@ class WebPlatformTestExporter(object):
     def delete_local_branch(self, *, is_success=True):
         if self._options.clean and (is_success or self._options.clean_on_failure):
             _log.info('Removing local branch ' + self._branch_name)
-            self._run_wpt_git(['checkout', self._wpt_repo.default_branch])
+            self._run_wpt_git(['checkout', self._wpt_repo.default_branch, '--quiet'])
             self._run_wpt_git(['branch', '-D', self._branch_name])
         else:
             _log.info('Keeping local branch ' + self._branch_name)
