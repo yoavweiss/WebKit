@@ -114,8 +114,8 @@ ContentWorld::~ContentWorld()
         ASSERT_UNUSED(taken, taken.get() == this);
     }
 
-    for (auto& process : m_processes)
-        Ref { process }->send(Messages::WebProcess::ContentWorldDestroyed(m_identifier), 0);
+    for (Ref process : m_processes)
+        process->send(Messages::WebProcess::ContentWorldDestroyed(m_identifier), 0);
 }
 
 WebKit::ContentWorldData ContentWorld::worldDataForProcess(WebKit::WebProcessProxy& process) const
