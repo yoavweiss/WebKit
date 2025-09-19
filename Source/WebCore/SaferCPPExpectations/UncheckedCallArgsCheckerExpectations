@@ -480,7 +480,6 @@ platform/graphics/ca/cocoa/WebTiledBackingLayer.mm
 platform/graphics/cg/CGSubimageCacheWithTimer.cpp
 platform/ios/PlaybackSessionInterfaceIOS.mm
 platform/ios/WebAVPlayerController.mm
-platform/mac/PlaybackSessionInterfaceMac.mm
 platform/mac/ScrollAnimatorMac.mm
 platform/mac/ScrollbarThemeMac.mm
 platform/mac/ScrollbarsControllerMac.mm

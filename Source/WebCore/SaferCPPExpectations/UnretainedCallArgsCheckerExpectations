@@ -114,7 +114,6 @@ platform/mac/PasteboardWriter.mm
 platform/mac/PlatformEventFactoryMac.mm
 platform/mac/PlatformPasteboardMac.mm
 platform/mac/PlatformScreenMac.mm
-platform/mac/PlaybackSessionInterfaceMac.mm
 platform/mac/PowerObserverMac.cpp
 platform/mac/ScrollViewMac.mm
 platform/mac/ScrollbarThemeMac.mm
