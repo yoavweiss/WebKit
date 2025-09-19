@@ -36,7 +36,6 @@ Modules/webauthn/AuthenticatorCoordinator.cpp
 Modules/webauthn/PublicKeyCredential.cpp
 Modules/webdatabase/Database.cpp
 Modules/webdatabase/DatabaseManager.cpp
-StyleBuilderGenerated.cpp
 accessibility/AXObjectCache.cpp
 animation/KeyframeEffect.cpp
 bindings/js/CommonVM.cpp

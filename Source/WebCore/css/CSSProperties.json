@@ -1753,6 +1753,7 @@
                 ],
                 "animation-property": true,
                 "animation-name-for-methods": "Delay",
+                "style-converter": "StyleType<SingleAnimationDelay>",
                 "separator": ",",
                 "parser-grammar": "<time>#"
             },
@@ -1793,6 +1794,8 @@
                 ],
                 "animation-property": true,
                 "animation-name-for-methods": "Duration",
+                "style-converter": "StyleType<SingleAnimationDuration>",
+                "style-extractor-custom": true,
                 "separator": ",",
                 "parser-grammar": "<single-animation-duration>#"
             },
@@ -1834,6 +1837,7 @@
                 ],
                 "animation-property": true,
                 "animation-name-for-methods": "IterationCount",
+                "style-converter": "StyleType<SingleAnimationIterationCount>",
                 "separator": ",",
                 "parser-grammar": "<single-animation-iteration-count>#"
             },
@@ -1854,6 +1858,7 @@
                 ],
                 "animation-property": true,
                 "animation-name-for-methods": "Name",
+                "style-converter": "StyleType<SingleAnimationName>",
                 "separator": ",",
                 "parser-grammar": "<single-animation-name>#"
             },
@@ -1916,6 +1921,7 @@
             "codegen-properties": {
                 "animation-property": true,
                 "animation-name-for-methods": "RangeStart",
+                "style-converter": "StyleType<SingleAnimationRangeStart>",
                 "separator": ",",
                 "parser-grammar": "<single-animation-range-start>#",
                 "settings-flag": "scrollDrivenAnimationsEnabled"
@@ -1940,6 +1946,7 @@
             "codegen-properties": {
                 "animation-property": true,
                 "animation-name-for-methods": "RangeEnd",
+                "style-converter": "StyleType<SingleAnimationRangeEnd>",
                 "separator": ",",
                 "parser-grammar": "<single-animation-range-end>#",
                 "settings-flag": "scrollDrivenAnimationsEnabled"
@@ -1960,7 +1967,7 @@
                 "settings-flag": "scrollDrivenAnimationsEnabled",
                 "animation-property": true,
                 "animation-name-for-methods": "Timeline",
-                "style-builder-converter": "AnimationTimeline",
+                "style-converter": "StyleType<SingleAnimationTimeline>",
                 "parser-grammar": "<single-animation-timeline>#"
             },
             "specification": {
@@ -1986,6 +1993,7 @@
                 ],
                 "animation-property": true,
                 "animation-name-for-methods": "TimingFunction",
+                "style-converter": "StyleType<EasingFunction>",
                 "separator": ",",
                 "parser-grammar": "<easing-function>#"
             },
@@ -8062,7 +8070,7 @@
                     "transition-delay",
                     "transition-behavior"
                 ],
-                "parser-function": "consumeAnimationShorthand",
+                "parser-function": "consumeTransitionShorthand",
                 "parser-shorthand": "transitionShorthandForParsing",
                 "parser-grammar-unused": "<single-transition>#",
                 "parser-grammar-unused-reason": "Needs support for shorthand grammars."
@@ -8081,7 +8089,7 @@
             ],
             "codegen-properties": {
                 "animation-property": true,
-                "animation-name-for-methods": "AllowsDiscreteTransitions",
+                "animation-name-for-methods": "Behavior",
                 "separator": ",",
                 "parser-grammar": "<transition-behavior-value>#"
             },
@@ -8099,6 +8107,7 @@
                 ],
                 "animation-property": true,
                 "animation-name-for-methods": "Delay",
+                "style-converter": "StyleType<SingleTransitionDelay>",
                 "separator": ",",
                 "parser-grammar": "<time>#"
             },
@@ -8116,6 +8125,7 @@
                 ],
                 "animation-property": true,
                 "animation-name-for-methods": "Duration",
+                "style-converter": "StyleType<SingleTransitionDuration>",
                 "separator": ",",
                 "parser-grammar": "<time [0,inf]>#"
             },
@@ -8128,7 +8138,8 @@
             "animation-type": "not animatable",
             "initial": "all",
             "values": [
-                "none"
+                "none",
+                "all"
             ],
             "codegen-properties": {
                 "aliases": [
@@ -8136,6 +8147,7 @@
                 ],
                 "animation-property": true,
                 "animation-name-for-methods": "Property",
+                "style-converter": "StyleType<SingleTransitionProperty>",
                 "parser-grammar": "none  | <single-transition-property>#"
             },
             "specification": {
@@ -8161,6 +8173,7 @@
                 ],
                 "animation-property": true,
                 "animation-name-for-methods": "TimingFunction",
+                "style-converter": "StyleType<EasingFunction>",
                 "parser-grammar": "<easing-function>#"
             },
             "specification": {

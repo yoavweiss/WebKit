@@ -33,9 +33,9 @@
 
 namespace WebCore {
 
-class Animation;
 class ContainerNode;
 class BlendingKeyframes;
+class GraphicsLayerAnimation;
 class ReferencedSVGResources;
 class RenderBlock;
 class RenderStyle;
@@ -276,7 +276,7 @@ public:
     RenderObject* attachRendererInternal(RenderPtr<RenderObject> child, RenderObject* beforeChild);
     RenderPtr<RenderObject> detachRendererInternal(RenderObject&);
 
-    virtual bool startAnimation(double /* timeOffset */, const Animation&, const BlendingKeyframes&) { return false; }
+    virtual bool startAnimation(double /* timeOffset */, const GraphicsLayerAnimation&, const BlendingKeyframes&) { return false; }
     virtual void animationPaused(double /* timeOffset */, const BlendingKeyframes&) { }
     virtual void animationFinished(const BlendingKeyframes&) { }
     virtual void transformRelatedPropertyDidChange() { }

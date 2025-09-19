@@ -35,6 +35,7 @@
 namespace WebCore {
 
 class CSSToLengthConversionData;
+class Element;
 class RenderStyle;
 struct BlendingContext;
 enum class CompositeOperation : uint8_t;
@@ -458,8 +459,8 @@ template<typename CSSType> struct CSSValueCreation<MinimallySerializingSpaceSepa
 //
 //    template<> struct WebCore::Style::CSSValueConversion<StyleType> {
 //                   StyleType operator()(BuilderState&, const CSSValue&);
-//        [optional] StyleType operator()(BuilderState&, const CSSPrimitiveValue&);
-//        [optional] StyleType operator()(const CSSToLengthConversionData&, const CSSPrimitiveValue&);
+//        [optional] StyleType operator()(BuilderState&, [std::derived_from<CSSValue>]);
+//        [optional] StyleType operator()(const CSSToLengthConversionData&, [std::derived_from<CSSValue>]);
 //    };
 
 template<typename StyleType> struct CSSValueConversion;
@@ -473,12 +474,52 @@ template<typename StyleType> struct CSSValueConversionInvoker {
     {
         return CSSValueConversion<StyleType>{}(builderState, value, std::forward<Rest>(rest)...);
     }
+    template<typename... Rest> StyleType operator()(BuilderState& builderState, std::derived_from<CSSValue> auto const& value, Rest&&... rest) const
+    {
+        return CSSValueConversion<StyleType>{}(builderState, value, std::forward<Rest>(rest)...);
+    }
+    template<typename... Rest> StyleType operator()(const CSSToLengthConversionData& conversionData, const CSSValue& value, Rest&&... rest) const
+    {
+        return CSSValueConversion<StyleType>{}(conversionData, value, std::forward<Rest>(rest)...);
+    }
     template<typename... Rest> StyleType operator()(const CSSToLengthConversionData& conversionData, const CSSPrimitiveValue& value, Rest&&... rest) const
+    {
+        return CSSValueConversion<StyleType>{}(conversionData, value, std::forward<Rest>(rest)...);
+    }
+    template<typename... Rest> StyleType operator()(const CSSToLengthConversionData& conversionData, std::derived_from<CSSValue> auto const& value, Rest&&... rest) const
     {
         return CSSValueConversion<StyleType>{}(conversionData, value, std::forward<Rest>(rest)...);
     }
 };
 template<typename StyleType> inline constexpr CSSValueConversionInvoker<StyleType> toStyleFromCSSValue{};
+
+// MARK: - Conversion directly from "Ref<CSSValue>" to "Style" when lacking BuilderState or CSSToLengthConversionData. Should not be used for new code and should be phased out.
+
+// All leaf types must implement the following:
+//
+//    template<> struct WebCore::Style::DeprecatedCSSValueConversion<StyleType> {
+//                   std::optional<StyleType> operator()(const RefPtr<Element>&&, const CSSValue&);
+//                   std::optional<StyleType> operator()(const RefPtr<Element>&&, const CSSPrimitiveValue&);
+//        [optional] std::optional<StyleType> operator()(const RefPtr<Element>&&, [std::derived_from<CSSValue>]);
+//    };
+
+template<typename StyleType> struct DeprecatedCSSValueConversion;
+
+template<typename StyleType> struct DeprecatedCSSValueConversionInvoker {
+    template<typename... Rest> std::optional<StyleType> operator()(const RefPtr<Element>& element, const CSSValue& value, Rest&&... rest) const
+    {
+        return DeprecatedCSSValueConversion<StyleType>{}(element, value, std::forward<Rest>(rest)...);
+    }
+    template<typename... Rest> std::optional<StyleType> operator()(const RefPtr<Element>& element, const CSSPrimitiveValue& value, Rest&&... rest) const
+    {
+        return DeprecatedCSSValueConversion<StyleType>{}(element, value, std::forward<Rest>(rest)...);
+    }
+    template<typename... Rest> std::optional<StyleType> operator()(const RefPtr<Element>& element, std::derived_from<CSSValue> auto const& value, Rest&&... rest) const
+    {
+        return DeprecatedCSSValueConversion<StyleType>{}(element, value, std::forward<Rest>(rest)...);
+    }
+};
+template<typename StyleType> inline constexpr DeprecatedCSSValueConversionInvoker<StyleType> deprecatedToStyleFromCSSValue{};
 
 // MARK: - Conversion directly from "Style" to "Platform"
 

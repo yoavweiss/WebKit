@@ -44,7 +44,6 @@
 #include "WebAnimation.h"
 #include "WebAnimationTypes.h"
 #include <wtf/TZoneMallocInlines.h>
-#include "Animation.h"
 
 namespace WebCore {
 
@@ -218,9 +217,9 @@ AcceleratedEffect::AcceleratedEffect(const KeyframeEffect& effect, const IntRect
         ASSERT(animation->holdTime() || animation->startTime());
         m_holdTime = animation->holdTime() ? animation->holdTime()->time() : std::nullopt;
         m_startTime = animation->startTime() ? animation->startTime()->time() : std::nullopt;
-        if (auto* styleAnimation = dynamicDowncast<StyleOriginatedAnimation>(*animation)) {
-            if (auto* defaultKeyframeTimingFunction = styleAnimation->backingAnimation().timingFunction())
-                m_defaultKeyframeTimingFunction = defaultKeyframeTimingFunction;
+        if (RefPtr styleAnimation = dynamicDowncast<StyleOriginatedAnimation>(*animation)) {
+            if (RefPtr defaultKeyframeTimingFunction = styleAnimation->backingAnimationTimingFunction())
+                m_defaultKeyframeTimingFunction = WTFMove(defaultKeyframeTimingFunction);
         }
     }
 

@@ -119,7 +119,6 @@ animation/KeyframeEffect.cpp
 animation/ScrollTimeline.cpp
 animation/StyleOriginatedAnimation.cpp
 animation/StyleOriginatedAnimationEvent.cpp
-animation/TimelineRange.cpp
 animation/ViewTimeline.cpp
 animation/WebAnimation.cpp
 animation/WebAnimationUtilities.cpp
@@ -650,8 +649,6 @@ platform/ScrollView.cpp
 platform/ScrollableArea.cpp
 platform/Widget.cpp
 platform/animation/AcceleratedEffectValues.cpp
-platform/animation/Animation.cpp
-platform/animation/AnimationList.cpp
 platform/audio/cocoa/AudioFileReaderCocoa.cpp
 platform/cocoa/DragImageCocoa.mm
 platform/cocoa/PlaybackSessionModelMediaElement.mm
@@ -822,7 +819,6 @@ rendering/style/StyleCanvasImage.cpp
 rendering/style/StyleCrossfadeImage.cpp
 rendering/style/StyleCursorImage.cpp
 rendering/style/StyleGeneratedImage.cpp
-rendering/style/StyleMiscNonInheritedData.cpp
 rendering/style/StyleMultiImage.cpp
 rendering/style/StylePaintImage.cpp
 rendering/svg/RenderSVGImage.cpp
@@ -884,9 +880,7 @@ style/StyleBuilderConverter.h
 style/StyleBuilderCustom.h
 style/StyleBuilderState.cpp
 style/StyleExtractor.cpp
-style/StyleExtractorConverter.h
 style/StyleExtractorCustom.h
-style/StyleExtractorSerializer.h
 style/StyleInterpolation.cpp
 style/StyleInvalidator.cpp
 style/StylePendingResources.cpp

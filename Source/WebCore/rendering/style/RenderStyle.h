@@ -44,7 +44,6 @@ class TextStream;
 
 namespace WebCore {
 
-class AnimationList;
 class AutosizeStatus;
 class BorderData;
 class BorderValue;
@@ -225,7 +224,6 @@ struct LengthSize;
 struct NameScope;
 struct ScrollSnapAlign;
 struct ScrollSnapType;
-struct SingleTimelineRange;
 struct TabSize;
 struct TextEdge;
 struct TransformOperationData;
@@ -244,6 +242,7 @@ class CustomProperty;
 class CustomPropertyData;
 class CustomPropertyRegistry;
 
+struct Animation;
 struct AnchorNames;
 struct AspectRatio;
 struct BackgroundLayer;
@@ -342,6 +341,7 @@ struct TextSizeAdjust;
 struct TextUnderlineOffset;
 struct Transform;
 struct TransformOrigin;
+struct Transition;
 struct Translate;
 struct VerticalAlign;
 struct ViewTimelineInsets;
@@ -367,9 +367,11 @@ enum class ScrollBehavior : bool;
 enum class WebkitOverflowScrolling : bool;
 enum class WebkitTouchCallout : bool;
 
+template<typename> struct CoordinatedValueList;
 template<typename> struct FillLayers;
 template<typename> struct Shadows;
 
+using Animations = CoordinatedValueList<Animation>;
 using BackgroundLayers = FillLayers<BackgroundLayer>;
 using BorderRadiusValue = MinimallySerializingSpaceSeparatedSize<LengthPercentage<CSS::Nonnegative>>;
 using BoxShadows = Shadows<BoxShadow>;
@@ -393,6 +395,7 @@ using TransformOriginX = PositionX;
 using TransformOriginXY = Position;
 using TransformOriginY = PositionY;
 using TransformOriginZ = Length<>;
+using Transitions = CoordinatedValueList<Transition>;
 using WebkitBorderSpacing = Length<CSS::Nonnegative>;
 using WebkitBoxFlex = Number<CSS::All, float>;
 using WebkitBoxFlexGroup = Integer<CSS::Nonnegative>;
@@ -1095,19 +1098,17 @@ public:
     inline const NameScope& timelineScope() const;
     inline void setTimelineScope(const NameScope&);
 
-    inline const AnimationList* animations() const;
-    inline const AnimationList* transitions() const;
-
-    AnimationList* animations();
-    AnimationList* transitions();
-    
-    inline bool hasAnimationsOrTransitions() const;
-
-    AnimationList& ensureAnimations();
-    AnimationList& ensureTransitions();
-
+    inline Style::Animations& ensureAnimations();
+    inline const Style::Animations& animations() const;
+    static inline Style::Animations initialAnimations();
     inline bool hasAnimations() const;
+
+    inline Style::Transitions& ensureTransitions();
+    inline const Style::Transitions& transitions() const;
+    static inline Style::Transitions initialTransitions();
     inline bool hasTransitions() const;
+
+    inline bool hasAnimationsOrTransitions() const;
 
     inline TransformStyle3D transformStyle3D() const;
     inline TransformStyle3D usedTransformStyle3D() const;

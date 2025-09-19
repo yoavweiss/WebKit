@@ -38,6 +38,7 @@
 #include <WebCore/CSSPrimitiveValue.h>
 #include <WebCore/CSSToLengthConversionData.h>
 #include <WebCore/CSSValueKeywords.h>
+#include <WebCore/CompositeOperation.h>
 #include <WebCore/FontSizeAdjust.h>
 #include <WebCore/GraphicsTypes.h>
 #include <WebCore/Length.h>
@@ -2593,8 +2594,44 @@ DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
 #undef TYPE
 #undef FOR_EACH
 
+#define TYPE Scroller
+#define FOR_EACH(CASE) CASE(Nearest) CASE(Root) CASE(Self)
+DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
+#undef TYPE
+#undef FOR_EACH
+
 #define TYPE NinePieceImageRule
 #define FOR_EACH(CASE) CASE(Stretch) CASE(Round) CASE(Space) CASE(Repeat)
+DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
+#undef TYPE
+#undef FOR_EACH
+
+#define TYPE AnimationDirection
+#define FOR_EACH(CASE) CASE(Normal) CASE(Alternate) CASE(Reverse) CASE(AlternateReverse)
+DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
+#undef TYPE
+#undef FOR_EACH
+
+#define TYPE AnimationFillMode
+#define FOR_EACH(CASE) CASE(None) CASE(Forwards) CASE(Backwards) CASE(Both)
+DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
+#undef TYPE
+#undef FOR_EACH
+
+#define TYPE AnimationPlayState
+#define FOR_EACH(CASE) CASE(Running) CASE(Paused)
+DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
+#undef TYPE
+#undef FOR_EACH
+
+#define TYPE CompositeOperation
+#define FOR_EACH(CASE) CASE(Replace) CASE(Add) CASE(Accumulate)
+DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
+#undef TYPE
+#undef FOR_EACH
+
+#define TYPE TransitionBehavior
+#define FOR_EACH(CASE) CASE(Normal) CASE(AllowDiscrete)
 DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
 #undef TYPE
 #undef FOR_EACH

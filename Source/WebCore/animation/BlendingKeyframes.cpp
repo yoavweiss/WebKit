@@ -22,7 +22,6 @@
 #include "config.h"
 #include "BlendingKeyframes.h"
 
-#include "Animation.h"
 #include "CSSAnimation.h"
 #include "CSSCustomPropertyValue.h"
 #include "CSSKeyframeRule.h"
@@ -183,12 +182,12 @@ void BlendingKeyframes::fillImplicitKeyframes(const KeyframeEffect& effect, cons
             return true;
 
         if (RefPtr cssAnimation = dynamicDowncast<CSSAnimation>(effect.animation())) {
-            RefPtr animationWideTimingFunction = cssAnimation->backingAnimation().defaultTimingFunctionForKeyframes();
+            auto animationWideTimingFunction = cssAnimation->backingStyleAnimation().defaultTimingFunctionForKeyframes();
             // If we're dealing with a CSS Animation and if that CSS Animation's backing animation
             // has a default timing function set, then if that keyframe's timing function matches,
             // that keyframe is suitable.
             if (animationWideTimingFunction)
-                return timingFunction == animationWideTimingFunction;
+                return timingFunction == animationWideTimingFunction->value.ptr();
             // Otherwise, the keyframe will be suitable if its timing function matches the default.
             return timingFunction == &CubicBezierTimingFunction::defaultTimingFunction();
         }
@@ -467,7 +466,7 @@ bool BlendingKeyframe::animatesProperty(KeyframeInterpolation::Property property
 
 bool BlendingKeyframe::usesRangeOffset() const
 {
-    return m_specifiedOffset.name != SingleTimelineRange::Name::Omitted && m_specifiedOffset.name != SingleTimelineRange::Name::Normal;
+    return m_specifiedOffset.name != Style::SingleAnimationRangeName::Omitted && m_specifiedOffset.name != Style::SingleAnimationRangeName::Normal;
 }
 
 } // namespace WebCore

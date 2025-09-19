@@ -76,14 +76,12 @@ namespace WebCore {
 namespace Style {
 
 BuilderState::BuilderState(RenderStyle& style)
-    : m_styleMap(*this)
-    , m_style(style)
+    : m_style(style)
 {
 }
 
 BuilderState::BuilderState(RenderStyle& style, BuilderContext&& context)
-    : m_styleMap(*this)
-    , m_style(style)
+    : m_style(style)
     , m_context(WTFMove(context))
     , m_cssToLengthConversionData(style, *this)
 {

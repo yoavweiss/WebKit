@@ -26,7 +26,6 @@
 #include "config.h"
 #include "InspectorAnimationAgent.h"
 
-#include "Animation.h"
 #include "AnimationEffect.h"
 #include "AnimationEffectPhase.h"
 #include "BlendingKeyframes.h"
@@ -147,13 +146,13 @@ static Ref<JSON::ArrayOf<Inspector::Protocol::Animation::Keyframe>> buildObjectF
                 .setOffset(blendingKeyframe.offset())
                 .release();
 
-            RefPtr<TimingFunction> timingFunction;
+            RefPtr<const TimingFunction> timingFunction;
             if (!parsedKeyframes.isEmpty())
                 timingFunction = parsedKeyframes[i].timingFunction;
             if (!timingFunction)
                 timingFunction = blendingKeyframe.timingFunction();
             if (!timingFunction)
-                timingFunction = styleOriginatedAnimation->backingAnimation().timingFunction();
+                timingFunction = styleOriginatedAnimation->backingAnimationTimingFunction();
             if (timingFunction)
                 keyframePayload->setEasing(timingFunction->cssText());
 

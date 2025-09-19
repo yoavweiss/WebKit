@@ -57,6 +57,17 @@ CSSBoxType transformBoxToCSSBoxType(TransformBox transformBox)
     }
 }
 
+TextStream& operator<<(TextStream& ts, AnimationDirection direction)
+{
+    switch (direction) {
+    case AnimationDirection::Normal: ts << "normal"_s; break;
+    case AnimationDirection::Alternate: ts << "alternate"_s; break;
+    case AnimationDirection::Reverse: ts << "reverse"_s; break;
+    case AnimationDirection::AlternateReverse: ts << "alternate-reverse"_s; break;
+    }
+    return ts;
+}
+
 TextStream& operator<<(TextStream& ts, AnimationFillMode fillMode)
 {
     switch (fillMode) {
@@ -71,7 +82,7 @@ TextStream& operator<<(TextStream& ts, AnimationFillMode fillMode)
 TextStream& operator<<(TextStream& ts, AnimationPlayState playState)
 {
     switch (playState) {
-    case AnimationPlayState::Playing: ts << "playing"_s; break;
+    case AnimationPlayState::Running: ts << "running"_s; break;
     case AnimationPlayState::Paused: ts << "paused"_s; break;
     }
     return ts;
@@ -1110,6 +1121,17 @@ TextStream& operator<<(TextStream& ts, ScrollSnapStop stop)
     }
     return ts;
 }
+
+TextStream& operator<<(TextStream& ts, Scroller scroller)
+{
+    switch (scroller) {
+    case Scroller::Nearest: ts << "nearest"_s; break;
+    case Scroller::Root: ts << "root"_s; break;
+    case Scroller::Self: ts << "self"_s; break;
+    }
+    return ts;
+}
+
 TextStream& operator<<(TextStream& ts, SpeakAs speakAs)
 {
     switch (speakAs) {
@@ -1385,6 +1407,15 @@ TextStream& operator<<(TextStream& ts, TransformStyle3D transformStyle)
 #if HAVE(CORE_ANIMATION_SEPARATED_LAYERS)
     case TransformStyle3D::Separated: ts << "separated"_s; break;
 #endif
+    }
+    return ts;
+}
+
+TextStream& operator<<(TextStream& ts, TransitionBehavior transitionBehavior)
+{
+    switch (transitionBehavior) {
+    case TransitionBehavior::Normal: ts << "normal"_s; break;
+    case TransitionBehavior::AllowDiscrete: ts << "allow-discrete"_s; break;
     }
     return ts;
 }

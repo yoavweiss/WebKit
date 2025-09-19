@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "TimelineRange.h"
 #include <wtf/Forward.h>
 
 namespace WebCore {
@@ -36,6 +35,10 @@ struct CSSParserContext;
 
 namespace CSS {
 struct PropertyParserState;
+}
+
+namespace Style {
+enum class SingleAnimationRangeType : bool;
 }
 
 namespace CSSPropertyParserHelpers {
@@ -59,10 +62,10 @@ RefPtr<CSSValue> parseSingleViewTimelineInsetItem(const String&, const CSSParser
 
 // <single-animation-range> = normal | <length-percentage> | <timeline-range-name> <length-percentage>?
 // https://drafts.csswg.org/scroll-animations-1/#propdef-animation-range-start
-RefPtr<CSSValue> consumeSingleAnimationRange(CSSParserTokenRange&, CSS::PropertyParserState&, SingleTimelineRange::Type);
+RefPtr<CSSValue> consumeSingleAnimationRange(CSSParserTokenRange&, CSS::PropertyParserState&, Style::SingleAnimationRangeType);
 RefPtr<CSSValue> consumeSingleAnimationRangeStart(CSSParserTokenRange&, CSS::PropertyParserState&);
 RefPtr<CSSValue> consumeSingleAnimationRangeEnd(CSSParserTokenRange&, CSS::PropertyParserState&);
-RefPtr<CSSValue> parseSingleAnimationRange(const String&, const CSSParserContext&, SingleTimelineRange::Type);
+RefPtr<CSSValue> parseSingleAnimationRange(const String&, const CSSParserContext&, Style::SingleAnimationRangeType);
 
 } // namespace CSSPropertyParserHelpers
 } // namespace WebCore

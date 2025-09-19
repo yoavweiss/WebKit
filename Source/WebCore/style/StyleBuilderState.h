@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "CSSToStyleMap.h"
 #include "PropertyCascade.h"
 #include "RuleSet.h"
 #include "SelectorChecker.h"
@@ -129,7 +128,6 @@ public:
     void registerContentAttribute(const AtomString& attributeLocalName);
 
     const CSSToLengthConversionData& cssToLengthConversionData() const { return m_cssToLengthConversionData; }
-    CSSToStyleMap& styleMap() { return m_styleMap; }
 
     void setIsBuildingKeyframeStyle() { m_isBuildingKeyframeStyle = true; }
 
@@ -216,8 +214,6 @@ private:
     void updateFontForZoomChange();
     void updateFontForGenericFamilyChange();
     void updateFontForOrientationChange();
-
-    CSSToStyleMap m_styleMap;
 
     RenderStyle& m_style;
     BuilderContext m_context;

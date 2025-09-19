@@ -16,33 +16,22 @@
  * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE INC. OR
  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-#include "WebAnimationTypes.h"
+#pragma once
 
-#include <wtf/text/TextStream.h>
+#include <WebCore/StylePrimitiveNumericTypes.h>
 
 namespace WebCore {
+namespace Style {
 
-TextStream& operator<<(TextStream& ts, Scroller scroller)
-{
-    switch (scroller) {
-    case Scroller::Nearest: ts << "nearest"_s; break;
-    case Scroller::Root: ts << "root"_s; break;
-    case Scroller::Self: ts << "self"_s; break;
-    }
-    return ts;
-}
+// <single-transition-duration> = <time [0,∞]>
+// https://www.w3.org/TR/css-transitions-1/#propdef-transition-duration
+using SingleTransitionDuration = Time<CSS::Nonnegative>;
 
-TextStream& operator<<(TextStream& ts, const ViewTimelineInsetItem& insetItem)
-{
-    return ts << insetItem.start << ' ' << insetItem.end;
-}
-
+} // namespace Style
 } // namespace WebCore

@@ -79,6 +79,7 @@
 #include "StyleResolveForDocument.h"
 #include "StyleRule.h"
 #include "StyleSheetContents.h"
+#include "StyleSingleAnimationRangeName.h"
 #include "TimingFunction.h"
 #include "UserAgentParts.h"
 #include "UserAgentStyle.h"
@@ -548,7 +549,7 @@ void Resolver::keyframeStylesForAnimation(Element& element, const RenderStyle& e
     for (auto& keyframeRule : keyframeRules) {
         // Add this keyframe style to all the indicated key times
         for (auto& key : keyframeRule->keys()) {
-            BlendingKeyframe blendingKeyframe({ SingleTimelineRange::timelineName(key.rangeName), key.offset }, { nullptr });
+            BlendingKeyframe blendingKeyframe({ Style::convertCSSValueIDToSingleAnimationRangeName(key.rangeName), key.offset }, { nullptr });
             blendingKeyframe.setStyle(styleForKeyframe(element, elementStyle, context, keyframeRule.get(), blendingKeyframe));
             if (auto timingFunctionCSSValue = keyframeRule->properties().getPropertyCSSValue(CSSPropertyAnimationTimingFunction))
                 blendingKeyframe.setTimingFunction(createTimingFunctionDeprecated(*timingFunctionCSSValue));

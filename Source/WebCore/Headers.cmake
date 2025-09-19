@@ -903,8 +903,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     animation/ScrollTimelineOptions.h
     animation/StyleOriginatedAnimation.h
     animation/StyleOriginatedTimelinesController.h
-    animation/TimelineRange.h
     animation/TimelineRangeOffset.h
+    animation/TimelineRangeValue.h
     animation/ViewTimeline.h
     animation/ViewTimelineOptions.h
     animation/WebAnimation.h
@@ -2398,8 +2398,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/animation/AcceleratedEffect.h
     platform/animation/AcceleratedEffectStack.h
     platform/animation/AcceleratedEffectValues.h
-    platform/animation/Animation.h
-    platform/animation/AnimationList.h
     platform/animation/AnimationUtilities.h
     platform/animation/TimingFunction.h
     platform/audio/AudioArray.h
@@ -2557,6 +2555,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/graphics/GraphicsContextState.h
     platform/graphics/GraphicsContextStateSaver.h
     platform/graphics/GraphicsLayer.h
+    platform/graphics/GraphicsLayerAnimation.h
     platform/graphics/GraphicsLayerClient.h
     platform/graphics/GraphicsLayerContentsDisplayDelegate.h
     platform/graphics/GraphicsLayerFactory.h
@@ -3190,6 +3189,16 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/anchor-position/StyleAnchorName.h
 
+    style/values/animations/StyleAnimation.h
+    style/values/animations/StyleAnimations.h
+    style/values/animations/StyleSingleAnimationDelay.h
+    style/values/animations/StyleSingleAnimationDuration.h
+    style/values/animations/StyleSingleAnimationIterationCount.h
+    style/values/animations/StyleSingleAnimationName.h
+    style/values/animations/StyleSingleAnimationRange.h
+    style/values/animations/StyleSingleAnimationRangeName.h
+    style/values/animations/StyleSingleAnimationTimeline.h
+
     style/values/backgrounds/StyleBackgroundLayer.h
     style/values/backgrounds/StyleBackgroundSize.h
     style/values/backgrounds/StyleBorderImage.h
@@ -3233,6 +3242,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/css2/StyleZIndex.h
 
     style/values/display/StyleOrder.h
+
+    style/values/easing/StyleEasingFunction.h
 
     style/values/fill-stroke/StyleStrokeMiterlimit.h
     style/values/fill-stroke/StyleStrokeWidth.h
@@ -3309,6 +3320,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/position/StyleInset.h
 
+    style/values/primitives/StyleCoordinatedValueList.h
     style/values/primitives/StyleLengthWrapper+Blending.h
     style/values/primitives/StyleLengthWrapper+Platform.h
     style/values/primitives/StyleLengthWrapper.h
@@ -3333,9 +3345,12 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/scroll-animations/StyleProgressTimelineAxes.h
     style/values/scroll-animations/StyleProgressTimelineName.h
+    style/values/scroll-animations/StyleScrollFunction.h
     style/values/scroll-animations/StyleScrollTimelines.h
+    style/values/scroll-animations/StyleViewFunction.h
     style/values/scroll-animations/StyleViewTimelineInsets.h
     style/values/scroll-animations/StyleViewTimelines.h
+
     style/values/scroll-snap/StyleScrollMargin.h
     style/values/scroll-snap/StyleScrollPadding.h
 
@@ -3397,6 +3412,12 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/transforms/StyleTransformOperationWrapper.h
     style/values/transforms/StyleTransformOrigin.h
     style/values/transforms/StyleTranslate.h
+
+    style/values/transitions/StyleSingleTransitionDelay.h
+    style/values/transitions/StyleSingleTransitionDuration.h
+    style/values/transitions/StyleSingleTransitionProperty.h
+    style/values/transitions/StyleTransition.h
+    style/values/transitions/StyleTransitions.h
 
     style/values/ui/StyleCursor.h
 

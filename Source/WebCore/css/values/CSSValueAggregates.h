@@ -415,6 +415,16 @@ template<typename T> struct SpaceSeparatedRefCountedFixedVector {
     using const_reverse_iterator = typename Container::const_reverse_iterator;
     using value_type = typename Container::value_type;
 
+    SpaceSeparatedRefCountedFixedVector(T&& value)
+        : value { Container::create(WTFMove(value)) }
+    {
+    }
+
+    SpaceSeparatedRefCountedFixedVector(std::initializer_list<T> initializerList)
+        : value { Container::create(initializerList) }
+    {
+    }
+
     SpaceSeparatedRefCountedFixedVector(Ref<Container>&& value)
         : value { WTFMove(value) }
     {
@@ -456,6 +466,16 @@ template<typename T> struct CommaSeparatedRefCountedFixedVector {
     using const_iterator = typename Container::const_iterator;
     using const_reverse_iterator = typename Container::const_reverse_iterator;
     using value_type = typename Container::value_type;
+
+    CommaSeparatedRefCountedFixedVector(T&& value)
+        : value { Container::create(WTFMove(value)) }
+    {
+    }
+
+    CommaSeparatedRefCountedFixedVector(std::initializer_list<T> initializerList)
+        : value { Container::create(initializerList) }
+    {
+    }
 
     CommaSeparatedRefCountedFixedVector(Ref<Container>&& value)
         : value { WTFMove(value) }
@@ -528,7 +548,12 @@ template<typename T, typename K, typename Traits = MarkableTraits<T>> struct Val
 
     constexpr bool operator==(const ValueOrKeyword&) const = default;
 
-private:
+protected:
+    constexpr ValueOrKeyword(std::optional<Value>&& value)
+        : m_value { WTFMove(value) }
+    {
+    }
+
     Markable<Value, Traits> m_value { };
 };
 

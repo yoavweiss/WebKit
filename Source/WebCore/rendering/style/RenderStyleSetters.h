@@ -46,8 +46,10 @@ namespace WebCore {
 template<typename T, typename U> inline bool compareEqual(const T& a, const U& b) { return a == b; }
 
 inline void RenderStyle::addToTextDecorationLineInEffect(const Style::TextDecorationLine& value) { m_inheritedFlags.textDecorationLineInEffect = textDecorationLineInEffect().addOrReplaceIfNotNone(value); }
-inline void RenderStyle::clearAnimations() { m_nonInheritedData.access().miscData.access().animations = nullptr; }
-inline void RenderStyle::clearTransitions() { m_nonInheritedData.access().miscData.access().transitions = nullptr; }
+inline void RenderStyle::clearAnimations() { m_nonInheritedData.access().miscData.access().animations = CSS::Keyword::None { }; }
+inline void RenderStyle::clearTransitions() { m_nonInheritedData.access().miscData.access().transitions = CSS::Keyword::None { }; }
+inline Style::Animations& RenderStyle::ensureAnimations() { return m_nonInheritedData.access().miscData.access().animations.access(); }
+inline Style::Transitions& RenderStyle::ensureTransitions() { return m_nonInheritedData.access().miscData.access().transitions.access(); }
 inline Style::BackgroundLayers& RenderStyle::ensureBackgroundLayers() { return m_nonInheritedData.access().backgroundData.access().background.access(); }
 inline Style::MaskLayers& RenderStyle::ensureMaskLayers() { return m_nonInheritedData.access().miscData.access().mask.access(); }
 inline void RenderStyle::inheritColumnPropertiesFrom(const RenderStyle& parent) { m_nonInheritedData.access().miscData.access().multiCol = parent.m_nonInheritedData->miscData->multiCol; }

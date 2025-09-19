@@ -238,7 +238,7 @@ std::optional<LayoutRect> RenderLayerModelObject::cachedLayerClippedOverflowRect
     return hasLayer() ? layer()->cachedClippedOverflowRect() : std::nullopt;
 }
 
-bool RenderLayerModelObject::startAnimation(double timeOffset, const Animation& animation, const BlendingKeyframes& keyframes)
+bool RenderLayerModelObject::startAnimation(double timeOffset, const GraphicsLayerAnimation& animation, const BlendingKeyframes& keyframes)
 {
     if (!layer() || !layer()->backing())
         return false;

@@ -92,6 +92,7 @@
 namespace WebCore {
 namespace Style {
 
+using namespace CSS::Literals;
 using namespace HTMLNames;
 
 Adjuster::Adjuster(const Document& document, const RenderStyle& parentStyle, const RenderStyle* parentBoxStyle, Element* element)
@@ -1057,15 +1058,13 @@ void Adjuster::adjustForSiteSpecificQuirks(RenderStyle& style) const
         //     animation-duration: 0.18s, 0.06s;
         //     animation-fill-mode: none, forwards;
         //     animation-name: menu-grow-left, menu-fade-in;
-        auto menuGrowLeftAnimation = Animation::create();
-        menuGrowLeftAnimation->setDuration(.18);
-        menuGrowLeftAnimation->setName({ "menu-grow-left"_s });
+        auto menuGrowLeftAnimation = Style::Animation { { ScopedName { "menu-grow-left"_s } } };
+        menuGrowLeftAnimation.setDuration(.18_css_s);
 
-        auto menuFadeInAnimation = Animation::create();
-        menuFadeInAnimation->setDelay(.06);
-        menuFadeInAnimation->setDuration(.06);
-        menuFadeInAnimation->setFillMode(AnimationFillMode::Forwards);
-        menuFadeInAnimation->setName({ "menu-fade-in"_s });
+        auto menuFadeInAnimation = Style::Animation { { ScopedName { "menu-fade-in"_s } } };
+        menuFadeInAnimation.setDelay(.06_css_s);
+        menuFadeInAnimation.setDuration(.06_css_s);
+        menuFadeInAnimation.setFillMode(AnimationFillMode::Forwards);
 
         auto& animations = style.ensureAnimations();
         animations.append(WTFMove(menuGrowLeftAnimation));

@@ -26,7 +26,6 @@
 #pragma once
 
 #include <WebCore/AnchorPositionEvaluator.h>
-#include <WebCore/AnimationList.h>
 #include <WebCore/Element.h>
 #include <WebCore/FontCascadeDescription.h>
 #include <WebCore/GraphicsTypes.h>
@@ -80,8 +79,7 @@ inline const StyleContentAlignmentData& RenderStyle::alignContent() const { retu
 inline const StyleSelfAlignmentData& RenderStyle::alignItems() const { return m_nonInheritedData->miscData->alignItems; }
 inline const StyleSelfAlignmentData& RenderStyle::alignSelf() const { return m_nonInheritedData->miscData->alignSelf; }
 constexpr auto RenderStyle::allTransformOperations() -> OptionSet<TransformOperationOption> { return { TransformOperationOption::TransformOrigin, TransformOperationOption::Translate, TransformOperationOption::Rotate, TransformOperationOption::Scale, TransformOperationOption::Offset }; }
-inline const AnimationList* RenderStyle::animations() const { return m_nonInheritedData->miscData->animations.get(); }
-inline AnimationList* RenderStyle::animations() { return m_nonInheritedData->miscData->animations.get(); }
+inline const Style::Animations& RenderStyle::animations() const { return m_nonInheritedData->miscData->animations; }
 inline const Style::AnchorNames& RenderStyle::anchorNames() const { return m_nonInheritedData->rareData->anchorNames; }
 inline const NameScope& RenderStyle::anchorScope() const { return m_nonInheritedData->rareData->anchorScope; }
 inline StyleAppearance RenderStyle::appearance() const { return static_cast<StyleAppearance>(m_nonInheritedData->miscData->appearance); }
@@ -240,7 +238,7 @@ inline const Style::GridTemplateList& RenderStyle::gridTemplateRows() const { re
 inline const Style::GridTemplateList& RenderStyle::gridTemplateList(Style::GridTrackSizingDirection direction) const { return direction == Style::GridTrackSizingDirection::Columns ? gridTemplateColumns() : gridTemplateRows(); }
 inline const Style::GridTemplateAreas& RenderStyle::gridTemplateAreas() const { return m_nonInheritedData->rareData->grid->m_gridTemplateAreas; }
 inline OptionSet<HangingPunctuation> RenderStyle::hangingPunctuation() const { return OptionSet<HangingPunctuation>::fromRaw(m_rareInheritedData->hangingPunctuation); }
-inline bool RenderStyle::hasAnimations() const { return animations() && animations()->size(); }
+inline bool RenderStyle::hasAnimations() const { return !animations().isNone(); }
 inline bool RenderStyle::hasAnimationsOrTransitions() const { return hasAnimations() || hasTransitions(); }
 inline bool RenderStyle::hasAnyPublicPseudoStyles() const { return m_nonInheritedFlags.hasAnyPublicPseudoStyles(); }
 // FIXME: Rename this function.
@@ -305,7 +303,7 @@ inline bool RenderStyle::hasTextCombine() const { return textCombine() != TextCo
 inline bool RenderStyle::hasTransform() const { return !transform().isNone() || hasOffsetPath(); }
 inline bool RenderStyle::hasTransformRelatedProperty() const { return hasTransform() || hasRotate() || hasScale() || hasTranslate() || transformStyle3D() == TransformStyle3D::Preserve3D || hasPerspective(); }
 inline bool RenderStyle::hasTranslate() const { return !translate().isNone(); }
-inline bool RenderStyle::hasTransitions() const { return transitions() && transitions()->size(); }
+inline bool RenderStyle::hasTransitions() const { return !transitions().isNone(); }
 inline bool RenderStyle::hasViewportConstrainedPosition() const { return position() == PositionType::Fixed || position() == PositionType::Sticky; }
 inline bool RenderStyle::hasVisibleBorder() const { return border().hasVisibleBorder(); }
 inline bool RenderStyle::hasVisibleBorderDecoration() const { return hasVisibleBorder() || hasBorderImage(); }
@@ -322,6 +320,7 @@ constexpr auto RenderStyle::individualTransformOperations() -> OptionSet<Transfo
 inline const Style::CustomPropertyData& RenderStyle::inheritedCustomProperties() const { return m_rareInheritedData->customProperties.get(); }
 inline Style::AnchorNames RenderStyle::initialAnchorNames() { return CSS::Keyword::None { }; }
 inline NameScope RenderStyle::initialAnchorScope() { return { }; }
+inline Style::Animations RenderStyle::initialAnimations() { return CSS::Keyword::None { }; }
 constexpr StyleAppearance RenderStyle::initialAppearance() { return StyleAppearance::None; }
 #if HAVE(CORE_MATERIAL)
 constexpr AppleVisualEffect RenderStyle::initialAppleVisualEffect() { return AppleVisualEffect::None; }
@@ -539,6 +538,7 @@ constexpr TextZoom RenderStyle::initialTextZoom() { return TextZoom::Normal; }
 constexpr TouchAction RenderStyle::initialTouchActions() { return TouchAction::Auto; }
 inline Style::Transform RenderStyle::initialTransform() { return CSS::Keyword::None { }; }
 constexpr TransformBox RenderStyle::initialTransformBox() { return TransformBox::ViewBox; }
+inline Style::Transitions RenderStyle::initialTransitions() { return CSS::Keyword::None { }; }
 inline Style::Rotate RenderStyle::initialRotate() { return CSS::Keyword::None { }; }
 inline Style::Scale RenderStyle::initialScale() { return CSS::Keyword::None { }; }
 inline Style::Translate RenderStyle::initialTranslate() { return CSS::Keyword::None { }; }
@@ -777,8 +777,7 @@ inline const Style::TransformOriginX& RenderStyle::transformOriginX() const { re
 inline const Style::TransformOriginY& RenderStyle::transformOriginY() const { return transformOrigin().y; }
 inline const Style::TransformOriginZ& RenderStyle::transformOriginZ() const { return transformOrigin().z; }
 inline TransformStyle3D RenderStyle::transformStyle3D() const { return static_cast<TransformStyle3D>(m_nonInheritedData->rareData->transformStyle3D); }
-inline const AnimationList* RenderStyle::transitions() const { return m_nonInheritedData->miscData->transitions.get(); }
-inline AnimationList* RenderStyle::transitions() { return m_nonInheritedData->miscData->transitions.get(); }
+inline const Style::Transitions& RenderStyle::transitions() const { return m_nonInheritedData->miscData->transitions; }
 inline const Style::Translate& RenderStyle::translate() const { return m_nonInheritedData->rareData->translate; }
 inline Style::ScrollBehavior RenderStyle::scrollBehavior() const { return static_cast<Style::ScrollBehavior>(m_nonInheritedData->rareData->scrollBehavior); }
 inline float RenderStyle::usedPerspective() const { return perspective().usedPerspective(); }

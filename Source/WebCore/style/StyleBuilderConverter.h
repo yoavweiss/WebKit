@@ -104,7 +104,6 @@
 #include "StyleValueTypes+CSSValueConversion.h"
 #include "TabSize.h"
 #include "TextSpacing.h"
-#include "TimelineRange.h"
 #include "TouchAction.h"
 #include "ViewTimeline.h"
 #include "WillChangeData.h"
@@ -196,12 +195,7 @@ public:
     static std::optional<PositionArea> convertPositionArea(BuilderState&, const CSSValue&);
     static OptionSet<PositionVisibility> convertPositionVisibility(BuilderState&, const CSSValue&);
 
-    static RefPtr<TimingFunction> convertTimingFunction(BuilderState&, const CSSValue&);
-
     static NameScope convertNameScope(BuilderState&, const CSSValue&);
-
-    static SingleTimelineRange convertAnimationRangeStart(BuilderState&, const CSSValue&);
-    static SingleTimelineRange convertAnimationRangeEnd(BuilderState&, const CSSValue&);
 
     static FixedVector<PositionTryFallback> convertPositionTryFallbacks(BuilderState&, const CSSValue&);
 
@@ -1612,11 +1606,6 @@ inline OptionSet<PositionVisibility> BuilderConverter::convertPositionVisibility
         result.add(fromCSSValue<PositionVisibility>(value));
 
     return result;
-}
-
-inline RefPtr<TimingFunction> BuilderConverter::convertTimingFunction(BuilderState& builderState, const CSSValue& value)
-{
-    return createTimingFunction(value, builderState.cssToLengthConversionData());
 }
 
 inline NameScope BuilderConverter::convertNameScope(BuilderState& builderState, const CSSValue& value)
