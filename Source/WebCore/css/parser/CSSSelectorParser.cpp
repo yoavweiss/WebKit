@@ -1306,16 +1306,58 @@ bool CSSSelectorParser::containsUnknownWebKitPseudoElements(const CSSSelector& c
 CSSSelectorList CSSSelectorParser::resolveNestingParent(const CSSSelectorList& nestedSelectorList, const CSSSelectorList* parentResolvedSelectorList, bool parentRuleIsScope)
 {
     MutableCSSSelectorList result;
-    CSSSelectorList copiedSelectorList { nestedSelectorList };
-    for (auto& selector : copiedSelectorList) {
-        // FIXME: We should build a new MutableCSSSelector from this selector and resolve it
-        if (parentResolvedSelectorList && !parentRuleIsScope) {
-            const_cast<CSSSelector&>(selector).resolveNestingParentSelectors(*parentResolvedSelectorList);
-        } else {
-            // It's top-level or a scope rule, the nesting parent selector should be replaced by :where(:scope)
-            const_cast<CSSSelector&>(selector).replaceNestingSelectorByWhereScope();
+
+    auto resolveSimpleSelector = [&](const CSSSelector& simpleSelector) {
+        if (simpleSelector.match() == CSSSelector::Match::NestingParent) {
+            auto resolvedSelector = makeUnique<MutableCSSSelector>();
+            resolvedSelector->setRelation(simpleSelector.relation());
+
+            if (parentResolvedSelectorList && !parentRuleIsScope) {
+                // FIXME: Optimize cases where we can include the parent selector directly instead of wrapping it in a :is() pseudo class.
+                resolvedSelector->setMatch(CSSSelector::Match::PseudoClass);
+                resolvedSelector->setPseudoClass(CSSSelector::PseudoClass::Is);
+                resolvedSelector->setSelectorList(makeUnique<CSSSelectorList>(*parentResolvedSelectorList));
+                return resolvedSelector;
+            }
+
+            // Top-level nesting parent selector acts like :scope with zero specificity thanks to :where
+            // https://github.com/w3c/csswg-drafts/issues/10196#issuecomment-2161119978
+            // Replace by :where(:scope)
+            auto scopeSelector = makeUnique<MutableCSSSelector>();
+            scopeSelector->setMatch(CSSSelector::Match::PseudoClass);
+            scopeSelector->setPseudoClass(CSSSelector::PseudoClass::Scope);
+            auto scopeSelectorList = MutableCSSSelectorList::from(WTFMove(scopeSelector));
+
+            resolvedSelector->setMatch(CSSSelector::Match::PseudoClass);
+            resolvedSelector->setPseudoClass(CSSSelector::PseudoClass::Where);
+            resolvedSelector->setSelectorList(makeUnique<CSSSelectorList>(WTFMove(scopeSelectorList)));
+
+            return resolvedSelector;
         }
-        result.append(makeUnique<MutableCSSSelector>(selector));
+
+        auto resolvedSelector = makeUnique<MutableCSSSelector>(simpleSelector, MutableCSSSelector::SimpleSelector);
+
+        if (auto* subselectorList = simpleSelector.selectorList(); subselectorList && subselectorList->hasExplicitNestingParent()) {
+            // Resolve nested selector lists like :has(&).
+            auto resolvedSubselectorList = resolveNestingParent(*subselectorList, parentResolvedSelectorList, parentRuleIsScope);
+            resolvedSelector->setSelectorList(makeUnique<CSSSelectorList>(WTFMove(resolvedSubselectorList)));
+        }
+        return resolvedSelector;
+    };
+
+    for (auto& complexSelector : nestedSelectorList) {
+        MutableCSSSelector* head = nullptr;
+        for (const auto* simpleSelector = &complexSelector; simpleSelector; simpleSelector = simpleSelector->precedingInComplexSelector()) {
+            auto resolvedSimpleSelector = resolveSimpleSelector(*simpleSelector);
+
+            if (!head) {
+                result.append(WTFMove(resolvedSimpleSelector));
+                head = result.last().get();
+            } else {
+                head->setPrecedingInComplexSelector(WTFMove(resolvedSimpleSelector));
+                head = head->precedingInComplexSelector();
+            }
+        }
     }
 
     return CSSSelectorList { WTFMove(result) };

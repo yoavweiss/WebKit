@@ -68,14 +68,12 @@ public:
 
     enum class VisitFunctionalPseudoClasses { No, Yes };
     enum class VisitOnlySubject { No, Yes };
-    using VisitFunctor = WTF::Function<bool(CSSSelector&)>;
+    using VisitFunctor = WTF::Function<bool(const CSSSelector&)>;
     bool visitSimpleSelectors(VisitFunctor&&, VisitFunctionalPseudoClasses = VisitFunctionalPseudoClasses::No, VisitOnlySubject = VisitOnlySubject::No) const;
 
     bool hasExplicitNestingParent() const;
     bool hasExplicitPseudoClassScope() const;
     bool hasScope() const;
-    void resolveNestingParentSelectors(const CSSSelectorList& parent);
-    void replaceNestingSelectorByWhereScope();
 
     using PseudoClass = CSSSelectorPseudoClass;
     using PseudoElement = CSSSelectorPseudoElement;

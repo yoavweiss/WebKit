@@ -851,42 +851,6 @@ bool CSSSelector::visitSimpleSelectors(VisitFunctor&& functor, VisitFunctionalPs
     return false;
 }
 
-void CSSSelector::resolveNestingParentSelectors(const CSSSelectorList& parent)
-{
-    auto replaceParentSelector = [&parent] (CSSSelector& selector) {
-        if (selector.match() == CSSSelector::Match::NestingParent) {
-            // FIXME: Optimize cases where we can include the parent selector directly instead of wrapping it in a ":is" pseudo class.
-            selector.setMatch(Match::PseudoClass);
-            selector.setPseudoClass(PseudoClass::Is);
-            selector.setSelectorList(makeUnique<CSSSelectorList>(parent));
-        }
-        return false;
-    };
-
-    visitSimpleSelectors(WTFMove(replaceParentSelector), VisitFunctionalPseudoClasses::Yes);
-}
-
-void CSSSelector::replaceNestingSelectorByWhereScope()
-{
-    auto replaceParentSelector = [] (CSSSelector& selector) {
-        if (selector.match() == Match::NestingParent) {
-            // Top-level nesting parent selector acts like :scope with zero specificity thanks to :where
-            // https://github.com/w3c/csswg-drafts/issues/10196#issuecomment-2161119978
-            // Replace by :where(:scope)
-            auto scopeSelector = makeUnique<MutableCSSSelector>();
-            scopeSelector->setMatch(CSSSelector::Match::PseudoClass);
-            scopeSelector->setPseudoClass(CSSSelector::PseudoClass::Scope);
-
-            selector.setMatch(CSSSelector::Match::PseudoClass);
-            selector.setPseudoClass(CSSSelector::PseudoClass::Where);
-            selector.setSelectorList(makeUnique<CSSSelectorList>(MutableCSSSelectorList::from(WTFMove(scopeSelector))));
-        }
-        return false;
-    };
-
-    visitSimpleSelectors(WTFMove(replaceParentSelector), VisitFunctionalPseudoClasses::Yes);
-}
-
 bool CSSSelector::hasExplicitNestingParent() const
 {
     return visitSimpleSelectors([](const CSSSelector& selector) {

@@ -106,6 +106,14 @@ MutableCSSSelector::MutableCSSSelector(const CSSSelector& selector)
         m_precedingInComplexSelector = makeUnique<MutableCSSSelector>(*preceding);
 }
 
+MutableCSSSelector::MutableCSSSelector(const CSSSelector& selector, SimpleSelectorTag)
+    : m_selector(makeUnique<CSSSelector>(selector))
+{
+    m_selector->m_isLastInSelectorList = false;
+    m_selector->m_isFirstInComplexSelector = true;
+    m_selector->m_isLastInComplexSelector = true;
+}
+
 
 MutableCSSSelector::~MutableCSSSelector()
 {
