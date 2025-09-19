@@ -6560,6 +6560,17 @@ bool Internals::audioSessionActive() const
     return false;
 }
 
+bool Internals::enhancedSecurityEnabled() const
+{
+    auto* document = contextDocument();
+    if (!document)
+        return false;
+    auto* page = document->page();
+    if (!page)
+        return false;
+    return page->enhancedSecurityEnabled();
+}
+
 void Internals::storeRegistrationsOnDisk(DOMPromiseDeferred<void>&& promise)
 {
     if (!contextDocument())

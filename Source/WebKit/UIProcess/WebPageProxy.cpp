@@ -1377,7 +1377,7 @@ void WebPageProxy::launchProcess(const Site& site, ProcessLaunchReason reason)
         m_legacyMainFrameProcess = relatedPage->ensureRunningProcess();
         WEBPAGEPROXY_RELEASE_LOG(Loading, "launchProcess: Using process (process=%p, PID=%i) from related page", m_legacyMainFrameProcess.ptr(), m_legacyMainFrameProcess->processID());
     } else
-        m_legacyMainFrameProcess = processPool->processForSite(protectedWebsiteDataStore(), site, shouldEnableLockdownMode() ? WebProcessProxy::LockdownMode::Enabled : WebProcessProxy::LockdownMode::Disabled, m_configuration, WebCore::ProcessSwapDisposition::None);
+        m_legacyMainFrameProcess = processPool->processForSite(protectedWebsiteDataStore(), site, shouldEnableLockdownMode() ? WebProcessProxy::LockdownMode::Enabled : WebProcessProxy::LockdownMode::Disabled, shouldEnableEnhancedSecurity() ? WebProcessProxy::EnhancedSecurity::Enabled : WebProcessProxy::EnhancedSecurity::Disabled, m_configuration, WebCore::ProcessSwapDisposition::None);
 
     m_hasRunningProcess = true;
     m_shouldReloadDueToCrashWhenVisible = false;
@@ -5009,6 +5009,7 @@ void WebPageProxy::receivedNavigationActionPolicyDecision(WebProcessProxy& proce
 
     m_isLockdownModeExplicitlySet = (websitePolicies && websitePolicies->isLockdownModeExplicitlySet()) || m_configuration->isLockdownModeExplicitlySet();
     auto lockdownMode = (websitePolicies ? websitePolicies->lockdownModeEnabled() : shouldEnableLockdownMode()) ? WebProcessProxy::LockdownMode::Enabled : WebProcessProxy::LockdownMode::Disabled;
+    auto enhancedSecurity = ((websitePolicies && websitePolicies->enhancedSecurityEnabled()) ? WebProcessProxy::EnhancedSecurity::Enabled : WebProcessProxy::EnhancedSecurity::Disabled);
 
     auto continueWithProcessForNavigation = [
         this,
@@ -5113,12 +5114,12 @@ void WebPageProxy::receivedNavigationActionPolicyDecision(WebProcessProxy& proce
 
     Ref browsingContextGroup = m_browsingContextGroup;
     Site site { navigation.currentRequest().url() };
-    if (RefPtr process = browsingContextGroup->sharedProcessForSite(websiteDataStore, policies.get(), preferences, site, lockdownMode, Ref { m_configuration }, frame.isMainFrame() ? IsMainFrame::Yes : IsMainFrame::No)) {
+    if (RefPtr process = browsingContextGroup->sharedProcessForSite(websiteDataStore, policies.get(), preferences, site, lockdownMode, enhancedSecurity, Ref { m_configuration }, frame.isMainFrame() ? IsMainFrame::Yes : IsMainFrame::No)) {
         continueWithProcessForNavigation(process->process(), nullptr, "Uses shared Web process"_s);
         return;
     }
 
-    m_configuration->protectedProcessPool()->processForNavigation(*this, frame, navigation, sourceURL, processSwapRequestedByClient, lockdownMode, loadedWebArchive, frameInfo, WTFMove(websiteDataStore), WTFMove(continueWithProcessForNavigation));
+    m_configuration->protectedProcessPool()->processForNavigation(*this, frame, navigation, sourceURL, processSwapRequestedByClient, lockdownMode, enhancedSecurity, loadedWebArchive, frameInfo, WTFMove(websiteDataStore), WTFMove(continueWithProcessForNavigation));
 }
 
 Ref<WebPageProxy> WebPageProxy::downloadOriginatingPage(const API::Navigation* navigation)
@@ -8537,10 +8538,11 @@ void WebPageProxy::triggerBrowsingContextGroupSwitchForNavigation(WebCore::Navig
     RefPtr<WebProcessProxy> processForNavigation;
     RefPtr provisionalPage = m_provisionalPage;
     auto lockdownMode = provisionalPage ? provisionalPage->process().lockdownMode() : m_legacyMainFrameProcess->lockdownMode();
+    auto enhancedSecurity = provisionalPage ? provisionalPage->process().enhancedSecurity() : m_legacyMainFrameProcess->enhancedSecurity();
     if (browsingContextGroupSwitchDecision == BrowsingContextGroupSwitchDecision::NewIsolatedGroup)
-        processForNavigation = m_configuration->protectedProcessPool()->createNewWebProcess(protectedWebsiteDataStore().ptr(), lockdownMode, WebProcessProxy::IsPrewarmed::No, CrossOriginMode::Isolated);
+        processForNavigation = m_configuration->protectedProcessPool()->createNewWebProcess(protectedWebsiteDataStore().ptr(), lockdownMode, enhancedSecurity, WebProcessProxy::IsPrewarmed::No, CrossOriginMode::Isolated);
     else
-        processForNavigation = m_configuration->protectedProcessPool()->processForSite(protectedWebsiteDataStore(), responseSite, lockdownMode, m_configuration, WebCore::ProcessSwapDisposition::COOP);
+        processForNavigation = m_configuration->protectedProcessPool()->processForSite(protectedWebsiteDataStore(), responseSite, lockdownMode, enhancedSecurity, m_configuration, WebCore::ProcessSwapDisposition::COOP);
 
     ASSERT(processForNavigation);
     auto domain = RegistrableDomain { navigation->currentRequest().url() };
@@ -12207,6 +12209,12 @@ void WebPageProxy::isJITEnabled(CompletionHandler<void(bool)>&& completionHandle
 {
     launchInitialProcessIfNecessary();
     protectedLegacyMainFrameProcess()->sendWithAsyncReply(Messages::WebProcess::IsJITEnabled(), WTFMove(completionHandler), 0);
+}
+
+void WebPageProxy::isEnhancedSecurityEnabled(CompletionHandler<void(bool)>&& completionHandler)
+{
+    launchInitialProcessIfNecessary();
+    protectedLegacyMainFrameProcess()->sendWithAsyncReply(Messages::WebProcess::IsEnhancedSecurityEnabled(), WTFMove(completionHandler), 0);
 }
 
 void WebPageProxy::enterAcceleratedCompositingMode(const LayerTreeContext& layerTreeContext)
@@ -15930,6 +15938,11 @@ void WebPageProxy::scrollToEdge(WebCore::RectEdges<bool> edges, WebCore::ScrollI
 bool WebPageProxy::shouldEnableLockdownMode() const
 {
     return m_configuration->lockdownModeEnabled();
+}
+
+bool WebPageProxy::shouldEnableEnhancedSecurity() const
+{
+    return m_configuration->enhancedSecurityEnabled();
 }
 
 #if PLATFORM(COCOA)

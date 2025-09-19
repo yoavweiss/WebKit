@@ -384,6 +384,7 @@ WebProcess::~WebProcess()
 void WebProcess::initializeProcess(const AuxiliaryProcessInitializationParameters& parameters)
 {
     m_isLockdownModeEnabled = parameters.extraInitializationData.get<HashTranslatorASCIILiteral>("enable-lockdown-mode"_s) == "1"_s;
+    m_isEnhancedSecurityEnabled = parameters.extraInitializationData.get<HashTranslatorASCIILiteral>("enable-enhanced-security"_s) == "1"_s;
 
     WTF::setProcessPrivileges({ });
 
@@ -1163,6 +1164,11 @@ void WebProcess::userGestureTokenDestroyed(PageIdentifier pageID, UserGestureTok
 void WebProcess::isJITEnabled(CompletionHandler<void(bool)>&& completionHandler)
 {
     completionHandler(JSC::Options::useJIT());
+}
+
+void WebProcess::isEnhancedSecurityEnabled(CompletionHandler<void(bool)>&& completionHandler)
+{
+    completionHandler(m_isEnhancedSecurityEnabled.value_or(false));
 }
 
 void WebProcess::garbageCollectJavaScriptObjects()

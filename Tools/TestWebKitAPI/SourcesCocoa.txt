@@ -117,6 +117,7 @@ Tests/WebKitCocoa/DuplicateCompletionHandlerCalls.mm
 Tests/WebKitCocoa/EditorStateTests.mm
 Tests/WebKitCocoa/ElementTargetingTests.mm
 Tests/WebKitCocoa/ElementTextPreview.mm
+Tests/WebKitCocoa/EnhancedSecurity.mm
 Tests/WebKitCocoa/EventAttribution.mm
 Tests/WebKitCocoa/ExitFullscreenOnEnterPiP.mm
 Tests/WebKitCocoa/ExitPiPOnSuspendVideoElement.mm

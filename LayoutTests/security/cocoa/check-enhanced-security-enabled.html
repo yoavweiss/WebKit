@@ -1,0 +1,18 @@
+<!-- webkit-test-runner [ enhancedSecurityEnabled=true ] -->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Checks Enhanced Security Gets Enabled</title>
+<script src="../../resources/testharness.js"></script>
+<script src="../../resources/testharnessreport.js"></script>
+</head>
+<body>
+<script>
+
+test(() => {
+    assert_true(window.internals.enhancedSecurityEnabled(), `WebViews should be opted in to EnhancedSecurity when enhancedSecurityEnabled=true is passed`);
+}, "Check WebView is opted in to EnhancedSecurity");
+
+</script>
+</body>
+</html>

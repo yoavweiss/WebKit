@@ -45,7 +45,7 @@ BrowsingContextGroup::BrowsingContextGroup() = default;
 
 BrowsingContextGroup::~BrowsingContextGroup() = default;
 
-RefPtr<FrameProcess> BrowsingContextGroup::sharedProcessForSite(WebsiteDataStore& websiteDataStore, API::WebsitePolicies* websitePolicies, const WebPreferences& preferences, const WebCore::Site& site, WebProcessProxy::LockdownMode lockdownMode, API::PageConfiguration& pageConfiguration, IsMainFrame isMainFrame)
+RefPtr<FrameProcess> BrowsingContextGroup::sharedProcessForSite(WebsiteDataStore& websiteDataStore, API::WebsitePolicies* websitePolicies, const WebPreferences& preferences, const WebCore::Site& site, WebProcessProxy::LockdownMode lockdownMode, WebProcessProxy::EnhancedSecurity enhancedSecurity, API::PageConfiguration& pageConfiguration, IsMainFrame isMainFrame)
 {
     if (!preferences.siteIsolationEnabled() || !preferences.siteIsolationSharedProcessEnabled())
         return nullptr;
@@ -58,7 +58,7 @@ RefPtr<FrameProcess> BrowsingContextGroup::sharedProcessForSite(WebsiteDataStore
     m_sharedProcessSites.add(site);
     if (m_sharedProcess)
         return m_sharedProcess.get();
-    Ref process = pageConfiguration.protectedProcessPool()->processForSite(websiteDataStore, site, lockdownMode, pageConfiguration, ProcessSwapDisposition::Other);
+    Ref process = pageConfiguration.protectedProcessPool()->processForSite(websiteDataStore, site, lockdownMode, enhancedSecurity, pageConfiguration, ProcessSwapDisposition::Other);
     Ref frameProcess = FrameProcess::create(process, *this, std::nullopt, preferences, InjectBrowsingContextIntoProcess::Yes);
     m_sharedProcess = frameProcess.ptr();
     return frameProcess;

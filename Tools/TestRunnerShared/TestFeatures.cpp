@@ -135,6 +135,11 @@ static bool shouldEnableLockdownMode(const std::string& pathOrURL)
     return pathContains(pathOrURL, "lockdown-mode/");
 }
 
+static bool shouldEnableEnhancedSecurity(const std::string& pathOrURL)
+{
+    return pathContains(pathOrURL, "enhanced-security/");
+}
+
 TestFeatures hardcodedFeaturesBasedOnPathForTest(const TestCommand& command)
 {
     TestFeatures features;
@@ -160,6 +165,8 @@ TestFeatures hardcodedFeaturesBasedOnPathForTest(const TestCommand& command)
     }
     if (shouldEnableLockdownMode(command.pathOrURL))
         features.boolWebPreferenceFeatures.insert({ "LockdownModeEnabled", true });
+    if (shouldEnableEnhancedSecurity(command.pathOrURL))
+        features.boolTestRunnerFeatures.insert({ "enhancedSecurityEnabled", true });
 
     return features;
 }
