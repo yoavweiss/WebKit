@@ -86,7 +86,7 @@ ImageDrawResult GraphicsContext::drawMultiRepresentationHEIC(Image& image, const
     // FIXME (rdar://123044459): This needs to account for vertical writing modes.
     CGContextSetTextPosition(cgContext, 0, font.metricsForMultiRepresentationHEIC().descent);
 
-    CTFontDrawImageFromAdaptiveImageProviderAtPoint(font.getCTFont(), multiRepresentationHEIC.get(), CGContextGetTextPosition(cgContext), cgContext);
+    CTFontDrawImageFromAdaptiveImageProviderAtPoint(font.ctFont(), multiRepresentationHEIC.get(), CGContextGetTextPosition(cgContext), cgContext);
 
     auto orientation = options.orientation();
     if (orientation == ImageOrientation::Orientation::FromImage)

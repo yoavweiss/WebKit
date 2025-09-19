@@ -1824,7 +1824,7 @@ static WebFrameLoadType toWebFrameLoadType(WebCore::FrameLoadType frameLoadType)
     CTFontRef font = nil;
     if (_private->coreFrame) {
         if (auto coreFont = _private->coreFrame->editor().fontForSelection(multipleFonts))
-            font = coreFont->getCTFont();
+            font = coreFont->ctFont();
     }
     
     if (hasMultipleFonts)

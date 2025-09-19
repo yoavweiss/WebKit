@@ -94,11 +94,6 @@ platform/graphics/cocoa/VideoMediaSampleRenderer.mm
 platform/graphics/cocoa/WebCoreCALayerExtras.mm
 platform/graphics/coreimage/FilterImageCoreImage.mm
 platform/graphics/coreimage/SourceGraphicCoreImageApplier.mm
-platform/graphics/coretext/ComplexTextControllerCoreText.mm
-platform/graphics/coretext/DrawGlyphsRecorder.cpp
-platform/graphics/coretext/FontCoreText.cpp
-platform/graphics/coretext/FontPlatformDataCoreText.cpp
-platform/graphics/coretext/GlyphPageCoreText.cpp
 platform/graphics/cv/CVUtilities.mm
 platform/graphics/cv/GraphicsContextGLCVCocoa.mm
 platform/graphics/cv/ImageTransferSessionVT.mm

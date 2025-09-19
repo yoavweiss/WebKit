@@ -3142,7 +3142,7 @@ void WebPage::requestAutocorrectionData(const String& textForAutocorrection, Com
     bool multipleFonts = false;
     CTFontRef font = nil;
     if (auto coreFont = frame->editor().fontForSelection(multipleFonts))
-        font = coreFont->getCTFont();
+        font = coreFont->ctFont();
 
     reply({ WTFMove(rootViewSelectionRects) , (__bridge UIFont *)font });
 }

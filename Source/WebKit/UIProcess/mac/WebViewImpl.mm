@@ -2959,7 +2959,7 @@ void WebViewImpl::updateFontManagerIfNeeded()
         if (!attributes.font)
             return;
 
-        RetainPtr nsFont = (__bridge NSFont *)attributes.font->getCTFont();
+        RetainPtr nsFont = (__bridge NSFont *)attributes.font->ctFont();
         if (!nsFont)
             return;
 

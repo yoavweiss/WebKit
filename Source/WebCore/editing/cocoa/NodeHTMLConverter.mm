@@ -877,7 +877,7 @@ static PlatformFont *_font(Element& element)
     Ref primaryFont = renderer->style().fontCascade().primaryFont();
     if (primaryFont->attributes().origin == FontOrigin::Remote)
         return [PlatformFontClass systemFontOfSize:defaultFontSize];
-    return (__bridge PlatformFont *)primaryFont->getCTFont();
+    return (__bridge PlatformFont *)primaryFont->ctFont();
 }
 
 NSDictionary *HTMLConverter::computedAttributesForElement(Element& element)

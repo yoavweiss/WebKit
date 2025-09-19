@@ -383,7 +383,7 @@ static RetainPtr<id> toNSObject(const AttributedString::AttributeValue& value, I
     }, [] (const RetainPtr<NSDate>& value) -> RetainPtr<id> {
         return value;
     }, [] (const Ref<Font>& font) -> RetainPtr<id> {
-        return (__bridge PlatformFont *)(font->getCTFont());
+        return (__bridge PlatformFont *)font->ctFont();
     }, [] (const AttributedString::ColorFromPlatformColor& value) -> RetainPtr<id> {
         return cocoaColor(value.color);
     }, [] (const AttributedString::ColorFromCGColor& value) -> RetainPtr<id> {

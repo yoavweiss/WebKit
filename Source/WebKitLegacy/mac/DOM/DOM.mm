@@ -650,7 +650,7 @@ id <DOMEventTarget> kit(EventTarget* target)
     auto* renderer = core(self)->renderer();
     if (!renderer)
         return nil;
-    return renderer->style().fontCascade().primaryFont()->getCTFont();
+    return renderer->style().fontCascade().primaryFont()->ctFont();
 }
 
 #if PLATFORM(MAC)

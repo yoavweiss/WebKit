@@ -5727,22 +5727,22 @@ static BOOL writingDirectionKeyBindingsEnabled()
         return;
 
     bool multipleFonts = false;
-    NSFont *font = nil;
+    RetainPtr<NSFont> font;
     RetainPtr<NSDictionary> attributes;
     if (auto* coreFrame = core([self _frame])) {
         if (auto coreFont = coreFrame->editor().fontForSelection(multipleFonts))
-            font = (NSFont *)coreFont->platformData().registeredFont();
+            font = (NSFont *)coreFont->platformData().registeredFont().get();
         attributes = coreFrame->editor().fontAttributesAtSelectionStart().createDictionary();
     }
 
     // FIXME: for now, return a bogus font that distinguishes the empty selection from the non-empty
     // selection. We should be able to remove this once the rest of this code works properly.
-    if (font == nil)
+    if (!font)
         font = [self _hasSelection] ? [NSFont menuFontOfSize:23] : [NSFont toolTipsFontOfSize:17];
-    ASSERT(font != nil);
+    ASSERT(font);
 
     NSFontManager *fontManager = [NSFontManager sharedFontManager];
-    [fontManager setSelectedFont:font isMultiple:multipleFonts];
+    [fontManager setSelectedFont:font.get() isMultiple:multipleFonts];
     [fontManager setSelectedAttributes:(attributes ? attributes.get() : @{ }) isMultiple:multipleFonts];
 }
 

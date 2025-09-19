@@ -84,7 +84,7 @@ private:
     void updateShadow(CGStyleRef);
 
     GraphicsContext& m_owner;
-    const Font* m_originalFont { nullptr };
+    SingleThreadWeakPtr<const Font> m_originalFont;
     AffineTransform m_originalTextMatrix;
     struct State {
         SourceBrush fillBrush;
