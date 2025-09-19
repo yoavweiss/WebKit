@@ -788,14 +788,22 @@ Vector<std::pair<size_t, size_t>> LineBuilder::collectShapingRanges(const LineCa
     auto leadingContentRunIndex = std::optional<size_t> { };
     auto trailingContentRunIndex = std::optional<size_t> { };
     auto hasBoundaryBetween = false;
+
+    auto resetCandidateRange = [&] {
+        leadingContentRunIndex = { };
+        trailingContentRunIndex = { };
+        hasBoundaryBetween = false;
+    };
+    auto commitIfHasContentAndReset = [&] {
+        if (leadingContentRunIndex && trailingContentRunIndex && hasBoundaryBetween)
+            ranges.append({ *leadingContentRunIndex, *trailingContentRunIndex });
+        resetCandidateRange();
+    };
+
     for (auto entry : contentList) {
         switch (entry.type) {
         case ShapingType::Break:
-            if (leadingContentRunIndex && trailingContentRunIndex && hasBoundaryBetween)
-                ranges.append({ *leadingContentRunIndex, *trailingContentRunIndex });
-            leadingContentRunIndex = { };
-            trailingContentRunIndex = { };
-            hasBoundaryBetween = false;
+            commitIfHasContentAndReset();
             break;
         case ShapingType::Keep:
             if (hasBoundaryBetween) {
@@ -806,30 +814,30 @@ Vector<std::pair<size_t, size_t>> LineBuilder::collectShapingRanges(const LineCa
             if (leadingContentRunIndex)
                 hasBoundaryBetween = true;
             break;
-        case ShapingType::Content:
+        case ShapingType::Content: {
+            auto& inlineTextItem = downcast<InlineTextItem>(runs[entry.index].inlineItem);
+            auto& inlineTextBox = inlineTextItem.inlineTextBox();
+            auto isEligibleText = !inlineTextBox.canUseSimpleFontCodePath() && !inlineTextBox.isCombined() && inlineTextItem.direction() == TextDirection::RTL;
+
             if (!leadingContentRunIndex) {
-                auto& inlineTextItem = downcast<InlineTextItem>(runs[entry.index].inlineItem);
-                auto& inlineTextBox = inlineTextItem.inlineTextBox();
-                auto isEligibleText = !inlineTextBox.canUseSimpleFontCodePath() && !inlineTextBox.isCombined() && inlineTextItem.direction() == TextDirection::RTL;
                 if (isEligibleText)
                     leadingContentRunIndex = entry.index;
                 lastFontCascade = isFirstFormattedLineCandidate ? &inlineTextItem.firstLineStyle().fontCascade() : &inlineTextItem.style().fontCascade();
             } else if (hasBoundaryBetween) {
-                auto& inlineTextItem = downcast<InlineTextItem>(runs[entry.index].inlineItem);
-                if (*lastFontCascade.get() == (isFirstFormattedLineCandidate ? inlineTextItem.firstLineStyle().fontCascade() : inlineTextItem.style().fontCascade()))
+                auto hasMatchingFontCascade = *lastFontCascade.get() == (isFirstFormattedLineCandidate ? inlineTextItem.firstLineStyle().fontCascade() : inlineTextItem.style().fontCascade());
+                if (isEligibleText && hasMatchingFontCascade)
                     trailingContentRunIndex = entry.index;
-                else {
-                    leadingContentRunIndex = { };
-                    trailingContentRunIndex = { };
-                    hasBoundaryBetween = false;
-                }
-            }
+                else
+                    resetCandidateRange();
+            } else if (!isEligibleText)
+                resetCandidateRange();
+            break;
+        }
+        default:
+            ASSERT_NOT_REACHED();
         }
     }
-
-    if (leadingContentRunIndex && trailingContentRunIndex && hasBoundaryBetween)
-        ranges.append({ *leadingContentRunIndex, *trailingContentRunIndex });
-
+    commitIfHasContentAndReset();
     return ranges;
 }
 
