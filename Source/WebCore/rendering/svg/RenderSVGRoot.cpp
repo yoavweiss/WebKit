@@ -101,7 +101,7 @@ FloatSize RenderSVGRoot::computeIntrinsicSize() const
 {
     ASSERT_IMPLIES(view().frameView().layoutContext().isInRenderTreeLayout(), !shouldApplySizeContainment());
     // https://www.w3.org/TR/SVG/coords.html#IntrinsicSizing
-    return FloatSize(floatValueForLength(svgSVGElement().intrinsicWidth(), 0), floatValueForLength(svgSVGElement().intrinsicHeight(), 0));
+    return FloatSize { svgSVGElement().intrinsicWidth(), svgSVGElement().intrinsicHeight() };
 }
 
 FloatSize RenderSVGRoot::preferredAspectRatio() const
@@ -468,7 +468,7 @@ bool RenderSVGRoot::nodeAtPoint(const HitTestRequest& request, HitTestResult& re
 
 bool RenderSVGRoot::hasRelativeDimensions() const
 {
-    return svgSVGElement().intrinsicHeight().isPercentOrCalculated() || svgSVGElement().intrinsicWidth().isPercentOrCalculated();
+    return false;
 }
 
 FloatSize RenderSVGRoot::computeViewportSize() const

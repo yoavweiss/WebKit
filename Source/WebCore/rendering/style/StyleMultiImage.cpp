@@ -140,7 +140,7 @@ bool StyleMultiImage::imageHasRelativeHeight() const
     return m_selectedImage && m_selectedImage->imageHasRelativeHeight();
 }
 
-void StyleMultiImage::computeIntrinsicDimensions(const RenderElement* element, Length& intrinsicWidth, Length& intrinsicHeight, FloatSize& intrinsicRatio)
+void StyleMultiImage::computeIntrinsicDimensions(const RenderElement* element, float& intrinsicWidth, float& intrinsicHeight, FloatSize& intrinsicRatio)
 {
     if (!m_selectedImage)
         return;
