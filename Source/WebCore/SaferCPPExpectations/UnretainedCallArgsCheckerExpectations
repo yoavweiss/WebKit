@@ -107,7 +107,6 @@ platform/mac/DataDetectorHighlight.mm
 platform/mac/PasteboardMac.mm
 platform/mac/PasteboardWriter.mm
 platform/mac/PlatformEventFactoryMac.mm
-platform/mac/PlatformScreenMac.mm
 platform/mac/PowerObserverMac.cpp
 platform/mac/ScrollViewMac.mm
 platform/mac/ScrollbarThemeMac.mm
