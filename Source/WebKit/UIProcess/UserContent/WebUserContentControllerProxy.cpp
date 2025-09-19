@@ -104,11 +104,11 @@ UserContentControllerParameters WebUserContentControllerProxy::parametersForProc
 {
     Vector<WebUserScriptData> userScripts;
     for (RefPtr userScript : m_userScripts->elementsOfType<API::UserScript>())
-        userScripts.append({ userScript->identifier(), userScript->contentWorld().worldDataForProcess(process), userScript->userScript() });
+        userScripts.append({ userScript->identifier(), Ref { userScript->contentWorld() }->worldDataForProcess(process), userScript->userScript() });
 
     Vector<WebUserStyleSheetData> userStyleSheets;
     for (RefPtr userStyleSheet : m_userStyleSheets->elementsOfType<API::UserStyleSheet>())
-        userStyleSheets.append({ userStyleSheet->identifier(), userStyleSheet->contentWorld().worldDataForProcess(process), userStyleSheet->userStyleSheet() });
+        userStyleSheets.append({ userStyleSheet->identifier(), Ref { userStyleSheet->contentWorld() }->worldDataForProcess(process), userStyleSheet->userStyleSheet() });
 
     auto messageHandlers = WTF::map(m_scriptMessageHandlers, [&](auto entry) {
         return WebScriptMessageHandlerData { entry.value->identifier(), entry.value->world().worldDataForProcess(process), entry.value->name() };
