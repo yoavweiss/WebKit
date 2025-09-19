@@ -77,6 +77,17 @@ public:
         ASSERT(m_invalidMessages.isEmpty()); // Received unexpected invalid message.
     }
 
+    testing::AssertionResult checkMessages()
+    {
+        auto messages = takeMessages();
+        if (!messages.isEmpty())
+            return testing::AssertionFailure() << "Unexpected messages: " << messages.size() << " first: " << static_cast<unsigned>(messages[0].messageName) << " to " << messages[0].destinationID;
+        auto invalidMessages = takeInvalidMessages();
+        if (!invalidMessages.isEmpty())
+            return testing::AssertionFailure() << "Unexpected invalid messages: " << invalidMessages.size() << " first:" << static_cast<unsigned>(invalidMessages[0]);
+        return testing::AssertionSuccess();
+    }
+
     Vector<MessageInfo> takeMessages()
     {
         Locker locker { m_lock };
