@@ -59,7 +59,7 @@ Ref<ControlFactory> ControlFactory::create()
 
 ControlFactoryAdwaita& ControlFactoryAdwaita::shared()
 {
-    return static_cast<ControlFactoryAdwaita&>(ControlFactory::shared());
+    return downcast<ControlFactoryAdwaita>(ControlFactory::shared());
 }
 
 #if ENABLE(APPLE_PAY)

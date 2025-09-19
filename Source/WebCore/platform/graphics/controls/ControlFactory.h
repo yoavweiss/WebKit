@@ -84,6 +84,14 @@ public:
     virtual std::unique_ptr<PlatformControl> createPlatformTextField(TextFieldPart&) = 0;
     virtual std::unique_ptr<PlatformControl> createPlatformToggleButton(ToggleButtonPart&) = 0;
 
+    enum class Type : uint8_t {
+        Adwaita,
+        Empty,
+        IOS,
+        Mac,
+    };
+    virtual Type type() const = 0;
+
 protected:
     ControlFactory() = default;
 };
