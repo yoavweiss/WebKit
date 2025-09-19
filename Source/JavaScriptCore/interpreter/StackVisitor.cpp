@@ -48,12 +48,15 @@ StackVisitor::StackVisitor(CallFrame* startFrame, VM& vm, bool skipFirstFrame)
 
         m_frame.m_entryFrame = vm.topEntryFrame;
         topFrame = vm.topCallFrame;
-
-        if (topFrame && (skipFirstFrame || topFrame->isPartiallyInitializedFrame())) {
-            topFrame = topFrame->callerFrame(m_frame.m_entryFrame);
-            m_topEntryFrameIsEmpty = (m_frame.m_entryFrame != vm.topEntryFrame);
-            if (startFrame == vm.topCallFrame)
-                startFrame = topFrame;
+        if (topFrame) {
+            m_previousReturnPC = vm.maybeReturnPC;
+            if (skipFirstFrame || topFrame->isPartiallyInitializedFrame()) {
+                m_previousReturnPC = topFrame->rawReturnPC();
+                topFrame = topFrame->callerFrame(m_frame.m_entryFrame);
+                m_topEntryFrameIsEmpty = (m_frame.m_entryFrame != vm.topEntryFrame);
+                if (startFrame == vm.topCallFrame)
+                    startFrame = topFrame;
+            }
         }
     }
     readFrame(topFrame);

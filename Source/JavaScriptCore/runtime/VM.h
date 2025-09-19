@@ -380,6 +380,7 @@ public:
     // https://bugs.webkit.org/show_bug.cgi?id=160441
     CallFrame* topCallFrame { nullptr };
     EntryFrame* topEntryFrame { nullptr };
+    void* maybeReturnPC { nullptr };
 private:
 
     struct EntryScopeServicesBits {
