@@ -470,10 +470,10 @@ static RefPtr<TransformOperation> createPerspectiveTransformOperation(const CSSF
     }
 
     if (parameter.isLength())
-        return PerspectiveTransformOperation::create(resolveAsFloatPercentOrCalculatedLength(parameter, builderState));
+        return PerspectiveTransformOperation::create(parameter.resolveAsLength<float>(builderState.cssToLengthConversionData()));
 
     // FIXME: Support for <number> parameters for `perspective` is a quirk that should go away when 3d transforms are finalized.
-    return PerspectiveTransformOperation::create(WebCore::Length(clampToPositiveInteger(parameter.resolveAsNumber<double>(builderState.cssToLengthConversionData())), LengthType::Fixed));
+    return PerspectiveTransformOperation::create(clampToPositiveInteger(parameter.resolveAsNumber<double>(builderState.cssToLengthConversionData())));
 }
 
 // MARK: - Conversion
@@ -540,7 +540,7 @@ auto CSSValueConversion<TransformFunction>::operator()(BuilderState& builderStat
     RELEASE_ASSERT_NOT_REACHED();
 }
 
-auto CSSValueCreation<TransformFunction>::operator()(CSSValuePool&, const RenderStyle& style, const TransformFunction& value) -> Ref<CSSValue>
+auto CSSValueCreation<TransformFunction>::operator()(CSSValuePool& pool, const RenderStyle& style, const TransformFunction& value) -> Ref<CSSValue>
 {
     auto translateLength = [&](const auto& length) -> Ref<CSSPrimitiveValue> {
         if (length.isZero())
@@ -619,8 +619,8 @@ auto CSSValueCreation<TransformFunction>::operator()(CSSValuePool&, const Render
     }
     case TransformOperation::Type::Perspective:
         if (auto perspective = uncheckedDowncast<PerspectiveTransformOperation>(operation).perspective())
-            return CSSFunctionValue::create(CSSValuePerspective, ExtractorConverter::convertLength(style, *perspective));
-        return CSSFunctionValue::create(CSSValuePerspective, CSSPrimitiveValue::create(CSSValueNone));
+            return CSSFunctionValue::create(CSSValuePerspective, createCSSValue(pool, style, Length<CSS::Nonnegative> { *perspective }));
+        return CSSFunctionValue::create(CSSValuePerspective, createCSSValue(pool, style, CSS::Keyword::None { }));
     case TransformOperation::Type::Matrix:
     case TransformOperation::Type::Matrix3D: {
         TransformationMatrix transform;
@@ -803,7 +803,7 @@ void Serialize<TransformFunction>::operator()(StringBuilder& builder, const CSS:
     case TransformOperation::Type::Perspective:
         if (auto perspective = uncheckedDowncast<PerspectiveTransformOperation>(operation).perspective()) {
             builder.append(nameLiteral(CSSValuePerspective), '(');
-            ExtractorSerializer::serializeLength(style, builder, context, *perspective);
+            serializationForCSS(builder, context, style, Length<CSS::Nonnegative> { *perspective });
             builder.append(')');
             return;
         }

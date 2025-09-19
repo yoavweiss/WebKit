@@ -3004,7 +3004,7 @@ header: <WebCore/KeyboardScroll.h>
 }
 
 [RefCounted] class WebCore::PerspectiveTransformOperation {
-    std::optional<WebCore::Length> perspective();
+    std::optional<float> perspective();
 }
 
 [RefCounted] class WebCore::MatrixTransformOperation {
