@@ -357,7 +357,11 @@ void RemoteGraphicsContext::drawFilteredImageBuffer(std::optional<RenderingResou
     RefPtr svgFilter = dynamicDowncast<SVGFilterRenderer>(filter);
 
     if (!svgFilter || !svgFilter->hasValidRenderingResourceIdentifier()) {
+#if HAVE(IOSURFACE)
+        FilterResults results(makeUnique<ImageBufferShareableAllocator>(m_sharedResourceCache->resourceOwner(), &m_sharedResourceCache->ioSurfacePool()));
+#else
         FilterResults results(makeUnique<ImageBufferShareableAllocator>(m_sharedResourceCache->resourceOwner()));
+#endif
         drawFilteredImageBufferInternal(sourceImageIdentifier, sourceImageRect, filter, results);
         return;
     }
@@ -369,7 +373,11 @@ void RemoteGraphicsContext::drawFilteredImageBuffer(std::optional<RenderingResou
     cachedSVGFilter->mergeEffects(svgFilter->effects());
 
     auto& results = cachedSVGFilter->ensureResults([&]() {
+#if HAVE(IOSURFACE)
+        auto allocator = makeUnique<ImageBufferShareableAllocator>(m_sharedResourceCache->resourceOwner(), &m_sharedResourceCache->ioSurfacePool());
+#else
         auto allocator = makeUnique<ImageBufferShareableAllocator>(m_sharedResourceCache->resourceOwner());
+#endif
         return makeUnique<FilterResults>(WTFMove(allocator));
     });
 
