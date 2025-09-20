@@ -73,8 +73,6 @@ public:
     void dispatchEvent(PointerEvent&, EventTarget*);
     WEBCORE_EXPORT void cancelPointer(PointerID, const IntPoint&, PointerEvent* existingCancelEvent = nullptr);
     void processPendingPointerCapture(PointerID);
-    void clearEventSuppression(PointerID);
-    bool shouldSuppressEventProcessing(PointerID) const;
 
 private:
     struct CapturingData : public RefCounted<CapturingData> {
@@ -106,7 +104,6 @@ private:
         bool isPrimary { false };
         bool preventsCompatibilityMouseEvents { false };
         bool pointerIsPressed { false };
-        bool suppressEventProcessing { false };
         MouseButton previousMouseButton { MouseButton::PointerHasNotChanged };
 
     private:
