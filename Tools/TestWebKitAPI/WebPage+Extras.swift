@@ -21,7 +21,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
 
-#if ENABLE_SWIFTUI && os(macOS)
+#if ENABLE_SWIFTUI
 
 import Foundation
 @_spi(Testing) @_spi(CrossImportOverlay) import WebKit
@@ -50,9 +50,13 @@ extension WebPage {
     }
 
     func insertText(_ text: String) async {
+        #if os(macOS)
         backingWebView.insertText(text)
+        #else
+        backingWebView.textInputContentView.insertText(text)
+        #endif
         await waitForNextPresentationUpdate()
     }
 }
 
-#endif // ENABLE_SWIFTUI && os(macOS)
+#endif // ENABLE_SWIFTUI

@@ -25,7 +25,7 @@
 
 #import "config.h"
 
-#if PLATFORM(MAC) && ENABLE_SWIFTUI
+#if ENABLE_SWIFTUI
 
 #import "DecomposedAttributedText.h"
 #import "PlatformUtilities.h"
@@ -41,9 +41,11 @@
 #import <wtf/text/TextStream.h>
 #import <wtf/unicode/CharacterNames.h>
 
-static NSString* const WebSmartListsEnabled = @"WebSmartListsEnabled";
+#if PLATFORM(MAC)
 
 // MARK: Utilities
+
+static NSString* const WebSmartListsEnabled = @"WebSmartListsEnabled";
 
 static void setSmartListsPreference(WKWebViewConfiguration *configuration, BOOL value)
 {
@@ -92,6 +94,8 @@ static RetainPtr<NSMenu> invokeContextMenu(TestWKWebView *webView)
     return proposedMenu;
 }
 
+#endif // PLATFORM(MAC)
+
 static void runTest(NSString *input, NSString *expectedHTML, NSString *expectedSelectionPath, NSInteger selectionOffset, NSString *stylesheet = nil)
 {
     RetainPtr expectedSelection = [SmartListsTestSelectionConfiguration caretSelectionWithPath:expectedSelectionPath offset:selectionOffset];
@@ -117,6 +121,8 @@ static void runTest(NSString *input, NSString *expectedHTML, NSString *expectedS
 }
 
 // MARK: Tests
+
+#if PLATFORM(MAC)
 
 TEST(SmartLists, EnablementIsLogicallyConsistentWhenInterfacedThroughResponder)
 {
@@ -149,7 +155,7 @@ TEST(SmartLists, EnablementIsLogicallyConsistentWhenInterfacedThroughResponder)
     EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_TRUE([userDefaultsValue() boolValue]);
 
-    // Case 3: _editable => true, user default => nil, preference => true
+    // Case 3: user default => nil, preference => true
 
     setSmartListsPreference(configuration.get(), YES);
     resetUserDefaults();
@@ -216,6 +222,8 @@ TEST(SmartLists, ContextMenuItemStateIsConsistentWithAvailability)
         EXPECT_FALSE([smartListsItem isEnabled]);
     }
 }
+
+#endif // PLATFORM(MAC)
 
 TEST(SmartLists, InsertingSpaceAndTextAfterBulletPointGeneratesListWithText)
 {
@@ -405,4 +413,4 @@ TEST(SmartLists, GeneratedSmartListsHaveAssociatedClassNames)
     runTest(@"* A\n\n1. B\n\n- C", expectedHTML.get(), @"//body/div/div/ul/li/text()", 1, css.createNSString().get());
 }
 
-#endif // PLATFORM(MAC)
+#endif // ENABLE_SWIFTUI

@@ -26,12 +26,19 @@
 #pragma once
 
 #include <optional>
-#include <wtf/text/StringView.h>
+#include <wtf/Forward.h>
 
 namespace WebCore {
 
 struct TextList;
+class StyledElement;
+class QualifiedName;
+class VisibleSelection;
 
 std::optional<TextList> parseTextList(StringView);
+
+Vector<std::pair<const QualifiedName&, AtomString>> nodeAttributesForSmartList(const StyledElement&, const TextList&);
+
+bool selectionAllowsSmartLists(const String&, const VisibleSelection&);
 
 } // namespace WebCore

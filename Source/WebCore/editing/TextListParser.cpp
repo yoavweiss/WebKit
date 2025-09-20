@@ -26,8 +26,23 @@
 #include "config.h"
 #include "TextListParser.h"
 
+#include <WebCore/CSSSerializationContext.h>
 #include <WebCore/CSSValueKeywords.h>
+#include <WebCore/CSSValuePool.h>
+#include <WebCore/ContainerNodeInlines.h>
+#include <WebCore/Document.h>
+#include <WebCore/Editing.h>
+#include <WebCore/Editor.h>
+#include <WebCore/ElementInlines.h>
 #include <WebCore/FontAttributes.h>
+#include <WebCore/HTMLElement.h>
+#include <WebCore/HTMLNames.h>
+#include <WebCore/MutableStyleProperties.h>
+#include <WebCore/RenderElement.h>
+#include <WebCore/StyleProperties.h>
+#include <WebCore/StylePropertiesInlines.h>
+#include <WebCore/StyledElement.h>
+#include <WebCore/VisibleSelection.h>
 #include <span>
 #include <wtf/ASCIICType.h>
 #include <wtf/CheckedArithmetic.h>
@@ -136,7 +151,59 @@ inline std::optional<TextList> consumeTextList(StringParsingBuffer<Character>& i
     return std::nullopt;
 }
 
-// MARK: Entry point
+static AtomString inlineStyleForListStyleType(const StyledElement& element, Style::ListStyleType styleType)
+{
+    CheckedPtr renderer = element.renderer();
+    if (!renderer) {
+        ASSERT_NOT_REACHED();
+        return WTF::nullAtom();
+    }
+
+    CheckedRef style = renderer->style();
+    auto& pool = CSSValuePool::singleton();
+
+    Ref value = Style::createCSSValue(pool, style, styleType);
+
+    RefPtr inlineStyle = MutableStyleProperties::create();
+    if (RefPtr existingInlineStyle = element.inlineStyle())
+        inlineStyle = existingInlineStyle->mutableCopy();
+
+    inlineStyle->setProperty(CSSPropertyListStyleType, WTFMove(value));
+
+    return inlineStyle->asTextAtom(CSS::defaultSerializationContext());
+}
+
+static AtomString classNameForSmartList(const TextList& textList)
+{
+    if (textList.ordered) {
+        ASSERT(textList.styleType.isDecimal());
+        return "Apple-decimal-list"_s;
+    }
+
+    if (textList.styleType.isDisc())
+        return "Apple-disc-list"_s;
+
+    ASSERT(textList.styleType.isString());
+    return "Apple-dash-list"_s;
+}
+
+static AtomString startingOrdinalForList(const StyledElement& element, const TextList& textList)
+{
+    if (!textList.ordered)
+        return WTF::nullAtom();
+
+    ASSERT(textList.styleType.isDecimal());
+    ASSERT(textList.startingItemNumber > 0);
+
+    // This is either a newly created list, or an existing list that was just appended to.
+    // In the case of the latter, the existing list's ordering takes precedent over any new elements.
+    if (element.hasAttributeWithoutSynchronization(HTMLNames::startAttr))
+        return WTF::nullAtom();
+
+    return AtomString::number(textList.startingItemNumber);
+}
+
+// MARK: Entry points
 
 std::optional<TextList> parseTextList(StringView input)
 {
@@ -150,6 +217,49 @@ std::optional<TextList> parseTextList(StringView input)
     return WTF::readCharactersForParsing(input, [](auto buffer) -> std::optional<TextList> {
         return consumeTextList(buffer);
     });
+}
+
+Vector<std::pair<const QualifiedName&, AtomString>> nodeAttributesForSmartList(const StyledElement& element, const TextList& list)
+{
+    Vector<std::pair<const QualifiedName&, AtomString>> result;
+
+    if (auto start = startingOrdinalForList(element, list); !start.isNull())
+        result.append({ HTMLNames::startAttr, start });
+
+    if (auto style = inlineStyleForListStyleType(element, list.styleType); !style.isNull())
+        result.append({ HTMLNames::styleAttr, style });
+
+    if (auto className = classNameForSmartList(list); !className.isNull())
+        result.append({ HTMLNames::classAttr, className });
+
+    return result;
+}
+
+bool selectionAllowsSmartLists(const String& text, const VisibleSelection& selection)
+{
+    RefPtr document = selection.document();
+    if (!document)
+        return false;
+
+    if (!document->protectedEditor()->isSmartListsEnabled())
+        return false;
+
+    if (text != " "_s) {
+        // Smart Lists can only be "activated" by a space character.
+        return false;
+    }
+
+    if (!selection.isCaret()) {
+        // Smart Lists can only be "activated" if the selection does not contain any content.
+        return false;
+    }
+
+    if (enclosingList(selection.base().protectedAnchorNode().get())) {
+        // Smart Lists can not be "activated" if the selection is already within a list.
+        return false;
+    }
+
+    return true;
 }
 
 } // namespace WebCore

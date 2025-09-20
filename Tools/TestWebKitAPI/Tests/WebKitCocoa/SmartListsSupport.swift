@@ -79,11 +79,13 @@ extension SmartListsTestResult {
 extension SmartListsSupport {
     @objc(processConfiguration:completionHandler:)
     open class func processConfiguration(_ configuration: SmartListsTestConfiguration) async throws -> SmartListsTestResult {
-        #if os(macOS)
         let page = WebPage()
 
         page.setWebFeature("SmartListsAvailable", enabled: true)
+
+        #if os(macOS)
         page.smartListsEnabled = true
+        #endif
 
         let template = """
             <head>
@@ -125,9 +127,6 @@ extension SmartListsSupport {
             expectedHTML: configuration.expectedHTML,
             actualHTML: actualHTML
         )
-        #else
-        fatalError()
-        #endif
     }
 }
 
