@@ -99,13 +99,11 @@ auto Blending<TransformList>::blend(const TransformList& from, const TransformLi
     if (context.compositeOperation == CompositeOperation::Add) {
         ASSERT(context.progress == 1.0);
 
-        return TransformList {
-            TransformList::Container::Container::createWithSizeFromGenerator(fromLength + toLength, [&](auto index) {
-                if (index < fromLength)
-                    return from[index];
-                return to[index - fromLength];
-            })
-        };
+        return TransformList::Container::createWithSizeFromGenerator(fromLength + toLength, [&](auto index) {
+            if (index < fromLength)
+                return from[index];
+            return to[index - fromLength];
+        });
     }
 
     auto* renderBox = dynamicDowncast<RenderBox>(context.client.renderer());
@@ -177,16 +175,16 @@ auto Blending<TransformList>::blend(const TransformList& from, const TransformLi
     }();
 
     if (prefixLength) {
-        return TransformList { TransformList::Container::Container::createWithSizeFromGenerator(*prefixLength + 1, [&](auto i) {
+        return TransformList::Container::createWithSizeFromGenerator(*prefixLength + 1, [&](auto i) {
             if (i == *prefixLength)
                 return createBlendedMatrixOperationFromOperationsSuffix(i);
             return createBlendedOperation(i);
-        }) };
+        });
     }
 
-    return TransformList { TransformList::Container::Container::createWithSizeFromGenerator(maxLength, [&](auto i) {
+    return TransformList::Container::createWithSizeFromGenerator(maxLength, [&](auto i) {
         return createBlendedOperation(i);
-    }) };
+    });
 }
 
 } // namespace Style

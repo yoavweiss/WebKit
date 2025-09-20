@@ -51,7 +51,6 @@
 #include "SVGRenderStyle.h"
 #include "ScopedName.h"
 #include "Settings.h"
-#include "StyleBoxShadow.h"
 #include "StyleDynamicRangeLimit.h"
 #include "StyleImageWrapper.h"
 #include "StyleInterpolationClient.h"

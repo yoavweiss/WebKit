@@ -3697,7 +3697,7 @@
                 "inset"
             ],
             "codegen-properties": {
-                "animation-wrapper": "ShadowWrapper<BoxShadows>",
+                "animation-wrapper": "StyleTypeWrapper",
                 "style-converter": "StyleType<BoxShadows>",
                 "parser-function": "consumeBoxShadow",
                 "parser-grammar-unused": "none | <shadow>#",
@@ -7939,7 +7939,7 @@
                 "none"
             ],
             "codegen-properties": {
-                "animation-wrapper": "ShadowWrapper<TextShadows>",
+                "animation-wrapper": "StyleTypeWrapper",
                 "style-converter": "StyleType<TextShadows>",
                 "parser-function": "consumeTextShadow",
                 "parser-grammar-unused": "none | [ <color>? && <length>{2,3} ]#",
@@ -9030,7 +9030,7 @@
                 "cascade-alias": "box-shadow",
                 "skip-style-builder": true,
                 "style-extractor-converter": "StyleType<BoxShadows>",
-                "animation-wrapper": "ShadowWrapper<BoxShadows>",
+                "animation-wrapper": "StyleTypeWrapper",
                 "parser-function": "consumeWebkitBoxShadow",
                 "parser-grammar-unused": "none | <shadow>#",
                 "parser-grammar-unused-reason": "Needs support for the strong value representation.",

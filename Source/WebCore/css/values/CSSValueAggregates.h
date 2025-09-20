@@ -340,6 +340,12 @@ template<typename T> struct SpaceSeparatedFixedVector {
         return Container::map(std::forward<SizedRange>(range), std::forward<Mapper>(mapper));
     }
 
+    template<std::invocable<size_t> Generator>
+    static SpaceSeparatedFixedVector createWithSizeFromGenerator(size_t size, NOESCAPE Generator&& generator)
+    {
+        return Container::createWithSizeFromGenerator(size, std::forward<Generator>(generator));
+    }
+
     const_iterator begin() const { return value.begin(); }
     const_iterator end() const { return value.end(); }
     const_reverse_iterator rbegin() const { return value.rbegin(); }
@@ -393,6 +399,12 @@ template<typename T> struct CommaSeparatedFixedVector {
     static CommaSeparatedFixedVector map(SizedRange&& range, NOESCAPE Mapper&& mapper)
     {
         return Container::map(std::forward<SizedRange>(range), std::forward<Mapper>(mapper));
+    }
+
+    template<std::invocable<size_t> Generator>
+    static CommaSeparatedFixedVector createWithSizeFromGenerator(size_t size, NOESCAPE Generator&& generator)
+    {
+        return Container::createWithSizeFromGenerator(size, std::forward<Generator>(generator));
     }
 
     const_iterator begin() const { return value.begin(); }
@@ -449,6 +461,12 @@ template<typename T> struct SpaceSeparatedRefCountedFixedVector {
         return Container::map(size, std::forward<SizedRange>(range), std::forward<Mapper>(mapper));
     }
 
+    template<std::invocable<size_t> Generator>
+    static SpaceSeparatedRefCountedFixedVector createWithSizeFromGenerator(size_t size, NOESCAPE Generator&& generator)
+    {
+        return Container::createWithSizeFromGenerator(size, std::forward<Generator>(generator));
+    }
+
     const_iterator begin() const { return value->begin(); }
     const_iterator end() const { return value->end(); }
     const_reverse_iterator rbegin() const { return value->rbegin(); }
@@ -499,6 +517,12 @@ template<typename T> struct CommaSeparatedRefCountedFixedVector {
     {
         auto size = range.size();
         return Container::map(size, std::forward<SizedRange>(range), std::forward<Mapper>(mapper));
+    }
+
+    template<std::invocable<size_t> Generator>
+    static CommaSeparatedRefCountedFixedVector createWithSizeFromGenerator(size_t size, NOESCAPE Generator&& generator)
+    {
+        return Container::createWithSizeFromGenerator(size, std::forward<Generator>(generator));
     }
 
     const_iterator begin() const { return value->begin(); }
