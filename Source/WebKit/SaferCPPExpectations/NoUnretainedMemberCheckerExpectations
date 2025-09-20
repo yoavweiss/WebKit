@@ -1,7 +1,6 @@
 Platform/spi/Cocoa/NearFieldSPI.h
 Shared/API/Cocoa/_WKHitTestResult.h
 Shared/API/Cocoa/_WKRemoteObjectInterface.h
-Shared/EntryPointUtilities/Cocoa/XPCService/XPCServiceEntryPoint.h
 UIProcess/API/C/mac/WKInspectorPrivateMac.h
 UIProcess/API/C/mac/WKPagePrivateMac.h
 UIProcess/API/Cocoa/WKBackForwardList.h
