@@ -468,7 +468,7 @@ static void* lib##Library() \
     @class className; \
     namespace functionNamespace { \
     extern Class (*get##className##ClassSingleton)(); \
-    className *alloc##className##Instance() availability; \
+    NS_RETURNS_RETAINED className *alloc##className##Instance() availability; \
     }
 
 #define SOFT_LINK_CLASS_FOR_SOURCE_INTERNAL(functionNamespace, framework, className, export, isOptional, availability) \
