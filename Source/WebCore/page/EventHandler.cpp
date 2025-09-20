@@ -2135,7 +2135,7 @@ bool EventHandler::handleMouseDoubleClickEvent(const PlatformMouseEvent& platfor
         return true;
 
     m_clickCount = platformMouseEvent.clickCount();
-    bool swallowMouseUpEvent = !dispatchMouseEvent(eventNames().mouseupEvent, mouseEvent.protectedTargetNode().get(), m_clickCount, platformMouseEvent, FireMouseOverOut::No);
+    bool swallowMouseUpEvent = !dispatchMouseEvent(eventNames().mouseupEvent, mouseEvent.protectedTargetNode().get(), m_clickCount, platformMouseEvent, FireMouseOverOut::Yes);
     bool swallowClickEvent = swallowAnyClickEvent(platformMouseEvent, mouseEvent, IgnoreAncestorNodesForClickEvent::Yes);
 
     if (m_lastScrollbarUnderMouse)
@@ -2453,7 +2453,7 @@ bool EventHandler::swallowAnyClickEvent(const PlatformMouseEvent& platformMouseE
         updateMouseEventTargetNode(eventName, nodeToClick.get(), platformMouseEvent, FireMouseOverOut::Yes);
         swallowed = !dispatchAnyClickEvent(eventName, clickCaptureElement.get(), m_clickCount, platformMouseEvent);
     } else
-        swallowed = !dispatchMouseEvent(eventName, nodeToClick.get(), m_clickCount, platformMouseEvent, FireMouseOverOut::Yes);
+        swallowed = !dispatchMouseEvent(eventName, nodeToClick.get(), m_clickCount, platformMouseEvent, FireMouseOverOut::No);
 
     if (RefPtr page = m_frame->page())
         page->chrome().client().didDispatchClickEvent(platformMouseEvent, *nodeToClick);
@@ -2540,7 +2540,7 @@ HandleUserInputEventResult EventHandler::handleMouseReleaseEvent(const PlatformM
             return true;
     }
 
-    bool swallowMouseUpEvent = !dispatchMouseEvent(eventNames().mouseupEvent, mouseEvent.protectedTargetNode().get(), m_clickCount, platformMouseEvent, FireMouseOverOut::No);
+    bool swallowMouseUpEvent = !dispatchMouseEvent(eventNames().mouseupEvent, mouseEvent.protectedTargetNode().get(), m_clickCount, platformMouseEvent, FireMouseOverOut::Yes);
 
     bool swallowClickEvent = swallowAnyClickEvent(platformMouseEvent, mouseEvent, IgnoreAncestorNodesForClickEvent::No);
 
