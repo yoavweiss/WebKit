@@ -1102,11 +1102,10 @@ void Adjuster::propagateToDocumentElementAndInitialContainingBlock(Update& updat
     }();
 
     auto writingMode = [&] {
-        // FIXME: The spec says body should win.
-        if (documentElementStyle->hasExplicitlySetWritingMode())
-            return documentElementStyle->writingMode().computedWritingMode();
         if (shouldPropagateFromBody && bodyStyle && bodyStyle->hasExplicitlySetWritingMode())
             return bodyStyle->writingMode().computedWritingMode();
+        if (documentElementStyle->hasExplicitlySetWritingMode())
+            return documentElementStyle->writingMode().computedWritingMode();
         return RenderStyle::initialWritingMode();
     }();
 
