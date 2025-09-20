@@ -138,7 +138,7 @@ void ReportingObserver::appendQueuedReportIfCorrectType(const Ref<Report>& repor
     ASSERT(m_reportingScope && scriptExecutionContext() == m_reportingScope->scriptExecutionContext());
 
     // Step 4.3.4: Queue a task to § 4.4
-    queueTaskKeepingObjectAlive(*this, TaskSource::Reporting, [protectedCallback = Ref { m_callback }](auto& observer) {
+    queueTaskKeepingObjectAlive(*this, TaskSource::Reporting, [protectedCallback = Ref { m_callback }](ReportingObserver& observer) {
         RefPtr context = observer.scriptExecutionContext();
         ASSERT(context);
         if (!context)
@@ -147,13 +147,11 @@ void ReportingObserver::appendQueuedReportIfCorrectType(const Ref<Report>& repor
         // Step 4.4: Invoke reporting observers with notify list with a copy of global’s registered reporting observer list.
         auto reports = observer.takeRecords();
 
-        // FIXME: This is a safer cpp false positive (rdar://160265318).
-        SUPPRESS_UNCOUNTED_ARG InspectorInstrumentation::willFireObserverCallback(*context, "ReportingObserver"_s);
+        InspectorInstrumentation::willFireObserverCallback(*context, "ReportingObserver"_s);
 
         protectedCallback->invoke(reports, observer);
 
-        // FIXME: This is a safer cpp false positive (rdar://160265318).
-        SUPPRESS_UNCOUNTED_ARG InspectorInstrumentation::didFireObserverCallback(*context);
+        InspectorInstrumentation::didFireObserverCallback(*context);
     });
 }
 
