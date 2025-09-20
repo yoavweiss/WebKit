@@ -26,6 +26,9 @@
 #include "config.h"
 #include "UnplacedGridItem.h"
 
+#include "LayoutElementBox.h"
+#include "RenderStyleInlines.h"
+
 namespace WebCore {
 namespace Layout {
 UnplacedGridItem::UnplacedGridItem(const ElementBox& layoutBox, Style::GridPosition columnStart, Style::GridPosition columnEnd,

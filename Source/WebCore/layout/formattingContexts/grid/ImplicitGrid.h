@@ -26,6 +26,7 @@
 #pragma once
 
 #include <wtf/Forward.h>
+#include <wtf/Vector.h>
 
 namespace WebCore {
 namespace Layout {

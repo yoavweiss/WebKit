@@ -33,6 +33,7 @@
 #include "JavaScriptEvaluationResult.h"
 #include "Logging.h"
 #include "ScriptMessageHandlerIdentifier.h"
+#include "UserContentControllerParameters.h"
 #include "WebCompiledContentRuleList.h"
 #include "WebFrame.h"
 #include "WebPage.h"

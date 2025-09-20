@@ -38,6 +38,7 @@
 
 namespace WebCore {
 
+class CSSFilterRenderer;
 class CachedSVGDocument;
 class Element;
 class FilterOperations;

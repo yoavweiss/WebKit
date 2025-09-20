@@ -33,7 +33,7 @@
 #include "SecurityOrigin.h"
 #include "Settings.h"
 #include <JavaScriptCore/JSGlobalObject.h>
-#include <wtf/TZoneMalloc.h>
+#include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {
 

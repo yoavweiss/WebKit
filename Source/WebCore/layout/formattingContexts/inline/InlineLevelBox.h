@@ -30,6 +30,7 @@
 #include <WebCore/InlineRect.h>
 #include <WebCore/LayoutBox.h>
 #include <WebCore/LayoutUnits.h>
+#include <WebCore/LengthFunctions.h>
 #include <WebCore/StyleTextEdge.h>
 #include <wtf/OptionSet.h>
 

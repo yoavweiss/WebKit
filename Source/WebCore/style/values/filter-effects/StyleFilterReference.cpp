@@ -28,6 +28,7 @@
 #include "CSSFilterReference.h"
 #include "Document.h"
 #include "ReferenceFilterOperation.h"
+#include "StyleBuilderState.h"
 
 namespace WebCore {
 namespace Style {

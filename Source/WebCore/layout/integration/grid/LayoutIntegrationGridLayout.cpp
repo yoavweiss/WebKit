@@ -29,6 +29,7 @@
 #include "FormattingContextBoxIterator.h"
 #include "LayoutIntegrationBoxTreeUpdater.h"
 #include "RenderGrid.h"
+#include "RenderView.h"
 #include <wtf/CheckedPtr.h>
 #include <wtf/CheckedRef.h>
 #include <wtf/text/TextStream.h>

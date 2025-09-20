@@ -31,6 +31,8 @@
 #include "CSSValuePair.h"
 #include "CSSValuePool.h"
 #include "Document.h"
+#include "Element.h"
+#include "NodeInlines.h"
 #include "StyleSingleAnimationRange.h"
 
 namespace WebCore {

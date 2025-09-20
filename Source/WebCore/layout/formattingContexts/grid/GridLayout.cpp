@@ -27,6 +27,7 @@
 #include "GridLayout.h"
 
 #include "ImplicitGrid.h"
+#include "PlacedGridItem.h"
 #include "RenderStyleInlines.h"
 #include "LayoutElementBox.h"
 #include "UnplacedGridItem.h"

@@ -26,6 +26,8 @@
 #include "config.h"
 #include "TrackInfo.h"
 
+#include <wtf/NeverDestroyed.h>
+
 namespace WebCore {
 
 String convertEnumerationToString(TrackInfoTrackType type)
