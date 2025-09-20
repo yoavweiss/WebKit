@@ -1,7 +1,8 @@
 
 
-Harness Error (TIMEOUT), message = null
-
-PASS scrolled input field should receive scrollend.
-TIMEOUT scrolled input field should receive scrollend for animated scroll. Test timed out
+PASS scrolled input field should receive scrollend when setting scrollLeft.
+PASS scrolled input field should receive scrollend with scrollBy({ behavior: 'smooth' }).
+PASS scrolled input field should receive scrollend with scrollBy({ behavior: 'instant' }).
+PASS scrolled input field should receive scrollend with scrollTo({ behavior: 'smooth' }).
+PASS scrolled input field should receive scrollend with scrollTo({ behavior: 'instant' }).
 
