@@ -408,6 +408,8 @@ EventHandler::EventHandler(LocalFrame& frame)
 #if ENABLE(IMAGE_ANALYSIS)
     , m_textRecognitionHoverTimer(*this, &EventHandler::textRecognitionHoverTimerFired, 250_ms)
 #endif
+    , m_mouseEventTargetUpdateTimer(*this, &EventHandler::updateMouseEventTargetAfterLayoutIfNeeded)
+    , m_mouseEventTargetFinalUpdateTimer(*this, &EventHandler::updateMouseEventTargetAfterLayoutIfNeeded)
     , m_autoscrollController(makeUniqueRef<AutoscrollController>())
 #if !ENABLE(IOS_TOUCH_EVENTS)
     , m_fakeMouseMoveEventTimer(*this, &EventHandler::fakeMouseMoveEventTimerFired)
@@ -426,6 +428,8 @@ EventHandler::~EventHandler()
 #if ENABLE(CURSOR_VISIBILITY)
     ASSERT(!m_autoHideCursorTimer.isActive());
 #endif
+    ASSERT(!m_mouseEventTargetUpdateTimer.isActive());
+    ASSERT(!m_mouseEventTargetFinalUpdateTimer.isActive());
 }
     
 #if ENABLE(DRAG_SUPPORT)
@@ -461,6 +465,8 @@ void EventHandler::clear()
 #if ENABLE(IMAGE_ANALYSIS)
     m_textRecognitionHoverTimer.stop();
 #endif
+    m_mouseEventTargetUpdateTimer.stop();
+    m_mouseEventTargetFinalUpdateTimer.stop();
     m_resizeLayer = nullptr;
     clearElementUnderMouse();
     m_lastElementUnderMouse = nullptr;
@@ -2936,6 +2942,20 @@ RefPtr<Element> EventHandler::textRecognitionCandidateElement() const
 
 #endif // ENABLE(IMAGE_ANALYSIS)
 
+static RefPtr<Element> getElementOrAncestorElementForNode(Node* targetNode)
+{
+    RefPtr<Element> targetElement;
+    while (targetNode) {
+        if (RefPtr asElement = dynamicDowncast<Element>(*targetNode)) {
+            targetElement = asElement;
+            break;
+        }
+        targetNode = targetNode->parentInComposedTree();
+    }
+
+    return targetElement;
+}
+
 void EventHandler::updateMouseEventTargetNode(const AtomString& eventType, Node* targetNode, const PlatformMouseEvent& platformMouseEvent, FireMouseOverOut fireMouseOverOut)
 {
     Ref frame = m_frame.get();
@@ -2946,13 +2966,7 @@ void EventHandler::updateMouseEventTargetNode(const AtomString& eventType, Node*
         targetElement = m_capturingMouseEventsElement.get();
     else {
         // If the target node is a non-element, dispatch on the parent. <rdar://problem/4196646>
-        while (targetNode) {
-            if (auto* asElement = dynamicDowncast<Element>(*targetNode)) {
-                targetElement = asElement;
-                break;
-            }
-            targetNode = targetNode->parentInComposedTree();
-        }
+        targetElement = getElementOrAncestorElementForNode(targetNode);
     }
 
     m_elementUnderMouse = targetElement;
@@ -3050,6 +3064,75 @@ void EventHandler::clearElementUnderMouse()
         return;
 
     imageOverlayController->elementUnderMouseDidChange(protectedFrame(), nullptr);
+}
+
+void EventHandler::scheduleMouseEventTargetUpdateAfterLayout()
+{
+    // If the element underneath the mouse is changing more frequently than every 200ms for
+    // a period of time, we want to fire boundary events both during the period of updates,
+    // and afterwards. For this reason, two timers are used.
+    if (!m_mouseEventTargetUpdateTimer.isActive())
+        m_mouseEventTargetUpdateTimer.startOneShot(200_ms);
+
+    m_mouseEventTargetFinalUpdateTimer.startOneShot(200_ms);
+}
+
+static constexpr OptionSet hoverTimerHitType { HitTestRequest::Type::Move, HitTestRequest::Type::DisallowUserAgentShadowContent };
+
+void EventHandler::updateMouseEventTargetAfterLayoutIfNeeded()
+{
+    if (!m_lastKnownMousePosition.has_value())
+        return;
+
+    Ref frame = m_frame.get();
+    RefPtr view = frame->view();
+    if (!view || !m_elementUnderMouse)
+        return;
+
+    if (!m_elementUnderMouse)
+        return;
+
+    RefPtr document = frame->document();
+
+    // Clear element tracking if there's a document mismatch.
+    if ((&m_elementUnderMouse->document() != document)
+        || (m_lastElementUnderMouse && &m_lastElementUnderMouse->document() != document)) {
+        m_elementUnderMouse = nullptr;
+        m_lastElementUnderMouse = nullptr;
+        return;
+    }
+
+    RefPtr<Element> targetElement;
+
+    // If pointer capture isn't active, we'll need to hit test to determine our target element.
+    // If it is active, our target is the capturing element.
+    if (!m_capturingMouseEventsElement) {
+        const auto mousePosition = view->windowToContents(valueOrDefault(m_lastKnownMousePosition));
+        HitTestResult hitResult((LayoutPoint(mousePosition)));
+
+        // We use the same hit test as the hover timer because we may need to update
+        // the hover state in this method as well.
+        if (document)
+            document->hitTest(hoverTimerHitType, hitResult);
+
+        targetElement = getElementOrAncestorElementForNode(hitResult.innerNode());
+    } else
+        targetElement = m_capturingMouseEventsElement.get();
+
+    if (targetElement && (targetElement != m_elementUnderMouse)) {
+        // Create a synthetic mouse event and update the mouse event target node in order to trigger
+        // boundary event processing.
+        auto modifiers = PlatformKeyboardEvent::currentStateOfModifierKeys();
+        PlatformMouseEvent syntheticEvent(valueOrDefault(m_lastKnownMousePosition), m_lastKnownMouseGlobalPosition,
+            MouseButton::None, PlatformEvent::Type::NoType, 0, modifiers, MonotonicTime::now(), 0, SyntheticClickType::NoTap);
+
+        // EventHandler updates scrollable areas when the element under the mouse changes as a result of the
+        // mouse moving. In this case, the mouse did not move, but the element under the mouse still changed,
+        // so we treat it internally as a mousemove event.
+        updateMouseEventTargetNode(eventNames().mousemoveEvent, targetElement.get(), syntheticEvent, FireMouseOverOut::Yes);
+        if (document)
+            document->updateHoverActiveState(hoverTimerHitType, targetElement.get());
+    }
 }
 
 void EventHandler::notifyScrollableAreasOfMouseEvents(const AtomString& eventType, Element* lastElementUnderMouse, Element* elementUnderMouse)
@@ -3882,9 +3965,8 @@ void EventHandler::hoverTimerFired()
     if (RefPtr document = frame->document()) {
         if (RefPtr view = frame->view()) {
             HitTestResult result(view->windowToContents(flooredIntPoint(valueOrDefault(m_lastKnownMousePosition))));
-            constexpr OptionSet<HitTestRequest::Type> hitType { HitTestRequest::Type::Move, HitTestRequest::Type::DisallowUserAgentShadowContent };
-            document->hitTest(hitType, result);
-            document->updateHoverActiveState(hitType, result.targetElement());
+            document->hitTest(hoverTimerHitType, result);
+            document->updateHoverActiveState(hoverTimerHitType, result.targetElement());
         }
     }
 }

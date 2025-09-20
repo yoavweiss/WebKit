@@ -2897,13 +2897,6 @@ void Document::resolveStyle(ResolveStyleType type)
         if (m_renderView->needsLayout())
             frameView->layoutContext().scheduleLayout();
 
-        // As a result of the style recalculation, the currently hovered element might have been
-        // detached (for example, by setting display:none in the :hover style), schedule another mouseMove event
-        // to check if any other elements ended up under the mouse pointer due to re-layout.
-        RefPtr localMainFrame = this->localMainFrame();
-        if (m_hoveredElement && !m_hoveredElement->renderer() && localMainFrame)
-            localMainFrame->eventHandler().dispatchFakeMouseMoveEventSoon();
-
         ++m_styleRecalcCount;
         // FIXME: Assert ASSERT(!needsStyleRecalc()) here. fast/events/media-element-focus-tab.html hits this assertion.
     }

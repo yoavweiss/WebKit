@@ -407,6 +407,9 @@ public:
 
     std::optional<RemoteUserInputEventData> userInputEventDataForRemoteFrame(const RemoteFrame*, const IntPoint&);
 
+    WEBCORE_EXPORT void updateMouseEventTargetAfterLayoutIfNeeded();
+    WEBCORE_EXPORT void scheduleMouseEventTargetUpdateAfterLayout();
+
 private:
 #if ENABLE(DRAG_SUPPORT)
     static DragState& dragState();
@@ -643,6 +646,8 @@ private:
 #if ENABLE(IMAGE_ANALYSIS)
     DeferrableOneShotTimer m_textRecognitionHoverTimer;
 #endif
+    Timer m_mouseEventTargetUpdateTimer;
+    Timer m_mouseEventTargetFinalUpdateTimer;
     const UniqueRef<AutoscrollController> m_autoscrollController;
     SingleThreadWeakPtr<RenderLayer> m_resizeLayer;
 

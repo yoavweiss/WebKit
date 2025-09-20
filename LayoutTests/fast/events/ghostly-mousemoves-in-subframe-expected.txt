@@ -10,7 +10,6 @@ clickable_div_in_subframe got mousemove at 14,14
 overlapping_div_in_main_frame got mousemove at 16,16
 main_frame got mousemove at 400,400
 main_frame got click at 400,400
-main_frame got mousemove at 400,400
 PASS successfullyParsed is true
 
 TEST COMPLETE

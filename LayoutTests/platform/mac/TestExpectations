@@ -1400,8 +1400,6 @@ imported/w3c/web-platform-tests/pointerevents/pointerevent_pointerrawupdate_chan
 
 webkit.org/b/274686 imported/w3c/web-platform-tests/pointerevents/pointerevent_capture_mouse_and_release_and_capture_again.html [ Skip ]
 
-webkit.org/b/294102 imported/w3c/web-platform-tests/pointerevents/pointerevent_pointerout_no_pointer_movement.html [ Skip ]
-
 webkit.org/b/197473 imported/w3c/web-platform-tests/resource-timing/resource-timing-level1.sub.html [ Pass Failure ]
 
 webaudio/oscillator-sine.html [ Skip ]
