@@ -29,8 +29,6 @@
 #include "ImagePaintingOptions.h"
 #include "ImageQualityController.h"
 #include "LayoutRect.h"
-#include "LengthBox.h"
-#include "LengthFunctions.h"
 #include "RenderStyleConstants.h"
 #include "RenderStyleInlines.h"
 #include "StyleImage.h"

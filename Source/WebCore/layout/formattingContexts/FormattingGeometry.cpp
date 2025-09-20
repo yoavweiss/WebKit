@@ -32,7 +32,6 @@
 #include "LayoutContainingBlockChainIterator.h"
 #include "LayoutContext.h"
 #include "LayoutInitialContainingBlock.h"
-#include "LengthFunctions.h"
 #include "Logging.h"
 #include "PlacedFloats.h"
 #include "RenderStyleInlines.h"
@@ -197,96 +196,6 @@ LayoutUnit FormattingGeometry::contentHeightForFormattingContextRoot(const Eleme
     if (hasContent && !shouldIgnoreContent)
         usedContentHeight = LayoutContext::createFormattingContext(formattingContextRoot, const_cast<LayoutState&>(layoutState()))->usedContentHeight();
     return usedContentHeight;
-}
-
-std::optional<LayoutUnit> FormattingGeometry::computedValue(const Style::InsetEdge& geometryProperty, LayoutUnit containingBlockWidth) const
-{
-    //  In general, the computed value resolves the specified value as far as possible without laying out the content.
-    if (!geometryProperty.isAuto())
-        return Style::evaluate(geometryProperty, containingBlockWidth);
-    return { };
-}
-
-std::optional<LayoutUnit> FormattingGeometry::computedValue(const Style::MarginEdge& geometryProperty, LayoutUnit containingBlockWidth) const
-{
-    //  In general, the computed value resolves the specified value as far as possible without laying out the content.
-    if (!geometryProperty.isAuto())
-        return Style::evaluate(geometryProperty, containingBlockWidth);
-    return { };
-}
-
-std::optional<LayoutUnit> FormattingGeometry::computedValue(const Style::PreferredSize& geometryProperty, LayoutUnit containingBlockWidth) const
-{
-    //  In general, the computed value resolves the specified value as far as possible without laying out the content.
-    if (geometryProperty.isSpecified())
-        return Style::evaluate(geometryProperty, containingBlockWidth);
-    return { };
-}
-
-std::optional<LayoutUnit> FormattingGeometry::computedValue(const Style::MinimumSize& geometryProperty, LayoutUnit containingBlockWidth) const
-{
-    //  In general, the computed value resolves the specified value as far as possible without laying out the content.
-    if (geometryProperty.isSpecified())
-        return Style::evaluate(geometryProperty, containingBlockWidth);
-    return { };
-}
-
-std::optional<LayoutUnit> FormattingGeometry::computedValue(const Style::MaximumSize& geometryProperty, LayoutUnit containingBlockWidth) const
-{
-    //  In general, the computed value resolves the specified value as far as possible without laying out the content.
-    if (geometryProperty.isSpecified())
-        return Style::evaluate(geometryProperty, containingBlockWidth);
-    return { };
-}
-
-std::optional<LayoutUnit> FormattingGeometry::computedValue(const Length& geometryProperty, LayoutUnit containingBlockWidth) const
-{
-    //  In general, the computed value resolves the specified value as far as possible without laying out the content.
-    if (geometryProperty.isSpecified())
-        return valueForLength(geometryProperty, containingBlockWidth);
-    return { };
-}
-
-std::optional<LayoutUnit> FormattingGeometry::fixedValue(const Style::MarginEdge& geometryProperty) const
-{
-    if (auto fixed = geometryProperty.tryFixed())
-        return LayoutUnit { fixed->value };
-    return { };
-}
-
-std::optional<LayoutUnit> FormattingGeometry::fixedValue(const Style::PaddingEdge& geometryProperty) const
-{
-    if (auto fixed = geometryProperty.tryFixed())
-        return LayoutUnit { fixed->value };
-    return { };
-}
-
-std::optional<LayoutUnit> FormattingGeometry::fixedValue(const Style::PreferredSize& geometryProperty) const
-{
-    if (auto fixed = geometryProperty.tryFixed())
-        return LayoutUnit { fixed->value };
-    return { };
-}
-
-std::optional<LayoutUnit> FormattingGeometry::fixedValue(const Style::MinimumSize& geometryProperty) const
-{
-    if (auto fixed = geometryProperty.tryFixed())
-        return LayoutUnit { fixed->value };
-    return { };
-}
-
-std::optional<LayoutUnit> FormattingGeometry::fixedValue(const Style::MaximumSize& geometryProperty) const
-{
-    if (auto fixed = geometryProperty.tryFixed())
-        return LayoutUnit { fixed->value };
-    return { };
-}
-
-std::optional<LayoutUnit> FormattingGeometry::fixedValue(const Length& geometryProperty) const
-{
-    if (auto fixed = geometryProperty.tryFixed())
-        return LayoutUnit { fixed->value };
-    return { };
 }
 
 // https://www.w3.org/TR/CSS22/visudet.html#min-max-heights

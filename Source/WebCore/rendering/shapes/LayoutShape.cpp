@@ -33,7 +33,6 @@
 #include "BoxLayoutShape.h"
 #include "GraphicsContext.h"
 #include "ImageBuffer.h"
-#include "LengthFunctions.h"
 #include "PixelBuffer.h"
 #include "PolygonLayoutShape.h"
 #include "RasterLayoutShape.h"

@@ -41,7 +41,7 @@
 #include "FontSelectionValueInlines.h"
 #include "FontTaggedSettings.h"
 #include "IdentityTransformOperation.h"
-#include "LengthPoint.h"
+#include "Length.h"
 #include "Logging.h"
 #include "Matrix3DTransformOperation.h"
 #include "MatrixTransformOperation.h"
@@ -103,29 +103,6 @@ inline TabSize blendFunc(const TabSize& from, const TabSize& to, const Context& 
 {
     auto blendedValue = WebCore::blend(from.value(), to.value(), context);
     return { blendedValue < 0 ? 0 : blendedValue, from.isSpaces() ? SpaceValueType : LengthValueType };
-}
-
-inline LengthSize blendFunc(const LengthSize& from, const LengthSize& to, const Context& context)
-{
-    return WebCore::blend(from, to, context, ValueRange::NonNegative);
-}
-
-inline bool canInterpolateLengthVariants(const LengthSize& from, const LengthSize& to)
-{
-    bool isLengthPercentage = true;
-    return canInterpolateLengths(from.width, to.width, isLengthPercentage)
-        && canInterpolateLengths(from.height, to.height, isLengthPercentage);
-}
-
-inline bool lengthVariantRequiresInterpolationForAccumulativeIteration(const LengthSize& from, const LengthSize& to)
-{
-    return lengthsRequireInterpolationForAccumulativeIteration(from.width, to.width)
-        || lengthsRequireInterpolationForAccumulativeIteration(from.height, to.height);
-}
-
-inline LengthPoint blendFunc(const LengthPoint& from, const LengthPoint& to, const Context& context)
-{
-    return WebCore::blend(from, to, context);
 }
 
 inline FilterOperations blendFunc(const FilterOperations& from, const FilterOperations& to, const Context& context)

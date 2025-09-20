@@ -30,7 +30,6 @@
 #include "FontCascade.h"
 #include "FontMetrics.h"
 #include "LegacyRenderSVGRoot.h"
-#include "LengthFunctions.h"
 #include "LocalFrame.h"
 #include "RenderView.h"
 #include "SVGElementTypeHelpers.h"
@@ -109,29 +108,6 @@ static inline float dimensionForLengthMode(SVGLengthMode mode, FloatSize viewpor
     }
     ASSERT_NOT_REACHED();
     return 0;
-}
-
-float SVGLengthContext::valueForLength(const Length& length, SVGLengthMode lengthMode)
-{
-    switch (length.type()) {
-    case LengthType::Fixed:
-        return length.value();
-
-    case LengthType::Percent: {
-        auto result = convertValueFromPercentageToUserUnits(length.value() / 100, lengthMode);
-        if (result.hasException())
-            return 0;
-        return result.releaseReturnValue();
-    }
-
-    case LengthType::Calculated: {
-        auto viewportSize = this->viewportSize().value_or(FloatSize { });
-        return length.nonNanCalculatedValue(dimensionForLengthMode(lengthMode, viewportSize));
-    }
-
-    default:
-        return 0;
-    }
 }
 
 template<typename SizeType> float SVGLengthContext::valueForSizeType(const SizeType& size, SVGLengthMode lengthMode)

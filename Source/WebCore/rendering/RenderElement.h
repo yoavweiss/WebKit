@@ -23,7 +23,6 @@
 #pragma once
 
 #include <WebCore/HitTestRequest.h>
-#include <WebCore/LengthFunctions.h>
 #include <WebCore/RenderObject.h>
 #include <WebCore/RenderPtr.h>
 #include <WebCore/RenderStyle.h>
