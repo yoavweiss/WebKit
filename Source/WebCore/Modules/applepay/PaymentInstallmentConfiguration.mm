@@ -185,8 +185,7 @@ static RetainPtr<PKPaymentInstallmentConfiguration> createPlatformConfiguration(
     if (!PAL::getPKPaymentInstallmentConfigurationClassSingleton())
         return nil;
 
-    // FIXME: This is a safer cpp false positive (rdar://160083438).
-    SUPPRESS_UNRETAINED_ARG auto configuration = adoptNS([PAL::allocPKPaymentInstallmentConfigurationInstance() init]);
+    RetainPtr configuration = adoptNS([PAL::allocPKPaymentInstallmentConfigurationInstance() init]);
 
     [configuration setFeature:platformFeatureType(coreConfiguration.featureType)];
 
@@ -195,7 +194,7 @@ static RetainPtr<PKPaymentInstallmentConfiguration> createPlatformConfiguration(
     [configuration setInStorePurchase:coreConfiguration.isInStorePurchase];
     [configuration setOpenToBuyThresholdAmount:toProtectedDecimalNumber(coreConfiguration.openToBuyThresholdAmount).get()];
 
-    auto merchandisingImageData = adoptNS([[NSData alloc] initWithBase64EncodedString:coreConfiguration.merchandisingImageData.createNSString().get() options:0]);
+    RetainPtr merchandisingImageData = adoptNS([[NSData alloc] initWithBase64EncodedString:coreConfiguration.merchandisingImageData.createNSString().get() options:0]);
     [configuration setMerchandisingImageData:merchandisingImageData.get()];
     [configuration setInstallmentMerchantIdentifier:coreConfiguration.merchantIdentifier.createNSString().get()];
     [configuration setReferrerIdentifier:coreConfiguration.referrerIdentifier.createNSString().get()];

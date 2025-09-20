@@ -47,8 +47,7 @@ std::optional<PaymentMerchantSession> PaymentMerchantSession::fromJS(JSC::JSGlob
     if (!dictionary || ![dictionary isKindOfClass:[NSDictionary class]])
         return std::nullopt;
 
-    // FIXME: This is a safer cpp false positive (rdar://160083438).
-    SUPPRESS_UNRETAINED_ARG RetainPtr pkPaymentMerchantSession = adoptNS([PAL::allocPKPaymentMerchantSessionInstance() initWithDictionary:dictionary.get()]);
+    RetainPtr pkPaymentMerchantSession = adoptNS([PAL::allocPKPaymentMerchantSessionInstance() initWithDictionary:dictionary.get()]);
 
     return PaymentMerchantSession(WTFMove(pkPaymentMerchantSession));
 }
