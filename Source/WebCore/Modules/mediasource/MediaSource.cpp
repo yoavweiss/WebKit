@@ -1652,10 +1652,10 @@ void MediaSource::addTextTrackToElement(Ref<TextTrack>&& track)
 
 void MediaSource::addVideoTrackToElement(Ref<VideoTrack>&& track)
 {
-    ensureWeakOnHTMLMediaElementContext([track = WTFMove(track)](auto& mediaElement) mutable {
+    ensureWeakOnHTMLMediaElementContext([track = WTFMove(track)](HTMLMediaElement& mediaElement) mutable {
         // Select the first video track being added and unselect the next ones, since only one
         // video track can be selected at once.
-        auto videoTracks = mediaElement.videoTracks();
+        RefPtr videoTracks = mediaElement.videoTracks();
         track->setSelected(!(videoTracks && videoTracks->length()));
         mediaElement.addVideoTrack(WTFMove(track));
     });
@@ -1663,9 +1663,8 @@ void MediaSource::addVideoTrackToElement(Ref<VideoTrack>&& track)
 
 void MediaSource::addAudioTrackMirrorToElement(Ref<AudioTrackPrivate>&& track, bool enabled)
 {
-    ensureWeakOnHTMLMediaElementContext([track = WTFMove(track), enabled](auto& mediaElement) mutable {
-        // FIXME: This is a safer cpp false positive (rdar://160322553).
-        SUPPRESS_UNCOUNTED_ARG auto audioTrack = AudioTrack::create(mediaElement.protectedScriptExecutionContext().get(), track);
+    ensureWeakOnHTMLMediaElementContext([track = WTFMove(track), enabled](HTMLMediaElement& mediaElement) mutable {
+        Ref audioTrack = AudioTrack::create(mediaElement.protectedScriptExecutionContext().get(), track);
         audioTrack->setEnabled(enabled);
         mediaElement.addAudioTrack(WTFMove(audioTrack));
     });
@@ -1673,19 +1672,17 @@ void MediaSource::addAudioTrackMirrorToElement(Ref<AudioTrackPrivate>&& track, b
 
 void MediaSource::addTextTrackMirrorToElement(Ref<InbandTextTrackPrivate>&& track)
 {
-    ensureWeakOnHTMLMediaElementContext([track = WTFMove(track)](auto& mediaElement) mutable {
+    ensureWeakOnHTMLMediaElementContext([track = WTFMove(track)](HTMLMediaElement& mediaElement) mutable {
         if (!mediaElement.scriptExecutionContext())
             return;
-        // FIXME: This is a safer cpp false positive (rdar://160322553).
-        SUPPRESS_UNCOUNTED_ARG mediaElement.addTextTrack(InbandTextTrack::create(*mediaElement.protectedScriptExecutionContext(), track));
+        mediaElement.addTextTrack(InbandTextTrack::create(*mediaElement.protectedScriptExecutionContext(), track));
     });
 }
 
 void MediaSource::addVideoTrackMirrorToElement(Ref<VideoTrackPrivate>&& track, bool selected)
 {
-    ensureWeakOnHTMLMediaElementContext([track = WTFMove(track), selected](auto& mediaElement) mutable {
-        // FIXME: This is a safer cpp false positive (rdar://160322553).
-        SUPPRESS_UNCOUNTED_ARG auto videoTrack = VideoTrack::create(mediaElement.protectedScriptExecutionContext().get(), track);
+    ensureWeakOnHTMLMediaElementContext([track = WTFMove(track), selected](HTMLMediaElement& mediaElement) mutable {
+        auto videoTrack = VideoTrack::create(mediaElement.protectedScriptExecutionContext().get(), track);
         videoTrack->setSelected(selected);
         mediaElement.addVideoTrack(WTFMove(videoTrack));
     });
