@@ -932,10 +932,10 @@ ALWAYS_INLINE TokenType LiteralParser<CharType, reviverMode>::Lexer::lexString(L
     if (m_mode == StrictJSON) {
         ASSERT(terminator == '"');
         if constexpr (hint == JSONIdentifierHint::MaybeIdentifier) {
-            while (m_ptr < m_end && isSafeStringCharacterForIdentifier<SafeStringCharacterSet::Strict>(*m_ptr, '"'))
+            while (m_ptr < m_end && isSafeStringCharacterForIdentifier<SafeStringCharacterSet::Strict>(*m_ptr, terminator))
                 ++m_ptr;
         } else {
-            using UnsignedType = std::make_unsigned_t<CharType>;
+            using UnsignedType = SIMD::SameSizeUnsignedInteger<CharType>;
             constexpr auto quoteMask = SIMD::splat<UnsignedType>('"');
             constexpr auto escapeMask = SIMD::splat<UnsignedType>('\\');
             constexpr auto controlMask = SIMD::splat<UnsignedType>(' ');
@@ -947,8 +947,8 @@ ALWAYS_INLINE TokenType LiteralParser<CharType, reviverMode>::Lexer::lexString(L
                 return SIMD::findFirstNonZeroIndex(mask);
             };
 
-            auto scalarMatch = [&](auto character) ALWAYS_INLINE_LAMBDA {
-                return !isSafeStringCharacter<SafeStringCharacterSet::Strict>(character, '"');
+            auto scalarMatch = [&](CharType character) ALWAYS_INLINE_LAMBDA {
+                return !isSafeStringCharacter<SafeStringCharacterSet::Strict>(character, terminator);
             };
 
             m_ptr = SIMD::find(std::span { m_ptr, m_end }, vectorMatch, scalarMatch);
@@ -958,7 +958,7 @@ ALWAYS_INLINE TokenType LiteralParser<CharType, reviverMode>::Lexer::lexString(L
             while (m_ptr < m_end && isSafeStringCharacterForIdentifier<SafeStringCharacterSet::Sloppy>(*m_ptr, terminator))
                 ++m_ptr;
         } else {
-            using UnsignedType = std::make_unsigned_t<CharType>;
+            using UnsignedType = SIMD::SameSizeUnsignedInteger<CharType>;
             auto quoteMask = SIMD::splat<UnsignedType>(terminator);
             constexpr auto escapeMask = SIMD::splat<UnsignedType>('\\');
             constexpr auto controlMask = SIMD::splat<UnsignedType>(' ');

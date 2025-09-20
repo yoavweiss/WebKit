@@ -98,13 +98,13 @@ inline WTF::String toWTFString(WKStringRef string)
     if (!string)
         return nullString();
     size_t bufferSize = WKStringGetMaximumUTF8CStringSize(string);
-    auto buffer = makeUniqueWithoutFastMallocCheck<char[]>(bufferSize);
-    size_t stringLength = WKStringGetUTF8CStringNonStrict(string, buffer.get(), bufferSize);
+    auto buffer = makeUniqueWithoutFastMallocCheck<char8_t[]>(bufferSize);
+    size_t stringLength = WKStringGetUTF8CStringNonStrict(string, byteCast<char>(buffer.get()), bufferSize);
     if (!stringLength)
         return "(null)"_s;
     return WTF::String::fromUTF8WithLatin1Fallback({ buffer.get(), stringLength - 1 });
 }
-    
+
 inline WTF::String toWTFString(const WKRetainPtr<WKStringRef>& string)
 {
     return toWTFString(string.get());

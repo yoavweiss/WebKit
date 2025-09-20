@@ -1142,7 +1142,6 @@ static VariantCode parseVariantCode(StringView string)
     struct Code {
         LChar characters[8] { };
     };
-    static_assert(std::is_unsigned_v<LChar>);
     static_assert(sizeof(VariantCode) == sizeof(Code));
     Code code { };
     for (unsigned index = 0; index < string.length(); ++index)

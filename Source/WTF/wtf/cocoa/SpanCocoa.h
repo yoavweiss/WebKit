@@ -32,6 +32,7 @@
 namespace WTF {
 
 #ifdef __OBJC__
+
 inline std::span<const uint8_t> span(NSData *data)
 {
     if (!data)
@@ -50,17 +51,22 @@ inline RetainPtr<NSData> toNSDataNoCopy(std::span<const uint8_t> span, FreeWhenD
 {
     return adoptNS([[NSData alloc] initWithBytesNoCopy:const_cast<uint8_t*>(span.data()) length:span.size() freeWhenDone:freeWhenDone == FreeWhenDone::Yes]);
 }
+
+template<IsByte T> RetainPtr<NSData> toNSData(std::span<const T> span)
+{
+    return toNSData(byteCast<uint8_t>(span));
+}
+
+template<IsByte T> RetainPtr<NSData> toNSDataNoCopy(std::span<const T> span, FreeWhenDone freeWhenDone)
+{
+    return toNSDataNoCopy(byteCast<uint8_t>(span), freeWhenDone);
+}
+
 #endif // #ifdef __OBJC__
 
 template<typename> class Function;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-WTF_EXPORT_PRIVATE bool dispatch_data_apply_span(dispatch_data_t, NOESCAPE const Function<bool(std::span<const uint8_t>)>& applier);
-#ifdef __cplusplus
-} // extern "C
-#endif
+extern "C" WTF_EXPORT_PRIVATE bool dispatch_data_apply_span(dispatch_data_t, NOESCAPE const Function<bool(std::span<const uint8_t>)>& applier);
 
 } // namespace WTF
 

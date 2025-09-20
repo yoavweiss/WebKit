@@ -1207,7 +1207,7 @@ public:
             @"userInfo": apsUserInfo
         };
 
-        String message { span([NSJSONSerialization dataWithJSONObject:obj options:0 error:nullptr]) };
+        String message { byteCast<Latin1Character>(span([NSJSONSerialization dataWithJSONObject:obj options:0 error:nullptr])) };
 
         auto utilityConnection = createAndConfigureConnectionToService("org.webkit.webpushtestdaemon.service");
         auto sender = WebPushXPCConnectionMessageSender { utilityConnection.get() };

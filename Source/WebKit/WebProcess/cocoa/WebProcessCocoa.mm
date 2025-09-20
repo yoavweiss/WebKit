@@ -888,7 +888,7 @@ static void registerLogClient(bool isDebugLoggingEnabled, std::unique_ptr<LogCli
                 logString = logString.first(logStringMaxSize);
                 logString.back() = 0;
             }
-            logClient()->log(logChannel, logCategory, logString, type);
+            logClient()->log(byteCast<uint8_t>(logChannel), byteCast<uint8_t>(logCategory), byteCast<uint8_t>(logString), type);
             free(messageString);
         }
     }).get());

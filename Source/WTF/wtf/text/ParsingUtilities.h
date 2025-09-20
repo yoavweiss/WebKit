@@ -169,6 +169,14 @@ template<bool characterPredicate(LChar), typename CharacterType> void skipWhile(
     skip(data, index);
 }
 
+template<bool characterPredicate(char8_t), typename CharacterType> void skipWhile(std::span<CharacterType>& data) requires(std::is_same_v<std::remove_const_t<CharacterType>, char8_t>)
+{
+    size_t index = 0;
+    while (index < data.size() && characterPredicate(data[index]))
+        ++index;
+    skip(data, index);
+}
+
 template<bool characterPredicate(char16_t), typename CharacterType> void skipWhile(std::span<CharacterType>& data) requires(std::is_same_v<std::remove_const_t<CharacterType>, char16_t>)
 {
     size_t index = 0;

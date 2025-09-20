@@ -65,6 +65,9 @@ public:
     void append(LChar);
     void append(char character) { append(byteCast<LChar>(character)); }
 
+    // FIXME: This handles uint8_t differently than variadic append, which instead serializes the value as a numeral.
+    void append(uint8_t character) { append(byteCast<Latin1Character>(character)); }
+
     template<typename... StringTypeAdapters> void appendFromAdapters(const StringTypeAdapters&...);
 
     // FIXME: Add a StringTypeAdapter so we can append one string builder to another with variadic append.
@@ -296,7 +299,7 @@ inline unsigned StringBuilder::capacity() const
 
 inline char16_t StringBuilder::operator[](unsigned i) const
 {
-    return is8Bit() ? span8()[i] : span16()[i];
+    return is8Bit() ? char16_t { span8()[i] } : span16()[i];
 }
 
 inline bool StringBuilder::is8Bit() const

@@ -394,10 +394,10 @@ TEST(WTF, StringViewEqualIgnoringASCIICaseWithEmpty)
 
 TEST(WTF, StringViewEqualIgnoringASCIICaseWithLatin1Characters)
 {
-    RefPtr<StringImpl> a = StringImpl::create(std::span { reinterpret_cast<const LChar*>("aBcéeFG"), 7 });
-    RefPtr<StringImpl> b = StringImpl::create(std::span { reinterpret_cast<const LChar*>("ABCÉEFG"), 7 });
-    RefPtr<StringImpl> c = StringImpl::create(std::span { reinterpret_cast<const LChar*>("ABCéEFG"), 7 });
-    RefPtr<StringImpl> d = StringImpl::create(std::span { reinterpret_cast<const LChar*>("abcéefg"), 7 });
+    RefPtr<StringImpl> a = StringImpl::create(byteCast<Latin1Character>(std::span { "aBcéeFG", 7 }));
+    RefPtr<StringImpl> b = StringImpl::create(byteCast<Latin1Character>(std::span { "ABCÉEFG", 7 }));
+    RefPtr<StringImpl> c = StringImpl::create(byteCast<Latin1Character>(std::span { "ABCéEFG", 7 }));
+    RefPtr<StringImpl> d = StringImpl::create(byteCast<Latin1Character>(std::span { "abcéefg", 7 }));
     StringView stringViewA(*a.get());
     StringView stringViewB(*b.get());
     StringView stringViewC(*c.get());

@@ -2113,10 +2113,9 @@ void URLParser::appendNumberToASCIIBuffer(UnsignedIntegerType number)
     std::array<LChar, bufferSize> buffer;
     size_t index = bufferSize;
     do {
-        buffer[--index] = (number % 10) + '0';
+        buffer[--index] = static_cast<char>((number % 10) + '0');
         number /= 10;
     } while (number);
-
     appendToASCIIBuffer(std::span { buffer }.subspan(index));
 }
 
@@ -2925,7 +2924,7 @@ std::optional<String> URLParser::formURLDecode(StringView input)
     if (utf8.isNull())
         return std::nullopt;
     auto percentDecoded = percentDecode(byteCast<LChar>(utf8.span()));
-    return String::fromUTF8ReplacingInvalidSequences(percentDecoded.span());
+    return String::fromUTF8ReplacingInvalidSequences(byteCast<char8_t>(percentDecoded.span()));
 }
 
 // https://url.spec.whatwg.org/#concept-urlencoded-parser

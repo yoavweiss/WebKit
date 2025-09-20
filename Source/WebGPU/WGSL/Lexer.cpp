@@ -27,6 +27,7 @@
 #include "Lexer.h"
 
 #include "ConstantValue.h"
+#include "Token.h"
 #include <charconv>
 #include <wtf/FastFloat.h>
 #include <wtf/SortedArrayMap.h>
@@ -73,7 +74,31 @@ static unsigned isIdentifierContinue(LChar character, std::span<const LChar>)
     return isASCIIAlphanumeric(character) || character == '_';
 }
 
-template <typename T>
+template<typename CharacterType>
+Token Lexer<CharacterType>::makeToken(TokenType type)
+{
+    return { type, m_tokenStartingPosition, currentTokenLength() };
+}
+
+template<typename CharacterType>
+Token Lexer<CharacterType>::makeFloatToken(TokenType type, double floatValue)
+{
+    return { type, m_tokenStartingPosition, currentTokenLength(), floatValue };
+}
+
+template<typename CharacterType>
+Token Lexer<CharacterType>::makeIntegerToken(TokenType type, int64_t integerValue)
+{
+    return { type, m_tokenStartingPosition, currentTokenLength(), integerValue };
+}
+
+template<typename CharacterType>
+Token Lexer<CharacterType>::makeIdentifierToken(String&& identifier)
+{
+    return { WGSL::TokenType::Identifier, m_tokenStartingPosition, currentTokenLength(), WTFMove(identifier) };
+}
+
+template<typename T>
 Vector<Token> Lexer<T>::lex()
 {
     Vector<Token> tokens;

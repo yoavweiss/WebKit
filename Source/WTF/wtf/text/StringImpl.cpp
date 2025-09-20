@@ -278,6 +278,25 @@ Ref<StringImpl> StringImpl::create(std::span<const LChar> characters)
     return createInternal(characters);
 }
 
+RefPtr<StringImpl> StringImpl::create(std::span<const char8_t> characters, ReplaceInvalidSequences replaceInvalidSequences)
+{
+    if (characters.empty())
+        return *empty();
+    if (charactersAreAllASCII(characters))
+        return create(byteCast<Latin1Character>(characters));
+    Vector<char16_t, 1024> buffer(characters.size());
+    auto result = replaceInvalidSequences == ReplaceInvalidSequences::No
+        ? Unicode::convert(characters, buffer.mutableSpan())
+        : Unicode::convertReplacingInvalidSequences(characters, buffer.mutableSpan());
+    if (result.code != Unicode::ConversionResultCode::Success)
+        return nullptr;
+    RELEASE_ASSERT_WITH_SECURITY_IMPLICATION(result.buffer.size() <= characters.size());
+    std::span<char16_t> data;
+    auto string = createUninitializedInternalNonEmpty(result.buffer.size(), data);
+    copyCharacters(data, spanConstCast<const char16_t>(result.buffer));
+    return string;
+}
+
 Ref<StringImpl> StringImpl::createStaticStringImpl(std::span<const LChar> characters)
 {
     if (characters.empty())

@@ -164,7 +164,7 @@ private:
     {
         if (value > 9)
             asStringImpl(builder, value / 10);
-        builder.append(static_cast<LChar>(static_cast<unsigned>(value % 10) + '0'));
+        builder.append(static_cast<char>((value % 10) + '0'));
     }
 
     Int128 m_epochNanoseconds { };

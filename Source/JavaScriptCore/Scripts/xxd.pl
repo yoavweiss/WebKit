@@ -1,6 +1,7 @@
 #! /usr/bin/env perl
 
 # Copyright (C) 2010-2011 Google Inc. All rights reserved.
+# Copyright (C) 2025 Apple Inc. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -29,17 +30,19 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-$varname = shift;
-$fname = shift;
-$output = shift;
+my $arrayName = shift;
+my $inName = shift;
+my $outName = shift;
 
-open($input, '<', $fname) or die "Can't open file for read: $fname $!";
+open(my $input, '<', $inName) or die "Can't open file for read: $inName $!";
 $/ = undef;
-$text = <$input>;
+my $text = <$input>;
 close($input);
 
-$text = join(', ', map('0x' . unpack("H*", $_), split(undef, $text)));
+my @values = map ('0x' . unpack("H*", $_), split(undef, $text));
+my $size = @values;
+my $array = join(', ', @values);
 
-open($output, '>', $output) or die "Can't open file for write: $output $!";
-print $output "const unsigned char $varname\[\] = {\n$text\n};\n";
+open(my $output, '>', $outName) or die "Can't open file for write: $outName $!";
+print $output "#ifdef __cplusplus\n#include <array>\n#include <wtf/text/LChar.h>\nstatic constexpr std::array<Latin1Character, $size> $arrayName\n#else\nstatic const unsigned char ${arrayName}[] =\n#endif\n{\n$array\n};\n";
 close($output);

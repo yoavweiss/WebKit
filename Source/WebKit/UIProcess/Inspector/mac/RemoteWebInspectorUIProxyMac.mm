@@ -187,7 +187,7 @@ void RemoteWebInspectorUIProxy::platformSave(Vector<InspectorFrontendClient::Sav
 void RemoteWebInspectorUIProxy::platformLoad(const String& path, CompletionHandler<void(const String&)>&& completionHandler)
 {
     if (auto contents = FileSystem::readEntireFile(path))
-        completionHandler(String::adopt(WTFMove(*contents)));
+        completionHandler(String { byteCast<Latin1Character>(contents->span()) });
     else
         completionHandler(nullString());
 }

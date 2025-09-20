@@ -623,7 +623,7 @@ ALWAYS_INLINE T Lexer<T>::peek(int offset) const
 {
     ASSERT(offset > 0 && offset < 5);
     const T* code = m_code + offset;
-    return (code < m_codeEnd) ? *code : 0;
+    return (code < m_codeEnd) ? *code : T { };
 }
 
 struct ParsedUnicodeEscapeValue {
@@ -1208,7 +1208,7 @@ template <bool shouldBuildStrings> ALWAYS_INLINE typename Lexer<T>::StringParseR
 
     const T* stringStart = currentSourcePtr();
 
-    using UnsignedType = std::make_unsigned_t<T>;
+    using UnsignedType = SIMD::SameSizeUnsignedInteger<T>;
     auto quoteMask = SIMD::splat<UnsignedType>(stringQuoteCharacter);
     constexpr auto escapeMask = SIMD::splat<UnsignedType>('\\');
     constexpr auto controlMask = SIMD::splat<UnsignedType>(0xE);
@@ -1452,7 +1452,6 @@ template <bool shouldBuildStrings> auto Lexer<T>::parseStringSlowCase(JSTokenDat
         }
         // Fast check for characters that require special handling.
         // Catches 0, \n, and \r as efficiently as possible, and lets through all common ASCII characters.
-        static_assert(std::is_unsigned<T>::value, "Lexer expects an unsigned character type");
         if (m_current < 0xE) [[unlikely]] {
             // New-line or end of input is not allowed
             if (atEnd() || m_current == '\r' || m_current == '\n') {
@@ -2969,7 +2968,7 @@ inSingleLineComment:
     {
         auto endPosition = currentPosition();
 
-        using UnsignedType = std::make_unsigned_t<T>;
+        using UnsignedType = SIMD::SameSizeUnsignedInteger<T>;
         constexpr auto lineFeedMask = SIMD::splat<UnsignedType>('\n');
         constexpr auto carriageReturnMask = SIMD::splat<UnsignedType>('\r');
         constexpr auto u2028Mask = SIMD::splat<UnsignedType>(static_cast<UnsignedType>(0x2028));

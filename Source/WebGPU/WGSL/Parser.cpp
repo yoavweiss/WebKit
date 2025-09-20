@@ -29,8 +29,8 @@
 #include "AST.h"
 #include "Lexer.h"
 #include "ParserPrivate.h"
+#include "Token.h"
 #include "WGSLShaderModule.h"
-
 #include <wtf/Deque.h>
 #include <wtf/HashSet.h>
 #include <wtf/SetForScope.h>
@@ -320,10 +320,10 @@ static AST::UnaryOperation toUnaryOperation(const Token& token)
     }
 }
 
-template<typename Lexer>
+template<typename CharacterType>
 std::optional<FailedCheck> parse(ShaderModule& shaderModule)
 {
-    Lexer lexer(shaderModule.source());
+    Lexer<CharacterType> lexer(shaderModule.source().span<CharacterType>());
     Parser parser(shaderModule, lexer);
     auto result = parser.parseShader();
     if (!result.has_value())
@@ -334,8 +334,8 @@ std::optional<FailedCheck> parse(ShaderModule& shaderModule)
 std::optional<FailedCheck> parse(ShaderModule& shaderModule)
 {
     if (shaderModule.source().is8Bit())
-        return parse<Lexer<LChar>>(shaderModule);
-    return parse<Lexer<char16_t>>(shaderModule);
+        return parse<Latin1Character>(shaderModule);
+    return parse<char16_t>(shaderModule);
 }
 
 template<typename Lexer>

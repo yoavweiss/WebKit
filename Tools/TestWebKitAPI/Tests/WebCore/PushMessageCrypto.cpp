@@ -59,8 +59,7 @@ TEST(PushMessageCrypto, AES128GCMPayloadWithMinimalPadding)
     auto result = decryptAES128GCMPayload(clientKeys, payload);
     ASSERT_TRUE(result.has_value());
 
-    auto actual = String::adopt(WTFMove(*result));
-    ASSERT_EQ("When I grow up, I want to be a watermelon"_s, actual);
+    ASSERT_EQ("When I grow up, I want to be a watermelon"_s, result->span());
 }
 
 TEST(PushMessageCrypto, AES128GCMPayloadWithPadding)
@@ -71,8 +70,7 @@ TEST(PushMessageCrypto, AES128GCMPayloadWithPadding)
     auto result = decryptAES128GCMPayload(clientKeys, payload);
     ASSERT_TRUE(result.has_value());
 
-    auto actual = String::adopt(WTFMove(*result));
-    ASSERT_EQ("foobar"_s, actual);
+    ASSERT_EQ("foobar"_s, result->span());
 }
 
 TEST(PushMessageCrypto, AES128GCMPayloadWithIncorrectPadding)
@@ -118,8 +116,7 @@ TEST(PushMessageCrypto, AESGCMPayloadWithMinimalPadding)
     auto result = decryptAESGCMPayload(clientKeys, serverPublicKey, salt, payload);
     ASSERT_TRUE(result.has_value());
 
-    auto actual = String::adopt(WTFMove(*result));
-    ASSERT_EQ("I am the walrus"_s, actual);
+    ASSERT_EQ("I am the walrus"_s, result->span());
 }
 
 TEST(PushMessageCrypto, AESGCMPayloadWithPadding)
@@ -132,8 +129,7 @@ TEST(PushMessageCrypto, AESGCMPayloadWithPadding)
     auto result = decryptAESGCMPayload(clientKeys, serverPublicKey, salt, payload);
     ASSERT_TRUE(result.has_value());
 
-    auto actual = String::adopt(WTFMove(*result));
-    ASSERT_EQ("foobar"_s, actual);
+    ASSERT_EQ("foobar"_s, result->span());
 }
 
 TEST(PushMessageCrypto, AESGCMPayloadWithIncorrectPadding)

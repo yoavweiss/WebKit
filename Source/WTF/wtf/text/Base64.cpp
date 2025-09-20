@@ -205,17 +205,17 @@ unsigned calculateBase64EncodedSize(unsigned inputLength, OptionSet<Base64Encode
     return simdutf::base64_length_from_binary(inputLength, toSIMDUTFEncodeOptions(options));
 }
 
-template<typename T, typename Malloc = VectorBufferMalloc>
-static std::optional<Vector<uint8_t, 0, CrashOnOverflow, 16, Malloc>> base64DecodeInternal(std::span<const T> inputDataBuffer, OptionSet<Base64DecodeOption> options)
+template<typename T, typename VectorType = Vector<uint8_t, 0, CrashOnOverflow, 16, VectorBufferMalloc>>
+static std::optional<VectorType> base64DecodeInternal(std::span<const T> inputDataBuffer, OptionSet<Base64DecodeOption> options)
 {
     if (!inputDataBuffer.size())
-        return Vector<uint8_t, 0, CrashOnOverflow, 16, Malloc> { };
+        return VectorType { };
 
     auto decodeMap = options.contains(Base64DecodeOption::URL) ? base64URLDecMap : base64DecMap;
     auto validatePadding = options.contains(Base64DecodeOption::ValidatePadding);
     auto ignoreWhitespace = options.contains(Base64DecodeOption::IgnoreWhitespace);
 
-    Vector<uint8_t, 0, CrashOnOverflow, 16, Malloc> destination(inputDataBuffer.size());
+    VectorType destination(inputDataBuffer.size());
 
     unsigned equalsSignCount = 0;
     unsigned destinationLength = 0;
@@ -246,7 +246,7 @@ static std::optional<Vector<uint8_t, 0, CrashOnOverflow, 16, Malloc>> base64Deco
     if (!destinationLength) {
         if (equalsSignCount)
             return std::nullopt;
-        return Vector<uint8_t, 0, CrashOnOverflow, 16, Malloc> { };
+        return VectorType { };
     }
 
     // The should be no padding if length is a multiple of 4.
@@ -302,15 +302,13 @@ std::optional<Vector<uint8_t>> base64Decode(StringView input, OptionSet<Base64De
 
 String base64DecodeToString(StringView input, OptionSet<Base64DecodeOption> options)
 {
-    auto toString = [&] (auto optionalBuffer) {
-        if (!optionalBuffer)
-            return nullString();
-        return String::adopt(WTFMove(*optionalBuffer));
-    };
-
-    if (input.is8Bit())
-        return toString(base64DecodeInternal<LChar, StringImplMalloc>(input.span8(), options));
-    return toString(base64DecodeInternal<char16_t, StringImplMalloc>(input.span16(), options));
+    using VectorType = Vector<Latin1Character, 0, CrashOnOverflow, 16, StringImplMalloc>;
+    auto result = input.is8Bit()
+        ? base64DecodeInternal<Latin1Character, VectorType>(input.span8(), options)
+        : base64DecodeInternal<char16_t, VectorType>(input.span16(), options);
+    if (!result)
+        return nullString();
+    return String::adopt(WTFMove(*result));
 }
 
 static inline simdutf::base64_options toSIMDUTFDecodeOptions(Alphabet alphabet)

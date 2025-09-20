@@ -212,7 +212,8 @@ Token parseToken(std::span<const CodeUnit> data, std::span<const CodeUnit>& toke
 
     tokenStart = data;
 
-    switch (data.front()) {
+    char16_t firstCharacter = data.front();
+    switch (firstCharacter) {
     case 'n':
         if (parseConstToken(data, tokenEnd, nullToken))
             return Token::Null;

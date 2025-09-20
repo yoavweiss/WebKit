@@ -42,7 +42,7 @@ static typename IntegerToStringConversionTrait<T>::ReturnType numberToStringImpl
     std::array<LChar, sizeof(UnsignedIntegerType) * 3 + 1> buffer;
     auto index = buffer.size();
     do {
-        buffer[--index] = static_cast<LChar>((number % 10) + '0');
+        buffer[--index] = static_cast<char>((number % 10) + '0');
         number /= 10;
     } while (number);
 
@@ -73,7 +73,7 @@ static void writeIntegerToBufferImpl(UnsignedIntegerType number, std::span<Chara
     std::array<LChar, sizeof(UnsignedIntegerType) * 3 + 1> buffer;
     auto index = buffer.size();
     do {
-        buffer[--index] = static_cast<LChar>((number % 10) + '0');
+        buffer[--index] = static_cast<char>((number % 10) + '0');
         number /= 10;
     } while (number);
 

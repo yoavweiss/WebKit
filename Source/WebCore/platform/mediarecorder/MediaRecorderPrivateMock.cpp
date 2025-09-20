@@ -98,7 +98,7 @@ void MediaRecorderPrivateMock::fetchData(FetchDataCallback&& completionHandler)
     RefPtr<FragmentedSharedBuffer> buffer;
     {
         Locker locker { m_bufferLock };
-        Vector<uint8_t> value(m_buffer.span<uint8_t>());
+        Vector<uint8_t> value(byteCast<uint8_t>(m_buffer.span8()));
         m_buffer.clear();
         buffer = SharedBuffer::create(WTFMove(value));
     }
