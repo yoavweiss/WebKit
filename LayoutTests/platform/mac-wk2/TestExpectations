@@ -2422,5 +2422,3 @@ webkit.org/b/298903 webrtc/video-rotation-black.html [ Pass Failure ]
 webkit.org/b/298416 [ Debug ] http/tests/websocket/construct-in-detached-frame.html [ Skip ]
 
 webkit.org/b/299110 webrtc/calling-peerconnection-once-closed.html [ Pass Failure ]
-
-webkit.org/b/299195 [ Debug ] compositing/visible-rect/flipped-preserve-3d.html [ Pass Crash ]
