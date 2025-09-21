@@ -562,17 +562,17 @@ RenderSVGResourcePaintServer* RenderLayerModelObject::svgFillPaintServerResource
     if (!document().settings().layerBasedSVGEngineEnabled())
         return nullptr;
 
-    const auto& svgStyle = style.svgStyle();
-    if (svgStyle.fill().type < Style::SVGPaintType::URINone)
+    auto fillURL = style.svgStyle().fill().tryAnyURL();
+    if (!fillURL)
         return nullptr;
 
-    if (RefPtr referencedElement = ReferencedSVGResources::referencedPaintServerElement(treeScopeForSVGReferences(), svgStyle.fill().url)) {
+    if (RefPtr referencedElement = ReferencedSVGResources::referencedPaintServerElement(treeScopeForSVGReferences(), *fillURL)) {
         if (auto* referencedPaintServerRenderer = dynamicDowncast<RenderSVGResourcePaintServer>(referencedElement->renderer()))
             return referencedPaintServerRenderer;
     }
 
     if (auto* element = this->element())
-        document().addPendingSVGResource(AtomString(svgStyle.fill().url.resolved.string()), downcast<SVGElement>(*element));
+        document().addPendingSVGResource(AtomString(fillURL->resolved.string()), downcast<SVGElement>(*element));
 
     return nullptr;
 }
@@ -582,17 +582,17 @@ RenderSVGResourcePaintServer* RenderLayerModelObject::svgStrokePaintServerResour
     if (!document().settings().layerBasedSVGEngineEnabled())
         return nullptr;
 
-    const auto& svgStyle = style.svgStyle();
-    if (svgStyle.stroke().type < Style::SVGPaintType::URINone)
+    auto strokeURL = style.svgStyle().stroke().tryAnyURL();
+    if (!strokeURL)
         return nullptr;
 
-    if (RefPtr referencedElement = ReferencedSVGResources::referencedPaintServerElement(treeScopeForSVGReferences(), svgStyle.stroke().url)) {
+    if (RefPtr referencedElement = ReferencedSVGResources::referencedPaintServerElement(treeScopeForSVGReferences(), *strokeURL)) {
         if (auto* referencedPaintServerRenderer = dynamicDowncast<RenderSVGResourcePaintServer>(referencedElement->renderer()))
             return referencedPaintServerRenderer;
     }
 
     if (auto* element = this->element())
-        document().addPendingSVGResource(AtomString(svgStyle.stroke().url.resolved.string()), downcast<SVGElement>(*element));
+        document().addPendingSVGResource(AtomString(strokeURL->resolved.string()), downcast<SVGElement>(*element));
 
     return nullptr;
 }

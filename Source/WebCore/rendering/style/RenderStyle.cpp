@@ -2719,7 +2719,7 @@ const Style::Color& RenderStyle::unresolvedColorForProperty(CSSPropertyID colorP
     case CSSPropertyBorderTopColor:
         return visitedLink ? visitedLinkBorderTopColor() : borderTopColor();
     case CSSPropertyFill:
-        return fill().color;
+        return fill().colorDisregardingType();
     case CSSPropertyFloodColor:
         return floodColor();
     case CSSPropertyLightingColor:
@@ -2729,7 +2729,7 @@ const Style::Color& RenderStyle::unresolvedColorForProperty(CSSPropertyID colorP
     case CSSPropertyStopColor:
         return stopColor();
     case CSSPropertyStroke:
-        return stroke().color;
+        return stroke().colorDisregardingType();
     case CSSPropertyStrokeColor:
         return visitedLink ? visitedLinkStrokeColor() : strokeColor();
     case CSSPropertyBorderBlockEndColor:

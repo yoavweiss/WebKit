@@ -78,9 +78,11 @@ public:
     static GlyphOrientation initialGlyphOrientationHorizontal() { return GlyphOrientation::Degrees0; }
     static GlyphOrientation initialGlyphOrientationVertical() { return GlyphOrientation::Auto; }
     static constexpr Style::Opacity initialFillOpacity();
-    static Style::SVGPaint initialFill() { return Style::SVGPaint { Style::SVGPaintType::RGBColor, Style::URL::none(), Color::black }; }
+    static Style::Color initialFillColor() { return Color::black; }
+    static Style::SVGPaint initialFill() { return initialFillColor(); }
     static constexpr Style::Opacity initialStrokeOpacity();
-    static Style::SVGPaint initialStroke() { return Style::SVGPaint { Style::SVGPaintType::None, Style::URL::none(), Color { } }; }
+    static Style::Color initialStrokeColor() { return Color { }; }
+    static Style::SVGPaint initialStroke() { return CSS::Keyword::None { }; }
     static inline Style::SVGStrokeDasharray initialStrokeDashArray();
     static inline Style::SVGStrokeDashoffset initialStrokeDashOffset();
     static constexpr Style::Opacity initialStopOpacity();
@@ -179,8 +181,8 @@ public:
 
     // convenience
     bool hasMarkers() const { return !markerStartResource().isNone() || !markerMidResource().isNone() || !markerEndResource().isNone(); }
-    bool hasStroke() const { return stroke().type != Style::SVGPaintType::None; }
-    bool hasFill() const { return fill().type != Style::SVGPaintType::None; }
+    bool hasStroke() const { return !stroke().isNone(); }
+    bool hasFill() const { return !fill().isNone(); }
 
     void conservativelyCollectChangedAnimatableProperties(const SVGRenderStyle&, CSSPropertiesBitSet&) const;
 
