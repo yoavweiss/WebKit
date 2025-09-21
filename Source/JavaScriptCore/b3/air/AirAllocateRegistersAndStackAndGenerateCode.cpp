@@ -1043,9 +1043,11 @@ void GenerateAndAllocateRegisters::generate(CCallHelpers& jit)
     if (disassembler)
         disassembler->startLatePath(*m_jit);
 
-    // FIXME: Make late paths have Origins: https://bugs.webkit.org/show_bug.cgi?id=153689
-    for (auto& latePath : context.latePaths)
+    for (auto& [origin, latePath] : context.latePaths) {
+        if (m_code.shouldPreserveB3Origins())
+            pcToOriginMap.appendItem(m_jit->labelIgnoringWatchpoints(), origin);
         latePath->run(*m_jit, context);
+    }
 
     if (disassembler)
         disassembler->endLatePath(*m_jit);

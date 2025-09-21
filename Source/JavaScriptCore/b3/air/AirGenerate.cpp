@@ -340,8 +340,11 @@ static void generateWithAlreadyAllocatedRegisters(Code& code, CCallHelpers& jit)
     if (disassembler)
         disassembler->startLatePath(jit);
 
-    for (auto& latePath : context.latePaths)
+    for (auto& [origin, latePath] : context.latePaths) {
+        if (code.shouldPreserveB3Origins())
+            pcToOriginMap.appendItem(jit.labelIgnoringWatchpoints(), origin);
         latePath->run(jit, context);
+    }
 
     if (disassembler)
         disassembler->endLatePath(jit);

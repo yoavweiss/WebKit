@@ -1265,8 +1265,18 @@ OMGIRGenerator::OMGIRGenerator(CompilationContext& context, Module& module, Call
                 GPRReg fp = params[1].gpr();
                 if (m_compilationMode == CompilationMode::OMGForOSREntryMode)
                     jit.checkWasmStackOverflow(contextInstance, CCallHelpers::TrustedImm32(checkSize), fp).linkThunk(CodeLocationLabel<JITThunkPtrTag>(Thunks::singleton().stub(crashDueToOMGStackOverflowGenerator).code()), &jit);
-                else
-                    jit.checkWasmStackOverflow(contextInstance, CCallHelpers::TrustedImm32(checkSize), fp).linkThunk(CodeLocationLabel<JITThunkPtrTag>(Thunks::singleton().stub(throwStackOverflowFromWasmThunkGenerator).code()), &jit);
+                else {
+                    auto failure = jit.checkWasmStackOverflow(contextInstance, CCallHelpers::TrustedImm32(checkSize), fp);
+                    params.addLatePath(
+                        [=](CCallHelpers& jit) {
+                            failure.link(jit);
+                            int32_t stackSpace = WTF::roundUpToMultipleOf<stackAlignmentBytes()>(RegisterSetBuilder::calleeSaveRegisters().numberOfSetRegisters() * sizeof(Register));
+                            ASSERT(static_cast<unsigned>(stackSpace) < Options::softReservedZoneSize());
+                            jit.addPtr(CCallHelpers::TrustedImm32(-stackSpace), GPRInfo::callFrameRegister, MacroAssembler::stackPointerRegister);
+                            jit.move(CCallHelpers::TrustedImm32(static_cast<uint32_t>(ExceptionType::StackOverflow)), GPRInfo::argumentGPR1);
+                            jit.nearCallThunk(CodeLocationLabel<JITThunkPtrTag>(Thunks::singleton().stub(throwExceptionFromOMGThunkGenerator).code()));
+                        });
+                }
             }
         });
     }
@@ -1334,16 +1344,10 @@ void OMGIRGenerator::reloadMemoryRegistersFromInstance(const MemoryInformation& 
     }
 }
 
-void OMGIRGenerator::emitExceptionCheck(CCallHelpers& jit, Origin origin, ExceptionType type)
+void OMGIRGenerator::emitExceptionCheck(CCallHelpers& jit, Origin, ExceptionType type)
 {
     jit.move(CCallHelpers::TrustedImm32(static_cast<uint32_t>(type)), GPRInfo::argumentGPR1);
-    // Unfortunately, we still need to have this since we are throwing an error from non OMGCallee code.
-    // In that case, we will fall back to stack's CallSiteIndex. We should make the following a call instead of jump.
-    if (auto* omgOrigin = origin.omgOrigin()) {
-        jit.move(CCallHelpers::TrustedImm32(omgOrigin->m_callSiteIndex.bits()), GPRInfo::argumentGPR2);
-        jit.store32(GPRInfo::argumentGPR2, CCallHelpers::tagFor(CallFrameSlot::argumentCountIncludingThis));
-    }
-    jit.jumpThunk(CodeLocationLabel<JITThunkPtrTag>(Thunks::singleton().stub(throwExceptionFromWasmThunkGenerator).code()));
+    jit.nearCallThunk(CodeLocationLabel<JITThunkPtrTag>(Thunks::singleton().stub(throwExceptionFromOMGThunkGenerator).code()));
 }
 
 Value* OMGIRGenerator::constant(B3::Type type, uint64_t bits, std::optional<Origin> maybeOrigin)

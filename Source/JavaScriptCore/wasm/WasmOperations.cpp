@@ -1694,6 +1694,16 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmToJSException, void*, (JSWebAssem
     return throwWasmToJSException(callFrame, type, instance);
 }
 
+JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationThrowExceptionFromOMG, void*, (JSWebAssemblyInstance* instance, Wasm::ExceptionType type, void* returnAddress))
+{
+    CallFrame* callFrame = DECLARE_WASM_CALL_FRAME(instance);
+    assertCalleeIsReferenced(callFrame, instance);
+    VM& vm = instance->vm();
+    // This operation is called from a thunk. Thus we need a return address from OMG callee.
+    WasmOperationPrologueCallFrameTracer tracer(vm, callFrame, removeCodePtrTag(returnAddress));
+    return throwWasmToJSException(callFrame, type, instance);
+}
+
 JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationCrashDueToBBQStackOverflow, void, ())
 {
     // We have crashed because of a mismatch between the stack check in the wasm slow path loop_osr and the BBQ JIT LoopOSREntrypoint.

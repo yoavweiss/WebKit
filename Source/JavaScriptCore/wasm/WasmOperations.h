@@ -116,6 +116,7 @@ JSC_DECLARE_NOEXCEPT_JIT_OPERATION(operationWasmThrow, void*, (JSWebAssemblyInst
 JSC_DECLARE_NOEXCEPT_JIT_OPERATION(operationWasmRethrow, void*, (JSWebAssemblyInstance*, EncodedJSValue thrownValue));
 
 JSC_DECLARE_NOEXCEPT_JIT_OPERATION(operationWasmToJSException, void*, (JSWebAssemblyInstance*, Wasm::ExceptionType));
+JSC_DECLARE_NOEXCEPT_JIT_OPERATION(operationThrowExceptionFromOMG, void*, (JSWebAssemblyInstance*, Wasm::ExceptionType, void* returnAddress));
 JSC_DECLARE_NOEXCEPT_JIT_OPERATION(operationCrashDueToBBQStackOverflow, void, ());
 JSC_DECLARE_NOEXCEPT_JIT_OPERATION(operationCrashDueToOMGStackOverflow, void, ());
 

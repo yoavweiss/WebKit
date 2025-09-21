@@ -66,6 +66,34 @@ MacroAssemblerCodeRef<JITThunkPtrTag> throwExceptionFromWasmThunkGenerator(const
     return FINALIZE_WASM_CODE(linkBuffer, JITThunkPtrTag, "throwExceptionFromWasmThunk"_s, "Throw exception from Wasm");
 }
 
+MacroAssemblerCodeRef<JITThunkPtrTag> throwExceptionFromOMGThunkGenerator(const AbstractLocker&)
+{
+    CCallHelpers jit;
+    JIT_COMMENT(jit, "throwExceptionFromOMGThunkGenerator");
+
+    // Do not perform emitFunctionPrologue intentionally. This thunk is called by OMG, but we will throw an error. So there is no
+    // reason to construct the correct stack frames here. preserveReturnAddressAfterCall extracts the caller's returnAddress,
+    // used by StackVisitor to reconstruct CallSiteIndex. And this also pops return-address in x64, which means that callFrameRegister
+    // will become the same to caller's one (OMG's one).
+    jit.preserveReturnAddressAfterCall(GPRInfo::argumentGPR2);
+
+    // The thing that jumps here must move ExceptionType into the argumentGPR1 before jumping here.
+    // We're allowed to use temp registers here. We are not allowed to use callee saves.
+    jit.move(GPRInfo::wasmContextInstancePointer, GPRInfo::argumentGPR0);
+    jit.loadPtr(CCallHelpers::Address(GPRInfo::argumentGPR0, JSWebAssemblyInstance::offsetOfVM()), GPRInfo::argumentGPR3);
+    jit.loadPtr(CCallHelpers::Address(GPRInfo::argumentGPR3, VM::topEntryFrameOffset()), GPRInfo::argumentGPR3);
+    jit.copyCalleeSavesToEntryFrameCalleeSavesBuffer(GPRInfo::argumentGPR3);
+
+    jit.prepareWasmCallOperation(GPRInfo::argumentGPR0);
+    CCallHelpers::Call call = jit.call(OperationPtrTag);
+    jit.farJump(GPRInfo::returnValueGPR, ExceptionHandlerPtrTag);
+    jit.breakpoint(); // We should not reach this.
+
+    LinkBuffer linkBuffer(jit, GLOBAL_THUNK_ID, LinkBuffer::Profile::WasmThunk);
+    linkBuffer.link<OperationPtrTag>(call, operationThrowExceptionFromOMG);
+    return FINALIZE_WASM_CODE(linkBuffer, JITThunkPtrTag, "throwExceptionFromOMG"_s, "Throw exception from OMG");
+}
+
 // This is just here to give us a unique backtrace if we ever actually hit this.
 MacroAssemblerCodeRef<JITThunkPtrTag> crashDueToBBQStackOverflowGenerator(const AbstractLocker&)
 {

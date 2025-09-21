@@ -1106,18 +1106,9 @@ extern "C" void SYSV_ABI wasm_log_crash(CallFrame*, JSWebAssemblyInstance* insta
 
 extern "C" UGPRPair SYSV_ABI slow_path_wasm_throw_exception(CallFrame* callFrame, JSWebAssemblyInstance* instance, Wasm::ExceptionType exceptionType)
 {
-    SlowPathFrameTracer tracer(instance->vm(), callFrame);
-#if ENABLE(WEBASSEMBLY_BBQJIT)
-    void* pc = instance->faultPC();
+    // FaultPC is the exact PC causing the fault. When using it as a returnPC, we should point one next instruction instead.
+    WasmOperationPrologueCallFrameTracer tracer(instance->vm(), callFrame, std::bit_cast<void*>(std::bit_cast<uintptr_t>(instance->faultPC()) + 1));
     instance->setFaultPC(Wasm::ExceptionType::Termination, nullptr);
-    auto* callee = callFrame->callee().asNativeCallee();
-    ASSERT(callee->category() == NativeCallee::Category::Wasm);
-    auto& wasmCallee = static_cast<Wasm::Callee&>(*callee);
-    if (isAnyOMG(wasmCallee.compilationMode())) {
-        if (auto callSiteIndexFromPC = static_cast<Wasm::OptimizingJITCallee&>(wasmCallee).tryGetCallSiteIndex(pc))
-            callFrame->setCallSiteIndex(callSiteIndexFromPC.value());
-    }
-#endif
     WASM_RETURN_TWO(Wasm::throwWasmToJSException(callFrame, exceptionType, instance), nullptr);
 }
 
@@ -1126,18 +1117,9 @@ extern "C" UGPRPair SYSV_ABI slow_path_wasm_throw_exception(CallFrame* callFrame
 extern "C" UCPURegister SYSV_ABI slow_path_wasm_unwind_exception(CallFrame* callFrame, JSWebAssemblyInstance* instance)
 {
     VM& vm = instance->vm();
-    SlowPathFrameTracer tracer(vm, callFrame);
-#if ENABLE(WEBASSEMBLY_BBQJIT)
-    void* pc = instance->faultPC();
+    // FaultPC is the exact PC causing the fault. When using it as a returnPC, we should point one next instruction instead.
+    WasmOperationPrologueCallFrameTracer tracer(instance->vm(), callFrame, std::bit_cast<void*>(std::bit_cast<uintptr_t>(instance->faultPC()) + 1));
     instance->setFaultPC(Wasm::ExceptionType::Termination, nullptr);
-    auto* callee = callFrame->callee().asNativeCallee();
-    ASSERT(callee->category() == NativeCallee::Category::Wasm);
-    auto& wasmCallee = static_cast<Wasm::Callee&>(*callee);
-    if (isAnyOMG(wasmCallee.compilationMode())) {
-        if (auto callSiteIndexFromPC = static_cast<Wasm::OptimizingJITCallee&>(wasmCallee).tryGetCallSiteIndex(pc))
-            callFrame->setCallSiteIndex(callSiteIndexFromPC.value());
-    }
-#endif
     genericUnwind(vm, callFrame);
     ASSERT(!!vm.callFrameForCatch);
     ASSERT(!!vm.targetMachinePCForThrow);
