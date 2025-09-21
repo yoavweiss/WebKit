@@ -158,16 +158,6 @@ inline DisplayType blendFunc(DisplayType from, DisplayType to, const Context& co
     return from == DisplayType::None ? to : from;
 }
 
-inline LengthBox blendFunc(const LengthBox& from, const LengthBox& to, const Context& context, ValueRange valueRange = ValueRange::NonNegative)
-{
-    return LengthBox {
-        blendFunc(from.top(), to.top(), context, valueRange),
-        blendFunc(from.right(), to.right(), context, valueRange),
-        blendFunc(from.bottom(), to.bottom(), context, valueRange),
-        blendFunc(from.left(), to.left(), context, valueRange),
-    };
-}
-
 inline RefPtr<StyleImage> blendFunc(StyleImage* from, StyleImage* to, const Context& context)
 {
     if (!context.progress)

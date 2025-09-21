@@ -88,8 +88,6 @@ inline WebCore::Color forwardInheritedValue(const WebCore::Color& value) { auto 
 inline Color forwardInheritedValue(const Color& value) { auto copy = value; return copy; }
 inline EasingFunction forwardInheritedValue(const EasingFunction& value) { auto copy = value; return copy; }
 inline WebCore::Length forwardInheritedValue(const WebCore::Length& value) { auto copy = value; return copy; }
-inline LengthSize forwardInheritedValue(const LengthSize& value) { auto copy = value; return copy; }
-inline LengthBox forwardInheritedValue(const LengthBox& value) { auto copy = value; return copy; }
 inline GapGutter forwardInheritedValue(const GapGutter& value) { auto copy = value; return copy; }
 inline FilterOperations forwardInheritedValue(const FilterOperations& value) { auto copy = value; return copy; }
 inline TransformOperations forwardInheritedValue(const TransformOperations& value) { auto copy = value; return copy; }

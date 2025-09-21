@@ -25,6 +25,7 @@
 #include "config.h"
 #include "NinePieceImagePainter.h"
 
+#include "BoxExtents.h"
 #include "GraphicsContext.h"
 #include "ImagePaintingOptions.h"
 #include "ImageQualityController.h"

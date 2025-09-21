@@ -3146,11 +3146,6 @@ struct WebCore::LengthPoint {
     WebCore::Length y;
 }
 
-struct WebCore::LengthSize {
-    WebCore::Length width;
-    WebCore::Length height;
-}
-
 class WebCore::SVGPathByteStream {
     Vector<unsigned char> bytes();
 }

@@ -61,9 +61,9 @@
 #import "WKContentView.h"
 #import "WKContentViewInteraction.h"
 #import "WKFullScreenWindowControllerIOS.h"
+#import <WebCore/BoxExtents.h>
 #import <WebCore/FloatRect.h>
 #import <WebCore/IntDegrees.h>
-#import <WebCore/LengthBox.h>
 #import <WebCore/PlatformLayerIdentifier.h>
 #import <WebCore/ViewportArguments.h>
 #endif

@@ -25,8 +25,8 @@
 
 #pragma once
 
+#include <WebCore/BoxExtents.h>
 #include <WebCore/Filter.h>
-#include <WebCore/LengthBox.h>
 #include <wtf/TZoneMalloc.h>
 
 namespace WebCore {

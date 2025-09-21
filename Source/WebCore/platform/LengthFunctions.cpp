@@ -27,7 +27,6 @@
 #include "FloatSize.h"
 #include "LayoutSize.h"
 #include "LengthPoint.h"
-#include "LengthSize.h"
 
 namespace WebCore {
 
@@ -50,19 +49,9 @@ float floatValueForLength(const Length& length, float maximumValue, float zoom)
     }, zoom);
 }
 
-LayoutSize sizeForLengthSize(const LengthSize& length, const LayoutSize& maximumValue, float zoom)
-{
-    return { valueForLength(length.width, maximumValue.width(), zoom), valueForLength(length.height, maximumValue.height(), zoom) };
-}
-
 LayoutPoint pointForLengthPoint(const LengthPoint& lengthPoint, const LayoutSize& maximumValue, float zoom)
 {
     return { valueForLength(lengthPoint.x, maximumValue.width(), zoom), valueForLength(lengthPoint.y, maximumValue.height(), zoom) };
-}
-
-FloatSize floatSizeForLengthSize(const LengthSize& lengthSize, const FloatSize& boxSize, float zoom)
-{
-    return { floatValueForLength(lengthSize.width, boxSize.width(), zoom), floatValueForLength(lengthSize.height, boxSize.height(), zoom) };
 }
 
 FloatPoint floatPointForLengthPoint(const LengthPoint& lengthPoint, const FloatSize& boxSize, float zoom)

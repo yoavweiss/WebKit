@@ -28,7 +28,6 @@
 #include "ElementTraversal.h"
 #include "FrameDestructionObserverInlines.h"
 #include "GraphicsContext.h"
-#include "LengthBox.h"
 #include "LocalFrame.h"
 #include "LocalFrameInlines.h"
 #include "LocalFrameView.h"

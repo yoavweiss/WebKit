@@ -34,15 +34,11 @@ class FloatPoint;
 class LayoutSize;
 
 struct Length;
-struct LengthSize;
 struct LengthPoint;
 
 int intValueForLength(const Length&, LayoutUnit maximumValue, float zoom);
 WEBCORE_EXPORT float floatValueForLength(const Length&, float maximumValue, float zoom);
 WEBCORE_EXPORT LayoutUnit valueForLength(const Length&, LayoutUnit maximumValue, float zoom);
-
-LayoutSize sizeForLengthSize(const LengthSize&, const LayoutSize& maximumValue, float zoom);
-FloatSize floatSizeForLengthSize(const LengthSize&, const FloatSize& maximumValue, float zoom);
 
 LayoutPoint pointForLengthPoint(const LengthPoint&, const LayoutSize& maximumValue, float zoom);
 FloatPoint floatPointForLengthPoint(const LengthPoint&, const FloatSize& maximumValue, float zoom);

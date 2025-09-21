@@ -27,6 +27,7 @@
 
 #include <JavaScriptCore/Forward.h>
 #include <WebCore/MediaSample.h>
+#include <WebCore/SharedBuffer.h>
 #include <pal/avfoundation/MediaTimeAVFoundation.h>
 #include <wtf/Forward.h>
 #include <wtf/TypeCasts.h>
@@ -35,7 +36,6 @@ typedef struct CF_BRIDGED_TYPE(id) __CVBuffer* CVPixelBufferRef;
 
 namespace WebCore {
 
-class SharedBuffer;
 class PixelBuffer;
 class VideoFrameCV;
 

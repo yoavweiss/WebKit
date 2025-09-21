@@ -31,7 +31,6 @@
 #include <WebCore/FilterRenderingMode.h>
 #include <WebCore/FilterStyle.h>
 #include <WebCore/FloatRect.h>
-#include <WebCore/LengthBox.h>
 #include <WebCore/RenderingResource.h>
 #include <wtf/text/AtomString.h>
 

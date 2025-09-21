@@ -103,7 +103,6 @@ class StyleResolver;
 class StyleTransformData;
 class WillChangeData;
 
-struct LengthSize;
 struct StyleMarqueeData;
 
 namespace Style {

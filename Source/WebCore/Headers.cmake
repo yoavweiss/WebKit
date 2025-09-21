@@ -2252,10 +2252,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/LayoutUnit.h
     platform/LegacySchemeRegistry.h
     platform/Length.h
-    platform/LengthBox.h
     platform/LengthFunctions.h
     platform/LengthPoint.h
-    platform/LengthSize.h
     platform/LinkIcon.h
     platform/LocalizedStrings.h
     platform/LogClient.h

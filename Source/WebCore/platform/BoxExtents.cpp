@@ -24,28 +24,20 @@
  */
 
 #include "config.h"
-#include "LengthBox.h"
+#include "BoxExtents.h"
 
 #include <wtf/text/TextStream.h>
 
 namespace WebCore {
 
-TextStream& operator<<(TextStream& ts, const LengthBox& box)
-{
-    ts << "top: "_s << box.top() << " right: "_s << box.right() << " bottom: "_s << box.bottom() << " left: "_s << box.left();
-    return ts;
-}
-
 TextStream& operator<<(TextStream& ts, const FloatBoxExtent& box)
 {
-    ts << "top: "_s << box.top() << " right: "_s << box.right() << " bottom: "_s << box.bottom() << " left: "_s << box.left();
-    return ts;
+    return ts << "top: "_s << box.top() << " right: "_s << box.right() << " bottom: "_s << box.bottom() << " left: "_s << box.left();
 }
 
 TextStream& operator<<(TextStream& ts, const IntBoxExtent& box)
 {
-    ts << "top: "_s << box.top() << " right: "_s << box.right() << " bottom: "_s << box.bottom() << " left: "_s << box.left();
-    return ts;
+    return ts << "top: "_s << box.top() << " right: "_s << box.right() << " bottom: "_s << box.bottom() << " left: "_s << box.left();
 }
 
 } // namespace WebCore

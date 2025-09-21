@@ -2276,6 +2276,7 @@ page/scrolling/ThreadedScrollingTreeScrollingNodeDelegate.cpp
 page/text-extraction/TextExtraction.cpp
 platform/AudioDecoder.cpp
 platform/AudioEncoder.cpp
+platform/BoxExtents.cpp
 platform/CaretAnimator.cpp
 platform/CommonAtomStrings.cpp
 platform/ContentType.cpp
@@ -2298,10 +2299,8 @@ platform/LLVMProfiling.cpp
 platform/LayoutUnit.cpp
 platform/LegacySchemeRegistry.cpp
 platform/Length.cpp
-platform/LengthBox.cpp
 platform/LengthFunctions.cpp
 platform/LengthPoint.cpp
-platform/LengthSize.cpp
 platform/LocalizedStrings.cpp
 platform/LogInitialization.cpp
 platform/Logging.cpp

@@ -219,7 +219,6 @@ struct FontSizeAdjust;
 struct GridTrackList;
 struct ImageOrientation;
 struct Length;
-struct LengthSize;
 struct NameScope;
 struct ScrollSnapAlign;
 struct ScrollSnapType;
