@@ -5884,8 +5884,14 @@ auto OMGIRGenerator::emitDirectCall(unsigned callProfileIndex, FunctionSpaceInde
                 handle->collectStackMap(this, params);
 
             ASSERT(!m_info.isImportedFunctionFromFunctionIndexSpace(functionIndexSpace));
-            Ref<IPIntCallee> callee = m_calleeGroup.ipintCalleeFromFunctionIndexSpace(functionIndexSpace);
-            jit.storeWasmCalleeToCalleeCallFrame(CCallHelpers::TrustedImmPtr(CalleeBits::boxNativeCallee(callee.ptr())), isTailCallRootCaller ? sizeof(CallerFrameAndPC) - prologueStackPointerDelta() : 0);
+
+            // If the call is self-recursion, it is guaranteed that callee will be OMG as well since it ends up calling itself.
+            // Since the OMG function prologue will put callee, the caller does not need to place it.
+            bool selfRecursion = &m_inlineRoot->m_info == &m_info && m_info.toCodeIndex(functionIndexSpace) == m_inlineRoot->m_functionIndex;
+            if (!(selfRecursion && !isTailCallRootCaller)) {
+                Ref<IPIntCallee> callee = m_calleeGroup.ipintCalleeFromFunctionIndexSpace(functionIndexSpace);
+                jit.storeWasmCalleeToCalleeCallFrame(CCallHelpers::TrustedImmPtr(CalleeBits::boxNativeCallee(callee.ptr())), isTailCallRootCaller ? sizeof(CallerFrameAndPC) - prologueStackPointerDelta() : 0);
+            }
             auto call = isTailCallRootCaller ? jit.threadSafePatchableNearTailCall() : jit.threadSafePatchableNearCall();
 
             jit.addLinkTask([unlinkedWasmToWasmCalls, call, functionIndexSpace](LinkBuffer& linkBuffer) {
