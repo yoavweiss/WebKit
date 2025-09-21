@@ -104,11 +104,6 @@ inline TabSize blendFunc(const TabSize& from, const TabSize& to, const Context& 
     return { blendedValue < 0 ? 0 : blendedValue, from.isSpaces() ? SpaceValueType : LengthValueType };
 }
 
-inline FilterOperations blendFunc(const FilterOperations& from, const FilterOperations& to, const Context& context)
-{
-    return from.blend(to, context);
-}
-
 inline ContentVisibility blendFunc(ContentVisibility from, ContentVisibility to, const Context& context)
 {
     // https://drafts.csswg.org/css-contain-3/#content-visibility-animation
@@ -156,19 +151,6 @@ inline DisplayType blendFunc(DisplayType from, DisplayType to, const Context& co
     if (context.progress >= 1)
         return to;
     return from == DisplayType::None ? to : from;
-}
-
-inline RefPtr<StyleImage> blendFunc(StyleImage* from, StyleImage* to, const Context& context)
-{
-    if (!context.progress)
-        return from;
-
-    if (context.progress == 1.0)
-        return to;
-
-    ASSERT(from);
-    ASSERT(to);
-    return blend(ImageWrapper { *from }, ImageWrapper { *to }, context).value.ptr();
 }
 
 #if ENABLE(VARIATION_FONTS)

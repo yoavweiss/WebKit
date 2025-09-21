@@ -105,25 +105,6 @@ Wrapper(CSSPropertyID, T (RenderStyle::*getter)() const, void (RenderStyle::*set
 template<typename T>
 Wrapper(CSSPropertyID, const T& (RenderStyle::*getter)() const, void (RenderStyle::*setter)(T&&)) -> Wrapper<T, const T&, T&&>;
 
-template<typename T>
-class RefCountedWrapper : public WrapperWithGetter<T*> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(RefCountedWrapper, Animation);
-public:
-    RefCountedWrapper(CSSPropertyID property, T* (RenderStyle::*getter)() const, void (RenderStyle::*setter)(RefPtr<T>&&))
-        : WrapperWithGetter<T*>(property, getter)
-        , m_setter(setter)
-    {
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        (destination.*this->m_setter)(blendFunc(this->value(from), this->value(to), context));
-    }
-
-private:
-    void (RenderStyle::*m_setter)(RefPtr<T>&&);
-};
-
 // MARK: - Typed Wrappers
 
 template<typename T, typename GetterType = T, typename SetterType = T>
@@ -226,77 +207,6 @@ public:
     StyleTypeWrapper<T, const T&, T&&> m_visitedWrapper;
 };
 
-template<typename T>
-class AutoWrapper final : public Wrapper<T> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(AutoWrapper, Animation);
-public:
-    AutoWrapper(CSSPropertyID property, T (RenderStyle::*getter)() const, void (RenderStyle::*setter)(T), bool (RenderStyle::*autoGetter)() const, void (RenderStyle::*autoSetter)(), std::optional<T> minValue = std::nullopt)
-        : Wrapper<T>(property, getter, setter)
-        , m_autoGetter(autoGetter)
-        , m_autoSetter(autoSetter)
-        , m_minValue(minValue)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
-    {
-        return !(from.*m_autoGetter)() && !(to.*m_autoGetter)();
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        auto blendedValue = blendFunc(this->value(from), this->value(to), context);
-        if (m_minValue)
-            blendedValue = blendedValue > *m_minValue ? blendedValue : *m_minValue;
-        (destination.*this->m_setter)(blendedValue);
-
-        if (!context.isDiscrete)
-            return;
-
-        ASSERT(!context.progress || context.progress == 1.0);
-        if (!context.progress) {
-            if ((from.*m_autoGetter)())
-                (destination.*m_autoSetter)();
-        } else {
-            if ((to.*m_autoGetter)())
-                (destination.*m_autoSetter)();
-        }
-    }
-
-private:
-    bool (RenderStyle::*m_autoGetter)() const;
-    void (RenderStyle::*m_autoSetter)();
-    std::optional<T> m_minValue;
-};
-
-class FloatWrapper : public Wrapper<float> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FloatWrapper, Animation);
-public:
-    enum class ValueRange : uint8_t {
-        All,
-        NonNegative,
-        Positive
-    };
-    FloatWrapper(CSSPropertyID property, float (RenderStyle::*getter)() const, void (RenderStyle::*setter)(float), ValueRange valueRange = ValueRange::All)
-        : Wrapper(property, getter, setter)
-        , m_valueRange(valueRange)
-    {
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const override
-    {
-        auto blendedValue = blendFunc(value(from), value(to), context);
-        if (m_valueRange == ValueRange::NonNegative && blendedValue <= 0)
-            blendedValue = 0;
-        else if (m_valueRange == ValueRange::Positive && blendedValue < 0)
-            blendedValue = std::numeric_limits<float>::epsilon();
-        (destination.*m_setter)(blendedValue);
-    }
-
-private:
-    ValueRange m_valueRange;
-};
-
 class LengthWrapper : public WrapperWithGetter<const WebCore::Length&> {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(LengthWrapper, Animation);
 public:
@@ -369,6 +279,23 @@ DiscreteWrapper(CSSPropertyID, const T& (RenderStyle::*getter)() const, void (Re
 // Deduction guide for getter/setters that return values and take r-value references.
 template<typename T>
 DiscreteWrapper(CSSPropertyID, T (RenderStyle::*getter)() const, void (RenderStyle::*setter)(T&&)) -> DiscreteWrapper<T, T, T&&>;
+
+template<typename T>
+class NonNormalizedDiscreteWrapper final : public Wrapper<T> {
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(NonNormalizedDiscreteWrapper, Animation);
+public:
+    NonNormalizedDiscreteWrapper(CSSPropertyID property, T (RenderStyle::*getter)() const, void (RenderStyle::*setter)(T))
+        : Wrapper<T>(property, getter, setter)
+    {
+    }
+
+    bool canInterpolate(const RenderStyle&, const RenderStyle&, CompositeOperation) const final
+    {
+        return false;
+    }
+};
+
+// MARK: - Font Property Wrappers
 
 class FontSizeWrapper final : public Wrapper<float> {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontSizeWrapper, Animation);
@@ -451,21 +378,6 @@ private:
 
     T (FontCascadeDescription::*m_getter)() const;
     void (FontCascadeDescription::*m_setter)(T);
-};
-
-template<typename T>
-class NonNormalizedDiscreteWrapper final : public Wrapper<T> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(NonNormalizedDiscreteWrapper, Animation);
-public:
-    NonNormalizedDiscreteWrapper(CSSPropertyID property, T (RenderStyle::*getter)() const, void (RenderStyle::*setter)(T))
-        : Wrapper<T>(property, getter, setter)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle&, const RenderStyle&, CompositeOperation) const final
-    {
-        return false;
-    }
 };
 
 class FontFeatureSettingsWrapper final : public DiscreteFontDescriptionWrapper {
@@ -586,8 +498,6 @@ private:
     }
 };
 
-// MARK: - Customized Wrappers
-
 #if ENABLE(VARIATION_FONTS)
 
 class FontVariationSettingsWrapper final : public Wrapper<FontVariationSettings> {
@@ -625,6 +535,136 @@ public:
 };
 
 #endif
+
+class FontWeightWrapper final : public Wrapper<FontSelectionValue> {
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontWeightWrapper, Animation);
+public:
+    FontWeightWrapper()
+        : Wrapper(CSSPropertyFontWeight, &RenderStyle::fontWeight, &RenderStyle::setFontWeight)
+    {
+    }
+
+    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
+    {
+        (destination.*m_setter)(FontSelectionValue(std::clamp(blendFunc(static_cast<float>(this->value(from)), static_cast<float>(this->value(to)), context), 1.0f, 1000.0f)));
+    }
+};
+
+class FontStyleWrapper final : public Wrapper<std::optional<FontSelectionValue>> {
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontStyleWrapper, Animation);
+public:
+    FontStyleWrapper()
+        : Wrapper(CSSPropertyFontStyle, &RenderStyle::fontItalic, &RenderStyle::setFontItalic)
+    {
+    }
+
+    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
+    {
+        return from.fontDescription().fontStyleAxis() == FontStyleAxis::slnt && to.fontDescription().fontStyleAxis() == FontStyleAxis::slnt;
+    }
+
+    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
+    {
+        auto blendedStyleAxis = FontStyleAxis::slnt;
+        if (context.isDiscrete)
+            blendedStyleAxis = (context.progress < 0.5 ? from : to).fontDescription().fontStyleAxis();
+
+        auto fromFontItalic = from.fontItalic();
+        auto toFontItalic = to.fontItalic();
+        auto blendedFontItalic = context.progress < 0.5 ? fromFontItalic : toFontItalic;
+        if (!context.isDiscrete)
+            blendedFontItalic = blendFunc(fromFontItalic, toFontItalic, context);
+
+        auto description = destination.fontDescription();
+        description.setItalic(blendedFontItalic);
+        description.setFontStyleAxis(blendedStyleAxis);
+        destination.setFontDescription(WTFMove(description));
+    }
+};
+
+class FontSizeAdjustWrapper final : public WrapperWithGetter<FontSizeAdjust> {
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontSizeAdjustWrapper, Animation);
+public:
+    FontSizeAdjustWrapper()
+        : WrapperWithGetter(CSSPropertyFontSizeAdjust, &RenderStyle::fontSizeAdjust)
+    {
+    }
+
+    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
+    {
+        auto fromFontSizeAdjust = from.fontSizeAdjust();
+        auto toFontSizeAdjust = to.fontSizeAdjust();
+        return fromFontSizeAdjust.metric == toFontSizeAdjust.metric
+            && fromFontSizeAdjust.value && toFontSizeAdjust.value;
+    }
+
+    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
+    {
+        auto blendedFontSizeAdjust = [&]() -> FontSizeAdjust {
+            if (context.isDiscrete)
+                return (!context.progress ? from : to).fontSizeAdjust();
+
+            ASSERT(from.fontSizeAdjust().value && to.fontSizeAdjust().value);
+            auto blendedAdjust = blendFunc(*from.fontSizeAdjust().value, *to.fontSizeAdjust().value, context);
+
+            ASSERT(from.fontSizeAdjust().metric == to.fontSizeAdjust().metric);
+            return { to.fontSizeAdjust().metric, FontSizeAdjust::ValueType::Number, std::max(blendedAdjust, 0.0f) };
+        };
+
+        destination.setFontSizeAdjust(blendedFontSizeAdjust());
+    }
+};
+
+class LineHeightWrapper final : public LengthWrapper {
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(LineHeightWrapper, Animation);
+public:
+    LineHeightWrapper()
+        : LengthWrapper(CSSPropertyLineHeight, &RenderStyle::specifiedLineHeight, &RenderStyle::setLineHeight)
+    {
+    }
+
+    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation compositeOperation) const final
+    {
+        // We must account for how BuilderConverter::convertLineHeight() deals with line-height values:
+        // - "normal" is converted to LengthType::Percent with a -100 value
+        // - <number> values are converted to LengthType::Percent
+        // - <length-percentage> values are converted to LengthType::Fixed
+        // This means that animating between "normal" and a "<number>" would work with LengthWrapper::canInterpolate()
+        // since it would see two LengthType::Percent values. So if either value is "normal" we cannot interpolate since those
+        // values are either equal or of incompatible types.
+        auto normalLineHeight = RenderStyle::initialLineHeight();
+        if (value(from) == normalLineHeight || value(to) == normalLineHeight)
+            return false;
+
+        // The default logic will now apply since <number> and <length-percentage> values
+        // are converted to different LengthType values.
+        return LengthWrapper::canInterpolate(from, to, compositeOperation);
+    }
+};
+
+class TabSizeWrapper final : public Wrapper<const TabSize&> {
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(TabSizeWrapper, Animation);
+public:
+    TabSizeWrapper()
+        : Wrapper(CSSPropertyTabSize, &RenderStyle::tabSize, &RenderStyle::setTabSize)
+    {
+    }
+
+    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
+    {
+        return value(from).isSpaces() == value(to).isSpaces();
+    }
+
+    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
+    {
+        if (context.isDiscrete)
+            (destination.*m_setter)(context.progress ? value(to) : value(from));
+        else
+            Wrapper::interpolate(destination, from, to, context);
+    }
+};
+
+// MARK: - Color Property Wrappers
 
 class ColorWrapper final : public WrapperWithGetter<const WebCore::Color&> {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(ColorWrapper, Animation);
@@ -769,133 +809,7 @@ private:
     }
 };
 
-class FontWeightWrapper final : public Wrapper<FontSelectionValue> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontWeightWrapper, Animation);
-public:
-    FontWeightWrapper()
-        : Wrapper(CSSPropertyFontWeight, &RenderStyle::fontWeight, &RenderStyle::setFontWeight)
-    {
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        (destination.*m_setter)(FontSelectionValue(std::clamp(blendFunc(static_cast<float>(this->value(from)), static_cast<float>(this->value(to)), context), 1.0f, 1000.0f)));
-    }
-};
-
-class FontStyleWrapper final : public Wrapper<std::optional<FontSelectionValue>> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontStyleWrapper, Animation);
-public:
-    FontStyleWrapper()
-        : Wrapper(CSSPropertyFontStyle, &RenderStyle::fontItalic, &RenderStyle::setFontItalic)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
-    {
-        return from.fontDescription().fontStyleAxis() == FontStyleAxis::slnt && to.fontDescription().fontStyleAxis() == FontStyleAxis::slnt;
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        auto blendedStyleAxis = FontStyleAxis::slnt;
-        if (context.isDiscrete)
-            blendedStyleAxis = (context.progress < 0.5 ? from : to).fontDescription().fontStyleAxis();
-
-        auto fromFontItalic = from.fontItalic();
-        auto toFontItalic = to.fontItalic();
-        auto blendedFontItalic = context.progress < 0.5 ? fromFontItalic : toFontItalic;
-        if (!context.isDiscrete)
-            blendedFontItalic = blendFunc(fromFontItalic, toFontItalic, context);
-
-        auto description = destination.fontDescription();
-        description.setItalic(blendedFontItalic);
-        description.setFontStyleAxis(blendedStyleAxis);
-        destination.setFontDescription(WTFMove(description));
-    }
-};
-
-class FontSizeAdjustWrapper final : public WrapperWithGetter<FontSizeAdjust> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontSizeAdjustWrapper, Animation);
-public:
-    FontSizeAdjustWrapper()
-        : WrapperWithGetter(CSSPropertyFontSizeAdjust, &RenderStyle::fontSizeAdjust)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
-    {
-        auto fromFontSizeAdjust = from.fontSizeAdjust();
-        auto toFontSizeAdjust = to.fontSizeAdjust();
-        return fromFontSizeAdjust.metric == toFontSizeAdjust.metric
-            && fromFontSizeAdjust.value && toFontSizeAdjust.value;
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        auto blendedFontSizeAdjust = [&]() -> FontSizeAdjust {
-            if (context.isDiscrete)
-                return (!context.progress ? from : to).fontSizeAdjust();
-
-            ASSERT(from.fontSizeAdjust().value && to.fontSizeAdjust().value);
-            auto blendedAdjust = blendFunc(*from.fontSizeAdjust().value, *to.fontSizeAdjust().value, context);
-
-            ASSERT(from.fontSizeAdjust().metric == to.fontSizeAdjust().metric);
-            return { to.fontSizeAdjust().metric, FontSizeAdjust::ValueType::Number, std::max(blendedAdjust, 0.0f) };
-        };
-
-        destination.setFontSizeAdjust(blendedFontSizeAdjust());
-    }
-};
-
-class LineHeightWrapper final : public LengthWrapper {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(LineHeightWrapper, Animation);
-public:
-    LineHeightWrapper()
-        : LengthWrapper(CSSPropertyLineHeight, &RenderStyle::specifiedLineHeight, &RenderStyle::setLineHeight)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation compositeOperation) const final
-    {
-        // We must account for how BuilderConverter::convertLineHeight() deals with line-height values:
-        // - "normal" is converted to LengthType::Percent with a -100 value
-        // - <number> values are converted to LengthType::Percent
-        // - <length-percentage> values are converted to LengthType::Fixed
-        // This means that animating between "normal" and a "<number>" would work with LengthWrapper::canInterpolate()
-        // since it would see two LengthType::Percent values. So if either value is "normal" we cannot interpolate since those
-        // values are either equal or of incompatible types.
-        auto normalLineHeight = RenderStyle::initialLineHeight();
-        if (value(from) == normalLineHeight || value(to) == normalLineHeight)
-            return false;
-
-        // The default logic will now apply since <number> and <length-percentage> values
-        // are converted to different LengthType values.
-        return LengthWrapper::canInterpolate(from, to, compositeOperation);
-    }
-};
-
-class TabSizeWrapper final : public Wrapper<const TabSize&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(TabSizeWrapper, Animation);
-public:
-    TabSizeWrapper()
-        : Wrapper(CSSPropertyTabSize, &RenderStyle::tabSize, &RenderStyle::setTabSize)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
-    {
-        return value(from).isSpaces() == value(to).isSpaces();
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        if (context.isDiscrete)
-            (destination.*m_setter)(context.progress ? value(to) : value(from));
-        else
-            Wrapper::interpolate(destination, from, to, context);
-    }
-};
+// MARK: - Other Custom Wrappers
 
 class CounterWrapper final : public WrapperBase {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(CounterWrapper, Animation);
