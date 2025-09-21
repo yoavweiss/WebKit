@@ -360,6 +360,17 @@ std::optional<CSSSelector::PseudoElement> CSSSelector::parsePseudoElementName(St
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
+const CSSSelector* CSSSelector::firstInCompound() const
+{
+    auto* selector = this;
+    while (!selector->isFirstInComplexSelector()) {
+        if (selector->relation() != Relation::Subselector)
+            break;
+        ++selector;
+    }
+    return selector;
+}
+
 const CSSSelector* CSSSelector::lastInCompound() const
 {
     auto* selector = this;
@@ -821,6 +832,15 @@ CSSSelector::CSSSelector(const CSSSelector& other)
     }
 }
 
+CSSSelector::CSSSelector(const CSSSelector& other, MutableSelectorCopyTag)
+    : CSSSelector(other)
+{
+    // Restore the selector list bits to the initial state when copying to a MutableCSSSelector.
+    m_isLastInSelectorList = false;
+    m_isFirstInComplexSelector = true;
+    m_isLastInComplexSelector = true;
+}
+
 bool CSSSelector::visitSimpleSelectors(VisitFunctor&& functor, VisitFunctionalPseudoClasses visitFunctionalPseudoClasses, VisitOnlySubject visitOnlySubject) const
 {
     std::queue<const CSSSelector*> worklist;
@@ -890,6 +910,26 @@ bool CSSSelector::hasScope() const
             return true;
         return false;
     });
+}
+
+bool complexSelectorCanMatchPseudoElement(const CSSSelector& complexSelector)
+{
+    const CSSSelector* selector = &complexSelector;
+    do {
+        if (selector->matchesPseudoElement())
+            return true;
+
+        // FIXME: This is probably unneeded as functional pseudo-classes can't contain valid pseudo elements.
+        if (const CSSSelectorList* selectorList = selector->selectorList()) {
+            for (auto& subSelector : *selectorList) {
+                if (complexSelectorCanMatchPseudoElement(subSelector))
+                    return true;
+            }
+        }
+
+        selector = selector->precedingInComplexSelector();
+    } while (selector);
+    return false;
 }
 
 } // namespace WebCore
