@@ -77,7 +77,7 @@ inline StringTypeAdapter<WKStringRef>::StringTypeAdapter(WKStringRef string)
 {
 }
 
-template<> inline void StringTypeAdapter<WKStringRef>::writeTo<LChar>(std::span<LChar>) const
+template<> inline void StringTypeAdapter<WKStringRef>::writeTo<Latin1Character>(std::span<Latin1Character>) const
 {
 }
 

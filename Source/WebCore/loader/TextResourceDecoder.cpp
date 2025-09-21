@@ -64,7 +64,7 @@ static size_t find(std::span<const uint8_t> subject, std::span<const uint8_t> ta
     return notFound;
 }
 
-static PAL::TextEncoding findTextEncoding(std::span<const LChar> encodingName)
+static PAL::TextEncoding findTextEncoding(std::span<const Latin1Character> encodingName)
 {
     return StringView { encodingName };
 }
@@ -504,7 +504,7 @@ bool TextResourceDecoder::checkForHeadCharset(std::span<const uint8_t> data, boo
         size_t length = 0;
         size_t position = findXMLEncoding(bufferData.first(xmlDeclarationEnd.data() - bufferData.data()), length);
         if (position != notFound)
-            setEncoding(findTextEncoding(byteCast<LChar>(bufferData.subspan(position, length))), EncodingFromXMLHeader);
+            setEncoding(findTextEncoding(byteCast<Latin1Character>(bufferData.subspan(position, length))), EncodingFromXMLHeader);
         // continue looking for a charset - it may be specified in an HTTP-Equiv meta
     } else if (spanHasPrefix(bufferData, std::span { xmlPrefixLittleEndian })) {
         setEncoding(PAL::UTF16LittleEndianEncoding(), AutoDetectedEncoding);

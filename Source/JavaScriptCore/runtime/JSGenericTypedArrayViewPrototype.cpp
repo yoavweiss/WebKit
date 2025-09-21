@@ -233,7 +233,7 @@ JSC_DEFINE_HOST_FUNCTION(uint8ArrayPrototypeToHex, (JSGlobalObject* globalObject
         return { };
     }
 
-    std::span<LChar> buffer;
+    std::span<Latin1Character> buffer;
     auto result = StringImpl::createUninitialized(length * 2, buffer);
     constexpr size_t stride = 8; // Because loading uint8x8_t.
     if (length >= stride) {

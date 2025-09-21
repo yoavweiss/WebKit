@@ -3082,7 +3082,7 @@ class GenerateCSSPropertyNames:
 
             String nameForIDL(CSSPropertyID id)
             {
-                LChar characters[maxCSSPropertyNameLength];
+                Latin1Character characters[maxCSSPropertyNameLength];
                 const char* nameForCSS = nameLiteral(id);
                 if (!nameForCSS)
                     return emptyString();
@@ -3098,7 +3098,7 @@ class GenerateCSSPropertyNames:
                     }
                     *nextCharacter++ = character;
                 }
-                return std::span<const LChar> { characters, nextCharacter };
+                return std::span<const Latin1Character> { characters, nextCharacter };
             }
 
             """)

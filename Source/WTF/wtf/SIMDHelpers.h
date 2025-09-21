@@ -466,7 +466,7 @@ ALWAYS_INLINE std::optional<uint8_t> findFirstNonZeroIndex(simde_uint64x2_t valu
 #endif
 }
 
-template<LChar character, LChar... characters>
+template<Latin1Character character, Latin1Character... characters>
 ALWAYS_INLINE simde_uint8x16_t equal(simde_uint8x16_t input)
 {
     auto result = simde_vceqq_u8(input, simde_vmovq_n_u8(character));

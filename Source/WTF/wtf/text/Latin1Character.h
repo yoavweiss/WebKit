@@ -28,8 +28,6 @@
 
 #include <wtf/StdLibExtras.h>
 
-// FIXME: Rename this source file to Latin1Character.h.
-
 namespace WTF {
 
 // Single Latin-1 character. Complements char8_t for UTF-8, char16_t for UTF-16, char32_t for UTF-32.
@@ -117,12 +115,6 @@ constexpr int operator-(Latin1Character a, char b)
 template<typename CharacterType>
 concept IsStringStorageCharacter = std::same_as<CharacterType, Latin1Character> || std::same_as<CharacterType, char16_t>;
 
-// FIXME: Remove this once we have changed over entirely to Latin1Character.
-using LChar = Latin1Character;
-
 }
-
-// FIXME: Remove this once we have changed over entirely to Latin1Character.
-using LChar = WTF::Latin1Character;
 
 using WTF::Latin1Character;

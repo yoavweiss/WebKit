@@ -1140,7 +1140,7 @@ static VariantCode parseVariantCode(StringView string)
     ASSERT(string.length() <= 8);
     ASSERT(string.length() >= 1);
     struct Code {
-        LChar characters[8] { };
+        Latin1Character characters[8] { };
     };
     static_assert(sizeof(VariantCode) == sizeof(Code));
     Code code { };

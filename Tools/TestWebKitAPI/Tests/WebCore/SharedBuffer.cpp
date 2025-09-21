@@ -503,8 +503,8 @@ TEST_F(SharedBufferChunkReaderTest, includeSeparator)
     check(builder.take());
 
     for (size_t i = 0; i < 256; ++i) {
-        LChar c = i;
-        builder.append(std::span<const LChar> { &c, 1 });
+        Latin1Character c = i;
+        builder.append(std::span<const Latin1Character> { &c, 1 });
     }
     check(builder.take());
 }

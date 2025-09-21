@@ -175,7 +175,7 @@ void base64Encode(std::span<const std::byte> input, std::span<char16_t> destinat
     base64EncodeInternal(input, destination, options);
 }
 
-void base64Encode(std::span<const std::byte> input, std::span<LChar> destination, OptionSet<Base64EncodeOption> options)
+void base64Encode(std::span<const std::byte> input, std::span<Latin1Character> destination, OptionSet<Base64EncodeOption> options)
 {
     if (!destination.size())
         return;

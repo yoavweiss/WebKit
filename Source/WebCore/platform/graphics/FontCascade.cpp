@@ -601,7 +601,7 @@ static inline String normalizeSpacesInternal(std::span<const CharacterType> char
     return normalized.toString();
 }
 
-String FontCascade::normalizeSpaces(std::span<const LChar> characters)
+String FontCascade::normalizeSpaces(std::span<const Latin1Character> characters)
 {
     return normalizeSpacesInternal(characters);
 }
@@ -1113,7 +1113,7 @@ bool FontCascade::isCJKIdeographOrSymbol(char32_t c)
     return isCJKIdeograph(c);
 }
 
-std::pair<unsigned, bool> FontCascade::expansionOpportunityCountInternal(std::span<const LChar> characters, TextDirection direction, ExpansionBehavior expansionBehavior)
+std::pair<unsigned, bool> FontCascade::expansionOpportunityCountInternal(std::span<const Latin1Character> characters, TextDirection direction, ExpansionBehavior expansionBehavior)
 {
     unsigned count = 0;
     bool isAfterExpansion = expansionBehavior.left == ExpansionBehavior::Behavior::Forbid;

@@ -30,8 +30,8 @@
 
 namespace TestWGSLAPI {
 
-class TestLexer : public WGSL::Lexer<LChar> {
-    using Base = WGSL::Lexer<LChar>;
+class TestLexer : public WGSL::Lexer<Latin1Character> {
+    using Base = WGSL::Lexer<Latin1Character>;
 
 public:
     TestLexer(ASCIILiteral input)

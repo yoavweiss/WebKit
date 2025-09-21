@@ -274,8 +274,8 @@ inline unsigned BreakLines::nextBreakablePosition(CachedLineBreakIteratorFactory
 
     if (stringView.is8Bit()) {
         return words == WordBreakBehavior::KeepAll
-            ? nextBreakableSpace<LChar, spaces>(stringView.span8(), startPosition)
-            : nextBreakablePosition<LChar, rules, words, spaces>(lineBreakIteratorFactory, stringView.span8(), startPosition);
+            ? nextBreakableSpace<Latin1Character, spaces>(stringView.span8(), startPosition)
+            : nextBreakablePosition<Latin1Character, rules, words, spaces>(lineBreakIteratorFactory, stringView.span8(), startPosition);
     }
     return words == WordBreakBehavior::KeepAll
         ? nextBreakableSpace<char16_t, spaces>(stringView.span16(), startPosition)

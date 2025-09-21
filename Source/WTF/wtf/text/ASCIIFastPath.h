@@ -26,7 +26,7 @@
 #include <wtf/BitSet.h>
 #include <wtf/StdLibExtras.h>
 #include <wtf/text/ASCIILiteral.h>
-#include <wtf/text/LChar.h>
+#include <wtf/text/Latin1Character.h>
 
 #if CPU(X86_SSE2)
 #include <emmintrin.h>
@@ -42,11 +42,11 @@ inline constexpr BitSet<256> makeLatin1CharacterBitSet(ASCIILiteral characters)
     return bitmap;
 }
 
-inline constexpr BitSet<256> makeLatin1CharacterBitSet(NOESCAPE const Invocable<bool(LChar)> auto& matches)
+inline constexpr BitSet<256> makeLatin1CharacterBitSet(NOESCAPE const Invocable<bool(Latin1Character)> auto& matches)
 {
     BitSet<256> bitmap;
     for (unsigned i = 0; i < bitmap.size(); ++i) {
-        if (matches(static_cast<LChar>(i)))
+        if (matches(static_cast<Latin1Character>(i)))
             bitmap.set(i);
     }
     return bitmap;

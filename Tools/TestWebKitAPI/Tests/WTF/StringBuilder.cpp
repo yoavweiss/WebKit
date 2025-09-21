@@ -45,7 +45,7 @@ static String builderContent(const StringBuilder& builder)
     // Not using builder.toString() or builder.toStringPreserveCapacity() because they all
     // change internal state of builder.
     if (builder.is8Bit())
-        return builder.span<LChar>();
+        return builder.span<Latin1Character>();
     return builder.span<char16_t>();
 }
 
@@ -69,7 +69,7 @@ TEST(StringBuilderTest, Append)
     EXPECT_EQ("0123456789"_s, builderContent(builder));
     builder.append("abcd"_s);
     EXPECT_EQ("0123456789abcd"_s, builderContent(builder));
-    builder.append(std::span { reinterpret_cast<const LChar*>("efgh"), 3 });
+    builder.append(std::span { reinterpret_cast<const Latin1Character*>("efgh"), 3 });
     EXPECT_EQ("0123456789abcdefg"_s, builderContent(builder));
     builder.append(""_s);
     EXPECT_EQ("0123456789abcdefg"_s, builderContent(builder));
@@ -80,15 +80,15 @@ TEST(StringBuilderTest, Append)
     StringBuilder builder1;
     builder.append(""_span);
     EXPECT_EQ("0123456789abcdefg#"_s, builderContent(builder));
-    builder1.append(builder.span<LChar>());
+    builder1.append(builder.span<Latin1Character>());
     builder1.append("XYZ"_s);
-    builder.append(builder1.span<LChar>());
+    builder.append(builder1.span<Latin1Character>());
     EXPECT_EQ("0123456789abcdefg#0123456789abcdefg#XYZ"_s, builderContent(builder));
 
     StringBuilder builder2;
     builder2.reserveCapacity(100);
     builder2.append("xyz"_s);
-    const LChar* characters = builder2.span8().data();
+    const Latin1Character* characters = builder2.span8().data();
     builder2.append("0123456789"_s);
     EXPECT_EQ(characters, builder2.span8().data());
     builder2.toStringPreserveCapacity(); // Test after reifyString with buffer preserved.
@@ -397,7 +397,7 @@ TEST(StringBuilderTest, Equal)
     StringBuilder builder1;
     StringBuilder builder2;
     EXPECT_TRUE(builder1 == builder2);
-    EXPECT_TRUE(equal(builder1, std::span<const LChar>()));
+    EXPECT_TRUE(equal(builder1, std::span<const Latin1Character>()));
     EXPECT_TRUE(builder1 == String());
     EXPECT_TRUE(String() == builder1);
     EXPECT_TRUE(builder1 != String("abc"_s));

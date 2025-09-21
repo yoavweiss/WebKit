@@ -324,7 +324,7 @@ TEST(WTF, StringViewEqualBasic)
     EXPECT_FALSE(a == "Hello World!!"_s);
 
     auto test = "Hell\0";
-    a = StringView { std::span { (const LChar*)test, 5 } };
+    a = StringView { std::span { (const Latin1Character*)test, 5 } };
     EXPECT_FALSE(a == "Hell\0"_s);
     EXPECT_FALSE(a == "Hell"_s);
 
@@ -894,7 +894,7 @@ TEST(WTF, StringView8Bit)
     EXPECT_TRUE(StringView().is8Bit());
     EXPECT_TRUE(emptyStringView().is8Bit());
 
-    std::span<const LChar> lcharSpan;
+    std::span<const Latin1Character> lcharSpan;
     std::span<const char16_t> ucharSpan;
     EXPECT_TRUE(StringView(lcharSpan).is8Bit());
     EXPECT_FALSE(StringView(ucharSpan).is8Bit());

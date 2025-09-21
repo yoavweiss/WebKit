@@ -44,5 +44,5 @@ my $size = @values;
 my $array = join(', ', @values);
 
 open(my $output, '>', $outName) or die "Can't open file for write: $outName $!";
-print $output "#ifdef __cplusplus\n#include <array>\n#include <wtf/text/LChar.h>\nstatic constexpr std::array<Latin1Character, $size> $arrayName\n#else\nstatic const unsigned char ${arrayName}[] =\n#endif\n{\n$array\n};\n";
+print $output "#ifdef __cplusplus\n#include <array>\n#include <wtf/text/Latin1Character.h>\nstatic constexpr std::array<Latin1Character, $size> $arrayName\n#else\nstatic const unsigned char ${arrayName}[] =\n#endif\n{\n$array\n};\n";
 close($output);

@@ -28,13 +28,13 @@
 
 namespace TestWebKitAPI {
 
-static const LChar nullLChars[2] = { 0, 0 };
+static const Latin1Character nullLChars[2] = { 0, 0 };
 static const char16_t nullUChars[2] = { 0, 0 };
 
 static const unsigned emptyStringHash = 0x4EC889EU;
 static const unsigned singleNullCharacterHash = 0x3D3ABF44U;
 
-static const LChar testALChars[6] = { 0x41, 0x95, 0xFF, 0x50, 0x01, 0 };
+static const Latin1Character testALChars[6] = { 0x41, 0x95, 0xFF, 0x50, 0x01, 0 };
 static const char16_t testAUChars[6] = { 0x41, 0x95, 0xFF, 0x50, 0x01, 0 };
 static const char16_t testBUChars[6] = { 0x41, 0x95, 0xFFFF, 0x1080, 0x01, 0 };
 
@@ -112,7 +112,7 @@ TEST(WTF, SuperFastHash_addCharacters)
 
     // Hashing zero characters.
     hasher = SuperFastHash();
-    hasher.addCharacters(static_cast<LChar*>(0), 0);
+    hasher.addCharacters(static_cast<Latin1Character*>(0), 0);
     ASSERT_EQ(emptyStringHash, hasher.hash());
     ASSERT_EQ(emptyStringHash & 0xFFFFFF, hasher.hashWithTop8BitsMasked());
     hasher = SuperFastHash();
@@ -308,7 +308,7 @@ TEST(WTF, SuperFastHash_addCharactersAssumingAligned)
 
     // Hashing zero characters.
     hasher = SuperFastHash();
-    hasher.addCharactersAssumingAligned(static_cast<LChar*>(0), 0);
+    hasher.addCharactersAssumingAligned(static_cast<Latin1Character*>(0), 0);
     ASSERT_EQ(emptyStringHash, hasher.hash());
     ASSERT_EQ(emptyStringHash & 0xFFFFFF, hasher.hashWithTop8BitsMasked());
     hasher = SuperFastHash();
@@ -437,7 +437,7 @@ TEST(WTF, SuperFastHash_computeHash)
     // Ambiguous constructor call error when calling std::span<T>(T*, 0).
     // https://bugs.llvm.org/show_bug.cgi?id=49295
     static constexpr size_t zeroLength = 0;
-    ASSERT_EQ(emptyStringHash, SuperFastHash::computeHash(std::span { static_cast<const LChar*>(0), zeroLength }));
+    ASSERT_EQ(emptyStringHash, SuperFastHash::computeHash(std::span { static_cast<const Latin1Character*>(0), zeroLength }));
     ASSERT_EQ(emptyStringHash, SuperFastHash::computeHash(std::span { nullLChars, zeroLength }));
     ASSERT_EQ(emptyStringHash, SuperFastHash::computeHash(std::span { static_cast<const char16_t*>(0), zeroLength }));
     ASSERT_EQ(emptyStringHash, SuperFastHash::computeHash(std::span { nullUChars, zeroLength }));
@@ -456,7 +456,7 @@ TEST(WTF, SuperFastHash_computeHashAndMaskTop8Bits)
     // Ambiguous constructor call error when calling std::span<T>(T*, 0).
     // https://bugs.llvm.org/show_bug.cgi?id=49295
     static constexpr size_t zeroLength = 0;
-    ASSERT_EQ(emptyStringHash & 0xFFFFFF, SuperFastHash::computeHashAndMaskTop8Bits(std::span { static_cast<const LChar*>(0), zeroLength }));
+    ASSERT_EQ(emptyStringHash & 0xFFFFFF, SuperFastHash::computeHashAndMaskTop8Bits(std::span { static_cast<const Latin1Character*>(0), zeroLength }));
     ASSERT_EQ(emptyStringHash & 0xFFFFFF, SuperFastHash::computeHashAndMaskTop8Bits(std::span { nullLChars, zeroLength }));
     ASSERT_EQ(emptyStringHash & 0xFFFFFF, SuperFastHash::computeHashAndMaskTop8Bits(std::span { static_cast<const char16_t*>(0), zeroLength }));
     ASSERT_EQ(emptyStringHash & 0xFFFFFF, SuperFastHash::computeHashAndMaskTop8Bits(std::span { nullUChars, zeroLength }));

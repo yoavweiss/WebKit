@@ -28,7 +28,7 @@
 #include <wtf/Forward.h>
 #include <wtf/MathExtras.h>
 #include <wtf/StdLibExtras.h>
-#include <wtf/text/LChar.h>
+#include <wtf/text/Latin1Character.h>
 
 namespace WTF {
 
@@ -39,7 +39,7 @@ template<typename> struct IntegerToStringConversionTrait;
 template<typename T, typename UnsignedIntegerType, PositiveOrNegativeNumber NumberType, typename AdditionalArgumentType>
 static typename IntegerToStringConversionTrait<T>::ReturnType numberToStringImpl(UnsignedIntegerType number, AdditionalArgumentType additionalArgument)
 {
-    std::array<LChar, sizeof(UnsignedIntegerType) * 3 + 1> buffer;
+    std::array<Latin1Character, sizeof(UnsignedIntegerType) * 3 + 1> buffer;
     auto index = buffer.size();
     do {
         buffer[--index] = static_cast<char>((number % 10) + '0');
@@ -70,7 +70,7 @@ template<typename CharacterType, typename UnsignedIntegerType, PositiveOrNegativ
 static void writeIntegerToBufferImpl(UnsignedIntegerType number, std::span<CharacterType> destination)
 {
     static_assert(!std::is_same_v<bool, std::remove_cv_t<UnsignedIntegerType>>, "'bool' not supported");
-    std::array<LChar, sizeof(UnsignedIntegerType) * 3 + 1> buffer;
+    std::array<Latin1Character, sizeof(UnsignedIntegerType) * 3 + 1> buffer;
     auto index = buffer.size();
     do {
         buffer[--index] = static_cast<char>((number % 10) + '0');
@@ -131,10 +131,10 @@ constexpr unsigned lengthOfIntegerAsString(IntegerType integer)
 }
 
 template<size_t N>
-struct IntegerToStringConversionTrait<Vector<LChar, N>> {
-    using ReturnType = Vector<LChar, N>;
+struct IntegerToStringConversionTrait<Vector<Latin1Character, N>> {
+    using ReturnType = Vector<Latin1Character, N>;
     using AdditionalArgumentType = void;
-    static ReturnType flush(std::span<const LChar> characters, void*) { return characters; }
+    static ReturnType flush(std::span<const Latin1Character> characters, void*) { return characters; }
 };
 
 } // namespace WTF
