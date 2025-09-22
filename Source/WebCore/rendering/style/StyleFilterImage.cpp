@@ -117,7 +117,7 @@ void StyleFilterImage::load(CachedResourceLoader& cachedResourceLoader, const Re
     m_inputImageIsReady = true;
 }
 
-RefPtr<Image> StyleFilterImage::image(const RenderElement* renderer, const FloatSize& size, bool isForFirstLine) const
+RefPtr<Image> StyleFilterImage::image(const RenderElement* renderer, const FloatSize& size, const GraphicsContext& destinationContext, bool isForFirstLine) const
 {
     if (!renderer)
         return &Image::nullImage();
@@ -129,7 +129,7 @@ RefPtr<Image> StyleFilterImage::image(const RenderElement* renderer, const Float
     if (!styleImage)
         return &Image::nullImage();
 
-    auto image = styleImage->image(renderer, size, isForFirstLine);
+    auto image = styleImage->image(renderer, size, destinationContext, isForFirstLine);
     if (!image || image->isNull())
         return &Image::nullImage();
 
@@ -142,7 +142,7 @@ RefPtr<Image> StyleFilterImage::image(const RenderElement* renderer, const Float
 
     cssFilter->setFilterRegion(sourceImageRect);
 
-    auto sourceImage = ImageBuffer::create(size, cssFilter->renderingMode(), RenderingPurpose::DOM, 1, DestinationColorSpace::SRGB(), PixelFormat::BGRA8, renderer->hostWindow());
+    auto sourceImage = ImageBuffer::create(size, destinationContext.renderingMode(), RenderingPurpose::DOM, 1, DestinationColorSpace::SRGB(), PixelFormat::BGRA8, renderer->hostWindow());
     if (!sourceImage)
         return &Image::nullImage();
 

@@ -180,11 +180,11 @@ bool StyleMultiImage::hasClient(RenderElement& renderer) const
     return m_selectedImage->hasClient(renderer);
 }
 
-RefPtr<Image> StyleMultiImage::image(const RenderElement* renderer, const FloatSize& size, bool isForFirstLine) const
+RefPtr<Image> StyleMultiImage::image(const RenderElement* renderer, const FloatSize& size, const GraphicsContext& destinationContext, bool isForFirstLine) const
 {
     if (!m_selectedImage)
         return nullptr;
-    return m_selectedImage->image(renderer, size, isForFirstLine);
+    return m_selectedImage->image(renderer, size, destinationContext, isForFirstLine);
 }
 
 float StyleMultiImage::imageScaleFactor() const

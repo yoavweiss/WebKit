@@ -239,7 +239,7 @@ static void paintNinePieceImage(const T& ninePieceImage, GraphicsContext& graphi
 
     auto tileScales = computeTileScales(destinationRects, sourceRects, ninePieceImage.repeat().horizontalRule(), ninePieceImage.repeat().verticalRule());
 
-    RefPtr image = styleImage->image(renderer, source);
+    RefPtr image = styleImage->image(renderer, source, graphicsContext);
     if (!image)
         return;
 

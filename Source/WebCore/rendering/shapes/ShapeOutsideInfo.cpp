@@ -32,6 +32,7 @@
 
 #include "BoxLayoutShape.h"
 #include "FloatingObjects.h"
+#include "NullGraphicsContext.h"
 #include "RenderBlockFlow.h"
 #include "RenderBoxInlines.h"
 #include "RenderBoxModelObjectInlines.h"
@@ -282,7 +283,7 @@ Ref<const LayoutShape> makeShapeForShapeOutside(const RenderBox& renderer)
             ASSERT(!styleImage->isPending());
             auto physicalImageSize = writingMode.isHorizontal() ? logicalImageSize : logicalImageSize.transposedSize();
 
-            RefPtr image = styleImage->image(const_cast<RenderBox*>(&renderer), physicalImageSize);
+            RefPtr image = styleImage->image(const_cast<RenderBox*>(&renderer), physicalImageSize, NullGraphicsContext());
             return LayoutShape::createRasterShape(image.get(), shapeImageThreshold.value, logicalImageRect, logicalMarginRect, writingMode, logicalMargin);
         },
         [&](const Style::ShapeOutside::ShapeBox&) {

@@ -67,7 +67,7 @@ void StylePaintImage::load(CachedResourceLoader&, const ResourceLoaderOptions&)
 {
 }
 
-RefPtr<Image> StylePaintImage::image(const RenderElement* renderer, const FloatSize& size, bool) const
+RefPtr<Image> StylePaintImage::image(const RenderElement* renderer, const FloatSize& size, const GraphicsContext&, bool) const
 {
     if (!renderer)
         return &Image::nullImage();
