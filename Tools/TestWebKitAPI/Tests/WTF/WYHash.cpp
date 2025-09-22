@@ -54,7 +54,7 @@ static const unsigned expected[256] = {
 TEST(WTF, WYHasher)
 {
     auto generateLCharArray = [&](size_t size) {
-        auto array = std::unique_ptr<Latin1Character[]>(new Latin1Character[size]);
+        auto array = std::unique_ptr<LChar[]>(new LChar[size]);
         for (size_t i = 0; i < size; i++)
             array[i] = i;
         return array;
@@ -69,7 +69,7 @@ TEST(WTF, WYHasher)
 
     unsigned max8Bit = std::numeric_limits<uint8_t>::max();
     for (size_t size = 0; size <= max8Bit; size++) {
-        std::unique_ptr<const Latin1Character[]> arr1 = generateLCharArray(size);
+        std::unique_ptr<const LChar[]> arr1 = generateLCharArray(size);
         std::unique_ptr<const char16_t[]> arr2 = generateUCharArray(size);
         unsigned left = WYHash::computeHashAndMaskTop8Bits(std::span { arr1.get(), size });
         unsigned right = WYHash::computeHashAndMaskTop8Bits(std::span { arr2.get(), size });

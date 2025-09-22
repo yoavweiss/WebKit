@@ -103,7 +103,6 @@ protected:
 };
 
 WTF_EXPORT_PRIVATE void printInternal(PrintStream&, const char*);
-
 template<std::size_t Extent>
 inline void printInternal(PrintStream& out, std::span<const char, Extent> string)
 {
@@ -111,10 +110,6 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
     out.printf("%.*s", static_cast<int>(string.size()), string.data());
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 }
-
-template<std::size_t Extent>
-void printInternal(PrintStream& out, std::span<const char8_t, Extent> string) { printInternal(out, byteCast<char>(string)); }
-
 WTF_EXPORT_PRIVATE void printInternal(PrintStream&, StringView);
 WTF_EXPORT_PRIVATE void printInternal(PrintStream&, const CString&);
 WTF_EXPORT_PRIVATE void printInternal(PrintStream&, const String&);

@@ -123,7 +123,7 @@ public:
     explicit StringParsingBufferSource(StringParsingBuffer<CharacterType>&);
 
     static bool isEmpty() { return false; }
-    char16_t currentCharacter() const { return m_source.atEnd() ? 0 : char16_t { *m_source }; }
+    char16_t currentCharacter() const { return m_source.atEnd() ? 0 : *m_source; }
     void advance() { m_source.advance(); }
     void pushEverythingBack() { m_source.setPosition(m_startPosition); }
     void pushBackButKeep(unsigned keepCount) { m_source.setPosition(m_startPosition.subspan(keepCount)); }
@@ -281,9 +281,9 @@ DecodedHTMLEntity consumeHTMLEntity(SegmentedString& source, char16_t additional
     return consumeHTMLEntity(SegmentedStringSource { source }, additionalAllowedCharacter);
 }
 
-DecodedHTMLEntity consumeHTMLEntity(StringParsingBuffer<Latin1Character>& source)
+DecodedHTMLEntity consumeHTMLEntity(StringParsingBuffer<LChar>& source)
 {
-    return consumeHTMLEntity(StringParsingBufferSource<Latin1Character> { source }, 0);
+    return consumeHTMLEntity(StringParsingBufferSource<LChar> { source }, 0);
 }
 
 DecodedHTMLEntity consumeHTMLEntity(StringParsingBuffer<char16_t>& source)

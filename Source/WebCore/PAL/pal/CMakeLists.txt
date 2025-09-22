@@ -1,6 +1,7 @@
 set(PAL_PUBLIC_HEADERS
     ExportMacros.h
     FileSizeFormatter.h
+    Gunzip.h
     HysteresisActivity.h
     Logging.h
     SessionID.h

@@ -110,7 +110,7 @@ static String readContentsOfFile(const String& path)
     if (!buffer)
         return emptyString();
 
-    String result = byteCast<Latin1Character>(buffer->span());
+    String result = buffer->span();
     if (result.endsWith('\n'))
         return result.left(result.length() - 1);
 

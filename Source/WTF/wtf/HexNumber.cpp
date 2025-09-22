@@ -31,14 +31,7 @@ namespace WTF {
 
 namespace Internal {
 
-static const std::array<Latin1Character, 16>& hexDigitsForMode(HexConversionMode mode)
-{
-    static constexpr std::array<Latin1Character, 16> lowercaseHexDigits { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-    static constexpr std::array<Latin1Character, 16> uppercaseHexDigits { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-    return mode == Lowercase ? lowercaseHexDigits : uppercaseHexDigits;
-}
-
-std::span<Latin1Character> appendHex(std::span<Latin1Character> buffer, std::uintmax_t number, unsigned minimumDigits, HexConversionMode mode)
+std::span<LChar> appendHex(std::span<LChar> buffer, std::uintmax_t number, unsigned minimumDigits, HexConversionMode mode)
 {
     size_t startIndex = buffer.size();
     auto& hexDigits = hexDigitsForMode(mode);
@@ -61,7 +54,7 @@ void printInternal(PrintStream& out, HexNumberBuffer buffer)
     out.print(StringView(buffer.span()));
 }
 
-static void toHexInternal(std::span<const uint8_t> values, std::span<Latin1Character> hexadecimalOutput)
+static void toHexInternal(std::span<const uint8_t> values, std::span<LChar> hexadecimalOutput)
 {
     for (auto [i, digestValue] : indexedRange(values)) {
         hexadecimalOutput[i * 2] = upperNibbleToASCIIHexDigit(digestValue);
@@ -73,13 +66,13 @@ CString toHexCString(std::span<const uint8_t> values)
 {
     std::span<char> buffer;
     auto result = CString::newUninitialized(CheckedSize(values.size()) * 2U, buffer);
-    toHexInternal(values, byteCast<Latin1Character>(buffer));
+    toHexInternal(values, byteCast<LChar>(buffer));
     return result;
 }
 
 String toHexString(std::span<const uint8_t> values)
 {
-    std::span<Latin1Character> buffer;
+    std::span<LChar> buffer;
     auto result = String::createUninitialized(CheckedSize(values.size()) * 2U, buffer);
     toHexInternal(values, buffer);
     return result;

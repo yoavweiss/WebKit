@@ -56,11 +56,11 @@ private:
         if (characterCount > bytesRemaining)
             return false;
 
-        Vector<char8_t> characters;
+        Vector<LChar> characters;
         characters.reserveInitialCapacity(static_cast<size_t>(characterCount));
         while (characterCount--) {
-            char8_t character = 0;
-            if (!checkedRead<char8_t>(character, view, localOffset, BigEndian))
+            int8_t character = 0;
+            if (!checkedRead<int8_t>(character, view, localOffset, BigEndian))
                 return false;
             characters.append(character);
         }

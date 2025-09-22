@@ -212,8 +212,7 @@ Token parseToken(std::span<const CodeUnit> data, std::span<const CodeUnit>& toke
 
     tokenStart = data;
 
-    char16_t firstCharacter = data.front();
-    switch (firstCharacter) {
+    switch (data.front()) {
     case 'n':
         if (parseConstToken(data, tokenEnd, nullToken))
             return Token::Null;
@@ -532,7 +531,7 @@ RefPtr<Value> Value::parseJSON(StringView json)
     RefPtr<Value> result;
     if (json.is8Bit()) {
         auto data = json.span8();
-        std::span<const Latin1Character> tokenEnd;
+        std::span<const LChar> tokenEnd;
         result = buildValue(data, tokenEnd, 0);
         if (containsNonSpace(tokenEnd))
             return nullptr;

@@ -278,6 +278,11 @@ enum class NodeFlags {
     ElementSubtype = 1 << 2,
 };
 
+static uint8_t edgeTypeToNumber(EdgeType type)
+{
+    return static_cast<uint8_t>(type);
+}
+
 static ASCIILiteral edgeTypeToString(EdgeType type)
 {
     switch (type) {
@@ -445,7 +450,7 @@ String HeapSnapshotBuilder::json()
         firstEdge = false;
 
         // <fromNodeId>, <toNodeId>, <edgeTypeIndex>, <edgeExtraData>
-        json.append(edge.from.identifier, ',', edge.to.identifier, ',', edge.type, ',');
+        json.append(edge.from.identifier, ',', edge.to.identifier, ',', edgeTypeToNumber(edge.type), ',');
         switch (edge.type) {
         case EdgeType::Property:
         case EdgeType::Variable: {

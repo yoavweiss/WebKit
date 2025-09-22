@@ -12667,7 +12667,7 @@ struct CharacterCase {
         return character < other.character;
     }
     
-    Latin1Character character;
+    LChar character;
     unsigned begin;
     unsigned end;
 };

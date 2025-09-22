@@ -50,10 +50,6 @@
 #include <wtf/TypeTraits.h>
 #include <wtf/Variant.h>
 
-namespace WTF {
-struct Latin1Character;
-}
-
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 
 #define SINGLE_ARG(...) __VA_ARGS__ // useful when a macro argument includes a comma
@@ -104,6 +100,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 // WTF_CONCAT: concatenate two symbols into one, even expandable macros
 #define WTF_CONCAT_INTERNAL_DONT_USE(a, b) a ## b
 #define WTF_CONCAT(a, b) WTF_CONCAT_INTERNAL_DONT_USE(a, b)
+
 
 /*
  * The reinterpret_cast<Type1*>([pointer to Type2]) expressions - where
@@ -1230,41 +1227,31 @@ template <class T> inline typename std::enable_if<std::is_pointer<T>::value, T>:
     snprintf(destinationSpan.data(), destinationSpan.size_bytes(), format __VA_OPT__(, SAFE_PRINTF_TYPE(__VA_ARGS__))) \
     WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
-template<typename T>
-concept IsByte = (sizeof(T) == 1 && std::is_integral_v<T> && !std::same_as<std::remove_const_t<T>, bool>) || std::same_as<std::remove_const_t<T>, std::byte> || std::same_as<std::remove_const_t<T>, WTF::Latin1Character>;
-
-template<typename T>
-concept IsMutableByte = IsByte<T> && !std::is_const_v<T>;
+template<typename T> concept ByteType = sizeof(T) == 1 && ((std::is_integral_v<T> && !std::same_as<T, bool>) || std::same_as<T, std::byte>) && !std::is_const_v<T>;
 
 template<typename> struct ByteCastTraits;
 
-template<IsByte T>
-struct ByteCastTraits<T> {
-    template<IsByte U> static constexpr U cast(T character) { return static_cast<U>(character); }
+template<ByteType T> struct ByteCastTraits<T> {
+    template<ByteType U> static constexpr U cast(T character) { return static_cast<U>(character); }
 };
 
-template<IsMutableByte T>
-struct ByteCastTraits<T*> {
-    template<IsMutableByte U> static constexpr auto cast(T* pointer) { return std::bit_cast<U*>(pointer); }
+template<ByteType T> struct ByteCastTraits<T*> {
+    template<ByteType U> static constexpr auto cast(T* pointer) { return std::bit_cast<U*>(pointer); }
 };
 
-template<IsMutableByte T>
-struct ByteCastTraits<const T*> {
-    template<IsMutableByte U> static constexpr auto cast(const T* pointer) { return std::bit_cast<const U*>(pointer); }
+template<ByteType T> struct ByteCastTraits<const T*> {
+    template<ByteType U> static constexpr auto cast(const T* pointer) { return std::bit_cast<const U*>(pointer); }
 };
 
-template<IsMutableByte T, size_t Extent>
-struct ByteCastTraits<std::span<T, Extent>> {
-    template<IsMutableByte U> static constexpr auto cast(std::span<T, Extent> span) { return spanReinterpretCast<U>(span); }
+template<ByteType T, size_t Extent> struct ByteCastTraits<std::span<T, Extent>> {
+    template<ByteType U> static constexpr auto cast(std::span<T, Extent> span) { return spanReinterpretCast<U>(span); }
 };
 
-template<IsMutableByte T, size_t Extent>
-struct ByteCastTraits<std::span<const T, Extent>> {
-    template<IsMutableByte U> static constexpr auto cast(std::span<const T, Extent> span) { return spanReinterpretCast<const U>(span); }
+template<ByteType T, size_t Extent> struct ByteCastTraits<std::span<const T, Extent>> {
+    template<ByteType U> static constexpr auto cast(std::span<const T, Extent> span) { return spanReinterpretCast<const U>(span); }
 };
 
-template<IsByte T, typename U>
-constexpr auto byteCast(const U& value)
+template<ByteType T, typename U> constexpr auto byteCast(const U& value)
 {
     return ByteCastTraits<U>::template cast<T>(value);
 }

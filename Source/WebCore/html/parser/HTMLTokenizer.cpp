@@ -39,7 +39,7 @@ namespace WebCore {
 
 using namespace HTMLNames;
 
-static inline Latin1Character convertASCIIAlphaToLower(char16_t character)
+static inline LChar convertASCIIAlphaToLower(char16_t character)
 {
     ASSERT(isASCIIAlpha(character));
     return toASCIILowerUnchecked(character);
@@ -72,7 +72,7 @@ inline void HTMLTokenizer::bufferASCIICharacter(char16_t character)
 {
     ASSERT(character != kEndOfFileMarker);
     ASSERT(isASCII(character));
-    Latin1Character narrowedCharacter = character;
+    LChar narrowedCharacter = character;
     m_token.appendToCharacter(narrowedCharacter);
 }
 

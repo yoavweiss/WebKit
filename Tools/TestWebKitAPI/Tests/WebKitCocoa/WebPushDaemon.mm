@@ -282,7 +282,7 @@ template<> struct TestArgumentCoder<String> {
         if (!is8Bit)
             return std::nullopt;
         if (*is8Bit)
-            return decodeStringText<Latin1Character>(decoder, *length);
+            return decodeStringText<LChar>(decoder, *length);
         return decodeStringText<char16_t>(decoder, *length);
     }
 };
@@ -1207,7 +1207,7 @@ public:
             @"userInfo": apsUserInfo
         };
 
-        String message { byteCast<Latin1Character>(span([NSJSONSerialization dataWithJSONObject:obj options:0 error:nullptr])) };
+        String message { span([NSJSONSerialization dataWithJSONObject:obj options:0 error:nullptr]) };
 
         auto utilityConnection = createAndConfigureConnectionToService("org.webkit.webpushtestdaemon.service");
         auto sender = WebPushXPCConnectionMessageSender { utilityConnection.get() };

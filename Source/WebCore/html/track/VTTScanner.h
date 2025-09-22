@@ -54,7 +54,7 @@ public:
 
     class Run {
     public:
-        explicit Run(std::span<const Latin1Character> data)
+        explicit Run(std::span<const LChar> data)
             : m_is8Bit(true)
         {
             m_data.characters8 = data;
@@ -66,7 +66,7 @@ public:
             m_data.characters16 = data;
         }
 
-        std::span<const Latin1Character> span8() const { RELEASE_ASSERT(m_is8Bit); return m_data.characters8; }
+        std::span<const LChar> span8() const { RELEASE_ASSERT(m_is8Bit); return m_data.characters8; }
         std::span<const char16_t> span16() const { RELEASE_ASSERT(!m_is8Bit); return m_data.characters16; }
 
         Position start() const
@@ -90,7 +90,7 @@ public:
             Characters()
                 : characters8()
             { }
-            std::span<const Latin1Character> characters8;
+            std::span<const LChar> characters8;
             std::span<const char16_t> characters16;
         } m_data;
         bool m_is8Bit;
@@ -105,7 +105,7 @@ public:
     // Scan the character |c|.
     bool scan(char);
     // Scan the first |charactersCount| characters of the string |characters|.
-    bool scan(std::span<const Latin1Character> characters);
+    bool scan(std::span<const LChar> characters);
 
     // Skip (advance the input pointer) as long as the specified
     // |characterPredicate| returns true, and the input pointer is not passed
@@ -172,7 +172,7 @@ protected:
         Characters()
             : characters8()
         { }
-        std::span<const Latin1Character> characters8;
+        std::span<const LChar> characters8;
         std::span<const char16_t> characters16;
     } m_data;
     const String m_source;
@@ -227,7 +227,7 @@ inline void VTTScanner::seekTo(Position position)
 {
     if (m_is8Bit) {
         auto span8 = m_source.span8();
-        auto* position8 = static_cast<const Latin1Character*>(position);
+        auto* position8 = static_cast<const LChar*>(position);
         RELEASE_ASSERT(position8 >= span8.data());
         m_data.characters8 = span8.subspan(position8 - span8.data());
     } else {
@@ -240,7 +240,7 @@ inline void VTTScanner::seekTo(Position position)
 
 inline char16_t VTTScanner::currentChar() const
 {
-    return m_is8Bit ? char16_t { m_data.characters8.front() } : m_data.characters16.front();
+    return m_is8Bit ? m_data.characters8.front() : m_data.characters16.front();
 }
 
 inline void VTTScanner::advance(size_t amount)

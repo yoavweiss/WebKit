@@ -1866,7 +1866,7 @@ enum class CustomElementNameCharacterKind : uint8_t {
     Upper,
 };
 
-static ALWAYS_INLINE CustomElementNameCharacterKind customElementNameCharacterKind(Latin1Character character)
+static ALWAYS_INLINE CustomElementNameCharacterKind customElementNameCharacterKind(LChar character)
 {
     using Kind = CustomElementNameCharacterKind;
     static constexpr std::array<Kind, 256> table {
@@ -7238,7 +7238,7 @@ void Document::updateCachedCookiesEnabled()
     });
 }
 
-static bool isValidNameNonASCII(std::span<const Latin1Character> characters)
+static bool isValidNameNonASCII(std::span<const LChar> characters)
 {
     if (!isValidNameStart(characters[0]))
         return false;
@@ -7280,7 +7280,7 @@ static inline bool isValidNameASCII(std::span<const CharType> characters)
     return true;
 }
 
-static bool isValidNameASCIIWithoutColon(std::span<const Latin1Character> characters)
+static bool isValidNameASCIIWithoutColon(std::span<const LChar> characters)
 {
     auto c = characters.front();
     if (!(isASCIIAlpha(c) || c == '_'))

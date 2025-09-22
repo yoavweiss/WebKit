@@ -96,7 +96,7 @@ BuiltinNames::BuiltinNames(VM& vm, CommonIdentifiers* commonIdentifiers)
 #undef INITIALIZE_WELL_KNOWN_SYMBOL_PUBLIC_TO_PRIVATE_ENTRY
 
 
-using LCharBuffer = WTF::HashTranslatorCharBuffer<Latin1Character>;
+using LCharBuffer = WTF::HashTranslatorCharBuffer<LChar>;
 using UCharBuffer = WTF::HashTranslatorCharBuffer<char16_t>;
 
 template<typename CharacterType>
@@ -135,7 +135,7 @@ static SymbolImpl* lookUpWellKnownSymbolImpl(const BuiltinNames::WellKnownSymbol
     return iterator->value;
 }
 
-PrivateSymbolImpl* BuiltinNames::lookUpPrivateName(std::span<const Latin1Character> characters) const
+PrivateSymbolImpl* BuiltinNames::lookUpPrivateName(std::span<const LChar> characters) const
 {
     LCharBuffer buffer { characters };
     return lookUpPrivateNameImpl(m_privateNameSet, buffer);
@@ -157,7 +157,7 @@ PrivateSymbolImpl* BuiltinNames::lookUpPrivateName(const String& string) const
     return lookUpPrivateNameImpl(m_privateNameSet, buffer);
 }
 
-SymbolImpl* BuiltinNames::lookUpWellKnownSymbol(std::span<const Latin1Character> characters) const
+SymbolImpl* BuiltinNames::lookUpWellKnownSymbol(std::span<const LChar> characters) const
 {
     LCharBuffer buffer { characters };
     return lookUpWellKnownSymbolImpl(m_wellKnownSymbolsMap, buffer);

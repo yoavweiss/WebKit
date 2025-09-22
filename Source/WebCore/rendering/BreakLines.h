@@ -97,6 +97,22 @@ private:
         // If we pull more logic into isBreakable, these may need to be distinguished.
     };
 
+    template<typename CharacterType>
+    struct CharacterInfo {
+        CharacterType id { 0 };
+        BreakClass type { kIndeterminate };
+        CharacterInfo(CharacterType character = 0)
+            : id(character)
+            , type(kIndeterminate)
+        { }
+        inline void set(CharacterType character)
+        {
+            id = character;
+            type = kIndeterminate;
+        }
+        operator CharacterType() const { return id; }
+    };
+
     class LineBreakTable {
     public:
         static constexpr char16_t firstCharacter = '!';
@@ -133,48 +149,45 @@ inline bool BreakLines::isBreakableSpace(char16_t character)
 }
 
 template<typename CharacterType, BreakLines::LineBreakRules shortcutRules, BreakLines::WordBreakBehavior words, BreakLines::NoBreakSpaceBehavior nonBreakingSpaceBehavior>
-inline size_t BreakLines::nextBreakablePosition(CachedLineBreakIteratorFactory& factory, std::span<const CharacterType> string, size_t startPosition)
+inline size_t BreakLines::nextBreakablePosition(CachedLineBreakIteratorFactory& lineBreakIteratorFactory, std::span<const CharacterType> string, size_t startPosition)
 {
-    struct CharacterInfo {
-        char16_t character { 0 };
-        BreakClass type { kIndeterminate };
-    };
-
     // Don't break if positioned at start of primary context and there is no prior context.
-    auto& priorContext = factory.priorContext();
-    if (!startPosition && !priorContext.length()) {
+    auto priorContextLength = lineBreakIteratorFactory.priorContext().length();
+    if (!startPosition && !priorContextLength) {
         if (string.size() <= 1)
             return string.size();
         startPosition++;
     }
 
-    CharacterInfo beforeBefore { startPosition > 1 ? char16_t { string[startPosition - 2] } : priorContext.secondToLastCharacter() };
-    CharacterInfo before { startPosition > 0 ? char16_t { string[startPosition - 1] } : priorContext.lastCharacter() };
-    CharacterInfo after;
+    CharacterInfo<CharacterType> beforeBefore(startPosition > 1 ? string[startPosition - 2]
+        : static_cast<CharacterType>(lineBreakIteratorFactory.priorContext().secondToLastCharacter()));
+    CharacterInfo<CharacterType> before(startPosition > 0 ? string[startPosition - 1]
+        : static_cast<CharacterType>(lineBreakIteratorFactory.priorContext().lastCharacter()));
+    CharacterInfo<CharacterType> after;
 
     std::optional<size_t> nextBreak;
     for (size_t i = startPosition; i < string.size(); beforeBefore = before, before = after, ++i) {
-        after = { string[i] };
+        after.set(string[i]);
 
         // Breakable spaces.
-        if (isBreakableSpace<nonBreakingSpaceBehavior>(after.character))
+        if (isBreakableSpace<nonBreakingSpaceBehavior>(after))
             return i;
 
         // ASCII rapid lookup.
         if constexpr (shortcutRules == LineBreakRules::Normal) { // Not valid for 'loose' line-breaking.
             // Don't allow line breaking between '-' and a digit if the '-' may mean a minus sign in the context,
             // while allow breaking in 'ABCD-1234' and '1234-5678' which may be in long URLs.
-            if (before.character == '-' && isASCIIDigit(after.character)) {
-                if (isASCIIAlphanumeric(beforeBefore.character))
+            if (before == '-' && isASCIIDigit(after)) {
+                if (isASCIIAlphanumeric(beforeBefore))
                     return i;
                 continue;
             }
 
             // If both characters are ASCII, use a lookup table for enhanced speed
             // and for compatibility with other browsers (see comments on lineBreakTable for details).
-            if (before.character <= lineBreakTable.lastCharacter && after.character <= lineBreakTable.lastCharacter) {
-                if (before.character >= lineBreakTable.firstCharacter && after.character >= lineBreakTable.firstCharacter) {
-                    if (lineBreakTable.unsafeLookup(before.character, after.character))
+            if (before <= lineBreakTable.lastCharacter && after <= lineBreakTable.lastCharacter) {
+                if (before >= lineBreakTable.firstCharacter && after >= lineBreakTable.firstCharacter) {
+                    if (lineBreakTable.unsafeLookup(before, after))
                         return i;
                 } // Else at least one is an ASCII control character; don't break.
                 continue;
@@ -184,8 +197,8 @@ inline size_t BreakLines::nextBreakablePosition(CachedLineBreakIteratorFactory& 
         // Non-ASCII rapid lookup.
         if constexpr (words != WordBreakBehavior::AutoPhrase) {
             if (!before.type)
-                before.type = classify<shortcutRules, nonBreakingSpaceBehavior>(before.character);
-            after.type = classify<shortcutRules, nonBreakingSpaceBehavior>(after.character);
+                before.type = classify<shortcutRules, nonBreakingSpaceBehavior>(before);
+            after.type = classify<shortcutRules, nonBreakingSpaceBehavior>(after);
             // Short-circuit the commonest cases: letter + letter.
             unsigned pair = before.type | after.type;
             // AL+AL SP+AL SP+QU AL+QU QU+QU QU+AL (after's SP is already filtered out).
@@ -222,18 +235,20 @@ inline size_t BreakLines::nextBreakablePosition(CachedLineBreakIteratorFactory& 
         }
 
         // ICU lookup (slow).
-        if (!nextBreak || nextBreak.value() < i)
-            nextBreak = factory.get().following(i - 1);
+        if (!nextBreak || nextBreak.value() < i) {
+            auto& breakIterator = lineBreakIteratorFactory.get();
+            nextBreak = breakIterator.following(i - 1);
+        }
         // Fast forward while our behavior matches ICU.
         if (nextBreak && i < nextBreak.value()) {
             for (size_t max = std::min(nextBreak.value(), string.size() - 1); i < max; beforeBefore = before, before = after, ++i) {
-                char16_t lookahead = string[i + 1];
+                CharacterType lookahead = string[i + 1];
                 if ((lookahead <= lineBreakTable.lastCharacter && !isASCIIAlpha(lookahead))
                     || (nonBreakingSpaceBehavior == NoBreakSpaceBehavior::Break && lookahead == noBreakSpace))
                     break;
             }
         }
-        if (i == nextBreak && !isBreakableSpace<nonBreakingSpaceBehavior>(before.character))
+        if (i == nextBreak && !isBreakableSpace<nonBreakingSpaceBehavior>(before))
             return i;
     }
 
@@ -274,8 +289,8 @@ inline unsigned BreakLines::nextBreakablePosition(CachedLineBreakIteratorFactory
 
     if (stringView.is8Bit()) {
         return words == WordBreakBehavior::KeepAll
-            ? nextBreakableSpace<Latin1Character, spaces>(stringView.span8(), startPosition)
-            : nextBreakablePosition<Latin1Character, rules, words, spaces>(lineBreakIteratorFactory, stringView.span8(), startPosition);
+            ? nextBreakableSpace<LChar, spaces>(stringView.span8(), startPosition)
+            : nextBreakablePosition<LChar, rules, words, spaces>(lineBreakIteratorFactory, stringView.span8(), startPosition);
     }
     return words == WordBreakBehavior::KeepAll
         ? nextBreakableSpace<char16_t, spaces>(stringView.span16(), startPosition)

@@ -99,7 +99,7 @@ private:
             CharactersSpan()
                 : currentCharacter8()
             { }
-            std::span<const Latin1Character> currentCharacter8;
+            std::span<const LChar> currentCharacter8;
             std::span<const char16_t> currentCharacter16;
         } s;
         bool is8Bit { true };
@@ -183,7 +183,7 @@ inline unsigned SegmentedString::Substring::numberOfCharactersConsumed() const
 ALWAYS_INLINE char16_t SegmentedString::Substring::currentCharacter() const
 {
     ASSERT(length());
-    return is8Bit ? char16_t { s.currentCharacter8.front() } : s.currentCharacter16.front();
+    return is8Bit ? s.currentCharacter8.front() : s.currentCharacter16.front();
 }
 
 ALWAYS_INLINE char16_t SegmentedString::Substring::currentCharacterPreIncrement()

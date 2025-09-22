@@ -236,7 +236,7 @@ void WebVTTParser::parse()
 void WebVTTParser::fileFinished()
 {
     ASSERT(m_state != Finished);
-    parseBytes(byteCast<uint8_t>("\n\n"_span8));
+    parseBytes("\n\n"_span8);
     m_state = Finished;
 }
 

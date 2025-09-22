@@ -45,15 +45,17 @@ RefPtr<JSON::Object> parseJSONObject(const SharedBuffer& buffer)
         return nullptr;
 
     // Parse the buffer contents as JSON, returning the root object (if any).
-    auto value = JSON::Value::parseJSON(byteCast<Latin1Character>(buffer.span()));
+    String json { buffer.span() };
+
+    auto value = JSON::Value::parseJSON(json);
     if (!value)
         return nullptr;
 
     return value->asObject();
 }
 
-}
+};
 
-}
+};
 
 #endif // ENABLE(ENCRYPTED_MEDIA)

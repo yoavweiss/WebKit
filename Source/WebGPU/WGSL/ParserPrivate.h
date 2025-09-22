@@ -37,7 +37,6 @@
 #include "ASTVariable.h"
 #include "CompilationMessage.h"
 #include "Lexer.h"
-#include "Token.h"
 #include "WGSLShaderModule.h"
 #include <wtf/Ref.h>
 

@@ -30,10 +30,10 @@
 #include "WGSLShaderModule.h"
 #include <wtf/DataLog.h>
 
-static Expected<std::pair<WGSL::ShaderModule, WGSL::AST::Expression::Ref>, WGSL::Error> parseLCharPrimaryExpression(ASCIILiteral input)
+static Expected<std::pair<WGSL::ShaderModule, WGSL::AST::Expression::Ref>, WGSL::Error> parseLCharPrimaryExpression(const String& input)
 {
     WGSL::ShaderModule shaderModule(input, { });
-    WGSL::Lexer<Latin1Character> lexer(input.span8());
+    WGSL::Lexer<LChar> lexer(input);
     WGSL::Parser parser(shaderModule, lexer);
 
     auto expression = parser.parsePrimaryExpression();
@@ -44,7 +44,7 @@ static Expected<std::pair<WGSL::ShaderModule, WGSL::AST::Expression::Ref>, WGSL:
 
 template<class NumberType>
 struct ConstLiteralTestCase {
-    ASCIILiteral input;
+    String input;
     NumberType expectedValue;
 };
 

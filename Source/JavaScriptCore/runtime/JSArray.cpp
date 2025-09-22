@@ -1002,7 +1002,7 @@ JSString* JSArray::fastToString(JSGlobalObject* globalObject)
         return jsEmptyString(vm);
 
     if (canUseFastArrayJoin(this)) [[likely]] {
-        const Latin1Character comma = ',';
+        const LChar comma = ',';
 
         bool isCoW = isCopyOnWrite(this->indexingMode());
         JSCellButterfly* immutableButterfly = nullptr;

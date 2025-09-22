@@ -1203,9 +1203,9 @@ TEST(WKDownload, ResumedDownloadCanHandleAuthenticationChallenge)
 }
 
 template<size_t length>
-String longString(Latin1Character c)
+String longString(LChar c)
 {
-    Vector<Latin1Character> vector(length, c);
+    Vector<LChar> vector(length, c);
     return vector.span();
 }
 

@@ -96,7 +96,7 @@ std::optional<FloatRect> SVGFitToViewBox::parseViewBox(StringView value)
     });
 }
 
-std::optional<FloatRect> SVGFitToViewBox::parseViewBox(StringParsingBuffer<Latin1Character>& buffer, bool validate)
+std::optional<FloatRect> SVGFitToViewBox::parseViewBox(StringParsingBuffer<LChar>& buffer, bool validate)
 {
     return parseViewBoxGeneric(buffer, validate);
 }

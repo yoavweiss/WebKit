@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011, 2012 Apple Inc. All rights reserved.
+ * Copyright (C) 2014 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -20,43 +20,13 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
 
 #pragma once
 
-#if ENABLE(VIDEO)
-
-#include <wtf/MediaTime.h>
-#include <wtf/URL.h>
-#include <wtf/Vector.h>
-
-namespace WebCore {
-
-class MediaFragmentURIParser final {
-public:
-    
-    MediaFragmentURIParser(const URL&);
-
-    MediaTime startTime();
-    MediaTime endTime();
-
-private:
-
-    void parseFragments();
-    
-    enum TimeFormat { None, Invalid, NormalPlayTime, SMPTETimeCode, WallClockTimeCode };
-    void parseTimeFragment();
-    bool parseNPTFragment(std::span<const LChar>, MediaTime& startTime, MediaTime& endTime);
-    bool parseNPTTime(std::span<const LChar>, unsigned& offset, MediaTime&);
-
-    URL m_url;
-    TimeFormat m_timeFormat;
-    MediaTime m_startTime;
-    MediaTime m_endTime;
-    Vector<std::pair<String, String>> m_fragments;
-};
-
-} // namespace WebCore
-
-#endif // ENABLE(VIDEO)
+// A type to hold a single Latin-1 character.
+// This type complements the char16_t type that we get from C++.
+// To parallel that type, we put this one in the global namespace.
+typedef unsigned char LChar;

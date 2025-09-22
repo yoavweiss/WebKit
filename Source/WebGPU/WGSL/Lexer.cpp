@@ -27,7 +27,6 @@
 #include "Lexer.h"
 
 #include "ConstantValue.h"
-#include "Token.h"
 #include <charconv>
 #include <wtf/FastFloat.h>
 #include <wtf/SortedArrayMap.h>
@@ -64,41 +63,17 @@ static unsigned isIdentifierContinue(char16_t character, std::span<const char16_
     return 0;
 }
 
-static unsigned isIdentifierStart(Latin1Character character, std::span<const Latin1Character>)
+static unsigned isIdentifierStart(LChar character, std::span<const LChar>)
 {
     return isASCIIAlpha(character) || character == '_';
 }
 
-static unsigned isIdentifierContinue(Latin1Character character, std::span<const Latin1Character>)
+static unsigned isIdentifierContinue(LChar character, std::span<const LChar>)
 {
     return isASCIIAlphanumeric(character) || character == '_';
 }
 
-template<typename CharacterType>
-Token Lexer<CharacterType>::makeToken(TokenType type)
-{
-    return { type, m_tokenStartingPosition, currentTokenLength() };
-}
-
-template<typename CharacterType>
-Token Lexer<CharacterType>::makeFloatToken(TokenType type, double floatValue)
-{
-    return { type, m_tokenStartingPosition, currentTokenLength(), floatValue };
-}
-
-template<typename CharacterType>
-Token Lexer<CharacterType>::makeIntegerToken(TokenType type, int64_t integerValue)
-{
-    return { type, m_tokenStartingPosition, currentTokenLength(), integerValue };
-}
-
-template<typename CharacterType>
-Token Lexer<CharacterType>::makeIdentifierToken(String&& identifier)
-{
-    return { WGSL::TokenType::Identifier, m_tokenStartingPosition, currentTokenLength(), WTFMove(identifier) };
-}
-
-template<typename T>
+template <typename T>
 Vector<Token> Lexer<T>::lex()
 {
     Vector<Token> tokens;
@@ -1061,7 +1036,7 @@ Token Lexer<T>::lexNumber()
     return convert(*maybeResult);
 }
 
-template class Lexer<Latin1Character>;
+template class Lexer<LChar>;
 template class Lexer<char16_t>;
 
 }

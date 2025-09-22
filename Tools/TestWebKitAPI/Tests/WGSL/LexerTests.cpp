@@ -26,16 +26,14 @@
 #include "config.h"
 #include "Lexer.h"
 
-#include "Token.h"
-
 namespace TestWGSLAPI {
 
-class TestLexer : public WGSL::Lexer<Latin1Character> {
-    using Base = WGSL::Lexer<Latin1Character>;
+class TestLexer : public WGSL::Lexer<LChar> {
+    using Base = WGSL::Lexer<LChar>;
 
 public:
-    TestLexer(ASCIILiteral input)
-        : Base(input.span8())
+    TestLexer(const String& input)
+        : Base(input)
         , m_tokens(Base::lex())
     {
     }
@@ -51,7 +49,7 @@ private:
 };
 
 
-static WGSL::Token checkSingleToken(ASCIILiteral string, WGSL::TokenType type)
+static WGSL::Token checkSingleToken(const String& string, WGSL::TokenType type)
 {
     TestLexer lexer(string);
     WGSL::Token result = lexer.lex();
@@ -60,12 +58,12 @@ static WGSL::Token checkSingleToken(ASCIILiteral string, WGSL::TokenType type)
     return result;
 }
 
-static void checkSingleIntegerLiteral(ASCIILiteral string, WGSL::TokenType type, int64_t integerValue)
+static void checkSingleIntegerLiteral(const String& string, WGSL::TokenType type, int64_t integerValue)
 {
     WGSL::Token result = checkSingleToken(string, type);
     EXPECT_EQ(result.integerValue, integerValue);
 }
-static void checkSingleFloatLiteral(ASCIILiteral string, WGSL::TokenType type, double floatValue)
+static void checkSingleFloatLiteral(const String& string, WGSL::TokenType type, double floatValue)
 {
     WGSL::Token result = checkSingleToken(string, type);
     EXPECT_EQ(result.floatValue, floatValue);

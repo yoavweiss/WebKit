@@ -386,7 +386,7 @@ static void replaceRichContentWithAttachments(LocalFrame& frame, DocumentFragmen
         // See `HTMLConverter.mm` for more details.
         if (info.fileName.startsWith(WebContentReader::placeholderAttachmentFilenamePrefix)) {
             RefPtr document = frame.document();
-            if (RefPtr existingAttachment = document->attachmentForIdentifier({ byteCast<Latin1Character>(info.data->span()) })) {
+            if (RefPtr existingAttachment = document->attachmentForIdentifier({ info.data->span() })) {
                 parent->replaceChild(*existingAttachment.get(), WTFMove(originalElement));
                 continue;
             }

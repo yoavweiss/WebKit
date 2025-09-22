@@ -280,7 +280,7 @@ static std::span<const uint8_t> dataFrom(const String& string)
 {
     if (string.isNull() || !string.is8Bit())
         return asBytes(string.span16());
-    return byteCast<uint8_t>(string.span8());
+    return string.span8();
 }
 
 static Ref<WebCore::DataSegment> dataReferenceFrom(const String& string)

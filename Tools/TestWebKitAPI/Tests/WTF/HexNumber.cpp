@@ -36,7 +36,7 @@ namespace TestWebKitAPI {
 #define expectBuilderContent(expected, builder) \
     { \
         if (builder.is8Bit()) \
-            EXPECT_EQ(String(expected), String(builder.span<Latin1Character>())); \
+            EXPECT_EQ(String(expected), String(builder.span<LChar>())); \
         else \
             EXPECT_EQ(String(expected), String(builder.span<char16_t>())); \
     } \

@@ -90,7 +90,9 @@ std::optional<RemoteInspectorConnectionClient::Event> RemoteInspectorConnectionC
     if (data.isEmpty())
         return std::nullopt;
 
-    auto messageValue = JSON::Value::parseJSON(String { byteCast<char8_t>(data.span()) });
+    String jsonData = String::fromUTF8(data);
+
+    auto messageValue = JSON::Value::parseJSON(jsonData);
     if (!messageValue)
         return std::nullopt;
 

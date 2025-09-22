@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Apple Inc. All rights reserved.
+ * Copyright (C) 2019 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,36 +25,15 @@
 
 #pragma once
 
-#if ENABLE(CONTENT_EXTENSIONS)
+#include <wtf/Vector.h>
+#include <wtf/text/LChar.h>
 
-#include <WebCore/ContentExtensionRule.h>
-#include <WebCore/ContentExtensionsDebugging.h>
-#include <WebCore/DFABytecode.h>
-#include <wtf/DataLog.h>
-#include <wtf/HashSet.h>
+namespace PAL {
 
-namespace WebCore::ContentExtensions {
+// This function is only suitable for zip files which are guaranteed to not have any flags set in their headers.
+// See https://tools.ietf.org/html/rfc1952 for more information.
+PAL_EXPORT Vector<LChar> gunzip(std::span<const uint8_t> data);
 
-class DFABytecodeInterpreter {
-public:
-    DFABytecodeInterpreter(std::span<const uint8_t> bytecode)
-        : m_bytecode(bytecode) { }
+}
 
-    using Actions = HashSet<uint64_t, DefaultHash<uint64_t>, WTF::UnsignedWithZeroKeyHashTraits<uint64_t>>;
-
-    WEBCORE_EXPORT Actions interpret(const String&, ResourceFlags);
-    WEBCORE_EXPORT Actions actionsMatchingEverything();
-
-private:
-    void interpretAppendAction(unsigned& programCounter, Actions&);
-    void interpretTestFlagsAndAppendAction(unsigned& programCounter, ResourceFlags, Actions&);
-
-    template<bool caseSensitive>
-    void interpretJumpTable(std::span<const LChar> url, uint32_t& urlIndex, uint32_t& programCounter);
-
-    const std::span<const uint8_t> m_bytecode;
-};
-
-} // namespace WebCore::ContentExtensions
-
-#endif // ENABLE(CONTENT_EXTENSIONS)
+using PAL::gunzip;

@@ -3020,7 +3020,7 @@ TextRun RenderBlock::constructTextRun(const RenderText& text, unsigned offset, u
     return constructTextRun(text.stringView(offset, stop), style, expansion);
 }
 
-TextRun RenderBlock::constructTextRun(std::span<const Latin1Character> characters, const RenderStyle& style, ExpansionBehavior expansion)
+TextRun RenderBlock::constructTextRun(std::span<const LChar> characters, const RenderStyle& style, ExpansionBehavior expansion)
 {
     return constructTextRun(StringView { characters }, style, expansion);
 }

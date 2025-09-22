@@ -189,7 +189,7 @@ void WebSocketTask::didReceiveData(WebCore::CurlStreamID, const WebCore::SharedB
         switch (opCode) {
         case WebCore::WebSocketFrame::OpCodeText:
             {
-                String message = data.size() ? String { byteCast<char8_t>(data) } : emptyString();
+                String message = data.size() ? String::fromUTF8(data) : emptyString();
                 if (!message.isNull())
                     protectedChannel()->didReceiveText(message);
                 else
@@ -209,7 +209,9 @@ void WebSocketTask::didReceiveData(WebCore::CurlStreamID, const WebCore::SharedB
                 didFail("Received a broken close frame containing an invalid size body."_s);
                 return;
             } else {
-                m_closeEventCode = data[0] << 8 | data[1];
+                auto highByte = static_cast<unsigned char>(data[0]);
+                auto lowByte = static_cast<unsigned char>(data[1]);
+                m_closeEventCode = highByte << 8 | lowByte;
                 if (m_closeEventCode == WebCore::ThreadableWebSocketChannel::CloseEventCode::CloseEventCodeNoStatusRcvd
                     || m_closeEventCode == WebCore::ThreadableWebSocketChannel::CloseEventCode::CloseEventCodeAbnormalClosure
                     || m_closeEventCode == WebCore::ThreadableWebSocketChannel::CloseEventCode::CloseEventCodeTLSHandshake) {
@@ -219,7 +221,7 @@ void WebSocketTask::didReceiveData(WebCore::CurlStreamID, const WebCore::SharedB
                 }
             }
             if (data.size() >= 3)
-                m_closeEventReason = String { byteCast<char8_t>(data.subspan(2)) };
+                m_closeEventReason = String::fromUTF8({ &data[2], data.size() - 2 });
             else
                 m_closeEventReason = emptyString();
 
@@ -414,8 +416,10 @@ void WebSocketTask::sendClosingHandshakeIfNeeded(int32_t code, const String& rea
 
     Vector<uint8_t> buf;
     if (!m_receivedClosingHandshake && code != WebCore::ThreadableWebSocketChannel::CloseEventCode::CloseEventCodeNotSpecified) {
-        buf.append(code >> 8);
-        buf.append(code);
+        unsigned char highByte = static_cast<unsigned short>(code) >> 8;
+        unsigned char lowByte = static_cast<unsigned short>(code);
+        buf.append(static_cast<char>(highByte));
+        buf.append(static_cast<char>(lowByte));
         buf.append(reason.utf8().span());
     }
 

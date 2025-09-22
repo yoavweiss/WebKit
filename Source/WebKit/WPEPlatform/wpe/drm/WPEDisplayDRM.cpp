@@ -368,14 +368,15 @@ static gboolean wpeDisplayDRMSetup(WPEDisplayDRM* displayDRM, const char* device
     };
 
     std::optional<double> scaleFromEnvironment;
-    if (const auto* scaleString = getenv("WPE_DRM_SCALE")) {
-        auto trimmedScaleString = StringView::fromLatin1(scaleString).trim(isASCIIWhitespace<Latin1Character>);
+    if (const auto scaleString = StringView::fromLatin1(getenv("WPE_DRM_SCALE"))) {
+        RELEASE_ASSERT(scaleString.is8Bit());
+        auto trimmedScaleString = scaleString.trim(isASCIIWhitespace<LChar>);
         size_t parsedLength = 0;
         auto scale = parseDouble(trimmedScaleString, parsedLength);
         if (parsedLength == trimmedScaleString.length() && scaleIsInBounds(scale))
             scaleFromEnvironment = scale;
         else
-            g_warning("Invalid WPE_DRM_SCALE='%s' value, or out of bounds.", scaleString);
+            g_warning("Invalid WPE_DRM_SCALE='%*s' value, or out of bounds.", static_cast<int>(scaleString.span8().size()), scaleString.span8().data());
     }
 
     int x = crtc->x();

@@ -1,6 +1,6 @@
 /*
  * (C) 1999 Lars Knoll (knoll@kde.org)
- * Copyright (C) 2004-2025 Apple Inc. All rights reserved.
+ * Copyright (C) 2004-2023 Apple Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -44,11 +44,11 @@ namespace WTF {
 
 // Declarations of string operations
 
-WTF_EXPORT_PRIVATE double charactersToDouble(std::span<const Latin1Character>, bool* ok = nullptr);
+WTF_EXPORT_PRIVATE double charactersToDouble(std::span<const LChar>, bool* ok = nullptr);
 WTF_EXPORT_PRIVATE double charactersToDouble(std::span<const char16_t>, bool* ok = nullptr);
-WTF_EXPORT_PRIVATE float charactersToFloat(std::span<const Latin1Character>, bool* ok = nullptr);
+WTF_EXPORT_PRIVATE float charactersToFloat(std::span<const LChar>, bool* ok = nullptr);
 WTF_EXPORT_PRIVATE float charactersToFloat(std::span<const char16_t>, bool* ok = nullptr);
-WTF_EXPORT_PRIVATE float charactersToFloat(std::span<const Latin1Character>, size_t& parsedLength);
+WTF_EXPORT_PRIVATE float charactersToFloat(std::span<const LChar>, size_t& parsedLength);
 WTF_EXPORT_PRIVATE float charactersToFloat(std::span<const char16_t>, size_t& parsedLength);
 
 template<bool isSpecialCharacter(char16_t), typename CharacterType, std::size_t Extent> bool containsOnly(std::span<const CharacterType, Extent>);
@@ -62,20 +62,12 @@ public:
     String() = default;
 
     // Construct a string with UTF-16 data.
-    WTF_EXPORT_PRIVATE String(std::span<const char16_t>);
+    WTF_EXPORT_PRIVATE String(std::span<const char16_t> characters);
 
     // Construct a string with Latin-1 data.
-    WTF_EXPORT_PRIVATE String(std::span<const Latin1Character>);
-
-    // Deprecated: Construct a string with Latin-1 data.
-    // FIXME: Stop using this constructor and delete it.
-    WTF_EXPORT_PRIVATE String(std::span<const char>);
-
-    // Construct a string from a constant string literal.
-    String(ASCIILiteral);
-
-    // Construct a string from UTF-8 data, null string if it contains invalid UTF-8 sequences.
-    WTF_EXPORT_PRIVATE String(std::span<const char8_t>);
+    WTF_EXPORT_PRIVATE String(std::span<const LChar> characters);
+    WTF_EXPORT_PRIVATE String(std::span<const char> characters);
+    ALWAYS_INLINE static String fromLatin1(const char* characters) { return String { characters }; }
 
     // Construct a string referencing an existing StringImpl.
     String(StringImpl&);
@@ -89,6 +81,9 @@ public:
     String(StaticStringImpl&);
     String(StaticStringImpl*);
 
+    // Construct a string from a constant string literal.
+    String(ASCIILiteral);
+
     String(const String&) = default;
     String(String&&) = default;
     String& operator=(const String&) = default;
@@ -98,9 +93,9 @@ public:
 
     void swap(String& o) { m_impl.swap(o.m_impl); }
 
-    static String adopt(StringBuffer<Latin1Character>&& buffer) { return StringImpl::adopt(WTFMove(buffer)); }
+    static String adopt(StringBuffer<LChar>&& buffer) { return StringImpl::adopt(WTFMove(buffer)); }
     static String adopt(StringBuffer<char16_t>&& buffer) { return StringImpl::adopt(WTFMove(buffer)); }
-    template<IsStringStorageCharacter CharacterType, size_t inlineCapacity, typename OverflowHandler, size_t minCapacity, typename Malloc>
+    template<typename CharacterType, size_t inlineCapacity, typename OverflowHandler, size_t minCapacity, typename Malloc>
     static String adopt(Vector<CharacterType, inlineCapacity, OverflowHandler, minCapacity, Malloc>&& vector) { return StringImpl::adopt(WTFMove(vector)); }
 
     bool isNull() const { return !m_impl; }
@@ -110,16 +105,15 @@ public:
     RefPtr<StringImpl> releaseImpl() { return WTFMove(m_impl); }
 
     unsigned length() const { return m_impl ? m_impl->length() : 0; }
-    std::span<const Latin1Character> span8() const LIFETIME_BOUND { return m_impl ? m_impl->span8() : std::span<const Latin1Character>(); }
+    std::span<const LChar> span8() const LIFETIME_BOUND { return m_impl ? m_impl->span8() : std::span<const LChar>(); }
     std::span<const char16_t> span16() const LIFETIME_BOUND { return m_impl ? m_impl->span16() : std::span<const char16_t>(); }
 
     // Return span8() or span16() depending on CharacterType.
-    template<IsStringStorageCharacter CharacterType>
-    std::span<const CharacterType> span() const LIFETIME_BOUND;
+    template<typename CharacterType> std::span<const CharacterType> span() const LIFETIME_BOUND;
 
     bool is8Bit() const { return !m_impl || m_impl->is8Bit(); }
 
-    unsigned sizeInBytes() const { return m_impl ? m_impl->length() * (is8Bit() ? sizeof(Latin1Character) : sizeof(char16_t)) : 0; }
+    unsigned sizeInBytes() const { return m_impl ? m_impl->length() * (is8Bit() ? sizeof(LChar) : sizeof(char16_t)) : 0; }
 
     WTF_EXPORT_PRIVATE CString ascii() const;
     WTF_EXPORT_PRIVATE CString latin1() const;
@@ -151,7 +145,7 @@ public:
 
     // Find a single character or string, also with match function & latin1 forms.
     size_t find(char16_t character, unsigned start = 0) const { return m_impl ? m_impl->find(character, start) : notFound; }
-    size_t find(Latin1Character character, unsigned start = 0) const { return m_impl ? m_impl->find(character, start) : notFound; }
+    size_t find(LChar character, unsigned start = 0) const { return m_impl ? m_impl->find(character, start) : notFound; }
     size_t find(char character, unsigned start = 0) const { return m_impl ? m_impl->find(character, start) : notFound; }
 
     size_t find(StringView) const;
@@ -217,7 +211,7 @@ public:
     // Returns an uninitialized string. The characters needs to be written
     // into the buffer returned in data before the returned string is used.
     static String createUninitialized(unsigned length, std::span<char16_t>& data) { return StringImpl::createUninitialized(length, data); }
-    static String createUninitialized(unsigned length, std::span<Latin1Character>& data) { return StringImpl::createUninitialized(length, data); }
+    static String createUninitialized(unsigned length, std::span<LChar>& data) { return StringImpl::createUninitialized(length, data); }
 
     using SplitFunctor = WTF::Function<void(StringView)>;
 
@@ -272,22 +266,18 @@ public:
     WTF_EXPORT_PRIVATE static String make8Bit(std::span<const char16_t>);
     WTF_EXPORT_PRIVATE void convertTo16Bit();
 
-    ALWAYS_INLINE static String fromLatin1(const char* characters) { return String { characters }; }
-
-    // Will return a null string if the input data contains invalid UTF-8 sequences.
-    static String fromUTF8(std::span<const char8_t> characters) { return characters; } // FIXME: Remove this and have callers use the constructor directly.
-    template<IsByte CharacterType>
-    static String fromUTF8(std::span<CharacterType> characters) { return spanConstCast<const char8_t>(byteCast<char8_t>(characters)); }
+    // String::fromUTF8 will return a null string if the input data contains invalid UTF-8 sequences.
+    WTF_EXPORT_PRIVATE static String fromUTF8(std::span<const char8_t>);
+    static String fromUTF8(std::span<const LChar> characters) { return fromUTF8(byteCast<char8_t>(characters)); }
     static String fromUTF8(std::span<const char> characters) { return fromUTF8(byteCast<char8_t>(characters)); }
     static String fromUTF8(const char* string) { return fromUTF8(unsafeSpan8(string)); }
-
-    // Will convert invalid UTF-8 sequences into the replacement character.
     static String fromUTF8ReplacingInvalidSequences(std::span<const char8_t>);
+    static String fromUTF8ReplacingInvalidSequences(std::span<const LChar> characters) { return fromUTF8ReplacingInvalidSequences(byteCast<char8_t>(characters)); }
 
     // Tries to convert the passed in string to UTF-8, but will fall back to Latin-1 if the string is not valid UTF-8.
     WTF_EXPORT_PRIVATE static String fromUTF8WithLatin1Fallback(std::span<const char8_t>);
-    template<IsByte CharacterType>
-    static String fromUTF8WithLatin1Fallback(std::span<CharacterType> characters) { return fromUTF8WithLatin1Fallback(spanConstCast<const char8_t>(byteCast<char8_t>(characters))); }
+    static String fromUTF8WithLatin1Fallback(std::span<const LChar> characters) { return fromUTF8WithLatin1Fallback(byteCast<char8_t>(characters)); }
+    static String fromUTF8WithLatin1Fallback(std::span<const char> characters) { return fromUTF8WithLatin1Fallback(byteCast<char8_t>(characters)); }
 
     WTF_EXPORT_PRIVATE static String fromCodePoint(char32_t codePoint);
 
@@ -384,7 +374,7 @@ template<> struct VectorTraits<String> : VectorTraitsBase<false, void> {
 template<> struct IntegerToStringConversionTrait<String> {
     using ReturnType = String;
     using AdditionalArgumentType = void;
-    static String flush(std::span<const Latin1Character> characters, void*) { return characters; }
+    static String flush(std::span<const LChar> characters, void*) { return characters; }
 };
 
 template<> struct MarkableTraits<String> {
@@ -449,7 +439,7 @@ inline String::String(ASCIILiteral characters)
 {
 }
 
-template<> inline std::span<const Latin1Character> String::span<Latin1Character>() const
+template<> inline std::span<const LChar> String::span<LChar>() const
 {
     return span8();
 }

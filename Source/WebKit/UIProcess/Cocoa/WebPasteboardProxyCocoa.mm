@@ -737,7 +737,7 @@ void WebPasteboardProxy::testIPCSharedMemory(IPC::Connection& connection, const 
         return;
     }
 
-    completionHandler(sharedMemoryBuffer->size(), byteCast<Latin1Character>(sharedMemoryBuffer->span()));
+    completionHandler(sharedMemoryBuffer->size(), sharedMemoryBuffer->span());
 }
 #endif
 

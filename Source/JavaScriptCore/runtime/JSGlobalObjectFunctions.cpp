@@ -83,7 +83,7 @@ static JSValue encode(JSGlobalObject* globalObject, const WTF::BitSet<256>& doNo
         if (character < doNotEscape.size() && doNotEscape.get(character)) {
             // 4-c-i. Let S be a String containing only the code unit C.
             // 4-c-ii. Let R be a new String value computed by concatenating the previous value of R and S.
-            builder.append(static_cast<Latin1Character>(character));
+            builder.append(static_cast<LChar>(character));
             continue;
         }
 
@@ -117,7 +117,7 @@ static JSValue encode(JSGlobalObject* globalObject, const WTF::BitSet<256>& doNo
         }
 
         // 4-d-iv. Let Octets be the array of octets resulting by applying the UTF-8 transformation to V, and let L be the array size.
-        Latin1Character utf8OctetsBuffer[U8_MAX_LENGTH];
+        LChar utf8OctetsBuffer[U8_MAX_LENGTH];
         unsigned utf8Length = 0;
         // We can use U8_APPEND_UNSAFE here since codePoint is either
         // 1. non surrogate one, correct code point.
@@ -210,7 +210,7 @@ static JSValue decode(JSGlobalObject* globalObject, std::span<const CharType> ch
                     u = Lexer<char16_t>::convertUnicode(p[2], p[3], p[4], p[5]);
                 }
             }
-            if (charLen && (u >= 128 || !doNotUnescape.get(static_cast<Latin1Character>(u)))) {
+            if (charLen && (u >= 128 || !doNotUnescape.get(static_cast<LChar>(u)))) {
                 builder.append(u);
                 k += charLen;
                 continue;
@@ -505,7 +505,7 @@ JSC_DEFINE_HOST_FUNCTION(globalFuncEval, (JSGlobalObject* globalObject, CallFram
 
     JSValue parsedValue;
     if (programSource.is8Bit()) {
-        LiteralParser<Latin1Character, JSONReviverMode::Disabled> preparser(globalObject, programSource.span8(), SloppyJSON, nullptr);
+        LiteralParser<LChar, JSONReviverMode::Disabled> preparser(globalObject, programSource.span8(), SloppyJSON, nullptr);
         parsedValue = preparser.tryEval();
     } else {
         LiteralParser<char16_t, JSONReviverMode::Disabled> preparser(globalObject, programSource.span16(), SloppyJSON, nullptr);
@@ -629,7 +629,7 @@ JSC_DEFINE_HOST_FUNCTION(globalFuncEscape, (JSGlobalObject* globalObject, CallFr
             for (auto character : view.span16()) {
                 if (character >= doNotEscape.size())
                     builder.append("%u"_s, hex(static_cast<uint8_t>(character >> 8), 2), hex(static_cast<uint8_t>(character), 2));
-                else if (doNotEscape.get(static_cast<Latin1Character>(character)))
+                else if (doNotEscape.get(static_cast<LChar>(character)))
                     builder.append(character);
                 else
                     builder.append('%', hex(character, 2));
@@ -660,7 +660,7 @@ JSC_DEFINE_HOST_FUNCTION(globalFuncUnescape, (JSGlobalObject* globalObject, Call
 
         if (view.is8Bit()) {
             auto characters = view.span8();
-            Latin1Character convertedLChar;
+            LChar convertedLChar;
             while (k < length) {
                 auto c = characters.subspan(k);
                 if (c[0] == '%' && k <= length - 6 && c[1] == 'u') {
@@ -670,7 +670,7 @@ JSC_DEFINE_HOST_FUNCTION(globalFuncUnescape, (JSGlobalObject* globalObject, Call
                         continue;
                     }
                 } else if (c[0] == '%' && k <= length - 3 && isASCIIHexDigit(c[1]) && isASCIIHexDigit(c[2])) {
-                    convertedLChar = Latin1Character(Lexer<Latin1Character>::convertHex(c[1], c[2]));
+                    convertedLChar = LChar(Lexer<LChar>::convertHex(c[1], c[2]));
                     c = span(convertedLChar);
                     k += 2;
                 }

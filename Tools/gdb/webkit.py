@@ -72,7 +72,7 @@ def ustring_to_string(ptr, length=None):
 
 
 def lstring_to_string(ptr, length=None):
-    """Convert a pointer to Latin1Character* data into a Python (non-Unicode) string.
+    """Convert a pointer to LChar* data into a Python (non-Unicode) string.
 
     ptr and length are both gdb.Value objects.
     If length is unspecified, will guess at the length."""
@@ -101,7 +101,7 @@ class UCharStringPrinter(StringPrinter):
 
 
 class LCharStringPrinter(StringPrinter):
-    "Print a Latin1Character*; we must guess at the length"
+    "Print a LChar*; we must guess at the length"
     def to_string(self):
         return lstring_to_string(self.val)
 
@@ -325,7 +325,7 @@ def add_pretty_printers():
             name = str(type.target().unqualified())
             if name == 'char16_t':
                 return UCharStringPrinter(val)
-            if name == 'Latin1Character':
+            if name == 'LChar':
                 return LCharStringPrinter(val)
         return None
 

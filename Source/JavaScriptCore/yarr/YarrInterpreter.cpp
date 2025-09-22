@@ -3205,11 +3205,11 @@ unsigned interpret(BytecodePattern* bytecode, StringView input, unsigned start, 
 {
     SuperSamplerScope superSamplerScope(false);
     if (input.is8Bit())
-        return Interpreter<Latin1Character>(bytecode, output, input.span8(), start).interpret();
+        return Interpreter<LChar>(bytecode, output, input.span8(), start).interpret();
     return Interpreter<char16_t>(bytecode, output, input.span16(), start).interpret();
 }
 
-// These should be the same for both char16_t & Latin1Character.
+// These should be the same for both char16_t & LChar.
 static_assert(sizeof(BackTrackInfoPatternCharacter) == (YarrStackSpaceForBackTrackInfoPatternCharacter * sizeof(uintptr_t)));
 static_assert(sizeof(BackTrackInfoCharacterClass) == (YarrStackSpaceForBackTrackInfoCharacterClass * sizeof(uintptr_t)));
 static_assert(sizeof(BackTrackInfoBackReference) == (YarrStackSpaceForBackTrackInfoBackReference * sizeof(uintptr_t)));

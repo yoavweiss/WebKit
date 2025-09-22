@@ -50,7 +50,7 @@ private:
 
     bool m_is8BitSource;
     union {
-        StringParsingBuffer<Latin1Character> m_buffer8;
+        StringParsingBuffer<LChar> m_buffer8;
         StringParsingBuffer<char16_t> m_buffer16;
     };
 };

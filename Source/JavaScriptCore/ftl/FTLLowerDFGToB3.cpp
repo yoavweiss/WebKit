@@ -21464,7 +21464,7 @@ IGNORE_CLANG_WARNINGS_END
         {
         }
 
-        CharacterCase(Latin1Character character, unsigned begin, unsigned end)
+        CharacterCase(LChar character, unsigned begin, unsigned end)
             : character(character)
             , begin(begin)
             , end(end)
@@ -21476,7 +21476,7 @@ IGNORE_CLANG_WARNINGS_END
             return character < other.character;
         }
 
-        Latin1Character character;
+        LChar character;
         unsigned begin;
         unsigned end;
     };
@@ -21568,7 +21568,7 @@ IGNORE_CLANG_WARNINGS_END
         Vector<CharacterCase> characterCases;
         CharacterCase currentCase(cases[begin].string->at(commonChars), begin, begin + 1);
         for (unsigned i = begin + 1; i < end; ++i) {
-            Latin1Character currentChar = cases[i].string->at(commonChars);
+            LChar currentChar = cases[i].string->at(commonChars);
             if (currentChar != currentCase.character) {
                 currentCase.end = i;
                 characterCases.append(currentCase);
