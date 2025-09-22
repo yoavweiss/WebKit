@@ -257,6 +257,8 @@
 		C519C3692D36CE2E0064418F /* SequesteredMalloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C519C3682D36CE2B0064418F /* SequesteredMalloc.cpp */; };
 		C805EF39E5F14481A96D39FC /* ASCIILiteral.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6F050790D9C432A99085E75 /* ASCIILiteral.cpp */; };
 		CD5497AC15857D0300B5BC30 /* MediaTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD5497AA15857D0300B5BC30 /* MediaTime.cpp */; };
+		CDD4AC792D9C309A00D11414 /* CStringView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDD4AC772D9C309A00D11414 /* CStringView.cpp */; };
+		CDD4AC7A2D9C309A00D11414 /* CStringView.h in Headers */ = {isa = PBXBuildFile; fileRef = CDD4AC782D9C309A00D11414 /* CStringView.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		CEA072AA236FFBF70018839C /* CrashReporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEA072A9236FFBF70018839C /* CrashReporter.cpp */; };
 		DCEE22011CEA7551000C2396 /* BlockObjCExceptions.mm in Sources */ = {isa = PBXBuildFile; fileRef = DCEE21FD1CEA7551000C2396 /* BlockObjCExceptions.mm */; };
 		DD03059327B5DA0D00344002 /* SignedPtr.h in Headers */ = {isa = PBXBuildFile; fileRef = 862A8D32278DE74A0014120C /* SignedPtr.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -1669,6 +1671,8 @@
 		CD5497AA15857D0300B5BC30 /* MediaTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MediaTime.cpp; sourceTree = "<group>"; };
 		CD5497AB15857D0300B5BC30 /* MediaTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MediaTime.h; sourceTree = "<group>"; };
 		CDCC9BC422382FCE00FFB51C /* AggregateLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AggregateLogger.h; path = wtf/AggregateLogger.h; sourceTree = SOURCE_ROOT; };
+		CDD4AC772D9C309A00D11414 /* CStringView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CStringView.cpp; sourceTree = "<group>"; };
+		CDD4AC782D9C309A00D11414 /* CStringView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CStringView.h; sourceTree = "<group>"; };
 		CE1132832370634900A8C83B /* AnsiColors.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AnsiColors.h; sourceTree = "<group>"; };
 		CEA072A8236FFBF70018839C /* CrashReporter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CrashReporter.h; sourceTree = "<group>"; };
 		CEA072A9236FFBF70018839C /* CrashReporter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CrashReporter.cpp; sourceTree = "<group>"; };
@@ -2840,6 +2844,8 @@
 				0F8F2B9B172F2594007DBDA5 /* ConversionMode.h */,
 				A8A47321151A825B004123FF /* CString.cpp */,
 				A8A47322151A825B004123FF /* CString.h */,
+				CDD4AC772D9C309A00D11414 /* CStringView.cpp */,
+				CDD4AC782D9C309A00D11414 /* CStringView.h */,
 				93853DD228755A6600FF4E2B /* EscapedFormsForJSON.h */,
 				50DE35F3215BB01500B979C7 /* ExternalStringImpl.cpp */,
 				50DE35F4215BB01500B979C7 /* ExternalStringImpl.h */,
@@ -3464,6 +3470,7 @@
 				DD3DC8FC27A4BF8E007E5B61 /* CryptographicallyRandomNumber.h in Headers */,
 				DD3DC8B727A4BF8E007E5B61 /* CryptographicUtilities.h in Headers */,
 				DDF307E127C086DF006A526F /* CString.h in Headers */,
+				CDD4AC7A2D9C309A00D11414 /* CStringView.h in Headers */,
 				DD3DC8E327A4BF8E007E5B61 /* DataLog.h in Headers */,
 				DD4901E927B4748A00D7E50D /* DataMutex.h in Headers */,
 				DD3DC94227A4BF8E007E5B61 /* DataRef.h in Headers */,
@@ -4338,6 +4345,7 @@
 				A8A4739A151A825B004123FF /* CryptographicallyRandomNumber.cpp in Sources */,
 				E15556F518A0CC18006F48FB /* CryptographicUtilities.cpp in Sources */,
 				A8A47439151A825B004123FF /* CString.cpp in Sources */,
+				CDD4AC792D9C309A00D11414 /* CStringView.cpp in Sources */,
 				A8A4739C151A825B004123FF /* CurrentTime.cpp in Sources */,
 				A8A4739E151A825B004123FF /* DataLog.cpp in Sources */,
 				A8A473A0151A825B004123FF /* DateMath.cpp in Sources */,

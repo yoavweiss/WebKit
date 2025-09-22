@@ -1312,6 +1312,7 @@
 		CD27A1C123C661ED006E11DD /* WKWebViewPausePlayingAudioTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = CD27A1C023C661ED006E11DD /* WKWebViewPausePlayingAudioTests.mm */; };
 		CD48A87324C8A66F00F5800C /* Observer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD48A87224C8A66F00F5800C /* Observer.cpp */; };
 		CD5FF49F2162E943004BD86F /* ISOBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD5FF4962162E27E004BD86F /* ISOBox.cpp */; };
+		CD930D7E2D9EAC9F00507B6B /* CStringView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD930D7D2D9EAC9F00507B6B /* CStringView.cpp */; };
 		CDA315981ED53651009F60D3 /* MediaPlaybackSleepAssertion.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDA315961ED53651009F60D3 /* MediaPlaybackSleepAssertion.mm */; };
 		CDB213BD24EF522800FDE301 /* FullscreenFocus.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDB213BC24EF522800FDE301 /* FullscreenFocus.mm */; };
 		CDBFCC451A9FF45300A7B691 /* FullscreenZoomInitialFrame.mm in Sources */ = {isa = PBXBuildFile; fileRef = CDBFCC431A9FF44800A7B691 /* FullscreenZoomInitialFrame.mm */; };
@@ -3940,6 +3941,7 @@
 		CD7FC5D82CDAF7160032C1FC /* FullscreenScrollAndResize.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FullscreenScrollAndResize.mm; sourceTree = "<group>"; };
 		CD8394DE232AF15E00149495 /* media-loading.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "media-loading.html"; sourceTree = "<group>"; };
 		CD89D0381C4EDB2A00040A04 /* WebCoreNSURLSession.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebCoreNSURLSession.mm; sourceTree = "<group>"; };
+		CD930D7D2D9EAC9F00507B6B /* CStringView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CStringView.cpp; sourceTree = "<group>"; };
 		CD9E292B1C90A71F000BB800 /* RequiresUserActionForPlayback.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RequiresUserActionForPlayback.mm; sourceTree = "<group>"; };
 		CD9E292D1C90C1BA000BB800 /* audio-only.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "audio-only.html"; sourceTree = "<group>"; };
 		CDA29B2820FD2A9900F15CED /* ExitFullscreenOnEnterPiP.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ExitFullscreenOnEnterPiP.mm; sourceTree = "<group>"; };
@@ -6294,6 +6296,7 @@
 				278DE64B22B8D611004E0E7A /* CrossThreadCopierTests.cpp */,
 				51714EB91D087416004723C4 /* CrossThreadTask.cpp */,
 				26A2C72E15E2E73C005B1A14 /* CString.cpp */,
+				CD930D7D2D9EAC9F00507B6B /* CStringView.cpp */,
 				7AA021BA1AB09EA70052953F /* DateMath.cpp */,
 				1A3524A91D627BD40031729B /* DeletedAddressOfOperator.h */,
 				E4A757D3178AEA5B00B5D7A4 /* Deque.cpp */,
@@ -7472,6 +7475,7 @@
 				5C2C01A82734883600F89D37 /* CrossThreadCopierTests.cpp in Sources */,
 				45F3A5F72D822261002B4550 /* CrossThreadTask.cpp in Sources */,
 				7C83DEA91D0A590C00FEBCF3 /* CString.cpp in Sources */,
+				CD930D7E2D9EAC9F00507B6B /* CStringView.cpp in Sources */,
 				45F3A5E52D81F955002B4550 /* DateMath.cpp in Sources */,
 				7C83DEAD1D0A590C00FEBCF3 /* Deque.cpp in Sources */,
 				FFD3FF372AF9BD8F0057C508 /* DragonBoxTest.cpp in Sources */,
