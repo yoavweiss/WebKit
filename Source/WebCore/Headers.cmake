@@ -1734,6 +1734,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     html/track/VideoTrackClient.h
     html/track/WebVTTParser.h
 
+    inspector/FrameInspectorController.h
     inspector/InspectorBackendClient.h
     inspector/InspectorController.h
     inspector/InspectorDebuggableType.h

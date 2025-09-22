@@ -2480,10 +2480,14 @@
 		EEA52F482D70545300D578B5 /* WKStageMode.h in Headers */ = {isa = PBXBuildFile; fileRef = EE0D3CDD2D3709BE00072978 /* WKStageMode.h */; };
 		EEA52F492D7055A700D578B5 /* WKStageMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0D3CDC2D3709BE00072978 /* WKStageMode.swift */; };
 		EEFE72792D64FE5600DC6214 /* StageModeInteractionState.h in Headers */ = {isa = PBXBuildFile; fileRef = EEFE72782D64FE5600DC6214 /* StageModeInteractionState.h */; };
+		F30EE46E2E721ED600935B60 /* WebFrameInspectorTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = F30EE46D2E721ECE00935B60 /* WebFrameInspectorTarget.h */; };
+		F30EE4712E72226700935B60 /* WebPageInspectorTargetProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = F30EE4702E72225D00935B60 /* WebPageInspectorTargetProxy.h */; };
+		F30EE4742E72227500935B60 /* WebFrameInspectorTargetProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = F30EE4732E72226D00935B60 /* WebFrameInspectorTargetProxy.h */; };
 		F3272B802DB997C6007B3A9A /* BidiBrowsingContextAgent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F3272B7D2DB997C6007B3A9A /* BidiBrowsingContextAgent.cpp */; };
 		F3272B812DB997C6007B3A9A /* BidiScriptAgent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F3272B7F2DB997C6007B3A9A /* BidiScriptAgent.cpp */; };
 		F3272B822DB997C6007B3A9A /* BidiBrowsingContextAgent.h in Headers */ = {isa = PBXBuildFile; fileRef = F3272B7C2DB997C6007B3A9A /* BidiBrowsingContextAgent.h */; };
 		F3272B832DB997C6007B3A9A /* BidiScriptAgent.h in Headers */ = {isa = PBXBuildFile; fileRef = F3272B7E2DB997C6007B3A9A /* BidiScriptAgent.h */; };
+		F34877A92E723DC100D97E74 /* WebFrameInspectorTargetFrontendChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = F34877A82E723DB400D97E74 /* WebFrameInspectorTargetFrontendChannel.h */; };
 		F3A94F012DB6F3310023CE9D /* BidiUserContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F3A94F002DB6F3310023CE9D /* BidiUserContext.cpp */; };
 		F3A94F022DB6F3310023CE9D /* BidiUserContext.h in Headers */ = {isa = PBXBuildFile; fileRef = F3A94EFF2DB6F3310023CE9D /* BidiUserContext.h */; };
 		F3EEEE592DB318270038CC1D /* BidiBrowserAgent.h in Headers */ = {isa = PBXBuildFile; fileRef = F3EEEE572DB318270038CC1D /* BidiBrowserAgent.h */; };
@@ -8444,10 +8448,18 @@
 		EE0D3CDD2D3709BE00072978 /* WKStageMode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WKStageMode.h; sourceTree = "<group>"; };
 		EEFE72782D64FE5600DC6214 /* StageModeInteractionState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StageModeInteractionState.h; sourceTree = "<group>"; };
 		F036978715F4BF0500C3A80E /* WebColorPicker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebColorPicker.cpp; sourceTree = "<group>"; };
+		F30EE46D2E721ECE00935B60 /* WebFrameInspectorTarget.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebFrameInspectorTarget.h; sourceTree = "<group>"; };
+		F30EE46F2E721EDB00935B60 /* WebFrameInspectorTarget.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebFrameInspectorTarget.cpp; sourceTree = "<group>"; };
+		F30EE4702E72225D00935B60 /* WebPageInspectorTargetProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebPageInspectorTargetProxy.h; sourceTree = "<group>"; };
+		F30EE4722E72226A00935B60 /* WebPageInspectorTargetProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebPageInspectorTargetProxy.cpp; sourceTree = "<group>"; };
+		F30EE4732E72226D00935B60 /* WebFrameInspectorTargetProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebFrameInspectorTargetProxy.h; sourceTree = "<group>"; };
+		F30EE4752E72227800935B60 /* WebFrameInspectorTargetProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebFrameInspectorTargetProxy.cpp; sourceTree = "<group>"; };
 		F3272B7C2DB997C6007B3A9A /* BidiBrowsingContextAgent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BidiBrowsingContextAgent.h; sourceTree = "<group>"; };
 		F3272B7D2DB997C6007B3A9A /* BidiBrowsingContextAgent.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BidiBrowsingContextAgent.cpp; sourceTree = "<group>"; };
 		F3272B7E2DB997C6007B3A9A /* BidiScriptAgent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BidiScriptAgent.h; sourceTree = "<group>"; };
 		F3272B7F2DB997C6007B3A9A /* BidiScriptAgent.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BidiScriptAgent.cpp; sourceTree = "<group>"; };
+		F34877A82E723DB400D97E74 /* WebFrameInspectorTargetFrontendChannel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebFrameInspectorTargetFrontendChannel.h; sourceTree = "<group>"; };
+		F34877AA2E723DC400D97E74 /* WebFrameInspectorTargetFrontendChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebFrameInspectorTargetFrontendChannel.cpp; sourceTree = "<group>"; };
 		F3A94EFF2DB6F3310023CE9D /* BidiUserContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BidiUserContext.h; sourceTree = "<group>"; };
 		F3A94F002DB6F3310023CE9D /* BidiUserContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BidiUserContext.cpp; sourceTree = "<group>"; };
 		F3EEEE572DB318270038CC1D /* BidiBrowserAgent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BidiBrowserAgent.h; sourceTree = "<group>"; };
@@ -14126,6 +14138,8 @@
 				A55BA81B1BA25B1E007CD33D /* RemoteWebInspectorUIProxy.cpp */,
 				A55BA8191BA25B1E007CD33D /* RemoteWebInspectorUIProxy.h */,
 				A55BA81A1BA25B1E007CD33D /* RemoteWebInspectorUIProxy.messages.in */,
+				F30EE4752E72227800935B60 /* WebFrameInspectorTargetProxy.cpp */,
+				F30EE4732E72226D00935B60 /* WebFrameInspectorTargetProxy.h */,
 				FC7104532E0ED23800CC0B24 /* WebInspectorBackendProxy.h */,
 				FC7104512E0ED22A00CC0B24 /* WebInspectorBackendProxy.messages.in */,
 				99B1675D252BBE0A0073140E /* WebInspectorUIExtensionControllerProxy.cpp */,
@@ -14142,6 +14156,8 @@
 				9197940723DBC4CA00257892 /* WebPageInspectorAgentBase.h */,
 				A513F53F2154A5CD00662841 /* WebPageInspectorController.cpp */,
 				A513F53E2154A5CC00662841 /* WebPageInspectorController.h */,
+				F30EE4722E72226A00935B60 /* WebPageInspectorTargetProxy.cpp */,
+				F30EE4702E72225D00935B60 /* WebPageInspectorTargetProxy.h */,
 			);
 			path = Inspector;
 			sourceTree = "<group>";
@@ -14192,6 +14208,10 @@
 				E3D0A93F2D62B1C90094538A /* ServiceWorkerDebuggableFrontendChannel.h */,
 				E3E6297D2D5FA8F200DAE50C /* ServiceWorkerDebuggableProxy.cpp */,
 				E3E6297C2D5FA8F200DAE50C /* ServiceWorkerDebuggableProxy.h */,
+				F30EE46F2E721EDB00935B60 /* WebFrameInspectorTarget.cpp */,
+				F30EE46D2E721ECE00935B60 /* WebFrameInspectorTarget.h */,
+				F34877AA2E723DC400D97E74 /* WebFrameInspectorTargetFrontendChannel.cpp */,
+				F34877A82E723DB400D97E74 /* WebFrameInspectorTargetFrontendChannel.h */,
 				1C8E2A1C1277833F00BC7BD0 /* WebInspector.messages.in */,
 				BC111A59112F4FBB00337BAB /* WebInspectorBackendClient.cpp */,
 				BC032D6D10F4378D0058C15A /* WebInspectorBackendClient.h */,
@@ -18092,6 +18112,9 @@
 				BCE469561214E6CB000B98EB /* WebFormSubmissionListenerProxy.h in Headers */,
 				E5227D8427A11261008EAB57 /* WebFoundTextRange.h in Headers */,
 				E55CFD4E279D31E5002F1020 /* WebFoundTextRangeController.h in Headers */,
+				F30EE46E2E721ED600935B60 /* WebFrameInspectorTarget.h in Headers */,
+				F34877A92E723DC100D97E74 /* WebFrameInspectorTargetFrontendChannel.h in Headers */,
+				F30EE4742E72227500935B60 /* WebFrameInspectorTargetProxy.h in Headers */,
 				FAA4E3012A1575A5003F5E50 /* WebFrameLoaderClient.h in Headers */,
 				51FBB8952CCC063700B72464 /* WebFrameMetrics.h in Headers */,
 				9391F2CB121B67AD00EBF7E8 /* WebFrameNetworkingContext.h in Headers */,
@@ -18169,6 +18192,7 @@
 				A543E30C215C8A8D00279CD9 /* WebPageInspectorTarget.h in Headers */,
 				A543E30D215C8A9000279CD9 /* WebPageInspectorTargetController.h in Headers */,
 				A543E307215AD13700279CD9 /* WebPageInspectorTargetFrontendChannel.h in Headers */,
+				F30EE4712E72226700935B60 /* WebPageInspectorTargetProxy.h in Headers */,
 				C0CE72A11247E71D00BC0EC4 /* WebPageMessages.h in Headers */,
 				2D5C9D0619C81D8F00B3C5C1 /* WebPageOverlay.h in Headers */,
 				939EF86F29D0C17300F23AEE /* WebPageProxy.h in Headers */,

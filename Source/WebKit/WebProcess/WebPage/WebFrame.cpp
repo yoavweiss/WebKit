@@ -48,6 +48,7 @@
 #include "WebContextMenu.h"
 #include "WebEventConversion.h"
 #include "WebEventFactory.h"
+#include "WebFrameInspectorTarget.h"
 #include "WebFrameProxyMessages.h"
 #include "WebImage.h"
 #include "WebPage.h"
@@ -182,6 +183,8 @@ Ref<WebFrame> WebFrame::createRemoteSubframe(WebPage& page, WebFrame& parent, We
 WebFrame::WebFrame(WebPage& page, WebCore::FrameIdentifier frameID)
     : m_page(page)
     , m_frameID(frameID)
+    // FIXME: <https://webkit.org/b/299052> Consider lazily creating this inspector target.
+    , m_inspectorTarget(makeUniqueRef<WebFrameInspectorTarget>(*this))
 {
     ASSERT(!WebProcess::singleton().webFrame(m_frameID));
     WebProcess::singleton().addWebFrame(m_frameID, this);
@@ -1573,6 +1576,21 @@ void WebFrame::takeSnapshotOfNode(JSHandleIdentifier identifier, CompletionHandl
         return completion({ });
 
     completion(bitmap->createHandle(SharedMemory::Protection::ReadOnly));
+}
+
+void WebFrame::connectInspector(Inspector::FrontendChannel::ConnectionType connectionType)
+{
+    m_inspectorTarget->connect(connectionType);
+}
+
+void WebFrame::disconnectInspector()
+{
+    m_inspectorTarget->disconnect();
+}
+
+void WebFrame::sendMessageToInspectorTarget(const String& message)
+{
+    m_inspectorTarget->sendMessageToTargetBackend(message);
 }
 
 } // namespace WebKit

@@ -1829,6 +1829,7 @@ inspector/CommandLineAPIHost.cpp
 inspector/CommandLineAPIModule.cpp
 inspector/DOMEditor.cpp
 inspector/DOMPatchSupport.cpp
+inspector/FrameInspectorController.cpp
 inspector/InspectorAuditAccessibilityObject.cpp
 inspector/InspectorAuditDOMObject.cpp
 inspector/InspectorAuditResourcesObject.cpp

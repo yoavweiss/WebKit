@@ -613,12 +613,14 @@ UIProcess/Model/ModelProcessProxy.cpp
 
 UIProcess/Inspector/InspectorTargetProxy.cpp
 UIProcess/Inspector/RemoteWebInspectorUIProxy.cpp
+UIProcess/Inspector/WebFrameInspectorTargetProxy.cpp
 UIProcess/Inspector/WebInspectorBackendProxy.cpp
-UIProcess/Inspector/WebInspectorUIProxy.cpp
 UIProcess/Inspector/WebInspectorUIExtensionControllerProxy.cpp
+UIProcess/Inspector/WebInspectorUIProxy.cpp
 UIProcess/Inspector/WebInspectorUtilities.cpp
 UIProcess/Inspector/WebPageDebuggable.cpp
 UIProcess/Inspector/WebPageInspectorController.cpp
+UIProcess/Inspector/WebPageInspectorTargetProxy.cpp
 
 UIProcess/Inspector/Agents/InspectorBrowserAgent.cpp
 
@@ -718,6 +720,8 @@ WebProcess/InjectedBundle/DOM/InjectedBundleNodeHandle.cpp @no-unify
 WebProcess/InjectedBundle/DOM/InjectedBundleRangeHandle.cpp @no-unify
 
 WebProcess/Inspector/RemoteWebInspectorUI.cpp
+WebProcess/Inspector/WebFrameInspectorTarget.cpp
+WebProcess/Inspector/WebFrameInspectorTargetFrontendChannel.cpp
 WebProcess/Inspector/WebInspectorBackendClient.cpp
 WebProcess/Inspector/WebInspectorInternal.cpp
 WebProcess/Inspector/WebInspectorInterruptDispatcher.cpp

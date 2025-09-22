@@ -214,7 +214,7 @@ public:
     FrameProcess& frameProcess() { return m_frameProcess.get(); }
     void removeChildFrames();
     ProvisionalFrameProxy* provisionalFrame() { return m_provisionalFrame.get(); }
-    std::unique_ptr<ProvisionalFrameProxy> takeProvisionalFrame();
+    RefPtr<ProvisionalFrameProxy> takeProvisionalFrame();
     WebProcessProxy& provisionalLoadProcess();
     std::optional<WebCore::PageIdentifier> webPageIDInCurrentProcess();
     void notifyParentOfLoadCompletion(WebProcessProxy&);
@@ -268,6 +268,8 @@ public:
     template<typename M, typename C> void sendWithAsyncReply(M&&, C&&);
     template<typename M> void send(M&&);
 
+    void sendMessageToInspectorFrontend(const String& targetId, const String& message);
+
 private:
     WebFrameProxy(WebPageProxy&, FrameProcess&, WebCore::FrameIdentifier, WebCore::SandboxFlags, WebCore::ScrollbarMode, WebFrameProxy*, IsMainFrame);
 
@@ -296,7 +298,7 @@ private:
     WebCore::FrameIdentifier m_frameID;
     ListHashSet<Ref<WebFrameProxy>> m_childFrames;
     WeakPtr<WebFrameProxy> m_parentFrame;
-    std::unique_ptr<ProvisionalFrameProxy> m_provisionalFrame;
+    RefPtr<ProvisionalFrameProxy> m_provisionalFrame;
 #if ENABLE(CONTENT_FILTERING)
     WebCore::ContentFilterUnblockHandler m_contentFilterUnblockHandler;
 #endif

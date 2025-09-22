@@ -440,6 +440,7 @@ storage/storagequota-request-quota.html
 # iOS doesn't have a local inspector
 inspector/ [ Skip ]
 http/tests/inspector/ [ Skip ]
+http/tests/site-isolation/inspector/ [ Skip ]
 http/tests/websocket/tests/hybi/inspector/ [ Skip ]
 
 # Needs testRunner.enableAutoResizeMode()
