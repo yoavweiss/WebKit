@@ -4615,10 +4615,7 @@ JSRTCTrackEvent.cpp
 JSRTCTransformEvent.cpp
 JSRadioNodeList.cpp
 JSRange.cpp
-JSReadableByteStreamController.cpp
 JSReadableStream.cpp
-JSReadableStreamBYOBReader.cpp
-JSReadableStreamBYOBRequest.cpp
 JSReadableStreamDefaultController.cpp
 JSReadableStreamDefaultReader.cpp
 JSReadableStreamSink.cpp

@@ -413,10 +413,7 @@ namespace WebCore {
     macro(RTCStatsReport) \
     macro(RTCTrackEvent) \
     macro(RTCTransformEvent) \
-    macro(ReadableByteStreamController) \
     macro(ReadableStream) \
-    macro(ReadableStreamBYOBReader) \
-    macro(ReadableStreamBYOBRequest) \
     macro(ReadableStreamDefaultController) \
     macro(ReadableStreamDefaultReader) \
     macro(RemotePlayback) \
@@ -567,7 +564,6 @@ namespace WebCore {
     macro(abortSteps) \
     macro(addAbortAlgorithmToSignal) \
     macro(appendFromJS) \
-    macro(associatedReadableByteStreamController) \
     macro(autoAllocateChunkSize) \
     macro(backingMap) \
     macro(backingSet) \
@@ -702,7 +698,6 @@ namespace WebCore {
     macro(readable) \
     macro(readIntoRequests) \
     macro(readRequests) \
-    macro(readableByteStreamAPIEnabled) \
     macro(readableStreamController) \
     macro(reader) \
     macro(readyPromise) \
