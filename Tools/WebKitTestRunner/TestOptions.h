@@ -92,8 +92,6 @@ public:
     bool enableMetalDebugDevice() const { return boolTestRunnerFeatureValue("enableMetalDebugDevice"); }
     bool enableMetalShaderValidation() const { return boolTestRunnerFeatureValue("enableMetalShaderValidation"); }
     bool pageTopColorSamplingEnabled() const { return boolTestRunnerFeatureValue("pageTopColorSamplingEnabled"); }
-    bool enhancedSecurityEnabled() const { return boolTestRunnerFeatureValue("enhancedSecurityEnabled"); }
-
     double contentInsetTop() const { return doubleTestRunnerFeatureValue("contentInset.top"); }
     double obscuredInsetTop() const { return doubleTestRunnerFeatureValue("obscuredInset.top"); }
     double obscuredInsetLeft() const { return doubleTestRunnerFeatureValue("obscuredInset.left"); }

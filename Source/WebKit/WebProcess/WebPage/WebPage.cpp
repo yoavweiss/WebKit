@@ -956,11 +956,6 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
     // in modern WebKit.
     page->settings().setBackForwardCacheExpirationInterval(Seconds::infinity());
 
-    WebProcess::singleton().isEnhancedSecurityEnabled([weakPage = WeakPtr { page }](bool enabled) {
-        if (RefPtr page = weakPage.get())
-            page->setEnhancedSecurityEnabled(enabled);
-    });
-
     m_mainFrame->initWithCoreMainFrame(*this, page->protectedMainFrame());
 
     if (auto& remotePageParameters = parameters.remotePageParameters) {

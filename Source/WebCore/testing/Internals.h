@@ -1035,8 +1035,6 @@ public:
 
     bool isHardwareVP9DecoderExpected();
 
-    bool enhancedSecurityEnabled() const;
-
 #if USE(AUDIO_SESSION)
     using AudioSessionCategory = WebCore::AudioSessionCategory;
     using AudioSessionMode = WebCore::AudioSessionMode;

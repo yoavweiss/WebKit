@@ -184,10 +184,9 @@ public:
 
     enum class ShouldLaunchProcess : bool { No, Yes };
     enum class LockdownMode : bool { Disabled, Enabled };
-    enum class EnhancedSecurity : bool { Disabled, Enabled };
 
-    static Ref<WebProcessProxy> create(WebProcessPool&, WebsiteDataStore*, LockdownMode, EnhancedSecurity, IsPrewarmed, WebCore::CrossOriginMode = WebCore::CrossOriginMode::Shared, ShouldLaunchProcess = ShouldLaunchProcess::Yes);
-    static Ref<WebProcessProxy> createForRemoteWorkers(RemoteWorkerType, WebProcessPool&, WebCore::Site&&, WebsiteDataStore&, LockdownMode, EnhancedSecurity);
+    static Ref<WebProcessProxy> create(WebProcessPool&, WebsiteDataStore*, LockdownMode, IsPrewarmed, WebCore::CrossOriginMode = WebCore::CrossOriginMode::Shared, ShouldLaunchProcess = ShouldLaunchProcess::Yes);
+    static Ref<WebProcessProxy> createForRemoteWorkers(RemoteWorkerType, WebProcessPool&, WebCore::Site&&, WebsiteDataStore&, LockdownMode);
 
     ~WebProcessProxy();
 
@@ -517,7 +516,6 @@ public:
 
     WebCore::CrossOriginMode crossOriginMode() const { return m_crossOriginMode; }
     LockdownMode lockdownMode() const { return m_lockdownMode; }
-    EnhancedSecurity enhancedSecurity() const { return m_enhancedSecurity; }
 
 #if PLATFORM(COCOA)
     std::optional<audit_token_t> auditToken() const;
@@ -572,7 +570,7 @@ public:
 private:
     Type type() const final { return Type::WebContent; }
 
-    WebProcessProxy(WebProcessPool&, WebsiteDataStore*, IsPrewarmed, WebCore::CrossOriginMode, LockdownMode, EnhancedSecurity);
+    WebProcessProxy(WebProcessPool&, WebsiteDataStore*, IsPrewarmed, WebCore::CrossOriginMode, LockdownMode);
 
     // AuxiliaryProcessProxy
     ASCIILiteral processName() const final { return "WebContent"_s; }
@@ -593,7 +591,6 @@ private:
     bool isJITEnabled() const final;
     bool shouldEnableSharedArrayBuffer() const final { return m_crossOriginMode == WebCore::CrossOriginMode::Isolated; }
     bool shouldEnableLockdownMode() const final { return m_lockdownMode == LockdownMode::Enabled; }
-    bool shouldEnableEnhancedSecurity() const { return m_enhancedSecurity == WebProcessProxy::EnhancedSecurity::Enabled; }
     bool shouldDisableJITCage() const final;
 
     void validateFreezerStatus();
@@ -783,7 +780,6 @@ private:
     bool m_hasCommittedAnyMeaningfulProvisionalLoads { false }; // True if the process has committed a provisional load to a URL that was not about:*.
     bool m_isPrewarmed;
     LockdownMode m_lockdownMode { LockdownMode::Disabled };
-    EnhancedSecurity m_enhancedSecurity { WebProcessProxy::EnhancedSecurity::Disabled };
     WebCore::CrossOriginMode m_crossOriginMode { WebCore::CrossOriginMode::Shared };
 #if PLATFORM(COCOA)
     bool m_hasNetworkExtensionSandboxAccess { false };

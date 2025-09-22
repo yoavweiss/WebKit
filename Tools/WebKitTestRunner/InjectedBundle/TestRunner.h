@@ -104,8 +104,6 @@ public:
 
     bool isWebKit2() const { return true; }
 
-    bool isEnhancedSecurity();
-
     // The basics.
     WKURLRef testURL() const { return m_testURL.get(); }
     void setTestURL(WKURLRef url) { m_testURL = url; }

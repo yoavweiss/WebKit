@@ -5137,14 +5137,6 @@ static void convertAndAddHighlight(Vector<Ref<WebCore::SharedMemory>>& buffers, 
     });
 }
 
-- (void)_isEnhancedSecurityEnabled:(void(^)(BOOL))completionHandler
-{
-    THROW_IF_SUSPENDED;
-    _page->isEnhancedSecurityEnabled([completionHandler = makeBlockPtr(completionHandler)] (bool enabled) {
-        completionHandler(enabled);
-    });
-}
-
 - (void)_evaluateJavaScriptWithoutUserGesture:(NSString *)javaScriptString completionHandler:(void (^)(id, NSError *))completionHandler
 {
     THROW_IF_SUSPENDED;

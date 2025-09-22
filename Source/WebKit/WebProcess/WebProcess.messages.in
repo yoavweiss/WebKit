@@ -145,7 +145,6 @@ messages -> WebProcess : AuxiliaryProcess WantsAsyncDispatchMessage {
 #endif
 
     IsJITEnabled() -> (bool enabled)
-    IsEnhancedSecurityEnabled() -> (bool enabled)
 
 #if PLATFORM(COCOA)
     SetMediaMIMETypes(Vector<String> types)

@@ -1376,9 +1376,6 @@ public:
     void updateDisplayEDRSuppression();
 #endif
 
-    void setEnhancedSecurityEnabled(bool enabled) { m_enhancedSecurityEnabled = enabled; };
-    bool enhancedSecurityEnabled() const { return m_enhancedSecurityEnabled; };
-
 private:
     explicit Page(PageConfiguration&&);
 
@@ -1847,8 +1844,6 @@ private:
 #if ENABLE(MODEL_ELEMENT)
     bool m_modelLoadDelaysDisabledForTesting { false };
 #endif
-
-    bool m_enhancedSecurityEnabled { false };
 }; // class Page
 
 WTF::TextStream& operator<<(WTF::TextStream&, RenderingUpdateStep);
