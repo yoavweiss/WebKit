@@ -904,6 +904,7 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     interpreter/CallFrameInlines.h
     interpreter/CheckpointOSRExitSideState.h
     interpreter/CLoopStack.h
+    interpreter/CLoopStackInlines.h
     interpreter/EntryFrame.h
     interpreter/FrameTracers.h
     interpreter/Interpreter.h

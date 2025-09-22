@@ -35,7 +35,6 @@
 #include <WebCore/EventListenerOptions.h>
 #include <WebCore/PlatformExportMacros.h>
 #include <WebCore/ScriptWrappable.h>
-#include <bmalloc/TZoneHeap.h>
 #include <memory>
 #include <wtf/CanMakeWeakPtr.h>
 #include <wtf/CheckedPtr.h>
