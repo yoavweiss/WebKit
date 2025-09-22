@@ -1537,14 +1537,16 @@ std::unique_ptr<RenderStyle> TreeResolver::generatePositionOption(const Position
         }
         if (!fallback.positionTryRuleName)
             return nullptr;
-        auto* styleScope = Style::Scope::forOrdinal(styleable.element, fallback.positionTryRuleName->scopeOrdinal);
-        if (!styleScope)
-            return nullptr;
-        auto& ruleSet = styleScope->resolver().ruleSets().authorStyle();
-        auto rule = ruleSet.positionTryRuleForName(fallback.positionTryRuleName->name);
-        if (!rule)
-            return nullptr;
-        return rule->properties();
+
+        // "If an at-rule or property defines a name that other CSS constructs can refer to it by, ... it must be defined as a tree-scoped name."
+        // https://drafts.csswg.org/css-scoping-1/#shadow-names
+        return Style::Scope::resolveTreeScopedReference(styleable.element, *fallback.positionTryRuleName, [](const Style::Scope& scope, const AtomString& name) -> RefPtr<const StyleProperties> {
+            auto& ruleSet = scope.resolverIfExists()->ruleSets().authorStyle();
+            auto rule = ruleSet.positionTryRuleForName(name);
+            if (!rule)
+                return nullptr;
+            return rule->properties();
+        });
     };
 
     auto builderFallback = BuilderPositionTryFallback {

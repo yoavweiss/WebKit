@@ -1105,6 +1105,13 @@ Element* hostForScopeOrdinal(const Element& element, ScopeOrdinal scopeOrdinal)
     return host;
 }
 
+CheckedPtr<const Scope> Scope::hostScope() const
+{
+    if (!m_shadowRoot || !m_shadowRoot->host())
+        return nullptr;
+    return &forNode(*m_shadowRoot->host());
+}
+
 void Scope::updateAnchorPositioningStateAfterStyleResolution()
 {
     if (CheckedPtr renderView = m_document->renderView())
