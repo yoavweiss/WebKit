@@ -1084,7 +1084,7 @@ public:
     static constexpr bool tierSupportsSIMD() { return true; }
     static constexpr bool validateFunctionBodySize = true;
 
-    BBQJIT(CCallHelpers& jit, const TypeDefinition& signature, Module&, CalleeGroup&, IPIntCallee& profiledCallee, BBQCallee& callee, const FunctionData& function, FunctionCodeIndex functionIndex, const ModuleInformation& info, Vector<UnlinkedWasmToWasmCall>& unlinkedWasmToWasmCalls, MemoryMode mode, InternalFunction* compilation);
+    BBQJIT(CompilationContext&, const TypeDefinition& signature, Module&, CalleeGroup&, IPIntCallee& profiledCallee, BBQCallee& callee, const FunctionData& function, FunctionCodeIndex functionIndex, const ModuleInformation& info, Vector<UnlinkedWasmToWasmCall>& unlinkedWasmToWasmCalls, MemoryMode mode, InternalFunction* compilation);
 
     ALWAYS_INLINE static Value emptyExpression()
     {
@@ -1612,7 +1612,7 @@ public:
     PartialResult WARN_UNUSED_RETURN addF64Mul(Value lhs, Value rhs, Value& result);
 
     template<typename Func>
-    void addLatePath(Func func);
+    void addLatePath(WasmOrigin, Func&&);
 
     void emitThrowException(ExceptionType type);
 
@@ -2233,6 +2233,9 @@ private:
     void emitSaveCalleeSaves();
     void emitRestoreCalleeSaves();
 
+    WasmOrigin origin();
+
+    CompilationContext& m_context;
     CCallHelpers& m_jit;
     Module& m_module;
     CalleeGroup& m_calleeGroup;
@@ -2258,8 +2261,8 @@ private:
     GPRAllocator m_gprAllocator; // SimpleRegisterAllocator for GPRs
     FPRAllocator m_fprAllocator; // SimpleRegisterAllocator for FPRs
     SpillHint m_lastUseTimestamp; // Monotonically increasing integer incrementing with each register use.
-    Vector<Function<void(BBQJIT&, CCallHelpers&)>, 8> m_latePaths; // Late paths to emit after the rest of the function body.
-    Vector<std::tuple<MacroAssembler::JumpList, MacroAssembler::Label, RegisterBindings, Function<void(BBQJIT&, CCallHelpers&)>>> m_slowPaths; // Like a late path but for when we need to make a CCall thus need to restore our state.
+    Vector<std::tuple<WasmOrigin, Function<void(BBQJIT&, CCallHelpers&)>>, 8> m_latePaths; // Late paths to emit after the rest of the function body.
+    Vector<std::tuple<WasmOrigin, MacroAssembler::JumpList, MacroAssembler::Label, RegisterBindings, Function<void(BBQJIT&, CCallHelpers&)>>> m_slowPaths; // Like a late path but for when we need to make a CCall thus need to restore our state.
 
     // FIXME: All uses of this are to restore sp, so we should emit these as a patchable sub instruction rather than move.
     Vector<DataLabelPtr, 1> m_frameSizeLabels;

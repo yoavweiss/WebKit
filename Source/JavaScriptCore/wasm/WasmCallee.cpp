@@ -381,7 +381,7 @@ Box<PCToCodeOriginMap> OptimizingJITCallee::materializePCToOriginMap(B3::PCToOri
     PCToCodeOriginMapBuilder builder(shouldBuildMapping);
     for (const B3::PCToOriginMap::OriginRange& originRange : originMap.ranges()) {
         B3::Origin b3Origin = originRange.origin;
-        if (auto* origin = b3Origin.maybeOMGOrigin()) {
+        if (auto* origin = b3Origin.maybeWasmOrigin()) {
             // We stash the location into a BytecodeIndex.
             builder.appendItem(originRange.label, CodeOrigin(BytecodeIndex(origin->m_callSiteIndex.bits())));
         } else
@@ -395,7 +395,7 @@ Box<PCToCodeOriginMap> OptimizingJITCallee::materializePCToOriginMap(B3::PCToOri
         PCToCodeOriginMapBuilder samplingProfilerBuilder(shouldBuildMapping);
         for (const B3::PCToOriginMap::OriginRange& originRange : originMap.ranges()) {
             B3::Origin b3Origin = originRange.origin;
-            if (auto* origin = b3Origin.maybeOMGOrigin()) {
+            if (auto* origin = b3Origin.maybeWasmOrigin()) {
                 // We stash the location into a BytecodeIndex.
                 samplingProfilerBuilder.appendItem(originRange.label, CodeOrigin(BytecodeIndex(origin->m_opcodeOrigin.location())));
             } else

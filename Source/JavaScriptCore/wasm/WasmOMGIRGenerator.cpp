@@ -4866,7 +4866,7 @@ auto OMGIRGenerator::addThrow(unsigned exceptionIndex, ArgumentList& args, Stack
         AllowMacroScratchRegisterUsage allowScratch(jit);
         if (handle)
             handle->collectStackMap(this, params);
-        RELEASE_ASSERT(origin.omgOrigin());
+        RELEASE_ASSERT(origin.wasmOrigin());
         emitThrowImpl(jit, exceptionIndex);
     });
     m_currentBlock->append(patch);
@@ -4893,7 +4893,7 @@ auto WARN_UNUSED_RETURN OMGIRGenerator::addThrowRef(TypedExpression exnref, Stac
         AllowMacroScratchRegisterUsage allowScratch(jit);
         if (handle)
             handle->collectStackMap(this, params);
-        RELEASE_ASSERT(origin.omgOrigin());
+        RELEASE_ASSERT(origin.wasmOrigin());
         emitThrowRefImpl(jit);
     });
     m_currentBlock->append(patch);
@@ -4915,7 +4915,7 @@ auto OMGIRGenerator::addRethrow(unsigned, ControlType& data) -> PartialResult
         AllowMacroScratchRegisterUsage allowScratch(jit);
         if (handle)
             handle->collectStackMap(this, params);
-        RELEASE_ASSERT(origin.omgOrigin());
+        RELEASE_ASSERT(origin.wasmOrigin());
         emitThrowRefImpl(jit);
     });
     m_currentBlock->append(patch);
@@ -6278,7 +6278,7 @@ auto OMGIRGenerator::origin() -> Origin
         break;
     }
     ASSERT(isValidOpType(static_cast<uint8_t>(opcodeOrigin.opcode())));
-    OMGOrigin result { CallSiteIndex(callSiteIndex()), opcodeOrigin };
+    WasmOrigin result { CallSiteIndex(callSiteIndex()), opcodeOrigin };
     if (m_context.origins.isEmpty() || m_context.origins.last() != result)
         m_context.origins.append(result);
     return Origin(&m_context.origins.last());
@@ -6312,7 +6312,7 @@ Expected<std::unique_ptr<InternalFunction>, String> parseAndCompileOMG(Compilati
 
     procedure.setNeedsPCToOriginMap();
     procedure.setOriginPrinter([](PrintStream& out, Origin origin) {
-        if (auto* impl = origin.maybeOMGOrigin())
+        if (auto* impl = origin.maybeWasmOrigin())
             out.print("Wasm: ", impl->m_opcodeOrigin, " CallSiteIndex: ", impl->m_callSiteIndex.bits());
     });
 

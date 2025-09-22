@@ -650,8 +650,9 @@ void ControlData::fillLabels(CCallHelpers::Label label)
         *box = label;
 }
 
-BBQJIT::BBQJIT(CCallHelpers& jit, const TypeDefinition& signature, Module& module, CalleeGroup& calleeGroup, IPIntCallee& profiledCallee, BBQCallee& callee, const FunctionData& function, FunctionCodeIndex functionIndex, const ModuleInformation& info, Vector<UnlinkedWasmToWasmCall>& unlinkedWasmToWasmCalls, MemoryMode mode, InternalFunction* compilation)
-    : m_jit(jit)
+BBQJIT::BBQJIT(CompilationContext& compilationContext, const TypeDefinition& signature, Module& module, CalleeGroup& calleeGroup, IPIntCallee& profiledCallee, BBQCallee& callee, const FunctionData& function, FunctionCodeIndex functionIndex, const ModuleInformation& info, Vector<UnlinkedWasmToWasmCall>& unlinkedWasmToWasmCalls, MemoryMode mode, InternalFunction* compilation)
+    : m_context(compilationContext)
+    , m_jit(*compilationContext.wasmEntrypointJIT)
     , m_module(module)
     , m_calleeGroup(calleeGroup)
     , m_profiledCallee(profiledCallee)
@@ -2007,9 +2008,9 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addF64Mul(Value lhs, Value rhs, Value& 
 }
 
 template<typename Func>
-void BBQJIT::addLatePath(Func func)
+void BBQJIT::addLatePath(WasmOrigin origin, Func&& func)
 {
-    m_latePaths.append(WTFMove(func));
+    m_latePaths.append({ origin, WTFMove(func) });
 }
 
 void BBQJIT::emitThrowException(ExceptionType type)
@@ -3122,7 +3123,7 @@ void BBQJIT::emitEntryTierUpCheck()
     m_jit.move(TrustedImmPtr(std::bit_cast<uintptr_t>(&m_callee.tierUpCounter().m_counter)), wasmScratchGPR);
     Jump tierUp = m_jit.branchAdd32(CCallHelpers::PositiveOrZero, TrustedImm32(TierUpCount::functionEntryIncrement()), Address(wasmScratchGPR));
     MacroAssembler::Label tierUpResume = m_jit.label();
-    addLatePath([tierUp, tierUpResume](BBQJIT& generator, CCallHelpers& jit) {
+    addLatePath(origin(), [tierUp, tierUpResume](BBQJIT& generator, CCallHelpers& jit) {
         tierUp.link(&jit);
         jit.move(GPRInfo::callFrameRegister, GPRInfo::nonPreservedNonArgumentGPR0);
         jit.nearCallThunk(CodeLocationLabel<JITThunkPtrTag>(Thunks::singleton().stub(triggerOMGEntryTierUpThunkGenerator(generator.m_usesSIMD)).code()));
@@ -3188,7 +3189,7 @@ ControlData WARN_UNUSED_RETURN BBQJIT::addTopLevel(BlockSignature signature)
         m_jit.loadPtr(baselineDataAddress, GPRInfo::jitDataRegister);
         Jump materialize = m_jit.branchTestPtr(CCallHelpers::Zero, GPRInfo::jitDataRegister);
         MacroAssembler::Label done = m_jit.label();
-        addLatePath([materialize = WTFMove(materialize), done, baselineDataAddress](BBQJIT&, CCallHelpers& jit) {
+        addLatePath(origin(), [materialize = WTFMove(materialize), done, baselineDataAddress](BBQJIT&, CCallHelpers& jit) {
             materialize.link(&jit);
             jit.move(GPRInfo::callFrameRegister, GPRInfo::nonPreservedNonArgumentGPR0);
             jit.nearCallThunk(CodeLocationLabel<JITThunkPtrTag>(Thunks::singleton().stub(materializeBaselineDataGenerator).code()));
@@ -3512,7 +3513,7 @@ void BBQJIT::emitLoopTierUpCheckAndOSREntryData(const ControlData& data, Stack& 
 
     OSREntryData* osrEntryDataPtr = &osrEntryData;
 
-    addLatePath([forceOSREntry, tierUp, tierUpResume, osrEntryDataPtr](BBQJIT& generator, CCallHelpers& jit) {
+    addLatePath(origin(), [forceOSREntry, tierUp, tierUpResume, osrEntryDataPtr](BBQJIT& generator, CCallHelpers& jit) {
         forceOSREntry.link(&jit);
         tierUp.link(&jit);
 
@@ -4068,12 +4069,15 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::endTopLevel(BlockSignature, const Stack
     if (m_disassembler) [[unlikely]]
         m_disassembler->setEndOfOpcode(m_jit.label());
 
-    for (const auto& latePath : m_latePaths)
+    for (const auto& [ origin, latePath ] : m_latePaths) {
+        m_pcToCodeOriginMapBuilder.appendItem(m_jit.label(), CodeOrigin(BytecodeIndex(origin.m_opcodeOrigin.location())));
         latePath(*this, m_jit);
+    }
 
-    for (auto& [ jumpList, returnLabel, registerBindings, generator ] : m_slowPaths) {
+    for (auto& [ origin, jumpList, returnLabel, registerBindings, generator ] : m_slowPaths) {
         JIT_COMMENT(m_jit, "Slow path start");
         jumpList.link(m_jit);
+        m_pcToCodeOriginMapBuilder.appendItem(m_jit.label(), CodeOrigin(BytecodeIndex(origin.m_opcodeOrigin.location())));
         slowPathSpillBindings(registerBindings);
         generator(*this, m_jit);
         slowPathRestoreBindings(registerBindings);
@@ -4813,22 +4817,47 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCrash()
     return { };
 }
 
+WasmOrigin BBQJIT::origin()
+{
+    if (!m_parser)
+        return { { }, { } };
+
+    OpcodeOrigin opcodeOrigin = OpcodeOrigin(m_parser->currentOpcode(), m_parser->currentOpcodeStartingOffset());
+    switch (m_parser->currentOpcode()) {
+    case OpType::Ext1:
+    case OpType::ExtGC:
+    case OpType::ExtAtomic:
+    case OpType::ExtSIMD:
+        opcodeOrigin = OpcodeOrigin(m_parser->currentOpcode(), m_parser->currentExtendedOpcode(), m_parser->currentOpcodeStartingOffset());
+        break;
+    default:
+        break;
+    }
+    ASSERT(isValidOpType(static_cast<uint8_t>(opcodeOrigin.opcode())));
+    WasmOrigin result { CallSiteIndex(m_callSiteIndex), opcodeOrigin };
+    if (m_context.origins.isEmpty() || m_context.origins.last() != result)
+        m_context.origins.append(result);
+    return m_context.origins.last();
+}
+
 ALWAYS_INLINE void BBQJIT::willParseOpcode()
 {
-    m_pcToCodeOriginMapBuilder.appendItem(m_jit.label(), CodeOrigin(BytecodeIndex(m_parser->currentOpcodeStartingOffset())));
-    if (m_disassembler) [[unlikely]] {
-        OpType currentOpcode = m_parser->currentOpcode();
-        switch (currentOpcode) {
-        case OpType::Ext1:
-        case OpType::ExtGC:
-        case OpType::ExtAtomic:
-        case OpType::ExtSIMD:
-            return; // We'll handle these once we know the extended opcode too.
-        default:
-            break;
-        }
-        m_disassembler->setOpcode(m_jit.label(), PrefixedOpcode(m_parser->currentOpcode()), m_parser->currentOpcodeStartingOffset());
+    OpType currentOpcode = m_parser->currentOpcode();
+    switch (currentOpcode) {
+    case OpType::Ext1:
+    case OpType::ExtGC:
+    case OpType::ExtAtomic:
+    case OpType::ExtSIMD:
+        return; // We'll handle these once we know the extended opcode too.
+    default:
+        break;
     }
+
+    auto origin = this->origin();
+    m_pcToCodeOriginMapBuilder.appendItem(m_jit.label(), CodeOrigin(BytecodeIndex(origin.m_opcodeOrigin.location())));
+    if (m_disassembler) [[unlikely]]
+        m_disassembler->setOpcode(m_jit.label(), origin.m_opcodeOrigin);
+
     m_gprAllocator.assertAllValidRegistersAreUnlocked();
     m_fprAllocator.assertAllValidRegistersAreUnlocked();
 
@@ -4851,11 +4880,13 @@ ALWAYS_INLINE void BBQJIT::willParseOpcode()
 
 ALWAYS_INLINE void BBQJIT::willParseExtendedOpcode()
 {
-    if (m_disassembler) [[unlikely]] {
-        OpType prefix = m_parser->currentOpcode();
-        uint32_t opcode = m_parser->currentExtendedOpcode();
-        m_disassembler->setOpcode(m_jit.label(), PrefixedOpcode(prefix, opcode), m_parser->currentOpcodeStartingOffset());
-    }
+    auto origin = this->origin();
+    m_pcToCodeOriginMapBuilder.appendItem(m_jit.label(), CodeOrigin(BytecodeIndex(origin.m_opcodeOrigin.location())));
+    if (m_disassembler) [[unlikely]]
+        m_disassembler->setOpcode(m_jit.label(), origin.m_opcodeOrigin);
+
+    m_gprAllocator.assertAllValidRegistersAreUnlocked();
+    m_fprAllocator.assertAllValidRegistersAreUnlocked();
 }
 
 ALWAYS_INLINE void BBQJIT::didParseOpcode()
@@ -5265,7 +5296,7 @@ Expected<std::unique_ptr<InternalFunction>, String> parseAndCompileBBQ(Compilati
 
     compilationContext.wasmEntrypointJIT = makeUnique<CCallHelpers>();
 
-    BBQJIT irGenerator(*compilationContext.wasmEntrypointJIT, signature, module, calleeGroup, profiledCallee, callee, function, functionIndex, info, unlinkedWasmToWasmCalls, mode, result.get());
+    BBQJIT irGenerator(compilationContext, signature, module, calleeGroup, profiledCallee, callee, function, functionIndex, info, unlinkedWasmToWasmCalls, mode, result.get());
     FunctionParser<BBQJIT> parser(irGenerator, function.data, signature, info);
     WASM_FAIL_IF_HELPER_FAILS(parser.parse());
 
