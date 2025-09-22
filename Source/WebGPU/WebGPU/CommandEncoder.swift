@@ -112,7 +112,6 @@ extension WebGPU.CommandEncoder {
         return nil
     }
     public func finish(descriptor: WGPUCommandBufferDescriptor) -> WebGPU_Internal.RefCommandBuffer {
-        let collection = CollectionOfOne(descriptor)
         if !isValid() || (m_existingCommandEncoder != nil && m_existingCommandEncoder !== m_blitCommandEncoder) {
             setEncoderState(WebGPU.CommandsMixin.EncoderState.Ended)
             discardCommandBuffer();
@@ -844,7 +843,7 @@ extension WebGPU.CommandEncoder {
         if let wgpuTimestampWrites = wgpuGetRenderPassDescriptorTimestampWrites(descriptorSpan)?[0] {
             let wgpuQuerySet = wgpuTimestampWrites.querySet
             let querySet = WebGPU.fromAPI(wgpuQuerySet)
-            counterSampleBuffer = querySet.counterSampleBufferWithOffset().first
+            counterSampleBuffer = unsafe querySet.counterSampleBufferWithOffset().first
         }
 
         if m_device.ptr().enableEncoderTimestamps() || counterSampleBuffer != nil {
@@ -1219,11 +1218,6 @@ extension WebGPU.CommandEncoder {
     }
 
     public func copyTextureToBuffer(source: WGPUImageCopyTexture, destination: WGPUImageCopyBuffer, copySize: WGPUExtent3D) {
-        let sourceCollection = CollectionOfOne(source)
-        let destinationCollection = CollectionOfOne(destination)
-        let sourceSpan = sourceCollection.span
-        let destinationSpan = destinationCollection.span
-
         // https://gpuweb.github.io/gpuweb/#dom-gpucommandencoder-copytexturetobuffer
 
         guard prepareTheEncoderState() else {
@@ -1501,11 +1495,6 @@ extension WebGPU.CommandEncoder {
     }
 
     public func copyBufferToTexture(source: WGPUImageCopyBuffer, destination: WGPUImageCopyTexture, copySize: WGPUExtent3D) {
-        let sourceCollection = CollectionOfOne(source)
-        let destinationCollection = CollectionOfOne(destination)
-        let sourceSpan = sourceCollection.span
-        let destinationSpan = destinationCollection.span
-
         guard self.prepareTheEncoderState() else {
             self.generateInvalidEncoderStateError()
             return
@@ -1892,11 +1881,6 @@ extension WebGPU.CommandEncoder {
     }
 
     public func copyTextureToTexture(source: WGPUImageCopyTexture, destination: WGPUImageCopyTexture, copySize: WGPUExtent3D) {
-        let sourceCollection = CollectionOfOne(source)
-        let destinationCollection = CollectionOfOne(destination)
-        let sourceSpan = sourceCollection.span
-        let destinationSpan = destinationCollection.span
-
         // https://gpuweb.github.io/gpuweb/#dom-gpucommandencoder-copytexturetotexture
 
         guard self.prepareTheEncoderState() else {
@@ -2101,8 +2085,8 @@ extension WebGPU.CommandEncoder {
         var counterSampleBuffer: MTLCounterSampleBuffer? = nil
         var counterSampleBufferOffset: UInt32 = 0
         if let wgpuTimestampWrites = wgpuGetComputePassDescriptorTimestampWrites(collection.span)?[0] {
-            counterSampleBuffer = WebGPU.fromAPI(wgpuTimestampWrites.querySet).counterSampleBufferWithOffset().first
-            counterSampleBufferOffset = WebGPU.fromAPI(wgpuTimestampWrites.querySet).counterSampleBufferWithOffset().second
+            counterSampleBuffer = unsafe WebGPU.fromAPI(wgpuTimestampWrites.querySet).counterSampleBufferWithOffset().first
+            counterSampleBufferOffset = unsafe WebGPU.fromAPI(wgpuTimestampWrites.querySet).counterSampleBufferWithOffset().second
         }
 
         if m_device.ptr().enableEncoderTimestamps() || counterSampleBuffer != nil {
