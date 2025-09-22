@@ -981,6 +981,7 @@ void InlineContentBreaker::ContinuousContent::reset()
     m_isFullyTrimmable = false;
     m_hasTrailingWordSeparator = false;
     m_hasTrailingSoftHyphen = false;
+    m_hasShapedContent = false;
 }
 
 }

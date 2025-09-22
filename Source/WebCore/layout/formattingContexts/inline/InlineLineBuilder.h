@@ -45,8 +45,9 @@ private:
     enum class SkipFloats : bool { No, Yes };
     void candidateContentForLine(LineCandidate&, std::pair<size_t, size_t> startEndIndex, const InlineItemRange& needsLayoutRange, InlineLayoutUnit currentLogicalRight, SkipFloats = SkipFloats::No);
     void applyShapingIfNeeded(LineCandidate&);
-    Vector<std::pair<size_t, size_t>> collectShapingRanges(const LineCandidate&) const;
+    Vector<std::pair<size_t, size_t>> collectShapeRanges(const LineCandidate&) const;
     void applyShapingOnRunRange(LineCandidate&, std::pair<size_t, size_t> range) const;
+    void shapePartialLineCandidate(LineCandidate&, size_t trailingRunIndex) const;
     InlineLayoutUnit leadingPunctuationWidthForLineCandiate(const LineCandidate&) const;
     InlineLayoutUnit trailingPunctuationOrStopOrCommaWidthForLineCandiate(const LineCandidate&, size_t startIndexAfterCandidateContent,  size_t layoutRangeEnd) const;
 
@@ -62,15 +63,15 @@ private:
     };
     enum MayOverConstrainLine : uint8_t { No, Yes, OnlyWhenFirstFloatOnLine };
     bool tryPlacingFloatBox(const Box&, MayOverConstrainLine);
-    Result handleInlineContent(const InlineItemRange& needsLayoutRange, const LineCandidate&);
-    Result processLineBreakingResult(const LineCandidate&, const InlineItemRange& layoutRange, const InlineContentBreaker::Result&);
+    Result handleInlineContent(const InlineItemRange& needsLayoutRange, LineCandidate&);
+    Result processLineBreakingResult(LineCandidate&, const InlineItemRange& layoutRange, const InlineContentBreaker::Result&);
     struct RectAndFloatConstraints {
         InlineRect logicalRect;
         OptionSet<UsedFloat> constrainedSideSet { };
     };
     RectAndFloatConstraints floatAvoidingRect(const InlineRect& lineLogicalRect, InlineLayoutUnit lineMarginStart) const;
     RectAndFloatConstraints adjustedLineRectWithCandidateInlineContent(const LineCandidate&) const;
-    void commitCandidateContent(const LineCandidate&, std::optional<InlineContentBreaker::Result::PartialTrailingContent>);
+    void commitCandidateContent(LineCandidate&, std::optional<InlineContentBreaker::Result::PartialTrailingContent>);
     size_t rebuildLineWithInlineContent(const InlineItemRange& needsLayoutRange, const InlineItem& lastInlineItemToAdd);
     size_t rebuildLineForTrailingSoftHyphen(const InlineItemRange& layoutRange);
     void initialize(const InlineRect& initialLineLogicalRect, const InlineItemRange& needsLayoutRange, const std::optional<PreviousLine>&, bool isFirstFormattedLineCandidate);

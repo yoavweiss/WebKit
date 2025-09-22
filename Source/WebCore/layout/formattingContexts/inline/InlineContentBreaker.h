@@ -99,6 +99,8 @@ public:
         void setHangingContentWidth(InlineLayoutUnit logicalWidth) { m_hangingContentWidth = logicalWidth; }
         void setTrailingSoftHyphenWidth(InlineLayoutUnit);
         void setMinimumRequiredWidth(InlineLayoutUnit minimumRequiredWidth) { m_minimumRequiredWidth = minimumRequiredWidth; }
+        void setHasShapedContent() { m_hasShapedContent = true; }
+        bool hasShapedContent() const { return m_hasShapedContent; }
         void reset();
 
         struct Run {
@@ -139,6 +141,7 @@ public:
         bool m_isFullyTrimmable { false };
         bool m_hasTrailingWordSeparator { false };
         bool m_hasTrailingSoftHyphen { false };
+        bool m_hasShapedContent { false };
     };
 
     struct LineStatus {
