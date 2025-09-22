@@ -60,7 +60,6 @@ platform/graphics/cocoa/MediaPlayerPrivateWebM.mm
 platform/graphics/cocoa/VideoMediaSampleRenderer.mm
 platform/graphics/mac/controls/ControlMac.mm
 platform/graphics/mac/controls/ImageControlsButtonMac.mm
-platform/graphics/mac/controls/MenuListButtonMac.mm
 platform/graphics/mac/controls/ProgressBarMac.mm
 platform/graphics/mac/controls/SliderTrackMac.mm
 platform/graphics/mac/controls/SwitchMacUtilities.mm
