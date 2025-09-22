@@ -53,22 +53,6 @@ classes = [
 ]
 requires = ["HAVE_LOCKDOWN_MODE_FRAMEWORK"]
 
-[[legacy]]
-symbols = [
-    "AVContentKeyRequestRandomDeviceIdentifierSeedKey",
-    "AVContentKeyRequestShouldRandomizeDeviceIdentifierKey",
-]
-requires = ["!HAVE_AVCONTENTKEYREQUEST_RANDOMIZATION_API"]
-
-[[legacy]]
-symbols = [
-    "kCMFormatDescriptionProjectionKind_AppleImmersiveVideo",
-    "kCMFormatDescriptionProjectionKind_ParametricImmersive",
-    "kCMFormatDescriptionExtension_CameraCalibrationDataLensCollection",
-    "CMTaggedBufferGroupFormatDescriptionCreateForTaggedBufferGroupWithExtensions",
-]
-requires = ["!HAVE_SPATIAL_FORMAT_DESCRIPTION_API"]
-
 # The public iOS build uses CGGeometry methods instead of internal only
 # NSGeometry methods. Clean up in rdar://6669434.
 [[legacy]]

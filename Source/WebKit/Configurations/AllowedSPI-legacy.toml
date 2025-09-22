@@ -26,12 +26,6 @@ requires = [ "!HAVE_UI_SCROLL_VIEW_APIS_ADDED_IN_RADAR_112474145" ]
 
 [[legacy]]
 selectors = [
-    { name = "isInteractivelyResizing", class = "UIWindowSceneGeometry" }, # Staging_143004359
-]
-requires = ["!HAVE_UI_WINDOW_SCENE_LIVE_RESIZE_API_143004359"]
-
-[[legacy]]
-selectors = [
     { name = "_countOfBytesReceivedEncoded", class = "?" },
     { name = "_deviceLanguage", class = "?" },
     { name = "_establishmentReport", class = "?" },
