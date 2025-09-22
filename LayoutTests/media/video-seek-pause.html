@@ -13,7 +13,7 @@ async function startTest()
     consoleWrite("RUN('video.play()')");
     await video.play();
     testExpected('video.paused', false);
-    await testExpectedEventually(‘internals.isPlayerPaused(video)', false);
+    testExpected('internals.isPlayerPaused(video)', false);
     run('video.currentTime = 2');
     await sleepFor(5);
     run('video.pause()');
