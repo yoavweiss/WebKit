@@ -9398,3 +9398,11 @@ struct WebCore::ParentalControlsURLFilterParameters {
 #endif
 };
 #endif
+
+#if ENABLE(IMAGE_ANALYSIS)
+header: <WebCore/ImageAnalysisQueue.h>
+[CustomHeader] struct WebCore::ImageTranslationLanguageIdentifiers {
+    String source;
+    String target;
+};
+#endif

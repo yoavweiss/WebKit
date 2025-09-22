@@ -130,11 +130,11 @@ void ImageAnalysisQueue::enqueueAllImagesIfNeeded(Frame& frame, const String& so
 
     m_analysisOfAllImagesOnPageHasStarted = true;
 
-    if (sourceLanguageIdentifier != m_sourceLanguageIdentifier || targetLanguageIdentifier != m_targetLanguageIdentifier)
+    if (sourceLanguageIdentifier != m_languageIdentifiers.source || targetLanguageIdentifier != m_languageIdentifiers.target)
         clear();
 
-    m_sourceLanguageIdentifier = sourceLanguageIdentifier;
-    m_targetLanguageIdentifier = targetLanguageIdentifier;
+    m_languageIdentifiers.source = sourceLanguageIdentifier;
+    m_languageIdentifiers.target = targetLanguageIdentifier;
     enqueueAllImagesRecursive(frame);
 }
 
@@ -168,8 +168,8 @@ void ImageAnalysisQueue::resumeProcessing()
         if (auto* image = element->cachedImage(); image && !image->errorOccurred())
             m_queuedElements.set(*element, image->url());
 
-        auto allowSnapshots = m_targetLanguageIdentifier.isEmpty() ? TextRecognitionOptions::AllowSnapshots::Yes : TextRecognitionOptions::AllowSnapshots::No;
-        m_page->chrome().client().requestTextRecognition(*element, { m_sourceLanguageIdentifier, m_targetLanguageIdentifier, allowSnapshots }, [this, page = m_page] (auto&&) {
+        auto allowSnapshots = m_languageIdentifiers.target.isEmpty() ? TextRecognitionOptions::AllowSnapshots::Yes : TextRecognitionOptions::AllowSnapshots::No;
+        m_page->chrome().client().requestTextRecognition(*element, { m_languageIdentifiers.source, m_languageIdentifiers.target, allowSnapshots }, [this, page = m_page] (auto&&) {
             if (!page || page->imageAnalysisQueueIfExists() != this)
                 return;
 
@@ -204,8 +204,7 @@ void ImageAnalysisQueue::clear()
     m_resumeProcessingTimer.stop();
     m_queue = { };
     m_queuedElements.clear();
-    m_sourceLanguageIdentifier = { };
-    m_targetLanguageIdentifier = { };
+    m_languageIdentifiers = { };
     m_currentTaskNumber = 0;
     m_analysisOfAllImagesOnPageHasStarted = false;
     m_imageQueueEmptyHysteresis = nullptr;

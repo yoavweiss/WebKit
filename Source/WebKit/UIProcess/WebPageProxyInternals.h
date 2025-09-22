@@ -97,6 +97,10 @@
 #include "ModelPresentationManagerProxy.h"
 #endif
 
+#if ENABLE(IMAGE_ANALYSIS)
+#include <WebCore/ImageAnalysisQueue.h>
+#endif
+
 namespace WebKit {
 
 #if ENABLE(WINDOW_PROXY_PROPERTY_ACCESS_NOTIFICATION)
@@ -422,6 +426,10 @@ public:
 #endif
 
     bool allowsLayoutViewportHeightExpansion { true };
+
+#if ENABLE(IMAGE_ANALYSIS)
+    std::optional<WebCore::ImageTranslationLanguageIdentifiers> imageTranslationLanguageIdentifiers { std::nullopt };
+#endif
 
     explicit Internals(WebPageProxy&);
 

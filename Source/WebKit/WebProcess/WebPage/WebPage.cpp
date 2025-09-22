@@ -901,6 +901,10 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
     pageConfiguration.presentingApplicationBundleIdentifier = WTFMove(parameters.presentingApplicationBundleIdentifier);
 #endif
 
+#if ENABLE(IMAGE_ANALYSIS)
+    pageConfiguration.imageTranslationLanguageIdentifiers = WTFMove(parameters.imageTranslationLanguageIdentifiers);
+#endif
+
     Ref page = Page::create(WTFMove(pageConfiguration));
     m_page = page.copyRef();
 

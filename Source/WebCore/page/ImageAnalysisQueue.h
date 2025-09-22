@@ -48,6 +48,11 @@ class Page;
 class Timer;
 class WeakPtrImplWithEventTargetData;
 
+struct ImageTranslationLanguageIdentifiers {
+    String source;
+    String target;
+};
+
 class ImageAnalysisQueue final : public RefCountedAndCanMakeWeakPtr<ImageAnalysisQueue> {
     WTF_MAKE_TZONE_ALLOCATED_EXPORT(ImageAnalysisQueue, WEBCORE_EXPORT);
 public:
@@ -61,6 +66,8 @@ public:
 
     WEBCORE_EXPORT void setDidBecomeEmptyCallback(Function<void()>&&);
     WEBCORE_EXPORT void clearDidBecomeEmptyCallback();
+
+    void setTranslationLanguageIdentifiers(ImageTranslationLanguageIdentifiers&& identifiers) { m_languageIdentifiers = WTFMove(identifiers); }
 
 private:
     explicit ImageAnalysisQueue(Page&);
@@ -80,9 +87,7 @@ private:
     static bool firstIsHigherPriority(const Task&, const Task&);
     unsigned nextTaskNumber() { return ++m_currentTaskNumber; }
 
-    // FIXME: Refactor the source and target LIDs into either a std::pair<> of strings, or its own named struct.
-    String m_sourceLanguageIdentifier;
-    String m_targetLanguageIdentifier;
+    ImageTranslationLanguageIdentifiers m_languageIdentifiers;
     WeakPtr<Page> m_page;
     Timer m_resumeProcessingTimer;
     WeakHashMap<HTMLImageElement, URL, WeakPtrImplWithEventTargetData> m_queuedElements;

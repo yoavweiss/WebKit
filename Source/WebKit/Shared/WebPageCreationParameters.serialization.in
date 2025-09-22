@@ -284,6 +284,10 @@ enum class WebCore::UserInterfaceLayoutDirection : bool;
 #endif
 
     bool shouldSendConsoleLogsToUIProcessForTesting;
+
+#if ENABLE(IMAGE_ANALYSIS)
+    std::optional<WebCore::ImageTranslationLanguageIdentifiers> imageTranslationLanguageIdentifiers;
+#endif
 }
 
 [Nested] struct WebKit::RemotePageParameters {
