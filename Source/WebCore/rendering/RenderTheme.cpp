@@ -497,7 +497,7 @@ StyleAppearance RenderTheme::autoAppearanceForElement(RenderStyle& style, const 
 }
 
 #if ENABLE(APPLE_PAY)
-static void updateApplePayButtonPartForRenderer(ApplePayButtonPart& applePayButtonPart, const RenderObject& renderer)
+static void updateApplePayButtonPartForRenderer(ApplePayButtonPart& applePayButtonPart, const RenderElement& renderer)
 {
     CheckedRef style = renderer.style();
 
@@ -540,9 +540,9 @@ static void updateProgressBarPartForRenderer(ProgressBarPart& progressBarPart, c
     progressBarPart.setAnimationStartTime(renderProgress.animationStartTime().secondsSinceEpoch());
 }
 
-static void updateSliderTrackPartForRenderer(SliderTrackPart& sliderTrackPart, const RenderObject& renderer)
+static void updateSliderTrackPartForRenderer(SliderTrackPart& sliderTrackPart, const RenderElement& renderer)
 {
-    Ref input = downcast<HTMLInputElement>(*renderer.node());
+    Ref input = downcast<HTMLInputElement>(*renderer.element());
     ASSERT(input->isRangeControl());
 
     IntSize thumbSize;
@@ -592,7 +592,7 @@ static void updateSliderTrackPartForRenderer(SliderTrackPart& sliderTrackPart, c
     sliderTrackPart.setTickRatios(WTFMove(tickRatios));
 }
 
-static void updateSwitchThumbPartForRenderer(SwitchThumbPart& switchThumbPart, const RenderObject& renderer)
+static void updateSwitchThumbPartForRenderer(SwitchThumbPart& switchThumbPart, const RenderElement& renderer)
 {
     Ref input = downcast<HTMLInputElement>(*renderer.protectedNode()->shadowHost());
     ASSERT(input->isSwitch());
@@ -601,7 +601,7 @@ static void updateSwitchThumbPartForRenderer(SwitchThumbPart& switchThumbPart, c
     switchThumbPart.setProgress(input->switchAnimationVisuallyOnProgress());
 }
 
-static void updateSwitchTrackPartForRenderer(SwitchTrackPart& switchTrackPart, const RenderObject& renderer)
+static void updateSwitchTrackPartForRenderer(SwitchTrackPart& switchTrackPart, const RenderElement& renderer)
 {
     Ref input = downcast<HTMLInputElement>(*renderer.protectedNode()->shadowHost());
     ASSERT(input->isSwitch());
@@ -610,7 +610,7 @@ static void updateSwitchTrackPartForRenderer(SwitchTrackPart& switchTrackPart, c
     switchTrackPart.setProgress(input->switchAnimationVisuallyOnProgress());
 }
 
-RefPtr<ControlPart> RenderTheme::createControlPart(const RenderObject& renderer) const
+RefPtr<ControlPart> RenderTheme::createControlPart(const RenderElement& renderer) const
 {
     auto appearance = renderer.style().usedAppearance();
 
@@ -713,7 +713,7 @@ RefPtr<ControlPart> RenderTheme::createControlPart(const RenderObject& renderer)
     return nullptr;
 }
 
-void RenderTheme::updateControlPartForRenderer(ControlPart& part, const RenderObject& renderer) const
+void RenderTheme::updateControlPartForRenderer(ControlPart& part, const RenderElement& renderer) const
 {
     if (auto* meterPart = dynamicDowncast<MeterPart>(part)) {
         updateMeterPartForRenderer(*meterPart, downcast<RenderMeter>(renderer));
@@ -824,7 +824,7 @@ OptionSet<ControlStyle::State> RenderTheme::extractControlStyleStatesForRenderer
     return { };
 }
 
-ControlStyle RenderTheme::extractControlStyleForRenderer(const RenderObject& renderObject) const
+ControlStyle RenderTheme::extractControlStyleForRenderer(const RenderElement& renderObject) const
 {
     CheckedPtr renderer = effectiveRendererForAppearance(renderObject);
     if (!renderer)
@@ -1197,7 +1197,7 @@ bool RenderTheme::isControlStyled(const RenderStyle& style) const
     }
 }
 
-bool RenderTheme::supportsFocusRing(const RenderObject&, const RenderStyle& style) const
+bool RenderTheme::supportsFocusRing(const RenderElement&, const RenderStyle& style) const
 {
     return style.hasUsedAppearance()
         && style.usedAppearance() != StyleAppearance::TextField
@@ -1206,34 +1206,34 @@ bool RenderTheme::supportsFocusRing(const RenderObject&, const RenderStyle& styl
         && style.usedAppearance() != StyleAppearance::Listbox;
 }
 
-bool RenderTheme::isWindowActive(const RenderObject& renderer) const
+bool RenderTheme::isWindowActive(const RenderElement& renderer) const
 {
     return renderer.page().focusController().isActive();
 }
 
-bool RenderTheme::isChecked(const RenderObject& renderer) const
+bool RenderTheme::isChecked(const RenderElement& renderer) const
 {
-    RefPtr element = dynamicDowncast<HTMLInputElement>(renderer.node());
+    RefPtr element = dynamicDowncast<HTMLInputElement>(renderer.element());
     return element && element->matchesCheckedPseudoClass();
 }
 
-bool RenderTheme::isIndeterminate(const RenderObject& renderer) const
+bool RenderTheme::isIndeterminate(const RenderElement& renderer) const
 {
     // This does not currently support multiple elements and therefore radio buttons are excluded.
     // FIXME: However, what about <progress>?
-    RefPtr input = dynamicDowncast<HTMLInputElement>(renderer.node());
+    RefPtr input = dynamicDowncast<HTMLInputElement>(renderer.element());
     return input && input->isCheckbox() && input->matchesIndeterminatePseudoClass();
 }
 
-bool RenderTheme::isEnabled(const RenderObject& renderer) const
+bool RenderTheme::isEnabled(const RenderElement& renderer) const
 {
-    RefPtr element = dynamicDowncast<Element>(renderer.node());
+    RefPtr element = renderer.element();
     return element && !element->isDisabledFormControl();
 }
 
-bool RenderTheme::isFocused(const RenderObject& renderer) const
+bool RenderTheme::isFocused(const RenderElement& renderer) const
 {
-    RefPtr element = dynamicDowncast<Element>(renderer.node());
+    RefPtr element = renderer.element();
     if (!element)
         return false;
 
@@ -1247,55 +1247,55 @@ bool RenderTheme::isFocused(const RenderObject& renderer) const
     return delegate == document->focusedElement() && frame && frame->checkedSelection()->isFocusedAndActive();
 }
 
-bool RenderTheme::isPressed(const RenderObject& renderer) const
+bool RenderTheme::isPressed(const RenderElement& renderer) const
 {
-    RefPtr element = dynamicDowncast<Element>(renderer.node());
+    RefPtr element = renderer.element();
     return element && element->active();
 }
 
-bool RenderTheme::isSpinUpButtonPartPressed(const RenderObject& renderer) const
+bool RenderTheme::isSpinUpButtonPartPressed(const RenderElement& renderer) const
 {
-    if (RefPtr spinButton = dynamicDowncast<SpinButtonElement>(renderer.node()))
+    if (RefPtr spinButton = dynamicDowncast<SpinButtonElement>(renderer.element()))
         return spinButton->active() && spinButton->upDownState() == SpinButtonElement::Up;
     return false;
 }
 
-bool RenderTheme::isReadOnlyControl(const RenderObject& renderer) const
+bool RenderTheme::isReadOnlyControl(const RenderElement& renderer) const
 {
-    if (RefPtr element = dynamicDowncast<Element>(renderer.node()))
+    if (RefPtr element = renderer.element())
         return is<HTMLFormControlElement>(*element) && !element->matchesReadWritePseudoClass();
     return false;
 }
 
-bool RenderTheme::isHovered(const RenderObject& renderer) const
+bool RenderTheme::isHovered(const RenderElement& renderer) const
 {
-    if (RefPtr spinButton = dynamicDowncast<SpinButtonElement>(renderer.node()))
+    if (RefPtr spinButton = dynamicDowncast<SpinButtonElement>(renderer.element()))
         return spinButton->hovered() && spinButton->upDownState() != SpinButtonElement::Indeterminate;
-    if (RefPtr element = dynamicDowncast<Element>(renderer.node()))
+    if (RefPtr element = renderer.element())
         return element->hovered();
     return false;
 }
 
-bool RenderTheme::isSpinUpButtonPartHovered(const RenderObject& renderer) const
+bool RenderTheme::isSpinUpButtonPartHovered(const RenderElement& renderer) const
 {
-    if (RefPtr spinButton = dynamicDowncast<SpinButtonElement>(renderer.node()))
+    if (RefPtr spinButton = dynamicDowncast<SpinButtonElement>(renderer.element()))
         return spinButton->upDownState() == SpinButtonElement::Up;
     return false;
 }
 
-bool RenderTheme::isPresenting(const RenderObject& renderer) const
+bool RenderTheme::isPresenting(const RenderElement& renderer) const
 {
-    RefPtr input = dynamicDowncast<HTMLInputElement>(renderer.node());
+    RefPtr input = dynamicDowncast<HTMLInputElement>(renderer.element());
     return input && input->isPresentingAttachedView();
 }
 
-bool RenderTheme::isDefault(const RenderObject& o) const
+bool RenderTheme::isDefault(const RenderElement& renderer) const
 {
     // A button should only have the default appearance if the page is active
-    if (!isWindowActive(o))
+    if (!isWindowActive(renderer))
         return false;
 
-    return o.style().usedAppearance() == StyleAppearance::DefaultButton;
+    return renderer.style().usedAppearance() == StyleAppearance::DefaultButton;
 }
 
 bool RenderTheme::hasListButton(const RenderElement& renderer) const
@@ -1557,9 +1557,9 @@ String RenderTheme::attachmentStyleSheet() const
 
 #endif // ENABLE(ATTACHMENT_ELEMENT)
 
-void RenderTheme::paintSliderTicks(const RenderObject& renderer, const PaintInfo& paintInfo, const FloatRect& rect)
+void RenderTheme::paintSliderTicks(const RenderElement& renderer, const PaintInfo& paintInfo, const FloatRect& rect)
 {
-    RefPtr input = dynamicDowncast<HTMLInputElement>(renderer.node());
+    RefPtr input = dynamicDowncast<HTMLInputElement>(renderer.element());
     if (!input || !input->isRangeControl())
         return;
 

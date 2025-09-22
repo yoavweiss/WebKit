@@ -213,7 +213,7 @@ RenderThemeMac::RenderThemeMac()
 {
 }
 
-bool RenderThemeMac::canCreateControlPartForRenderer(const RenderObject& renderer) const
+bool RenderThemeMac::canCreateControlPartForRenderer(const RenderElement& renderer) const
 {
 #if ENABLE(FORM_CONTROL_REFRESH)
     if (renderer.settings().formControlRefreshEnabled())
@@ -250,7 +250,7 @@ bool RenderThemeMac::canCreateControlPartForRenderer(const RenderObject& rendere
         || type == StyleAppearance::SwitchTrack;
 }
 
-bool RenderThemeMac::canCreateControlPartForBorderOnly(const RenderObject& renderer) const
+bool RenderThemeMac::canCreateControlPartForBorderOnly(const RenderElement& renderer) const
 {
 #if ENABLE(FORM_CONTROL_REFRESH)
     if (renderer.settings().formControlRefreshEnabled())
@@ -263,7 +263,7 @@ bool RenderThemeMac::canCreateControlPartForBorderOnly(const RenderObject& rende
         || appearance == StyleAppearance::TextField;
 }
 
-bool RenderThemeMac::canCreateControlPartForDecorations(const RenderObject& renderer) const
+bool RenderThemeMac::canCreateControlPartForDecorations(const RenderElement& renderer) const
 {
 #if ENABLE(FORM_CONTROL_REFRESH)
     if (renderer.settings().formControlRefreshEnabled())
@@ -1113,7 +1113,7 @@ static void inflateControlPaintRect(StyleAppearance appearance, FloatRect& zoome
     END_BLOCK_OBJC_EXCEPTIONS
 }
 
-void RenderThemeMac::inflateRectForControlRenderer(const RenderObject& renderer, FloatRect& rect)
+void RenderThemeMac::inflateRectForControlRenderer(const RenderElement& renderer, FloatRect& rect)
 {
 #if ENABLE(FORM_CONTROL_REFRESH)
     if (renderer.settings().formControlRefreshEnabled()) {
@@ -1148,23 +1148,23 @@ void RenderThemeMac::inflateRectForControlRenderer(const RenderObject& renderer,
     }
 }
 
-bool RenderThemeMac::controlSupportsTints(const RenderObject& o) const
+bool RenderThemeMac::controlSupportsTints(const RenderElement& renderer) const
 {
 #if ENABLE(FORM_CONTROL_REFRESH)
-    if (o.settings().formControlRefreshEnabled())
-        return RenderThemeCocoa::controlSupportsTints(o);
+    if (renderer.settings().formControlRefreshEnabled())
+        return RenderThemeCocoa::controlSupportsTints(renderer);
 #endif
     // An alternate way to implement this would be to get the appropriate cell object
     // and call the private _needRedrawOnWindowChangedKeyState method. An advantage of
     // that would be that we would match AppKit behavior more closely, but a disadvantage
     // would be that we would rely on an AppKit SPI method.
 
-    if (!isEnabled(o))
+    if (!isEnabled(renderer))
         return false;
 
     // Checkboxes only have tint when checked.
-    if (o.style().usedAppearance() == StyleAppearance::Checkbox)
-        return isChecked(o);
+    if (renderer.style().usedAppearance() == StyleAppearance::Checkbox)
+        return isChecked(renderer);
 
     // For now assume other controls have tint if enabled.
     return true;
@@ -1969,7 +1969,7 @@ static void paintAttachmentPlaceholderBorder(const RenderAttachment& attachment,
     context.strokePath(borderPath);
 }
 
-bool RenderThemeMac::paintAttachment(const RenderObject& renderer, const PaintInfo& paintInfo, const IntRect& paintRect)
+bool RenderThemeMac::paintAttachment(const RenderElement& renderer, const PaintInfo& paintInfo, const IntRect& paintRect)
 {
     auto* attachment = dynamicDowncast<RenderAttachment>(renderer);
     if (!attachment)

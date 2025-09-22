@@ -678,7 +678,7 @@ std::optional<InteractionRegion> interactionRegionForRenderedRegion(const Render
             }
 
             // Expand the interaction region by the width of the CSS border, if necessary.
-            const auto rectOffset = RenderThemeCocoa::inflateRectForInteractionRegion(regionRenderer, rect);
+            const auto rectOffset = RenderThemeCocoa::inflateRectForInteractionRegion(*regionRendererBox, rect);
             if (clipPath && !rectOffset.isZero())
                 clipPath->translate(rectOffset);
         } else
