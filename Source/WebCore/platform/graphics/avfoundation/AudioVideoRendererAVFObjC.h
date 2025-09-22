@@ -83,6 +83,8 @@ public:
     void notifyTimeReachedAndStall(const MediaTime&, Function<void(const MediaTime&)>&&) final;
     void cancelTimeReachedAction() final;
     void performTaskAtTime(const MediaTime&, Function<void(const MediaTime&)>&&) final;
+    void setTimeObserver(Seconds, Function<void(const MediaTime&)>&&) final;
+    void cancelTimeObserver();
 
     void flush() final;
     void flushTrack(TrackIdentifier) final;
@@ -246,6 +248,9 @@ private:
 
     RetainPtr<id> m_currentTimeObserver;
     RetainPtr<id> m_performTaskObserver;
+    RetainPtr<id> m_timeChangedObserver;
+    Function<void(const MediaTime&)> m_currentTimeDidChangeCallback;
+
     bool m_isPlaying { false };
     double m_rate { 1 };
     RetainPtr<CVPixelBufferRef> m_lastPixelBuffer;

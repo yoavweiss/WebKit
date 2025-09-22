@@ -137,6 +137,7 @@ public:
     virtual void notifyTimeReachedAndStall(const MediaTime&, Function<void(const MediaTime&)>&&) { }
     virtual void cancelTimeReachedAction() { }
     virtual void performTaskAtTime(const MediaTime&, Function<void(const MediaTime&)>&&) { }
+    virtual void setTimeObserver(Seconds, Function<void(const MediaTime&)>&&) { }
 
     virtual void flush() = 0;
     virtual void flushTrack(TrackIdentifier) = 0;

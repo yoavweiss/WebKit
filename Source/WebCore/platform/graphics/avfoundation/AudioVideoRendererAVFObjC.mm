@@ -101,6 +101,7 @@ AudioVideoRendererAVFObjC::~AudioVideoRendererAVFObjC()
         rateChangeListener->stop();
     cancelSeekingPromiseIfNeeded();
     cancelTimeReachedAction();
+    cancelTimeObserver();
     if (m_timeJumpedObserver)
         [m_synchronizer removeTimeObserver:m_timeJumpedObserver.get()];
     if (m_videoFrameMetadataGatheringObserver)
@@ -507,6 +508,32 @@ void AudioVideoRendererAVFObjC::performTaskAtTime(const MediaTime& time, Functio
 
         task(now);
     }).get()];
+}
+
+void AudioVideoRendererAVFObjC::setTimeObserver(Seconds interval, Function<void(const MediaTime&)>&& callback)
+{
+    m_currentTimeDidChangeCallback = WTFMove(callback);
+
+    cancelTimeObserver();
+
+    if (m_currentTimeDidChangeCallback) {
+        __block WeakPtr weakThis = *this;
+        m_timeChangedObserver = [m_synchronizer addPeriodicTimeObserverForInterval:PAL::toCMTime(MediaTime::createWithSeconds(interval)) queue:mainDispatchQueueSingleton() usingBlock:^(CMTime time) {
+            if (RefPtr protectedThis = weakThis.get()) {
+                if (!protectedThis->m_currentTimeDidChangeCallback)
+                    return;
+
+                auto clampedTime = CMTIME_IS_NUMERIC(time) ? protectedThis->clampTimeToLastSeekTime(PAL::toMediaTime(time)) : MediaTime::zeroTime();
+                protectedThis->m_currentTimeDidChangeCallback(clampedTime);
+            }
+        }];
+    }
+}
+
+void AudioVideoRendererAVFObjC::cancelTimeObserver()
+{
+    if (RetainPtr observer = std::exchange(m_timeChangedObserver, { }))
+        [m_synchronizer removeTimeObserver:observer.get()];
 }
 
 void AudioVideoRendererAVFObjC::prepareToSeek()
