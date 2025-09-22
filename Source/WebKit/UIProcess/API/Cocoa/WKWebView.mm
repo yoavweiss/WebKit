@@ -5196,8 +5196,7 @@ static void convertAndAddHighlight(Vector<Ref<WebCore::SharedMemory>>& buffers, 
         [NSException raise:NSInvalidArgumentException format:@"Updating WKWebsiteDataStore is only supported during decidePolicyForNavigationAction."];
     if (webpagePreferences._userContentController)
         [NSException raise:NSInvalidArgumentException format:@"Updating WKUserContentController is only supported during decidePolicyForNavigationAction."];
-    auto data = Ref { *webpagePreferences->_websitePolicies }->data();
-    _page->updateWebsitePolicies(WTFMove(data));
+    _page->updateWebsitePolicies(Ref { *webpagePreferences->_websitePolicies });
 }
 
 - (BOOL)_allowsRemoteInspection

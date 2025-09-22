@@ -2675,6 +2675,17 @@ void DocumentLoader::setHTTPSByDefaultMode(HTTPSByDefaultMode mode)
         m_httpsByDefaultMode = mode;
 }
 
+DocumentLoader::WebpagePreferences::WebpagePreferences() = default;
+
+DocumentLoader::WebpagePreferences::~WebpagePreferences() = default;
+
+DocumentLoader::WebpagePreferences& DocumentLoader::WebpagePreferences::operator=(DocumentLoader::WebpagePreferences&&) = default;
+
+void DocumentLoader::setPreferences(WebpagePreferences&& preferences)
+{
+    m_preferences = WTFMove(preferences);
+}
+
 Ref<CachedResourceLoader> DocumentLoader::protectedCachedResourceLoader() const
 {
     return m_cachedResourceLoader;

@@ -106,6 +106,7 @@ class SWClientConnection;
 class SharedBuffer;
 class SubresourceLoader;
 class SubstituteResource;
+class UserContentProvider;
 class UserContentURLPattern;
 
 struct IntegrityPolicy;
@@ -427,6 +428,16 @@ public:
 
     InlineMediaPlaybackPolicy inlineMediaPlaybackPolicy() const { return m_inlineMediaPlaybackPolicy; }
     void setInlineMediaPlaybackPolicy(InlineMediaPlaybackPolicy policy) { m_inlineMediaPlaybackPolicy = policy; }
+
+    struct WebpagePreferences {
+        WEBCORE_EXPORT WebpagePreferences();
+        WEBCORE_EXPORT ~WebpagePreferences();
+        WebpagePreferences& operator=(WebpagePreferences&&);
+
+        RefPtr<UserContentProvider> userContentProvider;
+    };
+    const WebpagePreferences& preferences() const { return m_preferences; }
+    WEBCORE_EXPORT void setPreferences(WebpagePreferences&&);
 
     void addSubresourceLoader(SubresourceLoader&);
     void removeSubresourceLoader(LoadCompletionType, SubresourceLoader&);
@@ -780,6 +791,7 @@ private:
     ShouldOpenExternalURLsPolicy m_shouldOpenExternalURLsPolicy { ShouldOpenExternalURLsPolicy::ShouldNotAllow };
     PushAndNotificationsEnabledPolicy m_pushAndNotificationsEnabledPolicy { PushAndNotificationsEnabledPolicy::UseGlobalPolicy };
     InlineMediaPlaybackPolicy m_inlineMediaPlaybackPolicy { InlineMediaPlaybackPolicy::Default };
+    WebpagePreferences m_preferences;
 
     Function<void(Document*)> m_whenDocumentIsCreatedCallback;
 

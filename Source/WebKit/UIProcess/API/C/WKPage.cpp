@@ -458,8 +458,7 @@ void WKPageUpdateWebsitePolicies(WKPageRef pageRef, WKWebsitePoliciesRef website
     CRASH_IF_SUSPENDED;
     RELEASE_ASSERT_WITH_MESSAGE(!toProtectedImpl(websitePoliciesRef)->websiteDataStore(), "Setting WebsitePolicies.websiteDataStore is only supported during WKFramePolicyListenerUseWithPolicies().");
     RELEASE_ASSERT_WITH_MESSAGE(!toProtectedImpl(websitePoliciesRef)->userContentController(), "Setting WebsitePolicies.userContentController is only supported during WKFramePolicyListenerUseWithPolicies().");
-    auto data = toProtectedImpl(websitePoliciesRef)->data();
-    toProtectedImpl(pageRef)->updateWebsitePolicies(WTFMove(data));
+    toProtectedImpl(pageRef)->updateWebsitePolicies(*toProtectedImpl(websitePoliciesRef));
 }
 
 WKStringRef WKPageCopyTitle(WKPageRef pageRef)

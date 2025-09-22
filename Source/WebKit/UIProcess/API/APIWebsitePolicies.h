@@ -32,6 +32,7 @@
 
 namespace WebKit {
 class LockdownModeObserver;
+class WebProcessProxy;
 class WebUserContentControllerProxy;
 class WebsiteDataStore;
 struct WebsitePoliciesData;
@@ -47,7 +48,7 @@ public:
 
     Ref<WebsitePolicies> copy() const;
 
-    WebKit::WebsitePoliciesData data();
+    WebKit::WebsitePoliciesData dataForProcess(WebKit::WebProcessProxy&) const;
 
     const WebCore::ContentExtensionEnablement& contentExtensionEnablement() const { return m_data.contentExtensionEnablement; }
     void setContentExtensionEnablement(WebCore::ContentExtensionEnablement&& enablement) { m_data.contentExtensionEnablement = WTFMove(enablement); }

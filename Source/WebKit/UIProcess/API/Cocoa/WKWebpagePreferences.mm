@@ -421,7 +421,7 @@ static _WKWebsiteDeviceOrientationAndMotionAccessPolicy toWKWebsiteDeviceOrienta
 
 - (void)_setUserContentController:(WKUserContentController *)userContentController
 {
-    _websitePolicies->setUserContentController(userContentController->_userContentControllerProxy.get());
+    _websitePolicies->setUserContentController(userContentController ? userContentController->_userContentControllerProxy.get() : nullptr);
 }
 
 - (void)_setCustomUserAgent:(NSString *)customUserAgent

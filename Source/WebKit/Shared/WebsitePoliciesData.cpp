@@ -28,6 +28,7 @@
 
 #include "ArgumentCoders.h"
 #include "WebProcess.h"
+#include "WebUserContentController.h"
 #include <WebCore/FrameDestructionObserverInlines.h>
 #include <WebCore/LocalFrame.h>
 #include <WebCore/Page.h>
@@ -183,6 +184,11 @@ void WebsitePoliciesData::applyToDocumentLoader(WebsitePoliciesData&& websitePol
 
     if (!websitePolicies.alternateRequest.isNull())
         documentLoader.willContinueMainResourceLoadAfterRedirect(websitePolicies.alternateRequest);
+
+    WebCore::DocumentLoader::WebpagePreferences preferences;
+    if (websitePolicies.userContentControllerParameters)
+        preferences.userContentProvider = WebUserContentController::getOrCreate(WTFMove(*websitePolicies.userContentControllerParameters));
+    documentLoader.setPreferences(WTFMove(preferences));
 
     RefPtr frame = documentLoader.frame();
     if (!frame)
