@@ -78,14 +78,6 @@
 
 namespace WebCore {
 
-static RefPtr<SharedBuffer> archivedDataForAttributedString(NSAttributedString *attributedString)
-{
-    if (!attributedString.length)
-        return nullptr;
-
-    return SharedBuffer::create([NSKeyedArchiver archivedDataWithRootObject:attributedString requiringSecureCoding:YES error:nullptr]);
-}
-
 String Editor::selectionInHTMLFormat()
 {
     if (ImageOverlay::isInsideOverlay(document().selection().selection()))
@@ -171,7 +163,7 @@ void populateRichTextDataIfNeeded(PasteboardContent& content, const Document& do
     auto string = selectionAsAttributedString(document);
     content.dataInRTFDFormat = [string containsAttachments] ? Editor::dataInRTFDFormat(string.get()) : nullptr;
     content.dataInRTFFormat = Editor::dataInRTFFormat(string.get());
-    content.dataInAttributedStringFormat = archivedDataForAttributedString(string.get());
+    content.dataInAttributedStringFormat = AttributedString::fromNSAttributedString(string.get());
 }
 
 void Editor::writeSelectionToPasteboard(Pasteboard& pasteboard)

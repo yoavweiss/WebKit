@@ -41,6 +41,7 @@
 #import <UIKit/UIImage.h>
 #import <UIKit/UIPasteboard.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
+#import <WebCore/AttributedString.h>
 #import <pal/spi/ios/UIKitSPI.h>
 #import <wtf/ListHashSet.h>
 #import <wtf/URL.h>
@@ -488,8 +489,7 @@ void PlatformPasteboard::write(const PasteboardWebContent& content)
     }
 
     if (content.dataInAttributedStringFormat) {
-        if (NSAttributedString *attributedString = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObject:NSAttributedString.class] fromData:content.dataInAttributedStringFormat->makeContiguous()->createNSData().get() error:nullptr])
-            [representationsToRegister addRepresentingObject:attributedString];
+        [representationsToRegister addRepresentingObject:content.dataInAttributedStringFormat.value().nsAttributedString().get()];
     }
 
     if (content.dataInRTFDFormat)
