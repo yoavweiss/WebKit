@@ -233,9 +233,6 @@ typedef enum {
 @interface CARemoteEffect: NSObject <NSCopying, NSSecureCoding>
 @end
 
-@interface CARemoteExternalEffect: CARemoteEffect
-@end
-
 @interface CARemoteEffectGroup : CARemoteEffect
 + (instancetype)groupWithEffects:(NSArray<CARemoteEffect *> *)effects;
 @property (copy) NSString *groupName;
@@ -364,8 +361,3 @@ extern NSString * const kCASnapshotOriginY;
 extern NSString * const kCASnapshotTransform;
 extern NSString * const kCASnapshotTimeOffset;
 #endif
-
-// FIXME:rdar://160881286 - clean-up once in SDK.
-@interface CARemoteExternalEffect (Radar_160881286)
-+ (instancetype)rcp_requiresTwoHandedInteractionProcessorEffect;
-@end

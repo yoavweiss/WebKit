@@ -224,11 +224,6 @@ static WebCore::IntDegrees deviceOrientationForUIInterfaceOrientation(UIInterfac
     [_contentView setFrame:bounds];
     [_scrollView addSubview:_contentView.get()];
     [_scrollView addSubview:[_contentView unscaledView]];
-
-#if PLATFORM(VISION)
-    if ([[CARemoteExternalEffect class] respondsToSelector:@selector(rcp_requiresTwoHandedInteractionProcessorEffect)])
-        [_scrollView _requestRemoteEffects:@[[CARemoteExternalEffect rcp_requiresTwoHandedInteractionProcessorEffect]] forKey:@"input"];
-#endif
 }
 
 - (void)_setObscuredInsetsInternal:(UIEdgeInsets)obscuredInsets
