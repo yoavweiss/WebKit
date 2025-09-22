@@ -877,7 +877,6 @@ private:
     template <typename Generator>
     void emitCheckOrBranchForCast(CastKind, Value*, const Generator&, BasicBlock*);
     Value* emitLoadRTTFromObject(Value*);
-    Value* emitNotRTTKind(Value*, RTTKind);
 
     void unify(Value* phi, const ExpressionType source);
     void unifyValuesWithBlock(const Stack& resultStack, const ControlData& block);
@@ -2094,12 +2093,20 @@ auto OMGIRGenerator::getGlobal(uint32_t index, ExpressionType& result) -> Partia
 {
     const Wasm::GlobalInformation& global = m_info.globals[index];
     switch (global.bindingMode) {
-    case Wasm::GlobalInformation::BindingMode::EmbeddedInInstance:
-        result = push(m_currentBlock->appendNew<MemoryValue>(m_proc, Load, toB3Type(global.type), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGlobal(m_info, index))));
+    case Wasm::GlobalInformation::BindingMode::EmbeddedInInstance: {
+        auto* value = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, toB3Type(global.type), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGlobal(m_info, index)));
+        if (global.mutability == Mutability::Immutable) {
+            value->setReadsMutability(B3::Mutability::Immutable);
+            value->setControlDependent(false);
+        }
+        result = push(value);
         break;
+    }
     case Wasm::GlobalInformation::BindingMode::Portable: {
         ASSERT(global.mutability == Wasm::Mutability::Mutable);
-        Value* pointer = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGlobal(m_info, index)));
+        auto* pointer = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGlobal(m_info, index)));
+        pointer->setReadsMutability(B3::Mutability::Immutable);
+        pointer->setControlDependent(false);
         result = push(m_currentBlock->appendNew<MemoryValue>(m_proc, Load, toB3Type(global.type), origin(), pointer));
         break;
     }
@@ -2123,13 +2130,22 @@ auto OMGIRGenerator::setGlobal(uint32_t index, ExpressionType value) -> PartialR
         break;
     case Wasm::GlobalInformation::BindingMode::Portable: {
         ASSERT(global.mutability == Wasm::Mutability::Mutable);
-        Value* pointer = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGlobal(m_info, index)));
-        m_currentBlock->appendNew<MemoryValue>(m_proc, Store, origin(), get(value), pointer);
+        auto* pointer = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGlobal(m_info, index)));
+        pointer->setReadsMutability(B3::Mutability::Immutable);
+        pointer->setControlDependent(false);
+        m_currentBlock->appendNew<MemoryValue>(m_proc, Store, origin(), get(value), static_cast<Value*>(pointer));
         // We emit a write-barrier onto JSWebAssemblyGlobal, not JSWebAssemblyInstance.
         if (isRefType(global.type)) {
-            Value* cell = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), pointer, Wasm::Global::offsetOfOwner() - Wasm::Global::offsetOfValue());
+            auto* cell = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), pointer, Wasm::Global::offsetOfOwner() - Wasm::Global::offsetOfValue());
+            cell->setReadsMutability(B3::Mutability::Immutable);
+            cell->setControlDependent(false);
+
             Value* cellState = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), cell, safeCast<int32_t>(JSCell::cellStateOffset()));
-            Value* vm = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfVM()));
+
+            auto* vm = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfVM()));
+            vm->setReadsMutability(B3::Mutability::Immutable);
+            vm->setControlDependent(false);
+
             Value* threshold = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), vm, safeCast<int32_t>(VM::offsetOfHeapBarrierThreshold()));
 
             BasicBlock* fenceCheckPath = m_proc.addBlock();
@@ -2185,7 +2201,9 @@ inline void OMGIRGenerator::emitWriteBarrierForJSWrapper()
 inline void OMGIRGenerator::emitWriteBarrier(Value* cell, Value* instanceCell)
 {
     Value* cellState = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), cell, safeCast<int32_t>(JSCell::cellStateOffset()));
-    Value* vm = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceCell, safeCast<int32_t>(JSWebAssemblyInstance::offsetOfVM()));
+    auto* vm = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceCell, safeCast<int32_t>(JSWebAssemblyInstance::offsetOfVM()));
+    vm->setReadsMutability(B3::Mutability::Immutable);
+    vm->setControlDependent(false);
     Value* threshold = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), vm, safeCast<int32_t>(VM::offsetOfHeapBarrierThreshold()));
 
     BasicBlock* fenceCheckPath = m_proc.addBlock();
@@ -2788,16 +2806,16 @@ bool WARN_UNUSED_RETURN OMGIRGenerator::emitStructSet(bool canTrap, Value* struc
     if (fieldType.is<PackedType>()) {
         switch (structType.field(fieldIndex).type.as<PackedType>()) {
         case PackedType::I8:
-            m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(memoryKind(Store8)), origin(), argument, structValue, fieldOffset);
+            m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(Store8), origin(), argument, structValue, fieldOffset);
             return false;
         case PackedType::I16:
-            m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(memoryKind(Store16)), origin(), argument, structValue, fieldOffset);
+            m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(Store16), origin(), argument, structValue, fieldOffset);
             return false;
         }
     }
 
     ASSERT(fieldType.is<Type>());
-    m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(memoryKind(Store)), origin(), argument, structValue, fieldOffset);
+    m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(Store), origin(), argument, structValue, fieldOffset);
     // FIXME: We should be able elide this write barrier if we know we're storing jsNull();
     return isRefType(fieldType.unpacked());
 }
@@ -3258,7 +3276,8 @@ auto OMGIRGenerator::addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, T
     };
 
     // Check array bounds.
-    Value* arraySize = m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(Load), Int32, origin(), pointerOfWasmRef(arrayValue), offset);
+    auto* arraySize = m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(Load), Int32, origin(), pointerOfWasmRef(arrayValue), offset);
+    arraySize->setReadsMutability(B3::Mutability::Immutable);
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
             m_currentBlock->appendNew<Value>(m_proc, AboveEqual, origin(), indexValue, arraySize));
@@ -3276,10 +3295,10 @@ auto OMGIRGenerator::addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, T
         Value* load;
         switch (elementType.as<PackedType>()) {
         case PackedType::I8:
-            load = m_currentBlock->appendNew<MemoryValue>(m_proc, memoryKind(Load8Z), Int32, origin(), indexedAddress);
+            load = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), indexedAddress);
             break;
         case PackedType::I16:
-            load = m_currentBlock->appendNew<MemoryValue>(m_proc, memoryKind(Load16Z), Int32, origin(), indexedAddress);
+            load = m_currentBlock->appendNew<MemoryValue>(m_proc, Load16Z, Int32, origin(), indexedAddress);
             break;
         }
         Value* postProcess = load;
@@ -3303,7 +3322,7 @@ auto OMGIRGenerator::addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, T
     }
 
     ASSERT(elementType.is<Type>());
-    result = push(m_currentBlock->appendNew<MemoryValue>(m_proc, memoryKind(Load), toB3Type(resultType), origin(), indexedAddress));
+    result = push(m_currentBlock->appendNew<MemoryValue>(m_proc, Load, toB3Type(resultType), origin(), indexedAddress));
 
     return { };
 }
@@ -3359,17 +3378,17 @@ void OMGIRGenerator::emitArraySetUncheckedWithoutWriteBarrier(uint32_t typeIndex
     if (elementType.is<PackedType>()) {
         switch (elementType.as<PackedType>()) {
         case PackedType::I8:
-            m_currentBlock->appendNew<MemoryValue>(m_proc, memoryKind(Store8), origin(), setValue, indexedAddress);
+            m_currentBlock->appendNew<MemoryValue>(m_proc, Store8, origin(), setValue, indexedAddress);
             break;
         case PackedType::I16:
-            m_currentBlock->appendNew<MemoryValue>(m_proc, memoryKind(Store16), origin(), setValue, indexedAddress);
+            m_currentBlock->appendNew<MemoryValue>(m_proc, Store16, origin(), setValue, indexedAddress);
             break;
         }
         return;
     }
 
     ASSERT(elementType.is<Type>());
-    m_currentBlock->appendNew<MemoryValue>(m_proc, memoryKind(Store), origin(), setValue, indexedAddress);
+    m_currentBlock->appendNew<MemoryValue>(m_proc, Store, origin(), setValue, indexedAddress);
 }
 
 void OMGIRGenerator::emitArraySetUnchecked(uint32_t typeIndex, Value* arrayref, Value* index, Value* setValue)
@@ -3405,7 +3424,8 @@ auto OMGIRGenerator::addArraySet(uint32_t typeIndex, TypedExpression arrayref, E
     };
 
     // Check array bounds.
-    Value* arraySize = m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(Load), Int32, origin(), pointerOfWasmRef(arrayValue), offset);
+    auto* arraySize = m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(Load), Int32, origin(), pointerOfWasmRef(arrayValue), offset);
+    arraySize->setReadsMutability(B3::Mutability::Immutable);
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
             m_currentBlock->appendNew<Value>(m_proc, AboveEqual, origin(), indexValue, arraySize));
@@ -3433,8 +3453,10 @@ auto OMGIRGenerator::addArrayLen(TypedExpression arrayref, ExpressionType& resul
             return trapping(input);
         return input;
     };
+    auto* arraySize = m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(Load), Int32, origin(), pointerOfWasmRef(arrayValue), offset);
+    arraySize->setReadsMutability(B3::Mutability::Immutable);
 
-    result = push(m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(Load), Int32, origin(), pointerOfWasmRef(arrayValue), offset));
+    result = push(arraySize);
 
     return { };
 }
@@ -3602,6 +3624,7 @@ auto OMGIRGenerator::addStructNewDefault(uint32_t typeIndex, ExpressionType& res
 auto OMGIRGenerator::addStructGet(ExtGCOpType structGetKind, TypedExpression structReference, const StructType& structType, uint32_t fieldIndex, ExpressionType& result) -> PartialResult
 {
     auto fieldType = structType.field(fieldIndex).type;
+    auto mutability = structType.field(fieldIndex).mutability;
     auto resultType = fieldType.unpacked();
 
     Value* structValue = get(structReference);
@@ -3618,15 +3641,17 @@ auto OMGIRGenerator::addStructGet(ExtGCOpType structGetKind, TypedExpression str
     structValue = pointerOfWasmRef(structValue);
 
     if (fieldType.is<PackedType>()) {
-        Value* load;
+        MemoryValue* load;
         switch (fieldType.as<PackedType>()) {
         case PackedType::I8:
-            load = m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(memoryKind(Load8Z)), Int32, origin(), structValue, fieldOffset);
+            load = m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(Load8Z), Int32, origin(), structValue, fieldOffset);
             break;
         case PackedType::I16:
-            load = m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(memoryKind(Load16Z)), Int32, origin(), structValue, fieldOffset);
+            load = m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(Load16Z), Int32, origin(), structValue, fieldOffset);
             break;
         }
+        if (mutability == Mutability::Immutable)
+            load->setReadsMutability(B3::Mutability::Immutable);
         Value* postProcess = load;
         switch (structGetKind) {
         case ExtGCOpType::StructGetU:
@@ -3646,7 +3671,10 @@ auto OMGIRGenerator::addStructGet(ExtGCOpType structGetKind, TypedExpression str
     }
 
     ASSERT(fieldType.is<Type>());
-    result = push(m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(memoryKind(Load)), toB3Type(resultType), origin(), structValue, fieldOffset));
+    auto* load = m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(Load), toB3Type(resultType), origin(), structValue, fieldOffset);
+    if (mutability == Mutability::Immutable)
+        load->setReadsMutability(B3::Mutability::Immutable);
+    result = push(load);
 
     return { };
 }
@@ -3807,7 +3835,8 @@ void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, TypedExpression refere
             if (!reference.type().definitelyIsCellOrNull())
                 emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, BitAnd, origin(), value, constant(pointerType(), JSValue::NotCellMask)), castFailure, falseBlock);
             if (!reference.type().definitelyIsWasmGCObjectOrNull()) {
-                Value* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), value, safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
+                auto* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), value, safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
+                jsType->setReadsMutability(B3::Mutability::Immutable);
                 emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), jsType, constant(Int32, JSType::WebAssemblyGCObjectType)), castFailure, falseBlock);
             }
             break;
@@ -3824,11 +3853,15 @@ void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, TypedExpression refere
             if (!reference.type().definitelyIsCellOrNull())
                 emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, BitAnd, origin(), value, constant(pointerType(), JSValue::NotCellMask)), castFailure, falseBlock);
             if (!reference.type().definitelyIsWasmGCObjectOrNull()) {
-                Value* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), value, safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
+                auto* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), value, safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
+                jsType->setReadsMutability(B3::Mutability::Immutable);
                 emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), jsType, constant(Int32, JSType::WebAssemblyGCObjectType)), castFailure, falseBlock);
             }
             Value* rtt = emitLoadRTTFromObject(value);
-            emitCheckOrBranchForCast(castKind, emitNotRTTKind(rtt, static_cast<TypeKind>(toHeapType) == Wasm::TypeKind::Arrayref ? RTTKind::Array : RTTKind::Struct), castFailure, falseBlock);
+            auto* kind = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, origin(), rtt, safeCast<int32_t>(RTT::offsetOfKind()));
+            kind->setReadsMutability(B3::Mutability::Immutable);
+            kind->setControlDependent(false);
+            emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), kind, constant(Int32, static_cast<uint8_t>(static_cast<TypeKind>(toHeapType) == Wasm::TypeKind::Arrayref ? RTTKind::Array : RTTKind::Struct))), castFailure, falseBlock);
             break;
         }
         default:
@@ -3840,16 +3873,18 @@ void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, TypedExpression refere
 
         ([&] {
             Value* structure = nullptr;
-            Value* rtt;
-            if (signature.expand().is<Wasm::FunctionSignature>())
+            MemoryValue* rtt;
+            if (signature.expand().is<Wasm::FunctionSignature>()) {
                 rtt = m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(B3::Load), pointerType(), origin(), value, safeCast<int32_t>(WebAssemblyFunctionBase::offsetOfRTT()));
-            else {
+                rtt->setReadsMutability(B3::Mutability::Immutable);
+            } else {
                 // The cell check is only needed for non-functions, as the typechecker does not allow non-Cell values for funcref casts.
                 if (!reference.type().definitelyIsCellOrNull())
                     emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, BitAnd, origin(), value, constant(Int64, JSValue::NotCellMask)), castFailure, falseBlock);
 
                 if (!reference.type().definitelyIsWasmGCObjectOrNull()) {
-                    Value* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(Load8Z), Int32, origin(), value, safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
+                    auto* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(Load8Z), Int32, origin(), value, safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
+                    jsType->setReadsMutability(B3::Mutability::Immutable);
                     emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), jsType, constant(Int32, JSType::WebAssemblyGCObjectType)), castFailure, falseBlock);
                 }
                 Value* structureID = m_currentBlock->appendNew<MemoryValue>(m_proc, wrapTrapping(B3::Load), Int32, origin(), value, safeCast<int32_t>(JSCell::structureIDOffset()));
@@ -3857,11 +3892,15 @@ void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, TypedExpression refere
                 if (targetRTT->displaySizeExcludingThis() < WebAssemblyGCStructure::inlinedTypeDisplaySize) {
                     auto* targetRTTPointer = constant(pointerType(), std::bit_cast<uintptr_t>(targetRTT.ptr()));
                     auto* pointer = m_currentBlock->appendNew<MemoryValue>(m_proc, B3::Load, pointerType(), origin(), structure, safeCast<uint32_t>(WebAssemblyGCStructure::offsetOfInlinedTypeDisplay() + targetRTT->displaySizeExcludingThis() * sizeof(RefPtr<const RTT>)));
+                    pointer->setReadsMutability(B3::Mutability::Immutable);
+                    pointer->setControlDependent(false);
                     emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), pointer, targetRTTPointer), castFailure, falseBlock);
                     return;
                 }
 
                 rtt = m_currentBlock->appendNew<MemoryValue>(m_proc, B3::Load, pointerType(), origin(), structure, safeCast<int32_t>(WebAssemblyGCStructure::offsetOfRTT()));
+                rtt->setReadsMutability(B3::Mutability::Immutable);
+                rtt->setControlDependent(false);
             }
 
             auto* targetRTTPointer = constant(pointerType(), std::bit_cast<uintptr_t>(targetRTT.ptr()));
@@ -3881,8 +3920,12 @@ void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, TypedExpression refere
                 emitCheckOrBranchForCast(castKind, constant(Int32, 1), castFailure, falseBlock);
             } else {
                 auto* displaySizeExcludingThis = m_currentBlock->appendNew<MemoryValue>(m_proc, B3::Load, Int32, origin(), rtt, safeCast<int32_t>(RTT::offsetOfDisplaySizeExcludingThis()));
+                displaySizeExcludingThis->setReadsMutability(B3::Mutability::Immutable);
+                displaySizeExcludingThis->setControlDependent(false);
                 emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, BelowEqual, origin(), displaySizeExcludingThis, constant(Int32, targetRTT->displaySizeExcludingThis())), castFailure, falseBlock);
                 auto* pointer = m_currentBlock->appendNew<MemoryValue>(m_proc, B3::Load, pointerType(), origin(), rtt, safeCast<uint32_t>(RTT::offsetOfData() + targetRTT->displaySizeExcludingThis() * sizeof(RefPtr<const RTT>)));
+                pointer->setReadsMutability(B3::Mutability::Immutable);
+                pointer->setControlDependent(false);
                 emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), pointer, targetRTTPointer), castFailure, falseBlock);
             }
         }());
@@ -3981,7 +4024,10 @@ Value* OMGIRGenerator::allocatorForWasmGCHeapCellSize(Value* sizeInBytes, BasicB
     Value* address = m_currentBlock->appendNew<Value>(m_proc, Add, origin(),
         m_currentBlock->appendNew<Value>(m_proc, B3::Add, origin(), instanceValue(), constant(pointerType(), allocatorBufferBaseOffset)),
         m_currentBlock->appendNew<Value>(m_proc, Mul, origin(), sizeClassIndex, constant(pointerType(), sizeof(Allocator))));
-    return m_currentBlock->appendNew<MemoryValue>(m_proc, B3::Load, pointerType(), origin(), address);
+    auto* result = m_currentBlock->appendNew<MemoryValue>(m_proc, B3::Load, pointerType(), origin(), address);
+    result->setReadsMutability(B3::Mutability::Immutable);
+    result->setControlDependent(false);
+    return result;
 }
 
 Value* OMGIRGenerator::allocateWasmGCHeapCell(Value* allocator, BasicBlock* slowPath)
@@ -4050,6 +4096,8 @@ Value* OMGIRGenerator::allocateWasmGCArrayUninitialized(uint32_t typeIndex, Valu
     auto* continuation = m_proc.addBlock();
 
     auto* structureID = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGCObjectStructureID(m_info, typeIndex)));
+    structureID->setReadsMutability(B3::Mutability::Immutable);
+    structureID->setControlDependent(false);
     const ArrayType* typeDefinition = m_info.typeSignatures[typeIndex]->expand().template as<ArrayType>();
     size_t elementSize = typeDefinition->elementType().type.elementSize();
     auto* extended = pointerOfInt32(size);
@@ -4085,6 +4133,8 @@ Value* OMGIRGenerator::allocateWasmGCStructUninitialized(uint32_t typeIndex)
     auto* continuation = m_proc.addBlock();
 
     auto* structureID = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGCObjectStructureID(m_info, typeIndex)));
+    structureID->setReadsMutability(B3::Mutability::Immutable);
+    structureID->setControlDependent(false);
     const StructType* typeDefinition = m_info.typeSignatures[typeIndex]->expand().template as<StructType>();
     Value* sizeInBytes = constant(pointerType(), JSWebAssemblyStruct::allocationSize(typeDefinition->instancePayloadSize()));
     auto* allocator = allocatorForWasmGCHeapCellSize(sizeInBytes, slowPath);
@@ -4122,7 +4172,9 @@ void OMGIRGenerator::mutatorFence()
     auto* slowPath = m_proc.addBlock();
     auto* continuation = m_proc.addBlock();
 
-    Value* vm = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfVM()));
+    auto* vm = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfVM()));
+    vm->setReadsMutability(B3::Mutability::Immutable);
+    vm->setControlDependent(false);
     Value* shouldFence = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), vm, safeCast<int32_t>(VM::offsetOfHeapMutatorShouldBeFenced()));
     m_currentBlock->appendNewControlValue(m_proc, B3::Branch, origin(), shouldFence, FrequentedBlock(slowPath, FrequencyClass::Rare), FrequentedBlock(continuation));
     slowPath->addPredecessor(m_currentBlock);
@@ -4140,13 +4192,10 @@ Value* OMGIRGenerator::emitLoadRTTFromObject(Value* reference)
 {
     Value* structureID = m_currentBlock->appendNew<MemoryValue>(m_proc, B3::Load, Int32, origin(), reference, safeCast<int32_t>(JSCell::structureIDOffset()));
     Value* structure = decodeNonNullStructure(structureID);
-    return m_currentBlock->appendNew<MemoryValue>(m_proc, B3::Load, pointerType(), origin(), structure, safeCast<int32_t>(WebAssemblyGCStructure::offsetOfRTT()));
-}
-
-Value* OMGIRGenerator::emitNotRTTKind(Value* rtt, RTTKind targetKind)
-{
-    Value* kind = m_currentBlock->appendNew<MemoryValue>(m_proc, memoryKind(Load8Z), origin(), rtt, safeCast<int32_t>(RTT::offsetOfKind()));
-    return m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), kind, constant(Int32, static_cast<uint8_t>(targetKind)));
+    auto* rtt = m_currentBlock->appendNew<MemoryValue>(m_proc, B3::Load, pointerType(), origin(), structure, safeCast<int32_t>(WebAssemblyGCStructure::offsetOfRTT()));
+    rtt->setReadsMutability(B3::Mutability::Immutable);
+    rtt->setControlDependent(false);
+    return rtt;
 }
 
 auto OMGIRGenerator::addAnyConvertExtern(ExpressionType reference, ExpressionType& result) -> PartialResult
@@ -5976,22 +6025,33 @@ auto OMGIRGenerator::addCallIndirect(unsigned callProfileIndex, unsigned tableIn
 
         if (tableInformation.maximum() && tableInformation.maximum().value() == tableInformation.initial()) {
             callableFunctionBufferLength = constant(B3::Int32, tableInformation.initial(), origin());
-            if (!tableIndex)
-                callableFunctionBuffer = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfCachedTable0Buffer()));
-            else {
-                Value* table = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfTable(m_info, tableIndex)));
+            if (!tableIndex) {
+                auto* result = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfCachedTable0Buffer()));
+                result->setReadsMutability(B3::Mutability::Immutable);
+                result->setControlDependent(false);
+                callableFunctionBuffer = result;
+            } else {
+                auto* table = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfTable(m_info, tableIndex)));
+                table->setReadsMutability(B3::Mutability::Immutable);
+                table->setControlDependent(false);
                 if (!tableInformation.isImport()) {
                     // Table is fixed-sized and it is not imported one. Thus this is definitely fixed-sized FuncRefTable.
                     callableFunctionBuffer = m_currentBlock->appendNew<Value>(m_proc, Add, origin(), table, constant(pointerType(), safeCast<int32_t>(FuncRefTable::offsetOfFunctionsForFixedSizedTable())));
-                } else
-                    callableFunctionBuffer = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), table, safeCast<int32_t>(FuncRefTable::offsetOfFunctions()));
+                } else {
+                    auto* result = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), table, safeCast<int32_t>(FuncRefTable::offsetOfFunctions()));
+                    result->setReadsMutability(B3::Mutability::Immutable);
+                    result->setControlDependent(false);
+                    callableFunctionBuffer = result;
+                }
             }
         } else {
             if (!tableIndex) {
                 callableFunctionBufferLength = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfCachedTable0Length()));
                 callableFunctionBuffer = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfCachedTable0Buffer()));
             } else {
-                Value* table = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfTable(m_info, tableIndex)));
+                auto* table = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfTable(m_info, tableIndex)));
+                table->setReadsMutability(B3::Mutability::Immutable);
+                table->setControlDependent(false);
                 callableFunctionBufferLength = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), table, safeCast<int32_t>(Table::offsetOfLength()));
                 callableFunctionBuffer = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), table, safeCast<int32_t>(FuncRefTable::offsetOfFunctions()));
             }
@@ -6079,13 +6139,16 @@ auto OMGIRGenerator::addCallIndirect(unsigned callProfileIndex, unsigned tableIn
             this->emitExceptionCheck(jit, origin, ExceptionType::BadSignature);
         });
 
-        Value* rttSize = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), calleeRTT, safeCast<uint32_t>(RTT::offsetOfDisplaySizeExcludingThis()));
+        auto* rttSize = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), calleeRTT, safeCast<uint32_t>(RTT::offsetOfDisplaySizeExcludingThis()));
+        rttSize->setReadsMutability(B3::Mutability::Immutable);
         CheckValue* checkRTTSize = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(), m_currentBlock->appendNew<Value>(m_proc, BelowEqual, origin(), rttSize, constant(Int32, signatureRTT->displaySizeExcludingThis())));
         checkRTTSize->setGenerator([=, this, origin = this->origin()](CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::BadSignature);
         });
 
-        Value* displayEntry = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), calleeRTT, safeCast<uint32_t>(RTT::offsetOfData() + signatureRTT->displaySizeExcludingThis() * sizeof(RefPtr<const RTT>)));
+        auto* displayEntry = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), calleeRTT, safeCast<uint32_t>(RTT::offsetOfData() + signatureRTT->displaySizeExcludingThis() * sizeof(RefPtr<const RTT>)));
+        displayEntry->setReadsMutability(B3::Mutability::Immutable);
+        displayEntry->setControlDependent(false);
         CheckValue* checkRTTDisplayEntry = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(), m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), displayEntry, constant(pointerType(), std::bit_cast<uintptr_t>(signatureRTT.ptr()))));
         checkRTTDisplayEntry->setGenerator([=, this, origin = this->origin()](CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::BadSignature);

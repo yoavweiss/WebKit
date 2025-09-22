@@ -894,6 +894,8 @@ void run(const TestConfig* config)
     RUN(testConstDoubleMove());
     RUN(testConstFloatMove());
 
+    RUN(testLoadImmutable());
+
     RUN_UNARY(testSShrCompare32, int32OperandsMore());
     RUN_UNARY(testSShrCompare64, int64OperandsMore());
 

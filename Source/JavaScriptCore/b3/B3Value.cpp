@@ -798,7 +798,8 @@ Effects Value::effects() const
             result.writes = memory->fenceRange();
             result.fence = true;
         }
-        result.controlDependent = true;
+        result.controlDependent = memory->controlDependent();
+        result.readsMutability = memory->readsMutability();
         break;
     }
     case Store8:
@@ -810,7 +811,7 @@ Effects Value::effects() const
             result.reads = memory->fenceRange();
             result.fence = true;
         }
-        result.controlDependent = true;
+        result.controlDependent = memory->controlDependent();
         break;
     }
     case MemoryCopy: {

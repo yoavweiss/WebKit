@@ -1400,4 +1400,6 @@ void testMemoryCopyConstant();
 void testMemoryFill();
 void testMemoryFillConstant();
 
+void testLoadImmutable();
+
 #endif // ENABLE(B3_JIT)
