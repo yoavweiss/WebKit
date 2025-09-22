@@ -121,14 +121,9 @@ public:
     template<typename T, typename... Rest> static T convertStyleType(BuilderState&, const CSSValue&, Rest&&...);
 
     static WebCore::Length convertLength(BuilderState&, const CSSValue&);
-    static WebCore::Length convertLengthOrAuto(BuilderState&, const CSSValue&);
-    static WebCore::Length convertLengthAllowingNumber(BuilderState&, const CSSValue&); // Assumes unit is 'px' if input is a number.
     static WebCore::Length convertTextLengthOrNormal(BuilderState&, const CSSValue&); // Converts length by text zoom factor, normal to zero
     static TabSize convertTabSize(BuilderState&, const CSSValue&);
-    template<typename T> static T convertComputedLength(BuilderState&, const CSSValue&);
-    template<typename T> static T convertLineWidth(BuilderState&, const CSSValue&);
     static OptionSet<TextTransform> convertTextTransform(BuilderState&, const CSSValue&);
-    template<typename T> static T convertNumber(BuilderState&, const CSSValue&);
     static ImageOrientation convertImageOrientation(BuilderState&, const CSSValue&);
     template<CSSValueID> static AtomString convertCustomIdentAtomOrKeyword(BuilderState&, const CSSValue&);
 
@@ -144,22 +139,12 @@ public:
     // scrollbar-width converter is only needed for quirking.
     static ScrollbarWidth convertScrollbarWidth(BuilderState&, const CSSValue&);
     static GridAutoFlow convertGridAutoFlow(BuilderState&, const CSSValue&);
-#if PLATFORM(IOS_FAMILY)
-    static bool convertTouchCallout(BuilderState&, const CSSValue&);
-#endif
-#if ENABLE(TOUCH_EVENTS)
-    static Color convertTapHighlightColor(BuilderState&, const CSSValue&);
-#endif
     static OptionSet<TouchAction> convertTouchAction(BuilderState&, const CSSValue&);
-#if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
-    static bool convertOverflowScrolling(BuilderState&, const CSSValue&);
-#endif
 
     static FontSizeAdjust convertFontSizeAdjust(BuilderState&, const CSSValue&);
     static std::optional<FontSelectionValue> convertFontStyleFromValue(BuilderState&, const CSSValue&);
     static FontSelectionValue convertFontWeight(BuilderState&, const CSSValue&);
     static FontSelectionValue convertFontWidth(BuilderState&, const CSSValue&);
-    static FontSelectionValue convertFontStyle(BuilderState&, const CSSValue&);
     static FontFeatureSettings convertFontFeatureSettings(BuilderState&, const CSSValue&);
     static FontVariationSettings convertFontVariationSettings(BuilderState&, const CSSValue&);
     static PaintOrder convertPaintOrder(BuilderState&, const CSSValue&);
@@ -170,11 +155,6 @@ public:
     static GlyphOrientation convertGlyphOrientationOrAuto(BuilderState&, const CSSValue&);
     static WebCore::Length convertLineHeight(BuilderState&, const CSSValue&, float multiplier = 1.f);
     static FontPalette convertFontPalette(BuilderState&, const CSSValue&);
-    
-    static BreakBetween convertPageBreakBetween(BuilderState&, const CSSValue&);
-    static BreakInside convertPageBreakInside(BuilderState&, const CSSValue&);
-    static BreakBetween convertColumnBreakBetween(BuilderState&, const CSSValue&);
-    static BreakInside convertColumnBreakInside(BuilderState&, const CSSValue&);
 
     static OptionSet<HangingPunctuation> convertHangingPunctuation(BuilderState&, const CSSValue&);
 
@@ -201,8 +181,6 @@ public:
 
 private:
     friend class BuilderCustom;
-
-    static WebCore::Length parseSnapCoordinate(BuilderState&, const CSSValue&);
 
     static CSSToLengthConversionData cssToLengthConversionDataWithTextZoomFactor(BuilderState&);
 };
@@ -238,28 +216,6 @@ inline WebCore::Length BuilderConverter::convertLength(BuilderState& builderStat
     return WebCore::Length(0, LengthType::Fixed);
 }
 
-inline WebCore::Length BuilderConverter::convertLengthAllowingNumber(BuilderState& builderState, const CSSValue& value)
-{
-    CSSToLengthConversionData conversionData = builderState.useSVGZoomRulesForLength() ?
-        builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f)
-        : builderState.cssToLengthConversionData();
-
-    auto* primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return { };
-
-    if (primitiveValue->isNumberOrInteger())
-        return WebCore::Length(primitiveValue->resolveAsNumber(conversionData), LengthType::Fixed);
-    return convertLength(builderState, value);
-}
-
-inline WebCore::Length BuilderConverter::convertLengthOrAuto(BuilderState& builderState, const CSSValue& value)
-{
-    if (value.valueID() == CSSValueAuto)
-        return WebCore::Length(LengthType::Auto);
-    return convertLength(builderState, value);
-}
-
 inline TabSize BuilderConverter::convertTabSize(BuilderState& builderState, const CSSValue& value)
 {
     auto* primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
@@ -270,49 +226,6 @@ inline TabSize BuilderConverter::convertTabSize(BuilderState& builderState, cons
     return TabSize(primitiveValue->resolveAsLength<float>(builderState.cssToLengthConversionData()), LengthValueType);
 }
 
-template<typename T>
-inline T BuilderConverter::convertComputedLength(BuilderState& builderState, const CSSValue& value)
-{
-    auto* primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return { };
-    return primitiveValue->resolveAsLength<T>(builderState.cssToLengthConversionData());
-}
-
-template<typename T>
-inline T BuilderConverter::convertLineWidth(BuilderState& builderState, const CSSValue& value)
-{
-    auto* primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return { };
-    switch (primitiveValue->valueID()) {
-    case CSSValueThin:
-        return 1;
-    case CSSValueMedium:
-        return 3;
-    case CSSValueThick:
-        return 5;
-    case CSSValueInvalid: {
-        // Any original result that was >= 1 should not be allowed to fall below 1.
-        // This keeps border lines from vanishing.
-        T result = convertComputedLength<T>(builderState, value);
-        if (builderState.style().usedZoom() < 1.0f && result < 1.0) {
-            T originalLength = primitiveValue->resolveAsLength<T>(builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0));
-            if (originalLength >= 1.0)
-                return 1;
-        }
-        float minimumLineWidth = 1 / builderState.document().deviceScaleFactor();
-        if (result > 0 && result < minimumLineWidth)
-            return minimumLineWidth;
-        return floorToDevicePixel(result, builderState.document().deviceScaleFactor());
-    }
-    default:
-        ASSERT_NOT_REACHED();
-        return 0;
-    }
-}
-
-
 inline OptionSet<TextTransform> BuilderConverter::convertTextTransform(BuilderState&, const CSSValue& value)
 {
     auto result = RenderStyle::initialTextTransform();
@@ -321,15 +234,6 @@ inline OptionSet<TextTransform> BuilderConverter::convertTextTransform(BuilderSt
             result.add(fromCSSValue<TextTransform>(currentValue));
     }
     return result;
-}
-
-template<typename T>
-inline T BuilderConverter::convertNumber(BuilderState& builderState, const CSSValue& value)
-{
-    auto* primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return { };
-    return primitiveValue->resolveAsNumber<T>(builderState.cssToLengthConversionData());
 }
 
 inline ImageOrientation BuilderConverter::convertImageOrientation(BuilderState& builderState, const CSSValue& value)
@@ -775,23 +679,6 @@ inline FontSizeAdjust BuilderConverter::convertFontSizeAdjust(BuilderState& buil
     return fontSizeAdjustFromCSSValue(builderState, value);
 }
 
-#if PLATFORM(IOS_FAMILY)
-inline bool BuilderConverter::convertTouchCallout(BuilderState& builderState, const CSSValue& value)
-{
-    auto* primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return { };
-    return !equalLettersIgnoringASCIICase(primitiveValue->stringValue(), "none"_s);
-}
-#endif
-
-#if ENABLE(TOUCH_EVENTS)
-inline Color BuilderConverter::convertTapHighlightColor(BuilderState& builderState, const CSSValue& value)
-{
-    return convertStyleType<Color>(builderState, value, ForVisitedLink::No);
-}
-#endif
-
 inline OptionSet<TouchAction> BuilderConverter::convertTouchAction(BuilderState&, const CSSValue& value)
 {
     if (is<CSSPrimitiveValue>(value))
@@ -810,13 +697,6 @@ inline OptionSet<TouchAction> BuilderConverter::convertTouchAction(BuilderState&
 
     return RenderStyle::initialTouchActions();
 }
-
-#if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
-inline bool BuilderConverter::convertOverflowScrolling(BuilderState&, const CSSValue& value)
-{
-    return value.valueID() == CSSValueTouch;
-}
-#endif
 
 inline PaintOrder BuilderConverter::convertPaintOrder(BuilderState& builderState, const CSSValue& value)
 {

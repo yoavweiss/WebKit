@@ -58,13 +58,9 @@ public:
 
     static void serializeLength(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const WebCore::Length&);
     static void serializeLength(const RenderStyle&, StringBuilder&, const CSS::SerializationContext&, const WebCore::Length&);
-    static void serializeLengthAllowingNumber(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const WebCore::Length&);
-    static void serializeLengthOrAuto(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const WebCore::Length&);
 
     template<typename T> static void serializeNumber(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, T);
     template<typename T> static void serializeNumberAsPixels(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, T);
-    template<typename T> static void serializeComputedLength(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, T);
-    template<typename T> static void serializeLineWidth(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, T lineWidth);
 
     template<CSSValueID> static void serializeCustomIdentAtomOrKeyword(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const AtomString&);
 
@@ -76,15 +72,12 @@ public:
 
     static void serializeTransformationMatrix(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TransformationMatrix&);
     static void serializeTransformationMatrix(const RenderStyle&, StringBuilder&, const CSS::SerializationContext&, const TransformationMatrix&);
-    static void serializeTransformOperation(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TransformOperation&);
-    static void serializeTransformOperation(const RenderStyle&, StringBuilder&, const CSS::SerializationContext&, const TransformOperation&);
 
     // MARK: Shared serializations
 
     static void serializeGlyphOrientation(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, GlyphOrientation);
     static void serializeGlyphOrientationOrAuto(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, GlyphOrientation);
     static void serializeMarginTrim(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<MarginTrimType>);
-    static void serializeStrokeDashArray(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FixedVector<WebCore::Length>&);
     static void serializeWebkitTextCombine(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, TextCombine);
     static void serializeImageOrientation(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, ImageOrientation);
     static void serializeContain(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<Containment>);
@@ -245,16 +238,6 @@ inline void ExtractorSerializer::serializeLength(const RenderStyle& style, Strin
     RELEASE_ASSERT_NOT_REACHED();
 }
 
-inline void ExtractorSerializer::serializeLengthAllowingNumber(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const WebCore::Length& length)
-{
-    serializeLength(state, builder, context, length);
-}
-
-inline void ExtractorSerializer::serializeLengthOrAuto(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const WebCore::Length& length)
-{
-    serializeLength(state, builder, context, length);
-}
-
 template<typename T> void ExtractorSerializer::serializeNumber(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, T number)
 {
     serialize(state, builder, context, number);
@@ -263,16 +246,6 @@ template<typename T> void ExtractorSerializer::serializeNumber(ExtractorState& s
 template<typename T> void ExtractorSerializer::serializeNumberAsPixels(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, T number)
 {
     CSS::serializationForCSS(builder, context, CSS::LengthRaw<> { CSS::LengthUnit::Px, adjustFloatForAbsoluteZoom(number, state.style) });
-}
-
-template<typename T> void ExtractorSerializer::serializeComputedLength(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, T number)
-{
-    serializeNumberAsPixels(state, builder, context, number);
-}
-
-template<typename T> void ExtractorSerializer::serializeLineWidth(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, T lineWidth)
-{
-    serializeNumberAsPixels(state, builder, context, lineWidth);
 }
 
 template<CSSValueID keyword> void ExtractorSerializer::serializeCustomIdentAtomOrKeyword(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const AtomString& string)
@@ -413,18 +386,6 @@ inline void ExtractorSerializer::serializeMarginTrim(ExtractorState& state, Stri
     appendOption(MarginTrimType::InlineEnd, CSSValueInlineEnd);
 }
 
-
-inline void ExtractorSerializer::serializeStrokeDashArray(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const FixedVector<WebCore::Length>& dashes)
-{
-    if (dashes.isEmpty()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
-        return;
-    }
-
-    builder.append(interleave(dashes, [&](auto& builder, auto& dash) {
-        serializeLength(state, builder, context, dash);
-    }, ", "_s));
-}
 
 inline void ExtractorSerializer::serializeWebkitTextCombine(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, TextCombine textCombine)
 {

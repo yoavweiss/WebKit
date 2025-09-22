@@ -128,13 +128,8 @@ public:
 
     static Ref<CSSPrimitiveValue> convertLength(ExtractorState&, const WebCore::Length&);
     static Ref<CSSPrimitiveValue> convertLength(const RenderStyle&, const WebCore::Length&);
-    static Ref<CSSPrimitiveValue> convertLengthAllowingNumber(ExtractorState&, const WebCore::Length&);
-    static Ref<CSSPrimitiveValue> convertLengthOrAuto(ExtractorState&, const WebCore::Length&);
 
-    template<typename T> static Ref<CSSPrimitiveValue> convertNumber(ExtractorState&, T);
     template<typename T> static Ref<CSSPrimitiveValue> convertNumberAsPixels(ExtractorState&, T);
-    template<typename T> static Ref<CSSPrimitiveValue> convertComputedLength(ExtractorState&, T);
-    template<typename T> static Ref<CSSPrimitiveValue> convertLineWidth(ExtractorState&, T lineWidth);
 
     template<CSSValueID> static Ref<CSSPrimitiveValue> convertCustomIdentAtomOrKeyword(ExtractorState&, const AtomString&);
 
@@ -152,7 +147,6 @@ public:
     static Ref<CSSValue> convertGlyphOrientation(ExtractorState&, GlyphOrientation);
     static Ref<CSSValue> convertGlyphOrientationOrAuto(ExtractorState&, GlyphOrientation);
     static Ref<CSSValue> convertMarginTrim(ExtractorState&, OptionSet<MarginTrimType>);
-    static Ref<CSSValue> convertStrokeDashArray(ExtractorState&, const FixedVector<WebCore::Length>&);
     static Ref<CSSValue> convertWebkitTextCombine(ExtractorState&, TextCombine);
     static Ref<CSSValue> convertImageOrientation(ExtractorState&, ImageOrientation);
     static Ref<CSSValue> convertContain(ExtractorState&, OptionSet<Containment>);
@@ -273,36 +267,9 @@ inline Ref<CSSPrimitiveValue> ExtractorConverter::convertLength(const RenderStyl
     return CSSPrimitiveValue::create(length, style);
 }
 
-inline Ref<CSSPrimitiveValue> ExtractorConverter::convertLengthAllowingNumber(ExtractorState& state, const WebCore::Length& length)
-{
-    return convertLength(state, length);
-}
-
-inline Ref<CSSPrimitiveValue> ExtractorConverter::convertLengthOrAuto(ExtractorState& state, const WebCore::Length& length)
-{
-    if (length.isAuto())
-        return CSSPrimitiveValue::create(CSSValueAuto);
-    return convertLength(state, length);
-}
-
-template<typename T> Ref<CSSPrimitiveValue> ExtractorConverter::convertNumber(ExtractorState& state, T number)
-{
-    return convert(state, number);
-}
-
 template<typename T> Ref<CSSPrimitiveValue> ExtractorConverter::convertNumberAsPixels(ExtractorState& state, T number)
 {
     return CSSPrimitiveValue::create(adjustFloatForAbsoluteZoom(number, state.style), CSSUnitType::CSS_PX);
-}
-
-template<typename T> Ref<CSSPrimitiveValue> ExtractorConverter::convertComputedLength(ExtractorState& state, T number)
-{
-    return convertNumberAsPixels(state, number);
-}
-
-template<typename T> Ref<CSSPrimitiveValue> ExtractorConverter::convertLineWidth(ExtractorState& state, T lineWidth)
-{
-    return convertNumberAsPixels(state, lineWidth);
 }
 
 template<CSSValueID keyword> Ref<CSSPrimitiveValue> ExtractorConverter::convertCustomIdentAtomOrKeyword(ExtractorState&, const AtomString& string)
@@ -413,16 +380,6 @@ inline Ref<CSSValue> ExtractorConverter::convertMarginTrim(ExtractorState&, Opti
     if (marginTrim.contains(MarginTrimType::InlineEnd))
         list.append(CSSPrimitiveValue::create(CSSValueInlineEnd));
     return CSSValueList::createSpaceSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertStrokeDashArray(ExtractorState& state, const FixedVector<WebCore::Length>& dashes)
-{
-    if (dashes.isEmpty())
-        return CSSPrimitiveValue::create(CSSValueNone);
-    CSSValueListBuilder list;
-    for (auto& dash : dashes)
-        list.append(convertLength(state, dash));
-    return CSSValueList::createCommaSeparated(WTFMove(list));
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertWebkitTextCombine(ExtractorState& state, TextCombine textCombine)
