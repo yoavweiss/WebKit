@@ -58,6 +58,11 @@
 # Finally, we provide four "sc" (safe for call) registers which are guaranteed to not overlap with argument
 # registers (sc0, sc1, sc2, sc3)
 
+const alignIPInt = constexpr JSC::IPInt::alignIPInt
+const alignArgumInt = constexpr JSC::IPInt::alignArgumInt
+const alignUInt = constexpr JSC::IPInt::alignUInt
+const alignMInt = constexpr JSC::IPInt::alignMInt
+
 if ARM64 or ARM64E
     const PC = csr7
     const MC = csr6
@@ -280,13 +285,13 @@ end
 # causes all kinds of problems.
 
 macro instructionLabel(instrname)
-    aligned _ipint%instrname%_validate 256
+    aligned _ipint%instrname%_validate alignIPInt
     _ipint%instrname%_validate:
     _ipint%instrname%:
 end
 
 macro slowPathLabel(instrname)
-    aligned _ipint%instrname%_slow_path_validate 256
+    aligned _ipint%instrname%_slow_path_validate alignIPInt
     _ipint%instrname%_slow_path_validate:
     _ipint%instrname%_slow_path:
 end
@@ -490,19 +495,19 @@ end
 ################################
 
 macro argumINTAlign(instrname)
-    aligned _ipint_argumINT%instrname%_validate 64
+    aligned _ipint_argumINT%instrname%_validate alignArgumInt
     _ipint_argumINT%instrname%_validate:
     _argumINT%instrname%:
 end
 
 macro mintAlign(instrname)
-    aligned _ipint_mint%instrname%_validate 64
+    aligned _ipint_mint%instrname%_validate alignMInt
     _ipint_mint%instrname%_validate:
     _mint%instrname%:
 end
 
 macro uintAlign(instrname)
-    aligned _ipint_uint%instrname%_validate 64
+    aligned _ipint_uint%instrname%_validate alignUInt
     _ipint_uint%instrname%_validate:
     _uint%instrname%:
 end

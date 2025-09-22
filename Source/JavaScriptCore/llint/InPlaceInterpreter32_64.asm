@@ -66,7 +66,7 @@ macro nextIPIntInstruction()
 # .fine:
     loadb [PC], t0
 if ARMv7
-    lshiftp 8, t0
+    lshiftp (constexpr (WTF::fastLog2(JSC::IPInt::alignIPInt))), t0
     leap (_ipint_unreachable + 1), t1
     addp t1, t0
     emit "bx r0"
@@ -251,7 +251,7 @@ macro argumINTDispatch()
     loadb [MC], argumINTTmp
     addp 1, MC
     bbgteq argumINTTmp, (constexpr IPInt::ArgumINTBytecode::NumOpcodes), .err
-    lshiftp 6, argumINTTmp
+    lshiftp (constexpr (WTF::fastLog2(JSC::IPInt::alignArgumInt))), argumINTTmp
     leap (_argumINT_begin + 1), argumINTDsp
     addp argumINTTmp, argumINTDsp
     jmp argumINTDsp
@@ -393,7 +393,7 @@ macro uintDispatch()
     bilt csr1, (constexpr IPInt::UIntBytecode::NumOpcodes), .safe
     break
 .safe:
-    lshiftp 6, csr1
+    lshiftp (constexpr (WTF::fastLog2(JSC::IPInt::alignUInt))), csr1
     addp csr1, sc1, t7
     # t7 = r9
     emit "bx r9"
@@ -4104,7 +4104,7 @@ macro mintArgDispatch()
     bilt sc0, (constexpr IPInt::CallArgumentBytecode::NumOpcodes), .safe
     break
 .safe:
-    lshiftp 6, sc0
+    lshiftp (constexpr (WTF::fastLog2(JSC::IPInt::alignMInt))), sc0
     leap (_mint_begin + 1), t7
     addp sc0, t7
     # t7 = r9
@@ -4117,7 +4117,7 @@ macro mintRetDispatch()
     bilt sc0, (constexpr IPInt::CallResultBytecode::NumOpcodes), .safe
     break
 .safe:
-    lshiftp 6, sc0
+    lshiftp (constexpr (WTF::fastLog2(JSC::IPInt::alignMInt))), sc0
     leap (_mint_begin_return + 1), t7
     addp sc0, t7
     # t7 = r9

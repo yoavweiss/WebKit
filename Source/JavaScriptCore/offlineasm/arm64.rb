@@ -606,7 +606,7 @@ class Sequence
             when "loadpairi", "storepairi"
                 size = 4
                 isLoadStorePairOp = true
-            when "loadpairq", "storepairq", "loadpaird", "storepaird"
+            when "loadpairq", "loadpairp", "storepairq", "storepairp", "loadpaird", "storepaird"
                 size = 8
                 isLoadStorePairOp = true
             when "loadpairv", "storepairv"
@@ -716,6 +716,19 @@ def arm64TACOperands(operands, kind)
     raise unless operands.size == 2
     
     return operands[1].arm64Operand(kind) + ", " + arm64FlippedOperands(operands, kind)
+end
+
+def emitARM64AddShift(opcode, operands, kind)
+    raise unless operands.size == 4
+    raise unless operands[0].register?
+    raise unless operands[1].register?
+    raise unless operands[3].register?
+    raise unless operands[2].immediate?
+
+    regs = [operands[3], operands[0], operands[1]]
+
+    $asm.puts "#{opcode} #{arm64Operands(regs, kind)}, lsl \##{operands[2].value}"
+
 end
 
 def emitARM64Add(opcode, operands, kind)
@@ -931,6 +944,8 @@ class Instruction
             emitARM64Add("adds", operands, :ptr)
         when 'addq'
             emitARM64Add("add", operands, :quad)
+        when 'addlshiftp'
+            emitARM64AddShift("add", operands, :quad)
         when "andi"
             emitARM64TAC("and", operands, :word)
         when "andp"
@@ -1176,7 +1191,7 @@ class Instruction
             emitARM64("sxtb", operands, [:word, :word])
         when "sxh2i"
             emitARM64("sxth", operands, [:word, :word])
-        when "sxb2q"
+        when "sxb2q", "sxb2p"
             emitARM64("sxtb", operands, [:word, :quad])
         when "sxh2q"
             emitARM64("sxth", operands, [:word, :quad])
@@ -1685,11 +1700,11 @@ class Instruction
             $asm.puts "ldar #{operands[1].arm64Operand(:word)}, #{operands[0].arm64SimpleAddressOperand(:word)}"
         when "atomicloadq"
             $asm.puts "ldar #{operands[1].arm64Operand(:quad)}, #{operands[0].arm64SimpleAddressOperand(:quad)}"
-        when "loadpairq"
+        when "loadpairq", "loadpairp"
             $asm.puts "ldp #{operands[1].arm64Operand(:quad)}, #{operands[2].arm64Operand(:quad)}, #{operands[0].arm64PairAddressOperand(:quad)}"
         when "loadpairi"
             $asm.puts "ldp #{operands[1].arm64Operand(:word)}, #{operands[2].arm64Operand(:word)}, #{operands[0].arm64PairAddressOperand(:quad)}"
-        when "storepairq"
+        when "storepairq", "storepairp"
             $asm.puts "stp #{operands[0].arm64Operand(:quad)}, #{operands[1].arm64Operand(:quad)}, #{operands[2].arm64PairAddressOperand(:quad)}"
         when "storepairi"
             $asm.puts "stp #{operands[0].arm64Operand(:word)}, #{operands[1].arm64Operand(:word)}, #{operands[2].arm64PairAddressOperand(:quad)}"

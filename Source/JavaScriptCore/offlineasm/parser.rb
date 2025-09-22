@@ -762,6 +762,7 @@ class Parser
                 name = @tokens[@idx].string
                 @idx += 1
                 align = @tokens[@idx].string
+                align = Variable.forName(codeOrigin, align) if align !=~ /[0-9]+/
                 @idx += 1
                 Label.setAsAligned(codeOrigin, name, align)
             elsif @tokens[@idx] == "unalignedglobalexport"

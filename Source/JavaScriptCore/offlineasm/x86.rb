@@ -1329,7 +1329,7 @@ class Instruction
             $asm.puts "movsbl #{operands[0].x86Operand(:byte)}, #{operands[1].x86Operand(:int)}"
         when "sxh2i"
             $asm.puts "movswl #{operands[0].x86Operand(:half)}, #{operands[1].x86Operand(:int)}"
-        when "sxb2q"
+        when "sxb2q", "sxb2p"
             $asm.puts "movsbq #{operands[0].x86Operand(:byte)}, #{operands[1].x86Operand(:quad)}"
         when "sxh2q"
             $asm.puts "movswq #{operands[0].x86Operand(:half)}, #{operands[1].x86Operand(:quad)}"

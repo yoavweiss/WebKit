@@ -66,12 +66,12 @@ macro nextIPIntInstruction()
 if ARM64 or ARM64E
     # x0 = opcode
     pcrtoaddr ipint_dispatch_base, t7
-    emit "add x0, x7, x0, lsl #8"
+    addlshiftp t7, t0, (constexpr (WTF::fastLog2(JSC::IPInt::alignIPInt))), t0
     emit "br x0"
 elsif X86_64
     leap _g_opcodeConfigStorage, t1
     loadp JSC::LLInt::OpcodeConfig::ipint_dispatch_base[t1], t1
-    lshiftq 8, t0
+    lshiftq (constexpr (WTF::fastLog2(JSC::IPInt::alignIPInt))), t0
     addq t1, t0
     jmp t0
 else
@@ -176,11 +176,11 @@ macro ipintEntry()
         loadi Wasm::IPIntCallee::m_localSizeToAlloc[ws0], argumINTTmp
         loadi Wasm::IPIntCallee::m_numRethrowSlotsToAlloc[ws0], argumINTEnd
     end
-    mulq LocalSize, argumINTEnd
-    mulq LocalSize, argumINTTmp
-    subq argumINTEnd, sp
+    mulp LocalSize, argumINTEnd
+    mulp LocalSize, argumINTTmp
+    subp argumINTEnd, sp
     move sp, argumINTEnd
-    subq argumINTTmp, sp
+    subp argumINTTmp, sp
     move sp, argumINTDsp
     loadp Wasm::IPIntCallee::m_argumINTBytecode + VectorBufferOffset[ws0], MC
 
@@ -195,16 +195,16 @@ end
 
 macro argumINTDispatch()
     loadb [MC], argumINTTmp
-    addq 1, MC
+    addp 1, MC
     bbgteq argumINTTmp, (constexpr IPInt::ArgumINTBytecode::NumOpcodes), _ipint_argument_dispatch_err
-    lshiftq 6, argumINTTmp
+    lshiftp (constexpr (WTF::fastLog2(JSC::IPInt::alignArgumInt))), argumINTTmp
 if ARM64 or ARM64E
     pcrtoaddr _argumINT_begin, argumINTDsp
-    addq argumINTTmp, argumINTDsp
+    addp argumINTTmp, argumINTDsp
     emit "br x23"
 elsif X86_64
     leap (_argumINT_begin - _ipint_entry_relativePCBase)[PL], argumINTDsp
-    addq argumINTTmp, argumINTDsp
+    addp argumINTTmp, argumINTDsp
     jmp argumINTDsp
 else
     break
@@ -213,12 +213,12 @@ end
 
 macro argumINTInitializeDefaultLocals()
     # zero out remaining locals
-    bqeq argumINTDst, argumINTEnd, .ipint_entry_finish_zero
+    bpeq argumINTDst, argumINTEnd, .ipint_entry_finish_zero
     loadb [MC], argumINTTmp
-    addq 1, MC
-    sxb2q argumINTTmp, argumINTTmp
-    andq ValueNull, argumINTTmp
-    storeq argumINTTmp, [argumINTDst]
+    addp 1, MC
+    sxb2p argumINTTmp, argumINTTmp
+    andp ValueNull, argumINTTmp
+    storep argumINTTmp, [argumINTDst]
     addp LocalSize, argumINTDst
 end
 
@@ -382,7 +382,7 @@ if ARM64 or ARM64E
     loadb [MC], sc2
     addq 1, MC
     bigteq sc2, (constexpr IPInt::UIntBytecode::NumOpcodes), _ipint_uint_dispatch_err
-    lshiftq 6, sc2
+    lshiftq (constexpr (WTF::fastLog2(JSC::IPInt::alignUInt))), sc2
     pcrtoaddr _uint_begin, sc3
     addq sc2, ws3
     # ws3 = x12
@@ -10051,7 +10051,7 @@ macro mintArgDispatch()
     loadb [MC], sc0
     addq 1, MC
     bigteq sc0, (constexpr IPInt::CallArgumentBytecode::NumOpcodes), _ipint_mint_arg_dispatch_err
-    lshiftq 6, sc0
+    lshiftq (constexpr (WTF::fastLog2(JSC::IPInt::alignMInt))), sc0
 if ARM64 or ARM64E
     pcrtoaddr _mint_begin, csr4
     addq sc0, csr4
@@ -10067,7 +10067,7 @@ macro mintRetDispatch()
     loadb [MC], sc0
     addq 1, MC
     bigteq sc0, (constexpr IPInt::CallResultBytecode::NumOpcodes), _ipint_mint_ret_dispatch_err
-    lshiftq 6, sc0
+    lshiftq (constexpr (WTF::fastLog2(JSC::IPInt::alignMInt))), sc0
 if ARM64 or ARM64E
     pcrtoaddr _mint_begin_return, csr4
     addq sc0, csr4
