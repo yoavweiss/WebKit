@@ -329,7 +329,6 @@
     macro(AsyncDisposableStack) \
     macro(disposeAsync) \
     macro(keys) \
-    macro(flat) \
     macro(promise) \
 
 #define JSC_COMMON_IDENTIFIERS_EACH_PRIVATE_FIELD(macro) \
