@@ -38,7 +38,7 @@ namespace Layout {
 // implicit grid as exactly the explicit grid and allow placement to add implicit
 // tracks and grow the grid.
 ImplicitGrid::ImplicitGrid(size_t gridTemplateColumnsCount, size_t gridTemplateRowsCount)
-    : m_gridMatrix(Vector(gridTemplateRowsCount, Vector<std::optional<const UnplacedGridItem>>(gridTemplateColumnsCount)))
+    : m_gridMatrix(Vector(gridTemplateRowsCount, Vector<std::optional<UnplacedGridItem>>(gridTemplateColumnsCount)))
 {
 }
 
@@ -95,7 +95,7 @@ void ImplicitGrid::insertUnplacedGridItem(const UnplacedGridItem& unplacedGridIt
     auto rowsRange = WTF::Range(explicitRowStart, explicitRowEnd);
     for (auto rowIndex = rowsRange.begin(); rowIndex < rowsRange.end(); ++rowIndex) {
         for (auto columnIndex = columnsRange.begin(); columnIndex < columnsRange.end(); ++columnIndex)
-            m_gridMatrix[rowIndex].insert(columnIndex, unplacedGridItem);
+            m_gridMatrix[rowIndex][columnIndex] = unplacedGridItem;
     }
 
 }

@@ -62,6 +62,8 @@ GridLayout::PlacedGridItems GridLayout::placeGridItems(const UnplacedGridItems& 
     auto& nonAutoPositionedGridItems = unplacedGridItems.nonAutoPositionedItems;
     for (auto& nonAutoPositionedItem : nonAutoPositionedGridItems)
         implicitGrid.insertUnplacedGridItem(nonAutoPositionedItem);
+    ASSERT(implicitGrid.columnsCount() == gridTemplateColumnsTracksCount && implicitGrid.rowsCount()== gridTemplateRowsTracksCount,
+        "Since we currently only support placing items which are explicitly placed and fit within the explicit grid, the size of the implicit grid should match the passed in sizes.");
     return implicitGrid.placedGridItems();
 }
 

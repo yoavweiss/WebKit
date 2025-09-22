@@ -49,7 +49,7 @@ public:
     PlacedGridItems placedGridItems() const;
 
 private:
-    using GridMatrix = Vector<Vector<std::optional<const UnplacedGridItem>>>;
+    using GridMatrix = Vector<Vector<std::optional<UnplacedGridItem>>>;
     GridMatrix m_gridMatrix;
 };
 
