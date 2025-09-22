@@ -58,7 +58,6 @@
 #include "StyleLengthWrapper+Blending.h"
 #include "StylePrimitiveNumericTypes+Blending.h"
 #include "StyleResolver.h"
-#include "StyleTextEdge.h"
 #include <algorithm>
 #include <wtf/MathExtras.h>
 #include <wtf/PointerComparison.h>

@@ -84,8 +84,6 @@ public:
     static void serializeSmoothScrolling(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, bool);
     static void serializeTextSpacingTrim(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, TextSpacingTrim);
     static void serializeTextAutospace(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, TextAutospace);
-    static void serializeLineFitEdge(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TextEdge&);
-    static void serializeTextBoxEdge(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TextEdge&);
     static void serializePositionTryFallbacks(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FixedVector<PositionTryFallback>&);
     static void serializeWillChange(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const WillChangeData*);
     static void serializeTabSize(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TabSize&);
@@ -482,56 +480,6 @@ inline void ExtractorSerializer::serializeTextAutospace(ExtractorState& state, S
         serializationForCSS(builder, context, state.style, CSS::Keyword::IdeographNumeric { });
         return;
     }
-}
-
-inline void ExtractorSerializer::serializeLineFitEdge(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const TextEdge& textEdge)
-{
-    if (textEdge.over == TextEdgeType::Leading && textEdge.under == TextEdgeType::Leading) {
-        serialize(state, builder, context, textEdge.over);
-        return;
-    }
-
-    // https://www.w3.org/TR/css-inline-3/#text-edges
-    // "If only one value is specified, both edges are assigned that same keyword if possible; else text is assumed as the missing value."
-    auto shouldSerializeUnderEdge = [&] {
-        if (textEdge.over == TextEdgeType::CapHeight || textEdge.over == TextEdgeType::ExHeight)
-            return textEdge.under != TextEdgeType::Text;
-        return textEdge.over != textEdge.under;
-    }();
-
-    if (!shouldSerializeUnderEdge) {
-        serialize(state, builder, context, textEdge.over);
-        return;
-    }
-
-    serialize(state, builder, context, textEdge.over);
-    builder.append(' ');
-    serialize(state, builder, context, textEdge.under);
-}
-
-inline void ExtractorSerializer::serializeTextBoxEdge(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const TextEdge& textEdge)
-{
-    if (textEdge.over == TextEdgeType::Auto && textEdge.under == TextEdgeType::Auto) {
-        serialize(state, builder, context, textEdge.over);
-        return;
-    }
-
-    // https://www.w3.org/TR/css-inline-3/#text-edges
-    // "If only one value is specified, both edges are assigned that same keyword if possible; else text is assumed as the missing value."
-    auto shouldSerializeUnderEdge = [&] {
-        if (textEdge.over == TextEdgeType::CapHeight || textEdge.over == TextEdgeType::ExHeight)
-            return textEdge.under != TextEdgeType::Text;
-        return textEdge.over != textEdge.under;
-    }();
-
-    if (!shouldSerializeUnderEdge) {
-        serialize(state, builder, context, textEdge.over);
-        return;
-    }
-
-    serialize(state, builder, context, textEdge.over);
-    builder.append(' ');
-    serialize(state, builder, context, textEdge.under);
 }
 
 inline void ExtractorSerializer::serializePositionTryFallbacks(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const FixedVector<PositionTryFallback>& fallbacks)

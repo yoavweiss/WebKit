@@ -819,8 +819,7 @@
             ],
             "codegen-properties": {
                 "settings-flag": "cssTextBoxTrimEnabled",
-                "style-builder-converter": "TextEdge",
-                "style-extractor-converter": "TextBoxEdge",
+                "style-converter": "StyleType<TextBoxEdge>",
                 "parser-function": "consumeTextBoxEdge",
                 "parser-grammar-unused": "auto | [ [ text | cap | ex | ideographic | ideographic-ink ] [ text | alphabetic | ideographic | ideographic-ink ]? ]",
                 "parser-grammar-unused-reason": "Needs support for transforming parsed input to minimal form."
@@ -4982,15 +4981,14 @@
             ],
             "codegen-properties": {
                 "settings-flag": "cssLineFitEdgeEnabled",
-                "style-builder-converter": "TextEdge",
-                "style-extractor-converter": "LineFitEdge",
+                "style-converter": "StyleType<LineFitEdge>",
                 "parser-function": "consumeLineFitEdge",
                 "parser-grammar-unused": "leading | [ [ text | cap | ex | ideographic | ideographic-ink ] [ text | alphabetic | ideographic | ideographic-ink ]? ]",
                 "parser-grammar-unused-reason": "Needs support for transforming parsed input to minimal form."
             },
             "specification": {
                 "category": "css-inline",
-                "url": "https://www.w3.org/TR/css-inline-3/#text-edges"
+                "url": "https://drafts.csswg.org/css-inline-3/#propdef-line-fit-edge"
             },
             "status": "experimental"
         },

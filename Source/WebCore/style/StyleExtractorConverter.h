@@ -152,8 +152,6 @@ public:
     static Ref<CSSValue> convertContain(ExtractorState&, OptionSet<Containment>);
     static Ref<CSSValue> convertTextSpacingTrim(ExtractorState&, TextSpacingTrim);
     static Ref<CSSValue> convertTextAutospace(ExtractorState&, TextAutospace);
-    static Ref<CSSValue> convertLineFitEdge(ExtractorState&, const TextEdge&);
-    static Ref<CSSValue> convertTextBoxEdge(ExtractorState&, const TextEdge&);
     static Ref<CSSValue> convertPositionTryFallbacks(ExtractorState&, const FixedVector<PositionTryFallback>&);
     static Ref<CSSValue> convertWillChange(ExtractorState&, const WillChangeData*);
     static Ref<CSSValue> convertTabSize(ExtractorState&, const TabSize&);
@@ -452,43 +450,6 @@ inline Ref<CSSValue> ExtractorConverter::convertTextAutospace(ExtractorState&, T
     return CSSValueList::createSpaceSeparated(WTFMove(list));
 }
 
-inline Ref<CSSValue> ExtractorConverter::convertLineFitEdge(ExtractorState& state, const TextEdge& textEdge)
-{
-    if (textEdge.over == TextEdgeType::Leading && textEdge.under == TextEdgeType::Leading)
-        return convert(state, textEdge.over);
-
-    // https://www.w3.org/TR/css-inline-3/#text-edges
-    // "If only one value is specified, both edges are assigned that same keyword if possible; else text is assumed as the missing value."
-    auto shouldSerializeUnderEdge = [&] {
-        if (textEdge.over == TextEdgeType::CapHeight || textEdge.over == TextEdgeType::ExHeight)
-            return textEdge.under != TextEdgeType::Text;
-        return textEdge.over != textEdge.under;
-    }();
-
-    if (!shouldSerializeUnderEdge)
-        return convert(state, textEdge.over);
-
-    return CSSValuePair::create(convert(state, textEdge.over), convert(state, textEdge.under));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertTextBoxEdge(ExtractorState& state, const TextEdge& textEdge)
-{
-    if (textEdge.over == TextEdgeType::Auto && textEdge.under == TextEdgeType::Auto)
-        return convert(state, textEdge.over);
-
-    // https://www.w3.org/TR/css-inline-3/#text-edges
-    // "If only one value is specified, both edges are assigned that same keyword if possible; else text is assumed as the missing value."
-    auto shouldSerializeUnderEdge = [&] {
-        if (textEdge.over == TextEdgeType::CapHeight || textEdge.over == TextEdgeType::ExHeight)
-            return textEdge.under != TextEdgeType::Text;
-        return textEdge.over != textEdge.under;
-    }();
-
-    if (!shouldSerializeUnderEdge)
-        return convert(state, textEdge.over);
-
-    return CSSValuePair::create(convert(state, textEdge.over), convert(state, textEdge.under));
-}
 
 inline Ref<CSSValue> ExtractorConverter::convertPositionTryFallbacks(ExtractorState& state, const FixedVector<PositionTryFallback>& fallbacks)
 {

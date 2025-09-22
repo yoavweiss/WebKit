@@ -3145,7 +3145,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/style/StyleScrollSnapPoints.h
     rendering/style/StyleSelfAlignmentData.h
     rendering/style/StyleSurroundData.h
-    rendering/style/StyleTextEdge.h
     rendering/style/StyleTransformData.h
     rendering/style/StyleVisitedLinkColorData.h
     rendering/style/WillChangeData.h
@@ -3280,6 +3279,9 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/images/StyleObjectPosition.h
 
     style/values/inline/StyleLineBoxContain.h
+    style/values/inline/StyleLineFitEdge.h
+    style/values/inline/StyleTextBoxEdge.h
+    style/values/inline/StyleTextEdge.h
     style/values/inline/StyleVerticalAlign.h
     style/values/inline/StyleWebKitInitialLetter.h
 

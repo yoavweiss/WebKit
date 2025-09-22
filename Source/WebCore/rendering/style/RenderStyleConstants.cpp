@@ -1363,17 +1363,25 @@ TextStream& operator<<(TextStream& ts, TextBoxTrim textBoxTrim)
     return ts;
 }
 
-TextStream& operator<<(TextStream& ts, TextEdgeType textEdgeType)
+TextStream& operator<<(TextStream& ts, TextEdgeOver textEdgeOver)
 {
-    switch (textEdgeType) {
-    case TextEdgeType::Auto: ts << "auto"_s; break;
-    case TextEdgeType::Leading: ts << "half-leading"_s; break;
-    case TextEdgeType::Text: ts << "text-over/under baseline"_s; break;
-    case TextEdgeType::CapHeight: ts << "cap-height baseline"_s; break;
-    case TextEdgeType::ExHeight: ts << "x-height baseline"_s; break;
-    case TextEdgeType::Alphabetic: ts << "alphabetic baseline"_s; break;
-    case TextEdgeType::CJKIdeographic: ts << "ideographic-over baseline"_s; break;
-    case TextEdgeType::CJKIdeographicInk: ts << "ideographic-ink-over/ink-under baseline"_s; break;
+    switch (textEdgeOver) {
+    case TextEdgeOver::Text: ts << "text"_s; break;
+    case TextEdgeOver::Ideographic: ts << "ideographic"_s; break;
+    case TextEdgeOver::IdeographicInk: ts << "ideographic-ink"_s; break;
+    case TextEdgeOver::Cap: ts << "cap"_s; break;
+    case TextEdgeOver::Ex: ts << "ex"_s; break;
+    }
+    return ts;
+}
+
+TextStream& operator<<(TextStream& ts, TextEdgeUnder textEdgeUnder)
+{
+    switch (textEdgeUnder) {
+    case TextEdgeUnder::Text: ts << "text"_s; break;
+    case TextEdgeUnder::Ideographic: ts << "ideographic"_s; break;
+    case TextEdgeUnder::IdeographicInk: ts << "ideographic-ink"_s; break;
+    case TextEdgeUnder::Alphabetic: ts << "alphabetic"_s; break;
     }
     return ts;
 }

@@ -47,7 +47,8 @@ struct GreaterThanOrSameSizeAsStyleRareInheritedData : public RefCounted<Greater
     Style::TextEmphasisStyle textEmphasisStyle;
     Style::TextIndent textIndent;
     Style::TextUnderlineOffset offset;
-    TextEdge textEdges[2];
+    Style::TextBoxEdge textBoxEdge;
+    Style::LineFitEdge lineFitEdge;
     Length length;
     void* customPropertyDataRefs[1];
     unsigned bitfields[7];

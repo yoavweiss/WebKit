@@ -56,7 +56,6 @@
 #include "StyleResolver.h"
 #include "StyleScrollSnapPoints.h"
 #include "StyleSelfAlignmentData.h"
-#include "StyleTextEdge.h"
 #include "StyleTreeResolver.h"
 #include "TransformOperationData.h"
 #include <algorithm>
@@ -3472,36 +3471,6 @@ bool RenderStyle::hasSnapPosition() const
 {
     const ScrollSnapAlign& alignment = this->scrollSnapAlign();
     return alignment.blockAlign != ScrollSnapAxisAlignType::None || alignment.inlineAlign != ScrollSnapAxisAlignType::None;
-}
-
-TextEdge RenderStyle::textBoxEdge() const
-{
-    return m_rareInheritedData->textBoxEdge;
-}
-
-void RenderStyle::setTextBoxEdge(TextEdge value)
-{
-    SET_VAR(m_rareInheritedData, textBoxEdge, value);
-}
-
-TextEdge RenderStyle::initialTextBoxEdge()
-{
-    return { TextEdgeType::Auto, TextEdgeType::Auto };
-}
-
-TextEdge RenderStyle::lineFitEdge() const
-{
-    return m_rareInheritedData->lineFitEdge;
-}
-
-void RenderStyle::setLineFitEdge(TextEdge value)
-{
-    SET_VAR(m_rareInheritedData, lineFitEdge, value);
-}
-
-TextEdge RenderStyle::initialLineFitEdge()
-{
-    return { TextEdgeType::Leading, TextEdgeType::Leading };
 }
 
 Style::LineWidth RenderStyle::outlineWidth() const

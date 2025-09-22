@@ -98,7 +98,7 @@
 #include "StyleScrollMargin.h"
 #include "StyleScrollPadding.h"
 #include "StyleScrollSnapPoints.h"
-#include "StyleTextEdge.h"
+#include "StyleTextEdge+CSSValueConversion.h"
 #include "StyleTranslate.h"
 #include "StyleURL.h"
 #include "StyleValueTypes+CSSValueConversion.h"
@@ -132,7 +132,6 @@ public:
     static TextAlignLast convertTextAlignLast(BuilderState&, const CSSValue&);
     static Resize convertResize(BuilderState&, const CSSValue&);
     static OptionSet<TextUnderlinePosition> convertTextUnderlinePosition(BuilderState&, const CSSValue&);
-    static TextEdge convertTextEdge(BuilderState&, const CSSValue&);
     static OptionSet<LineBoxContain> convertLineBoxContain(BuilderState&, const CSSValue&);
     static ScrollSnapType convertScrollSnapType(BuilderState&, const CSSValue&);
     static ScrollSnapAlign convertScrollSnapAlign(BuilderState&, const CSSValue&);
@@ -396,70 +395,6 @@ inline OptionSet<TextUnderlinePosition> BuilderConverter::convertTextUnderlinePo
     auto position = valueToUnderlinePosition(pair->first);
     position.add(valueToUnderlinePosition(pair->second));
     return position;
-}
-
-inline TextEdge BuilderConverter::convertTextEdge(BuilderState& builderState, const CSSValue& value)
-{
-    auto overValue = [&](CSSValueID valueID) {
-        switch (valueID) {
-        case CSSValueText:
-            return TextEdgeType::Text;
-        case CSSValueCap:
-            return TextEdgeType::CapHeight;
-        case CSSValueEx:
-            return TextEdgeType::ExHeight;
-        case CSSValueIdeographic:
-            return TextEdgeType::CJKIdeographic;
-        case CSSValueIdeographicInk:
-            return TextEdgeType::CJKIdeographicInk;
-        default:
-            ASSERT_NOT_REACHED();
-            return TextEdgeType::Auto;
-        }
-    };
-
-    auto underValue = [&](CSSValueID valueID) {
-        switch (valueID) {
-        case CSSValueText:
-            return TextEdgeType::Text;
-        case CSSValueAlphabetic:
-            return TextEdgeType::Alphabetic;
-        case CSSValueIdeographic:
-            return TextEdgeType::CJKIdeographic;
-        case CSSValueIdeographicInk:
-            return TextEdgeType::CJKIdeographicInk;
-        default:
-            ASSERT_NOT_REACHED();
-            return TextEdgeType::Auto;
-        }
-    };
-
-    // One value was given.
-    if (is<CSSPrimitiveValue>(value)) {
-        switch (value.valueID()) {
-        case CSSValueAuto:
-            return { TextEdgeType::Auto, TextEdgeType::Auto };
-        case CSSValueLeading:
-            return { TextEdgeType::Leading, TextEdgeType::Leading };
-        // https://www.w3.org/TR/css-inline-3/#text-edges
-        // "If only one value is specified, both edges are assigned that same keyword if possible; else text is assumed as the missing value."
-        case CSSValueCap:
-        case CSSValueEx:
-            return { overValue(value.valueID()), TextEdgeType::Text };
-        default:
-            return { overValue(value.valueID()), underValue(value.valueID()) };
-        }
-    }
-
-    // Two values were given.
-    auto pair = requiredPairDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!pair)
-        return { };
-
-    return {
-        overValue(pair->first->valueID()),
-        underValue(pair->second->valueID())
-    };
 }
 
 inline OptionSet<LineBoxContain> BuilderConverter::convertLineBoxContain(BuilderState& builderState, const CSSValue& value)

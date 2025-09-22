@@ -723,17 +723,19 @@ enum class MarginTrimType : uint8_t {
     InlineEnd = 1 << 3
 };
 
-enum class TextEdgeType : uint8_t {
-    // Note that TextEdgeType is shared between text-box-edge and line-fit-edge,
-    // where text-box-edge's default value is auto, and line-fit-edge has leading.
-    Auto,
-    Leading,
+enum class TextEdgeOver : uint8_t {
     Text,
-    CapHeight,
-    ExHeight,
+    Ideographic,
+    IdeographicInk,
+    Cap,
+    Ex
+};
+
+enum class TextEdgeUnder : uint8_t {
+    Text,
+    Ideographic,
+    IdeographicInk,
     Alphabetic,
-    CJKIdeographic,
-    CJKIdeographicInk
 };
 
 enum class TextZoom : bool {
@@ -1375,7 +1377,8 @@ WTF::TextStream& operator<<(WTF::TextStream&, TextUnderlinePosition);
 WTF::TextStream& operator<<(WTF::TextStream&, TextWrapMode);
 WTF::TextStream& operator<<(WTF::TextStream&, TextWrapStyle);
 WTF::TextStream& operator<<(WTF::TextStream&, TextBoxTrim);
-WTF::TextStream& operator<<(WTF::TextStream&, TextEdgeType);
+WTF::TextStream& operator<<(WTF::TextStream&, TextEdgeOver);
+WTF::TextStream& operator<<(WTF::TextStream&, TextEdgeUnder);
 WTF::TextStream& operator<<(WTF::TextStream&, TextZoom);
 WTF::TextStream& operator<<(WTF::TextStream&, TransformBox);
 WTF::TextStream& operator<<(WTF::TextStream&, TransformStyle3D);

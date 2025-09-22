@@ -31,7 +31,6 @@
 #include "StyleImage.h"
 #include "StylePrimitiveNumericTypes+Logging.h"
 #include "StyleResolver.h"
-#include "StyleTextEdge.h"
 #include <wtf/PointerComparison.h>
 #include <wtf/RefPtr.h>
 #include <wtf/text/TextStream.h>

@@ -508,6 +508,8 @@ constexpr TableLayoutType RenderStyle::initialTableLayout() { return TableLayout
 constexpr TextAlignMode RenderStyle::initialTextAlign() { return TextAlignMode::Start; }
 constexpr TextAlignLast RenderStyle::initialTextAlignLast() { return TextAlignLast::Auto; }
 constexpr TextBoxTrim RenderStyle::initialTextBoxTrim() { return TextBoxTrim::None; }
+constexpr Style::TextBoxEdge RenderStyle::initialTextBoxEdge() { return CSS::Keyword::Auto { }; }
+constexpr Style::LineFitEdge RenderStyle::initialLineFitEdge() { return CSS::Keyword::Leading { }; }
 constexpr TextCombine RenderStyle::initialTextCombine() { return TextCombine::None; }
 inline Style::Color RenderStyle::initialTextDecorationColor() { return Style::Color::currentColor(); }
 inline Style::TextDecorationLine RenderStyle::initialTextDecorationLine() { return CSS::Keyword::None { }; }
@@ -744,6 +746,8 @@ inline const TabSize& RenderStyle::tabSize() const { return m_rareInheritedData-
 inline TableLayoutType RenderStyle::tableLayout() const { return static_cast<TableLayoutType>(m_nonInheritedData->miscData->tableLayout); }
 inline TextAlignLast RenderStyle::textAlignLast() const { return static_cast<TextAlignLast>(m_rareInheritedData->textAlignLast); }
 inline TextBoxTrim RenderStyle::textBoxTrim() const { return static_cast<TextBoxTrim>(m_nonInheritedData->rareData->textBoxTrim); }
+inline Style::TextBoxEdge RenderStyle::textBoxEdge() const { return m_rareInheritedData->textBoxEdge; }
+inline Style::LineFitEdge RenderStyle::lineFitEdge() const { return m_rareInheritedData->lineFitEdge; }
 inline TextCombine RenderStyle::textCombine() const { return static_cast<TextCombine>(m_rareInheritedData->textCombine); }
 inline const Style::Color& RenderStyle::textDecorationColor() const { return m_nonInheritedData->rareData->textDecorationColor; }
 inline Style::TextDecorationLine RenderStyle::textDecorationLine() const { return m_nonInheritedFlags.textDecorationLine; }

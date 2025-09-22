@@ -2887,18 +2887,18 @@ inline RefPtr<CSSValue> ExtractorCustom::extractTextBoxShorthand(ExtractorState&
 {
     auto textBoxTrim = state.style.textBoxTrim();
     auto textBoxEdge = state.style.textBoxEdge();
-    auto textBoxEdgeIsAuto = textBoxEdge == TextEdge { TextEdgeType::Auto, TextEdgeType::Auto };
+    auto textBoxEdgeIsAuto = textBoxEdge.isAuto();
 
     if (textBoxTrim == TextBoxTrim::None && textBoxEdgeIsAuto)
-        return CSSPrimitiveValue::create(CSSValueNormal);
+        return createCSSValue(state.pool, state.style, CSS::Keyword::Normal { });
     if (textBoxEdgeIsAuto)
-        return ExtractorConverter::convert(state, textBoxTrim);
+        return createCSSValue(state.pool, state.style, textBoxTrim);
     if (textBoxTrim == TextBoxTrim::TrimBoth)
-        return ExtractorConverter::convertTextBoxEdge(state, textBoxEdge);
+        return createCSSValue(state.pool, state.style, textBoxEdge);
 
     return CSSValuePair::create(
-        ExtractorConverter::convert(state, textBoxTrim),
-        ExtractorConverter::convertTextBoxEdge(state, textBoxEdge)
+        createCSSValue(state.pool, state.style, textBoxTrim),
+        createCSSValue(state.pool, state.style, textBoxEdge)
     );
 }
 
@@ -2906,24 +2906,24 @@ inline void ExtractorCustom::extractTextBoxShorthandSerialization(ExtractorState
 {
     auto textBoxTrim = state.style.textBoxTrim();
     auto textBoxEdge = state.style.textBoxEdge();
-    auto textBoxEdgeIsAuto = textBoxEdge == TextEdge { TextEdgeType::Auto, TextEdgeType::Auto };
+    auto textBoxEdgeIsAuto = textBoxEdge.isAuto();
 
     if (textBoxTrim == TextBoxTrim::None && textBoxEdgeIsAuto) {
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Normal { });
+        serializationForCSS(builder, context, state.style, CSS::Keyword::Normal { });
         return;
     }
     if (textBoxEdgeIsAuto) {
-        ExtractorSerializer::serialize(state, builder, context, textBoxTrim);
+        serializationForCSS(builder, context, state.style, textBoxTrim);
         return;
     }
     if (textBoxTrim == TextBoxTrim::TrimBoth) {
-        ExtractorSerializer::serializeTextBoxEdge(state, builder, context, textBoxEdge);
+        serializationForCSS(builder, context, state.style, textBoxEdge);
         return;
     }
 
-    ExtractorSerializer::serialize(state, builder, context, textBoxTrim);
+    serializationForCSS(builder, context, state.style, textBoxTrim);
     builder.append(' ');
-    ExtractorSerializer::serializeTextBoxEdge(state, builder, context, textBoxEdge);
+    serializationForCSS(builder, context, state.style, textBoxEdge);
 }
 
 inline RefPtr<CSSValue> ExtractorCustom::extractTextDecorationShorthand(ExtractorState& state)

@@ -68,7 +68,6 @@
 #include <WebCore/StyleShapeMargin.h>
 #include <WebCore/StyleShapeOutside.h>
 #include <WebCore/StyleTextDecorationThickness.h>
-#include <WebCore/StyleTextEdge.h>
 #include <WebCore/StyleTranslate.h>
 #include <WebCore/StyleViewTimelineInsets.h>
 #include <WebCore/StyleViewTimelines.h>

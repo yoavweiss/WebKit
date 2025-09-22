@@ -290,6 +290,8 @@ inline void RenderStyle::setStrokeWidth(Style::StrokeWidth&& width) { SET(m_rare
 inline void RenderStyle::setTabSize(const TabSize& size) { SET(m_rareInheritedData, tabSize, size); }
 inline void RenderStyle::setTextAlignLast(TextAlignLast value) { SET(m_rareInheritedData, textAlignLast, static_cast<unsigned>(value)); }
 inline void RenderStyle::setTextBoxTrim(TextBoxTrim value) { SET_NESTED(m_nonInheritedData, rareData, textBoxTrim, static_cast<unsigned>(value)); }
+inline void RenderStyle::setTextBoxEdge(Style::TextBoxEdge value) { SET(m_rareInheritedData, textBoxEdge, value); }
+inline void RenderStyle::setLineFitEdge(Style::LineFitEdge value) { SET(m_rareInheritedData, lineFitEdge, value); }
 inline void RenderStyle::setTextCombine(TextCombine value) { SET(m_rareInheritedData, textCombine, static_cast<unsigned>(value)); }
 inline void RenderStyle::setTextDecorationColor(Style::Color&& color) { SET_NESTED(m_nonInheritedData, rareData, textDecorationColor, WTFMove(color)); }
 inline void RenderStyle::setTextDecorationLine(Style::TextDecorationLine&& value) { m_nonInheritedFlags.textDecorationLine = value.toRaw(); }

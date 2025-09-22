@@ -223,7 +223,6 @@ struct NameScope;
 struct ScrollSnapAlign;
 struct ScrollSnapType;
 struct TabSize;
-struct TextEdge;
 struct TransformOperationData;
 
 template<typename> class FontTaggedSettings;
@@ -281,6 +280,7 @@ struct HyphenateLimitLines;
 struct ImageOrNone;
 struct InsetEdge;
 struct LineWidth;
+struct LineFitEdge;
 struct ListStyleType;
 struct MarginEdge;
 struct MaskBorder;
@@ -333,6 +333,7 @@ struct ShapeMargin;
 struct ShapeOutside;
 struct StrokeMiterlimit;
 struct StrokeWidth;
+struct TextBoxEdge;
 struct TextDecorationThickness;
 struct TextEmphasisStyle;
 struct TextIndent;
@@ -734,8 +735,8 @@ public:
     inline TextJustify textJustify() const;
 
     inline TextBoxTrim textBoxTrim() const;
-    TextEdge textBoxEdge() const;
-    TextEdge lineFitEdge() const;
+    inline Style::TextBoxEdge textBoxEdge() const;
+    inline Style::LineFitEdge lineFitEdge() const;
 
     inline OptionSet<MarginTrimType> marginTrim() const;
 
@@ -1374,8 +1375,8 @@ public:
     inline void setTextJustify(TextJustify);
 
     inline void setTextBoxTrim(TextBoxTrim);
-    void setTextBoxEdge(TextEdge);
-    void setLineFitEdge(TextEdge);
+    inline void setTextBoxEdge(Style::TextBoxEdge);
+    inline void setLineFitEdge(Style::LineFitEdge);
 
     inline void setMarginTrim(OptionSet<MarginTrimType>);
 
@@ -1981,8 +1982,8 @@ public:
     static inline Style::PageSize initialPageSize();
     static inline Style::TextIndent initialTextIndent();
     static constexpr TextBoxTrim initialTextBoxTrim();
-    static TextEdge initialTextBoxEdge();
-    static TextEdge initialLineFitEdge();
+    static constexpr Style::TextBoxEdge initialTextBoxEdge();
+    static constexpr Style::LineFitEdge initialLineFitEdge();
     static constexpr LengthType zeroLength();
     static constexpr Style::Widows initialWidows();
     static constexpr Style::Orphans initialOrphans();
