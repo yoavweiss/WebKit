@@ -422,41 +422,38 @@ void WebContextMenuProxyMac::removeBackgroundFromControlledImage()
 }
 
 #if ENABLE(CONTEXT_MENU_IMAGES_ON_MAC)
-static void updateMenuItemImage(NSMenuItem *menuItem, const WebContextMenuItemData& webMenuItem)
+static void updateMenuItemImage(NSMenuItem *menuItem, const WebCore::ContextMenuAction& action, const String& title)
 {
-    if (![menuItem respondsToSelector:@selector(_setActionImage:)])
-        return;
+    bool useAlternateImage = false;
 
-    bool useAlternateImage;
-
-    switch (webMenuItem.action()) {
+    switch (action) {
     case ContextMenuItemTagMediaPlayPause:
-        useAlternateImage = webMenuItem.title() == contextMenuItemTagMediaPause();
+        useAlternateImage = title == contextMenuItemTagMediaPause();
         break;
     case ContextMenuItemTagShowSpellingPanel:
-        useAlternateImage = webMenuItem.title() == contextMenuItemTagShowSpellingPanel(false);
+        useAlternateImage = title == contextMenuItemTagShowSpellingPanel(false);
         break;
     case ContextMenuItemTagShowSubstitutions:
-        useAlternateImage = webMenuItem.title() == contextMenuItemTagShowSubstitutions(false);
+        useAlternateImage = title == contextMenuItemTagShowSubstitutions(false);
         break;
     case ContextMenuItemTagToggleMediaControls:
-        useAlternateImage = webMenuItem.title() == contextMenuItemTagShowMediaControls();
+        useAlternateImage = title == contextMenuItemTagShowMediaControls();
         break;
     case ContextMenuItemTagToggleVideoEnhancedFullscreen:
-        useAlternateImage = webMenuItem.title() == contextMenuItemTagExitVideoEnhancedFullscreen();
+        useAlternateImage = title == contextMenuItemTagExitVideoEnhancedFullscreen();
         break;
     case ContextMenuItemTagToggleVideoFullscreen:
-        useAlternateImage = webMenuItem.title() == contextMenuItemTagExitVideoFullscreen();
+        useAlternateImage = title == contextMenuItemTagExitVideoFullscreen();
         break;
     case ContextMenuItemTagToggleVideoViewer:
-        useAlternateImage = webMenuItem.title() == contextMenuItemTagExitVideoViewer();
+        useAlternateImage = title == contextMenuItemTagExitVideoViewer();
         break;
     default:
         useAlternateImage = false;
         break;
     }
 
-    addImageToMenuItem(menuItem, webMenuItem.action(), useAlternateImage);
+    addImageToMenuItem(menuItem, action, useAlternateImage);
 }
 #endif
 
@@ -920,7 +917,7 @@ void WebContextMenuProxyMac::getContextMenuItem(const WebContextMenuItemData& it
     case WebCore::ContextMenuItemType::CheckableAction: {
         RetainPtr menuItem = createMenuActionItem(item);
 #if ENABLE(CONTEXT_MENU_IMAGES_ON_MAC)
-        updateMenuItemImage(menuItem.get(), item);
+        updateMenuItemImage(menuItem.get(), item.action(), item.title());
 #endif
         completionHandler(menuItem.get());
         return;
@@ -937,6 +934,9 @@ void WebContextMenuProxyMac::getContextMenuItem(const WebContextMenuItemData& it
             [menuItem setIndentationLevel:indentationLevel];
             [menuItem setSubmenu:menu];
             [menuItem setIdentifier:menuItemIdentifier(action)];
+#if ENABLE(CONTEXT_MENU_IMAGES_ON_MAC)
+            updateMenuItemImage(menuItem.get(), action, title);
+#endif
             completionHandler(menuItem.get());
         });
         return;
