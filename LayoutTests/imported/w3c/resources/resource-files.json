@@ -11787,8 +11787,6 @@
         "web-platform-tests/html/syntax/charset/references/ncr-ref.html",
         "web-platform-tests/html/syntax/charset/references/non-ascii-in-comment-before-ref.html",
         "web-platform-tests/html/syntax/charset/references/non-ascii-in-title-before-ref.html",
-        "web-platform-tests/html/syntax/parsing-html-fragments/the-input-byte-stream-003.html",
-        "web-platform-tests/html/syntax/parsing-html-fragments/the-input-byte-stream-004.html",
         "web-platform-tests/html/syntax/parsing/foreign_content_001.html",
         "web-platform-tests/html/syntax/parsing/foreign_content_003.html",
         "web-platform-tests/html/syntax/parsing/foreign_content_004.html",

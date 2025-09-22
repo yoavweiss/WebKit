@@ -14,4 +14,6 @@ Property values requiring vendor prefixes:
 None
 ------------------------------------------------------------------------
 List of files:
-/LayoutTests/imported/w3c/web-platform-tests/html/syntax/html-element-list.js
+/LayoutTests/imported/w3c/web-platform-tests/html/syntax/charset/resources/bogus-charset-http-valid-meta.py
+/LayoutTests/imported/w3c/web-platform-tests/html/syntax/charset/resources/bogus-charset-http.py
+/LayoutTests/imported/w3c/web-platform-tests/html/syntax/charset/resources/bogus-charset.html
