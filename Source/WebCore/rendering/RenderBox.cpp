@@ -3186,6 +3186,13 @@ void RenderBox::computeInlineDirectionMargins(const RenderBlock& containingBlock
             marginEndLength = 0_css_px;
     }
 
+    if (isGridItem() && downcast<RenderGrid>(containingBlock).isComputingTrackSizes()) {
+        if (marginStartLength.isAuto())
+            marginStartLength = 0_css_px;
+        if (marginEndLength.isAuto())
+            marginEndLength = 0_css_px;
+    }
+
     auto handleMarginAuto = [&] {
         auto containerWidthForMarginAuto = availableSpaceAdjustedWithFloats.value_or(containerWidth);
         // Case One: The object is being centered in the containing block's available logical width.
