@@ -21,34 +21,45 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
 
-#if ENABLE_SWIFTUI
+import Observation
+import WebKit_Private.WKPreferencesPrivate
 
-internal import SwiftUI
-@_spi(Private) internal import WebKit
+@Observable
+@MainActor
+final class FeatureFlagsModel {
+    typealias GroupedFeatures = [(category: WebFeatureCategory, features: [_WKFeature])]
 
-struct ContextMenuContext {
-    #if os(macOS)
-    let menu: @MainActor (WebView.ActivatedElementInfo) -> NSMenu
-    #endif
+    var searchQuery = ""
+
+    var customizedFeatures = FeatureFlagsStorage.shared.resolve(keys: WKPreferences._features())
+
+    private let groups: GroupedFeatures = Dictionary(grouping: WKPreferences._features(), by: \.category)
+        .map { (category: $0, features: $1) }
+        .filter { $0.category != .none }
+        .sorted { $0.category < $1.category }
+
+    func groups(filteredBy query: String) -> GroupedFeatures {
+        groups.compactMap { group in
+            guard !query.isEmpty else {
+                return group
+            }
+
+            let filteredFeatures = group.features.filter {
+                $0.name.localizedCaseInsensitiveContains(query)
+            }
+
+            guard !filteredFeatures.isEmpty else {
+                return nil
+            }
+
+            return (
+                category: group.category,
+                features: filteredFeatures
+            )
+        }
+    }
+
+    func update(oldValue: _WKFeature.Collection, newValue: _WKFeature.Collection) {
+        FeatureFlagsStorage<_WKFeature>.shared.update(mergingOldEntries: oldValue, with: newValue)
+    }
 }
-
-struct OnScrollGeometryChangeContext {
-    let transform: (ScrollGeometry) -> AnyHashable
-    let action: (AnyHashable, AnyHashable) -> Void
-}
-
-struct ScrollPositionContext {
-    var position: Binding<ScrollPosition>?
-}
-
-struct ScrollInputBehaviorContext {
-    let behavior: ScrollInputBehavior
-    let input: ScrollInputKind
-}
-
-struct ScrollEdgeEffectStyleContext {
-    let style: ScrollEdgeEffectStyle?
-    let edges: Edge.Set
-}
-
-#endif

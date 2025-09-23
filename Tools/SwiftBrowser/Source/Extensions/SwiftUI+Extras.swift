@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Apple Inc. All rights reserved.
+// Copyright (C) 2025 Apple Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -22,47 +22,22 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 
 import SwiftUI
-@_spi(Testing) import WebKit
-import _WebKit_SwiftUI
 
-struct BrowserView: View {
-    @Binding
-    var url: URL?
-
-    let smartListsEnabled: Bool
-
-    let initialRequest: URLRequest
-
-    @State
-    private var viewModel = BrowserViewModel()
-
-    var body: some View {
-        ContentView(url: $url, initialRequest: initialRequest)
-            .environment(viewModel)
-            .onChange(of: smartListsEnabled, initial: true) {
-                #if os(macOS)
-                viewModel.page.smartListsEnabled = smartListsEnabled
-                #endif
-            }
-            .task {
-                for await _ in NotificationCenter.default.messages(of: UserDefaults.self, for: .didChange) {
-                    viewModel.updateWebPreferences()
-                }
-            }
-            .onAppear(perform: viewModel.updateWebPreferences)
+extension Binding {
+    subscript<DictionaryKey, DictionaryValue>(
+        _ key: DictionaryKey,
+        default defaultValue: @autoclosure @Sendable @escaping () -> DictionaryValue
+    ) -> Binding<DictionaryValue>
+    where
+        Value == [DictionaryKey: DictionaryValue],
+        DictionaryKey: Hashable,
+        DictionaryKey: Sendable,
+        DictionaryValue: Sendable
+    {
+        Binding<DictionaryValue> {
+            self.wrappedValue[key] ?? defaultValue()
+        } set: {
+            self.wrappedValue[key] = $0
+        }
     }
-}
-
-#Preview {
-    @Previewable @State var viewModel = BrowserViewModel()
-
-    @Previewable @State var url: URL? = nil
-
-    let request = {
-        let url = URL(string: "https://www.apple.com")!
-        return URLRequest(url: url)
-    }()
-
-    BrowserView(url: $url, smartListsEnabled: true, initialRequest: request)
-        .environment(viewModel)
 }
