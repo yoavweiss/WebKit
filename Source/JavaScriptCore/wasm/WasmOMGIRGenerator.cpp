@@ -759,9 +759,9 @@ public:
     PartialResult WARN_UNUSED_RETURN addCallRef(unsigned, const TypeDefinition&, ArgumentList& args, ResultList& results, CallType = CallType::Call);
     PartialResult WARN_UNUSED_RETURN addUnreachable();
     PartialResult WARN_UNUSED_RETURN addCrash();
-    void fillCallResults(Value* callResult, const TypeDefinition& signature, ResultList& results);
 
     using ValueResults = Vector<Value*, 16>;
+    void fillCallResults(Value* callResult, const TypeDefinition& signature, ValueResults&);
     PartialResult WARN_UNUSED_RETURN emitDirectCall(unsigned, FunctionSpaceIndex functionIndexSpace, const TypeDefinition&, ArgumentList& args, ValueResults&, CallType = CallType::Call);
     PartialResult WARN_UNUSED_RETURN emitIndirectCall(Value* calleeInstance, Value* calleeCode, Value* boxedCalleeCallee, const TypeDefinition&, const ArgumentList& args, ValueResults&, CallType = CallType::Call);
 
@@ -1746,6 +1746,29 @@ auto OMGIRGenerator::addCrash() -> PartialResult
     return { };
 }
 
+void OMGIRGenerator::fillCallResults(Value* callResult, const TypeDefinition& signature, ValueResults& results)
+{
+    B3::Type returnType = toB3ResultType(&signature);
+    ASSERT(returnType == callResult->type());
+
+    switch (returnType.kind()) {
+    case B3::Void: {
+        break;
+    }
+    case B3::Tuple: {
+        const Vector<B3::Type>& tuple = m_proc.tupleForType(returnType);
+        ASSERT(signature.as<FunctionSignature>()->returnCount() == tuple.size());
+        for (unsigned i = 0; i < signature.as<FunctionSignature>()->returnCount(); ++i)
+            results.append(m_currentBlock->appendNew<ExtractValue>(m_proc, origin(), tuple[i], callResult, i));
+        break;
+    }
+    default: {
+        results.append(callResult);
+        break;
+    }
+    }
+}
+
 auto OMGIRGenerator::emitIndirectCall(Value* calleeInstance, Value* calleeCode, Value* boxedCalleeCallee, const TypeDefinition& signature, const ArgumentList& args, ValueResults& results, CallType callType) -> PartialResult
 {
     const bool isTailCallRootCaller = callType == CallType::TailCall && !m_inlineParent;
@@ -1819,7 +1842,6 @@ auto OMGIRGenerator::emitIndirectCall(Value* calleeInstance, Value* calleeCode, 
         return { };
     }
 
-    B3::Type returnType = toB3ResultType(&signature);
     auto [patchpoint, handle, prepareForCall] = createCallPatchpoint(m_currentBlock, signature, wasmCalleeInfo, args);
     // We need to clobber all potential pinned registers since we might be leaving the instance.
     // We pessimistically assume we're always calling something that is bounds checking so
@@ -1844,23 +1866,7 @@ auto OMGIRGenerator::emitIndirectCall(Value* calleeInstance, Value* calleeCode, 
         // Restore the stack pointer since it may have been lowered if our callee did a tail call.
         jit.addPtr(CCallHelpers::TrustedImm32(-params.code().frameSize()), GPRInfo::callFrameRegister, MacroAssembler::stackPointerRegister);
     });
-    auto callResult = patchpoint;
-
-    switch (returnType.kind()) {
-    case B3::Void: {
-        break;
-    }
-    case B3::Tuple: {
-        const Vector<B3::Type>& tuple = m_proc.tupleForType(returnType);
-        for (unsigned i = 0; i < signature.as<FunctionSignature>()->returnCount(); ++i)
-            results.append(m_currentBlock->appendNew<ExtractValue>(m_proc, origin(), tuple[i], callResult, i));
-        break;
-    }
-    default: {
-        results.append(callResult);
-        break;
-    }
-    }
+    fillCallResults(patchpoint, signature, results);
 
     // The call could have been to another WebAssembly instance, and / or could have modified our Memory.
     restoreWebAssemblyGlobalState(m_info.memory, instanceValue(), m_currentBlock);
@@ -5866,27 +5872,6 @@ auto OMGIRGenerator::emitDirectCall(unsigned callProfileIndex, FunctionSpaceInde
     if (callType == CallType::TailCall)
         m_makesTailCalls = true;
 
-    auto fillResults = [&] (Value* callResult) {
-        ASSERT(returnType == callResult->type());
-
-        switch (returnType.kind()) {
-        case B3::Void: {
-            break;
-        }
-        case B3::Tuple: {
-            const Vector<B3::Type>& tuple = m_proc.tupleForType(returnType);
-            ASSERT(signature.as<FunctionSignature>()->returnCount() == tuple.size());
-            for (unsigned i = 0; i < signature.as<FunctionSignature>()->returnCount(); ++i)
-                results.append(m_currentBlock->appendNew<ExtractValue>(m_proc, origin(), tuple[i], callResult, i));
-            break;
-        }
-        default: {
-            results.append(callResult);
-            break;
-        }
-        }
-    };
-
     m_proc.requestCallArgAreaSizeInBytes(calleeStackSize);
 
     if (m_info.isImportedFunctionFromFunctionIndexSpace(functionIndexSpace)) {
@@ -5933,7 +5918,7 @@ auto OMGIRGenerator::emitDirectCall(unsigned callProfileIndex, FunctionSpaceInde
         emitCallToImport(patchpoint, handle, prepareForCall);
 
         if (returnType != B3::Void)
-            fillResults(patchpoint);
+            fillCallResults(patchpoint, signature, results);
 
         // The call could have been to another WebAssembly instance, and / or could have modified our Memory.
         restoreWebAssemblyGlobalState(m_info.memory, instanceValue(), m_currentBlock);
@@ -5991,7 +5976,7 @@ auto OMGIRGenerator::emitDirectCall(unsigned callProfileIndex, FunctionSpaceInde
     if (useSignalingMemory() || m_info.memory.isShared())
         patchpoint->clobberLate(RegisterSetBuilder { GPRInfo::wasmBoundsCheckingSizeRegister });
 
-    fillResults(patchpoint);
+    fillCallResults(patchpoint, signature, results);
 
     if (m_info.callCanClobberInstance(functionIndexSpace)) {
         patchpoint->clobberLate(RegisterSetBuilder::wasmPinnedRegisters());
