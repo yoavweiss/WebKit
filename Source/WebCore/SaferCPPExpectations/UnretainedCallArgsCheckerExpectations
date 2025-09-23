@@ -124,6 +124,5 @@ platform/network/mac/SynchronousLoaderClient.mm
 platform/network/mac/WebCoreResourceHandleAsOperationQueueDelegate.mm
 platform/text/cocoa/LocalizedDateCache.mm
 rendering/AttachmentLayout.mm
-rendering/mac/RenderThemeMac.mm
 testing/ServiceWorkerInternals.mm
 testing/cocoa/WebArchiveDumpSupport.mm

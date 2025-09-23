@@ -79,7 +79,6 @@ platform/network/mac/WebCoreResourceHandleAsOperationQueueDelegate.mm
 platform/network/mac/WebCoreURLResponse.mm
 platform/text/cocoa/LocaleCocoa.mm
 rendering/AttachmentLayout.mm
-rendering/mac/RenderThemeMac.mm
 testing/Internals.mm
 testing/cocoa/WebArchiveDumpSupport.mm
 testing/cocoa/WebViewVisualIdentificationOverlay.mm

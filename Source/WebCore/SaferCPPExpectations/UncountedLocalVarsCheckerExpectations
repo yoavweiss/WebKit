@@ -408,7 +408,6 @@ rendering/RenderTheme.cpp
 rendering/RenderTreeAsText.cpp
 rendering/RenderWidget.cpp
 rendering/TextBoxPainter.cpp
-rendering/mac/RenderThemeMac.mm
 rendering/mathml/MathMLStyle.cpp
 rendering/style/RenderStyle.cpp
 rendering/style/RenderStyleSetters.h
