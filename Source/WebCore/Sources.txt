@@ -2993,7 +2993,6 @@ rendering/style/StyleNonInheritedData.cpp
 rendering/style/StylePaintImage.cpp
 rendering/style/StyleRareInheritedData.cpp
 rendering/style/StyleRareNonInheritedData.cpp
-rendering/style/StyleScrollSnapPoints.cpp
 rendering/style/StyleSelfAlignmentData.cpp
 rendering/style/StyleSurroundData.cpp
 rendering/style/StyleTransformData.cpp
@@ -3256,6 +3255,8 @@ style/values/scroll-animations/StyleViewFunction.cpp
 style/values/scroll-animations/StyleViewTimelineInsets.cpp
 style/values/scroll-snap/StyleScrollMargin.cpp
 style/values/scroll-snap/StyleScrollPadding.cpp
+style/values/scroll-snap/StyleScrollSnapAlign.cpp
+style/values/scroll-snap/StyleScrollSnapType.cpp
 style/values/scrollbars/StyleScrollbarColor.cpp
 style/values/shapes/StyleBasicShape.cpp
 style/values/shapes/StyleCircleFunction.cpp

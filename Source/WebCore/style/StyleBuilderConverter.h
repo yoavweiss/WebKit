@@ -97,7 +97,6 @@
 #include "StyleScale.h"
 #include "StyleScrollMargin.h"
 #include "StyleScrollPadding.h"
-#include "StyleScrollSnapPoints.h"
 #include "StyleTextEdge+CSSValueConversion.h"
 #include "StyleTranslate.h"
 #include "StyleURL.h"
@@ -133,8 +132,6 @@ public:
     static Resize convertResize(BuilderState&, const CSSValue&);
     static OptionSet<TextUnderlinePosition> convertTextUnderlinePosition(BuilderState&, const CSSValue&);
     static OptionSet<LineBoxContain> convertLineBoxContain(BuilderState&, const CSSValue&);
-    static ScrollSnapType convertScrollSnapType(BuilderState&, const CSSValue&);
-    static ScrollSnapAlign convertScrollSnapAlign(BuilderState&, const CSSValue&);
     // scrollbar-width converter is only needed for quirking.
     static ScrollbarWidth convertScrollbarWidth(BuilderState&, const CSSValue&);
     static GridAutoFlow convertGridAutoFlow(BuilderState&, const CSSValue&);
@@ -456,38 +453,6 @@ inline OptionSet<LineBoxContain> BuilderConverter::convertLineBoxContain(Builder
         }
     }
     return result;
-}
-
-inline ScrollSnapType BuilderConverter::convertScrollSnapType(BuilderState& builderState, const CSSValue& value)
-{
-    ScrollSnapType type;
-    auto list = requiredListDowncast<CSSValueList, CSSPrimitiveValue>(builderState, value);
-    if (!list)
-        return { };
-
-    auto& firstValue = list->item(0);
-    if (firstValue.valueID() == CSSValueNone)
-        return type;
-
-    type.axis = fromCSSValue<ScrollSnapAxis>(firstValue);
-    if (list->size() == 2)
-        type.strictness = fromCSSValue<ScrollSnapStrictness>(list->item(1));
-    else
-        type.strictness = ScrollSnapStrictness::Proximity;
-
-    return type;
-}
-
-inline ScrollSnapAlign BuilderConverter::convertScrollSnapAlign(BuilderState& builderState, const CSSValue& value)
-{
-    auto pair = requiredPairDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!pair)
-        return { };
-
-    return {
-        fromCSSValue<ScrollSnapAxisAlignType>(pair->first),
-        fromCSSValue<ScrollSnapAxisAlignType>(pair->second)
-    };
 }
 
 inline ScrollbarWidth BuilderConverter::convertScrollbarWidth(BuilderState& builderState, const CSSValue& value)

@@ -269,6 +269,9 @@ inline void RenderStyle::setRubyAlign(RubyAlign alignment) { SET(m_rareInherited
 inline void RenderStyle::setRubyOverhang(RubyOverhang overhang) { SET(m_rareInheritedData, rubyOverhang, static_cast<unsigned>(overhang)); }
 inline void RenderStyle::setScale(Style::Scale&& scale) { SET_NESTED(m_nonInheritedData, rareData, scale, WTFMove(scale)); }
 inline void RenderStyle::setScrollBehavior(Style::ScrollBehavior behavior) { SET_NESTED(m_nonInheritedData, rareData, scrollBehavior, static_cast<unsigned>(behavior)); }
+inline void RenderStyle::setScrollSnapAlign(Style::ScrollSnapAlign&& align) { SET_NESTED(m_nonInheritedData, rareData, scrollSnapAlign, WTFMove(align)); }
+inline void RenderStyle::setScrollSnapStop(ScrollSnapStop stop) { SET_NESTED(m_nonInheritedData, rareData, scrollSnapStop, stop); }
+inline void RenderStyle::setScrollSnapType(Style::ScrollSnapType&& type) { SET_NESTED(m_nonInheritedData, rareData, scrollSnapType, WTFMove(type)); }
 inline void RenderStyle::setScrollTimelineAxes(Style::ProgressTimelineAxes&& axes) { SET_NESTED(m_nonInheritedData, rareData, scrollTimelineAxes, WTFMove(axes)); }
 inline void RenderStyle::setScrollTimelineNames(Style::ProgressTimelineNames&& names) { SET_NESTED(m_nonInheritedData, rareData, scrollTimelineNames, WTFMove(names)); }
 inline void RenderStyle::setVerticalAlign(Style::VerticalAlign&& align) { SET_NESTED(m_nonInheritedData, boxData, m_verticalAlign, WTFMove(align)); }

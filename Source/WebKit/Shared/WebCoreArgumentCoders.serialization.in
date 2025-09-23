@@ -1954,11 +1954,7 @@ enum class WTFLogChannelState : uint8_t {
     OnWithAccumulation
 };
 
-enum class WebCore::ScrollSnapStrictness : uint8_t {
-    None,
-    Proximity,
-    Mandatory
-};
+enum class WebCore::ScrollSnapStrictness : bool;
 
 enum class WebCore::LengthType : uint8_t {
     Auto,
@@ -4568,7 +4564,7 @@ enum class WebCore::ScrollType : bool;
 }
 
 [Alias=struct ScrollSnapOffsetsInfo<float,WebCore::FloatRect>, CustomHeader] alias WebCore::FloatScrollSnapOffsetsInfo {
-    WebCore::ScrollSnapStrictness strictness;
+    std::optional<WebCore::ScrollSnapStrictness> strictness;
     Vector<WebCore::FloatSnapOffset> horizontalSnapOffsets;
     Vector<WebCore::FloatSnapOffset> verticalSnapOffsets;
     Vector<WebCore::FloatRect> snapAreas;

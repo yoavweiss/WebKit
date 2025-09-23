@@ -54,7 +54,6 @@
 #include "StyleLengthWrapper+Platform.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StyleResolver.h"
-#include "StyleScrollSnapPoints.h"
 #include "StyleSelfAlignmentData.h"
 #include "StyleTreeResolver.h"
 #include "TransformOperationData.h"
@@ -3408,36 +3407,6 @@ void RenderStyle::setScrollPaddingRight(Style::ScrollPaddingEdge&& edge)
     SET_NESTED_VAR(m_nonInheritedData, rareData, scrollPadding.right(), WTFMove(edge));
 }
 
-ScrollSnapType RenderStyle::initialScrollSnapType()
-{
-    return { };
-}
-
-ScrollSnapAlign RenderStyle::initialScrollSnapAlign()
-{
-    return { };
-}
-
-ScrollSnapStop RenderStyle::initialScrollSnapStop()
-{
-    return ScrollSnapStop::Normal;
-}
-
-ScrollSnapType RenderStyle::scrollSnapType() const
-{
-    return m_nonInheritedData->rareData->scrollSnapType;
-}
-
-const ScrollSnapAlign& RenderStyle::scrollSnapAlign() const
-{
-    return m_nonInheritedData->rareData->scrollSnapAlign;
-}
-
-ScrollSnapStop RenderStyle::scrollSnapStop() const
-{
-    return m_nonInheritedData->rareData->scrollSnapStop;
-}
-
 bool RenderStyle::scrollSnapDataEquivalent(const RenderStyle& other) const
 {
     if (m_nonInheritedData.ptr() == other.m_nonInheritedData.ptr()
@@ -3448,27 +3417,6 @@ bool RenderStyle::scrollSnapDataEquivalent(const RenderStyle& other) const
         && m_nonInheritedData->rareData->scrollSnapAlign == other.m_nonInheritedData->rareData->scrollSnapAlign
         && m_nonInheritedData->rareData->scrollSnapStop == other.m_nonInheritedData->rareData->scrollSnapStop
         && m_nonInheritedData->rareData->scrollSnapAlign == other.m_nonInheritedData->rareData->scrollSnapAlign;
-}
-
-void RenderStyle::setScrollSnapType(ScrollSnapType type)
-{
-    SET_NESTED_VAR(m_nonInheritedData, rareData, scrollSnapType, type);
-}
-
-void RenderStyle::setScrollSnapAlign(const ScrollSnapAlign& alignment)
-{
-    SET_NESTED_VAR(m_nonInheritedData, rareData, scrollSnapAlign, alignment);
-}
-
-void RenderStyle::setScrollSnapStop(ScrollSnapStop stop)
-{
-    SET_NESTED_VAR(m_nonInheritedData, rareData, scrollSnapStop, stop);
-}
-
-bool RenderStyle::hasSnapPosition() const
-{
-    const ScrollSnapAlign& alignment = this->scrollSnapAlign();
-    return alignment.blockAlign != ScrollSnapAxisAlignType::None || alignment.inlineAlign != ScrollSnapAxisAlignType::None;
 }
 
 Style::LineWidth RenderStyle::outlineWidth() const

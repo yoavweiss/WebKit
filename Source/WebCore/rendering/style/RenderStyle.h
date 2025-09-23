@@ -220,8 +220,6 @@ struct GridTrackList;
 struct ImageOrientation;
 struct Length;
 struct NameScope;
-struct ScrollSnapAlign;
-struct ScrollSnapType;
 struct TabSize;
 struct TransformOperationData;
 
@@ -326,6 +324,8 @@ struct Scale;
 struct ScopedName;
 struct ScrollMarginEdge;
 struct ScrollPaddingEdge;
+struct ScrollSnapAlign;
+struct ScrollSnapType;
 struct ScrollTimelines;
 struct ScrollbarColor;
 struct ScrollbarGutter;
@@ -1154,8 +1154,8 @@ public:
     inline bool scrollPaddingEqual(const RenderStyle&) const;
 
     bool hasSnapPosition() const;
-    ScrollSnapType scrollSnapType() const;
-    const ScrollSnapAlign& scrollSnapAlign() const;
+    inline const Style::ScrollSnapType& scrollSnapType() const;
+    inline const Style::ScrollSnapAlign& scrollSnapAlign() const;
     ScrollSnapStop scrollSnapStop() const;
     bool scrollSnapDataEquivalent(const RenderStyle&) const;
 
@@ -1665,9 +1665,9 @@ public:
     void setScrollPaddingLeft(Style::ScrollPaddingEdge&&);
     void setScrollPaddingRight(Style::ScrollPaddingEdge&&);
 
-    void setScrollSnapType(ScrollSnapType);
-    void setScrollSnapAlign(const ScrollSnapAlign&);
-    void setScrollSnapStop(ScrollSnapStop);
+    inline void setScrollSnapType(Style::ScrollSnapType&&);
+    inline void setScrollSnapAlign(Style::ScrollSnapAlign&&);
+    inline void setScrollSnapStop(ScrollSnapStop);
 
     inline void setScrollbarColor(Style::ScrollbarColor&&);
     inline void setScrollbarGutter(Style::ScrollbarGutter&&);
@@ -2135,9 +2135,9 @@ public:
     static inline Style::ScrollMarginEdge initialScrollMargin();
     static inline Style::ScrollPaddingEdge initialScrollPadding();
 
-    static ScrollSnapType initialScrollSnapType();
-    static ScrollSnapAlign initialScrollSnapAlign();
-    static ScrollSnapStop initialScrollSnapStop();
+    static constexpr Style::ScrollSnapType initialScrollSnapType();
+    static constexpr Style::ScrollSnapAlign initialScrollSnapAlign();
+    static constexpr ScrollSnapStop initialScrollSnapStop();
 
     static inline Style::ProgressTimelineAxes initialScrollTimelineAxes();
     static inline Style::ProgressTimelineNames initialScrollTimelineNames();

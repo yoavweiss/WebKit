@@ -83,8 +83,6 @@ public:
     static void serializePositionTryFallbacks(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FixedVector<PositionTryFallback>&);
     static void serializeWillChange(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const WillChangeData*);
     static void serializeTabSize(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TabSize&);
-    static void serializeScrollSnapType(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ScrollSnapType&);
-    static void serializeScrollSnapAlign(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ScrollSnapAlign&);
     static void serializeLineBoxContain(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<Style::LineBoxContain>);
     static void serializeWebkitRubyPosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, RubyPosition);
     static void serializePosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const LengthPoint&);
@@ -528,35 +526,6 @@ inline void ExtractorSerializer::serializeTabSize(ExtractorState&, StringBuilder
         CSS::serializationForCSS(builder, context, CSS::NumberRaw<> { value });
     else
         CSS::serializationForCSS(builder, context, CSS::LengthRaw<> { CSS::LengthUnit::Px, value });
-}
-
-inline void ExtractorSerializer::serializeScrollSnapType(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const ScrollSnapType& type)
-{
-    if (type.strictness == ScrollSnapStrictness::None) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
-        return;
-    }
-
-    if (type.strictness == ScrollSnapStrictness::Proximity) {
-        serialize(state, builder, context, type.axis);
-        return;
-    }
-
-    serialize(state, builder, context, type.axis);
-    builder.append(' ');
-    serialize(state, builder, context, type.strictness);
-}
-
-inline void ExtractorSerializer::serializeScrollSnapAlign(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const ScrollSnapAlign& alignment)
-{
-    if (alignment.blockAlign == alignment.inlineAlign) {
-        serialize(state, builder, context, alignment.blockAlign);
-        return;
-    }
-
-    serialize(state, builder, context, alignment.blockAlign);
-    builder.append(' ');
-    serialize(state, builder, context, alignment.inlineAlign);
 }
 
 inline void ExtractorSerializer::serializeLineBoxContain(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, OptionSet<Style::LineBoxContain> lineBoxContain)

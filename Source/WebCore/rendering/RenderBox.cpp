@@ -98,7 +98,6 @@
 #include "Settings.h"
 #include "StyleBoxShadow.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
-#include "StyleScrollSnapPoints.h"
 #include "TransformOperationData.h"
 #include "TransformState.h"
 #include <algorithm>
