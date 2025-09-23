@@ -36,6 +36,7 @@ namespace WebCore {
 struct XRRenderStateInit {
     std::optional<double> depthNear;
     std::optional<double> depthFar;
+    std::optional<bool> passthroughFullyObscured;
     std::optional<double> inlineVerticalFieldOfView;
     RefPtr<WebXRWebGLLayer> baseLayer;
     std::optional<Vector<Ref<WebXRLayer>>> layers;

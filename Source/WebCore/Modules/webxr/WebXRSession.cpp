@@ -175,6 +175,9 @@ ExceptionOr<void> WebXRSession::updateRenderState(const XRRenderStateInit& newSt
     }
 #endif
 
+    if (newState.passthroughFullyObscured)
+        m_pendingRenderState->setPassthroughFullyObscured(newState.passthroughFullyObscured.value());
+
     // 9. If newState's depthNear value is set, set session's pending render state's depthNear to newState's depthNear.
     if (newState.depthNear)
         m_pendingRenderState->setDepthNear(newState.depthNear.value());
@@ -552,7 +555,9 @@ void WebXRSession::applyPendingRenderState()
         m_activeRenderState->setOutputCanvas(nullptr);
     }
 
-    m_requestData = {{ .depthRange = PlatformXR::DepthRange { static_cast<float>(m_activeRenderState->depthNear()), static_cast<float>(m_activeRenderState->depthFar()) } }}; // NOLINT
+    m_requestData = { {
+        .isPassthroughFullyObscured = m_activeRenderState->passthroughFullyObscured().value_or(false),
+        .depthRange = PlatformXR::DepthRange { static_cast<float>(m_activeRenderState->depthNear()), static_cast<float>(m_activeRenderState->depthFar()) } }}; // NOLINT
 }
 
 void WebXRSession::minimalUpdateRendering()
