@@ -70,8 +70,9 @@ public:
 protected:
     RemoteGraphicsContextProxy(const WebCore::DestinationColorSpace&, std::optional<WebCore::ContentsFormat>, WebCore::RenderingMode, const WebCore::FloatRect& initialClip, const WebCore::AffineTransform&, DrawGlyphsMode, RemoteGraphicsContextIdentifier, RemoteRenderingBackendProxy&);
 
-private:
     template<typename T> void send(T&& message);
+
+private:
     void didBecomeUnresponsive() const;
 
     WebCore::RenderingMode renderingMode() const final;
@@ -151,7 +152,10 @@ private:
     std::optional<RemoteDisplayListIdentifier> recordResourceUse(const WebCore::DisplayList::DisplayList&);
 
     // Synchronizes draw state.
+protected:
     void appendStateChangeItemIfNecessary() final;
+
+private:
     struct InlineStrokeData {
         std::optional<WebCore::PackedColor::RGBA> color;
         std::optional<float> thickness;

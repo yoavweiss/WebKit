@@ -310,6 +310,22 @@ void DrawDisplayList::dump(TextStream& ts, OptionSet<AsTextFlag>) const
     ts.dumpProperty("display-list"_s, displayList);
 }
 
+DrawPlaceholder::DrawPlaceholder(Function<void(GraphicsContext&)>&& function)
+    : m_function(FunctionHolder::create(WTFMove(function)))
+{
+}
+
+DrawPlaceholder::~DrawPlaceholder() = default;
+
+void DrawPlaceholder::apply(GraphicsContext& context) const
+{
+    return (*m_function)(context);
+}
+
+void DrawPlaceholder::dump(TextStream&, OptionSet<AsTextFlag>) const
+{
+}
+
 void DrawImageBuffer::apply(GraphicsContext& context) const
 {
     context.drawImageBuffer(m_imageBuffer, m_destinationRect, m_srcRect, m_options);

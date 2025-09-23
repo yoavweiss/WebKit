@@ -48,6 +48,8 @@
 #include "RemoteRenderingBackendMessages.h"
 #include "RemoteRenderingBackendProxyMessages.h"
 #include "RemoteSharedResourceCache.h"
+#include "RemoteSnapshot.h"
+#include "RemoteSnapshotRecorder.h"
 #include "RemoteTextDetector.h"
 #include "RemoteTextDetectorMessages.h"
 #include "ShapeDetectionObjectHeap.h"
@@ -210,23 +212,30 @@ void RemoteRenderingBackend::moveToImageBuffer(RemoteSerializedImageBufferIdenti
     MESSAGE_CHECK(result.isNewEntry, "Duplicate ImageBuffer");
 }
 
-#if PLATFORM(COCOA)
-void RemoteRenderingBackend::didDrawRemoteToPDF(PageIdentifier pageID, RenderingResourceIdentifier imageBufferIdentifier, SnapshotIdentifier snapshotIdentifier)
+void RemoteRenderingBackend::createSnapshotRecorder(RemoteSnapshotRecorderIdentifier identifier, RemoteSnapshotIdentifier snapshotIdentifier)
 {
     assertIsCurrent(workQueue());
-    auto imageBuffer = this->imageBuffer(imageBufferIdentifier);
-    if (!imageBuffer) {
-        ASSERT_IS_TESTING_IPC();
-        return;
-    }
-
-    auto data = imageBuffer->sinkIntoPDFDocument();
-
-    callOnMainRunLoop([pageID, data = WTFMove(data), snapshotIdentifier]() mutable {
-        GPUProcess::singleton().didDrawRemoteToPDF(pageID, WTFMove(data), snapshotIdentifier);
-    });
+    // FIXME: using global identifiers (snapshotIdentifier) is not secure. Do not follow this pattern.
+    Ref snapshot = GPUProcess::singleton().getOrCreateSnapshot(snapshotIdentifier);
+    auto result = m_remoteSnapshotRecorders.add(identifier, RemoteSnapshotRecorder::create(identifier, snapshot, *this));
+    MESSAGE_CHECK(result.isNewEntry, "Recorder already created");
 }
-#endif
+
+void RemoteRenderingBackend::sinkSnapshotRecorderIntoSnapshotFrame(RemoteSnapshotRecorderIdentifier identifier, FrameIdentifier frameIdentifier, CompletionHandler<void(bool)>&& completionHandler)
+{
+    assertIsCurrent(workQueue());
+    RefPtr recorder = m_remoteSnapshotRecorders.take(identifier).get();
+    MESSAGE_CHECK(recorder, "Recorder sunk into snapshot before being cached");
+    Ref snapshot = recorder->snapshot();
+    // FIXME: using global identifiers (frameIdentifier) is not secure. Do not follow this pattern.
+    bool success = snapshot->setFrame(frameIdentifier, recorder->takeDisplayList(), workQueue());
+    MESSAGE_CHECK(success, "Frame already present");
+
+    // Note:
+    // Success completion handlers are used to ensure that getOrCreateSnapshot does not vivify already released snapshot identifier into a leaked object. Caller is expected to wait
+    // until completion of *all* handlers, failing or not, before consuming the snapshot, otherwise leaks occur.
+    completionHandler(true);
+}
 
 template<typename ImageBufferType>
 static RefPtr<ImageBuffer> allocateImageBufferInternal(const FloatSize& logicalSize, RenderingMode renderingMode, RenderingPurpose purpose, float resolutionScale, const DestinationColorSpace& colorSpace, ImageBufferFormat bufferFormat, ImageBufferCreationContext& creationContext)

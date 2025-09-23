@@ -282,6 +282,7 @@ MESSAGE_RECEIVERS = \
 	GPUProcess/graphics/RemoteImageBuffer \
 	GPUProcess/graphics/RemoteImageBufferSet \
 	GPUProcess/graphics/RemoteRenderingBackend \
+	GPUProcess/graphics/RemoteSnapshotRecorder \
 	GPUProcess/graphics/WebGPU/RemoteAdapter \
 	GPUProcess/graphics/WebGPU/RemoteBindGroup \
 	GPUProcess/graphics/WebGPU/RemoteBindGroupLayout \

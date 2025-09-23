@@ -33,7 +33,6 @@
 #include "WebPermissionControllerMessages.h"
 #include "WebPermissionControllerProxyMessages.h"
 #include "WebProcess.h"
-#include <WebCore/DeprecatedGlobalSettings.h>
 #include <WebCore/Document.h>
 #include <WebCore/Page.h>
 #include <WebCore/PermissionObserver.h>
@@ -47,6 +46,7 @@
 #if ENABLE(WEB_PUSH_NOTIFICATIONS)
 #include "NetworkProcessConnection.h"
 #include "NotificationManagerMessageHandlerMessages.h"
+#include <WebCore/DeprecatedGlobalSettings.h>
 #include <WebCore/PushPermissionState.h>
 #endif
 

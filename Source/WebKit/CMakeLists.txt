@@ -182,6 +182,7 @@ set(WebKit_MESSAGES_IN_FILES
     GPUProcess/ShapeDetection/RemoteFaceDetector
     GPUProcess/ShapeDetection/RemoteTextDetector
 
+    GPUProcess/graphics/RemoteSnapshotRecorder
     GPUProcess/graphics/RemoteGraphicsContext
     GPUProcess/graphics/RemoteGraphicsContextGL
     GPUProcess/graphics/RemoteImageBuffer

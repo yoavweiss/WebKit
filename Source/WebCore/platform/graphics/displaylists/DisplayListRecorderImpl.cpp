@@ -488,5 +488,10 @@ void RecorderImpl::appendStateChangeItemIfNecessary()
     currentState().lastDrawingState = state;
 }
 
+void RecorderImpl::drawPlaceholder(Function<void(GraphicsContext&)>&& function)
+{
+    m_items.append(DrawPlaceholder(WTFMove(function)));
+}
+
 } // namespace DisplayList
 } // namespace WebCore

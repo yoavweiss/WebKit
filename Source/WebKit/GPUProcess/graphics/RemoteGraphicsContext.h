@@ -173,7 +173,7 @@ protected:
     RefPtr<WebCore::ImageBuffer> imageBuffer(WebCore::RenderingResourceIdentifier) const;
     std::optional<WebCore::SourceImage> sourceImage(WebCore::RenderingResourceIdentifier) const;
 
-    void didReceiveStreamMessage(IPC::StreamServerConnection&, IPC::Decoder&) final;
+    void didReceiveStreamMessage(IPC::StreamServerConnection&, IPC::Decoder&) override;
 
 #if PLATFORM(COCOA) && ENABLE(VIDEO)
     SharedVideoFrameReader& sharedVideoFrameReader();

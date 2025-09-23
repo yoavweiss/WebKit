@@ -364,6 +364,8 @@ $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/RemoteShaderModuleMessageReceiver.cp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/RemoteShaderModuleMessages.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/RemoteSharedResourceCacheMessageReceiver.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/RemoteSharedResourceCacheMessages.h
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/RemoteSnapshotRecorderMessageReceiver.cpp
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/RemoteSnapshotRecorderMessages.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/RemoteSourceBufferProxyMessageReceiver.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/RemoteSourceBufferProxyMessages.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/RemoteSurfaceMessageReceiver.cpp

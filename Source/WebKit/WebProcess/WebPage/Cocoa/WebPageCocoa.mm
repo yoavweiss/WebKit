@@ -593,36 +593,6 @@ void WebPage::updateMockAccessibilityElementAfterCommittingLoad()
     [m_mockAccessibilityElement setHasMainFramePlugin:document ? document->isPluginDocument() : false];
 }
 
-void WebPage::pdfSnapshotAtSize(LocalFrame& localMainFrame, GraphicsContext& context, const IntRect& snapshotRect, SnapshotOptions options)
-{
-    Ref frameView = *localMainFrame.view();
-
-    auto rect = snapshotRect;
-    auto bitmapSize = rect.size();
-
-    int64_t remainingHeight = bitmapSize.height();
-    int64_t nextRectY = rect.y();
-    while (remainingHeight > 0) {
-        // PDFs have a per-page height limit of 200 inches at 72dpi.
-        // We'll export one PDF page at a time, up to that maximum height.
-        static const int64_t maxPageHeight = 72 * 200;
-        bitmapSize.setHeight(std::min(remainingHeight, maxPageHeight));
-        rect.setHeight(bitmapSize.height());
-        rect.setY(nextRectY);
-
-        context.beginPage(FloatRect { { }, bitmapSize });
-        context.scale({ 1, -1 });
-        context.translate(0, -bitmapSize.height());
-
-        paintSnapshotAtSize(rect, bitmapSize, options, localMainFrame, frameView, context);
-
-        context.endPage();
-
-        nextRectY += bitmapSize.height();
-        remainingHeight -= maxPageHeight;
-    }
-}
-
 void WebPage::getProcessDisplayName(CompletionHandler<void(String&&)>&& completionHandler)
 {
 #if PLATFORM(MAC)

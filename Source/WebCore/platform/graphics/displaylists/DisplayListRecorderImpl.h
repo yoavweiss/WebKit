@@ -115,6 +115,13 @@ public:
 
     void setURLForRect(const URL&, const FloatRect&) final;
 
+    // Appends a deferred placeholder command.
+    // The function is called during the display list playback, drawDisplayList().
+    // The function may be called multiple times.
+    // The function may be called from an arbitrary thread.
+    // The function should always produce the same GraphicsContext calls.
+    WEBCORE_EXPORT void drawPlaceholder(Function<void(GraphicsContext&)>&&);
+
 private:
     void appendStateChangeItemIfNecessary() final;
 

@@ -32,6 +32,7 @@
 #include "RemoteGraphicsContextMessages.h"
 #include "RemoteImageBufferProxy.h"
 #include "RemoteRenderingBackendProxy.h"
+#include "RemoteSnapshotRecorderMessages.h"
 #include "SharedVideoFrame.h"
 #include "StreamClientConnection.h"
 #include "WebProcess.h"
@@ -894,6 +895,9 @@ void RemoteGraphicsContextProxy::abandon()
     disconnect();
     m_renderingBackend = nullptr;
 }
+
+// Instantiate the send() helper for the few subclass messages here to avoid listing it in the header.
+template void RemoteGraphicsContextProxy::send<Messages::RemoteSnapshotRecorder::DrawSnapshotFrame>(Messages::RemoteSnapshotRecorder::DrawSnapshotFrame&&);
 
 }
 

@@ -59,6 +59,7 @@ class DrawFocusRingPath;
 class DrawFocusRingRects;
 class DrawGlyphs;
 class DrawDisplayList;
+class DrawPlaceholder;
 class DrawImageBuffer;
 class DrawLine;
 class DrawLinesForText;
@@ -124,6 +125,7 @@ using Item = Variant
     , DrawFocusRingRects
     , DrawGlyphs
     , DrawDisplayList
+    , DrawPlaceholder
     , DrawImageBuffer
     , DrawLine
     , DrawLinesForText
