@@ -874,7 +874,7 @@ ElementUpdate TreeResolver::createAnimatedElementUpdate(ResolvedStyle&& resolved
 
 std::unique_ptr<RenderStyle> TreeResolver::resolveStartingStyle(const ResolvedStyle& resolvedStyle, const Styleable& styleable, const ResolutionContext& resolutionContext)
 {
-    if (!resolvedStyle.matchResult || !resolvedStyle.matchResult->hasStartingStyle)
+    if (!resolvedStyle.matchResult || !resolvedStyle.matchResult->usedRuleTypes.contains(UsedRuleType::StartingStyle))
         return nullptr;
 
     // "Starting style inherits from the parent’s after-change style just like after-change style does."
