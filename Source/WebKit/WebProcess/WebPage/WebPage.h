@@ -3079,13 +3079,14 @@ private:
     AtomString m_overriddenMediaType;
     String m_processDisplayName;
     WebCore::AllowsContentJavaScript m_allowsContentJavaScriptFromMostRecentNavigation { WebCore::AllowsContentJavaScript::Yes };
+#if ENABLE(GPU_PROCESS)
     struct RemoteSnapshotState {
         RemoteSnapshotIdentifier identifier;
         UniqueRef<RemoteSnapshotRecorderProxy> recorder;
         Ref<MainRunLoopSuccessCallbackAggregator> callback;
     };
     std::optional<RemoteSnapshotState> m_remoteSnapshotState;
-
+#endif
 #if PLATFORM(GTK)
     WebCore::Color m_accentColor;
 #endif
