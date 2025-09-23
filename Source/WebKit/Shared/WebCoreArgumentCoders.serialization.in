@@ -9317,6 +9317,12 @@ header: <WebCore/MediaSamplesBlock.h>
     uint32_t flags;
 };
 
+class WebCore::MediaSamplesBlock {
+    RefPtr<const WebCore::TrackInfo> m_info;
+    Vector<WebCore::MediaSamplesBlock::MediaSampleItem> m_samples;
+    std::optional<bool> m_discontinuity;
+}
+
 header: <WebCore/DocumentClasses.h>
 [OptionSet, CustomHeader] enum class WebCore::DocumentClass : uint16_t {
     HTML,

@@ -31,6 +31,10 @@
 #include <WebCore/TrackInfo.h>
 #include <wtf/MediaTime.h>
 
+namespace IPC {
+template<typename T, typename> struct ArgumentCoder;
+}
+
 namespace WebCore {
 
 class MediaSamplesBlock {
@@ -95,6 +99,15 @@ public:
     SamplesVector::const_iterator end() const LIFETIME_BOUND { return m_samples.end(); }
 
 private:
+    // Used by IPC generator
+    friend struct IPC::ArgumentCoder<MediaSamplesBlock, void>;
+    MediaSamplesBlock(RefPtr<const TrackInfo>&& info, SamplesVector&& items, std::optional<bool> discontinuity)
+        : m_info(WTFMove(info))
+        , m_samples(WTFMove(items))
+        , m_discontinuity(discontinuity)
+    {
+    }
+
     RefPtr<const TrackInfo> m_info;
     SamplesVector m_samples;
     std::optional<bool> m_discontinuity;
