@@ -369,7 +369,6 @@ platform/graphics/mac/controls/ProgressBarMac.mm
 platform/graphics/mac/controls/SliderTrackMac.mm
 platform/graphics/transforms/RotateTransformOperation.cpp
 platform/mediastream/mac/RealtimeIncomingVideoSourceCocoa.mm
-platform/mock/MockRealtimeMediaSourceCenter.cpp
 platform/mock/MockRealtimeVideoSource.cpp
 platform/text/BidiContext.cpp
 platform/text/BidiResolver.h
