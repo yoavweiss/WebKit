@@ -59,8 +59,6 @@ platform/graphics/cocoa/VideoMediaSampleRenderer.mm
 platform/graphics/filters/FilterOperation.cpp
 platform/mac/VideoPresentationInterfaceMac.mm
 platform/mediarecorder/MediaRecorderPrivateEncoder.cpp
-platform/mediastream/RealtimeMediaSource.cpp
-platform/mediastream/RealtimeMediaSourceCenter.cpp
 platform/mediastream/RealtimeVideoCaptureSource.cpp
 platform/mediastream/cocoa/IncomingAudioMediaStreamTrackRendererUnit.cpp
 platform/mediastream/mac/RealtimeIncomingVideoSourceCocoa.mm
