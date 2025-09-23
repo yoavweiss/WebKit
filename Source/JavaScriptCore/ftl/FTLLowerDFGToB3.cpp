@@ -17744,6 +17744,18 @@ IGNORE_CLANG_WARNINGS_END
         case JSIteratorHelperType:
             compileMaterializeNewInternalFieldObjectImpl<JSIteratorHelper>(operationNewIteratorHelper);
             break;
+        case JSWrapForValidIteratorType:
+            compileMaterializeNewInternalFieldObjectImpl<JSWrapForValidIterator>(operationNewWrapForValidIterator);
+            break;
+        case JSAsyncFromSyncIteratorType:
+            compileMaterializeNewInternalFieldObjectImpl<JSAsyncFromSyncIterator>(operationNewAsyncFromSyncIterator);
+            break;
+        case JSRegExpStringIteratorType:
+            compileMaterializeNewInternalFieldObjectImpl<JSRegExpStringIterator>(operationNewRegExpStringIterator);
+            break;
+        case JSPromiseAllContextType:
+            compileMaterializeNewInternalFieldObjectImpl<JSPromiseAllContext>(operationNewPromiseAllContext);
+            break;
         case JSPromiseType:
             if (m_node->structure()->classInfoForCells() == JSInternalPromise::info())
                 compileMaterializeNewInternalFieldObjectImpl<JSInternalPromise>(operationNewInternalPromise);
