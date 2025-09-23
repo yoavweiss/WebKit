@@ -5462,8 +5462,7 @@
                 "none"
             ],
             "codegen-properties": {
-                "render-style-name-for-methods": "MarkerEndResource",
-                "style-converter": "SVGURIReference",
+                "style-converter": "StyleType<SVGMarkerResource>",
                 "svg": true,
                 "parser-grammar": "none | <marker-ref>"
             },
@@ -5480,8 +5479,7 @@
                 "none"
             ],
             "codegen-properties": {
-                "render-style-name-for-methods": "MarkerMidResource",
-                "style-converter": "SVGURIReference",
+                "style-converter": "StyleType<SVGMarkerResource>",
                 "svg": true,
                 "parser-grammar": "none | <marker-ref>"
             },
@@ -5498,8 +5496,7 @@
                 "none"
             ],
             "codegen-properties": {
-                "render-style-name-for-methods": "MarkerStartResource",
-                "style-converter": "SVGURIReference",
+                "style-converter": "StyleType<SVGMarkerResource>",
                 "svg": true,
                 "parser-grammar": "none | <marker-ref>"
             },

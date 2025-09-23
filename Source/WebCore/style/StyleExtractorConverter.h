@@ -133,10 +133,6 @@ public:
 
     template<CSSValueID> static Ref<CSSPrimitiveValue> convertCustomIdentAtomOrKeyword(ExtractorState&, const AtomString&);
 
-    // MARK: SVG conversions
-
-    static Ref<CSSValue> convertSVGURIReference(ExtractorState&, const URL&);
-
     // MARK: Transform conversions
 
     static Ref<CSSValue> convertTransformationMatrix(ExtractorState&, const TransformationMatrix&);
@@ -275,15 +271,6 @@ template<CSSValueID keyword> Ref<CSSPrimitiveValue> ExtractorConverter::convertC
     if (string.isNull())
         return CSSPrimitiveValue::create(keyword);
     return CSSPrimitiveValue::createCustomIdent(string);
-}
-
-// MARK: - SVG conversions
-
-inline Ref<CSSValue> ExtractorConverter::convertSVGURIReference(ExtractorState& state, const URL& marker)
-{
-    if (marker.isNone())
-        return CSSPrimitiveValue::create(CSSValueNone);
-    return CSSURLValue::create(toCSS(marker, state.style));
 }
 
 // MARK: - Transform conversions

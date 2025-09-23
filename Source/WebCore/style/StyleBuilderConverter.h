@@ -147,7 +147,6 @@ public:
     static FontFeatureSettings convertFontFeatureSettings(BuilderState&, const CSSValue&);
     static FontVariationSettings convertFontVariationSettings(BuilderState&, const CSSValue&);
     static PaintOrder convertPaintOrder(BuilderState&, const CSSValue&);
-    static URL convertSVGURIReference(BuilderState&, const CSSValue&);
     static StyleSelfAlignmentData convertSelfOrDefaultAlignmentData(BuilderState&, const CSSValue&);
     static StyleContentAlignmentData convertContentAlignmentData(BuilderState&, const CSSValue&);
     static GlyphOrientation convertGlyphOrientation(BuilderState&, const CSSValue&);
@@ -655,19 +654,6 @@ inline PaintOrder BuilderConverter::convertPaintOrder(BuilderState& builderState
         ASSERT_NOT_REACHED();
         return PaintOrder::Normal;
     }
-}
-
-inline URL BuilderConverter::convertSVGURIReference(BuilderState& builderState, const CSSValue& value)
-{
-    if (auto url = dynamicDowncast<CSSURLValue>(value))
-        return toStyle(url->url(), builderState);
-
-    auto* primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return URL::none();
-
-    ASSERT(primitiveValue->valueID() == CSSValueNone);
-    return URL::none();
 }
 
 // Get the "opposite" ItemPosition to the provided ItemPosition.

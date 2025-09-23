@@ -64,10 +64,6 @@ public:
 
     template<CSSValueID> static void serializeCustomIdentAtomOrKeyword(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const AtomString&);
 
-    // MARK: SVG serializations
-
-    static void serializeSVGURIReference(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const URL&);
-
     // MARK: Transform serializations
 
     static void serializeTransformationMatrix(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TransformationMatrix&);
@@ -254,18 +250,6 @@ template<CSSValueID keyword> void ExtractorSerializer::serializeCustomIdentAtomO
     }
 
     serializationForCSS(builder, context, state.style, CustomIdentifier { string });
-}
-
-// MARK: - SVG serializations
-
-inline void ExtractorSerializer::serializeSVGURIReference(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const URL& marker)
-{
-    if (marker.isNone()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
-        return;
-    }
-
-    serializationForCSS(builder, context, state.style, marker);
 }
 
 // MARK: - Transform serializations

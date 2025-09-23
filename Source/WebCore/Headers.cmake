@@ -3393,6 +3393,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/svg/StyleSVGBaselineShift.h
     style/values/svg/StyleSVGCenterCoordinateComponent.h
     style/values/svg/StyleSVGCoordinateComponent.h
+    style/values/svg/StyleSVGMarkerResource.h
     style/values/svg/StyleSVGPaint.h
     style/values/svg/StyleSVGPathData.h
     style/values/svg/StyleSVGRadius.h
