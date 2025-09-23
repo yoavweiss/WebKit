@@ -853,8 +853,11 @@ public:
     OptionSet<HangingPunctuation> hangingPunctuation() const;
 
     inline Style::WebkitTextStrokeWidth textStrokeWidth() const;
+
     inline Style::Opacity opacity() const;
     inline bool hasOpacity() const;
+    inline bool isEffectivelyTransparent() const; // This or any ancestor has opacity 0.
+
     inline StyleAppearance appearance() const;
     inline StyleAppearance usedAppearance() const;
 
@@ -1650,6 +1653,7 @@ public:
     inline void setEventListenerRegionTypes(OptionSet<EventListenerRegionType>);
 
     inline void setEffectiveInert(bool);
+    inline void setIsEffectivelyTransparent(bool);
 
     void setScrollMarginTop(Style::ScrollMarginEdge&&);
     void setScrollMarginBottom(Style::ScrollMarginEdge&&);

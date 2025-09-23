@@ -187,6 +187,7 @@ public:
     PREFERRED_TYPE(bool) unsigned hasVisitedLinkAutoCaretColor : 1;
     PREFERRED_TYPE(bool) unsigned hasAutoAccentColor : 1;
     PREFERRED_TYPE(bool) unsigned effectiveInert : 1;
+    PREFERRED_TYPE(bool) unsigned effectivelyTransparent : 1;
     PREFERRED_TYPE(bool) unsigned isInSubtreeWithBlendMode : 1;
     PREFERRED_TYPE(bool) unsigned isForceHidden : 1;
     PREFERRED_TYPE(ContentVisibility) unsigned usedContentVisibility : 2;
