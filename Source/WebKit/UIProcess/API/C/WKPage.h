@@ -77,7 +77,6 @@ WK_EXPORT void WKPageLoadDataWithUserData(WKPageRef page, WKDataRef data, WKStri
 WK_EXPORT void WKPageLoadHTMLString(WKPageRef page, WKStringRef htmlString, WKURLRef baseURL);
 WK_EXPORT void WKPageLoadHTMLStringWithUserData(WKPageRef page, WKStringRef htmlString, WKURLRef baseURL, WKTypeRef userData);
 WK_EXPORT void WKPageLoadAlternateHTMLString(WKPageRef page, WKStringRef htmlString, WKURLRef baseURL, WKURLRef unreachableURL);
-WK_EXPORT void WKPageLoadAlternateHTMLStringWithUserData(WKPageRef page, WKStringRef htmlString, WKURLRef baseURL, WKURLRef unreachableURL, WKTypeRef userData);
 WK_EXPORT void WKPageLoadPlainTextString(WKPageRef page, WKStringRef plainTextString);
 WK_EXPORT void WKPageLoadPlainTextStringWithUserData(WKPageRef page, WKStringRef plainTextString, WKTypeRef userData);
 

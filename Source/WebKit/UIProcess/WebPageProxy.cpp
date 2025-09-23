@@ -2414,7 +2414,7 @@ RefPtr<API::Navigation> WebPageProxy::loadSimulatedRequest(WebCore::ResourceRequ
     return navigation;
 }
 
-void WebPageProxy::loadAlternateHTML(Ref<WebCore::DataSegment>&& htmlData, const String& encoding, const URL& baseURL, const URL& unreachableURL, API::Object* userData)
+void WebPageProxy::loadAlternateHTML(Ref<WebCore::DataSegment>&& htmlData, const String& encoding, const URL& baseURL, const URL& unreachableURL, RefPtr<API::WebsitePolicies> policies)
 {
     WEBPAGEPROXY_RELEASE_LOG(Loading, "loadAlternateHTML");
 
@@ -2451,7 +2451,7 @@ void WebPageProxy::loadAlternateHTML(Ref<WebCore::DataSegment>&& htmlData, const
     // FIXME: This is an unnecessary copy.
     loadParameters.data = WebCore::SharedBuffer::create(htmlData->span());
     Ref process = m_legacyMainFrameProcess;
-    loadParameters.userData = UserData(process->transformObjectsToHandles(userData).get());
+    loadParameters.websitePolicies = policies ? std::optional(policies->dataForProcess(process)) : std::nullopt;
     prepareToLoadWebPage(process, loadParameters);
 
     auto continueLoad = [
