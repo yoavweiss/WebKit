@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <WebCore/FloatSize.h>
 #include <WebCore/FrameLoaderTypes.h>
 #include <WebCore/NavigationIdentifier.h>
 #include <WebCore/SandboxFlags.h>
