@@ -2000,7 +2000,12 @@ static NSArray *accessibleElementsForObjects(const AXCoreObject::AccessibilityCh
 {
     if (![self _prepareAccessibilityCall])
         return nil;
-    return accessibleElementsForObjects(self.axBackingObject->detailedByObjects());
+
+    return createNSArray(self.axBackingObject->detailedByObjects(), [] (auto&& detailedByObject) -> id {
+        auto wrapper = detailedByObject->wrapper();
+        ASSERT(wrapper);
+        return wrapper;
+    }).autorelease();
 }
 
 - (NSArray *)accessibilityErrorMessageElements
