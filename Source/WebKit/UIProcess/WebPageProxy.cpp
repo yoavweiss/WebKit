@@ -6730,6 +6730,9 @@ void WebPageProxy::generatePageLoadingTimingSoon()
 
 void WebPageProxy::didEndNetworkRequestsForPageLoadTimingTimerFired()
 {
+    if (!m_pageLoadTiming)
+        return;
+
     didGeneratePageLoadTiming(*m_pageLoadTiming);
     m_pageLoadTiming = nullptr;
 }
@@ -6851,7 +6854,8 @@ void WebPageProxy::didStartProvisionalLoadForFrameShared(Ref<WebProcessProxy>&& 
     MESSAGE_CHECK_URL(process, unreachableURL);
 
     if (frame->isMainFrame()) {
-        m_pageLoadTiming = makeUnique<WebPageLoadTiming>(timestamp);
+        m_pageLoadTiming = nullptr;
+        m_pageLoadTimingPendingCommit = makeUnique<WebPageLoadTiming>(timestamp);
         m_generatePageLoadTimingTimer.stop();
     }
 
@@ -7243,6 +7247,9 @@ void WebPageProxy::didCommitLoadForFrame(IPC::Connection& connection, FrameIdent
     }
 
     WEBPAGEPROXY_RELEASE_LOG(Loading, "didCommitLoadForFrame: frameID=%" PRIu64 ", isMainFrame=%d", frameID.toUInt64(), frame->isMainFrame());
+
+    if (frame->isMainFrame())
+        m_pageLoadTiming = std::exchange(m_pageLoadTimingPendingCommit, nullptr);
 
     // FIXME: We should message check that navigationID is not zero here, but it's currently zero for some navigations through the back/forward cache.
     RefPtr<API::Navigation> navigation;
