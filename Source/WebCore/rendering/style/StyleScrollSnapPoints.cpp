@@ -26,6 +26,9 @@
 #include "config.h"
 #include "StyleScrollSnapPoints.h"
 
+#include <wtf/text/ASCIILiteral.h>
+#include <wtf/text/TextStream.h>
+
 namespace WebCore {
 
 WTF::TextStream& operator<<(WTF::TextStream& ts, ScrollSnapAlign align)
