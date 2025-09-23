@@ -1067,19 +1067,6 @@ class RunAPITests(TestWithFailureCount, CustomFlagsMixin, ShellMixin):
         kwargs['timeout'] = 3 * 60 * 60
         super().__init__(*args, **kwargs)
 
-    def _is_valid_additional_argument(self, argument):
-        """Check if the argument is valid, supporting both exact matches and patterns."""
-        if argument in self.VALID_ADDITIONAL_ARGUMENTS_LIST:
-            return True
-        if '=' in argument:
-            try:
-                value = argument.split('=', 1)[1]
-                int(value)
-                return True
-            except (IndexError, ValueError):
-                return False
-        return False
-
     def run(self):
         self.env[RESULTS_SERVER_API_KEY] = os.getenv(RESULTS_SERVER_API_KEY)
         self.log_observer = ParseByLineLogObserver(self.parseOutputLine)
@@ -1088,7 +1075,7 @@ class RunAPITests(TestWithFailureCount, CustomFlagsMixin, ShellMixin):
         self.appendCustomTestingFlags(self.getProperty('platform'), self.getProperty('device_model'))
         additionalArguments = self.getProperty("additionalArguments")
         for additionalArgument in additionalArguments or []:
-            if self._is_valid_additional_argument(additionalArgument):
+            if additionalArgument in self.VALID_ADDITIONAL_ARGUMENTS_LIST:
                 self.command += [additionalArgument]
         self.command = self.shell_command(' '.join(self.command) + ' > logs.txt 2>&1 ; ret=$? ; grep "Ran " logs.txt ; exit $ret')
 
