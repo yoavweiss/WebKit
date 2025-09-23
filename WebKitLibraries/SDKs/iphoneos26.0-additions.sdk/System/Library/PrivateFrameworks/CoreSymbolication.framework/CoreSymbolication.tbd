@@ -1,0 +1,13 @@
+--- !tapi-tbd
+tbd-version: 4
+targets: [arm64-ios, arm64e-ios]
+install-name: /System/Library/PrivateFrameworks/CoreSymbolication.framework/CoreSymbolication
+current-version: 64572.106.1
+exports:
+-       targets: [arm64-ios, arm64e-ios]
+        symbols: [_CSArchitectureGetArchitectureForName, _CSIsNull, _CSRelease, _CSRetain, _CSSourceInfoGetLineNumber, _CSSourceInfoGetPath,
+                _CSSymbolGetName, _CSSymbolOwnerGetBaseAddress, _CSSymbolOwnerGetName, _CSSymbolOwnerGetSourceInfoWithAddress,
+                _CSSymbolOwnerGetSymbolWithAddress, _CSSymbolicatorCreateWithTask, _CSSymbolicatorForeachSharedCache, _CSSymbolicatorForeachSymbolOwnerWithPathAtTime,
+                _CSSymbolicatorForeachSymbolicatorWithPath, _CSSymbolicatorGetArchitecture, _CSSymbolicatorGetSymbolOwnerWithAddressAtTime,
+                _CSSymbolicatorGetSymbolOwnerWithUUIDAtTime]
+...
