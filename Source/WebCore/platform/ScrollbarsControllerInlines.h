@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2020 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,37 +25,19 @@
 
 #pragma once
 
-#if ENABLE(VIDEO) && ENABLE(DATACUE_VALUE)
-
-#include <WebCore/SerializedPlatformDataCue.h>
-#include <WebCore/SerializedPlatformDataCueValue.h>
-#include <wtf/HashSet.h>
+#include <WebCore/ScrollableArea.h>
+#include <WebCore/ScrollbarsController.h>
 
 namespace WebCore {
 
-class SerializedPlatformDataCueMac final : public SerializedPlatformDataCue {
-public:
-    SerializedPlatformDataCueMac(SerializedPlatformDataCueValue&&);
-    virtual ~SerializedPlatformDataCueMac() = default;
+ScrollableArea& ScrollbarsController::scrollableArea() const
+{
+    return m_scrollableArea.get();
+}
 
-    JSC::JSValue deserialize(JSC::JSGlobalObject*) const final;
-    RefPtr<ArrayBuffer> data() const final;
-    bool isEqual(const SerializedPlatformDataCue&) const final;
-    PlatformType platformType() const final { return PlatformType::ObjC; }
-    bool encodingRequiresPlatformData() const final { return true; }
-
-    WEBCORE_EXPORT SerializedPlatformDataCueValue encodableValue() const final;
-
-    WEBCORE_EXPORT static const HashSet<RetainPtr<Class>>& allowedClassesForNativeValues();
-
-private:
-    SerializedPlatformDataCueValue m_value;
-};
+CheckedRef<ScrollableArea> ScrollbarsController::checkedScrollableArea() const
+{
+    return scrollableArea();
+}
 
 } // namespace WebCore
-
-SPECIALIZE_TYPE_TRAITS_BEGIN(WebCore::SerializedPlatformDataCueMac)
-    static bool isType(const WebCore::SerializedPlatformDataCue& cue) { return cue.platformType() == WebCore::SerializedPlatformDataCue::PlatformType::ObjC; }
-SPECIALIZE_TYPE_TRAITS_END()
-
-#endif

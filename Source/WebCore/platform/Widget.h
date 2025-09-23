@@ -93,6 +93,9 @@ public:
     WEBCORE_EXPORT virtual ~Widget();
 
     WEBCORE_EXPORT PlatformWidget platformWidget() const;
+#if PLATFORM(COCOA)
+    WEBCORE_EXPORT RetainPtr<NSView> protectedPlatformWidget() const;
+#endif
     WEBCORE_EXPORT void setPlatformWidget(PlatformWidget);
 
     int x() const { return frameRect().x(); }
@@ -188,7 +191,8 @@ public:
 #if PLATFORM(COCOA)
     virtual id accessibilityHitTest(const IntPoint&) const { return nil; }
     virtual id accessibilityObject() const { return nil; }
-    NSView* getOuterView() const;
+    NSView* outerView() const;
+    RetainPtr<NSView> protectedOuterView() const;
 
     void removeFromSuperview();
 #endif

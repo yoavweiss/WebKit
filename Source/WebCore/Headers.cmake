@@ -2345,6 +2345,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/ScrollbarTheme.h
     platform/ScrollbarThemeComposite.h
     platform/ScrollbarsController.h
+    platform/ScrollbarsControllerInlines.h
     platform/ScrollingEffectsController.h
     platform/SearchPopupMenu.h
     platform/SerializedPlatformDataCue.h
