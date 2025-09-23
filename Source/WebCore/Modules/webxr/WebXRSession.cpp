@@ -87,10 +87,15 @@ WebXRSession::WebXRSession(Document& document, WebXRSystem& system, XRSessionMod
     auto minimumNearClipPlaneFromPlatform = device.minimumNearClipPlane();
     if (minimumNearClipPlaneFromPlatform >= 0)
         m_minimumNearClipPlane = minimumNearClipPlaneFromPlatform;
+
+    document.registerForVisibilityStateChangedCallbacks(*this);
 }
 
 WebXRSession::~WebXRSession()
 {
+    if (RefPtr sessionDocument = downcast<Document>(scriptExecutionContext()))
+        sessionDocument->unregisterForVisibilityStateChangedCallbacks(*this);
+
     auto device = m_device.get();
     if (!m_ended && device)
         device->shutDownTrackingAndRendering();
@@ -748,6 +753,20 @@ void WebXRSession::initializeTrackingAndRendering(std::optional<XRCanvasConfigur
     auto device = this->device();
     if (document && device)
         device->initializeTrackingAndRendering(document->securityOrigin().data(), m_mode, m_requestedFeatures, WTFMove(init));
+}
+
+void WebXRSession::visibilityStateChanged()
+{
+    RefPtr sessionDocument = downcast<Document>(scriptExecutionContext());
+    if (!sessionDocument)
+        return;
+
+    // For inline sessions the visibility state MUST mirror the Document’s visibilityState
+    // https://immersive-web.github.io/webxr/#xrsession-visibility-state
+    if (m_mode != XRSessionMode::Inline)
+        return;
+
+    updateSessionVisibilityState(sessionDocument->hidden() ? PlatformXR::VisibilityState::Hidden : PlatformXR::VisibilityState::Visible);
 }
 
 WebCoreOpaqueRoot root(WebXRSession* session)

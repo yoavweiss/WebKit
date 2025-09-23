@@ -246,6 +246,10 @@ imported/w3c/web-platform-tests/xhr/xmlhttprequest-timeout-worker-overridesexpir
 imported/w3c/web-platform-tests/xhr/xmlhttprequest-timeout-worker-overridesexpires.html?timeout_set_to_expiring_value_after_load_fires [ Skip ]
 imported/w3c/web-platform-tests/xhr/xmlhttprequest-timeout-worker-overridesexpires.html?timeout_set_to_non-expiring_value_after_timeout_fires [ Skip ]
 
+# WebXR
+
+webkit.org/b/299366 imported/w3c/web-platform-tests/webxr/xrSession_visibilityState_inline.https.html [ Skip ] # Timeout
+
 #//////////////////////////////////////////////////////////////////////////////////////////
 # End of Triaged Expectations
 # Legacy Expectations sections below
