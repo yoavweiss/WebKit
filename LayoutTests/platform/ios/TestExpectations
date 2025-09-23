@@ -7904,8 +7904,6 @@ webkit.org/b/292294 webgl/2.0.y/conformance2/extensions/webgl-stencil-texturing.
 
 webkit.org/b/292402 http/tests/site-isolation/draw-after-cross-origin-navigation-between-two-remote-frames.html [ ImageOnlyFailure ]
 
-webkit.org/b/292650 http/tests/iframe-monitor/throttler.html [ Timeout ]
-
 webkit.org/b/288957 imported/w3c/web-platform-tests/css/CSS2/tables/border-collapse-dynamic-column-001.xht [ ImageOnlyFailure ]
 
 webkit.org/b/288518 fast/text/emoji-num-glyphs.html [ Failure ]
@@ -8213,7 +8211,6 @@ imported/w3c/web-platform-tests/css/css-flexbox/flexbox-align-self-vert-rtl-001.
 webkit.org/b/297462 imported/w3c/web-platform-tests/css/css-contain/content-visibility/content-visibility-size-containment-001.html [ Failure ]
 
 webkit.org/b/295599 [ Release ] http/tests/webcodecs/audio-decoder-callbacks-do-not-leak.html [ Pass Failure ]
-webkit.org/b/286318 http/tests/iframe-monitor [ Pass ]
 
 webkit.org/b/294931 ipc/LocalSampleBufferDisplayLayer-LogIdentifier-data-race-uaf.html [ Skip ]
 
@@ -8221,14 +8218,6 @@ webkit.org/b/289010 imported/w3c/web-platform-tests/html/semantics/disabled-elem
 
 # Clicking/tapping within a selection on iOS is not supposed to clear the selection.
 fast/events/selection-clear-on-click-fractional-coordinates.html [ Skip ]
-
-# webkit.org/b/297599 [ iOS ] 6x http/tests/iframe-monitor (layout-tests) tests are constantly timing out 
-http/tests/iframe-monitor/workers/shared-worker.html [ Timeout ]
-http/tests/iframe-monitor/workers/service-worker.html [ Timeout ]
-http/tests/iframe-monitor/workers/service-worker-not-count-twice.html [ Timeout ]
-http/tests/iframe-monitor/iframe-unload.html [ Timeout ]
-http/tests/iframe-monitor/eligibility.html [ Timeout ]
-http/tests/iframe-monitor/dark-mode.html [ Timeout ]
 
 webkit.org/b/261344 [ Release ] requestidlecallback/requestidlecallback-does-not-block-timer.html [ Pass Failure ]
 
