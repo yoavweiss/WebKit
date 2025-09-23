@@ -6744,6 +6744,15 @@ void WebPageProxy::updateScrollingMode(IPC::Connection& connection, WebCore::Fra
     }
 }
 
+void WebPageProxy::setFramePrinting(IPC::Connection& connection, WebCore::FrameIdentifier frameID, bool printing, const WebCore::FloatSize& pageSize, const WebCore::FloatSize& originalPageSize, float maximumShrinkRatio, WebCore::AdjustViewSize shouldAdjustViewSize)
+{
+    forEachWebContentProcess([&](auto& webProcess, auto pageID) {
+        if (webProcess.hasConnection(connection))
+            return;
+        webProcess.send(Messages::WebPage::SetFramePrinting(frameID, printing, pageSize, originalPageSize, maximumShrinkRatio, shouldAdjustViewSize), pageID);
+    });
+}
+
 void WebPageProxy::resolveAccessibilityHitTestForTesting(WebCore::FrameIdentifier frameID, WebCore::IntPoint point, CompletionHandler<void(String)>&& callback)
 {
     sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::ResolveAccessibilityHitTestForTesting(frameID, point), WTFMove(callback));
@@ -16417,11 +16426,11 @@ void WebPageProxy::sendToProcessContainingFrame(std::optional<FrameIdentifier> f
 }
 
 template<typename M>
-IPC::ConnectionSendSyncResult<M> WebPageProxy::sendSyncToProcessContainingFrame(std::optional<FrameIdentifier> frameID, M&& message, const IPC::Timeout& timeout)
+IPC::ConnectionSendSyncResult<M> WebPageProxy::sendSyncToProcessContainingFrame(std::optional<FrameIdentifier> frameID, M&& message, const IPC::Timeout& timeout, OptionSet<IPC::SendSyncOption> options)
 {
     return sendToWebPage(frameID,
-        [&message, &timeout] (auto& targetPage) {
-            return targetPage.siteIsolatedProcess().sendSync(std::forward<M>(message), targetPage.identifierInSiteIsolatedProcess(), timeout);
+        [&message, &timeout, options] (auto& targetPage) {
+            return targetPage.siteIsolatedProcess().sendSync(std::forward<M>(message), targetPage.identifierInSiteIsolatedProcess(), timeout, options);
         }
     );
 }
@@ -16429,7 +16438,13 @@ IPC::ConnectionSendSyncResult<M> WebPageProxy::sendSyncToProcessContainingFrame(
 template<typename M>
 IPC::ConnectionSendSyncResult<M> WebPageProxy::sendSyncToProcessContainingFrame(std::optional<FrameIdentifier> frameID, M&& message)
 {
-    return sendSyncToProcessContainingFrame(frameID, std::forward<M>(message), 1_s);
+    return sendSyncToProcessContainingFrame(frameID, std::forward<M>(message), 1_s, { });
+}
+
+template<typename M>
+IPC::ConnectionSendSyncResult<M> WebPageProxy::sendSyncToProcessContainingFrame(std::optional<FrameIdentifier> frameID, M&& message, const IPC::Timeout& timeout)
+{
+    return sendSyncToProcessContainingFrame(frameID, std::forward<M>(message), timeout, { });
 }
 
 #define INSTANTIATE_SEND_TO_PROCESS_CONTAINING_FRAME(message) \
@@ -16521,7 +16536,7 @@ void WebPageProxy::postMessageToRemote(WebCore::FrameIdentifier source, const St
 
 void WebPageProxy::renderTreeAsTextForTesting(WebCore::FrameIdentifier frameID, uint64_t baseIndent, OptionSet<WebCore::RenderAsTextFlag> behavior, CompletionHandler<void(String&&)>&& completionHandler)
 {
-    auto sendResult = sendSyncToProcessContainingFrame(frameID, Messages::WebPage::RenderTreeAsTextForTesting(frameID, baseIndent, behavior));
+    auto sendResult = sendSyncToProcessContainingFrame(frameID, Messages::WebPage::RenderTreeAsTextForTesting(frameID, baseIndent, behavior), 1_s, IPC::SendSyncOption::MaintainOrderingWithAsyncMessages);
     if (!sendResult.succeeded())
         return completionHandler("Test Error - sending WebPage::RenderTreeAsTextForTesting failed"_s);
 

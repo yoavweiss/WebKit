@@ -2643,6 +2643,8 @@ enum class WebCore::PixelFormat : uint8_t {
 #endif
 };
 
+enum class WebCore::AdjustViewSize : bool;
+
 enum class WebCore::UseLosslessCompression : bool;
 
 [AdditionalEncoder=StreamConnectionEncoder] struct WebCore::ImageBufferFormat {
