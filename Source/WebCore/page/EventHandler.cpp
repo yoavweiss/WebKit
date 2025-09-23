@@ -417,6 +417,9 @@ EventHandler::EventHandler(LocalFrame& frame)
 #if ENABLE(CURSOR_VISIBILITY)
     , m_autoHideCursorTimer(*this, &EventHandler::autoHideCursorTimerFired)
 #endif
+#if ENABLE(FULLSCREEN_API)
+    , m_holdEscKeyEventTimer(*this, &EventHandler::holdEscKeyEventTimerFired)
+#endif
 {
 }
 
@@ -467,6 +470,9 @@ void EventHandler::clear()
 #endif
     m_mouseEventTargetUpdateTimer.stop();
     m_mouseEventTargetFinalUpdateTimer.stop();
+#if ENABLE(FULLSCREEN_API)
+    m_holdEscKeyEventTimer.stop();
+#endif
     m_resizeLayer = nullptr;
     clearElementUnderMouse();
     m_lastElementUnderMouse = nullptr;
@@ -1880,6 +1886,19 @@ void EventHandler::autoHideCursorTimerFired()
 
     if (RefPtr page = m_frame->page())
         page->chrome().setCursorHiddenUntilMouseMoves(true);
+}
+#endif
+
+#if ENABLE(FULLSCREEN_API)
+void EventHandler::holdEscKeyEventTimerFired()
+{
+    Ref frame = m_frame.get();
+    RefPtr document = frame->document();
+    if (!document)
+        return;
+
+    if (RefPtr documentFullscreen = document->fullscreenIfExists(); documentFullscreen && documentFullscreen->isFullscreen())
+        documentFullscreen->fullyExitFullscreen();
 }
 #endif
 
@@ -4092,8 +4111,17 @@ bool EventHandler::internalKeyEvent(const PlatformKeyboardEvent& initialKeyEvent
     RefPtr document = frame->document();
     if (RefPtr documentFullscreen = document->fullscreenIfExists(); documentFullscreen && documentFullscreen->isFullscreen()) {
         if (initialKeyEvent.type() == PlatformEvent::Type::KeyDown && initialKeyEvent.windowsVirtualKeyCode() == VK_ESCAPE) {
-            documentFullscreen->fullyExitFullscreen();
-            return true;
+            if (documentFullscreen->isBrowserKeyboardLockEnabled()) {
+                // check 1.5 ms ESC hold to cancel Full Screen
+                if (!m_holdEscKeyEventTimer.isActive())
+                    m_holdEscKeyEventTimer.startOneShot(1500_ms);
+            } else {
+                documentFullscreen->fullyExitFullscreen();
+                return true;
+            }
+        } else {
+            if (m_holdEscKeyEventTimer.isActive())
+                m_holdEscKeyEventTimer.stop();
         }
 
         if (!isKeyEventAllowedInFullScreen(initialKeyEvent))

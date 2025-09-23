@@ -6183,6 +6183,9 @@ webkit.org/b/298948 imported/w3c/web-platform-tests/import-maps/http-url-like-sp
 # WebKit2 Only
 fullscreen/fullscreen-enter-bottom-padding-animation.html [ Skip ]
 
+# Fullscreen based keyboard lock api test, by default it is off, so the test should be timed out
+fullscreen/full-screen-keyboard-lock-option.html [ Timeout ]
+
 # Extra logging needed to be silenced:
 http/tests/loading/oauth.html [ DumpJSConsoleLogInStdErr ]
 http/tests/security/contentSecurityPolicy/video-with-https-url-allowed-by-csp-media-src-star.html [ DumpJSConsoleLogInStdErr ]

@@ -179,6 +179,10 @@
 #include <wtf/cocoa/RuntimeApplicationChecksCocoa.h>
 #endif
 
+#if PLATFORM(IOS_FAMILY)
+#import <pal/system/ios/UserInterfaceIdiom.h>
+#endif
+
 namespace WebCore {
 
 WTF_MAKE_TZONE_OR_ISO_ALLOCATED_IMPL(Element);
@@ -5061,9 +5065,23 @@ void Element::webkitRequestFullscreen()
     requestFullscreen({ }, nullptr);
 }
 
-// FIXME: Options are currently ignored.
-void Element::requestFullscreen(FullscreenOptions&&, RefPtr<DeferredPromise>&& promise)
+// FIXME: Only KeyboardLock option is currently considered.
+void Element::requestFullscreen(FullscreenOptions&& options, RefPtr<DeferredPromise>&& promise)
 {
+#if PLATFORM(IOS_FAMILY)
+    bool optionsEnabled = document().settings().fullScreenKeyboardLock() && PAL::currentUserInterfaceIdiomIsDesktop();
+#else
+    bool optionsEnabled = document().settings().fullScreenKeyboardLock();
+#endif
+    if (optionsEnabled && document().page() && document().page()->hardwareKeyboardAttached())
+        protectedDocument()->fullscreen().setKeyboardLockMode(options.keyboardLock);
+    else {
+        if (options.keyboardLock != FullscreenOptions::KeyboardLock::None) {
+            promise->reject(ExceptionCode::NotSupportedError, "options.keyboardLock is unavailable."_s);
+            return;
+        }
+    }
+
     protectedDocument()->fullscreen().requestFullscreen(*this, DocumentFullscreen::EnforceIFrameAllowFullscreenRequirement, [promise = WTFMove(promise)] (auto result) {
         if (!promise)
             return;

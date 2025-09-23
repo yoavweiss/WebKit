@@ -1376,6 +1376,10 @@ public:
     void updateDisplayEDRSuppression();
 #endif
 
+    // Checking hardware keyboard attached
+    void setHardwareKeyboardAttached(bool attached) { m_hardwareKeyboardAttached = attached; }
+    bool hardwareKeyboardAttached() const { return m_hardwareKeyboardAttached; }
+
 private:
     explicit Page(PageConfiguration&&);
 
@@ -1843,6 +1847,13 @@ private:
 
 #if ENABLE(MODEL_ELEMENT)
     bool m_modelLoadDelaysDisabledForTesting { false };
+#endif
+
+    // Checking hardware keyboard attached
+#if PLATFORM(IOS_FAMILY)
+    bool m_hardwareKeyboardAttached { false };
+#else
+    bool m_hardwareKeyboardAttached { true };
 #endif
 }; // class Page
 

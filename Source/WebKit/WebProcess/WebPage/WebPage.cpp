@@ -1008,6 +1008,8 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
     page->setGroupName(m_pageGroup->identifier());
     page->setUserInterfaceLayoutDirection(m_userInterfaceLayoutDirection);
 #if PLATFORM(IOS_FAMILY)
+    // Set hardware keyboard attached status
+    page->setHardwareKeyboardAttached(m_keyboardIsAttached);
     page->setTextAutosizingWidth(parameters.textAutosizingWidth);
     setOverrideViewportArguments(parameters.overrideViewportArguments);
 #endif

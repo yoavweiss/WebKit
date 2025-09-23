@@ -1361,6 +1361,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     dom/FragmentDirectiveParser.h
     dom/FragmentDirectiveRangeFinder.h
     dom/FragmentDirectiveUtilities.h
+    dom/FullscreenOptions.h
     dom/GCReachableRef.h
     dom/GetHTMLOptions.h
     dom/IdTargetObserver.h
