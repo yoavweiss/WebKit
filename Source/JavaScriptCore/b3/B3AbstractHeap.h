@@ -20,17 +20,15 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #pragma once
 
-#if ENABLE(FTL_JIT)
+#if ENABLE(B3_JIT)
 
 #include "B3Effects.h"
 #include "B3HeapRange.h"
-#include "FTLAbbreviatedTypes.h"
-#include "JSCJSValue.h"
 #include <array>
 #include <wtf/HashMap.h>
 #include <wtf/Noncopyable.h>
@@ -38,11 +36,9 @@
 #include <wtf/Vector.h>
 #include <wtf/text/CString.h>
 
-namespace JSC { namespace FTL {
+namespace JSC::B3 {
 
 class AbstractHeapRepository;
-class Output;
-class TypedPointer;
 
 class AbstractHeap {
     WTF_MAKE_NONCOPYABLE(AbstractHeap);
@@ -51,19 +47,19 @@ public:
     AbstractHeap()
     {
     }
-    
-    AbstractHeap(AbstractHeap* parent, const char* heapName, ptrdiff_t offset = 0, B3::Mutability = B3::Mutability::Mutable);
+
+    AbstractHeap(AbstractHeap* parent, const char* heapName, ptrdiff_t offset = 0, Mutability = Mutability::Mutable);
 
     bool isInitialized() const { return !!m_heapName; }
-    
-    void initialize(AbstractHeap* parent, const char* heapName, ptrdiff_t offset = 0, B3::Mutability mutability = B3::Mutability::Mutable)
+
+    void initialize(AbstractHeap* parent, const char* heapName, ptrdiff_t offset = 0, Mutability mutability = Mutability::Mutable)
     {
         changeParent(parent);
         m_heapName = heapName;
         m_offset = offset;
         m_mutability = mutability;
     }
-    
+
     void changeParent(AbstractHeap* parent);
 
     AbstractHeap* parent() const
@@ -73,24 +69,24 @@ public:
     }
 
     const Vector<AbstractHeap*>& children() const;
-    
+
     const char* heapName() const
     {
         ASSERT(isInitialized());
         return m_heapName;
     }
 
-    B3::HeapRange range() const
+    HeapRange range() const
     {
         // This will not have a valid value until after all lowering is done. Do associate an
-        // AbstractHeap with a B3::Value*, use AbstractHeapRepository::decorateXXX().
+        // AbstractHeap with a Value*, use AbstractHeapRepository::decorateXXX().
         if (!m_range)
             badRangeError();
-        
+
         return m_range;
     }
 
-    B3::Mutability mutability() const
+    Mutability mutability() const
     {
         ASSERT(isInitialized());
         return m_mutability;
@@ -122,8 +118,8 @@ private:
     AbstractHeap* m_parent { nullptr };
     Vector<AbstractHeap*> m_children;
     intptr_t m_offset { 0 };
-    B3::Mutability m_mutability { B3::Mutability::Mutable };
-    B3::HeapRange m_range;
+    Mutability m_mutability { Mutability::Mutable };
+    HeapRange m_range;
     const char* m_heapName { nullptr };
 };
 
@@ -131,21 +127,22 @@ class IndexedAbstractHeap {
 public:
     IndexedAbstractHeap(AbstractHeap* parent, const char* heapName, ptrdiff_t offset, size_t elementSize);
     ~IndexedAbstractHeap();
-    
+
     AbstractHeap& atAnyIndex() { return m_heapForAnyIndex; }
-    
+
     const AbstractHeap& at(ptrdiff_t index)
     {
         if (static_cast<size_t>(index) < m_smallIndices.size())
             return returnInitialized(m_smallIndices[index], index);
         return atSlow(index);
     }
-    
+
     const AbstractHeap& operator[](ptrdiff_t index) { return at(index); }
-    
-    TypedPointer baseIndex(Output& out, LValue base, LValue index, JSValue indexAsConstant = JSValue(), ptrdiff_t offset = 0, LValue mask = nullptr);
-    
+
     void dump(PrintStream&);
+
+    ptrdiff_t offset() const { return m_offset; }
+    size_t elementSize() const { return m_elementSize; }
 
 private:
     const AbstractHeap& returnInitialized(AbstractHeap& field, ptrdiff_t index)
@@ -163,7 +160,7 @@ private:
     ptrdiff_t m_offset;
     size_t m_elementSize;
     std::array<AbstractHeap, 16> m_smallIndices;
-    
+
     struct WithoutZeroOrOneHashTraits : HashTraits<ptrdiff_t> {
         static void constructDeletedValue(ptrdiff_t& slot) { slot = 1; }
         static bool isDeletedValue(ptrdiff_t value) { return value == 1; }
@@ -183,16 +180,15 @@ class NumberedAbstractHeap {
 public:
     NumberedAbstractHeap(AbstractHeap* parent, const char* heapName);
     ~NumberedAbstractHeap();
-    
+
     AbstractHeap& atAnyNumber() { return m_indexedHeap.atAnyIndex(); }
-    
+
     const AbstractHeap& at(unsigned number) { return m_indexedHeap.at(number); }
     const AbstractHeap& operator[](unsigned number) { return at(number); }
 
     void dump(PrintStream&);
 
 private:
-    
     // We use the fact that the indexed heap already has a superset of the
     // functionality we need.
     IndexedAbstractHeap m_indexedHeap;
@@ -202,14 +198,14 @@ class AbsoluteAbstractHeap {
 public:
     AbsoluteAbstractHeap(AbstractHeap* parent, const char* heapName);
     ~AbsoluteAbstractHeap();
-    
+
     const AbstractHeap& atAnyAddress() { return m_indexedHeap.atAnyIndex(); }
-    
+
     const AbstractHeap& at(const void* address)
     {
         return m_indexedHeap.at(std::bit_cast<ptrdiff_t>(address));
     }
-    
+
     const AbstractHeap& operator[](const void* address) { return at(address); }
 
     void dump(PrintStream&);
@@ -221,6 +217,6 @@ private:
     IndexedAbstractHeap m_indexedHeap;
 };
 
-} } // namespace JSC::FTL
+} // namespace JSC::B3
 
-#endif // ENABLE(FTL_JIT)
+#endif // ENABLE(B3_JIT)

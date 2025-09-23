@@ -20,46 +20,42 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #pragma once
 
-#if ENABLE(FTL_JIT)
+#if ENABLE(B3_JIT)
 
-#include "FTLAbbreviatedTypes.h"
-#include "FTLAbstractHeap.h"
+namespace JSC::B3 {
 
-namespace JSC { namespace FTL {
+class AbstractHeap;
+class Value;
 
 class TypedPointer {
 public:
-    TypedPointer()
-        : m_heap(nullptr)
-        , m_value(nullptr)
-    {
-    }
-    
-    TypedPointer(const AbstractHeap& heap, LValue value)
+    TypedPointer() = default;
+
+    TypedPointer(const AbstractHeap& heap, Value* value)
         : m_heap(&heap)
         , m_value(value)
     {
     }
-    
+
     explicit operator bool() const
     {
         ASSERT(!m_heap == !m_value);
         return !!m_heap;
     }
-    
+
     const AbstractHeap* heap() const { return m_heap; }
-    LValue value() const { return m_value; }
+    Value* value() const { return m_value; }
 
 private:
-    const AbstractHeap* m_heap;
-    LValue m_value;
+    const AbstractHeap* m_heap { nullptr };
+    Value* m_value { nullptr };
 };
 
-} } // namespace JSC::FTL
+} // namespace JSC::B3
 
-#endif // ENABLE(FTL_JIT)
+#endif // ENABLE(B3_JIT)

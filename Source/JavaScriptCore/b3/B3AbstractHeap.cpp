@@ -20,25 +20,20 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #include "config.h"
-#include "FTLAbstractHeap.h"
+#include "B3AbstractHeap.h"
 
-#if ENABLE(FTL_JIT)
+#if ENABLE(B3_JIT)
 
-#include "FTLAbbreviatedTypes.h"
-#include "FTLOutput.h"
-#include "FTLTypedPointer.h"
-#include "JSCJSValueInlines.h"
 #include "Options.h"
-#include "StructureRareDataInlines.h"
 #include <wtf/TZoneMallocInlines.h>
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 
-namespace JSC { namespace FTL {
+namespace JSC::B3 {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(AbstractHeap);
 
@@ -145,22 +140,10 @@ IndexedAbstractHeap::IndexedAbstractHeap(AbstractHeap* parent, const char* heapN
 
 IndexedAbstractHeap::~IndexedAbstractHeap() = default;
 
-TypedPointer IndexedAbstractHeap::baseIndex(Output& out, LValue base, LValue index, JSValue indexAsConstant, ptrdiff_t offset, LValue mask)
-{
-    if (indexAsConstant.isInt32())
-        return out.address(base, at(indexAsConstant.asInt32()), offset);
-
-    if (mask)
-        index = out.bitAnd(mask, index);
-    LValue result = out.add(base, out.mul(index, out.constIntPtr(m_elementSize)));
-    
-    return TypedPointer(atAnyIndex(), out.addPtr(result, m_offset + offset));
-}
-
 const AbstractHeap& IndexedAbstractHeap::atSlow(ptrdiff_t index)
 {
     ASSERT(static_cast<size_t>(index) >= m_smallIndices.size());
-    
+
     auto& field = m_largeIndices.add(index, nullptr).iterator->value;
     if (!field) {
         field = makeUnique<AbstractHeap>();
@@ -193,10 +176,10 @@ void IndexedAbstractHeap::initialize(AbstractHeap& field, ptrdiff_t signedIndex)
     // it anymore, though it is sort of nifty. Basically, B3 doesn't need string names for
     // abstract heaps, but the fact that we have a reasonably efficient way to always name the
     // heaps will probably come in handy for debugging.
-    
+
     static const char* negSplit = "_neg_";
     static const char* posSplit = "_";
-    
+
     bool negative;
     size_t index;
     if (signedIndex < 0) {
@@ -206,33 +189,33 @@ void IndexedAbstractHeap::initialize(AbstractHeap& field, ptrdiff_t signedIndex)
         negative = false;
         index = signedIndex;
     }
-    
+
     for (unsigned power = 4; power <= sizeof(void*) * 8; power += 4) {
         if (isGreaterThanNonZeroPowerOfTwo(index, power))
             continue;
-        
+
         unsigned numHexlets = power >> 2;
-        
+
         size_t stringLength = m_heapNameLength + (negative ? strlen(negSplit) : strlen(posSplit)) + numHexlets;
         std::span<char> characters;
         m_largeIndexNames.append(CString::newUninitialized(stringLength, characters));
-        
+
         memcpy(characters.data(), m_heapForAnyIndex.heapName(), m_heapNameLength);
         if (negative)
             memcpy(characters.data() + m_heapNameLength, negSplit, strlen(negSplit));
         else
             memcpy(characters.data() + m_heapNameLength, posSplit, strlen(posSplit));
-        
+
         size_t accumulator = index;
         for (unsigned i = 0; i < numHexlets; ++i) {
             characters[stringLength - i - 1] = lowerNibbleToASCIIHexDigit(accumulator);
             accumulator >>= 4;
         }
-        
+
         field.initialize(&m_heapForAnyIndex, characters.data(), m_offset + signedIndex * m_elementSize);
         return;
     }
-    
+
     RELEASE_ASSERT_NOT_REACHED();
 }
 
@@ -265,8 +248,8 @@ void AbsoluteAbstractHeap::dump(PrintStream& out)
     out.print("Absolute:", atAnyAddress());
 }
 
-} } // namespace JSC::FTL
+} // namespace JSC::B3
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
-#endif // ENABLE(FTL_JIT)
+#endif // ENABLE(B3_JIT)
