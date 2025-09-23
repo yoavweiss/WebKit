@@ -334,14 +334,6 @@ void WKPageLoadPlainTextStringWithUserData(WKPageRef pageRef, WKStringRef plainT
     loadString(pageRef, plainTextStringRef, "text/plain"_s, aboutBlankURL().string(), userDataRef);
 }
 
-void WKPageLoadWebArchiveData(WKPageRef, WKDataRef)
-{
-}
-
-void WKPageLoadWebArchiveDataWithUserData(WKPageRef, WKDataRef, WKTypeRef)
-{
-}
-
 void WKPageStopLoading(WKPageRef pageRef)
 {
     CRASH_IF_SUSPENDED;
