@@ -3266,6 +3266,22 @@ static RenderObject* rendererForView(WAKView* view)
     return orientation && *orientation == *defaultOrientation ? AccessibilityOrientation::Undefined : *orientation;
 }
 
+- (BOOL)accessibilitySupportsKeyboardShortcuts
+{
+    if (![self _prepareAccessibilityCall])
+        return NO;
+
+    return self.axBackingObject->supportsKeyShortcuts();
+}
+
+- (NSString *)accessibilityKeyboardShortcuts
+{
+    if (![self _prepareAccessibilityCall])
+        return nil;
+
+    return self.axBackingObject->keyShortcuts().createNSString().autorelease();
+}
+
 @end
 
 #endif // PLATFORM(IOS_FAMILY)
