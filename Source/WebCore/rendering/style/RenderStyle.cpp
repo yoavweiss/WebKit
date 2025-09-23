@@ -2094,8 +2094,6 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
             changingProperties.m_properties.set(CSSPropertyTextIndent);
         if (first.textUnderlineOffset != second.textUnderlineOffset)
             changingProperties.m_properties.set(CSSPropertyTextUnderlineOffset);
-        if (first.wordSpacing != second.wordSpacing)
-            changingProperties.m_properties.set(CSSPropertyWordSpacing);
         if (first.miterLimit != second.miterLimit)
             changingProperties.m_properties.set(CSSPropertyStrokeMiterlimit);
         if (first.widows != second.widows)

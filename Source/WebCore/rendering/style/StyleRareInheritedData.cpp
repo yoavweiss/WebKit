@@ -49,7 +49,6 @@ struct GreaterThanOrSameSizeAsStyleRareInheritedData : public RefCounted<Greater
     Style::TextUnderlineOffset offset;
     Style::TextBoxEdge textBoxEdge;
     Style::LineFitEdge lineFitEdge;
-    Length length;
     void* customPropertyDataRefs[1];
     unsigned bitfields[7];
     short pagedMediaShorts[2];
@@ -314,7 +313,6 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && textUnderlineOffset == o.textUnderlineOffset
         && textBoxEdge == o.textBoxEdge
         && lineFitEdge == o.lineFitEdge
-        && wordSpacing == o.wordSpacing
         && miterLimit == o.miterLimit
         && widows == o.widows
         && orphans == o.orphans
@@ -438,7 +436,6 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
     LOG_IF_DIFFERENT(textBoxEdge);
     LOG_IF_DIFFERENT(lineFitEdge);
 
-    LOG_IF_DIFFERENT(wordSpacing);
     LOG_IF_DIFFERENT(miterLimit);
 
     LOG_IF_DIFFERENT(widows);

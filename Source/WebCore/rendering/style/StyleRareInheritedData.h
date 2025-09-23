@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <WebCore/Length.h>
 #include <WebCore/RenderStyleConstants.h>
 #include <WebCore/StyleBlockEllipsis.h>
 #include <WebCore/StyleColor.h>
@@ -138,7 +137,6 @@ public:
     Style::TextBoxEdge textBoxEdge;
     Style::LineFitEdge lineFitEdge;
 
-    Length wordSpacing;
     Style::StrokeMiterlimit miterLimit;
 
     DataRef<Style::CustomPropertyData> customProperties;
