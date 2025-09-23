@@ -4296,7 +4296,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ ${GENERATE_WTF_MODULEMAP} != YES ] && [ ${DEPLOYMENT_LOCATION} != YES ]; then\nrm -f \"${SCRIPT_OUTPUT_FILE_0}\"\nelif [ ${GENERATE_WTF_MODULEMAP} != YES ]; then\nrm -f \"${SCRIPT_OUTPUT_FILE_1}\"\nelif [ ${DEPLOYMENT_LOCATION} != YES ]; then\n\"${SCRIPT_INPUT_FILE_0}\" \"${SCRIPT_INPUT_FILE_1}\" --config \"${SCRIPT_INPUT_FILE_2}\" --relative-to \"${BUILT_PRODUCTS_DIR}${PRIVATE_HEADERS_FOLDER_PATH}\" > \"${SCRIPT_OUTPUT_FILE_0}\"\nelse\n\"${SCRIPT_INPUT_FILE_0}\" ${DSTROOT}/${PRIVATE_HEADERS_FOLDER_PATH}/WTF.json --config \"${SCRIPT_INPUT_FILE_2}\" --relative-to \"<SDKROOT>/${PRIVATE_HEADERS_FOLDER_PATH}\" > \"${SCRIPT_OUTPUT_FILE_1}\"\nfi\n";
+			shellScript = "if [ \"${GENERATE_WTF_MODULEMAP}\" != YES ] && [ \"${DEPLOYMENT_LOCATION}\" != YES ]; then\nrm -f \"${SCRIPT_OUTPUT_FILE_0}\"\nelif [ \"${GENERATE_WTF_MODULEMAP}\" != YES ]; then\nrm -f \"${SCRIPT_OUTPUT_FILE_1}\"\nelif [ \"${DEPLOYMENT_LOCATION}\" != YES ]; then\n\"${SCRIPT_INPUT_FILE_0}\" \"${SCRIPT_INPUT_FILE_1}\" --config \"${SCRIPT_INPUT_FILE_2}\" --relative-to \"${BUILT_PRODUCTS_DIR}${PRIVATE_HEADERS_FOLDER_PATH}\" > \"${SCRIPT_OUTPUT_FILE_0}\"\nelse\n\"${SCRIPT_INPUT_FILE_0}\" ${DSTROOT}/${PRIVATE_HEADERS_FOLDER_PATH}/WTF.json --config \"${SCRIPT_INPUT_FILE_2}\" --relative-to \"<SDKROOT>/${PRIVATE_HEADERS_FOLDER_PATH}\" > \"${SCRIPT_OUTPUT_FILE_1}\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
