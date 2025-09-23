@@ -20761,10 +20761,10 @@ IGNORE_CLANG_WARNINGS_END
                     pointerType()),
                 m_out.constIntPtr(3));
 
-        LValue butterflySize = m_out.add(
+        LValue allocationSizeInBytes = m_out.add(
             payloadSizeInBytes, m_out.constIntPtr(sizeof(IndexingHeader)));
 
-        LValue allocator = allocatorForSize(vm().auxiliarySpace(), butterflySize, slowBlock);
+        LValue allocator = allocatorForSize(vm().auxiliarySpace(), allocationSizeInBytes, slowBlock);
         LValue base = allocateHeapCell(allocator, slowBlock);
         ValueFromBlock fastBase = m_out.anchor(base);
         m_out.jump(continuation);
@@ -20777,7 +20777,7 @@ IGNORE_CLANG_WARNINGS_END
                     operationAllocateUnitializedAuxiliaryBase, locations[0].directGPR(), CCallHelpers::TrustedImmPtr(&vm),
                     locations[1].directGPR());
             },
-            payloadSizeInBytes);
+            allocationSizeInBytes);
         ValueFromBlock slowBase = m_out.anchor(slowButterflyBase);
         m_out.jump(continuation);
 
