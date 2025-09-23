@@ -29,7 +29,6 @@ heap/HeapProfiler.h
 heap/HeapSnapshotBuilder.h
 heap/MarkedBlock.h
 heap/SlotVisitor.h
-heap/WeakImpl.h
 heap/WeakSet.h
 inspector/InspectorAgentBase.h
 inspector/InspectorBackendDispatchers.h
