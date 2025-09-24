@@ -35,6 +35,7 @@ class PlacedGridItem;
 class UnplacedGridItem;
 
 using PlacedGridItems = Vector<PlacedGridItem>;
+using GridCell = Vector<UnplacedGridItem, 1>;
 
 // https://drafts.csswg.org/css-grid-1/#implicit-grids
 class ImplicitGrid {
@@ -49,7 +50,7 @@ public:
     PlacedGridItems placedGridItems() const;
 
 private:
-    using GridMatrix = Vector<Vector<std::optional<UnplacedGridItem>>>;
+    using GridMatrix = Vector<Vector<GridCell>>;
     GridMatrix m_gridMatrix;
 };
 

@@ -38,7 +38,7 @@ namespace Layout {
 // implicit grid as exactly the explicit grid and allow placement to add implicit
 // tracks and grow the grid.
 ImplicitGrid::ImplicitGrid(size_t gridTemplateColumnsCount, size_t gridTemplateRowsCount)
-    : m_gridMatrix(Vector(gridTemplateRowsCount, Vector<std::optional<UnplacedGridItem>>(gridTemplateColumnsCount)))
+    : m_gridMatrix(Vector(gridTemplateRowsCount, Vector<GridCell>(gridTemplateColumnsCount)))
 {
 }
 
@@ -95,7 +95,7 @@ void ImplicitGrid::insertUnplacedGridItem(const UnplacedGridItem& unplacedGridIt
     auto rowsRange = WTF::Range(explicitRowStart, explicitRowEnd);
     for (auto rowIndex = rowsRange.begin(); rowIndex < rowsRange.end(); ++rowIndex) {
         for (auto columnIndex = columnsRange.begin(); columnIndex < columnsRange.end(); ++columnIndex)
-            m_gridMatrix[rowIndex][columnIndex] = unplacedGridItem;
+            m_gridMatrix[rowIndex][columnIndex].append(unplacedGridItem);
     }
 
 }
@@ -108,12 +108,13 @@ PlacedGridItems ImplicitGrid::placedGridItems() const
     for (size_t rowIndex = 0; rowIndex < m_gridMatrix.size(); ++rowIndex) {
         for (size_t columnIndex = 0; columnIndex < m_gridMatrix[rowIndex].size(); ++columnIndex) {
 
-            auto unplacedGridItem = m_gridMatrix[rowIndex][columnIndex];
-            if (!unplacedGridItem || processedUnplacedGridItems.contains(*unplacedGridItem))
-                continue;
-
-            processedUnplacedGridItems.add(*unplacedGridItem);
-            placedGridItems.append({ *unplacedGridItem, { columnIndex, columnIndex + 1, rowIndex, rowIndex + 1 } });
+            const auto& gridCell = m_gridMatrix[rowIndex][columnIndex];
+            for (const auto& unplacedGridItem : gridCell) {
+                if (processedUnplacedGridItems.contains(unplacedGridItem))
+                    continue;
+                processedUnplacedGridItems.add(unplacedGridItem);
+                placedGridItems.append({ unplacedGridItem, { columnIndex, columnIndex + 1, rowIndex, rowIndex + 1 } });
+            }
         }
     }
     return placedGridItems;
