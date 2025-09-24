@@ -81,7 +81,7 @@ static inline void updateLogicalHeightForCell(RenderTableSection::RowStruct& row
             if (auto percentageRowLogicalHeight = row.logicalHeight.tryPercentage(); !percentageRowLogicalHeight || percentageRowLogicalHeight->value < percentageLogicalHeight->value)
                 row.logicalHeight = logicalHeight;
         } else if (auto fixedLogicalHeight = logicalHeight.tryFixed()) {
-            if (auto fixedRowLogicalHeight = row.logicalHeight.tryFixed(); row.logicalHeight.isAuto() || (fixedRowLogicalHeight && fixedRowLogicalHeight->value < fixedLogicalHeight->value))
+            if (auto fixedRowLogicalHeight = row.logicalHeight.tryFixed(); row.logicalHeight.isAuto() || (fixedRowLogicalHeight && fixedRowLogicalHeight->evaluate(1.0f /* FIXME FIND ZOOM */) < fixedLogicalHeight->evaluate(1.0f /* FIXME FIND ZOOM */)))
                 row.logicalHeight = logicalHeight;
         }
     }
@@ -219,7 +219,7 @@ void RenderTableSection::addCell(RenderTableCell* cell, RenderTableRow* row)
 static LayoutUnit resolveLogicalHeightForRow(const Style::PreferredSize& rowLogicalHeight)
 {
     if (auto fixedRowLogicalHeight = rowLogicalHeight.tryFixed())
-        return LayoutUnit(fixedRowLogicalHeight->value);
+        return LayoutUnit(fixedRowLogicalHeight->evaluate(1.0f /* FIXME FIND ZOOM */));
     if (rowLogicalHeight.isCalculated())
         return LayoutUnit(Style::evaluate(rowLogicalHeight, 0, 1.0f /* FIXME FIND ZOOM */));
     return 0;

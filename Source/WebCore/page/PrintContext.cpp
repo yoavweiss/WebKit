@@ -109,10 +109,10 @@ FloatBoxExtent PrintContext::computedPageMargin(FloatBoxExtent printMargin)
     auto marginLeft = style->marginLeft().tryFixed();
 
     return {
-        marginTop ? marginTop->value * pixelToPointScaleFactor : printMargin.top(),
-        marginRight ? marginRight->value * pixelToPointScaleFactor : printMargin.right(),
-        marginBottom ? marginBottom->value * pixelToPointScaleFactor : printMargin.bottom(),
-        marginLeft ? marginLeft->value * pixelToPointScaleFactor : printMargin.left(),
+        marginTop ? marginTop->evaluate(1.0f /* FIXME FIND ZOOM */) * pixelToPointScaleFactor : printMargin.top(),
+        marginRight ? marginRight->evaluate(1.0f /* FIXME FIND ZOOM */) * pixelToPointScaleFactor : printMargin.right(),
+        marginBottom ? marginBottom->evaluate(1.0f /* FIXME FIND ZOOM */) * pixelToPointScaleFactor : printMargin.bottom(),
+        marginLeft ? marginLeft->evaluate(1.0f /* FIXME FIND ZOOM */) * pixelToPointScaleFactor : printMargin.left(),
     };
 }
 
@@ -389,7 +389,7 @@ String PrintContext::pageProperty(LocalFrame* frame, const String& propertyName,
     // Implement formatters for properties we care about.
     if (propertyName == "margin-left"_s) {
         if (auto marginLeft = style->marginLeft().tryFixed())
-            return String::number(marginLeft->value);
+            return String::number(marginLeft->evaluate(1.0f /* FIXME FIND ZOOM */));
         return autoAtom();
     }
     if (propertyName == "line-height"_s)
@@ -410,7 +410,7 @@ String PrintContext::pageProperty(LocalFrame* frame, const String& propertyName,
                 return "portrait"_s;
             },
             [&](const Style::PageSize::Lengths& lengths) {
-                return makeString(lengths.width().value, ' ', lengths.height().value);
+                return makeString(lengths.width().evaluate(1.0f /* FIXME FIND ZOOM */), ' ', lengths.height().evaluate(1.0f /* FIXME FIND ZOOM */));
             }
         );
     }

@@ -685,12 +685,12 @@ template<CSSValueID Name, typename StyleType> struct Serialize<FunctionNotation<
 
 template<typename> struct Evaluation;
 
-template<typename StyleType, typename Reference> concept HasTwoParameterEvaluate = requires {
-    Evaluation<StyleType> { }(std::declval<const StyleType&>(), std::declval<Reference>());
+template<typename StyleType, typename T1> concept HasTwoParameterEvaluate = requires {
+    Evaluation<StyleType> { }(std::declval<const StyleType&>(), std::declval<T1>());
 };
 
-template<typename StyleType, typename Reference, typename Zoom> concept HasThreeParameterEvaluate = requires {
-    Evaluation<StyleType> { }(std::declval<const StyleType&>(), std::declval<Reference>(), std::declval<Zoom>());
+template<typename StyleType, typename T1, typename T2> concept HasThreeParameterEvaluate = requires {
+    Evaluation<StyleType> { }(std::declval<const StyleType&>(), std::declval<T1>(), std::declval<T2>());
 };
 
 // `Evaluation` Invokers
@@ -699,20 +699,16 @@ template<typename StyleType> decltype(auto) evaluate(const StyleType& value)
     return Evaluation<StyleType> { }(value);
 }
 
-template<typename StyleType, typename Reference> decltype(auto) evaluate(const StyleType& value, Reference&& reference)
+template<typename StyleType, typename T1> decltype(auto) evaluate(const StyleType& value, T1&& t1)
 {
-    if constexpr (HasTwoParameterEvaluate<StyleType, Reference>)
-        return Evaluation<StyleType> { }(value, std::forward<Reference>(reference));
-    else
-        return evaluate(value);
+    if constexpr (HasTwoParameterEvaluate<StyleType, T1>)
+        return Evaluation<StyleType> { }(value, std::forward<T1>(t1));
 }
 
-template<typename StyleType, typename Reference, typename Zoom> decltype(auto) evaluate(const StyleType& value, Reference&& reference, Zoom&& zoom)
+template<typename StyleType, typename T1, typename T2> decltype(auto) evaluate(const StyleType& value, T1&& t1, T2&& t2)
 {
-    if constexpr (HasThreeParameterEvaluate<StyleType, Reference, Zoom>)
-        return Evaluation<StyleType> { }(value, std::forward<Reference>(reference), std::forward<Zoom>(zoom));
-    else
-        return evaluate(value, std::forward<Reference>(reference));
+    if constexpr (HasThreeParameterEvaluate<StyleType, T1, T2>)
+        return Evaluation<StyleType> { }(value, std::forward<T1>(t1), std::forward<T2>(t2));
 }
 
 // Constrained for `TreatAsVariantLike`.

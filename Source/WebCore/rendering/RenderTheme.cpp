@@ -551,8 +551,8 @@ static void updateSliderTrackPartForRenderer(SliderTrackPart& sliderTrackPart, c
 
         auto fixedWidth = thumbStyle.width().tryFixed();
         auto fixedHeight = thumbStyle.height().tryFixed();
-        auto thumbWidth = fixedWidth ? static_cast<int>(fixedWidth->value) : 0;
-        auto thumbHeight = fixedHeight ? static_cast<int>(fixedHeight->value) : 0;
+        auto thumbWidth = fixedWidth ? static_cast<int>(fixedWidth->evaluate(1.0f /* FIXME FIND ZOOM */)) : 0;
+        auto thumbHeight = fixedHeight ? static_cast<int>(fixedHeight->evaluate(1.0f /* FIXME FIND ZOOM */)) : 0;
 
         thumbSize = { thumbWidth, thumbHeight };
     }
@@ -1449,47 +1449,47 @@ void RenderTheme::adjustButtonOrCheckboxOrColorWellOrInnerSpinButtonOrRadioStyle
 
     if (auto fixedOverrideMinWidth = minimumControlSize.width().tryFixed()) {
         if (auto fixedOriginalMinWidth = style.minWidth().tryFixed()) {
-            if (fixedOverrideMinWidth->value > fixedOriginalMinWidth->value)
+            if (fixedOverrideMinWidth->evaluate(1.0f /* FIXME FIND ZOOM */) > fixedOriginalMinWidth->evaluate(1.0f /* FIXME FIND ZOOM */))
                 style.setMinWidth(Style::MinimumSize(minimumControlSize.width()));
         } else if (auto percentageOriginalMinWidth = style.minWidth().tryPercentage()) {
             // FIXME: This really makes no sense but matches existing behavior. Should use a `calc(max(override, original))` here instead.
-            if (fixedOverrideMinWidth->value > percentageOriginalMinWidth->value)
+            if (fixedOverrideMinWidth->evaluate(1.0f /* FIXME FIND ZOOM */) > percentageOriginalMinWidth->value)
                 style.setMinWidth(Style::MinimumSize(minimumControlSize.width()));
-        } else if (fixedOverrideMinWidth->value > 0) {
+        } else if (fixedOverrideMinWidth->isPositive()) {
             style.setMinWidth(Style::MinimumSize(minimumControlSize.width()));
         }
     } else if (auto percentageOverrideMinWidth = minimumControlSize.width().tryPercentage()) {
         if (auto fixedOriginalMinWidth = style.minWidth().tryFixed()) {
             // FIXME: This really makes no sense but matches existing behavior. Should use a `calc(max(override, original))` here instead.
-            if (percentageOverrideMinWidth->value > fixedOriginalMinWidth->value)
+            if (percentageOverrideMinWidth->value > fixedOriginalMinWidth->evaluate(1.0f /* FIXME FIND ZOOM */))
                 style.setMinWidth(Style::MinimumSize(minimumControlSize.width()));
         } else if (auto percentageOriginalMinWidth = style.minWidth().tryPercentage()) {
             if (percentageOverrideMinWidth->value > percentageOriginalMinWidth->value)
                 style.setMinWidth(Style::MinimumSize(minimumControlSize.width()));
-        } else if (percentageOverrideMinWidth->value > 0) {
+        } else if (percentageOverrideMinWidth->isPositive()) {
             style.setMinWidth(Style::MinimumSize(minimumControlSize.width()));
         }
     }
     if (auto fixedOverrideMinHeight = minimumControlSize.height().tryFixed()) {
         if (auto fixedOriginalMinHeight = style.minHeight().tryFixed()) {
-            if (fixedOverrideMinHeight->value > fixedOriginalMinHeight->value)
+            if (fixedOverrideMinHeight->evaluate(1.0f /* FIXME FIND ZOOM */) > fixedOriginalMinHeight->evaluate(1.0f /* FIXME FIND ZOOM */))
                 style.setMinHeight(Style::MinimumSize(minimumControlSize.height()));
         } else if (auto percentageOriginalMinHeight = style.minHeight().tryPercentage()) {
             // FIXME: This really makes no sense but matches existing behavior. Should use a `calc(max(override, original))` here instead.
-            if (fixedOverrideMinHeight->value > percentageOriginalMinHeight->value)
+            if (fixedOverrideMinHeight->evaluate(1.0f /* FIXME FIND ZOOM */) > percentageOriginalMinHeight->value)
                 style.setMinHeight(Style::MinimumSize(minimumControlSize.height()));
-        } else if (fixedOverrideMinHeight->value > 0) {
+        } else if (fixedOverrideMinHeight->isPositive()) {
             style.setMinHeight(Style::MinimumSize(minimumControlSize.height()));
         }
     } else if (auto percentageOverrideMinHeight = minimumControlSize.height().tryPercentage()) {
         if (auto fixedOriginalMinHeight = style.minHeight().tryFixed()) {
             // FIXME: This really makes no sense but matches existing behavior. Should use a `calc(max(override, original))` here instead.
-            if (percentageOverrideMinHeight->value > fixedOriginalMinHeight->value)
+            if (percentageOverrideMinHeight->value > fixedOriginalMinHeight->evaluate(1.0f /* FIXME FIND ZOOM */))
                 style.setMinHeight(Style::MinimumSize(minimumControlSize.height()));
         } else if (auto percentageOriginalMinHeight = style.minHeight().tryPercentage()) {
             if (percentageOverrideMinHeight->value > percentageOriginalMinHeight->value)
                 style.setMinHeight(Style::MinimumSize(minimumControlSize.height()));
-        } else if (percentageOverrideMinHeight->value > 0) {
+        } else if (percentageOverrideMinHeight->isPositive()) {
             style.setMinHeight(Style::MinimumSize(minimumControlSize.height()));
         }
     }
@@ -1582,11 +1582,11 @@ void RenderTheme::paintSliderTicks(const RenderElement& renderer, const PaintInf
 
         int thumbWidth = 0;
         if (auto fixedWidth = thumbStyle.width().tryFixed())
-            thumbWidth = static_cast<int>(fixedWidth->value);
+            thumbWidth = static_cast<int>(fixedWidth->evaluate(1.0f /* FIXME FIND ZOOM */));
 
         int thumbHeight = 0;
         if (auto fixedHeight = thumbStyle.height().tryFixed())
-            thumbHeight = static_cast<int>(fixedHeight->value);
+            thumbHeight = static_cast<int>(fixedHeight->evaluate(1.0f /* FIXME FIND ZOOM */));
 
         thumbSize.setWidth(isHorizontal ? thumbWidth : thumbHeight);
         thumbSize.setHeight(isHorizontal ? thumbHeight : thumbWidth);

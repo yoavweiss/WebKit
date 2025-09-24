@@ -216,7 +216,7 @@ static String marginBoxToString(const IntersectionObserverMarginBox& marginBox)
         if (auto percentage = edge.tryPercentage())
             stringBuilder.append(static_cast<int>(percentage->value), "%"_s, side != BoxSide::Left ? " "_s : ""_s);
         else
-            stringBuilder.append(static_cast<int>(edge.tryFixed()->value), "px"_s, side != BoxSide::Left ? " "_s : ""_s);
+            stringBuilder.append(static_cast<int>(edge.tryFixed()->evaluate(1.0f /* FIXME FIND ZOOM */)), "px"_s, side != BoxSide::Left ? " "_s : ""_s);
     }
     return stringBuilder.toString();
 }
@@ -333,8 +333,8 @@ static void expandRootBoundsWithRootMargin(FloatRect& rootBounds, const Intersec
 {
     auto zoomAdjustedLength = [](const IntersectionObserverMarginEdge& edge, float maximumValue, float zoomFactor) {
         if (auto percentage = edge.tryPercentage())
-            return Style::evaluate(*percentage, maximumValue, 1.0f /* FIXME FIND ZOOM */);
-        return edge.tryFixed()->value * zoomFactor;
+            return Style::evaluate(*percentage, maximumValue);
+        return edge.tryFixed()->evaluate(zoomFactor);
     };
 
     auto rootMarginEdges = FloatBoxExtent {

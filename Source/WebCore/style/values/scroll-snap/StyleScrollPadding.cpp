@@ -35,13 +35,13 @@ LayoutUnit Evaluation<ScrollPaddingEdge>::operator()(const ScrollPaddingEdge& ed
 {
     return WTF::switchOn(edge,
         [&](const ScrollPaddingEdge::Fixed& fixed) {
-            return LayoutUnit(fixed.value);
+            return LayoutUnit(fixed.evaluate(zoom));
         },
         [&](const ScrollPaddingEdge::Percentage& percentage) {
-            return Style::evaluate(percentage, referenceLength, zoom /* FIXME ZOOM EFFECTED? */);
+            return Style::evaluate(percentage, referenceLength);
         },
         [&](const ScrollPaddingEdge::Calc& calculated) {
-            return Style::evaluate(calculated, referenceLength, zoom /* FIXME FIND ZOOM */);
+            return Style::evaluate(calculated, referenceLength);
         },
         [&](const CSS::Keyword::Auto&) {
             return 0_lu;
@@ -53,13 +53,13 @@ float Evaluation<ScrollPaddingEdge>::operator()(const ScrollPaddingEdge& edge, f
 {
     return WTF::switchOn(edge,
         [&](const ScrollPaddingEdge::Fixed& fixed) {
-            return fixed.value;
+            return fixed.evaluate(zoom);
         },
         [&](const ScrollPaddingEdge::Percentage& percentage) {
-            return Style::evaluate(percentage, referenceLength, zoom /* FIXME ZOOM EFFECTED? */);
+            return Style::evaluate(percentage, referenceLength);
         },
         [&](const ScrollPaddingEdge::Calc& calculated) {
-            return Style::evaluate(calculated, referenceLength, zoom /* FIXME ZOOM EFFECTED? */);
+            return Style::evaluate(calculated, referenceLength);
         },
         [&](const CSS::Keyword::Auto&) {
             return 0.0f;

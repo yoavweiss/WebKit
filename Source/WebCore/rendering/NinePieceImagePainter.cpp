@@ -105,10 +105,10 @@ template<typename SliceValues>
 static LayoutBoxExtent computeSlices(const LayoutSize& size, const SliceValues& slices, int scaleFactor)
 {
     return {
-        std::min(size.height(),  Style::evaluate(slices.values.top(),    size.height(), 1.0f /* FIXME ZOOM EFFECTED? */)) * scaleFactor,
-        std::min(size.width(),   Style::evaluate(slices.values.right(),  size.width(), 1.0f /* FIXME ZOOM EFFECTED? */))  * scaleFactor,
-        std::min(size.height(),  Style::evaluate(slices.values.bottom(), size.height(), 1.0f /* FIXME ZOOM EFFECTED? */)) * scaleFactor,
-        std::min(size.width(),   Style::evaluate(slices.values.left(),   size.width(), 1.0f /* FIXME ZOOM EFFECTED? */))  * scaleFactor,
+        std::min(size.height(),  Style::evaluate(slices.values.top(),    size.height())) * scaleFactor,
+        std::min(size.width(),   Style::evaluate(slices.values.right(),  size.width()))  * scaleFactor,
+        std::min(size.height(),  Style::evaluate(slices.values.bottom(), size.height())) * scaleFactor,
+        std::min(size.width(),   Style::evaluate(slices.values.left(),   size.width()))  * scaleFactor,
     };
 }
 

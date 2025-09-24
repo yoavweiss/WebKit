@@ -1109,17 +1109,17 @@ template<typename SizeType> LayoutUnit RenderFlexibleBox::computeMainSizeFromAsp
 
     auto crossSizeOptional = WTF::switchOn(crossSizeLength,
         [&](const SizeType::Fixed& fixedCrossSizeLength) -> std::optional<LayoutUnit> {
-            return LayoutUnit(fixedCrossSizeLength.value);
+            return LayoutUnit(fixedCrossSizeLength.evaluate(1.0f /* FIXME FIND ZOOM */));
         },
         [&](const SizeType::Percentage& percentageCrossSizeLength) -> std::optional<LayoutUnit> {
             return mainAxisIsFlexItemInlineAxis(flexItem)
                 ? flexItem.computePercentageLogicalHeight(percentageCrossSizeLength)
-                : adjustBorderBoxLogicalWidthForBoxSizing(Style::evaluate(percentageCrossSizeLength, contentBoxWidth(), 1.0f /* FIXME FIND ZOOM */));
+                : adjustBorderBoxLogicalWidthForBoxSizing(Style::evaluate(percentageCrossSizeLength, contentBoxWidth()));
         },
         [&](const SizeType::Calc& calcCrossSizeLength) -> std::optional<LayoutUnit> {
             return mainAxisIsFlexItemInlineAxis(flexItem)
                 ? flexItem.computePercentageLogicalHeight(calcCrossSizeLength)
-                : adjustBorderBoxLogicalWidthForBoxSizing(Style::evaluate(calcCrossSizeLength, contentBoxWidth(), 1.0f /* FIXME FIND ZOOM */));
+                : adjustBorderBoxLogicalWidthForBoxSizing(Style::evaluate(calcCrossSizeLength, contentBoxWidth()));
         },
         [&](const CSS::Keyword::Auto&) -> std::optional<LayoutUnit> {
             ASSERT(flexItemCrossSizeShouldUseContainerCrossSize(flexItem));
@@ -2114,17 +2114,17 @@ LayoutUnit RenderFlexibleBox::computeCrossSizeForFlexItemUsingContainerCrossSize
         ASSERT(size.isFixed() || (size.isPercent() && availableLogicalHeightForPercentageComputation()));
         LayoutUnit definiteValue;
         if (auto fixedSize = size.tryFixed())
-            definiteValue = LayoutUnit { fixedSize->value };
+            definiteValue = LayoutUnit { fixedSize->evaluate(1.0f /* FIXME FIND ZOOM */) };
         else if (size.isPercent())
             definiteValue = availableLogicalHeightForPercentageComputation().value_or(0_lu);
 
         auto maximumSize = isHorizontal ? style().maxHeight() : style().maxWidth();
         if (auto fixedMaximumSize = maximumSize.tryFixed())
-            definiteValue = std::min(definiteValue, LayoutUnit { fixedMaximumSize->value });
+            definiteValue = std::min(definiteValue, LayoutUnit { fixedMaximumSize->evaluate(1.0f /* FIXME FIND ZOOM */) });
 
         auto minimumSize = isHorizontal ? style().minHeight() : style().minWidth();
         if (auto fixedMinimumSize = minimumSize.tryFixed())
-            definiteValue = std::max(definiteValue, LayoutUnit { fixedMinimumSize->value });
+            definiteValue = std::max(definiteValue, LayoutUnit { fixedMinimumSize->evaluate(1.0f /* FIXME FIND ZOOM */) });
 
         return definiteValue;
     };

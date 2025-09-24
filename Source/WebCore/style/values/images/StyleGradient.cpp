@@ -129,7 +129,7 @@ static std::optional<float> resolveColorStopPosition(const GradientLinearColorSt
         [&](const typename LengthPercentage<>::Dimension& length) -> std::optional<float> {
             if (gradientLength <= 0)
                 return 0;
-            return length.value / gradientLength;
+            return length.evaluate(1.0f /* FIXME FIND ZOOM */) / gradientLength;
         },
         [&](const typename LengthPercentage<>::Percentage& percentage) -> std::optional<float> {
             return percentage.value / 100.0;
@@ -943,7 +943,7 @@ template<CSSValueID Name> static Ref<WebCore::Gradient> createPlatformGradient(c
     auto computeCircleRadius = [&](const Variant<RadialGradient::Circle::Length, RadialGradient::Extent>& circleLengthOrExtent, FloatPoint centerPoint) -> std::pair<float, float> {
         return WTF::switchOn(circleLengthOrExtent,
             [&](const RadialGradient::Circle::Length& circleLength) -> std::pair<float, float> {
-                return { circleLength.value, 1 };
+                return { circleLength.evaluate(1.0f /* FIXME FIND ZOOM */), 1 };
             },
             [&](const RadialGradient::Extent& extent) -> std::pair<float, float> {
                 return WTF::switchOn(extent,

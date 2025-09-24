@@ -136,7 +136,7 @@ std::optional<LayoutUnit> FormattingGeometry::computedValue(const auto& geometry
 std::optional<LayoutUnit> FormattingGeometry::fixedValue(const auto& geometryProperty) const
 {
     if (auto fixed = geometryProperty.tryFixed())
-        return LayoutUnit { fixed->value };
+        return LayoutUnit { fixed->evaluate(1.0f /* FIXME FIND ZOOM */) };
     return { };
 }
 

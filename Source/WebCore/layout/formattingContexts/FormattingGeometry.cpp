@@ -87,7 +87,7 @@ template<FormattingGeometry::HeightType heightType> std::optional<LayoutUnit> Fo
             return { };
     }
     if (auto fixedHeight = height.tryFixed())
-        return LayoutUnit { fixedHeight->value };
+        return LayoutUnit { fixedHeight->evaluate(1.0f /* FIXME FIND ZOOM */) };
 
     if (!containingBlockHeight) {
         if (layoutState().inQuirksMode()) {

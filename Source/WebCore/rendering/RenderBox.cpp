@@ -816,7 +816,7 @@ LayoutUnit RenderBox::constrainContentBoxLogicalHeightByMinMax(LayoutUnit logica
     if (!logicalMaxHeight.isNone()) {
         if (auto percentageLogicalMaxHeight = logicalMaxHeight.tryPercentage(); percentageLogicalMaxHeight && percentageLogicalHeight) {
             auto availableLogicalHeight = logicalHeight / percentageLogicalHeight->value * 100;
-            logicalHeight = std::min(logicalHeight, Style::evaluate(*percentageLogicalMaxHeight, LayoutUnit(availableLogicalHeight), 1.0f /* FIXME FIND ZOOM */));
+            logicalHeight = std::min(logicalHeight, Style::evaluate(*percentageLogicalMaxHeight, LayoutUnit(availableLogicalHeight)));
         } else {
             if (auto computedContentLogicalMaxHeight = computeContentLogicalHeight(logicalMaxHeight, intrinsicContentHeight))
                 logicalHeight = std::min(logicalHeight, *computedContentLogicalMaxHeight);
@@ -826,7 +826,7 @@ LayoutUnit RenderBox::constrainContentBoxLogicalHeightByMinMax(LayoutUnit logica
     auto& logicalMinHeight = styleToUse.logicalMinHeight();
     if (auto percentageLogicalMinHeight = logicalMinHeight.tryPercentage(); percentageLogicalMinHeight && percentageLogicalHeight) {
         auto availableLogicalHeight = logicalHeight / percentageLogicalHeight->value * 100;
-        logicalHeight = std::max(logicalHeight, Style::evaluate(*percentageLogicalMinHeight, LayoutUnit(availableLogicalHeight), 1.0f /* FIXME FIND ZOOM */));
+        logicalHeight = std::max(logicalHeight, Style::evaluate(*percentageLogicalMinHeight, LayoutUnit(availableLogicalHeight)));
     } else {
         if (auto computedContentLogicalMinHeight = computeContentLogicalHeight(logicalMinHeight, intrinsicContentHeight))
             logicalHeight = std::max(logicalHeight, *computedContentLogicalMinHeight);
@@ -1515,7 +1515,7 @@ bool RenderBox::hasTrimmedMargin(std::optional<MarginTrimType> marginTrimType) c
 
 LayoutUnit RenderBox::adjustBorderBoxLogicalWidthForBoxSizing(const Style::Length<CSS::Nonnegative, float>& logicalWidth) const
 {
-    auto width = LayoutUnit { logicalWidth.value };
+    auto width = LayoutUnit { logicalWidth.evaluate(1.0f /* FIXME FIND ZOOM */) };
     auto bordersPlusPadding = borderAndPaddingLogicalWidth();
     if (style().boxSizing() == BoxSizing::ContentBox)
         return width + bordersPlusPadding;
@@ -1540,7 +1540,7 @@ LayoutUnit RenderBox::adjustBorderBoxLogicalHeightForBoxSizing(LayoutUnit height
 
 LayoutUnit RenderBox::adjustContentBoxLogicalWidthForBoxSizing(const Style::Length<CSS::Nonnegative, float>& logicalWidth) const
 {
-    auto width = LayoutUnit { logicalWidth.value };
+    auto width = LayoutUnit { logicalWidth.evaluate(1.0f /* FIXME FIND ZOOM */) };
     if (style().boxSizing() == BoxSizing::ContentBox)
         return std::max(0_lu, width);
     return std::max(0_lu, width - borderAndPaddingLogicalWidth());
@@ -2286,7 +2286,7 @@ LayoutRect RenderBox::clipRect(const LayoutPoint& location) const
         },
         [&](const Style::ClipRect& rect) {
             if (auto clipLeft = rect.value->left().tryLength()) {
-                auto c = LayoutUnit { clipLeft->value };
+                auto c = LayoutUnit { clipLeft->evaluate(1.0f /* FIXME FIND ZOOM */) };
                 clipRect.move(c, 0_lu);
                 clipRect.contract(c, 0_lu);
             }
@@ -2295,16 +2295,16 @@ LayoutRect RenderBox::clipRect(const LayoutPoint& location) const
             // from the left and top edges. Therefore it's better to avoid constraining to smaller widths and heights.
 
             if (auto clipRight = rect.value->right().tryLength())
-                clipRect.contract(width() - LayoutUnit { clipRight->value }, 0_lu);
+                clipRect.contract(width() - LayoutUnit { clipRight->evaluate(1.0f /* FIXME FIND ZOOM */) }, 0_lu);
 
             if (auto clipTop = rect.value->top().tryLength()) {
-                auto c = LayoutUnit { clipTop->value };
+                auto c = LayoutUnit { clipTop->evaluate(1.0f /* FIXME FIND ZOOM */) };
                 clipRect.move(0_lu, c);
                 clipRect.contract(0_lu, c);
             }
 
             if (auto clipBottom = rect.value->bottom().tryLength())
-                clipRect.contract(0_lu, height() - LayoutUnit { clipBottom->value });
+                clipRect.contract(0_lu, height() - LayoutUnit { clipBottom->evaluate(1.0f /* FIXME FIND ZOOM */) });
 
             return clipRect;
         }
@@ -2407,7 +2407,7 @@ LayoutUnit RenderBox::perpendicularContainingBlockLogicalHeight() const
     // FIXME: For now just support fixed heights.  Eventually should support percentage heights as well.
     if (auto fixedLogicalHeight = logicalHeight.tryFixed()) {
         // Use the content box logical height as specified by the style.
-        return containingBlock->adjustContentBoxLogicalHeightForBoxSizing(LayoutUnit { fixedLogicalHeight->value });
+        return containingBlock->adjustContentBoxLogicalHeightForBoxSizing(LayoutUnit { fixedLogicalHeight->evaluate(1.0f /* FIXME FIND ZOOM */) });
     }
 
     LayoutUnit fillFallbackExtent = containingBlockStyle.writingMode().isHorizontal()
@@ -3432,7 +3432,7 @@ RenderBox::LogicalExtentComputedValues RenderBox::computeLogicalHeight(LayoutUni
     auto computedLogicalHeight = [&] {
         if (!checkMinMaxHeight) {
             ASSERT(computedHeightValue.isFixed());
-            return LayoutUnit { computedHeightValue.tryFixed()->value };
+            return LayoutUnit { computedHeightValue.tryFixed()->evaluate(1.0f /* FIXME FIND ZOOM */) };
         }
 
         // Callers passing LayoutUnit::max() for logicalHeight means an indefinite height, so
@@ -3587,7 +3587,7 @@ template<typename SizeType> std::optional<LayoutUnit> RenderBox::computeIntrinsi
                 return resolveHeightForRatio(
                     borderAndPaddingLogicalWidth(),
                     borderAndPaddingLogicalHeight(),
-                    LayoutUnit { computedFixedLogicalWidth->value },
+                    LayoutUnit { computedFixedLogicalWidth->evaluate(1.0f /* FIXME FIND ZOOM */) },
                     intrinsicRatio.transposedSize().aspectRatio(),
                     BoxSizing::ContentBox
                 );
@@ -3656,7 +3656,7 @@ template<typename SizeType> std::optional<LayoutUnit> RenderBox::computeContentA
 
     return WTF::switchOn(logicalHeight,
         [&](const typename SizeType::Fixed& fixedLogicalHeight) -> std::optional<LayoutUnit> {
-            return LayoutUnit { fixedLogicalHeight.value };
+            return LayoutUnit { fixedLogicalHeight.evaluate(1.0f /* FIXME FIND ZOOM */) };
         },
         [&](const typename SizeType::Percentage&) -> std::optional<LayoutUnit> {
             return computePercentageLogicalHeight(logicalHeight);
@@ -3800,7 +3800,13 @@ template<typename SizeType> std::optional<LayoutUnit> RenderBox::computePercenta
     if (!availableHeight)
         return { };
 
-    auto result = Style::evaluate(logicalHeight, *availableHeight - rootMarginBorderPaddingHeight + (isRenderTable() && isOutOfFlowPositioned() ? containingBlock->paddingBefore() + containingBlock->paddingAfter() : 0_lu), 1.0f /* FIXME ZOOM EFFECTED? */);
+
+    auto result = [&] {
+        if constexpr (Style::IsPercentageOrCalc<SizeType>)
+            return Style::evaluate(logicalHeight, *availableHeight - rootMarginBorderPaddingHeight + (isRenderTable() && isOutOfFlowPositioned() ? containingBlock->paddingBefore() + containingBlock->paddingAfter() : 0_lu));
+        else
+            return Style::evaluate(logicalHeight, *availableHeight - rootMarginBorderPaddingHeight + (isRenderTable() && isOutOfFlowPositioned() ? containingBlock->paddingBefore() + containingBlock->paddingAfter() : 0_lu), 1.0f /* FIXME ZOOM EFFECTED? */);
+    }();
 
     // |overridingLogicalHeight| is the maximum height made available by the
     // cell to its percent height children when we decide they can determine the
@@ -3881,7 +3887,7 @@ template<typename SizeType> LayoutUnit RenderBox::computeReplacedLogicalWidthUsi
         // FIXME: Handle cases when containing block width is calculated or viewport percent.
         // https://bugs.webkit.org/show_bug.cgi?id=91071
         if (auto containerWidth = calculateContainerWidth(); containerWidth > 0 || (!containerWidth && (containingBlock()->style().logicalWidth().isSpecified())))
-            return adjustContentBoxLogicalWidthForBoxSizing(Style::evaluate(logicalWidth, containerWidth, 1.0f /* FIXME ZOOM EFFECTED? */));
+            return adjustContentBoxLogicalWidthForBoxSizing(Style::evaluate(logicalWidth, containerWidth));
         return 0_lu;
     };
 
@@ -3965,7 +3971,7 @@ static bool allowMinMaxPercentagesInAutoHeightBlocksQuirk()
 bool RenderBox::shouldComputePreferredLogicalWidthsFromStyle() const
 {
     auto fixedLogicalWidth = overridingLogicalWidthForFlexBasisComputation().value_or(style().logicalWidth()).tryFixed();
-    return fixedLogicalWidth && fixedLogicalWidth->value >= 0 && !(isDeprecatedFlexItem() && !static_cast<int>(fixedLogicalWidth->value));
+    return fixedLogicalWidth && fixedLogicalWidth->isPositiveOrZero() && !(isDeprecatedFlexItem() && !static_cast<int>(fixedLogicalWidth->evaluate(1.0f /* FIXME FIND ZOOM */)));
 }
 
 void RenderBox::computePreferredLogicalWidths()
@@ -3995,7 +4001,7 @@ void RenderBox::computePreferredLogicalWidths(const Style::MinimumSize& minLogic
 
     auto usedMinLogicalWidth = [&]() -> LayoutUnit {
         // FIXME: We should be able to handle other values for the min logical width here.
-        if (auto fixedMinLogicalWidth = minLogicalWidth.tryFixed(); fixedMinLogicalWidth && fixedMinLogicalWidth->value > 0)
+        if (auto fixedMinLogicalWidth = minLogicalWidth.tryFixed(); fixedMinLogicalWidth && fixedMinLogicalWidth->isPositive())
             return adjustContentBoxLogicalWidthForBoxSizing(*fixedMinLogicalWidth);
 
         if (minLogicalWidth.isMaxContent())
@@ -4105,7 +4111,8 @@ template<typename SizeType> LayoutUnit RenderBox::computeReplacedLogicalHeightUs
             auto computedValues = block.computeLogicalHeight(block.logicalHeight(), 0);
             LayoutUnit borderPaddingAdjustment = isOutOfFlowPositioned() ? block.borderLogicalHeight() : block.borderAndPaddingLogicalHeight();
             LayoutUnit newContentHeight = computedValues.m_extent - block.scrollbarLogicalHeight() - borderPaddingAdjustment;
-            return adjustContentBoxLogicalHeightForBoxSizing(Style::evaluate(logicalHeight, newContentHeight, 1.0f /* FIXME ZOOM EFFECTED? */));
+
+            return adjustContentBoxLogicalHeightForBoxSizing(Style::evaluate(logicalHeight, newContentHeight));
         }
         
         LayoutUnit availableHeight;
@@ -4129,13 +4136,13 @@ template<typename SizeType> LayoutUnit RenderBox::computeReplacedLogicalHeightUs
                     // Don't let table cells squeeze percent-height replaced elements
                     // <http://bugs.webkit.org/show_bug.cgi?id=15359>
                     availableHeight = std::max(availableHeight, intrinsicLogicalHeight());
-                    return Style::evaluate(logicalHeight, availableHeight - borderAndPaddingLogicalHeight(), 1.0f /* FIXME ZOOM EFFECTED? */);
+                    return Style::evaluate(logicalHeight, availableHeight - borderAndPaddingLogicalHeight());
                 }
                 downcast<RenderBlock>(*container).addPercentHeightDescendant(const_cast<RenderBox&>(*this));
                 container = container->containingBlock();
             }
         }
-        return adjustContentBoxLogicalHeightForBoxSizing(Style::evaluate(logicalHeight, availableHeight, 1.0f /* FIXME ZOOM EFFECTED? */));
+        return adjustContentBoxLogicalHeightForBoxSizing(Style::evaluate(logicalHeight, availableHeight));
     };
 
     auto content = [&] {
@@ -4144,7 +4151,7 @@ template<typename SizeType> LayoutUnit RenderBox::computeReplacedLogicalHeightUs
 
     return WTF::switchOn(logicalHeight,
         [&](const typename SizeType::Fixed& fixedLogicalHeight) -> LayoutUnit {
-            return adjustContentBoxLogicalHeightForBoxSizing(LayoutUnit { fixedLogicalHeight.value });
+            return adjustContentBoxLogicalHeightForBoxSizing(LayoutUnit { fixedLogicalHeight.evaluate(1.0f /* FIXME FIND ZOOM */) });
         },
         [&](const typename SizeType::Percentage& percentageLogicalHeight) -> LayoutUnit {
             return percentageOrCalculated(percentageLogicalHeight);
@@ -4487,10 +4494,10 @@ template<typename SizeType> LayoutUnit RenderBox::computePositionedLogicalWidthU
             return adjustContentBoxLogicalWidthForBoxSizing(fixedLogicalWidth);
         },
         [&](const typename SizeType::Percentage& percentageLogicalWidth) -> LayoutUnit {
-            return adjustContentBoxLogicalWidthForBoxSizing(Style::evaluate(percentageLogicalWidth, inlineConstraints.containingSize(), 1.0f /* FIXME ZOOM EFFECTED? */));
+            return adjustContentBoxLogicalWidthForBoxSizing(Style::evaluate(percentageLogicalWidth, inlineConstraints.containingSize()));
         },
         [&](const typename SizeType::Calc& calculatedLogicalWidth) -> LayoutUnit {
-            return adjustContentBoxLogicalWidthForBoxSizing(Style::evaluate(calculatedLogicalWidth, inlineConstraints.containingSize(), 1.0f /* FIXME ZOOM EFFECTED? */));
+            return adjustContentBoxLogicalWidthForBoxSizing(Style::evaluate(calculatedLogicalWidth, inlineConstraints.containingSize()));
         },
         [&](const CSS::Keyword::FitContent& keyword) -> LayoutUnit {
             return intrinsic(keyword);
@@ -5542,7 +5549,7 @@ std::optional<LayoutUnit> RenderBox::explicitIntrinsicInnerWidth() const
     }
 
     if (auto length = containIntrinsicWidth.tryLength())
-        return LayoutUnit { length->value };
+        return LayoutUnit { length->evaluate(1.0f /* FIXME FIND ZOOM */) };
 
     ASSERT(containIntrinsicWidth.isAutoAndNone());
     return { };
@@ -5565,7 +5572,7 @@ std::optional<LayoutUnit> RenderBox::explicitIntrinsicInnerHeight() const
     }
 
     if (auto length = containIntrinsicHeight.tryLength())
-        return LayoutUnit { length->value };
+        return LayoutUnit { length->evaluate(1.0f /* FIXME FIND ZOOM */) };
 
     ASSERT(containIntrinsicHeight.isAutoAndNone());
     return { };

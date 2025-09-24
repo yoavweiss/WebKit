@@ -68,7 +68,7 @@ public:
             return 0_css_px;
         if (m_image.overridesBorderWidths()) {
             if (auto fixedBorderWidthValue = m_image.width().values[side].tryFixed())
-                return Style::LineWidth { fixedBorderWidthValue->value };
+                return Style::LineWidth { *fixedBorderWidthValue };
         }
         return m_edges[side].width();
     }

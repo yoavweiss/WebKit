@@ -81,7 +81,7 @@ TrackSizingAlgorithm::UnsizedTracks TrackSizingAlgorithm::initializeTrackSizes(c
             if (minTrackSizingFunction.isLength()) {
                 auto& trackBreadthLength = minTrackSizingFunction.length();
                 if (auto fixedValue = trackBreadthLength.tryFixed())
-                    return LayoutUnit { fixedValue->value };
+                    return LayoutUnit { fixedValue->evaluate(1.0f /* FIXME FIND ZOOM */) };
 
                 if (auto percentValue = trackBreadthLength.tryPercentage()) {
                     ASSERT_NOT_IMPLEMENTED_YET();
@@ -108,7 +108,7 @@ TrackSizingAlgorithm::UnsizedTracks TrackSizingAlgorithm::initializeTrackSizes(c
             if (maxTrackSizingFunction.isLength()) {
                 auto trackBreadthLength = maxTrackSizingFunction.length();
                 if (auto fixedValue = trackBreadthLength.tryFixed())
-                    return LayoutUnit { fixedValue->value };
+                    return LayoutUnit { fixedValue->evaluate(1.0f /* FIXME FIND ZOOM */) };
             }
 
             // An intrinsic sizing function

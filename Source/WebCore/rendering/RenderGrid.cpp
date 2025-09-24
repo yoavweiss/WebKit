@@ -893,19 +893,19 @@ unsigned RenderGrid::computeAutoRepeatTracksCount(Style::GridTrackSizingDirectio
         auto& maxSize = isRowAxis ? style().logicalMaxWidth() : style().logicalMaxHeight();
         auto availableMaxSize = WTF::switchOn(maxSize,
             [&](const Style::MaximumSize::Fixed& fixedMaxSize) -> std::optional<LayoutUnit> {
-                auto maxSizeValue = LayoutUnit { fixedMaxSize.value };
+                auto maxSizeValue = LayoutUnit { fixedMaxSize.evaluate(1.0f /* FIXME FIND ZOOM */) };
                 return isRowAxis
                     ? adjustContentBoxLogicalWidthForBoxSizing(maxSizeValue)
                     : adjustContentBoxLogicalHeightForBoxSizing(maxSizeValue);
             },
             [&](const Style::MaximumSize::Percentage& percentageMaxSize) -> std::optional<LayoutUnit> {
-                auto maxSizeValue = Style::evaluate(percentageMaxSize, containingBlockAvailableSize(), 1.0f /* FIXME FIND ZOOM */);
+                auto maxSizeValue = Style::evaluate(percentageMaxSize, containingBlockAvailableSize());
                 return isRowAxis
                     ? adjustContentBoxLogicalWidthForBoxSizing(maxSizeValue)
                     : adjustContentBoxLogicalHeightForBoxSizing(maxSizeValue);
             },
             [&](const Style::MaximumSize::Calc& calcMaxSize) -> std::optional<LayoutUnit> {
-                auto maxSizeValue = Style::evaluate(calcMaxSize, containingBlockAvailableSize(), 1.0f /* FIXME FIND ZOOM */);
+                auto maxSizeValue = Style::evaluate(calcMaxSize, containingBlockAvailableSize());
                 return isRowAxis
                     ? adjustContentBoxLogicalWidthForBoxSizing(maxSizeValue)
                     : adjustContentBoxLogicalHeightForBoxSizing(maxSizeValue);
@@ -925,19 +925,19 @@ unsigned RenderGrid::computeAutoRepeatTracksCount(Style::GridTrackSizingDirectio
 
         auto availableMinSize = WTF::switchOn(minSize,
             [&](const Style::MinimumSize::Fixed& fixedMinSize) -> std::optional<LayoutUnit> {
-                auto minSizeValue = LayoutUnit { fixedMinSize.value };
+                auto minSizeValue = LayoutUnit { fixedMinSize.evaluate(1.0f /* FIXME FIND ZOOM */) };
                 return isRowAxis
                     ? adjustContentBoxLogicalWidthForBoxSizing(minSizeValue)
                     : adjustContentBoxLogicalHeightForBoxSizing(minSizeValue);
             },
             [&](const Style::MinimumSize::Percentage& percentageMinSize) -> std::optional<LayoutUnit> {
-                auto minSizeValue = Style::evaluate(percentageMinSize, containingBlockAvailableSize(), 1.0f /* FIXME FIND ZOOM */);
+                auto minSizeValue = Style::evaluate(percentageMinSize, containingBlockAvailableSize());
                 return isRowAxis
                     ? adjustContentBoxLogicalWidthForBoxSizing(minSizeValue)
                     : adjustContentBoxLogicalHeightForBoxSizing(minSizeValue);
             },
             [&](const Style::MinimumSize::Calc& calcMinSize) -> std::optional<LayoutUnit> {
-                auto minSizeValue = Style::evaluate(calcMinSize, containingBlockAvailableSize(), 1.0f /* FIXME FIND ZOOM */);
+                auto minSizeValue = Style::evaluate(calcMinSize, containingBlockAvailableSize());
                 return isRowAxis
                     ? adjustContentBoxLogicalWidthForBoxSizing(minSizeValue)
                     : adjustContentBoxLogicalHeightForBoxSizing(minSizeValue);

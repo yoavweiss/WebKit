@@ -69,8 +69,8 @@ template<typename Numeric, CSS::PrimitiveKeyword... Ks> struct LengthWrapperBase
 
     LengthWrapperBase(CSS::ValidKeywordForList<Keywords> auto keyword) : m_value(Keywords::offsetForKeyword(keyword)) { }
 
-    LengthWrapperBase(Fixed fixed) : m_value(indexForFixed, fixed.value) { }
-    LengthWrapperBase(Fixed fixed, bool hasQuirk) : m_value(indexForFixed, fixed.value, hasQuirk) { }
+    LengthWrapperBase(Fixed fixed) : m_value(indexForFixed, fixed.unevaluatedValue()) { }
+    LengthWrapperBase(Fixed fixed, bool hasQuirk) : m_value(indexForFixed, fixed.unevaluatedValue(), hasQuirk) { }
     LengthWrapperBase(Percentage percent) : m_value(indexForPercentage, percent.value) { }
     LengthWrapperBase(Calc&& calc) : m_value(indexForCalc, calc.protectedCalculation()) { }
     LengthWrapperBase(Specified&& specified) : m_value(toData(specified)) { }
@@ -155,7 +155,7 @@ private:
     {
         return WTF::switchOn(specified,
             [](const Fixed& fixed) {
-                return LengthWrapperData { indexForFixed, fixed.value };
+                return LengthWrapperData { indexForFixed, fixed.unevaluatedValue() };
             },
             [](const Percentage& percentage) {
                 return LengthWrapperData { indexForPercentage, percentage.value };

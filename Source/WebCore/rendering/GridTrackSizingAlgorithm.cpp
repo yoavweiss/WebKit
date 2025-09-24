@@ -1108,7 +1108,7 @@ LayoutUnit GridTrackSizingAlgorithmStrategy::minContentContributionForGridItem(R
             auto gridItemLogicalMinWidth = gridItem.style().logicalMinWidth();
 
             if (auto fixedFridItemLogicalMinWidth = gridItemLogicalMinWidth.tryFixed())
-                return LayoutUnit { fixedFridItemLogicalMinWidth->value };
+                return LayoutUnit { fixedFridItemLogicalMinWidth->evaluate(1.0f /* FIXME FIND ZOOM */) };
             if (gridItemLogicalMinWidth.isMaxContent())
                 return gridItem.maxPreferredLogicalWidth();
 

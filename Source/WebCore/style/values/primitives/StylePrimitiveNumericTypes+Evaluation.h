@@ -42,15 +42,13 @@ using namespace CSS::Literals;
 // MARK: - Length
 
 template<auto R, typename V> struct Evaluation<Length<R, V>> {
-    using StyleType = Length<R, V>;
-
-    constexpr double operator()(const StyleType& value, float zoom)
+    constexpr typename Length<R, V>::ResolvedValueType operator()(const Length<R, V>& value, float zoom)
     {
-        return static_cast<double>(value.evaluate(zoom));
+        return static_cast<typename Length<R, V>::ResolvedValueType>(value.evaluate(zoom));
     }
-    template<typename Reference> constexpr auto operator()(const StyleType& value, Reference, float zoom) -> Reference
+    template<typename Reference> constexpr auto operator()(const Length<R, V>& value, Reference, float zoom) -> Reference
     {
-        return static_cast<Reference>(value.evaluate(zoom));
+        return Reference(value.evaluate(zoom));
     }
 };
 
@@ -61,17 +59,19 @@ template<auto R, typename V> struct Evaluation<Percentage<R, V>> {
     {
         return percentage.value / static_cast<typename Percentage<R, V>::ResolvedValueType>(100.0);
     }
-    template<typename Reference> constexpr auto operator()(const Percentage<R, V>& percentage, Reference referenceLength) -> Reference
+    constexpr auto operator()(const Percentage<R, V>& percentage, float referenceLength) -> float
     {
-        return static_cast<Reference>(percentage.value) / 100.0 * referenceLength;
+        return static_cast<float>(percentage.value) / 100.0 * referenceLength;
+    }
+    constexpr auto operator()(const Percentage<R, V>& percentage, double referenceLength) -> double
+    {
+        return static_cast<double>(percentage.value) / 100.0 * referenceLength;
+    }
+    constexpr auto operator()(const Percentage<R, V>& percentage, LayoutUnit referenceLength) -> LayoutUnit
+    {
+        return LayoutUnit(percentage.value / 100.0 * static_cast<double>(referenceLength));
     }
 };
-
-template<auto R, typename V> constexpr LayoutUnit evaluate(const Percentage<R, V>& percentage, LayoutUnit referenceLength)
-{
-    // Don't remove the extra cast to float. It is needed for rounding on 32-bit Intel machines that use the FPU stack.
-    return LayoutUnit(static_cast<float>(percentage.value / 100.0 * referenceLength));
-}
 
 // MARK: - Numeric
 
@@ -82,7 +82,7 @@ template<NonCompositeNumeric StyleType> struct Evaluation<StyleType> {
     }
     template<typename Reference> constexpr auto operator()(const StyleType& value, Reference) -> Reference
     {
-        return static_cast<Reference>(value.value);
+        return Reference(value.value);
     }
 };
 
@@ -91,7 +91,7 @@ template<NonCompositeNumeric StyleType> struct Evaluation<StyleType> {
 template<> struct Evaluation<Ref<CalculationValue>> {
     template<typename Reference> auto operator()(Ref<CalculationValue> calculation, Reference referenceLength)
     {
-        return static_cast<Reference>(calculation->evaluate(referenceLength));
+        return Reference(calculation->evaluate(referenceLength));
     }
 };
 
@@ -102,10 +102,46 @@ template<Calc Calculation> struct Evaluation<Calculation> {
     }
 };
 
+// MARK: - LengthPercentage
+
+template<auto R, typename V> struct Evaluation<LengthPercentage<R, V>> {
+    template<typename Reference> constexpr auto operator()(const LengthPercentage<R, V>& lengthPercentage, Reference referenceLength, float zoom) -> Reference
+    {
+        return WTF::switchOn(lengthPercentage,
+            [&](const typename LengthPercentage<R, V>::Dimension& length) -> Reference {
+                return Reference(evaluate(length, zoom));
+            },
+            [&](const typename LengthPercentage<R, V>::Percentage& percentage) -> Reference {
+                return Reference(evaluate(percentage, referenceLength));
+            },
+            [&](const typename LengthPercentage<R, V>::Calc& calculation) -> Reference {
+                return Reference(evaluate(calculation, referenceLength));
+            }
+        );
+    }
+};
+
 // MARK: - SpaceSeparatedPoint
 
 template<typename T> struct Evaluation<SpaceSeparatedPoint<T>> {
+    FloatPoint operator()(const SpaceSeparatedPoint<T>& value, FloatSize referenceBox)
+        requires HasTwoParameterEvaluate<T, float>
+    {
+        return {
+            evaluate(value.x(), referenceBox.width()),
+            evaluate(value.y(), referenceBox.height())
+        };
+    }
+    LayoutPoint operator()(const SpaceSeparatedPoint<T>& value, LayoutSize referenceBox)
+        requires HasTwoParameterEvaluate<T, LayoutUnit>
+    {
+        return {
+            evaluate(value.x(), referenceBox.width()),
+            evaluate(value.y(), referenceBox.height())
+        };
+    }
     FloatPoint operator()(const SpaceSeparatedPoint<T>& value, FloatSize referenceBox, float zoom)
+        requires HasThreeParameterEvaluate<T, float, float>
     {
         return {
             evaluate(value.x(), referenceBox.width(), zoom),
@@ -113,6 +149,7 @@ template<typename T> struct Evaluation<SpaceSeparatedPoint<T>> {
         };
     }
     LayoutPoint operator()(const SpaceSeparatedPoint<T>& value, LayoutSize referenceBox, float zoom)
+        requires HasThreeParameterEvaluate<T, LayoutUnit, float>
     {
         return {
             evaluate(value.x(), referenceBox.width(), zoom),
@@ -124,7 +161,24 @@ template<typename T> struct Evaluation<SpaceSeparatedPoint<T>> {
 // MARK: - SpaceSeparatedSize
 
 template<typename T> struct Evaluation<SpaceSeparatedSize<T>> {
+    FloatSize operator()(const SpaceSeparatedSize<T>& value, FloatSize referenceBox)
+        requires HasTwoParameterEvaluate<T, float>
+    {
+        return {
+            evaluate(value.width(), referenceBox.width()),
+            evaluate(value.height(), referenceBox.height())
+        };
+    }
+    LayoutSize operator()(const SpaceSeparatedSize<T>& value, LayoutSize referenceBox)
+        requires HasTwoParameterEvaluate<T, LayoutUnit>
+    {
+        return {
+            evaluate(value.width(), referenceBox.width()),
+            evaluate(value.height(), referenceBox.height())
+        };
+    }
     FloatSize operator()(const SpaceSeparatedSize<T>& value, FloatSize referenceBox, float zoom)
+        requires HasThreeParameterEvaluate<T, float, float>
     {
         return {
             evaluate(value.width(), referenceBox.width(), zoom),
@@ -132,6 +186,7 @@ template<typename T> struct Evaluation<SpaceSeparatedSize<T>> {
         };
     }
     LayoutSize operator()(const SpaceSeparatedSize<T>& value, LayoutSize referenceBox, float zoom)
+        requires HasThreeParameterEvaluate<T, LayoutUnit, float>
     {
         return {
             evaluate(value.width(), referenceBox.width(), zoom),
@@ -143,7 +198,24 @@ template<typename T> struct Evaluation<SpaceSeparatedSize<T>> {
 // MARK: - MinimallySerializingSpaceSeparatedSize
 
 template<typename T> struct Evaluation<MinimallySerializingSpaceSeparatedSize<T>> {
+    FloatSize operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, FloatSize referenceBox)
+        requires HasTwoParameterEvaluate<T, float>
+    {
+        return {
+            evaluate(value.width(), referenceBox.width()),
+            evaluate(value.height(), referenceBox.height())
+        };
+    }
+    LayoutSize operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, LayoutSize referenceBox)
+        requires HasTwoParameterEvaluate<T, LayoutUnit>
+    {
+        return {
+            evaluate(value.width(), referenceBox.width()),
+            evaluate(value.height(), referenceBox.height())
+        };
+    }
     FloatSize operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, FloatSize referenceBox, float zoom)
+        requires HasThreeParameterEvaluate<T, float, float>
     {
         return {
             evaluate(value.width(), referenceBox.width(), zoom),
@@ -151,6 +223,7 @@ template<typename T> struct Evaluation<MinimallySerializingSpaceSeparatedSize<T>
         };
     }
     LayoutSize operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, LayoutSize referenceBox, float zoom)
+        requires HasThreeParameterEvaluate<T, LayoutUnit, float>
     {
         return {
             evaluate(value.width(), referenceBox.width(), zoom),
@@ -158,20 +231,6 @@ template<typename T> struct Evaluation<MinimallySerializingSpaceSeparatedSize<T>
         };
     }
 };
-
-// MARK: - VariantLike
-
-template<VariantLike CSSType, typename... Rest> decltype(auto) evaluate(const CSSType& value, Rest&& ...rest)
-{
-    return WTF::switchOn(value, [&](const auto& alternative) { return evaluate(alternative, std::forward<Rest>(rest)...); });
-}
-
-// MARK: - TupleLike
-
-template<TupleLike CSSType, typename... Rest> requires (std::tuple_size_v<CSSType> == 1) decltype(auto) evaluate(const CSSType& value, Rest&& ...rest)
-{
-    return evaluate(get<0>(value), std::forward<Rest>(rest)...);
-}
 
 // MARK: - Calculated Evaluations
 

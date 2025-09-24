@@ -380,7 +380,7 @@ LayoutSize RenderBoxModelObject::relativePositionOffset() const
     auto topFixed = top.tryFixed();
     auto leftFixed = left.tryFixed();
     if (topFixed && leftFixed && bottom.isAuto() && right.isAuto() && containingBlock->writingMode().isAnyLeftToRight()) {
-        offset.expand(leftFixed->value, topFixed->value);
+        offset.expand(leftFixed->evaluate(1.0f /* FIXME FIND ZOOM */), topFixed->evaluate(1.0f /* FIXME FIND ZOOM */));
         return offset;
     }
 

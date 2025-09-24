@@ -280,12 +280,12 @@ RenderMathMLBlock::SizeAppliedToMathContent RenderMathMLBlock::sizeAppliedToMath
     // FIXME: Resolve percentages.
     // https://github.com/w3c/mathml-core/issues/76
     if (auto fixedLogicalWidth = style().logicalWidth().tryFixed())
-        sizes.logicalWidth = fixedLogicalWidth->value;
+        sizes.logicalWidth = fixedLogicalWidth->evaluate(1.0f /* FIXME FIND ZOOM */);
 
     // FIXME: Resolve percentages.
     // https://github.com/w3c/mathml-core/issues/77
     if (auto fixedLogicalHeight = style().logicalHeight().tryFixed(); phase == LayoutPhase::Layout && fixedLogicalHeight)
-        sizes.logicalHeight = fixedLogicalHeight->value;
+        sizes.logicalHeight = fixedLogicalHeight->evaluate(1.0f /* FIXME FIND ZOOM */);
 
     return sizes;
 }

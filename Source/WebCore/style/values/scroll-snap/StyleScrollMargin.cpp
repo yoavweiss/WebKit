@@ -35,12 +35,12 @@ namespace Style {
 
 LayoutUnit Evaluation<ScrollMarginEdge>::operator()(const ScrollMarginEdge& edge, LayoutUnit, float zoom)
 {
-    return LayoutUnit(edge.m_value.value * zoom);
+    return LayoutUnit(edge.m_value.evaluate(zoom));
 }
 
 float Evaluation<ScrollMarginEdge>::operator()(const ScrollMarginEdge& edge, float, float zoom)
 {
-    return edge.m_value.value * zoom;
+    return edge.m_value.evaluate(zoom);
 }
 
 auto CSSValueConversion<ScrollMarginEdge>::operator()(BuilderState& state, const CSSValue& value) -> ScrollMarginEdge

@@ -74,7 +74,7 @@ namespace LayoutIntegration {
 static LayoutUnit usedValueOrZero(const Style::MarginEdge& marginEdge, std::optional<LayoutUnit> availableWidth)
 {
     if (auto fixed = marginEdge.tryFixed())
-        return LayoutUnit { fixed->value };
+        return LayoutUnit { fixed->evaluate(1.0f /* FIXME FIND ZOOM */) };
 
     if (marginEdge.isAuto() || !availableWidth)
         return { };
@@ -85,7 +85,7 @@ static LayoutUnit usedValueOrZero(const Style::MarginEdge& marginEdge, std::opti
 static LayoutUnit usedValueOrZero(const Style::PaddingEdge& paddingEdge, std::optional<LayoutUnit> availableWidth)
 {
     if (auto fixed = paddingEdge.tryFixed())
-        return LayoutUnit { fixed->value };
+        return LayoutUnit { fixed->evaluate(1.0f /* FIXME FIND ZOOM */) };
 
     if (!availableWidth)
         return { };

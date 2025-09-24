@@ -3363,7 +3363,10 @@ void Document::pageSizeAndMarginsInPixels(int pageIndex, IntSize& pageSize, int&
             return pageSize;
         },
         [&](const Style::PageSize::Lengths& lengths) -> IntSize {
-            return { static_cast<int>(lengths.width().value), static_cast<int>(lengths.height().value) };
+            return {
+                static_cast<int>(lengths.width().evaluate(1.0f /* FIXME FIND ZOOM */)),
+                static_cast<int>(lengths.height().evaluate(1.0f /* FIXME FIND ZOOM */)),
+            };
         }
     );
 

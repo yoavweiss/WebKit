@@ -179,8 +179,8 @@ static void applyBoxShadowForBackground(GraphicsContext& context, const RenderSt
         if (shadow.inset)
             continue;
 
-        FloatSize shadowOffset(shadow.location.x().value, shadow.location.y().value);
-        context.setDropShadow({ shadowOffset, shadow.blur.value, style.colorWithColorFilter(shadow.color), shadow.isWebkitBoxShadow ? ShadowRadiusMode::Legacy : ShadowRadiusMode::Default });
+        FloatSize shadowOffset(shadow.location.x().evaluate(1.0f /* FIXME FIND ZOOM */), shadow.location.y().evaluate(1.0f /* FIXME FIND ZOOM */));
+        context.setDropShadow({ shadowOffset, shadow.blur.evaluate(1.0f /* FIXME FIND ZOOM */), style.colorWithColorFilter(shadow.color), shadow.isWebkitBoxShadow ? ShadowRadiusMode::Legacy : ShadowRadiusMode::Default });
         break;
     }
 }
@@ -799,7 +799,7 @@ template<typename Layer> LayoutSize BackgroundPainter::calculateFillTileSize(con
             auto layerHeight = size.height();
 
             if (auto fixed = layerWidth.tryFixed())
-                tileSize.setWidth(fixed->value);
+                tileSize.setWidth(fixed->evaluate(1.0f /* FIXME FIND ZOOM */));
             else if (layerWidth.isPercentOrCalculated()) {
                 auto resolvedWidth = Style::evaluate(layerWidth, positioningAreaSize.width(), 1.0f /* FIXME FIND ZOOM */);
                 // Non-zero resolved value should always produce some content.
@@ -807,7 +807,7 @@ template<typename Layer> LayoutSize BackgroundPainter::calculateFillTileSize(con
             }
 
             if (auto fixed = layerHeight.tryFixed())
-                tileSize.setHeight(fixed->value);
+                tileSize.setHeight(fixed->evaluate(1.0f /* FIXME FIND ZOOM */));
             else if (layerHeight.isPercentOrCalculated()) {
                 auto resolvedHeight = Style::evaluate(layerHeight, positioningAreaSize.height(), 1.0f /* FIXME FIND ZOOM */);
                 // Non-zero resolved value should always produce some content.
@@ -851,10 +851,10 @@ void BackgroundPainter::paintBoxShadow(const LayoutRect& paintRect, const Render
         if (Style::shadowStyle(shadow) != shadowStyle)
             continue;
 
-        LayoutSize shadowOffset(shadow.location.x().value, shadow.location.y().value);
+        LayoutSize shadowOffset(shadow.location.x().evaluate(1.0f /* FIXME FIND ZOOM */), shadow.location.y().evaluate(1.0f /* FIXME FIND ZOOM */));
         LayoutUnit shadowPaintingExtent = Style::paintingExtent(shadow);
-        LayoutUnit shadowSpread = LayoutUnit(shadow.spread.value);
-        auto shadowRadius = shadow.blur.value;
+        LayoutUnit shadowSpread = LayoutUnit(shadow.spread.evaluate(1.0f /* FIXME FIND ZOOM */));
+        auto shadowRadius = shadow.blur.evaluate(1.0f /* FIXME FIND ZOOM */);
 
         if (shadowOffset.isZero() && !shadowRadius && !shadowSpread)
             continue;

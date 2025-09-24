@@ -3050,12 +3050,12 @@ inline RefPtr<CSSValue> ExtractorCustom::extractTransformOriginShorthand(Extract
         auto box = state.renderer->transformReferenceBoxRect(state.style);
         list.append(ExtractorConverter::convertNumberAsPixels(state, Style::evaluate(state.style.transformOriginX(), box.width(), 1.0f /* FIXME FIND ZOOM */)));
         list.append(ExtractorConverter::convertNumberAsPixels(state, Style::evaluate(state.style.transformOriginY(), box.height(), 1.0f /* FIXME FIND ZOOM */)));
-        if (auto transformOriginZ = state.style.transformOriginZ(); transformOriginZ.value)
+        if (auto transformOriginZ = state.style.transformOriginZ(); !transformOriginZ.isZero())
             list.append(ExtractorConverter::convertStyleType(state, transformOriginZ));
     } else {
         list.append(ExtractorConverter::convertStyleType(state, state.style.transformOriginX()));
         list.append(ExtractorConverter::convertStyleType(state, state.style.transformOriginY()));
-        if (auto transformOriginZ = state.style.transformOriginZ(); transformOriginZ.value)
+        if (auto transformOriginZ = state.style.transformOriginZ(); !transformOriginZ.isZero())
             list.append(ExtractorConverter::convertStyleType(state, transformOriginZ));
     }
     return CSSValueList::createSpaceSeparated(WTFMove(list));
@@ -3068,7 +3068,7 @@ inline void ExtractorCustom::extractTransformOriginShorthandSerialization(Extrac
         ExtractorSerializer::serializeNumberAsPixels(state, builder, context, Style::evaluate(state.style.transformOriginX(), box.width(), 1.0f /* FIXME FIND ZOOM */));
         builder.append(' ');
         ExtractorSerializer::serializeNumberAsPixels(state, builder, context, Style::evaluate(state.style.transformOriginY(), box.height(), 1.0f /* FIXME FIND ZOOM */));
-        if (auto transformOriginZ = state.style.transformOriginZ(); transformOriginZ.value) {
+        if (auto transformOriginZ = state.style.transformOriginZ(); !transformOriginZ.isZero()) {
             builder.append(' ');
             ExtractorSerializer::serializeStyleType(state, builder, context, transformOriginZ);
         }
@@ -3076,7 +3076,7 @@ inline void ExtractorCustom::extractTransformOriginShorthandSerialization(Extrac
         ExtractorSerializer::serializeStyleType(state, builder, context, state.style.transformOriginX());
         builder.append(' ');
         ExtractorSerializer::serializeStyleType(state, builder, context, state.style.transformOriginY());
-        if (auto transformOriginZ = state.style.transformOriginZ(); transformOriginZ.value) {
+        if (auto transformOriginZ = state.style.transformOriginZ(); !transformOriginZ.isZero()) {
             builder.append(' ');
             ExtractorSerializer::serializeStyleType(state, builder, context, transformOriginZ);
         }

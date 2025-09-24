@@ -118,10 +118,24 @@ protected:
 
 inline FloatSize TextBoxPainter::rotateShadowOffset(const SpaceSeparatedPoint<Style::Length<>>& offset, WritingMode writingMode)
 {
-    if (writingMode.isHorizontal())
-        return { offset.x().value, offset.y().value };
-    if (writingMode.isLineOverLeft()) // sideways-lr
-        return { -offset.y().value, offset.x().value };
-    return { offset.y().value, -offset.x().value };
+    if (writingMode.isHorizontal()) {
+        return {
+            offset.x().evaluate(1.0f /* FIXME FIND ZOOM */),
+            offset.y().evaluate(1.0f /* FIXME FIND ZOOM */),
+        };
+    }
+
+    if (writingMode.isLineOverLeft()) { // sideways-lr
+        return {
+            -offset.y().evaluate(1.0f /* FIXME FIND ZOOM */),
+             offset.x().evaluate(1.0f /* FIXME FIND ZOOM */),
+        };
+    }
+
+    return {
+         offset.y().evaluate(1.0f /* FIXME FIND ZOOM */),
+        -offset.x().evaluate(1.0f /* FIXME FIND ZOOM */),
+    };
 }
-}
+
+} // namespace WebCore

@@ -50,7 +50,7 @@ struct LineWidth {
     constexpr bool isZero() const { return value.isZero(); }
     constexpr bool isPositive() const { return value.isPositive(); }
 
-    constexpr explicit operator bool() const { return !!value.value; }
+    constexpr explicit operator bool() const { return !isZero(); }
 
     constexpr bool operator==(const LineWidth&) const = default;
     constexpr auto operator<=>(const LineWidth&) const = default;
@@ -66,9 +66,9 @@ template<> struct CSSValueConversion<LineWidth> { auto operator()(BuilderState&,
 // MARK: - Evaluate
 
 template<> struct Evaluation<LineWidth> {
-    constexpr auto operator()(const LineWidth& value) -> float
+    constexpr auto operator()(const LineWidth& value, float zoom) -> float
     {
-        return value.value.evaluate(1.0f /* FIXME FIND ZOOM */);
+        return value.value.evaluate(zoom);
     }
 };
 

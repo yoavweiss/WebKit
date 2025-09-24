@@ -1016,8 +1016,8 @@ static bool hasNonZeroTransformOrigin(const RenderLayerModelObject& renderer)
     auto& style = renderer.style();
     auto fixedTransformOriginX = style.transformOriginX().tryFixed();
     auto fixedTransformOriginY = style.transformOriginY().tryFixed();
-    return (fixedTransformOriginX && fixedTransformOriginX->value)
-        || (fixedTransformOriginY && fixedTransformOriginY->value);
+    return (fixedTransformOriginX && !fixedTransformOriginX->isZero())
+        || (fixedTransformOriginY && !fixedTransformOriginY->isZero());
 }
 
 bool RenderLayerBacking::updateCompositedBounds()

@@ -332,7 +332,7 @@ void RenderBlockFlow::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth,
 
     if (auto* cell = dynamicDowncast<RenderTableCell>(*this)) {
         auto tableCellWidth = cell->styleOrColLogicalWidth();
-        if (auto fixedTableCellWidth = tableCellWidth.tryFixed(); fixedTableCellWidth && fixedTableCellWidth->value > 0)
+        if (auto fixedTableCellWidth = tableCellWidth.tryFixed(); fixedTableCellWidth && fixedTableCellWidth->isPositive())
             maxLogicalWidth = std::max(minLogicalWidth, adjustContentBoxLogicalWidthForBoxSizing(*fixedTableCellWidth));
     }
 
@@ -1087,7 +1087,7 @@ void RenderBlockFlow::layoutBlockChild(RenderBox& child, MarginInfo& marginInfo,
 
     auto& childStyle = child.style();
     if (auto blockStepSizeForChild = childStyle.blockStepSize().tryLength(); blockStepSizeForChild && BlockStepSizing::childHasSupportedStyle(childStyle))
-        performBlockStepSizing(child, LayoutUnit(blockStepSizeForChild->value));
+        performBlockStepSizing(child, LayoutUnit(blockStepSizeForChild->evaluate(1.0f /* FIXME FIND ZOOM */)));
 
     // Cache if we are at the top of the block right now.
     bool atBeforeSideOfBlock = marginInfo.atBeforeSideOfBlock();
@@ -4462,7 +4462,7 @@ static LayoutUnit getBorderPaddingMargin(const RenderBoxModelObject& child, bool
 {
     auto borderMarginWidth = [](LayoutUnit childValue, const Style::MarginEdge& margin) -> LayoutUnit {
         if (auto fixed = margin.tryFixed())
-            return LayoutUnit(fixed->value);
+            return LayoutUnit(fixed->evaluate(1.0f /* FIXME FIND ZOOM */));
         if (margin.isAuto())
             return { };
         return childValue;
@@ -4470,7 +4470,7 @@ static LayoutUnit getBorderPaddingMargin(const RenderBoxModelObject& child, bool
 
     auto borderPaddingWidth = [](LayoutUnit childValue, const Style::PaddingEdge& padding) -> LayoutUnit {
         if (auto fixed = padding.tryFixed())
-            return LayoutUnit(fixed->value);
+            return LayoutUnit(fixed->evaluate(1.0f /* FIXME FIND ZOOM */));
         return childValue;
     };
 
@@ -4567,14 +4567,14 @@ static inline std::optional<LayoutUnit> textIndentForBlockContainer(const Render
 {
     auto& style = renderer.style();
     if (auto fixedTextIndent = style.textIndent().length.tryFixed())
-        return fixedTextIndent->value ? std::make_optional(LayoutUnit { fixedTextIndent->value }) : std::nullopt;
+        return !fixedTextIndent->isZero() ? std::make_optional(LayoutUnit { fixedTextIndent->evaluate(1.0f /* FIXME FIND ZOOM */) }) : std::nullopt;
 
     auto indentValue = LayoutUnit { };
     if (auto* containingBlock = renderer.containingBlock()) {
         if (auto containingBlockFixedLogicalWidth = containingBlock->style().logicalWidth().tryFixed()) {
             // At this point of the shrink-to-fit computation, we don't have a used value for the containing block width
             // (that's exactly to what we try to contribute here) unless the computed value is fixed.
-            indentValue = Style::evaluate(style.textIndent().length, containingBlockFixedLogicalWidth->value, 1.0f /* FIXME ZOOM EFFECTED? */);
+            indentValue = Style::evaluate(style.textIndent().length, containingBlockFixedLogicalWidth->evaluate(1.0f /* FIXME FIND ZOOM */), 1.0f /* FIXME ZOOM EFFECTED? */);
         }
     }
     return indentValue ? std::make_optional(indentValue) : std::nullopt;
@@ -4734,9 +4734,9 @@ void RenderBlockFlow::computeInlinePreferredLogicalWidths(LayoutUnit& minLogical
                         lastText = nullptr;
                     LayoutUnit margins;
                     if (auto fixedMarginStart = childStyle.marginStart(writingMode()).tryFixed())
-                        margins += LayoutUnit::fromFloatCeil(fixedMarginStart->value);
+                        margins += LayoutUnit::fromFloatCeil(fixedMarginStart->evaluate(1.0f /* FIXME FIND ZOOM */));
                     if (auto fixedMarginEnd = childStyle.marginEnd(writingMode()).tryFixed())
-                        margins += LayoutUnit::fromFloatCeil(fixedMarginEnd->value);
+                        margins += LayoutUnit::fromFloatCeil(fixedMarginEnd->evaluate(1.0f /* FIXME FIND ZOOM */));
                     childMin += margins.ceilToFloat();
                     childMax += margins.ceilToFloat();
                 }

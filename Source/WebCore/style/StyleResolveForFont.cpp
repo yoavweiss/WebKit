@@ -331,7 +331,7 @@ static ResolvedFontSize fontSizeFromUnresolvedFontSize(const CSSPropertyParserHe
                     return CSS::switchOnUnitType(lengthPercentage.unit,
                         [&](CSS::PercentageUnit) -> ResolvedFontSize {
                             return {
-                                .size = Style::evaluate(Style::Percentage<> { narrowPrecisionToFloat(lengthPercentage.value) }, parentSize, 1.0f /* FIXME FIND ZOOM */),
+                                .size = Style::evaluate(Style::Percentage<> { narrowPrecisionToFloat(lengthPercentage.value) }, parentSize),
                                 .keyword = CSSValueInvalid
                             };
                         },

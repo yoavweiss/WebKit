@@ -55,7 +55,7 @@ ShadowApplier::ShadowApplier(const RenderStyle& style, GraphicsContext& context,
     }
 
     auto shadowOffset = TextBoxPainter::rotateShadowOffset(shadow->location, ignoreWritingMode ? WritingMode() : style.writingMode());
-    auto shadowRadius = shadow->blur.value;
+    auto shadowRadius = shadow->blur.evaluate(1.0f /* FIXME FIND ZOOM */);
     auto shadowColor = style.colorResolvingCurrentColor(shadow->color);
 
     colorFilter.transformColor(shadowColor);

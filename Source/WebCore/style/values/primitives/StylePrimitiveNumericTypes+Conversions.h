@@ -239,7 +239,7 @@ float adjustForZoom(float, const RenderStyle&);
 template<auto R, typename V> struct ToCSS<Length<R, V>> {
     auto operator()(const Length<R, V>& value, const RenderStyle& style) -> CSS::Length<R, V>
     {
-        return CSS::LengthRaw<R, V> { value.unit, adjustForZoom(value.value, style) };
+        return CSS::LengthRaw<R, V> { value.unit, adjustForZoom(value.unevaluatedValue(), style) };
     }
 };
 
@@ -280,7 +280,7 @@ template<auto R, typename V> struct ToCSS<LengthPercentage<R, V>> {
     {
         return WTF::switchOn(value,
             [&](const typename LengthPercentage<R, V>::Dimension& length) -> CSS::LengthPercentage<R, V> {
-                return typename CSS::LengthPercentage<R, V>::Raw { length.unit, adjustForZoom(length.value, style) };
+                return typename CSS::LengthPercentage<R, V>::Raw { length.unit, adjustForZoom(length.unevaluatedValue(), style) };
             },
             [&](const typename LengthPercentage<R, V>::Percentage& percentage) -> CSS::LengthPercentage<R, V> {
                 return typename CSS::LengthPercentage<R, V>::Raw { percentage.unit, percentage.value };
