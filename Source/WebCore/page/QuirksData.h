@@ -63,7 +63,6 @@ struct WEBCORE_EXPORT QuirksData {
     bool needsResettingTransitionCancelsRunningTransitionQuirk : 1 { false };
     bool needsScrollbarWidthThinDisabledQuirk : 1 { false };
     bool needsSeekingSupportDisabledQuirk : 1 { false };
-    bool needsTextInputBoxSizingBorderBoxQuirk : 1 { false };
     bool needsVP9FullRangeFlagQuirk : 1 { false };
     bool needsVideoShouldMaintainAspectRatioQuirk : 1 { false };
     bool returnNullPictureInPictureElementDuringFullscreenChangeQuirk : 1 { false };

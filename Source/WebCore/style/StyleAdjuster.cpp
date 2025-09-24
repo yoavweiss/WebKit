@@ -1078,11 +1078,6 @@ void Adjuster::adjustForSiteSpecificQuirks(RenderStyle& style) const
         if (is<HTMLDivElement>(*m_element) && m_element->hasClassName(className))
             style.setEffectiveDisplay(DisplayType::None);
     }
-
-    if (m_document->quirks().needsTextInputBoxSizingBorderBoxQuirk()) {
-        if (RefPtr input = dynamicDowncast<HTMLInputElement>(m_element); input && input->isTextField())
-            style.setBoxSizing(BoxSizing::BorderBox);
-    }
 }
 
 void Adjuster::propagateToDocumentElementAndInitialContainingBlock(Update& update, const Document& document)
