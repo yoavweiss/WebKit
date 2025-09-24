@@ -3295,6 +3295,20 @@ GraphicsContextFiltersEnabled:
        default: true
      WebCore:
        default: true
+  
+GridFormattingContextIntegrationEnabled:
+  type: bool
+  status: unstable
+  category: dom
+  humanReadableName: "Next-generation grid layout integration (GFC)"
+  humanReadableDescription: "Enable next-generation grid layout integration (GFC)"
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
 
 HTMLLegacyAttributeValueSerializationEnabled:
    type: bool
