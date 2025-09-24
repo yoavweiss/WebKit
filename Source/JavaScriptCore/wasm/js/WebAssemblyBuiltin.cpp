@@ -220,7 +220,7 @@ static bool isMutI16Array(const JSWebAssemblyArray* array)
     static ALWAYS_INLINE EncodedJSValue BUILTIN_IMPLEMENTATION_NAME(setName, builtinName)(__VA_ARGS__)
 
 #define DEFINE_BUILTIN_IMPLEMENTATION_I32(setName, builtinName, ...) \
-    static ALWAYS_INLINE int32_t BUILTIN_IMPLEMENTATION_NAME(setName, builtinName)(__VA_ARGS__)
+    static ALWAYS_INLINE UCPUStrictInt32 BUILTIN_IMPLEMENTATION_NAME(setName, builtinName)(__VA_ARGS__)
 
 // A trampoline is a builtin entry point stored in the builtin callee.
 // It properly sets up the call frame, then calls the host function, then checks for exceptions.
@@ -486,7 +486,7 @@ DECLARE_BUILTIN_TRAMPOLINE(jsstring, cast);
 DEFINE_BUILTIN_IMPLEMENTATION_I32(jsstring, test, JSGlobalObject* globalObject, JSValue value)
 {
     UNUSED_PARAM(globalObject);
-    return value.isString() ? 1 : 0;
+    return toUCPUStrictInt32(value.isString() ? 1 : 0);
 }
 
 DEFINE_BUILTIN_ENTRY_I_R(jsstring, test)
@@ -572,8 +572,7 @@ DEFINE_BUILTIN_IMPLEMENTATION_I32(jsstring, intoCharCodeArray, JSGlobalObject* g
         memcpySpan(dest, source);
     }
 
-
-    return stringLength;
+    return toUCPUStrictInt32(stringLength);
 }
 
 DEFINE_BUILTIN_ENTRY_I_RAI(jsstring, intoCharCodeArray)
@@ -648,7 +647,7 @@ DEFINE_BUILTIN_IMPLEMENTATION_I32(jsstring, charCodeAt, JSGlobalObject* globalOb
     if (index < 0 || view->length() <= static_cast<unsigned>(index)) [[unlikely]]
         THROW_ILLEGAL_ARGUMENT_EXCEPTION;
     UChar result = view[index];
-    RELEASE_AND_RETURN(scope, result);
+    RELEASE_AND_RETURN(scope, toUCPUStrictInt32(result));
 }
 
 DEFINE_BUILTIN_ENTRY_I_RI(jsstring, charCodeAt)
@@ -683,7 +682,7 @@ DEFINE_BUILTIN_IMPLEMENTATION_I32(jsstring, codePointAt, JSGlobalObject* globalO
         U16_NEXT(characters, i, length, character);
         result = static_cast<int32_t>(character);
     }
-    RELEASE_AND_RETURN(scope, result);
+    RELEASE_AND_RETURN(scope, toUCPUStrictInt32(result));
 }
 
 DEFINE_BUILTIN_ENTRY_I_RI(jsstring, codePointAt)
@@ -703,7 +702,7 @@ DEFINE_BUILTIN_IMPLEMENTATION_I32(jsstring, length, JSGlobalObject* globalObject
         THROW_ILLEGAL_ARGUMENT_EXCEPTION;
     unsigned length = asString(arg)->length();
     ASSERT(length <= static_cast<unsigned>(std::numeric_limits<int32_t>::max())); // guaranteed by String::MaxLength
-    RELEASE_AND_RETURN(scope, length);
+    RELEASE_AND_RETURN(scope, toUCPUStrictInt32(length));
 }
 
 DEFINE_BUILTIN_ENTRY_I_R(jsstring, length)
@@ -786,7 +785,7 @@ DEFINE_BUILTIN_IMPLEMENTATION_I32(jsstring, equals, JSGlobalObject* globalObject
         JSString* rightString = asString(right);
         result = leftString->equal(globalObject, rightString);
     }
-    RELEASE_AND_RETURN(scope, JSValue::encode(JSValue(result)));
+    RELEASE_AND_RETURN(scope, toUCPUStrictInt32(result));
 }
 
 DEFINE_BUILTIN_ENTRY_I_RR(jsstring, equals)
@@ -813,7 +812,7 @@ DEFINE_BUILTIN_IMPLEMENTATION_I32(jsstring, compare, JSGlobalObject* globalObjec
     RETURN_IF_EXCEPTION(scope, { });
     std::strong_ordering ordering = WTF::codePointCompare(StringView(leftView), StringView(rightView));
     int32_t result = ordering == std::strong_ordering::less ? -1 : ordering == std::strong_ordering::greater ? 1 : 0;
-    RELEASE_AND_RETURN(scope, JSValue::encode(JSValue(result)));
+    RELEASE_AND_RETURN(scope, toUCPUStrictInt32(result));
 }
 
 DEFINE_BUILTIN_ENTRY_I_RR(jsstring, compare)
