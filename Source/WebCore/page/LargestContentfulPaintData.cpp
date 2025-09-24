@@ -60,7 +60,7 @@ LargestContentfulPaintData::~LargestContentfulPaintData() = default;
 // https://w3c.github.io/paint-timing/#exposed-for-paint-timing
 bool LargestContentfulPaintData::isExposedForPaintTiming(const Element& element)
 {
-    if (!element.document().isFullyActive())
+    if (!element.protectedDocument()->isFullyActive())
         return false;
 
     if (!element.isInDocumentTree()) // Also checks isConnected().
@@ -154,7 +154,7 @@ FloatRect LargestContentfulPaintData::computeViewportIntersectionRect(Element& e
     // FIXME: This clips for ancestors, which maybe isn't what we want.
     auto absoluteRects = targetRenderer->computeVisibleRectsInContainer(
         { localTargetBounds },
-        &targetRenderer->view(),
+        &targetRenderer->checkedView().get(),
         {
             .hasPositionFixedDescendant = false,
             .dirtyRectIsFlipped = false,
