@@ -392,15 +392,7 @@ SANDBOX_IMPORT_DIR=$(SDKROOT)/usr/local/share/sandbox/profiles/embedded/imports
 
 # Log messages
 
-all : WebCoreLogDefinitions.h WebKitLogDefinitions.h
-
-WEBCORE_LOG_DECLARATIONS_FILES = \
-    WebCoreLogDefinitions.h \
-    WebCoreVirtualLogFunctions.h \
-
-$(WEBCORE_LOG_DECLARATIONS_FILES) : $(WebCorePrivateHeaders)/LogMessages.in
-	@echo Creating WebCore log definitions $@
-	$(PYTHON) $(WebCorePrivateHeaders)/generate-log-declarations.py $< $(WEBCORE_LOG_DECLARATIONS_FILES)
+all : WebKitLogDefinitions.h
 
 WEBKIT_LOG_DECLARATIONS_FILES = \
     WebKitLogDefinitions.h \

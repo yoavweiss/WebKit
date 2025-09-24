@@ -2745,11 +2745,11 @@ list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/HTTPHeaderNames.cpp)
 
 # Log messages
 add_custom_command(
-    OUTPUT ${WebCore_DERIVED_SOURCES_DIR}/WebCoreLogDefinitions.h
+    OUTPUT ${WebCore_DERIVED_SOURCES_DIR}/WebCoreLogDefinitions.h ${WebCore_DERIVED_SOURCES_DIR}/WebCoreVirtualLogFunctions.h
     MAIN_DEPENDENCY ${WEBCORE_DIR}/platform/LogMessages.in
     DEPENDS ${WEBCORE_DIR}/Scripts/generate-log-declarations.py
     WORKING_DIRECTORY ${WebCore_DERIVED_SOURCES_DIR}
-    COMMAND ${PYTHON_EXECUTABLE} ${WEBCORE_DIR}/Scripts/generate-log-declarations.py ${WEBCORE_DIR}/platform/LogMessages.in ${WebCore_DERIVED_SOURCES_DIR}/WebCoreLogDefinitions.h
+    COMMAND ${PYTHON_EXECUTABLE} ${WEBCORE_DIR}/Scripts/generate-log-declarations.py ${WEBCORE_DIR}/platform/LogMessages.in ${WebCore_DERIVED_SOURCES_DIR}/WebCoreLogDefinitions.h ${WebCore_DERIVED_SOURCES_DIR}/WebCoreVirtualLogFunctions.h
     VERBATIM)
 list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/WebCoreLogDefinitions.h)
 
