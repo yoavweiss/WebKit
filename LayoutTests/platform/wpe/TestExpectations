@@ -250,6 +250,10 @@ imported/w3c/web-platform-tests/xhr/xmlhttprequest-timeout-worker-overridesexpir
 
 webkit.org/b/299366 imported/w3c/web-platform-tests/webxr/xrSession_visibilityState_inline.https.html [ Skip ] # Timeout
 
+# WTR window size handling
+
+webkit.org/b/299429 loader/go-back-to-different-window-size.html [ Failure ]
+
 #//////////////////////////////////////////////////////////////////////////////////////////
 # End of Triaged Expectations
 # Legacy Expectations sections below
