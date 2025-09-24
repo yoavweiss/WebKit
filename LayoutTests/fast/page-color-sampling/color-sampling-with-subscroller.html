@@ -46,9 +46,9 @@
         await UIHelper.setObscuredInsets(50, 50, 50, 50);
         await UIHelper.ensurePresentationUpdate();
         colors = await UIHelper.fixedContainerEdgeColors();
-        shouldBeNull("colors.top");
-        shouldBeNull("colors.left");
-        shouldBeNull("colors.right");
+        shouldBeEqualToString("colors.top", "rgb(0, 122, 255)");
+        shouldBeEqualToString("colors.left", "multiple");
+        shouldBeEqualToString("colors.right", "multiple");
         shouldBeEqualToString("colors.bottom", "rgb(225, 225, 225)");
         finishJSTest();
     });
