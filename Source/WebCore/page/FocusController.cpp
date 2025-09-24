@@ -637,7 +637,7 @@ bool FocusController::advanceFocusInDocumentOrder(FocusDirection direction, cons
     RefPtr startingNode = document->focusNavigationStartingNode(direction);
     auto findResult = findAndFocusElementInDocumentOrderStartingWithFrame(*frame, startingNode, startingNode, direction, focusEventData, initialFocus, ContinuingRemoteSearch::No);
 
-    return findResult.element;
+    return findResult.element || findResult.relinquishedFocusToChrome == RelinquishedFocusToChrome::Yes;
 }
 
 FocusableElementSearchResult FocusController::findAndFocusElementInDocumentOrderStartingWithFrame(Ref<LocalFrame> frame, RefPtr<Node> scopeNode, RefPtr<Node> startingNode, FocusDirection direction, const FocusEventData& focusEventData, InitialFocus initialFocus, ContinuingRemoteSearch continuingRemoteSearch)
@@ -667,8 +667,10 @@ FocusableElementSearchResult FocusController::findAndFocusElementInDocumentOrder
 
         // We didn't find a node to focus, so we should try to pass focus to Chrome.
         if (initialFocus == InitialFocus::No) {
-            if (relinquishFocusToChrome(direction))
+            if (relinquishFocusToChrome(direction)) {
+                findResult.relinquishedFocusToChrome = RelinquishedFocusToChrome::Yes;
                 return findResult;
+            }
         }
 
         // Chrome doesn't want focus, so we should wrap focus.

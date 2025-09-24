@@ -53,10 +53,12 @@ struct FocusEventData;
 
 enum class ContinuedSearchInRemoteFrame : bool { No, Yes };
 enum class FoundElementInRemoteFrame : bool { No, Yes };
+enum class RelinquishedFocusToChrome : bool { No, Yes };
 
 struct FocusableElementSearchResult {
     RefPtr<Element> element;
     ContinuedSearchInRemoteFrame continuedSearchInRemoteFrame { ContinuedSearchInRemoteFrame::No };
+    RelinquishedFocusToChrome relinquishedFocusToChrome { RelinquishedFocusToChrome::No };
 };
 
 class FocusController final : public CanMakeCheckedPtr<FocusController> {
