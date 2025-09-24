@@ -790,6 +790,12 @@ PlatformLayerContainer AudioVideoRendererAVFObjC::platformVideoLayer() const
     return m_videoLayerManager->videoInlineLayer();
 }
 
+void AudioVideoRendererAVFObjC::setVideoLayerSizeFenced(const FloatSize& newSize, WTF::MachSendRightAnnotated&&)
+{
+    if (!layerOrVideoRenderer() && !newSize.isEmpty())
+        updateDisplayLayerIfNeeded();
+}
+
 void AudioVideoRendererAVFObjC::setVideoFullscreenLayer(PlatformLayer *videoFullscreenLayer, WTF::Function<void()>&& completionHandler)
 {
     RefPtr videoFrame = currentVideoFrame();

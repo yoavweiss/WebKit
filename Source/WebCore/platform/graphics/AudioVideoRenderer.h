@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "HostingContext.h"
 #include "MediaPlayerEnums.h"
 #include "MediaPromiseTypes.h"
 #include "PlatformLayer.h"
@@ -33,6 +34,7 @@
 #include "VideoTarget.h"
 #include <optional>
 #include <wtf/AbstractThreadSafeRefCountedAndCanMakeWeakPtr.h>
+#include <wtf/CompletionHandler.h>
 #include <wtf/MediaTime.h>
 #include <wtf/NativePromise.h>
 #include <wtf/ObjectIdentifier.h>
@@ -80,6 +82,13 @@ public:
     virtual RefPtr<VideoFrame> currentVideoFrame() const = 0;
     virtual std::optional<VideoPlaybackQualityMetrics> videoPlaybackQualityMetrics() = 0;
     virtual PlatformLayerContainer platformVideoLayer() const { return nullptr; }
+
+    using LayerHostingContextCallback = CompletionHandler<void(HostingContext)>;
+    virtual void requestHostingContext(LayerHostingContextCallback&& completionHandler) { completionHandler({ }); }
+    virtual HostingContext hostingContext() const { return { }; }
+    virtual WebCore::FloatSize videoLayerSize() const { return { }; }
+    virtual void notifyVideoLayerSizeChanged(Function<void(const MediaTime&, FloatSize)>&&) { }
+    virtual void setVideoLayerSizeFenced(const FloatSize&, WTF::MachSendRightAnnotated&&) { }
 };
 
 class VideoFullscreenInterface {

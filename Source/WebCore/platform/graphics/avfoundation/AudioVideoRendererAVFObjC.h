@@ -133,6 +133,7 @@ public:
     RefPtr<VideoFrame> currentVideoFrame() const final;
     std::optional<VideoPlaybackQualityMetrics> videoPlaybackQualityMetrics() final;
     PlatformLayerContainer platformVideoLayer() const final;
+    void setVideoLayerSizeFenced(const FloatSize&, WTF::MachSendRightAnnotated&&) final;
 
     // VideoFullscreenInterface
     void setVideoFullscreenLayer(PlatformLayer*, Function<void()>&&) final;
