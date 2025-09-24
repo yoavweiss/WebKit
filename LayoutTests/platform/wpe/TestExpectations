@@ -539,9 +539,6 @@ webkit.org/b/244186 imported/w3c/web-platform-tests/event-timing/large-duration-
 webkit.org/b/244186 imported/w3c/web-platform-tests/event-timing/medium-duration-threshold.html [ Skip ]
 webkit.org/b/244186 imported/w3c/web-platform-tests/event-timing/retrievability.html [ Skip ]
 
-webkit.org/b/244186 imported/w3c/web-platform-tests/event-timing/interactionid-click.html [ Pass ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/event-timing/retrieve-firstInput.html [ Pass ]
-
 # notImplemented in WTR::UIScriptController::isShowingDateTimePicker
 fast/forms/datalist [ Skip ]
 fast/forms/date/date-show-hide-picker.html [ Skip ]

@@ -2507,11 +2507,7 @@ imported/w3c/web-platform-tests/css/css-text-decor/text-emphasis-position-under-
 
 [ Debug ] imported/w3c/web-platform-tests/html/semantics/the-button-element/command-and-commandfor/interface.html [ Skip ]
 
-webkit.org/b/297434 imported/w3c/web-platform-tests/event-timing/retrievability.html [ Pass Failure ]
-
 webkit.org/b/294931 ipc/LocalSampleBufferDisplayLayer-LogIdentifier-data-race-uaf.html [ Skip ]
-
-webkit.org/b/297551 imported/w3c/web-platform-tests/event-timing/buffered-and-duration-threshold.html [ Pass Failure ] 
 
 webkit.org/b/297609 compositing/backing/backing-store-attachment-empty-keyframe.html [ Pass Failure ]
 

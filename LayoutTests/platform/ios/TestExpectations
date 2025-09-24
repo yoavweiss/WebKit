@@ -4539,6 +4539,7 @@ webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/programmatic-cl
 webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/retrievability.html [ Skip ]
 webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/retrieve-firstInput.html [ Skip ]
 webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/shadow-dom-null-target.html [ Skip ]
+webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/timingconditions.html [ Skip ]
 webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/toJSON.html [ Skip ]
 
 # rdar://105509003
