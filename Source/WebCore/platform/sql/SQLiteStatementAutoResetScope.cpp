@@ -44,8 +44,8 @@ SQLiteStatementAutoResetScope& SQLiteStatementAutoResetScope::operator=(SQLiteSt
 
 SQLiteStatementAutoResetScope::~SQLiteStatementAutoResetScope()
 {
-    if (m_statement)
-        m_statement->reset();
+    if (CheckedPtr statement = m_statement)
+        statement->reset();
 }
 
 }
