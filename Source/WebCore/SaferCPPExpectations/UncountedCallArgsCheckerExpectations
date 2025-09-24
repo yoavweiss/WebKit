@@ -854,9 +854,6 @@ rendering/updating/RenderTreeBuilderRuby.cpp
 rendering/updating/RenderTreeBuilderTable.cpp
 rendering/updating/RenderTreeUpdater.cpp
 rendering/updating/RenderTreeUpdaterGeneratedContent.cpp
-storage/Storage.cpp
-storage/StorageMap.cpp
-storage/StorageNamespaceProvider.cpp
 style/ChildChangeInvalidation.cpp
 style/ChildChangeInvalidation.h
 style/ElementRuleCollector.cpp
