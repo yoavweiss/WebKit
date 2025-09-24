@@ -108,8 +108,8 @@ WEBKIT_API WebKitXRSessionFeatures
 webkit_xr_permission_request_get_optional_features_requested (WebKitXRPermissionRequest *request) G_GNUC_WARN_UNUSED_RESULT;
 
 WEBKIT_API void
-webkit_xr_permission_request_set_granted_consent_optional_features (WebKitXRPermissionRequest *request,
-                                                                    WebKitXRSessionFeatures    granted);
+webkit_xr_permission_request_set_granted_optional_features   (WebKitXRPermissionRequest *request,
+                                                              WebKitXRSessionFeatures    granted);
 
 G_END_DECLS
 
