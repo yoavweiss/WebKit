@@ -87,7 +87,7 @@ Ref<CSSValue> CSSValueCreation<URL>::operator()(CSSValuePool&, const RenderStyle
 
 auto CSSValueConversion<URL>::operator()(BuilderState& state, const CSSValue& value) -> URL
 {
-    if (auto url = requiredDowncast<CSSURLValue>(state, value))
+    if (RefPtr url = requiredDowncast<CSSURLValue>(state, value))
         return toStyle(url->url(), state);
     return { .resolved = WTF::URL { emptyString() }, .modifiers = { } };
 }
