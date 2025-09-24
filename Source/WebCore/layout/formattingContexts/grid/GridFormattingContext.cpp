@@ -69,14 +69,39 @@ UnplacedGridItems GridFormattingContext::constructUnplacedGridItems() const
         auto gridItemRowStart = gridItemStyle->gridItemRowStart();
         auto gridItemRowEnd = gridItemStyle->gridItemRowEnd();
 
-        if (!gridItemColumnStart.isExplicit() || !gridItemColumnEnd.isExplicit()
-            || !gridItemRowStart.isExplicit() || !gridItemRowEnd.isExplicit()) {
-            ASSERT_NOT_IMPLEMENTED_YET();
-            return { };
-        }
+        // Check if this item is fully explicitly positioned
+        bool fullyExplicitlyPositionedItem = gridItemColumnStart.isExplicit()
+            && gridItemColumnEnd.isExplicit()
+            && gridItemRowStart.isExplicit()
+            && gridItemRowEnd.isExplicit();
 
-        unplacedGridItems.nonAutoPositionedItems.constructAndAppend(gridItem.layoutBox, gridItemStyle->gridItemColumnStart(), gridItemStyle->gridItemColumnEnd(),
-    gridItemStyle->gridItemRowStart(), gridItemStyle->gridItemRowEnd());
+        bool definiteRowPositioned = gridItemRowStart.isExplicit() || gridItemRowEnd.isExplicit();
+
+        if (fullyExplicitlyPositionedItem) {
+            unplacedGridItems.nonAutoPositionedItems.constructAndAppend(
+                gridItem.layoutBox,
+                gridItemColumnStart,
+                gridItemColumnEnd,
+                gridItemRowStart,
+                gridItemRowEnd
+            );
+        } else if (definiteRowPositioned) {
+            unplacedGridItems.definiteRowPositionedItems.constructAndAppend(
+                gridItem.layoutBox,
+                gridItemColumnStart,
+                gridItemColumnEnd,
+                gridItemRowStart,
+                gridItemRowEnd
+            );
+        } else {
+            unplacedGridItems.autoPositionedItems.constructAndAppend(
+                gridItem.layoutBox,
+                gridItemColumnStart,
+                gridItemColumnEnd,
+                gridItemRowStart,
+                gridItemRowEnd
+            );
+        }
     }
     return unplacedGridItems;
 }

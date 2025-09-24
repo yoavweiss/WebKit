@@ -64,8 +64,14 @@ private:
     friend void add(Hasher&, const WebCore::Layout::UnplacedGridItem&);
 };
 
+// https://drafts.csswg.org/css-grid-1/#auto-placement-algo
 struct UnplacedGridItems {
+    // 1. Position anything that’s not auto-positioned.
     Vector<UnplacedGridItem> nonAutoPositionedItems;
+    // 2. Process the items locked to a given row.
+    Vector<UnplacedGridItem> definiteRowPositionedItems;
+    // 4. Position the remaining grid items.
+    Vector<UnplacedGridItem> autoPositionedItems;
 };
 
 }
