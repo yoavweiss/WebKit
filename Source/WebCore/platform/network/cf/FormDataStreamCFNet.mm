@@ -41,7 +41,9 @@
 #include <wtf/SchedulePair.h>
 #include <wtf/StdLibExtras.h>
 #include <wtf/Threading.h>
+#include <wtf/WeakObjCPtr.h>
 #include <wtf/cf/VectorCF.h>
+#include <wtf/cocoa/TypeCastsCocoa.h>
 
 static const SInt32 fileNotFoundError = -43;
 
@@ -51,30 +53,30 @@ extern "C" void CFURLRequestSetHTTPRequestBodyStream(CFMutableURLRequestRef req,
 
 typedef struct {
     CFIndex version; /* == 1 */
-    void *(*create)(CFReadStreamRef stream, void *info);
-    void (*finalize)(CFReadStreamRef stream, void *info);
-    CFStringRef (*copyDescription)(CFReadStreamRef stream, void *info);
-    Boolean (*open)(CFReadStreamRef stream, CFStreamError *error, Boolean *openComplete, void *info);
-    Boolean (*openCompleted)(CFReadStreamRef stream, CFStreamError *error, void *info);
-    CFIndex (*read)(CFReadStreamRef stream, UInt8 *buffer, CFIndex bufferLength, CFStreamError *error, Boolean *atEOF, void *info);
-    const UInt8 *(*getBuffer)(CFReadStreamRef stream, CFIndex maxBytesToRead, CFIndex *numBytesRead, CFStreamError *error, Boolean *atEOF, void *info);
-    Boolean (*canRead)(CFReadStreamRef stream, void *info);
-    void (*close)(CFReadStreamRef stream, void *info);
-    CFTypeRef (*copyProperty)(CFReadStreamRef stream, CFStringRef propertyName, void *info);
-    Boolean (*setProperty)(CFReadStreamRef stream, CFStringRef propertyName, CFTypeRef propertyValue, void *info);
-    void (*requestEvents)(CFReadStreamRef stream, CFOptionFlags streamEvents, void *info);
-    void (*schedule)(CFReadStreamRef stream, CFRunLoopRef runLoop, CFStringRef runLoopMode, void *info);
-    void (*unschedule)(CFReadStreamRef stream, CFRunLoopRef runLoop, CFStringRef runLoopMode, void *info);
+    void *(*create)(CFReadStreamRef, void *info);
+    void (*finalize)(CFReadStreamRef, void *info);
+    CFStringRef (*copyDescription)(CFReadStreamRef, void *info);
+    Boolean (*open)(CFReadStreamRef, CFStreamError *error, Boolean *openComplete, void *info);
+    Boolean (*openCompleted)(CFReadStreamRef, CFStreamError *error, void *info);
+    CFIndex (*read)(CFReadStreamRef, UInt8 *buffer, CFIndex bufferLength, CFStreamError *error, Boolean *atEOF, void *info);
+    const UInt8 *(*getBuffer)(CFReadStreamRef, CFIndex maxBytesToRead, CFIndex *numBytesRead, CFStreamError *error, Boolean *atEOF, void *info);
+    Boolean (*canRead)(CFReadStreamRef, void *info);
+    void (*close)(CFReadStreamRef, void *info);
+    CFTypeRef (*copyProperty)(CFReadStreamRef, CFStringRef propertyName, void *info);
+    Boolean (*setProperty)(CFReadStreamRef, CFStringRef propertyName, CFTypeRef propertyValue, void *info);
+    void (*requestEvents)(CFReadStreamRef, CFOptionFlags streamEvents, void *info);
+    void (*schedule)(CFReadStreamRef, CFRunLoopRef runLoop, CFStringRef runLoopMode, void *info);
+    void (*unschedule)(CFReadStreamRef, CFRunLoopRef runLoop, CFStringRef runLoopMode, void *info);
 } CFReadStreamCallBacksV1;
 
 #define EXTERN extern "C"
 
-EXTERN void CFReadStreamSignalEvent(CFReadStreamRef stream, CFStreamEventType event, const void *error);
-EXTERN CFReadStreamRef CFReadStreamCreate(CFAllocatorRef alloc, const void *callbacks, void *info);
+EXTERN void CFReadStreamSignalEvent(CFReadStreamRef, CFStreamEventType, const void *error);
+EXTERN CFReadStreamRef CFReadStreamCreate(CFAllocatorRef, const void *callbacks, void *info);
 
 namespace WebCore {
 
-static void formEventCallback(CFReadStreamRef stream, CFStreamEventType type, void* context);
+static void formEventCallback(CFReadStreamRef, CFStreamEventType, void* context);
 
 static CFStringRef formDataPointerPropertyNameSingleton()
 {
@@ -96,13 +98,18 @@ struct FormStreamFields {
     FormStreamFields(FormDataForUpload&& data)
         : data(WTFMove(data)) { }
 
+    RetainPtr<CFReadStreamRef> cfFormStream()
+    {
+        return bridge_cast(formStream.get());
+    }
+
     FormDataForUpload data;
     SchedulePairHashSet scheduledRunLoopPairs;
     Vector<FormDataElement> remainingElements; // in reverse order
     RetainPtr<CFReadStreamRef> currentStream;
     long long currentStreamRangeLength { BlobDataItem::toEndOfFile };
     MallocSpan<uint8_t, WTF::VectorBufferMalloc> currentData;
-    CFReadStreamRef formStream { nullptr };
+    WeakObjCPtr<NSInputStream> formStream;
     unsigned long long streamLength { 0 };
     unsigned long long bytesSent { 0 };
     Lock streamIsBeingOpenedOrClosedLock;
@@ -202,11 +209,11 @@ static bool openNextStream(FormStreamFields* form)
 static void* formCreate(CFReadStreamRef stream, void* context)
 {
     FormCreationContext* formContext = static_cast<FormCreationContext*>(context);
-    
+
     FormStreamFields* newInfo = new FormStreamFields(WTFMove(formContext->data));
-    newInfo->formStream = stream; // Don't retain. That would create a reference cycle.
+    newInfo->formStream = bridge_cast(stream); // Don't retain. That would create a reference cycle.
     newInfo->streamLength = formContext->streamLength;
-    
+
     callOnMainThread([formContext] {
         delete formContext;
     });
@@ -224,7 +231,7 @@ static void* formCreate(CFReadStreamRef stream, void* context)
 static void formFinalize(CFReadStreamRef stream, void* context)
 {
     FormStreamFields* form = static_cast<FormStreamFields*>(context);
-    ASSERT_UNUSED(stream, form->formStream == stream);
+    ASSERT_UNUSED(stream, !form->cfFormStream() || form->cfFormStream() == stream);
 
     callOnMainThread([form] {
         {
@@ -334,7 +341,7 @@ static void formUnschedule(CFReadStreamRef, CFRunLoopRef runLoop, CFStringRef ru
 static void formEventCallback(CFReadStreamRef stream, CFStreamEventType type, void* context)
 {
     FormStreamFields* form = static_cast<FormStreamFields*>(context);
-    RetainPtr formStream = form->formStream;
+    RetainPtr formStream = form->cfFormStream();
 
     switch (type) {
     case kCFStreamEventHasBytesAvailable:

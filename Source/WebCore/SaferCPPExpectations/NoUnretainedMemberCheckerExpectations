@@ -8,4 +8,3 @@ platform/graphics/cg/CGSubimageCacheWithTimer.cpp
 platform/graphics/cocoa/WebSampleBufferVideoRendering.h
 platform/ios/WebAVPlayerController.h
 platform/ios/WebAVPlayerController.mm
-platform/network/cf/FormDataStreamCFNet.cpp
