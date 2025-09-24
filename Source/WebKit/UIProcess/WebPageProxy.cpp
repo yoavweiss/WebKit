@@ -3499,13 +3499,12 @@ void WebPageProxy::updateFontAttributesAfterEditorStateChange()
 {
     internals().cachedFontAttributesAtSelectionStart.reset();
 
-    if (!internals().editorState.hasPostLayoutData())
+    if (!m_uiClient->needsFontAttributes())
         return;
 
-    if (auto fontAttributes = internals().editorState.postLayoutData->fontAttributes) {
-        m_uiClient->didChangeFontAttributes(*fontAttributes);
-        internals().cachedFontAttributesAtSelectionStart = WTFMove(fontAttributes);
-    }
+    requestFontAttributesAtSelectionStart([this, protectedThis = Ref { *this }](auto& attributes) {
+        m_uiClient->didChangeFontAttributes(attributes);
+    });
 }
 
 void WebPageProxy::setNeedsFontAttributes(bool needsFontAttributes)

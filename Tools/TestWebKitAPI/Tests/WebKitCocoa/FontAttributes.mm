@@ -40,6 +40,7 @@
 #import <pal/spi/cf/CoreTextSPI.h>
 #import <pal/spi/cocoa/NSAttributedStringSPI.h>
 #import <wtf/Vector.h>
+#import <wtf/cocoa/TypeCastsCocoa.h>
 
 #if PLATFORM(IOS_FAMILY)
 #import "UIKitSPIForTesting.h"
@@ -58,17 +59,20 @@
 {
     NSString *fontTextStyle = [[[fontAttributes objectForKey:@"NSFont"] fontDescriptor] objectForKey:(__bridge NSString *)kCTFontDescriptorTextStyleAttribute];
 
-    if (_willSetFont) {
-        EXPECT_WK_STREQ("UICTFontTextStyleTitle1", fontTextStyle);
+    if (_willSetFont && [fontTextStyle isEqualToString:@"UICTFontTextStyleTitle1"]) {
         _done = YES;
     }
 }
 
 @end
 
-@interface FontAttributesListener : NSObject <WKUIDelegatePrivate>
+@interface FontAttributesListener : NSObject <WKUIDelegatePrivate> {
+@public
+    bool _attributeUpdated;
+}
 @property (nonatomic, readonly) NSDictionary *lastFontAttributes;
 @end
+
 
 @implementation FontAttributesListener {
     RetainPtr<NSDictionary> _lastFontAttributes;
@@ -77,6 +81,7 @@
 - (void)_webView:(WKWebView *)webView didChangeFontAttributes:(NSDictionary<NSString *, id> *)fontAttributes
 {
     _lastFontAttributes = fontAttributes;
+    _attributeUpdated = YES;
 }
 
 - (NSDictionary *)lastFontAttributes
@@ -105,7 +110,12 @@
 
 - (NSDictionary *)fontAttributesAfterNextPresentationUpdate
 {
+    RetainPtr fontAttributesListener = dynamic_objc_cast<FontAttributesListener>(self.UIDelegate);
+    fontAttributesListener->_attributeUpdated = NO;
+    TestWebKitAPI::Util::run(&fontAttributesListener->_attributeUpdated);
+
     [self waitForNextPresentationUpdate];
+
     return [(FontAttributesListener *)self.UIDelegate lastFontAttributes];
 }
 
@@ -385,7 +395,7 @@ TEST(FontAttributes, FontAttributesAfterChangingSelection)
     }
 #if PLATFORM(MAC)
     [webView selectAll:nil];
-    [webView waitForNextPresentationUpdate];
+    [webView fontAttributesAfterNextPresentationUpdate];
     EXPECT_TRUE(NSFontManager.sharedFontManager.multiple);
 #endif
 }
