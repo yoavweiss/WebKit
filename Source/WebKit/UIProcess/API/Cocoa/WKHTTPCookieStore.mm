@@ -42,7 +42,7 @@
 static NSArray<NSHTTPCookie *> *coreCookiesToNSCookies(const Vector<WebCore::Cookie>& coreCookies)
 {
     return createNSArray(coreCookies, [] (auto& cookie) -> NSHTTPCookie * {
-        return cookie;
+        return cookie.createNSHTTPCookie().autorelease();
     }).autorelease();
 }
 

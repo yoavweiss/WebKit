@@ -267,6 +267,11 @@ NSError *ResourceError::nsError() const
     return m_platformError.get();
 }
 
+RetainPtr<NSError> ResourceError::protectedNSError() const
+{
+    return nsError();
+}
+
 NSError *ResourceError::nsError(NSError *underlyingError) const
 {
     if (isNull()) {
