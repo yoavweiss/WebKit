@@ -24,31 +24,56 @@
  */
 
 #include "config.h"
-#include "AXTreeStore.h"
-#include "AXTreeStoreInlines.h"
+#include "AXLocalFrame.h"
 
-#include "AXIsolatedTree.h"
-#include "AXTreeStoreInlines.h"
+#include "AccessibilityObjectInlines.h"
 
 namespace WebCore {
 
-#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-template<>
-void AXTreeStore<AXIsolatedTree>::applyPendingChangesForAllIsolatedTrees()
+AXLocalFrame::AXLocalFrame(AXID axID, AXObjectCache& cache)
+    : AccessibilityMockObject(axID, cache)
 {
-    ASSERT(!isMainThread());
-
-    Locker locker { AXTreeStore<AXIsolatedTree>::s_storeLock };
-    auto& map = AXTreeStore<AXIsolatedTree>::isolatedTreeMap();
-    for (const auto& axIDToTree : map) {
-        if (RefPtr tree = axIDToTree.value.get()) {
-            // Only applyPendingChanges for trees that aren't about to be destroyed.
-            // When a tree is destroyed, it tries to remove itself from AXTreeStore,
-            // which requires taking s_storeLock, which we hold. This would cause a deadlock.
-            tree->applyPendingChangesUnlessQueuedForDestruction();
-        }
-    }
 }
-#endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+
+Ref<AXLocalFrame> AXLocalFrame::create(AXID axID, AXObjectCache& cache)
+{
+    return adoptRef(*new AXLocalFrame(axID, cache));
+}
+
+LayoutRect AXLocalFrame::elementRect() const
+{
+    RefPtr parent = parentObject();
+    return parent ? parent->elementRect() : LayoutRect();
+}
+
+#if ENABLE_ACCESSIBILITY_LOCAL_FRAME
+
+void AXLocalFrame::setLocalFrameView(LocalFrameView* localFrameView)
+{
+    m_localFrameView = localFrameView;
+    m_frameID = localFrameView->frame().frameID();
+}
+
+AccessibilityObject* AXLocalFrame::crossFrameChildObject() const
+{
+    if (!m_localFrameView)
+        return nullptr;
+
+    RefPtr localFrame = m_localFrameView->frame();
+    if (!localFrame)
+        return nullptr;
+
+    RefPtr document = localFrame->document();
+    if (!document)
+        return nullptr;
+
+    CheckedPtr cache = document->axObjectCache();
+    if (!cache)
+        return nullptr;
+
+    return downcast<AccessibilityObject>(cache->rootObjectForFrame(*localFrame.get()));
+}
+
+#endif // ENABLE_ACCESSIBILITY_LOCAL_FRAME
 
 } // namespace WebCore

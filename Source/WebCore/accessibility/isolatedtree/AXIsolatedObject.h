@@ -91,6 +91,12 @@ public:
     AttributedStringStyle stylesForAttributedString() const final;
     Color textColor() const final { return colorAttributeValue(AXProperty::TextColor); }
 
+#if ENABLE_ACCESSIBILITY_LOCAL_FRAME
+    // Returns the child or parent object that crosses a local frame boundary.
+    AXIsolatedObject* crossFrameParentObject() const final;
+    AXIsolatedObject* crossFrameChildObject() const final;
+#endif
+
 #if ENABLE(AX_THREAD_TEXT_APIS)
     const AXTextRuns* textRuns() const;
     bool hasTextRuns() final
@@ -329,7 +335,14 @@ private:
     bool isHiddenUntilFoundContainer() const final { return boolAttributeValue(AXProperty::IsHiddenUntilFoundContainer); }
     Vector<String> determineDropEffects() const final;
     AXIsolatedObject* accessibilityHitTest(const IntPoint&) const final;
-    AXIsolatedObject* focusedUIElement() const final;
+    AXIsolatedObject* focusedUIElement() const final
+    {
+        return tree()->focusedNode().get();
+    }
+    AXIsolatedObject* focusedUIElementInAnyLocalFrame() const final
+    {
+        return tree()->focusedNode().get();
+    }
     AXIsolatedObject* internalLinkElement() const final { return objectAttributeValue(AXProperty::InternalLinkElement); }
     AccessibilityChildrenVector radioButtonGroup() const final { return tree()->objectsForIDs(vectorAttributeValue<AXID>(AXProperty::RadioButtonGroupMembers)); }
     AXIsolatedObject* scrollBar(AccessibilityOrientation) final;
@@ -502,6 +515,7 @@ private:
     // Functions that should never be called on an isolated tree object. ASSERT that these are not reached;
     bool isAccessibilityRenderObject() const final;
     bool isAccessibilityNodeObject() const final;
+    bool isAXLocalFrame() const final { return false; }
     bool isAXRemoteFrame() const final { return false; }
     bool isNativeTextControl() const final;
     bool isMockObject() const final;

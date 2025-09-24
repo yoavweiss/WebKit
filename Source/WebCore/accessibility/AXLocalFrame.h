@@ -23,32 +23,41 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-#include "AXTreeStore.h"
-#include "AXTreeStoreInlines.h"
+#pragma once
 
-#include "AXIsolatedTree.h"
-#include "AXTreeStoreInlines.h"
+#include "AccessibilityMockObject.h"
+#include "AccessibilityRole.h"
+#include "FrameIdentifier.h"
 
 namespace WebCore {
 
-#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-template<>
-void AXTreeStore<AXIsolatedTree>::applyPendingChangesForAllIsolatedTrees()
-{
-    ASSERT(!isMainThread());
+class LocalFrame;
 
-    Locker locker { AXTreeStore<AXIsolatedTree>::s_storeLock };
-    auto& map = AXTreeStore<AXIsolatedTree>::isolatedTreeMap();
-    for (const auto& axIDToTree : map) {
-        if (RefPtr tree = axIDToTree.value.get()) {
-            // Only applyPendingChanges for trees that aren't about to be destroyed.
-            // When a tree is destroyed, it tries to remove itself from AXTreeStore,
-            // which requires taking s_storeLock, which we hold. This would cause a deadlock.
-            tree->applyPendingChangesUnlessQueuedForDestruction();
-        }
-    }
-}
-#endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+class AXLocalFrame final : public AccessibilityMockObject {
+public:
+    static Ref<AXLocalFrame> create(AXID, AXObjectCache&);
+
+#if ENABLE_ACCESSIBILITY_LOCAL_FRAME
+    void setLocalFrameView(LocalFrameView*);
+    AccessibilityObject* crossFrameChildObject() const final;
+    std::optional<FrameIdentifier> frameID() const { return m_frameID; }
+#endif // ENABLE_ACCESSIBILITY_LOCAL_FRAME
+
+private:
+    virtual ~AXLocalFrame() = default;
+    explicit AXLocalFrame(AXID, AXObjectCache&);
+
+    AccessibilityRole determineAccessibilityRole() final { return AccessibilityRole::LocalFrame; }
+    bool computeIsIgnored() const final { return false; }
+    bool isAXLocalFrame() const final { return true; }
+    LayoutRect elementRect() const final;
+
+#if ENABLE_ACCESSIBILITY_LOCAL_FRAME
+    SingleThreadWeakPtr<LocalFrameView> m_localFrameView;
+    std::optional<FrameIdentifier> m_frameID { };
+#endif
+};
 
 } // namespace WebCore
+
+SPECIALIZE_TYPE_TRAITS_ACCESSIBILITY(AXLocalFrame, isAXLocalFrame())
