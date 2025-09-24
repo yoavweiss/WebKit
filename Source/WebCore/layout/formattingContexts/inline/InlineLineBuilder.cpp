@@ -862,9 +862,9 @@ void LineBuilder::applyShapingOnRunRange(LineCandidate& lineCandidate, std::pair
     auto characterScanForCodePath = true;
     auto& style = isFirstFormattedLineCandidate() ? runs[range.first].inlineItem.firstLineStyle() : runs[range.first].inlineItem.style();
     auto textRun = TextRun { textContent, m_lineLogicalRect.left(), { }, ExpansionBehavior::defaultBehavior(), TextDirection::RTL, style.rtlOrdering() == Order::Visual, characterScanForCodePath };
-    auto glyphSizes = ComplexTextController::glyphBoundsForTextRun(style.fontCascade(), textRun);
+    auto glyphAdvances = ComplexTextController::glyphAdvancesForTextRun(style.fontCascade(), textRun);
 
-    if (glyphSizes.size() != textRun.length()) {
+    if (glyphAdvances.size() != textRun.length()) {
         ASSERT_NOT_REACHED();
         return;
     }
@@ -880,7 +880,7 @@ void LineBuilder::applyShapingOnRunRange(LineCandidate& lineCandidate, std::pair
         }
         auto runWidth = InlineLayoutUnit { };
         for (size_t i = 0; i < inlineTextItem->length(); ++i) {
-            runWidth += std::max(0.f, glyphSizes[glyphIndex]);
+            runWidth += std::max(0.f, glyphAdvances[glyphIndex]);
             ++glyphIndex;
         }
         run.adjustContentWidth(runWidth);
