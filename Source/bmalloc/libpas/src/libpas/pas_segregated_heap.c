@@ -44,7 +44,6 @@
 #include "pas_thread_local_cache.h"
 #include "pas_thread_local_cache_layout.h"
 #include "pas_utility_heap_config.h"
-#include "pas_zero_memory.h"
 
 unsigned pas_segregated_heap_num_size_lookup_rematerializations;
 

@@ -34,7 +34,6 @@
 #include "pas_epoch.h"
 #include "pas_full_alloc_bits_inlines.h"
 #include "pas_malloc_stack_logging.h"
-#include "pas_mte.h"
 #include "pas_scavenger.h"
 #include "pas_segregated_exclusive_view_inlines.h"
 #include "pas_segregated_size_directory_inlines.h"
@@ -48,7 +47,6 @@
 #include "pas_system_heap.h"
 #include "pas_thread_local_cache.h"
 #include "pas_thread_local_cache_node.h"
-#include "pas_zero_memory.h"
 
 PAS_BEGIN_EXTERN_C;
 
@@ -121,7 +119,6 @@ static inline void pas_local_allocator_set_up_bump(pas_local_allocator* allocato
     allocator->end_offset = 0;
     allocator->current_word = 0;
     PAS_PROFILE(SET_UP_LOCAL_ALLOCATOR, page_config, segregated_heap, allocator);
-    PAS_MTE_HANDLE(SET_UP_LOCAL_ALLOCATOR, page_config, segregated_heap, allocator);
     pas_compiler_fence();
     allocator->page_ish = page_boundary;
 }
@@ -243,7 +240,6 @@ static PAS_ALWAYS_INLINE void pas_local_allocator_scan_bits_to_set_up_free_bits(
             PAS_BITVECTOR_BIT_INDEX64(current_offset),
             page_config.base);
     PAS_PROFILE(SET_UP_LOCAL_ALLOCATOR, page_config, directory->heap, allocator);
-    PAS_MTE_HANDLE(SET_UP_LOCAL_ALLOCATOR, page_config, directory->heap, allocator);
 
     pas_compiler_fence();
 
@@ -603,7 +599,6 @@ pas_local_allocator_set_up_primordial_bump(
     }
 
     PAS_PROFILE(POPULATE_PRIMORDIAL_PARTIAL_VIEW, page_config, page, view, bump_result, allocation_mode);
-    PAS_MTE_HANDLE(POPULATE_PRIMORDIAL_PARTIAL_VIEW, page_config, page, view, bump_result, allocation_mode);
 
     switch (mode) {
     case pas_local_allocator_primordial_bump_return_first_allocation:
@@ -711,7 +706,6 @@ pas_local_allocator_start_allocating_in_primordial_partial_view(
         
         allocator->page_ish = (uintptr_t)pas_segregated_page_boundary(page, page_config);
         PAS_PROFILE(SET_UP_LOCAL_ALLOCATOR, page_config, heap, allocator);
-        PAS_MTE_HANDLE(SET_UP_LOCAL_ALLOCATOR, page_config, heap, allocator);
 
         pas_zero_memory(allocator->bits, pas_segregated_page_config_num_alloc_bytes(page_config));
 
@@ -917,7 +911,6 @@ pas_local_allocator_try_allocate_in_primordial_partial_view(
 
     if (result.did_succeed) {
         PAS_PROFILE(PRIMORDIAL_BUMP_ALLOCATION, &page_config, result.begin, allocator->object_size, allocation_mode);
-        PAS_MTE_HANDLE(PRIMORDIAL_BUMP_ALLOCATION, &page_config, result.begin, allocator->object_size, allocation_mode);
     }
 
     pas_lock_switch(&held_lock, NULL);
@@ -1517,7 +1510,6 @@ pas_local_allocator_try_allocate_with_free_bits(
     }
 
     PAS_PROFILE(LOCAL_FREEBITS_ALLOCATION, &page_config, result, allocator, allocation_mode);
-    PAS_MTE_HANDLE(LOCAL_FREEBITS_ALLOCATION, &page_config, result, allocator, allocation_mode);
     
     return pas_allocation_result_create_success(result);
 }
@@ -1563,7 +1555,6 @@ pas_local_allocator_try_allocate_inline_cases(pas_local_allocator* allocator,
             pas_log("Returning bump allocation %p.\n", (void*)result);
 
         PAS_PROFILE(LOCAL_BUMP_ALLOCATION, config, allocator, result, object_size, allocation_mode);
-        PAS_MTE_HANDLE(LOCAL_BUMP_ALLOCATION, config, allocator, result, object_size, allocation_mode);
 
         return pas_allocation_result_create_success(result);
     }

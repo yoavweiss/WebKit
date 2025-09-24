@@ -45,7 +45,6 @@
 #include "pas_segregated_page_inlines.h"
 #include "pas_segregated_size_directory.h"
 #include "pas_utility_heap_config.h"
-#include "pas_zero_memory.h"
 
 double pas_segregated_page_extra_wasteage_handicap_for_config_variant[
     PAS_NUM_SEGREGATED_PAGE_CONFIG_VARIANTS] = {

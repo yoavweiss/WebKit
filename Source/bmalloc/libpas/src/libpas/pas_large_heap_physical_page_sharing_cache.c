@@ -35,7 +35,6 @@
 #include "pas_large_sharing_pool.h"
 #include "pas_page_malloc.h"
 #include "pas_page_sharing_pool.h"
-#include "pas_zero_memory.h"
 #include <stdio.h>
 
 pas_enumerable_range_list pas_large_heap_physical_page_sharing_cache_page_list;

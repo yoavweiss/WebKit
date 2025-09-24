@@ -30,7 +30,6 @@
 #include "pas_heap_config.h"
 #include "pas_heap_lock.h"
 #include "pas_large_map.h"
-#include "pas_mte.h"
 #include "pas_segregated_page_inlines.h"
 #include "pas_segregated_size_directory.h"
 
@@ -125,7 +124,6 @@ static PAS_ALWAYS_INLINE size_t pas_get_allocation_size(void* ptr,
         
         if (!pas_large_map_entry_is_empty(entry)) {
             PAS_PROFILE(LARGE_MAP_FOUND_ENTRY, &config, entry.begin, entry.end);
-            PAS_MTE_HANDLE(LARGE_MAP_FOUND_ENTRY, &config, entry.begin, entry.end);
             PAS_ASSERT(entry.begin == begin);
             PAS_ASSERT(entry.end > begin);
             

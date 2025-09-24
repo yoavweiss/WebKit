@@ -26,8 +26,6 @@
 #include "config.h"
 #include <wtf/WTFConfig.h>
 
-#include <cstdio>
-
 #include <wtf/Gigacage.h>
 #include <wtf/Lock.h>
 #include <wtf/MathExtras.h>
@@ -39,14 +37,7 @@
 #include <mach-o/getsect.h>
 #include <mach-o/ldsyms.h>
 #include <mach/vm_param.h>
-#include "unistd.h"
 #endif
-
-#if defined(__has_include)
-#if __has_include(<libproc.h>)
-#include <libproc.h>
-#endif // __has_include(<libproc.h>)
-#endif // defined(__has_include)
 
 #if PLATFORM(COCOA)
 #include <wtf/spi/cocoa/MachVMSPI.h>
@@ -57,9 +48,6 @@
 
 #if USE(APPLE_INTERNAL_SDK)
 #include <WebKitAdditions/WTFConfigAdditions.h>
-#endif
-#if !USE(SYSTEM_MALLOC)
-#include "bmalloc/pas_mte_config.h"
 #endif
 
 #include <mutex>
@@ -84,7 +72,7 @@ alignas(WTF::ConfigAlignment) WTF_CONFIG_SECTION Slot g_config[WTF::ConfigSizeTo
 } // namespace WebConfig
 
 #if !USE(SYSTEM_MALLOC)
-static_assert(Gigacage::startSlotOfGigacageConfig == WebConfig::NumberOfReservedConfigBytes);
+static_assert(Gigacage::startSlotOfGigacageConfig == WebConfig::reservedSlotsForExecutableAllocator + WebConfig::additionalReservedSlots);
 #endif
 
 namespace WTF {
@@ -166,26 +154,8 @@ void Config::initialize()
     g_wtfConfig.highestAccessibleAddress = static_cast<uintptr_t>((1ULL << OS_CONSTANT(EFFECTIVE_ADDRESS_WIDTH)) - 1);
     SignalHandlers::initialize();
 
-    [[maybe_unused]] uint8_t* reservedConfigBytes = reinterpret_cast_ptr<uint8_t*>(WebConfig::g_config);
+    uint8_t* reservedConfigBytes = reinterpret_cast_ptr<uint8_t*>(WebConfig::g_config + WebConfig::reservedSlotsForExecutableAllocator);
 
-#if !USE(SYSTEM_MALLOC) && USE(APPLE_INTERNAL_SDK)
-    pas_mte_ensure_initialized();
-    const uint8_t* enabledByte = ((const uint8_t*)(WebConfig::g_config + 2));
-    const char* crashIfMTENotEnabled = getenv("MTE_crashIfNotEnabled");
-    if (crashIfMTENotEnabled) {
-        if (!strcasecmp(crashIfMTENotEnabled, "true")
-            || !strcasecmp(crashIfMTENotEnabled, "yes")
-            || !strcasecmp(crashIfMTENotEnabled, "1")) {
-            struct proc_bsdinfo info;
-            int rc = proc_pidinfo(getpid(), PROC_PIDTBSDINFO, 0, &info, sizeof(info));
-            if (rc != sizeof(info) || !(info.pbi_flags & PAS_MTE_PROC_FLAG_SEC_ENABLED) || !*enabledByte) {
-                WTFLogAlways("MTE not enabled for process; crashing\n");
-                WTFReportBacktrace();
-                CRASH();
-            }
-        }
-    }
-#endif // !USE(SYSTEM_MALLOC) && USE(APPLE_INTERNAL_SDK)
     const char* useAllocationProfilingRaw = getenv("JSC_useAllocationProfiling");
     if (useAllocationProfilingRaw) {
         auto useAllocationProfiling = unsafeSpan(useAllocationProfilingRaw);
@@ -207,6 +177,7 @@ void Config::initialize()
             }
         }
     }
+
 }
 
 void Config::finalize()

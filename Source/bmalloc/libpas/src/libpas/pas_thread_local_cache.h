@@ -38,7 +38,6 @@
 #include "pas_malloc_stack_logging.h"
 #include "pas_segregated_page_config_kind_and_role.h"
 #include "pas_utils.h"
-#include "pas_zero_memory.h"
 
 #include "pas_thread.h"
 

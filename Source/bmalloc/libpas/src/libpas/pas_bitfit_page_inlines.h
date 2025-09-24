@@ -31,7 +31,6 @@
 #include "pas_bitfit_view.h"
 #include "pas_commit_span.h"
 #include "pas_heap_config.h"
-#include "pas_mte.h"
 #include "pas_page_base_inlines.h"
 #include "pas_page_sharing_pool.h"
 #include "pas_thread.h"
@@ -248,7 +247,6 @@ static PAS_ALWAYS_INLINE pas_bitfit_allocation_result pas_bitfit_page_finish_all
     pas_bitfit_page_testing_verify(page);
 
     PAS_PROFILE(BITFIT_ALLOCATION, &page_config, begin, size, allocation_mode);
-    PAS_MTE_HANDLE(BITFIT_ALLOCATION, &page_config, begin, size, allocation_mode);
 
     return pas_bitfit_allocation_result_create_success(begin);
 }
@@ -902,7 +900,6 @@ static PAS_ALWAYS_INLINE uintptr_t pas_bitfit_page_deallocate_with_page_impl(
     } }
 
     PAS_PROFILE(BITFIT_PAGE_DEALLOCATION, page_config, begin, original_object_size);
-    PAS_MTE_HANDLE(BITFIT_PAGE_DEALLOCATION, page_config, begin, original_object_size);
 
     return num_bits;
 }

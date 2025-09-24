@@ -31,7 +31,6 @@
 #include "pas_heap_config_utils.h"
 #include "pas_large_heap_physical_page_sharing_cache.h"
 #include "pas_medium_megapage_cache.h"
-#include "pas_mte.h"
 #include "pas_segregated_page_config_utils_inlines.h"
 
 PAS_BEGIN_EXTERN_C;
@@ -165,13 +164,11 @@ typedef struct {
             megapage_cache = &page_caches->small_other_megapage_cache; \
             megapage_kind = pas_small_other_fast_megapage_kind; \
             PAS_PROFILE(SMALL_SHARED_SEGREGATED_PAGE_ALLOCATION, heap, megapage_cache); \
-            PAS_MTE_HANDLE(SMALL_SHARED_SEGREGATED_PAGE_ALLOCATION, heap, megapage_cache); \
             break; \
         case pas_segregated_page_exclusive_role: \
             megapage_cache = &page_caches->small_exclusive_segregated_megapage_cache; \
             megapage_kind = pas_small_exclusive_segregated_fast_megapage_kind; \
             PAS_PROFILE(SMALL_EXCLUSIVE_SEGREGATED_PAGE_ALLOCATION, heap, megapage_cache); \
-            PAS_MTE_HANDLE(SMALL_EXCLUSIVE_SEGREGATED_PAGE_ALLOCATION, heap, megapage_cache); \
             break; \
         } \
         \
@@ -205,7 +202,6 @@ typedef struct {
         megapage_cache = &page_caches->small_other_megapage_cache; \
         \
         PAS_PROFILE(SMALL_BITFIT_PAGE_ALLOCATION, heap, megapage_cache); \
-        PAS_MTE_HANDLE(SMALL_BITFIT_PAGE_ALLOCATION, heap, megapage_cache); \
         allocation = pas_fast_megapage_cache_try_allocate( \
             megapage_cache, \
             &name ## _megapage_table, \
@@ -239,7 +235,6 @@ typedef struct {
         megapage_cache = &page_caches->medium_megapage_cache; \
         \
         PAS_PROFILE(MEDIUM_SEGREGATED_PAGE_ALLOCATION, heap, megapage_cache); \
-        PAS_MTE_HANDLE(MEDIUM_SEGREGATED_PAGE_ALLOCATION, heap, megapage_cache); \
         allocation = pas_medium_megapage_cache_try_allocate( \
             megapage_cache, \
             page_config.base.page_config_ptr, \
@@ -268,7 +263,6 @@ typedef struct {
         megapage_cache = &page_caches->medium_megapage_cache; \
         \
         PAS_PROFILE(MEDIUM_BITFIT_PAGE_ALLOCATION, heap, megapage_cache); \
-        PAS_MTE_HANDLE(MEDIUM_BITFIT_PAGE_ALLOCATION, heap, megapage_cache); \
         allocation = pas_medium_megapage_cache_try_allocate( \
             megapage_cache, \
             page_config.base.page_config_ptr, \
@@ -297,7 +291,6 @@ typedef struct {
         megapage_cache = &page_caches->medium_megapage_cache; \
         \
         PAS_PROFILE(MARGE_BITFIT_PAGE_ALLOCATION, heap, megapage_cache); \
-        PAS_MTE_HANDLE(MARGE_BITFIT_PAGE_ALLOCATION, heap, megapage_cache); \
         allocation = pas_medium_megapage_cache_try_allocate( \
             megapage_cache, \
             page_config.base.page_config_ptr, \
