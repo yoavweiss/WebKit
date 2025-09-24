@@ -30,6 +30,8 @@
 #include "PlacedGridItem.h"
 #include "RenderStyleInlines.h"
 #include "LayoutElementBox.h"
+#include "NotImplemented.h"
+#include "TrackSizingAlgorithm.h"
 #include "UnplacedGridItem.h"
 #include <wtf/Vector.h>
 
@@ -74,8 +76,14 @@ void GridLayout::layout(GridFormattingContext::GridLayoutConstraints, const Unpl
     // 1. Run the Grid Item Placement Algorithm to resolve the placement of all grid items in the grid.
     auto [ placedGridItems, implicitGridColumnsCount, implicitGridRowsCount ] = placeGridItems(unplacedGridItems, gridTemplateColumnsTrackSizes, gridTemplateRowsTrackSizes);
 
-    auto columnTrackSizingFunctions = trackSizingFunctions(implicitGridColumnsCount, gridTemplateColumnsTrackSizes);
-    auto rowTrackSizingFunctions = trackSizingFunctions(implicitGridRowsCount, gridTemplateRowsTrackSizes);
+    auto columnTrackSizingFunctionsList = trackSizingFunctions(implicitGridColumnsCount, gridTemplateColumnsTrackSizes);
+    auto rowTrackSizingFunctionsList = trackSizingFunctions(implicitGridRowsCount, gridTemplateRowsTrackSizes);
+
+    // 3. Given the resulting grid container size, run the Grid Sizing Algorithm to size the grid.
+    auto [ usedColumnSizes, usedRowSizes ] = performGridSizingAlgorithm(placedGridItems, columnTrackSizingFunctionsList, rowTrackSizingFunctionsList);
+
+    UNUSED_VARIABLE(usedColumnSizes);
+    UNUSED_VARIABLE(usedRowSizes);
 }
 
 GridLayout::TrackSizingFunctionsList GridLayout::trackSizingFunctions(size_t implicitGridTracksCount, const Vector<Style::GridTrackSize> gridTemplateTrackSizes)
@@ -118,6 +126,35 @@ GridLayout::TrackSizingFunctionsList GridLayout::trackSizingFunctions(size_t imp
 
         return TrackSizingFunctions { minTrackSizingFunction(), maxTrackSizingFunction() };
     });
+}
+
+// https://www.w3.org/TR/css-grid-1/#algo-grid-sizing
+GridLayout::UsedTrackSizes GridLayout::performGridSizingAlgorithm(const PlacedGridItems& placedGridItems,
+    const TrackSizingFunctionsList& columnTrackSizingFunctionsList, const TrackSizingFunctionsList& rowTrackSizingFunctionsList)
+{
+    // 1. First, the track sizing algorithm is used to resolve the sizes of the grid columns.
+    auto columnSizes = TrackSizingAlgorithm::sizeTracks(placedGridItems, columnTrackSizingFunctionsList);
+
+    // 2. Next, the track sizing algorithm resolves the sizes of the grid rows.
+    auto rowSizes = TrackSizingAlgorithm::sizeTracks(placedGridItems, rowTrackSizingFunctionsList);
+
+    // 3. Then, if the min-content contribution of any grid item has changed based on the
+    // row sizes and alignment calculated in step 2, re-resolve the sizes of the grid
+    // columns with the new min-content and max-content contributions (once only).
+    auto resolveGridColumnSizesIfAnyMinContentContributionChanged = [] {
+        notImplemented();
+    };
+    UNUSED_VARIABLE(resolveGridColumnSizesIfAnyMinContentContributionChanged);
+
+    // 4. Next, if the min-content contribution of any grid item has changed based on the
+    // column sizes and alignment calculated in step 3, re-resolve the sizes of the grid
+    // rows with the new min-content and max-content contributions (once only).
+    auto resolveGridRowSizesIfAnyMinContentContributionChanged = [] {
+        notImplemented();
+    };
+    UNUSED_VARIABLE(resolveGridRowSizesIfAnyMinContentContributionChanged);
+
+    return { columnSizes, rowSizes };
 }
 
 const ElementBox& GridLayout::gridContainer() const

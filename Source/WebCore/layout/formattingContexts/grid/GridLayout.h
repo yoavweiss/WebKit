@@ -37,6 +37,7 @@ struct GridTrackSize;
 
 namespace Layout {
 
+class ImplicitGrid;
 class PlacedGridItem;
 class UnplacedGridItem;
 struct UnplacedGridItems;
@@ -46,17 +47,26 @@ public:
     GridLayout(const GridFormattingContext&);
 
     void layout(GridFormattingContext::GridLayoutConstraints, const UnplacedGridItems&);
-private:
+
     struct TrackSizingFunctions {
         Style::GridTrackBreadth min { CSS::Keyword::Auto { } };
         Style::GridTrackBreadth max { CSS::Keyword::Auto { } };
     };
+
+private:
     using PlacedGridItems = Vector<PlacedGridItem>;
     using TrackSizingFunctionsList = Vector<TrackSizingFunctions>;
 
     static auto placeGridItems(const UnplacedGridItems&, const Vector<Style::GridTrackSize>& gridTemplateColumnsTrackSizes,
         const Vector<Style::GridTrackSize>& gridTemplateRowsTrackSizes);
     static TrackSizingFunctionsList trackSizingFunctions(size_t implicitGridTracksCount, const Vector<Style::GridTrackSize> gridTemplateTrackSizes);
+
+    struct UsedTrackSizes {
+        using TrackSizes = Vector<LayoutUnit>;
+        TrackSizes columnSizes;
+        TrackSizes rowSizes;
+    };
+    static UsedTrackSizes performGridSizingAlgorithm(const PlacedGridItems&, const TrackSizingFunctionsList& columnTrackSizingFunctionsList, const TrackSizingFunctionsList& rowTrackSizingFunctionsList);
 
     const ElementBox& gridContainer() const;
     const RenderStyle& gridContainerStyle() const;

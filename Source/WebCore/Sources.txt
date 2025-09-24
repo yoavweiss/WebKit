@@ -1924,6 +1924,7 @@ layout/formattingContexts/grid/GridFormattingContext.cpp
 layout/formattingContexts/grid/GridLayout.cpp
 layout/formattingContexts/grid/ImplicitGrid.cpp
 layout/formattingContexts/grid/PlacedGridItem.cpp
+layout/formattingContexts/grid/TrackSizingAlgorithm.cpp
 layout/formattingContexts/grid/UnplacedGridItem.cpp
 layout/formattingContexts/inline/AbstractLineBuilder.cpp
 layout/formattingContexts/inline/InlineContentAligner.cpp
