@@ -4325,6 +4325,7 @@ class RunWebKitTests(shell.TestNewStyle, AddToLogMixin, ShellMixin):
             if RunWebKitTestsInStressMode.FAILURE_MSG_IN_STRESS_MODE not in previous_build_summary:
                 self.setProperty('build_summary', message)
             steps_to_add += [ArchiveTestResults(), UploadTestResults(), ExtractTestResults()]
+            self.build.addStepsAfterCurrentStep(steps_to_add)
             return WARNINGS
         else:
             steps_to_add += [
