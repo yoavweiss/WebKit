@@ -28,6 +28,7 @@ list(APPEND WebCore_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBCORE_DIR}/crypto/openssl"
     "${WEBCORE_DIR}/platform/audio/glib"
     "${WEBCORE_DIR}/platform/glib"
+    "${WEBCORE_DIR}/platform/graphics/android"
     "${WEBCORE_DIR}/platform/graphics/egl"
     "${WEBCORE_DIR}/platform/graphics/epoxy"
     "${WEBCORE_DIR}/platform/graphics/gbm"
@@ -54,6 +55,8 @@ list(APPEND WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/glib/ApplicationGLib.h
     platform/glib/SelectionData.h
     platform/glib/SystemSettings.h
+
+    platform/graphics/android/GraphicsContextGLTextureMapperAndroid.h
 
     platform/graphics/egl/PlatformDisplaySurfaceless.h
 

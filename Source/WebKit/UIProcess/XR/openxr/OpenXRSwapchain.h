@@ -24,13 +24,21 @@
 #include "OpenXRUtils.h"
 #include <WebCore/GraphicsTypesGL.h>
 #include <WebCore/IntSize.h>
+
 typedef void* EGLDisplay;
 typedef void* EGLContext;
 typedef void* EGLConfig;
 typedef unsigned EGLenum;
+
 #if defined(XR_USE_PLATFORM_EGL)
 typedef void (*(*PFNEGLGETPROCADDRESSPROC)(const char *))(void);
 #endif
+
+// The JNI types need to be defined before including openxr_platform.h
+#if OS(ANDROID)
+#include <jni.h>
+#endif
+
 #include <openxr/openxr_platform.h>
 #include <wtf/Noncopyable.h>
 #include <wtf/TZoneMalloc.h>

@@ -8935,11 +8935,15 @@ using WebCore::GraphicsContextGL::ExternalSyncSource = std::tuple<MachSendRight,
 #if (PLATFORM(GTK) || PLATFORM(WPE))
 header: <WebCore/GraphicsContextGL.h>
 [CustomHeader] struct WebCore::GraphicsContextGLExternalImageSource {
+#if OS(ANDROID)
+    RefPtr<AHardwareBuffer> hardwareBuffer;
+#else
     Vector<WTF::UnixFileDescriptor> fds;
     Vector<uint32_t> strides;
     Vector<uint32_t> offsets;
     uint32_t fourcc;
     uint64_t modifier;
+#endif
     WebCore::IntSize size;
 };
 using WebCore::GraphicsContextGL::ExternalImageSource = WebCore::GraphicsContextGLExternalImageSource;
