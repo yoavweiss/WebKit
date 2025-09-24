@@ -6917,6 +6917,14 @@ imported/w3c/web-platform-tests/navigation-api/scroll-behavior/ [ Failure Pass ]
 imported/w3c/web-platform-tests/navigation-api/navigation-history-entry/opaque-origin.html [ Skip ]
 imported/w3c/web-platform-tests/navigation-api/navigation-methods/return-value/back-forward-opaque-origin.html [ Skip ]
 
+# Back/Forward Cache is required. Tested in http/wpt. rdar://158330285
+imported/w3c/web-platform-tests/navigation-api/navigation-history-entry/entries-after-bfcache-in-iframe.html [ Skip ]
+imported/w3c/web-platform-tests/navigation-api/per-entry-events/dispose-after-bfcache.html [ Skip ]
+imported/w3c/web-platform-tests/navigation-api/navigation-activation/activation-after-bfcache-cross-origin.html [ Skip ]
+imported/w3c/web-platform-tests/navigation-api/navigation-activation/activation-after-bfcache.html [ Skip ]
+imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-history-back-bfcache.html [ Skip ]
+imported/w3c/web-platform-tests/navigation-api/navigation-history-entry/entries-after-bfcache.html [ Skip ]
+
 # Out of target of Interop 2025.
 imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-multiple-history-pushState.html [ Skip ]
 imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-multiple-location.html [ Skip ]

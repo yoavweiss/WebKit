@@ -1443,6 +1443,7 @@ imported/w3c/web-platform-tests/xhr/xhr-timeout-longtask.any.html
 webkit.org/b/187230 editing/mac/pasteboard/can-copy-url-without-title.html [ Skip ]
 
 webkit.org/b/270055 imported/w3c/web-platform-tests/navigation-api/ [ Skip ]
+webkit.org/b/270055 http/wpt/navigation-api/ [ Skip ]
 
 ### END OF (1) Failures with bug reports
 ########################################

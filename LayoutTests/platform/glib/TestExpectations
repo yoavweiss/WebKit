@@ -4892,6 +4892,9 @@ webkit.org/b/299092 [ Debug ] accessibility/url-test.html [ Skip ]
 # Depends on 'UIScriptController::singleTapAtPointWithModifiers', which is not implemented yet for GLIB.
 webkit.org/b/278719 fast/events/touch/touch-fractional-coordinates.html [ Skip ]
 
+# Navigation API flaky tests
+webkit.org/b/299333 http/wpt/navigation-api/ [ Failure Pass ]
+
 # End: Common failures between GTK and WPE.
 
 #////////////////////////////////////////////////////////////////////////////////////////
