@@ -32,8 +32,9 @@ namespace WebKit {
 
 WTF_MAKE_STRUCT_TZONE_ALLOCATED_IMPL(JSHandleInfo);
 
-JSHandleInfo::JSHandleInfo(WebCore::JSHandleIdentifier identifier, FrameInfoData&& frameInfo, Markable<WebCore::FrameIdentifier> windowProxyFrameIdentifier)
+JSHandleInfo::JSHandleInfo(WebCore::JSHandleIdentifier identifier, ContentWorldIdentifier worldIdentifier, FrameInfoData&& frameInfo, Markable<WebCore::FrameIdentifier> windowProxyFrameIdentifier)
     : identifier(identifier)
+    , worldIdentifier(worldIdentifier)
     , frameInfo(WTFMove(frameInfo))
     , windowProxyFrameIdentifier(windowProxyFrameIdentifier) { }
 

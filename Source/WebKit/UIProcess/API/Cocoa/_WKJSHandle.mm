@@ -26,6 +26,7 @@
 #import "config.h"
 #import "_WKJSHandleInternal.h"
 
+#import "WKContentWorldInternal.h"
 #import "WKFrameInfoInternal.h"
 #import "WebFrameProxy.h"
 #import "WebPageProxy.h"
@@ -45,6 +46,11 @@
 - (WKFrameInfo *)frame
 {
     return wrapper(API::FrameInfo::create(WebKit::FrameInfoData { _ref->info().frameInfo })).autorelease();
+}
+
+- (WKContentWorld *)world
+{
+    return wrapper(API::ContentWorld::worldForIdentifier(_ref->info().worldIdentifier));
 }
 
 - (void)windowFrameInfo:(void (^)(WKFrameInfo *))completionHandler

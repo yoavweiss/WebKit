@@ -5563,6 +5563,7 @@ TEST(SiteIsolation, HitTesting)
 
     auto hitNodePrototypeAndParentElement = [&] (RetainPtr<TestWKWebView> webView, CGPoint point, WKFrameInfo *coordinateFrame = nil) -> NSString * {
         auto node = hitTestResult(webView, point, coordinateFrame);
+        EXPECT_EQ([node world], WKContentWorld.pageWorld);
         if (!node)
             return @"(error)";
         return [webView objectByCallingAsyncFunction:@"return Object.getPrototypeOf(n).toString() + ' ' + n.id + ', child of ' + n.parentElement?.id" withArguments:@{ @"n" : node.get() } inFrame:node.get().frame inContentWorld:WKContentWorld.pageWorld];

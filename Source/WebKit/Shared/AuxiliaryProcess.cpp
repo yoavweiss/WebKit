@@ -110,7 +110,6 @@ void AuxiliaryProcess::initialize(AuxiliaryProcessInitializationParameters&& par
 
     // In WebKit2, only the UI process should ever be generating certain identifiers.
     PAL::SessionID::enableGenerationProtection();
-    ContentWorldIdentifier::enableGenerationProtection();
     WebPageProxyIdentifier::enableGenerationProtection();
 
     Ref connection = IPC::Connection::createClientConnection(WTFMove(parameters.connectionIdentifier));

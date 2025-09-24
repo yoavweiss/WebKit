@@ -88,6 +88,7 @@ TEST(JSHandle, Basic)
     }
     result = [webView objectByEvaluatingJavaScript:@"window.webkit.jsHandle(document.createTextNode('hi'))" inFrame:nil inContentWorld:world.get()];
     EXPECT_NULL(getWindowFrameInfo(result));
+    EXPECT_EQ([result world], world.get());
     result = [webView objectByEvaluatingJavaScript:@"window.WebKitJSHandle"];
     EXPECT_NULL(result);
 
@@ -189,6 +190,7 @@ TEST(JSHandle, WebpagePreferences)
     [navigationDelegate waitForDidFinishNavigation];
     EXPECT_FALSE([[webView objectByEvaluatingJavaScript:checkClass] boolValue]);
     EXPECT_FALSE([[webView objectByEvaluatingJavaScript:checkWindowWebKit] boolValue]);
+    EXPECT_EQ([[webView objectByEvaluatingJavaScript:@"window.webkit.jsHandle(()=>{})"] world], WKContentWorld.pageWorld);
 
     allow = false;
     [webView loadRequest:request];
