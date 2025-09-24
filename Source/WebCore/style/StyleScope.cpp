@@ -936,9 +936,11 @@ bool Scope::isForUserAgentShadowTree() const
 
 bool Scope::invalidateForLayoutDependencies(LayoutDependencyUpdateContext& context)
 {
-    return invalidateForContainerDependencies(context)
-        || invalidateForAnchorDependencies(context)
-        || invalidateForPositionTryFallbacks(context);
+    auto didInvalidate = false;
+    didInvalidate |= invalidateForContainerDependencies(context);
+    didInvalidate |= invalidateForAnchorDependencies(context);
+    didInvalidate |= invalidateForPositionTryFallbacks(context);
+    return didInvalidate;
 }
 
 bool Scope::invalidateForContainerDependencies(LayoutDependencyUpdateContext& context)

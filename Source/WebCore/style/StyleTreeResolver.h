@@ -226,6 +226,9 @@ private:
         bool chosen { false };
         bool isFirstTry { true };
 
+        // Non-overlay scrollbars appearing or disappearing may affect the content box size that anchor functions are resolved against.
+        std::optional<LayoutSize> scrollContainerSizeOnGeneration;
+
         const RenderStyle& originalStyle() const;
         std::unique_ptr<RenderStyle> currentOption() const;
     };

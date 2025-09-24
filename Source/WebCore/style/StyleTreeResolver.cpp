@@ -53,6 +53,7 @@
 #include "PositionTryOrder.h"
 #include "PositionedLayoutConstraints.h"
 #include "Quirks.h"
+#include "RenderBoxInlines.h"
 #include "RenderElement.h"
 #include "RenderStyleSetters.h"
 #include "RenderView.h"
@@ -1501,6 +1502,21 @@ auto TreeResolver::updateAnchorPositioningState(Element& element, const RenderSt
     return LayoutInterleavingAction::None;
 }
 
+static std::optional<LayoutSize> scrollContainerSizeForPositionOptions(const Styleable& anchored)
+{
+    CheckedPtr anchoredRenderer = anchored.renderer();
+    if (!anchoredRenderer)
+        return { };
+    // Overlay scrollbars can't affect anchor() function resolution so we don't need to save the size.
+    CheckedRef containingBlock = *anchoredRenderer->containingBlock();
+    if (containingBlock->canUseOverlayScrollbars())
+        return { };
+    bool isOverflowScroller = containingBlock->isScrollContainerY() || containingBlock->isScrollContainerY();
+    if (!containingBlock->isRenderView() && !isOverflowScroller)
+        return { };
+    return containingBlock->contentBoxSize();
+}
+
 void TreeResolver::generatePositionOptionsIfNeeded(const ResolvedStyle& resolvedStyle, const Styleable& styleable, const ResolutionContext& resolutionContext)
 {
     // https://drafts.csswg.org/css-anchor-position-1/#fallback-apply
@@ -1536,6 +1552,8 @@ void TreeResolver::generatePositionOptionsIfNeeded(const ResolvedStyle& resolved
     // If the fallbacks contain anchor references we need to resolve the anchors first and regenerate the options.
     if (hasUnresolvedAnchorPosition(styleable))
         return;
+
+    options.scrollContainerSizeOnGeneration = scrollContainerSizeForPositionOptions(styleable);
 
     m_positionOptions.add(positionOptionsKey, WTFMove(options));
 }
@@ -1686,6 +1704,12 @@ std::optional<ResolvedStyle> TreeResolver::tryChoosePositionOption(const Styleab
         options.isFirstTry = false;
         options.index = 0;
         return ResolvedStyle { options.currentOption() };
+    }
+
+    if (!options.chosen && options.scrollContainerSizeOnGeneration != scrollContainerSizeForPositionOptions(styleable)) {
+        // Re-generate the options if a scrollbar change changes the view size. It may affect anchor() function resolution.
+        m_positionOptions.remove(optionIt);
+        return { };
     }
 
     // We can't test for overflow before the box has been positioned.
