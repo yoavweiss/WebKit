@@ -1687,6 +1687,11 @@ void WebPageProxy::getWebArchiveData(CompletionHandler<void(API::Data*)>&& compl
 
 void WebPageProxy::getWebArchiveDataWithFrame(WebFrameProxy& frame, CompletionHandler<void(API::Data*)>&& completionHandler)
 {
+    return getWebArchiveDataWithSelectedFrames(frame, std::nullopt, WTFMove(completionHandler));
+}
+
+void WebPageProxy::getWebArchiveDataWithSelectedFrames(WebFrameProxy& rootFrame, const std::optional<HashSet<WebCore::FrameIdentifier>>& selectedFrameIdentifiers, CompletionHandler<void(API::Data*)>&& completionHandler)
+{
     class WebArchvieCallbackAggregator final : public ThreadSafeRefCounted<WebArchvieCallbackAggregator, WTF::DestructionThread::MainRunLoop> {
     public:
         using Callback = CompletionHandler<void(RefPtr<LegacyWebArchive>&&)>;
@@ -1733,7 +1738,10 @@ void WebPageProxy::getWebArchiveDataWithFrame(WebFrameProxy& frame, CompletionHa
         HashMap<WebCore::FrameIdentifier, Ref<WebCore::LegacyWebArchive>> m_frameArchives;
     };
 
-    auto callbackAggregator = WebArchvieCallbackAggregator::create(frame.frameID(), [completionHandler = WTFMove(completionHandler)](auto webArchive) mutable {
+    if (selectedFrameIdentifiers && !selectedFrameIdentifiers->contains(rootFrame.frameID()))
+        return completionHandler(nullptr);
+
+    auto callbackAggregator = WebArchvieCallbackAggregator::create(rootFrame.frameID(), [completionHandler = WTFMove(completionHandler)](auto webArchive) mutable {
         if (!webArchive)
             return completionHandler(nullptr);
 
@@ -1743,11 +1751,13 @@ void WebPageProxy::getWebArchiveDataWithFrame(WebFrameProxy& frame, CompletionHa
         completionHandler(API::Data::create(span(data.get())).ptr());
     });
     HashMap<Ref<WebProcessProxy>, Vector<WebCore::FrameIdentifier>> processFrames;
-    RefPtr currentFrame = &frame;
+    RefPtr currentFrame = &rootFrame;
     while (currentFrame) {
-        processFrames.ensure(currentFrame->protectedProcess(), [&] {
-            return Vector<WebCore::FrameIdentifier> { };
-        }).iterator->value.append(currentFrame->frameID());
+        if (!selectedFrameIdentifiers || selectedFrameIdentifiers->contains(currentFrame->frameID())) {
+            processFrames.ensure(currentFrame->protectedProcess(), [&] {
+                return Vector<WebCore::FrameIdentifier> { };
+            }).iterator->value.append(currentFrame->frameID());
+        }
 
         currentFrame = currentFrame->traverseNext().frame;
     }

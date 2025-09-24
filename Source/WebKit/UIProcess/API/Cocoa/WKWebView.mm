@@ -5366,13 +5366,55 @@ static inline OptionSet<WebCore::LayoutMilestone> layoutMilestones(_WKRenderingP
     }
 
     RefPtr webFrame = WebKit::WebFrameProxy::webFrame(*frameID);
-    if (!frame) {
+    if (!webFrame) {
         NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Frame with specified identifier no longer exists.", };
         completionHandler(nil, adoptNS([[NSError alloc] initWithDomain:WKErrorDomain code:WKErrorUnknown userInfo:userInfo]).get());
         return;
     }
 
     _page->getWebArchiveDataWithFrame(*webFrame, [completionHandler = makeBlockPtr(completionHandler)](API::Data* data) {
+        if (data)
+            completionHandler(wrapper(data), nil);
+        else
+            completionHandler(nil, unknownError().get());
+    });
+}
+
+- (void)_createWebArchiveForFrames:(NSArray<WKFrameInfo *> *)frames rootFrame:(WKFrameInfo *)rootFrame completionHandler:(void (^)(NSData *, NSError *))completionHandler
+{
+    THROW_IF_SUSPENDED;
+
+    std::optional<WebCore::FrameIdentifier> rootFrameID;
+    if (rootFrame && rootFrame._handle && rootFrame._handle->_frameHandle->frameID())
+        rootFrameID = rootFrame._handle->_frameHandle->frameID();
+
+    if (!rootFrameID) {
+        NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Root frame no longer exists." };
+        completionHandler(nil, adoptNS([[NSError alloc] initWithDomain:WKErrorDomain code:WKErrorUnknown userInfo:userInfo]).get());
+        return;
+    }
+
+    RefPtr webRootFrame = WebKit::WebFrameProxy::webFrame(*rootFrameID);
+    if (!webRootFrame) {
+        NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Root frame with specified identifier no longer exists.", };
+        completionHandler(nil, adoptNS([[NSError alloc] initWithDomain:WKErrorDomain code:WKErrorUnknown userInfo:userInfo]).get());
+        return;
+    }
+
+    HashSet<WebCore::FrameIdentifier> targetFrameIDs;
+    for (WKFrameInfo *frame in frames) {
+        if (!frame)
+            continue;
+
+        auto handle = frame._handle;
+        if (!handle)
+            continue;
+
+        if (auto frameID = handle->_frameHandle->frameID())
+            targetFrameIDs.add(*frameID);
+    }
+
+    _page->getWebArchiveDataWithSelectedFrames(*webRootFrame, targetFrameIDs, [completionHandler = makeBlockPtr(completionHandler)](API::Data* data) {
         if (data)
             completionHandler(wrapper(data), nil);
         else
