@@ -419,8 +419,6 @@ const std::optional<LayoutUnit> RenderGrid::availableLogicalHeightForContentBox(
 
 void RenderGrid::layoutGrid(RelayoutChildren relayoutChildren)
 {
-    if (layoutUsingGridFormattingContext())
-        return;
 
     LayoutRepainter repainter(*this);
     {
@@ -442,6 +440,9 @@ void RenderGrid::layoutGrid(RelayoutChildren relayoutChildren)
         resetLogicalHeightBeforeLayoutIfNeeded();
 
         updateLogicalWidth();
+
+        if (layoutUsingGridFormattingContext())
+            return;
 
         // Fieldsets need to find their legend and position it inside the border of the object.
         // The legend then gets skipped during normal layout. The same is true for ruby text.
