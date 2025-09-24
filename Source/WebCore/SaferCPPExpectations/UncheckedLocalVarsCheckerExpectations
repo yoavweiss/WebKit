@@ -550,4 +550,3 @@ testing/js/WebCoreTestSupport.cpp
 workers/WorkerGlobalScope.cpp
 workers/WorkerOrWorkletThread.cpp
 workers/WorkerRunLoop.cpp
-workers/service/server/SWServer.cpp

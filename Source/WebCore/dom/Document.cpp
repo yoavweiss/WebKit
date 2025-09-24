@@ -4811,6 +4811,11 @@ SocketProvider* Document::socketProvider()
     return m_socketProvider.get();
 }
 
+RefPtr<SocketProvider> Document::protectedSocketProvider()
+{
+    return socketProvider();
+}
+
 RefPtr<RTCDataChannelRemoteHandlerConnection> Document::createRTCDataChannelRemoteHandlerConnection()
 {
     ASSERT(isMainThread());

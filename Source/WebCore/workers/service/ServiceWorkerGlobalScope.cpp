@@ -182,7 +182,7 @@ void ServiceWorkerGlobalScope::prepareForDestruction()
 
     auto ongoingFetchTasks = std::exchange(m_ongoingFetchTasks, { });
     for (auto& task : ongoingFetchTasks.values())
-        task.client->contextIsStopping();
+        RefPtr { task.client }->contextIsStopping();
 
     WorkerGlobalScope::prepareForDestruction();
 }
@@ -199,8 +199,9 @@ void ServiceWorkerGlobalScope::updateExtendedEventsSet(ExtendableEvent* newEvent
 
     if (newEvent && newEvent->pendingPromiseCount()) {
         m_extendedEvents.append(*newEvent);
-        newEvent->whenAllExtendLifetimePromisesAreSettled([this](auto&&) {
-            this->updateExtendedEventsSet();
+        newEvent->whenAllExtendLifetimePromisesAreSettled([weakThis = WeakPtr { *this }](auto&&) {
+            if (RefPtr protectedThis = weakThis.get())
+                protectedThis->updateExtendedEventsSet();
         });
         // Clear out the event's target as it is the WorkerGlobalScope and we do not want to keep it
         // alive unnecessarily.
@@ -338,7 +339,7 @@ void ServiceWorkerGlobalScope::navigationPreloadFailed(FetchKey key, ResourceErr
         return;
 
     if (std::holds_alternative<Ref<FetchEvent>>(iterator->value.navigationPreload)) {
-        std::get<Ref<FetchEvent>>(iterator->value.navigationPreload)->navigationPreloadFailed(WTFMove(error));
+        Ref { std::get<Ref<FetchEvent>>(iterator->value.navigationPreload) }->navigationPreloadFailed(WTFMove(error));
         iterator->value.navigationPreload = nullptr;
         return;
     }
@@ -353,7 +354,7 @@ void ServiceWorkerGlobalScope::navigationPreloadIsReady(FetchKey key, ResourceRe
         return;
 
     if (std::holds_alternative<Ref<FetchEvent>>(iterator->value.navigationPreload)) {
-        std::get<Ref<FetchEvent>>(iterator->value.navigationPreload)->navigationPreloadIsReady(WTFMove(response));
+        Ref { std::get<Ref<FetchEvent>>(iterator->value.navigationPreload) }->navigationPreloadIsReady(WTFMove(response));
         iterator->value.navigationPreload = nullptr;
         return;
     }

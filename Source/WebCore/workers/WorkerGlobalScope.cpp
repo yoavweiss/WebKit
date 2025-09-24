@@ -227,6 +227,11 @@ SocketProvider* WorkerGlobalScope::socketProvider()
     return m_socketProvider.get();
 }
 
+RefPtr<SocketProvider> WorkerGlobalScope::protectedSocketProvider()
+{
+    return socketProvider();
+}
+
 RefPtr<RTCDataChannelRemoteHandlerConnection> WorkerGlobalScope::createRTCDataChannelRemoteHandlerConnection()
 {
     RefPtr<RTCDataChannelRemoteHandlerConnection> connection;

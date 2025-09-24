@@ -110,9 +110,6 @@ workers/DedicatedWorkerThread.cpp
 workers/Worker.h
 workers/WorkerOrWorkletGlobalScope.h
 workers/WorkerThread.h
-workers/service/context/ServiceWorkerInspectorProxy.h
-workers/service/context/ServiceWorkerThread.cpp
-workers/service/context/ServiceWorkerThread.h
 workers/shared/SharedWorkerGlobalScope.h
 workers/shared/context/SharedWorkerThread.h
 xml/XSLStyleSheetLibxslt.cpp

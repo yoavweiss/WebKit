@@ -49,8 +49,14 @@ private:
     static ServiceWorkerRegistrationBackgroundFetchAPI& from(ServiceWorkerRegistration&);
     static ASCIILiteral supplementName();
 
-    ServiceWorkerRegistration& m_serviceWorkerRegistration;
+    bool isServiceWorkerRegistrationBackgroundFetchAPI() const final { return true; }
+
+    WeakRef<ServiceWorkerRegistration, WeakPtrImplWithEventTargetData> m_serviceWorkerRegistration;
     const RefPtr<BackgroundFetchManager> m_backgroundFetchManager;
 };
 
-}
+} // namespace WebCore
+
+SPECIALIZE_TYPE_TRAITS_BEGIN(WebCore::ServiceWorkerRegistrationBackgroundFetchAPI)
+    static bool isType(const WebCore::SupplementBase& supplement) { return supplement.isServiceWorkerRegistrationBackgroundFetchAPI(); }
+SPECIALIZE_TYPE_TRAITS_END()

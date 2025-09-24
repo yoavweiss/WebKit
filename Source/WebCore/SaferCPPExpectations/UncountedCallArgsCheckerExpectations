@@ -1013,16 +1013,6 @@ workers/WorkerAnimationController.cpp
 workers/WorkerGlobalScope.cpp
 workers/WorkerInspectorProxy.cpp
 workers/WorkerMessagingProxy.cpp
-workers/service/ServiceWorker.cpp
-workers/service/ServiceWorkerContainer.cpp
-workers/service/ServiceWorkerGlobalScope.cpp
-workers/service/ServiceWorkerWindowClient.cpp
-workers/service/background-fetch/BackgroundFetch.cpp
-workers/service/background-fetch/BackgroundFetchEngine.cpp
-workers/service/background-fetch/BackgroundFetchRegistration.cpp
-workers/service/background-fetch/ServiceWorkerRegistrationBackgroundFetchAPI.cpp
-workers/service/server/SWServer.cpp
-workers/service/server/SWServerWorker.cpp
 workers/shared/SharedWorker.cpp
 worklets/PaintWorkletGlobalScope.cpp
 worklets/WorkletGlobalScope.cpp
