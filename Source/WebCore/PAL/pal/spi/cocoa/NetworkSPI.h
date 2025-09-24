@@ -95,7 +95,7 @@ typedef enum {
     nw_resolver_class_designated_direct = 2,
 } nw_resolver_class_t;
 
-nw_resolver_config_t nw_resolver_config_create(void);
+OS_OBJECT_RETURNS_RETAINED nw_resolver_config_t nw_resolver_config_create(void);
 void nw_resolver_config_set_protocol(nw_resolver_config_t, nw_resolver_protocol_t);
 void nw_resolver_config_set_class(nw_resolver_config_t, nw_resolver_class_t);
 void nw_resolver_config_add_match_domain(nw_resolver_config_t, const char *);

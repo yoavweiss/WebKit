@@ -44,8 +44,13 @@
 #if PLATFORM(COCOA)
 #include "ClassMethodSwizzler.h"
 #include "InstanceMethodSwizzler.h"
+#if PLATFORM(MAC)
+#include <pal/spi/cocoa/NetworkSPI.h>
+#include <wtf/OSObjectPtr.h>
 #endif
+#endif // PLATFORM(COCOA)
 
+OBJC_CLASS NEPolicySession;
 OBJC_CLASS NSColor;
 OBJC_CLASS NSString;
 OBJC_CLASS UIKeyboardInputMode;
@@ -830,7 +835,11 @@ private:
     
 #if PLATFORM(COCOA)
     bool m_hasSetApplicationBundleIdentifier { false };
+#if PLATFORM(MAC)
+    RetainPtr<NEPolicySession> m_policySession;
+    OSObjectPtr<nw_resolver_config_t> m_resolverConfig;
 #endif
+#endif // PLATFORM(COCOA)
 
     bool m_isSpeechRecognitionPermissionGranted { false };
 

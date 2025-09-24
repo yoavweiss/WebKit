@@ -674,6 +674,10 @@ private:
         CompletionHandler<void()> completionHandler;
     };
     HashMap<TaskIdentifier, DeleteWebsiteDataTask> m_deleteWebsiteDataTasks;
+
+#if PLATFORM(IOS_SIMULATOR)
+    OSObjectPtr<nw_resolver_config_t> m_resolverConfig;
+#endif
 };
 
 #if !PLATFORM(COCOA)
