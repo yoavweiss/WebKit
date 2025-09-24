@@ -123,6 +123,7 @@ namespace WebCore {
     M(IndexedDBOperations) \
     M(Inspector) \
     M(IntersectionObserver) \
+    M(LargestContentfulPaint) \
     M(Layers) \
     M(Layout) \
     M(LazyLoading) \

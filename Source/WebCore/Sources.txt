@@ -2135,6 +2135,7 @@ page/InteractionRegion.cpp
 page/IntersectionObserver.cpp
 page/IntersectionObserverEntry.cpp
 page/LargestContentfulPaint.cpp
+page/LargestContentfulPaintData.cpp
 page/LocalDOMWindow.cpp
 page/LocalDOMWindowProperty.cpp
 page/LocalFrame.cpp

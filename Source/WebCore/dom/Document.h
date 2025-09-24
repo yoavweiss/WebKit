@@ -106,6 +106,7 @@ class CSSFontSelector;
 class CSSStyleProperties;
 class CSSStyleSheet;
 class CachedCSSStyleSheet;
+class CachedImage;
 class CachedFrameBase;
 class CachedResourceLoader;
 class CachedScript;
@@ -185,6 +186,7 @@ class IntPoint;
 class IntersectionObserver;
 class JSNode;
 class JSViewTransitionUpdateCallback;
+class LargestContentfulPaintData;
 class LayoutPoint;
 class LayoutRect;
 class LazyLoadImageObserver;
@@ -219,6 +221,7 @@ class RTCNetworkManager;
 class Range;
 class RealtimeMediaSource;
 class Region;
+class RenderText;
 class RenderTreeBuilder;
 class RenderView;
 class ReportingScope;
@@ -1475,6 +1478,10 @@ public:
     WEBCORE_EXPORT double monotonicTimestamp() const;
     const DocumentEventTiming& eventTiming() const { return m_eventTiming; }
 
+    LargestContentfulPaintData& largestContentfulPaintData() const;
+    void didPaintImage(Element&, CachedImage*, FloatRect localRect) const;
+    void didPaintText(const RenderText&, FloatRect localRect) const;
+
     int requestAnimationFrame(Ref<RequestAnimationFrameCallback>&&);
     void cancelAnimationFrame(int id);
 
@@ -2386,6 +2393,7 @@ private:
     ViewportArguments m_viewportArguments;
 
     DocumentEventTiming m_eventTiming;
+    mutable std::unique_ptr<LargestContentfulPaintData> m_largestContentfulPaintData;
 
     RefPtr<MediaQueryMatcher> m_mediaQueryMatcher;
     
