@@ -44,12 +44,12 @@ public func resolveQuerySet(commandEncoder: WebGPU.CommandEncoder, querySet: Web
 }
 
 @_expose(Cxx)
-public func CommandEncoder_copyBufferToTexture_thunk(commandEncoder: WebGPU.CommandEncoder, source: WGPUImageCopyBuffer, destination: WGPUImageCopyTexture, copySize: WGPUExtent3D){
+public func CommandEncoder_copyBufferToTexture_thunk(commandEncoder: WebGPU.CommandEncoder, source: WGPUImageCopyBuffer, destination: WGPUImageCopyTexture, copySize: WGPUExtent3D) {
     commandEncoder.copyBufferToTexture(source: source, destination: destination, copySize: copySize)
 }
 
 @_expose(Cxx)
-public func CommandEncoder_copyTextureToBuffer_thunk(commandEncoder: WebGPU.CommandEncoder, source: WGPUImageCopyTexture, destination: WGPUImageCopyBuffer, copySize: WGPUExtent3D){
+public func CommandEncoder_copyTextureToBuffer_thunk(commandEncoder: WebGPU.CommandEncoder, source: WGPUImageCopyTexture, destination: WGPUImageCopyBuffer, copySize: WGPUExtent3D) {
     commandEncoder.copyTextureToBuffer(source: source, destination: destination, copySize: copySize)
 }
 
@@ -72,6 +72,7 @@ public func CommandEncoder_beginRenderPass_thunk(commandEncoder: WebGPU.CommandE
 public func CommandEncoder_beginComputePass_thunk(commandEncoder: WebGPU.CommandEncoder, descriptor: WGPUComputePassDescriptor) -> WebGPU_Internal.RefComputePassEncoder {
     return commandEncoder.beginComputePass(descriptor: descriptor)
 }
+
 @_expose(Cxx)
 public func CommandEncoder_runClearEncoder_thunk(commandEncoder: WebGPU.CommandEncoder, attachmentsToClear: NSMutableDictionary, depthStencilAttachmentToClear: inout MTLTexture?, depthAttachmentToClear: Bool, stencilAttachmentToClear: Bool, depthClearValue: Double, stencilClearValue: UInt32, existingEncoder: MTLRenderCommandEncoder?) {
     let dInput = attachmentsToClear as? [NSNumber: TextureAndClearColor]
@@ -823,7 +824,7 @@ extension WebGPU.CommandEncoder {
     public func beginRenderPass(descriptor: WGPURenderPassDescriptor) -> WebGPU_Internal.RefRenderPassEncoder {
         let collection = CollectionOfOne(descriptor)
         let descriptorSpan = collection.span
-        var maxDrawCount = descriptorSpan[0].maxDrawCount
+        let maxDrawCount = descriptorSpan[0].maxDrawCount
 
         guard prepareTheEncoderState() else {
             self.generateInvalidEncoderStateError()
@@ -843,7 +844,7 @@ extension WebGPU.CommandEncoder {
         if let wgpuTimestampWrites = wgpuGetRenderPassDescriptorTimestampWrites(descriptorSpan)?[0] {
             let wgpuQuerySet = wgpuTimestampWrites.querySet
             let querySet = WebGPU.fromAPI(wgpuQuerySet)
-            counterSampleBuffer = unsafe querySet.counterSampleBufferWithOffset().first
+            counterSampleBuffer = querySet.counterSampleBufferWithOffset().first
         }
 
         if m_device.ptr().enableEncoderTimestamps() || counterSampleBuffer != nil {
@@ -2085,8 +2086,8 @@ extension WebGPU.CommandEncoder {
         var counterSampleBuffer: MTLCounterSampleBuffer? = nil
         var counterSampleBufferOffset: UInt32 = 0
         if let wgpuTimestampWrites = wgpuGetComputePassDescriptorTimestampWrites(collection.span)?[0] {
-            counterSampleBuffer = unsafe WebGPU.fromAPI(wgpuTimestampWrites.querySet).counterSampleBufferWithOffset().first
-            counterSampleBufferOffset = unsafe WebGPU.fromAPI(wgpuTimestampWrites.querySet).counterSampleBufferWithOffset().second
+            counterSampleBuffer = WebGPU.fromAPI(wgpuTimestampWrites.querySet).counterSampleBufferWithOffset().first
+            counterSampleBufferOffset = WebGPU.fromAPI(wgpuTimestampWrites.querySet).counterSampleBufferWithOffset().second
         }
 
         if m_device.ptr().enableEncoderTimestamps() || counterSampleBuffer != nil {
