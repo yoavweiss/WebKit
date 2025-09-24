@@ -182,7 +182,7 @@ void RemoteRenderingBackendProxy::didClose(IPC::Connection&)
     if (!m_connection)
         return;
     disconnectGPUProcess();
-    m_remoteResourceCacheProxy.releaseMemory();
+    m_remoteResourceCacheProxy.disconnect();
 
     for (auto& weakImageBuffer : m_imageBuffers.values()) {
         RefPtr imageBuffer = weakImageBuffer.get();

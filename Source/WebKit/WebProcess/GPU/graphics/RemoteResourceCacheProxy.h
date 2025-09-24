@@ -65,6 +65,7 @@ public:
     RemoteDisplayListIdentifier recordDisplayListUse(const WebCore::DisplayList::DisplayList&);
     void didPaintLayers();
 
+    void disconnect();
     void releaseMemory();
     void releaseNativeImages();
     
@@ -72,7 +73,7 @@ public:
 
 private:
     // WebCore::RenderingResourceObserver.
-    void willDestroyNativeImage(WebCore::RenderingResourceIdentifier) override;
+    void willDestroyNativeImage(const WebCore::NativeImage&) override;
     void willDestroyGradient(const WebCore::Gradient&) override;
     void willDestroyFilter(WebCore::RenderingResourceIdentifier) override;
     void willDestroyDisplayList(const WebCore::DisplayList::DisplayList&) override;
@@ -82,7 +83,11 @@ private:
     void releaseFonts();
     void releaseFontCustomPlatformDatas();
 
-    HashSet<WebCore::RenderingResourceIdentifier> m_nativeImages;
+    struct NativeImageEntry {
+        RefPtr<WebCore::ShareableBitmap> bitmap; // Reused across GPUP crashes, held through the associated NativeImage lifetime.
+        bool existsInRemote = true;
+    };
+    HashMap<const WebCore::NativeImage*, NativeImageEntry> m_nativeImages;
     HashMap<const WebCore::Gradient*, RemoteGradientIdentifier> m_gradients;
     HashSet<WebCore::RenderingResourceIdentifier> m_filters;
     HashMap<const WebCore::DisplayList::DisplayList*, RemoteDisplayListIdentifier> m_displayLists;

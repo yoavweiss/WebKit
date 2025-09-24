@@ -43,11 +43,12 @@ template<> struct IsDeprecatedWeakRefSmartPointerException<WebCore::RenderingRes
 }
 
 namespace WebCore {
+class NativeImage;
 
 class RenderingResourceObserver : public CanMakeWeakPtr<RenderingResourceObserver> {
 public:
     virtual ~RenderingResourceObserver() = default;
-    virtual void willDestroyNativeImage(RenderingResourceIdentifier) = 0;
+    virtual void willDestroyNativeImage(const NativeImage&) = 0;
     virtual void willDestroyGradient(const Gradient&) = 0;
     virtual void willDestroyFilter(RenderingResourceIdentifier) = 0;
     virtual void willDestroyDisplayList(const DisplayList::DisplayList&) = 0;
@@ -60,7 +61,6 @@ class RenderingResource
 public:
     virtual ~RenderingResource() = default;
 
-    virtual bool isNativeImage() const { return false; }
     virtual bool isFilter() const { return false; }
 
     bool hasValidRenderingResourceIdentifier() const

@@ -37,31 +37,6 @@
 
 namespace WebCore {
 
-IntSize PlatformImageNativeImageBackend::size() const
-{
-    return IntSize(CGImageGetWidth(m_platformImage.get()), CGImageGetHeight(m_platformImage.get()));
-}
-
-bool PlatformImageNativeImageBackend::hasAlpha() const
-{
-    CGImageAlphaInfo info = CGImageGetAlphaInfo(m_platformImage.get());
-    return (info >= kCGImageAlphaPremultipliedLast) && (info <= kCGImageAlphaFirst);
-}
-
-DestinationColorSpace PlatformImageNativeImageBackend::colorSpace() const
-{
-    return DestinationColorSpace(CGImageGetColorSpace(m_platformImage.get()));
-}
-
-Headroom PlatformImageNativeImageBackend::headroom() const
-{
-#if HAVE(SUPPORT_HDR_DISPLAY)
-    float headroom = CGImageGetContentHeadroom(m_platformImage.get());
-    return Headroom(std::max<float>(headroom, Headroom::None));
-#else
-    return Headroom::None;
-#endif
-}
 
 RefPtr<NativeImage> NativeImage::create(PlatformImagePtr&& image, RenderingResourceIdentifier renderingResourceIdentifier)
 {
@@ -69,8 +44,7 @@ RefPtr<NativeImage> NativeImage::create(PlatformImagePtr&& image, RenderingResou
         return nullptr;
     if (CGImageGetWidth(image.get()) > std::numeric_limits<int>::max() || CGImageGetHeight(image.get()) > std::numeric_limits<int>::max())
         return nullptr;
-    UniqueRef<PlatformImageNativeImageBackend> backend { *new PlatformImageNativeImageBackend(WTFMove(image)) };
-    return adoptRef(*new NativeImage(WTFMove(backend), renderingResourceIdentifier));
+    return adoptRef(*new NativeImage(WTFMove(image), renderingResourceIdentifier));
 }
 
 RefPtr<NativeImage> NativeImage::createTransient(PlatformImagePtr&& image, RenderingResourceIdentifier identifier)
@@ -86,6 +60,32 @@ RefPtr<NativeImage> NativeImage::createTransient(PlatformImagePtr&& image, Rende
     image = nullptr;
     CGImageSetCachingFlags(transientImage.get(), kCGImageCachingTransient);
     return create(WTFMove(transientImage), identifier);
+}
+
+IntSize NativeImage::size() const
+{
+    return IntSize(CGImageGetWidth(m_platformImage.get()), CGImageGetHeight(m_platformImage.get()));
+}
+
+bool NativeImage::hasAlpha() const
+{
+    CGImageAlphaInfo info = CGImageGetAlphaInfo(m_platformImage.get());
+    return (info >= kCGImageAlphaPremultipliedLast) && (info <= kCGImageAlphaFirst);
+}
+
+DestinationColorSpace NativeImage::colorSpace() const
+{
+    return DestinationColorSpace(CGImageGetColorSpace(m_platformImage.get()));
+}
+
+Headroom NativeImage::headroom() const
+{
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    float headroom = CGImageGetContentHeadroom(m_platformImage.get());
+    return Headroom(std::max<float>(headroom, Headroom::None));
+#else
+    return Headroom::None;
+#endif
 }
 
 std::optional<Color> NativeImage::singlePixelSolidColor() const
@@ -131,6 +131,7 @@ void NativeImage::clearSubimages()
     CGSubimageCacheWithTimer::clearImage(platformImage().get());
 #endif
 }
+
 
 } // namespace WebCore
 

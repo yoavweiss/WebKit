@@ -788,7 +788,6 @@ WebProcess/GPU/graphics/RemoteGraphicsContextGLProxyFunctionsGenerated.cpp
 WebProcess/GPU/graphics/RemoteGraphicsContextProxy.cpp
 WebProcess/GPU/graphics/RemoteImageBufferProxy.cpp
 WebProcess/GPU/graphics/RemoteImageBufferSetProxy.cpp
-WebProcess/GPU/graphics/RemoteNativeImageBackendProxy.cpp
 WebProcess/GPU/graphics/RemoteSnapshotRecorderProxy.cpp
 WebProcess/GPU/graphics/RemoteRenderingBackendProxy.cpp
 WebProcess/GPU/graphics/RemoteResourceCacheProxy.cpp

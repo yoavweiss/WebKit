@@ -35,23 +35,23 @@
 
 namespace WebCore {
 
-IntSize PlatformImageNativeImageBackend::size() const
+IntSize NativeImage::size() const
 {
     return cairoSurfaceSize(m_platformImage.get());
 }
 
-bool PlatformImageNativeImageBackend::hasAlpha() const
+bool NativeImage::hasAlpha() const
 {
     return cairo_surface_get_content(m_platformImage.get()) != CAIRO_CONTENT_COLOR;
 }
 
-DestinationColorSpace PlatformImageNativeImageBackend::colorSpace() const
+DestinationColorSpace NativeImage::colorSpace() const
 {
     notImplemented();
     return DestinationColorSpace::SRGB();
 }
 
-Headroom PlatformImageNativeImageBackend::headroom() const
+Headroom NativeImage::headroom() const
 {
     return Headroom::None;
 }

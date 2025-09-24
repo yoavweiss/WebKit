@@ -44,14 +44,14 @@ class NativeImageBackend;
 struct Headroom;
 struct ImagePaintingOptions;
 
-class NativeImage final : public RenderingResource {
+class NativeImage final : public ThreadSafeRefCounted<NativeImage> {
     WTF_MAKE_TZONE_ALLOCATED(NativeImage);
 public:
     static WEBCORE_EXPORT RefPtr<NativeImage> create(PlatformImagePtr&&, RenderingResourceIdentifier = RenderingResourceIdentifier::generate());
     // Creates a NativeImage that is intended to be drawn once or only few times. Signals the platform to avoid generating any caches for the image.
     static WEBCORE_EXPORT RefPtr<NativeImage> createTransient(PlatformImagePtr&&, RenderingResourceIdentifier = RenderingResourceIdentifier::generate());
 
-    ~NativeImage();
+    WEBCORE_EXPORT ~NativeImage();
 
     WEBCORE_EXPORT const PlatformImagePtr& platformImage() const;
 
@@ -66,48 +66,28 @@ public:
     void drawWithToneMapping(GraphicsContext&, const FloatRect& destinationRect, const FloatRect& sourceRect, ImagePaintingOptions);
     void clearSubimages();
 
-    WEBCORE_EXPORT void replaceBackend(UniqueRef<NativeImageBackend>);
-    NativeImageBackend& backend() { return m_backend.get(); }
-    const NativeImageBackend& backend() const { return m_backend.get(); }
+    WEBCORE_EXPORT void replacePlatformImage(PlatformImagePtr&&);
 
 #if USE(COORDINATED_GRAPHICS)
     uint64_t uniqueID() const;
 #endif
+
+    void addObserver(WeakRef<RenderingResourceObserver>&& observer)
+    {
+        m_observers.add(WTFMove(observer));
+    }
+
+    RenderingResourceIdentifier renderingResourceIdentifier() const
+    {
+        return m_renderingResourceIdentifier;
+    }
+
 protected:
-    NativeImage(UniqueRef<NativeImageBackend>, RenderingResourceIdentifier);
+    NativeImage(PlatformImagePtr&&, RenderingResourceIdentifier);
 
-    bool isNativeImage() const final { return true; }
-
-    UniqueRef<NativeImageBackend> m_backend;
-};
-
-class NativeImageBackend {
-public:
-    WEBCORE_EXPORT NativeImageBackend();
-    WEBCORE_EXPORT virtual ~NativeImageBackend();
-    virtual const PlatformImagePtr& platformImage() const = 0;
-    virtual IntSize size() const = 0;
-    virtual bool hasAlpha() const = 0;
-    virtual DestinationColorSpace colorSpace() const = 0;
-    virtual Headroom headroom() const = 0;
-    WEBCORE_EXPORT virtual bool isRemoteNativeImageBackendProxy() const;
-};
-
-class PlatformImageNativeImageBackend final : public NativeImageBackend {
-public:
-    WEBCORE_EXPORT PlatformImageNativeImageBackend(PlatformImagePtr);
-    WEBCORE_EXPORT ~PlatformImageNativeImageBackend() final;
-    WEBCORE_EXPORT const PlatformImagePtr& platformImage() const final;
-    WEBCORE_EXPORT IntSize size() const final;
-    WEBCORE_EXPORT bool hasAlpha() const final;
-    WEBCORE_EXPORT DestinationColorSpace colorSpace() const final;
-    WEBCORE_EXPORT Headroom headroom() const final;
-private:
     PlatformImagePtr m_platformImage;
+    mutable WeakHashSet<RenderingResourceObserver> m_observers;
+    RenderingResourceIdentifier m_renderingResourceIdentifier;
 };
 
 } // namespace WebCore
-
-SPECIALIZE_TYPE_TRAITS_BEGIN(WebCore::NativeImage)
-    static bool isType(const WebCore::RenderingResource& renderingResource) { return renderingResource.isNativeImage(); }
-SPECIALIZE_TYPE_TRAITS_END()
