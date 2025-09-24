@@ -170,7 +170,7 @@ void Config::initialize()
 
 #if !USE(SYSTEM_MALLOC) && USE(APPLE_INTERNAL_SDK)
     pas_mte_ensure_initialized();
-    const uint8_t* enabledByte = ((const uint8_t*)(g_config + 2));
+    const uint8_t* enabledByte = ((const uint8_t*)(WebConfig::g_config + 2));
     const char* crashIfMTENotEnabled = getenv("MTE_crashIfNotEnabled");
     if (crashIfMTENotEnabled) {
         if (!strcasecmp(crashIfMTENotEnabled, "true")
