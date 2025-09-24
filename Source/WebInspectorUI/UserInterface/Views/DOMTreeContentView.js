@@ -423,7 +423,7 @@ WI.DOMTreeContentView = class DOMTreeContentView extends WI.ContentView
     {
         super.sizeDidChange();
 
-        this._domTreeOutline.selectDOMNode(this._domTreeOutline.selectedDOMNode());
+        this._domTreeOutline.selectedTreeElement?.reveal();
     }
 
     layout()

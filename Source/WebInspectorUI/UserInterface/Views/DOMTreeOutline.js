@@ -421,7 +421,7 @@ WI.DOMTreeOutline = class DOMTreeOutline extends WI.TreeOutline
         if (treeElement instanceof WI.DOMTreeElement && treeElement.isCloseTag()) {
             // SelectionController requires every selectable item to be unique.
             // The DOMTreeElement for a close tag has the same represented object
-            // as it's parent (the open tag). Return a proxy object associated
+            // as its parent (the open tag). Return a proxy object associated
             // with the tree element for the close tag so it can be selected.
             if (!treeElement.__closeTagProxyObject)
                 treeElement.__closeTagProxyObject = {__proxyObjectTreeElement: treeElement};
