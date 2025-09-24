@@ -176,7 +176,7 @@ bool SQLiteStorageArea::prepareDatabase(ShouldCreateIfNotExists shouldCreateIfNo
         return true;
 
     m_database = makeUnique<WebCore::SQLiteDatabase>();
-    CheckedRef resultDatabase = *m_database;
+    CheckedPtr resultDatabase = m_database.get();
     FileSystem::makeAllDirectories(FileSystem::parentPath(m_path));
     auto openResult  = resultDatabase->open(m_path, WebCore::SQLiteDatabase::OpenMode::ReadWriteCreate, WebCore::SQLiteDatabase::OpenOptions::CanSuspendWhileLocked);
     if (!openResult && handleDatabaseErrorIfNeeded(resultDatabase->lastError()) == IsDatabaseDeleted::Yes) {
