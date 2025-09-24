@@ -71,11 +71,8 @@ platform/libwebrtc/LibWebRTCVPXVideoDecoder.cpp
 platform/mediastream/mac/AVVideoCaptureSource.mm
 platform/mediastream/mac/CoreAudioSharedUnit.mm
 platform/mediastream/mac/RealtimeIncomingVideoSourceCocoa.mm
-platform/network/mac/NetworkStateNotifierMac.cpp
 platform/network/mac/ResourceHandleMac.mm
-platform/network/mac/UTIUtilities.mm
 platform/network/mac/WebCoreResourceHandleAsOperationQueueDelegate.mm
-platform/network/mac/WebCoreURLResponse.mm
 platform/text/cocoa/LocaleCocoa.mm
 rendering/AttachmentLayout.mm
 testing/Internals.mm
