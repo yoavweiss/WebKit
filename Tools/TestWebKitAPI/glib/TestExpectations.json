@@ -517,10 +517,10 @@
             }
         }
     },
-    "TestWebKitImmersiveMode": {
+    "TestWebKitWebXR": {
         "subtests": {
-            "/webkit/WebKitImmersiveMode/leave-immersive-mode": {
-                "expected": {"all" : {"status": ["SKIP"], "bug": "webkit.org/b/297261"}}
+            "/webkit/WebKitWebXR/leave-immersive-mode": {
+                "expected": {"gtk" : {"status": ["SKIP"], "bug": "webkit.org/b/299080"}}
             }
         }
     }

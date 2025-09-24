@@ -169,7 +169,7 @@ ADD_WK2_TEST(TestGeolocationManager ${TOOLS_DIR}/TestWebKitAPI/Tests/WebKitGLib/
 ADD_WK2_TEST(TestInputMethodContext ${TOOLS_DIR}/TestWebKitAPI/Tests/WebKitGLib/TestInputMethodContext.cpp)
 
 if (ENABLE_WEBXR AND USE_OPENXR)
-    ADD_WK2_TEST(TestWebKitImmersiveMode ${TOOLS_DIR}/TestWebKitAPI/Tests/WebKitGLib/TestWebKitImmersiveMode.cpp)
+    ADD_WK2_TEST(TestWebKitWebXR ${TOOLS_DIR}/TestWebKitAPI/Tests/WebKitGLib/TestWebKitWebXR.cpp)
 endif ()
 
 if (ENABLE_WK_WEB_EXTENSIONS)

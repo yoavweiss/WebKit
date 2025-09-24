@@ -38,17 +38,17 @@ static const char indexHTML[] =
 "});"
 "</script></body></html>";
 
-class ImmersiveModeTest : public WebViewTest {
+class WebXRTest : public WebViewTest {
 public:
-    MAKE_GLIB_TEST_FIXTURE(ImmersiveModeTest);
+    MAKE_GLIB_TEST_FIXTURE(WebXRTest);
 
-    static void isImmersiveModeEnabledChanged(GObject*, GParamSpec*, ImmersiveModeTest* test)
+    static void isImmersiveModeEnabledChanged(GObject*, GParamSpec*, WebXRTest* test)
     {
         g_signal_handlers_disconnect_by_func(test->webView(), reinterpret_cast<void*>(isImmersiveModeEnabledChanged), test);
         g_main_loop_quit(test->m_mainLoop);
     }
 
-    static gboolean permissionRequestCallback(WebKitWebView*, WebKitPermissionRequest *request, ImmersiveModeTest* test)
+    static gboolean permissionRequestCallback(WebKitWebView*, WebKitPermissionRequest *request, WebXRTest* test)
     {
         g_assert_true(WEBKIT_IS_XR_PERMISSION_REQUEST(request));
         g_assert_true(test->m_isExpectingPermissionRequest);
@@ -108,7 +108,7 @@ static void serverCallback(SoupServer*, SoupServerMessage* message, const char* 
         g_assert_not_reached();
 }
 
-static void testWebKitImmersiveModeLeaveImmersiveModeAndWaitUntilImmersiveModeChanged(ImmersiveModeTest* test, gconstpointer)
+static void testWebKitWebXRLeaveImmersiveModeAndWaitUntilImmersiveModeChanged(WebXRTest* test, gconstpointer)
 {
     if (!g_getenv("WITH_OPENXR_RUNTIME")) {
         g_test_skip("Unable to run without an OpenXR runtime");
@@ -135,7 +135,7 @@ void beforeAll()
     kHttpsServer = new WebKitTestServer(WebKitTestServer::ServerHTTPS);
     kHttpsServer->run(serverCallback);
 
-    ImmersiveModeTest::add("WebKitImmersiveMode", "leave-immersive-mode", testWebKitImmersiveModeLeaveImmersiveModeAndWaitUntilImmersiveModeChanged);
+    WebXRTest::add("WebKitWebXR", "leave-immersive-mode", testWebKitWebXRLeaveImmersiveModeAndWaitUntilImmersiveModeChanged);
 }
 
 void afterAll()
