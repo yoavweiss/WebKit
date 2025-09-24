@@ -742,6 +742,10 @@ void TestController::configureWebpagePreferences(WKWebViewConfiguration *configu
         [webpagePreferences _setNetworkConnectionIntegrityPolicy:_WKWebsiteNetworkConnectionIntegrityPolicyEnabled];
     else
         [webpagePreferences _setNetworkConnectionIntegrityPolicy:_WKWebsiteNetworkConnectionIntegrityPolicyNone];
+
+    if (options.enhancedSecurityEnabled())
+        webpagePreferences.get()._enhancedSecurityEnabled = YES;
+
 #if PLATFORM(IOS_FAMILY)
     [webpagePreferences setPreferredContentMode:contentMode(options)];
 #endif

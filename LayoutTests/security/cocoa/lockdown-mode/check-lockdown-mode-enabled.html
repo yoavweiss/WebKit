@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Checks Lockdown Mode Gets Enabled</title>
+<script src="../../../resources/testharness.js"></script>
+<script src="../../../resources/testharnessreport.js"></script>
+</head>
+<body>
+<script>
+
+test(() => {
+    assert_equals(window.internals.webContentProcessVariant(), "lockdown",`WebViews should be opted in to Lockdown mode when tests are placed in lockdown-mode/ directories`);
+}, "Check WebView is opted in to Lockdown Mode");
+
+</script>
+</body>
+</html>

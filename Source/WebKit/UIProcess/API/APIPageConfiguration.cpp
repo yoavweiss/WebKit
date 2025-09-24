@@ -367,6 +367,13 @@ bool PageConfiguration::lockdownModeEnabled() const
     return lockdownModeEnabledBySystem();
 }
 
+bool PageConfiguration::enhancedSecurityEnabled() const
+{
+    if (RefPtr policies = m_data.defaultWebsitePolicies.getIfExists())
+        return policies->enhancedSecurityEnabled();
+    return false;
+}
+
 void PageConfiguration::setAllowPostingLegacySynchronousMessages(bool allow)
 {
     m_data.allowPostingLegacySynchronousMessages = allow;

@@ -285,6 +285,12 @@ enum class FinalizeRenderingUpdateFlags : uint8_t {
     InvalidateImagesWithAsyncDecodes    = 1 << 1,
 };
 
+enum class WebContentProcessVariant : uint8_t {
+    Standard,
+    Lockdown,
+    Security
+};
+
 enum class RenderingUpdateStep : uint32_t {
     Reveal                          = 1 << 0,
     Resize                          = 1 << 1,
@@ -1380,6 +1386,9 @@ public:
     void setHardwareKeyboardAttached(bool attached) { m_hardwareKeyboardAttached = attached; }
     bool hardwareKeyboardAttached() const { return m_hardwareKeyboardAttached; }
 
+    void setWebContentProcessVariant(WebContentProcessVariant variant) { m_webContentProcessVariant = variant; };
+    WebContentProcessVariant webContentProcessVariant() const { return m_webContentProcessVariant; };
+
 private:
     explicit Page(PageConfiguration&&);
 
@@ -1855,6 +1864,7 @@ private:
 #else
     bool m_hardwareKeyboardAttached { true };
 #endif
+    WebContentProcessVariant m_webContentProcessVariant { WebContentProcessVariant::Standard };
 }; // class Page
 
 WTF::TextStream& operator<<(WTF::TextStream&, RenderingUpdateStep);

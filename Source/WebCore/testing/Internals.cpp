@@ -6560,6 +6560,25 @@ bool Internals::audioSessionActive() const
     return false;
 }
 
+String Internals::webContentProcessVariant() const
+{
+    auto* document = contextDocument();
+    if (!document)
+        return { };
+    auto* page = document->page();
+    if (!page)
+        return { };
+
+    switch (page->webContentProcessVariant()) {
+    case WebContentProcessVariant::Security:
+        return "security"_s;
+    case WebContentProcessVariant::Lockdown:
+        return "lockdown"_s;
+    default:
+        return "standard"_s;
+    }
+}
+
 void Internals::storeRegistrationsOnDisk(DOMPromiseDeferred<void>&& promise)
 {
     if (!contextDocument())
