@@ -33,6 +33,12 @@
 #include <TargetConditionals.h>
 #endif
 
+#if defined(__has_include)
+#if __has_include(<WebKitAdditions/pas_mte_additions.h>)
+#include <WebKitAdditions/pas_mte_additions.h>
+#endif // __has_include(<WebKitAdditions/pas_mte_additions.h>)
+#endif // defined(__has_include)
+
 #ifndef BASSERT_ENABLED
 #ifdef NDEBUG
 #define BASSERT_ENABLED 0
@@ -344,6 +350,17 @@
 #define BENABLE_MALLOC_HEAP_BREAKDOWN 0
 #endif
 
+#if BPLATFORM(COCOA)
+/* Should be aligned with the definition in WTF/wtf/PlatformUse.h */
+#if defined __has_include && __has_include(<CoreFoundation/CFPriv.h>)
+#define BUSE_APPLE_INTERNAL_SDK 1
+#else
+#define BUSE_APPLE_INTERNAL_SDK 0
+#endif
+#else // BPLATFORM(COCOA)
+#define BUSE_APPLE_INTERNAL_SDK 0
+#endif // !BPLATFORM(COCOA)
+
 /* This is used for debugging when hacking on how bmalloc calculates its physical footprint. */
 #define ENABLE_PHYSICAL_PAGE_MAP 0
 
@@ -367,6 +384,14 @@
 #define BUSE_LIBPAS 0
 #endif
 #endif
+
+#if BUSE_LIBPAS
+#ifndef BENABLE_MTE
+#define BENABLE_MTE (BUSE(APPLE_INTERNAL_SDK) && BPLATFORM(IOS_FAMILY))
+#endif // !defined(BENABLE_MTE)
+#else // !BUSE_LIBPAS
+#define BENABLE_MTE 0
+#endif // BUSE_LIBPAS
 
 #if !defined(BUSE_PRECOMPUTED_CONSTANTS_VMPAGE4K)
 #define BUSE_PRECOMPUTED_CONSTANTS_VMPAGE4K 1

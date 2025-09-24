@@ -31,10 +31,6 @@
 
 #include <errno.h>
 #include <math.h>
-#include "pas_config.h"
-#include "pas_internal_config.h"
-#include "pas_log.h"
-#include "pas_utils.h"
 #include <stdio.h>
 #include <string.h>
 #if !PAS_OS(WINDOWS)
@@ -45,6 +41,12 @@
 #include <mach/vm_page_size.h>
 #include <mach/vm_statistics.h>
 #endif
+
+#include "pas_internal_config.h"
+#include "pas_log.h"
+#include "pas_mte.h"
+#include "pas_utils.h"
+#include "pas_zero_memory.h"
 
 size_t pas_page_malloc_num_allocated_bytes;
 size_t pas_page_malloc_cached_alignment;
@@ -145,12 +147,14 @@ pas_page_malloc_try_map_pages(size_t size, bool may_contain_small_or_medium)
 {
 #if PAS_OS(WINDOWS)
     PAS_PROFILE(PAGE_ALLOCATION, size, may_contain_small_or_medium, PAS_VM_TAG);
+    PAS_MTE_HANDLE(PAGE_ALLOCATION, size, may_contain_small_or_medium, PAS_VM_TAG);
 
     return virtual_alloc_with_retry(NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 #else
     void* mmap_result = NULL;
 
     PAS_PROFILE(PAGE_ALLOCATION, size, may_contain_small_or_medium, PAS_VM_TAG);
+    PAS_MTE_HANDLE(PAGE_ALLOCATION, size, may_contain_small_or_medium, PAS_VM_TAG);
 
     mmap_result = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON | PAS_NORESERVE, PAS_VM_TAG, 0);
     if (mmap_result == MAP_FAILED) {
@@ -307,6 +311,7 @@ void pas_page_malloc_zero_fill(void* base, size_t size)
 #endif /* PAS_USE_MADV_ZERO */
 
     PAS_PROFILE(ZERO_FILL_PAGE, base, size, flags, tag);
+    PAS_MTE_HANDLE(ZERO_FILL_PAGE, base, size, flags, tag);
     result_ptr = mmap(base, size, PROT_READ | PROT_WRITE, flags, tag, 0);
     PAS_ASSERT(result_ptr == base);
 #endif /* PAS_OS(WINDOWS) */
