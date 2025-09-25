@@ -523,6 +523,11 @@ void EventHandler::nodeWillBeRemoved(Node& nodeToBeRemoved)
     if (nodeToBeRemoved.isShadowIncludingInclusiveAncestorOf(RefPtr { m_clickNode }.get()))
         m_clickNode = nullptr;
 
+    if (nodeToBeRemoved.isShadowIncludingInclusiveAncestorOf(RefPtr { m_elementUnderMouse }.get())) {
+        if (RefPtr elementBeingRemoved = dynamicDowncast<Element>(nodeToBeRemoved))
+            m_mouseMoveTargetOverride = elementBeingRemoved->parentElementInComposedTree();
+    }
+
     if (nodeToBeRemoved.isShadowIncludingInclusiveAncestorOf(RefPtr { m_lastElementUnderMouse }.get()))
         m_lastElementUnderMouse = nullptr;
 
@@ -3130,9 +3135,6 @@ void EventHandler::updateMouseEventTargetAfterLayoutIfNeeded()
     if (!view || !m_elementUnderMouse)
         return;
 
-    if (!m_elementUnderMouse)
-        return;
-
     RefPtr document = frame->document();
 
     // Clear element tracking if there's a document mismatch.
@@ -3236,6 +3238,7 @@ bool EventHandler::dispatchAnyClickEvent(const AtomString& eventType, Node* clic
 
 bool EventHandler::dispatchMouseEvent(const AtomString& eventType, Node* targetNode, int clickCount, const PlatformMouseEvent& platformMouseEvent, FireMouseOverOut fireMouseOverOut)
 {
+    m_mouseMoveTargetOverride = nullptr;
     Ref frame = m_frame.get();
 
     if (eventType == eventNames().clickEvent) {
@@ -3246,8 +3249,19 @@ bool EventHandler::dispatchMouseEvent(const AtomString& eventType, Node* targetN
 
     bool isMouseDownEvent = eventType == eventNames().mousedownEvent;
 
-    if (auto elementUnderMouse = m_elementUnderMouse) {
+    RefPtr elementUnderMouse = m_elementUnderMouse;
+    if (eventType == eventNames().mousemoveEvent && m_mouseMoveTargetOverride) {
+        // If m_mouseMoveTargetOverride is set, targetNode must have been disconnected during the execution of this method.
+        // One situation this may occur is an event listener for a boundary event immediately deleting the target node. In
+        // this scenario, the `mousemove` event that follows should be sent to the parent node instead.
+        // FIXME: Is there a more elegant way to handle this case? Should we do the same for other events besides `mousemove`?
+
+        elementUnderMouse = m_mouseMoveTargetOverride.get();
+    }
+
+    if (elementUnderMouse) {
         auto [eventIsDispatched, eventIsDefaultPrevented] = elementUnderMouse->dispatchMouseEvent(platformMouseEvent, eventType, clickCount, nullptr, IsSyntheticClick::No);
+        m_mouseMoveTargetOverride = nullptr;
         m_capturesDragging = CapturesDragging::InabilityReason::Unknown;
         if (eventIsDefaultPrevented == Element::EventIsDefaultPrevented::Yes) {
             if (isMouseDownEvent)
