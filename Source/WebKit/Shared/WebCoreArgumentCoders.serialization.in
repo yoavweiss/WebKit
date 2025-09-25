@@ -9302,6 +9302,7 @@ header: <WebCore/TrackInfo.h>
     WebCore::FloatSize displaySize;
     uint8_t bitDepth;
     WebCore::PlatformVideoColorSpace colorSpace;
+    String boxType;
     RefPtr<WebCore::SharedBuffer> atomData;
 };
 
