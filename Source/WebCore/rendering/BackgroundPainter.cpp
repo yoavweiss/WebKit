@@ -531,8 +531,15 @@ template<typename Layer> void BackgroundPainter::paintFillLayerImpl(const Color&
                 bgImage->cachedImage()->addClientWaitingForAsyncDecoding(m_renderer);
             }
 
-            if (m_renderer.element() && !context.paintingDisabled())
-                m_renderer.element()->setHasEverPaintedImages(true);
+            if (!context.paintingDisabled()) {
+                if (m_renderer.element())
+                    m_renderer.element()->setHasEverPaintedImages(true);
+
+                if (bgImage->cachedImage()) {
+                    if (auto styleable = Styleable::fromRenderer(m_renderer))
+                        document().didPaintImage(styleable->element, bgImage->cachedImage(), geometry.destinationRect);
+                }
+            }
         }
     }
 }

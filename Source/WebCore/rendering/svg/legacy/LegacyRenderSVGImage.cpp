@@ -228,7 +228,12 @@ void LegacyRenderSVGImage::paintForeground(PaintInfo& paintInfo)
         style().dynamicRangeLimit().toPlatformDynamicRangeLimit()
     };
 
-    paintInfo.context().drawImage(*image, destRect, srcRect, options);
+    auto& context = paintInfo.context();
+    context.drawImage(*image, destRect, srcRect, options);
+
+    auto* cachedImage = imageResource().cachedImage();
+    if (cachedImage && !context.paintingDisabled())
+        protectedDocument()->didPaintImage(imageElement(), cachedImage, destRect);
 }
 
 void LegacyRenderSVGImage::invalidateBufferedForeground()
