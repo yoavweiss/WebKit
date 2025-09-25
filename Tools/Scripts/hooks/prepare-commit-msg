@@ -11,7 +11,7 @@ LOCATION = os.path.join(TOPLEVEL, r'{{ location }}')
 SPACING = 8
 IDENT = 4
 SCRIPTS = os.path.dirname(os.path.dirname(LOCATION))
-PREPARE_CHANGELOG_CMD = [{{ perl }}, os.path.join(SCRIPTS, 'prepare-ChangeLog'), '--no-write', '--only-files', '--delimiters', '--git-index']
+PREPARE_CHANGELOG_CMD = [{{ perl }}, os.path.join(SCRIPTS, 'prepare-ChangeLog'), '--no-write', '--only-files', '--git-index']
 CHERRY_PICKING_RE = re.compile(r'^# You are currently cherry-picking commit (?P<hash>[a-f0-9A-F]+)\.$')
 CHERRY_PICK_COMMIT_RE = re.compile(r'^(?P<a>\S+)( \((?P<b>\S+)\))?$')
 REFNAME_RE = re.compile(r'^refs/remotes/(?P<remote>[^/ ]+)/(?P<branch>\S+)$')
@@ -105,18 +105,8 @@ def parseChanges(command, commit_message):
             capture_output=True,
             check=True
         ).stdout.splitlines():
-            if line == '~':
-                dirname = None
-                continue
-            if line.startswith(' ' * SPACING):
-                if dirname:
-                    line = line.replace('* ', '* {}/'.format(dirname))
-                commit_message.append(line[SPACING:])
-                changes.append(line[SPACING:])
-                continue
-            if line.endswith(':'):
-                dirname = line.split(':')[0]
-                continue
+            commit_message.append(line[SPACING:])
+            changes.append(line[SPACING:])
     except subprocess.CalledProcessError:
         commit_message.append('')
         return
