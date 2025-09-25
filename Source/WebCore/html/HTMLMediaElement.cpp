@@ -558,6 +558,18 @@ public:
         return m_interval - secondsRemaining();
     }
 
+    void fireAndRestart()
+    {
+        bool wasActive = isActive();
+
+        if (wasActive)
+            pause();
+        m_function();
+        m_remainingInterval = m_interval;
+        if (wasActive)
+            start();
+    }
+
 private:
     void start(Seconds, Seconds) = delete;
     void startRepeating(Seconds) = delete;
@@ -1188,6 +1200,7 @@ void HTMLMediaElement::removedFromAncestor(RemovalType removalType, ContainerNod
 void HTMLMediaElement::willAttachRenderers()
 {
     ASSERT(!renderer());
+    fireAndRestartWatchtimeTimer();
 }
 
 inline void HTMLMediaElement::updateRenderer()
@@ -1216,6 +1229,8 @@ void HTMLMediaElement::willDetachRenderers()
 {
     if (CheckedPtr renderer = this->renderer())
         renderer->unregisterForVisibleInViewportCallback();
+
+    fireAndRestartWatchtimeTimer();
 }
 
 void HTMLMediaElement::didDetachRenderers()
@@ -7003,6 +7018,8 @@ void HTMLMediaElement::setWirelessPlaybackTarget(Ref<MediaPlaybackTarget>&& devi
     bool hasActiveRoute = device->hasActiveRoute();
     ALWAYS_LOG(LOGIDENTIFIER, hasActiveRoute);
 
+    fireAndRestartWatchtimeTimer();
+
     if (RefPtr player = m_player)
         player->setWirelessPlaybackTarget(WTFMove(device));
     Ref { m_remote }->shouldPlayToRemoteTargetChanged(hasActiveRoute);
@@ -7325,6 +7342,8 @@ void HTMLMediaElement::enterFullscreen(VideoFullscreenMode mode)
 
     m_changingVideoFullscreenMode = true;
 
+    fireAndRestartWatchtimeTimer();
+
 #if ENABLE(FULLSCREEN_API) && ENABLE(VIDEO_USES_ELEMENT_FULLSCREEN)
     if (videoUsesElementFullscreen() && page->isDocumentFullscreenEnabled() && isInWindowOrStandardFullscreen(mode)) {
         m_temporarilyAllowingInlinePlaybackAfterFullscreen = false;
@@ -7470,6 +7489,8 @@ void HTMLMediaElement::prepareForVideoFullscreenStandby()
 
 void HTMLMediaElement::willBecomeFullscreenElement(VideoFullscreenMode mode)
 {
+    fireAndRestartWatchtimeTimer();
+
 #if PLATFORM(MAC) && ENABLE(VIDEO_PRESENTATION_MODE)
     HTMLMediaElementEnums::VideoFullscreenMode oldVideoFullscreenMode = m_videoFullscreenMode;
 #endif
@@ -7501,6 +7522,8 @@ void HTMLMediaElement::didBecomeFullscreenElement()
 
 void HTMLMediaElement::willStopBeingFullscreenElement()
 {
+    fireAndRestartWatchtimeTimer();
+
     if (isInWindowOrStandardFullscreen(fullscreenMode()))
         setFullscreenMode(VideoFullscreenModeNone);
 }
@@ -9846,6 +9869,11 @@ bool HTMLMediaElement::shouldLogWatchtimeEvent() const
     return true;
 }
 
+bool HTMLMediaElement::isWatchtimeTimerActive() const
+{
+    return m_watchtimeTimer && m_watchtimeTimer->isActive();
+}
+
 void HTMLMediaElement::startWatchtimeTimer()
 {
     if (!m_watchtimeTimer) {
@@ -9861,6 +9889,12 @@ void HTMLMediaElement::pauseWatchtimeTimer()
 {
     if (m_watchtimeTimer)
         m_watchtimeTimer->pause();
+}
+
+void HTMLMediaElement::fireAndRestartWatchtimeTimer()
+{
+    if (m_watchtimeTimer)
+        m_watchtimeTimer->fireAndRestart();
 }
 
 void HTMLMediaElement::invalidateWatchtimeTimer()
@@ -9974,10 +10008,12 @@ void HTMLMediaElement::watchtimeTimerFired()
     };
     auto presentationType = [&] {
 #if ENABLE(WIRELESS_PLAYBACK_TARGET)
-        if (m_player && m_player->wirelessPlaybackTargetType() == MediaPlayer::WirelessPlaybackTargetType::TargetTypeAirPlay)
-            return PresentationType::AirPlay;
-        if (m_player && m_player->wirelessPlaybackTargetType() == MediaPlayer::WirelessPlaybackTargetType::TargetTypeTVOut)
-            return PresentationType::TV;
+        if (m_player && m_player->isCurrentPlaybackTargetWireless()) {
+            if (m_player->wirelessPlaybackTargetType() == MediaPlayer::WirelessPlaybackTargetType::TargetTypeAirPlay)
+                return PresentationType::AirPlay;
+            if (m_player->wirelessPlaybackTargetType() == MediaPlayer::WirelessPlaybackTargetType::TargetTypeTVOut)
+                return PresentationType::TV;
+        }
 #endif
         if (fullscreenMode() == VideoFullscreenModePictureInPicture)
             return PresentationType::PictureInPicture;
