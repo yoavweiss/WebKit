@@ -62,7 +62,9 @@ NetworkProcess/mac/SecItemShim.cpp
 
 NetworkProcess/webrtc/LibWebRTCSocketClient.cpp
 NetworkProcess/webrtc/NetworkRTCMonitor.cpp
+NetworkProcess/webrtc/NetworkRTCSharedMonitorCocoa.mm
 NetworkProcess/webrtc/NetworkRTCProvider.cpp
+NetworkProcess/webrtc/NetworkRTCSharedMonitor.cpp
 NetworkProcess/webrtc/NetworkRTCTCPSocketCocoa.mm
 NetworkProcess/webrtc/NetworkRTCUDPSocketCocoa.mm
 

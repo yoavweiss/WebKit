@@ -1155,6 +1155,7 @@
 		4671FF1F23217EFF001B64C7 /* WebResourceLoadObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 4671FF1D23217EFF001B64C7 /* WebResourceLoadObserver.h */; };
 		467E43E82243FF7D00B13924 /* WebProcessDataStoreParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 467E43E72243FF6D00B13924 /* WebProcessDataStoreParameters.h */; };
 		46809A7C23D9225E00C297D0 /* WebCookieCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 46809A7A23D9225300C297D0 /* WebCookieCache.h */; };
+		46851A9E2E83D642000A59E2 /* NetworkRTCSharedMonitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 46851A9C2E83D636000A59E2 /* NetworkRTCSharedMonitor.h */; };
 		4691CB9B27B2DD2D00B29AAF /* RemoteWorkerType.h in Headers */ = {isa = PBXBuildFile; fileRef = 4691CB9A27B2DD1800B29AAF /* RemoteWorkerType.h */; };
 		46A2B6091E5676A600C3DEDA /* BackgroundProcessResponsivenessTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 46A2B6071E5675A200C3DEDA /* BackgroundProcessResponsivenessTimer.h */; };
 		46B0524722668D8500265B97 /* WebDeviceOrientationAndMotionAccessController.h in Headers */ = {isa = PBXBuildFile; fileRef = 46B0524422668D2300265B97 /* WebDeviceOrientationAndMotionAccessController.h */; };
@@ -5624,6 +5625,9 @@
 		4683569B21E81CC7006E27A3 /* ProvisionalPageProxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProvisionalPageProxy.cpp; sourceTree = "<group>"; };
 		468386672763FAB100CF9182 /* WebSharedWorkerServerConnection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebSharedWorkerServerConnection.h; sourceTree = "<group>"; };
 		468386682763FAB100CF9182 /* WebSharedWorkerServerConnection.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebSharedWorkerServerConnection.cpp; sourceTree = "<group>"; };
+		46851A9B2E83D222000A59E2 /* NetworkRTCSharedMonitorCocoa.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NetworkRTCSharedMonitorCocoa.mm; sourceTree = "<group>"; };
+		46851A9C2E83D636000A59E2 /* NetworkRTCSharedMonitor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetworkRTCSharedMonitor.h; sourceTree = "<group>"; };
+		46851A9D2E83D636000A59E2 /* NetworkRTCSharedMonitor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NetworkRTCSharedMonitor.cpp; sourceTree = "<group>"; };
 		4689B90F2756D1430007C651 /* RemoteWebLockRegistry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemoteWebLockRegistry.h; sourceTree = "<group>"; };
 		4689B9102756D1430007C651 /* RemoteWebLockRegistry.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RemoteWebLockRegistry.cpp; sourceTree = "<group>"; };
 		4691CB9A27B2DD1800B29AAF /* RemoteWorkerType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemoteWorkerType.h; sourceTree = "<group>"; };
@@ -12860,6 +12864,9 @@
 				41DC45951E3D6E1E00B11F51 /* NetworkRTCProvider.cpp */,
 				41DC45941E3D6E1E00B11F51 /* NetworkRTCProvider.h */,
 				41DC45981E3D6ED600B11F51 /* NetworkRTCProvider.messages.in */,
+				46851A9D2E83D636000A59E2 /* NetworkRTCSharedMonitor.cpp */,
+				46851A9C2E83D636000A59E2 /* NetworkRTCSharedMonitor.h */,
+				46851A9B2E83D222000A59E2 /* NetworkRTCSharedMonitorCocoa.mm */,
 				410BA13A257135F2002E2F8A /* NetworkRTCTCPSocketCocoa.h */,
 				410BA139257135F2002E2F8A /* NetworkRTCTCPSocketCocoa.mm */,
 				41DD72A7267B8C3100A90C71 /* NetworkRTCUDPSocketCocoa.h */,
@@ -17676,6 +17683,7 @@
 				5C1426F01C23F80900D41183 /* NetworkResourceLoadParameters.h in Headers */,
 				413075AC1DE85F370039EC69 /* NetworkRTCMonitor.h in Headers */,
 				41DC45961E3D6E2200B11F51 /* NetworkRTCProvider.h in Headers */,
+				46851A9E2E83D642000A59E2 /* NetworkRTCSharedMonitor.h in Headers */,
 				5C20CBA01BB1ECD800895BB1 /* NetworkSession.h in Headers */,
 				532159551DBAE7290054AA3C /* NetworkSessionCocoa.h in Headers */,
 				417915B92257046F00D6F97E /* NetworkSocketChannel.h in Headers */,

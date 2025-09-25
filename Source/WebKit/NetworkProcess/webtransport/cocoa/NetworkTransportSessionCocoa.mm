@@ -26,11 +26,15 @@
 #import "config.h"
 #import "NetworkTransportSession.h"
 
+#import "AuthenticationChallengeDisposition.h"
 #import "AuthenticationManager.h"
 #import "NetworkConnectionToWebProcess.h"
+#import "NetworkProcess.h"
+#import "NetworkSessionCocoa.h"
 #import "NetworkTransportStream.h"
 #import <Security/Security.h>
 #import <WebCore/AuthenticationChallenge.h>
+#import <WebCore/ClientOrigin.h>
 #import <WebCore/Exception.h>
 #import <WebCore/ExceptionCode.h>
 #import <pal/spi/cocoa/NetworkSPI.h>
