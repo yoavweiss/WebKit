@@ -3279,3 +3279,5 @@ webkit.org/b/298748 css3/text-decoration/text-decoration-line-grammar-error-2.ht
 webkit.org/b/298748 css3/text-decoration/text-decoration-line-grammar-error-3.html [ Skip ]
 
 webkit.org/b/299137 imported/w3c/web-platform-tests/css/css-font-loading [ Skip ]
+
+webkit.org/b/299495 fast/scrolling/anchor-overscroll-fixed.html [ Skip ]
