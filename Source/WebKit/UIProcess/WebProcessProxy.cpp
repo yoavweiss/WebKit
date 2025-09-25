@@ -1469,8 +1469,13 @@ bool WebProcessProxy::wasPreviouslyApprovedFileURL(const URL& url) const
     return m_previouslyApprovedFilePaths.contains(fileSystemPath);
 }
 
-void WebProcessProxy::recordUserGestureAuthorizationToken(PageIdentifier pageID, WTF::UUID authorizationToken)
+void WebProcessProxy::recordUserGestureAuthorizationToken(FrameIdentifier frameID, PageIdentifier pageID, WTF::UUID authorizationToken)
 {
+    if (RefPtr dataStore = websiteDataStore()) {
+        if (RefPtr frame = WebFrameProxy::webFrame(frameID); frame && frame->isMainFrame())
+            dataStore->didHaveUserInteractionForSiteIsolation(frame->url());
+    }
+
     if (!UserInitiatedActionByAuthorizationTokenMap::isValidKey(authorizationToken) || !authorizationToken)
         return;
 
