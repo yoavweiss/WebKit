@@ -168,6 +168,7 @@
 #include "JSViewTransitionUpdateCallback.h"
 #include "KeyboardEvent.h"
 #include "KeyframeEffect.h"
+#include "LargestContentfulPaint.h"
 #include "LargestContentfulPaintData.h"
 #include "LayoutDisallowedScope.h"
 #include "LazyLoadImageObserver.h"
@@ -4380,9 +4381,6 @@ bool Document::supportsLargestContentfulPaint() const
 // https://w3c.github.io/paint-timing/#ref-for-mark-paint-timing
 void Document::enqueuePaintTimingEntryIfNeeded()
 {
-    if (m_didEnqueueFirstContentfulPaint)
-        return;
-
     if (!supportsPaintTiming())
         return;
 
@@ -4393,16 +4391,36 @@ void Document::enqueuePaintTimingEntryIfNeeded()
     if (!view()->isVisuallyNonEmpty() || view()->needsLayout())
         return;
 
-    if (!view()->hasContentfulDescendants())
-        return;
+    // Should this use frozenNowTimestamp()?
+    auto nowTime = protectedWindow()->performance().now();
 
-    if (!ContentfulPaintChecker::qualifiesForContentfulPaint(*view()))
-        return;
+    auto enqueuePaintTimingIfNecessary = [&]() {
+        if (!view()->hasContentfulDescendants())
+            return;
 
-    WTFEmitSignpost(this, NavigationAndPaintTiming, "firstContentfulPaint");
+        if (m_didEnqueueFirstContentfulPaint)
+            return;
 
-    protectedWindow()->performance().reportFirstContentfulPaint();
-    m_didEnqueueFirstContentfulPaint = true;
+        if (!ContentfulPaintChecker::qualifiesForContentfulPaint(*view()))
+            return;
+
+        WTFEmitSignpost(this, NavigationAndPaintTiming, "firstContentfulPaint");
+
+        protectedWindow()->performance().reportFirstContentfulPaint(nowTime);
+        m_didEnqueueFirstContentfulPaint = true;
+    };
+
+    auto enqueueLargestContentfulPaintIfNecessary = [&]() {
+        WTFEmitSignpost(this, NavigationAndPaintTiming, "largestContentfulPaint");
+
+        if (RefPtr entry = largestContentfulPaintData().takePendingEntry(nowTime)) {
+            Ref entryRef = entry.releaseNonNull();
+            protectedWindow()->performance().reportLargestContentfulPaint(WTFMove(entryRef));
+        }
+    };
+
+    enqueuePaintTimingIfNecessary();
+    enqueueLargestContentfulPaintIfNecessary();
 }
 
 void Document::enqueueEventTimingEntriesIfNeeded()

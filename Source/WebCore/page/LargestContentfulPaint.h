@@ -27,6 +27,7 @@
 
 #include "DOMHighResTimeStamp.h"
 #include "PerformanceEntry.h"
+#include <wtf/RefPtr.h>
 
 namespace WebCore {
 
@@ -39,7 +40,7 @@ public:
         return adoptRef(*new LargestContentfulPaint(timeStamp));
     }
 
-    ~LargestContentfulPaint() = default;
+    ~LargestContentfulPaint();
 
     // PaintTimingMixin
     DOMHighResTimeStamp paintTime() const;
@@ -47,19 +48,39 @@ public:
 
     // LargestContentfulPaint
     DOMHighResTimeStamp loadTime() const;
+    void setLoadTime(DOMHighResTimeStamp);
+
     DOMHighResTimeStamp renderTime() const;
+    void setRenderTime(DOMHighResTimeStamp);
+
+    DOMHighResTimeStamp startTime() const final;
+
     unsigned size() const;
+    void setSize(unsigned);
+
     String id() const;
+    void setID(const String&);
+
     String url() const;
+    void setURLString(const String&);
+
     Element* element() const;
+    void setElement(Element*);
 
     ASCIILiteral entryType() const final { return "largest-contentful-paint"_s; }
 
 protected:
-    LargestContentfulPaint(DOMHighResTimeStamp);
+    explicit LargestContentfulPaint(DOMHighResTimeStamp);
 
 private:
     Type performanceEntryType() const final { return Type::LargestContentfulPaint; }
+
+    RefPtr<Element> m_element;
+    DOMHighResTimeStamp m_loadTime { 0 };
+    DOMHighResTimeStamp m_renderTime { 0 };
+    String m_urlString;
+    String m_id;
+    unsigned m_pixelArea { 0 };
 };
 
 } // namespace WebCore
