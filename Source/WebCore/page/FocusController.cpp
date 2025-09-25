@@ -548,9 +548,12 @@ FocusableElementSearchResult FocusController::findFocusableElementDescendingInto
     RefPtr element = startingElement;
     while (RefPtr owner = dynamicDowncast<HTMLFrameOwnerElement>(element)) {
         if (RefPtr remoteFrame = dynamicDowncast<RemoteFrame>(owner->contentFrame())) {
-            remoteFrame->client().findFocusableElementDescendingIntoRemoteFrame(direction, focusEventData, [](FoundElementInRemoteFrame found) {
+            RefPtr currentDocument = focusedLocalFrame() ? focusedLocalFrame()->document() : nullptr;
+            remoteFrame->client().findFocusableElementDescendingIntoRemoteFrame(direction, focusEventData, [currentDocument](FoundElementInRemoteFrame found) {
+                if (found == FoundElementInRemoteFrame::Yes && currentDocument)
+                    currentDocument->setFocusedElement(nullptr);
+
                 // FIXME: Implement sibling frame search by continuing here.
-                UNUSED_PARAM(found);
             });
 
             return { nullptr, ContinuedSearchInRemoteFrame::Yes };
