@@ -78,7 +78,7 @@ protected:
 
 #if USE(GBM) || OS(ANDROID)
     HashMap<PlatformGLObject, PlatformGLObject> m_exportedTexturesMap;
-    PlatformGLObject m_fbosForBlitting[2] { 0, 0 };
+    std::array<PlatformGLObject, 2> m_fbosForBlitting { 0, 0 };
 #endif
 #if USE(GBM)
     RefPtr<WebCore::GBMDevice> m_gbmDevice;

@@ -62,7 +62,7 @@ OpenXRLayer::~OpenXRLayer()
     ASSERT(WebCore::GLContext::current());
 #if USE(GBM)
     if (m_fbosForBlitting[0])
-        glDeleteFramebuffers(2, m_fbosForBlitting);
+        glDeleteFramebuffers(m_fbosForBlitting.size(), m_fbosForBlitting.data());
     for (auto texture : m_exportedTexturesMap.values())
         glDeleteTextures(1, &texture);
 #endif
@@ -426,7 +426,7 @@ XrCompositionLayerBaseHeader* OpenXRLayerProjection::endFrame(const XRDeviceLaye
 #if OS(ANDROID) || USE(GBM)
     if (needsBlitTexture()) {
         if (!m_fbosForBlitting[0])
-            glGenFramebuffers(2, m_fbosForBlitting);
+            glGenFramebuffers(m_fbosForBlitting.size(), m_fbosForBlitting.data());
         blitTexture();
     }
 #endif
