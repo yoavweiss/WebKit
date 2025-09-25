@@ -865,8 +865,13 @@ struct AwaitingPromiseData : public RefCounted<AwaitingPromiseData> {
 };
 
 // https://webidl.spec.whatwg.org/#wait-for-all
-static void waitForAllPromises(const Vector<RefPtr<DOMPromise>>& promises, Function<void()>&& fulfilledCallback, Function<void(JSC::JSValue)>&& rejectionCallback)
+static void waitForAllPromises(Document& document, const Vector<RefPtr<DOMPromise>>& promises, Function<void()>&& fulfilledCallback, Function<void(JSC::JSValue)>&& rejectionCallback)
 {
+    if (promises.isEmpty()) {
+        document.checkedEventLoop()->queueMicrotask(WTFMove(fulfilledCallback));
+        return;
+    }
+
     Ref awaitingData = adoptRef(*new AwaitingPromiseData(WTFMove(fulfilledCallback), WTFMove(rejectionCallback), promises.size()));
 
     for (const auto& promise : promises) {
@@ -1036,18 +1041,10 @@ Navigation::DispatchResult Navigation::innerDispatchNavigateEvent(NavigationNavi
             }
         }
 
-        if (promiseList.isEmpty()) {
-            auto promiseAndWrapper = createPromiseAndWrapper(*document);
-            Ref { promiseAndWrapper.second }->resolveWithCallback([](JSDOMGlobalObject&) {
-                return JSC::jsUndefined();
-            });
-            promiseList.append(WTFMove(promiseAndWrapper.first));
-        }
-
         // FIXME: this emulates the behavior of a Promise wrapped around waitForAll, but we may want the real
         // thing if the ordering-and-transition tests show timing related issues related to this.
         scriptExecutionContext->checkedEventLoop()->queueTask(TaskSource::DOMManipulation, [weakThis = WeakPtr { this }, promiseList, abortController, document, apiMethodTracker]() {
-            waitForAllPromises(promiseList, [abortController, document, apiMethodTracker, weakThis]() mutable {
+            waitForAllPromises(*document, promiseList, [abortController, document, apiMethodTracker, weakThis]() mutable {
                 RefPtr protectedThis = weakThis.get();
                 if (!protectedThis || abortController->signal().aborted() || !document->isFullyActive() || !protectedThis->m_ongoingNavigateEvent)
                     return;
