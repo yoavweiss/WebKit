@@ -86,6 +86,7 @@ platform/visionos/transforms [ Pass ]
 imported/w3c/web-platform-tests/webxr [ Pass ]
 http/wpt/webxr [ Pass ]
 webxr [ Pass ]
+http/tests/iframe-monitor [ Pass ]
 
 ###################################################################################################
 ### START OF Legitimate failures (due to platform behavioral differences)

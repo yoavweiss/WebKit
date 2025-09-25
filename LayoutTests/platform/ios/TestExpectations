@@ -89,6 +89,9 @@ media/wireless-route-monitoring.html [ Pass ]
 
 security/cocoa [ Pass ]
 
+# Cocoa only tests
+http/tests/iframe-monitor [ Pass ]
+
 # mac-only IPC test
 ipc/webpageproxy-correctionpanel-no-crash.html [ Skip ]
 

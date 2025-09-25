@@ -87,6 +87,9 @@ imported/w3c/web-platform-tests/css/css-pseudo/selection-over-highlight-001.html
 # Tests that require wheel events
 compositing/repaint/sticky-repaint-on-scroll.html [ Pass ]
 
+# Cocoa-only tests
+http/tests/iframe-monitor/ [ Pass ]
+
 # Some of these have failing results: webkit.org/b/293983
 imported/w3c/web-platform-tests/dom/events/scrolling/iframe-chains.html [ Pass ]
 imported/w3c/web-platform-tests/dom/events/scrolling/scroll-cross-origin-iframes.html [ Pass ]
