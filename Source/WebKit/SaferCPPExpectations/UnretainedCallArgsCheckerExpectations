@@ -1,7 +1,4 @@
 GeneratedWebKitSecureCoding.mm
-NetworkProcess/Authentication/cocoa/AuthenticationManagerCocoa.mm
-NetworkProcess/PrivateClickMeasurement/cocoa/PrivateClickMeasurementNetworkLoaderCocoa.mm
-NetworkProcess/cocoa/LaunchServicesDatabaseObserver.mm
 NetworkProcess/mac/NetworkProcessMac.mm
 Platform/IPC/cocoa/ConnectionCocoa.mm
 Platform/IPC/cocoa/DaemonConnectionCocoa.mm
