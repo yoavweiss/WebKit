@@ -2406,6 +2406,8 @@ http/tests/webgpu/webgpu/web_platform/copyToTexture [ Pass Timeout ]
 [ Release ] http/tests/webgpu/webgpu/web_platform/copyToTexture/ImageData.html [ Slow ]
 [ Debug ] http/tests/webgpu/webgpu/web_platform/copyToTexture/ImageData.html [ Skip ]
 
+http/tests/webgpu/webgpu/web_platform/copyToTexture/image_file.html [ Pass ]
+
 # this test is very slow so expect a timeout or pass
 http/tests/webgpu/webgpu/web_platform/copyToTexture/ImageBitmap.html [ Pass Timeout ]
 
