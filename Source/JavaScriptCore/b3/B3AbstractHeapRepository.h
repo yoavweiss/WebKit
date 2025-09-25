@@ -35,7 +35,7 @@
 namespace JSC::B3 {
 
 #define FOR_EACH_ABSTRACT_HEAP(macro) \
-    macro(typedArrayProperties) \
+    macro(TypedArrayProperties) \
     macro(JSCellHeaderAndNamedProperties) \
     macro(OrderedHashTableData) \
 
@@ -279,6 +279,8 @@ public:
 #define ABSTRACT_HEAP_DECLARATION(name) AbstractHeap name;
     FOR_EACH_ABSTRACT_HEAP(ABSTRACT_HEAP_DECLARATION)
 #undef ABSTRACT_HEAP_DECLARATION
+
+    AbstractHeap& WebAssemblyMemory;
 
 #define ABSTRACT_FIELD_DECLARATION(name, offset, mutability) AbstractHeap name;
     FOR_EACH_ABSTRACT_FIELD(ABSTRACT_FIELD_DECLARATION)

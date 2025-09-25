@@ -72,6 +72,8 @@ AbstractHeapRepository::AbstractHeapRepository()
     FOR_EACH_ABSTRACT_HEAP(ABSTRACT_HEAP_INITIALIZATION)
 #undef ABSTRACT_HEAP_INITIALIZATION
 
+    , WebAssemblyMemory(TypedArrayProperties)
+
 #define ABSTRACT_FIELD_INITIALIZATION(name, offset, mutability) , name(&root, #name, offset, mutability)
     FOR_EACH_ABSTRACT_FIELD(ABSTRACT_FIELD_INITIALIZATION)
 #undef ABSTRACT_FIELD_INITIALIZATION
