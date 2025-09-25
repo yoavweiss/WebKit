@@ -1282,7 +1282,7 @@ void AnchorPositionEvaluator::updateAnchorPositionedStateForDefaultAnchorAndPosi
 
     // `position-visibility: no-overflow` should also work for non-anchor positioned out-of-flow boxes.
     // Create an empty anchor positioning state for it so we perform the required layout interleaving.
-    auto hasPositionVisibilityNoOverflow = style.hasOutOfFlowPosition() && style.positionVisibility().contains(PositionVisibility::NoOverflow);
+    auto hasPositionVisibilityNoOverflow = generatesBox(style) && style.hasOutOfFlowPosition() && style.positionVisibility().contains(PositionVisibility::NoOverflow);
 
     if (!shouldResolveDefaultAnchor && !hasPositionVisibilityNoOverflow)
         return;
@@ -1321,14 +1321,22 @@ auto AnchorPositionEvaluator::makeAnchorPositionedForAnchorMap(AnchorPositionedT
 
 bool AnchorPositionEvaluator::isAnchorPositioned(const RenderStyle& style)
 {
-    if (!style.hasOutOfFlowPosition())
+    return isStyleTimeAnchorPositioned(style) || isLayoutTimeAnchorPositioned(style);
+}
+
+bool AnchorPositionEvaluator::isStyleTimeAnchorPositioned(const RenderStyle& style)
+{
+    if (!generatesBox(style) || !style.hasOutOfFlowPosition())
         return false;
 
-    return isLayoutTimeAnchorPositioned(style) || style.usesAnchorFunctions();
+    return style.usesAnchorFunctions();
 }
 
 bool AnchorPositionEvaluator::isLayoutTimeAnchorPositioned(const RenderStyle& style)
 {
+    if (!generatesBox(style) || !style.hasOutOfFlowPosition())
+        return false;
+
     if (style.positionArea())
         return true;
 

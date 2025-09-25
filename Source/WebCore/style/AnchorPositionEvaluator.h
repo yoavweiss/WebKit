@@ -179,6 +179,7 @@ public:
     static AnchorToAnchorPositionedMap makeAnchorPositionedForAnchorMap(AnchorPositionedToAnchorMap&);
 
     static bool isAnchorPositioned(const RenderStyle&);
+    static bool isStyleTimeAnchorPositioned(const RenderStyle&);
     static bool isLayoutTimeAnchorPositioned(const RenderStyle&);
 
     static CSSPropertyID resolvePositionTryFallbackProperty(CSSPropertyID, WritingMode, const BuilderPositionTryFallback&);
