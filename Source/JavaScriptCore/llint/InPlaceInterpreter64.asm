@@ -847,14 +847,15 @@ ipintOp(_global_set, macro()
     loadb IPInt::GlobalMetadata::instructionLength[MC], t0
     advancePCByReg(t0)
     advanceMC(constexpr (sizeof(IPInt::GlobalMetadata)))
-    nextIPIntInstruction()
+    jmp .ipint_global_set_dispatch
+
 .ipint_global_set_embedded:
     # embedded: set directly
     storev v0, [t0, t1, 8]
     loadb IPInt::GlobalMetadata::instructionLength[MC], t0
     advancePCByReg(t0)
     advanceMC(constexpr (sizeof(IPInt::GlobalMetadata)))
-    nextIPIntInstruction()
+    jmp .ipint_global_set_dispatch
 
 .ipint_global_set_refpath:
     loadi IPInt::GlobalMetadata::index[MC], a1
@@ -865,6 +866,8 @@ ipintOp(_global_set, macro()
     loadb IPInt::GlobalMetadata::instructionLength[MC], t0
     advancePCByReg(t0)
     advanceMC(constexpr (sizeof(IPInt::GlobalMetadata)))
+
+.ipint_global_set_dispatch:
     nextIPIntInstruction()
 end)
 
