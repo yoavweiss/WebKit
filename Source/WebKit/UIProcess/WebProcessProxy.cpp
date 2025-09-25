@@ -932,7 +932,7 @@ void WebProcessProxy::assumeReadAccessToBaseURL(WebPageProxy& page, const String
     // Get url's base URL to add to m_localPathsWithAssumedReadAccess.
     auto baseURL = url.truncatedForUseAsBase();
     auto path = baseURL.fileSystemPath();
-    WEBPROCESSPROXY_RELEASE_LOG(Sandbox, "assumeReadAccessToBaseURL(%u): path = %{private}s", baseURL.isValid() ? WTF::URLHash::hash(baseURL) : 0, path.utf8().data());
+    WEBPROCESSPROXY_RELEASE_LOG(Sandbox, "assumeReadAccessToBaseURL(%u): path = %" PRIVATE_LOG_STRING, baseURL.isValid() ? WTF::URLHash::hash(baseURL) : 0, path.utf8().data());
     if (path.isNull())
         return completionHandler();
 
@@ -3091,13 +3091,13 @@ void WebProcessProxy::setResourceMonitorRuleLists(RefPtr<WebCompiledContentRuleL
 std::optional<SandboxExtension::Handle> WebProcessProxy::sandboxExtensionForFile(const String& fileName) const
 {
     auto handle = m_fileSandboxExtensions.getOptional(fileName);
-    WEBPROCESSPROXY_RELEASE_LOG(Sandbox, "sandboxExtensionForFile: %{private}s, has cached extension: %d", fileName.utf8().data(), handle ? true : false);
+    WEBPROCESSPROXY_RELEASE_LOG(Sandbox, "sandboxExtensionForFile: %" PRIVATE_LOG_STRING ", has cached extension: %d", fileName.utf8().data(), handle ? true : false);
     return handle;
 }
 
 void WebProcessProxy::addSandboxExtensionForFile(const String& fileName, SandboxExtension::Handle handle)
 {
-    WEBPROCESSPROXY_RELEASE_LOG(Sandbox, "addSandboxExtensionForFile: %{private}s", fileName.utf8().data());
+    WEBPROCESSPROXY_RELEASE_LOG(Sandbox, "addSandboxExtensionForFile: %" PRIVATE_LOG_STRING, fileName.utf8().data());
     m_fileSandboxExtensions.add(fileName, handle);
 }
 

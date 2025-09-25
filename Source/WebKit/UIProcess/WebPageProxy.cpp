@@ -1933,7 +1933,7 @@ void WebPageProxy::maybeInitializeSandboxExtensionHandle(WebProcessProxy& proces
     auto urlHash = url.isValid() ? WTF::URLHash::hash(url) : 0;
     auto resourceDirectoryURLHash = resourceDirectoryURL.isValid() ? WTF::URLHash::hash(resourceDirectoryURL) : 0;
 #endif
-    WEBPAGEPROXY_RELEASE_LOG(Sandbox, "maybeInitializeSandboxExtensionHandle: url(%u) = %{private}s, resourceDirectoryURL(%u) = %{private}s, checkAssumedReadAccessToResourceURL = %d", urlHash, url.string().utf8().data(), resourceDirectoryURLHash, resourceDirectoryURL.string().utf8().data(), checkAssumedReadAccessToResourceURL);
+    WEBPAGEPROXY_RELEASE_LOG(Sandbox, "maybeInitializeSandboxExtensionHandle: url(%u) = %" PRIVATE_LOG_STRING ", resourceDirectoryURL(%u) = %" PRIVATE_LOG_STRING ", checkAssumedReadAccessToResourceURL = %d", urlHash, url.string().utf8().data(), resourceDirectoryURLHash, resourceDirectoryURL.string().utf8().data(), checkAssumedReadAccessToResourceURL);
 
 #if HAVE(AUDIT_TOKEN)
     // If the process is still launching then it does not have a PID yet. We will take care of creating the sandbox extension
