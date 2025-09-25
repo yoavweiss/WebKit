@@ -11,7 +11,7 @@ exports:
         symbols: [_FBSActivateForEventOptionTypeBackgroundContentFetching, _FBSOpenApplicationOptionKeyActions, _FBSOpenApplicationOptionKeyActivateForEvent,
                 _FBSOpenApplicationOptionKeyActivateSuspended, _FBSOpenApplicationOptionKeyLaunchIntent, _FBSOpenApplicationOptionKeyPayloadOptions,
                 _FBSOpenApplicationOptionKeyPayloadURL, _FBSOpenApplicationOptionKeyUnlockDevice, _FBSSceneVisibilityEndowmentNamespace]
-        objc-classes: [FBSDisplayConfiguration, FBSOpenApplicationOptions, FBSOpenApplicationService, FBSOrientationObserver]
+        objc-classes: [FBSOpenApplicationOptions, FBSOpenApplicationService]
 ...
 --- !tapi-tbd
 tbd-version: 4
