@@ -35,6 +35,7 @@
 #include "InjectedBundleScriptWorld.h"
 #include "WKSharedAPICast.h"
 #include "WebFrame.h"
+#include <WebCore/DOMWrapperWorld.h>
 #include <WebCore/Document.h>
 #include <WebCore/ExceptionDetails.h>
 #include <WebCore/JSWebKitJSHandle.h>

@@ -69,6 +69,7 @@ UIProcess/API/Cocoa/_WKInspectorExtension.h
 UIProcess/API/Cocoa/_WKInspectorExtensionHost.h
 UIProcess/API/Cocoa/_WKInspectorWindow.h
 UIProcess/API/Cocoa/_WKInspectorWindowInternal.h
+UIProcess/API/Cocoa/_WKJSHandle.h
 UIProcess/API/Cocoa/_WKLinkIconParameters.h
 UIProcess/API/Cocoa/_WKNotificationData.h
 UIProcess/API/Cocoa/_WKNotificationData.mm
