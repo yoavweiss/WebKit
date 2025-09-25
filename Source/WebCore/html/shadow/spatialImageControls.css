@@ -81,6 +81,8 @@ div#bottom-gradient {
     left: 0;
     height: 33%;
     width: 100%;
+    border-bottom-right-radius: inherit;
+    border-bottom-left-radius: inherit;
 }
 
 div#label {

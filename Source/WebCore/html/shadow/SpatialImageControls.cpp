@@ -132,6 +132,7 @@ void ensureSpatialControls(HTMLImageElement& imageElement)
         controlLayer->setInlineStyleProperty(CSSPropertyJustifyContent, "space-between"_s);
         controlLayer->setInlineStyleProperty(CSSPropertyPosition, "relative"_s);
         controlLayer->setInlineStyleProperty(CSSPropertyBoxSizing, "border-box"_s);
+        controlLayer->setInlineStyleProperty(CSSPropertyBorderRadius, "inherit"_s);
         controlLayer->setInlineStyleProperty(CSSPropertyPadding, paddingValue, CSSUnitType::CSS_PX);
         shadowRoot->appendChild(controlLayer);
 
