@@ -78,7 +78,7 @@ void ConnectionToMachService<Traits>::initializeConnectionIfNeeded() const
 #endif
         }
         if (event == XPC_ERROR_CONNECTION_INTERRUPTED) {
-            RELEASE_LOG(IPC, "Connetion to mach service %s is interrupted", weakThis->m_machServiceName.data());
+            RELEASE_LOG(IPC, "Connection to mach service %s is interrupted", weakThis->m_machServiceName.data());
             // Daemon crashed, we will need to make a new connection to a new instance of the daemon.
             weakThis->m_connection = nullptr;
         }
