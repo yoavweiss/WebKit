@@ -47,6 +47,7 @@ typedef struct CF_BRIDGED_TYPE(id) __CVBuffer *CVPixelBufferRef;
 
 namespace WebCore {
 
+class CDMInstanceFairPlayStreamingAVFObjC;
 class EffectiveRateChangedListener;
 class MediaSample;
 class PixelBufferConformerCV;
@@ -194,6 +195,10 @@ private:
     void updateSpatialTrackingLabel();
 #endif
 
+#if ENABLE(ENCRYPTED_MEDIA) && HAVE(AVCONTENTKEYSESSION)
+    void setCDMInstance(CDMInstance*) final;
+#endif
+
     void setSynchronizerRate(float, std::optional<MonotonicTime>);
     bool updateLastPixelBuffer();
     void maybePurgeLastPixelBuffer();
@@ -325,6 +330,9 @@ private:
     bool m_needsDestroyVideoLayer { false };
 #if ENABLE(LINEAR_MEDIA_PLAYER)
     RetainPtr<FigVideoTargetRef> m_videoTarget;
+#endif
+#if ENABLE(ENCRYPTED_MEDIA) && HAVE(AVCONTENTKEYSESSION)
+    RefPtr<CDMInstanceFairPlayStreamingAVFObjC> m_cdmInstance;
 #endif
 };
 

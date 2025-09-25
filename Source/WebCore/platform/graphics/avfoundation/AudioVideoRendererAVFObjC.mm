@@ -27,6 +27,7 @@
 #import "AudioVideoRendererAVFObjC.h"
 
 #import "AudioMediaStreamTrackRenderer.h"
+#import "CDMInstanceFairPlayStreamingAVFObjC.h"
 #import "EffectiveRateChangedListener.h"
 #import "FormatDescriptionUtilities.h"
 #import "LayoutRect.h"
@@ -52,6 +53,7 @@
 #import <wtf/TZoneMallocInlines.h>
 #import <wtf/WeakPtr.h>
 #import <wtf/WorkQueue.h>
+#import <wtf/cocoa/Entitlements.h>
 #import <wtf/darwin/DispatchExtras.h>
 
 #pragma mark - Soft Linking
@@ -64,9 +66,30 @@
 @property (assign, nonatomic) BOOL preventsAutomaticBackgroundingDuringVideoPlayback;
 @end
 
+@interface AVSampleBufferDisplayLayer (WebCoreSampleBufferKeySession) <AVContentKeyRecipient>
+@end
+
+@interface AVSampleBufferAudioRenderer (WebCoreSampleBufferKeySession) <AVContentKeyRecipient>
+@end
+
 namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(AudioVideoRendererAVFObjC);
+
+static inline bool supportsAttachContentKey()
+{
+    static bool supportsAttachContentKey;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        supportsAttachContentKey = WTF::processHasEntitlement("com.apple.developer.web-browser-engine.rendering"_s) || WTF::processHasEntitlement("com.apple.private.coremedia.allow-fps-attachment"_s);
+    });
+    return supportsAttachContentKey;
+}
+
+static inline bool shouldAddContentKeyRecipients()
+{
+    return !supportsAttachContentKey();
+}
 
 AudioVideoRendererAVFObjC::AudioVideoRendererAVFObjC(const Logger& originalLogger, uint64_t logSiteIdentifier)
     : m_logger(originalLogger)
@@ -901,6 +924,13 @@ void AudioVideoRendererAVFObjC::addAudioRenderer(TrackIdentifier trackId)
 
     m_audioRenderers.set(trackId, renderer);
     m_listener->beginObservingAudioRenderer(renderer.get());
+
+#if ENABLE(ENCRYPTED_MEDIA) && HAVE(AVCONTENTKEYSESSION)
+    if (RefPtr cdmInstance = m_cdmInstance; cdmInstance && shouldAddContentKeyRecipients()) {
+        // False positive webkit.org/b/298037
+        SUPPRESS_UNRETAINED_ARG [cdmInstance->contentKeySession() addContentKeyRecipient:renderer.get()];
+    }
+#endif
 }
 
 void AudioVideoRendererAVFObjC::removeAudioRenderer(TrackIdentifier trackId)
@@ -922,6 +952,13 @@ void AudioVideoRendererAVFObjC::destroyAudioRenderer(RetainPtr<AVSampleBufferAud
     m_listener->stopObservingAudioRenderer(renderer.get());
     [renderer flush];
     [renderer stopRequestingMediaData];
+
+#if ENABLE(ENCRYPTED_MEDIA) && HAVE(AVCONTENTKEYSESSION)
+    if (RefPtr cdmInstance = m_cdmInstance; cdmInstance && shouldAddContentKeyRecipients()) {
+        // False positive webkit.org/b/298037
+        SUPPRESS_UNRETAINED_ARG [cdmInstance->contentKeySession() removeContentKeyRecipient:renderer.get()];
+    }
+#endif
 }
 
 void AudioVideoRendererAVFObjC::destroyAudioRenderers()
@@ -1129,6 +1166,13 @@ void AudioVideoRendererAVFObjC::ensureLayer()
     setLayerDynamicRangeLimit(m_sampleBufferDisplayLayer.get(), m_dynamicRangeLimit);
 
     m_videoLayerManager->setVideoLayer(m_sampleBufferDisplayLayer.get(), m_presentationSize);
+
+#if ENABLE(ENCRYPTED_MEDIA) && HAVE(AVCONTENTKEYSESSION)
+    if (RefPtr cdmInstance = m_cdmInstance; cdmInstance && shouldAddContentKeyRecipients()) {
+        // False positive webkit.org/b/298037
+        SUPPRESS_UNRETAINED_ARG [cdmInstance->contentKeySession() addContentKeyRecipient:m_sampleBufferDisplayLayer.get()];
+    }
+#endif
 }
 
 void AudioVideoRendererAVFObjC::destroyLayer()
@@ -1143,6 +1187,14 @@ void AudioVideoRendererAVFObjC::destroyLayer()
     [m_synchronizer removeRenderer:m_sampleBufferDisplayLayer.get() atTime:currentTime completionHandler:nil];
 
     m_videoLayerManager->didDestroyVideoLayer();
+
+#if ENABLE(ENCRYPTED_MEDIA) && HAVE(AVCONTENTKEYSESSION)
+    if (RefPtr cdmInstance = m_cdmInstance; cdmInstance && shouldAddContentKeyRecipients()) {
+        // False positive webkit.org/b/298037
+        SUPPRESS_UNRETAINED_ARG [cdmInstance->contentKeySession() removeContentKeyRecipient:m_sampleBufferDisplayLayer.get()];
+    }
+#endif
+
     m_sampleBufferDisplayLayer = nullptr;
     m_needsDestroyVideoLayer = false;
 }
@@ -1519,6 +1571,42 @@ void AudioVideoRendererAVFObjC::updateSpatialTrackingLabel()
     }
     for (auto& pair : m_audioRenderers)
         [(__bridge AVSampleBufferAudioRenderer *)pair.value.get() setSTSLabel:defaultLabel.get()];
+}
+#endif
+
+#if ENABLE(ENCRYPTED_MEDIA) && HAVE(AVCONTENTKEYSESSION)
+void AudioVideoRendererAVFObjC::setCDMInstance(CDMInstance* instance)
+{
+    RefPtr fpsInstance = dynamicDowncast<CDMInstanceFairPlayStreamingAVFObjC>(instance);
+    if (fpsInstance == m_cdmInstance)
+        return;
+
+    if (shouldAddContentKeyRecipients()) {
+        RetainPtr layer =  m_sampleBufferDisplayLayer;
+
+        if (RefPtr cdmInstance = m_cdmInstance) {
+            if (layer) {
+                // False positive webkit.org/b/298037
+                SUPPRESS_UNRETAINED_ARG [cdmInstance->contentKeySession() removeContentKeyRecipient:layer.get()];
+            }
+            for (auto& renderer : m_audioRenderers.values()) {
+                // False positive webkit.org/b/298037
+                SUPPRESS_UNRETAINED_ARG [cdmInstance->contentKeySession() removeContentKeyRecipient:renderer.get()];
+            }
+        }
+
+        if (fpsInstance) {
+            if (layer) {
+                // False positive webkit.org/b/298037
+                SUPPRESS_UNRETAINED_ARG [fpsInstance->contentKeySession() addContentKeyRecipient:layer.get()];
+            }
+            for (auto& renderer : m_audioRenderers.values()) {
+                // False positive webkit.org/b/298037
+                SUPPRESS_UNRETAINED_ARG [fpsInstance->contentKeySession() addContentKeyRecipient:renderer.get()];
+            }
+        }
+    }
+    m_cdmInstance = fpsInstance;
 }
 #endif
 

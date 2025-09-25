@@ -41,6 +41,7 @@
 
 namespace WebCore {
 
+class CDMInstance;
 class FloatRect;
 class LayoutRect;
 class MediaSample;
@@ -157,6 +158,10 @@ public:
 
     using SoundStageSize = MediaPlayerSoundStageSize;
     virtual void setSpatialTrackingInfo(bool /* prefersSpatialAudioExperience */, SoundStageSize, const String& /* sceneIdentifier */, const String& /* defaultLabel */, const String& /* label */) { }
+
+#if ENABLE(ENCRYPTED_MEDIA)
+    virtual void setCDMInstance(CDMInstance*) { }
+#endif
 };
 
 class AudioVideoRenderer : public AudioInterface, public VideoInterface, public VideoFullscreenInterface, public SynchronizerInterface, public TracksRendererManager, public AbstractThreadSafeRefCountedAndCanMakeWeakPtr {
