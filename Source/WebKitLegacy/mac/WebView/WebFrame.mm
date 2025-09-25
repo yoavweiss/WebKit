@@ -1082,7 +1082,7 @@ static WebFrameLoadType toWebFrameLoadType(WebCore::FrameLoadType frameLoadType)
         return WebFrameLoadTypeSame;
     case FrameLoadType::RedirectWithLockedBackForwardList:
         return WebFrameLoadTypeInternal;
-    case FrameLoadType::Replace:
+    case FrameLoadType::MultipartReplace:
         return WebFrameLoadTypeReplace;
     case FrameLoadType::ReloadFromOrigin:
     case FrameLoadType::ReloadExpiredOnly:

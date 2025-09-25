@@ -132,7 +132,7 @@ public:
     SubframeLoader& subframeLoader() { return m_subframeLoader; }
     const SubframeLoader& subframeLoader() const { return m_subframeLoader; }
 
-    void setupForReplace();
+    void setupForMultipartReplace();
 
     // FIXME: These are all functions which start loads. We have too many.
     WEBCORE_EXPORT void loadFrameRequest(FrameLoadRequest&&, Event*, RefPtr<FormState>&&, std::optional<PrivateClickMeasurement>&& = std::nullopt); // Called by submitForm, calls loadPostRequest and loadURL.
@@ -208,8 +208,8 @@ public:
     static ResourceError blockedByContentFilterError(const ResourceRequest&);
 #endif
 
-    bool isReplacing() const;
-    void setReplacing();
+    bool isMultipartReplacing() const;
+    void setMultipartReplacing();
     bool subframeIsLoading() const;
     void willChangeTitle(DocumentLoader*);
     void didChangeTitle(DocumentLoader*);

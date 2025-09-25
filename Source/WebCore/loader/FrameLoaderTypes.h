@@ -77,7 +77,7 @@ enum class FrameLoadType : uint8_t {
     Reload,
     Same, // user loads same URL again (but not reload button)
     RedirectWithLockedBackForwardList, // FIXME: Merge "lockBackForwardList", "lockHistory", "quickRedirect" and "clientRedirect" into a single concept of redirect.
-    Replace,
+    MultipartReplace,
     ReloadFromOrigin,
     ReloadExpiredOnly
 };

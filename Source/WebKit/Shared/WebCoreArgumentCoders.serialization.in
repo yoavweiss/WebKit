@@ -6181,7 +6181,7 @@ enum class WebCore::FrameLoadType : uint8_t {
     Reload,
     Same,
     RedirectWithLockedBackForwardList,
-    Replace,
+    MultipartReplace,
     ReloadFromOrigin,
     ReloadExpiredOnly
 };

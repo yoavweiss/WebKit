@@ -967,7 +967,7 @@ void DocumentLoader::responseReceived(ResourceResponse&& response, CompletionHan
 #endif
 
     if (m_isLoadingMultipartContent) {
-        setupForReplace();
+        setupForMultipartReplace();
         m_mainResource->clear();
     } else if (response.isMultipart())
         m_isLoadingMultipartContent = true;
@@ -1313,7 +1313,7 @@ void DocumentLoader::commitData(const SharedBuffer& data)
             }
         }
         // Call receivedFirstData() exactly once per load. We should only reach this point multiple times
-        // for multipart loads, and FrameLoader::isReplacing() will be true after the first time.
+        // for multipart loads, and FrameLoader::isMultipartReplacing() will be true after the first time.
         if (!isMultipartReplacingLoad())
             protectedFrameLoader()->receivedFirstData();
 
@@ -1394,7 +1394,7 @@ void DocumentLoader::dataReceived(const SharedBuffer& buffer)
         commitLoad(buffer);
 }
 
-void DocumentLoader::setupForReplace()
+void DocumentLoader::setupForMultipartReplace()
 {
     if (!mainResourceData())
         return;
@@ -1404,7 +1404,7 @@ void DocumentLoader::setupForReplace()
     maybeFinishLoadingMultipartContent();
     maybeCreateArchive();
     m_writer.end();
-    protectedFrameLoader()->setReplacing();
+    protectedFrameLoader()->setMultipartReplacing();
     m_gotFirstByte = false;
 
     unregisterReservedServiceWorkerClient();
@@ -2032,7 +2032,7 @@ void DocumentLoader::removePlugInStreamLoader(ResourceLoader& loader)
 
 bool DocumentLoader::isMultipartReplacingLoad() const
 {
-    return isLoadingMultipartContent() && protectedFrameLoader()->isReplacing();
+    return isLoadingMultipartContent() && protectedFrameLoader()->isMultipartReplacing();
 }
 
 bool DocumentLoader::maybeLoadEmpty()
@@ -2387,7 +2387,7 @@ void DocumentLoader::maybeFinishLoadingMultipartContent()
     if (!isMultipartReplacingLoad())
         return;
 
-    protectedFrameLoader()->setupForReplace();
+    protectedFrameLoader()->setupForMultipartReplace();
     m_committed = false;
     commitLoad(mainResourceData()->makeContiguous());
 }

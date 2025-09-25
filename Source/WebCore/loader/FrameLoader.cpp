@@ -204,7 +204,7 @@ bool isBackForwardLoadType(FrameLoadType type)
     case FrameLoadType::ReloadExpiredOnly:
     case FrameLoadType::Same:
     case FrameLoadType::RedirectWithLockedBackForwardList:
-    case FrameLoadType::Replace:
+    case FrameLoadType::MultipartReplace:
         return false;
     case FrameLoadType::Back:
     case FrameLoadType::Forward:
@@ -225,7 +225,7 @@ bool isReload(FrameLoadType type)
     case FrameLoadType::Standard:
     case FrameLoadType::Same:
     case FrameLoadType::RedirectWithLockedBackForwardList:
-    case FrameLoadType::Replace:
+    case FrameLoadType::MultipartReplace:
     case FrameLoadType::Back:
     case FrameLoadType::Forward:
     case FrameLoadType::IndexedBackForward:
@@ -1218,7 +1218,7 @@ static NavigationNavigationType determineNavigationType(FrameLoadType loadType, 
         return NavigationNavigationType::Traverse;
     if (isReload(loadType))
         return NavigationNavigationType::Reload;
-    if (loadType == FrameLoadType::Replace)
+    if (loadType == FrameLoadType::MultipartReplace)
         return NavigationNavigationType::Replace;
 
     return NavigationNavigationType::Push;
@@ -1397,12 +1397,12 @@ void FrameLoader::prepareForLoadStart()
     }
 }
 
-void FrameLoader::setupForReplace()
+void FrameLoader::setupForMultipartReplace()
 {
     m_client->revertToProvisionalState(protectedDocumentLoader().get());
     setState(FrameState::Provisional);
     m_provisionalDocumentLoader = m_documentLoader;
-    FRAMELOADER_RELEASE_LOG(ResourceLoading, "setupForReplace: Setting provisional document loader (m_provisionalDocumentLoader=%p)", m_provisionalDocumentLoader.get());
+    FRAMELOADER_RELEASE_LOG(ResourceLoading, "setupForMultipartReplace: Setting provisional document loader (m_provisionalDocumentLoader=%p)", m_provisionalDocumentLoader.get());
     m_documentLoader = nullptr;
     detachChildren();
 }
@@ -2369,7 +2369,7 @@ void FrameLoader::commitProvisionalLoad()
         WebCore::jettisonExpensiveObjectsOnTopLevelNavigation();
     }
 
-    if (m_loadType != FrameLoadType::Replace)
+    if (m_loadType != FrameLoadType::MultipartReplace)
         closeOldDataSources();
 
     if (!cachedPage && !m_stateMachine.creatingInitialEmptyDocument())
@@ -2577,8 +2577,8 @@ void FrameLoader::transitionToCommitted(CachedPage* cachedPage)
     case FrameLoadType::ReloadFromOrigin:
     case FrameLoadType::ReloadExpiredOnly:
     case FrameLoadType::Same:
-    case FrameLoadType::Replace:
-        history().updateForReload();
+    case FrameLoadType::MultipartReplace:
+        history().updateForReloadOrReplace();
         m_client->transitionToCommittedForNewPage(m_documentLoader && m_documentLoader->isInFinishedLoadingOfEmptyDocument() ?
             LocalFrameLoaderClient::InitializingIframe::Yes : LocalFrameLoaderClient::InitializingIframe::No);
         break;
@@ -2731,14 +2731,14 @@ void FrameLoader::open(CachedFrameBase& cachedFrame)
     cachedFrame.restore();
 }
 
-bool FrameLoader::isReplacing() const
+bool FrameLoader::isMultipartReplacing() const
 {
-    return m_loadType == FrameLoadType::Replace;
+    return m_loadType == FrameLoadType::MultipartReplace;
 }
 
-void FrameLoader::setReplacing()
+void FrameLoader::setMultipartReplacing()
 {
-    m_loadType = FrameLoadType::Replace;
+    m_loadType = FrameLoadType::MultipartReplace;
 }
 
 bool FrameLoader::subframeIsLoading() const
@@ -2807,7 +2807,7 @@ CachePolicy FrameLoader::subresourceCachePolicy(const URL& url) const
         ASSERT_NOT_REACHED(); // Already handled above.
         return CachePolicy::Reload;
     case FrameLoadType::RedirectWithLockedBackForwardList:
-    case FrameLoadType::Replace:
+    case FrameLoadType::MultipartReplace:
     case FrameLoadType::Same:
     case FrameLoadType::Standard:
         return CachePolicy::Verify;
@@ -2909,7 +2909,7 @@ void FrameLoader::checkLoadCompleteForThisFrame(LoadWillContinueInAnotherProcess
             ASSERT(!provisionalDocumentLoader->isLoading());
 
             // If we're in the middle of loading multipart data, we need to restore the document loader.
-            if (isReplacing() && !m_documentLoader)
+            if (isMultipartReplacing() && !m_documentLoader)
                 setDocumentLoader(provisionalDocumentLoader.copyRef());
 
             // Finish resetting the load state, but only if another load hasn't been started by the
@@ -4532,7 +4532,7 @@ void FrameLoader::loadDifferentDocumentItem(HistoryItem& item, HistoryItem* from
         case FrameLoadType::RedirectWithLockedBackForwardList:
             break;
         case FrameLoadType::Same:
-        case FrameLoadType::Replace:
+        case FrameLoadType::MultipartReplace:
             ASSERT_NOT_REACHED();
         }
 
