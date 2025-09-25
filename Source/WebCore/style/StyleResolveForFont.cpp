@@ -360,7 +360,7 @@ static ResolvedFontSize fontSizeFromUnresolvedFontSize(const CSSPropertyParserHe
                         return { .size = 0.0f, .keyword = CSSValueInvalid };
 
                     return {
-                        .size = Style::evaluate(Style::toStyleNoConversionDataRequired(calc), parentSize, 1.0f /* FIXME FIND ZOOM */),
+                        .size = Style::evaluate(Style::toStyleNoConversionDataRequired(calc), parentSize, Style::ZoomNeeded { }),
                         .keyword = CSSValueInvalid
                     };
                 }

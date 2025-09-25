@@ -120,21 +120,21 @@ inline FloatSize TextBoxPainter::rotateShadowOffset(const SpaceSeparatedPoint<St
 {
     if (writingMode.isHorizontal()) {
         return {
-            offset.x().evaluate(1.0f /* FIXME FIND ZOOM */),
-            offset.y().evaluate(1.0f /* FIXME FIND ZOOM */),
+            offset.x().resolveZoom(Style::ZoomNeeded { }),
+            offset.y().resolveZoom(Style::ZoomNeeded { }),
         };
     }
 
     if (writingMode.isLineOverLeft()) { // sideways-lr
         return {
-            -offset.y().evaluate(1.0f /* FIXME FIND ZOOM */),
-             offset.x().evaluate(1.0f /* FIXME FIND ZOOM */),
+            -offset.y().resolveZoom(Style::ZoomNeeded { }),
+             offset.x().resolveZoom(Style::ZoomNeeded { }),
         };
     }
 
     return {
-         offset.y().evaluate(1.0f /* FIXME FIND ZOOM */),
-        -offset.x().evaluate(1.0f /* FIXME FIND ZOOM */),
+         offset.y().resolveZoom(Style::ZoomNeeded { }),
+        -offset.x().resolveZoom(Style::ZoomNeeded { }),
     };
 }
 

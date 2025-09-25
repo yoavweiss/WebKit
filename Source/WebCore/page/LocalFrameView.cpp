@@ -681,7 +681,7 @@ void LocalFrameView::applyPaginationToViewport()
         if (!columnGap.isNormal()) {
             auto* renderBox = dynamicDowncast<RenderBox>(documentOrBodyRenderer);
             if (auto* containerForPaginationGap = renderBox ? renderBox : documentOrBodyRenderer->containingBlock())
-                pagination.gap = Style::evaluate(columnGap, containerForPaginationGap->contentBoxLogicalWidth(), 1.0f /* FIXME FIND ZOOM */).toUnsigned();
+                pagination.gap = Style::evaluate(columnGap, containerForPaginationGap->contentBoxLogicalWidth(), Style::ZoomNeeded { }).toUnsigned();
         }
     }
     setPagination(pagination);
@@ -2464,7 +2464,7 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
         if (!border->isVisible())
             return samplingRect;
 
-        auto borderWidth = Style::evaluate(border->width(), 1.0f /* FIXME FIND ZOOM */);
+        auto borderWidth = Style::evaluate(border->width(), Style::ZoomNeeded { });
         if (borderWidth > thinBorderWidth)
             return samplingRect;
 

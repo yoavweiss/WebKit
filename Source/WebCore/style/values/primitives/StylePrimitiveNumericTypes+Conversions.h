@@ -49,9 +49,13 @@ template<typename T> struct ConversionDataSpecializer {
 template<auto R, typename V> struct ConversionDataSpecializer<CSS::LengthRaw<R, V>> {
     CSSToLengthConversionData operator()(const BuilderState& state)
     {
-        return state.useSVGZoomRulesForLength()
-             ? state.cssToLengthConversionData().copyWithAdjustedZoom(1.0f)
-             : state.cssToLengthConversionData();
+        if constexpr (R.zoomOptions == CSS::RangeZoomOptions::Default) {
+            return state.useSVGZoomRulesForLength()
+                ? state.cssToLengthConversionData().copyWithAdjustedZoom(1.0f)
+                : state.cssToLengthConversionData();
+        } else if constexpr (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed) {
+            return state.cssToLengthConversionData().copyWithAdjustedZoom(1.0f);
+        }
     }
 };
 
@@ -239,7 +243,11 @@ float adjustForZoom(float, const RenderStyle&);
 template<auto R, typename V> struct ToCSS<Length<R, V>> {
     auto operator()(const Length<R, V>& value, const RenderStyle& style) -> CSS::Length<R, V>
     {
-        return CSS::LengthRaw<R, V> { value.unit, adjustForZoom(value.unevaluatedValue(), style) };
+        if constexpr (R.zoomOptions == CSS::RangeZoomOptions::Default) {
+            return CSS::LengthRaw<R, V> { value.unit, adjustForZoom(value.unresolvedValue(), style) };
+        } else if constexpr (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed) {
+            return CSS::LengthRaw<R, V> { value.unit, value.unresolvedValue() };
+        }
     }
 };
 
@@ -280,7 +288,11 @@ template<auto R, typename V> struct ToCSS<LengthPercentage<R, V>> {
     {
         return WTF::switchOn(value,
             [&](const typename LengthPercentage<R, V>::Dimension& length) -> CSS::LengthPercentage<R, V> {
-                return typename CSS::LengthPercentage<R, V>::Raw { length.unit, adjustForZoom(length.unevaluatedValue(), style) };
+                if constexpr (R.zoomOptions == CSS::RangeZoomOptions::Default) {
+                    return typename CSS::LengthPercentage<R, V>::Raw { length.unit, adjustForZoom(length.unresolvedValue(), style) };
+                } else if constexpr (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed) {
+                    return typename CSS::LengthPercentage<R, V>::Raw { length.unit, length.unresolvedValue() };
+                }
             },
             [&](const typename LengthPercentage<R, V>::Percentage& percentage) -> CSS::LengthPercentage<R, V> {
                 return typename CSS::LengthPercentage<R, V>::Raw { percentage.unit, percentage.value };
@@ -291,7 +303,6 @@ template<auto R, typename V> struct ToCSS<LengthPercentage<R, V>> {
         );
     }
 };
-
 
 // Partial specialization for remaining numeric types.
 template<Numeric StyleType> struct ToCSS<StyleType> {

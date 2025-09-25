@@ -92,7 +92,6 @@ protected:
         float rangeStart { 0 };
         float rangeEnd { 0 };
     };
-    static float floatValueForOffset(const Length&, float);
     virtual Data computeTimelineData() const;
 
     static ScrollableArea* scrollableAreaForSourceRenderer(const RenderElement*, Document&);

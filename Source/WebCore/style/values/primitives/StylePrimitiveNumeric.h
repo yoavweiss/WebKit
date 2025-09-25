@@ -29,6 +29,7 @@
 #include <WebCore/StylePrimitiveNumericConcepts.h>
 #include <WebCore/StyleUnevaluatedCalculation.h>
 #include <WebCore/StyleValueTypes.h>
+#include <WebCore/StyleZoomNeededToken.h>
 #include <algorithm>
 #include <wtf/CompactVariant.h>
 #include <wtf/Forward.h>
@@ -132,12 +133,19 @@ template<CSS::Range R, typename V> struct PrimitiveNumeric<CSS::Length<R, V>> {
     {
     }
 
-    constexpr auto evaluate(float zoom) const
+    constexpr auto resolveZoom(ZoomNeeded) const
+        requires (range.zoomOptions == WebCore::CSS::RangeZoomOptions::Default)
+    {
+        return value;
+    }
+
+    constexpr auto resolveZoom(float zoom) const
+        requires (range.zoomOptions == WebCore::CSS::RangeZoomOptions::Unzoomed)
     {
         return value * zoom;
     }
 
-    constexpr auto unevaluatedValue() const { return value; }
+    constexpr auto unresolvedValue() const { return value; }
 
     constexpr bool isZero() const { return !value; }
     constexpr bool isPositive() const { return value > 0; }

@@ -74,23 +74,23 @@ namespace LayoutIntegration {
 static LayoutUnit usedValueOrZero(const Style::MarginEdge& marginEdge, std::optional<LayoutUnit> availableWidth)
 {
     if (auto fixed = marginEdge.tryFixed())
-        return LayoutUnit { fixed->evaluate(1.0f /* FIXME FIND ZOOM */) };
+        return LayoutUnit { fixed->resolveZoom(Style::ZoomNeeded { }) };
 
     if (marginEdge.isAuto() || !availableWidth)
         return { };
 
-    return Style::evaluateMinimum(marginEdge, *availableWidth, 1.0f /* FIXME FIND ZOOM */);
+    return Style::evaluateMinimum(marginEdge, *availableWidth, Style::ZoomNeeded { });
 }
 
 static LayoutUnit usedValueOrZero(const Style::PaddingEdge& paddingEdge, std::optional<LayoutUnit> availableWidth)
 {
     if (auto fixed = paddingEdge.tryFixed())
-        return LayoutUnit { fixed->evaluate(1.0f /* FIXME FIND ZOOM */) };
+        return LayoutUnit { fixed->resolveZoom(Style::ZoomNeeded { }) };
 
     if (!availableWidth)
         return { };
 
-    return Style::evaluateMinimum(paddingEdge, *availableWidth, 1.0f /* FIXME FIND ZOOM */);
+    return Style::evaluateMinimum(paddingEdge, *availableWidth, Style::ZoomNeeded { });
 }
 
 static inline void adjustBorderForTableAndFieldset(const RenderBoxModelObject& renderer, RectEdges<LayoutUnit>& borderWidths)
@@ -241,7 +241,7 @@ Layout::BoxGeometry::Edges BoxGeometryUpdater::logicalBorder(const RenderBoxMode
     auto& style = renderer.style();
 
     auto borderWidths = RectEdges<LayoutUnit>::map(style.borderWidth(), [](auto width) {
-        return LayoutUnit { Style::evaluate(width, 1.0f /* FIXME ZOOM EFFECTED? */) };
+        return LayoutUnit { Style::evaluate(width, Style::ZoomNeeded { }) };
     });
 
     if (!isIntrinsicWidthMode)

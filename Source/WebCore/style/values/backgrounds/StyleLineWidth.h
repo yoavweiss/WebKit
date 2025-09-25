@@ -66,14 +66,14 @@ template<> struct CSSValueConversion<LineWidth> { auto operator()(BuilderState&,
 // MARK: - Evaluate
 
 template<> struct Evaluation<LineWidth> {
-    constexpr auto operator()(const LineWidth& value, float zoom) -> float
+    constexpr auto operator()(const LineWidth& value, ZoomNeeded token) -> float
     {
-        return value.value.evaluate(zoom);
+        return value.value.resolveZoom(token);
     }
 };
 
 template<> struct Evaluation<LineWidthBox> {
-    FloatBoxExtent operator()(const LineWidthBox&, float zoom);
+    FloatBoxExtent operator()(const LineWidthBox&, ZoomNeeded);
 };
 
 } // namespace Style

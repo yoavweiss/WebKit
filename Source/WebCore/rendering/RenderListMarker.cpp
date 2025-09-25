@@ -268,9 +268,9 @@ void RenderListMarker::layout()
     setMarginEnd(0);
 
     if (auto fixedStartMargin = style().marginStart().tryFixed())
-        setMarginStart(LayoutUnit(fixedStartMargin->evaluate(1.0f /* FIXME FIND ZOOM */)));
+        setMarginStart(LayoutUnit(fixedStartMargin->resolveZoom(Style::ZoomNeeded { })));
     if (auto fixedEndMargin = style().marginEnd().tryFixed())
-        setMarginEnd(LayoutUnit(fixedEndMargin->evaluate(1.0f /* FIXME FIND ZOOM */)));
+        setMarginEnd(LayoutUnit(fixedEndMargin->resolveZoom(Style::ZoomNeeded { })));
 
     clearNeedsLayout();
 }

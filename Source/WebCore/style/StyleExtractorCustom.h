@@ -389,7 +389,7 @@ template<CSSPropertyID propertyID, typename InsetEdgeApplier, typename NumberAsP
                     : box->containingBlockLogicalWidthForContent();
             }
         }
-        return numberAsPixelsApplier(Style::evaluate(inset, containingBlockSize, 1.0f /* FIXME FIND ZOOM */));
+        return numberAsPixelsApplier(Style::evaluate(inset, containingBlockSize, Style::ZoomNeeded { }));
     }
 
     // Return a "computed value" length.
@@ -1327,7 +1327,7 @@ inline void ExtractorCustom::extractLineHeightSerialization(ExtractorState& stat
         return;
     }
 
-    ExtractorSerializer::serializeNumberAsPixels(state, builder, context, floatValueForLength(length, 0, 1.0f /* FIX ME FIND ZOOM */));
+    ExtractorSerializer::serializeNumberAsPixels(state, builder, context, floatValueForLength(length, 0, 1.0f /* FIXME FIND ZOOM */));
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractFontFamily(ExtractorState& state)
@@ -1662,7 +1662,7 @@ inline Ref<CSSValue> ExtractorCustom::extractMarginRight(ExtractorState& state)
         // RenderBox gives a marginRight() that is the distance between the right-edge of the child box
         // and the right-edge of the containing box, when display == DisplayType::Block. Let's calculate the absolute
         // value of the specified margin-right % instead of relying on RenderBox's marginRight() value.
-        value = Style::evaluateMinimum(marginRight, box->containingBlockLogicalWidthForContent(), 1.0f /* FIXME FIND ZOOM */);
+        value = Style::evaluateMinimum(marginRight, box->containingBlockLogicalWidthForContent(), Style::ZoomNeeded { });
     } else
         value = box->marginRight();
     return ExtractorConverter::convertNumberAsPixels(state, value);
@@ -1687,7 +1687,7 @@ inline void ExtractorCustom::extractMarginRightSerialization(ExtractorState& sta
         // RenderBox gives a marginRight() that is the distance between the right-edge of the child box
         // and the right-edge of the containing box, when display == DisplayType::Block. Let's calculate the absolute
         // value of the specified margin-right % instead of relying on RenderBox's marginRight() value.
-        value = Style::evaluateMinimum(marginRight, box->containingBlockLogicalWidthForContent(), 1.0f /* FIXME FIND ZOOM */);
+        value = Style::evaluateMinimum(marginRight, box->containingBlockLogicalWidthForContent(), Style::ZoomNeeded { });
     } else
         value = box->marginRight();
 
@@ -2803,8 +2803,8 @@ inline RefPtr<CSSValue> ExtractorCustom::extractPerspectiveOriginShorthand(Extra
     CSSValueListBuilder list;
     if (state.renderer) {
         auto box = state.renderer->transformReferenceBoxRect(state.style);
-        list.append(ExtractorConverter::convertNumberAsPixels(state, Style::evaluate(state.style.perspectiveOriginX(), box.width(), 1.0f /* FIXME FIND ZOOM */)));
-        list.append(ExtractorConverter::convertNumberAsPixels(state, Style::evaluate(state.style.perspectiveOriginY(), box.height(), 1.0f /* FIXME FIND ZOOM */)));
+        list.append(ExtractorConverter::convertNumberAsPixels(state, Style::evaluate(state.style.perspectiveOriginX(), box.width(), Style::ZoomNeeded { })));
+        list.append(ExtractorConverter::convertNumberAsPixels(state, Style::evaluate(state.style.perspectiveOriginY(), box.height(), Style::ZoomNeeded { })));
     } else {
         list.append(ExtractorConverter::convertStyleType(state, state.style.perspectiveOriginX()));
         list.append(ExtractorConverter::convertStyleType(state, state.style.perspectiveOriginY()));
@@ -2816,9 +2816,9 @@ inline void ExtractorCustom::extractPerspectiveOriginShorthandSerialization(Extr
 {
     if (state.renderer) {
         auto box = state.renderer->transformReferenceBoxRect(state.style);
-        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, Style::evaluate(state.style.perspectiveOriginX(), box.width(), 1.0f /* FIXME FIND ZOOM */));
+        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, Style::evaluate(state.style.perspectiveOriginX(), box.width(), Style::ZoomNeeded { }));
         builder.append(' ');
-        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, Style::evaluate(state.style.perspectiveOriginY(), box.height(), 1.0f /* FIXME FIND ZOOM */));
+        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, Style::evaluate(state.style.perspectiveOriginY(), box.height(), Style::ZoomNeeded { }));
     } else {
         ExtractorSerializer::serializeStyleType(state, builder, context, state.style.perspectiveOriginX());
         builder.append(' ');
@@ -3048,8 +3048,8 @@ inline RefPtr<CSSValue> ExtractorCustom::extractTransformOriginShorthand(Extract
     CSSValueListBuilder list;
     if (state.renderer) {
         auto box = state.renderer->transformReferenceBoxRect(state.style);
-        list.append(ExtractorConverter::convertNumberAsPixels(state, Style::evaluate(state.style.transformOriginX(), box.width(), 1.0f /* FIXME FIND ZOOM */)));
-        list.append(ExtractorConverter::convertNumberAsPixels(state, Style::evaluate(state.style.transformOriginY(), box.height(), 1.0f /* FIXME FIND ZOOM */)));
+        list.append(ExtractorConverter::convertNumberAsPixels(state, Style::evaluate(state.style.transformOriginX(), box.width(), Style::ZoomNeeded { })));
+        list.append(ExtractorConverter::convertNumberAsPixels(state, Style::evaluate(state.style.transformOriginY(), box.height(), Style::ZoomNeeded { })));
         if (auto transformOriginZ = state.style.transformOriginZ(); !transformOriginZ.isZero())
             list.append(ExtractorConverter::convertStyleType(state, transformOriginZ));
     } else {
@@ -3065,9 +3065,9 @@ inline void ExtractorCustom::extractTransformOriginShorthandSerialization(Extrac
 {
     if (state.renderer) {
         auto box = state.renderer->transformReferenceBoxRect(state.style);
-        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, Style::evaluate(state.style.transformOriginX(), box.width(), 1.0f /* FIXME FIND ZOOM */));
+        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, Style::evaluate(state.style.transformOriginX(), box.width(), Style::ZoomNeeded { }));
         builder.append(' ');
-        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, Style::evaluate(state.style.transformOriginY(), box.height(), 1.0f /* FIXME FIND ZOOM */));
+        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, Style::evaluate(state.style.transformOriginY(), box.height(), Style::ZoomNeeded { }));
         if (auto transformOriginZ = state.style.transformOriginZ(); !transformOriginZ.isZero()) {
             builder.append(' ');
             ExtractorSerializer::serializeStyleType(state, builder, context, transformOriginZ);

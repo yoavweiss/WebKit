@@ -50,7 +50,7 @@ float SVGTextLayoutEngineBaseline::calculateBaselineShift(const SVGRenderStyle& 
             return m_font->metricsOfPrimaryFont().height() / 2;
         },
         [&](const Style::SVGBaselineShift::Length& length) -> float {
-            return Style::evaluate(length, m_font->size(), 1.0f /* FIXME ZOOM EFFECTED? */);
+            return Style::evaluate(length, m_font->size(), Style::ZoomNeeded { });
         }
     );
 }

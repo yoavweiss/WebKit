@@ -128,7 +128,7 @@ static void drawFocusRingForPathForVectorBasedControls(const RenderObject& box, 
     // macOS controls have never honored outline offset.
 #if PLATFORM(IOS_FAMILY)
     auto deviceScaleFactor = box.document().deviceScaleFactor();
-    auto outlineOffset = floorToDevicePixel(Style::evaluate(box.style().outlineOffset(), 1.0f /* FIXME FIND ZOOM */), deviceScaleFactor);
+    auto outlineOffset = floorToDevicePixel(Style::evaluate(box.style().outlineOffset(), Style::ZoomNeeded { }), deviceScaleFactor);
 
     if (outlineOffset > 0) {
         const auto center = rect.center();
@@ -2440,7 +2440,7 @@ bool RenderThemeCocoa::adjustButtonStyleForVectorBasedControls(RenderStyle& styl
     if (style.logicalWidth().isIntrinsicOrLegacyIntrinsicOrAuto() || style.logicalHeight().isAuto()) {
         auto minimumHeight = controlBaseHeight / controlBaseFontSize * style.fontDescription().computedSize();
         if (auto fixedValue = style.logicalMinHeight().tryFixed())
-            minimumHeight = std::max(minimumHeight, fixedValue->evaluate(1.0f /* FIXME FIND ZOOM */));
+            minimumHeight = std::max(minimumHeight, fixedValue->resolveZoom(Style::ZoomNeeded { }));
         // FIXME: This may need to be a layout time adjustment to support various
         // values like fit-content etc.
         style.setLogicalMinHeight(Style::MinimumSize::Fixed { minimumHeight });
@@ -2574,18 +2574,18 @@ bool RenderThemeCocoa::paintMenuListButtonDecorationsForVectorBasedControls(cons
 
     auto glyphPaddingEnd = logicalRect.width();
     if (auto fixedPaddingEnd = box.style().paddingEnd().tryFixed())
-        glyphPaddingEnd = fixedPaddingEnd->evaluate(1.0f /* FIXME FIND ZOOM */);
+        glyphPaddingEnd = fixedPaddingEnd->resolveZoom(Style::ZoomNeeded { });
 
     // Add RenderMenuList inner start padding for symmetry.
     if (CheckedPtr menulist = dynamicDowncast<RenderMenuList>(box); menulist && menulist->innerRenderer()) {
         if (auto innerPaddingStart = menulist->innerRenderer()->style().paddingStart().tryFixed())
-            glyphPaddingEnd += innerPaddingStart->evaluate(1.0f /* FIXME FIND ZOOM */);
+            glyphPaddingEnd += innerPaddingStart->resolveZoom(Style::ZoomNeeded { });
     }
 
     if (!style->writingMode().isInlineFlipped())
-        glyphOrigin.setX(logicalRect.maxX() - glyphSize.width() - Style::evaluate(box.style().borderEndWidth(), 1.0f /* FIXME FIND ZOOM */) - glyphPaddingEnd);
+        glyphOrigin.setX(logicalRect.maxX() - glyphSize.width() - Style::evaluate(box.style().borderEndWidth(), Style::ZoomNeeded { }) - glyphPaddingEnd);
     else
-        glyphOrigin.setX(logicalRect.x() + Style::evaluate(box.style().borderEndWidth(), 1.0f /* FIXME FIND ZOOM */) + glyphPaddingEnd);
+        glyphOrigin.setX(logicalRect.x() + Style::evaluate(box.style().borderEndWidth(), Style::ZoomNeeded { }) + glyphPaddingEnd);
 
     if (!isHorizontalWritingMode)
         glyphOrigin = glyphOrigin.transposedPoint();
@@ -3891,7 +3891,7 @@ float RenderThemeCocoa::adjustedMaximumLogicalWidthForControl(const RenderStyle&
 
         if (auto paddingEdgeInlineStartFixed = paddingEdgeInlineStart.tryFixed()) {
             if (auto paddingEdgeInlineEndFixed = paddingEdgeInlineEnd.tryFixed())
-                maximumLogicalWidth += paddingEdgeInlineStartFixed->evaluate(1.0f /* FIXME FIND ZOOM */) - paddingEdgeInlineEndFixed->evaluate(1.0f /* FIXME FIND ZOOM */);
+                maximumLogicalWidth += paddingEdgeInlineStartFixed->resolveZoom(Style::ZoomNeeded { }) - paddingEdgeInlineEndFixed->resolveZoom(Style::ZoomNeeded { });
         }
     }
 #else

@@ -4625,8 +4625,8 @@ FontAttributes Editor::fontAttributesAtSelectionStart()
         [&](const auto& shadows) {
             return FontShadow {
                 style->colorWithColorFilter(shadows[0].color),
-                { shadows[0].location.x().evaluate(1.0f /* FIXME FIND ZOOM */), shadows[0].location.y().evaluate(1.0f /* FIXME FIND ZOOM */) },
-                shadows[0].blur.evaluate(1.0f /* FIXME FIND ZOOM */)
+                { shadows[0].location.x().resolveZoom(Style::ZoomNeeded { }), shadows[0].location.y().resolveZoom(Style::ZoomNeeded { }) },
+                shadows[0].blur.resolveZoom(Style::ZoomNeeded { })
             };
         }
     );

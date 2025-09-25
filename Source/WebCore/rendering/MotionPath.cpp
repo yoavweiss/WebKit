@@ -102,7 +102,7 @@ std::optional<MotionPathData> MotionPath::motionPathDataForRenderer(const Render
                 return offsetFromContainer(renderer, container, referenceRect);
             },
             [&](const Style::Position& position) -> FloatPoint {
-                return Style::evaluate(position, referenceRect.size(), 1.0f /* FIXME ZOOM EFFECTED? */);
+                return Style::evaluate(position, referenceRect.size(), Style::ZoomNeeded { });
             }
         );
     };
@@ -124,7 +124,7 @@ std::optional<MotionPathData> MotionPath::motionPathDataForRenderer(const Render
         [&](const Style::RayPath& offsetPath) {
             auto startingPosition = offsetPath.ray()->position;
             data.usedStartingPosition = startingPosition
-                ? Style::evaluate(*startingPosition, data.containingBlockBoundingRect.rect().size(), 1.0f /* FIXME ZOOM EFFECTED? */)
+                ? Style::evaluate(*startingPosition, data.containingBlockBoundingRect.rect().size(), Style::ZoomNeeded { })
                 : startingPositionForOffsetPosition(offsetPosition, data.containingBlockBoundingRect.rect(), *container);
         },
         [&](const auto&) { }
@@ -136,7 +136,7 @@ std::optional<MotionPathData> MotionPath::motionPathDataForRenderer(const Render
 static PathTraversalState traversalStateAtDistance(const Path& path, const Style::OffsetDistance& distance)
 {
     auto pathLength = path.length();
-    auto distanceValue = Style::evaluate(distance, pathLength, 1.0f /* FIXME ZOOM EFFECTED? */);
+    auto distanceValue = Style::evaluate(distance, pathLength, Style::ZoomNeeded { });
 
     float resolvedLength = 0;
     if (path.isClosed()) {
@@ -158,7 +158,7 @@ void MotionPath::applyMotionPathTransform(TransformationMatrix& matrix, const Tr
     auto anchor = transformOrigin;
     WTF::switchOn(offsetAnchor,
         [&](const Style::Position& position) {
-            anchor = Style::evaluate(position, boundingBox.size(), 1.0f /* FIXME ZOOM EFFECTED? */) + boundingBox.location();
+            anchor = Style::evaluate(position, boundingBox.size(), Style::ZoomNeeded { }) + boundingBox.location();
         },
         [&](const CSS::Keyword::Auto&) { }
     );

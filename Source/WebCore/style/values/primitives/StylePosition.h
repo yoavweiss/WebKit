@@ -140,7 +140,7 @@ template<> struct CSSValueConversion<PositionY> { auto operator()(BuilderState&,
 // MARK: - Evaluation
 
 template<> struct Evaluation<Position> {
-    auto operator()(const Position&, FloatSize, float zoom) -> FloatPoint;
+    auto operator()(const Position&, FloatSize, ZoomNeeded) -> FloatPoint;
 };
 
 // MARK: - Platform

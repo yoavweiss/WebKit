@@ -556,8 +556,8 @@ LayoutRect RenderReplaced::replacedContentRect(const LayoutSize& intrinsicSize) 
 
     auto& objectPosition = style().objectPosition();
 
-    LayoutUnit xOffset = Style::evaluate(objectPosition.x, contentRect.width() - finalRect.width(), 1.0f /* FIXME FIND ZOOM */);
-    LayoutUnit yOffset = Style::evaluate(objectPosition.y, contentRect.height() - finalRect.height(), 1.0f /* FIXME FIND ZOOM */);
+    LayoutUnit xOffset = Style::evaluate(objectPosition.x, contentRect.width() - finalRect.width(), Style::ZoomNeeded { });
+    LayoutUnit yOffset = Style::evaluate(objectPosition.y, contentRect.height() - finalRect.height(), Style::ZoomNeeded { });
 
     finalRect.move(xOffset, yOffset);
 
@@ -613,8 +613,8 @@ LayoutUnit RenderReplaced::computeConstrainedLogicalWidth() const
     LayoutUnit logicalWidth = isOutOfFlowPositioned() ? containingBlock()->clientLogicalWidth() : containingBlock()->contentBoxLogicalWidth();
 
     // This solves above equation for 'width' (== logicalWidth).
-    LayoutUnit marginStart = Style::evaluateMinimum(style().marginStart(), logicalWidth, 1.0f /* FIXME FIND ZOOM */);
-    LayoutUnit marginEnd = Style::evaluateMinimum(style().marginEnd(), logicalWidth, 1.0f /* FIXME FIND ZOOM */);
+    LayoutUnit marginStart = Style::evaluateMinimum(style().marginStart(), logicalWidth, Style::ZoomNeeded { });
+    LayoutUnit marginEnd = Style::evaluateMinimum(style().marginEnd(), logicalWidth, Style::ZoomNeeded { });
 
     return std::max(0_lu, (logicalWidth - (marginStart + marginEnd + borderLeft() + borderRight() + paddingLeft() + paddingRight())));
 }
@@ -631,13 +631,13 @@ void RenderReplaced::computeAspectRatioAdjustedIntrinsicLogicalWidths(LayoutUnit
     auto computedIntrinsicLogicalWidth = minLogicalWidth;
 
     if (auto fixedLogicalHeight = style.logicalHeight().tryFixed())
-        computedIntrinsicLogicalWidth = fixedLogicalHeight->evaluate(1.0f /* FIXME FIND ZOOM */) * computedAspectRatio;
+        computedIntrinsicLogicalWidth = fixedLogicalHeight->resolveZoom(Style::ZoomNeeded { }) * computedAspectRatio;
 
     if (auto fixedLogicalMaxHeight = style.logicalMaxHeight().tryFixed())
-        computedIntrinsicLogicalWidth = std::min(computedIntrinsicLogicalWidth, LayoutUnit { fixedLogicalMaxHeight->evaluate(1.0f /* FIXME FIND ZOOM */) * computedAspectRatio });
+        computedIntrinsicLogicalWidth = std::min(computedIntrinsicLogicalWidth, LayoutUnit { fixedLogicalMaxHeight->resolveZoom(Style::ZoomNeeded { }) * computedAspectRatio });
 
     if (auto fixedLogicalMinHeight = style.logicalMinHeight().tryFixed())
-        computedIntrinsicLogicalWidth = std::max(computedIntrinsicLogicalWidth, LayoutUnit { fixedLogicalMinHeight->evaluate(1.0f /* FIXME FIND ZOOM */) * computedAspectRatio });
+        computedIntrinsicLogicalWidth = std::max(computedIntrinsicLogicalWidth, LayoutUnit { fixedLogicalMinHeight->resolveZoom(Style::ZoomNeeded { }) * computedAspectRatio });
 
     minLogicalWidth = computedIntrinsicLogicalWidth;
     maxLogicalWidth = minLogicalWidth;

@@ -560,8 +560,8 @@ unsigned RenderStyle::hashForTextAutosizing() const
     hash ^= m_rareInheritedData->lineBreak;
     hash ^= WTF::FloatHash<float>::hash(m_inheritedData->specifiedLineHeight.value());
     hash ^= computeFontHash(m_inheritedData->fontData->fontCascade);
-    hash ^= WTF::FloatHash<float>::hash(Style::evaluate(m_inheritedData->borderHorizontalSpacing, 1.0f /* FIXME FIND ZOOM */));
-    hash ^= WTF::FloatHash<float>::hash(Style::evaluate(m_inheritedData->borderVerticalSpacing, 1.0f /* FIXME FIND ZOOM */));
+    hash ^= WTF::FloatHash<float>::hash(m_inheritedData->borderHorizontalSpacing.unresolvedValue());
+    hash ^= WTF::FloatHash<float>::hash(m_inheritedData->borderVerticalSpacing.unresolvedValue());
     hash ^= m_inheritedFlags.boxDirection;
     hash ^= m_inheritedFlags.rtlOrdering;
     hash ^= m_nonInheritedFlags.position;
@@ -614,7 +614,7 @@ bool RenderStyle::isIdempotentTextAutosizingCandidate(AutosizeStatus status) con
                     return false;
                 if (auto fixedHeight = height().tryFixed(); fixedHeight && specifiedLineHeight().isFixed()) {
                     float specifiedSize = specifiedFontSize();
-                    if (fixedHeight->evaluate(1.0f /* FIXME FIND ZOOM */) == specifiedSize && specifiedLineHeight().value() == specifiedSize)
+                    if (fixedHeight->resolveZoom(Style::ZoomNeeded { }) == specifiedSize && specifiedLineHeight().value() == specifiedSize)
                         return false;
                 }
                 return true;
@@ -623,7 +623,7 @@ bool RenderStyle::isIdempotentTextAutosizingCandidate(AutosizeStatus status) con
                 if (auto fixedHeight = height().tryFixed(); specifiedLineHeight().isFixed() && fixedHeight) {
                     float specifiedSize = specifiedFontSize();
                     if (specifiedLineHeight().value() - specifiedSize > smallMinimumDifferenceThresholdBetweenLineHeightAndSpecifiedFontSizeForBoostingText
-                        && fixedHeight->evaluate(1.0f /* FIXME FIND ZOOM */) - specifiedSize > smallMinimumDifferenceThresholdBetweenLineHeightAndSpecifiedFontSizeForBoostingText) {
+                        && fixedHeight->resolveZoom(Style::ZoomNeeded { }) - specifiedSize > smallMinimumDifferenceThresholdBetweenLineHeightAndSpecifiedFontSizeForBoostingText) {
                         return true;
                     }
                 }
@@ -2270,7 +2270,7 @@ bool RenderStyle::affectedByTransformOrigin() const
 
 FloatPoint RenderStyle::computePerspectiveOrigin(const FloatRect& boundingBox) const
 {
-    return boundingBox.location() + Style::evaluate(perspectiveOrigin(), boundingBox.size(), 1.0f /* FIXME ZOOM EFFECTED? */);
+    return boundingBox.location() + Style::evaluate(perspectiveOrigin(), boundingBox.size(), Style::ZoomNeeded { });
 }
 
 void RenderStyle::applyPerspective(TransformationMatrix& transform, const FloatPoint& originTranslate) const
@@ -2293,7 +2293,7 @@ FloatPoint3D RenderStyle::computeTransformOrigin(const FloatRect& boundingBox) c
 {
     FloatPoint3D originTranslate;
     originTranslate.setXY(boundingBox.location() + floatPointForLengthPoint(Style::toPlatform(transformOrigin().xy()), boundingBox.size(), 1.0f /* FIXME FIND ZOOM */));
-    originTranslate.setZ(transformOriginZ().evaluate(1.0f /* FIXME FIND ZOOM */));
+    originTranslate.setZ(transformOriginZ().resolveZoom(Style::ZoomNeeded { }));
     return originTranslate;
 }
 
@@ -3107,7 +3107,7 @@ static LayoutUnit computeOutset(const OutsetValue& outsetValue, LayoutUnit borde
             return LayoutUnit(number.value * borderWidth);
         },
         [&](const typename OutsetValue::Length& length) {
-            return LayoutUnit(length.evaluate(1.0f /* FIXME FIND ZOOM */));
+            return LayoutUnit(length.resolveZoom(Style::ZoomNeeded { }));
         }
     );
 }
@@ -3115,20 +3115,20 @@ static LayoutUnit computeOutset(const OutsetValue& outsetValue, LayoutUnit borde
 LayoutBoxExtent RenderStyle::imageOutsets(const Style::BorderImage& image) const
 {
     return {
-        computeOutset(image.outset().values.top(), LayoutUnit(Style::evaluate(borderTopWidth(), 1.0f /* FIXME ZOOM EFFECTED? */))),
-        computeOutset(image.outset().values.right(), LayoutUnit(Style::evaluate(borderRightWidth(), 1.0f /* FIXME ZOOM EFFECTED? */))),
-        computeOutset(image.outset().values.bottom(), LayoutUnit(Style::evaluate(borderBottomWidth(), 1.0f /* FIXME ZOOM EFFECTED? */))),
-        computeOutset(image.outset().values.left(), LayoutUnit(Style::evaluate(borderLeftWidth(), 1.0f /* FIXME ZOOM EFFECTED? */)))
+        computeOutset(image.outset().values.top(), LayoutUnit(Style::evaluate(borderTopWidth(), Style::ZoomNeeded { }))),
+        computeOutset(image.outset().values.right(), LayoutUnit(Style::evaluate(borderRightWidth(), Style::ZoomNeeded { }))),
+        computeOutset(image.outset().values.bottom(), LayoutUnit(Style::evaluate(borderBottomWidth(), Style::ZoomNeeded { }))),
+        computeOutset(image.outset().values.left(), LayoutUnit(Style::evaluate(borderLeftWidth(), Style::ZoomNeeded { })))
     };
 }
 
 LayoutBoxExtent RenderStyle::imageOutsets(const Style::MaskBorder& image) const
 {
     return {
-        computeOutset(image.outset().values.top(), LayoutUnit(Style::evaluate(borderTopWidth(), 1.0f /* FIXME ZOOM EFFECTED? */))),
-        computeOutset(image.outset().values.right(), LayoutUnit(Style::evaluate(borderRightWidth(), 1.0f /* FIXME ZOOM EFFECTED? */))),
-        computeOutset(image.outset().values.bottom(), LayoutUnit(Style::evaluate(borderBottomWidth(), 1.0f /* FIXME ZOOM EFFECTED? */))),
-        computeOutset(image.outset().values.left(), LayoutUnit(Style::evaluate(borderLeftWidth(), 1.0f /* FIXME ZOOM EFFECTED? */)))
+        computeOutset(image.outset().values.top(), LayoutUnit(Style::evaluate(borderTopWidth(), Style::ZoomNeeded { }))),
+        computeOutset(image.outset().values.right(), LayoutUnit(Style::evaluate(borderRightWidth(), Style::ZoomNeeded { }))),
+        computeOutset(image.outset().values.bottom(), LayoutUnit(Style::evaluate(borderBottomWidth(), Style::ZoomNeeded { }))),
+        computeOutset(image.outset().values.left(), LayoutUnit(Style::evaluate(borderLeftWidth(), Style::ZoomNeeded { })))
     };
 }
 
@@ -3425,7 +3425,7 @@ Style::LineWidth RenderStyle::outlineWidth() const
     if (outline.style() == OutlineStyle::None)
         return 0_css_px;
     if (outlineStyle() == OutlineStyle::Auto)
-        return Style::LineWidth { std::max(Style::evaluate(outline.width(), 1.0f /* FIXME ZOOM EFFECTED? */), RenderTheme::platformFocusRingWidth()) };
+        return Style::LineWidth { std::max(Style::evaluate(outline.width(), Style::ZoomNeeded { }), RenderTheme::platformFocusRingWidth()) };
     return outline.width();
 }
 
@@ -3433,13 +3433,13 @@ Style::Length<> RenderStyle::outlineOffset() const
 {
     auto& outline = m_nonInheritedData->backgroundData->outline;
     if (outlineStyle() == OutlineStyle::Auto)
-        return Style::Length<> { static_cast<float>(Style::evaluate(outline.offset(), 1.0f /* FIXME FIND ZOOM */) + RenderTheme::platformFocusRingOffset(Style::evaluate(outline.width(), 1.0f /* FIXME FIND ZOOM */))) };
+        return Style::Length<> { static_cast<float>(Style::evaluate(outline.offset(), Style::ZoomNeeded { }) + RenderTheme::platformFocusRingOffset(Style::evaluate(outline.width(), Style::ZoomNeeded { }))) };
     return outline.offset();
 }
 
 float RenderStyle::outlineSize() const
 {
-    return std::max<float>(0, Style::evaluate(outlineWidth(), 1.0f /* FIXME FIND ZOOM */) + Style::evaluate(outlineOffset(), 1.0f /* FIXME FIND ZOOM */));
+    return std::max<float>(0, Style::evaluate(outlineWidth(), Style::ZoomNeeded { }) + Style::evaluate(outlineOffset(), Style::ZoomNeeded { }));
 }
 
 CheckedRef<const FontCascade> RenderStyle::checkedFontCascade() const
@@ -3485,11 +3485,11 @@ float RenderStyle::computedStrokeWidth(const IntSize& viewportSize) const
     // Since there will be no visible stroke when stroke-color is not specified (transparent by default), we fall
     // back to the legacy Webkit text stroke combination in that case.
     if (!hasExplicitlySetStrokeColor())
-        return Style::evaluate(textStrokeWidth(), 1.0f /* FIXME ZOOM EFFECTED? */);
+        return Style::evaluate(textStrokeWidth(), Style::ZoomNeeded { });
 
     return WTF::switchOn(strokeWidth(),
         [&](const Style::StrokeWidth::Fixed& fixedStrokeWidth) -> float {
-            return fixedStrokeWidth.evaluate(1.0f /* FIXME FIND ZOOM */);
+            return fixedStrokeWidth.resolveZoom(Style::ZoomNeeded { });
         },
         [&](const Style::StrokeWidth::Percentage& percentageStrokeWidth) -> float {
             // According to the spec, https://drafts.fxtf.org/paint/#stroke-width, the percentage is relative to the scaled viewport size.

@@ -54,8 +54,9 @@ template<> struct CSSValueConversion<WebkitTextStrokeWidth> { auto operator()(Bu
 // MARK: - Evaluate
 
 template<> struct Evaluation<WebkitTextStrokeWidth> {
-    constexpr auto operator()(const WebkitTextStrokeWidth& value, float zoom) -> float {
-        return value.value.evaluate(zoom);
+    constexpr auto operator()(const WebkitTextStrokeWidth& value, ZoomNeeded token) -> float
+    {
+        return value.value.resolveZoom(token);
     }
 };
 

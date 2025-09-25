@@ -31,11 +31,11 @@
 namespace WebCore {
 namespace Style {
 
-LayoutUnit Evaluation<ScrollPaddingEdge>::operator()(const ScrollPaddingEdge& edge, LayoutUnit referenceLength, float zoom)
+LayoutUnit Evaluation<ScrollPaddingEdge>::operator()(const ScrollPaddingEdge& edge, LayoutUnit referenceLength, ZoomNeeded token)
 {
     return WTF::switchOn(edge,
         [&](const ScrollPaddingEdge::Fixed& fixed) {
-            return LayoutUnit(fixed.evaluate(zoom));
+            return LayoutUnit(Style::evaluate(fixed, token));
         },
         [&](const ScrollPaddingEdge::Percentage& percentage) {
             return Style::evaluate(percentage, referenceLength);
@@ -49,11 +49,11 @@ LayoutUnit Evaluation<ScrollPaddingEdge>::operator()(const ScrollPaddingEdge& ed
     );
 }
 
-float Evaluation<ScrollPaddingEdge>::operator()(const ScrollPaddingEdge& edge, float referenceLength, float zoom)
+float Evaluation<ScrollPaddingEdge>::operator()(const ScrollPaddingEdge& edge, float referenceLength, ZoomNeeded token)
 {
     return WTF::switchOn(edge,
         [&](const ScrollPaddingEdge::Fixed& fixed) {
-            return fixed.evaluate(zoom);
+            return Style::evaluate(fixed, token);
         },
         [&](const ScrollPaddingEdge::Percentage& percentage) {
             return Style::evaluate(percentage, referenceLength);
@@ -67,13 +67,13 @@ float Evaluation<ScrollPaddingEdge>::operator()(const ScrollPaddingEdge& edge, f
     );
 }
 
-LayoutBoxExtent extentForRect(const ScrollPaddingBox& padding, const LayoutRect& rect, float zoom)
+LayoutBoxExtent extentForRect(const ScrollPaddingBox& padding, const LayoutRect& rect, Style::ZoomNeeded token)
 {
     return LayoutBoxExtent {
-        Style::evaluate(padding.top(), rect.height(), zoom),
-        Style::evaluate(padding.right(), rect.width(), zoom),
-        Style::evaluate(padding.bottom(), rect.height(), zoom),
-        Style::evaluate(padding.left(), rect.width(), zoom),
+        Style::evaluate(padding.top(), rect.height(), token),
+        Style::evaluate(padding.right(), rect.width(), token),
+        Style::evaluate(padding.bottom(), rect.height(), token),
+        Style::evaluate(padding.left(), rect.width(), token),
     };
 }
 

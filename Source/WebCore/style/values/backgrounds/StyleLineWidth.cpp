@@ -74,13 +74,13 @@ auto CSSValueConversion<LineWidth>::operator()(BuilderState& state, const CSSVal
 
 // MARK: - Evaluate
 
-FloatBoxExtent Evaluation<LineWidthBox>::operator()(const LineWidthBox& value, float zoom)
+FloatBoxExtent Evaluation<LineWidthBox>::operator()(const LineWidthBox& value, ZoomNeeded token)
 {
     return {
-        evaluate(value.top(), zoom),
-        evaluate(value.right(), zoom),
-        evaluate(value.bottom(), zoom),
-        evaluate(value.left(), zoom),
+        evaluate(value.top(), token),
+        evaluate(value.right(), token),
+        evaluate(value.bottom(), token),
+        evaluate(value.left(), token),
     };
 }
 

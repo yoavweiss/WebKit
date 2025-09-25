@@ -114,7 +114,7 @@ template<typename SizeType> float SVGLengthContext::valueForSizeType(const SizeT
 {
     return WTF::switchOn(size,
         [&](const typename SizeType::Fixed& fixed) -> float {
-            return fixed.evaluate(1.0f /* FIXME FIND ZOOM */);
+            return fixed.resolveZoom(Style::ZoomNeeded { });
         },
         [&](const typename SizeType::Percentage& percentage) -> float {
             auto result = convertValueFromPercentageToUserUnits(percentage.value / 100, lengthMode);

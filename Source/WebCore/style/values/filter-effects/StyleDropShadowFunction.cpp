@@ -51,9 +51,9 @@ CSS::DropShadow toCSSDropShadow(Ref<DropShadowFilterOperationWithStyleColor> ope
 
 Ref<FilterOperation> createFilterOperation(const CSS::DropShadow& filter, const BuilderState& state)
 {
-    int x = roundForImpreciseConversion<int>(toStyle(filter.location.x(), state).evaluate(1.0f /* FIXME FIND ZOOM */));
-    int y = roundForImpreciseConversion<int>(toStyle(filter.location.y(), state).evaluate(1.0f /* FIXME FIND ZOOM */));
-    int stdDeviation = filter.stdDeviation ? roundForImpreciseConversion<int>(toStyle(*filter.stdDeviation, state).evaluate(1.0f /* FIXME FIND ZOOM */)) : 0;
+    int x = roundForImpreciseConversion<int>(toStyle(filter.location.x(), state).resolveZoom(Style::ZoomNeeded { }));
+    int y = roundForImpreciseConversion<int>(toStyle(filter.location.y(), state).resolveZoom(Style::ZoomNeeded { }));
+    int stdDeviation = filter.stdDeviation ? roundForImpreciseConversion<int>(toStyle(*filter.stdDeviation, state).resolveZoom(Style::ZoomNeeded { })) : 0;
     auto color = filter.color ? toStyleColor(*filter.color, state, ForVisitedLink::No) : Style::Color { CurrentColor { } };
 
     return DropShadowFilterOperationWithStyleColor::create(

@@ -179,8 +179,8 @@ static void applyBoxShadowForBackground(GraphicsContext& context, const RenderSt
         if (shadow.inset)
             continue;
 
-        FloatSize shadowOffset(shadow.location.x().evaluate(1.0f /* FIXME FIND ZOOM */), shadow.location.y().evaluate(1.0f /* FIXME FIND ZOOM */));
-        context.setDropShadow({ shadowOffset, shadow.blur.evaluate(1.0f /* FIXME FIND ZOOM */), style.colorWithColorFilter(shadow.color), shadow.isWebkitBoxShadow ? ShadowRadiusMode::Legacy : ShadowRadiusMode::Default });
+        FloatSize shadowOffset(shadow.location.x().resolveZoom(Style::ZoomNeeded { }), shadow.location.y().resolveZoom(Style::ZoomNeeded { }));
+        context.setDropShadow({ shadowOffset, shadow.blur.resolveZoom(Style::ZoomNeeded { }), style.colorWithColorFilter(shadow.color), shadow.isWebkitBoxShadow ? ShadowRadiusMode::Legacy : ShadowRadiusMode::Default });
         break;
     }
 }
@@ -679,7 +679,7 @@ template<typename Layer> BackgroundImageGeometry BackgroundPainter::calculateFil
 
     LayoutSize spaceSize;
     LayoutSize phase;
-    auto computedXPosition = Style::evaluate(fillLayer.xPosition(), availableWidth, 1.0f /* FIXME FIND ZOOM */);
+    auto computedXPosition = Style::evaluate(fillLayer.xPosition(), availableWidth, Style::ZoomNeeded { });
     if (backgroundRepeatX == FillRepeat::Round && positioningAreaSize.width() > 0 && tileSize.width() > 0) {
         int numTiles = std::max(1, roundToInt(positioningAreaSize.width() / tileSize.width()));
         if (!fillLayer.size().specifiedHeight() && backgroundRepeatY != FillRepeat::Round)
@@ -689,7 +689,7 @@ template<typename Layer> BackgroundImageGeometry BackgroundPainter::calculateFil
         phase.setWidth(tileSize.width() ? tileSize.width() - fmodf((computedXPosition + left), tileSize.width()) : 0);
     }
 
-    auto computedYPosition = Style::evaluate(fillLayer.yPosition(), availableHeight, 1.0f /* FIXME FIND ZOOM */);
+    auto computedYPosition = Style::evaluate(fillLayer.yPosition(), availableHeight, Style::ZoomNeeded { });
     if (backgroundRepeatY == FillRepeat::Round && positioningAreaSize.height() > 0 && tileSize.height() > 0) {
         int numTiles = std::max(1, roundToInt(positioningAreaSize.height() / tileSize.height()));
         if (!fillLayer.size().specifiedWidth() && backgroundRepeatX != FillRepeat::Round)
@@ -799,17 +799,17 @@ template<typename Layer> LayoutSize BackgroundPainter::calculateFillTileSize(con
             auto layerHeight = size.height();
 
             if (auto fixed = layerWidth.tryFixed())
-                tileSize.setWidth(fixed->evaluate(1.0f /* FIXME FIND ZOOM */));
+                tileSize.setWidth(fixed->resolveZoom(Style::ZoomNeeded { }));
             else if (layerWidth.isPercentOrCalculated()) {
-                auto resolvedWidth = Style::evaluate(layerWidth, positioningAreaSize.width(), 1.0f /* FIXME FIND ZOOM */);
+                auto resolvedWidth = Style::evaluate(layerWidth, positioningAreaSize.width(), Style::ZoomNeeded { });
                 // Non-zero resolved value should always produce some content.
                 tileSize.setWidth(!resolvedWidth ? resolvedWidth : std::max(devicePixelSize, resolvedWidth));
             }
 
             if (auto fixed = layerHeight.tryFixed())
-                tileSize.setHeight(fixed->evaluate(1.0f /* FIXME FIND ZOOM */));
+                tileSize.setHeight(fixed->resolveZoom(Style::ZoomNeeded { }));
             else if (layerHeight.isPercentOrCalculated()) {
-                auto resolvedHeight = Style::evaluate(layerHeight, positioningAreaSize.height(), 1.0f /* FIXME FIND ZOOM */);
+                auto resolvedHeight = Style::evaluate(layerHeight, positioningAreaSize.height(), Style::ZoomNeeded { });
                 // Non-zero resolved value should always produce some content.
                 tileSize.setHeight(!resolvedHeight ? resolvedHeight : std::max(devicePixelSize, resolvedHeight));
             }
@@ -851,10 +851,10 @@ void BackgroundPainter::paintBoxShadow(const LayoutRect& paintRect, const Render
         if (Style::shadowStyle(shadow) != shadowStyle)
             continue;
 
-        LayoutSize shadowOffset(shadow.location.x().evaluate(1.0f /* FIXME FIND ZOOM */), shadow.location.y().evaluate(1.0f /* FIXME FIND ZOOM */));
+        LayoutSize shadowOffset(shadow.location.x().resolveZoom(Style::ZoomNeeded { }), shadow.location.y().resolveZoom(Style::ZoomNeeded { }));
         LayoutUnit shadowPaintingExtent = Style::paintingExtent(shadow);
-        LayoutUnit shadowSpread = LayoutUnit(shadow.spread.evaluate(1.0f /* FIXME FIND ZOOM */));
-        auto shadowRadius = shadow.blur.evaluate(1.0f /* FIXME FIND ZOOM */);
+        LayoutUnit shadowSpread = LayoutUnit(shadow.spread.resolveZoom(Style::ZoomNeeded { }));
+        auto shadowRadius = shadow.blur.resolveZoom(Style::ZoomNeeded { });
 
         if (shadowOffset.isZero() && !shadowRadius && !shadowSpread)
             continue;

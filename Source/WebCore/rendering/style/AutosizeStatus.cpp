@@ -42,9 +42,9 @@ bool AutosizeStatus::probablyContainsASmallFixedNumberOfLines(const RenderStyle&
     auto& maxHeight = style.maxHeight();
     std::optional<float> heightOrMaxHeightAsLength;
     if (auto fixedMaxHeight = maxHeight.tryFixed())
-        heightOrMaxHeightAsLength = fixedMaxHeight->evaluate(1.0f /* FIXME FIND ZOOM */);
+        heightOrMaxHeightAsLength = fixedMaxHeight->resolveZoom(Style::ZoomNeeded { });
     else if (auto fixedHeight = style.height().tryFixed(); fixedHeight && (!maxHeight.isSpecified() || maxHeight.isNone()))
-        heightOrMaxHeightAsLength = fixedHeight->evaluate(1.0f /* FIXME FIND ZOOM */);
+        heightOrMaxHeightAsLength = fixedHeight->resolveZoom(Style::ZoomNeeded { });
 
     if (!heightOrMaxHeightAsLength)
         return false;

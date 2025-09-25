@@ -42,13 +42,26 @@ using namespace CSS::Literals;
 // MARK: - Length
 
 template<auto R, typename V> struct Evaluation<Length<R, V>> {
-    constexpr typename Length<R, V>::ResolvedValueType operator()(const Length<R, V>& value, float zoom)
+    constexpr typename Length<R, V>::ResolvedValueType operator()(const Length<R, V>& value, ZoomNeeded token)
+        requires (R.zoomOptions == CSS::RangeZoomOptions::Default)
     {
-        return static_cast<typename Length<R, V>::ResolvedValueType>(value.evaluate(zoom));
+        return static_cast<typename Length<R, V>::ResolvedValueType>(value.resolveZoom(token));
+    }
+    template<typename Reference> constexpr auto operator()(const Length<R, V>& value, Reference, ZoomNeeded token) -> Reference
+        requires (R.zoomOptions == CSS::RangeZoomOptions::Default)
+    {
+        return Reference(value.resolveZoom(token));
+    }
+
+    constexpr typename Length<R, V>::ResolvedValueType operator()(const Length<R, V>& value, float zoom)
+        requires (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
+    {
+        return static_cast<typename Length<R, V>::ResolvedValueType>(value.resolveZoom(zoom));
     }
     template<typename Reference> constexpr auto operator()(const Length<R, V>& value, Reference, float zoom) -> Reference
+        requires (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
-        return Reference(value.evaluate(zoom));
+        return Reference(value.resolveZoom(zoom));
     }
 };
 
@@ -105,7 +118,24 @@ template<Calc Calculation> struct Evaluation<Calculation> {
 // MARK: - LengthPercentage
 
 template<auto R, typename V> struct Evaluation<LengthPercentage<R, V>> {
+    template<typename Reference> constexpr auto operator()(const LengthPercentage<R, V>& lengthPercentage, Reference referenceLength, ZoomNeeded token) -> Reference
+        requires (R.zoomOptions == CSS::RangeZoomOptions::Default)
+    {
+        return WTF::switchOn(lengthPercentage,
+            [&](const typename LengthPercentage<R, V>::Dimension& length) -> Reference {
+                return Reference(evaluate(length, token));
+            },
+            [&](const typename LengthPercentage<R, V>::Percentage& percentage) -> Reference {
+                return Reference(evaluate(percentage, referenceLength));
+            },
+            [&](const typename LengthPercentage<R, V>::Calc& calculation) -> Reference {
+                return Reference(evaluate(calculation, referenceLength));
+            }
+        );
+    }
+
     template<typename Reference> constexpr auto operator()(const LengthPercentage<R, V>& lengthPercentage, Reference referenceLength, float zoom) -> Reference
+        requires (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
         return WTF::switchOn(lengthPercentage,
             [&](const typename LengthPercentage<R, V>::Dimension& length) -> Reference {
@@ -138,6 +168,22 @@ template<typename T> struct Evaluation<SpaceSeparatedPoint<T>> {
         return {
             evaluate(value.x(), referenceBox.width()),
             evaluate(value.y(), referenceBox.height())
+        };
+    }
+    FloatPoint operator()(const SpaceSeparatedPoint<T>& value, FloatSize referenceBox, ZoomNeeded token)
+        requires HasThreeParameterEvaluate<T, float, ZoomNeeded>
+    {
+        return {
+            evaluate(value.x(), referenceBox.width(), token),
+            evaluate(value.y(), referenceBox.height(), token)
+        };
+    }
+    LayoutPoint operator()(const SpaceSeparatedPoint<T>& value, LayoutSize referenceBox, ZoomNeeded token)
+        requires HasThreeParameterEvaluate<T, LayoutUnit, ZoomNeeded>
+    {
+        return {
+            evaluate(value.x(), referenceBox.width(), token),
+            evaluate(value.y(), referenceBox.height(), token)
         };
     }
     FloatPoint operator()(const SpaceSeparatedPoint<T>& value, FloatSize referenceBox, float zoom)
@@ -177,6 +223,22 @@ template<typename T> struct Evaluation<SpaceSeparatedSize<T>> {
             evaluate(value.height(), referenceBox.height())
         };
     }
+    FloatSize operator()(const SpaceSeparatedSize<T>& value, FloatSize referenceBox, ZoomNeeded token)
+        requires HasThreeParameterEvaluate<T, float, ZoomNeeded>
+    {
+        return {
+            evaluate(value.width(), referenceBox.width(), token),
+            evaluate(value.height(), referenceBox.height(), token)
+        };
+    }
+    LayoutSize operator()(const SpaceSeparatedSize<T>& value, LayoutSize referenceBox, ZoomNeeded token)
+        requires HasThreeParameterEvaluate<T, LayoutUnit, ZoomNeeded>
+    {
+        return {
+            evaluate(value.width(), referenceBox.width(), token),
+            evaluate(value.height(), referenceBox.height(), token)
+        };
+    }
     FloatSize operator()(const SpaceSeparatedSize<T>& value, FloatSize referenceBox, float zoom)
         requires HasThreeParameterEvaluate<T, float, float>
     {
@@ -212,6 +274,22 @@ template<typename T> struct Evaluation<MinimallySerializingSpaceSeparatedSize<T>
         return {
             evaluate(value.width(), referenceBox.width()),
             evaluate(value.height(), referenceBox.height())
+        };
+    }
+    FloatSize operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, FloatSize referenceBox, ZoomNeeded token)
+        requires HasThreeParameterEvaluate<T, float, ZoomNeeded>
+    {
+        return {
+            evaluate(value.width(), referenceBox.width(), token),
+            evaluate(value.height(), referenceBox.height(), token)
+        };
+    }
+    LayoutSize operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, LayoutSize referenceBox, ZoomNeeded token)
+        requires HasThreeParameterEvaluate<T, LayoutUnit, ZoomNeeded>
+    {
+        return {
+            evaluate(value.width(), referenceBox.width(), token),
+            evaluate(value.height(), referenceBox.height(), token)
         };
     }
     FloatSize operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, FloatSize referenceBox, float zoom)

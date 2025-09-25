@@ -337,12 +337,12 @@ constexpr BlockStepInsert RenderStyle::initialBlockStepInsert() { return BlockSt
 constexpr BlockStepRound RenderStyle::initialBlockStepRound() { return BlockStepRound::Up; }
 inline Style::BlockStepSize RenderStyle::initialBlockStepSize() { return CSS::Keyword::None { }; }
 constexpr BorderCollapse RenderStyle::initialBorderCollapse() { return BorderCollapse::Separate; }
-constexpr Style::Length<CSS::Nonnegative> RenderStyle::initialBorderHorizontalSpacing() { return 0_css_px; }
+constexpr Style::WebkitBorderSpacing RenderStyle::initialBorderHorizontalSpacing() { return 0_css_px; }
 inline Style::BorderImage RenderStyle::initialBorderImage() { return Style::BorderImage { }; }
 inline Style::BorderImageSource RenderStyle::initialBorderImageSource() { return CSS::Keyword::None { }; }
 inline Style::BorderRadiusValue RenderStyle::initialBorderRadius() { return { 0_css_px, 0_css_px }; }
 constexpr BorderStyle RenderStyle::initialBorderStyle() { return BorderStyle::None; }
-constexpr Style::Length<CSS::Nonnegative> RenderStyle::initialBorderVerticalSpacing() { return 0_css_px; }
+constexpr Style::WebkitBorderSpacing RenderStyle::initialBorderVerticalSpacing() { return 0_css_px; }
 constexpr Style::LineWidth RenderStyle::initialBorderWidth() { return CSS::Keyword::Medium { }; }
 constexpr BoxAlignment RenderStyle::initialBoxAlign() { return BoxAlignment::Stretch; }
 constexpr BoxDecorationBreak RenderStyle::initialBoxDecorationBreak() { return BoxDecorationBreak::Slice; }

@@ -771,9 +771,9 @@ LayoutUnit RenderBlock::marginIntrinsicLogicalWidthForChild(RenderBox& child) co
     auto& marginRight = child.style().marginEnd(writingMode());
     LayoutUnit margin;
     if (auto fixedMarginLeft = marginLeft.tryFixed(); fixedMarginLeft && !shouldTrimChildMargin(MarginTrimType::InlineStart, child))
-        margin += fixedMarginLeft->evaluate(1.0f /* FIXME FIND ZOOM */);
+        margin += fixedMarginLeft->resolveZoom(Style::ZoomNeeded { });
     if (auto fixedMarginRight = marginRight.tryFixed(); fixedMarginRight && !shouldTrimChildMargin(MarginTrimType::InlineEnd, child))
-        margin += fixedMarginRight->evaluate(1.0f /* FIXME FIND ZOOM */);
+        margin += fixedMarginRight->resolveZoom(Style::ZoomNeeded { });
     return margin;
 }
 
@@ -1842,7 +1842,7 @@ LayoutUnit RenderBlock::textIndentOffset() const
     LayoutUnit cw;
     if (style().textIndent().length.isPercentOrCalculated())
         cw = contentBoxLogicalWidth();
-    return Style::evaluate(style().textIndent().length, cw, 1.0f /* FIXME ZOOM EFFECTED? */);
+    return Style::evaluate(style().textIndent().length, cw, Style::ZoomNeeded { });
 }
 
 LayoutUnit RenderBlock::logicalLeftOffsetForContent() const
@@ -2225,7 +2225,7 @@ void RenderBlock::computePreferredLogicalWidths()
 
     auto& styleToUse = style();
     auto logicalWidth = overridingLogicalWidthForFlexBasisComputation().value_or(styleToUse.logicalWidth());
-    if (auto fixedLogicalWidth = logicalWidth.tryFixed(); !isRenderTableCell() && fixedLogicalWidth && fixedLogicalWidth->isPositiveOrZero() && !(isDeprecatedFlexItem() && !static_cast<int>(fixedLogicalWidth->evaluate(1.0f /* FIXME FIND ZOOM */)))) {
+    if (auto fixedLogicalWidth = logicalWidth.tryFixed(); !isRenderTableCell() && fixedLogicalWidth && fixedLogicalWidth->isPositiveOrZero() && !(isDeprecatedFlexItem() && !static_cast<int>(fixedLogicalWidth->resolveZoom(Style::ZoomNeeded { })))) {
         m_minPreferredLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
         m_maxPreferredLogicalWidth = m_minPreferredLogicalWidth;
     } else if (logicalWidth.isMaxContent()) {
@@ -2291,9 +2291,9 @@ void RenderBlock::computeBlockPreferredLogicalWidths(LayoutUnit& minLogicalWidth
         LayoutUnit marginStart;
         LayoutUnit marginEnd;
         if (auto fixedMarginStart = childStyle.marginStart(writingMode()).tryFixed())
-            marginStart += fixedMarginStart->evaluate(1.0f /* FIXME FIND ZOOM */);
+            marginStart += fixedMarginStart->resolveZoom(Style::ZoomNeeded { });
         if (auto fixedMarginEnd = childStyle.marginEnd(writingMode()).tryFixed())
-            marginEnd += fixedMarginEnd->evaluate(1.0f /* FIXME FIND ZOOM */);
+            marginEnd += fixedMarginEnd->resolveZoom(Style::ZoomNeeded { });
         auto margin = marginStart + marginEnd;
 
         LayoutUnit childMinPreferredLogicalWidth;
@@ -2367,7 +2367,7 @@ void RenderBlock::computeChildPreferredLogicalWidths(RenderBox& childBox, Layout
                 childBox.verticalBorderAndPaddingExtent(),
                 LayoutUnit { childBoxStyle.logicalAspectRatio() },
                 childBoxStyle.boxSizingForAspectRatio(),
-                LayoutUnit { fixedChildBoxStyleLogicalWidth->evaluate(1.0f /* FIXME FIND ZOOM */) },
+                LayoutUnit { fixedChildBoxStyleLogicalWidth->resolveZoom(Style::ZoomNeeded { }) },
                 style().aspectRatio(),
                 isRenderReplaced()
             );
@@ -3051,7 +3051,7 @@ std::optional<LayoutUnit> RenderBlock::availableLogicalHeightForPercentageComput
 
         auto& style = this->style();
         if (auto fixedLogicalHeight = style.logicalHeight().tryFixed()) {
-            auto contentBoxHeight = adjustContentBoxLogicalHeightForBoxSizing(LayoutUnit { fixedLogicalHeight->evaluate(1.0f /* FIXME FIND ZOOM */) });
+            auto contentBoxHeight = adjustContentBoxLogicalHeightForBoxSizing(LayoutUnit { fixedLogicalHeight->resolveZoom(Style::ZoomNeeded { }) });
             return std::max(0_lu, constrainContentBoxLogicalHeightByMinMax(contentBoxHeight - scrollbarLogicalHeight(), { }));
         }
 
@@ -3324,9 +3324,9 @@ bool RenderBlock::computePreferredWidthsForExcludedChildren(LayoutUnit& minWidth
     LayoutUnit marginStart;
     LayoutUnit marginEnd;
     if (auto fixedMarginStart = childStyle.marginStart(writingMode()).tryFixed())
-        marginStart += fixedMarginStart->evaluate(1.0f /* FIXME FIND ZOOM */);
+        marginStart += fixedMarginStart->resolveZoom(Style::ZoomNeeded { });
     if (auto fixedMarginEnd = childStyle.marginEnd(writingMode()).tryFixed())
-        marginEnd += fixedMarginEnd->evaluate(1.0f /* FIXME FIND ZOOM */);
+        marginEnd += fixedMarginEnd->resolveZoom(Style::ZoomNeeded { });
 
     auto margin = marginStart + marginEnd;
 

@@ -104,7 +104,7 @@ inline bool isInset(const BoxShadow& shadow)
 
 inline LayoutUnit paintingSpread(const BoxShadow& shadow)
 {
-    return LayoutUnit { shadow.spread.evaluate(1.0f /* FIXME FIND ZOOM */) };
+    return LayoutUnit { shadow.spread.resolveZoom(Style::ZoomNeeded { }) };
 }
 
 } // namespace Style

@@ -69,7 +69,7 @@ void EllipsisBoxPainter::paint()
             return false;
         },
         [&](const auto& shadows) {
-            context.setDropShadow({ LayoutSize(shadows[0].location.x().evaluate(1.0f /* FIXME FIND ZOOM */), shadows[0].location.y().evaluate(1.0f /* FIXME FIND ZOOM */)), shadows[0].blur.evaluate(1.0f /* FIXME FIND ZOOM */), style.colorWithColorFilter(shadows[0].color), ShadowRadiusMode::Default });
+            context.setDropShadow({ LayoutSize(shadows[0].location.x().resolveZoom(Style::ZoomNeeded { }), shadows[0].location.y().resolveZoom(Style::ZoomNeeded { })), shadows[0].blur.resolveZoom(Style::ZoomNeeded { }), style.colorWithColorFilter(shadows[0].color), ShadowRadiusMode::Default });
             return true;
         }
     );

@@ -24,36 +24,11 @@
 
 #pragma once
 
-#include <WebCore/StylePrimitiveNumericTypes.h>
-
 namespace WebCore {
 namespace Style {
 
-// <'perspective'> = none | <length [0,∞]>
-// https://drafts.csswg.org/css-transforms-2/#propdef-perspective
-struct Perspective : ValueOrKeyword<Length<CSS::Nonnegative, float>, CSS::Keyword::None> {
-    using Base::Base;
-    using Length = typename Base::Value;
-
-    float usedPerspective() const { return std::max(1.0f, tryValue().value_or(1.0f).resolveZoom(Style::ZoomNeeded { })); }
-
-    bool isNone() const { return isKeyword(); }
-    bool isLength() const { return isValue(); }
-};
-static_assert(sizeof(Perspective) == sizeof(float));
-
-// MARK: - Conversion
-
-template<> struct CSSValueConversion<Perspective> { auto operator()(BuilderState&, const CSSValue&) -> Perspective; };
-
-// MARK: - Blending
-
-template<> struct Blending<Perspective> {
-    auto canBlend(const Perspective&, const Perspective&) -> bool;
-    auto blend(const Perspective&, const Perspective&, const BlendingContext&) -> Perspective;
-};
+// Token passed around to indicate that the evaluation will need zoom passed in the future.
+struct ZoomNeeded { };
 
 } // namespace Style
 } // namespace WebCore
-
-DEFINE_VARIANT_LIKE_CONFORMANCE(WebCore::Style::Perspective)

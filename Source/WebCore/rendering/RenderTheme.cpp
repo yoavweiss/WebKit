@@ -551,8 +551,8 @@ static void updateSliderTrackPartForRenderer(SliderTrackPart& sliderTrackPart, c
 
         auto fixedWidth = thumbStyle.width().tryFixed();
         auto fixedHeight = thumbStyle.height().tryFixed();
-        auto thumbWidth = fixedWidth ? static_cast<int>(fixedWidth->evaluate(1.0f /* FIXME FIND ZOOM */)) : 0;
-        auto thumbHeight = fixedHeight ? static_cast<int>(fixedHeight->evaluate(1.0f /* FIXME FIND ZOOM */)) : 0;
+        auto thumbWidth = fixedWidth ? static_cast<int>(fixedWidth->resolveZoom(Style::ZoomNeeded { })) : 0;
+        auto thumbHeight = fixedHeight ? static_cast<int>(fixedHeight->resolveZoom(Style::ZoomNeeded { })) : 0;
 
         thumbSize = { thumbWidth, thumbHeight };
     }
@@ -837,7 +837,7 @@ ControlStyle RenderTheme::extractControlStyleForRenderer(const RenderElement& re
         style->usedZoom(),
         style->usedAccentColor(renderObject.styleColorOptions()),
         style->visitedDependentColorWithColorFilter(CSSPropertyColor),
-        Style::evaluate(style->borderWidth(), 1.0f /* FIXME FIND ZOOM */)
+        Style::evaluate(style->borderWidth(), Style::ZoomNeeded { })
     };
 }
 
@@ -1395,26 +1395,26 @@ void RenderTheme::adjustButtonOrCheckboxOrColorWellOrInnerSpinButtonOrRadioStyle
         borderBox = Style::LineWidthBox { borderBox.left(), borderBox.top(), borderBox.right(), borderBox.bottom() };
 
     /* FIXME: FIND ZOOM */
-    if (Style::evaluate(borderBox.top(), 1.0f) != static_cast<int>(Style::evaluate(style.borderTopWidth(), 1.0f))) {
+    if (Style::evaluate(borderBox.top(), Style::ZoomNeeded { }) != static_cast<int>(Style::evaluate(style.borderTopWidth(), Style::ZoomNeeded { }))) {
         if (!borderBox.top().isZero())
             style.setBorderTopWidth(borderBox.top());
         else
             style.resetBorderTop();
     }
-    if (Style::evaluate(borderBox.right(), 1.0f) != static_cast<int>(Style::evaluate(style.borderRightWidth(), 1.0f))) {
+    if (Style::evaluate(borderBox.right(), Style::ZoomNeeded { }) != static_cast<int>(Style::evaluate(style.borderRightWidth(), Style::ZoomNeeded { }))) {
         if (!borderBox.right().isZero())
             style.setBorderRightWidth(borderBox.right());
         else
             style.resetBorderRight();
     }
-    if (Style::evaluate(borderBox.bottom(), 1.0f) != static_cast<int>(Style::evaluate(style.borderBottomWidth(), 1.0f))) {
+    if (Style::evaluate(borderBox.bottom(), Style::ZoomNeeded { }) != static_cast<int>(Style::evaluate(style.borderBottomWidth(), Style::ZoomNeeded { }))) {
         style.setBorderBottomWidth(borderBox.bottom());
         if (!borderBox.bottom().isZero())
             style.setBorderBottomWidth(borderBox.bottom());
         else
             style.resetBorderBottom();
     }
-    if (Style::evaluate(borderBox.left(), 1.0f) != static_cast<int>(Style::evaluate(style.borderLeftWidth(), 1.0f))) {
+    if (Style::evaluate(borderBox.left(), Style::ZoomNeeded { }) != static_cast<int>(Style::evaluate(style.borderLeftWidth(), Style::ZoomNeeded { }))) {
         style.setBorderLeftWidth(borderBox.left());
         if (!borderBox.left().isZero())
             style.setBorderLeftWidth(borderBox.left());
@@ -1449,11 +1449,11 @@ void RenderTheme::adjustButtonOrCheckboxOrColorWellOrInnerSpinButtonOrRadioStyle
 
     if (auto fixedOverrideMinWidth = minimumControlSize.width().tryFixed()) {
         if (auto fixedOriginalMinWidth = style.minWidth().tryFixed()) {
-            if (fixedOverrideMinWidth->evaluate(1.0f /* FIXME FIND ZOOM */) > fixedOriginalMinWidth->evaluate(1.0f /* FIXME FIND ZOOM */))
+            if (fixedOverrideMinWidth->resolveZoom(Style::ZoomNeeded { }) > fixedOriginalMinWidth->resolveZoom(Style::ZoomNeeded { }))
                 style.setMinWidth(Style::MinimumSize(minimumControlSize.width()));
         } else if (auto percentageOriginalMinWidth = style.minWidth().tryPercentage()) {
             // FIXME: This really makes no sense but matches existing behavior. Should use a `calc(max(override, original))` here instead.
-            if (fixedOverrideMinWidth->evaluate(1.0f /* FIXME FIND ZOOM */) > percentageOriginalMinWidth->value)
+            if (fixedOverrideMinWidth->resolveZoom(Style::ZoomNeeded { }) > percentageOriginalMinWidth->value)
                 style.setMinWidth(Style::MinimumSize(minimumControlSize.width()));
         } else if (fixedOverrideMinWidth->isPositive()) {
             style.setMinWidth(Style::MinimumSize(minimumControlSize.width()));
@@ -1461,7 +1461,7 @@ void RenderTheme::adjustButtonOrCheckboxOrColorWellOrInnerSpinButtonOrRadioStyle
     } else if (auto percentageOverrideMinWidth = minimumControlSize.width().tryPercentage()) {
         if (auto fixedOriginalMinWidth = style.minWidth().tryFixed()) {
             // FIXME: This really makes no sense but matches existing behavior. Should use a `calc(max(override, original))` here instead.
-            if (percentageOverrideMinWidth->value > fixedOriginalMinWidth->evaluate(1.0f /* FIXME FIND ZOOM */))
+            if (percentageOverrideMinWidth->value > fixedOriginalMinWidth->resolveZoom(Style::ZoomNeeded { }))
                 style.setMinWidth(Style::MinimumSize(minimumControlSize.width()));
         } else if (auto percentageOriginalMinWidth = style.minWidth().tryPercentage()) {
             if (percentageOverrideMinWidth->value > percentageOriginalMinWidth->value)
@@ -1472,11 +1472,11 @@ void RenderTheme::adjustButtonOrCheckboxOrColorWellOrInnerSpinButtonOrRadioStyle
     }
     if (auto fixedOverrideMinHeight = minimumControlSize.height().tryFixed()) {
         if (auto fixedOriginalMinHeight = style.minHeight().tryFixed()) {
-            if (fixedOverrideMinHeight->evaluate(1.0f /* FIXME FIND ZOOM */) > fixedOriginalMinHeight->evaluate(1.0f /* FIXME FIND ZOOM */))
+            if (fixedOverrideMinHeight->resolveZoom(Style::ZoomNeeded { }) > fixedOriginalMinHeight->resolveZoom(Style::ZoomNeeded { }))
                 style.setMinHeight(Style::MinimumSize(minimumControlSize.height()));
         } else if (auto percentageOriginalMinHeight = style.minHeight().tryPercentage()) {
             // FIXME: This really makes no sense but matches existing behavior. Should use a `calc(max(override, original))` here instead.
-            if (fixedOverrideMinHeight->evaluate(1.0f /* FIXME FIND ZOOM */) > percentageOriginalMinHeight->value)
+            if (fixedOverrideMinHeight->resolveZoom(Style::ZoomNeeded { }) > percentageOriginalMinHeight->value)
                 style.setMinHeight(Style::MinimumSize(minimumControlSize.height()));
         } else if (fixedOverrideMinHeight->isPositive()) {
             style.setMinHeight(Style::MinimumSize(minimumControlSize.height()));
@@ -1484,7 +1484,7 @@ void RenderTheme::adjustButtonOrCheckboxOrColorWellOrInnerSpinButtonOrRadioStyle
     } else if (auto percentageOverrideMinHeight = minimumControlSize.height().tryPercentage()) {
         if (auto fixedOriginalMinHeight = style.minHeight().tryFixed()) {
             // FIXME: This really makes no sense but matches existing behavior. Should use a `calc(max(override, original))` here instead.
-            if (percentageOverrideMinHeight->value > fixedOriginalMinHeight->evaluate(1.0f /* FIXME FIND ZOOM */))
+            if (percentageOverrideMinHeight->value > fixedOriginalMinHeight->resolveZoom(Style::ZoomNeeded { }))
                 style.setMinHeight(Style::MinimumSize(minimumControlSize.height()));
         } else if (auto percentageOriginalMinHeight = style.minHeight().tryPercentage()) {
             if (percentageOverrideMinHeight->value > percentageOriginalMinHeight->value)
@@ -1582,11 +1582,11 @@ void RenderTheme::paintSliderTicks(const RenderElement& renderer, const PaintInf
 
         int thumbWidth = 0;
         if (auto fixedWidth = thumbStyle.width().tryFixed())
-            thumbWidth = static_cast<int>(fixedWidth->evaluate(1.0f /* FIXME FIND ZOOM */));
+            thumbWidth = static_cast<int>(fixedWidth->resolveZoom(Style::ZoomNeeded { }));
 
         int thumbHeight = 0;
         if (auto fixedHeight = thumbStyle.height().tryFixed())
-            thumbHeight = static_cast<int>(fixedHeight->evaluate(1.0f /* FIXME FIND ZOOM */));
+            thumbHeight = static_cast<int>(fixedHeight->resolveZoom(Style::ZoomNeeded { }));
 
         thumbSize.setWidth(isHorizontal ? thumbWidth : thumbHeight);
         thumbSize.setHeight(isHorizontal ? thumbHeight : thumbWidth);

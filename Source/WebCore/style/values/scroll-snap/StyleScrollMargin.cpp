@@ -33,14 +33,14 @@
 namespace WebCore {
 namespace Style {
 
-LayoutUnit Evaluation<ScrollMarginEdge>::operator()(const ScrollMarginEdge& edge, LayoutUnit, float zoom)
+LayoutUnit Evaluation<ScrollMarginEdge>::operator()(const ScrollMarginEdge& edge, LayoutUnit, ZoomNeeded token)
 {
-    return LayoutUnit(edge.m_value.evaluate(zoom));
+    return LayoutUnit(edge.m_value.resolveZoom(token));
 }
 
-float Evaluation<ScrollMarginEdge>::operator()(const ScrollMarginEdge& edge, float, float zoom)
+float Evaluation<ScrollMarginEdge>::operator()(const ScrollMarginEdge& edge, float, ZoomNeeded token)
 {
-    return edge.m_value.evaluate(zoom);
+    return edge.m_value.resolveZoom(token);
 }
 
 auto CSSValueConversion<ScrollMarginEdge>::operator()(BuilderState& state, const CSSValue& value) -> ScrollMarginEdge
@@ -51,10 +51,10 @@ auto CSSValueConversion<ScrollMarginEdge>::operator()(BuilderState& state, const
 LayoutBoxExtent extentForRect(const ScrollMarginBox& margin, const LayoutRect& rect)
 {
     return LayoutBoxExtent {
-        Style::evaluate(margin.top(), rect.height(), 1.0f /* FIXME ZOOM EFFECTED? */),
-        Style::evaluate(margin.right(), rect.width(), 1.0f/* FIXME ZOOM EFFECTED? */),
-        Style::evaluate(margin.bottom(), rect.height(), 1.0f /* FIXME ZOOM EFFECTED? */),
-        Style::evaluate(margin.left(), rect.width(), 1.0f /* FIXME ZOOM EFFECTED? */),
+        Style::evaluate(margin.top(), rect.height(), Style::ZoomNeeded { }),
+        Style::evaluate(margin.right(), rect.width(), Style::ZoomNeeded { }),
+        Style::evaluate(margin.bottom(), rect.height(), Style::ZoomNeeded { }),
+        Style::evaluate(margin.left(), rect.width(), Style::ZoomNeeded { }),
     };
 }
 

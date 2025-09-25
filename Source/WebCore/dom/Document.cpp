@@ -3364,18 +3364,18 @@ void Document::pageSizeAndMarginsInPixels(int pageIndex, IntSize& pageSize, int&
         },
         [&](const Style::PageSize::Lengths& lengths) -> IntSize {
             return {
-                static_cast<int>(lengths.width().evaluate(1.0f /* FIXME FIND ZOOM */)),
-                static_cast<int>(lengths.height().evaluate(1.0f /* FIXME FIND ZOOM */)),
+                static_cast<int>(lengths.width().resolveZoom(Style::ZoomNeeded { })),
+                static_cast<int>(lengths.height().resolveZoom(Style::ZoomNeeded { })),
             };
         }
     );
 
     // The percentage is calculated with respect to the width even for margin top and bottom.
     // http://www.w3.org/TR/CSS2/box.html#margin-properties
-    marginTop = style->marginTop().isAuto() ? marginTop : Style::evaluate(style->marginTop(), pageSize.width(), 1.0f /* FIXME FIND ZOOM */);
-    marginRight = style->marginRight().isAuto() ? marginRight : Style::evaluate(style->marginRight(), pageSize.width(), 1.0f /* FIXME FIND ZOOM */);
-    marginBottom = style->marginBottom().isAuto() ? marginBottom : Style::evaluate(style->marginBottom(), pageSize.width(), 1.0f /* FIXME FIND ZOOM */);
-    marginLeft = style->marginLeft().isAuto() ? marginLeft : Style::evaluate(style->marginLeft(), pageSize.width(), 1.0f /* FIXME FIND ZOOM */);
+    marginTop = style->marginTop().isAuto() ? marginTop : Style::evaluate(style->marginTop(), pageSize.width(), Style::ZoomNeeded { });
+    marginRight = style->marginRight().isAuto() ? marginRight : Style::evaluate(style->marginRight(), pageSize.width(), Style::ZoomNeeded { });
+    marginBottom = style->marginBottom().isAuto() ? marginBottom : Style::evaluate(style->marginBottom(), pageSize.width(), Style::ZoomNeeded { });
+    marginLeft = style->marginLeft().isAuto() ? marginLeft : Style::evaluate(style->marginLeft(), pageSize.width(), Style::ZoomNeeded { });
 }
 
 void Document::fontsNeedUpdate(FontSelector&)

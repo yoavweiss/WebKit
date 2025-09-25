@@ -79,7 +79,7 @@ static LayoutUnit computeSlice(const WidthValue& length, LayoutUnit width, Layou
 {
     return WTF::switchOn(length,
         [&](const typename WidthValue::LengthPercentage& value) {
-            return Style::evaluate(value, extent, 1.0f /* FIXME ZOOM EFFECTED? */);
+            return Style::evaluate(value, extent, Style::ZoomNeeded { });
         },
         [&](const typename WidthValue::Number& value) {
             return LayoutUnit { value.value * width };
@@ -230,7 +230,7 @@ static void paintNinePieceImage(const T& ninePieceImage, GraphicsContext& graphi
     ASSERT(styleImage->isLoaded(renderer));
 
     auto sourceSlices      = computeSlices(source, ninePieceImage.slice(), styleImage->imageScaleFactor());
-    auto destinationSlices = computeSlices(destination.size(), ninePieceImage.width(), Style::evaluate(style.borderWidth(), 1.0f /* FIXME ZOOM EFFECTED? */), sourceSlices);
+    auto destinationSlices = computeSlices(destination.size(), ninePieceImage.width(), Style::evaluate(style.borderWidth(), Style::ZoomNeeded { }), sourceSlices);
 
     scaleSlicesIfNeeded(destination.size(), destinationSlices, deviceScaleFactor);
 

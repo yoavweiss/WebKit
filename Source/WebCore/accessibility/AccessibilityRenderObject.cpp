@@ -949,7 +949,7 @@ Path AccessibilityRenderObject::elementPath() const
         if (!needsPath)
             return { };
 
-        float outlineOffset = Style::evaluate(style.outlineOffset(), 1.0f /* FIXME ZOOM EFFECTED? */);
+        float outlineOffset = Style::evaluate(style.outlineOffset(), Style::ZoomNeeded { });
         float deviceScaleFactor = renderText->document().deviceScaleFactor();
         Vector<FloatRect> pixelSnappedRects;
         for (auto rect : rects) {

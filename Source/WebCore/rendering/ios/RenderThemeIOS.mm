@@ -175,11 +175,11 @@ void RenderThemeIOS::adjustMinimumIntrinsicSizeForAppearance(StyleAppearance app
 
     if (auto fixedOverrideMinWidth = minimumControlSize.width().tryFixed()) {
         if (auto fixedOriginalMinWidth = style.minWidth().tryFixed()) {
-            if (fixedOverrideMinWidth->evaluate(1.0f /* FIXME FIND ZOOM */) > fixedOriginalMinWidth->evaluate(1.0f /* FIXME FIND ZOOM */))
+            if (fixedOverrideMinWidth->resolveZoom(Style::ZoomNeeded { }) > fixedOriginalMinWidth->resolveZoom(Style::ZoomNeeded { }))
                 style.setMinWidth(Style::MinimumSize(minimumControlSize.width()));
         } else if (auto percentageOriginalMinWidth = style.minWidth().tryPercentage()) {
             // FIXME: This really makes no sense but matches existing behavior. Should use a `calc(max(override, original))` here instead.
-            if (fixedOverrideMinWidth->evaluate(1.0f /* FIXME FIND ZOOM */) > percentageOriginalMinWidth->value)
+            if (fixedOverrideMinWidth->resolveZoom(Style::ZoomNeeded { }) > percentageOriginalMinWidth->value)
                 style.setMinWidth(Style::MinimumSize(minimumControlSize.width()));
         } else if (fixedOverrideMinWidth->isPositive()) {
             style.setMinWidth(Style::MinimumSize(minimumControlSize.width()));
@@ -187,7 +187,7 @@ void RenderThemeIOS::adjustMinimumIntrinsicSizeForAppearance(StyleAppearance app
     } else if (auto percentageOverrideMinWidth = minimumControlSize.width().tryPercentage()) {
         if (auto fixedOriginalMinWidth = style.minWidth().tryFixed()) {
             // FIXME: This really makes no sense but matches existing behavior. Should use a `calc(max(override, original))` here instead.
-            if (percentageOverrideMinWidth->value > fixedOriginalMinWidth->evaluate(1.0f /* FIXME FIND ZOOM */))
+            if (percentageOverrideMinWidth->value > fixedOriginalMinWidth->resolveZoom(Style::ZoomNeeded { }))
                 style.setMinWidth(Style::MinimumSize(minimumControlSize.width()));
         } else if (auto percentageOriginalMinWidth = style.minWidth().tryPercentage()) {
             if (percentageOverrideMinWidth->value > percentageOriginalMinWidth->value)
@@ -198,11 +198,11 @@ void RenderThemeIOS::adjustMinimumIntrinsicSizeForAppearance(StyleAppearance app
     }
     if (auto fixedOverrideMinHeight = minimumControlSize.height().tryFixed()) {
         if (auto fixedOriginalMinHeight = style.minHeight().tryFixed()) {
-            if (fixedOverrideMinHeight->evaluate(1.0f /* FIXME FIND ZOOM */) > fixedOriginalMinHeight->evaluate(1.0f /* FIXME FIND ZOOM */))
+            if (fixedOverrideMinHeight->resolveZoom(Style::ZoomNeeded { }) > fixedOriginalMinHeight->resolveZoom(Style::ZoomNeeded { }))
                 style.setMinHeight(Style::MinimumSize(minimumControlSize.height()));
         } else if (auto percentageOriginalMinHeight = style.minHeight().tryPercentage()) {
             // FIXME: This really makes no sense but matches existing behavior. Should use a `calc(max(override, original))` here instead.
-            if (fixedOverrideMinHeight->evaluate(1.0f /* FIXME FIND ZOOM */) > percentageOriginalMinHeight->value)
+            if (fixedOverrideMinHeight->resolveZoom(Style::ZoomNeeded { }) > percentageOriginalMinHeight->value)
                 style.setMinHeight(Style::MinimumSize(minimumControlSize.height()));
         } else if (fixedOverrideMinHeight->isPositive()) {
             style.setMinHeight(Style::MinimumSize(minimumControlSize.height()));
@@ -210,7 +210,7 @@ void RenderThemeIOS::adjustMinimumIntrinsicSizeForAppearance(StyleAppearance app
     } else if (auto percentageOverrideMinHeight = minimumControlSize.height().tryPercentage()) {
         if (auto fixedOriginalMinHeight = style.minHeight().tryFixed()) {
             // FIXME: This really makes no sense but matches existing behavior. Should use a `calc(max(override, original))` here instead.
-            if (percentageOverrideMinHeight->value > fixedOriginalMinHeight->evaluate(1.0f /* FIXME FIND ZOOM */))
+            if (percentageOverrideMinHeight->value > fixedOriginalMinHeight->resolveZoom(Style::ZoomNeeded { }))
                 style.setMinHeight(Style::MinimumSize(minimumControlSize.height()));
         } else if (auto percentageOriginalMinHeight = style.minHeight().tryPercentage()) {
             if (percentageOverrideMinHeight->value > percentageOriginalMinHeight->value)
@@ -383,7 +383,7 @@ Style::PaddingBox RenderThemeIOS::popupInternalPaddingBox(const RenderStyle& sty
     auto padding = emSize->resolveAsLength<float>({ style, nullptr, nullptr, nullptr });
 
     if (style.usedAppearance() == StyleAppearance::MenulistButton) {
-        auto value = toTruncatedPaddingEdge(padding + Style::evaluate(style.borderTopWidth(), 1.0f /* FIXME FIND ZOOM */));
+        auto value = toTruncatedPaddingEdge(padding + Style::evaluate(style.borderTopWidth(), Style::ZoomNeeded { }));
         if (style.writingMode().isBidiRTL())
             return { 0_css_px, 0_css_px, 0_css_px, value };
         return { 0_css_px, value, 0_css_px, 0_css_px };
@@ -610,9 +610,9 @@ void RenderThemeIOS::paintMenuListButtonDecorations(const RenderBox& box, const 
     FloatPoint glyphOrigin;
     glyphOrigin.setY(logicalRect.center().y() - glyphSize.height() / 2.0f);
     if (!style.writingMode().isInlineFlipped())
-        glyphOrigin.setX(logicalRect.maxX() - glyphSize.width() - Style::evaluate(box.style().borderEndWidth(), 1.0f /* FIXME FIND ZOOM */) - Style::evaluate(box.style().paddingEnd(), logicalRect.width(), 1.0f/* FIXME FIND ZOOM */));
+        glyphOrigin.setX(logicalRect.maxX() - glyphSize.width() - Style::evaluate(box.style().borderEndWidth(), Style::ZoomNeeded { }) - Style::evaluate(box.style().paddingEnd(), logicalRect.width(), Style::ZoomNeeded { }));
     else
-        glyphOrigin.setX(logicalRect.x() + Style::evaluate(box.style().borderEndWidth(), 1.0f /* FIXME FIND ZOOM */) + Style::evaluate(box.style().paddingEnd(), logicalRect.width(), 1.0f /* FIXME FIND ZOOM */));
+        glyphOrigin.setX(logicalRect.x() + Style::evaluate(box.style().borderEndWidth(), Style::ZoomNeeded { }) + Style::evaluate(box.style().paddingEnd(), logicalRect.width(), Style::ZoomNeeded { }));
 
     if (!isHorizontalWritingMode)
         glyphOrigin = glyphOrigin.transposedPoint();
@@ -942,7 +942,7 @@ void RenderThemeIOS::adjustButtonStyle(RenderStyle& style, const Element* elemen
     if (style.logicalWidth().isIntrinsicOrLegacyIntrinsicOrAuto() || style.logicalHeight().isAuto()) {
         auto minimumHeight = ControlBaseHeight / ControlBaseFontSize * style.fontDescription().computedSize();
         if (auto fixedLogicalMinHeight = style.logicalMinHeight().tryFixed())
-            minimumHeight = std::max(minimumHeight, fixedLogicalMinHeight->evaluate(1.0f /* FIXME FIND ZOOM */));
+            minimumHeight = std::max(minimumHeight, fixedLogicalMinHeight->resolveZoom(Style::ZoomNeeded { }));
         // FIXME: This may need to be a layout time adjustment to support various values like fit-content etc.
         style.setLogicalMinHeight(Style::MinimumSize::Fixed { minimumHeight });
     }
@@ -1744,10 +1744,10 @@ bool RenderThemeIOS::paintListButton(const RenderElement& box, const PaintInfo& 
     auto& context = paintInfo.context();
     GraphicsContextStateSaver stateSaver(context);
 
-    float paddingTop = Style::evaluate(style.paddingTop(), rect.height(), 1.0f /* FIXME FIND ZOOM */);
-    float paddingRight = Style::evaluate(style.paddingRight(), rect.width(), 1.0f /* FIXME FIND ZOOM */);
-    float paddingBottom = Style::evaluate(style.paddingBottom(), rect.height(), 1.0f /* FIXME FIND ZOOM */);
-    float paddingLeft = Style::evaluate(style.paddingLeft(), rect.width(), 1.0f /* FIXME FIND ZOOM */);
+    float paddingTop = Style::evaluate(style.paddingTop(), rect.height(), Style::ZoomNeeded { });
+    float paddingRight = Style::evaluate(style.paddingRight(), rect.width(), Style::ZoomNeeded { });
+    float paddingBottom = Style::evaluate(style.paddingBottom(), rect.height(), Style::ZoomNeeded { });
+    float paddingLeft = Style::evaluate(style.paddingLeft(), rect.width(), Style::ZoomNeeded { });
 
     FloatRect indicatorRect = rect;
     indicatorRect.move(paddingLeft, paddingTop);

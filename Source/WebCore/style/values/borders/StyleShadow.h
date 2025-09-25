@@ -49,7 +49,7 @@ LayoutUnit paintingExtent(Shadow auto const& shadow)
     // extends to infinity. In 8-bit contexts, however, rounding causes the effect to become
     // undetectable at around 1.4x the radius.
     constexpr const float radiusExtentMultiplier = 1.4;
-    return LayoutUnit { ceilf(shadow.blur.evaluate(1.0f /* FIXME FIND ZOOM */) * radiusExtentMultiplier) };
+    return LayoutUnit { ceilf(shadow.blur.resolveZoom(Style::ZoomNeeded { }) * radiusExtentMultiplier) };
 }
 
 LayoutUnit paintingExtentAndSpread(Shadow auto const& shadow)
@@ -70,10 +70,10 @@ template<Shadow ShadowType> auto shadowOutsetExtent(const Shadows<ShadowType>& s
 
         auto extentAndSpread = paintingExtentAndSpread(shadow);
 
-        left = std::min<LayoutUnit>(left, LayoutUnit(shadow.location.x().evaluate(1.0f /* FIXME FIND ZOOM */)) - extentAndSpread);
-        right = std::max<LayoutUnit>(right, LayoutUnit(shadow.location.x().evaluate(1.0f /* FIXME FIND ZOOM */)) + extentAndSpread);
-        top = std::min<LayoutUnit>(top, LayoutUnit(shadow.location.y().evaluate(1.0f /* FIXME FIND ZOOM */)) - extentAndSpread);
-        bottom = std::max<LayoutUnit>(bottom, LayoutUnit(shadow.location.y().evaluate(1.0f /* FIXME FIND ZOOM */)) + extentAndSpread);
+        left = std::min<LayoutUnit>(left, LayoutUnit(shadow.location.x().resolveZoom(Style::ZoomNeeded { })) - extentAndSpread);
+        right = std::max<LayoutUnit>(right, LayoutUnit(shadow.location.x().resolveZoom(Style::ZoomNeeded { })) + extentAndSpread);
+        top = std::min<LayoutUnit>(top, LayoutUnit(shadow.location.y().resolveZoom(Style::ZoomNeeded { })) - extentAndSpread);
+        bottom = std::max<LayoutUnit>(bottom, LayoutUnit(shadow.location.y().resolveZoom(Style::ZoomNeeded { })) + extentAndSpread);
     }
 
     return { top, right, bottom, left };
@@ -92,10 +92,10 @@ template<Shadow ShadowType> auto shadowInsetExtent(const Shadows<ShadowType>& sh
 
         auto extentAndSpread = paintingExtentAndSpread(shadow);
 
-        top = std::max<LayoutUnit>(top, LayoutUnit(shadow.location.y().evaluate(1.0f /* FIXME FIND ZOOM */)) + extentAndSpread);
-        right = std::min<LayoutUnit>(right, LayoutUnit(shadow.location.x().evaluate(1.0f /* FIXME FIND ZOOM */)) - extentAndSpread);
-        bottom = std::min<LayoutUnit>(bottom, LayoutUnit(shadow.location.y().evaluate(1.0f /* FIXME FIND ZOOM */)) - extentAndSpread);
-        left = std::max<LayoutUnit>(left, LayoutUnit(shadow.location.x().evaluate(1.0f /* FIXME FIND ZOOM */)) + extentAndSpread);
+        top = std::max<LayoutUnit>(top, LayoutUnit(shadow.location.y().resolveZoom(Style::ZoomNeeded { })) + extentAndSpread);
+        right = std::min<LayoutUnit>(right, LayoutUnit(shadow.location.x().resolveZoom(Style::ZoomNeeded { })) - extentAndSpread);
+        bottom = std::min<LayoutUnit>(bottom, LayoutUnit(shadow.location.y().resolveZoom(Style::ZoomNeeded { })) - extentAndSpread);
+        left = std::max<LayoutUnit>(left, LayoutUnit(shadow.location.x().resolveZoom(Style::ZoomNeeded { })) + extentAndSpread);
     }
 
     return { top, right, bottom, left };
@@ -112,8 +112,8 @@ template<Shadow ShadowType> auto shadowHorizontalExtent(const Shadows<ShadowType
 
         auto extentAndSpread = paintingExtentAndSpread(shadow);
 
-        left = std::min<LayoutUnit>(left, LayoutUnit(shadow.location.x().evaluate(1.0f /* FIXME FIND ZOOM */)) - extentAndSpread);
-        right = std::max<LayoutUnit>(right, LayoutUnit(shadow.location.x().evaluate(1.0f /* FIXME FIND ZOOM */)) + extentAndSpread);
+        left = std::min<LayoutUnit>(left, LayoutUnit(shadow.location.x().resolveZoom(Style::ZoomNeeded { })) - extentAndSpread);
+        right = std::max<LayoutUnit>(right, LayoutUnit(shadow.location.x().resolveZoom(Style::ZoomNeeded { })) + extentAndSpread);
     }
 
     return { left, right };
@@ -131,8 +131,8 @@ template<Shadow ShadowType> auto shadowVerticalExtent(const Shadows<ShadowType>&
         auto extentAndSpread = paintingExtentAndSpread(shadow);
 
         // FIXME: Why does this do a static cast to `int` but all of the other "extent" functions in this file do not?
-        top = std::min<LayoutUnit>(top, LayoutUnit(static_cast<int>(shadow.location.y().evaluate(1.0f /* FIXME FIND ZOOM */))) - extentAndSpread);
-        bottom = std::max<LayoutUnit>(bottom, LayoutUnit(static_cast<int>(shadow.location.y().evaluate(1.0f /* FIXME FIND ZOOM */))) + extentAndSpread);
+        top = std::min<LayoutUnit>(top, LayoutUnit(static_cast<int>(shadow.location.y().resolveZoom(Style::ZoomNeeded { }))) - extentAndSpread);
+        bottom = std::max<LayoutUnit>(bottom, LayoutUnit(static_cast<int>(shadow.location.y().resolveZoom(Style::ZoomNeeded { }))) + extentAndSpread);
     }
 
     return { top, bottom };
