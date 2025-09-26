@@ -734,13 +734,9 @@ void WebPage::getPlatformEditorStateCommon(const LocalFrame& frame, EditorState&
         postLayoutData.selectionIsTransparentOrFullyClipped = selectionIsTransparentOrFullyClipped(selection);
 
 #if PLATFORM(IOS_FAMILY)
-    bool honorOverflowScrolling = m_page->settings().selectionHonorsOverflowScrolling();
-    if (enclosingFormControl || !honorOverflowScrolling)
+    if (enclosingFormControl || !m_page->settings().selectionHonorsOverflowScrolling())
         result.visualData->selectionClipRect = result.visualData->editableRootBounds;
-
-    if (honorOverflowScrolling)
-        computeEnclosingLayerID(result, selection);
-#endif // PLATFORM(IOS_FAMILY)
+#endif
 }
 
 void WebPage::getPDFFirstPageSize(WebCore::FrameIdentifier frameID, CompletionHandler<void(WebCore::FloatSize)>&& completionHandler)

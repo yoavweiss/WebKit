@@ -436,7 +436,8 @@ void WebPage::getPlatformEditorState(LocalFrame& frame, EditorState& result) con
 
     postLayoutData.insideFixedPosition = startNodeIsInsideFixedPosition || endNodeIsInsideFixedPosition;
     if (!selection.isNone()) {
-        if (selection.hasEditableStyle()) {
+        bool selectionIsEditable = selection.hasEditableStyle();
+        if (selectionIsEditable) {
             // FIXME: The caret color style should be computed using the selection caret's container
             // rather than the focused element. This causes caret colors in editable children to be
             // ignored in favor of the editing host's caret color. See: <https://webkit.org/b/229809>.
@@ -451,6 +452,19 @@ void WebPage::getPlatformEditorState(LocalFrame& frame, EditorState& result) con
         computeEditableRootHasContentAndPlainText(selection, postLayoutData);
         postLayoutData.selectionStartIsAtParagraphBoundary = atBoundaryOfGranularity(selection.visibleStart(), TextGranularity::ParagraphGranularity, SelectionDirection::Backward);
         postLayoutData.selectionEndIsAtParagraphBoundary = atBoundaryOfGranularity(selection.visibleEnd(), TextGranularity::ParagraphGranularity, SelectionDirection::Forward);
+
+        bool shouldComputeEnclosingLayerID = [&] {
+            if (!m_page->settings().selectionHonorsOverflowScrolling())
+                return false;
+
+            if (selection.isCaret() && !postLayoutData.hasCaretColorAuto && !postLayoutData.caretColor.isVisible())
+                return false;
+
+            return true;
+        }();
+
+        if (shouldComputeEnclosingLayerID)
+            computeEnclosingLayerID(result, selection);
     }
 }
 
