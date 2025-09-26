@@ -198,6 +198,11 @@ public:
         CheckedPtr style = this->style();
         return style && style->cursorType() == CursorType::Pointer;
     }
+    bool showsCursorOnHover() const final;
+    // Returns true if the node associated with this object has a computed
+    // style of pointer-events:none.
+    bool hasPointerEventsNone() const;
+
     void setIsExpanded(bool) final;
 
     Element* actionElement() const override;

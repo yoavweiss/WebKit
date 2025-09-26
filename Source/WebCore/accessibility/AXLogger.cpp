@@ -1160,6 +1160,9 @@ TextStream& operator<<(WTF::TextStream& stream, AXProperty property)
     case AXProperty::SetSize:
         stream << "SetSize";
         break;
+    case AXProperty::ShowsCursorOnHover:
+        stream << "ShowsCursorOnHover";
+        break;
     case AXProperty::SortDirection:
         stream << "SortDirection";
         break;

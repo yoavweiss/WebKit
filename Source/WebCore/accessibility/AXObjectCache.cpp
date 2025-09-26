@@ -1961,6 +1961,10 @@ void AXObjectCache::onStyleChange(Element& element, OptionSet<Style::Change> cha
 
     if (oldStyle->cursorType() != newStyle->cursorType())
         postNotification(*object, AXNotification::CursorTypeChanged);
+
+    // Certain properties (e.g. AXProperty::ShowsCursorOnHover) cannot easily
+    // be diffed here so post this general notification for those.
+    updateIsolatedTree(*object, AXNotification::StyleChanged);
 #endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 }
 
@@ -4984,6 +4988,9 @@ void AXObjectCache::updateIsolatedTree(const Vector<std::pair<Ref<AccessibilityO
             break;
         case AXNotification::SpeakAsChanged:
             tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::SpeakAs });
+            break;
+        case AXNotification::StyleChanged:
+            tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::ShowsCursorOnHover });
             break;
         case AXNotification::TextColorChanged:
             tree->updatePropertiesForSelfAndDescendants(notification.first.get(), { AXProperty::TextColor });

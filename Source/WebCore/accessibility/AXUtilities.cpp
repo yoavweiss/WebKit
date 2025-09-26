@@ -27,6 +27,9 @@
 
 #include "AXLoggerBase.h"
 #include "AXObjectCache.h"
+#include "CSSPrimitiveValueMappings.h"
+#include "CSSProperty.h"
+#include "CSSValueList.h"
 #include "Document.h"
 #include "ElementInlines.h"
 #include "HTMLImageElement.h"
@@ -35,7 +38,9 @@
 #include "HTMLNames.h"
 #include "Node.h"
 #include "RenderImage.h"
+#include "RenderStyleConstants.h"
 #include "RenderTreeBuilder.h"
+#include "StylePropertiesInlines.h"
 #include <wtf/CheckedPtr.h>
 #include <wtf/RefPtr.h>
 
@@ -475,6 +480,21 @@ bool needsLayoutOrStyleRecalc(const Document& document)
             return true;
     }
     return document.hasPendingStyleRecalc();
+}
+
+std::optional<CursorType> cursorTypeFrom(const StyleProperties& properties)
+{
+    for (auto property : properties) {
+        if (property.id() == CSSPropertyCursor) {
+            if (RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(property.value()))
+                return fromCSSValue<CursorType>(*primitiveValue);
+            if (RefPtr valueList = dynamicDowncast<CSSValueList>(property.value()); valueList && valueList->size() >= 2) {
+                if (RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>((*valueList)[valueList->size() - 1]))
+                    return fromCSSValue<CursorType>(*primitiveValue);
+            }
+        }
+    }
+    return std::nullopt;
 }
 
 } // namespace WebCore

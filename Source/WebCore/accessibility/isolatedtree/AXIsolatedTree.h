@@ -56,7 +56,7 @@ class AXObjectCache;
 class AccessibilityObject;
 enum class AXStreamOptions : uint16_t;
 
-static constexpr uint16_t lastPropertyFlagIndex = 26;
+static constexpr uint16_t lastPropertyFlagIndex = 27;
 // The most common boolean properties are stored in a bitfield rather than in a HashMap.
 // If you edit these, make sure the corresponding AXProperty is ordered correctly in that
 // enum, and update lastPropertyFlagIndex above.
@@ -83,11 +83,12 @@ enum class AXPropertyFlag : uint32_t {
     IsTextEmissionBehaviorNewline                 = 1 << 18,
     IsTextEmissionBehaviorDoubleNewline           = 1 << 19,
     IsVisited                                     = 1 << 20,
-    SupportsCheckedState                          = 1 << 21,
-    SupportsDragging                              = 1 << 22,
-    SupportsExpanded                              = 1 << 23,
-    SupportsPath                                  = 1 << 24,
-    SupportsPosInSet                              = 1 << 25,
+    ShowsCursorOnHover                            = 1 << 21,
+    SupportsCheckedState                          = 1 << 22,
+    SupportsDragging                              = 1 << 23,
+    SupportsExpanded                              = 1 << 24,
+    SupportsPath                                  = 1 << 25,
+    SupportsPosInSet                              = 1 << 26,
     SupportsSetSize                               = 1 << lastPropertyFlagIndex
 };
 
@@ -113,11 +114,12 @@ enum class AXProperty : uint16_t {
     IsTextEmissionBehaviorNewline = 18,
     IsTextEmissionBehaviorDoubleNewline = 19,
     IsVisited = 20,
-    SupportsCheckedState = 21,
-    SupportsDragging = 22,
-    SupportsExpanded = 23,
-    SupportsPath = 24,
-    SupportsPosInSet = 25,
+    ShowsCursorOnHover = 21,
+    SupportsCheckedState = 22,
+    SupportsDragging = 23,
+    SupportsExpanded = 24,
+    SupportsPath = 25,
+    SupportsPosInSet = 26,
     SupportsSetSize = lastPropertyFlagIndex,
     // End bool attributes that are matched in order by AXPropertyFlag.
 

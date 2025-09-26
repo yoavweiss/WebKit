@@ -819,6 +819,9 @@ void AXIsolatedTree::updateNodeProperties(AccessibilityObject& axObject, const A
             properties.append({ AXProperty::SupportsKeyShortcuts, axObject.supportsKeyShortcuts() });
             properties.append({ AXProperty::KeyShortcuts, axObject.keyShortcuts().isolatedCopy() });
             break;
+        case AXProperty::ShowsCursorOnHover:
+            properties.append({ AXProperty::ShowsCursorOnHover, axObject.showsCursorOnHover() });
+            break;
         case AXProperty::SupportsARIAOwns:
             properties.append({ AXProperty::SupportsARIAOwns, axObject.supportsARIAOwns() });
             break;
@@ -1727,6 +1730,8 @@ std::optional<AXPropertyFlag> convertToPropertyFlag(AXProperty property)
         return AXPropertyFlag::IsExposedTableRow;
     case AXProperty::IsVisited:
         return AXPropertyFlag::IsVisited;
+    case AXProperty::ShowsCursorOnHover:
+        return AXPropertyFlag::ShowsCursorOnHover;
     case AXProperty::SupportsCheckedState:
         return AXPropertyFlag::SupportsCheckedState;
     case AXProperty::SupportsDragging:
@@ -1858,6 +1863,7 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
         // These properties are cached for all objects, ignored and unignored.
         setProperty(AXProperty::HasClickHandler, object.hasClickHandler());
         setProperty(AXProperty::HasCursorPointer, object.hasCursorPointer());
+        setProperty(AXProperty::ShowsCursorOnHover, object.showsCursorOnHover());
         auto elementName = object.elementName();
         if (shouldCacheElementName(elementName))
             setProperty(AXProperty::ElementName, elementName);

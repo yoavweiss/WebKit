@@ -94,6 +94,7 @@ namespace WebCore {
     macro(SelectedStateChanged) \
     macro(SelectedTextChanged) \
     macro(SetSizeChanged) \
+    macro(StyleChanged) \
     macro(TextColorChanged) \
     macro(TextCompositionBegan) \
     macro(TextCompositionEnded) \
