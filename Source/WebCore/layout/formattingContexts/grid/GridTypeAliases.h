@@ -25,21 +25,25 @@
 
 #pragma once
 
-#include "LayoutUnit.h"
-
 namespace WebCore {
+
+class LayoutUnit;
 
 namespace Layout {
 
-class TrackSizingAlgorithm {
-public:
-    static TrackSizes sizeTracks(const PlacedGridItems&, const TrackSizingFunctionsList&);
+class PlacedGridItem;
+class UnplacedGridItem;
 
-private:
+struct GridAreaLines;
+struct TrackSizingFunctions;
+struct UnsizedTrack;
 
-    static UnsizedTracks initializeTrackSizes(const TrackSizingFunctionsList&);
-};
-
-} // namespace WebCore
+using GridAreas = HashMap<UnplacedGridItem, GridAreaLines>;
+using GridCell = Vector<UnplacedGridItem, 1>;
+using GridMatrix = Vector<Vector<GridCell>>;
+using PlacedGridItems = Vector<PlacedGridItem>;
+using TrackSizes = Vector<LayoutUnit>;
+using TrackSizingFunctionsList = Vector<TrackSizingFunctions>;
+using UnsizedTracks = Vector<UnsizedTrack>;
 } // namespace Layout
-
+} // namespace WebCore

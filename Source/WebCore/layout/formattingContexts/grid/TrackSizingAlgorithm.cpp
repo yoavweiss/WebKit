@@ -31,8 +31,14 @@
 namespace WebCore {
 namespace Layout {
 
+struct UnsizedTrack {
+    LayoutUnit baseSize;
+    LayoutUnit growthLimit;
+    const TrackSizingFunctions trackSizingFunction;
+};
+
 // https://drafts.csswg.org/css-grid-1/#algo-track-sizing
-TrackSizingAlgorithm::TrackSizes TrackSizingAlgorithm::sizeTracks(const PlacedGridItems&, const TrackSizingFunctionsList& trackSizingFunctions)
+TrackSizes TrackSizingAlgorithm::sizeTracks(const PlacedGridItems&, const TrackSizingFunctionsList& trackSizingFunctions)
 {
     // 1. Initialize Track Sizes
     auto unsizedTracks = initializeTrackSizes(trackSizingFunctions);
@@ -69,9 +75,9 @@ TrackSizingAlgorithm::TrackSizes TrackSizingAlgorithm::sizeTracks(const PlacedGr
 }
 
 // https://www.w3.org/TR/css-grid-1/#algo-init
-TrackSizingAlgorithm::UnsizedTracks TrackSizingAlgorithm::initializeTrackSizes(const TrackSizingFunctionsList& trackSizingFunctionsList)
+UnsizedTracks TrackSizingAlgorithm::initializeTrackSizes(const TrackSizingFunctionsList& trackSizingFunctionsList)
 {
-    return trackSizingFunctionsList.map([](const GridLayout::TrackSizingFunctions& trackSizingFunctions) -> UnsizedTrack {
+    return trackSizingFunctionsList.map([](const TrackSizingFunctions& trackSizingFunctions) -> UnsizedTrack {
         // For each track, if the track’s min track sizing function is:
         auto baseSize = [&] -> LayoutUnit {
             auto& minTrackSizingFunction = trackSizingFunctions.min;

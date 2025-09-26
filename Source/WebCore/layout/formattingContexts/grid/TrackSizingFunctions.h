@@ -25,21 +25,13 @@
 
 #pragma once
 
-#include "LayoutUnit.h"
+#include "StyleGridTrackBreadth.h"
 
 namespace WebCore {
-
 namespace Layout {
-
-class TrackSizingAlgorithm {
-public:
-    static TrackSizes sizeTracks(const PlacedGridItems&, const TrackSizingFunctionsList&);
-
-private:
-
-    static UnsizedTracks initializeTrackSizes(const TrackSizingFunctionsList&);
+struct TrackSizingFunctions {
+    Style::GridTrackBreadth min { CSS::Keyword::Auto { } };
+    Style::GridTrackBreadth max { CSS::Keyword::Auto { } };
 };
-
-} // namespace WebCore
-} // namespace Layout
-
+}
+}

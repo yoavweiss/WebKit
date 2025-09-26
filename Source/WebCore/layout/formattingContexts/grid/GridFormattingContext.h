@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "GridTypeAliases.h"
 #include "LayoutState.h"
 #include "LayoutUnit.h"
 #include <wtf/CheckedRef.h>
@@ -54,8 +55,6 @@ public:
 
     void layout(GridLayoutConstraints);
 
-    using PlacedGridItems = Vector<PlacedGridItem>;
-    using GridAreas = HashMap<UnplacedGridItem, GridAreaLines>;
     PlacedGridItems constructPlacedGridItems(const GridAreas&) const;
 
     const ElementBox& root() const { return m_gridBox; }

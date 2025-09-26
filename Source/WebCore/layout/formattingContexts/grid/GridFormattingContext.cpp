@@ -113,7 +113,7 @@ void GridFormattingContext::layout(GridLayoutConstraints layoutConstraints)
     GridLayout { *this }.layout(layoutConstraints, unplacedGridItems);
 }
 
-GridFormattingContext::PlacedGridItems GridFormattingContext::constructPlacedGridItems(const GridAreas& gridAreas) const
+PlacedGridItems GridFormattingContext::constructPlacedGridItems(const GridAreas& gridAreas) const
 {
     PlacedGridItems placedGridItems;
     placedGridItems.reserveInitialCapacity(gridAreas.size());

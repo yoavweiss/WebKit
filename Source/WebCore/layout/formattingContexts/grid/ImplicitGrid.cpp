@@ -100,7 +100,7 @@ void ImplicitGrid::insertUnplacedGridItem(const UnplacedGridItem& unplacedGridIt
 
 }
 
-ImplicitGrid::GridAreas ImplicitGrid::gridAreas() const
+GridAreas ImplicitGrid::gridAreas() const
 {
     GridAreas gridAreas;
     gridAreas.reserveInitialCapacity(rowsCount() * columnsCount());

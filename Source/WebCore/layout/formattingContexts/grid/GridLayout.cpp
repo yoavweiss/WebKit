@@ -27,16 +27,22 @@
 #include "GridLayout.h"
 
 #include "ImplicitGrid.h"
-#include "PlacedGridItem.h"
 #include "RenderStyleInlines.h"
 #include "LayoutElementBox.h"
 #include "NotImplemented.h"
 #include "TrackSizingAlgorithm.h"
+#include "TrackSizingFunctions.h"
 #include "UnplacedGridItem.h"
 #include <wtf/Vector.h>
 
 namespace WebCore {
 namespace Layout {
+
+struct UsedTrackSizes {
+    TrackSizes columnSizes;
+    TrackSizes rowSizes;
+};
+
 GridLayout::GridLayout(const GridFormattingContext& gridFormattingContext)
     : m_gridFormattingContext(gridFormattingContext)
 {
@@ -48,7 +54,6 @@ auto GridLayout::placeGridItems(const UnplacedGridItems& unplacedGridItems, cons
     const Vector<Style::GridTrackSize>& gridTemplateRowsTrackSizes)
 {
     struct Result {
-        using GridAreas = HashMap<UnplacedGridItem, GridAreaLines>;
         GridAreas gridAreas;
         size_t implicitGridColumnsCount;
         size_t implicitGridRowsCount;
@@ -88,7 +93,7 @@ void GridLayout::layout(GridFormattingContext::GridLayoutConstraints, const Unpl
     UNUSED_VARIABLE(usedRowSizes);
 }
 
-GridLayout::TrackSizingFunctionsList GridLayout::trackSizingFunctions(size_t implicitGridTracksCount, const Vector<Style::GridTrackSize> gridTemplateTrackSizes)
+TrackSizingFunctionsList GridLayout::trackSizingFunctions(size_t implicitGridTracksCount, const Vector<Style::GridTrackSize> gridTemplateTrackSizes)
 {
     ASSERT(implicitGridTracksCount == gridTemplateTrackSizes.size(), "Currently only support mapping track sizes from explicit grid from grid-template-{columns, rows}");
     UNUSED_VARIABLE(implicitGridTracksCount);
@@ -131,7 +136,7 @@ GridLayout::TrackSizingFunctionsList GridLayout::trackSizingFunctions(size_t imp
 }
 
 // https://www.w3.org/TR/css-grid-1/#algo-grid-sizing
-GridLayout::UsedTrackSizes GridLayout::performGridSizingAlgorithm(const PlacedGridItems& placedGridItems,
+UsedTrackSizes GridLayout::performGridSizingAlgorithm(const PlacedGridItems& placedGridItems,
     const TrackSizingFunctionsList& columnTrackSizingFunctionsList, const TrackSizingFunctionsList& rowTrackSizingFunctionsList)
 {
     // 1. First, the track sizing algorithm is used to resolve the sizes of the grid columns.

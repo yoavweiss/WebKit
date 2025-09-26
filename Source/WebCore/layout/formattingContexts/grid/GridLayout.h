@@ -26,6 +26,7 @@
 #pragma once
 
 #include "GridFormattingContext.h"
+#include "GridTypeAliases.h"
 #include "StyleGridTrackBreadth.h"
 
 namespace WebCore {
@@ -38,9 +39,8 @@ struct GridTrackSize;
 namespace Layout {
 
 class ImplicitGrid;
-class PlacedGridItem;
-class UnplacedGridItem;
-struct UnplacedGridItems;
+
+struct UsedTrackSizes;
 
 class GridLayout {
 public:
@@ -48,24 +48,12 @@ public:
 
     void layout(GridFormattingContext::GridLayoutConstraints, const UnplacedGridItems&);
 
-    struct TrackSizingFunctions {
-        Style::GridTrackBreadth min { CSS::Keyword::Auto { } };
-        Style::GridTrackBreadth max { CSS::Keyword::Auto { } };
-    };
-
 private:
-    using PlacedGridItems = Vector<PlacedGridItem>;
-    using TrackSizingFunctionsList = Vector<TrackSizingFunctions>;
 
     static auto placeGridItems(const UnplacedGridItems&, const Vector<Style::GridTrackSize>& gridTemplateColumnsTrackSizes,
         const Vector<Style::GridTrackSize>& gridTemplateRowsTrackSizes);
     static TrackSizingFunctionsList trackSizingFunctions(size_t implicitGridTracksCount, const Vector<Style::GridTrackSize> gridTemplateTrackSizes);
 
-    struct UsedTrackSizes {
-        using TrackSizes = Vector<LayoutUnit>;
-        TrackSizes columnSizes;
-        TrackSizes rowSizes;
-    };
     static UsedTrackSizes performGridSizingAlgorithm(const PlacedGridItems&, const TrackSizingFunctionsList& columnTrackSizingFunctionsList, const TrackSizingFunctionsList& rowTrackSizingFunctionsList);
 
     const GridFormattingContext& formattingContext() const { return m_gridFormattingContext.get(); }
