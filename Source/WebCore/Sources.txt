@@ -1961,6 +1961,7 @@ layout/formattingContexts/table/TableLayout.cpp
 layout/integration/LayoutIntegrationBoxGeometryUpdater.cpp
 layout/integration/LayoutIntegrationBoxTreeUpdater.cpp
 layout/integration/LayoutIntegrationCoverage.cpp
+layout/integration/grid/LayoutIntegrationGridCoverage.cpp
 layout/integration/LayoutIntegrationFormattingContextLayout.cpp
 layout/integration/LayoutIntegrationUtils.cpp
 layout/integration/flex/LayoutIntegrationFlexLayout.cpp

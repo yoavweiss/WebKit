@@ -33,7 +33,7 @@
 #include "GridMasonryLayout.h"
 #include "GridTrackSizingAlgorithm.h"
 #include "HitTestLocation.h"
-#include "LayoutIntegrationCoverage.h"
+#include "LayoutIntegrationGridCoverage.h"
 #include "LayoutIntegrationGridLayout.h"
 #include "LayoutRange.h"
 #include "LayoutRepainter.h"

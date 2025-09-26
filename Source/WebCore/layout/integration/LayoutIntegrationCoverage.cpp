@@ -394,13 +394,5 @@ bool canUseForFlexLayout(const RenderFlexibleBox& flexBox)
     return canUseForFlexLayoutWithReason(flexBox, IncludeReasons::First).isEmpty();
 }
 
-bool canUseForGridLayout(const RenderGrid& renderGrid)
-{
-    // Grid integration is not enabled yet.
-    if (!renderGrid.document().settings().gridFormattingContextIntegrationEnabled())
-        return false;
-    return false;
-}
-
 }
 }
