@@ -28,6 +28,7 @@
 
 #include "GridLayout.h"
 #include "LayoutChildIterator.h"
+#include "PlacedGridItem.h"
 #include "RenderStyleInlines.h"
 #include "StylePrimitiveNumeric.h"
 #include "UnplacedGridItem.h"
@@ -110,6 +111,16 @@ void GridFormattingContext::layout(GridLayoutConstraints layoutConstraints)
 {
     auto unplacedGridItems = constructUnplacedGridItems();
     GridLayout { *this }.layout(layoutConstraints, unplacedGridItems);
+}
+
+GridFormattingContext::PlacedGridItems GridFormattingContext::constructPlacedGridItems(const GridAreas& gridAreas) const
+{
+    PlacedGridItems placedGridItems;
+    placedGridItems.reserveInitialCapacity(gridAreas.size());
+    for (auto [ unplacedGridItem, gridAreaLines ] : gridAreas)
+        placedGridItems.constructAndAppend(unplacedGridItem, gridAreaLines);
+
+    return placedGridItems;
 }
 
 } // namespace Layout

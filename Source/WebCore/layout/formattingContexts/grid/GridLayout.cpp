@@ -48,7 +48,8 @@ auto GridLayout::placeGridItems(const UnplacedGridItems& unplacedGridItems, cons
     const Vector<Style::GridTrackSize>& gridTemplateRowsTrackSizes)
 {
     struct Result {
-        PlacedGridItems placedGridItems;
+        using GridAreas = HashMap<UnplacedGridItem, GridAreaLines>;
+        GridAreas gridAreas;
         size_t implicitGridColumnsCount;
         size_t implicitGridRowsCount;
     };
@@ -63,7 +64,7 @@ auto GridLayout::placeGridItems(const UnplacedGridItems& unplacedGridItems, cons
     ASSERT(implicitGrid.columnsCount() == gridTemplateColumnsTrackSizes.size() && implicitGrid.rowsCount() == gridTemplateRowsTrackSizes.size(),
         "Since we currently only support placing items which are explicitly placed and fit within the explicit grid, the size of the implicit grid should match the passed in sizes.");
 
-    return Result { implicitGrid.placedGridItems(), implicitGrid.columnsCount(), implicitGrid.rowsCount() };
+    return Result { implicitGrid.gridAreas(), implicitGrid.columnsCount(), implicitGrid.rowsCount() };
 }
 
 // https://drafts.csswg.org/css-grid-1/#layout-algorithm
@@ -74,7 +75,8 @@ void GridLayout::layout(GridFormattingContext::GridLayoutConstraints, const Unpl
     auto& gridTemplateRowsTrackSizes = gridContainerStyle->gridTemplateRows().sizes;
 
     // 1. Run the Grid Item Placement Algorithm to resolve the placement of all grid items in the grid.
-    auto [ placedGridItems, implicitGridColumnsCount, implicitGridRowsCount ] = placeGridItems(unplacedGridItems, gridTemplateColumnsTrackSizes, gridTemplateRowsTrackSizes);
+    auto [ gridAreas, implicitGridColumnsCount, implicitGridRowsCount ] = placeGridItems(unplacedGridItems, gridTemplateColumnsTrackSizes, gridTemplateRowsTrackSizes);
+    auto placedGridItems = formattingContext().constructPlacedGridItems(gridAreas);
 
     auto columnTrackSizingFunctionsList = trackSizingFunctions(implicitGridColumnsCount, gridTemplateColumnsTrackSizes);
     auto rowTrackSizingFunctionsList = trackSizingFunctions(implicitGridRowsCount, gridTemplateRowsTrackSizes);

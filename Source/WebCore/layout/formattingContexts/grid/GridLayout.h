@@ -68,6 +68,8 @@ private:
     };
     static UsedTrackSizes performGridSizingAlgorithm(const PlacedGridItems&, const TrackSizingFunctionsList& columnTrackSizingFunctionsList, const TrackSizingFunctionsList& rowTrackSizingFunctionsList);
 
+    const GridFormattingContext& formattingContext() const { return m_gridFormattingContext.get(); }
+
     const ElementBox& gridContainer() const;
     const RenderStyle& gridContainerStyle() const;
 

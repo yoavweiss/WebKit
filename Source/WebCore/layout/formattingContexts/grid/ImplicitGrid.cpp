@@ -100,24 +100,23 @@ void ImplicitGrid::insertUnplacedGridItem(const UnplacedGridItem& unplacedGridIt
 
 }
 
-PlacedGridItems ImplicitGrid::placedGridItems() const
+ImplicitGrid::GridAreas ImplicitGrid::gridAreas() const
 {
-    HashSet<UnplacedGridItem> processedUnplacedGridItems;
-    PlacedGridItems placedGridItems;
+    GridAreas gridAreas;
+    gridAreas.reserveInitialCapacity(rowsCount() * columnsCount());
 
     for (size_t rowIndex = 0; rowIndex < m_gridMatrix.size(); ++rowIndex) {
         for (size_t columnIndex = 0; columnIndex < m_gridMatrix[rowIndex].size(); ++columnIndex) {
 
             const auto& gridCell = m_gridMatrix[rowIndex][columnIndex];
             for (const auto& unplacedGridItem : gridCell) {
-                if (processedUnplacedGridItems.contains(unplacedGridItem))
-                    continue;
-                processedUnplacedGridItems.add(unplacedGridItem);
-                placedGridItems.append({ unplacedGridItem, { columnIndex, columnIndex + 1, rowIndex, rowIndex + 1 } });
+                gridAreas.ensure(unplacedGridItem, [&]() {
+                    return GridAreaLines { columnIndex, columnIndex + 1, rowIndex, rowIndex + 1 };
+                });
             }
         }
     }
-    return placedGridItems;
+    return gridAreas;
 }
 
 } // namespace Layout

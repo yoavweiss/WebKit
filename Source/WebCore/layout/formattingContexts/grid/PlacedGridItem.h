@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "GridAreaLines.h"
 #include "LayoutElementBox.h"
 #include <wtf/HashTraits.h>
 
@@ -35,13 +36,6 @@ class UnplacedGridItem;
 
 class PlacedGridItem {
 public:
-    // https://drafts.csswg.org/css-grid-1/#grid-area
-    struct GridAreaLines {
-        size_t columnStartLine;
-        size_t columnEndLine;
-        size_t rowStartLine;
-        size_t rowEndLine;
-    };
 
     PlacedGridItem(const UnplacedGridItem&, GridAreaLines);
 

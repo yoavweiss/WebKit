@@ -25,37 +25,14 @@
 
 #pragma once
 
-#include <wtf/Forward.h>
-#include <wtf/Vector.h>
-
 namespace WebCore {
 namespace Layout {
-
-class PlacedGridItem;
-class UnplacedGridItem;
-
-struct GridAreaLines;
-
-using PlacedGridItems = Vector<PlacedGridItem>;
-using GridCell = Vector<UnplacedGridItem, 1>;
-
-// https://drafts.csswg.org/css-grid-1/#implicit-grids
-class ImplicitGrid {
-public:
-    ImplicitGrid(size_t explicitColumnsCount, size_t explicitRowsCount);
-
-    size_t rowsCount() const { return m_gridMatrix.size(); }
-    size_t columnsCount() const { return rowsCount() ? m_gridMatrix[0].size() : 0; }
-
-    void insertUnplacedGridItem(const UnplacedGridItem&);
-
-    using GridAreas = HashMap<UnplacedGridItem, GridAreaLines>;
-    GridAreas gridAreas() const;
-
-private:
-    using GridMatrix = Vector<Vector<GridCell>>;
-    GridMatrix m_gridMatrix;
+// https://drafts.csswg.org/css-grid-1/#grid-area
+struct GridAreaLines {
+    size_t columnStartLine;
+    size_t columnEndLine;
+    size_t rowStartLine;
+    size_t rowEndLine;
 };
-
-} // namespace Layout
-} // namespace WebCore
+}
+}

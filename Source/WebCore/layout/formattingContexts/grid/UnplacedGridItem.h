@@ -84,6 +84,7 @@ template<> struct HashTraits<WebCore::Layout::UnplacedGridItem> : SimpleClassHas
     static constexpr bool hasIsEmptyValueFunction = true;
 
     static bool isEmptyValue(const WebCore::Layout::UnplacedGridItem& unplacedGridItem) { return unplacedGridItem.isHashTableEmptyValue(); }
+    static WebCore::Layout::UnplacedGridItem emptyValue() { return WebCore::Layout::UnplacedGridItem { HashTableEmptyValueType::HashTableEmptyValue }; }
 };
 
 template<> struct DefaultHash<WebCore::Layout::UnplacedGridItem> {
