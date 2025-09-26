@@ -232,6 +232,7 @@ void OpenXRCoordinator::startSession(WebPageProxy& page, WeakPtr<PlatformXRCoord
                 .renderState = renderState,
                 .renderQueue = renderQueue.get()
             };
+            page.uiClient().didStartXRSession(page);
             renderQueue->dispatch([this, renderState] {
                 createSessionIfNeeded();
                 if (m_session == XR_NULL_HANDLE) {
@@ -267,6 +268,10 @@ void OpenXRCoordinator::endSessionIfExists(WebPageProxy& page)
 
             active.renderState->terminateRequested = true;
             active.renderQueue->dispatchSync([this, renderState = active.renderState] {
+                if (!m_isSessionRunning) {
+                    cleanupSessionAndAssociatedResources();
+                    return;
+                }
                 // OpenXR will transition the session to STOPPING state and then we will call xrEndSession().
                 CHECK_XRCMD(xrRequestExitSession(m_session));
                 while (m_session != XR_NULL_HANDLE)
@@ -638,14 +643,6 @@ void OpenXRCoordinator::handleSessionStateChange()
         sessionBeginInfo.primaryViewConfigurationType = m_currentViewConfiguration;
         CHECK_XRCMD(xrBeginSession(m_session, &sessionBeginInfo));
         m_isSessionRunning = true;
-        callOnMainRunLoop([this] {
-            WTF::switchOn(m_state,
-                [&](Idle&) { },
-                [&](Active& active) {
-                    if (RefPtr page = WebProcessProxy::webPage(active.pageIdentifier))
-                        page->uiClient().didStartXRSession(*page);
-                });
-        });
         break;
     }
     case XR_SESSION_STATE_STOPPING:
