@@ -61,8 +61,8 @@ WEBCORE_EXPORT PKInstantFundsOutFeeSummaryItem *platformInstantFundsOutFeeSummar
 #endif // HAVE(PASSKIT_DISBURSEMENTS)
 
 WEBCORE_EXPORT PKPaymentSummaryItem *platformSummaryItem(const ApplePayLineItem&);
-WEBCORE_EXPORT NSArray *platformDisbursementSummaryItems(const Vector<ApplePayLineItem>&);
-WEBCORE_EXPORT NSArray *platformSummaryItems(const ApplePayLineItem& total, const Vector<ApplePayLineItem>&);
+WEBCORE_EXPORT RetainPtr<NSArray> platformDisbursementSummaryItems(const Vector<ApplePayLineItem>&);
+WEBCORE_EXPORT RetainPtr<NSArray> platformSummaryItems(const ApplePayLineItem& total, const Vector<ApplePayLineItem>&);
 
 WEBCORE_EXPORT NSDecimalNumber *toDecimalNumber(const String& amount);
 WEBCORE_EXPORT RetainPtr<NSDecimalNumber> toProtectedDecimalNumber(const String& amount);

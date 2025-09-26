@@ -2,7 +2,6 @@ GeneratedWebKitSecureCoding.mm
 NetworkProcess/mac/NetworkProcessMac.mm
 Platform/IPC/cocoa/ConnectionCocoa.mm
 Platform/IPC/cocoa/DaemonConnectionCocoa.mm
-Platform/cocoa/PaymentAuthorizationPresenter.mm
 Shared/API/Cocoa/RemoteObjectRegistry.mm
 Shared/API/Cocoa/WKBrowsingContextHandle.mm
 Shared/API/Cocoa/WKRemoteObjectCoder.mm
@@ -13,7 +12,6 @@ Shared/API/c/mac/WKURLResponseNS.mm
 Shared/ApplePay/ApplePayPaymentSetupFeatures.mm
 Shared/ApplePay/cocoa/AutomaticReloadPaymentRequestCocoa.mm
 Shared/ApplePay/cocoa/DeferredPaymentRequestCocoa.mm
-Shared/ApplePay/cocoa/DisbursementRequestCocoa.mm
 Shared/ApplePay/cocoa/PaymentTokenContextCocoa.mm
 Shared/ApplePay/cocoa/RecurringPaymentRequestCocoa.mm
 Shared/ApplePay/cocoa/WebPaymentCoordinatorProxyCocoa.mm

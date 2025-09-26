@@ -195,20 +195,20 @@ PKPaymentSummaryItem *platformSummaryItem(const ApplePayLineItem& lineItem)
 
 #if HAVE(PASSKIT_DISBURSEMENTS)
 // Disbursement Requests have a unique quirk: the total doesn't actually matter, we need to disregard any totals (this is a separate method to avoid confusion rather than making the total in `platformSummaryItems` optional
-NSArray *platformDisbursementSummaryItems(const Vector<ApplePayLineItem>& lineItems)
+RetainPtr<NSArray> platformDisbursementSummaryItems(const Vector<ApplePayLineItem>& lineItems)
 {
-    NSMutableArray *paymentSummaryItems = [NSMutableArray arrayWithCapacity:lineItems.size()];
+    RetainPtr paymentSummaryItems = adoptNS([[NSMutableArray alloc] initWithCapacity:lineItems.size()]);
     for (auto& lineItem : lineItems) {
         if (RetainPtr summaryItem = platformSummaryItem(lineItem))
             [paymentSummaryItems addObject:summaryItem.get()];
     }
-    return adoptNS([paymentSummaryItems copy]).autorelease();
+    return paymentSummaryItems;
 }
 #endif // HAVE(PASSKIT_DISBURSEMENTS)
 
-NSArray *platformSummaryItems(const ApplePayLineItem& total, const Vector<ApplePayLineItem>& lineItems)
+RetainPtr<NSArray> platformSummaryItems(const ApplePayLineItem& total, const Vector<ApplePayLineItem>& lineItems)
 {
-    NSMutableArray *paymentSummaryItems = [NSMutableArray arrayWithCapacity:lineItems.size() + 1];
+    RetainPtr paymentSummaryItems = adoptNS([[NSMutableArray alloc] initWithCapacity:lineItems.size() + 1]);
     for (auto& lineItem : lineItems) {
         if (RetainPtr summaryItem = platformSummaryItem(lineItem))
             [paymentSummaryItems addObject:summaryItem.get()];
@@ -217,7 +217,7 @@ NSArray *platformSummaryItems(const ApplePayLineItem& total, const Vector<AppleP
     if (RetainPtr totalItem = platformSummaryItem(total))
         [paymentSummaryItems addObject:totalItem.get()];
 
-    return adoptNS([paymentSummaryItems copy]).autorelease();
+    return paymentSummaryItems;
 }
 
 } // namespace WebCore
