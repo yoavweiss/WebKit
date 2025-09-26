@@ -1399,11 +1399,11 @@ end
     addp t1, t0
     mulp StackValueSize, t0
     addp IPIntCalleeSaveSpaceStackAligned, t0
-if ARMv7
-    move cfr, sp
-    subp sp, t0, sp
-else
+if ARM64 or ARM64E
     subp cfr, t0, sp
+else
+    subp cfr, t0, t0
+    move t0, sp
 end
 
 if X86_64

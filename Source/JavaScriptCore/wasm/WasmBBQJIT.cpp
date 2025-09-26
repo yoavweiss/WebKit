@@ -3151,7 +3151,7 @@ ControlData WARN_UNUSED_RETURN BBQJIT::addTopLevel(BlockSignature signature)
 
     m_pcToCodeOriginMapBuilder.appendItem(m_jit.label(), PCToCodeOriginMapBuilder::defaultCodeOrigin());
     m_jit.emitFunctionPrologue();
-    emitSaveCalleeSaves();
+    emitPushCalleeSaves();
     m_topLevel = ControlData(*this, BlockType::TopLevel, signature, 0);
 
     JIT_COMMENT(m_jit, "Store boxed JIT callee");
@@ -3332,7 +3332,7 @@ MacroAssembler::Label BBQJIT::addLoopOSREntrypoint()
     //  - Don't need to zero our locals, since they are restored from the OSR entry scratch buffer anyway.
     auto label = m_jit.label();
     m_jit.emitFunctionPrologue();
-    emitSaveCalleeSaves();
+    emitPushCalleeSaves();
 
     m_jit.move(CCallHelpers::TrustedImmPtr(CalleeBits::boxNativeCallee(&m_callee)), wasmScratchGPR);
     static_assert(CallFrameSlot::codeBlock + 1 == CallFrameSlot::callee);
@@ -4469,11 +4469,11 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCall(unsigned callProfileIndex, Func
 
     // Our callee could have tail called someone else and changed SP so we need to restore it. Do this before restoring our results since results are stored at the top of the reserved stack space.
     m_frameSizeLabels.append(m_jit.moveWithPatch(TrustedImmPtr(nullptr), wasmScratchGPR));
-#if CPU(ARM_THUMB2)
+#if CPU(ARM64)
+    m_jit.subPtr(GPRInfo::callFrameRegister, wasmScratchGPR, MacroAssembler::stackPointerRegister);
+#else
     m_jit.subPtr(GPRInfo::callFrameRegister, wasmScratchGPR, wasmScratchGPR);
     m_jit.move(wasmScratchGPR, MacroAssembler::stackPointerRegister);
-#else
-    m_jit.subPtr(GPRInfo::callFrameRegister, wasmScratchGPR, MacroAssembler::stackPointerRegister);
 #endif
 
     // Push return value(s) onto the expression stack
@@ -4541,11 +4541,11 @@ void BBQJIT::emitIndirectCall(const char* opcode, unsigned callProfileIndex, con
 
     // Our callee could have tail called someone else and changed SP so we need to restore it. Do this before restoring our results since results are stored at the top of the reserved stack space.
     m_frameSizeLabels.append(m_jit.moveWithPatch(TrustedImmPtr(nullptr), wasmScratchGPR));
-#if CPU(ARM_THUMB2)
+#if CPU(ARM64)
+    m_jit.subPtr(GPRInfo::callFrameRegister, wasmScratchGPR, MacroAssembler::stackPointerRegister);
+#else
     m_jit.subPtr(GPRInfo::callFrameRegister, wasmScratchGPR, wasmScratchGPR);
     m_jit.move(wasmScratchGPR, MacroAssembler::stackPointerRegister);
-#else
-    m_jit.subPtr(GPRInfo::callFrameRegister, wasmScratchGPR, MacroAssembler::stackPointerRegister);
 #endif
 
     returnValuesFromCall(results, *signature.as<FunctionSignature>(), wasmCalleeInfo);
@@ -5318,8 +5318,15 @@ Expected<std::unique_ptr<InternalFunction>, String> parseAndCompileBBQ(Compilati
     return result;
 }
 
-void BBQJIT::emitSaveCalleeSaves()
+void BBQJIT::emitPushCalleeSaves()
 {
+    size_t stackSizeForCalleeSaves = WTF::roundUpToMultipleOf<stackAlignmentBytes()>(RegisterAtOffsetList::bbqCalleeSaveRegisters().registerCount() * sizeof(UCPURegister));
+#if CPU(X86_64) || CPU(ARM64)
+    m_jit.subPtr(GPRInfo::callFrameRegister, TrustedImm32(stackSizeForCalleeSaves), MacroAssembler::stackPointerRegister);
+#else
+    m_jit.subPtr(GPRInfo::callFrameRegister, TrustedImm32(stackSizeForCalleeSaves), wasmScratchGPR);
+    m_jit.move(wasmScratchGPR, MacroAssembler::stackPointerRegister);
+#endif
     m_jit.emitSaveCalleeSavesFor(&RegisterAtOffsetList::bbqCalleeSaveRegisters());
 }
 
