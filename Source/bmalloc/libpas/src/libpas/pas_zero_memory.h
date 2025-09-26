@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Apple Inc. All rights reserved.
+ * Copyright (c) 2018-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,28 +23,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "pas_config.h"
+#pragma once
 
-#if LIBPAS_ENABLED
-
-#include "pas_allocation_result.h"
 #include "pas_mte.h"
-#include "pas_page_malloc.h"
-#include "pas_zero_memory.h"
+#include "pas_utils.h"
+#include <stdint.h>
 
-pas_allocation_result pas_allocation_result_zero_large_slow(pas_allocation_result result, size_t size)
+static PAS_ALWAYS_INLINE void pas_zero_memory(void* memory, size_t size)
 {
-    size_t page_size;
-
-    PAS_PROFILE(ZERO_ALLOCATION_RESULT, result.begin);
-    PAS_MTE_HANDLE(ZERO_ALLOCATION_RESULT, result.begin);
-
-    page_size = pas_page_malloc_alignment();
-    if (pas_is_aligned(size, page_size) && pas_is_aligned(result.begin, page_size))
-        pas_page_malloc_zero_fill((void*)result.begin, size);
-    else
-        pas_zero_memory((void*)result.begin, size);
-    return pas_allocation_result_create_success_with_zero_mode(result.begin, pas_zero_mode_is_all_zero);
+    PAS_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
+    PAS_PROFILE(ZERO_MEMORY, memory, size);
+    PAS_MTE_HANDLE(ZERO_MEMORY, memory, size);
+    memset(memory, 0, size);
+    PAS_ALLOW_UNSAFE_BUFFER_USAGE_END
 }
-
-#endif /* LIBPAS_ENABLED */

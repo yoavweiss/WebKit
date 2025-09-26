@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Apple Inc. All rights reserved.
+ * Copyright (c) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -20,31 +20,23 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#include "pas_config.h"
-
-#if LIBPAS_ENABLED
-
-#include "pas_allocation_result.h"
 #include "pas_mte.h"
-#include "pas_page_malloc.h"
-#include "pas_zero_memory.h"
 
-pas_allocation_result pas_allocation_result_zero_large_slow(pas_allocation_result result, size_t size)
+#if PAS_ENABLE_MTE
+void* pas_mte_system_heap_realloc_zero_tagged(malloc_zone_t* zone, void* ptr, size_t size)
 {
-    size_t page_size;
+    size_t old_size = malloc_size(ptr);
+    size_t copy_size = size < old_size ? size : old_size;
 
-    PAS_PROFILE(ZERO_ALLOCATION_RESULT, result.begin);
-    PAS_MTE_HANDLE(ZERO_ALLOCATION_RESULT, result.begin);
+    void* result = pas_mte_system_heap_malloc_zero_tagged(zone, 0, size);
+    if (!result)
+        return result;
 
-    page_size = pas_page_malloc_alignment();
-    if (pas_is_aligned(size, page_size) && pas_is_aligned(result.begin, page_size))
-        pas_page_malloc_zero_fill((void*)result.begin, size);
-    else
-        pas_zero_memory((void*)result.begin, size);
-    return pas_allocation_result_create_success_with_zero_mode(result.begin, pas_zero_mode_is_all_zero);
+    memcpy(result, ptr, copy_size);
+    malloc_zone_free(zone, ptr);
+    return result;
 }
-
-#endif /* LIBPAS_ENABLED */
+#endif /// PAS_ENABLE_MTE

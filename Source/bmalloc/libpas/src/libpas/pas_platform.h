@@ -203,6 +203,17 @@
 #error "Unsupported compiler for libpas"
 #endif
 
+#if PAS_PLATFORM(COCOA)
+/* Should be aligned with the definition in WTF/wtf/PlatformUse.h */
+#if defined __has_include && __has_include(<CoreFoundation/CFPriv.h>)
+#define PAS_USE_APPLE_INTERNAL_SDK 1
+#else
+#define PAS_USE_APPLE_INTERNAL_SDK 0
+#endif
+#else // !PAS_PLATFORM(COCOA)
+#define PAS_USE_APPLE_INTERNAL_SDK 0
+#endif // PAS_PLATFORM(COCOA)
+
 /* PAS_ALLOW_UNSAFE_BUFFER_USAGE */
 
 #if PAS_COMPILER(CLANG)
