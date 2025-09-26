@@ -1226,6 +1226,9 @@ public:
     virtual bool hasClickHandler() const = 0;
     virtual bool hasCursorPointer() const = 0;
     virtual bool showsCursorOnHover() const = 0;
+    // Returns true if the node associated with this object has a computed
+    // style of pointer-events:none.
+    virtual bool hasPointerEventsNone() const = 0;
     AXCoreObject* clickableSelfOrNonInteractiveAncestor();
     virtual AXCoreObject* clickableSelfOrAncestor(ClickHandlerFilter = ClickHandlerFilter::ExcludeBody) const = 0;
     virtual AXCoreObject* focusableAncestor() = 0;

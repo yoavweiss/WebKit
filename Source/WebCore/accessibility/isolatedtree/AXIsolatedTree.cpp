@@ -1710,6 +1710,8 @@ std::optional<AXPropertyFlag> convertToPropertyFlag(AXProperty property)
         return AXPropertyFlag::HasItalicFont;
     case AXProperty::HasPlainText:
         return AXPropertyFlag::HasPlainText;
+    case AXProperty::HasPointerEventsNone:
+        return AXPropertyFlag::HasPointerEventsNone;
     case AXProperty::IsEnabled:
         return AXPropertyFlag::IsEnabled;
     case AXProperty::IsExposedTableCell:
@@ -1864,6 +1866,7 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
         setProperty(AXProperty::HasClickHandler, object.hasClickHandler());
         setProperty(AXProperty::HasCursorPointer, object.hasCursorPointer());
         setProperty(AXProperty::ShowsCursorOnHover, object.showsCursorOnHover());
+        setProperty(AXProperty::HasPointerEventsNone, object.hasPointerEventsNone());
         auto elementName = object.elementName();
         if (shouldCacheElementName(elementName))
             setProperty(AXProperty::ElementName, elementName);

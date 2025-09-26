@@ -83,6 +83,7 @@ namespace WebCore {
     macro(NewDocumentLoadComplete) \
     macro(PageScrolled) \
     macro(PlaceholderChanged) \
+    macro(PointerEventsChanged) \
     macro(PopoverTargetChanged) \
     macro(PositionInSetChanged) \
     macro(RoleChanged) \

@@ -833,6 +833,9 @@ TextStream& operator<<(WTF::TextStream& stream, AXProperty property)
     case AXProperty::HasPlainText:
         stream << "HasPlainText";
         break;
+    case AXProperty::HasPointerEventsNone:
+        stream << "HasPointerEventsNone";
+        break;
     case AXProperty::HasRemoteFrameChild:
         stream << "HasRemoteFrameChild";
         break;

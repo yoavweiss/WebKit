@@ -1962,6 +1962,9 @@ void AXObjectCache::onStyleChange(Element& element, OptionSet<Style::Change> cha
     if (oldStyle->cursorType() != newStyle->cursorType())
         postNotification(*object, AXNotification::CursorTypeChanged);
 
+    if (oldStyle->pointerEvents() != newStyle->pointerEvents())
+        postNotification(*object, AXNotification::PointerEventsChanged);
+
     // Certain properties (e.g. AXProperty::ShowsCursorOnHover) cannot easily
     // be diffed here so post this general notification for those.
     updateIsolatedTree(*object, AXNotification::StyleChanged);
@@ -2109,6 +2112,9 @@ void AXObjectCache::onStyleChange(RenderText& renderText, StyleDifference differ
 
     if (oldStyle->textDecorationColor() != newStyle.textDecorationColor())
         tree->queueNodeUpdate(object->objectID(), { { AXProperty::LinethroughColor, AXProperty::UnderlineColor } });
+
+    if (oldStyle->pointerEvents() != newStyle.pointerEvents())
+        postNotification(*object, AXNotification::PointerEventsChanged);
 #endif // ENABLE(AX_THREAD_TEXT_APIS)
 
 #else
@@ -4946,6 +4952,9 @@ void AXObjectCache::updateIsolatedTree(const Vector<std::pair<Ref<AccessibilityO
             break;
         case AXNotification::PositionInSetChanged:
             tree->queueNodeUpdate(notification.first->objectID(), { { AXProperty::PosInSet, AXProperty::SupportsPosInSet } });
+            break;
+        case AXNotification::PointerEventsChanged:
+            tree->updatePropertiesForSelfAndDescendants(notification.first.get(), { { AXProperty::HasCursorPointer, AXProperty::HasPointerEventsNone } });
             break;
         case AXNotification::PopoverTargetChanged:
             tree->queueNodeUpdate(notification.first->objectID(), { { AXProperty::SupportsExpanded, AXProperty::IsExpanded } });

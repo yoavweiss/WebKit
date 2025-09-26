@@ -1402,7 +1402,7 @@ unsigned AXCoreObject::hierarchicalLevel() const
 
 bool AXCoreObject::supportsPressAction() const
 {
-    if (role() == AccessibilityRole::Presentational)
+    if (role() == AccessibilityRole::Presentational || hasPointerEventsNone())
         return false;
 
     if (isImplicitlyInteractive() || hasClickHandler())

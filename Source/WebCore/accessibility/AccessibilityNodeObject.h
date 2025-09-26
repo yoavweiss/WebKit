@@ -33,6 +33,7 @@
 #include "AXUtilities.h"
 #include "AccessibilityObject.h"
 #include "LayoutRect.h"
+#include "RenderStyleConstants.h"
 #include <wtf/Forward.h>
 
 namespace WebCore {
@@ -196,12 +197,10 @@ public:
     bool hasCursorPointer() const final
     {
         CheckedPtr style = this->style();
-        return style && style->cursorType() == CursorType::Pointer;
+        return style && style->cursorType() == CursorType::Pointer && style->pointerEvents() != PointerEvents::None;
     }
     bool showsCursorOnHover() const final;
-    // Returns true if the node associated with this object has a computed
-    // style of pointer-events:none.
-    bool hasPointerEventsNone() const;
+    bool hasPointerEventsNone() const final;
 
     void setIsExpanded(bool) final;
 

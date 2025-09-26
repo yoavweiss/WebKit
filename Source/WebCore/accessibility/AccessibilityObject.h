@@ -794,7 +794,8 @@ public:
 #endif // PLATFORM(MAC)
 
     bool hasClickHandler() const override { return false; }
-    bool hasCursorPointer() const override { return false; };
+    bool hasCursorPointer() const override { return false; }
+    bool hasPointerEventsNone() const override { return false; }
     bool showsCursorOnHover() const override { return false; }
     AccessibilityObject* clickableSelfOrAncestor(ClickHandlerFilter filter = ClickHandlerFilter::ExcludeBody) const final { return Accessibility::clickableSelfOrAncestor(*this, filter); };
     AccessibilityObject* focusableAncestor() final { return Accessibility::focusableAncestor(*this); }
