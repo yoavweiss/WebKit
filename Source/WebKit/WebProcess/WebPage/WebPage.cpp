@@ -563,7 +563,7 @@ static Vector<UserContentURLPattern> parseAndAllowAccessToCORSDisablingPatterns(
     });
 }
 
-static PageConfiguration::MainFrameCreationParameters mainFrameCreationParameters(Ref<WebFrame>&& mainFrame, auto frameType, auto initialSandboxFlags)
+static PageConfiguration::MainFrameCreationParameters mainFrameCreationParameters(Ref<WebFrame>&& mainFrame, auto frameType, auto initialSandboxFlags, auto initialReferrerPolicy)
 {
     auto invalidator = mainFrame->makeInvalidator();
     switch (frameType) {
@@ -572,7 +572,8 @@ static PageConfiguration::MainFrameCreationParameters mainFrameCreationParameter
             { [mainFrame = WTFMove(mainFrame), invalidator = WTFMove(invalidator)] (auto& localFrame, auto& frameLoader) mutable {
                 return makeUniqueRefWithoutRefCountedCheck<WebLocalFrameLoaderClient>(localFrame, frameLoader, WTFMove(mainFrame), WTFMove(invalidator));
             } },
-            initialSandboxFlags
+            initialSandboxFlags,
+            initialReferrerPolicy
         };
     case Frame::FrameType::Remote:
         return CompletionHandler<UniqueRef<RemoteFrameClient>(RemoteFrame&)> { [mainFrame = WTFMove(mainFrame), invalidator = WTFMove(invalidator)] (auto&) mutable {
@@ -786,7 +787,7 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
         WebBackForwardListProxy::create(*this),
         WebProcess::singleton().cookieJar(),
         makeUniqueRef<WebProgressTrackerClient>(*this),
-        mainFrameCreationParameters(m_mainFrame.copyRef(), frameType, parameters.initialSandboxFlags),
+        mainFrameCreationParameters(m_mainFrame.copyRef(), frameType, parameters.initialSandboxFlags, parameters.initialReferrerPolicy),
         m_mainFrame->frameID(),
         frameFromIdentifier(parameters.mainFrameOpenerIdentifier),
         makeUniqueRef<WebSpeechRecognitionProvider>(pageID),

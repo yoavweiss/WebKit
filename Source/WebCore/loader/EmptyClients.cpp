@@ -1232,6 +1232,7 @@ PageConfiguration pageConfigurationWithEmptyClients(std::optional<PageIdentifier
                 return makeUniqueRefWithoutRefCountedCheck<EmptyFrameLoaderClient>(frameLoader);
             } },
             SandboxFlags::all(),
+            ReferrerPolicy::EmptyString
         },
         generateFrameIdentifier(),
         nullptr,
