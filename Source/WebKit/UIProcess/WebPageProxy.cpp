@@ -1153,10 +1153,7 @@ bool WebPageProxy::hasRunningProcess() const
 
 void WebPageProxy::notifyProcessPoolToPrewarm()
 {
-    Ref processPool = m_configuration->processPool();
-    if (processPool->hasPrewarmedProcess())
-        return;
-    processPool->didReachGoodTimeToPrewarm();
+    m_configuration->protectedProcessPool()->didReachGoodTimeToPrewarm();
 }
 
 void WebPageProxy::setPreferences(WebPreferences& preferences)
@@ -7575,9 +7572,6 @@ void WebPageProxy::didFinishLoadForFrame(IPC::Connection& connection, FrameIdent
 
         resetRecentCrashCountSoon();
 
-        if (!shouldPrewarmWebProcessOnProvisionalLoad())
-            notifyProcessPoolToPrewarm();
-
         callLoadCompletionHandlersIfNecessary(true);
 
         if (m_pageLoadTiming && !frame->url().isAboutBlank()) {
@@ -7585,6 +7579,9 @@ void WebPageProxy::didFinishLoadForFrame(IPC::Connection& connection, FrameIdent
             generatePageLoadingTimingSoon();
         }
     }
+
+    if (isMainFrame || protectedPreferences()->siteIsolationEnabled())
+        notifyProcessPoolToPrewarm();
 
     m_isLoadingAlternateHTMLStringForFailingProvisionalLoad = false;
 }

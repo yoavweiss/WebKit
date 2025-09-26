@@ -734,7 +734,7 @@ void WebProcessPool::establishRemoteWorkerContextConnectionToNetworkProcess(Remo
 
     if (!remoteWorkerProcessProxy && !s_useSeparateServiceWorkerProcess) {
         for (Ref process : processPool->m_processes) {
-            if (process.ptr() == processPool->m_prewarmedProcess.get() || process->isDummyProcessProxy())
+            if (process->isPrewarmed() || process->isDummyProcessProxy())
                 continue;
             if (process->websiteDataStore() != websiteDataStore)
                 continue;
@@ -849,23 +849,33 @@ Ref<WebProcessProxy> WebProcessPool::createNewWebProcess(WebsiteDataStore* websi
 
 RefPtr<WebProcessProxy> WebProcessPool::tryTakePrewarmedProcess(WebsiteDataStore& websiteDataStore, WebProcessProxy::LockdownMode lockdownMode, WebProcessProxy::EnhancedSecurity enhancedSecurity, const API::PageConfiguration& pageConfiguration)
 {
-    RefPtr prewarmedProcess = m_prewarmedProcess.get();
-    if (!prewarmedProcess)
-        return nullptr;
-    
-    // There is sometimes a delay until we get notified that a prewarmed process has been terminated (e.g. after resuming
-    // from suspension) so make sure the process is still running here before deciding to use it.
-    if (prewarmedProcess->wasTerminated()) {
-        WEBPROCESSPOOL_RELEASE_LOG_ERROR(Process, "tryTakePrewarmedProcess: Not using prewarmed process because it has been terminated (process=%p, PID=%d)", m_prewarmedProcess.get(), m_prewarmedProcess->processID());
-        m_prewarmedProcess = nullptr;
+    RefPtr<WebProcessProxy> prewarmedProcess;
+
+    for (Ref process : m_prewarmedProcesses) {
+        if (process->lockdownMode() != lockdownMode || process->enhancedSecurity() != enhancedSecurity)
+            continue;
+
+        if (process->wasTerminated()) {
+            // There is sometimes a delay until we get notified that a prewarmed process has been terminated (e.g. after resuming
+            // from suspension) so make sure the process is still running here before deciding to use it.
+            WEBPROCESSPOOL_RELEASE_LOG_ERROR(Process, "tryTakePrewarmedProcess: Not using prewarmed process because it has been terminated (process=%p, PID=%d)", process.ptr(), process->processID());
+            continue;
+        }
+
+        prewarmedProcess = process.ptr();
+        break;
+    }
+
+    if (!prewarmedProcess) {
+        if (configuration().isAutomaticProcessWarmingEnabled())
+            WTFEmitSignpost(this, ProcessPrewarming, "Not using prewarmed process");
         return nullptr;
     }
 
-    if (prewarmedProcess->lockdownMode() != lockdownMode)
-        return nullptr;
+    WTFEmitSignpost(this, ProcessPrewarming, "Using prewarmed process with pid %d", prewarmedProcess->processID());
 
-    if (prewarmedProcess->enhancedSecurity() != enhancedSecurity)
-        return nullptr;
+    bool didRemove = m_prewarmedProcesses.remove(*prewarmedProcess);
+    ASSERT_UNUSED(didRemove, didRemove);
 
 #if PLATFORM(GTK) || PLATFORM(WPE)
     // In platforms using Bubblewrap for sandboxing, prewarmed process is launched using the WebProcessPool primary WebsiteDataStore,
@@ -878,7 +888,6 @@ RefPtr<WebProcessProxy> WebProcessPool::tryTakePrewarmedProcess(WebsiteDataStore
     prewarmedProcess->setWebsiteDataStore(websiteDataStore);
     prewarmedProcess->markIsNoLongerInPrewarmedPool();
 
-    m_prewarmedProcess = nullptr;
     return prewarmedProcess;
 }
 
@@ -1081,10 +1090,8 @@ void WebProcessPool::initializeNewWebProcess(WebProcessProxy& process, WebsiteDa
 
     ASSERT(m_messagesToInjectedBundlePostedToEmptyContext.isEmpty());
 
-    if (isPrewarmed == WebProcessProxy::IsPrewarmed::Yes) {
-        ASSERT(!m_prewarmedProcess);
-        m_prewarmedProcess = process;
-    }
+    if (isPrewarmed == WebProcessProxy::IsPrewarmed::Yes)
+        m_prewarmedProcesses.add(process);
 
 #if PLATFORM(IOS_FAMILY) && !PLATFORM(MACCATALYST)
     process.send(Messages::WebProcess::BacklightLevelDidChange(displayBrightness()), 0);
@@ -1105,11 +1112,13 @@ void WebProcessPool::initializeNewWebProcess(WebProcessProxy& process, WebsiteDa
 
 void WebProcessPool::prewarmProcess()
 {
-    if (m_prewarmedProcess)
+    if (m_prewarmedProcesses.computeSize() >= prewarmedProcessCountLimit())
         return;
 
-    if (WebProcessProxy::hasReachedProcessCountLimit())
+    if (WebProcessProxy::hasReachedProcessCountLimit()) {
+        WEBPROCESSPOOL_RELEASE_LOG(PerformanceLogging, "prewarmProcess: Not prewarming a WebProcess due to reaching process count limit");
         return;
+    }
 
     WEBPROCESSPOOL_RELEASE_LOG(PerformanceLogging, "prewarmProcess: Prewarming a WebProcess for performance");
 
@@ -1185,15 +1194,31 @@ void WebProcessPool::processDidFinishLaunching(WebProcessProxy& process)
         }
     }
 #endif
+
+    // Continue spawning prewarmed processes until we hit the prewarmed process limit.
+    if (process.isPrewarmed() && m_prewarmedProcesses.computeSize() < prewarmedProcessCountLimit()) {
+#if PLATFORM(COCOA)
+        static Seconds prewarmedLaunchInterval = []() {
+            auto value = CFPreferencesGetAppIntegerValue(CFSTR("DebugWebProcessPoolPrewarmingIntervalMillis"), kCFPreferencesCurrentApplication, nullptr);
+            return value ? Seconds::fromMilliseconds(value) : 0_s;
+        }();
+#else
+        static Seconds prewarmedLaunchInterval = 0_s;
+#endif
+        WorkQueue::mainSingleton().dispatchAfter(prewarmedLaunchInterval, [weakThis = WeakPtr { *this }]() mutable {
+            if (RefPtr protectedThis = weakThis.get())
+                protectedThis->didReachGoodTimeToPrewarm();
+        });
+    }
 }
 
 void WebProcessPool::disconnectProcess(WebProcessProxy& process)
 {
     ASSERT(m_processes.containsIf([&](auto& item) { return item.ptr() == &process; }));
 
-    if (m_prewarmedProcess == &process) {
-        ASSERT(m_prewarmedProcess->isPrewarmed());
-        m_prewarmedProcess = nullptr;
+    if (process.isPrewarmed()) {
+        bool didRemove = m_prewarmedProcesses.remove(process);
+        ASSERT_UNUSED(didRemove, didRemove);
     } else if (process.isDummyProcessProxy()) {
         auto removedProcess = m_dummyProcessProxies.take(process.sessionID());
         ASSERT_UNUSED(removedProcess, removedProcess == &process);
@@ -1270,7 +1295,7 @@ Ref<WebProcessProxy> WebProcessPool::processForSite(WebsiteDataStore& websiteDat
 #endif
 
         for (Ref process : m_processes) {
-            if (process.ptr() == m_prewarmedProcess.get() || process->isDummyProcessProxy())
+            if (process->isPrewarmed() || process->isDummyProcessProxy())
                 continue;
             if (process->isRunningServiceWorkers())
                 continue;
@@ -1445,8 +1470,7 @@ void WebProcessPool::didReachGoodTimeToPrewarm()
         return;
 
     if (MemoryPressureHandler::singleton().isUnderMemoryPressure()) {
-        if (!m_prewarmedProcess)
-            WEBPROCESSPOOL_RELEASE_LOG(PerformanceLogging, "didReachGoodTimeToPrewarm: Not automatically prewarming a WebProcess due to memory pressure");
+        WEBPROCESSPOOL_RELEASE_LOG(PerformanceLogging, "prewarmProcess: Not prewarming a WebProcess due to memory pressure");
         return;
     }
 
@@ -1474,17 +1498,23 @@ void WebProcessPool::handleMemoryPressureWarning(Critical)
     m_backForwardCache->clear();
     m_webProcessCache->clear();
 
-    if (RefPtr prewarmedProcess = m_prewarmedProcess.get())
+
+    for (RefPtr prewarmedProcess : m_prewarmedProcesses)
         prewarmedProcess->shutDown();
-    ASSERT(!m_prewarmedProcess);
+    ASSERT(m_prewarmedProcesses.isEmptyIgnoringNullReferences());
 
     for (Ref process : m_processes)
         process->clearSandboxExtensions();
 }
 
-ProcessID WebProcessPool::prewarmedProcessID()
+HashSet<ProcessID> WebProcessPool::prewarmedProcessIdentifiers()
 {
-    return m_prewarmedProcess ? m_prewarmedProcess->processID() : 0;
+    HashSet<ProcessID> pids;
+    for (Ref process : m_prewarmedProcesses) {
+        if (auto pid = process->processID())
+            pids.add(pid);
+    }
+    return pids;
 }
 
 void WebProcessPool::activePagesOriginsInWebProcessForTesting(ProcessID pid, CompletionHandler<void(Vector<String>&&)>&& completionHandler)
@@ -2053,10 +2083,31 @@ void WebProcessPool::removeProcessFromOriginCacheSet(WebProcessProxy& process)
     });
 }
 
+unsigned WebProcessPool::prewarmedProcessCountLimit() const
+{
+#if PLATFORM(COCOA)
+    static unsigned processCountLimitFromPreferences = []() {
+        return static_cast<unsigned>(CFPreferencesGetAppIntegerValue(CFSTR("DebugWebProcessPoolPrewarmedProcessCountLimit"), kCFPreferencesCurrentApplication, nullptr));
+    }();
+
+    if (processCountLimitFromPreferences)
+        return processCountLimitFromPreferences;
+#endif
+
+    if (unsigned limit = m_configuration->prewarmedProcessCountLimitForTesting())
+        return limit;
+
+    return m_hasUsedSiteIsolation ? 2 : 1;
+}
+
 void WebProcessPool::processForNavigation(WebPageProxy& page, WebFrameProxy& frame, const API::Navigation& navigation, const URL& sourceURL, ProcessSwapRequestedByClient processSwapRequestedByClient, WebProcessProxy::LockdownMode lockdownMode, WebProcessProxy::EnhancedSecurity enhancedSecurity, LoadedWebArchive loadedWebArchive, const FrameInfoData& frameInfo, Ref<WebsiteDataStore>&& dataStore, CompletionHandler<void(Ref<WebProcessProxy>&&, SuspendedPageProxy*, ASCIILiteral)>&& completionHandler)
 {
     Site site { navigation.currentRequest().url() };
+
     bool siteIsolationEnabled = page.protectedPreferences()->siteIsolationEnabled();
+    if (siteIsolationEnabled && !m_hasUsedSiteIsolation)
+        m_hasUsedSiteIsolation = true;
+
     if (siteIsolationEnabled && !site.isEmpty()) {
         auto mainFrameSite = frameInfo.isMainFrame ? site : Site(URL(page.protectedPageLoadState()->activeURL()));
         if (!frame.isMainFrame() && site == mainFrameSite) {

@@ -381,9 +381,12 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
     WebKit::WebProcessPool::setUseSeparateServiceWorkerProcess(useSeparateServiceWorkerProcess);
 }
 
-- (pid_t)_prewarmedProcessIdentifier
+- (NSSet<NSNumber *> *)_prewarmedProcessIdentifiersForTesting
 {
-    return _processPool->prewarmedProcessID();
+    auto result = adoptNS([[NSMutableSet alloc] init]);
+    for (auto pid : _processPool->prewarmedProcessIdentifiers())
+        [result addObject:@(pid)];
+    return result.autorelease();
 }
 
 

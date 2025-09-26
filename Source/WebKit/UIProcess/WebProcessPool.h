@@ -280,7 +280,7 @@ public:
     void addSupportedPlugin(String&& matchingDomain, String&& name, HashSet<String>&& mimeTypes, HashSet<String> extensions);
     void clearSupportedPlugins();
 
-    ProcessID prewarmedProcessID();
+    HashSet<ProcessID> prewarmedProcessIdentifiers();
     void activePagesOriginsInWebProcessForTesting(ProcessID, CompletionHandler<void(Vector<String>&&)>&&);
 
     WebPageGroup& defaultPageGroup() { return m_defaultPageGroup.get(); }
@@ -502,7 +502,6 @@ public:
     void processForNavigation(WebPageProxy&, WebFrameProxy&, const API::Navigation&, const URL& sourceURL, ProcessSwapRequestedByClient, WebProcessProxy::LockdownMode, WebProcessProxy::EnhancedSecurity, LoadedWebArchive, const FrameInfoData&, Ref<WebsiteDataStore>&&, CompletionHandler<void(Ref<WebProcessProxy>&&, SuspendedPageProxy*, ASCIILiteral)>&&);
 
     void didReachGoodTimeToPrewarm();
-    bool hasPrewarmedProcess() const { return m_prewarmedProcess.get(); }
 
     void didCollectPrewarmInformation(const WebCore::RegistrableDomain&, const WebCore::PrewarmInformation&);
 
@@ -650,6 +649,7 @@ private:
     void prepareProcessForNavigation(Ref<WebProcessProxy>&&, WebPageProxy&, SuspendedPageProxy*, ASCIILiteral reason, const WebCore::Site&, const API::Navigation&, WebProcessProxy::LockdownMode, WebProcessProxy::EnhancedSecurity, LoadedWebArchive, Ref<WebsiteDataStore>&&, CompletionHandler<void(Ref<WebProcessProxy>&&, SuspendedPageProxy*, ASCIILiteral)>&&, unsigned previousAttemptsCount = 0);
 
     RefPtr<WebProcessProxy> tryTakePrewarmedProcess(WebsiteDataStore&, WebProcessProxy::LockdownMode, WebProcessProxy::EnhancedSecurity, const API::PageConfiguration&);
+    unsigned prewarmedProcessCountLimit() const;
 
     void initializeNewWebProcess(WebProcessProxy&, WebsiteDataStore*, WebProcessProxy::IsPrewarmed = WebProcessProxy::IsPrewarmed::No);
 
@@ -776,7 +776,9 @@ private:
     IPC::MessageReceiverMap m_messageReceiverMap;
 
     Vector<Ref<WebProcessProxy>> m_processes;
-    WeakPtr<WebProcessProxy> m_prewarmedProcess;
+    WeakHashSet<WebProcessProxy> m_prewarmedProcesses;
+
+    bool m_hasUsedSiteIsolation { false };
 
     HashMap<PAL::SessionID, WeakPtr<WebProcessProxy>> m_dummyProcessProxies; // Lightweight WebProcessProxy objects without backing process.
 
