@@ -100,6 +100,17 @@ void SVGTextMetricsBuilder::advanceIterator(ComplexTextController& complexTextCo
     m_totalWidth = m_complexStartToCurrentMetrics.width();
 }
 
+static inline bool shouldUseComplexTextController(FontCascade::CodePath codePathToUse, const FontCascade& scaledFont)
+{
+#if PLATFORM(GTK) || PLATFORM(WPE)
+    if (codePathToUse != FontCascade::CodePath::Complex && scaledFont.shouldUseComplexTextControllerForSimpleText())
+        return true;
+#else
+    UNUSED_PARAM(scaledFont);
+#endif
+    return codePathToUse == FontCascade::CodePath::Complex;
+}
+
 void SVGTextMetricsBuilder::initializeMeasurementWithTextRenderer(RenderSVGInlineText& text)
 {
     m_text = text;
@@ -110,7 +121,7 @@ void SVGTextMetricsBuilder::initializeMeasurementWithTextRenderer(RenderSVGInlin
 
     const FontCascade& scaledFont = text.scaledFont();
     m_run = SVGTextMetrics::constructTextRun(text);
-    m_isComplexText = scaledFont.codePathForShaping(m_run) == FontCascade::CodePath::Complex;
+    m_isComplexText = shouldUseComplexTextController(scaledFont.codePath(m_run), scaledFont);
 
     if (m_isComplexText)
         FontCascadeCache::forCurrentThread().invalidate();

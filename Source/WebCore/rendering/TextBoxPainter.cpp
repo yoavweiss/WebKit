@@ -457,7 +457,7 @@ void TextBoxPainter::paintForegroundAndDecorations()
             textDecorationSelectionClipOutRect = m_paintRect;
             float logicalWidthBeforeRange;
             float logicalWidthAfterRange;
-            float logicalSelectionWidth = fontCascade().widthOfTextRange(m_paintTextRun, selectionStart, selectionEnd, nullptr, &logicalWidthBeforeRange, &logicalWidthAfterRange);
+            float logicalSelectionWidth = fontCascade().widthOfTextRange(m_paintTextRun, selectionStart, selectionEnd, logicalWidthBeforeRange, logicalWidthAfterRange);
             // FIXME: Do we need to handle vertical bottom to top text?
             if (!textBox().isHorizontal()) {
                 textDecorationSelectionClipOutRect.move(0, logicalWidthBeforeRange);

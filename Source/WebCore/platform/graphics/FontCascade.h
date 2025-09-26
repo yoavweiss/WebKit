@@ -151,7 +151,7 @@ public:
 
     Vector<FloatSegment> lineSegmentsForIntersectionsWithRect(const TextRun&, const FloatPoint& textOrigin, const FloatRect& lineExtents) const;
 
-    float widthOfTextRange(const TextRun&, unsigned from, unsigned to, SingleThreadWeakHashSet<const Font>* fallbackFonts = nullptr, float* outWidthBeforeRange = nullptr, float* outWidthAfterRange = nullptr) const;
+    float widthOfTextRange(const TextRun&, unsigned from, unsigned to, float& outWidthBeforeRange, float& outWidthAfterRange) const;
     WEBCORE_EXPORT float width(const TextRun&, SingleThreadWeakHashSet<const Font>* fallbackFonts = nullptr, GlyphOverflow* = nullptr) const;
     WEBCORE_EXPORT float width(StringView) const;
     float widthForTextUsingSimplifiedMeasuring(StringView text, TextDirection = TextDirection::LTR) const;
@@ -235,18 +235,6 @@ public:
     enum class CodePath : uint8_t { Auto, Simple, Complex, SimpleWithGlyphOverflow };
     WEBCORE_EXPORT CodePath codePath(const TextRun&, std::optional<unsigned> from = std::nullopt, std::optional<unsigned> to = std::nullopt) const;
 
-    CodePath codePathForShaping(const TextRun& run, std::optional<unsigned> from = std::nullopt, std::optional<unsigned> to = std::nullopt) const
-    {
-#if ENABLE(COMPLEX_TEXT_CONTROLLER_FOR_SIMPLE_CODE_PATH)
-        UNUSED_PARAM(run);
-        UNUSED_PARAM(from);
-        UNUSED_PARAM(to);
-        return CodePath::Complex;
-#else
-        return codePath(run, from, to);
-#endif
-    }
-
     static CodePath characterRangeCodePath(std::span<const LChar>) { return CodePath::Simple; }
     WEBCORE_EXPORT static CodePath characterRangeCodePath(std::span<const char16_t>);
 
@@ -265,11 +253,12 @@ private:
     GlyphBuffer layoutSimpleText(const TextRun&, unsigned from, unsigned to, ForTextEmphasisOrNot = ForTextEmphasisOrNot::NotForTextEmphasis) const;
     void drawGlyphBuffer(GraphicsContext&, const GlyphBuffer&, FloatPoint&, CustomFontNotReadyAction) const;
     void drawEmphasisMarks(GraphicsContext&, const GlyphBuffer&, const AtomString&, const FloatPoint&) const;
-    float widthForSimpleText(const TextRun&, SingleThreadWeakHashSet<const Font>* fallbackFonts = nullptr, GlyphOverflow* = nullptr) const;
     int offsetForPositionForSimpleText(const TextRun&, float position, bool includePartialGlyphs) const;
     void adjustSelectionRectForSimpleText(const TextRun&, LayoutRect& selectionRect, unsigned from, unsigned to) const;
     void adjustSelectionRectForSimpleTextWithFixedPitch(const TextRun&, LayoutRect& selectionRect, unsigned from, unsigned to) const;
+    float width(CodePath, const TextRun&, SingleThreadWeakHashSet<const Font>* fallbackFonts = nullptr, GlyphOverflow* = nullptr) const;
     WEBCORE_EXPORT float widthForSimpleTextSlow(StringView text, TextDirection, float*) const;
+    ALWAYS_INLINE bool canHandleRunAsSimpleText(const TextRun&, unsigned from, unsigned to) const;
 
     std::optional<GlyphData> getEmphasisMarkGlyphData(const AtomString&) const;
     const Font* fontForEmphasisMark(const AtomString&) const;
@@ -278,7 +267,6 @@ private:
     static constexpr bool canExpandAroundIdeographsInComplexText();
 
     GlyphBuffer layoutComplexText(const TextRun&, unsigned from, unsigned to, ForTextEmphasisOrNot = ForTextEmphasisOrNot::NotForTextEmphasis) const;
-    float widthForComplexText(const TextRun&, SingleThreadWeakHashSet<const Font>* fallbackFonts = nullptr, GlyphOverflow* = nullptr) const;
     int offsetForPositionForComplexText(const TextRun&, float position, bool includePartialGlyphs) const;
     void adjustSelectionRectForComplexText(const TextRun&, LayoutRect& selectionRect, unsigned from, unsigned to) const;
 
@@ -362,6 +350,10 @@ public:
     void updateEnableKerning() { m_enableKerning = computeEnableKerning(); }
     void updateRequiresShaping() { m_requiresShaping = computeRequiresShaping(); }
 
+#if PLATFORM(GTK) || PLATFORM(WPE)
+    bool shouldUseComplexTextControllerForSimpleText() const;
+#endif
+
 private:
 
     bool computeUseBackslashAsYenSymbol() const;
@@ -388,6 +380,24 @@ private:
         if (m_fontDescription.featureSettings().size())
             return true;
         return advancedTextRenderingMode();
+    }
+
+    bool shouldUseComplexTextController(CodePath codePathToUse) const
+    {
+        switch (codePathToUse) {
+        case CodePath::Complex:
+            return true;
+        case CodePath::Simple:
+        case CodePath::SimpleWithGlyphOverflow:
+#if PLATFORM(GTK) || PLATFORM(WPE)
+            return shouldUseComplexTextControllerForSimpleText();
+#else
+            return false;
+#endif
+        case CodePath::Auto:
+            break;
+        }
+        RELEASE_ASSERT_NOT_REACHED();
     }
 
     struct Spacing {
@@ -472,15 +482,7 @@ inline float FontCascade::widthForTextUsingSimplifiedMeasuring(StringView text, 
     if (cacheEntry && !std::isnan(*cacheEntry))
         return *cacheEntry;
 
-#if !ENABLE(COMPLEX_TEXT_CONTROLLER_FOR_SIMPLE_CODE_PATH)
     return widthForSimpleTextSlow(text, textDirection, cacheEntry);
-#else
-    TextRun run { text, 0, 0, ExpansionBehavior::defaultBehavior(), textDirection, false, false };
-    float width = widthForComplexText(run, nullptr, nullptr);
-    if (cacheEntry)
-        *cacheEntry = width;
-    return width;
-#endif // !ENABLE(COMPLEX_TEXT_CONTROLLER_FOR_SIMPLE_CODE_PATH)
 }
 
 bool shouldSynthesizeSmallCaps(bool, const Font*, char32_t, std::optional<char32_t>, FontVariantCaps, bool);
