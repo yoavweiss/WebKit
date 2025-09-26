@@ -169,6 +169,10 @@ public:
     virtual bool isSpatial() const { return false; }
 #endif
 
+#if ENABLE(SPATIAL_IMAGE_CONTROLS)
+    virtual bool isMaybePanoramic() const { return false; }
+#endif
+
     virtual void dump(WTF::TextStream&) const;
 
     WEBCORE_EXPORT RefPtr<ShareableBitmap> toShareableBitmap() const;

@@ -125,6 +125,10 @@ private:
     bool isSpatial() const final { return m_source->isSpatial(); }
 #endif
 
+#if ENABLE(SPATIAL_IMAGE_CONTROLS)
+    bool isMaybePanoramic() const final { return m_source->isMaybePanoramic(); }
+#endif
+
     // Image methods
     bool isBitmapImage() const final { return true; }
     bool isAnimating() const final { return m_source->isAnimating(); }
