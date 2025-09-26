@@ -670,7 +670,7 @@ webkit.org/b/61487 http/tests/media/video-cross-site.html [ Failure ]
 webkit.org/b/230708 [ Debug ] media/video-ended-seek-crash.html [ Pass Timeout ]
 
 # https://bugs.webkit.org/show_bug.cgi?id=236113 mathml/presentation/fenced-mi.html is flakey when run with STIX Two
-mathml/presentation/fenced-mi.html [ Pass ImageOnlyFailure ]
+mathml/non-core/fenced-mi.html [ Pass ImageOnlyFailure ]
 
 # rdar://88981242 ([ Ventura ] media/accessibility-describes-video.html is a constant timeout)
 media/accessibility-describes-video.html [ Timeout ]

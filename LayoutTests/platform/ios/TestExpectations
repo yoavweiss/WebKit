@@ -6881,7 +6881,7 @@ imported/w3c/web-platform-tests/html/canvas/element/manual/imagebitmap/createIma
 imported/w3c/web-platform-tests/html/canvas/element/manual/imagebitmap/createImageBitmap-flipY.html [ Failure ]
 
 webkit.org/b/245588 mathml/presentation/mathvariant-inheritance.html [ ImageOnlyFailure ]
-webkit.org/b/245588 mathml/presentation/fenced-mi.html [ ImageOnlyFailure ]
+webkit.org/b/245588 mathml/non-core/fenced-mi.html [ ImageOnlyFailure ]
 
 # TODO: Pass expectation set above. Uncomment that line when this issue is resolved.
 webkit.org/b/245600 fast/attachment/attachment-wrapping-action.html [ ImageOnlyFailure ]
