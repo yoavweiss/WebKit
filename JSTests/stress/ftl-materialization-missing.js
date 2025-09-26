@@ -1,14 +1,19 @@
 //@ runDefault("--useConcurrentJIT=0", "--jitPolicyScale=0")
+
+function out(string) {
+}
+noInline(out);
+
 try {
 var BUGNUMBER = 730831;
 var summary = "Date.prototype.toISOString returns an invalid ISO-8601 string";
-print((BUGNUMBER + ": ") + summary);
+out((BUGNUMBER + ": ") + summary);
 function iso(a10) {
     const v12 = new Date(a10);
     return v12.toISOString();
 }
 for (let v14 = 0; v14 < 67; v14++) {
-    const v16 = [print];
+    const v16 = [out];
     Reflect.apply(summary.matchAll, summary, v16);
 }
 function utc(a20, a21, a22, a23, a24, a25, a26) {
