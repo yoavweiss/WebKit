@@ -1760,6 +1760,7 @@ bool RenderObject::setCapturedInViewTransition(bool captured)
 
     if (layerToInvalidate) {
         layerToInvalidate->setNeedsPostLayoutCompositingUpdate();
+        layerToInvalidate->setNeedsCompositingConfigurationUpdate();
 
         // Invalidate transform applied by `RenderLayerBacking::updateTransform`.
         layerToInvalidate->setNeedsCompositingGeometryUpdate();

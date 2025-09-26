@@ -4260,6 +4260,9 @@ ViewportConstrainedSublayers RenderLayerCompositor::viewportConstrainedSublayers
     if (!(layer.renderer().isFixedPositioned() && layer.behavesAsFixed()))
         return None;
 
+    if (layer.renderer().effectiveCapturedInViewTransition())
+        return None;
+
     for (auto* ancestor = layer.parent(); ancestor; ancestor = ancestor->parent()) {
         if (ancestor->hasCompositedScrollableOverflow())
             return sublayersForViewportConstrainedLayer();
