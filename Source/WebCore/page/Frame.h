@@ -41,8 +41,6 @@ namespace WebCore {
 class DOMWindow;
 class Event;
 class FloatSize;
-class FrameConsoleClient;
-class FrameInspectorController;
 class FrameLoaderClient;
 class FrameLoadRequest;
 class FrameView;
@@ -149,11 +147,6 @@ public:
     FrameTreeSyncData& frameTreeSyncData() const { return m_frameTreeSyncData.get(); }
     WEBCORE_EXPORT virtual RefPtr<SecurityOrigin> frameDocumentSecurityOrigin() const = 0;
 
-    FrameInspectorController& inspectorController() { return m_inspectorController.get(); }
-    WEBCORE_EXPORT Ref<FrameInspectorController> protectedInspectorController();
-    FrameConsoleClient& console() { return m_consoleClient.get(); }
-    const FrameConsoleClient& console() const { return m_consoleClient.get(); }
-
     WEBCORE_EXPORT virtual void setPrinting(bool printing, FloatSize pageSize, FloatSize originalPageSize, float maximumShrinkRatio, AdjustViewSize, NotifyUIProcess = NotifyUIProcess::Yes);
     WEBCORE_EXPORT bool isPrinting() const;
 
@@ -182,9 +175,6 @@ private:
     bool m_isPrinting { false };
 
     Ref<FrameTreeSyncData> m_frameTreeSyncData;
-
-    const UniqueRef<FrameInspectorController> m_inspectorController;
-    const UniqueRef<FrameConsoleClient> m_consoleClient;
 };
 
 } // namespace WebCore

@@ -183,8 +183,6 @@ Ref<WebFrame> WebFrame::createRemoteSubframe(WebPage& page, WebFrame& parent, We
 WebFrame::WebFrame(WebPage& page, WebCore::FrameIdentifier frameID)
     : m_page(page)
     , m_frameID(frameID)
-    // FIXME: <https://webkit.org/b/299052> Consider lazily creating this inspector target.
-    , m_inspectorTarget(makeUniqueRef<WebFrameInspectorTarget>(*this))
 {
     ASSERT(!WebProcess::singleton().webFrame(m_frameID));
     WebProcess::singleton().addWebFrame(m_frameID, this);
@@ -1578,19 +1576,26 @@ void WebFrame::takeSnapshotOfNode(JSHandleIdentifier identifier, CompletionHandl
     completion(bitmap->createHandle(SharedMemory::Protection::ReadOnly));
 }
 
+WebFrameInspectorTarget& WebFrame::ensureInspectorTarget()
+{
+    if (!m_inspectorTarget)
+        m_inspectorTarget = makeUnique<WebFrameInspectorTarget>(*this);
+    return *m_inspectorTarget;
+}
+
 void WebFrame::connectInspector(Inspector::FrontendChannel::ConnectionType connectionType)
 {
-    m_inspectorTarget->connect(connectionType);
+    ensureInspectorTarget().connect(connectionType);
 }
 
 void WebFrame::disconnectInspector()
 {
-    m_inspectorTarget->disconnect();
+    ensureInspectorTarget().disconnect();
 }
 
 void WebFrame::sendMessageToInspectorTarget(const String& message)
 {
-    m_inspectorTarget->sendMessageToTargetBackend(message);
+    ensureInspectorTarget().sendMessageToTargetBackend(message);
 }
 
 } // namespace WebKit

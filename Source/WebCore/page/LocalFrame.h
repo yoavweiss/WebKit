@@ -72,6 +72,8 @@ class EventHandler;
 class FloatPoint;
 class FloatSize;
 class FrameDestructionObserver;
+class FrameConsoleClient;
+class FrameInspectorController;
 class FrameLoader;
 class FrameSelection;
 class HTMLFrameOwnerElement;
@@ -346,6 +348,11 @@ public:
 
     bool frameCanCreatePaymentSession() const final;
 
+    FrameInspectorController& inspectorController() { return m_inspectorController.get(); }
+    WEBCORE_EXPORT Ref<FrameInspectorController> protectedInspectorController();
+    FrameConsoleClient& console() { return m_consoleClient.get(); }
+    const FrameConsoleClient& console() const { return m_consoleClient.get(); }
+
 protected:
     void frameWasDisconnectedFromOwner() const final;
 
@@ -418,6 +425,9 @@ private:
     SandboxFlags m_sandboxFlags;
     const UniqueRef<EventHandler> m_eventHandler;
     std::unique_ptr<HashSet<RegistrableDomain>> m_storageAccessExceptionDomains;
+
+    const UniqueRef<FrameInspectorController> m_inspectorController;
+    const UniqueRef<FrameConsoleClient> m_consoleClient;
 };
 
 WTF::TextStream& operator<<(WTF::TextStream&, const LocalFrame&);

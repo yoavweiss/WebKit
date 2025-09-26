@@ -55,7 +55,9 @@
 #include "EventNames.h"
 #include "FloatQuad.h"
 #include "FocusController.h"
+#include "FrameConsoleClient.h"
 #include "FrameDestructionObserver.h"
+#include "FrameInspectorController.h"
 #include "FrameLoader.h"
 #include "FrameSelection.h"
 #include "GraphicsContext.h"
@@ -189,6 +191,8 @@ LocalFrame::LocalFrame(Page& page, ClientCreator&& clientCreator, FrameIdentifie
     , m_rootFrame(WebCore::rootFrame(*this, parent))
     , m_sandboxFlags(sandboxFlags)
     , m_eventHandler(makeUniqueRef<EventHandler>(*this))
+    , m_inspectorController(makeUniqueRefWithoutRefCountedCheck<FrameInspectorController>(*this))
+    , m_consoleClient(makeUniqueRef<FrameConsoleClient>(*this))
 {
     ProcessWarming::initializeNames();
     StaticCSSValuePool::init();
@@ -1620,6 +1624,11 @@ RefPtr<SecurityOrigin> LocalFrame::frameDocumentSecurityOrigin() const
         return &document->securityOrigin();
 
     return nullptr;
+}
+
+Ref<FrameInspectorController> LocalFrame::protectedInspectorController()
+{
+    return m_inspectorController.get();
 }
 
 } // namespace WebCore
