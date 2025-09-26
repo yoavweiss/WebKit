@@ -122,7 +122,8 @@ NSMenuItem *menuItemForTelephoneNumber(const String& telephoneNumber)
     if (!PAL::isDataDetectorsFrameworkAvailable())
         return nil;
 
-    auto actionContext = adoptNS([PAL::allocWKDDActionContextInstance() init]);
+    // FIXME: This is a safer cpp false positive (rdar://161378050).
+    SUPPRESS_UNRETAINED_ARG auto actionContext = adoptNS([PAL::allocWKDDActionContextInstance() init]);
 
     [actionContext setAllowedActionUTIs:@[ @"com.apple.dial" ]];
 
@@ -130,7 +131,7 @@ NSMenuItem *menuItemForTelephoneNumber(const String& telephoneNumber)
     for (NSMenuItem *item in proposedMenuItems.get()) {
         RetainPtr action = actionForMenuItem(item);
         if ([action.get().actionUTI hasPrefix:@"com.apple.dial"]) {
-            item.title = formattedPhoneNumberString(telephoneNumber.createNSString().get());
+            item.title = formattedPhoneNumberString(telephoneNumber.createNSString().get()).get();
             return item;
         }
     }
