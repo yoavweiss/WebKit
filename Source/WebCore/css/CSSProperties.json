@@ -7743,9 +7743,8 @@
             "inherited": true,
             "initial": "8",
             "codegen-properties": {
-                "animation-wrapper": "TabSizeWrapper",
-                "animation-wrapper-requires-override-parameters": [],
-                "style-converter": "TabSize",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<TabSize>",
                 "parser-grammar": "<number [0,inf]> | <length [0,inf]>"
             },
             "specification": {

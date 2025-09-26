@@ -27,11 +27,9 @@
 #include "RenderStyleConstants.h"
 
 #include "CSSPrimitiveValueMappings.h"
-#include "TabSize.h"
 #include <wtf/text/TextStream.h>
 
 namespace WebCore {
-
 
 bool alwaysPageBreak(BreakBetween between)
 {

@@ -519,15 +519,6 @@ inline void ExtractorSerializer::serializeWillChange(ExtractorState& state, Stri
     builder.append(CSSValueList::createCommaSeparated(WTFMove(list))->cssText(context));
 }
 
-inline void ExtractorSerializer::serializeTabSize(ExtractorState&, StringBuilder& builder, const CSS::SerializationContext& context, const TabSize& tabSize)
-{
-    auto value = tabSize.widthInPixels(1.0);
-    if (tabSize.isSpaces())
-        CSS::serializationForCSS(builder, context, CSS::NumberRaw<> { value });
-    else
-        CSS::serializationForCSS(builder, context, CSS::LengthRaw<> { CSS::LengthUnit::Px, value });
-}
-
 inline void ExtractorSerializer::serializeLineBoxContain(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, OptionSet<Style::LineBoxContain> lineBoxContain)
 {
     if (!lineBoxContain) {

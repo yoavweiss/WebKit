@@ -149,6 +149,7 @@ inline SingleAnimationRange forwardInheritedValue(const SingleAnimationRange& va
 inline SingleAnimationTimeline forwardInheritedValue(const SingleAnimationTimeline& value) { auto copy = value; return copy; }
 inline SingleTransitionProperty forwardInheritedValue(const SingleTransitionProperty& value) { auto copy = value; return copy; }
 inline StrokeWidth forwardInheritedValue(const StrokeWidth& value) { auto copy = value; return copy; }
+inline TabSize forwardInheritedValue(const TabSize& value) { auto copy = value; return copy; }
 inline TextDecorationLine forwardInheritedValue(const TextDecorationLine& value) { auto copy = value; return copy; }
 inline TextDecorationThickness forwardInheritedValue(const TextDecorationThickness& value) { auto copy = value; return copy; }
 inline TextEmphasisStyle forwardInheritedValue(const TextEmphasisStyle& value) { auto copy = value; return copy; }

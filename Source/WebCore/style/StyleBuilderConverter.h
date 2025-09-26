@@ -101,7 +101,6 @@
 #include "StyleTranslate.h"
 #include "StyleURL.h"
 #include "StyleValueTypes+CSSValueConversion.h"
-#include "TabSize.h"
 #include "TextSpacing.h"
 #include "TouchAction.h"
 #include "ViewTimeline.h"
@@ -121,7 +120,6 @@ public:
 
     static WebCore::Length convertLength(BuilderState&, const CSSValue&);
     static WebCore::Length convertTextLengthOrNormal(BuilderState&, const CSSValue&); // Converts length by text zoom factor, normal to zero
-    static TabSize convertTabSize(BuilderState&, const CSSValue&);
     static OptionSet<TextTransform> convertTextTransform(BuilderState&, const CSSValue&);
     static ImageOrientation convertImageOrientation(BuilderState&, const CSSValue&);
     template<CSSValueID> static AtomString convertCustomIdentAtomOrKeyword(BuilderState&, const CSSValue&);
@@ -209,16 +207,6 @@ inline WebCore::Length BuilderConverter::convertLength(BuilderState& builderStat
 
     ASSERT_NOT_REACHED();
     return WebCore::Length(0, LengthType::Fixed);
-}
-
-inline TabSize BuilderConverter::convertTabSize(BuilderState& builderState, const CSSValue& value)
-{
-    auto* primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return { };
-    if (primitiveValue->isNumber())
-        return TabSize(primitiveValue->resolveAsNumber<float>(builderState.cssToLengthConversionData()), SpaceValueType);
-    return TabSize(primitiveValue->resolveAsLength<float>(builderState.cssToLengthConversionData()), LengthValueType);
 }
 
 inline OptionSet<TextTransform> BuilderConverter::convertTextTransform(BuilderState&, const CSSValue& value)

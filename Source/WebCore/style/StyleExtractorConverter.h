@@ -150,7 +150,6 @@ public:
     static Ref<CSSValue> convertTextAutospace(ExtractorState&, TextAutospace);
     static Ref<CSSValue> convertPositionTryFallbacks(ExtractorState&, const FixedVector<PositionTryFallback>&);
     static Ref<CSSValue> convertWillChange(ExtractorState&, const WillChangeData*);
-    static Ref<CSSValue> convertTabSize(ExtractorState&, const TabSize&);
     static Ref<CSSValue> convertLineBoxContain(ExtractorState&, OptionSet<Style::LineBoxContain>);
     static Ref<CSSValue> convertWebkitRubyPosition(ExtractorState&, RubyPosition);
     static Ref<CSSValue> convertPosition(ExtractorState&, const LengthPoint&);
@@ -485,11 +484,6 @@ inline Ref<CSSValue> ExtractorConverter::convertWillChange(ExtractorState&, cons
         }
     }
     return CSSValueList::createCommaSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertTabSize(ExtractorState&, const TabSize& tabSize)
-{
-    return CSSPrimitiveValue::create(tabSize.widthInPixels(1.0), tabSize.isSpaces() ? CSSUnitType::CSS_NUMBER : CSSUnitType::CSS_PX);
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertLineBoxContain(ExtractorState&, OptionSet<Style::LineBoxContain> lineBoxContain)

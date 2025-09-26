@@ -942,7 +942,7 @@ ALWAYS_INLINE float RenderText::widthFromCache(const FontCascade& fontCascade, u
 
     TextRun run = RenderBlock::constructTextRun(*this, start, length, style);
     run.setCharacterScanForCodePath(!canUseSimpleFontCodePath());
-    run.setTabSize(!style.collapseWhiteSpace(), style.tabSize());
+    run.setTabSize(!style.collapseWhiteSpace(), Style::toPlatform(style.tabSize()));
     run.setXPos(xPos);
     return fontCascade.width(run, fallbackFonts, glyphOverflow);
 }
@@ -1424,7 +1424,7 @@ void RenderText::computePreferredLogicalWidths(float leadWidth, SingleThreadWeak
                 currMaxWidth = 0;
             } else {
                 TextRun run = RenderBlock::constructTextRun(*this, i, 1, style);
-                run.setTabSize(!style.collapseWhiteSpace(), style.tabSize());
+                run.setTabSize(!style.collapseWhiteSpace(), Style::toPlatform(style.tabSize()));
                 run.setXPos(leadWidth + currMaxWidth);
 
                 currMaxWidth += font.width(run, &fallbackFonts);
@@ -1906,7 +1906,7 @@ float RenderText::width(unsigned from, unsigned length, const FontCascade& fontC
     } else {
         TextRun run = RenderBlock::constructTextRun(*this, from, length, style);
         run.setCharacterScanForCodePath(!canUseSimpleFontCodePath());
-        run.setTabSize(!style.collapseWhiteSpace(), style.tabSize());
+        run.setTabSize(!style.collapseWhiteSpace(), Style::toPlatform(style.tabSize()));
         run.setXPos(xPos);
 
         width = fontCascade.width(run, fallbackFonts, glyphOverflow);

@@ -507,7 +507,7 @@ constexpr Style::ZIndex RenderStyle::initialSpecifiedZIndex() { return CSS::Keyw
 inline Style::Color RenderStyle::initialStrokeColor() { return { Color::transparentBlack }; }
 constexpr Style::StrokeMiterlimit RenderStyle::initialStrokeMiterLimit() { return 4_css_number; }
 inline Style::StrokeWidth RenderStyle::initialStrokeWidth() { return 1_css_px; }
-constexpr TabSize RenderStyle::initialTabSize() { return 8; }
+constexpr Style::TabSize RenderStyle::initialTabSize() { return 8_css_number; }
 constexpr TableLayoutType RenderStyle::initialTableLayout() { return TableLayoutType::Auto; }
 constexpr TextAlignMode RenderStyle::initialTextAlign() { return TextAlignMode::Start; }
 constexpr TextAlignLast RenderStyle::initialTextAlignLast() { return TextAlignLast::Auto; }
@@ -750,7 +750,7 @@ constexpr OptionSet<Containment> RenderStyle::strictContainment() { return { Con
 inline const Style::Color& RenderStyle::strokeColor() const { return m_rareInheritedData->strokeColor; }
 inline Style::StrokeMiterlimit RenderStyle::strokeMiterLimit() const { return m_rareInheritedData->miterLimit; }
 inline const AtomString& RenderStyle::pseudoElementNameArgument() const { return m_nonInheritedData->rareData->pseudoElementNameArgument; }
-inline const TabSize& RenderStyle::tabSize() const { return m_rareInheritedData->tabSize; }
+inline const Style::TabSize& RenderStyle::tabSize() const { return m_rareInheritedData->tabSize; }
 inline TableLayoutType RenderStyle::tableLayout() const { return static_cast<TableLayoutType>(m_nonInheritedData->miscData->tableLayout); }
 inline TextAlignLast RenderStyle::textAlignLast() const { return static_cast<TextAlignLast>(m_rareInheritedData->textAlignLast); }
 inline TextBoxTrim RenderStyle::textBoxTrim() const { return static_cast<TextBoxTrim>(m_nonInheritedData->rareData->textBoxTrim); }

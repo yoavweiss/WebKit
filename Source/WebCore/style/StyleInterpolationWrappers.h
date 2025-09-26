@@ -642,28 +642,6 @@ public:
     }
 };
 
-class TabSizeWrapper final : public Wrapper<const TabSize&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(TabSizeWrapper, Animation);
-public:
-    TabSizeWrapper()
-        : Wrapper(CSSPropertyTabSize, &RenderStyle::tabSize, &RenderStyle::setTabSize)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
-    {
-        return value(from).isSpaces() == value(to).isSpaces();
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        if (context.isDiscrete)
-            (destination.*m_setter)(context.progress ? value(to) : value(from));
-        else
-            Wrapper::interpolate(destination, from, to, context);
-    }
-};
-
 // MARK: - Color Property Wrappers
 
 class ColorWrapper final : public WrapperWithGetter<const WebCore::Color&> {

@@ -97,12 +97,6 @@ inline WebCore::Length blendFunc(const WebCore::Length& from, const WebCore::Len
     return WebCore::blend(from, to, context, valueRange);
 }
 
-inline TabSize blendFunc(const TabSize& from, const TabSize& to, const Context& context)
-{
-    auto blendedValue = WebCore::blend(from.value(), to.value(), context);
-    return { blendedValue < 0 ? 0 : blendedValue, from.isSpaces() ? SpaceValueType : LengthValueType };
-}
-
 inline ContentVisibility blendFunc(ContentVisibility from, ContentVisibility to, const Context& context)
 {
     // https://drafts.csswg.org/css-contain-3/#content-visibility-animation

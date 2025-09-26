@@ -291,7 +291,7 @@ inline void RenderStyle::setSpecifiedZIndex(Style::ZIndex index) { SET_NESTED_PA
 inline void RenderStyle::setStrokeColor(Style::Color&& color) { SET(m_rareInheritedData, strokeColor, WTFMove(color)); }
 inline void RenderStyle::setStrokeMiterLimit(Style::StrokeMiterlimit value) { SET(m_rareInheritedData, miterLimit, value); }
 inline void RenderStyle::setStrokeWidth(Style::StrokeWidth&& width) { SET(m_rareInheritedData, strokeWidth, WTFMove(width)); }
-inline void RenderStyle::setTabSize(const TabSize& size) { SET(m_rareInheritedData, tabSize, size); }
+inline void RenderStyle::setTabSize(Style::TabSize&& size) { SET(m_rareInheritedData, tabSize, WTFMove(size)); }
 inline void RenderStyle::setTextAlignLast(TextAlignLast value) { SET(m_rareInheritedData, textAlignLast, static_cast<unsigned>(value)); }
 inline void RenderStyle::setTextBoxTrim(TextBoxTrim value) { SET_NESTED(m_nonInheritedData, rareData, textBoxTrim, static_cast<unsigned>(value)); }
 inline void RenderStyle::setTextBoxEdge(Style::TextBoxEdge value) { SET(m_rareInheritedData, textBoxEdge, value); }

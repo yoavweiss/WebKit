@@ -3408,6 +3408,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/text/StyleHyphenateCharacter.h
     style/values/text/StyleHyphenateLimitEdge.h
     style/values/text/StyleHyphenateLimitLines.h
+    style/values/text/StyleTabSize.h
     style/values/text/StyleTextIndent.h
 
     style/values/text-decoration/StyleTextDecorationLine.h

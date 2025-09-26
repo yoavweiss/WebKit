@@ -52,7 +52,7 @@ struct GreaterThanOrSameSizeAsStyleRareInheritedData : public RefCounted<Greater
     void* customPropertyDataRefs[1];
     unsigned bitfields[7];
     short pagedMediaShorts[2];
-    TabSize tabSize;
+    Style::TabSize tabSize;
     short hyphenationShorts[3];
 
 #if ENABLE(TEXT_AUTOSIZING)

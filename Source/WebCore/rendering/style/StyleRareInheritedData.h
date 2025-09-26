@@ -43,6 +43,7 @@
 #include <WebCore/StyleScrollbarColor.h>
 #include <WebCore/StyleStrokeMiterlimit.h>
 #include <WebCore/StyleStrokeWidth.h>
+#include <WebCore/StyleTabSize.h>
 #include <WebCore/StyleTextBoxEdge.h>
 #include <WebCore/StyleTextEmphasisStyle.h>
 #include <WebCore/StyleTextIndent.h>
@@ -53,7 +54,6 @@
 #include <WebCore/StyleWebKitTextStrokeWidth.h>
 #include <WebCore/StyleWebKitTouchCallout.h>
 #include <WebCore/StyleWidows.h>
-#include <WebCore/TabSize.h>
 #include <WebCore/TouchAction.h>
 #include <wtf/DataRef.h>
 #include <wtf/FixedVector.h>
@@ -219,7 +219,7 @@ public:
     DataRef<StyleAppleColorFilterData> appleColorFilter;
 
     Style::WebkitLineGrid lineGrid;
-    TabSize tabSize;
+    Style::TabSize tabSize;
 
 #if ENABLE(TEXT_AUTOSIZING)
     Style::TextSizeAdjust textSizeAdjust;

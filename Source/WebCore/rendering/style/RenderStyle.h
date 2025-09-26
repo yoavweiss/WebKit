@@ -220,7 +220,6 @@ struct GridTrackList;
 struct ImageOrientation;
 struct Length;
 struct NameScope;
-struct TabSize;
 struct TransformOperationData;
 
 template<typename> class FontTaggedSettings;
@@ -333,6 +332,7 @@ struct ShapeMargin;
 struct ShapeOutside;
 struct StrokeMiterlimit;
 struct StrokeWidth;
+struct TabSize;
 struct TextBoxEdge;
 struct TextDecorationThickness;
 struct TextEmphasisStyle;
@@ -1071,7 +1071,7 @@ public:
     inline TextCombine textCombine() const;
     inline bool hasTextCombine() const;
 
-    inline const TabSize& tabSize() const;
+    inline const Style::TabSize& tabSize() const;
 
     inline const Style::WebkitLineGrid& lineGrid() const;
     inline LineSnap lineSnap() const;
@@ -1605,7 +1605,7 @@ public:
     inline void setBackdropFilter(Style::Filter&&);
     inline void setAppleColorFilter(Style::AppleColorFilter&&);
 
-    inline void setTabSize(const TabSize&);
+    inline void setTabSize(Style::TabSize&&);
 
     inline void setBreakBefore(BreakBetween);
     inline void setBreakAfter(BreakBetween);
@@ -2171,7 +2171,7 @@ public:
     static inline Style::GridPosition initialGridItemRowStart();
     static inline Style::GridPosition initialGridItemRowEnd();
 
-    static constexpr TabSize initialTabSize();
+    static constexpr Style::TabSize initialTabSize();
 
     static inline Style::WebkitLineGrid initialLineGrid();
     static constexpr LineSnap initialLineSnap();
