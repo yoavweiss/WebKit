@@ -2692,10 +2692,10 @@ void RenderStyle::setFontItalic(std::optional<FontSelectionValue> value)
     setFontDescription(WTFMove(description));
 }
 
-void RenderStyle::setFontPalette(const FontPalette& value)
+void RenderStyle::setFontPalette(Style::FontPalette&& value)
 {
     auto description = fontDescription();
-    description.setFontPalette(value);
+    description.setFontPalette(value.platform());
     setFontDescription(WTFMove(description));
 }
 

@@ -183,7 +183,6 @@ public:
 
     static Ref<CSSValue> convertFontFamily(ExtractorState&, const AtomString&);
     static Ref<CSSValue> convertFontSizeAdjust(ExtractorState&, const FontSizeAdjust&);
-    static Ref<CSSValue> convertFontPalette(ExtractorState&, const FontPalette&);
     static Ref<CSSValue> convertFontWeight(ExtractorState&, FontSelectionValue);
     static Ref<CSSValue> convertFontWidth(ExtractorState&, FontSelectionValue);
     static Ref<CSSValue> convertFontFeatureSettings(ExtractorState&, const FontFeatureSettings&);
@@ -1039,21 +1038,6 @@ inline Ref<CSSValue> ExtractorConverter::convertFontSizeAdjust(ExtractorState& s
         return CSSPrimitiveValue::create(*value);
 
     return CSSValuePair::create(convert(state, metric), CSSPrimitiveValue::create(*value));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertFontPalette(ExtractorState&, const FontPalette& fontPalette)
-{
-    switch (fontPalette.type) {
-    case FontPalette::Type::Normal:
-        return CSSPrimitiveValue::create(CSSValueNormal);
-    case FontPalette::Type::Light:
-        return CSSPrimitiveValue::create(CSSValueLight);
-    case FontPalette::Type::Dark:
-        return CSSPrimitiveValue::create(CSSValueDark);
-    case FontPalette::Type::Custom:
-        return CSSPrimitiveValue::createCustomIdent(fontPalette.identifier);
-    }
-    RELEASE_ASSERT_NOT_REACHED();
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertFontWeight(ExtractorState&, FontSelectionValue fontWeight)

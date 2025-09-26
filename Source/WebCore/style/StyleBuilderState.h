@@ -49,7 +49,6 @@ class StyleResolver;
 class TextAutospace;
 class TextSpacingTrim;
 
-struct FontPalette;
 struct FontSizeAdjust;
 
 namespace CSSCalc {
@@ -65,6 +64,7 @@ namespace Style {
 
 class BuilderState;
 struct Color;
+struct FontPalette;
 
 void maybeUpdateFontForLetterSpacing(BuilderState&, CSSValue&);
 
@@ -160,7 +160,7 @@ public:
     void setFontDescriptionFamilies(Vector<AtomString>&);
     void setFontDescriptionIsSpecifiedFont(bool);
     void setFontDescriptionFeatureSettings(FontFeatureSettings&&);
-    void setFontDescriptionFontPalette(const FontPalette&);
+    void setFontDescriptionFontPalette(Style::FontPalette&&);
     void setFontDescriptionFontSizeAdjust(FontSizeAdjust);
     void setFontDescriptionFontSmoothing(FontSmoothingMode);
     void setFontDescriptionFontSynthesisSmallCaps(FontSynthesisLonghandValue);

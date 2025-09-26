@@ -43,6 +43,7 @@
 #include <WebCore/StyleFilterData.h>
 #include <WebCore/StyleFlexibleBoxData.h>
 #include <WebCore/StyleFontData.h>
+#include <WebCore/StyleFontPalette.h>
 #include <WebCore/StyleGridData.h>
 #include <WebCore/StyleGridItemData.h>
 #include <WebCore/StyleGridTrackSizingDirection.h>
@@ -217,7 +218,7 @@ inline Style::FlexGrow RenderStyle::flexGrow() const { return m_nonInheritedData
 inline Style::FlexShrink RenderStyle::flexShrink() const { return m_nonInheritedData->miscData->flexibleBox->flexShrink; }
 inline FlexWrap RenderStyle::flexWrap() const { return static_cast<FlexWrap>(m_nonInheritedData->miscData->flexibleBox->flexWrap); }
 inline std::optional<FontSelectionValue> RenderStyle::fontItalic() const { return fontDescription().italic(); }
-inline const FontPalette& RenderStyle::fontPalette() const { return fontDescription().fontPalette(); }
+inline Style::FontPalette RenderStyle::fontPalette() const { return fontDescription().fontPalette(); }
 inline FontSizeAdjust RenderStyle::fontSizeAdjust() const { return fontDescription().fontSizeAdjust(); }
 inline FontSelectionValue RenderStyle::fontWidth() const { return fontDescription().width(); }
 inline FontOpticalSizing RenderStyle::fontOpticalSizing() const { return fontDescription().opticalSizing(); }
@@ -394,6 +395,7 @@ constexpr Style::FlexGrow RenderStyle::initialFlexGrow() { return 0_css_number; 
 constexpr Style::FlexShrink RenderStyle::initialFlexShrink() { return 1_css_number; }
 constexpr FlexWrap RenderStyle::initialFlexWrap() { return FlexWrap::NoWrap; }
 constexpr Float RenderStyle::initialFloating() { return Float::None; }
+inline Style::FontPalette RenderStyle::initialFontPalette() { return CSS::Keyword::Normal { }; }
 inline Style::GridTrackSizes RenderStyle::initialGridAutoColumns() { return CSS::Keyword::Auto { }; }
 constexpr GridAutoFlow RenderStyle::initialGridAutoFlow() { return AutoFlowRow; }
 inline Style::GridTrackSizes RenderStyle::initialGridAutoRows() { return CSS::Keyword::Auto { }; }

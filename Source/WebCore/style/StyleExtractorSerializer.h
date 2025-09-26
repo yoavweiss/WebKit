@@ -1023,25 +1023,6 @@ inline void ExtractorSerializer::serializeFontSizeAdjust(ExtractorState& state, 
     CSS::serializationForCSS(builder, context, CSS::NumberRaw<> { *value });
 }
 
-inline void ExtractorSerializer::serializeFontPalette(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const FontPalette& fontPalette)
-{
-    switch (fontPalette.type) {
-    case FontPalette::Type::Normal:
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Normal { });
-        return;
-    case FontPalette::Type::Light:
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Light { });
-        return;
-    case FontPalette::Type::Dark:
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Dark { });
-        return;
-    case FontPalette::Type::Custom:
-        serializationForCSS(builder, context, state.style, CustomIdentifier { fontPalette.identifier });
-        return;
-    }
-    RELEASE_ASSERT_NOT_REACHED();
-}
-
 inline void ExtractorSerializer::serializeFontWeight(ExtractorState&, StringBuilder& builder, const CSS::SerializationContext& context, FontSelectionValue fontWeight)
 {
     CSS::serializationForCSS(builder, context, CSS::NumberRaw<> { static_cast<float>(fontWeight) });

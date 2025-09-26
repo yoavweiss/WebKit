@@ -219,6 +219,7 @@ set(WebCore_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBCORE_DIR}/style/values/fill-stroke"
     "${WEBCORE_DIR}/style/values/filter-effects"
     "${WEBCORE_DIR}/style/values/flexbox"
+    "${WEBCORE_DIR}/style/values/fonts"
     "${WEBCORE_DIR}/style/values/grid"
     "${WEBCORE_DIR}/style/values/images"
     "${WEBCORE_DIR}/style/values/inline"

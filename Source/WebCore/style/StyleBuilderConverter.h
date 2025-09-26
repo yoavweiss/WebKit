@@ -50,7 +50,6 @@
 #include "CSSURLValue.h"
 #include "CSSValuePair.h"
 #include "CalculationValue.h"
-#include "FontPalette.h"
 #include "FontSelectionValueInlines.h"
 #include "FontSizeAdjust.h"
 #include "FrameDestructionObserverInlines.h"
@@ -147,7 +146,6 @@ public:
     static GlyphOrientation convertGlyphOrientation(BuilderState&, const CSSValue&);
     static GlyphOrientation convertGlyphOrientationOrAuto(BuilderState&, const CSSValue&);
     static WebCore::Length convertLineHeight(BuilderState&, const CSSValue&, float multiplier = 1.f);
-    static FontPalette convertFontPalette(BuilderState&, const CSSValue&);
 
     static OptionSet<HangingPunctuation> convertHangingPunctuation(BuilderState&, const CSSValue&);
 
@@ -792,26 +790,6 @@ inline WebCore::Length BuilderConverter::convertLineHeight(BuilderState& builder
     return WebCore::Length(primitiveValue->resolveAsNumber(conversionData) * 100.0, LengthType::Percent);
 }
 
-inline FontPalette BuilderConverter::convertFontPalette(BuilderState& builderState, const CSSValue& value)
-{
-    auto* primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return { };
-
-    switch (primitiveValue->valueID()) {
-    case CSSValueLight:
-        return { FontPalette::Type::Light, nullAtom() };
-    case CSSValueDark:
-        return { FontPalette::Type::Dark, nullAtom() };
-    case CSSValueInvalid:
-        ASSERT(primitiveValue->isCustomIdent());
-        return { FontPalette::Type::Custom, AtomString { primitiveValue->stringValue() } };
-    default:
-        ASSERT(primitiveValue->valueID() == CSSValueNormal || CSSPropertyParserHelpers::isSystemFontShorthand(primitiveValue->valueID()));
-        return { FontPalette::Type::Normal, nullAtom() };
-    }
-}
-    
 inline OptionSet<SpeakAs> BuilderConverter::convertSpeakAs(BuilderState&, const CSSValue& value)
 {
     auto result = RenderStyle::initialSpeakAs();

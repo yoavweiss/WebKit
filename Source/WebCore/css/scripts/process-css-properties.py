@@ -485,6 +485,7 @@ class StylePropertyCodeGenProperties:
         Schema.Entry("font-description-name-for-methods", allowed_types=[str]),
         Schema.Entry("font-description-setter", allowed_types=[str]),
         Schema.Entry("font-property", allowed_types=[bool], default_value=False),
+        Schema.Entry("font-property-uses-render-style-for-access", allowed_types=[bool], default_value=False),
         Schema.Entry("high-priority", allowed_types=[bool], default_value=False),
         Schema.Entry("internal-only", allowed_types=[bool], default_value=False),
         Schema.Entry("logical-property-group", allowed_types=[dict]),
@@ -4041,10 +4042,16 @@ class GenerateStyleBuilderGenerated:
     # Font property setters.
 
     def _generate_font_property_initial_value_setter(self, to, property):
-        to.write(f"builderState.{property.codegen_properties.font_description_setter.replace('set', 'setFontDescription', 1)}(FontCascadeDescription::{property.codegen_properties.font_description_initial}());")
+        if property.codegen_properties.font_property_uses_render_style_for_access:
+            to.write(f"builderState.{property.codegen_properties.font_description_setter.replace('set', 'setFontDescription', 1)}(RenderStyle::{property.codegen_properties.render_style_initial}());")
+        else:
+            to.write(f"builderState.{property.codegen_properties.font_description_setter.replace('set', 'setFontDescription', 1)}(FontCascadeDescription::{property.codegen_properties.font_description_initial}());")
 
     def _generate_font_property_inherit_value_setter(self, to, property):
-        to.write(f"auto inheritedValue = builderState.parentFontDescription().{property.codegen_properties.font_description_getter}();")
+        if property.codegen_properties.font_property_uses_render_style_for_access:
+            to.write(f"auto inheritedValue = builderState.parentStyle().{property.codegen_properties.render_style_getter}();")
+        else:
+            to.write(f"auto inheritedValue = builderState.parentFontDescription().{property.codegen_properties.font_description_getter}();")
         to.write(f"builderState.{property.codegen_properties.font_description_setter.replace('set', 'setFontDescription', 1)}(WTFMove(inheritedValue));")
 
     def _generate_font_property_value_setter(self, to, property, value):

@@ -949,7 +949,8 @@
                 "animation-wrapper": "DiscreteWrapper",
                 "animation-wrapper-comment": "By default, font properties use DiscreteFontDescriptionTypedWrapper, so an explicit wrapper is needed here to override that.",
                 "animation-wrapper-requires-render-style": true,
-                "style-converter": "FontPalette",
+                "style-converter": "StyleType<FontPalette>",
+                "font-property-uses-render-style-for-access": true,
                 "font-property": true,
                 "high-priority": true,
                 "parser-grammar": "normal | light | dark | <palette-identifier>"

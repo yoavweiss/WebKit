@@ -409,6 +409,7 @@ class JSONCSSPropertiesChecker(JSONChecker):
             'font-description-name-for-methods': self.validate_string,
             'font-description-setter': self.validate_string,
             'font-property': self.validate_boolean,
+            'font-property-uses-render-style-for-access': self.validate_boolean,
             'high-priority': self.validate_boolean,
             'internal-only': self.validate_boolean,
             'logical-property-group': self.validate_logical_property_group,

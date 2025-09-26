@@ -3209,6 +3209,7 @@ style/values/filter-effects/StyleOpacityFunction.cpp
 style/values/filter-effects/StyleSaturateFunction.cpp
 style/values/filter-effects/StyleSepiaFunction.cpp
 style/values/flexbox/StyleFlexBasis.cpp
+style/values/fonts/StyleFontPalette.cpp
 style/values/grid/StyleGridNamedLinesMap.cpp
 style/values/grid/StyleGridPosition.cpp
 style/values/grid/StyleGridPositionsResolver.cpp

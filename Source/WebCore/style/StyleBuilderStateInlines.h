@@ -116,13 +116,13 @@ inline void BuilderState::setFontDescriptionFeatureSettings(FontFeatureSettings&
     fontCascade.updateRequiresShaping();
 }
 
-inline void BuilderState::setFontDescriptionFontPalette(const FontPalette& fontPalette)
+inline void BuilderState::setFontDescriptionFontPalette(Style::FontPalette&& fontPalette)
 {
-    if (m_style.fontDescription().fontPalette() == fontPalette)
+    if (m_style.fontDescription().fontPalette() == fontPalette.platform())
         return;
 
     m_fontDirty = true;
-    m_style.mutableFontDescriptionWithoutUpdate().setFontPalette(fontPalette);
+    m_style.mutableFontDescriptionWithoutUpdate().setFontPalette(fontPalette.platform());
 }
 
 inline void BuilderState::setFontDescriptionFontSizeAdjust(FontSizeAdjust fontSizeAdjust)
