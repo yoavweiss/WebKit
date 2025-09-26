@@ -1401,5 +1401,7 @@ void testMemoryFill();
 void testMemoryFillConstant();
 
 void testLoadImmutable();
+void testLoadImmutableDominated();
+void testLoadImmutableNonDominated();
 
 #endif // ENABLE(B3_JIT)

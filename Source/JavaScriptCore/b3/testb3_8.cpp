@@ -1851,6 +1851,81 @@ void testLoadImmutable()
     CHECK_EQ(invoke<uint64_t>(*code, memory.mutableSpan().data(), memory.mutableSpan().data() + 1), 84U);
 }
 
+void testLoadImmutableDominated()
+{
+    Vector<uint64_t> memory(4);
+    Procedure proc;
+    BasicBlock* root = proc.addBlock();
+    BasicBlock* thenCase = proc.addBlock();
+    BasicBlock* elseCase = proc.addBlock();
+    BasicBlock* done = proc.addBlock();
+    auto arguments = cCallArgumentValues<void*, void*>(proc, root);
+
+    auto* value1 = root->appendNew<MemoryValue>(proc, Load, Int64, Origin(), arguments[0]);
+    value1->setReadsMutability(B3::Mutability::Immutable);
+    root->appendNew<MemoryValue>(proc, Store, Origin(), root->appendNew<Const32Value>(proc, Origin(), 0), arguments[1]);
+    root->appendNew<Value>(
+        proc, Branch, Origin(),
+        root->appendNew<Value>(proc, B3::Equal, Origin(), value1, root->appendIntConstant(proc, Origin(), Int64, 42)));
+    root->setSuccessors(thenCase, elseCase);
+
+    thenCase->appendNew<MemoryValue>(proc, Store, Origin(), thenCase->appendNew<Const32Value>(proc, Origin(), 22), arguments[1]);
+    thenCase->appendNew<Value>(proc, Jump, Origin());
+    thenCase->setSuccessors(done);
+
+    elseCase->appendNew<MemoryValue>(proc, Store, Origin(), elseCase->appendNew<Const32Value>(proc, Origin(), 11), arguments[1]);
+    elseCase->appendNew<Value>(proc, Jump, Origin());
+    elseCase->setSuccessors(done);
+
+    auto* value2 = done->appendNew<MemoryValue>(proc, Load, Int64, Origin(), arguments[0]);
+    value2->setReadsMutability(B3::Mutability::Immutable);
+    done->appendNewControlValue(proc, Return, Origin(), done->appendNew<Value>(proc, Add, Origin(), value1, value2));
+    auto code = compileProc(proc);
+
+    memory.fill(42);
+    CHECK_EQ(invoke<uint64_t>(*code, memory.mutableSpan().data(), memory.mutableSpan().data() + 1), 84U);
+    memory.fill(11);
+    CHECK_EQ(invoke<uint64_t>(*code, memory.mutableSpan().data(), memory.mutableSpan().data() + 1), 22U);
+}
+
+void testLoadImmutableNonDominated()
+{
+    Vector<uint64_t> memory(4);
+    Procedure proc;
+    BasicBlock* root = proc.addBlock();
+    BasicBlock* thenCase = proc.addBlock();
+    BasicBlock* elseCase = proc.addBlock();
+    BasicBlock* done = proc.addBlock();
+    auto arguments = cCallArgumentValues<void*, void*>(proc, root);
+
+    auto* cond = thenCase->appendNew<MemoryValue>(proc, Load, Int64, Origin(), arguments[1]);
+    root->appendNew<MemoryValue>(proc, Store, Origin(), root->appendNew<Const32Value>(proc, Origin(), 0), arguments[1]);
+    root->appendNew<Value>(
+        proc, Branch, Origin(),
+        root->appendNew<Value>(proc, B3::Equal, Origin(), cond, root->appendIntConstant(proc, Origin(), Int64, 42)));
+    root->setSuccessors(thenCase, elseCase);
+
+    auto* value1 = thenCase->appendNew<MemoryValue>(proc, Load, Int64, Origin(), arguments[0]);
+    value1->setReadsMutability(B3::Mutability::Immutable);
+    thenCase->appendNew<MemoryValue>(proc, Store, Origin(), value1, arguments[1]);
+    thenCase->appendNew<Value>(proc, Jump, Origin());
+    thenCase->setSuccessors(done);
+
+    elseCase->appendNew<MemoryValue>(proc, Store, Origin(), elseCase->appendNew<Const32Value>(proc, Origin(), 11), arguments[1]);
+    elseCase->appendNew<Value>(proc, Jump, Origin());
+    elseCase->setSuccessors(done);
+
+    auto* value2 = done->appendNew<MemoryValue>(proc, Load, Int64, Origin(), arguments[0]);
+    value2->setReadsMutability(B3::Mutability::Immutable);
+    done->appendNewControlValue(proc, Return, Origin(), value2);
+    auto code = compileProc(proc);
+
+    memory.fill(42);
+    CHECK_EQ(invoke<uint64_t>(*code, memory.mutableSpan().data(), memory.mutableSpan().data() + 1), 42U);
+    memory.fill(11);
+    CHECK_EQ(invoke<uint64_t>(*code, memory.mutableSpan().data(), memory.mutableSpan().data() + 1), 11U);
+}
+
 #endif // ENABLE(B3_JIT)
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_END

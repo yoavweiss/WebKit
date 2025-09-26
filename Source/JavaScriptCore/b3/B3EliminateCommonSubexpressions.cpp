@@ -697,7 +697,7 @@ private:
             return { match };
         }
 
-        if (m_data.writes.overlaps(range)) {
+        if (m_data.writes.overlaps(range) && m_value->effects().readsMutability != Mutability::Immutable) {
             dataLogLnIf(B3EliminateCommonSubexpressionsInternal::verbose, "    Giving up because of writes.");
             return { };
         }
@@ -720,7 +720,7 @@ private:
                 continue;
             }
 
-            if (data.writes.overlaps(range)) {
+            if (data.writes.overlaps(range) && m_value->effects().readsMutability != Mutability::Immutable) {
                 dataLogLnIf(B3EliminateCommonSubexpressionsInternal::verbose, "    Giving up because of writes.");
                 return { };
             }
