@@ -3066,6 +3066,8 @@ void EventHandler::updateMouseEventTargetNode(const AtomString& eventType, Node*
                 }
             }
 
+            if (!elementsUnderMouse.isEmpty())
+                elementsUnderMouse.removeAt(0);
             m_ancestorsOfLastElementUnderMouse = WTFMove(elementsUnderMouse);
         }
 
