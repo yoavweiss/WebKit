@@ -39,7 +39,8 @@ dictionary ReadableWritablePair {
     required WritableStream writable;
 };
 
-typedef ReadableStreamDefaultReader ReadableStreamReader;
+typedef (ReadableStreamDefaultReader or ReadableStreamBYOBReader) ReadableStreamReader;
+
 [
     ExportMacro=WEBCORE_EXPORT,
     Exposed=*,
@@ -49,7 +50,7 @@ typedef ReadableStreamDefaultReader ReadableStreamReader;
     [CallWith=CurrentGlobalObject] constructor(optional object underlyingSource, optional object options);
 
     [Custom, ReturnsOwnPromise] Promise<any> cancel(optional any reason);
-    ReadableStreamReader getReader(optional ReadableStreamGetReaderOptions options = { });
+    [CallWith=CurrentGlobalObject] ReadableStreamReader getReader(optional ReadableStreamGetReaderOptions options = { });
     [Custom, ReturnsOwnPromise] Promise<undefined> pipeTo(WritableStream destination, optional StreamPipeOptions options = {});
     [Custom] ReadableStream pipeThrough(ReadableWritablePair transform, optional StreamPipeOptions options = {});
     sequence<ReadableStream> tee();

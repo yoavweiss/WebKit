@@ -33,13 +33,47 @@
 #include "JSReadableStreamReadResult.h"
 #include "JSReadableStreamSource.h"
 #include "JSUnderlyingSource.h"
+#include "ReadableByteStreamController.h"
+#include "ReadableStreamBYOBReader.h"
 #include "ReadableStreamDefaultReader.h"
 #include "ScriptExecutionContext.h"
+#include "Settings.h"
 #include "WritableStream.h"
 
 namespace WebCore {
 
-ExceptionOr<Ref<ReadableStream>> ReadableStream::create(JSC::JSGlobalObject& globalObject, std::optional<JSC::Strong<JSC::JSObject>>&& underlyingSourceValue, std::optional<JSC::Strong<JSC::JSObject>>&& strategyValue)
+// https://streams.spec.whatwg.org/#validate-and-normalize-high-water-mark
+static inline ExceptionOr<double> extractHighWaterMark(const QueuingStrategy& strategy, double defaultValue)
+{
+    if (!strategy.highWaterMark)
+        return defaultValue;
+    auto highWaterMark = *strategy.highWaterMark;
+    if (std::isnan(highWaterMark) || highWaterMark < 0)
+        return Exception { ExceptionCode::RangeError, "highWaterMark value is invalid"_s };
+    return highWaterMark;
+}
+
+static ExceptionOr<bool> isReadableByteSource(JSC::ThrowScope& throwScope, JSDOMGlobalObject& globalObject, JSC::JSValue underlyingSource)
+{
+    bool isNullOrUndefined = underlyingSource.isUndefinedOrNull();
+    auto* object = isNullOrUndefined ? nullptr : underlyingSource.getObject();
+    if (!object)
+        return false;
+
+    Ref vm = globalObject.vm();
+    auto typeValue = object->get(&globalObject, JSC::Identifier::fromString(vm, "type"_s));
+    RETURN_IF_EXCEPTION(throwScope, Exception { ExceptionCode::ExistingExceptionError });
+
+    if (typeValue.isUndefined())
+        return false;
+
+    convert<IDLEnumeration<ReadableStreamType>>(globalObject, typeValue);
+    RETURN_IF_EXCEPTION(throwScope, Exception { ExceptionCode::ExistingExceptionError });
+
+    return true;
+}
+
+ExceptionOr<Ref<ReadableStream>> ReadableStream::create(JSDOMGlobalObject& globalObject, std::optional<JSC::Strong<JSC::JSObject>>&& underlyingSourceValue, std::optional<JSC::Strong<JSC::JSObject>>&& strategyValue)
 {
     JSC::JSValue underlyingSource = JSC::jsUndefined();
     if (underlyingSourceValue)
@@ -49,11 +83,36 @@ ExceptionOr<Ref<ReadableStream>> ReadableStream::create(JSC::JSGlobalObject& glo
     if (strategyValue)
         strategy = strategyValue->get();
 
-    // FIXME: We convert strategy twice for regular readable streams.
-    auto throwScope = DECLARE_THROW_SCOPE(globalObject.vm());
-    auto strategyDictOrException = convertDictionary<QueuingStrategy>(globalObject, strategy);
-    if (strategyDictOrException.hasException(throwScope))
-        return Exception { ExceptionCode::ExistingExceptionError };
+    Ref vm = globalObject.vm();
+    auto throwScope = DECLARE_THROW_SCOPE(vm);
+    RefPtr context = globalObject.scriptExecutionContext();
+    if (context->settingsValues().readableByteStreamAPIEnabled) {
+        // FIXME: We convert strategy twice for regular readable streams.
+        auto strategyDictOrException = convertDictionary<QueuingStrategy>(globalObject, strategy);
+        RETURN_IF_EXCEPTION(throwScope, Exception { ExceptionCode::ExistingExceptionError });
+
+        auto isByteSourceOrException = isReadableByteSource(throwScope, globalObject, underlyingSource);
+        if (isByteSourceOrException.hasException())
+            return isByteSourceOrException.releaseException();
+
+        if (isByteSourceOrException.returnValue()) {
+            auto underlyingSourceDictOrException = convertDictionary<UnderlyingSource>(globalObject, underlyingSource);
+            RETURN_IF_EXCEPTION(throwScope, Exception { ExceptionCode::ExistingExceptionError });
+
+            auto underlyingSourceDict = underlyingSourceDictOrException.releaseReturnValue();
+            auto strategyDict = strategyDictOrException.releaseReturnValue();
+
+            if (strategyDict.size)
+                return Exception { ExceptionCode::RangeError, "size should not be present"_s };
+
+            auto highWaterMarkOrException = extractHighWaterMark(strategyDict, 0);
+            if (highWaterMarkOrException.hasException())
+                return highWaterMarkOrException.releaseException();
+            auto highWatermark = highWaterMarkOrException.releaseReturnValue();
+
+            return createFromByteUnderlyingSource(globalObject, underlyingSource, WTFMove(underlyingSourceDict), highWatermark);
+        }
+    }
 
     return createFromJSValues(globalObject, underlyingSource, strategy);
 }
@@ -67,6 +126,17 @@ ExceptionOr<Ref<ReadableStream>> ReadableStream::createFromJSValues(JSC::JSGloba
         return result.releaseException();
 
     return adoptRef(*new ReadableStream(result.releaseReturnValue()));
+}
+
+ExceptionOr<Ref<ReadableStream>> ReadableStream::createFromByteUnderlyingSource(JSDOMGlobalObject& globalObject, JSC::JSValue underlyingSource, UnderlyingSource&& underlyingSourceDict, double highWaterMark)
+{
+    Ref readableStream = adoptRef(*new ReadableStream());
+
+    auto exception = readableStream->setupReadableByteStreamControllerFromUnderlyingSource(globalObject, underlyingSource, WTFMove(underlyingSourceDict), highWaterMark);
+    if (exception.hasException())
+        return exception.releaseException();
+
+    return readableStream;
 }
 
 ExceptionOr<Ref<InternalReadableStream>> ReadableStream::createInternalReadableStream(JSDOMGlobalObject& globalObject, Ref<ReadableStreamSource>&& source)
@@ -99,8 +169,21 @@ void ReadableStream::cancel(Exception&& exception)
 }
 
 // https://streams.spec.whatwg.org/#rs-get-reader
-ExceptionOr<Ref<ReadableStreamReader>> ReadableStream::getReader(const GetReaderOptions& options)
+ExceptionOr<ReadableStreamReader> ReadableStream::getReader(JSDOMGlobalObject& currentGlobalObject, const GetReaderOptions& options)
 {
+    if (!m_internalReadableStream) {
+        ASSERT(m_controller);
+        if (options.mode) {
+            auto readerOrException = ReadableStreamBYOBReader::create(currentGlobalObject, *this);
+            if (readerOrException.hasException())
+                return readerOrException.releaseException();
+
+            return ReadableStreamReader { RefPtr { readerOrException.releaseReturnValue() } };
+        }
+        // FIXME: Support default reading of byte sources.
+        return Exception { ExceptionCode::NotSupportedError, "Default reader on byte stream is not yet supported"_s };
+    }
+
     if (options.mode)
         return Exception { ExceptionCode::TypeError, "Invalid mode is specified"_s };
 
@@ -108,12 +191,19 @@ ExceptionOr<Ref<ReadableStreamReader>> ReadableStream::getReader(const GetReader
     if (!jsDOMGlobalObject)
         return Exception { ExceptionCode::InvalidStateError, "No global object"_s };
 
-    return ReadableStreamDefaultReader::create(*jsDOMGlobalObject, *m_internalReadableStream);
+    auto readerOrException = ReadableStreamDefaultReader::create(*jsDOMGlobalObject, *m_internalReadableStream);
+    if (readerOrException.hasException())
+        return readerOrException.releaseException();
+
+    return ReadableStreamReader { RefPtr { readerOrException.releaseReturnValue() } };
 }
 
 // https://streams.spec.whatwg.org/#rs-tee
 ExceptionOr<Vector<Ref<ReadableStream>>> ReadableStream::tee(bool shouldClone)
 {
+    if (!m_internalReadableStream)
+        return Exception { ExceptionCode::NotSupportedError, "Teeing byte streams is not yet supported"_s };
+
     auto result = m_internalReadableStream->tee(shouldClone);
     if (result.hasException())
         return result.releaseException();
@@ -155,12 +245,41 @@ ReadableStream::State ReadableStream::state() const
 void ReadableStream::setDefaultReader(ReadableStreamDefaultReader* reader)
 {
     ASSERT(!m_defaultReader || !reader);
+    ASSERT(!m_byobReader);
     m_defaultReader = reader;
 }
 
 ReadableStreamDefaultReader* ReadableStream::defaultReader()
 {
     return m_defaultReader.get();
+}
+
+void ReadableStream::setByobReader(ReadableStreamBYOBReader* reader)
+{
+    ASSERT(!m_byobReader || !reader);
+    ASSERT(!m_defaultReader);
+    m_byobReader = reader;
+}
+
+ReadableStreamBYOBReader* ReadableStream::byobReader()
+{
+    return m_byobReader.get();
+}
+
+// https://streams.spec.whatwg.org/#set-up-readable-byte-stream-controller
+ExceptionOr<void> ReadableStream::setupReadableByteStreamControllerFromUnderlyingSource(JSDOMGlobalObject& globalObject, JSC::JSValue, UnderlyingSource&& underlyingSourceDict, double)
+{
+    if (underlyingSourceDict.autoAllocateChunkSize && !*underlyingSourceDict.autoAllocateChunkSize)
+        return Exception { ExceptionCode::TypeError, "autoAllocateChunkSize is zero"_s };
+
+    // FIXME: Support start, pull and cancel.
+    if (underlyingSourceDict.start || underlyingSourceDict.pull || underlyingSourceDict.cancel)
+        return Exception { ExceptionCode::TypeError, "byte stream source start, pull or cancel are not yet supported"_s };
+
+    ASSERT(!m_controller);
+    lazyInitialize(m_controller, makeUniqueWithoutRefCountedCheck<ReadableByteStreamController>(*this));
+
+    return m_controller->start(globalObject, underlyingSourceDict.start.get());
 }
 
 // https://streams.spec.whatwg.org/#readable-stream-close
@@ -206,18 +325,37 @@ JSC::JSValue ReadableStream::storedError(JSDOMGlobalObject& globalObject) const
 JSC::JSValue JSReadableStream::cancel(JSC::JSGlobalObject& globalObject, JSC::CallFrame& callFrame)
 {
     RefPtr internalReadableStream = wrapped().internalReadableStream();
+    if (!internalReadableStream) {
+        return callPromiseFunction(globalObject, callFrame, [](auto&, auto&, auto&& promise) {
+            promise->reject(Exception { ExceptionCode::NotSupportedError, "cancelling a byte stream is not yet supported"_s });
+        });
+    }
+
     return internalReadableStream->cancelForBindings(globalObject, callFrame.argument(0));
 }
 
 JSC::JSValue JSReadableStream::pipeTo(JSC::JSGlobalObject& globalObject, JSC::CallFrame& callFrame)
 {
     RefPtr internalReadableStream = wrapped().internalReadableStream();
+    if (!internalReadableStream) {
+        return callPromiseFunction(globalObject, callFrame, [](auto&, auto&, auto&& promise) {
+            promise->reject(Exception { ExceptionCode::NotSupportedError, "piping to a byte stream is not yet supported"_s });
+        });
+    }
+
     return internalReadableStream->pipeTo(globalObject, callFrame.argument(0), callFrame.argument(1));
 }
 
 JSC::JSValue JSReadableStream::pipeThrough(JSC::JSGlobalObject& globalObject, JSC::CallFrame& callFrame)
 {
     RefPtr internalReadableStream = wrapped().internalReadableStream();
+    if (!internalReadableStream) {
+        Ref vm = globalObject.vm();
+        auto scope = DECLARE_THROW_SCOPE(vm);
+        throwNotSupportedError(globalObject, scope, "piping through a byte stream is not yet supported"_s);
+        return { };
+    }
+
     return internalReadableStream->pipeThrough(globalObject, callFrame.argument(0), callFrame.argument(1));
 }
 

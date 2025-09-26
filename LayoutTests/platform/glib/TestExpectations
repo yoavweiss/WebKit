@@ -118,6 +118,7 @@ imported/w3c/web-platform-tests/html/rendering/replaced-elements/the-select-elem
 imported/w3c/web-platform-tests/html/rendering/replaced-elements/the-select-element/select-button-min-height-001.html [ Pass ]
 imported/w3c/web-platform-tests/html/rendering/widgets/input-checkbox-zero-size.html [ Pass ]
 imported/w3c/web-platform-tests/html/rendering/widgets/the-select-element/option-add-label-quirks.html [ Pass ]
+imported/w3c/web-platform-tests/streams/readable-byte-streams/construct-byob-request.any.sharedworker.html [ Failure ]
 imported/w3c/web-platform-tests/svg/pservers/reftests/fill-fallback-currentcolor-1.svg [ Pass ]
 imported/w3c/web-platform-tests/svg/pservers/reftests/fill-fallback-none-1.svg [ Pass ]
 imported/w3c/web-platform-tests/svg/pservers/reftests/meshgradient-basic-001.svg [ Pass ]

@@ -384,7 +384,7 @@ ExceptionOr<void> FetchBodyOwner::createReadableStream(JSC::JSGlobalObject& stat
 {
     ASSERT(!m_readableStreamSource);
     if (isDisturbed()) {
-        auto streamOrException = ReadableStream::create(state, { }, { });
+        auto streamOrException = ReadableStream::create(*JSC::jsCast<JSDOMGlobalObject*>(&state), { }, { });
         if (streamOrException.hasException()) [[unlikely]]
             return streamOrException.releaseException();
         m_body->setReadableStream(streamOrException.releaseReturnValue());

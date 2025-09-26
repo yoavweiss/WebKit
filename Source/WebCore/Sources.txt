@@ -373,7 +373,11 @@ Modules/speech/SpeechSynthesisUtterance.cpp
 Modules/speech/SpeechSynthesisVoice.cpp
 Modules/storage/StorageManager.cpp
 Modules/storage/WorkerStorageConnection.cpp
+Modules/streams/ByteLengthQueuingStrategy.cpp
+Modules/streams/ReadableByteStreamController.cpp
 Modules/streams/ReadableStream.cpp
+Modules/streams/ReadableStreamBYOBReader.cpp
+Modules/streams/ReadableStreamBYOBRequest.cpp
 Modules/streams/ReadableStreamDefaultReader.cpp
 Modules/streams/ReadableStreamSink.cpp
 Modules/streams/ReadableStreamSource.cpp
@@ -4625,6 +4629,9 @@ JSRTCTrackEvent.cpp
 JSRTCTransformEvent.cpp
 JSRadioNodeList.cpp
 JSRange.cpp
+JSReadableByteStreamController.cpp
+JSReadableStreamBYOBReader.cpp
+JSReadableStreamBYOBRequest.cpp
 JSReadableStream.cpp
 JSReadableStreamDefaultController.cpp
 JSReadableStreamDefaultReader.cpp

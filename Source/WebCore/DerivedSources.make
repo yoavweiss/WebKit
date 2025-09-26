@@ -635,6 +635,9 @@ JS_BINDING_IDLS := \
     $(WebCore)/Modules/streams/GenericTransformStream.idl \
     $(WebCore)/Modules/streams/QueuingStrategy.idl \
     $(WebCore)/Modules/streams/QueuingStrategySize.idl \
+    $(WebCore)/Modules/streams/ReadableByteStreamController.idl \
+    $(WebCore)/Modules/streams/ReadableStreamBYOBReader.idl \
+    $(WebCore)/Modules/streams/ReadableStreamBYOBRequest.idl \
     $(WebCore)/Modules/streams/ReadableStream.idl \
     $(WebCore)/Modules/streams/ReadableStreamDefaultController.idl \
     $(WebCore)/Modules/streams/ReadableStreamDefaultReader.idl \

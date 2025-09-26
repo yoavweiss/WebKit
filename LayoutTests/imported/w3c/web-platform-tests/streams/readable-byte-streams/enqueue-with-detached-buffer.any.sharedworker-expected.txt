@@ -1,3 +1,3 @@
 
-FAIL enqueue after detaching byobRequest.view.buffer should throw promise_test: Unhandled rejection with value: object "TypeError: ReadableByteStreamController is not implemented"
+FAIL enqueue after detaching byobRequest.view.buffer should throw promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
 

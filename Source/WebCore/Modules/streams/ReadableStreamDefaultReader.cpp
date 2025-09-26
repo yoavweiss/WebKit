@@ -69,11 +69,30 @@ DOMPromise& ReadableStreamDefaultReader::closedPromise() const
     return m_closedPromise;
 }
 
-// https://streams.spec.whatwg.org/#readable-stream-default-reader-read
-void ReadableStreamDefaultReader::read(JSDOMGlobalObject&, Ref<DeferredPromise>&& readRequest)
+// https://streams.spec.whatwg.org/#default-reader-read
+void ReadableStreamDefaultReader::read(JSDOMGlobalObject& globalObject, Ref<DeferredPromise>&& readRequest)
 {
-    // FIXME: Support reading of byte sources.
-    readRequest->reject(Exception { ExceptionCode::NotSupportedError });
+    RefPtr stream = m_stream;
+    if (!stream) {
+        readRequest->reject(Exception { ExceptionCode::TypeError, "stream is undefined"_s });
+        return;
+    }
+
+    // https://streams.spec.whatwg.org/#readable-stream-default-reader-read
+    ASSERT(stream->defaultReader() == this);
+    ASSERT(stream->hasByteStreamController());
+
+    stream->markAsDisturbed();
+    switch (stream->state()) {
+    case ReadableStream::State::Closed:
+        readRequest->resolve<IDLDictionary<ReadableStreamReadResult>>({ JSC::jsUndefined(), true });
+        break;
+    case ReadableStream::State::Errored:
+        readRequest->reject<IDLAny>(stream->storedError(globalObject));
+        break;
+    case ReadableStream::State::Readable:
+        RefPtr { stream->controller() }->runPullSteps(globalObject, WTFMove(readRequest));
+    }
 }
 
 // https://streams.spec.whatwg.org/#default-reader-release-lock
@@ -121,6 +140,9 @@ void ReadableStreamDefaultReader::genericRelease(JSDOMGlobalObject& globalObject
         m_closedDeferred = WTFMove(deferred);
         m_closedPromise = WTFMove(promise);
     }
+
+    if (RefPtr controller = m_stream->controller())
+        controller->runReleaseSteps();
 
     stream->setDefaultReader(nullptr);
     m_stream = nullptr;
@@ -234,15 +256,24 @@ void ReadableStreamDefaultReader::onClosedPromiseResolution(Function<void()>&& c
     });
 }
 
-JSC::JSValue JSReadableStreamDefaultReader::read(JSC::JSGlobalObject& globalObject, JSC::CallFrame&)
+JSC::JSValue JSReadableStreamDefaultReader::read(JSC::JSGlobalObject& globalObject, JSC::CallFrame& callFrame)
 {
     RefPtr internalDefaultReader = wrapped().internalDefaultReader();
+    if (!internalDefaultReader) {
+        return callPromiseFunction(globalObject, callFrame, [this](auto& globalObject, auto&, auto&& promise) {
+            protectedWrapped()->read(globalObject, WTFMove(promise));
+        });
+    }
+
     return internalDefaultReader->readForBindings(globalObject);
 }
 
 JSC::JSValue JSReadableStreamDefaultReader::closed(JSC::JSGlobalObject& globalObject) const
 {
     RefPtr internalDefaultReader = wrapped().internalDefaultReader();
+    if (!internalDefaultReader)
+        return protectedWrapped()->closedPromise().promise();
+
     return internalDefaultReader->closedForBindings(globalObject);
 }
 
@@ -250,6 +281,12 @@ JSC::JSValue JSReadableStreamDefaultReader::closed(JSC::JSGlobalObject& globalOb
 JSC::JSValue JSReadableStreamDefaultReader::cancel(JSC::JSGlobalObject& globalObject, JSC::CallFrame& callFrame)
 {
     RefPtr internalDefaultReader = wrapped().internalDefaultReader();
+    if (!internalDefaultReader) {
+        return callPromiseFunction(globalObject, callFrame, [this](auto& globalObject, auto& callFrame, auto&& promise) {
+            protectedWrapped()->genericCancel(globalObject, callFrame.argument(0), WTFMove(promise));
+        });
+    }
+
     return internalDefaultReader->cancelForBindings(globalObject, callFrame.argument(0));
 }
 

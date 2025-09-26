@@ -717,6 +717,9 @@ set(WebCore_NON_SVG_IDL_FILES
     Modules/streams/GenericTransformStream.idl
     Modules/streams/QueuingStrategy.idl
     Modules/streams/QueuingStrategySize.idl
+    Modules/streams/ReadableByteStreamController.idl
+    Modules/streams/ReadableStreamBYOBReader.idl
+    Modules/streams/ReadableStreamBYOBRequest.idl
     Modules/streams/ReadableStream.idl
     Modules/streams/ReadableStreamDefaultController.idl
     Modules/streams/ReadableStreamDefaultReader.idl
