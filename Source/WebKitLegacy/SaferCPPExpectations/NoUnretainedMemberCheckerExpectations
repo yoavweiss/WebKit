@@ -1,3 +1,4 @@
+mac/DefaultDelegates/WebDefaultUIDelegate.h
 mac/History/BackForwardList.h
 mac/History/WebBackForwardList.h
 mac/History/WebHistory.h
