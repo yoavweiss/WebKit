@@ -112,10 +112,13 @@ def parseChanges(command, commit_message):
         return
     return changes
 
-def message(source=None, sha=None):
+def message(source=None, sha=None, mention_tests=True):
     commit_message = []
     amend_changes = None
     command = PREPARE_CHANGELOG_CMD
+
+    if not mention_tests:
+        command = command + ["--no-mention-tests"]
 
     if sha:
         commit_message.append('Amend changes:')
@@ -400,8 +403,8 @@ def main(file_name=None, source=None, sha=None):
                 sys.stderr.write(error.stderr)
 
     with open(file_name, 'w') as commit_message_file:
-        generated_msg, combined_changes, amend_changes = message(source=source, sha=sha)
         if sha:
+            generated_msg, combined_changes, amend_changes = message(source=source, sha=sha, mention_tests=False)
             git_log_msg = subprocess.run(
                 ['git', 'log', sha, '-1', '--pretty=format:%B'],
                 encoding='utf-8',
@@ -410,6 +413,7 @@ def main(file_name=None, source=None, sha=None):
             ).stdout
             commit_message_file.write(amended_message(git_log_msg, combined_changes, amend_changes, update_changelog))
         else:
+            generated_msg, combined_changes, amend_changes = message(source=source, sha=sha)
             commit_message_file.write(generated_msg)
 
         commit_message_file.write('''
