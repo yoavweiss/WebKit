@@ -13379,17 +13379,65 @@ std::optional<IPC::Connection::AsyncReplyID> WebPageProxy::computePagesForPrinti
 std::optional<IPC::Connection::AsyncReplyID> WebPageProxy::drawRectToImage(WebFrameProxy& frame, const PrintInfo& printInfo, const IntRect& rect, const WebCore::IntSize& imageSize, CompletionHandler<void(std::optional<WebCore::ShareableBitmap::Handle>&&)>&& callback)
 {
     auto frameID = frame.frameID();
+
+    Ref preferences = this->preferences();
+    if (!(preferences->remoteSnapshottingEnabled() && preferences->useGPUProcessForDOMRenderingEnabled())) {
+        if (m_isPerformingDOMPrintOperation)
+            return sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::DrawRectToImageDuringDOMPrintOperation(frameID, printInfo, rect, imageSize), WTFMove(callback), IPC::SendOption::DispatchMessageEvenWhenWaitingForUnboundedSyncReply);
+        return sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::DrawRectToImage(frameID, printInfo, rect, imageSize), WTFMove(callback));
+    }
+
+    auto snapshotIdentifier = RemoteSnapshotIdentifier::generate();
+    Ref gpuProcess = GPUProcessProxy::getOrCreate();
+    auto snapshotCallback = [weakGPUProcess = WeakPtr { gpuProcess }, snapshotIdentifier, callback = WTFMove(callback), rootFrameIdentifier = frameID, imageSize](bool success) mutable {
+        RefPtr gpuProcess = weakGPUProcess.get();
+        if (!gpuProcess || !gpuProcess->hasConnection()) {
+            callback({ });
+            return;
+        }
+        if (!success) {
+            gpuProcess->releaseSnapshot(snapshotIdentifier);
+            callback({ });
+            return;
+        }
+        gpuProcess->sinkCompletedSnapshotToBitmap(snapshotIdentifier, imageSize, rootFrameIdentifier, WTFMove(callback));
+    };
+
     if (m_isPerformingDOMPrintOperation)
-        return sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::DrawRectToImageDuringDOMPrintOperation(frameID, printInfo, rect, imageSize), WTFMove(callback), IPC::SendOption::DispatchMessageEvenWhenWaitingForUnboundedSyncReply);
-    return sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::DrawRectToImage(frameID, printInfo, rect, imageSize), WTFMove(callback));
+        return sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::DrawPrintingRectToSnapshotDuringDOMPrintOperation(snapshotIdentifier, frameID, printInfo, rect, imageSize), WTFMove(snapshotCallback), IPC::SendOption::DispatchMessageEvenWhenWaitingForUnboundedSyncReply);
+    return sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::DrawPrintingRectToSnapshot(snapshotIdentifier, frameID, printInfo, rect, imageSize), WTFMove(snapshotCallback));
 }
 
 std::optional<IPC::Connection::AsyncReplyID> WebPageProxy::drawPagesToPDF(WebFrameProxy& frame, const PrintInfo& printInfo, uint32_t first, uint32_t count, CompletionHandler<void(API::Data*)>&& callback)
 {
     auto frameID = frame.frameID();
+
+    Ref preferences = this->preferences();
+    if (!(preferences->remoteSnapshottingEnabled() && preferences->useGPUProcessForDOMRenderingEnabled())) {
+        if (m_isPerformingDOMPrintOperation)
+            return sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::DrawPagesToPDFDuringDOMPrintOperation(frameID, printInfo, first, count), toAPIDataSharedBufferCallback(WTFMove(callback)), IPC::SendOption::DispatchMessageEvenWhenWaitingForUnboundedSyncReply);
+        return sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::DrawPagesToPDF(frameID, printInfo, first, count),  toAPIDataSharedBufferCallback(WTFMove(callback)));
+    }
+
+    auto snapshotIdentifier = RemoteSnapshotIdentifier::generate();
+    Ref gpuProcess = GPUProcessProxy::getOrCreate();
+    auto snapshotCallback = [weakGPUProcess = WeakPtr { gpuProcess }, snapshotIdentifier, callback = WTFMove(callback), rootFrameIdentifier = frameID](std::optional<FloatSize> result) mutable {
+        RefPtr gpuProcess = weakGPUProcess.get();
+        if (!gpuProcess || !gpuProcess->hasConnection()) {
+            callback(nullptr);
+            return;
+        }
+        if (!result) {
+            gpuProcess->releaseSnapshot(snapshotIdentifier);
+            callback(nullptr);
+            return;
+        }
+        gpuProcess->sinkCompletedSnapshotToPDF(snapshotIdentifier, *result, rootFrameIdentifier, toAPIDataSharedBufferCallback(WTFMove(callback)));
+    };
+
     if (m_isPerformingDOMPrintOperation)
-        return sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::DrawPagesToPDFDuringDOMPrintOperation(frameID, printInfo, first, count), toAPIDataSharedBufferCallback(WTFMove(callback)), IPC::SendOption::DispatchMessageEvenWhenWaitingForUnboundedSyncReply);
-    return sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::DrawPagesToPDF(frameID, printInfo, first, count),  toAPIDataSharedBufferCallback(WTFMove(callback)));
+        return sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::DrawPrintingPagesToSnapshotDuringDOMPrintOperation(snapshotIdentifier, frameID, printInfo, first, count), WTFMove(snapshotCallback), IPC::SendOption::DispatchMessageEvenWhenWaitingForUnboundedSyncReply);
+    return sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::DrawPrintingPagesToSnapshot(snapshotIdentifier, frameID, printInfo, first, count), WTFMove(snapshotCallback));
 }
 #elif PLATFORM(GTK)
 void WebPageProxy::drawPagesForPrinting(WebFrameProxy& frame, const PrintInfo& printInfo, CompletionHandler<void(std::optional<SharedMemory::Handle>&&, ResourceError&&)>&& callback)
@@ -16522,6 +16570,8 @@ INSTANTIATE_SEND_WITH_ASYNC_REPLY_TO_PROCESS_CONTAINING_FRAME(WebPage::CommitPot
 INSTANTIATE_SEND_WITH_ASYNC_REPLY_TO_PROCESS_CONTAINING_FRAME(WebPage::PotentialTapAtPosition);
 INSTANTIATE_SEND_WITH_ASYNC_REPLY_TO_PROCESS_CONTAINING_FRAME(WebPage::DrawToImage);
 INSTANTIATE_SEND_WITH_ASYNC_REPLY_TO_PROCESS_CONTAINING_FRAME(WebPage::DrawToPDFiOS);
+INSTANTIATE_SEND_WITH_ASYNC_REPLY_TO_PROCESS_CONTAINING_FRAME(WebPage::DrawPrintingPagesToSnapshotiOS);
+INSTANTIATE_SEND_WITH_ASYNC_REPLY_TO_PROCESS_CONTAINING_FRAME(WebPage::DrawPrintingToSnapshotiOS);
 #if ENABLE(DRAG_SUPPORT)
 INSTANTIATE_SEND_WITH_ASYNC_REPLY_TO_PROCESS_CONTAINING_FRAME(WebPage::RequestDragStart);
 INSTANTIATE_SEND_WITH_ASYNC_REPLY_TO_PROCESS_CONTAINING_FRAME(WebPage::RequestAdditionalItemsForDragSession);

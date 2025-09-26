@@ -1367,12 +1367,20 @@ public:
     void drawPagesToPDFImpl(WebCore::FrameIdentifier, const PrintInfo&, uint32_t first, uint32_t count, RefPtr<WebCore::SharedBuffer>& pdfPageData);
 
     void drawPrintContextPagesToGraphicsContext(WebCore::GraphicsContext&, const WebCore::FloatRect& pageRect, uint32_t first, uint32_t count);
+
+    void drawPrintingRectToSnapshot(RemoteSnapshotIdentifier, WebCore::FrameIdentifier, const PrintInfo&, const WebCore::IntRect&, const WebCore::IntSize&, CompletionHandler<void(bool)>&&);
+    void drawPrintingRectToSnapshotDuringDOMPrintOperation(RemoteSnapshotIdentifier snapshotIdentifier, WebCore::FrameIdentifier frameID, const PrintInfo& printInfo, const WebCore::IntRect& rect, const WebCore::IntSize& imageSize, CompletionHandler<void(bool)>&& completionHandler) { drawPrintingRectToSnapshot(snapshotIdentifier, frameID, printInfo, rect, imageSize, WTFMove(completionHandler)); }
+    void drawPrintingPagesToSnapshot(RemoteSnapshotIdentifier, WebCore::FrameIdentifier, const PrintInfo&, uint32_t first, uint32_t count, CompletionHandler<void(std::optional<WebCore::FloatSize>)>&&);
+    void drawPrintingPagesToSnapshotDuringDOMPrintOperation(RemoteSnapshotIdentifier snapshotIdentifier, WebCore::FrameIdentifier frameID, const PrintInfo& printInfo, uint32_t first, uint32_t count, CompletionHandler<void(std::optional<WebCore::FloatSize>)>&& completionHandler) { drawPrintingPagesToSnapshot(snapshotIdentifier, frameID, printInfo, first, count, WTFMove(completionHandler)); }
 #endif
 
 #if PLATFORM(IOS_FAMILY)
     void computePagesForPrintingiOS(WebCore::FrameIdentifier, const PrintInfo&, CompletionHandler<void(uint64_t)>&&);
     void drawToPDFiOS(WebCore::FrameIdentifier, const PrintInfo&, uint64_t, CompletionHandler<void(RefPtr<WebCore::SharedBuffer>&&)>&&);
     void drawToImage(WebCore::FrameIdentifier, const PrintInfo&, CompletionHandler<void(std::optional<WebCore::ShareableBitmap::Handle>&&)>&&);
+
+    void drawPrintingPagesToSnapshotiOS(RemoteSnapshotIdentifier, WebCore::FrameIdentifier, const PrintInfo&, uint64_t, CompletionHandler<void(std::optional<WebCore::FloatSize>)>&&);
+    void drawPrintingToSnapshotiOS(RemoteSnapshotIdentifier, WebCore::FrameIdentifier, const PrintInfo&, CompletionHandler<void(std::optional<WebCore::FloatSize>)>&&);
 #endif
 
 #if PLATFORM(GTK)

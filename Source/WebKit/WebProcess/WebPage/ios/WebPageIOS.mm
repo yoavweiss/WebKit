@@ -42,7 +42,9 @@
 #import "PluginView.h"
 #import "PrintInfo.h"
 #import "RemoteLayerTreeDrawingArea.h"
+#import "RemoteRenderingBackendProxy.h"
 #import "RemoteScrollingCoordinator.h"
+#import "RemoteSnapshotRecorderProxy.h"
 #import "RemoteWebTouchEvent.h"
 #import "RevealItem.h"
 #import "SandboxUtilities.h"
@@ -5430,6 +5432,94 @@ void WebPage::drawToImage(WebCore::FrameIdentifier frameID, const PrintInfo& pri
     endPrinting();
 }
 
+void WebPage::drawPrintingToSnapshotiOS(RemoteSnapshotIdentifier snapshotIdentifier, WebCore::FrameIdentifier frameID, const PrintInfo& printInfo, CompletionHandler<void(std::optional<WebCore::FloatSize>)>&& completionHandler)
+{
+    RefPtr frame = WebProcess::singleton().webFrame(frameID);
+    if (!frame) {
+        completionHandler({ });
+        endPrinting();
+        return;
+    }
+
+    RefPtr coreFrame = frame->coreLocalFrame();
+    if (!coreFrame) {
+        completionHandler({ });
+        endPrinting();
+        return;
+    }
+
+    if (pdfDocumentForPrintingFrame(coreFrame.get())) {
+        // Can't do this remotely.
+        completionHandler({ });
+        endPrinting();
+        return;
+    }
+
+    if (!m_printContext) {
+        completionHandler({ });
+        endPrinting();
+        return;
+    }
+
+    PrintContextAccessScope scope { *this };
+    ASSERT(coreFrame->document()->printing());
+
+    Vector<WebCore::IntRect> pageRects;
+    double totalScaleFactor;
+    auto margin = printInfo.margin;
+    computePagesForPrintingImpl(frameID, printInfo, pageRects, totalScaleFactor, margin);
+
+    size_t pageCount = pageRects.size();
+
+    RELEASE_LOG(Printing, "Drawing to image. Page rects size = %zu", pageCount);
+
+    Checked<int> pageWidth = pageRects[0].width();
+    Checked<int> pageHeight = pageRects[0].height();
+
+    // The thumbnail images are always a maximum of 500 x 500.
+    static constexpr float maximumPrintPreviewDimensionSize = 500.0;
+
+    // If the sizes are too large, the bitmap will not be able to be created,
+    // so scale them down.
+    float scaleFactor = maximumPrintPreviewDimensionSize / static_cast<int>(std::max(pageWidth, pageHeight));
+    if (scaleFactor < 1.0) {
+        pageWidth = static_cast<int>(std::floorf(static_cast<int>(pageWidth) * scaleFactor));
+        pageHeight = static_cast<int>(std::floorf(static_cast<int>(pageHeight) * scaleFactor));
+    }
+
+    int imageHeight;
+    if (!WTF::safeMultiply(pageHeight.value<size_t>(), pageCount, imageHeight)) {
+        completionHandler({ });
+        endPrinting();
+        return;
+    }
+
+    auto mediaBox = IntRect { 0, 0, pageWidth, imageHeight };
+
+    Ref remoteRenderingBackend = ensureRemoteRenderingBackendProxy();
+    m_remoteSnapshotState = {
+        snapshotIdentifier,
+        remoteRenderingBackend->createSnapshotRecorder(snapshotIdentifier),
+        MainRunLoopSuccessCallbackAggregator::create([completionHandler = WTFMove(completionHandler), snapshotSize = mediaBox.size()] (bool success) mutable {
+            completionHandler(success ? std::optional<FloatSize>(snapshotSize) : std::nullopt);
+        })
+    };
+
+    GraphicsContext& context = m_remoteSnapshotState->recorder.get();
+
+    for (size_t pageIndex = 0; pageIndex < pageCount; ++pageIndex) {
+        if (pageIndex >= m_printContext->pageCount())
+            break;
+        context.save();
+        context.translate(0, pageHeight * static_cast<int>(pageIndex));
+        m_printContext->spoolPage(context, pageIndex, pageWidth);
+        context.restore();
+    }
+
+    remoteRenderingBackend->sinkSnapshotRecorderIntoSnapshotFrame(WTFMove(m_remoteSnapshotState->recorder), frameID, m_remoteSnapshotState->callback->chain());
+    m_remoteSnapshotState = std::nullopt;
+}
+
 void WebPage::drawToPDFiOS(FrameIdentifier frameID, const PrintInfo& printInfo, uint64_t pageCount, CompletionHandler<void(RefPtr<SharedBuffer>&&)>&& reply)
 {
     if (printInfo.snapshotFirstPage) {
@@ -5459,6 +5549,64 @@ void WebPage::drawToPDFiOS(FrameIdentifier frameID, const PrintInfo& printInfo, 
     reply(WTFMove(pdfPageData));
 
     endPrinting();
+}
+
+void WebPage::drawPrintingPagesToSnapshotiOS(RemoteSnapshotIdentifier snapshotIdentifier, WebCore::FrameIdentifier frameID, const PrintInfo& printInfo, uint64_t pageCount, CompletionHandler<void(std::optional<WebCore::FloatSize>)>&& completionHandler)
+{
+    RefPtr frame = WebProcess::singleton().webFrame(frameID);
+    if (!frame) {
+        completionHandler({ });
+        return;
+    }
+
+    RefPtr coreFrame = frame->coreLocalFrame();
+    if (!coreFrame) {
+        completionHandler({ });
+        return;
+    }
+
+    if (pdfDocumentForPrintingFrame(coreFrame.get())) {
+        // Can't do this remotely.
+        completionHandler({ });
+        return;
+    }
+
+    if (!m_printContext) {
+        completionHandler({ });
+        return;
+    }
+
+    PrintContextAccessScope scope { *this };
+    ASSERT(coreFrame->document()->printing());
+
+    auto mediaBox = FloatRect { 0, 0, printInfo.availablePaperWidth, printInfo.availablePaperHeight };
+    if (!printInfo.snapshotFirstPage && m_printContext && m_printContext->pageCount())
+        mediaBox = m_printContext->pageRect(0);
+
+    Ref remoteRenderingBackend = ensureRemoteRenderingBackendProxy();
+    m_remoteSnapshotState = {
+        snapshotIdentifier,
+        remoteRenderingBackend->createSnapshotRecorder(snapshotIdentifier),
+        MainRunLoopSuccessCallbackAggregator::create([completionHandler = WTFMove(completionHandler), snapshotSize = mediaBox.size()] (bool success) mutable {
+            completionHandler(success ? std::optional<FloatSize>(snapshotSize) : std::nullopt);
+        })
+    };
+
+    GraphicsContext& context = m_remoteSnapshotState->recorder.get();
+
+    if (printInfo.snapshotFirstPage) {
+        Ref frameView = *coreFrame->view();
+        auto originalLayoutViewportOverrideRect = frameView->layoutViewportOverrideRect();
+        frameView->setLayoutViewportOverrideRect(LayoutRect(mediaBox));
+
+        pdfSnapshotAtSize(*coreFrame, context, IntRect { mediaBox }, { });
+
+        frameView->setLayoutViewportOverrideRect(originalLayoutViewportOverrideRect);
+    } else
+        drawPrintContextPagesToGraphicsContext(context, mediaBox, 0, pageCount);
+
+    remoteRenderingBackend->sinkSnapshotRecorderIntoSnapshotFrame(WTFMove(m_remoteSnapshotState->recorder), frameID, m_remoteSnapshotState->callback->chain());
+    m_remoteSnapshotState = std::nullopt;
 }
 
 void WebPage::contentSizeCategoryDidChange(const String& contentSizeCategory)
