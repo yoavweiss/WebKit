@@ -30,14 +30,6 @@
 
 #include "stdbool.h"
 
-#if defined(PAS_BMALLOC) && PAS_BMALLOC
-#if defined(__has_include)
-#if __has_include(<WebKitAdditions/pas_mte_additions.h>)
-#include <WebKitAdditions/pas_mte_additions.h>
-#endif // __has_include(<WebKitAdditions/pas_mte_additions.h>) && !PAS_ENABLE_TESTING
-#endif // defined(__has_include)
-#endif // defined(PAS_BMALLOC) && PAS_BMALLOC
-
 #define PAS_LOG_NONE (0)
 #define PAS_LOG_HEAP_INFRASTRUCTURE (1 << 0)
 #define PAS_LOG_BOOTSTRAP_HEAPS (1 << 1)
@@ -67,10 +59,6 @@
 #define PAS_ENABLE_ASSERT 1
 #endif
 #define PAS_ENABLE_TESTING __PAS_ENABLE_TESTING
-
-#ifndef PAS_ENABLE_MTE
-#define PAS_ENABLE_MTE (PAS_USE_APPLE_INTERNAL_SDK && PAS_PLATFORM(IOS_FAMILY))
-#endif
 
 #define PAS_ARM64 __PAS_ARM64
 #define PAS_ARM32 __PAS_ARM32

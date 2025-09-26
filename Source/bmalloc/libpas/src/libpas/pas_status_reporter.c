@@ -62,7 +62,6 @@
 #include "pas_thread_local_cache_node.h"
 #include "pas_utility_heap.h"
 #include "pas_thread.h"
-#include "pas_zero_memory.h"
 #if !PAS_OS(WINDOWS)
 #include <unistd.h>
 #endif

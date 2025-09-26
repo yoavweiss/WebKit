@@ -373,17 +373,10 @@ _PATH_RULES_SPECIFIER = [
     ([
       # Source/bmalloc/libpas/src/ is first-party code, but largely operates
       # as an separate codebase, with a few different style rules.
-      # It also does not have access to any of WTF's safe-cpp wrappers,
-      # e.g. memsetSpan.
       os.path.join('Source', 'bmalloc', 'libpas', 'src')],
      ["-readability/naming/underscores",
-      "-readability/parameter_name",
       "-whitespace/declaration",
-      "-whitespace/indent",
-      "-safercpp/printf",
-      "-safercpp/memset",
-      "-safercpp/memcpy",
-      "-safercpp/strncmp",]),
+      "-whitespace/indent"]),
 
     ([
       # There is no way to avoid the symbols __jit_debug_register_code

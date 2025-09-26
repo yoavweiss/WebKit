@@ -35,7 +35,6 @@
 #include "pas_large_sharing_pool.h"
 #include "pas_page_malloc.h"
 #include "pas_page_sharing_pool.h"
-#include "pas_zero_memory.h"
 
 bool pas_large_utility_free_heap_talks_to_large_sharing_pool = true;
 

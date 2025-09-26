@@ -38,7 +38,6 @@
 #include "pas_page_granule_use_count.h"
 #include "pas_segregated_directory.h"
 #include "pas_segregated_size_directory_creation_mode.h"
-#include "pas_zero_memory.h"
 
 PAS_BEGIN_EXTERN_C;
 
