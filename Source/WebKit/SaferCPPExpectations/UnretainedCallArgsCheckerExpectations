@@ -3,7 +3,6 @@ NetworkProcess/mac/NetworkProcessMac.mm
 Platform/IPC/cocoa/ConnectionCocoa.mm
 Platform/IPC/cocoa/DaemonConnectionCocoa.mm
 Platform/cocoa/PaymentAuthorizationPresenter.mm
-Platform/cocoa/WebPrivacyHelpers.mm
 Platform/mac/MenuUtilities.mm
 Shared/API/Cocoa/RemoteObjectRegistry.mm
 Shared/API/Cocoa/WKBrowsingContextHandle.mm
