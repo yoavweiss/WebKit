@@ -695,7 +695,7 @@ void GridTrackSizingAlgorithm::convertIndefiniteItemsToDefiniteMasonry(const Std
     auto& allTracks = tracks(m_direction);
 
     for (auto& indefiniteItem : indefiniteSpanSizes) {
-        for (auto trackIndex = 0u; trackIndex < allTracks.size(); trackIndex++) {
+        for (size_t trackIndex = 0; trackIndex < allTracks.size(); trackIndex++) {
             auto endLine = trackIndex + indefiniteItem.first;
             auto itemSpan = GridSpan::translatedDefiniteGridSpan(trackIndex, endLine);
 
@@ -1479,7 +1479,7 @@ double IndefiniteSizeStrategy::findUsedFlexFraction(Vector<unsigned>& flexibleSi
         }
     } else {
         Vector<SingleThreadWeakPtr<RenderBox>> indefiniteItems;
-        for (auto trackIndex = 0u; trackIndex < m_algorithm.tracks(direction).size(); trackIndex++) {
+        for (size_t trackIndex = 0; trackIndex < m_algorithm.tracks(direction).size(); trackIndex++) {
             GridIterator iterator(grid, direction, trackIndex);
             while (auto* gridItem = iterator.nextGridItem()) {
                 if (Style::GridPositionsResolver::resolveGridPositionsFromStyle(*m_algorithm.renderGrid(), *gridItem, direction).isIndefinite())
@@ -1817,7 +1817,7 @@ void GridTrackSizingAlgorithm::computeDefiniteAndIndefiniteItemsForMasonry(StdMa
 
     auto& allTracks = tracks(m_direction);
     auto trackLength = allTracks.size();
-    for (auto trackIndex = 0u; trackIndex < trackLength; trackIndex++) {
+    for (size_t trackIndex = 0; trackIndex < trackLength; trackIndex++) {
         GridIterator iterator(m_grid, m_direction, trackIndex);
 
         while (CheckedPtr gridItem = iterator.nextGridItem()) {
