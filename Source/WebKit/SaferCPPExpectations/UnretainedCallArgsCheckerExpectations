@@ -31,7 +31,6 @@ Shared/Cocoa/WKNSError.mm
 Shared/Cocoa/WKNSURLRequest.mm
 Shared/EntryPointUtilities/Cocoa/Daemon/PCMDaemonEntryPoint.mm
 Shared/EntryPointUtilities/Cocoa/XPCService/XPCServiceMain.mm
-Shared/JavaScriptEvaluationResult.mm
 Shared/RemoteLayerTree/RemoteLayerTreePropertyApplier.mm
 Shared/mac/AuxiliaryProcessMac.mm
 UIProcess/API/C/mac/WKNotificationPrivateMac.mm
