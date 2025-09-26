@@ -566,6 +566,8 @@ public:
     void setBehavesAsFixed(bool);
     bool behavesAsFixed() const { return m_behavesAsFixed; }
 
+    bool behavesAsSticky() const { return m_hasStickyAncestor || renderer().isStickilyPositioned(); }
+
     struct PaintedContentRequest {
         PaintedContentRequest() = default;
         PaintedContentRequest(const RenderLayer& owningLayer);
