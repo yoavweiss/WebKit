@@ -40,7 +40,7 @@ template<typename PreferredLineHeightFunctor> InlineLevelBox::VerticalAlignment 
             return keyword;
         },
         [&](const Style::VerticalAlign::Length& length) -> InlineLevelBox::VerticalAlignment {
-            return InlineLayoutUnit { Style::evaluate(length, std::forward<PreferredLineHeightFunctor>(preferredLineHeightFunctor), Style::ZoomNeeded { }) };
+            return Style::evaluate<InlineLayoutUnit>(length, std::forward<PreferredLineHeightFunctor>(preferredLineHeightFunctor), Style::ZoomNeeded { });
         }
     );
 }

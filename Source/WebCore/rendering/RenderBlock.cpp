@@ -1842,7 +1842,7 @@ LayoutUnit RenderBlock::textIndentOffset() const
     LayoutUnit cw;
     if (style().textIndent().length.isPercentOrCalculated())
         cw = contentBoxLogicalWidth();
-    return Style::evaluate(style().textIndent().length, cw, Style::ZoomNeeded { });
+    return Style::evaluate<LayoutUnit>(style().textIndent().length, cw, Style::ZoomNeeded { });
 }
 
 LayoutUnit RenderBlock::logicalLeftOffsetForContent() const

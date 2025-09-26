@@ -403,11 +403,11 @@ LayoutSize RenderBoxModelObject::relativePositionOffset() const
         };
         if (!left.isAuto()) {
             if (!right.isAuto() && !containingBlock->writingMode().isAnyLeftToRight())
-                offset.setWidth(-Style::evaluate(right, !right.isFixed() ? availableWidth() : 0_lu, Style::ZoomNeeded { }));
+                offset.setWidth(-Style::evaluate<LayoutUnit>(right, !right.isFixed() ? availableWidth() : 0_lu, Style::ZoomNeeded { }));
             else
-                offset.expand(Style::evaluate(left, !left.isFixed() ? availableWidth() : 0_lu, Style::ZoomNeeded { }), 0_lu);
+                offset.expand(Style::evaluate<LayoutUnit>(left, !left.isFixed() ? availableWidth() : 0_lu, Style::ZoomNeeded { }), 0_lu);
         } else if (!right.isAuto())
-            offset.expand(-Style::evaluate(right, !right.isFixed() ? availableWidth() : 0_lu, Style::ZoomNeeded { }), 0_lu);
+            offset.expand(-Style::evaluate<LayoutUnit>(right, !right.isFixed() ? availableWidth() : 0_lu, Style::ZoomNeeded { }), 0_lu);
     }
 
     // If the containing block of a relatively positioned element does not
@@ -438,10 +438,10 @@ LayoutSize RenderBoxModelObject::relativePositionOffset() const
         // FIXME: The computation of the available height is repeated later for "bottom".
         // We could refactor this and move it to some common code for both ifs, however moving it outside of the ifs
         // is not possible as it'd cause performance regressions.
-        offset.expand(0_lu, Style::evaluate(top, !top.isFixed() ? availableHeight() : 0_lu, Style::ZoomNeeded { }));
+        offset.expand(0_lu, Style::evaluate<LayoutUnit>(top, !top.isFixed() ? availableHeight() : 0_lu, Style::ZoomNeeded { }));
     } else if (!bottom.isAuto() && (!bottom.isPercentOrCalculated() || containingBlockHasDefiniteHeight)) {
         // FIXME: Check comment above for "top", it applies here too.
-        offset.expand(0_lu, -Style::evaluate(bottom, !bottom.isFixed() ? availableHeight() : 0_lu, Style::ZoomNeeded { }));
+        offset.expand(0_lu, -Style::evaluate<LayoutUnit>(bottom, !bottom.isFixed() ? availableHeight() : 0_lu, Style::ZoomNeeded { }));
     }
     return offset;
 }
@@ -550,10 +550,10 @@ void RenderBoxModelObject::computeStickyPositionConstraints(StickyPositionViewpo
     // Sticky positioned element ignore any override logical width on the containing block (as they don't call
     // containingBlockLogicalWidthForContent). It's unclear whether this is totally fine.
     LayoutBoxExtent minMargin(
-        Style::evaluateMinimum(style().marginTop(), maxWidth, Style::ZoomNeeded { }),
-        Style::evaluateMinimum(style().marginRight(), maxWidth, Style::ZoomNeeded { }),
-        Style::evaluateMinimum(style().marginBottom(), maxWidth, Style::ZoomNeeded { }),
-        Style::evaluateMinimum(style().marginLeft(), maxWidth, Style::ZoomNeeded { })
+        Style::evaluateMinimum<LayoutUnit>(style().marginTop(), maxWidth, Style::ZoomNeeded { }),
+        Style::evaluateMinimum<LayoutUnit>(style().marginRight(), maxWidth, Style::ZoomNeeded { }),
+        Style::evaluateMinimum<LayoutUnit>(style().marginBottom(), maxWidth, Style::ZoomNeeded { }),
+        Style::evaluateMinimum<LayoutUnit>(style().marginLeft(), maxWidth, Style::ZoomNeeded { })
     );
 
     // Compute the container-relative area within which the sticky element is allowed to move.
@@ -603,22 +603,22 @@ void RenderBoxModelObject::computeStickyPositionConstraints(StickyPositionViewpo
     constraints.setStickyBoxRect(stickyBoxRelativeToScrollingAncestor);
 
     if (!style().left().isAuto()) {
-        constraints.setLeftOffset(Style::evaluate(style().left(), constrainingRect.width(), Style::ZoomNeeded { }));
+        constraints.setLeftOffset(Style::evaluate<float>(style().left(), constrainingRect.width(), Style::ZoomNeeded { }));
         constraints.addAnchorEdge(ViewportConstraints::AnchorEdgeLeft);
     }
 
     if (!style().right().isAuto()) {
-        constraints.setRightOffset(Style::evaluate(style().right(), constrainingRect.width(), Style::ZoomNeeded { }));
+        constraints.setRightOffset(Style::evaluate<float>(style().right(), constrainingRect.width(), Style::ZoomNeeded { }));
         constraints.addAnchorEdge(ViewportConstraints::AnchorEdgeRight);
     }
 
     if (!style().top().isAuto()) {
-        constraints.setTopOffset(Style::evaluate(style().top(), constrainingRect.height(), Style::ZoomNeeded { }));
+        constraints.setTopOffset(Style::evaluate<float>(style().top(), constrainingRect.height(), Style::ZoomNeeded { }));
         constraints.addAnchorEdge(ViewportConstraints::AnchorEdgeTop);
     }
 
     if (!style().bottom().isAuto()) {
-        constraints.setBottomOffset(Style::evaluate(style().bottom(), constrainingRect.height(), Style::ZoomNeeded { }));
+        constraints.setBottomOffset(Style::evaluate<float>(style().bottom(), constrainingRect.height(), Style::ZoomNeeded { }));
         constraints.addAnchorEdge(ViewportConstraints::AnchorEdgeBottom);
     }
 }

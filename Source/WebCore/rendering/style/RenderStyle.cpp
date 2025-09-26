@@ -2270,7 +2270,7 @@ bool RenderStyle::affectedByTransformOrigin() const
 
 FloatPoint RenderStyle::computePerspectiveOrigin(const FloatRect& boundingBox) const
 {
-    return boundingBox.location() + Style::evaluate(perspectiveOrigin(), boundingBox.size(), Style::ZoomNeeded { });
+    return boundingBox.location() + Style::evaluate<FloatPoint>(perspectiveOrigin(), boundingBox.size(), Style::ZoomNeeded { });
 }
 
 void RenderStyle::applyPerspective(TransformationMatrix& transform, const FloatPoint& originTranslate) const
@@ -2292,7 +2292,7 @@ void RenderStyle::applyPerspective(TransformationMatrix& transform, const FloatP
 FloatPoint3D RenderStyle::computeTransformOrigin(const FloatRect& boundingBox) const
 {
     FloatPoint3D originTranslate;
-    originTranslate.setXY(boundingBox.location() + floatPointForLengthPoint(Style::toPlatform(transformOrigin().xy()), boundingBox.size(), 1.0f /* FIXME FIND ZOOM */));
+    originTranslate.setXY(boundingBox.location() + Style::evaluate<FloatPoint>(transformOrigin().xy(), boundingBox.size(), Style::ZoomNeeded { }));
     originTranslate.setZ(transformOriginZ().resolveZoom(Style::ZoomNeeded { }));
     return originTranslate;
 }
@@ -3115,20 +3115,20 @@ static LayoutUnit computeOutset(const OutsetValue& outsetValue, LayoutUnit borde
 LayoutBoxExtent RenderStyle::imageOutsets(const Style::BorderImage& image) const
 {
     return {
-        computeOutset(image.outset().values.top(), LayoutUnit(Style::evaluate(borderTopWidth(), Style::ZoomNeeded { }))),
-        computeOutset(image.outset().values.right(), LayoutUnit(Style::evaluate(borderRightWidth(), Style::ZoomNeeded { }))),
-        computeOutset(image.outset().values.bottom(), LayoutUnit(Style::evaluate(borderBottomWidth(), Style::ZoomNeeded { }))),
-        computeOutset(image.outset().values.left(), LayoutUnit(Style::evaluate(borderLeftWidth(), Style::ZoomNeeded { })))
+        computeOutset(image.outset().values.top(), Style::evaluate<LayoutUnit>(borderTopWidth(), Style::ZoomNeeded { })),
+        computeOutset(image.outset().values.right(), Style::evaluate<LayoutUnit>(borderRightWidth(), Style::ZoomNeeded { })),
+        computeOutset(image.outset().values.bottom(), Style::evaluate<LayoutUnit>(borderBottomWidth(), Style::ZoomNeeded { })),
+        computeOutset(image.outset().values.left(), Style::evaluate<LayoutUnit>(borderLeftWidth(), Style::ZoomNeeded { })),
     };
 }
 
 LayoutBoxExtent RenderStyle::imageOutsets(const Style::MaskBorder& image) const
 {
     return {
-        computeOutset(image.outset().values.top(), LayoutUnit(Style::evaluate(borderTopWidth(), Style::ZoomNeeded { }))),
-        computeOutset(image.outset().values.right(), LayoutUnit(Style::evaluate(borderRightWidth(), Style::ZoomNeeded { }))),
-        computeOutset(image.outset().values.bottom(), LayoutUnit(Style::evaluate(borderBottomWidth(), Style::ZoomNeeded { }))),
-        computeOutset(image.outset().values.left(), LayoutUnit(Style::evaluate(borderLeftWidth(), Style::ZoomNeeded { })))
+        computeOutset(image.outset().values.top(), Style::evaluate<LayoutUnit>(borderTopWidth(), Style::ZoomNeeded { })),
+        computeOutset(image.outset().values.right(), Style::evaluate<LayoutUnit>(borderRightWidth(), Style::ZoomNeeded { })),
+        computeOutset(image.outset().values.bottom(), Style::evaluate<LayoutUnit>(borderBottomWidth(), Style::ZoomNeeded { })),
+        computeOutset(image.outset().values.left(), Style::evaluate<LayoutUnit>(borderLeftWidth(), Style::ZoomNeeded { })),
     };
 }
 
@@ -3425,7 +3425,7 @@ Style::LineWidth RenderStyle::outlineWidth() const
     if (outline.style() == OutlineStyle::None)
         return 0_css_px;
     if (outlineStyle() == OutlineStyle::Auto)
-        return Style::LineWidth { std::max(Style::evaluate(outline.width(), Style::ZoomNeeded { }), RenderTheme::platformFocusRingWidth()) };
+        return Style::LineWidth { std::max(Style::evaluate<float>(outline.width(), Style::ZoomNeeded { }), RenderTheme::platformFocusRingWidth()) };
     return outline.width();
 }
 
@@ -3433,13 +3433,13 @@ Style::Length<> RenderStyle::outlineOffset() const
 {
     auto& outline = m_nonInheritedData->backgroundData->outline;
     if (outlineStyle() == OutlineStyle::Auto)
-        return Style::Length<> { static_cast<float>(Style::evaluate(outline.offset(), Style::ZoomNeeded { }) + RenderTheme::platformFocusRingOffset(Style::evaluate(outline.width(), Style::ZoomNeeded { }))) };
+        return Style::Length<> { Style::evaluate<float>(outline.offset(), Style::ZoomNeeded { }) + RenderTheme::platformFocusRingOffset(Style::evaluate<float>(outline.width(), Style::ZoomNeeded { })) };
     return outline.offset();
 }
 
 float RenderStyle::outlineSize() const
 {
-    return std::max<float>(0, Style::evaluate(outlineWidth(), Style::ZoomNeeded { }) + Style::evaluate(outlineOffset(), Style::ZoomNeeded { }));
+    return std::max(0.0f, Style::evaluate<float>(outlineWidth(), Style::ZoomNeeded { }) + Style::evaluate<float>(outlineOffset(), Style::ZoomNeeded { }));
 }
 
 CheckedRef<const FontCascade> RenderStyle::checkedFontCascade() const
@@ -3485,11 +3485,11 @@ float RenderStyle::computedStrokeWidth(const IntSize& viewportSize) const
     // Since there will be no visible stroke when stroke-color is not specified (transparent by default), we fall
     // back to the legacy Webkit text stroke combination in that case.
     if (!hasExplicitlySetStrokeColor())
-        return Style::evaluate(textStrokeWidth(), Style::ZoomNeeded { });
+        return Style::evaluate<float>(textStrokeWidth(), Style::ZoomNeeded { });
 
     return WTF::switchOn(strokeWidth(),
         [&](const Style::StrokeWidth::Fixed& fixedStrokeWidth) -> float {
-            return fixedStrokeWidth.resolveZoom(Style::ZoomNeeded { });
+            return Style::evaluate<float>(fixedStrokeWidth, Style::ZoomNeeded { });
         },
         [&](const Style::StrokeWidth::Percentage& percentageStrokeWidth) -> float {
             // According to the spec, https://drafts.fxtf.org/paint/#stroke-width, the percentage is relative to the scaled viewport size.
@@ -3498,7 +3498,7 @@ float RenderStyle::computedStrokeWidth(const IntSize& viewportSize) const
         },
         [&](const Style::StrokeWidth::Calc& calcStrokeWidth) -> float {
             // FIXME: It is almost certainly wrong that calc and percentage are being handled differently - https://bugs.webkit.org/show_bug.cgi?id=296482
-            return Style::evaluate(calcStrokeWidth, viewportSize.width());
+            return Style::evaluate<float>(calcStrokeWidth, viewportSize.width());
         }
     );
 }

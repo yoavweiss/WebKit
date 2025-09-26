@@ -93,16 +93,16 @@ std::optional<MotionPathData> MotionPath::motionPathDataForRenderer(const Render
 
     auto startingPositionForOffsetPosition = [&](const Style::OffsetPosition& offsetPosition, const FloatRect& referenceRect, RenderBlock& container) -> FloatPoint {
         return WTF::switchOn(offsetPosition,
-            [&](const CSS::Keyword::Normal&) -> FloatPoint {
+            [&](const CSS::Keyword::Normal&) {
                 // If offset-position is normal, the element does not have an offset starting position.
                 return normalPositionForOffsetPath(offsetPath, referenceRect);
             },
-            [&](const CSS::Keyword::Auto&) -> FloatPoint  {
+            [&](const CSS::Keyword::Auto&)  {
                 // If offset-position is auto, use top / left corner of the box.
                 return offsetFromContainer(renderer, container, referenceRect);
             },
-            [&](const Style::Position& position) -> FloatPoint {
-                return Style::evaluate(position, referenceRect.size(), Style::ZoomNeeded { });
+            [&](const Style::Position& position) {
+                return Style::evaluate<FloatPoint>(position, referenceRect.size(), Style::ZoomNeeded { });
             }
         );
     };
@@ -124,7 +124,7 @@ std::optional<MotionPathData> MotionPath::motionPathDataForRenderer(const Render
         [&](const Style::RayPath& offsetPath) {
             auto startingPosition = offsetPath.ray()->position;
             data.usedStartingPosition = startingPosition
-                ? Style::evaluate(*startingPosition, data.containingBlockBoundingRect.rect().size(), Style::ZoomNeeded { })
+                ? Style::evaluate<FloatPoint>(*startingPosition, data.containingBlockBoundingRect.rect().size(), Style::ZoomNeeded { })
                 : startingPositionForOffsetPosition(offsetPosition, data.containingBlockBoundingRect.rect(), *container);
         },
         [&](const auto&) { }
@@ -136,7 +136,7 @@ std::optional<MotionPathData> MotionPath::motionPathDataForRenderer(const Render
 static PathTraversalState traversalStateAtDistance(const Path& path, const Style::OffsetDistance& distance)
 {
     auto pathLength = path.length();
-    auto distanceValue = Style::evaluate(distance, pathLength, Style::ZoomNeeded { });
+    auto distanceValue = Style::evaluate<float>(distance, pathLength, Style::ZoomNeeded { });
 
     float resolvedLength = 0;
     if (path.isClosed()) {
@@ -158,7 +158,7 @@ void MotionPath::applyMotionPathTransform(TransformationMatrix& matrix, const Tr
     auto anchor = transformOrigin;
     WTF::switchOn(offsetAnchor,
         [&](const Style::Position& position) {
-            anchor = Style::evaluate(position, boundingBox.size(), Style::ZoomNeeded { }) + boundingBox.location();
+            anchor = Style::evaluate<FloatPoint>(position, boundingBox.size(), Style::ZoomNeeded { }) + boundingBox.location();
         },
         [&](const CSS::Keyword::Auto&) { }
     );

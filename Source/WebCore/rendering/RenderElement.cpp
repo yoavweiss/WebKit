@@ -1510,12 +1510,12 @@ bool RenderElement::repaintAfterLayoutIfNeeded(SingleThreadWeakPtr<const RenderL
                 auto borderBoxWidth = renderBox->width();
                 return std::max({
                     renderBox->borderRight(),
-                    Style::evaluate(style.borderTopRightRadius().width(), borderBoxWidth, Style::ZoomNeeded { }),
-                    Style::evaluate(style.borderBottomRightRadius().width(), borderBoxWidth, Style::ZoomNeeded { }),
+                    Style::evaluate<LayoutUnit>(style.borderTopRightRadius().width(), borderBoxWidth, Style::ZoomNeeded { }),
+                    Style::evaluate<LayoutUnit>(style.borderBottomRightRadius().width(), borderBoxWidth, Style::ZoomNeeded { }),
                 });
             };
-            auto outlineRightInsetExtent = [&]() -> LayoutUnit {
-                auto offset = LayoutUnit { Style::evaluate(outlineStyle.outlineOffset(), Style::ZoomNeeded { }) };
+            auto outlineRightInsetExtent = [&] -> LayoutUnit {
+                auto offset = Style::evaluate<LayoutUnit>(outlineStyle.outlineOffset(), Style::ZoomNeeded { });
                 return offset < 0 ? -offset : 0_lu;
             };
             auto boxShadowRightInsetExtent = [&] {
@@ -1554,12 +1554,12 @@ bool RenderElement::repaintAfterLayoutIfNeeded(SingleThreadWeakPtr<const RenderL
                 auto borderBoxHeight = renderBox->height();
                 return std::max({
                     renderBox->borderBottom(),
-                    Style::evaluate(style.borderBottomLeftRadius().height(), borderBoxHeight, Style::ZoomNeeded { }),
-                    Style::evaluate(style.borderBottomRightRadius().height(), borderBoxHeight, Style::ZoomNeeded { }),
+                    Style::evaluate<LayoutUnit>(style.borderBottomLeftRadius().height(), borderBoxHeight, Style::ZoomNeeded { }),
+                    Style::evaluate<LayoutUnit>(style.borderBottomRightRadius().height(), borderBoxHeight, Style::ZoomNeeded { }),
                 });
             };
-            auto outlineBottomInsetExtent = [&]() -> LayoutUnit {
-                auto offset = LayoutUnit { Style::evaluate(outlineStyle.outlineOffset(), Style::ZoomNeeded { }) };
+            auto outlineBottomInsetExtent = [&] -> LayoutUnit {
+                auto offset = Style::evaluate<LayoutUnit>(outlineStyle.outlineOffset(), Style::ZoomNeeded { });
                 return offset < 0 ? -offset : 0_lu;
             };
             auto boxShadowBottomInsetExtent = [&]() -> LayoutUnit {
@@ -2120,22 +2120,22 @@ static bool useShrinkWrappedFocusRingForOutlineStyleAuto()
 
 static void drawFocusRing(GraphicsContext& context, const Path& path, const RenderStyle& style, const Color& color)
 {
-    context.drawFocusRing(path, Style::evaluate(style.outlineWidth(), Style::ZoomNeeded { }), color);
+    context.drawFocusRing(path, Style::evaluate<float>(style.outlineWidth(), Style::ZoomNeeded { }), color);
 }
 
 static void drawFocusRing(GraphicsContext& context, Vector<FloatRect> rects, const RenderStyle& style, const Color& color)
 {
 #if PLATFORM(MAC)
-    context.drawFocusRing(rects, 0, Style::evaluate(style.outlineWidth(), Style::ZoomNeeded { }), color);
+    context.drawFocusRing(rects, 0, Style::evaluate<float>(style.outlineWidth(), Style::ZoomNeeded { }), color);
 #else
-    context.drawFocusRing(rects, Style::evaluate(style.outlineOffset(), Style::ZoomNeeded { }), Style::evaluate(style.outlineWidth(), Style::ZoomNeeded { }), color);
+    context.drawFocusRing(rects, Style::evaluate<float>(style.outlineOffset(), Style::ZoomNeeded { }), Style::evaluate<float>(style.outlineWidth(), Style::ZoomNeeded { }), color);
 #endif
 }
 
 void RenderElement::paintFocusRing(const PaintInfo& paintInfo, const RenderStyle& style, const Vector<LayoutRect>& focusRingRects) const
 {
     ASSERT(style.outlineStyle() == OutlineStyle::Auto);
-    float outlineOffset = Style::evaluate(style.outlineOffset(), Style::ZoomNeeded { });
+    auto outlineOffset = Style::evaluate<float>(style.outlineOffset(), Style::ZoomNeeded { });
     Vector<FloatRect> pixelSnappedFocusRingRects;
     float deviceScaleFactor = document().deviceScaleFactor();
     for (auto rect : focusRingRects) {

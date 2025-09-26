@@ -383,7 +383,7 @@ Style::PaddingBox RenderThemeIOS::popupInternalPaddingBox(const RenderStyle& sty
     auto padding = emSize->resolveAsLength<float>({ style, nullptr, nullptr, nullptr });
 
     if (style.usedAppearance() == StyleAppearance::MenulistButton) {
-        auto value = toTruncatedPaddingEdge(padding + Style::evaluate(style.borderTopWidth(), Style::ZoomNeeded { }));
+        auto value = toTruncatedPaddingEdge(padding + Style::evaluate<float>(style.borderTopWidth(), Style::ZoomNeeded { }));
         if (style.writingMode().isBidiRTL())
             return { 0_css_px, 0_css_px, 0_css_px, value };
         return { 0_css_px, value, 0_css_px, 0_css_px };
@@ -610,9 +610,9 @@ void RenderThemeIOS::paintMenuListButtonDecorations(const RenderBox& box, const 
     FloatPoint glyphOrigin;
     glyphOrigin.setY(logicalRect.center().y() - glyphSize.height() / 2.0f);
     if (!style.writingMode().isInlineFlipped())
-        glyphOrigin.setX(logicalRect.maxX() - glyphSize.width() - Style::evaluate(box.style().borderEndWidth(), Style::ZoomNeeded { }) - Style::evaluate(box.style().paddingEnd(), logicalRect.width(), Style::ZoomNeeded { }));
+        glyphOrigin.setX(logicalRect.maxX() - glyphSize.width() - Style::evaluate<float>(box.style().borderEndWidth(), Style::ZoomNeeded { }) - Style::evaluate<float>(box.style().paddingEnd(), logicalRect.width(), Style::ZoomNeeded { }));
     else
-        glyphOrigin.setX(logicalRect.x() + Style::evaluate(box.style().borderEndWidth(), Style::ZoomNeeded { }) + Style::evaluate(box.style().paddingEnd(), logicalRect.width(), Style::ZoomNeeded { }));
+        glyphOrigin.setX(logicalRect.x() + Style::evaluate<float>(box.style().borderEndWidth(), Style::ZoomNeeded { }) + Style::evaluate<float>(box.style().paddingEnd(), logicalRect.width(), Style::ZoomNeeded { }));
 
     if (!isHorizontalWritingMode)
         glyphOrigin = glyphOrigin.transposedPoint();
@@ -1744,10 +1744,10 @@ bool RenderThemeIOS::paintListButton(const RenderElement& box, const PaintInfo& 
     auto& context = paintInfo.context();
     GraphicsContextStateSaver stateSaver(context);
 
-    float paddingTop = Style::evaluate(style.paddingTop(), rect.height(), Style::ZoomNeeded { });
-    float paddingRight = Style::evaluate(style.paddingRight(), rect.width(), Style::ZoomNeeded { });
-    float paddingBottom = Style::evaluate(style.paddingBottom(), rect.height(), Style::ZoomNeeded { });
-    float paddingLeft = Style::evaluate(style.paddingLeft(), rect.width(), Style::ZoomNeeded { });
+    auto paddingTop = Style::evaluate<float>(style.paddingTop(), rect.height(), Style::ZoomNeeded { });
+    auto paddingRight = Style::evaluate<float>(style.paddingRight(), rect.width(), Style::ZoomNeeded { });
+    auto paddingBottom = Style::evaluate<float>(style.paddingBottom(), rect.height(), Style::ZoomNeeded { });
+    auto paddingLeft = Style::evaluate<float>(style.paddingLeft(), rect.width(), Style::ZoomNeeded { });
 
     FloatRect indicatorRect = rect;
     indicatorRect.move(paddingLeft, paddingTop);

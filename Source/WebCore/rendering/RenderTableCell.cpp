@@ -367,7 +367,7 @@ LayoutUnit RenderTableCell::logicalHeightForRowSizing() const
     auto specifiedSize = !isOrthogonal() ? style().logicalHeight() : style().logicalWidth();
     if (!specifiedSize.isSpecified())
         return usedLogicalSize;
-    auto computedLogicaSize = Style::evaluate(specifiedSize, 0_lu, Style::ZoomNeeded { });
+    auto computedLogicaSize = Style::evaluate<LayoutUnit>(specifiedSize, 0_lu, Style::ZoomNeeded { });
     // In strict mode, box-sizing: content-box do the right thing and actually add in the border and padding.
     // Call computedCSSPadding* directly to avoid including implicitPadding.
     if (!document().inQuirksMode() && style().boxSizing() != BoxSizing::BorderBox)

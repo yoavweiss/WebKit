@@ -232,10 +232,10 @@ void FixedTableLayout::layout()
     // to 10px here, and will scale up to 20px in the final (80px, 20px).
     for (unsigned i = 0; i < nEffCols; i++) {
         if (auto fixedWidth = m_width[i].tryFixed()) {
-            calcWidth[i] = fixedWidth->resolveZoom(Style::ZoomNeeded { });
+            calcWidth[i] = Style::evaluate<float>(*fixedWidth, Style::ZoomNeeded { });
             totalFixedWidth += calcWidth[i];
         } else if (auto percentageWidth = m_width[i].tryPercentage()) {
-            calcWidth[i] = Style::evaluate(*percentageWidth, tableLogicalWidth);
+            calcWidth[i] = Style::evaluate<float>(*percentageWidth, tableLogicalWidth);
             totalPercentWidth += calcWidth[i];
             totalPercent += percentageWidth->value;
         } else if (m_width[i].isAuto()) {

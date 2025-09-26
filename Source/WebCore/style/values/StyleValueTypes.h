@@ -683,47 +683,49 @@ template<CSSValueID Name, typename StyleType> struct Serialize<FunctionNotation<
 //        decltype(auto) operator()(const StyleType&, ...);
 //    };
 
-template<typename> struct Evaluation;
+template<typename, typename> struct Evaluation;
 
-template<typename StyleType, typename T1> concept HasTwoParameterEvaluate = requires {
-    Evaluation<StyleType> { }(std::declval<const StyleType&>(), std::declval<T1>());
+template<typename StyleType, typename Result, typename T1> concept HasTwoParameterEvaluate = requires {
+    Evaluation<StyleType, Result> { }(std::declval<const StyleType&>(), std::declval<T1>());
 };
 
-template<typename StyleType, typename T1, typename T2> concept HasThreeParameterEvaluate = requires {
-    Evaluation<StyleType> { }(std::declval<const StyleType&>(), std::declval<T1>(), std::declval<T2>());
+template<typename StyleType, typename Result, typename T1, typename T2> concept HasThreeParameterEvaluate = requires {
+    Evaluation<StyleType, Result> { }(std::declval<const StyleType&>(), std::declval<T1>(), std::declval<T2>());
 };
 
-// `Evaluation` Invokers
-template<typename StyleType> decltype(auto) evaluate(const StyleType& value)
-{
-    return Evaluation<StyleType> { }(value);
-}
+template<typename Result> struct EvaluationInvoker {
+    template<typename StyleType> Result operator()(const StyleType& value) const
+    {
+        return Evaluation<StyleType, Result> { }(value);
+    }
 
-template<typename StyleType, typename T1> decltype(auto) evaluate(const StyleType& value, T1&& t1)
-{
-    if constexpr (HasTwoParameterEvaluate<StyleType, T1>)
-        return Evaluation<StyleType> { }(value, std::forward<T1>(t1));
-}
+    template<typename StyleType, typename T1> Result operator()(const StyleType& value, T1&& t1) const
+    {
+        if constexpr (HasTwoParameterEvaluate<StyleType, Result, T1>)
+            return Evaluation<StyleType, Result> { }(value, std::forward<T1>(t1));
+    }
 
-template<typename StyleType, typename T1, typename T2> decltype(auto) evaluate(const StyleType& value, T1&& t1, T2&& t2)
-{
-    if constexpr (HasThreeParameterEvaluate<StyleType, T1, T2>)
-        return Evaluation<StyleType> { }(value, std::forward<T1>(t1), std::forward<T2>(t2));
-}
+    template<typename StyleType, typename T1, typename T2> Result operator()(const StyleType& value, T1&& t1, T2&& t2) const
+    {
+        if constexpr (HasThreeParameterEvaluate<StyleType, Result, T1, T2>)
+            return Evaluation<StyleType, Result> { }(value, std::forward<T1>(t1), std::forward<T2>(t2));
+    }
+};
+template<typename Result> inline constexpr EvaluationInvoker<Result> evaluate{};
 
 // Constrained for `TreatAsVariantLike`.
-template<VariantLike StyleType> struct Evaluation<StyleType> {
-    template<typename... Rest> decltype(auto) operator()(const StyleType& value, Rest&&... rest)
+template<VariantLike StyleType, typename Result> struct Evaluation<StyleType, Result> {
+    template<typename... Rest> Result operator()(const StyleType& value, Rest&&... rest)
     {
-        return WTF::switchOn(value, [&](const auto& alternative) { return evaluate(alternative, std::forward<Rest>(rest)...); });
+        return WTF::switchOn(value, [&](const auto& alternative) { return evaluate<Result>(alternative, std::forward<Rest>(rest)...); });
     }
 };
 
 // Specialization for `TupleLike` (wrapper).
-template<TupleLike StyleType> requires (std::tuple_size_v<StyleType> == 1) struct Evaluation<StyleType> {
-    template<typename... Rest> decltype(auto) operator()(const StyleType& value, Rest&&... rest)
+template<TupleLike StyleType, typename Result> requires (std::tuple_size_v<StyleType> == 1) struct Evaluation<StyleType, Result> {
+    template<typename... Rest> Result operator()(const StyleType& value, Rest&&... rest)
     {
-        return evaluate(get<0>(value), std::forward<Rest>(rest)...);
+        return evaluate<Result>(get<0>(value), std::forward<Rest>(rest)...);
     }
 };
 

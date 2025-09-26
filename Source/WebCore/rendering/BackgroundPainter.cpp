@@ -46,6 +46,7 @@
 #include "RenderTableCell.h"
 #include "RenderView.h"
 #include "StyleBoxShadow.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "TextBoxPainter.h"
 
 namespace WebCore {
@@ -686,7 +687,7 @@ template<typename Layer> BackgroundImageGeometry BackgroundPainter::calculateFil
 
     LayoutSize spaceSize;
     LayoutSize phase;
-    auto computedXPosition = Style::evaluate(fillLayer.xPosition(), availableWidth, Style::ZoomNeeded { });
+    auto computedXPosition = Style::evaluate<LayoutUnit>(fillLayer.xPosition(), availableWidth, Style::ZoomNeeded { });
     if (backgroundRepeatX == FillRepeat::Round && positioningAreaSize.width() > 0 && tileSize.width() > 0) {
         int numTiles = std::max(1, roundToInt(positioningAreaSize.width() / tileSize.width()));
         if (!fillLayer.size().specifiedHeight() && backgroundRepeatY != FillRepeat::Round)
@@ -696,7 +697,7 @@ template<typename Layer> BackgroundImageGeometry BackgroundPainter::calculateFil
         phase.setWidth(tileSize.width() ? tileSize.width() - fmodf((computedXPosition + left), tileSize.width()) : 0);
     }
 
-    auto computedYPosition = Style::evaluate(fillLayer.yPosition(), availableHeight, Style::ZoomNeeded { });
+    auto computedYPosition = Style::evaluate<LayoutUnit>(fillLayer.yPosition(), availableHeight, Style::ZoomNeeded { });
     if (backgroundRepeatY == FillRepeat::Round && positioningAreaSize.height() > 0 && tileSize.height() > 0) {
         int numTiles = std::max(1, roundToInt(positioningAreaSize.height() / tileSize.height()));
         if (!fillLayer.size().specifiedWidth() && backgroundRepeatX != FillRepeat::Round)
@@ -802,21 +803,21 @@ template<typename Layer> LayoutSize BackgroundPainter::calculateFillTileSize(con
         [&](const Style::BackgroundSize::LengthSize& size) {
             auto tileSize = positioningAreaSize;
 
-            auto layerWidth = size.width();
-            auto layerHeight = size.height();
+            auto& layerWidth = size.width();
+            auto& layerHeight = size.height();
 
             if (auto fixed = layerWidth.tryFixed())
-                tileSize.setWidth(fixed->resolveZoom(Style::ZoomNeeded { }));
+                tileSize.setWidth(Style::evaluate<LayoutUnit>(*fixed, Style::ZoomNeeded { }));
             else if (layerWidth.isPercentOrCalculated()) {
-                auto resolvedWidth = Style::evaluate(layerWidth, positioningAreaSize.width(), Style::ZoomNeeded { });
+                auto resolvedWidth = Style::evaluate<LayoutUnit>(layerWidth, positioningAreaSize.width(), Style::ZoomNeeded { });
                 // Non-zero resolved value should always produce some content.
                 tileSize.setWidth(!resolvedWidth ? resolvedWidth : std::max(devicePixelSize, resolvedWidth));
             }
 
             if (auto fixed = layerHeight.tryFixed())
-                tileSize.setHeight(fixed->resolveZoom(Style::ZoomNeeded { }));
+                tileSize.setHeight(Style::evaluate<LayoutUnit>(*fixed, Style::ZoomNeeded { }));
             else if (layerHeight.isPercentOrCalculated()) {
-                auto resolvedHeight = Style::evaluate(layerHeight, positioningAreaSize.height(), Style::ZoomNeeded { });
+                auto resolvedHeight = Style::evaluate<LayoutUnit>(layerHeight, positioningAreaSize.height(), Style::ZoomNeeded { });
                 // Non-zero resolved value should always produce some content.
                 tileSize.setHeight(!resolvedHeight ? resolvedHeight : std::max(devicePixelSize, resolvedHeight));
             }

@@ -556,8 +556,8 @@ LayoutRect RenderReplaced::replacedContentRect(const LayoutSize& intrinsicSize) 
 
     auto& objectPosition = style().objectPosition();
 
-    LayoutUnit xOffset = Style::evaluate(objectPosition.x, contentRect.width() - finalRect.width(), Style::ZoomNeeded { });
-    LayoutUnit yOffset = Style::evaluate(objectPosition.y, contentRect.height() - finalRect.height(), Style::ZoomNeeded { });
+    auto xOffset = Style::evaluate<LayoutUnit>(objectPosition.x, contentRect.width() - finalRect.width(), Style::ZoomNeeded { });
+    auto yOffset = Style::evaluate<LayoutUnit>(objectPosition.y, contentRect.height() - finalRect.height(), Style::ZoomNeeded { });
 
     finalRect.move(xOffset, yOffset);
 
@@ -613,8 +613,8 @@ LayoutUnit RenderReplaced::computeConstrainedLogicalWidth() const
     LayoutUnit logicalWidth = isOutOfFlowPositioned() ? containingBlock()->clientLogicalWidth() : containingBlock()->contentBoxLogicalWidth();
 
     // This solves above equation for 'width' (== logicalWidth).
-    LayoutUnit marginStart = Style::evaluateMinimum(style().marginStart(), logicalWidth, Style::ZoomNeeded { });
-    LayoutUnit marginEnd = Style::evaluateMinimum(style().marginEnd(), logicalWidth, Style::ZoomNeeded { });
+    auto marginStart = Style::evaluateMinimum<LayoutUnit>(style().marginStart(), logicalWidth, Style::ZoomNeeded { });
+    auto marginEnd = Style::evaluateMinimum<LayoutUnit>(style().marginEnd(), logicalWidth, Style::ZoomNeeded { });
 
     return std::max(0_lu, (logicalWidth - (marginStart + marginEnd + borderLeft() + borderRight() + paddingLeft() + paddingRight())));
 }

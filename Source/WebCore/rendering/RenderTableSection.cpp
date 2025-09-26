@@ -219,9 +219,9 @@ void RenderTableSection::addCell(RenderTableCell* cell, RenderTableRow* row)
 static LayoutUnit resolveLogicalHeightForRow(const Style::PreferredSize& rowLogicalHeight)
 {
     if (auto fixedRowLogicalHeight = rowLogicalHeight.tryFixed())
-        return LayoutUnit(fixedRowLogicalHeight->resolveZoom(Style::ZoomNeeded { }));
+        return Style::evaluate<LayoutUnit>(*fixedRowLogicalHeight, Style::ZoomNeeded { });
     if (rowLogicalHeight.isCalculated())
-        return LayoutUnit(Style::evaluate(rowLogicalHeight, 0, Style::ZoomNeeded { }));
+        return Style::evaluate<LayoutUnit>(rowLogicalHeight, 0, Style::ZoomNeeded { });
     return 0;
 }
 
@@ -787,7 +787,7 @@ LayoutUnit RenderTableSection::calcBlockDirectionOuterBorder(BlockBorderSide sid
 
     if (allHidden)
         return -1;
-    return CollapsedBorderValue::adjustedCollapsedBorderWidth(Style::evaluate(borderWidth, Style::ZoomNeeded { }), document().deviceScaleFactor(), (side == BlockBorderSide::BorderAfter));
+    return CollapsedBorderValue::adjustedCollapsedBorderWidth(Style::evaluate<float>(borderWidth, Style::ZoomNeeded { }), document().deviceScaleFactor(), (side == BlockBorderSide::BorderAfter));
 }
 
 LayoutUnit RenderTableSection::calcInlineDirectionOuterBorder(InlineBorderSide side) const
@@ -841,7 +841,7 @@ LayoutUnit RenderTableSection::calcInlineDirectionOuterBorder(InlineBorderSide s
 
     if (allHidden)
         return -1;
-    return CollapsedBorderValue::adjustedCollapsedBorderWidth(Style::evaluate(borderWidth, Style::ZoomNeeded { }), document().deviceScaleFactor(), (side == InlineBorderSide::BorderStart) ? writingMode.isInlineFlipped() : !writingMode.isInlineFlipped());
+    return CollapsedBorderValue::adjustedCollapsedBorderWidth(Style::evaluate<float>(borderWidth, Style::ZoomNeeded { }), document().deviceScaleFactor(), (side == InlineBorderSide::BorderStart) ? writingMode.isInlineFlipped() : !writingMode.isInlineFlipped());
 }
 
 void RenderTableSection::recalcOuterBorder()
@@ -1143,20 +1143,68 @@ void RenderTableSection::paintRowGroupBorderIfRequired(const PaintInfo& paintInf
 
     switch (borderSide) {
     case BoxSide::Top:
-        paintRowGroupBorder(paintInfo, antialias, LayoutRect(paintOffset.x() + offsetLeftForRowGroupBorder(cell, rowGroupRect, row), rowGroupRect.y(), 
-            horizontalRowGroupBorderWidth(cell, rowGroupRect, row, column), LayoutUnit(Style::evaluate(style.borderTop().width(), Style::ZoomNeeded { }))), BoxSide::Top, CSSPropertyBorderTopColor, style.borderTopStyle(), table()->style().borderTopStyle());
+        paintRowGroupBorder(
+            paintInfo,
+            antialias,
+            LayoutRect {
+                paintOffset.x() + offsetLeftForRowGroupBorder(cell, rowGroupRect, row),
+                rowGroupRect.y(),
+                horizontalRowGroupBorderWidth(cell, rowGroupRect, row, column),
+                LayoutUnit { Style::evaluate<float>(style.borderTop().width(), Style::ZoomNeeded { }) },
+            },
+            BoxSide::Top,
+            CSSPropertyBorderTopColor,
+            style.borderTopStyle(),
+            table()->style().borderTopStyle()
+        );
         break;
     case BoxSide::Bottom:
-        paintRowGroupBorder(paintInfo, antialias, LayoutRect(paintOffset.x() + offsetLeftForRowGroupBorder(cell, rowGroupRect, row), rowGroupRect.y() + rowGroupRect.height(), 
-            horizontalRowGroupBorderWidth(cell, rowGroupRect, row, column), LayoutUnit(Style::evaluate(style.borderBottom().width(), Style::ZoomNeeded { }))), BoxSide::Bottom, CSSPropertyBorderBottomColor, style.borderBottomStyle(), table()->style().borderBottomStyle());
+        paintRowGroupBorder(
+            paintInfo,
+            antialias,
+            LayoutRect {
+                paintOffset.x() + offsetLeftForRowGroupBorder(cell, rowGroupRect, row),
+                rowGroupRect.y() + rowGroupRect.height(),
+                horizontalRowGroupBorderWidth(cell, rowGroupRect, row, column),
+                LayoutUnit { Style::evaluate<float>(style.borderBottom().width(), Style::ZoomNeeded { }) },
+            },
+            BoxSide::Bottom,
+            CSSPropertyBorderBottomColor,
+            style.borderBottomStyle(),
+            table()->style().borderBottomStyle()
+        );
         break;
     case BoxSide::Left:
-        paintRowGroupBorder(paintInfo, antialias, LayoutRect(rowGroupRect.x(), rowGroupRect.y() + offsetTopForRowGroupBorder(cell, borderSide, row), LayoutUnit(Style::evaluate(style.borderLeft().width(), Style::ZoomNeeded { })),
-            verticalRowGroupBorderHeight(cell, rowGroupRect, row)), BoxSide::Left, CSSPropertyBorderLeftColor, style.borderLeftStyle(), table()->style().borderLeftStyle());
+        paintRowGroupBorder(
+            paintInfo,
+            antialias,
+            LayoutRect {
+                rowGroupRect.x(),
+                rowGroupRect.y() + offsetTopForRowGroupBorder(cell, borderSide, row),
+                LayoutUnit { Style::evaluate<float>(style.borderLeft().width(), Style::ZoomNeeded { }) },
+                verticalRowGroupBorderHeight(cell, rowGroupRect, row),
+            },
+            BoxSide::Left,
+            CSSPropertyBorderLeftColor,
+            style.borderLeftStyle(),
+            table()->style().borderLeftStyle()
+        );
         break;
     case BoxSide::Right:
-        paintRowGroupBorder(paintInfo, antialias, LayoutRect(rowGroupRect.x() + rowGroupRect.width(), rowGroupRect.y() + offsetTopForRowGroupBorder(cell, borderSide, row), LayoutUnit(Style::evaluate(style.borderRight().width(), Style::ZoomNeeded { })),
-            verticalRowGroupBorderHeight(cell, rowGroupRect, row)), BoxSide::Right, CSSPropertyBorderRightColor, style.borderRightStyle(), table()->style().borderRightStyle());
+        paintRowGroupBorder(
+            paintInfo,
+            antialias,
+            LayoutRect {
+                rowGroupRect.x() + rowGroupRect.width(),
+                rowGroupRect.y() + offsetTopForRowGroupBorder(cell, borderSide, row),
+                LayoutUnit { Style::evaluate<float>(style.borderRight().width(), Style::ZoomNeeded { }) },
+                verticalRowGroupBorderHeight(cell, rowGroupRect, row),
+            },
+            BoxSide::Right,
+            CSSPropertyBorderRightColor,
+            style.borderRightStyle(),
+            table()->style().borderRightStyle()
+        );
         break;
     default:
         break;

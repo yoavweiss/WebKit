@@ -523,9 +523,9 @@ LayoutRect nodeRectInAbsoluteCoordinates(const ContainerNode& containerNode, boo
         // the rect of the focused element.
         if (ignoreBorder) {
             auto& style = renderer->style();
-            rect.move(Style::evaluate(style.borderLeftWidth(), Style::ZoomNeeded { }), Style::evaluate(style.borderTopWidth(), Style::ZoomNeeded { }));
-            rect.setWidth(rect.width() - Style::evaluate(style.borderLeftWidth(), Style::ZoomNeeded { }) - Style::evaluate(style.borderRightWidth(), Style::ZoomNeeded { }));
-            rect.setHeight(rect.height() - Style::evaluate(style.borderTopWidth(), Style::ZoomNeeded { }) - Style::evaluate(style.borderBottomWidth(), Style::ZoomNeeded { }));
+            rect.move(Style::evaluate<LayoutUnit>(style.borderLeftWidth(), Style::ZoomNeeded { }), Style::evaluate<LayoutUnit>(style.borderTopWidth(), Style::ZoomNeeded { }));
+            rect.setWidth(rect.width() - Style::evaluate<LayoutUnit>(style.borderLeftWidth(), Style::ZoomNeeded { }) - Style::evaluate<LayoutUnit>(style.borderRightWidth(), Style::ZoomNeeded { }));
+            rect.setHeight(rect.height() - Style::evaluate<LayoutUnit>(style.borderTopWidth(), Style::ZoomNeeded { }) - Style::evaluate<LayoutUnit>(style.borderBottomWidth(), Style::ZoomNeeded { }));
         }
         return rect;
     }

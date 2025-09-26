@@ -230,7 +230,7 @@ void RenderMenuList::updateOptionsWidth()
             // Add in the option's text indent.  We can't calculate percentage values for now.
             float optionWidth = 0;
             if (auto* optionStyle = option->computedStyleForEditability())
-                optionWidth += Style::evaluate(optionStyle->textIndent().length, 0, Style::ZoomNeeded { });
+                optionWidth += Style::evaluate<float>(optionStyle->textIndent().length, 0, Style::ZoomNeeded { });
             if (!text.isEmpty()) {
                 const FontCascade& font = style().fontCascade();
                 TextRun run = RenderBlock::constructTextRun(text, style());
@@ -350,7 +350,7 @@ void RenderMenuList::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, 
     }
     auto& logicalWidth = style().logicalWidth();
     if (logicalWidth.isCalculated())
-        minLogicalWidth = std::max(0_lu, Style::evaluate(logicalWidth, 0_lu, Style::ZoomNeeded { }));
+        minLogicalWidth = std::max(0_lu, Style::evaluate<LayoutUnit>(logicalWidth, 0_lu, Style::ZoomNeeded { }));
     else if (!logicalWidth.isPercent())
         minLogicalWidth = maxLogicalWidth;
 }

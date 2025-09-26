@@ -331,7 +331,7 @@ static ResolvedFontSize fontSizeFromUnresolvedFontSize(const CSSPropertyParserHe
                     return CSS::switchOnUnitType(lengthPercentage.unit,
                         [&](CSS::PercentageUnit) -> ResolvedFontSize {
                             return {
-                                .size = Style::evaluate(Style::Percentage<> { narrowPrecisionToFloat(lengthPercentage.value) }, parentSize),
+                                .size = Style::evaluate<float>(Style::Percentage<> { narrowPrecisionToFloat(lengthPercentage.value) }, parentSize),
                                 .keyword = CSSValueInvalid
                             };
                         },
@@ -360,7 +360,7 @@ static ResolvedFontSize fontSizeFromUnresolvedFontSize(const CSSPropertyParserHe
                         return { .size = 0.0f, .keyword = CSSValueInvalid };
 
                     return {
-                        .size = Style::evaluate(Style::toStyleNoConversionDataRequired(calc), parentSize, Style::ZoomNeeded { }),
+                        .size = Style::evaluate<float>(Style::toStyleNoConversionDataRequired(calc), parentSize, Style::ZoomNeeded { }),
                         .keyword = CSSValueInvalid
                     };
                 }

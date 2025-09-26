@@ -77,6 +77,7 @@
 #include "SpinButtonElement.h"
 #include "StringTruncator.h"
 #include "StylePadding.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "SwitchThumbPart.h"
 #include "SwitchTrackPart.h"
 #include "TextAreaPart.h"
@@ -837,7 +838,7 @@ ControlStyle RenderTheme::extractControlStyleForRenderer(const RenderElement& re
         style->usedZoom(),
         style->usedAccentColor(renderObject.styleColorOptions()),
         style->visitedDependentColorWithColorFilter(CSSPropertyColor),
-        Style::evaluate(style->borderWidth(), Style::ZoomNeeded { })
+        Style::evaluate<FloatBoxExtent>(style->borderWidth(), Style::ZoomNeeded { })
     };
 }
 
@@ -1395,26 +1396,26 @@ void RenderTheme::adjustButtonOrCheckboxOrColorWellOrInnerSpinButtonOrRadioStyle
         borderBox = Style::LineWidthBox { borderBox.left(), borderBox.top(), borderBox.right(), borderBox.bottom() };
 
     /* FIXME: FIND ZOOM */
-    if (Style::evaluate(borderBox.top(), Style::ZoomNeeded { }) != static_cast<int>(Style::evaluate(style.borderTopWidth(), Style::ZoomNeeded { }))) {
+    if (Style::evaluate<float>(borderBox.top(), Style::ZoomNeeded { }) != Style::evaluate<int>(style.borderTopWidth(), Style::ZoomNeeded { })) {
         if (!borderBox.top().isZero())
             style.setBorderTopWidth(borderBox.top());
         else
             style.resetBorderTop();
     }
-    if (Style::evaluate(borderBox.right(), Style::ZoomNeeded { }) != static_cast<int>(Style::evaluate(style.borderRightWidth(), Style::ZoomNeeded { }))) {
+    if (Style::evaluate<float>(borderBox.right(), Style::ZoomNeeded { }) != Style::evaluate<int>(style.borderRightWidth(), Style::ZoomNeeded { })) {
         if (!borderBox.right().isZero())
             style.setBorderRightWidth(borderBox.right());
         else
             style.resetBorderRight();
     }
-    if (Style::evaluate(borderBox.bottom(), Style::ZoomNeeded { }) != static_cast<int>(Style::evaluate(style.borderBottomWidth(), Style::ZoomNeeded { }))) {
+    if (Style::evaluate<float>(borderBox.bottom(), Style::ZoomNeeded { }) != Style::evaluate<int>(style.borderBottomWidth(), Style::ZoomNeeded { })) {
         style.setBorderBottomWidth(borderBox.bottom());
         if (!borderBox.bottom().isZero())
             style.setBorderBottomWidth(borderBox.bottom());
         else
             style.resetBorderBottom();
     }
-    if (Style::evaluate(borderBox.left(), Style::ZoomNeeded { }) != static_cast<int>(Style::evaluate(style.borderLeftWidth(), Style::ZoomNeeded { }))) {
+    if (Style::evaluate<float>(borderBox.left(), Style::ZoomNeeded { }) != Style::evaluate<int>(style.borderLeftWidth(), Style::ZoomNeeded { })) {
         style.setBorderLeftWidth(borderBox.left());
         if (!borderBox.left().isZero())
             style.setBorderLeftWidth(borderBox.left());

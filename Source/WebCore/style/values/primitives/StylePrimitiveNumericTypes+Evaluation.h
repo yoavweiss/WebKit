@@ -41,111 +41,102 @@ using namespace CSS::Literals;
 
 // MARK: - Length
 
-template<auto R, typename V> struct Evaluation<Length<R, V>> {
-    constexpr typename Length<R, V>::ResolvedValueType operator()(const Length<R, V>& value, ZoomNeeded token)
+template<auto R, typename V, typename Result> struct Evaluation<Length<R, V>, Result> {
+    constexpr auto operator()(const Length<R, V>& value, ZoomNeeded token) -> Result
         requires (R.zoomOptions == CSS::RangeZoomOptions::Default)
     {
-        return static_cast<typename Length<R, V>::ResolvedValueType>(value.resolveZoom(token));
+        return Result(value.resolveZoom(token));
     }
-    template<typename Reference> constexpr auto operator()(const Length<R, V>& value, Reference, ZoomNeeded token) -> Reference
-        requires (R.zoomOptions == CSS::RangeZoomOptions::Default)
+    constexpr auto operator()(const Length<R, V>& value, float zoom) -> Result
+        requires (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
-        return Reference(value.resolveZoom(token));
+        return Result(value.resolveZoom(zoom));
     }
 
-    constexpr typename Length<R, V>::ResolvedValueType operator()(const Length<R, V>& value, float zoom)
-        requires (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
+    constexpr auto operator()(const Length<R, V>& value, Result, ZoomNeeded token) -> Result
+        requires (R.zoomOptions == CSS::RangeZoomOptions::Default)
     {
-        return static_cast<typename Length<R, V>::ResolvedValueType>(value.resolveZoom(zoom));
+        return Result(value.resolveZoom(token));
     }
-    template<typename Reference> constexpr auto operator()(const Length<R, V>& value, Reference, float zoom) -> Reference
+    constexpr auto operator()(const Length<R, V>& value, Result, float zoom) -> Result
         requires (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
-        return Reference(value.resolveZoom(zoom));
+        return Result(value.resolveZoom(zoom));
     }
 };
 
 // MARK: - Percentage
 
-template<auto R, typename V> struct Evaluation<Percentage<R, V>> {
-    constexpr typename Percentage<R, V>::ResolvedValueType operator()(const Percentage<R, V>& percentage)
+template<auto R, typename V, typename Result> struct Evaluation<Percentage<R, V>, Result> {
+    constexpr auto operator()(const Percentage<R, V>& percentage) -> Result
     {
-        return percentage.value / static_cast<typename Percentage<R, V>::ResolvedValueType>(100.0);
+        return Result(percentage.value / 100.0);
     }
-    constexpr auto operator()(const Percentage<R, V>& percentage, float referenceLength) -> float
+    constexpr auto operator()(const Percentage<R, V>& percentage, Result referenceLength) -> Result
     {
-        return static_cast<float>(percentage.value) / 100.0 * referenceLength;
-    }
-    constexpr auto operator()(const Percentage<R, V>& percentage, double referenceLength) -> double
-    {
-        return static_cast<double>(percentage.value) / 100.0 * referenceLength;
-    }
-    constexpr auto operator()(const Percentage<R, V>& percentage, LayoutUnit referenceLength) -> LayoutUnit
-    {
-        return LayoutUnit(percentage.value / 100.0 * static_cast<double>(referenceLength));
+        return Result(percentage.value / 100.0 * referenceLength);
     }
 };
 
 // MARK: - Numeric
 
-template<NonCompositeNumeric StyleType> struct Evaluation<StyleType> {
-    constexpr typename StyleType::ResolvedValueType operator()(const StyleType& value)
+template<NonCompositeNumeric StyleType, typename Result> struct Evaluation<StyleType, Result> {
+    constexpr auto operator()(const StyleType& value) -> Result
     {
-        return value.value;
+        return Result(value.value);
     }
-    template<typename Reference> constexpr auto operator()(const StyleType& value, Reference) -> Reference
+    constexpr auto operator()(const StyleType& value, Result) -> Result
     {
-        return Reference(value.value);
+        return Result(value.value);
     }
 };
 
 // MARK: - Calculation
 
-template<> struct Evaluation<Ref<CalculationValue>> {
-    template<typename Reference> auto operator()(Ref<CalculationValue> calculation, Reference referenceLength)
+template<typename Result> struct Evaluation<Ref<CalculationValue>, Result> {
+    auto operator()(Ref<CalculationValue> calculation, Result referenceLength) -> Result
     {
-        return Reference(calculation->evaluate(referenceLength));
+        return Result(calculation->evaluate(referenceLength));
     }
 };
 
-template<Calc Calculation> struct Evaluation<Calculation> {
-    template<typename... Rest> decltype(auto) operator()(const Calculation& calculation, Rest&&... rest)
+template<Calc Calculation, typename Result> struct Evaluation<Calculation, Result> {
+    template<typename... Rest> auto operator()(const Calculation& calculation, Result referenceLength, Rest&&... rest) -> Result
     {
-        return evaluate(calculation.protectedCalculation(), std::forward<Rest>(rest)...);
+        return evaluate<Result>(calculation.protectedCalculation(), referenceLength, std::forward<Rest>(rest)...);
     }
 };
 
 // MARK: - LengthPercentage
 
-template<auto R, typename V> struct Evaluation<LengthPercentage<R, V>> {
-    template<typename Reference> constexpr auto operator()(const LengthPercentage<R, V>& lengthPercentage, Reference referenceLength, ZoomNeeded token) -> Reference
+template<auto R, typename V, typename Result> struct Evaluation<LengthPercentage<R, V>, Result> {
+    constexpr auto operator()(const LengthPercentage<R, V>& lengthPercentage, Result referenceLength, ZoomNeeded token) -> Result
         requires (R.zoomOptions == CSS::RangeZoomOptions::Default)
     {
         return WTF::switchOn(lengthPercentage,
-            [&](const typename LengthPercentage<R, V>::Dimension& length) -> Reference {
-                return Reference(evaluate(length, token));
+            [&](const typename LengthPercentage<R, V>::Dimension& length) -> Result {
+                return evaluate<Result>(length, token);
             },
-            [&](const typename LengthPercentage<R, V>::Percentage& percentage) -> Reference {
-                return Reference(evaluate(percentage, referenceLength));
+            [&](const typename LengthPercentage<R, V>::Percentage& percentage) -> Result {
+                return evaluate<Result>(percentage, referenceLength);
             },
-            [&](const typename LengthPercentage<R, V>::Calc& calculation) -> Reference {
-                return Reference(evaluate(calculation, referenceLength));
+            [&](const typename LengthPercentage<R, V>::Calc& calculation) -> Result {
+                return evaluate<Result>(calculation, referenceLength);
             }
         );
     }
-
-    template<typename Reference> constexpr auto operator()(const LengthPercentage<R, V>& lengthPercentage, Reference referenceLength, float zoom) -> Reference
+    constexpr auto operator()(const LengthPercentage<R, V>& lengthPercentage, Result referenceLength, float zoom) -> Result
         requires (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
         return WTF::switchOn(lengthPercentage,
-            [&](const typename LengthPercentage<R, V>::Dimension& length) -> Reference {
-                return Reference(evaluate(length, zoom));
+            [&](const typename LengthPercentage<R, V>::Dimension& length) -> Result {
+                return evaluate<Result>(length, zoom);
             },
-            [&](const typename LengthPercentage<R, V>::Percentage& percentage) -> Reference {
-                return Reference(evaluate(percentage, referenceLength));
+            [&](const typename LengthPercentage<R, V>::Percentage& percentage) -> Result {
+                return evaluate<Result>(percentage, referenceLength);
             },
-            [&](const typename LengthPercentage<R, V>::Calc& calculation) -> Reference {
-                return Reference(evaluate(calculation, referenceLength));
+            [&](const typename LengthPercentage<R, V>::Calc& calculation) -> Result {
+                return evaluate<Result>(calculation, referenceLength);
             }
         );
     }
@@ -153,159 +144,165 @@ template<auto R, typename V> struct Evaluation<LengthPercentage<R, V>> {
 
 // MARK: - SpaceSeparatedPoint
 
-template<typename T> struct Evaluation<SpaceSeparatedPoint<T>> {
-    FloatPoint operator()(const SpaceSeparatedPoint<T>& value, FloatSize referenceBox)
-        requires HasTwoParameterEvaluate<T, float>
+template<typename T> struct Evaluation<SpaceSeparatedPoint<T>, FloatPoint> {
+    auto operator()(const SpaceSeparatedPoint<T>& value, FloatSize referenceBox) -> FloatPoint
+        requires HasTwoParameterEvaluate<T, float, float>
     {
         return {
-            evaluate(value.x(), referenceBox.width()),
-            evaluate(value.y(), referenceBox.height())
+            evaluate<float>(value.x(), referenceBox.width()),
+            evaluate<float>(value.y(), referenceBox.height())
         };
     }
-    LayoutPoint operator()(const SpaceSeparatedPoint<T>& value, LayoutSize referenceBox)
-        requires HasTwoParameterEvaluate<T, LayoutUnit>
+    auto operator()(const SpaceSeparatedPoint<T>& value, FloatSize referenceBox, ZoomNeeded token) -> FloatPoint
+        requires HasThreeParameterEvaluate<T, float, float, ZoomNeeded>
     {
         return {
-            evaluate(value.x(), referenceBox.width()),
-            evaluate(value.y(), referenceBox.height())
+            evaluate<float>(value.x(), referenceBox.width(), token),
+            evaluate<float>(value.y(), referenceBox.height(), token)
         };
     }
-    FloatPoint operator()(const SpaceSeparatedPoint<T>& value, FloatSize referenceBox, ZoomNeeded token)
-        requires HasThreeParameterEvaluate<T, float, ZoomNeeded>
+    auto operator()(const SpaceSeparatedPoint<T>& value, FloatSize referenceBox, float zoom) -> FloatPoint
+        requires HasThreeParameterEvaluate<T, float, float, float>
     {
         return {
-            evaluate(value.x(), referenceBox.width(), token),
-            evaluate(value.y(), referenceBox.height(), token)
+            evaluate<float>(value.x(), referenceBox.width(), zoom),
+            evaluate<float>(value.y(), referenceBox.height(), zoom)
         };
     }
-    LayoutPoint operator()(const SpaceSeparatedPoint<T>& value, LayoutSize referenceBox, ZoomNeeded token)
-        requires HasThreeParameterEvaluate<T, LayoutUnit, ZoomNeeded>
+};
+template<typename T> struct Evaluation<SpaceSeparatedPoint<T>, LayoutPoint> {
+    auto operator()(const SpaceSeparatedPoint<T>& value, LayoutSize referenceBox) -> LayoutPoint
+        requires HasTwoParameterEvaluate<T, LayoutUnit, LayoutUnit>
     {
         return {
-            evaluate(value.x(), referenceBox.width(), token),
-            evaluate(value.y(), referenceBox.height(), token)
+            evaluate<LayoutUnit>(value.x(), referenceBox.width()),
+            evaluate<LayoutUnit>(value.y(), referenceBox.height())
         };
     }
-    FloatPoint operator()(const SpaceSeparatedPoint<T>& value, FloatSize referenceBox, float zoom)
-        requires HasThreeParameterEvaluate<T, float, float>
+    auto operator()(const SpaceSeparatedPoint<T>& value, LayoutSize referenceBox, ZoomNeeded token) -> LayoutPoint
+        requires HasThreeParameterEvaluate<T, LayoutUnit, LayoutUnit, ZoomNeeded>
     {
         return {
-            evaluate(value.x(), referenceBox.width(), zoom),
-            evaluate(value.y(), referenceBox.height(), zoom)
+            evaluate<LayoutUnit>(value.x(), referenceBox.width(), token),
+            evaluate<LayoutUnit>(value.y(), referenceBox.height(), token)
         };
     }
-    LayoutPoint operator()(const SpaceSeparatedPoint<T>& value, LayoutSize referenceBox, float zoom)
-        requires HasThreeParameterEvaluate<T, LayoutUnit, float>
+    auto operator()(const SpaceSeparatedPoint<T>& value, LayoutSize referenceBox, float zoom) -> LayoutPoint
+        requires HasThreeParameterEvaluate<T, LayoutUnit, LayoutUnit, float>
     {
         return {
-            evaluate(value.x(), referenceBox.width(), zoom),
-            evaluate(value.y(), referenceBox.height(), zoom)
+            evaluate<LayoutUnit>(value.x(), referenceBox.width(), zoom),
+            evaluate<LayoutUnit>(value.y(), referenceBox.height(), zoom)
         };
     }
 };
 
 // MARK: - SpaceSeparatedSize
 
-template<typename T> struct Evaluation<SpaceSeparatedSize<T>> {
-    FloatSize operator()(const SpaceSeparatedSize<T>& value, FloatSize referenceBox)
-        requires HasTwoParameterEvaluate<T, float>
+template<typename T> struct Evaluation<SpaceSeparatedSize<T>, FloatSize> {
+    auto operator()(const SpaceSeparatedSize<T>& value, FloatSize referenceBox) -> FloatSize
+        requires HasTwoParameterEvaluate<T, float, float>
     {
         return {
-            evaluate(value.width(), referenceBox.width()),
-            evaluate(value.height(), referenceBox.height())
+            evaluate<float>(value.width(), referenceBox.width()),
+            evaluate<float>(value.height(), referenceBox.height())
         };
     }
-    LayoutSize operator()(const SpaceSeparatedSize<T>& value, LayoutSize referenceBox)
-        requires HasTwoParameterEvaluate<T, LayoutUnit>
+    auto operator()(const SpaceSeparatedSize<T>& value, FloatSize referenceBox, ZoomNeeded token) -> FloatSize
+        requires HasThreeParameterEvaluate<T, float, float, ZoomNeeded>
     {
         return {
-            evaluate(value.width(), referenceBox.width()),
-            evaluate(value.height(), referenceBox.height())
+            evaluate<float>(value.width(), referenceBox.width(), token),
+            evaluate<float>(value.height(), referenceBox.height(), token)
         };
     }
-    FloatSize operator()(const SpaceSeparatedSize<T>& value, FloatSize referenceBox, ZoomNeeded token)
-        requires HasThreeParameterEvaluate<T, float, ZoomNeeded>
+    auto operator()(const SpaceSeparatedSize<T>& value, FloatSize referenceBox, float zoom) -> FloatSize
+        requires HasThreeParameterEvaluate<T, float, float, float>
     {
         return {
-            evaluate(value.width(), referenceBox.width(), token),
-            evaluate(value.height(), referenceBox.height(), token)
+            evaluate<float>(value.width(), referenceBox.width(), zoom),
+            evaluate<float>(value.height(), referenceBox.height(), zoom)
         };
     }
-    LayoutSize operator()(const SpaceSeparatedSize<T>& value, LayoutSize referenceBox, ZoomNeeded token)
-        requires HasThreeParameterEvaluate<T, LayoutUnit, ZoomNeeded>
+};
+template<typename T> struct Evaluation<SpaceSeparatedSize<T>, LayoutSize> {
+    auto operator()(const SpaceSeparatedSize<T>& value, LayoutSize referenceBox) -> LayoutSize
+        requires HasTwoParameterEvaluate<T, LayoutUnit, LayoutUnit>
     {
         return {
-            evaluate(value.width(), referenceBox.width(), token),
-            evaluate(value.height(), referenceBox.height(), token)
+            evaluate<LayoutUnit>(value.width(), referenceBox.width()),
+            evaluate<LayoutUnit>(value.height(), referenceBox.height())
         };
     }
-    FloatSize operator()(const SpaceSeparatedSize<T>& value, FloatSize referenceBox, float zoom)
-        requires HasThreeParameterEvaluate<T, float, float>
+    auto operator()(const SpaceSeparatedSize<T>& value, LayoutSize referenceBox, ZoomNeeded token) -> LayoutSize
+        requires HasThreeParameterEvaluate<T, LayoutUnit, LayoutUnit, ZoomNeeded>
     {
         return {
-            evaluate(value.width(), referenceBox.width(), zoom),
-            evaluate(value.height(), referenceBox.height(), zoom)
+            evaluate<LayoutUnit>(value.width(), referenceBox.width(), token),
+            evaluate<LayoutUnit>(value.height(), referenceBox.height(), token)
         };
     }
-    LayoutSize operator()(const SpaceSeparatedSize<T>& value, LayoutSize referenceBox, float zoom)
-        requires HasThreeParameterEvaluate<T, LayoutUnit, float>
+    auto operator()(const SpaceSeparatedSize<T>& value, LayoutSize referenceBox, float zoom) -> LayoutSize
+        requires HasThreeParameterEvaluate<T, LayoutUnit, LayoutUnit, float>
     {
         return {
-            evaluate(value.width(), referenceBox.width(), zoom),
-            evaluate(value.height(), referenceBox.height(), zoom)
+            evaluate<LayoutUnit>(value.width(), referenceBox.width(), zoom),
+            evaluate<LayoutUnit>(value.height(), referenceBox.height(), zoom)
         };
     }
 };
 
 // MARK: - MinimallySerializingSpaceSeparatedSize
 
-template<typename T> struct Evaluation<MinimallySerializingSpaceSeparatedSize<T>> {
-    FloatSize operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, FloatSize referenceBox)
-        requires HasTwoParameterEvaluate<T, float>
+template<typename T> struct Evaluation<MinimallySerializingSpaceSeparatedSize<T>, FloatSize> {
+    auto operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, FloatSize referenceBox) -> FloatSize
+        requires HasTwoParameterEvaluate<T, float, float>
     {
         return {
-            evaluate(value.width(), referenceBox.width()),
-            evaluate(value.height(), referenceBox.height())
+            evaluate<float>(value.width(), referenceBox.width()),
+            evaluate<float>(value.height(), referenceBox.height())
         };
     }
-    LayoutSize operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, LayoutSize referenceBox)
-        requires HasTwoParameterEvaluate<T, LayoutUnit>
+    auto operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, FloatSize referenceBox, ZoomNeeded token) -> FloatSize
+        requires HasThreeParameterEvaluate<T, float, float, ZoomNeeded>
     {
         return {
-            evaluate(value.width(), referenceBox.width()),
-            evaluate(value.height(), referenceBox.height())
+            evaluate<float>(value.width(), referenceBox.width(), token),
+            evaluate<float>(value.height(), referenceBox.height(), token)
         };
     }
-    FloatSize operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, FloatSize referenceBox, ZoomNeeded token)
-        requires HasThreeParameterEvaluate<T, float, ZoomNeeded>
+    auto operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, FloatSize referenceBox, float zoom) -> FloatSize
+        requires HasThreeParameterEvaluate<T, float, float, float>
     {
         return {
-            evaluate(value.width(), referenceBox.width(), token),
-            evaluate(value.height(), referenceBox.height(), token)
+            evaluate<float>(value.width(), referenceBox.width(), zoom),
+            evaluate<float>(value.height(), referenceBox.height(), zoom)
         };
     }
-    LayoutSize operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, LayoutSize referenceBox, ZoomNeeded token)
-        requires HasThreeParameterEvaluate<T, LayoutUnit, ZoomNeeded>
+};
+template<typename T> struct Evaluation<MinimallySerializingSpaceSeparatedSize<T>, LayoutSize> {
+    auto operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, LayoutSize referenceBox) -> LayoutSize
+        requires HasTwoParameterEvaluate<T, LayoutUnit, LayoutUnit>
     {
         return {
-            evaluate(value.width(), referenceBox.width(), token),
-            evaluate(value.height(), referenceBox.height(), token)
+            evaluate<LayoutUnit>(value.width(), referenceBox.width()),
+            evaluate<LayoutUnit>(value.height(), referenceBox.height())
         };
     }
-    FloatSize operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, FloatSize referenceBox, float zoom)
-        requires HasThreeParameterEvaluate<T, float, float>
+    auto operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, LayoutSize referenceBox, ZoomNeeded token) -> LayoutSize
+        requires HasThreeParameterEvaluate<T, LayoutUnit, LayoutUnit, ZoomNeeded>
     {
         return {
-            evaluate(value.width(), referenceBox.width(), zoom),
-            evaluate(value.height(), referenceBox.height(), zoom)
+            evaluate<LayoutUnit>(value.width(), referenceBox.width(), token),
+            evaluate<LayoutUnit>(value.height(), referenceBox.height(), token)
         };
     }
-    LayoutSize operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, LayoutSize referenceBox, float zoom)
-        requires HasThreeParameterEvaluate<T, LayoutUnit, float>
+    auto operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, LayoutSize referenceBox, float zoom) -> LayoutSize
+        requires HasThreeParameterEvaluate<T, LayoutUnit, LayoutUnit, float>
     {
         return {
-            evaluate(value.width(), referenceBox.width(), zoom),
-            evaluate(value.height(), referenceBox.height(), zoom)
+            evaluate<LayoutUnit>(value.width(), referenceBox.width(), zoom),
+            evaluate<LayoutUnit>(value.height(), referenceBox.height(), zoom)
         };
     }
 };

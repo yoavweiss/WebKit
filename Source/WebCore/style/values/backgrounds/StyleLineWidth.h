@@ -29,7 +29,10 @@
 
 namespace WebCore {
 
+class LayoutUnit;
+
 using FloatBoxExtent = RectEdges<float>;
+using LayoutBoxExtent = RectEdges<LayoutUnit>;
 
 namespace Style {
 
@@ -65,15 +68,18 @@ template<> struct CSSValueConversion<LineWidth> { auto operator()(BuilderState&,
 
 // MARK: - Evaluate
 
-template<> struct Evaluation<LineWidth> {
-    constexpr auto operator()(const LineWidth& value, ZoomNeeded token) -> float
+template<typename Result> struct Evaluation<LineWidth, Result> {
+    constexpr auto operator()(const LineWidth& value, ZoomNeeded token) -> Result
     {
-        return value.value.resolveZoom(token);
+        return Result(value.value.resolveZoom(token));
     }
 };
 
-template<> struct Evaluation<LineWidthBox> {
-    FloatBoxExtent operator()(const LineWidthBox&, ZoomNeeded);
+template<> struct Evaluation<LineWidthBox, FloatBoxExtent> {
+    auto operator()(const LineWidthBox&, ZoomNeeded) -> FloatBoxExtent;
+};
+template<> struct Evaluation<LineWidthBox, LayoutBoxExtent> {
+    auto operator()(const LineWidthBox&, ZoomNeeded) -> LayoutBoxExtent;
 };
 
 } // namespace Style

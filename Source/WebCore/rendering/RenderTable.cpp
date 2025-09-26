@@ -307,9 +307,9 @@ void RenderTable::updateLogicalWidth()
         setLogicalWidth(convertStyleLogicalWidthToComputedWidth(styleLogicalWidth, containerWidthInInlineDirection));
     else {
         // Subtract out any fixed margins from our available width for auto width tables.
-        LayoutUnit marginStart = Style::evaluateMinimum(style().marginStart(), availableLogicalWidth, Style::ZoomNeeded { });
-        LayoutUnit marginEnd = Style::evaluateMinimum(style().marginEnd(), availableLogicalWidth, Style::ZoomNeeded { });
-        LayoutUnit marginTotal = marginStart + marginEnd;
+        auto marginStart = Style::evaluateMinimum<LayoutUnit>(style().marginStart(), availableLogicalWidth, Style::ZoomNeeded { });
+        auto marginEnd = Style::evaluateMinimum<LayoutUnit>(style().marginEnd(), availableLogicalWidth, Style::ZoomNeeded { });
+        auto marginTotal = marginStart + marginEnd;
 
         // Subtract out our margins to get the available content width.
         LayoutUnit availableContentLogicalWidth = std::max<LayoutUnit>(0, containerWidthInInlineDirection - marginTotal);
@@ -360,8 +360,8 @@ void RenderTable::updateLogicalWidth()
         setMarginStart(marginValues.m_start);
         setMarginEnd(marginValues.m_end);
     } else {
-        setMarginStart(Style::evaluateMinimum(style().marginStart(), availableLogicalWidth, Style::ZoomNeeded { }));
-        setMarginEnd(Style::evaluateMinimum(style().marginEnd(), availableLogicalWidth, Style::ZoomNeeded { }));
+        setMarginStart(Style::evaluateMinimum<LayoutUnit>(style().marginStart(), availableLogicalWidth, Style::ZoomNeeded { }));
+        setMarginEnd(Style::evaluateMinimum<LayoutUnit>(style().marginEnd(), availableLogicalWidth, Style::ZoomNeeded { }));
     }
 }
 
@@ -378,7 +378,7 @@ template<typename SizeType> LayoutUnit RenderTable::convertStyleLogicalWidthToCo
     if (isCSSTable && styleLogicalWidth.isSpecified() && styleLogicalWidth.isPositive() && style().boxSizing() == BoxSizing::ContentBox)
         borders = borderStart() + borderEnd() + (collapseBorders() ? 0_lu : paddingStart() + paddingEnd());
 
-    return Style::evaluateMinimum(styleLogicalWidth, availableWidth, Style::ZoomNeeded { }) + borders;
+    return Style::evaluateMinimum<LayoutUnit>(styleLogicalWidth, availableWidth, Style::ZoomNeeded { }) + borders;
 }
 
 template<typename SizeType> LayoutUnit RenderTable::convertStyleLogicalHeightToComputedHeight(const SizeType& styleLogicalHeight)
@@ -1287,7 +1287,7 @@ LayoutUnit RenderTable::calcBorderStart() const
                 borderWidth = std::max(borderWidth, firstRowAdjoiningBorder.width());
         }
     }
-    return CollapsedBorderValue::adjustedCollapsedBorderWidth(Style::evaluate(borderWidth, Style::ZoomNeeded { }), document().deviceScaleFactor(), writingMode().isInlineFlipped());
+    return CollapsedBorderValue::adjustedCollapsedBorderWidth(Style::evaluate<float>(borderWidth, Style::ZoomNeeded { }), document().deviceScaleFactor(), writingMode().isInlineFlipped());
 }
 
 LayoutUnit RenderTable::calcBorderEnd() const
@@ -1342,7 +1342,7 @@ LayoutUnit RenderTable::calcBorderEnd() const
                 borderWidth = std::max(borderWidth, firstRowAdjoiningBorder.width());
         }
     }
-    return CollapsedBorderValue::adjustedCollapsedBorderWidth(Style::evaluate(borderWidth, Style::ZoomNeeded { }), document().deviceScaleFactor(), !writingMode().isInlineFlipped());
+    return CollapsedBorderValue::adjustedCollapsedBorderWidth(Style::evaluate<float>(borderWidth, Style::ZoomNeeded { }), document().deviceScaleFactor(), !writingMode().isInlineFlipped());
 }
 
 void RenderTable::recalcBordersInRowDirection()
@@ -1384,7 +1384,7 @@ LayoutUnit RenderTable::outerBorderBefore() const
     if (tb.style() == BorderStyle::Hidden)
         return 0;
     if (tb.style() > BorderStyle::Hidden) {
-        LayoutUnit collapsedBorderWidth = std::max(borderWidth, LayoutUnit(Style::evaluate(tb.width(), Style::ZoomNeeded { }) / 2));
+        LayoutUnit collapsedBorderWidth = std::max(borderWidth, LayoutUnit(Style::evaluate<float>(tb.width(), Style::ZoomNeeded { }) / 2));
         borderWidth = floorToDevicePixel(collapsedBorderWidth, document().deviceScaleFactor());
     }
     return borderWidth;
@@ -1406,7 +1406,7 @@ LayoutUnit RenderTable::outerBorderAfter() const
         return 0;
     if (tb.style() > BorderStyle::Hidden) {
         float deviceScaleFactor = document().deviceScaleFactor();
-        LayoutUnit collapsedBorderWidth = std::max(borderWidth, LayoutUnit((Style::evaluate(tb.width(), Style::ZoomNeeded { }) + (1 / deviceScaleFactor)) / 2));
+        LayoutUnit collapsedBorderWidth = std::max(borderWidth, LayoutUnit((Style::evaluate<float>(tb.width(), Style::ZoomNeeded { }) + (1 / deviceScaleFactor)) / 2));
         borderWidth = floorToDevicePixel(collapsedBorderWidth, deviceScaleFactor);
     }
     return borderWidth;
@@ -1423,7 +1423,7 @@ LayoutUnit RenderTable::outerBorderStart() const
     if (tb.style() == BorderStyle::Hidden)
         return 0;
     if (tb.style() > BorderStyle::Hidden)
-        return CollapsedBorderValue::adjustedCollapsedBorderWidth(Style::evaluate(tb.width(), Style::ZoomNeeded { }), document().deviceScaleFactor(), writingMode().isInlineFlipped());
+        return CollapsedBorderValue::adjustedCollapsedBorderWidth(Style::evaluate<float>(tb.width(), Style::ZoomNeeded { }), document().deviceScaleFactor(), writingMode().isInlineFlipped());
 
     bool allHidden = true;
     for (RenderTableSection* section = topSection(); section; section = sectionBelow(section)) {
@@ -1450,7 +1450,7 @@ LayoutUnit RenderTable::outerBorderEnd() const
     if (tb.style() == BorderStyle::Hidden)
         return 0;
     if (tb.style() > BorderStyle::Hidden)
-        return CollapsedBorderValue::adjustedCollapsedBorderWidth(Style::evaluate(tb.width(), Style::ZoomNeeded { }), document().deviceScaleFactor(), !writingMode().isInlineFlipped());
+        return CollapsedBorderValue::adjustedCollapsedBorderWidth(Style::evaluate<float>(tb.width(), Style::ZoomNeeded { }), document().deviceScaleFactor(), !writingMode().isInlineFlipped());
 
     bool allHidden = true;
     for (RenderTableSection* section = topSection(); section; section = sectionBelow(section)) {

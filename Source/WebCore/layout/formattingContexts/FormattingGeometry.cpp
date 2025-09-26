@@ -113,7 +113,7 @@ template<FormattingGeometry::HeightType heightType> std::optional<LayoutUnit> Fo
     if (!containingBlockHeight)
         return { };
 
-    return Style::evaluate(height, *containingBlockHeight, Style::ZoomNeeded { });
+    return Style::evaluate<LayoutUnit>(height, *containingBlockHeight, Style::ZoomNeeded { });
 }
 
 std::optional<LayoutUnit> FormattingGeometry::computedHeight(const Box& layoutBox, std::optional<LayoutUnit> containingBlockHeight) const
@@ -1084,8 +1084,14 @@ BoxGeometry::Edges FormattingGeometry::computedBorder(const Box& layoutBox) cons
     auto& style = layoutBox.style();
     LOG_WITH_STREAM(FormattingContextLayout, stream << "[Border] -> layoutBox: " << &layoutBox);
     return {
-        { LayoutUnit(Style::evaluate(style.borderLeftWidth(), Style::ZoomNeeded { })), LayoutUnit(Style::evaluate(style.borderRightWidth(), Style::ZoomNeeded { })) },
-        { LayoutUnit(Style::evaluate(style.borderTopWidth(), Style::ZoomNeeded { })), LayoutUnit(Style::evaluate(style.borderBottomWidth(), Style::ZoomNeeded { })) },
+        {
+            Style::evaluate<LayoutUnit>(style.borderLeftWidth(), Style::ZoomNeeded { }),
+            Style::evaluate<LayoutUnit>(style.borderRightWidth(), Style::ZoomNeeded { })
+        },
+        {
+            Style::evaluate<LayoutUnit>(style.borderTopWidth(), Style::ZoomNeeded { }),
+            Style::evaluate<LayoutUnit>(style.borderBottomWidth(), Style::ZoomNeeded { })
+        },
     };
 }
 
@@ -1097,8 +1103,13 @@ BoxGeometry::Edges FormattingGeometry::computedPadding(const Box& layoutBox, con
     auto& style = layoutBox.style();
     LOG_WITH_STREAM(FormattingContextLayout, stream << "[Padding] -> layoutBox: " << &layoutBox);
     return {
-        { Style::evaluate(style.paddingStart(), containingBlockWidth, Style::ZoomNeeded { }), Style::evaluate(style.paddingEnd(), containingBlockWidth, Style::ZoomNeeded { }) },
-        { Style::evaluate(style.paddingBefore(), containingBlockWidth, Style::ZoomNeeded { }), Style::evaluate(style.paddingAfter(), containingBlockWidth, Style::ZoomNeeded { }) }
+        {
+            Style::evaluate<LayoutUnit>(style.paddingStart(), containingBlockWidth, Style::ZoomNeeded { }),
+            Style::evaluate<LayoutUnit>(style.paddingEnd(), containingBlockWidth, Style::ZoomNeeded { }) },
+        {
+            Style::evaluate<LayoutUnit>(style.paddingBefore(), containingBlockWidth, Style::ZoomNeeded { }),
+            Style::evaluate<LayoutUnit>(style.paddingAfter(), containingBlockWidth, Style::ZoomNeeded { })
+        }
     };
 }
 
