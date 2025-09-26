@@ -97,6 +97,7 @@ public:
     virtual void didStartTimer(Frame&, Timer&) { }
     virtual void didStopTimer(Frame&, NewLoadInProgress) { }
     virtual bool targetIsCurrentFrame() const { return true; }
+    virtual bool isSameDocumentNavigation(Frame&) const { return false; }
 
     double delay() const { return m_delay; }
     LockHistory lockHistory() const { return m_lockHistory; }
@@ -162,10 +163,12 @@ protected:
             localFrame->loader().clientRedirectCancelledOrFinished(newLoadInProgress);
     }
 
-    Document& initiatingDocument() { return m_initiatingDocument.get(); }
+    Document& initiatingDocument() const { return m_initiatingDocument.get(); }
     SecurityOrigin* securityOrigin() const { return m_securityOrigin.get(); }
     const URL& url() const { return m_url; }
     const String& referrer() const { return m_referrer; }
+
+    bool isSameDocumentNavigation(Frame&) const final { return equalIgnoringFragmentIdentifier(initiatingDocument().url(), url()); }
 
 private:
     const Ref<Document> m_initiatingDocument;
@@ -312,6 +315,20 @@ public:
         page->goToItem(rootFrame, m_historyItem, FrameLoadType::IndexedBackForward, ShouldTreatAsContinuingLoad::No);
     }
 
+    bool isSameDocumentNavigation(Frame& frame) const final
+    {
+        RefPtr localFrame = dynamicDowncast<LocalFrame>(frame);
+        if (!localFrame)
+            return false;
+
+        RefPtr page { localFrame->page() };
+        if (!page || !page->checkedBackForward()->containsItem(m_historyItem))
+            return false;
+
+        URL url { m_historyItem->url() };
+        return equalIgnoringFragmentIdentifier(localFrame->document()->url(), url);
+    }
+
 private:
     const Ref<HistoryItem> m_historyItem;
 };
@@ -334,7 +351,7 @@ public:
             m_completionHandler(ScheduleHistoryNavigationResult::Aborted);
     }
 
-    std::optional<Ref<HistoryItem>> findBackForwardItemByKey(const LocalFrame& localFrame)
+    std::optional<Ref<HistoryItem>> findBackForwardItemByKey(const LocalFrame& localFrame) const
     {
         RefPtr entry = localFrame.window()->protectedNavigation()->findEntryByKey(m_key);
         if (!entry)
@@ -393,6 +410,24 @@ public:
         page->goToItemForNavigationAPI(rootFrame, *historyItem, FrameLoadType::IndexedBackForward, *localFrame, upcomingTraverseMethodTracker.get());
 
         completionHandler(ScheduleHistoryNavigationResult::Completed);
+    }
+
+    bool isSameDocumentNavigation(Frame& frame) const final
+    {
+        RefPtr localFrame = dynamicDowncast<LocalFrame>(frame);
+        if (!localFrame)
+            return false;
+
+        RefPtr page { localFrame->page() };
+        if (!page)
+            return false;
+
+        auto historyItem = findBackForwardItemByKey(*localFrame);
+        if (!historyItem)
+            return false;
+
+        URL url { (*historyItem)->url() };
+        return equalIgnoringFragmentIdentifier(localFrame->document()->url(), url);
     }
 
 private:
@@ -537,7 +572,7 @@ bool NavigationScheduler::redirectScheduledDuringLoad()
 
 bool NavigationScheduler::locationChangePending()
 {
-    return m_redirect && m_redirect->isLocationChange() && m_redirect->targetIsCurrentFrame();
+    return m_redirect && m_redirect->isLocationChange() && m_redirect->targetIsCurrentFrame() && !m_redirect->isSameDocumentNavigation(m_frame.get());
 }
 
 Ref<Frame> NavigationScheduler::protectedFrame() const
