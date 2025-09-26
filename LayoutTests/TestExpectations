@@ -5972,8 +5972,29 @@ webkit.org/b/274088 imported/w3c/web-platform-tests/trusted-types/Element-setAtt
 webkit.org/b/289904 imported/w3c/web-platform-tests/trusted-types/should-sink-type-mismatch-violation-be-blocked-by-csp-001.html [ Skip ]
 
 # WebKit doesn't support CSP violation reporting inside Workers
+imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-DedicatedWorker-DedicatedWorker-constructor.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-DedicatedWorker-eval.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-DedicatedWorker-function-constructor.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-DedicatedWorker-importScripts.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-DedicatedWorker-ServiceWorkerContainer-register.https.html [ Skip ]
 imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-DedicatedWorker-setTimeout-setInterval.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-ServiceWorker-eval.https.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-ServiceWorker-function-constructor.https.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-ServiceWorker-importScripts.https.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-ServiceWorker-ServiceWorkerContainer-register.https.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-ServiceWorker-setTimeout-setInterval.https.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-SharedWorker-DedicatedWorker-constructor.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-SharedWorker-eval.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-SharedWorker-function-constructor.html [ Skip ]
 imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-SharedWorker-setTimeout-setInterval.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-SharedWorker-ServiceWorkerContainer-register.https.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-SharedWorker-importScripts.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/should-sink-type-mismatch-violation-be-blocked-by-csp-002-worker.html [ Skip ]
+imported/w3c/web-platform-tests/trusted-types/should-trusted-type-policy-creation-be-blocked-by-csp-004-worker.html [ Skip ]
+
+webkit.org/b/298792 imported/w3c/web-platform-tests/trusted-types/navigate-to-javascript-url-006.sub.html [ Skip ]
+webkit.org/b/298792 imported/w3c/web-platform-tests/trusted-types/navigate-to-javascript-url-003.html [ Skip ]
+webkit.org/b/298792 imported/w3c/web-platform-tests/trusted-types/navigate-to-javascript-url-csp-headers.html [ Skip ]
 
 # Close watchers aren't implemented yet
 webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/n-activate-preventDefault.html?dialog [ Skip ]
