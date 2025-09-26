@@ -267,6 +267,7 @@ void HistoryController::restoreDocumentState()
     case FrameLoadType::IndexedBackForward:
     case FrameLoadType::RedirectWithLockedBackForwardList:
     case FrameLoadType::Standard:
+    case FrameLoadType::NavigationAPIReplace:
         break;
     }
 

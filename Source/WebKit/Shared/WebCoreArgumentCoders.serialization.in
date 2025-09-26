@@ -6183,7 +6183,8 @@ enum class WebCore::FrameLoadType : uint8_t {
     RedirectWithLockedBackForwardList,
     MultipartReplace,
     ReloadFromOrigin,
-    ReloadExpiredOnly
+    ReloadExpiredOnly,
+    NavigationAPIReplace
 };
 
 enum class WebCore::NavigationType : uint8_t {

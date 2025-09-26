@@ -3935,6 +3935,9 @@ void Page::logNavigation(const Navigation& navigation)
     case FrameLoadType::ReloadExpiredOnly:
         navigationDescription = "reloadRevalidatingExpired"_s;
         break;
+    case FrameLoadType::NavigationAPIReplace:
+        navigationDescription = "navigationAPIReplace"_s;
+        break;
     case FrameLoadType::MultipartReplace:
     case FrameLoadType::RedirectWithLockedBackForwardList:
         // Not logging those for now.

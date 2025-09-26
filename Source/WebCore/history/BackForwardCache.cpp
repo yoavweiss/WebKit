@@ -251,6 +251,12 @@ static bool canCachePage(Page& page)
         logBackForwardCacheFailureDiagnosticMessage(diagnosticLoggingClient, DiagnosticLoggingKeys::replaceKey());
         isCacheable = false;
         break;
+    case FrameLoadType::NavigationAPIReplace:
+        // No point writing to the cache on a replace, since we will just write over it again when we leave that page.
+        PCLOG("   -Load type is: NavigationAPIReplace"_s);
+        logBackForwardCacheFailureDiagnosticMessage(diagnosticLoggingClient, DiagnosticLoggingKeys::replaceKey());
+        isCacheable = false;
+        break;
     case FrameLoadType::ReloadFromOrigin: {
         // No point writing to the cache on a reload, since we will just write over it again when we leave that page.
         PCLOG("   -Load type is: ReloadFromOrigin"_s);

@@ -1086,6 +1086,10 @@ static WebFrameLoadType toWebFrameLoadType(WebCore::FrameLoadType frameLoadType)
         return WebFrameLoadTypeSame;
     case FrameLoadType::RedirectWithLockedBackForwardList:
         return WebFrameLoadTypeInternal;
+    case FrameLoadType::NavigationAPIReplace:
+        // NOTE: WebKitLegacy does not support the Navigation API. This case is
+        // present just to ensure a successful build.
+        RELEASE_ASSERT_NOT_REACHED();
     case FrameLoadType::MultipartReplace:
         return WebFrameLoadTypeReplace;
     case FrameLoadType::ReloadFromOrigin:
