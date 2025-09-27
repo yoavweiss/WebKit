@@ -26,10 +26,12 @@
 #include "config.h"
 #include "GridLayout.h"
 
+#include "GridAreaLines.h"
 #include "ImplicitGrid.h"
 #include "RenderStyleInlines.h"
 #include "LayoutElementBox.h"
 #include "NotImplemented.h"
+#include "PlacedGridItem.h"
 #include "TrackSizingAlgorithm.h"
 #include "TrackSizingFunctions.h"
 #include "UnplacedGridItem.h"

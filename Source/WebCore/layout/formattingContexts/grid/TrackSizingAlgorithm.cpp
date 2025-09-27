@@ -27,6 +27,8 @@
 #include "TrackSizingAlgorithm.h"
 
 #include "NotImplemented.h"
+#include "TrackSizingFunctions.h"
+#include <wtf/Vector.h>
 
 namespace WebCore {
 namespace Layout {

@@ -26,6 +26,7 @@
 #include "config.h"
 #include "ImplicitGrid.h"
 
+#include "GridAreaLines.h"
 #include "PlacedGridItem.h"
 #include "UnplacedGridItem.h"
 #include <wtf/Range.h>

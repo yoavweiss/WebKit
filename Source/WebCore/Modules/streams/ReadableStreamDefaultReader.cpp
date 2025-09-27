@@ -30,6 +30,7 @@
 #include "JSDOMPromiseDeferred.h"
 #include "JSReadableStreamDefaultReader.h"
 #include "JSReadableStreamReadResult.h"
+#include "ReadableByteStreamController.h"
 #include "ReadableStream.h"
 #include "ReadableStreamReadResult.h"
 

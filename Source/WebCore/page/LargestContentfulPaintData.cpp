@@ -27,7 +27,9 @@
 #include "LargestContentfulPaintData.h"
 
 #include "CachedImage.h"
-#include "Element.h"
+#include "ContainerNodeInlines.h"
+#include "DocumentInlines.h"
+#include "ElementInlines.h"
 #include "FloatQuad.h"
 #include "LargestContentfulPaint.h"
 #include "LegacyRenderSVGImage.h"
@@ -41,6 +43,7 @@
 #include "RenderElement.h"
 #include "RenderInline.h"
 #include "RenderLineBreak.h"
+#include "RenderObjectInlines.h"
 #include "RenderReplaced.h"
 #include "RenderSVGImage.h"
 #include "RenderText.h"

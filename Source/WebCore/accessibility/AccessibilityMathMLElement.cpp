@@ -37,6 +37,7 @@
 #include "MathMLNames.h"
 #include "NodeInlines.h"
 #include "RenderStyleInlines.h"
+#include "Settings.h"
 
 namespace WebCore {
 

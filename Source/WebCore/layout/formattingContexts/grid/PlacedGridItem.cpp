@@ -26,6 +26,7 @@
 #include "config.h"
 #include "PlacedGridItem.h"
 
+#include "GridAreaLines.h"
 #include "UnplacedGridItem.h"
 
 namespace WebCore {

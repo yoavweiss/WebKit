@@ -30,7 +30,7 @@
 #include "ExceptionOr.h"
 #include "JSDOMGlobalObject.h"
 #include "JSDOMPromise.h"
-#include "ScriptExecutionContext.h"
+#include "ScriptExecutionContextInlines.h"
 #include <JavaScriptCore/Microtask.h>
 #include <wtf/TZoneMallocInlines.h>
 
