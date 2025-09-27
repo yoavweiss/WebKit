@@ -24,7 +24,6 @@
 import Foundation
 import Metal
 import QuartzCore
-import QuartzCore_Private
 import WebGPU_Internal
 #if canImport(DirectDrawBackend)
 import DirectDrawBackend
