@@ -7833,7 +7833,7 @@ TextRecognitionInVideosEnabled:
 
 TextShapingAcrossInlineBoxes:
   type: bool
-  status: unstable
+  status: preview
   category: css
   humanReadableName: "Text Shaping Across Inline Boxes"
   humanReadableDescription: "Enable Text Shaping Across Inline Boxes"
