@@ -59,7 +59,6 @@ FontSelectionValue fontWeightFromCSSValueDeprecated(const CSSValue&);
 FontSelectionValue fontWeightFromCSSValue(BuilderState&, const CSSValue&);
 
 FontSelectionValue fontStretchFromCSSValueDeprecated(const CSSValue&);
-FontSelectionValue fontStretchFromCSSValue(BuilderState&, const CSSValue&);
 
 FontSelectionValue fontStyleAngleFromCSSValueDeprecated(const CSSValue&);
 FontSelectionValue fontStyleAngleFromCSSValue(BuilderState&, const CSSValue&);

@@ -757,23 +757,25 @@
                 {
                     "enable-if": "ENABLE_VARIATION_FONTS",
                     "aliases": ["font-stretch"],
-                    "animation-wrapper": "Wrapper",
+                    "animation-wrapper": "StyleTypeWrapper",
                     "animation-wrapper-requires-render-style": true,
                     "font-description-name-for-methods": "Width",
+                    "font-property-uses-render-style-for-access": true,
                     "font-property": true,
                     "high-priority": true,
-                    "style-converter": "FontWidth",
+                    "style-converter": "StyleType<FontWidth>",
                     "parser-grammar": "<font-width-absolute> | <percentage [0,inf]>"
                 },
                 {
                     "enable-if": "!ENABLE_VARIATION_FONTS",
                     "aliases": ["font-stretch"],
-                    "animation-wrapper": "Wrapper",
+                    "animation-wrapper": "StyleTypeWrapper",
                     "animation-wrapper-requires-render-style": true,
                     "font-description-name-for-methods": "Width",
+                    "font-property-uses-render-style-for-access": true,
                     "font-property": true,
                     "high-priority": true,
-                    "style-converter": "FontWidth",
+                    "style-converter": "StyleType<FontWidth>",
                     "parser-grammar": "<font-width-absolute>"
                 }
             ],

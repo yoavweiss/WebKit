@@ -272,6 +272,7 @@ struct DynamicRangeLimit;
 struct Filter;
 struct FlexBasis;
 struct FontPalette;
+struct FontWidth;
 struct GapGutter;
 struct GridPosition;
 struct GridTemplateAreas;
@@ -728,10 +729,10 @@ public:
     inline FontOpticalSizing fontOpticalSizing() const;
     inline FontVariationSettings fontVariationSettings() const;
     inline FontSelectionValue fontWeight() const;
-    inline FontSelectionValue fontWidth() const;
     inline std::optional<FontSelectionValue> fontItalic() const;
     inline Style::FontPalette fontPalette() const;
     inline FontSizeAdjust fontSizeAdjust() const;
+    inline Style::FontWidth fontWidth() const;
 
     inline const Style::TextIndent& textIndent() const;
     inline TextAlignMode textAlign() const { return static_cast<TextAlignMode>(m_inheritedFlags.textAlign); }
@@ -1366,9 +1367,9 @@ public:
     void setFontOpticalSizing(FontOpticalSizing);
     void setFontVariationSettings(FontVariationSettings);
     void setFontWeight(FontSelectionValue);
-    void setFontWidth(FontSelectionValue);
     void setFontItalic(std::optional<FontSelectionValue>);
     void setFontPalette(Style::FontPalette&&);
+    void setFontWidth(Style::FontWidth);
 
     void setColor(Color&&);
 
@@ -1961,6 +1962,7 @@ public:
     static inline Style::VerticalAlign initialVerticalAlign();
     static constexpr Float initialFloating();
     static inline Style::FontPalette initialFontPalette();
+    static inline Style::FontWidth initialFontWidth();
     static constexpr BreakBetween initialBreakBetween();
     static constexpr BreakInside initialBreakInside();
     static constexpr OptionSet<HangingPunctuation> initialHangingPunctuation();

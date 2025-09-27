@@ -280,13 +280,13 @@ inline void BuilderState::setFontDescriptionWeight(FontSelectionValue weight)
     m_style.mutableFontDescriptionWithoutUpdate().setWeight(weight);
 }
 
-inline void BuilderState::setFontDescriptionWidth(FontSelectionValue width)
+inline void BuilderState::setFontDescriptionWidth(FontWidth width)
 {
-    if (m_style.fontDescription().width() == width)
+    if (m_style.fontDescription().width() == width.platform())
         return;
 
     m_fontDirty = true;
-    m_style.mutableFontDescriptionWithoutUpdate().setWidth(width);
+    m_style.mutableFontDescriptionWithoutUpdate().setWidth(width.platform());
 }
 
 inline void BuilderState::setFontDescriptionVariantAlternates(const FontVariantAlternates& variantAlternates)

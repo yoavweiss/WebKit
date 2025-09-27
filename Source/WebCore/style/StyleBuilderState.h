@@ -65,6 +65,7 @@ namespace Style {
 class BuilderState;
 struct Color;
 struct FontPalette;
+struct FontWidth;
 
 void maybeUpdateFontForLetterSpacingOrWordSpacing(BuilderState&, CSSValue&);
 
@@ -177,7 +178,7 @@ public:
     void setFontDescriptionVariantPosition(FontVariantPosition);
     void setFontDescriptionVariationSettings(FontVariationSettings&&);
     void setFontDescriptionWeight(FontSelectionValue);
-    void setFontDescriptionWidth(FontSelectionValue);
+    void setFontDescriptionWidth(FontWidth);
     void setFontDescriptionVariantAlternates(const FontVariantAlternates&);
     void setFontDescriptionVariantEastAsianVariant(FontVariantEastAsianVariant);
     void setFontDescriptionVariantEastAsianWidth(FontVariantEastAsianWidth);

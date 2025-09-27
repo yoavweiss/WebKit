@@ -161,23 +161,6 @@ FontSelectionValue fontStretchFromCSSValueDeprecated(const CSSValue& value)
     return normalWidthValue();
 }
 
-FontSelectionValue fontStretchFromCSSValue(BuilderState& builderState, const CSSValue& value)
-{
-    RefPtr primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return { };
-
-    if (primitiveValue->isPercentage())
-        return FontSelectionValue::clampFloat(primitiveValue->resolveAsPercentage<float>(builderState.cssToLengthConversionData()));
-
-    ASSERT(primitiveValue->isValueID());
-    if (auto value = fontWidthValue(primitiveValue->valueID()))
-        return value.value();
-
-    ASSERT(CSSPropertyParserHelpers::isSystemFontShorthand(primitiveValue->valueID()));
-    return normalWidthValue();
-}
-
 // MARK: - 'font-style'
 
 FontSelectionValue fontStyleAngleFromCSSValueDeprecated(const CSSValue& value)

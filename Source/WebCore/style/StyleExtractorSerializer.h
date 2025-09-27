@@ -117,7 +117,6 @@ public:
     static void serializeFontSizeAdjust(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FontSizeAdjust&);
     static void serializeFontPalette(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FontPalette&);
     static void serializeFontWeight(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, FontSelectionValue);
-    static void serializeFontWidth(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, FontSelectionValue);
     static void serializeFontFeatureSettings(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FontFeatureSettings&);
     static void serializeFontVariationSettings(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FontVariationSettings&);
 
@@ -1026,11 +1025,6 @@ inline void ExtractorSerializer::serializeFontSizeAdjust(ExtractorState& state, 
 inline void ExtractorSerializer::serializeFontWeight(ExtractorState&, StringBuilder& builder, const CSS::SerializationContext& context, FontSelectionValue fontWeight)
 {
     CSS::serializationForCSS(builder, context, CSS::NumberRaw<> { static_cast<float>(fontWeight) });
-}
-
-inline void ExtractorSerializer::serializeFontWidth(ExtractorState&, StringBuilder& builder, const CSS::SerializationContext& context, FontSelectionValue fontWidth)
-{
-    CSS::serializationForCSS(builder, context, CSS::PercentageRaw<> { static_cast<float>(fontWidth) });
 }
 
 inline void ExtractorSerializer::serializeFontFeatureSettings(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const FontFeatureSettings& fontFeatureSettings)

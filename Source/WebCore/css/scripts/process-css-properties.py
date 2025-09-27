@@ -4471,7 +4471,7 @@ class GenerateStyleExtractorGenerated:
                 self._generate_color_property_value_getter(to, property)
             elif property.codegen_properties.animation_property:
                 self._generate_animation_property_value_getter(to, property)
-            elif property.codegen_properties.font_property:
+            elif property.codegen_properties.font_property and not property.codegen_properties.font_property_uses_render_style_for_access:
                 self._generate_font_property_value_getter(to, property)
             elif property.codegen_properties.fill_layer_property:
                 self._generate_fill_layer_property_value_getter(to, property)
@@ -4496,7 +4496,7 @@ class GenerateStyleExtractorGenerated:
                 self._generate_color_property_value_serialization_getter(to, property)
             elif property.codegen_properties.animation_property:
                 self._generate_animation_property_value_serialization_getter(to, property)
-            elif property.codegen_properties.font_property:
+            elif property.codegen_properties.font_property and not property.codegen_properties.font_property_uses_render_style_for_access:
                 self._generate_font_property_value_serialization_getter(to, property)
             elif property.codegen_properties.fill_layer_property:
                 self._generate_fill_layer_property_value_serialization_getter(to, property)
