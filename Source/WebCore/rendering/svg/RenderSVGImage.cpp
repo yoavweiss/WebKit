@@ -44,7 +44,6 @@
 #include "RenderSVGModelObjectInlines.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGImageElement.h"
-#include "SVGRenderStyle.h"
 #include "SVGVisitedRendererTracking.h"
 #include <wtf/StackStats.h>
 #include <wtf/TZoneMallocInlines.h>
@@ -158,7 +157,7 @@ void RenderSVGImage::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
     auto coordinateSystemOriginTranslation = adjustedPaintOffset - flooredLayoutPoint(objectBoundingBox().location());
     paintInfo.context().translate(coordinateSystemOriginTranslation.width(), coordinateSystemOriginTranslation.height());
 
-    if (style().svgStyle().bufferedRendering() == BufferedRendering::Static && bufferForeground(paintInfo, flooredLayoutPoint(objectBoundingBox().location())))
+    if (style().bufferedRendering() == BufferedRendering::Static && bufferForeground(paintInfo, flooredLayoutPoint(objectBoundingBox().location())))
         return;
 
     paintForeground(paintInfo, flooredLayoutPoint(objectBoundingBox().location()));

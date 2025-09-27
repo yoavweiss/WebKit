@@ -80,10 +80,6 @@
         "The custom code for the property should be located in css/StyleBuilderCustom.h",
         "and named applyValue[CSSPropertyName]().",
         "",
-        "* svg:",
-        "Indicates that this is an SVG CSS property and that the corresponding",
-        "methods are on SVGRenderStyle instead of RenderStyle.",
-        "",
         "* auto-functions:",
         "Indicates that this CSS property requires handling of \"auto\" and has",
         "corresponding hasAutoXXX() / setHasAutoXXX() methods on RenderStyle.",
@@ -1676,7 +1672,6 @@
                 }
             ],
             "codegen-properties": {
-                "svg": true,
                 "parser-grammar": "<<values>>"
             },
             "specification": {
@@ -2291,9 +2286,7 @@
             ],
             "codegen-properties": {
                 "animation-wrapper": "StyleTypeWrapper",
-                "animation-wrapper-requires-render-style": true,
                 "style-converter": "StyleType<SVGBaselineShift>",
-                "svg": true,
                 "parser-grammar": "baseline | sub | super | <length-percentage>"
             },
             "specification": {
@@ -3824,7 +3817,6 @@
                 "static"
             ],
             "codegen-properties": {
-                "svg": true,
                 "parser-grammar": "<<values>>"
             },
             "specification": {
@@ -3942,7 +3934,6 @@
                 "evenodd"
             ],
             "codegen-properties": {
-                "svg": true,
                 "parser-grammar": "<<values>>"
             },
             "specification": {
@@ -3962,7 +3953,6 @@
                 "linearRGB"
             ],
             "codegen-properties": {
-                "svg": true,
                 "parser-grammar": "<<values>>"
             },
             "specification": {
@@ -3980,7 +3970,6 @@
                 "linearRGB"
             ],
             "codegen-properties": {
-                "svg": true,
                 "parser-grammar": "<<values>>"
             },
             "specification": {
@@ -4384,7 +4373,6 @@
                 "text-after-edge"
             ],
             "codegen-properties": {
-                "svg": true,
                 "parser-grammar": "<<values>>"
             },
             "specification": {
@@ -4451,7 +4439,6 @@
                 "animation-wrapper-requires-override-parameters": ["CSSPropertyID::CSSPropertyFill", "&RenderStyle::fill", "&RenderStyle::setFill", "&RenderStyle::visitedLinkFill", "&RenderStyle::setVisitedLinkFill"],
                 "style-builder-custom": "All",
                 "style-extractor-converter": "StyleType<SVGPaint>",
-                "svg": true,
                 "color-property": true,
                 "parser-grammar": "none | <color> | [ <url> [ none | <color> ]? ]",
                 "parser-grammar-comment": "Current spec grammar is 'none | <color> | [ <url> [ none | <color> ]? ] | context-fill | context-stroke'",
@@ -4468,9 +4455,7 @@
             "initial": "1",
             "codegen-properties": {
                 "animation-wrapper": "StyleTypeWrapper",
-                "animation-wrapper-requires-render-style": true,
                 "style-converter": "StyleType<Opacity>",
-                "svg": true,
                 "parser-grammar": "<opacity-value>"
             },
             "specification": {
@@ -4487,7 +4472,6 @@
                 "evenodd"
             ],
             "codegen-properties": {
-                "svg": true,
                 "parser-grammar": "<<values>>"
             },
             "specification": {
@@ -4526,8 +4510,6 @@
             "initial": "black",
             "codegen-properties": {
                 "animation-wrapper": "StyleTypeWrapper",
-                "animation-wrapper-requires-render-style": true,
-                "svg": true,
                 "color-property": true,
                 "parser-grammar": "<color>"
             },
@@ -4541,9 +4523,7 @@
             "initial": "1",
             "codegen-properties": {
                 "animation-wrapper": "StyleTypeWrapper",
-                "animation-wrapper-requires-render-style": true,
                 "style-converter": "StyleType<Opacity>",
-                "svg": true,
                 "parser-grammar": "<opacity-value>"
             },
             "specification": {
@@ -4558,7 +4538,6 @@
             "codegen-properties": {
                 "accepts-quirky-angle": true,
                 "style-converter": "GlyphOrientation",
-                "svg": true,
                 "parser-grammar": "<angle unitless-zero=allowed>"
             },
             "specification": {
@@ -4576,7 +4555,6 @@
             "codegen-properties": {
                 "accepts-quirky-angle": true,
                 "style-converter": "GlyphOrientationOrAuto",
-                "svg": true,
                 "parser-grammar": "auto | <angle unitless-zero=allowed>"
             },
             "specification": {
@@ -4956,8 +4934,6 @@
             "initial": "white",
             "codegen-properties": {
                 "animation-wrapper": "StyleTypeWrapper",
-                "animation-wrapper-requires-render-style": true,
-                "svg": true,
                 "color-property": true,
                 "parser-grammar": "<color>"
             },
@@ -5463,7 +5439,6 @@
             ],
             "codegen-properties": {
                 "style-converter": "StyleType<SVGMarkerResource>",
-                "svg": true,
                 "parser-grammar": "none | <marker-ref>"
             },
             "specification": {
@@ -5480,7 +5455,6 @@
             ],
             "codegen-properties": {
                 "style-converter": "StyleType<SVGMarkerResource>",
-                "svg": true,
                 "parser-grammar": "none | <marker-ref>"
             },
             "specification": {
@@ -5497,7 +5471,6 @@
             ],
             "codegen-properties": {
                 "style-converter": "StyleType<SVGMarkerResource>",
-                "svg": true,
                 "parser-grammar": "none | <marker-ref>"
             },
             "specification": {
@@ -5926,7 +5899,6 @@
                 "alpha"
             ],
             "codegen-properties": {
-                "svg": true,
                 "parser-grammar": "<<values>>"
             },
             "specification": {
@@ -7474,7 +7446,6 @@
                 "geometricPrecision"
             ],
             "codegen-properties": {
-                "svg": true,
                 "parser-grammar": "<<values>>"
             },
             "specification": {
@@ -7487,8 +7458,6 @@
             "initial": "black",
             "codegen-properties": {
                 "animation-wrapper": "StyleTypeWrapper",
-                "animation-wrapper-requires-render-style": true,
-                "svg": true,
                 "color-property": true,
                 "parser-grammar": "<color>"
             },
@@ -7502,9 +7471,7 @@
             "initial": "1",
             "codegen-properties": {
                 "animation-wrapper": "StyleTypeWrapper",
-                "animation-wrapper-requires-render-style": true,
                 "style-converter": "StyleType<Opacity>",
-                "svg": true,
                 "parser-grammar": "<opacity-value>"
             },
             "specification": {
@@ -7532,7 +7499,6 @@
                 "animation-wrapper-requires-override-parameters": ["CSSPropertyID::CSSPropertyStroke", "&RenderStyle::stroke", "&RenderStyle::setStroke", "&RenderStyle::visitedLinkStroke", "&RenderStyle::setVisitedLinkStroke"],
                 "style-builder-custom": "All",
                 "style-extractor-converter": "StyleType<SVGPaint>",
-                "svg": true,
                 "color-property": true,
                 "parser-grammar": "none | <color> | [ <url> [ none | <color> ]? ]",
                 "parser-grammar-comment": "Current spec grammar is 'none | <color> | [ <url> [ none | <color> ]? ] | context-fill | context-stroke'",
@@ -7552,11 +7518,9 @@
             ],
             "codegen-properties": {
                 "animation-wrapper": "StyleTypeWrapper",
-                "animation-wrapper-requires-render-style": true,
                 "animation-wrapper-requires-non-additive-or-cumulative-interpolation": true,
                 "render-style-name-for-methods": "StrokeDashArray",
                 "style-converter": "StyleType<SVGStrokeDasharray>",
-                "svg": true,
                 "parser-function": "consumeStrokeDasharray",
                 "parser-function-allows-number-or-integer-input": true,
                 "parser-grammar-unused": "none | [ [ <length-percentage [0,inf] unitless-zero=forbidden> | <number [0,inf]> ]+ ]#",
@@ -7651,9 +7615,7 @@
             "initial": "1",
             "codegen-properties": {
                 "animation-wrapper": "StyleTypeWrapper",
-                "animation-wrapper-requires-render-style": true,
                 "style-converter": "StyleType<Opacity>",
-                "svg": true,
                 "parser-grammar": "<opacity-value>"
             },
             "specification": {
@@ -7835,7 +7797,6 @@
                 "end"
             ],
             "codegen-properties": {
-                "svg": true,
                 "parser-grammar": "<<values>>"
             },
             "specification": {
@@ -8226,7 +8187,6 @@
                 }
             ],
             "codegen-properties": {
-                "svg": true,
                 "parser-grammar": "<<values>>"
             },
             "specification": {

@@ -30,7 +30,6 @@
 #include "NativeImage.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGFitToViewBox.h"
-#include "SVGRenderStyle.h"
 #include "SVGRenderingContext.h"
 #include "SVGResources.h"
 #include "SVGResourcesCache.h"
@@ -179,16 +178,14 @@ auto LegacyRenderSVGResourcePattern::applyResource(RenderElement& renderer, cons
     // Draw pattern
     context->save();
 
-    Ref svgStyle = style.svgStyle();
-
     if (resourceMode.contains(RenderSVGResourceMode::ApplyToFill)) {
-        context->setAlpha(svgStyle->fillOpacity().value.value);
+        context->setAlpha(style.fillOpacity().value.value);
         context->setFillPattern(*patternData->pattern);
-        context->setFillRule(svgStyle->fillRule());
+        context->setFillRule(style.fillRule());
     } else if (resourceMode.contains(RenderSVGResourceMode::ApplyToStroke)) {
-        if (svgStyle->vectorEffect() == VectorEffect::NonScalingStroke)
+        if (style.vectorEffect() == VectorEffect::NonScalingStroke)
             patternData->pattern->setPatternSpaceTransform(transformOnNonScalingStroke(&renderer, patternData->transform));
-        context->setAlpha(svgStyle->strokeOpacity().value.value);
+        context->setAlpha(style.strokeOpacity().value.value);
         context->setStrokePattern(*patternData->pattern);
         SVGRenderSupport::applyStrokeStyleToContext(*context, style, renderer);
     }

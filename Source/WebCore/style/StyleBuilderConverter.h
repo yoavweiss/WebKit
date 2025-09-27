@@ -59,7 +59,6 @@
 #include "RotateTransformOperation.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGPathElement.h"
-#include "SVGRenderStyle.h"
 #include "ScaleTransformOperation.h"
 #include "ScopedName.h"
 #include "ScrollAxis.h"

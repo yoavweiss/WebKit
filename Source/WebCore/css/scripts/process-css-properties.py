@@ -519,7 +519,6 @@ class StylePropertyCodeGenProperties:
         Schema.Entry("style-converter", allowed_types=[str]),
         Schema.Entry("style-extractor-converter", allowed_types=[str]),
         Schema.Entry("style-extractor-custom", allowed_types=[bool], default_value=False),
-        Schema.Entry("svg", allowed_types=[bool], default_value=False),
         Schema.Entry("top-priority", allowed_types=[bool], default_value=False),
         Schema.Entry("top-priority-reason", allowed_types=[str]),
         Schema.Entry("url", allowed_types=[str]),
@@ -4083,17 +4082,6 @@ class GenerateStyleBuilderGenerated:
         else:
             to.write(f"applyValueSecondaryFillLayerProperty<&RenderStyle::{property.method_name_for_ensure_layers}, &{property.type_name_for_layers}::Layer::{property.codegen_properties.fill_layer_setter}, &{property.type_name_for_layers}::Layer::{property.codegen_properties.fill_layer_getter}, &{property.type_name_for_layers}::Layer::{property.codegen_properties.fill_layer_initial}, {converter(property)}>(builderState, value);")
 
-    # SVG property setters.
-
-    def _generate_svg_property_initial_value_setter(self, to, property):
-        to.write(f"builderState.style().accessSVGStyle().{property.codegen_properties.render_style_setter}(SVGRenderStyle::{property.codegen_properties.render_style_initial}());")
-
-    def _generate_svg_property_inherit_value_setter(self, to, property):
-        to.write(f"builderState.style().accessSVGStyle().{property.codegen_properties.render_style_setter}(forwardInheritedValue(builderState.parentStyle().svgStyle().{property.codegen_properties.render_style_getter}()));")
-
-    def _generate_svg_property_value_setter(self, to, property, value):
-        to.write(f"builderState.style().accessSVGStyle().{property.codegen_properties.render_style_setter}({value});")
-
     # All other property setters.
 
     def _generate_property_initial_value_setter(self, to, property):
@@ -4122,8 +4110,6 @@ class GenerateStyleBuilderGenerated:
                 self._generate_font_property_initial_value_setter(to, property)
             elif property.codegen_properties.fill_layer_property:
                 self._generate_fill_layer_property_initial_value_setter(to, property)
-            elif property.codegen_properties.svg:
-                self._generate_svg_property_initial_value_setter(to, property)
             else:
                 self._generate_property_initial_value_setter(to, property)
 
@@ -4144,10 +4130,7 @@ class GenerateStyleBuilderGenerated:
                     to.write(f"return;")
                 to.write(f"}}")
 
-                if property.codegen_properties.svg:
-                    self._generate_svg_property_inherit_value_setter(to, property)
-                else:
-                    self._generate_property_inherit_value_setter(to, property)
+                self._generate_property_inherit_value_setter(to, property)
             elif property.codegen_properties.visited_link_color_support:
                 self._generate_color_property_inherit_value_setter(to, property)
             elif property.codegen_properties.animation_property:
@@ -4156,8 +4139,6 @@ class GenerateStyleBuilderGenerated:
                 self._generate_font_property_inherit_value_setter(to, property)
             elif property.codegen_properties.fill_layer_property:
                 self._generate_fill_layer_property_inherit_value_setter(to, property)
-            elif property.codegen_properties.svg:
-                self._generate_svg_property_inherit_value_setter(to, property)
             else:
                 self._generate_property_inherit_value_setter(to, property)
 
@@ -4207,15 +4188,9 @@ class GenerateStyleBuilderGenerated:
                 to.write(f"auto convertedValue = BuilderConverter::convert{property.codegen_properties.style_builder_conditional_converter}(builderState, value);")
                 to.write(f"if (convertedValue)")
                 with to.indent():
-                    if property.codegen_properties.svg:
-                        self._generate_svg_property_value_setter(to, property, converted_value(property))
-                    else:
-                        self._generate_property_value_setter(to, property, converted_value(property))
-            else:
-                if property.codegen_properties.svg:
-                    self._generate_svg_property_value_setter(to, property, converted_value(property))
-                else:
                     self._generate_property_value_setter(to, property, converted_value(property))
+            else:
+                self._generate_property_value_setter(to, property, converted_value(property))
 
             if property.codegen_properties.fast_path_inherited:
                 to.write(f"builderState.style().setDisallowsFastPathInheritance();")
@@ -4456,14 +4431,6 @@ class GenerateStyleExtractorGenerated:
         to.write(f"}};")
         to.write(f"extractFillLayerValueSerialization(extractorState, builder, context, extractorState.style.{property.method_name_for_layers}(), mapper);")
 
-    # SVG property value/serialization getters.
-
-    def _generate_svg_property_value_getter(self, to, property):
-        to.write(f"return {GenerateStyleExtractorGenerated.wrap_in_converter(property, f'extractorState.style.svgStyle().{property.codegen_properties.render_style_getter}()')};")
-
-    def _generate_svg_property_value_serialization_getter(self, to, property):
-        to.write(f"{GenerateStyleExtractorGenerated.wrap_in_serializer(property, f'extractorState.style.svgStyle().{property.codegen_properties.render_style_getter}()')};")
-
     # All other property value getters.
 
     def _generate_property_value_getter(self, to, property):
@@ -4508,8 +4475,6 @@ class GenerateStyleExtractorGenerated:
                 self._generate_font_property_value_getter(to, property)
             elif property.codegen_properties.fill_layer_property:
                 self._generate_fill_layer_property_value_getter(to, property)
-            elif property.codegen_properties.svg:
-                self._generate_svg_property_value_getter(to, property)
             else:
                 self._generate_property_value_getter(to, property)
 
@@ -4535,8 +4500,6 @@ class GenerateStyleExtractorGenerated:
                 self._generate_font_property_value_serialization_getter(to, property)
             elif property.codegen_properties.fill_layer_property:
                 self._generate_fill_layer_property_value_serialization_getter(to, property)
-            elif property.codegen_properties.svg:
-                self._generate_svg_property_value_serialization_getter(to, property)
             else:
                 self._generate_property_value_serialization_getter(to, property)
 
@@ -5313,9 +5276,7 @@ class GenerateStyleInterpolationWrapperMap:
         if property.codegen_properties.animation_wrapper is not None:
             property_wrapper_type = property.codegen_properties.animation_wrapper
         elif property.animation_type == 'discrete':
-            if property.codegen_properties.svg:
-                property_wrapper_type = 'DiscreteSVGWrapper'
-            elif property.codegen_properties.font_property:
+            if property.codegen_properties.font_property:
                 property_wrapper_type = 'DiscreteFontDescriptionTypedWrapper'
             else:
                 property_wrapper_type = 'DiscreteWrapper'
@@ -5330,12 +5291,7 @@ class GenerateStyleInterpolationWrapperMap:
             property_wrapper_parameters = [property.id]
 
             # Compute style class.
-            if property.codegen_properties.svg and not property.codegen_properties.animation_wrapper_requires_render_style:
-                style_type = "SVGRenderStyle"
-                name_for_methods = property.codegen_properties.render_style_name_for_methods
-                getter = property.codegen_properties.render_style_getter
-                setter = property.codegen_properties.render_style_setter
-            elif property.codegen_properties.font_property and not property.codegen_properties.animation_wrapper_requires_render_style:
+            if property.codegen_properties.font_property and not property.codegen_properties.animation_wrapper_requires_render_style:
                 style_type = "FontCascadeDescription"
                 name_for_methods = property.codegen_properties.font_description_name_for_methods
                 getter = property.codegen_properties.font_description_getter

@@ -844,7 +844,7 @@ inline void BuilderCustom::applyValueWebkitTextZoom(BuilderState& builderState, 
 #if ENABLE(DARK_MODE_CSS)
 inline void BuilderCustom::applyValueColorScheme(BuilderState& builderState, CSSValue& value)
 {
-    builderState.style().setColorScheme(BuilderConverter::convertStyleType<ColorScheme>(builderState, value));
+    builderState.style().setColorScheme(toStyleFromCSSValue<ColorScheme>(builderState, value));
     builderState.style().setHasExplicitlySetColorScheme();
 }
 #endif
@@ -941,7 +941,7 @@ inline void BuilderCustom::applyInheritBorderBottomLeftRadius(BuilderState& buil
 
 inline void BuilderCustom::applyValueBorderBottomLeftRadius(BuilderState& builderState, CSSValue& value)
 {
-    builderState.style().setBorderBottomLeftRadius(BuilderConverter::convertStyleType<BorderRadiusValue>(builderState, value));
+    builderState.style().setBorderBottomLeftRadius(toStyleFromCSSValue<BorderRadiusValue>(builderState, value));
     builderState.style().setHasExplicitlySetBorderBottomLeftRadius(true);
 }
 
@@ -959,7 +959,7 @@ inline void BuilderCustom::applyInheritBorderBottomRightRadius(BuilderState& bui
 
 inline void BuilderCustom::applyValueBorderBottomRightRadius(BuilderState& builderState, CSSValue& value)
 {
-    builderState.style().setBorderBottomRightRadius(BuilderConverter::convertStyleType<BorderRadiusValue>(builderState, value));
+    builderState.style().setBorderBottomRightRadius(toStyleFromCSSValue<BorderRadiusValue>(builderState, value));
     builderState.style().setHasExplicitlySetBorderBottomRightRadius(true);
 }
 
@@ -977,7 +977,7 @@ inline void BuilderCustom::applyInheritBorderTopLeftRadius(BuilderState& builder
 
 inline void BuilderCustom::applyValueBorderTopLeftRadius(BuilderState& builderState, CSSValue& value)
 {
-    builderState.style().setBorderTopLeftRadius(BuilderConverter::convertStyleType<BorderRadiusValue>(builderState, value));
+    builderState.style().setBorderTopLeftRadius(toStyleFromCSSValue<BorderRadiusValue>(builderState, value));
     builderState.style().setHasExplicitlySetBorderTopLeftRadius(true);
 }
 
@@ -995,7 +995,7 @@ inline void BuilderCustom::applyInheritBorderTopRightRadius(BuilderState& builde
 
 inline void BuilderCustom::applyValueBorderTopRightRadius(BuilderState& builderState, CSSValue& value)
 {
-    builderState.style().setBorderTopRightRadius(BuilderConverter::convertStyleType<BorderRadiusValue>(builderState, value));
+    builderState.style().setBorderTopRightRadius(toStyleFromCSSValue<BorderRadiusValue>(builderState, value));
     builderState.style().setHasExplicitlySetBorderTopRightRadius(true);
 }
 
@@ -1101,60 +1101,60 @@ inline void BuilderCustom::applyValueCounterSet(BuilderState& builderState, CSSV
 
 inline void BuilderCustom::applyInitialFill(BuilderState& builderState)
 {
-    auto& svgStyle = builderState.style().accessSVGStyle();
+    auto& style = builderState.style();
     if (builderState.applyPropertyToRegularStyle())
-        svgStyle.setFill(SVGRenderStyle::initialFill());
+        style.setFill(RenderStyle::initialFill());
     if (builderState.applyPropertyToVisitedLinkStyle())
-        svgStyle.setVisitedLinkFill(SVGRenderStyle::initialFill());
+        style.setVisitedLinkFill(RenderStyle::initialFill());
 }
 
 inline void BuilderCustom::applyInheritFill(BuilderState& builderState)
 {
-    auto& svgStyle = builderState.style().accessSVGStyle();
-    auto& svgParentStyle = builderState.parentStyle().svgStyle();
+    auto& style = builderState.style();
+    auto& parentStyle = builderState.parentStyle();
 
     if (builderState.applyPropertyToRegularStyle())
-        svgStyle.setFill(forwardInheritedValue(svgParentStyle.fill()));
+        style.setFill(forwardInheritedValue(parentStyle.fill()));
     if (builderState.applyPropertyToVisitedLinkStyle())
-        svgStyle.setVisitedLinkFill(forwardInheritedValue(svgParentStyle.fill()));
+        style.setVisitedLinkFill(forwardInheritedValue(parentStyle.fill()));
 }
 
 inline void BuilderCustom::applyValueFill(BuilderState& builderState, CSSValue& value)
 {
-    auto& svgStyle = builderState.style().accessSVGStyle();
+    auto& style = builderState.style();
     if (builderState.applyPropertyToRegularStyle())
-        svgStyle.setFill(BuilderConverter::convertStyleType<SVGPaint>(builderState, value, ForVisitedLink::No));
+        style.setFill(toStyleFromCSSValue<SVGPaint>(builderState, value, ForVisitedLink::No));
     if (builderState.applyPropertyToVisitedLinkStyle())
-        svgStyle.setVisitedLinkFill(BuilderConverter::convertStyleType<SVGPaint>(builderState, value, ForVisitedLink::Yes));
+        style.setVisitedLinkFill(toStyleFromCSSValue<SVGPaint>(builderState, value, ForVisitedLink::Yes));
 }
 
 inline void BuilderCustom::applyInitialStroke(BuilderState& builderState)
 {
-    auto& svgStyle = builderState.style().accessSVGStyle();
+    auto& style = builderState.style();
     if (builderState.applyPropertyToRegularStyle())
-        svgStyle.setStroke(SVGRenderStyle::initialStroke());
+        style.setStroke(RenderStyle::initialStroke());
     if (builderState.applyPropertyToVisitedLinkStyle())
-        svgStyle.setVisitedLinkStroke(SVGRenderStyle::initialStroke());
+        style.setVisitedLinkStroke(RenderStyle::initialStroke());
 }
 
 inline void BuilderCustom::applyInheritStroke(BuilderState& builderState)
 {
-    auto& svgStyle = builderState.style().accessSVGStyle();
-    auto& svgParentStyle = builderState.parentStyle().svgStyle();
+    auto& style = builderState.style();
+    auto& parentStyle = builderState.parentStyle();
 
     if (builderState.applyPropertyToRegularStyle())
-        svgStyle.setStroke(forwardInheritedValue(svgParentStyle.stroke()));
+        style.setStroke(forwardInheritedValue(parentStyle.stroke()));
     if (builderState.applyPropertyToVisitedLinkStyle())
-        svgStyle.setVisitedLinkStroke(forwardInheritedValue(svgParentStyle.stroke()));
+        style.setVisitedLinkStroke(forwardInheritedValue(parentStyle.stroke()));
 }
 
 inline void BuilderCustom::applyValueStroke(BuilderState& builderState, CSSValue& value)
 {
-    auto& svgStyle = builderState.style().accessSVGStyle();
+    auto& style = builderState.style();
     if (builderState.applyPropertyToRegularStyle())
-        svgStyle.setStroke(BuilderConverter::convertStyleType<SVGPaint>(builderState, value, ForVisitedLink::No));
+        style.setStroke(toStyleFromCSSValue<SVGPaint>(builderState, value, ForVisitedLink::No));
     if (builderState.applyPropertyToVisitedLinkStyle())
-        svgStyle.setVisitedLinkStroke(BuilderConverter::convertStyleType<SVGPaint>(builderState, value, ForVisitedLink::Yes));
+        style.setVisitedLinkStroke(toStyleFromCSSValue<SVGPaint>(builderState, value, ForVisitedLink::Yes));
 }
 
 inline void BuilderCustom::applyInheritFontVariantLigatures(BuilderState& builderState)
@@ -1499,7 +1499,7 @@ inline void BuilderCustom::applyInheritPaddingBottom(BuilderState& builderState)
 
 inline void BuilderCustom::applyValuePaddingBottom(BuilderState& builderState, CSSValue& value)
 {
-    builderState.style().setPaddingBottom(BuilderConverter::convertStyleType<PaddingEdge>(builderState, value));
+    builderState.style().setPaddingBottom(toStyleFromCSSValue<PaddingEdge>(builderState, value));
     builderState.style().setHasExplicitlySetPaddingBottom(builderState.isAuthorOrigin());
 }
 
@@ -1517,7 +1517,7 @@ inline void BuilderCustom::applyInheritPaddingLeft(BuilderState& builderState)
 
 inline void BuilderCustom::applyValuePaddingLeft(BuilderState& builderState, CSSValue& value)
 {
-    builderState.style().setPaddingLeft(BuilderConverter::convertStyleType<PaddingEdge>(builderState, value));
+    builderState.style().setPaddingLeft(toStyleFromCSSValue<PaddingEdge>(builderState, value));
     builderState.style().setHasExplicitlySetPaddingLeft(builderState.isAuthorOrigin());
 }
 
@@ -1535,7 +1535,7 @@ inline void BuilderCustom::applyInheritPaddingRight(BuilderState& builderState)
 
 inline void BuilderCustom::applyValuePaddingRight(BuilderState& builderState, CSSValue& value)
 {
-    builderState.style().setPaddingRight(BuilderConverter::convertStyleType<PaddingEdge>(builderState, value));
+    builderState.style().setPaddingRight(toStyleFromCSSValue<PaddingEdge>(builderState, value));
     builderState.style().setHasExplicitlySetPaddingRight(builderState.isAuthorOrigin());
 }
 
@@ -1553,7 +1553,7 @@ inline void BuilderCustom::applyInheritPaddingTop(BuilderState& builderState)
 
 inline void BuilderCustom::applyValuePaddingTop(BuilderState& builderState, CSSValue& value)
 {
-    builderState.style().setPaddingTop(BuilderConverter::convertStyleType<PaddingEdge>(builderState, value));
+    builderState.style().setPaddingTop(toStyleFromCSSValue<PaddingEdge>(builderState, value));
     builderState.style().setHasExplicitlySetPaddingTop(builderState.isAuthorOrigin());
 }
 

@@ -33,9 +33,9 @@
 #include "RenderObjectDocument.h"
 #include "RenderSVGInlineText.h"
 #include "RenderSVGText.h"
+#include "RenderStyleInlines.h"
 #include "SVGInlineTextBox.h"
 #include "SVGPaintServerHandling.h"
-#include "SVGRenderStyle.h"
 #include "SVGResourcesCache.h"
 #include "SVGTextFragment.h"
 #include "Settings.h"
@@ -189,9 +189,7 @@ void SVGTextBoxPainter<TextBoxPath>::paint()
 
     auto& style = parentRenderer.style();
 
-    const SVGRenderStyle& svgStyle = style.svgStyle();
-
-    bool hasFill = svgStyle.hasFill();
+    bool hasFill = style.hasFill();
     bool hasVisibleStroke = style.hasVisibleStroke();
 
     const RenderStyle* selectionStyle = &style;
@@ -199,7 +197,7 @@ void SVGTextBoxPainter<TextBoxPath>::paint()
         selectionStyle = parentRenderer.getCachedPseudoStyle({ PseudoId::Selection });
         if (selectionStyle) {
             if (!hasFill)
-                hasFill = selectionStyle->svgStyle().hasFill();
+                hasFill = selectionStyle->hasFill();
             if (!hasVisibleStroke)
                 hasVisibleStroke = selectionStyle->hasVisibleStroke();
         } else
@@ -283,7 +281,7 @@ bool SVGTextBoxPainter<TextBoxPath>::acquirePaintingResource(SVGPaintServerHandl
         context.save();
         context.setTextDrawingMode(TextDrawingMode::Stroke);
 
-        if (style.svgStyle().vectorEffect() == VectorEffect::NonScalingStroke) {
+        if (style.vectorEffect() == VectorEffect::NonScalingStroke) {
             if (style.fontDescription().textRenderingMode() == TextRenderingMode::GeometricPrecision)
                 scalingFactor = 1.0 / RenderSVGInlineText::computeScalingFactorForRenderer(renderer);
             else
@@ -351,7 +349,7 @@ bool SVGTextBoxPainter<TextBoxPath>::acquireLegacyPaintingResource(GraphicsConte
     }
 
     if (paintingResourceMode().contains(RenderSVGResourceMode::ApplyToStroke)) {
-        if (style.svgStyle().vectorEffect() == VectorEffect::NonScalingStroke) {
+        if (style.vectorEffect() == VectorEffect::NonScalingStroke) {
             if (style.fontDescription().textRenderingMode() == TextRenderingMode::GeometricPrecision)
                 scalingFactor = 1.0 / RenderSVGInlineText::computeScalingFactorForRenderer(renderer);
             else
@@ -453,12 +451,10 @@ void SVGTextBoxPainter<TextBoxPath>::paintDecoration(Style::TextDecorationLine d
     if (decorationStyle.usedVisibility() == Visibility::Hidden)
         return;
 
-    const SVGRenderStyle& svgDecorationStyle = decorationStyle.svgStyle();
-
     for (auto type : RenderStyle::paintTypesForPaintOrder(renderer().style().paintOrder())) {
         switch (type) {
         case PaintType::Fill:
-            if (svgDecorationStyle.hasFill()) {
+            if (decorationStyle.hasFill()) {
                 m_paintingResourceMode = RenderSVGResourceMode::ApplyToFill;
                 paintDecorationWithStyle(decoration, fragment, *decorationRenderer);
             }

@@ -23,7 +23,6 @@
 #include "RenderSVGModelObjectInlines.h"
 #include "RenderSVGResourceGradientInlines.h"
 #include "RenderSVGShape.h"
-#include "SVGRenderStyle.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {
@@ -95,9 +94,8 @@ bool RenderSVGResourceGradient::prepareFillOperation(GraphicsContext& context, c
     if (!buildGradientIfNeeded(targetRenderer, style, userspaceTransform))
         return false;
 
-    Ref svgStyle = style.svgStyle();
-    context.setAlpha(svgStyle->fillOpacity().value.value);
-    context.setFillRule(svgStyle->fillRule());
+    context.setAlpha(style.fillOpacity().value.value);
+    context.setFillRule(style.fillRule());
     context.setFillGradient(m_gradient.copyRef().releaseNonNull(), userspaceTransform);
     return true;
 }
@@ -108,13 +106,12 @@ bool RenderSVGResourceGradient::prepareStrokeOperation(GraphicsContext& context,
     if (!buildGradientIfNeeded(targetRenderer, style, userspaceTransform))
         return false;
 
-    Ref svgStyle = style.svgStyle();
-    if (svgStyle->vectorEffect() == VectorEffect::NonScalingStroke) {
+    if (style.vectorEffect() == VectorEffect::NonScalingStroke) {
         if (CheckedPtr shape = dynamicDowncast<RenderSVGShape>(targetRenderer))
             userspaceTransform = shape->nonScalingStrokeTransform() * userspaceTransform;
     }
 
-    context.setAlpha(svgStyle->strokeOpacity().value.value);
+    context.setAlpha(style.strokeOpacity().value.value);
     SVGRenderSupport::applyStrokeStyleToContext(context, style, targetRenderer);
     context.setStrokeGradient(m_gradient.copyRef().releaseNonNull(), userspaceTransform);
     return true;

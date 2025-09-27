@@ -36,6 +36,7 @@ namespace WebCore {
 #define SET(group, variable, value) SET_STYLE_PROPERTY(group->variable, group.access().variable, value)
 #define SET_NESTED(group, parent, variable, value) SET_STYLE_PROPERTY(group->parent->variable, group.access().parent.access().variable, value)
 #define SET_DOUBLY_NESTED(group, grandparent, parent, variable, value) SET_STYLE_PROPERTY(group->grandparent->parent->variable, group.access().grandparent.access().parent.access().variable, value)
+#define SET_NESTED_STRUCT(group, parent, variable, value) SET_STYLE_PROPERTY(group->parent.variable, group.access().parent.variable, value)
 
 #define SET_STYLE_PROPERTY_PAIR(read, write, variable1, value1, variable2, value2) do { auto& readable = *read; if (!compareEqual(readable.variable1, value1) || !compareEqual(readable.variable2, value2)) { auto& writable = write; writable.variable1 = value1; writable.variable2 = value2; } } while (0)
 
@@ -399,8 +400,49 @@ inline void RenderStyle::setTapHighlightColor(Style::Color&& color) { SET(m_rare
 #endif
 
 inline void RenderStyle::setInsideDefaultButton(bool value) { SET(m_rareInheritedData, insideDefaultButton, value); }
-
 inline void RenderStyle::setInsideSubmitButton(bool value) { SET(m_rareInheritedData, insideSubmitButton, value); }
+
+inline void RenderStyle::setAlignmentBaseline(AlignmentBaseline val) { SET_NESTED_STRUCT(m_svgStyle, nonInheritedFlags, alignmentBaseline, static_cast<unsigned>(val)); }
+inline void RenderStyle::setDominantBaseline(DominantBaseline val) { SET_NESTED_STRUCT(m_svgStyle, nonInheritedFlags, dominantBaseline, static_cast<unsigned>(val)); }
+inline void RenderStyle::setVectorEffect(VectorEffect val) { SET_NESTED_STRUCT(m_svgStyle, nonInheritedFlags, vectorEffect, static_cast<unsigned>(val)); }
+inline void RenderStyle::setBufferedRendering(BufferedRendering val) { SET_NESTED_STRUCT(m_svgStyle, nonInheritedFlags, bufferedRendering, static_cast<unsigned>(val)); }
+inline void RenderStyle::setMaskType(MaskType val) { SET_NESTED_STRUCT(m_svgStyle, nonInheritedFlags, maskType, static_cast<unsigned>(val)); }
+
+inline void RenderStyle::setClipRule(WindRule val) { SET_NESTED_STRUCT(m_svgStyle, inheritedFlags, clipRule, static_cast<unsigned>(val)); }
+inline void RenderStyle::setColorInterpolation(ColorInterpolation val) { SET_NESTED_STRUCT(m_svgStyle, inheritedFlags, colorInterpolation, static_cast<unsigned>(val)); }
+inline void RenderStyle::setColorInterpolationFilters(ColorInterpolation val) { SET_NESTED_STRUCT(m_svgStyle, inheritedFlags, colorInterpolationFilters, static_cast<unsigned>(val)); }
+inline void RenderStyle::setFillRule(WindRule val) { SET_NESTED_STRUCT(m_svgStyle, inheritedFlags, fillRule, static_cast<unsigned>(val)); }
+inline void RenderStyle::setShapeRendering(ShapeRendering val) { SET_NESTED_STRUCT(m_svgStyle, inheritedFlags, shapeRendering, static_cast<unsigned>(val)); }
+inline void RenderStyle::setTextAnchor(TextAnchor val) { SET_NESTED_STRUCT(m_svgStyle, inheritedFlags, textAnchor, static_cast<unsigned>(val)); }
+inline void RenderStyle::setGlyphOrientationHorizontal(GlyphOrientation val) { SET_NESTED_STRUCT(m_svgStyle, inheritedFlags, glyphOrientationHorizontal, static_cast<unsigned>(val)); }
+inline void RenderStyle::setGlyphOrientationVertical(GlyphOrientation val) { SET_NESTED_STRUCT(m_svgStyle, inheritedFlags, glyphOrientationVertical, static_cast<unsigned>(val)); }
+
+inline void RenderStyle::setBaselineShift(Style::SVGBaselineShift&& baselineShift) { SET_NESTED(m_svgStyle, miscData, baselineShift, WTFMove(baselineShift)); }
+inline void RenderStyle::setCx(Style::SVGCenterCoordinateComponent&& cx) { SET_NESTED(m_svgStyle, layoutData, cx, WTFMove(cx)); }
+inline void RenderStyle::setCy(Style::SVGCenterCoordinateComponent&& cy) { SET_NESTED(m_svgStyle, layoutData, cy, WTFMove(cy)); }
+inline void RenderStyle::setD(Style::SVGPathData&& d) { SET_NESTED(m_svgStyle, layoutData, d, WTFMove(d)); }
+inline void RenderStyle::setFillOpacity(Style::Opacity opacity) { SET_NESTED(m_svgStyle, fillData, opacity, opacity); }
+inline void RenderStyle::setFill(Style::SVGPaint&& paint) { SET_NESTED(m_svgStyle, fillData, paint, WTFMove(paint)); }
+inline void RenderStyle::setVisitedLinkFill(Style::SVGPaint&& paint) { SET_NESTED(m_svgStyle, fillData, visitedLinkPaint, WTFMove(paint)); }
+inline void RenderStyle::setFloodColor(Style::Color&& color) { SET_NESTED(m_svgStyle, miscData, floodColor, WTFMove(color)); }
+inline void RenderStyle::setFloodOpacity(Style::Opacity opacity) { SET_NESTED(m_svgStyle, miscData, floodOpacity, opacity); }
+inline void RenderStyle::setLightingColor(Style::Color&& color) { SET_NESTED(m_svgStyle, miscData, lightingColor, WTFMove(color)); }
+inline void RenderStyle::setR(Style::SVGRadius&& r) { SET_NESTED(m_svgStyle, layoutData, r, WTFMove(r)); }
+inline void RenderStyle::setRx(Style::SVGRadiusComponent&& rx) { SET_NESTED(m_svgStyle, layoutData, rx, WTFMove(rx)); }
+inline void RenderStyle::setRy(Style::SVGRadiusComponent&& ry) { SET_NESTED(m_svgStyle, layoutData, ry, WTFMove(ry)); }
+inline void RenderStyle::setStopColor(Style::Color&& c) { SET_NESTED(m_svgStyle, stopData, color, WTFMove(c)); }
+inline void RenderStyle::setStopOpacity(Style::Opacity opacity) { SET_NESTED(m_svgStyle, stopData, opacity, opacity); }
+inline void RenderStyle::setStrokeDashArray(Style::SVGStrokeDasharray&& array) { SET_NESTED(m_svgStyle, strokeData, dashArray, WTFMove(array)); }
+inline void RenderStyle::setStrokeDashOffset(Style::SVGStrokeDashoffset&& offset) { SET_NESTED(m_svgStyle, strokeData, dashOffset, WTFMove(offset)); }
+inline void RenderStyle::setStrokeOpacity(Style::Opacity opacity) { SET_NESTED(m_svgStyle, strokeData, opacity, opacity); }
+inline void RenderStyle::setStroke(Style::SVGPaint&& paint) { SET_NESTED(m_svgStyle, strokeData, paint, WTFMove(paint)); }
+inline void RenderStyle::setVisitedLinkStroke(Style::SVGPaint&& paint) { SET_NESTED(m_svgStyle, strokeData, visitedLinkPaint, WTFMove(paint)); }
+inline void RenderStyle::setX(Style::SVGCoordinateComponent&& x) { SET_NESTED(m_svgStyle, layoutData, x, WTFMove(x)); }
+inline void RenderStyle::setY(Style::SVGCoordinateComponent&& y) { SET_NESTED(m_svgStyle, layoutData, y, WTFMove(y)); }
+
+inline void RenderStyle::setMarkerStart(Style::SVGMarkerResource&& marker) { SET_NESTED(m_svgStyle, inheritedResourceData, markerStart, WTFMove(marker)); }
+inline void RenderStyle::setMarkerMid(Style::SVGMarkerResource&& marker) { SET_NESTED(m_svgStyle, inheritedResourceData, markerMid, WTFMove(marker)); }
+inline void RenderStyle::setMarkerEnd(Style::SVGMarkerResource&& marker) { SET_NESTED(m_svgStyle, inheritedResourceData, markerEnd, WTFMove(marker)); }
 
 inline void RenderStyle::NonInheritedFlags::setHasPseudoStyles(PseudoIdSet pseudoIdSet)
 {
@@ -600,6 +642,7 @@ inline void RenderStyle::setAutoRevealsWhenFound() { SET(m_rareInheritedData, au
 #undef SET_DOUBLY_NESTED_PAIR
 #undef SET_NESTED
 #undef SET_NESTED_PAIR
+#undef SET_NESTED_STRUCT
 #undef SET_PAIR
 #undef SET_STYLE_PROPERTY
 #undef SET_STYLE_PROPERTY_BASE

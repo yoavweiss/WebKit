@@ -48,7 +48,6 @@
 #include "PathOperation.h"
 #include "RenderBox.h"
 #include "RenderStyleSetters.h"
-#include "SVGRenderStyle.h"
 #include "ScopedName.h"
 #include "Settings.h"
 #include "StyleDynamicRangeLimit.h"

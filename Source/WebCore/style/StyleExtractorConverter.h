@@ -72,7 +72,6 @@
 #include "RenderGrid.h"
 #include "RenderInline.h"
 #include "RenderStyleInlines.h"
-#include "SVGRenderStyle.h"
 #include "ScrollTimeline.h"
 #include "SkewTransformOperation.h"
 #include "StyleClipPath.h"

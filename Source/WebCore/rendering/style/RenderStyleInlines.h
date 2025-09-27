@@ -34,6 +34,7 @@
 #include <WebCore/PositionArea.h>
 #include <WebCore/PositionTryOrder.h>
 #include <WebCore/RenderStyle.h>
+#include <WebCore/SVGRenderStyle.h>
 #include <WebCore/ScrollTypes.h>
 #include <WebCore/StyleAppearance.h>
 #include <WebCore/StyleAppleColorFilterData.h>
@@ -907,8 +908,90 @@ inline Style::Color RenderStyle::tapHighlightColor() const { return m_rareInheri
 #endif
 
 inline bool RenderStyle::insideDefaultButton() const { return m_rareInheritedData->insideDefaultButton; }
-
 inline bool RenderStyle::insideSubmitButton() const { return m_rareInheritedData->insideSubmitButton; }
+
+inline const Style::StrokeWidth& RenderStyle::strokeWidth() const { return m_rareInheritedData->strokeWidth; }
+inline bool RenderStyle::hasExplicitlySetStrokeWidth() const { return m_rareInheritedData->hasSetStrokeWidth; }
+inline bool RenderStyle::hasVisibleStroke() const { return hasStroke() && !strokeWidth().isZero(); }
+inline bool RenderStyle::hasStroke() const { return !stroke().isNone(); }
+inline bool RenderStyle::hasFill() const { return !fill().isNone(); }
+inline bool RenderStyle::hasMarkers() const { return !markerStart().isNone() || !markerMid().isNone() || !markerEnd().isNone(); }
+
+inline AlignmentBaseline RenderStyle::alignmentBaseline() const { return static_cast<AlignmentBaseline>(m_svgStyle->nonInheritedFlags.alignmentBaseline); }
+inline DominantBaseline RenderStyle::dominantBaseline() const { return static_cast<DominantBaseline>(m_svgStyle->nonInheritedFlags.dominantBaseline); }
+inline VectorEffect RenderStyle::vectorEffect() const { return static_cast<VectorEffect>(m_svgStyle->nonInheritedFlags.vectorEffect); }
+inline BufferedRendering RenderStyle::bufferedRendering() const { return static_cast<BufferedRendering>(m_svgStyle->nonInheritedFlags.bufferedRendering); }
+inline WindRule RenderStyle::clipRule() const { return static_cast<WindRule>(m_svgStyle->inheritedFlags.clipRule); }
+inline ColorInterpolation RenderStyle::colorInterpolation() const { return static_cast<ColorInterpolation>(m_svgStyle->inheritedFlags.colorInterpolation); }
+inline ColorInterpolation RenderStyle::colorInterpolationFilters() const { return static_cast<ColorInterpolation>(m_svgStyle->inheritedFlags.colorInterpolationFilters); }
+inline WindRule RenderStyle::fillRule() const { return static_cast<WindRule>(m_svgStyle->inheritedFlags.fillRule); }
+inline ShapeRendering RenderStyle::shapeRendering() const { return static_cast<ShapeRendering>(m_svgStyle->inheritedFlags.shapeRendering); }
+inline TextAnchor RenderStyle::textAnchor() const { return static_cast<TextAnchor>(m_svgStyle->inheritedFlags.textAnchor); }
+inline GlyphOrientation RenderStyle::glyphOrientationHorizontal() const { return static_cast<GlyphOrientation>(m_svgStyle->inheritedFlags.glyphOrientationHorizontal); }
+inline GlyphOrientation RenderStyle::glyphOrientationVertical() const { return static_cast<GlyphOrientation>(m_svgStyle->inheritedFlags.glyphOrientationVertical); }
+inline const Style::SVGPaint& RenderStyle::fill() const { return m_svgStyle->fillData->paint; }
+inline Style::Opacity RenderStyle::fillOpacity() const { return m_svgStyle->fillData->opacity; }
+inline const Style::SVGPaint& RenderStyle::stroke() const { return m_svgStyle->strokeData->paint; }
+inline Style::Opacity RenderStyle::strokeOpacity() const { return m_svgStyle->strokeData->opacity; }
+inline const Style::SVGStrokeDasharray& RenderStyle::strokeDashArray() const { return m_svgStyle->strokeData->dashArray; }
+inline const Style::SVGStrokeDashoffset& RenderStyle::strokeDashOffset() const { return m_svgStyle->strokeData->dashOffset; }
+inline Style::Opacity RenderStyle::stopOpacity() const { return m_svgStyle->stopData->opacity; }
+inline const Style::Color& RenderStyle::stopColor() const { return m_svgStyle->stopData->color; }
+inline Style::Opacity RenderStyle::floodOpacity() const { return m_svgStyle->miscData->floodOpacity; }
+inline const Style::Color& RenderStyle::floodColor() const { return m_svgStyle->miscData->floodColor; }
+inline const Style::Color& RenderStyle::lightingColor() const { return m_svgStyle->miscData->lightingColor; }
+inline const Style::SVGBaselineShift& RenderStyle::baselineShift() const { return m_svgStyle->miscData->baselineShift; }
+inline const Style::SVGCenterCoordinateComponent& RenderStyle::cx() const { return m_svgStyle->layoutData->cx; }
+inline const Style::SVGCenterCoordinateComponent& RenderStyle::cy() const { return m_svgStyle->layoutData->cy; }
+inline const Style::SVGRadius& RenderStyle::r() const { return m_svgStyle->layoutData->r; }
+inline const Style::SVGRadiusComponent& RenderStyle::rx() const { return m_svgStyle->layoutData->rx; }
+inline const Style::SVGRadiusComponent& RenderStyle::ry() const { return m_svgStyle->layoutData->ry; }
+inline const Style::SVGCoordinateComponent& RenderStyle::x() const { return m_svgStyle->layoutData->x; }
+inline const Style::SVGCoordinateComponent& RenderStyle::y() const { return m_svgStyle->layoutData->y; }
+inline const Style::SVGPathData& RenderStyle::d() const { return m_svgStyle->layoutData->d; }
+inline const Style::SVGMarkerResource& RenderStyle::markerStart() const { return m_svgStyle->inheritedResourceData->markerStart; }
+inline const Style::SVGMarkerResource& RenderStyle::markerMid() const { return m_svgStyle->inheritedResourceData->markerMid; }
+inline const Style::SVGMarkerResource& RenderStyle::markerEnd() const { return m_svgStyle->inheritedResourceData->markerEnd; }
+inline MaskType RenderStyle::maskType() const { return static_cast<MaskType>(m_svgStyle->nonInheritedFlags.maskType); }
+inline const Style::SVGPaint& RenderStyle::visitedLinkFill() const { return m_svgStyle->fillData->visitedLinkPaint; }
+inline const Style::SVGPaint& RenderStyle::visitedLinkStroke() const { return m_svgStyle->strokeData->visitedLinkPaint; }
+
+inline Style::SVGCenterCoordinateComponent RenderStyle::initialCx() { return 0_css_px; }
+inline Style::SVGCenterCoordinateComponent RenderStyle::initialCy() { return 0_css_px; }
+inline Style::SVGPathData RenderStyle::initialD() { return CSS::Keyword::None { }; }
+inline Style::SVGRadius RenderStyle::initialR() { return 0_css_px; }
+inline Style::SVGRadiusComponent RenderStyle::initialRx() { return CSS::Keyword::Auto { }; }
+inline Style::SVGRadiusComponent RenderStyle::initialRy() { return CSS::Keyword::Auto { }; }
+inline Style::SVGCoordinateComponent RenderStyle::initialX() { return 0_css_px; }
+inline Style::SVGCoordinateComponent RenderStyle::initialY() { return 0_css_px; }
+inline Style::SVGStrokeDasharray RenderStyle::initialStrokeDashArray() { return CSS::Keyword::None { }; }
+inline Style::SVGStrokeDashoffset RenderStyle::initialStrokeDashOffset() { return 0_css_px; }
+constexpr Style::Opacity RenderStyle::initialFillOpacity() { return 1_css_number; }
+constexpr Style::Opacity RenderStyle::initialStrokeOpacity() { return 1_css_number; }
+constexpr Style::Opacity RenderStyle::initialStopOpacity() { return 1_css_number; }
+constexpr Style::Opacity RenderStyle::initialFloodOpacity() { return 1_css_number; }
+constexpr AlignmentBaseline RenderStyle::initialAlignmentBaseline() { return AlignmentBaseline::Baseline; }
+constexpr DominantBaseline RenderStyle::initialDominantBaseline() { return DominantBaseline::Auto; }
+constexpr VectorEffect RenderStyle::initialVectorEffect() { return VectorEffect::None; }
+constexpr BufferedRendering RenderStyle::initialBufferedRendering() { return BufferedRendering::Auto; }
+constexpr WindRule RenderStyle::initialClipRule() { return WindRule::NonZero; }
+constexpr ColorInterpolation RenderStyle::initialColorInterpolation() { return ColorInterpolation::SRGB; }
+constexpr ColorInterpolation RenderStyle::initialColorInterpolationFilters() { return ColorInterpolation::LinearRGB; }
+constexpr WindRule RenderStyle::initialFillRule() { return WindRule::NonZero; }
+constexpr ShapeRendering RenderStyle::initialShapeRendering() { return ShapeRendering::Auto; }
+constexpr TextAnchor RenderStyle::initialTextAnchor() { return TextAnchor::Start; }
+constexpr GlyphOrientation RenderStyle::initialGlyphOrientationHorizontal() { return GlyphOrientation::Degrees0; }
+constexpr GlyphOrientation RenderStyle::initialGlyphOrientationVertical() { return GlyphOrientation::Auto; }
+inline Style::SVGPaint RenderStyle::initialFill() { return Style::Color { Color::black }; }
+inline Style::SVGPaint RenderStyle::initialStroke() { return CSS::Keyword::None { }; }
+inline Style::Color RenderStyle::initialStopColor() { return Color::black; }
+inline Style::Color RenderStyle::initialFloodColor() { return Color::black; }
+inline Style::Color RenderStyle::initialLightingColor() { return Color::white; }
+inline Style::SVGMarkerResource RenderStyle::initialMarkerStart() { return CSS::Keyword::None { }; }
+inline Style::SVGMarkerResource RenderStyle::initialMarkerMid() { return CSS::Keyword::None { }; }
+inline Style::SVGMarkerResource RenderStyle::initialMarkerEnd() { return CSS::Keyword::None { }; }
+constexpr MaskType RenderStyle::initialMaskType() { return MaskType::Luminance; }
+inline Style::SVGBaselineShift RenderStyle::initialBaselineShift() { return CSS::Keyword::Baseline { }; }
 
 inline bool RenderStyle::NonInheritedFlags::hasPseudoStyle(PseudoId pseudo) const
 {

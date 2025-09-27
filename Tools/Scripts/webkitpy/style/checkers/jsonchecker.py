@@ -450,7 +450,6 @@ class JSONCSSPropertiesChecker(JSONChecker):
             'style-extractor-converter': self.validate_string,
             'style-extractor-converter-comment': self.validate_comment,
             'style-extractor-custom': self.validate_boolean,
-            'svg': self.validate_boolean,
             'top-priority': self.validate_boolean,
             'top-priority-reason': self.validate_string,
             'visited-link-color-support': self.validate_boolean,

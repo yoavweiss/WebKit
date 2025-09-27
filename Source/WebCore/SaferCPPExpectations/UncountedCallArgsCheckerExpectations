@@ -806,7 +806,6 @@ rendering/shapes/ShapeOutsideInfo.h
 rendering/style/RenderStyle.cpp
 rendering/style/RenderStyleInlines.h
 rendering/style/SVGRenderStyle.cpp
-rendering/style/SVGRenderStyle.h
 rendering/style/StyleCachedImage.cpp
 rendering/style/StyleCanvasImage.cpp
 rendering/style/StyleCrossfadeImage.cpp
