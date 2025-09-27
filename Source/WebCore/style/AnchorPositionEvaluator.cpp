@@ -979,7 +979,7 @@ std::optional<double> AnchorPositionEvaluator::evaluateSize(BuilderState& builde
 static const RenderElement* penultimateContainingBlockChainElement(const RenderElement& descendant, const RenderElement* ancestor)
 {
     auto* currentElement = &descendant;
-    for (auto* nextElement = currentElement->containingBlock(); nextElement; nextElement = nextElement->containingBlock()) {
+    for (auto* nextElement = currentElement->container(); nextElement; nextElement = nextElement->container()) {
         if (nextElement == ancestor)
             return currentElement;
         currentElement = nextElement;
@@ -987,7 +987,7 @@ static const RenderElement* penultimateContainingBlockChainElement(const RenderE
     return nullptr;
 }
 
-static bool firstChildPrecedesSecondChild(const RenderObject* firstChild, const RenderObject* secondChild, const RenderBlock* containingBlock)
+static bool firstChildPrecedesSecondChild(const RenderObject* firstChild, const RenderObject* secondChild, const RenderObject* containingBlock)
 {
     HashSet<CheckedRef<const RenderObject>> firstAncestorChain;
 
@@ -1105,7 +1105,7 @@ static bool isAcceptableAnchorElement(const RenderBoxModelObject& anchorRenderer
             return false;
     }
 
-    CheckedPtr containingBlock = anchorPositionedRenderer->containingBlock();
+    CheckedPtr containingBlock = anchorPositionedRenderer->container();
     ASSERT(containingBlock);
 
     // "possible anchor is laid out strictly before positioned el, aka one of the following is true:"
