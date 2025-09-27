@@ -739,15 +739,12 @@ Vector<std::pair<size_t, size_t>> LineBuilder::collectShapeRanges(const LineCand
             type = ShapingType::Break;
             break;
         case InlineItem::Type::InlineBoxStart: {
+            [[fallthrough]];
+        case InlineItem::Type::InlineBoxEnd:
             auto& boxGeometry = formattingContext().geometryForBox(inlineItem.layoutBox());
-            auto hasDecoration = boxGeometry.marginStart() || boxGeometry.borderStart() || boxGeometry.paddingStart();
-            type = hasDecoration ? ShapingType::Break : ShapingType::Keep;
-            break;
-        }
-        case InlineItem::Type::InlineBoxEnd: {
-            auto& boxGeometry = formattingContext().geometryForBox(inlineItem.layoutBox());
-            auto hasDecoration = boxGeometry.marginEnd() || boxGeometry.borderEnd() || boxGeometry.paddingEnd();
-            type = hasDecoration ? ShapingType::Break : ShapingType::Keep;
+            auto hasDecoration = (inlineItem.type() == InlineItem::Type::InlineBoxStart) ? boxGeometry.marginStart() || boxGeometry.borderStart() || boxGeometry.paddingStart() : boxGeometry.marginEnd() || boxGeometry.borderEnd() || boxGeometry.paddingEnd();
+            auto hasBidiIsolation = isIsolated((isFirstFormattedLineCandidate ? inlineItem.firstLineStyle() : inlineItem.style()).unicodeBidi());
+            type = hasDecoration || hasBidiIsolation ? ShapingType::Break : ShapingType::Keep;
             break;
         }
         case InlineItem::Type::HardLineBreak:
@@ -816,15 +813,16 @@ Vector<std::pair<size_t, size_t>> LineBuilder::collectShapeRanges(const LineCand
             break;
         case ShapingType::Content: {
             auto& inlineTextItem = downcast<InlineTextItem>(runs[entry.index].inlineItem);
+            auto& styleToUse = isFirstFormattedLineCandidate ? inlineTextItem.firstLineStyle() : inlineTextItem.style();
             auto& inlineTextBox = inlineTextItem.inlineTextBox();
             auto isEligibleText = !inlineTextBox.canUseSimpleFontCodePath() && !inlineTextBox.isCombined() && inlineTextItem.direction() == TextDirection::RTL;
 
             if (!leadingContentRunIndex) {
                 if (isEligibleText)
                     leadingContentRunIndex = entry.index;
-                lastFontCascade = isFirstFormattedLineCandidate ? &inlineTextItem.firstLineStyle().fontCascade() : &inlineTextItem.style().fontCascade();
+                lastFontCascade = &styleToUse.fontCascade();
             } else if (hasBoundaryBetween) {
-                auto hasMatchingFontCascade = *lastFontCascade.get() == (isFirstFormattedLineCandidate ? inlineTextItem.firstLineStyle().fontCascade() : inlineTextItem.style().fontCascade());
+                auto hasMatchingFontCascade = *lastFontCascade.get() == styleToUse.fontCascade();
                 if (isEligibleText && hasMatchingFontCascade)
                     trailingContentRunIndex = entry.index;
                 else
