@@ -105,6 +105,7 @@ private:
 
     // Current ImageFrame
     bool currentFrameKnownToBeOpaque() const final { return !currentFrameHasAlpha(); }
+    bool currentFrameIsComplete() const final { return m_source->currentImageFrame().isComplete(); }
 
     // Current NativeImage
     RefPtr<NativeImage> currentPreTransformedNativeImage(ImageOrientation orientation) final { return m_source->currentPreTransformedNativeImage(orientation); }

@@ -84,6 +84,7 @@ public:
     virtual unsigned frameCount() const { return 1; }
 
     virtual bool currentFrameKnownToBeOpaque() const = 0;
+    virtual bool currentFrameIsComplete() const = 0;
     virtual bool isAnimated() const { return false; }
 
     // Derived classes should override this if their rendering could leak

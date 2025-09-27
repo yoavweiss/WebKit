@@ -766,6 +766,12 @@ bool CachedImage::currentFrameKnownToBeOpaque(const RenderElement* renderer)
     return image->currentFrameKnownToBeOpaque();
 }
 
+bool CachedImage::currentFrameIsComplete(const RenderElement* renderer)
+{
+    RefPtr image = imageForRenderer(renderer);
+    return image->currentFrameIsComplete();
+}
+
 bool CachedImage::isOriginClean(SecurityOrigin* origin)
 {
     ASSERT_UNUSED(origin, origin);
