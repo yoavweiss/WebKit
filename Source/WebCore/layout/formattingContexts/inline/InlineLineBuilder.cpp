@@ -742,7 +742,7 @@ Vector<std::pair<size_t, size_t>> LineBuilder::collectShapeRanges(const LineCand
             [[fallthrough]];
         case InlineItem::Type::InlineBoxEnd:
             auto& boxGeometry = formattingContext().geometryForBox(inlineItem.layoutBox());
-            auto hasDecoration = (inlineItem.type() == InlineItem::Type::InlineBoxStart) ? boxGeometry.marginStart() || boxGeometry.borderStart() || boxGeometry.paddingStart() : boxGeometry.marginEnd() || boxGeometry.borderEnd() || boxGeometry.paddingEnd();
+            auto hasDecoration = boxGeometry.horizontalMarginBorderAndPadding();
             auto hasBidiIsolation = isIsolated((isFirstFormattedLineCandidate ? inlineItem.firstLineStyle() : inlineItem.style()).unicodeBidi());
             type = hasDecoration || hasBidiIsolation ? ShapingType::Break : ShapingType::Keep;
             break;
