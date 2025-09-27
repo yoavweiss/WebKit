@@ -29,7 +29,9 @@
 #include "JSDOMPromise.h"
 #include "JSDOMPromiseDeferred.h"
 #include "JSReadableStreamDefaultReader.h"
+#include "JSReadableStreamReadResult.h"
 #include "ReadableStream.h"
+#include "ReadableStreamReadResult.h"
 
 namespace WebCore {
 

@@ -26,6 +26,9 @@
 #include "config.h"
 #include "ReadableStreamBYOBRequest.h"
 
+#include "ReadableByteStreamController.h"
+#include <JavaScriptCore/ArrayBufferView.h>
+
 namespace WebCore {
 
 Ref<ReadableStreamBYOBRequest> ReadableStreamBYOBRequest::create()
