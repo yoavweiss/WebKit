@@ -44,10 +44,10 @@
 #if PLATFORM(COCOA)
 #include "ClassMethodSwizzler.h"
 #include "InstanceMethodSwizzler.h"
-#if PLATFORM(MAC)
+#if !ENABLE(DNS_SERVER_FOR_TESTING_IN_NETWORKING_PROCESS)
 #include <pal/spi/cocoa/NetworkSPI.h>
 #include <wtf/OSObjectPtr.h>
-#endif
+#endif // !ENABLE(DNS_SERVER_FOR_TESTING_IN_NETWORKING_PROCESS)
 #endif // PLATFORM(COCOA)
 
 OBJC_CLASS NEPolicySession;
@@ -504,8 +504,8 @@ private:
 
 #if PLATFORM(COCOA)
     void cocoaPlatformInitialize(const Options&);
-#if PLATFORM(MAC)
-    void cocoaDNSInitialize();
+#if ENABLE(DNS_SERVER_FOR_TESTING) && !ENABLE(DNS_SERVER_FOR_TESTING_IN_NETWORKING_PROCESS)
+    void initializeDNS();
 #endif
     void cocoaResetStateToConsistentValues(const TestOptions&);
     void setApplicationBundleIdentifier(const std::string&);
@@ -835,10 +835,10 @@ private:
     
 #if PLATFORM(COCOA)
     bool m_hasSetApplicationBundleIdentifier { false };
-#if PLATFORM(MAC)
+#if !ENABLE(DNS_SERVER_FOR_TESTING_IN_NETWORKING_PROCESS)
     RetainPtr<NEPolicySession> m_policySession;
     OSObjectPtr<nw_resolver_config_t> m_resolverConfig;
-#endif
+#endif // !ENABLE(DNS_SERVER_FOR_TESTING_IN_NETWORKING_PROCESS)
 #endif // PLATFORM(COCOA)
 
     bool m_isSpeechRecognitionPermissionGranted { false };

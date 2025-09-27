@@ -1,5 +1,5 @@
 
 PASS createHTML with a policy that returns undefined
 PASS createScript with a policy that returns undefined
-FAIL createScriptURL with a policy that returns undefined assert_equals: expected "http://localhost:8800/trusted-types/policy-without-return-value.sub.html" but got ""
+FAIL createScriptURL with a policy that returns undefined assert_equals: expected "http://web-platform.test:8800/trusted-types/policy-without-return-value.sub.html" but got ""
 

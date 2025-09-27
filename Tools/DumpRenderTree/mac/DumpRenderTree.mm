@@ -864,6 +864,7 @@ static void setWebPreferencesForTestOptions(WebPreferences *preferences, const W
                     && ![feature.key isEqualToString:@"NeedsSiteSpecificQuirks"]
                     && ![feature.key isEqualToString:@"BeaconAPIEnabled"]
                     && ![feature.key isEqualToString:@"LocalFileContentSniffingEnabled"]
+                    && ![feature.key isEqualToString:@"HTTPSByDefaultEnabled"]
                     && ![feature.key isEqualToString:@"DeclarativeWebPush"]) {
                     [preferences _setEnabled:YES forFeature:feature];
                 }
@@ -1944,6 +1945,10 @@ static void runTest(const std::string& inputLine)
     gTestRunner->setLocalhostAliases(localhostAliases);
     gTestRunner->setCustomTimeout(command.timeout.milliseconds());
     gTestRunner->setDumpJSConsoleLogInStdErr(command.dumpJSConsoleLogInStdErr || options.dumpJSConsoleLogInStdErr());
+
+#if ENABLE(DNS_SERVER_FOR_TESTING)
+    gTestRunner->initializeDNS();
+#endif
 
     gTestRunner->setPortsForUpgradingInsecureScheme(options.insecureUpgradePort(), options.secureUpgradePort());
     [[mainFrame webView] _setPortsForUpgradingInsecureSchemeForTesting:options.insecureUpgradePort() withSecurePort:options.secureUpgradePort()];

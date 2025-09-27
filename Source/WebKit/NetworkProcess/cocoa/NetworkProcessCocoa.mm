@@ -120,8 +120,8 @@ void NetworkProcess::platformInitializeNetworkProcessCocoa(const NetworkProcessC
 #endif
     m_enableModernDownloadProgress = parameters.enableModernDownloadProgress;
 
-#if PLATFORM(IOS_SIMULATOR)
-    // See TestController::cocoaPlatformInitialize for supporting a local DNS resolver on Mac.
+#if ENABLE(DNS_SERVER_FOR_TESTING_IN_NETWORKING_PROCESS)
+    // See TestController::cocoaPlatformInitialize for supporting a local DNS resolver when !ENABLE(TEST_DNS_SERVER_IN_NETWORKING_PROCESS).
     auto webPlatformTestDomain = "web-platform.test"_s;
     if (parameters.localhostAliasesForTesting.contains(webPlatformTestDomain)) {
         m_resolverConfig = adoptOSObject(nw_resolver_config_create());
@@ -133,7 +133,7 @@ void NetworkProcess::platformInitializeNetworkProcessCocoa(const NetworkProcessC
             nw_privacy_context_require_encrypted_name_resolution(NW_DEFAULT_PRIVACY_CONTEXT, true, m_resolverConfig.get());
         }
     }
-#endif
+#endif // ENABLE(DNS_SERVER_FOR_TESTING_IN_NETWORKING_PROCESS)
 
     increaseFileDescriptorLimit();
 }

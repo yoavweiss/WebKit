@@ -1227,6 +1227,13 @@ imported/w3c/web-platform-tests/css/css-text-decor/text-emphasis-style-property-
 
 imported/w3c/web-platform-tests/css/css-mixins/function-attr.html [ Failure ]
 
+imported/w3c/web-platform-tests/content-security-policy/generic/src-trailing-dot.sub.any.html [ Failure ]
+imported/w3c/web-platform-tests/content-security-policy/generic/src-trailing-dot.sub.any.worker.html [ Failure ]
+imported/w3c/web-platform-tests/fetch/h1-parsing/lone-cr.window.html [ Failure ]
+imported/w3c/web-platform-tests/html/anonymous-iframe/cookie-store.tentative.https.window.html [ Failure ]
+imported/w3c/web-platform-tests/html/cross-origin-embedder-policy/anonymous-iframe/cookie-store.tentative.https.window.html [ Failure ]
+imported/w3c/web-platform-tests/streams/readable-byte-streams/non-transferable-buffers.any.sharedworker.html [ Failure ]
+
 webkit.org/b/237502 fast/dom/Range/getClientRects.html [ Failure ]
 
 webkit.org/b/294587 imported/w3c/web-platform-tests/css/css-variables/variable-css-wide-keywords.html [ Skip ]

@@ -198,15 +198,13 @@ void TestController::cocoaPlatformInitialize(const Options& options)
 
     [WKContentRuleListStore _setContentRuleListStoreForResourceMonitorURLsControllerForTesting:[WKContentRuleListStore storeWithURL:url.get()]];
 
-#if PLATFORM(MAC)
-    // See NetworkProcess::platformInitializeNetworkProcessCocoa for supporting a local DNS resolver on iOS.
+#if ENABLE(DNS_SERVER_FOR_TESTING) && !ENABLE(DNS_SERVER_FOR_TESTING_IN_NETWORKING_PROCESS)
+    // See NetworkProcess::platformInitializeNetworkProcessCocoa for supporting a local DNS resolver when ENABLE(DNS_SERVER_FOR_TESTING_IN_NETWORKING_PROCESS).
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-        if (!options.useLocalDNSResolver)
-            return;
-        cocoaDNSInitialize();
+        initializeDNS();
     });
-#endif
+#endif // !ENABLE(DNS_SERVER_FOR_TESTING_IN_NETWORKING_PROCESS)
 }
 
 #if ENABLE(IMAGE_ANALYSIS)
@@ -385,8 +383,8 @@ void TestController::finishCreatingPlatformWebView(PlatformWebView* view, const 
 #endif
 }
 
-#if PLATFORM(MAC)
-void TestController::cocoaDNSInitialize()
+#if ENABLE(DNS_SERVER_FOR_TESTING) && !ENABLE(DNS_SERVER_FOR_TESTING_IN_NETWORKING_PROCESS)
+void TestController::initializeDNS()
 {
     auto agentUUID = adoptNS([[NSUUID alloc] init]);
     uuid_t agentUUIDBytes;
@@ -422,7 +420,7 @@ void TestController::cocoaDNSInitialize()
         [policySession apply];
     }
 }
-#endif
+#endif // !ENABLE(DNS_SERVER_FOR_TESTING_IN_NETWORKING_PROCESS)
 
 void TestController::platformRunUntil(bool& done, WTF::Seconds timeout)
 {

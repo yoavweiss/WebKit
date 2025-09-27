@@ -28,9 +28,9 @@ import time
 
 from webkitpy.layout_tests.servers import http_server_base
 try:
-    from webkitpy.layout_tests.servers.basic_dns_server import DNSServer, Resolver
+    from webkitpy.layout_tests.servers.basic_dns_server import DNSLogger, DNSServer, Resolver
 except ImportError:
-    print("Error importing DNSServer, Resolver")
+    print("Error importing DNSLogger, DNSServer, Resolver")
 
 _log = logging.getLogger(__name__)
 
@@ -133,8 +133,9 @@ class WebPlatformTestServer(http_server_base.HttpServerBase):
         self._process = None
         self._dns_server = None
         if port_obj.supports_localhost_aliases and port_obj.get_option('local_dns_resolver') and not port_obj.get_option('disable_wpt_hostname_aliases'):
+            logger = DNSLogger(logf=_log.debug)
             self._dns_server = DNSServer(Resolver(
-                allowed_hosts=port_obj.localhost_aliases()), port=8053, address="127.0.0.1")
+                allowed_hosts=port_obj.localhost_aliases()), port=8053, address="127.0.0.1", logger=logger)
 
         self._pid_file = pidfile
         if not self._pid_file:

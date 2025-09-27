@@ -377,7 +377,6 @@ def parse_args(args):
     option_group_definitions.append(("Web Platform Test Server Options", [
         optparse.make_option("--disable-wpt-hostname-aliases", action="store_true", default=False, help="Disable running tests from WPT against the web-platform.test domain, if the port supports it."),
         optparse.make_option("--wptserver-doc-root", type="string", help=("Set web platform server document root, relative to LayoutTests directory")),
-        optparse.make_option("--local-dns-resolver", action="store_true", default=False, help="Run and use a local DNS resolver, if the port supports it.")
     ]))
 
     option_group_definitions.append(('Upload Options', upload_options()))
@@ -546,6 +545,9 @@ def _set_up_derived_options(port, options):
     # The GTK+ and WPE ports only support WebKit2 so they always use WKTR.
     if options.platform in ["gtk", "wpe"]:
         options.webkit_test_runner = True
+
+    options.local_dns_resolver = port.port_name in ["mac", "ios-simulator", "visionos-simulator"]
+
 
 def run(port, options, args, logging_stream):
     logger = logging.getLogger()
