@@ -74,6 +74,10 @@
 #include <WebCore/VideoFrameCV.h>
 #endif
 
+#if ENABLE(LINEAR_MEDIA_PLAYER)
+#include "VideoReceiverEndpointManager.h"
+#endif
+
 #include <wtf/NativePromise.h>
 
 namespace WebKit {
@@ -960,8 +964,10 @@ bool RemoteMediaPlayerProxy::mediaPlayerShouldCheckHardwareSupport() const
 WebCore::PlatformVideoTarget RemoteMediaPlayerProxy::mediaPlayerVideoTarget() const
 {
 #if ENABLE(LINEAR_MEDIA_PLAYER)
-    if (m_manager)
-        return m_manager->takeVideoTargetForMediaElementIdentifier(m_clientIdentifier, m_id);
+    if (m_manager) {
+        if (RefPtr gpuConnectionToWebProcess = m_manager->gpuConnectionToWebProcess())
+            return gpuConnectionToWebProcess->videoReceiverEndpointManager().takeVideoTargetForMediaElementIdentifier(m_clientIdentifier, m_id);
+    }
 #endif
     return nullptr;
 }

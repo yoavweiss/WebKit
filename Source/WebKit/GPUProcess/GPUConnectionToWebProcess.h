@@ -76,6 +76,10 @@
 #include "IPCTester.h"
 #endif
 
+#if ENABLE(LINEAR_MEDIA_PLAYER)
+#include <wtf/LazyUniqueRef.h>
+#endif
+
 namespace WTF {
 enum class Critical : bool;
 enum class Synchronous : bool;
@@ -107,6 +111,7 @@ class RemoteRenderingBackend;
 class RemoteSampleBufferDisplayLayerManager;
 class RemoteSharedResourceCache;
 class UserMediaCaptureManagerProxy;
+class VideoReceiverEndpointManager;
 struct GPUProcessConnectionParameters;
 struct MediaOverridesForTesting;
 struct RemoteAudioSessionConfiguration;
@@ -217,6 +222,9 @@ public:
 #if ENABLE(VIDEO)
     RemoteMediaPlayerManagerProxy& remoteMediaPlayerManagerProxy() { return m_remoteMediaPlayerManagerProxy.get(); }
     Ref<RemoteMediaPlayerManagerProxy> protectedRemoteMediaPlayerManagerProxy();
+#endif
+#if ENABLE(LINEAR_MEDIA_PLAYER)
+    VideoReceiverEndpointManager& videoReceiverEndpointManager();
 #endif
 #if USE(AUDIO_SESSION)
     RemoteAudioSessionProxyManager& audioSessionManager();
@@ -375,6 +383,9 @@ private:
 #if ENABLE(VIDEO)
     RefPtr<RemoteMediaResourceManager> m_remoteMediaResourceManager WTF_GUARDED_BY_CAPABILITY(mainThread);
     Ref<RemoteMediaPlayerManagerProxy> m_remoteMediaPlayerManagerProxy;
+#endif
+#if ENABLE(LINEAR_MEDIA_PLAYER)
+    const LazyUniqueRef<GPUConnectionToWebProcess, VideoReceiverEndpointManager> m_videoReceiverEndpointManager;
 #endif
     PAL::SessionID m_sessionID;
 #if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)

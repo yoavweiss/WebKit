@@ -78,7 +78,7 @@ GPUProcess/mac/GPUProcessMac.mm
 GPUProcess/mac/LocalAudioSessionRoutingArbitrator.cpp
 GPUProcess/media/RemoteAudioSourceProviderProxy.cpp
 GPUProcess/media/RemoteImageDecoderAVFProxy.cpp
-GPUProcess/media/cocoa/RemoteMediaPlayerManagerProxyCocoa.mm
+GPUProcess/media/cocoa/VideoReceiverEndpointManager.mm
 GPUProcess/media/cocoa/RemoteMediaPlayerProxyCocoa.mm
 GPUProcess/media/ios/RemoteMediaSessionHelperProxy.cpp
 GPUProcess/webrtc/LibWebRTCCodecsProxy.mm @no-unify

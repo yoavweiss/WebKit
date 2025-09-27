@@ -172,6 +172,11 @@
 #include "RemoteVideoFrameObjectHeap.h"
 #endif
 
+#if ENABLE(LINEAR_MEDIA_PLAYER)
+#include "VideoReceiverEndpointManager.h"
+#include <wtf/LazyUniqueRef.h>
+#endif
+
 #define MESSAGE_CHECK(assertion) MESSAGE_CHECK_BASE(assertion, m_connection)
 
 namespace WebKit {
@@ -305,6 +310,11 @@ GPUConnectionToWebProcess::GPUConnectionToWebProcess(GPUProcess& gpuProcess, Web
     , m_webProcessIdentity(adjustProcessIdentityIfNeeded(WTFMove(parameters.webProcessIdentity)))
 #if ENABLE(VIDEO)
     , m_remoteMediaPlayerManagerProxy(RemoteMediaPlayerManagerProxy::create(*this))
+#endif
+#if ENABLE(LINEAR_MEDIA_PLAYER)
+    , m_videoReceiverEndpointManager([](GPUConnectionToWebProcess& connection, auto& ref) {
+        ref.set(makeUniqueRef<VideoReceiverEndpointManager>(connection));
+    })
 #endif
     , m_sessionID(sessionID)
 #if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
@@ -800,6 +810,13 @@ void GPUConnectionToWebProcess::performWithMediaPlayerOnMainThread(MediaPlayerId
         if (auto player = gpuConnectionToWebProcess->protectedRemoteMediaPlayerManagerProxy()->mediaPlayer(identifier))
             callback(*player);
     });
+}
+#endif
+
+#if ENABLE(LINEAR_MEDIA_PLAYER)
+VideoReceiverEndpointManager& GPUConnectionToWebProcess::videoReceiverEndpointManager()
+{
+    return m_videoReceiverEndpointManager.get(*this);
 }
 #endif
 
