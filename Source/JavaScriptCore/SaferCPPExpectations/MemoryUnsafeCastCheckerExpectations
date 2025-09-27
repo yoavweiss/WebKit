@@ -146,6 +146,7 @@ wasm/WasmOMGIRGenerator.cpp
 wasm/WasmOSREntryPlan.cpp
 wasm/WasmOperations.cpp
 wasm/WasmStreamingCompiler.cpp
+wasm/debugger/WasmDebugServerUtilities.cpp
 wasm/js/JSWebAssemblyException.cpp
 wasm/js/JSWebAssemblyGlobal.cpp
 wasm/js/JSWebAssemblyHelpers.h
