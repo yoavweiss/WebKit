@@ -276,6 +276,7 @@ struct HyphenateLimitEdge;
 struct HyphenateLimitLines;
 struct ImageOrNone;
 struct InsetEdge;
+struct LetterSpacing;
 struct LineWidth;
 struct LineFitEdge;
 struct ListStyleType;
@@ -358,6 +359,7 @@ struct WebkitMarqueeRepetition;
 struct WebkitMarqueeSpeed;
 struct WebkitTextStrokeWidth;
 struct Widows;
+struct WordSpacing;
 struct ZIndex;
 
 enum class Change : uint8_t;
@@ -740,10 +742,11 @@ public:
 
     inline OptionSet<MarginTrimType> marginTrim() const;
 
-    const Length& computedLetterSpacing() const;
-    const Length& computedWordSpacing() const;
-    inline float letterSpacing() const;
-    inline float wordSpacing() const;
+    inline const Style::LetterSpacing& computedLetterSpacing() const;
+    inline const Style::WordSpacing& computedWordSpacing() const;
+    inline float usedLetterSpacing() const;
+    inline float usedWordSpacing() const;
+
     TextSpacingTrim textSpacingTrim() const;
     TextAutospace textAutospace() const;
 
@@ -1395,9 +1398,8 @@ public:
     void setTextWrapMode(TextWrapMode v) { m_inheritedFlags.textWrapMode = static_cast<unsigned>(v); }
     void setTextWrapStyle(TextWrapStyle v) { m_inheritedFlags.textWrapStyle = static_cast<unsigned>(v); }
 
-    // If letter-spacing is nonzero, we disable ligatures, which means this property affects font preparation.
-    void setLetterSpacing(Length&&);
-    void setWordSpacing(Length&&);
+    inline void setLetterSpacing(Style::LetterSpacing&&);
+    inline void setWordSpacing(Style::WordSpacing&&);
 
     inline void setMaskLayers(Style::MaskLayers&&);
 
@@ -1972,8 +1974,8 @@ public:
     static constexpr Style::LineWidth initialBorderWidth();
     static constexpr Style::LineWidth initialColumnRuleWidth();
     static constexpr Style::LineWidth initialOutlineWidth();
-    static inline Length initialLetterSpacing();
-    static inline Length initialWordSpacing();
+    static inline Style::LetterSpacing initialLetterSpacing();
+    static inline Style::WordSpacing initialWordSpacing();
     static inline Style::PreferredSize initialSize();
     static inline Style::MinimumSize initialMinSize();
     static inline Style::MaximumSize initialMaxSize();
@@ -1989,7 +1991,6 @@ public:
     static constexpr TextBoxTrim initialTextBoxTrim();
     static constexpr Style::TextBoxEdge initialTextBoxEdge();
     static constexpr Style::LineFitEdge initialLineFitEdge();
-    static constexpr LengthType zeroLength();
     static constexpr Style::Widows initialWidows();
     static constexpr Style::Orphans initialOrphans();
     // Returning -100% percent here means the line-height is not set.

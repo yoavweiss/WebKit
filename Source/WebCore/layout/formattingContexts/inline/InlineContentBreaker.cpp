@@ -946,7 +946,7 @@ void InlineContentBreaker::ContinuousContent::appendTextContent(const InlineText
         return { };
     }();
     if (!trimmableWidth) {
-        auto contentOffset = isAfterWordSeparator ? style.wordSpacing() : 0.f;
+        auto contentOffset = isAfterWordSeparator ? style.usedWordSpacing() : 0.f;
         appendToRunList(inlineTextItem, style, contentOffset, logicalWidth);
         if (contentOffset && isFullyTrimmable()) {
             // word-spacing offset gets trimmed together with the leading trimmable content.
@@ -959,7 +959,7 @@ void InlineContentBreaker::ContinuousContent::appendTextContent(const InlineText
     m_isFullyTrimmable = m_isFullyTrimmable || m_runs.isEmpty();
     ASSERT(*trimmableWidth <= logicalWidth);
     auto isLeadingTrimmable = trimmableWidth && (!this->logicalWidth() || isFullyTrimmable());
-    appendToRunList(inlineTextItem, style, isAfterWordSeparator ? style.wordSpacing() : 0.f, logicalWidth);
+    appendToRunList(inlineTextItem, style, isAfterWordSeparator ? style.usedWordSpacing() : 0.f, logicalWidth);
     if (isLeadingTrimmable) {
         ASSERT(!m_trailingTrimmableWidth);
         m_leadingTrimmableWidth += *trimmableWidth;

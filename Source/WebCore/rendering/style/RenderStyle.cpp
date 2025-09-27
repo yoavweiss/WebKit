@@ -2497,16 +2497,6 @@ float RenderStyle::computedFontSize() const
     return fontDescription().computedSize();
 }
 
-const Length& RenderStyle::computedLetterSpacing() const
-{
-    return fontCascade().computedLetterSpacing();
-}
-
-const Length& RenderStyle::computedWordSpacing() const
-{
-    return fontCascade().computedWordSpacing();
-}
-
 TextSpacingTrim RenderStyle::textSpacingTrim() const
 {
     return fontDescription().textSpacingTrim();
@@ -2590,32 +2580,6 @@ float RenderStyle::computeLineHeight(const Length& lineHeightLength) const
         return minimumValueForLength(lineHeightLength, computedFontSize(), 1.0f /* FIXME FIND ZOOM */).toFloat();
 
     return lineHeightLength.value();
-}
-
-void RenderStyle::setLetterSpacing(Length&& spacing)
-{
-    if (fontCascade().computedLetterSpacing() == spacing)
-        return;
-
-    bool oldShouldDisableLigatures = fontDescription().shouldDisableLigaturesForSpacing();
-    m_inheritedData.access().fontData.access().fontCascade.setLetterSpacing(WTFMove(spacing));
-
-    // Switching letter-spacing between zero and non-zero requires updating fonts (to enable/disable ligatures)
-    bool shouldDisableLigatures = fontCascade().letterSpacing();
-    if (oldShouldDisableLigatures != shouldDisableLigatures) {
-        auto description = fontDescription();
-        description.setShouldDisableLigaturesForSpacing(fontCascade().letterSpacing());
-        setFontDescription(WTFMove(description));
-    }
-}
-
-void RenderStyle::setWordSpacing(Length&& spacing)
-{
-    ASSERT(LengthType::Normal != spacing); // should have converted to 0 already
-    if (fontCascade().computedWordSpacing() == spacing)
-        return;
-
-    m_inheritedData.access().fontData.access().fontCascade.setWordSpacing(WTFMove(spacing));
 }
 
 void RenderStyle::setTextSpacingTrim(TextSpacingTrim value)

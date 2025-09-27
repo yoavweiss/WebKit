@@ -3292,8 +3292,10 @@ style/values/text-decoration/StyleTextDecorationThickness.cpp
 style/values/text-decoration/StyleTextEmphasisStyle.cpp
 style/values/text-decoration/StyleTextShadow.cpp
 style/values/text-decoration/StyleTextUnderlineOffset.cpp
+style/values/text/StyleLetterSpacing.cpp
 style/values/text/StyleTabSize.cpp
 style/values/text/StyleTextIndent.cpp
+style/values/text/StyleWordSpacing.cpp
 style/values/transforms/StylePerspective.cpp
 style/values/transforms/StyleRotate.cpp
 style/values/transforms/StyleScale.cpp

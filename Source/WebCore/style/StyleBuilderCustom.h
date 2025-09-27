@@ -117,6 +117,7 @@ inline GridTemplateAreas forwardInheritedValue(const GridTemplateAreas& value) {
 inline GridTemplateList forwardInheritedValue(const GridTemplateList& value) { auto copy = value; return copy; }
 inline GridTrackSizes forwardInheritedValue(const GridTrackSizes& value) { auto copy = value; return copy; }
 inline HyphenateCharacter forwardInheritedValue(const HyphenateCharacter& value) { auto copy = value; return copy; }
+inline LetterSpacing forwardInheritedValue(const LetterSpacing& value) { auto copy = value; return copy; }
 inline ListStyleType forwardInheritedValue(const ListStyleType& value) { auto copy = value; return copy; }
 inline OffsetAnchor forwardInheritedValue(const OffsetAnchor& value) { auto copy = value; return copy; }
 inline OffsetDistance forwardInheritedValue(const OffsetDistance& value) { auto copy = value; return copy; }
@@ -173,6 +174,7 @@ inline WebkitInitialLetter forwardInheritedValue(const WebkitInitialLetter& valu
 inline WebkitLineClamp forwardInheritedValue(const WebkitLineClamp& value) { auto copy = value; return copy; }
 inline WebkitLineGrid forwardInheritedValue(const WebkitLineGrid& value) { auto copy = value; return copy; }
 inline WebkitMarqueeIncrement forwardInheritedValue(const WebkitMarqueeIncrement& value) { auto copy = value; return copy; }
+inline WordSpacing forwardInheritedValue(const WordSpacing& value) { auto copy = value; return copy; }
 
 // Note that we assume the CSS parser only allows valid CSSValue types.
 class BuilderCustom {
@@ -213,10 +215,8 @@ public:
     DECLARE_PROPERTY_CUSTOM_HANDLERS(PaddingRight);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(PaddingTop);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(Stroke);
+    DECLARE_PROPERTY_CUSTOM_HANDLERS(WordSpacing);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(Zoom);
-
-    // Custom handling of inherit setting only.
-    static void applyInheritWordSpacing(BuilderState&);
 
     // Custom handling of value setting only.
     static void applyValueDirection(BuilderState&, CSSValue&);
@@ -603,22 +603,7 @@ DEFINE_BORDER_IMAGE_MODIFIER_HANDLER(MaskBorder, Repeat)
 DEFINE_BORDER_IMAGE_MODIFIER_HANDLER(MaskBorder, Slice)
 DEFINE_BORDER_IMAGE_MODIFIER_HANDLER(MaskBorder, Width)
 
-inline void BuilderCustom::applyInheritWordSpacing(BuilderState& builderState)
-{
-    builderState.style().setWordSpacing(forwardInheritedValue(builderState.parentStyle().computedWordSpacing()));
-}
-
-inline void BuilderCustom::applyInheritLetterSpacing(BuilderState& builderState)
-{
-    builderState.style().setLetterSpacing(forwardInheritedValue(builderState.parentStyle().computedLetterSpacing()));
-}
-
-inline void BuilderCustom::applyInitialLetterSpacing(BuilderState& builderState)
-{
-    builderState.style().setLetterSpacing(RenderStyle::initialLetterSpacing());
-}
-
-void maybeUpdateFontForLetterSpacing(BuilderState& builderState, CSSValue& value)
+void maybeUpdateFontForLetterSpacingOrWordSpacing(BuilderState& builderState, CSSValue& value)
 {
     // This is unfortunate. It's related to https://github.com/w3c/csswg-drafts/issues/5498.
     //
@@ -636,8 +621,8 @@ void maybeUpdateFontForLetterSpacing(BuilderState& builderState, CSSValue& value
     // So, we update the font early here, so that if there is a font-relative unit inside the CSSValue,
     // its font is updated and ready to go. In the worst case there might be a second call to
     // updateFont() later, but that isn't bad for perf because 1. It only happens twice if there is
-    // actually a font-relative unit passed to letter-spacing, and 2. updateFont() internally has logic
-    // to only do work if the font is actually dirty.
+    // actually a font-relative unit passed to letter-spacing or word-spacing, and 2. updateFont() internally
+    // has logic to only do work if the font is actually dirty.
 
     if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
         if (primitiveValue->isFontRelativeLength() || primitiveValue->isCalculated())
@@ -645,10 +630,42 @@ void maybeUpdateFontForLetterSpacing(BuilderState& builderState, CSSValue& value
     }
 }
 
+inline void BuilderCustom::applyInheritWordSpacing(BuilderState& builderState)
+{
+    builderState.style().setWordSpacing(forwardInheritedValue(builderState.parentStyle().computedWordSpacing()));
+    builderState.setFontDirty();
+}
+
+inline void BuilderCustom::applyInitialWordSpacing(BuilderState& builderState)
+{
+    builderState.style().setWordSpacing(RenderStyle::initialWordSpacing());
+    builderState.setFontDirty();
+}
+
+void BuilderCustom::applyValueWordSpacing(BuilderState& builderState, CSSValue& value)
+{
+    maybeUpdateFontForLetterSpacingOrWordSpacing(builderState, value);
+    builderState.style().setWordSpacing(toStyleFromCSSValue<WordSpacing>(builderState, value));
+    builderState.setFontDirty();
+}
+
+inline void BuilderCustom::applyInheritLetterSpacing(BuilderState& builderState)
+{
+    builderState.style().setLetterSpacing(forwardInheritedValue(builderState.parentStyle().computedLetterSpacing()));
+    builderState.setFontDirty();
+}
+
+inline void BuilderCustom::applyInitialLetterSpacing(BuilderState& builderState)
+{
+    builderState.style().setLetterSpacing(RenderStyle::initialLetterSpacing());
+    builderState.setFontDirty();
+}
+
 inline void BuilderCustom::applyValueLetterSpacing(BuilderState& builderState, CSSValue& value)
 {
-    maybeUpdateFontForLetterSpacing(builderState, value);
-    builderState.style().setLetterSpacing(BuilderConverter::convertTextLengthOrNormal(builderState, value));
+    maybeUpdateFontForLetterSpacingOrWordSpacing(builderState, value);
+    builderState.style().setLetterSpacing(toStyleFromCSSValue<LetterSpacing>(builderState, value));
+    builderState.setFontDirty();
 }
 
 #if ENABLE(TEXT_AUTOSIZING)

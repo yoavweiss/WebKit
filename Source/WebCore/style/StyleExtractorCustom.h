@@ -242,6 +242,27 @@ template<> struct PropertyExtractorAdaptor<CSSPropertyContent> {
     }
 };
 
+template<> struct PropertyExtractorAdaptor<CSSPropertyLetterSpacing> {
+    template<typename F> decltype(auto) computedValue(ExtractorState& state, F&& functor) const
+    {
+        // "For legacy reasons, a computed letter-spacing of zero yields a
+        //  resolved value (getComputedStyle() return value) of `normal`."
+        // https://www.w3.org/TR/css-text-4/#letter-spacing-property
+
+        auto& spacing = state.style.computedLetterSpacing();
+        if (spacing.isFixed() && spacing.isZero())
+            return functor(CSS::Keyword::Normal { });
+        return functor(spacing);
+    }
+};
+
+template<> struct PropertyExtractorAdaptor<CSSPropertyWordSpacing> {
+    template<typename F> decltype(auto) computedValue(ExtractorState& state, F&& functor) const
+    {
+        return functor(state.style.computedWordSpacing());
+    }
+};
+
 template<> struct PropertyExtractorAdaptor<CSSPropertyRotate> {
     template<typename F> decltype(auto) computedValue(ExtractorState& state, F&& functor) const
     {
@@ -1256,30 +1277,22 @@ inline void ExtractorCustom::extractContentSerialization(ExtractorState& state, 
 
 inline Ref<CSSValue> ExtractorCustom::extractLetterSpacing(ExtractorState& state)
 {
-    auto& spacing = state.style.computedLetterSpacing();
-    if (spacing.isFixed() && spacing.isZero())
-        return CSSPrimitiveValue::create(CSSValueNormal);
-    return ExtractorConverter::convertLength(state, spacing);
+    return extractCSSValue<CSSPropertyLetterSpacing>(state);
 }
 
 inline void ExtractorCustom::extractLetterSpacingSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
-    auto& spacing = state.style.computedLetterSpacing();
-    if (spacing.isFixed() && spacing.isZero()) {
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Normal { });
-        return;
-    }
-    ExtractorSerializer::serializeLength(state, builder, context, spacing);
+    extractSerialization<CSSPropertyLetterSpacing>(state, builder, context);
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractWordSpacing(ExtractorState& state)
 {
-    return ExtractorConverter::convertLength(state, state.style.computedWordSpacing());
+    return extractCSSValue<CSSPropertyWordSpacing>(state);
 }
 
 inline void ExtractorCustom::extractWordSpacingSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
-    ExtractorSerializer::serializeLength(state, builder, context, state.style.computedWordSpacing());
+    extractSerialization<CSSPropertyWordSpacing>(state, builder, context);
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractLineHeight(ExtractorState& state)

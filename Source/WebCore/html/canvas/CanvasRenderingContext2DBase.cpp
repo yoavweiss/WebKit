@@ -3203,7 +3203,7 @@ void CanvasRenderingContext2DBase::setLetterSpacing(const String& letterSpacing)
     double pixels = Style::computeUnzoomedNonCalcLengthDouble(rawLength->value, rawLength->unit, CSSPropertyLetterSpacing, &fontCascade);
 
     modifiableState().letterSpacing = CSS::serializationForCSS(CSS::defaultSerializationContext(), *rawLength);
-    modifiableState().font.setLetterSpacing(Length(pixels, LengthType::Fixed));
+    modifiableState().font.setLetterSpacing(pixels);
 }
 
 void CanvasRenderingContext2DBase::setWordSpacing(const String& wordSpacing)
@@ -3231,7 +3231,7 @@ void CanvasRenderingContext2DBase::setWordSpacing(const String& wordSpacing)
     double pixels = Style::computeUnzoomedNonCalcLengthDouble(rawLength->value, rawLength->unit, CSSPropertyWordSpacing, &fontCascade);
 
     modifiableState().wordSpacing = CSS::serializationForCSS(CSS::defaultSerializationContext(), *rawLength);
-    modifiableState().font.setWordSpacing(Length(pixels, LengthType::Fixed));
+    modifiableState().font.setWordSpacing(pixels);
 }
 
 } // namespace WebCore

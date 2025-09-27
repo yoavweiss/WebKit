@@ -172,36 +172,6 @@ GlyphBuffer FontCascade::layoutText(CodePath codePathToUse, const TextRun& run, 
     return layoutSimpleText(run, from, to, forTextEmphasis);
 }
 
-float FontCascade::letterSpacing() const
-{
-    switch (m_spacing.letter.type()) {
-    case LengthType::Fixed:
-        return m_spacing.letter.value();
-    case LengthType::Percent:
-        return m_spacing.letter.percent() / 100 * size();
-    case LengthType::Calculated:
-        return m_spacing.letter.nonNanCalculatedValue(size());
-    default:
-        ASSERT_NOT_REACHED();
-        return 0;
-    }
-}
-
-float FontCascade::wordSpacing() const
-{
-    switch (m_spacing.word.type()) {
-    case LengthType::Fixed:
-        return m_spacing.word.value();
-    case LengthType::Percent:
-        return m_spacing.word.percent() / 100 * size();
-    case LengthType::Calculated:
-        return m_spacing.word.nonNanCalculatedValue(size());
-    default:
-        ASSERT_NOT_REACHED();
-        return 0;
-    }
-}
-
 FloatSize FontCascade::drawText(GraphicsContext& context, const TextRun& run, const FloatPoint& point, unsigned from, std::optional<unsigned> to, CustomFontNotReadyAction customFontNotReadyAction) const
 {
     unsigned destination = to.value_or(run.length());

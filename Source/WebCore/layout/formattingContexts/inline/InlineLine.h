@@ -387,7 +387,7 @@ inline TextDirection Line::Run::inlineDirection() const
 
 inline InlineLayoutUnit Line::Run::letterSpacing() const
 {
-    return m_style.letterSpacing();
+    return m_style.usedLetterSpacing();
 }
 
 }

@@ -333,7 +333,6 @@ layout/formattingContexts/inline/InlineItemsBuilder.cpp
 layout/formattingContexts/inline/InlineItemsBuilder.h
 layout/formattingContexts/inline/InlineLevelBoxInlines.h
 layout/formattingContexts/inline/InlineLine.cpp
-layout/formattingContexts/inline/InlineLine.h
 layout/formattingContexts/inline/InlineLineBox.cpp
 layout/formattingContexts/inline/InlineLineBox.h
 layout/formattingContexts/inline/InlineLineBoxBuilder.cpp
@@ -616,7 +615,6 @@ rendering/mathml/RenderMathMLToken.cpp
 rendering/mathml/RenderMathMLUnderOver.cpp
 rendering/shapes/ShapeOutsideInfo.cpp
 rendering/style/RenderStyle.cpp
-rendering/style/RenderStyleInlines.h
 rendering/style/StyleCachedImage.cpp
 rendering/style/StyleCanvasImage.cpp
 rendering/style/StyleGeneratedImage.cpp

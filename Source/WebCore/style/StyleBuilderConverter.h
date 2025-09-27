@@ -169,11 +169,6 @@ public:
     static FixedVector<PositionTryFallback> convertPositionTryFallbacks(BuilderState&, const CSSValue&);
 
     static MaskMode convertFillLayerMaskMode(BuilderState&, const CSSValue&);
-
-private:
-    friend class BuilderCustom;
-
-    static CSSToLengthConversionData cssToLengthConversionDataWithTextZoomFactor(BuilderState&);
 };
 
 template<typename T, typename... Rest> inline T BuilderConverter::convertStyleType(BuilderState& builderState, const CSSValue& value, Rest&&... rest)
@@ -499,38 +494,6 @@ inline float zoomWithTextZoomFactor(BuilderState& builderState)
         return builderState.style().usedZoom() * textZoomFactor;
     }
     return builderState.cssToLengthConversionData().zoom();
-}
-
-inline CSSToLengthConversionData BuilderConverter::cssToLengthConversionDataWithTextZoomFactor(BuilderState& builderState)
-{
-    float zoom = zoomWithTextZoomFactor(builderState);
-    if (zoom == builderState.cssToLengthConversionData().zoom())
-        return builderState.cssToLengthConversionData();
-
-    return builderState.cssToLengthConversionData().copyWithAdjustedZoom(zoom);
-}
-
-inline WebCore::Length BuilderConverter::convertTextLengthOrNormal(BuilderState& builderState, const CSSValue& value)
-{
-    auto* primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return { };
-    auto conversionData = (builderState.useSVGZoomRulesForLength())
-        ? builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f)
-        : cssToLengthConversionDataWithTextZoomFactor(builderState);
-
-    if (primitiveValue->valueID() == CSSValueNormal)
-        return RenderStyle::zeroLength();
-    if (primitiveValue->isLength())
-        return primitiveValue->resolveAsLength<WebCore::Length>(conversionData);
-    if (primitiveValue->isPercentage())
-        return WebCore::Length(clampTo<float>(primitiveValue->resolveAsPercentage(conversionData), minValueForCssLength, maxValueForCssLength), LengthType::Percent);
-    if (primitiveValue->isCalculatedPercentageWithLength())
-        return WebCore::Length(primitiveValue->cssCalcValue()->createCalculationValue(conversionData, CSSCalcSymbolTable { }));
-    if (primitiveValue->isNumber())
-        return WebCore::Length(primitiveValue->resolveAsNumber(conversionData), LengthType::Fixed);
-    ASSERT_NOT_REACHED();
-    return RenderStyle::zeroLength();
 }
 
 // The input value needs to parsed and valid, this function returns std::nullopt if the input was "normal".

@@ -171,12 +171,10 @@ public:
 
     bool isSmallCaps() const { return m_fontDescription.variantCaps() == FontVariantCaps::Small; }
 
-    float letterSpacing() const;
-    float wordSpacing() const;
-    const Length& computedLetterSpacing() const { return m_spacing.letter; }
-    const Length& computedWordSpacing() const { return m_spacing.word; }
-    void setLetterSpacing(const Length& spacing) { m_spacing.letter = spacing; }
-    void setWordSpacing(const Length& spacing) { m_spacing.word = spacing; }
+    float letterSpacing() const { return m_spacing.letter; }
+    float wordSpacing() const { return m_spacing.word; }
+    void setLetterSpacing(float spacing) { m_spacing.letter = spacing; }
+    void setWordSpacing(float spacing) { m_spacing.word = spacing; }
     TextSpacingTrim textSpacingTrim() const { return m_fontDescription.textSpacingTrim(); }
     TextAutospace textAutospace() const { return m_fontDescription.textAutospace(); }
     bool isFixedPitch() const;
@@ -401,10 +399,9 @@ private:
     }
 
     struct Spacing {
-        Length letter;
-        Length word;
-        Spacing() : letter(LengthType::Fixed) , word(LengthType::Fixed) { };
-        bool operator==(const Spacing& other) const = default;
+        float letter { 0 };
+        float word { 0 };
+        constexpr bool operator==(const Spacing&) const = default;
     };
 
     static constexpr unsigned bitsPerCharacterInCanUseSimplifiedTextMeasuringForAutoVariantCache = 2;
