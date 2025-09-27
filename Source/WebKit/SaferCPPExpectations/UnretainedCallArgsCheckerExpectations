@@ -1,7 +1,5 @@
 GeneratedWebKitSecureCoding.mm
 NetworkProcess/mac/NetworkProcessMac.mm
-Platform/IPC/cocoa/ConnectionCocoa.mm
-Platform/IPC/cocoa/DaemonConnectionCocoa.mm
 Shared/API/Cocoa/RemoteObjectRegistry.mm
 Shared/API/Cocoa/WKBrowsingContextHandle.mm
 Shared/API/Cocoa/WKRemoteObjectCoder.mm
