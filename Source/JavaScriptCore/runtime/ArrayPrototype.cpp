@@ -330,7 +330,7 @@ JSC_DEFINE_HOST_FUNCTION(arrayProtoFuncToLocaleString, (JSGlobalObject* globalOb
 
     // 3. Let separator be the String value for the list-separator String appropriate for
     // the host environment's current locale (this is derived in an implementation-defined way).
-    const LChar comma = ',';
+    const Latin1Character comma = ',';
     JSString* separator = jsSingleCharacterString(vm, comma);
 
     // 4. Let R be the empty String.
@@ -452,7 +452,7 @@ JSC_DEFINE_HOST_FUNCTION(arrayProtoFuncJoin, (JSGlobalObject* globalObject, Call
     // 3. If separator is undefined, let separator be the single-element String ",".
     JSValue separatorValue = callFrame->argument(0);
     if (separatorValue.isUndefined()) {
-        const LChar comma = ',';
+        const Latin1Character comma = ',';
 
         if (length > std::numeric_limits<unsigned>::max() || !canUseFastArrayJoin(thisObject)) [[unlikely]] {
             JSString* jsSeparator = jsSingleCharacterString(vm, comma);

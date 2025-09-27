@@ -164,7 +164,7 @@ private:
     {
         if (value > 9)
             asStringImpl(builder, value / 10);
-        builder.append(static_cast<LChar>(static_cast<unsigned>(value % 10) + '0'));
+        builder.append(static_cast<Latin1Character>(static_cast<unsigned>(value % 10) + '0'));
     }
 
     Int128 m_epochNanoseconds { };
@@ -282,14 +282,14 @@ using TimeZone = Variant<TimeZoneID, int64_t>;
 struct TimeZoneRecord {
     bool m_z { false };
     std::optional<int64_t> m_offset;
-    Variant<Vector<LChar>, int64_t> m_nameOrOffset;
+    Variant<Vector<Latin1Character>, int64_t> m_nameOrOffset;
 };
 
 static constexpr unsigned minCalendarLength = 3;
 static constexpr unsigned maxCalendarLength = 8;
 enum class RFC9557Flag : bool { None, Critical }; // "Critical" = "!" flag
 enum class RFC9557Key : bool { Calendar, Other };
-using RFC9557Value = Vector<LChar, maxCalendarLength>;
+using RFC9557Value = Vector<Latin1Character, maxCalendarLength>;
 struct RFC9557Annotation {
     RFC9557Flag m_flag;
     RFC9557Key m_key;

@@ -133,7 +133,7 @@ struct HashedUTF8CharactersTranslator {
             return Unicode::equal(string->span16(), characters.characters);
         }
 
-        auto charactersLatin1 = byteCast<LChar>(characters.characters);
+        auto charactersLatin1 = byteCast<Latin1Character>(characters.characters);
         if (string->is8Bit())
             return WTF::equal(string->span8().data(), charactersLatin1);
         return WTF::equal(string->span16().data(), charactersLatin1);
@@ -148,7 +148,7 @@ struct HashedUTF8CharactersTranslator {
         RELEASE_ASSERT(result.code == Unicode::ConversionResultCode::Success);
 
         if (result.isAllASCII)
-            newString = StringImpl::create(byteCast<LChar>(characters.characters));
+            newString = StringImpl::create(byteCast<Latin1Character>(characters.characters));
 
         auto* pointer = &newString.leakRef();
         pointer->setHash(hash);
@@ -241,7 +241,7 @@ RefPtr<AtomStringImpl> AtomStringImpl::add(StringImpl* baseString, unsigned star
     return addToStringTable<SubstringLocation, SubstringTranslator16>(buffer);
 }
     
-using LCharBuffer = HashTranslatorCharBuffer<LChar>;
+using LCharBuffer = HashTranslatorCharBuffer<Latin1Character>;
 struct LCharBufferTranslator {
     static unsigned hash(const LCharBuffer& buf)
     {
@@ -284,7 +284,7 @@ struct BufferFromStaticDataTranslator {
     }
 };
 
-RefPtr<AtomStringImpl> AtomStringImpl::add(HashTranslatorCharBuffer<LChar>& buffer)
+RefPtr<AtomStringImpl> AtomStringImpl::add(HashTranslatorCharBuffer<Latin1Character>& buffer)
 {
     if (!buffer.characters.data())
         return nullptr;
@@ -295,7 +295,7 @@ RefPtr<AtomStringImpl> AtomStringImpl::add(HashTranslatorCharBuffer<LChar>& buff
     return addToStringTable<LCharBuffer, LCharBufferTranslator>(buffer);
 }
 
-RefPtr<AtomStringImpl> AtomStringImpl::add(std::span<const LChar> characters)
+RefPtr<AtomStringImpl> AtomStringImpl::add(std::span<const Latin1Character> characters)
 {
     if (!characters.data())
         return nullptr;
@@ -307,13 +307,13 @@ RefPtr<AtomStringImpl> AtomStringImpl::add(std::span<const LChar> characters)
     return addToStringTable<LCharBuffer, LCharBufferTranslator>(buffer);
 }
 
-Ref<AtomStringImpl> AtomStringImpl::addLiteral(std::span<const LChar> characters)
+Ref<AtomStringImpl> AtomStringImpl::addLiteral(std::span<const Latin1Character> characters)
 {
     ASSERT(characters.data());
     ASSERT(!characters.empty());
 
     LCharBuffer buffer { characters };
-    return addToStringTable<LCharBuffer, BufferFromStaticDataTranslator<LChar>>(buffer);
+    return addToStringTable<LCharBuffer, BufferFromStaticDataTranslator<Latin1Character>>(buffer);
 }
 
 static Ref<AtomStringImpl> addSymbol(AtomStringTableLocker& locker, StringTableImpl& atomStringTable, StringImpl& base)
@@ -340,7 +340,7 @@ static Ref<AtomStringImpl> addStatic(AtomStringTableLocker& locker, StringTableI
 
     if (base.is8Bit()) {
         LCharBuffer buffer { base.span8(), base.hash() };
-        return addToStringTable<LCharBuffer, BufferFromStaticDataTranslator<LChar>>(locker, atomStringTable, buffer);
+        return addToStringTable<LCharBuffer, BufferFromStaticDataTranslator<Latin1Character>>(locker, atomStringTable, buffer);
     }
     UCharBuffer buffer { base.span16(), base.hash() };
     return addToStringTable<UCharBuffer, BufferFromStaticDataTranslator<char16_t>>(locker, atomStringTable, buffer);
@@ -482,7 +482,7 @@ RefPtr<AtomStringImpl> AtomStringImpl::add(std::span<const char8_t> characters)
     return addToStringTable<HashedUTF8Characters, HashedUTF8CharactersTranslator>(buffer);
 }
 
-RefPtr<AtomStringImpl> AtomStringImpl::lookUp(std::span<const LChar> characters)
+RefPtr<AtomStringImpl> AtomStringImpl::lookUp(std::span<const Latin1Character> characters)
 {
     AtomStringTableLocker locker;
     auto& table = stringTable();

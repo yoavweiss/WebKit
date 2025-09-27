@@ -31,7 +31,7 @@ namespace WTF {
 
 namespace Internal {
 
-std::span<LChar> appendHex(std::span<LChar> buffer, std::uintmax_t number, unsigned minimumDigits, HexConversionMode mode)
+std::span<Latin1Character> appendHex(std::span<Latin1Character> buffer, std::uintmax_t number, unsigned minimumDigits, HexConversionMode mode)
 {
     size_t startIndex = buffer.size();
     auto& hexDigits = hexDigitsForMode(mode);
@@ -54,7 +54,7 @@ void printInternal(PrintStream& out, HexNumberBuffer buffer)
     out.print(StringView(buffer.span()));
 }
 
-static void toHexInternal(std::span<const uint8_t> values, std::span<LChar> hexadecimalOutput)
+static void toHexInternal(std::span<const uint8_t> values, std::span<Latin1Character> hexadecimalOutput)
 {
     for (auto [i, digestValue] : indexedRange(values)) {
         hexadecimalOutput[i * 2] = upperNibbleToASCIIHexDigit(digestValue);
@@ -66,13 +66,13 @@ CString toHexCString(std::span<const uint8_t> values)
 {
     std::span<char> buffer;
     auto result = CString::newUninitialized(CheckedSize(values.size()) * 2U, buffer);
-    toHexInternal(values, byteCast<LChar>(buffer));
+    toHexInternal(values, byteCast<Latin1Character>(buffer));
     return result;
 }
 
 String toHexString(std::span<const uint8_t> values)
 {
-    std::span<LChar> buffer;
+    std::span<Latin1Character> buffer;
     auto result = String::createUninitialized(CheckedSize(values.size()) * 2U, buffer);
     toHexInternal(values, buffer);
     return result;

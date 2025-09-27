@@ -29,4 +29,4 @@
 // A type to hold a single Latin-1 character.
 // This type complements the char16_t type that we get from C++.
 // To parallel that type, we put this one in the global namespace.
-typedef unsigned char LChar;
+typedef unsigned char Latin1Character;

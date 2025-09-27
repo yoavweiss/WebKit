@@ -30,9 +30,9 @@
 
 namespace PAL {
 
-Vector<LChar> gunzip(std::span<const uint8_t> data)
+Vector<Latin1Character> gunzip(std::span<const uint8_t> data)
 {
-    Vector<LChar> result;
+    Vector<Latin1Character> result;
 
     // Parse the gzip header.
     auto checks = [&]() {

@@ -26,13 +26,13 @@
 #pragma once
 
 #include <wtf/Vector.h>
-#include <wtf/text/LChar.h>
+#include <wtf/text/Latin1Character.h>
 
 namespace PAL {
 
 // This function is only suitable for zip files which are guaranteed to not have any flags set in their headers.
 // See https://tools.ietf.org/html/rfc1952 for more information.
-PAL_EXPORT Vector<LChar> gunzip(std::span<const uint8_t> data);
+PAL_EXPORT Vector<Latin1Character> gunzip(std::span<const uint8_t> data);
 
 }
 
