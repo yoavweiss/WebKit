@@ -632,8 +632,6 @@ std::unique_ptr<AcceleratedSurface::RenderTarget> AcceleratedSurface::SwapChain:
         return RenderTargetTexture::create(m_surfaceID, m_size);
     case Type::SharedMemory:
         return RenderTargetSHMImage::create(m_surfaceID, m_size);
-#else
-        UNUSED_PARAM(m_surfaceID);
 #endif
 #if USE(WPE_RENDERER)
     case Type::WPEBackend:
@@ -643,6 +641,9 @@ std::unique_ptr<AcceleratedSurface::RenderTarget> AcceleratedSurface::SwapChain:
     case Type::Invalid:
         break;
     }
+#if !(PLATFORM(GTK) || ENABLE(WPE_PLATFORM))
+    UNUSED_PARAM(m_surfaceID);
+#endif
     return nullptr;
 }
 
