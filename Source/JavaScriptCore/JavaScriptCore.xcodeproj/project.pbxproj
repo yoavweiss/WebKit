@@ -1002,9 +1002,9 @@
 		52F6C35E1E71EB080081F4CC /* WebAssemblyWrapperFunction.h in Headers */ = {isa = PBXBuildFile; fileRef = 52F6C35C1E71EB080081F4CC /* WebAssemblyWrapperFunction.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		52FDABC32788076B00C15B59 /* WasmIRGeneratorHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FDABC22788076900C15B59 /* WasmIRGeneratorHelpers.h */; };
 		53091F9A2ABE1F570076CBC4 /* WasmIPIntSlowPaths.h in Headers */ = {isa = PBXBuildFile; fileRef = 53091F982ABE1F570076CBC4 /* WasmIPIntSlowPaths.h */; };
-		530A66B91FA3E78B0026A545 /* UnifiedSource3-mm.mm in Sources */ = {isa = PBXBuildFile; fileRef = 530A66B11FA3E77A0026A545 /* UnifiedSource3-mm.mm */; };
-		530A66BA1FA3E78B0026A545 /* UnifiedSource4-mm.mm in Sources */ = {isa = PBXBuildFile; fileRef = 530A66B81FA3E77E0026A545 /* UnifiedSource4-mm.mm */; };
-		530A66BB1FA3E78B0026A545 /* UnifiedSource5-mm.mm in Sources */ = {isa = PBXBuildFile; fileRef = 530A66B51FA3E77D0026A545 /* UnifiedSource5-mm.mm */; };
+		530A66B91FA3E78B0026A545 /* UnifiedSource3-nonARC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 530A66B11FA3E77A0026A545 /* UnifiedSource3-nonARC.mm */; };
+		530A66BA1FA3E78B0026A545 /* UnifiedSource4-nonARC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 530A66B81FA3E77E0026A545 /* UnifiedSource4-nonARC.mm */; };
+		530A66BB1FA3E78B0026A545 /* UnifiedSource5-nonARC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 530A66B51FA3E77D0026A545 /* UnifiedSource5-nonARC.mm */; };
 		530A66BC1FA3E78B0026A545 /* UnifiedSource137.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 530A66B21FA3E77B0026A545 /* UnifiedSource137.cpp */; };
 		530A66BD1FA3E78B0026A545 /* UnifiedSource138.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 530A66B41FA3E77C0026A545 /* UnifiedSource138.cpp */; };
 		530A66BE1FA3E78B0026A545 /* UnifiedSource139.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 530A66AE1FA3E7780026A545 /* UnifiedSource139.cpp */; };
@@ -1181,8 +1181,8 @@
 		536B318E1F71C5990037FC33 /* UnifiedSource128.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 536B31091F71C5380037FC33 /* UnifiedSource128.cpp */; };
 		536B318F1F71C5990037FC33 /* UnifiedSource114.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 536B310A1F71C5380037FC33 /* UnifiedSource114.cpp */; };
 		536B31901F71C5990037FC33 /* UnifiedSource100.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 536B310B1F71C5380037FC33 /* UnifiedSource100.cpp */; };
-		536B319A1F735E780037FC33 /* UnifiedSource1-mm.mm in Sources */ = {isa = PBXBuildFile; fileRef = 536B31981F735E5C0037FC33 /* UnifiedSource1-mm.mm */; };
-		536B319B1F735E780037FC33 /* UnifiedSource2-mm.mm in Sources */ = {isa = PBXBuildFile; fileRef = 536B31961F735E5B0037FC33 /* UnifiedSource2-mm.mm */; };
+		536B319A1F735E780037FC33 /* UnifiedSource1-nonARC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 536B31981F735E5C0037FC33 /* UnifiedSource1-nonARC.mm */; };
+		536B319B1F735E780037FC33 /* UnifiedSource2-nonARC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 536B31961F735E5B0037FC33 /* UnifiedSource2-nonARC.mm */; };
 		536B319C1F735E7D0037FC33 /* UnifiedSource134.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 536B31971F735E5B0037FC33 /* UnifiedSource134.cpp */; };
 		536B319D1F735E7D0037FC33 /* UnifiedSource135.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 536B31991F735E5D0037FC33 /* UnifiedSource135.cpp */; };
 		5370806B1FE232DF00299E44 /* JSArrayBufferView.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F2B66BB17B6B5AB00A7AE3F /* JSArrayBufferView.h */; };
@@ -4219,14 +4219,14 @@
 		530A66AE1FA3E7780026A545 /* UnifiedSource139.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UnifiedSource139.cpp; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource139.cpp"; sourceTree = BUILT_PRODUCTS_DIR; };
 		530A66AF1FA3E7790026A545 /* UnifiedSource141.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UnifiedSource141.cpp; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource141.cpp"; sourceTree = BUILT_PRODUCTS_DIR; };
 		530A66B01FA3E77A0026A545 /* UnifiedSource145.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UnifiedSource145.cpp; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource145.cpp"; sourceTree = BUILT_PRODUCTS_DIR; };
-		530A66B11FA3E77A0026A545 /* UnifiedSource3-mm.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "UnifiedSource3-mm.mm"; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource3-mm.mm"; sourceTree = BUILT_PRODUCTS_DIR; };
+		530A66B11FA3E77A0026A545 /* UnifiedSource3-nonARC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "UnifiedSource3-nonARC.mm"; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource3-nonARC.mm"; sourceTree = BUILT_PRODUCTS_DIR; };
 		530A66B21FA3E77B0026A545 /* UnifiedSource137.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UnifiedSource137.cpp; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource137.cpp"; sourceTree = BUILT_PRODUCTS_DIR; };
 		530A66B31FA3E77C0026A545 /* UnifiedSource140.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UnifiedSource140.cpp; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource140.cpp"; sourceTree = BUILT_PRODUCTS_DIR; };
 		530A66B41FA3E77C0026A545 /* UnifiedSource138.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UnifiedSource138.cpp; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource138.cpp"; sourceTree = BUILT_PRODUCTS_DIR; };
-		530A66B51FA3E77D0026A545 /* UnifiedSource5-mm.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "UnifiedSource5-mm.mm"; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource5-mm.mm"; sourceTree = BUILT_PRODUCTS_DIR; };
+		530A66B51FA3E77D0026A545 /* UnifiedSource5-nonARC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "UnifiedSource5-nonARC.mm"; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource5-nonARC.mm"; sourceTree = BUILT_PRODUCTS_DIR; };
 		530A66B61FA3E77D0026A545 /* UnifiedSource142.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UnifiedSource142.cpp; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource142.cpp"; sourceTree = BUILT_PRODUCTS_DIR; };
 		530A66B71FA3E77D0026A545 /* UnifiedSource143.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UnifiedSource143.cpp; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource143.cpp"; sourceTree = BUILT_PRODUCTS_DIR; };
-		530A66B81FA3E77E0026A545 /* UnifiedSource4-mm.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "UnifiedSource4-mm.mm"; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource4-mm.mm"; sourceTree = BUILT_PRODUCTS_DIR; };
+		530A66B81FA3E77E0026A545 /* UnifiedSource4-nonARC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "UnifiedSource4-nonARC.mm"; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource4-nonARC.mm"; sourceTree = BUILT_PRODUCTS_DIR; };
 		530A66CC1FB1346D0026A545 /* SuperSamplerBytecodeScope.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SuperSamplerBytecodeScope.h; sourceTree = "<group>"; };
 		530F0A962AE0606900A0EEC0 /* LazyValueProfile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LazyValueProfile.h; sourceTree = "<group>"; };
 		530F0A972AE0606900A0EEC0 /* LazyValueProfile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LazyValueProfile.cpp; sourceTree = "<group>"; };
@@ -4417,9 +4417,9 @@
 		536B31091F71C5380037FC33 /* UnifiedSource128.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UnifiedSource128.cpp; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource128.cpp"; sourceTree = BUILT_PRODUCTS_DIR; };
 		536B310A1F71C5380037FC33 /* UnifiedSource114.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UnifiedSource114.cpp; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource114.cpp"; sourceTree = BUILT_PRODUCTS_DIR; };
 		536B310B1F71C5380037FC33 /* UnifiedSource100.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UnifiedSource100.cpp; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource100.cpp"; sourceTree = BUILT_PRODUCTS_DIR; };
-		536B31961F735E5B0037FC33 /* UnifiedSource2-mm.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "UnifiedSource2-mm.mm"; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource2-mm.mm"; sourceTree = BUILT_PRODUCTS_DIR; };
+		536B31961F735E5B0037FC33 /* UnifiedSource2-nonARC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "UnifiedSource2-nonARC.mm"; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource2-nonARC.mm"; sourceTree = BUILT_PRODUCTS_DIR; };
 		536B31971F735E5B0037FC33 /* UnifiedSource134.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UnifiedSource134.cpp; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource134.cpp"; sourceTree = BUILT_PRODUCTS_DIR; };
-		536B31981F735E5C0037FC33 /* UnifiedSource1-mm.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "UnifiedSource1-mm.mm"; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource1-mm.mm"; sourceTree = BUILT_PRODUCTS_DIR; };
+		536B31981F735E5C0037FC33 /* UnifiedSource1-nonARC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "UnifiedSource1-nonARC.mm"; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource1-nonARC.mm"; sourceTree = BUILT_PRODUCTS_DIR; };
 		536B31991F735E5D0037FC33 /* UnifiedSource135.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UnifiedSource135.cpp; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource135.cpp"; sourceTree = BUILT_PRODUCTS_DIR; };
 		536B319F1F7369BD0037FC33 /* glib */ = {isa = PBXFileReference; lastKnownFileType = folder; path = glib; sourceTree = "<group>"; };
 		5370B4F31BF25EA2005C40FC /* AdaptiveInferredPropertyValueWatchpointBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AdaptiveInferredPropertyValueWatchpointBase.cpp; sourceTree = "<group>"; };
@@ -7692,19 +7692,19 @@
 			isa = PBXGroup;
 			children = (
 				E32F713A281B3C6600AFD21D /* UnifiedSource1-c.c */,
-				536B31981F735E5C0037FC33 /* UnifiedSource1-mm.mm */,
+				536B31981F735E5C0037FC33 /* UnifiedSource1-nonARC.mm */,
 				536B30DA1F71C5380037FC33 /* UnifiedSource1.cpp */,
 				E32F713C281B3C6600AFD21D /* UnifiedSource2-c.c */,
-				536B31961F735E5B0037FC33 /* UnifiedSource2-mm.mm */,
+				536B31961F735E5B0037FC33 /* UnifiedSource2-nonARC.mm */,
 				536B30D21F71C5380037FC33 /* UnifiedSource2.cpp */,
 				E32F713B281B3C6600AFD21D /* UnifiedSource3-c.c */,
-				530A66B11FA3E77A0026A545 /* UnifiedSource3-mm.mm */,
+				530A66B11FA3E77A0026A545 /* UnifiedSource3-nonARC.mm */,
 				536B30D31F71C5380037FC33 /* UnifiedSource3.cpp */,
 				E32F7139281B3C6600AFD21D /* UnifiedSource4-c.c */,
-				530A66B81FA3E77E0026A545 /* UnifiedSource4-mm.mm */,
+				530A66B81FA3E77E0026A545 /* UnifiedSource4-nonARC.mm */,
 				536B30E11F71C5380037FC33 /* UnifiedSource4.cpp */,
 				E32F7138281B3C6600AFD21D /* UnifiedSource5-c.c */,
-				530A66B51FA3E77D0026A545 /* UnifiedSource5-mm.mm */,
+				530A66B51FA3E77D0026A545 /* UnifiedSource5-nonARC.mm */,
 				536B30E21F71C5380037FC33 /* UnifiedSource5.cpp */,
 				536B30EA1F71C5380037FC33 /* UnifiedSource6.cpp */,
 				536B30E91F71C5380037FC33 /* UnifiedSource7.cpp */,
@@ -13445,19 +13445,19 @@
 				4B46940428984FEE00512FDF /* MacroAssemblerX86_64.cpp in Sources */,
 				FE770390298CD40F009634C7 /* Parser.cpp in Sources */,
 				E32F713F281B3C6600AFD21D /* UnifiedSource1-c.c in Sources */,
-				536B319A1F735E780037FC33 /* UnifiedSource1-mm.mm in Sources */,
+				536B319A1F735E780037FC33 /* UnifiedSource1-nonARC.mm in Sources */,
 				536B315F1F71C5990037FC33 /* UnifiedSource1.cpp in Sources */,
 				E32F7141281B3C6600AFD21D /* UnifiedSource2-c.c in Sources */,
-				536B319B1F735E780037FC33 /* UnifiedSource2-mm.mm in Sources */,
+				536B319B1F735E780037FC33 /* UnifiedSource2-nonARC.mm in Sources */,
 				536B31571F71C5990037FC33 /* UnifiedSource2.cpp in Sources */,
 				E32F7140281B3C6600AFD21D /* UnifiedSource3-c.c in Sources */,
-				530A66B91FA3E78B0026A545 /* UnifiedSource3-mm.mm in Sources */,
+				530A66B91FA3E78B0026A545 /* UnifiedSource3-nonARC.mm in Sources */,
 				536B31581F71C5990037FC33 /* UnifiedSource3.cpp in Sources */,
 				E32F713E281B3C6600AFD21D /* UnifiedSource4-c.c in Sources */,
-				530A66BA1FA3E78B0026A545 /* UnifiedSource4-mm.mm in Sources */,
+				530A66BA1FA3E78B0026A545 /* UnifiedSource4-nonARC.mm in Sources */,
 				536B31661F71C5990037FC33 /* UnifiedSource4.cpp in Sources */,
 				E32F713D281B3C6600AFD21D /* UnifiedSource5-c.c in Sources */,
-				530A66BB1FA3E78B0026A545 /* UnifiedSource5-mm.mm in Sources */,
+				530A66BB1FA3E78B0026A545 /* UnifiedSource5-nonARC.mm in Sources */,
 				536B31671F71C5990037FC33 /* UnifiedSource5.cpp in Sources */,
 				536B316F1F71C5990037FC33 /* UnifiedSource6.cpp in Sources */,
 				536B316E1F71C5990037FC33 /* UnifiedSource7.cpp in Sources */,
