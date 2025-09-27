@@ -264,11 +264,18 @@
         SYS_fsgetpath
         SYS_getpid
         SYS_kdebug_trace_string
+        SYS_kdebug_typefilter
         SYS_objc_bp_assist_cfg_np
         SYS_persona
         SYS_shared_region_check_np
         SYS_sigaction
         SYS_workq_open))
+
+(define (syscall-unix-developer-mode)
+    (syscall-number
+        SYS_kdebug_trace_string
+        SYS_kdebug_trace64
+        SYS_kdebug_typefilter))
 
 (define (syscall-unix-in-use-after-launch)
     (syscall-number
@@ -303,8 +310,6 @@
         SYS_getuid
         SYS_ioctl ;; needed by tcgetattr (TIOCGETA - debugging
         SYS_issetugid
-        SYS_kdebug_trace64
-        SYS_kdebug_typefilter
         SYS_kevent_id
         SYS_kevent_qos
         SYS_lseek
