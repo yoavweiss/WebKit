@@ -246,7 +246,7 @@
 #define HAVE_ISDEBUGGERPRESENT 1
 #endif
 
-#if __has_include(<System/pthread_machdep.h>)
+#if __has_include(<pthread/tsd_private.h>)
 #define HAVE_FAST_TLS 1
 
 #if PLATFORM(MAC) \
