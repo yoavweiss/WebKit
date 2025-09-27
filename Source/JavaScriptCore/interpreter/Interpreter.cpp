@@ -478,8 +478,12 @@ void Interpreter::getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results,
 
     auto getParentGenerator = [&](JSGenerator* gen) -> JSGenerator* {
         JSValue generatorContext = gen->internalField(static_cast<unsigned>(JSGenerator::Field::Context)).get();
+        ASSERT(generatorContext);
         JSPromise* awaitedPromise = jsDynamicCast<JSPromise*>(generatorContext);
         JSValue promiseContext = getContextValueFromPromise(awaitedPromise);
+
+        if (!promiseContext)
+            return nullptr;
 
         // handle simple `await`
         if (auto* generator = jsDynamicCast<JSGenerator*>(promiseContext))
@@ -488,10 +492,12 @@ void Interpreter::getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results,
         // handle `Promise.all`
         if (auto* promiseAllContext = jsDynamicCast<JSPromiseAllContext*>(promiseContext)) {
             JSValue promiseValue = promiseAllContext->promise();
+            ASSERT(promiseValue);
             if (auto* promise = jsDynamicCast<JSPromise*>(promiseValue)) {
-                JSValue promiseContext = getContextValueFromPromise(promise);
-                if (auto* generator = jsDynamicCast<JSGenerator*>(promiseContext))
-                    return generator;
+                if (JSValue promiseContext = getContextValueFromPromise(promise)) {
+                    if (auto* generator = jsDynamicCast<JSGenerator*>(promiseContext))
+                        return generator;
+                }
             }
         }
 
