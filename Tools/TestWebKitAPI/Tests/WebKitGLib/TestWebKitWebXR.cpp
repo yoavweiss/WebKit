@@ -21,6 +21,7 @@
 
 #include "WebKitTestServer.h"
 #include "WebViewTest.h"
+#include <wtf/text/MakeString.h>
 
 static WebKitTestServer* kHttpsServer = nullptr;
 
@@ -130,12 +131,129 @@ static void testWebKitWebXRLeaveImmersiveModeAndWaitUntilImmersiveModeChanged(We
     g_assert_false(webkit_web_view_is_immersive_mode_enabled(test->m_webView.get()));
 }
 
+static void testWebKitXRPermissionRequest(WebXRTest* test, gconstpointer)
+{
+    if (!g_getenv("WITH_OPENXR_RUNTIME")) {
+        g_test_skip("Unable to run without an OpenXR runtime");
+        return;
+    }
+
+    enum class Answer {
+        Deny,
+        Allow,
+    };
+    constexpr auto noFeature = static_cast<WebKitXRSessionFeatures>(0);
+    struct Result {
+        bool didCallback { false };
+        std::optional<WebKitXRSessionMode> mode;
+        String origin;
+        WebKitXRSessionFeatures grantedFeatures { noFeature };
+        WebKitXRSessionFeatures consentRequiredFeatures { noFeature };
+        WebKitXRSessionFeatures consentOptionalFeatures { noFeature };
+        WebKitXRSessionFeatures requiredFeaturesRequested { noFeature };
+        WebKitXRSessionFeatures optionalFeaturesRequested { noFeature };
+        String title;
+    };
+    struct Data {
+        WebViewTest* test { nullptr };
+        Answer answer { Answer::Deny };
+        Result result { };
+
+        void resetResult()
+        {
+            result = Result();
+        }
+    } data { test };
+    typedef gboolean (*PermissionRequestCallback)(WebKitWebView*, WebKitPermissionRequest*, Data*);
+    PermissionRequestCallback permissionRequestCallback = [](WebKitWebView*, WebKitPermissionRequest* request, Data* data) -> gboolean {
+        g_assert_true(WEBKIT_IS_XR_PERMISSION_REQUEST(request));
+        WebKitXRPermissionRequest* xrRequest = WEBKIT_XR_PERMISSION_REQUEST(request);
+
+        data->result.didCallback = true;
+        data->result.mode = webkit_xr_permission_request_get_session_mode(xrRequest);
+        g_autofree gchar* originStr = webkit_security_origin_to_string(webkit_xr_permission_request_get_security_origin(xrRequest));
+        data->result.origin = String::fromUTF8(originStr);
+        data->result.grantedFeatures = webkit_xr_permission_request_get_granted_features(xrRequest);
+        data->result.consentRequiredFeatures = webkit_xr_permission_request_get_consent_required_features(xrRequest);
+        data->result.consentOptionalFeatures = webkit_xr_permission_request_get_consent_optional_features(xrRequest);
+        data->result.requiredFeaturesRequested = webkit_xr_permission_request_get_required_features_requested(xrRequest);
+        data->result.optionalFeaturesRequested = webkit_xr_permission_request_get_optional_features_requested(xrRequest);
+
+        if (data->answer == Answer::Deny)
+            webkit_permission_request_deny(request);
+        else
+            webkit_permission_request_allow(request);
+        return TRUE;
+    };
+
+    test->loadHtml("", "https://foo.com/bar");
+    test->waitUntilLoadFinished();
+    test->showInWindow();
+
+    auto testPermissionRequest = [&](StringView mode, StringView options, Answer answer) {
+        auto script = makeString(
+            "async function start() {"
+            "    try {"
+            "        const session = await navigator.xr.requestSession('"_s, mode, "', {"_s, options, "});"
+            "        session.end();"
+            "        document.title = 'pass';"
+            "    } catch (e) {"
+            "        document.title = 'fail';"
+            "    }"
+            "}"
+            "start()"_s);
+        data.answer = answer;
+        data.resetResult();
+        test->runJavaScriptAndWaitUntilFinished(script.utf8().data(), nullptr);
+        test->waitUntilTitleChanged();
+        data.result.title = String::fromUTF8(webkit_web_view_get_title(test->webView()));
+        test->runJavaScriptAndWaitUntilFinished("document.title = ''", nullptr);
+    };
+
+    // requestSession is rejected by default without a permission-request callback
+    testPermissionRequest("immersive-vr"_s, ""_s, Answer::Allow);
+    g_assert_false(data.result.didCallback);
+    g_assert_cmpstr(data.result.title.utf8().data(), ==, "fail");
+
+    // Register permission-request callback
+    g_signal_connect(test->webView(), "permission-request", G_CALLBACK(permissionRequestCallback), &data);
+
+    // WebKit grants an inline session without a permission request.
+    testPermissionRequest("inline"_s, ""_s, Answer::Deny);
+    g_assert_false(data.result.didCallback);
+    g_assert_cmpstr(data.result.title.utf8().data(), ==, "pass");
+
+    testPermissionRequest("immersive-vr"_s, ""_s, Answer::Deny);
+    g_assert_true(data.result.didCallback);
+    g_assert_cmpint(data.result.mode.value(), ==, WEBKIT_XR_SESSION_MODE_IMMERSIVE_VR);
+    g_assert_cmpstr(data.result.origin.utf8().data(), ==, "https://foo.com");
+    g_assert_cmpint(data.result.grantedFeatures, ==, WEBKIT_XR_SESSION_FEATURES_VIEWER | WEBKIT_XR_SESSION_FEATURES_LOCAL);
+    g_assert_cmpint(data.result.consentRequiredFeatures, ==, noFeature);
+    g_assert_cmpint(data.result.consentOptionalFeatures, ==, noFeature);
+    g_assert_cmpint(data.result.requiredFeaturesRequested, ==, WEBKIT_XR_SESSION_FEATURES_VIEWER | WEBKIT_XR_SESSION_FEATURES_LOCAL);
+    g_assert_cmpint(data.result.optionalFeaturesRequested, ==, noFeature);
+    g_assert_cmpstr(data.result.title.utf8().data(), ==, "fail");
+
+    // Monado doesn't support hand-tracking
+    testPermissionRequest("immersive-ar"_s, "requiredFeatures: ['local', 'unbounded'], optionalFeatures: ['hand-tracking']"_s, Answer::Allow);
+    g_assert_true(data.result.didCallback);
+    g_assert_cmpint(data.result.mode.value(), ==, WEBKIT_XR_SESSION_MODE_IMMERSIVE_AR);
+    g_assert_cmpstr(data.result.origin.utf8().data(), ==, "https://foo.com");
+    g_assert_cmpint(data.result.grantedFeatures, ==, WEBKIT_XR_SESSION_FEATURES_VIEWER | WEBKIT_XR_SESSION_FEATURES_LOCAL | WEBKIT_XR_SESSION_FEATURES_UNBOUNDED);
+    g_assert_cmpint(data.result.consentRequiredFeatures, ==, noFeature);
+    g_assert_cmpint(data.result.consentOptionalFeatures, ==, noFeature);
+    g_assert_cmpint(data.result.requiredFeaturesRequested, ==, WEBKIT_XR_SESSION_FEATURES_VIEWER | WEBKIT_XR_SESSION_FEATURES_LOCAL | WEBKIT_XR_SESSION_FEATURES_UNBOUNDED);
+    g_assert_cmpint(data.result.optionalFeaturesRequested, ==, noFeature);
+    g_assert_cmpstr(data.result.title.utf8().data(), ==, "pass");
+}
+
 void beforeAll()
 {
     kHttpsServer = new WebKitTestServer(WebKitTestServer::ServerHTTPS);
     kHttpsServer->run(serverCallback);
 
     WebXRTest::add("WebKitWebXR", "leave-immersive-mode", testWebKitWebXRLeaveImmersiveModeAndWaitUntilImmersiveModeChanged);
+    WebXRTest::add("WebKitWebXR", "permission-request", testWebKitXRPermissionRequest);
 }
 
 void afterAll()
