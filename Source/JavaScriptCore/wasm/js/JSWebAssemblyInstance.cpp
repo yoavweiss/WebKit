@@ -41,6 +41,7 @@
 #include "Register.h"
 #include "WasmBaselineData.h"
 #include "WasmConstExprGenerator.h"
+#include "WasmDebugServer.h"
 #include "WasmModuleInformation.h"
 #include "WasmTag.h"
 #include "WasmTypeDefinitionInlines.h"
@@ -142,6 +143,9 @@ void JSWebAssemblyInstance::finishCreation(VM& vm)
 
     // Now, JSWebAssemblyInstance is fully initialized. Expose it to the concurrent compiler.
     m_anchor = m_module->registerAnchor(this);
+
+    if (Options::enableWasmDebugger()) [[unlikely]]
+        Wasm::DebugServer::singleton().trackInstance(this);
 }
 
 JSWebAssemblyInstance::~JSWebAssemblyInstance()

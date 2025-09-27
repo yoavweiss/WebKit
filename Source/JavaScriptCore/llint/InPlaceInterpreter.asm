@@ -269,7 +269,8 @@ end
 .checkStack:
     operationCallMayThrowPreservingVolatileRegisters(macro()
         move scratch, a1
-        cCall2(_ipint_extern_check_stack_and_vm_traps)
+        move callee, a2
+        cCall3(_ipint_extern_check_stack_and_vm_traps)
     end)
 
 .stackHeightOK:
@@ -1317,7 +1318,8 @@ end
     storei PC, CallSiteIndex[cfr]
     move wasmInstance, a0
     move ws1, a1
-    cCall2(_ipint_extern_check_stack_and_vm_traps)
+    move ws0, a2
+    cCall3(_ipint_extern_check_stack_and_vm_traps)
     bpneq r1, (constexpr JSC::IPInt::SlowPathExceptionTag), .stackHeightOKNeedRestoreRegisters
     restoreWasmVolatileRegisters()
 

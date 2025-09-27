@@ -37,6 +37,7 @@
 #include "WasmContext.h"
 #include "WasmFunctionIPIntMetadataGenerator.h"
 #include "WasmFunctionParser.h"
+#include "WasmModuleDebugInfo.h"
 #include <wtf/Assertions.h>
 #include <wtf/CompletionHandler.h>
 #include <wtf/RefPtr.h>
@@ -92,6 +93,17 @@
  */
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
+
+#define RECORD_NEXT_INSTRUCTION(fromPC, toPC)                                                            \
+    do {                                                                                                 \
+        if (Options::enableWasmDebugger()) [[unlikely]] {                                                \
+            if (m_debugInfo) {                                                                           \
+                uint32_t fromOffset = fromPC + m_metadata->m_bytecodeOffset + m_functionStartByteOffset; \
+                uint32_t toOffset = toPC + m_metadata->m_bytecodeOffset + m_functionStartByteOffset;     \
+                m_debugInfo->addNextInstruction(fromOffset, toOffset);                                   \
+            }                                                                                            \
+        }                                                                                                \
+    } while (0)
 
 namespace JSC { namespace Wasm {
 
@@ -189,7 +201,7 @@ private:
 
 class IPIntGenerator {
 public:
-    IPIntGenerator(ModuleInformation&, FunctionCodeIndex, const TypeDefinition&, std::span<const uint8_t>);
+    IPIntGenerator(ModuleInformation&, FunctionCodeIndex, const TypeDefinition&, std::span<const uint8_t>, FunctionDebugInfo* = nullptr);
 
     static constexpr bool shouldFuseBranchCompare = false;
 
@@ -540,9 +552,21 @@ public:
     void willParseExtendedOpcode() { }
     void didParseOpcode()
     {
-        if (!m_parser->unreachableBlocks())
+        if (!m_parser->unreachableBlocks()) {
             assertAboutStackSize(m_parser->getStackHeightInValues() == m_stackSize.value());
+            if (Options::enableWasmDebugger()) [[unlikely]] {
+                if (m_debugInfo) {
+                    OpType currentOpcode = m_parser->currentOpcode();
+                    bool isControlFlowInstruction = Wasm::isControlFlowInstructionWithExtGC(currentOpcode, [this]() {
+                        return m_parser->currentExtendedOpcode();
+                    });
+                    if (!isControlFlowInstruction)
+                        RECORD_NEXT_INSTRUCTION(curPC(), nextPC());
+                }
+            }
+        }
     }
+
     void dump(const ControlStack&, const Stack*);
 
     void convertTryToCatch(ControlType& tryBlock, CatchKind);
@@ -580,6 +604,7 @@ public:
             ASSERT(target.m_entryResolved);
             IPInt::BlockMetadata md = { static_cast<int32_t>(target.m_entryTarget.pc - loc.pc), static_cast<int32_t>(target.m_entryTarget.mc - loc.mc) };
             WRITE_TO_METADATA(metadata + loc.mc, md, IPInt::BlockMetadata);
+            RECORD_NEXT_INSTRUCTION(loc.pc, target.m_entryTarget.pc);
         } else {
             ASSERT(!target.m_exitResolved);
             target.m_awaitingBranchTarget.append(loc);
@@ -651,15 +676,20 @@ private:
 
     bool m_usesRethrow { false };
     bool m_usesSIMD { false };
+
+    size_t m_functionStartByteOffset { 0 };
+    FunctionDebugInfo* m_debugInfo { nullptr };
 };
 
 // use if (true) to avoid warnings.
 #define IPINT_UNIMPLEMENTED { if (true) { CRASH(); } return { }; }
 
-IPIntGenerator::IPIntGenerator(ModuleInformation& info, FunctionCodeIndex functionIndex, const TypeDefinition&, std::span<const uint8_t> bytecode)
+IPIntGenerator::IPIntGenerator(ModuleInformation& info, FunctionCodeIndex functionIndex, const TypeDefinition&, std::span<const uint8_t> bytecode, FunctionDebugInfo* debugInfo)
     : m_info(info)
     , m_functionIndex(functionIndex)
     , m_metadata(WTF::makeUnique<FunctionIPIntMetadataGenerator>(functionIndex, bytecode))
+    , m_functionStartByteOffset(info.functions[functionIndex].start)
+    , m_debugInfo(debugInfo)
 {
 }
 
@@ -935,6 +965,14 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addArguments(const TypeDefiniti
     }
     m_metadata->m_argumINTBytecode.append(static_cast<uint8_t>(IPInt::ArgumINTBytecode::End));
 
+    if (Options::enableWasmDebugger()) [[unlikely]] {
+        if (m_debugInfo) {
+            auto* localTypes = &m_debugInfo->locals;
+            for (size_t i = 0; i < numArgs; ++i)
+                localTypes->append(sig->argumentType(i));
+        }
+    }
+
     m_metadata->addReturnData(*sig, callCC);
     return { };
 }
@@ -950,6 +988,15 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addLocal(Type localType, uint32
             m_metadata->m_argumINTBytecode.append(0);
     }
     m_metadata->m_numLocals += count;
+
+    if (Options::enableWasmDebugger()) [[unlikely]] {
+        if (m_debugInfo) {
+            auto* localTypes = &m_debugInfo->locals;
+            for (unsigned i = 0; i < count; ++i)
+                localTypes->append(localType);
+        }
+    }
+
     return { };
 }
 
@@ -2079,6 +2126,7 @@ void IPIntGenerator::coalesceControlFlow(bool force)
     for (auto& src : m_exitHandlersAwaitingCoalescing) {
         IPInt::BlockMetadata md = { static_cast<int32_t>(here.pc - src.pc), static_cast<int32_t>(here.mc - src.mc) };
         WRITE_TO_METADATA(m_metadata->m_metadata.mutableSpan().data() + src.mc, md, IPInt::BlockMetadata);
+        RECORD_NEXT_INSTRUCTION(src.pc, here.pc);
     }
     m_exitHandlersAwaitingCoalescing.shrink(0);
 }
@@ -2091,11 +2139,13 @@ void IPIntGenerator::resolveEntryTarget(unsigned index, IPIntLocation loc)
         // write delta PC and delta MC
         IPInt::BlockMetadata md = { static_cast<int32_t>(loc.pc - src.pc), static_cast<int32_t>(loc.mc - src.mc) };
         WRITE_TO_METADATA(m_metadata->m_metadata.mutableSpan().data() + src.mc, md, IPInt::BlockMetadata);
+        RECORD_NEXT_INSTRUCTION(src.pc, loc.pc);
     }
     if (control.isLoop) {
         for (auto& src : control.m_awaitingBranchTarget) {
             IPInt::BlockMetadata md = { static_cast<int32_t>(loc.pc - src.pc), static_cast<int32_t>(loc.mc - src.mc) };
             WRITE_TO_METADATA(m_metadata->m_metadata.mutableSpan().data() + src.mc, md, IPInt::BlockMetadata);
+            RECORD_NEXT_INSTRUCTION(src.pc, loc.pc);
         }
         control.m_awaitingBranchTarget.clear();
     }
@@ -2112,11 +2162,13 @@ void IPIntGenerator::resolveExitTarget(unsigned index, IPIntLocation loc)
         // write delta PC and delta MC
         IPInt::BlockMetadata md = { static_cast<int32_t>(loc.pc - src.pc), static_cast<int32_t>(loc.mc - src.mc) };
         WRITE_TO_METADATA(m_metadata->m_metadata.mutableSpan().data() + src.mc, md, IPInt::BlockMetadata);
+        RECORD_NEXT_INSTRUCTION(src.pc, loc.pc);
     }
     if (!control.isLoop) {
         for (auto& src : control.m_awaitingBranchTarget) {
             IPInt::BlockMetadata md = { static_cast<int32_t>(loc.pc - src.pc), static_cast<int32_t>(loc.mc - src.mc) };
             WRITE_TO_METADATA(m_metadata->m_metadata.mutableSpan().data() + src.mc, md, IPInt::BlockMetadata);
+            RECORD_NEXT_INSTRUCTION(src.pc, loc.pc);
         }
         control.m_awaitingBranchTarget.clear();
     }
@@ -2145,7 +2197,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addBlock(BlockSignature signatu
     block.m_pc = curPC();
     block.m_mc = curMC();
     block.m_pendingOffset = curMC();
-
+    RECORD_NEXT_INSTRUCTION(block.m_pc, nextPC());
 
     // Register to be coalesced if possible!
     m_coalesceQueue.append(QueuedCoalesceRequest { m_controlStructuresAwaitingCoalescing.size(), true });
@@ -2171,6 +2223,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addLoop(BlockSignature signatur
     block.m_index = m_controlStructuresAwaitingCoalescing.size();
     block.m_pendingOffset = -1; // no need to update!
     block.m_pc = curPC();
+    RECORD_NEXT_INSTRUCTION(block.m_pc, nextPC());
 
     // Register to be coalesced if possible!
     m_controlStructuresAwaitingCoalescing.append(ControlStructureAwaitingCoalescing {
@@ -2203,6 +2256,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addIf(ExpressionType, BlockSign
     block.m_pc = curPC();
     block.m_mc = curMC();
     block.m_pendingOffset = m_metadata->m_metadata.size();
+    RECORD_NEXT_INSTRUCTION(block.m_pc, nextPC());
 
     m_coalesceQueue.append(QueuedCoalesceRequest { m_controlStructuresAwaitingCoalescing.size(), true });
     m_controlStructuresAwaitingCoalescing.append(ControlStructureAwaitingCoalescing {
@@ -2237,6 +2291,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addElseToUnreachable(ControlTyp
 
     // delta PC
     mdIf->elseDeltaPC = nextPC() - block.m_pc;
+    RECORD_NEXT_INSTRUCTION(block.m_pc, block.m_pc + mdIf->elseDeltaPC);
 
     // delta MC
     if (m_parser->currentOpcode() == OpType::End) {
@@ -2275,6 +2330,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addTry(BlockSignature signature
     block.m_tryDepth = m_tryDepth;
     block.m_pc = curPC();
     block.m_mc = curMC();
+    RECORD_NEXT_INSTRUCTION(block.m_pc, nextPC());
 
     m_coalesceQueue.append(QueuedCoalesceRequest { m_controlStructuresAwaitingCoalescing.size(), true });
     m_controlStructuresAwaitingCoalescing.append(ControlStructureAwaitingCoalescing {
@@ -2303,6 +2359,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addTryTable(BlockSignature sign
     result.m_pc = curPC();
     result.m_mc = curMC();
     result.m_pendingOffset = curMC();
+    RECORD_NEXT_INSTRUCTION(result.m_pc, nextPC());
 
     m_coalesceQueue.append(QueuedCoalesceRequest { m_controlStructuresAwaitingCoalescing.size(), true });
     m_controlStructuresAwaitingCoalescing.append(ControlStructureAwaitingCoalescing {
@@ -2513,10 +2570,13 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addReturn(const ControlType&, c
 
 PartialResult WARN_UNUSED_RETURN IPIntGenerator::addBranch(ControlType& block, ExpressionType, const Stack&)
 {
-    if (m_parser->currentOpcode() == OpType::BrIf)
+    bool isBrIf = (m_parser->currentOpcode() == OpType::BrIf);
+    if (isBrIf)
         changeStackSize(-1);
 
     IPIntLocation here = { curPC(), curMC() };
+    if (isBrIf)
+        RECORD_NEXT_INSTRUCTION(here.pc, nextPC());
 
     IPInt::BranchMetadata branch {
         .target = {
@@ -2537,6 +2597,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addBranchNull(ControlType& bloc
     // We don't need shouldNegate in the metadata since it's in the opcode
 
     IPIntLocation here = { curPC(), curMC() };
+    RECORD_NEXT_INSTRUCTION(here.pc, nextPC());
 
     unsigned toPop = m_stackSize - block.stackSize() - block.branchTargetArity();
 
@@ -2567,6 +2628,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addBranchCast(ControlType& bloc
     });
 
     IPIntLocation here = { curPC(), curMC() };
+    RECORD_NEXT_INSTRUCTION(here.pc, nextPC());
 
     m_metadata->appendMetadata<IPInt::BranchMetadata>({
         .target = {
@@ -2719,10 +2781,12 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addEndToUnreachable(ControlEntr
 
 auto IPIntGenerator::endTopLevel(BlockSignature signature, const Stack& expressionStack) -> PartialResult
 {
-    if (m_usesSIMD)
+    bool isNotDebugMode = !m_debugInfo;
+    if (m_usesSIMD && isNotDebugMode)
         m_info.markUsesSIMD(m_metadata->functionIndex());
     RELEASE_ASSERT(expressionStack.size() == signature.m_signature->returnCount());
-    m_info.doneSeeingFunction(m_metadata->m_functionIndex);
+    if (isNotDebugMode)
+        m_info.doneSeeingFunction(m_metadata->m_functionIndex);
     return { };
 }
 
@@ -3098,6 +3162,17 @@ Expected<std::unique_ptr<FunctionIPIntMetadataGenerator>, String> parseAndCompil
     FunctionParser<IPIntGenerator> parser(generator, function, signature, info);
     WASM_FAIL_IF_HELPER_FAILS(parser.parse());
     return generator.finalize();
+}
+
+void parseForDebugInfo(std::span<const uint8_t> function, const TypeDefinition& signature, ModuleInformation& info, FunctionCodeIndex functionIndex, FunctionDebugInfo& debugInfo)
+{
+    IPIntGenerator generator(info, functionIndex, signature, function, &debugInfo);
+    FunctionParser<IPIntGenerator> parser(generator, function, signature, info);
+    auto result = parser.parse();
+    if (!result) {
+        WTF::dataLogLn("Failed to parse for debug info:", result.error());
+        RELEASE_ASSERT_NOT_REACHED();
+    }
 }
 
 void IPIntGenerator::dump(const ControlStack&, const Stack*)

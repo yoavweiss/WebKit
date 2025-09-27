@@ -43,6 +43,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 #include "WasmCallProfile.h"
 #include "WasmCallee.h"
 #include "WasmCallingConvention.h"
+#include "WasmDebugServer.h"
 #include "WasmIPIntGenerator.h"
 #include "WasmModuleInformation.h"
 #include "WasmOSREntryPlan.h"
@@ -1138,7 +1139,7 @@ extern "C" UGPRPair SYSV_ABI slow_path_wasm_popcountll(const void* pc, uint64_t 
     WASM_RETURN_TWO(pc, result);
 }
 
-WASM_IPINT_EXTERN_CPP_DECL(check_stack_and_vm_traps, void* candidateNewStackPointer)
+WASM_IPINT_EXTERN_CPP_DECL(check_stack_and_vm_traps, void* candidateNewStackPointer, Wasm::IPIntCallee* callee)
 {
     VM& vm = instance->vm();
     if (vm.traps().handleTrapsIfNeeded()) {
@@ -1148,10 +1149,66 @@ WASM_IPINT_EXTERN_CPP_DECL(check_stack_and_vm_traps, void* candidateNewStackPoin
     }
 
     // Redo stack check because we may really have gotten here due to an imminent StackOverflow.
-    if (vm.softStackLimit() <= candidateNewStackPointer)
+    if (vm.softStackLimit() <= candidateNewStackPointer) {
+        if (Options::enableWasmDebugger()) [[unlikely]] {
+            auto& debugServer = Wasm::DebugServer::singleton();
+            if (debugServer.interruptRequested())
+                debugServer.setInterruptBreakpoint(instance, callee);
+        }
         IPINT_RETURN(encodedJSValue()); // No stack overflow. Carry on.
+    }
 
     IPINT_THROW(Wasm::ExceptionType::StackOverflow);
+}
+
+static UNUSED_FUNCTION void displayWasmDebugState(JSWebAssemblyInstance* instance, Wasm::IPIntCallee* callee, IPIntStackEntry* sp, IPIntLocal* pl)
+{
+    dataLogLn("=== WASM Debug State ===");
+
+    uint32_t numLocals = callee->numLocals();
+    dataLogLn("WASM Locals (", numLocals, " entries):");
+    auto functionIndex = callee->functionIndex();
+    const auto& moduleInfo = instance->module().moduleInformation();
+    const Vector<Wasm::Type>& localTypes = moduleInfo.debugInfo->ensureFunctionDebugInfo(functionIndex).locals;
+    for (uint32_t i = 0; i < numLocals; ++i)
+        logWasmLocalValue(i,  pl[i], localTypes[i]);
+
+    constexpr size_t STACK_ENTRY_SIZE = 16;
+    if (sp && pl && sp <= reinterpret_cast<IPIntStackEntry*>(pl)) {
+        size_t stackDepth = (reinterpret_cast<uint8_t*>(pl) - reinterpret_cast<uint8_t*>(sp)) / STACK_ENTRY_SIZE;
+        dataLogLn("WASM Stack (", stackDepth, " entries - showing all type interpretations):");
+
+        IPIntStackEntry* currentEntry = sp;
+        for (size_t i = 0; i < stackDepth; ++i) {
+            dataLogLn("  Stack[", i, "]: i32=", currentEntry->i32, ", i64=", currentEntry->i64, ", f32=", currentEntry->f32, ", f64=", currentEntry->f64, ", ref=", currentEntry->ref);
+            currentEntry++;
+        }
+    } else
+        dataLogLn("WASM Stack: Invalid stack pointers");
+    dataLogLn("=== End WASM Debug State ===");
+}
+
+
+WASM_IPINT_EXTERN_CPP_DECL(unreachable_breakpoint_handler, CallFrame* callFrame, Register* sp)
+{
+    dataLogLnIf(Options::verboseWasmDebugger(), "[Code][unreachable] Start");
+    bool breakpointHandled = false;
+    if (Options::enableWasmDebugger()) [[unlikely]] {
+        Wasm::DebugServer& debugServer = Wasm::DebugServer::singleton();
+        if (debugServer.needToHandleBreakpoints()) {
+            uint8_t* pc = static_cast<uint8_t*>(sp[2].pointer());
+            uint8_t* mc = static_cast<uint8_t*>(sp[3].pointer());
+            IPIntLocal* pl = static_cast<IPIntLocal*>(sp[0].pointer());
+            Wasm::IPIntCallee* callee = static_cast<Wasm::IPIntCallee*>(sp[1].pointer());
+    
+            IPIntStackEntry* stackPointer = reinterpret_cast<IPIntStackEntry*>(sp + 4);
+            if (Options::verboseWasmDebugger())
+                displayWasmDebugState(instance, callee, stackPointer, pl);
+            breakpointHandled = debugServer.stopCode(callFrame, instance, callee, pc, mc, pl, stackPointer);
+        }
+    }
+    dataLogLnIf(Options::verboseWasmDebugger(), "[Code][unreachable] Done with breakpointHandled=", breakpointHandled);
+    IPINT_RETURN(static_cast<EncodedJSValue>(static_cast<int32_t>(breakpointHandled)));
 }
 
 } } // namespace JSC::IPInt

@@ -232,6 +232,24 @@ end
 
 ipintOp(_unreachable, macro()
     # unreachable
+
+    # Push to stack for the handler
+    push PC, MC
+    push PL, ws0
+
+    move cfr, a1
+    move sp, a2
+    operationCall(macro() cCall3(_ipint_extern_unreachable_breakpoint_handler) end)
+
+    # Remove pushed values
+    addq 4 * SlotSize, sp
+
+    bqeq r0, 0, .exception
+
+.continue:
+    nextIPIntInstruction()
+
+.exception:
     ipintException(Unreachable)
 end)
 
