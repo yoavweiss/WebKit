@@ -3019,6 +3019,8 @@ target_precompile_headers(WebCore PRIVATE WebCorePrefix.h)
 list(APPEND WebCore_PRIVATE_FRAMEWORK_HEADERS
     ${WebCore_DERIVED_SOURCES_DIR}/ProcessSyncData.serialization.in
 
+    Modules/Model/InternalAPI/DDModel.serialization.in
+
     Modules/WebGPU/InternalAPI/WebGPU.serialization.in
     Modules/indexeddb/IndexedDB.serialization.in
 

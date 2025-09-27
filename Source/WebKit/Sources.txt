@@ -44,6 +44,8 @@ GPUProcess/graphics/RemoteSnapshotRecorder.cpp
 GPUProcess/graphics/ScopedRenderingResourcesRequest.cpp
 GPUProcess/graphics/ScopedWebGLRenderingResourcesRequest.cpp
 GPUProcess/graphics/ShareablePixelBuffer.cpp
+GPUProcess/graphics/Model/ModelObjectHeap.cpp
+GPUProcess/graphics/Model/RemoteDDMesh.cpp
 GPUProcess/graphics/WebGPU/RemoteAdapter.cpp
 GPUProcess/graphics/WebGPU/RemoteBindGroup.cpp
 GPUProcess/graphics/WebGPU/RemoteBindGroupLayout.cpp
@@ -321,6 +323,10 @@ Shared/Extensions/WebExtensionUtilities.cpp
 Shared/Gamepad/GamepadData.cpp
 
 Shared/graphics/ImageBufferSet.cpp
+
+Shared/Model/DDMeshDescriptor.cpp
+Shared/Model/DDUpdateMeshDescriptor.cpp
+Shared/Model/ModelObjectDescriptorBase.cpp
 
 Shared/WebGPU/WebGPUBindGroupDescriptor.cpp
 Shared/WebGPU/WebGPUBindGroupEntry.cpp
@@ -749,6 +755,8 @@ WebProcess/GPU/RemoteSharedResourceCacheProxy.cpp
 WebProcess/GPU/ShapeDetection/RemoteBarcodeDetectorProxy.cpp
 WebProcess/GPU/ShapeDetection/RemoteFaceDetectorProxy.cpp
 WebProcess/GPU/ShapeDetection/RemoteTextDetectorProxy.cpp
+WebProcess/GPU/graphics/Model/RemoteDDMeshProxy.cpp
+WebProcess/GPU/graphics/Model/ModelDowncastConvertToBackingContext.cpp
 WebProcess/GPU/graphics/WebGPU/RemoteAdapterProxy.cpp
 WebProcess/GPU/graphics/WebGPU/RemoteBindGroupLayoutProxy.cpp
 WebProcess/GPU/graphics/WebGPU/RemoteBindGroupProxy.cpp
@@ -963,6 +971,7 @@ RemoteCommandEncoderMessageReceiver.cpp
 RemoteCompositorIntegrationMessageReceiver.cpp
 RemoteComputePassEncoderMessageReceiver.cpp
 RemoteComputePipelineMessageReceiver.cpp
+RemoteDDMeshMessageReceiver.cpp
 RemoteDeviceMessageReceiver.cpp
 RemoteExternalTextureMessageReceiver.cpp
 RemoteFaceDetectorMessageReceiver.cpp

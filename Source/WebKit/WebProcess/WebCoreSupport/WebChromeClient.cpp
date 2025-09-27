@@ -42,6 +42,7 @@
 #include "ImageBufferShareableBitmapBackend.h"
 #include "InjectedBundleNodeHandle.h"
 #include "MessageSenderInlines.h"
+#include "ModelDowncastConvertToBackingContext.h"
 #include "NavigationActionData.h"
 #include "NetworkConnectionToWebProcessMessages.h"
 #include "NetworkProcessConnection.h"
@@ -1131,7 +1132,7 @@ RefPtr<WebCore::WebGPU::GPU> WebChromeClient::createGPUForWebGPU() const
     RefPtr page = m_page.get();
     if (!page)
         return nullptr;
-    return RemoteGPUProxy::create(WebGPU::DowncastConvertToBackingContext::create(), page.releaseNonNull());
+    return RemoteGPUProxy::create(WebGPU::DowncastConvertToBackingContext::create(), DDModel::DowncastConvertToBackingContext::create(), page.releaseNonNull());
 #else
     return WebCore::WebGPU::create([](WebCore::WebGPU::WorkItem&& workItem) {
         callOnMainRunLoop(WTFMove(workItem));

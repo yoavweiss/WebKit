@@ -223,6 +223,7 @@
 		07FAA74B2CE947AA00128360 /* WebPage+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FAA74A2CE947AA00128360 /* WebPage+Navigation.swift */; };
 		07FEBC9A2E035A8B004A6D5D /* WKMouseDeviceObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FEBC992E035950004A6D5D /* WKMouseDeviceObserver.swift */; };
 		0D4599052C86B00F00435F48 /* WKDigitalCredentialsPicker.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D9D28E72C81473B002CB4C7 /* WKDigitalCredentialsPicker.h */; };
+		0D9649182E7489AF000F9CDA /* ModelDowncastConvertToBackingContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D9649122E748610000F9CDA /* ModelDowncastConvertToBackingContext.h */; };
 		0DD656D42C8F0A4400278C3B /* DigitalCredentialsCoordinator.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D20EA1C2C59E2F900CA61BD /* DigitalCredentialsCoordinator.h */; };
 		0E97D74D200E900400BF6643 /* SafeBrowsingSPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 0E97D74C200E8FF300BF6643 /* SafeBrowsingSPI.h */; };
 		0EDE85032004E75D00030560 /* WebsitePopUpPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = 0EDE85022004E74900030560 /* WebsitePopUpPolicy.h */; };
@@ -3414,6 +3415,32 @@
 		089C1667FE841158C02AAC07 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		0D02BE3129B6D0F7005852BF /* WebGPUInternalError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebGPUInternalError.h; sourceTree = "<group>"; };
 		0D02BE3229B6D0F8005852BF /* WebGPUInternalError.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebGPUInternalError.cpp; sourceTree = "<group>"; };
+		0D078E972E73865C00A9B266 /* DDMeshDescriptor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDMeshDescriptor.h; sourceTree = "<group>"; };
+		0D078E982E73865C00A9B266 /* DDMeshDescriptor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DDMeshDescriptor.cpp; sourceTree = "<group>"; };
+		0D078E992E73865C00A9B266 /* DDMeshDescriptor.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = DDMeshDescriptor.serialization.in; sourceTree = "<group>"; };
+		0D078E9A2E73865C00A9B266 /* DDMeshPart.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDMeshPart.h; sourceTree = "<group>"; };
+		0D078E9B2E73865C00A9B266 /* DDMeshPart.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DDMeshPart.cpp; sourceTree = "<group>"; };
+		0D078E9C2E73865C00A9B266 /* DDMeshPart.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = DDMeshPart.serialization.in; sourceTree = "<group>"; };
+		0D078E9D2E73865C00A9B266 /* DDReplaceVertices.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDReplaceVertices.h; sourceTree = "<group>"; };
+		0D078E9E2E73865C00A9B266 /* DDReplaceVertices.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DDReplaceVertices.cpp; sourceTree = "<group>"; };
+		0D078E9F2E73865C00A9B266 /* DDReplaceVertices.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = DDReplaceVertices.serialization.in; sourceTree = "<group>"; };
+		0D078EA02E73865C00A9B266 /* DDUpdateMeshDescriptor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDUpdateMeshDescriptor.h; sourceTree = "<group>"; };
+		0D078EA12E73865C00A9B266 /* DDUpdateMeshDescriptor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DDUpdateMeshDescriptor.cpp; sourceTree = "<group>"; };
+		0D078EA22E73865C00A9B266 /* DDUpdateMeshDescriptor.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = DDUpdateMeshDescriptor.serialization.in; sourceTree = "<group>"; };
+		0D078EA32E73865C00A9B266 /* DDVertexAttributeFormat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDVertexAttributeFormat.h; sourceTree = "<group>"; };
+		0D078EA42E73865C00A9B266 /* DDVertexAttributeFormat.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = DDVertexAttributeFormat.serialization.in; sourceTree = "<group>"; };
+		0D078EA52E73865C00A9B266 /* DDVertexLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDVertexLayout.h; sourceTree = "<group>"; };
+		0D078EA62E73865C00A9B266 /* DDVertexLayout.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = DDVertexLayout.serialization.in; sourceTree = "<group>"; };
+		0D078EB42E7387FA00A9B266 /* RemoteDDMesh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemoteDDMesh.h; sourceTree = "<group>"; };
+		0D078EB52E7387FA00A9B266 /* RemoteDDMesh.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RemoteDDMesh.cpp; sourceTree = "<group>"; };
+		0D078EB62E7387FA00A9B266 /* RemoteDDMesh.messages.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = RemoteDDMesh.messages.in; sourceTree = "<group>"; };
+		0D078EB82E73886600A9B266 /* DDModelIdentifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDModelIdentifier.h; sourceTree = "<group>"; };
+		0D078EBA2E738BCD00A9B266 /* ModelObjectHeap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModelObjectHeap.h; sourceTree = "<group>"; };
+		0D078EBB2E738BCD00A9B266 /* ModelObjectHeap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ModelObjectHeap.cpp; sourceTree = "<group>"; };
+		0D078EBC2E738DB500A9B266 /* ModelConvertFromBackingContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModelConvertFromBackingContext.h; sourceTree = "<group>"; };
+		0D078EBD2E738DB500A9B266 /* ModelConvertToBackingContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModelConvertToBackingContext.h; sourceTree = "<group>"; };
+		0D078EBE2E73907700A9B266 /* RemoteDDMeshProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemoteDDMeshProxy.h; sourceTree = "<group>"; };
+		0D078EBF2E73907700A9B266 /* RemoteDDMeshProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RemoteDDMeshProxy.cpp; sourceTree = "<group>"; };
 		0D20EA192C59E2CE00CA61BD /* DigitalCredentialsCoordinator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DigitalCredentialsCoordinator.cpp; sourceTree = "<group>"; };
 		0D20EA1C2C59E2F900CA61BD /* DigitalCredentialsCoordinator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DigitalCredentialsCoordinator.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.xcfilelist; };
 		0D25BC912B69D92100916722 /* WebGPUInternalError.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = WebGPUInternalError.serialization.in; sourceTree = "<group>"; };
@@ -3445,6 +3472,11 @@
 		0D943C082C6555DB00D33BA5 /* RemoteXRSubImage.messages.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = RemoteXRSubImage.messages.in; sourceTree = "<group>"; };
 		0D943C092C65560E00D33BA5 /* RemoteXRSubImageProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemoteXRSubImageProxy.h; sourceTree = "<group>"; };
 		0D943C0A2C65560E00D33BA5 /* RemoteXRSubImageProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RemoteXRSubImageProxy.cpp; sourceTree = "<group>"; };
+		0D9649072E73D370000F9CDA /* ModelObjectDescriptorBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModelObjectDescriptorBase.h; sourceTree = "<group>"; };
+		0D9649092E73D563000F9CDA /* ModelObjectDescriptorBase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ModelObjectDescriptorBase.cpp; sourceTree = "<group>"; };
+		0D96490A2E73D563000F9CDA /* ModelObjectDescriptorBase.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = ModelObjectDescriptorBase.serialization.in; sourceTree = "<group>"; };
+		0D9649122E748610000F9CDA /* ModelDowncastConvertToBackingContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModelDowncastConvertToBackingContext.h; sourceTree = "<group>"; };
+		0D9649132E748673000F9CDA /* ModelDowncastConvertToBackingContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ModelDowncastConvertToBackingContext.cpp; sourceTree = "<group>"; };
 		0D9D28E72C81473B002CB4C7 /* WKDigitalCredentialsPicker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WKDigitalCredentialsPicker.h; sourceTree = "<group>"; };
 		0D9D28E82C814F79002CB4C7 /* WKDigitalCredentialsPicker.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WKDigitalCredentialsPicker.mm; sourceTree = "<group>"; };
 		0DCBF4D926E2ED3200EA0E07 /* WebAuthenticatorCoordinatorProxy.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WebAuthenticatorCoordinatorProxy.mm; sourceTree = "<group>"; };
@@ -9425,6 +9457,58 @@
 			tabWidth = 8;
 			usesTabs = 0;
 		};
+		0D078EA72E73865C00A9B266 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				0D078E982E73865C00A9B266 /* DDMeshDescriptor.cpp */,
+				0D078E972E73865C00A9B266 /* DDMeshDescriptor.h */,
+				0D078E992E73865C00A9B266 /* DDMeshDescriptor.serialization.in */,
+				0D078E9B2E73865C00A9B266 /* DDMeshPart.cpp */,
+				0D078E9A2E73865C00A9B266 /* DDMeshPart.h */,
+				0D078E9C2E73865C00A9B266 /* DDMeshPart.serialization.in */,
+				0D078EB82E73886600A9B266 /* DDModelIdentifier.h */,
+				0D078E9E2E73865C00A9B266 /* DDReplaceVertices.cpp */,
+				0D078E9D2E73865C00A9B266 /* DDReplaceVertices.h */,
+				0D078E9F2E73865C00A9B266 /* DDReplaceVertices.serialization.in */,
+				0D078EA12E73865C00A9B266 /* DDUpdateMeshDescriptor.cpp */,
+				0D078EA02E73865C00A9B266 /* DDUpdateMeshDescriptor.h */,
+				0D078EA22E73865C00A9B266 /* DDUpdateMeshDescriptor.serialization.in */,
+				0D078EA32E73865C00A9B266 /* DDVertexAttributeFormat.h */,
+				0D078EA42E73865C00A9B266 /* DDVertexAttributeFormat.serialization.in */,
+				0D078EA52E73865C00A9B266 /* DDVertexLayout.h */,
+				0D078EA62E73865C00A9B266 /* DDVertexLayout.serialization.in */,
+				0D078EBC2E738DB500A9B266 /* ModelConvertFromBackingContext.h */,
+				0D078EBD2E738DB500A9B266 /* ModelConvertToBackingContext.h */,
+				0D9649092E73D563000F9CDA /* ModelObjectDescriptorBase.cpp */,
+				0D9649072E73D370000F9CDA /* ModelObjectDescriptorBase.h */,
+				0D96490A2E73D563000F9CDA /* ModelObjectDescriptorBase.serialization.in */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		0D078EB72E7387FA00A9B266 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				0D078EBB2E738BCD00A9B266 /* ModelObjectHeap.cpp */,
+				0D078EBA2E738BCD00A9B266 /* ModelObjectHeap.h */,
+				0D078EB52E7387FA00A9B266 /* RemoteDDMesh.cpp */,
+				0D078EB42E7387FA00A9B266 /* RemoteDDMesh.h */,
+				0D078EB62E7387FA00A9B266 /* RemoteDDMesh.messages.in */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		0D078EC02E73907700A9B266 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				0D9649132E748673000F9CDA /* ModelDowncastConvertToBackingContext.cpp */,
+				0D9649122E748610000F9CDA /* ModelDowncastConvertToBackingContext.h */,
+				0D078EBF2E73907700A9B266 /* RemoteDDMeshProxy.cpp */,
+				0D078EBE2E73907700A9B266 /* RemoteDDMeshProxy.h */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		0D20EA1A2C59E2CE00CA61BD /* DigitalCredentials */ = {
 			isa = PBXGroup;
 			children = (
@@ -9717,6 +9801,7 @@
 				A71DC05D2B266DA3001C3075 /* graphics */,
 				2DA944961884E4DA00ED86DB /* ios */,
 				BC111B5A112F628200337BAB /* mac */,
+				0D078EA72E73865C00A9B266 /* Model */,
 				51AF1B3D271F46A6001538E6 /* Notifications */,
 				2D2E04761F5BEC4F00BB25ED /* RemoteLayerTree */,
 				E36FEFFE27F36F34004BE21A /* Sandbox */,
@@ -13483,6 +13568,7 @@
 			isa = PBXGroup;
 			children = (
 				727A7F3324078527004D2931 /* cocoa */,
+				0D078EC02E73907700A9B266 /* Model */,
 				1CB7461927436DE300F19874 /* WebGPU */,
 				0F86361B27BDC2B6006E6D52 /* BufferIdentifierSet.h */,
 				86D1967529A4E6D30083B077 /* BufferIdentifierSet.serialization.in */,
@@ -13526,6 +13612,7 @@
 		550640A124071A2900AAE045 /* graphics */ = {
 			isa = PBXGroup;
 			children = (
+				0D078EB72E7387FA00A9B266 /* Model */,
 				1C98C01C27446926002CCB78 /* WebGPU */,
 				724DCF22284862FC0026ACF4 /* ImageBufferShareableAllocator.cpp */,
 				724DCF21284862FC0026ACF4 /* ImageBufferShareableAllocator.h */,
@@ -17638,6 +17725,7 @@
 				57DCEDC3214F114C0016B847 /* MockLocalService.h in Headers */,
 				57B8264C230603C100B72EB0 /* MockNfcService.h in Headers */,
 				EBA8D3B327A5E33F00CB7900 /* MockPushServiceConnection.h in Headers */,
+				0D9649182E7489AF000F9CDA /* ModelDowncastConvertToBackingContext.h in Headers */,
 				7137BA8025F1542000914EE3 /* ModelElementController.h in Headers */,
 				52597BBC2DC41A3200CAAF01 /* ModelProcessModelPlayerTransformState.h in Headers */,
 				C0E3AA7C1209E83C00A49D01 /* Module.h in Headers */,

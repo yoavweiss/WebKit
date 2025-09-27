@@ -213,6 +213,7 @@ editing/mac/TextUndoInsertionMarkupMac.mm
 fileapi/FileCocoa.mm
 history/mac/HistoryItemMac.mm
 html/canvas/GPUCanvasContextCocoa.mm
+html/canvas/UsdModelLoader.swift
 html/shadow/YouTubeEmbedShadowElement.cpp
 inspector/LegacyWebSocketInspectorInstrumentation.cpp
 inspector/mac/PageDebuggerMac.mm

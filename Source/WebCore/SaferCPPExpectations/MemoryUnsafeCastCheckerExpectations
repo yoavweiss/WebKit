@@ -1,6 +1,7 @@
 EventTargetFactory.cpp
 HTMLNames.cpp
 MathMLNames.cpp
+Modules/Model/Implementation/ModelDowncastConvertToBackingContext.cpp
 Modules/WebGPU/Implementation/WebGPUBindGroupImpl.cpp
 Modules/WebGPU/Implementation/WebGPUDowncastConvertToBackingContext.cpp
 Modules/WebGPU/Implementation/WebGPUXRBindingImpl.cpp

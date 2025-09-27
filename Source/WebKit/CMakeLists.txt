@@ -11,6 +11,7 @@ set(WebKit_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBKIT_DIR}/GPUProcess"
     "${WEBKIT_DIR}/GPUProcess/ShapeDetection"
     "${WEBKIT_DIR}/GPUProcess/graphics"
+    "${WEBKIT_DIR}/GPUProcess/graphics/Model"
     "${WEBKIT_DIR}/GPUProcess/graphics/WebGPU"
     "${WEBKIT_DIR}/GPUProcess/media"
     "${WEBKIT_DIR}/GPUProcess/webrtc"
@@ -46,6 +47,7 @@ set(WebKit_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBKIT_DIR}/Shared/FileAPI"
     "${WEBKIT_DIR}/Shared/graphics"
     "${WEBKIT_DIR}/Shared/Gamepad"
+    "${WEBKIT_DIR}/Shared/Model"
     "${WEBKIT_DIR}/Shared/Notifications"
     "${WEBKIT_DIR}/Shared/RemoteLayerTree"
     "${WEBKIT_DIR}/Shared/WebGPU"
@@ -95,6 +97,7 @@ set(WebKit_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBKIT_DIR}/WebProcess/GPU"
     "${WEBKIT_DIR}/WebProcess/GPU/ShapeDetection"
     "${WEBKIT_DIR}/WebProcess/GPU/graphics"
+    "${WEBKIT_DIR}/WebProcess/GPU/graphics/Model"
     "${WEBKIT_DIR}/WebProcess/GPU/graphics/WebGPU"
     "${WEBKIT_DIR}/WebProcess/GPU/media"
     "${WEBKIT_DIR}/WebProcess/GPU/webrtc"
@@ -188,6 +191,8 @@ set(WebKit_MESSAGES_IN_FILES
     GPUProcess/graphics/RemoteImageBuffer
     GPUProcess/graphics/RemoteImageBufferSet
     GPUProcess/graphics/RemoteRenderingBackend
+
+    GPUProcess/graphics/Model/RemoteDDMesh
 
     GPUProcess/graphics/WebGPU/RemoteAdapter
     GPUProcess/graphics/WebGPU/RemoteBindGroup
@@ -590,7 +595,13 @@ set(WebKit_SERIALIZATION_IN_FILES
 
     Shared/Gamepad/GamepadData.serialization.in
 
-    Shared/graphics/RemoteImageBufferSetConfiguration.serialization.in
+    Shared/Model/DDMeshDescriptor.serialization.in
+    Shared/Model/DDMeshPart.serialization.in
+    Shared/Model/DDReplaceVertices.serialization.in
+    Shared/Model/DDUpdateMeshDescriptor.serialization.in
+    Shared/Model/DDVertexAttributeFormat.serialization.in
+    Shared/Model/DDVertexLayout.serialization.in
+    Shared/Model/ModelObjectDescriptorBase.serialization.in
 
     Shared/WebGPU/WebGPUBindGroupDescriptor.serialization.in
     Shared/WebGPU/WebGPUBindGroupEntry.serialization.in
@@ -667,6 +678,8 @@ set(WebKit_SERIALIZATION_IN_FILES
     Shared/XR/PlatformXR.serialization.in
     Shared/XR/XRSystem.serialization.in
 
+    Shared/graphics/RemoteImageBufferSetConfiguration.serialization.in
+
     UIProcess/Extensions/WebExtension.serialization.in
 
     WebProcess/GPU/GPUProcessConnectionInfo.serialization.in
@@ -702,6 +715,7 @@ set(WebCore_GENERATED_SERIALIZATION_IN_FILES
 
 set(WebCore_SERIALIZATION_IN_FILES
     ActivityState.serialization.in
+    DDModel.serialization.in
     DragActions.serialization.in
     InbandTextTrackPrivate.serialization.in
     IndexedDB.serialization.in

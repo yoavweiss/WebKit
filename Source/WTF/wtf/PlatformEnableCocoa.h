@@ -574,6 +574,10 @@
 #define ENABLE_MODEL_ELEMENT 1
 #endif
 
+#if !defined(ENABLE_GPUP_MODEL)
+#define ENABLE_GPUP_MODEL 0
+#endif
+
 #if PLATFORM(MAC)
 #define ENABLE_MOMENTUM_EVENT_DISPATCHER 1
 #endif

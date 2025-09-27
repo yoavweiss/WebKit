@@ -219,6 +219,7 @@ template: struct IPC::AsyncReplyIDType
 template: struct WebCore::FileSystemHandleIdentifierType
 template: struct WebCore::FileSystemSyncAccessHandleIdentifierType
 template: struct WebCore::WebSocketIdentifierType
+template: struct WebKit::DDModelIdentifierType
 template: struct WebKit::QuotaIncreaseRequestIdentifierType
 template: struct WebKit::StorageAreaIdentifierType
 template: struct WebKit::WebGPUIdentifierType

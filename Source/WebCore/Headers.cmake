@@ -1,4 +1,17 @@
 set(WebCore_PRIVATE_FRAMEWORK_HEADERS
+    Modules/Model/Implementation/DDMeshImpl.h
+
+    Modules/Model/InternalAPI/DDFloat3.h
+    Modules/Model/InternalAPI/DDFloat4x4.h
+    Modules/Model/InternalAPI/DDMesh.h
+    Modules/Model/InternalAPI/DDMeshDescriptor.h
+    Modules/Model/InternalAPI/DDMeshPart.h
+    Modules/Model/InternalAPI/DDReplaceVertices.h
+    Modules/Model/InternalAPI/DDUpdateMeshDescriptor.h
+    Modules/Model/InternalAPI/DDVertexAttributeFormat.h
+    Modules/Model/InternalAPI/DDVertexLayout.h
+    Modules/Model/InternalAPI/ModelObjectDescriptorBase.h
+
     Modules/ShapeDetection/Interfaces/BarcodeDetectorInterface.h
     Modules/ShapeDetection/Interfaces/BarcodeDetectorOptionsInterface.h
     Modules/ShapeDetection/Interfaces/BarcodeFormatInterface.h

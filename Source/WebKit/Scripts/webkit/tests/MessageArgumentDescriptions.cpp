@@ -497,6 +497,7 @@ Vector<ASCIILiteral> serializedIdentifiers()
         "WebCore::WindowIdentifier"_s,
         "WebKit::AudioMediaStreamTrackRendererInternalUnitIdentifier"_s,
         "WebKit::AuthenticationChallengeIdentifier"_s,
+        "WebKit::DDModelIdentifier"_s,
         "WebKit::DataTaskIdentifier"_s,
         "WebKit::DisplayLinkObserverID"_s,
         "WebKit::DownloadID"_s,
