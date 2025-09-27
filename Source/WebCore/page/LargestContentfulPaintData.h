@@ -66,6 +66,13 @@ private:
     static bool isEligibleForLargestContentfulPaint(const Element&, float effectiveVisualArea);
 
     void potentiallyAddLargestContentfulPaintEntry(Element&, CachedImage*, FloatRect imageLocalRect, FloatRect intsectionRect, DOMHighResTimeStamp);
+
+    float m_largestPaintArea { 0 };
+
+    WeakHashMap<Element, WeakHashSet<CachedImage>, WeakPtrImplWithEventTargetData> m_imageContentSet;
+    WeakHashMap<Element, WeakHashMap<CachedImage, FloatRect>, WeakPtrImplWithEventTargetData> m_pendingImageRecords;
+
+    RefPtr<LargestContentfulPaint> m_pendingEntry;
 };
 
 } // namespace WebCore

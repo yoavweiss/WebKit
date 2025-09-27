@@ -276,9 +276,6 @@ imported/w3c/web-platform-tests/fs/ [ Skip ]
 storage/filesystemaccess/ [ Skip ]
 storage/storagemanager/ [ Skip ]
 
-# Not implemented yet.
-imported/w3c/web-platform-tests/largest-contentful-paint/ [ Skip ]
-
 # Not implemented, but resources referenced by largest-contentful-paint.
 imported/w3c/web-platform-tests/element-timing/ [ Skip ]
 
@@ -1296,6 +1293,20 @@ webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/first-input-int
 # Missing automation:
 webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/event-click-visibilitychange.html [ Skip ]
 webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/selection-autoscroll.html [ Skip ]
+
+# Only partially implemented.
+imported/w3c/web-platform-tests/largest-contentful-paint/ [ Skip ]
+imported/w3c/web-platform-tests/largest-contentful-paint/animated/observe-cross-origin-tao-animated-image.tentative.html [ Pass ]
+imported/w3c/web-platform-tests/largest-contentful-paint/background-image-set-image.html [ Pass ]
+imported/w3c/web-platform-tests/largest-contentful-paint/broken-image-icon.html [ Pass ]
+imported/w3c/web-platform-tests/largest-contentful-paint/idlharness.html [ Pass ]
+imported/w3c/web-platform-tests/largest-contentful-paint/iframe-content-not-observed.html [ Pass ]
+imported/w3c/web-platform-tests/largest-contentful-paint/image-sw-same-origin.https.html [ Pass ]
+imported/w3c/web-platform-tests/largest-contentful-paint/image-upscaling.html [ Pass ]
+imported/w3c/web-platform-tests/largest-contentful-paint/invisible-images.html [ Pass ]
+imported/w3c/web-platform-tests/largest-contentful-paint/larger-image.html [ Pass ]
+imported/w3c/web-platform-tests/largest-contentful-paint/supported-lcp-type.html [ Pass ]
+imported/w3c/web-platform-tests/largest-contentful-paint/video-play-after-poster.html [ Pass ]
 
 imported/w3c/web-platform-tests/mediacapture-streams/MediaStreamTrack-MediaElement-disabled-video-is-black.https.html [ Pass Failure ]
 imported/w3c/web-platform-tests/mediacapture-streams/MediaDevices-enumerateDevices-per-origin-ids.sub.https.html [ Skip ]

@@ -76,9 +76,10 @@ bool LargestContentfulPaintData::isEligibleForLargestContentfulPaint(const Eleme
     if (!renderer)
         return false;
 
-    // FIXME: Check isEffectivelyTransparent
+    if (renderer->style().isEffectivelyTransparent())
+        return false;
 
-    // FIXME: Need to implement the response length vs. image size logic.
+    // FIXME: Need to implement the response length vs. image size logic: webkit.org/b/299558.
     UNUSED_PARAM(effectiveVisualArea);
     return true;
 }
@@ -120,16 +121,83 @@ std::optional<float> LargestContentfulPaintData::effectiveVisualArea(const Eleme
 }
 
 // https://w3c.github.io/largest-contentful-paint/#sec-add-lcp-entry
-void LargestContentfulPaintData::potentiallyAddLargestContentfulPaintEntry(Element&, CachedImage*, FloatRect imageLocalRect, FloatRect intersectionRect, DOMHighResTimeStamp paintTimestamp)
+void LargestContentfulPaintData::potentiallyAddLargestContentfulPaintEntry(Element& element, CachedImage* image, FloatRect imageLocalRect, FloatRect intersectionRect, DOMHighResTimeStamp paintTimestamp)
 {
-    UNUSED_PARAM(imageLocalRect);
-    UNUSED_PARAM(intersectionRect);
-    UNUSED_PARAM(paintTimestamp);
+    bool isNewCandidate = false;
+    if (image) {
+        isNewCandidate = m_imageContentSet.ensure(element, [] {
+            return WeakHashSet<CachedImage> { };
+        }).iterator->value.add(*image).isNewEntry;
+    }
+
+    LOG_WITH_STREAM(LargestContentfulPaint, stream << "LargestContentfulPaintData " << this << " potentiallyAddLargestContentfulPaintEntry() " << element << " image " << (image ? image->url().string() : emptyString()) << " rect " << intersectionRect << " - isNewCandidate " << isNewCandidate);
+
+    if (!isNewCandidate)
+        return;
+
+    Ref document = element.document();
+    RefPtr window = document->window();
+    if (!window)
+        return;
+
+    RefPtr view = document->view();
+    if (!view)
+        return;
+
+    // The spec talks about trusted scroll events, but the intent is to detect user scrolls: https://github.com/w3c/largest-contentful-paint/issues/105
+    if ((view->wasEverScrolledExplicitlyByUser() || window->hasDispatchedInputEvent()))
+        return;
+
+    auto elementArea = effectiveVisualArea(element, image, imageLocalRect, intersectionRect);
+    if (!elementArea)
+        return;
+
+    if (*elementArea <= m_largestPaintArea) {
+        LOG_WITH_STREAM(LargestContentfulPaint, stream << " element area " << elementArea << " less than LCP " << m_largestPaintArea);
+        return;
+    }
+
+    if (!isEligibleForLargestContentfulPaint(element, *elementArea))
+        return;
+
+    m_largestPaintArea = *elementArea;
+
+    Ref pendingEntry = LargestContentfulPaint::create(0);
+    pendingEntry->setElement(&element);
+    pendingEntry->setSize(std::round<unsigned>(m_largestPaintArea));
+
+    if (image) {
+        pendingEntry->setURLString(image->url().string());
+        // FIXME: Need to get resource loadTime: webkit.org/b/299556.
+    }
+
+    if (element.hasID())
+        pendingEntry->setID(element.getIdAttribute().string());
+
+    pendingEntry->setRenderTime(paintTimestamp);
+
+    LOG_WITH_STREAM(LargestContentfulPaint, stream << " making new entry for " << element << " image " << (image ? image->url().string() : emptyString()) << " id " << pendingEntry->id() <<
+        ": entry size " << pendingEntry->size() << ", loadTime " << pendingEntry->loadTime() << ", renderTime " << pendingEntry->renderTime());
+
+    m_pendingEntry = RefPtr { WTFMove(pendingEntry) };
 }
 
-RefPtr<LargestContentfulPaint> LargestContentfulPaintData::takePendingEntry(DOMHighResTimeStamp)
+RefPtr<LargestContentfulPaint> LargestContentfulPaintData::takePendingEntry(DOMHighResTimeStamp paintTimestamp)
 {
-    return nullptr;
+    auto imageRecords = std::exchange(m_pendingImageRecords, { });
+    for (auto [weakElement, imageAndRects] : imageRecords) {
+        RefPtr element = weakElement;
+        if (!element)
+            continue;
+
+        // FIXME: This is doing multiple localToAbsolute on the same element.
+        for (auto [image, rect] : imageAndRects) {
+            auto intersectionRect = computeViewportIntersectionRect(*element, rect);
+            potentiallyAddLargestContentfulPaintEntry(*element, &image, rect, intersectionRect, paintTimestamp);
+        }
+    }
+
+    return std::exchange(m_pendingEntry, nullptr);
 }
 
 // This is a simplified version of IntersectionObserver::computeIntersectionState(). Some code should be shared.
@@ -206,8 +274,40 @@ FloatRect LargestContentfulPaintData::computeViewportIntersectionRectForTextCont
     return intersectionRect;
 }
 
-void LargestContentfulPaintData::didPaintImage(Element&, CachedImage*, FloatRect)
+void LargestContentfulPaintData::didPaintImage(Element& element, CachedImage* image, FloatRect localRect)
 {
+    if (!image)
+        return;
+
+    if (localRect.isEmpty())
+        return;
+
+    if (!isExposedForPaintTiming(element))
+        return;
+
+    auto it = m_imageContentSet.find(element);
+    if (it != m_imageContentSet.end()) {
+        auto& imageSet = it->value;
+        if (imageSet.contains(*image))
+            return;
+    }
+
+    if (m_pendingImageRecords.isEmptyIgnoringNullReferences()) {
+        if (RefPtr page = element.document().page())
+            page->scheduleRenderingUpdate(RenderingUpdateStep::PaintTiming);
+    }
+
+    auto addResult = m_pendingImageRecords.ensure(element, [] {
+        return WeakHashMap<CachedImage, FloatRect> { };
+    });
+
+    auto& imageRectMap = addResult.iterator->value;
+    auto imageAddResult = imageRectMap.add(*image, localRect);
+    if (!addResult.isNewEntry) {
+        auto& existingRect = imageAddResult.iterator->value;
+        if (localRect.area() > existingRect.area())
+            imageAddResult.iterator->value = localRect;
+    }
 }
 
 void LargestContentfulPaintData::didPaintText(const RenderText&, FloatRect)
