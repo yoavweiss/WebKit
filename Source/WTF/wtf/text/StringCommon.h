@@ -1146,8 +1146,8 @@ inline void copyElements(std::span<Latin1Character> destination, std::span<const
 template<typename CharacterType, CharacterType... characters>
 ALWAYS_INLINE bool compareEach(CharacterType input)
 {
-    // Use | intentionally to reduce branches.
-    return (... | (input == characters));
+    // Use | intentionally to reduce branches. Cast to int to silence "use of bitwise '|' with boolean operands" warning.
+    return (... | static_cast<int>(input == characters));
 }
 
 template<typename CharacterType, CharacterType... characters>
@@ -1158,7 +1158,7 @@ ALWAYS_INLINE bool charactersContain(std::span<const CharacterType> span)
 
 #if CPU(ARM64) || CPU(X86_64)
     constexpr size_t stride = SIMD::stride<CharacterType>;
-    using UnsignedType = std::make_unsigned_t<CharacterType>;
+    using UnsignedType = SIMD::SameSizeUnsignedInteger<CharacterType>;
     using BulkType = decltype(SIMD::load(static_cast<const UnsignedType*>(nullptr)));
     if (length >= stride) {
         size_t index = 0;
@@ -1183,16 +1183,14 @@ ALWAYS_INLINE bool charactersContain(std::span<const CharacterType> span)
 template<typename CharacterType>
 inline size_t countMatchedCharacters(std::span<const CharacterType> span, CharacterType character)
 {
-    using UnsignedType = std::make_unsigned_t<CharacterType>;
+    using UnsignedType = SIMD::SameSizeUnsignedInteger<CharacterType>;
     auto mask = SIMD::splat<UnsignedType>(character);
     auto vectorMatch = [&](auto input) ALWAYS_INLINE_LAMBDA {
         return SIMD::equal(input, mask);
     };
-
     auto scalarMatch = [&](auto input) ALWAYS_INLINE_LAMBDA {
         return input == character;
     };
-
     return SIMD::count(span, vectorMatch, scalarMatch);
 }
 

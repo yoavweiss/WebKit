@@ -1081,7 +1081,7 @@ static ALWAYS_INLINE bool stringCopySameType(std::span<const CharType> span, Cha
 #if (CPU(ARM64) || CPU(X86_64)) && COMPILER(CLANG)
     constexpr size_t stride = SIMD::stride<CharType>;
     if (span.size() >= stride) {
-        using UnsignedType = std::make_unsigned_t<CharType>;
+        using UnsignedType = SIMD::SameSizeUnsignedInteger<CharType>;
         using BulkType = decltype(SIMD::load(static_cast<const UnsignedType*>(nullptr)));
         constexpr auto quoteMask = SIMD::splat<UnsignedType>('"');
         constexpr auto escapeMask = SIMD::splat<UnsignedType>('\\');
@@ -1136,7 +1136,7 @@ static ALWAYS_INLINE bool stringCopyUpconvert(std::span<const Latin1Character> s
 #if (CPU(ARM64) || CPU(X86_64)) && COMPILER(CLANG)
     constexpr size_t stride = SIMD::stride<Latin1Character>;
     if (span.size() >= stride) {
-        using UnsignedType = std::make_unsigned_t<Latin1Character>;
+        using UnsignedType = uint8_t;
         using BulkType = decltype(SIMD::load(static_cast<const UnsignedType*>(nullptr)));
         constexpr auto quoteMask = SIMD::splat<UnsignedType>('"');
         constexpr auto escapeMask = SIMD::splat<UnsignedType>('\\');
