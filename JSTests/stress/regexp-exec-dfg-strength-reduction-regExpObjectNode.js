@@ -1,4 +1,4 @@
-//@ runDefault("--forceEagerCompilation=1", "--useConcurrentJIT=0", "--jitAllowlist=\"<global>\"")
+//@ runDefault("--forceEagerCompilation=1", "--useConcurrentJIT=0", "--jitAllowlist=<global>")
 function foo(s, a0, a1, a2, a3) {
   'use strict';
   return /foo/.exec(s);
