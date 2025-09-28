@@ -66,6 +66,7 @@
 #import <JavaScriptCore/TestRunnerUtils.h>
 #import <WebCore/LogInitialization.h>
 #import <WebCore/NetworkStorageSession.h>
+#import <WebCore/WebCoreMainThread.h>
 #import <WebKit/DOMElement.h>
 #import <WebKit/DOMExtensions.h>
 #import <WebKit/DOMRange.h>
@@ -1176,9 +1177,7 @@ void dumpRenderTree(int argc, const char *argv[])
     addTestPluginsToPluginSearchPath(argv[0]);
 
     JSC::Options::machExceptionHandlerSandboxPolicy = JSC::Options::SandboxPolicy::Allow;
-    JSC::initialize();
-    WTF::initializeMainThread();
-    WebCoreTestSupport::populateJITOperations();
+    WebCore::initializeMainThreadIfNeeded();
 
     if (forceComplexText)
         [WebView _setAlwaysUsesComplexTextCodePath:YES];
