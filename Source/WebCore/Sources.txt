@@ -1844,6 +1844,7 @@ inspector/InspectorAuditAccessibilityObject.cpp
 inspector/InspectorAuditDOMObject.cpp
 inspector/InspectorAuditResourcesObject.cpp
 inspector/InspectorCanvas.cpp
+inspector/InspectorCanvasArguments.cpp
 inspector/InspectorCanvasCallTracer.cpp
 inspector/InspectorController.cpp
 inspector/InspectorFrontendAPIDispatcher.cpp
