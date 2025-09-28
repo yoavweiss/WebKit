@@ -701,18 +701,27 @@ sub runTest {
 
     my $testResult = 0;
     my $lastOptimizeLevel;
-
-    open(TEST, "-|", "@command 2>&1") or die "Failed to run @command";
     my $testOutput = "";
-    while ( my $line = <TEST> ) {
-        $testOutput .= $line;
+    my $missingExecutable = 0;
+
+    # Check if the test executable exists before trying to run it
+    my $testExecutable = $command[0];
+    if (!-e $testExecutable) {
+        print "FAIL: $testName executable not found at $testExecutable\n";
+        $testResult = 1;
+        $missingExecutable = 1;
+    } else {
+        open(TEST, "-|", "@command 2>&1") or die "Failed to run @command";
+        while ( my $line = <TEST> ) {
+            $testOutput .= $line;
+        }
+        $testResult = close(TEST) ? 0 : $?;
+        print "$testOutput" if ($verbose or $testResult);
     }
-    $testResult = close(TEST) ? 0 : $?;
     $reportData{$testName} = $testResult ? {actual => "FAIL"} : {actual => "PASS"};
 
     my $exitStatus = exitStatus($testResult);
 
-    print "$testOutput" if ($verbose or $testResult);
     print "$testName completed with rc=$testResult ($exitStatus)\n\n";
 
     if ($testResult) {
@@ -724,7 +733,8 @@ sub runTest {
         $jsonData{$jsonTestStatusName} = $testStatus;
     }
 
-    if ($testResult && $failFast) {
+    # Only trigger fail-fast for actual test failures, not missing executables
+    if ($testResult && $failFast && !$missingExecutable) {
         reportTestFailures();
         writeJsonDataIfApplicable();
 
