@@ -5121,12 +5121,12 @@ static void convertAndAddHighlight(Vector<Ref<WebCore::SharedMemory>>& buffers, 
 
 + (NSURL *)_confirmMalwareSentinel
 {
-    return WebKit::BrowsingWarning::confirmMalwareSentinel();
+    return WebKit::BrowsingWarning::confirmMalwareSentinel().autorelease();
 }
 
 + (NSURL *)_visitUnsafeWebsiteSentinel
 {
-    return WebKit::BrowsingWarning::visitUnsafeWebsiteSentinel();
+    return WebKit::BrowsingWarning::visitUnsafeWebsiteSentinel().autorelease();
 }
 
 - (void)_isJITEnabled:(void(^)(BOOL))completionHandler
