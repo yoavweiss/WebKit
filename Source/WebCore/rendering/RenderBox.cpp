@@ -2055,12 +2055,28 @@ LayoutRect RenderBox::maskClipRect(const LayoutPoint& paintOffset)
     return result;
 }
 
-static RefPtr<StyleImage> findLayerUsedImage(WrappedImagePtr image, const auto& layers)
+static RefPtr<StyleImage> findLayerUsedImage(WrappedImagePtr image, const auto& layers, bool& isNonEmpty)
 {
     for (auto& layer : layers) {
-        if (RefPtr layerImage = layer.image().tryStyleImage(); layerImage && layerImage->data() == image)
+        if (RefPtr layerImage = layer.image().tryStyleImage(); layerImage && layerImage->data() == image) {
+            // FIXME: This really needs to compute the tile rect with BackgroundPainter::calculateFillTileSize().
+            isNonEmpty = WTF::switchOn(layer.size(),
+                [&](const CSS::Keyword::Cover&) {
+                    return false;
+                },
+                [&](const CSS::Keyword::Contain&) {
+                    return false;
+                },
+                [&](const Style::BackgroundSize::LengthSize& size) {
+                    auto& layerWidth = size.width();
+                    auto& layerHeight = size.height();
+                    return (layerWidth.isAuto() || !layerWidth.isZero()) && (layerHeight.isAuto() || !layerHeight.isZero());
+                });
             return layerImage;
+        }
     }
+
+    isNonEmpty = false;
     return nullptr;
 }
 
@@ -2102,16 +2118,19 @@ void RenderBox::imageChanged(WrappedImagePtr image, const IntRect*)
     if (auto* firstLineStyle = style().getCachedPseudoStyle({ PseudoId::FirstLine }))
         repaintForBackgroundAndMask(*firstLineStyle);
 
+    bool isNonEmpty;
+    RefPtr styleImage = findLayerUsedImage(image, style().backgroundLayers(), isNonEmpty);
+    if (styleImage && isNonEmpty)
+        incrementVisuallyNonEmptyPixelCountIfNeeded(flooredIntSize(styleImage->imageSize(this, style().usedZoom())));
+
     if (!isComposited())
         return;
 
-    if (layer()->hasCompositedMask() && findLayerUsedImage(image, style().maskLayers()))
+    if (layer()->hasCompositedMask() && findLayerUsedImage(image, style().maskLayers(), isNonEmpty))
         layer()->contentChanged(ContentChangeType::MaskImage);
     
-    if (RefPtr styleImage = findLayerUsedImage(image, style().backgroundLayers())) {
+    if (styleImage)
         layer()->contentChanged(ContentChangeType::BackgroundImage);
-        incrementVisuallyNonEmptyPixelCountIfNeeded(flooredIntSize(styleImage->imageSize(this, style().usedZoom())));
-    }
 }
 
 void RenderBox::incrementVisuallyNonEmptyPixelCountIfNeeded(const IntSize& size)
