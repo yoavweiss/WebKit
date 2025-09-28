@@ -617,8 +617,8 @@ public:
     void enumerateExtensionPages(NOESCAPE Function<void(WebPageProxy&, bool& stop)>&&);
 
     WKWebView *relatedWebView();
-    NSString *processDisplayName();
-    NSArray *corsDisablingPatterns();
+    String processDisplayName();
+    Vector<String> corsDisablingPatterns();
     void updateCORSDisablingPatternsOnAllExtensionPages();
     WKWebViewConfiguration *webViewConfiguration(WebViewPurpose = WebViewPurpose::Any);
 

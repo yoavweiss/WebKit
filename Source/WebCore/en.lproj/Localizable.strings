@@ -65,7 +65,7 @@
 "%@ Web Content (Prewarmed)" = "%@ Web Content (Prewarmed)";
 
 /* Extension's process name that appears in Activity Monitor where the parameter is the name of the extension */
-"%@ Web Extension" = "%@ Web Extension";
+"%s Web Extension" = "%s Web Extension";
 
 /* Visible name of Web Inspector's web process. The argument is the application name. */
 "%@ Web Inspector" = "%@ Web Inspector";
