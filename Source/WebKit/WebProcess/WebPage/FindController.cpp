@@ -44,6 +44,7 @@
 #include <WebCore/GeometryUtilities.h>
 #include <WebCore/GraphicsContext.h>
 #include <WebCore/ImageAnalysisQueue.h>
+#include <WebCore/ImageBuffer.h>
 #include <WebCore/ImageOverlay.h>
 #include <WebCore/LocalFrame.h>
 #include <WebCore/LocalFrameView.h>
