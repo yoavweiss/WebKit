@@ -94,6 +94,7 @@
 #include <WebCore/OriginAccessPatterns.h>
 #include <WebCore/Page.h>
 #include <WebCore/PluginDocument.h>
+#include <WebCore/PointerCaptureController.h>
 #include <WebCore/ReferrerPolicy.h>
 #include <WebCore/RemoteDOMWindow.h>
 #include <WebCore/RemoteFrame.h>
@@ -1379,8 +1380,9 @@ bool WebFrame::handleContextMenuEvent(const PlatformMouseEvent& platformMouseEve
 
     bool handled = frame->eventHandler().sendContextMenuEvent(platformMouseEvent);
 #if ENABLE(CONTEXT_MENUS)
-    if (handled)
-        protectedPage()->protectedContextMenu()->show();
+    if (handled && protectedPage()->protectedContextMenu()->show())
+        protectedPage()->corePage()->pointerCaptureController().clearUnmatchedMouseDown(platformMouseEvent.pointerId());
+
 #endif
     return handled;
 }

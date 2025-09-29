@@ -1979,6 +1979,8 @@ imported/w3c/web-platform-tests/event-timing/interactionid-orphan-pointerup.html
 # Fail with AccessDeniedAccess
 imported/w3c/web-platform-tests/event-timing/contextmenu.html [ Skip ]
 imported/w3c/web-platform-tests/event-timing/interactionid-auxclick.html [ Skip ]
+imported/w3c/web-platform-tests/event-timing/interactionid-aux-pointerdown-and-pointerdown.html [ Skip ]
+imported/w3c/web-platform-tests/event-timing/interactionid-aux-pointerdown.html [ Skip ]
 imported/w3c/web-platform-tests/event-timing/first-input-interactionid-key.html [ Skip ]
 
 compositing/video [ Skip ]

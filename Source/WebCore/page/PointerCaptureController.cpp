@@ -379,6 +379,12 @@ void PointerCaptureController::dispatchEventForTouchAtIndex(EventTarget& target,
 }
 #endif // ENABLE(TOUCH_EVENTS) && (PLATFORM(IOS_FAMILY) || PLATFORM(WPE))
 
+void PointerCaptureController::clearUnmatchedMouseDown(PointerID pointerID)
+{
+    if (RefPtr capturingData = m_activePointerIdsToCapturingData.get(pointerID))
+        capturingData->pointerIsPressed = false;
+}
+
 RefPtr<PointerEvent> PointerCaptureController::pointerEventForMouseEvent(const MouseEvent& mouseEvent, PointerID pointerId, const String& pointerType)
 {
     // If we already have known touches then we cannot dispatch a mouse event,

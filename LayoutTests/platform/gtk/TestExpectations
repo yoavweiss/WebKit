@@ -68,6 +68,8 @@ webkit.org/b/285993 imported/w3c/web-platform-tests/html/canvas/offscreen/manual
 
 # Times out, possibly missing automation:
 webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/interactionid-auxclick.html [ Skip ]
+webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/interactionid-aux-pointerdown-and-pointerdown.html [ Skip ]
+webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/interactionid-aux-pointerdown.html [ Skip ]
 
 # Media controls
 accessibility/gtk/media-controls-panel-title.html [ Failure ]
