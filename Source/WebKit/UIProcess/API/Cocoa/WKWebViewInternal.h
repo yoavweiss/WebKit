@@ -271,8 +271,8 @@ struct PerWebProcessState {
 
     const std::unique_ptr<WebKit::NavigationState> _navigationState;
     const std::unique_ptr<WebKit::UIDelegate> _uiDelegate;
-    std::unique_ptr<WebKit::IconLoadingDelegate> _iconLoadingDelegate;
-    std::unique_ptr<WebKit::ResourceLoadDelegate> _resourceLoadDelegate;
+    const std::unique_ptr<WebKit::IconLoadingDelegate> _iconLoadingDelegate;
+    const std::unique_ptr<WebKit::ResourceLoadDelegate> _resourceLoadDelegate;
 
     WeakObjCPtr<id <_WKTextManipulationDelegate>> _textManipulationDelegate;
     WeakObjCPtr<id <_WKInputDelegate>> _inputDelegate;
@@ -316,7 +316,7 @@ struct PerWebProcessState {
 #endif
 
 #if PLATFORM(MAC)
-    std::unique_ptr<WebKit::WebViewImpl> _impl;
+    const std::unique_ptr<WebKit::WebViewImpl> _impl;
     RetainPtr<WKTextFinderClient> _textFinderClient;
 #if HAVE(NSWINDOW_SNAPSHOT_READINESS_HANDLER)
     BlockPtr<void()> _windowSnapshotReadinessHandler;

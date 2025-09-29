@@ -306,8 +306,8 @@ RetainPtr<NSError> nsErrorFromExceptionDetails(const std::optional<WebCore::Exce
 
     [userInfo setObject:localizedDescriptionForErrorCode(errorCode).get() forKey:NSLocalizedDescriptionKey];
     [userInfo setObject:details->message.createNSString().get() forKey:_WKJavaScriptExceptionMessageErrorKey];
-    [userInfo setObject:@(details->lineNumber) forKey:_WKJavaScriptExceptionLineNumberErrorKey];
-    [userInfo setObject:@(details->columnNumber) forKey:_WKJavaScriptExceptionColumnNumberErrorKey];
+    [userInfo setObject:RetainPtr { @(details->lineNumber) }.get() forKey:_WKJavaScriptExceptionLineNumberErrorKey];
+    [userInfo setObject:RetainPtr { @(details->columnNumber) }.get() forKey:_WKJavaScriptExceptionColumnNumberErrorKey];
 
     if (!details->sourceURL.isEmpty()) {
         if (RetainPtr url = URL(details->sourceURL).createNSURL())
@@ -647,7 +647,7 @@ static void addBrowsingContextControllerMethodStubsIfNeeded()
 #endif
 
 #if PLATFORM(MAC)
-    _impl = makeUnique<WebKit::WebViewImpl>(self, processPool.get(), pageConfiguration.copyRef());
+    lazyInitialize(_impl, makeUnique<WebKit::WebViewImpl>(self, processPool.get(), pageConfiguration.copyRef()));
     lazyInitialize(_page, Ref { _impl->page() });
 
     _impl->setAutomaticallyAdjustsContentInsets(true);
@@ -669,8 +669,8 @@ static void addBrowsingContextControllerMethodStubsIfNeeded()
     _page->setFindClient(makeUnique<WebKit::FindClient>(self));
     _page->setDiagnosticLoggingClient(makeUnique<WebKit::DiagnosticLoggingClient>(self));
 
-    _iconLoadingDelegate = makeUnique<WebKit::IconLoadingDelegate>(self);
-    _resourceLoadDelegate = makeUnique<WebKit::ResourceLoadDelegate>(self);
+    lazyInitialize(_iconLoadingDelegate, makeUnique<WebKit::IconLoadingDelegate>(self));
+    lazyInitialize(_resourceLoadDelegate, makeUnique<WebKit::ResourceLoadDelegate>(self));
 
     for (auto& pair : pageConfiguration->urlSchemeHandlers())
         _page->setURLSchemeHandlerForScheme(pair.value.get(), pair.key);
@@ -2071,21 +2071,21 @@ inline OptionSet<WebKit::FindOptions> toFindOptions(WKFindConfiguration *configu
 {
     id <WKUIDelegatePrivate> uiDelegate = (id <WKUIDelegatePrivate>)self.UIDelegate;
     if ([uiDelegate respondsToSelector:@selector(_webView:didInsertAttachment:withSource:)])
-        [uiDelegate _webView:self didInsertAttachment:wrapper(attachment) withSource:source];
+        [uiDelegate _webView:self didInsertAttachment:WebKit::protectedWrapper(attachment).get() withSource:source];
 }
 
 - (void)_didRemoveAttachment:(API::Attachment&)attachment
 {
     id <WKUIDelegatePrivate> uiDelegate = (id <WKUIDelegatePrivate>)self.UIDelegate;
     if ([uiDelegate respondsToSelector:@selector(_webView:didRemoveAttachment:)])
-        [uiDelegate _webView:self didRemoveAttachment:wrapper(attachment)];
+        [uiDelegate _webView:self didRemoveAttachment:WebKit::protectedWrapper(attachment).get()];
 }
 
 - (void)_didInvalidateDataForAttachment:(API::Attachment&)attachment
 {
     id <WKUIDelegatePrivate> uiDelegate = (id <WKUIDelegatePrivate>)self.UIDelegate;
     if ([uiDelegate respondsToSelector:@selector(_webView:didInvalidateDataForAttachment:)])
-        [uiDelegate _webView:self didInvalidateDataForAttachment:wrapper(attachment)];
+        [uiDelegate _webView:self didInvalidateDataForAttachment:WebKit::protectedWrapper(attachment).get()];
 }
 
 #endif // ENABLE(ATTACHMENT_ELEMENT)
@@ -2199,13 +2199,13 @@ static RetainPtr<NSError> unknownError()
     THROW_IF_SUSPENDED;
     _page->getWebArchiveData([completionHandler = makeBlockPtr(completionHandler)](API::Data* data) {
         if (data)
-            completionHandler(wrapper(data), nil);
+            completionHandler(WebKit::protectedWrapper(data).get(), nil);
         else
             completionHandler(nil, unknownError().get());
     });
 }
 
-static NSDictionary *dictionaryRepresentationForEditorState(const WebKit::EditorState& state)
+static RetainPtr<NSDictionary> dictionaryRepresentationForEditorState(const WebKit::EditorState& state)
 {
     if (!state.hasPostLayoutData())
         return @{ @"post-layout-data" : @NO };
@@ -2268,7 +2268,7 @@ static _WKSelectionAttributes selectionAttributes(const WebKit::EditorState& edi
     // font attributes.
     id <WKUIDelegatePrivate> uiDelegate = (id <WKUIDelegatePrivate>)self.UIDelegate;
     if ([uiDelegate respondsToSelector:@selector(_webView:editorStateDidChange:)])
-        [uiDelegate _webView:self editorStateDidChange:dictionaryRepresentationForEditorState(_page->editorState())];
+        [uiDelegate _webView:self editorStateDidChange:dictionaryRepresentationForEditorState(_page->editorState()).get()];
 }
 
 - (WKNavigation *)loadSimulatedRequest:(NSURLRequest *)request response:(NSURLResponse *)response responseData:(NSData *)data
@@ -2331,7 +2331,7 @@ static _WKSelectionAttributes selectionAttributes(const WebKit::EditorState& edi
 
 - (void)setUnderPageBackgroundColor:(WebCore::CocoaColor *)underPageBackgroundColorOverride
 {
-    _page->setUnderPageBackgroundColorOverride(WebCore::roundAndClampToSRGBALossy(underPageBackgroundColorOverride.CGColor));
+    _page->setUnderPageBackgroundColorOverride(WebCore::roundAndClampToSRGBALossy(RetainPtr { underPageBackgroundColorOverride.CGColor }.get()));
 }
 
 + (BOOL)automaticallyNotifiesObserversOfUnderPageBackgroundColor
@@ -3051,7 +3051,7 @@ WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::FixedContai
     bool isTopFixedEdgeChanging = isTopColorChanging || _fixedContainerEdges.hasFixedEdge(WebCore::BoxSide::Top) != edges.hasFixedEdge(WebCore::BoxSide::Top);
 
     if (isTopColorChanging)
-        [self willChangeValueForKey:NSStringFromSelector(@selector(_sampledTopFixedPositionContentColor))];
+        [self willChangeValueForKey:RetainPtr { NSStringFromSelector(@selector(_sampledTopFixedPositionContentColor)) }.get()];
 
     _fixedContainerEdges = edges;
 
@@ -3069,7 +3069,7 @@ WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::FixedContai
 #endif
 
     if (isTopColorChanging)
-        [self didChangeValueForKey:NSStringFromSelector(@selector(_sampledTopFixedPositionContentColor))];
+        [self didChangeValueForKey:RetainPtr { NSStringFromSelector(@selector(_sampledTopFixedPositionContentColor)) }.get()];
 }
 
 #if ENABLE(PDF_PAGE_NUMBER_INDICATOR)
@@ -3898,7 +3898,7 @@ static RetainPtr<NSDictionary<NSString *, id>> createUserInfo(const std::optiona
         [result setObject:info->tagName.createNSString().get() forKey:_WKTextManipulationTokenUserInfoTagNameKey];
     if (!info->roleAttribute.isNull())
         [result setObject:info->roleAttribute.createNSString().get() forKey:_WKTextManipulationTokenUserInfoRoleAttributeKey];
-    [result setObject:@(info->isVisible) forKey:_WKTextManipulationTokenUserInfoVisibilityKey];
+    [result setObject:RetainPtr { @(info->isVisible) }.get() forKey:_WKTextManipulationTokenUserInfoVisibilityKey];
 
     return result;
 }
@@ -4121,7 +4121,7 @@ static RetainPtr<NSArray> wkTextManipulationErrors(NSArray<_WKTextManipulationIt
 - (void)_dataTaskWithRequest:(NSURLRequest *)request runAtForegroundPriority:(BOOL)runAtForegroundPriority completionHandler:(void(^)(_WKDataTask *))completionHandler
 {
     _page->dataTaskWithRequest(request, std::nullopt, !!runAtForegroundPriority, [completionHandler = makeBlockPtr(completionHandler)] (Ref<API::DataTask>&& task) {
-        completionHandler(wrapper(task));
+        completionHandler(WebKit::protectedWrapper(task.get()).get());
     });
 }
 
@@ -4611,8 +4611,8 @@ static void convertAndAddHighlight(Vector<Ref<WebCore::SharedMemory>>& buffers, 
     _page->loadAndDecodeImage(request, sizeConstraint, maximumBytesFromNetwork, [completionHandler = makeBlockPtr(completionHandler), url](Expected<Ref<WebCore::ShareableBitmap>, WebCore::ResourceError>&& result) mutable {
         if (!result) {
             if (result.error().isNull())
-                return completionHandler(nil, WebCore::internalError(url)); // This can happen if IPC fails.
-            return completionHandler(nil, result.error().nsError());
+                return completionHandler(nil, WebCore::internalError(url).protectedNSError().get()); // This can happen if IPC fails.
+            return completionHandler(nil, result.error().protectedNSError().get());
         }
         Ref bitmap = result.value();
 #if PLATFORM(MAC)
@@ -4687,7 +4687,7 @@ static void convertAndAddHighlight(Vector<Ref<WebCore::SharedMemory>>& buffers, 
 #else
         RetainPtr cocoaImage = adoptNS([[UIImage alloc] initWithCGImage:bitmap->createPlatformImage().get()]);
 #endif
-        completionHandler(cocoaImage.autorelease(), nil);
+        completionHandler(cocoaImage.get(), nil);
     });
 }
 
@@ -5341,7 +5341,7 @@ static inline OptionSet<WebCore::LayoutMilestone> layoutMilestones(_WKRenderingP
 {
     THROW_IF_SUSPENDED;
     _page->getMainResourceDataOfFrame(_page->protectedMainFrame().get(), [completionHandler = makeBlockPtr(completionHandler)](API::Data* data) {
-        completionHandler(wrapper(data), nil);
+        completionHandler(WebKit::protectedWrapper(data).get(), nil);
     });
 }
 
@@ -5374,7 +5374,7 @@ static inline OptionSet<WebCore::LayoutMilestone> layoutMilestones(_WKRenderingP
 
     _page->getWebArchiveDataWithFrame(*webFrame, [completionHandler = makeBlockPtr(completionHandler)](API::Data* data) {
         if (data)
-            completionHandler(wrapper(data), nil);
+            completionHandler(WebKit::protectedWrapper(data).get(), nil);
         else
             completionHandler(nil, unknownError().get());
     });
@@ -5416,7 +5416,7 @@ static inline OptionSet<WebCore::LayoutMilestone> layoutMilestones(_WKRenderingP
 
     _page->getWebArchiveDataWithSelectedFrames(*webRootFrame, targetFrameIDs, [completionHandler = makeBlockPtr(completionHandler)](API::Data* data) {
         if (data)
-            completionHandler(wrapper(data), nil);
+            completionHandler(WebKit::protectedWrapper(data).get(), nil);
         else
             completionHandler(nil, unknownError().get());
     });
@@ -5463,8 +5463,8 @@ static inline OptionSet<WebCore::LayoutMilestone> layoutMilestones(_WKRenderingP
     _page->getApplicationManifest([completionHandler = makeBlockPtr(completionHandler)](const std::optional<WebCore::ApplicationManifest>& manifest) {
         if (completionHandler) {
             if (manifest) {
-                auto apiManifest = API::ApplicationManifest::create(*manifest);
-                completionHandler(wrapper(apiManifest));
+                Ref apiManifest = API::ApplicationManifest::create(*manifest);
+                completionHandler(WebKit::protectedWrapper(apiManifest.get()).get());
             } else
                 completionHandler(nil);
         }
@@ -5475,7 +5475,7 @@ static inline OptionSet<WebCore::LayoutMilestone> layoutMilestones(_WKRenderingP
 {
     THROW_IF_SUSPENDED;
     _page->getTextFragmentMatch([completionHandler = makeBlockPtr(completionHandler)](const String& textFragmentMatch) {
-        completionHandler(nsStringNilIfNull(textFragmentMatch));
+        completionHandler(RetainPtr { nsStringNilIfNull(textFragmentMatch) }.get());
     });
 }
 
