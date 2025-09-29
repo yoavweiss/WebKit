@@ -1611,15 +1611,6 @@ bool Quirks::shouldUseEphemeralPartitionedStorageForDOMCookies(const URL& url) c
     return false;
 }
 
-// rdar://155649992
-bool Quirks::shouldAllowDownloadsInSpiteOfCSP() const
-{
-    if (!needsQuirks())
-        return false;
-
-    return isDomain("dropbox.com"_s);
-}
-
 // rdar://127398734
 bool Quirks::needsLaxSameSiteCookieQuirk(const URL& requestURL) const
 {

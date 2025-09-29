@@ -1111,9 +1111,7 @@ void DocumentLoader::continueAfterContentPolicy(PolicyAction policy)
         if (RefPtr mainResourceLoader = this->mainResourceLoader())
             InspectorInstrumentation::continueWithPolicyDownload(*frame, *mainResourceLoader->identifier(), *this, m_response);
 
-        RefPtr document = frame->document();
-        bool shouldIgnoreSandboxFlags = frame->isMainFrame() && document && document->quirks().shouldAllowDownloadsInSpiteOfCSP();
-        if (!frame->effectiveSandboxFlags().contains(SandboxFlag::Downloads) || shouldIgnoreSandboxFlags) {
+        if (!frame->effectiveSandboxFlags().contains(SandboxFlag::Downloads)) {
             // When starting the request, we didn't know that it would result in download and not navigation. Now we know that main document URL didn't change.
             // Download may use this knowledge for purposes unrelated to cookies, notably for setting file quarantine data.
             protectedFrameLoader()->setOriginalURLForDownloadRequest(m_request);
@@ -1123,7 +1121,7 @@ void DocumentLoader::continueAfterContentPolicy(PolicyAction policy)
                 protectedFrameLoader()->protectedClient()->startDownload(m_request);
             } else
                 protectedFrameLoader()->protectedClient()->convertMainResourceLoadToDownload(this, m_request, m_response);
-        } else if (document)
+        } else if (RefPtr document = frame->document())
             document->addConsoleMessage(MessageSource::Security, MessageLevel::Error, "Not allowed to download due to sandboxing"_s);
 
         // The main resource might be loading from the memory cache, or its loader might have gone missing.
