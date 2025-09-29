@@ -42,7 +42,7 @@
 #define WEBKIT_COMPONENT 47
 
 // Trace point codes can be up to 14 bits (0-16383).
-// When adding or changing these codes, update Tools/Tracing/SystemTracePoints.plist to match.
+// When adding or changing these codes, update Source/WebKit/Resources/Signposts/SystemTracePoints.plist to match.
 enum TracePointCode {
     WTFRange = 0,
 
@@ -118,6 +118,10 @@ enum TracePointCode {
     ProgrammaticScroll,
     FixedContainerEdgeSamplingStart,
     FixedContainerEdgeSamplingEnd,
+    ThreadTimersStart,
+    ThreadTimersEnd,
+    TimerFiredStart,
+    TimerFiredEnd,
 
     WebKitRange = 10000,
     WebHTMLViewPaintStart,
