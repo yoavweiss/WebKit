@@ -40,6 +40,7 @@ set(WebKit_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBKIT_DIR}/Shared/API/c"
     "${WEBKIT_DIR}/Shared/ApplePay"
     "${WEBKIT_DIR}/Shared/Authentication"
+    "${WEBKIT_DIR}/Shared/Automation"
     "${WEBKIT_DIR}/Shared/CoreIPCSupport"
     "${WEBKIT_DIR}/Shared/Databases"
     "${WEBKIT_DIR}/Shared/Databases/IndexedDB"

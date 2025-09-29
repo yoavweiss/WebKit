@@ -1852,10 +1852,10 @@
 		99B16758252BB7E10073140E /* _WKInspectorExtensionInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 99B16755252BB7E10073140E /* _WKInspectorExtensionInternal.h */; };
 		99B1675B252BBADD0073140E /* WebInspectorUIExtensionControllerProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 99B1675A252BBADD0073140E /* WebInspectorUIExtensionControllerProxy.h */; };
 		99B16764252BBE620073140E /* WebInspectorUIExtensionController.h in Headers */ = {isa = PBXBuildFile; fileRef = 99B16761252BBE610073140E /* WebInspectorUIExtensionController.h */; };
-		99C3AE2D1DADA6AD00AF5C16 /* WebAutomationSessionMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 99C3AE2C1DADA6A700AF5C16 /* WebAutomationSessionMacros.h */; };
 		99C607EB26FA9D4900A0953F /* _WKInspectorIBActions.h in Headers */ = {isa = PBXBuildFile; fileRef = 99C607EA26FA9D4800A0953F /* _WKInspectorIBActions.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		99C81D5A1C20E7E2005C4C82 /* AutomationClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 99C81D551C20DFBE005C4C82 /* AutomationClient.h */; };
 		99C81D5D1C21F38B005C4C82 /* APIAutomationClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 99C81D5B1C20E817005C4C82 /* APIAutomationClient.h */; };
+		99D808292E85F04200A3EFCC /* WebAutomationSessionMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 99D808272E85F04200A3EFCC /* WebAutomationSessionMacros.h */; };
 		99E714C51C124A0400665B3A /* _WKAutomationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 99E714C11C1249E600665B3A /* _WKAutomationDelegate.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9ACC07AD25C8132D00DC6386 /* MediaKeySystemPermissionRequestManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9ACC07AC25C8132D00DC6386 /* MediaKeySystemPermissionRequestManager.h */; };
 		9ACC07B125C815D800DC6386 /* MediaKeySystemPermissionRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 9ACC07B025C815D800DC6386 /* MediaKeySystemPermissionRequest.h */; };
@@ -7290,12 +7290,12 @@
 		99BE3B1625433B9400C6551C /* InspectorExtensionTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InspectorExtensionTypes.h; sourceTree = "<group>"; };
 		99C3AE231DAD8E3400AF5C16 /* WebAutomationSessionMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebAutomationSessionMac.mm; sourceTree = "<group>"; };
 		99C3AE261DAD948500AF5C16 /* WebAutomationSessionCocoa.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebAutomationSessionCocoa.mm; sourceTree = "<group>"; };
-		99C3AE2C1DADA6A700AF5C16 /* WebAutomationSessionMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebAutomationSessionMacros.h; sourceTree = "<group>"; };
 		99C607EA26FA9D4800A0953F /* _WKInspectorIBActions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _WKInspectorIBActions.h; sourceTree = "<group>"; };
 		99C81D551C20DFBE005C4C82 /* AutomationClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutomationClient.h; sourceTree = "<group>"; };
 		99C81D561C20DFBE005C4C82 /* AutomationClient.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AutomationClient.mm; sourceTree = "<group>"; };
 		99C81D5B1C20E817005C4C82 /* APIAutomationClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APIAutomationClient.h; sourceTree = "<group>"; };
 		99CA66C8203668220074F35E /* EnterFullscreen.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = EnterFullscreen.js; sourceTree = "<group>"; };
+		99D808272E85F04200A3EFCC /* WebAutomationSessionMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebAutomationSessionMacros.h; sourceTree = "<group>"; };
 		99E714C11C1249E600665B3A /* _WKAutomationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _WKAutomationDelegate.h; sourceTree = "<group>"; };
 		99F642D21FABE378009621E9 /* CoordinateSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoordinateSystem.h; sourceTree = "<group>"; };
 		9ACC07AC25C8132D00DC6386 /* MediaKeySystemPermissionRequestManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MediaKeySystemPermissionRequestManager.h; path = EncryptedMedia/MediaKeySystemPermissionRequestManager.h; sourceTree = "<group>"; };
@@ -9728,6 +9728,7 @@
 				BCDDB314124EBCEF0048D13C /* API */,
 				1AB1F7761D1B30A9007C9BD1 /* ApplePay */,
 				518E8EF116B208F000E91429 /* Authentication */,
+				99D808282E85F04200A3EFCC /* Automation */,
 				5C139DAE29DB845500D5117B /* AuxiliaryProcessExtensions */,
 				1AAF0C4712B16328008E49E2 /* cf */,
 				37C4C0901814B37B003688B9 /* cocoa */,
@@ -14469,7 +14470,6 @@
 				9955A6EA1C7980BB00EB6A93 /* WebAutomationSession.cpp */,
 				9955A6EB1C7980BB00EB6A93 /* WebAutomationSession.h */,
 				1C0A19591C9006EA00FE0EBB /* WebAutomationSession.messages.in */,
-				99C3AE2C1DADA6A700AF5C16 /* WebAutomationSessionMacros.h */,
 				99A5144F2D5AB7D500937177 /* WebDriverBidiProcessor.cpp */,
 				99A5144E2D5AB7D500937177 /* WebDriverBidiProcessor.h */,
 			);
@@ -14504,6 +14504,14 @@
 				99C3AE261DAD948500AF5C16 /* WebAutomationSessionCocoa.mm */,
 			);
 			path = cocoa;
+			sourceTree = "<group>";
+		};
+		99D808282E85F04200A3EFCC /* Automation */ = {
+			isa = PBXGroup;
+			children = (
+				99D808272E85F04200A3EFCC /* WebAutomationSessionMacros.h */,
+			);
+			path = Automation;
 			sourceTree = "<group>";
 		};
 		9ACC07A925C812E700DC6386 /* EncryptedMedia */ = {
@@ -18026,7 +18034,7 @@
 				F42D634122A0EFDF00D2FB3A /* WebAutocorrectionData.h in Headers */,
 				990D39F5243BE64800199388 /* WebAutomationDOMWindowObserver.h in Headers */,
 				9955A6EC1C7980C200EB6A93 /* WebAutomationSession.h in Headers */,
-				99C3AE2D1DADA6AD00AF5C16 /* WebAutomationSessionMacros.h in Headers */,
+				99D808292E85F04200A3EFCC /* WebAutomationSessionMacros.h in Headers */,
 				1C0A19581C90068F00FE0EBB /* WebAutomationSessionMessages.h in Headers */,
 				1C0A19471C8FF1A800FE0EBB /* WebAutomationSessionProxy.h in Headers */,
 				1C0A19541C8FFDFB00FE0EBB /* WebAutomationSessionProxyMessages.h in Headers */,
