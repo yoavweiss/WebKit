@@ -188,7 +188,7 @@ WI.DOMTreeContentView = class DOMTreeContentView extends WI.ContentView
         while (treeElement && !treeElement.root) {
             // The close tag is contained within the element it closes. So skip it since we don't want to
             // show the same node twice in the hierarchy.
-            if (treeElement.isCloseTag()) {
+            if (treeElement.isElementCloseTag) {
                 treeElement = treeElement.parent;
                 continue;
             }
