@@ -60,6 +60,7 @@
 #include "JSObject.h"
 #include "JSPromise.h"
 #include "JSPromiseAllContext.h"
+#include "JSPromiseReaction.h"
 #include "JSRemoteFunction.h"
 #include "JSString.h"
 #include "JSWebAssemblyException.h"
@@ -465,13 +466,8 @@ void Interpreter::getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results,
     auto getContextValueFromPromise = [&](JSPromise* promise) -> JSValue {
         if (promise && promise->status(vm) == JSPromise::Status::Pending) {
             JSValue reactionsValue = promise->internalField(JSPromise::Field::ReactionsOrResult).get();
-            if (JSObject* reactions = jsDynamicCast<JSObject*>(reactionsValue)) {
-                Structure* reactionsStructure = reactions->structure();
-                unsigned contextFieldAttributes;
-                PropertyOffset contextOffset = reactionsStructure->getConcurrently(vm.propertyNames->builtinNames().contextPrivateName().impl(), contextFieldAttributes);
-                if (contextOffset != invalidOffset && !(contextFieldAttributes & (PropertyAttribute::Accessor | PropertyAttribute::CustomAccessorOrValue)))
-                    return reactions->getDirect(contextOffset);
-            }
+            if (auto* reaction = jsDynamicCast<JSPromiseReaction*>(reactionsValue))
+                return reaction->context();
         }
         return JSValue();
     };

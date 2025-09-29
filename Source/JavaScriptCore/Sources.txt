@@ -940,6 +940,7 @@ runtime/JSPromise.cpp
 runtime/JSPromiseAllContext.cpp
 runtime/JSPromiseConstructor.cpp
 runtime/JSPromisePrototype.cpp
+runtime/JSPromiseReaction.cpp
 runtime/JSPropertyNameEnumerator.cpp
 runtime/JSRawJSONObject.cpp
 runtime/JSRegExpStringIterator.cpp

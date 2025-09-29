@@ -57,7 +57,6 @@ namespace JSC {
     macro(iteratedObject) \
     macro(iteratedString) \
     macro(promise) \
-    macro(promiseOrCapability) \
     macro(Object) \
     macro(Number) \
     macro(Array) \
@@ -78,8 +77,6 @@ namespace JSC {
     macro(homeObject) \
     macro(enqueueJob) \
     macro(hostPromiseRejectionTracker) \
-    macro(onFulfilled) \
-    macro(onRejected) \
     macro(push) \
     macro(repeatCharacter) \
     macro(starDefault) \
@@ -88,7 +85,6 @@ namespace JSC {
     macro(values) \
     macro(set) \
     macro(clear) \
-    macro(context) \
     macro(defer) \
     macro(delete) \
     macro(size) \
@@ -195,7 +191,6 @@ namespace JSC {
     macro(hasOwnPropertyFunction) \
     macro(createPrivateSymbol) \
     macro(entries) \
-    macro(outOfLineReactionCounts) \
     macro(emptyPropertyNameEnumerator) \
     macro(sentinelString) \
     macro(createRemoteFunction) \
@@ -216,6 +211,7 @@ namespace JSC {
     macro(wrapForValidIteratorCreate) \
     macro(asyncFromSyncIteratorCreate) \
     macro(promiseAllContextCreate) \
+    macro(promiseReactionCreate) \
     macro(regExpStringIteratorCreate) \
     macro(iteratorHelperCreate) \
     macro(syncIterator) \
