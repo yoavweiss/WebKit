@@ -108,23 +108,6 @@ std::optional<Color> NativeImage::singlePixelSolidColor() const
     return makeFromComponentsClampingExceptAlpha<SRGBA<uint8_t>>(pixel[0] * 255 / pixel[3], pixel[1] * 255 / pixel[3], pixel[2] * 255 / pixel[3], pixel[3]);
 }
 
-void NativeImage::draw(GraphicsContext& context, const FloatRect& destinationRect, const FloatRect& sourceRect, ImagePaintingOptions options)
-{
-    if (sourceRect.isEmpty() || !hasHDRContent()) {
-        context.drawNativeImageInternal(*this, destinationRect, sourceRect, options);
-        return;
-    }
-
-#if !HAVE(FIX_FOR_RADAR_93560567)
-    if (!context.colorSpace().usesITUR_2100TF()) {
-        drawWithToneMapping(context, destinationRect, sourceRect, options);
-        return;
-    }
-#endif
-
-    context.drawNativeImageInternal(*this, destinationRect, sourceRect, options);
-}
-
 void NativeImage::clearSubimages()
 {
 #if CACHE_SUBIMAGES

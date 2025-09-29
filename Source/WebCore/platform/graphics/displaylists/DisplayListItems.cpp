@@ -341,7 +341,7 @@ void DrawImageBuffer::dump(TextStream& ts, OptionSet<AsTextFlag> flags) const
 
 void DrawNativeImage::apply(GraphicsContext& context) const
 {
-    context.drawNativeImageInternal(m_image, m_destinationRect, m_srcRect, m_options);
+    context.drawNativeImage(m_image, m_destinationRect, m_srcRect, m_options);
 }
 
 void DrawNativeImage::dump(TextStream& ts, OptionSet<AsTextFlag> flags) const
