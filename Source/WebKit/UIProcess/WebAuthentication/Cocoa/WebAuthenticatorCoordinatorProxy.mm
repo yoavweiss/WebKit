@@ -344,7 +344,7 @@ RetainPtr<NSArray> WebAuthenticatorCoordinatorProxy::requestsForRegistration(con
             request.get().largeBlob = adoptNS([allocASAuthorizationPublicKeyCredentialLargeBlobRegistrationInputInstance() initWithSupportRequirement:toASAuthorizationPublicKeyCredentialLargeBlobSupportRequirement(options.extensions->largeBlob->support)]).get();
         }
         request.get().excludedCredentials = platformExcludedCredentials.get();
-        [requests addObject:request.leakRef()];
+        [requests addObject:request.get()];
     }
 #if HAVE(SECURITY_KEY_API)
     if (includeSecurityKeyRequest) {
@@ -364,7 +364,7 @@ RetainPtr<NSArray> WebAuthenticatorCoordinatorProxy::requestsForRegistration(con
             request.get().residentKeyPreference = toASResidentKeyPreference(options.authenticatorSelection->residentKey, options.authenticatorSelection->requireResidentKey).get();
         }
         request.get().excludedCredentials = crossPlatformExcludedCredentials.get();
-        [requests addObject:request.leakRef()];
+        [requests addObject:request.get()];
     }
 #endif // HAVE(SECURITY_KEY_API)
 
@@ -457,7 +457,7 @@ RetainPtr<NSArray> WebAuthenticatorCoordinatorProxy::requestsForAssertion(const 
         }
 #endif
 
-        [requests addObject:request.leakRef()];
+        [requests addObject:request.get()];
     }
 
 #if HAVE(SECURITY_KEY_API)
@@ -468,12 +468,11 @@ RetainPtr<NSArray> WebAuthenticatorCoordinatorProxy::requestsForAssertion(const 
             request = adoptNS([provider createCredentialAssertionRequestWithClientData:clientData.get()]);
         else
             request = adoptNS([provider createCredentialAssertionRequestWithChallenge:toNSData(options.challenge).get()]);
-
         if (crossPlatformAllowedCredentials)
             request.get().allowedCredentials = crossPlatformAllowedCredentials.get();
         if (options.extensions && !options.extensions->appid.isNull())
             request.get().appID = options.extensions->appid.createNSString().get();
-        [requests addObject:request.leakRef()];
+        [requests addObject:request.get()];
     }
 #endif // HAVE(SECURITY_KEY_API)
 
@@ -875,7 +874,7 @@ static RetainPtr<ASCCredentialRequestContext> configureRegistrationRequestContex
 
     RetainPtr<NSMutableArray<NSNumber *>> supportedAlgorithmIdentifiers = adoptNS([[NSMutableArray alloc] initWithCapacity:options.pubKeyCredParams.size()]);
     for (PublicKeyCredentialParameters algorithmParameter : options.pubKeyCredParams)
-        [supportedAlgorithmIdentifiers addObject:@(algorithmParameter.alg)];
+        [supportedAlgorithmIdentifiers addObject:RetainPtr { @(algorithmParameter.alg) }.get()];
 
     [credentialCreationOptions setSupportedAlgorithmIdentifiers:supportedAlgorithmIdentifiers.get()];
 
@@ -1342,7 +1341,7 @@ void WebAuthenticatorCoordinatorProxy::signalAllAcceptedCredentials(const WebCor
             completionHandler(ExceptionData { ExceptionCode::UnknownError, "Unable to parse credential ID."_s });
             return;
         }
-        [credentialIds addObject:toNSData(*decodedCredentialId).leakRef()];
+        [credentialIds addObject:toNSData(*decodedCredentialId).get()];
     }
 
 #if USE(APPLE_INTERNAL_SDK)

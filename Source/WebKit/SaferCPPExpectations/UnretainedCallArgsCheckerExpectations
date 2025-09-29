@@ -81,11 +81,6 @@ UIProcess/Gamepad/mac/UIGamepadProviderMac.mm
 UIProcess/Inspector/Cocoa/InspectorExtensionDelegate.mm
 UIProcess/Inspector/mac/WKInspectorViewController.mm
 UIProcess/Inspector/mac/WKInspectorWKWebView.mm
-UIProcess/WebAuthentication/Cocoa/CcidConnection.mm
-UIProcess/WebAuthentication/Cocoa/LocalAuthenticator.mm
-UIProcess/WebAuthentication/Cocoa/LocalConnection.mm
-UIProcess/WebAuthentication/Cocoa/WebAuthenticatorCoordinatorProxy.mm
-UIProcess/WebAuthentication/Mock/MockNfcService.mm
 UIProcess/WebsiteData/Cocoa/WebsiteDataStoreCocoa.mm
 UIProcess/mac/DisplayCaptureSessionManager.mm
 UIProcess/mac/PageClientImplMac.mm
