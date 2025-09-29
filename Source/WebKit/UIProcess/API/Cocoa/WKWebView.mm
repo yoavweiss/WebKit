@@ -6718,7 +6718,7 @@ static inline std::optional<WebCore::NodeIdentifier> toNodeIdentifier(const Stri
             return completionHandler(result.get());
 
 #if ENABLE(TEXT_EXTRACTION_FILTER)
-        WebKit::filterText(rootItem.get(), [completionHandler = WTFMove(completionHandler), result] {
+        WebKit::filterText(strongSelf.get(), rootItem.get(), [completionHandler = WTFMove(completionHandler), result] {
             completionHandler(result.get());
         });
 #else
@@ -6773,6 +6773,85 @@ static inline std::optional<WebCore::NodeIdentifier> toNodeIdentifier(const Stri
     });
 #endif // USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
 }
+
+#if ENABLE(TEXT_EXTRACTION_FILTER)
+
+- (void)_validateText:(NSString *)text inNode:(NSString *)nodeIdentifierString completionHandler:(void(^)(NSString *))completionHandler
+{
+    if (!text.length)
+        return completionHandler(text);
+
+    String string { text };
+    auto nodeIdentifier = toNodeIdentifier(nodeIdentifierString);
+    auto textHash = string.hash();
+    if (auto cachedResult = _textValidationCache.getOptional(textHash)) {
+        return WTF::switchOn(*cachedResult, [&](const String& stringResult) {
+            completionHandler(stringResult.createNSString().get());
+        }, [&](SimilarToOriginalTextTag) {
+            completionHandler(text);
+        });
+    }
+
+    _page->takeSnapshotOfExtractedText({ string, nodeIdentifier }, [
+        text = retainPtr(text),
+        completionHandler = makeBlockPtr(completionHandler),
+        view = retainPtr(self),
+        textHash
+    ](auto textIndicator) mutable {
+        if (!textIndicator)
+            return completionHandler(text.get());
+
+        RefPtr contentImage = textIndicator->contentImage();
+        if (!contentImage)
+            return completionHandler(text.get());
+
+        RefPtr nativeImage = contentImage->nativeImage();
+        if (!nativeImage)
+            return completionHandler(text.get());
+
+        RetainPtr cgImage = nativeImage->platformImage();
+        if (!cgImage)
+            return completionHandler(text.get());
+
+        WebKit::recognizeText(cgImage.get(), [
+            text = WTFMove(text),
+            completionHandler = WTFMove(completionHandler),
+            view,
+            textHash
+        ](NSString *recognizedText, NSError *error) mutable {
+            if (error)
+                return completionHandler(text.get());
+
+            // FIXME: This similarity threshold seems low, but in practice, dense but visible text sometimes
+            // gets partially ignored in text recognition results. In the future, we could consider raising
+            // this threshold if we get a more reliable way to recognize dense text.
+            static constexpr auto minimumSimilarity = 0.5;
+            static constexpr auto minimumLength = 10;
+
+            auto similarity = WebKit::computeSimilarity(text.get(), recognizedText, minimumLength);
+            if (similarity < minimumSimilarity) {
+                view->_textValidationCache.add(textHash, TextValidationMapValue { String { recognizedText } });
+                completionHandler(recognizedText);
+            } else {
+                view->_textValidationCache.add(textHash, TextValidationMapValue { SimilarToOriginalTextTag::Value });
+                completionHandler(text.get());
+            }
+        });
+    });
+}
+
+- (void)_clearTextExtractionFilterCache
+{
+    if (!self.window)
+        return;
+
+    if (RefPtr filter = WebKit::TextExtractionFilter::singletonIfCreated())
+        filter->resetCache();
+
+    _textValidationCache.clear();
+}
+
+#endif // ENABLE(TEXT_EXTRACTION_FILTER)
 
 @end
 

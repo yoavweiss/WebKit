@@ -258,6 +258,10 @@ WebCore::DestinationColorSpace PageClientImpl::colorSpace()
 void PageClientImpl::processWillSwap()
 {
     checkedImpl()->processWillSwap();
+
+#if ENABLE(TEXT_EXTRACTION_FILTER)
+    [webView() _clearTextExtractionFilterCache];
+#endif
 }
 
 void PageClientImpl::processDidExit()
@@ -298,9 +302,9 @@ void PageClientImpl::didCommitLoadForMainFrame(const String&, bool)
 #if ENABLE(WRITING_TOOLS)
     impl->hideTextAnimationView();
 #endif
+
 #if ENABLE(TEXT_EXTRACTION_FILTER)
-    if (RefPtr filter = TextExtractionFilter::singletonIfCreated())
-        filter->resetCache();
+    [webView() _clearTextExtractionFilterCache];
 #endif
 }
 

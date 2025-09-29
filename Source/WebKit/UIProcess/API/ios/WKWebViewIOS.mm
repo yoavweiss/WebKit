@@ -844,6 +844,10 @@ static WebCore::Color scrollViewBackgroundColor(WKWebView *webView, AllowPageBac
     [self _invalidateResizeAssertions];
 #endif
 
+#if ENABLE(TEXT_EXTRACTION_FILTER)
+    [self _clearTextExtractionFilterCache];
+#endif
+
     if (_gestureController)
         _gestureController->disconnectFromProcess();
 

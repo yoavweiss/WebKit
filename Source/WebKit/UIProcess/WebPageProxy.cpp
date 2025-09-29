@@ -16734,6 +16734,14 @@ void WebPageProxy::handleTextExtractionInteraction(TextExtraction::Interaction&&
     sendWithAsyncReply(Messages::WebPage::HandleTextExtractionInteraction(WTFMove(interaction)), WTFMove(completion));
 }
 
+void WebPageProxy::takeSnapshotOfExtractedText(TextExtraction::ExtractedText&& extractedText, CompletionHandler<void(RefPtr<TextIndicator>&&)>&& completion)
+{
+    if (!hasRunningProcess())
+        return completion({ });
+
+    sendWithAsyncReply(Messages::WebPage::TakeSnapshotOfExtractedText(WTFMove(extractedText)), WTFMove(completion));
+}
+
 void WebPageProxy::describeTextExtractionInteraction(TextExtraction::Interaction&& interaction, CompletionHandler<void(TextExtraction::InteractionDescription&&)>&& completion)
 {
     if (!hasRunningProcess()) {

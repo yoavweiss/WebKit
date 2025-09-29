@@ -47,6 +47,7 @@
 #import <wtf/NakedPtr.h>
 #import <wtf/RefPtr.h>
 #import <wtf/RetainPtr.h>
+#import <wtf/Variant.h>
 #import <wtf/WeakObjCPtr.h>
 #import <wtf/spi/cocoa/NSObjCRuntimeSPI.h>
 
@@ -122,8 +123,7 @@ struct DigitalCredentialsRequestData;
 struct MobileDocumentRequest;
 struct OpenID4VPRequest;
 #endif
-
-}
+} // namespace WebCore
 
 namespace WebKit {
 enum class ContinueUnsafeLoad : bool;
@@ -186,6 +186,9 @@ enum class HideScrollPocketReason : uint8_t {
 @protocol _WKTextManipulationDelegate;
 @protocol _WKInputDelegate;
 @protocol _WKAppHighlightDelegate;
+
+enum class SimilarToOriginalTextTag : uint8_t { Value };
+using TextValidationMapValue = Variant<String, SimilarToOriginalTextTag>;
 
 #if PLATFORM(IOS_FAMILY)
 struct LiveResizeParameters {
@@ -480,6 +483,10 @@ struct PerWebProcessState {
     BOOL _needsTopScrollPocketDueToVisibleContentInset;
     BOOL _shouldUpdateNeedsTopScrollPocketDueToVisibleContentInset;
 #endif
+
+#if ENABLE(TEXT_EXTRACTION_FILTER)
+    HashMap<unsigned /* string hash */, TextValidationMapValue> _textValidationCache;
+#endif
 }
 
 - (BOOL)_isValid;
@@ -627,6 +634,15 @@ RetainPtr<NSError> nsErrorFromExceptionDetails(const std::optional<WebCore::Exce
 #endif
 
 WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::FixedContainerEdges&, WebCore::BoxSide);
+
+#if ENABLE(TEXT_EXTRACTION_FILTER)
+
+@interface WKWebView (TextExtractionFilter)
+- (void)_validateText:(NSString *)text inNode:(NSString *)nodeIdentifier completionHandler:(void(^)(NSString *))completionHandler;
+- (void)_clearTextExtractionFilterCache;
+@end
+
+#endif
 
 #endif // !__has_feature(modules)
 #endif // __cplusplus
