@@ -6,13 +6,6 @@ Shared/API/Cocoa/_WKFrameHandle.mm
 Shared/API/Cocoa/_WKRemoteObjectInterface.mm
 Shared/API/c/mac/WKURLRequestNS.mm
 Shared/API/c/mac/WKURLResponseNS.mm
-Shared/ApplePay/ApplePayPaymentSetupFeatures.mm
-Shared/ApplePay/cocoa/AutomaticReloadPaymentRequestCocoa.mm
-Shared/ApplePay/cocoa/DeferredPaymentRequestCocoa.mm
-Shared/ApplePay/cocoa/PaymentTokenContextCocoa.mm
-Shared/ApplePay/cocoa/RecurringPaymentRequestCocoa.mm
-Shared/ApplePay/cocoa/WebPaymentCoordinatorProxyCocoa.mm
-Shared/ApplePay/mac/WebPaymentCoordinatorProxyMac.mm
 Shared/Cocoa/APIObject.mm
 Shared/Cocoa/ArgumentCodersCocoa.mm
 Shared/Cocoa/CompletionHandlerCallChecker.mm
