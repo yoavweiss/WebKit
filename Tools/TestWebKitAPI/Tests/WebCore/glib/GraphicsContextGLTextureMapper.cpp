@@ -131,6 +131,7 @@ RefPtr<TestedGraphicsContextGLTextureMapper> AnyContextAttributeTest::createTest
 
 } // namespace
 
+#if ENABLE(WEBXR)
 static ::testing::AssertionResult checkReadPixel(GraphicsContextGL& context, IntPoint point, Color expected)
 {
     uint8_t gotValues[4] = { };
@@ -141,6 +142,7 @@ static ::testing::AssertionResult checkReadPixel(GraphicsContextGL& context, Int
     return ::testing::AssertionSuccess();
 
 }
+#endif // ENABLE(WEBXR)
 
 TEST_F(GraphicsContextGLTextureMapperTest, ClearBufferIncorrectSizes)
 {
