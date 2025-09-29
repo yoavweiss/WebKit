@@ -1407,8 +1407,10 @@ void KeyframeEffect::computeCSSAnimationBlendingKeyframes(const RenderStyle& una
 
     BlendingKeyframes blendingKeyframes(AtomString { backingStyleAnimationName->name });
     if (m_target) {
-        if (auto* styleScope = Style::Scope::forOrdinal(*m_target, backingStyleAnimationName->scopeOrdinal))
-            styleScope->resolver().keyframeStylesForAnimation(*m_target, unanimatedStyle, resolutionContext, blendingKeyframes, backingStyleAnimation.timingFunction().value.ptr());
+        Style::Scope::resolveTreeScopedReference(*m_target, *backingStyleAnimationName, [&](const Style::Scope& scope, const AtomString&) {
+            ASSERT(scope.resolverIfExists());
+            return scope.resolverIfExists()->keyframeStylesForAnimation(*m_target, unanimatedStyle, resolutionContext, blendingKeyframes, backingStyleAnimation.timingFunction().value.ptr());
+        });
 
         // Ensure resource loads for all the frames.
         for (auto& keyframe : blendingKeyframes) {

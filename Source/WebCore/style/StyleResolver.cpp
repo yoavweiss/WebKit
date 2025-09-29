@@ -302,7 +302,7 @@ auto Resolver::initializeStateAndStyle(const Element& element, const ResolutionC
     return state;
 }
 
-BuilderContext Resolver::builderContext(State& state)
+BuilderContext Resolver::builderContext(State& state) const
 {
     return {
         document(),
@@ -385,7 +385,7 @@ UnadjustedStyle Resolver::unadjustedStyleForCachedMatchResult(Element& element, 
     };
 }
 
-std::unique_ptr<RenderStyle> Resolver::styleForKeyframe(Element& element, const RenderStyle& elementStyle, const ResolutionContext& context, const StyleRuleKeyframe& keyframe, BlendingKeyframe& blendingKeyframe)
+std::unique_ptr<RenderStyle> Resolver::styleForKeyframe(Element& element, const RenderStyle& elementStyle, const ResolutionContext& context, const StyleRuleKeyframe& keyframe, BlendingKeyframe& blendingKeyframe) const
 {
     // Add all the animating properties to the keyframe.
     bool hasRevert = false;
@@ -437,7 +437,7 @@ std::unique_ptr<RenderStyle> Resolver::styleForKeyframe(Element& element, const 
     return state.takeStyle();
 }
 
-bool Resolver::isAnimationNameValid(const String& name)
+bool Resolver::isAnimationNameValid(const String& name) const
 {
     return m_keyframesRuleMap.find(AtomString(name)) != m_keyframesRuleMap.end()
         || userAgentKeyframes().find(AtomString(name)) != userAgentKeyframes().end();
@@ -537,13 +537,13 @@ Vector<Ref<StyleRuleKeyframe>> Resolver::keyframeRulesForName(const AtomString& 
     return deduplicatedKeyframes;
 }
 
-void Resolver::keyframeStylesForAnimation(Element& element, const RenderStyle& elementStyle, const ResolutionContext& context, BlendingKeyframes& list, const TimingFunction* defaultTimingFunction)
+bool Resolver::keyframeStylesForAnimation(Element& element, const RenderStyle& elementStyle, const ResolutionContext& context, BlendingKeyframes& list, const TimingFunction* defaultTimingFunction) const
 {
     list.clear();
 
     auto keyframeRules = keyframeRulesForName(list.keyframesName(), defaultTimingFunction);
     if (keyframeRules.isEmpty())
-        return;
+        return false;
 
     // Construct and populate the style for each keyframe.
     for (auto& keyframeRule : keyframeRules) {
@@ -561,6 +561,8 @@ void Resolver::keyframeStylesForAnimation(Element& element, const RenderStyle& e
             list.updatePropertiesMetadata(keyframeRule->properties());
         }
     }
+
+    return true;
 }
 
 std::optional<ResolvedStyle> Resolver::styleForPseudoElement(Element& element, const PseudoElementRequest& pseudoElementRequest, const ResolutionContext& context)
