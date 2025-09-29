@@ -6581,6 +6581,7 @@
             "codegen-properties": {
                 "animation-wrapper": "StyleTypeWrapper",
                 "style-converter": "StyleType<Orphans>",
+                "style-extractor-custom": true,
                 "parser-grammar": "<integer [1,inf]>"
             },
             "specification": {
@@ -8297,6 +8298,7 @@
             "codegen-properties": {
                 "animation-wrapper": "StyleTypeWrapper",
                 "style-converter": "StyleType<Widows>",
+                "style-extractor-custom": true,
                 "parser-grammar": "<integer [1,inf]>"
             },
             "specification": {

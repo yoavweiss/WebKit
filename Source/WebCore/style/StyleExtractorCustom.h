@@ -92,6 +92,8 @@ public:
     static Ref<CSSValue> extractGridTemplateColumns(ExtractorState&);
     static Ref<CSSValue> extractGridTemplateRows(ExtractorState&);
     static Ref<CSSValue> extractAnimationDuration(ExtractorState&);
+    static Ref<CSSValue> extractWidows(ExtractorState&);
+    static Ref<CSSValue> extractOrphans(ExtractorState&);
 
     // MARK: Shorthands
 
@@ -185,6 +187,8 @@ public:
     static void extractGridTemplateColumnsSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractGridTemplateRowsSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractAnimationDurationSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
+    static void extractWidowsSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
+    static void extractOrphansSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
 
     static void extractAnimationShorthandSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractAnimationRangeShorthandSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
@@ -303,6 +307,21 @@ template<CSSPropertyID propertyID> void extractSerialization(ExtractorState& sta
         serializationForCSS(builder, context, state.style, value);
     });
 }
+
+// FIXME: if 'auto' value is removed then this can likely also be removed.
+template<> struct PropertyExtractorAdaptor<CSSPropertyWidows> {
+    template<typename F> decltype(auto) computedValue(ExtractorState& state, F&& functor) const
+    {
+        return functor(state.style.widows().tryValue().value_or(2));
+    }
+};
+
+template<> struct PropertyExtractorAdaptor<CSSPropertyOrphans> {
+    template<typename F> decltype(auto) computedValue(ExtractorState& state, F&& functor) const
+    {
+        return functor(state.style.orphans().tryValue().value_or(2));
+    }
+};
 
 // MARK: - Utilities
 
@@ -2015,6 +2034,16 @@ inline Ref<CSSValue> ExtractorCustom::extractGridTemplateRows(ExtractorState& st
     return WebCore::Style::extractGridTemplateValue<GridTrackSizingDirection::Rows>(state);
 }
 
+inline Ref<CSSValue> ExtractorCustom::extractWidows(ExtractorState& state)
+{
+    return extractCSSValue<CSSPropertyWidows>(state);
+}
+
+inline Ref<CSSValue> ExtractorCustom::extractOrphans(ExtractorState& state)
+{
+    return extractCSSValue<CSSPropertyOrphans>(state);
+}
+
 inline void ExtractorCustom::extractGridTemplateRowsSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
     WebCore::Style::extractGridTemplateSerialization<GridTrackSizingDirection::Rows>(state, builder, context);
@@ -3340,6 +3369,16 @@ inline RefPtr<CSSValue> ExtractorCustom::extractWebkitMaskPositionShorthand(Extr
 inline void ExtractorCustom::extractWebkitMaskPositionShorthandSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
     extractMaskPositionShorthandSerialization(state, builder, context);
+}
+
+inline void ExtractorCustom::extractWidowsSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
+{
+    extractSerialization<CSSPropertyWidows>(state, builder, context);
+}
+
+inline void ExtractorCustom::extractOrphansSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
+{
+    extractSerialization<CSSPropertyOrphans>(state, builder, context);
 }
 
 } // namespace Style
