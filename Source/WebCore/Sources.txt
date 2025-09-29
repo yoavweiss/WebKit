@@ -2805,7 +2805,7 @@ rendering/BlockStepSizing.cpp
 rendering/BorderEdge.cpp
 rendering/BorderPainter.cpp
 rendering/BorderShape.cpp
-rendering/BreakLines.cpp
+rendering/BreakablePositions.cpp
 rendering/CSSFilterRenderer.cpp
 rendering/CaretRectComputation.cpp
 rendering/ClipRect.cpp

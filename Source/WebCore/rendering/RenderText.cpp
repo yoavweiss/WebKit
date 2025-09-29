@@ -27,7 +27,7 @@
 #include "RenderText.h"
 
 #include "AXObjectCache.h"
-#include "BreakLines.h"
+#include "BreakablePositions.h"
 #include "BreakingContext.h"
 #include "DocumentInlines.h"
 #include "DocumentMarkerController.h"
@@ -1333,7 +1333,7 @@ void RenderText::computePreferredLogicalWidths(float leadWidth, SingleThreadWeak
             continue;
         }
 
-        bool hasBreak = breakAll || BreakLines::isBreakable(lineBreakIteratorFactory, i, nextBreakable, breakNBSP, canUseLineBreakShortcut, keepAllWords, breakAnywhere);
+        bool hasBreak = breakAll || BreakablePositions::isBreakable(lineBreakIteratorFactory, i, nextBreakable, breakNBSP, canUseLineBreakShortcut, keepAllWords, breakAnywhere);
         bool betweenWords = true;
         unsigned j = i;
         while (c != '\n' && !isSpaceAccordingToStyle(c, style) && c != '\t' && c != zeroWidthSpace && (c != softHyphen || style.hyphens() == Hyphens::None)) {
@@ -1344,7 +1344,7 @@ void RenderText::computePreferredLogicalWidths(float leadWidth, SingleThreadWeak
             c = string[j];
             if (U_IS_LEAD(previousCharacter) && U_IS_TRAIL(c))
                 continue;
-            if (BreakLines::isBreakable(lineBreakIteratorFactory, j, nextBreakable, breakNBSP, canUseLineBreakShortcut, keepAllWords, breakAnywhere) && characterAt(j - 1) != softHyphen)
+            if (BreakablePositions::isBreakable(lineBreakIteratorFactory, j, nextBreakable, breakNBSP, canUseLineBreakShortcut, keepAllWords, breakAnywhere) && characterAt(j - 1) != softHyphen)
                 break;
             if (breakAll) {
                 // FIXME: This code is ultra wrong.

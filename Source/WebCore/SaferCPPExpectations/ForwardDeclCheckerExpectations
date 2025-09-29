@@ -93,7 +93,7 @@ platform/graphics/ca/PlatformCALayer.h
 platform/graphics/ca/TileController.cpp
 platform/mediastream/libwebrtc/LibWebRTCDav1dDecoder.cpp
 rendering/AccessibilityRegionContext.h
-rendering/BreakLines.h
+rendering/BreakablePositions.h
 rendering/RenderLayerBacking.cpp
 rendering/RenderLayerCompositor.cpp
 rendering/RenderTableCellInlines.h

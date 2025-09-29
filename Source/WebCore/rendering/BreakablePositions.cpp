@@ -25,7 +25,7 @@
  */
 
 #include "config.h"
-#include "BreakLines.h"
+#include "BreakablePositions.h"
 
 #include <wtf/ASCIICType.h>
 #include <wtf/StdLibExtras.h>
@@ -39,7 +39,7 @@ namespace WebCore {
 #define B(a, b, c, d, e, f, g, h) \
     ((a) | ((b) << 1) | ((c) << 2) | ((d) << 3) | ((e) << 4) | ((f) << 5) | ((g) << 6) | ((h) << 7))
 
-const std::array<std::array<uint8_t, BreakLines::LineBreakTable::columnCount>, BreakLines::LineBreakTable::rowCount> BreakLines::LineBreakTable::breakTable {
+const std::array<std::array<uint8_t, BreakablePositions::LineBreakTable::columnCount>, BreakablePositions::LineBreakTable::rowCount> BreakablePositions::LineBreakTable::breakTable {
 /*                                      ! "  #  $  %  &  '  (     )  *  +  ,  -  .  /  0     1  2  3  4  5  6  7  8     9  :  ;  <  =  >  ?  @     A  B  C  D  E  F  G  H     I  J  K  L  M  N  O  P     Q  R  S  T  U  V  W  X     Y  Z  [  \  ]  ^  _  `     a  b  c  d  e  f  g  h     i  j  k  l  m  n  o  p     q  r  s  t  u  v  w  x     y  z  {  |  }  ~  7F 80    81 82 83 84 85 86 87 88    89 8A 8B 8C 8D 8E 8F 90    91 92 93 94 95 96 97 98    99 9A 9B 9C 9D 9E 9F A0    A1 A2 A3 A4 A5 A6 A7 A8    A9A AA BA CAD AE AF B0     B1 B2 B3 B4 B5 B6 B7 B8    B9 BA BB BC BD BE BF C0    C1 C2 C3 C4 C5 C6 C7 C8    C9 CA CB CC CD CE CF D0    D1 D2 D3 D4 D5 D6 D7 D8    D9 DA DB DC DD DE DF E0    E1 E2 E3 E4 E5 E6 E7 E8    E9 EA EB EC ED EE EF F0    F1 F2 F3 F4 F5 F6 F7 F8    F9 FA FB FC FD FE FF */
 /* 21 ! */ std::array<uint8_t, 28> { B(0, 0, 0, 0, 0, 0, 0, 1), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 1, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 1, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 1, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(1, 1, 1, 1, 1, 1, 1, 1), B(1, 1, 0, 1, 0, 1, 1, 1), B(1, 1, 1, 1, 1, 1, 1, 1), B(1, 1, 0, 1, 1, 1, 1, 1), B(1, 1, 1, 1, 1, 1, 1, 1), B(1, 1, 1, 1, 1, 1, 1, 1), B(1, 1, 1, 1, 1, 1, 1, 1), B(1, 1, 1, 1, 1, 1, 1, 1), B(1, 1, 1, 1, 1, 1, 1, 1), B(1, 1, 1, 1, 1, 1, 1, 1), B(1, 1, 1, 1, 1, 1, 1, 1), B(1, 1, 1, 1, 1, 1, 1, 0) },
 /* 22 " */ std::array<uint8_t, 28> { B(0, 0, 0, 0, 0, 0, 0, 1), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 1, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 1, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 1, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0), B(0, 0, 0, 0, 0, 0, 0, 0) },

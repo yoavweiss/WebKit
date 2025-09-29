@@ -3016,7 +3016,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     plugins/PluginViewBase.h
 
     rendering/AccessibilityRegionContext.h
-    rendering/BreakLines.h
+    rendering/BreakablePositions.h
     rendering/CSSFilterRenderer.h
     rendering/CSSValueKey.h
     rendering/CaretRectComputation.h

@@ -23,7 +23,7 @@
 #include "config.h"
 #include "LegacyInlineTextBox.h"
 
-#include "BreakLines.h"
+#include "BreakablePositions.h"
 #include "CompositionHighlight.h"
 #include "DashArray.h"
 #include "Document.h"

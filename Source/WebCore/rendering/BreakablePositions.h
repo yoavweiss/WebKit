@@ -29,7 +29,7 @@
 
 namespace WebCore {
 
-class BreakLines {
+class BreakablePositions {
 public:
     enum class NoBreakSpaceBehavior {
         Normal,
@@ -46,11 +46,11 @@ public:
         Special, // Uses ICU to handle special line-breaking rules.
     };
     template<LineBreakRules, WordBreakBehavior, NoBreakSpaceBehavior>
-    static inline unsigned nextBreakablePosition(CachedLineBreakIteratorFactory&, size_t startPosition);
+    static inline unsigned next(CachedLineBreakIteratorFactory&, size_t startPosition);
 
-    static inline unsigned nextBreakablePosition(CachedLineBreakIteratorFactory& iterator, size_t startPosition)
+    static inline unsigned next(CachedLineBreakIteratorFactory& iterator, size_t startPosition)
     {
-        return nextBreakablePosition<LineBreakRules::Normal, WordBreakBehavior::Normal, NoBreakSpaceBehavior::Normal>(iterator, startPosition);
+        return next<LineBreakRules::Normal, WordBreakBehavior::Normal, NoBreakSpaceBehavior::Normal>(iterator, startPosition);
     }
 
     static inline bool isBreakable(CachedLineBreakIteratorFactory&, unsigned startPosition, std::optional<unsigned>& nextBreakable, bool breakNBSP, bool canUseShortcut, bool keepAllWords, bool breakAnywhere);
@@ -117,8 +117,8 @@ private:
 };
 
 
-template<BreakLines::NoBreakSpaceBehavior nonBreakingSpaceBehavior>
-inline bool BreakLines::isBreakableSpace(char16_t character)
+template<BreakablePositions::NoBreakSpaceBehavior nonBreakingSpaceBehavior>
+inline bool BreakablePositions::isBreakableSpace(char16_t character)
 {
     switch (character) {
     case ' ':
@@ -132,8 +132,8 @@ inline bool BreakLines::isBreakableSpace(char16_t character)
     }
 }
 
-template<typename CharacterType, BreakLines::LineBreakRules shortcutRules, BreakLines::WordBreakBehavior words, BreakLines::NoBreakSpaceBehavior nonBreakingSpaceBehavior>
-inline size_t BreakLines::nextBreakablePosition(CachedLineBreakIteratorFactory& factory, std::span<const CharacterType> string, size_t startPosition)
+template<typename CharacterType, BreakablePositions::LineBreakRules shortcutRules, BreakablePositions::WordBreakBehavior words, BreakablePositions::NoBreakSpaceBehavior nonBreakingSpaceBehavior>
+inline size_t BreakablePositions::nextBreakablePosition(CachedLineBreakIteratorFactory& factory, std::span<const CharacterType> string, size_t startPosition)
 {
     struct CharacterInfo {
         char16_t character { 0 };
@@ -240,8 +240,8 @@ inline size_t BreakLines::nextBreakablePosition(CachedLineBreakIteratorFactory& 
     return string.size();
 }
 
-template<typename CharacterType, BreakLines::NoBreakSpaceBehavior nonBreakingSpaceBehavior>
-inline size_t BreakLines::nextBreakableSpace(std::span<const CharacterType> string, size_t startPosition)
+template<typename CharacterType, BreakablePositions::NoBreakSpaceBehavior nonBreakingSpaceBehavior>
+inline size_t BreakablePositions::nextBreakableSpace(std::span<const CharacterType> string, size_t startPosition)
 {
     // FIXME: Use ICU instead.
     for (size_t i = startPosition; i < string.size(); ++i) {
@@ -256,7 +256,7 @@ inline size_t BreakLines::nextBreakableSpace(std::span<const CharacterType> stri
     return string.size();
 }
 
-inline unsigned BreakLines::nextCharacter(CachedLineBreakIteratorFactory& lineBreakIteratorFactory, unsigned startPosition)
+inline unsigned BreakablePositions::nextCharacter(CachedLineBreakIteratorFactory& lineBreakIteratorFactory, unsigned startPosition)
 {
     auto stringView = lineBreakIteratorFactory.stringView();
     ASSERT(startPosition <= stringView.length());
@@ -267,8 +267,8 @@ inline unsigned BreakLines::nextCharacter(CachedLineBreakIteratorFactory& lineBr
     return next.value_or(stringView.length());
 }
 
-template<BreakLines::LineBreakRules rules, BreakLines::WordBreakBehavior words, BreakLines::NoBreakSpaceBehavior spaces>
-inline unsigned BreakLines::nextBreakablePosition(CachedLineBreakIteratorFactory& lineBreakIteratorFactory, size_t startPosition)
+template<BreakablePositions::LineBreakRules rules, BreakablePositions::WordBreakBehavior words, BreakablePositions::NoBreakSpaceBehavior spaces>
+inline unsigned BreakablePositions::next(CachedLineBreakIteratorFactory& lineBreakIteratorFactory, size_t startPosition)
 {
     auto stringView = lineBreakIteratorFactory.stringView();
 
@@ -283,7 +283,7 @@ inline unsigned BreakLines::nextBreakablePosition(CachedLineBreakIteratorFactory
 }
 
 
-inline bool BreakLines::isBreakable(CachedLineBreakIteratorFactory& lineBreakIteratorFactory, unsigned startPosition, std::optional<unsigned>& nextBreakable, bool breakNBSP, bool canUseShortcut, bool keepAllWords, bool breakAnywhere)
+inline bool BreakablePositions::isBreakable(CachedLineBreakIteratorFactory& lineBreakIteratorFactory, unsigned startPosition, std::optional<unsigned>& nextBreakable, bool breakNBSP, bool canUseShortcut, bool keepAllWords, bool breakAnywhere)
 {
     if (nextBreakable && nextBreakable.value() >= startPosition)
         return startPosition == nextBreakable;
@@ -293,24 +293,24 @@ inline bool BreakLines::isBreakable(CachedLineBreakIteratorFactory& lineBreakIte
 
     if (keepAllWords) {
         if (breakNBSP)
-            return startPosition == nextBreakablePosition<LineBreakRules::Special, WordBreakBehavior::KeepAll, NoBreakSpaceBehavior::Break>(lineBreakIteratorFactory, startPosition);
-        return startPosition == nextBreakablePosition<LineBreakRules::Special, WordBreakBehavior::KeepAll, NoBreakSpaceBehavior::Normal>(lineBreakIteratorFactory, startPosition);
+            return startPosition == next<LineBreakRules::Special, WordBreakBehavior::KeepAll, NoBreakSpaceBehavior::Break>(lineBreakIteratorFactory, startPosition);
+        return startPosition == next<LineBreakRules::Special, WordBreakBehavior::KeepAll, NoBreakSpaceBehavior::Normal>(lineBreakIteratorFactory, startPosition);
     }
 
     if (canUseShortcut) {
         if (breakNBSP)
-            return startPosition == nextBreakablePosition<LineBreakRules::Normal, WordBreakBehavior::Normal, NoBreakSpaceBehavior::Break>(lineBreakIteratorFactory, startPosition);
-        return startPosition == nextBreakablePosition<LineBreakRules::Normal, WordBreakBehavior::Normal, NoBreakSpaceBehavior::Normal>(lineBreakIteratorFactory, startPosition);
+            return startPosition == next<LineBreakRules::Normal, WordBreakBehavior::Normal, NoBreakSpaceBehavior::Break>(lineBreakIteratorFactory, startPosition);
+        return startPosition == next<LineBreakRules::Normal, WordBreakBehavior::Normal, NoBreakSpaceBehavior::Normal>(lineBreakIteratorFactory, startPosition);
     }
 
     if (breakNBSP)
-        return startPosition == nextBreakablePosition<LineBreakRules::Special, WordBreakBehavior::Normal, NoBreakSpaceBehavior::Break>(lineBreakIteratorFactory, startPosition);
+        return startPosition == next<LineBreakRules::Special, WordBreakBehavior::Normal, NoBreakSpaceBehavior::Break>(lineBreakIteratorFactory, startPosition);
 
-    return startPosition == nextBreakablePosition<LineBreakRules::Special, WordBreakBehavior::Normal, NoBreakSpaceBehavior::Normal>(lineBreakIteratorFactory, startPosition);
+    return startPosition == next<LineBreakRules::Special, WordBreakBehavior::Normal, NoBreakSpaceBehavior::Normal>(lineBreakIteratorFactory, startPosition);
 }
 
-template<BreakLines::LineBreakRules rules, BreakLines::NoBreakSpaceBehavior nonBreakingSpaceBehavior>
-inline BreakLines::BreakClass BreakLines::classify(char16_t character)
+template<BreakablePositions::LineBreakRules rules, BreakablePositions::NoBreakSpaceBehavior nonBreakingSpaceBehavior>
+inline BreakablePositions::BreakClass BreakablePositions::classify(char16_t character)
 {
     // This function is optimized for letters and NBSP.
     // See LineBreak.txt for classification.

@@ -326,7 +326,7 @@ static bool isBreakableRun(const InlineContentBreaker::ContinuousContent::Run& r
 static inline bool canBreakBefore(char32_t character, LineBreak lineBreak)
 {
     // FIXME: This should include all the cases from https://unicode.org/reports/tr14
-    // Use a breaking matrix similar to lineBreakTable in BreakLines.cpp
+    // Use a breaking matrix similar to lineBreakTable in BreakablePositions.cpp
     // Also see kBreakAllLineBreakClassTable in third_party/blink/renderer/platform/text/text_break_iterator.cc
     if (lineBreak != LineBreak::Loose) {
         // The following breaks are allowed for loose line breaking if the preceding character belongs to the Unicode

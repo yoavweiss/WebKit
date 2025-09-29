@@ -27,7 +27,7 @@
 #include "config.h"
 #include "TextUtil.h"
 
-#include "BreakLines.h"
+#include "BreakablePositions.h"
 #include "ComplexTextController.h"
 #include "FontCascade.h"
 #include "InlineLineTypes.h"
@@ -407,23 +407,23 @@ unsigned TextUtil::findNextBreakablePosition(CachedLineBreakIteratorFactory& lin
 
     if (wordBreak == WordBreak::KeepAll) {
         if (breakNBSP)
-            return BreakLines::nextBreakablePosition<BreakLines::LineBreakRules::Special, BreakLines::WordBreakBehavior::KeepAll, BreakLines::NoBreakSpaceBehavior::Break>(lineBreakIteratorFactory, startPosition);
-        return BreakLines::nextBreakablePosition<BreakLines::LineBreakRules::Special, BreakLines::WordBreakBehavior::KeepAll, BreakLines::NoBreakSpaceBehavior::Normal>(lineBreakIteratorFactory, startPosition);
+            return BreakablePositions::next<BreakablePositions::LineBreakRules::Special, BreakablePositions::WordBreakBehavior::KeepAll, BreakablePositions::NoBreakSpaceBehavior::Break>(lineBreakIteratorFactory, startPosition);
+        return BreakablePositions::next<BreakablePositions::LineBreakRules::Special, BreakablePositions::WordBreakBehavior::KeepAll, BreakablePositions::NoBreakSpaceBehavior::Normal>(lineBreakIteratorFactory, startPosition);
     }
 
     if (wordBreak == WordBreak::AutoPhrase)
-        return BreakLines::nextBreakablePosition<BreakLines::LineBreakRules::Special, BreakLines::WordBreakBehavior::AutoPhrase, BreakLines::NoBreakSpaceBehavior::Normal>(lineBreakIteratorFactory, startPosition);
+        return BreakablePositions::next<BreakablePositions::LineBreakRules::Special, BreakablePositions::WordBreakBehavior::AutoPhrase, BreakablePositions::NoBreakSpaceBehavior::Normal>(lineBreakIteratorFactory, startPosition);
 
     if (lineBreakIteratorFactory.mode() == TextBreakIterator::LineMode::Behavior::Default) {
         if (breakNBSP)
-            return BreakLines::nextBreakablePosition<BreakLines::LineBreakRules::Normal, BreakLines::WordBreakBehavior::Normal, BreakLines::NoBreakSpaceBehavior::Break>(lineBreakIteratorFactory, startPosition);
-        return BreakLines::nextBreakablePosition<BreakLines::LineBreakRules::Normal, BreakLines::WordBreakBehavior::Normal, BreakLines::NoBreakSpaceBehavior::Normal>(lineBreakIteratorFactory, startPosition);
+            return BreakablePositions::next<BreakablePositions::LineBreakRules::Normal, BreakablePositions::WordBreakBehavior::Normal, BreakablePositions::NoBreakSpaceBehavior::Break>(lineBreakIteratorFactory, startPosition);
+        return BreakablePositions::next<BreakablePositions::LineBreakRules::Normal, BreakablePositions::WordBreakBehavior::Normal, BreakablePositions::NoBreakSpaceBehavior::Normal>(lineBreakIteratorFactory, startPosition);
     }
 
     if (breakNBSP)
-        return BreakLines::nextBreakablePosition<BreakLines::LineBreakRules::Special, BreakLines::WordBreakBehavior::Normal, BreakLines::NoBreakSpaceBehavior::Break>(lineBreakIteratorFactory, startPosition);
+        return BreakablePositions::next<BreakablePositions::LineBreakRules::Special, BreakablePositions::WordBreakBehavior::Normal, BreakablePositions::NoBreakSpaceBehavior::Break>(lineBreakIteratorFactory, startPosition);
 
-    return BreakLines::nextBreakablePosition<BreakLines::LineBreakRules::Special, BreakLines::WordBreakBehavior::Normal, BreakLines::NoBreakSpaceBehavior::Normal>(lineBreakIteratorFactory, startPosition);
+    return BreakablePositions::next<BreakablePositions::LineBreakRules::Special, BreakablePositions::WordBreakBehavior::Normal, BreakablePositions::NoBreakSpaceBehavior::Normal>(lineBreakIteratorFactory, startPosition);
 }
 
 bool TextUtil::shouldPreserveSpacesAndTabs(const Box& layoutBox)
