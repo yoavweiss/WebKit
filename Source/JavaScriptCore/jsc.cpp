@@ -2345,7 +2345,7 @@ JSC_DEFINE_HOST_FUNCTION(functionCallerIsBBQOrOMGCompiled, (JSGlobalObject* glob
     ASSERT(wasmFrame.callerFrame()->callee().isNativeCallee());
     ASSERT(wasmFrame.callerFrame()->callee().asNativeCallee()->category() == NativeCallee::Category::Wasm);
 #if ENABLE(WEBASSEMBLY)
-    auto mode = static_cast<Wasm::Callee*>(wasmFrame.callerFrame()->callee().asNativeCallee())->compilationMode();
+    auto mode = uncheckedDowncast<Wasm::Callee>(wasmFrame.callerFrame()->callee().asNativeCallee())->compilationMode();
     return JSValue::encode(jsBoolean(isAnyBBQ(mode) || isAnyOMG(mode)));
 #endif
     RELEASE_ASSERT_NOT_REACHED();

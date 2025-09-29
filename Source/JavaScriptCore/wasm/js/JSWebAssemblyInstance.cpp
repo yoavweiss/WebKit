@@ -257,7 +257,7 @@ void JSWebAssemblyInstance::finalizeCreation(VM& vm, JSGlobalObject* globalObjec
             // the import is a Wasm function or a builtin
             auto calleeBits = info->boxedCallee;
             if (calleeBits.isNativeCallee()) {
-                auto* callee = std::bit_cast<Callee*>(calleeBits.asNativeCallee());
+                auto* callee = uncheckedDowncast<Wasm::Callee>(calleeBits.asNativeCallee());
                 // if the callee is a builtin, info->importFunctionStub has already been set
                 if (callee->compilationMode() != CompilationMode::WasmBuiltinMode)
                     info->importFunctionStub = wasmCalleeGroup->wasmToWasmExitStub(functionSpaceIndex);

@@ -6309,7 +6309,7 @@ Expected<std::unique_ptr<InternalFunction>, String> parseAndCompileOMG(Compilati
         ASSERT(checkSize || !needsOverflowCheck);
         if (!needsOverflowCheck)
             checkSize = stackCheckNotNeeded;
-        static_cast<OMGOSREntryCallee*>(&callee)->setStackCheckSize(checkSize);
+        uncheckedDowncast<OMGOSREntryCallee>(callee).setStackCheckSize(checkSize);
     }
 
     return result;

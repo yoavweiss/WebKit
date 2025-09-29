@@ -170,7 +170,7 @@ void OSREntryPlan::work()
         {
             switch (m_callee->compilationMode()) {
             case CompilationMode::BBQMode: {
-                BBQCallee* bbqCallee = static_cast<BBQCallee*>(m_callee.ptr());
+                BBQCallee* bbqCallee = uncheckedDowncast<BBQCallee>(m_callee.ptr());
                 Locker locker { bbqCallee->tierUpCounter().getLock() };
                 bbqCallee->setOSREntryCallee(callee.copyRef(), mode());
                 bbqCallee->tierUpCounter().osrEntryTriggers()[m_loopIndex] = TierUpCount::TriggerReason::CompilationDone;

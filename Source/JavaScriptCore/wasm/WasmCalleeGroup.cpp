@@ -241,7 +241,7 @@ void CalleeGroup::startInstallingCallee(const AbstractLocker& locker, FunctionCo
     ASSERT(slot);
 
     if (callee.compilationMode() == CompilationMode::OMGMode)
-        m_currentlyInstallingOptimizedCallees.m_omgCallee = Ref { static_cast<OMGCallee&>(callee) };
+        m_currentlyInstallingOptimizedCallees.m_omgCallee = Ref { uncheckedDowncast<OMGCallee>(callee) };
     else
         m_currentlyInstallingOptimizedCallees.m_omgCallee = slot->m_omgCallee;
 
@@ -249,7 +249,7 @@ void CalleeGroup::startInstallingCallee(const AbstractLocker& locker, FunctionCo
         Locker replacerLocker { m_currentlyInstallingOptimizedCallees.m_bbqCalleeLock };
         Locker locker { slot->m_bbqCalleeLock };
         if (callee.compilationMode() == CompilationMode::BBQMode)
-            m_currentlyInstallingOptimizedCallees.m_bbqCallee = Ref { static_cast<BBQCallee&>(callee) };
+            m_currentlyInstallingOptimizedCallees.m_bbqCallee = Ref { uncheckedDowncast<BBQCallee>(callee) };
         else
             m_currentlyInstallingOptimizedCallees.m_bbqCallee = slot->m_bbqCallee;
     }

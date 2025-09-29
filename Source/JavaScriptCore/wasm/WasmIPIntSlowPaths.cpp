@@ -66,7 +66,7 @@ namespace JSC { namespace IPInt {
     } while (false)
 
 #define IPINT_CALLEE(callFrame) \
-    static_cast<Wasm::IPIntCallee*>(callFrame->callee().asNativeCallee())
+    (uncheckedDowncast<Wasm::IPIntCallee>(uncheckedDowncast<Wasm::Callee>(callFrame->callee().asNativeCallee())))
 
 // For operation calls that may throw an exception, we return (<val>, 0)
 // if it is fine, and (<exception value>, SlowPathExceptionTag) if it is not
@@ -302,7 +302,7 @@ WASM_IPINT_EXTERN_CPP_DECL(loop_osr, CallFrame* callFrame, uint8_t* pc, IPIntLoc
     if (!compiledCallee)
         WASM_RETURN_TWO(nullptr, nullptr);
 
-    auto* bbqCallee = static_cast<Wasm::BBQCallee*>(compiledCallee.get());
+    auto* bbqCallee = uncheckedDowncast<Wasm::BBQCallee>(compiledCallee.get());
     ASSERT(bbqCallee->compilationMode() == Wasm::CompilationMode::BBQMode);
     size_t osrEntryScratchBufferSize = bbqCallee->osrEntryScratchBufferSize();
     RELEASE_ASSERT(osrEntryScratchBufferSize >= callee->numLocals() + osrEntryData.numberOfStackValues + osrEntryData.tryDepth);

@@ -156,7 +156,7 @@ JSC_DEFINE_JIT_OPERATION(operationJSToWasmEntryWrapperBuildReturnFrame, EncodedJ
     WasmOperationPrologueCallFrameTracer tracer(vm, callFrame, OUR_RETURN_ADDRESS);
 
     uint64_t* registerSpace = reinterpret_cast<uint64_t*>(sp);
-    auto* callee = static_cast<JSToWasmCallee*>(callFrame->callee().asNativeCallee());
+    auto* callee = uncheckedDowncast<JSToWasmCallee>(uncheckedDowncast<Wasm::Callee>(callFrame->callee().asNativeCallee()));
     ASSERT(callee->compilationMode() == CompilationMode::JSToWasmMode);
 
     auto scope = DECLARE_THROW_SCOPE(vm);
@@ -608,7 +608,7 @@ ALWAYS_INLINE void assertCalleeIsReferenced(CallFrame* frame, JSWebAssemblyInsta
 {
 #if ASSERT_ENABLED
     CalleeGroup& calleeGroup = *instance->calleeGroup();
-    Wasm::Callee* callee = static_cast<Wasm::Callee*>(frame->callee().asNativeCallee());
+    Wasm::Callee* callee = uncheckedDowncast<Wasm::Callee>(frame->callee().asNativeCallee());
     TriState status;
     {
         Locker locker { calleeGroup.m_lock };
@@ -949,7 +949,7 @@ inline bool shouldOMGJIT(JSWebAssemblyInstance* instance, unsigned functionIndex
 
 JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmTriggerTierUpNow, void, (CallFrame* callFrame, JSWebAssemblyInstance* instance))
 {
-    BBQCallee& callee = *static_cast<BBQCallee*>(callFrame->callee().asNativeCallee());
+    BBQCallee& callee = uncheckedDowncast<BBQCallee>(uncheckedDowncast<Wasm::Callee>(*callFrame->callee().asNativeCallee()));
     ASSERT(callee.compilationMode() == CompilationMode::BBQMode);
 
     Wasm::CalleeGroup& calleeGroup = *instance->calleeGroup();
@@ -975,7 +975,7 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmTriggerOSREntryNow, void, (Probe:
     auto functionIndex = osrEntryData.functionIndex();
     uint32_t loopIndex = osrEntryData.loopIndex();
     JSWebAssemblyInstance* instance = context.gpr<JSWebAssemblyInstance*>(GPRInfo::wasmContextInstancePointer);
-    BBQCallee& callee = *static_cast<BBQCallee*>(context.gpr<CallFrame*>(MacroAssembler::framePointerRegister)->callee().asNativeCallee());
+    BBQCallee& callee = uncheckedDowncast<BBQCallee>(uncheckedDowncast<Wasm::Callee>(*context.gpr<CallFrame*>(MacroAssembler::framePointerRegister)->callee().asNativeCallee()));
     ASSERT(callee.compilationMode() == Wasm::CompilationMode::BBQMode);
     ASSERT(callee.refCount());
     Wasm::CalleeGroup& calleeGroup = *instance->calleeGroup();
@@ -1191,7 +1191,7 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmLoopOSREnterBBQJIT, void, (Probe:
     unsigned loopIndex = osrEntryScratchBuffer[0]; // First entry in scratch buffer is the loop index when tiering up to BBQ.
 
     // We just populated the callee in the frame before we entered this operation, so let's use it.
-    BBQCallee& callee = *static_cast<BBQCallee*>(context.fp<CallFrame*>()->callee().asNativeCallee());
+    BBQCallee& callee = uncheckedDowncast<BBQCallee>(uncheckedDowncast<Wasm::Callee>(*context.fp<CallFrame*>()->callee().asNativeCallee()));
     ASSERT(callee.compilationMode() == Wasm::CompilationMode::BBQMode);
     ASSERT(callee.refCount());
     OSREntryData& entryData = callee.tierUpCounter().osrEntryData(loopIndex);
@@ -1249,7 +1249,7 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmLoopOSREnterBBQJIT, void, (Probe:
 #if ENABLE(WEBASSEMBLY_BBQJIT)
 JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmMaterializeBaselineData, void, (CallFrame* callFrame, JSWebAssemblyInstance* instance))
 {
-    BBQCallee& callee = *static_cast<BBQCallee*>(callFrame->callee().asNativeCallee());
+    BBQCallee& callee = uncheckedDowncast<BBQCallee>(uncheckedDowncast<Wasm::Callee>(*callFrame->callee().asNativeCallee()));
     ASSERT(callee.compilationMode() == CompilationMode::BBQMode);
 
     Wasm::CalleeGroup& calleeGroup = *instance->calleeGroup();

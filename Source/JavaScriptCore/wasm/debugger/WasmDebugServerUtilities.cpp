@@ -85,7 +85,7 @@ bool getWasmReturnPC(CallFrame* currentFrame, uint8_t*& returnPC, VirtualAddress
     if (caller->category() != NativeCallee::Category::Wasm)
         return false;
 
-    RefPtr wasmCaller = static_cast<const Wasm::Callee*>(caller.get());
+    RefPtr wasmCaller = uncheckedDowncast<const Wasm::Callee>(caller.get());
     if (wasmCaller->compilationMode() != Wasm::CompilationMode::IPIntMode)
         return false;
 
@@ -95,7 +95,7 @@ bool getWasmReturnPC(CallFrame* currentFrame, uint8_t*& returnPC, VirtualAddress
     returnPC = WTF::unalignedLoad<uint8_t*>(pcLocation);
 
     JSWebAssemblyInstance* callerInstance = callerFrame->wasmInstance();
-    RefPtr ipintCaller = static_cast<const Wasm::IPIntCallee*>(wasmCaller.get());
+    RefPtr ipintCaller = uncheckedDowncast<const Wasm::IPIntCallee>(wasmCaller.get());
     virtualReturnPC = VirtualAddress::toVirtual(callerInstance, ipintCaller->functionIndex(), returnPC);
     return true;
 }

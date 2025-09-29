@@ -822,7 +822,7 @@ public:
             case NativeCallee::Category::Wasm: {
 #if ENABLE(WEBASSEMBLY)
                 if (m_catchableFromWasm) {
-                    auto* wasmCallee = static_cast<Wasm::Callee*>(nativeCallee);
+                    auto* wasmCallee = uncheckedDowncast<Wasm::Callee>(nativeCallee);
                     if (wasmCallee->hasExceptionHandlers()) {
                         JSWebAssemblyInstance* instance = m_callFrame->wasmInstance();
                         unsigned exceptionHandlerIndex = visitor->wasmCallSiteIndex().bits();

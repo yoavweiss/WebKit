@@ -169,7 +169,7 @@ static ALWAYS_INLINE void buildEntryBufferForCatch(Probe::Context& context)
     unsigned valueSize = (savedFPWidth == SavedFPWidth::SaveVectors) ? 2 : 1;
     CallFrame* callFrame = context.fp<CallFrame*>();
     CallSiteIndex callSiteIndex = callFrame->callSiteIndex();
-    OptimizingJITCallee* callee = std::bit_cast<OptimizingJITCallee*>(callFrame->callee().asNativeCallee());
+    OptimizingJITCallee* callee = uncheckedDowncast<OptimizingJITCallee>(uncheckedDowncast<Wasm::Callee>(callFrame->callee().asNativeCallee()));
     const StackMap& stackmap = callee->stackmap(callSiteIndex);
     JSWebAssemblyInstance* instance = context.gpr<JSWebAssemblyInstance*>(GPRInfo::wasmContextInstancePointer);
     EncodedJSValue exception = context.gpr<EncodedJSValue>(GPRInfo::returnValueGPR);
