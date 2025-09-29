@@ -5562,7 +5562,6 @@ platform/ios/ios/fast/text/underline-scaling.html [ Failure ]
 fast/borders/dashed-border-on-subpixel-position.html [ ImageOnlyFailure ]
 fast/borders/dotted-border-on-subpixel-position.html [ ImageOnlyFailure ]
 fast/forms/select/select-painting.html [ ImageOnlyFailure ]
-fast/images/background-image-size-changes-fractional-position.html [ ImageOnlyFailure ]
 fast/masking/clip-path-on-subpixel-position.html [ ImageOnlyFailure ]
 fast/text/hidpi-text-selection-gap-between-words.html [ ImageOnlyFailure ]
 
@@ -8263,3 +8262,5 @@ webkit.org/b/298974 fast/forms/ios/keyboard-restoration-after-element-replacemen
 webkit.org/b/280234 imported/w3c/web-platform-tests/html/dom/idlharness.https.html [ Skip ]
 
 webkit.org/b/299501 http/tests/site-isolation/focus-tab-navigation-activeElement.html [ Pass Failure ]
+
+webkit.org/b/299811 fast/images/background-image-size-changes-fractional-position.html [ ImageOnlyFailure ]
