@@ -2521,6 +2521,7 @@ fast/images/hdr-image-layer-sdr-dynamic-range-limit.html [ Skip ]
 fast/images/hdr-border-image.html [ Skip ]
 fast/images/hdr-pseudo-before-image.html [ Skip ]
 fast/images/hdr-svg-inline-image.html [ Skip ]
+fast/images/hdr-unaccelerated-basic-image.html [ Skip ]
 
 # Experimental H265 support.
 webrtc/h265.html [ Pass Failure ]
