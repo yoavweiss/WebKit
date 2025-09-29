@@ -5151,7 +5151,7 @@ void WebViewImpl::doneWithKeyEvent(NSEvent *event, bool eventWasHandled)
     m_keyDownEventBeingResent = nullptr;
 }
 
-NSArray *WebViewImpl::validAttributesForMarkedText()
+NSArray *WebViewImpl::validAttributesForMarkedTextSingleton()
 {
     static NeverDestroyed<RetainPtr<NSArray>> validAttributes = @[
         NSUnderlineStyleAttributeName,
