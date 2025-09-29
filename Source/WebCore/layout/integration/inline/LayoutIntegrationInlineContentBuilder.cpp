@@ -194,9 +194,12 @@ void InlineContentBuilder::adjustDisplayLines(InlineContent& inlineContent, size
                     childInkOverflow.move(box.left(), box.top());
                     lineInkOverflowRect.unite(childInkOverflow);
                 }
-                auto childScrollableOverflow = renderer.layoutOverflowRectForPropagation(renderer.parent()->writingMode());
-                childScrollableOverflow.move(box.left(), box.top());
-                lineScrollableOverflowRect.unite(childScrollableOverflow);
+
+                if (!renderer.hasControlClip()) {
+                    auto childScrollableOverflow = renderer.layoutOverflowRectForPropagation(renderer.parent()->writingMode());
+                    childScrollableOverflow.move(box.left(), box.top());
+                    lineScrollableOverflowRect.unite(childScrollableOverflow);
+                }
                 continue;
             }
 
