@@ -350,6 +350,18 @@ void checkFrameTreesInProcesses(WKWebView *webView, Vector<ExpectedFrameTree>&& 
     checkFrameTreesInProcesses(frameTrees(webView).get(), WTFMove(expectedFrameTrees));
 }
 
+static unsigned countWebPages(const RetainPtr<WKWebView>& webView)
+{
+    __block bool done { false };
+    __block unsigned result { 0 };
+    [webView.get().configuration.processPool _countWebPagesInAllProcessesForTesting:^(unsigned count) {
+        result = count;
+        done = true;
+    }];
+    Util::run(&done);
+    return result;
+}
+
 enum class FrameType : bool { Local, Remote };
 static pid_t findFramePID(NSSet<_WKFrameTreeNode *> *set, FrameType local)
 {
@@ -4213,6 +4225,15 @@ TEST(SiteIsolation, ProcessReuse)
     [webView objectByEvaluatingJavaScript:@"var frame = document.getElementById('onlyiframe'); frame.parentNode.removeChild(frame);1"];
     [webView evaluateJavaScript:@"var iframe = document.createElement('iframe');iframe.src = 'https://webkit.org/iframe_with_alert';document.body.appendChild(iframe)" completionHandler:nil];
     EXPECT_WK_STREQ([webView _test_waitForAlert], "loaded");
+
+    EXPECT_EQ(countWebPages(webView), 2u);
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.org/example"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://webkit.org/example"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://apple.com/example"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+    EXPECT_EQ(countWebPages(webView), 2u);
 }
 
 TEST(SiteIsolation, ProcessTerminationReason)

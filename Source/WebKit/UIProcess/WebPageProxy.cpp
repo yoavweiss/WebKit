@@ -5282,7 +5282,7 @@ void WebPageProxy::commitProvisionalPage(IPC::Connection& connection, FrameIdent
         m_mainFrameWebsitePolicies = mainFrameWebsitePolicies->copy();
 
     // There is no way we'll be able to return to the page in the previous page so close it.
-    if (!didSuspendPreviousPage && shouldClosePreviousPage())
+    if (!didSuspendPreviousPage && shouldClosePreviousPage(*provisionalPage))
         send(Messages::WebPage::Close());
 
     const auto oldWebPageID = m_webPageID;
@@ -5295,9 +5295,14 @@ void WebPageProxy::commitProvisionalPage(IPC::Connection& connection, FrameIdent
         m_inspectorController->didCommitProvisionalPage(oldWebPageID, m_webPageID);
 }
 
-bool WebPageProxy::shouldClosePreviousPage()
+bool WebPageProxy::shouldClosePreviousPage(const ProvisionalPageProxy& provisionalPage)
 {
-    return !protectedPreferences()->siteIsolationEnabled();
+    if (!protectedPreferences()->siteIsolationEnabled())
+        return true;
+    RefPtr mainFrame = provisionalPage.mainFrame();
+    if (!mainFrame)
+        return true;
+    return !mainFrame->opener();
 }
 
 void WebPageProxy::destroyProvisionalPage()

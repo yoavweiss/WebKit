@@ -2972,7 +2972,7 @@ private:
     void didFinishLoadForResource(WebCore::ResourceLoaderIdentifier, WebCore::FrameIdentifier, WebCore::ResourceError&&);
 #endif
 
-    bool shouldClosePreviousPage();
+    bool shouldClosePreviousPage(const ProvisionalPageProxy&);
 
 #if ENABLE(MEDIA_STREAM)
     UserMediaPermissionRequestManagerProxy& userMediaPermissionRequestManager();

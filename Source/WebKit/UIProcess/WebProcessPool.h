@@ -282,6 +282,7 @@ public:
 
     HashSet<ProcessID> prewarmedProcessIdentifiers();
     void activePagesOriginsInWebProcessForTesting(ProcessID, CompletionHandler<void(Vector<String>&&)>&&);
+    void countWebPagesInAllProcessesForTesting(CompletionHandler<void(unsigned)>&&);
 
     WebPageGroup& defaultPageGroup() { return m_defaultPageGroup.get(); }
 

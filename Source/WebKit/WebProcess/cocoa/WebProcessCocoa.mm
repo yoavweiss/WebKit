@@ -1026,14 +1026,14 @@ static NSURL *origin(WebPage& page)
     return [NSURL URLWithString:rootFrameOriginString.createNSString().get()];
 }
 
-static Vector<String> activePagesOrigins(const HashMap<PageIdentifier, RefPtr<WebPage>>& pageMap)
+static Vector<String> activePagesOrigins(const HashMap<PageIdentifier, Ref<WebPage>>& pageMap)
 {
     Vector<String> origins;
     for (auto& page : pageMap.values()) {
         if (page->usesEphemeralSession())
             continue;
 
-        RetainPtr originAsURL = origin(*page);
+        RetainPtr originAsURL = origin(page);
         if (!originAsURL)
             continue;
 

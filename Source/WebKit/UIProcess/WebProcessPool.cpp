@@ -1526,6 +1526,33 @@ void WebProcessPool::activePagesOriginsInWebProcessForTesting(ProcessID pid, Com
     completionHandler({ });
 }
 
+void WebProcessPool::countWebPagesInAllProcessesForTesting(CompletionHandler<void(unsigned)>&& completionHandler)
+{
+    class ResultAggregator : public RefCounted<ResultAggregator> {
+    public:
+        static Ref<ResultAggregator> create(CompletionHandler<void(size_t)>&& completionHandler) { return adoptRef(*new ResultAggregator(WTFMove(completionHandler))); }
+        void addWebPageCount(unsigned count) { m_count += count; }
+        ~ResultAggregator()
+        {
+            m_completionHandler(m_count);
+        }
+
+    private:
+        ResultAggregator(CompletionHandler<void(unsigned)>&& completionHandler)
+            : m_completionHandler(WTFMove(completionHandler)) { }
+
+        CompletionHandler<void(unsigned)> m_completionHandler;
+        unsigned m_count { 0 };
+    };
+
+    Ref aggregator = ResultAggregator::create(WTFMove(completionHandler));
+    for (auto& process : m_processes) {
+        process->sendWithAsyncReply(Messages::WebProcess::CountWebPagesForTesting(), [aggregator] (unsigned count) mutable {
+            aggregator->addWebPageCount(count);
+        });
+    }
+}
+
 void WebProcessPool::setAlwaysUsesComplexTextCodePath(bool alwaysUseComplexText)
 {
     m_alwaysUsesComplexTextCodePath = alwaysUseComplexText;

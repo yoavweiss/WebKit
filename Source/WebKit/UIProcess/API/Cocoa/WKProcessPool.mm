@@ -389,6 +389,12 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
     return result.autorelease();
 }
 
+- (void)_countWebPagesInAllProcessesForTesting:(void(^)(unsigned))completionHandler
+{
+    _processPool->countWebPagesInAllProcessesForTesting([completionHandler = makeBlockPtr(completionHandler)] (unsigned result) {
+        completionHandler(result);
+    });
+}
 
 - (void)_clearWebProcessCache
 {
