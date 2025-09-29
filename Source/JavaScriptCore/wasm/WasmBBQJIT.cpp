@@ -2916,48 +2916,22 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addF32Copysign(Value lhs, Value rhs, Va
         "F32Copysign", TypeKind::F32,
         BLOCK(Value::fromF32(floatCopySign(lhs.asF32(), rhs.asF32()))),
         BLOCK(
-            // FIXME: Better than what we have in the Air backend, but still not great. I think
-            // there's some vector instruction we can use to do this much quicker.
-
-#if CPU(X86_64)
-            m_jit.moveFloatTo32(lhsLocation.asFPR(), wasmScratchGPR);
-            m_jit.and32(TrustedImm32(0x7fffffff), wasmScratchGPR);
-            m_jit.move32ToFloat(wasmScratchGPR, wasmScratchFPR);
-            m_jit.moveFloatTo32(rhsLocation.asFPR(), wasmScratchGPR);
-            m_jit.and32(TrustedImm32(static_cast<int32_t>(0x80000000u)), wasmScratchGPR, wasmScratchGPR);
-            m_jit.move32ToFloat(wasmScratchGPR, resultLocation.asFPR());
-            m_jit.orFloat(resultLocation.asFPR(), wasmScratchFPR, resultLocation.asFPR());
-#else
-            m_jit.moveFloatTo32(rhsLocation.asFPR(), wasmScratchGPR);
-            m_jit.and32(TrustedImm32(static_cast<int32_t>(0x80000000u)), wasmScratchGPR, wasmScratchGPR);
-            m_jit.move32ToFloat(wasmScratchGPR, wasmScratchFPR);
-            m_jit.absFloat(lhsLocation.asFPR(), lhsLocation.asFPR());
-            m_jit.orFloat(lhsLocation.asFPR(), wasmScratchFPR, resultLocation.asFPR());
-#endif
+            m_jit.move32ToFloat(TrustedImm32(std::numeric_limits<int32_t>::min()), wasmScratchFPR);
+            m_jit.andFloat(rhsLocation.asFPR(), wasmScratchFPR, wasmScratchFPR);
+            m_jit.absFloat(lhsLocation.asFPR(), resultLocation.asFPR());
+            m_jit.orFloat(wasmScratchFPR, resultLocation.asFPR(), resultLocation.asFPR());
         ),
         BLOCK(
             if (lhs.isConst()) {
-                m_jit.moveFloatTo32(rhsLocation.asFPR(), wasmScratchGPR);
-                m_jit.and32(TrustedImm32(static_cast<int32_t>(0x80000000u)), wasmScratchGPR, wasmScratchGPR);
-                m_jit.move32ToFloat(wasmScratchGPR, wasmScratchFPR);
-
+                m_jit.move32ToFloat(TrustedImm32(std::numeric_limits<int32_t>::min()), wasmScratchFPR);
+                m_jit.andFloat(rhsLocation.asFPR(), wasmScratchFPR, wasmScratchFPR);
                 emitMoveConst(Value::fromF32(std::abs(lhs.asF32())), resultLocation);
                 m_jit.orFloat(resultLocation.asFPR(), wasmScratchFPR, resultLocation.asFPR());
             } else {
                 bool signBit = std::bit_cast<uint32_t>(rhs.asF32()) & 0x80000000u;
-#if CPU(X86_64)
-                m_jit.moveDouble(lhsLocation.asFPR(), resultLocation.asFPR());
-                m_jit.move32ToFloat(TrustedImm32(0x7fffffff), wasmScratchFPR);
-                m_jit.andFloat(wasmScratchFPR, resultLocation.asFPR());
-                if (signBit) {
-                    m_jit.xorFloat(wasmScratchFPR, wasmScratchFPR);
-                    m_jit.subFloat(wasmScratchFPR, resultLocation.asFPR(), resultLocation.asFPR());
-                }
-#else
                 m_jit.absFloat(lhsLocation.asFPR(), resultLocation.asFPR());
                 if (signBit)
                     m_jit.negateFloat(resultLocation.asFPR(), resultLocation.asFPR());
-#endif
             }
         )
     )
