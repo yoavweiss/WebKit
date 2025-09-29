@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 Apple Inc. All rights reserved.
+ * Copyright (c) 2018-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -20,39 +20,25 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "pas_config.h"
+#ifndef PAS_ZERO_MEMORY_H
+#define PAS_ZERO_MEMORY_H
 
-#if LIBPAS_ENABLED
+#include "pas_utils.h"
+#include <stdint.h>
 
-#include "pas_baseline_allocator.h"
+PAS_BEGIN_EXTERN_C;
 
-#include "pas_segregated_size_directory.h"
-#include "pas_zero_memory.h"
-
-void pas_baseline_allocator_attach_directory(pas_baseline_allocator* allocator,
-                                             pas_segregated_size_directory* directory)
+static PAS_ALWAYS_INLINE void pas_zero_memory(void* memory, size_t size)
 {
-    PAS_ASSERT(!allocator->u.allocator.view);
-    
-    PAS_ASSERT(
-        PAS_BASELINE_LOCAL_ALLOCATOR_SIZE
-        >= pas_segregated_size_directory_local_allocator_size(directory));
-    
-    pas_local_allocator_construct(&allocator->u.allocator, directory);
+    PAS_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
+    PAS_PROFILE(ZERO_MEMORY, memory, size);
+    memset(memory, 0, size);
+    PAS_ALLOW_UNSAFE_BUFFER_USAGE_END
 }
 
-void pas_baseline_allocator_detach_directory(pas_baseline_allocator* allocator)
-{
-    PAS_ASSERT(allocator->u.allocator.view);
-    pas_local_allocator_stop(
-        &allocator->u.allocator,
-        pas_lock_lock_mode_lock,
-        pas_lock_is_not_held);
-    pas_zero_memory(&allocator->u.allocator, sizeof(pas_local_allocator)); /* Does not zero the bits,
-                                                                              which is OK. */
-}
+PAS_END_EXTERN_C;
 
-#endif /* LIBPAS_ENABLED */
+#endif // PAS_ZERO_MEMORY_H
