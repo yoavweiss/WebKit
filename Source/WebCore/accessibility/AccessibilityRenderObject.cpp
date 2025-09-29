@@ -127,6 +127,7 @@
 #include "SVGElementTypeHelpers.h"
 #include "SVGImage.h"
 #include "SVGSVGElement.h"
+#include "ShadowRootMode.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "Text.h"
 #include "TextControlInnerElements.h"
@@ -1430,8 +1431,14 @@ bool AccessibilityRenderObject::computeIsIgnored() const
 
     // Don't ignore generic focusable elements like <div tabindex=0>
     // unless they're completely empty, with no children.
-    if (isGenericFocusableElement() && node->firstChild())
+    if (isGenericFocusableElement() && node->firstChild()) {
+        RefPtr shadowRoot = node->containingShadowRoot();
+        if (shadowRoot && shadowRoot->mode() == ShadowRootMode::UserAgent && is<HTMLInputElement>(shadowRoot->host())) {
+            // We do still want to ignore the user-agent generic div rendered within text inputs.
+            return true;
+        }
         return false;
+    }
 
     // <span> tags are inline tags and not meant to convey information if they have no other aria
     // information on them. If we don't ignore them, they may emit signals expected to come from

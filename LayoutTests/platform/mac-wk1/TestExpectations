@@ -975,6 +975,8 @@ accessibility/mac/stale-input-value-from-subfield-change.html [ WontFix ]
 # Default ARIA for custom elements are not yet enabled
 accessibility/custom-elements/ [ Skip ]
 
+accessibility/text-input-hit-test.html [ Skip ]
+
 accessibility/mac/dynamic-drag.html [ Skip ]
 
 accessibility/display-contents/role-row-headers.html [ Skip ]
