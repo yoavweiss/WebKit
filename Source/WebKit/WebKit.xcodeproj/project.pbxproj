@@ -6951,6 +6951,7 @@
 		849944302943E2550086CDBB /* iOS_Private.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = iOS_Private.modulemap; sourceTree = "<group>"; };
 		8623B1272ACE1B66002BA9EA /* WebPageNetworkParameters.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = WebPageNetworkParameters.serialization.in; sourceTree = "<group>"; };
 		8623B1282ACE1DE4002BA9EA /* ResourceLoadInfo.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = ResourceLoadInfo.serialization.in; sourceTree = "<group>"; };
+		862C44DE2E856922000DB57E /* WebCoreFont.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = WebCoreFont.serialization.in; sourceTree = "<group>"; };
 		863551D229647AB400C2BE98 /* NetworkResourceLoadParameters.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = NetworkResourceLoadParameters.serialization.in; sourceTree = "<group>"; };
 		8644890A27B47020007A1C66 /* _WKSystemPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _WKSystemPreferences.h; sourceTree = "<group>"; };
 		8644890C27B47045007A1C66 /* _WKSystemPreferences.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = _WKSystemPreferences.mm; sourceTree = "<group>"; };
@@ -9994,6 +9995,7 @@
 				510FBB991288C95E00AFFDF4 /* WebContextMenuItemData.h */,
 				46F96C662B02A58100253A2B /* WebContextMenuItemData.serialization.in */,
 				5C426B5A28BEC8D200C695CF /* WebCoreArgumentCoders.serialization.in */,
+				862C44DE2E856922000DB57E /* WebCoreFont.serialization.in */,
 				7AF2361E1E79A3B400438A05 /* WebErrors.cpp */,
 				7AF2361F1E79A3D800438A05 /* WebErrors.h */,
 				C0337DAD127A24FE008FF4F4 /* WebEvent.cpp */,
