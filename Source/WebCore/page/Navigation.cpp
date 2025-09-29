@@ -625,11 +625,7 @@ void Navigation::updateNavigationEntry(Ref<HistoryItem>&& item, ShouldCopyStateO
     if (!frame())
         return;
 
-    RefPtr firstChild = frame()->tree().firstChild();
-    if (!firstChild)
-        return;
-
-    for (RefPtr child = firstChild.get(); child; child = child->tree().nextSibling()) {
+    for (RefPtr child = frame()->tree().firstChild(); child; child = child->tree().nextSibling()) {
         RefPtr localChild = dynamicDowncast<LocalFrame>(child.get());
         if (!localChild)
             continue;
@@ -641,6 +637,54 @@ void Navigation::updateNavigationEntry(Ref<HistoryItem>&& item, ShouldCopyStateO
 
             window->protectedNavigation()->updateNavigationEntry(childItem.releaseNonNull(), shouldCopyStateObjectFromCurrentEntry);
         }
+    }
+}
+
+void Navigation::disposeOfForwardEntriesInParents(BackForwardItemIdentifier itemID)
+{
+    RefPtr localMainFrame = protectedFrame()->localMainFrame();
+    if (!localMainFrame)
+        return;
+
+    RefPtr localMainFrameWindow = localMainFrame->window();
+    if (!localMainFrameWindow)
+        return;
+
+    localMainFrameWindow->protectedNavigation()->recursivelyDisposeOfForwardEntriesInParents(itemID, protectedFrame().get());
+}
+
+void Navigation::recursivelyDisposeOfForwardEntriesInParents(BackForwardItemIdentifier itemID, LocalFrame* navigatedFrame)
+{
+    if (frame() == navigatedFrame)
+        return;
+
+    std::optional<size_t> index = std::nullopt;
+    for (size_t i = 0; i < m_entries.size(); i++) {
+        if (m_entries[i]->associatedHistoryItem().itemID() == itemID) {
+            index = i;
+            break;
+        }
+    }
+
+    if (!index)
+        return;
+
+    for (size_t i = *index + 1; i < m_entries.size(); i++)
+        Ref { m_entries[i] }->dispatchDisposeEvent();
+
+    m_currentEntryIndex = index;
+    m_entries.resize(*m_currentEntryIndex + 1);
+
+    for (RefPtr child = frame()->tree().firstChild(); child; child = child->tree().nextSibling()) {
+        RefPtr localChild = dynamicDowncast<LocalFrame>(child.get());
+        if (!localChild)
+            continue;
+
+        RefPtr window = localChild->window();
+        if (!window)
+            continue;
+
+        window->protectedNavigation()->recursivelyDisposeOfForwardEntriesInParents(itemID, navigatedFrame);
     }
 }
 
@@ -663,6 +707,7 @@ void Navigation::updateForNavigation(Ref<HistoryItem>&& item, NavigationNavigati
             return;
         break;
     case NavigationNavigationType::Push:
+        disposeOfForwardEntriesInParents(oldCurrentEntry->associatedHistoryItem().itemID());
         m_currentEntryIndex = *m_currentEntryIndex + 1;
         for (size_t i = *m_currentEntryIndex; i < m_entries.size(); i++)
             disposedEntries.append(m_entries[i]);
