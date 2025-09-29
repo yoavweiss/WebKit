@@ -1326,6 +1326,7 @@ public:
 
     void startWindowDrag();
     NSWindow *platformWindow();
+    RetainPtr<NSWindow> protectedPlatformWindow();
     void rootViewToWindow(const WebCore::IntRect& viewRect, WebCore::IntRect& windowRect);
 
     RetainPtr<NSView> inspectorAttachmentView();

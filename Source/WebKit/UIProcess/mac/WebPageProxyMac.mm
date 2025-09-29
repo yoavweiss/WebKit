@@ -741,6 +741,11 @@ NSWindow *WebPageProxy::platformWindow()
     return pageClient ? pageClient->platformWindow() : nullptr;
 }
 
+RetainPtr<NSWindow> WebPageProxy::protectedPlatformWindow()
+{
+    return platformWindow();
+}
+
 void WebPageProxy::rootViewToWindow(const WebCore::IntRect& viewRect, WebCore::IntRect& windowRect)
 {
     RefPtr pageClient = this->pageClient();
