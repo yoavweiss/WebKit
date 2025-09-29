@@ -510,16 +510,31 @@ CALayer *WebPageProxy::acceleratedCompositingRootLayer() const
     return pageClient ? pageClient->acceleratedCompositingRootLayer() : nullptr;
 }
 
+RetainPtr<CALayer> WebPageProxy::protectedAcceleratedCompositingRootLayer() const
+{
+    return acceleratedCompositingRootLayer();
+}
+
 CALayer *WebPageProxy::headerBannerLayer() const
 {
     RefPtr pageClient = this->pageClient();
     return pageClient ? pageClient->headerBannerLayer() : nullptr;
 }
 
+RetainPtr<CALayer> WebPageProxy::protectedHeaderBannerLayer() const
+{
+    return headerBannerLayer();
+}
+
 CALayer *WebPageProxy::footerBannerLayer() const
 {
     RefPtr pageClient = this->pageClient();
     return pageClient ? pageClient->footerBannerLayer() : nullptr;
+}
+
+RetainPtr<CALayer> WebPageProxy::protectedFooterBannerLayer() const
+{
+    return footerBannerLayer();
 }
 
 int WebPageProxy::headerBannerHeight() const

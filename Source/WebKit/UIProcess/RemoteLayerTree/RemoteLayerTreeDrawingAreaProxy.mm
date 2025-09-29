@@ -405,7 +405,7 @@ void RemoteLayerTreeDrawingAreaProxy::commitLayerTreeTransaction(IPC::Connection
         scrollPosition = layerTreeTransaction.scrollPosition();
 #endif
         updateDebugIndicator(layerTreeTransaction.contentsSize(), rootLayerChanged, scale, scrollPosition);
-        m_debugIndicatorLayerTreeHost->rootLayer().name = @"Indicator host root";
+        m_debugIndicatorLayerTreeHost->protectedRootLayer().get().name = @"Indicator host root";
     }
 
     page->layerTreeCommitComplete();
@@ -513,7 +513,7 @@ void RemoteLayerTreeDrawingAreaProxy::updateDebugIndicator(IntSize contentsSize,
 
     if (rootLayerChanged) {
         [m_tileMapHostLayer setSublayers:@[]];
-        [m_tileMapHostLayer addSublayer:m_debugIndicatorLayerTreeHost->rootLayer()];
+        [m_tileMapHostLayer addSublayer:m_debugIndicatorLayerTreeHost->protectedRootLayer().get()];
         [m_tileMapHostLayer addSublayer:m_exposedRectIndicatorLayer.get()];
     }
     
