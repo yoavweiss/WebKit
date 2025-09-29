@@ -164,7 +164,7 @@ void AuxiliaryProcessProxy::getLaunchOptions(ProcessLauncher::LaunchOptions& lau
 #endif
 #if ENABLE(BUBBLEWRAP_SANDBOX)
     case ProcessLauncher::ProcessType::DBusProxy:
-        ASSERT_NOT_REACHED();
+        RELEASE_ASSERT_NOT_REACHED();
         break;
 #endif
     }

@@ -132,7 +132,7 @@ public:
     JS_EXPORT_PRIVATE static RemoteInspector& singleton();
     friend class LazyNeverDestroyed<RemoteInspector>;
 
-    virtual ~RemoteInspector();
+    ~RemoteInspector();
 
     void registerTarget(RemoteControllableTarget*);
     void unregisterTarget(RemoteControllableTarget*);
