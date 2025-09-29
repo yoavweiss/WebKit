@@ -646,6 +646,7 @@ bindings/js/IDBBindingUtilities.cpp
 bindings/js/InternalReadableStream.cpp
 bindings/js/InternalReadableStreamDefaultReader.cpp
 bindings/js/InternalWritableStream.cpp
+bindings/js/InternalWritableStreamWriter.cpp
 bindings/js/JSAbortSignalCustom.cpp
 bindings/js/JSAbstractRangeCustom.cpp
 bindings/js/JSAnimationEffectCustom.cpp

@@ -60,6 +60,9 @@ public:
     };
     virtual Type type() const { return Type::Default; }
 
+    enum class State : uint8_t { Writable, Closed, Errored };
+    State state() const;
+
 protected:
     static ExceptionOr<Ref<WritableStream>> create(JSC::JSGlobalObject&, JSC::JSValue, JSC::JSValue);
     static ExceptionOr<Ref<InternalWritableStream>> createInternalWritableStream(JSDOMGlobalObject&, Ref<WritableStreamSink>&&);
