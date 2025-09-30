@@ -33,8 +33,12 @@
 #include "ReadableByteStreamController.h"
 #include "ReadableStream.h"
 #include "ReadableStreamReadResult.h"
+#include "WebCoreOpaqueRootInlines.h"
+#include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {
+
+WTF_MAKE_TZONE_OR_ISO_ALLOCATED_IMPL(ReadableStreamDefaultReader);
 
 ExceptionOr<Ref<ReadableStreamDefaultReader>> ReadableStreamDefaultReader::create(JSDOMGlobalObject& globalObject, ReadableStream& stream)
 {
@@ -292,5 +296,26 @@ JSC::JSValue JSReadableStreamDefaultReader::cancel(JSC::JSGlobalObject& globalOb
 
     return internalDefaultReader->cancelForBindings(globalObject, callFrame.argument(0));
 }
+
+WebCoreOpaqueRoot root(ReadableStreamDefaultReader* reader)
+{
+    return WebCoreOpaqueRoot { reader };
+}
+
+template<typename Visitor>
+void ReadableStreamDefaultReader::visitAdditionalChildren(Visitor& visitor)
+{
+    if (m_stream)
+        SUPPRESS_UNCOUNTED_ARG m_stream->visitAdditionalChildren(visitor);
+}
+
+template<typename Visitor>
+void JSReadableStreamDefaultReader::visitAdditionalChildren(Visitor& visitor)
+{
+    // Do not ref `wrapped()` here since this function may get called on the GC thread.
+    SUPPRESS_UNCOUNTED_ARG wrapped().visitAdditionalChildren(visitor);
+}
+
+DEFINE_VISIT_ADDITIONAL_CHILDREN(JSReadableStreamDefaultReader);
 
 } // namespace WebCore

@@ -17,26 +17,22 @@ FAIL ReadableStream with byte source (empty) default reader: canceling via the r
 FAIL ReadableStream with byte source (empty) default reader: canceling via the stream should fail Default reader on byte stream is not yet supported
 PASS Running templatedRSEmptyReader with ReadableStream with byte source (empty) BYOB reader
 PASS ReadableStream with byte source (empty) BYOB reader: instances have the correct methods and properties
-FAIL ReadableStream with byte source (empty) BYOB reader: locked should be true assert_true: locked getter should return true expected true got false
-FAIL ReadableStream with byte source (empty) BYOB reader: read() should never settle assert_unreached: read() should not reject Reached unreachable code
-FAIL ReadableStream with byte source (empty) BYOB reader: two read()s should both never settle assert_unreached: read() should not reject Reached unreachable code
+PASS ReadableStream with byte source (empty) BYOB reader: locked should be true
+PASS ReadableStream with byte source (empty) BYOB reader: read() should never settle
+PASS ReadableStream with byte source (empty) BYOB reader: two read()s should both never settle
 PASS ReadableStream with byte source (empty) BYOB reader: read() should return distinct promises each time
 FAIL ReadableStream with byte source (empty) BYOB reader: getReader() again on the stream should fail assert_throws_js: stream.getReader() should throw a TypeError function "() => stream.getReader()" threw object "NotSupportedError: Default reader on byte stream is not yet supported" ("NotSupportedError") expected instance of function "function TypeError() {
     [native code]
 }" ("TypeError")
-FAIL ReadableStream with byte source (empty) BYOB reader: releasing the lock should reject all pending read requests promise_rejects_js: first read should reject function "function() { throw e; }" threw object "NotSupportedError: Reading a byte stream is not yet supported" ("NotSupportedError") expected instance of function "function TypeError() {
-    [native code]
-}" ("TypeError")
+PASS ReadableStream with byte source (empty) BYOB reader: releasing the lock should reject all pending read requests
 PASS ReadableStream with byte source (empty) BYOB reader: releasing the lock should cause further read() calls to reject with a TypeError
 PASS ReadableStream with byte source (empty) BYOB reader: releasing the lock should cause closed calls to reject with a TypeError
 PASS ReadableStream with byte source (empty) BYOB reader: releasing the lock should cause locked to become false
-FAIL ReadableStream with byte source (empty) BYOB reader: canceling via the reader should cause the reader to act closed promise_test: Unhandled rejection with value: object "NotSupportedError: Reading a byte stream is not yet supported"
-FAIL ReadableStream with byte source (empty) BYOB reader: canceling via the stream should fail promise_rejects_js: function "function() { throw e; }" threw object "NotSupportedError: cancelling a byte stream is not yet supported" ("NotSupportedError") expected instance of function "function TypeError() {
-    [native code]
-}" ("TypeError")
+PASS ReadableStream with byte source (empty) BYOB reader: canceling via the reader should cause the reader to act closed
+FAIL ReadableStream with byte source (empty) BYOB reader: canceling via the stream should fail assert_unreached: Should have rejected: undefined Reached unreachable code
 PASS Running templatedRSThrowAfterCloseOrError with ReadableStream with byte source
-FAIL ReadableStream with byte source: enqueue() throws after close() promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: enqueue() throws after enqueue() and close() promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: enqueue() throws after error() promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: close() throws after error() promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
+PASS ReadableStream with byte source: enqueue() throws after close()
+PASS ReadableStream with byte source: enqueue() throws after enqueue() and close()
+PASS ReadableStream with byte source: enqueue() throws after error()
+PASS ReadableStream with byte source: close() throws after error()
 

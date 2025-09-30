@@ -31,7 +31,9 @@ dictionary ReadableStreamBYOBReaderReadOptions {
 
 [
     EnabledBySetting=ReadableByteStreamAPIEnabled,
-    Exposed=*
+    Exposed=*,
+    GenerateIsReachable,
+    JSCustomMarkFunction,
 ] interface ReadableStreamBYOBReader {
     [CallWith=CurrentGlobalObject] constructor(ReadableStream stream);
 

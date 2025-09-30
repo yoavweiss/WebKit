@@ -28,17 +28,20 @@
 
 #include "JSDOMPromise.h"
 #include "JSDOMPromiseDeferred.h"
-#include "JSQueuingStrategy.h"
 #include "JSReadableStream.h"
+#include "JSReadableStreamBYOBReader.h"
+#include "JSReadableStreamDefaultReader.h"
 #include "JSReadableStreamReadResult.h"
 #include "JSReadableStreamSource.h"
 #include "JSUnderlyingSource.h"
+#include "QueuingStrategy.h"
 #include "ReadableByteStreamController.h"
 #include "ReadableStreamBYOBReader.h"
-#include "ReadableStreamDefaultReader.h"
+#include "ReadableStreamBYOBRequest.h"
 #include "ScriptExecutionContext.h"
 #include "Settings.h"
 #include "WritableStream.h"
+#include <wtf/Compiler.h>
 
 namespace WebCore {
 
@@ -161,13 +164,6 @@ ReadableStream::ReadableStream(RefPtr<InternalReadableStream>&& internalReadable
 
 ReadableStream::~ReadableStream() = default;
 
-// https://streams.spec.whatwg.org/#rs-cancel
-void ReadableStream::cancel(Exception&& exception)
-{
-    if (RefPtr internalReadableStream = m_internalReadableStream)
-        internalReadableStream->cancel(WTFMove(exception));
-}
-
 // https://streams.spec.whatwg.org/#rs-get-reader
 ExceptionOr<ReadableStreamReader> ReadableStream::getReader(JSDOMGlobalObject& currentGlobalObject, const GetReaderOptions& options)
 {
@@ -226,12 +222,26 @@ void ReadableStream::lock()
 // https://streams.spec.whatwg.org/#is-readable-stream-locked
 bool ReadableStream::isLocked() const
 {
-    return !!m_defaultReader || (m_internalReadableStream && m_internalReadableStream->isLocked());
+    return !!m_byobReader || !!m_defaultReader || (m_internalReadableStream && m_internalReadableStream->isLocked());
 }
 
 bool ReadableStream::isDisturbed() const
 {
     return m_disturbed || (m_internalReadableStream && m_internalReadableStream->isDisturbed());
+}
+
+void ReadableStream::cancel(Exception&& exception)
+{
+    // FIXME: support byte stream.
+    if (RefPtr internalReadableStream = m_internalReadableStream)
+        internalReadableStream->cancel(WTFMove(exception));
+}
+
+void ReadableStream::pipeTo(ReadableStreamSink& sink)
+{
+    // FIXME: support byte stream.
+    if (RefPtr internalReadableStream = m_internalReadableStream)
+        internalReadableStream->pipeTo(sink);
 }
 
 ReadableStream::State ReadableStream::state() const
@@ -254,6 +264,26 @@ ReadableStreamDefaultReader* ReadableStream::defaultReader()
     return m_defaultReader.get();
 }
 
+// https://streams.spec.whatwg.org/#abstract-opdef-createreadablebytestream
+Ref<ReadableStream> ReadableStream::createReadableByteStream(JSDOMGlobalObject& globalObject, ReadableByteStreamController::PullAlgorithm&& pullAlgorithm, ReadableByteStreamController::CancelAlgorithm&& cancelAlgorithm)
+{
+    Ref readableStream = adoptRef(*new ReadableStream());
+    readableStream->setupReadableByteStreamController(globalObject, WTFMove(pullAlgorithm), WTFMove(cancelAlgorithm), 0);
+    return readableStream;
+}
+
+// https://streams.spec.whatwg.org/#readable-stream-fulfill-read-request
+void ReadableStream::fulfillReadRequest(JSDOMGlobalObject& globalObject, RefPtr<JSC::ArrayBufferView>&& filledView, bool done)
+{
+    RefPtr defaultReader = this->defaultReader();
+    ASSERT(defaultReader);
+    ASSERT(defaultReader->getNumReadRequests());
+
+    auto chunk = toJS<IDLNullable<IDLArrayBufferView>>(globalObject, globalObject, WTFMove(filledView));
+
+    defaultReader->takeFirstReadRequest()->resolve<IDLDictionary<ReadableStreamReadResult>>({ chunk, done });
+}
+
 void ReadableStream::setByobReader(ReadableStreamBYOBReader* reader)
 {
     ASSERT(!m_byobReader || !reader);
@@ -266,20 +296,35 @@ ReadableStreamBYOBReader* ReadableStream::byobReader()
     return m_byobReader.get();
 }
 
-// https://streams.spec.whatwg.org/#set-up-readable-byte-stream-controller
-ExceptionOr<void> ReadableStream::setupReadableByteStreamControllerFromUnderlyingSource(JSDOMGlobalObject& globalObject, JSC::JSValue, UnderlyingSource&& underlyingSourceDict, double)
+// https://streams.spec.whatwg.org/#readable-stream-fulfill-read-into-request
+void ReadableStream::fulfillReadIntoRequest(JSDOMGlobalObject& globalObject, RefPtr<JSC::ArrayBufferView>&& filledView, bool done)
 {
+    RefPtr byobReader = this->byobReader();
+    ASSERT(byobReader);
+    ASSERT(byobReader->readIntoRequestsSize());
+
+    auto chunk = toJS<IDLNullable<IDLArrayBufferView>>(globalObject, globalObject, WTFMove(filledView));
+
+    byobReader->takeFirstReadIntoRequest()->resolve<IDLDictionary<ReadableStreamReadResult>>({ chunk, done });
+}
+
+ExceptionOr<void> ReadableStream::setupReadableByteStreamControllerFromUnderlyingSource(JSDOMGlobalObject& globalObject, JSC::JSValue underlyingSource, UnderlyingSource&& underlyingSourceDict, double highWaterMark)
+{
+    // handle start, pull, cancel algorithms.
     if (underlyingSourceDict.autoAllocateChunkSize && !*underlyingSourceDict.autoAllocateChunkSize)
         return Exception { ExceptionCode::TypeError, "autoAllocateChunkSize is zero"_s };
 
-    // FIXME: Support start, pull and cancel.
-    if (underlyingSourceDict.start || underlyingSourceDict.pull || underlyingSourceDict.cancel)
-        return Exception { ExceptionCode::TypeError, "byte stream source start, pull or cancel are not yet supported"_s };
-
+    // https://streams.spec.whatwg.org/#set-up-readable-byte-stream-controller
     ASSERT(!m_controller);
-    lazyInitialize(m_controller, makeUniqueWithoutRefCountedCheck<ReadableByteStreamController>(*this));
+    lazyInitialize(m_controller, std::unique_ptr<ReadableByteStreamController>(new ReadableByteStreamController(*this, underlyingSource, WTFMove(underlyingSourceDict.pull), WTFMove(underlyingSourceDict.cancel), highWaterMark, underlyingSourceDict.autoAllocateChunkSize.value_or(0))));
 
     return m_controller->start(globalObject, underlyingSourceDict.start.get());
+}
+
+void ReadableStream::setupReadableByteStreamController(JSDOMGlobalObject& globalObject, ReadableByteStreamController::PullAlgorithm&& pullAlgorithm, ReadableByteStreamController::CancelAlgorithm&& cancelAlgorithm, double highWaterMark)
+{
+    lazyInitialize(m_controller, std::unique_ptr<ReadableByteStreamController>(new ReadableByteStreamController(*this, WTFMove(pullAlgorithm), WTFMove(cancelAlgorithm), highWaterMark, 0)));
+    m_controller->start(globalObject, nullptr);
 }
 
 // https://streams.spec.whatwg.org/#readable-stream-close
@@ -292,13 +337,75 @@ void ReadableStream::close()
         defaultReader->resolveClosedPromise();
         while (defaultReader->getNumReadRequests())
             defaultReader->takeFirstReadRequest()->resolve<IDLDictionary<ReadableStreamReadResult>>({ JSC::jsUndefined(), true });
+    } else if (RefPtr byobReader = m_byobReader.get())
+        byobReader->resolveClosedPromise();
+}
+
+// https://streams.spec.whatwg.org/#readable-stream-error
+void ReadableStream::error(JSDOMGlobalObject& globalObject, JSC::JSValue reason)
+{
+    ASSERT(m_state == ReadableStream::State::Readable);
+    m_state = ReadableStream::State::Errored;
+
+    m_controller->storeError(globalObject, reason);
+
+    if (RefPtr defaultReader = m_defaultReader.get()) {
+        defaultReader->rejectClosedPromise(reason);
+        defaultReader->errorReadRequests(reason);
+        return;
     }
+
+    RefPtr byobReader = m_byobReader.get();
+    if (!byobReader)
+        return;
+
+    byobReader->rejectClosedPromise(reason);
+    byobReader->errorReadIntoRequests(reason);
 }
 
 // https://streams.spec.whatwg.org/#readable-stream-cancel
-void ReadableStream::cancel(JSDOMGlobalObject&, JSC::JSValue, Ref<DeferredPromise>&&)
+void ReadableStream::cancel(JSDOMGlobalObject& globalObject, JSC::JSValue reason, Ref<DeferredPromise>&& promise)
 {
-    // FIXME: Add support
+    ASSERT(!m_internalReadableStream);
+
+    m_disturbed = true;
+    if (m_state == State::Closed) {
+        promise->resolve();
+        return;
+    }
+
+    if (m_state == State::Errored) {
+        promise->rejectWithCallback([&] (auto&) {
+            return m_controller->storedError();
+        });
+        return;
+    }
+
+    close();
+
+    RefPtr byobReader = m_byobReader.get();
+    if (byobReader) {
+        while (byobReader->readIntoRequestsSize())
+            byobReader->takeFirstReadIntoRequest()->resolve<IDLDictionary<ReadableStreamReadResult>>({ JSC::jsUndefined(), true });
+    }
+
+    m_controller->runCancelSteps(globalObject, reason, [promise = WTFMove(promise)] (auto&& error) mutable {
+        if (error) {
+            promise->rejectWithCallback([&] (auto&) {
+                return *error;
+            });
+            return;
+        }
+        promise->resolve();
+    });
+}
+
+// https://streams.spec.whatwg.org/#readable-stream-get-num-read-into-requests
+size_t ReadableStream::getNumReadIntoRequests() const
+{
+    ASSERT(m_byobReader);
+    RefPtr byobReader = m_byobReader.get();
+    return byobReader->readIntoRequestsSize();
 }
 
 // https://streams.spec.whatwg.org/#readable-stream-get-num-read-requests
@@ -309,6 +416,14 @@ size_t ReadableStream::getNumReadRequests() const
     return defaultReader->getNumReadRequests();
 }
 
+// https://streams.spec.whatwg.org/#readable-stream-add-read-into-request
+void ReadableStream::addReadIntoRequest(Ref<DeferredPromise>&& promise)
+{
+    ASSERT(m_byobReader);
+    RefPtr byobReader = m_byobReader.get();
+    return byobReader->addReadIntoRequest(WTFMove(promise));
+}
+
 // https://streams.spec.whatwg.org/#readable-stream-add-read-request
 void ReadableStream::addReadRequest(Ref<DeferredPromise>&& promise)
 {
@@ -317,17 +432,46 @@ void ReadableStream::addReadRequest(Ref<DeferredPromise>&& promise)
     return defaultReader->addReadRequest(WTFMove(promise));
 }
 
+void ReadableStream::pipeTo(JSDOMGlobalObject&, WritableStream& destination, StreamPipeOptions&&, Ref<DeferredPromise>&& promise)
+{
+    if (isLocked()) {
+        promise->reject(Exception { ExceptionCode::TypeError, "stream is locked"_s }, RejectAsHandled::Yes);
+        return;
+    }
+
+    if (destination.locked()) {
+        promise->reject(Exception { ExceptionCode::TypeError, "destination is locked"_s }, RejectAsHandled::Yes);
+        return;
+    }
+
+    promise->reject(Exception { ExceptionCode::NotSupportedError, "not implemented"_s }, RejectAsHandled::Yes);
+}
+
+ExceptionOr<Ref<ReadableStream>> ReadableStream::pipeThrough(JSDOMGlobalObject&, WritablePair&& transform, StreamPipeOptions&&)
+{
+    if (isLocked())
+        return Exception { ExceptionCode::TypeError, "stream is locked"_s };
+
+    SUPPRESS_UNCOUNTED_ARG if (transform.writable->locked())
+        return Exception { ExceptionCode::TypeError, "transform writable is locked"_s };
+
+    return Exception { ExceptionCode::NotSupportedError, "not implemented"_s };
+}
+
 JSC::JSValue ReadableStream::storedError(JSDOMGlobalObject& globalObject) const
 {
-    return m_internalReadableStream->storedError(globalObject);
+    if (RefPtr internalReadableStream = m_internalReadableStream)
+        return internalReadableStream->storedError(globalObject);
+
+    return m_controller->storedError();
 }
 
 JSC::JSValue JSReadableStream::cancel(JSC::JSGlobalObject& globalObject, JSC::CallFrame& callFrame)
 {
     RefPtr internalReadableStream = wrapped().internalReadableStream();
     if (!internalReadableStream) {
-        return callPromiseFunction(globalObject, callFrame, [](auto&, auto&, auto&& promise) {
-            promise->reject(Exception { ExceptionCode::NotSupportedError, "cancelling a byte stream is not yet supported"_s });
+        return callPromiseFunction(globalObject, callFrame, [this](auto& globalObject, auto& callFrame, auto&& promise) {
+            protectedWrapped()->cancel(globalObject, callFrame.argument(0), WTFMove(promise));
         });
     }
 
@@ -358,5 +502,24 @@ JSC::JSValue JSReadableStream::pipeThrough(JSC::JSGlobalObject& globalObject, JS
 
     return internalReadableStream->pipeThrough(globalObject, callFrame.argument(0), callFrame.argument(1));
 }
+
+void ReadableStream::visitAdditionalChildren(JSC::AbstractSlotVisitor& visitor)
+{
+    SUPPRESS_UNCOUNTED_ARG addWebCoreOpaqueRoot(visitor, m_byobReader.get());
+    SUPPRESS_UNCOUNTED_ARG addWebCoreOpaqueRoot(visitor, m_defaultReader.get());
+
+    if (m_controller) {
+        m_controller->underlyingSourceConcurrently().visit(visitor);
+        m_controller->storedErrorConcurrently().visit(visitor);
+    }
+}
+
+template<typename Visitor>
+void JSReadableStream::visitAdditionalChildren(Visitor& visitor)
+{
+    SUPPRESS_UNCOUNTED_ARG wrapped().visitAdditionalChildren(visitor);
+}
+
+DEFINE_VISIT_ADDITIONAL_CHILDREN(JSReadableStream);
 
 } // namespace WebCore

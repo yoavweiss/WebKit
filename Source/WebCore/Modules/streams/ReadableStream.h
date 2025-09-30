@@ -26,21 +26,27 @@
 #pragma once
 
 #include "InternalReadableStream.h"
+#include "JSValueInWrappedObject.h"
+#include "ReadableByteStreamController.h"
 #include <JavaScriptCore/Strong.h>
 #include <wtf/RefCountedAndCanMakeWeakPtr.h>
 #include <wtf/WeakPtr.h>
+
+namespace JSC {
+class AbstractSlotVisitor;
+}
 
 namespace WebCore {
 
 class DeferredPromise;
 class InternalReadableStream;
 class JSDOMGlobalObject;
-class ReadableByteStreamController;
 class ReadableStreamBYOBReader;
 class ReadableStreamDefaultReader;
 class ReadableStreamSource;
 class WritableStream;
 
+struct StreamPipeOptions;
 struct UnderlyingSource;
 
 using ReadableStreamReader = Variant<RefPtr<ReadableStreamDefaultReader>, RefPtr<ReadableStreamBYOBReader>>;
@@ -81,21 +87,34 @@ public:
     void setDefaultReader(ReadableStreamDefaultReader*);
     ReadableStreamDefaultReader* defaultReader();
 
-    void setByobReader(ReadableStreamBYOBReader*);
-    bool hasByteStreamController() { return !!m_controller; }
-    ReadableStreamBYOBReader* byobReader();
+    void pipeTo(ReadableStreamSink&);
 
+    bool hasByteStreamController() { return !!m_controller; }
     ReadableByteStreamController* controller() { return m_controller.get(); }
+    RefPtr<ReadableByteStreamController> protectedController() { return m_controller.get(); }
+
+    void setByobReader(ReadableStreamBYOBReader*);
+    ReadableStreamBYOBReader* byobReader();
+    void fulfillReadIntoRequest(JSDOMGlobalObject&, RefPtr<JSC::ArrayBufferView>&&, bool done);
+
+    void fulfillReadRequest(JSDOMGlobalObject&, RefPtr<JSC::ArrayBufferView>&&, bool done);
 
     void markAsDisturbed() { m_disturbed = true; }
 
     void close();
-    void pipeTo(ReadableStreamSink& sink) { m_internalReadableStream->pipeTo(sink); }
-
     JSC::JSValue storedError(JSDOMGlobalObject&) const;
 
     size_t getNumReadRequests() const;
     void addReadRequest(Ref<DeferredPromise>&&);
+
+    size_t getNumReadIntoRequests() const;
+    void addReadIntoRequest(Ref<DeferredPromise>&&);
+
+    void error(JSDOMGlobalObject&, JSC::JSValue);
+    void pipeTo(JSDOMGlobalObject&, WritableStream&, StreamPipeOptions&&, Ref<DeferredPromise>&&);
+    ExceptionOr<Ref<ReadableStream>> pipeThrough(JSDOMGlobalObject&, WritablePair&&, StreamPipeOptions&&);
+
+    void visitAdditionalChildren(JSC::AbstractSlotVisitor&);
 
 protected:
     static ExceptionOr<Ref<ReadableStream>> createFromJSValues(JSC::JSGlobalObject&, JSC::JSValue, JSC::JSValue);
@@ -104,6 +123,10 @@ protected:
 
 private:
     ExceptionOr<void> setupReadableByteStreamControllerFromUnderlyingSource(JSDOMGlobalObject&, JSC::JSValue, UnderlyingSource&&, double);
+    void setupReadableByteStreamController(JSDOMGlobalObject&, ReadableByteStreamController::PullAlgorithm&&, ReadableByteStreamController::CancelAlgorithm&&, double);
+    ExceptionOr<Vector<Ref<ReadableStream>>> byteStreamTee(JSDOMGlobalObject&);
+
+    static Ref<ReadableStream> createReadableByteStream(JSDOMGlobalObject&, ReadableByteStreamController::PullAlgorithm&&, ReadableByteStreamController::CancelAlgorithm&&);
 
     bool m_disturbed { false };
     WeakPtr<ReadableStreamDefaultReader> m_defaultReader;

@@ -95,15 +95,15 @@ PASS ReadableByteStreamController interface: attribute desiredSize
 PASS ReadableByteStreamController interface: operation close()
 PASS ReadableByteStreamController interface: operation enqueue(ArrayBufferView)
 PASS ReadableByteStreamController interface: operation error(optional any)
-FAIL ReadableByteStreamController must be primary interface of self.readableByteStreamController assert_equals: wrong typeof object expected "object" but got "undefined"
-FAIL Stringification of self.readableByteStreamController assert_equals: wrong typeof object expected "object" but got "undefined"
-FAIL ReadableByteStreamController interface: self.readableByteStreamController must inherit property "byobRequest" with the proper type assert_equals: wrong typeof object expected "object" but got "undefined"
-FAIL ReadableByteStreamController interface: self.readableByteStreamController must inherit property "desiredSize" with the proper type assert_equals: wrong typeof object expected "object" but got "undefined"
-FAIL ReadableByteStreamController interface: self.readableByteStreamController must inherit property "close()" with the proper type assert_equals: wrong typeof object expected "object" but got "undefined"
-FAIL ReadableByteStreamController interface: self.readableByteStreamController must inherit property "enqueue(ArrayBufferView)" with the proper type assert_equals: wrong typeof object expected "object" but got "undefined"
-FAIL ReadableByteStreamController interface: calling enqueue(ArrayBufferView) on self.readableByteStreamController with too few arguments must throw TypeError assert_equals: wrong typeof object expected "object" but got "undefined"
-FAIL ReadableByteStreamController interface: self.readableByteStreamController must inherit property "error(optional any)" with the proper type assert_equals: wrong typeof object expected "object" but got "undefined"
-FAIL ReadableByteStreamController interface: calling error(optional any) on self.readableByteStreamController with too few arguments must throw TypeError assert_equals: wrong typeof object expected "object" but got "undefined"
+PASS ReadableByteStreamController must be primary interface of self.readableByteStreamController
+PASS Stringification of self.readableByteStreamController
+PASS ReadableByteStreamController interface: self.readableByteStreamController must inherit property "byobRequest" with the proper type
+PASS ReadableByteStreamController interface: self.readableByteStreamController must inherit property "desiredSize" with the proper type
+PASS ReadableByteStreamController interface: self.readableByteStreamController must inherit property "close()" with the proper type
+PASS ReadableByteStreamController interface: self.readableByteStreamController must inherit property "enqueue(ArrayBufferView)" with the proper type
+PASS ReadableByteStreamController interface: calling enqueue(ArrayBufferView) on self.readableByteStreamController with too few arguments must throw TypeError
+PASS ReadableByteStreamController interface: self.readableByteStreamController must inherit property "error(optional any)" with the proper type
+PASS ReadableByteStreamController interface: calling error(optional any) on self.readableByteStreamController with too few arguments must throw TypeError
 PASS ReadableStreamBYOBRequest interface: existence and properties of interface object
 PASS ReadableStreamBYOBRequest interface object length
 PASS ReadableStreamBYOBRequest interface object name
@@ -113,13 +113,13 @@ PASS ReadableStreamBYOBRequest interface: existence and properties of interface 
 PASS ReadableStreamBYOBRequest interface: attribute view
 PASS ReadableStreamBYOBRequest interface: operation respond(unsigned long long)
 PASS ReadableStreamBYOBRequest interface: operation respondWithNewView(ArrayBufferView)
-FAIL ReadableStreamBYOBRequest must be primary interface of self.readableStreamByobRequest assert_equals: wrong typeof object expected "object" but got "undefined"
-FAIL Stringification of self.readableStreamByobRequest assert_equals: wrong typeof object expected "object" but got "undefined"
-FAIL ReadableStreamBYOBRequest interface: self.readableStreamByobRequest must inherit property "view" with the proper type assert_equals: wrong typeof object expected "object" but got "undefined"
-FAIL ReadableStreamBYOBRequest interface: self.readableStreamByobRequest must inherit property "respond(unsigned long long)" with the proper type assert_equals: wrong typeof object expected "object" but got "undefined"
-FAIL ReadableStreamBYOBRequest interface: calling respond(unsigned long long) on self.readableStreamByobRequest with too few arguments must throw TypeError assert_equals: wrong typeof object expected "object" but got "undefined"
-FAIL ReadableStreamBYOBRequest interface: self.readableStreamByobRequest must inherit property "respondWithNewView(ArrayBufferView)" with the proper type assert_equals: wrong typeof object expected "object" but got "undefined"
-FAIL ReadableStreamBYOBRequest interface: calling respondWithNewView(ArrayBufferView) on self.readableStreamByobRequest with too few arguments must throw TypeError assert_equals: wrong typeof object expected "object" but got "undefined"
+PASS ReadableStreamBYOBRequest must be primary interface of self.readableStreamByobRequest
+PASS Stringification of self.readableStreamByobRequest
+PASS ReadableStreamBYOBRequest interface: self.readableStreamByobRequest must inherit property "view" with the proper type
+PASS ReadableStreamBYOBRequest interface: self.readableStreamByobRequest must inherit property "respond(unsigned long long)" with the proper type
+PASS ReadableStreamBYOBRequest interface: calling respond(unsigned long long) on self.readableStreamByobRequest with too few arguments must throw TypeError
+PASS ReadableStreamBYOBRequest interface: self.readableStreamByobRequest must inherit property "respondWithNewView(ArrayBufferView)" with the proper type
+PASS ReadableStreamBYOBRequest interface: calling respondWithNewView(ArrayBufferView) on self.readableStreamByobRequest with too few arguments must throw TypeError
 PASS WritableStream interface: existence and properties of interface object
 PASS WritableStream interface object length
 PASS WritableStream interface object name

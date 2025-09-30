@@ -26,8 +26,11 @@
 #pragma once
 
 #include "InternalReadableStreamDefaultReader.h"
+#include "ScriptWrappable.h"
+#include "WebCoreOpaqueRoot.h"
 #include <JavaScriptCore/Strong.h>
 #include <wtf/RefCountedAndCanMakeWeakPtr.h>
+#include <wtf/TZoneMalloc.h>
 #include <wtf/WeakPtr.h>
 
 namespace WebCore {
@@ -38,7 +41,8 @@ class InternalReadableStreamDefaultReader;
 class JSDOMGlobalObject;
 class ReadableStream;
 
-class ReadableStreamDefaultReader : public RefCountedAndCanMakeWeakPtr<ReadableStreamDefaultReader> {
+class ReadableStreamDefaultReader : public ScriptWrappable, public RefCountedAndCanMakeWeakPtr<ReadableStreamDefaultReader> {
+    WTF_MAKE_TZONE_OR_ISO_ALLOCATED(ReadableStreamDefaultReader);
 public:
     static ExceptionOr<Ref<ReadableStreamDefaultReader>> create(JSDOMGlobalObject&, ReadableStream&);
     static ExceptionOr<Ref<ReadableStreamDefaultReader>> create(JSDOMGlobalObject&, InternalReadableStream&);
@@ -65,6 +69,8 @@ public:
     void onClosedPromiseRejection(ClosedRejectionCallback&&);
     void onClosedPromiseResolution(Function<void()>&&);
 
+    template<typename Visitor> void visitAdditionalChildren(Visitor&);
+
 private:
     ReadableStreamDefaultReader(Ref<InternalReadableStreamDefaultReader>&&, Ref<DOMPromise>&&, Ref<DeferredPromise>&&);
 
@@ -81,5 +87,7 @@ private:
     ClosedRejectionCallback m_closedRejectionCallback;
     Function<void()> m_closedResolutionCallback;
 };
+
+WebCoreOpaqueRoot root(ReadableStreamDefaultReader*);
 
 } // namespace WebCore

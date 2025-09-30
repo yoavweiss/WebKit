@@ -49,6 +49,8 @@ public:
     void setController(ReadableByteStreamController*);
     void setView(JSC::ArrayBufferView*);
 
+    template<typename Visitor> void visitAdditionalChildren(Visitor&);
+
 private:
     ReadableStreamBYOBRequest();
 

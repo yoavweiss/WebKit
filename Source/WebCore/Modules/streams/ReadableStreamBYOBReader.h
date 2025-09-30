@@ -28,8 +28,11 @@
 #include "ExceptionOr.h"
 #include "IDLTypes.h"
 #include "JSValueInWrappedObject.h"
+#include "ScriptWrappable.h"
+#include "WebCoreOpaqueRoot.h"
 #include <wtf/Deque.h>
 #include <wtf/RefCountedAndCanMakeWeakPtr.h>
+#include <wtf/TZoneMalloc.h>
 #include <wtf/UniqueRef.h>
 
 namespace WebCore {
@@ -40,7 +43,8 @@ class ReadableStream;
 
 template<typename IDLType> class DOMPromiseProxy;
 
-class ReadableStreamBYOBReader : public RefCountedAndCanMakeWeakPtr<ReadableStreamBYOBReader> {
+class ReadableStreamBYOBReader : public ScriptWrappable, public RefCountedAndCanMakeWeakPtr<ReadableStreamBYOBReader> {
+    WTF_MAKE_TZONE_OR_ISO_ALLOCATED(ReadableStreamBYOBReader);
 public:
     static ExceptionOr<Ref<ReadableStreamBYOBReader>> create(JSDOMGlobalObject&, ReadableStream&);
     ~ReadableStreamBYOBReader();
@@ -54,7 +58,7 @@ public:
 
     DOMPromise& closedPromise();
 
-    void cancel(JSDOMGlobalObject& globalObject, JSC::JSValue, Ref<DeferredPromise>&&);
+    void cancel(JSDOMGlobalObject&, JSC::JSValue, Ref<DeferredPromise>&&);
 
     Ref<DeferredPromise> takeFirstReadIntoRequest();
     size_t readIntoRequestsSize() const { return m_readIntoRequests.size(); }
@@ -68,6 +72,8 @@ public:
     void onClosedPromiseRejection(ClosedCallback&&);
 
     void read(JSDOMGlobalObject&, JSC::ArrayBufferView&, size_t, Ref<DeferredPromise>&&);
+
+    template<typename Visitor> void visitAdditionalChildren(Visitor&);
 
 private:
     explicit ReadableStreamBYOBReader(Ref<DOMPromise>&&, Ref<DeferredPromise>&&);
@@ -86,5 +92,7 @@ private:
 
     ClosedCallback m_closedCallback;
 };
+
+WebCoreOpaqueRoot root(ReadableStreamBYOBReader*);
 
 } // namespace WebCore

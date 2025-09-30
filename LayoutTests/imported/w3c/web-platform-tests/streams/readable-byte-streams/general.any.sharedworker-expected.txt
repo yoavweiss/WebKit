@@ -1,107 +1,113 @@
 
+Harness Error (FAIL), message = Error in remote http://web-platform.test:8800/streams/readable-byte-streams/general.any.js: Error
+
 PASS getReader({mode: "byob"}) throws on non-bytes streams
 PASS ReadableStream with byte source can be constructed with no errors
 PASS getReader({mode}) must perform ToString()
-FAIL ReadableStream with byte source: Construct and expect start and pull being called byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: No automatic pull call if start doesn't finish byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: start() throws an exception assert_throws_js: start() can throw an exception with type: bytes function "() => new ReadableStream({ start() { throw new Error(); }, type:'bytes' })" threw object "TypeError: byte stream source start, pull or cancel are not yet supported" ("TypeError") expected instance of function "function Error() {
+PASS ReadableStream with byte source: Construct and expect start and pull being called
+PASS ReadableStream with byte source: No automatic pull call if start doesn't finish
+FAIL ReadableStream with byte source: start() throws an exception assert_throws_js: start() can throw an exception with type: bytes function "() => new ReadableStream({ start() { throw new Error(); }, type:'bytes' })" threw object "TypeError: start threw" ("TypeError") expected instance of function "function Error() {
     [native code]
 }" ("Error")
-FAIL ReadableStream with byte source: Construct with highWaterMark of 0 byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: desiredSize when closed byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: desiredSize when errored byte stream source start, pull or cancel are not yet supported
+PASS ReadableStream with byte source: Construct with highWaterMark of 0
+PASS ReadableStream with byte source: desiredSize when closed
+PASS ReadableStream with byte source: desiredSize when errored
 FAIL ReadableStream with byte source: getReader(), then releaseLock() Default reader on byte stream is not yet supported
 PASS ReadableStream with byte source: getReader() with mode set to byob, then releaseLock()
-FAIL ReadableStream with byte source: Test that closing a stream does not release a reader automatically byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Test that closing a stream does not release a BYOB reader automatically byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Test that erroring a stream does not release a reader automatically byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Test that erroring a stream does not release a BYOB reader automatically byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: cannot use an already-released BYOB reader to unlock a stream again promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
+FAIL ReadableStream with byte source: Test that closing a stream does not release a reader automatically Default reader on byte stream is not yet supported
+PASS ReadableStream with byte source: Test that closing a stream does not release a BYOB reader automatically
+FAIL ReadableStream with byte source: Test that erroring a stream does not release a reader automatically Default reader on byte stream is not yet supported
+PASS ReadableStream with byte source: Test that erroring a stream does not release a BYOB reader automatically
+PASS ReadableStream with byte source: cannot use an already-released BYOB reader to unlock a stream again
 FAIL ReadableStream with byte source: releaseLock() on ReadableStreamDefaultReader must reject pending read() promise_test: Unhandled rejection with value: object "NotSupportedError: Default reader on byte stream is not yet supported"
-FAIL ReadableStream with byte source: releaseLock() on ReadableStreamBYOBReader must reject pending read() promise_rejects_js: pending read must reject function "function() { throw e; }" threw object "NotSupportedError: Reading a byte stream is not yet supported" ("NotSupportedError") expected instance of function "function TypeError() {
+PASS ReadableStream with byte source: releaseLock() on ReadableStreamBYOBReader must reject pending read()
+FAIL ReadableStream with byte source: Automatic pull() after start() Default reader on byte stream is not yet supported
+FAIL ReadableStream with byte source: Automatic pull() after start() and read() Default reader on byte stream is not yet supported
+FAIL ReadableStream with byte source: autoAllocateChunkSize Default reader on byte stream is not yet supported
+FAIL ReadableStream with byte source: Mix of auto allocate and BYOB Default reader on byte stream is not yet supported
+FAIL ReadableStream with byte source: Automatic pull() after start() and read(view) Default reader on byte stream is not yet supported
+FAIL ReadableStream with byte source: enqueue(), getReader(), then read() promise_test: Unhandled rejection with value: object "NotSupportedError: Default reader on byte stream is not yet supported"
+FAIL ReadableStream with byte source: Push source that doesn't understand pull signal Default reader on byte stream is not yet supported
+PASS ReadableStream with byte source: pull() function is not callable
+FAIL ReadableStream with byte source: enqueue() with Uint16Array, getReader(), then read() Default reader on byte stream is not yet supported
+FAIL ReadableStream with byte source: enqueue(), read(view) partially, then read() promise_test: Unhandled rejection with value: object "NotSupportedError: Default reader on byte stream is not yet supported"
+FAIL ReadableStream with byte source: getReader(), enqueue(), close(), then read() Default reader on byte stream is not yet supported
+FAIL ReadableStream with byte source: enqueue(), close(), getReader(), then read() Default reader on byte stream is not yet supported
+FAIL ReadableStream with byte source: Respond to pull() by enqueue() Default reader on byte stream is not yet supported
+FAIL ReadableStream with byte source: Respond to pull() by enqueue() asynchronously Default reader on byte stream is not yet supported
+FAIL ReadableStream with byte source: Respond to multiple pull() by separate enqueue() Default reader on byte stream is not yet supported
+PASS ReadableStream with byte source: read(view), then respond()
+PASS ReadableStream with byte source: read(view), then respondWithNewView() with a transferred ArrayBuffer
+PASS ReadableStream with byte source: read(view), then respond() with too big value
+FAIL ReadableStream with byte source: respond(3) to read(view) with 2 element Uint16Array enqueues the 1 byte remainder assert_equals: byteLength expected 2 but got 1
+FAIL ReadableStream with byte source: respond(3) to read(view) with 2 element Uint16Array fulfills second read(view) with the 1 byte remainder assert_equals: byteLength expected 2 but got 1
+PASS ReadableStream with byte source: enqueue(), getReader(), then read(view)
+FAIL ReadableStream with byte source: enqueue(), getReader(), then cancel() (mode = not BYOB) Default reader on byte stream is not yet supported
+PASS ReadableStream with byte source: enqueue(), getReader(), then cancel() (mode = BYOB)
+PASS ReadableStream with byte source: getReader(), read(view), then cancel()
+PASS ReadableStream with byte source: cancel() with partially filled pending pull() request
+PASS ReadableStream with byte source: enqueue(), getReader(), then read(view) where view.buffer is not fully covered by view
+PASS ReadableStream with byte source: Multiple enqueue(), getReader(), then read(view)
+PASS ReadableStream with byte source: enqueue(), getReader(), then read(view) with a bigger view
+PASS ReadableStream with byte source: enqueue(), getReader(), then read(view) with smaller views
+FAIL ReadableStream with byte source: enqueue() 1 byte, getReader(), then read(view) with Uint16Array assert_equals: expected 2 but got 1
+FAIL ReadableStream with byte source: enqueue() 3 byte, getReader(), then read(view) with 2-element Uint16Array assert_equals: constructor expected function "function Uint16Array() {
+    [native code]
+}" but got function "function Uint8Array() {
+    [native code]
+}"
+FAIL ReadableStream with byte source: read(view) with Uint16Array on close()-d stream with 1 byte enqueue()-d must fail promise_rejects_js: read(view) must fail function "function() { throw e; }" threw object "close is requested" ("") expected instance of function "function TypeError() {
     [native code]
 }" ("TypeError")
-FAIL ReadableStream with byte source: Automatic pull() after start() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Automatic pull() after start() and read() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: autoAllocateChunkSize byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Mix of auto allocate and BYOB byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Automatic pull() after start() and read(view) byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: enqueue(), getReader(), then read() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Push source that doesn't understand pull signal byte stream source start, pull or cancel are not yet supported
-PASS ReadableStream with byte source: pull() function is not callable
-FAIL ReadableStream with byte source: enqueue() with Uint16Array, getReader(), then read() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: enqueue(), read(view) partially, then read() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: getReader(), enqueue(), close(), then read() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: enqueue(), close(), getReader(), then read() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Respond to pull() by enqueue() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Respond to pull() by enqueue() asynchronously byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Respond to multiple pull() by separate enqueue() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: read(view), then respond() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: read(view), then respondWithNewView() with a transferred ArrayBuffer byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: read(view), then respond() with too big value byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: respond(3) to read(view) with 2 element Uint16Array enqueues the 1 byte remainder byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: respond(3) to read(view) with 2 element Uint16Array fulfills second read(view) with the 1 byte remainder byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: enqueue(), getReader(), then read(view) byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: enqueue(), getReader(), then cancel() (mode = not BYOB) byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: enqueue(), getReader(), then cancel() (mode = BYOB) byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: getReader(), read(view), then cancel() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: cancel() with partially filled pending pull() request byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: enqueue(), getReader(), then read(view) where view.buffer is not fully covered by view byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Multiple enqueue(), getReader(), then read(view) byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: enqueue(), getReader(), then read(view) with a bigger view byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: enqueue(), getReader(), then read(view) with smaller views byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: enqueue() 1 byte, getReader(), then read(view) with Uint16Array byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: enqueue() 3 byte, getReader(), then read(view) with 2-element Uint16Array byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: read(view) with Uint16Array on close()-d stream with 1 byte enqueue()-d must fail byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: A stream must be errored if close()-d before fulfilling read(view) with Uint16Array byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Throw if close()-ed more than once byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Throw on enqueue() after close() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: read(view), then respond() and close() in pull() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: read(view) with Uint32Array, then fill it by multiple respond() calls byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: read(view) with Uint32Array, then fill it by multiple enqueue() calls byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: read() twice, then enqueue() twice byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Multiple read(view), close() and respond() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Multiple read(view), big enqueue() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Multiple read(view) and multiple enqueue() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: read(view) with passing undefined as view must fail byte stream source start, pull or cancel are not yet supported
+PASS ReadableStream with byte source: A stream must be errored if close()-d before fulfilling read(view) with Uint16Array
+PASS ReadableStream with byte source: Throw if close()-ed more than once
+PASS ReadableStream with byte source: Throw on enqueue() after close()
+PASS ReadableStream with byte source: read(view), then respond() and close() in pull()
+FAIL ReadableStream with byte source: read(view) with Uint32Array, then fill it by multiple respond() calls assert_equals: result.value.byteLength expected 4 but got 1
+FAIL ReadableStream with byte source: read(view) with Uint32Array, then fill it by multiple enqueue() calls assert_equals: result.value.byteLength expected 4 but got 1
+FAIL ReadableStream with byte source: read() twice, then enqueue() twice Default reader on byte stream is not yet supported
+PASS ReadableStream with byte source: Multiple read(view), close() and respond()
+PASS ReadableStream with byte source: Multiple read(view), big enqueue()
+PASS ReadableStream with byte source: Multiple read(view) and multiple enqueue()
+PASS ReadableStream with byte source: read(view) with passing undefined as view must fail
 PASS ReadableStream with byte source: read(view) with passing an empty object as view must fail
 PASS ReadableStream with byte source: Even read(view) with passing ArrayBufferView like object as view must fail
-FAIL ReadableStream with byte source: read() on an errored stream byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: read(), then error() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: read(view) on an errored stream byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: read(view), then error() byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Throwing in pull function must error the stream byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Throwing in pull in response to read() must be ignored if the stream is errored in it byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Throwing in pull in response to read(view) function must error the stream byte stream source start, pull or cancel are not yet supported
-FAIL ReadableStream with byte source: Throwing in pull in response to read(view) must be ignored if the stream is errored in it byte stream source start, pull or cancel are not yet supported
-FAIL calling respond() twice on the same byobRequest should throw byte stream source start, pull or cancel are not yet supported
-FAIL calling respondWithNewView() twice on the same byobRequest should throw byte stream source start, pull or cancel are not yet supported
-FAIL calling respond(0) twice on the same byobRequest should throw even when closed byte stream source start, pull or cancel are not yet supported
-FAIL calling respond() should throw when canceled byte stream source start, pull or cancel are not yet supported
-FAIL pull() resolving should not resolve read() promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: default reader + autoAllocateChunkSize + byobRequest interaction byte stream source start, pull or cancel are not yet supported
+FAIL ReadableStream with byte source: read() on an errored stream Default reader on byte stream is not yet supported
+FAIL ReadableStream with byte source: read(), then error() Default reader on byte stream is not yet supported
+PASS ReadableStream with byte source: read(view) on an errored stream
+PASS ReadableStream with byte source: read(view), then error()
+FAIL ReadableStream with byte source: Throwing in pull function must error the stream Default reader on byte stream is not yet supported
+FAIL ReadableStream with byte source: Throwing in pull in response to read() must be ignored if the stream is errored in it Default reader on byte stream is not yet supported
+PASS ReadableStream with byte source: Throwing in pull in response to read(view) function must error the stream
+PASS ReadableStream with byte source: Throwing in pull in response to read(view) must be ignored if the stream is errored in it
+PASS calling respond() twice on the same byobRequest should throw
+PASS calling respondWithNewView() twice on the same byobRequest should throw
+PASS calling respond(0) twice on the same byobRequest should throw even when closed
+PASS calling respond() should throw when canceled
+PASS pull() resolving should not resolve read()
+FAIL ReadableStream with byte source: default reader + autoAllocateChunkSize + byobRequest interaction Default reader on byte stream is not yet supported
 PASS ReadableStream with byte source: autoAllocateChunkSize cannot be 0
 PASS ReadableStreamBYOBReader can be constructed directly
 PASS ReadableStreamBYOBReader constructor requires a ReadableStream argument
 FAIL ReadableStreamBYOBReader constructor requires an unlocked ReadableStream Default reader on byte stream is not yet supported
 PASS ReadableStreamBYOBReader constructor requires a ReadableStream with type "bytes"
 PASS ReadableStream constructor should not accept a strategy with a size defined if type is "bytes"
-FAIL ReadableStream with byte source: respondWithNewView() with a smaller view promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: respondWithNewView() with a zero-length view (in the closed state) promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: respondWithNewView() with a transferred non-zero-length view (in the readable state) promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: respondWithNewView() with a transferred zero-length view (in the closed state) promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: enqueue() discards auto-allocated BYOB request promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: releaseLock() with pending read(view), read(view) on second reader, respond() promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: releaseLock() with pending read(view), read(view) on second reader with 1 element Uint16Array, respond(1) promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: releaseLock() with pending read(view), read(view) on second reader with 2 element Uint8Array, respond(3) promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: releaseLock() with pending read(view), read(view) on second reader, respondWithNewView() promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: releaseLock() with pending read(view), read(view) on second reader, enqueue() promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: releaseLock() with pending read(view), read(view) on second reader, close(), respond(0) promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: autoAllocateChunkSize, releaseLock() with pending read(), read() on second reader, respond() promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: autoAllocateChunkSize, releaseLock() with pending read(), read() on second reader, enqueue() promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: autoAllocateChunkSize, releaseLock() with pending read(), read(view) on second reader, respond() promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: autoAllocateChunkSize, releaseLock() with pending read(), read(view) on second reader, enqueue() promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: read(view) with 1 element Uint16Array, respond(1), releaseLock(), read(view) on second reader with 1 element Uint16Array, respond(1) promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: read(view) with 1 element Uint16Array, respond(1), releaseLock(), read() on second reader, enqueue() promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL ReadableStream with byte source: autoAllocateChunkSize, read(), respondWithNewView() promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
+PASS ReadableStream with byte source: respondWithNewView() with a smaller view
+PASS ReadableStream with byte source: respondWithNewView() with a zero-length view (in the closed state)
+PASS ReadableStream with byte source: respondWithNewView() with a transferred non-zero-length view (in the readable state)
+PASS ReadableStream with byte source: respondWithNewView() with a transferred zero-length view (in the closed state)
+FAIL ReadableStream with byte source: enqueue() discards auto-allocated BYOB request promise_test: Unhandled rejection with value: object "NotSupportedError: Default reader on byte stream is not yet supported"
+PASS ReadableStream with byte source: releaseLock() with pending read(view), read(view) on second reader, respond()
+FAIL ReadableStream with byte source: releaseLock() with pending read(view), read(view) on second reader with 1 element Uint16Array, respond(1) assert_equals: second result.value.byteLength expected 2 but got 1
+PASS ReadableStream with byte source: releaseLock() with pending read(view), read(view) on second reader with 2 element Uint8Array, respond(3)
+PASS ReadableStream with byte source: releaseLock() with pending read(view), read(view) on second reader, respondWithNewView()
+PASS ReadableStream with byte source: releaseLock() with pending read(view), read(view) on second reader, enqueue()
+PASS ReadableStream with byte source: releaseLock() with pending read(view), read(view) on second reader, close(), respond(0)
+FAIL ReadableStream with byte source: autoAllocateChunkSize, releaseLock() with pending read(), read() on second reader, respond() promise_test: Unhandled rejection with value: object "NotSupportedError: Default reader on byte stream is not yet supported"
+FAIL ReadableStream with byte source: autoAllocateChunkSize, releaseLock() with pending read(), read() on second reader, enqueue() promise_test: Unhandled rejection with value: object "NotSupportedError: Default reader on byte stream is not yet supported"
+FAIL ReadableStream with byte source: autoAllocateChunkSize, releaseLock() with pending read(), read(view) on second reader, respond() promise_test: Unhandled rejection with value: object "NotSupportedError: Default reader on byte stream is not yet supported"
+FAIL ReadableStream with byte source: autoAllocateChunkSize, releaseLock() with pending read(), read(view) on second reader, enqueue() promise_test: Unhandled rejection with value: object "NotSupportedError: Default reader on byte stream is not yet supported"
+FAIL ReadableStream with byte source: read(view) with 1 element Uint16Array, respond(1), releaseLock(), read(view) on second reader with 1 element Uint16Array, respond(1) assert_equals: second result.value.byteLength expected 2 but got 1
+FAIL ReadableStream with byte source: read(view) with 1 element Uint16Array, respond(1), releaseLock(), read() on second reader, enqueue() promise_test: Unhandled rejection with value: object "NotSupportedError: Default reader on byte stream is not yet supported"
+FAIL ReadableStream with byte source: autoAllocateChunkSize, read(), respondWithNewView() promise_test: Unhandled rejection with value: object "NotSupportedError: Default reader on byte stream is not yet supported"
 

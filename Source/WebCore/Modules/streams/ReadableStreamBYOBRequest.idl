@@ -28,7 +28,8 @@
 
 [
     EnabledBySetting=ReadableByteStreamAPIEnabled,
-    Exposed=*
+    Exposed=*,
+    JSCustomMarkFunction
 ] interface ReadableStreamBYOBRequest {
     readonly attribute ArrayBufferView? view;
 

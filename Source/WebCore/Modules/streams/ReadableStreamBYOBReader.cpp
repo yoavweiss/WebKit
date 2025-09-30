@@ -30,10 +30,14 @@
 #include "JSDOMPromiseDeferred.h"
 #include "ReadableByteStreamController.h"
 #include "ReadableStream.h"
+#include "WebCoreOpaqueRootInlines.h"
+#include <wtf/TZoneMallocInlines.h>
 #include <JavaScriptCore/ArrayBuffer.h>
 #include <JavaScriptCore/ArrayBufferView.h>
 
 namespace WebCore {
+
+WTF_MAKE_TZONE_OR_ISO_ALLOCATED_IMPL(ReadableStreamBYOBReader);
 
 ExceptionOr<Ref<ReadableStreamBYOBReader>> ReadableStreamBYOBReader::create(JSDOMGlobalObject& globalObject, ReadableStream& stream)
 {
@@ -46,7 +50,7 @@ ExceptionOr<Ref<ReadableStreamBYOBReader>> ReadableStreamBYOBReader::create(JSDO
 }
 
 ReadableStreamBYOBReader::ReadableStreamBYOBReader(Ref<DOMPromise>&& promise, Ref<DeferredPromise>&& deferred)
-     : m_closedPromise(WTFMove(promise))
+    : m_closedPromise(WTFMove(promise))
     , m_closedDeferred(WTFMove(deferred))
 {
 }
@@ -61,7 +65,7 @@ DOMPromise& ReadableStreamBYOBReader::closedPromise()
 // https://streams.spec.whatwg.org/#byob-reader-read
 void ReadableStreamBYOBReader::read(JSDOMGlobalObject& globalObject, JSC::ArrayBufferView& view, ReadOptions options, Ref<DeferredPromise>&& promise)
 {
-    if (view.byteLength() == 0)
+    if (!view.byteLength())
         return promise->reject(Exception { ExceptionCode::TypeError, "view byteLength is 0"_s });
 
     RefPtr buffer = view.possiblySharedBuffer();
@@ -74,8 +78,14 @@ void ReadableStreamBYOBReader::read(JSDOMGlobalObject& globalObject, JSC::ArrayB
     if (!options.min)
         return promise->reject(Exception { ExceptionCode::TypeError, "options min is 0"_s });
 
-    if (options.min > view.byteLength())
-        return promise->reject(Exception { ExceptionCode::RangeError, "view's buffer is not long enough"_s });
+    auto viewType = view.getType();
+    if (viewType != JSC::TypedArrayType::TypeDataView) {
+        if (options.min > view.byteLength() / JSC::elementSize(viewType))
+            return promise->reject(Exception { ExceptionCode::RangeError, "view's buffer is not large enough"_s });
+    } else {
+        if (options.min > view.byteLength())
+            return promise->reject(Exception { ExceptionCode::RangeError, "view's buffer is not large enough"_s });
+    }
 
     if (!m_stream)
         return promise->reject(Exception { ExceptionCode::TypeError, "reader has no stream"_s });
@@ -241,5 +251,26 @@ void ReadableStreamBYOBReader::onClosedPromiseRejection(ClosedCallback&& callbac
         protectedThis->m_closedCallback(*closedPromise->globalObject(), closedPromise->result());
     });
 }
+
+WebCoreOpaqueRoot root(ReadableStreamBYOBReader* reader)
+{
+    return WebCoreOpaqueRoot { reader };
+}
+
+template<typename Visitor>
+void ReadableStreamBYOBReader::visitAdditionalChildren(Visitor& visitor)
+{
+    if (m_stream)
+        SUPPRESS_UNCOUNTED_ARG m_stream->visitAdditionalChildren(visitor);
+}
+
+template<typename Visitor>
+void JSReadableStreamBYOBReader::visitAdditionalChildren(Visitor& visitor)
+{
+    // Do not ref `wrapped()` here since this function may get called on the GC thread.
+    SUPPRESS_UNCOUNTED_ARG wrapped().visitAdditionalChildren(visitor);
+}
+
+DEFINE_VISIT_ADDITIONAL_CHILDREN(JSReadableStreamBYOBReader);
 
 } // namespace WebCore

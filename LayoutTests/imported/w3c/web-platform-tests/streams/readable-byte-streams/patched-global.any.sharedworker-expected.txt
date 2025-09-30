@@ -1,3 +1,7 @@
 
-FAIL Patched then() sees byobRequest after filling all pending pull-into descriptors promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
+FAIL Patched then() sees byobRequest after filling all pending pull-into descriptors assert_equals: result2.value constructor expected function "function BigUint64Array() {
+    [native code]
+}" but got function "function Uint8Array() {
+    [native code]
+}"
 

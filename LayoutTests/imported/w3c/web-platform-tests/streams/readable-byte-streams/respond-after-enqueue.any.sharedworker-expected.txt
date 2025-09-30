@@ -1,5 +1,5 @@
 
-FAIL byobRequest.respond() after enqueue() should not crash promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL byobRequest.respond() with cached byobRequest after enqueue() should not crash promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
-FAIL byobRequest.respond() after enqueue() with double read should not crash promise_test: Unhandled rejection with value: object "TypeError: byte stream source start, pull or cancel are not yet supported"
+FAIL byobRequest.respond() after enqueue() should not crash promise_test: Unhandled rejection with value: object "NotSupportedError: Default reader on byte stream is not yet supported"
+FAIL byobRequest.respond() with cached byobRequest after enqueue() should not crash promise_test: Unhandled rejection with value: object "NotSupportedError: Default reader on byte stream is not yet supported"
+FAIL byobRequest.respond() after enqueue() with double read should not crash promise_test: Unhandled rejection with value: object "NotSupportedError: Default reader on byte stream is not yet supported"
 

@@ -26,6 +26,7 @@
 #include "config.h"
 #include "ReadableStreamBYOBRequest.h"
 
+#include "JSReadableStreamBYOBRequest.h"
 #include "ReadableByteStreamController.h"
 #include <JavaScriptCore/ArrayBufferView.h>
 
@@ -48,11 +49,11 @@ ExceptionOr<void> ReadableStreamBYOBRequest::respond(JSDOMGlobalObject& globalOb
 {
     RefPtr controller = m_controller.get();
     if (!controller)
-        return Exception {ExceptionCode::TypeError, "controller is undefined"_s };
+        return Exception { ExceptionCode::TypeError, "controller is undefined"_s };
 
     RefPtr view = m_view;
     if (!view || view->isDetached())
-        return Exception {ExceptionCode::TypeError, "buffer is detached"_s };
+        return Exception { ExceptionCode::TypeError, "buffer is detached"_s };
 
     ASSERT(view->byteLength() > 0);
     ASSERT(view->possiblySharedBuffer()->byteLength() > 0);
@@ -64,9 +65,9 @@ ExceptionOr<void> ReadableStreamBYOBRequest::respondWithNewView(JSDOMGlobalObjec
 {
     RefPtr controller = m_controller.get();
     if (!controller)
-        return Exception {ExceptionCode::TypeError, "controller is undefined"_s };
+        return Exception { ExceptionCode::TypeError, "controller is undefined"_s };
     if (view.isDetached())
-        return Exception {ExceptionCode::TypeError, "buffer is detached"_s };
+        return Exception { ExceptionCode::TypeError, "buffer is detached"_s };
     return controller->respondWithNewView(globalObject, view);
 }
 
@@ -79,5 +80,23 @@ void ReadableStreamBYOBRequest::setView(JSC::ArrayBufferView* view)
 {
     m_view = view;
 }
+
+template<typename Visitor>
+void ReadableStreamBYOBRequest::visitAdditionalChildren(Visitor& visitor)
+{
+    if (m_controller)
+        SUPPRESS_UNCOUNTED_ARG m_controller->stream().visitAdditionalChildren(visitor);
+}
+
+DEFINE_VISIT_ADDITIONAL_CHILDREN(ReadableStreamBYOBRequest);
+
+template<typename Visitor>
+void JSReadableStreamBYOBRequest::visitAdditionalChildren(Visitor& visitor)
+{
+    // Do not ref `wrapped()` here since this function may get called on the GC thread.
+    SUPPRESS_UNCOUNTED_ARG wrapped().visitAdditionalChildren(visitor);
+}
+
+DEFINE_VISIT_ADDITIONAL_CHILDREN(JSReadableStreamBYOBRequest);
 
 } // namespace WebCore

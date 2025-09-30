@@ -30,6 +30,7 @@
 
 [
     EnabledBySetting=ReadableByteStreamAPIEnabled,
+    JSCustomMarkFunction,
     Exposed=*,
 ] interface ReadableByteStreamController {
     [ImplementedAs=byobRequestForBindings] readonly attribute ReadableStreamBYOBRequest? byobRequest;

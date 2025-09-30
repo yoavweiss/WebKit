@@ -44,6 +44,7 @@ typedef (ReadableStreamDefaultReader or ReadableStreamBYOBReader) ReadableStream
 [
     ExportMacro=WEBCORE_EXPORT,
     Exposed=*,
+    JSCustomMarkFunction,
     PrivateIdentifier,
     PublicIdentifier
 ] interface ReadableStream {
