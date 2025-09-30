@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Apple Inc. All rights reserved.
+ * Copyright (C) 2017-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,42 +27,38 @@
 
 #if ENABLE(WEB_RTC)
 
-#include <WebCore/MDNSRegisterError.h>
-#include <WebCore/ProcessQualified.h>
-#include <WebCore/ScriptExecutionContextIdentifier.h>
-#include <wtf/CanMakeWeakPtr.h>
-#include <wtf/CompletionHandler.h>
-#include <wtf/Expected.h>
-#include <wtf/Forward.h>
-#include <wtf/HashMap.h>
-#include <wtf/WeakRef.h>
-
-namespace IPC {
-class Connection;
-class Decoder;
-}
+#include "MessageReceiver.h"
+#include "WebMDNSRegister.h"
+#include <wtf/CheckedRef.h>
+#include <wtf/TZoneMalloc.h>
+#include <wtf/UniqueRef.h>
 
 namespace WebKit {
-class WebRTCNetworkBase;
+class WebProcess;
 
-class WebMDNSRegister : public CanMakeWeakPtr<WebMDNSRegister> {
+class WebRTCNetworkBase : public IPC::MessageReceiver {
+    WTF_MAKE_TZONE_ALLOCATED(WebRTCNetworkBase);
 public:
-    explicit WebMDNSRegister(WebRTCNetworkBase&);
+    explicit WebRTCNetworkBase(WebProcess&);
+    ~WebRTCNetworkBase();
 
     void ref() const;
     void deref() const;
 
-    void unregisterMDNSNames(WebCore::ScriptExecutionContextIdentifier);
-    void registerMDNSName(WebCore::ScriptExecutionContextIdentifier, const String& ipAddress, CompletionHandler<void(const String&, std::optional<WebCore::MDNSRegisterError>)>&&);
+    virtual void networkProcessCrashed() { }
 
-    void didReceiveMessage(IPC::Connection&, IPC::Decoder&);
+    virtual void setAsActive();
+    bool isActive() const { return m_isActive; }
+
+    WebMDNSRegister& mdnsRegister() { return m_mdnsRegister; }
+    Ref<WebMDNSRegister> protectedMDNSRegister() { return m_mdnsRegister; }
 
 private:
-    void finishedRegisteringMDNSName(WebCore::ScriptExecutionContextIdentifier, const String& ipAddress, String&& mdnsName, std::optional<WebCore::MDNSRegisterError>, CompletionHandler<void(const String&, std::optional<WebCore::MDNSRegisterError>)>&&);
+    const CheckedRef<WebProcess> m_webProcess;
 
-    HashMap<WebCore::ScriptExecutionContextIdentifier, HashMap<String, String>> m_registeringDocuments;
+    WebMDNSRegister m_mdnsRegister;
 
-    WeakRef<WebRTCNetworkBase> m_webRTCNetwork;
+    bool m_isActive { false };
 };
 
 } // namespace WebKit
