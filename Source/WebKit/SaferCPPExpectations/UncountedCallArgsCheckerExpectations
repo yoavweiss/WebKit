@@ -114,8 +114,6 @@ WebProcess/WebPage/mac/TiledCoreAnimationScrollingCoordinator.mm
 WebProcess/WebPage/mac/WKAccessibilityWebPageObjectBase.mm
 WebProcess/WebPage/mac/WKAccessibilityWebPageObjectMac.mm
 WebProcess/cocoa/PlaybackSessionManager.mm
-WebProcess/cocoa/RemoteCaptureSampleManager.cpp
 WebProcess/cocoa/TextTrackRepresentationCocoa.mm
-WebProcess/cocoa/UserMediaCaptureManager.cpp
 WebProcess/cocoa/VideoPresentationManager.mm
 WebProcess/cocoa/WebProcessCocoa.mm

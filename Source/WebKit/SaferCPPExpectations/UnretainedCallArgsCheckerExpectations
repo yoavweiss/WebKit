@@ -95,7 +95,6 @@ UIProcess/mac/WebDateTimePickerMac.mm
 UIProcess/mac/WebPopupMenuProxyMac.mm
 UIProcess/mac/WebViewImpl.mm
 WebProcess/GPU/webrtc/RemoteVideoFrameObjectHeapProxyProcessor.cpp
-WebProcess/GPU/webrtc/SharedVideoFrame.cpp
 WebProcess/InjectedBundle/API/Cocoa/WKWebProcessBundleParameters.mm
 WebProcess/InjectedBundle/API/mac/WKDOMInternals.mm
 WebProcess/InjectedBundle/API/mac/WKWebProcessPlugIn.mm
