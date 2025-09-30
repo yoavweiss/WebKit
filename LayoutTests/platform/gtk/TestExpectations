@@ -1620,7 +1620,6 @@ http/tests/css/css-masking/mask-external-svg-mask.html [ ImageOnlyFailure ]
 http/tests/css/css-masking/mask-inline-svg-image.html [ ImageOnlyFailure ]
 http/tests/css/css-masking/mask-inline-svg-mask.html [ ImageOnlyFailure ]
 
-imported/w3c/web-platform-tests/css/css-view-transitions/inline-with-offset-from-containing-block.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/geometry/reftests/circle-003.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/painting/reftests/marker-path-001.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/painting/reftests/marker-path-011.svg [ ImageOnlyFailure ]

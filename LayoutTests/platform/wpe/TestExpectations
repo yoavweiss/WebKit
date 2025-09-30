@@ -22,11 +22,8 @@ webkit.org/b/136754 imported/w3c/web-platform-tests/css/css-flexbox/flexbox_flex
 imported/w3c/web-platform-tests/css/css-flexbox/grid-flex-item-007.html [ Pass ]
 
 imported/w3c/web-platform-tests/css/compositing/mix-blend-mode/mix-blend-mode-intermediate-element-overflow-hidden-and-border-radius.html [ Pass ]
-imported/w3c/web-platform-tests/css/css-animations/nested-scale-animations.html [ Pass ]
-imported/w3c/web-platform-tests/css/css-animations/transform-animation-under-large-scale.html [ Pass ]
 
 imported/w3c/web-platform-tests/css/css-images/out-of-range-color-stop-conic.html [ Pass ]
-imported/w3c/web-platform-tests/css/css-transforms/3d-scene-with-iframe-001.html [ Pass ]
 
 imported/w3c/web-platform-tests/css/css-view-transitions/navigation/skip-outbound-vt-before-reveal.html [ Pass ]
 
