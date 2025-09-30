@@ -231,6 +231,7 @@
 #include <WebCore/ExceptionDetails.h>
 #include <WebCore/FloatRect.h>
 #include <WebCore/FocusDirection.h>
+#include <WebCore/FocusOptions.h>
 #include <WebCore/FontAttributeChanges.h>
 #include <WebCore/FrameLoader.h>
 #include <WebCore/FrameLoaderClient.h>
@@ -11405,6 +11406,22 @@ void WebPageProxy::logScrollingEvent(uint32_t eventType, MonotonicTime timestamp
         WTFLogAlways("SCROLLING: Started Rubberbanding\n");
         break;
     }
+}
+
+void WebPageProxy::focusedElementChanged(IPC::Connection& connection, const std::optional<FrameIdentifier>& frameID, FocusOptions options)
+{
+    if (!frameID)
+        return;
+
+    RefPtr frame = WebFrameProxy::webFrame(*frameID);
+    if (!frame)
+        return;
+
+    forEachWebContentProcess([&](auto& webProcess, auto pageID) {
+        if (!webProcess.hasConnection() || &webProcess.connection() == &connection)
+            return;
+        webProcess.send(Messages::WebPage::ElementWasFocusedInAnotherProcess(*frameID, options), pageID);
+    });
 }
 
 void WebPageProxy::focusedFrameChanged(IPC::Connection& connection, const std::optional<FrameIdentifier>& frameID)

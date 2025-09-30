@@ -92,6 +92,10 @@
 #include <WebCore/FaceDetectorInterface.h>
 #include <WebCore/FileChooser.h>
 #include <WebCore/FileIconLoader.h>
+#include <WebCore/FocusController.h>
+#include <WebCore/FocusControllerTypes.h>
+#include <WebCore/FocusOptions.h>
+#include <WebCore/Frame.h>
 #include <WebCore/FrameLoader.h>
 #include <WebCore/HTMLInputElement.h>
 #include <WebCore/HTMLNames.h>
@@ -316,16 +320,20 @@ void WebChromeClient::takeFocus(FocusDirection direction)
         page->send(Messages::WebPageProxy::TakeFocus(direction));
 }
 
-void WebChromeClient::focusedElementChanged(Element* element)
+void WebChromeClient::focusedElementChanged(Element* element, LocalFrame* frame, FocusOptions options, BroadcastFocusedElement broadcast)
 {
+    RefPtr coreFrame =  element ? element->document().protectedFrame() : frame;
+    RefPtr webFrame = coreFrame ? WebFrame::fromCoreFrame(*coreFrame) : nullptr;
+    RefPtr page = m_page.get();
+    if (page && broadcast == BroadcastFocusedElement::Yes)
+        WebProcess::singleton().parentProcessConnection()->send(Messages::WebPageProxy::FocusedElementChanged(webFrame ? std::make_optional(webFrame->frameID()) : std::nullopt, options), page->identifier());
+
     RefPtr inputElement = dynamicDowncast<HTMLInputElement>(element);
     if (!inputElement || !inputElement->isText())
         return;
 
-    RefPtr frame = element->document().frame();
-    RefPtr webFrame = WebFrame::fromCoreFrame(*frame);
     ASSERT(webFrame);
-    if (RefPtr page = m_page.get())
+    if (page)
         page->injectedBundleFormClient().didFocusTextField(page.get(), *inputElement, webFrame.get());
 }
 
@@ -334,7 +342,7 @@ void WebChromeClient::focusedFrameChanged(Frame* frame)
     if (!m_page)
         return;
 
-    auto webFrame = frame ? WebFrame::fromCoreFrame(*frame) : nullptr;
+    RefPtr webFrame = frame ? WebFrame::fromCoreFrame(*frame) : nullptr;
     WebProcess::singleton().parentProcessConnection()->send(Messages::WebPageProxy::FocusedFrameChanged(webFrame ? std::make_optional(webFrame->frameID()) : std::nullopt), m_page->identifier());
 }
 

@@ -56,6 +56,7 @@
 #include "WebsiteDataStore.h"
 #include "WebsitePoliciesData.h"
 #include <WebCore/FocusController.h>
+#include <WebCore/FocusControllerTypes.h>
 #include <WebCore/FocusEventData.h>
 #include <WebCore/FrameTreeSyncData.h>
 #include <WebCore/Image.h>

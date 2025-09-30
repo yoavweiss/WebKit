@@ -947,7 +947,7 @@ void PluginView::focusPluginElement()
 
     Ref pluginElement = m_pluginElement;
     if (RefPtr page = frame->page())
-        page->focusController().setFocusedElement(pluginElement.ptr(), *frame);
+        page->focusController().setFocusedElement(pluginElement.ptr(), frame.get());
     else
         frame->protectedDocument()->setFocusedElement(pluginElement.ptr());
 }

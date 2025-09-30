@@ -2038,6 +2038,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     page/EventHandler.h
     page/EventTimingInteractionID.h
     page/FocusController.h
+    page/FocusControllerTypes.h
     page/FocusDirection.h
     page/FocusEventData.h
     page/FragmentDirective.h

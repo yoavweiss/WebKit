@@ -10,6 +10,7 @@ let iframe;
 let outerInputBlurred = false;
 let innerInputFocused = false;
 let waitingForInnerFocusVerification = false;
+let innerFocusStateChecked = false;
 
 function checkInitialState() {
     shouldBe("document.activeElement.tagName", "'BODY'");
@@ -21,6 +22,10 @@ function checkInitialState() {
 }
 
 function checkInnerInputFocusState() {
+    if (innerFocusStateChecked)
+        return;
+    innerFocusStateChecked = true;
+
     shouldBe("document.activeElement.tagName", "'IFRAME'");
     testPassed("When inner input focused: outer Document.activeElement is IFRAME");
 
@@ -94,11 +99,17 @@ function onOuterInputBlur() {
 <iframe id="testIframe" src="http://localhost:8000/site-isolation/resources/focus-tab-navigation-iframe.html" onload="onIframeLoad()"></iframe>
 
 <script>
-async function onIframeLoad() {
-    if (!iframe)
-        await setupTest();
+let testStarted = false;
 
-    checkInitialState();
+async function onIframeLoad() {
+      if (testStarted)
+        return;
+
+      if (!iframe)
+          await setupTest();
+
+      testStarted = true;
+      checkInitialState();
 }
 
 async function setupTest() {

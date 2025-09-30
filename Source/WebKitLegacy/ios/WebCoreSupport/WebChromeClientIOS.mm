@@ -48,6 +48,9 @@
 #import <WebCore/DisabledAdaptations.h>
 #import <WebCore/FileChooser.h>
 #import <WebCore/FloatRect.h>
+#import <WebCore/FocusControllerTypes.h>
+#import <WebCore/FocusOptions.h>
+#import <WebCore/Frame.h>
 #import <WebCore/FrameDestructionObserverInlines.h>
 #import <WebCore/GraphicsLayer.h>
 #import <WebCore/HTMLInputElement.h>
@@ -363,7 +366,7 @@ void WebChromeClientIOS::webAppOrientationsUpdated()
     [[webView() _UIDelegateForwarder] webViewSupportedOrientationsUpdated:webView()];
 }
 
-void WebChromeClientIOS::focusedElementChanged(Element* element)
+void WebChromeClientIOS::focusedElementChanged(Element* element, LocalFrame*, FocusOptions, BroadcastFocusedElement)
 {
     if (!is<HTMLInputElement>(element))
         return;
