@@ -2426,3 +2426,5 @@ webkit.org/b/298416 [ Debug ] http/tests/websocket/construct-in-detached-frame.h
 webkit.org/b/299561 imported/w3c/web-platform-tests/css/css-anchor-position/anchor-scroll-chained-003.html [ Pass ]
 
 webkit.org/b/299830 imported/w3c/web-platform-tests/storage-access-api/hasStorageAccess-insecure.sub.window.html [ Pass Failure ]
+
+webkit.org/b/299826 [ Release x86_64 ] media/modern-media-controls/media-controller/media-controller-click-on-video-background-should-pause.html [ Crash ]
