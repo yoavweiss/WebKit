@@ -73,8 +73,9 @@ public:
 
 private:
     ReadableStreamDefaultReader(Ref<InternalReadableStreamDefaultReader>&&, Ref<DOMPromise>&&, Ref<DeferredPromise>&&);
+    ReadableStreamDefaultReader(Ref<ReadableStream>&&, Ref<DOMPromise>&&, Ref<DeferredPromise>&&);
 
-    void setup(JSDOMGlobalObject&);
+    ExceptionOr<void> setup(JSDOMGlobalObject&);
     void genericRelease(JSDOMGlobalObject&);
     void errorReadRequests(JSDOMGlobalObject&, const Exception&);
 

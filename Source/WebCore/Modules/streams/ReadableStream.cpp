@@ -176,8 +176,12 @@ ExceptionOr<ReadableStreamReader> ReadableStream::getReader(JSDOMGlobalObject& c
 
             return ReadableStreamReader { RefPtr { readerOrException.releaseReturnValue() } };
         }
-        // FIXME: Support default reading of byte sources.
-        return Exception { ExceptionCode::NotSupportedError, "Default reader on byte stream is not yet supported"_s };
+
+        auto readerOrException = ReadableStreamDefaultReader::create(currentGlobalObject, *this);
+        if (readerOrException.hasException())
+            return readerOrException.releaseException();
+
+        return ReadableStreamReader { RefPtr { readerOrException.releaseReturnValue() } };
     }
 
     if (options.mode)

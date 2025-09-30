@@ -14,7 +14,7 @@ PASS ReadableStream with byte source: enqueue(), then read({ min })
 PASS ReadableStream with byte source: read({ min: 3 }) on a 3-byte Uint8Array, then multiple enqueue() up to 3 bytes
 PASS ReadableStream with byte source: read({ min: 3 }) on a 5-byte Uint8Array, then multiple enqueue() up to 3 bytes
 PASS ReadableStream with byte source: read({ min: 3 }) on a 5-byte Uint8Array, then multiple enqueue() up to 4 bytes
-FAIL ReadableStream with byte source: enqueue(), read({ min }) partially, then read() promise_test: Unhandled rejection with value: object "NotSupportedError: Default reader on byte stream is not yet supported"
+PASS ReadableStream with byte source: enqueue(), read({ min }) partially, then read()
 PASS ReadableStream with byte source: read({ min }), then respondWithNewView() with a transferred ArrayBuffer
 PASS ReadableStream with byte source: read({ min }) on a closed stream
 PASS ReadableStream with byte source: read({ min }) when closed before view is filled

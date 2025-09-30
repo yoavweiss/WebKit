@@ -43,6 +43,17 @@ WTF_MAKE_TZONE_OR_ISO_ALLOCATED_IMPL(ReadableStreamDefaultReader);
 ExceptionOr<Ref<ReadableStreamDefaultReader>> ReadableStreamDefaultReader::create(JSDOMGlobalObject& globalObject, ReadableStream& stream)
 {
     RefPtr internalReadableStream = stream.internalReadableStream();
+    if (!internalReadableStream) {
+        ASSERT(stream.hasByteStreamController());
+
+        auto [promise, deferred] = createPromiseAndWrapper(globalObject);
+        Ref reader = adoptRef(*new ReadableStreamDefaultReader(stream, WTFMove(promise), WTFMove(deferred)));
+        auto result = reader->setup(globalObject);
+        if (result.hasException())
+            return result.releaseException();
+        return reader;
+    }
+
     return create(globalObject, internalReadableStream.releaseNonNull());
 }
 
@@ -66,6 +77,14 @@ ReadableStreamDefaultReader::ReadableStreamDefaultReader(Ref<InternalReadableStr
     , m_closedDeferred(WTFMove(deferred))
     , m_internalDefaultReader(WTFMove(internalDefaultReader))
 {
+}
+
+ReadableStreamDefaultReader::ReadableStreamDefaultReader(Ref<ReadableStream>&& stream, Ref<DOMPromise>&& promise, Ref<DeferredPromise>&& deferred)
+    : m_closedPromise(WTFMove(promise))
+    , m_closedDeferred(WTFMove(deferred))
+    , m_stream(WTFMove(stream))
+{
+    ASSERT(m_stream->hasByteStreamController());
 }
 
 ReadableStreamDefaultReader::~ReadableStreamDefaultReader() = default;
@@ -114,9 +133,13 @@ ExceptionOr<void> ReadableStreamDefaultReader::releaseLock(JSDOMGlobalObject& gl
 }
 
 // https://streams.spec.whatwg.org/#set-up-readable-stream-default-reader
-void ReadableStreamDefaultReader::setup(JSDOMGlobalObject& globalObject)
+ExceptionOr<void> ReadableStreamDefaultReader::setup(JSDOMGlobalObject& globalObject)
 {
     RefPtr stream = m_stream;
+
+    if (stream->isLocked())
+        return Exception { ExceptionCode::TypeError, "ReadableStream is locked"_s };
+
     stream->setDefaultReader(this);
 
     switch (stream->state()) {
@@ -129,6 +152,8 @@ void ReadableStreamDefaultReader::setup(JSDOMGlobalObject& globalObject)
         rejectClosedPromise(stream->storedError(globalObject));
         break;
     }
+
+    return { };
 }
 
 // https://streams.spec.whatwg.org/#readable-stream-reader-generic-release
@@ -226,7 +251,7 @@ void ReadableStreamDefaultReader::onClosedPromiseRejection(ClosedRejectionCallba
             return;
 
         Ref closedPromise = protectedThis->m_closedPromise;
-        if (!closedPromise->globalObject() || !protectedThis->m_closedRejectionCallback ||closedPromise->status() != DOMPromise::Status::Rejected)
+        if (!closedPromise->globalObject() || !protectedThis->m_closedRejectionCallback || closedPromise->status() != DOMPromise::Status::Rejected)
             return;
 
         protectedThis->m_closedRejectionCallback(*closedPromise->globalObject(), closedPromise->result());
