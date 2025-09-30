@@ -8260,7 +8260,7 @@ webkit.org/b/298962 imported/w3c/web-platform-tests/html/browsers/browsing-the-w
 
 webkit.org/b/298974 fast/forms/ios/keyboard-restoration-after-element-replacement.html [ Timeout ]
 
-webkit.org/b/280234 imported/w3c/web-platform-tests/html/dom/idlharness.https.html [ Skip ]
+webkit.org/b/280234 imported/w3c/web-platform-tests/html/dom/idlharness.https.html? [ Skip ]
 
 webkit.org/b/299501 http/tests/site-isolation/focus-tab-navigation-activeElement.html [ Pass Failure ]
 
