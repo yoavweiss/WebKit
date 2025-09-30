@@ -105,6 +105,7 @@
 #include "WebDatabaseProvider.h"
 #include "WebDateTimeChooser.h"
 #include "WebDiagnosticLoggingClient.h"
+#include "WebDocumentSyncClient.h"
 #include "WebDragClient.h"
 #include "WebEditorClient.h"
 #include "WebErrors.h"
@@ -156,7 +157,6 @@
 #include "WebProcess.h"
 #include "WebProcessPoolMessages.h"
 #include "WebProcessProxyMessages.h"
-#include "WebProcessSyncClient.h"
 #include "WebProgressTrackerClient.h"
 #include "WebRemoteFrameClient.h"
 #include "WebScreenOrientationManager.h"
@@ -804,7 +804,7 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
 #endif
         makeUniqueRef<WebChromeClient>(*this),
         makeUniqueRef<WebCryptoClient>(this->identifier()),
-        makeUniqueRef<WebProcessSyncClient>(*this)
+        makeUniqueRef<WebDocumentSyncClient>(*this)
 #if HAVE(DIGITAL_CREDENTIALS_UI)
         , DigitalCredentialsCoordinator::create(*this)
 #endif
@@ -1269,13 +1269,13 @@ void WebPage::updateFrameTreeSyncData(WebCore::FrameIdentifier frameID, Ref<WebC
         coreFrame->updateFrameTreeSyncData(WTFMove(data));
 }
 
-void WebPage::processSyncDataChangedInAnotherProcess(const WebCore::ProcessSyncData& data)
+void WebPage::topDocumentSyncDataChangedInAnotherProcess(const WebCore::DocumentSyncSerializationData& data)
 {
     if (RefPtr page = corePage())
-        page->updateProcessSyncData(data);
+        page->updateTopDocumentSyncData(data);
 }
 
-void WebPage::topDocumentSyncDataChangedInAnotherProcess(Ref<WebCore::DocumentSyncData>&& data)
+void WebPage::allTopDocumentSyncDataChangedInAnotherProcess(Ref<WebCore::DocumentSyncData>&& data)
 {
     if (RefPtr page = corePage())
         page->updateTopDocumentSyncData(WTFMove(data));

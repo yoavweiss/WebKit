@@ -45,6 +45,7 @@
 #include "DiagnosticLoggingClient.h"
 #include "DiagnosticLoggingKeys.h"
 #include "DocumentLoader.h"
+#include "DocumentSyncClient.h"
 #include "DocumentType.h"
 #include "Editing.h"
 #include "Editor.h"
@@ -87,7 +88,6 @@
 #include "NodeTraversal.h"
 #include "Page.h"
 #include "PaymentSession.h"
-#include "ProcessSyncClient.h"
 #include "ProcessWarming.h"
 #include "RemoteFrame.h"
 #include "RenderLayerCompositor.h"
@@ -318,7 +318,7 @@ void LocalFrame::setDocument(RefPtr<Document>&& newDocument)
     m_documentIsBeingReplaced = true;
 
     if (isMainFrame()) {
-        if (RefPtr page = this->page())
+        if (RefPtr page = this->page(); page && this == &page->mainFrame())
             page->didChangeMainDocument(newDocument.get());
         loader().client().dispatchDidChangeMainDocument();
     }

@@ -205,8 +205,8 @@ messages -> WebPage WantsAsyncDispatchMessage {
     FrameWasRemovedInAnotherProcess(WebCore::FrameIdentifier frameID)
     UpdateFrameTreeSyncData(WebCore::FrameIdentifier frameID, Ref<WebCore::FrameTreeSyncData> frameTreeSyncData)
 
-    ProcessSyncDataChangedInAnotherProcess(struct WebCore::ProcessSyncData processSyncData)
-    TopDocumentSyncDataChangedInAnotherProcess(Ref<WebCore::DocumentSyncData> documentSyncData)
+    TopDocumentSyncDataChangedInAnotherProcess(struct WebCore::DocumentSyncSerializationData documentSyncData)
+    AllTopDocumentSyncDataChangedInAnotherProcess(Ref<WebCore::DocumentSyncData> documentSyncData)
 
     NavigateToPDFLinkWithSimulatedClick(String url, WebCore::IntPoint documentPoint, WebCore::IntPoint screenPoint)
     GetPDFFirstPageSize(WebCore::FrameIdentifier frameID) -> (WebCore::FloatSize size)

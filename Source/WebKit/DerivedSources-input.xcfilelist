@@ -722,7 +722,9 @@ $(PROJECT_DIR)/webpushd/mac/com.apple.WebKit.webpushd.relocatable.mac.sb.in
 $(WEBCORE_PRIVATE_HEADERS_DIR)/ActivityState.serialization.in
 $(WEBCORE_PRIVATE_HEADERS_DIR)/CodeGenerator.pm
 $(WEBCORE_PRIVATE_HEADERS_DIR)/DDModel.serialization.in
+$(WEBCORE_PRIVATE_HEADERS_DIR)/DocumentSyncData.serialization.in
 $(WEBCORE_PRIVATE_HEADERS_DIR)/DragActions.serialization.in
+$(WEBCORE_PRIVATE_HEADERS_DIR)/FrameTreeSyncData.serialization.in
 $(WEBCORE_PRIVATE_HEADERS_DIR)/HTTPHeaderNames.in
 $(WEBCORE_PRIVATE_HEADERS_DIR)/HTTPHeaderNames.serialization.in
 $(WEBCORE_PRIVATE_HEADERS_DIR)/IDLParser.pm
@@ -737,7 +739,6 @@ $(WEBCORE_PRIVATE_HEADERS_DIR)/PlatformMediaSession.serialization.in
 $(WEBCORE_PRIVATE_HEADERS_DIR)/PlatformScreen.serialization.in
 $(WEBCORE_PRIVATE_HEADERS_DIR)/PlatformWheelEvent.serialization.in
 $(WEBCORE_PRIVATE_HEADERS_DIR)/PlaybackSessionModel.serialization.in
-$(WEBCORE_PRIVATE_HEADERS_DIR)/ProcessSyncData.serialization.in
 $(WEBCORE_PRIVATE_HEADERS_DIR)/ProtectionSpaceBase.serialization.in
 $(WEBCORE_PRIVATE_HEADERS_DIR)/ScrollTypes.serialization.in
 $(WEBCORE_PRIVATE_HEADERS_DIR)/WebGPU.serialization.in

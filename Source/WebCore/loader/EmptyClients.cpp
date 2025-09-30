@@ -47,6 +47,7 @@
 #include "DisplayRefreshMonitorFactory.h"
 #include "DocumentFragment.h"
 #include "DocumentLoader.h"
+#include "DocumentSyncClient.h"
 #include "DragClient.h"
 #include "DummyModelPlayerProvider.h"
 #include "DummySpeechRecognitionProvider.h"
@@ -73,7 +74,6 @@
 #include "PaymentCoordinatorClient.h"
 #include "PluginInfoProvider.h"
 #include "PopupMenu.h"
-#include "ProcessSyncClient.h"
 #include "ProgressTrackerClient.h"
 #include "RemoteFrameClient.h"
 #include "SearchPopupMenu.h"
@@ -1250,7 +1250,7 @@ PageConfiguration pageConfigurationWithEmptyClients(std::optional<PageIdentifier
 #endif
         makeUniqueRef<EmptyChromeClient>(),
         makeUniqueRef<EmptyCryptoClient>(),
-        makeUniqueRef<ProcessSyncClient>()
+        makeUniqueRef<DocumentSyncClient>()
 #if HAVE(DIGITAL_CREDENTIALS_UI)
         , EmptyCredentialRequestCoordinatorClient::create()
 #endif

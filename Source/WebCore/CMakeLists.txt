@@ -2625,18 +2625,27 @@ add_custom_command(
 
 # Generate process sync data files
 add_custom_command(
-    OUTPUT ${WebCore_DERIVED_SOURCES_DIR}/DocumentSyncData.cpp ${WebCore_DERIVED_SOURCES_DIR}/DocumentSyncData.h ${WebCore_DERIVED_SOURCES_DIR}/FrameTreeSyncData.cpp ${WebCore_DERIVED_SOURCES_DIR}/FrameTreeSyncData.h ${WebCore_DERIVED_SOURCES_DIR}/ProcessSyncClient.cpp ${WebCore_DERIVED_SOURCES_DIR}/ProcessSyncClient.h ${WebCore_DERIVED_SOURCES_DIR}/ProcessSyncData.h ${WebCore_DERIVED_SOURCES_DIR}/ProcessSyncData.serialization.in
-    MAIN_DEPENDENCY ${WEBCORE_DIR}/page/ProcessSyncData.in
+    OUTPUT ${WebCore_DERIVED_SOURCES_DIR}/DocumentSyncData.cpp ${WebCore_DERIVED_SOURCES_DIR}/DocumentSyncData.h ${WebCore_DERIVED_SOURCES_DIR}/DocumentSyncClient.cpp ${WebCore_DERIVED_SOURCES_DIR}/DocumentSyncClient.h ${WebCore_DERIVED_SOURCES_DIR}/DocumentSyncData.serialization.in
+    MAIN_DEPENDENCY ${WEBCORE_DIR}/page/DocumentSyncData.in
     DEPENDS ${WEBCORE_DIR}/Scripts/generate-process-sync-data.py
-    COMMAND ${PYTHON_EXECUTABLE} ${WEBCORE_DIR}/Scripts/generate-process-sync-data.py ${WEBCORE_DIR}/page/ProcessSyncData.in ${WebCore_DERIVED_SOURCES_DIR}
+    COMMAND ${PYTHON_EXECUTABLE} ${WEBCORE_DIR}/Scripts/generate-process-sync-data.py "Document" ${WEBCORE_DIR}/page/DocumentSyncData.in ${WebCore_DERIVED_SOURCES_DIR}
     VERBATIM)
 list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/DocumentSyncData.cpp)
 list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/DocumentSyncData.h)
+list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/DocumentSyncClient.cpp)
+list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/DocumentSyncClient.h)
+
+add_custom_command(
+    OUTPUT ${WebCore_DERIVED_SOURCES_DIR}/FrameTreeSyncData.cpp ${WebCore_DERIVED_SOURCES_DIR}/FrameTreeSyncData.h ${WebCore_DERIVED_SOURCES_DIR}/FrameTreeSyncClient.cpp ${WebCore_DERIVED_SOURCES_DIR}/FrameTreeSyncClient.h ${WebCore_DERIVED_SOURCES_DIR}/FrameTreeSyncData.serialization.in
+    MAIN_DEPENDENCY ${WEBCORE_DIR}/page/FrameTreeSyncData.in
+    DEPENDS ${WEBCORE_DIR}/Scripts/generate-process-sync-data.py
+    COMMAND ${PYTHON_EXECUTABLE} ${WEBCORE_DIR}/Scripts/generate-process-sync-data.py "FrameTree" ${WEBCORE_DIR}/page/FrameTreeSyncData.in ${WebCore_DERIVED_SOURCES_DIR}
+    VERBATIM)
 list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/FrameTreeSyncData.cpp)
 list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/FrameTreeSyncData.h)
-list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/ProcessSyncClient.cpp)
-list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/ProcessSyncClient.h)
-list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/ProcessSyncData.h)
+list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/FrameTreeSyncClient.cpp)
+list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/FrameTreeSyncClient.h)
+
 
 # Modules that the bindings generator scripts may use
 set(SCRIPTS_RESOLVE_SUPPLEMENTAL
@@ -3017,7 +3026,8 @@ WEBKIT_COMPUTE_SOURCES(WebCore)
 target_precompile_headers(WebCore PRIVATE WebCorePrefix.h)
 
 list(APPEND WebCore_PRIVATE_FRAMEWORK_HEADERS
-    ${WebCore_DERIVED_SOURCES_DIR}/ProcessSyncData.serialization.in
+    ${WebCore_DERIVED_SOURCES_DIR}/DocumentSyncData.serialization.in
+    ${WebCore_DERIVED_SOURCES_DIR}/FrameTreeSyncData.serialization.in
 
     Modules/Model/InternalAPI/DDModel.serialization.in
 

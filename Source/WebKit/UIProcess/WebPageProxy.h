@@ -266,6 +266,7 @@ struct DateTimeChooserParameters;
 struct DiagnosticLoggingDictionary;
 struct DictationContextType;
 struct DictionaryPopupInfo;
+struct DocumentSyncSerializationData;
 struct DragItem;
 struct ElementContext;
 struct ExceptionDetails;
@@ -297,7 +298,6 @@ struct PageIdentifierType;
 struct PermissionDescriptor;
 struct PlatformLayerIdentifierType;
 struct PlaybackTargetClientContextIdentifierType;
-struct ProcessSyncData;
 struct PromisedAttachmentInfo;
 struct RecentSearch;
 struct ResourceLoaderIdentifierType;
@@ -2517,8 +2517,8 @@ public:
     WebProcessProxy* processForSite(const WebCore::Site&);
 
     void observeAndCreateRemoteSubframesInOtherProcesses(WebFrameProxy&, const String& frameName);
-    void broadcastProcessSyncData(IPC::Connection&, const WebCore::ProcessSyncData&);
-    void broadcastTopDocumentSyncData(IPC::Connection&, Ref<WebCore::DocumentSyncData>&&);
+    void broadcastDocumentSyncData(IPC::Connection&, const WebCore::DocumentSyncSerializationData&);
+    void broadcastAllDocumentSyncData(IPC::Connection&, Ref<WebCore::DocumentSyncData>&&);
 
     void addOpenedPage(WebPageProxy&);
     bool hasOpenedPage() const;

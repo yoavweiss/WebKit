@@ -1855,6 +1855,7 @@ $(PROJECT_DIR)/mathml/mathattrs.in
 $(PROJECT_DIR)/mathml/mathtags.in
 $(PROJECT_DIR)/page/BarProp.idl
 $(PROJECT_DIR)/page/Crypto.idl
+$(PROJECT_DIR)/page/DocumentSyncData.in
 $(PROJECT_DIR)/page/DOMSelection.idl
 $(PROJECT_DIR)/page/DOMWindow+CSSOM.idl
 $(PROJECT_DIR)/page/DOMWindow+CSSOMView.idl
@@ -1868,6 +1869,7 @@ $(PROJECT_DIR)/page/DOMWindow.idl
 $(PROJECT_DIR)/page/EventCounts.idl
 $(PROJECT_DIR)/page/EventSource.idl
 $(PROJECT_DIR)/page/FragmentDirective.idl
+$(PROJECT_DIR)/page/FrameTreeSyncData.in
 $(PROJECT_DIR)/page/GetComposedRangesOptions.idl
 $(PROJECT_DIR)/page/History.idl
 $(PROJECT_DIR)/page/IntersectionObserver.idl
@@ -1923,7 +1925,6 @@ $(PROJECT_DIR)/page/PerformanceResourceTiming.idl
 $(PROJECT_DIR)/page/PerformanceServerTiming.idl
 $(PROJECT_DIR)/page/PerformanceTiming.idl
 $(PROJECT_DIR)/page/PostMessageOptions.idl
-$(PROJECT_DIR)/page/ProcessSyncData.in
 $(PROJECT_DIR)/page/ResizeObserver.idl
 $(PROJECT_DIR)/page/ResizeObserverBoxOptions.idl
 $(PROJECT_DIR)/page/ResizeObserverCallback.idl

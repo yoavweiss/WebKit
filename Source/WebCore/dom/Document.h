@@ -334,7 +334,7 @@ enum class MutationObserverOptionType : uint8_t;
 enum class NoiseInjectionPolicy : uint8_t;
 enum class ParserContentPolicy : uint8_t;
 enum class PlatformEventType : uint8_t;
-enum class ProcessSyncDataType : uint8_t;
+enum class DocumentSyncDataType : uint8_t;
 enum class ReferrerPolicySource : uint8_t;
 enum class RenderingUpdateStep : uint32_t;
 enum class RouteSharingPolicy : uint8_t;
@@ -2193,7 +2193,7 @@ private:
     void securityOriginDidChange() final;
 
     inline Ref<DocumentSyncData> syncData();
-    void populateDocumentSyncDataForNewlyConstructedDocument(ProcessSyncDataType);
+    void populateDocumentSyncDataForNewlyConstructedDocument(DocumentSyncDataType);
 
     bool mainFrameDocumentHasHadUserInteraction() const;
 

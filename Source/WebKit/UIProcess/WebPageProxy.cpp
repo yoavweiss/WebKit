@@ -7497,21 +7497,25 @@ void WebPageProxy::observeAndCreateRemoteSubframesInOtherProcesses(WebFrameProxy
     });
 }
 
-void WebPageProxy::broadcastProcessSyncData(IPC::Connection& connection, const WebCore::ProcessSyncData& data)
+void WebPageProxy::broadcastDocumentSyncData(IPC::Connection& connection, const WebCore::DocumentSyncSerializationData& data)
 {
+    Ref process = WebProcessProxy::fromConnection(connection);
+    // FIXME: Check that the sending process is allowed to write the specified property.
     forEachWebContentProcess([&](auto& webProcess, auto pageID) {
-        if (!webProcess.hasConnection() || &webProcess.connection() == &connection)
+        if (webProcess == process)
             return;
-        webProcess.send(Messages::WebPage::ProcessSyncDataChangedInAnotherProcess(data), pageID);
+        webProcess.send(Messages::WebPage::TopDocumentSyncDataChangedInAnotherProcess(data), pageID);
     });
 }
 
-void WebPageProxy::broadcastTopDocumentSyncData(IPC::Connection& connection, Ref<WebCore::DocumentSyncData>&& data)
+void WebPageProxy::broadcastAllDocumentSyncData(IPC::Connection& connection, Ref<WebCore::DocumentSyncData>&& data)
 {
+    Ref process = WebProcessProxy::fromConnection(connection);
+    MESSAGE_CHECK(process, &siteIsolatedProcess() == process.ptr());
     forEachWebContentProcess([&](auto& webProcess, auto pageID) {
-        if (!webProcess.hasConnection() || &webProcess.connection() == &connection)
+        if (webProcess == process)
             return;
-        webProcess.send(Messages::WebPage::TopDocumentSyncDataChangedInAnotherProcess(data), pageID);
+        webProcess.send(Messages::WebPage::AllTopDocumentSyncDataChangedInAnotherProcess(data), pageID);
     });
 }
 

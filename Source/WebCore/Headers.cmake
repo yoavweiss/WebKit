@@ -3615,10 +3615,12 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     ${WebCore_DERIVED_SOURCES_DIR}/CSSValueKeywords.h
     ${WebCore_DERIVED_SOURCES_DIR}/CommandLineAPIModuleSourceBuiltins.h
     ${WebCore_DERIVED_SOURCES_DIR}/DocumentSyncData.h
+    ${WebCore_DERIVED_SOURCES_DIR}/DocumentSyncClient.h
     ${WebCore_DERIVED_SOURCES_DIR}/EventInterfaces.h
     ${WebCore_DERIVED_SOURCES_DIR}/EventNames.h
     ${WebCore_DERIVED_SOURCES_DIR}/EventTargetInterfaces.h
     ${WebCore_DERIVED_SOURCES_DIR}/FrameTreeSyncData.h
+    ${WebCore_DERIVED_SOURCES_DIR}/FrameTreeSyncClient.h
     ${WebCore_DERIVED_SOURCES_DIR}/HTMLElementTypeHelpers.h
     ${WebCore_DERIVED_SOURCES_DIR}/HTMLNames.h
     ${WebCore_DERIVED_SOURCES_DIR}/HTTPHeaderNames.h
@@ -3660,8 +3662,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     ${WebCore_DERIVED_SOURCES_DIR}/MathMLNames.h
     ${WebCore_DERIVED_SOURCES_DIR}/Namespace.h
     ${WebCore_DERIVED_SOURCES_DIR}/NodeName.h
-    ${WebCore_DERIVED_SOURCES_DIR}/ProcessSyncClient.h
-    ${WebCore_DERIVED_SOURCES_DIR}/ProcessSyncData.h
     ${WebCore_DERIVED_SOURCES_DIR}/ReadableStreamInternalsBuiltins.h
     ${WebCore_DERIVED_SOURCES_DIR}/SVGNames.h
     ${WebCore_DERIVED_SOURCES_DIR}/Settings.h
