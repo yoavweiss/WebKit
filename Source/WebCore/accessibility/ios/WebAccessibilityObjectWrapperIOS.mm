@@ -649,6 +649,15 @@ static AccessibilityObjectWrapper *ancestorWithRole(const AXCoreObject& descenda
     return ancestor ? ancestor->wrapper() : nil;
 }
 
+// FIXME: Switch to exposing BEAccessibilityContainerTypeFieldset directly in the wrapper via browserAccessibilityContainerType.
+- (BOOL)accessibilityIsFieldset
+{
+    if (![self _prepareAccessibilityCall])
+        return NO;
+
+    return self.axBackingObject->isFieldset();
+}
+
 - (AccessibilityObjectWrapper *)_accessibilityFrameAncestor
 {
     if (![self _prepareAccessibilityCall])
