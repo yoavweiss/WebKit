@@ -327,6 +327,9 @@ void GPUProcessConnection::didInitialize(std::optional<GPUProcessConnectionInfo>
     WebProcess::singleton().protectedLibWebRTCCodecs()->setHasAV1HardwareDecoder(info->hasAV1HardwareDecoder);
 #endif
 #endif
+#if PLATFORM(COCOA) && ENABLE(VP9)
+    VP9TestingOverrides::singleton().setVP9HardwareDecoderEnabledOverride(info->hasVP9HardwareDecoder);
+#endif
 }
 
 bool GPUProcessConnection::waitForDidInitialize()

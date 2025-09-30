@@ -64,6 +64,13 @@ void VP9TestingOverrides::setHardwareDecoderDisabled(std::optional<bool>&& disab
         m_configurationChangedCallback(false);
 }
 
+void VP9TestingOverrides::setVP9HardwareDecoderEnabledOverride(std::optional<bool>&& disabled)
+{
+    m_vp9HardwareDecoderEnabledOverride = WTFMove(disabled);
+    if (m_configurationChangedCallback)
+        m_configurationChangedCallback(false);
+}
+
 void VP9TestingOverrides::setVP9DecoderDisabled(std::optional<bool>&& disabled)
 {
     m_vp9DecoderDisabled = WTFMove(disabled);
@@ -182,6 +189,17 @@ bool isVP8DecoderAvailable()
 }
 
 bool vp9HardwareDecoderAvailable()
+{
+    if (auto disabledForTesting = VP9TestingOverrides::singleton().hardwareDecoderDisabled())
+        return !*disabledForTesting;
+
+    if (auto vp9HardwareDecoderOverride = VP9TestingOverrides::singleton().vp9HardwareDecoderEnabledOverride())
+        return *vp9HardwareDecoderOverride;
+
+    return canLoad_VideoToolbox_VTIsHardwareDecodeSupported() && VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9);
+}
+
+bool vp9HardwareDecoderAvailableInProcess()
 {
     if (auto disabledForTesting = VP9TestingOverrides::singleton().hardwareDecoderDisabled())
         return !*disabledForTesting;

@@ -358,7 +358,7 @@ GPUConnectionToWebProcess::GPUConnectionToWebProcess(GPUProcess& gpuProcess, Web
     if (parameters.hasVP9HardwareDecoder)
         hasVP9HardwareDecoder = *parameters.hasVP9HardwareDecoder;
     else {
-        hasVP9HardwareDecoder = WebCore::vp9HardwareDecoderAvailable();
+        hasVP9HardwareDecoder = WebCore::vp9HardwareDecoderAvailableInProcess();
         gpuProcess.send(Messages::GPUProcessProxy::SetHasVP9HardwareDecoder(hasVP9HardwareDecoder));
     }
 #endif

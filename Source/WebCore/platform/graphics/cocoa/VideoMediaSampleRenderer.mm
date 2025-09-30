@@ -418,7 +418,7 @@ void VideoMediaSampleRenderer::enqueueSample(const MediaSample& sample, const Me
         // Only use a decompression session for vp8 or vp9 when software decoded.
         CMVideoFormatDescriptionRef videoFormatDescription = PAL::CMSampleBufferGetFormatDescription(cmSampleBuffer.get());
         auto fourCC = PAL::CMFormatDescriptionGetMediaSubType(videoFormatDescription);
-        needsDecompressionSession = fourCC == 'vp08' || (fourCC == 'vp09' && !vp9HardwareDecoderAvailable());
+        needsDecompressionSession = fourCC == 'vp08' || (fourCC == 'vp09' && !vp9HardwareDecoderAvailableInProcess());
         m_currentCodec = fourCC;
     }
 #endif
