@@ -470,7 +470,7 @@ else
     $jscPath = Pathname.new(jscArg).realpath
 end
 
-$progressMeter = ($verbosity == 0 and $stdout.tty? and $remoteHosts.length <= 1)
+$progressMeter = ($verbosity == 0 and $stdout.tty? and $remoteHosts.length <= 1 and !ENV["JSCTEST_noProgressMeter"])
 
 if $bundle
     $jscPath = $bundle + ".vm" + "JavaScriptCore.framework" + "Helpers" + "jsc"
