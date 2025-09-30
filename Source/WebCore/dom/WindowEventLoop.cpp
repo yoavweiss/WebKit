@@ -241,12 +241,12 @@ void WindowEventLoop::didFireIdleTimer()
     opportunisticallyRunIdleCallbacks();
 }
 
-void WindowEventLoop::queueMutationObserverCompoundMicrotask()
+void WindowEventLoop::queueMutationObserverCompoundMicrotask(ScriptExecutionContext& scriptExecutionContext)
 {
     if (m_mutationObserverCompoundMicrotaskQueuedFlag)
         return;
     m_mutationObserverCompoundMicrotaskQueuedFlag = true;
-    m_perpetualTaskGroupForSimilarOriginWindowAgents.queueMicrotask([weakThis = WeakPtr { *this }] {
+    m_perpetualTaskGroupForSimilarOriginWindowAgents.queueMicrotask(scriptExecutionContext, [weakThis = WeakPtr { *this }] {
         // We can't make a Ref to WindowEventLoop in the lambda capture as that would result in a reference cycle & leak.
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)
@@ -263,11 +263,11 @@ void WindowEventLoop::queueMutationObserverCompoundMicrotask()
     });
 }
 
-CustomElementQueue& WindowEventLoop::backupElementQueue()
+CustomElementQueue& WindowEventLoop::backupElementQueue(ScriptExecutionContext& scriptExecutionContext)
 {
     if (!m_processingBackupElementQueue) {
         m_processingBackupElementQueue = true;
-        m_perpetualTaskGroupForSimilarOriginWindowAgents.queueMicrotask([weakThis = WeakPtr { *this }] {
+        m_perpetualTaskGroupForSimilarOriginWindowAgents.queueMicrotask(scriptExecutionContext, [weakThis = WeakPtr { *this }] {
             // We can't make a Ref to WindowEventLoop in the lambda capture as that would result in a reference cycle & leak.
             RefPtr protectedThis = weakThis.get();
             if (!protectedThis)

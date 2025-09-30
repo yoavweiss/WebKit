@@ -534,8 +534,8 @@ void InspectorCanvasAgent::recordAction(CanvasRenderingContext& canvasRenderingC
 
     // Only enqueue one microtask for all actively recording canvases.
     if (m_recordingCanvasIdentifiers.isEmpty()) {
-        if (auto* scriptExecutionContext = inspectorCanvas->scriptExecutionContext()) {
-            scriptExecutionContext->eventLoop().queueMicrotask([weakThis = WeakPtr { *this }] {
+        if (RefPtr scriptExecutionContext = inspectorCanvas->scriptExecutionContext()) {
+            scriptExecutionContext->eventLoop().queueMicrotask(*scriptExecutionContext, [weakThis = WeakPtr { *this }] {
                 if (!weakThis)
                     return;
 

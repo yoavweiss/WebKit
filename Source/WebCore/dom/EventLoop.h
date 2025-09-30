@@ -205,7 +205,7 @@ public:
     WEBCORE_EXPORT void queueTask(TaskSource, EventLoop::TaskFunction&&);
 
     // https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-microtask
-    WEBCORE_EXPORT void queueMicrotask(EventLoop::TaskFunction&&);
+    WEBCORE_EXPORT void queueMicrotask(ScriptExecutionContext&, EventLoop::TaskFunction&&);
     WEBCORE_EXPORT void queueMicrotask(JSC::QueuedTask&&);
     MicrotaskQueue& microtaskQueue() { return protectedEventLoop()->microtaskQueue(); }
 

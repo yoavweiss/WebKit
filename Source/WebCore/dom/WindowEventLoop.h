@@ -48,12 +48,12 @@ public:
 
     virtual ~WindowEventLoop();
 
-    void queueMutationObserverCompoundMicrotask();
+    void queueMutationObserverCompoundMicrotask(ScriptExecutionContext&);
     Vector<GCReachableRef<HTMLSlotElement>>& signalSlotList() { return m_signalSlotList; }
     HashSet<RefPtr<MutationObserver>>& activeMutationObservers() { return m_activeObservers; }
     HashSet<RefPtr<MutationObserver>>& suspendedMutationObservers() { return m_suspendedObservers; }
 
-    CustomElementQueue& backupElementQueue();
+    CustomElementQueue& backupElementQueue(ScriptExecutionContext&);
 
     void scheduleIdlePeriod();
     void opportunisticallyRunIdleCallbacks(std::optional<MonotonicTime> deadline = std::nullopt);

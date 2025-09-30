@@ -32,6 +32,7 @@
 #include "WorkerGlobalScope.h"
 #include <JavaScriptCore/CatchScope.h>
 #include <JavaScriptCore/MicrotaskQueueInlines.h>
+#include <JavaScriptCore/VMEntryScopeInlines.h>
 #include <wtf/MainThread.h>
 #include <wtf/NeverDestroyed.h>
 #include <wtf/SetForScope.h>
@@ -125,6 +126,7 @@ void MicrotaskQueue::performMicrotaskCheckpoint()
     {
         SUPPRESS_UNCOUNTED_ARG auto& data = threadGlobalDataSingleton();
         auto* previousState = data.currentState();
+        JSC::VMEntryScope entryScope(vm, nullptr);
         m_microtaskQueue.performMicrotaskCheckpoint(vm,
             [&](JSC::QueuedTask& task) ALWAYS_INLINE_LAMBDA {
                 RefPtr dispatcher = downcast<WebCoreMicrotaskDispatcher>(task.dispatcher());
@@ -133,17 +135,17 @@ void MicrotaskQueue::performMicrotaskCheckpoint()
 
                 auto result = dispatcher->currentRunnability();
                 if (result == JSC::QueuedTask::Result::Executed) {
+                    auto* globalObject = task.globalObject();
+                    data.setCurrentState(globalObject);
+                    entryScope.setGlobalObject(globalObject);
                     switch (dispatcher->type()) {
                     case WebCoreMicrotaskDispatcher::Type::JavaScript: {
-                        auto* globalObject = task.globalObject();
-                        data.setCurrentState(globalObject);
                         runJSMicrotask(globalObject, vm, task);
                         break;
                     }
                     case WebCoreMicrotaskDispatcher::Type::None:
                     case WebCoreMicrotaskDispatcher::Type::UserGestureIndicator:
                     case WebCoreMicrotaskDispatcher::Type::Function:
-                        data.setCurrentState(previousState);
                         dispatcher->run(task);
                         break;
                     }
