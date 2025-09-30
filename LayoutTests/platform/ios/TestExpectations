@@ -4730,9 +4730,6 @@ webkit.org/b/257904 http/tests/site-isolation/draw-after-navigation.html [ Skip 
 webkit.org/b/257904 http/tests/site-isolation/draw-with-size-after-same-origin-navigation.html [ Skip ]
 webkit.org/b/257904 http/tests/site-isolation/page-zoom.html [ Skip ]
 
-# This test can't be enabled on iOS until EventSenderProxy::keyDown() is implemented on iOS.
-http/tests/site-isolation/key-events.html [ Skip ]
-
 # Initial css/compositing test import
 imported/w3c/web-platform-tests/css/compositing/mix-blend-mode/mix-blend-mode-both-parent-and-blended-with-3D-transform.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/compositing/mix-blend-mode/mix-blend-mode-parent-with-text.html [ ImageOnlyFailure ]
