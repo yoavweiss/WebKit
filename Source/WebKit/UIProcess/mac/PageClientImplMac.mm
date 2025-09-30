@@ -1173,6 +1173,11 @@ void PageClientImpl::didChangeLocalInspectorAttachment()
 #endif
 }
 
+RetainPtr<NSView> PageClient::protectedViewForPresentingRevealPopover() const
+{
+    return viewForPresentingRevealPopover();
+}
+
 } // namespace WebKit
 
 #endif // PLATFORM(MAC)

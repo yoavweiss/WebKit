@@ -85,7 +85,6 @@ UIProcess/mac/DisplayCaptureSessionManager.mm
 UIProcess/mac/PageClientImplMac.mm
 UIProcess/mac/SecItemShimProxy.cpp
 UIProcess/mac/TiledCoreAnimationDrawingAreaProxy.mm
-UIProcess/mac/ViewGestureControllerMac.mm
 UIProcess/mac/WKFullScreenWindowController.mm
 UIProcess/mac/WKImmediateActionController.mm
 UIProcess/mac/WKPrintingView.mm
@@ -94,7 +93,6 @@ UIProcess/mac/WKTextAnimationManagerMac.mm
 UIProcess/mac/WebContextMenuProxyMac.mm
 UIProcess/mac/WebDataListSuggestionsDropdownMac.mm
 UIProcess/mac/WebDateTimePickerMac.mm
-UIProcess/mac/WebPageProxyMac.mm
 UIProcess/mac/WebPopupMenuProxyMac.mm
 UIProcess/mac/WebViewImpl.mm
 WebProcess/GPU/webrtc/RemoteVideoFrameObjectHeapProxyProcessor.cpp

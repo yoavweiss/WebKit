@@ -29,5 +29,4 @@ UIProcess/mac/WKImmediateActionController.h
 UIProcess/mac/WKPrintingView.h
 UIProcess/mac/WKTextFinderClient.mm
 UIProcess/mac/WebDataListSuggestionsDropdownMac.mm
-UIProcess/mac/WebPageProxyMac.mm
 UIProcess/mac/WebViewImpl.mm
