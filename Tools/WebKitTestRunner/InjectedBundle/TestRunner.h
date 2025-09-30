@@ -181,7 +181,6 @@ public:
     void addUserStyleSheet(JSStringRef source, bool allFrames);
 
     // Text search testing.
-    void findStringMatchesInPage(JSContextRef, JSStringRef, JSValueRef optionsArray);
     void replaceFindMatchesAtIndices(JSContextRef, JSValueRef matchIndices, JSStringRef replacementText, bool selectionOnly);
 
     // Local storage
@@ -208,16 +207,10 @@ public:
     bool isPrinting() { return m_isPrinting; }
     void setPrinting() { m_isPrinting = true; }
 
-    // Authentication
-    void setAuthenticationUsername(JSStringRef);
-    void setAuthenticationPassword(JSStringRef);
-
     void setValueForUser(JSContextRef, JSValueRef element, JSStringRef value);
 
     // Audio testing.
     void setAudioResult(JSContextRef, JSValueRef data);
-
-    void setPluginSupportedMode(JSStringRef);
 
     WhatToDump whatToDump() const;
     void setWhatToDump(WhatToDump);
@@ -353,9 +346,6 @@ public:
     bool didCancelClientRedirect() const { return m_didCancelClientRedirect; }
     void setDidCancelClientRedirect(bool value) { m_didCancelClientRedirect = value; }
 
-    // Contextual menu actions
-    void setAllowedMenuActions(JSContextRef, JSValueRef);
-
     void clearTestRunnerCallbacks();
 
     void accummulateLogsForChannel(JSStringRef channel);
@@ -413,10 +403,6 @@ public:
 
     // Storage Access API
     void setRequestStorageAccessThrowsExceptionUntilReload(bool enabled);
-
-    // Open panel
-    void setOpenPanelFiles(JSContextRef, JSValueRef);
-    void setOpenPanelFilesMediaIcon(JSContextRef, JSValueRef);
 
     // Modal alerts
     void setShouldDismissJavaScriptAlertsAsynchronously(bool);

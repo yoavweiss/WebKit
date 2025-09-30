@@ -26,6 +26,7 @@
 #include "config.h"
 #include "TestController.h"
 
+#include "DataFunctions.h"
 #include "DictionaryFunctions.h"
 #include "EventSenderProxy.h"
 #include "Options.h"
@@ -38,6 +39,7 @@
 #include <WebKit/WKArray.h>
 #include <WebKit/WKAuthenticationChallenge.h>
 #include <WebKit/WKAuthenticationDecisionListener.h>
+#include <WebKit/WKBase.h>
 #include <WebKit/WKCast.h>
 #include <WebKit/WKContextConfigurationRef.h>
 #include <WebKit/WKContextPrivate.h>
@@ -117,6 +119,7 @@
 #if PLATFORM(WIN)
 #include <direct.h>
 #include <shlwapi.h>
+#include <wininet.h>
 #define getcwd _getcwd
 #define PATH_MAX _MAX_PATH
 #else
@@ -2096,7 +2099,13 @@ if (window.testRunner) {
     };
     testRunner.setObscuredContentInsets = (top, right, bottom, left) => post(['SetObscuredContentInsets', [top, right, bottom, left]]);
     testRunner.setResourceMonitorList = (rulesText) => post(['SetResourceMonitorList', rulesText]);
-
+    testRunner.findStringMatchesInPage = (target, options) => post(['FindStringMatches', { String: target, FindOptions: options }]);
+    testRunner.setAuthenticationUsername = username => post(['SetAuthenticationUsername', username]);
+    testRunner.setAuthenticationPassword = password => post(['SetAuthenticationPassword', password]);
+    testRunner.setPluginSupportedMode = mode => post(['SetPluginSupportedMode', mode]);
+    testRunner.setAllowedMenuActions = actions => post(['SetAllowedMenuActions', actions]);
+    testRunner.setOpenPanelFiles = files => post(['SetOpenPanelFileURLs', files]);
+    testRunner.setOpenPanelFilesMediaIcon = iconBytes => post(['SetOpenPanelFileURLsMediaIcon', iconBytes]);
 }
 )testRunnerJS";
 
@@ -2105,6 +2114,25 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, WKCompl
     TestController::singleton().didReceiveScriptMessage(message, [listener = WKRetainPtr { listener }] (WKTypeRef result) {
         WKCompletionListenerComplete(listener.get(), result);
     });
+}
+
+static WKRetainPtr<WKURLRef> makeOpenPanelURL(WKURLRef baseURL, const char* filePath)
+{
+#if OS(WINDOWS)
+    if (!PathIsRelativeA(filePath)) {
+        char fileURI[INTERNET_MAX_PATH_LENGTH];
+        DWORD fileURILength = INTERNET_MAX_PATH_LENGTH;
+        UrlCreateFromPathA(filePath, fileURI, &fileURILength, 0);
+        return adoptWK(WKURLCreateWithUTF8CString(fileURI));
+    }
+#else
+    WKRetainPtr<WKURLRef> fileURL;
+    if (filePath[0] == '/') {
+        fileURL = adoptWK(WKURLCreateWithUTF8CString("file://"));
+        baseURL = fileURL.get();
+    }
+#endif
+    return adoptWK(WKURLCreateWithBaseURL(baseURL, filePath));
 }
 
 void TestController::didReceiveScriptMessage(WKScriptMessageRef message, CompletionHandler<void(WKTypeRef)>&& completionHandler)
@@ -2514,6 +2542,84 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
 
     if (WKStringIsEqualToUTF8CString(command, "SetStatisticsShouldBlockThirdPartyCookiesExceptPartitioned"))
         return setStatisticsShouldBlockThirdPartyCookies(booleanValue(argument), ThirdPartyCookieBlockingPolicy::AllExceptPartitioned, WTFMove(completionHandler));
+
+    if (WKStringIsEqualToUTF8CString(command, "FindStringMatches")) {
+        auto argumentDictionary = dictionaryValue(argument);
+        auto string = stringValue(argumentDictionary, "String");
+        auto findOptions = findOptionsFromArray(arrayValue(argumentDictionary, "FindOptions"));
+        WKPageFindStringMatches(TestController::singleton().mainWebView()->page(), string, findOptions, 0);
+        completionHandler(nullptr);
+        return;
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "SetAuthenticationUsername")) {
+        WKStringRef username = stringValue(argument);
+        TestController::singleton().setAuthenticationUsername(toWTFString(username));
+        completionHandler(nullptr);
+        return;
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "SetAuthenticationPassword")) {
+        WKStringRef password = stringValue(argument);
+        TestController::singleton().setAuthenticationPassword(toWTFString(password));
+        completionHandler(nullptr);
+        return;
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "SetPluginSupportedMode")) {
+        WKStringRef mode = stringValue(argument);
+        TestController::singleton().setPluginSupportedMode(toWTFString(mode));
+        completionHandler(nullptr);
+        return;
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "SetAllowedMenuActions")) {
+        auto argumentArray = dynamic_wk_cast<WKArrayRef>(argument);
+        auto size = WKArrayGetSize(argumentArray);
+        Vector<String> actions;
+        actions.reserveInitialCapacity(size);
+        for (size_t index = 0; index < size; ++index)
+            actions.append(toWTFString(stringValue(WKArrayGetItemAtIndex(argumentArray, index))));
+        TestController::singleton().setAllowedMenuActions(actions);
+        completionHandler(nullptr);
+        return;
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "SetOpenPanelFileURLs")) {
+        const auto files = arrayValue(argument);
+        auto fileURLs = adoptWK(WKMutableArrayCreate());
+
+        const auto length = WKArrayGetSize(files);
+        for (size_t i = 0; i < length; i++) {
+            const auto file = WKArrayGetItemAtIndex(files, i);
+            const auto fileStr = toWTFString(dynamic_wk_cast<WKStringRef>(file)).utf8().data();
+            auto fileURL = makeOpenPanelURL(currentTestURL(), fileStr);
+            WKArrayAppendItem(fileURLs.get(), fileURL.get());
+        }
+
+        TestController::singleton().setOpenPanelFileURLs(fileURLs.get());
+        completionHandler(nullptr);
+        return;
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "SetOpenPanelFileURLsMediaIcon")) {
+#if PLATFORM(IOS_FAMILY)
+        const auto dictionary = dynamic_wk_cast<WKDictionaryRef>(argument);
+        const auto keys = WKDictionaryCopyKeys(dictionary);
+        const auto length = WKArrayGetSize(keys);
+        Vector<unsigned char> bytes;
+        for (size_t i = 0; i < length; i++) {
+            const auto key = WKArrayGetItemAtIndex(keys, i);
+            const auto keyStr = toWTFString(stringValue(key)).utf8().data();
+            const auto intValue = doubleValue(dictionary, keyStr);
+            bytes.append(static_cast<unsigned char>(intValue));
+        }
+        WKDataRef data = WKDataCreate(bytes.begin(), bytes.size());
+        TestController::singleton().setOpenPanelFileURLsMediaIcon(data);
+#endif
+        completionHandler(nullptr);
+        return;
+    }
 
     ASSERT_NOT_REACHED();
 }
