@@ -24,9 +24,9 @@
  */
 
 #include "pas_config.h"
-#include "pas_zero_memory.h"
 
 #if LIBPAS_ENABLED
+#include "pas_zero_memory.h"
 
 #include "pas_fast_megapage_table.h"
 
