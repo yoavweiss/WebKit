@@ -218,7 +218,7 @@ void PeerConnectionBackend::handleLogMessage(const WTFLogChannel& channel, WTFLo
         return;
 
     if (!m_logIdentifierString)
-        m_logIdentifierString = makeString(hex(m_logIdentifier));
+        m_logIdentifierString = makeString(m_logIdentifier);
 
     auto identifier = callSite.substring(leftParenthesisIndex + 1, rightParenthesisIndex - leftParenthesisIndex - 1);
     if (identifier != m_logIdentifierString)
