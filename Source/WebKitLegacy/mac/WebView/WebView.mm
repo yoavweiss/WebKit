@@ -200,6 +200,7 @@
 #import <WebCore/MutableStyleProperties.h>
 #import <WebCore/NativeImage.h>
 #import <WebCore/NetworkStorageSession.h>
+#import <WebCore/NodeDocument.h>
 #import <WebCore/NodeList.h>
 #import <WebCore/Notification.h>
 #import <WebCore/NotificationController.h>

@@ -50,6 +50,7 @@
 #include "RenderBoxInlines.h"
 #include "RenderBoxModelObjectInlines.h"
 #include "RenderDescendantIterator.h"
+#include "RenderElementStyleInlines.h"
 #include "RenderInline.h"
 #include "RenderLayer.h"
 #include "RenderLayoutState.h"

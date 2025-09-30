@@ -1408,6 +1408,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     dom/NativeNodeFilter.h
     dom/Node.h
     dom/NodeConstants.h
+    dom/NodeDocument.h
     dom/NodeFilter.h
     dom/NodeFilterCondition.h
     dom/NodeIdentifier.h
@@ -3061,6 +3062,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/RenderBoxModelObjectInlines.h
     rendering/RenderElement.h
     rendering/RenderElementInlines.h
+    rendering/RenderElementStyleInlines.h
     rendering/RenderEmbeddedObject.h
     rendering/RenderFlexibleBox.h
     rendering/RenderFrame.h

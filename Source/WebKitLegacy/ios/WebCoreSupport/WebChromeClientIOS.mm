@@ -58,7 +58,7 @@
 #import <WebCore/Icon.h>
 #import <WebCore/IntRect.h>
 #import <WebCore/LocalFrameInlines.h>
-#import <WebCore/NodeInlines.h>
+#import <WebCore/NodeDocument.h>
 #import <WebCore/PlatformScreen.h>
 #import <WebCore/RenderBox.h>
 #import <WebCore/RenderObject.h>

@@ -25,11 +25,13 @@
 #include "config.h"
 #include "EllipsisBoxPainter.h"
 
+#include "CSSPropertyNames.h"
 #include "InlineIteratorTextBox.h"
 #include "LineSelection.h"
 #include "PaintInfo.h"
 #include "RenderObjectDocument.h"
 #include "RenderView.h"
+#include "StyleTextShadow.h"
 
 namespace WebCore {
 

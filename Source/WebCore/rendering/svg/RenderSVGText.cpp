@@ -41,7 +41,7 @@
 #include "LegacyRenderSVGRoot.h"
 #include "PointerEventsHitRules.h"
 #include "RenderBoxModelObjectInlines.h"
-#include "RenderElementInlines.h"
+#include "RenderElementStyleInlines.h"
 #include "RenderIterator.h"
 #include "RenderObjectInlines.h"
 #include "RenderSVGBlockInlines.h"

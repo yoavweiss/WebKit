@@ -68,6 +68,7 @@
 #include "SVGURIReference.h"
 #include "Settings.h"
 #include "ShadowRoot.h"
+#include "StylableInlines.h"
 #include "StyleSelfAlignmentData.h"
 #include "StyleTextDecorationLine.h"
 #include "StyleUpdate.h"

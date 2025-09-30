@@ -39,6 +39,7 @@
 #include "SVGResourcesCache.h"
 #include "SVGTextFragment.h"
 #include "Settings.h"
+#include "StyleAppleColorFilter.h"
 #include "StyleTextShadow.h"
 #include "TextPainter.h"
 

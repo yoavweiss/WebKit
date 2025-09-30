@@ -29,6 +29,7 @@
 #include "PropertyCascade.h"
 #include "SelectorChecker.h"
 #include "SelectorMatchingState.h"
+#include <WebCore/RenderStyle.h>
 #include <WebCore/StyleChange.h>
 #include <WebCore/StyleUpdate.h>
 #include <WebCore/Styleable.h>

@@ -40,7 +40,9 @@
 #include <WebCore/ImageDocument.h>
 #include <WebCore/LocalFrameInlines.h>
 #include <WebCore/LocalFrameView.h>
+#include <WebCore/NodeDocument.h>
 #include <WebCore/Range.h>
+#include <WebCore/RenderStyleInlines.h>
 #include <WebCore/RenderView.h>
 #include <WebCore/TextIterator.h>
 #include <ranges>

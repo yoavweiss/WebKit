@@ -86,7 +86,7 @@
 #import <WebCore/LocalFrameView.h>
 #import <WebCore/ModalContainerTypes.h>
 #import <WebCore/NavigationAction.h>
-#import <WebCore/NodeInlines.h>
+#import <WebCore/NodeDocument.h>
 #import <WebCore/NotImplemented.h>
 #import <WebCore/Page.h>
 #import <WebCore/PlatformScreen.h>

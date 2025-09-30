@@ -41,6 +41,7 @@
 #include "InlineRunAndOffset.h"
 #include "LayoutInlineTextBox.h"
 #include "LayoutIntegrationLineLayout.h"
+#include "LogicalSelectionOffsetCachesInlines.h"
 #include "LineSelection.h"
 #include "LocalFrame.h"
 #include "LocalFrameView.h"
@@ -76,7 +77,6 @@
 #if PLATFORM(IOS_FAMILY)
 #include "Document.h"
 #include "EditorClient.h"
-#include "LogicalSelectionOffsetCaches.h"
 #include "Page.h"
 #include "SelectionGeometry.h"
 #endif

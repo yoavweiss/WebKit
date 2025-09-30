@@ -49,6 +49,7 @@
 #include "RenderStyleInlines.h"
 #include "RenderView.h"
 #include "StyleAnimations.h"
+#include "StylableInlines.h"
 #include "StyleCustomPropertyData.h"
 #include "StyleInterpolation.h"
 #include "StyleOriginatedAnimation.h"

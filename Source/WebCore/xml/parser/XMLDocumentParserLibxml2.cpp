@@ -50,6 +50,7 @@
 #include "LocalDOMWindow.h"
 #include "LocalFrame.h"
 #include "MIMETypeRegistry.h"
+#include "NodeDocument.h"
 #include "OriginAccessPatterns.h"
 #include "Page.h"
 #include "PendingScript.h"

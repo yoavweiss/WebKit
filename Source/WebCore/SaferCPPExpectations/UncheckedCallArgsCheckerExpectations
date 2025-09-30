@@ -506,7 +506,7 @@ rendering/LegacyInlineTextBox.cpp
 rendering/LegacyLineLayout.cpp
 rendering/LegacyRootInlineBox.cpp
 rendering/LineClampUpdater.h
-rendering/LogicalSelectionOffsetCaches.h
+rendering/LogicalSelectionOffsetCachesInlines.h
 rendering/MarkedText.cpp
 rendering/MotionPath.cpp
 rendering/OrderIterator.cpp
@@ -526,7 +526,7 @@ rendering/RenderDeprecatedFlexibleBox.cpp
 rendering/RenderDescendantIterator.h
 rendering/RenderElement.cpp
 rendering/RenderElement.h
-rendering/RenderElementInlines.h
+rendering/RenderElementStyleInlines.h
 rendering/RenderEmbeddedObject.cpp
 rendering/RenderFileUploadControl.cpp
 rendering/RenderFlexibleBox.cpp

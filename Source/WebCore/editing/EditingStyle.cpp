@@ -59,6 +59,7 @@
 #include "RenderElement.h"
 #include "RenderStyle.h"
 #include "SimpleRange.h"
+#include "StyleAppleColorFilter.h"
 #include "StyleColor.h"
 #include "StyleExtractor.h"
 #include "StyleFontSizeFunctions.h"

@@ -38,7 +38,7 @@
 #include <WebCore/GraphicsContext.h>
 #include <WebCore/HTMLFrameOwnerElement.h>
 #include <WebCore/HitTestResult.h>
-#include <WebCore/NodeInlines.h>
+#include <WebCore/NodeDocument.h>
 #include <WebCore/PolicyChecker.h>
 #include <WebCore/RemoteFrame.h>
 

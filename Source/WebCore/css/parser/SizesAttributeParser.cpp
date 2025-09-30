@@ -37,7 +37,6 @@
 #include "MediaQueryEvaluator.h"
 #include "MediaQueryParser.h"
 #include "MediaQueryParserContext.h"
-#include "RenderStyleInlines.h"
 #include "RenderView.h"
 #include "SizesCalcParser.h"
 #include "StyleLengthResolution.h"

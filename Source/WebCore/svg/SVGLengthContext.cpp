@@ -31,6 +31,7 @@
 #include "FontMetrics.h"
 #include "LegacyRenderSVGRoot.h"
 #include "LocalFrame.h"
+#include "RenderStyleInlines.h"
 #include "RenderView.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGSVGElement.h"

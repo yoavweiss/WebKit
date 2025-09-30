@@ -69,6 +69,7 @@
 #import "NodeName.h"
 #import "Quirks.h"
 #import "RenderImage.h"
+#import "RenderStyleInlines.h"
 #import "RenderText.h"
 #import "StyleExtractor.h"
 #import "StyleProperties.h"

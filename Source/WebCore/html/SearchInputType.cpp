@@ -41,8 +41,10 @@
 #include "KeyboardEvent.h"
 #include "NodeRenderStyle.h"
 #include "RenderSearchField.h"
+#include "RenderStyleInlines.h"
 #include "ScriptDisallowedScope.h"
 #include "ShadowRoot.h"
+#include "StylePreferredSize.h"
 #include "TextControlInnerElements.h"
 #include "UserAgentParts.h"
 #include <wtf/TZoneMallocInlines.h>

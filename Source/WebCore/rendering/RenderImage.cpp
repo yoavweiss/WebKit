@@ -56,6 +56,7 @@
 #include "RenderBoxModelObjectInlines.h"
 #include "RenderChildIterator.h"
 #include "RenderElementInlines.h"
+#include "RenderElementStyleInlines.h"
 #include "RenderFragmentedFlow.h"
 #include "RenderImageResourceStyleImage.h"
 #include "RenderObjectInlines.h"
@@ -73,7 +74,7 @@
 #include <wtf/TZoneMallocInlines.h>
 
 #if PLATFORM(IOS_FAMILY)
-#include "LogicalSelectionOffsetCaches.h"
+#include "LogicalSelectionOffsetCachesInlines.h"
 #include "SelectionGeometry.h"
 #endif
 

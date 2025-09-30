@@ -348,7 +348,7 @@ rendering/RenderCounter.cpp
 rendering/RenderDeprecatedFlexibleBox.cpp
 rendering/RenderElement.cpp
 rendering/RenderElement.h
-rendering/RenderElementInlines.h
+rendering/RenderElementStyleInlines.h
 rendering/RenderFileUploadControl.cpp
 rendering/RenderFlexibleBox.cpp
 rendering/RenderFragmentContainer.cpp

@@ -38,7 +38,7 @@
 #include "RenderBoxInlines.h"
 #include "RenderButton.h"
 #include "RenderDeprecatedFlexibleBox.h"
-#include "RenderElementInlines.h"
+#include "RenderElementStyleInlines.h"
 #include "RenderEmbeddedObject.h"
 #include "RenderFileUploadControl.h"
 #include "RenderFlexibleBox.h"

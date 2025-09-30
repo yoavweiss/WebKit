@@ -41,6 +41,8 @@
 #include "Frame.h"
 #include "HitTestResult.h"
 #include "InspectorInstrumentationPublic.h"
+#include "LocalFrame.h"
+#include "NodeDocument.h"
 #include "Page.h"
 #include "ResourceLoader.h"
 #include "ResourceLoaderIdentifier.h"

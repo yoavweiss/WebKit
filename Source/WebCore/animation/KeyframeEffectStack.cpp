@@ -31,7 +31,6 @@
 #include "CSSTransition.h"
 #include "Document.h"
 #include "KeyframeEffect.h"
-#include "RenderStyleInlines.h"
 #include "RotateTransformOperation.h"
 #include "ScaleTransformOperation.h"
 #include "Settings.h"

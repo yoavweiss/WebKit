@@ -33,10 +33,11 @@
 #include "Element.h"
 #include "KeyframeEffect.h"
 #include "RenderObject.h"
-#include "RenderStyleInlines.h"
 #include "StyleInterpolation.h"
 #include "StyleProperties.h"
 #include "StyleResolver.h"
+#include "StyleTransform.h"
+#include "StyleTranslate.h"
 #include "TransformOperations.h"
 #include "TranslateTransformOperation.h"
 #include <wtf/CryptographicallyRandomNumber.h>

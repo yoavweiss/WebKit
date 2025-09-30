@@ -37,7 +37,7 @@
 #include "RenderBoxInlines.h"
 #include "RenderBoxModelObjectInlines.h"
 #include "RenderButton.h"
-#include "RenderElementInlines.h"
+#include "RenderElementStyleInlines.h"
 #include "RenderText.h"
 #include "RenderTheme.h"
 #include "ShadowRoot.h"

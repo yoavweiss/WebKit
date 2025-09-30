@@ -35,6 +35,7 @@
 #include "CSSGridIntegerRepeatValue.h"
 #include "CSSGridLineNamesValue.h"
 #include "CSSPropertyNames.h"
+#include "RenderElementStyleInlines.h"
 #include "StyleExtractorConverter.h"
 #include "StyleExtractorSerializer.h"
 #include "StyleInterpolation.h"

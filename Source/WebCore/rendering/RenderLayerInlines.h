@@ -20,6 +20,7 @@
 #pragma once
 
 #include "RenderElementInlines.h"
+#include "RenderElementStyleInlines.h"
 #include "RenderLayer.h"
 #include "RenderObjectInlines.h"
 #include "RenderSVGResourceClipper.h"

@@ -37,7 +37,7 @@
 #include "ImageQualityController.h"
 #include "LayoutRepainter.h"
 #include "PointerEventsHitRules.h"
-#include "RenderElementInlines.h"
+#include "RenderElementStyleInlines.h"
 #include "RenderImageResource.h"
 #include "RenderLayer.h"
 #include "RenderObjectInlines.h"

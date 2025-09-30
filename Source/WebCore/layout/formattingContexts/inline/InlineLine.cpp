@@ -931,6 +931,11 @@ bool Line::Run::hasTextCombine() const
     return m_style.hasTextCombine();
 }
 
+InlineLayoutUnit Line::Run::letterSpacing() const
+{
+    return m_style.usedLetterSpacing();
+}
+
 }
 }
 

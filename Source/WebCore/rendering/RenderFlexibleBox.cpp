@@ -43,7 +43,7 @@
 #include "RenderBoxInlines.h"
 #include "RenderBoxModelObjectInlines.h"
 #include "RenderChildIterator.h"
-#include "RenderElementInlines.h"
+#include "RenderElementStyleInlines.h"
 #include "RenderLayer.h"
 #include "RenderLayoutState.h"
 #include "RenderObjectEnums.h"
@@ -51,6 +51,7 @@
 #include "RenderReplaced.h"
 #include "RenderSVGRoot.h"
 #include "RenderStyleConstants.h"
+#include "RenderStyleInlines.h"
 #include "RenderTable.h"
 #include "RenderView.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
@@ -64,6 +65,44 @@
 namespace WebCore {
 
 WTF_MAKE_TZONE_OR_ISO_ALLOCATED_IMPL(RenderFlexibleBox);
+
+RenderFlexibleBox::FlexLayoutItem::FlexLayoutItem(RenderBox& flexItem, LayoutUnit flexBaseContentSize, LayoutUnit mainAxisBorderAndPadding, LayoutUnit mainAxisMargin, std::pair<LayoutUnit, LayoutUnit> minMaxSizes, bool everHadLayout)
+    : renderer(flexItem)
+    , flexBaseContentSize(flexBaseContentSize)
+    , mainAxisBorderAndPadding(mainAxisBorderAndPadding)
+    , mainAxisMargin(mainAxisMargin)
+    , minMaxSizes(minMaxSizes)
+    , hypotheticalMainContentSize(constrainSizeByMinMax(flexBaseContentSize))
+    , frozen(false)
+    , everHadLayout(everHadLayout)
+{
+    ASSERT(!flexItem.isOutOfFlowPositioned());
+}
+
+LayoutUnit RenderFlexibleBox::FlexLayoutItem::hypotheticalMainAxisMarginBoxSize() const
+{
+    return hypotheticalMainContentSize + mainAxisBorderAndPadding + mainAxisMargin;
+}
+
+LayoutUnit RenderFlexibleBox::FlexLayoutItem::flexBaseMarginBoxSize() const
+{
+    return flexBaseContentSize + mainAxisBorderAndPadding + mainAxisMargin;
+}
+
+LayoutUnit RenderFlexibleBox::FlexLayoutItem::flexedMarginBoxSize() const
+{
+    return flexedContentSize + mainAxisBorderAndPadding + mainAxisMargin;
+}
+
+const RenderStyle& RenderFlexibleBox::FlexLayoutItem::style() const
+{
+    return renderer->style();
+}
+
+LayoutUnit RenderFlexibleBox::FlexLayoutItem::constrainSizeByMinMax(const LayoutUnit size) const
+{
+    return std::max(minMaxSizes.first, std::min(size, minMaxSizes.second));
+}
 
 struct RenderFlexibleBox::LineState {
     LineState(LayoutUnit crossAxisOffset, LayoutUnit crossAxisExtent, std::optional<BaselineAlignmentState> baselineAlignmentState, FlexLayoutItems&& flexLayoutItems)

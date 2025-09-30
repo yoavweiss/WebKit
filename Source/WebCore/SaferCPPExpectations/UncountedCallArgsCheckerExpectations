@@ -754,7 +754,7 @@ rendering/RenderBoxModelObject.cpp
 rendering/RenderButton.cpp
 rendering/RenderCounter.cpp
 rendering/RenderElement.cpp
-rendering/RenderElementInlines.h
+rendering/RenderElementStyleInlines.h
 rendering/RenderEmbeddedObject.cpp
 rendering/RenderFileUploadControl.cpp
 rendering/RenderFrameSet.cpp

@@ -27,6 +27,7 @@
 
 #include "InlineDisplayBoxInlines.h"
 #include "InlineIteratorBoxModernPath.h"
+#include "StyleTabSize.h"
 
 namespace WebCore {
 namespace InlineIterator {

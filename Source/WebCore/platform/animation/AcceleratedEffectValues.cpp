@@ -32,7 +32,7 @@
 #include "LengthFunctions.h"
 #include "MotionPath.h"
 #include "Path.h"
-#include "RenderElementInlines.h"
+#include "RenderElementStyleInlines.h"
 #include "RenderLayerModelObject.h"
 #include "RenderStyleInlines.h"
 #include "StyleLengthWrapper+Platform.h"

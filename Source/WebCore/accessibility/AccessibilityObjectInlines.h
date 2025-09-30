@@ -36,6 +36,7 @@
 #include <WebCore/FrameDestructionObserverInlines.h>
 #include <WebCore/HTMLParserIdioms.h>
 #include <WebCore/LocalFrame.h>
+#include <WebCore/NodeDocument.h>
 #include <WebCore/RenderInline.h>
 #include <WebCore/RenderLayer.h>
 #include <WebCore/SimpleRange.h>

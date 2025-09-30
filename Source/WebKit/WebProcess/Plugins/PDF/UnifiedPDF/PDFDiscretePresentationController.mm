@@ -42,6 +42,7 @@
 #include <WebCore/TimingFunction.h>
 #include <WebCore/TransformOperations.h>
 #include <WebCore/TransformationMatrix.h>
+#include <WebCore/TranslateTransformOperation.h>
 #include <pal/spi/mac/NSScrollViewSPI.h>
 #include <wtf/TZoneMallocInlines.h>
 

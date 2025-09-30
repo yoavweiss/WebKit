@@ -32,7 +32,7 @@
 #include "Grid.h"
 #include "GridArea.h"
 #include "GridLayoutFunctions.h"
-#include "RenderElementInlines.h"
+#include "RenderElementStyleInlines.h"
 #include "RenderGrid.h"
 #include "RenderObjectInlines.h"
 #include "RenderStyleConstants.h"
