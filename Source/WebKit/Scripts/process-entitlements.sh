@@ -182,6 +182,8 @@ function mac_process_network_entitlements()
         plistbuddy Add :com.apple.private.webkit.adattributiond bool YES
         plistbuddy Add :com.apple.private.webkit.webpush bool YES
         plistbuddy Add :com.apple.developer.hardened-process bool YES
+        # FIXME: This should be removed after crash investigation as part of <rdar://problem/160965793>
+        plistbuddy Add :com.apple.private.get-system-corpse bool YES
     fi
 }
 
