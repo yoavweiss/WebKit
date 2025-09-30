@@ -183,6 +183,9 @@ void WebFrameProxy::webProcessWillShutDown()
     for (auto& childFrame : std::exchange(m_childFrames, { }))
         childFrame->webProcessWillShutDown();
 
+    if (RefPtr page = m_page.get())
+        page->inspectorController().destroyInspectorTarget(WebFrameInspectorTarget::toTargetID(frameID()));
+
     m_page = nullptr;
 
     if (RefPtr activeListener = m_activeListener) {
