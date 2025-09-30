@@ -43,6 +43,7 @@
 
 #include <optional>
 #include <simd/simd.h>
+#include <span>
 #include <wtf/MachSendRight.h>
 #include <wtf/RetainPtr.h>
 #include <wtf/Vector.h>

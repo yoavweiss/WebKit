@@ -23,6 +23,7 @@
 #include "cmakeconfig.h"
 #endif
 
+#ifdef __cplusplus
 #include "ExportMacros.h"
 
 #include "WebGPU.h"
@@ -36,3 +37,4 @@
 #include <wtf/Platform.h>
 
 #include <wtf/RetainPtr.h>
+#endif
