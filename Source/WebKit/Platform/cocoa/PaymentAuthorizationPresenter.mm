@@ -213,42 +213,42 @@ static NSError *toNSError(const WebCore::ApplePayError& error)
             
         case WebCore::ApplePayErrorContactField::AddressLines:
             pkContactField = PKContactFieldPostalAddress;
-            postalAddressKey = getCNPostalAddressStreetKey();
+            postalAddressKey = getCNPostalAddressStreetKeySingleton();
             break;
             
         case WebCore::ApplePayErrorContactField::SubLocality:
             pkContactField = PKContactFieldPostalAddress;
-            postalAddressKey = getCNPostalAddressSubLocalityKey();
+            postalAddressKey = getCNPostalAddressSubLocalityKeySingleton();
             break;
             
         case WebCore::ApplePayErrorContactField::Locality:
             pkContactField = PKContactFieldPostalAddress;
-            postalAddressKey = getCNPostalAddressCityKey();
+            postalAddressKey = getCNPostalAddressCityKeySingleton();
             break;
             
         case WebCore::ApplePayErrorContactField::PostalCode:
             pkContactField = PKContactFieldPostalAddress;
-            postalAddressKey = getCNPostalAddressPostalCodeKey();
+            postalAddressKey = getCNPostalAddressPostalCodeKeySingleton();
             break;
             
         case WebCore::ApplePayErrorContactField::SubAdministrativeArea:
             pkContactField = PKContactFieldPostalAddress;
-            postalAddressKey = getCNPostalAddressSubAdministrativeAreaKey();
+            postalAddressKey = getCNPostalAddressSubAdministrativeAreaKeySingleton();
             break;
             
         case WebCore::ApplePayErrorContactField::AdministrativeArea:
             pkContactField = PKContactFieldPostalAddress;
-            postalAddressKey = getCNPostalAddressStateKey();
+            postalAddressKey = getCNPostalAddressStateKeySingleton();
             break;
             
         case WebCore::ApplePayErrorContactField::Country:
             pkContactField = PKContactFieldPostalAddress;
-            postalAddressKey = getCNPostalAddressCountryKey();
+            postalAddressKey = getCNPostalAddressCountryKeySingleton();
             break;
             
         case WebCore::ApplePayErrorContactField::CountryCode:
             pkContactField = PKContactFieldPostalAddress;
-            postalAddressKey = getCNPostalAddressISOCountryCodeKey();
+            postalAddressKey = getCNPostalAddressISOCountryCodeKeySingleton();
             break;
         }
 

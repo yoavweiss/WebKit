@@ -40,17 +40,17 @@
 SOFT_LINK_PRIVATE_FRAMEWORK(AXRuntime);
 
 SOFT_LINK_CONSTANT(AXRuntime, UIAccessibilityTokenFontName, NSString *);
-#define AccessibilityTokenFontName getUIAccessibilityTokenFontName()
+#define AccessibilityTokenFontName getUIAccessibilityTokenFontNameSingleton()
 SOFT_LINK_CONSTANT(AXRuntime, UIAccessibilityTokenFontFamily, NSString *);
-#define AccessibilityTokenFontFamily getUIAccessibilityTokenFontFamily()
+#define AccessibilityTokenFontFamily getUIAccessibilityTokenFontFamilySingleton()
 SOFT_LINK_CONSTANT(AXRuntime, UIAccessibilityTokenFontSize, NSString *);
-#define AccessibilityTokenFontSize getUIAccessibilityTokenFontSize()
+#define AccessibilityTokenFontSize getUIAccessibilityTokenFontSizeSingleton()
 SOFT_LINK_CONSTANT(AXRuntime, UIAccessibilityTokenBold, NSString *);
-#define AccessibilityTokenBold getUIAccessibilityTokenBold()
+#define AccessibilityTokenBold getUIAccessibilityTokenBoldSingleton()
 SOFT_LINK_CONSTANT(AXRuntime, UIAccessibilityTokenItalic, NSString *);
-#define AccessibilityTokenItalic getUIAccessibilityTokenItalic()
+#define AccessibilityTokenItalic getUIAccessibilityTokenItalicSingleton()
 SOFT_LINK_CONSTANT(AXRuntime, UIAccessibilityTokenAttachment, NSString *);
-#define AccessibilityTokenAttachment getUIAccessibilityTokenAttachment()
+#define AccessibilityTokenAttachment getUIAccessibilityTokenAttachmentSingleton()
 
 #endif // PLATFORM(IOS_FAMILY)
 
