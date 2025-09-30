@@ -39,7 +39,7 @@ namespace Style {
 // <line-width> = <length [0,∞]> | thin | medium | thick
 // https://drafts.csswg.org/css-backgrounds/#typedef-line-width
 struct LineWidth {
-    using Length = Style::Length<CSS::Nonnegative>;
+    using Length = Style::Length<CSS::NonnegativeUnzoomed>;
 
     Length value;
 
@@ -69,17 +69,23 @@ template<> struct CSSValueConversion<LineWidth> { auto operator()(BuilderState&,
 // MARK: - Evaluate
 
 template<typename Result> struct Evaluation<LineWidth, Result> {
-    constexpr auto operator()(const LineWidth& value, ZoomNeeded token) -> Result
+    constexpr auto operator()(const LineWidth& value, ZoomFactor zoom) -> Result
     {
-        return Result(value.value.resolveZoom(token));
+        auto result = value.value.resolveZoom(zoom);
+
+        // Any original result that was >= 1 should not be allowed to fall below 1. This keeps border lines from vanishing.
+        if (zoom < 1.0f && result < 1.0f && value.value.unresolvedValue() >= 1.0f)
+            return Result(1.0f); // CSS::Keyword::Thin equivalent
+
+        return Result(result);
     }
 };
 
 template<> struct Evaluation<LineWidthBox, FloatBoxExtent> {
-    auto operator()(const LineWidthBox&, ZoomNeeded) -> FloatBoxExtent;
+    auto operator()(const LineWidthBox&, ZoomFactor) -> FloatBoxExtent;
 };
 template<> struct Evaluation<LineWidthBox, LayoutBoxExtent> {
-    auto operator()(const LineWidthBox&, ZoomNeeded) -> LayoutBoxExtent;
+    auto operator()(const LineWidthBox&, ZoomFactor) -> LayoutBoxExtent;
 };
 
 } // namespace Style

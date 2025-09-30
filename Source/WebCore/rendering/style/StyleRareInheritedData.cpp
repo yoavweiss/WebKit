@@ -173,6 +173,7 @@ StyleRareInheritedData::StyleRareInheritedData()
 #endif
     , listStyleType(RenderStyle::initialListStyleType())
     , blockEllipsis(RenderStyle::initialBlockEllipsis())
+    , enableEvaluationTimeZoom(false)
 {
 }
 
@@ -279,6 +280,7 @@ inline StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedDa
 #endif
     , listStyleType(o.listStyleType)
     , blockEllipsis(o.blockEllipsis)
+    , enableEvaluationTimeZoom(o.enableEvaluationTimeZoom)
 {
     ASSERT(o == *this, "StyleRareInheritedData should be properly copied.");
 }
@@ -392,7 +394,8 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && customProperties == o.customProperties
         && listStyleImage == o.listStyleImage
         && listStyleType == o.listStyleType
-        && blockEllipsis == o.blockEllipsis;
+        && blockEllipsis == o.blockEllipsis
+        && enableEvaluationTimeZoom == o.enableEvaluationTimeZoom;
 }
 
 bool StyleRareInheritedData::hasColorFilters() const
@@ -549,6 +552,8 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
 
     LOG_IF_DIFFERENT(listStyleType);
     LOG_IF_DIFFERENT(blockEllipsis);
+
+    LOG_IF_DIFFERENT(enableEvaluationTimeZoom);
 }
 #endif
 

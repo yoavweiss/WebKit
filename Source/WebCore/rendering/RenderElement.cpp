@@ -2120,15 +2120,15 @@ static bool useShrinkWrappedFocusRingForOutlineStyleAuto()
 
 static void drawFocusRing(GraphicsContext& context, const Path& path, const RenderStyle& style, const Color& color)
 {
-    context.drawFocusRing(path, Style::evaluate<float>(style.outlineWidth(), Style::ZoomNeeded { }), color);
+    context.drawFocusRing(path, Style::evaluate<float>(style.outlineWidth(), style.usedZoomForLength()), color);
 }
 
 static void drawFocusRing(GraphicsContext& context, Vector<FloatRect> rects, const RenderStyle& style, const Color& color)
 {
 #if PLATFORM(MAC)
-    context.drawFocusRing(rects, 0, Style::evaluate<float>(style.outlineWidth(), Style::ZoomNeeded { }), color);
+    context.drawFocusRing(rects, 0, Style::evaluate<float>(style.outlineWidth(), style.usedZoomForLength()), color);
 #else
-    context.drawFocusRing(rects, Style::evaluate<float>(style.outlineOffset(), Style::ZoomNeeded { }), Style::evaluate<float>(style.outlineWidth(), Style::ZoomNeeded { }), color);
+    context.drawFocusRing(rects, Style::evaluate<float>(style.outlineOffset(), Style::ZoomNeeded { }), Style::evaluate<float>(style.outlineWidth(), style.usedZoomForLength()), color);
 #endif
 }
 

@@ -1364,4 +1364,17 @@ inline bool RenderStyle::fontCascadeEqual(const RenderStyle& other) const
         || m_inheritedData->fontData->fontCascade == other.m_inheritedData->fontData->fontCascade;
 }
 
+inline bool RenderStyle::enableEvaluationTimeZoom() const
+{
+    return m_rareInheritedData->enableEvaluationTimeZoom;
+}
+
+inline Style::ZoomFactor RenderStyle::usedZoomForLength() const
+{
+    if (enableEvaluationTimeZoom())
+        return Style::ZoomFactor(usedZoom());
+
+    return Style::ZoomFactor(1.0f);
+}
+
 } // namespace WebCore

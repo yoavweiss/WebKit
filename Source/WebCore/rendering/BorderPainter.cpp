@@ -309,7 +309,7 @@ void BorderPainter::paintOutline(const LayoutRect& paintRect) const
     if (!borderStyle || *borderStyle == BorderStyle::None)
         return;
 
-    auto outlineWidth = Style::evaluate<LayoutUnit>(styleToUse.outlineWidth(), Style::ZoomNeeded { });
+    auto outlineWidth = Style::evaluate<LayoutUnit>(styleToUse.outlineWidth(), styleToUse.usedZoomForLength());
     auto outlineOffset = Style::evaluate<LayoutUnit>(styleToUse.outlineOffset(), Style::ZoomNeeded { });
 
     auto outerRect = paintRect;
@@ -352,7 +352,7 @@ void BorderPainter::paintOutline(const LayoutPoint& paintOffset, const Vector<La
 
     auto& styleToUse = m_renderer->style();
     auto outlineOffset = Style::evaluate<float>(styleToUse.outlineOffset(), Style::ZoomNeeded { });
-    auto outlineWidth = Style::evaluate<float>(styleToUse.outlineWidth(), Style::ZoomNeeded { });
+    auto outlineWidth = Style::evaluate<float>(styleToUse.outlineWidth(), styleToUse.usedZoomForLength());
     auto deviceScaleFactor = document().deviceScaleFactor();
 
     Vector<FloatRect> pixelSnappedRects;

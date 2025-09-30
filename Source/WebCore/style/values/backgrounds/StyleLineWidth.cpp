@@ -57,40 +57,38 @@ auto CSSValueConversion<LineWidth>::operator()(BuilderState& state, const CSSVal
         }
     }
 
-    // Any original result that was >= 1 should not be allowed to fall below 1. This keeps border lines from vanishing.
+    // For LineWidth, we need special logic to prevent lines from vanishing
+    // while respecting the NonnegativeUnzoomed system which expects
+    // conversions to not apply zoom
+    auto unzoomedResult = primitiveValue->resolveAsLength<float>(state.cssToLengthConversionData().copyWithAdjustedZoom(1.0));
 
-    auto result = primitiveValue->resolveAsLength<float>(state.cssToLengthConversionData());
-    if (state.style().usedZoom() < 1.0f && result < 1.0f) {
-        auto originalLength = primitiveValue->resolveAsLength<float>(state.cssToLengthConversionData().copyWithAdjustedZoom(1.0));
-        if (originalLength >= 1.0f)
-            return CSS::Keyword::Thin { };
-    }
+    if (auto minimumLineWidth = 1.0f / state.document().deviceScaleFactor(); unzoomedResult > 0.0f && unzoomedResult < minimumLineWidth)
+        unzoomedResult = minimumLineWidth;
 
-    if (auto minimumLineWidth = 1.0f / state.document().deviceScaleFactor(); result > 0.0f && result < minimumLineWidth)
-        return LineWidth::Length { minimumLineWidth };
+    unzoomedResult = floorToDevicePixel(unzoomedResult, state.document().deviceScaleFactor());
 
-    return LineWidth::Length { floorToDevicePixel(result, state.document().deviceScaleFactor()) };
+    return LineWidth::Length { unzoomedResult };
 }
 
 // MARK: - Evaluate
 
-auto Evaluation<LineWidthBox, FloatBoxExtent>::operator()(const LineWidthBox& value, ZoomNeeded token) -> FloatBoxExtent
+auto Evaluation<LineWidthBox, FloatBoxExtent>::operator()(const LineWidthBox& value, ZoomFactor zoom) -> FloatBoxExtent
 {
     return {
-        evaluate<float>(value.top(), token),
-        evaluate<float>(value.right(), token),
-        evaluate<float>(value.bottom(), token),
-        evaluate<float>(value.left(), token),
+        evaluate<float>(value.top(), zoom),
+        evaluate<float>(value.right(), zoom),
+        evaluate<float>(value.bottom(), zoom),
+        evaluate<float>(value.left(), zoom),
     };
 }
 
-auto Evaluation<LineWidthBox, LayoutBoxExtent>::operator()(const LineWidthBox& value, ZoomNeeded token) -> LayoutBoxExtent
+auto Evaluation<LineWidthBox, LayoutBoxExtent>::operator()(const LineWidthBox& value, ZoomFactor zoom) -> LayoutBoxExtent
 {
     return {
-        evaluate<LayoutUnit>(value.top(), token),
-        evaluate<LayoutUnit>(value.right(), token),
-        evaluate<LayoutUnit>(value.bottom(), token),
-        evaluate<LayoutUnit>(value.left(), token),
+        evaluate<LayoutUnit>(value.top(), zoom),
+        evaluate<LayoutUnit>(value.right(), zoom),
+        evaluate<LayoutUnit>(value.bottom(), zoom),
+        evaluate<LayoutUnit>(value.left(), zoom),
     };
 }
 

@@ -139,10 +139,10 @@ template<CSS::Range R, typename V> struct PrimitiveNumeric<CSS::Length<R, V>> {
         return value;
     }
 
-    constexpr auto resolveZoom(float zoom) const
+    constexpr auto resolveZoom(ZoomFactor zoom) const
         requires (range.zoomOptions == WebCore::CSS::RangeZoomOptions::Unzoomed)
     {
-        return value * zoom;
+        return value * zoom.value;
     }
 
     constexpr auto unresolvedValue() const { return value; }

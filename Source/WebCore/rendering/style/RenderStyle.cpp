@@ -418,6 +418,11 @@ void RenderStyle::copyContentFrom(const RenderStyle& other)
     m_nonInheritedData.access().miscData.access().content = other.m_nonInheritedData->miscData->content;
 }
 
+void RenderStyle::setEnableEvaluationTimeZoom(bool value)
+{
+    SET_VAR(m_rareInheritedData, enableEvaluationTimeZoom, value);
+}
+
 void RenderStyle::copyPseudoElementsFrom(const RenderStyle& other)
 {
     if (!other.m_cachedPseudoStyles)
@@ -3078,20 +3083,20 @@ static LayoutUnit computeOutset(const OutsetValue& outsetValue, LayoutUnit borde
 LayoutBoxExtent RenderStyle::imageOutsets(const Style::BorderImage& image) const
 {
     return {
-        computeOutset(image.outset().values.top(), Style::evaluate<LayoutUnit>(borderTopWidth(), Style::ZoomNeeded { })),
-        computeOutset(image.outset().values.right(), Style::evaluate<LayoutUnit>(borderRightWidth(), Style::ZoomNeeded { })),
-        computeOutset(image.outset().values.bottom(), Style::evaluate<LayoutUnit>(borderBottomWidth(), Style::ZoomNeeded { })),
-        computeOutset(image.outset().values.left(), Style::evaluate<LayoutUnit>(borderLeftWidth(), Style::ZoomNeeded { })),
+        computeOutset(image.outset().values.top(), Style::evaluate<LayoutUnit>(borderTopWidth(), usedZoomForLength())),
+        computeOutset(image.outset().values.right(), Style::evaluate<LayoutUnit>(borderRightWidth(), usedZoomForLength())),
+        computeOutset(image.outset().values.bottom(), Style::evaluate<LayoutUnit>(borderBottomWidth(), usedZoomForLength())),
+        computeOutset(image.outset().values.left(), Style::evaluate<LayoutUnit>(borderLeftWidth(), usedZoomForLength())),
     };
 }
 
 LayoutBoxExtent RenderStyle::imageOutsets(const Style::MaskBorder& image) const
 {
     return {
-        computeOutset(image.outset().values.top(), Style::evaluate<LayoutUnit>(borderTopWidth(), Style::ZoomNeeded { })),
-        computeOutset(image.outset().values.right(), Style::evaluate<LayoutUnit>(borderRightWidth(), Style::ZoomNeeded { })),
-        computeOutset(image.outset().values.bottom(), Style::evaluate<LayoutUnit>(borderBottomWidth(), Style::ZoomNeeded { })),
-        computeOutset(image.outset().values.left(), Style::evaluate<LayoutUnit>(borderLeftWidth(), Style::ZoomNeeded { })),
+        computeOutset(image.outset().values.top(), Style::evaluate<LayoutUnit>(borderTopWidth(), usedZoomForLength())),
+        computeOutset(image.outset().values.right(), Style::evaluate<LayoutUnit>(borderRightWidth(), usedZoomForLength())),
+        computeOutset(image.outset().values.bottom(), Style::evaluate<LayoutUnit>(borderBottomWidth(), usedZoomForLength())),
+        computeOutset(image.outset().values.left(), Style::evaluate<LayoutUnit>(borderLeftWidth(), usedZoomForLength())),
     };
 }
 
@@ -3388,7 +3393,7 @@ Style::LineWidth RenderStyle::outlineWidth() const
     if (outline.style() == OutlineStyle::None)
         return 0_css_px;
     if (outlineStyle() == OutlineStyle::Auto)
-        return Style::LineWidth { std::max(Style::evaluate<float>(outline.width(), Style::ZoomNeeded { }), RenderTheme::platformFocusRingWidth()) };
+        return Style::LineWidth { std::max(Style::evaluate<float>(outline.width(), usedZoomForLength()), RenderTheme::platformFocusRingWidth()) };
     return outline.width();
 }
 
@@ -3396,13 +3401,13 @@ Style::Length<> RenderStyle::outlineOffset() const
 {
     auto& outline = m_nonInheritedData->backgroundData->outline;
     if (outlineStyle() == OutlineStyle::Auto)
-        return Style::Length<> { Style::evaluate<float>(outline.offset(), Style::ZoomNeeded { }) + RenderTheme::platformFocusRingOffset(Style::evaluate<float>(outline.width(), Style::ZoomNeeded { })) };
+        return Style::Length<> { Style::evaluate<float>(outline.offset(), Style::ZoomNeeded { }) + RenderTheme::platformFocusRingOffset(Style::evaluate<float>(outline.width(), usedZoomForLength())) };
     return outline.offset();
 }
 
 float RenderStyle::outlineSize() const
 {
-    return std::max(0.0f, Style::evaluate<float>(outlineWidth(), Style::ZoomNeeded { }) + Style::evaluate<float>(outlineOffset(), Style::ZoomNeeded { }));
+    return std::max(0.0f, Style::evaluate<float>(outlineWidth(), usedZoomForLength()) + Style::evaluate<float>(outlineOffset(), Style::ZoomNeeded { }));
 }
 
 CheckedRef<const FontCascade> RenderStyle::checkedFontCascade() const
