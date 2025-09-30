@@ -1,5 +1,6 @@
 Platform/cf/ModuleCF.cpp
 
+Platform/cocoa/CocoaHelpers.mm
 Platform/cocoa/CocoaImage.mm @nonARC
 Platform/cocoa/ImageAnalysisUtilities.mm @nonARC
 Platform/cocoa/LayerHostingContext.mm @nonARC

@@ -335,6 +335,7 @@ UIProcess/API/Cocoa/_WKWebPushDaemonConnection.mm @nonARC
 UIProcess/API/Cocoa/_WKWebPushMessage.mm @nonARC
 UIProcess/API/Cocoa/_WKWebPushSubscriptionData.mm @nonARC
 UIProcess/API/Cocoa/_WKWebExtension.mm @nonARC
+UIProcess/API/Cocoa/_WKWebExtensionSidebar.mm
 UIProcess/API/Cocoa/_WKWebPushAction.mm @nonARC
 UIProcess/API/Cocoa/_WKWebsiteDataSize.mm @nonARC
 UIProcess/API/Cocoa/_WKWebsiteDataStoreConfiguration.mm @nonARC
@@ -377,6 +378,19 @@ UIProcess/API/Cocoa/WKSnapshotConfiguration.mm @nonARC
 UIProcess/API/Cocoa/WKURLSchemeTask.mm @nonARC
 UIProcess/API/Cocoa/WKUserContentController.mm @nonARC
 UIProcess/API/Cocoa/WKUserScript.mm @nonARC
+UIProcess/API/Cocoa/WKWebExtension.mm
+UIProcess/API/Cocoa/WKWebExtensionAction.mm
+UIProcess/API/Cocoa/WKWebExtensionCommand.mm
+UIProcess/API/Cocoa/WKWebExtensionContext.mm
+UIProcess/API/Cocoa/WKWebExtensionController.mm
+UIProcess/API/Cocoa/WKWebExtensionControllerConfiguration.mm
+UIProcess/API/Cocoa/WKWebExtensionDataRecord.mm
+UIProcess/API/Cocoa/WKWebExtensionDataType.mm
+UIProcess/API/Cocoa/WKWebExtensionMatchPattern.mm
+UIProcess/API/Cocoa/WKWebExtensionMessagePort.mm
+UIProcess/API/Cocoa/WKWebExtensionPermission.mm
+UIProcess/API/Cocoa/WKWebExtensionTabConfiguration.mm
+UIProcess/API/Cocoa/WKWebExtensionWindowConfiguration.mm
 UIProcess/API/Cocoa/WKWebsiteDataRecord.mm @nonARC
 UIProcess/API/Cocoa/WKWebsiteDataStore.mm @nonARC
 UIProcess/API/Cocoa/WKWebView.mm @nonARC
