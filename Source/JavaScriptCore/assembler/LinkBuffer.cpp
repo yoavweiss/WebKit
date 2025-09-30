@@ -413,20 +413,20 @@ void LinkBuffer::copyCompactAndLinkCode(MacroAssembler& macroAssembler, JITCompi
             target = std::bit_cast<uint8_t*>(to);
         else
             target = codeOutData + to - executableOffsetFor(to);
-        if (shouldCopyDirectlyToJITRegion)
-            MacroAssembler::link<memcpyRepatch>(linkRecord, outData + linkRecord.from(), location, target);
-        else
+        if (shouldCopyDirectlyToJITRegion && !g_jscConfig.useFastJITPermissions)
             MacroAssembler::link<jitMemcpyRepatch>(linkRecord, outData + linkRecord.from(), location, target);
+        else
+            MacroAssembler::link<memcpyRepatch>(linkRecord, outData + linkRecord.from(), location, target);
     }
 
     size_t compactSize = writePtr + initialSize - readPtr;
     if (!m_executableMemory) {
         size_t nopSizeInBytes = initialSize - compactSize;
 
-        if (shouldCopyDirectlyToJITRegion)
-            Assembler::fillNops<memcpyRepatch>(outData + compactSize, nopSizeInBytes);
-        else
+        if (shouldCopyDirectlyToJITRegion && !g_jscConfig.useFastJITPermissions)
             Assembler::fillNops<jitMemcpyRepatch>(outData + compactSize, nopSizeInBytes);
+        else
+            Assembler::fillNops<memcpyRepatch>(outData + compactSize, nopSizeInBytes);
     }
     if (g_jscConfig.useFastJITPermissions)
         threadSelfRestrict<MemoryRestriction::kRwxToRx>();
