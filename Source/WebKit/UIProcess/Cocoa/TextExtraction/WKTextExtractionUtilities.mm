@@ -29,6 +29,7 @@
 #if USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
 
 #import "TextExtractionFilter.h"
+#import "WKWebViewInternal.h"
 #import "_WKTextExtractionInternal.h"
 #import <WebCore/TextExtraction.h>
 #import <wtf/Box.h>
