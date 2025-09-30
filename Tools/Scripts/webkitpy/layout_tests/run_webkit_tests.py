@@ -546,9 +546,6 @@ def _set_up_derived_options(port, options):
     if options.platform in ["gtk", "wpe"]:
         options.webkit_test_runner = True
 
-    options.local_dns_resolver = port.port_name in ["mac", "ios-simulator", "visionos-simulator"]
-
-
 def run(port, options, args, logging_stream):
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG if options.debug_rwt_logging else logging.INFO)
