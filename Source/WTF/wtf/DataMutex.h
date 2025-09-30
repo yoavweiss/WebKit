@@ -125,7 +125,6 @@ private:
     {
         DATA_MUTEX_CHECK(m_dataMutex.m_currentMutexHolder != &Thread::currentSingleton()); // Thread attempted recursive lock on non-recursive lock.
         mutex().lock();
-        TSAN_ANNOTATE_HAPPENS_AFTER(&m_dataMutex.m_mutex);
         m_isLocked = true;
 #if ENABLE_DATA_MUTEX_CHECKS
         m_dataMutex.m_currentMutexHolder = &Thread::currentSingleton();
@@ -140,7 +139,6 @@ private:
         m_dataMutex.m_currentMutexHolder = nullptr;
 #endif
         m_isLocked = false;
-        TSAN_ANNOTATE_HAPPENS_BEFORE(&m_dataMutex.m_mutex);
         mutex().unlock();
     }
 };
