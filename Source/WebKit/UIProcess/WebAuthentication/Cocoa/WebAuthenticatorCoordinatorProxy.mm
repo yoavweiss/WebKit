@@ -319,7 +319,8 @@ RetainPtr<NSArray> WebAuthenticatorCoordinatorProxy::requestsForRegistration(con
     RetainPtr<ASPublicKeyCredentialClientData> clientData = adoptNS([allocASPublicKeyCredentialClientDataInstance() initWithChallenge:toNSData(options.challenge).get() origin:callerOrigin.toString().createNSString().get()]);
     if (includePlatformRequest) {
         RetainPtr provider = adoptNS([allocASAuthorizationPlatformPublicKeyCredentialProviderInstance() initWithRelyingPartyIdentifier:options.rp.id.createNSString().get()]);
-        RetainPtr request = adoptNS([provider createCredentialRegistrationRequestWithClientData:clientData.get() name:options.user.name.createNSString().get() userID:toNSData(options.user.id).get()]);
+        // Despite the API naming, this returns an autoreleased value and there is no need to adopt.
+        RetainPtr request = [provider createCredentialRegistrationRequestWithClientData:clientData.get() name:options.user.name.createNSString().get() userID:toNSData(options.user.id).get()];
 
         if (m_isConditionalMediation && [request respondsToSelector:@selector(setRequestStyle:)])
             request.get().requestStyle = ASAuthorizationPlatformPublicKeyCredentialRegistrationRequestStyleConditional;
@@ -350,10 +351,13 @@ RetainPtr<NSArray> WebAuthenticatorCoordinatorProxy::requestsForRegistration(con
     if (includeSecurityKeyRequest) {
         RetainPtr provider = adoptNS([allocASAuthorizationSecurityKeyPublicKeyCredentialProviderInstance() initWithRelyingPartyIdentifier:options.rp.id.createNSString().get()]);
         RetainPtr<ASAuthorizationSecurityKeyPublicKeyCredentialRegistrationRequest> request;
-        if ([provider respondsToSelector:@selector(createCredentialRegistrationRequestWithClientData:displayName:name:userID:)])
-            request = adoptNS([provider createCredentialRegistrationRequestWithClientData:clientData.get() displayName:options.user.displayName.createNSString().get() name:options.user.name.createNSString().get() userID:toNSData(options.user.id).get()]);
-        else
-            request = adoptNS([provider createCredentialRegistrationRequestWithChallenge:toNSData(options.challenge).get() displayName:options.user.displayName.createNSString().get() name:options.user.name.createNSString().get() userID:toNSData(options.user.id).get()]);
+        if ([provider respondsToSelector:@selector(createCredentialRegistrationRequestWithClientData:displayName:name:userID:)]) {
+            // Despite the API naming, this returns an autoreleased value and there is no need to adopt.
+            request = [provider createCredentialRegistrationRequestWithClientData:clientData.get() displayName:options.user.displayName.createNSString().get() name:options.user.name.createNSString().get() userID:toNSData(options.user.id).get()];
+        } else {
+            // Despite the API naming, this returns an autoreleased value and there is no need to adopt.
+            request = [provider createCredentialRegistrationRequestWithChallenge:toNSData(options.challenge).get() displayName:options.user.displayName.createNSString().get() name:options.user.name.createNSString().get() userID:toNSData(options.user.id).get()];
+        }
         request.get().attestationPreference = toAttestationConveyancePreference(options.attestation).get();
         RetainPtr<NSMutableArray<ASAuthorizationPublicKeyCredentialParameters *>> parameters = adoptNS([[NSMutableArray alloc] init]);
         for (auto alg : options.pubKeyCredParams)
@@ -420,7 +424,8 @@ RetainPtr<NSArray> WebAuthenticatorCoordinatorProxy::requestsForAssertion(const 
     }
     if ([platformAllowedCredentials count] || ![crossPlatformAllowedCredentials count]) {
         RetainPtr provider = adoptNS([allocASAuthorizationPlatformPublicKeyCredentialProviderInstance() initWithRelyingPartyIdentifier:options.rpId.createNSString().get()]);
-        RetainPtr request = adoptNS([provider createCredentialAssertionRequestWithClientData:clientData.get()]);
+        // Despite the API naming, this returns an autoreleased value and there is no need to adopt.
+        RetainPtr request = [provider createCredentialAssertionRequestWithClientData:clientData.get()];
         if (platformAllowedCredentials)
             request.get().allowedCredentials = platformAllowedCredentials.get();
         if (options.extensions && options.extensions->largeBlob) {
@@ -464,10 +469,13 @@ RetainPtr<NSArray> WebAuthenticatorCoordinatorProxy::requestsForAssertion(const 
     if (!m_isConditionalMediation && ([crossPlatformAllowedCredentials count] || ![platformAllowedCredentials count])) {
         RetainPtr provider = adoptNS([allocASAuthorizationSecurityKeyPublicKeyCredentialProviderInstance() initWithRelyingPartyIdentifier:options.rpId.createNSString().get()]);
         RetainPtr<ASAuthorizationSecurityKeyPublicKeyCredentialAssertionRequest> request;
-        if ([provider respondsToSelector:@selector(createCredentialAssertionRequestWithClientData:)])
-            request = adoptNS([provider createCredentialAssertionRequestWithClientData:clientData.get()]);
-        else
-            request = adoptNS([provider createCredentialAssertionRequestWithChallenge:toNSData(options.challenge).get()]);
+        if ([provider respondsToSelector:@selector(createCredentialAssertionRequestWithClientData:)]) {
+            // Despite the API naming, this returns an autoreleased value and there is no need to adopt.
+            request = [provider createCredentialAssertionRequestWithClientData:clientData.get()];
+        } else {
+            // Despite the API naming, this returns an autoreleased value and there is no need to adopt.
+            request = [provider createCredentialAssertionRequestWithChallenge:toNSData(options.challenge).get()];
+        }
         if (crossPlatformAllowedCredentials)
             request.get().allowedCredentials = crossPlatformAllowedCredentials.get();
         if (options.extensions && !options.extensions->appid.isNull())
