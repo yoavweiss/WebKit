@@ -2519,7 +2519,3 @@ webkit.org/b/280234 imported/w3c/web-platform-tests/html/dom/idlharness.https.ht
 webkit.org/b/299131 [ Release ] inspector/unit-tests/target-manager.html [ Pass Crash ]
 
 webkit.org/b/299322 imported/w3c/web-platform-tests/uievents/mouse/mouse_boundary_events_after_reappending_last_over_target.tentative.html [ Pass Failure ]
-
-# webkit.org/b/299553 REGRESSION(300277@main): [macOS Debug] 2x in fast/selectors/style-invalidation-hover-change are flaky failure
-[ Debug ] fast/selectors/style-invalidation-hover-change-siblings.html [ Pass Failure ]
-[ Debug ] fast/selectors/style-invalidation-hover-change-descendants.html [ Pass Failure ]
