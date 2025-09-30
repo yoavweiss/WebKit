@@ -813,26 +813,27 @@ WI.DOMTreeElement = class DOMTreeElement extends WI.TreeElement
         let isEditableNode = this.representedObject.nodeType() === Node.ELEMENT_NODE && this.editable;
         let isNonShadowEditable = isEditableNode && (!this.representedObject.isInUserAgentShadowTree() || WI.DOMManager.supportsEditingUserAgentShadowTrees());
         let alreadyEditingHTML = this._htmlEditElement && WI.isBeingEdited(this._htmlEditElement);
+        let openTagTreeElement = this.isElementCloseTag ? this.treeOutline.findTreeElement(this.representedObject) : this;
 
         if (isEditableNode) {
             if (!DOMTreeElement.ForbiddenClosingTagElements.has(this.representedObject.nodeNameInCorrectCase())) {
                 subMenus.add.appendItem(WI.UIString("Child", "A submenu item of 'Add' to append DOM nodes to the selected DOM node"), () => {
-                    this._addHTML();
+                    openTagTreeElement._addHTML();
                 }, alreadyEditingHTML);
             }
 
             subMenus.add.appendItem(WI.UIString("Previous Sibling", "A submenu item of 'Add' to add DOM nodes before the selected DOM node"), () => {
-                this._addPreviousSibling();
+                openTagTreeElement._addPreviousSibling();
             }, alreadyEditingHTML);
 
             subMenus.add.appendItem(WI.UIString("Next Sibling", "A submenu item of 'Add' to add DOM nodes after the selected DOM node"), () => {
-                this._addNextSibling();
+                openTagTreeElement._addNextSibling();
             }, alreadyEditingHTML);
         }
 
         if (isNonShadowEditable) {
             subMenus.add.appendItem(WI.UIString("Attribute"), () => {
-                this._addNewAttribute();
+                openTagTreeElement._addNewAttribute();
             });
         }
 
