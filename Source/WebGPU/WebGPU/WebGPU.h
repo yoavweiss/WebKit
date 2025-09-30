@@ -43,7 +43,6 @@
 
 #include <array>
 #include <optional>
-#include <span>
 #include <wtf/Forward.h>
 #include <wtf/StdLibExtras.h>
 
