@@ -6,7 +6,6 @@ Shared/API/Cocoa/_WKFrameHandle.mm
 Shared/API/Cocoa/_WKRemoteObjectInterface.mm
 Shared/API/c/mac/WKURLRequestNS.mm
 Shared/API/c/mac/WKURLResponseNS.mm
-Shared/Cocoa/APIObject.mm
 Shared/Cocoa/ArgumentCodersCocoa.mm
 Shared/Cocoa/CompletionHandlerCallChecker.mm
 Shared/Cocoa/CoreIPCContacts.mm
