@@ -56,7 +56,6 @@ namespace Style {
 class BuilderState;
 
 FontSelectionValue fontWeightFromCSSValueDeprecated(const CSSValue&);
-FontSelectionValue fontWeightFromCSSValue(BuilderState&, const CSSValue&);
 
 FontSelectionValue fontStretchFromCSSValueDeprecated(const CSSValue&);
 

@@ -271,13 +271,13 @@ inline void BuilderState::setFontDescriptionVariationSettings(FontVariationSetti
     m_style.mutableFontDescriptionWithoutUpdate().setVariationSettings(WTFMove(variationSettings));
 }
 
-inline void BuilderState::setFontDescriptionWeight(FontSelectionValue weight)
+inline void BuilderState::setFontDescriptionWeight(FontWeight weight)
 {
-    if (m_style.fontDescription().weight() == weight)
+    if (m_style.fontDescription().weight() == weight.platform())
         return;
 
     m_fontDirty = true;
-    m_style.mutableFontDescriptionWithoutUpdate().setWeight(weight);
+    m_style.mutableFontDescriptionWithoutUpdate().setWeight(weight.platform());
 }
 
 inline void BuilderState::setFontDescriptionWidth(FontWidth width)

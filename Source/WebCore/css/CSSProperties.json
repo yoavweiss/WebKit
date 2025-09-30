@@ -724,12 +724,13 @@
                 "lighter"
             ],
             "codegen-properties": {
-                "animation-wrapper": "FontWeightWrapper",
-                "animation-wrapper-requires-override-parameters": [],
+                "animation-wrapper": "StyleTypeWrapper",
+                "animation-wrapper-requires-render-style": true,
                 "font-description-name-for-methods": "Weight",
+                "font-property-uses-render-style-for-access": true,
                 "font-property": true,
                 "high-priority": true,
-                "style-converter": "FontWeight",
+                "style-converter": "StyleType<FontWeight>",
                 "parser-grammar": "<font-weight-absolute> | bolder | lighter",
                 "parser-exported": true
             },

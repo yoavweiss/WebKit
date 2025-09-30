@@ -182,7 +182,6 @@ public:
 
     static Ref<CSSValue> convertFontFamily(ExtractorState&, const AtomString&);
     static Ref<CSSValue> convertFontSizeAdjust(ExtractorState&, const FontSizeAdjust&);
-    static Ref<CSSValue> convertFontWeight(ExtractorState&, FontSelectionValue);
     static Ref<CSSValue> convertFontFeatureSettings(ExtractorState&, const FontFeatureSettings&);
     static Ref<CSSValue> convertFontVariationSettings(ExtractorState&, const FontVariationSettings&);
 
@@ -1036,11 +1035,6 @@ inline Ref<CSSValue> ExtractorConverter::convertFontSizeAdjust(ExtractorState& s
         return CSSPrimitiveValue::create(*value);
 
     return CSSValuePair::create(convert(state, metric), CSSPrimitiveValue::create(*value));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertFontWeight(ExtractorState&, FontSelectionValue fontWeight)
-{
-    return CSSPrimitiveValue::create(static_cast<float>(fontWeight));
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertFontFeatureSettings(ExtractorState& state, const FontFeatureSettings& fontFeatureSettings)

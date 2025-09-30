@@ -85,38 +85,6 @@ FontSelectionValue fontWeightFromCSSValueDeprecated(const CSSValue& value)
     }
 }
 
-FontSelectionValue fontWeightFromCSSValue(BuilderState& builderState, const CSSValue& value)
-{
-    RefPtr primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return { };
-
-    auto& conversionData = builderState.cssToLengthConversionData();
-
-    if (primitiveValue->isNumber())
-        return FontSelectionValue(clampTo<float>(primitiveValue->resolveAsNumber(conversionData), 1, 1000));
-
-    ASSERT(primitiveValue->isValueID());
-    auto valueID = primitiveValue->valueID();
-
-    if (CSSPropertyParserHelpers::isSystemFontShorthand(valueID))
-        return SystemFontDatabase::singleton().systemFontShorthandWeight(CSSPropertyParserHelpers::lowerFontShorthand(valueID));
-
-    switch (valueID) {
-    case CSSValueNormal:
-        return normalWeightValue();
-    case CSSValueBold:
-        return boldWeightValue();
-    case CSSValueBolder:
-        return FontCascadeDescription::bolderWeight(conversionData.parentStyle()->fontDescription().weight());
-    case CSSValueLighter:
-        return FontCascadeDescription::lighterWeight(conversionData.parentStyle()->fontDescription().weight());
-    default:
-        ASSERT_NOT_REACHED();
-        return normalWeightValue();
-    }
-}
-
 static FontSelectionValue fontWeightFromUnresolvedFontWeight(const CSSPropertyParserHelpers::UnresolvedFontWeight& unresolvedWeight, const FontCascadeDescription& fontDescription)
 {
     return WTF::switchOn(unresolvedWeight,

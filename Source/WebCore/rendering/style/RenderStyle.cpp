@@ -2634,10 +2634,10 @@ void RenderStyle::setFontVariationSettings(FontVariationSettings settings)
     setFontDescription(WTFMove(description));
 }
 
-void RenderStyle::setFontWeight(FontSelectionValue value)
+void RenderStyle::setFontWeight(Style::FontWeight value)
 {
     auto description = fontDescription();
-    description.setWeight(value);
+    description.setWeight(value.platform());
     setFontDescription(WTFMove(description));
 }
 
