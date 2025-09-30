@@ -117,9 +117,27 @@ PlacedGridItems GridFormattingContext::constructPlacedGridItems(const GridAreas&
 {
     PlacedGridItems placedGridItems;
     placedGridItems.reserveInitialCapacity(gridAreas.size());
-    for (auto [ unplacedGridItem, gridAreaLines ] : gridAreas)
-        placedGridItems.constructAndAppend(unplacedGridItem, gridAreaLines);
+    for (auto [ unplacedGridItem, gridAreaLines ] : gridAreas) {
 
+        CheckedRef gridItemStyle = unplacedGridItem.m_layoutBox->style();
+        PlacedGridItem::ComputedSizes inlineAxisSizes {
+            gridItemStyle->width(),
+            gridItemStyle->minWidth(),
+            gridItemStyle->maxWidth(),
+            gridItemStyle->marginLeft(),
+            gridItemStyle->marginRight()
+        };
+
+        PlacedGridItem::ComputedSizes blockAxisSizes {
+            gridItemStyle->height(),
+            gridItemStyle->minHeight(),
+            gridItemStyle->maxHeight(),
+            gridItemStyle->marginTop(),
+            gridItemStyle->marginBottom()
+        };
+
+        placedGridItems.constructAndAppend(unplacedGridItem, gridAreaLines, inlineAxisSizes, blockAxisSizes);
+    }
     return placedGridItems;
 }
 

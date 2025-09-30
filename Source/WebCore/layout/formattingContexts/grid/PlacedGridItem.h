@@ -36,8 +36,19 @@ class UnplacedGridItem;
 
 class PlacedGridItem {
 public:
+    struct ComputedSizes {
+        Style::PreferredSize preferredSize;
+        Style::MinimumSize minimumSize;
+        Style::MaximumSize maximumSize;
 
-    PlacedGridItem(const UnplacedGridItem&, GridAreaLines);
+        Style::MarginEdge marginStart;
+        Style::MarginEdge marginEnd;
+    };
+
+    PlacedGridItem(const UnplacedGridItem&, GridAreaLines, ComputedSizes inlineAxisSizes, ComputedSizes blockAxisSizes);
+
+    const ComputedSizes& inlineAxisSizes() const { return m_inlineAxisSizes; }
+    const ComputedSizes& blockAxisSizes() const { return m_blockAxisSizes; }
 
     size_t columnStartLine() const { return m_gridAreaLines.columnStartLine; }
     size_t columnEndLine() const { return m_gridAreaLines.columnEndLine; }
@@ -46,6 +57,9 @@ public:
 
 private:
     const CheckedRef<const ElementBox> m_layoutBox;
+
+    const ComputedSizes m_inlineAxisSizes;
+    const ComputedSizes m_blockAxisSizes;
 
     GridAreaLines m_gridAreaLines;
 };

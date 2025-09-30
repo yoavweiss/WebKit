@@ -60,6 +60,7 @@ private:
     std::pair<Style::GridPosition, Style::GridPosition> m_columnPosition;
     std::pair<Style::GridPosition, Style::GridPosition> m_rowPosition;
 
+    friend class GridFormattingContext;
     friend class PlacedGridItem;
     friend void add(Hasher&, const WebCore::Layout::UnplacedGridItem&);
 };
