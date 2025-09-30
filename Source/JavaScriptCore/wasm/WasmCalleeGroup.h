@@ -158,7 +158,7 @@ public:
     }
 
 #if ENABLE(WEBASSEMBLY_BBQJIT) || ENABLE(WEBASSEMBLY_OMGJIT)
-    void installOptimizedCallee(const AbstractLocker&, const ModuleInformation&, FunctionCodeIndex, Ref<OptimizingJITCallee>&&, const FixedBitVector& outgoingJITDirectCallees) WTF_REQUIRES_LOCK(m_lock);
+    bool installOptimizedCallee(const AbstractLocker&, const ModuleInformation&, FunctionCodeIndex, Ref<OptimizingJITCallee>&&, const FixedBitVector& outgoingJITDirectCallees) WTF_REQUIRES_LOCK(m_lock);
 #endif
 
 #if ENABLE(WEBASSEMBLY_BBQJIT)
@@ -252,7 +252,7 @@ private:
     void ensureOptimizedCalleesSlow(const AbstractLocker&) WTF_REQUIRES_LOCK(m_lock);
 
 #if ENABLE(WEBASSEMBLY_OMGJIT) || ENABLE(WEBASSEMBLY_BBQJIT)
-    void startInstallingCallee(const AbstractLocker&, FunctionCodeIndex, OptimizingJITCallee&) WTF_REQUIRES_LOCK(m_lock);
+    bool startInstallingCallee(const AbstractLocker&, FunctionCodeIndex, OptimizingJITCallee&) WTF_REQUIRES_LOCK(m_lock);
     void finalizeInstallingCallee(const AbstractLocker&, FunctionCodeIndex) WTF_REQUIRES_LOCK(m_lock);
     void updateCallsitesToCallUs(const AbstractLocker&, CodeLocationLabel<WasmEntryPtrTag> entrypoint, FunctionCodeIndex functionIndex) WTF_REQUIRES_LOCK(m_lock);
     void reportCallees(const AbstractLocker&, JITCallee* caller, const FixedBitVector& callees) WTF_REQUIRES_LOCK(m_lock);
