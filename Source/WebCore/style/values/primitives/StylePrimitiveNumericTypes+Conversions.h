@@ -31,7 +31,6 @@
 #include "CSSToLengthConversionData.h"
 #include "CalculationValue.h"
 #include "FloatConversion.h"
-#include "Settings.h"
 #include "StyleBuilderState.h"
 #include "StylePrimitiveNumericTypes.h"
 
@@ -55,13 +54,7 @@ template<auto R, typename V> struct ConversionDataSpecializer<CSS::LengthRaw<R, 
                 ? state.cssToLengthConversionData().copyWithAdjustedZoom(1.0f)
                 : state.cssToLengthConversionData();
         } else if constexpr (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed) {
-            if (state.document().settings().evaluationTimeZoomEnabled())
-                return state.cssToLengthConversionData().copyWithAdjustedZoom(1.0f);
-
-            return state.useSVGZoomRulesForLength()
-                ? state.cssToLengthConversionData().copyWithAdjustedZoom(1.0f)
-                : state.cssToLengthConversionData();
-
+            return state.cssToLengthConversionData().copyWithAdjustedZoom(1.0f);
         }
     }
 };
@@ -245,7 +238,6 @@ template<auto R, typename V, typename... Rest> LengthPercentage<R, V> canonicali
 
 // Out of line to avoid inclusion of RenderStyleInlines.h
 float adjustForZoom(float, const RenderStyle&);
-bool shouldUseEvaluationTimeZoom(const RenderStyle&);
 
 // Length requires a specialized implementation due to zoom adjustment.
 template<auto R, typename V> struct ToCSS<Length<R, V>> {
@@ -254,10 +246,7 @@ template<auto R, typename V> struct ToCSS<Length<R, V>> {
         if constexpr (R.zoomOptions == CSS::RangeZoomOptions::Default) {
             return CSS::LengthRaw<R, V> { value.unit, adjustForZoom(value.unresolvedValue(), style) };
         } else if constexpr (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed) {
-            if (shouldUseEvaluationTimeZoom(style))
-                return CSS::LengthRaw<R, V> { value.unit, value.unresolvedValue() };
-
-            return CSS::LengthRaw<R, V> { value.unit, adjustForZoom(value.unresolvedValue(), style) };
+            return CSS::LengthRaw<R, V> { value.unit, value.unresolvedValue() };
         }
     }
 };

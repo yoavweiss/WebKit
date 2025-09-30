@@ -30,7 +30,6 @@
 #include <WebCore/PseudoElementIdentifier.h>
 #include <WebCore/StylePrimitiveNumeric+Forward.h>
 #include <WebCore/StyleTextDecorationLine.h>
-#include <WebCore/StyleWebKitBorderSpacing.h>
 #include <WebCore/WritingMode.h>
 #include <unicode/utypes.h>
 #include <wtf/CheckedRef.h>
@@ -409,6 +408,7 @@ using TransformOriginXY = Position;
 using TransformOriginY = PositionY;
 using TransformOriginZ = Length<>;
 using Transitions = CoordinatedValueList<Transition>;
+using WebkitBorderSpacing = Length<CSS::Nonnegative>;
 using WebkitBoxFlex = Number<CSS::All, float>;
 using WebkitBoxFlexGroup = Integer<CSS::Nonnegative>;
 using WebkitBoxOrdinalGroup = Integer<CSS::Positive>;
@@ -766,8 +766,7 @@ public:
 
     inline float zoom() const;
     inline float usedZoom() const;
-    inline Style::ZoomFactor usedZoomForLength() const;
-
+    
     inline TextZoom textZoom() const;
 
     const Length& specifiedLineHeight() const;
@@ -1767,9 +1766,6 @@ public:
     inline void setFill(Style::SVGPaint&&);
     inline void setVisitedLinkFill(Style::SVGPaint&&);
     static inline Style::SVGPaint initialFill();
-
-    inline bool enableEvaluationTimeZoom() const;
-    void setEnableEvaluationTimeZoom(bool);
 
     inline Style::Opacity fillOpacity() const;
     inline void setFillOpacity(Style::Opacity);

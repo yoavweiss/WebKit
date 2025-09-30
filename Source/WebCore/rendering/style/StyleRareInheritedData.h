@@ -230,7 +230,7 @@ public:
 #endif
     Style::ListStyleType listStyleType;
     Style::BlockEllipsis blockEllipsis;
-    PREFERRED_TYPE(bool) unsigned enableEvaluationTimeZoom : 1;
+
 private:
     StyleRareInheritedData();
     StyleRareInheritedData(const StyleRareInheritedData&);

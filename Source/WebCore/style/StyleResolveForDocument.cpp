@@ -108,8 +108,6 @@ RenderStyle resolveForDocument(const Document& document)
     fontCascade.update(WTFMove(fontSelector));
     documentStyle.setFontCascade(WTFMove(fontCascade));
 
-    documentStyle.setEnableEvaluationTimeZoom(document.settings().evaluationTimeZoomEnabled());
-
     return documentStyle;
 }
 

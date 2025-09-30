@@ -65,10 +65,5 @@ float adjustForZoom(float value, const RenderStyle& style)
     return adjustFloatForAbsoluteZoom(value, style);
 }
 
-bool shouldUseEvaluationTimeZoom(const RenderStyle& style)
-{
-    return style.enableEvaluationTimeZoom();
-}
-
 } // namespace Style
 } // namespace WebCore

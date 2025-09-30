@@ -1629,7 +1629,6 @@ public:
     bool isModelElementIntersectingViewport(HTMLModelElement&);
 #endif
 
-    void setEvaluationTimeZoom(bool value);
 private:
     explicit Internals(Document&);
 

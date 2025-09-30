@@ -8064,13 +8064,4 @@ bool Internals::isModelElementIntersectingViewport(HTMLModelElement& element)
 }
 #endif
 
-void Internals::setEvaluationTimeZoom(bool value)
-{
-    auto* document = contextDocument();
-    if (!document || !document->view())
-        return;
-
-    document->protectedPage()->settings().setEvaluationTimeZoomEnabled(value);
-}
-
 } // namespace WebCore

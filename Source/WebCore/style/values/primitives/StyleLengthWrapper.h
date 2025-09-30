@@ -293,12 +293,12 @@ template<LengthWrapperBaseDerived T, typename Result> struct Evaluation<T, Resul
         return value.m_value.template valueForLengthWrapperDataWithLazyMaximum<Result, Result>(value.evaluationKind(), [&] ALWAYS_INLINE_LAMBDA { return maximumValue; }, token);
     }
 
-    auto operator()(const T& value, NOESCAPE const Invocable<Result()> auto& lazyMaximumValueFunctor, ZoomFactor zoom) -> Result
+    auto operator()(const T& value, NOESCAPE const Invocable<Result()> auto& lazyMaximumValueFunctor, float zoom) -> Result
         requires (T::Fixed::range.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
         return value.m_value.template valueForLengthWrapperDataWithLazyMaximum<Result, Result>(value.evaluationKind(), lazyMaximumValueFunctor, zoom);
     }
-    auto operator()(const T& value, Result maximumValue, ZoomFactor zoom) -> Result
+    auto operator()(const T& value, Result maximumValue, float zoom) -> Result
         requires (T::Fixed::range.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
         return value.m_value.template valueForLengthWrapperDataWithLazyMaximum<Result, Result>(value.evaluationKind(), [&] ALWAYS_INLINE_LAMBDA { return maximumValue; }, zoom);
@@ -325,12 +325,12 @@ template<LengthWrapperBaseDerived T, typename Result> struct MinimumEvaluation<T
         return value.m_value.template minimumValueForLengthWrapperDataWithLazyMaximum<LayoutUnit, LayoutUnit>(value.evaluationKind(), [&] ALWAYS_INLINE_LAMBDA { return LayoutUnit(maximumValue); }, token);
     }
 
-    auto operator()(const T& value, NOESCAPE const Invocable<Result()> auto& lazyMaximumValueFunctor, ZoomFactor zoom) -> Result
+    auto operator()(const T& value, NOESCAPE const Invocable<Result()> auto& lazyMaximumValueFunctor, float zoom) -> Result
         requires (T::Fixed::range.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
         return value.m_value.template minimumValueForLengthWrapperDataWithLazyMaximum<LayoutUnit, LayoutUnit>(value.evaluationKind(), lazyMaximumValueFunctor, zoom);
     }
-    auto operator()(const T& value, Result maximumValue, ZoomFactor zoom) -> Result
+    auto operator()(const T& value, Result maximumValue, float zoom) -> Result
         requires (T::Fixed::range.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
         return value.m_value.template minimumValueForLengthWrapperDataWithLazyMaximum<LayoutUnit, LayoutUnit>(value.evaluationKind(), [&] ALWAYS_INLINE_LAMBDA { return LayoutUnit(maximumValue); }, zoom);
