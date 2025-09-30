@@ -251,6 +251,7 @@ class TestRunner(object):
                 prefix = line
                 continue
             else:
+                line = line.partition('#')[0]
                 test_name = prefix + line.strip()
                 if not test_name in skipped_test_cases:
                     tests.append(test_name)

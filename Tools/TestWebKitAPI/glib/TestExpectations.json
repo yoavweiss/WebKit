@@ -245,10 +245,67 @@
                 "expected": {"gtk": {"status": ["FAIL", "PASS"], "bug":"webkit.org/b/284628"}}
             },
             "ImageBufferTests.ImageBufferSubTypeCreateCreatesSubtypes": {
-                "expected": {"all": {"status": ["CRASH"], "bug":"webkit.org/b/286456"}}
+                "expected": {"all": {"status": ["SKIP"], "bug":"webkit.org/b/286456"}}
             },
             "ImageBufferTests.ImageBufferSubPixelDrawing": {
-                "expected": {"all": {"status": ["CRASH"], "bug":"webkit.org/b/286456"}}
+                "expected": {"all": {"status": ["SKIP"], "bug":"webkit.org/b/286456"}}
+            },
+            "ImageBufferTests/AnyScaleTest.SinkIntoNativeImageWorks/051byteobject01": {
+                "expected": {"all": {"status": ["SKIP"], "bug":"webkit.org/b/286456"}}
+            },
+            "ImageBufferTests/AnyScaleTest.SinkIntoNativeImageWorks/11byteobject01": {
+                "expected": {"all": {"status": ["SKIP"], "bug":"webkit.org/b/286456"}}
+            },
+            "ImageBufferTests/AnyScaleTest.SinkIntoNativeImageWorks/21byteobject01": {
+                "expected": {"all": {"status": ["SKIP"], "bug":"webkit.org/b/286456"}}
+            },
+            "ImageBufferTests/AnyScaleTest.SinkIntoNativeImageWorks/51byteobject01": {
+                "expected": {"all": {"status": ["SKIP"], "bug":"webkit.org/b/286456"}}
+            },
+            "ImageBufferTests/AnyScaleTest.GetPixelBufferDimensionsContainScale/051byteobject01": {
+                "expected": {"all": {"status": ["SKIP"], "bug":"webkit.org/b/286456"}}
+            },
+            "ImageBufferTests/AnyScaleTest.GetPixelBufferDimensionsContainScale/11byteobject01": {
+                "expected": {"all": {"status": ["SKIP"], "bug":"webkit.org/b/286456"}}
+            },
+            "ImageBufferTests/AnyScaleTest.GetPixelBufferDimensionsContainScale/21byteobject01": {
+                "expected": {"all": {"status": ["SKIP"], "bug":"webkit.org/b/286456"}}
+            },
+            "ImageBufferTests/AnyScaleTest.GetPixelBufferDimensionsContainScale/51byteobject01": {
+                "expected": {"all": {"status": ["SKIP"], "bug":"webkit.org/b/286456"}}
+            },
+            "ImageBufferTests/AnyTwoImageBufferOptionsTest.PutPixelBufferAffectsDrawOutput/1byteobject001byteobject01": {
+                "expected": {"all": {"status": ["SKIP"], "bug":"webkit.org/b/286456"}}
+            },
+            "ImageBufferTests/AnyTwoImageBufferOptionsTest.PutPixelBufferAffectsDrawOutput/1byteobject011byteobject00": {
+                "expected": {"all": {"status": ["SKIP"], "bug":"webkit.org/b/286456"}}
+            },
+            "ImageBufferTests/AnyTwoImageBufferOptionsTest.PutPixelBufferAffectsDrawOutput/1byteobject011byteobject01": {
+                "expected": {"all": {"status": ["SKIP"], "bug":"webkit.org/b/286456"}}
+            },
+            "GraphicsContextGLTextureMapperTest/AnyContextAttributeTest.WebXRBlitTest/truetruetrue": {
+                "expected": {"all": {"status": ["FAIL"], "bug":"webkit.org/b/299730"}}
+            },
+            "GraphicsContextGLTextureMapperTest/AnyContextAttributeTest.WebXRBlitTest/truetruefalse": {
+                "expected": {"all": {"status": ["FAIL"], "bug":"webkit.org/b/299730"}}
+            },
+            "GraphicsContextGLTextureMapperTest/AnyContextAttributeTest.WebXRBlitTest/truefalsetrue": {
+                "expected": {"all": {"status": ["FAIL"], "bug":"webkit.org/b/299730"}}
+            },
+            "GraphicsContextGLTextureMapperTest/AnyContextAttributeTest.WebXRBlitTest/truefalsefalse": {
+                "expected": {"all": {"status": ["FAIL"], "bug":"webkit.org/b/299730"}}
+            },
+            "GraphicsContextGLTextureMapperTest/AnyContextAttributeTest.WebXRBlitTest/falsetruetrue": {
+                "expected": {"all": {"status": ["FAIL"], "bug":"webkit.org/b/299730"}}
+            },
+            "GraphicsContextGLTextureMapperTest/AnyContextAttributeTest.WebXRBlitTest/falsetruefalse": {
+                "expected": {"all": {"status": ["FAIL"], "bug":"webkit.org/b/299730"}}
+            },
+            "GraphicsContextGLTextureMapperTest/AnyContextAttributeTest.WebXRBlitTest/falsefalsetrue": {
+                "expected": {"all": {"status": ["FAIL"], "bug":"webkit.org/b/299730"}}
+            },
+            "GraphicsContextGLTextureMapperTest/AnyContextAttributeTest.WebXRBlitTest/falsefalsefalse": {
+                "expected": {"all": {"status": ["FAIL"], "bug":"webkit.org/b/299730"}}
             }
         }
     },
