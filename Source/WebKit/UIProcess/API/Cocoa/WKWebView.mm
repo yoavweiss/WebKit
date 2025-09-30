@@ -275,6 +275,7 @@ static const BOOL defaultFastClickingEnabled = NO;
 
 #if ENABLE(SCREEN_TIME)
 static void *screenTimeWebpageControllerBlockedKVOContext = &screenTimeWebpageControllerBlockedKVOContext;
+static void *screenTimeConfigurationObserverKVOContext = &screenTimeConfigurationObserverKVOContext;
 #endif
 
 #if ENABLE(GAMEPAD) && PLATFORM(VISION) && __has_include(<GameController/GCEventInteraction.h>)
@@ -423,7 +424,16 @@ static uint32_t convertSystemLayoutDirection(NSUserInterfaceLayoutDirection dire
     if (!PAL::isScreenTimeFrameworkAvailable())
         return;
 
-    if (!_page->preferences().screenTimeEnabled() || !_page->mainFrame()->url().protocolIsInHTTPFamily())
+    if (!_page->preferences().screenTimeEnabled() || !_page->mainFrame() || !_page->mainFrame()->url().protocolIsInHTTPFamily())
+        return;
+
+    if (!_screenTimeConfigurationObserver) {
+        _screenTimeConfigurationObserver = adoptNS([PAL::allocSTScreenTimeConfigurationObserverInstance() initWithUpdateQueue:globalDispatchQueueSingleton(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)]);
+        [_screenTimeConfigurationObserver addObserver:self forKeyPath:@"configuration.enforcesChildRestrictions" options: 0 context:&screenTimeConfigurationObserverKVOContext];
+        [_screenTimeConfigurationObserver startObserving];
+    }
+
+    if (![_screenTimeConfigurationObserver configuration].enforcesChildRestrictions)
         return;
 
     _screenTimeWebpageController = adoptNS([PAL::allocSTWebpageControllerInstance() init]);
@@ -450,6 +460,10 @@ static uint32_t convertSystemLayoutDirection(NSUserInterfaceLayoutDirection dire
 {
     if (!PAL::isScreenTimeFrameworkAvailable())
         return;
+
+    [_screenTimeConfigurationObserver stopObserving];
+    [_screenTimeConfigurationObserver removeObserver:self forKeyPath:@"configuration.enforcesChildRestrictions" context:&screenTimeConfigurationObserverKVOContext];
+    _screenTimeConfigurationObserver = nil;
 
     if (!_screenTimeWebpageController)
         return;
@@ -510,6 +524,13 @@ static uint32_t convertSystemLayoutDirection(NSUserInterfaceLayoutDirection dire
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context
 {
 #if ENABLE(SCREEN_TIME)
+    if (context == &screenTimeConfigurationObserverKVOContext) {
+        ensureOnMainRunLoop([weakSelf = WeakObjCPtr<WKWebView>(self)] {
+            [weakSelf _updateScreenTimeBasedOnWindowVisibility];
+        });
+        return;
+    }
+
     if (context == &screenTimeWebpageControllerBlockedKVOContext) {
         BOOL urlWasBlocked = dynamic_objc_cast<NSNumber>(change[NSKeyValueChangeOldKey]).boolValue;
         BOOL urlIsBlocked = dynamic_objc_cast<NSNumber>(change[NSKeyValueChangeNewKey]).boolValue;
