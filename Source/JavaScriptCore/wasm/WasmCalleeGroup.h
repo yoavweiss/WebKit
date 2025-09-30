@@ -183,10 +183,9 @@ public:
         return nullptr;
     }
 
-    void recordOMGOSREntryCallee(const AbstractLocker&, FunctionCodeIndex functionIndex, OMGOSREntryCallee& callee) WTF_REQUIRES_LOCK(m_lock)
+    bool recordOMGOSREntryCallee(const AbstractLocker&, FunctionCodeIndex functionIndex, OMGOSREntryCallee& callee) WTF_REQUIRES_LOCK(m_lock)
     {
-        auto result = m_osrEntryCallees.add(functionIndex, callee);
-        ASSERT_UNUSED(result, result.isNewEntry);
+        return m_osrEntryCallees.add(functionIndex, callee).isNewEntry;
     }
 #endif
 
