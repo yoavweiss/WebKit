@@ -27,6 +27,8 @@
 
 #include "FloatRect.h"
 #include <wtf/FastMalloc.h>
+#include <wtf/Markable.h>
+#include <wtf/MonotonicTime.h>
 #include <wtf/WeakHashMap.h>
 #include <wtf/WeakHashSet.h>
 
@@ -49,6 +51,7 @@ public:
     LargestContentfulPaintData();
     ~LargestContentfulPaintData();
 
+    void didLoadImage(Element&, CachedImage*);
     void didPaintImage(Element&, CachedImage*, FloatRect localRect);
     void didPaintText(const RenderText&, FloatRect localRect);
 
@@ -65,12 +68,17 @@ private:
 
     static bool isEligibleForLargestContentfulPaint(const Element&, float effectiveVisualArea);
 
-    void potentiallyAddLargestContentfulPaintEntry(Element&, CachedImage*, FloatRect imageLocalRect, FloatRect intsectionRect, DOMHighResTimeStamp);
+    void potentiallyAddLargestContentfulPaintEntry(Element&, CachedImage*, FloatRect imageLocalRect, FloatRect intsectionRect, MonotonicTime loadTime, DOMHighResTimeStamp paintTime);
 
     float m_largestPaintArea { 0 };
 
+    struct PendingImageData {
+        FloatRect rect;
+        Markable<MonotonicTime> loadTime;
+    };
+
     WeakHashMap<Element, WeakHashSet<CachedImage>, WeakPtrImplWithEventTargetData> m_imageContentSet;
-    WeakHashMap<Element, WeakHashMap<CachedImage, FloatRect>, WeakPtrImplWithEventTargetData> m_pendingImageRecords;
+    WeakHashMap<Element, WeakHashMap<CachedImage, PendingImageData>, WeakPtrImplWithEventTargetData> m_pendingImageRecords;
 
     RefPtr<LargestContentfulPaint> m_pendingEntry;
 };

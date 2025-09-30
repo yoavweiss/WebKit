@@ -293,6 +293,11 @@ void LegacyRenderSVGImage::imageChanged(WrappedImagePtr, const IntRect*)
     invalidateBufferedForeground();
 
     repaint();
+
+    if (auto* image = imageResource().cachedImage(); image && image->currentFrameIsComplete(this)) {
+        if (auto styleable = Styleable::fromRenderer(*this))
+            protectedDocument()->didLoadImage(styleable->protectedElement().get(), image);
+    }
 }
 
 void LegacyRenderSVGImage::addFocusRingRects(Vector<LayoutRect>& rects, const LayoutPoint&, const RenderLayerModelObject*) const

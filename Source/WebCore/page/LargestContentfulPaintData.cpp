@@ -124,7 +124,7 @@ std::optional<float> LargestContentfulPaintData::effectiveVisualArea(const Eleme
 }
 
 // https://w3c.github.io/largest-contentful-paint/#sec-add-lcp-entry
-void LargestContentfulPaintData::potentiallyAddLargestContentfulPaintEntry(Element& element, CachedImage* image, FloatRect imageLocalRect, FloatRect intersectionRect, DOMHighResTimeStamp paintTimestamp)
+void LargestContentfulPaintData::potentiallyAddLargestContentfulPaintEntry(Element& element, CachedImage* image, FloatRect imageLocalRect, FloatRect intersectionRect, MonotonicTime loadTime, DOMHighResTimeStamp paintTimestamp)
 {
     bool isNewCandidate = false;
     if (image) {
@@ -171,7 +171,8 @@ void LargestContentfulPaintData::potentiallyAddLargestContentfulPaintEntry(Eleme
 
     if (image) {
         pendingEntry->setURLString(image->url().string());
-        // FIXME: Need to get resource loadTime: webkit.org/b/299556.
+        auto loadTimestamp = window->protectedPerformance()->relativeTimeFromTimeOriginInReducedResolution(loadTime);
+        pendingEntry->setLoadTime(loadTimestamp);
     }
 
     if (element.hasID())
@@ -188,15 +189,18 @@ void LargestContentfulPaintData::potentiallyAddLargestContentfulPaintEntry(Eleme
 RefPtr<LargestContentfulPaint> LargestContentfulPaintData::takePendingEntry(DOMHighResTimeStamp paintTimestamp)
 {
     auto imageRecords = std::exchange(m_pendingImageRecords, { });
-    for (auto [weakElement, imageAndRects] : imageRecords) {
+    for (auto [weakElement, imageAndData] : imageRecords) {
         RefPtr element = weakElement;
         if (!element)
             continue;
 
         // FIXME: This is doing multiple localToAbsolute on the same element.
-        for (auto [image, rect] : imageAndRects) {
-            auto intersectionRect = computeViewportIntersectionRect(*element, rect);
-            potentiallyAddLargestContentfulPaintEntry(*element, &image, rect, intersectionRect, paintTimestamp);
+        for (auto [image, imageData] : imageAndData) {
+            if (imageData.rect.isEmpty())
+                continue;
+            auto intersectionRect = computeViewportIntersectionRect(*element, imageData.rect);
+            auto loadTimeSeconds = imageData.loadTime ? *imageData.loadTime : MonotonicTime::now();
+            potentiallyAddLargestContentfulPaintEntry(*element, &image, imageData.rect, intersectionRect, loadTimeSeconds, paintTimestamp);
         }
     }
 
@@ -277,8 +281,37 @@ FloatRect LargestContentfulPaintData::computeViewportIntersectionRectForTextCont
     return intersectionRect;
 }
 
+void LargestContentfulPaintData::didLoadImage(Element& element, CachedImage* image)
+{
+    LOG_WITH_STREAM(LargestContentfulPaint, stream << "LargestContentfulPaintData " << this << " didLoadImage() " << element << " image " << (image ? image->url().string() : emptyString()));
+
+    if (!image)
+        return;
+
+    if (!isExposedForPaintTiming(element))
+        return;
+
+    auto it = m_imageContentSet.find(element);
+    if (it != m_imageContentSet.end()) {
+        auto& imageSet = it->value;
+        if (imageSet.contains(*image))
+            return;
+    }
+
+    auto addResult = m_pendingImageRecords.ensure(element, [] {
+        return WeakHashMap<CachedImage, PendingImageData> { };
+    });
+
+    auto& imageRectMap = addResult.iterator->value;
+    imageRectMap.ensure(*image, [] {
+        return PendingImageData { { }, MonotonicTime::now() };
+    });
+}
+
 void LargestContentfulPaintData::didPaintImage(Element& element, CachedImage* image, FloatRect localRect)
 {
+    LOG_WITH_STREAM(LargestContentfulPaint, stream << "LargestContentfulPaintData " << this << " didPaintImage() " << element << " image " << (image ? image->url().string() : emptyString()) << " localRect " << localRect);
+
     if (!image)
         return;
 
@@ -300,16 +333,21 @@ void LargestContentfulPaintData::didPaintImage(Element& element, CachedImage* im
             page->scheduleRenderingUpdate(RenderingUpdateStep::PaintTiming);
     }
 
-    auto addResult = m_pendingImageRecords.ensure(element, [] {
-        return WeakHashMap<CachedImage, FloatRect> { };
+    auto& imageRectMap = m_pendingImageRecords.ensure(element, [] {
+        return WeakHashMap<CachedImage, PendingImageData> { };
+    }).iterator->value;
+
+    auto addResult = imageRectMap.ensure(*image, [&] {
+        return PendingImageData { localRect, MonotonicTime::now() };
     });
 
-    auto& imageRectMap = addResult.iterator->value;
-    auto imageAddResult = imageRectMap.add(*image, localRect);
     if (!addResult.isNewEntry) {
-        auto& existingRect = imageAddResult.iterator->value;
-        if (localRect.area() > existingRect.area())
-            imageAddResult.iterator->value = localRect;
+        auto& pendingImageData = addResult.iterator->value;
+        if (localRect.area() > pendingImageData.rect.area())
+            pendingImageData.rect = localRect;
+
+        if (!pendingImageData.loadTime)
+            pendingImageData.loadTime = MonotonicTime::now();
     }
 }
 

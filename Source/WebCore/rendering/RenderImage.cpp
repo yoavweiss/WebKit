@@ -342,8 +342,13 @@ void RenderImage::imageChanged(WrappedImagePtr newImage, const IntRect* rect)
         imageSizeChange = setImageSizeForAltText(cachedImage());
     }
     repaintOrMarkForLayout(imageSizeChange, rect);
-    if (AXObjectCache* cache = document().existingAXObjectCache())
+    if (CheckedPtr cache = document().existingAXObjectCache())
         cache->deferRecomputeIsIgnoredIfNeeded(element());
+
+    if (auto* image = cachedImage(); image && image->currentFrameIsComplete(this)) {
+        if (auto styleable = Styleable::fromRenderer(*this))
+            protectedDocument()->didLoadImage(styleable->protectedElement().get(), image);
+    }
 }
 
 void RenderImage::updateIntrinsicSizeIfNeeded(const LayoutSize& newSize)
@@ -662,10 +667,12 @@ void RenderImage::paintReplaced(PaintInfo& paintInfo, const LayoutPoint& paintOf
         else
             page().addRelevantRepaintedObject(*this, visibleRect);
 
-        if (auto styleable = Styleable::fromRenderer(*this)) {
-            auto localVisibleRect = visibleRect;
-            localVisibleRect.moveBy(-paintOffset);
-            protectedDocument()->didPaintImage(styleable->element, cachedImage(), localVisibleRect);
+        if (cachedImage()->currentFrameIsComplete(this)) {
+            if (auto styleable = Styleable::fromRenderer(*this)) {
+                auto localVisibleRect = visibleRect;
+                localVisibleRect.moveBy(-paintOffset);
+                protectedDocument()->didPaintImage(styleable->element, cachedImage(), localVisibleRect);
+            }
         }
     }
 }

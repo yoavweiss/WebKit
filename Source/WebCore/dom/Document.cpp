@@ -9067,6 +9067,14 @@ LargestContentfulPaintData& Document::largestContentfulPaintData() const
     return *m_largestContentfulPaintData;
 }
 
+void Document::didLoadImage(Element& element, CachedImage* image) const
+{
+    if (!supportsLargestContentfulPaint())
+        return;
+
+    largestContentfulPaintData().didLoadImage(element, image);
+}
+
 void Document::didPaintImage(Element& element, CachedImage* image, FloatRect localRect) const
 {
     if (!supportsLargestContentfulPaint())

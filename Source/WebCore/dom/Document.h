@@ -1480,6 +1480,7 @@ public:
     const DocumentEventTiming& eventTiming() const { return m_eventTiming; }
 
     LargestContentfulPaintData& largestContentfulPaintData() const;
+    void didLoadImage(Element&, CachedImage*) const;
     void didPaintImage(Element&, CachedImage*, FloatRect localRect) const;
     void didPaintText(const RenderText&, FloatRect localRect) const;
 

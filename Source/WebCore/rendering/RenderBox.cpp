@@ -2055,31 +2055,6 @@ LayoutRect RenderBox::maskClipRect(const LayoutPoint& paintOffset)
     return result;
 }
 
-static RefPtr<StyleImage> findLayerUsedImage(WrappedImagePtr image, const auto& layers, bool& isNonEmpty)
-{
-    for (auto& layer : layers) {
-        if (RefPtr layerImage = layer.image().tryStyleImage(); layerImage && layerImage->data() == image) {
-            // FIXME: This really needs to compute the tile rect with BackgroundPainter::calculateFillTileSize().
-            isNonEmpty = WTF::switchOn(layer.size(),
-                [&](const CSS::Keyword::Cover&) {
-                    return false;
-                },
-                [&](const CSS::Keyword::Contain&) {
-                    return false;
-                },
-                [&](const Style::BackgroundSize::LengthSize& size) {
-                    auto& layerWidth = size.width();
-                    auto& layerHeight = size.height();
-                    return (layerWidth.isAuto() || !layerWidth.isZero()) && (layerHeight.isAuto() || !layerHeight.isZero());
-                });
-            return layerImage;
-        }
-    }
-
-    isNonEmpty = false;
-    return nullptr;
-}
-
 void RenderBox::imageChanged(WrappedImagePtr image, const IntRect*)
 {
     if (RefPtr source = style().borderImage().source().tryStyleImage(); source && source->data() == image) {
@@ -2119,16 +2094,19 @@ void RenderBox::imageChanged(WrappedImagePtr image, const IntRect*)
         repaintForBackgroundAndMask(*firstLineStyle);
 
     bool isNonEmpty;
-    RefPtr styleImage = findLayerUsedImage(image, style().backgroundLayers(), isNonEmpty);
-    if (styleImage && isNonEmpty)
+    RefPtr styleImage = style().backgroundLayers().findLayerUsedImage(image, isNonEmpty);
+    if (styleImage && isNonEmpty) {
         incrementVisuallyNonEmptyPixelCountIfNeeded(flooredIntSize(styleImage->imageSize(this, style().usedZoom())));
+        if (auto styleable = Styleable::fromRenderer(*this))
+            protectedDocument()->didLoadImage(styleable->protectedElement().get(), styleImage->cachedImage());
+    }
 
     if (!isComposited())
         return;
 
-    if (layer()->hasCompositedMask() && findLayerUsedImage(image, style().maskLayers(), isNonEmpty))
+    if (layer()->hasCompositedMask() && style().maskLayers().findLayerUsedImage(image, isNonEmpty))
         layer()->contentChanged(ContentChangeType::MaskImage);
-    
+
     if (styleImage)
         layer()->contentChanged(ContentChangeType::BackgroundImage);
 }
