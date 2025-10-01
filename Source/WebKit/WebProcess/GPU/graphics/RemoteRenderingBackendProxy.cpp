@@ -563,7 +563,7 @@ void RemoteRenderingBackendProxy::prepareImageBufferSetForDisplay(LayerPrepareBu
 
 void RemoteRenderingBackendProxy::markSurfacesVolatile(Vector<std::pair<Ref<RemoteImageBufferSetProxy>, OptionSet<BufferInSetType>>>&& bufferSets, CompletionHandler<void(bool)>&& completionHandler, bool forcePurge)
 {
-    Vector<std::pair<RemoteImageBufferSetIdentifier, OptionSet<BufferInSetType>>> identifiers;
+    Vector<std::pair<ImageBufferSetIdentifier, OptionSet<BufferInSetType>>> identifiers;
     for (auto& pair : bufferSets) {
         identifiers.append(std::make_pair(pair.first->identifier(), pair.second));
         pair.first->addRequestedVolatility(pair.second);
@@ -576,7 +576,7 @@ void RemoteRenderingBackendProxy::markSurfacesVolatile(Vector<std::pair<Ref<Remo
         completionHandler(false);
 }
 
-void RemoteRenderingBackendProxy::didMarkLayersAsVolatile(MarkSurfacesAsVolatileRequestIdentifier requestIdentifier, Vector<std::pair<RemoteImageBufferSetIdentifier, OptionSet<BufferInSetType>>> markedBufferSets, bool didMarkAllLayersAsVolatile)
+void RemoteRenderingBackendProxy::didMarkLayersAsVolatile(MarkSurfacesAsVolatileRequestIdentifier requestIdentifier, Vector<std::pair<ImageBufferSetIdentifier, OptionSet<BufferInSetType>>> markedBufferSets, bool didMarkAllLayersAsVolatile)
 {
     auto completionHandler = m_markAsVolatileRequests.take(requestIdentifier);
     if (!completionHandler)

@@ -324,14 +324,14 @@ void RemoteRenderingBackend::releaseImageBuffer(RenderingResourceIdentifier iden
     MESSAGE_CHECK(success, "Missing ImageBuffer");
 }
 
-void RemoteRenderingBackend::createImageBufferSet(RemoteImageBufferSetIdentifier identifier, RemoteGraphicsContextIdentifier contextIdentifier)
+void RemoteRenderingBackend::createImageBufferSet(ImageBufferSetIdentifier identifier, RemoteGraphicsContextIdentifier contextIdentifier)
 {
     assertIsCurrent(workQueue());
     auto result = m_remoteImageBufferSets.add(identifier, RemoteImageBufferSet::create(identifier, contextIdentifier, *this));
     MESSAGE_CHECK(result.isNewEntry, "Duplicate ImageBufferSet");
 }
 
-void RemoteRenderingBackend::releaseImageBufferSet(RemoteImageBufferSetIdentifier identifier)
+void RemoteRenderingBackend::releaseImageBufferSet(ImageBufferSetIdentifier identifier)
 {
     assertIsCurrent(workQueue());
     bool success = m_remoteImageBufferSets.take(identifier).get();
@@ -526,12 +526,12 @@ void RemoteRenderingBackend::prepareImageBufferSetsForDisplaySync(Vector<ImageBu
 }
 #endif
 
-void RemoteRenderingBackend::markSurfacesVolatile(MarkSurfacesAsVolatileRequestIdentifier requestIdentifier, const Vector<std::pair<RemoteImageBufferSetIdentifier, OptionSet<BufferInSetType>>>& identifiers, bool forcePurge)
+void RemoteRenderingBackend::markSurfacesVolatile(MarkSurfacesAsVolatileRequestIdentifier requestIdentifier, const Vector<std::pair<ImageBufferSetIdentifier, OptionSet<BufferInSetType>>>& identifiers, bool forcePurge)
 {
     assertIsCurrent(workQueue());
     LOG_WITH_STREAM(RemoteLayerBuffers, stream << "GPU Process: RemoteRenderingBackend::markSurfacesVolatile " << identifiers);
 
-    Vector<std::pair<RemoteImageBufferSetIdentifier, OptionSet<BufferInSetType>>> markedBufferSets;
+    Vector<std::pair<ImageBufferSetIdentifier, OptionSet<BufferInSetType>>> markedBufferSets;
     bool allSucceeded = true;
 
     for (auto identifier : identifiers) {

@@ -141,6 +141,7 @@ template: struct WebKit::DisplayLinkObserverIDType
 template: struct WebKit::DrawingAreaIdentifierType
 template: struct WebKit::DownloadIDType
 template: struct WebKit::GeolocationIdentifierType
+template: struct WebKit::ImageBufferSetIdentifierType
 template: struct WebKit::IPCConnectionTesterIdentifierType
 template: struct WebKit::IPCStreamTesterIdentifierType
 template: struct WebKit::JSObjectIDType
@@ -151,7 +152,6 @@ template: struct WebKit::PDFPluginIdentifierType
 template: struct WebKit::PageGroupIdentifierType
 template: struct WebKit::RemoteAudioDestinationIdentifierType
 template: struct WebKit::RemoteAudioHardwareListenerIdentifierType
-template: struct WebKit::RemoteImageBufferSetIdentifierType
 template: struct WebKit::RemoteMediaResourceIdentifierType
 template: struct WebKit::RemoteRemoteCommandListenerIdentifierType
 template: struct WebKit::SampleBufferDisplayLayerIdentifierType

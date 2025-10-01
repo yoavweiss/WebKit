@@ -29,7 +29,7 @@
 
 namespace WebKit {
 
-struct RemoteImageBufferSetIdentifierType;
-using RemoteImageBufferSetIdentifier = ObjectIdentifier<RemoteImageBufferSetIdentifierType>;
+struct ImageBufferSetIdentifierType;
+using ImageBufferSetIdentifier = ObjectIdentifier<ImageBufferSetIdentifierType>;
 
 }

@@ -209,7 +209,7 @@ private:
     // Messages to be received.
     void didCreateImageBufferBackend(ImageBufferBackendHandle&&, WebCore::RenderingResourceIdentifier);
     void didFinalizeRenderingUpdate(RenderingUpdateID didRenderingUpdateID);
-    void didMarkLayersAsVolatile(MarkSurfacesAsVolatileRequestIdentifier, Vector<std::pair<RemoteImageBufferSetIdentifier, OptionSet<BufferInSetType>>>, bool didMarkAllLayerAsVolatile);
+    void didMarkLayersAsVolatile(MarkSurfacesAsVolatileRequestIdentifier, Vector<std::pair<ImageBufferSetIdentifier, OptionSet<BufferInSetType>>>, bool didMarkAllLayerAsVolatile);
 
     // SerialFunctionDispatcher
     void dispatch(Function<void()>&&) final;
@@ -226,7 +226,7 @@ private:
     WebCore::Timer m_destroyGetPixelBufferSharedMemoryTimer { *this, &RemoteRenderingBackendProxy::destroyGetPixelBufferSharedMemory };
     HashMap<MarkSurfacesAsVolatileRequestIdentifier, CompletionHandler<void(bool)>> m_markAsVolatileRequests;
     HashMap<WebCore::RenderingResourceIdentifier, ThreadSafeWeakPtr<RemoteImageBufferProxy>> m_imageBuffers;
-    HashMap<RemoteImageBufferSetIdentifier, ThreadSafeWeakPtr<RemoteImageBufferSetProxy>> m_imageBufferSets;
+    HashMap<ImageBufferSetIdentifier, ThreadSafeWeakPtr<RemoteImageBufferSetProxy>> m_imageBufferSets;
     const Ref<WorkQueue> m_queue;
 
 #if PLATFORM(COCOA)
