@@ -2974,9 +2974,9 @@ header: <WebCore/KeyboardScroll.h>
 }
 
 [RefCounted] class WebCore::TranslateTransformOperation {
-    WebCore::Length x();
-    WebCore::Length y();
-    WebCore::Length z();
+    float x();
+    float y();
+    float z();
     [Validator='WebCore::TransformOperation::isTranslateTransformOperationType(*type)'] WebCore::TransformOperationType type();
 }
 

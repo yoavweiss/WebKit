@@ -35,6 +35,7 @@
 #include "FontSelector.h"
 #include "InlineIteratorTextBox.h"
 #include "InlineTextBoxStyle.h"
+#include "LengthFunctions.h"
 #include "Logging.h"
 #include "MotionPath.h"
 #include "Pagination.h"
@@ -54,6 +55,7 @@
 #include "StyleLengthWrapper+Platform.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StyleResolver.h"
+#include "StyleScaleTransformFunction.h"
 #include "StyleSelfAlignmentData.h"
 #include "StyleTreeResolver.h"
 #include "TransformOperationData.h"
@@ -2365,7 +2367,7 @@ void RenderStyle::setPageScaleTransform(float scale)
     if (scale == 1)
         return;
 
-    setTransform(Style::Transform { Style::TransformFunction { ScaleTransformOperation::create(scale, scale, TransformOperation::Type::Scale) } });
+    setTransform(Style::Transform { Style::TransformFunction { Style::ScaleTransformFunction::create(scale, scale, Style::TransformFunctionType::Scale) } });
     setTransformOriginX(0_css_px);
     setTransformOriginY(0_css_px);
 }

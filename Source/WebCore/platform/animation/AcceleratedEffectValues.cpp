@@ -106,13 +106,6 @@ static LengthPoint resolveCalculateValuesFor(const LengthPoint& lengthPoint, Int
     };
 }
 
-template<typename T> static RefPtr<TransformOperation> resolveCalculateValuesForTransformOperation(const T& operation, const IntSize& borderBoxSize)
-{
-    if (!operation)
-        return nullptr;
-    return operation->selfOrCopyWithResolvedCalculatedValues(borderBoxSize);
-}
-
 AcceleratedEffectValues::AcceleratedEffectValues(const RenderStyle& style, const IntRect& borderBoxRect, const RenderLayerModelObject* renderer)
 {
     opacity = style.opacity().value.value;
@@ -123,10 +116,10 @@ AcceleratedEffectValues::AcceleratedEffectValues(const RenderStyle& style, const
         transformOperationData = TransformOperationData(renderer->transformReferenceBoxRect(style), renderer);
 
     transformBox = style.transformBox();
-    transform = style.transform().resolvedCalculatedValues(borderBoxSize);
-    translate = resolveCalculateValuesForTransformOperation(Style::toPlatform(style.translate()), borderBoxSize);
-    scale = resolveCalculateValuesForTransformOperation(Style::toPlatform(style.scale()), borderBoxSize);
-    rotate = resolveCalculateValuesForTransformOperation(Style::toPlatform(style.rotate()), borderBoxSize);
+    transform = Style::toPlatform(style.transform(), borderBoxSize);
+    translate = Style::toPlatform(style.translate(), borderBoxSize);
+    scale = Style::toPlatform(style.scale(), borderBoxSize);
+    rotate = Style::toPlatform(style.rotate(), borderBoxSize);
     transformOrigin = resolveCalculateValuesFor(Style::toPlatform(style.transformOrigin().xy()), borderBoxSize);
     offsetPath = Style::toPlatform(style.offsetPath());
     offsetPosition = resolveCalculateValuesFor(Style::toPlatform(style.offsetPosition()), borderBoxSize);
@@ -158,15 +151,15 @@ TransformationMatrix AcceleratedEffectValues::computedTransformationMatrix(const
 
     // 3. Translate by the computed X, Y, and Z values of translate.
     if (translate)
-        translate->apply(matrix, boundingBox.size());
+        translate->apply(matrix);
 
     // 4. Rotate by the computed <angle> about the specified axis of rotate.
     if (rotate)
-        rotate->apply(matrix, boundingBox.size());
+        rotate->apply(matrix);
 
     // 5. Scale by the computed X, Y, and Z values of scale.
     if (scale)
-        scale->apply(matrix, boundingBox.size());
+        scale->apply(matrix);
 
     // 6. Translate and rotate by the transform specified by offset.
     if (transformOperationData && offsetPath) {
@@ -175,7 +168,7 @@ TransformationMatrix AcceleratedEffectValues::computedTransformationMatrix(const
     }
 
     // 7. Multiply by each of the transform functions in transform from left to right.
-    transform.apply(matrix, boundingBox.size());
+    transform.apply(matrix);
 
     // 8. Translate by the negated computed X, Y and Z values of transform-origin.
     // (not needed, the GraphicsLayer handles that)

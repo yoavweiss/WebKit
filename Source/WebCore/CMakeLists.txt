@@ -244,6 +244,7 @@ set(WebCore_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBCORE_DIR}/style/values/text"
     "${WEBCORE_DIR}/style/values/text-decoration"
     "${WEBCORE_DIR}/style/values/transforms"
+    "${WEBCORE_DIR}/style/values/transforms/functions"
     "${WEBCORE_DIR}/style/values/transitions"
     "${WEBCORE_DIR}/style/values/ui"
     "${WEBCORE_DIR}/style/values/view-transitions"

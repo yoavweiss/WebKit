@@ -3442,6 +3442,17 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/text-decoration/StyleTextShadow.h
     style/values/text-decoration/StyleTextUnderlineOffset.h
 
+    style/values/transforms/functions/StyleTransformFunctionWrapper.h
+    style/values/transforms/functions/StyleMatrix3DTransformFunction.h
+    style/values/transforms/functions/StyleMatrixTransformFunction.h
+    style/values/transforms/functions/StylePerspectiveTransformFunction.h
+    style/values/transforms/functions/StyleRotateTransformFunction.h
+    style/values/transforms/functions/StyleScaleTransformFunction.h
+    style/values/transforms/functions/StyleSkewTransformFunction.h
+    style/values/transforms/functions/StyleTransformFunctionBase.h
+    style/values/transforms/functions/StyleTransformFunctionWrapper.h
+    style/values/transforms/functions/StyleTranslateTransformFunction.h
+
     style/values/transforms/StylePerspective.h
     style/values/transforms/StylePerspectiveOrigin.h
     style/values/transforms/StyleRotate.h
@@ -3449,7 +3460,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/transforms/StyleTransform.h
     style/values/transforms/StyleTransformFunction.h
     style/values/transforms/StyleTransformList.h
-    style/values/transforms/StyleTransformOperationWrapper.h
     style/values/transforms/StyleTransformOrigin.h
     style/values/transforms/StyleTranslate.h
 

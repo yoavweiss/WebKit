@@ -438,11 +438,8 @@ template<auto nR, auto pR, typename V> struct ToStyle<CSS::NumberOrPercentageRes
     template<typename... Rest> auto operator()(const From& value, Rest&&... rest) -> To
     {
         return WTF::switchOn(value,
-            [&](const typename From::Number& number) -> To {
-                return { toStyle(number, std::forward<Rest>(rest)...) };
-            },
-            [&](const typename From::Percentage& percentage) -> To {
-                return { toStyle(percentage, std::forward<Rest>(rest)...).value / 100.0 };
+            [&](const auto& numberOrPercentage) -> To {
+                return { toStyle(numberOrPercentage, std::forward<Rest>(rest)...) };
             }
         );
     }

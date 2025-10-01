@@ -136,7 +136,6 @@
 #include "RenderView.h"
 #include "SVGClipPathElement.h"
 #include "SVGNames.h"
-#include "ScaleTransformOperation.h"
 #include "ScrollAnimator.h"
 #include "ScrollSnapOffsetsInfo.h"
 #include "Scrollbar.h"
@@ -149,10 +148,11 @@
 #include "StyleLengthWrapper+Platform.h"
 #include "StyleProperties.h"
 #include "StyleResolver.h"
+#include "StyleScaleTransformFunction.h"
+#include "StyleTranslateTransformFunction.h"
 #include "Styleable.h"
 #include "TransformOperationData.h"
 #include "TransformationMatrix.h"
-#include "TranslateTransformOperation.h"
 #include "ViewTransition.h"
 #include "WheelEventTestMonitor.h"
 #include <stdio.h>
@@ -6307,33 +6307,38 @@ RenderStyle RenderLayer::createReflectionStyle()
     
     auto reflection = renderer().style().boxReflect().tryReflection();
 
+    // FIXME: This should be removed when bare LengthPercentage<> is moved off of LengthWrapperBase.
+    auto toTranslateLengthPercentage = [](const auto& boxReflectOffset) {
+        return WTF::switchOn(boxReflectOffset, [](const auto& value) { return Style::TranslateLengthPercentage { value }; });
+    };
+
     switch (reflection->direction) {
     case ReflectionDirection::Below:
-        newStyle.setTransform(Style::Transform {
-            Style::TransformFunction { TranslateTransformOperation::create(Length(0, LengthType::Fixed), Length(100., LengthType::Percent), TransformOperation::Type::Translate) },
-            Style::TransformFunction { TranslateTransformOperation::create(Length(0, LengthType::Fixed), Style::toPlatform(reflection->offset), TransformOperation::Type::Translate) },
-            Style::TransformFunction { ScaleTransformOperation::create(1.0, -1.0, ScaleTransformOperation::Type::Scale) },
+        newStyle.setTransform({
+            { Style::TranslateTransformFunction::create(0_css_px, 100_css_percentage, Style::TransformFunctionType::Translate) },
+            { Style::TranslateTransformFunction::create(0_css_px, toTranslateLengthPercentage(reflection->offset), Style::TransformFunctionType::Translate) },
+            { Style::ScaleTransformFunction::create(1_css_number, -1_css_number, Style::TransformFunctionType::Scale) },
         });
         break;
     case ReflectionDirection::Above:
-        newStyle.setTransform(Style::Transform {
-            Style::TransformFunction { ScaleTransformOperation::create(1.0, -1.0, ScaleTransformOperation::Type::Scale) },
-            Style::TransformFunction { TranslateTransformOperation::create(Length(0, LengthType::Fixed), Length(100., LengthType::Percent), TransformOperation::Type::Translate) },
-            Style::TransformFunction { TranslateTransformOperation::create(Length(0, LengthType::Fixed), Style::toPlatform(reflection->offset), TransformOperation::Type::Translate) },
+        newStyle.setTransform({
+            { Style::ScaleTransformFunction::create(1_css_number, -1_css_number, Style::TransformFunctionType::Scale) },
+            { Style::TranslateTransformFunction::create(0_css_px, 100_css_percentage, Style::TransformFunctionType::Translate) },
+            { Style::TranslateTransformFunction::create(0_css_px, toTranslateLengthPercentage(reflection->offset), Style::TransformFunctionType::Translate) },
         });
         break;
     case ReflectionDirection::Right:
-        newStyle.setTransform(Style::Transform {
-            Style::TransformFunction { TranslateTransformOperation::create(Length(100., LengthType::Percent), Length(0, LengthType::Fixed), TransformOperation::Type::Translate) },
-            Style::TransformFunction { TranslateTransformOperation::create(Style::toPlatform(reflection->offset), Length(0, LengthType::Fixed), TransformOperation::Type::Translate) },
-            Style::TransformFunction { ScaleTransformOperation::create(-1.0, 1.0, ScaleTransformOperation::Type::Scale) },
+        newStyle.setTransform({
+            { Style::TranslateTransformFunction::create(100_css_percentage, 0_css_px, Style::TransformFunctionType::Translate) },
+            { Style::TranslateTransformFunction::create(toTranslateLengthPercentage(reflection->offset), 0_css_px, Style::TransformFunctionType::Translate) },
+            { Style::ScaleTransformFunction::create(-1_css_number, 1_css_number, Style::TransformFunctionType::Scale) },
         });
         break;
     case ReflectionDirection::Left:
-        newStyle.setTransform(Style::Transform {
-            Style::TransformFunction { ScaleTransformOperation::create(-1.0, 1.0, ScaleTransformOperation::Type::Scale) },
-            Style::TransformFunction { TranslateTransformOperation::create(Length(100., LengthType::Percent), Length(0, LengthType::Fixed), TransformOperation::Type::Translate) },
-            Style::TransformFunction { TranslateTransformOperation::create(Style::toPlatform(reflection->offset), Length(0, LengthType::Fixed), TransformOperation::Type::Translate) },
+        newStyle.setTransform({
+            { Style::ScaleTransformFunction::create(-1_css_number, 1_css_number, Style::TransformFunctionType::Scale) },
+            { Style::TranslateTransformFunction::create(100_css_percentage, 0_css_px, Style::TransformFunctionType::Translate) },
+            { Style::TranslateTransformFunction::create(toTranslateLengthPercentage(reflection->offset), 0_css_px, Style::TransformFunctionType::Translate) },
         });
         break;
     }

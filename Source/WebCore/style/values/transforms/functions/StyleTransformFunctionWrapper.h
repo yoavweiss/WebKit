@@ -24,23 +24,24 @@
 
 #pragma once
 
+#include <wtf/PointerComparison.h>
 #include <wtf/Ref.h>
 
 namespace WebCore {
 namespace Style {
 
-template<typename PlatformOperation> struct TransformOperationWrapper {
-    TransformOperationWrapper(Ref<PlatformOperation> value) : value { WTFMove(value) } { }
+template<typename Function> struct TransformFunctionWrapper {
+    TransformFunctionWrapper(Ref<const Function> value) : value { WTFMove(value) } { }
 
-    const PlatformOperation& platform() const { return value.get(); }
-    const PlatformOperation* operator->() const { return value.ptr(); }
+    const Function& function() const { return value.get(); }
+    const Function* operator->() const { return value.ptr(); }
 
-    bool operator==(const TransformOperationWrapper& other) const
+    bool operator==(const TransformFunctionWrapper& other) const
     {
-        return value.ptr() == other.value.ptr() || value.get() == other.value.get();
+        return arePointingToEqualData(value, other.value);
     }
 
-    Ref<PlatformOperation> value;
+    Ref<const Function> value;
 };
 
 } // namespace Style

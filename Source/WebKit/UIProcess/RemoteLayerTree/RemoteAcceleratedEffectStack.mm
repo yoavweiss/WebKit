@@ -199,7 +199,7 @@ WebCore::AcceleratedEffectValues RemoteAcceleratedEffectStack::computeValues(Mon
     auto values = m_baseValues;
     auto currentTime = now.secondsSinceEpoch() - m_acceleratedTimelineTimeOrigin;
     for (auto& effect : m_backdropLayerEffects.isEmpty() ? m_primaryLayerEffects : m_backdropLayerEffects)
-        effect->apply(currentTime, values, m_bounds);
+        effect->apply(currentTime, values);
     return values;
 }
 

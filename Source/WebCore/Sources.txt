@@ -3308,6 +3308,14 @@ style/values/text/StyleLetterSpacing.cpp
 style/values/text/StyleTabSize.cpp
 style/values/text/StyleTextIndent.cpp
 style/values/text/StyleWordSpacing.cpp
+style/values/transforms/functions/StyleMatrix3DTransformFunction.cpp
+style/values/transforms/functions/StyleMatrixTransformFunction.cpp
+style/values/transforms/functions/StylePerspectiveTransformFunction.cpp
+style/values/transforms/functions/StyleRotateTransformFunction.cpp
+style/values/transforms/functions/StyleScaleTransformFunction.cpp
+style/values/transforms/functions/StyleSkewTransformFunction.cpp
+style/values/transforms/functions/StyleTransformFunctionBase.cpp
+style/values/transforms/functions/StyleTranslateTransformFunction.cpp
 style/values/transforms/StylePerspective.cpp
 style/values/transforms/StyleRotate.cpp
 style/values/transforms/StyleScale.cpp
