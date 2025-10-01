@@ -690,6 +690,7 @@ bool TextBoxPainter::paintForegroundForShapeRange(TextPainter& textPainter)
     auto characterScanForCodePath = true;
     auto expansion = m_textBox.box().expansion();
     auto run = TextRun { shapedContent.text, paintRect.x(), expansion.horizontalExpansion, expansion.behavior, m_textBox.direction(), m_style.rtlOrdering() == Order::Visual, characterScanForCodePath };
+    run.disableSpacing();
 
     textPainter.paintRange(run, paintRect, textOriginFromPaintRect(paintRect), 0, shapedContent.text.length());
     context.restore();
