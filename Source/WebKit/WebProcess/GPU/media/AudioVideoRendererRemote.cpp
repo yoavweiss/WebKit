@@ -441,7 +441,7 @@ bool AudioVideoRendererRemote::seeking() const
     return m_state.seeking;
 }
 
-void AudioVideoRendererRemote::setPreferences(VideoMediaSampleRendererPreferences preferences)
+void AudioVideoRendererRemote::setPreferences(VideoRendererPreferences preferences)
 {
     RefPtr gpuProcessConnection = m_gpuProcessConnection.get();
     if (!isGPURunning() || !gpuProcessConnection)

@@ -67,7 +67,7 @@ public:
     ~AudioVideoRendererAVFObjC();
     WTF_ABSTRACT_THREAD_SAFE_REF_COUNTED_AND_CAN_MAKE_WEAK_PTR_IMPL;
 
-    void setPreferences(VideoMediaSampleRendererPreferences) final;
+    void setPreferences(VideoRendererPreferences) final;
     void setHasProtectedVideoContent(bool) final;
 
     // TracksRendererInterface
@@ -305,7 +305,7 @@ private:
     bool m_shouldDisableHDR { false };
     PlatformDynamicRangeLimit m_dynamicRangeLimit { PlatformDynamicRangeLimit::initialValueForVideos() };
     ProcessIdentity m_resourceOwner;
-    VideoMediaSampleRendererPreferences m_preferences;
+    VideoRendererPreferences m_preferences;
     bool m_hasProtectedVideoContent { false };
     struct RendererConfiguration {
         bool canUseDecompressionSession = { false };

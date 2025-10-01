@@ -133,7 +133,7 @@ public:
 
     virtual ~TracksRendererManager() = default;
 
-    virtual void setPreferences(VideoMediaSampleRendererPreferences) { }
+    virtual void setPreferences(VideoRendererPreferences) { }
     virtual void setHasProtectedVideoContent(bool) { }
 
     virtual TrackIdentifier addTrack(TrackType) = 0;

@@ -162,7 +162,7 @@ MediaPlayerPrivateWebM::MediaPlayerPrivateWebM(MediaPlayer* player)
             protectedThis->effectiveRateChanged();
     });
 
-    m_renderer->setPreferences(VideoMediaSampleRendererPreference::PrefersDecompressionSession);
+    m_renderer->setPreferences(VideoRendererPreference::PrefersDecompressionSession);
 
     m_renderer->notifyVideoLayerSizeChanged([weakThis = WeakPtr { *this }](const MediaTime&, FloatSize size) {
         if (RefPtr protectedThis = weakThis.get()) {
@@ -261,6 +261,8 @@ void MediaPlayerPrivateWebM::load(const URL& url, const LoadOptions& options)
     m_assetURL = url;
     if (options.supportsLimitedMatroska)
         m_parser->allowLimitedMatroska();
+
+    m_renderer->setPreferences(options.videoRendererPreferences | VideoRendererPreference::PrefersDecompressionSession);
 
     doPreload();
 }

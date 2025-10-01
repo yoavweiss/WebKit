@@ -78,7 +78,7 @@ private:
     void create(RemoteAudioVideoRendererIdentifier);
     void shutdown(RemoteAudioVideoRendererIdentifier);
 
-    void setPreferences(RemoteAudioVideoRendererIdentifier, WebCore::VideoMediaSampleRendererPreferences);
+    void setPreferences(RemoteAudioVideoRendererIdentifier, WebCore::VideoRendererPreferences);
     void setHasProtectedVideoContent(RemoteAudioVideoRendererIdentifier, bool);
 
     // TracksRendererInterface
@@ -146,6 +146,7 @@ private:
 #if PLATFORM(COCOA)
         LayerHostingContextManager layerHostingContextManager;
 #endif
+        WebCore::VideoRendererPreferences preferences { };
     };
     RefPtr<WebCore::AudioVideoRenderer> createRenderer();
     RefPtr<WebCore::AudioVideoRenderer> rendererFor(RemoteAudioVideoRendererIdentifier) const;

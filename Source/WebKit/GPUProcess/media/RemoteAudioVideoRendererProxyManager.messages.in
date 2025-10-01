@@ -34,7 +34,7 @@ messages -> RemoteAudioVideoRendererProxyManager {
     Create(WebKit::RemoteAudioVideoRendererIdentifier identifier)
     Shutdown(WebKit::RemoteAudioVideoRendererIdentifier identifier)
 
-    SetPreferences(WebKit::RemoteAudioVideoRendererIdentifier identifier, OptionSet<WebCore::VideoMediaSampleRendererPreference> preferences)
+    SetPreferences(WebKit::RemoteAudioVideoRendererIdentifier identifier, OptionSet<WebCore::VideoRendererPreference> preferences)
     SetHasProtectedVideoContent(WebKit::RemoteAudioVideoRendererIdentifier identifier, bool isProtected)
 
     AddTrack(WebKit::RemoteAudioVideoRendererIdentifier identifier, enum:uint8_t WebCore::TrackInfoTrackType type) -> (Expected<WebCore::SamplesRendererTrackIdentifier, WebCore::PlatformMediaError> result) Synchronous

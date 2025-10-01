@@ -194,17 +194,17 @@ RefPtr<WebCoreDecompressionSession> VideoMediaSampleRenderer::decompressionSessi
 
 bool VideoMediaSampleRenderer::useDecompressionSessionForProtectedFallback() const
 {
-    return useDecompressionSessionForProtectedContent() || m_preferences.contains(VideoMediaSampleRendererPreference::ProtectedFallbackDisabled);
+    return useDecompressionSessionForProtectedContent() || m_preferences.contains(VideoRendererPreference::ProtectedFallbackDisabled);
 }
 
 bool VideoMediaSampleRenderer::useDecompressionSessionForProtectedContent() const
 {
-    return m_preferences.contains(VideoMediaSampleRendererPreference::UseDecompressionSessionForProtectedContent);
+    return m_preferences.contains(VideoRendererPreference::UseDecompressionSessionForProtectedContent);
 }
 
 bool VideoMediaSampleRenderer::useStereoDecoding() const
 {
-    return m_preferences.contains(VideoMediaSampleRendererPreference::UseStereoDecoding);
+    return m_preferences.contains(VideoRendererPreference::UseStereoDecoding);
 }
 
 size_t VideoMediaSampleRenderer::decodedSamplesCount() const
@@ -329,7 +329,7 @@ bool VideoMediaSampleRenderer::prefersDecompressionSession() const
 {
     assertIsMainThread();
 
-    return m_preferences.contains(VideoMediaSampleRendererPreference::PrefersDecompressionSession);
+    return m_preferences.contains(VideoRendererPreference::PrefersDecompressionSession);
 }
 
 void VideoMediaSampleRenderer::setPreferences(Preferences preferences)

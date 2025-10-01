@@ -178,10 +178,12 @@ RemoteAudioVideoRendererProxyManager::RendererContext& RemoteAudioVideoRendererP
     return iterator->value;
 }
 
-void RemoteAudioVideoRendererProxyManager::setPreferences(RemoteAudioVideoRendererIdentifier identifier, WebCore::VideoMediaSampleRendererPreferences preferences)
+void RemoteAudioVideoRendererProxyManager::setPreferences(RemoteAudioVideoRendererIdentifier identifier, WebCore::VideoRendererPreferences preferences)
 {
-    if (RefPtr renderer = rendererFor(identifier))
+    if (RefPtr renderer = rendererFor(identifier)) {
         renderer->setPreferences(preferences);
+        contextFor(identifier).preferences = preferences;
+    }
 }
 
 void RemoteAudioVideoRendererProxyManager::setHasProtectedVideoContent(RemoteAudioVideoRendererIdentifier identifier, bool hasProtected)
@@ -506,12 +508,9 @@ void RemoteAudioVideoRendererProxyManager::rendereringModeChanged(RemoteAudioVid
     auto& context = contextFor(identifier);
 
     bool canShowWhileLocked = false;
-    // FIXME: Provide canShowWhileLocked, from external configuration.
-    // #if PLATFORM(IOS_FAMILY)
-    //         m_configuration.canShowWhileLocked;
-    // #else
-    //         false;
-    // #endif
+#if PLATFORM(IOS_FAMILY)
+    canShowWhileLocked = context.preferences.contains(VideoRendererPreference::CanShowWhileLocked);
+#endif
 
     // See webkit.org/b/299655
     SUPPRESS_FORWARD_DECL_ARG if (auto maybeHostingContext = context.layerHostingContextManager.createHostingContextIfNeeded(context.renderer->platformVideoLayer(), canShowWhileLocked))

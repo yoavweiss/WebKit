@@ -145,7 +145,7 @@ private:
     Ref<WebCore::MediaTimePromise> seekTo(const MediaTime&) final;
     bool seeking() const final;
 
-    void setPreferences(WebCore::VideoMediaSampleRendererPreferences) final;
+    void setPreferences(WebCore::VideoRendererPreferences) final;
     void setHasProtectedVideoContent(bool) final;
 
     TrackIdentifier addTrack(TrackType) final;

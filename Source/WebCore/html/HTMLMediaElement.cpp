@@ -1810,23 +1810,23 @@ MediaPlayer::Preload HTMLMediaElement::effectivePreloadValue() const
 }
 
 #if USE(AVFOUNDATION) && ENABLE(MEDIA_SOURCE)
-static VideoMediaSampleRendererPreferences videoMediaSampleRendererPreferences(const Settings& settings, bool forceStereo)
+static VideoRendererPreferences videoRendererPreferences(const Settings& settings, bool forceStereo)
 {
-    VideoMediaSampleRendererPreferences preferences { VideoMediaSampleRendererPreference::PrefersDecompressionSession };
+    VideoRendererPreferences preferences { VideoRendererPreference::PrefersDecompressionSession };
 #if USE(MODERN_AVCONTENTKEYSESSION_WITH_VTDECOMPRESSIONSESSION)
     if (settings.videoRendererProtectedFallbackDisabled())
-        preferences.add(VideoMediaSampleRendererPreference::ProtectedFallbackDisabled);
+        preferences.add(VideoRendererPreference::ProtectedFallbackDisabled);
     if (settings.videoRendererUseDecompressionSessionForProtected())
-        preferences.add(VideoMediaSampleRendererPreference::UseDecompressionSessionForProtectedContent);
+        preferences.add(VideoRendererPreference::UseDecompressionSessionForProtectedContent);
 #else
     UNUSED_PARAM(settings);
 #endif
 #if PLATFORM(VISION)
     UNUSED_PARAM(forceStereo);
-    preferences.add(VideoMediaSampleRendererPreference::UseStereoDecoding);
+    preferences.add(VideoRendererPreference::UseStereoDecoding);
 #else
     if (forceStereo)
-        preferences.add(VideoMediaSampleRendererPreference::UseStereoDecoding);
+        preferences.add(VideoRendererPreference::UseStereoDecoding);
 #endif
     return preferences;
 }
@@ -1938,17 +1938,16 @@ void HTMLMediaElement::loadResource(const URL& initialURL, const ContentType& in
             return;
         }
 
-
         MediaPlayer::LoadOptions options = {
             .contentType = *result,
             .requiresRemotePlayback = !!protectedThis->m_remotePlaybackConfiguration,
-            .supportsLimitedMatroska = protectedThis->limitedMatroskaSupportEnabled()
+            .supportsLimitedMatroska = protectedThis->limitedMatroskaSupportEnabled(),
         };
 
 #if ENABLE(MEDIA_SOURCE)
 #if USE(AVFOUNDATION)
         if (protectedThis->document().settings().mediaSourcePrefersDecompressionSession())
-            options.videoMediaSampleRendererPreferences = videoMediaSampleRendererPreferences(protectedThis->document().settings(), protectedThis->m_forceStereoDecoding);
+            options.videoRendererPreferences = videoRendererPreferences(protectedThis->document().settings(), protectedThis->m_forceStereoDecoding);
 #endif
         if (!protectedThis->m_mediaSource && url.protocolIs(mediaSourceBlobProtocol) && !protectedThis->m_remotePlaybackConfiguration) {
             if (RefPtr mediaSource = MediaSource::lookup(url.string()))
@@ -1964,6 +1963,11 @@ void HTMLMediaElement::loadResource(const URL& initialURL, const ContentType& in
                 protectedThis->document().addConsoleMessage(MessageSource::MediaSource, MessageLevel::Error, makeString("Unable to attach detachable MediaSource via blob URL, use srcObject attribute"_s));
                 return protectedThis->mediaLoadingFailed(MediaPlayer::NetworkState::FormatError);
             }
+
+#if PLATFORM(IOS_FAMILY)
+            if (protectedThis->canShowWhileLocked())
+                options.videoRendererPreferences |= VideoRendererPreference::CanShowWhileLocked;
+#endif
 
             if (!protectedThis->m_mediaSource->attachToElement(protectedThis.get())) {
                 // Forget our reference to the MediaSource, so we leave it alone
@@ -1993,6 +1997,10 @@ void HTMLMediaElement::loadResource(const URL& initialURL, const ContentType& in
                 protectedThis->mediaPlayerRenderingModeChanged();
             return;
         }
+#endif
+#if PLATFORM(IOS_FAMILY)
+        if (protectedThis->canShowWhileLocked())
+            options.videoRendererPreferences |= VideoRendererPreference::CanShowWhileLocked;
 #endif
         if (!player->load(url, options))
             protectedThis->mediaLoadingFailed(MediaPlayer::NetworkState::FormatError);
@@ -3029,12 +3037,17 @@ void HTMLMediaElement::setNetworkState(MediaPlayer::NetworkState state)
             MediaPlayer::LoadOptions options = {
                 .contentType = *result,
                 .requiresRemotePlayback = !!protectedThis->m_remotePlaybackConfiguration,
-                .supportsLimitedMatroska = protectedThis->limitedMatroskaSupportEnabled()
+                .supportsLimitedMatroska = protectedThis->limitedMatroskaSupportEnabled(),
             };
 #if ENABLE(MEDIA_SOURCE) && USE(AVFOUNDATION)
             if (protectedThis->document().settings().mediaSourcePrefersDecompressionSession())
-                options.videoMediaSampleRendererPreferences = videoMediaSampleRendererPreferences(protectedThis->document().settings(), protectedThis->m_forceStereoDecoding);
+                options.videoRendererPreferences = videoRendererPreferences(protectedThis->document().settings(), protectedThis->m_forceStereoDecoding);
 #endif
+#if PLATFORM(IOS_FAMILY)
+            if (protectedThis->canShowWhileLocked())
+                options.videoRendererPreferences |= VideoRendererPreference::CanShowWhileLocked;
+#endif
+
             if (result->isEmpty() || lastContentType == *result || !player->load(url, options))
                 protectedThis->mediaLoadingFailed(MediaPlayer::NetworkState::FormatError);
             else

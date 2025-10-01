@@ -139,7 +139,7 @@ AudioVideoRendererAVFObjC::~AudioVideoRendererAVFObjC()
     m_listener->invalidate();
 }
 
-void AudioVideoRendererAVFObjC::setPreferences(VideoMediaSampleRendererPreferences preferences)
+void AudioVideoRendererAVFObjC::setPreferences(VideoRendererPreferences preferences)
 {
     m_preferences = preferences;
     if (RefPtr videoRenderer = m_videoRenderer)
@@ -1309,7 +1309,7 @@ void AudioVideoRendererAVFObjC::configureHasAvailableVideoFrameCallbackIfNeeded(
     if (isUsingDecompressionSession())
         return;
 
-    m_preferences |= VideoMediaSampleRendererPreference::PrefersDecompressionSession;
+    m_preferences |= VideoRendererPreference::PrefersDecompressionSession;
     if (videoRenderer)
         videoRenderer->setPreferences(m_preferences);
 
@@ -1390,9 +1390,9 @@ void AudioVideoRendererAVFObjC::flushPendingSizeChanges()
 
 bool AudioVideoRendererAVFObjC::canUseDecompressionSession() const
 {
-    if (!m_preferences.contains(VideoMediaSampleRendererPreference::PrefersDecompressionSession))
+    if (!m_preferences.contains(VideoRendererPreference::PrefersDecompressionSession))
         return false;
-    if (m_preferences.contains(VideoMediaSampleRendererPreference::UseDecompressionSessionForProtectedContent))
+    if (m_preferences.contains(VideoRendererPreference::UseDecompressionSessionForProtectedContent))
         return true;
     return !m_hasProtectedVideoContent;
 }
@@ -1407,7 +1407,7 @@ bool AudioVideoRendererAVFObjC::willUseDecompressionSessionIfNeeded() const
     if (!canUseDecompressionSession())
         return false;
 
-    return m_preferences.contains(VideoMediaSampleRendererPreference::PrefersDecompressionSession) || m_hasAvailableVideoFrameCallback;
+    return m_preferences.contains(VideoRendererPreference::PrefersDecompressionSession) || m_hasAvailableVideoFrameCallback;
 }
 
 Ref<GenericPromise> AudioVideoRendererAVFObjC::stageVideoRenderer(WebSampleBufferVideoRendering *renderer)
