@@ -20,6 +20,10 @@ if (WIN32)
     list(APPEND jsc_LIBRARIES Winmm)
 endif ()
 
+if (ENABLE_FUZZILLI)
+  list(APPEND jsc_SOURCES ../fuzzilli/Fuzzilli.cpp)
+endif ()
+
 WEBKIT_EXECUTABLE_DECLARE(jsc)
 
 if (DEVELOPER_MODE)
