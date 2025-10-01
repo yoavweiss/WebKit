@@ -44,20 +44,21 @@ class NativeImageBackend;
 struct Headroom;
 struct ImagePaintingOptions;
 
-class NativeImage : public ThreadSafeRefCounted<NativeImage> {
+class NativeImage final : public ThreadSafeRefCounted<NativeImage> {
     WTF_MAKE_TZONE_ALLOCATED(NativeImage);
 public:
-    static WEBCORE_EXPORT RefPtr<NativeImage> create(PlatformImagePtr&&);
+    static WEBCORE_EXPORT RefPtr<NativeImage> create(PlatformImagePtr&&, RenderingResourceIdentifier = RenderingResourceIdentifier::generate());
     // Creates a NativeImage that is intended to be drawn once or only few times. Signals the platform to avoid generating any caches for the image.
-    static WEBCORE_EXPORT RefPtr<NativeImage> createTransient(PlatformImagePtr&&);
+    static WEBCORE_EXPORT RefPtr<NativeImage> createTransient(PlatformImagePtr&&, RenderingResourceIdentifier = RenderingResourceIdentifier::generate());
 
-    WEBCORE_EXPORT virtual ~NativeImage();
+    WEBCORE_EXPORT ~NativeImage();
 
-    WEBCORE_EXPORT virtual const PlatformImagePtr& platformImage() const;
-    WEBCORE_EXPORT virtual IntSize size() const;
-    WEBCORE_EXPORT virtual bool hasAlpha() const;
+    WEBCORE_EXPORT const PlatformImagePtr& platformImage() const;
+
+    WEBCORE_EXPORT IntSize size() const;
+    bool hasAlpha() const;
     std::optional<Color> singlePixelSolidColor() const;
-    WEBCORE_EXPORT virtual DestinationColorSpace colorSpace() const;
+    WEBCORE_EXPORT DestinationColorSpace colorSpace() const;
     WEBCORE_EXPORT bool hasHDRContent() const;
     WEBCORE_EXPORT Headroom headroom() const;
 
@@ -80,11 +81,11 @@ public:
     }
 
 protected:
-    WEBCORE_EXPORT NativeImage(PlatformImagePtr&&);
+    NativeImage(PlatformImagePtr&&, RenderingResourceIdentifier);
 
-    mutable PlatformImagePtr m_platformImage;
+    PlatformImagePtr m_platformImage;
     mutable WeakHashSet<RenderingResourceObserver> m_observers;
-    RenderingResourceIdentifier m_renderingResourceIdentifier { RenderingResourceIdentifier::generate() };
+    RenderingResourceIdentifier m_renderingResourceIdentifier;
 };
 
 } // namespace WebCore

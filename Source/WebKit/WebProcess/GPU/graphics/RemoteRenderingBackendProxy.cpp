@@ -182,7 +182,7 @@ void RemoteRenderingBackendProxy::didClose(IPC::Connection&)
     if (!m_connection)
         return;
     disconnectGPUProcess();
-    m_remoteResourceCacheProxy->disconnect();
+    m_remoteResourceCacheProxy.disconnect();
 
     for (auto& weakImageBuffer : m_imageBuffers.values()) {
         RefPtr imageBuffer = weakImageBuffer.get();
@@ -230,7 +230,7 @@ void RemoteRenderingBackendProxy::didBecomeUnresponsive()
 
 unsigned RemoteRenderingBackendProxy::nativeImageCountForTesting() const
 {
-    return m_remoteResourceCacheProxy->nativeImageCountForTesting();
+    return m_remoteResourceCacheProxy.nativeImageCountForTesting();
 }
 
 void RemoteRenderingBackendProxy::disconnectGPUProcess()
@@ -395,14 +395,9 @@ void RemoteRenderingBackendProxy::destroyGetPixelBufferSharedMemory()
     send(Messages::RemoteRenderingBackend::DestroyGetPixelBufferSharedMemory());
 }
 
-Ref<NativeImage> RemoteRenderingBackendProxy::createNativeImage(const IntSize& size, PlatformColorSpace&& colorSpace, bool hasAlpha)
+RefPtr<ShareableBitmap> RemoteRenderingBackendProxy::getShareableBitmap(RenderingResourceIdentifier imageBuffer, PreserveResolution preserveResolution)
 {
-    return m_remoteResourceCacheProxy->createNativeImage(size, WTFMove(colorSpace), hasAlpha);
-}
-
-RefPtr<ShareableBitmap> RemoteRenderingBackendProxy::nativeImageBitmap(const NativeImage& image)
-{
-    auto sendResult = sendSync(Messages::RemoteRenderingBackend::NativeImageBitmap(image.renderingResourceIdentifier()));
+    auto sendResult = sendSync(Messages::RemoteImageBuffer::GetShareableBitmap(preserveResolution), imageBuffer);
     if (!sendResult.succeeded())
         return { };
     auto [handle] = sendResult.takeReply();
@@ -491,7 +486,7 @@ void RemoteRenderingBackendProxy::releaseDisplayList(RemoteDisplayListIdentifier
 
 void RemoteRenderingBackendProxy::releaseMemory()
 {
-    m_remoteResourceCacheProxy->releaseMemory();
+    m_remoteResourceCacheProxy.releaseMemory();
     if (!m_connection)
         return;
     send(Messages::RemoteRenderingBackend::ReleaseMemory());
@@ -499,7 +494,7 @@ void RemoteRenderingBackendProxy::releaseMemory()
 
 void RemoteRenderingBackendProxy::releaseNativeImages()
 {
-    m_remoteResourceCacheProxy->releaseNativeImages();
+    m_remoteResourceCacheProxy.releaseNativeImages();
     if (!m_connection)
         return;
     send(Messages::RemoteRenderingBackend::ReleaseNativeImages());
@@ -608,7 +603,7 @@ void RemoteRenderingBackendProxy::finalizeRenderingUpdate()
 
 void RemoteRenderingBackendProxy::didPaintLayers()
 {
-    m_remoteResourceCacheProxy->didPaintLayers();
+    m_remoteResourceCacheProxy.didPaintLayers();
 }
 
 bool RemoteRenderingBackendProxy::dispatchMessage(IPC::Connection& connection, IPC::Decoder& decoder)

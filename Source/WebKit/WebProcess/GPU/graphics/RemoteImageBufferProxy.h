@@ -106,8 +106,8 @@ private:
     void prepareForBackingStoreChange();
 
     void assertDispatcherIsCurrent() const;
-    template<typename T> void send(T&& message) const;
-    template<typename T> auto sendSync(T&& message) const;
+    template<typename T> void send(T&& message);
+    template<typename T> auto sendSync(T&& message);
     RefPtr<IPC::StreamClientConnection> connection() const;
     void didBecomeUnresponsive() const;
 

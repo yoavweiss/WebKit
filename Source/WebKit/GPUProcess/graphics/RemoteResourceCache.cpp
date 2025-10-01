@@ -42,9 +42,10 @@ RemoteResourceCache::RemoteResourceCache() = default;
 
 RemoteResourceCache::~RemoteResourceCache() = default;
 
-bool RemoteResourceCache::cacheNativeImage(WebCore::RenderingResourceIdentifier identifier, Ref<NativeImage>&& image)
+void RemoteResourceCache::cacheNativeImage(Ref<NativeImage>&& image)
 {
-    return m_nativeImages.add(identifier, WTFMove(image)).isNewEntry;
+    auto identifier = image->renderingResourceIdentifier();
+    m_nativeImages.add(identifier, WTFMove(image));
 }
 
 bool RemoteResourceCache::releaseNativeImage(RenderingResourceIdentifier identifier)

@@ -52,7 +52,7 @@ public:
     RemoteResourceCache();
     ~RemoteResourceCache();
 
-    bool cacheNativeImage(WebCore::RenderingResourceIdentifier, Ref<WebCore::NativeImage>&&);
+    void cacheNativeImage(Ref<WebCore::NativeImage>&&);
     bool releaseNativeImage(WebCore::RenderingResourceIdentifier);
     RefPtr<WebCore::NativeImage> cachedNativeImage(WebCore::RenderingResourceIdentifier) const;
 

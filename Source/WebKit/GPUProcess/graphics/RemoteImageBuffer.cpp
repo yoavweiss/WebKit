@@ -132,14 +132,29 @@ void RemoteImageBuffer::putPixelBuffer(const WebCore::PixelBufferSourceView& pix
     m_imageBuffer->putPixelBuffer(pixelBuffer, srcRect, destPoint, destFormat);
 }
 
-void RemoteImageBuffer::copyNativeImage(RenderingResourceIdentifier imageIdentifier)
+void RemoteImageBuffer::getShareableBitmap(WebCore::PreserveResolution preserveResolution, CompletionHandler<void(std::optional<WebCore::ShareableBitmap::Handle>&&)>&& completionHandler)
 {
     assertIsCurrent(workQueue());
-    RefPtr image = m_imageBuffer->copyNativeImage();
-    // FIXME: Handle OOM.
-    MESSAGE_CHECK(image, "OOM");
-    bool success = m_renderingBackend->remoteResourceCache().cacheNativeImage(imageIdentifier, image.releaseNonNull());
-    MESSAGE_CHECK(success, "NativeImage already exists");
+    std::optional<WebCore::ShareableBitmap::Handle> handle = [&]() -> std::optional<WebCore::ShareableBitmap::Handle> {
+        Ref<WebCore::ImageBuffer> imageBuffer = m_imageBuffer;
+        auto backendSize = imageBuffer->backendSize();
+        auto logicalSize = imageBuffer->logicalSize();
+        auto resultSize = preserveResolution == WebCore::PreserveResolution::Yes ? backendSize : imageBuffer->truncatedLogicalSize();
+        if (resultSize.isEmpty())
+            return std::nullopt;
+        auto bitmap = WebCore::ShareableBitmap::create({ resultSize, imageBuffer->colorSpace() });
+        if (!bitmap)
+            return std::nullopt;
+        auto handle = bitmap->createHandle();
+        if (m_renderingBackend->sharedResourceCache().resourceOwner())
+            handle->setOwnershipOfMemory(m_renderingBackend->sharedResourceCache().resourceOwner(), WebCore::MemoryLedger::Graphics);
+        auto context = bitmap->createGraphicsContext();
+        if (!context)
+            return std::nullopt;
+        context->drawImageBuffer(imageBuffer.get(), WebCore::FloatRect { { }, resultSize }, WebCore::FloatRect { { }, logicalSize }, { WebCore::CompositeOperator::Copy });
+        return handle;
+    }();
+    completionHandler(WTFMove(handle));
 }
 
 void RemoteImageBuffer::filteredNativeImage(Ref<WebCore::Filter> filter, CompletionHandler<void(std::optional<WebCore::ShareableBitmap::Handle>&&)>&& completionHandler)

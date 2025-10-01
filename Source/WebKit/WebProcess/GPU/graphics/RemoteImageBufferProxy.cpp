@@ -85,7 +85,7 @@ void RemoteImageBufferProxy::assertDispatcherIsCurrent() const
 }
 
 template<typename T>
-ALWAYS_INLINE void RemoteImageBufferProxy::send(T&& message) const
+ALWAYS_INLINE void RemoteImageBufferProxy::send(T&& message)
 {
     RefPtr connection = this->connection();
     if (!connection) [[unlikely]]
@@ -99,7 +99,7 @@ ALWAYS_INLINE void RemoteImageBufferProxy::send(T&& message) const
 }
 
 template<typename T>
-ALWAYS_INLINE auto RemoteImageBufferProxy::sendSync(T&& message) const
+ALWAYS_INLINE auto RemoteImageBufferProxy::sendSync(T&& message)
 {
     RefPtr connection = this->connection();
     if (!connection) [[unlikely]]
@@ -222,10 +222,11 @@ RefPtr<NativeImage> RemoteImageBufferProxy::copyNativeImage() const
     RefPtr renderingBackend = m_renderingBackend.get();
     if (!renderingBackend) [[unlikely]]
         return { };
-    bool hasAlpha = !pixelFormatIsOpaque(pixelFormat());
-    Ref<NativeImage> nativeImage = renderingBackend->createNativeImage(backendSize(), colorSpace().platformColorSpace(), hasAlpha);
-    const_cast<RemoteImageBufferProxy*>(this)->send(Messages::RemoteImageBuffer::CopyNativeImage(nativeImage->renderingResourceIdentifier()));
-    return nativeImage;
+
+    auto bitmap = renderingBackend->getShareableBitmap(m_renderingResourceIdentifier, PreserveResolution::Yes);
+    if (!bitmap)
+        return { };
+    return NativeImage::create(bitmap->createPlatformImage(DontCopyBackingStore));
 }
 
 RefPtr<NativeImage> RemoteImageBufferProxy::createNativeImageReference() const
