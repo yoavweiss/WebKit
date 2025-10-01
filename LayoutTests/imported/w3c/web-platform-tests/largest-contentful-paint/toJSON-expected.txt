@@ -1,7 +1,5 @@
 Text!
 
 
-Harness Error (TIMEOUT), message = null
-
-TIMEOUT Test toJSON() in LargestContentfulPaint. Test timed out
+PASS Test toJSON() in LargestContentfulPaint.
 

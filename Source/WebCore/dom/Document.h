@@ -222,7 +222,7 @@ class RTCNetworkManager;
 class Range;
 class RealtimeMediaSource;
 class Region;
-class RenderText;
+class RenderBlockFlow;
 class RenderTreeBuilder;
 class RenderView;
 class ReportingScope;
@@ -1483,7 +1483,7 @@ public:
     LargestContentfulPaintData& largestContentfulPaintData() const;
     void didLoadImage(Element&, CachedImage*) const;
     void didPaintImage(Element&, CachedImage*, FloatRect localRect) const;
-    void didPaintText(const RenderText&, FloatRect localRect) const;
+    void didPaintText(const RenderBlockFlow&, FloatRect localRect) const;
 
     int requestAnimationFrame(Ref<RequestAnimationFrameCallback>&&);
     void cancelAnimationFrame(int id);

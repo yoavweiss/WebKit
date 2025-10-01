@@ -9081,12 +9081,12 @@ void Document::didPaintImage(Element& element, CachedImage* image, FloatRect loc
     largestContentfulPaintData().didPaintImage(element, image, localRect);
 }
 
-void Document::didPaintText(const RenderText& renderText, FloatRect localRect) const
+void Document::didPaintText(const RenderBlockFlow& formattingContextRoot, FloatRect localRect) const
 {
     if (!supportsLargestContentfulPaint())
         return;
 
-    largestContentfulPaintData().didPaintText(renderText, localRect);
+    largestContentfulPaintData().didPaintText(formattingContextRoot, localRect);
 }
 
 int Document::requestAnimationFrame(Ref<RequestAnimationFrameCallback>&& callback)

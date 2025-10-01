@@ -106,7 +106,7 @@ void LargestContentfulPaint::setURLString(const String& urlString)
 
 Element* LargestContentfulPaint::element() const
 {
-    RefPtr element = m_element;
+    RefPtr element = m_element.get();
     if (!element)
         return nullptr;
 

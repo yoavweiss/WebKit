@@ -270,6 +270,7 @@ void TextBoxPainter::paint()
             paintCompositionUnderlines();
 
         m_renderer.page().addRelevantRepaintedObject(m_renderer, enclosingLayoutRect(m_paintRect));
+        m_document.didPaintText(textBox().formattingContextRoot(), textBox().visualRectIgnoringBlockDirection());
     }
 
     if (glyphRotation) {

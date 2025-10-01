@@ -4546,6 +4546,8 @@ webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/shadow-dom-null
 webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/timingconditions.html [ Skip ]
 webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/toJSON.html [ Skip ]
 
+webkit.org/b/299907 imported/w3c/web-platform-tests/largest-contentful-paint/transparent-text.html [ Failure ]
+
 # rdar://105509003
 imported/w3c/web-platform-tests/css/css-text/line-break/line-break-anywhere-overrides-uax-behavior-009.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-text/line-break/line-break-anywhere-overrides-uax-behavior-010.html [ ImageOnlyFailure ]

@@ -39,7 +39,7 @@ class Element;
 class HTMLImageElement;
 class LargestContentfulPaint;
 class Node;
-class RenderText;
+class RenderBlockFlow;
 class Text;
 class WeakPtrImplWithEventTargetData;
 
@@ -53,7 +53,7 @@ public:
 
     void didLoadImage(Element&, CachedImage*);
     void didPaintImage(Element&, CachedImage*, FloatRect localRect);
-    void didPaintText(const RenderText&, FloatRect localRect);
+    void didPaintText(const RenderBlockFlow& formattingContextRoot, FloatRect localRect);
 
     RefPtr<LargestContentfulPaint> takePendingEntry(DOMHighResTimeStamp);
 
@@ -77,8 +77,12 @@ private:
         Markable<MonotonicTime> loadTime;
     };
 
+    WeakHashSet<Element, WeakPtrImplWithEventTargetData> m_textContentSet;
+
     WeakHashMap<Element, WeakHashSet<CachedImage>, WeakPtrImplWithEventTargetData> m_imageContentSet;
     WeakHashMap<Element, WeakHashMap<CachedImage, PendingImageData>, WeakPtrImplWithEventTargetData> m_pendingImageRecords;
+
+    WeakHashMap<Element, FloatRect, WeakPtrImplWithEventTargetData> m_paintedTextRecords;
 
     RefPtr<LargestContentfulPaint> m_pendingEntry;
 };
