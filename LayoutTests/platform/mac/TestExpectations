@@ -1397,6 +1397,7 @@ imported/w3c/web-platform-tests/pointerevents/pointerevent_releasepointercapture
 imported/w3c/web-platform-tests/pointerevents/pointerevent_setpointercapture_override_pending_capture_element.html?touch [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerevent_setpointercapture_to_same_element_twice.html?touch [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerevent_pointerrawupdate_changes_pointer_capture.https.html [ Skip ]
+imported/w3c/web-platform-tests/pointerevents/pointerevent_touch-propagates-when-target-is-video_touch.html [ Skip ]
 
 webkit.org/b/274686 imported/w3c/web-platform-tests/pointerevents/pointerevent_capture_mouse_and_release_and_capture_again.html [ Skip ]
 

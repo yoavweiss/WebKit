@@ -4812,6 +4812,7 @@ webkit.org/b/263473 imported/w3c/web-platform-tests/pointerevents/crashtests/lon
 webkit.org/b/263473 imported/w3c/web-platform-tests/pointerevents/pointerevent_click_during_parent_capture.html?pointerType=touch&preventDefault= [ Skip ]
 webkit.org/b/263473 imported/w3c/web-platform-tests/pointerevents/pointerevent_click_during_parent_capture.html?pointerType=touch&preventDefault=pointerdown [ Skip ]
 webkit.org/b/263473 imported/w3c/web-platform-tests/pointerevents/pointerevent_click_during_parent_capture.html?pointerType=touch&preventDefault=touchstart [ Skip ]
+webkit.org/b/263473 imported/w3c/web-platform-tests/pointerevents/pointerevent_touch-propagates-when-target-is-video_touch.html [ Skip ]
 
 webkit.org/b/290133 svg/dom/SVGGeometry-isPointInFill-with-null-path.html [ Skip ]
 
