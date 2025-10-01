@@ -33,6 +33,7 @@
 #include <WebCore/FloatPoint.h>
 #include <WebCore/IntPoint.h>
 #include <WebCore/IntSize.h>
+#include <wtf/Deque.h>
 #include <wtf/RefCounted.h>
 #include <wtf/WeakHashMap.h>
 
@@ -88,6 +89,8 @@ public:
     WebCore::TrackingType eventTrackingTypeForPoint(WebCore::EventTrackingRegions::EventType, WebCore::IntPoint);
 #endif
 
+    void drawSlowFrameIndicator(WebCore::GraphicsContext&);
+
 protected:
     RemoteLayerTreeDrawingAreaProxy(WebPageProxy&, WebProcessProxy&);
 
@@ -107,6 +110,7 @@ protected:
         ProcessState& operator=(ProcessState&&) = default;
 
         CommitLayerTreeMessageState commitLayerTreeMessageState { Idle };
+        std::optional<MonotonicTime> transactionStartTime;
         std::optional<TransactionID> lastLayerTreeTransactionID;
         std::optional<TransactionID> pendingLayerTreeTransactionID;
 
@@ -143,6 +147,9 @@ private:
     void updateDebugIndicator() final;
     void updateDebugIndicator(WebCore::IntSize contentsSize, bool rootLayerChanged, float scale, const WebCore::IntPoint& scrollPosition);
     void initializeDebugIndicator();
+
+    void initializeSlowFrameIndicator();
+    void updateSlowFrameIndicator();
 
     void waitForDidUpdateActivityState(ActivityStateChangeID) final;
     void hideContentUntilPendingUpdate() final;
@@ -195,6 +202,9 @@ private:
     std::unique_ptr<RemoteLayerTreeHost> m_debugIndicatorLayerTreeHost;
     RetainPtr<CALayer> m_tileMapHostLayer;
     RetainPtr<CALayer> m_exposedRectIndicatorLayer;
+
+    RetainPtr<CALayer> m_slowFrameIndicatorLayer;
+    Deque<Seconds> m_frameDurations;
 
     Markable<IPC::AsyncReplyID> m_replyForUnhidingContent;
 

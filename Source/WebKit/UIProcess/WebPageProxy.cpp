@@ -2847,6 +2847,8 @@ void WebPageProxy::setObscuredContentInsets(const WebCore::FloatBoxExtent& obscu
     if (!hasRunningProcess())
         return;
 
+    protectedDrawingArea()->updateDebugIndicator();
+
 #if PLATFORM(COCOA)
     send(Messages::WebPage::SetObscuredContentInsetsFenced(m_internals->obscuredContentInsets, protectedDrawingArea()->createFence()));
 #else
