@@ -27,6 +27,7 @@
 #include "config.h"
 #include "ISO8601.h"
 
+#include "FractionToDouble.h"
 #include "IntlObject.h"
 #include "ParseInt.h"
 #include "TemporalObject.h"

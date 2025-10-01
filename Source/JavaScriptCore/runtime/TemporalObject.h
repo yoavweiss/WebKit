@@ -173,7 +173,7 @@ constexpr Int128 lengthInNanoseconds(TemporalUnit unit)
     case TemporalUnit::Hour:
         return 60 * lengthInNanoseconds(TemporalUnit::Minute);
     case TemporalUnit::Day:
-        return 24 * lengthInNanoseconds(TemporalUnit::Day);
+        return 24 * lengthInNanoseconds(TemporalUnit::Hour);
     default:
         break;
     }

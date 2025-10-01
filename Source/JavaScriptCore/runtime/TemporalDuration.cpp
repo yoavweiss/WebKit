@@ -27,6 +27,7 @@
 #include "config.h"
 #include "TemporalDuration.h"
 
+#include "FractionToDouble.h"
 #include "IntlObjectInlines.h"
 #include "JSCInlines.h"
 #include "TemporalObject.h"
@@ -559,6 +560,15 @@ ISO8601::Duration TemporalDuration::subtract(JSGlobalObject* globalObject, JSVal
     return result;
 }
 
+// https://tc39.es/proposal-temporal/#sec-temporal-totaltimeduration
+static double totalTimeDuration(Int128 timeDuration, TemporalUnit unit)
+{
+    double divisor = static_cast<double>(lengthInNanoseconds(unit));
+    // guaranteed, maximum lengthInNanoseconds is 86400e9
+    ASSERT(isSafeInteger(divisor));
+    return fractionToDouble(timeDuration, divisor);
+}
+
 // RoundDuration ( years, months, weeks, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds, increment, unit, roundingMode [ , relativeTo ] )
 // https://tc39.es/proposal-temporal/#sec-temporal-roundduration
 double TemporalDuration::round(ISO8601::Duration& duration, double increment, TemporalUnit unit, RoundingMode mode)
@@ -702,7 +712,10 @@ double TemporalDuration::total(JSGlobalObject* globalObject, JSValue optionsValu
     TemporalUnit unit = unitType.value();
 
     // FIXME: Implement relativeTo parameter after PlainDateTime / ZonedDateTime.
-    if (unit > TemporalUnit::Year && (years() || months() || weeks() || (days() && unit < TemporalUnit::Day))) {
+    if (unit == TemporalUnit::Week
+        || unit == TemporalUnit::Month
+        || unit == TemporalUnit::Year
+        || (years() || months() || weeks() || (days() && unit < TemporalUnit::Day))) {
         throwRangeError(globalObject, scope, "Cannot total a duration of years, months, or weeks without a relativeTo option"_s);
         return { };
     }
@@ -711,12 +724,9 @@ double TemporalDuration::total(JSGlobalObject* globalObject, JSValue optionsValu
         return { };
     }
 
-    ISO8601::Duration newDuration = m_duration;
-    auto infiniteResult = balance(newDuration, unit);
-    if (infiniteResult)
-        return infiniteResult.value();
-    double remainder = round(newDuration, 1, unit, RoundingMode::Trunc);
-    return newDuration[static_cast<uint8_t>(unit)] + remainder;
+    auto internalDuration = toInternalDurationRecordWith24HourDays(globalObject, m_duration);
+    RETURN_IF_EXCEPTION(scope, { });
+    return totalTimeDuration(internalDuration.time(), unit);
 }
 
 String TemporalDuration::toString(JSGlobalObject* globalObject, JSValue optionsValue) const
