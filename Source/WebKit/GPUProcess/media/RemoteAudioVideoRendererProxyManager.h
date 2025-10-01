@@ -36,6 +36,7 @@
 #include "RemoteAudioVideoRendererState.h"
 #include "RemoteVideoFrameProxy.h"
 #include <WebCore/AudioVideoRenderer.h>
+#include <WebCore/HTMLMediaElementIdentifier.h>
 #include <WebCore/MediaPlayerEnums.h>
 #include <WebCore/MediaPromiseTypes.h>
 #include <wtf/Forward.h>
@@ -47,6 +48,8 @@
 
 namespace WebCore {
 class AudioVideoRenderer;
+struct MediaPlayerIdentifierType;
+using MediaPlayerIdentifier = ObjectIdentifier<MediaPlayerIdentifierType>;
 class TextTrackRepresentation;
 }
 
@@ -73,9 +76,11 @@ public:
 
     std::optional<SharedPreferencesForWebProcess> sharedPreferencesForWebProcess() const;
 
+    RefPtr<WebCore::AudioVideoRenderer> rendererFor(std::optional<WebCore::MediaPlayerIdentifier>) const;
+
 private:
     // Messages
-    void create(RemoteAudioVideoRendererIdentifier);
+    void create(RemoteAudioVideoRendererIdentifier, WebCore::HTMLMediaElementIdentifier, WebCore::MediaPlayerIdentifier);
     void shutdown(RemoteAudioVideoRendererIdentifier);
 
     void setPreferences(RemoteAudioVideoRendererIdentifier, WebCore::VideoRendererPreferences);
@@ -143,6 +148,8 @@ private:
 
     struct RendererContext {
         RefPtr<WebCore::AudioVideoRenderer> renderer;
+        Markable<WebCore::HTMLMediaElementIdentifier> mediaElementIdentifier;
+        Markable<WebCore::MediaPlayerIdentifier> playerIdentifier;
 #if PLATFORM(COCOA)
         LayerHostingContextManager layerHostingContextManager;
 #endif

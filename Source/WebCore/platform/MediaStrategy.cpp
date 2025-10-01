@@ -88,7 +88,7 @@ void MediaStrategy::addMockMediaSourceEngine()
 #endif
 
 #if ENABLE(VIDEO)
-RefPtr<AudioVideoRenderer> MediaStrategy::createAudioVideoRenderer(WTF::LoggerHelper* loggerHelper) const
+RefPtr<AudioVideoRenderer> MediaStrategy::createAudioVideoRenderer(WTF::LoggerHelper* loggerHelper, HTMLMediaElementIdentifier, MediaPlayerIdentifier) const
 {
 #if USE(AVFOUNDATION)
     ASSERT(loggerHelper);

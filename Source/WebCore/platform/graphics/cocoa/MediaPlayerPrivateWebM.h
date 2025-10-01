@@ -29,6 +29,7 @@
 #if ENABLE(COCOA_WEBM_PLAYER)
 
 #include <WebCore/AudioVideoRenderer.h>
+#include <WebCore/HTMLMediaElementIdentifier.h>
 #include <WebCore/MediaPlayerPrivate.h>
 #include <WebCore/PlatformLayer.h>
 #include <WebCore/SourceBufferParserWebM.h>
@@ -301,7 +302,7 @@ private:
     void maybeFinishLoading();
     void readyToProcessData();
 
-    static Ref<AudioVideoRenderer> createRenderer(LoggerHelper&);
+    static Ref<AudioVideoRenderer> createRenderer(LoggerHelper&, HTMLMediaElementIdentifier, MediaPlayerIdentifier);
 
     URL m_assetURL;
     MediaPlayer::Preload m_preload { MediaPlayer::Preload::Auto };
@@ -382,8 +383,8 @@ private:
     String m_defaultSpatialTrackingLabel;
     String m_spatialTrackingLabel;
 #endif
-    const Ref<AudioVideoRenderer> m_renderer;
     const MediaPlayerIdentifier m_playerIdentifier;
+    const Ref<AudioVideoRenderer> m_renderer;
 };
 
 } // namespace WebCore

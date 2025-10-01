@@ -34,6 +34,11 @@
 #include <wtf/LoggerHelper.h>
 #include <wtf/TZoneMalloc.h>
 
+namespace WebCore {
+class AudioVideoRenderer;
+class MediaPlayer;
+}
+
 namespace WebKit {
 
 class GPUConnectionToWebProcess;
@@ -69,6 +74,7 @@ private:
         Markable<WebCore::VideoReceiverEndpointIdentifier> endpointIdentifier;
     };
     HashMap<WebCore::HTMLMediaElementIdentifier, VideoReceiverEndpointCacheEntry> m_videoReceiverEndpointCache;
+    void setVideoTargetIfValidIdentifier(std::optional<WebCore::MediaPlayerIdentifier>, const WebCore::PlatformVideoTarget&) const;
 
     ThreadSafeWeakPtr<GPUConnectionToWebProcess> m_gpuConnection;
 #if !RELEASE_LOG_DISABLED

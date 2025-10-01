@@ -71,12 +71,12 @@ WorkQueue& AudioVideoRendererRemote::queueSingleton()
     return workQueue.get();
 }
 
-Ref<AudioVideoRendererRemote> AudioVideoRendererRemote::create(LoggerHelper* loggerHelper, GPUProcessConnection& connection)
+Ref<AudioVideoRendererRemote> AudioVideoRendererRemote::create(LoggerHelper* loggerHelper, WebCore::HTMLMediaElementIdentifier mediaElementIdentifier, WebCore::MediaPlayerIdentifier playerIdentifier, GPUProcessConnection& connection)
 {
     assertIsMainThread();
 
     auto identifier = RemoteAudioVideoRendererIdentifier::generate();
-    connection.connection().send(Messages::RemoteAudioVideoRendererProxyManager::Create(identifier), 0);
+    connection.connection().send(Messages::RemoteAudioVideoRendererProxyManager::Create(identifier, mediaElementIdentifier, playerIdentifier), 0);
     return adoptRef(*new AudioVideoRendererRemote(loggerHelper, connection, identifier));
 }
 

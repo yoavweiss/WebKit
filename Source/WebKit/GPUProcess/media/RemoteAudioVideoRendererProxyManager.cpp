@@ -35,11 +35,15 @@
 #include "Logging.h"
 #include "RemoteAudioVideoRendererProxyManagerMessages.h"
 #include "RemoteVideoFrameObjectHeap.h"
+#if ENABLE(LINEAR_MEDIA_PLAYER)
+#include "VideoReceiverEndpointManager.h"
+#endif
 #if USE(AVFOUNDATION)
 #include <WebCore/AudioVideoRendererAVFObjC.h>
 #else
 #include <WebCore/AudioVideoRenderer.h>
 #endif
+#include <WebCore/MediaPlayerIdentifier.h>
 #include <WebCore/MediaSamplesBlock.h>
 #include <WebCore/PlatformLayer.h>
 
@@ -47,6 +51,7 @@
 #if PLATFORM(COCOA)
 #include <wtf/MachSendRightAnnotated.h>
 #endif
+#include <wtf/Markable.h>
 #include <wtf/TZoneMallocInlines.h>
 
 #define MESSAGE_CHECK(assertion) MESSAGE_CHECK_BASE(assertion, m_gpuConnectionToWebProcess.get()->connection())
@@ -102,7 +107,7 @@ std::optional<SharedPreferencesForWebProcess> RemoteAudioVideoRendererProxyManag
     return std::nullopt;
 }
 
-void RemoteAudioVideoRendererProxyManager::create(RemoteAudioVideoRendererIdentifier identifier)
+void RemoteAudioVideoRendererProxyManager::create(RemoteAudioVideoRendererIdentifier identifier, WebCore::HTMLMediaElementIdentifier mediaElementIdentifier, WebCore::MediaPlayerIdentifier playerIdentifier)
 {
     MESSAGE_CHECK(!m_renderers.contains(identifier));
 
@@ -111,7 +116,9 @@ void RemoteAudioVideoRendererProxyManager::create(RemoteAudioVideoRendererIdenti
     if (!renderer)
         return;
     RendererContext context {
-        .renderer = renderer.releaseNonNull()
+        .renderer = renderer.releaseNonNull(),
+        .mediaElementIdentifier = mediaElementIdentifier,
+        .playerIdentifier = playerIdentifier
     };
 
     context.renderer->notifyWhenErrorOccurs([weakThis = WeakPtr { *this }, identifier](PlatformMediaError error) {
@@ -153,6 +160,11 @@ void RemoteAudioVideoRendererProxyManager::create(RemoteAudioVideoRendererIdenti
             protectedThis->m_gpuConnectionToWebProcess.get()->connection().send(Messages::AudioVideoRendererRemoteMessageReceiver::StateUpdate(protectedThis->stateFor(identifier)), identifier);
     });
 
+#if ENABLE(LINEAR_MEDIA_PLAYER)
+    RetainPtr videoTarget = m_gpuConnectionToWebProcess.get()->videoReceiverEndpointManager().takeVideoTargetForMediaElementIdentifier(mediaElementIdentifier, playerIdentifier);
+    context.renderer->setVideoTarget(videoTarget.get());
+#endif
+
     m_renderers.set(identifier, WTFMove(context));
 }
 
@@ -169,6 +181,18 @@ RefPtr<WebCore::AudioVideoRenderer> RemoteAudioVideoRendererProxyManager::render
     auto iterator = m_renderers.find(identifier);
     MESSAGE_CHECK_WITH_RETURN_VALUE_BASE(iterator != m_renderers.end(), m_gpuConnectionToWebProcess.get()->connection(), nullptr);
     return iterator->value.renderer.copyRef();
+}
+
+RefPtr<WebCore::AudioVideoRenderer> RemoteAudioVideoRendererProxyManager::rendererFor(std::optional<MediaPlayerIdentifier> playerIdentifier) const
+{
+    if (!playerIdentifier)
+        return nullptr;
+
+    for (auto& context : m_renderers.values()) {
+        if (context.playerIdentifier == playerIdentifier)
+            return context.renderer.copyRef();
+    }
+    return nullptr;
 }
 
 RemoteAudioVideoRendererProxyManager::RendererContext& RemoteAudioVideoRendererProxyManager::contextFor(RemoteAudioVideoRendererIdentifier identifier)

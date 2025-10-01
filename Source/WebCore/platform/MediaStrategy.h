@@ -29,7 +29,9 @@
 #if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER)
 #include <WebCore/MediaRecorderPrivateWriter.h>
 #endif
+#include <WebCore/HTMLMediaElementIdentifier.h>
 #include <WebCore/MediaPlayerEnums.h>
+#include <WebCore/MediaPlayerIdentifier.h>
 #include <WebCore/NativeImage.h>
 #include <WebCore/NowPlayingManager.h>
 #include <wtf/BitSet.h>
@@ -56,7 +58,7 @@ public:
     virtual Ref<AudioDestination> createAudioDestination(const AudioDestinationCreationOptions&) = 0;
 #endif
 #if ENABLE(VIDEO)
-    virtual RefPtr<AudioVideoRenderer> createAudioVideoRenderer(WTF::LoggerHelper*) const;
+    virtual RefPtr<AudioVideoRenderer> createAudioVideoRenderer(WTF::LoggerHelper*, HTMLMediaElementIdentifier, MediaPlayerIdentifier) const;
     bool hasRemoteRendererFor(MediaPlayerMediaEngineIdentifier) const;
     void enableRemoteRenderer(MediaPlayerMediaEngineIdentifier, bool);
 #endif

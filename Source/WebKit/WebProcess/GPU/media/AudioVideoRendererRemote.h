@@ -34,6 +34,8 @@
 #include "VideoLayerRemote.h"
 #include "WorkQueueMessageReceiver.h"
 #include <WebCore/AudioVideoRenderer.h>
+#include <WebCore/HTMLMediaElementIdentifier.h>
+#include <WebCore/MediaPlayerIdentifier.h>
 #include <wtf/Forward.h>
 #include <wtf/LoggerHelper.h>
 #include <wtf/RefPtr.h>
@@ -60,7 +62,7 @@ class AudioVideoRendererRemote final
     , public GPUProcessConnection::Client
     , public ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr<AudioVideoRendererRemote> {
 public:
-    static Ref<AudioVideoRendererRemote> create(LoggerHelper*, GPUProcessConnection&);
+    static Ref<AudioVideoRendererRemote> create(LoggerHelper*, WebCore::HTMLMediaElementIdentifier, WebCore::MediaPlayerIdentifier, GPUProcessConnection&);
     ~AudioVideoRendererRemote();
 
     WTF_ABSTRACT_THREAD_SAFE_REF_COUNTED_AND_CAN_MAKE_WEAK_PTR_IMPL;
