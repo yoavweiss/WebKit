@@ -24,7 +24,7 @@
  */
 
 #include "config.h"
-#include "WebDocumentSyncClient.h"
+#include "WebProcessSyncClient.h"
 
 #include "MessageSenderInlines.h"
 #include "WebPage.h"
@@ -37,35 +37,34 @@
 
 namespace WebKit {
 
-WTF_MAKE_TZONE_ALLOCATED_IMPL(WebDocumentSyncClient);
+WTF_MAKE_TZONE_ALLOCATED_IMPL(WebProcessSyncClient);
 
-WebDocumentSyncClient::WebDocumentSyncClient(WebPage& webPage)
+WebProcessSyncClient::WebProcessSyncClient(WebPage& webPage)
     : m_page(webPage)
 {
 }
 
-Ref<WebPage> WebDocumentSyncClient::protectedPage() const
+Ref<WebPage> WebProcessSyncClient::protectedPage() const
 {
     return m_page.get();
 }
 
-bool WebDocumentSyncClient::siteIsolationEnabled()
+bool WebProcessSyncClient::siteIsolationEnabled()
 {
     RefPtr corePage = protectedPage()->corePage();
     return corePage ? corePage->settings().siteIsolationEnabled() : false;
 }
 
-void WebDocumentSyncClient::broadcastDocumentSyncDataToOtherProcesses(const WebCore::DocumentSyncSerializationData& data)
+void WebProcessSyncClient::broadcastProcessSyncDataToOtherProcesses(const WebCore::ProcessSyncData& data)
 {
     ASSERT(siteIsolationEnabled());
-    protectedPage()->send(Messages::WebPageProxy::BroadcastDocumentSyncData(data));
+    protectedPage()->send(Messages::WebPageProxy::BroadcastProcessSyncData(data));
 }
 
-void WebDocumentSyncClient::broadcastAllDocumentSyncDataToOtherProcesses(WebCore::DocumentSyncData& data)
+void WebProcessSyncClient::broadcastTopDocumentSyncDataToOtherProcesses(WebCore::DocumentSyncData& data)
 {
-    ASSERT(protectedPage()->localMainFrame());
     ASSERT(siteIsolationEnabled());
-    protectedPage()->send(Messages::WebPageProxy::BroadcastAllDocumentSyncData(data));
+    protectedPage()->send(Messages::WebPageProxy::BroadcastTopDocumentSyncData(data));
 }
 
 } // namespace WebKit

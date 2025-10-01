@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <WebCore/DocumentSyncClient.h>
+#include <WebCore/ProcessSyncClient.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/WeakRef.h>
 
@@ -33,17 +33,17 @@ namespace WebKit {
 
 class WebPage;
 
-class WebDocumentSyncClient :  public WebCore::DocumentSyncClient {
-    WTF_MAKE_TZONE_ALLOCATED(WebDocumentSyncClient);
+class WebProcessSyncClient :  public WebCore::ProcessSyncClient {
+    WTF_MAKE_TZONE_ALLOCATED(WebProcessSyncClient);
 public:
-    WebDocumentSyncClient(WebPage&);
-    ~WebDocumentSyncClient() = default;
+    WebProcessSyncClient(WebPage&);
+    ~WebProcessSyncClient() = default;
 
 private:
     bool siteIsolationEnabled();
 
-    void broadcastDocumentSyncDataToOtherProcesses(const WebCore::DocumentSyncSerializationData&) final;
-    void broadcastAllDocumentSyncDataToOtherProcesses(WebCore::DocumentSyncData&) final;
+    void broadcastProcessSyncDataToOtherProcesses(const WebCore::ProcessSyncData&) final;
+    void broadcastTopDocumentSyncDataToOtherProcesses(WebCore::DocumentSyncData&) final;
 
     Ref<WebPage> protectedPage() const;
 

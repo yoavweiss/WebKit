@@ -38,7 +38,6 @@
 #include "CryptoClient.h"
 #include "DatabaseProvider.h"
 #include "DiagnosticLoggingClient.h"
-#include "DocumentSyncClient.h"
 #include "DragClient.h"
 #include "EditorClient.h"
 #include "Frame.h"
@@ -48,6 +47,7 @@
 #include "ModelPlayerProvider.h"
 #include "PerformanceLoggingClient.h"
 #include "PluginInfoProvider.h"
+#include "ProcessSyncClient.h"
 #include "ProgressTrackerClient.h"
 #include "RemoteFrameClient.h"
 #include "ScreenOrientationManager.h"
@@ -104,7 +104,7 @@ PageConfiguration::PageConfiguration(
 #endif
     UniqueRef<ChromeClient>&& chromeClient,
     UniqueRef<CryptoClient>&& cryptoClient,
-    UniqueRef<DocumentSyncClient>&& documentSyncClient
+    UniqueRef<ProcessSyncClient>&& processSyncClient
 #if HAVE(DIGITAL_CREDENTIALS_UI)
     , Ref<CredentialRequestCoordinatorClient>&& credentialRequestCoordinatorClient
 #endif
@@ -136,7 +136,7 @@ PageConfiguration::PageConfiguration(
     , badgeClient(WTFMove(badgeClient))
     , historyItemClient(WTFMove(historyItemClient))
     , cryptoClient(WTFMove(cryptoClient))
-    , documentSyncClient(WTFMove(documentSyncClient))
+    , processSyncClient(WTFMove(processSyncClient))
 #if HAVE(DIGITAL_CREDENTIALS_UI)
     , credentialRequestCoordinatorClient(WTFMove(credentialRequestCoordinatorClient))
 #endif

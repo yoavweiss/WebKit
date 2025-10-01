@@ -84,7 +84,6 @@
 #include "DocumentLoader.h"
 #include "DocumentMarkerController.h"
 #include "DocumentSharedObjectPool.h"
-#include "DocumentSyncData.h"
 #include "DocumentTimeline.h"
 #include "DocumentType.h"
 #include "DragEvent.h"
@@ -225,6 +224,7 @@
 #include "PolicyChecker.h"
 #include "PopStateEvent.h"
 #include "Position.h"
+#include "ProcessSyncData.h"
 #include "ProcessingInstruction.h"
 #include "PseudoClassChangeInvalidation.h"
 #include "PublicSuffixStore.h"
@@ -727,32 +727,34 @@ Document::Document(LocalFrame* frame, const Settings& settings, const URL& url, 
 
     // We walk all of the relevant enums to popular one at a time in a switch statement to make sure
     // that an engineer writes the relevant manual code whenever a new generated type is added.
-    for (const DocumentSyncDataType dataType : allDocumentSyncDataTypes)
+    for (const ProcessSyncDataType dataType : allDocumentSyncDataTypes)
         populateDocumentSyncDataForNewlyConstructedDocument(dataType);
 
     if (!settings.mutationEventsEnabled())
         m_shouldNotFireMutationEvents = true;
 }
 
-void Document::populateDocumentSyncDataForNewlyConstructedDocument(DocumentSyncDataType dataType)
+void Document::populateDocumentSyncDataForNewlyConstructedDocument(ProcessSyncDataType dataType)
 {
     switch (dataType) {
-    case DocumentSyncDataType::DocumentClasses:
+    case ProcessSyncDataType::DocumentClasses:
         m_syncData->documentClasses = m_documentClasses;
         break;
 #if ENABLE(DOM_AUDIO_SESSION)
-    case DocumentSyncDataType::AudioSessionType:
+    case ProcessSyncDataType::AudioSessionType:
         m_syncData->audioSessionType = DOMAudioSession::Type::Auto;
         break;
 #endif
     // The following either have default values that match a newly constructed document
     // or are populated other ways even on newly constructed documents.
-    case DocumentSyncDataType::DocumentSecurityOrigin:
-    case DocumentSyncDataType::DocumentURL:
-    case DocumentSyncDataType::HasInjectedUserScript:
-    case DocumentSyncDataType::IsClosing:
-    case DocumentSyncDataType::IsAutofocusProcessed:
-    case DocumentSyncDataType::UserDidInteractWithPage:
+    case ProcessSyncDataType::DocumentSecurityOrigin:
+    case ProcessSyncDataType::DocumentURL:
+    case ProcessSyncDataType::HasInjectedUserScript:
+    case ProcessSyncDataType::IsClosing:
+    case ProcessSyncDataType::IsAutofocusProcessed:
+    case ProcessSyncDataType::UserDidInteractWithPage:
+    case ProcessSyncDataType::FrameCanCreatePaymentSession:
+    case ProcessSyncDataType::FrameDocumentSecurityOrigin:
         break;
     }
 }

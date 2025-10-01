@@ -86,7 +86,7 @@ class ModelPlayerProvider;
 class PaymentCoordinatorClient;
 class PerformanceLoggingClient;
 class PluginInfoProvider;
-class DocumentSyncClient;
+class ProcessSyncClient;
 class ProgressTrackerClient;
 class RemoteFrame;
 class RemoteFrameClient;
@@ -146,7 +146,7 @@ public:
 #endif
         UniqueRef<ChromeClient>&&,
         UniqueRef<CryptoClient>&&,
-        UniqueRef<DocumentSyncClient>&&
+        UniqueRef<ProcessSyncClient>&&
 #if HAVE(DIGITAL_CREDENTIALS_UI)
         , Ref<CredentialRequestCoordinatorClient>&&
 #endif
@@ -234,7 +234,7 @@ public:
     ContentSecurityPolicyModeForExtension contentSecurityPolicyModeForExtension { WebCore::ContentSecurityPolicyModeForExtension::None };
     UniqueRef<CryptoClient> cryptoClient;
 
-    UniqueRef<DocumentSyncClient> documentSyncClient;
+    UniqueRef<ProcessSyncClient> processSyncClient;
 
 #if PLATFORM(VISION) && ENABLE(GAMEPAD)
     ShouldRequireExplicitConsentForGamepadAccess gamepadAccessRequiresExplicitConsent { ShouldRequireExplicitConsentForGamepadAccess::No };

@@ -151,7 +151,6 @@
 #import <WebCore/Document.h>
 #import <WebCore/DocumentFullscreen.h>
 #import <WebCore/DocumentLoader.h>
-#import <WebCore/DocumentSyncClient.h>
 #import <WebCore/DragController.h>
 #import <WebCore/DragData.h>
 #import <WebCore/DragItem.h>
@@ -211,6 +210,7 @@
 #import <WebCore/PlatformEventFactoryMac.h>
 #import <WebCore/PlatformScreen.h>
 #import <WebCore/PlatformTextAlternatives.h>
+#import <WebCore/ProcessSyncClient.h>
 #import <WebCore/ProgressTracker.h>
 #import <WebCore/Range.h>
 #import <WebCore/RemoteFrameClient.h>
@@ -1489,7 +1489,7 @@ static void WebKitInitializeGamepadProviderIfNecessary()
         makeUniqueRef<WebChromeClientIOS>(self),
 #endif
         makeUniqueRef<WebCryptoClient>(self),
-        makeUniqueRef<WebCore::DocumentSyncClient>()
+        makeUniqueRef<WebCore::ProcessSyncClient>()
 #if HAVE(DIGITAL_CREDENTIALS_UI)
         , WebCore::DummyCredentialRequestCoordinatorClient::create()
 #endif
@@ -1744,7 +1744,7 @@ static void WebKitInitializeGamepadProviderIfNecessary()
 #endif
         makeUniqueRef<WebChromeClientIOS>(self),
         makeUniqueRef<WebCryptoClient>(self),
-        makeUniqueRef<WebCore::DocumentSyncClient>()
+        makeUniqueRef<WebCore::ProcessSyncClient>()
 #if HAVE(DIGITAL_CREDENTIALS_UI)
         , WebCore::DummyCredentialRequestCoordinatorClient::create()
 #endif

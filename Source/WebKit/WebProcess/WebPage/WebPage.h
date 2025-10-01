@@ -312,7 +312,7 @@ struct MessageWithMessagePorts;
 struct NavigationIdentifierType;
 struct NowPlayingInfo;
 struct PlatformMediaSessionRemoteCommandArgument;
-struct DocumentSyncSerializationData;
+struct ProcessSyncData;
 struct PromisedAttachmentInfo;
 struct RemoteUserInputEventData;
 struct RequestStorageAccessResult;
@@ -802,8 +802,8 @@ public:
     void frameWasRemovedInAnotherProcess(WebCore::FrameIdentifier);
     void updateFrameTreeSyncData(WebCore::FrameIdentifier, Ref<WebCore::FrameTreeSyncData>&&);
 
-    void topDocumentSyncDataChangedInAnotherProcess(const WebCore::DocumentSyncSerializationData&);
-    void allTopDocumentSyncDataChangedInAnotherProcess(Ref<WebCore::DocumentSyncData>&&);
+    void processSyncDataChangedInAnotherProcess(const WebCore::ProcessSyncData&);
+    void topDocumentSyncDataChangedInAnotherProcess(Ref<WebCore::DocumentSyncData>&&);
 
     std::optional<WebCore::SimpleRange> currentSelectionAsRange();
 

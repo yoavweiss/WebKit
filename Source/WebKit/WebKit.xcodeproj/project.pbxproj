@@ -1157,7 +1157,7 @@
 		512CD6982721EFC800F7F8EC /* WebPushDaemonConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 512CD6972721EFC300F7F8EC /* WebPushDaemonConnection.h */; };
 		512CD69A2721F0A900F7F8EC /* WebPushDaemonConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 512CD6992721F04900F7F8EC /* WebPushDaemonConstants.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		512ECC3527196ADB00089B66 /* PrivateClickMeasurementConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 5CB930FE26E802160032B1C0 /* PrivateClickMeasurementConnection.h */; };
-		512F03842CDA9B34009F7ABC /* WebDocumentSyncClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 512F03812CDA9B34009F7ABC /* WebDocumentSyncClient.h */; };
+		512F03842CDA9B34009F7ABC /* WebProcessSyncClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 512F03812CDA9B34009F7ABC /* WebProcessSyncClient.h */; };
 		512F589712A8838800629530 /* AuthenticationChallengeProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 512F588F12A8838800629530 /* AuthenticationChallengeProxy.h */; };
 		512F589912A8838800629530 /* AuthenticationDecisionListener.h in Headers */ = {isa = PBXBuildFile; fileRef = 512F589112A8838800629530 /* AuthenticationDecisionListener.h */; };
 		512F589B12A8838800629530 /* WebCredential.h in Headers */ = {isa = PBXBuildFile; fileRef = 512F589312A8838800629530 /* WebCredential.h */; };
@@ -5738,8 +5738,8 @@
 		512CD69C27223A0800F7F8EC /* WebPushDaemonConnectionCocoa.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebPushDaemonConnectionCocoa.mm; sourceTree = "<group>"; };
 		512CD69D2723393A00F7F8EC /* WebPushDaemon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebPushDaemon.h; sourceTree = "<group>"; };
 		512CD69E2723393A00F7F8EC /* WebPushDaemon.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebPushDaemon.mm; sourceTree = "<group>"; };
-		512F03812CDA9B34009F7ABC /* WebDocumentSyncClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebDocumentSyncClient.h; sourceTree = "<group>"; };
-		512F03822CDA9B34009F7ABC /* WebDocumentSyncClient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebDocumentSyncClient.cpp; sourceTree = "<group>"; };
+		512F03812CDA9B34009F7ABC /* WebProcessSyncClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebProcessSyncClient.h; sourceTree = "<group>"; };
+		512F03822CDA9B34009F7ABC /* WebProcessSyncClient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebProcessSyncClient.cpp; sourceTree = "<group>"; };
 		512F588E12A8838800629530 /* AuthenticationChallengeProxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AuthenticationChallengeProxy.cpp; sourceTree = "<group>"; };
 		512F588F12A8838800629530 /* AuthenticationChallengeProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthenticationChallengeProxy.h; sourceTree = "<group>"; };
 		512F589012A8838800629530 /* AuthenticationDecisionListener.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AuthenticationDecisionListener.cpp; sourceTree = "<group>"; };
@@ -14856,8 +14856,6 @@
 				E55CD1F324CF747D0042DB9C /* WebDateTimeChooser.h */,
 				CD19A2691A13E820008D650E /* WebDiagnosticLoggingClient.cpp */,
 				CD19A26A1A13E821008D650E /* WebDiagnosticLoggingClient.h */,
-				512F03822CDA9B34009F7ABC /* WebDocumentSyncClient.cpp */,
-				512F03812CDA9B34009F7ABC /* WebDocumentSyncClient.h */,
 				BC111A56112F4FBB00337BAB /* WebDragClient.cpp */,
 				BC032D6610F4378D0058C15A /* WebDragClient.h */,
 				BC111A57112F4FBB00337BAB /* WebEditorClient.cpp */,
@@ -14888,6 +14886,8 @@
 				1A3E735F11CC2659007BD539 /* WebPlatformStrategies.h */,
 				D3B9484211FF4B6500032B39 /* WebPopupMenu.cpp */,
 				D3B9484311FF4B6500032B39 /* WebPopupMenu.h */,
+				512F03822CDA9B34009F7ABC /* WebProcessSyncClient.cpp */,
+				512F03812CDA9B34009F7ABC /* WebProcessSyncClient.h */,
 				1A1E093118861D3800D2DC49 /* WebProgressTrackerClient.cpp */,
 				1A1E093218861D3800D2DC49 /* WebProgressTrackerClient.h */,
 				5C2397D42949235700BB4E10 /* WebRemoteFrameClient.cpp */,
@@ -18093,7 +18093,6 @@
 				E3866B082399A2D100F88FE9 /* WebDeviceOrientationUpdateProviderProxyMessages.h in Headers */,
 				CD19A26E1A13E834008D650E /* WebDiagnosticLoggingClient.h in Headers */,
 				7AFA6F712A9F590A0055322A /* WebDisplayRefreshMonitor.h in Headers */,
-				512F03842CDA9B34009F7ABC /* WebDocumentSyncClient.h in Headers */,
 				BC032D7B10F4378D0058C15A /* WebDragClient.h in Headers */,
 				99A514662D5AC3E400937177 /* WebDriverBidiBackendDispatchers.h in Headers */,
 				99A514652D5AC3E400937177 /* WebDriverBidiFrontendDispatchers.h in Headers */,
@@ -18321,6 +18320,7 @@
 				BC032DD510F4389F0058C15A /* WebProcessProxy.h in Headers */,
 				BCEE7AD112817988009827DA /* WebProcessProxyMessages.h in Headers */,
 				BCE0E425168B7A280057E66A /* WebProcessSupplement.h in Headers */,
+				512F03842CDA9B34009F7ABC /* WebProcessSyncClient.h in Headers */,
 				1A1E093418861D3800D2DC49 /* WebProgressTrackerClient.h in Headers */,
 				512F589D12A8838800629530 /* WebProtectionSpace.h in Headers */,
 				517B5F7F275E97B6002DC22D /* WebPushDaemon.h in Headers */,

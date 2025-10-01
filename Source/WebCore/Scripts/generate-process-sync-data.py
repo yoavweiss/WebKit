@@ -55,6 +55,7 @@ _header_license = """/*
 
 class SyncedData(object):
     def __init__(self, name, underlying_type_namespace, underlying_type, options):
+        self.automatic_location = None
         self.conditional = None
         self.header = None
         self.variant_index = None
@@ -62,7 +63,13 @@ class SyncedData(object):
         if options is not None:
             option_list = options.split()
             for option in option_list:
-                if option.startswith('Conditional='):
+                if option == 'DocumentSyncData':
+                    self.automatic_location = "DocumentSyncData"
+                    continue
+                elif option == 'FrameTreeSyncData':
+                    self.automatic_location = "FrameTreeSyncData"
+                    continue
+                elif option.startswith('Conditional='):
                     self.conditional = option[12:]
                 elif option.startswith('Header='):
                     self.header = option[7:]
@@ -121,31 +128,31 @@ def parse_process_sync_data(file):
 
 
 _process_sync_client_header_prefix = """
-namespace WebCore {{
+namespace WebCore {
 
-class {prefix}SyncData;
-struct {prefix}SyncSerializationData;
+class DocumentSyncData;
+struct ProcessSyncData;
 
-class {prefix}SyncClient {{
-    WTF_MAKE_TZONE_ALLOCATED_INLINE({prefix}SyncClient);
+class ProcessSyncClient {
+    WTF_MAKE_TZONE_ALLOCATED_INLINE(ProcessSyncClient);
 
 public:
-    {prefix}SyncClient() = default;
-    virtual ~{prefix}SyncClient() = default;
+    ProcessSyncClient() = default;
+    virtual ~ProcessSyncClient() = default;
 
-    virtual void broadcastAll{prefix}SyncDataToOtherProcesses({prefix}SyncData&) {{ }}
+    virtual void broadcastTopDocumentSyncDataToOtherProcesses(DocumentSyncData&) { }
 """
 
 _process_sync_client_header_suffix = """
 protected:
-    virtual void broadcast{prefix}SyncDataToOtherProcesses(const {prefix}SyncSerializationData&) {{ }}
-}};
+    virtual void broadcastProcessSyncDataToOtherProcesses(const ProcessSyncData&) { }
+};
 
-}} // namespace WebCore
+} // namespace WebCore
 """
 
 
-def generate_process_sync_client_header(prefix, synched_datas):
+def generate_process_sync_client_header(synched_datas):
     result = []
     result.append(_header_license)
     result.append('#pragma once\n')
@@ -155,7 +162,7 @@ def generate_process_sync_client_header(prefix, synched_datas):
     for header in headers:
         result.append('#include %s' % header)
 
-    result.append(_process_sync_client_header_prefix.format(prefix=prefix))
+    result.append(_process_sync_client_header_prefix)
 
     for data in synched_datas:
         if data.conditional is not None:
@@ -164,34 +171,34 @@ def generate_process_sync_client_header(prefix, synched_datas):
         if data.conditional is not None:
             result.append('#endif')
 
-    result.append(_process_sync_client_header_suffix.format(prefix=prefix))
+    result.append(_process_sync_client_header_suffix)
     return '\n'.join(result)
 
 
 _process_sync_client_impl_prefix = """
 #include "config.h"
-#include "{prefix}SyncClient.h"
+#include "ProcessSyncClient.h"
 
-#include "{prefix}SyncData.h"
+#include "ProcessSyncData.h"
 #include <wtf/EnumTraits.h>
 
-namespace WebCore {{
+namespace WebCore {
 """
 
 
-def generate_process_sync_client_impl(prefix, synched_datas):
+def generate_process_sync_client_impl(synched_datas):
     result = []
     result.append(_header_license)
-    result.append(_process_sync_client_impl_prefix.format(prefix=prefix))
+    result.append(_process_sync_client_impl_prefix)
 
     for data in synched_datas:
         if data.conditional is not None:
             result.append('#if %s' % data.conditional)
-        result.append('void %sSyncClient::broadcast%sToOtherProcesses(const %s& data)' % (prefix, data.name, data.fully_qualified_type))
+        result.append('void ProcessSyncClient::broadcast%sToOtherProcesses(const %s& data)' % (data.name, data.fully_qualified_type))
         result.append('{')
-        result.append('    %sSyncDataVariant dataVariant;' % (prefix))
-        result.append('    dataVariant.emplace<enumToUnderlyingType(%sSyncDataType::%s)>(data);' % (prefix, data.name))
-        result.append('    broadcast%sSyncDataToOtherProcesses({ %sSyncDataType::%s, WTFMove(dataVariant) });' % (prefix, prefix, data.name))
+        result.append('    ProcessSyncDataVariant dataVariant;')
+        result.append('    dataVariant.emplace<enumToUnderlyingType(ProcessSyncDataType::%s)>(data);' % data.name)
+        result.append('    broadcastProcessSyncDataToOtherProcesses({ ProcessSyncDataType::%s, WTFMove(dataVariant) });' % data.name)
         result.append('}')
         if data.conditional is not None:
             result.append('#endif')
@@ -201,19 +208,28 @@ def generate_process_sync_client_impl(prefix, synched_datas):
 
 
 _process_sync_data_header_suffix = """
-struct {prefix}SyncSerializationData {{
-    {prefix}SyncDataType type;
-    {prefix}SyncDataVariant value;
-}};
+struct ProcessSyncData {
+    ProcessSyncDataType type;
+    ProcessSyncDataVariant value;
+};
 
+}; // namespace WebCore
 """
 
 
-def generate_process_sync_data_header(prefix, variant_sorted_synched_datas, sync_data_sorted_synched_datas):
+def generate_process_sync_data_header(synched_datas, document_synched_datas, frame_tree_synched_datas):
     result = []
+    result.append(_header_license)
+    result.append('#pragma once\n')
 
-    result.append("enum class %sSyncDataType : uint8_t {" % prefix)
-    for data in variant_sorted_synched_datas:
+    headers = headers_from_datas(synched_datas)
+    headers.append('<variant>')
+    for header in headers:
+        result.append('#include %s' % header)
+
+    result.append('\nnamespace WebCore {\n')
+    result.append("enum class ProcessSyncDataType : uint8_t {")
+    for data in synched_datas:
         if data.conditional is not None:
             result.append('#if %s' % data.conditional)
         result.append('    %s = %s,' % (data.name, data.variant_index))
@@ -222,73 +238,87 @@ def generate_process_sync_data_header(prefix, variant_sorted_synched_datas, sync
 
     result.append("};")
     result.append("")
-
-    result.append("static const %sSyncDataType all%sSyncDataTypes[] = {" % (prefix, prefix))
-    data = sync_data_sorted_synched_datas[0]
+    result.append("static const ProcessSyncDataType allDocumentSyncDataTypes[] = {")
+    data = document_synched_datas[0]
     if data.conditional is not None:
         result.append('#if %s' % data.conditional)
-    result.append('    %sSyncDataType::%s' % (prefix, data.name))
+    result.append('    ProcessSyncDataType::%s' % data.name)
     if data.conditional is not None:
         result.append('#endif')
 
-    for data in sync_data_sorted_synched_datas[1:]:
+    for data in document_synched_datas[1:]:
         if data.conditional is not None:
             result.append('#if %s' % data.conditional)
-        result.append('    , %sSyncDataType::%s' % (prefix, data.name))
+        result.append('    , ProcessSyncDataType::%s' % data.name)
         if data.conditional is not None:
             result.append('#endif')
     result.append("};")
     result.append("")
 
-    for data in variant_sorted_synched_datas:
+    result.append("static const ProcessSyncDataType allFrameTreeSyncDataTypes[] = {")
+    data = frame_tree_synched_datas[0]
+    if data.conditional is not None:
+        result.append('#if %s' % data.conditional)
+    result.append('    ProcessSyncDataType::%s' % data.name)
+    if data.conditional is not None:
+        result.append('#endif')
+
+    for data in frame_tree_synched_datas[1:]:
+        if data.conditional is not None:
+            result.append('#if %s' % data.conditional)
+        result.append('    , ProcessSyncDataType::%s' % data.name)
+        if data.conditional is not None:
+            result.append('#endif')
+    result.append("};")
+    result.append("")
+
+    for data in synched_datas:
         if data.conditional is not None:
             result.append('#if !%s' % data.conditional)
             result.append('using %s = bool;' % data.underlying_type)
             result.append('#endif')
 
     result.append("")
-    result.append("using %sSyncDataVariant = Variant<" % prefix)
-    for data in variant_sorted_synched_datas[:-1]:
+    result.append("using ProcessSyncDataVariant = Variant<")
+    for data in synched_datas[:-1]:
         result.append('    %s,' % data.fully_qualified_type)
 
-    data = variant_sorted_synched_datas[-1]
+    data = synched_datas[-1]
     result.append('    %s' % data.fully_qualified_type)
 
     result.append(">;")
-    result.append(_process_sync_data_header_suffix.format(prefix=prefix))
+    result.append(_process_sync_data_header_suffix)
     return '\n'.join(result)
 
 
 _synced_data_header_midfix = """
-namespace WebCore {{
+namespace WebCore {
 
-struct {prefix}SyncSerializationData;
+struct ProcessSyncData;
 
-class data_type_name : public RefCounted<data_type_name> {{
+class data_type_name : public RefCounted<data_type_name> {
 WTF_MAKE_TZONE_ALLOCATED_INLINE(data_type_name);
 public:
     template<typename... Args>
     static Ref<data_type_name> create(Args&&... args)
-    {{
+    {
         return adoptRef(*new data_type_name(std::forward<Args>(args)...));
-    }}
-    static Ref<data_type_name> create() {{ return adoptRef(*new data_type_name); }}
-    void update(const {prefix}SyncSerializationData&);
+    }
+    static Ref<data_type_name> create() { return adoptRef(*new data_type_name); }
+    void update(const ProcessSyncData&);
 """
 
 
-def generate_synched_data_header(prefix, variant_sorted_synched_datas, sync_data_sorted_synched_datas):
+def generate_synched_data_header(data_type_name, synched_datas):
     result = []
     result.append(_header_license)
     result.append('#pragma once\n')
-
-    data_type_name = prefix + 'SyncData'
 
     headers = []
     headers.append('<wtf/TZoneMallocInlines.h>')
     headers.append('<wtf/Ref.h>')
     headers.append('<wtf/RefCounted.h>')
-    for data in sync_data_sorted_synched_datas:
+    for data in synched_datas:
         if data.header is None:
             continue
         headers.append(data.header)
@@ -296,9 +326,9 @@ def generate_synched_data_header(prefix, variant_sorted_synched_datas, sync_data
     for header in headers:
         result.append('#include %s' % header)
 
-    result.append(_synced_data_header_midfix.format(prefix=prefix))
+    result.append(_synced_data_header_midfix)
 
-    for data in sync_data_sorted_synched_datas:
+    for data in synched_datas:
         if data.conditional is not None:
             result.append('#if %s' % data.conditional)
         name = data.name[0].lower() + data.name[1:]
@@ -311,14 +341,14 @@ def generate_synched_data_header(prefix, variant_sorted_synched_datas, sync_data
     result.append('    data_type_name() = default;')
     result.append('    WEBCORE_EXPORT data_type_name(')
 
-    data = sync_data_sorted_synched_datas[0]
+    data = synched_datas[0]
     if data.conditional is not None:
         result.append('#if %s' % data.conditional)
     result.append('        %s' % data.fully_qualified_type)
     if data.conditional is not None:
         result.append('#endif')
 
-    for data in sync_data_sorted_synched_datas[1:]:
+    for data in synched_datas[1:]:
         if data.conditional is not None:
             result.append('#if %s' % data.conditional)
         result.append('      , %s' % data.fully_qualified_type)
@@ -328,9 +358,6 @@ def generate_synched_data_header(prefix, variant_sorted_synched_datas, sync_data
     result.append('    );')
     result.append('};')
     result.append('')
-
-    result.append(generate_process_sync_data_header(prefix, variant_sorted_synched_datas, sync_data_sorted_synched_datas))
-
     result.append('} // namespace WebCore')
     result.append('')
 
@@ -341,13 +368,14 @@ _synched_data_impl_prefix = """
 #include "config.h"
 #include "data_type_name.h"
 
+#include "ProcessSyncData.h"
 #include <wtf/EnumTraits.h>
 
-namespace WebCore {{
+namespace WebCore {
 
-void data_type_name::update(const {prefix}SyncSerializationData& data)
-{{
-    switch (data.type) {{"""
+void data_type_name::update(const ProcessSyncData& data)
+{
+    switch (data.type) {"""
 
 _synched_data_impl_midfix = """    default:
         RELEASE_ASSERT_NOT_REACHED();
@@ -356,20 +384,18 @@ _synched_data_impl_midfix = """    default:
 """
 
 
-def generate_synched_data_impl(prefix, synched_datas):
+def generate_synched_data_impl(data_type_name, synched_datas):
     result = []
     result.append(_header_license)
-    result.append(_synched_data_impl_prefix.format(prefix=prefix))
-
-    data_type_name = prefix + 'SyncData'
+    result.append(_synched_data_impl_prefix)
 
     for data in synched_datas:
         if data.conditional is not None:
             result.append('#if %s' % data.conditional)
 
         lowercase_name = data.name[0].lower() + data.name[1:]
-        result.append('    case %sSyncDataType::%s:' % (prefix, data.name))
-        result.append('        %s = std::get<enumToUnderlyingType(%sSyncDataType::%s)>(data.value);' % (lowercase_name, prefix, data.name))
+        result.append('    case ProcessSyncDataType::%s:' % data.name)
+        result.append('        %s = std::get<enumToUnderlyingType(ProcessSyncDataType::%s)>(data.value);' % (lowercase_name, data.name))
         result.append('        break;')
 
         if data.conditional is not None:
@@ -449,24 +475,24 @@ _serialization_in_license = """#
 #
 """
 _process_sync_data_serialization_in_prefix = """
-header: <WebCore/{prefix}SyncData.h>
+header: <WebCore/ProcessSyncData.h>
 """
 
 _process_sync_data_serialization_in_suffix = """
-[CustomHeader] struct WebCore::{prefix}SyncSerializationData {{
-    WebCore::{prefix}SyncDataType type;
-    WebCore::{prefix}SyncDataVariant value;
-}};
+struct WebCore::ProcessSyncData {
+    WebCore::ProcessSyncDataType type;
+    WebCore::ProcessSyncDataVariant value;
+};
 """
 
 
-def generate_process_sync_data_serialiation_in(prefix, variant_sorted_synched_datas, sync_data_sorted_synched_datas):
+def generate_process_sync_data_serialiation_in(synched_datas, document_synched_datas, frame_tree_synched_datas):
     result = []
     result.append(_serialization_in_license)
-    result.append(_process_sync_data_serialization_in_prefix.format(prefix=prefix))
+    result.append(_process_sync_data_serialization_in_prefix)
 
-    result.append('[RefCounted] class WebCore::%sSyncData {' % (prefix))
-    for data in sync_data_sorted_synched_datas:
+    result.append('[RefCounted] class WebCore::DocumentSyncData {')
+    for data in document_synched_datas:
         if data.conditional is not None:
             result.append('#if %s' % data.conditional)
         name = data.name[0].lower() + data.name[1:]
@@ -477,8 +503,20 @@ def generate_process_sync_data_serialiation_in(prefix, variant_sorted_synched_da
     result.append('};')
     result.append('')
 
-    result.append("enum class WebCore::%sSyncDataType : uint8_t {" % prefix)
-    for data in variant_sorted_synched_datas:
+    result.append('[RefCounted] class WebCore::FrameTreeSyncData {')
+    for data in frame_tree_synched_datas:
+        if data.conditional is not None:
+            result.append('#if %s' % data.conditional)
+        name = data.name[0].lower() + data.name[1:]
+        result.append('    %s %s;' % (data.fully_qualified_type, name))
+        if data.conditional is not None:
+            result.append('#endif')
+
+    result.append('};')
+    result.append('')
+
+    result.append("enum class WebCore::ProcessSyncDataType : uint8_t {")
+    for data in synched_datas:
         if data.conditional is not None:
             result.append('#if %s' % data.conditional)
         result.append('    %s,' % data.name)
@@ -488,20 +526,20 @@ def generate_process_sync_data_serialiation_in(prefix, variant_sorted_synched_da
     result.append("};")
     result.append(" ")
 
-    for data in variant_sorted_synched_datas:
+    for data in synched_datas:
         if data.conditional is not None:
             result.append('#if !%s' % data.conditional)
             result.append('using %s = bool;' % data.fully_qualified_type)
             result.append('#endif')
 
     result.append("")
-    variant_string = "using WebCore::%sSyncDataVariant = Variant<" % prefix
-    for data in variant_sorted_synched_datas[:-1]:
+    variant_string = "using WebCore::ProcessSyncDataVariant = Variant<"
+    for data in synched_datas[:-1]:
         variant_string += data.fully_qualified_type + ', '
-    variant_string += variant_sorted_synched_datas[-1].fully_qualified_type + '>;'
+    variant_string += synched_datas[-1].fully_qualified_type + '>;'
     result.append(variant_string)
 
-    result.append(_process_sync_data_serialization_in_suffix.format(prefix=prefix))
+    result.append(_process_sync_data_serialization_in_suffix)
     return '\n'.join(result)
 
 
@@ -533,8 +571,21 @@ def sort_datas_for_variant_order(synched_datas):
     return full_list
 
 
-def sort_datas_for_sync_data_order(synched_datas):
-    type_list, conditional_type_list = sort_data_lists(synched_datas)
+def sort_datas_for_sync_data_order(data_type_name, synched_datas):
+    full_type_list, full_conditional_type_list = sort_data_lists(synched_datas)
+
+    type_list = []
+    conditional_type_list = []
+
+    for data in full_type_list:
+        if data.automatic_location != data_type_name:
+            continue
+        type_list.append(data)
+
+    for data in full_conditional_type_list:
+        if data.automatic_location != data_type_name:
+            continue
+        conditional_type_list.append(data)
 
     # FIXME: We play tricks with our c++ native interface and implementation of DocumentSyncData to put commas at the start of the line and not the end,
     # allowing us to gracefully handle the case where the final member is conditional with proper syntax.
@@ -550,43 +601,49 @@ def sort_datas_for_sync_data_order(synched_datas):
 
 
 def main(argv):
-    print('Generating process sync data!')
     synched_datas = []
     headers = []
 
-    if len(argv) < 3:
+    if len(argv) < 2:
         return -1
 
     output_directory = ''
-    if len(argv) > 3:
-        output_directory = argv[3] + '/'
+    if len(argv) > 2:
+        output_directory = argv[2] + '/'
 
-    prefix = argv[1]
-
-    with open(argv[2]) as file:
+    with open(argv[1]) as file:
         new_synched_datas = parse_process_sync_data(file)
         for synched_data in new_synched_datas:
             synched_datas.append(synched_data)
 
-    variant_sorted_synched_datas = sort_datas_for_variant_order(synched_datas)
-    sync_data_sorted_synched_datas = sort_datas_for_sync_data_order(synched_datas)
+    synched_datas = sort_datas_for_variant_order(synched_datas)
 
-    with open(output_directory + prefix + 'SyncClient.h', "w+") as output:
-        output.write(generate_process_sync_client_header(prefix, variant_sorted_synched_datas))
+    with open(output_directory + 'ProcessSyncClient.h', "w+") as output:
+        output.write(generate_process_sync_client_header(synched_datas))
 
-    with open(output_directory + prefix + 'SyncClient.cpp', "w+") as output:
-        output.write(generate_process_sync_client_impl(prefix, variant_sorted_synched_datas))
+    with open(output_directory + 'ProcessSyncClient.cpp', "w+") as output:
+        output.write(generate_process_sync_client_impl(synched_datas))
 
-    sorted_synched_datas = sort_datas_for_sync_data_order(synched_datas)
+    document_synched_datas = sort_datas_for_sync_data_order('DocumentSyncData', synched_datas)
+    frame_tree_synched_datas = sort_datas_for_sync_data_order('FrameTreeSyncData', synched_datas)
 
-    with open(output_directory + prefix + 'SyncData.serialization.in', "w+") as output:
-        output.write(generate_process_sync_data_serialiation_in(prefix, variant_sorted_synched_datas, sync_data_sorted_synched_datas))
+    with open(output_directory + 'ProcessSyncData.h', "w+") as output:
+        output.write(generate_process_sync_data_header(synched_datas, document_synched_datas, frame_tree_synched_datas))
 
-    with open(output_directory + prefix + 'SyncData.h', "w+") as output:
-        output.write(generate_synched_data_header(prefix, variant_sorted_synched_datas, sync_data_sorted_synched_datas))
+    with open(output_directory + 'ProcessSyncData.serialization.in', "w+") as output:
+        output.write(generate_process_sync_data_serialiation_in(synched_datas, document_synched_datas, frame_tree_synched_datas))
 
-    with open(output_directory + prefix + 'SyncData.cpp', "w+") as output:
-        output.write(generate_synched_data_impl(prefix, sync_data_sorted_synched_datas))
+    with open(output_directory + 'DocumentSyncData.h', "w+") as output:
+        output.write(generate_synched_data_header('DocumentSyncData', document_synched_datas))
+
+    with open(output_directory + 'DocumentSyncData.cpp', "w+") as output:
+        output.write(generate_synched_data_impl('DocumentSyncData', document_synched_datas))
+
+    with open(output_directory + 'FrameTreeSyncData.h', "w+") as output:
+        output.write(generate_synched_data_header('FrameTreeSyncData', frame_tree_synched_datas))
+
+    with open(output_directory + 'FrameTreeSyncData.cpp', "w+") as output:
+        output.write(generate_synched_data_impl('FrameTreeSyncData', frame_tree_synched_datas))
 
     return 0
 
