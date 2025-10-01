@@ -83,13 +83,10 @@ void RemoteLayerWithRemoteRenderingBackingStore::prepareToDisplay()
     if (!hasFrontBuffer() || !supportsPartialRepaint())
         setNeedsDisplay();
 
+    dirtyRepaintCounterIfNecessary();
+
     bufferSet->prepareToDisplay(dirtyRegion(), supportsPartialRepaint(), hasEmptyDirtyRegion(), drawingRequiresClearedPixels());
     m_contentsBufferHandle = std::nullopt;
-
-    if (!hasFrontBuffer() || !supportsPartialRepaint())
-        setNeedsDisplay();
-
-    dirtyRepaintCounterIfNecessary();
 }
 
 void RemoteLayerWithRemoteRenderingBackingStore::clearBackingStore()
