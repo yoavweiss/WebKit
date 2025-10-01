@@ -32,6 +32,7 @@
 #include "Node.h"
 #include "RenderBoxInlines.h"
 #include "RenderBoxModelObjectInlines.h"
+#include "RenderElementStyleInlines.h"
 #include "RenderElementInlines.h"
 #include "RenderLayer.h"
 #include "RenderTheme.h"

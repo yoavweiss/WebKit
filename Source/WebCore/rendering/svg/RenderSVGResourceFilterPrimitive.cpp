@@ -28,6 +28,7 @@
 
 #include "RenderSVGModelObjectInlines.h"
 #include "RenderSVGResourceFilter.h"
+#include "RenderStyleInlines.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGFEDiffuseLightingElement.h"
 #include "SVGFEDropShadowElement.h"

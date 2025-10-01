@@ -28,6 +28,7 @@
 
 #include "JSDOMPromise.h"
 #include "JSDOMPromiseDeferred.h"
+#include "JSReadableStreamBYOBReader.h"
 #include "ReadableByteStreamController.h"
 #include "ReadableStream.h"
 #include "WebCoreOpaqueRootInlines.h"

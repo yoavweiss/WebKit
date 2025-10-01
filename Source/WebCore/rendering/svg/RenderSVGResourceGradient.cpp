@@ -23,6 +23,7 @@
 #include "RenderSVGModelObjectInlines.h"
 #include "RenderSVGResourceGradientInlines.h"
 #include "RenderSVGShape.h"
+#include "RenderStyleInlines.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {

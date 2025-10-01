@@ -26,6 +26,7 @@
 #include "Document.h"
 #include "LegacyRenderSVGResource.h"
 #include "RenderSVGGradientStop.h"
+#include "RenderStyleInlines.h"
 #include "SVGGradientElement.h"
 #include "SVGNames.h"
 #include <wtf/TZoneMallocInlines.h>

@@ -57,7 +57,7 @@
 #include "QualifiedName.h"
 #include "Range.h"
 #include "RenderElement.h"
-#include "RenderStyle.h"
+#include "RenderStyleInlines.h"
 #include "SimpleRange.h"
 #include "StyleAppleColorFilter.h"
 #include "StyleColor.h"

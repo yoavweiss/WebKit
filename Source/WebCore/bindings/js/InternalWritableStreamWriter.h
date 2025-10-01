@@ -25,7 +25,9 @@
 
 #pragma once
 
+#include "ExceptionOr.h"
 #include "JSDOMGuardedObject.h"
+#include "JSDOMPromise.h"
 #include <JavaScriptCore/JSObject.h>
 
 namespace WebCore {

@@ -26,7 +26,9 @@
 #include "config.h"
 #include "InternalWritableStreamWriter.h"
 
+#include "InternalWritableStream.h"
 #include "JSDOMPromise.h"
+#include "WebCoreJSClientData.h"
 #include "WritableStream.h"
 
 namespace WebCore {

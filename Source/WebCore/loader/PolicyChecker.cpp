@@ -52,6 +52,7 @@
 #include "LocalFrameLoaderClient.h"
 #include "Logging.h"
 #include "Navigation.h"
+#include "NodeDocument.h"
 #include "PlatformStrategies.h"
 #include "ResourceLoadInfo.h"
 #include "ThreadableBlobRegistry.h"

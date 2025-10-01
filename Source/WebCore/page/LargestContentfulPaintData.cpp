@@ -40,7 +40,7 @@
 #include "Performance.h"
 #include "RenderBlockFlow.h"
 #include "RenderBox.h"
-#include "RenderElement.h"
+#include "RenderElementInlines.h"
 #include "RenderInline.h"
 #include "RenderLineBreak.h"
 #include "RenderObjectInlines.h"

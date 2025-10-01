@@ -27,7 +27,7 @@
 #include "LayoutIntegrationInlineContentBuilder.h"
 
 #include "InlineDamage.h"
-#include "InlineDisplayBox.h"
+#include "InlineDisplayBoxInlines.h"
 #include "LayoutBoxGeometry.h"
 #include "LayoutIntegrationInlineContent.h"
 #include "LayoutState.h"

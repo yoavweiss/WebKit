@@ -35,6 +35,7 @@
 #include "EventTarget.h"
 #include "HitTestResult.h"
 #include "MouseEventTypes.h"
+#include "NodeDocument.h"
 #include "Page.h"
 #include "PointerEvent.h"
 #include "Quirks.h"

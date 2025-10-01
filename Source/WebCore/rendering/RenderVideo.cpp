@@ -41,6 +41,7 @@
 #include "Page.h"
 #include "PaintInfo.h"
 #include "RenderBoxInlines.h"
+#include "RenderElementStyleInlines.h"
 #include "RenderElementInlines.h"
 #include "RenderObjectInlines.h"
 #include "RenderView.h"

@@ -55,6 +55,7 @@
 #include "LocalFrameInlines.h"
 #include "LocalFrameView.h"
 #include "Logging.h"
+#include "NodeDocument.h"
 #include "Page.h"
 #include "PopoverData.h"
 #include "RemoteFrame.h"

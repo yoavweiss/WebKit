@@ -30,6 +30,7 @@
 
 #include "MathMLNames.h"
 #include "MathMLOperatorElement.h"
+#include "NodeDocument.h"
 #include "RenderMathMLFenced.h"
 #include "RenderMathMLMenclose.h"
 #include "RenderMathMLRow.h"

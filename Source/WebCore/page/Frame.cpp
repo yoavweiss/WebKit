@@ -34,6 +34,7 @@
 #include "HTMLIFrameElement.h"
 #include "LocalDOMWindow.h"
 #include "NavigationScheduler.h"
+#include "NodeDocument.h"
 #include "OwnerPermissionsPolicyData.h"
 #include "Page.h"
 #include "RemoteFrame.h"

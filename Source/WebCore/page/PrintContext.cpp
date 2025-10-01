@@ -32,6 +32,7 @@
 #include "LocalFrameInlines.h"
 #include "LocalFrameView.h"
 #include "Logging.h"
+#include "NodeDocument.h"
 #include "RenderStyleInlines.h"
 #include "RenderView.h"
 #include "Settings.h"

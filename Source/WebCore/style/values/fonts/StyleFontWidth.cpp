@@ -28,6 +28,7 @@
 
 #include "CSSPropertyParserConsumer+Font.h"
 #include "StyleBuilderChecking.h"
+#include "StylePrimitiveNumericTypes+Blending.h"
 #include "StylePrimitiveNumericTypes+CSSValueConversion.h"
 
 namespace WebCore {

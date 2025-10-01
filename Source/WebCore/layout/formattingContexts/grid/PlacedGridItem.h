@@ -27,6 +27,10 @@
 
 #include "GridAreaLines.h"
 #include "LayoutElementBox.h"
+#include "StyleMargin.h"
+#include "StyleMaximumSize.h"
+#include "StyleMinimumSize.h"
+#include "StylePreferredSize.h"
 #include <wtf/HashTraits.h>
 
 namespace WebCore {

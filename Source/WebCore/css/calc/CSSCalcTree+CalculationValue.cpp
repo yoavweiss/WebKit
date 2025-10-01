@@ -37,7 +37,7 @@
 #include "CalculationExecutor.h"
 #include "CalculationTree.h"
 #include "CalculationValue.h"
-#include "RenderStyle.h"
+#include "RenderStyleInlines.h"
 #include "StyleBuilderState.h"
 #include "StyleLengthResolution.h"
 #include <wtf/MathExtras.h>

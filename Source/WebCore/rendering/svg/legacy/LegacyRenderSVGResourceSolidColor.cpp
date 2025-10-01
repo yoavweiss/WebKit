@@ -25,7 +25,7 @@
 #include "LocalFrameView.h"
 #include "RenderElement.h"
 #include "RenderObjectDocument.h"
-#include "RenderStyle.h"
+#include "RenderStyleInlines.h"
 #include "RenderView.h"
 #include "SVGRenderSupport.h"
 #include <wtf/TZoneMallocInlines.h>

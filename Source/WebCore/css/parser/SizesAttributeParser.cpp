@@ -38,6 +38,7 @@
 #include "MediaQueryParser.h"
 #include "MediaQueryParserContext.h"
 #include "RenderView.h"
+#include "RenderStyleInlines.h"
 #include "SizesCalcParser.h"
 #include "StyleLengthResolution.h"
 #include "StyleScope.h"

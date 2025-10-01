@@ -28,6 +28,7 @@
 #include "NodeInlines.h"
 #include "RenderBoxInlines.h"
 #include "RenderBoxModelObjectInlines.h"
+#include "RenderElementStyleInlines.h"
 #include "RenderElementInlines.h"
 #include "RenderText.h"
 #include "RenderTextControlSingleLine.h"
