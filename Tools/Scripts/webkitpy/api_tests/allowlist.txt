@@ -13,6 +13,7 @@ TestIPC.ArgumentCoderTest/ArgumentCoderVectorTest/Encoder
 TestIPC.ArgumentCoderTest/ArgumentCoderVectorTest/StreamConnectionEncoder
 TestIPC.ConnectionTest
 TestIPC.ConnectionTest/ConnectionDidReceiveInvalidMessageTest
+TestIPC.ConnectionTest/ConnectionRunLoopTest
 TestIPC.ConnectionTest/ConnectionTestABBA
 TestIPC.CoreIPCCFDictionary
 TestIPC.EventTest/EventTestABBA
@@ -207,7 +208,6 @@ TestWTF.WTF_WeakRef
 TestWTF.WTF_WordLock
 TestWTF.WTF_WorkQueue
 TestWTF.WeakLinking
-TestWebKitAPI.AVFoundationPref
 TestWebKitAPI.AVFoundationSoftLink
 TestWebKitAPI.AcceptsFirstMouse
 TestWebKitAPI.AccessibilityTests
@@ -217,7 +217,6 @@ TestWebKitAPI.AnimatedResize
 TestWebKitAPI.AnimationFrameRate
 TestWebKitAPI.ApduTest
 TestWebKitAPI.AppHighlights
-TestWebKitAPI.AppPrivacyReport
 TestWebKitAPI.AppleLanguagesTest
 TestWebKitAPI.ApplePay
 TestWebKitAPI.ApplicationManifestParserTest
@@ -256,7 +255,6 @@ TestWebKitAPI.ComplexTextControllerTest
 TestWebKitAPI.ContentExtensionTest
 TestWebKitAPI.ContentSecurityPolicy
 TestWebKitAPI.ContentWorld
-TestWebKitAPI.ContextMenu
 TestWebKitAPI.ContextMenuElementInfoWithQRCodeDetectionCrash
 TestWebKitAPI.ContextMenuMouseEvents
 TestWebKitAPI.CookieConsent
@@ -289,13 +287,11 @@ TestWebKitAPI.DisplayListRecorderTest/DisplayListRecorderResultStateTest/6
 TestWebKitAPI.DisplayListRecorderTest/DisplayListRecorderResultStateTest/7
 TestWebKitAPI.DisplayListRecorderTest/DisplayListRecorderResultStateTest/8
 TestWebKitAPI.DisplayListRecorderTest/DisplayListRecorderResultStateTest/9
-TestWebKitAPI.DocumentEditingContext
 TestWebKitAPI.DocumentOrder
 TestWebKitAPI.DrawingToPDF
 TestWebKitAPI.DynamicDeviceScaleFactor
 TestWebKitAPI.EditorStateTests
 TestWebKitAPI.ElementActionTests
-TestWebKitAPI.ElementTargeting
 TestWebKitAPI.ElementTextPreview
 TestWebKitAPI.EnterKeyHintTests
 TestWebKitAPI.FidoHidMessageTest
@@ -320,7 +316,6 @@ TestWebKitAPI.GraphicsContextGLCocoaTest
 TestWebKitAPI.GraphicsContextGLCocoaTest/AnyContextAttributeTest
 TestWebKitAPI.GraphicsContextTests
 TestWebKitAPI.GridPositionTest
-TestWebKitAPI.HSTS
 TestWebKitAPI.HTTPHeaderField
 TestWebKitAPI.HTTPHeaderMap
 TestWebKitAPI.HTTPParsers
@@ -349,7 +344,6 @@ TestWebKitAPI.JavaScriptCore
 TestWebKitAPI.JavaScriptCore_DisallowVMEntry
 TestWebKitAPI.JavaScriptCore_PropertySlot
 TestWebKitAPI.KeyboardEventTests
-TestWebKitAPI.KeyboardInputTests
 TestWebKitAPI.KeyedCoding
 TestWebKitAPI.LegacyDragAndDropTests
 TestWebKitAPI.LockdownMode
@@ -371,11 +365,9 @@ TestWebKitAPI.MonospaceFontsTest
 TestWebKitAPI.NSResponderTests
 TestWebKitAPI.NSTextPlaceholder
 TestWebKitAPI.Navigation
-TestWebKitAPI.NavigationSwipeTests
 TestWebKitAPI.Notification
 TestWebKitAPI.NowPlayingControlsTests
 TestWebKitAPI.NowPlayingInfoArtwork
-TestWebKitAPI.NowPlayingSession
 TestWebKitAPI.ObscuredContentInsets
 TestWebKitAPI.OverflowScrollViewTests
 TestWebKitAPI.PAL
@@ -386,7 +378,6 @@ TestWebKitAPI.Path
 TestWebKitAPI.PermissionsAPI
 TestWebKitAPI.PlatformCAAnimation
 TestWebKitAPI.PlatformDynamicRangeLimit
-TestWebKitAPI.PreferredAudioBufferSize
 TestWebKitAPI.PreferredContentMode
 TestWebKitAPI.ProcessInfo
 TestWebKitAPI.ProcessSuspension
@@ -394,7 +385,6 @@ TestWebKitAPI.PublicSuffix
 TestWebKitAPI.PushDatabase
 TestWebKitAPI.PushDatabaseTest
 TestWebKitAPI.PushMessageCrypto
-TestWebKitAPI.QuickLook
 TestWebKitAPI.RFC8941
 TestWebKitAPI.RTCRtpSFrameTransformer
 TestWebKitAPI.RegionTests
@@ -410,15 +400,11 @@ TestWebKitAPI.SOAuthorizationPopUp
 TestWebKitAPI.STUNMessageParsing
 TestWebKitAPI.SVGImageCasts
 TestWebKitAPI.SampleMapTest
-TestWebKitAPI.ScrollViewBouncesTests
-TestWebKitAPI.ScrollViewInsetTests
-TestWebKitAPI.ScrollViewScrollabilityTests
 TestWebKitAPI.ScrollbarTests
 TestWebKitAPI.ScrollbarWidthCrash
 TestWebKitAPI.ScrollingCoordinatorTests
 TestWebKitAPI.SecurityOriginTest
 TestWebKitAPI.SelectionTests
-TestWebKitAPI.SerializedNode
 TestWebKitAPI.SessionStorage
 TestWebKitAPI.ShareSheetTests
 TestWebKitAPI.ShouldOpenAppLinks
@@ -430,7 +416,6 @@ TestWebKitAPI.SpellCheckerDocumentTag
 TestWebKitAPI.StringWithDirection
 TestWebKitAPI.SwitchInputTests
 TestWebKitAPI.SynchronousTimeoutTests
-TestWebKitAPI.TLSVersion
 TestWebKitAPI.TestWebKitAPI
 TestWebKitAPI.TextAlternatives
 TestWebKitAPI.TextAutosizingBoost
@@ -444,7 +429,6 @@ TestWebKitAPI.TouchEventTests
 TestWebKitAPI.TransformationMatrix
 TestWebKitAPI.U2fCommandConstructorTest
 TestWebKitAPI.UIFocusTests
-TestWebKitAPI.UIWKInteractionViewProtocol
 TestWebKitAPI.URLExtras
 TestWebKitAPI.URLParserTextEncodingTest
 TestWebKitAPI.UTIRegistry
@@ -466,14 +450,12 @@ TestWebKitAPI.WKBrowsingContextLoadDelegateTest
 TestWebKitAPI.WKInspectorDelegate
 TestWebKitAPI.WKInspectorExtensionDelegate
 TestWebKitAPI.WKInspectorExtensionHost
-TestWebKitAPI.WKNavigationAction
 TestWebKitAPI.WKPreferencesPrivate
 TestWebKitAPI.WKProcessPoolConfiguration
 TestWebKitAPI.WKScrollGeometry
 TestWebKitAPI.WKScrollViewTests
 TestWebKitAPI.WKUserContentController
 TestWebKitAPI.WKWebExtension
-TestWebKitAPI.WKWebExtensionAPIAction
 TestWebKitAPI.WKWebExtensionAPIAlarms
 TestWebKitAPI.WKWebExtensionAPICommands
 TestWebKitAPI.WKWebExtensionAPICookies
@@ -483,8 +465,6 @@ TestWebKitAPI.WKWebExtensionAPIExtension
 TestWebKitAPI.WKWebExtensionAPILocalization
 TestWebKitAPI.WKWebExtensionAPINamespace
 TestWebKitAPI.WKWebExtensionAPIStorage
-TestWebKitAPI.WKWebExtensionAPIWebRequest
-TestWebKitAPI.WKWebExtensionAPIWindows
 TestWebKitAPI.WKWebExtensionContext
 TestWebKitAPI.WKWebExtensionController
 TestWebKitAPI.WKWebExtensionControllerConfiguration
@@ -521,7 +501,6 @@ TestWebKitAPI.WebKit2_WeakObjCPtr
 TestWebKitAPI.WebKitLegacyStringWidth
 TestWebKitAPI.WebLocks
 TestWebKitAPI.WebSQL
-TestWebKitAPI.WebSocket
 TestWebKitAPI.Webkit
 TestWebKitAPI.WritingMode
 TestWebKitAPI.WritingSuggestionsWebAPI
