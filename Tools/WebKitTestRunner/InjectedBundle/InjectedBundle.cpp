@@ -576,6 +576,13 @@ bool InjectedBundle::shouldProcessWorkQueue() const
     return booleanValue(adoptWK(result).get());
 }
 
+bool InjectedBundle::isPrinting() const
+{
+    WKTypeRef result = nullptr;
+    WKBundlePagePostSynchronousMessageForTesting(page()->page(), toWK("GetIsPrinting").get(), nullptr, &result);
+    return booleanValue(result);
+}
+
 void InjectedBundle::processWorkQueue()
 {
     postPageMessage("ProcessWorkQueue");

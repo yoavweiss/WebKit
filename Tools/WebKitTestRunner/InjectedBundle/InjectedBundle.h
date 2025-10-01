@@ -126,6 +126,8 @@ public:
 
     bool isAllowedHost(WKStringRef);
 
+    bool isPrinting() const;
+
     unsigned imageCountInGeneralPasteboard() const;
 
     void setAllowsAnySSLCertificate(bool);

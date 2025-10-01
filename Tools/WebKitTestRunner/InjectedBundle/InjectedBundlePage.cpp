@@ -666,7 +666,7 @@ void InjectedBundlePage::dump()
 
     switch (testRunner->whatToDump()) {
     case WhatToDump::RenderTree: {
-        if (testRunner->isPrinting())
+        if (injectedBundle.isPrinting())
             stringBuilder.append(adoptWK(WKBundlePageCopyRenderTreeExternalRepresentationForPrinting(m_page)).get());
         else
             stringBuilder.append(adoptWK(WKBundlePageCopyRenderTreeExternalRepresentation(m_page, testRunner->renderTreeDumpOptions())).get());
@@ -699,14 +699,14 @@ void InjectedBundlePage::dump()
         injectedBundle.dumpBackForwardListsForAllPages(stringBuilder);
 
     if (injectedBundle.shouldDumpPixels() && testRunner->shouldDumpPixels()) {
-        bool shouldCreateSnapshot = testRunner->isPrinting();
+        bool shouldCreateSnapshot = injectedBundle.isPrinting();
         if (shouldCreateSnapshot) {
             WKSnapshotOptions options = kWKSnapshotOptionsShareable;
             ALLOW_DEPRECATED_DECLARATIONS_BEGIN
             WKRect snapshotRect = WKBundleFrameGetVisibleContentBounds(WKBundlePageGetMainFrame(m_page));
             ALLOW_DEPRECATED_DECLARATIONS_END
 
-            if (testRunner->isPrinting())
+            if (injectedBundle.isPrinting())
                 options |= kWKSnapshotOptionsPrinting;
             else {
                 options |= kWKSnapshotOptionsInViewCoordinates;
@@ -718,7 +718,7 @@ void InjectedBundlePage::dump()
         } else
             injectedBundle.setPixelResultIsPending(true);
 
-        if (WKBundlePageIsTrackingRepaints(m_page) && !testRunner->isPrinting())
+        if (WKBundlePageIsTrackingRepaints(m_page) && !injectedBundle.isPrinting())
             injectedBundle.setRepaintRects(adoptWK(WKBundlePageCopyTrackedRepaintRects(m_page)).get());
     }
 

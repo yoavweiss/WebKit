@@ -610,6 +610,14 @@ WKRetainPtr<WKTypeRef> TestInvocation::didReceiveSynchronousMessageFromInjectedB
         return nullptr;
     }
 
+    if (WKStringIsEqualToUTF8CString(messageName, "SetPrinting")) {
+        setPrinting();
+        return nullptr;
+    }
+
+    if (WKStringIsEqualToUTF8CString(messageName, "GetIsPrinting"))
+        return adoptWK(WKBooleanCreate(isPrinting()));
+
     if (WKStringIsEqualToUTF8CString(messageName, "SetViewSize")) {
         auto messageBodyDictionary = dictionaryValue(messageBody);
         auto width = doubleValue(messageBodyDictionary, "width");

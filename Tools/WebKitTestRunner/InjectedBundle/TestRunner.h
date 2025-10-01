@@ -203,8 +203,7 @@ public:
 
     // Printing
     bool isPageBoxVisible(JSContextRef, int pageIndex);
-    bool isPrinting() { return m_isPrinting; }
-    void setPrinting() { m_isPrinting = true; }
+    void setPrinting() const;
 
     void setValueForUser(JSContextRef, JSValueRef element, JSStringRef value);
 
@@ -521,7 +520,6 @@ private:
     bool m_testRepaint { false };
     bool m_testRepaintSweepHorizontally { false };
     bool m_displayOnLoadFinish { false };
-    bool m_isPrinting { false };
     bool m_willSendRequestReturnsNull { false };
     bool m_willSendRequestReturnsNullOnRedirect { false };
     bool m_shouldStopProvisionalFrameLoads { false };

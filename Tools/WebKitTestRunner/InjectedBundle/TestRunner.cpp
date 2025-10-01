@@ -1430,6 +1430,11 @@ void TestRunner::dumpPrivateClickMeasurement()
     postSynchronousPageMessage("DumpPrivateClickMeasurement");
 }
 
+void TestRunner::setPrinting() const
+{
+    postSynchronousMessage("SetPrinting");
+}
+
 void TestRunner::clearMemoryCache()
 {
     postSynchronousPageMessage("ClearMemoryCache");
