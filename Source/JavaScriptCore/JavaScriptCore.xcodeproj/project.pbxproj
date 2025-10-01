@@ -852,7 +852,7 @@
 		276B38822A71D12B00252F4E /* MapIteratorPrototypeInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B387E2A71D12A00252F4E /* MapIteratorPrototypeInlines.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		276B38832A71D12B00252F4E /* MathObjectInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B387F2A71D12A00252F4E /* MathObjectInlines.h */; };
 		276B38842A71D12B00252F4E /* MapConstructorInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38802A71D12B00252F4E /* MapConstructorInlines.h */; };
-		276B38852A71D12B00252F4E /* MapPrototypeInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38812A71D12B00252F4E /* MapPrototypeInlines.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		276B38852A71D12B00252F4E /* MapPrototypeInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38812A71D12B00252F4E /* MapPrototypeInlines.h */; };
 		276B38882A71D14500252F4E /* AggregateErrorConstructorInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38862A71D14500252F4E /* AggregateErrorConstructorInlines.h */; };
 		276B38892A71D14500252F4E /* ArrayConstructorInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38872A71D14500252F4E /* ArrayConstructorInlines.h */; };
 		276B388B2A71D16F00252F4E /* ArrayIteratorPrototypeInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B388A2A71D16E00252F4E /* ArrayIteratorPrototypeInlines.h */; };
@@ -2710,6 +2710,7 @@
 		05517CA02C74004700ED0CD5 /* JSIteratorConstructor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSIteratorConstructor.h; sourceTree = "<group>"; };
 		05517CA12C74004700ED0CD5 /* JSIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSIterator.h; sourceTree = "<group>"; };
 		05517CA22C74004700ED0CD5 /* JSIteratorConstructor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSIteratorConstructor.cpp; sourceTree = "<group>"; };
+		07A564652E6250D900DEC7C4 /* JavaScriptCore_Private.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = JavaScriptCore_Private.modulemap; sourceTree = "<group>"; };
 		0F0123301944EA1B00843A0C /* DFGValueStrength.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DFGValueStrength.cpp; path = dfg/DFGValueStrength.cpp; sourceTree = "<group>"; };
 		0F0123311944EA1B00843A0C /* DFGValueStrength.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DFGValueStrength.h; path = dfg/DFGValueStrength.h; sourceTree = "<group>"; };
 		0F0332BF18ADFAE1005F979A /* ExitingJITType.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExitingJITType.cpp; sourceTree = "<group>"; };
@@ -6473,6 +6474,7 @@
 				937B63CC09E766D200A671DD /* DerivedSources.make */,
 				0F93275A1C20BCDF00CF6564 /* dynbench.cpp */,
 				532631B3218777A5007B8191 /* JavaScriptCore.modulemap */,
+				07A564652E6250D900DEC7C4 /* JavaScriptCore_Private.modulemap */,
 				44F93E0D2AE71F9F00FFA37C /* JavaScriptCoreFramework.cpp */,
 				F5C290E60284F98E018635CA /* JavaScriptCorePrefix.h */,
 				45E12D8806A49B0F00E9DF84 /* jsc.cpp */,

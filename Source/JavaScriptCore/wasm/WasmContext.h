@@ -27,8 +27,7 @@
 
 #if ENABLE(WEBASSEMBLY)
 
-#include "MacroAssembler.h"
-
+#include <JavaScriptCore/MacroAssembler.h>
 #include <wtf/Lock.h>
 #include <wtf/UniqueArray.h>
 #include <wtf/Vector.h>
