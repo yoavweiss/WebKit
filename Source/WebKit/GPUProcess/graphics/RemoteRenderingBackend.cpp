@@ -343,8 +343,38 @@ void RemoteRenderingBackend::destroyGetPixelBufferSharedMemory()
     m_getPixelBufferSharedMemory = nullptr;
 }
 
+void RemoteRenderingBackend::nativeImageBitmap(RenderingResourceIdentifier imageIdentifier, CompletionHandler<void(std::optional<ShareableBitmap::Handle>)>&& completionHandler)
+{
+    std::optional<ShareableBitmap::Handle> result;
+    [&] {
+        RefPtr image = m_remoteResourceCache.cachedNativeImage(imageIdentifier);
+        MESSAGE_CHECK(image, "NativeImage not cached.");
+        RefPtr<ShareableBitmap> bitmap;
+#if USE(CG)
+        bitmap = ShareableBitmap::createFromImagePixels(*image);
+#endif
+        if (!bitmap)
+            bitmap = ShareableBitmap::createFromImageDraw(*image, DestinationColorSpace { image->colorSpace() });
+        if (!bitmap)
+            return;
+        auto handle = bitmap->createHandle();
+        if (!handle)
+            return;
+        if (sharedResourceCache().resourceOwner())
+            handle->setOwnershipOfMemory(sharedResourceCache().resourceOwner(), WebCore::MemoryLedger::Graphics);
+        auto platformImage = bitmap->createPlatformImage();
+        if (!platformImage) {
+            ASSERT_NOT_REACHED();
+            return;
+        }
+        image->replacePlatformImage(WTFMove(platformImage));
+        result = WTFMove(handle);
+    }();
+    ASSERT(result);
+    completionHandler(WTFMove(result));
+}
 
-void RemoteRenderingBackend::cacheNativeImage(ShareableBitmap::Handle&& handle, RenderingResourceIdentifier nativeImageIdentifier)
+void RemoteRenderingBackend::cacheNativeImage(ShareableBitmap::Handle&& handle, RenderingResourceIdentifier imageIdentifier)
 {
     ASSERT(!RunLoop::isMain());
 
@@ -352,11 +382,12 @@ void RemoteRenderingBackend::cacheNativeImage(ShareableBitmap::Handle&& handle, 
     if (!bitmap)
         return;
 
-    auto image = NativeImage::create(bitmap->createPlatformImage(DontCopyBackingStore, ShouldInterpolate::Yes), nativeImageIdentifier);
+    auto image = NativeImage::create(bitmap->createPlatformImage(DontCopyBackingStore, ShouldInterpolate::Yes));
     if (!image)
         return;
 
-    m_remoteResourceCache.cacheNativeImage(image.releaseNonNull());
+    bool success = m_remoteResourceCache.cacheNativeImage(imageIdentifier, image.releaseNonNull());
+    MESSAGE_CHECK(success, "NativeImage already cached.");
 }
 
 void RemoteRenderingBackend::releaseNativeImage(RenderingResourceIdentifier identifier)

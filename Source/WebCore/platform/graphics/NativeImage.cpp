@@ -37,29 +37,28 @@ namespace WebCore {
 WTF_MAKE_TZONE_ALLOCATED_IMPL(NativeImage);
 
 #if !USE(CG)
-RefPtr<NativeImage> NativeImage::create(PlatformImagePtr&& platformImage, RenderingResourceIdentifier identifier)
+RefPtr<NativeImage> NativeImage::create(PlatformImagePtr&& platformImage)
 {
     if (!platformImage)
         return nullptr;
-    return adoptRef(*new NativeImage(WTFMove(platformImage), identifier));
+    return adoptRef(*new NativeImage(WTFMove(platformImage)));
 }
 
-RefPtr<NativeImage> NativeImage::createTransient(PlatformImagePtr&& image, RenderingResourceIdentifier identifier)
+RefPtr<NativeImage> NativeImage::createTransient(PlatformImagePtr&& image)
 {
-    return create(WTFMove(image), identifier);
+    return create(WTFMove(image));
 }
 #endif
 
-NativeImage::NativeImage(PlatformImagePtr&& platformImage, RenderingResourceIdentifier renderingResourceIdentifier)
+NativeImage::NativeImage(PlatformImagePtr&& platformImage)
     : m_platformImage(WTFMove(platformImage))
-    , m_renderingResourceIdentifier(renderingResourceIdentifier)
 {
 }
 
 NativeImage::~NativeImage()
 {
-    for (auto& observer : m_observers)
-        observer.willDestroyNativeImage(*this);
+    for (CheckedRef observer : m_observers)
+        observer->willDestroyNativeImage(*this);
 }
 
 const PlatformImagePtr& NativeImage::platformImage() const

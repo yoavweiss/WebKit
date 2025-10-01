@@ -38,16 +38,16 @@
 namespace WebCore {
 
 
-RefPtr<NativeImage> NativeImage::create(PlatformImagePtr&& image, RenderingResourceIdentifier renderingResourceIdentifier)
+RefPtr<NativeImage> NativeImage::create(PlatformImagePtr&& image)
 {
     if (!image)
         return nullptr;
     if (CGImageGetWidth(image.get()) > std::numeric_limits<int>::max() || CGImageGetHeight(image.get()) > std::numeric_limits<int>::max())
         return nullptr;
-    return adoptRef(*new NativeImage(WTFMove(image), renderingResourceIdentifier));
+    return adoptRef(*new NativeImage(WTFMove(image)));
 }
 
-RefPtr<NativeImage> NativeImage::createTransient(PlatformImagePtr&& image, RenderingResourceIdentifier identifier)
+RefPtr<NativeImage> NativeImage::createTransient(PlatformImagePtr&& image)
 {
     if (!image)
         return nullptr;
@@ -59,7 +59,7 @@ RefPtr<NativeImage> NativeImage::createTransient(PlatformImagePtr&& image, Rende
         return nullptr;
     image = nullptr;
     CGImageSetCachingFlags(transientImage.get(), kCGImageCachingTransient);
-    return create(WTFMove(transientImage), identifier);
+    return create(WTFMove(transientImage));
 }
 
 IntSize NativeImage::size() const

@@ -29,21 +29,20 @@
 
 #include "RemoteDisplayListIdentifier.h"
 #include "RemoteGradientIdentifier.h"
+#include "RemoteNativeImageProxy.h"
 #include "RenderingUpdateID.h"
 #include <WebCore/FilterFunction.h>
 #include <WebCore/Gradient.h>
 #include <WebCore/NativeImage.h>
 #include <wtf/CheckedRef.h>
 #include <wtf/HashMap.h>
+#include <wtf/TZoneMalloc.h>
+#include <wtf/UniqueRef.h>
 
 namespace WebCore {
 class Filter;
 class Font;
-class ImageBuffer;
 struct FontCustomPlatformData;
-namespace DisplayList {
-class DisplayList;
-}
 }
 
 namespace WebKit {
@@ -51,11 +50,15 @@ namespace WebKit {
 class RemoteImageBufferProxy;
 class RemoteRenderingBackendProxy;
 
-class RemoteResourceCacheProxy final : public WebCore::RenderingResourceObserver {
+class RemoteResourceCacheProxy final : private WebCore::RenderingResourceObserver, private RemoteNativeImageProxyClient, private CanMakeCheckedPtr<RemoteResourceCacheProxy> {
+    WTF_MAKE_TZONE_ALLOCATED(RemoteResourceCacheProxy);
+    WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(RemoteResourceCacheProxy);
+
 public:
-    using WeakValueType = WebCore::RenderingResourceObserver;
-    RemoteResourceCacheProxy(RemoteRenderingBackendProxy&);
+    static UniqueRef<RemoteResourceCacheProxy> create(RemoteRenderingBackendProxy&);
     ~RemoteResourceCacheProxy();
+
+    Ref<WebCore::NativeImage> createNativeImage(const WebCore::IntSize&, WebCore::PlatformColorSpace&&, bool hasAlpha);
 
     void recordNativeImageUse(WebCore::NativeImage&, const WebCore::DestinationColorSpace&);
     void recordFontUse(WebCore::Font&);
@@ -72,11 +75,23 @@ public:
     unsigned nativeImageCountForTesting() const { return m_nativeImages.size(); }
 
 private:
-    // WebCore::RenderingResourceObserver.
+    RemoteResourceCacheProxy(RemoteRenderingBackendProxy&);
+
+    // CheckedPtr interface.
+    uint32_t checkedPtrCount() const final { return CanMakeCheckedPtr::checkedPtrCount(); }
+    uint32_t checkedPtrCountWithoutThreadCheck() const final { return CanMakeCheckedPtr::checkedPtrCountWithoutThreadCheck(); }
+    void incrementCheckedPtrCount() const final { CanMakeCheckedPtr::incrementCheckedPtrCount(); }
+    void decrementCheckedPtrCount() const final { CanMakeCheckedPtr::decrementCheckedPtrCount(); }
+
+    // WebCore::RenderingResourceObserver overrides.
     void willDestroyNativeImage(const WebCore::NativeImage&) override;
     void willDestroyGradient(const WebCore::Gradient&) override;
     void willDestroyFilter(WebCore::RenderingResourceIdentifier) override;
     void willDestroyDisplayList(const WebCore::DisplayList::DisplayList&) override;
+
+    // WebKit::RemoteNativeImageProxyClient overrides.
+    void willDestroyRemoteNativeImageProxy(const RemoteNativeImageProxy&) final;
+    WebCore::PlatformImagePtr platformImage(const RemoteNativeImageProxy&) final;
 
     void finalizeRenderingUpdateForFonts();
     void prepareForNextRenderingUpdate();
@@ -93,6 +108,7 @@ private:
     HashMap<const WebCore::DisplayList::DisplayList*, RemoteDisplayListIdentifier> m_displayLists;
     WeakPtrFactory<WebCore::RenderingResourceObserver> m_resourceObserverWeakFactory;
     WeakPtrFactory<WebCore::RenderingResourceObserver> m_nativeImageResourceObserverWeakFactory;
+    WeakPtrFactory<RemoteNativeImageProxyClient> m_remoteNativeImageProxyClientWeakFactory;
 
     using FontHashMap = HashMap<WebCore::RenderingResourceIdentifier, uint64_t>;
     FontHashMap m_fonts;
