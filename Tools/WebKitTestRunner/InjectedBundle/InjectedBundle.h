@@ -263,8 +263,4 @@ template<typename T> void postSynchronousPageMessage(const char* name, const WKR
         WKBundlePagePostSynchronousMessageForTesting(page, toWK(name).get(), value.get(), nullptr);
     }
 }
-
-void postMessageWithAsyncReply(JSContextRef, const char* messageName, JSValueRef callback);
-void postMessageWithAsyncReply(JSContextRef, const char* messageName, WKRetainPtr<WKTypeRef> value, JSValueRef callback);
-
 } // namespace WTR

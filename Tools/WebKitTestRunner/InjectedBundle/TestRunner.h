@@ -432,8 +432,6 @@ public:
 
     bool hasAppBoundSession();
     void clearAppBoundSession();
-    void setAppBoundDomains(JSContextRef, JSValueRef originArray, JSValueRef callback);
-    void setManagedDomains(JSContextRef, JSValueRef originArray, JSValueRef callback);
 
     bool didLoadAppInitiatedRequest();
     bool didLoadNonAppInitiatedRequest();

@@ -294,6 +294,17 @@ void InjectedBundle::didReceiveMessageToPage(WKBundlePageRef page, WKStringRef m
         return;
     }
 
+    if (WKStringIsEqualToUTF8CString(messageName, "SetMousePosition")) {
+        auto pointArray = arrayValue(messageBody);
+        if (WKArrayGetSize(pointArray) == 2) {
+            double x = doubleValue(WKArrayGetItemAtIndex(pointArray, 0));
+            double y = doubleValue(WKArrayGetItemAtIndex(pointArray, 1));
+            m_eventSendingController->setMousePosition(x, y);
+        }
+
+        return;
+    }
+
     postPageMessage("Error", "Unknown");
 }
 
@@ -764,59 +775,4 @@ void postSynchronousPageMessage(const char* name, bool value)
 {
     postSynchronousPageMessage(name, adoptWK(WKBooleanCreate(value)));
 }
-
-static JSValueRef stringArrayToJS(JSContextRef context, WKArrayRef strings)
-{
-    const size_t count = WKArrayGetSize(strings);
-    auto array = JSObjectMakeArray(context, 0, 0, nullptr);
-    for (size_t i = 0; i < count; ++i) {
-        auto stringRef = dynamic_wk_cast<WKStringRef>(WKArrayGetItemAtIndex(strings, i));
-        JSObjectSetPropertyAtIndex(context, array, i, JSValueMakeString(context, toJS(stringRef).get()), nullptr);
-    }
-    return array;
-}
-
-void postMessageWithAsyncReply(JSContextRef context, const char* messageName, WKRetainPtr<WKTypeRef> parameter, JSValueRef callback)
-{
-    auto globalContext = JSContextGetGlobalContext(context);
-    JSValueProtect(globalContext, callback);
-
-    Function<void(WKTypeRef)> completionHandler = [callback, globalContext = JSRetainPtr { globalContext }] (WKTypeRef result) mutable {
-        JSContextRef context = globalContext.get();
-
-        size_t argumentCount { 0 };
-        JSValueRef* arguments { nullptr };
-        JSValueRef resultJS { nullptr };
-
-        if (result) {
-            if (auto array = dynamic_wk_cast<WKArrayRef>(result))
-                resultJS = stringArrayToJS(context, array);
-            else if (auto string = dynamic_wk_cast<WKStringRef>(result))
-                resultJS = JSValueMakeString(context, toJS(string).get());
-            else if (auto boolean = dynamic_wk_cast<WKBooleanRef>(result))
-                resultJS = JSValueMakeBoolean(context, booleanValue(boolean));
-            else
-                RELEASE_ASSERT_NOT_REACHED();
-            arguments = &resultJS;
-            argumentCount = 1;
-        }
-
-        JSObjectCallAsFunction(context, JSValueToObject(context, callback, nullptr), JSContextGetGlobalObject(context), argumentCount, arguments, nullptr);
-        JSValueUnprotect(context, callback);
-    };
-
-    if (auto page = InjectedBundle::singleton().pageRef()) {
-        WKBundlePagePostMessageWithAsyncReply(page, toWK(messageName).get(), parameter.get(), [] (WKTypeRef result, void* context) {
-            auto function = WTF::adopt(static_cast<Function<void(WKTypeRef)>::Impl*>(context));
-            function(result);
-        }, completionHandler.leak());
-    } else
-        completionHandler(nullptr);
-}
-
-void postMessageWithAsyncReply(JSContextRef context, const char* messageName, JSValueRef callback)
-{
-    postMessageWithAsyncReply(context, messageName, nullptr, callback);
-}
-
 } // namespace WTR

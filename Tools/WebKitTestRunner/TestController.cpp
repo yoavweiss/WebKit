@@ -46,6 +46,7 @@
 #include <WebKit/WKCredential.h>
 #include <WebKit/WKDownloadClient.h>
 #include <WebKit/WKDownloadRef.h>
+#include <WebKit/WKEvent.h>
 #include <WebKit/WKFrameHandleRef.h>
 #include <WebKit/WKFrameInfoRef.h>
 #include <WebKit/WKHTTPCookieStoreRef.h>
@@ -76,6 +77,7 @@
 #include <WebKit/WKUserContentControllerRef.h>
 #include <WebKit/WKUserContentExtensionStoreRef.h>
 #include <WebKit/WKUserMediaPermissionCheck.h>
+#include <WebKit/WKUserScriptInjectionTime.h>
 #include <WebKit/WKUserScriptRef.h>
 #include <WebKit/WKWebsiteDataStoreConfigurationRef.h>
 #include <WebKit/WKWebsiteDataStoreRef.h>
@@ -87,6 +89,7 @@
 #include <stdlib.h>
 #include <string>
 #include <wtf/AutodrainedPool.h>
+#include <wtf/Compiler.h>
 #include <wtf/CompletionHandler.h>
 #include <wtf/CryptographicallyRandomNumber.h>
 #include <wtf/FileSystem.h>
@@ -105,6 +108,7 @@
 #include <wtf/text/CString.h>
 #include <wtf/text/MakeString.h>
 #include <wtf/text/TextStream.h>
+#include <wtf/text/WTFString.h>
 #include <wtf/unicode/CharacterNames.h>
 
 #if PLATFORM(COCOA)
@@ -822,7 +826,6 @@ PlatformWebView* TestController::createOtherPlatformWebView(PlatformWebView* par
         didReceivePageMessageFromInjectedBundle,
         nullptr,
         didReceiveSynchronousPageMessageFromInjectedBundleWithListener,
-        didReceiveAsyncPageMessageFromInjectedBundleWithListener
     };
     WKPageSetPageInjectedBundleClient(newPage, &injectedBundleClient.base);
 
@@ -1306,7 +1309,6 @@ void TestController::createWebViewWithOptions(const TestOptions& options)
         didReceivePageMessageFromInjectedBundle,
         nullptr,
         didReceiveSynchronousPageMessageFromInjectedBundleWithListener,
-        didReceiveAsyncPageMessageFromInjectedBundleWithListener
     };
     WKPageSetPageInjectedBundleClient(m_mainWebView->page(), &injectedBundleClient.base);
 
@@ -1616,7 +1618,7 @@ void TestController::updateLiveDocumentsAfterTest()
 
     AsyncTask([]() {
         // After each test, we update the list of live documents so that we can detect when an abandoned document first showed up.
-        WKPagePostMessageToInjectedBundle(TestController::singleton().mainWebView()->page(), toWK("GetLiveDocuments").get(), nullptr);
+    WKPagePostMessageToInjectedBundle(TestController::singleton().mainWebView()->page(), toWK("GetLiveDocuments").get(), nullptr);
     }, 5_s).run();
 }
 
@@ -1908,6 +1910,25 @@ void TestController::uiScriptDidComplete(const String& result, unsigned scriptCa
     m_uiScriptCallbacks.get(scriptCallbackID).notifyListeners(toWK(result).get());
 }
 
+constexpr auto eventSenderJS = R"eventSenderJS(
+if (window.eventSender) {
+    let post = window.webkit.messageHandlers.webkitTestRunner.postMessage.bind(window.webkit.messageHandlers.webkitTestRunner);
+
+    eventSender.asyncMouseDown = async (button, modifierArray, pointerType, callback) => { // NOLINT
+        await post(['AsyncMouseDown', button, modifierArray, pointerType]);
+        callback?.();
+    };
+    eventSender.asyncMouseUp = async (button, modifierArray, pointerType, callback) => { // NOLINT
+        await post(['AsyncMouseUp', button, modifierArray, pointerType]);
+        callback?.();
+    };
+    eventSender.asyncMouseMoveTo = async (x, y, pointerType, callback) => { // NOLINT
+        await post(['AsyncMouseMoveTo', x, y, pointerType]);
+        callback?.();
+    };
+}
+)eventSenderJS";
+
 constexpr auto testRunnerJS = R"testRunnerJS(
 if (window.testRunner) {
     let post = window.webkit.messageHandlers.webkitTestRunner.postMessage.bind(window.webkit.messageHandlers.webkitTestRunner);
@@ -2106,8 +2127,70 @@ if (window.testRunner) {
     testRunner.setAllowedMenuActions = actions => post(['SetAllowedMenuActions', actions]);
     testRunner.setOpenPanelFiles = files => post(['SetOpenPanelFileURLs', files]);
     testRunner.setOpenPanelFilesMediaIcon = iconBytes => post(['SetOpenPanelFileURLsMediaIcon', iconBytes]);
+    testRunner.setAppBoundDomains = async (domains, callback) => { // NOLINT
+        await post(['SetAppBoundDomains', domains]);
+        callback?.();
+    }
+    testRunner.setManagedDomains = async (domains, callback) => { // NOLINT
+        await post(['SetManagedDomains', domains]);
+        callback?.();
+    }
 }
 )testRunnerJS";
+
+static WKRetainPtr<WKArrayRef> WKURLArrayFromWKStringArray(const WKTypeRef array)
+{
+    const auto stringArray = arrayValue(array);
+    auto urlArray = adoptWK(WKMutableArrayCreate());
+    const auto length = WKArrayGetSize(stringArray);
+    for (size_t i = 0; i < length; i++) {
+        const auto str = WKArrayGetItemAtIndex(stringArray, i);
+        const auto cstr = toWTFString(stringValue(str)).utf8().data();
+        WKArrayAppendItem(urlArray.get(), adoptWK(WKURLCreateWithUTF8CString(cstr)).get());
+    }
+
+    return urlArray;
+}
+
+static WKEventModifiers parseModifier(WKStringRef modifier)
+{
+    if (WKStringIsEqualToUTF8CString(modifier, "ctrlKey"))
+        return kWKEventModifiersControlKey;
+    if (WKStringIsEqualToUTF8CString(modifier, "shiftKey") || WKStringIsEqualToUTF8CString(modifier, "rangeSelectionKey"))
+        return kWKEventModifiersShiftKey;
+    if (WKStringIsEqualToUTF8CString(modifier, "altKey"))
+        return kWKEventModifiersAltKey;
+    if (WKStringIsEqualToUTF8CString(modifier, "metaKey"))
+        return kWKEventModifiersMetaKey;
+    if (WKStringIsEqualToUTF8CString(modifier, "capsLockKey"))
+        return kWKEventModifiersCapsLockKey;
+    if (WKStringIsEqualToUTF8CString(modifier, "addSelectionKey")) {
+#if OS(MACOS)
+        return kWKEventModifiersMetaKey;
+#else
+        return kWKEventModifiersControlKey;
+#endif
+    }
+    return 0;
+}
+
+static WKEventModifiers parseModifierArray(WKArrayRef array)
+{
+    if (!array)
+        return 0;
+
+    if (const auto str = dynamic_wk_cast<WKStringRef>(array))
+        return parseModifier(str);
+
+    WKEventModifiers modifiers = 0;
+    const auto length = WKArrayGetSize(array);
+    for (size_t i = 0; i < length; i++) {
+        const auto modifierStr = WKArrayGetItemAtIndex(array, i);
+        modifiers |= parseModifier(stringValue(modifierStr));
+    }
+
+    return modifiers;
+}
 
 void TestController::didReceiveScriptMessage(WKScriptMessageRef message, WKCompletionListenerRef listener, const void *)
 {
@@ -2145,6 +2228,7 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
     WKStringRef command = (WKStringRef)WKArrayGetItemAtIndex(array, 0);
     WKTypeRef argument = WKArrayGetSize(array) > 1 ? WKArrayGetItemAtIndex(array, 1) : nullptr;
     WKTypeRef argument2 = WKArrayGetSize(array) > 2 ? WKArrayGetItemAtIndex(array, 2) : nullptr;
+    WKTypeRef argument3 = WKArrayGetSize(array) > 3 ? WKArrayGetItemAtIndex(array, 3) : nullptr;
 
     if (WKStringIsEqualToUTF8CString(command, "FindString")) {
         WKStringRef target = dynamic_wk_cast<WKStringRef>(argument);
@@ -2552,6 +2636,16 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
         return;
     }
 
+    if (WKStringIsEqualToUTF8CString(command, "SetManagedDomains")) {
+        const auto urlArray = WKURLArrayFromWKStringArray(argument);
+        return setManagedDomains(urlArray.get(), WTFMove(completionHandler));
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "SetAppBoundDomains")) {
+        const auto urlArray = WKURLArrayFromWKStringArray(argument);
+        return setAppBoundDomains(urlArray.get(), WTFMove(completionHandler));
+    }
+
     if (WKStringIsEqualToUTF8CString(command, "SetAuthenticationUsername")) {
         WKStringRef username = stringValue(argument);
         TestController::singleton().setAuthenticationUsername(toWTFString(username));
@@ -2621,6 +2715,44 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
         return;
     }
 
+    if (WKStringIsEqualToUTF8CString(command, "AsyncMouseMoveTo")) {
+        const auto x = doubleValue(argument);
+        const auto y = doubleValue(argument2);
+        const auto pointerType = stringValue(argument3);
+
+        auto array = adoptWK(WKMutableArrayCreate());
+        WKArrayAppendItem(array.get(), argument);
+        WKArrayAppendItem(array.get(), argument2);
+        WKPagePostMessageToInjectedBundle(mainWebView()->page(), toWK("SetMousePosition").get(), array.get());
+
+        m_eventSenderProxy->mouseMoveTo(x, y, pointerType);
+        m_eventSenderProxy->waitForPendingMouseEvents();
+        completionHandler(nullptr);
+        return;
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "AsyncMouseDown")) {
+        const auto button = static_cast<uint64_t>(doubleValue(argument));
+        const auto array = arrayValue(argument2);
+        const auto pointerType = stringValue(argument3);
+
+        m_eventSenderProxy->mouseDown(button, parseModifierArray(array), pointerType);
+        m_eventSenderProxy->waitForPendingMouseEvents();
+        completionHandler(nullptr);
+        return;
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "AsyncMouseUp")) {
+        const auto button = static_cast<uint64_t>(doubleValue(argument));
+        const auto array = arrayValue(argument2);
+        const auto pointerType = stringValue(argument3);
+
+        m_eventSenderProxy->mouseUp(button, parseModifierArray(array), pointerType);
+        m_eventSenderProxy->waitForPendingMouseEvents();
+        completionHandler(nullptr);
+        return;
+    }
+
     ASSERT_NOT_REACHED();
 }
 
@@ -2635,8 +2767,12 @@ void TestController::installUserScript(const TestInvocation& test)
         return;
 
     constexpr bool forMainFrameOnly { false };
+    WKRetainPtr uiSenderScript = adoptWK(WKUserScriptCreateWithSource(toWK(eventSenderJS).get(), kWKInjectAtDocumentStart, forMainFrameOnly));
     WKRetainPtr script = adoptWK(WKUserScriptCreateWithSource(toWK(testRunnerJS).get(), kWKInjectAtDocumentStart, forMainFrameOnly));
+
+    WKUserContentControllerAddUserScript(controller.get(), uiSenderScript.get());
     WKUserContentControllerAddUserScript(controller.get(), script.get());
+
     WKUserContentControllerAddScriptMessageHandler(controller.get(), toWK("webkitTestRunner").get(), didReceiveScriptMessage, nullptr);
 }
 
@@ -2887,11 +3023,6 @@ void TestController::didReceiveSynchronousPageMessageFromInjectedBundleWithListe
     static_cast<TestController*>(const_cast<void*>(clientInfo))->didReceiveSynchronousMessageFromInjectedBundle(messageName, messageBody, listener);
 }
 
-void TestController::didReceiveAsyncPageMessageFromInjectedBundleWithListener(WKPageRef, WKStringRef messageName, WKTypeRef messageBody, WKMessageListenerRef listener, const void* clientInfo)
-{
-    static_cast<TestController*>(const_cast<void*>(clientInfo))->didReceiveAsyncMessageFromInjectedBundle(messageName, messageBody, listener);
-}
-
 void TestController::networkProcessDidCrashWithDetails(WKContextRef context, WKProcessID processID, WKProcessTerminationReason reason, const void *clientInfo)
 {
     static_cast<TestController*>(const_cast<void*>(clientInfo))->networkProcessDidCrash(processID, reason);
@@ -3027,50 +3158,6 @@ void TestController::didReceiveMessageFromInjectedBundle(WKStringRef messageName
 RefPtr<TestInvocation> TestController::protectedCurrentInvocation()
 {
     return m_currentInvocation;
-}
-
-void TestController::didReceiveAsyncMessageFromInjectedBundle(WKStringRef messageName, WKTypeRef messageBody, WKMessageListenerRef listener)
-{
-    CompletionHandler<void(WKTypeRef)> completionHandler = [listener = retainWK(listener)] (WKTypeRef reply) {
-        WKMessageListenerSendReply(listener.get(), reply);
-    };
-
-    if (WKStringIsEqualToUTF8CString(messageName, "EventSender")) {
-        if (!m_currentInvocation)
-            return completionHandler(nullptr);
-
-        auto dictionary = dictionaryValue(messageBody);
-        uint64_t testIdentifier = uint64Value(dictionary, "TestIdentifier");
-
-        // This EventSender message was meant for another test, discard it
-        // to prevent potential flakiness.
-        if (testIdentifier != m_currentInvocation->identifier())
-            return completionHandler(nullptr);
-
-        auto subMessageName = stringValue(dictionary, "SubMessage");
-
-        if (WKStringIsEqualToUTF8CString(subMessageName, "MouseDown"))
-            m_eventSenderProxy->mouseDown(uint64Value(dictionary, "Button"), uint64Value(dictionary, "Modifiers"), stringValue(dictionary, "PointerType"));
-        else if (WKStringIsEqualToUTF8CString(subMessageName, "MouseUp"))
-            m_eventSenderProxy->mouseUp(uint64Value(dictionary, "Button"), uint64Value(dictionary, "Modifiers"), stringValue(dictionary, "PointerType"));
-        else if (WKStringIsEqualToUTF8CString(subMessageName, "MouseMoveTo"))
-            m_eventSenderProxy->mouseMoveTo(doubleValue(dictionary, "X"), doubleValue(dictionary, "Y"), stringValue(dictionary, "PointerType"));
-        else {
-            ASSERT_NOT_REACHED();
-            return completionHandler(nullptr);
-        }
-
-        m_eventSenderProxy->waitForPendingMouseEvents();
-        return completionHandler(nullptr);
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetManagedDomains"))
-        return setManagedDomains(arrayValue(messageBody), WTFMove(completionHandler));
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetAppBoundDomains"))
-        return setAppBoundDomains(arrayValue(messageBody), WTFMove(completionHandler));
-
-    ASSERT_NOT_REACHED();
 }
 
 void TestController::didReceiveSynchronousMessageFromInjectedBundle(WKStringRef messageName, WKTypeRef messageBody, WKMessageListenerRef listener)
