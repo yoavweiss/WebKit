@@ -44,6 +44,7 @@
 #include <JavaScriptCore/JSCInlines.h>
 #include <JavaScriptCore/JSCJSValue.h>
 #include <JavaScriptCore/JSGenericTypedArrayViewInlines.h>
+#include <JavaScriptCore/TypedArrayType.h>
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {
@@ -545,6 +546,21 @@ void ReadableByteStreamController::fillHeadPullIntoDescriptor(size_t size, PullI
     pullInto.bytesFilled += size;
 }
 
+static Ref<JSC::ArrayBufferView> createTypedBuffer(JSC::TypedArrayType type, Ref<JSC::ArrayBuffer>&& buffer, size_t byteOffset, size_t size)
+{
+    switch (type) {
+    case JSC::TypedArrayType::NotTypedArray:
+    case JSC::TypedArrayType::TypeDataView:
+        return JSC::DataView::create(WTFMove(buffer), byteOffset, size);
+#define CREATE_TYPED_ARRAY(name) \
+    case JSC::TypedArrayType::Type##name: \
+        return JSC::name##Array::create(WTFMove(buffer), byteOffset, size);
+    FOR_EACH_TYPED_ARRAY_TYPE_EXCLUDING_DATA_VIEW(CREATE_TYPED_ARRAY)
+#undef CREATE_TYPED_ARRAY
+    }
+    RELEASE_ASSERT_NOT_REACHED();
+}
+
 // https://streams.spec.whatwg.org/#readable-byte-stream-controller-convert-pull-into-descriptor
 RefPtr<JSC::ArrayBufferView> ReadableByteStreamController::convertPullIntoDescriptor(JSC::VM& vm, PullIntoDescriptor& pullInto)
 {
@@ -554,8 +570,9 @@ RefPtr<JSC::ArrayBufferView> ReadableByteStreamController::convertPullIntoDescri
     ASSERT(!(bytesFilled % elementSize));
 
     auto buffer = transferArrayBuffer(vm, pullInto.buffer.get());
-    // FIXME: Use PullIntoDescriptor.viewConstructor
-    return Uint8Array::create(WTFMove(buffer), pullInto.byteOffset, bytesFilled / elementSize);
+    if (!buffer)
+        return nullptr;
+    return createTypedBuffer(pullInto.viewConstructor, buffer.releaseNonNull(), pullInto.byteOffset, bytesFilled / elementSize);
 }
 
 // https://streams.spec.whatwg.org/#readable-byte-stream-controller-error
@@ -641,8 +658,7 @@ void ReadableByteStreamController::pullInto(JSDOMGlobalObject& globalObject, JSC
     }
 
     if (stream->state() == ReadableStream::State::Closed) {
-        // FIXME: Use request ctor.
-        Ref emptyView = Uint8Array::create(WTFMove(pullIntoDescriptor.buffer), pullIntoDescriptor.byteOffset, 0);
+        Ref emptyView = createTypedBuffer(pullIntoDescriptor.viewConstructor, WTFMove(pullIntoDescriptor.buffer), pullIntoDescriptor.byteOffset, 0);
         auto chunk = toJS<IDLArrayBufferView>(globalObject, globalObject, WTFMove(emptyView));
         readIntoRequest->resolve<IDLDictionary<ReadableStreamReadResult>>({ WTFMove(chunk), true });
         return;

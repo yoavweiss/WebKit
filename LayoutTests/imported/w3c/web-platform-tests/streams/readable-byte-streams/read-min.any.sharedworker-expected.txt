@@ -5,11 +5,7 @@ PASS ReadableStream with byte source: read({ min }) rejects if min is larger tha
 PASS ReadableStream with byte source: read({ min }) rejects if min is larger than view's length (Uint16Array)
 PASS ReadableStream with byte source: read({ min }) rejects if min is larger than view's length (DataView)
 PASS ReadableStream with byte source: read({ min }), then read()
-FAIL ReadableStream with byte source: read({ min }) with a DataView assert_equals: result.value must be a DataView expected function "function DataView() {
-    [native code]
-}" but got function "function Uint8Array() {
-    [native code]
-}"
+PASS ReadableStream with byte source: read({ min }) with a DataView
 PASS ReadableStream with byte source: enqueue(), then read({ min })
 PASS ReadableStream with byte source: read({ min: 3 }) on a 3-byte Uint8Array, then multiple enqueue() up to 3 bytes
 PASS ReadableStream with byte source: read({ min: 3 }) on a 5-byte Uint8Array, then multiple enqueue() up to 3 bytes

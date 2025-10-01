@@ -1,7 +1,3 @@
 
-FAIL Patched then() sees byobRequest after filling all pending pull-into descriptors assert_equals: result2.value constructor expected function "function BigUint64Array() {
-    [native code]
-}" but got function "function Uint8Array() {
-    [native code]
-}"
+PASS Patched then() sees byobRequest after filling all pending pull-into descriptors
 
