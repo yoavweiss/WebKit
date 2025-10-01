@@ -471,8 +471,8 @@ inline void ExtractorSerializer::serializePositionTryFallbacks(ExtractorState& s
 
     CSSValueListBuilder list;
     for (auto& fallback : fallbacks) {
-        if (fallback.positionAreaProperties) {
-            auto areaValue = fallback.positionAreaProperties->getPropertyCSSValue(CSSPropertyPositionArea);
+        if (RefPtr positionAreaProperties = fallback.positionAreaProperties) {
+            auto areaValue = positionAreaProperties->getPropertyCSSValue(CSSPropertyPositionArea);
             if (areaValue)
                 list.append(*areaValue);
             continue;

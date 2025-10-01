@@ -174,7 +174,7 @@ ResolvedStyle TreeResolver::styleForStyleable(const Styleable& styleable, Resolu
 
     auto& element = styleable.element;
 
-    if (auto optionStyle = tryChoosePositionOption(styleable))
+    if (auto optionStyle = tryChoosePositionOption(styleable, resolutionContext))
         return WTFMove(*optionStyle);
 
     if (resolutionType == ResolutionType::FastPathInherit) {
@@ -477,7 +477,7 @@ std::optional<ElementUpdate> TreeResolver::resolvePseudoElement(Element& element
         std::optional<ResolvedStyle> resolvedStyle;
 
         if (pseudoSupportsPositionTry)
-            resolvedStyle = tryChoosePositionOption({ element, pseudoElementIdentifier });
+            resolvedStyle = tryChoosePositionOption({ element, pseudoElementIdentifier }, resolutionContext);
 
         if (!resolvedStyle) {
             resolvedStyle = scope().resolver->styleForPseudoElement(element, pseudoElementIdentifier, resolutionContext);
@@ -1533,17 +1533,24 @@ void TreeResolver::generatePositionOptionsIfNeeded(const ResolvedStyle& resolved
         return;
 
     auto generatePositionOptions = [&] {
-        PositionOptions options;
-        options.optionStyles.append({ RenderStyle::clonePtr(*resolvedStyle.style), std::nullopt });
+        ResolvedStyle clonedResolvedStyle {
+            .style = RenderStyle::clonePtr(*resolvedStyle.style),
+            .relations = { },
+            .matchResult = resolvedStyle.matchResult
+        };
+        PositionOptions options { .originalResolvedStyle = WTFMove(clonedResolvedStyle) };
 
-        for (size_t i = 0; i < resolvedStyle.style->positionTryFallbacks().size(); ++i) {
-            const auto& fallback = resolvedStyle.style->positionTryFallbacks().at(i);
-            auto optionStyle = generatePositionOption(fallback, resolvedStyle, styleable, resolutionContext);
+        auto scrollContainerSizeOnGeneration = scrollContainerSizeForPositionOptions(styleable);
+        options.optionStyles.append({ RenderStyle::clonePtr(*resolvedStyle.style), { }, { }, scrollContainerSizeOnGeneration });
+
+        for (auto [i, fallback] : indexedRange(resolvedStyle.style->positionTryFallbacks())) {
+            auto optionStyle = generatePositionOption(fallback, options.originalResolvedStyle, styleable, resolutionContext);
             if (!optionStyle)
                 continue;
 
-            options.optionStyles.append({ WTFMove(optionStyle), i });
+            options.optionStyles.append({ WTFMove(optionStyle), fallback, i, scrollContainerSizeOnGeneration });
         }
+
         return options;
     };
 
@@ -1552,8 +1559,6 @@ void TreeResolver::generatePositionOptionsIfNeeded(const ResolvedStyle& resolved
     // If the fallbacks contain anchor references we need to resolve the anchors first and regenerate the options.
     if (hasUnresolvedAnchorPosition(styleable))
         return;
-
-    options.scrollContainerSizeOnGeneration = scrollContainerSizeForPositionOptions(styleable);
 
     m_positionOptions.add(positionOptionsKey, WTFMove(options));
 }
@@ -1662,7 +1667,7 @@ void TreeResolver::sortPositionOptionsIfNeeded(PositionOptions& options, const S
     }
 }
 
-std::optional<ResolvedStyle> TreeResolver::tryChoosePositionOption(const Styleable& styleable)
+std::optional<ResolvedStyle> TreeResolver::tryChoosePositionOption(const Styleable& styleable, const ResolutionContext& resolutionContext)
 {
     // https://drafts.csswg.org/css-anchor-position-1/#fallback-apply
 
@@ -1706,10 +1711,20 @@ std::optional<ResolvedStyle> TreeResolver::tryChoosePositionOption(const Styleab
         return ResolvedStyle { options.currentOption() };
     }
 
-    if (!options.chosen && options.scrollContainerSizeOnGeneration != scrollContainerSizeForPositionOptions(styleable)) {
+    if (!options.chosen) {
+        ASSERT(options.index < options.optionStyles.size());
+
+        auto& option = options.optionStyles[options.index];
+        auto newScrollContainerSize = scrollContainerSizeForPositionOptions(styleable);
+
         // Re-generate the options if a scrollbar change changes the view size. It may affect anchor() function resolution.
-        m_positionOptions.remove(optionIt);
-        return { };
+        if (option.scrollContainerSizeOnGeneration != newScrollContainerSize) {
+            option.scrollContainerSizeOnGeneration = newScrollContainerSize;
+            if (option.option)
+                option.style = generatePositionOption(*option.option, options.originalResolvedStyle, styleable, resolutionContext);
+
+            return ResolvedStyle { options.currentOption() };
+        }
     }
 
     // We can't test for overflow before the box has been positioned.

@@ -26,7 +26,9 @@
 #pragma once
 
 #include <WebCore/AnchorPositionEvaluator.h>
+#include <WebCore/PositionTryFallback.h>
 #include "PropertyCascade.h"
+#include "ResolvedStyle.h"
 #include "SelectorChecker.h"
 #include "SelectorMatchingState.h"
 #include <WebCore/RenderStyle.h>
@@ -173,7 +175,7 @@ private:
     std::unique_ptr<RenderStyle> generatePositionOption(const PositionTryFallback&, const ResolvedStyle&, const Styleable&, const ResolutionContext&);
     struct PositionOptions;
     void sortPositionOptionsIfNeeded(PositionOptions&, const Styleable&);
-    std::optional<ResolvedStyle> tryChoosePositionOption(const Styleable&);
+    std::optional<ResolvedStyle> tryChoosePositionOption(const Styleable&, const ResolutionContext&);
 
     void updateForPositionVisibility(RenderStyle&, const Styleable&);
 
@@ -214,21 +216,28 @@ private:
     HashMap<Ref<const Element>, std::unique_ptr<RenderStyle>> m_savedBeforeResolutionStylesForInterleaving;
 
     struct PositionOption {
+        // New style after applying the option.
         std::unique_ptr<RenderStyle> style;
-        // Index of the option in the position-try-fallbacks list.
+
+        // The used position option. If option is nullopt, no position option is used.
+        std::optional<PositionTryFallback> option;
+
+        // Index of the option in the position-try-fallbacks list. If nullopt, no position option is used.
         std::optional<size_t> fallbackIndex;
+
+        // The size of the content box of the element when the style is generated.
+        // Non-overlay scrollbars appearing or disappearing may affect the content box size that anchor functions are resolved against.
+        std::optional<LayoutSize> scrollContainerSizeOnGeneration;
     };
 
     struct PositionOptions {
         // Array of option styles. By convention, the original style is at index 0.
         Vector<PositionOption> optionStyles { };
+        ResolvedStyle originalResolvedStyle;
         size_t index { 0 };
         bool sorted { false };
         bool chosen { false };
         bool isFirstTry { true };
-
-        // Non-overlay scrollbars appearing or disappearing may affect the content box size that anchor functions are resolved against.
-        std::optional<LayoutSize> scrollContainerSizeOnGeneration;
 
         const RenderStyle& originalStyle() const;
         std::unique_ptr<RenderStyle> currentOption() const;
