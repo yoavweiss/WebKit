@@ -1028,8 +1028,6 @@ imported/w3c/web-platform-tests/fetch/api/cors/cors-cookies.any.html [ Failure P
 imported/w3c/web-platform-tests/fetch/content-length/parsing.window.html [ Failure Pass ]
 imported/w3c/web-platform-tests/fetch/redirects/subresource-fragments.html [ Failure Pass ]
 imported/w3c/web-platform-tests/html/browsers/history/joint-session-history/joint-session-history-only-fully-active.html [ Failure Pass ]
-imported/w3c/web-platform-tests/html/browsers/history/the-history-interface/001.html [ Failure Pass Crash ]
-imported/w3c/web-platform-tests/html/browsers/history/the-history-interface/002.html [ Failure Pass ]
 imported/w3c/web-platform-tests/html/browsers/history/the-history-interface/combination_history_002.html [ Failure Pass ]
 imported/w3c/web-platform-tests/html/browsers/history/the-history-interface/combination_history_003.html [ Failure Pass ]
 imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/execution-timing/058.html [ Failure Pass ]
