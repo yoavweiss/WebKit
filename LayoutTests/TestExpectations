@@ -6073,12 +6073,6 @@ webkit.org/b/243313 [ Debug ] imported/w3c/web-platform-tests/html/semantics/emb
 fast/text/accessibility-bold-system-font [ Pass Failure ImageOnlyFailure ]
 
 imported/w3c/web-platform-tests/streams/transferable/gc-crash.html [ Skip ]
-# ReadableByteStream has a crash bug (ReadableByteStream is not enabled).
-imported/w3c/web-platform-tests/streams/readable-byte-streams/respond-after-enqueue.any.html [ Skip ]
-imported/w3c/web-platform-tests/streams/readable-byte-streams/respond-after-enqueue.any.serviceworker.html [ Skip ]
-imported/w3c/web-platform-tests/streams/readable-byte-streams/respond-after-enqueue.any.worker.html [ Skip ]
-streams/readable-byte-stream-controller.html [ Skip ]
-streams/readable-byte-stream-controller-worker.html [ Skip ]
 
 # height: fill-available failures
 webkit.org/b/241104 fast/block/fill-available-with-no-specified-containing-block-height.html [ ImageOnlyFailure ]

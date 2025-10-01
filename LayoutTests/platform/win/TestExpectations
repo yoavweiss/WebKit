@@ -1855,8 +1855,6 @@ webkit.org/b/277121 [ Debug ] fast/events/event-handler-detached-document.html
 webkit.org/b/168136 performance-api/performance-observer-periodic.html [ Pass Failure ]
 
 # ReadableByteStreamController is not implemented
-streams/readable-byte-stream-controller.html [ Skip ]
-streams/readable-byte-stream-controller-worker.html [ Skip ]
 streams/readable-stream-byob-reader.html [ Skip ]
 streams/readable-stream-byob-reader-worker.html [ Skip ]
 streams/readable-stream-byob-request.html [ Skip ]
