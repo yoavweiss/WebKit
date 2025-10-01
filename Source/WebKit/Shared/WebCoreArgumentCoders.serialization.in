@@ -9023,6 +9023,10 @@ enum class WebCore::PlatformMediaError : uint8_t {
     DecoderCreationError,
     NotSupportedError,
     NetworkError,
+    NotReady,
+    AudioDecodingError,
+    VideoDecodingError,
+    RequiresFlushToResume,
 };
 #endif
 

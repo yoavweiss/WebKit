@@ -29,8 +29,10 @@
 #if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER)
 #include <WebCore/MediaRecorderPrivateWriter.h>
 #endif
+#include <WebCore/MediaPlayerEnums.h>
 #include <WebCore/NativeImage.h>
 #include <WebCore/NowPlayingManager.h>
+#include <wtf/BitSet.h>
 #include <wtf/CheckedRef.h>
 #include <wtf/CompletionHandler.h>
 #include <wtf/Forward.h>
@@ -39,6 +41,7 @@ namespace WebCore {
 
 class AudioDestination;
 class AudioIOCallback;
+class AudioVideoRenderer;
 class CDMFactory;
 class NowPlayingManager;
 class VideoFrame;
@@ -51,6 +54,11 @@ class WEBCORE_EXPORT MediaStrategy : public CanMakeThreadSafeCheckedPtr<MediaStr
 public:
 #if ENABLE(WEB_AUDIO)
     virtual Ref<AudioDestination> createAudioDestination(const AudioDestinationCreationOptions&) = 0;
+#endif
+#if ENABLE(VIDEO)
+    virtual RefPtr<AudioVideoRenderer> createAudioVideoRenderer(WTF::LoggerHelper*) const;
+    bool hasRemoteRendererFor(MediaPlayerMediaEngineIdentifier) const;
+    void enableRemoteRenderer(MediaPlayerMediaEngineIdentifier, bool);
 #endif
     virtual std::unique_ptr<NowPlayingManager> createNowPlayingManager() const;
     void resetMediaEngines();
@@ -72,6 +80,7 @@ protected:
     MediaStrategy();
     virtual ~MediaStrategy();
     bool m_mockMediaSourceEnabled { false };
+    WTF::BitSet<16> m_remoteRenderersEnabled;
 };
 
 #if ENABLE(VIDEO)
