@@ -58,6 +58,7 @@ public:
     void executeClassicScript(const ScriptSourceCode&);
     void executeModuleScript(LoadableModuleScript&);
     void registerImportMap(const ScriptSourceCode&);
+    void registerSpeculationRules(const ScriptSourceCode&);
 
     void executePendingScript(PendingScript&);
 

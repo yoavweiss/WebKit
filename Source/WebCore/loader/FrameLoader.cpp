@@ -58,6 +58,7 @@
 #include "DiagnosticLoggingResultType.h"
 #include "DocumentInlines.h"
 #include "DocumentLoader.h"
+#include "DocumentPrefetcher.h"
 #include "Editor.h"
 #include "EditorClient.h"
 #include "ElementInlines.h"
@@ -378,6 +379,7 @@ FrameLoader::FrameLoader(LocalFrame& frame, CompletionHandler<UniqueRef<LocalFra
     , m_state(FrameState::Provisional)
     , m_loadType(FrameLoadType::Standard)
     , m_checkTimer(*this, &FrameLoader::checkTimerFired)
+    , m_documentPrefetcher(DocumentPrefetcher::create(*this))
 {
 }
 
@@ -2369,7 +2371,7 @@ void FrameLoader::commitProvisionalLoad()
         // Check to see if we need to cache the page we are navigating away from into the back/forward cache.
         // We are doing this here because we know for sure that a new page is about to be loaded.
         BackForwardCache::singleton().addIfCacheable(*history().protectedCurrentItem(), frame->protectedPage().get());
-        
+
         WebCore::jettisonExpensiveObjectsOnTopLevelNavigation();
     }
 
@@ -3629,7 +3631,7 @@ ResourceLoaderIdentifier FrameLoader::loadResourceSynchronously(const ResourceRe
 {
     ASSERT(m_frame->document());
     String referrer = SecurityPolicy::generateReferrerHeader(m_frame->document()->referrerPolicy(), request.url(), outgoingReferrerURL(), OriginAccessPatternsForWebProcess::singleton());
-    
+
     ResourceRequest initialRequest = request;
     initialRequest.setTimeoutInterval(10);
     
@@ -4146,7 +4148,7 @@ void FrameLoader::continueLoadAfterNavigationPolicy(const ResourceRequest& reque
             FRAMELOADER_RELEASE_LOG(ResourceLoading, "continueLoadAfterNavigationPolicy (completionHandler): Frame load canceled - no provisional document loader before prepareForLoadStart");
             return;
         }
-        
+
         prepareForLoadStart();
 
         // The load might be cancelled inside of prepareForLoadStart(), nulling out the m_provisionalDocumentLoader,
@@ -4943,6 +4945,11 @@ void FrameLoader::prefetchDNSIfNeeded(const URL& url)
 
     if (url.isValid() && !url.isEmpty() && url.protocolIsInHTTPFamily())
         client().prefetchDNS(url.host().toString());
+}
+
+void FrameLoader::prefetch(const URL& url, const Vector<String>& tags, const String& referrerPolicyString, bool lowPriority)
+{
+    m_documentPrefetcher->prefetch(url, tags, referrerPolicyString, lowPriority);
 }
 
 } // namespace WebCore

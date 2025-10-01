@@ -287,6 +287,8 @@
 #include "ShadowRoot.h"
 #include "SleepDisabler.h"
 #include "SocketProvider.h"
+#include "SpeculationRules.h"
+#include "SpeculationRulesMatcher.h"
 #include "SpeechRecognition.h"
 #include "StartViewTransitionOptions.h"
 #include "StaticNodeList.h"
@@ -653,6 +655,7 @@ Document::Document(LocalFrame* frame, const Settings& settings, const URL& url, 
     , ScriptExecutionContext(Type::Document, identifier)
     , FrameDestructionObserver(frame)
     , m_settings(settings)
+    , m_speculationRules(SpeculationRules::create())
     , m_parserContentPolicy(DefaultParserContentPolicy)
     , m_creationURL(url)
     , m_domTreeVersion(++s_globalTreeVersion)
@@ -2918,6 +2921,10 @@ void Document::resolveStyle(ResolveStyleType type)
 
     if (CheckedPtr styleOriginatedTimelinesController = this->styleOriginatedTimelinesController())
         styleOriginatedTimelinesController->documentDidResolveStyle();
+
+    // Re-evaluate speculation rules after DOM changes that trigger style recalculation.
+    // That helps ensure CSS selector matching works correctly.
+    considerSpeculationRules();
 }
 
 void Document::updateTextRenderer(Text& text, unsigned offsetOfReplacedText, unsigned lengthOfReplacedText)
@@ -4746,6 +4753,40 @@ void Document::updateBaseURL()
         m_baseURL = URL();
 
     invalidateCachedCSSParserContext();
+    considerSpeculationRules();
+}
+
+void Document::considerSpeculationRules()
+{
+    if (!settings().speculationRulesPrefetchEnabled())
+        return;
+    RefPtr frame = this->frame();
+    if (!frame || frame->documentIsBeingReplaced() || !frame->window() || !isHTMLDocument())
+        return;
+    auto anchors = links();
+    auto iterator = anchors->createIterator(this);
+    for (RefPtr element = iterator.next(); element; element = iterator.next()) {
+        if (RefPtr anchorElement = dynamicDowncast<HTMLAnchorElement>(element.get())) {
+            if (auto prefetchRule = SpeculationRulesMatcher::hasMatchingRule(*this, *anchorElement))
+                anchorElement->setShouldBePrefetched(prefetchRule->conservative, WTFMove(prefetchRule->tags), WTFMove(prefetchRule->referrerPolicy));
+        }
+    }
+    // Prefetch all the URL lists that need to be prefetched immediately
+    constexpr bool lowPriority { true };
+    for (const auto& rule : speculationRules()->prefetchRules()) {
+        for (const auto& url : rule.urls)
+            frame->loader().prefetch(url, rule.tags, rule.referrerPolicy, lowPriority);
+    }
+}
+
+Ref<const SpeculationRules> Document::speculationRules() const
+{
+    return m_speculationRules;
+}
+
+Ref<SpeculationRules> Document::speculationRules()
+{
+    return m_speculationRules;
 }
 
 void Document::setBaseURLOverride(const URL& url)
@@ -11895,6 +11936,15 @@ double Document::lookupCSSRandomBaseValue(const CSSCalc::RandomCachingKey& key) 
     if (!m_randomCachingKeyMap)
         m_randomCachingKeyMap = CSSCalc::RandomCachingKeyMap::create();
     return m_randomCachingKeyMap->lookupCSSRandomBaseValue(key);
+}
+
+void Document::prefetch(const URL& url, const Vector<String>& tags, const String& referrerPolicy, bool lowPriority)
+{
+    RefPtr frame = this->frame();
+    if (!frame)
+        return;
+
+    frame->loader().prefetch(url, tags, referrerPolicy, lowPriority);
 }
 
 } // namespace WebCore

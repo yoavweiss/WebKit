@@ -4522,6 +4522,18 @@ imported/w3c/web-platform-tests/wasm/core/simd/simd_f64x2_pmin_pmax.wast.js.html
 
 http/tests/iframe-memory-monitor/media-video-autoplay-in-frames.html [ Skip ]
 
+imported/w3c/web-platform-tests/speculation-rules/prefetch/different-initiators.sub.https.html?cross-site-1 [ Failure ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/initiators-a-element.sub.https.html?cross-site [ Failure ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/initiators-window-open.sub.https.html?cross-site [ Failure ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/redirect-url.https.html?origin=cross-site-initial [ Failure ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/referrer-policy.https.html?4-last [ Failure ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/user-pass.https.html?cross-origin=false [ Failure ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/user-pass.https.html?cross-origin=true [ Failure ]
+imported/w3c/web-platform-tests/speculation-rules/speculation-tags/invalid-tags.https.html?tag-level=rule&type=prefetch [ Failure ]
+imported/w3c/web-platform-tests/speculation-rules/speculation-tags/invalid-tags.https.html?tag-level=ruleset&type=prefetch [ Failure ]
+imported/w3c/web-platform-tests/speculation-rules/speculation-tags/valid-tags.https.html?tag-level=rule&type=prefetch [ Failure ]
+imported/w3c/web-platform-tests/speculation-rules/speculation-tags/valid-tags.https.html?tag-level=ruleset&type=prefetch [ Failure ]
+
 # Lockdown Mode does not apply
 dom/xsl/lockdown-mode [ Skip ]
 http/tests/lockdown-mode [ Skip ]

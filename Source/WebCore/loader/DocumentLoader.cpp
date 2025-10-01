@@ -253,7 +253,6 @@ void DocumentLoader::setRequest(ResourceRequest&& req)
     // Replacing an unreachable URL with alternate content looks like a server-side
     // redirect at this point, but we can replace a committed dataSource.
     bool handlingUnreachableURL = false;
-
     handlingUnreachableURL = m_substituteData.isValid() && !m_substituteData.failingURL().isEmpty();
 
     bool shouldNotifyAboutProvisionalURLChange = false;
@@ -2311,7 +2310,8 @@ void DocumentLoader::loadMainResource(ResourceRequest&& request)
     ResourceRequest updatedRequest = mainResourceLoader() ? mainResourceLoader()->originalRequest() : mainResourceRequest.resourceRequest();
     // If there was a fragment identifier on m_request, the cache will have stripped it. m_request should include
     // the fragment identifier, so add that back in.
-    if (equalIgnoringFragmentIdentifier(m_request.url(), updatedRequest.url()))
+    // Otherwise, if the main resource was loaded from a prefetch, we need to conserve the redirect URL here
+    if (equalIgnoringFragmentIdentifier(m_request.url(), updatedRequest.url()) || (m_mainResource && m_mainResource->options().cachingPolicy == CachingPolicy::AllowCachingPrefetch))
         updatedRequest.setURL(URL { m_request.url() });
     setRequest(WTFMove(updatedRequest));
 }

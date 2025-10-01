@@ -1458,6 +1458,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     dom/SlotAssignmentMode.h
     dom/SpaceSplitString.h
     dom/SpatialBackdropSource.h
+    dom/SpeculationRulesMatcher.h
     dom/StartViewTransitionOptions.h
     dom/StaticRange.h
     dom/StyledElement.h
@@ -1894,6 +1895,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     loader/CustomHeaderFields.h
     loader/DocumentLoadTiming.h
     loader/DocumentLoader.h
+    loader/DocumentPrefetcher.h
     loader/DocumentWriter.h
     loader/EmptyClients.h
     loader/EmptyFrameLoaderClient.h
@@ -1958,6 +1960,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     loader/ResourceMonitorThrottlerHolder.h
     loader/ResourceTimingInformation.h
     loader/ShouldTreatAsContinuingLoad.h
+    loader/SpeculationRules.h
     loader/SubframeLoader.h
     loader/SubresourceLoader.h
     loader/SubstituteData.h
