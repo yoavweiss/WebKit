@@ -742,9 +742,14 @@ Vector<std::pair<size_t, size_t>> LineBuilder::collectShapeRanges(const LineCand
             [[fallthrough]];
         case InlineItem::Type::InlineBoxEnd:
             auto& boxGeometry = formattingContext().geometryForBox(inlineItem.layoutBox());
-            auto hasDecoration = boxGeometry.horizontalMarginBorderAndPadding();
-            auto hasBidiIsolation = isIsolated((isFirstFormattedLineCandidate ? inlineItem.firstLineStyle() : inlineItem.style()).unicodeBidi());
-            type = hasDecoration || hasBidiIsolation ? ShapingType::Break : ShapingType::Keep;
+            auto& style = isFirstFormattedLineCandidate ? inlineItem.firstLineStyle() : inlineItem.style();
+            auto hasDecoration = [&] {
+                // Note that this depends on the content being RTL (inline-box-end vs. start decoration matching visual order -visual matching).
+                auto shouldCheckLogicalStart = style.writingMode().bidiDirection() == TextDirection::LTR ? inlineItem.type() == InlineItem::Type::InlineBoxEnd : inlineItem.type() == InlineItem::Type::InlineBoxStart;
+                return shouldCheckLogicalStart ? boxGeometry.marginStart() || boxGeometry.borderStart() || boxGeometry.paddingStart() : boxGeometry.marginEnd() || boxGeometry.borderEnd() || boxGeometry.paddingEnd();
+            };
+            auto hasBidiIsolation = isIsolated(style.unicodeBidi());
+            type = hasDecoration() || hasBidiIsolation ? ShapingType::Break : ShapingType::Keep;
             break;
         }
         case InlineItem::Type::HardLineBreak:
