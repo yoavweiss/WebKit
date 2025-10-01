@@ -8,7 +8,13 @@ import os
 import argparse
 from lib.core.utils import Logger
 from lib.runners.parallel import ParallelWebAssemblyDebuggerTestRunner
-from lib.discovery.auto_discovery import create_auto_registered_runner, TestCaseDiscovery
+from lib.discovery.auto_discovery import (
+    create_auto_registered_runner,
+    TestCaseDiscovery,
+)
+
+# Prevent creation of __pycache__ directories
+sys.dont_write_bytecode = True
 
 
 def get_optimal_worker_count():

@@ -72,7 +72,7 @@ class WebKitEnvironment:
 
     def _find_lldb_path(self) -> str:
         """Find the best LLDB binary to use"""
-        hardcoded_lldb = "/Users/yijiahuang/git/WebKit/llvm/build/bin/lldb"
+        hardcoded_lldb = "/Users/yijiahuang/Library/Developer/Toolchains/swift-REBRANCH-DEVELOPMENT-SNAPSHOT-2025-09-25-a.xctoolchain/usr/bin/lldb"
         if Path(hardcoded_lldb).exists():
             return hardcoded_lldb
         return "lldb"  # Fall back to system LLDB

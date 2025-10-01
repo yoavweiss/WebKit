@@ -265,7 +265,7 @@ class BaseTestCase:
                 os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             )  # Go up to test directory (from lib/core/base.py to debugger/)
 
-            # If test_file contains a directory (like "resources/add/main.js"), set working directory to that subdirectory
+            # If test_file contains a directory (like "resources/c-wasm/add/main.js"), set working directory to that subdirectory
             if "/" in test_file:
                 test_subdir = os.path.dirname(test_file)
                 working_dir = os.path.join(test_dir, test_subdir)
@@ -351,7 +351,16 @@ class BaseTestCase:
 
             # Start LLDB process with the connection command
             self.lldb_process = subprocess.Popen(
-                [lldb_path, "-o", connect_cmd],
+                [
+                    lldb_path,
+                    # FIXME: Should remove these two once Swift LLDB step over issue is fixed
+                    "-o",
+                    "settings set stop-line-count-before 0",  # FIXME: Disable showing lines before
+                    "-o",
+                    "settings set stop-line-count-after 0",  # FIXME: Disable showing lines after
+                    "-o",
+                    connect_cmd,
+                ],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,

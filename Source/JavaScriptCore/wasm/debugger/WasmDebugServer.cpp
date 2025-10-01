@@ -392,6 +392,10 @@ void DebugServer::handlePacket(StringView packet)
         dataLogLnIf(Options::verboseWasmDebugger(), "[Debugger] Routing remove breakpoint packet to ExecutionHandler");
         m_executionHandler->removeBreakpoint(packet);
         break;
+    case 'H':
+        dataLogLnIf(Options::verboseWasmDebugger(), "[Debugger] Routing thread management packet to handleThreadManagement");
+        handleThreadManagement(packet);
+        break;
     case '?':
         dataLogLnIf(Options::verboseWasmDebugger(), "[Debugger] Routing halt reason query to ExecutionHandler");
         m_executionHandler->interrupt();
@@ -436,6 +440,47 @@ void DebugServer::sendErrorReply(ProtocolError error)
     // Send 'E NN' error reply with specific error code
     // Reference: [5] in wasm/debugger/README.md
     sendReply(getErrorReply(error));
+}
+
+void DebugServer::handleThreadManagement(StringView packet)
+{
+    dataLogLnIf(Options::verboseWasmDebugger(), "[Debugger] Processing thread management packet (Hg, Hc, Hp): ", packet);
+
+    if (packet.length() < 2) {
+        dataLogLnIf(Options::verboseWasmDebugger(), "[Debugger] Invalid H packet - too short");
+        sendErrorReply(ProtocolError::InvalidPacket);
+        return;
+    }
+
+    char operation = packet[1];
+    StringView threadSpec = packet.substring(2);
+
+    auto reply = [&]() {
+        if (threadSpec == "-1" || threadSpec == "0" || threadSpec == "1") {
+            // -1 = all threads, 0 = any thread, 1 = thread 1
+            // All are valid for our single-threaded WebAssembly context
+            sendReplyOK();
+        } else
+            sendErrorReply(ProtocolError::InvalidAddress);
+    };
+
+    switch (operation) {
+    case 'c': {
+        // Hc<thread-id>: Set thread for step and continue operations
+        dataLogLnIf(Options::verboseWasmDebugger(), "[Debugger] Hc (set continue thread): ", threadSpec);
+        reply();
+        break;
+    }
+    case 'g': {
+        // Hg<thread-id>: Set thread for other operations (register access, etc.)
+        dataLogLnIf(Options::verboseWasmDebugger(), "[Debugger] Hg (set general thread): ", threadSpec);
+        reply();
+        break;
+    }
+    default:
+        sendReplyNotSupported(packet);
+        break;
+    }
 }
 
 void DebugServer::trackInstance(JSWebAssemblyInstance* instance)

@@ -122,6 +122,7 @@ private:
 
     void handleClient();
     void handlePacket(StringView packet);
+    void handleThreadManagement(StringView packet);
 
     void sendAck();
     void sendReplyOK();

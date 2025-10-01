@@ -76,7 +76,7 @@ from lib.core.base import BaseTestCase
 class MyTestCase(BaseTestCase):
     def execute(self):
         # Setup debugging session (JSC + LLDB)
-        self.setup_debugging_session_or_raise("resources/add/main.js")
+        self.setup_debugging_session_or_raise("resources/c-wasm/add/main.js")
         
         # Send LLDB commands
         self.send_lldb_command_or_raise("b main")
