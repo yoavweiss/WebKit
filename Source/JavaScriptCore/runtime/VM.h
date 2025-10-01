@@ -388,7 +388,7 @@ private:
         OptionSet<ConcurrentEntryScopeService, ConcurrencyTag::Atomic> m_concurrentEntryScopeServices;
     };
 
-    uint16_t m_entryScopeServicesRawBits;
+    uint16_t m_entryScopeServicesRawBits { 0 };
     static_assert(sizeof(EntryScopeServicesBits) == sizeof(m_entryScopeServicesRawBits));
 
     OptionSet<EntryScopeService>& entryScopeServices()
