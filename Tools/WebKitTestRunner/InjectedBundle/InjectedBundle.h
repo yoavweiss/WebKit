@@ -65,7 +65,7 @@ public:
 
     void dumpBackForwardListsForAllPages(StringBuilder&);
 
-    void done(bool forceRepaint);
+    void done();
     void setAudioResult(WKDataRef audioData) { m_audioResult = audioData; }
     void setPixelResult(WKImageRef image) { m_pixelResult = image; m_pixelResultIsPending = false; }
     void setPixelResultIsPending(bool isPending) { m_pixelResultIsPending = isPending; }
@@ -150,6 +150,8 @@ public:
     WKRetainPtr<WKStringRef> lastRemovedBackgroundFetchIdentifier() const;
     WKRetainPtr<WKStringRef> lastUpdatedBackgroundFetchIdentifier() const;
     WKRetainPtr<WKStringRef> backgroundFetchState(WKStringRef);
+
+    bool shouldForceRepaint() const;
 
 private:
     InjectedBundle() = default;

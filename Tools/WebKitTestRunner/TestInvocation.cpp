@@ -381,7 +381,6 @@ void TestInvocation::didReceiveMessageFromInjectedBundle(WKStringRef messageName
         }
         m_repaintRects = static_cast<WKArrayRef>(value(messageBodyDictionary, "RepaintRects"));
         m_audioResult = static_cast<WKDataRef>(value(messageBodyDictionary, "AudioResult"));
-        m_forceRepaint = booleanValue(messageBodyDictionary, "ForceRepaint");
         done();
         return;
     }
@@ -1161,6 +1160,11 @@ WKRetainPtr<WKTypeRef> TestInvocation::didReceiveSynchronousMessageFromInjectedB
         return nullptr;
     }
 
+    if (WKStringIsEqualToUTF8CString(messageName, "DontForceRepaint")) {
+        dontForceRepaint();
+        return nullptr;
+    }
+
     if (WKStringIsEqualToUTF8CString(messageName, "DumpPrivateClickMeasurement")) {
         dumpPrivateClickMeasurement();
         return nullptr;
@@ -1294,6 +1298,9 @@ WKRetainPtr<WKTypeRef> TestInvocation::didReceiveSynchronousMessageFromInjectedB
         TestController::singleton().setHasMouseDeviceForTesting((booleanValue(messageBody)));
         return nullptr;
     }
+
+    if (WKStringIsEqualToUTF8CString(messageName, "ShouldForceRepaint"))
+        return adoptWK(WKBooleanCreate(m_forceRepaint));
 
     ASSERT_NOT_REACHED();
     return nullptr;

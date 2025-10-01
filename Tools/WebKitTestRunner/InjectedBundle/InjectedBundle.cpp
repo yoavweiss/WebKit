@@ -31,6 +31,7 @@
 #include "InjectedBundlePage.h"
 #include "WebCoreTestSupport.h"
 #include <JavaScriptCore/Options.h>
+#include <WebKit/WKBase.h>
 #include <WebKit/WKBundle.h>
 #include <WebKit/WKBundleFrame.h>
 #include <WebKit/WKBundlePage.h>
@@ -185,6 +186,13 @@ static void postGCTask(void* context)
     WKRelease(page);
 }
 
+bool InjectedBundle::shouldForceRepaint() const
+{
+    WKTypeRef result = nullptr;
+    WKBundlePagePostSynchronousMessageForTesting(page()->page(), toWK("ShouldForceRepaint").get(), nullptr, &result);
+    return booleanValue(result);
+}
+
 void InjectedBundle::reportLiveDocuments(WKBundlePageRef page)
 {
     // Release memory again, after the GC and timer fire. This is necessary to clear entries from CachedResourceLoader's m_documentResources in some scenarios.
@@ -260,19 +268,19 @@ void InjectedBundle::didReceiveMessageToPage(WKBundlePageRef page, WKStringRef m
 
     if (WKStringIsEqualToUTF8CString(messageName, "NotifyDone")) {
         if (m_testRunner && InjectedBundle::page())
-            InjectedBundle::page()->dump(m_testRunner->shouldForceRepaint());
+            InjectedBundle::page()->dump();
         return;
     }
 
     if (WKStringIsEqualToUTF8CString(messageName, "WorkQueueProcessedCallback")) {
         if (!topLoadingFrame() && m_testRunner && !m_testRunner->shouldWaitUntilDone())
-            InjectedBundle::page()->dump(m_testRunner->shouldForceRepaint());
+            InjectedBundle::page()->dump();
         return;
     }
 
     if (WKStringIsEqualToUTF8CString(messageName, "ForceImmediateCompletion")) {
         if (m_testRunner && InjectedBundle::page())
-            InjectedBundle::page()->dump(m_testRunner->shouldForceRepaint());
+            InjectedBundle::page()->dump();
         return;
     }
 
@@ -359,7 +367,7 @@ void InjectedBundle::beginTesting(WKDictionaryRef settings, BegingTestingMode te
     // WKBundleSetDatabaseQuota(m_bundle.get(), 5 * 1024 * 1024);
 }
 
-void InjectedBundle::done(bool forceRepaint)
+void InjectedBundle::done()
 {
     setTopLoadingFrame(0);
 
@@ -372,7 +380,6 @@ void InjectedBundle::done(bool forceRepaint)
         setValue(body, "PixelResult", m_pixelResult);
     setValue(body, "RepaintRects", m_repaintRects);
     setValue(body, "AudioResult", m_audioResult);
-    setValue(body, "ForceRepaint", forceRepaint);
 
     WKBundlePagePostMessageIgnoringFullySynchronousMode(page()->page(), toWK("Done").get(), body.get());
     m_testRunner = nullptr;

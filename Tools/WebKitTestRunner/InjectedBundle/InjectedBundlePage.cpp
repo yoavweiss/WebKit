@@ -635,7 +635,7 @@ void InjectedBundlePage::dumpDOMAsWebArchive(WKBundleFrameRef frame, StringBuild
 #endif
 }
 
-void InjectedBundlePage::dump(bool forceRepaint)
+void InjectedBundlePage::dump()
 {
     auto& injectedBundle = InjectedBundle::singleton();
     RefPtr testRunner = injectedBundle.testRunner();
@@ -644,7 +644,7 @@ void InjectedBundlePage::dump(bool forceRepaint)
         return;
     }
 
-    if (forceRepaint) {
+    if (injectedBundle.shouldForceRepaint()) {
         // Force a paint before dumping. This matches DumpRenderTree on Windows. (DumpRenderTree on Mac
         // does this at a slightly different time.) See <http://webkit.org/b/55469> for details.
         WKBundlePageForceRepaint(m_page);
@@ -723,7 +723,7 @@ void InjectedBundlePage::dump(bool forceRepaint)
     }
 
     injectedBundle.outputText(stringBuilder.toString(), InjectedBundle::IsFinalTestOutput::Yes);
-    injectedBundle.done(forceRepaint);
+    injectedBundle.done();
 }
 
 void InjectedBundlePage::didFinishLoadForFrame(WKBundleFrameRef frame)
@@ -1317,7 +1317,7 @@ static void dumpAfterWaitAttributeIsRemoved(WKBundlePageRef page)
     if (!testRunner)
         return;
     if (auto currentPage = bundle.page(); currentPage && currentPage->page() == page)
-        currentPage->dump(testRunner->shouldForceRepaint());
+        currentPage->dump();
 }
 
 void InjectedBundlePage::frameDidChangeLocation(WKBundleFrameRef frame)
@@ -1349,7 +1349,7 @@ void InjectedBundlePage::frameDidChangeLocation(WKBundleFrameRef frame)
 
     auto page = InjectedBundle::singleton().page();
     if (!page) {
-        injectedBundle.done(testRunner->shouldForceRepaint());
+        injectedBundle.done();
         return;
     }
 
@@ -1369,10 +1369,7 @@ void InjectedBundlePage::notifyDone()
 
 void InjectedBundlePage::forceImmediateCompletion()
 {
-    RefPtr testRunner = InjectedBundle::singleton().testRunner();
-    if (!testRunner)
-        return;
-    dump(testRunner->shouldForceRepaint());
+    dump();
 }
 
 } // namespace WTR

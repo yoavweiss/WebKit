@@ -86,6 +86,8 @@ public:
 
     void runUISideScript(WKStringRef, unsigned callbackID);
 
+    void dontForceRepaint() { m_forceRepaint = false; }
+
 private:
     TestInvocation(WKURLRef, const TestOptions&);
 

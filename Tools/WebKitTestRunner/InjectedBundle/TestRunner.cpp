@@ -1410,6 +1410,11 @@ unsigned long TestRunner::serverTrustEvaluationCallbackCallsCount()
     return postSynchronousMessageReturningUInt64("ServerTrustEvaluationCallbackCallsCount");
 }
 
+void TestRunner::dontForceRepaint() const
+{
+    postSynchronousMessage("DontForceRepaint");
+}
+
 void TestRunner::setShouldDismissJavaScriptAlertsAsynchronously(bool shouldDismissAsynchronously)
 {
     postSynchronousMessage("ShouldDismissJavaScriptAlertsAsynchronously", shouldDismissAsynchronously);
