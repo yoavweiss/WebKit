@@ -15,11 +15,6 @@ add_definitions(-DSCE_LIBC_DISABLE_CPP14_HEADER_WARNING= -DSCE_LIBC_DISABLE_CPP1
 # bug-224462
 WEBKIT_PREPEND_GLOBAL_COMPILER_FLAGS(-Wno-dll-attribute-on-redeclaration)
 
-# FIXME: https://bugs.webkit.org/show_bug.cgi?id=299689
-if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER_EQUAL 21)
-    WEBKIT_PREPEND_GLOBAL_COMPILER_FLAGS(-Wno-character-conversion)
-endif ()
-
 # Set the standard libary version
 WEBKIT_PREPEND_GLOBAL_COMPILER_FLAGS(-sce-stdlib=v2)
 
