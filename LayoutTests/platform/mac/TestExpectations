@@ -1645,6 +1645,7 @@ media/media-source/media-source-unnecessary-seek-seeked.html [ Pass Failure ]
 webkit.org/b/228094 imported/w3c/web-platform-tests/mathml/presentation-markup/operators/mo-stretch-properties-dynamic-001.html [ Pass Failure ]
 
 imported/w3c/web-platform-tests/mathml/relations/css-styling/table-width-1.xhtml [ ImageOnlyFailure Pass ]
+imported/w3c/web-platform-tests/mathml/presentation-markup/scripts/subsup-legacy-scriptshift-attributes-001.tentative.html [ ImageOnlyFailure ]
 
 media/media-source/media-source-webm-vp8-malformed-header.html [ Pass ]
 
