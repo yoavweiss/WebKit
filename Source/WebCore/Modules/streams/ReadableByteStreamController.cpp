@@ -273,14 +273,17 @@ void ReadableByteStreamController::close(JSDOMGlobalObject& globalObject)
 }
 
 // https://streams.spec.whatwg.org/#transfer-array-buffer
-static RefPtr<JSC::ArrayBuffer> transferArrayBuffer(JSC::VM& vm, JSC::ArrayBuffer& buffer)
+static ExceptionOr<Ref<JSC::ArrayBuffer>> transferArrayBuffer(JSC::VM& vm, JSC::ArrayBuffer& buffer)
 {
     ASSERT(!buffer.isDetached());
+
+    if (buffer.isWasmMemory())
+        return Exception { ExceptionCode::TypeError, "transfer of buffer is not possible"_s };
 
     JSC::ArrayBufferContents contents;
     bool isOK = buffer.transferTo(vm, contents);
     if (!isOK)
-        return nullptr;
+        return Exception { ExceptionCode::TypeError, "transfer of buffer failed"_s };
 
     return ArrayBuffer::create(WTFMove(contents));
 }
@@ -300,9 +303,9 @@ ExceptionOr<void> ReadableByteStreamController::enqueue(JSDOMGlobalObject& globa
 
     Ref vm = globalObject.vm();
 
-    RefPtr transferredBuffer = transferArrayBuffer(vm, *buffer);
-    if (!transferredBuffer)
-        return Exception { ExceptionCode::TypeError, "transfer of buffer failed"_s };
+    auto transferredBufferOrException = transferArrayBuffer(vm, *buffer);
+    if (transferredBufferOrException.hasException())
+        return transferredBufferOrException.releaseException();
 
     if (!m_pendingPullIntos.isEmpty()) {
         auto& firstPendingPullInto = m_pendingPullIntos.first();
@@ -311,10 +314,10 @@ ExceptionOr<void> ReadableByteStreamController::enqueue(JSDOMGlobalObject& globa
 
         invalidateByobRequest();
 
-        RefPtr firstPendingPullIntoTransferredBuffer = transferArrayBuffer(vm, firstPendingPullInto.buffer.get());
-        if (!firstPendingPullIntoTransferredBuffer)
-            return Exception { ExceptionCode::TypeError, "transfer of buffer failed"_s };
-        firstPendingPullInto.buffer = firstPendingPullIntoTransferredBuffer.releaseNonNull();
+        auto firstTransferredBufferOrException = transferArrayBuffer(vm, firstPendingPullInto.buffer.get());
+        if (firstTransferredBufferOrException.hasException())
+            return firstTransferredBufferOrException.releaseException();
+        firstPendingPullInto.buffer = firstTransferredBufferOrException.releaseReturnValue();
 
         if (firstPendingPullInto.readerType == ReaderType::None)
             enqueueDetachedPullIntoToQueue(globalObject, firstPendingPullInto);
@@ -325,7 +328,7 @@ ExceptionOr<void> ReadableByteStreamController::enqueue(JSDOMGlobalObject& globa
         processReadRequestsUsingQueue(globalObject);
         if (!stream->getNumReadRequests()) {
             ASSERT(m_pendingPullIntos.isEmpty());
-            enqueueChunkToQueue(transferredBuffer.releaseNonNull(), byteOffset, byteLength);
+            enqueueChunkToQueue(transferredBufferOrException.releaseReturnValue(), byteOffset, byteLength);
         } else {
             ASSERT(m_queue.isEmpty());
             if (!m_pendingPullIntos.isEmpty()) {
@@ -333,17 +336,17 @@ ExceptionOr<void> ReadableByteStreamController::enqueue(JSDOMGlobalObject& globa
                 shiftPendingPullInto();
             }
 
-            Ref transferredView = Uint8Array::create(transferredBuffer.releaseNonNull(), byteOffset, byteLength);
+            Ref transferredView = Uint8Array::create(transferredBufferOrException.releaseReturnValue(), byteOffset, byteLength);
             stream->fulfillReadRequest(globalObject, WTFMove(transferredView), false);
         }
     } else if (RefPtr byobReader = stream->byobReader()) {
-        enqueueChunkToQueue(transferredBuffer.releaseNonNull(), byteOffset, byteLength);
+        enqueueChunkToQueue(transferredBufferOrException.releaseReturnValue(), byteOffset, byteLength);
         auto filledPullIntos = processPullIntoDescriptorsUsingQueue();
         for (auto& pullInto : filledPullIntos)
             commitPullIntoDescriptor(globalObject, pullInto);
     } else {
         ASSERT(!protectedStream()->isLocked());
-        enqueueChunkToQueue(transferredBuffer.releaseNonNull(), byteOffset, byteLength);
+        enqueueChunkToQueue(transferredBufferOrException.releaseReturnValue(), byteOffset, byteLength);
     }
 
     callPullIfNeeded(globalObject);
@@ -568,10 +571,11 @@ RefPtr<JSC::ArrayBufferView> ReadableByteStreamController::convertPullIntoDescri
     ASSERT(bytesFilled <= pullInto.byteLength);
     ASSERT(!(bytesFilled % elementSize));
 
-    auto buffer = transferArrayBuffer(vm, pullInto.buffer.get());
-    if (!buffer)
+    auto buffer = transferArrayBuffer(vm, pullInto.buffer);
+    if (buffer.hasException())
         return nullptr;
-    return createTypedBuffer(pullInto.viewConstructor, buffer.releaseNonNull(), pullInto.byteOffset, bytesFilled / elementSize);
+
+    return createTypedBuffer(pullInto.viewConstructor, buffer.releaseReturnValue(), pullInto.byteOffset, bytesFilled / elementSize);
 }
 
 // https://streams.spec.whatwg.org/#readable-byte-stream-controller-error
@@ -640,13 +644,13 @@ void ReadableByteStreamController::pullInto(JSDOMGlobalObject& globalObject, JSC
     }
 
     Ref vm = globalObject.vm();
-    auto bufferResult = transferArrayBuffer(vm.get(), *view.possiblySharedBuffer());
-    if (!bufferResult) {
-        readIntoRequest->reject(Exception { ExceptionCode::TypeError, "unable to transfer view buffer"_s });
+    auto bufferResultOrException = transferArrayBuffer(vm.get(), *view.possiblySharedBuffer());
+    if (bufferResultOrException.hasException()) {
+        readIntoRequest->reject(bufferResultOrException.releaseException());
         return;
     }
 
-    auto buffer = bufferResult.releaseNonNull();
+    Ref buffer = bufferResultOrException.releaseReturnValue();
 
     auto bufferByteLength = buffer->byteLength();
     PullIntoDescriptor pullIntoDescriptor { WTFMove(buffer), bufferByteLength, byteOffset, byteLength, 0, minimumFill, elementSize, viewType, ReaderType::Byob };
@@ -774,7 +778,11 @@ ExceptionOr<void> ReadableByteStreamController::respond(JSDOMGlobalObject& globa
     }
 
     Ref vm = globalObject.vm();
-    firstDescriptor.buffer = transferArrayBuffer(vm.get(), firstDescriptor.buffer.get()).releaseNonNull();
+    auto transferredBufferOrException = transferArrayBuffer(vm.get(), firstDescriptor.buffer.get());
+    if (transferredBufferOrException.hasException())
+        return transferredBufferOrException.releaseException();
+
+    firstDescriptor.buffer = transferredBufferOrException.releaseReturnValue();
 
     respondInternal(globalObject, bytesWritten);
     return { };
@@ -811,7 +819,10 @@ ExceptionOr<void> ReadableByteStreamController::respondWithNewView(JSDOMGlobalOb
     auto viewByteLength = view.byteLength();
 
     Ref vm = globalObject.vm();
-    firstDescriptor.buffer = transferArrayBuffer(vm, *view.possiblySharedBuffer()).releaseNonNull();
+    auto transferredBufferOrException = transferArrayBuffer(vm, *view.possiblySharedBuffer());
+    if (transferredBufferOrException.hasException())
+        return transferredBufferOrException.releaseException();
+    firstDescriptor.buffer = transferredBufferOrException.releaseReturnValue();
 
     respondInternal(globalObject, viewByteLength);
     return { };
