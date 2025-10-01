@@ -462,3 +462,19 @@ skip:
     - test/built-ins/Temporal/PlainTime/prototype/since/argument-zoneddatetime-negative-epochnanoseconds.js
     - test/built-ins/Temporal/PlainTime/prototype/until/argument-zoneddatetime-balance-negative-time-units.js
     - test/built-ins/Temporal/PlainTime/prototype/until/argument-zoneddatetime-negative-epochnanoseconds.js
+
+    # transferToImmutable() is not implemented yet
+    - test/built-ins/ArrayBuffer/prototype/resize/this-is-immutable-arraybuffer-object.js
+    - test/built-ins/ArrayBuffer/prototype/transfer/this-is-immutable-arraybuffer.js
+    - test/built-ins/ArrayBuffer/prototype/transferToFixedLength/this-is-immutable-arraybuffer.js
+    - test/built-ins/DataView/prototype/setBigInt64/immutable-buffer.js
+    - test/built-ins/DataView/prototype/setBigUint64/immutable-buffer.js
+    - test/built-ins/DataView/prototype/setFloat16/immutable-buffer.js
+    - test/built-ins/DataView/prototype/setFloat32/immutable-buffer.js
+    - test/built-ins/DataView/prototype/setFloat64/immutable-buffer.js
+    - test/built-ins/DataView/prototype/setInt16/immutable-buffer.js
+    - test/built-ins/DataView/prototype/setInt32/immutable-buffer.js
+    - test/built-ins/DataView/prototype/setInt8/immutable-buffer.js
+    - test/built-ins/DataView/prototype/setUint16/immutable-buffer.js
+    - test/built-ins/DataView/prototype/setUint32/immutable-buffer.js
+    - test/built-ins/DataView/prototype/setUint8/immutable-buffer.js
