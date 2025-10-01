@@ -663,9 +663,20 @@ bool TextBoxPainter::paintForegroundForShapeRange(TextPainter& textPainter)
 
     auto& context = m_paintInfo.context();
 
+    auto clipRect = [&] {
+        // We could also just use ink overflow here but since non-range painting
+        // sets up no clipping, we should not do that either here.
+        auto rect = FloatRect::infiniteRect();
+        rect.setX(m_paintRect.x());
+        // Note that this is RTL direction.
+        auto& textContent = m_textBox.box().text();
+        if (!textContent.isAtShapingBoundaryStart())
+            rect.setWidth(m_paintRect.width());
+        // FIXME: Setup a semi-inifite rect for the (visually) first box where x is -inifite with fixed maxX.
+        return rect;
+    };
     context.save();
-    context.clip(m_paintRect);
-
+    context.clip(clipRect());
     auto shapedContent = ShapedContent { };
     buildTextForShaping(shapedContent, m_textBox);
 
