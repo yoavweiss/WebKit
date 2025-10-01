@@ -14,7 +14,7 @@ PASS ReadableStream with byte source (empty) default reader: releasing the lock 
 PASS ReadableStream with byte source (empty) default reader: releasing the lock should cause closed calls to reject with a TypeError
 PASS ReadableStream with byte source (empty) default reader: releasing the lock should cause locked to become false
 PASS ReadableStream with byte source (empty) default reader: canceling via the reader should cause the reader to act closed
-FAIL ReadableStream with byte source (empty) default reader: canceling via the stream should fail assert_unreached: Should have rejected: undefined Reached unreachable code
+PASS ReadableStream with byte source (empty) default reader: canceling via the stream should fail
 PASS Running templatedRSEmptyReader with ReadableStream with byte source (empty) BYOB reader
 PASS ReadableStream with byte source (empty) BYOB reader: instances have the correct methods and properties
 PASS ReadableStream with byte source (empty) BYOB reader: locked should be true
@@ -27,7 +27,7 @@ PASS ReadableStream with byte source (empty) BYOB reader: releasing the lock sho
 PASS ReadableStream with byte source (empty) BYOB reader: releasing the lock should cause closed calls to reject with a TypeError
 PASS ReadableStream with byte source (empty) BYOB reader: releasing the lock should cause locked to become false
 PASS ReadableStream with byte source (empty) BYOB reader: canceling via the reader should cause the reader to act closed
-FAIL ReadableStream with byte source (empty) BYOB reader: canceling via the stream should fail assert_unreached: Should have rejected: undefined Reached unreachable code
+PASS ReadableStream with byte source (empty) BYOB reader: canceling via the stream should fail
 PASS Running templatedRSThrowAfterCloseOrError with ReadableStream with byte source
 PASS ReadableStream with byte source: enqueue() throws after close()
 PASS ReadableStream with byte source: enqueue() throws after enqueue() and close()

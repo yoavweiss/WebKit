@@ -475,7 +475,13 @@ JSC::JSValue JSReadableStream::cancel(JSC::JSGlobalObject& globalObject, JSC::Ca
     RefPtr internalReadableStream = wrapped().internalReadableStream();
     if (!internalReadableStream) {
         return callPromiseFunction(globalObject, callFrame, [this](auto& globalObject, auto& callFrame, auto&& promise) {
-            protectedWrapped()->cancel(globalObject, callFrame.argument(0), WTFMove(promise));
+            Ref protectedWrapped = this->wrapped();
+            if (protectedWrapped->isLocked()) {
+                promise->reject(Exception { ExceptionCode::TypeError, "ReadableStream is locked"_s });
+                return;
+            }
+
+            protectedWrapped->cancel(globalObject, callFrame.argument(0), WTFMove(promise));
         });
     }
 
