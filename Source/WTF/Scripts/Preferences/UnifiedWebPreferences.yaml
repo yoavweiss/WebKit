@@ -4215,7 +4215,7 @@ LargeImageAsyncDecodingEnabled:
 
 LargestContentfulPaintEnabled:
   type: bool
-  status: testable
+  status: preview
   category: dom
   humanReadableName: "Largest Contentful Paint"
   humanReadableDescription: "Enable Largest Contentful Paint performance entries"
