@@ -34,6 +34,7 @@
 #include "RemoteAudioVideoRendererProxyManagerMessages.h"
 #include "RemoteVideoFrameProxy.h"
 #include "RemoteVideoFrameProxyProperties.h"
+#include <WebCore/GraphicsContext.h>
 #include <WebCore/HostingContext.h>
 #include <WebCore/MediaPlayer.h>
 #include <WebCore/MediaSamplesBlock.h>
@@ -291,6 +292,15 @@ RefPtr<VideoFrame> AudioVideoRendererRemote::currentVideoFrame() const
     if (result)
         return RemoteVideoFrameProxy::create(gpuProcessConnection->connection(), gpuProcessConnection->protectedVideoFrameObjectHeapProxy(), WTFMove(*result));
     return nullptr;
+}
+
+void AudioVideoRendererRemote::paintCurrentVideoFrameInContext(GraphicsContext& context, const FloatRect& rect)
+{
+    if (context.paintingDisabled())
+        return;
+
+    if (RefPtr videoFrame = currentVideoFrame())
+        context.drawVideoFrame(*videoFrame, rect, ImageOrientation::Orientation::None, false);
 }
 
 std::optional<VideoPlaybackQualityMetrics> AudioVideoRendererRemote::videoPlaybackQualityMetrics()

@@ -170,6 +170,9 @@ MediaPlayerPrivateWebM::MediaPlayerPrivateWebM(MediaPlayer* player)
                 player->videoLayerSizeDidChange(size);
         }
     });
+
+    m_renderer->acceleratedRenderingStateChanged(player->renderingCanBeAccelerated());
+
 #if HAVE(SPATIAL_TRACKING_LABEL)
     m_defaultSpatialTrackingLabel = player->defaultSpatialTrackingLabel();
     m_spatialTrackingLabel = player->spatialTrackingLabel();
@@ -675,7 +678,7 @@ RefPtr<NativeImage> MediaPlayerPrivateWebM::nativeImageForCurrentTime()
 
 bool MediaPlayerPrivateWebM::updateLastVideoFrame()
 {
-    RefPtr videoFrame = downcast<VideoFrameCV>(m_renderer->currentVideoFrame());
+    RefPtr videoFrame = m_renderer->currentVideoFrame();
     if (!videoFrame)
         return false;
 
@@ -697,14 +700,14 @@ bool MediaPlayerPrivateWebM::updateLastImage()
     } else if (!updateLastVideoFrame())
         return false;
 
-    ASSERT(m_lastVideoFrame);
+    Ref lastVideoFrame = *m_lastVideoFrame;
 
     if (!m_rgbConformer) {
         auto attributes = @{ (__bridge NSString *)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA) };
         m_rgbConformer = makeUnique<PixelBufferConformerCV>((__bridge CFDictionaryRef)attributes);
     }
 
-    m_lastImage = NativeImage::create(m_rgbConformer->createImageFromPixelBuffer(m_lastVideoFrame->pixelBuffer()));
+    m_lastImage = NativeImage::create(m_rgbConformer->createImageFromPixelBuffer(lastVideoFrame->pixelBuffer()));
     return true;
 }
 
@@ -715,16 +718,7 @@ void MediaPlayerPrivateWebM::paint(GraphicsContext& context, const FloatRect& re
 
 void MediaPlayerPrivateWebM::paintCurrentFrameInContext(GraphicsContext& context, const FloatRect& outputRect)
 {
-    if (context.paintingDisabled())
-        return;
-
-    auto image = nativeImageForCurrentTime();
-    if (!image)
-        return;
-
-    GraphicsContextStateSaver stateSaver(context);
-    FloatRect imageRect { FloatPoint::zero(), image->size() };
-    context.drawNativeImage(*image, outputRect, imageRect);
+    m_renderer->paintCurrentVideoFrameInContext(context, outputRect);
 }
 
 RefPtr<VideoFrame> MediaPlayerPrivateWebM::videoFrameForCurrentTime()
@@ -1345,8 +1339,10 @@ void MediaPlayerPrivateWebM::checkNewVideoFrameMetadata(const MediaTime& present
     if (!updateLastVideoFrame())
         return;
 
+    Ref lastVideoFrame = *m_lastVideoFrame;
+
 #ifndef NDEBUG
-    if (m_lastVideoFrame->presentationTime() != presentationTime)
+    if (lastVideoFrame->presentationTime() != presentationTime)
         ALWAYS_LOG(LOGIDENTIFIER, "notification of new frame delayed retrieved:", m_lastVideoFrame->presentationTime(), " expected:", presentationTime);
 #else
     UNUSED_PARAM(presentationTime);
@@ -1358,10 +1354,10 @@ void MediaPlayerPrivateWebM::checkNewVideoFrameMetadata(const MediaTime& present
     metadata.presentedFrames = metrics ? metrics->displayCompositedVideoFrames : 0;
     metadata.presentationTime = displayTime;
     metadata.expectedDisplayTime = displayTime;
-    metadata.mediaTime = m_lastVideoFrame->presentationTime().toDouble();
+    metadata.mediaTime = lastVideoFrame->presentationTime().toDouble();
 
     m_videoFrameMetadata = metadata;
-    player->onNewVideoFrameMetadata(WTFMove(metadata), m_lastVideoFrame->pixelBuffer());
+    player->onNewVideoFrameMetadata(WTFMove(metadata), lastVideoFrame->pixelBuffer());
 }
 
 void MediaPlayerPrivateWebM::setResourceOwner(const ProcessIdentity& resourceOwner)

@@ -306,7 +306,7 @@ private:
     URL m_assetURL;
     MediaPlayer::Preload m_preload { MediaPlayer::Preload::Auto };
     ThreadSafeWeakPtr<MediaPlayer> m_player;
-    RefPtr<VideoFrameCV> m_lastVideoFrame;
+    RefPtr<VideoFrame> m_lastVideoFrame;
     RefPtr<NativeImage> m_lastImage;
     std::unique_ptr<PixelBufferConformerCV> m_rgbConformer;
     RefPtr<WebMResourceClient> m_resourceClient;

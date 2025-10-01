@@ -124,6 +124,7 @@ private:
     void setResourceOwner(const WebCore::ProcessIdentity&) final;
     void flushAndRemoveImage() final;
     RefPtr<WebCore::VideoFrame> currentVideoFrame() const final;
+    void paintCurrentVideoFrameInContext(WebCore::GraphicsContext&, const WebCore::FloatRect&) final;
     std::optional<WebCore::VideoPlaybackQualityMetrics> videoPlaybackQualityMetrics() final;
     PlatformLayer* platformVideoLayer() const final;
 

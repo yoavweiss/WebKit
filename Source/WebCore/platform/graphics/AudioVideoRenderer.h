@@ -43,6 +43,7 @@ namespace WebCore {
 
 class CDMInstance;
 class FloatRect;
+class GraphicsContext;
 class LayoutRect;
 class MediaSample;
 class PlatformDynamicRangeLimit;
@@ -81,6 +82,7 @@ public:
     virtual void setResourceOwner(const ProcessIdentity&) { }
     virtual void flushAndRemoveImage() { };
     virtual RefPtr<VideoFrame> currentVideoFrame() const = 0;
+    virtual void paintCurrentVideoFrameInContext(GraphicsContext&, const FloatRect&) { }
     virtual std::optional<VideoPlaybackQualityMetrics> videoPlaybackQualityMetrics() = 0;
     virtual PlatformLayer* platformVideoLayer() const { return nullptr; }
 

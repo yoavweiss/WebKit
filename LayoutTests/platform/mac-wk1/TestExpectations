@@ -1282,6 +1282,7 @@ media/media-rvfc-paused-offscreen-webm.html [ Skip ]
 media/media-rvfc-paused-webm.html [ Skip ]
 media/media-rvfc-playing-webm.html [ Skip ]
 media/video-webm-seek-singlekeyframe.html [ Skip ]
+media/video-webm-canvas-drawing.html [ Skip ]
 media/media-source/media-source-webm-seek-singlekeyframe.html [ Skip ]
 
 # Managed MediaSource isn't enabled on WK1

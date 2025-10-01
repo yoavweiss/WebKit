@@ -50,6 +50,7 @@ namespace WebCore {
 class CDMInstanceFairPlayStreamingAVFObjC;
 class EffectiveRateChangedListener;
 class MediaSample;
+class NativeImage;
 class PixelBufferConformerCV;
 class VideoLayerManagerObjC;
 class VideoMediaSampleRenderer;
@@ -132,6 +133,7 @@ public:
     void setPlatformDynamicRangeLimit(const PlatformDynamicRangeLimit&) final;
     void setResourceOwner(const ProcessIdentity& resourceOwner) final { m_resourceOwner = resourceOwner; }
     RefPtr<VideoFrame> currentVideoFrame() const final;
+    void paintCurrentVideoFrameInContext(GraphicsContext&, const FloatRect&) final;
     std::optional<VideoPlaybackQualityMetrics> videoPlaybackQualityMetrics() final;
     PlatformLayer* platformVideoLayer() const final;
     void setVideoLayerSizeFenced(const FloatSize&, WTF::MachSendRightAnnotated&&) final;
@@ -200,6 +202,7 @@ private:
 #endif
 
     void setSynchronizerRate(float, std::optional<MonotonicTime>);
+    RefPtr<NativeImage> currentNativeImage();
     bool updateLastPixelBuffer();
     void maybePurgeLastPixelBuffer();
     void setNeedsPlaceholderImage(bool);

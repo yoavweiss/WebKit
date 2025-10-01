@@ -1361,7 +1361,7 @@ bool MediaPlayer::isCrossOrigin(const SecurityOrigin& origin) const
     if (m_url.protocolIsData())
         return false;
 
-    return !origin.canRequest(m_url, EmptyOriginAccessPatterns::singleton());
+    return !origin.canRequest(m_url, originAccessPatternsForWebProcessOrEmpty());
 }
 
 MediaPlayer::MovieLoadType MediaPlayer::movieLoadType() const
