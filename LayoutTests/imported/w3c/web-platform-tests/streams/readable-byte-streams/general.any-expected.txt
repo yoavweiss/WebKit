@@ -48,9 +48,7 @@ PASS ReadableStream with byte source: enqueue(), getReader(), then read(view) wi
 PASS ReadableStream with byte source: enqueue(), getReader(), then read(view) with smaller views
 PASS ReadableStream with byte source: enqueue() 1 byte, getReader(), then read(view) with Uint16Array
 PASS ReadableStream with byte source: enqueue() 3 byte, getReader(), then read(view) with 2-element Uint16Array
-FAIL ReadableStream with byte source: read(view) with Uint16Array on close()-d stream with 1 byte enqueue()-d must fail promise_rejects_js: read(view) must fail function "function() { throw e; }" threw object "close is requested" ("") expected instance of function "function TypeError() {
-    [native code]
-}" ("TypeError")
+PASS ReadableStream with byte source: read(view) with Uint16Array on close()-d stream with 1 byte enqueue()-d must fail
 PASS ReadableStream with byte source: A stream must be errored if close()-d before fulfilling read(view) with Uint16Array
 PASS ReadableStream with byte source: Throw if close()-ed more than once
 PASS ReadableStream with byte source: Throw on enqueue() after close()

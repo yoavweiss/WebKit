@@ -673,7 +673,7 @@ void ReadableByteStreamController::pullInto(JSDOMGlobalObject& globalObject, JSC
             return;
         }
         if (m_closeRequested) {
-            JSC::JSValue e = toJS(&globalObject, &globalObject, DOMException::create(ExceptionCode::TypeError, "close is requested"_s));
+            JSC::JSValue e = JSC::createTypeError(&globalObject, "close is requested"_s);
             error(globalObject, e);
             readIntoRequest->reject<IDLAny>(e);
             return;

@@ -20,9 +20,7 @@ PASS ReadableStream with byte source: read({ min }), then error()
 PASS ReadableStream with byte source: getReader(), read({ min }), then cancel()
 PASS ReadableStream with byte source: cancel() with partially filled pending read({ min }) request
 PASS ReadableStream with byte source: enqueue(), then read({ min }) with smaller views
-FAIL ReadableStream with byte source: 3 byte enqueue(), then close(), then read({ min }) with 2-element Uint16Array must fail promise_rejects_js: read() must fail function "function() { throw e; }" threw object "close is requested" ("") expected instance of function "function TypeError() {
-    [native code]
-}" ("TypeError")
+PASS ReadableStream with byte source: 3 byte enqueue(), then close(), then read({ min }) with 2-element Uint16Array must fail
 PASS ReadableStream with byte source: read({ min }) with 2-element Uint16Array, then 3 byte enqueue(), then close() must fail
 FAIL ReadableStream with byte source: tee() with read({ min }) from branch1 and read() from branch2 promise_test: Unhandled rejection with value: object "NotSupportedError: Teeing byte streams is not yet supported"
 
