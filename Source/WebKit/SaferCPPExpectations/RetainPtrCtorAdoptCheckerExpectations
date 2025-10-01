@@ -10,7 +10,6 @@ Shared/RemoteLayerTree/RemoteLayerTreePropertyApplier.mm
 UIProcess/API/Cocoa/NSAttributedString.mm
 UIProcess/API/Cocoa/WKBackForwardListItem.mm
 UIProcess/API/Cocoa/_WKWebAuthenticationPanel.mm
-UIProcess/Cocoa/ModelElementControllerCocoa.mm
 UIProcess/Cocoa/PageClientImplCocoa.mm
 UIProcess/mac/WebViewImpl.mm
 webpushd/_WKMockUserNotificationCenter.mm

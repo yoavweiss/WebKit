@@ -74,9 +74,7 @@ UIProcess/Cocoa/UIDelegate.mm
 UIProcess/Cocoa/WKContactPicker.mm
 UIProcess/Cocoa/WKShareSheet.mm
 UIProcess/Cocoa/WKStorageAccessAlert.mm
-UIProcess/Cocoa/WebPageProxyCocoa.mm
 UIProcess/Cocoa/_WKWarningView.mm
-UIProcess/Gamepad/mac/UIGamepadProviderMac.mm
 UIProcess/Inspector/Cocoa/InspectorExtensionDelegate.mm
 UIProcess/Inspector/mac/WKInspectorViewController.mm
 UIProcess/Inspector/mac/WKInspectorWKWebView.mm
