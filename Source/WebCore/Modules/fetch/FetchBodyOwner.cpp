@@ -163,12 +163,12 @@ void FetchBodyOwner::bytes(Ref<DeferredPromise>&& promise)
     m_body->bytes(*this, WTFMove(promise));
 }
 
-void FetchBodyOwner::cloneBody(FetchBodyOwner& owner)
+void FetchBodyOwner::cloneBody(JSDOMGlobalObject& globalObject, FetchBodyOwner& owner)
 {
     m_loadingError = owner.m_loadingError;
     if (owner.isBodyNull())
         return;
-    m_body = owner.m_body->clone();
+    m_body = owner.m_body->clone(globalObject);
 }
 
 ExceptionOr<void> FetchBodyOwner::extractBody(FetchBody::Init&& value)

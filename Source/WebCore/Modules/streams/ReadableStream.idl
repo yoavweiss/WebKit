@@ -54,7 +54,7 @@ typedef (ReadableStreamDefaultReader or ReadableStreamBYOBReader) ReadableStream
     [CallWith=CurrentGlobalObject] ReadableStreamReader getReader(optional ReadableStreamGetReaderOptions options = { });
     [Custom, ReturnsOwnPromise] Promise<undefined> pipeTo(WritableStream destination, optional StreamPipeOptions options = {});
     [Custom] ReadableStream pipeThrough(ReadableWritablePair transform, optional StreamPipeOptions options = {});
-    sequence<ReadableStream> tee();
+    [CallWith=CurrentGlobalObject] sequence<ReadableStream> tee();
 
     [ImplementedAs=isLocked] readonly attribute boolean locked;
 };

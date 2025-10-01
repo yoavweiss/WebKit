@@ -22,5 +22,5 @@ PASS ReadableStream with byte source: cancel() with partially filled pending rea
 PASS ReadableStream with byte source: enqueue(), then read({ min }) with smaller views
 PASS ReadableStream with byte source: 3 byte enqueue(), then close(), then read({ min }) with 2-element Uint16Array must fail
 PASS ReadableStream with byte source: read({ min }) with 2-element Uint16Array, then 3 byte enqueue(), then close() must fail
-FAIL ReadableStream with byte source: tee() with read({ min }) from branch1 and read() from branch2 promise_test: Unhandled rejection with value: object "NotSupportedError: Teeing byte streams is not yet supported"
+PASS ReadableStream with byte source: tee() with read({ min }) from branch1 and read() from branch2
 

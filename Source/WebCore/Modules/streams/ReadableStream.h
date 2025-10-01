@@ -71,7 +71,7 @@ public:
 
     void cancel(JSDOMGlobalObject&, JSC::JSValue, Ref<DeferredPromise>&&);
     ExceptionOr<ReadableStreamReader> getReader(JSDOMGlobalObject&, const GetReaderOptions&);
-    ExceptionOr<Vector<Ref<ReadableStream>>> tee(bool shouldClone = false);
+    ExceptionOr<Vector<Ref<ReadableStream>>> tee(JSDOMGlobalObject&, bool shouldClone = false);
 
     using State = InternalReadableStream::State;
     State state() const;
@@ -116,6 +116,8 @@ public:
 
     void visitAdditionalChildren(JSC::AbstractSlotVisitor&);
 
+    static Ref<ReadableStream> createReadableByteStream(JSDOMGlobalObject&, ReadableByteStreamController::PullAlgorithm&&, ReadableByteStreamController::CancelAlgorithm&&);
+
 protected:
     static ExceptionOr<Ref<ReadableStream>> createFromJSValues(JSC::JSGlobalObject&, JSC::JSValue, JSC::JSValue);
     static ExceptionOr<Ref<InternalReadableStream>> createInternalReadableStream(JSDOMGlobalObject&, Ref<ReadableStreamSource>&&);
@@ -124,9 +126,6 @@ protected:
 private:
     ExceptionOr<void> setupReadableByteStreamControllerFromUnderlyingSource(JSDOMGlobalObject&, JSC::JSValue, UnderlyingSource&&, double);
     void setupReadableByteStreamController(JSDOMGlobalObject&, ReadableByteStreamController::PullAlgorithm&&, ReadableByteStreamController::CancelAlgorithm&&, double);
-    ExceptionOr<Vector<Ref<ReadableStream>>> byteStreamTee(JSDOMGlobalObject&);
-
-    static Ref<ReadableStream> createReadableByteStream(JSDOMGlobalObject&, ReadableByteStreamController::PullAlgorithm&&, ReadableByteStreamController::CancelAlgorithm&&);
 
     bool m_disturbed { false };
     WeakPtr<ReadableStreamDefaultReader> m_defaultReader;

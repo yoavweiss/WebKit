@@ -94,13 +94,14 @@ public:
     JSValueInWrappedObject& underlyingSourceConcurrently() { return m_underlyingSource; }
     JSValueInWrappedObject& storedErrorConcurrently() { return m_storedError; }
 
+    using PullAlgorithm = Function<Ref<DOMPromise>(JSDOMGlobalObject&, ReadableByteStreamController&)>;
+    using CancelAlgorithm = Function<Ref<DOMPromise>(JSDOMGlobalObject&, ReadableByteStreamController&, std::optional<JSC::JSValue>&&)>;
+
 private:
     friend ReadableStream;
     ReadableByteStreamController(ReadableStream&, JSC::JSValue, RefPtr<UnderlyingSourcePullCallback>&&, RefPtr<UnderlyingSourceCancelCallback>&&, double highWaterMark, size_t autoAllocateChunkSize);
 
     using Callback = Function<void(JSDOMGlobalObject&, std::optional<JSC::JSValue>&&)>;
-    using PullAlgorithm = Function<Ref<DOMPromise>(JSDOMGlobalObject&, ReadableByteStreamController&)>;
-    using CancelAlgorithm = Function<Ref<DOMPromise>(JSDOMGlobalObject&, ReadableByteStreamController&, std::optional<JSC::JSValue>&&)>;
     ReadableByteStreamController(ReadableStream&, PullAlgorithm&&, CancelAlgorithm&&, double highWaterMark, size_t autoAllocateChunkSize);
 
     enum ReaderType : uint8_t { None, Default, Byob };
