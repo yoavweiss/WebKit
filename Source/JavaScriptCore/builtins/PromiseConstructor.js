@@ -330,7 +330,11 @@ function race(iterable)
 
         for (var value of iterable) {
             var nextPromise = promiseResolve.@call(this, value);
-            nextPromise.then(resolve, reject);
+            var then = nextPromise.then;
+            if (@isPromise(nextPromise) && then === @defaultPromiseThen)
+                @performPromiseThen(nextPromise, resolve, reject, @undefined, /* context */ promise);
+            else
+                nextPromise.then(resolve, reject);
         }
     } catch (error) {
         reject.@call(@undefined, error);

@@ -497,7 +497,7 @@ void Interpreter::getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results,
             }
         }
 
-        // handle `Promise.any`
+        // handle `Promise.any` and `Promise.race`
         if (auto* contextPromise = jsDynamicCast<JSPromise*>(promiseContext)) {
             if (JSValue parentContext = getContextValueFromPromise(contextPromise)) {
                 if (auto* generator = jsDynamicCast<JSGenerator*>(parentContext))
