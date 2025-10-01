@@ -29,6 +29,10 @@
 #include "ScriptExecutionContext.h"
 #include "WebTransport.h"
 #include "WebTransportBidirectionalStreamConstructionParameters.h"
+#include "WebTransportConnectionStats.h"
+#include "WebTransportReceiveStreamStats.h"
+#include "WebTransportSendStreamSink.h"
+#include "WebTransportSendStreamStats.h"
 #include "WritableStreamSink.h"
 
 namespace WebCore {
@@ -133,6 +137,42 @@ Ref<BidirectionalStreamPromise> WorkerWebTransportSession::createBidirectionalSt
         return session->createBidirectionalStream();
     ASSERT_NOT_REACHED_WITH_MESSAGE("Session should be set up before use then never removed.");
     return BidirectionalStreamPromise::createAndReject();
+}
+
+Ref<WebTransportSendPromise> WorkerWebTransportSession::streamSendBytes(WebTransportStreamIdentifier identifier, std::span<const uint8_t> bytes, bool withFin)
+{
+    ASSERT(!RunLoop::isMain());
+    if (RefPtr session = m_session)
+        return session->streamSendBytes(identifier, bytes, withFin);
+    ASSERT_NOT_REACHED_WITH_MESSAGE("Session should be set up before use then never removed.");
+    return WebTransportSendPromise::createAndReject();
+}
+
+Ref<WebTransportConnectionStatsPromise> WorkerWebTransportSession::getStats()
+{
+    ASSERT(!RunLoop::isMain());
+    if (RefPtr session = m_session)
+        return session->getStats();
+    ASSERT_NOT_REACHED_WITH_MESSAGE("Session should be set up before use then never removed.");
+    return WebTransportConnectionStatsPromise::createAndReject();
+}
+
+Ref<WebTransportSendStreamStatsPromise> WorkerWebTransportSession::getSendStreamStats(WebTransportStreamIdentifier identifier)
+{
+    ASSERT(!RunLoop::isMain());
+    if (RefPtr session = m_session)
+        return session->getSendStreamStats(identifier);
+    ASSERT_NOT_REACHED_WITH_MESSAGE("Session should be set up before use then never removed.");
+    return WebTransportSendStreamStatsPromise::createAndReject();
+}
+
+Ref<WebTransportReceiveStreamStatsPromise> WorkerWebTransportSession::getReceiveStreamStats(WebTransportStreamIdentifier identifier)
+{
+    ASSERT(!RunLoop::isMain());
+    if (RefPtr session = m_session)
+        return session->getReceiveStreamStats(identifier);
+    ASSERT_NOT_REACHED_WITH_MESSAGE("Session should be set up before use then never removed.");
+    return WebTransportReceiveStreamStatsPromise::createAndReject();
 }
 
 void WorkerWebTransportSession::terminate(WebTransportSessionErrorCode code, CString&& reason)

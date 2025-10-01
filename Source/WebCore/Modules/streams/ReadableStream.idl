@@ -42,6 +42,7 @@ dictionary ReadableWritablePair {
 typedef (ReadableStreamDefaultReader or ReadableStreamBYOBReader) ReadableStreamReader;
 
 [
+    CustomToJSObject,
     ExportMacro=WEBCORE_EXPORT,
     Exposed=*,
     JSCustomMarkFunction,

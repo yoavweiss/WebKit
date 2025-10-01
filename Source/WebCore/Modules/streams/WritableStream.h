@@ -54,9 +54,10 @@ public:
     void errorIfPossible(Exception&&);
 
     InternalWritableStream& internalWritableStream();
-    enum class Type : bool {
+    enum class Type : uint8_t {
         Default,
-        FileSystem
+        FileSystem,
+        WebTransport
     };
     virtual Type type() const { return Type::Default; }
 

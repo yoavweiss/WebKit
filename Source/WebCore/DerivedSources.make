@@ -837,6 +837,7 @@ JS_BINDING_IDLS := \
     $(WebCore)/Modules/webtransport/WebTransportBidirectionalStream.idl \
     $(WebCore)/Modules/webtransport/WebTransportCloseInfo.idl \
     $(WebCore)/Modules/webtransport/WebTransportCongestionControl.idl \
+    $(WebCore)/Modules/webtransport/WebTransportConnectionStats.idl \
     $(WebCore)/Modules/webtransport/WebTransportDatagramDuplexStream.idl \
     $(WebCore)/Modules/webtransport/WebTransportDatagramStats.idl \
     $(WebCore)/Modules/webtransport/WebTransportError.idl \
@@ -850,7 +851,6 @@ JS_BINDING_IDLS := \
     $(WebCore)/Modules/webtransport/WebTransportSendStream.idl \
     $(WebCore)/Modules/webtransport/WebTransportSendStreamOptions.idl \
     $(WebCore)/Modules/webtransport/WebTransportSendStreamStats.idl \
-    $(WebCore)/Modules/webtransport/WebTransportStats.idl \
     $(WebCore)/Modules/webxr/Navigator+WebXR.idl \
     $(WebCore)/Modules/webxr/WebXRBoundedReferenceSpace.idl \
     $(WebCore)/Modules/webxr/WebXRFrame+HandInput.idl \

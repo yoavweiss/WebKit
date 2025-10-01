@@ -31,9 +31,12 @@
 #include "NetworkProcessConnection.h"
 #include "NetworkTransportSessionMessages.h"
 #include "WebProcess.h"
-#include "WebTransportSendStreamSink.h"
 #include <WebCore/Exception.h>
 #include <WebCore/WebTransportBidirectionalStreamConstructionParameters.h>
+#include <WebCore/WebTransportConnectionStats.h>
+#include <WebCore/WebTransportReceiveStreamStats.h>
+#include <WebCore/WebTransportSendStreamSink.h>
+#include <WebCore/WebTransportSendStreamStats.h>
 #include <WebCore/WebTransportSessionClient.h>
 #include <wtf/Ref.h>
 #include <wtf/RunLoop.h>
@@ -102,7 +105,7 @@ void WebTransportSession::receiveBidirectionalStream(WebCore::WebTransportStream
     if (RefPtr strongClient = m_client.get()) {
         strongClient->receiveBidirectionalStream(WebCore::WebTransportBidirectionalStreamConstructionParameters {
             identifier,
-            WebTransportSendStreamSink::create(*this, identifier)
+            WebCore::WebTransportSendStreamSink::create(*this, identifier)
         });
     } else
         ASSERT_NOT_REACHED();
@@ -134,7 +137,7 @@ Ref<WebCore::WritableStreamPromise> WebTransportSession::createOutgoingUnidirect
         RefPtr strongThis = weakThis.get();
         if (!identifier || !*identifier || !strongThis)
             return WebCore::WritableStreamPromise::createAndReject();
-        return WebCore::WritableStreamPromise::createAndResolve(WebTransportSendStreamSink::create(*strongThis, **identifier));
+        return WebCore::WritableStreamPromise::createAndResolve(WebCore::WebTransportSendStreamSink::create(*strongThis, **identifier));
     });
 }
 
@@ -147,8 +150,38 @@ Ref<WebCore::BidirectionalStreamPromise> WebTransportSession::createBidirectiona
             return WebCore::BidirectionalStreamPromise::createAndReject();
         return WebCore::BidirectionalStreamPromise::createAndResolve(WebCore::WebTransportBidirectionalStreamConstructionParameters {
             **identifier,
-            WebTransportSendStreamSink::create(*strongThis, **identifier)
+            WebCore::WebTransportSendStreamSink::create(*strongThis, **identifier)
         });
+    });
+}
+
+Ref<WebCore::WebTransportConnectionStatsPromise> WebTransportSession::getStats()
+{
+    return sendWithPromisedReply(Messages::NetworkTransportSession::GetStats())->whenSettled(RunLoop::mainSingleton(), [] (auto&& stats) mutable {
+        ASSERT(RunLoop::isMain());
+        if (!stats)
+            return WebCore::WebTransportConnectionStatsPromise::createAndReject();
+        return WebCore::WebTransportConnectionStatsPromise::createAndResolve(WTFMove(*stats));
+    });
+}
+
+Ref<WebCore::WebTransportSendStreamStatsPromise> WebTransportSession::getSendStreamStats(WebCore::WebTransportStreamIdentifier identifier)
+{
+    return sendWithPromisedReply(Messages::NetworkTransportSession::GetSendStreamStats(identifier))->whenSettled(RunLoop::mainSingleton(), [] (auto&& stats) mutable {
+        ASSERT(RunLoop::isMain());
+        if (!stats || !*stats)
+            return WebCore::WebTransportSendStreamStatsPromise::createAndReject();
+        return WebCore::WebTransportSendStreamStatsPromise::createAndResolve(WTFMove(**stats));
+    });
+}
+
+Ref<WebCore::WebTransportReceiveStreamStatsPromise> WebTransportSession::getReceiveStreamStats(WebCore::WebTransportStreamIdentifier identifier)
+{
+    return sendWithPromisedReply(Messages::NetworkTransportSession::GetReceiveStreamStats(identifier))->whenSettled(RunLoop::mainSingleton(), [] (auto&& stats) mutable {
+        ASSERT(RunLoop::isMain());
+        if (!stats || !*stats)
+            return WebCore::WebTransportReceiveStreamStatsPromise::createAndReject();
+        return WebCore::WebTransportReceiveStreamStatsPromise::createAndResolve(WTFMove(**stats));
     });
 }
 

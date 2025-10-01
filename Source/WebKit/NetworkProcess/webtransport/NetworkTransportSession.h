@@ -41,6 +41,9 @@
 namespace WebCore {
 class Exception;
 struct ClientOrigin;
+struct WebTransportConnectionStats;
+struct WebTransportReceiveStreamStats;
+struct WebTransportSendStreamStats;
 struct WebTransportStreamIdentifierType;
 using WebTransportStreamIdentifier = ObjectIdentifier<WebTransportStreamIdentifierType>;
 using WebTransportSessionErrorCode = uint32_t;
@@ -73,6 +76,9 @@ public:
     void sendDatagram(std::span<const uint8_t>, CompletionHandler<void(std::optional<WebCore::Exception>&&)>&&);
     void createOutgoingUnidirectionalStream(CompletionHandler<void(std::optional<WebCore::WebTransportStreamIdentifier>)>&&);
     void createBidirectionalStream(CompletionHandler<void(std::optional<WebCore::WebTransportStreamIdentifier>)>&&);
+    void getStats(CompletionHandler<void(WebCore::WebTransportConnectionStats&&)>&&);
+    void getSendStreamStats(WebCore::WebTransportStreamIdentifier, CompletionHandler<void(std::optional<WebCore::WebTransportSendStreamStats>&&)>&&);
+    void getReceiveStreamStats(WebCore::WebTransportStreamIdentifier, CompletionHandler<void(std::optional<WebCore::WebTransportReceiveStreamStats>&&)>&&);
     void destroyOutgoingUnidirectionalStream(WebCore::WebTransportStreamIdentifier);
     void destroyBidirectionalStream(WebCore::WebTransportStreamIdentifier);
     void streamSendBytes(WebCore::WebTransportStreamIdentifier, std::span<const uint8_t>, bool withFin, CompletionHandler<void(std::optional<WebCore::Exception>&&)>&&);

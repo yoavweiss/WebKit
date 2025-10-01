@@ -74,7 +74,7 @@ public:
     void ref() const final { WebTransportSessionClient::ref(); }
     void deref() const final { WebTransportSessionClient::deref(); }
 
-    void getStats(Ref<DeferredPromise>&&);
+    void getStats(ScriptExecutionContext&, Ref<DeferredPromise>&&);
     DOMPromise& ready();
     WebTransportReliabilityMode reliability();
     WebTransportCongestionControl congestionControl();

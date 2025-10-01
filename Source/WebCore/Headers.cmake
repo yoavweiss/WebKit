@@ -838,7 +838,10 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     Modules/websockets/WorkerThreadableWebSocketChannel.h
 
     Modules/webtransport/WebTransportBidirectionalStreamConstructionParameters.h
+    Modules/webtransport/WebTransportConnectionStats.h
+    Modules/webtransport/WebTransportDatagramStats.h
     Modules/webtransport/WebTransportReceiveStreamStats.h
+    Modules/webtransport/WebTransportSendStreamSink.h
     Modules/webtransport/WebTransportSendStreamStats.h
     Modules/webtransport/WebTransportSession.h
     Modules/webtransport/WebTransportSessionClient.h

@@ -34,6 +34,7 @@
 #include "JSDOMPromiseDeferred.h"
 #include "JSWebTransportBidirectionalStream.h"
 #include "JSWebTransportCloseInfo.h"
+#include "JSWebTransportConnectionStats.h"
 #include "JSWebTransportSendStream.h"
 #include "ReadableStream.h"
 #include "ScriptExecutionContextInlines.h"
@@ -42,11 +43,13 @@
 #include "WebTransportBidirectionalStreamSource.h"
 #include "WebTransportCloseInfo.h"
 #include "WebTransportCongestionControl.h"
+#include "WebTransportConnectionStats.h"
 #include "WebTransportDatagramDuplexStream.h"
 #include "WebTransportError.h"
 #include "WebTransportReceiveStream.h"
 #include "WebTransportReceiveStreamSource.h"
 #include "WebTransportReliabilityMode.h"
+#include "WebTransportSendStreamSink.h"
 #include "WebTransportSession.h"
 #include "WorkerGlobalScope.h"
 #include "WritableStream.h"
@@ -169,11 +172,15 @@ void WebTransport::receiveIncomingUnidirectionalStream(WebTransportStreamIdentif
     auto* globalObject = context->globalObject();
     if (!globalObject)
         return;
+    RefPtr session = m_session;
+    if (!session)
+        return;
+
     auto& jsDOMGlobalObject = *JSC::jsCast<JSDOMGlobalObject*>(globalObject);
     Ref incomingStream = WebTransportReceiveStreamSource::createIncomingDataSource(*this, identifier);
     auto stream = [&] {
         Locker<JSC::JSLock> locker(jsDOMGlobalObject.vm().apiLock());
-        return WebTransportReceiveStream::create(jsDOMGlobalObject, incomingStream.copyRef());
+        return WebTransportReceiveStream::create(identifier, *session, jsDOMGlobalObject, incomingStream.copyRef());
     } ();
     if (stream.hasException())
         return;
@@ -187,17 +194,17 @@ void WebTransport::receiveIncomingUnidirectionalStream(WebTransportStreamIdentif
         protectedSession()->destroyStream(identifier, std::nullopt);
 }
 
-static ExceptionOr<Ref<WebTransportBidirectionalStream>> createBidirectionalStream(JSDOMGlobalObject& globalObject, WebTransportBidirectionalStreamConstructionParameters& parameters, Ref<WebTransportReceiveStreamSource>&& source)
+static ExceptionOr<Ref<WebTransportBidirectionalStream>> createBidirectionalStream(WebTransportSession& session, JSDOMGlobalObject& globalObject, WebTransportBidirectionalStreamConstructionParameters& parameters, Ref<WebTransportReceiveStreamSource>&& source)
 {
     auto sendStream = [&] {
         Locker<JSC::JSLock> locker(globalObject.vm().apiLock());
-        return WebTransportSendStream::create(globalObject, WTFMove(parameters.sink));
+        return WebTransportSendStream::create(session, globalObject, WTFMove(parameters.sink));
     } ();
     if (sendStream.hasException())
         return sendStream.releaseException();
     auto receiveStream = [&] {
         Locker<JSC::JSLock> locker(globalObject.vm().apiLock());
-        return WebTransportReceiveStream::create(globalObject, WTFMove(source));
+        return WebTransportReceiveStream::create(parameters.identifier, session, globalObject, WTFMove(source));
     } ();
     if (receiveStream.hasException())
         return receiveStream.releaseException();
@@ -212,9 +219,13 @@ void WebTransport::receiveBidirectionalStream(WebTransportBidirectionalStreamCon
     auto* globalObject = context->globalObject();
     if (!globalObject)
         return;
+    RefPtr session = m_session;
+    if (!session)
+        return;
+
     auto& jsDOMGlobalObject = *JSC::jsCast<JSDOMGlobalObject*>(globalObject);
     Ref incomingStream = WebTransportReceiveStreamSource::createIncomingDataSource(*this, parameters.identifier);
-    auto stream = WebCore::createBidirectionalStream(jsDOMGlobalObject, parameters, incomingStream.copyRef());
+    auto stream = WebCore::createBidirectionalStream(*session, jsDOMGlobalObject, parameters, incomingStream.copyRef());
     if (stream.hasException())
         return;
     Ref bidiStream = stream.releaseReturnValue();
@@ -235,9 +246,17 @@ void WebTransport::streamReceiveBytes(WebTransportStreamIdentifier identifier, s
         source->receiveBytes(span, withFin, WTFMove(exception));
 }
 
-void WebTransport::getStats(Ref<DeferredPromise>&& promise)
+void WebTransport::getStats(ScriptExecutionContext& context, Ref<DeferredPromise>&& promise)
 {
-    promise->reject(ExceptionCode::NotSupportedError);
+    RefPtr session = m_session;
+    if (!session)
+        return promise->reject(ExceptionCode::InvalidStateError);
+
+    context.enqueueTaskWhenSettled(session->getStats(), WebCore::TaskSource::Networking, [promise = WTFMove(promise)] (auto&& stats) mutable {
+        if (!stats)
+            return promise->reject(ExceptionCode::InvalidStateError);
+        promise->resolve<IDLDictionary<WebTransportConnectionStats>>(*stats);
+    });
 }
 
 DOMPromise& WebTransport::ready()
@@ -337,17 +356,22 @@ void WebTransport::createBidirectionalStream(ScriptExecutionContext& context, We
     if (m_state == State::Closed || m_state == State::Failed || !session)
         return promise->reject(ExceptionCode::InvalidStateError);
 
-    context.enqueueTaskWhenSettled(session->createBidirectionalStream(), WebCore::TaskSource::Networking, [promise = WTFMove(promise), context = WeakPtr { context }, protectedThis = Ref { *this }] (auto&& parameters) mutable {
+    context.enqueueTaskWhenSettled(session->createBidirectionalStream(), WebCore::TaskSource::Networking, [
+        promise = WTFMove(promise),
+        context = WeakPtr { context },
+        protectedThis = Ref { *this },
+        session
+    ] (auto&& parameters) mutable {
         if (!parameters)
-            return promise->reject(nullptr);
+            return promise->reject(ExceptionCode::InvalidStateError);
         if (!context)
-            return promise->reject(nullptr);
+            return promise->reject(ExceptionCode::InvalidStateError);
         auto* globalObject = context->globalObject();
         if (!globalObject)
-            return promise->reject(nullptr);
+            return promise->reject(ExceptionCode::InvalidStateError);
         auto& jsDOMGlobalObject = *JSC::jsCast<JSDOMGlobalObject*>(globalObject);
         Ref incomingStream = WebTransportReceiveStreamSource::createIncomingDataSource(protectedThis.get(), parameters->identifier);
-        auto stream = WebCore::createBidirectionalStream(jsDOMGlobalObject, *parameters, incomingStream.copyRef());
+        auto stream = WebCore::createBidirectionalStream(*session, jsDOMGlobalObject, *parameters, incomingStream.copyRef());
         if (stream.hasException())
             return promise->reject(stream.releaseException());
         Ref bidiStream = stream.releaseReturnValue();
@@ -371,18 +395,23 @@ void WebTransport::createUnidirectionalStream(ScriptExecutionContext& context, W
     if (m_state == State::Closed || m_state == State::Failed || !session)
         return promise->reject(ExceptionCode::InvalidStateError);
 
-    context.enqueueTaskWhenSettled(session->createOutgoingUnidirectionalStream(), WebCore::TaskSource::Networking, [promise = WTFMove(promise), context = WeakPtr { context }, protectedThis = Ref { *this }](auto&& sink) mutable {
+    context.enqueueTaskWhenSettled(session->createOutgoingUnidirectionalStream(), WebCore::TaskSource::Networking, [
+        promise = WTFMove(promise),
+        context = WeakPtr { context },
+        protectedThis = Ref { *this },
+        session
+    ] (auto&& sink) mutable {
         if (!sink)
-            return promise->reject(nullptr);
+            return promise->reject(ExceptionCode::InvalidStateError);
         if (!context)
-            return promise->reject(nullptr);
+            return promise->reject(ExceptionCode::InvalidStateError);
         auto* globalObject = context->globalObject();
         if (!globalObject)
-            return promise->reject(nullptr);
+            return promise->reject(ExceptionCode::InvalidStateError);
         auto& jsDOMGlobalObject = *JSC::jsCast<JSDOMGlobalObject*>(globalObject);
         auto stream = [&] {
             Locker<JSC::JSLock> locker(jsDOMGlobalObject.vm().apiLock());
-            return WebTransportSendStream::create(jsDOMGlobalObject, WTFMove(*sink));
+            return WebTransportSendStream::create(*session, jsDOMGlobalObject, WTFMove(*sink));
         } ();
         if (stream.hasException())
             return promise->reject(stream.releaseException());

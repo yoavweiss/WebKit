@@ -1095,6 +1095,7 @@ $(PROJECT_DIR)/Modules/webtransport/WebTransport.idl
 $(PROJECT_DIR)/Modules/webtransport/WebTransportBidirectionalStream.idl
 $(PROJECT_DIR)/Modules/webtransport/WebTransportCloseInfo.idl
 $(PROJECT_DIR)/Modules/webtransport/WebTransportCongestionControl.idl
+$(PROJECT_DIR)/Modules/webtransport/WebTransportConnectionStats.idl
 $(PROJECT_DIR)/Modules/webtransport/WebTransportDatagramDuplexStream.idl
 $(PROJECT_DIR)/Modules/webtransport/WebTransportDatagramStats.idl
 $(PROJECT_DIR)/Modules/webtransport/WebTransportError.idl
@@ -1108,7 +1109,6 @@ $(PROJECT_DIR)/Modules/webtransport/WebTransportReliabilityMode.idl
 $(PROJECT_DIR)/Modules/webtransport/WebTransportSendStream.idl
 $(PROJECT_DIR)/Modules/webtransport/WebTransportSendStreamOptions.idl
 $(PROJECT_DIR)/Modules/webtransport/WebTransportSendStreamStats.idl
-$(PROJECT_DIR)/Modules/webtransport/WebTransportStats.idl
 $(PROJECT_DIR)/Modules/webxr/Navigator+WebXR.idl
 $(PROJECT_DIR)/Modules/webxr/WebXRBoundedReferenceSpace.idl
 $(PROJECT_DIR)/Modules/webxr/WebXRFrame+HandInput.idl

@@ -31,20 +31,20 @@
 
 namespace WebCore {
 
-class WritableStreamSink;
+class WebTransportSendStreamSink;
 
 struct WebTransportStreamIdentifierType;
 using WebTransportStreamIdentifier = ObjectIdentifier<WebTransportStreamIdentifierType>;
 
 struct WebTransportBidirectionalStreamConstructionParameters {
-    WEBCORE_EXPORT WebTransportBidirectionalStreamConstructionParameters(WebTransportStreamIdentifier, Ref<WritableStreamSink>&&);
+    WEBCORE_EXPORT WebTransportBidirectionalStreamConstructionParameters(WebTransportStreamIdentifier, Ref<WebTransportSendStreamSink>&&);
     WEBCORE_EXPORT WebTransportBidirectionalStreamConstructionParameters(WebTransportBidirectionalStreamConstructionParameters&&);
     WEBCORE_EXPORT WebTransportBidirectionalStreamConstructionParameters& operator=(WebTransportBidirectionalStreamConstructionParameters&&);
     WEBCORE_EXPORT ~WebTransportBidirectionalStreamConstructionParameters();
     WEBCORE_EXPORT WebTransportBidirectionalStreamConstructionParameters isolatedCopy() &&;
 
     WebTransportStreamIdentifier identifier;
-    Ref<WritableStreamSink> sink;
+    Ref<WebTransportSendStreamSink> sink;
 };
 
 }

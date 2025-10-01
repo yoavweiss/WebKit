@@ -37,6 +37,9 @@
 #import <WebCore/ClientOrigin.h>
 #import <WebCore/Exception.h>
 #import <WebCore/ExceptionCode.h>
+#import <WebCore/WebTransportConnectionStats.h>
+#import <WebCore/WebTransportReceiveStreamStats.h>
+#import <WebCore/WebTransportSendStreamStats.h>
 #import <pal/spi/cocoa/NetworkSPI.h>
 #import <wtf/BlockPtr.h>
 #import <wtf/CompletionHandler.h>
@@ -227,6 +230,12 @@ void NetworkTransportSession::initialize(CompletionHandler<void(bool)>&& complet
 void NetworkTransportSession::createBidirectionalStream(CompletionHandler<void(std::optional<WebCore::WebTransportStreamIdentifier>)>&& completionHandler)
 {
     createStream(NetworkTransportStreamType::Bidirectional, WTFMove(completionHandler));
+}
+
+void NetworkTransportSession::getStats(CompletionHandler<void(WebCore::WebTransportConnectionStats&&)>&& completionHandler)
+{
+    // FIXME: Implement.
+    completionHandler({ });
 }
 
 void NetworkTransportSession::createOutgoingUnidirectionalStream(CompletionHandler<void(std::optional<WebCore::WebTransportStreamIdentifier>)>&& completionHandler)

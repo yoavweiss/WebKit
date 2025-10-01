@@ -38,8 +38,7 @@ public:
     WEBCORE_EXPORT static Ref<WorkerWebTransportSession> create(ScriptExecutionContextIdentifier, WebTransportSessionClient&);
     ~WorkerWebTransportSession();
 
-    void ref() const { ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::ref(); }
-    void deref() const { ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::deref(); }
+    WTF_ABSTRACT_THREAD_SAFE_REF_COUNTED_AND_CAN_MAKE_WEAK_PTR_IMPL;
 
     WEBCORE_EXPORT void attachSession(Ref<WebTransportSession>&&);
 
@@ -55,6 +54,11 @@ private:
     Ref<WebTransportSendPromise> sendDatagram(std::span<const uint8_t>) final;
     Ref<WritableStreamPromise> createOutgoingUnidirectionalStream() final;
     Ref<BidirectionalStreamPromise> createBidirectionalStream() final;
+    Ref<WebTransportSendPromise> streamSendBytes(WebTransportStreamIdentifier, std::span<const uint8_t>, bool withFin) final;
+    Ref<WebTransportConnectionStatsPromise> getStats() final;
+    Ref<WebTransportSendStreamStatsPromise> getSendStreamStats(WebTransportStreamIdentifier) final;
+    Ref<WebTransportReceiveStreamStatsPromise> getReceiveStreamStats(WebTransportStreamIdentifier) final;
+
     void cancelReceiveStream(WebTransportStreamIdentifier, std::optional<WebTransportStreamErrorCode>) final;
     void cancelSendStream(WebTransportStreamIdentifier, std::optional<WebTransportStreamErrorCode>) final;
     void destroyStream(WebTransportStreamIdentifier, std::optional<WebTransportStreamErrorCode>) final;

@@ -71,14 +71,7 @@ public:
     void receiveBidirectionalStream(WebCore::WebTransportStreamIdentifier);
     void streamReceiveBytes(WebCore::WebTransportStreamIdentifier, std::span<const uint8_t>, bool, std::optional<WebCore::Exception>&&);
 
-    Ref<WebCore::WebTransportSendPromise> streamSendBytes(WebCore::WebTransportStreamIdentifier, std::span<const uint8_t>, bool withFin);
-
-    void cancelReceiveStream(WebCore::WebTransportStreamIdentifier, std::optional<WebCore::WebTransportStreamErrorCode>);
-    void cancelSendStream(WebCore::WebTransportStreamIdentifier, std::optional<WebCore::WebTransportStreamErrorCode>);
-    void destroyStream(WebCore::WebTransportStreamIdentifier, std::optional<WebCore::WebTransportStreamErrorCode>);
-
-    void ref() const final { ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::ref(); }
-    void deref() const final { ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::deref(); }
+    WTF_ABSTRACT_THREAD_SAFE_REF_COUNTED_AND_CAN_MAKE_WEAK_PTR_IMPL;
 
     // MessageReceiver
     void didReceiveMessage(IPC::Connection&, IPC::Decoder&) final;
@@ -91,6 +84,14 @@ private:
     Ref<WebCore::WebTransportSendPromise> sendDatagram(std::span<const uint8_t>) final;
     Ref<WebCore::WritableStreamPromise> createOutgoingUnidirectionalStream() final;
     Ref<WebCore::BidirectionalStreamPromise> createBidirectionalStream() final;
+    Ref<WebCore::WebTransportSendPromise> streamSendBytes(WebCore::WebTransportStreamIdentifier, std::span<const uint8_t>, bool withFin) final;
+    Ref<WebCore::WebTransportConnectionStatsPromise> getStats() final;
+    Ref<WebCore::WebTransportSendStreamStatsPromise> getSendStreamStats(WebCore::WebTransportStreamIdentifier) final;
+    Ref<WebCore::WebTransportReceiveStreamStatsPromise> getReceiveStreamStats(WebCore::WebTransportStreamIdentifier) final;
+
+    void cancelReceiveStream(WebCore::WebTransportStreamIdentifier, std::optional<WebCore::WebTransportStreamErrorCode>);
+    void cancelSendStream(WebCore::WebTransportStreamIdentifier, std::optional<WebCore::WebTransportStreamErrorCode>);
+    void destroyStream(WebCore::WebTransportStreamIdentifier, std::optional<WebCore::WebTransportStreamErrorCode>);
     void terminate(WebCore::WebTransportSessionErrorCode, CString&&) final;
 
     // MessageSender

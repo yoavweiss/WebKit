@@ -26,11 +26,11 @@
 #include "config.h"
 #include "WebTransportBidirectionalStreamConstructionParameters.h"
 
-#include "WritableStreamSink.h"
+#include "WebTransportSendStreamSink.h"
 
 namespace WebCore {
 
-WebTransportBidirectionalStreamConstructionParameters::WebTransportBidirectionalStreamConstructionParameters(WebTransportStreamIdentifier identifier, Ref<WritableStreamSink>&& sink)
+WebTransportBidirectionalStreamConstructionParameters::WebTransportBidirectionalStreamConstructionParameters(WebTransportStreamIdentifier identifier, Ref<WebTransportSendStreamSink>&& sink)
     : identifier(identifier)
     , sink(WTFMove(sink)) { }
 

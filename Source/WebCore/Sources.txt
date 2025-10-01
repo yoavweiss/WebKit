@@ -527,6 +527,7 @@ Modules/webtransport/WebTransportError.cpp
 Modules/webtransport/WebTransportReceiveStream.cpp
 Modules/webtransport/WebTransportReceiveStreamSource.cpp
 Modules/webtransport/WebTransportSendStream.cpp
+Modules/webtransport/WebTransportSendStreamSink.cpp
 Modules/webtransport/WebTransportSession.cpp
 Modules/webtransport/WorkerWebTransportSession.cpp
 Modules/webxr/NavigatorWebXR.cpp
@@ -755,6 +756,7 @@ bindings/js/JSPopStateEventCustom.cpp
 bindings/js/JSPromiseRejectionEventCustom.cpp
 bindings/js/JSRTCRtpSFrameTransformCustom.cpp
 bindings/js/JSRangeCustom.cpp
+bindings/js/JSReadableStreamCustom.cpp
 bindings/js/JSReadableStreamSourceCustom.cpp
 bindings/js/JSReportBodyCustom.cpp
 bindings/js/JSReportingObserverCustom.cpp
@@ -5066,6 +5068,7 @@ JSWebTransport.cpp
 JSWebTransportBidirectionalStream.cpp
 JSWebTransportCloseInfo.cpp
 JSWebTransportCongestionControl.cpp
+JSWebTransportConnectionStats.cpp
 JSWebTransportDatagramDuplexStream.cpp
 JSWebTransportDatagramStats.cpp
 JSWebTransportError.cpp
@@ -5079,7 +5082,6 @@ JSWebTransportReliabilityMode.cpp
 JSWebTransportSendStream.cpp
 JSWebTransportSendStreamOptions.cpp
 JSWebTransportSendStreamStats.cpp
-JSWebTransportStats.cpp
 JSWebXRBoundedReferenceSpace.cpp
 JSWebXRFrame.cpp
 JSWebXRHand.cpp

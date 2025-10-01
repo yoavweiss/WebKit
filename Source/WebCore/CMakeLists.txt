@@ -928,6 +928,7 @@ set(WebCore_NON_SVG_IDL_FILES
     Modules/webtransport/WebTransportBidirectionalStream.idl
     Modules/webtransport/WebTransportCloseInfo.idl
     Modules/webtransport/WebTransportCongestionControl.idl
+    Modules/webtransport/WebTransportConnectionStats.idl
     Modules/webtransport/WebTransportDatagramDuplexStream.idl
     Modules/webtransport/WebTransportDatagramStats.idl
     Modules/webtransport/WebTransportError.idl
@@ -941,7 +942,6 @@ set(WebCore_NON_SVG_IDL_FILES
     Modules/webtransport/WebTransportSendStream.idl
     Modules/webtransport/WebTransportSendStreamOptions.idl
     Modules/webtransport/WebTransportSendStreamStats.idl
-    Modules/webtransport/WebTransportStats.idl
 
     accessibility/AccessibilityRole.idl
     accessibility/AriaAttributes.idl
