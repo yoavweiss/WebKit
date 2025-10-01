@@ -28,6 +28,7 @@
 
 #include "JSReadableStreamBYOBRequest.h"
 #include "ReadableByteStreamController.h"
+#include "ReadableStream.h"
 #include <JavaScriptCore/ArrayBufferView.h>
 
 namespace WebCore {
