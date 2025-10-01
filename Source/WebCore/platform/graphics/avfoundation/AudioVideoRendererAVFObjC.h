@@ -134,6 +134,7 @@ public:
     void setResourceOwner(const ProcessIdentity& resourceOwner) final { m_resourceOwner = resourceOwner; }
     RefPtr<VideoFrame> currentVideoFrame() const final;
     void paintCurrentVideoFrameInContext(GraphicsContext&, const FloatRect&) final;
+    RefPtr<NativeImage> currentNativeImage() const final;
     std::optional<VideoPlaybackQualityMetrics> videoPlaybackQualityMetrics() final;
     PlatformLayer* platformVideoLayer() const final;
     void setVideoLayerSizeFenced(const FloatSize&, WTF::MachSendRightAnnotated&&) final;
@@ -202,7 +203,6 @@ private:
 #endif
 
     void setSynchronizerRate(float, std::optional<MonotonicTime>);
-    RefPtr<NativeImage> currentNativeImage();
     bool updateLastPixelBuffer();
     void maybePurgeLastPixelBuffer();
     void setNeedsPlaceholderImage(bool);
@@ -320,7 +320,7 @@ private:
 
     RefPtr<EffectiveRateChangedListener> m_effectiveRateChangedListener;
 
-    std::unique_ptr<PixelBufferConformerCV> m_rgbConformer;
+    mutable std::unique_ptr<PixelBufferConformerCV> m_rgbConformer;
 
 #if HAVE(SPATIAL_TRACKING_LABEL)
     bool m_prefersSpatialAudioExperience { false };

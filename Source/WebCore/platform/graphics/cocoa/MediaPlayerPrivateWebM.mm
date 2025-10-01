@@ -690,25 +690,14 @@ bool MediaPlayerPrivateWebM::updateLastVideoFrame()
 bool MediaPlayerPrivateWebM::updateLastImage()
 {
     if (m_isGatheringVideoFrameMetadata) {
-        if (!m_lastVideoFrame)
-            return false;
         auto metrics = m_renderer->videoPlaybackQualityMetrics();
         auto sampleCount = metrics ? metrics->displayCompositedVideoFrames : 0;
         if (sampleCount == m_lastConvertedSampleCount)
             return false;
         m_lastConvertedSampleCount = sampleCount;
-    } else if (!updateLastVideoFrame())
-        return false;
-
-    Ref lastVideoFrame = *m_lastVideoFrame;
-
-    if (!m_rgbConformer) {
-        auto attributes = @{ (__bridge NSString *)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA) };
-        m_rgbConformer = makeUnique<PixelBufferConformerCV>((__bridge CFDictionaryRef)attributes);
     }
-
-    m_lastImage = NativeImage::create(m_rgbConformer->createImageFromPixelBuffer(lastVideoFrame->pixelBuffer()));
-    return true;
+    m_lastImage = m_renderer->currentNativeImage();
+    return !!m_lastImage;
 }
 
 void MediaPlayerPrivateWebM::paint(GraphicsContext& context, const FloatRect& rect)

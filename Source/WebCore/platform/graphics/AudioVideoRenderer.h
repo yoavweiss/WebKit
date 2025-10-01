@@ -46,6 +46,7 @@ class FloatRect;
 class GraphicsContext;
 class LayoutRect;
 class MediaSample;
+class NativeImage;
 class PlatformDynamicRangeLimit;
 class ProcessIdentity;
 class TextTrackRepresentation;
@@ -83,6 +84,7 @@ public:
     virtual void flushAndRemoveImage() { };
     virtual RefPtr<VideoFrame> currentVideoFrame() const = 0;
     virtual void paintCurrentVideoFrameInContext(GraphicsContext&, const FloatRect&) { }
+    virtual RefPtr<NativeImage> currentNativeImage() const { return nullptr; }
     virtual std::optional<VideoPlaybackQualityMetrics> videoPlaybackQualityMetrics() = 0;
     virtual PlatformLayer* platformVideoLayer() const { return nullptr; }
 

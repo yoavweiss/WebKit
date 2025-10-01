@@ -125,6 +125,7 @@ private:
     void flushAndRemoveImage() final;
     RefPtr<WebCore::VideoFrame> currentVideoFrame() const final;
     void paintCurrentVideoFrameInContext(WebCore::GraphicsContext&, const WebCore::FloatRect&) final;
+    RefPtr<WebCore::NativeImage> currentNativeImage() const final;
     std::optional<WebCore::VideoPlaybackQualityMetrics> videoPlaybackQualityMetrics() final;
     PlatformLayer* platformVideoLayer() const final;
 

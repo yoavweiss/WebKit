@@ -303,6 +303,22 @@ void AudioVideoRendererRemote::paintCurrentVideoFrameInContext(GraphicsContext& 
         context.drawVideoFrame(*videoFrame, rect, ImageOrientation::Orientation::None, false);
 }
 
+RefPtr<NativeImage> AudioVideoRendererRemote::currentNativeImage() const
+{
+#if PLATFORM(COCOA)
+    RefPtr gpuProcessConnection = m_gpuProcessConnection.get();
+    RefPtr videoFrame = currentVideoFrame();
+    if (!videoFrame)
+        return nullptr;
+    ASSERT(gpuProcessConnection);
+
+    return gpuProcessConnection->protectedVideoFrameObjectHeapProxy()->getNativeImage(*videoFrame);
+#else
+    ASSERT_NOT_REACHED();
+    return nullptr;
+#endif
+}
+
 std::optional<VideoPlaybackQualityMetrics> AudioVideoRendererRemote::videoPlaybackQualityMetrics()
 {
     return m_state.videoPlaybackQualityMetrics;

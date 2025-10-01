@@ -308,7 +308,6 @@ private:
     ThreadSafeWeakPtr<MediaPlayer> m_player;
     RefPtr<VideoFrame> m_lastVideoFrame;
     RefPtr<NativeImage> m_lastImage;
-    std::unique_ptr<PixelBufferConformerCV> m_rgbConformer;
     RefPtr<WebMResourceClient> m_resourceClient;
     bool m_needsResourceClient { true };
 

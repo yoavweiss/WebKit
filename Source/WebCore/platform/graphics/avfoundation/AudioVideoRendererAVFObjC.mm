@@ -1639,7 +1639,7 @@ void AudioVideoRendererAVFObjC::setSynchronizerRate(float rate, std::optional<Mo
         maybePurgeLastPixelBuffer();
 }
 
-RefPtr<NativeImage> AudioVideoRendererAVFObjC::currentNativeImage()
+RefPtr<NativeImage> AudioVideoRendererAVFObjC::currentNativeImage() const
 {
     if (RefPtr videoFrame = currentVideoFrame()) {
         if (!m_rgbConformer) {
