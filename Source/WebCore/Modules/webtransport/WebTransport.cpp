@@ -39,7 +39,6 @@
 #include "ReadableStream.h"
 #include "ScriptExecutionContextInlines.h"
 #include "SocketProvider.h"
-#include "WebTransportBidirectionalStreamConstructionParameters.h"
 #include "WebTransportBidirectionalStreamSource.h"
 #include "WebTransportCloseInfo.h"
 #include "WebTransportCongestionControl.h"
@@ -194,24 +193,25 @@ void WebTransport::receiveIncomingUnidirectionalStream(WebTransportStreamIdentif
         protectedSession()->destroyStream(identifier, std::nullopt);
 }
 
-static ExceptionOr<Ref<WebTransportBidirectionalStream>> createBidirectionalStream(WebTransportSession& session, JSDOMGlobalObject& globalObject, WebTransportBidirectionalStreamConstructionParameters& parameters, Ref<WebTransportReceiveStreamSource>&& source)
+static ExceptionOr<Ref<WebTransportBidirectionalStream>> createBidirectionalStream(WebTransportSession& session, JSDOMGlobalObject& globalObject, Ref<WebTransportSendStreamSink>&& sink, Ref<WebTransportReceiveStreamSource>&& source)
 {
+    auto identifier = sink->identifier();
     auto sendStream = [&] {
         Locker<JSC::JSLock> locker(globalObject.vm().apiLock());
-        return WebTransportSendStream::create(session, globalObject, WTFMove(parameters.sink));
+        return WebTransportSendStream::create(session, globalObject, WTFMove(sink));
     } ();
     if (sendStream.hasException())
         return sendStream.releaseException();
     auto receiveStream = [&] {
         Locker<JSC::JSLock> locker(globalObject.vm().apiLock());
-        return WebTransportReceiveStream::create(parameters.identifier, session, globalObject, WTFMove(source));
+        return WebTransportReceiveStream::create(identifier, session, globalObject, WTFMove(source));
     } ();
     if (receiveStream.hasException())
         return receiveStream.releaseException();
     return WebTransportBidirectionalStream::create(receiveStream.releaseReturnValue(), sendStream.releaseReturnValue());
 }
 
-void WebTransport::receiveBidirectionalStream(WebTransportBidirectionalStreamConstructionParameters&& parameters)
+void WebTransport::receiveBidirectionalStream(Ref<WebTransportSendStreamSink>&& sink)
 {
     RefPtr context = scriptExecutionContext();
     if (!context)
@@ -223,9 +223,10 @@ void WebTransport::receiveBidirectionalStream(WebTransportBidirectionalStreamCon
     if (!session)
         return;
 
+    auto identifier = sink->identifier();
     auto& jsDOMGlobalObject = *JSC::jsCast<JSDOMGlobalObject*>(globalObject);
-    Ref incomingStream = WebTransportReceiveStreamSource::createIncomingDataSource(*this, parameters.identifier);
-    auto stream = WebCore::createBidirectionalStream(*session, jsDOMGlobalObject, parameters, incomingStream.copyRef());
+    Ref incomingStream = WebTransportReceiveStreamSource::createIncomingDataSource(*this, identifier);
+    auto stream = WebCore::createBidirectionalStream(*session, jsDOMGlobalObject, WTFMove(sink), incomingStream.copyRef());
     if (stream.hasException())
         return;
     Ref bidiStream = stream.releaseReturnValue();
@@ -233,10 +234,10 @@ void WebTransport::receiveBidirectionalStream(WebTransportBidirectionalStreamCon
     if (received) {
         m_sendStreams.add(bidiStream->writable());
         m_receiveStreams.add(bidiStream->readable());
-        ASSERT(!m_readStreamSources.contains(parameters.identifier));
-        m_readStreamSources.add(parameters.identifier, WTFMove(incomingStream));
+        ASSERT(!m_readStreamSources.contains(identifier));
+        m_readStreamSources.add(identifier, WTFMove(incomingStream));
     } else
-        protectedSession()->destroyStream(parameters.identifier, std::nullopt);
+        protectedSession()->destroyStream(identifier, std::nullopt);
 }
 
 void WebTransport::streamReceiveBytes(WebTransportStreamIdentifier identifier, std::span<const uint8_t> span, bool withFin, std::optional<Exception>&& exception)
@@ -361,24 +362,26 @@ void WebTransport::createBidirectionalStream(ScriptExecutionContext& context, We
         context = WeakPtr { context },
         protectedThis = Ref { *this },
         session
-    ] (auto&& parameters) mutable {
-        if (!parameters)
+    ] (auto&& sink) mutable {
+        if (!sink)
             return promise->reject(ExceptionCode::InvalidStateError);
         if (!context)
             return promise->reject(ExceptionCode::InvalidStateError);
         auto* globalObject = context->globalObject();
         if (!globalObject)
             return promise->reject(ExceptionCode::InvalidStateError);
+
+        auto identifier = (*sink)->identifier();
         auto& jsDOMGlobalObject = *JSC::jsCast<JSDOMGlobalObject*>(globalObject);
-        Ref incomingStream = WebTransportReceiveStreamSource::createIncomingDataSource(protectedThis.get(), parameters->identifier);
-        auto stream = WebCore::createBidirectionalStream(*session, jsDOMGlobalObject, *parameters, incomingStream.copyRef());
+        Ref incomingStream = WebTransportReceiveStreamSource::createIncomingDataSource(protectedThis.get(), identifier);
+        auto stream = WebCore::createBidirectionalStream(*session, jsDOMGlobalObject, WTFMove(*sink), incomingStream.copyRef());
         if (stream.hasException())
             return promise->reject(stream.releaseException());
         Ref bidiStream = stream.releaseReturnValue();
         protectedThis->m_sendStreams.add(bidiStream->writable());
         protectedThis->m_receiveStreams.add(bidiStream->readable());
-        ASSERT(!protectedThis->m_readStreamSources.get(parameters->identifier));
-        protectedThis->m_readStreamSources.add(parameters->identifier, WTFMove(incomingStream));
+        ASSERT(!protectedThis->m_readStreamSources.get(identifier));
+        protectedThis->m_readStreamSources.add(identifier, WTFMove(incomingStream));
         promise->resolveWithNewlyCreated<IDLInterface<WebTransportBidirectionalStream>>(WTFMove(bidiStream));
     });
 }

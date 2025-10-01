@@ -837,7 +837,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     Modules/websockets/WebSocketIdentifier.h
     Modules/websockets/WorkerThreadableWebSocketChannel.h
 
-    Modules/webtransport/WebTransportBidirectionalStreamConstructionParameters.h
     Modules/webtransport/WebTransportConnectionStats.h
     Modules/webtransport/WebTransportDatagramStats.h
     Modules/webtransport/WebTransportReceiveStreamStats.h

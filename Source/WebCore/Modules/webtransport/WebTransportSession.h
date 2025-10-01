@@ -40,7 +40,6 @@ class WebTransportSendStream;
 class WebTransportSessionClient;
 class WebTransportSendStreamSink;
 
-struct WebTransportBidirectionalStreamConstructionParameters;
 struct WebTransportConnectionStats;
 struct WebTransportReceiveStreamStats;
 struct WebTransportSendStreamStats;
@@ -48,7 +47,7 @@ struct WebTransportStreamIdentifierType;
 
 using WebTransportStreamIdentifier = ObjectIdentifier<WebTransportStreamIdentifierType>;
 using WritableStreamPromise = NativePromise<Ref<WebTransportSendStreamSink>, void>;
-using BidirectionalStreamPromise = NativePromise<WebTransportBidirectionalStreamConstructionParameters, void>;
+using BidirectionalStreamPromise = NativePromise<Ref<WebTransportSendStreamSink>, void>;
 using WebTransportSendPromise = NativePromise<std::optional<Exception>, void>;
 using WebTransportConnectionStatsPromise = NativePromise<WebTransportConnectionStats, void>;
 using WebTransportSendStreamStatsPromise = NativePromise<WebTransportSendStreamStats, void>;

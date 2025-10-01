@@ -28,7 +28,6 @@
 
 #include "ScriptExecutionContext.h"
 #include "WebTransport.h"
-#include "WebTransportBidirectionalStreamConstructionParameters.h"
 #include "WebTransportConnectionStats.h"
 #include "WebTransportReceiveStreamStats.h"
 #include "WebTransportSendStreamSink.h"
@@ -91,14 +90,14 @@ void WorkerWebTransportSession::receiveIncomingUnidirectionalStream(WebTransport
     });
 }
 
-void WorkerWebTransportSession::receiveBidirectionalStream(WebTransportBidirectionalStreamConstructionParameters&& parameters)
+void WorkerWebTransportSession::receiveBidirectionalStream(Ref<WebTransportSendStreamSink>&& sink)
 {
     ASSERT(RunLoop::isMain());
-    ScriptExecutionContext::postTaskTo(m_contextID, [parameters = WTFMove(parameters), weakClient = m_client] (auto&) mutable {
+    ScriptExecutionContext::postTaskTo(m_contextID, [sink = WTFMove(sink), weakClient = m_client] (auto&) mutable {
         RefPtr client = weakClient.get();
         if (!client)
             return;
-        client->receiveBidirectionalStream(WTFMove(parameters));
+        client->receiveBidirectionalStream(WTFMove(sink));
     });
 }
 

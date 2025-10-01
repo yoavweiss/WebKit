@@ -520,7 +520,6 @@ Modules/webtransport/DatagramSink.cpp
 Modules/webtransport/DatagramSource.cpp
 Modules/webtransport/WebTransport.cpp
 Modules/webtransport/WebTransportBidirectionalStream.cpp
-Modules/webtransport/WebTransportBidirectionalStreamConstructionParameters.cpp
 Modules/webtransport/WebTransportBidirectionalStreamSource.cpp
 Modules/webtransport/WebTransportDatagramDuplexStream.cpp
 Modules/webtransport/WebTransportError.cpp

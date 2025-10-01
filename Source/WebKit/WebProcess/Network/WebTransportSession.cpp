@@ -32,7 +32,6 @@
 #include "NetworkTransportSessionMessages.h"
 #include "WebProcess.h"
 #include <WebCore/Exception.h>
-#include <WebCore/WebTransportBidirectionalStreamConstructionParameters.h>
 #include <WebCore/WebTransportConnectionStats.h>
 #include <WebCore/WebTransportReceiveStreamStats.h>
 #include <WebCore/WebTransportSendStreamSink.h>
@@ -102,12 +101,9 @@ void WebTransportSession::receiveIncomingUnidirectionalStream(WebCore::WebTransp
 void WebTransportSession::receiveBidirectionalStream(WebCore::WebTransportStreamIdentifier identifier)
 {
     ASSERT(RunLoop::isMain());
-    if (RefPtr strongClient = m_client.get()) {
-        strongClient->receiveBidirectionalStream(WebCore::WebTransportBidirectionalStreamConstructionParameters {
-            identifier,
-            WebCore::WebTransportSendStreamSink::create(*this, identifier)
-        });
-    } else
+    if (RefPtr strongClient = m_client.get())
+        strongClient->receiveBidirectionalStream(WebCore::WebTransportSendStreamSink::create(*this, identifier));
+    else
         ASSERT_NOT_REACHED();
 }
 
@@ -148,10 +144,7 @@ Ref<WebCore::BidirectionalStreamPromise> WebTransportSession::createBidirectiona
         RefPtr strongThis = weakThis.get();
         if (!identifier || !*identifier || !strongThis)
             return WebCore::BidirectionalStreamPromise::createAndReject();
-        return WebCore::BidirectionalStreamPromise::createAndResolve(WebCore::WebTransportBidirectionalStreamConstructionParameters {
-            **identifier,
-            WebCore::WebTransportSendStreamSink::create(*strongThis, **identifier)
-        });
+        return WebCore::BidirectionalStreamPromise::createAndResolve(WebCore::WebTransportSendStreamSink::create(*strongThis, **identifier));
     });
 }
 

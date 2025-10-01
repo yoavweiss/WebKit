@@ -54,11 +54,11 @@ class WebTransportBidirectionalStreamSource;
 class WebTransportDatagramDuplexStream;
 class WebTransportError;
 class WebTransportReceiveStreamSource;
+class WebTransportSendStreamSink;
 class WebTransportSession;
 class WorkerWebTransportSession;
 class WritableStream;
 
-struct WebTransportBidirectionalStreamConstructionParameters;
 struct WebTransportCloseInfo;
 struct WebTransportSendStreamOptions;
 struct WebTransportHash;
@@ -100,7 +100,7 @@ private:
 
     void receiveDatagram(std::span<const uint8_t>, bool, std::optional<Exception>&&) final;
     void receiveIncomingUnidirectionalStream(WebTransportStreamIdentifier) final;
-    void receiveBidirectionalStream(WebTransportBidirectionalStreamConstructionParameters&&) final;
+    void receiveBidirectionalStream(Ref<WebTransportSendStreamSink>&&) final;
     void streamReceiveBytes(WebTransportStreamIdentifier, std::span<const uint8_t>, bool, std::optional<Exception>&&) final;
     void networkProcessCrashed() final;
 
