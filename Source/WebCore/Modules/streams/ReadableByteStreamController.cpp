@@ -205,10 +205,9 @@ ExceptionOr<void> ReadableByteStreamController::start(JSDOMGlobalObject& globalO
         auto* promise = JSC::JSPromise::resolvedPromise(&globalObject, JSC::jsUndefined());
         startPromise = DOMPromise::create(globalObject, *promise);
     } else {
-        auto startResult = startAlgorithm->invoke(m_underlyingSource.getValue(), *this);
+        auto startResult = startAlgorithm->invokeRethrowingException(m_underlyingSource.getValue(), *this);
         if (startResult.type() != CallbackResultType::Success) {
-            // FIXME: Get exception from start algorithm.
-            return Exception { ExceptionCode::TypeError, "start threw"_s };
+            return Exception { ExceptionCode::ExistingExceptionError };
         }
         Ref vm = globalObject.vm();
         auto scope = DECLARE_THROW_SCOPE(vm);

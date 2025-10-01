@@ -1,14 +1,10 @@
 
-Harness Error (FAIL), message = Error in remote http://web-platform.test:8800/streams/readable-byte-streams/general.any.js: Error
-
 PASS getReader({mode: "byob"}) throws on non-bytes streams
 PASS ReadableStream with byte source can be constructed with no errors
 PASS getReader({mode}) must perform ToString()
 PASS ReadableStream with byte source: Construct and expect start and pull being called
 PASS ReadableStream with byte source: No automatic pull call if start doesn't finish
-FAIL ReadableStream with byte source: start() throws an exception assert_throws_js: start() can throw an exception with type: bytes function "() => new ReadableStream({ start() { throw new Error(); }, type:'bytes' })" threw object "TypeError: start threw" ("TypeError") expected instance of function "function Error() {
-    [native code]
-}" ("Error")
+PASS ReadableStream with byte source: start() throws an exception
 PASS ReadableStream with byte source: Construct with highWaterMark of 0
 PASS ReadableStream with byte source: desiredSize when closed
 PASS ReadableStream with byte source: desiredSize when errored
