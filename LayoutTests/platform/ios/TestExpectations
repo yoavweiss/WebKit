@@ -8269,3 +8269,5 @@ webkit.org/b/299811 fast/images/background-image-size-changes-fractional-positio
 webkit.org/b/299501 http/tests/site-isolation/focus-tab-navigation-activeElement.html [ Pass Failure ]
 
 webkit.org/b/299501 http/tests/site-isolation/focus-click-navigation-activeElement.html [ Pass Failure ]
+
+webkit.org/b/299996 media/media-video-videorange.html [ Pass Crash ]

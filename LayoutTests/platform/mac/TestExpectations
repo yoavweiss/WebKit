@@ -2521,3 +2521,5 @@ webkit.org/b/280234 imported/w3c/web-platform-tests/html/dom/idlharness.https.ht
 webkit.org/b/299131 [ Release ] inspector/unit-tests/target-manager.html [ Pass Crash ]
 
 webkit.org/b/299322 imported/w3c/web-platform-tests/uievents/mouse/mouse_boundary_events_after_reappending_last_over_target.tentative.html [ Pass Failure ]
+
+webkit.org/b/299996 media/media-video-videorange.html [ Pass Crash ]
