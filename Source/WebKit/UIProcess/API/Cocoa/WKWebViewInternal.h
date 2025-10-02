@@ -110,6 +110,7 @@ class Attachment;
 
 namespace WebCore {
 struct AppHighlight;
+struct ExceptionData;
 struct ExceptionDetails;
 struct TextAnimationData;
 enum class BoxSide : uint8_t;
@@ -121,6 +122,7 @@ enum class TextSuggestionState : uint8_t;
 
 #if HAVE(DIGITAL_CREDENTIALS_UI)
 struct DigitalCredentialsRequestData;
+struct DigitalCredentialsResponseData;
 struct MobileDocumentRequest;
 struct OpenID4VPRequest;
 #endif

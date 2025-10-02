@@ -544,7 +544,8 @@ public:
     void markCurrentlyDispatchedMessageAsInvalid();
 
 #if ENABLE(CORE_IPC_SIGNPOSTS)
-    static void* generateSignpostIdentifier();
+    static bool signpostsEnabled();
+    static void forceEnableSignposts();
 #endif
 
     static bool shouldCrashOnMessageCheckFailure();
