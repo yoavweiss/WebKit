@@ -2522,4 +2522,6 @@ webkit.org/b/299131 [ Release ] inspector/unit-tests/target-manager.html [ Pass 
 
 webkit.org/b/299322 imported/w3c/web-platform-tests/uievents/mouse/mouse_boundary_events_after_reappending_last_over_target.tentative.html [ Pass Failure ]
 
-webkit.org/b/299996 media/media-video-videorange.html [ Pass Crash ]
+# webkit.org/b/299996 REGRESSION(299875@main?) [iOS macOS] ASSERTION FAILED: it != m_trackIdentifiers.end() in media/media-video-videorange.html
+media/media-video-videorange.html [ Pass Crash ]
+media/media-video-fullrange.html [ Pass Crash ]

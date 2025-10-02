@@ -8268,4 +8268,6 @@ webkit.org/b/299501 http/tests/site-isolation/focus-tab-navigation-activeElement
 
 webkit.org/b/299501 http/tests/site-isolation/focus-click-navigation-activeElement.html [ Pass Failure ]
 
-webkit.org/b/299996 media/media-video-videorange.html [ Pass Crash ]
+# webkit.org/b/299996 REGRESSION(299875@main?) [iOS macOS] ASSERTION FAILED: it != m_trackIdentifiers.end() in media/media-video-videorange.html
+media/media-video-videorange.html [ Pass Crash ]
+media/media-video-fullrange.html [ Pass Crash ]
