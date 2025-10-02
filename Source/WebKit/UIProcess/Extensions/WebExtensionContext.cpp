@@ -1715,6 +1715,145 @@ Vector<String> WebExtensionContext::corsDisablingPatterns()
     return patterns;
 }
 
+URL WebExtensionContext::backgroundContentURL()
+{
+    RefPtr extension = m_extension;
+    if (!extension->hasBackgroundContent())
+        return { };
+    return { m_baseURL, extension->backgroundContentPath() };
+}
+
+void WebExtensionContext::loadBackgroundContent(CompletionHandler<void(RefPtr<API::Error>)>&& completionHandler)
+{
+    if (!protectedExtension()->hasBackgroundContent()) {
+        if (completionHandler)
+            completionHandler(createError(Error::NoBackgroundContent));
+        return;
+    }
+
+    wakeUpBackgroundContentIfNecessary([this, protectedThis = Ref { *this }, completionHandler = WTFMove(completionHandler)]() mutable {
+        if (completionHandler)
+            completionHandler(backgroundContentLoadError());
+    });
+}
+
+void WebExtensionContext::loadBackgroundWebViewDuringLoad()
+{
+    ASSERT(isLoaded());
+
+    RefPtr extension = m_extension;
+    if (!extension->hasBackgroundContent())
+        return;
+
+    m_safeToLoadBackgroundContent = true;
+
+    if (!extension->backgroundContentIsPersistent()) {
+        loadBackgroundPageListenersFromStorage();
+
+        bool hasEventsToFire = m_shouldFireStartupEvent || m_installReason != InstallReason::None;
+        if (m_backgroundContentEventListeners.isEmpty() || hasEventsToFire)
+            loadBackgroundWebView();
+    } else
+        loadBackgroundWebView();
+}
+
+bool WebExtensionContext::isBackgroundPage(WebCore::FrameIdentifier frameIdentifier) const
+{
+    RefPtr frame = WebFrameProxy::webFrame(frameIdentifier);
+    if (!frame)
+        return false;
+
+    RefPtr page = frame->page();
+    if (!page)
+        return false;
+
+    return isBackgroundPage(page->identifier());
+}
+
+const String& WebExtensionContext::backgroundWebViewInspectionName()
+{
+    if (!m_backgroundWebViewInspectionName.isEmpty())
+        return m_backgroundWebViewInspectionName;
+
+    if (protectedExtension()->backgroundContentIsServiceWorker())
+        m_backgroundWebViewInspectionName = WEB_UI_FORMAT_STRING("%s — Extension Service Worker", "Label for an inspectable Web Extension service worker", protectedExtension()->displayShortName().utf8().data());
+    else
+        m_backgroundWebViewInspectionName = WEB_UI_FORMAT_STRING("%s — Extension Background Page", "Label for an inspectable Web Extension background page", protectedExtension()->displayShortName().utf8().data());
+
+    return m_backgroundWebViewInspectionName;
+}
+
+void WebExtensionContext::wakeUpBackgroundContentIfNecessary(Function<void()>&& completionHandler)
+{
+    if (!protectedExtension()->hasBackgroundContent()) {
+        completionHandler();
+        return;
+    }
+
+    scheduleBackgroundContentToUnload();
+
+    if (backgroundContentIsLoaded()) {
+        completionHandler();
+        return;
+    }
+
+    RELEASE_LOG_DEBUG(Extensions, "Scheduled task for after background content loads");
+
+    m_actionsToPerformAfterBackgroundContentLoads.append(WTFMove(completionHandler));
+
+    loadBackgroundWebViewIfNeeded();
+}
+
+void WebExtensionContext::wakeUpBackgroundContentIfNecessaryToFireEvents(EventListenerTypeSet&& types, Function<void()>&& completionHandler)
+{
+    RefPtr extension = m_extension;
+    if (!extension->hasBackgroundContent()) {
+        completionHandler();
+        return;
+    }
+
+    if (!extension->backgroundContentIsPersistent()) {
+        bool backgroundContentListensToAtLeastOneEvent = false;
+        for (auto& type : types) {
+            if (m_backgroundContentEventListeners.contains(type)) {
+                backgroundContentListensToAtLeastOneEvent = true;
+                break;
+            }
+        }
+
+        // Don't load the background page if it isn't expecting these events.
+        if (!backgroundContentListensToAtLeastOneEvent) {
+            completionHandler();
+            return;
+        }
+    }
+
+    wakeUpBackgroundContentIfNecessary(WTFMove(completionHandler));
+}
+
+#if ENABLE(INSPECTOR_EXTENSIONS)
+URL WebExtensionContext::inspectorBackgroundPageURL() const
+{
+    RefPtr extension = m_extension;
+    if (!extension->hasInspectorBackgroundPage())
+        return { };
+    return { m_baseURL, extension->inspectorBackgroundPagePath() };
+}
+
+RefPtr<WebInspectorUIProxy> WebExtensionContext::inspector(const API::InspectorExtension& inspectorExtension) const
+{
+    ASSERT(isLoaded());
+    ASSERT(protectedExtension()->hasInspectorBackgroundPage());
+
+    for (auto entry : m_inspectorContextMap) {
+        if (entry.value.extension == &inspectorExtension)
+            return &entry.key;
+    }
+
+    return nullptr;
+}
+#endif // ENABLE(INSPECTOR_EXTENSIONS)
+
 size_t WebExtensionContext::quotaForStorageType(WebExtensionDataType storageType)
 {
     switch (storageType) {

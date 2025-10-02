@@ -77,13 +77,13 @@
 "%@ in %%@" = "%@ in %%@";
 
 /* Label for an inspectable Web Extension background page */
-"%@ — Extension Background Page" = "%@ — Extension Background Page";
+"%s — Extension Background Page" = "%s— Extension Background Page";
 
 /* Label for an inspectable Web Extension popup page */
 "%@ — Extension Popup Page" = "%@ — Extension Popup Page";
 
 /* Label for an inspectable Web Extension service worker */
-"%@ — Extension Service Worker" = "%@ — Extension Service Worker";
+"%s — Extension Service Worker" = "%s — Extension Service Worker";
 
 /* Label to describe the number of files selected in a file upload control that allows multiple files */
 "%d files" = "%d files";
