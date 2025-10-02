@@ -384,6 +384,7 @@ void RenderTableSection::layout()
     for (size_t rowIndex = 0; rowIndex < m_grid.size(); ++rowIndex) {
         auto& columnList = m_grid[rowIndex].row;
         auto numberOfColumns = columnList.size();
+        CheckedPtr rowRenderer = m_grid[rowIndex].rowRenderer;
         // First, propagate our table layout's information to the cells. This will mark the row as needing layout
         // if there was a column logical width change.
         for (size_t startColumn = 0; startColumn < numberOfColumns; ++startColumn) {
@@ -392,10 +393,13 @@ void RenderTableSection::layout()
             if (!cell || currentColumn.inColSpan)
                 continue;
 
+            auto cellHadSelfNeedsLayout = cell->selfNeedsLayout();
             cell->setCellLogicalWidth(cellLogicalWidthInTableDirectionIncludingColumnSpan(*cell, startColumn, numberOfColumns));
+            if (!cellHadSelfNeedsLayout && cell->selfNeedsLayout() && rowRenderer)
+                rowRenderer->setChildNeedsLayout(MarkOnlyThis);
         }
 
-        if (auto* rowRenderer = m_grid[rowIndex].rowRenderer) {
+        if (rowRenderer) {
             if (!rowRenderer->needsLayout() && paginated && view().frameView().layoutContext().layoutState()->pageLogicalHeightChanged())
                 rowRenderer->setChildNeedsLayout(MarkOnlyThis);
 

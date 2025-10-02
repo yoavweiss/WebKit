@@ -382,7 +382,6 @@ void RenderTableCell::setCellLogicalWidth(LayoutUnit logicalWidthInTableDirectio
         return;
 
     setNeedsLayout(MarkOnlyThis);
-    row()->setChildNeedsLayout(MarkOnlyThis);
     setCellWidthChanged(true);
 
     if (!isOrthogonal()) {
