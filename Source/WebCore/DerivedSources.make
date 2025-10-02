@@ -2167,6 +2167,7 @@ USER_AGENT_STYLE_SHEETS = \
     $(WebCore)/css/html.css \
     $(WebCore)/css/htmlSwitchControl.css \
     $(WebCore)/css/mathml.css \
+    $(WebCore)/css/mathmlCoreExtras.css \
     $(WebCore)/css/popover.css \
     $(WebCore)/css/quirks.css \
     $(WebCore)/css/svg.css \

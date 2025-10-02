@@ -12167,6 +12167,7 @@
         "web-platform-tests/mathml/relations/html5-tree/integration-point-2-ref.html",
         "web-platform-tests/mathml/relations/html5-tree/integration-point-3-ref.html",
         "web-platform-tests/mathml/relations/html5-tree/link-color-001.tentative-ref.html",
+        "web-platform-tests/mathml/relations/html5-tree/maction-click-ref.html",
         "web-platform-tests/mathml/relations/html5-tree/required-extensions-2-ref.html",
         "web-platform-tests/mathml/relations/html5-tree/shadow-dom-mozilla-1066554-ref.html",
         "web-platform-tests/mathml/relations/html5-tree/unique-identifier-1-iframe-1.html",

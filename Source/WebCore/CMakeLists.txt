@@ -2085,6 +2085,7 @@ set(WebCore_USER_AGENT_STYLE_SHEETS
     ${WEBCORE_DIR}/css/html.css
     ${WEBCORE_DIR}/css/htmlSwitchControl.css
     ${WEBCORE_DIR}/css/mathml.css
+    ${WEBCORE_DIR}/css/mathmlCoreExtras.css
     ${WEBCORE_DIR}/css/popover.css
     ${WEBCORE_DIR}/css/quirks.css
     ${WEBCORE_DIR}/css/svg.css
