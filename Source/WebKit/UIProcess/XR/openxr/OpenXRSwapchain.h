@@ -50,7 +50,8 @@ class OpenXRSwapchain {
     WTF_MAKE_TZONE_ALLOCATED(OpenXRSwapchain);
     WTF_MAKE_NONCOPYABLE(OpenXRSwapchain);
 public:
-    static std::unique_ptr<OpenXRSwapchain> create(XrSession, const XrSwapchainCreateInfo&);
+    enum class HasAlpha { No, Yes };
+    static std::unique_ptr<OpenXRSwapchain> create(XrSession, const XrSwapchainCreateInfo&, HasAlpha);
     ~OpenXRSwapchain();
 
     std::optional<PlatformGLObject> acquireImage();
@@ -61,14 +62,16 @@ public:
     WebCore::IntSize size() const { return WebCore::IntSize(width(), height()); }
     int64_t format() const { return m_createInfo.format; }
     PlatformGLObject acquiredTexture() const { return m_acquiredTexture; }
+    HasAlpha hasAlpha() const { return m_hasAlpha; }
 
 private:
-    OpenXRSwapchain(XrSwapchain, const XrSwapchainCreateInfo&, Vector<XrSwapchainImageOpenGLESKHR>&&);
+    OpenXRSwapchain(XrSwapchain, const XrSwapchainCreateInfo&, Vector<XrSwapchainImageOpenGLESKHR>&&, HasAlpha);
 
     XrSwapchain m_swapchain;
     XrSwapchainCreateInfo m_createInfo;
     Vector<XrSwapchainImageOpenGLESKHR> m_imageBuffers;
     PlatformGLObject m_acquiredTexture { 0 };
+    HasAlpha m_hasAlpha;
 };
 
 } // namespace WebKit

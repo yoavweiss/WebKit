@@ -222,7 +222,7 @@ void OpenXRLayer::setGBMDevice(RefPtr<WebCore::GBMDevice> gbmDevice)
 
 std::optional<PlatformXR::FrameData::ExternalTexture> OpenXRLayer::exportOpenXRTextureGBM(WebCore::GLDisplay& display, PlatformGLObject openxrTexture)
 {
-    WebCore::FourCC preferredDMABufFormat = m_swapchain->format() == GL_RGBA8 ? DRM_FORMAT_ARGB8888 : DRM_FORMAT_XRGB8888;
+    WebCore::FourCC preferredDMABufFormat = m_swapchain->hasAlpha() == OpenXRSwapchain::HasAlpha::Yes ? DRM_FORMAT_ARGB8888 : DRM_FORMAT_XRGB8888;
     WebCore::GLDisplay::BufferFormat format;
     const auto& supportedFormats = display.bufferFormats();
     for (const auto& supportedFormat : supportedFormats) {

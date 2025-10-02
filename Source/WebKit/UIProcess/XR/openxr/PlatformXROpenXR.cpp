@@ -166,7 +166,9 @@ bool OpenXRCoordinator::collectSwapchainFormatsIfNeeded()
 
 std::unique_ptr<OpenXRSwapchain> OpenXRCoordinator::createSwapchain(uint32_t width, uint32_t height, bool alpha) const
 {
-    auto preferredFormat = alpha ? GL_RGBA8 : GL_RGB8;
+    // Even if alpha is false we always ask for the RGBA8 format, as the DRM_FORMAT_RGB8 is not supported by ANGLE.
+    // In this case we ignore the alpha channel by using DRM_FORMAT_XRGB8888 when exporting the texture.
+    auto preferredFormat = GL_RGBA8;
     auto format = m_supportedSwapchainFormats.contains(preferredFormat) ? preferredFormat : m_supportedSwapchainFormats.first();
     auto sampleCount = m_viewConfigurationViews.isEmpty() ? 1 : m_viewConfigurationViews.first().recommendedSwapchainSampleCount;
 
@@ -180,7 +182,7 @@ std::unique_ptr<OpenXRSwapchain> OpenXRCoordinator::createSwapchain(uint32_t wid
     info.sampleCount = sampleCount;
     info.usageFlags = XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT;
 
-    return OpenXRSwapchain::create(m_session, info);
+    return OpenXRSwapchain::create(m_session, info, alpha ? OpenXRSwapchain::HasAlpha::Yes : OpenXRSwapchain::HasAlpha::No);
 }
 
 void OpenXRCoordinator::createLayerProjection(uint32_t width, uint32_t height, bool alpha)
