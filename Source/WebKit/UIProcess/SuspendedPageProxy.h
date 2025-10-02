@@ -77,6 +77,8 @@ public:
     WebBackForwardCache& backForwardCache() const;
     Ref<WebBackForwardCache> protectedBackForwardCache() const;
 
+    WebPageProxyMessageReceiverRegistration& messageReceiverRegistration() { return m_messageReceiverRegistration; }
+
     bool pageIsClosedOrClosing() const;
 
     void waitUntilReadyToUnsuspend(CompletionHandler<void(SuspendedPageProxy*)>&&);

@@ -147,6 +147,7 @@
 #include "WebBackForwardListCounts.h"
 #include "WebBackForwardListFrameItem.h"
 #include "WebBackForwardListItem.h"
+#include "WebBackForwardListMessages.h"
 #include "WebContextMenuItem.h"
 #include "WebContextMenuProxy.h"
 #include "WebDateTimePicker.h"
@@ -1027,7 +1028,7 @@ Ref<WebPageProxy> WebPageProxy::Internals::protectedPage() const
 void WebPageProxy::addAllMessageReceivers()
 {
     Ref process = m_legacyMainFrameProcess;
-    internals().messageReceiverRegistration.startReceivingMessages(process, m_webPageID, *this);
+    internals().messageReceiverRegistration.startReceivingMessages(process, m_webPageID, *this, backForwardList());
     process->addMessageReceiver(Messages::NotificationManagerMessageHandler::messageReceiverName(), m_webPageID, internals().protectedNotificationManagerMessageHandler());
 }
 
@@ -10034,153 +10035,14 @@ void WebPageProxy::requestDOMPasteAccess(IPC::Connection& connection, DOMPasteAc
 
 // BackForwardList
 
-void WebPageProxy::backForwardAddItem(IPC::Connection& connection, Ref<FrameState>&& navigatedFrameState)
-{
-    backForwardAddItemShared(connection, WTFMove(navigatedFrameState), didLoadWebArchive() ? LoadedWebArchive::Yes : LoadedWebArchive::No);
-}
-
 void WebPageProxy::backForwardAddItemShared(IPC::Connection& connection, Ref<FrameState>&& navigatedFrameState, LoadedWebArchive loadedWebArchive)
 {
-    Ref process = WebProcessProxy::fromConnection(connection);
-
-    URL itemURL { navigatedFrameState->urlString };
-    URL itemOriginalURL { navigatedFrameState->originalURLString };
-#if PLATFORM(COCOA)
-    if (linkedOnOrAfterSDKWithBehavior(SDKAlignedBehavior::PushStateFilePathRestriction)
-#if PLATFORM(MAC)
-        && !WTF::MacApplication::isMimeoPhotoProject() // rdar://112445672.
-#endif // PLATFORM(MAC)
-    ) {
-#endif // PLATFORM(COCOA)
-        ASSERT(!itemURL.protocolIsFile() || process->wasPreviouslyApprovedFileURL(itemURL));
-        MESSAGE_CHECK(process, !itemURL.protocolIsFile() || process->wasPreviouslyApprovedFileURL(itemURL));
-        MESSAGE_CHECK(process, !itemOriginalURL.protocolIsFile() || process->wasPreviouslyApprovedFileURL(itemOriginalURL));
-#if PLATFORM(COCOA)
-    }
-#endif
-
-    if (RefPtr targetFrame = WebFrameProxy::webFrame(navigatedFrameState->frameID)) {
-        if (targetFrame->isPendingInitialHistoryItem()) {
-            targetFrame->setIsPendingInitialHistoryItem(false);
-            if (RefPtr parent = targetFrame->parentFrame())
-                m_backForwardList->addChildItem(parent->frameID(), WTFMove(navigatedFrameState));
-            return;
-        }
-    } else
-        return;
-
-    RefPtr provisionalPage = m_provisionalPage;
-    const bool isRemoteFrameNavigation = m_legacyMainFrameProcess.ptr() != process.ptr() && (!provisionalPage || &provisionalPage->process() != process.ptr());
-    ASSERT(!isRemoteFrameNavigation || m_preferences->siteIsolationEnabled());
-
-    auto navigatedFrameID = navigatedFrameState->frameID;
-    Ref item = WebBackForwardListItem::create(m_backForwardList->completeFrameStateForNavigation(WTFMove(navigatedFrameState)), identifier(), navigatedFrameID);
-    item->setResourceDirectoryURL(currentResourceDirectoryURL());
-    item->setIsRemoteFrameNavigation(isRemoteFrameNavigation);
-    if (loadedWebArchive == LoadedWebArchive::Yes)
-        item->setDataStoreForWebArchive(process->websiteDataStore());
-    m_backForwardList->addItem(WTFMove(item));
-}
-
-void WebPageProxy::backForwardSetChildItem(BackForwardFrameItemIdentifier frameItemID, Ref<FrameState>&& frameState)
-{
-    RefPtr currentItem = m_backForwardList->currentItem();
-    if (!currentItem)
-        return;
-
-    if (RefPtr frameItem = WebBackForwardListFrameItem::itemForID(currentItem->identifier(), frameItemID))
-        frameItem->setChild(WTFMove(frameState));
-}
-
-void WebPageProxy::backForwardClearChildren(BackForwardItemIdentifier itemID, BackForwardFrameItemIdentifier frameItemID)
-{
-    if (RefPtr frameItem = WebBackForwardListFrameItem::itemForID(itemID, frameItemID))
-        frameItem->clearChildren();
-}
-
-void WebPageProxy::backForwardUpdateItem(IPC::Connection& connection, Ref<FrameState>&& frameState)
-{
-    RefPtr frameItem = frameState->itemID && frameState->frameItemID ? WebBackForwardListFrameItem::itemForID(*frameState->itemID, *frameState->frameItemID) : nullptr;
-    if (!frameItem)
-        return;
-
-    RefPtr item = frameItem->backForwardListItem();
-    if (!item)
-        return;
-
-    ASSERT(identifier() == item->pageID() && frameState->itemID == item->identifier());
-
-    Ref process = *downcast<WebProcessProxy>(AuxiliaryProcessProxy::fromConnection(connection));
-    if (!!item->backForwardCacheEntry() != frameState->hasCachedPage) {
-        if (frameState->hasCachedPage)
-            protectedBackForwardCache()->addEntry(*item, process->coreProcessIdentifier());
-        else if (!item->suspendedPage())
-            protectedBackForwardCache()->removeEntry(*item);
-    }
-
-    frameItem->setFrameState(WTFMove(frameState));
-}
-
-void WebPageProxy::backForwardGoToItem(BackForwardItemIdentifier itemID, CompletionHandler<void(const WebBackForwardListCounts&)>&& completionHandler)
-{
-    // On process swap, we tell the previous process to ignore the load, which causes it so restore its current back forward item to its previous
-    // value. Since the load is really going on in a new provisional process, we want to ignore such requests from the committed process.
-    // Any real new load in the committed process would have cleared m_provisionalPage.
-    if (m_provisionalPage)
-        return completionHandler(m_backForwardList->counts());
-
-    backForwardGoToItemShared(itemID, WTFMove(completionHandler));
-}
-
-void WebPageProxy::backForwardListContainsItem(WebCore::BackForwardItemIdentifier itemID, CompletionHandler<void(bool)>&& completionHandler)
-{
-    completionHandler(m_backForwardList->itemForID(itemID));
+    m_backForwardList->backForwardAddItemShared(connection, WTFMove(navigatedFrameState), loadedWebArchive);
 }
 
 void WebPageProxy::backForwardGoToItemShared(BackForwardItemIdentifier itemID, CompletionHandler<void(const WebBackForwardListCounts&)>&& completionHandler)
 {
-    MESSAGE_CHECK_COMPLETION(protectedLegacyMainFrameProcess(), !WebKit::isInspectorPage(Ref { *this }), completionHandler(m_backForwardList->counts()));
-
-    RefPtr item = m_backForwardList->itemForID(itemID);
-    if (!item)
-        return completionHandler(m_backForwardList->counts());
-
-    m_backForwardList->goToItem(*item);
-    completionHandler(m_backForwardList->counts());
-}
-
-void WebPageProxy::backForwardAllItems(FrameIdentifier frameID, CompletionHandler<void(Vector<Ref<FrameState>>&&)>&& completionHandler)
-{
-    Vector<Ref<FrameState>> allItems;
-
-    for (Ref item : m_backForwardList->allItems()) {
-        RefPtr<FrameState> frameState;
-
-        if (RefPtr frameItem = item->protectedMainFrameItem()->childItemForFrameID(frameID))
-            frameState = frameItem->copyFrameStateWithChildren();
-        else
-            frameState = item->mainFrameState();
-
-        allItems.append(frameState.releaseNonNull());
-    }
-
-    completionHandler(WTFMove(allItems));
-}
-
-void WebPageProxy::backForwardItemAtIndex(int32_t index, FrameIdentifier frameID, CompletionHandler<void(RefPtr<FrameState>&&)>&& completionHandler)
-{
-    // FIXME: This should verify that the web process requesting the item hosts the specified frame.
-    if (RefPtr item = m_backForwardList->itemAtIndex(index)) {
-        if (RefPtr frameItem = item->protectedMainFrameItem()->childItemForFrameID(frameID))
-            return completionHandler(frameItem->copyFrameStateWithChildren());
-        completionHandler(item->mainFrameState());
-    } else
-        completionHandler(nullptr);
-}
-
-void WebPageProxy::backForwardListCounts(CompletionHandler<void(WebBackForwardListCounts&&)>&& completionHandler)
-{
-    completionHandler(m_backForwardList->counts());
+    m_backForwardList->backForwardGoToItemShared(itemID, WTFMove(completionHandler));
 }
 
 void WebPageProxy::compositionWasCanceled()
@@ -17017,6 +16879,12 @@ bool WebPageProxy::canStartNavigationSwipeAtLastInteractionLocation() const
 Ref<AboutSchemeHandler> WebPageProxy::protectedAboutSchemeHandler()
 {
     return m_aboutSchemeHandler;
+}
+
+bool WebPageProxy::isRemoteFrameNavigation(Ref<WebProcessProxy> process)
+{
+    RefPtr provisionalPage = m_provisionalPage;
+    return m_legacyMainFrameProcess != process && (!provisionalPage || provisionalPage->process() != process);
 }
 
 // See SwiftDemoLogo.swift for the rationale here

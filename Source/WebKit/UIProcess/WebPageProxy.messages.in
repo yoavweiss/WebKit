@@ -206,15 +206,6 @@ messages -> WebPageProxy {
 #endif
 
     # BackForward messages
-    BackForwardAddItem(Ref<WebKit::FrameState> navigatedFrameState)
-    BackForwardSetChildItem(WebCore::BackForwardFrameItemIdentifier frameItemID, Ref<WebKit::FrameState> frameState)
-    BackForwardClearChildren(WebCore::BackForwardItemIdentifier itemID, WebCore::BackForwardFrameItemIdentifier frameItemID)
-    BackForwardUpdateItem(Ref<WebKit::FrameState> frameState)
-    BackForwardGoToItem(WebCore::BackForwardItemIdentifier itemID) -> (struct WebKit::WebBackForwardListCounts counts) Synchronous
-    BackForwardAllItems(WebCore::FrameIdentifier frameID) -> (Vector<Ref<WebKit::FrameState>> frameStates) Synchronous
-    BackForwardItemAtIndex(int32_t itemIndex, WebCore::FrameIdentifier frameID) -> (RefPtr<WebKit::FrameState> frameState) Synchronous
-    BackForwardListContainsItem(WebCore::BackForwardItemIdentifier itemID) -> (bool contains) Synchronous
-    BackForwardListCounts() -> (struct WebKit::WebBackForwardListCounts counts) Synchronous
     ShouldGoToBackForwardListItem(WebCore::BackForwardItemIdentifier itemID, bool inBackForwardCache) -> (enum:uint8_t WebCore::ShouldGoToHistoryItem shouldGoToHistoryItem)
     ShouldGoToBackForwardListItemSync(WebCore::BackForwardItemIdentifier itemID) -> (enum:uint8_t WebCore::ShouldGoToHistoryItem shouldGoToHistoryItem) Synchronous
 
