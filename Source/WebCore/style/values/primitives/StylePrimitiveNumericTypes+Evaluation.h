@@ -47,7 +47,7 @@ template<auto R, typename V, typename Result> struct Evaluation<Length<R, V>, Re
     {
         return Result(value.resolveZoom(token));
     }
-    constexpr auto operator()(const Length<R, V>& value, float zoom) -> Result
+    constexpr auto operator()(const Length<R, V>& value, ZoomFactor zoom) -> Result
         requires (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
         return Result(value.resolveZoom(zoom));
@@ -58,7 +58,7 @@ template<auto R, typename V, typename Result> struct Evaluation<Length<R, V>, Re
     {
         return Result(value.resolveZoom(token));
     }
-    constexpr auto operator()(const Length<R, V>& value, Result, float zoom) -> Result
+    constexpr auto operator()(const Length<R, V>& value, Result, ZoomFactor zoom) -> Result
         requires (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
         return Result(value.resolveZoom(zoom));
@@ -125,7 +125,7 @@ template<auto R, typename V, typename Result> struct Evaluation<LengthPercentage
             }
         );
     }
-    constexpr auto operator()(const LengthPercentage<R, V>& lengthPercentage, Result referenceLength, float zoom) -> Result
+    constexpr auto operator()(const LengthPercentage<R, V>& lengthPercentage, Result referenceLength, ZoomFactor zoom) -> Result
         requires (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
         return WTF::switchOn(lengthPercentage,
@@ -161,8 +161,8 @@ template<typename T> struct Evaluation<SpaceSeparatedPoint<T>, FloatPoint> {
             evaluate<float>(value.y(), referenceBox.height(), token)
         };
     }
-    auto operator()(const SpaceSeparatedPoint<T>& value, FloatSize referenceBox, float zoom) -> FloatPoint
-        requires HasThreeParameterEvaluate<T, float, float, float>
+    auto operator()(const SpaceSeparatedPoint<T>& value, FloatSize referenceBox, ZoomFactor zoom) -> FloatPoint
+        requires HasThreeParameterEvaluate<T, float, float, ZoomFactor>
     {
         return {
             evaluate<float>(value.x(), referenceBox.width(), zoom),
@@ -187,8 +187,8 @@ template<typename T> struct Evaluation<SpaceSeparatedPoint<T>, LayoutPoint> {
             evaluate<LayoutUnit>(value.y(), referenceBox.height(), token)
         };
     }
-    auto operator()(const SpaceSeparatedPoint<T>& value, LayoutSize referenceBox, float zoom) -> LayoutPoint
-        requires HasThreeParameterEvaluate<T, LayoutUnit, LayoutUnit, float>
+    auto operator()(const SpaceSeparatedPoint<T>& value, LayoutSize referenceBox, ZoomFactor zoom) -> LayoutPoint
+        requires HasThreeParameterEvaluate<T, LayoutUnit, LayoutUnit, ZoomFactor>
     {
         return {
             evaluate<LayoutUnit>(value.x(), referenceBox.width(), zoom),
@@ -216,7 +216,7 @@ template<typename T> struct Evaluation<SpaceSeparatedSize<T>, FloatSize> {
             evaluate<float>(value.height(), referenceBox.height(), token)
         };
     }
-    auto operator()(const SpaceSeparatedSize<T>& value, FloatSize referenceBox, float zoom) -> FloatSize
+    auto operator()(const SpaceSeparatedSize<T>& value, FloatSize referenceBox, ZoomFactor zoom) -> FloatSize
         requires HasThreeParameterEvaluate<T, float, float, float>
     {
         return {
@@ -242,7 +242,7 @@ template<typename T> struct Evaluation<SpaceSeparatedSize<T>, LayoutSize> {
             evaluate<LayoutUnit>(value.height(), referenceBox.height(), token)
         };
     }
-    auto operator()(const SpaceSeparatedSize<T>& value, LayoutSize referenceBox, float zoom) -> LayoutSize
+    auto operator()(const SpaceSeparatedSize<T>& value, LayoutSize referenceBox, ZoomFactor zoom) -> LayoutSize
         requires HasThreeParameterEvaluate<T, LayoutUnit, LayoutUnit, float>
     {
         return {
@@ -271,8 +271,8 @@ template<typename T> struct Evaluation<MinimallySerializingSpaceSeparatedSize<T>
             evaluate<float>(value.height(), referenceBox.height(), token)
         };
     }
-    auto operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, FloatSize referenceBox, float zoom) -> FloatSize
-        requires HasThreeParameterEvaluate<T, float, float, float>
+    auto operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, FloatSize referenceBox, ZoomFactor zoom) -> FloatSize
+        requires HasThreeParameterEvaluate<T, float, float, ZoomFactor>
     {
         return {
             evaluate<float>(value.width(), referenceBox.width(), zoom),
@@ -297,8 +297,8 @@ template<typename T> struct Evaluation<MinimallySerializingSpaceSeparatedSize<T>
             evaluate<LayoutUnit>(value.height(), referenceBox.height(), token)
         };
     }
-    auto operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, LayoutSize referenceBox, float zoom) -> LayoutSize
-        requires HasThreeParameterEvaluate<T, LayoutUnit, LayoutUnit, float>
+    auto operator()(const MinimallySerializingSpaceSeparatedSize<T>& value, LayoutSize referenceBox, ZoomFactor zoom) -> LayoutSize
+        requires HasThreeParameterEvaluate<T, LayoutUnit, LayoutUnit, ZoomFactor>
     {
         return {
             evaluate<LayoutUnit>(value.width(), referenceBox.width(), zoom),

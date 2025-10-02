@@ -370,6 +370,7 @@ struct WebkitTextStrokeWidth;
 struct Widows;
 struct WordSpacing;
 struct ZIndex;
+struct ZoomFactor;
 
 enum class Change : uint8_t;
 enum class GridTrackSizingDirection : bool;
@@ -766,7 +767,8 @@ public:
 
     inline float zoom() const;
     inline float usedZoom() const;
-    
+    inline Style::ZoomFactor usedZoomForLength() const;
+
     inline TextZoom textZoom() const;
 
     const Length& specifiedLineHeight() const;
@@ -1766,6 +1768,12 @@ public:
     inline void setFill(Style::SVGPaint&&);
     inline void setVisitedLinkFill(Style::SVGPaint&&);
     static inline Style::SVGPaint initialFill();
+
+    inline bool enableEvaluationTimeZoom() const;
+    void setEnableEvaluationTimeZoom(bool);
+
+    inline bool useSVGZoomRulesForLength() const;
+    void setUseSVGZoomRulesForLength(bool);
 
     inline Style::Opacity fillOpacity() const;
     inline void setFillOpacity(Style::Opacity);

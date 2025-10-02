@@ -27,7 +27,7 @@
 
 #include "FormattingContext.h"
 #include <WebCore/LayoutBoxGeometry.h>
-#include <WebCore/StyleZoomNeededToken.h>
+#include <WebCore/StyleZoomPrimitives.h>
 
 namespace WebCore {
 

@@ -30,5 +30,11 @@ namespace Style {
 // Token passed around to indicate that the evaluation will need zoom passed in the future.
 struct ZoomNeeded { };
 
+struct ZoomFactor {
+    float value;
+
+    constexpr explicit ZoomFactor(float v) : value(v) { }
+};
+
 } // namespace Style
 } // namespace WebCore

@@ -67,6 +67,7 @@
 #include "SVGDocumentExtensions.h"
 #include "SVGElement.h"
 #include "SVGFontFaceElement.h"
+#include "SVGSVGElement.h"
 #include "Settings.h"
 #include "ShadowRoot.h"
 #include "SharedStringHash.h"
@@ -286,6 +287,10 @@ auto Resolver::initializeStateAndStyle(const Element& element, const ResolutionC
         state.setStyle(defaultStyleForElement(&element));
         state.setParentStyle(RenderStyle::clonePtr(*state.style()));
     }
+
+    // BuilderState::useSVGZoomRulesForLength equivalent
+    if (is<SVGElement>(element) && !(is<SVGSVGElement>(element) && element.parentNode()))
+        state.style()->setUseSVGZoomRulesForLength(true);
 
     if (element.isLink()) {
         auto& style = *state.style();

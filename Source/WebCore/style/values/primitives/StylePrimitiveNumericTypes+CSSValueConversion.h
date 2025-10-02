@@ -27,6 +27,7 @@
 #include "CSSPrimitiveNumericUnits.h"
 #include "CSSPrimitiveValue.h"
 #include "StyleBuilderChecking.h"
+#include "StylePrimitiveNumericTypes+Conversions.h"
 #include "StylePrimitiveNumericTypes.h"
 #include "StyleValueTypes.h"
 
@@ -103,7 +104,12 @@ template<auto R, typename V> struct CSSValueConversion<Length<R, V>> {
                 ? builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f)
                 : builderState.cssToLengthConversionData();
         } else if constexpr (R.zoomOptions == CSS::RangeZoomOptions::Unzoomed) {
-            return builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f);
+            if (shouldUseEvaluationTimeZoom(builderState))
+                return builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f);
+
+            return builderState.useSVGZoomRulesForLength()
+                ? builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f)
+                : builderState.cssToLengthConversionData();
         }
     }
     auto operator()(BuilderState& builderState, const CSSPrimitiveValue& value) -> Length<R, V>
@@ -183,7 +189,12 @@ template<auto R, typename V> struct CSSValueConversion<LengthPercentage<R, V>> {
                 ? builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f)
                 : builderState.cssToLengthConversionData();
         } else if constexpr (LengthPercentage<R, V>::Dimension::range.zoomOptions == CSS::RangeZoomOptions::Unzoomed) {
-            return builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f);
+            if (shouldUseEvaluationTimeZoom(builderState))
+                return builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f);
+
+            return builderState.useSVGZoomRulesForLength()
+                ? builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f)
+                : builderState.cssToLengthConversionData();
         }
     }
     auto operator()(BuilderState& builderState, const CSSPrimitiveValue& value) -> StyleType

@@ -1364,4 +1364,25 @@ inline bool RenderStyle::fontCascadeEqual(const RenderStyle& other) const
         || m_inheritedData->fontData->fontCascade == other.m_inheritedData->fontData->fontCascade;
 }
 
+inline bool RenderStyle::enableEvaluationTimeZoom() const
+{
+    return m_rareInheritedData->enableEvaluationTimeZoom;
+}
+
+inline bool RenderStyle::useSVGZoomRulesForLength() const
+{
+    return m_nonInheritedData->rareData->useSVGZoomRulesForLength;
+}
+
+inline Style::ZoomFactor RenderStyle::usedZoomForLength() const
+{
+    if (useSVGZoomRulesForLength())
+        return Style::ZoomFactor(1.0f);
+
+    if (enableEvaluationTimeZoom())
+        return Style::ZoomFactor(usedZoom());
+
+    return Style::ZoomFactor(1.0f);
+}
+
 } // namespace WebCore

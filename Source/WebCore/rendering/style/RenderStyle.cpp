@@ -420,6 +420,16 @@ void RenderStyle::copyContentFrom(const RenderStyle& other)
     m_nonInheritedData.access().miscData.access().content = other.m_nonInheritedData->miscData->content;
 }
 
+void RenderStyle::setEnableEvaluationTimeZoom(bool value)
+{
+    SET_VAR(m_rareInheritedData, enableEvaluationTimeZoom, value);
+}
+
+void RenderStyle::setUseSVGZoomRulesForLength(bool value)
+{
+    SET_NESTED_VAR(m_nonInheritedData, rareData, useSVGZoomRulesForLength, value);
+}
+
 void RenderStyle::copyPseudoElementsFrom(const RenderStyle& other)
 {
     if (!other.m_cachedPseudoStyles)
