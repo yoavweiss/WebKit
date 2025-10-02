@@ -700,6 +700,12 @@ void BoxGeometryUpdater::setFormattingContextContentGeometry(std::optional<Layou
         return;
     }
 
+    if (rootLayoutBox().establishesGridFormattingContext()) {
+        for (auto* gridItemOrOutOfFlowPositionedChild = rootLayoutBox().firstChild(); gridItemOrOutOfFlowPositionedChild; gridItemOrOutOfFlowPositionedChild = gridItemOrOutOfFlowPositionedChild->nextSibling())
+            updateBoxGeometry(downcast<RenderElement>(*gridItemOrOutOfFlowPositionedChild->rendererForIntegration()), availableLogicalWidth, intrinsicWidthMode);
+        return;
+    }
+
     ASSERT_NOT_IMPLEMENTED_YET();
 }
 

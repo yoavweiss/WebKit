@@ -46,6 +46,8 @@ class GridLayout {
 public:
     GridLayout(RenderGrid&);
 
+    void updateFormattingContextGeometries();
+
     void layout();
 
     friend WTF::TextStream& operator<<(WTF::TextStream&, const GridLayout&);

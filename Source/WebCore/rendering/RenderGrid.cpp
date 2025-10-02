@@ -551,6 +551,8 @@ bool RenderGrid::layoutUsingGridFormattingContext()
         return false;
 
     auto gridLayout = LayoutIntegration::GridLayout { *this };
+    gridLayout.updateFormattingContextGeometries();
+
     gridLayout.layout();
     return true;
 }
