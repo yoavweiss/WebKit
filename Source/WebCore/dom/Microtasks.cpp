@@ -126,7 +126,7 @@ void MicrotaskQueue::performMicrotaskCheckpoint()
     {
         SUPPRESS_UNCOUNTED_ARG auto& data = threadGlobalDataSingleton();
         auto* previousState = data.currentState();
-        JSC::VMEntryScope entryScope(vm, nullptr);
+        std::optional<JSC::VMEntryScope> entryScope;
         m_microtaskQueue.performMicrotaskCheckpoint(vm,
             [&](JSC::QueuedTask& task) ALWAYS_INLINE_LAMBDA {
                 RefPtr dispatcher = downcast<WebCoreMicrotaskDispatcher>(task.dispatcher());
@@ -135,17 +135,22 @@ void MicrotaskQueue::performMicrotaskCheckpoint()
 
                 auto result = dispatcher->currentRunnability();
                 if (result == JSC::QueuedTask::Result::Executed) {
-                    auto* globalObject = task.globalObject();
-                    data.setCurrentState(globalObject);
-                    entryScope.setGlobalObject(globalObject);
                     switch (dispatcher->type()) {
                     case WebCoreMicrotaskDispatcher::Type::JavaScript: {
+                        auto* globalObject = task.globalObject();
+                        data.setCurrentState(globalObject);
+                        if (!entryScope)
+                            entryScope.emplace(vm, globalObject);
+                        else
+                            entryScope->setGlobalObject(globalObject);
                         runJSMicrotask(globalObject, vm, task);
                         break;
                     }
                     case WebCoreMicrotaskDispatcher::Type::None:
                     case WebCoreMicrotaskDispatcher::Type::UserGestureIndicator:
                     case WebCoreMicrotaskDispatcher::Type::Function:
+                        entryScope = std::nullopt;
+                        data.setCurrentState(previousState);
                         dispatcher->run(task);
                         break;
                     }

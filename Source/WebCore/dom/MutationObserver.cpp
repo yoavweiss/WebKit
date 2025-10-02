@@ -153,26 +153,25 @@ void MutationObserver::enqueueMutationRecord(Ref<MutationRecord>&& mutation)
 
     Ref eventLoop = document->windowEventLoop();
     eventLoop->activeMutationObservers().add(this);
-    eventLoop->queueMutationObserverCompoundMicrotask(document);
+    eventLoop->queueMutationObserverCompoundMicrotask();
 }
 
 void MutationObserver::enqueueSlotChangeEvent(HTMLSlotElement& slot)
 {
     ASSERT(isMainThread());
-    Ref document = slot.document();
-    Ref eventLoop = document->windowEventLoop();
+    Ref eventLoop = slot.document().windowEventLoop();
     auto& list = eventLoop->signalSlotList();
     ASSERT(list.findIf([&slot](auto& entry) { return entry.ptr() == &slot; }) == notFound);
     list.append(slot);
 
-    eventLoop->queueMutationObserverCompoundMicrotask(document);
+    eventLoop->queueMutationObserverCompoundMicrotask();
 }
 
 void MutationObserver::setHasTransientRegistration(Document& document)
 {
     Ref eventLoop = document.windowEventLoop();
     eventLoop->activeMutationObservers().add(this);
-    eventLoop->queueMutationObserverCompoundMicrotask(document);
+    eventLoop->queueMutationObserverCompoundMicrotask();
 }
 
 bool MutationObserver::isReachableFromOpaqueRoots(JSC::AbstractSlotVisitor& visitor) const

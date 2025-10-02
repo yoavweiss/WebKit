@@ -258,7 +258,7 @@ void DocumentStorageAccess::requestStorageAccess(Ref<DeferredPromise>&& promise)
 
         Ref document = m_document.get();
         if (shouldPreserveUserGesture) {
-            document->checkedEventLoop()->queueMicrotask(document, [this, weakThis] {
+            document->checkedEventLoop()->queueMicrotask([this, weakThis] {
                 if (weakThis)
                     enableTemporaryTimeUserGesture();
             });
@@ -283,7 +283,7 @@ void DocumentStorageAccess::requestStorageAccess(Ref<DeferredPromise>&& promise)
         }
 
         if (shouldPreserveUserGesture) {
-            document->checkedEventLoop()->queueMicrotask(document, [this, weakThis] {
+            document->checkedEventLoop()->queueMicrotask([this, weakThis] {
                 if (weakThis)
                     consumeTemporaryTimeUserGesture();
             });
@@ -352,8 +352,7 @@ void DocumentStorageAccess::requestStorageAccessQuirk(RegistrableDomain&& reques
         bool shouldPreserveUserGesture = result.wasGranted == StorageAccessWasGranted::Yes || result.promptWasShown == StorageAccessPromptWasShown::No;
 
         if (shouldPreserveUserGesture) {
-            Ref protectedDocument { this->protectedDocument() };
-            protectedDocument->checkedEventLoop()->queueMicrotask(protectedDocument, [this, weakThis] {
+            protectedDocument()->checkedEventLoop()->queueMicrotask([this, weakThis] {
                 if (weakThis)
                     enableTemporaryTimeUserGesture();
             });
@@ -371,8 +370,7 @@ void DocumentStorageAccess::requestStorageAccessQuirk(RegistrableDomain&& reques
         }
 
         if (shouldPreserveUserGesture) {
-            Ref protectedDocument { this->protectedDocument() };
-            protectedDocument->checkedEventLoop()->queueMicrotask(protectedDocument, [this, weakThis] {
+            protectedDocument()->checkedEventLoop()->queueMicrotask([this, weakThis] {
                 if (weakThis)
                     consumeTemporaryTimeUserGesture();
             });
