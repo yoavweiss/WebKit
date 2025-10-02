@@ -601,7 +601,7 @@ void AXIsolatedTree::updatePropertiesForSelfAndDescendants(AccessibilityObject& 
     if (isUpdatingSubtree())
         return;
 
-    Accessibility::enumerateDescendantsIncludingIgnored<AXCoreObject>(axObject, true, [&propertySet, this] (auto& descendant) {
+    Accessibility::enumerateDescendantsIncludingIgnored<AXCoreObject>(axObject, true, [&propertySet, this, protectedThis = Ref { *this }] (auto& descendant) {
         queueNodeUpdate(descendant.objectID(), { propertySet });
     });
 }
@@ -1395,7 +1395,7 @@ void AXIsolatedTree::applyPendingChangesLocked()
         // WTF_IGNORES_THREAD_SAFETY_ANALYSIS because we _do_ hold the m_changeLogLock, but the thread-safety
         // analysis throws a false-positive compile error when we access m_pendingProtectedFromDeletionIDs in
         // this lambda.
-        std::function<void(Ref<AXCoreObject>&&)> deleteSubtree = [&] (Ref<AXCoreObject>&& coreObjectToDelete) WTF_IGNORES_THREAD_SAFETY_ANALYSIS {
+        std::function<void(Ref<AXCoreObject>&&)> deleteSubtree = [this, protectedThis = Ref { *this }, &deleteSubtree] (Ref<AXCoreObject>&& coreObjectToDelete) WTF_IGNORES_THREAD_SAFETY_ANALYSIS {
             auto& objectToDelete = downcast<AXIsolatedObject>(coreObjectToDelete.get());
             while (objectToDelete.m_children.size()) {
                 Ref child = objectToDelete.m_children.takeLast();
