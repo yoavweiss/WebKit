@@ -27,9 +27,11 @@
 #include "WebTransport.h"
 
 #include "ContextDestructionObserverInlines.h"
+#include "ContentSecurityPolicy.h"
 #include "DatagramSink.h"
 #include "DatagramSource.h"
 #include "ExceptionOr.h"
+#include "JSDOMException.h"
 #include "JSDOMPromise.h"
 #include "JSDOMPromiseDeferred.h"
 #include "JSWebTransportBidirectionalStream.h"
@@ -112,7 +114,8 @@ ExceptionOr<Ref<WebTransport>> WebTransport::create(ScriptExecutionContext& cont
 
 void WebTransport::initializeOverHTTP(SocketProvider& provider, ScriptExecutionContext& context, URL&& url, bool, bool, WebTransportCongestionControl, Vector<WebTransportHash>&&)
 {
-    // FIXME: Do origin checks as outlined in https://www.w3.org/TR/webtransport/#initialize-webtransport-over-http
+    if (CheckedPtr csp = context.contentSecurityPolicy(); !csp || !csp->allowConnectToSource(url))
+        return cleanupWithSessionError();
 
     // FIXME: Rename SocketProvider to NetworkProvider or something to reflect that it provides a little more than just simple sockets. SocketAndTransportProvider?
     auto [session, promise] = provider.initializeWebTransportSession(context, *this, url);
@@ -303,24 +306,27 @@ static CString trimToValidUTF8Length1024(CString&& string)
     }
 }
 
+void WebTransport::cleanupWithSessionError()
+{
+    cleanup(WebTransportError::create(String(emptyString()), WebTransportErrorOptions {
+        WebTransportErrorSource::Session,
+        std::nullopt
+    }), std::nullopt);
+}
+
 void WebTransport::close(WebTransportCloseInfo&& closeInfo)
 {
     // https://www.w3.org/TR/webtransport/#dom-webtransport-close
     if (m_state == State::Closed || m_state == State::Failed)
         return;
-    if (m_state == State::Connecting) {
-        auto error = WebTransportError::create(String(emptyString()), WebTransportErrorOptions {
-            WebTransportErrorSource::Session,
-            std::nullopt
-        });
-        return cleanup(WTFMove(error), std::nullopt);
-    }
+    if (m_state == State::Connecting)
+        return cleanupWithSessionError();
     if (auto session = std::exchange(m_session, nullptr))
         session->terminate(closeInfo.closeCode, trimToValidUTF8Length1024(closeInfo.reason.utf8()));
     cleanup(DOMException::create(ExceptionCode::AbortError), WTFMove(closeInfo));
 }
 
-void WebTransport::cleanup(Ref<DOMException>&&, std::optional<WebTransportCloseInfo>&& closeInfo)
+void WebTransport::cleanup(Ref<DOMException>&& exception, std::optional<WebTransportCloseInfo>&& closeInfo)
 {
     // https://www.w3.org/TR/webtransport/#webtransport-cleanup
     for (auto& stream : std::exchange(m_sendStreams, { }))
@@ -338,8 +344,8 @@ void WebTransport::cleanup(Ref<DOMException>&&, std::optional<WebTransportCloseI
         m_closed.second->resolve<IDLDictionary<WebTransportCloseInfo>>(*closeInfo);
     } else {
         m_state = State::Failed;
-        m_closed.second->reject(Exception { ExceptionCode::NetworkError });
-        m_ready.second->reject(Exception { ExceptionCode::NetworkError });
+        m_closed.second->reject<IDLInterface<DOMException>>(exception);
+        m_ready.second->reject<IDLInterface<DOMException>>(exception);
     }
 
     m_session = nullptr;

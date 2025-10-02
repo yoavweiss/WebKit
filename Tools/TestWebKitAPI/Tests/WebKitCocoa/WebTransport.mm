@@ -604,6 +604,43 @@ TEST(WebTransport, CreateStreamsBeforeReady)
     EXPECT_WK_STREQ([webView _test_waitForAlert], "successfully read abc");
 }
 
+TEST(WebTransport, CSP)
+{
+    WebTransportServer server([](ConnectionGroup group) -> ConnectionTask {
+        co_return;
+    });
+
+    RetainPtr configuration = adoptNS([WKWebViewConfiguration new]);
+    enableWebTransport(configuration.get());
+    RetainPtr webView = adoptNS([[WKWebView alloc] initWithFrame:CGRectZero configuration:configuration.get()]);
+    auto delegate = adoptNS([TestNavigationDelegate new]);
+    [delegate allowAnyTLSCertificate];
+    [webView setNavigationDelegate:delegate.get()];
+
+    auto runTest = [&] (const char* allowedDestination) {
+        NSString *html = [NSString stringWithFormat:@"<script>"
+            "function setCSP(destination) {"
+            "  let meta = document.createElement('meta');"
+            "  meta.httpEquiv = 'Content-Security-Policy';"
+            "  meta.content = 'connect-src ' + destination;"
+            "  document.head.appendChild(meta);"
+            "};"
+            "async function test() {"
+            "  try {"
+            "    setCSP('%s');"
+            "    const w = new WebTransport('https://localhost:%d/');"
+            "    await w.ready;"
+            "    alert('ready');"
+            "  } catch (e) { alert('caught ' + e.name + ' ' + e.source + ' ' + e.streamErrorCode + ' ' + (e instanceof WebTransportError)); }"
+            "}; test()"
+            "</script>", allowedDestination, server.port()];
+        [webView loadHTMLString:html baseURL:[NSURL URLWithString:@"https://webkit.org/"]];
+        return [webView _test_waitForAlert];
+    };
+    EXPECT_WK_STREQ(runTest("none"), "caught WebTransportError session null true");
+    EXPECT_WK_STREQ(runTest([NSString stringWithFormat:@"https://localhost:%d", server.port()].UTF8String), "ready");
+}
+
 } // namespace TestWebKitAPI
 
 #endif // HAVE(WEB_TRANSPORT)

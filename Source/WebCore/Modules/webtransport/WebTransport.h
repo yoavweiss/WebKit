@@ -94,6 +94,7 @@ private:
 
     void initializeOverHTTP(SocketProvider&, ScriptExecutionContext&, URL&&, bool dedicated, bool http3Only, WebTransportCongestionControl, Vector<WebTransportHash>&&);
     void cleanup(Ref<DOMException>&&, std::optional<WebTransportCloseInfo>&&);
+    void cleanupWithSessionError();
 
     // ActiveDOMObject.
     bool virtualHasPendingActivity() const final;
