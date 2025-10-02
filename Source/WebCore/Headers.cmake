@@ -837,8 +837,11 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     Modules/websockets/WebSocketIdentifier.h
     Modules/websockets/WorkerThreadableWebSocketChannel.h
 
+    Modules/webtransport/WebTransportCongestionControl.h
     Modules/webtransport/WebTransportConnectionStats.h
     Modules/webtransport/WebTransportDatagramStats.h
+    Modules/webtransport/WebTransportHash.h
+    Modules/webtransport/WebTransportOptions.h
     Modules/webtransport/WebTransportReceiveStreamStats.h
     Modules/webtransport/WebTransportSendStreamSink.h
     Modules/webtransport/WebTransportSendStreamStats.h

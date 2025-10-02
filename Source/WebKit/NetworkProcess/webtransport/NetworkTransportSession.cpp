@@ -124,7 +124,7 @@ void NetworkTransportSession::getReceiveStreamStats(WebCore::WebTransportStreamI
 }
 
 #if !PLATFORM(COCOA)
-RefPtr<NetworkTransportSession> NetworkTransportSession::create(NetworkConnectionToWebProcess&, WebTransportSessionIdentifier, URL&&, WebKit::WebPageProxyIdentifier&&, WebCore::ClientOrigin&&)
+RefPtr<NetworkTransportSession> NetworkTransportSession::create(NetworkConnectionToWebProcess&, WebTransportSessionIdentifier, URL&&, WebCore::WebTransportOptions&&, WebKit::WebPageProxyIdentifier&&, WebCore::ClientOrigin&&)
 {
     return nullptr;
 }

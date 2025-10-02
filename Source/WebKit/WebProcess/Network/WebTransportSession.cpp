@@ -33,6 +33,7 @@
 #include "WebProcess.h"
 #include <WebCore/Exception.h>
 #include <WebCore/WebTransportConnectionStats.h>
+#include <WebCore/WebTransportOptions.h>
 #include <WebCore/WebTransportReceiveStreamStats.h>
 #include <WebCore/WebTransportSendStreamSink.h>
 #include <WebCore/WebTransportSendStreamStats.h>
@@ -42,12 +43,12 @@
 
 namespace WebKit {
 
-std::pair<Ref<WebTransportSession>, Ref<WebCore::WebTransportSessionPromise>> WebTransportSession::initialize(Ref<IPC::Connection>&& connection, ThreadSafeWeakPtr<WebCore::WebTransportSessionClient>&& client, const URL& url, const WebPageProxyIdentifier& pageID, const WebCore::ClientOrigin& clientOrigin)
+std::pair<Ref<WebTransportSession>, Ref<WebCore::WebTransportSessionPromise>> WebTransportSession::initialize(Ref<IPC::Connection>&& connection, ThreadSafeWeakPtr<WebCore::WebTransportSessionClient>&& client, const URL& url, const WebCore::WebTransportOptions& options, const WebPageProxyIdentifier& pageID, const WebCore::ClientOrigin& clientOrigin)
 {
     auto identifier = WebTransportSessionIdentifier::generate();
     return {
         adoptRef(*new WebTransportSession(connection.copyRef(), WTFMove(client), identifier)),
-        connection->sendWithPromisedReply(Messages::NetworkConnectionToWebProcess::InitializeWebTransportSession(identifier, url, pageID, clientOrigin))->whenSettled(RunLoop::mainSingleton(), [] (auto&& result) {
+        connection->sendWithPromisedReply(Messages::NetworkConnectionToWebProcess::InitializeWebTransportSession(identifier, url, options, pageID, clientOrigin))->whenSettled(RunLoop::mainSingleton(), [] (auto&& result) {
             if (result && *result)
                 return WebCore::WebTransportSessionPromise::createAndResolve();
             return WebCore::WebTransportSessionPromise::createAndReject();

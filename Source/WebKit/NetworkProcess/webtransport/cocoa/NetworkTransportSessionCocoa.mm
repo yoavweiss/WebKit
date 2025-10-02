@@ -52,14 +52,15 @@
 
 namespace WebKit {
 
-Ref<NetworkTransportSession> NetworkTransportSession::create(NetworkConnectionToWebProcess& connection, WebTransportSessionIdentifier identifier, nw_connection_group_t group, nw_endpoint_t endpoint)
+Ref<NetworkTransportSession> NetworkTransportSession::create(NetworkConnectionToWebProcess& connection, WebTransportSessionIdentifier identifier, WebCore::WebTransportOptions&& options, nw_connection_group_t group, nw_endpoint_t endpoint)
 {
-    return adoptRef(*new NetworkTransportSession(connection, identifier, group, endpoint));
+    return adoptRef(*new NetworkTransportSession(connection, identifier, WTFMove(options), group, endpoint));
 }
 
-NetworkTransportSession::NetworkTransportSession(NetworkConnectionToWebProcess& connection, WebTransportSessionIdentifier identifier, nw_connection_group_t connectionGroup, nw_endpoint_t endpoint)
+NetworkTransportSession::NetworkTransportSession(NetworkConnectionToWebProcess& connection, WebTransportSessionIdentifier identifier, WebCore::WebTransportOptions&& options, nw_connection_group_t connectionGroup, nw_endpoint_t endpoint)
     : m_connectionToWebProcess(connection)
     , m_identifier(identifier)
+    , m_options(WTFMove(options))
     , m_connectionGroup(connectionGroup)
     , m_endpoint(endpoint)
 {
@@ -152,7 +153,7 @@ static RetainPtr<nw_parameters_t> createParameters(NetworkConnectionToWebProcess
 }
 #endif // HAVE(WEB_TRANSPORT)
 
-RefPtr<NetworkTransportSession> NetworkTransportSession::create(NetworkConnectionToWebProcess& connectionToWebProcess, WebTransportSessionIdentifier identifier, URL&& url, WebKit::WebPageProxyIdentifier&& pageID, WebCore::ClientOrigin&& clientOrigin)
+RefPtr<NetworkTransportSession> NetworkTransportSession::create(NetworkConnectionToWebProcess& connectionToWebProcess, WebTransportSessionIdentifier identifier, URL&& url, WebCore::WebTransportOptions&& options, WebKit::WebPageProxyIdentifier&& pageID, WebCore::ClientOrigin&& clientOrigin)
 {
 #if HAVE(WEB_TRANSPORT)
     RetainPtr endpoint = adoptNS(nw_endpoint_create_url(url.string().utf8().data()));
@@ -179,7 +180,7 @@ RefPtr<NetworkTransportSession> NetworkTransportSession::create(NetworkConnectio
         return nullptr;
     }
 
-    return NetworkTransportSession::create(connectionToWebProcess, identifier, connectionGroup.get(), endpoint.get());
+    return NetworkTransportSession::create(connectionToWebProcess, identifier, WTFMove(options), connectionGroup.get(), endpoint.get());
 #else
     return nullptr;
 #endif // HAVE(WEB_TRANSPORT)

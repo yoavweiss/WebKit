@@ -43,6 +43,7 @@ class Exception;
 class WebTransportSession;
 class WebTransportSessionClient;
 struct ClientOrigin;
+struct WebTransportOptions;
 struct WebTransportStreamIdentifierType;
 using WebTransportStreamIdentifier = ObjectIdentifier<WebTransportStreamIdentifierType>;
 using WebTransportSessionPromise = GenericPromise;
@@ -63,7 +64,7 @@ using WebTransportSessionIdentifier = AtomicObjectIdentifier<WebTransportSession
 
 class WebTransportSession : public WebCore::WebTransportSession, public IPC::MessageReceiver, public IPC::MessageSender, public ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr<WebTransportSession> {
 public:
-    static std::pair<Ref<WebTransportSession>, Ref<WebCore::WebTransportSessionPromise>> initialize(Ref<IPC::Connection>&&, ThreadSafeWeakPtr<WebCore::WebTransportSessionClient>&&, const URL&, const WebPageProxyIdentifier&, const WebCore::ClientOrigin&);
+    static std::pair<Ref<WebTransportSession>, Ref<WebCore::WebTransportSessionPromise>> initialize(Ref<IPC::Connection>&&, ThreadSafeWeakPtr<WebCore::WebTransportSessionClient>&&, const URL&, const WebCore::WebTransportOptions&, const WebPageProxyIdentifier&, const WebCore::ClientOrigin&);
     ~WebTransportSession();
 
     void receiveDatagram(std::span<const uint8_t>, bool, std::optional<WebCore::Exception>&&);

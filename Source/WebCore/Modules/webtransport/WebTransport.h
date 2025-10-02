@@ -26,7 +26,6 @@
 #pragma once
 
 #include "ActiveDOMObject.h"
-#include "WebTransportOptions.h"
 #include "WebTransportReliabilityMode.h"
 #include "WebTransportSessionClient.h"
 #include <wtf/ListHashSet.h>
@@ -60,6 +59,7 @@ class WorkerWebTransportSession;
 class WritableStream;
 
 struct WebTransportCloseInfo;
+struct WebTransportOptions;
 struct WebTransportSendStreamOptions;
 struct WebTransportHash;
 
@@ -92,7 +92,7 @@ public:
 private:
     WebTransport(ScriptExecutionContext&, JSDOMGlobalObject&, Ref<ReadableStream>&&, Ref<ReadableStream>&&, WebTransportCongestionControl, Ref<WebTransportDatagramDuplexStream>&&, Ref<DatagramSource>&&, Ref<WebTransportReceiveStreamSource>&&, Ref<WebTransportBidirectionalStreamSource>&&);
 
-    void initializeOverHTTP(SocketProvider&, ScriptExecutionContext&, URL&&, bool dedicated, bool http3Only, WebTransportCongestionControl, Vector<WebTransportHash>&&);
+    void initializeOverHTTP(SocketProvider&, ScriptExecutionContext&, URL&&, WebTransportOptions&&);
     void cleanup(Ref<DOMException>&&, std::optional<WebTransportCloseInfo>&&);
     void cleanupWithSessionError();
 

@@ -47,6 +47,7 @@
 #include "WebTransportConnectionStats.h"
 #include "WebTransportDatagramDuplexStream.h"
 #include "WebTransportError.h"
+#include "WebTransportOptions.h"
 #include "WebTransportReceiveStream.h"
 #include "WebTransportReceiveStreamSource.h"
 #include "WebTransportReliabilityMode.h"
@@ -108,17 +109,17 @@ ExceptionOr<Ref<WebTransport>> WebTransport::create(ScriptExecutionContext& cont
     auto transport = adoptRef(*new WebTransport(context, domGlobalObject, incomingBidirectionalStreams.releaseReturnValue(), incomingUnidirectionalStreams.releaseReturnValue(), options.congestionControl, WTFMove(datagrams), WTFMove(datagramSource), WTFMove(receiveStreamSource), WTFMove(bidirectionalStreamSource)));
     datagramSink->attachTo(transport);
     transport->suspendIfNeeded();
-    transport->initializeOverHTTP(*socketProvider, context, WTFMove(parsedURL), dedicated, options.requireUnreliable, options.congestionControl, WTFMove(options.serverCertificateHashes));
+    transport->initializeOverHTTP(*socketProvider, context, WTFMove(parsedURL), WTFMove(options));
     return transport;
 }
 
-void WebTransport::initializeOverHTTP(SocketProvider& provider, ScriptExecutionContext& context, URL&& url, bool, bool, WebTransportCongestionControl, Vector<WebTransportHash>&&)
+void WebTransport::initializeOverHTTP(SocketProvider& provider, ScriptExecutionContext& context, URL&& url, WebTransportOptions&& options)
 {
     if (CheckedPtr csp = context.contentSecurityPolicy(); !csp || !csp->allowConnectToSource(url))
         return cleanupWithSessionError();
 
     // FIXME: Rename SocketProvider to NetworkProvider or something to reflect that it provides a little more than just simple sockets. SocketAndTransportProvider?
-    auto [session, promise] = provider.initializeWebTransportSession(context, *this, url);
+    auto [session, promise] = provider.initializeWebTransportSession(context, *this, url, options);
     m_session = WTFMove(session);
 
     context.enqueueTaskWhenSettled(WTFMove(promise), TaskSource::Networking, [this, protectedThis = Ref { *this }] (auto&& result) mutable {

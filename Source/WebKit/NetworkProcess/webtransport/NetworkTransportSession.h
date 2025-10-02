@@ -29,6 +29,7 @@
 #include "MessageSender.h"
 #include "WebPageProxyIdentifier.h"
 #include <WebCore/ProcessQualified.h>
+#include <WebCore/WebTransportOptions.h>
 #include <wtf/Identified.h>
 #include <wtf/RefCounted.h>
 #include <wtf/TZoneMalloc.h>
@@ -64,7 +65,7 @@ using WebTransportSessionIdentifier = AtomicObjectIdentifier<WebTransportSession
 class NetworkTransportSession : public RefCounted<NetworkTransportSession>, public IPC::MessageReceiver, public IPC::MessageSender {
     WTF_MAKE_TZONE_ALLOCATED(NetworkTransportSession);
 public:
-    static RefPtr<NetworkTransportSession> create(NetworkConnectionToWebProcess&, WebTransportSessionIdentifier, URL&&, WebKit::WebPageProxyIdentifier&&, WebCore::ClientOrigin&&);
+    static RefPtr<NetworkTransportSession> create(NetworkConnectionToWebProcess&, WebTransportSessionIdentifier, URL&&, WebCore::WebTransportOptions&&, WebKit::WebPageProxyIdentifier&&, WebCore::ClientOrigin&&);
 
     ~NetworkTransportSession();
 
@@ -97,8 +98,8 @@ public:
     std::optional<SharedPreferencesForWebProcess> sharedPreferencesForWebProcess() const;
 private:
 #if PLATFORM(COCOA)
-    static Ref<NetworkTransportSession> create(NetworkConnectionToWebProcess&, WebTransportSessionIdentifier, nw_connection_group_t, nw_endpoint_t);
-    NetworkTransportSession(NetworkConnectionToWebProcess&, WebTransportSessionIdentifier, nw_connection_group_t, nw_endpoint_t);
+    static Ref<NetworkTransportSession> create(NetworkConnectionToWebProcess&, WebTransportSessionIdentifier, WebCore::WebTransportOptions&&, nw_connection_group_t, nw_endpoint_t);
+    NetworkTransportSession(NetworkConnectionToWebProcess&, WebTransportSessionIdentifier, WebCore::WebTransportOptions&&, nw_connection_group_t, nw_endpoint_t);
 #else
     NetworkTransportSession();
 #endif
@@ -113,6 +114,7 @@ private:
     HashMap<WebCore::WebTransportStreamIdentifier, Ref<NetworkTransportStream>> m_streams;
     WeakPtr<NetworkConnectionToWebProcess> m_connectionToWebProcess;
     const WebTransportSessionIdentifier m_identifier;
+    const WebCore::WebTransportOptions m_options;
 
 #if PLATFORM(COCOA)
     const RetainPtr<nw_connection_group_t> m_connectionGroup;

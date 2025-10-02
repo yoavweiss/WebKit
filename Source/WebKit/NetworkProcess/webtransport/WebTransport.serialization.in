@@ -52,3 +52,21 @@ struct WebCore::WebTransportReceiveStreamStats {
     uint64_t bytesReceived
     uint64_t bytesRead
 }
+
+struct WebCore::WebTransportHash {
+    String algorithm;
+    WebCore::BufferSource value;
+};
+
+struct WebCore::WebTransportOptions {
+    bool allowPooling
+    bool requireUnreliable
+    Vector<WebCore::WebTransportHash> serverCertificateHashes
+    WebCore::WebTransportCongestionControl congestionControl
+};
+
+enum class WebCore::WebTransportCongestionControl : uint8_t {
+    Default,
+    Throughput,
+    LowLatency,
+};
