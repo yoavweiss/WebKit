@@ -378,6 +378,8 @@ public:
     // topEntryFrame.
     // FIXME: This should be a void*, because it might not point to a CallFrame.
     // https://bugs.webkit.org/show_bug.cgi?id=160441
+    // The following two fields are sometimes treated as a pair in assembly code, making usages of the second one implicit.
+    // To find them, look for loadpairq/storepairq of "VM::topCallFrame" in *.asm files.
     CallFrame* topCallFrame { nullptr };
     EntryFrame* topEntryFrame { nullptr };
     void* maybeReturnPC { nullptr };
@@ -1173,6 +1175,8 @@ private:
     friend class VMTraps;
     friend class WTF::DoublyLinkedListNode<VM>;
 };
+
+static_assert(OBJECT_OFFSETOF(VM, topEntryFrame) == OBJECT_OFFSETOF(VM, topCallFrame) + sizeof(void*), "We load/store these using a pair instruction");
 
 #if ENABLE(GC_VALIDATION)
 inline bool VM::isInitializingObject() const
