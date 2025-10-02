@@ -686,41 +686,6 @@ public:
     ColorWrapper m_visitedWrapper;
 };
 
-class AccentColorWrapper final : public StyleTypeWrapper<Color, const Color&, Color&&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(AccentColorWrapper, Animation);
-public:
-    AccentColorWrapper()
-        : StyleTypeWrapper(CSSPropertyAccentColor, &RenderStyle::accentColor, &RenderStyle::setAccentColor)
-    {
-    }
-
-    bool equals(const RenderStyle& a, const RenderStyle& b) const final
-    {
-        return a.hasAutoAccentColor() == b.hasAutoAccentColor()
-            && StyleTypeWrapper::equals(a, b);
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
-    {
-        return !from.hasAutoAccentColor() && !to.hasAutoAccentColor();
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        if (canInterpolate(from, to, context.compositeOperation)) {
-            StyleTypeWrapper::interpolate(destination, from, to, context);
-            return;
-        }
-
-        ASSERT(!context.progress || context.progress == 1.0);
-        auto& blendingRenderStyle = context.progress ? to : from;
-        if (blendingRenderStyle.hasAutoAccentColor())
-            destination.setHasAutoAccentColor();
-        else
-            destination.setAccentColor(Color { blendingRenderStyle.accentColor() });
-    }
-};
-
 class CaretColorWrapper final : public VisitedAffectedStyleTypeWrapper<Color> {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(CaretColorWrapper, Animation);
 public:

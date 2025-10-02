@@ -3471,6 +3471,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/transitions/StyleTransition.h
     style/values/transitions/StyleTransitions.h
 
+    style/values/ui/StyleAccentColor.h
     style/values/ui/StyleCursor.h
 
     style/values/view-transitions/StyleViewTransitionClass.h

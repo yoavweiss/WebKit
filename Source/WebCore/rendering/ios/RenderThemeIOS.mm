@@ -907,7 +907,7 @@ void RenderThemeIOS::adjustButtonLikeControlStyle(RenderStyle& style, const Elem
     if (element.isDisabledFormControl())
         return;
 
-    if (!style.hasAutoAccentColor()) {
+    if (!style.accentColor().isAuto()) {
         auto tintColor = style.usedAccentColor(element.document().styleColorOptions(&style));
         if (isSubmitStyleButton(&element))
             style.setBackgroundColor(WTFMove(tintColor));

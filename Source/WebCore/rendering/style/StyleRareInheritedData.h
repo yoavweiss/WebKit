@@ -26,6 +26,7 @@
 #pragma once
 
 #include <WebCore/RenderStyleConstants.h>
+#include <WebCore/StyleAccentColor.h>
 #include <WebCore/StyleBlockEllipsis.h>
 #include <WebCore/StyleColor.h>
 #include <WebCore/StyleCursor.h>
@@ -117,7 +118,7 @@ public:
     Style::Color caretColor;
     Style::Color visitedLinkCaretColor;
 
-    Style::Color accentColor;
+    Style::AccentColor accentColor;
 
     Style::ScrollbarColor scrollbarColor;
 
@@ -185,7 +186,6 @@ public:
     PREFERRED_TYPE(bool) unsigned hasSetStrokeColor : 1;
     PREFERRED_TYPE(bool) unsigned hasAutoCaretColor : 1;
     PREFERRED_TYPE(bool) unsigned hasVisitedLinkAutoCaretColor : 1;
-    PREFERRED_TYPE(bool) unsigned hasAutoAccentColor : 1;
     PREFERRED_TYPE(bool) unsigned effectiveInert : 1;
     PREFERRED_TYPE(bool) unsigned effectivelyTransparent : 1;
     PREFERRED_TYPE(bool) unsigned isInSubtreeWithBlendMode : 1;

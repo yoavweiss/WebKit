@@ -86,7 +86,7 @@ StyleRareInheritedData::StyleRareInheritedData()
     , visitedLinkTextEmphasisColor(RenderStyle::initialTextEmphasisColor())
     , caretColor(Style::Color::currentColor())
     , visitedLinkCaretColor(Style::Color::currentColor())
-    , accentColor(Style::Color::currentColor())
+    , accentColor(RenderStyle::initialAccentColor())
     , scrollbarColor(RenderStyle::initialScrollbarColor())
     , dynamicRangeLimit(RenderStyle::initialDynamicRangeLimit())
     , textShadow(RenderStyle::initialTextShadow())
@@ -139,7 +139,6 @@ StyleRareInheritedData::StyleRareInheritedData()
     , hasSetStrokeColor(false)
     , hasAutoCaretColor(true)
     , hasVisitedLinkAutoCaretColor(true)
-    , hasAutoAccentColor(true)
     , effectiveInert(false)
     , effectivelyTransparent(false)
     , isInSubtreeWithBlendMode(false)
@@ -244,7 +243,6 @@ inline StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedDa
     , hasSetStrokeColor(o.hasSetStrokeColor)
     , hasAutoCaretColor(o.hasAutoCaretColor)
     , hasVisitedLinkAutoCaretColor(o.hasVisitedLinkAutoCaretColor)
-    , hasAutoAccentColor(o.hasAutoAccentColor)
     , effectiveInert(o.effectiveInert)
     , effectivelyTransparent(o.effectivelyTransparent)
     , isInSubtreeWithBlendMode(o.isInSubtreeWithBlendMode)
@@ -374,7 +372,6 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && mathStyle == o.mathStyle
         && hasAutoCaretColor == o.hasAutoCaretColor
         && hasVisitedLinkAutoCaretColor == o.hasVisitedLinkAutoCaretColor
-        && hasAutoAccentColor == o.hasAutoAccentColor
         && isInSubtreeWithBlendMode == o.isInSubtreeWithBlendMode
         && isForceHidden == o.isForceHidden
         && autoRevealsWhenFound == o.autoRevealsWhenFound
@@ -503,7 +500,6 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
 
     LOG_IF_DIFFERENT_WITH_CAST(bool, hasAutoCaretColor);
     LOG_IF_DIFFERENT_WITH_CAST(bool, hasVisitedLinkAutoCaretColor);
-    LOG_IF_DIFFERENT_WITH_CAST(bool, hasAutoAccentColor);
     LOG_IF_DIFFERENT_WITH_CAST(bool, effectiveInert);
     LOG_IF_DIFFERENT_WITH_CAST(bool, effectivelyTransparent);
 

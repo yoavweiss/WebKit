@@ -56,11 +56,6 @@
         "to the expected type), then you can indicate that a converter helper",
         "function in css/StyleBuilderConverter.h should be used.",
         "",
-        "* style-builder-conditional-converter:",
-        "Similar to property converter, but the converter function returns a",
-        "std::optional<> to indicate if the property setter should be called",
-        "or not.",
-        "",
         "* style-builder-custom:",
         "A string that is \"All\", \"Initial\", \"Inherit\", or \"Value\" or some combination",
         "of the latter three separated by '|' (e.g. \"Inherit|Value\"). These options",
@@ -79,10 +74,6 @@
         "",
         "The custom code for the property should be located in css/StyleBuilderCustom.h",
         "and named applyValue[CSSPropertyName]().",
-        "",
-        "* auto-functions:",
-        "Indicates that this CSS property requires handling of \"auto\" and has",
-        "corresponding hasAutoXXX() / setHasAutoXXX() methods on RenderStyle.",
         "",
         "* visited-link-color-support:",
         "Indicates that this CSS property is a color property with a",
@@ -265,11 +256,10 @@
                 "auto"
             ],
             "codegen-properties": {
-                "animation-wrapper": "AccentColorWrapper",
-                "animation-wrapper-requires-override-parameters": [],
-                "auto-functions": true,
-                "color-property": true,
                 "settings-flag": "accentColorEnabled",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<AccentColor>",
+                "color-property": true,
                 "parser-grammar": "auto | <color>"
             },
             "specification": {
@@ -2688,7 +2678,6 @@
                 },
                 "accepts-quirky-color": true,
                 "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
-                "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
                 "disables-native-appearance": true,
@@ -3264,7 +3253,6 @@
                 },
                 "accepts-quirky-color": true,
                 "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
-                "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
                 "disables-native-appearance": true,
@@ -3372,7 +3360,6 @@
                 },
                 "accepts-quirky-color": true,
                 "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
-                "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
                 "disables-native-appearance": true,
@@ -3535,7 +3522,6 @@
                 },
                 "accepts-quirky-color": true,
                 "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
-                "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
                 "disables-native-appearance": true,
@@ -4652,7 +4638,6 @@
                 "none"
             ],
             "codegen-properties": {
-                "render-style-initial": "initialImageOrientation",
                 "style-converter": "ImageOrientation",
                 "parser-grammar": "<<values>>",
                 "parser-grammar-comment": "Current spec grammar is 'from-image | none | [ <angle> || flip ]'"
@@ -6614,7 +6599,6 @@
             "initial-comment": "Current spec initial value is 'auto'",
             "codegen-properties": {
                 "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
-                "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
                 "parser-grammar": "-webkit-focus-ring-color | <color>",
@@ -9211,7 +9195,6 @@
                     "-webkit-column-rule-color"
                 ],
                 "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
-                "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
                 "parser-grammar": "<color>"
@@ -10815,7 +10798,6 @@
                     "-webkit-text-decoration-color"
                 ],
                 "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
-                "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
                 "parser-grammar": "<color>"
@@ -10967,7 +10949,6 @@
                     "-webkit-text-emphasis-color"
                 ],
                 "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
-                "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
                 "parser-grammar": "<color>"
@@ -11016,7 +10997,6 @@
             "initial": "currentColor",
             "codegen-properties": {
                 "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
-                "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
                 "parser-grammar": "<color>"
@@ -11062,7 +11042,6 @@
             "initial": "currentColor",
             "codegen-properties": {
                 "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
-                "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
                 "parser-grammar": "<color>"
@@ -11120,7 +11099,6 @@
                 "view-box"
             ],
             "codegen-properties": {
-                "render-style-initial": "initialTransformBox",
                 "parser-grammar": "<<values>>"
             },
             "specification": {

@@ -2097,7 +2097,7 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
             changingProperties.m_properties.set(CSSPropertyTextEmphasisColor);
         if (first.caretColor != second.caretColor || first.visitedLinkCaretColor != second.visitedLinkCaretColor || first.hasAutoCaretColor != second.hasAutoCaretColor || first.hasVisitedLinkAutoCaretColor != second.hasVisitedLinkAutoCaretColor)
             changingProperties.m_properties.set(CSSPropertyCaretColor);
-        if (first.accentColor != second.accentColor || first.hasAutoAccentColor != second.hasAutoAccentColor)
+        if (first.accentColor != second.accentColor)
             changingProperties.m_properties.set(CSSPropertyAccentColor);
         if (first.textShadow != second.textShadow)
             changingProperties.m_properties.set(CSSPropertyTextShadow);
@@ -2678,7 +2678,7 @@ const Style::Color& RenderStyle::unresolvedColorForProperty(CSSPropertyID colorP
 {
     switch (colorProperty) {
     case CSSPropertyAccentColor:
-        return accentColor();
+        return accentColor().colorOrCurrentColor();
     case CSSPropertyBackgroundColor:
         return visitedLink ? visitedLinkBackgroundColor() : backgroundColor();
     case CSSPropertyBorderBottomColor:
@@ -2806,20 +2806,24 @@ Color RenderStyle::colorWithColorFilter(const Style::Color& color) const
 
 Color RenderStyle::usedAccentColor(OptionSet<StyleColorOptions> styleColorOptions) const
 {
-    if (hasAutoAccentColor())
-        return { };
+    return WTF::switchOn(accentColor(),
+        [](const CSS::Keyword::Auto&) -> Color {
+            return { };
+        },
+        [&](const Style::Color& color) -> Color {
+            auto resolvedAccentColor = colorResolvingCurrentColor(color);
 
-    auto resolvedAccentColor = colorResolvingCurrentColor(accentColor());
+            if (!resolvedAccentColor.isOpaque()) {
+                auto computedCanvasColor = RenderTheme::singleton().systemColor(CSSValueCanvas, styleColorOptions);
+                resolvedAccentColor = blendSourceOver(computedCanvasColor, resolvedAccentColor);
+            }
 
-    if (!resolvedAccentColor.isOpaque()) {
-        auto computedCanvasColor = RenderTheme::singleton().systemColor(CSSValueCanvas, styleColorOptions);
-        resolvedAccentColor = blendSourceOver(computedCanvasColor, resolvedAccentColor);
-    }
+            if (hasAppleColorFilter())
+                return colorByApplyingColorFilter(resolvedAccentColor);
 
-    if (hasAppleColorFilter())
-        return colorByApplyingColorFilter(resolvedAccentColor);
-
-    return resolvedAccentColor;
+            return resolvedAccentColor;
+        }
+    );
 }
 
 Color RenderStyle::usedScrollbarThumbColor() const

@@ -241,6 +241,7 @@ class CustomProperty;
 class CustomPropertyData;
 class CustomPropertyRegistry;
 
+struct AccentColor;
 struct Animation;
 struct AnchorNames;
 struct AppleColorFilter;
@@ -1506,8 +1507,7 @@ public:
     inline void setTextFillColor(Style::Color&&);
     inline void setCaretColor(Style::Color&&);
     inline void setHasAutoCaretColor();
-    inline void setAccentColor(Style::Color&&);
-    inline void setHasAutoAccentColor();
+    inline void setAccentColor(Style::AccentColor&&);
     inline void setOpacity(Style::Opacity);
     inline void setAppearance(StyleAppearance);
     inline void setUsedAppearance(StyleAppearance);
@@ -2002,8 +2002,16 @@ public:
     static constexpr Style::WebkitBorderSpacing initialBorderVerticalSpacing();
     static inline Style::Cursor initialCursor();
     static inline Color initialColor();
-    static inline Style::Color initialTextStrokeColor();
+    static inline Style::Color initialBorderBottomColor();
+    static inline Style::Color initialBorderLeftColor();
+    static inline Style::Color initialBorderRightColor();
+    static inline Style::Color initialBorderTopColor();
+    static inline Style::Color initialColumnRuleColor();
+    static inline Style::Color initialOutlineColor();
     static inline Style::Color initialTextDecorationColor();
+    static inline Style::Color initialTextFillColor();
+    static inline Style::Color initialTextStrokeColor();
+    static inline Style::AccentColor initialAccentColor();
     static inline Style::ImageOrNone initialListStyleImage();
     static constexpr Style::LineWidth initialBorderWidth();
     static constexpr Style::LineWidth initialColumnRuleWidth();
@@ -2277,7 +2285,6 @@ public:
     inline const Style::Color& outlineColor() const;
     inline const Style::Color& textEmphasisColor() const;
     inline const Style::Color& textFillColor() const;
-    static inline Style::Color initialTextFillColor();
     inline const Style::Color& textStrokeColor() const;
     inline const Style::Color& caretColor() const;
     inline bool hasAutoCaretColor() const;
@@ -2298,8 +2305,7 @@ public:
     inline bool hasVisitedLinkAutoCaretColor() const;
 
     Color usedAccentColor(OptionSet<StyleColorOptions>) const;
-    inline const Style::Color& accentColor() const;
-    inline bool hasAutoAccentColor() const;
+    inline const Style::AccentColor& accentColor() const;
 
     inline const Style::OffsetPath& offsetPath() const;
     inline bool hasOffsetPath() const;

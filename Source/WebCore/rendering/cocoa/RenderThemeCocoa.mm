@@ -513,7 +513,7 @@ Color RenderThemeCocoa::platformGrammarMarkerColor(OptionSet<StyleColorOptions> 
 
 Color RenderThemeCocoa::controlTintColor(const RenderStyle& style, OptionSet<StyleColorOptions> options) const
 {
-    if (!style.hasAutoAccentColor())
+    if (!style.accentColor().isAuto())
         return style.usedAccentColor(options);
 
 #if PLATFORM(MAC)
@@ -2726,7 +2726,7 @@ static PathWithSize listButtonIndicatorPath(ControlSize controlSize)
 Color RenderThemeCocoa::controlTintColorWithContrast(const RenderStyle& style, const OptionSet<StyleColorOptions> styleColorOptions) const
 {
     const auto tintColor = controlTintColor(style, styleColorOptions);
-    if (style.hasAutoAccentColor())
+    if (style.accentColor().isAuto())
         return tintColor;
 
     const auto isDarkMode = styleColorOptions.contains(StyleColorOptions::UseDarkAppearance);

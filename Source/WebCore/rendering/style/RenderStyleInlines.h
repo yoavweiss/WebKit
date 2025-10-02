@@ -78,7 +78,7 @@ namespace WebCore {
 
 using namespace CSS::Literals;
 
-inline const Style::Color& RenderStyle::accentColor() const { return m_rareInheritedData->accentColor; }
+inline const Style::AccentColor& RenderStyle::accentColor() const { return m_rareInheritedData->accentColor; }
 inline bool RenderStyle::affectsTransform() const { return hasTransform() || hasOffsetPath() || hasRotate() || hasScale() || hasTranslate(); }
 inline const StyleContentAlignmentData& RenderStyle::alignContent() const { return m_nonInheritedData->miscData->alignContent; }
 inline const StyleSelfAlignmentData& RenderStyle::alignItems() const { return m_nonInheritedData->miscData->alignItems; }
@@ -257,7 +257,6 @@ inline bool RenderStyle::hasAppleVisualEffectRequiringBackdropFilter() const { r
 #endif
 inline bool RenderStyle::hasAspectRatio() const { return aspectRatio().hasRatio(); }
 inline bool RenderStyle::hasAttrContent() const { return m_nonInheritedData->miscData->hasAttrContent; }
-inline bool RenderStyle::hasAutoAccentColor() const { return m_rareInheritedData->hasAutoAccentColor; }
 inline bool RenderStyle::hasAutoCaretColor() const { return m_rareInheritedData->hasAutoCaretColor; }
 inline bool RenderStyle::hasAutoLeftAndRight() const { return left().isAuto() && right().isAuto(); }
 inline bool RenderStyle::hasAutoLengthContainIntrinsicSize() const { return containIntrinsicWidth().hasAuto() || containIntrinsicHeight().hasAuto(); }
@@ -525,16 +524,16 @@ constexpr TextBoxTrim RenderStyle::initialTextBoxTrim() { return TextBoxTrim::No
 constexpr Style::TextBoxEdge RenderStyle::initialTextBoxEdge() { return CSS::Keyword::Auto { }; }
 constexpr Style::LineFitEdge RenderStyle::initialLineFitEdge() { return CSS::Keyword::Leading { }; }
 constexpr TextCombine RenderStyle::initialTextCombine() { return TextCombine::None; }
-inline Style::Color RenderStyle::initialTextDecorationColor() { return Style::Color::currentColor(); }
+inline Style::Color RenderStyle::initialTextDecorationColor() { return CSS::Keyword::Currentcolor { }; }
 inline Style::TextDecorationLine RenderStyle::initialTextDecorationLine() { return CSS::Keyword::None { }; }
 inline Style::TextDecorationLine RenderStyle::initialTextDecorationLineInEffect() { return initialTextDecorationLine(); }
 constexpr TextDecorationSkipInk RenderStyle::initialTextDecorationSkipInk() { return TextDecorationSkipInk::Auto; }
 constexpr TextDecorationStyle RenderStyle::initialTextDecorationStyle() { return TextDecorationStyle::Solid; }
 inline Style::TextDecorationThickness RenderStyle::initialTextDecorationThickness() { return CSS::Keyword::Auto { }; }
-inline Style::Color RenderStyle::initialTextEmphasisColor() { return Style::Color::currentColor(); }
+inline Style::Color RenderStyle::initialTextEmphasisColor() { return CSS::Keyword::Currentcolor { }; }
 inline Style::TextEmphasisStyle RenderStyle::initialTextEmphasisStyle() { return CSS::Keyword::None { }; }
 constexpr OptionSet<TextEmphasisPosition> RenderStyle::initialTextEmphasisPosition() { return { TextEmphasisPosition::Over, TextEmphasisPosition::Right }; }
-inline Style::Color RenderStyle::initialTextFillColor() { return Style::Color::currentColor(); }
+inline Style::Color RenderStyle::initialTextFillColor() { return CSS::Keyword::Currentcolor { }; }
 inline bool RenderStyle::hasExplicitlySetColor() const { return m_inheritedFlags.hasExplicitlySetColor; }
 constexpr TextGroupAlign RenderStyle::initialTextGroupAlign() { return TextGroupAlign::None; }
 inline Style::TextIndent RenderStyle::initialTextIndent() { return 0_css_px; }
@@ -543,7 +542,7 @@ constexpr TextOrientation RenderStyle::initialTextOrientation() { return TextOri
 constexpr TextOverflow RenderStyle::initialTextOverflow() { return TextOverflow::Clip; }
 constexpr TextSecurity RenderStyle::initialTextSecurity() { return TextSecurity::None; }
 inline Style::TextShadows RenderStyle::initialTextShadow() { return CSS::Keyword::None { }; }
-inline Style::Color RenderStyle::initialTextStrokeColor() { return Style::Color::currentColor(); }
+inline Style::Color RenderStyle::initialTextStrokeColor() { return CSS::Keyword::Currentcolor { }; }
 constexpr Style::WebkitTextStrokeWidth RenderStyle::initialTextStrokeWidth() { return 0_css_px; }
 constexpr OptionSet<TextTransform> RenderStyle::initialTextTransform() { return { }; }
 inline Style::TextUnderlineOffset RenderStyle::initialTextUnderlineOffset() { return CSS::Keyword::Auto { }; }
@@ -960,6 +959,13 @@ inline MaskType RenderStyle::maskType() const { return static_cast<MaskType>(m_s
 inline const Style::SVGPaint& RenderStyle::visitedLinkFill() const { return m_svgStyle->fillData->visitedLinkPaint; }
 inline const Style::SVGPaint& RenderStyle::visitedLinkStroke() const { return m_svgStyle->strokeData->visitedLinkPaint; }
 
+inline Style::Color RenderStyle::initialBorderBottomColor() { return CSS::Keyword::Currentcolor { }; }
+inline Style::Color RenderStyle::initialBorderLeftColor() { return CSS::Keyword::Currentcolor { }; }
+inline Style::Color RenderStyle::initialBorderRightColor() { return CSS::Keyword::Currentcolor { }; }
+inline Style::Color RenderStyle::initialBorderTopColor() { return CSS::Keyword::Currentcolor { }; }
+inline Style::Color RenderStyle::initialColumnRuleColor() { return CSS::Keyword::Currentcolor { }; }
+inline Style::Color RenderStyle::initialOutlineColor() { return CSS::Keyword::Currentcolor { }; }
+inline Style::AccentColor RenderStyle::initialAccentColor() { return CSS::Keyword::Auto { }; }
 inline Style::SVGCenterCoordinateComponent RenderStyle::initialCx() { return 0_css_px; }
 inline Style::SVGCenterCoordinateComponent RenderStyle::initialCy() { return 0_css_px; }
 inline Style::SVGPathData RenderStyle::initialD() { return CSS::Keyword::None { }; }

@@ -88,7 +88,6 @@ Modules/websockets/WebSocket.cpp
 Modules/websockets/WebSocketChannelInspector.cpp
 Modules/websockets/WorkerThreadableWebSocketChannel.cpp
 Modules/webtransport/WebTransport.cpp
-StyleBuilderGenerated.cpp
 StyleExtractorGenerated.cpp
 accessibility/AXLogger.cpp
 accessibility/AXObjectCache.cpp
