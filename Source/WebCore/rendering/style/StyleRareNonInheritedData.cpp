@@ -103,7 +103,7 @@ StyleRareNonInheritedData::StyleRareNonInheritedData()
     , positionAnchor(RenderStyle::initialPositionAnchor())
     , positionArea(RenderStyle::initialPositionArea())
     , positionTryFallbacks(RenderStyle::initialPositionTryFallbacks())
-    , lastSuccessfulPositionTryFallbackIndex()
+    , usedPositionOptionIndex()
     , blockStepSize(RenderStyle::initialBlockStepSize())
     , blockStepAlign(static_cast<unsigned>(RenderStyle::initialBlockStepAlign()))
     , blockStepInsert(static_cast<unsigned>(RenderStyle::initialBlockStepInsert()))
@@ -210,7 +210,7 @@ inline StyleRareNonInheritedData::StyleRareNonInheritedData(const StyleRareNonIn
     , positionAnchor(o.positionAnchor)
     , positionArea(o.positionArea)
     , positionTryFallbacks(o.positionTryFallbacks)
-    , lastSuccessfulPositionTryFallbackIndex(o.lastSuccessfulPositionTryFallbackIndex)
+    , usedPositionOptionIndex(o.usedPositionOptionIndex)
     , blockStepSize(o.blockStepSize)
     , blockStepAlign(o.blockStepAlign)
     , blockStepInsert(o.blockStepInsert)
@@ -322,7 +322,7 @@ bool StyleRareNonInheritedData::operator==(const StyleRareNonInheritedData& o) c
         && positionAnchor == o.positionAnchor
         && positionArea == o.positionArea
         && positionTryFallbacks == o.positionTryFallbacks
-        && lastSuccessfulPositionTryFallbackIndex == o.lastSuccessfulPositionTryFallbackIndex
+        && usedPositionOptionIndex == o.usedPositionOptionIndex
         && blockStepSize == o.blockStepSize
         && blockStepAlign == o.blockStepAlign
         && blockStepInsert == o.blockStepInsert
@@ -482,7 +482,7 @@ void StyleRareNonInheritedData::dumpDifferences(TextStream& ts, const StyleRareN
     LOG_IF_DIFFERENT(positionAnchor);
     LOG_IF_DIFFERENT(positionArea);
     LOG_IF_DIFFERENT(positionTryFallbacks);
-    LOG_IF_DIFFERENT(lastSuccessfulPositionTryFallbackIndex);
+    LOG_IF_DIFFERENT(usedPositionOptionIndex);
     LOG_IF_DIFFERENT(positionVisibility);
 
     LOG_IF_DIFFERENT(blockStepSize);

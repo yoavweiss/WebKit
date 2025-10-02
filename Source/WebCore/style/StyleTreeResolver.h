@@ -219,11 +219,8 @@ private:
         // New style after applying the option.
         std::unique_ptr<RenderStyle> style;
 
-        // The used position option. If option is nullopt, no position option is used.
+        // The position option used to generate the style. If option is nullopt, no position option is used.
         std::optional<PositionTryFallback> option;
-
-        // Index of the option in the position-try-fallbacks list. If nullopt, no position option is used.
-        std::optional<size_t> fallbackIndex;
 
         // The size of the content box of the element when the style is generated.
         // Non-overlay scrollbars appearing or disappearing may affect the content box size that anchor functions are resolved against.

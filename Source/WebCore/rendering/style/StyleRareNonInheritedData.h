@@ -228,7 +228,7 @@ public:
     std::optional<Style::ScopedName> positionAnchor;
     std::optional<PositionArea> positionArea;
     FixedVector<Style::PositionTryFallback> positionTryFallbacks;
-    std::optional<size_t> lastSuccessfulPositionTryFallbackIndex;
+    std::optional<size_t> usedPositionOptionIndex;
 
     Style::BlockStepSize blockStepSize;
     PREFERRED_TYPE(BlockStepAlign) unsigned blockStepAlign : 2;

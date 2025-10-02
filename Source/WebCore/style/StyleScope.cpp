@@ -1125,5 +1125,22 @@ void Scope::updateAnchorPositioningStateAfterStyleResolution()
     });
 }
 
+std::optional<size_t> Scope::lastSuccessfulPositionOptionIndexFor(const Styleable& styleable)
+{
+    AnchorPositionedKey key { styleable.element, styleable.pseudoElementIdentifier };
+    return m_lastSuccessfulPositionOptionIndexes.getOptional(key);
+}
+
+void Scope::setLastSuccessfulPositionOptionIndexMap(HashMap<AnchorPositionedKey, size_t>&& map)
+{
+    m_lastSuccessfulPositionOptionIndexes = WTFMove(map);
+}
+
+void Scope::forgetLastSuccessfulPositionOptionIndex(const Styleable& styleable)
+{
+    AnchorPositionedKey key { styleable.element, styleable.pseudoElementIdentifier };
+    m_lastSuccessfulPositionOptionIndexes.remove(key);
+}
+
 }
 }

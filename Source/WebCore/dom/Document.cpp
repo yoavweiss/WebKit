@@ -10391,6 +10391,14 @@ void Document::updateResizeObservations(Page& page)
         addConsoleMessage(MessageSource::Other, MessageLevel::Info, "ResizeObservers silenced due to: http://webkit.org/b/258597"_s);
         return;
     }
+
+    if (m_renderView) {
+        // Per spec, this is recorded when ResizeObserver events are determined and delivered.
+        // See https://drafts.csswg.org/css-anchor-position-1/#last-successful-position-option.
+        auto lastSuccessfulPositionOptionMap = Style::AnchorPositionEvaluator::recordLastSuccessfulPositionOptions(m_renderView->positionTryBoxes());
+        styleScope().setLastSuccessfulPositionOptionIndexMap(WTFMove(lastSuccessfulPositionOptionMap));
+    }
+
     if (!hasResizeObservers() && !m_resizeObserverForContainIntrinsicSize && !m_contentVisibilityDocumentState)
         return;
 
