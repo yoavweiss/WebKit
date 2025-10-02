@@ -40,6 +40,21 @@ namespace Layout {
 
 class ImplicitGrid;
 
+enum class PackingStrategy : bool {
+    Sparse,
+    Dense
+};
+
+enum class GridAutoFlowDirection : bool {
+    Row,
+    Column
+};
+
+struct GridAutoFlowOptions {
+    PackingStrategy strategy;
+    GridAutoFlowDirection direction;
+};
+
 struct UsedTrackSizes;
 
 class GridLayout {
@@ -50,8 +65,8 @@ public:
 
 private:
 
-    static auto placeGridItems(const UnplacedGridItems&, const Vector<Style::GridTrackSize>& gridTemplateColumnsTrackSizes,
-        const Vector<Style::GridTrackSize>& gridTemplateRowsTrackSizes);
+    auto placeGridItems(const UnplacedGridItems&, const Vector<Style::GridTrackSize>& gridTemplateColumnsTrackSizes,
+        const Vector<Style::GridTrackSize>& gridTemplateRowsTrackSizes, GridAutoFlowOptions);
     static TrackSizingFunctionsList trackSizingFunctions(size_t implicitGridTracksCount, const Vector<Style::GridTrackSize> gridTemplateTrackSizes);
 
     static UsedTrackSizes performGridSizingAlgorithm(const PlacedGridItems&, const TrackSizingFunctionsList& columnTrackSizingFunctionsList, const TrackSizingFunctionsList& rowTrackSizingFunctionsList);

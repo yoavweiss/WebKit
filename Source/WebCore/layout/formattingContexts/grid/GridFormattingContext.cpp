@@ -70,38 +70,30 @@ UnplacedGridItems GridFormattingContext::constructUnplacedGridItems() const
         auto gridItemRowStart = gridItemStyle->gridItemRowStart();
         auto gridItemRowEnd = gridItemStyle->gridItemRowEnd();
 
+        UnplacedGridItem unplacedGridItem {
+            gridItem.layoutBox,
+            gridItemColumnStart,
+            gridItemColumnEnd,
+            gridItemRowStart,
+            gridItemRowEnd
+        };
+
         // Check if this item is fully explicitly positioned
         bool fullyExplicitlyPositionedItem = gridItemColumnStart.isExplicit()
             && gridItemColumnEnd.isExplicit()
             && gridItemRowStart.isExplicit()
             && gridItemRowEnd.isExplicit();
 
-        bool definiteRowPositioned = gridItemRowStart.isExplicit() || gridItemRowEnd.isExplicit();
-
+        // FIXME: support definite row/column positioning
+        // We should place items with definite row or column positions
+        // but currently we only support fully explicitly positioned items.
+        // See: https://www.w3.org/TR/css-grid-1/#auto-placement-algo
         if (fullyExplicitlyPositionedItem) {
-            unplacedGridItems.nonAutoPositionedItems.constructAndAppend(
-                gridItem.layoutBox,
-                gridItemColumnStart,
-                gridItemColumnEnd,
-                gridItemRowStart,
-                gridItemRowEnd
-            );
-        } else if (definiteRowPositioned) {
-            unplacedGridItems.definiteRowPositionedItems.constructAndAppend(
-                gridItem.layoutBox,
-                gridItemColumnStart,
-                gridItemColumnEnd,
-                gridItemRowStart,
-                gridItemRowEnd
-            );
+            unplacedGridItems.nonAutoPositionedItems.append(unplacedGridItem);
+        } else if (unplacedGridItem.hasDefiniteRowPosition()) {
+            unplacedGridItems.definiteRowPositionedItems.append(unplacedGridItem);
         } else {
-            unplacedGridItems.autoPositionedItems.constructAndAppend(
-                gridItem.layoutBox,
-                gridItemColumnStart,
-                gridItemColumnEnd,
-                gridItemRowStart,
-                gridItemRowEnd
-            );
+            unplacedGridItems.autoPositionedItems.append(unplacedGridItem);
         }
     }
     return unplacedGridItems;

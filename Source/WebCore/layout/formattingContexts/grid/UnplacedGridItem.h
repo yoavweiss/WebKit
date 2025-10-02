@@ -53,6 +53,12 @@ public:
     int explicitRowStart() const;
     int explicitRowEnd() const;
 
+    bool hasDefiniteRowPosition() const;
+    bool hasDefiniteColumnPosition() const;
+    bool hasAutoColumnPosition() const;
+    size_t columnSpanSize() const;
+    std::pair<int, int> definiteRowStartEnd() const;
+
 private:
     CheckedRef<const ElementBox> m_layoutBox;
 
@@ -97,4 +103,3 @@ template<> struct DefaultHash<WebCore::Layout::UnplacedGridItem> {
 };
 
 }
-

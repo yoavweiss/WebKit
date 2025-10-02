@@ -27,6 +27,7 @@
 #include "ImplicitGrid.h"
 
 #include "GridAreaLines.h"
+#include "GridLayout.h"
 #include "PlacedGridItem.h"
 #include "UnplacedGridItem.h"
 #include <wtf/Range.h>
@@ -118,6 +119,20 @@ GridAreas ImplicitGrid::gridAreas() const
         }
     }
     return gridAreas;
+}
+
+void ImplicitGrid::insertDefiniteRowItem(const UnplacedGridItem& unplacedGridItem, GridAutoFlowOptions autoFlowOptions)
+{
+    // FIXME: Implement placement for items with definite row positions and auto column positions
+    // This should handle dense/sparse packing based on grid-auto-flow CSS property
+    // See: https://www.w3.org/TR/css-grid-1/#auto-placement-algo
+    auto columnSpan = unplacedGridItem.columnSpanSize();
+    UNUSED_VARIABLE(columnSpan);
+
+    auto rowStartAndEnd = unplacedGridItem.definiteRowStartEnd();
+    UNUSED_VARIABLE(rowStartAndEnd);
+
+    UNUSED_PARAM(autoFlowOptions);
 }
 
 } // namespace Layout

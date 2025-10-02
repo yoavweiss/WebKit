@@ -53,7 +53,7 @@ GridLayout::GridLayout(const GridFormattingContext& gridFormattingContext)
 // 8.5. Grid Item Placement Algorithm.
 // https://drafts.csswg.org/css-grid-1/#auto-placement-algo
 auto GridLayout::placeGridItems(const UnplacedGridItems& unplacedGridItems, const Vector<Style::GridTrackSize>& gridTemplateColumnsTrackSizes,
-    const Vector<Style::GridTrackSize>& gridTemplateRowsTrackSizes)
+    const Vector<Style::GridTrackSize>& gridTemplateRowsTrackSizes, GridAutoFlowOptions autoFlowOptions)
 {
     struct Result {
         GridAreas gridAreas;
@@ -63,13 +63,22 @@ auto GridLayout::placeGridItems(const UnplacedGridItems& unplacedGridItems, cons
 
     ImplicitGrid implicitGrid(gridTemplateColumnsTrackSizes.size(), gridTemplateRowsTrackSizes.size());
 
-    // 1. Position anything that’s not auto-positioned.
+    // 1. Position anything that's not auto-positioned.
     auto& nonAutoPositionedGridItems = unplacedGridItems.nonAutoPositionedItems;
     for (auto& nonAutoPositionedItem : nonAutoPositionedGridItems)
         implicitGrid.insertUnplacedGridItem(nonAutoPositionedItem);
 
+    // 2. Process the items locked to a given row.
+    // Phase 1: Only single-cell items within explicit grid bounds
+    auto& definiteRowPositionedGridItems = unplacedGridItems.definiteRowPositionedItems;
+    for (auto& definiteRowPositionedItem : definiteRowPositionedGridItems)
+        implicitGrid.insertDefiniteRowItem(definiteRowPositionedItem, autoFlowOptions);
+
+    // 3. FIXME: Process auto-positioned items (not implemented yet)
+    ASSERT(unplacedGridItems.autoPositionedItems.isEmpty());
+
     ASSERT(implicitGrid.columnsCount() == gridTemplateColumnsTrackSizes.size() && implicitGrid.rowsCount() == gridTemplateRowsTrackSizes.size(),
-        "Since we currently only support placing items which are explicitly placed and fit within the explicit grid, the size of the implicit grid should match the passed in sizes.");
+        "Since we currently only support placing items which fit within the explicit grid, the size of the implicit grid should match the passed in sizes.");
 
     return Result { implicitGrid.gridAreas(), implicitGrid.columnsCount(), implicitGrid.rowsCount() };
 }
@@ -82,7 +91,11 @@ void GridLayout::layout(GridFormattingContext::GridLayoutConstraints, const Unpl
     auto& gridTemplateRowsTrackSizes = gridContainerStyle->gridTemplateRows().sizes;
 
     // 1. Run the Grid Item Placement Algorithm to resolve the placement of all grid items in the grid.
-    auto [ gridAreas, implicitGridColumnsCount, implicitGridRowsCount ] = placeGridItems(unplacedGridItems, gridTemplateColumnsTrackSizes, gridTemplateRowsTrackSizes);
+    GridAutoFlowOptions autoFlowOptions {
+        .strategy = gridContainerStyle->isGridAutoFlowAlgorithmDense() ? PackingStrategy::Dense : PackingStrategy::Sparse,
+        .direction = gridContainerStyle->isGridAutoFlowDirectionRow() ? GridAutoFlowDirection::Row : GridAutoFlowDirection::Column
+    };
+    auto [ gridAreas, implicitGridColumnsCount, implicitGridRowsCount ] = placeGridItems(unplacedGridItems, gridTemplateColumnsTrackSizes, gridTemplateRowsTrackSizes, autoFlowOptions);
     auto placedGridItems = formattingContext().constructPlacedGridItems(gridAreas);
 
     auto columnTrackSizingFunctionsList = trackSizingFunctions(implicitGridColumnsCount, gridTemplateColumnsTrackSizes);
