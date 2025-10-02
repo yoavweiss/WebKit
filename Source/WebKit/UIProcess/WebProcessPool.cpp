@@ -1498,9 +1498,11 @@ void WebProcessPool::handleMemoryPressureWarning(Critical)
     m_backForwardCache->clear();
     m_webProcessCache->clear();
 
+    for (WeakPtr maybePrewarmedProcess : copyToVector(m_prewarmedProcesses)) {
+        if (RefPtr prewarmedProcess = maybePrewarmedProcess.get())
+            prewarmedProcess->shutDown();
+    }
 
-    for (RefPtr prewarmedProcess : m_prewarmedProcesses)
-        prewarmedProcess->shutDown();
     ASSERT(m_prewarmedProcesses.isEmptyIgnoringNullReferences());
 
     for (Ref process : m_processes)
