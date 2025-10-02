@@ -127,7 +127,7 @@ void ScriptElement::dispatchErrorEvent()
 }
 
 // https://html.spec.whatwg.org/C#prepare-the-script-element (Steps 8-12)
-std::optional<ScriptType> ScriptElement::determineScriptType(const String& type, const String& language, bool isHTMLDocument)
+std::optional<ScriptType> ScriptElement::determineScriptType(const String& type, const String& language, bool isHTMLDocument, bool speculationRulesPrefetchEnabled)
 {
     // Step 8. If any of the following are true:
     //  - el has a type attribute whose value is the empty string;
@@ -164,7 +164,7 @@ std::optional<ScriptType> ScriptElement::determineScriptType(const String& type,
         return ScriptType::ImportMap;
 
     // Step 12. Otherwise, if the script block's type string is an ASCII case-insensitive match for the string "speculationrules", then set el's type to "speculationrules".
-    if (equalLettersIgnoringASCIICase(type, "speculationrules"_s))
+    if (speculationRulesPrefetchEnabled && equalLettersIgnoringASCIICase(type, "speculationrules"_s))
         return ScriptType::SpeculationRules;
 
     return std::nullopt;
@@ -172,7 +172,7 @@ std::optional<ScriptType> ScriptElement::determineScriptType(const String& type,
 
 std::optional<ScriptType> ScriptElement::determineScriptType() const
 {
-    return determineScriptType(typeAttributeValue(), languageAttributeValue(), element().document().isHTMLDocument());
+    return determineScriptType(typeAttributeValue(), languageAttributeValue(), element().document().isHTMLDocument(), element().document().settings().speculationRulesPrefetchEnabled());
 }
 
 // https://html.spec.whatwg.org/multipage/scripting.html#prepare-the-script-element
@@ -582,11 +582,13 @@ void ScriptElement::executePendingScript(PendingScript& pendingScript)
             executeScriptAndDispatchEvent(*loadableScript);
         else {
             ASSERT(!pendingScript.hasError());
-            ASSERT_WITH_MESSAGE(scriptType() == ScriptType::Classic || scriptType() == ScriptType::ImportMap, "Module script always have a loadableScript pointer.");
+            ASSERT_WITH_MESSAGE(scriptType() == ScriptType::Classic || scriptType() == ScriptType::ImportMap || (scriptType() == ScriptType::SpeculationRules && document->settings().speculationRulesPrefetchEnabled()), "Module script always have a loadableScript pointer.");
             if (scriptType() == ScriptType::Classic)
                 executeClassicScript(ScriptSourceCode(scriptContent(), m_taintedOrigin, URL(document->url()), pendingScript.startingPosition(), JSC::SourceProviderSourceType::Program, InlineClassicScript::create(*this)));
-            else
+            else if (scriptType() == ScriptType::ImportMap)
                 registerImportMap(ScriptSourceCode(scriptContent(), m_taintedOrigin, URL(document->url()), pendingScript.startingPosition(), JSC::SourceProviderSourceType::ImportMap));
+            else
+                registerSpeculationRules(ScriptSourceCode(scriptContent(), m_taintedOrigin, URL(document->url()), pendingScript.startingPosition(), JSC::SourceProviderSourceType::Program));
             dispatchLoadEventRespectingUserGestureIndicator();
         }
     }
