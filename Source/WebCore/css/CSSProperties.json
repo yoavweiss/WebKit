@@ -9521,7 +9521,8 @@
                 "start",
                 "end",
                 "self-start",
-                "self-end"
+                "self-end",
+                "dialog"
             ],
             "codegen-properties": {
                 "aliases": [
@@ -13759,7 +13760,7 @@
             }
         },
         "<self-position>": {
-            "grammar": "center | start | end | self-start | self-end | flex-start | flex-end | anchor-center",
+            "grammar": "center | start | end | self-start | self-end | flex-start | flex-end | anchor-center | dialog",
             "specification": {
                 "category": "css-align",
                 "url": "https://www.w3.org/TR/css-align-3/#typedef-self-position"

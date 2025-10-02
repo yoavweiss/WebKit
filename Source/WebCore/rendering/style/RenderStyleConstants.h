@@ -481,6 +481,7 @@ enum class ItemPosition : uint8_t {
     Left,
     Right,
     AnchorCenter,
+    Dialog
 };
 
 enum class OverflowAlignment : uint8_t {

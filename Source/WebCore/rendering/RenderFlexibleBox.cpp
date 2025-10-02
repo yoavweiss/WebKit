@@ -2071,6 +2071,7 @@ static LayoutUnit alignmentOffset(LayoutUnit availableFreeSpace, ItemPosition po
         return availableFreeSpace;
     case ItemPosition::Center:
     case ItemPosition::AnchorCenter:
+    case ItemPosition::Dialog:
         return availableFreeSpace / 2;
     case ItemPosition::Baseline:
     case ItemPosition::LastBaseline: 

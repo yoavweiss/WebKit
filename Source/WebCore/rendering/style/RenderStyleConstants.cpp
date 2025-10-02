@@ -731,6 +731,7 @@ TextStream& operator<<(TextStream& ts, ItemPosition position)
     case ItemPosition::Left: ts << "left"_s; break;
     case ItemPosition::Right: ts << "right"_s; break;
     case ItemPosition::AnchorCenter: ts << "anchor-center"_s; break;
+    case ItemPosition::Dialog: ts << "dialog"_s; break;
     }
     return ts;
 }

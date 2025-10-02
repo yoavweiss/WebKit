@@ -571,6 +571,7 @@ inline ItemPosition oppositeItemPosition(ItemPosition position)
     case ItemPosition::LastBaseline:
     case ItemPosition::Center:
     case ItemPosition::AnchorCenter:
+    case ItemPosition::Dialog:
         return position;
 
     case ItemPosition::Start:

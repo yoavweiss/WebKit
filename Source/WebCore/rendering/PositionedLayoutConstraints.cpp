@@ -474,19 +474,21 @@ ItemPosition PositionedLayoutConstraints::resolveAlignmentValue() const
 {
     auto alignmentPosition = [&] {
         auto itemPosition = m_alignment.position();
-        if (m_useStaticPosition) {
+        if (ItemPosition::Auto == itemPosition) {
+
+            if (m_useStaticPosition) {
 #if ASSERT_ENABLED
-            ASSERT(m_isEligibleForStaticRangeAlignment);
+                ASSERT(m_isEligibleForStaticRangeAlignment);
 #endif
-            auto* parentStyle = m_renderer->parentStyle();
-            return m_style.resolvedAlignSelf(parentStyle, ItemPosition::Start).position();
-        }
-        if (ItemPosition::Auto == itemPosition)
+                auto* parentStyle = m_renderer->parentStyle();
+                return m_style.resolvedAlignSelf(parentStyle, ItemPosition::Start).position();
+            }
             return ItemPosition::Normal;
+        }
         return itemPosition;
     }();
 
-    if (m_style.positionArea() && ItemPosition::Normal == alignmentPosition)
+    if (m_style.positionArea() && (ItemPosition::Normal == alignmentPosition || ItemPosition::Dialog == alignmentPosition))
         alignmentPosition = m_style.positionArea()->defaultAlignmentForAxis(m_physicalAxis, m_containingWritingMode, m_writingMode);
 
     if (!m_defaultAnchorBox && alignmentPosition == ItemPosition::AnchorCenter)
