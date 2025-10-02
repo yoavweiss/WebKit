@@ -106,11 +106,5 @@ rendering/svg/SVGRenderingContext.h
 style/StyleExtractorState.h
 style/StyleScope.h
 testing/Internals.cpp
-workers/DedicatedWorkerThread.cpp
-workers/Worker.h
-workers/WorkerOrWorkletGlobalScope.h
-workers/WorkerThread.h
-workers/shared/SharedWorkerGlobalScope.h
-workers/shared/context/SharedWorkerThread.h
 xml/XSLStyleSheetLibxslt.cpp
 xml/parser/XMLDocumentParserLibxml2.cpp

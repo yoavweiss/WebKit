@@ -742,7 +742,7 @@ ServiceWorkerOrClientIdentifier ServiceWorkerContainer::contextIdentifier()
     ASSERT(m_creationThread.ptr() == &Thread::currentSingleton());
     ASSERT(scriptExecutionContext());
     if (RefPtr serviceWorkerGlobal = dynamicDowncast<ServiceWorkerGlobalScope>(*scriptExecutionContext()))
-        return serviceWorkerGlobal->thread().identifier();
+        return serviceWorkerGlobal->thread()->identifier();
     return scriptExecutionContext()->identifier();
 }
 

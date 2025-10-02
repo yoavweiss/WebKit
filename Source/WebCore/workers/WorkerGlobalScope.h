@@ -114,8 +114,7 @@ public:
     WorkerSWClientConnection& swClientConnection();
     void updateServiceWorkerClientData() final;
 
-    WorkerThread& thread() const;
-    Ref<WorkerThread> protectedThread() const;
+    Ref<WorkerThread> thread() const;
 
     using ScriptExecutionContext::hasPendingActivity;
 

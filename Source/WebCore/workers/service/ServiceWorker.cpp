@@ -129,7 +129,7 @@ ExceptionOr<void> ServiceWorker::postMessage(JSC::JSGlobalObject& globalObject, 
     // FIXME: Maybe we could use a ScriptExecutionContextIdentifier for service workers too.
     ServiceWorkerOrClientIdentifier sourceIdentifier = [&]() -> ServiceWorkerOrClientIdentifier {
         if (RefPtr serviceWorker = dynamicDowncast<ServiceWorkerGlobalScope>(context))
-            return serviceWorker->thread().identifier();
+            return serviceWorker->thread()->identifier();
         return context->identifier();
     }();
 

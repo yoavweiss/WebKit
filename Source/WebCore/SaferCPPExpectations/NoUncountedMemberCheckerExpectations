@@ -81,6 +81,5 @@ style/StyleScopeRuleSets.h
 style/Styleable.h
 svg/properties/SVGPropertyOwnerRegistry.h
 workers/WorkerMessagingProxy.h
-workers/WorkerOrWorkletGlobalScope.h
 xml/XPathGrammar.cpp
 xml/XPathGrammar.h

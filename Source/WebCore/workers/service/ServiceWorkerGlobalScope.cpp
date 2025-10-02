@@ -143,7 +143,7 @@ Page* ServiceWorkerGlobalScope::serviceWorkerPage()
 
 void ServiceWorkerGlobalScope::skipWaiting(Ref<DeferredPromise>&& promise)
 {
-    RELEASE_LOG(ServiceWorker, "ServiceWorkerGlobalScope::skipWaiting for worker %" PRIu64, thread().identifier().toUInt64());
+    RELEASE_LOG(ServiceWorker, "ServiceWorkerGlobalScope::skipWaiting for worker %" PRIu64, thread()->identifier().toUInt64());
 
     uint64_t requestIdentifier = ++m_lastRequestIdentifier;
     m_pendingSkipWaitingPromises.add(requestIdentifier, WTFMove(promise));
@@ -169,9 +169,9 @@ enum EventTargetInterfaceType ServiceWorkerGlobalScope::eventTargetInterface() c
     return EventTargetInterfaceType::ServiceWorkerGlobalScope;
 }
 
-ServiceWorkerThread& ServiceWorkerGlobalScope::thread()
+Ref<ServiceWorkerThread> ServiceWorkerGlobalScope::thread()
 {
-    return static_cast<ServiceWorkerThread&>(WorkerGlobalScope::thread());
+    return downcast<ServiceWorkerThread>(WorkerGlobalScope::thread());
 }
 
 void ServiceWorkerGlobalScope::prepareForDestruction()
@@ -212,7 +212,7 @@ void ServiceWorkerGlobalScope::updateExtendedEventsSet(ExtendableEvent* newEvent
     if (hasPendingEvents == hadPendingEvents)
         return;
 
-    callOnMainThread([threadIdentifier = thread().identifier(), hasPendingEvents] {
+    callOnMainThread([threadIdentifier = thread()->identifier(), hasPendingEvents] {
         if (RefPtr connection = SWContextManager::singleton().connection())
             connection->setServiceWorkerHasPendingEvents(threadIdentifier, hasPendingEvents);
     });
@@ -226,7 +226,7 @@ const ServiceWorkerContextData::ImportedScript* ServiceWorkerGlobalScope::script
 
 void ServiceWorkerGlobalScope::setScriptResource(const URL& url, ServiceWorkerContextData::ImportedScript&& script)
 {
-    callOnMainThread([threadIdentifier = thread().identifier(), url = url.isolatedCopy(), script = script.isolatedCopy()] {
+    callOnMainThread([threadIdentifier = thread()->identifier(), url = url.isolatedCopy(), script = script.isolatedCopy()] {
         if (RefPtr connection = SWContextManager::singleton().connection())
             connection->setScriptResource(threadIdentifier, url, script);
     });
@@ -266,7 +266,7 @@ bool ServiceWorkerGlobalScope::didFirePushEventRecently() const
 void ServiceWorkerGlobalScope::addConsoleMessage(MessageSource source, MessageLevel level, const String& message, unsigned long requestIdentifier)
 {
     if (m_consoleMessageReportingEnabled) {
-        callOnMainThread([threadIdentifier = thread().identifier(), source, level, message = message.isolatedCopy(), requestIdentifier] {
+        callOnMainThread([threadIdentifier = thread()->identifier(), source, level, message = message.isolatedCopy(), requestIdentifier] {
             if (RefPtr connection = SWContextManager::singleton().connection())
                 connection->reportConsoleMessage(threadIdentifier, source, level, message, requestIdentifier);
         });
