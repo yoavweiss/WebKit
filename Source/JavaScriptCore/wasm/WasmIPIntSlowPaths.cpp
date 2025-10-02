@@ -390,6 +390,34 @@ WASM_IPINT_EXTERN_CPP_DECL(epilogue_osr, CallFrame* callFrame)
 }
 #endif
 
+static void copyExceptionStackToPayload(const Wasm::FunctionSignature& tagType, const IPIntStackEntry* stackPointer, FixedVector<uint64_t>& payload)
+{
+    unsigned payloadIndex = payload.size();
+    for (unsigned i = 0; i < tagType.argumentCount(); ++i) {
+        unsigned argIndex = tagType.argumentCount() - i - 1;
+        if (tagType.argumentType(argIndex).isV128()) {
+            payload[--payloadIndex] = stackPointer[i].v128.u64x2[1];
+            payload[--payloadIndex] = stackPointer[i].v128.u64x2[0];
+        } else
+            payload[--payloadIndex] = stackPointer[i].i64;
+    }
+    ASSERT(!payloadIndex);
+}
+
+static void copyExceptionPayloadToStack(const Wasm::FunctionSignature& tagType, const FixedVector<uint64_t>& payload, IPIntStackEntry* stackPointer)
+{
+    unsigned payloadIndex = payload.size();
+    for (unsigned i = 0; i < tagType.argumentCount(); ++i) {
+        unsigned argIndex = tagType.argumentCount() - i - 1;
+        if (tagType.argumentType(argIndex).isV128()) {
+            stackPointer[i].v128.u64x2[1] = payload[--payloadIndex];
+            stackPointer[i].v128.u64x2[0] = payload[--payloadIndex];
+        } else
+            stackPointer[i].i64 = payload[--payloadIndex];
+    }
+    ASSERT(!payloadIndex);
+}
+
 WASM_IPINT_EXTERN_CPP_DECL(retrieve_and_clear_exception, CallFrame* callFrame, IPIntStackEntry* stackPointer, IPIntLocal* pl)
 {
     VM& vm = instance->vm();
@@ -406,12 +434,7 @@ WASM_IPINT_EXTERN_CPP_DECL(retrieve_and_clear_exception, CallFrame* callFrame, I
         // We only have a stack pointer if we're doing a catch not a catch_all
         Exception* exception = throwScope.exception();
         auto* wasmException = jsSecureCast<JSWebAssemblyException*>(exception->value());
-
-        ASSERT(wasmException->payload().size() == wasmException->tag().parameterCount());
-        uint64_t size = wasmException->payload().size();
-
-        for (unsigned i = 0; i < size; ++i)
-            stackPointer[size - 1 - i].i64 = wasmException->payload()[i];
+        copyExceptionPayloadToStack(wasmException->tag().type(), wasmException->payload(), stackPointer);
     }
 
     // We want to clear the exception here rather than in the catch prologue
@@ -460,14 +483,10 @@ WASM_IPINT_EXTERN_CPP_DECL(retrieve_clear_and_push_exception_and_arguments, Call
     Exception* exception = throwScope.exception();
     auto* wasmException = jsSecureCast<JSWebAssemblyException*>(exception->value());
 
-    ASSERT(wasmException->payload().size() == wasmException->tag().parameterCount());
-    uint64_t size = wasmException->payload().size();
+    ASSERT(wasmException->payload().size() == wasmException->tag().parameterBufferSize());
 
     stackPointer[0].ref = JSValue::encode(exception->value());
-
-    // We only have a stack pointer if we're doing a catch_ref not a catch_all_ref
-    for (unsigned i = 0; i < size; ++i)
-        stackPointer[size - i].i64 = wasmException->payload()[i];
+    copyExceptionPayloadToStack(wasmException->tag().type(), wasmException->payload(), stackPointer + 1);
 
     // We want to clear the exception here rather than in the catch prologue
     // JIT code because clearing it also entails clearing a bit in an Atomic
@@ -489,8 +508,7 @@ WASM_IPINT_EXTERN_CPP_DECL(throw_exception, CallFrame* callFrame, IPIntStackEntr
     Ref<const Wasm::Tag> tag = instance->tag(exceptionIndex);
 
     FixedVector<uint64_t> values(tag->parameterBufferSize());
-    for (unsigned i = 0; i < tag->parameterBufferSize(); ++i)
-        values[tag->parameterBufferSize() - 1 - i] = arguments[i].i64;
+    copyExceptionStackToPayload(tag->type(), arguments, values);
 
     ASSERT(tag->type().returnsVoid());
     JSWebAssemblyException* exception = JSWebAssemblyException::create(vm, globalObject->webAssemblyExceptionStructure(), WTFMove(tag), WTFMove(values));
