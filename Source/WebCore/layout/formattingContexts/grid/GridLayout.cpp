@@ -45,6 +45,11 @@ struct UsedTrackSizes {
     TrackSizes rowSizes;
 };
 
+struct UsedMargins {
+    LayoutUnit marginStart;
+    LayoutUnit marginEnd;
+};
+
 GridLayout::GridLayout(const GridFormattingContext& gridFormattingContext)
     : m_gridFormattingContext(gridFormattingContext)
 {
@@ -106,6 +111,11 @@ void GridLayout::layout(GridFormattingContext::GridLayoutConstraints, const Unpl
 
     UNUSED_VARIABLE(usedColumnSizes);
     UNUSED_VARIABLE(usedRowSizes);
+
+    // https://drafts.csswg.org/css-grid-1/#alignment
+    auto usedInlineMargins = computeInlineMargins(placedGridItems);
+    auto usedBlockMargins = computeBlockMargins(placedGridItems);
+
 }
 
 TrackSizingFunctionsList GridLayout::trackSizingFunctions(size_t implicitGridTracksCount, const Vector<Style::GridTrackSize> gridTemplateTrackSizes)
@@ -177,6 +187,58 @@ UsedTrackSizes GridLayout::performGridSizingAlgorithm(const PlacedGridItems& pla
     UNUSED_VARIABLE(resolveGridRowSizesIfAnyMinContentContributionChanged);
 
     return { columnSizes, rowSizes };
+}
+
+// https://drafts.csswg.org/css-grid-1/#auto-margins
+Vector<UsedMargins> GridLayout::computeInlineMargins(const PlacedGridItems& placedGridItems)
+{
+    return placedGridItems.map([](const PlacedGridItem& placedGridItem) {
+        auto& inlineAxisSizes = placedGridItem.inlineAxisSizes();
+
+        auto marginStart = [&] -> LayoutUnit {
+            if (auto fixedMarginStart = inlineAxisSizes.marginStart.tryFixed())
+                return LayoutUnit { fixedMarginStart->resolveZoom(Style::ZoomNeeded { }) };
+
+            ASSERT_NOT_IMPLEMENTED_YET();
+            return { };
+        };
+
+        auto marginEnd = [&] -> LayoutUnit {
+            if (auto fixedMarginEnd = inlineAxisSizes.marginEnd.tryFixed())
+                return LayoutUnit { fixedMarginEnd->resolveZoom(Style::ZoomNeeded { }) };
+
+            ASSERT_NOT_IMPLEMENTED_YET();
+            return { };
+        };
+
+        return UsedMargins { marginStart(), marginEnd() };
+    });
+}
+
+// https://drafts.csswg.org/css-grid-1/#auto-margins
+Vector<UsedMargins> GridLayout::computeBlockMargins(const PlacedGridItems& placedGridItems)
+{
+    return placedGridItems.map([](const PlacedGridItem& placedGridItem) {
+        auto& blockAxisSizes = placedGridItem.blockAxisSizes();
+
+        auto marginStart = [&] -> LayoutUnit {
+            if (auto fixedMarginStart = blockAxisSizes.marginStart.tryFixed())
+                return LayoutUnit { fixedMarginStart->resolveZoom(Style::ZoomNeeded { }) };
+
+            ASSERT_NOT_IMPLEMENTED_YET();
+            return { };
+        };
+
+        auto marginEnd = [&] -> LayoutUnit {
+            if (auto fixedMarginEnd = blockAxisSizes.marginEnd.tryFixed())
+                return LayoutUnit { fixedMarginEnd->resolveZoom(Style::ZoomNeeded { }) };
+
+            ASSERT_NOT_IMPLEMENTED_YET();
+            return { };
+        };
+
+        return UsedMargins { marginStart(), marginEnd() };
+    });
 }
 
 const ElementBox& GridLayout::gridContainer() const

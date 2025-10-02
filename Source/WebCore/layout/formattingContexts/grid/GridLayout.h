@@ -56,6 +56,7 @@ struct GridAutoFlowOptions {
 };
 
 struct UsedTrackSizes;
+struct UsedMargins;
 
 class GridLayout {
 public:
@@ -70,6 +71,10 @@ private:
     static TrackSizingFunctionsList trackSizingFunctions(size_t implicitGridTracksCount, const Vector<Style::GridTrackSize> gridTemplateTrackSizes);
 
     static UsedTrackSizes performGridSizingAlgorithm(const PlacedGridItems&, const TrackSizingFunctionsList& columnTrackSizingFunctionsList, const TrackSizingFunctionsList& rowTrackSizingFunctionsList);
+
+
+    static Vector<UsedMargins> computeInlineMargins(const PlacedGridItems&);
+    static Vector<UsedMargins> computeBlockMargins(const PlacedGridItems&);
 
     const GridFormattingContext& formattingContext() const { return m_gridFormattingContext.get(); }
 
