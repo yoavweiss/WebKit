@@ -195,9 +195,14 @@ void Database::insertPrivateClickMeasurement(WebCore::PrivateClickMeasurement&& 
         // We should never be inserting an attributed private click measurement value into the database without valid report times.
         ASSERT(sourceEarliestTimeToSend != -1 || destinationEarliestTimeToSend != -1);
 
-        auto statement = m_database.prepareStatement(insertAttributedPrivateClickMeasurementQuery);
-        if (!statement
-            || statement->bindInt(1, *sourceID) != SQLITE_OK
+        auto sqlStatement = m_database.prepareStatement(insertAttributedPrivateClickMeasurementQuery);
+        if (!sqlStatement) {
+            RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::insertPrivateClickMeasurement insertAttributedPrivateClickMeasurementQuery, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
+            ASSERT_NOT_REACHED();
+            return;
+        }
+        CheckedRef statement = sqlStatement.value();
+        if (statement->bindInt(1, *sourceID) != SQLITE_OK
             || statement->bindInt(2, *attributionDestinationID) != SQLITE_OK
             || statement->bindInt(3, attribution.sourceID()) != SQLITE_OK
             || statement->bindInt(4, attributionTriggerData) != SQLITE_OK
@@ -221,9 +226,14 @@ void Database::insertPrivateClickMeasurement(WebCore::PrivateClickMeasurement&& 
 
     ASSERT(attributionType == PrivateClickMeasurementAttributionType::Unattributed);
 
-    auto statement = m_database.prepareStatement(insertUnattributedPrivateClickMeasurementQuery);
-    if (!statement
-        || statement->bindInt(1, *sourceID) != SQLITE_OK
+    auto sqlStatement = m_database.prepareStatement(insertUnattributedPrivateClickMeasurementQuery);
+    if (!sqlStatement) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::insertPrivateClickMeasurement insertUnattributedPrivateClickMeasurementQuery, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+        return;
+    }
+    CheckedRef statement = sqlStatement.value();
+    if (statement->bindInt(1, *sourceID) != SQLITE_OK
         || statement->bindInt(2, *attributionDestinationID) != SQLITE_OK
         || statement->bindInt(3, attribution.sourceID()) != SQLITE_OK
         || statement->bindDouble(4, attribution.timeOfAdClick().secondsSinceEpoch().value()) != SQLITE_OK
@@ -241,8 +251,13 @@ void Database::markAllUnattributedPrivateClickMeasurementAsExpiredForTesting()
 {
     ASSERT(!RunLoop::isMain());
     auto scopedStatement = this->scopedStatement(m_setUnattributedPrivateClickMeasurementAsExpiredStatement, setUnattributedPrivateClickMeasurementAsExpiredQuery, "markAllUnattributedPrivateClickMeasurementAsExpiredForTesting"_s);
-
-    if (!scopedStatement || scopedStatement->step() != SQLITE_DONE) {
+    if (!scopedStatement) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::markAllUnattributedPrivateClickMeasurementAsExpiredForTesting, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+        return;
+    }
+    CheckedPtr statement = scopedStatement.get();
+    if (statement->step() != SQLITE_DONE) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::markAllUnattributedPrivateClickMeasurementAsExpiredForTesting, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
     }
@@ -256,18 +271,26 @@ std::pair<std::optional<Database::UnattributedPrivateClickMeasurement>, std::opt
     if (!sourceSiteDomainID || !destinationSiteDomainID)
         return std::make_pair(std::nullopt, std::nullopt);
 
-    auto findUnattributedScopedStatement = this->scopedStatement(m_findUnattributedStatement, findUnattributedQuery, "findPrivateClickMeasurement"_s);
-    if (!findUnattributedScopedStatement
-        || findUnattributedScopedStatement->bindInt(1, *sourceSiteDomainID) != SQLITE_OK
+    auto findUnattributedScoped = this->scopedStatement(m_findUnattributedStatement, findUnattributedQuery, "findPrivateClickMeasurement"_s);
+    if (!findUnattributedScoped) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::findPrivateClickMeasurement findUnattributedQuery, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+    }
+    CheckedPtr findUnattributedScopedStatement = findUnattributedScoped.get();
+    if (findUnattributedScopedStatement->bindInt(1, *sourceSiteDomainID) != SQLITE_OK
         || findUnattributedScopedStatement->bindInt(2, *destinationSiteDomainID) != SQLITE_OK
         || findUnattributedScopedStatement->bindText(3, applicationBundleIdentifier) != SQLITE_OK) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::findPrivateClickMeasurement findUnattributedQuery, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
     }
 
-    auto findAttributedScopedStatement = this->scopedStatement(m_findAttributedStatement, findAttributedQuery, "findPrivateClickMeasurement"_s);
-    if (!findAttributedScopedStatement
-        || findAttributedScopedStatement->bindInt(1, *sourceSiteDomainID) != SQLITE_OK
+    auto findAttributedScoped = this->scopedStatement(m_findAttributedStatement, findAttributedQuery, "findPrivateClickMeasurement"_s);
+    if (!findAttributedScoped) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::findPrivateClickMeasurement findAttributedQuery, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+    }
+    CheckedPtr findAttributedScopedStatement = findAttributedScoped.get();
+    if (findAttributedScopedStatement->bindInt(1, *sourceSiteDomainID) != SQLITE_OK
         || findAttributedScopedStatement->bindInt(2, *destinationSiteDomainID) != SQLITE_OK
         || findAttributedScopedStatement->bindText(3, applicationBundleIdentifier) != SQLITE_OK) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::findPrivateClickMeasurement findAttributedQuery, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
@@ -360,11 +383,16 @@ void Database::removeUnattributed(WebCore::PrivateClickMeasurement& attribution)
 
     auto scopedStatement = this->scopedStatement(m_removeUnattributedStatement, removeUnattributedQuery, "removeUnattributed"_s);
 
-    if (!scopedStatement
-        || scopedStatement->bindInt(1, *sourceSiteDomainID) != SQLITE_OK
-        || scopedStatement->bindInt(2, *destinationSiteDomainID) != SQLITE_OK
-        || scopedStatement->bindText(3, attribution.sourceApplicationBundleID()) != SQLITE_OK
-        || scopedStatement->step() != SQLITE_DONE) {
+    if (!scopedStatement) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::removeUnattributed, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+        return;
+    }
+    CheckedPtr statement = scopedStatement.get();
+    if (statement->bindInt(1, *sourceSiteDomainID) != SQLITE_OK
+        || statement->bindInt(2, *destinationSiteDomainID) != SQLITE_OK
+        || statement->bindText(3, attribution.sourceApplicationBundleID()) != SQLITE_OK
+        || statement->step() != SQLITE_DONE) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::removeUnattributed, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
     }
@@ -374,16 +402,16 @@ Vector<WebCore::PrivateClickMeasurement> Database::allAttributedPrivateClickMeas
 {
     ASSERT(!RunLoop::isMain());
     auto attributedScopedStatement = this->scopedStatement(m_allAttributedPrivateClickMeasurementStatement, allAttributedPrivateClickMeasurementQuery, "allAttributedPrivateClickMeasurement"_s);
-
     if (!attributedScopedStatement) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::allAttributedPrivateClickMeasurement, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
         return { };
     }
 
+    CheckedPtr statement = attributedScopedStatement.get();
     Vector<WebCore::PrivateClickMeasurement> attributions;
-    while (attributedScopedStatement->step() == SQLITE_ROW)
-        attributions.append(buildPrivateClickMeasurementFromDatabase(*attributedScopedStatement.get(), PrivateClickMeasurementAttributionType::Attributed));
+    while (statement->step() == SQLITE_ROW)
+        attributions.append(buildPrivateClickMeasurementFromDatabase(*statement, PrivateClickMeasurementAttributionType::Attributed));
 
     return attributions;
 }
@@ -392,22 +420,28 @@ String Database::privateClickMeasurementToStringForTesting() const
 {
     ASSERT(!RunLoop::isMain());
     auto privateClickMeasurementDataExists = m_database.prepareStatement("SELECT (SELECT COUNT(*) FROM UnattributedPrivateClickMeasurement) as cnt1, (SELECT COUNT(*) FROM AttributedPrivateClickMeasurement) as cnt2"_s);
-    if (!privateClickMeasurementDataExists || privateClickMeasurementDataExists->step() != SQLITE_ROW) {
+    if (!privateClickMeasurementDataExists) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::privateClickMeasurementToStringForTesting failed, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+        return { };
+    }
+    CheckedRef privateClickMeasurementDataExistsStatement = privateClickMeasurementDataExists.value();
+    if (privateClickMeasurementDataExistsStatement->step() != SQLITE_ROW) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::privateClickMeasurementToStringForTesting failed, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
         return { };
     }
 
-    if (!privateClickMeasurementDataExists->columnInt(0) && !privateClickMeasurementDataExists->columnInt(1))
+    if (!privateClickMeasurementDataExistsStatement->columnInt(0) && !privateClickMeasurementDataExistsStatement->columnInt(1))
         return "\nNo stored Private Click Measurement data.\n"_s;
 
-    auto unattributedScopedStatement = this->scopedStatement(m_allUnattributedPrivateClickMeasurementAttributionsStatement, allUnattributedPrivateClickMeasurementAttributionsQuery, "privateClickMeasurementToStringForTesting"_s);
-
-    if (!unattributedScopedStatement) {
+    auto unattributedScoped = this->scopedStatement(m_allUnattributedPrivateClickMeasurementAttributionsStatement, allUnattributedPrivateClickMeasurementAttributionsQuery, "privateClickMeasurementToStringForTesting"_s);
+    if (!unattributedScoped) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::privateClickMeasurementToStringForTesting, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
         return { };
     }
+    CheckedPtr unattributedScopedStatement = unattributedScoped.get();
 
     unsigned unattributedNumber = 0;
     StringBuilder builder;
@@ -417,14 +451,14 @@ String Database::privateClickMeasurementToStringForTesting() const
             attributionToStringForTesting(buildPrivateClickMeasurementFromDatabase(*unattributedScopedStatement.get(), PrivateClickMeasurementAttributionType::Unattributed)));
     }
 
-    auto attributedScopedStatement = this->scopedStatement(m_allAttributedPrivateClickMeasurementStatement, allAttributedPrivateClickMeasurementQuery, "privateClickMeasurementToStringForTesting"_s);
-
-    if (!attributedScopedStatement) {
+    auto attributedScoped = this->scopedStatement(m_allAttributedPrivateClickMeasurementStatement, allAttributedPrivateClickMeasurementQuery, "privateClickMeasurementToStringForTesting"_s);
+    if (!attributedScoped) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::privateClickMeasurementToStringForTesting, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
         return { };
     }
 
+    CheckedPtr attributedScopedStatement = attributedScoped.get();
     unsigned attributedNumber = 0;
     while (attributedScopedStatement->step() == SQLITE_ROW) {
         if (!attributedNumber)
@@ -477,17 +511,25 @@ void Database::markAttributedPrivateClickMeasurementsAsExpiredForTesting()
 
     auto transactionScope = beginTransactionIfNecessary();
 
-    auto earliestTimeToSendToSourceStatement = m_database.prepareStatement("UPDATE AttributedPrivateClickMeasurement SET earliestTimeToSendToSource = ?"_s);
-    auto earliestTimeToSendToDestinationStatement = m_database.prepareStatement("UPDATE AttributedPrivateClickMeasurement SET earliestTimeToSendToDestination = null"_s);
-
-    if (!earliestTimeToSendToSourceStatement
-        || earliestTimeToSendToSourceStatement->bindInt(1, expiredTimeToSend.secondsSinceEpoch().value()) != SQLITE_OK
+    auto earliestTimeToSendToSource = m_database.prepareStatement("UPDATE AttributedPrivateClickMeasurement SET earliestTimeToSendToSource = ?"_s);
+    if (!earliestTimeToSendToSource) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::markAttributedPrivateClickMeasurementsAsExpiredForTesting, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+    }
+    CheckedRef earliestTimeToSendToSourceStatement = earliestTimeToSendToSource.value();
+    if (earliestTimeToSendToSourceStatement->bindInt(1, expiredTimeToSend.secondsSinceEpoch().value()) != SQLITE_OK
         || earliestTimeToSendToSourceStatement->step() != SQLITE_DONE) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::markAttributedPrivateClickMeasurementsAsExpiredForTesting, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
     }
 
-    if (!earliestTimeToSendToDestinationStatement || earliestTimeToSendToDestinationStatement->step() != SQLITE_DONE) {
+    auto earliestTimeToSendToDestination = m_database.prepareStatement("UPDATE AttributedPrivateClickMeasurement SET earliestTimeToSendToDestination = null"_s);
+    if (!earliestTimeToSendToDestination) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::markAttributedPrivateClickMeasurementsAsExpiredForTesting, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+    }
+    CheckedRef earliestTimeToSendToDestinationStatement = earliestTimeToSendToDestination.value();
+    if (earliestTimeToSendToDestinationStatement->step() != SQLITE_DONE) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::markAttributedPrivateClickMeasurementsAsExpiredForTesting, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
     }
@@ -510,10 +552,15 @@ void Database::clearPrivateClickMeasurement(std::optional<WebCore::RegistrableDo
 
     auto transactionScope = beginTransactionIfNecessary();
 
-    auto clearAllPrivateClickMeasurementScopedStatement = this->scopedStatement(m_clearAllPrivateClickMeasurementStatement, clearAllPrivateClickMeasurementQuery, "clearPrivateClickMeasurement"_s);
+    auto clearAllPrivateClickMeasurementScoped = this->scopedStatement(m_clearAllPrivateClickMeasurementStatement, clearAllPrivateClickMeasurementQuery, "clearPrivateClickMeasurement"_s);
 
-    if (!clearAllPrivateClickMeasurementScopedStatement
-        || clearAllPrivateClickMeasurementScopedStatement->bindText(1, bindParameter) != SQLITE_OK
+    if (!clearAllPrivateClickMeasurementScoped) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - ResourceLoadStatisticsStore::clearPrivateClickMeasurement clearAllPrivateClickMeasurementScopedStatement, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+        return;
+    }
+    CheckedPtr clearAllPrivateClickMeasurementScopedStatement = clearAllPrivateClickMeasurementScoped.get();
+    if (clearAllPrivateClickMeasurementScopedStatement->bindText(1, bindParameter) != SQLITE_OK
         || clearAllPrivateClickMeasurementScopedStatement->step() != SQLITE_DONE) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - ResourceLoadStatisticsStore::clearPrivateClickMeasurement clearAllPrivateClickMeasurementScopedStatement, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
@@ -526,9 +573,14 @@ void Database::clearExpiredPrivateClickMeasurement()
     auto expirationTimeFrame = WallTime::now() - WebCore::PrivateClickMeasurement::maxAge();
     auto scopedStatement = this->scopedStatement(m_clearExpiredPrivateClickMeasurementStatement, clearExpiredPrivateClickMeasurementQuery, "clearExpiredPrivateClickMeasurement"_s);
 
-    if (!scopedStatement
-        || scopedStatement->bindDouble(1, expirationTimeFrame.secondsSinceEpoch().value()) != SQLITE_OK
-        || scopedStatement->step() != SQLITE_DONE) {
+    if (!scopedStatement) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::clearExpiredPrivateClickMeasurement, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+        return;
+    }
+    CheckedPtr statement = scopedStatement.get();
+    if (statement->bindDouble(1, expirationTimeFrame.secondsSinceEpoch().value()) != SQLITE_OK
+        || statement->step() != SQLITE_DONE) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::clearExpiredPrivateClickMeasurement, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
     }
@@ -570,9 +622,14 @@ void Database::clearSentAttribution(WebCore::PrivateClickMeasurement&& attributi
     if (destinationEarliestTimeToSend || sourceEarliestTimeToSend)
         return;
 
-    auto clearAttributedStatement = m_database.prepareStatement("DELETE FROM AttributedPrivateClickMeasurement WHERE sourceSiteDomainID = ? AND destinationSiteDomainID = ? AND sourceApplicationBundleID = ?"_s);
-    if (!clearAttributedStatement
-        || clearAttributedStatement->bindInt(1, *sourceSiteDomainID) != SQLITE_OK
+    auto clearAttributed = m_database.prepareStatement("DELETE FROM AttributedPrivateClickMeasurement WHERE sourceSiteDomainID = ? AND destinationSiteDomainID = ? AND sourceApplicationBundleID = ?"_s);
+    if (!clearAttributed) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::clearSentAttribution failed to prepare, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+        return;
+    }
+    CheckedRef clearAttributedStatement = clearAttributed.value();
+    if (clearAttributedStatement->bindInt(1, *sourceSiteDomainID) != SQLITE_OK
         || clearAttributedStatement->bindInt(2, *destinationSiteDomainID) != SQLITE_OK
         || clearAttributedStatement->bindText(3, sourceApplicationBundleID) != SQLITE_OK
         || clearAttributedStatement->step() != SQLITE_DONE) {
@@ -586,11 +643,16 @@ void Database::markReportAsSentToDestination(SourceDomainID sourceSiteDomainID, 
     ASSERT(!RunLoop::isMain());
     auto scopedStatement = this->scopedStatement(m_markReportAsSentToDestinationStatement, markReportAsSentToDestinationQuery, "markReportAsSentToDestination"_s);
 
-    if (!scopedStatement
-        || scopedStatement->bindInt(1, sourceSiteDomainID) != SQLITE_OK
-        || scopedStatement->bindInt(2, destinationSiteDomainID) != SQLITE_OK
-        || scopedStatement->bindText(3, sourceApplicationBundleID) != SQLITE_OK
-        || scopedStatement->step() != SQLITE_DONE) {
+    if (!scopedStatement) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "Database::markReportAsSentToDestination, error message: %" PUBLIC_LOG_STRING, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+        return;
+    }
+    CheckedPtr statement = scopedStatement.get();
+    if (statement->bindInt(1, sourceSiteDomainID) != SQLITE_OK
+        || statement->bindInt(2, destinationSiteDomainID) != SQLITE_OK
+        || statement->bindText(3, sourceApplicationBundleID) != SQLITE_OK
+        || statement->step() != SQLITE_DONE) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "Database::markReportAsSentToDestination, error message: %" PUBLIC_LOG_STRING, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
     }
@@ -600,12 +662,16 @@ void Database::markReportAsSentToSource(SourceDomainID sourceSiteDomainID, Desti
 {
     ASSERT(!RunLoop::isMain());
     auto scopedStatement = this->scopedStatement(m_markReportAsSentToSourceStatement, markReportAsSentToSourceQuery, "markReportAsSentToSource"_s);
-
-    if (!scopedStatement
-        || scopedStatement->bindInt(1, sourceSiteDomainID) != SQLITE_OK
-        || scopedStatement->bindInt(2, destinationSiteDomainID) != SQLITE_OK
-        || scopedStatement->bindText(3, sourceApplicationBundleID) != SQLITE_OK
-        || scopedStatement->step() != SQLITE_DONE) {
+    if (!scopedStatement) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "Database::markReportAsSentToSource, error message: %" PUBLIC_LOG_STRING, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+        return;
+    }
+    CheckedPtr statement = scopedStatement.get();
+    if (statement->bindInt(1, sourceSiteDomainID) != SQLITE_OK
+        || statement->bindInt(2, destinationSiteDomainID) != SQLITE_OK
+        || statement->bindText(3, sourceApplicationBundleID) != SQLITE_OK
+        || statement->step() != SQLITE_DONE) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "Database::markReportAsSentToSource, error message: %" PUBLIC_LOG_STRING, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
     }
@@ -621,12 +687,16 @@ std::pair<std::optional<Database::SourceEarliestTimeToSend>, std::optional<Datab
         return std::make_pair(std::nullopt, std::nullopt);
 
     auto scopedStatement = this->scopedStatement(m_earliestTimesToSendStatement, earliestTimesToSendQuery, "earliestTimesToSend"_s);
-
-    if (!scopedStatement
-        || scopedStatement->bindInt(1, *sourceSiteDomainID) != SQLITE_OK
-        || scopedStatement->bindInt(2, *destinationSiteDomainID) != SQLITE_OK
-        || scopedStatement->bindText(3, attribution.sourceApplicationBundleID()) != SQLITE_OK
-        || scopedStatement->step() != SQLITE_ROW) {
+    if (!scopedStatement) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "Database::earliestTimesToSend, error message: %" PUBLIC_LOG_STRING, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+        return { };
+    }
+    CheckedPtr statement = scopedStatement.get();
+    if (statement->bindInt(1, *sourceSiteDomainID) != SQLITE_OK
+        || statement->bindInt(2, *destinationSiteDomainID) != SQLITE_OK
+        || statement->bindText(3, attribution.sourceApplicationBundleID()) != SQLITE_OK
+        || statement->step() != SQLITE_ROW) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "Database::earliestTimesToSend, error message: %" PUBLIC_LOG_STRING, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
         return { };
@@ -636,11 +706,11 @@ std::pair<std::optional<Database::SourceEarliestTimeToSend>, std::optional<Datab
     std::optional<DestinationEarliestTimeToSend> earliestTimeToSendToDestination;
     
     // A value of 0.0 indicates that the report has been sent to the respective site.
-    if (scopedStatement->columnDouble(0) > 0.0)
-        earliestTimeToSendToSource = scopedStatement->columnDouble(0);
+    if (statement->columnDouble(0) > 0.0)
+        earliestTimeToSendToSource = statement->columnDouble(0);
     
-    if (scopedStatement->columnDouble(1) > 0.0)
-        earliestTimeToSendToDestination = scopedStatement->columnDouble(1);
+    if (statement->columnDouble(1) > 0.0)
+        earliestTimeToSendToDestination = statement->columnDouble(1);
     
     return std::make_pair(earliestTimeToSendToSource, earliestTimeToSendToDestination);
 }
@@ -650,16 +720,22 @@ std::optional<Database::DomainID> Database::domainID(const WebCore::RegistrableD
     ASSERT(!RunLoop::isMain());
 
     auto scopedStatement = this->scopedStatement(m_domainIDFromStringStatement, domainIDFromStringQuery, "domainID"_s);
-    if (!scopedStatement || scopedStatement->bindText(1, domain.string()) != SQLITE_OK) {
+    if (!scopedStatement) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::domainIDFromString failed. Error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+        return std::nullopt;
+    }
+    CheckedPtr statement = scopedStatement.get();
+    if (statement->bindText(1, domain.string()) != SQLITE_OK) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::domainIDFromString failed. Error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
         return std::nullopt;
     }
     
-    if (scopedStatement->step() != SQLITE_ROW)
+    if (statement->step() != SQLITE_ROW)
         return std::nullopt;
 
-    return scopedStatement->columnInt(0);
+    return statement->columnInt(0);
 }
 
 String Database::getDomainStringFromDomainID(DomainID domainID) const
@@ -668,15 +744,20 @@ String Database::getDomainStringFromDomainID(DomainID domainID) const
     auto result = emptyString();
     
     auto scopedStatement = this->scopedStatement(m_domainStringFromDomainIDStatement, domainStringFromDomainIDQuery, "getDomainStringFromDomainID"_s);
-    if (!scopedStatement
-        || scopedStatement->bindInt(1, domainID) != SQLITE_OK) {
+    if (!scopedStatement) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::getDomainStringFromDomainID. Statement failed to prepare or bind, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+        return result;
+    }
+    CheckedPtr statement = scopedStatement.get();
+    if (statement->bindInt(1, domainID) != SQLITE_OK) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::getDomainStringFromDomainID. Statement failed to prepare or bind, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
         return result;
     }
     
-    if (scopedStatement->step() == SQLITE_ROW)
-        result = m_domainStringFromDomainIDStatement->columnText(0);
+    if (statement->step() == SQLITE_ROW)
+        result = statement->columnText(0);
     
     return result;
 }
@@ -687,14 +768,19 @@ std::optional<Database::DomainID> Database::ensureDomainID(const WebCore::Regist
         return existingID;
 
     auto scopedStatement = this->scopedStatement(m_insertObservedDomainStatement, insertObservedDomainQuery, "insertObservedDomain"_s);
-    if (!scopedStatement
-        || scopedStatement->bindText(1, domain.string()) != SQLITE_OK) {
+    if (!scopedStatement) {
+        RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::ensureDomainID failed to bind, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
+        ASSERT_NOT_REACHED();
+        return std::nullopt;
+    }
+    CheckedPtr statement = scopedStatement.get();
+    if (statement->bindText(1, domain.string()) != SQLITE_OK) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::ensureDomainID failed to bind, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
         return std::nullopt;
     }
 
-    if (scopedStatement->step() != SQLITE_DONE) {
+    if (statement->step() != SQLITE_DONE) {
         RELEASE_LOG_ERROR(PrivateClickMeasurement, "%p - Database::ensureDomainID failed to commit, error message: %" PRIVATE_LOG_STRING, this, m_database.lastErrorMsg());
         ASSERT_NOT_REACHED();
         return std::nullopt;
