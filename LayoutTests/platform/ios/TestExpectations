@@ -87,8 +87,6 @@ media/track/track-description-cue.html [ Pass ]
 media/track/track-extended-descriptions.html [ Pass ]
 media/wireless-route-monitoring.html [ Pass ]
 
-security/cocoa [ Pass ]
-
 # Cocoa only tests
 http/tests/iframe-monitor [ Pass ]
 

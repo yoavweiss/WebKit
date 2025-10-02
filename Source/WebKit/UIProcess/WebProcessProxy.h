@@ -593,7 +593,7 @@ private:
     bool isJITEnabled() const final;
     bool shouldEnableSharedArrayBuffer() const final { return m_crossOriginMode == WebCore::CrossOriginMode::Isolated; }
     bool shouldEnableLockdownMode() const final { return m_lockdownMode == LockdownMode::Enabled; }
-    bool shouldEnableEnhancedSecurity() const { return m_enhancedSecurity == EnhancedSecurity::Enabled; }
+    bool shouldEnableEnhancedSecurity() const final { return m_enhancedSecurity == EnhancedSecurity::Enabled; }
     bool shouldDisableJITCage() const final;
 
     void validateFreezerStatus();

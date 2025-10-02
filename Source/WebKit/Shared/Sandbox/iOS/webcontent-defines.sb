@@ -24,6 +24,9 @@
 (define (lockdown-mode)
     (require-entitlement "com.apple.private.webkit.lockdown-mode"))
 
+(define (enhanced-security)
+    (require-entitlement "com.apple.private.webkit.enhanced-security"))
+
 (define-once (framebuffer-access)
     ; IOMobileFramebuffer
     (with-filter (iokit-registry-entry-class "IOMobileFramebuffer")

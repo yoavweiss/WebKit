@@ -960,18 +960,6 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
     // in modern WebKit.
     page->settings().setBackForwardCacheExpirationInterval(Seconds::infinity());
 
-    if (WebProcess::singleton().isLockdownModeEnabled())
-        page->setWebContentProcessVariant(WebContentProcessVariant::Lockdown);
-    else {
-        WebProcess::singleton().isEnhancedSecurityEnabled([weakPage = WeakPtr { page }](bool enabled) {
-            if (!enabled)
-                return;
-
-            if (RefPtr page = weakPage.get())
-                page->setWebContentProcessVariant(WebContentProcessVariant::Security);
-        });
-    }
-
     m_mainFrame->initWithCoreMainFrame(*this, page->protectedMainFrame());
 
     if (auto& remotePageParameters = parameters.remotePageParameters) {

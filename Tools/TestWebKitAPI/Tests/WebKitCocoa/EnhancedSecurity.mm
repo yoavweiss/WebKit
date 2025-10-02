@@ -37,6 +37,8 @@
 
 namespace TestWebKitAPI {
 
+#if !PLATFORM(IOS)
+
 static bool isEnhancedSecurityEnabled(WKWebView *webView)
 {
     __block bool gotResponse = false;
@@ -73,6 +75,10 @@ TEST(EnhancedSecurity, EnhancedSecurityEnablesTrue)
     [webView loadRequest:[NSURLRequest requestWithURL:url]];
     [webView _test_waitForDidFinishNavigation];
     EXPECT_EQ(true, isEnhancedSecurityEnabled(webView.get()));
+#if USE(APPLE_INTERNAL_SDK)
+    NSString *processVariant = [webView _webContentProcessVariantForFrame:nil];
+    EXPECT_STREQ("security", processVariant.UTF8String);
+#endif
 }
 
 TEST(EnhancedSecurity, EnhancedSecurityEnableFalse)
@@ -84,6 +90,10 @@ TEST(EnhancedSecurity, EnhancedSecurityEnableFalse)
     [webView loadRequest:[NSURLRequest requestWithURL:url]];
     [webView _test_waitForDidFinishNavigation];
     EXPECT_EQ(false, isEnhancedSecurityEnabled(webView.get()));
+#if USE(APPLE_INTERNAL_SDK)
+    NSString *processVariant = [webView _webContentProcessVariantForFrame:nil];
+    EXPECT_STREQ("standard", processVariant.UTF8String);
+#endif
 }
 
 TEST(EnhancedSecurity, EnhancedSecurityDisablesJIT)
@@ -140,6 +150,9 @@ TEST(EnhancedSecurity, PSONToEnhancedSecurity)
     [webView loadRequest:[NSURLRequest requestWithURL:url]];
     TestWebKitAPI::Util::run(&finishedNavigation);
     EXPECT_EQ(false, isEnhancedSecurityEnabled(webView.get()));
+#if USE(APPLE_INTERNAL_SDK)
+    EXPECT_STREQ("standard", [webView _webContentProcessVariantForFrame:nil].UTF8String);
+#endif
     pid_t pid1 = [webView _webProcessIdentifier];
     EXPECT_NE(pid1, 0);
 
@@ -156,6 +169,9 @@ TEST(EnhancedSecurity, PSONToEnhancedSecurity)
     TestWebKitAPI::Util::run(&finishedNavigation);
 
     EXPECT_EQ(true, isEnhancedSecurityEnabled(webView.get()));
+#if USE(APPLE_INTERNAL_SDK)
+    EXPECT_STREQ("security", [webView _webContentProcessVariantForFrame:nil].UTF8String);
+#endif
     EXPECT_NE(pid1, [webView _webProcessIdentifier]);
 }
 
@@ -176,6 +192,9 @@ TEST(EnhancedSecurity, PSONToEnhancedSecuritySamePage)
     [webView loadRequest:[NSURLRequest requestWithURL:url]];
     TestWebKitAPI::Util::run(&finishedNavigation);
     EXPECT_EQ(false, isEnhancedSecurityEnabled(webView.get()));
+#if USE(APPLE_INTERNAL_SDK)
+    EXPECT_STREQ("standard", [webView _webContentProcessVariantForFrame:nil].UTF8String);
+#endif
     pid_t pid1 = [webView _webProcessIdentifier];
     EXPECT_NE(pid1, 0);
 
@@ -192,6 +211,9 @@ TEST(EnhancedSecurity, PSONToEnhancedSecuritySamePage)
     TestWebKitAPI::Util::run(&finishedNavigation);
 
     EXPECT_EQ(true, isEnhancedSecurityEnabled(webView.get()));
+#if USE(APPLE_INTERNAL_SDK)
+    EXPECT_STREQ("security", [webView _webContentProcessVariantForFrame:nil].UTF8String);
+#endif
     EXPECT_NE(pid1, [webView _webProcessIdentifier]);
 }
 
@@ -228,6 +250,9 @@ TEST(EnhancedSecurity, PSONToEnhancedSecuritySharedProcessPool)
     [webView loadRequest:[NSURLRequest requestWithURL:url]];
     TestWebKitAPI::Util::run(&finishedNavigation);
     EXPECT_EQ(false, isEnhancedSecurityEnabled(webView.get()));
+#if USE(APPLE_INTERNAL_SDK)
+    EXPECT_STREQ("standard", [webView _webContentProcessVariantForFrame:nil].UTF8String);
+#endif
     pid_t pid1 = [webView _webProcessIdentifier];
     EXPECT_NE(pid1, 0);
 
@@ -246,6 +271,9 @@ TEST(EnhancedSecurity, PSONToEnhancedSecuritySharedProcessPool)
     TestWebKitAPI::Util::run(&finishedNavigation);
 
     EXPECT_EQ(true, isEnhancedSecurityEnabled(webView2.get()));
+#if USE(APPLE_INTERNAL_SDK)
+    EXPECT_STREQ("security", [webView2 _webContentProcessVariantForFrame:nil].UTF8String);
+#endif
     EXPECT_NE(pid1, [webView2 _webProcessIdentifier]);
 }
 
@@ -272,6 +300,9 @@ TEST(EnhancedSecurity, PSONToEnhancedSecuritySharedProcessPoolReverse)
     [webView loadRequest:[NSURLRequest requestWithURL:url]];
     TestWebKitAPI::Util::run(&finishedNavigation);
     EXPECT_EQ(true, isEnhancedSecurityEnabled(webView.get()));
+#if USE(APPLE_INTERNAL_SDK)
+    EXPECT_STREQ("security", [webView _webContentProcessVariantForFrame:nil].UTF8String);
+#endif
     pid_t pid1 = [webView _webProcessIdentifier];
     EXPECT_NE(pid1, 0);
 
@@ -290,7 +321,107 @@ TEST(EnhancedSecurity, PSONToEnhancedSecuritySharedProcessPoolReverse)
     TestWebKitAPI::Util::run(&finishedNavigation);
 
     EXPECT_EQ(false, isEnhancedSecurityEnabled(webView2.get()));
+#if USE(APPLE_INTERNAL_SDK)
+    EXPECT_STREQ("standard", [webView2 _webContentProcessVariantForFrame:nil].UTF8String);
+#endif
     EXPECT_NE(pid1, [webView2 _webProcessIdentifier]);
 }
+
+#if USE(APPLE_INTERNAL_SDK)
+TEST(EnhancedSecurity, ProcessVariantMatchesConfiguration)
+{
+    auto webViewConfiguration1 = adoptNS([WKWebViewConfiguration new]);
+    webViewConfiguration1.get().defaultWebpagePreferences._enhancedSecurityEnabled = YES;
+    auto webView1 = adoptNS([[WKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600) configuration:webViewConfiguration1.get()]);
+
+    auto webViewConfiguration2 = adoptNS([WKWebViewConfiguration new]);
+    webViewConfiguration2.get().defaultWebpagePreferences._enhancedSecurityEnabled = NO;
+    auto webView2 = adoptNS([[WKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600) configuration:webViewConfiguration2.get()]);
+
+    NSURL *url = [NSBundle.test_resourcesBundle URLForResource:@"simple" withExtension:@"html"];
+
+    [webView1 loadRequest:[NSURLRequest requestWithURL:url]];
+    [webView1 _test_waitForDidFinishNavigation];
+    EXPECT_EQ(true, isEnhancedSecurityEnabled(webView1.get()));
+    EXPECT_STREQ("security", [webView1 _webContentProcessVariantForFrame:nil].UTF8String);
+
+    [webView2 loadRequest:[NSURLRequest requestWithURL:url]];
+    [webView2 _test_waitForDidFinishNavigation];
+    EXPECT_EQ(false, isEnhancedSecurityEnabled(webView2.get()));
+    EXPECT_STREQ("standard", [webView2 _webContentProcessVariantForFrame:nil].UTF8String);
+}
+#endif
+
+TEST(EnhancedSecurity, ProcessCanLaunch)
+{
+    auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    configuration.get().websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore];
+    configuration.get().processPool = adoptNS([[WKProcessPool alloc] init]).get();
+    configuration.get().defaultWebpagePreferences._enhancedSecurityEnabled = YES;
+
+    auto webView = adoptNS([[WKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600) configuration:configuration.get()]);
+    [webView loadHTMLString:@"<html><body>test</body></html>" baseURL:nil];
+
+    // Wait with explicit timeout instead of _test_waitForDidFinishNavigation
+    __block bool navigationFinished = false;
+    auto delegate = adoptNS([TestNavigationDelegate new]);
+    delegate.get().didFinishNavigation = ^(WKWebView *, WKNavigation *) {
+        navigationFinished = true;
+    };
+    [webView setNavigationDelegate:delegate.get()];
+
+    // Wait up to 10 seconds for navigation to complete
+    NSDate *timeout = [NSDate dateWithTimeIntervalSinceNow:10.0];
+    while (!navigationFinished && [timeout timeIntervalSinceNow] > 0)
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+
+    if (navigationFinished)
+        NSLog(@"EnhancedSecurity ProcessCanLaunch: Navigation finished");
+    else
+        NSLog(@"EnhancedSecurity ProcessCanLaunch: Navigation TIMED OUT after 10 seconds");
+
+    auto processID = [webView _webProcessIdentifier];
+    NSLog(@"EnhancedSecurity ProcessCanLaunch: Process ID: %d", processID);
+    EXPECT_NE(processID, 0);
+
+}
+
+TEST(EnhancedSecurity, CaptivePortalProcessCanLaunch)
+{
+    [WKProcessPool _setCaptivePortalModeEnabledGloballyForTesting:YES];
+
+    // Create configuration AFTER setting global mode
+    auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    configuration.get().websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore];
+    configuration.get().processPool = adoptNS([[WKProcessPool alloc] init]).get();
+
+    auto webView = adoptNS([[WKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600) configuration:configuration.get()]);
+    [webView loadHTMLString:@"<html><body>test</body></html>" baseURL:nil];
+
+    // Wait with explicit timeout instead of _test_waitForDidFinishNavigation
+    __block bool navigationFinished = false;
+    auto delegate = adoptNS([TestNavigationDelegate new]);
+    delegate.get().didFinishNavigation = ^(WKWebView *, WKNavigation *) {
+        navigationFinished = true;
+    };
+    [webView setNavigationDelegate:delegate.get()];
+
+    // Wait up to 10 seconds for navigation to complete
+    NSDate *timeout = [NSDate dateWithTimeIntervalSinceNow:10.0];
+    while (!navigationFinished && [timeout timeIntervalSinceNow] > 0)
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+
+    if (navigationFinished)
+        NSLog(@"CaptivePortal ProcessCanLaunch: Navigation finished");
+    else
+        NSLog(@"CaptivePortal ProcessCanLaunch: Navigation TIMED OUT after 10 seconds");
+
+    auto processID = [webView _webProcessIdentifier];
+    EXPECT_NE(processID, 0);
+
+    [WKProcessPool _clearCaptivePortalModeEnabledGloballyForTesting];
+}
+
+#endif
 
 } // namespace TestWebKitAPI

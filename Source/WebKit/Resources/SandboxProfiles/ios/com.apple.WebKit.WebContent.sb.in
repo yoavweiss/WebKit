@@ -28,6 +28,8 @@
 (allow dynamic-code-generation)
 (with-filter (lockdown-mode)
     (deny dynamic-code-generation))
+(with-filter (enhanced-security)
+    (deny dynamic-code-generation))
 
 (with-filter (mac-policy-name "Sandbox")
     (allow system-mac-syscall (mac-syscall-number 5 65)))

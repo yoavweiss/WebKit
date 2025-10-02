@@ -1,3 +1,0 @@
-
-PASS Check WebView is opted out of EnhancedSecurity
-
