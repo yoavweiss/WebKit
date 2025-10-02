@@ -136,25 +136,11 @@ FontSelectionValue fontStyleAngleFromCSSValueDeprecated(const CSSValue& value)
     return normalizedFontItalicValue(downcast<CSSPrimitiveValue>(value).resolveAsAngleDeprecated<float>());
 }
 
-FontSelectionValue fontStyleAngleFromCSSValue(BuilderState& builderState, const CSSValue& value)
-{
-    RefPtr primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return { };
-
-    return normalizedFontItalicValue(primitiveValue->resolveAsAngle<float>(builderState.cssToLengthConversionData()));
-}
-
 std::optional<FontSelectionValue> fontStyleAngleFromCSSFontStyleWithAngleValueDeprecated(const CSSFontStyleWithAngleValue& value)
 {
     if (requiresConversionData(value.obliqueAngle()))
         return { };
     return FontSelectionValue { narrowPrecisionToFloat(Style::toStyle(value.obliqueAngle(), NoConversionDataRequiredToken { }).value) };
-}
-
-std::optional<FontSelectionValue> fontStyleAngleFromCSSFontStyleWithAngleValue(BuilderState& builderState, const CSSFontStyleWithAngleValue& value)
-{
-    return FontSelectionValue { narrowPrecisionToFloat(Style::toStyle(value.obliqueAngle(), builderState.cssToLengthConversionData()).value) };
 }
 
 std::optional<FontSelectionValue> fontStyleFromCSSValueDeprecated(const CSSValue& value)
@@ -170,21 +156,8 @@ std::optional<FontSelectionValue> fontStyleFromCSSValueDeprecated(const CSSValue
     return italicValue();
 }
 
-std::optional<FontSelectionValue> fontStyleFromCSSValue(BuilderState& builderState, const CSSValue& value)
-{
-    if (RefPtr fontStyleValue = dynamicDowncast<CSSFontStyleWithAngleValue>(value))
-        return fontStyleAngleFromCSSFontStyleWithAngleValue(builderState, *fontStyleValue);
-
-    auto valueID = value.valueID();
-    if (valueID == CSSValueNormal)
-        return std::nullopt;
-
-    ASSERT(valueID == CSSValueItalic || valueID == CSSValueOblique);
-    return italicValue();
-}
-
 struct ResolvedFontStyle {
-    std::optional<FontSelectionValue> italic;
+    std::optional<FontSelectionValue> slope;
     FontStyleAxis axis;
 };
 
@@ -196,19 +169,19 @@ static ResolvedFontStyle fontStyleFromUnresolvedFontStyle(const CSSPropertyParse
             switch (ident) {
             case CSSValueNormal:
                 return {
-                    .italic = std::nullopt,
+                    .slope = std::nullopt,
                     .axis = FontStyleAxis::slnt
                 };
 
             case CSSValueItalic:
                 return {
-                    .italic = italicValue(),
+                    .slope = italicValue(),
                     .axis = FontStyleAxis::ital
                 };
 
             case CSSValueOblique:
                 return {
-                    .italic = FontSelectionValue(0.0f),
+                    .slope = FontSelectionValue(0.0f),
                     .axis = FontStyleAxis::slnt
                 };
 
@@ -217,15 +190,15 @@ static ResolvedFontStyle fontStyleFromUnresolvedFontStyle(const CSSPropertyParse
             }
 
             ASSERT_NOT_REACHED();
-            return { .italic = std::nullopt, .axis = FontStyleAxis::slnt };
+            return { .slope = std::nullopt, .axis = FontStyleAxis::slnt };
         },
         [](const CSSPropertyParserHelpers::UnresolvedFontStyleObliqueAngle& angle) -> ResolvedFontStyle {
             // FIXME: Figure out correct behavior when conversion data is required.
             if (requiresConversionData(angle))
-                return { .italic = std::nullopt, .axis = FontStyleAxis::slnt };
+                return { .slope = std::nullopt, .axis = FontStyleAxis::slnt };
 
             return {
-                .italic = FontSelectionValue::clampFloat(Style::toStyleNoConversionDataRequired(angle).value),
+                .slope = FontSelectionValue::clampFloat(Style::toStyleNoConversionDataRequired(angle).value),
                 .axis = FontStyleAxis::slnt
             };
         }
@@ -477,7 +450,7 @@ std::optional<FontCascade> resolveForUnresolvedFont(const CSSPropertyParserHelpe
     }
 
     auto resolvedFontStyle = fontStyleFromUnresolvedFontStyle(unresolvedFont.style);
-    fontDescription.setItalic(resolvedFontStyle.italic);
+    fontDescription.setFontStyleSlope(resolvedFontStyle.slope);
     fontDescription.setFontStyleAxis(resolvedFontStyle.axis);
 
     auto resolvedFontVariantCaps = fontVariantCapsFromUnresolvedFontVariantCaps(unresolvedFont.variantCaps);

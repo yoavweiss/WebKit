@@ -273,6 +273,7 @@ struct DynamicRangeLimit;
 struct Filter;
 struct FlexBasis;
 struct FontPalette;
+struct FontStyle;
 struct FontWeight;
 struct FontWidth;
 struct GapGutter;
@@ -731,9 +732,9 @@ public:
 
     inline FontOpticalSizing fontOpticalSizing() const;
     inline FontVariationSettings fontVariationSettings() const;
-    inline std::optional<FontSelectionValue> fontItalic() const;
     inline Style::FontPalette fontPalette() const;
     inline FontSizeAdjust fontSizeAdjust() const;
+    inline Style::FontStyle fontStyle() const;
     inline Style::FontWeight fontWeight() const;
     inline Style::FontWidth fontWidth() const;
 
@@ -1370,8 +1371,8 @@ public:
 
     void setFontOpticalSizing(FontOpticalSizing);
     void setFontVariationSettings(FontVariationSettings);
-    void setFontItalic(std::optional<FontSelectionValue>);
     void setFontPalette(Style::FontPalette&&);
+    void setFontStyle(Style::FontStyle);
     void setFontWeight(Style::FontWeight);
     void setFontWidth(Style::FontWidth);
 
@@ -1971,6 +1972,7 @@ public:
     static inline Style::VerticalAlign initialVerticalAlign();
     static constexpr Float initialFloating();
     static inline Style::FontPalette initialFontPalette();
+    static inline Style::FontStyle initialFontStyle();
     static inline Style::FontWeight initialFontWeight();
     static inline Style::FontWidth initialFontWidth();
     static constexpr BreakBetween initialBreakBetween();

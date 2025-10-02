@@ -127,7 +127,6 @@ public:
     WEBCORE_EXPORT void resolveFontSizeAdjustFromFontIfNeeded(const Font&);
 
     // Initial values for font properties.
-    static std::optional<FontSelectionValue> initialItalic() { return std::nullopt; }
     static FontStyleAxis initialFontStyleAxis() { return FontStyleAxis::slnt; }
     static FontSelectionValue initialWeight() { return normalWeightValue(); }
     static FontSelectionValue initialWidth() { return normalWidthValue(); }

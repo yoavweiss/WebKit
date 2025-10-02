@@ -2660,10 +2660,11 @@ void RenderStyle::setFontWidth(Style::FontWidth value)
     setFontDescription(WTFMove(description));
 }
 
-void RenderStyle::setFontItalic(std::optional<FontSelectionValue> value)
+void RenderStyle::setFontStyle(Style::FontStyle style)
 {
     auto description = fontDescription();
-    description.setItalic(value);
+    description.setFontStyleSlope(style.platformSlope());
+    description.setFontStyleAxis(style.platformAxis());
     setFontDescription(WTFMove(description));
 }
 

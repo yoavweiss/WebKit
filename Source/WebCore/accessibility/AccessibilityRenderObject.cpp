@@ -3041,7 +3041,7 @@ bool AccessibilityRenderObject::hasItalicFont() const
     if (!m_renderer)
         return false;
 
-    return isItalic(m_renderer->style().fontDescription().italic());
+    return m_renderer->style().fontStyle().isConsideredItalic();
 }
 
 bool AccessibilityRenderObject::hasPlainText() const
@@ -3053,8 +3053,8 @@ bool AccessibilityRenderObject::hasPlainText() const
         return false;
 
     const RenderStyle& style = m_renderer->style();
-    return style.fontDescription().weight() == normalWeightValue()
-        && !isItalic(style.fontDescription().italic())
+    return style.fontWeight().isNormal()
+        && !style.fontStyle().isConsideredItalic()
         && style.textDecorationLineInEffect().isNone();
 }
 

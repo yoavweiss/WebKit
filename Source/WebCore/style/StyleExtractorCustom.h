@@ -59,7 +59,6 @@ public:
     static Ref<CSSValue> extractLineHeight(ExtractorState&);
     static Ref<CSSValue> extractFontFamily(ExtractorState&);
     static Ref<CSSValue> extractFontSize(ExtractorState&);
-    static Ref<CSSValue> extractFontStyle(ExtractorState&);
     static Ref<CSSValue> extractFontVariantLigatures(ExtractorState&);
     static Ref<CSSValue> extractFontVariantNumeric(ExtractorState&);
     static Ref<CSSValue> extractFontVariantAlternates(ExtractorState&);
@@ -154,7 +153,6 @@ public:
     static void extractLineHeightSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractFontFamilySerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractFontSizeSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractFontStyleSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractFontVariantLigaturesSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractFontVariantNumericSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractFontVariantAlternatesSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
@@ -1392,33 +1390,6 @@ inline void ExtractorCustom::extractFontSizeSerialization(ExtractorState& state,
     ExtractorSerializer::serializeNumberAsPixels(state, builder, context, state.style.fontDescription().computedSize());
 }
 
-inline Ref<CSSValue> ExtractorCustom::extractFontStyle(ExtractorState& state)
-{
-    auto italic = state.style.fontDescription().italic();
-    if (auto keyword = fontStyleKeyword(italic, state.style.fontDescription().fontStyleAxis()))
-        return CSSPrimitiveValue::create(*keyword);
-    return CSSFontStyleWithAngleValue::create({ CSS::AngleUnit::Deg, static_cast<float>(*italic) });
-}
-
-inline void ExtractorCustom::extractFontStyleSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    auto italic = state.style.fontDescription().italic();
-    if (auto keyword = fontStyleKeyword(italic, state.style.fontDescription().fontStyleAxis())) {
-        builder.append(nameLiteralForSerialization(*keyword));
-        return;
-    }
-
-    float angle = *italic;
-    if (!angle) {
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Normal { });
-        return;
-    }
-
-    CSS::serializationForCSS(builder, context, CSS::Keyword::Oblique { });
-    builder.append(' ');
-    CSS::serializationForCSS(builder, context, CSS::AngleRaw<> { CSS::AngleUnit::Deg, angle });
-}
-
 inline Ref<CSSValue> ExtractorCustom::extractFontVariantLigatures(ExtractorState& state)
 {
     auto common = state.style.fontDescription().variantCommonLigatures();
@@ -2559,7 +2530,7 @@ inline RefPtr<CSSValue> ExtractorCustom::extractFontShorthand(ExtractorState& st
 {
     auto& description = state.style.fontDescription();
     auto fontWidth = fontWidthKeyword(description.width());
-    auto fontStyle = fontStyleKeyword(description.italic(), description.fontStyleAxis());
+    auto fontStyle = fontStyleKeyword(description.fontStyleSlope(), description.fontStyleAxis());
 
     auto propertiesResetByShorthandAreExpressible = [&] {
         // The font shorthand can express "font-variant-caps: small-caps". Overwrite with "normal" so we can use isAllNormal to check that all the other settings are normal.

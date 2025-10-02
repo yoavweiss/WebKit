@@ -3222,6 +3222,7 @@ style/values/filter-effects/StyleSaturateFunction.cpp
 style/values/filter-effects/StyleSepiaFunction.cpp
 style/values/flexbox/StyleFlexBasis.cpp
 style/values/fonts/StyleFontPalette.cpp
+style/values/fonts/StyleFontStyle.cpp
 style/values/fonts/StyleFontWeight.cpp
 style/values/fonts/StyleFontWidth.cpp
 style/values/grid/StyleGridNamedLinesMap.cpp

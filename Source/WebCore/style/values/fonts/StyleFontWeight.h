@@ -43,6 +43,9 @@ struct FontWeight {
 
     FontWeight(FontSelectionValue platform) : m_platform { platform } { }
 
+    bool isNormal() const { return m_platform == normalWeightValue(); }
+    bool isBold() const { return m_platform == boldWeightValue(); }
+
     Number number() const { return Number { static_cast<float>(m_platform) }; }
 
     template<typename... F> decltype(auto) switchOn(F&&... f) const
@@ -52,6 +55,9 @@ struct FontWeight {
     }
 
     FontSelectionValue platform() const { return m_platform; }
+
+    // NOTE: This is not if the value would compute to the keyword `bold`, but rather a more general whether the weight is large enough to be considered "bold" (see `WebCore::boldThreshold()`).
+    bool isConsideredBold() const { return WebCore::isFontWeightBold(m_platform); }
 
     bool operator==(const FontWeight&) const = default;
 

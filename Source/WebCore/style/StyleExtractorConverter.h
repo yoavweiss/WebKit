@@ -36,7 +36,6 @@
 #include "CSSCounterValue.h"
 #include "CSSEasingFunctionValue.h"
 #include "CSSFontFeatureValue.h"
-#include "CSSFontStyleWithAngleValue.h"
 #include "CSSFontValue.h"
 #include "CSSFontVariationValue.h"
 #include "CSSFunctionValue.h"

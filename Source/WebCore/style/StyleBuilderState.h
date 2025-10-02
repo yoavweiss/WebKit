@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2019-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -55,16 +56,12 @@ namespace CSSCalc {
 struct RandomCachingKey;
 }
 
-namespace CSS {
-struct AppleColorFilter;
-struct Filter;
-}
-
 namespace Style {
 
 class BuilderState;
 struct Color;
 struct FontPalette;
+struct FontStyle;
 struct FontWeight;
 struct FontWidth;
 
@@ -165,6 +162,7 @@ public:
     void setFontDescriptionFontPalette(Style::FontPalette&&);
     void setFontDescriptionFontSizeAdjust(FontSizeAdjust);
     void setFontDescriptionFontSmoothing(FontSmoothingMode);
+    void setFontDescriptionFontStyle(FontStyle);
     void setFontDescriptionFontSynthesisSmallCaps(FontSynthesisLonghandValue);
     void setFontDescriptionFontSynthesisStyle(FontSynthesisLonghandValue);
     void setFontDescriptionFontSynthesisWeight(FontSynthesisLonghandValue);

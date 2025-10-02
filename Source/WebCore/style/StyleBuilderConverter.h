@@ -134,7 +134,6 @@ public:
     static OptionSet<TouchAction> convertTouchAction(BuilderState&, const CSSValue&);
 
     static FontSizeAdjust convertFontSizeAdjust(BuilderState&, const CSSValue&);
-    static std::optional<FontSelectionValue> convertFontStyleFromValue(BuilderState&, const CSSValue&);
     static FontFeatureSettings convertFontFeatureSettings(BuilderState&, const CSSValue&);
     static FontVariationSettings convertFontVariationSettings(BuilderState&, const CSSValue&);
     static PaintOrder convertPaintOrder(BuilderState&, const CSSValue&);
@@ -491,12 +490,6 @@ inline float zoomWithTextZoomFactor(BuilderState& builderState)
         return builderState.style().usedZoom() * textZoomFactor;
     }
     return builderState.cssToLengthConversionData().zoom();
-}
-
-// The input value needs to parsed and valid, this function returns std::nullopt if the input was "normal".
-inline std::optional<FontSelectionValue> BuilderConverter::convertFontStyleFromValue(BuilderState& builderState, const CSSValue& value)
-{
-    return fontStyleFromCSSValue(builderState, value);
 }
 
 inline FontFeatureSettings BuilderConverter::convertFontFeatureSettings(BuilderState& builderState, const CSSValue& value)

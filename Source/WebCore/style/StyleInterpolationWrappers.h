@@ -536,38 +536,6 @@ public:
 
 #endif
 
-class FontStyleWrapper final : public Wrapper<std::optional<FontSelectionValue>> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontStyleWrapper, Animation);
-public:
-    FontStyleWrapper()
-        : Wrapper(CSSPropertyFontStyle, &RenderStyle::fontItalic, &RenderStyle::setFontItalic)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
-    {
-        return from.fontDescription().fontStyleAxis() == FontStyleAxis::slnt && to.fontDescription().fontStyleAxis() == FontStyleAxis::slnt;
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        auto blendedStyleAxis = FontStyleAxis::slnt;
-        if (context.isDiscrete)
-            blendedStyleAxis = (context.progress < 0.5 ? from : to).fontDescription().fontStyleAxis();
-
-        auto fromFontItalic = from.fontItalic();
-        auto toFontItalic = to.fontItalic();
-        auto blendedFontItalic = context.progress < 0.5 ? fromFontItalic : toFontItalic;
-        if (!context.isDiscrete)
-            blendedFontItalic = blendFunc(fromFontItalic, toFontItalic, context);
-
-        auto description = destination.fontDescription();
-        description.setItalic(blendedFontItalic);
-        description.setFontStyleAxis(blendedStyleAxis);
-        destination.setFontDescription(WTFMove(description));
-    }
-};
-
 class FontSizeAdjustWrapper final : public WrapperWithGetter<FontSizeAdjust> {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontSizeAdjustWrapper, Animation);
 public:

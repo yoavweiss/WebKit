@@ -688,10 +688,10 @@
                 "oblique"
             ],
             "codegen-properties": {
-                "animation-wrapper": "FontStyleWrapper",
-                "animation-wrapper-requires-override-parameters": [],
-                "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "animation-wrapper": "StyleTypeWrapper",
+                "animation-wrapper-requires-render-style": true,
+                "style-converter": "StyleType<FontStyle>",
+                "font-property-uses-render-style-for-access": true,
                 "font-property": true,
                 "high-priority": true,
                 "parser-function": "consumeFontStyle",

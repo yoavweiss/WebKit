@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2019-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -141,6 +142,18 @@ inline void BuilderState::setFontDescriptionFontSmoothing(FontSmoothingMode font
 
     m_fontDirty = true;
     m_style.mutableFontDescriptionWithoutUpdate().setFontSmoothing(WTFMove(fontSmoothing));
+}
+
+inline void BuilderState::setFontDescriptionFontStyle(FontStyle fontStyle)
+{
+    auto& description = m_style.fontDescription();
+    if (description.fontStyleSlope() == fontStyle.platformSlope() && description.fontStyleAxis() == fontStyle.platformAxis())
+        return;
+
+    m_fontDirty = true;
+    auto& mutableDescription = m_style.mutableFontDescriptionWithoutUpdate();
+    mutableDescription.setFontStyleSlope(fontStyle.platformSlope());
+    mutableDescription.setFontStyleAxis(fontStyle.platformAxis());
 }
 
 inline void BuilderState::setFontDescriptionFontSynthesisSmallCaps(FontSynthesisLonghandValue fontSynthesisSmallCaps)

@@ -370,7 +370,7 @@ String CanvasRenderingContext2DBase::State::fontString() const
     StringBuilder serializedFont;
     const auto& font = this->font.fontDescription();
 
-    auto italic = font.italic() ? "italic "_s : ""_s;
+    auto italic = font.fontStyleSlope() ? "italic "_s : ""_s;
     auto smallCaps = font.variantCaps() == FontVariantCaps::Small ? "small-caps "_s : ""_s;
     serializedFont.append(italic, smallCaps);
     auto weight = static_cast<int>(font.weight());
