@@ -246,7 +246,7 @@ void ViewGestureGeometryCollector::computeZoomInformationForNode(Node& node, Flo
 {
     absoluteBoundingRect = node.absoluteBoundingRect(&isReplaced);
     if (node.document().isImageDocument()) {
-        if (RefPtr imageElement = downcast<ImageDocument>(node.document()).imageElement()) {
+        if (RefPtr imageElement = downcast<ImageDocument>(node.protectedDocument())->imageElement()) {
             if (&node != imageElement.get()) {
                 absoluteBoundingRect = imageElement->absoluteBoundingRect(&isReplaced);
                 FloatPoint newOrigin = origin;
@@ -260,9 +260,11 @@ void ViewGestureGeometryCollector::computeZoomInformationForNode(Node& node, Flo
         }
     }  else {
 #if ENABLE(PDF_PLUGIN)
-        if (RefPtr pluginView = m_webPage->mainFramePlugIn()) {
-            absoluteBoundingRect = pluginView->absoluteBoundingRectForSmartMagnificationAtPoint(origin);
-            isReplaced = false;
+        if (RefPtr webPage = m_webPage.get()) {
+            if (RefPtr pluginView = webPage->mainFramePlugIn()) {
+                absoluteBoundingRect = pluginView->absoluteBoundingRectForSmartMagnificationAtPoint(origin);
+                isReplaced = false;
+            }
         }
 #endif
     }
@@ -330,4 +332,3 @@ void ViewGestureGeometryCollector::mainFrameDidLayout()
 }
 
 } // namespace WebKit
-
