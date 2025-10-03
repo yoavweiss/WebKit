@@ -94,6 +94,7 @@ private:
     bool containingCoordsAreFlipped() const;
 
     void captureInsets();
+    void captureScrollableArea();
     void captureGridArea();
     void captureAnchorGeometry();
     LayoutRange adjustForPositionArea(const LayoutRange rangeToAdjust, const LayoutRange anchorArea, const BoxAxis containerAxis);
