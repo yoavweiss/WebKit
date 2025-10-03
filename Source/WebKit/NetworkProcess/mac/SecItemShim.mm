@@ -96,28 +96,30 @@ static std::optional<SecItemResponseData> sendSecItemRequest(SecItemRequestData:
     return response;
 }
 
-static OSStatus webSecItemCopyMatching(CFDictionaryRef query, CFTypeRef* result)
+static OSStatus webSecItemCopyMatching(CFDictionaryRef query, CFTypeRef* CF_RETURNS_RETAINED outResult)
 {
     auto response = sendSecItemRequest(SecItemRequestData::Type::CopyMatching, query);
     if (!response)
         return errSecInteractionNotAllowed;
 
+    RetainPtr<CFTypeRef> result;
     WTF::switchOn(response->resultObject(), [&] (std::nullptr_t) {
-        *result = nullptr;
+        result = nullptr;
     }, [&] (Vector<RetainPtr<SecCertificateRef>>& certificates) {
-        *result = createCFArray(certificates, [] (auto& certificate) {
+        result = createCFArray(certificates, [] (auto& certificate) {
             return certificate.get();
-        }).leakRef();
+        });
 #if HAVE(SEC_KEYCHAIN)
     }, [&] (Vector<RetainPtr<SecKeychainItemRef>>& items) {
-        *result = createCFArray(items, [] (auto& item) {
+        result = createCFArray(items, [] (auto& item) {
             return item.get();
-        }).leakRef();
+        });
 #endif
     }, [&] (RetainPtr<CFTypeRef>& type) {
-        *result = type.leakRef();
+        result = type;
     });
-
+    // FIXME: Ideally the static analysis would recognize out-parameters.
+    SUPPRESS_RETAINPTR_CTOR_ADOPT *outResult = result.leakRef();
     return response->resultCode();
 }
 
@@ -142,7 +144,7 @@ static OSStatus webSecItemUpdate(CFDictionaryRef query, CFDictionaryRef attribut
     auto response = sendSecItemRequest(SecItemRequestData::Type::Update, query, attributesToUpdate);
     if (!response)
         return errSecInteractionNotAllowed;
-    
+
     return response->resultCode();
 }
 
@@ -151,7 +153,7 @@ static OSStatus webSecItemDelete(CFDictionaryRef query)
     auto response = sendSecItemRequest(SecItemRequestData::Type::Delete, query);
     if (!response)
         return errSecInteractionNotAllowed;
-    
+
     return response->resultCode();
 }
 

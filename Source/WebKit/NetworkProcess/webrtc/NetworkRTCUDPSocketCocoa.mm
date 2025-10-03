@@ -30,11 +30,13 @@
 
 #include "LibWebRTCNetworkMessages.h"
 #include "Logging.h"
+#include "NetworkRTCUtilitiesCocoa.h"
 #include <WebCore/STUNMessageParsing.h>
 #include <dispatch/dispatch.h>
 #include <ifaddrs.h>
 #include <net/if.h>
 #include <pal/spi/cocoa/NetworkSPI.h>
+#include <webrtc/rtc_base/async_packet_socket.h>
 #include <webrtc/rtc_base/time_utils.h>
 #include <wtf/BlockPtr.h>
 #include <wtf/SoftLinking.h>

@@ -58,7 +58,7 @@ NetworkProcess/ios/NetworkConnectionToWebProcessIOS.mm @nonARC
 NetworkProcess/ios/NetworkProcessIOS.mm @nonARC
 
 NetworkProcess/mac/NetworkProcessMac.mm @nonARC
-NetworkProcess/mac/SecItemShim.cpp
+NetworkProcess/mac/SecItemShim.mm @nonARC
 
 NetworkProcess/webrtc/LibWebRTCSocketClient.cpp
 NetworkProcess/webrtc/NetworkRTCMonitor.cpp

@@ -7070,7 +7070,7 @@
 		86E67A21190F411800004AB7 /* ProcessThrottler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProcessThrottler.h; sourceTree = "<group>"; };
 		86E67A22190F411800004AB7 /* ProcessThrottler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProcessThrottler.cpp; sourceTree = "<group>"; };
 		86E6E357291959C3006C25CA /* SecItemRequestData.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = SecItemRequestData.serialization.in; sourceTree = "<group>"; };
-		86EB7201298D310900C1DC77 /* SecItemShim.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SecItemShim.cpp; sourceTree = "<group>"; };
+		86EB7201298D310900C1DC77 /* SecItemShim.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SecItemShim.mm; sourceTree = "<group>"; };
 		86EB7202298D310900C1DC77 /* SecItemShim.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SecItemShim.h; sourceTree = "<group>"; };
 		86EFFA3F2B03A6B900ABE77D /* IPCStreamTester.messages.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = IPCStreamTester.messages.in; sourceTree = "<group>"; };
 		86EFFA402B03A6B900ABE77D /* IPCTester.messages.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = IPCTester.messages.in; sourceTree = "<group>"; };
@@ -13339,8 +13339,8 @@
 				E17AE2C116B9C139001C42F1 /* com.apple.WebKit.NetworkProcess.sb.in */,
 				C1C1B30E2540F45600D9100B /* NetworkConnectionToWebProcessMac.mm */,
 				51A8A6151627F3F9000D90E9 /* NetworkProcessMac.mm */,
-				86EB7201298D310900C1DC77 /* SecItemShim.cpp */,
 				86EB7202298D310900C1DC77 /* SecItemShim.h */,
+				86EB7201298D310900C1DC77 /* SecItemShim.mm */,
 			);
 			path = mac;
 			sourceTree = "<group>";

@@ -1,4 +1,3 @@
-NetworkProcess/mac/SecItemShim.cpp
 Platform/cf/ModuleCF.cpp
 Shared/API/Cocoa/WKRemoteObjectCoder.mm
 Shared/API/Cocoa/_WKRemoteObjectRegistry.mm
