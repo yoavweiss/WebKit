@@ -62,6 +62,7 @@
 #include <WebKit/WKNotificationPermissionRequest.h>
 #include <WebKit/WKNumber.h>
 #include <WebKit/WKOpenPanelResultListener.h>
+#include <WebKit/WKPageConfigurationRef.h>
 #include <WebKit/WKPageInjectedBundleClient.h>
 #include <WebKit/WKPagePrivate.h>
 #include <WebKit/WKPluginInformation.h>
@@ -1050,6 +1051,9 @@ WKRetainPtr<WKPageConfigurationRef> TestController::generatePageConfiguration(co
     if (m_forceComplexText)
         WKContextSetAlwaysUsesComplexTextCodePath(m_context.get(), true);
 
+    if (options.usesBackForwardCache())
+        WKPreferencesSetBoolValueForKeyForTesting(m_preferences.get(), true, toWK("UsesBackForwardCache").get());
+
     auto pageConfiguration = adoptWK(WKPageConfigurationCreate());
     WKPageConfigurationSetContext(pageConfiguration.get(), m_context.get());
     WKPageConfigurationSetPreferences(pageConfiguration.get(), m_preferences.get());
@@ -1580,7 +1584,8 @@ bool TestController::resetStateToConsistentValues(const TestOptions& options, Re
 
     WKPageResetStateBetweenTests(m_mainWebView->page());
 
-    WKPageClearBackForwardListForTesting(TestController::singleton().mainWebView()->page(), nullptr, [](void*) { });
+    WKPageClearBackForwardListForTesting(m_mainWebView->page(), nullptr, [](void*) { });
+    WKPageClearBackForwardCache(m_mainWebView->page());
 
     if (resetStage == ResetStage::AfterTest) {
         updateLiveDocumentsAfterTest();

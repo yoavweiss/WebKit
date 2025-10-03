@@ -1,3 +1,0 @@
-
-PASS navigate event should fire when traversing to a bfcache hit
-
