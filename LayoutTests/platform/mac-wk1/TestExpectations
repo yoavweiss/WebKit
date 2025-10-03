@@ -3291,3 +3291,5 @@ webkit.org/b/299137 imported/w3c/web-platform-tests/css/css-font-loading [ Skip 
 webkit.org/b/299495 fast/scrolling/anchor-overscroll-fixed.html [ Skip ]
 
 webkit.org/b/299636 imported/w3c/web-platform-tests/event-timing/only-observe-firstInput.html [ Pass Failure ]
+
+webkit.org/b/300050 imported/w3c/web-platform-tests/infrastructure/server/wpt-server-http.sub.html [ Skip ]
