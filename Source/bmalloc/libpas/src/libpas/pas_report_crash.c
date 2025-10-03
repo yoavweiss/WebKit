@@ -27,7 +27,6 @@
 
 #if LIBPAS_ENABLED
 
-#include "pas_ptr_hash_set.h"
 #include "pas_ptr_hash_map.h"
 #include "pas_root.h"
 
