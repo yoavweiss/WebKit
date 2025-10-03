@@ -77,7 +77,7 @@ static inline void updateLogicalHeightForCell(RenderTableSection::RowStruct& row
         return;
 
     auto& logicalHeight = !cell->isOrthogonal() ? cell->style().logicalHeight() : cell->style().logicalWidth();
-    if (logicalHeight.isPositive()) {
+    if (logicalHeight.isPossiblyPositive()) {
         if (auto percentageLogicalHeight = logicalHeight.tryPercentage()) {
             if (auto percentageRowLogicalHeight = row.logicalHeight.tryPercentage(); !percentageRowLogicalHeight || percentageRowLogicalHeight->value < percentageLogicalHeight->value)
                 row.logicalHeight = logicalHeight;

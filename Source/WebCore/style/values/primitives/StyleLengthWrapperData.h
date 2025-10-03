@@ -81,9 +81,13 @@ struct LengthWrapperData {
     WEBCORE_EXPORT LengthWrapperData(IPCData&&);
     WEBCORE_EXPORT IPCData ipcData() const;
 
-    bool isZero() const;
-    bool isPositive() const;
-    bool isNegative() const;
+    bool isKnownZero(LengthWrapperDataEvaluationKind) const;
+    bool isKnownPositive(LengthWrapperDataEvaluationKind) const;
+    bool isKnownNegative(LengthWrapperDataEvaluationKind) const;
+
+    bool isPossiblyZero(LengthWrapperDataEvaluationKind) const;
+    bool isPossiblyPositive(LengthWrapperDataEvaluationKind) const;
+    bool isPossiblyNegative(LengthWrapperDataEvaluationKind) const;
 
     template<typename ReturnType, typename MaximumType>
     ReturnType minimumValueForLengthWrapperDataWithLazyMaximum(LengthWrapperDataEvaluationKind, NOESCAPE const Invocable<MaximumType()> auto& lazyMaximumValueFunctor, ZoomNeeded) const;
@@ -230,25 +234,46 @@ inline bool LengthWrapperData::operator==(const LengthWrapperData& other) const
     return value() == other.value();
 }
 
-inline bool LengthWrapperData::isPositive() const
+inline bool LengthWrapperData::isKnownZero(LengthWrapperDataEvaluationKind evaluationKind) const
 {
-    if (m_kind == LengthWrapperDataKind::Calculation)
-        return true;
-    return m_floatValue > 0;
+    if (evaluationKind == LengthWrapperDataEvaluationKind::Fixed || evaluationKind == LengthWrapperDataEvaluationKind::Percentage)
+        return !m_floatValue;
+    return false;
 }
 
-inline bool LengthWrapperData::isNegative() const
+inline bool LengthWrapperData::isKnownPositive(LengthWrapperDataEvaluationKind evaluationKind) const
 {
-    if (m_kind == LengthWrapperDataKind::Calculation)
-        return false;
-    return m_floatValue < 0;
+    if (evaluationKind == LengthWrapperDataEvaluationKind::Fixed || evaluationKind == LengthWrapperDataEvaluationKind::Percentage)
+        return m_floatValue > 0;
+    return false;
 }
 
-inline bool LengthWrapperData::isZero() const
+inline bool LengthWrapperData::isKnownNegative(LengthWrapperDataEvaluationKind evaluationKind) const
 {
-    if (m_kind == LengthWrapperDataKind::Calculation)
-        return false;
-    return !m_floatValue;
+    if (evaluationKind == LengthWrapperDataEvaluationKind::Fixed || evaluationKind == LengthWrapperDataEvaluationKind::Percentage)
+        return m_floatValue < 0;
+    return false;
+}
+
+inline bool LengthWrapperData::isPossiblyZero(LengthWrapperDataEvaluationKind evaluationKind) const
+{
+    if (evaluationKind == LengthWrapperDataEvaluationKind::Fixed || evaluationKind == LengthWrapperDataEvaluationKind::Percentage)
+        return !m_floatValue;
+    return true;
+}
+
+inline bool LengthWrapperData::isPossiblyPositive(LengthWrapperDataEvaluationKind evaluationKind) const
+{
+    if (evaluationKind == LengthWrapperDataEvaluationKind::Fixed || evaluationKind == LengthWrapperDataEvaluationKind::Percentage)
+        return m_floatValue > 0;
+    return true;
+}
+
+inline bool LengthWrapperData::isPossiblyNegative(LengthWrapperDataEvaluationKind evaluationKind) const
+{
+    if (evaluationKind == LengthWrapperDataEvaluationKind::Fixed || evaluationKind == LengthWrapperDataEvaluationKind::Percentage)
+        return m_floatValue < 0;
+    return true;
 }
 
 template<typename ReturnType, typename MaximumType>

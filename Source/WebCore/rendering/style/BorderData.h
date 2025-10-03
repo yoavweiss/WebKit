@@ -58,7 +58,7 @@ public:
 
     bool hasBorderRadius() const
     {
-        return m_radii.anyOf([](auto& corner) { return !Style::isEmpty(corner); });
+        return m_radii.anyOf([](auto& corner) { return !Style::isKnownEmpty(corner); });
     }
 
     template<BoxSide side>

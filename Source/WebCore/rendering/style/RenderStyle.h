@@ -532,13 +532,10 @@ public:
     void setColumnStylesFromPaginationMode(PaginationMode);
 
     inline bool isFloating() const;
-    inline bool hasMargin() const;
     inline bool hasBorder() const;
     inline bool hasBorderImage() const;
     inline bool hasVisibleBorderDecoration() const;
     inline bool hasVisibleBorder() const;
-    inline bool hasPadding() const;
-    inline bool hasInset() const;
 
     inline bool hasBackgroundImage() const;
 
@@ -1741,7 +1738,6 @@ public:
     
     inline const Style::StrokeWidth& strokeWidth() const;
     inline void setStrokeWidth(Style::StrokeWidth&&);
-    inline bool hasVisibleStroke() const;
     static inline Style::StrokeWidth initialStrokeWidth();
 
     float computedStrokeWidth(const IntSize& viewportSize) const;

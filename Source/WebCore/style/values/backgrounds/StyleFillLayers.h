@@ -194,10 +194,25 @@ RefPtr<StyleImage> FillLayers<Layer>::findLayerUsedImage(WrappedImagePtr image, 
                 return false;
             },
             [&](const Style::BackgroundSize::LengthSize& size) {
-                auto& layerWidth = size.width();
-                auto& layerHeight = size.height();
-                return (layerWidth.isAuto() || !layerWidth.isZero()) && (layerHeight.isAuto() || !layerHeight.isZero());
-            });
+                auto isAutoOrKnownNonZero = [](auto& length) {
+                    return WTF::switchOn(length,
+                        [](const Style::BackgroundSizeLength::Fixed& fixed) {
+                            return !fixed.isZero();
+                        },
+                        [](const Style::BackgroundSizeLength::Percentage& percentage) {
+                            return !percentage.isZero();
+                        },
+                        [](const Style::BackgroundSizeLength::Calc&) {
+                            return false;
+                        },
+                        [](const CSS::Keyword::Auto&) {
+                            return true;
+                        }
+                    );
+                };
+                return isAutoOrKnownNonZero(size.width()) && isAutoOrKnownNonZero(size.height());
+            }
+        );
         return layerImage;
     }
 

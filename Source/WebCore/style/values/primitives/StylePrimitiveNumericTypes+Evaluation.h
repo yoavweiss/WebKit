@@ -355,8 +355,8 @@ template<auto aR, auto bR, typename V> auto reflectSum(const LengthPercentage<aR
     using PercentageA = typename LengthPercentage<aR, V>::Percentage;
     using PercentageB = typename LengthPercentage<bR, V>::Percentage;
 
-    bool aIsZero = a.isZero();
-    bool bIsZero = b.isZero();
+    bool aIsZero = a.isKnownZero();
+    bool bIsZero = b.isKnownZero();
 
     // If both `a` and `b` are 0, turn this into a calc expression: `calc(100% - (0 + 0))` aka `100%`.
     if (aIsZero && bIsZero)

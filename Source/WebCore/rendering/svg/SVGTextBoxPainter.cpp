@@ -191,7 +191,7 @@ void SVGTextBoxPainter<TextBoxPath>::paint()
     auto& style = parentRenderer.style();
 
     bool hasFill = style.hasFill();
-    bool hasVisibleStroke = style.hasVisibleStroke();
+    bool hasVisibleStroke = style.hasStroke() && style.strokeWidth().isPossiblyPositive();
 
     const RenderStyle* selectionStyle = &style;
     if (hasSelection && shouldPaintSelectionHighlight) {
@@ -200,7 +200,7 @@ void SVGTextBoxPainter<TextBoxPath>::paint()
             if (!hasFill)
                 hasFill = selectionStyle->hasFill();
             if (!hasVisibleStroke)
-                hasVisibleStroke = selectionStyle->hasVisibleStroke();
+                hasVisibleStroke = selectionStyle->hasStroke() && selectionStyle->strokeWidth().isPossiblyPositive();
         } else
             selectionStyle = &style;
     }
@@ -461,7 +461,7 @@ void SVGTextBoxPainter<TextBoxPath>::paintDecoration(Style::TextDecorationLine d
             }
             break;
         case PaintType::Stroke:
-            if (decorationStyle.hasVisibleStroke()) {
+            if (decorationStyle.hasStroke() && decorationStyle.strokeWidth().isPossiblyPositive()) {
                 m_paintingResourceMode = RenderSVGResourceMode::ApplyToStroke;
                 paintDecorationWithStyle(decoration, fragment, *decorationRenderer);
             }

@@ -3836,7 +3836,7 @@ static bool hasSimpleStaticPositionForInlineLevelOutOfFlowChildrenByStyle(const 
 {
     if (rootStyle.textAlign() != TextAlignMode::Start)
         return false;
-    if (!rootStyle.textIndent().length.isZero())
+    if (!rootStyle.textIndent().length.isKnownZero())
         return false;
     return true;
 }

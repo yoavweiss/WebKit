@@ -115,7 +115,7 @@ static void useStrokeStyleToFill(GraphicsContext& context)
 
 void LegacyRenderSVGPath::strokeShape(GraphicsContext& context) const
 {
-    if (!style().hasVisibleStroke())
+    if (!style().hasStroke() || !style().strokeWidth().isPossiblyPositive())
         return;
 
     // This happens only if the layout was never been called for this element.

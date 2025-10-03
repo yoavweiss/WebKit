@@ -254,7 +254,7 @@ template<> struct PropertyExtractorAdaptor<CSSPropertyLetterSpacing> {
         // https://www.w3.org/TR/css-text-4/#letter-spacing-property
 
         auto& spacing = state.style.computedLetterSpacing();
-        if (spacing.isFixed() && spacing.isZero())
+        if (auto fixedSpacing = spacing.tryFixed(); fixedSpacing && fixedSpacing->isZero())
             return functor(CSS::Keyword::Normal { });
         return functor(spacing);
     }

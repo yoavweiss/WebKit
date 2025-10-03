@@ -373,22 +373,26 @@ bool RenderBlock::isSelfCollapsingBlock() const
     // (c) have border/padding,
     // (d) have a min-height
     // (e) have specified that one of our margins can't collapse using a CSS extension
-    if (logicalHeight() > 0
-        || isRenderTable() || borderAndPaddingLogicalHeight()
-        || style().logicalMinHeight().isPositive())
-        return false;
+
+    auto minHeightIsPositive = [&] {
+        return WTF::switchOn(style().logicalMinHeight(),
+            [](const Style::MinimumSize::Fixed& fixedValue) {
+                return fixedValue.isPositive();
+            },
+            [&](const Style::MinimumSize::Percentage& percentageValue) {
+                return percentageValue.isPositive();
+            },
+            [&](const Style::PreferredSize::Calc&) {
+                return true;
+            },
+            [](const auto&) {
+                return false;
+            }
+        );
+    };
 
     auto heightIsZeroOrAuto = [&] {
-        auto logicalHeightLength = style().logicalHeight();
-        if (logicalHeightLength.isAuto())
-            return true;
-
-        if (logicalHeightLength.isFixed())
-            return logicalHeightLength.isZero();
-
-        if (logicalHeightLength.isPercentOrCalculated()) {
-            if (logicalHeightLength.isZero())
-                return true;
+        auto handleNonZeroPercentageOrCalc = [&] {
             // While in quirks mode there's always a fixed height ancestor to resolve percent value against (ICB),
             // in standards mode we can only use the containing block.
             if (document().inQuirksMode())
@@ -399,9 +403,32 @@ bool RenderBlock::isSelfCollapsingBlock() const
                 return false;
             }
             return is<RenderView>(*containingBlock) || !containingBlock->style().logicalHeight().isFixed();
-        }
-        return false;
+        };
+
+        return WTF::switchOn(style().logicalHeight(),
+            [](const Style::PreferredSize::Fixed& fixedValue) {
+                return fixedValue.isZero();
+            },
+            [&](const Style::PreferredSize::Percentage& percentageValue) {
+                if (percentageValue.isZero())
+                    return true;
+                return handleNonZeroPercentageOrCalc();
+            },
+            [&](const Style::PreferredSize::Calc&) {
+                return handleNonZeroPercentageOrCalc();
+            },
+            [](const CSS::Keyword::Auto&) {
+                return true;
+            },
+            [](CSS::PrimitiveKeyword auto const&) {
+                return false;
+            }
+        );
     };
+
+    if (logicalHeight() > 0 || isRenderTable() || borderAndPaddingLogicalHeight() || minHeightIsPositive())
+        return false;
+
     if (heightIsZeroOrAuto()) {
         // If the height is 0 or auto, then whether or not we are a self-collapsing block depends
         // on whether we have content that is all self-collapsing or not.

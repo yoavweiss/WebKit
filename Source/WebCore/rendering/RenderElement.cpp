@@ -1354,7 +1354,7 @@ template<typename FillLayers> static bool mustRepaintFillLayers(const RenderElem
     if (!image || !image->canRender(&renderer, renderer.style().usedZoom()))
         return false;
 
-    if (!layer.xPosition().isZero() || !layer.yPosition().isZero())
+    if (!layer.xPosition().isKnownZero() || !layer.yPosition().isKnownZero())
         return true;
 
     return WTF::switchOn(layer.size(),

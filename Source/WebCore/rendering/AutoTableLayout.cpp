@@ -67,7 +67,7 @@ void AutoTableLayout::recalcColumn(unsigned effCol)
                 if (current.inColSpan || !cell)
                     continue;
 
-                bool cellHasContent = cell->firstChild() || cell->style().hasBorder() || cell->style().hasPadding() || cell->style().hasBackground();
+                bool cellHasContent = cell->firstChild() || cell->style().hasBorder() || !Style::isKnownZero(cell->style().paddingBox()) || cell->style().hasBackground();
                 if (cellHasContent)
                     columnLayout.emptyCellsOnly = false;
 
@@ -95,8 +95,6 @@ void AutoTableLayout::recalcColumn(unsigned effCol)
                     if (auto fixedCellLogicalWidth = cellLogicalWidth.tryFixed()) {
                         if (fixedCellLogicalWidth->resolveZoom(Style::ZoomNeeded { }) > cCellMaxWidth)
                             cellLogicalWidth = Style::PreferredSize::Fixed { cCellMaxWidth };
-                        if (fixedCellLogicalWidth->isNegative())
-                            cellLogicalWidth = 0_css_px;
                     }
                     WTF::switchOn(cellLogicalWidth,
                         [&](const Style::PreferredSize::Fixed& fixedCellLogicalWidth) {
@@ -168,7 +166,7 @@ void AutoTableLayout::fullRecalc()
             // FIXME: calc() on tables should be handled consistently with other lengths.
             if (colLogicalWidth.isCalculated() || colLogicalWidth.isAuto())
                 colLogicalWidth = groupLogicalWidth;
-            if ((colLogicalWidth.isFixed() || colLogicalWidth.isPercentOrCalculated()) && colLogicalWidth.isZero())
+            if (colLogicalWidth.isSpecified() && colLogicalWidth.isKnownZero())
                 colLogicalWidth = CSS::Keyword::Auto { };
             unsigned effCol = m_table->colToEffCol(currentColumn);
             unsigned span = column->span();
@@ -298,7 +296,7 @@ float AutoTableLayout::calcEffectiveLogicalWidth()
         unsigned span = cell->colSpan();
 
         auto cellLogicalWidth = cell->styleOrColLogicalWidth();
-        if (cellLogicalWidth.isZero())
+        if (cellLogicalWidth.isKnownZero())
             cellLogicalWidth = CSS::Keyword::Auto { };
 
         unsigned effCol = m_table->colToEffCol(cell->col());

@@ -189,7 +189,7 @@ void RenderSVGShape::fillShape(const RenderStyle& style, GraphicsContext& contex
 
 void RenderSVGShape::strokeShape(const RenderStyle& style, GraphicsContext& context)
 {
-    if (!style.hasVisibleStroke())
+    if (!style.hasStroke() || !style.strokeWidth().isPossiblyPositive())
         return;
 
     GraphicsContextStateSaver stateSaver(context, false);

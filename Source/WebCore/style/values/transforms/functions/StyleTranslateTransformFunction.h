@@ -64,7 +64,7 @@ public:
     const LengthPercentage& y() const { return m_y; }
     Length z() const { return m_z; }
 
-    bool isIdentity() const override { return m_x.isZero() && m_y.isZero() && m_z.isZero(); }
+    bool isIdentity() const override { return m_x.isKnownZero() && m_y.isKnownZero() && m_z.isZero(); }
     bool isRepresentableIn2D() const override { return m_z.isZero(); }
 
     TransformFunctionSizeDependencies computeSizeDependencies() const override;

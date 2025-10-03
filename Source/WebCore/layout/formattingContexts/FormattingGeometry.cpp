@@ -177,7 +177,7 @@ std::optional<LayoutUnit> FormattingGeometry::computedWidth(const Box& layoutBox
     if (auto computedWidth = computedWidthValue<WidthType::Normal>(layoutBox, containingBlockWidth)) {
         auto& style = layoutBox.style();
         // Non-quantitative values such as auto and min-content are not influenced by the box-sizing property.
-        if (style.boxSizing() == BoxSizing::ContentBox || style.width().isIntrinsicOrLegacyIntrinsicOrAuto())
+        if (style.boxSizing() == BoxSizing::ContentBox || !style.width().isSpecified())
             return computedWidth;
         auto& boxGeometry = formattingContext().geometryForBox(layoutBox);
         return *computedWidth - boxGeometry.horizontalBorderAndPadding();

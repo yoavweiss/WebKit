@@ -121,7 +121,7 @@ void LegacyRenderSVGRect::fillShape(GraphicsContext& context) const
 
 void LegacyRenderSVGRect::strokeShape(GraphicsContext& context) const
 {
-    if (!style().hasVisibleStroke())
+    if (!style().hasStroke() || !style().strokeWidth().isPossiblyPositive())
         return;
 
     if (hasPath()) {

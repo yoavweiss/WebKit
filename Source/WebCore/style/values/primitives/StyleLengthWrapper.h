@@ -94,9 +94,19 @@ template<typename Numeric, CSS::PrimitiveKeyword... Ks> struct LengthWrapperBase
     ALWAYS_INLINE bool isPercentOrCalculated() const { return isPercent() || isCalculated(); }
     ALWAYS_INLINE bool isSpecified() const { return isFixed() || isPercent() || isCalculated(); }
 
-    ALWAYS_INLINE bool isZero() const { return m_value.isZero(); }
-    ALWAYS_INLINE bool isPositive() const { return m_value.isPositive(); }
-    ALWAYS_INLINE bool isNegative() const { return m_value.isNegative(); }
+    // `isKnownZero` returns whether the value can be guaranteed to be `0`. Keywords and calc() return `false`.
+    ALWAYS_INLINE bool isKnownZero() const requires (Fixed::range.min <= 0 && Fixed::range.max >= 0) { return m_value.isKnownZero(evaluationKind()); }
+    // `isKnownPositive` returns whether the value can be guaranteed to be more than `0`. Keywords and calc() return `false`.
+    ALWAYS_INLINE bool isKnownPositive() const requires (Fixed::range.max > 0) { return m_value.isKnownPositive(evaluationKind()); }
+    // `isKnownNegative` returns whether the value can be guaranteed to be less than `0`. Keywords and calc() return `false`.
+    ALWAYS_INLINE bool isKnownNegative() const requires (Fixed::range.min < 0) { return m_value.isKnownNegative(evaluationKind()); }
+
+    // `isPossiblyZero` returns whether the value can possibly be `0`. Keywords and calc() return `true`.
+    ALWAYS_INLINE bool isPossiblyZero() const requires (Fixed::range.min <= 0 && Fixed::range.max >= 0) { return m_value.isPossiblyZero(evaluationKind()); }
+    // `isPossiblyPositive` returns whether the value can possibly be more than `0`. Keywords and calc() return `true.
+    ALWAYS_INLINE bool isPossiblyPositive() const requires (Fixed::range.max > 0) { return m_value.isPossiblyPositive(evaluationKind()); }
+    // `isPossiblyNegative` returns whether the value can possibly be less than `0`. Keywords and calc() return `true.
+    ALWAYS_INLINE bool isPossiblyNegative() const requires (Fixed::range.min < 0) { return m_value.isPossiblyNegative(evaluationKind()); }
 
     std::optional<Fixed> tryFixed() const { return isFixed() ? std::make_optional(Fixed { m_value.value() }) : std::nullopt; }
     std::optional<Percentage> tryPercentage() const { return isPercent() ? std::make_optional(Percentage { m_value.value() }) : std::nullopt; }

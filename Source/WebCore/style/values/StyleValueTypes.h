@@ -1390,6 +1390,49 @@ template<VariantLike T> struct IsZero<T> {
     }
 };
 
+// MARK: - IsKnownZero
+
+// All leaf types that want to conform to IsKnownZero must implement
+// the following:
+//
+//    template<> struct WebCore::Style::IsKnownZero<StyleType> {
+//        bool operator()(const StyleType&);
+//    };
+//
+// or have a member function such that the type matches the
+// `HasIsKnownZero` concept.
+
+template<typename> struct IsKnownZero;
+
+struct IsKnownZeroInvoker {
+    template<typename T> bool operator()(const T& value) const
+    {
+        if constexpr (HasIsKnownZero<T>)
+            return value.isKnownZero();
+        else if constexpr (HasIsZero<T>)
+            return !value.isZero();
+        else
+            return IsKnownZero<T>{}(value);
+    }
+};
+inline constexpr IsKnownZeroInvoker isKnownZero{};
+
+// Constrained for `TreatAsTupleLike`.
+template<TupleLike T> struct IsKnownZero<T> {
+    bool operator()(const T& value)
+    {
+        return WTF::apply([&](const auto& ...x) { return (isKnownZero(x) && ...); }, value);
+    }
+};
+
+// Constrained for `TreatAsVariantLike`.
+template<VariantLike T> struct IsKnownZero<T> {
+    bool operator()(const T& value)
+    {
+        return WTF::switchOn(value, [&](const auto& alternative) { return isKnownZero(alternative); });
+    }
+};
+
 // MARK: - IsEmpty
 
 // All leaf types that want to conform to IsEmpty must implement
@@ -1436,6 +1479,57 @@ template<typename T> struct IsEmpty<MinimallySerializingSpaceSeparatedSize<T>> {
     bool operator()(const auto& value)
     {
         return isZero(value.width()) || isZero(value.height());
+    }
+};
+
+// MARK: - IsKnownEmpty
+
+// All leaf types that want to conform to IsKnownEmpty must implement
+// the following:
+//
+//    template<> struct WebCore::Style::IsKnownEmpty<StyleType> {
+//        bool operator()(const StyleType&);
+//    };
+//
+// or have a member function such that the type matches the
+// `HasIsKnownEmpty` concept.
+
+template<typename> struct IsKnownEmpty;
+
+struct IsKnownEmptyInvoker {
+    template<typename T> bool operator()(const T& value) const
+    {
+        if constexpr (HasIsKnownEmpty<T>)
+            return value.isKnownEmpty();
+        else if constexpr (HasIsEmpty<T>)
+            return value.isEmpty();
+        else
+            return IsKnownEmpty<T>{}(value);
+    }
+};
+inline constexpr IsKnownEmptyInvoker isKnownEmpty{};
+
+// Specialization for `SpaceSeparatedSize`.
+template<typename T> struct IsKnownEmpty<SpaceSeparatedSize<T>> {
+    bool operator()(const auto& value)
+    {
+        return isKnownZero(value.width()) || isKnownZero(value.height());
+    }
+};
+
+// Specialization for `MinimallySerializingSpaceSeparatedPoint`.
+template<typename T> struct IsKnownEmpty<MinimallySerializingSpaceSeparatedPoint<T>> {
+    bool operator()(const auto& value)
+    {
+        return isKnownZero(value.x()) || isKnownZero(value.y());
+    }
+};
+
+// Specialization for `MinimallySerializingSpaceSeparatedSize`.
+template<typename T> struct IsKnownEmpty<MinimallySerializingSpaceSeparatedSize<T>> {
+    bool operator()(const auto& value)
+    {
+        return isKnownZero(value.width()) || isKnownZero(value.height());
     }
 };
 

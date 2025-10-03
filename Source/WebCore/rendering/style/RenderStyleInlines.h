@@ -290,15 +290,12 @@ inline bool RenderStyle::hasExplicitlySetStrokeColor() const { return m_rareInhe
 inline bool RenderStyle::hasFilter() const { return !filter().isNone(); }
 inline bool RenderStyle::hasInFlowPosition() const { return position() == PositionType::Relative || position() == PositionType::Sticky; }
 inline bool RenderStyle::hasIsolation() const { return isolation() != Isolation::Auto; }
-inline bool RenderStyle::hasMargin() const { return !Style::isZero(marginBox()); }
 inline bool RenderStyle::hasMask() const { return maskLayers().hasImage() || maskBorder().hasSource(); }
-inline bool RenderStyle::hasInset() const { return !Style::isZero(insetBox()); }
 inline bool RenderStyle::hasOffsetPath() const { return !WTF::holdsAlternative<CSS::Keyword::None>(m_nonInheritedData->rareData->offsetPath); }
 inline bool RenderStyle::hasOpacity() const { return !opacity().isOpaque(); }
 inline bool RenderStyle::hasOutOfFlowPosition() const { return position() == PositionType::Absolute || position() == PositionType::Fixed; }
 inline bool RenderStyle::hasOutline() const { return outlineStyle() != OutlineStyle::None && outlineWidth().isPositive(); }
 inline bool RenderStyle::hasOutlineInVisualOverflow() const { return hasOutline() && outlineSize() > 0; }
-inline bool RenderStyle::hasPadding() const { return !Style::isZero(paddingBox()); }
 inline bool RenderStyle::hasPerspective() const { return !perspective().isNone(); }
 inline bool RenderStyle::hasPositionedMask() const { return maskLayers().hasImage(); }
 inline bool RenderStyle::hasPseudoStyle(PseudoId pseudo) const { return m_nonInheritedFlags.hasPseudoStyle(pseudo); }
@@ -917,7 +914,6 @@ inline bool RenderStyle::insideSubmitButton() const { return m_rareInheritedData
 
 inline const Style::StrokeWidth& RenderStyle::strokeWidth() const { return m_rareInheritedData->strokeWidth; }
 inline bool RenderStyle::hasExplicitlySetStrokeWidth() const { return m_rareInheritedData->hasSetStrokeWidth; }
-inline bool RenderStyle::hasVisibleStroke() const { return hasStroke() && !strokeWidth().isZero(); }
 inline bool RenderStyle::hasStroke() const { return !stroke().isNone(); }
 inline bool RenderStyle::hasFill() const { return !fill().isNone(); }
 inline bool RenderStyle::hasMarkers() const { return !markerStart().isNone() || !markerMid().isNone() || !markerEnd().isNone(); }

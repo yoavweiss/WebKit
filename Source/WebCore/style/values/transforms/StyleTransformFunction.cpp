@@ -534,14 +534,14 @@ auto CSSValueConversion<TransformFunction>::operator()(BuilderState& state, cons
 auto CSSValueCreation<TransformFunction>::operator()(CSSValuePool& pool, const RenderStyle& style, const TransformFunction& value) -> Ref<CSSValue>
 {
     auto translateLength = [&](const auto& length) -> Ref<CSSValue> {
-        if (length.isZero())
+        if (length.isKnownZero())
             return createCSSValue(pool, style, Length<> { 0_css_px });
         else
             return createCSSValue(pool, style, length);
     };
 
     auto includeLength = [](const auto& length) -> bool {
-        return !length.isZero() || length.isPercent();
+        return !length.isKnownZero() || length.isPercent();
     };
 
     auto& function = value.function();
@@ -644,14 +644,14 @@ auto CSSValueCreation<TransformFunction>::operator()(CSSValuePool& pool, const R
 void Serialize<TransformFunction>::operator()(StringBuilder& builder, const CSS::SerializationContext& context, const RenderStyle& style, const TransformFunction& value)
 {
     auto translateLength = [&](const auto& length) {
-        if (length.isZero())
+        if (length.isKnownZero())
             serializationForCSS(builder, context, style, Length<> { 0_css_px });
         else
             serializationForCSS(builder, context, style, length);
     };
 
     auto includeLength = [](const auto& length) -> bool {
-        return !length.isZero() || length.isPercent();
+        return !length.isKnownZero() || length.isPercent();
     };
 
     auto& function = value.function();

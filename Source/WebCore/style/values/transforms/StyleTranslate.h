@@ -77,7 +77,7 @@ template<typename... F> decltype(auto) Translate::Function::switchOn(F&&... f) c
     Ref protectedValue = value;
     if (!protectedValue->z().isZero())
         return visitor(SpaceSeparatedTuple { protectedValue->x(), protectedValue->y(), protectedValue->z() });
-    if (!protectedValue->y().isZero() || protectedValue->y().isPercent())
+    if (!protectedValue->y().isKnownZero() || protectedValue->y().isPercent())
         return visitor(SpaceSeparatedTuple { protectedValue->x(), protectedValue->y() });
     return visitor(SpaceSeparatedTuple { protectedValue->x() });
 }

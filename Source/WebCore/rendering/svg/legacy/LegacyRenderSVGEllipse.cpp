@@ -117,7 +117,7 @@ void LegacyRenderSVGEllipse::fillShape(GraphicsContext& context) const
 
 void LegacyRenderSVGEllipse::strokeShape(GraphicsContext& context) const
 {
-    if (!style().hasVisibleStroke())
+    if (!style().hasStroke() || !style().strokeWidth().isPossiblyPositive())
         return;
     if (hasPath()) {
         LegacyRenderSVGShape::strokeShape(context);

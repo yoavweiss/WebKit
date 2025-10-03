@@ -3487,7 +3487,7 @@ bool RenderStyle::hasPositiveStrokeWidth() const
 {
     if (!hasExplicitlySetStrokeWidth())
         return textStrokeWidth().isPositive();
-    return strokeWidth().isPositive();
+    return strokeWidth().isPossiblyPositive();
 }
 
 Color RenderStyle::computedStrokeColor() const

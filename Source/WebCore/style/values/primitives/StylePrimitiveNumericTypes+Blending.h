@@ -105,8 +105,8 @@ template<auto R, typename V> struct Blending<LengthPercentage<R, V>> {
             if (context.compositeOperation != CompositeOperation::Replace)
                 return Calc { Calculation::add(copyCalculation(from), copyCalculation(to)) };
 
-            bool fromIsZero = from.isZero();
-            bool toIsZero = to.isZero();
+            bool fromIsZero = from.isKnownZero();
+            bool toIsZero = to.isKnownZero();
 
             // 0% to 0px -> calc(0px + 0%) to calc(0px + 0%) -> 0px
             // 0px to 0% -> calc(0px + 0%) to calc(0px + 0%) -> 0px

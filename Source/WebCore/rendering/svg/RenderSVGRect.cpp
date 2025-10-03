@@ -158,7 +158,7 @@ bool RenderSVGRect::definitelyHasSimpleStroke() const
 
 void RenderSVGRect::strokeShape(GraphicsContext& context) const
 {
-    if (!style().hasVisibleStroke())
+    if (!style().hasStroke() || !style().strokeWidth().isPossiblyPositive())
         return;
 
     if (hasPath()) {
