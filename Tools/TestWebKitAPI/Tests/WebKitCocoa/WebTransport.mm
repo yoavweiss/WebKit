@@ -35,10 +35,14 @@
 #import "TestWKWebView.h"
 #import "Utilities.h"
 #import "WebTransportServer.h"
+#import <CommonCrypto/CommonDigest.h>
+#import <Security/SecCertificateRequest.h>
 #import <WebKit/WKPreferencesPrivate.h>
 #import <WebKit/WKWebsiteDataStorePrivate.h>
 #import <WebKit/_WKInternalDebugFeature.h>
 #import <wtf/SoftLinking.h>
+#import <wtf/text/MakeString.h>
+#import <wtf/text/StringBuilder.h>
 
 // FIXME: Replace this soft linking with a HAVE macro once rdar://158191390 is available on all tested OS builds.
 SOFT_LINK_FRAMEWORK(Network)
@@ -644,6 +648,90 @@ TEST(WebTransport, DISABLED_CSP)
     };
     EXPECT_WK_STREQ(runTest("none"), "caught WebTransportError session null true");
     EXPECT_WK_STREQ(runTest([NSString stringWithFormat:@"https://localhost:%d", server.port()].UTF8String), "ready");
+}
+
+TEST(WebTransport, ServerCertificateHashes)
+{
+    auto runTest = [] (uint64_t certLifetime, bool matchHash = true) {
+        NSDictionary* options = @{
+            (id)kSecAttrKeyType: (id)kSecAttrKeyTypeECSECPrimeRandom,
+            (id)kSecAttrKeyClass: (id)kSecAttrKeyClassPrivate,
+            (id)kSecAttrKeySizeInBits: @256,
+        };
+        CFErrorRef error = nullptr;
+        RetainPtr privateKey = adoptCF(SecKeyCreateRandomKey((__bridge CFDictionaryRef)options, &error));
+        EXPECT_NULL(error);
+
+        NSArray *subject = @[];
+        NSDictionary *parameters = @{
+            (__bridge NSString*)kSecCertificateLifetime: @(certLifetime)
+        };
+        RetainPtr certificate = adoptCF(SecGenerateSelfSignedCertificate((__bridge CFArrayRef)subject, (__bridge CFDictionaryRef)parameters, nullptr, privateKey.get()));
+        RetainPtr identity = adoptCF(SecIdentityCreate(kCFAllocatorDefault, certificate.get(), privateKey.get()));
+        RetainPtr certificateDER = adoptNS((__bridge NSData *)SecCertificateCopyData(certificate.get()));
+
+        WebTransportServer echoServer([](ConnectionGroup group) -> ConnectionTask {
+            auto connection = co_await group.receiveIncomingConnection();
+            auto request = co_await connection.awaitableReceiveBytes();
+            auto serverBidirectionalStream = group.createWebTransportConnection(ConnectionGroup::ConnectionType::Bidirectional);
+            co_await serverBidirectionalStream.awaitableSend(WTFMove(request));
+        }, adoptNS(sec_identity_create(identity.get())).get());
+
+        std::array<uint8_t, CC_SHA256_DIGEST_LENGTH> sha2 { };
+        if (matchHash)
+            CC_SHA256([certificateDER bytes], [certificateDER length], sha2.data());
+
+        StringBuilder certificateBytes;
+        for (NSUInteger i = 0; i < CC_SHA256_DIGEST_LENGTH; i++) {
+            if (i)
+                certificateBytes.append(", "_s);
+            certificateBytes.append(makeString((unsigned)sha2[i]));
+        }
+
+        NSString *html = [NSString stringWithFormat:@""
+            "<script>async function test() {"
+            "  try {"
+            "    const hashValue = new Uint8Array([%s]);"
+            "    let t = new WebTransport('https://127.0.0.1:%d/',{serverCertificateHashes: [{algorithm: 'sha-256',value: hashValue}]});"
+            "    try { await t.ready } catch (e) { alert('did not become ready') };"
+            "    let c = await t.createBidirectionalStream();"
+            "    let w = c.writable.getWriter();"
+            "    await w.write(new TextEncoder().encode('abc'));"
+            "    await w.close();"
+            "    await c.readable.getReader().cancel();"
+            "    let sr = t.incomingBidirectionalStreams.getReader();"
+            "    let {value: s, d} = await sr.read();"
+            "    let r = s.readable.getReader();"
+            "    const { value, done } = await r.read();"
+            "    await r.cancel();"
+            "    await s.writable.getWriter().close();"
+            "    t.close();"
+            "    alert('successfully read ' + new TextDecoder().decode(value));"
+            "  } catch (e) { alert('caught ' + e); }"
+            "}; test();"
+            "</script>", certificateBytes.toString().utf8().data(), echoServer.port()];
+
+        auto configuration = adoptNS([WKWebViewConfiguration new]);
+        enableWebTransport(configuration.get());
+        auto webView = adoptNS([[WKWebView alloc] initWithFrame:CGRectZero configuration:configuration.get()]);
+        auto delegate = adoptNS([TestNavigationDelegate new]);
+        [webView setNavigationDelegate:delegate.get()];
+
+        __block bool challenged { false };
+        delegate.get().didReceiveAuthenticationChallenge = ^(WKWebView *, NSURLAuthenticationChallenge *challenge, void (^completionHandler)(NSURLSessionAuthChallengeDisposition, NSURLCredential *)) {
+            challenged = true;
+            completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]);
+        };
+
+        [webView loadHTMLString:html baseURL:[NSURL URLWithString:@"https://webkit.org/"]];
+        NSString *result = [webView _test_waitForAlert];
+        EXPECT_FALSE(challenged);
+        return result;
+    };
+
+    constexpr uint64_t oneWeekValidity = 7 * 24 * 60 * 60;
+    EXPECT_WK_STREQ(runTest(oneWeekValidity), "successfully read abc");
+    // FIXME: Add negative tests once rdar://161855525 is fixed.
 }
 
 } // namespace TestWebKitAPI
