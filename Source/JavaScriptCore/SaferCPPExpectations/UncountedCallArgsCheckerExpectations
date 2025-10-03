@@ -109,8 +109,6 @@ parser/UnlinkedSourceCode.cpp
 parser/UnlinkedSourceCode.h
 profiler/ProfilerDatabase.cpp
 profiler/ProfilerEvent.cpp
-runtime/ArrayBuffer.cpp
-runtime/ArrayBuffer.h
 runtime/ArrayBufferView.cpp
 runtime/ArrayBufferView.h
 runtime/AtomicsObject.cpp
