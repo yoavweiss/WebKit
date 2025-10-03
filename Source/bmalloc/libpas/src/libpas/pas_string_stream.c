@@ -29,7 +29,6 @@
 
 #include "pas_string_stream.h"
 
-#include "pas_bootstrap_free_heap.h"
 #include "pas_snprintf.h"
 #include "pas_zero_memory.h"
 
