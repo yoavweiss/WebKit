@@ -1656,14 +1656,18 @@ void TreeResolver::sortPositionOptionsIfNeeded(PositionOptions& options, const S
 
     // If the styleable has a last successful position option...
     if (auto lastSuccessfulIndex = m_document->styleScope().lastSuccessfulPositionOptionIndexFor(styleable)) {
-        // ... we look for the last successful fallback ...
-        for (size_t i = 1; i < options.optionStyles.size(); ++i) {
-            // ... if this option is the last successful fallback (as indicated by the index) ...
-            if (options.optionStyles[i].style->usedPositionOptionIndex() == *lastSuccessfulIndex) {
-                // ... rotate the options array to make it the original style (at index 0).
-                std::ranges::rotate(options.optionStyles, &options.optionStyles[i]);
-                break;
-            }
+        // ... find which style in options.optionStyles has that index
+        auto lastSuccessfulIndexInOptionStyles = options.optionStyles.findIf([lastSuccessfulIndex] (const auto& option) {
+            ASSERT(option.style);
+            return option.style->usedPositionOptionIndex() == *lastSuccessfulIndex;
+        });
+
+        // If there's one, move it to the beginning.
+        // (if it's at index zero, do nothing since it's already at the beginning)
+        if (lastSuccessfulIndexInOptionStyles > 0) {
+            auto lastSuccessfulOption = WTFMove(options.optionStyles[lastSuccessfulIndexInOptionStyles]);
+            options.optionStyles.removeAt(lastSuccessfulIndexInOptionStyles);
+            options.optionStyles.insert(0, WTFMove(lastSuccessfulOption));
         }
     }
 }

@@ -1,6 +1,6 @@
 
 PASS Should use the last fallback position initially
 PASS Should use the third fallback position with enough space right
-FAIL Should use the second fallback position with enough space below assert_equals: Anchored element should be at the bottom of anchor expected 450 but got 250
+PASS Should use the second fallback position with enough space below
 PASS Should use the first fallback position with enough space right and below
 
