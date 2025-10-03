@@ -3287,7 +3287,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/flexbox/StyleWebKitBoxOrdinalGroup.h
 
     style/values/fonts/StyleFontPalette.h
-    style/values/fonts/StyleFontStyle.h
     style/values/fonts/StyleFontWeight.h
     style/values/fonts/StyleFontWidth.h
 
