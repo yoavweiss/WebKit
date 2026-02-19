@@ -133,6 +133,9 @@ class EditorClient;
 class EditCommandComposition;
 class ElementTargetingController;
 class Element;
+#if ENABLE(FEDCM)
+class FedCMProxy;
+#endif
 class FocusController;
 class FormData;
 class Frame;
@@ -769,6 +772,9 @@ public:
 #if ENABLE(WEB_AUTHN)
     AuthenticatorCoordinator& authenticatorCoordinator() { return m_authenticatorCoordinator.get(); }
     CredentialRequestCoordinator& credentialRequestCoordinator() { return m_credentialRequestCoordinator.get(); }
+#endif
+#if ENABLE(FEDCM)
+    WEBCORE_EXPORT FedCMProxy& fedCMProxy();
 #endif
 
 #if ENABLE(APPLICATION_MANIFEST)
@@ -1720,6 +1726,9 @@ private:
     const UniqueRef<AuthenticatorCoordinator> m_authenticatorCoordinator;
     const Ref<CredentialRequestCoordinator> m_credentialRequestCoordinator;
 #endif // ENABLE(WEB_AUTHN)
+#if ENABLE(FEDCM)
+    const Ref<FedCMProxy> m_fedCMProxy;
+#endif // ENABLE(FEDCM)
 
 #if ENABLE(APPLICATION_MANIFEST)
     std::optional<ApplicationManifest> m_applicationManifest;
