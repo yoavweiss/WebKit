@@ -59,9 +59,9 @@ public:
     const String& backendCommandsURL() const LIFETIME_BOUND { return m_backendCommandsURL; }
 
     enum class InspectorType { UI, HTTP };
-    GString* buildTargetListPage(InspectorType) const;
+    StringBuilder buildTargetListPage(InspectorType) const;
     enum class ShouldEscapeSingleQuote : bool { No, Yes };
-    void appendTargetList(GString*, InspectorType, ShouldEscapeSingleQuote) const;
+    void appendTargetList(StringBuilder&, InspectorType, ShouldEscapeSingleQuote) const;
     void inspect(uint64_t connectionID, uint64_t targetID, const String& targetType, InspectorType = InspectorType::UI);
     void sendMessageToBackend(uint64_t connectionID, uint64_t targetID, const String&);
     void closeFromFrontend(uint64_t connectionID, uint64_t targetID);
