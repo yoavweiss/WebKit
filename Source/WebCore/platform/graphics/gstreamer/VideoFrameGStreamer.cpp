@@ -354,6 +354,9 @@ static inline void setBufferFields(GstBuffer* buffer, const MediaTime& presentat
 static MediaTime presentationTimeFromSample(const GRefPtr<GstSample>& sample)
 {
     auto buffer = gst_sample_get_buffer(sample.get());
+    if (!GST_IS_BUFFER(buffer))
+        return MediaTime::invalidTime();
+
     if (GST_BUFFER_PTS_IS_VALID(buffer))
         return fromGstClockTime(GST_BUFFER_PTS(buffer));
 
@@ -486,6 +489,9 @@ VideoFrameGStreamer::VideoFrameGStreamer(GRefPtr<GstSample>&& sample, const Crea
     m_info = options.info.value_or(infoFromCaps(GRefPtr(gst_sample_get_caps(m_sample.get()))));
 
     setMemoryTypeFromCaps();
+
+    if (!GST_IS_BUFFER(gst_sample_get_buffer(m_sample.get())))
+        return;
 
     setMetadataAndContentHint(options.timeMetadata, options.contentHint);
 }

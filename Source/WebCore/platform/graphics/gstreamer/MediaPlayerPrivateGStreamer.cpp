@@ -4182,6 +4182,11 @@ void MediaPlayerPrivateGStreamer::paint(GraphicsContext& context, const FloatRec
         sample = m_sample;
     }
 
+    if (!GST_IS_BUFFER(gst_sample_get_buffer(sample.get()))) {
+        GST_DEBUG_OBJECT(pipeline(), "Cancelling attempt to render sample without buffer");
+        return;
+    }
+
     auto caps = gst_sample_get_caps(sample.get());
     auto presentationSize = getVideoResolutionFromCaps(caps);
     if (!presentationSize)
@@ -4684,9 +4689,12 @@ std::optional<VideoFrameMetadata> MediaPlayerPrivateGStreamer::videoFrameMetadat
     if (m_sampleCount == m_lastVideoFrameMetadataSampleCount)
         return { };
 
+    auto buffer = gst_sample_get_buffer(m_sample.get());
+    if (!GST_IS_BUFFER(buffer))
+        return { };
+
     m_lastVideoFrameMetadataSampleCount = m_sampleCount;
 
-    auto* buffer = gst_sample_get_buffer(m_sample.get());
     auto metadata = webkitGstBufferGetVideoFrameMetadata(buffer);
     auto size = naturalSize();
     metadata.width = size.width();
