@@ -205,14 +205,6 @@
         }
     },
     "TestInspector": {
-        "subtests": {
-           "/webkit/WebKitWebInspector/custom-container-destroyed": {
-              "expected": {"gtk": {"status": ["TIMEOUT"], "bug": "webkit.org/b/299598"}}
-           },
-           "/webkit/WebKitWebInspector/manual-attach-detach": {
-              "expected": {"gtk": {"status": ["TIMEOUT"], "bug": "webkit.org/b/299598"}}
-           }
-        },
         "expected": {"all": {"slow": true}}
     },
     "TestInspectorServer": {
