@@ -99,13 +99,13 @@ void CheckboxInputType::createShadowSubtree()
     Ref track = HTMLDivElement::create(document);
     {
         ScriptDisallowedScope::EventAllowedScope eventAllowedScopeBeforeAppend { track };
-        track->setUserAgentPart(UserAgentParts::track());
+        track->setUserAgentPart(UserAgentParts::sliderTrack());
     }
     shadowRoot->appendChild(ContainerNode::ChildChange::Source::Parser, track);
     Ref thumb = HTMLDivElement::create(document);
     {
         ScriptDisallowedScope::EventAllowedScope eventAllowedScopeBeforeAppend { thumb };
-        thumb->setUserAgentPart(UserAgentParts::thumb());
+        thumb->setUserAgentPart(UserAgentParts::sliderThumb());
     }
     shadowRoot->appendChild(ContainerNode::ChildChange::Source::Parser, thumb);
 }

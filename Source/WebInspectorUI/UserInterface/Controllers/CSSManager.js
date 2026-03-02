@@ -216,6 +216,12 @@ WI.CSSManager = class CSSManager extends WI.Object
             return WI.unlocalizedString("::picker-icon");
         case CSSManager.PseudoSelectorNames.TargetText:
             return WI.unlocalizedString("::target-text");
+        case CSSManager.PseudoSelectorNames.SliderFill:
+            return WI.unlocalizedString("::slider-fill");
+        case CSSManager.PseudoSelectorNames.SliderThumb:
+            return WI.unlocalizedString("::slider-thumb");
+        case CSSManager.PseudoSelectorNames.SliderTrack:
+            return WI.unlocalizedString("::slider-track");
         case CSSManager.PseudoSelectorNames.ViewTransition:
             return WI.unlocalizedString("::view-transition");
         case CSSManager.PseudoSelectorNames.ViewTransitionGroup:
@@ -870,6 +876,9 @@ WI.CSSManager.PseudoSelectorNames = {
     Selection: "selection",
     SpellingError: "spelling-error",
     TargetText: "target-text",
+    SliderFill: "slider-fill",
+    SliderThumb: "slider-thumb",
+    SliderTrack: "slider-track",
     ViewTransition: "view-transition",
     ViewTransitionGroup: "view-transition-group",
     ViewTransitionImagePair: "view-transition-image-pair",

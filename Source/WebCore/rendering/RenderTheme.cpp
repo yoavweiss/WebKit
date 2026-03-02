@@ -503,10 +503,10 @@ StyleAppearance RenderTheme::autoAppearanceForElement(RenderStyle& style, const 
         if (part == UserAgentParts::webkitColorSwatchWrapper())
             return StyleAppearance::ColorWellSwatchWrapper;
 
-        if (part == UserAgentParts::thumb())
+        if (part == UserAgentParts::sliderThumb())
             return StyleAppearance::SwitchThumb;
 
-        if (part == UserAgentParts::track())
+        if (part == UserAgentParts::sliderTrack())
             return StyleAppearance::SwitchTrack;
     }
 

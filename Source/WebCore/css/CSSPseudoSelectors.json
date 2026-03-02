@@ -575,20 +575,24 @@
             "user-agent-part": true
         },
         "selection": {},
+        "slider-fill": {
+            "settings-flag": "cssAppearanceBaseEnabled",
+            "user-agent-part": true
+        },
+        "slider-thumb": {
+            "settings-flag": "cssAppearanceBaseEnabled",
+            "user-agent-part": true
+        },
+        "slider-track": {
+            "settings-flag": "cssAppearanceBaseEnabled",
+            "user-agent-part": true
+        },
         "slotted": {
             "argument": "required"
         },
         "spelling-error": {},
         "target-text": {
             "settings-flag": "targetTextPseudoElementEnabled"
-        },
-        "thumb": {
-            "settings-flag": "cssAppearanceBaseEnabled",
-            "user-agent-part": true
-        },
-        "track": {
-            "settings-flag": "cssAppearanceBaseEnabled",
-            "user-agent-part": true
         },
         "view-transition": {
             "settings-flag": "viewTransitionsEnabled"
