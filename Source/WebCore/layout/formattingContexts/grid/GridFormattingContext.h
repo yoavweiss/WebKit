@@ -25,11 +25,10 @@
 
 #pragma once
 
-#include <WebCore/FreeSpaceScenario.h>
+#include <WebCore/GridLayoutConstraints.h>
 #include <WebCore/GridTypeAliases.h>
 #include <WebCore/LayoutIntegrationUtils.h>
 #include <WebCore/LayoutState.h>
-#include <WebCore/LayoutUnit.h>
 #include <wtf/CheckedRef.h>
 
 namespace WebCore {
@@ -66,60 +65,6 @@ struct GridDefinition {
     Style::GridTrackSizes gridAutoColumns;
     Style::GridTrackSizes gridAutoRows;
     GridAutoFlowOptions autoFlowOptions;
-};
-
-// Strong type representing constraints for a single axis (inline or block).
-// Encapsulates the free space scenario and container size constraints.
-struct AxisConstraint {
-    static AxisConstraint minContent(std::optional<LayoutUnit> containerMinSize = std::nullopt, std::optional<LayoutUnit> containerMaxSize = std::nullopt)
-    {
-        return AxisConstraint(FreeSpaceScenario::MinContent, 0_lu, containerMinSize, containerMaxSize);
-    }
-
-    static AxisConstraint maxContent(std::optional<LayoutUnit> containerMinSize = std::nullopt, std::optional<LayoutUnit> containerMaxSize = std::nullopt)
-    {
-        return AxisConstraint(FreeSpaceScenario::MaxContent, 0_lu, containerMinSize, containerMaxSize);
-    }
-
-    static AxisConstraint definite(LayoutUnit space, std::optional<LayoutUnit> containerMinSize = std::nullopt, std::optional<LayoutUnit> containerMaxSize = std::nullopt)
-    {
-        return AxisConstraint(FreeSpaceScenario::Definite, space, containerMinSize, containerMaxSize);
-    }
-
-    FreeSpaceScenario scenario() const { return m_scenario; }
-
-    // Returns available space for Definite constraints.
-    // Caller must check scenario() first - only valid when scenario() == FreeSpaceScenario::Definite.
-    LayoutUnit availableSpace() const
-    {
-        ASSERT(m_scenario == FreeSpaceScenario::Definite);
-        return m_space;
-    }
-
-    // Container size constraints (orthogonal to constraint scenario)
-    std::optional<LayoutUnit> containerMinimumSize() const { return m_containerMinimumSize; }
-    std::optional<LayoutUnit> containerMaximumSize() const { return m_containerMaximumSize; }
-
-private:
-    AxisConstraint(FreeSpaceScenario scenario, LayoutUnit space, std::optional<LayoutUnit> containerMinSize, std::optional<LayoutUnit> containerMaxSize)
-        : m_scenario(scenario)
-        , m_space(space)
-        , m_containerMinimumSize(containerMinSize)
-        , m_containerMaximumSize(containerMaxSize)
-    {
-        // Dissallow negative available space for Definite scenario.
-        ASSERT(scenario != FreeSpaceScenario::Definite || space >= 0_lu);
-    }
-
-    FreeSpaceScenario m_scenario;
-    LayoutUnit m_space; // Only valid when m_scenario == Definite
-    std::optional<LayoutUnit> m_containerMinimumSize;
-    std::optional<LayoutUnit> m_containerMaximumSize;
-};
-
-struct GridLayoutConstraints {
-    AxisConstraint inlineAxis;
-    AxisConstraint blockAxis;
 };
 
 class GridFormattingContext {

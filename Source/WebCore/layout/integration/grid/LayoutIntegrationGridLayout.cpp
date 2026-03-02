@@ -166,7 +166,7 @@ void GridLayout::updateFormattingContextRootRenderer(const Layout::GridLayoutCon
     currentGrid.setNeedsItemsPlacement(false);
     OrderIteratorPopulator orderIteratorPopulator(currentGrid.orderIterator());
 
-    if (layoutConstraints.blockAxis.scenario() != Layout::FreeSpaceScenario::Definite) {
+    if (layoutConstraints.blockAxis.scenario() != Layout::AxisConstraint::FreeSpaceScenario::Definite) {
         auto& rowSizes = usedTrackSizes.rowSizes;
         auto usedRowGutter = Layout::GridFormattingContext::usedGapValue(renderGrid->style().rowGap());
         auto blockContentSize = std::reduce(rowSizes.begin(), rowSizes.end()) + Layout::GridLayoutUtils::totalGuttersSize(rowSizes.size(), usedRowGutter);

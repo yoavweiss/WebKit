@@ -1729,9 +1729,10 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     layout/formattingContexts/flex/FlexRect.h
     layout/formattingContexts/flex/LogicalFlexItem.h
 
-    layout/formattingContexts/grid/FreeSpaceScenario.h
+    layout/formattingContexts/grid/AxisConstraint.h
     layout/formattingContexts/grid/GridAreaLines.h
     layout/formattingContexts/grid/GridFormattingContext.h
+    layout/formattingContexts/grid/GridLayoutConstraints.h
     layout/formattingContexts/grid/GridTypeAliases.h
 
     layout/formattingContexts/inline/AbstractLineBuilder.h

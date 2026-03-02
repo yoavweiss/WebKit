@@ -183,8 +183,8 @@ UsedTrackSizes GridFormattingContext::layout(GridLayoutConstraints layoutConstra
     // size for the purpose of laying out the grid and its items.
     // This is evaluated per-axis: percentages in column tracks depend on inline-axis constraints,
     // and percentages in row tracks depend on block-axis constraints.
-    auto inlineAxisDependsOnTracks = layoutConstraints.inlineAxis.scenario() != FreeSpaceScenario::Definite;
-    auto blockAxisDependsOnTracks = layoutConstraints.blockAxis.scenario() != FreeSpaceScenario::Definite;
+    auto inlineAxisDependsOnTracks = layoutConstraints.inlineAxis.scenario() != AxisConstraint::FreeSpaceScenario::Definite;
+    auto blockAxisDependsOnTracks = layoutConstraints.blockAxis.scenario() != AxisConstraint::FreeSpaceScenario::Definite;
 
     auto gridTemplateColumns = inlineAxisDependsOnTracks ? gridTemplateListWithPercentagesConvertedToAuto(gridStyle->gridTemplateColumns()) : gridStyle->gridTemplateColumns();
     auto gridTemplateRows = blockAxisDependsOnTracks ? gridTemplateListWithPercentagesConvertedToAuto(gridStyle->gridTemplateRows()) : gridStyle->gridTemplateRows();

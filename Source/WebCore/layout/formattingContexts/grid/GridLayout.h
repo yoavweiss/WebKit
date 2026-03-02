@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "FreeSpaceScenario.h"
 #include "GridFormattingContext.h"
 #include "GridTypeAliases.h"
 #include "StyleGridTrackBreadth.h"

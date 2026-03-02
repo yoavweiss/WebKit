@@ -452,10 +452,10 @@ UsedTrackSizes GridLayout::performGridSizingAlgorithm(const GridLayoutState& lay
     auto rowFreeSpaceScenario = layoutConstraints.blockAxis.scenario();
 
     // Convert constraints to optional available space for track sizing algorithm
-    std::optional<LayoutUnit> inlineAxisAvailableSpace = columnFreeSpaceScenario == FreeSpaceScenario::Definite
+    std::optional<LayoutUnit> inlineAxisAvailableSpace = columnFreeSpaceScenario == AxisConstraint::FreeSpaceScenario::Definite
         ? std::optional(layoutConstraints.inlineAxis.availableSpace())
         : std::nullopt;
-    auto blockAxisAvailableSpace = rowFreeSpaceScenario == FreeSpaceScenario::Definite
+    auto blockAxisAvailableSpace = rowFreeSpaceScenario == AxisConstraint::FreeSpaceScenario::Definite
         ? std::optional(layoutConstraints.blockAxis.availableSpace())
         : std::nullopt;
     auto rowSizesForFirstColumnSizing = rowSizesForFirstIterationColumnSizing(rowTrackSizingFunctionsList, inlineAxisAvailableSpace);
