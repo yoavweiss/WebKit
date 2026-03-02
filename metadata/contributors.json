@@ -4144,6 +4144,18 @@
    },
    {
       "emails" : [
+         "m.jason.liu@outlook.com",
+         "m.jason.liu@gmail.com",
+         "cgqaq@chromium.org"
+      ],
+      "github" : "cgqaq",
+      "name" : "Jason Leo",
+      "nicks" : [
+         "cgqaq"
+      ]
+   },
+   {
+      "emails" : [
          "jasonliuwebkit@gmail.com"
       ],
       "name" : "Jason Liu",
