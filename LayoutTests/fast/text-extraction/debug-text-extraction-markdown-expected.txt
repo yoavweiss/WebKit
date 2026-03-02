@@ -12,3 +12,4 @@ On [sale](https://webkit.org/) for
 ~~Linethrough also linethrough~~
 ~~both semantic and CSS~~
 ~~[A link](https://www.apple.com/)~~
+![A linked image](file:///fake/linked-image.png) [](https://www.example.com/)

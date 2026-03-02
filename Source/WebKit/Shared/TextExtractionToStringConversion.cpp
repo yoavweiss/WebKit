@@ -1315,7 +1315,11 @@ static void addPartsForItem(const TextExtraction::Item& item, std::optional<Node
                     imageSource = WTF::move(attributeFromClient);
                 else if (aggregator.includeURLs())
                     imageSource = aggregator.stringForURL(imageData);
-                parts.append(makeString("!["_s, escapeStringForMarkdown(imageData.altText), "]("_s, WTF::move(imageSource), ')'));
+                auto imageMarkdown = makeString("!["_s, escapeStringForMarkdown(imageData.altText), "]("_s, WTF::move(imageSource), ')');
+                if (auto urlString = aggregator.currentURLString(); urlString && !urlString->isEmpty())
+                    parts.append(makeString(WTF::move(imageMarkdown), " []("_s, WTF::move(*urlString), ')'));
+                else
+                    parts.append(WTF::move(imageMarkdown));
             } else {
                 parts.append("image"_s);
                 parts.appendVector(partsForItem(item, aggregator, includeRectForParentItem));
