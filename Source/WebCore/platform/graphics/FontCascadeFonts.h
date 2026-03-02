@@ -71,7 +71,7 @@ namespace ShapedTextCacheDefaults {
 static constexpr int initialInterval = -3; // Cache immediately, no countdown
 static constexpr int minInterval = -3; // After a hit, cache the next 3 attempts
 static constexpr int maxInterval = -3; // Never ramp up sampling, stay aggressive
-static constexpr unsigned maxSize = 500000; // Same as default cache size
+static constexpr unsigned maxSize = 3000; // Shaped text entries are large due to GlyphBuffer
 static constexpr unsigned maxTextLength = 128; // Larger than default to cache longer canvas text
 }
 
