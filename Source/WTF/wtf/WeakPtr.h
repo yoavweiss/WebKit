@@ -136,7 +136,7 @@ public:
             !IsDeprecatedWeakRefSmartPointerException<std::remove_cv_t<T>>::value || (!HasRefPtrMemberFunctions<T>::value && !HasCheckedPtrMemberFunctions<T>::value),
             "IsDeprecatedWeakRefSmartPointerException specialization is no longer needed for this class, please remove it.");
 
-        ASSERT(canSafelyBeUsed());
+        ASSERT_WITH_SECURITY_IMPLICATION(canSafelyBeUsed());
         return m_impl ? static_cast<T*>(m_impl->template get<T>()) : nullptr;
     }
 
@@ -165,7 +165,7 @@ public:
             !IsDeprecatedWeakRefSmartPointerException<std::remove_cv_t<T>>::value || (!HasRefPtrMemberFunctions<T>::value && !HasCheckedPtrMemberFunctions<T>::value),
             "IsDeprecatedWeakRefSmartPointerException specialization is no longer needed for this class, please remove it.");
 
-        ASSERT(canSafelyBeUsed());
+        ASSERT_WITH_SECURITY_IMPLICATION(canSafelyBeUsed());
         auto* result = get();
         RELEASE_ASSERT(result);
         return result;
@@ -180,7 +180,7 @@ public:
             !IsDeprecatedWeakRefSmartPointerException<std::remove_cv_t<T>>::value || (!HasRefPtrMemberFunctions<T>::value && !HasCheckedPtrMemberFunctions<T>::value),
             "IsDeprecatedWeakRefSmartPointerException specialization is no longer needed for this class, please remove it.");
 
-        ASSERT(canSafelyBeUsed());
+        ASSERT_WITH_SECURITY_IMPLICATION(canSafelyBeUsed());
         auto* result = get();
         RELEASE_ASSERT(result);
         return *result;
@@ -211,14 +211,14 @@ private:
         UNUSED_PARAM(shouldEnableAssertions);
     }
 
-#if ASSERT_ENABLED
+#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
     inline bool canSafelyBeUsed() const
     {
         // FIXME: Our GC threads currently need to get opaque pointers from WeakPtrs and have to be special-cased.
         return !m_impl
             || !m_shouldEnableAssertions
-            || (m_impl->wasConstructedOnMainThread() && Thread::mayBeGCThread())
-            || m_impl->wasConstructedOnMainThread() == isMainThread();
+            || m_impl->threadAssertion().isCurrent()
+            || Thread::mayBeGCThread();
     }
 #endif
 

@@ -116,7 +116,7 @@ public:
 
     T* operator->() const
     {
-        ASSERT(canSafelyBeUsed());
+        ASSERT_WITH_SECURITY_IMPLICATION(canSafelyBeUsed());
         return ptr();
     }
 
@@ -130,14 +130,14 @@ public:
     }
 
 private:
-#if ASSERT_ENABLED
+#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
     inline bool canSafelyBeUsed() const
     {
         // FIXME: Our GC threads currently need to get opaque pointers from WeakPtrs and have to be special-cased.
         return !m_impl
             || !m_shouldEnableAssertions
-            || (m_impl->wasConstructedOnMainThread() && Thread::mayBeGCThread())
-            || m_impl->wasConstructedOnMainThread() == isMainThread();
+            || m_impl->threadAssertion().isCurrent()
+            || Thread::mayBeGCThread();
     }
 #endif
 
