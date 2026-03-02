@@ -143,7 +143,7 @@ public:
         return RefDerefTraits::refIfNotNull(m_ptr);
     }
 
-    T*& outPtr()
+    T*& outPtr() LIFETIME_BOUND
     {
         clear();
         return m_ptr;
@@ -163,7 +163,7 @@ public:
     // Only used for C API functions returning (transfer none) of objects where the above
     // can be established, e.g. objects stored in a global dictionary.
     T* /* (transfer none) */ getUncheckedLifetime() const { return m_ptr; }
-    ALWAYS_INLINE T* operator->() const { return m_ptr; }
+    ALWAYS_INLINE T* operator->() const LIFETIME_BOUND { return m_ptr; }
 
     bool operator!() const { return !m_ptr; }
     explicit operator bool() const { return !!m_ptr; }
