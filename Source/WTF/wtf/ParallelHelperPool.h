@@ -202,7 +202,7 @@ public:
         runTaskInParallel(createSharedTask<void ()>(functor));
     }
 
-    ParallelHelperPool& pool() { return *m_pool; }
+    ParallelHelperPool& pool() LIFETIME_BOUND { return *m_pool; }
     unsigned numberOfActiveThreads() const { return m_numActive; }
 
 private:

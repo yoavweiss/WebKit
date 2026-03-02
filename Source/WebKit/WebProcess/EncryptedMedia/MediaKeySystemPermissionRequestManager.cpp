@@ -89,7 +89,7 @@ void MediaKeySystemPermissionRequestManager::sendMediaKeySystemRequest(MediaKeyS
 
     m_ongoingMediaKeySystemRequests.add(userRequest.identifier(), userRequest);
 
-    auto webFrame = WebFrame::fromCoreFrame(*frame);
+    RefPtr webFrame = WebFrame::fromCoreFrame(*frame);
     ASSERT(webFrame);
 
     Ref { m_page.get() }->send(Messages::WebPageProxy::RequestMediaKeySystemPermissionForFrame(userRequest.identifier(), webFrame->frameID(), document->clientOrigin(), userRequest.keySystem()));

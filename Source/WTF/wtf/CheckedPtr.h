@@ -241,6 +241,12 @@ ALWAYS_INLINE CLANG_POINTER_CONVERSION CheckedPtr<T, PtrTraits> protect(const Ch
     return ptr;
 }
 
+template<typename T, typename PtrTraits>
+CheckedPtr<T, PtrTraits> protect(CheckedPtr<T, PtrTraits>&&)
+{
+    static_assert(WTF::unreachableForType<T>, "Calling protect() on an rvalue is unnecessary; the caller already owns the value.");
+}
+
 template<typename T, typename Deleter, typename PtrTraits = RawPtrTraits<T>>
     requires (HasCheckedPtrMemberFunctions<T>::value && !HasRefPtrMemberFunctions<T>::value)
 ALWAYS_INLINE CLANG_POINTER_CONVERSION CheckedPtr<T, PtrTraits> protect(const std::unique_ptr<T, Deleter>& ptr)

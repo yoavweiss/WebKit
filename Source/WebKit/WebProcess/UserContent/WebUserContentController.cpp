@@ -300,7 +300,7 @@ private:
         if (!frame)
             return;
 
-        auto webFrame = WebFrame::fromCoreFrame(*frame);
+        RefPtr webFrame = WebFrame::fromCoreFrame(*frame);
         if (!webFrame)
             return;
 
@@ -326,7 +326,7 @@ private:
         if (!frame)
             return JSC::jsUndefined();
 
-        auto webFrame = WebFrame::fromCoreFrame(*frame);
+        RefPtr webFrame = WebFrame::fromCoreFrame(*frame);
         if (!webFrame)
             return JSC::jsUndefined();
 

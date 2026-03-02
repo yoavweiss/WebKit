@@ -202,7 +202,7 @@ public:
 private:
     void exitNode();
     bool handleTextNode();
-    RenderText* handleFirstLetter(int& startOffset, int& offsetInNode);
+    CheckedPtr<RenderText> handleFirstLetter(int& startOffset, int& offsetInNode);
     bool handleReplacedElement();
     bool handleNonTextNode();
     void emitCharacter(char16_t, RefPtr<Node>&&, int startOffset, int endOffset);

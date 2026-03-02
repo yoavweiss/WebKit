@@ -9329,7 +9329,7 @@ void WebPage::showMediaControlsContextMenu(FloatRect&& targetFrame, Vector<Media
         return;
     }
 
-    sendWithAsyncReply(Messages::WebPageProxy::ShowMediaControlsContextMenu(WTF::move(targetFrame), WTF::move(items), WebFrame::fromCoreFrame(*frame)->info(), identifier), completionHandler);
+    sendWithAsyncReply(Messages::WebPageProxy::ShowMediaControlsContextMenu(WTF::move(targetFrame), WTF::move(items), protect(WebFrame::fromCoreFrame(*frame))->info(), identifier), completionHandler);
 }
 #endif // ENABLE(MEDIA_CONTROLS_CONTEXT_MENUS) && USE(UICONTEXTMENU)
 

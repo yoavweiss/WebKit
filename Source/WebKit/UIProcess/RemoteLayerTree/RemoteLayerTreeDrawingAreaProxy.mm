@@ -352,7 +352,8 @@ void RemoteLayerTreeDrawingAreaProxy::commitLayerTree(IPC::Connection& connectio
     __block Vector<MachSendRight, 16> sendRights;
     for (auto& transaction : bundle.transactions) {
         // commitLayerTreeTransaction consumes the incoming buffers, so we need to grab them first.
-        for (auto& [layerID, properties] : CheckedRef { transaction.first }->changedLayerProperties()) {
+        CheckedRef removeLayerTreeTransaction = transaction.first;
+        for (auto& [layerID, properties] : removeLayerTreeTransaction->changedLayerProperties()) {
             auto* backingStoreProperties = properties->backingStoreOrProperties.properties.get();
             if (!backingStoreProperties)
                 continue;

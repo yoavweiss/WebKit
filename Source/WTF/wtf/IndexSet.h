@@ -144,7 +144,7 @@ public:
         return Iterable<CollectionType>(collection, indices());
     }
 
-    const BitVector& indices() const { return m_set; }
+    const BitVector& indices() const LIFETIME_BOUND { return m_set; }
 
     void dump(PrintStream& out) const
     {

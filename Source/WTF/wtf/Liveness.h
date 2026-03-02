@@ -229,7 +229,7 @@ public:
         return Iterable<IndexVector>(*this, m_liveAtTail[block]);
     }
 
-    Workset& workset() { return m_workset; }
+    Workset& workset() LIFETIME_BOUND { return m_workset; }
     
     class LiveAtHead {
         WTF_DEPRECATED_MAKE_FAST_ALLOCATED(LiveAtHead);

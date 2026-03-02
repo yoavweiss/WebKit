@@ -168,7 +168,7 @@ public:
         WTF_EXPORT_PRIVATE void setPriority(int);
 #endif
 
-        const ASCIILiteral& description() const { return m_description; }
+        ASCIILiteral description() const { return m_description; }
 
     private:
         WTF_EXPORT_PRIVATE void start(Seconds interval, bool repeat);

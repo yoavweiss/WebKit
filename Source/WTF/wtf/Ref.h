@@ -370,6 +370,12 @@ ALWAYS_INLINE CLANG_POINTER_CONVERSION Ref<T, PtrTraits, RefDerefTraits> protect
     return reference.copyRef();
 }
 
+template<typename T, typename PtrTraits, typename RefDerefTraits>
+Ref<T, PtrTraits, RefDerefTraits> protect(Ref<T, PtrTraits, RefDerefTraits>&&)
+{
+    static_assert(WTF::unreachableForType<T>, "Calling protect() on an rvalue is unnecessary; the caller already owns the value.");
+}
+
 template<typename ExpectedType, typename ArgType, typename PtrTraits, typename RefDerefTraits>
 inline bool is(const Ref<ArgType, PtrTraits, RefDerefTraits>& source)
 {

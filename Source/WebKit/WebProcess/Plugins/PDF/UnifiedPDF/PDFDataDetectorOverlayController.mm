@@ -77,7 +77,7 @@ Ref<PageOverlay> PDFDataDetectorOverlayController::installProtectedOverlayIfNeed
         return *m_overlay;
 
     m_overlay = PageOverlay::create(*this, PageOverlay::OverlayType::Document);
-    protect(m_plugin.get())->installDataDetectorOverlay(Ref { *m_overlay });
+    protect(m_plugin)->installDataDetectorOverlay(Ref { *m_overlay });
 
     return *m_overlay;
 }

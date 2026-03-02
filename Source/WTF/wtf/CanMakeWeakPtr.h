@@ -66,8 +66,8 @@ protected:
         m_weakPtrFactory.initializeIfNeeded(static_cast<const WeakValueType&>(*this));
     }
 
-    const WeakPtrFactoryType& weakPtrFactory() const { return m_weakPtrFactory; }
-    WeakPtrFactoryType& weakPtrFactory() { return m_weakPtrFactory; }
+    const WeakPtrFactoryType& weakPtrFactory() const LIFETIME_BOUND { return m_weakPtrFactory; }
+    WeakPtrFactoryType& weakPtrFactory() LIFETIME_BOUND { return m_weakPtrFactory; }
 
 private:
     WeakPtrFactoryType m_weakPtrFactory;

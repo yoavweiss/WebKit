@@ -310,8 +310,8 @@ void RenderTreeBuilder::attachInternal(RenderElement& parent, RenderPtr<RenderOb
     }
 
     if (parent.style().display() == Style::DisplayType::InlineRuby || parent.style().display() == Style::DisplayType::BlockRuby) {
-        auto& parentCandidate = rubyBuilder().findOrCreateParentForStyleBasedRubyChild(parent, *child, beforeChild);
-        if (&parentCandidate == &parent) {
+        CheckedRef parentCandidate = rubyBuilder().findOrCreateParentForStyleBasedRubyChild(parent, *child, beforeChild);
+        if (parentCandidate.ptr() == &parent) {
             rubyBuilder().attachForStyleBasedRuby(parentCandidate, WTF::move(child), beforeChild);
             return;
         }
@@ -630,7 +630,7 @@ void RenderTreeBuilder::moveChildren(RenderBoxModelObject& from, RenderBoxModelO
         // When the |child| object will be moved, its firstLetter will be recreated,
         // so saving it now in nextSibling would leave us with a stale object.
         if (is<RenderTextFragment>(*child) && is<RenderText>(nextSibling)) {
-            if (auto* block = downcast<RenderTextFragment>(*child).blockForAccompanyingFirstLetter()) {
+            if (CheckedPtr block = downcast<RenderTextFragment>(*child).blockForAccompanyingFirstLetter()) {
                 auto [firstLetter, firstLetterContainer] = block->firstLetterAndContainer(child);
                 // This is the first letter, skip it.
                 if (firstLetter == nextSibling)

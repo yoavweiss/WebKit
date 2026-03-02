@@ -368,7 +368,7 @@ void FindController::getImageForFindMatch(uint32_t matchIndex)
     auto oldSelection = frameSelection->selection();
     frameSelection->setSelection(m_findMatches[matchIndex]);
 
-    auto selectionSnapshot = WebFrame::fromCoreFrame(*frame)->createSelectionSnapshot();
+    auto selectionSnapshot = protect(WebFrame::fromCoreFrame(*frame))->createSelectionSnapshot();
 
     frameSelection->setSelection(oldSelection);
 

@@ -289,7 +289,7 @@ auto TextAutoSizingValue::adjustTextNodeSizes() -> StillHasNodes
         auto* textRenderer = dynamicDowncast<RenderTextFragment>(*node->renderer());
         if (!textRenderer)
             continue;
-        auto* block = textRenderer->blockForAccompanyingFirstLetter();
+        CheckedPtr block = textRenderer->blockForAccompanyingFirstLetter();
         if (!block)
             continue;
 

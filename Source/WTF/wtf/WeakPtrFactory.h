@@ -77,7 +77,7 @@ public:
             m_impl->clear();
     }
 
-    WeakPtrImpl* impl() const
+    WeakPtrImpl* impl() const LIFETIME_BOUND
     {
         return m_impl.get();
     }
@@ -148,7 +148,7 @@ public:
             pointer->clear();
     }
 
-    WeakPtrImpl* impl() const
+    WeakPtrImpl* impl() const LIFETIME_BOUND
     {
         return m_impl.pointer();
     }

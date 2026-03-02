@@ -1104,7 +1104,7 @@ void WebLocalFrameLoaderClient::dispatchWillSendSubmitEvent(Ref<FormState>&& for
     Ref form = formState->form();
 
     ASSERT(formState->sourceDocument().frame());
-    auto sourceFrame = WebFrame::fromCoreFrame(*protect(formState->sourceDocument().frame()));
+    RefPtr sourceFrame = WebFrame::fromCoreFrame(*protect(formState->sourceDocument().frame()));
     ASSERT(sourceFrame);
 
     webPage->injectedBundleFormClient().willSendSubmitEvent(webPage.get(), form.ptr(), m_frame.ptr(), sourceFrame.get(), formState->textFieldValues());
@@ -1123,7 +1123,7 @@ void WebLocalFrameLoaderClient::dispatchWillSubmitForm(FormState& formState, URL
     RefPtr sourceCoreFrame = formState.sourceDocument().frame();
     if (!sourceCoreFrame)
         return completionHandler();
-    auto sourceFrame = WebFrame::fromCoreFrame(*sourceCoreFrame);
+    RefPtr sourceFrame = WebFrame::fromCoreFrame(*sourceCoreFrame);
     if (!sourceFrame)
         return completionHandler();
 

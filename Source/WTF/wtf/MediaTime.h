@@ -98,8 +98,8 @@ public:
     static const MediaTime& NODELETE negativeInfiniteTime();
     static const MediaTime& NODELETE indefiniteTime();
 
-    const int64_t& timeValue() const { return m_timeValue; }
-    const uint32_t& timeScale() const { return m_timeScale; }
+    int64_t timeValue() const { return m_timeValue; }
+    uint32_t timeScale() const { return m_timeScale; }
 
     void dump(PrintStream& out) const;
     String toString() const;

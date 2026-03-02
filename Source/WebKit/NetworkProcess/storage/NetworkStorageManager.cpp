@@ -505,13 +505,13 @@ void NetworkStorageManager::donePrepareForEviction(const std::optional<HashMap<W
     HashMap<WebCore::SecurityOriginData, AccessRecord> originRecords;
     uint64_t totalUsage = 0;
     for (auto& origin : getAllOrigins()) {
-        auto usage = protect(protect(originStorageManager(origin))->quotaManager())->usage();
+        auto usage = protect(originStorageManager(origin)->quotaManager())->usage();
         totalUsage += usage;
         WallTime accessTime;
         if (domainsWithLastAccessedTime)
             accessTime = domainsWithLastAccessedTime->get(WebCore::RegistrableDomain { origin.topOrigin });
         else
-            accessTime = lastModificationTimeForOrigin(origin, protect(originStorageManager(origin)));
+            accessTime = lastModificationTimeForOrigin(origin, originStorageManager(origin));
 
         auto& record = originRecords.ensure(origin.topOrigin, [&] {
             return AccessRecord { };
@@ -557,7 +557,7 @@ void NetworkStorageManager::performEviction(HashMap<WebCore::SecurityOriginData,
 
         for (auto& clientOrigin : record.clientOrigins) {
             auto origin = WebCore::ClientOrigin { topOrigin, clientOrigin };
-            protect(originStorageManager(origin))->deleteData(allManagedTypes(), -WallTime::infinity());
+            originStorageManager(origin)->deleteData(allManagedTypes(), -WallTime::infinity());
             removeOriginStorageManagerIfPossible(origin);
         }
 
@@ -606,7 +606,7 @@ OriginQuotaManager::Parameters NetworkStorageManager::originQuotaManagerParamete
     return { roundedQuota, roundedStandardReportedQuota, WTF::move(increaseQuotaFunction), WTF::move(notifySpaceGrantedFunction) };
 }
 
-OriginStorageManager& NetworkStorageManager::originStorageManager(const WebCore::ClientOrigin& origin, ShouldWriteOriginFile shouldWriteOriginFile)
+CheckedRef<OriginStorageManager> NetworkStorageManager::originStorageManager(const WebCore::ClientOrigin& origin, ShouldWriteOriginFile shouldWriteOriginFile)
 {
     assertIsCurrent(workQueue());
 
@@ -626,7 +626,7 @@ OriginStorageManager& NetworkStorageManager::originStorageManager(const WebCore:
     if (shouldWriteOriginFile == ShouldWriteOriginFile::Yes)
         writeOriginToFileIfNecessary(origin);
 
-    return originStorageManager.get();
+    return originStorageManager;
 }
 
 bool NetworkStorageManager::removeOriginStorageManagerIfPossible(const WebCore::ClientOrigin& origin)
@@ -770,7 +770,7 @@ void NetworkStorageManager::estimate(const WebCore::ClientOrigin& origin, Comple
 {
     assertIsCurrent(workQueue());
 
-    completionHandler(protect(originStorageManager(origin))->estimate());
+    completionHandler(originStorageManager(origin)->estimate());
 }
 
 void NetworkStorageManager::resetStoragePersistedState(CompletionHandler<void()>&& completionHandler)
@@ -838,8 +838,9 @@ void NetworkStorageManager::fetchSessionStorageForWebPage(WebPageProxyIdentifier
         HashMap<WebCore::ClientOrigin, HashMap<String, String>> sessionStorageMap;
         StorageNamespaceIdentifier storageNameSpaceIdentifier { pageIdentifier.toUInt64() };
 
-        for (auto& [origin, originStorageManager] : m_originStorageManagers) {
-            auto* sessionStorageManager = CheckedRef { *originStorageManager }->existingSessionStorageManager();
+        for (auto& [origin, rawOriginStorageManager] : m_originStorageManagers) {
+            CheckedRef originStorageManager = *rawOriginStorageManager;
+            auto* sessionStorageManager = originStorageManager->existingSessionStorageManager();
             if (!sessionStorageManager)
                 continue;
 
@@ -866,7 +867,8 @@ void NetworkStorageManager::restoreSessionStorageForWebPage(WebPageProxyIdentifi
         StorageNamespaceIdentifier storageNameSpaceIdentifier { pageIdentifier.toUInt64() };
 
         for (auto& [clientOrigin, storageMap] : sessionStorageMap) {
-            auto& sessionStorageManager = protect(originStorageManager(clientOrigin, ShouldWriteOriginFile::Yes))->sessionStorageManager(*m_storageAreaRegistry);
+            CheckedRef originStorageManager = this->originStorageManager(clientOrigin, ShouldWriteOriginFile::Yes);
+            auto& sessionStorageManager = originStorageManager->sessionStorageManager(*m_storageAreaRegistry);
             auto result = sessionStorageManager.setStorageMap(storageNameSpaceIdentifier, clientOrigin, WTF::move(storageMap));
 
             if (!result)
@@ -895,7 +897,7 @@ void NetworkStorageManager::fileSystemGetDirectory(IPC::Connection& connection, 
 {
     ASSERT(!RunLoop::isMain());
 
-    Ref fileSystemStorageManager = protect(originStorageManager(origin))->fileSystemStorageManager(*protect(m_fileSystemStorageHandleRegistry));
+    Ref fileSystemStorageManager = originStorageManager(origin)->fileSystemStorageManager(*protect(m_fileSystemStorageHandleRegistry));
     auto result = fileSystemStorageManager->getDirectory(connection.uniqueID());
     if (result)
         completionHandler(std::optional { result.value() });
@@ -1139,7 +1141,7 @@ Vector<WebsiteData::Entry> NetworkStorageManager::fetchDataFromDisk(OptionSet<We
 
     HashMap<WebCore::SecurityOriginData, OriginStorageManager::DataTypeSizeMap> originTypes;
     for (auto& origin : getAllOrigins()) {
-        auto typeSizeMap = protect(originStorageManager(origin))->fetchDataTypesInList(targetTypes, shouldComputeSize == ShouldComputeSize::Yes);
+        auto typeSizeMap = originStorageManager(origin)->fetchDataTypesInList(targetTypes, shouldComputeSize == ShouldComputeSize::Yes);
         updateOriginData(originTypes, origin.clientOrigin, typeSizeMap);
         if (origin.clientOrigin != origin.topOrigin)
             updateOriginData(originTypes, origin.topOrigin, typeSizeMap);
@@ -1289,7 +1291,7 @@ void NetworkStorageManager::moveData(OptionSet<WebsiteDataType> types, WebCore::
             targetOriginStorageManager->deleteData(types, -WallTime::infinity());
 
             // Move data from source origin to target origin.
-            protect(originStorageManager(sourceOrigin))->moveData(types, targetOriginStorageManager->resolvedPath(WebsiteDataType::LocalStorage), targetOriginStorageManager->resolvedPath(WebsiteDataType::IndexedDBDatabases));
+            originStorageManager(sourceOrigin)->moveData(types, targetOriginStorageManager->resolvedPath(WebsiteDataType::LocalStorage), targetOriginStorageManager->resolvedPath(WebsiteDataType::IndexedDBDatabases));
         }
 
         removeOriginStorageManagerIfPossible(targetOrigin);
@@ -1305,7 +1307,7 @@ void NetworkStorageManager::getOriginDirectory(WebCore::ClientOrigin&& origin, W
     ASSERT(!m_closed);
 
     workQueue().dispatch([this, protectedThis = Ref { *this }, type, origin = crossThreadCopy(WTF::move(origin)), completionHandler = WTF::move(completionHandler)]() mutable {
-        RunLoop::mainSingleton().dispatch([completionHandler = WTF::move(completionHandler), directory = crossThreadCopy(protect(originStorageManager(origin))->resolvedPath(type))]() mutable {
+        RunLoop::mainSingleton().dispatch([completionHandler = WTF::move(completionHandler), directory = crossThreadCopy(originStorageManager(origin)->resolvedPath(type))]() mutable {
             completionHandler(WTF::move(directory));
         });
         removeOriginStorageManagerIfPossible(origin);
@@ -1392,7 +1394,8 @@ void NetworkStorageManager::fetchLocalStorage(CompletionHandler<void(std::option
         HashMap<WebCore::ClientOrigin, HashMap<String, String>> localStorageMap;
 
         for (auto& origin : getAllOrigins()) {
-            auto& localStorageManager = protect(originStorageManager(origin, ShouldWriteOriginFile::No))->localStorageManager(*m_storageAreaRegistry);
+            CheckedRef originStorageManager = this->originStorageManager(origin, ShouldWriteOriginFile::No);
+            auto& localStorageManager = originStorageManager->localStorageManager(*m_storageAreaRegistry);
             auto storageMap = localStorageManager.fetchStorageMap();
 
             if (!storageMap.isEmpty())
@@ -1416,7 +1419,8 @@ void NetworkStorageManager::restoreLocalStorage(HashMap<WebCore::ClientOrigin, H
         bool succeeded = true;
 
         for (auto& [clientOrigin, storageMap] : localStorageMap) {
-            auto& localStorageManager = protect(originStorageManager(clientOrigin, ShouldWriteOriginFile::Yes))->localStorageManager(*m_storageAreaRegistry);
+            CheckedRef originStorageManager = this->originStorageManager(clientOrigin, ShouldWriteOriginFile::Yes);
+            auto& localStorageManager = originStorageManager->localStorageManager(*m_storageAreaRegistry);
             auto result = localStorageManager.setStorageMap(clientOrigin, WTF::move(storageMap), workQueue());
 
             if (!result)
@@ -1449,7 +1453,7 @@ void NetworkStorageManager::requestSpace(const WebCore::ClientOrigin& origin, ui
     ASSERT(!m_closed);
 
     workQueue().dispatch([this, protectedThis = Ref { *this }, origin = crossThreadCopy(origin), size, completionHandler = WTF::move(completionHandler)]() mutable {
-        protect(protect(originStorageManager(origin))->quotaManager())->requestSpace(size, [completionHandler = WTF::move(completionHandler)](auto decision) mutable {
+        protect(originStorageManager(origin)->quotaManager())->requestSpace(size, [completionHandler = WTF::move(completionHandler)](auto decision) mutable {
             RunLoop::mainSingleton().dispatch([completionHandler = WTF::move(completionHandler), decision]() mutable {
                 completionHandler(decision == OriginQuotaManager::Decision::Grant);
             });
@@ -1729,19 +1733,19 @@ void NetworkStorageManager::openDatabase(IPC::Connection& connection, const WebC
 {
     MESSAGE_CHECK(requestData.requestIdentifier().connectionIdentifier(), connection);
     Ref connectionToClient = m_idbStorageRegistry->ensureConnectionToClient(connection.uniqueID(), *requestData.requestIdentifier().connectionIdentifier());
-    protect(protect(originStorageManager(requestData.databaseIdentifier().origin()))->idbStorageManager(*m_idbStorageRegistry, useSQLiteMemoryBackingStore()))->openDatabase(connectionToClient, requestData);
+    protect(originStorageManager(requestData.databaseIdentifier().origin())->idbStorageManager(*m_idbStorageRegistry, useSQLiteMemoryBackingStore()))->openDatabase(connectionToClient, requestData);
 }
 
 void NetworkStorageManager::openDBRequestCancelled(const WebCore::IDBOpenRequestData& requestData)
 {
-    protect(protect(originStorageManager(requestData.databaseIdentifier().origin()))->idbStorageManager(*m_idbStorageRegistry, useSQLiteMemoryBackingStore()))->openDBRequestCancelled(requestData);
+    protect(originStorageManager(requestData.databaseIdentifier().origin())->idbStorageManager(*m_idbStorageRegistry, useSQLiteMemoryBackingStore()))->openDBRequestCancelled(requestData);
 }
 
 void NetworkStorageManager::deleteDatabase(IPC::Connection& connection, const WebCore::IDBOpenRequestData& requestData)
 {
     MESSAGE_CHECK(requestData.requestIdentifier().connectionIdentifier(), connection);
     Ref connectionToClient = m_idbStorageRegistry->ensureConnectionToClient(connection.uniqueID(), *requestData.requestIdentifier().connectionIdentifier());
-    protect(protect(originStorageManager(requestData.databaseIdentifier().origin()))->idbStorageManager(*m_idbStorageRegistry, useSQLiteMemoryBackingStore()))->deleteDatabase(connectionToClient, requestData);
+    protect(originStorageManager(requestData.databaseIdentifier().origin())->idbStorageManager(*m_idbStorageRegistry, useSQLiteMemoryBackingStore()))->deleteDatabase(connectionToClient, requestData);
 }
 
 void NetworkStorageManager::establishTransaction(WebCore::IDBDatabaseConnectionIdentifier databaseConnectionIdentifier, const WebCore::IDBTransactionInfo& transactionInfo)
@@ -1769,7 +1773,7 @@ void NetworkStorageManager::databaseConnectionClosed(WebCore::IDBDatabaseConnect
     }
 
     if (databaseIdentifier.isValid())
-        protect(protect(originStorageManager(databaseIdentifier.origin()))->idbStorageManager(*m_idbStorageRegistry, useSQLiteMemoryBackingStore()))->tryCloseDatabase(databaseIdentifier);
+        protect(originStorageManager(databaseIdentifier.origin())->idbStorageManager(*m_idbStorageRegistry, useSQLiteMemoryBackingStore()))->tryCloseDatabase(databaseIdentifier);
 }
 
 void NetworkStorageManager::abortOpenAndUpgradeNeeded(WebCore::IDBDatabaseConnectionIdentifier databaseConnectionIdentifier, const std::optional<WebCore::IDBResourceIdentifier>& transactionIdentifier)
@@ -1962,13 +1966,13 @@ void NetworkStorageManager::getAllDatabaseNamesAndVersions(IPC::Connection& conn
 {
     MESSAGE_CHECK(requestIdentifier.connectionIdentifier(), connection);
     Ref connectionToClient = m_idbStorageRegistry->ensureConnectionToClient(connection.uniqueID(), *requestIdentifier.connectionIdentifier());
-    auto result = protect(protect(originStorageManager(origin))->idbStorageManager(*m_idbStorageRegistry, useSQLiteMemoryBackingStore()))->getAllDatabaseNamesAndVersions();
+    auto result = protect(originStorageManager(origin)->idbStorageManager(*m_idbStorageRegistry, useSQLiteMemoryBackingStore()))->getAllDatabaseNamesAndVersions();
     connectionToClient->didGetAllDatabaseNamesAndVersions(requestIdentifier, WTF::move(result));
 }
 
 void NetworkStorageManager::cacheStorageOpenCache(const WebCore::ClientOrigin& origin, const String& cacheName, WebCore::DOMCacheEngine::CacheIdentifierCallback&& callback)
 {
-    protect(protect(originStorageManager(origin))->cacheStorageManager(*m_cacheStorageRegistry, origin, m_queue.copyRef()))->openCache(cacheName, WTF::move(callback));
+    protect(originStorageManager(origin)->cacheStorageManager(*m_cacheStorageRegistry, origin, m_queue.copyRef()))->openCache(cacheName, WTF::move(callback));
 }
 
 void NetworkStorageManager::cacheStorageRemoveCache(WebCore::DOMCacheIdentifier cacheIdentifier, WebCore::DOMCacheEngine::RemoveCacheIdentifierCallback&& callback)
@@ -1986,7 +1990,7 @@ void NetworkStorageManager::cacheStorageRemoveCache(WebCore::DOMCacheIdentifier 
 
 void NetworkStorageManager::cacheStorageAllCaches(const WebCore::ClientOrigin& origin, uint64_t updateCounter, WebCore::DOMCacheEngine::CacheInfosCallback&& callback)
 {
-    protect(protect(originStorageManager(origin))->cacheStorageManager(*m_cacheStorageRegistry, origin, m_queue.copyRef()))->allCaches(updateCounter, WTF::move(callback));
+    protect(originStorageManager(origin)->cacheStorageManager(*m_cacheStorageRegistry, origin, m_queue.copyRef()))->allCaches(updateCounter, WTF::move(callback));
 }
 
 void NetworkStorageManager::cacheStorageReference(IPC::Connection& connection, WebCore::DOMCacheIdentifier cacheIdentifier)
@@ -2017,12 +2021,12 @@ void NetworkStorageManager::cacheStorageDereference(IPC::Connection& connection,
 
 void NetworkStorageManager::lockCacheStorage(IPC::Connection& connection, const WebCore::ClientOrigin& origin)
 {
-    protect(protect(originStorageManager(origin))->cacheStorageManager(*m_cacheStorageRegistry, origin, m_queue.copyRef()))->lockStorage(connection.uniqueID());
+    protect(originStorageManager(origin)->cacheStorageManager(*m_cacheStorageRegistry, origin, m_queue.copyRef()))->lockStorage(connection.uniqueID());
 }
 
 void NetworkStorageManager::unlockCacheStorage(IPC::Connection& connection, const WebCore::ClientOrigin& origin)
 {
-    if (RefPtr cacheStorageManager = protect(originStorageManager(origin))->existingCacheStorageManager())
+    if (RefPtr cacheStorageManager = originStorageManager(origin)->existingCacheStorageManager())
         cacheStorageManager->unlockStorage(connection.uniqueID());
 }
 
@@ -2109,7 +2113,7 @@ void NetworkStorageManager::dispatchTaskToBackgroundFetchManager(const WebCore::
         return;
     }
     workQueue().dispatch([this, protectedThis = Ref { *this }, queue = Ref { m_queue }, origin = crossThreadCopy(origin), callback = WTF::move(callback)]() mutable {
-        Ref backgroundFetchManager = protect(originStorageManager(origin))->backgroundFetchManager(WTF::move(queue));
+        Ref backgroundFetchManager = originStorageManager(origin)->backgroundFetchManager(WTF::move(queue));
         callback(backgroundFetchManager.ptr());
     });
 }
@@ -2157,7 +2161,7 @@ void NetworkStorageManager::clearServiceWorkerRegistrations(CompletionHandler<vo
             m_sharedServiceWorkerStorageManager->clearAllRegistrations();
         else {
             for (auto& origin : getAllOrigins()) {
-                protect(originStorageManager(origin))->serviceWorkerStorageManager().clearAllRegistrations();
+                originStorageManager(origin)->serviceWorkerStorageManager().clearAllRegistrations();
                 removeOriginStorageManagerIfPossible(origin);
             }
         }
@@ -2185,7 +2189,7 @@ void NetworkStorageManager::importServiceWorkerRegistrations(CompletionHandler<v
             bool hasResult = false;
             Vector<WebCore::ServiceWorkerContextData> registrations;
             for (auto& origin : getAllOrigins()) {
-                if (auto originRegistrations = protect(originStorageManager(origin))->serviceWorkerStorageManager().importRegistrations()) {
+                if (auto originRegistrations = originStorageManager(origin)->serviceWorkerStorageManager().importRegistrations()) {
                     hasResult = true;
                     registrations.appendVector(WTF::move(*originRegistrations));
                 }
@@ -2260,7 +2264,7 @@ Vector<WebCore::ServiceWorkerScripts> NetworkStorageManager::updateServiceWorker
 
     Vector<WebCore::ServiceWorkerScripts> savedScripts;
     for (auto& [origin, registrations] : originRegistrations) {
-        auto result = protect(originStorageManager(origin))->serviceWorkerStorageManager().updateRegistrations(WTF::move(registrations.first), WTF::move(registrations.second));
+        auto result = originStorageManager(origin)->serviceWorkerStorageManager().updateRegistrations(WTF::move(registrations.first), WTF::move(registrations.second));
         if (result)
             savedScripts.appendVector(WTF::move(*result));
     }
@@ -2345,7 +2349,7 @@ void NetworkStorageManager::queryCacheStorage(WebCore::ClientOrigin&& origin, We
 
         assertIsCurrent(protectedThis->workQueue());
 
-        RefPtr cacheStorageManager = protect(protectedThis->originStorageManager(origin))->existingCacheStorageManager();
+        RefPtr cacheStorageManager = protectedThis->originStorageManager(origin)->existingCacheStorageManager();
         if (!cacheStorageManager) {
             callback({ });
             return;

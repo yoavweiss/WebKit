@@ -92,8 +92,8 @@ public:
     unsigned size() const;
     bool isEmpty() const;
     bool contains(unsigned) const;
-    const EntryType* get(unsigned) const;
-    EntryType* get(unsigned);
+    const EntryType* get(unsigned) const LIFETIME_BOUND;
+    EntryType* get(unsigned) LIFETIME_BOUND;
 
     typedef typename ValueList::const_iterator const_iterator;
     const_iterator begin() const LIFETIME_BOUND;

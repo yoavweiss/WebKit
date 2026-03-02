@@ -247,7 +247,7 @@ WebPage* WebFrame::page() const
     return page ? WebPage::fromCorePage(*page) : nullptr;
 }
 
-RefPtr<WebFrame> WebFrame::fromCoreFrame(const Frame& frame)
+WebFrame* WebFrame::fromCoreFrame(const Frame& frame)
 {
     if (auto* localFrame = dynamicDowncast<LocalFrame>(frame)) {
         auto* webLocalFrameLoaderClient = dynamicDowncast<WebLocalFrameLoaderClient>(localFrame->loader().client());

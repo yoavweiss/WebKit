@@ -914,7 +914,7 @@ void WebLoaderStrategy::browsingContextRemoved(LocalFrame& frame)
 
 void WebLoaderStrategy::startPingLoad(LocalFrame& frame, ResourceRequest& request, const HTTPHeaderMap& originalRequestHeaders, const FetchOptions& options, ContentSecurityPolicyImposition policyCheck, PingLoadCompletionHandler&& completionHandler)
 {
-    auto webFrame = WebFrame::fromCoreFrame(frame);
+    RefPtr webFrame = WebFrame::fromCoreFrame(frame);
     RefPtr document = frame.document();
     if (!document || !webFrame) {
         if (completionHandler)

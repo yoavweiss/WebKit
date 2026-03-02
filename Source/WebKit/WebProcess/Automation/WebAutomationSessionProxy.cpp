@@ -569,7 +569,7 @@ void WebAutomationSessionProxy::resolveChildFrameWithOrdinal(WebCore::PageIdenti
         return;
     }
 
-    auto childFrame = WebFrame::fromCoreFrame(*coreChildFrame);
+    RefPtr childFrame = WebFrame::fromCoreFrame(*coreChildFrame);
     if (!childFrame) {
         completionHandler(frameNotFoundErrorType, std::nullopt);
         return;
@@ -620,7 +620,7 @@ void WebAutomationSessionProxy::resolveChildFrameWithNodeHandle(WebCore::PageIde
         return;
     }
 
-    auto frameFromElement = WebFrame::fromCoreFrame(*coreFrameFromElement);
+    RefPtr frameFromElement = WebFrame::fromCoreFrame(*coreFrameFromElement);
     if (!frameFromElement) {
         completionHandler(frameNotFoundErrorType, std::nullopt);
         return;
@@ -658,7 +658,7 @@ void WebAutomationSessionProxy::resolveChildFrameWithName(WebCore::PageIdentifie
         return;
     }
 
-    auto childFrame = WebFrame::fromCoreFrame(*coreChildFrame);
+    RefPtr childFrame = WebFrame::fromCoreFrame(*coreChildFrame);
     if (!childFrame) {
         completionHandler(frameNotFoundErrorType, std::nullopt);
         return;

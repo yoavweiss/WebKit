@@ -114,7 +114,7 @@ public:
     const T* ptrAllowingHashTableEmptyValue() const { ASSERT(m_ptr || isHashTableEmptyValue()); return PtrTraits::unwrap(m_ptr); }
     T* ptrAllowingHashTableEmptyValue() { ASSERT(m_ptr || isHashTableEmptyValue()); return PtrTraits::unwrap(m_ptr); }
 
-    ALWAYS_INLINE T* ptr() const
+    ALWAYS_INLINE T* ptr() const LIFETIME_BOUND
     {
         // In normal execution, a CheckedPtr always points to an object with a non-zero checkedPtrCount().
         // When it detects a dangling pointer, WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR scribbles an object with zeroes and then leaks it.
@@ -123,19 +123,19 @@ public:
         return PtrTraits::unwrap(m_ptr);
     }
 
-    ALWAYS_INLINE T& get() const
+    ALWAYS_INLINE T& get() const LIFETIME_BOUND
     {
         RELEASE_ASSERT(m_ptr);
         return *ptr();
     }
 
-    ALWAYS_INLINE T* operator->() const
+    ALWAYS_INLINE T* operator->() const LIFETIME_BOUND
     {
         RELEASE_ASSERT(m_ptr);
         return ptr();
     }
 
-    ALWAYS_INLINE operator T&() const { return get(); }
+    ALWAYS_INLINE operator T&() const LIFETIME_BOUND { return get(); }
     ALWAYS_INLINE explicit operator bool() const { return ptr(); }
 
     CheckedRef& operator=(T& reference)
@@ -282,6 +282,12 @@ template<typename T, typename PtrTraits>
 ALWAYS_INLINE CLANG_POINTER_CONVERSION CheckedRef<T, PtrTraits> protect(const CheckedRef<T, PtrTraits>& reference)
 {
     return reference;
+}
+
+template<typename T, typename PtrTraits>
+CheckedRef<T, PtrTraits> protect(CheckedRef<T, PtrTraits>&&)
+{
+    static_assert(WTF::unreachableForType<T>, "Calling protect() on an rvalue is unnecessary; the caller already owns the value.");
 }
 
 template<typename T, typename PtrTraits = RawPtrTraits<T>>

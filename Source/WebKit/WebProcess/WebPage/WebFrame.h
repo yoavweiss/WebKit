@@ -130,7 +130,7 @@ public:
     WebPage* page() const;
 
     static WebFrame* webFrame(std::optional<WebCore::FrameIdentifier>);
-    static RefPtr<WebFrame> fromCoreFrame(const WebCore::Frame&);
+    static WebFrame* fromCoreFrame(const WebCore::Frame&);
     WebCore::LocalFrame* NODELETE coreLocalFrame() const;
     WebCore::RemoteFrame* NODELETE coreRemoteFrame() const;
     WebCore::Frame* NODELETE coreFrame() const;

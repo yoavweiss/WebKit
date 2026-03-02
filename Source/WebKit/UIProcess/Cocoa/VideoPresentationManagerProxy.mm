@@ -1138,12 +1138,12 @@ void VideoPresentationManagerProxy::setPlayerIdentifier(PlaybackSessionContextId
 
 void VideoPresentationManagerProxy::audioSessionCategoryChanged(PlaybackSessionContextIdentifier contextId, WebCore::AudioSessionCategory category, WebCore::AudioSessionMode mode, WebCore::RouteSharingPolicy policy)
 {
-    protect(ensureModel(contextId))->audioSessionCategoryChanged(category, mode, policy);
+    ensureModel(contextId)->audioSessionCategoryChanged(category, mode, policy);
 }
 
 void VideoPresentationManagerProxy::routingContextUIDChanged(PlaybackSessionContextIdentifier contextId, const String& routingContextUID)
 {
-    protect(ensureModel(contextId))->routingContextUIDChanged(routingContextUID);
+    ensureModel(contextId)->routingContextUIDChanged(routingContextUID);
 }
 
 void VideoPresentationManagerProxy::setHasVideo(PlaybackSessionContextIdentifier contextId, bool hasVideo)

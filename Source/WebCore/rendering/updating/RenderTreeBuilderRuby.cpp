@@ -63,16 +63,16 @@ static RenderPtr<RenderElement> createAnonymousRendererForRuby(RenderElement& pa
     return ruby;
 }
 
-RenderElement& RenderTreeBuilder::Ruby::findOrCreateParentForStyleBasedRubyChild(RenderElement& parent, const RenderObject& child, RenderObject*& beforeChild)
+CheckedRef<RenderElement> RenderTreeBuilder::Ruby::findOrCreateParentForStyleBasedRubyChild(RenderElement& parent, const RenderObject& child, RenderObject*& beforeChild)
 {
-    RenderElement* beforeChildAncestor = &parent;
+    CheckedRef<RenderElement> beforeChildAncestor = parent;
     if (auto* rubyInline = dynamicDowncast<RenderInline>(parent); rubyInline && rubyInline->continuation())
-        beforeChildAncestor = RenderTreeBuilder::Inline::parentCandidateInContinuation(*rubyInline, beforeChild).ptr();
+        beforeChildAncestor = RenderTreeBuilder::Inline::parentCandidateInContinuation(*rubyInline, beforeChild);
     else if (auto* rubyBlock = dynamicDowncast<RenderBlock>(parent); rubyBlock && rubyBlock->continuation())
-        beforeChildAncestor = RenderTreeBuilder::Block::continuationBefore(*rubyBlock, beforeChild);
+        beforeChildAncestor = *RenderTreeBuilder::Block::continuationBefore(*rubyBlock, beforeChild);
 
     if (!child.isRenderText() && child.style().display() == Style::DisplayType::InlineRuby && beforeChildAncestor->style().display() == Style::DisplayType::BlockRuby)
-        return *beforeChildAncestor;
+        return beforeChildAncestor;
 
     if (beforeChildAncestor->style().display() == Style::DisplayType::BlockRuby) {
         // See if we have an anonymous ruby box already.
@@ -92,7 +92,7 @@ RenderElement& RenderTreeBuilder::Ruby::findOrCreateParentForStyleBasedRubyChild
     }
 
     if (beforeChildAncestor->style().display() != Style::DisplayType::InlineRuby) {
-        auto rubyContainer = createAnonymousRendererForRuby(*beforeChildAncestor, Style::DisplayType::InlineRuby);
+        auto rubyContainer = createAnonymousRendererForRuby(beforeChildAncestor, Style::DisplayType::InlineRuby);
         WeakPtr newParent = rubyContainer.get();
         m_builder.attach(parent, WTF::move(rubyContainer), beforeChild);
         beforeChild = nullptr;
@@ -100,7 +100,7 @@ RenderElement& RenderTreeBuilder::Ruby::findOrCreateParentForStyleBasedRubyChild
     }
 
     if (!child.isRenderText() && (child.style().display() == Style::DisplayType::RubyBase || child.style().display() == Style::DisplayType::RubyText))
-        return *beforeChildAncestor;
+        return beforeChildAncestor;
 
     if (beforeChild && beforeChild->parent()->style().display() == Style::DisplayType::RubyBase)
         return *beforeChild->parent();
@@ -111,7 +111,7 @@ RenderElement& RenderTreeBuilder::Ruby::findOrCreateParentForStyleBasedRubyChild
         return downcast<RenderElement>(*previous);
     }
 
-    auto rubyBase = createAnonymousRendererForRuby(*beforeChildAncestor, Style::DisplayType::RubyBase);
+    auto rubyBase = createAnonymousRendererForRuby(beforeChildAncestor, Style::DisplayType::RubyBase);
     rubyBase->initializeStyle();
     WeakPtr newParent = rubyBase.get();
     m_builder.inlineBuilder().attach(downcast<RenderInline>(parent), WTF::move(rubyBase), beforeChild);

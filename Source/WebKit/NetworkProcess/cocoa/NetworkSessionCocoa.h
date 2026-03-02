@@ -97,7 +97,7 @@ public:
 
     SessionWrapper& initializeEphemeralStatelessSessionIfNeeded(NavigatingToAppBoundDomain, NetworkSessionCocoa&);
 
-    SessionWrapper& isolatedSession(WebCore::StoredCredentialsPolicy, const WebCore::RegistrableDomain&, NavigatingToAppBoundDomain, NetworkSessionCocoa&);
+    CheckedRef<SessionWrapper> isolatedSession(WebCore::StoredCredentialsPolicy, const WebCore::RegistrableDomain&, NavigatingToAppBoundDomain, NetworkSessionCocoa&);
     HashMap<WebCore::RegistrableDomain, std::unique_ptr<IsolatedSession>> isolatedSessions;
 
     std::unique_ptr<IsolatedSession> appBoundSession;
@@ -153,7 +153,7 @@ public:
     void clearAppBoundSession() override;
 #endif
 
-    SessionWrapper& sessionWrapperForTask(std::optional<WebPageProxyIdentifier>, const WebCore::ResourceRequest&, WebCore::StoredCredentialsPolicy, std::optional<NavigatingToAppBoundDomain>);
+    CheckedRef<SessionWrapper> sessionWrapperForTask(std::optional<WebPageProxyIdentifier>, const WebCore::ResourceRequest&, WebCore::StoredCredentialsPolicy, std::optional<NavigatingToAppBoundDomain>);
     bool preventsSystemHTTPProxyAuthentication() const { return m_preventsSystemHTTPProxyAuthentication; }
 
     _NSHSTSStorage *hstsStorage() const;
@@ -182,7 +182,7 @@ private:
     void clearCredentials(WallTime) final;
 
     bool shouldLogCookieInformation() const override { return m_shouldLogCookieInformation; }
-    SessionWrapper& isolatedSession(WebPageProxyIdentifier, WebCore::StoredCredentialsPolicy, const WebCore::RegistrableDomain&, NavigatingToAppBoundDomain);
+    CheckedRef<SessionWrapper> isolatedSession(WebPageProxyIdentifier, WebCore::StoredCredentialsPolicy, const WebCore::RegistrableDomain&, NavigatingToAppBoundDomain);
 
 #if ENABLE(APP_BOUND_DOMAINS)
     SessionWrapper& appBoundSession(std::optional<WebPageProxyIdentifier>, WebCore::StoredCredentialsPolicy);

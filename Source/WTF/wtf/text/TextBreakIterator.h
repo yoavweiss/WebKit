@@ -124,7 +124,7 @@ private:
         return m_contentAnalysis;
     }
 
-    const AtomString& locale() const
+    const AtomString& locale() const LIFETIME_BOUND
     {
         return m_locale;
     }
@@ -307,7 +307,7 @@ public:
     TextBreakIterator::LineMode::Behavior mode() const { return m_mode; }
     TextBreakIterator::ContentAnalysis contentAnalysis() const { return m_contentAnalysis; }
 
-    CachedTextBreakIterator& get()
+    CachedTextBreakIterator& get() LIFETIME_BOUND
     {
         auto priorContext = m_priorContext.characters();
         if (!m_iterator) {
@@ -330,12 +330,12 @@ public:
         m_contentAnalysis = contentAnalysis;
     }
 
-    const PriorContext& priorContext() const
+    const PriorContext& priorContext() const LIFETIME_BOUND
     {
         return m_priorContext;
     }
 
-    PriorContext& priorContext()
+    PriorContext& priorContext() LIFETIME_BOUND
     {
         return m_priorContext;
     }

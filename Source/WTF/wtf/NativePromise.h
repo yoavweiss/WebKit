@@ -398,7 +398,7 @@ public:
 #endif
     }
 
-    const Logger::LogSiteIdentifier& logSiteIdentifier() const { return m_logSiteIdentifier; }
+    const Logger::LogSiteIdentifier& logSiteIdentifier() const LIFETIME_BOUND { return m_logSiteIdentifier; }
 
 private:
     // Return a |T&&| to enable move when IsExclusive is true or a |const T&| to enforce copy otherwise.

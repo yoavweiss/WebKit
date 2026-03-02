@@ -138,7 +138,7 @@ public:
     }
     
     uint32_t word(size_t index) const { return words()[index]; }
-    uint32_t& word(size_t index) { return words()[index]; }
+    uint32_t& word(size_t index) LIFETIME_BOUND { return words()[index]; }
 
     std::span<uint32_t> words() { return unsafeMakeSpan(m_words, arrayLength()); }
     std::span<const uint32_t> words() const { return unsafeMakeSpan(m_words, arrayLength()); }
@@ -400,8 +400,8 @@ public:
     
     typename Words::ViewType wordView() const { return m_words.view(); }
 
-    Words& unsafeWords() { return m_words; }
-    const Words& unsafeWords() const { return m_words; }
+    Words& unsafeWords() LIFETIME_BOUND { return m_words; }
+    const Words& unsafeWords() const LIFETIME_BOUND { return m_words; }
     
 private:
     // You'd think that we could remove this friend if we used protected, but you'd be wrong,

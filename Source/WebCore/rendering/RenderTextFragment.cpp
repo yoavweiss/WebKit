@@ -100,7 +100,7 @@ Vector<char16_t> RenderTextFragment::previousCharacter() const
     return RenderText::previousCharacter();
 }
 
-RenderBlock* RenderTextFragment::blockForAccompanyingFirstLetter()
+CheckedPtr<RenderBlock> RenderTextFragment::blockForAccompanyingFirstLetter()
 {
     if (!m_firstLetter)
         return nullptr;
@@ -108,7 +108,7 @@ RenderBlock* RenderTextFragment::blockForAccompanyingFirstLetter()
         if (is<RenderMultiColumnFlow>(block))
             break;
         if (block->style().hasPseudoStyle(PseudoElementType::FirstLetter) && block->canHaveChildren())
-            return block.ptr();
+            return block;
     }
     return nullptr;
 }

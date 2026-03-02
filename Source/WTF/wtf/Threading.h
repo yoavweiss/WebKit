@@ -192,7 +192,7 @@ public:
         std::array<void*, s_maxKeys> m_slots { };
     };
 
-    SpecificStorage& specificStorage() { return m_specificStorage; };
+    SpecificStorage& specificStorage() LIFETIME_BOUND { return m_specificStorage; };
 
     struct ThreadHolder;
 #endif

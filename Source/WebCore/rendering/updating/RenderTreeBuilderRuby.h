@@ -39,7 +39,7 @@ class RenderTreeBuilder::Ruby {
 public:
     Ruby(RenderTreeBuilder&);
 
-    RenderElement& findOrCreateParentForStyleBasedRubyChild(RenderElement& parent, const RenderObject& child, RenderObject*& beforeChild);
+    CheckedRef<RenderElement> findOrCreateParentForStyleBasedRubyChild(RenderElement& parent, const RenderObject& child, RenderObject*& beforeChild);
     void attachForStyleBasedRuby(RenderElement& parent, RenderPtr<RenderObject> child, RenderObject* beforeChild);
 
 private:

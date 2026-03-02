@@ -272,15 +272,15 @@ void BlockFormattingContext::collectOutOfFlowDescendantsIfNeeded()
     for (CheckedRef descendant : descendantsOfType<Box>(root)) {
         if (!descendant->isOutOfFlowPositioned())
             continue;
-        auto nearestFormattingContextRoot = [&] () -> const ElementBox* {
+        auto nearestFormattingContextRoot = [&] () -> CheckedPtr<const ElementBox> {
             for (CheckedRef containingBlock : containingBlockChain(descendant)) {
                 if (containingBlock->establishesBlockFormattingContext())
-                    return containingBlock.ptr();
+                    return containingBlock;
             }
             ASSERT_NOT_REACHED();
             return nullptr;
         };
-        if (nearestFormattingContextRoot() != &root)
+        if (nearestFormattingContextRoot().get() != &root)
             continue;
         formattingState().addOutOfFlowBox(descendant);
     }

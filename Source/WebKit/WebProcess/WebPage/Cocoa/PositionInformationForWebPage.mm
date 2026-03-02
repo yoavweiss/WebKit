@@ -624,7 +624,7 @@ InteractionInformationAtPosition positionInformationForWebPage(WebPage& page, co
     }();
 
     if (page.focusedElement())
-        focusedElementPositionInformation(page, *WTF::protect(page.focusedElement()), request, info);
+        focusedElementPositionInformation(page, *page.focusedElement(), request, info);
 
     RefPtr hitTestNode = hitTestResult.innerNonSharedNode();
     if (RefPtr element = dynamicDowncast<WebCore::Element>(nodeRespondingToClickEvents)) {

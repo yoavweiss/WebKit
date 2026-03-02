@@ -102,7 +102,7 @@ public:
     public:
         friend class StackTraceSymbolResolver;
         const char* mangledName() const { return m_mangledName; }
-        const char* demangledName() const { return m_demangledName.get(); }
+        const char* demangledName() const LIFETIME_BOUND { return m_demangledName.get(); }
 
     private:
         DemangleEntry(const char* mangledName, const char* demangledName)

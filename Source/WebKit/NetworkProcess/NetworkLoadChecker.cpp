@@ -245,7 +245,7 @@ ResourceError NetworkLoadChecker::validateResponse(const ResourceRequest& reques
         response.setAsRangeRequested();
 
     if (m_options.mode == FetchOptions::Mode::NoCors) {
-        if (auto error = performCORPCheck(m_crossOriginEmbedderPolicy, *origin(), m_url, response, ForNavigation::No, RefPtr { m_networkResourceLoader.get() }.get(), originAccessPatterns()))
+        if (auto error = performCORPCheck(m_crossOriginEmbedderPolicy, *protect(origin()), m_url, response, ForNavigation::No, RefPtr { m_networkResourceLoader.get() }.get(), originAccessPatterns()))
             return WTF::move(*error);
 
         response.setTainting(ResourceResponse::Tainting::Opaque);
@@ -260,7 +260,7 @@ ResourceError NetworkLoadChecker::validateResponse(const ResourceRequest& reques
         return { };
     }
 
-    auto result = passesAccessControlCheck(response, m_storedCredentialsPolicy, *origin(), m_networkResourceLoader.get());
+    auto result = passesAccessControlCheck(response, m_storedCredentialsPolicy, *protect(origin()), m_networkResourceLoader.get());
     if (!result)
         return ResourceError { String { }, 0, m_url, WTF::move(result.error()), ResourceError::Type::AccessControl };
 
@@ -471,7 +471,7 @@ void NetworkLoadChecker::checkCORSRequest(ResourceRequest&& request, ValidationH
         }
         [[fallthrough]];
     case PreflightPolicy::Prevent:
-        updateRequestForAccessControl(request, *origin(), m_storedCredentialsPolicy);
+        updateRequestForAccessControl(request, *protect(origin()), m_storedCredentialsPolicy);
         handler(WTF::move(request));
         break;
     }
@@ -509,7 +509,7 @@ void NetworkLoadChecker::checkCORSRequestWithPreflight(ResourceRequest&& request
     m_isSimpleRequest = false;
     if (CrossOriginPreflightResultCache::singleton().canSkipPreflight(m_sessionID, { m_topOrigin->data(), m_origin->data() }, request.url(), m_storedCredentialsPolicy, request.httpMethod(), m_originalRequestHeaders)) {
         LOAD_CHECKER_RELEASE_LOG("checkCORSRequestWithPreflight - preflight can be skipped thanks to cached result");
-        updateRequestForAccessControl(request, *origin(), m_storedCredentialsPolicy);
+        updateRequestForAccessControl(request, *protect(origin()), m_storedCredentialsPolicy);
         handler(WTF::move(request));
         return;
     }
@@ -549,7 +549,7 @@ void NetworkLoadChecker::checkCORSRequestWithPreflight(ResourceRequest&& request
             protectedThis->m_loadInformation.transactions.append(protect(protectedThis->m_corsPreflightChecker)->takeInformation());
 
         auto corsPreflightChecker = std::exchange(protectedThis->m_corsPreflightChecker, nullptr);
-        updateRequestForAccessControl(request, *protectedThis->origin(), protectedThis->m_storedCredentialsPolicy);
+        updateRequestForAccessControl(request, *protect(protectedThis->origin()), protectedThis->m_storedCredentialsPolicy);
         handler(WTF::move(request));
     });
     protect(m_corsPreflightChecker)->startPreflight();

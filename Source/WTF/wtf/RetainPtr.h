@@ -377,7 +377,10 @@ ALWAYS_INLINE CLANG_POINTER_CONVERSION RetainPtr<T> protect(const RetainPtr<T>& 
 }
 
 template<typename T>
-RetainPtr<T> protect(RetainPtr<T>&&) = delete;
+RetainPtr<T> protect(RetainPtr<T>&&)
+{
+    static_assert(WTF::unreachableForType<T>, "Calling protect() on an rvalue is unnecessary; the caller already owns the value.");
+}
 
 template<typename T> struct IsSmartPtr<RetainPtr<T>> {
     static constexpr bool value = true;

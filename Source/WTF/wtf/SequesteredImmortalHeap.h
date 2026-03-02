@@ -388,7 +388,7 @@ public:
         return m_immortalAllocator.alignedAllocate(alignment, bytes);
     }
 
-    SequesteredStackAllocator& stackAllocator() { return m_stackAllocator; }
+    SequesteredStackAllocator& stackAllocator() LIFETIME_BOUND { return m_stackAllocator; }
 
     void* getSlot()
     {

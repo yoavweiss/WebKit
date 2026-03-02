@@ -153,7 +153,7 @@ private:
     friend class SymbolImpl;
     friend class SymbolRegistry;
 
-    SymbolRegistry* symbolRegistry() const { return m_symbolRegistry.get(); }
+    SymbolRegistry* symbolRegistry() const LIFETIME_BOUND { return m_symbolRegistry.get(); }
     void clearSymbolRegistry() { m_symbolRegistry = nullptr; }
 
     static Ref<RegisteredSymbolImpl> create(StringImpl& rep, SymbolRegistry&);

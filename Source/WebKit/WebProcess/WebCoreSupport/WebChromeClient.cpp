@@ -520,7 +520,7 @@ bool WebChromeClient::canRunBeforeUnloadConfirmPanel()
 
 bool WebChromeClient::runBeforeUnloadConfirmPanel(String&& message, LocalFrame& frame)
 {
-    auto webFrame = WebFrame::fromCoreFrame(frame);
+    RefPtr webFrame = WebFrame::fromCoreFrame(frame);
 
     HangDetectionDisabler hangDetectionDisabler;
 
@@ -588,7 +588,7 @@ void WebChromeClient::runJavaScriptAlert(LocalFrame& frame, const String& alertT
     if (shouldSuppressJavaScriptDialogs(frame))
         return;
 
-    auto webFrame = WebFrame::fromCoreFrame(frame);
+    RefPtr webFrame = WebFrame::fromCoreFrame(frame);
     ASSERT(webFrame);
 
     // Notify the bundle client.
@@ -611,7 +611,7 @@ bool WebChromeClient::runJavaScriptConfirm(LocalFrame& frame, const String& mess
     if (shouldSuppressJavaScriptDialogs(frame))
         return false;
 
-    auto webFrame = WebFrame::fromCoreFrame(frame);
+    RefPtr webFrame = WebFrame::fromCoreFrame(frame);
     ASSERT(webFrame);
 
     // Notify the bundle client.
@@ -636,7 +636,7 @@ bool WebChromeClient::runJavaScriptPrompt(LocalFrame& frame, const String& messa
     if (shouldSuppressJavaScriptDialogs(frame))
         return false;
 
-    auto webFrame = WebFrame::fromCoreFrame(frame);
+    RefPtr webFrame = WebFrame::fromCoreFrame(frame);
     ASSERT(webFrame);
 
     // Notify the bundle client.
@@ -955,7 +955,7 @@ void WebChromeClient::print(LocalFrame& frame, const StringWithDirection& title)
 {
     static constexpr unsigned maxTitleLength = 1000; // Closest power of 10 above the W3C recommendation for Title length.
 
-    auto webFrame = WebFrame::fromCoreFrame(frame);
+    RefPtr webFrame = WebFrame::fromCoreFrame(frame);
     ASSERT(webFrame);
 
     WebCore::FloatSize pdfFirstPageSize;
@@ -1016,7 +1016,7 @@ void WebChromeClient::runOpenPanel(LocalFrame& frame, FileChooser& fileChooser)
 
     page->setActiveOpenPanelResultListener(WebOpenPanelResultListener::create(*page, fileChooser));
 
-    auto webFrame = WebFrame::fromCoreFrame(frame);
+    RefPtr webFrame = WebFrame::fromCoreFrame(frame);
     ASSERT(webFrame);
     page->send(Messages::WebPageProxy::RunOpenPanel(webFrame->frameID(), webFrame->info(), fileChooser.settings()));
 }
@@ -1075,7 +1075,7 @@ RefPtr<Icon> WebChromeClient::createIconForFiles(const Vector<String>& filenames
 
 void WebChromeClient::didAssociateFormControls(const Vector<Ref<Element>>& elements, WebCore::LocalFrame& frame)
 {
-    auto webFrame = WebFrame::fromCoreFrame(frame);
+    RefPtr webFrame = WebFrame::fromCoreFrame(frame);
     ASSERT(webFrame);
     if (RefPtr page = m_page.get())
         page->injectedBundleFormClient().didAssociateFormControls(page.get(), elements, webFrame.get());
@@ -2044,7 +2044,7 @@ void WebChromeClient::didInvalidateDocumentMarkerRects()
 
 void WebChromeClient::hasStorageAccess(RegistrableDomain&& subFrameDomain, RegistrableDomain&& topFrameDomain, LocalFrame& frame, CompletionHandler<void(bool)>&& completionHandler)
 {
-    auto webFrame = WebFrame::fromCoreFrame(frame);
+    RefPtr webFrame = WebFrame::fromCoreFrame(frame);
     ASSERT(webFrame);
     if (RefPtr page = m_page.get())
         page->hasStorageAccess(WTF::move(subFrameDomain), WTF::move(topFrameDomain), *webFrame, WTF::move(completionHandler));
@@ -2054,7 +2054,7 @@ void WebChromeClient::hasStorageAccess(RegistrableDomain&& subFrameDomain, Regis
 
 void WebChromeClient::requestStorageAccess(RegistrableDomain&& subFrameDomain, RegistrableDomain&& topFrameDomain, LocalFrame& frame, StorageAccessScope scope, HasOrShouldIgnoreUserGesture hasOrShouldIgnoreUserGesture, CompletionHandler<void(RequestStorageAccessResult)>&& completionHandler)
 {
-    auto webFrame = WebFrame::fromCoreFrame(frame);
+    RefPtr webFrame = WebFrame::fromCoreFrame(frame);
     ASSERT(webFrame);
     if (RefPtr page = m_page.get())
         page->requestStorageAccess(WTF::move(subFrameDomain), WTF::move(topFrameDomain), *webFrame, scope, hasOrShouldIgnoreUserGesture, WTF::move(completionHandler));
@@ -2087,7 +2087,7 @@ bool WebChromeClient::hasPageLevelStorageAccess(const WebCore::RegistrableDomain
 #if ENABLE(DEVICE_ORIENTATION)
 void WebChromeClient::shouldAllowDeviceOrientationAndMotionAccess(LocalFrame& frame, bool mayPrompt, CompletionHandler<void(DeviceOrientationOrMotionPermissionState)>&& callback)
 {
-    auto webFrame = WebFrame::fromCoreFrame(frame);
+    RefPtr webFrame = WebFrame::fromCoreFrame(frame);
     ASSERT(webFrame);
     if (RefPtr page = m_page.get())
         page->shouldAllowDeviceOrientationAndMotionAccess(webFrame->frameID(), webFrame->info(), mayPrompt, WTF::move(callback));

@@ -1396,7 +1396,7 @@ bool SimplifiedBackwardsTextIterator::handleTextNode()
     return !m_shouldHandleFirstLetter;
 }
 
-RenderText* SimplifiedBackwardsTextIterator::handleFirstLetter(int& startOffset, int& offsetInNode)
+CheckedPtr<RenderText> SimplifiedBackwardsTextIterator::handleFirstLetter(int& startOffset, int& offsetInNode)
 {
     CheckedRef renderer = downcast<RenderText>(*m_node->renderer());
     startOffset = (m_node == m_startContainer) ? m_startOffset : 0;
@@ -1404,20 +1404,20 @@ RenderText* SimplifiedBackwardsTextIterator::handleFirstLetter(int& startOffset,
     CheckedPtr fragment = dynamicDowncast<RenderTextFragment>(renderer);
     if (!fragment) {
         offsetInNode = 0;
-        return renderer.ptr();
+        return renderer;
     }
 
     int offsetAfterFirstLetter = fragment->start();
     if (startOffset >= offsetAfterFirstLetter) {
         ASSERT(!m_shouldHandleFirstLetter);
         offsetInNode = offsetAfterFirstLetter;
-        return renderer.ptr();
+        return renderer;
     }
 
     if (!m_shouldHandleFirstLetter && startOffset + offsetAfterFirstLetter < m_offset) {
         m_shouldHandleFirstLetter = true;
         offsetInNode = offsetAfterFirstLetter;
-        return renderer.ptr();
+        return renderer;
     }
 
     m_shouldHandleFirstLetter = false;
@@ -1427,7 +1427,7 @@ RenderText* SimplifiedBackwardsTextIterator::handleFirstLetter(int& startOffset,
     m_offset = firstLetterRenderer->caretMaxOffset();
     m_offset += collapsedSpaceLength(*firstLetterRenderer, m_offset);
 
-    return firstLetterRenderer.unsafeGet();
+    return firstLetterRenderer;
 }
 
 bool SimplifiedBackwardsTextIterator::handleReplacedElement()

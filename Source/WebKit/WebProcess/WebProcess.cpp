@@ -2365,7 +2365,7 @@ void WebProcess::setAppBadge(WebCore::Frame* frame, const WebCore::SecurityOrigi
 
     RefPtr protectedFrame = frame;
     if (frame) {
-        if (auto webFrame = WebFrame::fromCoreFrame(*frame))
+        if (RefPtr webFrame = WebFrame::fromCoreFrame(*frame))
             webFrame->setAppBadge(origin, badge);
     } else
         protect(parentProcessConnection())->send(Messages::WebProcessProxy::SetAppBadgeFromWorker(origin, badge), 0);
