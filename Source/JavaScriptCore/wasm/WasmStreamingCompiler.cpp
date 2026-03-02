@@ -170,7 +170,7 @@ void StreamingCompiler::didComplete()
             JSWebAssemblyModule* module = JSWebAssemblyModule::create(vm, globalObject->webAssemblyModuleStructure(), WTF::move(result.value()));
 
             scope.release();
-            promise->resolve(globalObject, module);
+            promise->resolve(globalObject, vm, module);
         });
         return;
     }

@@ -1065,6 +1065,7 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     runtime/ConstructData.h
     runtime/ConstructorKind.h
     runtime/ControlFlowProfiler.h
+    runtime/CrossTaskToken.h
     runtime/CustomGetterSetter.h
     runtime/DOMAnnotation.h
     runtime/DataView.h

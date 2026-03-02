@@ -124,6 +124,7 @@ class CommonIdentifiers;
 class CompactTDZEnvironmentMap;
 class ConservativeRoots;
 class ControlFlowProfiler;
+class CrossTaskToken;
 class EvacuatedStackSlice;
 class Exception;
 class ExceptionScope;
@@ -442,6 +443,7 @@ public:
 
 private:
     bool m_isInService { false };
+    RefPtr<CrossTaskToken> m_crossTaskToken;
     VMIdentifier m_identifier;
     const Ref<JSLock> m_apiLock;
     VMThreadContext m_threadContext;
@@ -994,6 +996,8 @@ public:
 
     std::unique_ptr<Profiler::Database> m_perBytecodeProfiler;
     RefPtr<TypedArrayController> m_typedArrayController;
+    CrossTaskToken* crossTaskToken() const { return m_crossTaskToken.get(); }
+    JS_EXPORT_PRIVATE void setCrossTaskToken(RefPtr<CrossTaskToken>&&);
     std::unique_ptr<RegExpCache> m_regExpCache;
     BumpPointerAllocator m_regExpAllocator;
     ConcurrentJSLock m_regExpAllocatorLock;
@@ -1085,8 +1089,9 @@ public:
         RefPtr<VM> m_vm;
     };
 
+    MicrotaskQueue& defaultMicrotaskQueue() { return m_defaultMicrotaskQueue.get(); }
+
     DrainMicrotaskDelayScope drainMicrotaskDelayScope() { return DrainMicrotaskDelayScope { *this }; }
-    void queueMicrotask(QueuedTask&&);
     JS_EXPORT_PRIVATE void drainMicrotasks();
     void setOnEachMicrotaskTick(WTF::Function<void(VM&)>&& func) { m_onEachMicrotaskTick = WTF::move(func); }
     void callOnEachMicrotaskTick()
@@ -1340,7 +1345,7 @@ private:
     Lock m_loopHintExecutionCountLock;
     UncheckedKeyHashMap<const JSInstruction*, std::pair<unsigned, std::unique_ptr<uintptr_t>>> m_loopHintExecutionCounts;
 
-    MicrotaskQueue m_defaultMicrotaskQueue;
+    const Ref<MicrotaskQueue> m_defaultMicrotaskQueue;
     const Ref<Waiter> m_syncWaiter;
 
     std::atomic<int64_t> m_numberOfActiveJITPlans { 0 };

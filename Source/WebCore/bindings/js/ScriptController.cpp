@@ -327,8 +327,7 @@ void ScriptController::initScriptForWindowProxy(JSWindowProxy& windowProxy)
 
     if (RefPtr document = m_frame->document()) {
         protect(document->contentSecurityPolicy())->didCreateWindowProxy(windowProxy);
-        if (world->isNormal())
-            document->setMicrotaskGlobalObject(windowProxy.window());
+        document->addMicrotaskGlobalObject(windowProxy.window());
     }
 
     if (RefPtr page = m_frame->page()) {
@@ -498,9 +497,12 @@ bool ScriptController::canAccessFromCurrentOrigin(Frame* frame, Document& access
 
 void ScriptController::updateDocument()
 {
+    RefPtr document = m_frame->document();
     for (auto& jsWindowProxy : protect(windowProxy())->jsWindowProxiesAsVector()) {
         JSLockHolder lock(jsWindowProxy->world().vm());
         jsCast<JSDOMWindow*>(jsWindowProxy->window())->updateDocument();
+        if (document)
+            document->addMicrotaskGlobalObject(jsWindowProxy->window());
     }
 }
 

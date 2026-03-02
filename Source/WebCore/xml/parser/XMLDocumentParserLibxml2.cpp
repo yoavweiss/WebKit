@@ -855,7 +855,7 @@ void XMLDocumentParser::startElementNs(const xmlChar* xmlLocalName, const xmlCha
 
     if (willConstructCustomElement) [[unlikely]] {
         markupInsertionCountIncrementer.emplace(*document);
-        protect(document->eventLoop())->performMicrotaskCheckpoint();
+        protect(document->eventLoop())->performMicrotaskCheckpoint(document->vm());
         customElementReactionStack.emplace(document->globalObject());
     }
 
@@ -954,7 +954,7 @@ void XMLDocumentParser::endElementNs()
     m_requestingScript = true;
 
     Ref document = *this->document();
-    protect(document->eventLoop())->performMicrotaskCheckpoint();
+    protect(document->eventLoop())->performMicrotaskCheckpoint(document->vm());
     if (scriptElement->prepareScript(m_scriptStartPosition)) {
         if (scriptElement->readyToBeParserExecuted()) {
             if (scriptElement->scriptType() == ScriptType::Classic)

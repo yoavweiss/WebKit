@@ -253,7 +253,7 @@ void DocumentStorageAccess::requestStorageAccess(Ref<DeferredPromise>&& promise)
 
         Ref document = protectedThis->m_document.get();
         if (shouldPreserveUserGesture) {
-            protect(document->eventLoop())->queueMicrotask([weakThis] {
+            protect(document->eventLoop())->queueMicrotask(document->vm(), [weakThis] {
                 if (RefPtr protectedThis = weakThis.get())
                     protectedThis->enableTemporaryTimeUserGesture();
             });
@@ -278,7 +278,7 @@ void DocumentStorageAccess::requestStorageAccess(Ref<DeferredPromise>&& promise)
         }
 
         if (shouldPreserveUserGesture) {
-            protect(document->eventLoop())->queueMicrotask([weakThis] {
+            protect(document->eventLoop())->queueMicrotask(document->vm(), [weakThis] {
                 if (RefPtr protectedThis = weakThis.get())
                     protectedThis->consumeTemporaryTimeUserGesture();
             });
@@ -350,11 +350,13 @@ void DocumentStorageAccess::requestStorageAccessQuirk(RegistrableDomain&& reques
         if (!protectedThis)
             return;
 
+        Ref document = protectedThis->m_document;
+
         // Consume the user gesture only if the user explicitly denied access.
         bool shouldPreserveUserGesture = result.wasGranted == StorageAccessWasGranted::Yes || result.promptWasShown == StorageAccessPromptWasShown::No;
 
         if (shouldPreserveUserGesture) {
-            protect(protect(protectedThis->m_document)->eventLoop())->queueMicrotask([weakThis] {
+            protect(document->eventLoop())->queueMicrotask(document->vm(), [weakThis] {
                 if (RefPtr protectedThis = weakThis.get())
                     protectedThis->enableTemporaryTimeUserGesture();
             });
@@ -372,7 +374,7 @@ void DocumentStorageAccess::requestStorageAccessQuirk(RegistrableDomain&& reques
         }
 
         if (shouldPreserveUserGesture) {
-            protect(protect(protectedThis->m_document)->eventLoop())->queueMicrotask([weakThis] {
+            protect(document->eventLoop())->queueMicrotask(document->vm(), [weakThis] {
                 if (RefPtr protectedThis = weakThis.get())
                     protectedThis->consumeTemporaryTimeUserGesture();
             });

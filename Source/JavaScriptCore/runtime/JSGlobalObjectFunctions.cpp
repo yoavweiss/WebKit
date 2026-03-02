@@ -819,7 +819,7 @@ JSC_DEFINE_HOST_FUNCTION(globalFuncImportModule, (JSGlobalObject* globalObject, 
     RETURN_IF_EXCEPTION(scope, JSValue::encode(promise->rejectWithCaughtException(globalObject, scope)));
 
     scope.release();
-    promise->resolve(globalObject, internalPromise);
+    promise->resolve(globalObject, vm, internalPromise);
     return JSValue::encode(promise);
 }
 

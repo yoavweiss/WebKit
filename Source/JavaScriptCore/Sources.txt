@@ -791,6 +791,7 @@ runtime/ConsoleObject.cpp
 runtime/ConstantMode.cpp
 runtime/ConstructData.cpp
 runtime/ControlFlowProfiler.cpp
+runtime/CrossTaskToken.cpp
 runtime/CustomGetterSetter.cpp
 runtime/DOMAttributeGetterSetter.cpp
 runtime/DataView.cpp

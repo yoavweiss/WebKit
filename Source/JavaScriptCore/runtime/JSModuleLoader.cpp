@@ -361,7 +361,7 @@ JSC_DEFINE_HOST_FUNCTION(moduleLoaderParseModule, (JSGlobalObject* globalObject,
         auto* moduleRecord = SyntheticModuleRecord::parseJSONModule(globalObject, moduleKey, WTF::move(sourceCode));
         RETURN_IF_EXCEPTION(scope, JSValue::encode(promise->rejectWithCaughtException(globalObject, scope)));
         scope.release();
-        promise->resolve(globalObject, moduleRecord);
+        promise->resolve(globalObject, vm, moduleRecord);
         return JSValue::encode(promise);
     }
 
@@ -383,7 +383,7 @@ JSC_DEFINE_HOST_FUNCTION(moduleLoaderParseModule, (JSGlobalObject* globalObject,
     }
 
     scope.release();
-    promise->resolve(globalObject, result.value());
+    promise->resolve(globalObject, vm, result.value());
     return JSValue::encode(promise);
 }
 

@@ -214,7 +214,8 @@ void AnimationTimelinesController::updateAnimationsAndSendEvents(ReducedResoluti
     }
 
     // 3. Perform a microtask checkpoint.
-    protect(protect(document())->eventLoop())->performMicrotaskCheckpoint();
+    Ref document = this->document();
+    protect(document->eventLoop())->performMicrotaskCheckpoint(document->vm());
 
     if (RefPtr documentTimeline = m_document->existingTimeline()) {
         // FIXME: pending animation events should be owned by this controller rather

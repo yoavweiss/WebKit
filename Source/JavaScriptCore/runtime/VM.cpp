@@ -40,6 +40,7 @@
 #include "CodeCache.h"
 #include "CommonIdentifiers.h"
 #include "ControlFlowProfiler.h"
+#include "CrossTaskToken.h"
 #include "CustomGetterSetterInlines.h"
 #include "DOMAttributeGetterSetterInlines.h"
 #include "Debugger.h"
@@ -272,7 +273,7 @@ VM::VM(VMType vmType, HeapType heapType, WTF::RunLoop* runLoop, bool* success)
     , m_codeCache(makeUnique<CodeCache>())
     , m_intlCache(makeUnique<IntlCache>())
     , m_builtinExecutables(makeUnique<BuiltinExecutables>(*this))
-    , m_defaultMicrotaskQueue(*this)
+    , m_defaultMicrotaskQueue(MicrotaskQueue::create(*this))
     , m_syncWaiter(adoptRef(*new Waiter(this)))
 {
     if (vmCreationShouldCrash || g_jscConfig.vmCreationDisallowed) [[unlikely]]
@@ -521,6 +522,11 @@ static ReadWriteLock s_destructionLock;
 void waitForVMDestruction()
 {
     Locker locker { s_destructionLock.write() };
+}
+
+void VM::setCrossTaskToken(RefPtr<CrossTaskToken>&& token)
+{
+    m_crossTaskToken = WTF::move(token);
 }
 
 VM::~VM()
@@ -1369,11 +1375,6 @@ void VM::dumpTypeProfilerData()
     typeProfiler()->dumpTypeProfilerData(*this);
 }
 
-void VM::queueMicrotask(QueuedTask&& task)
-{
-    m_defaultMicrotaskQueue.enqueue(WTF::move(task));
-}
-
 void VM::callPromiseRejectionCallback(Strong<JSPromise>& promise)
 {
     JSObject* callback = promise->globalObject()->unhandledRejectionCallback();
@@ -1419,35 +1420,23 @@ void VM::drainMicrotasks()
         return;
 
     if (executionForbidden()) [[unlikely]]
-        m_defaultMicrotaskQueue.clear();
+        m_defaultMicrotaskQueue->clear();
     else {
         std::optional<VMEntryScope> entryScope;
-        if (!m_defaultMicrotaskQueue.isEmpty())
+        if (!m_defaultMicrotaskQueue->isEmpty())
             entryScope.emplace(*this, nullptr);
         while (true) {
-            m_defaultMicrotaskQueue.performMicrotaskCheckpoint</* useCallOnEachMicrotask */ true>(*this,
-                [&](QueuedTask& task) ALWAYS_INLINE_LAMBDA {
-                    auto* dispatcher = task.dispatcher();
-                    if (dispatcher->type() == JSMicrotaskDispatcherType) [[unlikely]] {
-                        auto* jsMicrotaskDispatcher = jsCast<JSMicrotaskDispatcher*>(dispatcher);
-                        auto* globalObject = jsMicrotaskDispatcher->globalObject();
-                        entryScope->setGlobalObject(globalObject);
-                        return jsMicrotaskDispatcher->dispatcher()->run(task);
-                    }
-
-                    auto* globalObject = jsCast<JSGlobalObject*>(dispatcher);
-                    entryScope->setGlobalObject(globalObject);
-                    auto catchScope = DECLARE_TOP_EXCEPTION_SCOPE(*this);
-                    runInternalMicrotask(globalObject, task.job(), task.payload(), task.arguments());
-                    catchScope.clearExceptionExceptTermination();
-                    return QueuedTask::Result::Executed;
+            m_defaultMicrotaskQueue->performMicrotaskCheckpoint</* useCallOnEachMicrotask */ true>(*this,
+                [&](JSGlobalObject*, JSGlobalObject* nextGlobalObject) {
+                    if (entryScope && nextGlobalObject)
+                        entryScope->setGlobalObject(nextGlobalObject);
                 });
             if (hasPendingTerminationException()) [[unlikely]]
                 return;
             didExhaustMicrotaskQueue();
             if (hasPendingTerminationException()) [[unlikely]]
                 return;
-            if (m_defaultMicrotaskQueue.isEmpty())
+            if (m_defaultMicrotaskQueue->isEmpty())
                 break;
             if (!entryScope)
                 entryScope.emplace(*this, nullptr);

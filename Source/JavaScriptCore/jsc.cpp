@@ -961,7 +961,6 @@ const GlobalObjectMethodTable GlobalObject::s_globalObjectMethodTable = {
     &shellSupportsRichSourceInfo,
     &shouldInterruptScript,
     &javaScriptRuntimeFlags,
-    &queueMicrotaskToEventLoop,
     &shouldInterruptScriptBeforeTimeout,
     &moduleLoaderImportModule,
     &moduleLoaderResolve,
@@ -1496,7 +1495,7 @@ JSInternalPromise* GlobalObject::moduleLoaderFetch(JSGlobalObject* globalObject,
         auto source = SourceCode(WebAssemblySourceProvider::create(WTF::move(buffer), SourceOrigin { moduleURL }, WTF::move(moduleKey)));
         auto sourceCode = JSSourceCode::create(vm, WTF::move(source));
         scope.release();
-        promise->resolve(globalObject, sourceCode);
+        promise->resolve(globalObject, vm, sourceCode);
         return promise;
     }
 #endif
@@ -1505,13 +1504,13 @@ JSInternalPromise* GlobalObject::moduleLoaderFetch(JSGlobalObject* globalObject,
         auto source = SourceCode(StringSourceProvider::create(stringFromUTF(buffer), SourceOrigin { moduleURL }, WTF::move(moduleKey), SourceTaintedOrigin::Untainted, TextPosition(), SourceProviderSourceType::JSON));
         auto sourceCode = JSSourceCode::create(vm, WTF::move(source));
         scope.release();
-        promise->resolve(globalObject, sourceCode);
+        promise->resolve(globalObject, vm, sourceCode);
         return promise;
     }
 
     auto sourceCode = JSSourceCode::create(vm, jscSource(stringFromUTF(buffer), SourceOrigin { moduleURL }, WTF::move(moduleKey), TextPosition(), SourceProviderSourceType::Module));
     scope.release();
-    promise->resolve(globalObject, sourceCode);
+    promise->resolve(globalObject, vm, sourceCode);
     return promise;
 }
 

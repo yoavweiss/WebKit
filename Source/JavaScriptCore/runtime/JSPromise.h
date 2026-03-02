@@ -96,7 +96,7 @@ public:
     JS_EXPORT_PRIVATE static JSPromise* resolvedPromise(JSGlobalObject*, JSValue);
     JS_EXPORT_PRIVATE static JSPromise* rejectedPromise(JSGlobalObject*, JSValue);
 
-    JS_EXPORT_PRIVATE void resolve(JSGlobalObject*, JSValue);
+    JS_EXPORT_PRIVATE void resolve(JSGlobalObject*, VM&, JSValue);
     JS_EXPORT_PRIVATE void reject(VM&, JSGlobalObject*, JSValue);
     void fulfill(VM&, JSGlobalObject*, JSValue);
     JS_EXPORT_PRIVATE void rejectAsHandled(VM&, JSGlobalObject*, JSValue);
@@ -132,12 +132,12 @@ public:
     void performPromiseThen(VM&, JSGlobalObject*, JSValue onFulfilled, JSValue onRejected, JSValue);
     void rejectPromise(VM&, JSGlobalObject*, JSValue);
     void fulfillPromise(VM&, JSGlobalObject*, JSValue);
-    void resolvePromise(JSGlobalObject*, JSValue);
+    void resolvePromise(JSGlobalObject*, VM&, JSValue);
 
-    static void resolveWithInternalMicrotaskForAsyncAwait(JSGlobalObject*, JSValue resolution, InternalMicrotask, JSValue context);
-    static void resolveWithInternalMicrotask(JSGlobalObject*, JSValue resolution, InternalMicrotask, JSValue context);
-    static void rejectWithInternalMicrotask(JSGlobalObject*, JSValue argument, InternalMicrotask, JSValue context);
-    static void fulfillWithInternalMicrotask(JSGlobalObject*, JSValue argument, InternalMicrotask, JSValue context);
+    static void resolveWithInternalMicrotaskForAsyncAwait(JSGlobalObject*, VM&, JSValue resolution, InternalMicrotask, JSValue context);
+    static void resolveWithInternalMicrotask(JSGlobalObject*, VM&, JSValue resolution, InternalMicrotask, JSValue context);
+    static void rejectWithInternalMicrotask(VM&, JSGlobalObject*, JSValue argument, InternalMicrotask, JSValue context);
+    static void fulfillWithInternalMicrotask(VM&, JSGlobalObject*, JSValue argument, InternalMicrotask, JSValue context);
 
     void performPromiseThenWithInternalMicrotask(VM&, JSGlobalObject*, InternalMicrotask, JSValue promise, JSValue context);
 

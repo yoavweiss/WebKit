@@ -27,6 +27,7 @@
 
 #include <JavaScriptCore/JSCell.h>
 #include <JavaScriptCore/MicrotaskQueue.h>
+#include <JavaScriptCore/VM.h>
 #include <JavaScriptCore/WriteBarrier.h>
 
 namespace JSC {

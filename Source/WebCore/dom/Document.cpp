@@ -982,7 +982,7 @@ void Document::removedLastRef()
 void Document::commonTeardown()
 {
     stopActiveDOMObjects();
-    clearMicrotaskGlobalObject();
+    clearMicrotaskGlobalObjects();
 
 #if ENABLE(FULLSCREEN_API)
     if (RefPtr fullscreen = m_fullscreen.get())
@@ -4814,7 +4814,7 @@ void Document::considerSpeculationRules()
     // 3. Set document's consider speculative loads microtask queued to true.
     m_speculationRulesConsiderationScheduled = true;
     // 4. Queue a microtask given document to run the following steps:
-    eventLoop().queueMicrotask([weakThis = WeakPtr<Document, WeakPtrImplWithEventTargetData> { *this }] {
+    eventLoop().queueMicrotask(vm(), [weakThis = WeakPtr<Document, WeakPtrImplWithEventTargetData> { *this }] {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)
             return;
@@ -8315,7 +8315,7 @@ void Document::finishedParsing()
     RefPtr documentLoader = loader();
     bool isInMiddleOfInitializingIframe = documentLoader && documentLoader->isInFinishedLoadingOfEmptyDocument();
     if (!isInMiddleOfInitializingIframe)
-        eventLoop().performMicrotaskCheckpoint();
+        eventLoop().performMicrotaskCheckpoint(vm());
 
     dispatchEvent(Event::create(eventNames().DOMContentLoadedEvent, Event::CanBubble::Yes, Event::IsCancelable::No));
 
@@ -8999,7 +8999,7 @@ void Document::reveal()
         inboundTransition->activateViewTransition();
 
         // FIXME: Clean up after running script given document.
-        eventLoop().performMicrotaskCheckpoint();
+        eventLoop().performMicrotaskCheckpoint(vm());
     }
 }
 

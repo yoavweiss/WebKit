@@ -55,33 +55,25 @@ private:
     WeakPtr<EventLoopTaskGroup> m_group;
 };
 
-class MicrotaskQueue final {
+class MicrotaskQueue final : public JSC::MicrotaskQueue {
     WTF_MAKE_TZONE_ALLOCATED_EXPORT(MicrotaskQueue, WEBCORE_EXPORT);
 public:
-    WEBCORE_EXPORT MicrotaskQueue(JSC::VM&, EventLoop&);
+    WEBCORE_EXPORT static Ref<MicrotaskQueue> create(JSC::VM&, EventLoop&);
     WEBCORE_EXPORT ~MicrotaskQueue();
 
-    WEBCORE_EXPORT void append(JSC::QueuedTask&&);
-    WEBCORE_EXPORT void performMicrotaskCheckpoint();
+    WEBCORE_EXPORT void performMicrotaskCheckpoint(JSC::VM&);
 
     WEBCORE_EXPORT void addCheckpointTask(std::unique_ptr<EventLoopTask>&&);
 
-    bool isEmpty() const { return m_microtaskQueue.isEmpty(); }
-    bool hasMicrotasksForFullyActiveDocument() const;
     bool isPerformingCheckpoint() const { return m_performingMicrotaskCheckpoint; }
 
-    static void runJSMicrotask(JSC::JSGlobalObject*, JSC::VM&, JSC::QueuedTask&);
-    static void runJSMicrotaskWithDebugger(JSC::JSGlobalObject*, JSC::VM&, JSC::QueuedTask&);
-
-    JSC::VM& vm() const { return m_vm.get(); }
-
 private:
+    WEBCORE_EXPORT MicrotaskQueue(JSC::VM&, EventLoop&);
+
+    void scheduleToRunIfNeeded() override;
 
     bool m_performingMicrotaskCheckpoint { false };
-    // For the main thread the VM lives forever. For workers it's lifetime is tied to our owning WorkerGlobalScope. Regardless, we retain the VM here to be safe.
-    const Ref<JSC::VM> m_vm;
     WeakPtr<EventLoop> m_eventLoop;
-    JSC::MicrotaskQueue m_microtaskQueue;
 
     EventLoop::TaskVector m_checkpointTasks;
 };

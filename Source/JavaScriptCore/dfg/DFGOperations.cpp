@@ -1635,7 +1635,7 @@ JSC_DEFINE_JIT_OPERATION(operationResolvePromiseFirstResolving, void, (JSGlobalO
     JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
     auto scope = DECLARE_THROW_SCOPE(vm);
     JSValue argument = JSValue::decode(encodedArgument);
-    promise->resolve(globalObject, argument);
+    promise->resolve(globalObject, vm, argument);
     OPERATION_RETURN(scope);
 }
 

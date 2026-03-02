@@ -163,7 +163,7 @@ static RefPtr<Element> constructCustomElementSynchronously(Document& document, V
     RETURN_IF_EXCEPTION(scope, nullptr);
 
     if (parserConstructElementWithEmptyStack == ParserConstructElementWithEmptyStack::Yes)
-        document.eventLoop().performMicrotaskCheckpoint();
+        document.eventLoop().performMicrotaskCheckpoint(vm);
 
     ASSERT(!newElement.isEmpty());
     RefPtr wrappedElement = JSHTMLElement::toWrapped(vm, newElement);

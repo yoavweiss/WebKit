@@ -49,7 +49,6 @@ const GlobalObjectMethodTable* JSShadowRealmGlobalScopeBase::globalObjectMethodT
         &supportsRichSourceInfo,
         &shouldInterruptScript,
         &javaScriptRuntimeFlags,
-        &queueMicrotaskToEventLoop,
         &shouldInterruptScriptBeforeTimeout,
         &moduleLoaderImportModule,
         &moduleLoaderResolve,
@@ -154,12 +153,6 @@ void JSShadowRealmGlobalScopeBase::reportViolationForUnsafeEval(JSC::JSGlobalObj
 {
     auto incubating = jsCast<JSShadowRealmGlobalScopeBase*>(globalObject)->incubatingRealm();
     incubating->globalObjectMethodTable()->reportViolationForUnsafeEval(incubating, msg);
-}
-
-void JSShadowRealmGlobalScopeBase::queueMicrotaskToEventLoop(JSGlobalObject& object, QueuedTask&& task)
-{
-    auto incubating = jsCast<JSShadowRealmGlobalScopeBase*>(&object)->incubatingRealm();
-    incubating->globalObjectMethodTable()->queueMicrotaskToEventLoop(*incubating, WTF::move(task));
 }
 
 JSValue toJS(JSGlobalObject* lexicalGlobalObject, JSDOMGlobalObject*, ShadowRealmGlobalScope& realmGlobalScope)

@@ -203,7 +203,7 @@ void JSWebAssembly::webAssemblyModuleValidateAsync(JSGlobalObject* globalObject,
             JSValue module = JSWebAssemblyModule::create(vm, globalObject->webAssemblyModuleStructure(), WTF::move(result.value()));
 
             scope.release();
-            promise->resolve(globalObject, module);
+            promise->resolve(globalObject, vm, module);
         });
     }));
 }
@@ -246,21 +246,21 @@ static void instantiate(VM& vm, JSGlobalObject* globalObject, JSPromise* promise
             scope.release();
             switch (resolveKind) {
             case Resolve::WithInstance: {
-                promise->resolve(globalObject, instance);
+                promise->resolve(globalObject, vm, instance);
                 break;
             }
             case Resolve::WithModuleRecord: {
                 auto* moduleRecord = instance->moduleRecord();
                 if (Options::dumpModuleRecord()) [[unlikely]]
                     moduleRecord->dump();
-                promise->resolve(globalObject, moduleRecord);
+                promise->resolve(globalObject, vm, moduleRecord);
                 break;
             }
             case Resolve::WithModuleAndInstance: {
                 JSObject* result = constructEmptyObject(globalObject);
                 result->putDirect(vm, Identifier::fromString(vm, "module"_s), module);
                 result->putDirect(vm, Identifier::fromString(vm, "instance"_s), instance);
-                promise->resolve(globalObject, result);
+                promise->resolve(globalObject, vm, result);
                 break;
             }
             }

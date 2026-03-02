@@ -1986,6 +1986,7 @@
 		E323116924A1DC3500693DA5 /* IntlNumberFormatInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = E323116824A1DC2F00693DA5 /* IntlNumberFormatInlines.h */; };
 		E325956421FDA2C9008EDC9C /* RegExpGlobalDataInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = E325956321FDA2C8008EDC9C /* RegExpGlobalDataInlines.h */; };
 		E325A36022211590007349A1 /* StringPrototypeInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = E325A35F2221158A007349A1 /* StringPrototypeInlines.h */; };
+		E325AB002F504878009DA19F /* CrossTaskToken.h in Headers */ = {isa = PBXBuildFile; fileRef = E325AAFE2F504878009DA19F /* CrossTaskToken.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		E3282BBB1FE930AF00EDAF71 /* YarrErrorCode.h in Headers */ = {isa = PBXBuildFile; fileRef = E3282BBA1FE930A400EDAF71 /* YarrErrorCode.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		E328C6C71DA4304500D255FD /* MaxFrameExtentForSlowPathCall.h in Headers */ = {isa = PBXBuildFile; fileRef = 65860177185A8F5E00030EEE /* MaxFrameExtentForSlowPathCall.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		E328C6C81DA4306100D255FD /* RegisterAtOffsetList.h in Headers */ = {isa = PBXBuildFile; fileRef = 6540C79D1B82D99D000F6B79 /* RegisterAtOffsetList.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -5830,6 +5831,8 @@
 		E323116824A1DC2F00693DA5 /* IntlNumberFormatInlines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IntlNumberFormatInlines.h; sourceTree = "<group>"; };
 		E325956321FDA2C8008EDC9C /* RegExpGlobalDataInlines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegExpGlobalDataInlines.h; sourceTree = "<group>"; };
 		E325A35F2221158A007349A1 /* StringPrototypeInlines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringPrototypeInlines.h; sourceTree = "<group>"; };
+		E325AAFE2F504878009DA19F /* CrossTaskToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CrossTaskToken.h; sourceTree = "<group>"; };
+		E325AAFF2F504878009DA19F /* CrossTaskToken.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CrossTaskToken.cpp; sourceTree = "<group>"; };
 		E326C4961ECBEF5700A9A905 /* ClassInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClassInfo.cpp; sourceTree = "<group>"; };
 		E3282BB91FE930A300EDAF71 /* YarrErrorCode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = YarrErrorCode.cpp; path = yarr/YarrErrorCode.cpp; sourceTree = "<group>"; };
 		E3282BBA1FE930A400EDAF71 /* YarrErrorCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YarrErrorCode.h; path = yarr/YarrErrorCode.h; sourceTree = "<group>"; };
@@ -8507,6 +8510,8 @@
 				E3FCCB632310A90D00238E72 /* ConstructorKind.h */,
 				52B717B41A0597E1007AF4F3 /* ControlFlowProfiler.cpp */,
 				52678F901A04177C006A306D /* ControlFlowProfiler.h */,
+				E325AAFF2F504878009DA19F /* CrossTaskToken.cpp */,
+				E325AAFE2F504878009DA19F /* CrossTaskToken.h */,
 				2A111243192FCE79005EE18D /* CustomGetterSetter.cpp */,
 				2A111244192FCE79005EE18D /* CustomGetterSetter.h */,
 				278D26052A70CF20007F5BC3 /* CustomGetterSetterInlines.h */,
@@ -11152,6 +11157,7 @@
 				FE37C5282A99A372003EE733 /* CPUInlines.h in Headers */,
 				5DE6E5B30E1728EC00180407 /* create_hash_table in Headers */,
 				535C24611F78928E006EC40E /* create_regex_tables in Headers */,
+				E325AB002F504878009DA19F /* CrossTaskToken.h in Headers */,
 				9959E92B1BD17FA4001AA413 /* cssmin.py in Headers */,
 				2A111246192FCE79005EE18D /* CustomGetterSetter.h in Headers */,
 				278D26082A70CF21007F5BC3 /* CustomGetterSetterInlines.h in Headers */,

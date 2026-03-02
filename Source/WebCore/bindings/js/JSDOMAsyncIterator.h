@@ -258,7 +258,7 @@ JSC::JSPromise* JSDOMAsyncIteratorBase<JSWrapper, IteratorTraits>::runNextSteps(
     RETURN_IF_EXCEPTION(scope, { });
 
     if (m_isFinished.get()) {
-        promise->resolve(&globalObject, JSC::createIteratorResultObject(&globalObject, JSC::jsUndefined(), true));
+        promise->resolve(&globalObject, vm, JSC::createIteratorResultObject(&globalObject, JSC::jsUndefined(), true));
         RETURN_IF_EXCEPTION(scope, nullptr);
 
         return promise;
@@ -457,7 +457,7 @@ JSC::JSPromise* JSDOMAsyncIteratorBase<JSWrapper, IteratorTraits>::runReturnStep
     RETURN_IF_EXCEPTION(scope, nullptr);
 
     if (m_isFinished.get()) {
-        returnPromise->resolve(&globalObject, JSC::createIteratorResultObject(&globalObject, value, true));
+        returnPromise->resolve(&globalObject, vm, JSC::createIteratorResultObject(&globalObject, value, true));
         RETURN_IF_EXCEPTION(scope, nullptr);
 
         return returnPromise;

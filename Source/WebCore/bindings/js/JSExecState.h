@@ -114,9 +114,6 @@ public:
         return profiledEvaluate(lexicalGlobalObject, reason, source, thisValue, unused);
     }
 
-    static void runTask(JSC::JSGlobalObject*, JSC::QueuedTask&);
-    static void runTaskWithDebugger(JSC::JSGlobalObject*, JSC::QueuedTask&);
-
     static JSC::JSInternalPromise* loadModule(JSC::JSGlobalObject& lexicalGlobalObject, const URL& topLevelModuleURL, JSC::JSValue parameters, JSC::JSValue scriptFetcher)
     {
         JSExecState currentState(&lexicalGlobalObject);
@@ -155,7 +152,7 @@ private:
         , m_lock(lexicalGlobalObject)
     {
         setCurrentState(lexicalGlobalObject);
-    };
+    }
 
     ~JSExecState()
     {

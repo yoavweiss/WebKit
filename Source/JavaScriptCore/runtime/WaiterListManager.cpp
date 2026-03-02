@@ -209,7 +209,7 @@ void WaiterListManager::notifyWaiterImpl(const AbstractLocker& listLocker, Ref<W
             JSGlobalObject* globalObject = promise->globalObject();
             VM& vm = promise->vm();
             JSValue result = resolveResult == ResolveResult::Ok ? vm.smallStrings.okString() : vm.smallStrings.timedOutString();
-            promise->resolve(globalObject, result);
+            promise->resolve(globalObject, vm, result);
         });
         return;
     }

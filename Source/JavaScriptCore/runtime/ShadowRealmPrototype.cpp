@@ -82,7 +82,7 @@ JSC_DEFINE_HOST_FUNCTION(importInRealm, (JSGlobalObject* globalObject, CallFrame
     RETURN_IF_EXCEPTION(scope, JSValue::encode(promise->rejectWithCaughtException(realmGlobalObject, scope)));
 
     scope.release();
-    promise->resolve(globalObject, internalPromise);
+    promise->resolve(globalObject, vm, internalPromise);
     return JSValue::encode(promise);
 }
 

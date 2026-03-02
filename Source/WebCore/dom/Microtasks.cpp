@@ -25,17 +25,13 @@
 
 #include "CommonVM.h"
 #include "EventLoop.h"
-#include "JSDOMExceptionHandling.h"
 #include "JSExecState.h"
 #include "RejectedPromiseTracker.h"
 #include "ScriptExecutionContext.h"
 #include "WorkerGlobalScope.h"
 #include <JavaScriptCore/JSGlobalObject.h>
-#include <JavaScriptCore/JSMicrotaskDispatcher.h>
 #include <JavaScriptCore/MicrotaskQueueInlines.h>
-#include <JavaScriptCore/ScriptProfilingScope.h>
 #include <JavaScriptCore/TopExceptionScope.h>
-#include <JavaScriptCore/VMEntryScopeInlines.h>
 #include <wtf/MainThread.h>
 #include <wtf/NeverDestroyed.h>
 #include <wtf/SetForScope.h>
@@ -57,102 +53,39 @@ JSC::QueuedTask::Result WebCoreMicrotaskDispatcher::currentRunnability() const
     return JSC::QueuedTask::Result::Executed;
 }
 
+Ref<MicrotaskQueue> MicrotaskQueue::create(JSC::VM& vm, EventLoop& eventLoop)
+{
+    return adoptRef(*new MicrotaskQueue(vm, eventLoop));
+}
+
 MicrotaskQueue::MicrotaskQueue(JSC::VM& vm, EventLoop& eventLoop)
-    : m_vm(vm)
+    : JSC::MicrotaskQueue(vm)
     , m_eventLoop(eventLoop)
-    , m_microtaskQueue(vm)
 {
 }
 
 MicrotaskQueue::~MicrotaskQueue() = default;
 
-void MicrotaskQueue::append(JSC::QueuedTask&& task)
-{
-    m_microtaskQueue.enqueue(WTF::move(task));
-}
-
-void MicrotaskQueue::runJSMicrotaskWithDebugger(JSC::JSGlobalObject* globalObject, JSC::VM& vm, JSC::QueuedTask& task)
-{
-    auto scope = DECLARE_TOP_EXCEPTION_SCOPE(vm);
-
-    auto identifier = task.identifier();
-    if (auto* debugger = globalObject->debugger(); debugger && identifier) [[unlikely]] {
-        JSC::DeferTerminationForAWhile deferTerminationForAWhile(vm);
-        debugger->willRunMicrotask(globalObject, identifier.value());
-        if (!scope.clearExceptionExceptTermination()) [[unlikely]]
-            return;
-    }
-
-    runJSMicrotask(globalObject, vm, task);
-    if (!scope.clearExceptionExceptTermination()) [[unlikely]]
-        return;
-
-    if (auto* debugger = globalObject->debugger(); debugger && identifier) [[unlikely]] {
-        JSC::DeferTerminationForAWhile deferTerminationForAWhile(vm);
-        debugger->didRunMicrotask(globalObject, identifier.value());
-        if (!scope.clearExceptionExceptTermination()) [[unlikely]]
-            return;
-    }
-}
-
-void MicrotaskQueue::runJSMicrotask(JSC::JSGlobalObject* globalObject, JSC::VM& vm, JSC::QueuedTask& task)
-{
-    auto scope = DECLARE_TOP_EXCEPTION_SCOPE(vm);
-    JSC::runInternalMicrotask(globalObject, task.job(), task.payload(), task.arguments());
-    if (scope.exception()) [[unlikely]] {
-        auto* exception = scope.exception();
-        if (!scope.clearExceptionExceptTermination()) [[unlikely]]
-            return;
-        reportException(globalObject, exception);
-        if (!scope.clearExceptionExceptTermination()) [[unlikely]]
-            return;
-    }
-}
-
-void MicrotaskQueue::performMicrotaskCheckpoint()
+void MicrotaskQueue::performMicrotaskCheckpoint(JSC::VM& vm)
 {
     if (m_performingMicrotaskCheckpoint)
         return;
 
     SetForScope change(m_performingMicrotaskCheckpoint, true);
-    Ref vm = this->vm();
     JSC::JSLockHolder locker(vm);
     auto catchScope = DECLARE_TOP_EXCEPTION_SCOPE(vm);
     {
         SUPPRESS_UNCOUNTED_ARG auto& data = threadGlobalDataSingleton();
         auto* previousState = data.currentState();
-        std::optional<JSC::VMEntryScope> entryScope;
-        JSC::JSGlobalObject* currentGlobalObject = nullptr;
-        m_microtaskQueue.performMicrotaskCheckpoint</* useCallOnEachMicrotask */ false>(vm,
-            [&](JSC::QueuedTask& task) ALWAYS_INLINE_LAMBDA {
-                auto* dispatcher = task.dispatcher();
-                if (dispatcher->type() != JSC::JSMicrotaskDispatcherType) [[likely]] {
-                    auto* globalObject = JSC::jsCast<JSC::JSGlobalObject*>(dispatcher);
-                    auto result = globalObject->microtaskRunnability();
-                    if (result == JSC::QueuedTask::Result::Executed) [[likely]] {
-                        data.setCurrentState(globalObject);
-                        if (currentGlobalObject != globalObject) {
-                            if (!entryScope)
-                                entryScope.emplace(vm, globalObject);
-                            else
-                                entryScope->setGlobalObject(globalObject);
-                            currentGlobalObject = globalObject;
-                        }
-                        runJSMicrotask(globalObject, vm, task);
-                    }
-                    return result;
-                }
-
-                entryScope = std::nullopt;
-                currentGlobalObject = nullptr;
-                data.setCurrentState(previousState);
-                return JSC::jsCast<JSC::JSMicrotaskDispatcher*>(dispatcher)->dispatcher()->run(task);
+        JSC::MicrotaskQueue::performMicrotaskCheckpoint</* useCallOnEachMicrotask */ false>(vm,
+            [&](JSC::JSGlobalObject*, JSC::JSGlobalObject* nextGlobalObject) ALWAYS_INLINE_LAMBDA {
+                data.setCurrentState(nextGlobalObject ? nextGlobalObject : previousState);
             });
         data.setCurrentState(previousState);
     }
-    vm->finalizeSynchronousJSExecution();
+    vm.finalizeSynchronousJSExecution();
 
-    if (!vm->executionForbidden()) {
+    if (!vm.executionForbidden()) {
         auto checkpointTasks = std::exchange(m_checkpointTasks, { });
         for (auto& checkpointTask : checkpointTasks) {
             CheckedPtr group = checkpointTask->group();
@@ -171,8 +104,8 @@ void MicrotaskQueue::performMicrotaskCheckpoint()
     }
 
     // https://html.spec.whatwg.org/multipage/webappapis.html#perform-a-microtask-checkpoint (step 4).
-    Ref { *m_eventLoop }->forEachAssociatedContext([vm = vm.copyRef()](auto& context) {
-        if (vm->executionForbidden()) [[unlikely]]
+    Ref { *m_eventLoop }->forEachAssociatedContext([&vm](auto& context) {
+        if (vm.executionForbidden()) [[unlikely]]
             return;
         auto catchScope = DECLARE_TOP_EXCEPTION_SCOPE(vm);
         if (CheckedPtr tracker = context.rejectedPromiseTracker())
@@ -189,9 +122,10 @@ void MicrotaskQueue::addCheckpointTask(std::unique_ptr<EventLoopTask>&& task)
     m_checkpointTasks.append(WTF::move(task));
 }
 
-bool MicrotaskQueue::hasMicrotasksForFullyActiveDocument() const
+void MicrotaskQueue::scheduleToRunIfNeeded()
 {
-    return m_microtaskQueue.hasMicrotasksForFullyActiveDocument();
+    if (RefPtr eventLoop = m_eventLoop.get())
+        eventLoop->scheduleToRunIfNeeded();
 }
 
 } // namespace WebCore

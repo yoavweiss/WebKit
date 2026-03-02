@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <JavaScriptCore/WeakGCSet.h>
 #include <WebCore/DOMTimer.h>
 #include <WebCore/EventLoop.h>
 #include <WebCore/ScriptExecutionContext.h>
@@ -95,6 +96,17 @@ inline ScriptExecutionContext::AddConsoleMessageTask::AddConsoleMessageTask(Mess
         context.addConsoleMessage(source, level, message);
     })
 {
+}
+
+template<typename Functor>
+void ScriptExecutionContext::forEachMicrotaskGlobalObject(const Functor& functor)
+{
+    if (!m_microtaskGlobalObjects)
+        return;
+    for (auto& weak : *m_microtaskGlobalObjects) {
+        if (SUPPRESS_FORWARD_DECL_ARG auto* globalObject = weak.get())
+            functor(*globalObject);
+    }
 }
 
 } // namespace WebCore

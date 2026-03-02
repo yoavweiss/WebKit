@@ -964,7 +964,7 @@ struct AwaitingPromiseData : public RefCounted<AwaitingPromiseData> {
 static void waitForAllPromises(Document& document, const Vector<Ref<DOMPromise>>& promises, Function<void()>&& fulfilledCallback, Function<void(JSC::JSValue)>&& rejectionCallback)
 {
     if (promises.isEmpty()) {
-        protect(document.eventLoop())->queueMicrotask(WTF::move(fulfilledCallback));
+        protect(document.eventLoop())->queueMicrotask(document.vm(), WTF::move(fulfilledCallback));
         return;
     }
 

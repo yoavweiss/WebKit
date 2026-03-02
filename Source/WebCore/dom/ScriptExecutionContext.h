@@ -27,7 +27,6 @@
 
 #pragma once
 
-#include <JavaScriptCore/Weak.h>
 #include <WebCore/ScriptExecutionContextIdentifier.h>
 #include <WebCore/SecurityContext.h>
 #include <WebCore/ServiceWorkerIdentifier.h>
@@ -56,6 +55,9 @@ class Exception;
 class JSGlobalObject;
 class JSPromise;
 class VM;
+template<typename> struct WeakGCSetHash;
+template<typename> struct WeakGCSetHashTraits;
+template<typename, typename, typename> class WeakGCSet;
 enum class MessageLevel : uint8_t;
 enum class MessageSource : uint8_t;
 enum class MessageType : uint8_t;
@@ -388,9 +390,10 @@ public:
 
     bool isAlwaysOnLoggingAllowed() const;
 
-    void setMicrotaskGlobalObject(JSC::JSGlobalObject*);
-    JSC::JSGlobalObject* microtaskGlobalObject() const;
-    void clearMicrotaskGlobalObject();
+    void addMicrotaskGlobalObject(JSC::JSGlobalObject*);
+    template<typename Functor>
+    void forEachMicrotaskGlobalObject(const Functor&);
+    void clearMicrotaskGlobalObjects();
     virtual bool isEventLoopGroupStoppedPermanently() const { return false; }
 
 protected:
@@ -473,7 +476,7 @@ private:
 
     const RefPtr<GuaranteedSerialFunctionDispatcher> m_nativePromiseDispatcher;
     WeakHashSet<NativePromiseRequest> m_nativePromiseRequests;
-    JSC::Weak<JSC::JSGlobalObject> m_microtaskGlobalObject;
+    std::unique_ptr<JSC::WeakGCSet<JSC::JSGlobalObject, JSC::WeakGCSetHash<JSC::JSGlobalObject>, JSC::WeakGCSetHashTraits<JSC::JSGlobalObject>>> m_microtaskGlobalObjects;
 };
 
 WebCoreOpaqueRoot NODELETE root(ScriptExecutionContext*);

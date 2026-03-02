@@ -51,6 +51,7 @@
 #include "LegacySchemeRegistry.h"
 #include "LocalDOMWindow.h"
 #include "MessagePort.h"
+#include "Microtasks.h"
 #include "Navigator.h"
 #include "OriginAccessPatterns.h"
 #include "Page.h"
@@ -92,6 +93,7 @@
 #include <JavaScriptCore/StrongInlines.h>
 #include <JavaScriptCore/TopExceptionScope.h>
 #include <JavaScriptCore/VM.h>
+#include <JavaScriptCore/WeakGCSetInlines.h>
 #include <JavaScriptCore/WeakInlines.h>
 #include <wtf/Lock.h>
 #include <wtf/MainThread.h>
@@ -350,11 +352,15 @@ URL ScriptExecutionContext::currentSourceURL(CallStackPosition position) const
     return sourceURL;
 }
 
-void ScriptExecutionContext::setMicrotaskGlobalObject(JSC::JSGlobalObject* globalObject)
+void ScriptExecutionContext::addMicrotaskGlobalObject(JSC::JSGlobalObject* globalObject)
 {
-    m_microtaskGlobalObject = JSC::Weak<JSC::JSGlobalObject>(globalObject);
     if (!globalObject)
         return;
+    if (!m_microtaskGlobalObjects)
+        m_microtaskGlobalObjects = makeUnique<JSC::WeakGCSet<JSC::JSGlobalObject>>(vm());
+    m_microtaskGlobalObjects->add(globalObject);
+    Ref microtaskQueue = protect(eventLoop())->microtaskQueue();
+    globalObject->setMicrotaskQueue(WTF::move(microtaskQueue));
     if (isEventLoopGroupStoppedPermanently())
         globalObject->setMicrotaskRunnability(JSC::QueuedTaskResult::Discard);
     else if (activeDOMObjectsAreSuspended())
@@ -363,14 +369,9 @@ void ScriptExecutionContext::setMicrotaskGlobalObject(JSC::JSGlobalObject* globa
         globalObject->setMicrotaskRunnability(JSC::QueuedTaskResult::Executed);
 }
 
-JSC::JSGlobalObject* ScriptExecutionContext::microtaskGlobalObject() const
+void ScriptExecutionContext::clearMicrotaskGlobalObjects()
 {
-    return m_microtaskGlobalObject.get();
-}
-
-void ScriptExecutionContext::clearMicrotaskGlobalObject()
-{
-    m_microtaskGlobalObject.clear();
+    m_microtaskGlobalObjects = nullptr;
 }
 
 void ScriptExecutionContext::suspendActiveDOMObjects(ReasonForSuspension why)
@@ -387,8 +388,9 @@ void ScriptExecutionContext::suspendActiveDOMObjects(ReasonForSuspension why)
 
     m_activeDOMObjectsAreSuspended = true;
 
-    if (auto* globalObject = microtaskGlobalObject())
-        globalObject->setMicrotaskRunnability(JSC::QueuedTaskResult::Suspended);
+    forEachMicrotaskGlobalObject([](auto& globalObject) {
+        globalObject.setMicrotaskRunnability(JSC::QueuedTaskResult::Suspended);
+    });
 
     forEachActiveDOMObject([why](auto& activeDOMObject) {
         activeDOMObject.suspend(why);
@@ -414,8 +416,9 @@ void ScriptExecutionContext::resumeActiveDOMObjects(ReasonForSuspension why)
 
     m_activeDOMObjectsAreSuspended = false;
 
-    if (auto* globalObject = microtaskGlobalObject())
-        globalObject->setMicrotaskRunnability(JSC::QueuedTaskResult::Executed);
+    forEachMicrotaskGlobalObject([](auto& globalObject) {
+        globalObject.setMicrotaskRunnability(JSC::QueuedTaskResult::Executed);
+    });
 
     // In case there were pending messages at the time the script execution context entered the BackForwardCache,
     // make sure those get dispatched shortly after restoring from the BackForwardCache.

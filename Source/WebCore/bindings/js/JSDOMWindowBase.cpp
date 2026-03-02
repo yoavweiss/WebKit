@@ -88,7 +88,6 @@ const GlobalObjectMethodTable* JSDOMWindowBase::globalObjectMethodTable()
         supportsRichSourceInfo,
         shouldInterruptScript,
         javaScriptRuntimeFlags,
-        queueMicrotaskToEventLoop,
         shouldInterruptScriptBeforeTimeout,
         moduleLoaderImportModule,
         moduleLoaderResolve,
@@ -245,63 +244,6 @@ RuntimeFlags JSDOMWindowBase::javaScriptRuntimeFlags(const JSGlobalObject* objec
     if (!frame)
         return RuntimeFlags();
     return frame->settings().javaScriptRuntimeFlags();
-}
-
-class UserGestureInitiatedMicrotaskDispatcher final : public WebCoreMicrotaskDispatcher {
-    WTF_MAKE_COMPACT_TZONE_ALLOCATED(UserGestureInitiatedMicrotaskDispatcher);
-public:
-
-    UserGestureInitiatedMicrotaskDispatcher(EventLoopTaskGroup& group, Ref<UserGestureToken>&& userGestureToken)
-        : WebCoreMicrotaskDispatcher(Type::WebCoreUserGestureIndicator, group)
-        , m_userGestureToken(WTF::move(userGestureToken))
-    {
-    }
-
-    ~UserGestureInitiatedMicrotaskDispatcher() final = default;
-
-    JSC::QueuedTask::Result run(JSC::QueuedTask& task) final
-    {
-        auto runnability = currentRunnability();
-        if (runnability == JSC::QueuedTask::Result::Executed) {
-            UserGestureIndicator gestureIndicator(m_userGestureToken.ptr(), m_userGestureToken->scope(), UserGestureToken::ShouldPropagateToMicroTask::Yes);
-            JSExecState::runTaskWithDebugger(task.globalObject(), task);
-        }
-        return runnability;
-    }
-
-    static Ref<UserGestureInitiatedMicrotaskDispatcher> create(EventLoopTaskGroup& group, Ref<UserGestureToken>&& userGestureToken)
-    {
-        return adoptRef(*new UserGestureInitiatedMicrotaskDispatcher(group, WTF::move(userGestureToken)));
-    }
-
-private:
-    const Ref<UserGestureToken> m_userGestureToken;
-};
-
-WTF_MAKE_COMPACT_TZONE_ALLOCATED_IMPL(UserGestureInitiatedMicrotaskDispatcher);
-
-
-void JSDOMWindowBase::queueMicrotaskToEventLoop(JSGlobalObject& object, QueuedTask&& task)
-{
-    auto& thisObject = *jsCast<JSDOMWindowBase*>(&object);
-
-    CheckedPtr objectScriptExecutionContext = thisObject.scriptExecutionContext();
-    CheckedRef eventLoop = objectScriptExecutionContext->eventLoop();
-    // Propagating media only user gesture for Fetch API's promise chain.
-    auto userGestureToken = UserGestureIndicator::currentUserGestureForMainThread();
-    if (userGestureToken && (!userGestureToken->shouldPropagateToMicroTask() || !objectScriptExecutionContext->settingsValues().userGesturePromisePropagationEnabled))
-        userGestureToken = nullptr;
-
-    if (!userGestureToken) {
-        if (object.debugger()) [[unlikely]]
-            task.setDispatcher(eventLoop->jsMicrotaskDispatcherForDebugger(object.vm(), &object));
-    } else {
-        auto& vm = object.vm();
-        JSC::JSLockHolder locker(vm);
-        task.setDispatcher(JSC::JSMicrotaskDispatcher::create(vm, UserGestureInitiatedMicrotaskDispatcher::create(eventLoop.get(), Ref { *userGestureToken }), &object));
-    }
-
-    eventLoop->queueMicrotask(WTF::move(task));
 }
 
 JSC::JSObject* JSDOMWindowBase::currentScriptExecutionOwner(JSGlobalObject* object)

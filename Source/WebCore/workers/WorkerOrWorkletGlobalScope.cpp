@@ -68,7 +68,7 @@ void WorkerOrWorkletGlobalScope::prepareForDestruction()
     }
 
     stopActiveDOMObjects();
-    clearMicrotaskGlobalObject();
+    clearMicrotaskGlobalObjects();
 
     // Event listeners would keep DOMWrapperWorld objects alive for too long. Also, they have references to JS objects,
     // which become dangling once Heap is destroyed.

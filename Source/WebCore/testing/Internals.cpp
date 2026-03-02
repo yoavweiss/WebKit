@@ -5908,7 +5908,7 @@ void Internals::queueMicroTask(int testNumber)
 
     ScriptExecutionContext* context = document;
     auto& eventLoop = context->eventLoop();
-    eventLoop.queueMicrotask([document = Ref { *document }, testNumber]() {
+    eventLoop.queueMicrotask(document->vm(), [document = Ref { *document }, testNumber]() {
         document->addConsoleMessage(MessageSource::JS, MessageLevel::Debug, makeString("MicroTask #"_s, testNumber, " has run."_s));
     });
 }
@@ -6408,7 +6408,7 @@ ExceptionOr<void> Internals::queueTaskToQueueMicrotask(Document& document, const
     ScriptExecutionContext& context = document; // This avoids unnecessarily exporting Document::eventLoop.
     context.eventLoop().queueTask(*source, [movedCallback = WTF::move(callback), protectedDocument = Ref { document }]() mutable {
         ScriptExecutionContext& context = protectedDocument.get();
-        context.eventLoop().queueMicrotask([callback = WTF::move(movedCallback)] {
+        context.eventLoop().queueMicrotask(context.vm(), [callback = WTF::move(movedCallback)] {
             callback->invoke();
         });
     });

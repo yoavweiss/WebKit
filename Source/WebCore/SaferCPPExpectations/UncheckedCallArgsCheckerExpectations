@@ -60,7 +60,6 @@ bindings/js/JSNodeCustom.cpp
 bindings/js/JSPluginElementFunctions.cpp
 bindings/js/JSSVGViewSpecCustom.cpp
 bindings/js/JSStylePropertyMapReadOnlyCustom.cpp
-bindings/js/JSWorkerGlobalScopeBase.cpp
 bindings/js/JSWorkletGlobalScopeBase.cpp
 bindings/js/ScheduledAction.cpp
 bindings/js/ScriptController.cpp

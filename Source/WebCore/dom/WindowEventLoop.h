@@ -85,8 +85,7 @@ private:
     String m_agentClusterKey;
     Timer m_timer;
     Timer m_idleTimer;
-    std::unique_ptr<MicrotaskQueue> m_microtaskQueue;
-
+    RefPtr<MicrotaskQueue> m_microtaskQueue;
     // Each task scheduled in event loop is associated with a document so that it can be suspened or stopped
     // when the associated document is suspened or stopped. This task group is used to schedule a task
     // which is not scheduled to a specific document, and should only be used when it's absolutely required.

@@ -31,6 +31,8 @@
 #include <wtf/CompactPointerTuple.h>
 #include <wtf/Compiler.h>
 #include <wtf/Deque.h>
+#include <wtf/Ref.h>
+#include <wtf/RefCounted.h>
 #include <wtf/SentinelLinkedList.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/VectorTraits.h>
@@ -50,6 +52,7 @@ class MarkedMicrotaskDeque;
 class MicrotaskDispatcher;
 class MicrotaskQueue;
 class QueuedTask;
+class TopExceptionScope;
 class VM;
 
 class MicrotaskDispatcher : public RefCounted<MicrotaskDispatcher> {
@@ -59,8 +62,6 @@ public:
         None,
         JSCDebuggable,
         // WebCoreMicrotaskDispatcher starts from here.
-        WebCoreJS,
-        WebCoreJSDebuggable,
         WebCoreUserGestureIndicator,
         WebCoreFunction,
     };
@@ -73,7 +74,7 @@ public:
     virtual QueuedTaskResult run(QueuedTask&) = 0;
     virtual bool isRunnable() const = 0;
     Type type() const { return m_type; }
-    bool isWebCoreMicrotaskDispatcher() const { return static_cast<uint8_t>(m_type) >= static_cast<uint8_t>(Type::WebCoreJS); }
+    bool isWebCoreMicrotaskDispatcher() const { return static_cast<uint8_t>(m_type) >= static_cast<uint8_t>(Type::WebCoreUserGestureIndicator); }
 
 private:
     Type m_type { Type::None };
@@ -126,10 +127,10 @@ public:
     bool isRunnable() const;
 
     // Defined in MicrotaskQueueInlines.h (requires JSType knowledge).
-    inline JSCell* dispatcher() const;
-    inline JSGlobalObject* globalObject() const;
-    inline JSMicrotaskDispatcher* jsMicrotaskDispatcher() const;
-    inline std::optional<MicrotaskIdentifier> identifier() const;
+    JSCell* dispatcher() const;
+    JSGlobalObject* globalObject() const;
+    JSMicrotaskDispatcher* jsMicrotaskDispatcher() const;
+    std::optional<MicrotaskIdentifier> identifier() const;
     InternalMicrotask job() const { return static_cast<InternalMicrotask>(static_cast<uint8_t>(m_dispatcher.type())); }
     // Task-specific metadata stored in upper 8 bits of type field.
     // Typically holds JSPromise::Status or a nested InternalMicrotask value.
@@ -154,6 +155,8 @@ public:
     friend class MicrotaskQueue;
 
     MarkedMicrotaskDeque() = default;
+
+    const QueuedTask& front() const { return m_queue.first(); }
 
     QueuedTask dequeue()
     {
@@ -200,12 +203,12 @@ private:
     size_t m_markedBefore { 0 };
 };
 
-class MicrotaskQueue final : public BasicRawSentinelNode<MicrotaskQueue> {
+class MicrotaskQueue : public BasicRawSentinelNode<MicrotaskQueue>, public RefCounted<MicrotaskQueue> {
     WTF_MAKE_TZONE_ALLOCATED_EXPORT(MicrotaskQueue, JS_EXPORT_PRIVATE);
     WTF_MAKE_NONCOPYABLE(MicrotaskQueue);
 public:
-    JS_EXPORT_PRIVATE MicrotaskQueue(VM&);
-    JS_EXPORT_PRIVATE ~MicrotaskQueue();
+    JS_EXPORT_PRIVATE static Ref<MicrotaskQueue> create(VM&);
+    JS_EXPORT_PRIVATE virtual ~MicrotaskQueue();
 
     inline void enqueue(QueuedTask&&);
     JS_EXPORT_PRIVATE void enqueueSlow(QueuedTask&&);
@@ -232,17 +235,33 @@ public:
     DECLARE_VISIT_AGGREGATE;
 
     template<bool useCallOnEachMicrotask>
-    inline void performMicrotaskCheckpoint(VM&, NOESCAPE const Invocable<QueuedTask::Result(QueuedTask&)> auto& functor);
+    inline void performMicrotaskCheckpoint(VM&, NOESCAPE const Invocable<void(JSGlobalObject*, JSGlobalObject*)> auto& globalObjectSwitchCallback);
 
     bool hasMicrotasksForFullyActiveDocument() const
     {
         return m_queue.hasMicrotasksForFullyActiveDocument();
     }
 
+    bool isScheduledToRun() const { return m_isScheduledToRun; }
+    void setIsScheduledToRun(bool value) { m_isScheduledToRun = value; }
+
+protected:
+    JS_EXPORT_PRIVATE MicrotaskQueue(VM&);
+    virtual void scheduleToRunIfNeeded()
+    {
+        setIsScheduledToRun(true);
+    }
+    bool m_isScheduledToRun { false };
+
 private:
+    JS_EXPORT_PRIVATE std::pair<JSGlobalObject*, bool> drain(bool useCallOnEachMicrotask, JSGlobalObject* currentGlobalObject, VM&, TopExceptionScope&);
+
     MarkedMicrotaskDeque m_queue;
     MarkedMicrotaskDeque m_toKeep;
 };
+
+void runMicrotask(JSGlobalObject*, VM&, QueuedTask&);
+JS_EXPORT_PRIVATE void runMicrotaskWithDebugger(JSGlobalObject*, VM&, QueuedTask&);
 
 } // namespace JSC
 namespace WTF {

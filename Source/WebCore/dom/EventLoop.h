@@ -123,7 +123,7 @@ public:
     void queueMicrotask(JSC::QueuedTask&&);
 
     // https://html.spec.whatwg.org/multipage/webappapis.html#perform-a-microtask-checkpoint
-    void performMicrotaskCheckpoint();
+    void performMicrotaskCheckpoint(JSC::VM&);
     virtual MicrotaskQueue& microtaskQueue() = 0;
 
     void resumeGroup(EventLoopTaskGroup&);
@@ -141,10 +141,11 @@ public:
     void invalidateNextTimerFireTimeCache() { m_nextTimerFireTimeCache = std::nullopt; }
     Markable<MonotonicTime> nextTimerFireTime() const;
 
+    void scheduleToRunIfNeeded();
+
 protected:
     EventLoop();
-    void scheduleToRunIfNeeded();
-    void run(std::optional<ApproximateTime> deadline = std::nullopt);
+    void run(JSC::VM&, std::optional<ApproximateTime> deadline = std::nullopt);
     void clearAllTasks();
 
     bool hasTasksForFullyActiveDocument() const;
@@ -160,7 +161,6 @@ private:
     WeakHashSet<EventLoopTaskGroup> m_associatedGroups;
     WeakHashSet<EventLoopTaskGroup> m_groupsWithSuspendedTasks;
     WeakHashSet<ScriptExecutionContext> m_associatedContexts;
-    bool m_isScheduledToRun { false };
     mutable Markable<MonotonicTime> m_nextTimerFireTimeCache;
 };
 
@@ -202,12 +202,12 @@ public:
     WEBCORE_EXPORT void queueTask(TaskSource, EventLoop::TaskFunction&&);
 
     // https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-microtask
-    WEBCORE_EXPORT void queueMicrotask(EventLoop::TaskFunction&&);
+    WEBCORE_EXPORT void queueMicrotask(JSC::VM&, EventLoop::TaskFunction&&);
     WEBCORE_EXPORT void queueMicrotask(JSC::QueuedTask&&);
     MicrotaskQueue& microtaskQueue() { return protect(m_eventLoop)->microtaskQueue(); }
 
     // https://html.spec.whatwg.org/multipage/webappapis.html#perform-a-microtask-checkpoint
-    void performMicrotaskCheckpoint();
+    void performMicrotaskCheckpoint(JSC::VM&);
 
     void runAtEndOfMicrotaskCheckpoint(EventLoop::TaskFunction&&);
 
@@ -227,8 +227,6 @@ public:
 
     void didAddTimer(EventLoopTimer&);
     void didRemoveTimer(EventLoopTimer&);
-
-    JSC::JSMicrotaskDispatcher* jsMicrotaskDispatcherForDebugger(JSC::VM&, JSC::JSGlobalObject*);
 
     void setScriptExecutionContext(ScriptExecutionContext&);
 

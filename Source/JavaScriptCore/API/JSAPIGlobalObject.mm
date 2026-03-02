@@ -62,7 +62,6 @@ const GlobalObjectMethodTable* JSAPIGlobalObject::globalObjectMethodTable()
         &supportsRichSourceInfo,
         &shouldInterruptScript,
         &javaScriptRuntimeFlags,
-        &queueMicrotaskToEventLoop,
         &shouldInterruptScriptBeforeTimeout,
         &moduleLoaderImportModule, // moduleLoaderImportModule
         &moduleLoaderResolve, // moduleLoaderResolve
@@ -220,7 +219,7 @@ JSInternalPromise* JSAPIGlobalObject::moduleLoaderFetch(JSGlobalObject* globalOb
         if (Identifier::fromString(vm, oldModuleKey) != moduleKey) [[unlikely]]
             return rejectPromise(makeString("The same JSScript was provided for two different identifiers, previously: "_s, oldModuleKey, " and now: "_s, moduleKey.string()));
 
-        strongPromise.get()->resolve(globalObject, source);
+        strongPromise.get()->resolve(globalObject, vm, source);
         return encodedJSUndefined();
     });
 
@@ -293,7 +292,7 @@ JSValue JSAPIGlobalObject::loadAndEvaluateJSScriptModule(const JSLockHolder&, JS
     JSInternalPromise* promise = importModule(this, key, jsUndefined(), jsUndefined(), jsUndefined());
     RETURN_IF_EXCEPTION(scope, { });
     auto* result = JSPromise::create(vm, this->promiseStructure());
-    result->resolve(this, promise);
+    result->resolve(this, vm, promise);
     RETURN_IF_EXCEPTION(scope, { });
     return result;
 }

@@ -142,7 +142,7 @@ void ReadableStreamToSharedBufferSink::enqueue(const Ref<JSC::Uint8Array>& buffe
     if (!context)
         return;
 
-    protect(context->eventLoop())->queueMicrotask([weakThis = WeakPtr { *this }] {
+    protect(context->eventLoop())->queueMicrotask(context->vm(), [weakThis = WeakPtr { *this }] {
         if (RefPtr protectedThis = weakThis)
             protectedThis->keepReading();
     });

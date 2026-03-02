@@ -92,7 +92,7 @@ void DeferredPromise::callFunction(JSGlobalObject& lexicalGlobalObject, ResolveM
             if (shouldSetCurrentState)
                 data.setCurrentState(&lexicalGlobalObject);
 
-            deferred()->resolve(&lexicalGlobalObject, resolution);
+            deferred()->resolve(&lexicalGlobalObject, vm, resolution);
 
             if (shouldSetCurrentState)
                 data.setCurrentState(nullptr);

@@ -243,7 +243,7 @@ void HTMLDocumentParser::runScriptsForPausedTreeBuilder()
             RefPtr document = this->document();
             ThrowOnDynamicMarkupInsertionCountIncrementer incrementer(*document);
 
-            document->eventLoop().performMicrotaskCheckpoint();
+            document->eventLoop().performMicrotaskCheckpoint(document->vm());
 
             CustomElementReactionStack reactionStack(document->globalObject());
             Ref elementInterface = constructionData->elementInterface.get();

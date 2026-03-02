@@ -776,6 +776,8 @@ JSC::JSGlobalObject* JSDOMGlobalObject::deriveShadowRealmGlobalObject(JSC::JSGlo
     proxy->setTarget(vm, wrapper);
 
     wrapper->setConsoleClient(domGlobalObject->consoleClient().get());
+    if (context && !is<WorkletGlobalScope>(context.get()))
+        context->addMicrotaskGlobalObject(wrapper);
 
     return wrapper;
 }
