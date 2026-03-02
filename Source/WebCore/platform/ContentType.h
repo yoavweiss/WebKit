@@ -50,7 +50,7 @@ public:
     WEBCORE_EXPORT String containerType() const;
     Vector<String> codecs() const;
     Vector<String> profiles() const;
-    const String& raw() const { return m_type; }
+    const String& raw() const LIFETIME_BOUND { return m_type; }
     bool isEmpty() const { return m_type.isEmpty(); }
 
     bool typeWasInferredFromExtension() const { return m_typeWasInferredFromExtension; }

@@ -45,9 +45,9 @@ public:
 
     bool startRubberBandAnimationWithElapsedTime(const FloatSize& initialVelocity, const FloatSize& initialOverscroll, Seconds alreadyElapsed, const FloatSize& targetOverscroll = { });
 
-    const FloatSize& initialVelocity() const { return m_initialVelocity; }
-    const FloatSize& initialOverscroll() const { return m_initialOverscroll; }
-    const FloatSize& targetOverscroll() const { return m_targetOverscroll; }
+    const FloatSize& initialVelocity() const LIFETIME_BOUND { return m_initialVelocity; }
+    const FloatSize& initialOverscroll() const LIFETIME_BOUND { return m_initialOverscroll; }
+    const FloatSize& targetOverscroll() const LIFETIME_BOUND { return m_targetOverscroll; }
 
 private:
     void updateScrollExtents() final;

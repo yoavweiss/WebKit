@@ -118,7 +118,7 @@ public:
 
     static Ref<Font> createSystemFallbackFontPlaceholder() { return adoptRef(*new Font(IsSystemFallbackFontPlaceholder::Yes)); }
     bool isSystemFontFallbackPlaceholder() const { return m_isSystemFontFallbackPlaceholder; }
-    const FontPlatformData& platformData() const { return m_platformData; }
+    const FontPlatformData& platformData() const LIFETIME_BOUND { return m_platformData; }
 #if ENABLE(MATHML)
     const OpenTypeMathData* mathData() const;
 #endif
@@ -162,7 +162,7 @@ public:
     bool hasVerticalGlyphs() const { return m_hasVerticalGlyphs; }
     bool isTextOrientationFallback() const { return m_attributes.isTextOrientationFallback == IsOrientationFallback::Yes; }
 
-    const FontMetrics& fontMetrics() const { return m_fontMetrics; }
+    const FontMetrics& fontMetrics() const LIFETIME_BOUND { return m_fontMetrics; }
     float sizePerUnit() const { return platformData().size() / (fontMetrics().unitsPerEm() ? fontMetrics().unitsPerEm() : 1); }
 
     float maxCharWidth() const { return m_maxCharWidth; }
@@ -266,7 +266,7 @@ public:
     bool isUsedInSystemFallbackFontCache() const { return m_isUsedInSystemFallbackFontCache; }
 
     using Attributes = FontInternalAttributes;
-    const Attributes& attributes() const { return m_attributes; }
+    const Attributes& attributes() const LIFETIME_BOUND { return m_attributes; }
 
     ColorGlyphType colorGlyphType(Glyph) const;
 

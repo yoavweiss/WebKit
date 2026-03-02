@@ -72,8 +72,8 @@ public:
 
     void invalidate();
 
-    DDHighlightRef highlight() const { return m_highlight.get(); }
-    const SimpleRange& NODELETE range() const;
+    DDHighlightRef highlight() const LIFETIME_BOUND { return m_highlight.get(); }
+    const SimpleRange& NODELETE range() const LIFETIME_BOUND;
     GraphicsLayer& layer() const { return m_graphicsLayer.get(); }
 
     enum class Type : uint8_t {

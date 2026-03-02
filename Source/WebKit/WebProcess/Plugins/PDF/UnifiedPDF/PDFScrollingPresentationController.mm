@@ -250,11 +250,11 @@ GraphicsLayer* PDFScrollingPresentationController::backgroundLayerForPage(PDFDoc
     if (!m_pageBackgroundsContainerLayer)
         return nullptr;
 
-    auto pageContainerLayers = m_pageBackgroundsContainerLayer->children();
+    auto& pageContainerLayers = m_pageBackgroundsContainerLayer->children();
     if (pageContainerLayers.size() <= pageIndex)
         return nullptr;
 
-    Ref pageContainerLayer = pageContainerLayers[pageIndex];
+    auto& pageContainerLayer = pageContainerLayers[pageIndex];
     if (!pageContainerLayer->children().size())
         return nullptr;
 
@@ -275,7 +275,8 @@ void PDFScrollingPresentationController::updateIsInWindow(bool isInWindow)
     protect(m_selectionLayer)->setIsInWindow(isInWindow);
 #endif
 
-    for (auto& pageLayer : protect(m_pageBackgroundsContainerLayer)->children()) {
+    RefPtr pageBackgroundsContainerLayer = m_pageBackgroundsContainerLayer;
+    for (auto& pageLayer : pageBackgroundsContainerLayer->children()) {
         if (pageLayer->children().size()) {
             Ref pageContentsLayer = pageLayer->children()[0];
             pageContentsLayer->setIsInWindow(isInWindow);

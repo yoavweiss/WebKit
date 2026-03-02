@@ -102,8 +102,8 @@ public:
 
     WEBCORE_EXPORT virtual ~MediaStreamTrackPrivate();
 
-    const String& id() const { return m_id; }
-    const String& label() const { return m_label; }
+    const String& id() const LIFETIME_BOUND { return m_id; }
+    const String& label() const LIFETIME_BOUND { return m_label; }
 
     bool isActive() const { return enabled() && !ended() && !muted(); }
 
@@ -148,8 +148,8 @@ public:
     void removeObserver(MediaStreamTrackPrivateObserver&);
     bool hasObserver(MediaStreamTrackPrivateObserver& observer) const { return m_observers.contains(observer); }
 
-    const RealtimeMediaSourceSettings& settings() const { return m_settings; }
-    const RealtimeMediaSourceCapabilities& capabilities() const { return m_capabilities; }
+    const RealtimeMediaSourceSettings& settings() const LIFETIME_BOUND { return m_settings; }
+    const RealtimeMediaSourceCapabilities& capabilities() const LIFETIME_BOUND { return m_capabilities; }
 
     Ref<RealtimeMediaSource::TakePhotoNativePromise> takePhoto(PhotoSettings&&);
     Ref<RealtimeMediaSource::PhotoCapabilitiesNativePromise> getPhotoCapabilities();

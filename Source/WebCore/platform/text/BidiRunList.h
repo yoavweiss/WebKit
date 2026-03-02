@@ -41,7 +41,7 @@ public:
     // FIXME: Once BidiResolver no longer owns the BidiRunList,
     // then ~BidiRunList should call deleteRuns() automatically.
 
-    Run* firstRun() const { return m_firstRun.get(); }
+    Run* firstRun() const LIFETIME_BOUND { return m_firstRun.get(); }
     Run* lastRun() const { return m_lastRun; }
     Run* logicallyLastRun() const { return m_logicallyLastRun; }
     unsigned runCount() const { return m_runCount; }

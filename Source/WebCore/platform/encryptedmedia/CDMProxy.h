@@ -75,9 +75,9 @@ public:
 
     bool takeValueIfDifferent(KeyHandleValueVariant&&);
 
-    const KeyIDType& id() const { return m_id; }
-    const KeyHandleValueVariant& value() const { return m_value; }
-    KeyHandleValueVariant& value() { return m_value; }
+    const KeyIDType& id() const LIFETIME_BOUND { return m_id; }
+    const KeyHandleValueVariant& value() const LIFETIME_BOUND { return m_value; }
+    KeyHandleValueVariant& value() LIFETIME_BOUND { return m_value; }
     KeyStatus status() const { return m_status; }
     bool isStatusCurrentlyValid()
     {

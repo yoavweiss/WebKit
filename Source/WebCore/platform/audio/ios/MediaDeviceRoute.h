@@ -122,7 +122,7 @@ public:
     MediaDeviceRouteClient* client() const { return m_client.get(); }
     void setClient(MediaDeviceRouteClient* client) { m_client = client; }
 
-    const WTF::UUID& identifier() const { return m_identifier; }
+    const WTF::UUID& identifier() const LIFETIME_BOUND { return m_identifier; }
     String deviceName() const;
     WebMediaDevicePlatformRoute *platformRoute() const;
 

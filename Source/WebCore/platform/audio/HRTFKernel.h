@@ -62,7 +62,7 @@ public:
     // Given two HRTFKernels, and an interpolation factor x: 0 -> 1, returns an interpolated HRTFKernel.
     static RefPtr<HRTFKernel> createInterpolatedKernel(HRTFKernel* kernel1, HRTFKernel* kernel2, float x);
   
-    FFTFrame* fftFrame() { return m_fftFrame.get(); }
+    FFTFrame* fftFrame() LIFETIME_BOUND { return m_fftFrame.get(); }
     
     size_t fftSize() const;
     float frameDelay() const { return m_frameDelay; }

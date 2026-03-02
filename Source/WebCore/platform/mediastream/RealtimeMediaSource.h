@@ -144,11 +144,11 @@ public:
     // Can be called in worker threads.
     virtual Ref<RealtimeMediaSource> clone() { return *this; }
 
-    const String& hashedId() const;
-    const String& hashedGroupId() const;
-    const MediaDeviceHashSalts& deviceIDHashSalts() const;
+    const String& hashedId() const LIFETIME_BOUND;
+    const String& hashedGroupId() const LIFETIME_BOUND;
+    const MediaDeviceHashSalts& deviceIDHashSalts() const LIFETIME_BOUND;
 
-    const String& persistentID() const { return m_device.persistentId(); }
+    const String& persistentID() const LIFETIME_BOUND { return m_device.persistentId(); }
 
     enum class Type : bool { Audio, Video };
     Type type() const { return m_type; }
@@ -171,7 +171,7 @@ public:
 
     virtual bool interrupted() const { return false; }
 
-    const String& name() const { return m_name; }
+    const String& name() const LIFETIME_BOUND { return m_name; }
 
     double fitnessScore() const { return m_fitnessScore; }
 
@@ -291,7 +291,7 @@ public:
 
     std::optional<PageIdentifier> pageIdentifier() const { return m_pageIdentifier.asOptional(); }
 
-    const CaptureDevice& captureDevice() const { return m_device; }
+    const CaptureDevice& captureDevice() const LIFETIME_BOUND { return m_device; }
     bool isEphemeral() const { return m_device.isEphemeral(); }
 
     virtual double facingModeFitnessScoreAdjustment() const { return 0; }

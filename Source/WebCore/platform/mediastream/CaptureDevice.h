@@ -58,10 +58,10 @@ public:
     CaptureDevice() = default;
 
     void setPersistentId(const String& persistentId) { m_persistentId = persistentId; }
-    const String& persistentId() const { return m_persistentId; }
+    const String& persistentId() const LIFETIME_BOUND { return m_persistentId; }
 
     void setLabel(const String& label) { m_label = label; }
-    const String& label() const
+    const String& label() const LIFETIME_BOUND
     {
         static NeverDestroyed<String> airPods(MAKE_STATIC_STRING_IMPL("AirPods"));
 
@@ -72,7 +72,7 @@ public:
     }
 
     void setGroupId(const String& groupId) { m_groupId = groupId; }
-    const String& groupId() const { return m_groupId.isEmpty() ? m_persistentId : m_groupId; }
+    const String& groupId() const LIFETIME_BOUND { return m_groupId.isEmpty() ? m_persistentId : m_groupId; }
 
     DeviceType type() const { return m_type; }
 

@@ -156,7 +156,7 @@ public:
 
     Type type() const;
     RefPtr<Image> image() const { return m_image; }
-    const IntPoint& hotSpot() const { return m_hotSpot; }
+    const IntPoint& hotSpot() const LIFETIME_BOUND { return m_hotSpot; }
 
 #if ENABLE(MOUSE_CURSOR_SCALE)
     // Image scale in image pixels per logical (UI) pixel.

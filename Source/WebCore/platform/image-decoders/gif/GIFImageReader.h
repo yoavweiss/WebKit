@@ -264,12 +264,12 @@ public:
         return frame->isLocalColormapDefined ? data(frame->localColormapPosition, frame->localColormapSize * 3) : std::span<const uint8_t> { };
     }
 
-    const GIFFrameContext* frameContext() const
+    const GIFFrameContext* frameContext() const LIFETIME_BOUND
     {
         return m_currentDecodingFrame < m_frames.size() ? m_frames[m_currentDecodingFrame].get() : 0;
     }
 
-    const GIFFrameContext* frameContext(size_t frame) const
+    const GIFFrameContext* frameContext(size_t frame) const LIFETIME_BOUND
     {
         return frame < m_frames.size() ? m_frames[frame].get() : nullptr;
     }

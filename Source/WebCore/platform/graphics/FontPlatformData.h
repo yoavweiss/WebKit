@@ -314,8 +314,8 @@ public:
         {
         }
 
-        const String& name() const { return m_name; }
-        const String& tag() const { return m_tag; }
+        const String& name() const LIFETIME_BOUND { return m_name; }
+        const String& tag() const LIFETIME_BOUND { return m_tag; }
         float defaultValue() const { return m_defaultValue; }
         float minimumValue() const { return m_minimumValue; }
         float maximumValue() const { return m_maximumValue; }
@@ -407,10 +407,10 @@ public:
 #if USE(CAIRO)
     cairo_scaled_font_t* scaledFont() const { return m_scaledFont.get(); }
 #elif USE(SKIA)
-    const SkFont& skFont() const { return m_font; }
+    const SkFont& skFont() const LIFETIME_BOUND { return m_font; }
     SkiaHarfBuzzFont* skiaHarfBuzzFont() const { return m_hbFont.get(); }
     hb_font_t* hbFont() const;
-    const Vector<hb_feature_t>& features() const { return m_features; }
+    const Vector<hb_feature_t>& features() const LIFETIME_BOUND { return m_features; }
     static bool skiaTypefaceHasAnySupportedColorTable(const SkTypeface&);
 #endif
 

@@ -105,8 +105,8 @@ public:
 
     WEBCORE_EXPORT bool operator==(const FontCascade& other) const;
 
-    const FontCascadeDescription& fontDescription() const { return m_fontDescription; }
-    FontCascadeDescription& mutableFontDescription() const { return m_fontDescription; }
+    const FontCascadeDescription& fontDescription() const LIFETIME_BOUND { return m_fontDescription; }
+    FontCascadeDescription& mutableFontDescription() const LIFETIME_BOUND { return m_fontDescription; }
 
     float size() const { return fontDescription().computedSize(); }
 
@@ -165,7 +165,7 @@ public:
 
     bool isPlatformFont() const { return m_fonts->isForPlatformFont(); }
 
-    const FontMetrics& metricsOfPrimaryFont() const { return primaryFont()->fontMetrics(); }
+    const FontMetrics& metricsOfPrimaryFont() const { return primaryFont().fontMetrics(); }
     float zeroWidth() const;
     float tabWidth(const Font&, const TabSize&, float, Font::SyntheticBoldInclusion) const;
     bool hasValidAverageCharWidth() const;
@@ -176,7 +176,7 @@ public:
     int emphasisMarkHeight(const AtomString&) const;
     float floatEmphasisMarkHeight(const AtomString&) const;
 
-    Ref<const Font> primaryFont() const;
+    const Font& primaryFont() const;
     const FontRanges& fallbackRangesAt(unsigned) const;
     WEBCORE_EXPORT GlyphData glyphDataForCharacter(char32_t, bool mirror, FontVariant = AutoVariant, std::optional<ResolvedEmojiPolicy> = std::nullopt) const;
     bool canUseSimplifiedTextMeasuring(char32_t, FontVariant, bool whitespaceIsCollapsed, const Font&) const;
@@ -384,10 +384,10 @@ private:
     mutable WTF::BitSet<256 * bitsPerCharacterInCanUseSimplifiedTextMeasuringForAutoVariantCache> m_canUseSimplifiedTextMeasuringForAutoVariantCache;
 };
 
-inline Ref<const Font> FontCascade::primaryFont() const
+inline const Font& FontCascade::primaryFont() const
 {
-    Ref font = protect(m_fonts)->primaryFont(m_fontDescription, protect(fontSelector()).get());
-    m_fontDescription.resolveFontSizeAdjustFromFontIfNeeded(font);
+    WeakRef font = protect(m_fonts)->primaryFont(m_fontDescription, protect(fontSelector()).get());
+    m_fontDescription.resolveFontSizeAdjustFromFontIfNeeded(protect(font));
     return font;
 }
 

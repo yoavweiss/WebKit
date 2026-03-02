@@ -315,10 +315,8 @@ FloatSize CachedImage::imageSizeForRenderer(const RenderElement* renderer, SizeT
         return { };
 
 #if ENABLE(MULTI_REPRESENTATION_HEIC)
-    if (CheckedPtr renderImage = dynamicDowncast<RenderImage>(renderer); renderImage && renderImage->isMultiRepresentationHEIC()) {
-        auto metrics = renderImage->style().fontCascade().primaryFont()->metricsForMultiRepresentationHEIC();
-        return metrics.size();
-    }
+    if (CheckedPtr renderImage = dynamicDowncast<RenderImage>(renderer); renderImage && renderImage->isMultiRepresentationHEIC())
+        return renderImage->style().fontCascade().primaryFont().metricsForMultiRepresentationHEIC().size();
 #endif
 
     if (image->drawsSVGImage() && sizeType == UsedSize)

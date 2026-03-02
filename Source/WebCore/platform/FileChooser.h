@@ -91,7 +91,7 @@ public:
     // FIXME: We should probably just pass file paths that could be virtual paths with proper display names rather than passing structs.
     void chooseFiles(const Vector<FileChooserFileInfo>& files);
 
-    const FileChooserSettings& settings() const { return m_settings; }
+    const FileChooserSettings& settings() const LIFETIME_BOUND { return m_settings; }
 
 private:
     FileChooser(FileChooserClient&, const FileChooserSettings&);

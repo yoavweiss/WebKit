@@ -67,7 +67,7 @@ public:
         m_transitions[index].fastDecrement();
     }
 
-    const Vector<Iterator>& transitions() { return m_transitions; }
+    const Vector<Iterator>& transitions() LIFETIME_BOUND { return m_transitions; }
     size_t numTransitions() const { return m_transitions.size(); }
     size_t currentTransition() const { return m_currentTransition; }
     void setCurrentTransition(size_t currentTransition) { m_currentTransition = currentTransition; }
@@ -164,7 +164,7 @@ public:
     bool reversed(bool visuallyOrdered) { return m_level % 2 && !visuallyOrdered; }
     bool dirOverride(bool visuallyOrdered) { return m_override || visuallyOrdered; }
 
-    ConcreteRunType* next() const { return m_next.get(); }
+    ConcreteRunType* next() const LIFETIME_BOUND { return m_next.get(); }
     std::unique_ptr<ConcreteRunType> takeNext() { return WTF::move(m_next); }
     void setNext(std::unique_ptr<ConcreteRunType>&& next) { m_next = WTF::move(next); }
 
@@ -194,7 +194,7 @@ enum VisualDirectionOverride {
 template<typename Iterator, typename Run, typename DerivedClass> class BidiResolverBase {
     WTF_MAKE_NONCOPYABLE(BidiResolverBase);
 public:
-    const Iterator& position() const { return m_current; }
+    const Iterator& position() const LIFETIME_BOUND { return m_current; }
     void setPositionIgnoringNestedIsolates(const Iterator& position) { m_current = position; }
     void setPosition(const Iterator& position, unsigned nestedIsolatedCount)
     {
@@ -214,10 +214,10 @@ public:
     UCharDirection dir() const { return m_direction; }
     void setDir(UCharDirection direction) { m_direction = direction; }
 
-    const BidiStatus& status() const { return m_status; }
+    const BidiStatus& status() const LIFETIME_BOUND { return m_status; }
     void setStatus(BidiStatus status) { m_status = status; }
 
-    WhitespaceCollapsingState<Iterator>& whitespaceCollapsingState() { return m_whitespaceCollapsingState; }
+    WhitespaceCollapsingState<Iterator>& whitespaceCollapsingState() LIFETIME_BOUND { return m_whitespaceCollapsingState; }
 
     // The current algorithm handles nested isolates one layer of nesting at a time.
     // But when we layout each isolated span, we will walk into (and ignore) all
@@ -231,7 +231,7 @@ public:
 
     void createBidiRunsForLine(const Iterator& end, VisualDirectionOverride = NoVisualOverride, bool hardLineBreak = false);
 
-    BidiRunList<Run>& runs() { return m_runs; }
+    BidiRunList<Run>& runs() LIFETIME_BOUND { return m_runs; }
 
     // FIXME: This used to be part of deleteRuns() but was a layering violation.
     // It's unclear if this is still needed.
@@ -296,7 +296,7 @@ public:
     void incrementInternal();
     void appendRunInternal();
     bool needsContinuePastEndInternal() const;
-    Vector<IsolateRun>& isolatedRuns() { return m_isolatedRuns; }
+    Vector<IsolateRun>& isolatedRuns() LIFETIME_BOUND { return m_isolatedRuns; }
 
 private:
     Vector<IsolateRun> m_isolatedRuns;

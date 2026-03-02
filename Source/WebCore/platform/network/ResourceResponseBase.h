@@ -92,30 +92,30 @@ public:
     WEBCORE_EXPORT bool isInHTTPFamily() const;
     WEBCORE_EXPORT bool isSuccessful() const;
 
-    WEBCORE_EXPORT const URL& url() const;
+    WEBCORE_EXPORT const URL& url() const LIFETIME_BOUND;
     WEBCORE_EXPORT void setURL(URL&&);
 
-    WEBCORE_EXPORT const String& mimeType() const;
+    WEBCORE_EXPORT const String& mimeType() const LIFETIME_BOUND;
     WEBCORE_EXPORT void setMimeType(String&&);
 
     WEBCORE_EXPORT long long expectedContentLength() const;
     WEBCORE_EXPORT void setExpectedContentLength(long long expectedContentLength);
 
-    WEBCORE_EXPORT const String& textEncodingName() const;
+    WEBCORE_EXPORT const String& textEncodingName() const LIFETIME_BOUND;
     WEBCORE_EXPORT void setTextEncodingName(String&&);
 
     WEBCORE_EXPORT int httpStatusCode() const;
     WEBCORE_EXPORT void setHTTPStatusCode(int);
     WEBCORE_EXPORT bool isRedirection() const;
 
-    WEBCORE_EXPORT const String& httpStatusText() const;
+    WEBCORE_EXPORT const String& httpStatusText() const LIFETIME_BOUND;
     WEBCORE_EXPORT void setHTTPStatusText(String&&);
 
-    WEBCORE_EXPORT const String& httpVersion() const;
+    WEBCORE_EXPORT const String& httpVersion() const LIFETIME_BOUND;
     WEBCORE_EXPORT void setHTTPVersion(String&&);
     WEBCORE_EXPORT bool isHTTP09() const;
 
-    WEBCORE_EXPORT const HTTPHeaderMap& httpHeaderFields() const;
+    WEBCORE_EXPORT const HTTPHeaderMap& httpHeaderFields() const LIFETIME_BOUND;
     void setHTTPHeaderFields(HTTPHeaderMap&&);
 
     enum class SanitizationType { Redirection, RemoveCookies, CrossOriginSafe };
@@ -147,13 +147,13 @@ public:
 
     WEBCORE_EXPORT void includeCertificateInfo(std::span<const std::byte> = { }) const;
     void setCertificateInfo(CertificateInfo&& info) { m_certificateInfo = WTF::move(info); }
-    const std::optional<CertificateInfo>& certificateInfo() const { return m_certificateInfo; };
+    const std::optional<CertificateInfo>& certificateInfo() const LIFETIME_BOUND { return m_certificateInfo; };
     bool usedLegacyTLS() const { return m_usedLegacyTLS == UsedLegacyTLS::Yes; }
     void setUsedLegacyTLS(UsedLegacyTLS used) { m_usedLegacyTLS = used; }
     bool wasPrivateRelayed() const { return m_wasPrivateRelayed == WasPrivateRelayed::Yes; }
     void setWasPrivateRelayed(WasPrivateRelayed privateRelayed) { m_wasPrivateRelayed = privateRelayed; }
     void setProxyName(String&& proxyName) { m_proxyName = WTF::move(proxyName); }
-    const String& proxyName() const { return m_proxyName; }
+    const String& proxyName() const LIFETIME_BOUND { return m_proxyName; }
 
     IPAddressSpace ipAddressSpace() { return m_ipAddressSpace; }
     void setIPAddressSpace(IPAddressSpace ipAddressSpace) { m_ipAddressSpace = ipAddressSpace; }
@@ -170,7 +170,7 @@ public:
     WEBCORE_EXPORT std::optional<Seconds> age() const;
     WEBCORE_EXPORT std::optional<WallTime> expires() const;
     WEBCORE_EXPORT std::optional<WallTime> lastModified() const;
-    const ParsedContentRange& contentRange() const;
+    const ParsedContentRange& contentRange() const LIFETIME_BOUND;
 
     static_assert(static_cast<unsigned>(Source::InspectorOverride) <= ((1U << bitWidthOfSource) - 1));
 
@@ -184,7 +184,7 @@ public:
     // FIXME: This should be eliminated from ResourceResponse.
     // Network loading metrics should be delivered via didFinishLoad
     // and should not be part of the ResourceResponse.
-    const NetworkLoadMetrics* deprecatedNetworkLoadMetricsOrNull() const
+    const NetworkLoadMetrics* deprecatedNetworkLoadMetricsOrNull() const LIFETIME_BOUND
     {
         if (m_networkLoadMetrics)
             return m_networkLoadMetrics.get();

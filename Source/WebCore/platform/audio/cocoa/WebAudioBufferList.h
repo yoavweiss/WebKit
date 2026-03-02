@@ -55,7 +55,7 @@ public:
     void reset();
     WEBCORE_EXPORT void setSampleCount(size_t);
 
-    AudioBufferList* list() const { return m_list.get(); }
+    AudioBufferList* list() const LIFETIME_BOUND { return m_list.get(); }
     operator AudioBufferList&() const { return *m_list; }
 
     uint32_t bufferCount() const;

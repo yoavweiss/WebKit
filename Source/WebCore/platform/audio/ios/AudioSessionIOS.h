@@ -75,7 +75,7 @@ private:
     void updateSpatialExperience();
 
     void setSceneIdentifier(const String&) final;
-    const String& sceneIdentifier() const final { return m_sceneIdentifier; }
+    const String& sceneIdentifier() const LIFETIME_BOUND final { return m_sceneIdentifier; }
 
     void setSoundStageSize(SoundStageSize) final;
     SoundStageSize soundStageSize() const final { return m_soundStageSize; }

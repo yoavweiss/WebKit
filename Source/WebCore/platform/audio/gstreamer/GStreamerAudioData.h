@@ -52,7 +52,7 @@ public:
 
     void setSample(GRefPtr<GstSample>&& sample) { m_sample = WTF::move(sample); }
     const GRefPtr<GstSample>& getSample() const { return m_sample; }
-    const GstAudioInfo& getAudioInfo() const { return m_audioInfo; }
+    const GstAudioInfo& getAudioInfo() const LIFETIME_BOUND { return m_audioInfo; }
     uint32_t channelCount() const { return GST_AUDIO_INFO_CHANNELS(&m_audioInfo); }
 
 private:

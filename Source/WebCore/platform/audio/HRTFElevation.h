@@ -64,8 +64,8 @@ public:
     static std::unique_ptr<HRTFElevation> createByInterpolatingSlices(HRTFElevation* hrtfElevation1, HRTFElevation* hrtfElevation2, float x, float sampleRate);
 
     // Returns the list of left or right ear HRTFKernels for all the azimuths going from 0 to 360 degrees.
-    HRTFKernelList* kernelListL() { return m_kernelListL.get(); }
-    HRTFKernelList* kernelListR() { return m_kernelListR.get(); }
+    HRTFKernelList* kernelListL() LIFETIME_BOUND { return m_kernelListL.get(); }
+    HRTFKernelList* kernelListR() LIFETIME_BOUND { return m_kernelListR.get(); }
 
     double elevationAngle() const { return m_elevationAngle; }
     unsigned numberOfAzimuths() const { return NumberOfTotalAzimuths; }

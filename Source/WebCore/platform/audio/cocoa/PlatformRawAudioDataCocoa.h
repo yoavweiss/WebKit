@@ -54,7 +54,7 @@ public:
 
     constexpr MediaPlatformType platformType() const final { return MediaPlatformType::AVFObjC; }
 
-    const CAAudioStreamDescription& description() const;
+    const CAAudioStreamDescription& description() const LIFETIME_BOUND;
     CMSampleBufferRef sampleBuffer() const;
 
 private:

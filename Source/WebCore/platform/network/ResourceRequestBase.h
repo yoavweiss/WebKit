@@ -139,7 +139,7 @@ public:
     WEBCORE_EXPORT bool isNull() const;
     WEBCORE_EXPORT bool isEmpty() const;
     
-    WEBCORE_EXPORT const URL& url() const;
+    WEBCORE_EXPORT const URL& url() const LIFETIME_BOUND;
     WEBCORE_EXPORT void setURL(URL&&, bool didFilterLinkDecoration = false);
 
     void redirectAsGETIfNeeded(const ResourceRequestBase &, const ResourceResponse&);
@@ -156,7 +156,7 @@ public:
     WEBCORE_EXPORT void setTimeoutInterval(double);
     WEBCORE_EXPORT void resetTimeoutInterval();
     
-    WEBCORE_EXPORT const URL& firstPartyForCookies() const;
+    WEBCORE_EXPORT const URL& firstPartyForCookies() const LIFETIME_BOUND;
     WEBCORE_EXPORT void setFirstPartyForCookies(const URL&);
 
     WEBCORE_EXPORT bool isThirdParty() const;
@@ -173,10 +173,10 @@ public:
     WEBCORE_EXPORT bool isTopSite() const; // Whether this request is for a top-level navigation.
     WEBCORE_EXPORT void setIsTopSite(bool);
 
-    WEBCORE_EXPORT const String& httpMethod() const;
+    WEBCORE_EXPORT const String& httpMethod() const LIFETIME_BOUND;
     WEBCORE_EXPORT void setHTTPMethod(const String& httpMethod);
     
-    WEBCORE_EXPORT const HTTPHeaderMap& httpHeaderFields() const;
+    WEBCORE_EXPORT const HTTPHeaderMap& httpHeaderFields() const LIFETIME_BOUND;
     WEBCORE_EXPORT void setHTTPHeaderFields(HTTPHeaderMap);
 
     WEBCORE_EXPORT String httpHeaderField(StringView name) const;
@@ -223,7 +223,7 @@ public:
 
     WEBCORE_EXPORT void clearPurpose();
 
-    const Vector<String>& responseContentDispositionEncodingFallbackArray() const { return m_requestData.m_responseContentDispositionEncodingFallbackArray; }
+    const Vector<String>& responseContentDispositionEncodingFallbackArray() const LIFETIME_BOUND { return m_requestData.m_responseContentDispositionEncodingFallbackArray; }
     WEBCORE_EXPORT void setResponseContentDispositionEncodingFallbackArray(const String& encoding1, const String& encoding2 = String(), const String& encoding3 = String());
     void setResponseContentDispositionEncodingFallbackArray(const Vector<String>& array) { m_requestData.m_responseContentDispositionEncodingFallbackArray = array; }
 
@@ -240,7 +240,7 @@ public:
     WEBCORE_EXPORT void setPriority(ResourceLoadPriority);
 
     WEBCORE_EXPORT static String partitionName(const String& domain);
-    const String& cachePartition() const { return m_cachePartition; }
+    const String& cachePartition() const LIFETIME_BOUND { return m_cachePartition; }
     WEBCORE_EXPORT void setCachePartition(const String&);
     void setDomainForCachePartition(const String& domain) { setCachePartition(partitionName(domain)); }
 

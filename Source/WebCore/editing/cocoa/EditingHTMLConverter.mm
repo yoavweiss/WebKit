@@ -358,10 +358,10 @@ static void updateAttributes(const Node* node, const RenderStyle& style, OptionS
         [attributes removeObjectForKey:NSStrikethroughStyleAttributeName];
 
     CheckedRef fontCascade = style.fontCascade();
-    if (auto ctFont = fontCascade->primaryFont()->ctFont())
+    if (auto ctFont = fontCascade->primaryFont().ctFont())
         [attributes setObject:(__bridge PlatformFont *)ctFont forKey:NSFontAttributeName];
     else {
-        auto size = fontCascade->primaryFont()->platformData().size();
+        auto size = fontCascade->primaryFont().platformData().size();
 #if PLATFORM(IOS_FAMILY)
         PlatformFont *platformFont = [PlatformFontClass systemFontOfSize:size];
 #else

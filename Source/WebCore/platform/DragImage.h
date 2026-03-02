@@ -128,7 +128,7 @@ public:
 
     void setVisiblePath(const Path& path) { m_visiblePath = path; }
     bool hasVisiblePath() const { return !!m_visiblePath; }
-    const std::optional<Path>& visiblePath() const { return m_visiblePath; }
+    const std::optional<Path>& visiblePath() const LIFETIME_BOUND { return m_visiblePath; }
 
     explicit operator bool() const { return !!m_dragImageRef; }
     DragImageRef get() const { return m_dragImageRef; }

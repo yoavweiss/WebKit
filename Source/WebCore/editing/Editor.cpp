@@ -4999,7 +4999,7 @@ RefPtr<Font> Editor::fontForSelection(bool& hasMultipleFonts)
             if (!style)
                 return nullptr;
             ScriptDisallowedScope::InMainThread scriptDisallowedScope;
-            font = const_cast<Font*>(style->fontCascade().primaryFont().ptr());
+            font = const_cast<Font*>(&style->fontCascade().primaryFont());
         }
 
         if (nodeToRemove)

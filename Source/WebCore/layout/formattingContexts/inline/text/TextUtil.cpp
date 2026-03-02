@@ -51,7 +51,7 @@ namespace Layout {
 
 InlineLayoutUnit TextUtil::singleSpaceWidth(const FontCascade& fontCascade, bool canUseSimplifiedContentMeasuring)
 {
-    auto width = canUseSimplifiedContentMeasuring ? fontCascade.primaryFont()->spaceWidth() : fontCascade.widthOfSpaceString();
+    auto width = canUseSimplifiedContentMeasuring ? fontCascade.primaryFont().spaceWidth() : fontCascade.widthOfSpaceString();
     if (std::isnan(width) || std::isinf(width)) [[unlikely]]
         return std::isnan(width) ? 0.0f : maxInlineLayoutUnit();
     return width;

@@ -55,8 +55,8 @@ public:
     // Encoding support.
     using Data = Variant<Seconds, ProgressResolutionData>;
     WEBCORE_EXPORT static Ref<AcceleratedTimeline> create(TimelineIdentifier&&, Data&&);
-    const TimelineIdentifier& identifier() const { return m_identifier; }
-    const Data& data() const { return m_data; }
+    const TimelineIdentifier& identifier() const LIFETIME_BOUND { return m_identifier; }
+    const Data& data() const LIFETIME_BOUND { return m_data; }
 
     virtual ~AcceleratedTimeline() = default;
 

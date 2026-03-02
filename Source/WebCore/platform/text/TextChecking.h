@@ -114,7 +114,7 @@ public:
     }
 
     std::optional<TextCheckingRequestIdentifier> identifier() const { return m_identifier; }
-    const String& text() const { return m_text; }
+    const String& text() const LIFETIME_BOUND { return m_text; }
     OptionSet<TextCheckingType> checkingTypes() const { return m_checkingTypes; }
     TextCheckingProcessType processType() const { return m_processType; }
 

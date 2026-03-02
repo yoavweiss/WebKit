@@ -144,7 +144,7 @@ public:
     GraphicsLayerClient& client() const { return *m_client; }
 
     // Layer name. Only used to identify layers in debug output
-    const String& name() const { return m_name; }
+    const String& name() const LIFETIME_BOUND { return m_name; }
     virtual void setName(const String& name) { m_name = name; }
     WEBCORE_EXPORT virtual String debugName() const;
 
@@ -154,8 +154,8 @@ public:
     // Returns true if the layer has the given layer as an ancestor (excluding self).
     bool hasAncestor(GraphicsLayer*) const;
     
-    const Vector<Ref<GraphicsLayer>>& children() const { return m_children; }
-    Vector<Ref<GraphicsLayer>>& children() { return m_children; }
+    const Vector<Ref<GraphicsLayer>>& children() const LIFETIME_BOUND { return m_children; }
+    Vector<Ref<GraphicsLayer>>& children() LIFETIME_BOUND { return m_children; }
 
     // Returns true if the child list changed.
     WEBCORE_EXPORT virtual bool setChildren(Vector<Ref<GraphicsLayer>>&&);
@@ -187,7 +187,7 @@ public:
     // The layer that replicates this layer (if any).
     GraphicsLayer* replicaLayer() const { return m_replicaLayer.get(); }
 
-    const FloatPoint& replicatedLayerPosition() const { return m_replicatedLayerPosition; }
+    const FloatPoint& replicatedLayerPosition() const LIFETIME_BOUND { return m_replicatedLayerPosition; }
     void setReplicatedLayerPosition(const FloatPoint& p) { m_replicatedLayerPosition = p; }
 
     // Offset is origin of the renderer minus origin of the graphics layer.
@@ -204,7 +204,7 @@ public:
 #endif
 
     // The position of the layer (the location of its top-left corner in its parent)
-    const FloatPoint& position() const { return m_position; }
+    const FloatPoint& position() const LIFETIME_BOUND { return m_position; }
     virtual void setPosition(const FloatPoint& p) { m_approximatePosition = std::nullopt; m_position = p; }
 
     // approximatePosition, if set, overrides position() and is used during coverage rect computation.
@@ -216,15 +216,15 @@ public:
 
     // Anchor point: (0, 0) is top left, (1, 1) is bottom right. The anchor point
     // affects the origin of the transforms.
-    const FloatPoint3D& anchorPoint() const { return m_anchorPoint; }
+    const FloatPoint3D& anchorPoint() const LIFETIME_BOUND { return m_anchorPoint; }
     virtual void setAnchorPoint(const FloatPoint3D& p) { m_anchorPoint = p; }
 
     // The size of the layer.
-    const FloatSize& size() const { return m_size; }
+    const FloatSize& size() const LIFETIME_BOUND { return m_size; }
     WEBCORE_EXPORT virtual void setSize(const FloatSize&);
 
     // The boundOrigin affects the offset at which content is rendered, and sublayers are positioned.
-    const FloatPoint& boundsOrigin() const { return m_boundsOrigin; }
+    const FloatPoint& boundsOrigin() const LIFETIME_BOUND { return m_boundsOrigin; }
     virtual void setBoundsOrigin(const FloatPoint& origin) { m_boundsOrigin = origin; }
 
     // For platforms that move underlying platform layers on a different thread for scrolling; just update the GraphicsLayer state.
@@ -292,7 +292,7 @@ public:
     // The color used to paint the layer background. Pass an invalid color to remove it.
     // Note that this covers the entire layer. Use setContentsToSolidColor() if the color should
     // only cover the contentsRect.
-    const Color& backgroundColor() const { return m_backgroundColor; }
+    const Color& backgroundColor() const LIFETIME_BOUND { return m_backgroundColor; }
     WEBCORE_EXPORT virtual void setBackgroundColor(const Color&);
 
     // opaque means that we know the layer contents have no alpha
@@ -305,15 +305,15 @@ public:
     float opacity() const { return m_opacity; }
     WEBCORE_EXPORT virtual void setOpacity(float);
 
-    const FilterOperations& filters() const { return m_filters; }
+    const FilterOperations& filters() const LIFETIME_BOUND { return m_filters; }
     // Returns true if filter can be rendered by the compositor.
     WEBCORE_EXPORT virtual bool setFilters(const FilterOperations&);
 
-    const FilterOperations& backdropFilters() const { return m_backdropFilters; }
+    const FilterOperations& backdropFilters() const LIFETIME_BOUND { return m_backdropFilters; }
     virtual bool setBackdropFilters(const FilterOperations& filters) { m_backdropFilters = filters; return true; }
 
     virtual void setBackdropFiltersRect(const FloatRoundedRect& backdropFiltersRect) { m_backdropFiltersRect = backdropFiltersRect; }
-    const FloatRoundedRect& backdropFiltersRect() const { return m_backdropFiltersRect; }
+    const FloatRoundedRect& backdropFiltersRect() const LIFETIME_BOUND { return m_backdropFiltersRect; }
 
     BlendMode blendMode() const { return m_blendMode; }
     virtual void setBlendMode(BlendMode blendMode) { m_blendMode = blendMode; }
@@ -359,7 +359,7 @@ public:
     WindRule shapeLayerWindRule() const;
     WEBCORE_EXPORT virtual void setShapeLayerWindRule(WindRule);
 
-    const EventRegion& eventRegion() const { return m_eventRegion; }
+    const EventRegion& eventRegion() const LIFETIME_BOUND { return m_eventRegion; }
     WEBCORE_EXPORT virtual void setEventRegion(EventRegion&&);
 
     // Transitions are identified by a special animation name that cannot clash with a keyframe identifier.
@@ -531,7 +531,7 @@ public:
     bool renderingIsSuppressedIncludingDescendants() const { return m_renderingIsSuppressedIncludingDescendants; }
     void setRenderingIsSuppressedIncludingDescendants(bool suppressed) { m_renderingIsSuppressedIncludingDescendants = suppressed; }
 
-    const std::optional<FloatRect>& animationExtent() const { return m_animationExtent; }
+    const std::optional<FloatRect>& animationExtent() const LIFETIME_BOUND { return m_animationExtent; }
     void setAnimationExtent(std::optional<FloatRect> animationExtent) { m_animationExtent = animationExtent; }
 
     static void traverse(GraphicsLayer&, NOESCAPE const Function<void(GraphicsLayer&)>&);

@@ -46,7 +46,7 @@ public:
         : m_supportedImageMIMETypesForEncoding(WTF::move(supportedImageMIMETypesForEncoding))
     { }
 
-    const HashSet<String, ASCIICaseInsensitiveHash>& supportedImageMIMETypesForEncoding() const { return m_supportedImageMIMETypesForEncoding; }
+    const HashSet<String, ASCIICaseInsensitiveHash>& supportedImageMIMETypesForEncoding() const LIFETIME_BOUND { return m_supportedImageMIMETypesForEncoding; }
 
 private:
     HashSet<String, ASCIICaseInsensitiveHash> m_supportedImageMIMETypesForEncoding;
