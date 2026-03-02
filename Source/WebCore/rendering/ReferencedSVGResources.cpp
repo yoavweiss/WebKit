@@ -216,6 +216,14 @@ void ReferencedSVGResources::updateReferencedResources(TreeScope& treeScope, con
         removeClientForTarget(treeScope, targetID);
 }
 
+bool ReferencedSVGResources::addReferencedSVGResourceIfNeeded(SVGElement& targetElement, const AtomString& targetID)
+{
+    if (m_elementClients.contains(targetID))
+        return false;
+    addClientForTarget(targetElement, targetID);
+    return true;
+}
+
 // SVG code uses getRenderSVGResourceById<>, but that works in terms of renderers. We need to find resources
 // before the render tree is fully constructed, so this works on Elements.
 RefPtr<SVGElement> ReferencedSVGResources::elementForResourceID(TreeScope& treeScope, const AtomString& resourceID, const SVGQualifiedName& tagName)

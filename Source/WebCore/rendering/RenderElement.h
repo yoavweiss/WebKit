@@ -40,6 +40,7 @@ class ReferencedSVGResources;
 class RenderBlock;
 class RenderStyle;
 class RenderTreeBuilder;
+class SVGElement;
 struct ImageOrientation;
 
 struct MarginRect {
@@ -344,6 +345,8 @@ public:
     static bool isBeforeOrAfterContent(const RenderElement*);
 
     WritingMode writingMode() const { return style().writingMode(); }
+
+    bool addReferencedSVGResourceIfNeeded(SVGElement&, const AtomString&);
 
 protected:
     RenderElement(Type, Element&, RenderStyle&&, OptionSet<TypeFlag>, TypeSpecificFlags);

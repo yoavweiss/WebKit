@@ -277,7 +277,6 @@ imported/w3c/web-platform-tests/svg/painting/reftests/non-scaling-stroke-001.htm
 imported/w3c/web-platform-tests/svg/painting/reftests/non-scaling-stroke-002.html                      [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/painting/reftests/non-scaling-stroke-004.html                      [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/painting/reftests/paint-context-008.svg                            [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/svg/painting/scripted/marker-element-added.html                        [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/pservers/reftests/pattern-inheritance-template-pattern-removed.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/render/reftests/blending-svg-foreign-object.html                   [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/shapes/reftests/pathlength-004b.svg                                [ ImageOnlyFailure ]
@@ -420,7 +419,6 @@ svg/custom/pattern-3-step-cycle-dynamic-4.html         [ Pass Crash ]
 ###############
 
 # Reset results inherited from TestExpectations chaining
-imported/w3c/web-platform-tests/svg/coordinate-systems/viewBox-baseVal-change-invalid.html                        [ Pass ]
 imported/w3c/web-platform-tests/svg/extensibility/foreignObject/foreign-object-scale-scroll.html                  [ Pass ]
 imported/w3c/web-platform-tests/svg/extensibility/foreignObject/foreign-object-with-position-under-clip-path.html [ Pass ]
 imported/w3c/web-platform-tests/svg/extensibility/foreignObject/isolation-with-html.html                          [ Pass ]

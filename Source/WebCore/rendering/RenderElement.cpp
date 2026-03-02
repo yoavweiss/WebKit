@@ -2445,6 +2445,11 @@ void RenderElement::updateReferencedSVGResources()
         clearReferencedSVGResources();
 }
 
+bool RenderElement::addReferencedSVGResourceIfNeeded(SVGElement& targetElement, const AtomString& targetID)
+{
+    return ensureReferencedSVGResources().addReferencedSVGResourceIfNeeded(targetElement, targetID);
+}
+
 void RenderElement::repaintRendererOrClientsOfReferencedSVGResources() const
 {
     auto* enclosingResourceContainer = lineageOfType<RenderSVGResourceContainer>(*this).first();

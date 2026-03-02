@@ -560,8 +560,10 @@ RenderSVGResourceMarker* RenderLayerModelObject::svgMarkerResourceFromStyle(cons
             return referencedMarkerRenderer;
     }
 
-    if (RefPtr element = dynamicDowncast<SVGElement>(this->element()))
-        document().addPendingSVGResource(AtomString(markerResourceURL->resolved.string()), *element);
+    if (RefPtr element = dynamicDowncast<SVGElement>(this->element())) {
+        auto resourceID = SVGURIReference::fragmentIdentifierFromIRIString(markerResourceURL->resolved.string(), document());
+        document().addPendingSVGResource(resourceID, *element);
+    }
 
     return nullptr;
 }
