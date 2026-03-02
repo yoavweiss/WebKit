@@ -1107,7 +1107,7 @@ JSInternalPromise* GlobalObject::moduleLoaderImportModule(JSGlobalObject* global
         return promise;
     };
 
-    auto referrer = sourceOrigin.url();
+    auto& referrer = sourceOrigin.url();
     auto specifier = moduleNameValue->value(globalObject);
     RETURN_IF_EXCEPTION(scope, promise->rejectWithCaughtException(globalObject, scope));
 

@@ -4439,7 +4439,7 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
             GetByStatus status = GetByStatus::computeFor(m_graph.globalObjectFor(node->origin.semantic), value.m_structure.toStructureSet(), identifier);
             if (status.isSimple()) {
                 if (status.numVariants() == 1) {
-                    auto variant = status[0];
+                    auto& variant = status[0];
                     if (!variant.conditionSet().isEmpty()) {
                         ASSERT(variant.structureSet().size() == 1);
                         auto attempToFold = [&] {
