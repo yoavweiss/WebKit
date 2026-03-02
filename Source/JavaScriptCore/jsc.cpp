@@ -378,6 +378,7 @@ static JSC_DECLARE_HOST_FUNCTION(functionGenerateHeapSnapshot);
 static JSC_DECLARE_HOST_FUNCTION(functionGenerateHeapSnapshotForGCDebugging);
 static JSC_DECLARE_HOST_FUNCTION(functionResetSuperSamplerState);
 static JSC_DECLARE_HOST_FUNCTION(functionEnsureArrayStorage);
+static JSC_DECLARE_HOST_FUNCTION(functionCreateNoopNativeFunctionWithCapture);
 #if ENABLE(SAMPLING_PROFILER)
 static JSC_DECLARE_HOST_FUNCTION(functionStartSamplingProfiler);
 static JSC_DECLARE_HOST_FUNCTION(functionSamplingProfilerStackTraces);
@@ -747,6 +748,7 @@ private:
         addFunction(vm, "generateHeapSnapshotForGCDebugging"_s, functionGenerateHeapSnapshotForGCDebugging, 0);
         addFunction(vm, "resetSuperSamplerState"_s, functionResetSuperSamplerState, 0);
         addFunction(vm, "ensureArrayStorage"_s, functionEnsureArrayStorage, 0);
+        addFunction(vm, "createNoopNativeFunctionWithCapture"_s, functionCreateNoopNativeFunctionWithCapture, 1);
 #if ENABLE(SAMPLING_PROFILER)
         addFunction(vm, "startSamplingProfiler"_s, functionStartSamplingProfiler, 0);
         addFunction(vm, "samplingProfilerStackTraces"_s, functionSamplingProfilerStackTraces, 0);
@@ -3230,6 +3232,19 @@ JSC_DEFINE_HOST_FUNCTION(functionEnsureArrayStorage, (JSGlobalObject* globalObje
             object->ensureArrayStorage(vm);
     }
     return JSValue::encode(jsUndefined());
+}
+
+JSC_DEFINE_HOST_FUNCTION(functionCreateNoopNativeFunctionWithCapture, (JSGlobalObject* globalObject, CallFrame* callFrame))
+{
+    VM& vm = globalObject->vm();
+
+    JSValue arg0 = callFrame->argument(0);
+
+    auto function = JSNativeStdFunction::create(vm, globalObject, 0, { }, [arg0](JSGlobalObject*, CallFrame*) {
+        return JSValue::encode(arg0);
+    }, arg0);
+
+    return JSValue::encode(function);
 }
 
 #if ENABLE(SAMPLING_PROFILER)
