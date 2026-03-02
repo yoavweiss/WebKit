@@ -59,11 +59,12 @@ auto LegacyRenderSVGResourceMasker::applyResource(RenderElement& renderer, const
     ASSERT(context);
     ASSERT_UNUSED(resourceMode, !resourceMode);
 
-    bool missingMaskerData = !m_masker.contains(renderer);
-    if (missingMaskerData)
-        m_masker.set(renderer, makeUnique<MaskerData>());
+    auto result = m_masker.ensure(renderer, [] {
+        return makeUnique<MaskerData>();
+    });
 
-    MaskerData* maskerData = m_masker.get(renderer);
+    bool missingMaskerData = result.isNewEntry;
+    MaskerData* maskerData = result.iterator->value.get();
     AffineTransform absoluteTransform = SVGRenderingContext::calculateTransformationToOutermostCoordinateSystem(renderer);
     FloatRect decoratedBounds = renderer.decoratedBoundingBox();
 
