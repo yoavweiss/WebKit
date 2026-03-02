@@ -287,7 +287,8 @@ void ThreadedCompositor::paintToCurrentGLContext(const TransformationMatrix& mat
         if (m_damage.shouldNotifyFrameDamageForTesting && m_layerTreeHost)
             m_layerTreeHost->notifyFrameDamageForTesting(frameDamage.regionForTesting());
 
-        m_surface->setFrameDamage(WTF::move(frameDamage));
+        if (!frameDamage.isEmpty())
+            m_surface->setFrameDamage(WTF::move(frameDamage));
 
         if (m_damage.flags->contains(DamagePropagationFlags::UseForCompositing)) {
             const auto& damageSinceLastSurfaceUse = m_surface->renderTargetDamage();
