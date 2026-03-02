@@ -5276,6 +5276,9 @@ webkit.org/b/308141 fast/text/international/bidi-LDB-2-HTML.html [ Pass Failure 
 
 webkit.org/b/308144 imported/w3c/web-platform-tests/css/selectors/user-invalid-form-submission-invalidation.html [ Pass ImageOnlyFailure ]
 
+webkit.org/b/308971 fast/canvas/canvas-strokePath-round-lineCap.html [ Pass ImageOnlyFailure ]
+webkit.org/b/308972 fast/repaint/search-field-cancel.html [ Pass ImageOnlyFailure Failure ]
+
 webkit.org/b/308146 media/video-size.html [ Pass Failure Timeout ]
 
 webkit.org/b/308262 fast/css/view-transitions-hide-under-page-background-color.html [ Pass ImageOnlyFailure ]

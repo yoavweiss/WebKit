@@ -831,7 +831,7 @@ webkit.org/b/308032 fast/events/popup-allowed-from-gesture-initiated-event.html 
 
 webkit.org/b/308100 fast/dom/Window/window-property-invalid-characters-ignored.html [ Failure Pass ]
 
-webkit.org/b/308632 svg/repaint/non-scaling-stroke-transform-animation.html [ Failure Pass ]
+webkit.org/b/308632 svg/repaint/non-scaling-stroke-transform-animation.html [ ImageOnlyFailure Pass ]
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Flaky tests
@@ -1526,6 +1526,10 @@ webkit.org/b/305509 http/tests/inspector/network/har/har-page.html [ Failure Pas
 webkit.org/b/305509 imported/w3c/web-platform-tests/css/css-pseudo/marker-animate-002.html [ ImageOnlyFailure Pass ]
 webkit.org/b/305509 imported/w3c/web-platform-tests/css/css-view-transitions/start-view-transtion-skips-active.html [ Failure Pass ]
 webkit.org/b/305509 imported/w3c/web-platform-tests/event-timing/interactionid-orphan-pointerup.html [ Failure Pass ]
+
+# [GTK] Some SVG tests sometimes fail with a very differently sized layer
+webkit.org/b/308976 svg/filters/feMerge.svg [ Pass Failure ImageOnlyFailure ]
+webkit.org/b/308976 svg/filters/filter-on-filter-for-text.svg [ Pass Failure ImageOnlyFailure ]
 
 # AVFoundation-specific audio description functionality not available on GStreamer platforms
 http/tests/media/hls/hls-audio-description-track-kind.html [ Skip ]
