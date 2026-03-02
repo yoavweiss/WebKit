@@ -47,7 +47,7 @@ AddressType::AddressType(TypeKind typeKind)
         m_type = AddressType::I64;
         break;
     default:
-        ASSERT_NOT_REACHED("Invalid Wasm Type to AddressType conversion");
+        RELEASE_ASSERT_NOT_REACHED("Invalid Wasm Type to AddressType conversion");
     }
 }
 
@@ -58,9 +58,8 @@ TypeKind AddressType::asTypeKind() const
         return TypeKind::I32;
     case AddressType::I64:
         return TypeKind::I64;
-    default:
-        ASSERT_NOT_REACHED("Invalid Wasm Type to AddressType conversion");
     }
+    RELEASE_ASSERT_NOT_REACHED("Invalid Wasm Type to AddressType conversion");
 }
 
 bool operator==(const AddressType& lhs, const AddressType& rhs)
