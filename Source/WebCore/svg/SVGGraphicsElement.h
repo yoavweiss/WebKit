@@ -47,9 +47,6 @@ public:
     Ref<SVGMatrix> getScreenCTMForBindings();
     AffineTransform getScreenCTM(StyleUpdateStrategy = AllowStyleUpdate) override;
 
-    SVGElement* nearestViewportElement() const override;
-    SVGElement* farthestViewportElement() const override;
-
     AffineTransform localCoordinateSpaceTransform(CTMScope mode) const override { return SVGTransformable::localCoordinateSpaceTransform(mode); }
     AffineTransform animatedLocalTransform() const override;
     AffineTransform* ensureSupplementalTransform() override;

@@ -36,11 +36,6 @@
     [ImplementedAs=getCTMForBindings, NewObject] SVGMatrix? getCTM();
     // FIXME: `getScreenCTM` should return a `DOMMatrix?`.
     [ImplementedAs=getScreenCTMForBindings, NewObject] SVGMatrix? getScreenCTM();
-
-    // Non-standard.
-    // FIXME: These have been removed from SVG2.
-    readonly attribute SVGElement? nearestViewportElement;
-    readonly attribute SVGElement? farthestViewportElement;
 };
 
 SVGGraphicsElement includes SVGTests;

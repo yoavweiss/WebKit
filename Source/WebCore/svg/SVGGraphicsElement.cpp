@@ -161,16 +161,6 @@ void SVGGraphicsElement::svgAttributeChanged(const QualifiedName& attrName)
     SVGTests::svgAttributeChanged(attrName);
 }
 
-SVGElement* SVGGraphicsElement::nearestViewportElement() const
-{
-    return SVGTransformable::nearestViewportElement(this);
-}
-
-SVGElement* SVGGraphicsElement::farthestViewportElement() const
-{
-    return SVGTransformable::farthestViewportElement(this);
-}
-
 Ref<SVGRect> SVGGraphicsElement::getBBoxForBindings()
 {
     return SVGRect::create(getBBox());
