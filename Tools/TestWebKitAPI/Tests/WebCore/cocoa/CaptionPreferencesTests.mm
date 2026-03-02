@@ -711,7 +711,7 @@ TEST_F(CaptionPreferenceTests, ReceievedDidOpenWhenHighlighted)
 
 TEST_F(CaptionPreferenceTests, NullProfileNameShouldYieldEmptyStyleSheet)
 {
-    if (!canLoad_MediaAccessibility_MACaptionAppearanceIsCustomized())
+    if (!CaptionUserPreferencesMediaAF::canSetActiveProfileID())
         return;
 
     MediaAccessibilityShim shim;
