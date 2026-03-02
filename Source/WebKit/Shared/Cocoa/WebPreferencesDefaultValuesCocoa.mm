@@ -84,6 +84,13 @@ bool defaultContentChangeObserverEnabled()
 }
 #endif
 
+#if HAVE(WEBCONTENTRESTRICTIONS_ASK_TO)
+bool NODELETE defaultWebContentRestrictionsAskToEnabled()
+{
+    return false;
+}
+#endif
+
 }
 
 #endif // namespace WebKit

@@ -9431,7 +9431,7 @@ WebContentRestrictionsAskToEnabled:
     WebKitLegacy:
       default: false
     WebKit:
-      default: false
+      default: defaultWebContentRestrictionsAskToEnabled()
     WebCore:
       default: false
   sharedPreferenceForWebProcess: true

@@ -234,4 +234,8 @@ bool NODELETE defaultShouldEnableScreenCapture();
 bool defaultContentChangeObserverEnabled();
 #endif
 
+#if HAVE(WEBCONTENTRESTRICTIONS_ASK_TO)
+bool NODELETE defaultWebContentRestrictionsAskToEnabled();
+#endif
+
 } // namespace WebKit
