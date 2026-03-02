@@ -82,6 +82,7 @@
 #include "NodeName.h"
 #include "NodeTraversal.h"
 #include "PopoverData.h"
+#include "Position.h"
 #include "PseudoClassChangeInvalidation.h"
 #include "RenderElement.h"
 #include "ScriptController.h"
@@ -1029,10 +1030,40 @@ void HTMLElement::setHidden(const std::optional<Variant<bool, double, String>>& 
     });
 }
 
+
+// Determines if two nodes share the same nearest out-of-flow positioned ancestor.
+static bool haveSameOutOfFlowAncestor(const Node& anchorNode, const Node& targetNode)
+{
+    const CheckedPtr anchorRenderer = anchorNode.renderer();
+    const CheckedPtr targetRenderer = targetNode.renderer();
+    if (!anchorRenderer || !targetRenderer)
+        return true;
+
+    auto nearestOutOfFlowAncestor = [](CheckedPtr<RenderObject> renderer) -> CheckedPtr<RenderObject> {
+        while (renderer) {
+            if (renderer->isOutOfFlowPositioned())
+                return renderer;
+            renderer = renderer->containingBlock();
+        }
+        return nullptr;
+    };
+
+    CheckedPtr anchorOutOfFlowAncestor = nearestOutOfFlowAncestor(anchorRenderer);
+    CheckedPtr targetOutOfFlowAncestor = nearestOutOfFlowAncestor(targetRenderer);
+    return targetOutOfFlowAncestor == anchorOutOfFlowAncestor;
+}
+
 bool HTMLElement::shouldExtendSelectionToTargetNode(const Node& targetNode, const VisibleSelection& selectionBeforeUpdate)
 {
     if (auto range = selectionBeforeUpdate.range(); range && ImageOverlay::isInsideOverlay(*range))
         return ImageOverlay::isOverlayText(targetNode);
+
+    if (Position::nodeIsUserSelectNone(&targetNode)) {
+        if (RefPtr anchorNode = selectionBeforeUpdate.anchor().anchorNode()) {
+            // Don't extend selection to a user-select: none node if they are not in the same flow.
+            return haveSameOutOfFlowAncestor(*anchorNode, targetNode);
+        }
+    }
 
     return true;
 }

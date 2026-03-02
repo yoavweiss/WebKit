@@ -929,7 +929,7 @@ bool Position::hasRenderedNonAnonymousDescendantsWithHeight(const RenderElement&
     return false;
 }
 
-bool Position::nodeIsUserSelectNone(Node* node)
+bool Position::nodeIsUserSelectNone(const Node* node)
 {
     if (!node)
         return false;

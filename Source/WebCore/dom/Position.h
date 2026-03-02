@@ -179,7 +179,7 @@ public:
     static unsigned positionCountBetweenPositions(const Position&, const Position&);
 
     static bool hasRenderedNonAnonymousDescendantsWithHeight(const RenderElement&);
-    static bool nodeIsUserSelectNone(Node*);
+    static bool nodeIsUserSelectNone(const Node*);
     static bool nodeIsUserSelectAll(const Node*);
     static RefPtr<Node> rootUserSelectAllForNode(Node*);
 
