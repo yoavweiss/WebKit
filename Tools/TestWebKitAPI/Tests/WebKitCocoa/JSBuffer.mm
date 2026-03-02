@@ -35,13 +35,18 @@
 
 TEST(JSBuffer, Data)
 {
+    static const char constantString[] = "Hello world!";
+
     RetainPtr oddLength = adoptNS([[WKJSScriptingBuffer alloc] initWithData:[NSData dataWithBytes:"abc" length:3]]);
     RetainPtr evenLength = adoptNS([[_WKJSBuffer alloc] initWithData:[NSData dataWithBytes:"abcd" length:4]]);
     RetainPtr invalidSurrogatePair = adoptNS([[_WKJSBuffer alloc] initWithData:[NSData dataWithBytes:"\x3d\xd8\x27\x00\xff\xff\x00\x00" length:8]]);
+    RetainPtr readOnlyBuffer = adoptNS([[_WKJSBuffer alloc] initWithData:[NSData dataWithBytesNoCopy:(void *)constantString length:sizeof(constantString)-1 freeWhenDone:NO]]);
     RetainPtr configuration = adoptNS([WKWebViewConfiguration new]);
     [configuration.get().userContentController addBuffer:oddLength.get() name:@"oddLength" contentWorld:WKContentWorld.pageWorld];
     [configuration.get().userContentController _addBuffer:evenLength.get() contentWorld:WKContentWorld.pageWorld name:@"evenLength"];
     [configuration.get().userContentController _addBuffer:invalidSurrogatePair.get() contentWorld:WKContentWorld.pageWorld name:@"invalidSurrogatePair"];
+    [configuration.get().userContentController _addBuffer:readOnlyBuffer.get() contentWorld:WKContentWorld.pageWorld name:@"readOnlyBuffer"];
+
     RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectZero configuration:configuration.get()]);
 
     EXPECT_WK_STREQ([webView objectByEvaluatingJavaScript:@"window.webkit.buffers.oddLength.asLatin1String()"], "abc");
@@ -60,6 +65,8 @@ TEST(JSBuffer, Data)
     ];
     EXPECT_TRUE([actual isEqual:expected]);
     EXPECT_TRUE([[webView objectByEvaluatingJavaScript:@"window.webkit.buffers.invalidSurrogatePair.asLatin1String()"] isEqualToString:@"\u003D\u00D8\u0027\0\u00FF\u00FF\0\0"]);
+
+    EXPECT_TRUE([[webView objectByEvaluatingJavaScript:@"window.webkit.buffers.readOnlyBuffer.asLatin1String()"] isEqualToString:@"Hello world!"]);
 }
 
 TEST(JSBuffer, IDLExposed)

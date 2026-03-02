@@ -33,6 +33,34 @@
 #import <WebCore/SharedMemory.h>
 #import <WebCore/WebCoreObjCExtras.h>
 #import <wtf/FileSystem.h>
+#import <wtf/Scope.h>
+#import <wtf/cocoa/SpanCocoa.h>
+#import <wtf/spi/cocoa/MachVMSPI.h>
+
+static bool isInReadOnlyRegion(std::span<const uint8_t> span)
+{
+    if (span.empty())
+        return false;
+
+    auto addr = reinterpret_cast<mach_vm_address_t>(const_cast<uint8_t*>(span.data()));
+    auto end = addr + span.size();
+    auto regionAddr = addr;
+    mach_vm_size_t regionSize = 0;
+    vm_region_basic_info_data_64_t info { };
+    mach_msg_type_number_t count = VM_REGION_BASIC_INFO_COUNT_64;
+    mach_port_t vmObject = MACH_PORT_NULL;
+    auto scopeExit = makeScopeExit([&] {
+        if (vmObject != MACH_PORT_NULL)
+            mach_port_deallocate(mach_task_self(), vmObject);
+    });
+
+    auto kr = mach_vm_region(mach_task_self(), &regionAddr, &regionSize, VM_REGION_BASIC_INFO_64, (vm_region_info_t)&info, &count, &vmObject);
+    if (kr != KERN_SUCCESS)
+        return false;
+
+    auto regionEnd = regionAddr + regionSize;
+    return (info.protection & VM_PROT_READ) && !(info.protection & VM_PROT_WRITE) && addr >= regionAddr && end <= regionEnd;
+}
 
 @implementation WKJSScriptingBuffer
 
@@ -41,10 +69,22 @@
     if (!(self = [super init]))
         return nil;
 
-    Ref sharedBuffer = WebCore::SharedBuffer::create(data);
-    RefPtr sharedMemory = WebCore::SharedMemory::copyBuffer(sharedBuffer);
-    if (!sharedMemory)
+    RefPtr<WebCore::SharedMemory> sharedMemory;
+    auto dataSpan = span(data);
+
+    if (isInReadOnlyRegion(dataSpan))
+        sharedMemory = WebCore::SharedMemory::wrapMap(dataSpan, WebCore::SharedMemoryProtection::ReadOnly);
+
+    if (!sharedMemory) {
+        Ref sharedBuffer = WebCore::SharedBuffer::create(data);
+        sharedMemory = WebCore::SharedMemory::copyBuffer(sharedBuffer);
+    }
+
+    if (!sharedMemory) {
+        [self release];
         return nil;
+    }
+
     API::Object::constructInWrapper<API::JSBuffer>(self, sharedMemory.releaseNonNull());
 
     return self;
