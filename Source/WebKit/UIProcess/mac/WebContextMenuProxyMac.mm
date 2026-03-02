@@ -236,6 +236,11 @@
     protect(*_menuProxy)->captionStyleMenuDidClose();
 }
 
+- (void)captionStyleMenu:(PlatformMenu *)menu setPreviewProfileID:(NSString *)profileID
+{
+    protect(*_menuProxy)->captionStyleMenuSetPreviewProfileID(profileID);
+}
+
 @end
 
 namespace WebKit {
@@ -1138,6 +1143,11 @@ void WebContextMenuProxyMac::didDismissContextMenu(NSMenu *menu)
 
     if (m_captionStyleMenuController && [m_captionStyleMenuController hasAncestor:menu])
         captionStyleMenuDidClose();
+}
+
+void WebContextMenuProxyMac::captionStyleMenuSetPreviewProfileID(const String& profileID)
+{
+    protect(page())->setCaptionDisplaySettingsPreviewProfileID(m_frameInfo, profileID);
 }
 
 void WebContextMenuProxyMac::captionStyleMenuWillOpen()

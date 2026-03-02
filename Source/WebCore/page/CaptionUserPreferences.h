@@ -114,6 +114,8 @@ public:
     WEBCORE_EXPORT UniqueRef<CaptionUserPreferencesTestingModeToken> NODELETE createTestingModeToken();
 
     virtual String captionPreviewTitle() const;
+    virtual String captionPreviewProfileID() const { return emptyString(); }
+    virtual void setCaptionPreviewProfileID(const String&) { }
 
     PageGroup& NODELETE pageGroup() const;
 
