@@ -1089,7 +1089,6 @@ extension WKBridgeModelLoader {
     }
 }
 
-
 extension WKBridgeReceiver {
     internal func configureDeformation(
         identifier: _Proto_ResourceId,

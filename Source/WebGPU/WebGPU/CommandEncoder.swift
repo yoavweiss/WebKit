@@ -1386,18 +1386,14 @@ extension WebGPU.CommandEncoder {
             }
 
             if zeroColorTargets {
-                // FIXME: rdar://170997914 (Invalid render pass usage leads to crashes in the WebGPU Swift backend (308471)).
-                // swift-format-ignore: NeverForceUnwrap
-                mtlDescriptor.defaultRasterSampleCount = metalDepthStencilTexture!.sampleCount
-                if mtlDescriptor.defaultRasterSampleCount == 0 {
+                // FIMXE: (rdar://170907318) This should be changed to `guard let` when possible.
+                guard var metalDepthStencilTexture, metalDepthStencilTexture.sampleCount > 0 else {
                     return WebGPU.RenderPassEncoder.createInvalid(self, m_device.ptr(), "no color targets and depth-stencil texture is nil")
                 }
-                // FIXME: rdar://170997914 (Invalid render pass usage leads to crashes in the WebGPU Swift backend (308471))
-                // swift-format-ignore: NeverForceUnwrap
-                mtlDescriptor.renderTargetWidth = metalDepthStencilTexture!.width
-                // FIXME: rdar://170997914 (Invalid render pass usage leads to crashes in the WebGPU Swift backend (308471))
-                // swift-format-ignore: NeverForceUnwrap
-                mtlDescriptor.renderTargetHeight = metalDepthStencilTexture!.height
+
+                mtlDescriptor.defaultRasterSampleCount = metalDepthStencilTexture.sampleCount
+                mtlDescriptor.renderTargetWidth = metalDepthStencilTexture.width
+                mtlDescriptor.renderTargetHeight = metalDepthStencilTexture.height
             }
         }
 
