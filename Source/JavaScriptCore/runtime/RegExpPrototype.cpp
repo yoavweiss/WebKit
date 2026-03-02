@@ -833,7 +833,7 @@ static inline String getSubstitution(JSGlobalObject* globalObject, const String&
     size_t tailPos = position + matchLength;
     size_t nCaptures = captures.size();
     size_t replacementLength = replacement.length();
-    StringBuilder result;
+    StringBuilder result(OverflowPolicy::RecordOverflow); // overflow should gracefully throw an exception, not crash
     size_t lastStart = 0;
 
     for (; start != notFound; lastStart = start, start = replacement.find('$', lastStart)) {
