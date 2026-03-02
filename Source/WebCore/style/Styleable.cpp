@@ -67,13 +67,14 @@ namespace WebCore {
 
 const std::optional<const Styleable> Styleable::fromRenderer(const RenderElement& renderer)
 {
-    if (!renderer.style().pseudoElementType()) {
+    auto pseudoElementType = renderer.style().pseudoElementType();
+    if (!pseudoElementType) {
         if (RefPtr element = renderer.element())
             return fromElement(*element);
         return { };
     }
 
-    switch (*renderer.style().pseudoElementType()) {
+    switch (*pseudoElementType) {
     case PseudoElementType::Backdrop:
         for (auto& topLayerElement : renderer.document().topLayerElements()) {
             if (topLayerElement->renderer() && topLayerElement->renderer()->pseudoElementRenderer(PseudoElementType::Backdrop) == &renderer)
@@ -90,11 +91,12 @@ const std::optional<const Styleable> Styleable::fromRenderer(const RenderElement
         }
         break;
     }
+    case PseudoElementType::Checkmark:
     case PseudoElementType::PickerIcon: {
         auto* ancestor = renderer.parent();
         while (ancestor) {
-            if (ancestor->element() && ancestor->pseudoElementRenderer(PseudoElementType::PickerIcon) == &renderer)
-                return Styleable(*ancestor->element(), Style::PseudoElementIdentifier { PseudoElementType::PickerIcon });
+            if (ancestor->element() && ancestor->pseudoElementRenderer(*pseudoElementType) == &renderer)
+                return Styleable(*ancestor->element(), Style::PseudoElementIdentifier { *pseudoElementType });
             ancestor = ancestor->parent();
         }
         break;
@@ -133,6 +135,7 @@ RenderElement* Styleable::renderer() const
             return afterPseudoElement->renderer();
         break;
     case PseudoElementType::Backdrop:
+    case PseudoElementType::Checkmark:
     case PseudoElementType::PickerIcon:
         if (auto* hostRenderer = element.renderer())
             return hostRenderer->pseudoElementRenderer(pseudoElementIdentifier->type).get();

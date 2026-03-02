@@ -465,8 +465,8 @@ std::optional<ElementUpdate> TreeResolver::resolvePseudoElement(Element& element
         return { };
 
     if (pseudoElementIdentifier.type == PseudoElementType::Checkmark) {
-        // Option elements need to check against the picker for their appearance value.
         if (RefPtr option = dynamicDowncast<HTMLOptionElement>(element)) {
+            // Option elements need to check against the picker for their appearance value.
             RefPtr select = option->ownerSelectElement();
             if (!select)
                 return { };
@@ -476,11 +476,12 @@ std::optional<ElementUpdate> TreeResolver::resolvePseudoElement(Element& element
             CheckedPtr pickerStyle = m_update->elementStyle(*pickerElement);
             if (!pickerStyle || pickerStyle->usedAppearance() != StyleAppearance::Base)
                 return { };
-        } else if (elementUpdate.style->usedAppearance() != StyleAppearance::Base)
-            return { };
-
-        if (RefPtr input = dynamicDowncast<HTMLInputElement>(element); !input || !input->isCheckable())
-            return { };
+        } else {
+            if (elementUpdate.style->usedAppearance() != StyleAppearance::Base)
+                return { };
+            if (RefPtr input = dynamicDowncast<HTMLInputElement>(element); !input || !input->isCheckable())
+                return { };
+        }
     }
 
     if (pseudoElementIdentifier.type == PseudoElementType::PickerIcon) {
