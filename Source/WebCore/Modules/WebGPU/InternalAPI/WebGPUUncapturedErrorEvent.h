@@ -40,7 +40,7 @@ public:
         return adoptRef(*new UncapturedErrorEvent(WTF::move(type), WTF::move(uncapturedErrorEventInit)));
     }
 
-    const Error& error() const { return m_uncapturedErrorEventInit.error; }
+    const Error& error() const LIFETIME_BOUND { return m_uncapturedErrorEventInit.error; }
 
 protected:
     UncapturedErrorEvent(String&& type, UncapturedErrorEventInit&& uncapturedErrorEventInit)

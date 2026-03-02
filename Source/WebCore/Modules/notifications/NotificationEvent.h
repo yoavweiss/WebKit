@@ -50,7 +50,7 @@ public:
     static Ref<NotificationEvent> create(const AtomString&, Ref<Notification>&&, const String& action, IsTrusted = IsTrusted::No);
 
     Notification& notification() { return m_notification; }
-    const String& action() { return m_action; }
+    const String& action() const LIFETIME_BOUND { return m_action; }
 
 private:
     NotificationEvent(const AtomString&, NotificationEventInit&&, IsTrusted = IsTrusted::No);

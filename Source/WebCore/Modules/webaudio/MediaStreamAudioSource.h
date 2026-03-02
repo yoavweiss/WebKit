@@ -52,7 +52,7 @@ public:
     const RealtimeMediaSourceCapabilities& capabilities() final;
     const RealtimeMediaSourceSettings& NODELETE settings() final;
 
-    const String& deviceId() const { return m_deviceId; }
+    const String& deviceId() const LIFETIME_BOUND { return m_deviceId; }
     void setDeviceId(const String& deviceId) { m_deviceId = deviceId; }
 
     void consumeAudio(AudioBus&, size_t numberOfFrames);

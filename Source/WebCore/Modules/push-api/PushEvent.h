@@ -56,7 +56,7 @@ public:
     std::optional<NotificationData> updatedNotificationData() const;
 
     void setUpdatedAppBadge(std::optional<uint64_t>&& updatedAppBadge) { m_updatedAppBadge = WTF::move(updatedAppBadge); }
-    const std::optional<std::optional<uint64_t>>& updatedAppBadge() const { return m_updatedAppBadge; }
+    const std::optional<std::optional<uint64_t>>& updatedAppBadge() const LIFETIME_BOUND { return m_updatedAppBadge; }
 #endif // ENABLE(DECLARATIVE_WEB_PUSH) && ENABLE(NOTIFICATIONS)
 
 private:

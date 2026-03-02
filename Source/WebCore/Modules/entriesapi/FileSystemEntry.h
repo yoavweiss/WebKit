@@ -47,8 +47,8 @@ public:
     virtual bool isFile() const { return false; }
     virtual bool isDirectory() const { return false; }
 
-    const String& name() const { return m_name; }
-    const String& virtualPath() const { return m_virtualPath; }
+    const String& name() const LIFETIME_BOUND { return m_name; }
+    const String& virtualPath() const LIFETIME_BOUND { return m_virtualPath; }
     DOMFileSystem& NODELETE filesystem() const;
 
     void getParent(ScriptExecutionContext&, RefPtr<FileSystemEntryCallback>&&, RefPtr<ErrorCallback>&&);

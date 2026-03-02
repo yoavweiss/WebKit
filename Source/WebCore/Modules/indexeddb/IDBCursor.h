@@ -58,10 +58,10 @@ public:
     IDBKey* key() { return m_key.get(); }
     IDBKey* primaryKey() { return m_primaryKey.get(); }
     IDBValue value() { return m_value; }
-    const std::optional<IDBKeyPath>& primaryKeyPath() { return m_keyPath; }
-    JSValueInWrappedObject& keyWrapper() { return m_keyWrapper; }
-    JSValueInWrappedObject& primaryKeyWrapper() { return m_primaryKeyWrapper; }
-    JSValueInWrappedObject& valueWrapper() { return m_valueWrapper; }
+    const std::optional<IDBKeyPath>& primaryKeyPath() LIFETIME_BOUND { return m_keyPath; }
+    JSValueInWrappedObject& keyWrapper() LIFETIME_BOUND { return m_keyWrapper; }
+    JSValueInWrappedObject& primaryKeyWrapper() LIFETIME_BOUND { return m_primaryKeyWrapper; }
+    JSValueInWrappedObject& valueWrapper() LIFETIME_BOUND { return m_valueWrapper; }
 
     ExceptionOr<Ref<IDBRequest>> update(JSC::JSGlobalObject&, JSC::JSValue);
     ExceptionOr<void> advance(unsigned);
@@ -71,7 +71,7 @@ public:
 
     ExceptionOr<void> continueFunction(const IDBKeyData&);
 
-    const IDBCursorInfo& info() const { return m_info; }
+    const IDBCursorInfo& info() const LIFETIME_BOUND { return m_info; }
 
     void setRequest(IDBRequest& request) { m_request = request; }
     void clearRequest() { m_request.clear(); }

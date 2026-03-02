@@ -40,7 +40,7 @@ public:
     static Ref<WebCodecsEncodedVideoChunkStorage> create(WebCodecsEncodedVideoChunkType type, int64_t timestamp, std::optional<uint64_t> duration, Vector<uint8_t>&& buffer) { return create(WebCodecsEncodedVideoChunkData { type, timestamp, duration, WTF::move(buffer) }); }
     static Ref<WebCodecsEncodedVideoChunkStorage> create(WebCodecsEncodedVideoChunkData&& data) { return adoptRef(* new WebCodecsEncodedVideoChunkStorage(WTF::move(data))); }
 
-    const WebCodecsEncodedVideoChunkData& data() const { return m_data; }
+    const WebCodecsEncodedVideoChunkData& data() const LIFETIME_BOUND { return m_data; }
     uint64_t memoryCost() const { return m_data.buffer.size(); }
 
 private:

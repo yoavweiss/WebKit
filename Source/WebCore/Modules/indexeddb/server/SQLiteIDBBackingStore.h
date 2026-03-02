@@ -102,7 +102,7 @@ public:
     IDBError getBlobRecordsForObjectStoreRecord(int64_t objectStoreRecord, Vector<String>& blobURLs, Vector<String>& blobFilePaths);
 
     WEBCORE_EXPORT static uint64_t databasesSizeForDirectory(const String& directory);
-    String databaseDirectory() const { return m_databaseDirectory; };
+    const String& databaseDirectory() const LIFETIME_BOUND { return m_databaseDirectory; };
     WEBCORE_EXPORT static String fullDatabasePathForDirectory(const String&);
     WEBCORE_EXPORT static String encodeDatabaseName(const String& databaseName);
     WEBCORE_EXPORT static String decodeDatabaseName(const String& encodedDatabaseName);
@@ -124,7 +124,7 @@ protected:
     void closeSQLiteDB();
 
     // Protected accessors for subclasses
-    const IDBDatabaseIdentifier& identifier() const { return m_identifier; }
+    const IDBDatabaseIdentifier& identifier() const LIFETIME_BOUND { return m_identifier; }
 
     SQLiteDatabase* sqliteDB() const { return m_sqliteDB.get(); }
     void setSqliteDB(std::unique_ptr<SQLiteDatabase>&&);

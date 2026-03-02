@@ -39,19 +39,19 @@ class IntegrityPolicyViolationReportBody final : public ReportBody {
 public:
     static Ref<IntegrityPolicyViolationReportBody> create(const String& documentURL, const String& blockedURL, String&& destination, bool reportOnly);
 
-    const String& type() const final;
+    const String& type() const LIFETIME_BOUND final;
 
-    const String& documentURL() const
+    const String& documentURL() const LIFETIME_BOUND
     {
         return m_documentURL;
     }
 
-    const String& blockedURL() const
+    const String& blockedURL() const LIFETIME_BOUND
     {
         return m_blockedURL;
     }
 
-    const String& destination() const
+    const String& destination() const LIFETIME_BOUND
     {
         return m_destination;
     }

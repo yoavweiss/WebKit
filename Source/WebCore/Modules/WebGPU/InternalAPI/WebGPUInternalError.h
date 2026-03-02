@@ -43,7 +43,7 @@ public:
         return adoptRef(*new InternalError(message));
     }
 
-    const String& message() const { return m_message; }
+    const String& message() const LIFETIME_BOUND { return m_message; }
 
 private:
     InternalError(String&& message)

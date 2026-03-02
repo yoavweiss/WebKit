@@ -47,7 +47,7 @@ public:
 
     USING_CAN_MAKE_WEAKPTR(SpeechRecognitionConnectionClient);
 
-    const String& lang() const { return m_lang; }
+    const String& lang() const LIFETIME_BOUND { return m_lang; }
     void setLang(String&& lang) { m_lang = WTF::move(lang); }
 
     bool continuous() const { return m_continuous; }

@@ -96,7 +96,7 @@ public:
         m_transaction->operationCompletedOnClient(*this);
     }
 
-    const IDBResourceIdentifier& identifier() const { return m_identifier; }
+    const IDBResourceIdentifier& identifier() const LIFETIME_BOUND { return m_identifier; }
 
     Thread& originThread() const { return m_originThread.get(); }
 

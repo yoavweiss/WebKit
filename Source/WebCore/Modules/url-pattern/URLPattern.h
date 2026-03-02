@@ -63,14 +63,14 @@ public:
 
     ExceptionOr<std::optional<URLPatternResult>> exec(ScriptExecutionContext&, URLPatternInput&&, String&& baseURL) const;
 
-    const String& protocol() const { return m_protocolComponent.patternString(); }
-    const String& username() const { return m_usernameComponent.patternString(); }
-    const String& password() const { return m_passwordComponent.patternString(); }
-    const String& hostname() const { return m_hostnameComponent.patternString(); }
-    const String& port() const { return m_portComponent.patternString(); }
-    const String& pathname() const { return m_pathnameComponent.patternString(); }
-    const String& search() const { return m_searchComponent.patternString(); }
-    const String& hash() const { return m_hashComponent.patternString(); }
+    const String& protocol() const LIFETIME_BOUND { return m_protocolComponent.patternString(); }
+    const String& username() const LIFETIME_BOUND { return m_usernameComponent.patternString(); }
+    const String& password() const LIFETIME_BOUND { return m_passwordComponent.patternString(); }
+    const String& hostname() const LIFETIME_BOUND { return m_hostnameComponent.patternString(); }
+    const String& port() const LIFETIME_BOUND { return m_portComponent.patternString(); }
+    const String& pathname() const LIFETIME_BOUND { return m_pathnameComponent.patternString(); }
+    const String& search() const LIFETIME_BOUND { return m_searchComponent.patternString(); }
+    const String& hash() const LIFETIME_BOUND { return m_hashComponent.patternString(); }
 
     bool NODELETE hasRegExpGroups() const;
     bool shouldIgnoreCase() const { return m_shouldIgnoreCase; }

@@ -146,7 +146,7 @@ public:
     using EventTarget::addEventListener;
 
     using LostPromise = DOMPromiseProxy<IDLInterface<GPUDeviceLostInfo>>;
-    LostPromise& lost();
+    LostPromise& lost() LIFETIME_BOUND;
 
     WebGPU::Device& backing() { return m_backing; }
     const WebGPU::Device& backing() const { return m_backing; }

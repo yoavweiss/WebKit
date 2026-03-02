@@ -49,7 +49,7 @@ public:
         Directory
     };
     Kind kind() const { return m_kind; }
-    const String& name() const { return m_name; }
+    const String& name() const LIFETIME_BOUND { return m_name; }
     FileSystemHandleIdentifier identifier() const { return m_identifier; }
     bool isClosed() const { return m_isClosed; }
     void close();

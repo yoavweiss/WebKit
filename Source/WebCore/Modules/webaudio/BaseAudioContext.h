@@ -240,7 +240,7 @@ public:
     PeriodicWave& periodicWave(OscillatorType);
 
     void addAudioParamDescriptors(const String& processorName, Vector<AudioParamDescriptor>&&);
-    const MemoryCompactRobinHoodHashMap<String, Vector<AudioParamDescriptor>>& parameterDescriptorMap() const { return m_parameterDescriptorMap; }
+    const MemoryCompactRobinHoodHashMap<String, Vector<AudioParamDescriptor>>& parameterDescriptorMap() const LIFETIME_BOUND { return m_parameterDescriptorMap; }
 
     OptionSet<NoiseInjectionPolicy> noiseInjectionPolicies() const { return m_noiseInjectionPolicies; }
 
@@ -263,7 +263,7 @@ protected:
 
 protected:
     // Only accessed when the graph lock is held.
-    const Vector<AudioConnectionRef<AudioNode>>& referencedSourceNodes() const { return m_referencedSourceNodes; }
+    const Vector<AudioConnectionRef<AudioNode>>& referencedSourceNodes() const LIFETIME_BOUND { return m_referencedSourceNodes; }
 
 private:
     void scheduleNodeDeletion();

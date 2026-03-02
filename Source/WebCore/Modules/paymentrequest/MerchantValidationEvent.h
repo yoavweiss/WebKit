@@ -47,8 +47,8 @@ public:
     static Ref<MerchantValidationEvent> create(const AtomString& type, const String& methodName, URL&& validationURL);
     static ExceptionOr<Ref<MerchantValidationEvent>> create(Document&, const AtomString& type, Init&&);
 
-    const String& methodName() const { return m_methodName; }
-    const String& validationURL() const { return m_validationURL.string(); }
+    const String& methodName() const LIFETIME_BOUND { return m_methodName; }
+    const String& validationURL() const LIFETIME_BOUND { return m_validationURL.string(); }
     ExceptionOr<void> complete(Ref<DOMPromise>&&);
 
 private:

@@ -43,7 +43,7 @@ class Adapter : public RefCountedAndCanMakeWeakPtr<Adapter> {
 public:
     virtual ~Adapter() = default;
 
-    const String& name() const { return m_name; }
+    const String& name() const LIFETIME_BOUND { return m_name; }
     SupportedFeatures& features() const { return m_features; }
     SupportedLimits& limits() const { return m_limits; }
     bool isFallbackAdapter() const { return m_isFallbackAdapter; }

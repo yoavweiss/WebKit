@@ -141,7 +141,7 @@ public:
     void NODELETE setVisibleRect(const DOMRectInit&);
     bool shoudlDiscardAlpha() const { return m_data.format && (*m_data.format == VideoPixelFormat::RGBX || *m_data.format == VideoPixelFormat::BGRX); }
 
-    const WebCodecsVideoFrameData& data() const { return m_data; }
+    const WebCodecsVideoFrameData& data() const LIFETIME_BOUND { return m_data; }
 
     size_t memoryCost() const { return m_data.memoryCost(); }
 

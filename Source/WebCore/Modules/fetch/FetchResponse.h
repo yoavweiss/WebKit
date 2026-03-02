@@ -83,7 +83,7 @@ public:
     bool redirected() const { return filteredResponse().isRedirected(); }
     int status() const { return filteredResponse().httpStatusCode(); }
     bool ok() const { return filteredResponse().isSuccessful(); }
-    const String& statusText() const { return filteredResponse().httpStatusText(); }
+    const String& statusText() const LIFETIME_BOUND { return filteredResponse().httpStatusText(); }
 
     const FetchHeaders& headers() const { return m_headers; }
     FetchHeaders& headers() { return m_headers; }
@@ -115,12 +115,12 @@ public:
 
     void initializeOpaqueLoadIdentifierForTesting() { m_opaqueLoadIdentifier = 1; }
 
-    const HTTPHeaderMap& internalResponseHeaders() const { return m_internalResponse.httpHeaderFields(); }
+    const HTTPHeaderMap& internalResponseHeaders() const LIFETIME_BOUND { return m_internalResponse.httpHeaderFields(); }
 
     bool NODELETE isCORSSameOrigin() const;
     bool hasWasmMIMEType() const;
 
-    const NetworkLoadMetrics& networkLoadMetrics() const { return m_networkLoadMetrics; }
+    const NetworkLoadMetrics& networkLoadMetrics() const LIFETIME_BOUND { return m_networkLoadMetrics; }
     void setReceivedInternalResponse(const ResourceResponse&, FetchOptions::Credentials);
     void startLoader(ScriptExecutionContext&, FetchRequest&, const String& initiator);
 

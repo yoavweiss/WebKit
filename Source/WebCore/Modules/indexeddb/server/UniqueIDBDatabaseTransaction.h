@@ -64,7 +64,7 @@ public:
 
     UniqueIDBDatabaseConnection* NODELETE databaseConnection() const;
     UniqueIDBDatabase* NODELETE database() const;
-    const IDBTransactionInfo& info() const { return m_transactionInfo; }
+    const IDBTransactionInfo& info() const LIFETIME_BOUND { return m_transactionInfo; }
     WEBCORE_EXPORT bool NODELETE isVersionChange() const;
     bool NODELETE isReadOnly() const;
 
@@ -96,7 +96,7 @@ public:
     const Vector<IDBObjectStoreIdentifier>& objectStoreIdentifiers();
 
     void setSuspensionAbortResult(const IDBError& error) { m_suspensionAbortResult = { error }; }
-    const std::optional<IDBError>& suspensionAbortResult() const { return m_suspensionAbortResult; }
+    const std::optional<IDBError>& suspensionAbortResult() const LIFETIME_BOUND { return m_suspensionAbortResult; }
 
     uint64_t pendingGenerateIndexKeyRequests() const { return m_pendingGenerateIndexKeyRequests; }
     WEBCORE_EXPORT void didCreateIndexAsync(const IDBError&);

@@ -55,7 +55,7 @@ public:
     RTCDtlsTransportState state() { return m_state; }
     Vector<Ref<JSC::ArrayBuffer>> getRemoteCertificates();
 
-    const RTCDtlsTransportBackend& backend() const { return m_backend.get(); }
+    const RTCDtlsTransportBackend& backend() const LIFETIME_BOUND { return m_backend.get(); }
 
     void close() { stop(); }
 

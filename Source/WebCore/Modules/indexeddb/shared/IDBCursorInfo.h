@@ -62,7 +62,7 @@ public:
     IndexedDB::CursorSource cursorSource() const { return m_source; }
     IndexedDB::CursorDirection cursorDirection() const { return m_direction; }
     IndexedDB::CursorType cursorType() const { return m_type; }
-    const IDBKeyRangeData& range() const { return m_range; }
+    const IDBKeyRangeData& range() const LIFETIME_BOUND { return m_range; }
 
     bool NODELETE isDirectionForward() const;
     CursorDuplicity NODELETE duplicity() const;

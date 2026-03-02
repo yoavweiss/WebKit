@@ -42,7 +42,7 @@ public:
     }
 
     GPUDeviceLostReason NODELETE reason() const;
-    const String& NODELETE message() const;
+    const String& NODELETE message() const LIFETIME_BOUND;
 
     WebGPU::DeviceLostInfo& backing() { return m_backing; }
     const WebGPU::DeviceLostInfo& backing() const { return m_backing; }

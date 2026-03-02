@@ -70,9 +70,9 @@ public:
     bool negotiated() const { return *m_options.negotiated; };
     std::optional<unsigned short> id() const;
     RTCPriorityType priority() const { return m_options.priority; };
-    const RTCDataChannelInit& options() const { return m_options; }
+    const RTCDataChannelInit& options() const LIFETIME_BOUND { return m_options; }
 
-    const String& label() const { return m_label; }
+    const String& label() const LIFETIME_BOUND { return m_label; }
     RTCDataChannelState readyState() const {return m_readyState; }
     size_t bufferedAmount() const final { return m_bufferedAmount; }
     size_t bufferedAmountLowThreshold() const { return m_bufferedAmountLowThreshold; }

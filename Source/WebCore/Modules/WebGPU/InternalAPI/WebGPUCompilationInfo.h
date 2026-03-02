@@ -38,7 +38,7 @@ public:
         return adoptRef(*new CompilationInfo(WTF::move(messages)));
     }
 
-    const Vector<Ref<CompilationMessage>>& messages() const { return m_messages; }
+    const Vector<Ref<CompilationMessage>>& messages() const LIFETIME_BOUND { return m_messages; }
 
 protected:
     CompilationInfo(Vector<Ref<CompilationMessage>>&& messages)

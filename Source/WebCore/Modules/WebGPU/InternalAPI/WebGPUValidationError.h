@@ -43,7 +43,7 @@ public:
         return adoptRef(*new ValidationError(message));
     }
 
-    const String& message() const { return m_message; }
+    const String& message() const LIFETIME_BOUND { return m_message; }
 
 private:
     ValidationError(String&& message)

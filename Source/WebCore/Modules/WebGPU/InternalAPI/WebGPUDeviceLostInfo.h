@@ -41,7 +41,7 @@ public:
     }
 
     DeviceLostReason reason() const { return m_reason; }
-    const String& message() const { return m_message; }
+    const String& message() const LIFETIME_BOUND { return m_message; }
 
 protected:
     DeviceLostInfo(DeviceLostReason reason, String&& message)

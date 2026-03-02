@@ -92,7 +92,7 @@ private:
 
 class RtpTransceiverSet {
 public:
-    const Vector<Ref<RTCRtpTransceiver>>& list() const { return m_transceivers; }
+    const Vector<Ref<RTCRtpTransceiver>>& list() const LIFETIME_BOUND { return m_transceivers; }
     void append(Ref<RTCRtpTransceiver>&&);
 
     Vector<std::reference_wrapper<RTCRtpSender>> senders() const;

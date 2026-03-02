@@ -44,7 +44,7 @@ public:
 
     virtual ~ApplePayShippingContactSelectedEvent();
 
-    const ApplePayPaymentContact& shippingContact() const { return m_shippingContact; }
+    const ApplePayPaymentContact& shippingContact() const LIFETIME_BOUND { return m_shippingContact; }
 
 private:
     ApplePayShippingContactSelectedEvent(const AtomString& type, unsigned version, const PaymentContact&);

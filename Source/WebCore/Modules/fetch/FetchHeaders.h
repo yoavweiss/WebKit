@@ -77,7 +77,7 @@ public:
     Iterator createIterator(ScriptExecutionContext*) { return Iterator { *this }; }
 
     void setInternalHeaders(HTTPHeaderMap&& headers) { m_headers = WTF::move(headers); }
-    const HTTPHeaderMap& internalHeaders() const { return m_headers; }
+    const HTTPHeaderMap& internalHeaders() const LIFETIME_BOUND { return m_headers; }
 
     void setGuard(Guard);
     Guard guard() const { return m_guard; }

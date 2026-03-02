@@ -148,8 +148,8 @@ public:
     void ensureMediaSessionObserver();
 #endif
 
-    const JSValueInWrappedObject& controllerWrapper() const { return m_controllerWrapper; }
-    JSValueInWrappedObject& controllerWrapper() { return m_controllerWrapper; }
+    const JSValueInWrappedObject& controllerWrapper() const LIFETIME_BOUND { return m_controllerWrapper; }
+    JSValueInWrappedObject& controllerWrapper() LIFETIME_BOUND { return m_controllerWrapper; }
 
 private:
     void savePreviouslySelectedTextTrackIfNecessary();

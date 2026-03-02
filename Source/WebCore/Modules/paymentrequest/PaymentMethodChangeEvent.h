@@ -49,9 +49,9 @@ public:
     using MethodDetailsFunction = std::function<JSC::Strong<JSC::JSObject>(JSC::JSGlobalObject&)>;
     using MethodDetailsType = Variant<JSValueInWrappedObject, MethodDetailsFunction>;
 
-    const String& methodName() const { return m_methodName; }
-    const MethodDetailsType& methodDetails() const { return m_methodDetails; }
-    JSValueInWrappedObject& cachedMethodDetails() { return m_cachedMethodDetails; }
+    const String& methodName() const LIFETIME_BOUND { return m_methodName; }
+    const MethodDetailsType& methodDetails() const LIFETIME_BOUND { return m_methodDetails; }
+    JSValueInWrappedObject& cachedMethodDetails() LIFETIME_BOUND { return m_cachedMethodDetails; }
 
     struct Init final : PaymentRequestUpdateEventInit {
         String methodName;

@@ -78,7 +78,7 @@ public:
     TakenData take();
 
     void setAsFormData(Ref<FormData>&& data) { m_data = WTF::move(data); }
-    FetchBodyConsumer& consumer();
+    FetchBodyConsumer& consumer() LIFETIME_BOUND;
 
     void consumeOnceLoadingFinished(FetchBodyConsumer::Type, Ref<DeferredPromise>&&);
 
@@ -135,8 +135,8 @@ private:
     FormData& formDataBody() const { return std::get<Ref<FormData>>(m_data).get(); }
     ArrayBuffer& arrayBufferBody() const { return std::get<Ref<ArrayBuffer>>(m_data).get(); }
     ArrayBufferView& arrayBufferViewBody() const { return std::get<Ref<ArrayBufferView>>(m_data).get(); }
-    String& textBody() { return std::get<String>(m_data); }
-    const String& textBody() const { return std::get<String>(m_data); }
+    String& textBody() LIFETIME_BOUND { return std::get<String>(m_data); }
+    const String& textBody() const LIFETIME_BOUND { return std::get<String>(m_data); }
     URLSearchParams& urlSearchParamsBody() const { return std::get<Ref<URLSearchParams>>(m_data).get(); }
 
     using Data = Variant<std::nullptr_t, Ref<Blob>, Ref<FormData>, Ref<ArrayBuffer>, Ref<ArrayBufferView>, Ref<URLSearchParams>, String, Ref<ReadableStream>>;

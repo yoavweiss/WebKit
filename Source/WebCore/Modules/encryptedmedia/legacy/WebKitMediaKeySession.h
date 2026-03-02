@@ -54,8 +54,8 @@ public:
     ~WebKitMediaKeySession();
 
     WebKitMediaKeyError* error() { return m_error.get(); }
-    const String& keySystem() const { return m_keySystem; }
-    const String& sessionId() const { return m_sessionId; }
+    const String& keySystem() const LIFETIME_BOUND { return m_keySystem; }
+    const String& sessionId() const LIFETIME_BOUND { return m_sessionId; }
     ExceptionOr<void> update(Ref<Uint8Array>&& key);
     void close();
 

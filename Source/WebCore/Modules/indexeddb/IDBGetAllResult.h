@@ -50,7 +50,7 @@ public:
     IDBGetAllResult isolatedCopy() const;
 
     IndexedDB::GetAllType type() const { return m_type; }
-    const std::optional<IDBKeyPath>& keyPath() const { return m_keyPath; }
+    const std::optional<IDBKeyPath>& keyPath() const LIFETIME_BOUND { return m_keyPath; }
     WEBCORE_EXPORT const Vector<IDBKeyData>& NODELETE keys() const;
     WEBCORE_EXPORT const Vector<IDBValue>& NODELETE values() const;
 

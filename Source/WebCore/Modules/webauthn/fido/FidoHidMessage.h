@@ -62,7 +62,7 @@ public:
     size_t NODELETE numPackets() const;
     uint32_t channelId() const { return m_channelId; }
     FidoHidDeviceCommand cmd() const { return m_cmd; }
-    const Deque<std::unique_ptr<FidoHidPacket>>& getPacketsForTesting() const { return m_packets; }
+    const Deque<std::unique_ptr<FidoHidPacket>>& getPacketsForTesting() const LIFETIME_BOUND { return m_packets; }
 
 private:
     FidoHidMessage(uint32_t channelId, FidoHidDeviceCommand, const Vector<uint8_t>& data);

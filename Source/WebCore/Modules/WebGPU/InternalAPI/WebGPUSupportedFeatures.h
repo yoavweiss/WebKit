@@ -48,7 +48,7 @@ public:
         return adoptRef(*new SupportedFeatures(Vector<String>(features.features())));
     }
 
-    const Vector<String>& features() const { return m_features; }
+    const Vector<String>& features() const LIFETIME_BOUND { return m_features; }
 
 private:
     SupportedFeatures(Vector<String>&& features)

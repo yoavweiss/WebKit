@@ -68,7 +68,7 @@ public:
 
     WEBCORE_EXPORT IDBConnectionIdentifier identifier() const;
 
-    IDBConnectionProxy& proxy() { return m_proxy; }
+    IDBConnectionProxy& proxy() LIFETIME_BOUND { return m_proxy; }
 
     void deleteDatabase(const IDBOpenRequestData&);
     WEBCORE_EXPORT void didDeleteDatabase(const IDBResultData&);

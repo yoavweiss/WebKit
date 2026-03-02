@@ -320,7 +320,7 @@ ExceptionOr<Ref<RTCRtpSender>> LibWebRTCPeerConnectionBackend::addTrack(MediaStr
     if (!m_endpoint->addTrack(senderBackend, track, mediaStreamIds))
         return Exception { ExceptionCode::TypeError, "Unable to add track"_s };
 
-    Ref peerConnection = m_peerConnection.get();
+    Ref peerConnection = m_peerConnection;
     if (RefPtr sender = findExistingSender(peerConnection->currentTransceivers(), senderBackend)) {
         protect(backendFromRTPSender(*sender))->takeSource(senderBackend);
         sender->setTrack(track);
@@ -346,7 +346,7 @@ ExceptionOr<Ref<RTCRtpTransceiver>> LibWebRTCPeerConnectionBackend::addTransceiv
         return result.releaseException();
 
     auto backends = result.releaseReturnValue();
-    Ref peerConnection = m_peerConnection.get();
+    Ref peerConnection = m_peerConnection;
     Ref sender = RTCRtpSender::create(peerConnection, std::forward<T>(trackOrKind), backends.senderBackend.releaseNonNull());
     auto receiver = createReceiver(WTF::move(backends.receiverBackend));
     auto transceiver = RTCRtpTransceiver::create(WTF::move(sender), WTF::move(receiver), WTF::move(backends.transceiverBackend));
@@ -376,7 +376,8 @@ static inline LibWebRTCRtpTransceiverBackend& NODELETE backendFromRTPTransceiver
 
 RefPtr<RTCRtpTransceiver> LibWebRTCPeerConnectionBackend::existingTransceiver(Function<bool(LibWebRTCRtpTransceiverBackend&)>&& matchingFunction)
 {
-    for (auto& transceiver : protect(m_peerConnection)->currentTransceivers()) {
+    Ref peerConnection = m_peerConnection;
+    for (auto& transceiver : peerConnection->currentTransceivers()) {
         if (matchingFunction(backendFromRTPTransceiver(transceiver)))
             return transceiver.ptr();
     }
@@ -385,7 +386,7 @@ RefPtr<RTCRtpTransceiver> LibWebRTCPeerConnectionBackend::existingTransceiver(Fu
 
 Ref<RTCRtpTransceiver> LibWebRTCPeerConnectionBackend::newRemoteTransceiver(std::unique_ptr<LibWebRTCRtpTransceiverBackend>&& transceiverBackend, RealtimeMediaSource::Type type)
 {
-    Ref peerConnection = m_peerConnection.get();
+    Ref peerConnection = m_peerConnection;
     Ref sender = RTCRtpSender::create(peerConnection, type == RealtimeMediaSource::Type::Audio ? "audio"_s : "video"_s, transceiverBackend->createSenderBackend(*this, nullptr));
     Ref receiver = createReceiver(transceiverBackend->createReceiverBackend());
     Ref transceiver = RTCRtpTransceiver::create(WTF::move(sender), WTF::move(receiver), WTF::move(transceiverBackend));
@@ -406,7 +407,8 @@ void LibWebRTCPeerConnectionBackend::removeTrack(RTCRtpSender& sender)
 
 void LibWebRTCPeerConnectionBackend::applyRotationForOutgoingVideoSources()
 {
-    for (auto& transceiver : protect(m_peerConnection)->currentTransceivers()) {
+    Ref peerConnection = m_peerConnection;
+    for (auto& transceiver : peerConnection->currentTransceivers()) {
         if (!transceiver->sender().isStopped()) {
             if (RefPtr videoSource = protect(backendFromRTPSender(transceiver->sender()))->videoSource())
                 videoSource->applyRotation();

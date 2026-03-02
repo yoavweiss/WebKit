@@ -65,7 +65,7 @@ public:
 
     ~MemoryIndex();
 
-    const IDBIndexInfo& info() const { return m_info; }
+    const IDBIndexInfo& info() const LIFETIME_BOUND { return m_info; }
 
     void rename(const String& newName) { m_info.rename(newName); }
 

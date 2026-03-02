@@ -75,8 +75,8 @@ private:
 
         void invokeCompletionHandler();
 
-        const String& type() { return m_type; }
-        const BufferOrString& data() { return m_data; }
+        const String& type() LIFETIME_BOUND { return m_type; }
+        const BufferOrString& data() LIFETIME_BOUND { return m_data; }
 
     private:
         ClipboardItemTypeLoader(Clipboard&, const String& type, CompletionHandler<void()>&&);

@@ -50,8 +50,8 @@ public:
     bool isPulling() const { return !!m_promise; }
 
 protected:
-    ReadableStreamDefaultController& controller() { return m_controller.value(); }
-    const ReadableStreamDefaultController& controller() const { return m_controller.value(); }
+    ReadableStreamDefaultController& controller() LIFETIME_BOUND { return m_controller.value(); }
+    const ReadableStreamDefaultController& controller() const LIFETIME_BOUND { return m_controller.value(); }
 
     void startFinished();
     void pullFinished();

@@ -84,7 +84,7 @@ public:
 
     ExceptionOr<RTCEncodedStreams> createEncodedStreams(ScriptExecutionContext&);
 
-    const Vector<WeakPtr<MediaStream>>& associatedStreams() const { return m_associatedStreams; }
+    const Vector<WeakPtr<MediaStream>>& associatedStreams() const LIFETIME_BOUND { return m_associatedStreams; }
     void setAssociatedStreams(Vector<WeakPtr<MediaStream>>&& streams) { m_associatedStreams = WTF::move(streams); }
 private:
     RTCRtpReceiver(PeerConnectionBackend&, Ref<MediaStreamTrack>&&, std::unique_ptr<RTCRtpReceiverBackend>&&);

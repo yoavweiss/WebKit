@@ -39,11 +39,11 @@ public:
     WEBCORE_EXPORT ~SpeechRecognitionRequest();
 
     SpeechRecognitionConnectionClientIdentifier clientIdentifier() const { return m_info.clientIdentifier; }
-    const String& lang() const { return m_info.lang; }
+    const String& lang() const LIFETIME_BOUND { return m_info.lang; }
     bool continuous() const { return m_info.continuous;; }
     bool interimResults() const { return m_info.interimResults; }
     uint64_t maxAlternatives() const { return m_info.maxAlternatives; }
-    const ClientOrigin& clientOrigin() const { return m_info.clientOrigin; }
+    const ClientOrigin& clientOrigin() const LIFETIME_BOUND { return m_info.clientOrigin; }
     FrameIdentifier mainFrameIdentifier() const { return m_info.mainFrameIdentifier; }
 
 private:

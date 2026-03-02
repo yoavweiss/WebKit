@@ -40,8 +40,8 @@ public:
     static Ref<CookieChangeEvent> create(const AtomString& type, Init&&, IsTrusted = IsTrusted::No);
     ~CookieChangeEvent();
 
-    const Vector<CookieListItem>& changed() const { return m_changed; }
-    const Vector<CookieListItem>& deleted() const { return m_deleted; }
+    const Vector<CookieListItem>& changed() const LIFETIME_BOUND { return m_changed; }
+    const Vector<CookieListItem>& deleted() const LIFETIME_BOUND { return m_deleted; }
 
 private:
     CookieChangeEvent(const AtomString& type, Init&&, IsTrusted);

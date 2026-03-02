@@ -85,11 +85,11 @@ public:
 
     void setValue(IDBValue&&);
 
-    const IDBValue& value() const { return m_value; }
-    const IDBKeyData& keyData() const { return m_keyData; }
-    const IDBKeyData& primaryKeyData() const { return m_primaryKeyData; }
-    const std::optional<IDBKeyPath>& keyPath() const { return m_keyPath; }
-    const Vector<IDBCursorRecord>& prefetchedRecords() const { return m_prefetchedRecords; }
+    const IDBValue& value() const LIFETIME_BOUND { return m_value; }
+    const IDBKeyData& keyData() const LIFETIME_BOUND { return m_keyData; }
+    const IDBKeyData& primaryKeyData() const LIFETIME_BOUND { return m_primaryKeyData; }
+    const std::optional<IDBKeyPath>& keyPath() const LIFETIME_BOUND { return m_keyPath; }
+    const Vector<IDBCursorRecord>& prefetchedRecords() const LIFETIME_BOUND { return m_prefetchedRecords; }
     bool isDefined() const { return m_isDefined; }
 
 private:

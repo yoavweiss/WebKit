@@ -87,7 +87,7 @@ public:
         return std::get<Vector<Ref<IDBKey>>>(m_value);
     }
 
-    const String& string() const
+    const String& string() const LIFETIME_BOUND
     {
         ASSERT(m_type == IndexedDB::KeyType::String);
         return std::get<String>(m_value);
@@ -105,7 +105,7 @@ public:
         return std::get<double>(m_value);
     }
 
-    const ThreadSafeDataBuffer& binary() const
+    const ThreadSafeDataBuffer& binary() const LIFETIME_BOUND
     {
         ASSERT(m_type == IndexedDB::KeyType::Binary);
         return std::get<ThreadSafeDataBuffer>(m_value);

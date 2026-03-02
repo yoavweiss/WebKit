@@ -48,7 +48,7 @@ public:
         return adoptRef(*new GeoNotifier(geolocation, WTF::move(positionCallback), WTF::move(positionErrorCallback), WTF::move(options)));
     }
 
-    const PositionOptions& options() const { return m_options; }
+    const PositionOptions& options() const LIFETIME_BOUND { return m_options; }
     void setFatalError(Ref<GeolocationPositionError>&&);
 
     bool useCachedPosition() const { return m_useCachedPosition; }

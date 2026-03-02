@@ -209,11 +209,11 @@ public:
 
     const WebCore::CryptoKeyAES& sharedKey() const { return m_sharedKey.get(); }
 
-    const cbor::CBORValue::MapValue& coseKey() const { return m_coseKey; }
+    const cbor::CBORValue::MapValue& coseKey() const LIFETIME_BOUND { return m_coseKey; }
 
-    const Vector<uint8_t>& saltEnc() const { return m_saltEnc; }
+    const Vector<uint8_t>& saltEnc() const LIFETIME_BOUND { return m_saltEnc; }
 
-    const Vector<uint8_t>& saltAuth() const { return m_saltAuth; }
+    const Vector<uint8_t>& saltAuth() const LIFETIME_BOUND { return m_saltAuth; }
 
     PINUVAuthProtocol protocol() const { return m_protocol; }
 

@@ -44,7 +44,7 @@ public:
         , m_port(WTF::move(port))
     { }
 
-    const String& name() const { return m_name; }
+    const String& name() const LIFETIME_BOUND { return m_name; }
     MessagePort& port() const { return m_port.get(); }
 
 private:

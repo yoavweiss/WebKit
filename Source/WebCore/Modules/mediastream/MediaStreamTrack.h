@@ -146,7 +146,7 @@ public:
     using PhotoSettingsPromise = NativePromise<PhotoSettings, Exception>;
     Ref<PhotoSettingsPromise> getPhotoSettings();
 
-    const MediaTrackConstraints& getConstraints() const { return m_constraints; }
+    const MediaTrackConstraints& getConstraints() const LIFETIME_BOUND { return m_constraints; }
     void setConstraints(MediaTrackConstraints&& constraints) { m_constraints = WTF::move(constraints); }
 
     void applyConstraints(const std::optional<MediaTrackConstraints>&, DOMPromiseDeferred<void>&&);
@@ -187,7 +187,7 @@ public:
     UniqueRef<MediaStreamTrackDataHolder> detach();
 
     void setMediaStreamId(const String& id) { m_mediaStreamId = id; }
-    const String& mediaStreamId() const { return m_mediaStreamId; }
+    const String& mediaStreamId() const LIFETIME_BOUND { return m_mediaStreamId; }
 
     ScriptExecutionContext* NODELETE scriptExecutionContext() const final;
 

@@ -104,7 +104,7 @@ public:
     void defaultDestinationWillBecomeConnected();
 
 #if PLATFORM(IOS_FAMILY)
-    const String& sceneIdentifier() const final;
+    const String& sceneIdentifier() const LIFETIME_BOUND final;
 #endif
 
 private:

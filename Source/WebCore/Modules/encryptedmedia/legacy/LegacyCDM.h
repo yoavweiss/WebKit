@@ -70,7 +70,7 @@ public:
     bool supportsMIMEType(const String&) const;
     RefPtr<LegacyCDMSession> createSession(LegacyCDMSessionClient&);
 
-    const String& keySystem() const { return m_keySystem; }
+    const String& keySystem() const LIFETIME_BOUND { return m_keySystem; }
 
     LegacyCDMClient* client() const { return m_client.get(); }
     void setClient(LegacyCDMClient* client) { m_client = client; }

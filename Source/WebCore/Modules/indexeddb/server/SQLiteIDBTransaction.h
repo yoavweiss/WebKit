@@ -57,7 +57,7 @@ public:
     SQLiteIDBTransaction(SQLiteIDBBackingStore&, const IDBTransactionInfo&);
     ~SQLiteIDBTransaction();
 
-    const IDBResourceIdentifier& transactionIdentifier() const { return m_info.identifier(); }
+    const IDBResourceIdentifier& transactionIdentifier() const LIFETIME_BOUND { return m_info.identifier(); }
 
     IDBError begin(SQLiteDatabase&);
     IDBError commit();

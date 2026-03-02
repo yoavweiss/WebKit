@@ -42,7 +42,7 @@ public:
 
     virtual ~ApplePayShippingMethodSelectedEvent();
 
-    const ApplePayShippingMethod& shippingMethod() const { return m_shippingMethod; }
+    const ApplePayShippingMethod& shippingMethod() const LIFETIME_BOUND { return m_shippingMethod; }
 
 private:
     ApplePayShippingMethodSelectedEvent(const AtomString& type, const ApplePayShippingMethod&);

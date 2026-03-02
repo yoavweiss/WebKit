@@ -44,7 +44,7 @@ public:
     unsigned long charIndex() const { return m_charIndex; }
     unsigned long charLength() const { return m_charLength; }
     float elapsedTime() const { return m_elapsedTime; }
-    const String& name() const { return m_name; }
+    const String& name() const LIFETIME_BOUND { return m_name; }
 
 protected:
     SpeechSynthesisEvent(enum EventInterfaceType, const AtomString& type, Init&&);

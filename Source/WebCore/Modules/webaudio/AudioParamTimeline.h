@@ -111,7 +111,7 @@ private:
         Seconds time() const { return m_time; }
         float timeConstant() const { return m_timeConstant; }
         Seconds duration() const { return m_duration; }
-        const Vector<float>& curve() const { return m_curve; }
+        const Vector<float>& curve() const LIFETIME_BOUND { return m_curve; }
         SavedEvent* savedEvent() { return m_savedEvent ? &m_savedEvent.value() : nullptr; }
 
         void setCancelledValue(float cancelledValue)

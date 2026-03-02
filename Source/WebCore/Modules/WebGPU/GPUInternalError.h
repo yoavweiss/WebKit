@@ -44,7 +44,7 @@ public:
         return adoptRef(*new GPUInternalError(WTF::move(backing)));
     }
 
-    const String& NODELETE message() const;
+    const String& NODELETE message() const LIFETIME_BOUND;
 
     WebGPU::InternalError* backing() { return m_backing.get(); }
     const WebGPU::InternalError* backing() const { return m_backing.get(); }

@@ -44,7 +44,7 @@ public:
         return adoptRef(*new GPUOutOfMemoryError(WTF::move(backing)));
     }
 
-    const String& message() const { return m_message; }
+    const String& message() const LIFETIME_BOUND { return m_message; }
 
     WebGPU::OutOfMemoryError* backing() { return m_backing.get(); }
     const WebGPU::OutOfMemoryError* backing() const { return m_backing.get(); }

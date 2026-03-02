@@ -88,7 +88,7 @@ public:
     void visibilityStateChanged() final;
 
     void sourcesChanged();
-    const URL& currentSrc() const { return m_sourceURL; }
+    const URL& currentSrc() const LIFETIME_BOUND { return m_sourceURL; }
     bool complete() const { return m_dataComplete; }
 
     void configureGraphicsLayer(GraphicsLayer&, Color backgroundColor);

@@ -59,7 +59,7 @@ public:
 
     ~SQLiteIDBCursor();
 
-    const IDBResourceIdentifier& identifier() const { return m_cursorIdentifier; }
+    const IDBResourceIdentifier& identifier() const LIFETIME_BOUND { return m_cursorIdentifier; }
     SQLiteIDBTransaction* NODELETE transaction() const;
 
     IDBObjectStoreIdentifier objectStoreID() const { return m_objectStoreID; }

@@ -82,7 +82,7 @@ public:
 
     bool isDetached() const { return m_isDetached; }
 
-    const WebCodecsAudioInternalData& data() const { return m_data; }
+    const WebCodecsAudioInternalData& data() const LIFETIME_BOUND { return m_data; }
 
     size_t memoryCost() const { return m_data.memoryCost(); }
 

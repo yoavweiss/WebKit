@@ -50,7 +50,7 @@ public:
 
     ~DOMFileSystem();
 
-    const String& name() const { return m_name; }
+    const String& name() const LIFETIME_BOUND { return m_name; }
     Ref<FileSystemDirectoryEntry> root(ScriptExecutionContext&);
 
     using DirectoryListingCallback = Function<void(ExceptionOr<Vector<Ref<FileSystemEntry>>>&&)>;

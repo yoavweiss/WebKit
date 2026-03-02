@@ -56,7 +56,7 @@ public:
     ReadableStream& readable() { return m_readable.get(); }
     WritableStream& writable() { return m_writable.get(); }
 
-    JSValueInWrappedObject& internalTransformStream() { return m_internalTransformStream; }
+    JSValueInWrappedObject& internalTransformStream() LIFETIME_BOUND { return m_internalTransformStream; }
 
     bool canTransfer() const;
     ExceptionOr<DetachedTransformStream> runTransferSteps(JSDOMGlobalObject&);

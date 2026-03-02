@@ -42,7 +42,7 @@ public:
 
     virtual ~ApplePayCouponCodeChangedEvent();
 
-    const String& couponCode() const { return m_couponCode; }
+    const String& couponCode() const LIFETIME_BOUND { return m_couponCode; }
 
 private:
     ApplePayCouponCodeChangedEvent(const AtomString& type, String&&);

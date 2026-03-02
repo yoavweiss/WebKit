@@ -56,10 +56,10 @@ public:
     void deref() const final;
     USING_CAN_MAKE_WEAKPTR(EventTarget);
 
-    const String& text() const { return m_platformUtterance->text(); }
+    const String& text() const LIFETIME_BOUND { return m_platformUtterance->text(); }
     void setText(const String& text) { m_platformUtterance->setText(text); }
 
-    const String& lang() const { return m_platformUtterance->lang(); }
+    const String& lang() const LIFETIME_BOUND { return m_platformUtterance->lang(); }
     void setLang(const String& lang) { m_platformUtterance->setLang(lang); }
 
     SpeechSynthesisVoice* NODELETE voice() const;

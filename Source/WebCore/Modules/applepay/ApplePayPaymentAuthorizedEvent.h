@@ -44,7 +44,7 @@ public:
 
     virtual ~ApplePayPaymentAuthorizedEvent();
 
-    const ApplePayPayment& payment() const { return m_payment; }
+    const ApplePayPayment& payment() const LIFETIME_BOUND { return m_payment; }
 
 private:
     ApplePayPaymentAuthorizedEvent(const AtomString& type, unsigned version, const Payment&);

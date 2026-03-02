@@ -45,7 +45,7 @@ public:
     const Vector<Ref<WebXRView>>& views() const;
     void setViews(Vector<Ref<WebXRView>>&&);
 
-    JSValueInWrappedObject& cachedViews() { return m_cachedViews; }
+    JSValueInWrappedObject& cachedViews() LIFETIME_BOUND { return m_cachedViews; }
 
 private:
     WebXRViewerPose(Ref<WebXRRigidTransform>&&, bool emulatedPosition);

@@ -44,7 +44,7 @@ public:
 
     virtual ~ApplePayPaymentMethodSelectedEvent();
 
-    const ApplePayPaymentMethod& paymentMethod() { return m_paymentMethod; }
+    const ApplePayPaymentMethod& paymentMethod() LIFETIME_BOUND { return m_paymentMethod; }
 
 private:
     ApplePayPaymentMethodSelectedEvent(const AtomString& type, const PaymentMethod&);

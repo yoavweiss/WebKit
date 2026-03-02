@@ -80,7 +80,7 @@ public:
     // Must be called in the audio thread.
     float finalValue();
 
-    const String& name() const { return m_name; }
+    const String& name() const LIFETIME_BOUND { return m_name; }
 
     float minValue() const { return m_minValue; }
     float maxValue() const { return m_maxValue; }

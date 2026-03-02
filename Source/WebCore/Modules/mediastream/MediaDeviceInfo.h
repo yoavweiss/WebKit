@@ -42,9 +42,9 @@ public:
     static Ref<MediaDeviceInfo> create(const String&, const String&, const String&, Kind);
     virtual ~MediaDeviceInfo() = default;
 
-    const String& label() const { return m_label; }
-    const String& deviceId() const { return m_deviceId; }
-    const String& groupId() const { return m_groupId; }
+    const String& label() const LIFETIME_BOUND { return m_label; }
+    const String& deviceId() const LIFETIME_BOUND { return m_deviceId; }
+    const String& groupId() const LIFETIME_BOUND { return m_groupId; }
     Kind kind() const { return m_kind; }
 
     virtual bool isInputDeviceInfo() const { return false; }

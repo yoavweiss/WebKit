@@ -110,7 +110,7 @@ public:
     void NODELETE markAsDeleted();
     bool isDeleted() const { return m_deleted; }
 
-    const IDBObjectStoreInfo& info() const { return m_info; }
+    const IDBObjectStoreInfo& info() const LIFETIME_BOUND { return m_info; }
 
     void rollbackForVersionChangeAbort();
 

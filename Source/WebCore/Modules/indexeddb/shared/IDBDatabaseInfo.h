@@ -45,7 +45,7 @@ public:
 
     IDBDatabaseInfo isolatedCopy() const;
 
-    const String& name() const { return m_name; }
+    const String& name() const LIFETIME_BOUND { return m_name; }
 
     void setVersion(uint64_t version) { m_version = version; }
     uint64_t version() const { return m_version; }
@@ -61,7 +61,7 @@ public:
     void renameObjectStore(IDBObjectStoreIdentifier, const String& newName);
 
     Vector<String> objectStoreNames() const;
-    const HashMap<IDBObjectStoreIdentifier, IDBObjectStoreInfo>& objectStoreMap() const { return m_objectStoreMap; }
+    const HashMap<IDBObjectStoreIdentifier, IDBObjectStoreInfo>& objectStoreMap() const LIFETIME_BOUND { return m_objectStoreMap; }
 
     void deleteObjectStore(const String& objectStoreName);
     void deleteObjectStore(IDBObjectStoreIdentifier);

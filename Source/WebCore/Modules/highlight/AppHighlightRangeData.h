@@ -91,11 +91,11 @@ public:
 
     AppHighlightRangeData& operator=(const AppHighlightRangeData&) = default;
 
-    const String& identifier() const { return m_identifier; }
-    const String& text() const { return m_text; }
-    const NodePath& startContainer() const { return m_startContainer; }
+    const String& identifier() const LIFETIME_BOUND { return m_identifier; }
+    const String& text() const LIFETIME_BOUND { return m_text; }
+    const NodePath& startContainer() const LIFETIME_BOUND { return m_startContainer; }
     uint32_t startOffset() const { return m_startOffset; }
-    const NodePath& endContainer() const { return m_endContainer; }
+    const NodePath& endContainer() const LIFETIME_BOUND { return m_endContainer; }
     uint32_t endOffset() const { return m_endOffset; }
 
     Ref<SharedBuffer> toSharedBuffer() const;

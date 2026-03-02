@@ -76,7 +76,7 @@ public:
     uint8_t p1() const { return m_p1; }
     uint8_t p2() const { return m_p2; }
     size_t responseLength() const { return m_responseLength; }
-    const Vector<uint8_t>& data() const { return m_data; }
+    const Vector<uint8_t>& data() const LIFETIME_BOUND { return m_data; }
 
     static constexpr size_t kApduMaxResponseLength = 65536;
 

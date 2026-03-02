@@ -53,7 +53,7 @@ public:
 
     virtual Type credentialType() const = 0;
 
-    const String& id() const { return m_id; }
+    const String& id() const LIFETIME_BOUND { return m_id; }
     String type() const;
     Discovery discovery() const { return m_discovery; }
 

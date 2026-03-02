@@ -90,7 +90,7 @@ public:
     using ClosedPromise = DOMPromiseProxy<IDLUndefined>;
     ClosedPromise& closed() { return m_closedPromise.get(); }
 
-    const Vector<std::pair<CDMKeyID, MediaKeyStatus>>& statuses() const { return m_statuses; }
+    const Vector<std::pair<CDMKeyID, MediaKeyStatus>>& statuses() const LIFETIME_BOUND { return m_statuses; }
 
     unsigned internalInstanceSessionObjectRefCount() const { return m_instanceSession->refCount(); }
 

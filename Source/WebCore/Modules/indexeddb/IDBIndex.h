@@ -76,7 +76,7 @@ public:
     ExceptionOr<Ref<IDBRequest>> getAllKeys(RefPtr<IDBKeyRange>&&, std::optional<uint32_t> count);
     ExceptionOr<Ref<IDBRequest>> getAllKeys(JSC::JSGlobalObject&, JSC::JSValue key, std::optional<uint32_t> count);
 
-    const IDBIndexInfo& info() const { return m_info; }
+    const IDBIndexInfo& info() const LIFETIME_BOUND { return m_info; }
 
     void NODELETE markAsDeleted();
     bool isDeleted() const { return m_deleted; }

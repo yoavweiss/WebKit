@@ -87,7 +87,7 @@ public:
     void ref() const final { ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::ref(); }
     void deref() const final { ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::deref(); }
 
-    IDBDatabaseInfo& info() { return m_info; }
+    IDBDatabaseInfo& info() LIFETIME_BOUND { return m_info; }
     IDBDatabaseConnectionIdentifier databaseConnectionIdentifier() const { return m_databaseConnectionIdentifier; }
     std::optional<ScriptExecutionContextIdentifier> scriptExecutionContextIdentifier() const;
 

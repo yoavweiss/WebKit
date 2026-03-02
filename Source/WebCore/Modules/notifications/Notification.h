@@ -83,14 +83,14 @@ public:
     void close();
 
 #if ENABLE(DECLARATIVE_WEB_PUSH)
-    const URL& navigate() const { return m_navigate; }
+    const URL& navigate() const LIFETIME_BOUND { return m_navigate; }
 #endif
-    const String& title() const { return m_title; }
+    const String& title() const LIFETIME_BOUND { return m_title; }
     Direction dir() const { return m_direction; }
-    const String& body() const { return m_body; }
-    const String& lang() const { return m_lang; }
-    const String& tag() const { return m_tag; }
-    const URL& icon() const { return m_icon; }
+    const String& body() const LIFETIME_BOUND { return m_body; }
+    const String& lang() const LIFETIME_BOUND { return m_lang; }
+    const String& tag() const LIFETIME_BOUND { return m_tag; }
+    const URL& icon() const LIFETIME_BOUND { return m_icon; }
     JSC::JSValue dataForBindings(JSC::JSGlobalObject&);
     std::optional<bool> silent() const { return m_silent; }
 

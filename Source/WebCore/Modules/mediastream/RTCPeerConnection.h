@@ -138,7 +138,7 @@ public:
     std::optional<bool> canTrickleIceCandidates() const;
 
     void restartIce() { protect(*m_backend)->restartIce(); }
-    const RTCConfiguration& getConfiguration() const { return m_configuration; }
+    const RTCConfiguration& getConfiguration() const LIFETIME_BOUND { return m_configuration; }
     ExceptionOr<void> setConfiguration(RTCConfiguration&&);
     void close();
 
@@ -152,7 +152,7 @@ public:
     Vector<std::reference_wrapper<RTCRtpReceiver>> getReceivers() const;
     const Vector<Ref<RTCRtpTransceiver>>& getTransceivers() const;
 
-    const Vector<Ref<RTCRtpTransceiver>>& currentTransceivers() const { return m_transceiverSet.list(); }
+    const Vector<Ref<RTCRtpTransceiver>>& currentTransceivers() const LIFETIME_BOUND { return m_transceiverSet.list(); }
 
     ExceptionOr<Ref<RTCRtpSender>> addTrack(Ref<MediaStreamTrack>&&, const FixedVector<std::reference_wrapper<MediaStream>>&);
     ExceptionOr<void> removeTrack(RTCRtpSender&);

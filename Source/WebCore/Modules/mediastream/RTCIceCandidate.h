@@ -49,8 +49,8 @@ public:
     static Ref<RTCIceCandidate> create(const String& candidate, const String& sdpMid, std::optional<unsigned short> sdpMLineIndex);
     static Ref<RTCIceCandidate> create(const String& candidate, const String& sdpMid, Fields&& fields) { return adoptRef(*new RTCIceCandidate(candidate, sdpMid, { }, WTF::move(fields))); }
 
-    const String& candidate() const { return m_candidate; }
-    const String& sdpMid() const { return m_sdpMid; }
+    const String& candidate() const LIFETIME_BOUND { return m_candidate; }
+    const String& sdpMid() const LIFETIME_BOUND { return m_sdpMid; }
     std::optional<unsigned short> sdpMLineIndex() const { return m_sdpMLineIndex; }
 
     String foundation() const { return m_fields.foundation; }

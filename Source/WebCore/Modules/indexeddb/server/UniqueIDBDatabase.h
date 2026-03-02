@@ -86,7 +86,7 @@ public:
 
     const IDBDatabaseInfo& NODELETE info() const;
     UniqueIDBDatabaseManager* NODELETE manager();
-    const IDBDatabaseIdentifier& identifier() const { return m_identifier; }
+    const IDBDatabaseIdentifier& identifier() const LIFETIME_BOUND { return m_identifier; }
 
     enum class SpaceCheckResult : uint8_t {
         Unknown,

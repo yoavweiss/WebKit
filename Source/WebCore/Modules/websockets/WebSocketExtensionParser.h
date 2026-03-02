@@ -50,7 +50,7 @@ public:
     bool parseExtension(String& extensionToken, HashMap<String, String>& parameters);
 
 private:
-    const String& currentToken() { return m_currentToken; }
+    const String& currentToken() LIFETIME_BOUND { return m_currentToken; }
 
     // The following member functions basically follow the grammar defined
     // in Section 2.2 of RFC 2616.

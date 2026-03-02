@@ -62,7 +62,7 @@ public:
     RTCIceTransportState state() const { return m_transportState; }
     RTCIceGatheringState gatheringState() const { return m_gatheringState; }
 
-    const RTCIceTransportBackend& backend() const { return m_backend.get(); }
+    const RTCIceTransportBackend& backend() const LIFETIME_BOUND { return m_backend.get(); }
     RefPtr<RTCPeerConnection> connection() const { return m_connection; }
 
     struct CandidatePair {

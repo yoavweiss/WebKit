@@ -114,7 +114,7 @@ public:
 #endif
 
 #if ENABLE(MEDIA_SESSION_PLAYLIST)
-    const Vector<Ref<MediaMetadata>>& playlist() const { return m_playlist; }
+    const Vector<Ref<MediaMetadata>>& playlist() const LIFETIME_BOUND { return m_playlist; }
     ExceptionOr<void> setPlaylist(ScriptExecutionContext&, Vector<Ref<MediaMetadata>>&&);
 #endif
 

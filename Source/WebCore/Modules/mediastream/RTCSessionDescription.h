@@ -56,7 +56,7 @@ public:
 
     RTCSdpType type() const { return m_type; }
 
-    const String& sdp() const { return m_sdp; }
+    const String& sdp() const LIFETIME_BOUND { return m_sdp; }
     void setSdp(String&& sdp) { m_sdp = WTF::move(sdp); }
 
 private:

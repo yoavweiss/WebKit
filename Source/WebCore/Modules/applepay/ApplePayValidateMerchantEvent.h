@@ -42,7 +42,7 @@ public:
 
     virtual ~ApplePayValidateMerchantEvent();
 
-    const String& validationURL() const { return m_validationURL.string(); }
+    const String& validationURL() const LIFETIME_BOUND { return m_validationURL.string(); }
 
 private:
     ApplePayValidateMerchantEvent(const AtomString& type, URL&& validationURL);

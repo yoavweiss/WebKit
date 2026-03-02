@@ -36,7 +36,7 @@ class SpeechRecognitionAlternative final : public RefCounted<SpeechRecognitionAl
 public:
     static Ref<SpeechRecognitionAlternative> create(String&& transcript, double confidence);
 
-    const String& transcript() const { return m_transcript; }
+    const String& transcript() const LIFETIME_BOUND { return m_transcript; }
     double confidence() const { return m_confidence; }
 
 private:

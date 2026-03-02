@@ -84,25 +84,25 @@ public:
     void setMediaSession(MediaSession&);
     void resetMediaSession();
 
-    const String& title() const { return m_metadata.title; }
+    const String& title() const LIFETIME_BOUND { return m_metadata.title; }
     void setTitle(const String&);
 
-    const String& artist() const { return m_metadata.artist; }
+    const String& artist() const LIFETIME_BOUND { return m_metadata.artist; }
     void setArtist(const String&);
 
-    const String& album() const { return m_metadata.album; }
+    const String& album() const LIFETIME_BOUND { return m_metadata.album; }
     void setAlbum(const String&);
 
-    const Vector<MediaImage>& artwork() const { return m_metadata.artwork; }
+    const Vector<MediaImage>& artwork() const LIFETIME_BOUND { return m_metadata.artwork; }
     ExceptionOr<void> setArtwork(ScriptExecutionContext&, Vector<MediaImage>&&);
 
-    const String& artworkSrc() const { return m_artworkImageSrc; }
+    const String& artworkSrc() const LIFETIME_BOUND { return m_artworkImageSrc; }
     const RefPtr<Image>& artworkImage() const { return m_artworkImage; }
 
-    const MediaSessionMetadata& metadata() const { return m_metadata; }
+    const MediaSessionMetadata& metadata() const LIFETIME_BOUND { return m_metadata; }
 
 #if ENABLE(MEDIA_SESSION_PLAYLIST)
-    const String& trackIdentifier() const { return m_metadata.trackIdentifier; }
+    const String& trackIdentifier() const LIFETIME_BOUND { return m_metadata.trackIdentifier; }
     void setTrackIdentifier(const String&);
 #endif
 

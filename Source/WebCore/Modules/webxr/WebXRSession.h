@@ -84,7 +84,7 @@ public:
     XRInteractionMode interactionMode() const;
     XRVisibilityState visibilityState() const;
     const WebXRRenderState& NODELETE renderState() const;
-    const WebXRInputSourceArray& inputSources() const { return m_inputSources; }
+    const WebXRInputSourceArray& inputSources() const LIFETIME_BOUND { return m_inputSources; }
     RefPtr<PlatformXR::Device> device() const { return m_device; }
 
     const Vector<String> enabledFeatures() const;
@@ -114,8 +114,8 @@ public:
 
     XRSessionMode mode() const { return m_mode; }
 
-    const Vector<PlatformXR::Device::ViewData>& views() const { return m_views; }
-    const PlatformXR::FrameData& frameData() const { return m_frameData; }
+    const Vector<PlatformXR::Device::ViewData>& views() const LIFETIME_BOUND { return m_views; }
+    const PlatformXR::FrameData& frameData() const LIFETIME_BOUND { return m_frameData; }
     const WebXRReferenceSpace& viewerReferenceSpace() const { return m_viewerReferenceSpace; }
     bool posesCanBeReported(const Document&) const;
     

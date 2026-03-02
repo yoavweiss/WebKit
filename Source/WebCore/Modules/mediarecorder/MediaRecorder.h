@@ -68,7 +68,7 @@ public:
     WEBCORE_EXPORT static void NODELETE setCustomPrivateRecorderCreator(CreatorFunction);
 
     RecordingState state() const { return m_state; }
-    const String& mimeType() const { return m_options.mimeType; }
+    const String& mimeType() const LIFETIME_BOUND { return m_options.mimeType; }
 
     ExceptionOr<void> startRecording(std::optional<unsigned>);
     void stopRecording();

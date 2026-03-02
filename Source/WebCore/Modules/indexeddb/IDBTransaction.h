@@ -96,7 +96,7 @@ public:
     using EventTarget::dispatchEvent;
     void dispatchEvent(Event&) final;
 
-    const IDBTransactionInfo& info() const { return m_info; }
+    const IDBTransactionInfo& info() const LIFETIME_BOUND { return m_info; }
     IDBDatabase& database() { return m_database.get(); }
     const IDBDatabase& database() const { return m_database.get(); }
     IDBDatabaseInfo* originalDatabaseInfo() const { return m_info.originalDatabaseInfo().get(); }
