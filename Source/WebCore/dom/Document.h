@@ -561,7 +561,7 @@ public:
     WEBCORE_EXPORT DOMImplementation& implementation();
     
     Element* documentElement() const { return m_documentElement.get(); }
-    AsyncNodeDeletionQueue& asyncNodeDeletionQueue() { return m_asyncNodeDeletionQueue; };
+    AsyncNodeDeletionQueue& asyncNodeDeletionQueue() LIFETIME_BOUND { return m_asyncNodeDeletionQueue; };
     static constexpr ptrdiff_t documentElementMemoryOffset() { return OBJECT_OFFSETOF(Document, m_documentElement); }
 
     WEBCORE_EXPORT Element* activeElement();
@@ -614,7 +614,7 @@ public:
     void overrideMIMEType(const String&);
     WEBCORE_EXPORT String contentType() const;
 
-    const AtomString& contentLanguage() const { return m_contentLanguage; }
+    const AtomString& contentLanguage() const LIFETIME_BOUND { return m_contentLanguage; }
     void setContentLanguage(const AtomString&);
 
     const AtomString& NODELETE effectiveDocumentElementLanguage() const;
@@ -729,7 +729,7 @@ public:
     const CSSCounterStyleRegistry& NODELETE counterStyleRegistry() const;
     CSSCounterStyleRegistry& counterStyleRegistry();
 
-    WEBCORE_EXPORT const CSSParserContext& cssParserContext() const;
+    WEBCORE_EXPORT const CSSParserContext& cssParserContext() const LIFETIME_BOUND;
     void invalidateCachedCSSParserContext();
 
     bool gotoAnchorNeededAfterStylesheetsLoad() { return m_gotoAnchorNeededAfterStylesheetsLoad; }
@@ -827,7 +827,7 @@ public:
     void suspendFontLoading();
 
     RenderView* renderView() const { return m_renderView.get(); }
-    const RenderStyle* initialContainingBlockStyle() const { return m_initialContainingBlockStyle.get(); } // This may end up differing from renderView()->style() due to adjustments.
+    const RenderStyle* initialContainingBlockStyle() const LIFETIME_BOUND { return m_initialContainingBlockStyle.get(); } // This may end up differing from renderView()->style() due to adjustments.
 
     bool renderTreeBeingDestroyed() const { return m_renderTreeBeingDestroyed; }
     bool hasLivingRenderTree() const { return renderView() && !renderTreeBeingDestroyed(); }
@@ -882,15 +882,15 @@ public:
 
     URL adjustedURL() const;
 
-    const URL& creationURL() const { return m_creationURL; }
+    const URL& creationURL() const LIFETIME_BOUND { return m_creationURL; }
 
     // To understand how these concepts relate to one another, please see the
     // comments surrounding their declaration.
-    const URL& baseURL() const { return m_baseURL; }
+    const URL& baseURL() const LIFETIME_BOUND { return m_baseURL; }
     void setBaseURLOverride(const URL&);
-    const URL& baseURLOverride() const { return m_baseURLOverride; }
-    const URL& baseElementURL() const { return m_baseElementURL; }
-    const AtomString& baseTarget() const { return m_baseTarget; }
+    const URL& baseURLOverride() const LIFETIME_BOUND { return m_baseURLOverride; }
+    const URL& baseElementURL() const LIFETIME_BOUND { return m_baseElementURL; }
+    const AtomString& baseTarget() const LIFETIME_BOUND { return m_baseTarget; }
     HTMLBaseElement* NODELETE firstBaseElement() const;
     void processBaseElement();
 
@@ -970,11 +970,11 @@ public:
     const Color& themeColor();
 
 #if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-    const std::optional<SpatialBackdropSource>& spatialBackdropSource() const { return m_cachedSpatialBackdropSource; }
+    const std::optional<SpatialBackdropSource>& spatialBackdropSource() const LIFETIME_BOUND { return m_cachedSpatialBackdropSource; }
 #endif
 
     void setTextColor(const Color& color) { m_textColor = color; }
-    const Color& textColor() const { return m_textColor; }
+    const Color& textColor() const LIFETIME_BOUND { return m_textColor; }
 
     Color linkColor(const Style::ComputedStyle&) const;
     Color visitedLinkColor(const Style::ComputedStyle&) const;
@@ -996,8 +996,8 @@ public:
     Element* focusedElement() const { return m_focusedElement.get(); }
     inline bool wasLastFocusByClick() const;
     void setLatestFocusTrigger(FocusTrigger trigger) { m_latestFocusTrigger = trigger; }
-    UserActionElementSet& userActionElements()  { return m_userActionElements; }
-    const UserActionElementSet& userActionElements() const { return m_userActionElements; }
+    UserActionElementSet& userActionElements() LIFETIME_BOUND  { return m_userActionElements; }
+    const UserActionElementSet& userActionElements() const LIFETIME_BOUND { return m_userActionElements; }
 
     void setFocusNavigationStartingNode(Node*);
     Element* focusNavigationStartingNode(FocusDirection) const;
@@ -1187,9 +1187,9 @@ public:
     WEBCORE_EXPORT std::optional<OwnerPermissionsPolicyData> ownerPermissionsPolicy() const;
 
     // Used by DOM bindings; no direction known.
-    const String& title() const { return m_title.string; }
+    const String& title() const LIFETIME_BOUND { return m_title.string; }
     WEBCORE_EXPORT void setTitle(String&&);
-    const StringWithDirection& titleWithDirection() const { return m_title; }
+    const StringWithDirection& titleWithDirection() const LIFETIME_BOUND { return m_title; }
 
     WEBCORE_EXPORT const AtomString& dir() const;
     WEBCORE_EXPORT void setDir(const AtomString&);
@@ -1233,7 +1233,7 @@ public:
     //       firstPartyForCookies have a different registry-controlled
     //       domain.
     //
-    const URL& firstPartyForCookies() const { return m_firstPartyForCookies; }
+    const URL& firstPartyForCookies() const LIFETIME_BOUND { return m_firstPartyForCookies; }
     void setFirstPartyForCookies(const URL&);
     std::optional<bool> cachedCookiesEnabled() const { return m_cachedCookiesEnabled; }
     void setCachedCookiesEnabled(bool enabled) { m_cachedCookiesEnabled = enabled; }
@@ -1246,7 +1246,7 @@ public:
     // the URL of the top-level document or the null URL depending on whether the registrable
     // domain of this document's URL matches the registrable domain of its parent's/opener's
     // URL. For the top-level document, it is set to the document's URL.
-    const URL& siteForCookies() const { return m_siteForCookies; }
+    const URL& siteForCookies() const LIFETIME_BOUND { return m_siteForCookies; }
     void setSiteForCookies(const URL& url) { m_siteForCookies = url; }
     bool isSameSiteForCookies(const URL&) const;
 
@@ -1324,7 +1324,7 @@ public:
     void setTransformSourceDocument(Document* document) { m_transformSourceDocument = document; }
 
     void setTransformSource(std::unique_ptr<TransformSource>);
-    TransformSource* transformSource() const { return m_transformSource.get(); }
+    TransformSource* transformSource() const LIFETIME_BOUND { return m_transformSource.get(); }
 #endif
 
     void incDOMTreeVersion() { m_domTreeVersion = ++s_globalTreeVersion; }
@@ -1523,7 +1523,7 @@ public:
 #endif
 
     WEBCORE_EXPORT double monotonicTimestamp() const;
-    const DocumentEventTiming& eventTiming() const { return m_eventTiming; }
+    const DocumentEventTiming& eventTiming() const LIFETIME_BOUND { return m_eventTiming; }
 
     LargestContentfulPaintData& largestContentfulPaintData() const;
     void didLoadImage(Element&, CachedImage*) const;
@@ -1617,7 +1617,7 @@ public:
 
     bool hasActiveParserYieldToken() const { return m_parserYieldTokenCount; }
 
-    DocumentSharedObjectPool* sharedObjectPool() { return m_sharedObjectPool.get(); }
+    DocumentSharedObjectPool* sharedObjectPool() LIFETIME_BOUND { return m_sharedObjectPool.get(); }
 
     void invalidateMatchedPropertiesCacheAndForceStyleRecalc();
 
@@ -1766,7 +1766,7 @@ public:
 
     void scheduleInitialIntersectionObservationUpdate();
     IntersectionObserverData& ensureIntersectionObserverData();
-    IntersectionObserverData* intersectionObserverDataIfExists() { return m_intersectionObserverData.get(); }
+    IntersectionObserverData* intersectionObserverDataIfExists() LIFETIME_BOUND { return m_intersectionObserverData.get(); }
 
     void addResizeObserver(ResizeObserver&);
     void removeResizeObserver(ResizeObserver&);
@@ -1829,7 +1829,7 @@ public:
 
     void didInsertInDocumentShadowRoot(ShadowRoot&);
     void didRemoveInDocumentShadowRoot(ShadowRoot&);
-    const WeakListHashSet<ShadowRoot, WeakPtrImplWithEventTargetData>& inDocumentShadowRoots() const { return m_inDocumentShadowRoots; }
+    const WeakListHashSet<ShadowRoot, WeakPtrImplWithEventTargetData>& inDocumentShadowRoots() const LIFETIME_BOUND { return m_inDocumentShadowRoots; }
 
     void attachToCachedFrame(CachedFrameBase&);
     void detachFromCachedFrame(CachedFrameBase&);
@@ -1882,10 +1882,10 @@ public:
 
     void addTopLayerElement(Element&);
     void removeTopLayerElement(Element&);
-    const ListHashSet<Ref<Element>>& topLayerElements() const { return m_topLayerElements; }
+    const ListHashSet<Ref<Element>>& topLayerElements() const LIFETIME_BOUND { return m_topLayerElements; }
     bool hasTopLayerElement() const { return !m_topLayerElements.isEmpty(); }
 
-    const ListHashSet<Ref<HTMLElement>>& autoPopoverList() const { return m_autoPopoverList; }
+    const ListHashSet<Ref<HTMLElement>>& autoPopoverList() const LIFETIME_BOUND { return m_autoPopoverList; }
 
     HTMLDialogElement* activeModalDialog() const;
     HTMLElement* NODELETE topmostAutoPopover() const;
@@ -1899,7 +1899,7 @@ public:
     void didInsertAttachmentElement(HTMLAttachmentElement&);
     void didRemoveAttachmentElement(HTMLAttachmentElement&);
     WEBCORE_EXPORT RefPtr<HTMLAttachmentElement> attachmentForIdentifier(const String&) const;
-    const HashMap<String, Ref<HTMLAttachmentElement>>& attachmentElementsByIdentifier() const { return m_attachmentIdentifierToElementMap; }
+    const HashMap<String, Ref<HTMLAttachmentElement>>& attachmentElementsByIdentifier() const LIFETIME_BOUND { return m_attachmentIdentifierToElementMap; }
 #endif
 
     void setServiceWorkerConnection(RefPtr<SWClientConnection>&&);
@@ -1974,7 +1974,7 @@ public:
     WEBCORE_EXPORT HighlightRegistry& appHighlightRegistry();
 
     WEBCORE_EXPORT AppHighlightStorage& appHighlightStorage();
-    AppHighlightStorage* appHighlightStorageIfExists() const { return m_appHighlightStorage.get(); };
+    AppHighlightStorage* appHighlightStorageIfExists() const LIFETIME_BOUND { return m_appHighlightStorage.get(); };
 
     void restoreUnrestoredAppHighlights(MonotonicTime renderingUpdateTime);
 #endif
@@ -2006,7 +2006,7 @@ public:
     const FrameSelection& selection() const { return m_selection; }
 
     void setFragmentDirective(const String& fragmentDirective) { m_fragmentDirective = fragmentDirective; }
-    const String& fragmentDirective() const { return m_fragmentDirective; }
+    const String& fragmentDirective() const LIFETIME_BOUND { return m_fragmentDirective; }
 
     FragmentDirective& NODELETE fragmentDirectiveForBindings();
 
@@ -2083,7 +2083,7 @@ public:
     WEBCORE_EXPORT void prefetch(const URL&, const Vector<String>&, std::optional<ReferrerPolicy>, bool lowPriority = false);
 
     void processSpeculationRulesHeader(const String& headerValue, const URL& baseURL);
-    CachedSetInnerHTML& cachedSetInnerHTML() { return m_cachedSetInnerHTML; }
+    CachedSetInnerHTML& cachedSetInnerHTML() LIFETIME_BOUND { return m_cachedSetInnerHTML; }
     void updateCachedSetInnerHTML(const String& sourceString, ContainerNode&, Element& contextElement);
     void invalidateCachedSetInnerHTML();
 
@@ -2220,7 +2220,7 @@ private:
     bool shouldMaskURLForBindingsInternal(const URL&) const;
 
     // DOM Cookies caching.
-    const String& cachedDOMCookies() const { return m_cachedDOMCookies; }
+    const String& cachedDOMCookies() const LIFETIME_BOUND { return m_cachedDOMCookies; }
     void setCachedDOMCookies(const String&);
     bool isDOMCookieCacheValid() const { return m_cookieCacheExpiryTimer.isActive(); }
     void didLoadResourceSynchronously(const URL&) final;

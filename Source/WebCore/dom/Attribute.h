@@ -50,14 +50,14 @@ public:
     // NOTE: The references returned by these functions are only valid for as long
     // as the Attribute stays in place. For example, calling a function that mutates
     // an Element's internal attribute storage may invalidate them.
-    const AtomString& value() const { return m_value; }
+    const AtomString& value() const LIFETIME_BOUND { return m_value; }
     static constexpr ptrdiff_t valueMemoryOffset() { return OBJECT_OFFSETOF(Attribute, m_value); }
-    const AtomString& prefix() const { return m_name.prefix(); }
-    const AtomString& localName() const { return m_name.localName(); }
-    const AtomString& localNameLowercase() const { return m_name.localNameLowercase(); }
-    const AtomString& namespaceURI() const { return m_name.namespaceURI(); }
+    const AtomString& prefix() const LIFETIME_BOUND { return m_name.prefix(); }
+    const AtomString& localName() const LIFETIME_BOUND { return m_name.localName(); }
+    const AtomString& localNameLowercase() const LIFETIME_BOUND { return m_name.localNameLowercase(); }
+    const AtomString& namespaceURI() const LIFETIME_BOUND { return m_name.namespaceURI(); }
 
-    const QualifiedName& name() const { return m_name; }
+    const QualifiedName& name() const LIFETIME_BOUND { return m_name; }
     static constexpr ptrdiff_t nameMemoryOffset() { return OBJECT_OFFSETOF(Attribute, m_name); }
 
     bool isEmpty() const { return m_value.isEmpty(); }

@@ -39,7 +39,7 @@ public:
     explicit Exception(ExceptionCode, String = { });
 
     ExceptionCode code() const { return m_code; }
-    const String& message() const { return m_message; }
+    const String& message() const LIFETIME_BOUND { return m_message; }
     String&& releaseMessage() { return WTF::move(m_message); }
 
     Exception isolatedCopy() const & { return Exception { m_code, m_message.isolatedCopy() }; }

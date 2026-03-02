@@ -364,11 +364,10 @@ const DocumentEventTiming* PerformanceTiming::documentEventTiming() const
     if (!frame)
         return nullptr;
 
-    RefPtr document = frame->document();
-    if (!document)
-        return nullptr;
+    if (auto* document = frame->document())
+        return &document->eventTiming();
 
-    return &document->eventTiming();
+    return nullptr;
 }
 
 const DocumentLoadTiming* PerformanceTiming::documentLoadTiming() const

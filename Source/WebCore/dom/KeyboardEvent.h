@@ -74,14 +74,14 @@ public:
         const AtomString& keyIdentifier, unsigned location,
         bool ctrlKey, bool altKey, bool shiftKey, bool metaKey);
     
-    const String& key() const { return m_key; }
-    const String& code() const { return m_code; }
-    const AtomString& keyIdentifier() const { return m_keyIdentifier; }
+    const String& key() const LIFETIME_BOUND { return m_key; }
+    const String& code() const LIFETIME_BOUND { return m_code; }
+    const AtomString& keyIdentifier() const LIFETIME_BOUND { return m_keyIdentifier; }
     unsigned location() const { return m_location; }
     bool repeat() const { return m_repeat; }
 
-    const PlatformKeyboardEvent* underlyingPlatformEvent() const { return m_underlyingPlatformEvent.get(); }
-    PlatformKeyboardEvent* underlyingPlatformEvent() { return m_underlyingPlatformEvent.get(); }
+    const PlatformKeyboardEvent* underlyingPlatformEvent() const LIFETIME_BOUND { return m_underlyingPlatformEvent.get(); }
+    PlatformKeyboardEvent* underlyingPlatformEvent() LIFETIME_BOUND { return m_underlyingPlatformEvent.get(); }
 
     WEBCORE_EXPORT int keyCode() const; // key code for keydown and keyup, character for keypress
     int NODELETE keyCodeForKeyDown() const; // key code for the keydown that matches the keypress
@@ -93,8 +93,8 @@ public:
 
 #if PLATFORM(COCOA)
     bool handledByInputMethod() const { return m_handledByInputMethod; }
-    const Vector<KeypressCommand>& keypressCommands() const { return m_keypressCommands; }
-    Vector<KeypressCommand>& keypressCommands() { return m_keypressCommands; }
+    const Vector<KeypressCommand>& keypressCommands() const LIFETIME_BOUND { return m_keypressCommands; }
+    Vector<KeypressCommand>& keypressCommands() LIFETIME_BOUND { return m_keypressCommands; }
 #endif
 
     FocusEventData NODELETE focusEventData() const;

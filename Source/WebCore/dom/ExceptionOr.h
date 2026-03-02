@@ -47,9 +47,9 @@ public:
 
 
     bool hasException() const;
-    const Exception& exception() const;
+    const Exception& exception() const LIFETIME_BOUND;
     Exception releaseException();
-    const ReturnType& returnValue() const;
+    const ReturnType& returnValue() const LIFETIME_BOUND;
     ReturnType releaseReturnValue();
     
 private:
@@ -68,9 +68,9 @@ public:
     ExceptionOr(ReturnReferenceType&);
 
     bool hasException() const;
-    const Exception& exception() const;
+    const Exception& exception() const LIFETIME_BOUND;
     Exception releaseException();
-    const ReturnReferenceType& returnValue() const;
+    const ReturnReferenceType& returnValue() const LIFETIME_BOUND;
     ReturnReferenceType& releaseReturnValue();
     
 private:
@@ -85,7 +85,7 @@ public:
     ExceptionOr() = default;
 
     bool hasException() const;
-    const Exception& exception() const;
+    const Exception& exception() const LIFETIME_BOUND;
     Exception releaseException();
 
 private:

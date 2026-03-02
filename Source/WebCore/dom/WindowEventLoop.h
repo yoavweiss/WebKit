@@ -53,9 +53,9 @@ public:
     virtual ~WindowEventLoop();
 
     void queueMutationObserverCompoundMicrotask();
-    Vector<GCReachableRef<HTMLSlotElement>>& signalSlotList() { return m_signalSlotList; }
-    HashSet<Ref<MutationObserver>>& activeMutationObservers() { return m_activeObservers; }
-    HashSet<Ref<MutationObserver>>& suspendedMutationObservers() { return m_suspendedObservers; }
+    Vector<GCReachableRef<HTMLSlotElement>>& signalSlotList() LIFETIME_BOUND { return m_signalSlotList; }
+    HashSet<Ref<MutationObserver>>& activeMutationObservers() LIFETIME_BOUND { return m_activeObservers; }
+    HashSet<Ref<MutationObserver>>& suspendedMutationObservers() LIFETIME_BOUND { return m_suspendedObservers; }
 
     CustomElementQueue& backupElementQueue();
 

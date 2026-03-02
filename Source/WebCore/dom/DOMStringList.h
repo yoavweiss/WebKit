@@ -57,7 +57,7 @@ public:
     String NODELETE item(unsigned index) const;
     bool contains(const String& str) const;
 
-    operator const Vector<String>&() const { return m_strings; }
+    operator const Vector<String>&() const LIFETIME_BOUND { return m_strings; }
 
 private:
     DOMStringList() = default;

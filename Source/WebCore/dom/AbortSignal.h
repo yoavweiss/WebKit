@@ -63,7 +63,7 @@ public:
     void signalFollow(AbortSignal&);
 
     bool aborted() const { return m_aborted; }
-    const JSValueInWrappedObject& reason() const { return m_reason; }
+    const JSValueInWrappedObject& reason() const LIFETIME_BOUND { return m_reason; }
 
     bool hasActiveTimeoutTimer() const { return m_hasActiveTimeoutTimer; }
     bool hasAbortEventListener() const { return m_hasAbortEventListener; }
@@ -77,8 +77,8 @@ public:
     void throwIfAborted(JSC::JSGlobalObject&);
 
     using AbortSignalSet = WeakListHashSet<AbortSignal, WeakPtrImplWithEventTargetData>;
-    const AbortSignalSet& sourceSignals() const { return m_sourceSignals; }
-    AbortSignalSet& sourceSignals() { return m_sourceSignals; }
+    const AbortSignalSet& sourceSignals() const LIFETIME_BOUND { return m_sourceSignals; }
+    AbortSignalSet& sourceSignals() LIFETIME_BOUND { return m_sourceSignals; }
 
     bool isDependent() const { return m_isDependent; }
 

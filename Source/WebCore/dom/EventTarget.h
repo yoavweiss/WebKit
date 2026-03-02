@@ -76,8 +76,8 @@ public:
 // Do not make WeakPtrImplWithEventTargetData a derived class of DefaultWeakPtrImpl to catch the bug which uses incorrect impl class.
 class WeakPtrImplWithEventTargetData final : public WTF::WeakPtrImplBase<WeakPtrImplWithEventTargetData> {
 public:
-    EventTargetData& eventTargetData() { return m_eventTargetData; }
-    const EventTargetData& eventTargetData() const { return m_eventTargetData; }
+    EventTargetData& eventTargetData() LIFETIME_BOUND { return m_eventTargetData; }
+    const EventTargetData& eventTargetData() const LIFETIME_BOUND { return m_eventTargetData; }
 
     template<typename T> WeakPtrImplWithEventTargetData(T* ptr) : WTF::WeakPtrImplBase<WeakPtrImplWithEventTargetData>(ptr) { }
 
@@ -191,7 +191,7 @@ protected:
         HasPendingResources = 1 << 15,
     };
 
-    EventTargetData& ensureEventTargetData();
+    EventTargetData& ensureEventTargetData() LIFETIME_BOUND;
 
     virtual void eventListenersDidChange() { }
 

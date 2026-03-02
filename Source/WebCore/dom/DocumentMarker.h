@@ -167,7 +167,7 @@ public:
 
     String description() const;
 
-    const Data& data() const { return m_data; }
+    const Data& data() const LIFETIME_BOUND { return m_data; }
     void clearData() { m_data = String { }; }
 
     // Offset modifications are done by DocumentMarkerController.

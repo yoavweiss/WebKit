@@ -141,13 +141,13 @@ public:
     void moveShadowRootToNewDocument(Document& oldDocument, Document& newDocument);
 
     using PartMappings = HashMap<AtomString, Vector<AtomString, 1>>;
-    const PartMappings& partMappings() const;
+    const PartMappings& partMappings() const LIFETIME_BOUND;
     void invalidatePartMappings();
 
     Vector<Ref<WebAnimation>> getAnimations();
 
     bool hasReferenceTarget() const { return !m_referenceTarget.isNull(); }
-    const AtomString& referenceTarget() const { return m_referenceTarget; }
+    const AtomString& referenceTarget() const LIFETIME_BOUND { return m_referenceTarget; }
     void setReferenceTarget(const AtomString&);
     RefPtr<Element> referenceTargetElement() const
     {

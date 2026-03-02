@@ -45,8 +45,8 @@ public:
 
     WEBCORE_EXPORT ~MessagePortChannel();
 
-    const MessagePortIdentifier& port1() const { return m_ports[0]; }
-    const MessagePortIdentifier& port2() const { return m_ports[1]; }
+    const MessagePortIdentifier& port1() const LIFETIME_BOUND { return m_ports[0]; }
+    const MessagePortIdentifier& port2() const LIFETIME_BOUND { return m_ports[1]; }
 
     WEBCORE_EXPORT std::optional<ProcessIdentifier> NODELETE processForPort(const MessagePortIdentifier&);
     bool NODELETE includesPort(const MessagePortIdentifier&);

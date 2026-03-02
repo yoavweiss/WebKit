@@ -85,13 +85,13 @@ public:
     String userInfo() const { return m_userInfo; }
     void setUserInfo(String&& userInfo) { m_userInfo = WTF::move(userInfo); }
 
-    RenderStyle* computedStyle() const { return m_computedStyle.get(); }
+    RenderStyle* computedStyle() const LIFETIME_BOUND { return m_computedStyle.get(); }
     void setComputedStyle(std::unique_ptr<RenderStyle>&& computedStyle) { m_computedStyle = WTF::move(computedStyle); }
 
-    RenderStyle* displayContentsOrNoneStyle() const { return m_displayContentsOrNoneStyle.get(); }
+    RenderStyle* displayContentsOrNoneStyle() const LIFETIME_BOUND { return m_displayContentsOrNoneStyle.get(); }
     void setDisplayContentsOrNoneStyle(std::unique_ptr<RenderStyle> style) { m_displayContentsOrNoneStyle = WTF::move(style); }
 
-    const AtomString& effectiveLang() const { return m_effectiveLang; }
+    const AtomString& effectiveLang() const LIFETIME_BOUND { return m_effectiveLang; }
     void setEffectiveLang(const AtomString& lang) { m_effectiveLang = lang; }
 
     DOMTokenList* classList() const { return m_classList.get(); }
@@ -104,8 +104,8 @@ public:
     void setSavedLayerScrollPosition(ScrollPosition position) { m_savedLayerScrollPosition = position; }
 
     bool hasAnimationRareData() const { return !m_animationRareData.isEmpty(); }
-    ElementAnimationRareData* animationRareData(const std::optional<Style::PseudoElementIdentifier>&) const;
-    ElementAnimationRareData& ensureAnimationRareData(const std::optional<Style::PseudoElementIdentifier>&);
+    ElementAnimationRareData* animationRareData(const std::optional<Style::PseudoElementIdentifier>&) const LIFETIME_BOUND;
+    ElementAnimationRareData& ensureAnimationRareData(const std::optional<Style::PseudoElementIdentifier>&) LIFETIME_BOUND;
 
     AtomString viewTransitionCapturedName(const std::optional<Style::PseudoElementIdentifier>&) const;
     void setViewTransitionCapturedName(const std::optional<Style::PseudoElementIdentifier>&, AtomString);
@@ -113,16 +113,16 @@ public:
     DOMTokenList* partList() const { return m_partList.get(); }
     void setPartList(const std::unique_ptr<DOMTokenList>&& partList) { lazyInitialize(m_partList, std::move(partList)); }
 
-    const SpaceSplitString& partNames() const { return m_partNames; }
+    const SpaceSplitString& partNames() const LIFETIME_BOUND { return m_partNames; }
     void setPartNames(SpaceSplitString&& partNames) { m_partNames = WTF::move(partNames); }
 
-    IntersectionObserverData* intersectionObserverData() { return m_intersectionObserverData.get(); }
+    IntersectionObserverData* intersectionObserverData() const LIFETIME_BOUND { return m_intersectionObserverData.get(); }
     void setIntersectionObserverData(std::unique_ptr<IntersectionObserverData>&& data) { m_intersectionObserverData = WTF::move(data); }
 
-    ResizeObserverData* resizeObserverData() { return m_resizeObserverData.get(); }
+    ResizeObserverData* resizeObserverData() const LIFETIME_BOUND { return m_resizeObserverData.get(); }
     void setResizeObserverData(std::unique_ptr<ResizeObserverData>&& data) { m_resizeObserverData = WTF::move(data); }
 
-    ElementLargestContentfulPaintData* largestContentfulPaintData() { return m_largestContentfulPaintData.get(); }
+    ElementLargestContentfulPaintData* largestContentfulPaintData() const LIFETIME_BOUND { return m_largestContentfulPaintData.get(); }
     void setLargestContentfulPaintData(std::unique_ptr<ElementLargestContentfulPaintData>&& data) { m_largestContentfulPaintData = WTF::move(data); }
 
     std::optional<LayoutUnit> lastRememberedLogicalWidth() const { return m_lastRememberedLogicalWidth; }
@@ -132,7 +132,7 @@ public:
     void clearLastRememberedLogicalWidth() { m_lastRememberedLogicalWidth.reset(); }
     void clearLastRememberedLogicalHeight() { m_lastRememberedLogicalHeight.reset(); }
 
-    const AtomString& nonce() const { return m_nonce; }
+    const AtomString& nonce() const LIFETIME_BOUND { return m_nonce; }
     void setNonce(const AtomString& value) { m_nonce = value; }
 
     StylePropertyMap* attributeStyleMap() { return m_attributeStyleMap.get(); }
@@ -141,15 +141,15 @@ public:
     StylePropertyMapReadOnly* computedStyleMap() { return m_computedStyleMap.get(); }
     void setComputedStyleMap(Ref<StylePropertyMapReadOnly>&& map) { m_computedStyleMap = WTF::move(map); }
 
-    ExplicitlySetAttrElementsMap& explicitlySetAttrElementsMap() { return m_explicitlySetAttrElementsMap; }
+    ExplicitlySetAttrElementsMap& explicitlySetAttrElementsMap() LIFETIME_BOUND { return m_explicitlySetAttrElementsMap; }
 
-    PopoverData* popoverData() { return m_popoverData.get(); }
+    PopoverData* popoverData() const LIFETIME_BOUND { return m_popoverData.get(); }
     void setPopoverData(std::unique_ptr<PopoverData>&& popoverData) { m_popoverData = WTF::move(popoverData); }
 
     Element* invokedPopover() const { return m_invokedPopover.get(); }
     void setInvokedPopover(RefPtr<Element>&& element) { m_invokedPopover = WTF::move(element); }
 
-    const std::optional<OptionSet<ContentRelevancy>>& contentRelevancy() const { return m_contentRelevancy; }
+    const std::optional<OptionSet<ContentRelevancy>>& contentRelevancy() const LIFETIME_BOUND { return m_contentRelevancy; }
     void setContentRelevancy(OptionSet<ContentRelevancy>& contentRelevancy) { m_contentRelevancy = contentRelevancy; }
 
     CustomStateSet* customStateSet() { return m_customStateSet.get(); }

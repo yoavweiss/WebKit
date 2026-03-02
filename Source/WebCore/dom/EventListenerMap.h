@@ -111,7 +111,7 @@ public:
     void copyEventListenersNotCreatedFromMarkupToTarget(EventTarget*);
     
     template<typename Visitor> void visitJSEventListeners(Visitor&);
-    Lock& lock() { return m_lock; }
+    Lock& lock() LIFETIME_BOUND { return m_lock; }
 
 private:
     void releaseAssertOrSetThreadUID()

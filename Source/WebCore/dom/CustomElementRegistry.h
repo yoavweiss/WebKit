@@ -111,7 +111,7 @@ public:
     void upgrade(Node& root);
     ExceptionOr<void> initialize(Node& root);
 
-    MemoryCompactRobinHoodHashMap<AtomString, Ref<DeferredPromise>>& promiseMap() { return m_promiseMap; }
+    MemoryCompactRobinHoodHashMap<AtomString, Ref<DeferredPromise>>& promiseMap() LIFETIME_BOUND { return m_promiseMap; }
     bool isShadowDisabled(const AtomString& name) const { return m_disabledShadowSet.contains(name); }
 
     template<typename Visitor> void visitJSCustomElementInterfaces(Visitor&) const;

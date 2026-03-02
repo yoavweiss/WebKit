@@ -46,16 +46,16 @@ public:
     static RefPtr<SpellCheckRequest> create(OptionSet<TextCheckingType>, TextCheckingProcessType, const SimpleRange& checkingRange, const SimpleRange& automaticReplacementRange, const SimpleRange& paragraphRange);
     virtual ~SpellCheckRequest();
 
-    const SimpleRange& checkingRange() const { return m_checkingRange; }
-    const SimpleRange& paragraphRange() const { return m_paragraphRange; }
-    const SimpleRange& automaticReplacementRange() const { return m_automaticReplacementRange; }
+    const SimpleRange& checkingRange() const LIFETIME_BOUND { return m_checkingRange; }
+    const SimpleRange& paragraphRange() const LIFETIME_BOUND { return m_paragraphRange; }
+    const SimpleRange& automaticReplacementRange() const LIFETIME_BOUND { return m_automaticReplacementRange; }
     Element* rootEditableElement() const { return m_rootEditableElement.get(); }
 
     void setCheckerAndIdentifier(SpellChecker*, TextCheckingRequestIdentifier);
     void setExistingResults(const Vector<TextCheckingResult>&);
     void requesterDestroyed();
 
-    const TextCheckingRequestData& data() const final;
+    const TextCheckingRequestData& data() const LIFETIME_BOUND final;
 
 private:
     void didSucceed(const Vector<TextCheckingResult>&) final;

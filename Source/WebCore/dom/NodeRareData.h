@@ -275,19 +275,19 @@ public:
     bool isElementRareData() const { return m_isElementRareData; }
 
     void clearNodeLists() { m_nodeLists = nullptr; }
-    NodeListsNodeData* nodeLists() const { return m_nodeLists.get(); }
-    NodeListsNodeData& ensureNodeLists()
+    NodeListsNodeData* nodeLists() const LIFETIME_BOUND { return m_nodeLists.get(); }
+    NodeListsNodeData& ensureNodeLists() LIFETIME_BOUND
     {
         if (!m_nodeLists)
             m_nodeLists = makeUnique<NodeListsNodeData>();
         return *m_nodeLists;
     }
 
-    NodeMutationObserverData* mutationObserverDataIfExists() { return m_mutationObserverData.get(); }
-    NodeMutationObserverData& mutationObserverData()
+    NodeMutationObserverData* mutationObserverDataIfExists() const LIFETIME_BOUND { return m_mutationObserverData.get(); }
+    NodeMutationObserverData& mutationObserverData() const LIFETIME_BOUND
     {
         if (!m_mutationObserverData)
-            m_mutationObserverData = makeUnique<NodeMutationObserverData>();
+            lazyInitialize(m_mutationObserverData, makeUnique<NodeMutationObserverData>());
         return *m_mutationObserverData;
     }
 
@@ -316,7 +316,7 @@ public:
 
 private:
     std::unique_ptr<NodeListsNodeData> m_nodeLists;
-    std::unique_ptr<NodeMutationObserverData> m_mutationObserverData;
+    const std::unique_ptr<NodeMutationObserverData> m_mutationObserverData;
     WeakPtr<HTMLSlotElement, WeakPtrImplWithEventTargetData> m_manuallyAssignedSlot;
     bool m_isElementRareData;
     bool m_hasEverPaintedImages { false }; // Keep last for better bit packing with ElementRareData.

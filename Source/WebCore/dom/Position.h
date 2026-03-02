@@ -263,7 +263,7 @@ public:
     {
     }
 
-    const Position& position() const { return m_position; }
+    const Position& position() const LIFETIME_BOUND { return m_position; }
     Affinity affinity() const { return m_affinity; }
 
 private:

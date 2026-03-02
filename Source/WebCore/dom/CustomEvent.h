@@ -47,8 +47,8 @@ public:
 
     void initCustomEvent(const AtomString& type, bool canBubble, bool cancelable, JSC::JSValue detail = JSC::JSValue::JSUndefined);
 
-    const JSValueInWrappedObject& detail() const { return m_detail; }
-    JSValueInWrappedObject& cachedDetail() { return m_cachedDetail; }
+    const JSValueInWrappedObject& detail() const LIFETIME_BOUND { return m_detail; }
+    JSValueInWrappedObject& cachedDetail() LIFETIME_BOUND { return m_cachedDetail; }
 
 private:
     CustomEvent(IsTrusted);

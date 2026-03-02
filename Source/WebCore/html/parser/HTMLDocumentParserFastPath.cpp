@@ -146,12 +146,13 @@ static bool isCachedPrefixMatch(const CachedSetInnerHTML& cache, std::span<const
 template<typename CharacterType>
 static FragmentReuseResult tryAvoidParsingByCloningExistingSubtree(std::span<const CharacterType> source, ContainerNode& destinationParent, Element& contextElement)
 {
-    auto& cache = protect(destinationParent.document())->cachedSetInnerHTML();
+    Ref destinationParentDocument = destinationParent.document();
+    auto& cache = destinationParentDocument->cachedSetInnerHTML();
     RefPtr cachedContainer = cache.cachedContainer.get();
     if (!cachedContainer)
         return FragmentReuseResult::CannotReuse;
     if (!isCachedSubtreeValid(*cachedContainer)) {
-        protect(destinationParent.document())->invalidateCachedSetInnerHTML();
+        destinationParentDocument->invalidateCachedSetInnerHTML();
         return FragmentReuseResult::CannotReuse;
     }
 

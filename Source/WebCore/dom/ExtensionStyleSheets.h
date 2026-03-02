@@ -59,10 +59,10 @@ public:
     ~ExtensionStyleSheets();
 
     CSSStyleSheet* pageUserSheet();
-    const Vector<Ref<CSSStyleSheet>>& documentUserStyleSheets() const { return m_userStyleSheets; }
-    const Vector<Ref<CSSStyleSheet>>& injectedUserStyleSheets() const;
-    const Vector<Ref<CSSStyleSheet>>& injectedAuthorStyleSheets() const;
-    const Vector<Ref<CSSStyleSheet>>& authorStyleSheetsForTesting() const { return m_authorStyleSheetsForTesting; }
+    const Vector<Ref<CSSStyleSheet>>& documentUserStyleSheets() const LIFETIME_BOUND { return m_userStyleSheets; }
+    const Vector<Ref<CSSStyleSheet>>& injectedUserStyleSheets() const LIFETIME_BOUND;
+    const Vector<Ref<CSSStyleSheet>>& injectedAuthorStyleSheets() const LIFETIME_BOUND;
+    const Vector<Ref<CSSStyleSheet>>& authorStyleSheetsForTesting() const LIFETIME_BOUND { return m_authorStyleSheetsForTesting; }
 
     bool NODELETE hasCachedInjectedStyleSheets() const;
 
