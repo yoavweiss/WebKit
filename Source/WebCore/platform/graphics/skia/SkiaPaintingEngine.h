@@ -28,10 +28,12 @@
 #if USE(COORDINATED_GRAPHICS) && USE(SKIA)
 #include <wtf/RefPtr.h>
 #include <wtf/TZoneMalloc.h>
+#include <wtf/WorkQueue.h>
 #include <wtf/WorkerPool.h>
 
 namespace WebCore {
 
+class AtlasUploadCondition;
 class BitmapTexturePool;
 class CoordinatedTileBuffer;
 class GraphicsContext;
@@ -39,6 +41,8 @@ class GraphicsLayer;
 class GraphicsLayerCoordinated;
 class IntRect;
 class IntSize;
+class SkiaGPUAtlas;
+class SkiaImageAtlasLayout;
 class SkiaRecordingResult;
 enum class RenderingMode : uint8_t;
 
@@ -53,10 +57,11 @@ public:
 
     static unsigned numberOfCPUPaintingThreads();
     static unsigned numberOfGPUPaintingThreads();
+    static bool shouldUseDMABufAtlasTextures();
     static bool shouldUseLinearTileTextures();
     static bool shouldUseVivanteSuperTiledTileTextures();
 
-    bool useThreadedRendering() const { return m_workerPool; }
+    bool useThreadedRendering() const { return m_paintingWorkerPool; }
 
     Ref<CoordinatedTileBuffer> paint(const GraphicsLayerCoordinated&, const IntRect& dirtyRect, bool contentsOpaque, float contentsScale);
     Ref<SkiaRecordingResult> record(const GraphicsLayerCoordinated&, const IntRect& recordRect, bool contentsOpaque, float contentsScale);
@@ -65,8 +70,11 @@ public:
 private:
     Ref<CoordinatedTileBuffer> createBuffer(RenderingMode, const IntSize&, bool contentsOpaque) const;
     void paintIntoGraphicsContext(const GraphicsLayer&, GraphicsContext&, const IntRect&, bool contentsOpaque, float contentsScale) const;
+    RefPtr<SkiaGPUAtlas> createAtlas(const SkiaImageAtlasLayout&, AtlasUploadCondition&);
 
-    RefPtr<WorkerPool> m_workerPool;
+    RefPtr<WorkerPool> m_paintingWorkerPool;
+    RefPtr<WorkQueue> m_uploadWorkQueue;
+
     std::unique_ptr<BitmapTexturePool> m_texturePool;
 };
 

@@ -98,7 +98,7 @@ GLenum depthBufferFormat()
 BitmapTexture::BitmapTexture(const IntSize& size, OptionSet<Flags> flags)
     : m_flags(flags)
     , m_size(size)
-    , m_pixelFormat(PixelFormat::RGBA8)
+    , m_pixelFormat(flags.contains(Flags::UseBGRALayout) ? PixelFormat::BGRA8 : PixelFormat::RGBA8)
 {
     determineRenderTargetAndBinding();
 #if USE(GBM)
@@ -223,7 +223,7 @@ void BitmapTexture::reset(const IntSize& size, OptionSet<Flags> flags)
 
     m_flags = flags;
     m_shouldClear = true;
-    m_pixelFormat = PixelFormat::RGBA8;
+    m_pixelFormat = flags.contains(Flags::UseBGRALayout) ? PixelFormat::BGRA8 : PixelFormat::RGBA8;
     m_filterOperation = nullptr;
 
     if (!flags.contains(Flags::DepthBuffer)) {

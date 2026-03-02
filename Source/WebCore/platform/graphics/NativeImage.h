@@ -77,7 +77,7 @@ public:
 
     WEBCORE_EXPORT void replacePlatformImage(PlatformImagePtr&&) const;
 
-#if USE(COORDINATED_GRAPHICS)
+#if USE(SKIA) || USE(COORDINATED_GRAPHICS)
     uint64_t uniqueID() const;
 #endif
 

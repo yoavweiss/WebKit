@@ -58,12 +58,14 @@ platform/graphics/skia/PathSkia.cpp
 platform/graphics/skia/PatternSkia.cpp
 platform/graphics/skia/PlatformDisplaySkia.cpp
 platform/graphics/skia/ShareableBitmapSkia.cpp
+platform/graphics/skia/SkiaGPUAtlas.cpp
 platform/graphics/skia/SkiaHarfBuzzFont.cpp
 platform/graphics/skia/SkiaHarfBuzzFontCache.cpp
 platform/graphics/skia/SkiaImageAtlasLayout.cpp
 platform/graphics/skia/SkiaImageAtlasLayoutBuilder.cpp
 platform/graphics/skia/SkiaPaintingEngine.cpp
 platform/graphics/skia/SkiaRecordingResult.cpp
+platform/graphics/skia/SkiaReplayAtlas.cpp
 platform/graphics/skia/SkiaReplayCanvas.cpp
 platform/graphics/skia/SkiaSystemFallbackFontCache.cpp
 platform/graphics/skia/SkiaTextureAtlasPacker.cpp

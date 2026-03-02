@@ -61,6 +61,19 @@ void SkiaRecordingResult::waitForFenceIfNeeded(const SkImage& image)
         fence->serverWait();
 }
 
+void SkiaRecordingResult::waitForUploadFence()
+{
+    if (m_uploadFence)
+        m_uploadFence->serverWait();
+}
+
+
+void SkiaRecordingResult::waitForUploadCondition()
+{
+    if (m_uploadCondition)
+        m_uploadCondition->wait();
+}
+
 } // namespace WebCore
 
 #endif // USE(SKIA)

@@ -28,6 +28,7 @@
 #if USE(SKIA)
 #include "IntSize.h"
 #include "SkiaRecordingResult.h"
+#include "SkiaReplayAtlas.h"
 #include <wtf/Assertions.h>
 #include <wtf/Function.h>
 
@@ -79,6 +80,7 @@ private:
     void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
 
     RefPtr<SkiaRecordingResult> m_recording;
+    Vector<std::unique_ptr<SkiaReplayAtlas>> m_atlases;
 };
 
 } // namespace WebCore

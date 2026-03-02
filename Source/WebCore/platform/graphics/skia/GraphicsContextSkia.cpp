@@ -283,8 +283,8 @@ void GraphicsContextSkia::drawNativeImage(const NativeImage& nativeImage, const 
         return;
 
     // Collect raster images for atlas batching during recording.
-    if (m_contextMode == ContextMode::RecordingMode && !image->isTextureBacked() && m_atlasLayoutBuilder) {
-        // FIXME: Remove m_atlasLayoutBuilder check and turn into ASSERT(m_atlasLayoutBuilder), once atlas mode is activated.
+    if (m_contextMode == ContextMode::RecordingMode && m_renderingMode == RenderingMode::Accelerated && !image->isTextureBacked()) {
+        ASSERT(m_atlasLayoutBuilder);
         m_atlasLayoutBuilder->collectRasterImage(image);
     }
 
@@ -1236,8 +1236,11 @@ void GraphicsContextSkia::beginRecording()
 {
     ASSERT(m_contextMode == ContextMode::PaintingMode);
     m_contextMode = ContextMode::RecordingMode;
-    // FIXME: Enable atlas mode, once upstreaming completed.
-    // m_atlasLayoutBuilder = makeUnique<SkiaImageAtlasLayoutBuilder>();
+
+    if (m_renderingMode == RenderingMode::Accelerated)
+        m_atlasLayoutBuilder = makeUnique<SkiaImageAtlasLayoutBuilder>();
+    else
+        ASSERT(!m_atlasLayoutBuilder);
 }
 
 SkiaRecordingData GraphicsContextSkia::endRecording()
@@ -1245,7 +1248,6 @@ SkiaRecordingData GraphicsContextSkia::endRecording()
     ASSERT(m_contextMode == ContextMode::RecordingMode);
     m_contextMode = ContextMode::PaintingMode;
 
-    // FIXME: Remove m_atlasLayoutBuilder check and turn into ASSERT(m_atlasLayoutBuilder), once atlas mode is activated.
     Vector<Ref<SkiaImageAtlasLayout>> atlasLayouts;
     if (m_atlasLayoutBuilder) {
         atlasLayouts = m_atlasLayoutBuilder->finalize();
