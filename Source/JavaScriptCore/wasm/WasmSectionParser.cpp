@@ -1206,9 +1206,11 @@ auto SectionParser::parseElementKind(uint8_t& resultElementKind) -> PartialResul
 
 auto SectionParser::parseIndexCountForElementSection(uint32_t& resultIndexCount, const unsigned elementNum) -> PartialResult
 {
+    static_assert(maxTableInitializationEntries < std::numeric_limits<uint32_t>::max());
+
     uint32_t indexCount;
     WASM_PARSER_FAIL_IF(!parseVarUInt32(indexCount), "can't get "_s, elementNum, "th index count for Element section"_s);
-    WASM_PARSER_FAIL_IF(indexCount == std::numeric_limits<uint32_t>::max(), "Element section's "_s, elementNum, "th index count is too big "_s, indexCount);
+    WASM_PARSER_FAIL_IF(indexCount > maxTableInitializationEntries, "Element section's "_s, elementNum, "th index count of "_s, indexCount, " is too big, maximum "_s, maxTableInitializationEntries);
     resultIndexCount = indexCount;
 
     return { };
