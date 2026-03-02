@@ -2419,7 +2419,7 @@ def generate_message_argument_description_implementation(receivers, receiver_hea
 def generate_modulemap(receiver_headers: list[str]) -> str:
     result = []
 
-    result.append('module WebKit_DerivedSources {')
+    result.append('module WebKit_DerivedSources_IPC {')
 
     all_headers = receiver_headers + ['MessageNames.h', 'GeneratedSerializers.h', 'GeneratedWebKitSecureCoding.h']
     for header in all_headers:

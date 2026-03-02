@@ -1,4 +1,4 @@
-module WebKit_DerivedSources {
+module WebKit_DerivedSources_IPC {
   explicit module IPCMessages {
     header "IPCMessages.h"
     export *
