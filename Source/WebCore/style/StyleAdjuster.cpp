@@ -72,6 +72,7 @@
 #include "StylableInlines.h"
 #include "StyleContainmentCheckerInlines.h"
 #include "StyleComputedStyle+InitialInlines.h"
+#include "StyleFontSizeFunctions.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StyleSelfAlignmentData.h"
 #include "StyleTextDecorationLine.h"
@@ -901,8 +902,19 @@ void Adjuster::adjustSVGElementStyle(RenderStyle& style, const SVGElement& svgEl
 
     // (Legacy)RenderSVGRoot handles zooming for the whole SVG subtree, so foreignObject content should
     // not be scaled again.
-    if (svgElement.hasTagName(SVGNames::foreignObjectTag))
+    if (svgElement.hasTagName(SVGNames::foreignObjectTag)) {
         style.setUsedZoom(evaluate<float>(ComputedStyle::initialZoom()));
+
+        // The font's computed size may have been inherited from the HTML tree with CSS zoom
+        // already applied. Since we just reset usedZoom for foreignObject, recompute the font's
+        // computed size from the specified size without zoom (useSVGZoomRules=true), so that
+        // children inherit the correct (unzoomed) computed size. The SVG root transform handles
+        // the zoom scaling, consistent with other SVG content.
+        auto fontDescription = style.fontDescription();
+        auto computedFontSize = computedFontSizeFromSpecifiedSize(fontDescription.specifiedSize(), fontDescription.isAbsoluteSize(), /*useSVGZoomRules=*/true, style.computedStyle(), svgElement.document());
+        fontDescription.setComputedSize(computedFontSize.size, computedFontSize.usedZoomFactor);
+        style.setFontDescription(WTF::move(fontDescription));
+    }
 
     // SVG text layout code expects us to be a block-level style element.
     // While in theory any block level element would work (flex, grid etc), since we construct RenderBlockFlow for both foreign object and svg text,
