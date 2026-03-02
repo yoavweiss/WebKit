@@ -49,7 +49,6 @@ private:
     const AtomString& formControlType() const;
     bool isFocusable() const final;
     void attributeChanged(const QualifiedName&, const AtomString& oldValue, const AtomString& newValue, AttributeModificationReason) final;
-    bool rendererIsNeeded(const RenderStyle&) final;
 
     void childrenChanged(const ChildChange&) final;
 

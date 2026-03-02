@@ -55,15 +55,6 @@ Ref<HTMLOptGroupElement> HTMLOptGroupElement::create(const QualifiedName& tagNam
     return adoptRef(*new HTMLOptGroupElement(tagName, document));
 }
 
-bool HTMLOptGroupElement::rendererIsNeeded(const RenderStyle&)
-{
-    RefPtr select = ownerSelectElement();
-    if (!select)
-        return false;
-
-    return document().settings().htmlEnhancedSelectEnabled() && select->usesBaseAppearancePicker();
-}
-
 auto HTMLOptGroupElement::insertedIntoAncestor(InsertionType insertionType, ContainerNode& parentOfInsertedTree) -> InsertedIntoAncestorResult
 {
     auto result = HTMLElement::insertedIntoAncestor(insertionType, parentOfInsertedTree);

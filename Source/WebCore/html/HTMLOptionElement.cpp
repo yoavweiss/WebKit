@@ -180,15 +180,6 @@ bool HTMLOptionElement::isFocusable() const
     return HTMLElement::isFocusable();
 }
 
-bool HTMLOptionElement::rendererIsNeeded(const RenderStyle&)
-{
-    RefPtr select = ownerSelectElement();
-    if (!select)
-        return false;
-
-    return document().settings().htmlEnhancedSelectEnabled() && select->usesBaseAppearancePicker();
-}
-
 String HTMLOptionElement::text() const
 {
     String text = collectOptionInnerText();
