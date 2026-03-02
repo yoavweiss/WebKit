@@ -54,9 +54,12 @@
 
 // rdar://165192318
 IGNORE_CLANG_WARNINGS_BEGIN("arc-bridge-casts-disallowed-in-nonarc")
+// rdar://171345626
+IGNORE_CLANG_WARNINGS_BEGIN("objc-property-no-attribute")
 #ifdef GENERATE_SINGLE_SWIFT_INTEROP_FILE
 #include "WebKit-Swift-Generated.h"
 #else
 #include "WebKit-Swift-CPP.h"
 #endif
+IGNORE_CLANG_WARNINGS_END
 IGNORE_CLANG_WARNINGS_END
