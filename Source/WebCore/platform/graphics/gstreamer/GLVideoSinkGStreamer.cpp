@@ -57,14 +57,12 @@ struct _WebKitGLVideoSinkPrivate {
     ~_WebKitGLVideoSinkPrivate()
     {
         ASSERT(isMainThread());
-        if (mediaPlayerPrivate)
-            g_signal_handlers_disconnect_by_data(appSink.get(), mediaPlayerPrivate);
-
+        webKitVideoSinkDisconnectSignalHandlers(appSink.get(), signalIdentifiers);
         GST_DEBUG_OBJECT(appSink.get(), "WebKitGLVideoSink finalized.");
     }
 
     GRefPtr<GstElement> appSink;
-    MediaPlayerPrivateGStreamer* mediaPlayerPrivate;
+    WebKitVideoSinkSignalIdentifiers signalIdentifiers;
 };
 
 #define GST_GL_CAPS_FORMAT "{ A420, RGBx, RGBA, I420, Y444, YV12, Y41B, Y42B, NV12, NV21, VUYA }"
@@ -275,12 +273,11 @@ static void webkit_gl_video_sink_class_init(WebKitGLVideoSinkClass* klass)
     elementClass->change_state = GST_DEBUG_FUNCPTR(webKitGLVideoSinkChangeState);
 }
 
-void webKitGLVideoSinkSetMediaPlayerPrivate(WebKitGLVideoSink* sink, MediaPlayerPrivateGStreamer* player)
+void webKitGLVideoSinkSetMediaPlayerPrivate(WebKitGLVideoSink* sink, const ThreadSafeWeakPtr<MediaPlayerPrivateGStreamer>& player)
 {
     WebKitGLVideoSinkPrivate* priv = sink->priv;
 
-    priv->mediaPlayerPrivate = player;
-    webKitVideoSinkSetMediaPlayerPrivate(priv->appSink.get(), priv->mediaPlayerPrivate);
+    priv->signalIdentifiers = webKitVideoSinkSetMediaPlayerPrivate(priv->appSink.get(), player);
 }
 
 bool webKitGLVideoSinkProbePlatform()
