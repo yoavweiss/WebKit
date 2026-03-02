@@ -28,6 +28,7 @@
 #include "ElementAndTextDescendantIterator.h"
 #include "HTMLSlotElement.h"
 #include "ShadowRoot.h"
+#include "SlotAssignment.h"
 
 namespace WebCore {
 

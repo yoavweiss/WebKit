@@ -118,7 +118,7 @@ public:
     void removeAllEventListeners() override;
 
     SlotAssignmentMode slotAssignmentMode() const { return m_slotAssignmentMode; }
-    HTMLSlotElement* findAssignedSlot(const Node&);
+    inline HTMLSlotElement* NODELETE findAssignedSlot(const Node&); // Defined in SlotAssignment.h
 
     void renameSlotElement(HTMLSlotElement&, const AtomString& oldName, const AtomString& newName);
     void addSlotElementByName(const AtomString&, HTMLSlotElement&);
@@ -126,14 +126,14 @@ public:
     void slotManualAssignmentDidChange(HTMLSlotElement&, Vector<WeakPtr<Node, WeakPtrImplWithEventTargetData>>& previous, Vector<WeakPtr<Node, WeakPtrImplWithEventTargetData>>& current);
     void didRemoveManuallyAssignedNode(HTMLSlotElement&, const Node&);
     void slotFallbackDidChange(HTMLSlotElement&);
-    void resolveSlotsBeforeNodeInsertionOrRemoval();
-    void willRemoveAllChildren(ContainerNode&);
-    void willRemoveAssignedNode(Node&);
+    inline void NODELETE resolveSlotsBeforeNodeInsertionOrRemoval(); // Defined in SlotAssignment.h
+    inline void NODELETE willRemoveAllChildren(ContainerNode&); // Defined in SlotAssignment.h
+    inline void willRemoveAssignedNode(Node&); // Defined in SlotAssignment.h
 
-    void didRemoveAllChildrenOfShadowHost();
-    void didMutateTextNodesOfShadowHost();
-    void hostChildElementDidChange(const Element&);
-    void hostChildElementDidChangeSlotAttribute(Element&, const AtomString& oldValue, const AtomString& newValue);
+    inline void didRemoveAllChildrenOfShadowHost(); // Defined in SlotAssignment.h
+    inline void didMutateTextNodesOfShadowHost(); // Defined in SlotAssignment.h
+    inline void hostChildElementDidChange(const Element&); // Defined in SlotAssignment.h
+    inline void hostChildElementDidChangeSlotAttribute(Element&, const AtomString& oldValue, const AtomString& newValue); // Defined in SlotAssignment.h
 
     const Vector<WeakPtr<Node, WeakPtrImplWithEventTargetData>>* assignedNodesForSlot(const HTMLSlotElement&);
 

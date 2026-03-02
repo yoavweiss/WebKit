@@ -34,6 +34,7 @@
 #include "NodeInlines.h"
 #include "PseudoElement.h"
 #include "ShadowRoot.h"
+#include "SlotAssignment.h"
 #include "TouchEvent.h"
 #include "TreeScopeInlines.h"
 #include <wtf/CheckedPtr.h>

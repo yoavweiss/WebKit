@@ -59,7 +59,7 @@ static const AtomString& NODELETE slotNameFromAttributeValue(const AtomString& v
     return value == nullAtom() ? NamedSlotAssignment::defaultSlotName() : value;
 }
 
-static const AtomString& slotNameFromSlotAttribute(const Node& child)
+static const AtomString& NODELETE slotNameFromSlotAttribute(const Node& child)
 {
     if (is<Text>(child))
         return NamedSlotAssignment::defaultSlotName();
@@ -398,7 +398,7 @@ void NamedSlotAssignment::willRemoveAssignedNode(Node& node, ShadowRoot&)
     InspectorInstrumentation::didChangeAssignedSlot(node);
 }
 
-const AtomString& NamedSlotAssignment::slotNameForHostChild(const Node& child) const
+const AtomString& NODELETE NamedSlotAssignment::slotNameForHostChild(const Node& child) const
 {
     return slotNameFromSlotAttribute(child);
 }
@@ -458,11 +458,11 @@ void NamedSlotAssignment::assignToSlot(Node& child, const AtomString& slotName)
 
 HTMLSlotElement* ManualSlotAssignment::findAssignedSlot(const Node& node)
 {
-    RefPtr slot = node.manuallyAssignedSlot();
+    auto* slot = node.manuallyAssignedSlot();
     if (!slot)
         return nullptr;
-    RefPtr containingShadowRoot = slot->containingShadowRoot();
-    return containingShadowRoot && containingShadowRoot->host() == node.parentNode() ? slot.unsafeGet() : nullptr;
+    auto* containingShadowRoot = slot->containingShadowRoot();
+    return containingShadowRoot && containingShadowRoot->host() == node.parentNode() ? slot : nullptr;
 }
 
 static Vector<WeakPtr<Node, WeakPtrImplWithEventTargetData>> effectiveAssignedNodes(ShadowRoot& shadowRoot, const Vector<WeakPtr<Node, WeakPtrImplWithEventTargetData>>& manuallyAssingedNodes)

@@ -33,6 +33,7 @@
 #include "NodeRenderStyle.h"
 #include "RenderElement.h"
 #include "SVGElement.h"
+#include "SlotAssignment.h"
 #include "Text.h"
 #include <wtf/TZoneMallocInlines.h>
 

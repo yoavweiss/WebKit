@@ -103,7 +103,7 @@ static bool NODELETE isFirstElementChildButton(const Node& child)
 class SelectSlotAssignment final : public NamedSlotAssignment {
 private:
     void hostChildElementDidChange(const Element&, ShadowRoot&) final;
-    const AtomString& slotNameForHostChild(const Node&) const final;
+    const AtomString& NODELETE slotNameForHostChild(const Node&) const final;
 };
 
 void SelectSlotAssignment::hostChildElementDidChange(const Element& childElement, ShadowRoot& shadowRoot)
@@ -116,7 +116,7 @@ void SelectSlotAssignment::hostChildElementDidChange(const Element& childElement
         didChangeSlot(NamedSlotAssignment::defaultSlotName(), shadowRoot);
 }
 
-const AtomString& SelectSlotAssignment::slotNameForHostChild(const Node& child) const
+SUPPRESS_NODELETE const AtomString& SelectSlotAssignment::slotNameForHostChild(const Node& child) const
 {
     return isFirstElementChildButton(child) ? buttonSlotName() : NamedSlotAssignment::defaultSlotName();
 }

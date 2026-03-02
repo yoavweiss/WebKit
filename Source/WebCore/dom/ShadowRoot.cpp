@@ -320,13 +320,6 @@ void ShadowRoot::removeAllEventListeners()
         node->removeAllEventListeners();
 }
 
-
-HTMLSlotElement* ShadowRoot::findAssignedSlot(const Node& node)
-{
-    ASSERT(node.parentNode() == host());
-    return m_slotAssignment ? m_slotAssignment->findAssignedSlot(node) : nullptr;
-}
-
 void ShadowRoot::renameSlotElement(HTMLSlotElement& slot, const AtomString& oldName, const AtomString& newName)
 {
     ASSERT(m_slotAssignment);
