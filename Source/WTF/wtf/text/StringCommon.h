@@ -1100,7 +1100,7 @@ template<typename ElementType>
 inline void copyElements(std::span<ElementType> destinationSpan, std::span<const ElementType> sourceSpan)
 {
     ASSERT(!spansOverlap(destinationSpan, sourceSpan));
-    ASSERT(destinationSpan.size() >= sourceSpan.size());
+    RELEASE_ASSERT(destinationSpan.size() >= sourceSpan.size());
     auto* __restrict destination = destinationSpan.data();
     auto* __restrict source = sourceSpan.data();
     if (sourceSpan.size() == 1)
@@ -1112,7 +1112,7 @@ inline void copyElements(std::span<ElementType> destinationSpan, std::span<const
 inline void copyElements(std::span<uint16_t> destinationSpan, std::span<const uint8_t> sourceSpan)
 {
     ASSERT(!spansOverlap(destinationSpan, sourceSpan));
-    ASSERT(destinationSpan.size() >= sourceSpan.size());
+    RELEASE_ASSERT(destinationSpan.size() >= sourceSpan.size());
     auto* __restrict destination = destinationSpan.data();
     auto* __restrict source = sourceSpan.data();
     size_t length = sourceSpan.size();
@@ -1166,7 +1166,7 @@ inline void copyElements(std::span<uint16_t> destinationSpan, std::span<const ui
 inline void copyElements(std::span<uint8_t> destinationSpan, std::span<const uint16_t> sourceSpan)
 {
     ASSERT(!spansOverlap(destinationSpan, sourceSpan));
-    ASSERT(destinationSpan.size() >= sourceSpan.size());
+    RELEASE_ASSERT(destinationSpan.size() >= sourceSpan.size());
     auto* __restrict destination = destinationSpan.data();
     auto* __restrict source = sourceSpan.data();
     size_t length = sourceSpan.size();
@@ -1249,7 +1249,7 @@ inline void copyElements(std::span<uint8_t> destinationSpan, std::span<const uin
 inline void copyElements(std::span<uint16_t> destinationSpan, std::span<const uint32_t> sourceSpan)
 {
     ASSERT(!spansOverlap(destinationSpan, sourceSpan));
-    ASSERT(destinationSpan.size() >= sourceSpan.size());
+    RELEASE_ASSERT(destinationSpan.size() >= sourceSpan.size());
     auto* __restrict destination = destinationSpan.data();
     auto* __restrict source = sourceSpan.data();
     size_t length = sourceSpan.size();
@@ -1279,7 +1279,7 @@ inline void copyElements(std::span<uint16_t> destinationSpan, std::span<const ui
 inline void copyElements(std::span<uint32_t> destinationSpan, std::span<const uint64_t> sourceSpan)
 {
     ASSERT(!spansOverlap(destinationSpan, sourceSpan));
-    ASSERT(destinationSpan.size() >= sourceSpan.size());
+    RELEASE_ASSERT(destinationSpan.size() >= sourceSpan.size());
     auto* __restrict destination = destinationSpan.data();
     auto* __restrict source = sourceSpan.data();
     size_t length = sourceSpan.size();
@@ -1309,7 +1309,7 @@ inline void copyElements(std::span<uint32_t> destinationSpan, std::span<const ui
 inline void copyElements(std::span<uint16_t> destinationSpan, std::span<const uint64_t> sourceSpan)
 {
     ASSERT(!spansOverlap(destinationSpan, sourceSpan));
-    ASSERT(destinationSpan.size() >= sourceSpan.size());
+    RELEASE_ASSERT(destinationSpan.size() >= sourceSpan.size());
     auto* __restrict destination = destinationSpan.data();
     auto* __restrict source = sourceSpan.data();
     size_t length = sourceSpan.size();
@@ -1339,7 +1339,7 @@ inline void copyElements(std::span<uint16_t> destinationSpan, std::span<const ui
 inline void copyElements(std::span<uint8_t> destinationSpan, std::span<const uint64_t> sourceSpan)
 {
     ASSERT(!spansOverlap(destinationSpan, sourceSpan));
-    ASSERT(destinationSpan.size() >= sourceSpan.size());
+    RELEASE_ASSERT(destinationSpan.size() >= sourceSpan.size());
     auto* __restrict destination = destinationSpan.data();
     auto* __restrict source = sourceSpan.data();
     size_t length = sourceSpan.size();
@@ -1371,7 +1371,7 @@ inline void copyElements(std::span<uint8_t> destinationSpan, std::span<const uin
 inline void copyElements(std::span<float> destinationSpan, std::span<const double> sourceSpan)
 {
     ASSERT(!spansOverlap(destinationSpan, sourceSpan));
-    ASSERT(destinationSpan.size() >= sourceSpan.size());
+    RELEASE_ASSERT(destinationSpan.size() >= sourceSpan.size());
     auto* __restrict destination = destinationSpan.data();
     auto* __restrict source = sourceSpan.data();
     size_t length = sourceSpan.size();
