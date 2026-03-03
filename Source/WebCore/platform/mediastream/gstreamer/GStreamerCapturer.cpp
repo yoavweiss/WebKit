@@ -89,7 +89,10 @@ void GStreamerCapturer::tearDown(bool disconnectSignals)
         return;
 
     m_valve = nullptr;
-    m_src = nullptr;
+    {
+        Locker locker { m_lock };
+        m_src = nullptr;
+    }
     m_capsfilter = nullptr;
     m_sink = nullptr;
     m_pipeline = nullptr;
@@ -148,7 +151,7 @@ struct CapturerProbeData {
 };
 WEBKIT_DEFINE_ASYNC_DATA_STRUCT(CapturerProbeData);
 
-GstElement* GStreamerCapturer::createSource()
+GstElement* GStreamerCapturer::createSource() WTF_IGNORES_THREAD_SAFETY_ANALYSIS
 {
     if (m_pipewireDevice) {
         m_src = makeElement("pipewiresrc");

@@ -1160,21 +1160,25 @@ IGNORE_WARNINGS_END
             g_object_set(object, "client-name", clientName.ascii().data(), nullptr);
         }
     }), role.isolatedCopy().releaseImpl().leakRef(), static_cast<GClosureNotify>([](gpointer userData, GClosure*) {
-        reinterpret_cast<StringImpl*>(userData)->deref();
+        if (auto* roleImpl = reinterpret_cast<StringImpl*>(userData))
+            roleImpl->deref();
     }), static_cast<GConnectFlags>(0));
     ASSERT(g_object_is_floating(audioSink));
     return audioSink;
 }
 
-GstElement* /* (transfer floating) */ createPlatformAudioSink(const String& role)
+GstElement* /* (transfer floating) */ createPlatformAudioSink(const String& role, const String& deviceId, const GRefPtr<GstDevice>& device)
 {
-    GstElement* audioSink = webkitAudioSinkNew(role);
+    GstElement* audioSink = webkitAudioSinkNew(role, deviceId, device);
     if (!audioSink) {
         // This means the WebKit audio sink configuration failed. It can happen for the following reasons:
         // - audio mixing was not requested using the WEBKIT_GST_ENABLE_AUDIO_MIXER
         // - audio mixing was requested using the WEBKIT_GST_ENABLE_AUDIO_MIXER but the audio mixer
         //   runtime requirements are not fullfilled.
-        audioSink = createAutoAudioSink(role);
+        if (device)
+            audioSink = gst_device_create_element(device.get(), "audio-output-sink");
+        else
+            audioSink = createAutoAudioSink(role);
     }
 
     return audioSink;
@@ -2259,7 +2263,8 @@ void dumpBinToDotFile(GstBin* bin, const String& filename, GstDebugGraphDetails 
     if (!bin) [[unlikely]]
         return;
 
-    GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(bin, details, filename.utf8().data());
+    auto sanitizedFilename = makeStringByReplacingAll(filename, '/', '-');
+    GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(bin, details, sanitizedFilename.utf8().data());
 }
 
 void dumpBinToDotFile(const GRefPtr<GstElement>& element, const String& filename, GstDebugGraphDetails details)
