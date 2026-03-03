@@ -68,7 +68,7 @@ public:
     void updateSizes(ForceUpdate force = ForceUpdate::No);
     void updateDisplay();
 
-    TextTrackRepresentation* textTrackRepresentation() const { return m_textTrackRepresentation.get(); }
+    TextTrackRepresentation* textTrackRepresentation() const LIFETIME_BOUND { return m_textTrackRepresentation.get(); }
     void updateTextTrackRepresentationImageIfNeeded();
     void requiresTextTrackRepresentationChanged();
 

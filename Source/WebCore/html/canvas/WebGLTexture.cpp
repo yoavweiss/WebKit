@@ -41,7 +41,7 @@ Ref<WebGLTexture> WebGLTexture::createLost()
 
 Ref<WebGLTexture> WebGLTexture::create(WebGLRenderingContextBase& context)
 {
-    auto object = context.graphicsContextGL()->createTexture();
+    auto object = protect(context.graphicsContextGL())->createTexture();
     if (!object)
         return createLost();
     return adoptRef(*new WebGLTexture { context, object });

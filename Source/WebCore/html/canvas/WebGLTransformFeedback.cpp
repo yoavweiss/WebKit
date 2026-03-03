@@ -44,7 +44,7 @@ Ref<WebGLTransformFeedback> WebGLTransformFeedback::createLost()
 
 Ref<WebGLTransformFeedback> WebGLTransformFeedback::create(WebGL2RenderingContext& context)
 {
-    auto object = context.graphicsContextGL()->createTransformFeedback();
+    auto object = protect(context.graphicsContextGL())->createTransformFeedback();
     if (!object)
         return createLost();
     return adoptRef(*new WebGLTransformFeedback { context, object });

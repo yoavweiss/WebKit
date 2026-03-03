@@ -37,7 +37,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(EXTTextureCompressionBPTC);
 EXTTextureCompressionBPTC::EXTTextureCompressionBPTC(WebGLRenderingContextBase& context)
     : WebGLExtension(context, WebGLExtensionName::EXTTextureCompressionBPTC)
 {
-    context.graphicsContextGL()->enableExtension(GCGLExtension::EXT_texture_compression_bptc);
+    protect(context.graphicsContextGL())->enableExtension(GCGLExtension::EXT_texture_compression_bptc);
 
     context.addCompressedTextureFormat(GraphicsContextGL::COMPRESSED_RGBA_BPTC_UNORM_EXT);
     context.addCompressedTextureFormat(GraphicsContextGL::COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT);

@@ -60,11 +60,11 @@ public:
 
     static PredefinedColorSpace NODELETE computeColorSpace(std::optional<ImageDataSettings>, PredefinedColorSpace defaultColorSpace = PredefinedColorSpace::SRGB);
 
-    const IntSize& size() const { return m_size; }
+    const IntSize& size() const LIFETIME_BOUND { return m_size; }
 
     int width() const { return m_size.width(); }
     int height() const { return m_size.height(); }
-    const ImageDataArray& data() const { return m_data; }
+    const ImageDataArray& data() const LIFETIME_BOUND { return m_data; }
     PredefinedColorSpace colorSpace() const { return m_colorSpace; }
     ImageDataPixelFormat pixelFormat() const { return m_data.pixelFormat(); }
 

@@ -37,7 +37,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(WebGLStencilTexturing);
 WebGLStencilTexturing::WebGLStencilTexturing(WebGLRenderingContextBase& context)
     : WebGLExtension(context, WebGLExtensionName::WebGLStencilTexturing)
 {
-    context.graphicsContextGL()->enableExtension(GCGLExtension::ANGLE_stencil_texturing);
+    protect(context.graphicsContextGL())->enableExtension(GCGLExtension::ANGLE_stencil_texturing);
 }
 
 WebGLStencilTexturing::~WebGLStencilTexturing() = default;

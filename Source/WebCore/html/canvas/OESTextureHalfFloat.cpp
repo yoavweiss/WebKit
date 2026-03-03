@@ -37,7 +37,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(OESTextureHalfFloat);
 OESTextureHalfFloat::OESTextureHalfFloat(WebGLRenderingContextBase& context)
     : WebGLExtension(context, WebGLExtensionName::OESTextureHalfFloat)
 {
-    context.graphicsContextGL()->enableExtension(GCGLExtension::OES_texture_half_float);
+    protect(context.graphicsContextGL())->enableExtension(GCGLExtension::OES_texture_half_float);
 
     // Spec requires EXT_color_buffer_half_float to be turned on implicitly here.
     // Enable it both in the backend and in WebKit.

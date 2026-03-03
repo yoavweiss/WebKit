@@ -37,7 +37,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(WebGLBlendFuncExtended);
 WebGLBlendFuncExtended::WebGLBlendFuncExtended(WebGLRenderingContextBase& context)
     : WebGLExtension(context, WebGLExtensionName::WebGLBlendFuncExtended)
 {
-    context.graphicsContextGL()->enableExtension(GCGLExtension::EXT_blend_func_extended);
+    protect(context.graphicsContextGL())->enableExtension(GCGLExtension::EXT_blend_func_extended);
 }
 
 WebGLBlendFuncExtended::~WebGLBlendFuncExtended() = default;

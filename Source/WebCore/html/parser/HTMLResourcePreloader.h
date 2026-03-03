@@ -51,8 +51,8 @@ public:
 
     CachedResourceRequest resourceRequest(Document&);
 
-    const String& charset() const { return m_charset; }
-    const String& media() const { return m_mediaAttribute; }
+    const String& charset() const LIFETIME_BOUND { return m_charset; }
+    const String& media() const LIFETIME_BOUND { return m_mediaAttribute; }
     void setCharset(const String& charset) { m_charset = charset.isolatedCopy(); }
     void setCrossOriginMode(const String& mode) { m_crossOriginMode = mode; }
     void setNonce(const String& nonce) { m_nonceAttribute = nonce; }

@@ -126,7 +126,7 @@ private:
 class MediaTrackBase : public TrackBase {
     WTF_MAKE_TZONE_ALLOCATED(MediaTrackBase);
 public:
-    const AtomString& kind() const { return m_kind; }
+    const AtomString& kind() const LIFETIME_BOUND { return m_kind; }
     virtual void setKind(const AtomString&);
 
 protected:

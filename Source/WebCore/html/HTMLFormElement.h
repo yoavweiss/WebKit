@@ -109,19 +109,19 @@ public:
     WEBCORE_EXPORT bool checkValidity();
     bool reportValidity();
 
-    RadioButtonGroups& radioButtonGroups() { return m_radioButtonGroups; }
+    RadioButtonGroups& radioButtonGroups() LIFETIME_BOUND { return m_radioButtonGroups; }
 
     WEBCORE_EXPORT const Vector<WeakPtr<HTMLElement, WeakPtrImplWithEventTargetData>>& NODELETE unsafeListedElements() const;
     WEBCORE_EXPORT Vector<Ref<FormListedElement>> copyListedElementsVector() const;
     Vector<Ref<ValidatedFormListedElement>> copyValidatedListedElementsVector() const;
-    const Vector<WeakPtr<HTMLImageElement, WeakPtrImplWithEventTargetData>>& imageElements() const { return m_imageElements; }
+    const Vector<WeakPtr<HTMLImageElement, WeakPtrImplWithEventTargetData>>& imageElements() const LIFETIME_BOUND { return m_imageElements; }
 
     StringPairVector textFieldValues() const;
 
     static HTMLFormElement* findClosestFormAncestor(const Element&);
     
     RefPtr<DOMFormData> constructEntryList(RefPtr<HTMLFormControlElement>&&, Ref<DOMFormData>&&, StringPairVector*);
-    const FormSubmission::Attributes& attributes() const { return m_attributes; }
+    const FormSubmission::Attributes& attributes() const LIFETIME_BOUND { return m_attributes; }
     
 private:
     HTMLFormElement(const QualifiedName&, Document&);

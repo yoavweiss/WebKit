@@ -58,7 +58,7 @@ public:
     void ref() const final { RefCounted::ref(); }
     void deref() const final { RefCounted::deref(); }
 
-    const String& id() const { return m_id; }
+    const String& id() const LIFETIME_BOUND { return m_id; }
     void setId(const String&);
 
     double width() const { return m_width; }
@@ -85,7 +85,7 @@ public:
 
     void NODELETE updateParametersFromRegion(const VTTRegion&);
 
-    const String& regionSettings() const { return m_settings; }
+    const String& regionSettings() const LIFETIME_BOUND { return m_settings; }
     void setRegionSettings(const String&);
 
     HTMLDivElement& getDisplayTree();

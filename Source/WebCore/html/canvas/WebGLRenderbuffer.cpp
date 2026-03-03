@@ -43,7 +43,7 @@ Ref<WebGLRenderbuffer> WebGLRenderbuffer::createLost()
 
 Ref<WebGLRenderbuffer> WebGLRenderbuffer::create(WebGLRenderingContextBase& context)
 {
-    auto object = context.graphicsContextGL()->createRenderbuffer();
+    auto object = protect(context.graphicsContextGL())->createRenderbuffer();
     if (!object)
         return createLost();
     return adoptRef(*new WebGLRenderbuffer { context, object });

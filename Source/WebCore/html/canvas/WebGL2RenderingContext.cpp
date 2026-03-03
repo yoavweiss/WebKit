@@ -1601,7 +1601,7 @@ void WebGL2RenderingContext::drawRangeElements(GCGLenum mode, GCGLuint start, GC
     {
         ScopedInspectorShaderProgramHighlight scopedHighlight { *this };
 
-        graphicsContextGL()->drawRangeElements(mode, start, end, count, type, offset);
+        protect(graphicsContextGL())->drawRangeElements(mode, start, end, count, type, offset);
     }
 
     markContextChangedAndNotifyCanvasObserver();
@@ -1639,7 +1639,7 @@ void WebGL2RenderingContext::drawBuffers(const Vector<GCGLenum>& buffers)
         }
         // Because the backbuffer is simulated on all current WebKit ports, we need to change BACK to COLOR_ATTACHMENT0.
         GCGLenum value[1] { (bufs[0] == GraphicsContextGL::BACK) ? GraphicsContextGL::COLOR_ATTACHMENT0 : GraphicsContextGL::NONE };
-        graphicsContextGL()->drawBuffers(value);
+        protect(graphicsContextGL())->drawBuffers(value);
         setBackDrawBuffer(bufs[0]);
     } else {
         if (n > maxDrawBuffers()) {
@@ -2578,11 +2578,11 @@ void WebGL2RenderingContext::deleteVertexArray(WebGLVertexArrayObject* arrayObje
 
     if (!arrayObject->isDefaultObject() && arrayObject == m_boundVertexArrayObject) {
         // The default VAO was removed in OpenGL 3.3 but not from WebGL 2; bind the default for WebGL to use.
-        graphicsContextGL()->bindVertexArray(m_defaultVertexArrayObject->object());
+        protect(graphicsContextGL())->bindVertexArray(m_defaultVertexArrayObject->object());
         setBoundVertexArrayObject(locker, m_defaultVertexArrayObject.get());
     }
 
-    arrayObject->deleteObject(locker, graphicsContextGL().get());
+    arrayObject->deleteObject(locker, protect(graphicsContextGL()));
 }
 
 GCGLboolean WebGL2RenderingContext::isVertexArray(WebGLVertexArrayObject* arrayObject)
@@ -2591,7 +2591,7 @@ GCGLboolean WebGL2RenderingContext::isVertexArray(WebGLVertexArrayObject* arrayO
         return false;
     if (!validateIsWebGLObject(arrayObject))
         return false;
-    return graphicsContextGL()->isVertexArray(arrayObject->object());
+    return protect(graphicsContextGL())->isVertexArray(arrayObject->object());
 }
 
 void WebGL2RenderingContext::bindVertexArray(WebGLVertexArrayObject* arrayObject)
@@ -2853,13 +2853,13 @@ WebGLAny WebGL2RenderingContext::getFramebufferAttachmentParameter(GCGLenum targ
     case GraphicsContextGL::FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE:
     case GraphicsContextGL::FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE:
     case GraphicsContextGL::FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING:
-        return graphicsContextGL()->getFramebufferAttachmentParameteri(target, attachment, pname);
+        return protect(graphicsContextGL())->getFramebufferAttachmentParameteri(target, attachment, pname);
     case GraphicsContextGL::FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE:
         if (attachment == GraphicsContextGL::DEPTH_STENCIL_ATTACHMENT) {
             synthesizeGLError(GraphicsContextGL::INVALID_OPERATION, functionName, "component type cannot be queried for DEPTH_STENCIL_ATTACHMENT"_s);
             return nullptr;
         }
-        return graphicsContextGL()->getFramebufferAttachmentParameteri(target, attachment, pname);
+        return protect(graphicsContextGL())->getFramebufferAttachmentParameteri(target, attachment, pname);
     }
 
     synthesizeGLError(GraphicsContextGL::INVALID_ENUM, functionName, "invalid parameter name"_s);
@@ -2907,7 +2907,7 @@ bool WebGL2RenderingContext::validateNonDefaultFramebufferAttachment(ASCIILitera
 GCGLint WebGL2RenderingContext::maxDrawBuffers()
 {
     if (!m_maxDrawBuffers)
-        m_maxDrawBuffers = graphicsContextGL()->getInteger(GraphicsContextGL::MAX_DRAW_BUFFERS);
+        m_maxDrawBuffers = protect(graphicsContextGL())->getInteger(GraphicsContextGL::MAX_DRAW_BUFFERS);
     return m_maxDrawBuffers;
 }
 
@@ -2915,7 +2915,7 @@ GCGLint WebGL2RenderingContext::maxColorAttachments()
 {
     // DrawBuffers requires MAX_COLOR_ATTACHMENTS == MAX_DRAW_BUFFERS
     if (!m_maxColorAttachments)
-        m_maxColorAttachments = graphicsContextGL()->getInteger(GraphicsContextGL::MAX_DRAW_BUFFERS);
+        m_maxColorAttachments = protect(graphicsContextGL())->getInteger(GraphicsContextGL::MAX_DRAW_BUFFERS);
     return m_maxColorAttachments;
 }
 

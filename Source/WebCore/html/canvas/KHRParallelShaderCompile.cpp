@@ -37,7 +37,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(KHRParallelShaderCompile);
 KHRParallelShaderCompile::KHRParallelShaderCompile(WebGLRenderingContextBase& context)
     : WebGLExtension(context, WebGLExtensionName::KHRParallelShaderCompile)
 {
-    context.graphicsContextGL()->enableExtension(GCGLExtension::KHR_parallel_shader_compile);
+    protect(context.graphicsContextGL())->enableExtension(GCGLExtension::KHR_parallel_shader_compile);
 }
 
 KHRParallelShaderCompile::~KHRParallelShaderCompile() = default;

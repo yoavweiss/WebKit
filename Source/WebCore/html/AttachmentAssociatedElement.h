@@ -58,7 +58,7 @@ public:
 
     virtual void setAttachmentElement(Ref<HTMLAttachmentElement>&&);
 
-    RefPtr<HTMLAttachmentElement> attachmentElement() const;
+    HTMLAttachmentElement* attachmentElement() const;
     const String& attachmentIdentifier() const;
     void didUpdateAttachmentIdentifier();
 

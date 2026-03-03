@@ -87,7 +87,7 @@ class DetachedOffscreenCanvas {
 public:
     DetachedOffscreenCanvas(const IntSize&, bool originClean, RefPtr<PlaceholderRenderingContextSource>&&);
     WEBCORE_EXPORT ~DetachedOffscreenCanvas();
-    const IntSize& size() const { return m_size; }
+    const IntSize& size() const LIFETIME_BOUND { return m_size; }
     bool originClean() const { return m_originClean; }
     RefPtr<PlaceholderRenderingContextSource> NODELETE takePlaceholderSource();
 

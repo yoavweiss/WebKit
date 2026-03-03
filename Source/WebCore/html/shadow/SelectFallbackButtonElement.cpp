@@ -82,7 +82,8 @@ std::optional<Style::UnadjustedStyle> SelectFallbackButtonElement::resolveCustom
     style->setTextAlign(hostStyle->writingMode().isBidiLTR() ? Style::TextAlign::Left : Style::TextAlign::Right);
 
     // Apply direction and unicodeBidi from the selected option for proper bidirectional text rendering.
-    for (auto& item : protect(selectElement())->listItems()) {
+    Ref selectElement = this->selectElement();
+    for (auto& item : selectElement->listItems()) {
         RefPtr option = dynamicDowncast<HTMLOptionElement>(item.get());
         if (!option || !option->selected())
             continue;

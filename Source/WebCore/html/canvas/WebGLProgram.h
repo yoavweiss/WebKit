@@ -68,7 +68,7 @@ public:
     bool linkStatus();
     std::span<const GCGLAttribActiveInfo> activeAttribs() LIFETIME_BOUND;
     const HashMap<String, int>& attribLocations() LIFETIME_BOUND;
-    std::span<const GCGLUniformActiveInfo> activeUniforms();
+    std::span<const GCGLUniformActiveInfo> activeUniforms() LIFETIME_BOUND;
     const HashMap<String, int>& uniformLocations() LIFETIME_BOUND;
     const HashMap<String, unsigned>& uniformIndices() LIFETIME_BOUND;
     int requiredTransformFeedbackBufferCount();

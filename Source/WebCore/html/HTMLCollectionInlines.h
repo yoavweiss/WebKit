@@ -126,7 +126,7 @@ inline void HTMLCollection::setNamedItemCache(std::unique_ptr<CollectionNamedEle
     protect(document())->collectionCachedIdNameMap(*this);
 }
 
-inline const CollectionNamedElementCache& HTMLCollection::namedItemCaches() const
+inline const CollectionNamedElementCache& HTMLCollection::namedItemCaches() const LIFETIME_BOUND
 {
     ASSERT(!!m_namedElementCache);
     return *m_namedElementCache;

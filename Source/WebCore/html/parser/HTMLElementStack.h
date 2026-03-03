@@ -57,14 +57,14 @@ public:
         Element& element() const { return m_item.element(); }
         ContainerNode& node() const { return m_item.node(); }
         ElementName elementName() const { return m_item.elementName(); }
-        HTMLStackItem& stackItem() { return m_item; }
-        const HTMLStackItem& stackItem() const { return m_item; }
+        HTMLStackItem& stackItem() LIFETIME_BOUND { return m_item; }
+        const HTMLStackItem& stackItem() const LIFETIME_BOUND { return m_item; }
 
         void replaceElement(HTMLStackItem&&);
 
         bool NODELETE isAbove(ElementRecord&) const;
 
-        ElementRecord* next() const { return m_next.get(); }
+        ElementRecord* next() const LIFETIME_BOUND { return m_next.get(); }
 
     private:
         friend class HTMLElementStack;
@@ -83,13 +83,13 @@ public:
     Element& top() const { return m_top->element(); }
     ContainerNode& topNode() const { return m_top->node(); }
     ElementName topElementName() const { return m_top->elementName(); }
-    HTMLStackItem& topStackItem() const { return m_top->stackItem(); }
+    HTMLStackItem& topStackItem() const LIFETIME_BOUND { return m_top->stackItem(); }
 
-    HTMLStackItem* NODELETE oneBelowTop() const;
-    ElementRecord& NODELETE topRecord() const;
-    ElementRecord* NODELETE find(Element&) const;
-    ElementRecord* NODELETE furthestBlockForFormattingElement(Element&) const;
-    ElementRecord* NODELETE topmost(ElementName) const;
+    HTMLStackItem* NODELETE oneBelowTop() const LIFETIME_BOUND;
+    ElementRecord& NODELETE topRecord() const LIFETIME_BOUND;
+    ElementRecord* NODELETE find(Element&) const LIFETIME_BOUND;
+    ElementRecord* NODELETE furthestBlockForFormattingElement(Element&) const LIFETIME_BOUND;
+    ElementRecord* NODELETE topmost(ElementName) const LIFETIME_BOUND;
 
     bool containsTemplateElement() const { return m_templateElementCount; }
 

@@ -87,8 +87,8 @@ public:
         return m_last->isClosed();
     }
 
-    SegmentedString& current() { return m_first; }
-    const SegmentedString& current() const { return m_first; }
+    SegmentedString& current() LIFETIME_BOUND { return m_first; }
+    const SegmentedString& current() const LIFETIME_BOUND { return m_first; }
 
     void splitInto(SegmentedString& next)
     {

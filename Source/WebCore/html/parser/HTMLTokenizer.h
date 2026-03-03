@@ -222,8 +222,8 @@ public:
 
     operator bool() const;
 
-    HTMLToken& operator*() const;
-    HTMLToken* operator->() const;
+    HTMLToken& operator*() const LIFETIME_BOUND;
+    HTMLToken* operator->() const LIFETIME_BOUND;
 
 private:
     friend class HTMLTokenizer;

@@ -157,16 +157,16 @@ public:
     Element& currentElement() const { return m_openElements.top(); }
     ContainerNode& currentNode() const { return m_openElements.topNode(); }
     ElementName currentElementName() const { return m_openElements.topElementName(); }
-    HTMLStackItem& currentStackItem() const { return m_openElements.topStackItem(); }
-    HTMLStackItem* oneBelowTop() const { return m_openElements.oneBelowTop(); }
+    HTMLStackItem& currentStackItem() const LIFETIME_BOUND { return m_openElements.topStackItem(); }
+    HTMLStackItem* oneBelowTop() const LIFETIME_BOUND { return m_openElements.oneBelowTop(); }
     TreeScope& treeScopeForCurrentNode();
     Document& ownerDocumentForCurrentNode();
-    HTMLElementStack& openElements() const { return m_openElements; }
-    HTMLFormattingElementList& activeFormattingElements() const { return m_activeFormattingElements; }
+    HTMLElementStack& openElements() const LIFETIME_BOUND { return m_openElements; }
+    HTMLFormattingElementList& activeFormattingElements() const LIFETIME_BOUND { return m_activeFormattingElements; }
     bool currentIsRootNode() { return &m_openElements.topNode() == &m_openElements.rootNode(); }
 
     Element& head() const { return m_head.element(); }
-    HTMLStackItem& headStackItem() { return m_head; }
+    HTMLStackItem& headStackItem() LIFETIME_BOUND { return m_head; }
 
     void setForm(HTMLFormElement*);
     HTMLFormElement* form() const { return m_form.get(); }

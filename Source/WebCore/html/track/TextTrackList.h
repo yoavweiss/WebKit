@@ -61,7 +61,7 @@ public:
     void remove(TrackBase&, bool scheduleEvent = true) final;
 
     void setDuration(MediaTime duration) { m_duration = duration; }
-    const MediaTime& duration() const { return m_duration; }
+    const MediaTime& duration() const LIFETIME_BOUND { return m_duration; }
 
     // EventTarget
     enum EventTargetInterfaceType eventTargetInterface() const final;

@@ -161,10 +161,10 @@ public:
     AlignSetting align() const { return m_cueAlignment; }
     void setAlign(AlignSetting);
 
-    const String& text() const final { return m_content; }
+    const String& text() const LIFETIME_BOUND final { return m_content; }
     void setText(const String&);
 
-    const String& cueSettings() const { return m_settings; }
+    const String& cueSettings() const LIFETIME_BOUND { return m_settings; }
     void setCueSettings(const String&);
 
     RefPtr<DocumentFragment> getCueAsHTML() final;
@@ -175,7 +175,7 @@ public:
     VTTRegion* NODELETE region();
     void setRegion(VTTRegion*);
 
-    const String& NODELETE regionId();
+    const String& NODELETE regionId() LIFETIME_BOUND;
 
     void setIsActive(bool) override;
 
@@ -192,7 +192,7 @@ public:
     std::pair<double, double> getPositionCoordinates() const;
 
     using DisplayPosition = std::pair<std::optional<double>, std::optional<double>>;
-    const DisplayPosition& getCSSPosition() const { return m_displayPosition; };
+    const DisplayPosition& getCSSPosition() const LIFETIME_BOUND { return m_displayPosition; };
 
     CSSValueID NODELETE getCSSAlignment() const;
     int NODELETE getCSSSize() const;
@@ -217,10 +217,10 @@ public:
     SpeechSynthesisUtterance* speechUtterance() const { return m_speechUtterance.get(); }
 #endif
 
-    const LineAndPositionSetting& left() const { return m_left; }
-    const LineAndPositionSetting& top() const { return m_top; }
-    const LineAndPositionSetting& width() const { return m_width; }
-    const LineAndPositionSetting& height() const { return m_height; }
+    const LineAndPositionSetting& left() const LIFETIME_BOUND { return m_left; }
+    const LineAndPositionSetting& top() const LIFETIME_BOUND { return m_top; }
+    const LineAndPositionSetting& width() const LIFETIME_BOUND { return m_width; }
+    const LineAndPositionSetting& height() const LIFETIME_BOUND { return m_height; }
 
 protected:
     VTTCue(Document&, const MediaTime& start, const MediaTime& end, String&& content);

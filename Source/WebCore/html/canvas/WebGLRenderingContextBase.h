@@ -433,7 +433,7 @@ public:
     using SimulatedEventForTesting = GraphicsContextGL::SimulatedEventForTesting;
     WEBCORE_EXPORT void simulateEventForTesting(SimulatedEventForTesting);
 
-    RefPtr<GraphicsContextGL> graphicsContextGL() const { return m_context; }
+    GraphicsContextGL* graphicsContextGL() const { return m_context; }
 
     RefPtr<GraphicsLayerContentsDisplayDelegate> layerContentsDisplayDelegate() override;
 
@@ -479,14 +479,14 @@ public:
     // currently latched into the context - without traversing all of
     // the latched objects to find the current one, which would be
     // prohibitively expensive.
-    Lock& NODELETE objectGraphLock() WTF_RETURNS_LOCK(m_objectGraphLock);
+    Lock& NODELETE objectGraphLock() LIFETIME_BOUND WTF_RETURNS_LOCK(m_objectGraphLock);
 
     // Returns the ordinal number of when the context was last active (drew, read pixels).
     uint64_t activeOrdinal() const { return m_activeOrdinal; }
 
     using PixelStoreParameters = GraphicsContextGL::PixelStoreParameters;
-    const PixelStoreParameters& pixelStorePackParameters() const { return m_packParameters; }
-    const PixelStoreParameters& unpackPixelStoreParameters() const { return m_unpackParameters; };
+    const PixelStoreParameters& pixelStorePackParameters() const LIFETIME_BOUND { return m_packParameters; }
+    const PixelStoreParameters& unpackPixelStoreParameters() const LIFETIME_BOUND { return m_unpackParameters; };
 
     bool isOpaque() const final;
 

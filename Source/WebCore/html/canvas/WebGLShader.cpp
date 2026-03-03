@@ -42,7 +42,7 @@ Ref<WebGLShader> WebGLShader::createLost(GCGLenum type)
 
 Ref<WebGLShader> WebGLShader::create(WebGLRenderingContextBase& context, GCGLenum type)
 {
-    auto object = context.graphicsContextGL()->createShader(type);
+    auto object = protect(context.graphicsContextGL())->createShader(type);
     if (!object)
         return createLost(type);
     return adoptRef(*new WebGLShader(context, object, type));

@@ -54,8 +54,8 @@ public:
     WEBCORE_EXPORT double nearest(double time) const;
     double totalDuration() const;
 
-    const PlatformTimeRanges& ranges() const { return m_ranges; }
-    PlatformTimeRanges& ranges() { return m_ranges; }
+    const PlatformTimeRanges& ranges() const LIFETIME_BOUND { return m_ranges; }
+    PlatformTimeRanges& ranges() LIFETIME_BOUND { return m_ranges; }
 
 private:
     WEBCORE_EXPORT TimeRanges();

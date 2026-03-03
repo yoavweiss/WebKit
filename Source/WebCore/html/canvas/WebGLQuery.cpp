@@ -41,7 +41,7 @@ Ref<WebGLQuery> WebGLQuery::createLost()
 
 Ref<WebGLQuery> WebGLQuery::create(WebGLRenderingContextBase& context)
 {
-    auto object = context.graphicsContextGL()->createQuery();
+    auto object = protect(context.graphicsContextGL())->createQuery();
     if (!object)
         return createLost();
     return adoptRef(*new WebGLQuery { context, object });

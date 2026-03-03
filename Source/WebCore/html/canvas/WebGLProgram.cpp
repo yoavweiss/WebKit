@@ -62,7 +62,7 @@ Ref<WebGLProgram> WebGLProgram::createLost(WebGLRenderingContextBase& context)
 
 Ref<WebGLProgram> WebGLProgram::create(WebGLRenderingContextBase& context)
 {
-    auto object = context.graphicsContextGL()->createProgram();
+    auto object = protect(context.graphicsContextGL())->createProgram();
     if (!object)
         return createLost(context);
     return adoptRef(*new WebGLProgram { context, object });

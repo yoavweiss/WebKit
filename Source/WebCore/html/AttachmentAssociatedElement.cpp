@@ -45,7 +45,7 @@ void AttachmentAssociatedElement::setAttachmentElement(Ref<HTMLAttachmentElement
     protect(protect(asHTMLElement())->ensureUserAgentShadowRoot())->appendChild(WTF::move(attachment));
 }
 
-RefPtr<HTMLAttachmentElement> AttachmentAssociatedElement::attachmentElement() const
+HTMLAttachmentElement* AttachmentAssociatedElement::attachmentElement() const
 {
     if (RefPtr shadowRoot = protect(asHTMLElement())->userAgentShadowRoot())
         return childrenOfType<HTMLAttachmentElement>(*shadowRoot).first();
@@ -58,7 +58,7 @@ const String& AttachmentAssociatedElement::attachmentIdentifier() const
     if (!m_pendingClonedAttachmentID.isEmpty())
         return m_pendingClonedAttachmentID;
 
-    if (RefPtr attachment = attachmentElement())
+    if (auto* attachment = attachmentElement())
         return attachment->uniqueIdentifier();
 
     return nullAtom();

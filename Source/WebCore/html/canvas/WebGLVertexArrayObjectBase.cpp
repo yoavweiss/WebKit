@@ -52,7 +52,7 @@ void WebGLVertexArrayObjectBase::setElementArrayBuffer(const AbstractLocker& loc
     if (buffer)
         buffer->onAttached();
     if (RefPtr boundElementArrayBuffer = m_boundElementArrayBuffer.get())
-        boundElementArrayBuffer->onDetached(locker, graphicsContextGL().get());
+        boundElementArrayBuffer->onDetached(locker, protect(graphicsContextGL()));
     m_boundElementArrayBuffer = buffer;
     
 }
@@ -75,7 +75,7 @@ void WebGLVertexArrayObjectBase::setVertexAttribState(const AbstractLocker& lock
     if (buffer)
         buffer->onAttached();
     if (RefPtr bufferBinding = state.bufferBinding.get())
-        bufferBinding->onDetached(locker, graphicsContextGL().get());
+        bufferBinding->onDetached(locker, protect(graphicsContextGL()));
     state.bufferBinding = buffer;
     if (!state.validateBinding())
         m_allEnabledAttribBuffersBoundCache = false;

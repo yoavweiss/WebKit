@@ -49,7 +49,7 @@ public:
     }
     virtual ~WebGLContextEvent();
 
-    const String& statusMessage() const { return m_statusMessage; }
+    const String& statusMessage() const LIFETIME_BOUND { return m_statusMessage; }
 
 private:
     WebGLContextEvent(const AtomString& type, CanBubble, IsCancelable, const String& statusMessage);

@@ -37,7 +37,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(OESTextureFloatLinear);
 OESTextureFloatLinear::OESTextureFloatLinear(WebGLRenderingContextBase& context)
     : WebGLExtension(context, WebGLExtensionName::OESTextureFloatLinear)
 {
-    context.graphicsContextGL()->enableExtension(GCGLExtension::OES_texture_float_linear);
+    protect(context.graphicsContextGL())->enableExtension(GCGLExtension::OES_texture_float_linear);
 }
 
 OESTextureFloatLinear::~OESTextureFloatLinear() = default;

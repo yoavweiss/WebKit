@@ -37,7 +37,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(NVShaderNoperspectiveInterpolation);
 NVShaderNoperspectiveInterpolation::NVShaderNoperspectiveInterpolation(WebGLRenderingContextBase& context)
     : WebGLExtension(context, WebGLExtensionName::NVShaderNoperspectiveInterpolation)
 {
-    context.graphicsContextGL()->enableExtension(GCGLExtension::NV_shader_noperspective_interpolation);
+    protect(context.graphicsContextGL())->enableExtension(GCGLExtension::NV_shader_noperspective_interpolation);
 }
 
 NVShaderNoperspectiveInterpolation::~NVShaderNoperspectiveInterpolation() = default;

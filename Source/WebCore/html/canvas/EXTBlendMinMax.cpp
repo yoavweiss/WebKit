@@ -37,7 +37,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(EXTBlendMinMax);
 EXTBlendMinMax::EXTBlendMinMax(WebGLRenderingContextBase& context)
     : WebGLExtension(context, WebGLExtensionName::EXTBlendMinMax)
 {
-    context.graphicsContextGL()->enableExtension(GCGLExtension::EXT_blend_minmax);
+    protect(context.graphicsContextGL())->enableExtension(GCGLExtension::EXT_blend_minmax);
 }
 
 EXTBlendMinMax::~EXTBlendMinMax() = default;

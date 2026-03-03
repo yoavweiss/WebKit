@@ -39,7 +39,7 @@ public:
     static Ref<HTMLMapElement> create(const QualifiedName&, Document&);
     virtual ~HTMLMapElement();
 
-    const AtomString& getName() const { return m_name; }
+    const AtomString& getName() const LIFETIME_BOUND { return m_name; }
 
     bool mapMouseEvent(LayoutPoint location, const LayoutSize&, HitTestResult&);
     

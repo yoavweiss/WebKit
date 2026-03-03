@@ -41,7 +41,7 @@ Ref<WebGLSampler> WebGLSampler::createLost()
 
 Ref<WebGLSampler> WebGLSampler::create(WebGLRenderingContextBase& context)
 {
-    auto object = context.graphicsContextGL()->createSampler();
+    auto object = protect(context.graphicsContextGL())->createSampler();
     if (!object)
         return createLost();
     return adoptRef(*new WebGLSampler { context, object });

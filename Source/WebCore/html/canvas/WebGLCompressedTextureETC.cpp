@@ -37,7 +37,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(WebGLCompressedTextureETC);
 WebGLCompressedTextureETC::WebGLCompressedTextureETC(WebGLRenderingContextBase& context)
     : WebGLExtension(context, WebGLExtensionName::WebGLCompressedTextureETC)
 {
-    context.graphicsContextGL()->enableExtension(GCGLExtension::ANGLE_compressed_texture_etc);
+    protect(context.graphicsContextGL())->enableExtension(GCGLExtension::ANGLE_compressed_texture_etc);
 
     context.addCompressedTextureFormat(GraphicsContextGL::COMPRESSED_R11_EAC);
     context.addCompressedTextureFormat(GraphicsContextGL::COMPRESSED_SIGNED_R11_EAC);

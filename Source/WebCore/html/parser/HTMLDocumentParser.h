@@ -69,7 +69,7 @@ public:
     void resumeParsingAfterYield();
 
     // For HTMLTreeBuilder.
-    HTMLTokenizer& tokenizer();
+    HTMLTokenizer& tokenizer() LIFETIME_BOUND;
     TextPosition textPosition() const final;
 
     bool isOnStackOfOpenElements(Element&) const;
@@ -82,7 +82,7 @@ protected:
     void appendSynchronously(RefPtr<StringImpl>&&) override;
     void finish() override;
 
-    HTMLTreeBuilder& treeBuilder() { return m_treeBuilder; }
+    HTMLTreeBuilder& treeBuilder() LIFETIME_BOUND { return m_treeBuilder; }
 
 private:
     HTMLDocumentParser(DocumentFragment&, Element& contextElement, OptionSet<ParserContentPolicy>, CustomElementRegistry*);
@@ -106,7 +106,7 @@ private:
     // HTMLScriptRunnerHost
     void watchForLoad(PendingScript&) final;
     void stopWatchingForLoad(PendingScript&) final;
-    HTMLInputStream& inputStream() final;
+    HTMLInputStream& inputStream() LIFETIME_BOUND final;
     bool hasPreloadScanner() const final;
     void appendCurrentInputStreamToPreloadScannerAndScan() final;
 

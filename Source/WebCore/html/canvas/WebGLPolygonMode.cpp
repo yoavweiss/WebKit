@@ -37,7 +37,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(WebGLPolygonMode);
 WebGLPolygonMode::WebGLPolygonMode(WebGLRenderingContextBase& context)
     : WebGLExtension(context, WebGLExtensionName::WebGLPolygonMode)
 {
-    context.graphicsContextGL()->enableExtension(GCGLExtension::ANGLE_polygon_mode);
+    protect(context.graphicsContextGL())->enableExtension(GCGLExtension::ANGLE_polygon_mode);
     context.printToConsole(MessageLevel::Warning, "WebGL: non-portable extension enabled: WEBGL_polygon_mode"_s);
 }
 
@@ -52,7 +52,7 @@ void WebGLPolygonMode::polygonModeWEBGL(GCGLenum face, GCGLenum mode)
 {
     if (isContextLost())
         return;
-    context()->graphicsContextGL()->polygonModeANGLE(face, mode);
+    protect(context()->graphicsContextGL())->polygonModeANGLE(face, mode);
 }
 
 } // namespace WebCore

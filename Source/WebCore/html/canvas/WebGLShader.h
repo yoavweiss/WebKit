@@ -39,7 +39,7 @@ public:
     virtual ~WebGLShader();
 
     GCGLenum getType() const { return m_type; }
-    const String& getSource() const { return m_source; }
+    const String& getSource() const LIFETIME_BOUND { return m_source; }
 
     void setSource(const String& source) { m_source = source; }
 

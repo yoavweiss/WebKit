@@ -38,7 +38,7 @@ public:
 
     bool isOpen() const { return m_isOpen; }
 
-    const String& returnValue() const { return m_returnValue; }
+    const String& returnValue() const LIFETIME_BOUND { return m_returnValue; }
     void setReturnValue(String&& value) { m_returnValue = WTF::move(value); }
 
     ExceptionOr<void> show();

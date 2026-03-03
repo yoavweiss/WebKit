@@ -37,7 +37,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(OESElementIndexUint);
 OESElementIndexUint::OESElementIndexUint(WebGLRenderingContextBase& context)
     : WebGLExtension(context, WebGLExtensionName::OESElementIndexUint)
 {
-    context.graphicsContextGL()->enableExtension(GCGLExtension::OES_element_index_uint);
+    protect(context.graphicsContextGL())->enableExtension(GCGLExtension::OES_element_index_uint);
 }
 
 OESElementIndexUint::~OESElementIndexUint() = default;

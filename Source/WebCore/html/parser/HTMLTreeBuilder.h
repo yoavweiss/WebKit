@@ -172,7 +172,7 @@ private:
     bool shouldProcessTokenInForeignContent(const AtomHTMLToken&);
     void processTokenInForeignContent(AtomHTMLToken&&);
 
-    HTMLStackItem& adjustedCurrentStackItem();
+    HTMLStackItem& adjustedCurrentStackItem() LIFETIME_BOUND;
 
     void callTheAdoptionAgency(AtomHTMLToken&);
 
@@ -197,7 +197,7 @@ private:
 
         DocumentFragment* fragment() const;
         Element& NODELETE contextElement();
-        HTMLStackItem& NODELETE contextElementStackItem();
+        HTMLStackItem& NODELETE contextElementStackItem() LIFETIME_BOUND;
 
     private:
         WeakPtr<DocumentFragment, WeakPtrImplWithEventTargetData> m_fragment;

@@ -80,8 +80,8 @@ public:
 
     virtual void updateWidget(CreatePlugins) = 0;
 
-    const String& serviceType() const { return m_serviceType; }
-    const String& url() const { return m_url; }
+    const String& serviceType() const LIFETIME_BOUND { return m_serviceType; }
+    const String& url() const LIFETIME_BOUND { return m_url; }
 
     bool needsWidgetUpdate() const { return m_needsWidgetUpdate; }
     void setNeedsWidgetUpdate(bool needsWidgetUpdate) { m_needsWidgetUpdate = needsWidgetUpdate; }

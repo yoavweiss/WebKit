@@ -52,7 +52,7 @@ public:
 
     void setTagName(TagName);
 
-    const AtomString& name() const;
+    const AtomString& name() const LIFETIME_BOUND;
 
     // DOCTYPE.
 
@@ -62,12 +62,12 @@ public:
 
     // StartTag, EndTag.
 
-    Vector<Attribute>& attributes();
+    Vector<Attribute>& attributes() LIFETIME_BOUND;
 
     TagName tagName() const;
     bool selfClosing() const;
     void setSelfClosingToFalse();
-    const Vector<Attribute>& attributes() const;
+    const Vector<Attribute>& attributes() const LIFETIME_BOUND;
 
     // Characters
 
@@ -76,8 +76,8 @@ public:
 
     // Comment
 
-    const String& comment() const;
-    String& comment();
+    const String& comment() const LIFETIME_BOUND;
+    String& comment() LIFETIME_BOUND;
 
     bool hasDuplicateAttribute() const { return m_hasDuplicateAttribute; }
 

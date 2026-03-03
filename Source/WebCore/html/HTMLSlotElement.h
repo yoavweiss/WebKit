@@ -45,7 +45,7 @@ public:
     Vector<Ref<Element>> assignedElements(const AssignedNodesOptions&) const;
 
     void assign(FixedVector<ElementOrText>&&);
-    const Vector<WeakPtr<Node, WeakPtrImplWithEventTargetData>>& manuallyAssignedNodes() const { return m_manuallyAssignedNodes; }
+    const Vector<WeakPtr<Node, WeakPtrImplWithEventTargetData>>& manuallyAssignedNodes() const LIFETIME_BOUND { return m_manuallyAssignedNodes; }
     void removeManuallyAssignedNode(Node&);
 
     void enqueueSlotChangeEvent();

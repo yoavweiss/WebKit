@@ -37,7 +37,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(OESSampleVariables);
 OESSampleVariables::OESSampleVariables(WebGLRenderingContextBase& context)
     : WebGLExtension(context, WebGLExtensionName::OESSampleVariables)
 {
-    context.graphicsContextGL()->enableExtension(GCGLExtension::OES_sample_variables);
+    protect(context.graphicsContextGL())->enableExtension(GCGLExtension::OES_sample_variables);
 }
 
 OESSampleVariables::~OESSampleVariables() = default;

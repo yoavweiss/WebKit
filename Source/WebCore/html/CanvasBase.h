@@ -71,7 +71,7 @@ public:
 
     virtual unsigned width() const { return m_size.width(); }
     virtual unsigned height() const { return m_size.height(); }
-    const IntSize& size() const { return m_size; }
+    const IntSize& size() const LIFETIME_BOUND { return m_size; }
     virtual void setSizeForControllingContext(IntSize) = 0;
 
     RefPtr<ImageBuffer> makeRenderingResultsAvailable(ShouldApplyPostProcessingToDirtyRect = ShouldApplyPostProcessingToDirtyRect::Yes);
@@ -161,7 +161,7 @@ private:
 WebCoreOpaqueRoot NODELETE root(CanvasBase*);
 
 
-inline const CSSParserContext& CanvasBase::cssParserContext() const
+inline const CSSParserContext& CanvasBase::cssParserContext() const LIFETIME_BOUND
 {
     if (!m_cssParserContext) [[unlikely]]
         m_cssParserContext = createCSSParserContext();

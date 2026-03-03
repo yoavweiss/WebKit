@@ -102,7 +102,7 @@ public:
 
     bool isAccelerated() const;
 
-    const CanvasRenderingContext2DSettings& getContextAttributes() const { return m_settings; }
+    const CanvasRenderingContext2DSettings& getContextAttributes() const LIFETIME_BOUND { return m_settings; }
     using RenderingMode = WebCore::RenderingMode;
     std::optional<RenderingMode> renderingModeForTesting() const final;
     std::optional<RenderingMode> getEffectiveRenderingModeForTesting();
@@ -121,10 +121,10 @@ public:
     double miterLimit() const { return state().miterLimit; }
     void setMiterLimit(double);
 
-    const Vector<double>& getLineDash() const { return state().lineDash; }
+    const Vector<double>& getLineDash() const LIFETIME_BOUND { return state().lineDash; }
     void setLineDash(const Vector<double>&);
 
-    const Vector<double>& webkitLineDash() const { return getLineDash(); }
+    const Vector<double>& webkitLineDash() const LIFETIME_BOUND { return getLineDash(); }
     void setWebkitLineDash(const Vector<double>&);
 
     double lineDashOffset() const { return state().lineDashOffset; }
@@ -265,8 +265,8 @@ public:
 
         bool realized() const { return m_font.fontSelector(); }
         void initialize(FontSelector&, const FontCascade&);
-        const FontMetrics& metricsOfPrimaryFont() const;
-        const FontCascadeDescription& NODELETE fontDescription() const;
+        const FontMetrics& metricsOfPrimaryFont() const LIFETIME_BOUND;
+        const FontCascadeDescription& NODELETE fontDescription() const LIFETIME_BOUND;
         float width(const TextRun&, GlyphOverflow* = 0) const;
         void drawBidiText(GraphicsContext&, const TextRun&, const FloatPoint&, FontCascade::CustomFontNotReadyAction) const;
 
@@ -274,7 +274,7 @@ public:
         bool isPopulated() const { return m_font.fonts(); }
 #endif
 
-        const FontCascade& fontCascade() const { return m_font; }
+        const FontCascade& fontCascade() const LIFETIME_BOUND { return m_font; }
 
         float letterSpacing() const { return m_font.letterSpacing(); }
         void setLetterSpacing(float letterSpacing) { m_font.setLetterSpacing(letterSpacing); }
@@ -335,15 +335,15 @@ public:
         String globalCompositeOperationString() const;
         String shadowColorString() const;
     };
-    const Vector<State, 1>& stateStack();
+    const Vector<State, 1>& stateStack() LIFETIME_BOUND;
 
 protected:
     static const int DefaultFontSize;
     static const ASCIILiteral DefaultFontFamily;
 
-    const State& state() const { return m_stateStack.last(); }
+    const State& state() const LIFETIME_BOUND { return m_stateStack.last(); }
     void realizeSaves();
-    State& modifiableState() { ASSERT(!m_unrealizedSaveCount || m_stateStack.size() >= MaxSaveCount); return m_stateStack.last(); }
+    State& modifiableState() LIFETIME_BOUND { ASSERT(!m_unrealizedSaveCount || m_stateStack.size() >= MaxSaveCount); return m_stateStack.last(); }
 
     GraphicsContext* drawingContext() const;
     GraphicsContext* effectiveDrawingContext() const;

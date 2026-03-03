@@ -49,16 +49,16 @@ public:
     double fontSizeMultiplier() const { return m_fontSizeMultiplier; }
     void setFontSizeMultiplier(double);
 
-    const String& fontName() const { return m_fontName; }
+    const String& fontName() const LIFETIME_BOUND { return m_fontName; }
     void setFontName(const String& name) { m_fontName = name; }
 
-    const Color& foregroundColor() const { return m_foregroundColor; }
+    const Color& foregroundColor() const LIFETIME_BOUND { return m_foregroundColor; }
     void setForegroundColor(const Color& color) { m_foregroundColor = color; }
-    
-    const Color& backgroundColor() const { return m_backgroundColor; }
+
+    const Color& backgroundColor() const LIFETIME_BOUND { return m_backgroundColor; }
     void setBackgroundColor(const Color& color) { m_backgroundColor = color; }
-    
-    const Color& highlightColor() const { return m_highlightColor; }
+
+    const Color& highlightColor() const LIFETIME_BOUND { return m_highlightColor; }
     void setHighlightColor(const Color& color) { m_highlightColor = color; }
 
 private:

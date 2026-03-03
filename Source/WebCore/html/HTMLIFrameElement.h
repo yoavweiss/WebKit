@@ -62,7 +62,7 @@ public:
 #endif
 
 #if ENABLE(CONTENT_EXTENSIONS)
-    const URL& initiatorSourceURL() const { return m_initiatorSourceURL; }
+    const URL& initiatorSourceURL() const LIFETIME_BOUND { return m_initiatorSourceURL; }
     void setInitiatorSourceURL(URL&& url) { m_initiatorSourceURL = WTF::move(url); }
 #endif
 

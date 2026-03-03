@@ -58,7 +58,7 @@ public:
 
         bool isMarker() const { return m_item.isNull(); }
 
-        const HTMLStackItem& stackItem() const { return m_item; }
+        const HTMLStackItem& stackItem() const LIFETIME_BOUND { return m_item; }
         Element& element() const
         {
             // Callers should check isMarker() before calling element().
@@ -101,7 +101,7 @@ public:
 
     Element* NODELETE closestElementInScopeWithName(ElementName);
 
-    Entry* find(Element&);
+    Entry* find(Element&) LIFETIME_BOUND;
     bool contains(Element&);
     void append(HTMLStackItem&&);
     void remove(Element&);
@@ -114,15 +114,15 @@ public:
     // clearToLastMarker also clears the marker (per the HTML5 spec).
     void clearToLastMarker();
 
-    const Entry& at(size_t i) const { return m_entries[i]; }
-    Entry& at(size_t i) { return m_entries[i]; }
+    const Entry& at(size_t i) const LIFETIME_BOUND { return m_entries[i]; }
+    Entry& at(size_t i) LIFETIME_BOUND { return m_entries[i]; }
 
 #if ENABLE(TREE_DEBUGGING)
     void show();
 #endif
 
 private:
-    Entry& first() { return at(0); }
+    Entry& first() LIFETIME_BOUND { return at(0); }
 
     // http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#list-of-active-formatting-elements
     // These functions enforce the "Noah's Ark" condition, which removes redundant mis-nested elements.

@@ -37,7 +37,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(OESTextureHalfFloatLinear);
 OESTextureHalfFloatLinear::OESTextureHalfFloatLinear(WebGLRenderingContextBase& context)
     : WebGLExtension(context, WebGLExtensionName::OESTextureHalfFloatLinear)
 {
-    context.graphicsContextGL()->enableExtension(GCGLExtension::OES_texture_half_float_linear);
+    protect(context.graphicsContextGL())->enableExtension(GCGLExtension::OES_texture_half_float_linear);
 }
 
 OESTextureHalfFloatLinear::~OESTextureHalfFloatLinear() = default;

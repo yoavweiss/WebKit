@@ -253,9 +253,9 @@ public:
 // error state
     WEBCORE_EXPORT MediaError* NODELETE error() const;
 
-    const URL& currentSrc() const { return m_currentSrc; }
+    const URL& currentSrc() const LIFETIME_BOUND { return m_currentSrc; }
 
-    const std::optional<MediaProvider>& srcObject() const { return m_mediaProvider; }
+    const std::optional<MediaProvider>& srcObject() const LIFETIME_BOUND { return m_mediaProvider; }
     void setSrcObject(std::optional<MediaProvider>&&);
 
     WEBCORE_EXPORT String crossOrigin() const;

@@ -35,7 +35,7 @@ class CollectionNamedElementCache {
 public:
     inline const Vector<WeakRef<Element, WeakPtrImplWithEventTargetData>>* findElementsWithId(const AtomString& id) const;
     inline const Vector<WeakRef<Element, WeakPtrImplWithEventTargetData>>* findElementsWithName(const AtomString& name) const;
-    const Vector<AtomString>& propertyNames() const { return m_propertyNames; }
+    const Vector<AtomString>& propertyNames() const LIFETIME_BOUND { return m_propertyNames; }
     
     inline void appendToIdCache(const AtomString& id, Element&);
     inline void appendToNameCache(const AtomString& name, Element&);

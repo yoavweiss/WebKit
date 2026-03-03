@@ -74,7 +74,7 @@ public:
 
     // StartTag, EndTag, DOCTYPE.
 
-    const DataVector& name() const;
+    const DataVector& name() const LIFETIME_BOUND;
 
     void appendToName(char16_t);
 
@@ -96,7 +96,7 @@ public:
     // StartTag, EndTag.
 
     bool selfClosing() const;
-    const AttributeList& attributes() const;
+    const AttributeList& attributes() const LIFETIME_BOUND;
 
     void beginStartTag(Latin1Character);
 
@@ -118,7 +118,7 @@ public:
     // other types of tokens because we want to save a per-character branch.
     // There is no beginCharacters, and appending a character sets the type.
 
-    const DataVector& characters() const;
+    const DataVector& characters() const LIFETIME_BOUND;
     bool charactersIsAll8BitData() const;
 
     void appendToCharacter(Latin1Character);
@@ -128,7 +128,7 @@ public:
 
     // Comment.
 
-    const DataVector& comment() const;
+    const DataVector& comment() const LIFETIME_BOUND;
     bool commentIsAll8BitData() const;
 
     void beginComment();

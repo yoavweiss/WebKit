@@ -37,7 +37,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(EXTTextureNorm16);
 EXTTextureNorm16::EXTTextureNorm16(WebGLRenderingContextBase& context)
     : WebGLExtension(context, WebGLExtensionName::EXTTextureNorm16)
 {
-    context.graphicsContextGL()->enableExtension(GCGLExtension::EXT_texture_norm16);
+    protect(context.graphicsContextGL())->enableExtension(GCGLExtension::EXT_texture_norm16);
 }
 
 EXTTextureNorm16::~EXTTextureNorm16() = default;

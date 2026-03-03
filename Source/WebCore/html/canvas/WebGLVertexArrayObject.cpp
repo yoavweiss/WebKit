@@ -42,7 +42,7 @@ Ref<WebGLVertexArrayObject> WebGLVertexArrayObject::createLost()
     
 Ref<WebGLVertexArrayObject> WebGLVertexArrayObject::create(WebGLRenderingContextBase& context, Type type)
 {
-    auto object = context.graphicsContextGL()->createVertexArray();
+    auto object = protect(context.graphicsContextGL())->createVertexArray();
     if (!object)
         return createLost();
     return adoptRef(*new WebGLVertexArrayObject { context, object, type });

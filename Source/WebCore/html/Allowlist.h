@@ -52,7 +52,7 @@ public:
         : m_origins(WTF::move(origins))
     {
     }
-    const OriginsVariant& origins() const { return m_origins; }
+    const OriginsVariant& origins() const LIFETIME_BOUND { return m_origins; }
 
     // This is simplified version of https://w3c.github.io/webappsec-permissions-policy/#matches.
     bool matches(const SecurityOriginData& origin) const

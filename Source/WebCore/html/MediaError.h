@@ -50,7 +50,7 @@ public:
     }
 
     Code code() const { return m_code; }
-    const String& message() const { return m_message; }
+    const String& message() const LIFETIME_BOUND { return m_message; }
 
 private:
     MediaError(Code code, String&& message)
