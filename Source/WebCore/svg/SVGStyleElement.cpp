@@ -40,7 +40,6 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(SVGStyleElement);
 inline SVGStyleElement::SVGStyleElement(const QualifiedName& tagName, Document& document, bool createdByParser)
     : SVGElement(tagName, document, makeUniqueRef<PropertyRegistry>(*this))
     , m_styleSheetOwner(document, createdByParser)
-    , m_loadEventTimer(*this, &SVGElement::loadEventTimerFired)
 {
     ASSERT(hasTagName(SVGNames::styleTag));
 }

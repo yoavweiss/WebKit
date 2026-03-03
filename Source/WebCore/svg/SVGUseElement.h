@@ -102,7 +102,6 @@ private:
     bool haveFiredLoadEvent() const override { return m_haveFiredLoadEvent; }
     void setErrorOccurred(bool errorOccurred) override { m_errorOccurred = errorOccurred; }
     bool errorOccurred() const override { return m_errorOccurred; }
-    Timer* loadEventTimer() override { return &m_loadEventTimer; }
 
     bool isValid() const override { return SVGTests::isValid(); }
 
@@ -115,7 +114,6 @@ private:
     bool m_errorOccurred { false };
     bool m_shadowTreeNeedsUpdate { true };
     CachedResourceHandle<CachedSVGDocument> m_externalDocument;
-    Timer m_loadEventTimer;
 };
 
 }

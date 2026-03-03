@@ -440,17 +440,6 @@ void SVGElement::sendLoadEventIfPossible()
     dispatchEvent(Event::create(eventNames().loadEvent, Event::CanBubble::No, Event::IsCancelable::No));
 }
 
-void SVGElement::loadEventTimerFired()
-{
-    sendLoadEventIfPossible();
-}
-
-Timer* SVGElement::loadEventTimer()
-{
-    ASSERT_NOT_REACHED();
-    return nullptr;
-}
-
 void SVGElement::finishParsingChildren()
 {
     StyledElement::finishParsingChildren();

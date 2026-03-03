@@ -74,7 +74,6 @@ private:
 
     // SVGElement
     bool haveLoadedRequiredResources() final { return SVGURIReference::haveLoadedRequiredResources(); }
-    Timer* loadEventTimer() final { return &m_loadEventTimer; }
 
     // SVGURIReference
     bool haveFiredLoadEvent() const final { return ScriptElement::haveFiredLoadEvent(); }
@@ -85,8 +84,6 @@ private:
 #ifndef NDEBUG
     bool filterOutAnimatableAttribute(const QualifiedName& name) const final { return name == SVGNames::typeAttr; }
 #endif
-
-    Timer m_loadEventTimer;
 };
 
 } // namespace WebCore

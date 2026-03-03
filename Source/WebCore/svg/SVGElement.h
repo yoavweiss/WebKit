@@ -105,8 +105,6 @@ public:
     virtual void svgAttributeChanged(const QualifiedName&);
 
     void sendLoadEventIfPossible();
-    void loadEventTimerFired();
-    virtual Timer* loadEventTimer();
 
     virtual AffineTransform* ensureSupplementalTransform() { return nullptr; }
     virtual AffineTransform* supplementalTransform() const { return nullptr; }

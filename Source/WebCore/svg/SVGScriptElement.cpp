@@ -37,7 +37,6 @@ inline SVGScriptElement::SVGScriptElement(const QualifiedName& tagName, Document
     : SVGElement(tagName, document, makeUniqueRef<PropertyRegistry>(*this))
     , SVGURIReference(this)
     , ScriptElement(*this, wasInsertedByParser, alreadyStarted)
-    , m_loadEventTimer(*this, &SVGElement::loadEventTimerFired)
 {
     ASSERT(hasTagName(SVGNames::scriptTag));
 }
