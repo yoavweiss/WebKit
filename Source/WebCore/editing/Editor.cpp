@@ -138,6 +138,7 @@
 #include "TextCheckingHelper.h"
 #include "TextEvent.h"
 #include "TextIterator.h"
+#include "TextNodeTraversal.h"
 #include "TextPlaceholderElement.h"
 #include "TypingCommand.h"
 #include "UserTypingGestureIndicator.h"
@@ -5030,6 +5031,9 @@ RefPtr<Font> Editor::fontForSelection(bool& hasMultipleFonts)
     for (Ref node : intersectingNodes(*range)) {
         CheckedPtr renderer = node->renderer();
         if (!renderer)
+            continue;
+        // The font of intermediate nodes that don't affect the rendering of text are not necessary to report, so limit to only such nodes.
+        if (!node->isTextNode() && !renderer->isBR() && !TextNodeTraversal::firstChild(node))
             continue;
         Ref primaryFont = renderer->style().fontCascade().primaryFont();
         if (!font)
