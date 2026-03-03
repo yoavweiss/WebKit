@@ -29,6 +29,10 @@
 #include "WebProcessPool.h"
 #include "WebsiteDataStore.h"
 
+#if USE(CF)
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
 namespace API {
 
 Ref<ProcessPoolConfiguration> ProcessPoolConfiguration::create()
@@ -86,6 +90,16 @@ Ref<ProcessPoolConfiguration> ProcessPoolConfiguration::copy()
 #endif
     copy->m_prewarmedProcessCountLimitForTesting = this->m_prewarmedProcessCountLimitForTesting;
     return copy;
+}
+
+bool ProcessPoolConfiguration::defaultUsesWebBackForwardCache()
+{
+#if !USE(CF)
+    return true;
+#else
+    static bool enabledByDefault = !CFPreferencesGetAppBooleanValue(CFSTR("DebugDisableWebBackForwardCache"), kCFPreferencesCurrentApplication, nullptr);
+    return enabledByDefault;
+#endif
 }
 
 } // namespace API

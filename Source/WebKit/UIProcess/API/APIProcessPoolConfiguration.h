@@ -71,6 +71,7 @@ public:
 
     void setUsesBackForwardCache(bool value) { m_usesBackForwardCache = value; }
     bool usesBackForwardCache() const { return m_usesBackForwardCache; }
+    static bool defaultUsesWebBackForwardCache();
 
     const WTF::String& injectedBundlePath() const LIFETIME_BOUND { return m_injectedBundlePath; }
     void setInjectedBundlePath(const WTF::String& injectedBundlePath) { m_injectedBundlePath = injectedBundlePath; }
@@ -186,7 +187,7 @@ private:
     bool m_processSwapsOnNavigationWithinSameNonHTTPFamilyProtocol { false };
     std::optional<bool> m_isAutomaticProcessWarmingEnabledByClient;
     bool m_usesWebProcessCache { false };
-    bool m_usesBackForwardCache { true };
+    bool m_usesBackForwardCache { defaultUsesWebBackForwardCache() };
     bool m_clientWouldBenefitFromAutomaticProcessPrewarming { false };
     bool m_shouldConfigureJSCForTesting { false };
     bool m_isJITEnabled { true };
