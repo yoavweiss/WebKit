@@ -1315,9 +1315,11 @@
         SYS_unlink))
 
 (deny syscall-unix)
-(when (defined? 'SYS_crossarch_trap)
-    (deny syscall-unix (with no-report) (syscall-number
-        SYS_crossarch_trap)))
+
+(deny syscall-unix (with no-report)
+    (syscall-number
+        (when (defined? 'SYS_crossarch_trap) SYS_crossarch_trap)
+        SYS_os_fault_with_payload))
 
 #if HAVE(SANDBOX_STATE_FLAGS)
 (with-filter (require-not (webcontent-process-launched))
