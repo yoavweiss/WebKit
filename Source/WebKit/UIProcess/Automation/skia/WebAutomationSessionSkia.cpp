@@ -32,9 +32,7 @@
 #include <WebCore/NotImplemented.h>
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
 #include <skia/core/SkData.h>
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN // Skia port
 #include <skia/encode/SkPngEncoder.h>
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 #include <span>
 #include <wtf/text/Base64.h>
@@ -48,9 +46,7 @@ static std::optional<String> base64EncodedPNGData(SkImage& image)
     if (!data)
         return std::nullopt;
 
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN // Skia port
     return base64EncodeToString(data->byteSpan());
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 }
 
 std::optional<String> WebAutomationSession::platformGetBase64EncodedPNGData(ShareableBitmap::Handle&& handle)
