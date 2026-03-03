@@ -80,6 +80,24 @@ public:
         EXPECT_GE(mediaPlayer->readyState(), readyState);
     }
 
+    void waitForCurrentTimeGreaterThan(MediaTime time)
+    {
+        Util::waitFor([&] { return mediaPlayer->currentTime() > time; });
+        EXPECT_GE(mediaPlayer->currentTime(), time);
+    }
+
+    void waitForEffectiveRateGreaterThan(double rate)
+    {
+        Util::waitFor([&] { return mediaPlayer->effectiveRate() > rate; });
+        EXPECT_GE(mediaPlayer->effectiveRate(), rate);
+    }
+
+    void waitForEffectiveRateEqualTo(double rate)
+    {
+        Util::waitFor([&] { return mediaPlayer->effectiveRate() == rate; });
+        EXPECT_EQ(mediaPlayer->effectiveRate(), rate);
+    }
+
     RefPtr<WebCore::MediaPlayer> mediaPlayer;
 };
 
@@ -155,5 +173,46 @@ TEST_F(MediaPlayerPrivateAVFoundationObjCTest, IsAudibleSilentVideo)
     EXPECT_EQ(playerPrivate->isAudible(), false);
 }
 
+TEST_F(MediaPlayerPrivateAVFoundationObjCTest, IsAudibleWhilePlaying)
+{
+    mediaPlayer->load(videoWithAudioURL(), { });
+    waitForReadyStateGreaterThan(WebCore::MediaPlayerReadyState::HaveNothing);
+
+    RefPtr playerPrivate = this->playerPrivate();
+    ASSERT_NE(playerPrivate.get(), nullptr);
+
+    // Reduce the possibility of this test flaking when the underlying
+    // media reaches the end by reducing the playback rate to 1/10000.
+    // Calling setPreservesPitch(false) also has the effect of shifting
+    // all generated frequencies to nearly inaudible ranges.
+    mediaPlayer->setRate(0.0001);
+    mediaPlayer->setPreservesPitch(false);
+    mediaPlayer->setMuted(false);
+    mediaPlayer->setVolume(1);
+
+    mediaPlayer->play();
+    waitForEffectiveRateGreaterThan(0);
+    EXPECT_EQ(playerPrivate->isAudible(), true);
+
+    // isAudible() should not become false during playback
+    mediaPlayer->setMuted(true);
+    EXPECT_EQ(playerPrivate->isAudible(), true);
+    mediaPlayer->setVolume(0);
+    EXPECT_EQ(playerPrivate->isAudible(), true);
+
+    // isAudible() should subsequently become false once playback stops
+    mediaPlayer->pause();
+    waitForEffectiveRateEqualTo(0);
+    EXPECT_EQ(playerPrivate->isAudible(), false);
+
+    mediaPlayer->play();
+    waitForEffectiveRateGreaterThan(0);
+    EXPECT_EQ(playerPrivate->isAudible(), false);
+
+    // isAudible() should become true during playback
+    mediaPlayer->setMuted(false);
+    mediaPlayer->setVolume(1);
+    EXPECT_EQ(playerPrivate->isAudible(), true);
+}
 
 }

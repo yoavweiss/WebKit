@@ -1701,7 +1701,6 @@ void MediaPlayerPrivateAVFoundationObjC::setPlayerRate(double rate, std::optiona
     } else
         [m_avPlayer setRate:rate];
 
-    m_cachedTimeControlStatus = [m_avPlayer timeControlStatus];
     setShouldObserveTimeControlStatus(true);
 
     m_wallClockAtCachedCurrentTime = std::nullopt;
@@ -2295,6 +2294,16 @@ void MediaPlayerPrivateAVFoundationObjC::updateIsAudible()
 {
     bool isAudible = hasAudio() && !m_muted && m_volume;
     if (m_isAudible == isAudible)
+        return;
+
+    // Only change the state of suppressesAudioRendering and
+    // participatesInAudioSession when playback is paused, to
+    // avoid the reconfiguring of video playback that AVFoundation
+    // performs when these properties are changed. However,
+    // ignore this check if becoming audible to ensure audio
+    // rendering starts immediately. This method will be called
+    // again by timeControlStatusDidChange().
+    if (!isAudible && m_cachedTimeControlStatus == AVPlayerTimeControlStatusPlaying)
         return;
 
     ALWAYS_LOG(LOGIDENTIFIER, isAudible);
@@ -3924,6 +3933,7 @@ void MediaPlayerPrivateAVFoundationObjC::timeControlStatusDidChange(int timeCont
 
     m_cachedTimeControlStatus = timeControlStatus;
     rateChanged();
+    updateIsAudible();
     m_wallClockAtCachedCurrentTime = std::nullopt;
 
 #if ENABLE(WIRELESS_PLAYBACK_TARGET)
