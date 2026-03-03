@@ -430,6 +430,10 @@ bool ensureGStreamerInitializedNonWebProcess()
     static std::once_flag onceFlag;
     static bool isGStreamerInitialized;
     std::call_once(onceFlag, [] {
+#if OS(ANDROID)
+        gst_registry_fork_set_enabled(FALSE);
+#endif
+
         GUniqueOutPtr<GError> error;
         isGStreamerInitialized = gst_init_check(nullptr, nullptr, &error.outPtr());
         ASSERT_WITH_MESSAGE(isGStreamerInitialized, "GStreamer initialization failed: %s", error ? error->message : "unknown error occurred");
@@ -448,6 +452,10 @@ bool ensureGStreamerInitialized()
     static bool isGStreamerInitialized;
     std::call_once(onceFlag, [] {
         isGStreamerInitialized = false;
+
+#if OS(ANDROID)
+        gst_registry_fork_set_enabled(FALSE);
+#endif
 
         // USE_PLAYBIN3 is dangerous for us because its potential sneaky effect
         // is to register the playbin3 element under the playbin namespace. We
