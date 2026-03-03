@@ -332,7 +332,7 @@ private:
     {
         if (!m_useL4S || trial != "WebRTC-RFC8888CongestionControlFeedback")
             return "";
-        return "Enabled,force_send:true";
+        return "Enabled";
     }
 
     bool m_useL4S { false };
