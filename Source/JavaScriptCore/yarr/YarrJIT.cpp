@@ -3971,6 +3971,11 @@ class YarrGenerator final : public YarrJITInfo {
                 PatternTerm* term = op.m_term;
                 unsigned parenthesesFrameLocation = term->frameLocation;
 
+                // Save the initial index so we can restore it on backtrack.
+                // The beginIndex slot is reused per-iteration for empty match detection,
+                // so we use returnAddressIndex (unused in this single-alt, non-ParenContext path).
+                storeToFrame(m_regs.index, parenthesesFrameLocation + BackTrackInfoParentheses::returnAddressIndex());
+
                 // Initialize the match count to 0.
                 storeToFrame(MacroAssembler::TrustedImm32(0), parenthesesFrameLocation + BackTrackInfoParentheses::matchAmountIndex());
 
@@ -4793,13 +4798,27 @@ class YarrGenerator final : public YarrJITInfo {
             // For non-capturing FixedCount parentheses, any failure means the entire
             // pattern fails. There's no partial backtracking - we either match
             // exactly N times or we fail completely.
-            case YarrOpCode::ParenthesesSubpatternFixedCountBegin:
+            case YarrOpCode::ParenthesesSubpatternFixedCountBegin: {
                 // Any backtrack to Begin means we failed to match the required count.
-                // First link any pending backtrack state from the content inside,
+                // Link any pending backtrack state from the content inside, restore
+                // the index to the position when we entered the group (since one or
+                // more iterations may have advanced it), clear any nested captures,
                 // then propagate the failure upward.
+                PatternTerm* term = op.m_term;
+                unsigned parenthesesFrameLocation = term->frameLocation;
+
                 m_backtrackingState.link(*this, op);
+
+                loadFromFrame(parenthesesFrameLocation + BackTrackInfoParentheses::returnAddressIndex(), m_regs.index);
+
+                if (shouldRecordSubpatterns() && term->containsAnyCaptures()) {
+                    for (unsigned subpattern = term->parentheses.subpatternId; subpattern <= term->parentheses.lastSubpatternId; subpattern++)
+                        clearSubpattern(subpattern);
+                }
+
                 m_backtrackingState.fallthrough();
                 break;
+            }
             case YarrOpCode::ParenthesesSubpatternFixedCountEnd:
                 // Backtracking into the End means something after the parentheses failed.
                 // For FixedCount, we don't try alternative counts, so just fail.
