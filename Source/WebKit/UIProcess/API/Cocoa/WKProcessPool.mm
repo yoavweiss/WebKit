@@ -547,6 +547,11 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
     IPC::Connection::setShouldCrashOnMessageCheckFailure(true);
 }
 
++ (void)_forceUseSharedMemoryForSendingForTesting:(BOOL)force
+{
+    IPC::Connection::setForceUseSharedMemoryForSendingForTesting(force);
+}
+
 + (void)_setLinkedOnOrAfterEverything
 {
     enableAllSDKAlignedBehaviors();

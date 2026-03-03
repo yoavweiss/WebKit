@@ -555,6 +555,10 @@ public:
     static bool NODELETE shouldCrashOnMessageCheckFailure();
     static void NODELETE setShouldCrashOnMessageCheckFailure(bool);
 
+#if PLATFORM(COCOA)
+    static void setForceUseSharedMemoryForSendingForTesting(bool);
+#endif
+
 #if ENABLE(IPC_TESTING_API)
     bool hasErrorString() const { return !m_errorString.isNull(); }
     void setErrorString(ASCIILiteral error)
@@ -632,7 +636,10 @@ private:
     Error sendMessageImpl(UniqueRef<Encoder>&&, OptionSet<SendOption> sendOptions, std::optional<Thread::QOS> = std::nullopt);
 
 #if PLATFORM(COCOA)
-    bool sendMessage(std::unique_ptr<MachMessage>);
+    enum class SendMessageResult : uint8_t { Success, Failure, MessageTooLarge };
+    enum class IsRetryDueToLargeSize : bool { No, Yes };
+    SendMessageResult sendMessage(std::unique_ptr<MachMessage>&, IsRetryDueToLargeSize = IsRetryDueToLargeSize::No);
+    bool retrySendMessageWithSharedMemory(std::unique_ptr<MachMessage> failedMessage, UniqueRef<Encoder>&);
 #endif
     template<typename F>
     void dispatchToClient(F&& clientRunLoopTask) WTF_EXCLUDES_LOCK(m_incomingMessagesLock);
