@@ -86,6 +86,7 @@ public:
     {
         m_src = makeElement("appsrc"_s);
         g_object_set(m_src.get(), "is-live", TRUE, "do-timestamp", TRUE, "max-buffers", static_cast<guint64>(2), "max-bytes", static_cast<guint64>(0), nullptr);
+        m_rtpTimestampCaps = adoptGRef(gst_caps_new_empty_simple("timestamp/x-rtp"));
 
         auto decoder = makeElement("decodebin"_s);
 
@@ -211,12 +212,18 @@ public:
 
         GST_TRACE_OBJECT(pipeline(), "Pushing encoded image with RTP timestamp %u", inputImage.RtpTimestamp());
         auto encodedData = inputImage.GetEncodedData();
+        if (!encodedData) {
+            GST_ERROR_OBJECT(pipeline(), "Encoded image has no data buffer");
+            return WEBRTC_VIDEO_CODEC_ERROR;
+        }
         encodedData->AddRef();
         auto data = const_cast<uint8_t*>(encodedData->data());
         auto dataSize = encodedData->size();
         auto buffer = adoptGRef(gst_buffer_new_wrapped_full(GST_MEMORY_FLAG_READONLY, data, dataSize, 0, dataSize, static_cast<gpointer>(encodedData.get()), [](gpointer data) {
             static_cast<webrtc::EncodedImageBufferInterface*>(data)->Release();
         }));
+        if (!m_requireParse)
+            gst_buffer_add_reference_timestamp_meta(buffer.get(), m_rtpTimestampCaps.get(), inputImage.RtpTimestamp(), GST_CLOCK_TIME_NONE);
 
         auto sample = adoptGRef(gst_sample_new(buffer.get(), m_caps.get(), nullptr, nullptr));
         switch (gst_app_src_push_sample(GST_APP_SRC_CAST(m_src.get()), sample.get())) {
@@ -228,13 +235,21 @@ public:
             return WEBRTC_VIDEO_CODEC_ERROR;
         }
 
-        auto pulledSample = adoptGRef(gst_app_sink_pull_sample(GST_APP_SINK_CAST(m_sink.get())));
+        auto pulledSample = adoptGRef(gst_app_sink_try_pull_sample(GST_APP_SINK_CAST(m_sink.get()), GST_SECOND));
         if (!pulledSample) {
-            GST_DEBUG_OBJECT(pipeline(), "Needs more data");
+            GST_WARNING_OBJECT(pipeline(), "No decoded frame within timeout");
             return WEBRTC_VIDEO_CODEC_OK;
         }
 
-        auto frame = convertGStreamerSampleToLibWebRTCVideoFrame(WTF::move(pulledSample), inputImage.RtpTimestamp());
+        auto pulledBuffer = gst_sample_get_buffer(pulledSample.get());
+        uint32_t rtpTimestamp = inputImage.RtpTimestamp();
+        if (!m_requireParse) {
+            if (auto meta = gst_buffer_get_reference_timestamp_meta(pulledBuffer, m_rtpTimestampCaps.get()))
+                rtpTimestamp = static_cast<uint32_t>(meta->timestamp);
+        }
+        GST_TRACE_OBJECT(pipeline(), "Pulled video frame with RTP timestamp %u from %" GST_PTR_FORMAT, rtpTimestamp, pulledBuffer);
+        auto frame = convertGStreamerSampleToLibWebRTCVideoFrame(WTF::move(pulledSample), rtpTimestamp);
+
         m_imageReadyCb->Decoded(frame);
         return WEBRTC_VIDEO_CODEC_OK;
     }
@@ -281,6 +296,7 @@ private:
     GRefPtr<GstElement> m_pipeline;
     GRefPtr<GstElement> m_sink;
     GRefPtr<GstElement> m_src;
+    GRefPtr<GstCaps> m_rtpTimestampCaps;
 
     webrtc::DecodedImageCallback* m_imageReadyCb;
 };
