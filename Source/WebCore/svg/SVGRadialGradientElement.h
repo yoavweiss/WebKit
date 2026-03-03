@@ -37,12 +37,12 @@ public:
 
     bool collectGradientAttributes(RadialGradientAttributes&);
 
-    const SVGLengthValue& cx() const { return m_cx->currentValue(); }
-    const SVGLengthValue& cy() const { return m_cy->currentValue(); }
-    const SVGLengthValue& r() const { return m_r->currentValue(); }
-    const SVGLengthValue& fx() const { return m_fx->currentValue(); }
-    const SVGLengthValue& fy() const { return m_fy->currentValue(); }
-    const SVGLengthValue& fr() const { return m_fr->currentValue(); }
+    const SVGLengthValue& cx() const LIFETIME_BOUND { return m_cx->currentValue(); }
+    const SVGLengthValue& cy() const LIFETIME_BOUND { return m_cy->currentValue(); }
+    const SVGLengthValue& r() const LIFETIME_BOUND { return m_r->currentValue(); }
+    const SVGLengthValue& fx() const LIFETIME_BOUND { return m_fx->currentValue(); }
+    const SVGLengthValue& fy() const LIFETIME_BOUND { return m_fy->currentValue(); }
+    const SVGLengthValue& fr() const LIFETIME_BOUND { return m_fr->currentValue(); }
 
     SVGAnimatedLength& cxAnimated() { return m_cx; }
     SVGAnimatedLength& cyAnimated() { return m_cy; }

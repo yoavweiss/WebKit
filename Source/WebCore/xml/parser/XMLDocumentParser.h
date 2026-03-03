@@ -53,7 +53,7 @@ public:
     static Ref<XMLParserContext> createStringParser(xmlSAXHandlerPtr, void* userData);
     XMLParserContext() = delete;
     ~XMLParserContext();
-    xmlParserCtxtPtr context() const { return m_context; }
+    xmlParserCtxtPtr context() const LIFETIME_BOUND { return m_context; }
 
 private:
     XMLParserContext(xmlParserCtxtPtr context)

@@ -33,9 +33,9 @@ class SVGCircleElement final : public SVGGeometryElement {
 public:
     static Ref<SVGCircleElement> create(const QualifiedName&, Document&);
 
-    const SVGLengthValue& cx() const { return m_cx->currentValue(); }
-    const SVGLengthValue& cy() const { return m_cy->currentValue(); }
-    const SVGLengthValue& r() const { return m_r->currentValue(); }
+    const SVGLengthValue& cx() const LIFETIME_BOUND { return m_cx->currentValue(); }
+    const SVGLengthValue& cy() const LIFETIME_BOUND { return m_cy->currentValue(); }
+    const SVGLengthValue& r() const LIFETIME_BOUND { return m_r->currentValue(); }
 
     SVGAnimatedLength& cxAnimated() { return m_cx; }
     SVGAnimatedLength& cyAnimated() { return m_cy; }

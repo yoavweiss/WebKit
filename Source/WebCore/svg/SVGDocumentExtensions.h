@@ -60,7 +60,7 @@ public:
     void reportWarning(const String&);
     void reportError(const String&);
 
-    SVGResourcesCache& resourcesCache() { return m_resourcesCache; }
+    SVGResourcesCache& resourcesCache() LIFETIME_BOUND { return m_resourcesCache; }
 
     void addElementToRebuild(SVGElement&);
     void removeElementToRebuild(SVGElement&);
@@ -68,7 +68,7 @@ public:
     void clearTargetDependencies(SVGElement&);
     void rebuildAllElementReferencesForTarget(SVGElement&);
 
-    const WeakHashSet<SVGFontFaceElement, WeakPtrImplWithEventTargetData>& svgFontFaceElements() const { return m_svgFontFaceElements; }
+    const WeakHashSet<SVGFontFaceElement, WeakPtrImplWithEventTargetData>& svgFontFaceElements() const LIFETIME_BOUND { return m_svgFontFaceElements; }
     void registerSVGFontFaceElement(SVGFontFaceElement&);
     void unregisterSVGFontFaceElement(SVGFontFaceElement&);
 

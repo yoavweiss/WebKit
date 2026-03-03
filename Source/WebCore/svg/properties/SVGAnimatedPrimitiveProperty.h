@@ -57,7 +57,7 @@ public:
 
     // Used by SVGElement::parseAttribute().
     void setBaseValInternal(const PropertyType& baseVal) { m_baseVal->setValue(baseVal); }
-    const PropertyType& baseVal() const { return m_baseVal->value(); }
+    const PropertyType& baseVal() const LIFETIME_BOUND { return m_baseVal->value(); }
 
     // Used by SVGAttributeAnimator::progress.
     void setAnimVal(const PropertyType& animVal)
@@ -94,7 +94,7 @@ public:
     std::optional<String> synchronize() override { return m_baseVal->synchronize(); }
 
     // Used by RenderSVGElements and DumpRenderTree.
-    const PropertyType& currentValue() const
+    const PropertyType& currentValue() const LIFETIME_BOUND
     {
         ASSERT_IMPLIES(this->isAnimating(), m_animVal);
         return this->isAnimating() ? m_animVal->value() : m_baseVal->value();

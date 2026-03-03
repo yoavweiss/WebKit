@@ -73,7 +73,7 @@ public:
     String in1() const { return m_in1->currentValue(); }
     int orderX() const { return m_orderX->currentValue(); }
     int orderY() const { return m_orderY->currentValue(); }
-    const SVGNumberList& kernelMatrix() const { return m_kernelMatrix->currentValue(); }
+    const SVGNumberList& kernelMatrix() const LIFETIME_BOUND { return m_kernelMatrix->currentValue(); }
     float divisor() const { return m_divisor->currentValue(); }
     float bias() const { return m_bias->currentValue(); }
     int targetX() const { return m_targetX->currentValue(); }

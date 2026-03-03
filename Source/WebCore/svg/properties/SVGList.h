@@ -140,8 +140,8 @@ public:
     bool isSupportedPropertyIndex(unsigned index) const { return index < m_items.size(); }
 
     // Parsers and animators need to have a direct access to the items.
-    Vector<ItemType>& items() { return m_items; }
-    const Vector<ItemType>& items() const { return m_items; }
+    Vector<ItemType>& items() LIFETIME_BOUND { return m_items; }
+    const Vector<ItemType>& items() const LIFETIME_BOUND { return m_items; }
     size_t size() const { return m_items.size(); }
     bool isEmpty() const { return m_items.isEmpty(); }
 

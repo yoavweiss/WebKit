@@ -77,7 +77,7 @@ public:
     ComponentTransferFunction transferFunction() const;
 
     ComponentTransferType type() const { return m_type->currentValue<ComponentTransferType>(); }
-    const SVGNumberList& tableValues() const { return m_tableValues->currentValue(); }
+    const SVGNumberList& tableValues() const LIFETIME_BOUND { return m_tableValues->currentValue(); }
     float slope() const { return m_slope->currentValue(); }
     float intercept() const { return m_intercept->currentValue(); }
     float amplitude() const { return m_amplitude->currentValue(); }

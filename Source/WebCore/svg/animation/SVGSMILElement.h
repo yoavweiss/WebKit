@@ -60,7 +60,7 @@ public:
     SMILTimeContainer* timeContainer() { return m_timeContainer; }
 
     SVGElement* targetElement() const { return m_targetElement; }
-    const QualifiedName& attributeName() const { return m_attributeName; }
+    const QualifiedName& attributeName() const LIFETIME_BOUND { return m_attributeName; }
 
     void beginByLinkActivation();
 

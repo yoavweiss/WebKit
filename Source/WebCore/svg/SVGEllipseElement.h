@@ -33,10 +33,10 @@ class SVGEllipseElement final : public SVGGeometryElement {
 public:
     static Ref<SVGEllipseElement> create(const QualifiedName&, Document&);
 
-    const SVGLengthValue& cx() const { return m_cx->currentValue(); }
-    const SVGLengthValue& cy() const { return m_cy->currentValue(); }
-    const SVGLengthValue& rx() const { return m_rx->currentValue(); }
-    const SVGLengthValue& ry() const { return m_ry->currentValue(); }
+    const SVGLengthValue& cx() const LIFETIME_BOUND { return m_cx->currentValue(); }
+    const SVGLengthValue& cy() const LIFETIME_BOUND { return m_cy->currentValue(); }
+    const SVGLengthValue& rx() const LIFETIME_BOUND { return m_rx->currentValue(); }
+    const SVGLengthValue& ry() const LIFETIME_BOUND { return m_ry->currentValue(); }
 
     SVGAnimatedLength& cxAnimated() { return m_cx; }
     SVGAnimatedLength& cyAnimated() { return m_cy; }

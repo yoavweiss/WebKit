@@ -68,7 +68,7 @@ public:
 
     using PropertyRegistry = SVGPropertyOwnerRegistry<SVGGraphicsElement, SVGElement, SVGTests>;
 
-    const SVGTransformList& transform() const { return m_transform->currentValue(); }
+    const SVGTransformList& transform() const LIFETIME_BOUND { return m_transform->currentValue(); }
     SVGAnimatedTransformList& transformAnimated() { return m_transform; }
 
 protected:

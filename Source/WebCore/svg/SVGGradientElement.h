@@ -87,7 +87,7 @@ public:
 
     SVGSpreadMethodType spreadMethod() const { return m_spreadMethod->currentValue<SVGSpreadMethodType>(); }
     SVGUnitTypes::SVGUnitType gradientUnits() const { return m_gradientUnits->currentValue<SVGUnitTypes::SVGUnitType>(); }
-    const SVGTransformList& gradientTransform() const { return m_gradientTransform->currentValue(); }
+    const SVGTransformList& gradientTransform() const LIFETIME_BOUND { return m_gradientTransform->currentValue(); }
 
     SVGAnimatedEnumeration& spreadMethodAnimated() { return m_spreadMethod; }
     SVGAnimatedEnumeration& gradientUnitsAnimated() { return m_gradientUnits; }

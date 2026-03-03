@@ -72,7 +72,7 @@ public:
 
     String in1() const { return m_in1->currentValue(); }
     ColorMatrixType type() const { return m_type->currentValue<ColorMatrixType>(); }
-    const SVGNumberList& values() const { return m_values->currentValue(); }
+    const SVGNumberList& values() const LIFETIME_BOUND { return m_values->currentValue(); }
 
     SVGAnimatedString& in1Animated() { return m_in1; }
     SVGAnimatedEnumeration& typeAnimated() { return m_type; }

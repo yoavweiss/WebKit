@@ -50,12 +50,12 @@ public:
 
     AffineTransform viewBoxToViewTransform(float viewWidth, float viewHeight) const;
 
-    const SVGLengthValue& refX() const { return m_refX->currentValue(); }
-    const SVGLengthValue& refY() const { return m_refY->currentValue(); }
-    const SVGLengthValue& markerWidth() const { return m_markerWidth->currentValue(); }
-    const SVGLengthValue& markerHeight() const { return m_markerHeight->currentValue(); }
+    const SVGLengthValue& refX() const LIFETIME_BOUND { return m_refX->currentValue(); }
+    const SVGLengthValue& refY() const LIFETIME_BOUND { return m_refY->currentValue(); }
+    const SVGLengthValue& markerWidth() const LIFETIME_BOUND { return m_markerWidth->currentValue(); }
+    const SVGLengthValue& markerHeight() const LIFETIME_BOUND { return m_markerHeight->currentValue(); }
     SVGMarkerUnitsType markerUnits() const { return m_markerUnits->currentValue<SVGMarkerUnitsType>(); }
-    const SVGAngleValue& orientAngle() const { return m_orientAngle->currentValue(); }
+    const SVGAngleValue& orientAngle() const LIFETIME_BOUND { return m_orientAngle->currentValue(); }
     SVGMarkerOrientType orientType() const { return m_orientType->currentValue<SVGMarkerOrientType>(); }
 
     SVGAnimatedLength& refXAnimated() { return m_refX; }

@@ -90,7 +90,7 @@ public:
     std::optional<String> synchronize() override { return m_baseVal->synchronize(); }
 
     // Used by RenderSVGElements and DumpRenderTree.
-    const ValueType& currentValue() const
+    const ValueType& currentValue() const LIFETIME_BOUND
     {
         ASSERT_IMPLIES(this->isAnimating(), m_animVal);
         return (this->isAnimating() ? *m_animVal : m_baseVal.get()).value();

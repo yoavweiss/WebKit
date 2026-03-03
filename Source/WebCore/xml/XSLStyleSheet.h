@@ -66,7 +66,7 @@ public:
     
     void checkLoaded();
     
-    const URL& finalURL() const { return m_finalURL; }
+    const URL& finalURL() const LIFETIME_BOUND { return m_finalURL; }
 
     void loadChildSheets();
     void loadChildSheet(const String& href);

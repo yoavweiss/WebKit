@@ -157,7 +157,7 @@ public:
     class InstanceInvalidationGuard;
 
     using PropertyRegistry = SVGPropertyOwnerRegistry<SVGElement>;
-    const SVGPropertyRegistry& propertyRegistry() const { return m_propertyRegistry.get(); }
+    const SVGPropertyRegistry& propertyRegistry() const LIFETIME_BOUND { return m_propertyRegistry.get(); }
     inline void detachAllProperties(); // Defined in SVGElementInlines.h
 
     bool isAnimatedPropertyAttribute(const QualifiedName&) const;
@@ -171,7 +171,7 @@ public:
     void commitPropertyChange(SVGAnimatedPropertyBase&);
 
     const SVGElement* attributeContextElement() const override { return this; }
-    SVGPropertyAnimatorFactory& propertyAnimatorFactory() { return m_propertyAnimatorFactory; }
+    SVGPropertyAnimatorFactory& propertyAnimatorFactory() LIFETIME_BOUND { return m_propertyAnimatorFactory; }
     RefPtr<SVGAttributeAnimator> createAnimator(const QualifiedName&, AnimationMode, CalcMode, bool isAccumulated, bool isAdditive);
     void animatorWillBeDeleted(const QualifiedName&);
 

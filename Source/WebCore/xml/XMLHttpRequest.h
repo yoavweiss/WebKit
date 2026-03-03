@@ -83,7 +83,7 @@ public:
 
     using SendTypes = Variant<Ref<Document>, Ref<Blob>, Ref<JSC::ArrayBufferView>, Ref<JSC::ArrayBuffer>, Ref<DOMFormData>, String, Ref<URLSearchParams>>;
 
-    const URL& url() const { return m_url; }
+    const URL& url() const LIFETIME_BOUND { return m_url; }
     String statusText() const;
     int status() const;
     State readyState() const { return static_cast<State>(m_readyState); }
@@ -133,7 +133,7 @@ public:
     XMLHttpRequestUpload& upload();
     XMLHttpRequestUpload* optionalUpload() const { return m_upload.get(); }
 
-    const ResourceResponse& resourceResponse() const { return m_response; }
+    const ResourceResponse& resourceResponse() const LIFETIME_BOUND { return m_response; }
 
     size_t memoryCost() const;
 

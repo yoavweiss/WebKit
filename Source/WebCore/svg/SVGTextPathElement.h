@@ -114,7 +114,7 @@ public:
 
     static Ref<SVGTextPathElement> create(const QualifiedName&, Document&);
 
-    const SVGLengthValue& startOffset() const { return m_startOffset->currentValue(); }
+    const SVGLengthValue& startOffset() const LIFETIME_BOUND { return m_startOffset->currentValue(); }
     SVGTextPathMethodType method() const { return m_method->currentValue<SVGTextPathMethodType>(); }
     SVGTextPathSpacingType spacing() const { return m_spacing->currentValue<SVGTextPathSpacingType>(); }
 

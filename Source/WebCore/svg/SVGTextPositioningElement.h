@@ -34,11 +34,11 @@ public:
 
     using PropertyRegistry = SVGPropertyOwnerRegistry<SVGTextPositioningElement, SVGTextContentElement>;
 
-    const SVGLengthList& x() const { return m_x->currentValue(); }
-    const SVGLengthList& y() const { return m_y->currentValue(); }
-    const SVGLengthList& dx() const { return m_dx->currentValue(); }
-    const SVGLengthList& dy() const { return m_dy->currentValue(); }
-    const SVGNumberList& rotate() const { return m_rotate->currentValue(); }
+    const SVGLengthList& x() const LIFETIME_BOUND { return m_x->currentValue(); }
+    const SVGLengthList& y() const LIFETIME_BOUND { return m_y->currentValue(); }
+    const SVGLengthList& dx() const LIFETIME_BOUND { return m_dx->currentValue(); }
+    const SVGLengthList& dy() const LIFETIME_BOUND { return m_dy->currentValue(); }
+    const SVGNumberList& rotate() const LIFETIME_BOUND { return m_rotate->currentValue(); }
 
     SVGAnimatedLengthList& xAnimated() { return m_x; }
     SVGAnimatedLengthList& yAnimated() { return m_y; }

@@ -86,8 +86,8 @@ public:
 
     using PropertyRegistry = SVGPropertyOwnerRegistry<SVGTextContentElement, SVGGraphicsElement>;
 
-    const SVGLengthValue& specifiedTextLength() const { return m_specifiedTextLength; }
-    const SVGLengthValue& textLength() const { return m_textLength->currentValue(); }
+    const SVGLengthValue& specifiedTextLength() const LIFETIME_BOUND { return m_specifiedTextLength; }
+    const SVGLengthValue& textLength() const LIFETIME_BOUND { return m_textLength->currentValue(); }
     SVGLengthAdjustType lengthAdjust() const { return m_lengthAdjust->currentValue<SVGLengthAdjustType>(); }
 
     SVGAnimatedLength& textLengthAnimated();

@@ -33,10 +33,10 @@ class SVGLineElement final : public SVGGeometryElement {
 public:
     static Ref<SVGLineElement> create(const QualifiedName&, Document&);
 
-    const SVGLengthValue& x1() const { return m_x1->currentValue(); }
-    const SVGLengthValue& y1() const { return m_y1->currentValue(); }
-    const SVGLengthValue& x2() const { return m_x2->currentValue(); }
-    const SVGLengthValue& y2() const { return m_y2->currentValue(); }
+    const SVGLengthValue& x1() const LIFETIME_BOUND { return m_x1->currentValue(); }
+    const SVGLengthValue& y1() const LIFETIME_BOUND { return m_y1->currentValue(); }
+    const SVGLengthValue& x2() const LIFETIME_BOUND { return m_x2->currentValue(); }
+    const SVGLengthValue& y2() const LIFETIME_BOUND { return m_y2->currentValue(); }
 
     SVGAnimatedLength& x1Animated() { return m_x1; }
     SVGAnimatedLength& y1Animated() { return m_y1; }
