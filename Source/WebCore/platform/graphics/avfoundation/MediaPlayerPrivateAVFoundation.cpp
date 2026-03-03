@@ -342,11 +342,13 @@ void MediaPlayerPrivateAVFoundation::setHasVideo(bool b)
 
 void MediaPlayerPrivateAVFoundation::setHasAudio(bool b)
 {
-    if (m_cachedHasAudio != b) {
-        m_cachedHasAudio = b;
-        characteristicsChanged();
-        updateIsAudible();
-    }
+    if (m_cachedHasAudio == b)
+        return;
+
+    ALWAYS_LOG(LOGIDENTIFIER, b);
+    m_cachedHasAudio = b;
+    characteristicsChanged();
+    updateIsAudible();
 }
 
 void MediaPlayerPrivateAVFoundation::setHasClosedCaptions(bool b)

@@ -78,7 +78,7 @@ class VideoLayerManagerObjC;
 class VideoTrackPrivateAVFObjC;
 class WebCoreAVFResourceLoader;
 
-class MediaPlayerPrivateAVFoundationObjC final : public MediaPlayerPrivateAVFoundation {
+class WEBCORE_EXPORT MediaPlayerPrivateAVFoundationObjC final : public MediaPlayerPrivateAVFoundation {
 public:
     explicit MediaPlayerPrivateAVFoundationObjC(MediaPlayer&);
     virtual ~MediaPlayerPrivateAVFoundationObjC();
@@ -135,6 +135,8 @@ public:
     void processChapterTracks();
 
     Ref<WebCoreAVFResourceLoader> ensureAVFResourceLoader(AVAssetResourceLoadingRequest *);
+
+    bool isAudible() const { return m_isAudible; }
 
 private:
 #if ENABLE(ENCRYPTED_MEDIA)
@@ -550,5 +552,9 @@ private:
 };
 
 }
+
+SPECIALIZE_TYPE_TRAITS_BEGIN(WebCore::MediaPlayerPrivateAVFoundationObjC)
+static bool isType(const WebCore::MediaPlayerPrivateInterface& player) { return player.mediaPlayerType() == WebCore::MediaPlayerType::AVFObjC; }
+SPECIALIZE_TYPE_TRAITS_END()
 
 #endif
