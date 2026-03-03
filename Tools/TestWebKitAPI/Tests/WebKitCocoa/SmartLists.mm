@@ -353,6 +353,30 @@ TEST(SmartLists, InsertingSpaceAfterLargeNumberDoesNotGenerateOrderedList)
     runTest(input, expectedHTML.createNSString().get(), @"//body/text()", input.length);
 }
 
+TEST(SmartLists, InsertingDifferentListStylesDoesNotMergeLists)
+{
+    auto dashMarker = WTF::makeString(WTF::Unicode::emDash, WTF::Unicode::noBreakSpace, WTF::Unicode::noBreakSpace);
+
+    static constexpr auto expectedHTMLTemplate = R"""(
+    <body contenteditable="">
+        <ul style="list-style-type: disc;" class="Apple-disc-list" webkitsmartlistmarker="*">
+            <li>A</li>
+            <li>B</li>
+            <li>C</li>
+            <li>D</li>
+        </ul>
+        <div>
+            <ul class="Apple-dash-list" style="list-style-type: '<DASH_MARKER>';" webkitsmartlistmarker="-">
+                <li>A</li>
+            </ul>
+        </div>
+    </body>)"""_s;
+
+    RetainPtr expectedHTML = WTF::makeStringByReplacingAll(expectedHTMLTemplate, "<DASH_MARKER>"_s, dashMarker).createNSString();
+
+    runTest(@"* A\nB\nC\n\n* D\n\n- A", expectedHTML.get(), @"//body/div/ul/li[1]/text()", @"A".length);
+}
+
 TEST(SmartLists, InsertingListMergesWithPreviousListIfPossible)
 {
     static constexpr auto expectedHTML = R"""(

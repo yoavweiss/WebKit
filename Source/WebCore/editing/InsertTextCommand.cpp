@@ -170,7 +170,7 @@ bool InsertTextCommand::applySmartListsIfNeeded()
 
     Ref document = this->document();
     auto listType = smartList->ordered ? InsertListCommand::Type::OrderedList : InsertListCommand::Type::UnorderedList;
-    applyCommandToComposite(InsertListCommand::create(document.copyRef(), listType), *range);
+    applyCommandToComposite(InsertListCommand::create(document.copyRef(), listType, smartList->styleType), *range);
 
     // This list is the one that was just created or modified.
     RefPtr listElement = enclosingList(endingSelection().base().anchorNode());

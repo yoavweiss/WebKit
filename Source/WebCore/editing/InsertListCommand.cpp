@@ -111,9 +111,10 @@ bool InsertListCommand::selectionHasListOfType(const VisibleSelection& selection
     return true;
 }
 
-InsertListCommand::InsertListCommand(Ref<Document>&& document, Type type)
+InsertListCommand::InsertListCommand(Ref<Document>&& document, Type type, Style::ListStyleType styleType)
     : CompositeEditCommand(WTF::move(document))
     , m_type(type)
+    , m_listStyleType(styleType)
 {
 }
 
@@ -371,7 +372,7 @@ void InsertListCommand::unlistifyParagraph(const VisiblePosition& originalStart,
     moveParagraphs(start, end, insertionPoint, true);
 }
 
-static RefPtr<HTMLElement> adjacentEnclosingList(const VisiblePosition& pos, const VisiblePosition& adjacentPos, const HTMLQualifiedName& listTag)
+static RefPtr<HTMLElement> adjacentEnclosingList(const VisiblePosition& pos, const VisiblePosition& adjacentPos, const HTMLQualifiedName& listTag, Style::ListStyleType newListStyleType)
 {
     RefPtr listNode = outermostEnclosingList(protect(adjacentPos.deepEquivalent().deprecatedNode()).get());
 
@@ -381,10 +382,13 @@ static RefPtr<HTMLElement> adjacentEnclosingList(const VisiblePosition& pos, con
     RefPtr previousCell = enclosingTableCell(pos.deepEquivalent());
     RefPtr currentCell = enclosingTableCell(adjacentPos.deepEquivalent());
 
+    Style::ListStyleType currentListStyleType = listNode->renderer() ? listNode->renderer()->style().listStyleType() : CSS::Keyword::None { };
+
     if (!listNode->hasTagName(listTag)
         || listNode->contains(pos.deepEquivalent().deprecatedNode())
         || previousCell != currentCell
-        || enclosingList(listNode.get()) != enclosingList(protect(pos.deepEquivalent().deprecatedNode()).get()))
+        || enclosingList(listNode.get()) != enclosingList(protect(pos.deepEquivalent().deprecatedNode()).get())
+        || (currentListStyleType != newListStyleType && newListStyleType != CSS::Keyword::None { }))
         return nullptr;
 
     return listNode;
@@ -404,8 +408,8 @@ RefPtr<HTMLElement> InsertListCommand::listifyParagraph(const VisiblePosition& o
     appendNode(placeholder.copyRef(), listItemElement.copyRef());
 
     // Place list item into adjoining lists.
-    auto previousList = adjacentEnclosingList(start.deepEquivalent(), start.previous(CannotCrossEditingBoundary), listTag);
-    auto nextList = adjacentEnclosingList(start.deepEquivalent(), end.next(CannotCrossEditingBoundary), listTag);
+    auto previousList = adjacentEnclosingList(start.deepEquivalent(), start.previous(CannotCrossEditingBoundary), listTag, m_listStyleType);
+    auto nextList = adjacentEnclosingList(start.deepEquivalent(), end.next(CannotCrossEditingBoundary), listTag, m_listStyleType);
     RefPtr<HTMLElement> listElement;
     if (previousList)
         appendNode(WTF::move(listItemElement), *previousList);
