@@ -3689,7 +3689,7 @@ static bool NODELETE tableCellShouldHaveZeroInitialSize(const RenderTableCell& t
     // preferable to the alternative (sizing intrinsically and making the row end up too big).
     if (!scrollsOverflowY)
         return false;
-    if (tableCell.style().logicalHeight().isAuto() && tableCell.table()->style().logicalHeight().isAuto())
+    if (tableCell.table()->style().logicalHeight().isAuto() && (tableCell.style().logicalHeight().isAuto() || tableCell.style().logicalHeight().isPercentOrCalculated()))
         return false;
     if (child.isBlockLevelReplacedOrAtomicInline())
         return false;
@@ -3738,7 +3738,11 @@ template<typename SizeType> std::optional<LayoutUnit> RenderBox::computePercenta
         // Table cells violate what the CSS spec says to do with heights. Basically we
         // don't care if the cell specified a height or not. We just always make ourselves
         // be a percentage of the cell's current content height.
-        auto tableCellLogicalHeight = tableCell->overridingBorderBoxLogicalHeight();
+        // However, when the cell has an unresolvable percentage height (percentage
+        // height on the cell with an auto-height table), we should not use the
+        // overriding height from row layout to resolve children's percentage heights.
+        bool cellHasUnresolvablePercentageHeight = tableCell->style().logicalHeight().isPercentOrCalculated() && tableCell->table()->style().logicalHeight().isAuto();
+        auto tableCellLogicalHeight = cellHasUnresolvablePercentageHeight ? std::nullopt : tableCell->overridingBorderBoxLogicalHeight();
         if (!tableCellLogicalHeight)
             return tableCellShouldHaveZeroInitialSize(*tableCell, *this, scrollsOverflowY()) ? std::make_optional(0_lu) : std::nullopt;
         // Note: can't use contentBoxLogicalHeight here on table cells due to intrinsic padding.

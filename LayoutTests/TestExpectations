@@ -6853,8 +6853,6 @@ imported/w3c/web-platform-tests/css/css-tables/fixup-dynamic-anonymous-inline-ta
 imported/w3c/web-platform-tests/css/css-tables/fixup-dynamic-anonymous-inline-table-002.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-tables/fixup-dynamic-anonymous-inline-table-003.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-tables/fixup-dynamic-anonymous-table-001.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-tables/height-distribution/percentage-sizing-of-table-cell-children-005.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-tables/height-distribution/percentage-sizing-of-table-cell-children-006.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-tables/min-max-size-table-content-box.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-tables/rules-groups.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-tables/table-has-box-sizing-border-box-002.html [ ImageOnlyFailure ]
