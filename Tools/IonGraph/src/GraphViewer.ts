@@ -150,6 +150,8 @@ export class GraphViewer {
   }
 
   keydownHandler(e: KeyboardEvent) {
+    if (e.ctrlKey || e.metaKey || e.altKey)
+      return;
     switch (e.key) {
       case "w":
       case "s": {

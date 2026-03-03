@@ -1805,6 +1805,8 @@ var GraphViewer = class {
     this.update();
   }
   keydownHandler(e) {
+    if (e.ctrlKey || e.metaKey || e.altKey)
+      return;
     switch (e.key) {
       case "w":
       case "s":
