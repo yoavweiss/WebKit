@@ -5169,6 +5169,16 @@ class YarrGenerator final : public YarrJITInfo {
             }
             case YarrOpCode::ParentheticalAssertionEnd: {
                 // Never backtrack into an assertion; later failures bail to before the begin.
+                // For positive assertions with captures, we must clear the captures before
+                // propagating the backtrack. The assertion matched and set captures, but
+                // something after it failed, so those captures must be reset to undefined.
+                PatternTerm* term = op.m_term;
+                if (!term->invert() && shouldRecordSubpatterns() && term->containsAnyCaptures()) {
+                    m_backtrackingState.link(*this, op);
+                    for (unsigned subpattern = term->parentheses.subpatternId; subpattern <= term->parentheses.lastSubpatternId; subpattern++)
+                        clearSubpattern(subpattern);
+                    m_backtrackingState.fallthrough();
+                }
                 m_backtrackingState.takeBacktracksToJumpList(op.m_jumps, &m_jit);
                 break;
             }
