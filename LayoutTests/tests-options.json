@@ -2144,6 +2144,9 @@
     "imported/w3c/web-platform-tests/dom/nodes/ParentNode-querySelector-All.html": [
         "slow"
     ],
+    "imported/w3c/web-platform-tests/dom/nodes/name-validation.html": [
+        "slow"
+    ],
     "imported/w3c/web-platform-tests/dom/ranges/Range-attributes.html": [
         "slow"
     ],
