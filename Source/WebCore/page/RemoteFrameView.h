@@ -45,7 +45,7 @@ public:
     RemoteFrame& frame() const final { return m_frame; }
 
     WEBCORE_EXPORT LayoutRect NODELETE layoutViewportRect() const final;
-    std::optional<LayoutRect> NODELETE visibleRectOfChild(const Frame&) const final;
+    std::optional<LayoutRect> visibleRectOfChild(const Frame&) const final;
 
     // Set the frame rectangle, like setFrameRect, without synching the new rect to other Local/RemoteFrameViews.
     // When frameRect of a RemoteFrameView changes, it syncs the new rect to other Local/RemoteFrameViews.

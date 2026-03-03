@@ -657,8 +657,7 @@ auto IntersectionObserver::updateObservations(const Frame& hostFrame) -> NeedNot
 
                 RefPtr targetFrameView = target->document().view();
                 targetBoundingClientRect = targetFrameView->absoluteToClientRect(*intersectionState.absoluteTargetRect, target->renderer()->style().usedZoom());
-                // FIXME: compute this when hostFrameView is not local.
-                clientRootBounds = downcast<LocalFrameView>(hostFrameView)->absoluteToLayoutViewportRect(*intersectionState.absoluteRootBounds);
+                clientRootBounds = hostFrameView->absoluteToLayoutViewportRect(*intersectionState.absoluteRootBounds);
 
                 if (intersectionState.isIntersecting) {
                     ASSERT(intersectionState.absoluteIntersectionRect);

@@ -215,6 +215,12 @@ AutoplayPolicy RemoteFrame::autoplayPolicy() const
     return m_autoplayPolicy;
 }
 
+float RemoteFrame::usedZoomForChild(const Frame& child) const
+{
+    auto maybeInfo = frameTreeSyncData().childrenFrameLayoutInfo.getOptional(child.frameID());
+    return maybeInfo.transform([] (auto& info) { return info.usedZoom; }).value_or(1.0);
+}
+
 String RemoteFrame::debugDescription() const
 {
     StringBuilder builder;

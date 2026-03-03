@@ -2029,6 +2029,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     page/RemoteFrame.h
     page/RemoteFrameClient.h
     page/RemoteFrameGeometryTransformer.h
+    page/RemoteFrameLayoutInfo.h
     page/RemoteFrameView.h
     page/RemoteUserInputEventData.h
     page/ScreenOrientationLockType.h

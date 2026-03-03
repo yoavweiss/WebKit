@@ -7673,9 +7673,6 @@ imported/w3c/web-platform-tests/dom/events/scrolling/wheel-event-transactions-ta
 
 imported/w3c/web-platform-tests/css/css-color/deprecated-sameas-002.html [ ImageOnlyFailure ]
 
-# https://bugs.webkit.org/show_bug.cgi?id=301431
-http/tests/site-isolation/page-zoom.html [ Skip ]
-
 http/tests/site-isolation/touch-events [ Skip ]
 http/tests/site-isolation/iframe-dark-mode-print.html [ ImageOnlyFailure ]
 
