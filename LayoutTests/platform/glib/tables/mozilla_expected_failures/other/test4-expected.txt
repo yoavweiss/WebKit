@@ -1,8 +1,8 @@
-layer at (0,0) size 785x2416
+layer at (0,0) size 785x2448
   RenderView at (0,0) size 785x600
-layer at (0,0) size 785x2416
-  RenderBlock {HTML} at (0,0) size 785x2417
-    RenderBody {BODY} at (8,8) size 769x2393
+layer at (0,0) size 785x2448
+  RenderBlock {HTML} at (0,0) size 785x2449
+    RenderBody {BODY} at (8,8) size 769x2425
       RenderBlock {H1} at (0,0) size 769x37
         RenderText {#text} at (0,0) size 432x37
           text run at (0,0) width 432: "Example 4: Some simple tables."
@@ -472,8 +472,8 @@ layer at (0,0) size 785x2416
         RenderBR {BR} at (0,0) size 0x18
         RenderText {#text} at (0,18) size 407x18
           text run at (0,18) width 407: "This is like the previous table plus the list's overflow property set"
-      RenderTable at (0,1360) size 230x19
-        RenderTableSection {UL} at (0,0) size 230x18
+      RenderTable at (0,1360) size 230x51
+        RenderTableSection {UL} at (0,0) size 230x50
           RenderTableRow (anonymous) at (0,0) size 230x18
             RenderTableCell {LI} at (0,0) size 34x18 [bgcolor=#FFA500] [r=0 c=0 rs=1 cs=1]
               RenderText {#text} at (0,0) size 34x18
@@ -493,9 +493,9 @@ layer at (0,0) size 785x2416
             RenderTableCell {LI} at (204,0) size 26x18 [bgcolor=#FFA500] [r=0 c=5 rs=1 cs=1]
               RenderText {#text} at (0,0) size 26x18
                 text run at (0,0) width 26: "SIX"
-      RenderBlock (anonymous) at (0,1378) size 769x19
+      RenderBlock (anonymous) at (0,1410) size 769x19
         RenderBR {BR} at (0,0) size 0x18
-      RenderBlock {P} at (0,1412) size 769x201
+      RenderBlock {P} at (0,1444) size 769x201
         RenderBlock (anonymous) at (0,0) size 769x18
           RenderText {#text} at (0,0) size 426x18
             text run at (0,0) width 426: "The following table will have its rows and columns in red collapsed"
@@ -582,7 +582,7 @@ layer at (0,0) size 785x2416
               RenderTableCell {TD} at (35,26) size 66x22 [border: (1px inset #000000)] [r=2 c=2 rs=1 cs=1]
                 RenderText {#text} at (2,2) size 27x18
                   text run at (2,2) width 27: "C33"
-      RenderBlock {P} at (0,1628) size 769x245
+      RenderBlock {P} at (0,1660) size 769x245
         RenderBlock (anonymous) at (0,0) size 769x18
           RenderText {#text} at (0,0) size 745x18
             text run at (0,0) width 745: "The following table will have its 2nd row and 2nd col collapsed. A window resize may be necessary to see it properly."
@@ -698,7 +698,7 @@ layer at (0,0) size 785x2416
               RenderTableCell {TD} at (62,76) size 31x22 [border: (1px inset #000000)] [r=3 c=3 rs=1 cs=1]
                 RenderText {#text} at (2,2) size 27x18
                   text run at (2,2) width 27: "C44"
-      RenderBlock {P} at (0,1888) size 769x227
+      RenderBlock {P} at (0,1920) size 769x227
         RenderBlock (anonymous) at (0,0) size 769x18
           RenderText {#text} at (0,0) size 455x18
             text run at (0,0) width 455: "The following table will have its 1st row group collapsed (rows 1 and 2)"
@@ -825,7 +825,7 @@ layer at (0,0) size 785x2416
                   text run at (2,2) width 27: "C44"
         RenderBlock (anonymous) at (0,208) size 769x18
           RenderBR {BR} at (0,0) size 0x18
-      RenderBlock {P} at (0,2130) size 769x263
+      RenderBlock {P} at (0,2162) size 769x263
         RenderBlock (anonymous) at (0,0) size 769x36
           RenderText {#text} at (0,0) size 755x36
             text run at (0,0) width 554: "The following table is similar to a previous table except that the direction is right-to-left. "

@@ -684,6 +684,19 @@ void RenderTableSection::layoutRows()
 
     ASSERT(!needsLayout());
 
+    // Distribute any extra height from an explicit section height to the rows before
+    // committing the final logical height.
+    auto distributeExplicitSectionHeightToRows = [&] {
+        auto fixedHeight = style().logicalHeight().tryFixed();
+        if (!fixedHeight)
+            return;
+        LayoutUnit specifiedHeight = Style::evaluate<LayoutUnit>(*fixedHeight, style().usedZoomForLength());
+        if (specifiedHeight <= m_rowPos[numberOfRows])
+            return;
+        distributeExtraLogicalHeightToRows(specifiedHeight - m_rowPos[numberOfRows]);
+    };
+    distributeExplicitSectionHeightToRows();
+
     setLogicalHeight(m_rowPos[numberOfRows]);
 
     updateLayerTransform();

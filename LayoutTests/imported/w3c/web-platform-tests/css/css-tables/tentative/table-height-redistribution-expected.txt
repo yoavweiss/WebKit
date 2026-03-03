@@ -39,7 +39,7 @@ FF adds tbody height to table?
 b:100
 tbody has fixed height > table
 Legacy: table size wins. FF: table size wins, but body grows to 300px?
-b:100
+b:200
 tr has fixed height > table
 FF: table size wins, but body is 300.
 b:200
@@ -118,7 +118,7 @@ Sized THEAD/TBODY
 
 FF does not prioritize TBODY for distribution
 20px thead, 30px tbody
-h:18
+h:20
 b:82
 x
 x
@@ -151,11 +151,7 @@ height expected 80 but got 100
 PASS table 8
 PASS table 9
 PASS table 10
-FAIL table 11 assert_equals:
-<table data-expected-height="200">
-  <tbody style="height:200px" data-expected-height="200"><tr></tr></tbody>
-</table>
-height expected 200 but got 100
+PASS table 11
 PASS table 12
 PASS table 13
 PASS table 14
@@ -202,7 +198,7 @@ FAIL table 29 assert_equals:
     <tr><td>x</td></tr>
   </tbody>
 </table>
-height expected 20 but got 18
+height expected 100 but got 102
 PASS table 30
 PASS table 31
 
