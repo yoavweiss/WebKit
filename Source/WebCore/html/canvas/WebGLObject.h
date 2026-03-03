@@ -127,6 +127,7 @@ public:
 
 protected:
     WebGLObject(WebGLRenderingContextBase&, PlatformGLObject);
+    WebGLObject() = default;
 
     void runDestructor();
 
