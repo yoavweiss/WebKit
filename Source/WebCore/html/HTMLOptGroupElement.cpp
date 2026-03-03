@@ -2,7 +2,7 @@
  * Copyright (C) 1999 Lars Knoll (knoll@kde.org)
  *           (C) 1999 Antti Koivisto (koivisto@kde.org)
  *           (C) 2001 Dirk Mueller (mueller@kde.org)
- * Copyright (C) 2004-2025 Apple Inc. All rights reserved.
+ * Copyright (C) 2004-2026 Apple Inc. All rights reserved.
  *           (C) 2006 Alexey Proskuryakov (ap@nypop.com)
  *
  * This library is free software; you can redistribute it and/or
@@ -28,11 +28,14 @@
 #include "Document.h"
 #include "ElementAncestorIteratorInlines.h"
 #include "ElementIterator.h"
+#include "HTMLDivElement.h"
 #include "HTMLNames.h"
 #include "HTMLOptionElement.h"
 #include "HTMLSelectElement.h"
+#include "HTMLSlotElement.h"
 #include "PseudoClassChangeInvalidation.h"
 #include "NodeRenderStyle.h"
+#include "ScriptDisallowedScope.h"
 #include "StyleResolver.h"
 #include "TypedElementDescendantIteratorInlines.h"
 #include <wtf/StdLibExtras.h>
@@ -55,17 +58,80 @@ Ref<HTMLOptGroupElement> HTMLOptGroupElement::create(const QualifiedName& tagNam
     return adoptRef(*new HTMLOptGroupElement(tagName, document));
 }
 
+void HTMLOptGroupElement::invalidateShadowTree()
+{
+    if (!document().settings().htmlEnhancedSelectEnabled())
+        return;
+
+    if (m_shadowTreeNeedsUpdate)
+        return;
+
+    m_shadowTreeNeedsUpdate = true;
+    if (isConnected())
+        protect(document())->addElementWithPendingUserAgentShadowTreeUpdate(*this);
+}
+
+void HTMLOptGroupElement::updateUserAgentShadowTree()
+{
+    if (!m_shadowTreeNeedsUpdate)
+        return;
+
+    m_shadowTreeNeedsUpdate = false;
+    protect(document())->removeElementWithPendingUserAgentShadowTreeUpdate(*this);
+
+    if (!m_ownerSelect)
+        return;
+
+    if (!userAgentShadowRoot()) {
+        if (m_legendChildCount || attributeWithoutSynchronization(labelAttr).isNull())
+            return;
+
+        ensureUserAgentShadowRoot();
+    }
+
+    Ref labelContainer = *m_labelContainer;
+    auto labelValue = attributeWithoutSynchronization(labelAttr);
+
+    ScriptDisallowedScope::EventAllowedScope labelContainerScope { labelContainer };
+
+    labelContainer->setTextContent(String { labelValue });
+    if (!labelValue.isNull() && !m_legendChildCount)
+        labelContainer->setInlineStyleProperty(CSSPropertyDisplay, CSSValueBlock);
+    else
+        labelContainer->setInlineStyleProperty(CSSPropertyDisplay, CSSValueNone);
+}
+
+void HTMLOptGroupElement::didAddUserAgentShadowRoot(ShadowRoot& root)
+{
+    Ref document = this->document();
+    ScriptDisallowedScope::EventAllowedScope rootScope { root };
+
+    Ref labelContainer = HTMLDivElement::create(document);
+    ScriptDisallowedScope::EventAllowedScope labelContainerScope { labelContainer };
+    labelContainer->setInlineStyleProperty(CSSPropertyPaddingInlineStart, 0.5, CSSUnitType::CSS_EM);
+    labelContainer->setInlineStyleProperty(CSSPropertyPaddingInlineEnd, 0.5, CSSUnitType::CSS_EM);
+    m_labelContainer = labelContainer;
+    root.appendChild(WTF::move(labelContainer));
+
+    root.appendChild(HTMLSlotElement::create(slotTag, document));
+}
+
 auto HTMLOptGroupElement::insertedIntoAncestor(InsertionType insertionType, ContainerNode& parentOfInsertedTree) -> InsertedIntoAncestorResult
 {
     auto result = HTMLElement::insertedIntoAncestor(insertionType, parentOfInsertedTree);
 
-    if (!document().settings().htmlEnhancedSelectParsingEnabled() || m_ownerSelect)
+    if (!document().settings().htmlEnhancedSelectParsingEnabled())
         return result;
 
-    if (RefPtr select = HTMLSelectElement::findOwnerSelect(protect(parentNode()).get(), HTMLSelectElement::ExcludeOptGroup::Yes)) {
-        m_ownerSelect = select.get();
-        select->setRecalcListItems();
+    if (!m_ownerSelect) {
+        if (RefPtr select = HTMLSelectElement::findOwnerSelect(protect(parentNode()), HTMLSelectElement::ExcludeOptGroup::Yes)) {
+            m_ownerSelect = select.get();
+            select->setRecalcListItems();
+        }
     }
+
+    if (insertionType.connectedToDocument && m_shadowTreeNeedsUpdate)
+        protect(document())->addElementWithPendingUserAgentShadowTreeUpdate(*this);
 
     return result;
 }
@@ -74,10 +140,13 @@ void HTMLOptGroupElement::removedFromAncestor(RemovalType removalType, Container
 {
     HTMLElement::removedFromAncestor(removalType, oldParentOfRemovedTree);
 
+    if (removalType.disconnectedFromDocument && m_shadowTreeNeedsUpdate)
+        protect(document())->removeElementWithPendingUserAgentShadowTreeUpdate(*this);
+
     if (!document().settings().htmlEnhancedSelectParsingEnabled() || !m_ownerSelect)
         return;
 
-    if (RefPtr select = HTMLSelectElement::findOwnerSelect(protect(parentNode()).get(), HTMLSelectElement::ExcludeOptGroup::Yes)) {
+    if (RefPtr select = HTMLSelectElement::findOwnerSelect(protect(parentNode()), HTMLSelectElement::ExcludeOptGroup::Yes)) {
         ASSERT_UNUSED(select, select == m_ownerSelect.get());
         return;
     }
@@ -141,7 +210,21 @@ void HTMLOptGroupElement::attributeChanged(const QualifiedName& name, const Atom
 
             m_isDisabled = newDisabled;
         }
-    }
+    } else if (name == labelAttr)
+        invalidateShadowTree();
+}
+
+void HTMLOptGroupElement::legendChildAdded()
+{
+    m_legendChildCount++;
+    invalidateShadowTree();
+}
+
+void HTMLOptGroupElement::legendChildRemoved()
+{
+    ASSERT(m_legendChildCount);
+    m_legendChildCount--;
+    invalidateShadowTree();
 }
 
 void HTMLOptGroupElement::recalcSelectOptions()

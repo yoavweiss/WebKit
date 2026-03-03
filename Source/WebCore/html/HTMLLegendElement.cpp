@@ -2,7 +2,7 @@
  * Copyright (C) 1999 Lars Knoll (knoll@kde.org)
  *           (C) 1999 Antti Koivisto (koivisto@kde.org)
  *           (C) 2001 Dirk Mueller (mueller@kde.org)
- * Copyright (C) 2004-2022 Apple Inc. All rights reserved.
+ * Copyright (C) 2004-2026 Apple Inc. All rights reserved.
  *           (C) 2006 Alexey Proskuryakov (ap@nypop.com)
  * Copyright (C) 2018 Google Inc. All rights reserved.
  *
@@ -29,6 +29,7 @@
 #include "ElementIterator.h"
 #include "HTMLFieldSetElement.h"
 #include "HTMLNames.h"
+#include "HTMLOptGroupElement.h"
 #include "SelectionRestorationMode.h"
 #include <wtf/TZoneMallocInlines.h>
 
@@ -61,5 +62,29 @@ RefPtr<HTMLFormElement> HTMLLegendElement::formForBindings() const
     // FIXME: The downcast should be unnecessary, but the WPT was written before https://github.com/WICG/webcomponents/issues/1072 was resolved. Update once the WPT has been updated.
     return dynamicDowncast<HTMLFormElement>(retargetReferenceTargetForBindings(form()));
 }
+
+auto HTMLLegendElement::insertedIntoAncestor(InsertionType insertionType, ContainerNode& parentOfInsertedTree) -> InsertedIntoAncestorResult
+{
+    auto result = HTMLElement::insertedIntoAncestor(insertionType, parentOfInsertedTree);
+
+    if (parentNode() != &parentOfInsertedTree)
+        return result;
     
-} // namespace
+    if (RefPtr optgroup = dynamicDowncast<HTMLOptGroupElement>(parentNode()))
+        optgroup->legendChildAdded();
+
+    return result;
+}
+
+void HTMLLegendElement::removedFromAncestor(RemovalType removalType, ContainerNode& oldParentOfRemovedTree)
+{
+    HTMLElement::removedFromAncestor(removalType, oldParentOfRemovedTree);
+
+    if (parentNode())
+        return;
+
+    if (RefPtr optgroup = dynamicDowncast<HTMLOptGroupElement>(oldParentOfRemovedTree))
+        optgroup->legendChildRemoved();
+}
+
+} // namespace WebCore

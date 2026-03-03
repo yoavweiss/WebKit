@@ -659,10 +659,6 @@ imported/w3c/web-platform-tests/html/semantics/forms/the-select-element/customiz
 # Top layer exit animations (remove from implicit anchor/top layer after picker transition finishes).
 imported/w3c/web-platform-tests/html/semantics/forms/the-select-element/customizable-select/select-popover-exit-animation.html [ ImageOnlyFailure ]
 
-# Need option & optgroup shadow tree fix
-imported/w3c/web-platform-tests/html/semantics/forms/the-select-element/customizable-select/standalone-option-no-shadow-tree.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/html/semantics/forms/the-select-element/customizable-select/select-appearance-optgroup-rendering.html [ ImageOnlyFailure ]
-
 # Untriaged.
 imported/w3c/web-platform-tests/html/semantics/forms/the-select-element/customizable-select/select-appearance-button-after-text.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/semantics/forms/the-select-element/customizable-select/select-appearance-switching-invalidation.html [ ImageOnlyFailure ]

@@ -103,14 +103,60 @@ void HTMLOptionElement::didAddUserAgentShadowRoot(ShadowRoot& root)
     Ref document = this->document();
     ScriptDisallowedScope::EventAllowedScope rootScope { root };
 
-    Ref label = HTMLSpanElement::create(document);
-    ScriptDisallowedScope::EventAllowedScope labelScope { label };
-    root.appendChild(label);
-    m_label = WTF::move(label);
+    Ref labelContainer = HTMLSpanElement::create(document);
+    root.appendChild(labelContainer);
+    m_labelContainer = WTF::move(labelContainer);
 
     Ref slot = HTMLSlotElement::create(slotTag, document);
     root.appendChild(slot);
     m_slot = WTF::move(slot);
+}
+
+void HTMLOptionElement::invalidateShadowTree()
+{
+    if (!document().settings().htmlEnhancedSelectEnabled())
+        return;
+
+    if (m_shadowTreeNeedsUpdate)
+        return;
+
+    m_shadowTreeNeedsUpdate = true;
+    if (isConnected())
+        protect(document())->addElementWithPendingUserAgentShadowTreeUpdate(*this);
+}
+
+void HTMLOptionElement::updateUserAgentShadowTree()
+{
+    if (!m_shadowTreeNeedsUpdate)
+        return;
+
+    m_shadowTreeNeedsUpdate = false;
+    protect(document())->removeElementWithPendingUserAgentShadowTreeUpdate(*this);
+
+    if (!m_ownerSelect)
+        return;
+
+    if (!userAgentShadowRoot()) {
+        if (attributeWithoutSynchronization(labelAttr).isNull())
+            return;
+        ensureUserAgentShadowRoot();
+    }
+
+    Ref labelContainer = *m_labelContainer;
+    Ref slot = *m_slot;
+    auto labelValue = attributeWithoutSynchronization(labelAttr);
+
+    ScriptDisallowedScope::EventAllowedScope labelContainerScope { labelContainer };
+    ScriptDisallowedScope::EventAllowedScope slotScope { slot };
+
+    labelContainer->setTextContent(String { labelValue });
+    if (!labelValue.isNull()) {
+        labelContainer->setInlineStyleProperty(CSSPropertyDisplay, CSSValueInline);
+        slot->setInlineStyleProperty(CSSPropertyDisplay, CSSValueNone);
+    } else {
+        labelContainer->setInlineStyleProperty(CSSPropertyDisplay, CSSValueNone);
+        slot->setInlineStyleProperty(CSSPropertyDisplay, CSSValueContents);
+    }
 }
 
 auto HTMLOptionElement::insertedIntoAncestor(InsertionType insertionType, ContainerNode& parentOfInsertedTree) -> InsertedIntoAncestorResult
@@ -120,10 +166,13 @@ auto HTMLOptionElement::insertedIntoAncestor(InsertionType insertionType, Contai
     if (!document().settings().htmlEnhancedSelectParsingEnabled() || m_ownerSelect)
         return result;
 
-    if (RefPtr select = HTMLSelectElement::findOwnerSelect(protect(parentNode()).get(), HTMLSelectElement::ExcludeOptGroup::No)) {
+    if (RefPtr select = HTMLSelectElement::findOwnerSelect(protect(parentNode()), HTMLSelectElement::ExcludeOptGroup::No)) {
         m_ownerSelect = select.get();
         select->setRecalcListItems();
     }
+
+    if (insertionType.connectedToDocument && m_shadowTreeNeedsUpdate)
+        protect(document())->addElementWithPendingUserAgentShadowTreeUpdate(*this);
 
     return result;
 }
@@ -132,10 +181,13 @@ void HTMLOptionElement::removedFromAncestor(RemovalType removalType, ContainerNo
 {
     HTMLElement::removedFromAncestor(removalType, oldParentOfRemovedTree);
 
+    if (removalType.disconnectedFromDocument && m_shadowTreeNeedsUpdate)
+        protect(document())->removeElementWithPendingUserAgentShadowTreeUpdate(*this);
+
     if (!document().settings().htmlEnhancedSelectParsingEnabled() || !m_ownerSelect)
         return;
 
-    if (RefPtr select = HTMLSelectElement::findOwnerSelect(protect(parentNode()).get(), HTMLSelectElement::ExcludeOptGroup::No)) {
+    if (RefPtr select = HTMLSelectElement::findOwnerSelect(protect(parentNode()), HTMLSelectElement::ExcludeOptGroup::No)) {
         ASSERT_UNUSED(select, select == m_ownerSelect.get());
         return;
     }
@@ -333,9 +385,7 @@ void HTMLOptionElement::attributeChanged(const QualifiedName& name, const AtomSt
     case AttributeNames::labelAttr: {
         if (RefPtr select = ownerSelectElement())
             select->optionElementChildrenChanged();
-        if (!newValue.isNull() && document().settings().htmlEnhancedSelectEnabled())
-            ensureUserAgentShadowRoot();
-        updateLabelInShadowTree(newValue);
+        invalidateShadowTree();
         break;
     }
     case AttributeNames::valueAttr:
@@ -345,26 +395,6 @@ void HTMLOptionElement::attributeChanged(const QualifiedName& name, const AtomSt
     default:
         HTMLElement::attributeChanged(name, oldValue, newValue, attributeModificationReason);
         break;
-    }
-}
-
-void HTMLOptionElement::updateLabelInShadowTree(const AtomString& labelValue)
-{
-    RefPtr label = m_label;
-    if (!label)
-        return;
-
-    ASSERT(document().settings().htmlEnhancedSelectEnabled());
-    Ref slot = *m_slot;
-
-    if (!labelValue.isNull()) {
-        label->setTextContent(String { labelValue });
-        label->setInlineStyleProperty(CSSPropertyDisplay, CSSValueInline);
-        slot->setInlineStyleProperty(CSSPropertyDisplay, CSSValueNone);
-    } else {
-        label->setTextContent({ });
-        label->setInlineStyleProperty(CSSPropertyDisplay, CSSValueNone);
-        slot->setInlineStyleProperty(CSSPropertyDisplay, CSSValueContents);
     }
 }
 

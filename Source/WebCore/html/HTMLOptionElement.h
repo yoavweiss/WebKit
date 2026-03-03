@@ -73,6 +73,8 @@ public:
 
     void cloneIntoSelectedContent(HTMLSelectedContentElement&);
 
+    void updateUserAgentShadowTree() final;
+
 private:
     HTMLOptionElement(const QualifiedName&, Document&);
 
@@ -98,14 +100,15 @@ private:
     String collectOptionInnerText() const;
     String collectOptionInnerTextCollapsingWhitespace() const;
 
-    void updateLabelInShadowTree(const AtomString& labelValue);
+    void invalidateShadowTree();
 
     bool m_disabled { false };
     bool m_isSelected { false };
     bool m_isDefault { false };
+    bool m_shadowTreeNeedsUpdate { false };
     WeakPtr<HTMLSelectElement, WeakPtrImplWithEventTargetData> m_ownerSelect;
+    WeakPtr<HTMLSpanElement, WeakPtrImplWithEventTargetData> m_labelContainer;
     WeakPtr<HTMLSlotElement, WeakPtrImplWithEventTargetData> m_slot;
-    WeakPtr<HTMLSpanElement, WeakPtrImplWithEventTargetData> m_label;
 };
 
 } // namespace
