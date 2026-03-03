@@ -192,6 +192,7 @@
 #import <WebCore/StringUtilities.h>
 #import <WebCore/TextAnimationTypes.h>
 #import <WebCore/TextExtractionTypes.h>
+#import <WebCore/TextIterator.h>
 #import <WebCore/TextManipulationController.h>
 #import <WebCore/TextManipulationItem.h>
 #import <WebCore/ViewportArguments.h>
@@ -6926,6 +6927,7 @@ static RetainPtr<_WKTextExtractionResult> createEmptyTextExtractionResult()
         _textExtractionURLCache = WebKit::TextExtractionURLCache::create();
 
     [self _requestTextExtractionInternal:configuration completion:[
+        startTime = MonotonicTime::now(),
         completionHandler = makeBlockPtr(completionHandler),
         weakSelf = WeakObjCPtr<WKWebView>(self),
         mainFrameIdentifier = mainFrame->frameID(),
@@ -7076,11 +7078,12 @@ static RetainPtr<_WKTextExtractionResult> createEmptyTextExtractionResult()
             outputFormat,
             urlCache.get(),
         };
-        WebKit::convertToText(WTF::move(result->rootItem), WTF::move(options), [weakSelf, urlCache, completionHandler = WTF::move(completionHandler), endTextExtractionScope = WTF::move(endTextExtractionScope)](auto&& result) {
+        WebKit::convertToText(WTF::move(result->rootItem), WTF::move(options), [weakSelf, startTime, urlCache, completionHandler = WTF::move(completionHandler), endTextExtractionScope = WTF::move(endTextExtractionScope)](auto&& result) {
             RetainPtr strongSelf = weakSelf.get();
             if (!strongSelf)
                 return completionHandler(createEmptyTextExtractionResult().get());
 
+            RELEASE_LOG(TextExtraction, "<%@: %p> Extraction complete (%.0f ms)", [strongSelf class], strongSelf.get(), (MonotonicTime::now() - startTime).milliseconds());
             auto [text, filteredOutAnyText, shortenedURLStrings] = result;
             RetainPtr shortenedURLs = adoptNS([[NSMutableDictionary alloc] initWithCapacity:shortenedURLStrings.size()]);
             for (auto& string : shortenedURLStrings) {
@@ -7420,21 +7423,92 @@ static OptionSet<WebCore::DataDetectorType> coreDataDetectorTypes(_WKTextExtract
         additionalFrames.add(frame.releaseNonNull());
     }
 
+    WeakObjCPtr weakSelf = self;
+    auto startTime = MonotonicTime::now();
+    RELEASE_LOG(TextExtraction, "<%@: %p> Starting text extraction", [self class], self);
     auto results = Box<WebCore::TextExtraction::PageResults>::create();
     auto aggregator = MainRunLoopCallbackAggregator::create([results, completion = WTF::move(completion)] mutable {
         completion(WebCore::TextExtraction::collatePageResults(WTF::move(*results)));
     });
 
-    mainFrame->requestTextExtraction(makeRequest({ *mainFrame }), [aggregator, results](auto&& result) {
+    mainFrame->requestTextExtraction(makeRequest({ *mainFrame }), [weakSelf, startTime, aggregator, results](auto&& result) {
+        RetainPtr strongSelf = weakSelf.get();
+        if (!strongSelf)
+            return;
+
+        RELEASE_LOG(TextExtraction, "<%@: %p> • Mainframe items received (%.0f ms)", [strongSelf class], strongSelf.get(), (MonotonicTime::now() - startTime).milliseconds());
         results->mainFrameResult = WTF::move(result);
     });
 
     for (auto& frame : additionalFrames) {
-        frame->requestTextExtraction(makeRequest(frame.copyRef()), [frameID = frame->frameID(), aggregator, results](auto&& result) {
+        frame->requestTextExtraction(makeRequest(frame.copyRef()), [weakSelf, startTime, frameID = frame->frameID(), aggregator, results](auto&& result) {
+            RetainPtr strongSelf = weakSelf.get();
+            if (!strongSelf)
+                return;
+
+            RELEASE_LOG(TextExtraction, "<%@: %p> • Subframe items received (%.0f ms)", [strongSelf class], strongSelf.get(), (MonotonicTime::now() - startTime).milliseconds());
             auto addResult = results->subFrameResults.add(frameID, makeUniqueRef<WebCore::TextExtraction::Result>(WTF::move(result)));
             ASSERT_UNUSED(addResult, addResult.isNewEntry);
         });
     }
+
+#if ENABLE(TEXT_EXTRACTION_FILTER) && HAVE(VISION)
+    if (!_textExtractionRecognizedWords && preferences->textExtractionFilterEnabled() && (configuration.filterOptions & _WKTextExtractionFilterTextRecognition)) {
+        protect(_page)->callAfterNextPresentationUpdate([rectInWebView, weakSelf, aggregator, startTime] mutable {
+            RetainPtr strongSelf = weakSelf.get();
+            if (!strongSelf)
+                return;
+
+            WebCore::FloatRect snapshotRect { rectInWebView };
+            if (CGRectIsNull(rectInWebView)) {
+#if PLATFORM(IOS_FAMILY)
+                snapshotRect = [strongSelf convertRect:[strongSelf->_contentView bounds] fromView:strongSelf->_contentView.get()];
+#else
+                auto scrollPosition = strongSelf->_page->mainFrameScrollPosition();
+                snapshotRect = NSMakeRect(-scrollPosition.x(), -scrollPosition.y(), strongSelf->_lastContentSize.width, strongSelf->_lastContentSize.height);
+#endif
+            }
+
+            static constexpr OptionSet snapshotOptions { WebKit::SnapshotOption::FullContentRect, WebKit::SnapshotOption::ExcludeSelectionHighlighting };
+
+            strongSelf->_page->takeSnapshot(WebCore::enclosingIntRect(snapshotRect), { }, snapshotOptions, [weakSelf, aggregator = WTF::move(aggregator), startTime](CGImageRef image) mutable {
+                RetainPtr strongSelf = weakSelf.get();
+                if (!strongSelf)
+                    return;
+
+                auto snapshotEndTime = MonotonicTime::now();
+                auto millisecondsSpent = (snapshotEndTime - startTime).milliseconds();
+                if (!image) {
+                    RELEASE_LOG_ERROR(TextExtraction, "<%@: %p> • Failed to take full snapshot (%.0f ms)", [strongSelf class], strongSelf.get(), millisecondsSpent);
+                    return;
+                }
+
+                RELEASE_LOG(TextExtraction, "<%@: %p> • Took full snapshot (%.0f ms)", [strongSelf class], strongSelf.get(), millisecondsSpent);
+                WebKit::recognizeText(image, WebKit::TextRecognitionLevel::Fast, [weakSelf, snapshotEndTime, aggregator = WTF::move(aggregator)](NSString *text, NSError *error) mutable {
+                    RetainPtr strongSelf = weakSelf.get();
+                    if (!strongSelf)
+                        return;
+
+                    auto millisecondsSpent = (MonotonicTime::now() - snapshotEndTime).milliseconds();
+                    if (error) {
+                        RELEASE_LOG_ERROR(TextExtraction, "<%@: %p> • Failed to recognize text in full snapshot: %@ (%.0f ms)", [strongSelf class], strongSelf.get(), error, millisecondsSpent);
+                        return;
+                    }
+
+                    __block HashSet<String> recognizedWords;
+                    [text enumerateSubstringsInRange:NSMakeRange(0, text.length) options:NSStringEnumerationByWords usingBlock:^(NSString *word, NSRange, NSRange, BOOL *) {
+                        if (!word.length)
+                            return;
+
+                        recognizedWords.add(WebCore::foldQuoteMarks(word.lowercaseString));
+                    }];
+                    RELEASE_LOG(TextExtraction, "<%@: %p> • Recognized text in full snapshot (%.0f ms) - %u words", [strongSelf class], strongSelf.get(), millisecondsSpent, recognizedWords.size());
+                    strongSelf->_textExtractionRecognizedWords = { WTF::move(recognizedWords) };
+                });
+            });
+        });
+    }
+#endif // ENABLE(TEXT_EXTRACTION_FILTER) && HAVE(VISION)
 #endif // USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
 }
 
@@ -7541,6 +7615,30 @@ static OptionSet<WebCore::DataDetectorType> coreDataDetectorTypes(_WKTextExtract
     if (!mainFrame)
         return completionHandler(text);
 
+    if (_textExtractionRecognizedWords) {
+        __block unsigned totalWords = 0;
+        __block unsigned matchedWords = 0;
+        [text.createNSString() enumerateSubstringsInRange:NSMakeRange(0, text.length()) options:NSStringEnumerationByWords usingBlock:^(NSString *word, NSRange, NSRange, BOOL *) {
+            if (!word.length)
+                return;
+
+            totalWords += 1;
+            if (_textExtractionRecognizedWords->contains(WebCore::foldQuoteMarks(word.lowercaseString)))
+                matchedWords += 1;
+        }];
+
+        if (!totalWords)
+            return completionHandler(text);
+
+        static constexpr auto minimumMatchRatio = 0.9;
+        if (static_cast<double>(matchedWords) / totalWords >= minimumMatchRatio) {
+            RELEASE_LOG_INFO(TextExtraction, "<%@: %p> • Skipping text recognition for paragraph with length: %u", [self class], self, text.length());
+            _textValidationCache.add(textHash, TextValidationMapValue { SimilarToOriginalTextTag::Value });
+            return completionHandler(text);
+        }
+    }
+
+    RELEASE_LOG_INFO(TextExtraction, "<%@: %p> • Snapshotting paragraph with length: %u", [self class], self, text.length());
     mainFrame->takeSnapshotOfExtractedText({ text, WTF::move(nodeIdentifier) }, [text = text, completionHandler = WTF::move(completionHandler), view = retainPtr(self), textHash](auto textIndicator) mutable {
         if (!textIndicator)
             return completionHandler(text);
@@ -7557,7 +7655,7 @@ static OptionSet<WebCore::DataDetectorType> coreDataDetectorTypes(_WKTextExtract
         if (!cgImage)
             return completionHandler(text);
 
-        WebKit::recognizeText(cgImage.get(), [text = WTF::move(text), completionHandler = WTF::move(completionHandler), view = WTF::move(view), textHash](NSString *recognizedText, NSError *error) mutable {
+        WebKit::recognizeText(cgImage.get(), WebKit::TextRecognitionLevel::Fast, [text = WTF::move(text), completionHandler = WTF::move(completionHandler), view = WTF::move(view), textHash](NSString *recognizedText, NSError *error) mutable {
             if (error)
                 return completionHandler(text);
 
@@ -7573,7 +7671,7 @@ static OptionSet<WebCore::DataDetectorType> coreDataDetectorTypes(_WKTextExtract
                 completionHandler(recognizedText);
             } else {
                 view->_textValidationCache.add(textHash, TextValidationMapValue { SimilarToOriginalTextTag::Value });
-                return completionHandler(text);
+                completionHandler(text);
             }
         });
     });
@@ -7591,6 +7689,7 @@ static OptionSet<WebCore::DataDetectorType> coreDataDetectorTypes(_WKTextExtract
         _textExtractionURLCache->clear();
 
     _textValidationCache.clear();
+    _textExtractionRecognizedWords = { };
 }
 
 #endif // ENABLE(TEXT_EXTRACTION_FILTER)

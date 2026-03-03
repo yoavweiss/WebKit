@@ -1391,6 +1391,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
 - (void)_web_didChangeContentSize:(NSSize)newSize
 {
+    _lastContentSize = newSize;
 }
 
 - (BOOL)_web_hasActiveIntelligenceTextEffects

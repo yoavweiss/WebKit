@@ -371,6 +371,7 @@ struct PerWebProcessState {
 #if HAVE(NSVIEW_CORNER_CONFIGURATION)
     WebCore::CornerRadii _lastViewCornerRadii;
 #endif
+    NSSize _lastContentSize;
 #endif // PLATFORM(MAC)
 
 #if PLATFORM(IOS_FAMILY)
@@ -540,6 +541,7 @@ struct PerWebProcessState {
 
 #if ENABLE(TEXT_EXTRACTION_FILTER)
     HashMap<unsigned /* string hash */, TextValidationMapValue> _textValidationCache;
+    std::optional<HashSet<String>> _textExtractionRecognizedWords;
 #endif
     RefPtr<WebKit::TextExtractionURLCache> _textExtractionURLCache;
 

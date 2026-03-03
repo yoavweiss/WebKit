@@ -443,9 +443,9 @@ static WorkQueue& textRecognitionQueueSingleton()
     return queue.get();
 }
 
-void recognizeText(CGImageRef image, CompletionHandler<void(NSString *, NSError *)>&& completion)
+void recognizeText(CGImageRef image, std::optional<TextRecognitionLevel> level, CompletionHandler<void(NSString *, NSError *)>&& completion)
 {
-    textRecognitionQueueSingleton().dispatch([image = retainPtr(image), completion = WTF::move(completion)] mutable {
+    textRecognitionQueueSingleton().dispatch([level, image = retainPtr(image), completion = WTF::move(completion)] mutable {
         __block RetainPtr<NSString> resultText;
         __block RetainPtr<NSError> error;
         RetainPtr request = adoptNS([PAL::allocVNRecognizeTextRequestInstance() initWithCompletionHandler:^(VNRequest *request, NSError *requestError) {
@@ -474,6 +474,17 @@ void recognizeText(CGImageRef image, CompletionHandler<void(NSString *, NSError 
 
             resultText = resultBuffer;
         }]);
+
+        if (level) {
+            switch (*level) {
+            case TextRecognitionLevel::Accurate:
+                [request setRecognitionLevel:VNRequestTextRecognitionLevelAccurate];
+                break;
+            case TextRecognitionLevel::Fast:
+                [request setRecognitionLevel:VNRequestTextRecognitionLevelFast];
+                break;
+            }
+        }
 
         [request setAutomaticallyDetectsLanguage:YES];
 
