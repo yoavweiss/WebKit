@@ -79,7 +79,7 @@ void HTMLOptGroupElement::updateUserAgentShadowTree()
     m_shadowTreeNeedsUpdate = false;
     protect(document())->removeElementWithPendingUserAgentShadowTreeUpdate(*this);
 
-    if (!m_ownerSelect)
+    if (!m_ownerSelect && !userAgentShadowRoot())
         return;
 
     if (!userAgentShadowRoot()) {
@@ -95,7 +95,7 @@ void HTMLOptGroupElement::updateUserAgentShadowTree()
     ScriptDisallowedScope::EventAllowedScope labelContainerScope { labelContainer };
 
     labelContainer->setTextContent(String { labelValue });
-    if (!labelValue.isNull() && !m_legendChildCount)
+    if (m_ownerSelect && !labelValue.isNull() && !m_legendChildCount)
         labelContainer->setInlineStyleProperty(CSSPropertyDisplay, CSSValueBlock);
     else
         labelContainer->setInlineStyleProperty(CSSPropertyDisplay, CSSValueNone);
@@ -151,8 +151,10 @@ void HTMLOptGroupElement::removedFromAncestor(RemovalType removalType, Container
         return;
     }
 
-    if (RefPtr select = std::exchange(m_ownerSelect, nullptr).get())
+    if (RefPtr select = std::exchange(m_ownerSelect, nullptr).get()) {
         select->setRecalcListItems();
+        invalidateShadowTree();
+    }
 }
 
 bool HTMLOptGroupElement::isDisabledFormControl() const

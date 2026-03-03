@@ -133,7 +133,7 @@ void HTMLOptionElement::updateUserAgentShadowTree()
     m_shadowTreeNeedsUpdate = false;
     protect(document())->removeElementWithPendingUserAgentShadowTreeUpdate(*this);
 
-    if (!m_ownerSelect)
+    if (!m_ownerSelect && !userAgentShadowRoot())
         return;
 
     if (!userAgentShadowRoot()) {
@@ -150,7 +150,7 @@ void HTMLOptionElement::updateUserAgentShadowTree()
     ScriptDisallowedScope::EventAllowedScope slotScope { slot };
 
     labelContainer->setTextContent(String { labelValue });
-    if (!labelValue.isNull()) {
+    if (m_ownerSelect && !labelValue.isNull()) {
         labelContainer->setInlineStyleProperty(CSSPropertyDisplay, CSSValueInline);
         slot->setInlineStyleProperty(CSSPropertyDisplay, CSSValueNone);
     } else {
@@ -192,8 +192,10 @@ void HTMLOptionElement::removedFromAncestor(RemovalType removalType, ContainerNo
         return;
     }
 
-    if (RefPtr select = std::exchange(m_ownerSelect, nullptr).get())
+    if (RefPtr select = std::exchange(m_ownerSelect, nullptr).get()) {
         select->setRecalcListItems();
+        invalidateShadowTree();
+    }
 }
 
 void HTMLOptionElement::finishParsingChildren()
