@@ -4042,7 +4042,10 @@ std::optional<SimpleRange> Editor::findString(const String& target, FindOptions 
         document->updateLayoutIgnorePendingStylesheets({ LayoutOptions::TreatContentVisibilityAutoAsVisible, LayoutOptions::TreatRevealedWhenFoundAsVisible });
         Style::PostResolutionCallbackDisabler disabler(document);
         VisibleSelection selection = document->selection().selection();
-        resultRange = rangeOfString(target, selection.firstRange(), options);
+        auto referenceRange = selection.firstRange();
+        if (!referenceRange || referenceRange->collapsed())
+            referenceRange = selection.range();
+        resultRange = rangeOfString(target, referenceRange, options);
     }
 
     if (!resultRange)
@@ -4106,7 +4109,10 @@ std::optional<SimpleRange> Editor::rangeOfString(const String& target, const std
     // If we started in the reference range and the found range exactly matches the reference range, find again.
     // Build a selection with the found range to remove collapsed whitespace.
     // Compare ranges instead of selection objects to ignore the way that the current selection was made.
-    if (startInReferenceRange && VisibleSelection(resultRange).toNormalizedRange() == referenceRange) {
+    auto resultSelection = VisibleSelection(resultRange);
+    auto normalizedRange = resultSelection.toNormalizedRange();
+    auto resultRangeForComparison = !normalizedRange || normalizedRange->collapsed() ? resultSelection.range() : normalizedRange;
+    if (startInReferenceRange && resultRangeForComparison == referenceRange) {
         searchRange = makeRangeSelectingNodeContents(document);
         start(searchRange, options) = end(*referenceRange, options);
         if (shadowTreeRoot)
