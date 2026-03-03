@@ -163,9 +163,10 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     
     CGFloat scale = [info scalingFactor];
     Ref webFrame = *_webFrame;
-    RefPtr page = webFrame->page();
-    [info setTopMargin:originalTopMargin + page->headerHeightForPrinting(webFrame) * scale];
-    [info setBottomMargin:originalBottomMargin + page->footerHeightForPrinting(webFrame) * scale];
+    if (RefPtr page = webFrame->page()) {
+        [info setTopMargin:originalTopMargin + page->headerHeightForPrinting(webFrame) * scale];
+        [info setBottomMargin:originalBottomMargin + page->footerHeightForPrinting(webFrame) * scale];
+    }
 }
 
 - (BOOL)_isPrintingPreview
