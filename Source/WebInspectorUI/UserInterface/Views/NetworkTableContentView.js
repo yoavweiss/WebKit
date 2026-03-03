@@ -2724,7 +2724,7 @@ WI.NetworkTableContentView = class NetworkTableContentView extends WI.ContentVie
 
     _handleOtherFiltersNavigationItemContextMenu(contextMenu)
     {
-        contextMenu.appendCheckboxItem(WI.UIString("Preserve Log"), () => {
+        contextMenu.appendCheckboxItem(WI.UIString("Preserve Requests", "Preserve Requests @ Network Tab", "Label for option that controls whether captured network requests are cleared when the page navigates."), () => {
             WI.settings.clearNetworkOnNavigate.value = !WI.settings.clearNetworkOnNavigate.value;
         }, !WI.settings.clearNetworkOnNavigate.value);
 

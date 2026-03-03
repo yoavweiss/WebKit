@@ -213,6 +213,9 @@ WI.NetworkManager = class NetworkManager extends WI.Object
             target.NetworkAgent.enable();
             target.NetworkAgent.setResourceCachingDisabled(WI.settings.resourceCachingDisabled.value);
 
+            if (target.hasCommand("Network.setClearResourceDataOnNavigate"))
+                target.NetworkAgent.setClearResourceDataOnNavigate(WI.settings.clearNetworkOnNavigate.value);
+
             // COMPATIBILITY (iOS 13.0): Network.setInterceptionEnabled did not exist.
             if (target.hasCommand("Network.setInterceptionEnabled")) {
                 if (this._interceptionEnabled)

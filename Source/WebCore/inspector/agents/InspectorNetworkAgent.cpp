@@ -945,6 +945,13 @@ Inspector::Protocol::ErrorStringOr<void> InspectorNetworkAgent::setResourceCachi
     return { };
 }
 
+Inspector::Protocol::ErrorStringOr<void> InspectorNetworkAgent::setClearResourceDataOnNavigate(bool clearResourceDataOnNavigate)
+{
+    m_clearResourceDataOnNavigate = clearResourceDataOnNavigate;
+
+    return { };
+}
+
 void InspectorNetworkAgent::loadResource(const Inspector::Protocol::Network::FrameId& frameId, const String& urlString, Ref<LoadResourceCallback>&& callback)
 {
     Inspector::Protocol::ErrorString errorString;
@@ -1394,7 +1401,8 @@ void InspectorNetworkAgent::searchInRequest(Inspector::Protocol::ErrorString& er
 
 void InspectorNetworkAgent::mainFrameNavigated(DocumentLoader& loader)
 {
-    m_resourcesData->clear(loaderIdentifier(&loader));
+    if (m_clearResourceDataOnNavigate)
+        m_resourcesData->clear(loaderIdentifier(&loader));
 }
 
 } // namespace WebCore

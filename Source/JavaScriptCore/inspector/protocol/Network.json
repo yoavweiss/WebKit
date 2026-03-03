@@ -219,6 +219,14 @@
             ]
         },
         {
+            "name": "setClearResourceDataOnNavigate",
+            "description": "Toggles whether resource data is cleared on page navigations / reloads.",
+            "targetTypes": ["page"],
+            "parameters": [
+                { "name": "clearResourceDataOnNavigate", "type": "boolean", "description": "Whether to clear resource data on navigations." }
+            ]
+        },
+        {
             "name": "loadResource",
             "description": "Loads a resource in the context of a frame on the inspected page without cross origin checks.",
             "targetTypes": ["page"],

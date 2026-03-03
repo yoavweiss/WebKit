@@ -238,6 +238,7 @@ WI.contentLoaded = function()
     WI.settings.showJavaScriptTypeInformation.addEventListener(WI.Setting.Event.Changed, WI._showJavaScriptTypeInformationSettingChanged, WI);
     WI.settings.enableControlFlowProfiler.addEventListener(WI.Setting.Event.Changed, WI._enableControlFlowProfilerSettingChanged, WI);
     WI.settings.resourceCachingDisabled.addEventListener(WI.Setting.Event.Changed, WI._resourceCachingDisabledSettingChanged, WI);
+    WI.settings.clearNetworkOnNavigate.addEventListener(WI.Setting.Event.Changed, WI._clearResourceDataOnNavigateSettingChanged, WI);
     WI.settings.experimentalAllowInspectingInspector.addEventListener(WI.Setting.Event.Changed, WI._allowInspectingInspectorSettingChanged, WI);
 
     function setTabSize() {
@@ -2678,6 +2679,14 @@ WI._resourceCachingDisabledSettingChanged = function(event)
             continue;
 
         target.NetworkAgent.setResourceCachingDisabled(WI.settings.resourceCachingDisabled.value);
+    }
+};
+
+WI._clearResourceDataOnNavigateSettingChanged = function(event)
+{
+    for (let target of WI.targets) {
+        if (target.hasCommand("Network.setClearResourceDataOnNavigate"))
+            target.NetworkAgent.setClearResourceDataOnNavigate(WI.settings.clearNetworkOnNavigate.value);
     }
 };
 
