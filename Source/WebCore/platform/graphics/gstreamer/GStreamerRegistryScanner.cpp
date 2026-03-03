@@ -44,7 +44,11 @@
 #include "VideoEncoderPrivateGStreamer.h"
 #endif
 
-namespace {
+namespace WebCore {
+
+GST_DEBUG_CATEGORY_STATIC(webkit_media_gst_registry_scanner_debug);
+#define GST_CAT_DEFAULT webkit_media_gst_registry_scanner_debug
+
 struct VideoDecodingLimits {
     unsigned mediaMaxWidth = 0;
     unsigned mediaMaxHeight = 0;
@@ -56,22 +60,18 @@ struct VideoDecodingLimits {
     {
     }
 };
-}
 
-#ifdef VIDEO_DECODING_LIMIT
-static std::optional<VideoDecodingLimits> videoDecoderLimitsDefaults()
+// Parses a video decoding limit string in format WIDTHxHEIGHT@FRAMERATE.
+static std::optional<VideoDecodingLimits> parseVideoDecodingLimit(const StringView& videoDecodingLimit)
 {
-    // VIDEO_DECODING_LIMIT should be in format: WIDTHxHEIGHT@FRAMERATE.
-    String videoDecodingLimit(String::fromUTF8(VIDEO_DECODING_LIMIT));
-
     if (videoDecodingLimit.isEmpty())
         return { };
 
     Vector<String> entries;
 
-    // Extract frame rate part from the VIDEO_DECODING_LIMIT: WIDTHxHEIGHT@FRAMERATE.
-    videoDecodingLimit.split('@', [&entries](StringView item) {
-        entries.append(item.toString());
+    // Extract frame rate part: WIDTHxHEIGHT@FRAMERATE.
+    videoDecodingLimit.toStringWithoutCopying().split('@', [&entries](StringView item) {
+        entries.append(item.toStringWithoutCopying());
     });
 
     if (entries.size() != 2)
@@ -99,12 +99,39 @@ static std::optional<VideoDecodingLimits> videoDecoderLimitsDefaults()
 
     return { VideoDecodingLimits(width.value(), height.value(), frameRate.value()) };
 }
+
+// Returns the active VideoDecodingLimits, resolved once at first call.
+// WEBKIT_GST_VIDEO_DECODING_LIMIT env var takes precedence over the compile-time VIDEO_DECODING_LIMIT.
+// Format for both: WIDTHxHEIGHT@FRAMERATE (e.g. "1920x1080@30").
+static VideoDecodingLimits* resolveVideoDecodingLimits()
+{
+    static std::optional<VideoDecodingLimits> limits;
+    static std::once_flag onceFlag;
+    std::call_once(onceFlag, [] {
+        if (const char* envLimit = g_getenv("WEBKIT_GST_VIDEO_DECODING_LIMIT")) {
+            GST_DEBUG("WEBKIT_GST_VIDEO_DECODING_LIMIT env var is set: %s", envLimit);
+            limits = parseVideoDecodingLimit(StringView::fromLatin1(envLimit));
+            if (!limits)
+                GST_WARNING("Parsing WEBKIT_GST_VIDEO_DECODING_LIMIT env var failed: %s", envLimit);
+        }
+#ifdef VIDEO_DECODING_LIMIT
+        if (!limits) {
+            GST_DEBUG("VIDEO_DECODING_LIMIT compile-time definition is set: %s", VIDEO_DECODING_LIMIT);
+            limits = parseVideoDecodingLimit(String::fromLatin1(VIDEO_DECODING_LIMIT));
+            if (!limits) {
+                GST_WARNING("Parsing VIDEO_DECODING_LIMIT failed: %s", VIDEO_DECODING_LIMIT);
+                ASSERT_NOT_REACHED();
+                return;
+            }
+        }
 #endif
-
-namespace WebCore {
-
-GST_DEBUG_CATEGORY_STATIC(webkit_media_gst_registry_scanner_debug);
-#define GST_CAT_DEFAULT webkit_media_gst_registry_scanner_debug
+        if (limits) {
+            GST_DEBUG("Video decoding limits: max width=%u, max height=%u, max frame rate=%u",
+                limits->mediaMaxWidth, limits->mediaMaxHeight, limits->mediaMaxFrameRate);
+        }
+    });
+    return limits ? &*limits : nullptr;
+}
 
 // We shouldn't accept media that the player can't actually play.
 // AAC supports up to 96 channels.
@@ -807,22 +834,8 @@ bool GStreamerRegistryScanner::supportsFeatures(const String& features) const
 MediaPlayerEnums::SupportsType GStreamerRegistryScanner::isContentTypeSupported(Configuration configuration, const ContentType& contentType, const Vector<ContentType>& contentTypesRequiringHardwareSupport, CaseSensitiveCodecName caseSensitive) const
 {
     VideoDecodingLimits* videoDecodingLimits = nullptr;
-#ifdef VIDEO_DECODING_LIMIT
-    static std::optional<VideoDecodingLimits> videoDecodingLimitsDefaults;
-    static std::once_flag onceFlag;
-    if (configuration == Configuration::Decoding) {
-        std::call_once(onceFlag, [] {
-            videoDecodingLimitsDefaults = videoDecoderLimitsDefaults();
-            if (!videoDecodingLimitsDefaults) {
-                GST_WARNING("Parsing VIDEO_DECODING_LIMIT failed");
-                ASSERT_NOT_REACHED();
-                return;
-            }
-        });
-        if (videoDecodingLimitsDefaults)
-            videoDecodingLimits = &*videoDecodingLimitsDefaults;
-    }
-#endif
+    if (configuration == Configuration::Decoding)
+        videoDecodingLimits = resolveVideoDecodingLimits();
 
     using SupportsType = MediaPlayerEnums::SupportsType;
 
