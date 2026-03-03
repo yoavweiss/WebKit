@@ -25,6 +25,7 @@
 #include "Document.h"
 #include "ElementInlines.h"
 #include "Event.h"
+#include "EventTargetInlines.h"
 #include "NodeInlines.h"
 #include "ScriptElement.h"
 #include <wtf/TZoneMallocInlines.h>
@@ -41,9 +42,11 @@ inline SVGScriptElement::SVGScriptElement(const QualifiedName& tagName, Document
     ASSERT(hasTagName(SVGNames::scriptTag));
 }
 
-Ref<SVGScriptElement> SVGScriptElement::create(const QualifiedName& tagName, Document& document, bool insertedByParser)
+Ref<SVGScriptElement> SVGScriptElement::create(const QualifiedName& tagName, Document& document, bool wasInsertedByParser, bool alreadyStarted)
 {
-    return adoptRef(*new SVGScriptElement(tagName, document, insertedByParser, false));
+    Ref scriptElement = adoptRef(*new SVGScriptElement(tagName, document, wasInsertedByParser, alreadyStarted));
+    scriptElement->suspendIfNeeded();
+    return scriptElement;
 }
 
 void SVGScriptElement::attributeChanged(const QualifiedName& name, const AtomString& oldValue, const AtomString& newValue, AttributeModificationReason attributeModificationReason)
@@ -114,13 +117,32 @@ void SVGScriptElement::addSubresourceAttributeURLs(ListHashSet<URL>& urls) const
 }
 Ref<Element> SVGScriptElement::cloneElementWithoutAttributesAndChildren(Document& document, CustomElementRegistry*) const
 {
-    return adoptRef(*new SVGScriptElement(tagQName(), document, false, alreadyStarted()));
+    return SVGScriptElement::create(tagQName(), document, false, alreadyStarted());
+}
+
+void SVGScriptElement::dispatchLoadEvent()
+{
+    // Keep the JS wrapper alive until the end of this method.
+    Ref wrapperProtector = makePendingActivity(*this);
+
+    SVGURIReference::dispatchLoadEvent();
 }
 
 void SVGScriptElement::dispatchErrorEvent()
 {
     setErrorOccurred(true);
     ScriptElement::dispatchErrorEvent();
+}
+
+void SVGScriptElement::didMoveToNewDocument(Document& oldDocument, Document& newDocument)
+{
+    SVGElement::didMoveToNewDocument(oldDocument, newDocument);
+    ScriptElement::didMoveToNewDocument(newDocument);
+}
+
+void SVGScriptElement::eventListenersDidChange()
+{
+    setHasRelevantLoadEventsListener(hasEventListeners(eventNames().errorEvent) || hasEventListeners(eventNames().loadEvent));
 }
 
 }

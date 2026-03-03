@@ -61,8 +61,9 @@ public:
     String referrerPolicyForBindings() const;
     ReferrerPolicy referrerPolicy() const final;
 
-    using HTMLElement::ref;
-    using HTMLElement::deref;
+    // ActiveDOMObject
+    void ref() const final { HTMLElement::ref(); }
+    void deref() const final { HTMLElement::deref(); }
 
     static bool supports(StringView type) { return type == "classic"_s || type == "module"_s || type == "importmap"_s || type == "speculationrules"_s; }
 
@@ -80,6 +81,7 @@ private:
     void childrenChanged(const ChildChange&) final;
     void finishParsingChildren() final;
     void removedFromAncestor(RemovalType, ContainerNode&) final;
+    void didMoveToNewDocument(Document& oldDocument, Document& newDocument) final;
 
     void potentiallyBlockRendering() final;
     void unblockRendering() final;
@@ -105,6 +107,11 @@ private:
     bool isScriptPreventedByAttributes() const final;
 
     Ref<Element> cloneElementWithoutAttributesAndChildren(Document&, CustomElementRegistry*) const final;
+
+    // EventTarget
+    void eventListenersDidChange() final;
+
+    using HTMLElement::scriptExecutionContext;
 
     const std::unique_ptr<DOMTokenList> m_blockingList;
     bool m_isRenderBlocking { false };
