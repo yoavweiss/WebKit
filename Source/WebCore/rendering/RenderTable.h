@@ -146,13 +146,7 @@ public:
         return c;
     }
 
-    LayoutUnit borderSpacingInRowDirection() const
-    {
-        if (unsigned effectiveColumnCount = numEffCols())
-            return (effectiveColumnCount + 1) * hBorderSpacing();
-
-        return 0;
-    }
+    LayoutUnit borderSpacingInRowDirection() const;
 
     // The collapsing border model dissallows paddings on table, which is why we
     // override those functions.

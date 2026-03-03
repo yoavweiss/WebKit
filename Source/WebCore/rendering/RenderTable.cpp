@@ -1104,6 +1104,22 @@ void RenderTable::appendColumn(unsigned span)
     m_columnPos.grow(numEffCols() + 1);
 }
 
+LayoutUnit RenderTable::borderSpacingInRowDirection() const
+{
+    unsigned effectiveColumnCount = numEffCols();
+    if (!effectiveColumnCount)
+        return { };
+
+    unsigned collapsedColumnCount = 0;
+    for (unsigned i = 0; i < effectiveColumnCount; ++i) {
+        if (auto* col = colElement(i); col && col->style().visibility() == Visibility::Collapse)
+            ++collapsedColumnCount;
+    }
+
+    unsigned visibleColumnCount = effectiveColumnCount - collapsedColumnCount;
+    return (visibleColumnCount + 1) * hBorderSpacing();
+}
+
 RenderTableCol* RenderTable::firstColumn() const
 {
     for (auto& child : childrenOfType<RenderObject>(*this)) {
