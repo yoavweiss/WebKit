@@ -43,7 +43,7 @@
 #include <wtf/text/MakeString.h>
 
 #if USE(CG)
-#include "ImageBufferUtilitiesCG.h"
+#include "ImageUtilities.h"
 #include "UTIRegistry.h"
 #include "UTIUtilities.h"
 #include <ImageIO/ImageIO.h>

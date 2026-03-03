@@ -46,7 +46,7 @@
 #import "WebExtensionUtilities.h"
 #import "WebExtensionWindowIdentifier.h"
 #import "WebPageProxy.h"
-#import <WebCore/ImageBufferUtilitiesCG.h>
+#import <WebCore/ImageUtilities.h>
 #import <wtf/CallbackAggregator.h>
 #import <wtf/NeverDestroyed.h>
 #import <wtf/WorkQueue.h>
@@ -447,7 +447,7 @@ void WebExtensionContext::tabsCaptureVisibleTab(WebPageProxyIdentifier webPagePr
 
             static NeverDestroyed<Ref<WorkQueue>> queue { WorkQueue::create("org.WebKit.WKWebExtension.tabsCaptureVisibleTab"_s) };
             queue.get()->dispatch([cgImage = WTF::move(cgImage), imageFormat, imageQuality, completionHandler = WTF::move(completionHandler)]() mutable {
-                URL result { WebCore::dataURL(cgImage.get(), toMIMEType(imageFormat), imageQuality) };
+                URL result { WebCore::encodeDataURL(cgImage.get(), toMIMEType(imageFormat), imageQuality) };
                 WorkQueue::mainSingleton().dispatch([completionHandler = WTF::move(completionHandler), result = crossThreadCopy(WTF::move(result))]() mutable {
                     completionHandler(WTF::move(result));
                 });

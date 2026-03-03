@@ -29,7 +29,7 @@
 #include "BitmapImage.h"
 #include "GraphicsContextCG.h"
 #include "IOSurface.h"
-#include "ImageBufferUtilitiesCG.h"
+#include "ImageUtilities.h"
 #include "Logging.h"
 #include "NativeImage.h"
 #include "PlatformScreen.h"

@@ -35,7 +35,7 @@
 #include "CaptureDevice.h"
 #include "FillLightMode.h"
 #include "GraphicsContext.h"
-#include "ImageBuffer.h"
+#include "ImageUtilities.h"
 #include "IntRect.h"
 #include "Logging.h"
 #include "MediaConstraints.h"
@@ -271,7 +271,7 @@ auto MockRealtimeVideoSource::takePhotoInternal(PhotoSettings&&) -> Ref<TakePhot
 
     return invokeAsync(m_runLoop, [this, protectedThis = Ref { *this }] () mutable {
         if (auto currentImage = generatePhoto())
-            return TakePhotoNativePromise::createAndResolve(std::make_pair(ImageBuffer::toData(*currentImage, "image/png"_s), "image/png"_s));
+            return TakePhotoNativePromise::createAndResolve(std::make_pair(encodeData(WTF::move(currentImage), "image/png"_s, std::nullopt), "image/png"_s));
         return TakePhotoNativePromise::createAndReject("Failed to capture photo"_s);
     });
 }

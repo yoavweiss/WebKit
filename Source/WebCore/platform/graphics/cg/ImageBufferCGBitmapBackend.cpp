@@ -30,7 +30,7 @@
 
 #include "GraphicsContext.h"
 #include "GraphicsContextCG.h"
-#include "ImageBufferUtilitiesCG.h"
+#include "ImageUtilities.h"
 #include "IntRect.h"
 #include "NativeImage.h"
 #include "PixelBuffer.h"

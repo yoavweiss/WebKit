@@ -35,7 +35,6 @@
 #include "CairoUtilities.h"
 #include "Color.h"
 #include "GraphicsContext.h"
-#include "ImageBufferUtilitiesCairo.h"
 #include "PixelBuffer.h"
 #include <cairo.h>
 

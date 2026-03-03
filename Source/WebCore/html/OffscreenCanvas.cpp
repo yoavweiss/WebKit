@@ -41,6 +41,7 @@
 #include "ImageBitmap.h"
 #include "ImageBitmapRenderingContext.h"
 #include "ImageData.h"
+#include "ImageUtilities.h"
 #include "JSBlob.h"
 #include "JSDOMPromiseDeferred.h"
 #include "MIMETypeRegistry.h"
@@ -336,28 +337,16 @@ void OffscreenCanvas::convertToBlob(ImageEncodeOptions&& options, Ref<DeferredPr
     auto quality = qualityFromDouble(options.quality);
 
     RefPtr context = canvasBaseScriptExecutionContext();
-    if (context && context->requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::Canvas)) {
-        RefPtr buffer = createImageForNoiseInjection();
-        auto blobData = buffer->toData(encodingMIMEType, quality);
-        if (blobData.isEmpty())
-            promise->reject(ExceptionCode::EncodingError);
-        else
-            promise->resolveWithNewlyCreated<IDLInterface<Blob>>(Blob::create(context.get(), WTF::move(blobData), encodingMIMEType));
-        return;
-    }
+    Vector<uint8_t> blobData;
+    if (context && context->requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::Canvas))
+        blobData = encodeData(createImageForNoiseInjection(), encodingMIMEType, quality);
+    else
+        blobData = encodeData(makeRenderingResultsAvailable(), encodingMIMEType, quality);
 
-    RefPtr buffer = makeRenderingResultsAvailable();
-    if (!buffer) {
-        promise->reject(ExceptionCode::InvalidStateError);
-        return;
-    }
-
-    Vector<uint8_t> blobData = buffer->toData(encodingMIMEType, quality);
     if (blobData.isEmpty()) {
         promise->reject(ExceptionCode::EncodingError);
         return;
     }
-
     Ref<Blob> blob = Blob::create(context.get(), WTF::move(blobData), encodingMIMEType);
     promise->resolveWithNewlyCreated<IDLInterface<Blob>>(WTF::move(blob));
 }

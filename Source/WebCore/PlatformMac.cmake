@@ -297,7 +297,6 @@ list(APPEND WebCore_SOURCES
     platform/graphics/cg/ImageBufferCGBackend.cpp
     platform/graphics/cg/ImageBufferCGBitmapBackend.cpp
     platform/graphics/cg/ImageBufferIOSurfaceBackend.cpp
-    platform/graphics/cg/ImageBufferUtilitiesCG.cpp
     platform/graphics/cg/ImageDecoderCG.cpp
     platform/graphics/cg/IntPointCG.cpp
     platform/graphics/cg/IntRectCG.cpp
@@ -661,7 +660,6 @@ list(APPEND WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/graphics/cg/ImageBufferCGBackend.h
     platform/graphics/cg/ImageBufferCGBitmapBackend.h
     platform/graphics/cg/ImageBufferIOSurfaceBackend.h
-    platform/graphics/cg/ImageBufferUtilitiesCG.h
     platform/graphics/cg/PDFDocumentImage.h
     platform/graphics/cg/UTIRegistry.h
 

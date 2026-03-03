@@ -54,6 +54,7 @@
 #include "ImageBitmapRenderingContextSettings.h"
 #include "ImageBuffer.h"
 #include "ImageData.h"
+#include "ImageUtilities.h"
 #include "InspectorInstrumentation.h"
 #include "JSDOMConvertDictionary.h"
 #include "JSNodeCustomInlines.h"
@@ -96,10 +97,6 @@
 #include "Navigator.h"
 #include "NavigatorWebXR.h"
 #include "WebXRSystem.h"
-#endif
-
-#if USE(CG)
-#include "ImageBufferUtilitiesCG.h"
 #endif
 
 #if USE(GSTREAMER)
@@ -697,17 +694,13 @@ ExceptionOr<UncachedString> HTMLCanvasElement::toDataURL(const String& mimeType,
     auto encodingMIMEType = toEncodingMimeType(mimeType);
     auto quality = qualityFromJSValue(qualityValue);
 
-    if (document->requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::Canvas)) {
-        if (RefPtr buffer = createImageForNoiseInjection())
-            return UncachedString { buffer->toDataURL(encodingMIMEType, quality) };
-
-        return UncachedString { "data:,"_s };
-    }
+    if (document->requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::Canvas))
+        return UncachedString { encodeDataURL(createImageForNoiseInjection(), encodingMIMEType, quality) };
 
 #if USE(CG)
     // Try to get ImageData first, as that may avoid lossy conversions.
     if (auto imageData = getImageData())
-        return UncachedString { dataURL(imageData->byteArrayPixelBuffer(), encodingMIMEType, quality) };
+        return UncachedString { encodeDataURL(imageData->byteArrayPixelBuffer().get(), encodingMIMEType, quality) };
 #endif
 
     if (auto url = document->quirks().advancedPrivacyProtectionSubstituteDataURLForScriptWithFeatures(lastFillText(), width(), height()); !url.isNull()) {
@@ -716,10 +709,7 @@ ExceptionOr<UncachedString> HTMLCanvasElement::toDataURL(const String& mimeType,
         protect(canvasBaseScriptExecutionContext())->addConsoleMessage(MessageSource::Rendering, MessageLevel::Info, consoleMessage);
         return UncachedString { url };
     }
-    RefPtr buffer = makeRenderingResultsAvailable();
-    if (!buffer)
-        return UncachedString { "data:,"_s };
-    return UncachedString { buffer->toDataURL(encodingMIMEType, quality) };
+    return UncachedString { encodeDataURL(makeRenderingResultsAvailable(), encodingMIMEType, quality) };
 }
 
 ExceptionOr<UncachedString> HTMLCanvasElement::toDataURL(const String& mimeType)
@@ -742,32 +732,20 @@ ExceptionOr<void> HTMLCanvasElement::toBlob(Ref<BlobCallback>&& callback, const 
 
     auto encodingMIMEType = toEncodingMimeType(mimeType);
     auto quality = qualityFromJSValue(qualityValue);
-    auto scheduleCallbackWithBlobData = [&](Ref<BlobCallback>&& callback, Vector<uint8_t>&& blobData) {
-        RefPtr<Blob> blob;
-        if (!blobData.isEmpty())
-            blob = Blob::create(document.ptr(), WTF::move(blobData), encodingMIMEType);
-        callback->scheduleCallback(document, WTF::move(blob));
-    };
-
-    if (document->requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::Canvas)) {
-        RefPtr buffer = createImageForNoiseInjection();
-        scheduleCallbackWithBlobData(WTF::move(callback), buffer ? buffer->toData(encodingMIMEType, quality) : Vector<uint8_t> { });
-        return { };
-    }
-
+    Vector<uint8_t> blobData;
+    if (document->requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::Canvas))
+        blobData = encodeData(createImageForNoiseInjection(), encodingMIMEType, quality);
 #if USE(CG)
-    if (auto imageData = getImageData()) {
-        scheduleCallbackWithBlobData(WTF::move(callback), encodeData(imageData->byteArrayPixelBuffer(), encodingMIMEType, quality));
-        return { };
-    }
+    else if (auto imageData = getImageData())
+        blobData = encodeData(imageData->byteArrayPixelBuffer().get(), encodingMIMEType, quality);
 #endif
+    else
+        blobData = encodeData(makeRenderingResultsAvailable(), encodingMIMEType, quality);
 
-    RefPtr buffer = makeRenderingResultsAvailable();
-    if (!buffer) {
-        callback->scheduleCallback(document, nullptr);
-        return { };
-    }
-    scheduleCallbackWithBlobData(WTF::move(callback), buffer->toData(encodingMIMEType, quality));
+    RefPtr<Blob> blob;
+    if (!blobData.isEmpty())
+        blob = Blob::create(document.ptr(), WTF::move(blobData), encodingMIMEType);
+    callback->scheduleCallback(document, WTF::move(blob));
     return { };
 }
 

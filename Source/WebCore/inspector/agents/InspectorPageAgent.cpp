@@ -49,6 +49,7 @@
 #include "HTMLFrameOwnerElement.h"
 #include "HTMLNames.h"
 #include "ImageBuffer.h"
+#include "ImageUtilities.h"
 #include "InspectorBackendClient.h"
 #include "InspectorDOMAgent.h"
 #include "InspectorNetworkAgent.h"
@@ -942,8 +943,7 @@ Inspector::Protocol::ErrorStringOr<String> InspectorPageAgent::snapshotNode(Insp
     auto snapshot = WebCore::snapshotNode(*localMainFrame, *node, { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() });
     if (!snapshot)
         return makeUnexpected("Could not capture snapshot"_s);
-
-    return snapshot->toDataURL("image/png"_s, std::nullopt, PreserveResolution::Yes);
+    return encodeDataURL(WTF::move(snapshot), "image/png"_s);
 }
 
 Inspector::Protocol::ErrorStringOr<String> InspectorPageAgent::snapshotRect(int x, int y, int width, int height, Inspector::Protocol::Page::CoordinateSystem coordinateSystem)
@@ -960,8 +960,7 @@ Inspector::Protocol::ErrorStringOr<String> InspectorPageAgent::snapshotRect(int 
 
     if (!snapshot)
         return makeUnexpected("Could not capture snapshot"_s);
-
-    return snapshot->toDataURL("image/png"_s, std::nullopt, PreserveResolution::Yes);
+    return encodeDataURL(WTF::move(snapshot), "image/png"_s);
 }
 
 #if ENABLE(WEB_ARCHIVE) && USE(CF)

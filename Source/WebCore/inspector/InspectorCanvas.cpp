@@ -48,6 +48,7 @@
 #include "ImageBitmapRenderingContext.h"
 #include "ImageBuffer.h"
 #include "ImageData.h"
+#include "ImageUtilities.h"
 #include "InspectorCanvasAgent.h"
 #include "InspectorDOMAgent.h"
 #include "InspectorInstrumentation.h"
@@ -492,14 +493,8 @@ Ref<Inspector::Protocol::Recording::Recording> InspectorCanvas::releaseObjectFor
 
 Inspector::Protocol::ErrorStringOr<String> InspectorCanvas::getContentAsDataURL(CanvasRenderingContext& context)
 {
-    RefPtr<ImageBuffer> buffer;
-    if (context.compositingResultsNeedUpdating())
-        buffer = context.surfaceBufferToImageBuffer(CanvasRenderingContext::SurfaceBuffer::DrawingBuffer);
-    else
-        buffer = context.surfaceBufferToImageBuffer(CanvasRenderingContext::SurfaceBuffer::DisplayBuffer);
-    if (buffer)
-        return buffer->toDataURL("image/png"_s);
-    return emptyString();
+    auto surfaceBuffer = context.compositingResultsNeedUpdating() ? CanvasRenderingContext::SurfaceBuffer::DrawingBuffer : CanvasRenderingContext::SurfaceBuffer::DisplayBuffer;
+    return encodeDataURL(context.surfaceBufferToImageBuffer(surfaceBuffer), "image/png"_s);
 }
 
 void InspectorCanvas::appendActionSnapshotIfNeeded()
@@ -553,9 +548,7 @@ int InspectorCanvas::indexForData(DuplicateDataVariant data)
             if (CachedImage* cachedImage = imageElement->cachedImage()) {
                 RefPtr<Image> image = cachedImage->image();
                 if (image && image != &Image::nullImage()) {
-                    auto imageBuffer = ImageBuffer::create(image->size(), RenderingMode::Unaccelerated, RenderingPurpose::Unspecified, 1, DestinationColorSpace::SRGB(), PixelFormat::BGRA8);
-                    imageBuffer->context().drawImage(*image, FloatPoint(0, 0));
-                    dataURL = imageBuffer->toDataURL("image/png"_s);
+                    dataURL = encodeDataURL(image->currentNativeImage(), "image/png"_s);
                 }
             }
 
@@ -563,17 +556,12 @@ int InspectorCanvas::indexForData(DuplicateDataVariant data)
         },
 #if ENABLE(VIDEO)
         [&](Ref<HTMLVideoElement>& videoElement) {
-            String dataURL = "data:,"_s;
-
             unsigned videoWidth = videoElement->videoWidth();
             unsigned videoHeight = videoElement->videoHeight();
-            auto imageBuffer = ImageBuffer::create(FloatSize(videoWidth, videoHeight), RenderingMode::Unaccelerated, RenderingPurpose::Unspecified, 1, DestinationColorSpace::SRGB(), PixelFormat::BGRA8);
-            if (imageBuffer) {
+            RefPtr imageBuffer = ImageBuffer::create(FloatSize(videoWidth, videoHeight), RenderingMode::Unaccelerated, RenderingPurpose::Unspecified, 1, DestinationColorSpace::SRGB(), PixelFormat::BGRA8);
+            if (imageBuffer)
                 videoElement->paintCurrentFrameInContext(imageBuffer->context(), FloatRect(0, 0, videoWidth, videoHeight));
-                dataURL = imageBuffer->toDataURL("image/png"_s);
-            }
-
-            index = indexForData(dataURL);
+            index = indexForData(encodeDataURL(WTF::move(imageBuffer), "image/png"_s, std::nullopt));
         },
 #endif
         [&](Ref<HTMLCanvasElement>& canvasElement) {
@@ -589,7 +577,7 @@ int InspectorCanvas::indexForData(DuplicateDataVariant data)
         [&](Ref<CanvasPattern>& canvasPattern) { item = buildArrayForCanvasPattern(canvasPattern); },
         [&](Ref<ImageData>& imageData) { item = buildArrayForImageData(imageData); },
         [&](Ref<ImageBitmap>& imageBitmap) {
-            index = indexForData(imageBitmap->buffer()->toDataURL("image/png"_s));
+            index = indexForData(encodeDataURL(imageBitmap->buffer(), "image/png"_s));
         },
         [&](Ref<ScriptCallStack>& scriptCallStack) {
             auto stackTrace = JSON::ArrayOf<JSON::Value>::create();
@@ -630,11 +618,8 @@ int InspectorCanvas::indexForData(DuplicateDataVariant data)
 
             if (auto* cachedImage = cssImageValue->image()) {
                 RefPtr image = cachedImage->image();
-                if (image && image != &Image::nullImage()) {
-                    auto imageBuffer = ImageBuffer::create(image->size(), RenderingMode::Unaccelerated, RenderingPurpose::Unspecified, 1, DestinationColorSpace::SRGB(), PixelFormat::BGRA8);
-                    imageBuffer->context().drawImage(*image, FloatPoint(0, 0));
-                    dataURL = imageBuffer->toDataURL("image/png"_s);
-                }
+                if (image && image != &Image::nullImage())
+                    dataURL = encodeDataURL(image->currentNativeImage(), "image/png"_s);
             }
 
             index = indexForData(dataURL);
@@ -650,12 +635,8 @@ int InspectorCanvas::indexForData(DuplicateDataVariant data)
 #if ENABLE(OFFSCREEN_CANVAS)
         [&](const Ref<OffscreenCanvas> offscreenCanvas) {
             String dataURL = "data:,"_s;
-
-            if (offscreenCanvas->originClean()) {
-                if (RefPtr buffer = offscreenCanvas->makeRenderingResultsAvailable())
-                    dataURL = buffer->toDataURL("image/png"_s);
-            }
-
+            if (offscreenCanvas->originClean())
+                dataURL = encodeDataURL(offscreenCanvas->makeRenderingResultsAvailable(), "image/png"_s);
             index = indexForData(dataURL);
         },
 #endif
@@ -853,8 +834,6 @@ Ref<JSON::ArrayOf<JSON::Value>> InspectorCanvas::buildArrayForCanvasGradient(con
 
 Ref<JSON::ArrayOf<JSON::Value>> InspectorCanvas::buildArrayForCanvasPattern(const CanvasPattern& canvasPattern)
 {
-    auto imageBuffer = canvasPattern.pattern().tileImageBuffer();
-
     String repeat;
     bool repeatX = canvasPattern.pattern().repeatX();
     bool repeatY = canvasPattern.pattern().repeatY();
@@ -868,7 +847,7 @@ Ref<JSON::ArrayOf<JSON::Value>> InspectorCanvas::buildArrayForCanvasPattern(cons
         repeat = "no-repeat"_s;
 
     auto array = JSON::ArrayOf<JSON::Value>::create();
-    array->addItem(indexForData(imageBuffer->toDataURL("image/png"_s)));
+    array->addItem(indexForData(encodeDataURL(canvasPattern.pattern().tileImageBuffer(), "image/png"_s)));
     array->addItem(indexForData(repeat));
     return array;
 }

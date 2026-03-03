@@ -32,6 +32,8 @@
 #include "ImageDecoderCG.h"
 #include "Logging.h"
 #include "MIMETypeRegistry.h"
+#include "NativeImage.h"
+#include "PixelBuffer.h"
 #include "SVGImage.h"
 #include "SVGImageForContainer.h"
 #include "UTIRegistry.h"
@@ -39,10 +41,13 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <ImageIO/ImageIO.h>
 #include <WebCore/ShareableBitmap.h>
+#include <wtf/CheckedArithmetic.h>
 #include <wtf/CompletionHandler.h>
 #include <wtf/FileHandle.h>
 #include <wtf/FileSystem.h>
+#include <wtf/ScopedLambda.h>
 #include <wtf/cf/VectorCF.h>
+#include <wtf/text/Base64.h>
 #include <wtf/text/CString.h>
 #include <wtf/text/MakeString.h>
 
@@ -129,7 +134,7 @@ Vector<String> transcodeImages(const Vector<String>& paths, const String& destin
 {
     ASSERT(!destinationUTI.isNull());
     ASSERT(!destinationExtension.isNull());
-    
+
     return paths.map([&](auto& path) {
         // Append the transcoded path if the image needs transcoding. Otherwise append a null string.
         return path.isNull() ? nullString() : transcodeImage(path, destinationUTI, destinationExtension);
@@ -337,6 +342,197 @@ void decodeImageWithSize(std::span<const uint8_t> data, std::optional<FloatSize>
         context->drawNativeImage(*nativeImage, rect, rect, { CompositeOperator::Copy });
         completionHandler(WTF::move(bitmap));
     });
+}
+
+using PutBytesCallback = size_t(std::span<const uint8_t>);
+
+uint8_t verifyImageBufferIsBigEnough(std::span<const uint8_t> buffer)
+{
+    RELEASE_ASSERT(!buffer.empty());
+
+    uintptr_t lastByte;
+    bool isSafe = WTF::safeAdd((uintptr_t)buffer.data(), buffer.size() - 1, lastByte);
+    RELEASE_ASSERT(isSafe);
+
+    return *(uint8_t*)lastByte;
+}
+
+CFStringRef jpegUTI()
+{
+ALLOW_DEPRECATED_DECLARATIONS_BEGIN
+#if PLATFORM(IOS_FAMILY)
+    static const CFStringRef kUTTypeJPEG = CFSTR("public.jpeg");
+#endif
+    return kUTTypeJPEG;
+ALLOW_DEPRECATED_DECLARATIONS_END
+}
+
+RetainPtr<CFStringRef> utiFromImageBufferMIMEType(const String& mimeType)
+{
+ALLOW_DEPRECATED_DECLARATIONS_BEGIN
+    // FIXME: Why doesn't iOS use the CoreServices version?
+#if PLATFORM(MAC)
+    return UTIFromMIMEType(mimeType).createCFString();
+#else
+    // FIXME: Add Windows support for all the supported UTIs when a way to convert from MIMEType to UTI reliably is found.
+    // For now, only support PNG, JPEG, and GIF. See <rdar://problem/6095286>.
+    static CFStringRef kUTTypePNG;
+    static CFStringRef kUTTypeGIF;
+
+    static std::once_flag onceKey;
+    std::call_once(onceKey, [&] {
+        kUTTypePNG = CFSTR("public.png");
+        kUTTypeGIF = CFSTR("com.compuserve.gif");
+    });
+
+    if (equalLettersIgnoringASCIICase(mimeType, "image/png"_s))
+        return kUTTypePNG;
+    if (equalLettersIgnoringASCIICase(mimeType, "image/jpeg"_s) || equalLettersIgnoringASCIICase(mimeType, "image/jpg"_s))
+        return jpegUTI();
+    if (equalLettersIgnoringASCIICase(mimeType, "image/gif"_s))
+        return kUTTypeGIF;
+
+    ASSERT_NOT_REACHED();
+    return kUTTypePNG;
+#endif
+ALLOW_DEPRECATED_DECLARATIONS_END
+}
+
+static RetainPtr<CFDictionaryRef> imagePropertiesForDestinationUTIAndQuality(CFStringRef destinationUTI, std::optional<double> quality)
+{
+    if (CFEqual(destinationUTI, jpegUTI()) && quality && *quality >= 0.0 && *quality <= 1.0) {
+        // Apply the compression quality to the JPEG image destination.
+        auto compressionQuality = adoptCF(CFNumberCreate(kCFAllocatorDefault, kCFNumberDoubleType, &*quality));
+        const void* key = kCGImageDestinationLossyCompressionQuality;
+        const void* value = compressionQuality.get();
+        return adoptCF(CFDictionaryCreate(0, &key, &value, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+    }
+    return nullptr;
+
+    // FIXME: Setting kCGImageDestinationBackgroundColor to black for JPEG images in imageProperties would save some math
+    // in the calling functions, but it doesn't seem to work.
+}
+
+static bool encode(CGImageRef image, const String& mimeType, std::optional<double> quality, const ScopedLambda<PutBytesCallback>& function)
+{
+    if (!image)
+        return false;
+
+    auto destinationUTI = utiFromImageBufferMIMEType(mimeType);
+    if (!destinationUTI)
+        return false;
+
+    CGDataConsumerCallbacks callbacks {
+        [](void* context, const void* buffer, size_t count) -> size_t {
+            auto functor = *static_cast<const ScopedLambda<PutBytesCallback>*>(context);
+            return functor(unsafeMakeSpan(static_cast<const uint8_t*>(buffer), count));
+        },
+        nullptr
+    };
+
+    auto consumer = adoptCF(CGDataConsumerCreate(const_cast<ScopedLambda<PutBytesCallback>*>(&function), &callbacks));
+    auto destination = adoptCF(CGImageDestinationCreateWithDataConsumer(consumer.get(), destinationUTI.get(), 1, nullptr));
+
+    auto imageProperties = imagePropertiesForDestinationUTIAndQuality(destinationUTI.get(), quality);
+    CGImageDestinationAddImage(destination.get(), image, imageProperties.get());
+
+    return CGImageDestinationFinalize(destination.get());
+}
+
+static bool encode(const PixelBuffer& source, const String& mimeType, std::optional<double> quality, const ScopedLambda<PutBytesCallback>& function)
+{
+    ASSERT(MIMETypeRegistry::isSupportedImageMIMETypeForEncoding(mimeType));
+
+    auto destinationUTI = utiFromImageBufferMIMEType(mimeType);
+
+    CGImageAlphaInfo dataAlphaInfo = kCGImageAlphaLast;
+
+    auto data = source.bytes();
+    auto dataSize = data.size();
+
+    Vector<uint8_t> premultipliedData;
+
+    if (CFEqual(destinationUTI.get(), jpegUTI())) {
+        // FIXME: Use PixelBufferConversion for this once it supports RGBX.
+
+        // JPEGs don't have an alpha channel, so we have to manually composite on top of black.
+        if (!premultipliedData.tryReserveCapacity(dataSize))
+            return false;
+
+        premultipliedData.grow(dataSize);
+        for (size_t i = 0; i < dataSize; i += 4) {
+            unsigned alpha = data[i + 3];
+            if (alpha != 255) {
+                premultipliedData[i + 0] = data[i + 0] * alpha / 255;
+                premultipliedData[i + 1] = data[i + 1] * alpha / 255;
+                premultipliedData[i + 2] = data[i + 2] * alpha / 255;
+            } else {
+                premultipliedData[i + 0] = data[i + 0];
+                premultipliedData[i + 1] = data[i + 1];
+                premultipliedData[i + 2] = data[i + 2];
+            }
+        }
+
+        dataAlphaInfo = kCGImageAlphaNoneSkipLast; // Ignore the alpha channel.
+        data = premultipliedData.mutableSpan();
+    }
+
+    verifyImageBufferIsBigEnough(data);
+
+    auto dataProvider = adoptCF(CGDataProviderCreateWithData(nullptr, data.data(), dataSize, nullptr));
+    if (!dataProvider)
+        return false;
+
+    auto imageSize = source.size();
+    auto image = adoptCF(CGImageCreate(imageSize.width(), imageSize.height(), 8, 32, 4 * imageSize.width(), protect(source.format().colorSpace.platformColorSpace()).get(), static_cast<uint32_t>(kCGBitmapByteOrderDefault) | static_cast<uint32_t>(dataAlphaInfo), dataProvider.get(), 0, false, kCGRenderingIntentDefault));
+
+    return encode(image.get(), mimeType, quality, function);
+}
+
+template<typename Source> static Vector<uint8_t> encodeToVector(Source&& source, const String& mimeType, std::optional<double> quality)
+{
+    Vector<uint8_t> result;
+
+    bool success = encode(std::forward<Source>(source), mimeType, quality, scopedLambdaRef<PutBytesCallback>([&] (std::span<const uint8_t> data) {
+        result.append(data);
+        return data.size();
+    }));
+    if (!success)
+        return { };
+
+    return result;
+}
+
+Vector<uint8_t> encodeData(CGImageRef image, const String& mimeType, std::optional<double> quality)
+{
+    // FIXME(https://bugs.webkit.org/show_bug.cgi?id=308704): The encoding should take in background color and not use drawing,
+    // so we would not need to create the temp NativeImage.
+    return encodeData(NativeImage::create(image), mimeType, quality);
+}
+
+Vector<uint8_t> encodeData(const PixelBuffer& pixelBuffer, const String& mimeType, std::optional<double> quality)
+{
+    return encodeToVector(pixelBuffer, mimeType, quality);
+}
+
+String encodeDataURL(CGImageRef image, const String& mimeType, std::optional<double> quality)
+{
+    // FIXME(https://bugs.webkit.org/show_bug.cgi?id=308704): The encoding should take in background color and not use drawing,
+    // so we would not need to create the temp NativeImage.
+    return encodeDataURL(NativeImage::create(image), mimeType, quality);
+}
+
+String encodeDataURL(const PixelBuffer& pixelBuffer, const String& mimeType, std::optional<double> quality)
+{
+    auto encodedData = encodeToVector(pixelBuffer, mimeType, quality);
+    if (encodedData.isEmpty())
+        return "data:,"_s;
+    return makeString("data:"_s, mimeType, ";base64,"_s, base64Encoded(encodedData));
+}
+
+Vector<uint8_t> platformEncodeData(const NativeImage& image, const String& mimeType, std::optional<double> quality)
+{
+    return encodeToVector(image.platformImage().get(), mimeType, quality);
 }
 
 } // namespace WebCore

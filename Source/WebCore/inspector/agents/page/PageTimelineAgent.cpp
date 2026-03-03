@@ -31,6 +31,7 @@
 #include "DocumentView.h"
 #include "FrameSnapshotting.h"
 #include "ImageBuffer.h"
+#include "ImageUtilities.h"
 #include "InspectorBackendClient.h"
 #include "InstrumentingAgents.h"
 #include "Page.h"
@@ -336,8 +337,8 @@ void PageTimelineAgent::captureScreenshot()
     if (!localMainFrameView)
         return;
 
-    if (auto snapshot = snapshotFrameRect(*localMainFrame, localMainFrameView->unobscuredContentRect(), { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() })) {
-        auto snapshotRecord = TimelineRecordFactory::createScreenshotData(snapshot->toDataURL("image/png"_s));
+    if (RefPtr snapshot = snapshotFrameRect(*localMainFrame, localMainFrameView->unobscuredContentRect(), { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() })) {
+        Ref snapshotRecord = TimelineRecordFactory::createScreenshotData(encodeDataURL(WTF::move(snapshot), "image/png"_s));
         pushCurrentRecord(WTF::move(snapshotRecord), TimelineRecordType::Screenshot, false, snapshotStartTime);
         didCompleteCurrentRecord(TimelineRecordType::Screenshot);
     }

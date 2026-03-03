@@ -46,6 +46,7 @@
 #include "ImageBitmapRenderingContext.h"
 #include "ImageBuffer.h"
 #include "ImageData.h"
+#include "ImageUtilities.h"
 #include "InspectorCanvas.h"
 #include "InspectorInstrumentation.h"
 #include "IntRect.h"
@@ -405,7 +406,7 @@ void FrameConsoleClient::screenshot(JSC::JSGlobalObject* lexicalGlobalObject, Re
                     }
 
                     if (snapshot)
-                        dataURL = snapshot->toDataURL("image/png"_s, /* quality */ std::nullopt, PreserveResolution::Yes);
+                        dataURL = encodeDataURL(WTF::move(snapshot), "image/png"_s);
                 }
             }
         } else if (RefPtr imageData = JSImageData::toWrapped(vm, possibleTarget)) {
@@ -413,14 +414,14 @@ void FrameConsoleClient::screenshot(JSC::JSGlobalObject* lexicalGlobalObject, Re
             if (InspectorInstrumentation::hasFrontends()) [[unlikely]] {
                 if (RefPtr imageBuffer = ImageBuffer::create(imageData->size(), RenderingMode::Unaccelerated, RenderingPurpose::Unspecified, /* scale */ 1, DestinationColorSpace::SRGB(), PixelFormat::BGRA8)) {
                     imageBuffer->putPixelBuffer(imageData->byteArrayPixelBuffer().get(), IntRect(IntPoint(), imageData->size()));
-                    dataURL = imageBuffer->toDataURL("image/png"_s, /* quality */ std::nullopt, PreserveResolution::Yes);
+                    dataURL = encodeDataURL(WTF::move(imageBuffer), "image/png"_s);
                 }
             }
         } else if (RefPtr imageBitmap = JSImageBitmap::toWrapped(vm, possibleTarget)) {
             target = possibleTarget;
             if (InspectorInstrumentation::hasFrontends()) [[unlikely]] {
                 if (RefPtr imageBuffer = imageBitmap->buffer())
-                    dataURL = imageBuffer->toDataURL("image/png"_s, /* quality */ std::nullopt, PreserveResolution::Yes);
+                    dataURL = encodeDataURL(WTF::move(imageBuffer), "image/png"_s);
             }
         } else if (RefPtr context = canvasRenderingContext(vm, possibleTarget)) {
             target = possibleTarget;
@@ -434,7 +435,7 @@ void FrameConsoleClient::screenshot(JSC::JSGlobalObject* lexicalGlobalObject, Re
                 Ref frame = m_frame.get();
                 if (RefPtr localMainFrame = frame->localMainFrame()) {
                     if (RefPtr snapshot = WebCore::snapshotFrameRect(*localMainFrame, enclosingIntRect(rect->toFloatRect()), { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() }))
-                        dataURL = snapshot->toDataURL("image/png"_s, /* quality */ std::nullopt, PreserveResolution::Yes);
+                        dataURL = encodeDataURL(WTF::move(snapshot), "image/png"_s);
                 }
             }
         } else {
@@ -453,7 +454,7 @@ void FrameConsoleClient::screenshot(JSC::JSGlobalObject* lexicalGlobalObject, Re
                 // If no target is provided, capture an image of the viewport.
                 auto viewportRect = protect(localMainFrame->view())->unobscuredContentRect();
                 if (RefPtr snapshot = WebCore::snapshotFrameRect(*localMainFrame, viewportRect, { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() }))
-                    dataURL = snapshot->toDataURL("image/png"_s, /* quality */ std::nullopt, PreserveResolution::Yes);
+                    dataURL = encodeDataURL(WTF::move(snapshot), "image/png"_s);
             }
         }
 

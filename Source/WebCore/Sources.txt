@@ -2569,6 +2569,7 @@ platform/graphics/ImageFrameWorkQueue.cpp
 platform/graphics/ImagePaintingOptions.cpp
 platform/graphics/ImageResolution.cpp
 platform/graphics/ImageSource.cpp
+platform/graphics/ImageUtilities.cpp
 platform/graphics/InbandGenericCue.cpp
 platform/graphics/IntPoint.cpp
 platform/graphics/IntRect.cpp

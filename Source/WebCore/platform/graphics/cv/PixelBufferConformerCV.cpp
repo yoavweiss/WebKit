@@ -28,7 +28,7 @@
 
 #include "CVUtilities.h"
 #include "GraphicsContextCG.h"
-#include "ImageBufferUtilitiesCG.h"
+#include "ImageUtilities.h"
 #include <pal/spi/cg/CoreGraphicsSPI.h>
 #include <wtf/TZoneMallocInlines.h>
 

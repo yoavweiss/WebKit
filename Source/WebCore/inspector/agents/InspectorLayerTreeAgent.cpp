@@ -36,6 +36,7 @@
 #include "GraphicsContext.h"
 #include "GraphicsLayer.h"
 #include "ImageBuffer.h"
+#include "ImageUtilities.h"
 #include "InspectorDOMAgent.h"
 #include "InstrumentingAgents.h"
 #include "IntRect.h"
@@ -369,15 +370,9 @@ Inspector::CommandResult<String> InspectorLayerTreeAgent::requestContent(const I
     if (!imageBuffer)
         return makeUnexpected("Failed to create image buffer"_s);
 
-    GraphicsContext& context = imageBuffer->context();
-    IntRect layerRect(IntPoint(), integralSize);
-    graphicsLayer->paintGraphicsLayerContents(context, layerRect);
+    graphicsLayer->paintGraphicsLayerContents(imageBuffer->context(), { { }, integralSize });
 
-    String dataURL = imageBuffer->toDataURL("image/png"_s, std::nullopt, PreserveResolution::Yes);
-    if (dataURL.isEmpty())
-        return makeUnexpected("Failed to encode layer snapshot"_s);
-
-    return dataURL;
+    return encodeDataURL(WTF::move(imageBuffer), "image/png"_s);
 }
 
 

@@ -38,6 +38,7 @@
 #include "FileReaderLoader.h"
 #include "GraphicsContext.h"
 #include "ImageBuffer.h"
+#include "ImageUtilities.h"
 #include "JSBlob.h"
 #include "JSDOMPromise.h"
 #include "JSDOMPromiseDeferred.h"
@@ -332,7 +333,7 @@ void ClipboardItemBindingsDataSource::ClipboardItemTypeLoader::sanitizeDataIfNee
         }
 
         imageBuffer->context().drawImage(bitmapImage.get(), FloatPoint::zero());
-        m_data = { SharedBuffer::create(imageBuffer->toData("image/png"_s)) };
+        m_data = { SharedBuffer::create(encodeData(WTF::move(imageBuffer), "image/png"_s)) };
     }
 }
 

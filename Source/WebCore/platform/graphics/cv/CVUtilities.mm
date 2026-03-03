@@ -28,7 +28,7 @@
 
 #import "ColorSpaceCG.h"
 #import "IOSurface.h"
-#import "ImageBufferUtilitiesCG.h"
+#import "ImageUtilities.h"
 #import "Logging.h"
 #import "RealtimeVideoUtilities.h"
 #import <wtf/CheckedArithmetic.h>
