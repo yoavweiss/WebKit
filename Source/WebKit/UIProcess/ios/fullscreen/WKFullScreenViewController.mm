@@ -185,12 +185,16 @@ private:
     RetainPtr<UIViewController> _environmentPickerButtonViewController;
     RetainPtr<UIStackView> _centeredStackView;
     RetainPtr<UIButton> _enterVideoFullscreenButton;
+    RetainPtr<NSLayoutConstraint> _centeredStackViewCenterXConstraint;
+    RetainPtr<NSLayoutConstraint> _centeredStackViewTrailingConstraint;
+    BOOL _isImmersiveVideo;
     enum ButtonState {
         EnvironmentPicker = 1 << 0,
         FullscreenVideo = 1 << 1
     };
     OptionSet<ButtonState> _buttonState;
     BOOL _viewDidAppear;
+    BOOL _isUsingCompactVideoButtonLayout;
 #endif
 }
 
@@ -218,6 +222,9 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_didEndInteractionWithSystemChrome:) name:_MRUIWindowSceneDidEndRepositioningNotification object:windowScene];
 #endif
 
+#if ENABLE(LINEAR_MEDIA_PLAYER)
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_contentSizeCategoryDidChange:) name:UIContentSizeCategoryDidChangeNotification object:nil];
+#endif
     _secheuristic.setParameters(WebKit::FullscreenTouchSecheuristicParameters::iosParameters());
     self._webView = webView;
 
@@ -233,6 +240,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
 #if ENABLE(LINEAR_MEDIA_PLAYER)
     _viewDidAppear = NO;
+    _isUsingCompactVideoButtonLayout = NO;
 #endif
 
     return self;
@@ -464,6 +472,12 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 }
 
 #if ENABLE(LINEAR_MEDIA_PLAYER)
+- (void)_contentSizeCategoryDidChange:(NSNotification *)notification
+{
+    if (_buttonState.contains(FullscreenVideo) && [_enterVideoFullscreenButton superview])
+        [self configureEnvironmentPickerOrFullscreenVideoButtonView];
+}
+
 - (void)_setTopButtonLabel:(const String&)label
 {
     UIButtonConfiguration *fullscreenButtonConfiguration = [UIButtonConfiguration filledButtonConfiguration];
@@ -471,9 +485,12 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     fullscreenButtonConfiguration.contentInsets = NSDirectionalEdgeInsetsMake(12, 18, 12, 22);
     fullscreenButtonConfiguration.titleLineBreakMode = NSLineBreakByClipping;
 
-    RetainPtr imageConfiguration = [[UIImageSymbolConfiguration configurationWithTextStyle:UIFontTextStyleBody] configurationByApplyingConfiguration:[UIImageSymbolConfiguration configurationWithWeight:UIImageSymbolWeightMedium]];
+    RetainPtr dynamicImageConfiguration = [[UIImageSymbolConfiguration configurationWithTextStyle:UIFontTextStyleBody] configurationByApplyingConfiguration:[UIImageSymbolConfiguration configurationWithWeight:UIImageSymbolWeightMedium]];
+    RetainPtr fixedImageConfiguration = [[UIImageSymbolConfiguration configurationWithPointSize:17 weight:UIImageSymbolWeightMedium] configurationByApplyingConfiguration:[UIImageSymbolConfiguration configurationWithWeight:UIImageSymbolWeightMedium]];
+    NSString *symbolName = _isImmersiveVideo ? @"pano" : @"cube";
+    fullscreenButtonConfiguration.image = [[UIImage systemImageNamed:symbolName withConfiguration:dynamicImageConfiguration.get()] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 
-    fullscreenButtonConfiguration.image = [[UIImage systemImageNamed:@"cube" withConfiguration:imageConfiguration.get()] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    static constexpr CGFloat kMinimumSpacing = 24;
 
     RetainPtr descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
     descriptor = [descriptor fontDescriptorByAddingAttributes:@{
@@ -484,7 +501,49 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     }]);
     fullscreenButtonConfiguration.attributedTitle = buttonTitle.get();
     [_enterVideoFullscreenButton setConfiguration:fullscreenButtonConfiguration];
+    [_enterVideoFullscreenButton invalidateIntrinsicContentSize];
+    CGSize fullButtonSize = [_enterVideoFullscreenButton intrinsicContentSize];
+
+    CGFloat availableWidth = self.view.bounds.size.width;
+    CGFloat centerX = availableWidth / 2;
+    CGFloat fullButtonLeadingEdge = centerX - (fullButtonSize.width / 2);
+
+    CGRect stackViewFrame = [_stackView convertRect:_stackView.get().bounds toView:self.view];
+    CGFloat leftStackTrailingEdge = CGRectGetMaxX(stackViewFrame);
+
+    CGFloat actualSpacing = fullButtonLeadingEdge - leftStackTrailingEdge;
+    BOOL shouldUseCompactLayout = actualSpacing < kMinimumSpacing;
+
+    if (shouldUseCompactLayout) {
+        fullscreenButtonConfiguration.image = [[UIImage systemImageNamed:symbolName withConfiguration:fixedImageConfiguration.get()] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        fullscreenButtonConfiguration.contentInsets = NSDirectionalEdgeInsetsMake(12, 12, 12, 12);
+        fullscreenButtonConfiguration.attributedTitle = nil;
+
+        [_enterVideoFullscreenButton setConfiguration:fullscreenButtonConfiguration];
+        [_enterVideoFullscreenButton invalidateIntrinsicContentSize];
+    }
+
     [_enterVideoFullscreenButton sizeToFit];
+
+    _isUsingCompactVideoButtonLayout = shouldUseCompactLayout;
+    [self _updateVideoButtonLayout];
+}
+
+- (void)_updateVideoButtonLayout
+{
+    if (!self.view)
+        return;
+
+    if (!_centeredStackView)
+        return;
+
+    if (_isUsingCompactVideoButtonLayout) {
+        [_centeredStackViewCenterXConstraint setActive:NO];
+        [_centeredStackViewTrailingConstraint setActive:YES];
+    } else {
+        [_centeredStackViewTrailingConstraint setActive:NO];
+        [_centeredStackViewCenterXConstraint setActive:YES];
+    }
 }
 
 - (void)configureEnvironmentPickerOrFullscreenVideoButtonView
@@ -512,7 +571,8 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     [self.delegate fullScreenViewController:self bestVideoPresentationInterfaceDidChange:videoPresentationInterface.get()];
 
     if (RetainPtr mediaPlayer = playbackSessionInterface->linearMediaPlayer(); [mediaPlayer spatialVideoMetadata] || [mediaPlayer isImmersiveVideo]) {
-        [self _setTopButtonLabel:[mediaPlayer isImmersiveVideo] ? WebCore::fullscreenControllerViewImmersive() : WebCore::fullscreenControllerViewSpatial()];
+        _isImmersiveVideo = [mediaPlayer isImmersiveVideo];
+        [self _setTopButtonLabel:_isImmersiveVideo ? WebCore::fullscreenControllerViewImmersive() : WebCore::fullscreenControllerViewSpatial()];
         if (!_buttonState.contains(FullscreenVideo)) {
             [_centeredStackView addArrangedSubview:_enterVideoFullscreenButton.get()];
             _buttonState.add(FullscreenVideo);
@@ -869,6 +929,10 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     else
         stackViewToTopGuideConstraint = [[_stackView topAnchor] constraintEqualToAnchor:topAnchor];
     _topConstraint = [topAnchor constraintEqualToAnchor:safeArea.topAnchor];
+#if ENABLE(LINEAR_MEDIA_PLAYER)
+    _centeredStackViewCenterXConstraint = [[_centeredStackView centerXAnchor] constraintEqualToAnchor:[_animatingView centerXAnchor]];
+    _centeredStackViewTrailingConstraint = [[_centeredStackView trailingAnchor] constraintEqualToAnchor:margins.trailingAnchor];
+#endif
     [NSLayoutConstraint activateConstraints:@[
         _topConstraint.get(),
         stackViewToTopGuideConstraint,
@@ -880,7 +944,6 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 #if ENABLE(LINEAR_MEDIA_PLAYER)
         // Align stack view's top anchor to the other stack view and to the middle of its superview.
         [[_centeredStackView topAnchor] constraintEqualToAnchor:[_stackView topAnchor]],
-        [[_centeredStackView centerXAnchor] constraintEqualToAnchor:[_animatingView centerXAnchor]],
 #endif
     ]];
 
