@@ -6078,7 +6078,7 @@ auto OMGIRGenerator::tryInliningPolymorphicCalls(unsigned callProfileIndex, Valu
         m_currentBlock = calleeCheck;
         ValueResults fastValues;
         Value* isSameCallee = m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), calleeCallee, constant(pointerType(), std::bit_cast<uintptr_t>(CalleeBits::boxNativeCallee(&const_cast<IPIntCallee&>(callee)))));
-        m_currentBlock->appendNewControlValue(m_proc, Branch, origin(), isSameCallee, FrequentedBlock(directCall), FrequentedBlock(nextCase));
+        m_currentBlock->appendNewControlValue(m_proc, Branch, origin(), isSameCallee, FrequentedBlock(directCall), FrequentedBlock(nextCase, nextCase == slowCase ? FrequencyClass::Rare : FrequencyClass::Normal));
         directCall->addPredecessor(m_currentBlock);
         nextCase->addPredecessor(m_currentBlock);
 
