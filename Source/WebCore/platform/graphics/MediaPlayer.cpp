@@ -184,14 +184,6 @@ private:
     explicit NullMediaPlayerPrivate(MediaPlayer&) { }
 };
 
-#if !RELEASE_LOG_DISABLED
-static RefPtr<Logger>& nullLogger()
-{
-    static NeverDestroyed<RefPtr<Logger>> logger;
-    return logger;
-}
-#endif
-
 static const Vector<WebCore::ContentType>& nullContentTypeVector()
 {
     static NeverDestroyed<Vector<WebCore::ContentType>> vector;
@@ -210,6 +202,58 @@ static const std::optional<Vector<FourCC>>& nullOptionalFourCCVector()
     return vector;
 }
 
+const Vector<ContentType>& MediaPlayerClient::mediaContentTypesRequiringHardwareSupport() const
+{
+    return nullContentTypeVector();
+}
+
+const std::optional<Vector<String>>& MediaPlayerClient::allowedMediaContainerTypes() const
+{
+    return nullOptionalStringVector();
+}
+
+const std::optional<Vector<String>>& MediaPlayerClient::allowedMediaCodecTypes() const
+{
+    return nullOptionalStringVector();
+}
+
+const std::optional<Vector<FourCC>>& MediaPlayerClient::allowedMediaVideoCodecIDs() const
+{
+    return nullOptionalFourCCVector();
+}
+
+const std::optional<Vector<FourCC>>& MediaPlayerClient::allowedMediaAudioCodecIDs() const
+{
+    return nullOptionalFourCCVector();
+}
+
+const std::optional<Vector<FourCC>>& MediaPlayerClient::allowedMediaCaptionFormatTypes() const
+{
+    return nullOptionalFourCCVector();
+}
+
+class NullMediaResourceLoader final
+    : public ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr<NullMediaResourceLoader>
+    , public PlatformMediaResourceLoader {
+    WTF_MAKE_TZONE_ALLOCATED_INLINE(NullMediaResourceLoader);
+public:
+    void ref() const final { ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::ref(); }
+    void deref() const final { ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::deref(); }
+    ThreadSafeWeakPtrControlBlock& controlBlock() const final { return ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::controlBlock(); }
+    uint32_t weakRefCount() const final { return ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::weakRefCount(); }
+private:
+    void sendH2Ping(const URL&, CompletionHandler<void(Expected<Seconds, ResourceError>&&)>&& completionHandler) final
+    {
+        completionHandler(makeUnexpected(ResourceError { }));
+    }
+    RefPtr<PlatformMediaResource> requestResource(ResourceRequest&&, LoadOptions) final { return nullptr; }
+};
+
+Ref<PlatformMediaResourceLoader> MediaPlayerClient::mediaPlayerCreateResourceLoader()
+{
+    return *new NullMediaResourceLoader;
+}
+
 class NullMediaPlayerClient final
     : public MediaPlayerClient
     , public RefCounted<NullMediaPlayerClient>
@@ -225,66 +269,8 @@ public:
 
 private:
     NullMediaPlayerClient() = default;
-
-#if !RELEASE_LOG_DISABLED
-    const Logger& mediaPlayerLogger() final
-    {
-        if (!nullLogger().get()) {
-            nullLogger() = Logger::create(this);
-            nullLogger()->setEnabled(this, false);
-        }
-
-        return *nullLogger().get();
-    }
-#endif
-
-    const Vector<WebCore::ContentType>& mediaContentTypesRequiringHardwareSupport() const final { return nullContentTypeVector(); }
-
-    Ref<PlatformMediaResourceLoader> mediaPlayerCreateResourceLoader() final
-    {
-        ASSERT_NOT_REACHED();
-        return adoptRef(*new NullMediaResourceLoader());
-    }
-
-#if ENABLE(LEGACY_ENCRYPTED_MEDIA)
-    RefPtr<ArrayBuffer> mediaPlayerCachedKeyForKeyId(const String&) const final { return nullptr; }
-#endif
-
-    const std::optional<Vector<String>>& allowedMediaContainerTypes() const final { return nullOptionalStringVector(); }
-    const std::optional<Vector<String>>& allowedMediaCodecTypes() const final { return nullOptionalStringVector(); }
-    const std::optional<Vector<FourCC>>& allowedMediaVideoCodecIDs() const final { return nullOptionalFourCCVector(); }
-    const std::optional<Vector<FourCC>>& allowedMediaAudioCodecIDs() const final { return nullOptionalFourCCVector(); }
-    const std::optional<Vector<FourCC>>& allowedMediaCaptionFormatTypes() const final { return nullOptionalFourCCVector(); }
-
     MediaPlayerClientIdentifier mediaPlayerClientIdentifier() const final { return identifier(); }
-
-#if ENABLE(WIRELESS_PLAYBACK_TARGET)
-    MediaPlaybackTargetType playbackTargetType() const final { return MediaPlaybackTargetType::None; }
-#endif
-
-    class NullMediaResourceLoader final
-        : public ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr<NullMediaResourceLoader>
-        , public PlatformMediaResourceLoader {
-        WTF_MAKE_TZONE_ALLOCATED_INLINE(NullMediaResourceLoader);
-    public:
-        void ref() const final { ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::ref(); }
-        void deref() const final { ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::deref(); }
-        ThreadSafeWeakPtrControlBlock& controlBlock() const final { return ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::controlBlock(); }
-        uint32_t weakRefCount() const final { return ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::weakRefCount(); }
-    private:
-        void sendH2Ping(const URL&, CompletionHandler<void(Expected<Seconds, ResourceError>&&)>&& completionHandler) final
-        {
-            completionHandler(makeUnexpected(ResourceError { }));
-        }
-        RefPtr<PlatformMediaResource> requestResource(ResourceRequest&&, LoadOptions) final { return nullptr; }
-    };
 };
-
-const Vector<ContentType>& MediaPlayerClient::mediaContentTypesRequiringHardwareSupport() const
-{
-    static NeverDestroyed<Vector<ContentType>> contentTypes;
-    return contentTypes;
-}
 
 static MediaPlayerClient& nullMediaPlayerClient()
 {

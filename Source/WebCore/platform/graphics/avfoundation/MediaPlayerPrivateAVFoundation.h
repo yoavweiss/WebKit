@@ -27,10 +27,9 @@
 
 #if ENABLE(VIDEO) && USE(AVFOUNDATION)
 
-#include "FloatSize.h"
-#include "InbandTextTrackPrivateAVF.h"
-#include "MediaPlayerPrivate.h"
-#include "Timer.h"
+#include <WebCore/FloatSize.h>
+#include <WebCore/MediaPlayerPrivate.h>
+#include <WebCore/Timer.h>
 #include <wtf/Deque.h>
 #include <wtf/Function.h>
 #include <wtf/Lock.h>
