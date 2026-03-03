@@ -246,9 +246,6 @@ Ref<LocalFrameView> LocalFrameView::create(LocalFrame& frame, const IntSize& ini
 
 LocalFrameView::~LocalFrameView()
 {
-    if (m_frame->contentRenderer())
-        WTFReportBacktraceWithPrefix("LocalFrameView::~LocalFrameView - ContentRendererObservation");
-
     removeFromAXObjectCache();
     resetScrollbars();
 
