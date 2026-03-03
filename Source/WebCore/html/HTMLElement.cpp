@@ -809,6 +809,16 @@ void HTMLElement::addHTMLPixelsToStyle(MutableStyleProperties& style, CSSPropert
     addHTMLLengthToStyle(style, propertyID, value, AllowPercentage::No, UseCSSPXAsUnitType::Yes, IsMultiLength::No);
 }
 
+// https://html.spec.whatwg.org/multipage/rendering.html#maps-to-the-pixel-length-property
+// Uses rules for parsing non-negative integers: strips whitespace, integer-only, no fractions or percent.
+void HTMLElement::addHTMLPixelLengthToStyle(MutableStyleProperties& style, CSSPropertyID propertyID, StringView value)
+{
+    auto result = parseHTMLNonNegativeInteger(value);
+    if (!result)
+        return;
+    addPropertyToPresentationalHintStyle(style, propertyID, result.value(), CSSUnitType::CSS_PX);
+}
+
 // This is specific to <marquee> attributes, including pixel and CSS_NUMBER values.
 void HTMLElement::addHTMLNumberToStyle(MutableStyleProperties& style, CSSPropertyID propertyID, StringView value)
 {

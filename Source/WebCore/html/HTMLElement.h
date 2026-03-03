@@ -174,6 +174,7 @@ protected:
     void addHTMLLengthToStyle(MutableStyleProperties&, CSSPropertyID, StringView value, AllowZeroValue = AllowZeroValue::Yes);
     void addHTMLMultiLengthToStyle(MutableStyleProperties&, CSSPropertyID, StringView value);
     void addHTMLPixelsToStyle(MutableStyleProperties&, CSSPropertyID, StringView value);
+    void addHTMLPixelLengthToStyle(MutableStyleProperties&, CSSPropertyID, StringView value);
     void addHTMLNumberToStyle(MutableStyleProperties&, CSSPropertyID, StringView value);
 
     static std::optional<SRGBA<uint8_t>> parseLegacyColorValue(StringView);

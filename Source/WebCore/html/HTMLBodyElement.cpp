@@ -71,8 +71,10 @@ bool HTMLBodyElement::hasPresentationalHintsForAttribute(const QualifiedName& na
     case AttributeNames::backgroundAttr:
     case AttributeNames::marginwidthAttr:
     case AttributeNames::leftmarginAttr:
+    case AttributeNames::rightmarginAttr:
     case AttributeNames::marginheightAttr:
     case AttributeNames::topmarginAttr:
+    case AttributeNames::bottommarginAttr:
     case AttributeNames::bgcolorAttr:
     case AttributeNames::textAttr:
         return true;
@@ -93,13 +95,19 @@ void HTMLBodyElement::collectPresentationalHintsForAttribute(const QualifiedName
     }
     case AttributeNames::marginwidthAttr:
     case AttributeNames::leftmarginAttr:
-        addHTMLLengthToStyle(style, CSSPropertyMarginRight, value);
-        addHTMLLengthToStyle(style, CSSPropertyMarginLeft, value);
+        addHTMLPixelLengthToStyle(style, CSSPropertyMarginRight, value);
+        addHTMLPixelLengthToStyle(style, CSSPropertyMarginLeft, value);
+        break;
+    case AttributeNames::rightmarginAttr:
+        addHTMLPixelLengthToStyle(style, CSSPropertyMarginRight, value);
         break;
     case AttributeNames::marginheightAttr:
     case AttributeNames::topmarginAttr:
-        addHTMLLengthToStyle(style, CSSPropertyMarginBottom, value);
-        addHTMLLengthToStyle(style, CSSPropertyMarginTop, value);
+        addHTMLPixelLengthToStyle(style, CSSPropertyMarginBottom, value);
+        addHTMLPixelLengthToStyle(style, CSSPropertyMarginTop, value);
+        break;
+    case AttributeNames::bottommarginAttr:
+        addHTMLPixelLengthToStyle(style, CSSPropertyMarginBottom, value);
         break;
     case AttributeNames::bgcolorAttr:
         addHTMLColorToStyle(style, CSSPropertyBackgroundColor, value);

@@ -33,6 +33,7 @@
 #include "EventLoop.h"
 #include "FocusController.h"
 #include "FrameLoader.h"
+#include "HTMLBodyElement.h"
 #include "HTMLNames.h"
 #include "JSDOMBindingSecurity.h"
 #include "LocalFrame.h"
@@ -135,7 +136,16 @@ void HTMLFrameElementBase::attributeChanged(const QualifiedName& name, const Ato
         setLocation(newValue.string().trim(isASCIIWhitespace));
     else if (name == scrollingAttr && contentFrame())
         protect(contentFrame())->updateScrollingMode();
-    else
+    else if (name == marginwidthAttr || name == marginheightAttr) {
+        if (RefPtr contentDocument = this->contentDocument()) {
+            if (RefPtr body = contentDocument->body()) {
+                if (newValue.isNull())
+                    body->removeAttribute(name);
+                else
+                    body->setAttributeWithoutSynchronization(name, newValue);
+            }
+        }
+    } else
         HTMLFrameOwnerElement::attributeChanged(name, oldValue, newValue, attributeModificationReason);
 }
 
