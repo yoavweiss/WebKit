@@ -2605,12 +2605,15 @@ void AXObjectCache::postTextStateChangeNotification(AccessibilityObject* object,
             return;
 #endif
 
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+        // Update the isolated tree's selected text marker range before posting the
+        // notification, so that it is available when clients handle the notification.
+        onSelectedTextChanged(selection, axObject.get());
+#endif
+
         postTextSelectionChangePlatformNotification(axObject.get(), newIntent, selection);
     }
 
-#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-    onSelectedTextChanged(selection, axObject.get());
-#endif
 #else // PLATFORM(COCOA) || USE(ATSPI)
     UNUSED_PARAM(object);
     UNUSED_PARAM(intent);
