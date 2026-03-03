@@ -12842,6 +12842,7 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
     parameters.textManipulationParameters = m_internals->textManipulationParameters;
 
     parameters.accessibilityEnabled = m_accessibilityEnabled;
+    parameters.shouldForceSiteIsolationAlwaysOnForTesting = WebPreferences::forcedSiteIsolationAlwaysOnForTesting();
 
     return parameters;
 }

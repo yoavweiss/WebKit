@@ -45,6 +45,11 @@ namespace WebKit {
 
 static bool forceSiteIsolationAlwaysOnForTesting;
 
+bool WebPreferences::forcedSiteIsolationAlwaysOnForTesting()
+{
+    return WebKit::forceSiteIsolationAlwaysOnForTesting;
+}
+
 Ref<WebPreferences> WebPreferences::create(const String& identifier, const String& keyPrefix, const String& globalDebugKeyPrefix)
 {
     return adoptRef(*new WebPreferences(identifier, keyPrefix, globalDebugKeyPrefix));

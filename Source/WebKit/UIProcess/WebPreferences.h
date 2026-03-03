@@ -97,6 +97,7 @@ public:
     void endBatchingUpdates();
 
     static void NODELETE forceSiteIsolationAlwaysOnForTesting();
+    static bool NODELETE forcedSiteIsolationAlwaysOnForTesting();
 
 private:
     void platformInitializeStore();

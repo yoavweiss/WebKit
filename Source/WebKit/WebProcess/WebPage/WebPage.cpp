@@ -963,6 +963,9 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
 
     WebStorageNamespaceProvider::incrementUseCount(sessionStorageNamespaceIdentifier());
 
+    if (parameters.shouldForceSiteIsolationAlwaysOnForTesting)
+        WebPreferences::forceSiteIsolationAlwaysOnForTesting();
+
     updatePreferences(parameters.store);
     if (page->settings().siteIsolationEnabled()) {
         if (RefPtr frame = page->localMainFrame())
@@ -4878,10 +4881,15 @@ bool WebPage::isParentProcessAWebBrowser() const
 
 void WebPage::adjustSettingsForLockdownMode(Settings& settings, const WebPreferencesStore* store)
 {
+    bool originalSiteIsolationEnabled = settings.siteIsolationEnabled();
     // Disable unstable Experimental settings, even if the user enabled them for local use.
     settings.disableUnstableFeaturesForModernWebKit();
     Settings::disableGlobalUnstableFeaturesForModernWebKit();
     settings.disableFeaturesForLockdownMode();
+
+    if (WebPreferences::forcedSiteIsolationAlwaysOnForTesting() && originalSiteIsolationEnabled)
+        settings.setSiteIsolationEnabled(true);
+
 #if PLATFORM(COCOA)
     if (settings.downloadableBinaryFontTrustedTypes() != DownloadableBinaryFontTrustedTypes::None) {
         auto downloadableBinaryFontTrustedTypes = DownloadableBinaryFontTrustedTypes::Restricted;

@@ -386,6 +386,7 @@ struct WebPageCreationParameters {
     bool isPopup { false };
 
     bool accessibilityEnabled { false };
+    bool shouldForceSiteIsolationAlwaysOnForTesting { false };
 };
 
 } // namespace WebKit
