@@ -182,7 +182,7 @@ struct MediaPlayerLoadOptions {
     VideoRendererPreferences videoRendererPreferences { };
 };
 
-class WEBCORE_EXPORT MediaPlayerClient : public AbstractRefCountedAndCanMakeWeakPtr<MediaPlayerClient> {
+class MediaPlayerClient : public AbstractRefCountedAndCanMakeWeakPtr<MediaPlayerClient> {
 public:
     virtual ~MediaPlayerClient() = default;
 
@@ -216,7 +216,7 @@ public:
     // The MediaPlayer could not discover an engine which supports the requested resource.
     virtual void mediaPlayerResourceNotSupported() { }
 
-    // Presentation-related methods
+// Presentation-related methods
     // a new frame of video is available
     virtual void mediaPlayerRepaint() { }
 
@@ -245,7 +245,7 @@ public:
     virtual void mediaPlayerActiveSourceBuffersChanged() { }
 
 #if ENABLE(LEGACY_ENCRYPTED_MEDIA)
-    virtual RefPtr<ArrayBuffer> mediaPlayerCachedKeyForKeyId(const String&) const { return nullptr; }
+    virtual RefPtr<ArrayBuffer> mediaPlayerCachedKeyForKeyId(const String&) const = 0;
     virtual void mediaPlayerKeyNeeded(const SharedBuffer&) { }
 #endif
 
@@ -275,7 +275,7 @@ public:
     virtual bool mediaPlayerPlatformVolumeConfigurationRequired() const { return false; }
     virtual bool mediaPlayerIsLooping() const { return false; }
     virtual CachedResourceLoader* mediaPlayerCachedResourceLoader() const { return nullptr; }
-    virtual Ref<PlatformMediaResourceLoader> mediaPlayerCreateResourceLoader();
+    virtual Ref<PlatformMediaResourceLoader> mediaPlayerCreateResourceLoader() = 0;
     virtual bool doesHaveAttribute(const AtomString&, AtomString* = nullptr) const { return false; }
     virtual bool mediaPlayerShouldUsePersistentCache() const { return true; }
     virtual String mediaPlayerMediaCacheDirectory() const { return emptyString(); }
@@ -313,14 +313,14 @@ public:
     virtual Vector<String> mediaPlayerPreferredAudioCharacteristics() const { return Vector<String>(); }
 
     virtual bool mediaPlayerShouldDisableSleep() const { return false; }
-    virtual const Vector<ContentType>& mediaContentTypesRequiringHardwareSupport() const;
+    virtual const Vector<ContentType>& mediaContentTypesRequiringHardwareSupport() const = 0;
     virtual bool mediaPlayerShouldCheckHardwareSupport() const { return false; }
 
-    virtual const std::optional<Vector<String>>& allowedMediaContainerTypes() const;
-    virtual const std::optional<Vector<String>>& allowedMediaCodecTypes() const;
-    virtual const std::optional<Vector<FourCC>>& allowedMediaVideoCodecIDs() const;
-    virtual const std::optional<Vector<FourCC>>& allowedMediaAudioCodecIDs() const;
-    virtual const std::optional<Vector<FourCC>>& allowedMediaCaptionFormatTypes() const;
+    virtual const std::optional<Vector<String>>& allowedMediaContainerTypes() const = 0;
+    virtual const std::optional<Vector<String>>& allowedMediaCodecTypes() const = 0;
+    virtual const std::optional<Vector<FourCC>>& allowedMediaVideoCodecIDs() const = 0;
+    virtual const std::optional<Vector<FourCC>>& allowedMediaAudioCodecIDs() const = 0;
+    virtual const std::optional<Vector<FourCC>>& allowedMediaCaptionFormatTypes() const = 0;
 
     virtual void mediaPlayerBufferedTimeRangesChanged() { }
     virtual void mediaPlayerSeekableTimeRangesChanged() { }
@@ -351,7 +351,7 @@ public:
 
 #if !RELEASE_LOG_DISABLED
     virtual uint64_t mediaPlayerLogIdentifier() { return 0; }
-    virtual const Logger& mediaPlayerLogger() { return emptyLogger(); }
+    virtual const Logger& mediaPlayerLogger() = 0;
 #endif
 
 #if PLATFORM(IOS_FAMILY)
@@ -359,7 +359,7 @@ public:
 #endif
 
 #if ENABLE(WIRELESS_PLAYBACK_TARGET)
-    virtual MediaPlaybackTargetType playbackTargetType() const { return MediaPlaybackTargetType::None; }
+    virtual MediaPlaybackTargetType playbackTargetType() const = 0;
 #endif
 };
 
