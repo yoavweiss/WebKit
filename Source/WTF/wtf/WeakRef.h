@@ -56,7 +56,7 @@ class WeakRef {
 public:
     WeakRef(const T& object, EnableWeakPtrThreadingAssertions shouldEnableAssertions = EnableWeakPtrThreadingAssertions::Yes) requires (!IsSmartPtr<T>::value && !std::is_pointer_v<T>)
         : m_impl(object.weakImpl())
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
         , m_shouldEnableAssertions(shouldEnableAssertions == EnableWeakPtrThreadingAssertions::Yes)
 #endif
     {
@@ -65,7 +65,7 @@ public:
 
     explicit WeakRef(Ref<WeakPtrImpl>&& impl, EnableWeakPtrThreadingAssertions shouldEnableAssertions = EnableWeakPtrThreadingAssertions::Yes)
         : m_impl(WTF::move(impl))
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
         , m_shouldEnableAssertions(shouldEnableAssertions == EnableWeakPtrThreadingAssertions::Yes)
 #endif
     {
@@ -116,13 +116,13 @@ public:
 
     T* operator->() const
     {
-        ASSERT_WITH_SECURITY_IMPLICATION(canSafelyBeUsed());
+        ASSERT(canSafelyBeUsed());
         return ptr();
     }
 
     EnableWeakPtrThreadingAssertions enableWeakPtrThreadingAssertions() const
     {
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
         return m_shouldEnableAssertions ? EnableWeakPtrThreadingAssertions::Yes : EnableWeakPtrThreadingAssertions::No;
 #else
         return EnableWeakPtrThreadingAssertions::No;
@@ -130,19 +130,19 @@ public:
     }
 
 private:
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
     inline bool canSafelyBeUsed() const
     {
         // FIXME: Our GC threads currently need to get opaque pointers from WeakPtrs and have to be special-cased.
         return !m_impl
             || !m_shouldEnableAssertions
-            || m_impl->threadAssertion().isCurrent()
-            || Thread::mayBeGCThread();
+            || (m_impl->wasConstructedOnMainThread() && Thread::mayBeGCThread())
+            || m_impl->wasConstructedOnMainThread() == isMainThread();
     }
 #endif
 
     Ref<WeakPtrImpl> m_impl;
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
     bool m_shouldEnableAssertions { true };
 #endif
 };

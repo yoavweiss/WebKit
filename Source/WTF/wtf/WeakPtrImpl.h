@@ -28,7 +28,6 @@
 #include <wtf/GetPtr.h>
 #include <wtf/HashTraits.h>
 #include <wtf/SingleThreadIntegralWrapper.h>
-#include <wtf/ThreadAssertions.h>
 #include <wtf/ThreadSafeRefCounted.h>
 #include <wtf/Threading.h>
 #include <wtf/TypeCasts.h>
@@ -48,38 +47,25 @@ public:
     }
 
     explicit operator bool() const { return m_ptr; }
-    void clear()
-    {
-        m_ptr = nullptr;
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
-        m_thread = anyThreadLike;
-#endif
-    }
+    void clear() { m_ptr = nullptr; }
 
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
-    const ThreadLikeAssertion& threadAssertion() const { return m_thread; }
+#if ASSERT_ENABLED
+    bool wasConstructedOnMainThread() const { return m_wasConstructedOnMainThread; }
 #endif
 
     template<typename T>
     explicit WeakPtrImplBase(T* ptr)
         : m_ptr(static_cast<typename T::WeakValueType*>(ptr))
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
-        , m_thread(currentThreadLike)
+#if ASSERT_ENABLED
+        , m_wasConstructedOnMainThread(isMainThread())
 #endif
     {
-    }
-
-    ~WeakPtrImplBase()
-    {
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
-        m_thread = anyThreadLike;
-#endif
     }
 
 private:
     void* m_ptr;
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
-    NO_UNIQUE_ADDRESS mutable ThreadLikeAssertion m_thread;
+#if ASSERT_ENABLED
+    bool m_wasConstructedOnMainThread;
 #endif
 };
 
@@ -105,32 +91,19 @@ public:
     }
 
     explicit operator bool() const { return m_ptr; }
-    void clear()
-    {
-        m_ptr = nullptr;
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
-        m_thread = anyThreadLike;
-#endif
-    }
+    void clear() { m_ptr = nullptr; }
 
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
-    const ThreadLikeAssertion& threadAssertion() const { return m_thread; }
+#if ASSERT_ENABLED
+    bool wasConstructedOnMainThread() const { return m_wasConstructedOnMainThread; }
 #endif
 
     template<typename T>
     explicit WeakPtrImplBaseSingleThread(T* ptr)
         : m_ptr(static_cast<typename T::WeakValueType*>(ptr))
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
-        , m_thread(currentThreadLike)
+#if ASSERT_ENABLED
+        , m_wasConstructedOnMainThread(isMainThread())
 #endif
     {
-    }
-
-    ~WeakPtrImplBaseSingleThread()
-    {
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
-        m_thread = anyThreadLike;
-#endif
     }
 
     uint32_t refCount() const { return m_refCount; }
@@ -148,8 +121,8 @@ public:
 private:
     mutable SingleThreadIntegralWrapper<uint32_t> m_refCount { 1 };
     void* m_ptr;
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
-    NO_UNIQUE_ADDRESS mutable ThreadLikeAssertion m_thread;
+#if ASSERT_ENABLED
+    bool m_wasConstructedOnMainThread;
 #endif
 };
 

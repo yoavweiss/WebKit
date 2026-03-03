@@ -77,7 +77,7 @@ public:
 
     template<typename = std::enable_if_t<!IsSmartPtr<T>::value>> WeakPtr(const T* object, EnableWeakPtrThreadingAssertions shouldEnableAssertions = EnableWeakPtrThreadingAssertions::Yes)
         : m_impl(object ? &object->weakImpl() : nullptr)
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
         , m_shouldEnableAssertions(shouldEnableAssertions == EnableWeakPtrThreadingAssertions::Yes)
 #endif
     {
@@ -87,7 +87,7 @@ public:
 
     template<typename = std::enable_if_t<!IsSmartPtr<T>::value && !std::is_pointer_v<T>>> WeakPtr(const T& object, EnableWeakPtrThreadingAssertions shouldEnableAssertions = EnableWeakPtrThreadingAssertions::Yes)
         : m_impl(&object.weakImpl())
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
         , m_shouldEnableAssertions(shouldEnableAssertions == EnableWeakPtrThreadingAssertions::Yes)
 #endif
     {
@@ -136,7 +136,7 @@ public:
             !IsDeprecatedWeakRefSmartPointerException<std::remove_cv_t<T>>::value || (!HasRefPtrMemberFunctions<T>::value && !HasCheckedPtrMemberFunctions<T>::value),
             "IsDeprecatedWeakRefSmartPointerException specialization is no longer needed for this class, please remove it.");
 
-        ASSERT_WITH_SECURITY_IMPLICATION(canSafelyBeUsed());
+        ASSERT(canSafelyBeUsed());
         return m_impl ? static_cast<T*>(m_impl->template get<T>()) : nullptr;
     }
 
@@ -165,7 +165,7 @@ public:
             !IsDeprecatedWeakRefSmartPointerException<std::remove_cv_t<T>>::value || (!HasRefPtrMemberFunctions<T>::value && !HasCheckedPtrMemberFunctions<T>::value),
             "IsDeprecatedWeakRefSmartPointerException specialization is no longer needed for this class, please remove it.");
 
-        ASSERT_WITH_SECURITY_IMPLICATION(canSafelyBeUsed());
+        ASSERT(canSafelyBeUsed());
         auto* result = get();
         RELEASE_ASSERT(result);
         return result;
@@ -180,7 +180,7 @@ public:
             !IsDeprecatedWeakRefSmartPointerException<std::remove_cv_t<T>>::value || (!HasRefPtrMemberFunctions<T>::value && !HasCheckedPtrMemberFunctions<T>::value),
             "IsDeprecatedWeakRefSmartPointerException specialization is no longer needed for this class, please remove it.");
 
-        ASSERT_WITH_SECURITY_IMPLICATION(canSafelyBeUsed());
+        ASSERT(canSafelyBeUsed());
         auto* result = get();
         RELEASE_ASSERT(result);
         return *result;
@@ -190,7 +190,7 @@ public:
 
     EnableWeakPtrThreadingAssertions enableWeakPtrThreadingAssertions() const
     {
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
         return m_shouldEnableAssertions ? EnableWeakPtrThreadingAssertions::Yes : EnableWeakPtrThreadingAssertions::No;
 #else
         return EnableWeakPtrThreadingAssertions::No;
@@ -204,26 +204,26 @@ private:
 
     explicit WeakPtr(Ref<WeakPtrImpl>&& ref, EnableWeakPtrThreadingAssertions shouldEnableAssertions)
         : m_impl(WTF::move(ref))
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
         , m_shouldEnableAssertions(shouldEnableAssertions == EnableWeakPtrThreadingAssertions::Yes)
 #endif
     {
         UNUSED_PARAM(shouldEnableAssertions);
     }
 
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
     inline bool canSafelyBeUsed() const
     {
         // FIXME: Our GC threads currently need to get opaque pointers from WeakPtrs and have to be special-cased.
         return !m_impl
             || !m_shouldEnableAssertions
-            || m_impl->threadAssertion().isCurrent()
-            || Thread::mayBeGCThread();
+            || (m_impl->wasConstructedOnMainThread() && Thread::mayBeGCThread())
+            || m_impl->wasConstructedOnMainThread() == isMainThread();
     }
 #endif
 
     RefPtr<WeakPtrImpl, PtrTraits> m_impl;
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
     bool m_shouldEnableAssertions { true };
 #endif
 } SWIFT_ESCAPABLE;
@@ -242,7 +242,7 @@ template<typename T, typename U, typename WeakPtrImpl> inline WeakPtrImpl& weak_
 
 template<typename T, typename WeakPtrImpl, typename PtrTraits> template<typename U> inline WeakPtr<T, WeakPtrImpl, PtrTraits>::WeakPtr(const WeakPtr<U, WeakPtrImpl, PtrTraits>& o)
     : m_impl(weak_ptr_impl_cast<T, U>(o.m_impl.get()))
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
     , m_shouldEnableAssertions(o.m_shouldEnableAssertions)
 #endif
 {
@@ -250,7 +250,7 @@ template<typename T, typename WeakPtrImpl, typename PtrTraits> template<typename
 
 template<typename T, typename WeakPtrImpl, typename PtrTraits> template<typename U> inline WeakPtr<T, WeakPtrImpl, PtrTraits>::WeakPtr(WeakPtr<U, WeakPtrImpl, PtrTraits>&& o)
     : m_impl(adoptRef(weak_ptr_impl_cast<T, U>(o.m_impl.leakRef())))
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
     , m_shouldEnableAssertions(o.m_shouldEnableAssertions)
 #endif
 {
@@ -258,7 +258,7 @@ template<typename T, typename WeakPtrImpl, typename PtrTraits> template<typename
 
 template<typename T, typename WeakPtrImpl, typename PtrTraits> template<typename U> inline WeakPtr<T, WeakPtrImpl, PtrTraits>::WeakPtr(const WeakRef<U, WeakPtrImpl>& o)
     : m_impl(&weak_ptr_impl_cast<T, U>(o.impl()))
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
     , m_shouldEnableAssertions(o.enableWeakPtrThreadingAssertions() == EnableWeakPtrThreadingAssertions::Yes)
 #endif
 {
@@ -266,7 +266,7 @@ template<typename T, typename WeakPtrImpl, typename PtrTraits> template<typename
 
 template<typename T, typename WeakPtrImpl, typename PtrTraits> template<typename U> inline WeakPtr<T, WeakPtrImpl, PtrTraits>::WeakPtr(WeakRef<U, WeakPtrImpl>&& o)
     : m_impl(adoptRef(weak_ptr_impl_cast<T, U>(o.releaseImpl().leakRef())))
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
     , m_shouldEnableAssertions(o.enableWeakPtrThreadingAssertions() == EnableWeakPtrThreadingAssertions::Yes)
 #endif
 {
@@ -275,7 +275,7 @@ template<typename T, typename WeakPtrImpl, typename PtrTraits> template<typename
 template<typename T, typename WeakPtrImpl, typename PtrTraits> template<typename U> inline WeakPtr<T, WeakPtrImpl, PtrTraits>& WeakPtr<T, WeakPtrImpl, PtrTraits>::operator=(const WeakPtr<U, WeakPtrImpl, PtrTraits>& o)
 {
     m_impl = weak_ptr_impl_cast<T, U>(o.m_impl.get());
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
     m_shouldEnableAssertions = o.m_shouldEnableAssertions;
 #endif
     return *this;
@@ -284,7 +284,7 @@ template<typename T, typename WeakPtrImpl, typename PtrTraits> template<typename
 template<typename T, typename WeakPtrImpl, typename PtrTraits> template<typename U> inline WeakPtr<T, WeakPtrImpl, PtrTraits>& WeakPtr<T, WeakPtrImpl, PtrTraits>::operator=(WeakPtr<U, WeakPtrImpl, PtrTraits>&& o)
 {
     m_impl = adoptRef(weak_ptr_impl_cast<T, U>(o.m_impl.leakRef()));
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
     m_shouldEnableAssertions = o.m_shouldEnableAssertions;
 #endif
     return *this;
@@ -293,7 +293,7 @@ template<typename T, typename WeakPtrImpl, typename PtrTraits> template<typename
 template<typename T, typename WeakPtrImpl, typename PtrTraits> template<typename U> inline WeakPtr<T, WeakPtrImpl, PtrTraits>& WeakPtr<T, WeakPtrImpl, PtrTraits>::operator=(const WeakRef<U, WeakPtrImpl>& o)
 {
     m_impl = &weak_ptr_impl_cast<T, U>(o.m_impl.get());
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
     m_shouldEnableAssertions = o.enableWeakPtrThreadingAssertions() == EnableWeakPtrThreadingAssertions::Yes;
 #endif
     return *this;
@@ -302,7 +302,7 @@ template<typename T, typename WeakPtrImpl, typename PtrTraits> template<typename
 template<typename T, typename WeakPtrImpl, typename PtrTraits> template<typename U> inline WeakPtr<T, WeakPtrImpl, PtrTraits>& WeakPtr<T, WeakPtrImpl, PtrTraits>::operator=(WeakRef<U, WeakPtrImpl>&& o)
 {
     m_impl = adoptRef(weak_ptr_impl_cast<T, U>(o.m_impl.leakRef()));
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
+#if ASSERT_ENABLED
     m_shouldEnableAssertions = o.enableWeakPtrThreadingAssertions() == EnableWeakPtrThreadingAssertions::Yes;
 #endif
     return *this;

@@ -3176,13 +3176,7 @@ public:
     }
 
     explicit operator bool() const { return m_ptr; }
-    void clear()
-    {
-        m_ptr = nullptr;
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
-        m_thread = anyThreadLike;
-#endif
-    }
+    void clear() { m_ptr = nullptr; }
 
     template<typename T>
     explicit DidUpdateRefCountWeakPtrImpl(T* ptr)
@@ -3190,10 +3184,8 @@ public:
     {
     }
 
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
-    ~DidUpdateRefCountWeakPtrImpl() { m_thread = anyThreadLike; }
-
-    const ThreadLikeAssertion& threadAssertion() const { return m_thread; }
+#if ASSERT_ENABLED
+    bool wasConstructedOnMainThread() const { return true; }
 #endif
 
     void resetDidUpdateRefCount() { m_didUpdateRefCount = false; }
@@ -3219,9 +3211,6 @@ private:
     mutable uint32_t m_refCount { 1 };
     void* m_ptr;
     mutable bool m_didUpdateRefCount { false };
-#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
-    NO_UNIQUE_ADDRESS mutable ThreadLikeAssertion m_thread { mainThreadLike };
-#endif
 };
 DEFINE_ALLOCATOR_WITH_HEAP_IDENTIFIER(DidUpdateRefCountWeakPtrImpl);
 
