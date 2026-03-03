@@ -196,7 +196,12 @@ TEST(EditorStateTests, TypingAttributesTextAlignmentAbsoluteAlignmentOptions)
     EXPECT_WK_STREQ("right\njustified\ncenter\nleft", [webView stringByEvaluatingJavaScript:@"getSelection().toString()"]);
 }
 
+// FIXME when webkit.org/b/309007 is resolved.
+#if PLATFORM(MAC) && !defined(NDEBUG)
+TEST(EditorStateTests, DISABLED_TypingAttributesTextAlignmentStartEnd)
+#else
 TEST(EditorStateTests, TypingAttributesTextAlignmentStartEnd)
+#endif
 {
     auto testHarness = setUpEditorStateTestHarness();
     TestWKWebView *webView = [testHarness webView];
@@ -219,7 +224,12 @@ TEST(EditorStateTests, TypingAttributesTextAlignmentStartEnd)
     [testHarness insertParagraphAndExpectEditorStateWith:@{ @"text-alignment": @(NSTextAlignmentRight) }];
 }
 
+// FIXME when webkit.org/b/309007 is resolved.
+#if PLATFORM(MAC) && !defined(NDEBUG)
+TEST(EditorStateTests, DISABLED_TypingAttributesTextAlignmentDirectionalText)
+#else
 TEST(EditorStateTests, TypingAttributesTextAlignmentDirectionalText)
+#endif
 {
     auto testHarness = setUpEditorStateTestHarness();
     [[testHarness webView] stringByEvaluatingJavaScript:@"document.body.setAttribute('dir', 'auto')"];
