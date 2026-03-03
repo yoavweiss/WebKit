@@ -272,8 +272,8 @@ public:
     inline ShadowRoot* shadowRoot() const; // Defined in Element.h.
     bool isClosedShadowHidden(const Node&) const;
 
-    HTMLSlotElement* assignedSlot() const;
-    HTMLSlotElement* assignedSlotForBindings() const;
+    HTMLSlotElement* NODELETE assignedSlot() const;
+    HTMLSlotElement* NODELETE assignedSlotForBindings() const;
     HTMLSlotElement* NODELETE manuallyAssignedSlot() const;
     void setManuallyAssignedSlot(HTMLSlotElement*);
 
@@ -304,9 +304,9 @@ public:
     Node* NODELETE nonBoundaryShadowTreeRootNode();
 
     // Node's parent or shadow tree host.
-    inline ContainerNode* parentOrShadowHostNode() const; // Defined in NodeInlines.h
-    ContainerNode* parentInComposedTree() const;
-    WEBCORE_EXPORT Element* parentElementInComposedTree() const;
+    inline ContainerNode* NODELETE parentOrShadowHostNode() const; // Defined in NodeInlines.h
+    ContainerNode* NODELETE parentInComposedTree() const;
+    WEBCORE_EXPORT Element* NODELETE parentElementInComposedTree() const;
     Element* NODELETE parentOrShadowHostElement() const;
     inline void setParentNode(ContainerNode*);
     inline Node& NODELETE rootNode() const;

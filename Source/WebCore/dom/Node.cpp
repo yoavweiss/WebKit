@@ -1332,16 +1332,16 @@ static inline ShadowRoot* NODELETE parentShadowRoot(const Node& node)
     return nullptr;
 }
 
-HTMLSlotElement* Node::assignedSlot() const
+HTMLSlotElement* NODELETE Node::assignedSlot() const
 {
-    if (RefPtr shadowRoot = parentShadowRoot(*this))
+    if (auto* shadowRoot = parentShadowRoot(*this))
         return shadowRoot->findAssignedSlot(*this);
     return nullptr;
 }
 
-HTMLSlotElement* Node::assignedSlotForBindings() const
+HTMLSlotElement* NODELETE Node::assignedSlotForBindings() const
 {
-    RefPtr shadowRoot = parentShadowRoot(*this);
+    auto* shadowRoot = parentShadowRoot(*this);
     if (shadowRoot && shadowRoot->mode() == ShadowRootMode::Open)
         return shadowRoot->findAssignedSlot(*this);
     return nullptr;
