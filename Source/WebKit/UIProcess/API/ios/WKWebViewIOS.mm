@@ -3002,12 +3002,7 @@ static bool scrollViewCanScroll(UIScrollView *scrollView)
 
             // Reposition fixed/sticky layers even though the full update to WebContent is throttled.
             // Without taking this step, fixed or sticky elements will freeze in position and then visibly jump when WebContent updates.
-            [self _updateScrollViewContentInsetsIfNecessary];
-            if (auto info = [self _createVisibleContentRectUpdate]) {
-                _page->updateVisibleContentRectsLocally(*info);
-                auto layoutViewport = _page->unconstrainedLayoutViewportRect();
-                _page->adjustLayersForLayoutViewport(_page->unobscuredContentRect().location(), layoutViewport, _page->displayedContentScale());
-            }
+            [self _updateViewportRelativeLayersOutOfBand];
             return;
         }
     }
@@ -3043,6 +3038,17 @@ static bool scrollViewCanScroll(UIScrollView *scrollView)
     _timeOfLastVisibleContentRectUpdate = timeNow;
     if (!_timeOfFirstVisibleContentRectUpdateWithPendingCommit)
         _timeOfFirstVisibleContentRectUpdateWithPendingCommit = timeNow;
+}
+
+- (void)_updateViewportRelativeLayersOutOfBand
+{
+    // Reposition fixed/sticky layers even when visible content rect updates are deferred.
+    [self _updateScrollViewContentInsetsIfNecessary];
+    if (auto info = [self _createVisibleContentRectUpdate]) {
+        _page->updateVisibleContentRectsLocally(*info);
+        auto layoutViewport = _page->unconstrainedLayoutViewportRect();
+        _page->adjustLayersForLayoutViewport(_page->unobscuredContentRect().location(), layoutViewport, _page->displayedContentScale());
+    }
 }
 
 - (void)_didStartProvisionalLoadForMainFrame
@@ -4567,6 +4573,8 @@ static bool isLockdownModeWarningNeeded()
 #if HAVE(LIQUID_GLASS)
     [self _updateFixedColorExtensionViewFrames];
 #endif
+
+    [self _updateViewportRelativeLayersOutOfBand];
 }
 
 - (void)_endAnimatedResize
