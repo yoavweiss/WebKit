@@ -652,10 +652,6 @@ imported/w3c/web-platform-tests/html/semantics/forms/the-select-element/customiz
 imported/w3c/web-platform-tests/html/semantics/forms/the-select-element/customizable-select/select-appearance-fallback-top-right-scroller.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/semantics/forms/the-select-element/customizable-select/select-appearance-fallback-top-right.html [ ImageOnlyFailure ]
 
-# Need to use `disclosure-open` counter on ::picker-icon.
-imported/w3c/web-platform-tests/html/semantics/forms/the-select-element/customizable-select/select-appearance-writing-mode-vertical-lr.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/html/semantics/forms/the-select-element/customizable-select/select-appearance-writing-mode-vertical-rl.html [ ImageOnlyFailure ]
-
 # Top layer exit animations (remove from implicit anchor/top layer after picker transition finishes).
 imported/w3c/web-platform-tests/html/semantics/forms/the-select-element/customizable-select/select-popover-exit-animation.html [ ImageOnlyFailure ]
 
@@ -5468,9 +5464,6 @@ imported/w3c/web-platform-tests/css/css-lists/nested-marker-styling.html [ Image
 imported/w3c/web-platform-tests/css/css-lists/counter-list-item-2.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-lists/counter-list-item-slot-order.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-lists/counter-list-item.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-lists/counter-order-display-contents.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-lists/counter-slot-order-scoping.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-lists/counter-slot-order.html [ ImageOnlyFailure ]
 
 # No support for reversed(<counter-name>) syntax
 imported/w3c/web-platform-tests/css/css-lists/counter-reset-reversed-list-item-start.html [ ImageOnlyFailure ]
@@ -5518,7 +5511,6 @@ webkit.org/b/202849 imported/w3c/web-platform-tests/css/css-lists/list-style-typ
 webkit.org/b/202849 imported/w3c/web-platform-tests/css/css-lists/list-style-type-string-006.html [ ImageOnlyFailure ]
 webkit.org/b/249918 imported/w3c/web-platform-tests/css/css-lists/list-marker-symbol-bidi.html [ ImageOnlyFailure ]
 
-imported/w3c/web-platform-tests/css/css-lists/content-property/marker-text-matches-circle.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-lists/content-property/marker-text-matches-lower-greek.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-lists/content-property/marker-text-matches-lower-latin.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-lists/content-property/marker-text-matches-square.html [ ImageOnlyFailure ]

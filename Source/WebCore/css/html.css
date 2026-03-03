@@ -1126,8 +1126,7 @@ select:not([multiple]):-internal-uses-menulist > button:first-child {
 }
 
 select::picker-icon {
-    /* FIXME: Switch to disclosure-open counter once it works */
-    content: "\25BC" / "";
+    content: counter(fake-counter-name, disclosure-open);
     display: block;
     margin-inline-start: auto;
 }
