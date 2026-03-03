@@ -33,6 +33,7 @@
 #import "Logging.h"
 #import "MessageSenderInlines.h"
 #import "PlaybackSessionManager.h"
+#import "TextRecognitionRequest.h"
 #import "TextTrackRepresentationCocoa.h"
 #import "VideoPresentationManagerMessages.h"
 #import "VideoPresentationManagerProxyMessages.h"
@@ -741,8 +742,12 @@ void VideoPresentationManager::didEnterFullscreen(WebCore::MediaPlayerClientIden
 
     videoElement->didEnterFullscreenOrPictureInPicture(valueOrDefault(size));
 
-    if (interface->targetIsFullscreen() || interface->fullscreenStandby())
+    if (interface->targetIsFullscreen() || interface->fullscreenStandby()) {
+#if ENABLE(IMAGE_ANALYSIS) && PLATFORM(IOS_FAMILY)
+        m_playbackSessionManager->textRecognitionRequest().requestTextRecognitionFor(contextId);
+#endif
         return;
+    }
 
     // exit fullscreen now if it was previously requested during an animation.
     RunLoop::mainSingleton().dispatch([protectedThis = Ref { *this }, videoElement] {
@@ -797,6 +802,10 @@ void VideoPresentationManager::didExitFullscreen(WebCore::MediaPlayerClientIdent
     auto [model, interface] = ensureModelAndInterface(contextId);
 
 #if PLATFORM(IOS_FAMILY)
+#if ENABLE(IMAGE_ANALYSIS)
+    m_playbackSessionManager->textRecognitionRequest().requestTextRecognitionFor(contextId);
+#endif
+
     RunLoop::mainSingleton().dispatch([protectedThis = Ref { *this }, contextId] {
         if (RefPtr page = protectedThis->m_page.get())
             page->send(Messages::VideoPresentationManagerProxy::CleanupFullscreen(processQualify(contextId)));

@@ -740,6 +740,7 @@ WebProcess/cocoa/RemoteRealtimeAudioSource.cpp
 WebProcess/cocoa/RemoteRealtimeMediaSource.cpp
 WebProcess/cocoa/RemoteRealtimeMediaSourceProxy.cpp
 WebProcess/cocoa/RemoteRealtimeVideoSource.cpp
+WebProcess/cocoa/TextRecognitionRequest.cpp
 WebProcess/cocoa/UserMediaCaptureManager.cpp
 WebProcess/cocoa/VideoPresentationManager.mm @nonARC
 WebProcess/cocoa/WebProcessCocoa.mm @nonARC

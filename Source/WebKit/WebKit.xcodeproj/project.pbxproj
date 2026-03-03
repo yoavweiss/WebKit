@@ -5912,6 +5912,8 @@
 		510CC7E016138E2900D03ED3 /* NetworkProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkProcess.h; sourceTree = "<group>"; };
 		510CC7EA16138E7200D03ED3 /* NetworkProcessProxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NetworkProcessProxy.cpp; sourceTree = "<group>"; };
 		510CC7EB16138E7200D03ED3 /* NetworkProcessProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkProcessProxy.h; sourceTree = "<group>"; };
+		510CDD082F53C70E006BB4E0 /* TextRecognitionRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextRecognitionRequest.h; sourceTree = "<group>"; };
+		510CDD092F53C70E006BB4E0 /* TextRecognitionRequest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TextRecognitionRequest.cpp; sourceTree = "<group>"; };
 		510FBB981288C95E00AFFDF4 /* WebContextMenuItemData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebContextMenuItemData.cpp; sourceTree = "<group>"; };
 		510FBB991288C95E00AFFDF4 /* WebContextMenuItemData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebContextMenuItemData.h; sourceTree = "<group>"; };
 		511065F923EC956B005443D6 /* WKContentWorld.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WKContentWorld.mm; sourceTree = "<group>"; };
@@ -14644,6 +14646,8 @@
 				416008B125DA86B900E892FE /* RemoteRealtimeMediaSourceProxy.h */,
 				418FCBE3271049DB00F96ECA /* RemoteRealtimeVideoSource.cpp */,
 				418FCBE4271049DC00F96ECA /* RemoteRealtimeVideoSource.h */,
+				510CDD092F53C70E006BB4E0 /* TextRecognitionRequest.cpp */,
+				510CDD082F53C70E006BB4E0 /* TextRecognitionRequest.h */,
 				E36A00E129CF4EBA00AC4E8A /* TextTrackRepresentationCocoa.h */,
 				E36A00E229CF7AC000AC4E8A /* TextTrackRepresentationCocoa.mm */,
 				CD491B051E70D05F00009066 /* UserMediaCaptureManager.cpp */,

@@ -514,7 +514,7 @@ public:
     bool taintsOrigin(const SecurityOrigin&) const;
     
     WEBCORE_EXPORT bool isFullscreen() const override;
-    bool isInFullscreenOrPictureInPicture() const;
+    WEBCORE_EXPORT bool isInFullscreenOrPictureInPicture() const;
     bool isStandardFullscreen() const;
     void toggleStandardFullscreenState();
 

@@ -44,6 +44,7 @@
 #include <wtf/RefCounted.h>
 #include <wtf/RefPtr.h>
 #include <wtf/TZoneMalloc.h>
+#include <wtf/UniqueRef.h>
 #include <wtf/WeakHashSet.h>
 
 namespace IPC {
@@ -61,6 +62,7 @@ namespace WebKit {
 
 class WebPage;
 class PlaybackSessionManager;
+class TextRecognitionRequest;
 
 class PlaybackSessionInterfaceContext final
     : public RefCounted<PlaybackSessionInterfaceContext>
@@ -229,6 +231,10 @@ private:
 
     void forEachModel(Function<void(WebCore::PlaybackSessionModel&)>&&);
 
+#if ENABLE(IMAGE_ANALYSIS)
+    TextRecognitionRequest& textRecognitionRequest() { return m_textRecognitionRequest.get(); }
+#endif
+
 #if !RELEASE_LOG_DISABLED
     const Logger& logger() const { return m_logger; }
     uint64_t logIdentifier() const { return m_logIdentifier; }
@@ -249,6 +255,10 @@ private:
 #if !RELEASE_LOG_DISABLED
     const Ref<const Logger> m_logger;
     const uint64_t m_logIdentifier;
+#endif
+
+#if ENABLE(IMAGE_ANALYSIS)
+    const UniqueRef<TextRecognitionRequest> m_textRecognitionRequest;
 #endif
 };
 

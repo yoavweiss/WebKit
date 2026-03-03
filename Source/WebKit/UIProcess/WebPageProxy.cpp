@@ -16816,11 +16816,24 @@ void WebPageProxy::clearAppPrivacyReportTestingData(CompletionHandler<void()>&& 
 #endif
 
 #if ENABLE(IMAGE_ANALYSIS) && ENABLE(VIDEO)
-void WebPageProxy::beginTextRecognitionForVideoInElementFullScreen(ShareableBitmap::Handle&& bitmapHandle, FloatRect bounds)
+void WebPageProxy::beginTextRecognitionForVideoInElementFullScreen(PlaybackSessionContextIdentifier identifier, ShareableBitmap::Handle&& bitmapHandle, FloatRect bounds)
 {
     RefPtr pageClient = this->pageClient();
     if (!pageClient || !pageClient->isTextRecognitionInFullscreenVideoEnabled())
         return;
+
+#if PLATFORM(IOS_FAMILY)
+    if (internals().currentFullscreenVideoSessionIdentifier == identifier && m_videoPresentationManager) {
+        RefPtr presentationManager = m_videoPresentationManager;
+        // Suppress forward declaration warning. see webkit.org/b/308991
+        SUPPRESS_FORWARD_DECL_ARG RetainPtr controller = presentationManager->playerViewController(identifier);
+        if (controller) {
+            if (RefPtr pageClient = this->pageClient())
+                SUPPRESS_FORWARD_DECL_ARG pageClient->beginTextRecognitionForFullscreenVideo(WTF::move(bitmapHandle), controller.get());
+            return;
+        }
+    }
+#endif
 
     pageClient->beginTextRecognitionForVideoInElementFullscreen(WTF::move(bitmapHandle), bounds);
 }
@@ -16830,6 +16843,16 @@ void WebPageProxy::cancelTextRecognitionForVideoInElementFullScreen()
     RefPtr pageClient = this->pageClient();
     if (!pageClient || !pageClient->isTextRecognitionInFullscreenVideoEnabled())
         return;
+
+#if PLATFORM(IOS_FAMILY)
+    if (internals().currentFullscreenVideoSessionIdentifier && m_videoPresentationManager) {
+        RefPtr presentationManager = m_videoPresentationManager;
+        // Suppress forward declaration warning. see webkit.org/b/308991
+        SUPPRESS_FORWARD_DECL_ARG RetainPtr controller = presentationManager->playerViewController(*internals().currentFullscreenVideoSessionIdentifier);
+        if (controller)
+            SUPPRESS_FORWARD_DECL_ARG pageClient->cancelTextRecognitionForFullscreenVideo(controller.get());
+    }
+#endif
 
     pageClient->cancelTextRecognitionForVideoInElementFullscreen();
 }

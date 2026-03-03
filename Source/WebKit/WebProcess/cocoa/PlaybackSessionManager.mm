@@ -33,6 +33,7 @@
 #import "MessageSenderInlines.h"
 #import "PlaybackSessionManagerMessages.h"
 #import "PlaybackSessionManagerProxyMessages.h"
+#import "TextRecognitionRequest.h"
 #import "VideoPresentationManager.h"
 #import "WebPage.h"
 #import "WebProcess.h"
@@ -190,6 +191,9 @@ PlaybackSessionManager::PlaybackSessionManager(WebPage& page)
 #if !RELEASE_LOG_DISABLED
     , m_logger(page.logger())
     , m_logIdentifier(page.logIdentifier())
+#endif
+#if ENABLE(IMAGE_ANALYSIS)
+    , m_textRecognitionRequest(makeUniqueRef<TextRecognitionRequest>(page, *this))
 #endif
 {
     ALWAYS_LOG(LOGIDENTIFIER);
@@ -393,6 +397,9 @@ void PlaybackSessionManager::durationChanged(WebCore::HTMLMediaElementIdentifier
 void PlaybackSessionManager::currentTimeChanged(WebCore::HTMLMediaElementIdentifier contextId, double currentTime, double anchorTime)
 {
     m_page->send(Messages::PlaybackSessionManagerProxy::CurrentTimeChanged(processQualify(contextId), currentTime, anchorTime));
+#if ENABLE(IMAGE_ANALYSIS)
+    m_textRecognitionRequest->requestTextRecognitionFor(contextId);
+#endif
 }
 
 void PlaybackSessionManager::bufferedTimeChanged(WebCore::HTMLMediaElementIdentifier contextId, double bufferedTime)
@@ -408,6 +415,9 @@ void PlaybackSessionManager::playbackStartedTimeChanged(WebCore::HTMLMediaElemen
 void PlaybackSessionManager::rateChanged(WebCore::HTMLMediaElementIdentifier contextId, OptionSet<PlaybackSessionModel::PlaybackState> playbackState, double playbackRate, double defaultPlaybackRate)
 {
     m_page->send(Messages::PlaybackSessionManagerProxy::RateChanged(processQualify(contextId), playbackState, playbackRate, defaultPlaybackRate));
+#if ENABLE(IMAGE_ANALYSIS)
+    m_textRecognitionRequest->requestTextRecognitionFor(contextId);
+#endif
 }
 
 void PlaybackSessionManager::seekableRangesChanged(WebCore::HTMLMediaElementIdentifier contextId, const WebCore::PlatformTimeRanges& timeRanges, double lastModifiedTime, double liveUpdateInterval)

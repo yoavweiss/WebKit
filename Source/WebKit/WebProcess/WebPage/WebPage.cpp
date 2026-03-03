@@ -69,6 +69,7 @@
 #include "NotificationPermissionRequestManager.h"
 #include "PageBanner.h"
 #include "PageInspectorTarget.h"
+#include "PlaybackSessionContextIdentifier.h"
 #include "PluginView.h"
 #include "PolicyDecision.h"
 #include "PrintInfo.h"
@@ -9562,22 +9563,22 @@ void WebPage::beginTextRecognitionForVideoInElementFullScreen(const HTMLVideoEle
     if (rectInRootView.isEmpty())
         return;
 
-    m_isPerformingTextRecognitionInElementFullScreen = true;
-    element.bitmapImageForCurrentTime()->whenSettled(RunLoop::mainSingleton(), [weakThis = WeakPtr { *this }, rectInRootView](auto&& result) {
+    m_elementIsPerformingTextRecognitionInElementFullScreen = element.identifier();
+    element.bitmapImageForCurrentTime()->whenSettled(RunLoop::mainSingleton(), [weakThis = WeakPtr { *this }, rectInRootView, identifier = element.identifier()](auto&& result) {
         if (!result)
             return;
         RefPtr protectedThis = weakThis.get();
-        if (!protectedThis || !protectedThis->m_isPerformingTextRecognitionInElementFullScreen)
+        if (!protectedThis || protectedThis->m_elementIsPerformingTextRecognitionInElementFullScreen != identifier)
             return;
         if (auto handle = (*result)->createHandle())
-            protectedThis->send(Messages::WebPageProxy::BeginTextRecognitionForVideoInElementFullScreen(WTF::move(*handle), rectInRootView));
-        protectedThis->m_isPerformingTextRecognitionInElementFullScreen = false;
+            protectedThis->send(Messages::WebPageProxy::BeginTextRecognitionForVideoInElementFullScreen(processQualify(identifier), WTF::move(*handle), rectInRootView));
+        protectedThis->m_elementIsPerformingTextRecognitionInElementFullScreen.reset();
     });
 }
 
 void WebPage::cancelTextRecognitionForVideoInElementFullScreen()
 {
-    m_isPerformingTextRecognitionInElementFullScreen = false;
+    m_elementIsPerformingTextRecognitionInElementFullScreen.reset();
     send(Messages::WebPageProxy::CancelTextRecognitionForVideoInElementFullScreen());
 }
 #endif // ENABLE(IMAGE_ANALYSIS) && ENABLE(VIDEO)
