@@ -3863,7 +3863,9 @@ TEST(SiteIsolation, RestoreSessionFromAnotherWebView)
     EXPECT_WK_STREQ([webView2 _test_waitForAlert], "done");
 }
 
-static void testNavigateIframeBackForward(NSString *navigationURL, bool restoreSessionState)
+enum class SessionRestoreMethod : uint8_t { None, InPlace, NewWebView };
+
+static void testNavigateIframeBackForward(NSString *navigationURL, SessionRestoreMethod restoreMethod)
 {
     HTTPServer server({
         { "/example"_s, { "<iframe src='https://webkit.org/source'></iframe>"_s } },
@@ -3878,8 +3880,24 @@ static void testNavigateIframeBackForward(NSString *navigationURL, bool restoreS
     [webView evaluateJavaScript:[NSString stringWithFormat:@"location.href = '%@'", navigationURL] inFrame:childFrame.get() completionHandler:nil];
     EXPECT_WK_STREQ([webView _test_waitForAlert], "destination");
 
-    if (restoreSessionState)
+    switch (restoreMethod) {
+    case SessionRestoreMethod::None:
+        break;
+    case SessionRestoreMethod::InPlace:
         [webView _restoreSessionState:[webView _sessionState] andNavigate:NO];
+        break;
+    case SessionRestoreMethod::NewWebView: {
+        RetainPtr sessionState = [webView _sessionState];
+        auto [newWebView, newNavigationDelegate] = siteIsolatedViewAndDelegate(server);
+        [newWebView _restoreSessionState:sessionState.get() andNavigate:YES];
+        EXPECT_WK_STREQ([newWebView _test_waitForAlert], "destination");
+        webView = WTF::move(newWebView);
+        navigationDelegate = WTF::move(newNavigationDelegate);
+        break;
+    }
+    }
+
+    childFrame = [webView firstChildFrame];
 
     [webView goBack];
     EXPECT_WK_STREQ("source", [webView _test_waitForAlert]);
@@ -3896,22 +3914,32 @@ static void testNavigateIframeBackForward(NSString *navigationURL, bool restoreS
 
 TEST(SiteIsolation, NavigateIframeSameOriginBackForward)
 {
-    testNavigateIframeBackForward(@"https://webkit.org/destination", false);
+    testNavigateIframeBackForward(@"https://webkit.org/destination", SessionRestoreMethod::None);
 }
 
-TEST(SiteIsolation, DISABLED_NavigateIframeSameOriginBackForwardAfterSessionRestore)
+TEST(SiteIsolation, NavigateIframeSameOriginBackForwardAfterSessionRestore)
 {
-    testNavigateIframeBackForward(@"https://webkit.org/destination", true);
+    testNavigateIframeBackForward(@"https://webkit.org/destination", SessionRestoreMethod::InPlace);
+}
+
+TEST(SiteIsolation, NavigateIframeSameOriginBackForwardAfterSessionRestoreToNewWebView)
+{
+    testNavigateIframeBackForward(@"https://webkit.org/destination", SessionRestoreMethod::NewWebView);
 }
 
 TEST(SiteIsolation, NavigateIframeCrossOriginBackForward)
 {
-    testNavigateIframeBackForward(@"https://apple.com/destination", false);
+    testNavigateIframeBackForward(@"https://apple.com/destination", SessionRestoreMethod::None);
 }
 
-TEST(SiteIsolation, DISABLED_NavigateIframeCrossOriginBackForwardAfterSessionRestore)
+TEST(SiteIsolation, NavigateIframeCrossOriginBackForwardAfterSessionRestore)
 {
-    testNavigateIframeBackForward(@"https://apple.com/destination", true);
+    testNavigateIframeBackForward(@"https://apple.com/destination", SessionRestoreMethod::InPlace);
+}
+
+TEST(SiteIsolation, NavigateIframeCrossOriginBackForwardAfterSessionRestoreToNewWebView)
+{
+    testNavigateIframeBackForward(@"https://apple.com/destination", SessionRestoreMethod::NewWebView);
 }
 
 TEST(SiteIsolation, ValidateSessionRestoreWithoutNavigating)

@@ -60,6 +60,7 @@ static const CFStringRef sessionHistoryEntryTitleKey = CFSTR("SessionHistoryEntr
 static const CFStringRef sessionHistoryEntryOriginalURLKey = CFSTR("SessionHistoryEntryOriginalURL");
 static const CFStringRef sessionHistoryEntryDataKey = CFSTR("SessionHistoryEntryData");
 static const CFStringRef sessionHistoryEntryShouldOpenExternalURLsPolicyKey = CFSTR("SessionHistoryEntryShouldOpenExternalURLsPolicyKey");
+static const CFStringRef sessionHistoryEntryNavigatedFrameIDKey = CFSTR("SessionHistoryEntryNavigatedFrameID");
 
 // Session history entry data.
 const uint32_t sessionHistoryEntryDataVersion = 2;
@@ -432,38 +433,32 @@ static RetainPtr<CFDictionaryRef> encodeSessionHistory(const BackForwardListStat
     size_t totalDataSize = 0;
 
     for (auto& item : backForwardListState.items) {
-        auto url = item->urlString.createCFString();
-        auto title = item->title.createCFString();
-        auto originalURL = item->originalURLString.createCFString();
+        auto& frameState = item.frameState;
+        auto url = frameState->urlString.createCFString();
+        auto title = frameState->title.createCFString();
+        auto originalURL = frameState->originalURLString.createCFString();
 
-        // We allow the first item to be unlimited in size. We refrain from serializing the data for subsequent items if they would cause us to trip over the maximumSessionStateDataSize limit.
-        auto data = totalDataSize <= maximumSessionStateDataSize ? encodeSessionHistoryEntryData(item) : nullptr;
-        if (data) {
-            totalDataSize += CFDataGetLength(data.get());
-            if (totalDataSize > maximumSessionStateDataSize && CFArrayGetCount(entries.get()) > 0)
-                data = nullptr;
-        }
-
-        auto shouldOpenExternalURLsPolicyValue = static_cast<uint64_t>(item->shouldOpenExternalURLsPolicy);
+        auto shouldOpenExternalURLsPolicyValue = static_cast<uint64_t>(frameState->shouldOpenExternalURLsPolicy);
         auto shouldOpenExternalURLsPolicy = adoptCF(CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt64Type, &shouldOpenExternalURLsPolicyValue));
 
-        RetainPtr<CFDictionaryRef> entryDictionary;
+        RetainPtr<CFMutableDictionaryRef> entryDictionary = adoptCF(CFDictionaryCreateMutableCopy(kCFAllocatorDefault, 0, createDictionary({
+            { sessionHistoryEntryURLKey, url.get() },
+            { sessionHistoryEntryTitleKey, title.get() },
+            { sessionHistoryEntryOriginalURLKey, originalURL.get() },
+            { sessionHistoryEntryShouldOpenExternalURLsPolicyKey, shouldOpenExternalURLsPolicy.get() },
+        }).get()));
 
-        if (data) {
-            entryDictionary = createDictionary({
-                { sessionHistoryEntryURLKey, url.get() },
-                { sessionHistoryEntryTitleKey, title.get() },
-                { sessionHistoryEntryOriginalURLKey, originalURL.get() },
-                { sessionHistoryEntryDataKey, data.get() },
-                { sessionHistoryEntryShouldOpenExternalURLsPolicyKey, shouldOpenExternalURLsPolicy.get() },
-            });
-        } else {
-            entryDictionary = createDictionary({
-                { sessionHistoryEntryURLKey, url.get() },
-                { sessionHistoryEntryTitleKey, title.get() },
-                { sessionHistoryEntryOriginalURLKey, originalURL.get() },
-                { sessionHistoryEntryShouldOpenExternalURLsPolicyKey, shouldOpenExternalURLsPolicy.get() },
-            });
+        // We allow the first item to be unlimited in size. We refrain from serializing the data for subsequent items if they would cause us to trip over the maximumSessionStateDataSize limit.
+        if (auto data = totalDataSize <= maximumSessionStateDataSize ? encodeSessionHistoryEntryData(frameState) : nullptr) {
+            totalDataSize += CFDataGetLength(data.get());
+            if (totalDataSize <= maximumSessionStateDataSize || !CFArrayGetCount(entries.get()))
+                CFDictionarySetValue(entryDictionary.get(), sessionHistoryEntryDataKey, data.get());
+        }
+
+        if (item.navigatedFrameID) {
+            auto navigatedFrameIDValue = static_cast<uint64_t>(item.navigatedFrameID->toUInt64());
+            auto navigatedFrameIDNumber = adoptCF(CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt64Type, &navigatedFrameIDValue));
+            CFDictionarySetValue(entryDictionary.get(), sessionHistoryEntryNavigatedFrameIDKey, navigatedFrameIDNumber.get());
         }
 
         CFArrayAppendValue(entries.get(), entryDictionary.get());
@@ -1032,18 +1027,26 @@ static void decodeBackForwardTreeNode(HistoryEntryDataDecoder& decoder, FrameSta
     return true;
 }
 
-[[nodiscard]] static bool decodeSessionHistoryEntries(CFArrayRef entriesArray, Vector<Ref<FrameState>>& entries)
+[[nodiscard]] static bool decodeSessionHistoryEntries(CFArrayRef entriesArray, Vector<BackForwardListItemState>& entries)
 {
     for (CFIndex i = 0, size = CFArrayGetCount(entriesArray); i < size; ++i) {
         RetainPtr entryDictionary = dynamic_cf_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(entriesArray, i));
         if (!entryDictionary)
             return false;
 
-        Ref entry = FrameState::create();
-        if (!decodeSessionHistoryEntry(entryDictionary.get(), entry))
+        Ref frameState = FrameState::create();
+        if (!decodeSessionHistoryEntry(entryDictionary.get(), frameState))
             return false;
 
-        entries.append(WTF::move(entry));
+        std::optional<WebCore::FrameIdentifier> navigatedFrameID;
+        RetainPtr navigatedFrameIDNumber = dynamic_cf_cast<CFNumberRef>(CFDictionaryGetValue(entryDictionary.get(), sessionHistoryEntryNavigatedFrameIDKey));
+        if (navigatedFrameIDNumber) {
+            uint64_t value;
+            CFNumberGetValue(navigatedFrameIDNumber.get(), kCFNumberSInt64Type, &value);
+            navigatedFrameID = WebCore::FrameIdentifier(value);
+        }
+
+        entries.append({ WTF::move(frameState), navigatedFrameID });
     }
 
     return true;

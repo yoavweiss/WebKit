@@ -147,8 +147,15 @@ private:
     Vector<AtomString> m_documentState;
 } SWIFT_SHARED_REFERENCE(refFrameState, derefFrameState);
 
+struct BackForwardListItemState {
+    Ref<FrameState> frameState;
+    std::optional<WebCore::FrameIdentifier> navigatedFrameID;
+
+    bool isEqualForTesting(const BackForwardListItemState&) const;
+};
+
 struct BackForwardListState {
-    Vector<Ref<FrameState>> items;
+    Vector<BackForwardListItemState> items;
     std::optional<uint32_t> currentIndex;
 
     bool isEqualForTesting(const BackForwardListState&) const;

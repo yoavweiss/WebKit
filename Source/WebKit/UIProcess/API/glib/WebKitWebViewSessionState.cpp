@@ -228,9 +228,10 @@ static inline void encodeBackForwardListItemState(GVariantBuilder* sessionBuilde
 
 static inline void encodeBackForwardListState(GVariantBuilder* sessionBuilder, const BackForwardListState& backForwardListState)
 {
+    // FIXME: Encode navigatedFrameID for each item to support site isolation back/forward navigation after session restore.
     g_variant_builder_open(sessionBuilder, G_VARIANT_TYPE("a" BACK_FORWARD_LIST_ITEM_TYPE_STRING_V2));
     for (const auto& item : backForwardListState.items)
-        encodeBackForwardListItemState(sessionBuilder, item);
+        encodeBackForwardListItemState(sessionBuilder, item.frameState);
     g_variant_builder_close(sessionBuilder);
 
     if (backForwardListState.currentIndex)
@@ -375,7 +376,7 @@ static inline void decodeBackForwardListItemStateV1(GVariantIter* backForwardLis
         mainFrameState->title = String::fromUTF8(title);
         decodeFrameState(frameStateVariant, mainFrameState);
         mainFrameState->shouldOpenExternalURLsPolicy = toWebCoreExternalURLsPolicy(shouldOpenExternalURLsPolicy);
-        backForwardListState.items.append(WTF::move(mainFrameState));
+        backForwardListState.items.append({ WTF::move(mainFrameState), std::nullopt });
     }
 }
 
@@ -399,7 +400,7 @@ static inline void decodeBackForwardListItemState(GVariantIter* backForwardListS
         mainFrameState->title = String::fromUTF8(title);
         decodeFrameState(frameStateVariant, mainFrameState);
         mainFrameState->shouldOpenExternalURLsPolicy = toWebCoreExternalURLsPolicy(shouldOpenExternalURLsPolicy);
-        backForwardListState.items.append(WTF::move(mainFrameState));
+        backForwardListState.items.append({ WTF::move(mainFrameState), std::nullopt });
     }
 }
 
