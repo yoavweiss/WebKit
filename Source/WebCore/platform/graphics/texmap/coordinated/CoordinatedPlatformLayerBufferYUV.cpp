@@ -27,6 +27,7 @@
 #include "CoordinatedPlatformLayerBufferYUV.h"
 
 #if USE(COORDINATED_GRAPHICS)
+#include "BitmapTexturePool.h"
 #include "TextureMapper.h"
 
 namespace WebCore {

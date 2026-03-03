@@ -27,7 +27,7 @@
 #include "CoordinatedPlatformLayerBufferExternalOES.h"
 
 #if USE(COORDINATED_GRAPHICS)
-#include "BitmapTexture.h"
+#include "BitmapTexturePool.h"
 #include "PlatformDisplay.h"
 #include "TextureMapper.h"
 #include <wtf/MathExtras.h>
@@ -101,7 +101,7 @@ void CoordinatedPlatformLayerBufferExternalOES::paintToTextureMapper(TextureMapp
     OptionSet<BitmapTexture::Flags> textureFlags { BitmapTexture::Flags::ExternalOESRenderTarget };
     if (m_flags.contains(TextureMapperFlags::ShouldBlend))
         textureFlags.add(BitmapTexture::Flags::SupportsAlpha);
-    auto texture = textureMapper.createTextureForImage(image, textureFlags);
+    auto texture = BitmapTexturePool::singleton().createTextureForImage(image, textureFlags);
     textureMapper.drawTextureExternalOESYUV(texture->id(), m_flags, targetRect, modelViewMatrix, opacity);
     display.destroyEGLImage(image);
 #endif // USE(GSTREAMER) && USE(GBM)

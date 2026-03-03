@@ -28,6 +28,7 @@
 #include "CoordinatedPlatformLayerBufferVideo.h"
 
 #if USE(COORDINATED_GRAPHICS) && ENABLE(VIDEO) && USE(GSTREAMER)
+#include "BitmapTexturePool.h"
 #include "CoordinatedPlatformLayerBufferExternalOES.h"
 #include "CoordinatedPlatformLayerBufferRGB.h"
 #include "CoordinatedPlatformLayerBufferYUV.h"
@@ -220,7 +221,7 @@ void CoordinatedPlatformLayerBufferVideo::paintToTextureMapper(TextureMapper& te
             OptionSet<BitmapTexture::Flags> textureFlags;
             if (GST_VIDEO_INFO_HAS_ALPHA(m_mappedVideoFrame->info()))
                 textureFlags.add(BitmapTexture::Flags::SupportsAlpha);
-            auto texture = textureMapper.acquireTextureFromPool(m_size, textureFlags);
+            auto texture = BitmapTexturePool::singleton().acquireTexture(m_size, textureFlags);
 
             auto* meta = gst_buffer_get_video_gl_texture_upload_meta(m_mappedVideoFrame->get()->buffer);
             if (meta && meta->n_textures == 1) {

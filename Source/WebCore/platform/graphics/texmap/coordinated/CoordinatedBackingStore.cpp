@@ -47,10 +47,10 @@ void CoordinatedBackingStore::updateTile(uint32_t id, const IntRect& sourceRect,
     it->value.addUpdate({ WTF::move(buffer), sourceRect, tileRect, offset });
 }
 
-void CoordinatedBackingStore::processPendingUpdates(TextureMapper& textureMapper)
+void CoordinatedBackingStore::processPendingUpdates()
 {
     for (auto& tile : m_tiles.values())
-        tile.processPendingUpdates(textureMapper);
+        tile.processPendingUpdates();
 }
 
 void CoordinatedBackingStore::resize(const FloatSize& size, float scale)

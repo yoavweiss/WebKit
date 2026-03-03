@@ -21,7 +21,6 @@
 
 #if USE(TEXTURE_MAPPER)
 
-#include "BitmapTexturePool.h"
 #include "ClipStack.h"
 #include "Color.h"
 #include "Damage.h"
@@ -42,7 +41,7 @@
 typedef void *EGLImage;
 
 namespace WebCore {
-
+class BitmapTexture;
 class ClipPath;
 class TextureMapperGLData;
 class TextureMapperGPUBuffer;
@@ -110,11 +109,6 @@ public:
 
     RefPtr<BitmapTexture> applyFilters(RefPtr<BitmapTexture>&, const FilterOperations&, bool defersLastPass);
 
-    WEBCORE_EXPORT Ref<BitmapTexture> acquireTextureFromPool(const IntSize&, OptionSet<BitmapTexture::Flags>);
-#if USE(GBM)
-    WEBCORE_EXPORT Ref<BitmapTexture> createTextureForImage(EGLImage, OptionSet<BitmapTexture::Flags>);
-#endif
-
 #if USE(GRAPHICS_LAYER_WC)
     WEBCORE_EXPORT void releaseUnusedTexturesNow();
 #endif
@@ -153,7 +147,6 @@ private:
 
     void updateProjectionMatrix();
 
-    BitmapTexturePool m_texturePool;
     bool m_isMaskMode { false };
     TransformationMatrix m_patternTransform;
     WrapMode m_wrapMode { WrapMode::Stretch };

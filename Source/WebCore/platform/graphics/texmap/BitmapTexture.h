@@ -80,6 +80,7 @@ public:
     WEBCORE_EXPORT ~BitmapTexture();
 
     const IntSize& size() const { return m_size; };
+    size_t sizeInBytes() const;
     OptionSet<Flags> flags() const { return m_flags; }
     bool isOpaque() const { return !m_flags.contains(Flags::SupportsAlpha); }
 
@@ -94,8 +95,6 @@ public:
 
     void swapTexture(BitmapTexture&);
     void reset(const IntSize&, OptionSet<Flags> = { });
-
-    int numberOfBytes() const { return size().width() * size().height() * 32 >> 3; }
 
     RefPtr<const FilterOperation> filterOperation() const { return m_filterOperation; }
     void setFilterOperation(RefPtr<const FilterOperation>&& filterOperation) { m_filterOperation = WTF::move(filterOperation); }

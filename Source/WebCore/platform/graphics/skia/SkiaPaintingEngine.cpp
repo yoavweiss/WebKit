@@ -73,8 +73,6 @@ static bool canPerformAcceleratedRendering()
 SkiaPaintingEngine::SkiaPaintingEngine()
 {
     if (canPerformAcceleratedRendering()) {
-        m_texturePool = makeUnique<BitmapTexturePool>();
-
         if (auto numberOfGPUThreads = numberOfGPUPaintingThreads())
             m_paintingWorkerPool = WorkerPool::create("SkiaGPUWorker"_s, numberOfGPUThreads);
 
@@ -120,8 +118,7 @@ Ref<CoordinatedTileBuffer> SkiaPaintingEngine::createBuffer(RenderingMode render
         if (!contentsOpaque)
             textureFlags.add(BitmapTexture::Flags::SupportsAlpha);
 
-        ASSERT(m_texturePool);
-        return CoordinatedAcceleratedTileBuffer::create(m_texturePool->acquireTexture(size, textureFlags));
+        return CoordinatedAcceleratedTileBuffer::create(BitmapTexturePool::singleton().acquireTexture(size, textureFlags));
     }
 
     return CoordinatedUnacceleratedTileBuffer::create(size, contentsOpaque ? CoordinatedTileBuffer::NoFlags : CoordinatedTileBuffer::SupportsAlpha);
@@ -129,9 +126,6 @@ Ref<CoordinatedTileBuffer> SkiaPaintingEngine::createBuffer(RenderingMode render
 
 RefPtr<SkiaGPUAtlas> SkiaPaintingEngine::createAtlas(const SkiaImageAtlasLayout& layout, AtlasUploadCondition& uploadCondition)
 {
-    if (!m_texturePool)
-        return { };
-
     const auto& atlasSize = layout.atlasSize();
 
     OptionSet<BitmapTexture::Flags> textureFlags { BitmapTexture::Flags::UseBGRALayout, BitmapTexture::Flags::NearestFiltering, BitmapTexture::Flags::SupportsAlpha };
@@ -146,7 +140,7 @@ RefPtr<SkiaGPUAtlas> SkiaPaintingEngine::createAtlas(const SkiaImageAtlasLayout&
     // Verify the texture actually has DMA-buf backing. BitmapTexture silently
     // falls back to GL if DMA-buf allocation fails, but we must not dispatch
     // GL operations to the upload worker thread (which has no GL context).
-    auto texture = m_texturePool->acquireTexture(atlasSize, textureFlags);
+    auto texture = BitmapTexturePool::singleton().acquireTexture(atlasSize, textureFlags);
     if (!texture->memoryMappedGPUBuffer())
         isDMABufBackedTexture = false;
 

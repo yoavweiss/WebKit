@@ -27,7 +27,7 @@
 #include "CoordinatedPlatformLayerBufferDMABuf.h"
 
 #if USE(COORDINATED_GRAPHICS) && USE(GBM)
-#include "BitmapTexture.h"
+#include "BitmapTexturePool.h"
 #include "CoordinatedPlatformLayerBufferRGB.h"
 #include "CoordinatedPlatformLayerBufferYUV.h"
 #include "DMABufBuffer.h"
@@ -66,7 +66,7 @@ CoordinatedPlatformLayerBufferDMABuf::CoordinatedPlatformLayerBufferDMABuf(Ref<D
 
 CoordinatedPlatformLayerBufferDMABuf::~CoordinatedPlatformLayerBufferDMABuf() = default;
 
-static RefPtr<BitmapTexture> importToTexture(const IntSize& size, const IntSize& subsampling, uint32_t fourcc, const Vector<int>& fds, const Vector<uint32_t>& offsets, const Vector<uint32_t>& strides, uint64_t modifier, OptionSet<BitmapTexture::Flags> textureFlags, TextureMapper& textureMapper)
+static RefPtr<BitmapTexture> importToTexture(const IntSize& size, const IntSize& subsampling, uint32_t fourcc, const Vector<int>& fds, const Vector<uint32_t>& offsets, const Vector<uint32_t>& strides, uint64_t modifier, OptionSet<BitmapTexture::Flags> textureFlags)
 {
     auto& display = PlatformDisplay::sharedDisplay();
     Vector<EGLAttrib> attributes = {
@@ -109,7 +109,7 @@ static RefPtr<BitmapTexture> importToTexture(const IntSize& size, const IntSize&
     if (!image)
         return nullptr;
 
-    auto texture = textureMapper.createTextureForImage(image, textureFlags);
+    auto texture = BitmapTexturePool::singleton().createTextureForImage(image, textureFlags);
     display.destroyEGLImage(image);
     return texture;
 }
@@ -193,7 +193,7 @@ static const HashMap<uint32_t, Vector<YUVPlaneInfo>>& yuvFormatPlaneInfo()
     return yuvFormatsMap;
 }
 
-std::unique_ptr<CoordinatedPlatformLayerBuffer> CoordinatedPlatformLayerBufferDMABuf::importYUV(TextureMapper& textureMapper) const
+std::unique_ptr<CoordinatedPlatformLayerBuffer> CoordinatedPlatformLayerBufferDMABuf::importYUV() const
 {
     OptionSet<BitmapTexture::Flags> textureFlags;
     if (m_flags.contains(TextureMapperFlags::ShouldBlend))
@@ -211,7 +211,7 @@ std::unique_ptr<CoordinatedPlatformLayerBuffer> CoordinatedPlatformLayerBufferDM
     const auto& planeInfo = iter->value;
     for (unsigned i = 0; i < planeInfo.size(); ++i) {
         const auto& plane = planeInfo[i];
-        auto texture = importToTexture(attributes.size, plane.subsampling, plane.fourcc, { attributes.fds[i].value() }, { attributes.offsets[i] }, { attributes.strides[i] }, attributes.modifier, textureFlags, textureMapper);
+        auto texture = importToTexture(attributes.size, plane.subsampling, plane.fourcc, { attributes.fds[i].value() }, { attributes.offsets[i] }, { attributes.strides[i] }, attributes.modifier, textureFlags);
         if (!texture)
             return nullptr;
         textures.append(WTF::move(texture));
@@ -252,11 +252,11 @@ std::unique_ptr<CoordinatedPlatformLayerBuffer> CoordinatedPlatformLayerBufferDM
     return CoordinatedPlatformLayerBufferYUV::create(numberOfPlanes, WTF::move(textures), WTF::move(yuvPlane), WTF::move(yuvPlaneOffset), yuvToRgbColorSpace, transferFunction, m_size, m_flags, nullptr);
 }
 
-std::unique_ptr<CoordinatedPlatformLayerBuffer> CoordinatedPlatformLayerBufferDMABuf::importDMABuf(TextureMapper& textureMapper) const
+std::unique_ptr<CoordinatedPlatformLayerBuffer> CoordinatedPlatformLayerBufferDMABuf::importDMABuf() const
 {
     const auto& attributes = m_dmabuf->attributes();
     if (formatIsYUV(attributes.fourcc))
-        return importYUV(textureMapper);
+        return importYUV();
 
     OptionSet<BitmapTexture::Flags> textureFlags;
     if (m_flags.contains(TextureMapperFlags::ShouldBlend))
@@ -264,7 +264,7 @@ std::unique_ptr<CoordinatedPlatformLayerBuffer> CoordinatedPlatformLayerBufferDM
     Vector<int> fds = attributes.fds.map<Vector<int>>([] (const UnixFileDescriptor& fd) {
         return fd.value();
     });
-    auto texture = importToTexture(attributes.size, { 1, 1 }, attributes.fourcc, fds, attributes.offsets, attributes.strides, attributes.modifier, textureFlags, textureMapper);
+    auto texture = importToTexture(attributes.size, { 1, 1 }, attributes.fourcc, fds, attributes.offsets, attributes.strides, attributes.modifier, textureFlags);
     return texture ? CoordinatedPlatformLayerBufferRGB::create(texture.releaseNonNull(), m_flags, nullptr) : nullptr;
 }
 
@@ -278,7 +278,7 @@ void CoordinatedPlatformLayerBufferDMABuf::paintToTextureMapper(TextureMapper& t
     }
 
     if (!m_dmabuf->buffer())
-        m_dmabuf->setBuffer(importDMABuf(textureMapper));
+        m_dmabuf->setBuffer(importDMABuf());
 
     if (auto* buffer = m_dmabuf->buffer())
         buffer->paintToTextureMapper(textureMapper, targetRect, modelViewMatrix, opacity);

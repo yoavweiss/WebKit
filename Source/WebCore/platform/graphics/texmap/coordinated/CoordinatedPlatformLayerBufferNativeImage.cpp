@@ -27,7 +27,7 @@
 #include "CoordinatedPlatformLayerBufferNativeImage.h"
 
 #if USE(COORDINATED_GRAPHICS)
-#include "BitmapTexture.h"
+#include "BitmapTexturePool.h"
 #include "CoordinatedPlatformLayerBufferRGB.h"
 #include "NativeImage.h"
 #include "TextureMapper.h"
@@ -103,7 +103,7 @@ CoordinatedPlatformLayerBufferNativeImage::~CoordinatedPlatformLayerBufferNative
 #endif
 }
 
-bool CoordinatedPlatformLayerBufferNativeImage::tryEnsureBuffer(TextureMapper& textureMapper)
+bool CoordinatedPlatformLayerBufferNativeImage::tryEnsureBuffer()
 {
     if (m_buffer)
         return true;
@@ -116,7 +116,7 @@ bool CoordinatedPlatformLayerBufferNativeImage::tryEnsureBuffer(TextureMapper& t
     OptionSet<BitmapTexture::Flags> textureFlags;
     if (m_image->hasAlpha())
         textureFlags.add(BitmapTexture::Flags::SupportsAlpha);
-    auto texture = textureMapper.acquireTextureFromPool(m_size, textureFlags);
+    auto texture = BitmapTexturePool::singleton().acquireTexture(m_size, textureFlags);
 
 #if USE(CAIRO)
     auto* surface = m_image->platformImage().get();
@@ -137,7 +137,7 @@ void CoordinatedPlatformLayerBufferNativeImage::paintToTextureMapper(TextureMapp
 {
     waitForContentsIfNeeded();
 
-    if (!tryEnsureBuffer(textureMapper))
+    if (!tryEnsureBuffer())
         return;
 
     m_buffer->paintToTextureMapper(textureMapper, targetRect, modelViewMatrix, opacity);

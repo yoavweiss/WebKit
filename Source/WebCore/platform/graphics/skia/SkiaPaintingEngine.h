@@ -34,7 +34,6 @@
 namespace WebCore {
 
 class AtlasUploadCondition;
-class BitmapTexturePool;
 class CoordinatedTileBuffer;
 class GraphicsContext;
 class GraphicsLayer;
@@ -74,8 +73,6 @@ private:
 
     RefPtr<WorkerPool> m_paintingWorkerPool;
     RefPtr<WorkQueue> m_uploadWorkQueue;
-
-    std::unique_ptr<BitmapTexturePool> m_texturePool;
 };
 
 } // namespace WebCore

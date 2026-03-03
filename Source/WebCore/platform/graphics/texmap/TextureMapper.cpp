@@ -24,7 +24,7 @@
 
 #if USE(TEXTURE_MAPPER)
 
-#include "BitmapTexture.h"
+#include "BitmapTexturePool.h"
 #include "ClipPath.h"
 #include "FilterOperations.h"
 #include "FloatPolygon.h"
@@ -217,25 +217,13 @@ TextureMapper::TextureMapper()
 {
 }
 
-Ref<BitmapTexture> TextureMapper::acquireTextureFromPool(const IntSize& size, OptionSet<BitmapTexture::Flags> flags)
-{
-    return m_texturePool.acquireTexture(size, flags);
-}
-
-#if USE(GBM)
-Ref<BitmapTexture> TextureMapper::createTextureForImage(EGLImage image, OptionSet<BitmapTexture::Flags> flags)
-{
-    return m_texturePool.createTextureForImage(image, flags);
-}
-#endif
-
 #if USE(GRAPHICS_LAYER_WC)
 void TextureMapper::releaseUnusedTexturesNow()
 {
     // GraphicsLayerWC runs TextureMapper in the OpenGL thread of the
     // GPU process that doesn't use RunLoop. RunLoop::Timer doesn't
     // work in the thread.
-    m_texturePool.releaseUnusedTexturesTimerFired();
+    BitmapTexturePool::singleton().releaseUnusedTexturesNow();
 }
 #endif
 
@@ -328,7 +316,7 @@ void TextureMapper::drawNumber(int number, const Color& color, const FloatPoint&
     IntRect sourceRect(IntPoint::zero(), size);
     IntRect targetRect(roundedIntPoint(targetPoint), size);
 
-    auto texture = m_texturePool.acquireTexture(size, { BitmapTexture::Flags::SupportsAlpha });
+    auto texture = BitmapTexturePool::singleton().acquireTexture(size, { BitmapTexture::Flags::SupportsAlpha });
     const unsigned char* bits = cairo_image_surface_get_data(surface);
     int stride = cairo_image_surface_get_stride(surface);
     texture->updateContents(bits, sourceRect, IntPoint::zero(), stride, PixelFormat::BGRA8);
@@ -1050,7 +1038,7 @@ RefPtr<BitmapTexture> TextureMapper::applyBlurFilter(RefPtr<BitmapTexture>& sour
     if (radiusX < MinBlurRadius && radiusY < MinBlurRadius)
         return sourceTexture;
 
-    RefPtr<BitmapTexture> resultTexture = m_texturePool.acquireTexture(textureSize, { BitmapTexture::Flags::SupportsAlpha });
+    RefPtr<BitmapTexture> resultTexture = BitmapTexturePool::singleton().acquireTexture(textureSize, { BitmapTexture::Flags::SupportsAlpha });
     IntSize currentSize = textureSize;
     IntSize targetSize = currentSize;
     Vector<Direction> blurDirections;
@@ -1126,8 +1114,9 @@ RefPtr<BitmapTexture> TextureMapper::applyBlurFilter(RefPtr<BitmapTexture>& sour
 RefPtr<BitmapTexture> TextureMapper::applyDropShadowFilter(RefPtr<BitmapTexture>& sourceTexture, const DropShadowFilterOperation& dropShadowFilter)
 {
     const auto& textureSize = sourceTexture->size();
-    RefPtr<BitmapTexture> resultTexture = m_texturePool.acquireTexture(textureSize, { BitmapTexture::Flags::SupportsAlpha });
-    RefPtr<BitmapTexture> contentTexture = m_texturePool.acquireTexture(textureSize, { BitmapTexture::Flags::SupportsAlpha });
+    auto& texturePool = BitmapTexturePool::singleton();
+    RefPtr<BitmapTexture> resultTexture = texturePool.acquireTexture(textureSize, { BitmapTexture::Flags::SupportsAlpha });
+    RefPtr<BitmapTexture> contentTexture = texturePool.acquireTexture(textureSize, { BitmapTexture::Flags::SupportsAlpha });
     IntSize currentSize = textureSize;
     IntSize targetSize = currentSize;
     float radius = float(dropShadowFilter.stdDeviation());
@@ -1252,7 +1241,7 @@ RefPtr<BitmapTexture> TextureMapper::applySinglePassFilter(RefPtr<BitmapTexture>
         return sourceTexture;
     }
 
-    RefPtr<BitmapTexture> resultTexture = m_texturePool.acquireTexture(sourceTexture->size(), { BitmapTexture::Flags::SupportsAlpha });
+    RefPtr<BitmapTexture> resultTexture = BitmapTexturePool::singleton().acquireTexture(sourceTexture->size(), { BitmapTexture::Flags::SupportsAlpha });
 
     bindSurface(resultTexture.get());
 

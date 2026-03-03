@@ -47,7 +47,6 @@ class CoordinatedPlatformLayerBuffer;
 class CoordinatedTileBuffer;
 class GraphicsLayerCoordinated;
 class NativeImage;
-class TextureMapper;
 class TextureMapperLayer;
 
 #if USE(SKIA)
@@ -184,7 +183,7 @@ public:
     void updateContents(bool affectedByTransformAnimation);
     void updateBackingStore();
 
-    void flushCompositingState(const OptionSet<CompositionReason>&, TextureMapper&);
+    void flushCompositingState(const OptionSet<CompositionReason>&);
 
     bool hasPendingTilesCreation() const { return m_pendingTilesCreation; }
     bool isCompositionRequiredOrOngoing() const;

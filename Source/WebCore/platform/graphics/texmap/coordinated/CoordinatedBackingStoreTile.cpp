@@ -22,10 +22,9 @@
 #include "CoordinatedBackingStoreTile.h"
 
 #if USE(COORDINATED_GRAPHICS)
-#include "BitmapTexture.h"
+#include "BitmapTexturePool.h"
 #include "CoordinatedTileBuffer.h"
 #include "GraphicsLayer.h"
-#include "TextureMapper.h"
 #include <wtf/SystemTracing.h>
 
 #if USE(SKIA)
@@ -46,7 +45,7 @@ void CoordinatedBackingStoreTile::addUpdate(Update&& update)
     m_updates.append(WTF::move(update));
 }
 
-void CoordinatedBackingStoreTile::processPendingUpdates(TextureMapper& textureMapper)
+void CoordinatedBackingStoreTile::processPendingUpdates()
 {
     auto updates = WTF::move(m_updates);
     auto updatesCount = updates.size();
@@ -58,9 +57,6 @@ void CoordinatedBackingStoreTile::processPendingUpdates(TextureMapper& textureMa
         auto& update = updates[updateIndex];
 
         WTFBeginSignpost(this, CoordinatedSwapBuffer, "%u/%zu, rect %ix%i+%i+%i", updateIndex + 1, updatesCount, update.tileRect.x(), update.tileRect.y(), update.tileRect.width(), update.tileRect.height());
-
-        ASSERT(textureMapper.maxTextureSize().width() >= update.tileRect.size().width());
-        ASSERT(textureMapper.maxTextureSize().height() >= update.tileRect.size().height());
 
         FloatRect unscaledTileRect(update.tileRect);
         unscaledTileRect.scale(1. / m_scale);
@@ -82,7 +78,7 @@ void CoordinatedBackingStoreTile::processPendingUpdates(TextureMapper& textureMa
         WTFBeginSignpost(this, AcquireTexture);
         if (!m_texture || unscaledTileRect != m_rect) {
             m_rect = unscaledTileRect;
-            m_texture = textureMapper.acquireTextureFromPool(update.tileRect.size(), flags);
+            m_texture = BitmapTexturePool::singleton().acquireTexture(update.tileRect.size(), flags);
         } else if (update.buffer->supportsAlpha() == m_texture->isOpaque())
             m_texture->reset(update.tileRect.size(), flags);
         WTFEndSignpost(this, AcquireTexture);

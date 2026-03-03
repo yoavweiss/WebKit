@@ -907,7 +907,7 @@ void CoordinatedPlatformLayer::waitUntilPaintingComplete()
         m_backingStoreProxy->waitUntilPaintingComplete();
 }
 
-void CoordinatedPlatformLayer::flushCompositingState(const OptionSet<CompositionReason>& reasons, TextureMapper& textureMapper)
+void CoordinatedPlatformLayer::flushCompositingState(const OptionSet<CompositionReason>& reasons)
 {
     ASSERT(!isMainThread());
     Locker locker { m_lock };
@@ -1091,7 +1091,7 @@ void CoordinatedPlatformLayer::flushCompositingState(const OptionSet<Composition
             for (const auto& tileUpdate : update.tilesToUpdate())
                 m_backingStore->updateTile(tileUpdate.tileID, tileUpdate.dirtyRect, tileUpdate.tileRect, tileUpdate.buffer.copyRef(), { });
 
-            m_backingStore->processPendingUpdates(textureMapper);
+            m_backingStore->processPendingUpdates();
         }
     }
 

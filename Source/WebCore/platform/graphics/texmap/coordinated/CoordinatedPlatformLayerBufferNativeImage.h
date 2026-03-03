@@ -43,7 +43,7 @@ public:
 private:
     void paintToTextureMapper(TextureMapper&, const FloatRect&, const TransformationMatrix& modelViewMatrix = TransformationMatrix(), float opacity = 1.0) override;
 
-    bool tryEnsureBuffer(TextureMapper&);
+    bool tryEnsureBuffer();
 
     RefPtr<NativeImage> m_image;
     std::unique_ptr<CoordinatedPlatformLayerBuffer> m_buffer;
