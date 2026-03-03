@@ -8492,4 +8492,6 @@ webkit.org/b/308658 compositing/geometry/fixed-position-composited-page-scale-sm
 
 webkit.org/b/308667 webanimations/threaded-animations/scroll-timeline-root-scroller.html [ Pass Failure ]
 
-webkit.org/b/308326 imported/w3c/web-platform-tests/fetch/api/basic/error-after-response.any.html [ Pass Failure ]
+webkit.org/b/308849 css3/filters/effect-drop-shadow.html [ Skip ]
+
+imported/w3c/web-platform-tests/html/semantics/embedded-content/the-audio-element/audio-with-replaced-after-pseudo-crash.html [ Skip ] #Timeout
