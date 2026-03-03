@@ -1644,6 +1644,8 @@ void MediaPlayerPrivateAVFoundationObjC::setVolume(float volume)
         return;
     m_volume = volume;
 
+    updateIsAudible();
+
     if (!m_avPlayer)
         return;
 
@@ -2294,6 +2296,8 @@ void MediaPlayerPrivateAVFoundationObjC::updateIsAudible()
     bool isAudible = hasAudio() && !m_muted && m_volume;
     if (m_isAudible == isAudible)
         return;
+
+    ALWAYS_LOG(LOGIDENTIFIER, isAudible);
     m_isAudible = isAudible;
 
     if (!m_avPlayer)
