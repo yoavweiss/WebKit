@@ -982,6 +982,9 @@ static void runGoBackAfterNavigatingSameSiteIframe(ShouldEnablePageCache shouldE
     }).get();
 
     // After initial loading, page has a main frame and a same-site iframe.
+    didCommitLoadForAllFrames = false;
+    expectedCommittedFrameSize = 2;
+    committedFrames.clear();
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/main"]]];
     TestWebKitAPI::Util::run(&didCommitLoadForAllFrames);
     EXPECT_TRUE([committedFrames[0] isMainFrame]);
@@ -1072,6 +1075,9 @@ static void runGoBackAfterNavigatingSameSiteIframe2(ShouldEnablePageCache should
     }).get();
 
     // After initial loading, page has a main frame and a same-site iframe.
+    didCommitLoadForAllFrames = false;
+    expectedCommittedFrameSize = 2;
+    committedFrames.clear();
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/main"]]];
     TestWebKitAPI::Util::run(&didCommitLoadForAllFrames);
     EXPECT_TRUE([committedFrames[0] isMainFrame]);
