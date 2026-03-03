@@ -3103,7 +3103,15 @@ bool CodeBlock::shouldOptimizeNowFromBaseline()
             numberOfSamplesInProfiles, ValueProfile::numberOfBuckets * numberOfNonArgumentValueProfiles());
     }
 
-    if (livenessRate >= Options::desiredProfileLivenessRate() && fullnessRate >= Options::desiredProfileFullnessRate() && static_cast<unsigned>(m_optimizationDelayCounter) + 1 >= Options::minimumOptimizationDelay())
+    double requiredLivenessRate = Options::desiredProfileLivenessRate();
+    double requiredFullnessRate = Options::desiredProfileFullnessRate();
+
+    if (unlinkedCodeBlock()->isQuickDFGTierUp()) {
+        requiredLivenessRate *= Options::relaxedProfileCoverageFactorForQuickDFGTierUp();
+        requiredFullnessRate *= Options::relaxedProfileCoverageFactorForQuickDFGTierUp();
+    }
+
+    if (livenessRate >= requiredLivenessRate && fullnessRate >= requiredFullnessRate && static_cast<unsigned>(m_optimizationDelayCounter) + 1 >= Options::minimumOptimizationDelay())
         return true;
 
 #if ENABLE(DFG_JIT)
