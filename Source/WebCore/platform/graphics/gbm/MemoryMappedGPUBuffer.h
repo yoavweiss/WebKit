@@ -35,7 +35,6 @@
 struct gbm_bo;
 struct gbm_device;
 typedef void* EGLImage;
-typedef intptr_t EGLAttrib;
 
 namespace WebCore {
 
@@ -59,7 +58,7 @@ public:
 
     // Returns the actual allocated buffer size, which may be larger than size()
     // due to GPU alignment requirements (e.g. tiled formats).
-    IntSize allocatedSize() const;
+    const IntSize& allocatedSize() const { return m_allocatedSize; }
 
     const IntSize& size() const { return m_size; }
     const OptionSet<BufferFlag>& flags() const { return m_flags; }
@@ -117,9 +116,10 @@ private:
     };
 
     bool performDMABufSyncSystemCall(OptionSet<DMABufSyncFlag> flags);
-    bool allocate(struct gbm_device*, const GLDisplay::BufferFormat&);
-    bool createDMABufFromGBMBufferObject();
-    UnixFileDescriptor exportGBMBufferObjectAsDMABuf(unsigned planeIndex);
+
+    struct gbm_bo* allocate(struct gbm_device*, const GLDisplay::BufferFormat&);
+    bool createDMABufFromGBMBufferObject(struct gbm_bo*);
+    UnixFileDescriptor exportGBMBufferObjectAsDMABuf(struct gbm_bo*, unsigned planeIndex);
 
     void updateContentsInLinearFormat(const void* srcData, const IntRect& targetRect, unsigned bytesPerLine);
     void updateContentsInVivanteSuperTiledFormat(const void* srcData, const IntRect& targetRect, unsigned bytesPerLine);
@@ -128,14 +128,13 @@ private:
     uint32_t primaryPlaneDmaBufStride() const;
 
     IntSize m_size;
+    IntSize m_allocatedSize;
     OptionSet<BufferFlag> m_flags;
-    struct gbm_bo* m_bo { nullptr };
     uint64_t m_modifier { 0 };
-    Vector<EGLAttrib> m_eglAttributes;
     RefPtr<DMABufBuffer> m_dmaBuf;
 
     void* m_mappedData { nullptr };
-    uint32_t m_mappedLength { 0 };
+    size_t m_mappedLength { 0 };
 };
 
 inline std::unique_ptr<MemoryMappedGPUBuffer::AccessScope> makeGPUBufferReadScope(MemoryMappedGPUBuffer& buffer)
