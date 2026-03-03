@@ -24,6 +24,8 @@
 
 #include "Document.h"
 #include "Element.h"
+#include "Event.h"
+#include "EventNames.h"
 #include "SVGElement.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGUseElement.h"
@@ -160,7 +162,7 @@ void SVGURIReference::dispatchLoadEvent()
     setHaveFiredLoadEvent(true);
     ASSERT(contextElement().haveLoadedRequiredResources());
 
-    contextElement().sendLoadEventIfPossible();
+    protect(contextElement())->dispatchEvent(Event::create(eventNames().loadEvent, Event::CanBubble::No, Event::IsCancelable::No));
 }
 
 }

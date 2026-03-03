@@ -43,7 +43,7 @@ void SVGImageLoader::dispatchLoadEvent()
     if (image()->errorOccurred())
         protect(element())->dispatchEvent(Event::create(eventNames().errorEvent, Event::CanBubble::No, Event::IsCancelable::No));
     else
-        downcast<SVGImageElement>(protect(ImageLoader::element()))->sendLoadEventIfPossible();
+        protect(element())->dispatchEvent(Event::create(eventNames().loadEvent, Event::CanBubble::No, Event::IsCancelable::No));
 }
 
 }
