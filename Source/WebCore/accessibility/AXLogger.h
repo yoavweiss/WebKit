@@ -27,6 +27,7 @@
 
 #include "AXCoreObject.h"
 #include "AXObjectCache.h"
+#include <tuple>
 #include <wtf/MonotonicTime.h>
 #include <wtf/RefPtr.h>
 #include <wtf/Vector.h>
@@ -95,5 +96,42 @@ private:
 
 void streamAXCoreObject(TextStream&, const AXCoreObject&, const OptionSet<AXStreamOptions>&);
 void streamSubtree(TextStream&, const Ref<AXCoreObject>&, const OptionSet<AXStreamOptions>&);
+
+// Converts the following types to strings:
+//  - AXCoreObject& and AXCoreObject*
+//  - RefPtr/Ref AXCoreObject
+//  - WTF::String
+//  - Everything else -> passed through
+template<typename T>
+decltype(auto) convertAXLogArg(T&& arg)
+{
+    if constexpr (std::is_pointer_v<std::remove_cvref_t<T>> && std::derived_from<std::remove_pointer_t<std::remove_cvref_t<T>>, AXCoreObject>)
+        return arg ? arg->debugDescription().utf8() : CString("(null)"_s);
+    else if constexpr (std::derived_from<std::remove_cvref_t<T>, AXCoreObject>)
+        return arg.debugDescription().utf8();
+    else if constexpr (requires { { *arg } -> std::convertible_to<const AXCoreObject&>; })
+        return arg ? arg->debugDescription().utf8() : CString("(null)"_s);
+    else if constexpr (std::same_as<std::remove_cvref_t<T>, String>)
+        return arg.utf8();
+    else
+        return std::forward<T>(arg);
+}
+
+inline const char* extractAXLogArg(const CString& string) { return string.data(); }
+
+template<typename T> requires (!std::same_as<std::remove_cvref_t<T>, CString>)
+decltype(auto) extractAXLogArg(T&& arg) { return std::forward<T>(arg); }
+
+// Used like WTFLogAlways, but auto-converts String and AXCoreObject arguments for use with the %s format specifier.
+template<typename... Args>
+ALWAYS_INLINE void AXLogMessage(const char* format, Args&&... args)
+{
+    auto holder = std::tuple { convertAXLogArg(std::forward<Args>(args))... };
+    std::apply([&](auto&&... held) {
+        ALLOW_NONLITERAL_FORMAT_BEGIN
+        WTFLogAlways(format, extractAXLogArg(std::forward<decltype(held)>(held))...);
+        ALLOW_NONLITERAL_FORMAT_END
+    }, WTF::move(holder));
+}
 
 } // namespace WebCore
