@@ -3497,20 +3497,30 @@ class YarrGenerator final : public YarrJITInfo {
                     if (simdResult) {
                         m_usesSIMD = true;
                         op.m_reentry = simdResult->backtrackTarget;
+
+                        // Scalar loop fell through (out of input). Do not enter the
+                        // body; index would be past length and the body would OOB.
+                        if (!m_pattern.m_body->m_hasFixedSize) {
+                            if (alternative->m_minimumSize) {
+                                m_jit.sub32(m_regs.index, MacroAssembler::Imm32(alternative->m_minimumSize), m_regs.regT0);
+                                setMatchStart(m_regs.regT0);
+                            } else
+                                setMatchStart(m_regs.index);
+                        }
+                        op.m_jumps.append(m_jit.jump());
+
+                        matched.link(&m_jit);
+                        if (!m_pattern.m_body->m_hasFixedSize) {
+                            if (alternative->m_minimumSize) {
+                                m_jit.sub32(m_regs.index, MacroAssembler::Imm32(alternative->m_minimumSize), m_regs.regT0);
+                                setMatchStart(m_regs.regT0);
+                            } else
+                                setMatchStart(m_regs.index);
+                        }
+                        break;
                     }
 
-                    // When SIMD can't run (not enough chars), fall through to pattern matching.
-                    // When SIMD finds a potential match, also continue to pattern matching.
-                    matched.link(&m_jit);
-
-                    // If the pattern size is not fixed, store the start index for use if we match.
-                    if (!m_pattern.m_body->m_hasFixedSize) {
-                        if (alternative->m_minimumSize) {
-                            m_jit.sub32(m_regs.index, MacroAssembler::Imm32(alternative->m_minimumSize), m_regs.regT0);
-                            setMatchStart(m_regs.regT0);
-                        } else
-                            setMatchStart(m_regs.index);
-                    }
+                    ASSERT(matched.empty());
                     break;
                 }
 #endif
@@ -6075,16 +6085,12 @@ class YarrGenerator final : public YarrJITInfo {
         auto scalarLoopHead = m_jit.label();
         MacroAssembler::JumpList failed;
 
-        // Bounds check: need at least (minPatternLength - 1) more characters after current position
-        // Since we load 4 bytes, we need index + baseOffset + 4 <= length (upper bound)
-        // AND index >= -baseOffset (lower bound) when baseOffset is negative
-        int32_t scalarBoundsOffset = 4 + baseOffset;
-        m_jit.add32(MacroAssembler::TrustedImm32(scalarBoundsOffset), m_regs.index, m_regs.regT0);
-        failed.append(m_jit.branch32(MacroAssembler::Above, m_regs.regT0, m_regs.length));
-
-        // Also check lower bound when baseOffset is negative
-        if (baseOffset < 0)
-            failed.append(m_jit.branch32(MacroAssembler::Below, m_regs.index, MacroAssembler::TrustedImm32(-baseOffset)));
+        // Bounds: index <= length keeps the body in range, and also covers
+        // the 4-byte load below since MaskedAlternativeInfo::create guarantees
+        // checkedOffset >= 4. baseOffset (= -checkedOffset) is therefore < 0.
+        ASSERT(baseOffset < 0);
+        failed.append(m_jit.branch32(MacroAssembler::Above, m_regs.index, m_regs.length));
+        failed.append(m_jit.branch32(MacroAssembler::Below, m_regs.index, MacroAssembler::TrustedImm32(-baseOffset)));
 
         // Calculate load address: input + index
         // We incorporate baseOffset into the load address below to save an instruction.
@@ -6113,7 +6119,7 @@ class YarrGenerator final : public YarrJITInfo {
         m_jit.add32(MacroAssembler::TrustedImm32(1), m_regs.index);
         m_jit.jump().linkTo(scalarLoopHead, &m_jit);
 
-        // Not enough characters for scalar pre-filter - fall through to standard regex matching
+        // Scalar loop exhausted. Caller routes this to op.m_jumps.
         failed.link(&m_jit);
 
         // Return both labels:
