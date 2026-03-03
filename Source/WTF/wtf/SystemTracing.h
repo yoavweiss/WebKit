@@ -430,7 +430,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END \
     do { \
         IGNORE_WARNINGS_BEGIN("format-zero-length") \
         if (auto* annotator = SysprofAnnotator::singletonIfCreated()) \
-            annotator->beginMark(pointer, std::span(_STRINGIFY(name)), "" __VA_ARGS__); \
+            annotator->beginMark(reinterpret_cast<const void*>(pointer), std::span(_STRINGIFY(name)), "" __VA_ARGS__); \
         IGNORE_WARNINGS_END \
     } while (0)
 
@@ -438,7 +438,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END \
     do { \
         IGNORE_WARNINGS_BEGIN("format-zero-length") \
         if (auto* annotator = SysprofAnnotator::singletonIfCreated()) \
-            annotator->endMark(pointer, std::span(_STRINGIFY(name)), "" __VA_ARGS__); \
+            annotator->endMark(reinterpret_cast<const void*>(pointer), std::span(_STRINGIFY(name)), "" __VA_ARGS__); \
         IGNORE_WARNINGS_END \
     } while (0)
 
