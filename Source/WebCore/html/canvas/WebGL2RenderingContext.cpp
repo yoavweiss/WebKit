@@ -2462,7 +2462,7 @@ WebGLAny WebGL2RenderingContext::getActiveUniforms(WebGLProgram& program, const 
     }
     case GraphicsContextGL::UNIFORM_SIZE: {
         return uniformIndices.map([&](GCGLuint index) -> GCGLuint {
-            return activeUniforms[index].locations.size();
+            return activeUniforms[index].size;
         });
     }
     case GraphicsContextGL::UNIFORM_BLOCK_INDEX:

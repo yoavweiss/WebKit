@@ -1443,15 +1443,13 @@ Vector<GCGLUniformActiveInfo> GraphicsContextGLANGLE::activeUniforms(PlatformGLO
         name.resize(maxLength); // GL_ACTIVE_UNIFORM_MAX_LENGTH includes nul termination.
         GCGLUniformActiveInfo info;
         GLsizei length = 0;
-        GLint size = 0;
-        GL_GetActiveUniform(program, index, maxLength, &length, &size, &info.type, name.data());
-        if (length < 1 || size < 1) {
+        GL_GetActiveUniform(program, index, maxLength, &length, &info.size, &info.type, name.data());
+        if (length < 1 || info.size < 1) {
             ASSERT_NOT_REACHED();
             return { };
         }
         name.resize(length);
         info.name = name;
-        info.locations.append(GL_GetUniformLocation(program, name.data()));
         if (m_isForWebGL2) {
             GL_GetActiveUniformsiv(program, 1, &index, GL_UNIFORM_BLOCK_INDEX, &info.blockIndex);
             GL_GetActiveUniformsiv(program, 1, &index, GL_UNIFORM_OFFSET, &info.offset);
@@ -1459,15 +1457,18 @@ Vector<GCGLUniformActiveInfo> GraphicsContextGLANGLE::activeUniforms(PlatformGLO
             GL_GetActiveUniformsiv(program, 1, &index, GL_UNIFORM_MATRIX_STRIDE, &info.matrixStride);
             GL_GetActiveUniformsiv(program, 1, &index, GL_UNIFORM_IS_ROW_MAJOR, &info.isRowMajor);
         }
-        if (size > 1) {
-            if (!name.ends_with("[0]")) {
-                ASSERT_NOT_REACHED();
-                return { };
-            }
-            name.resize(name.length() - 3);
-            for (GLint arrayIndex = 1; arrayIndex < size; ++arrayIndex) {
-                auto elementName = (std::ostringstream() << name << '[' << arrayIndex << ']').str();
-                info.locations.append(GL_GetUniformLocation(program, elementName.data()));
+        if (info.blockIndex == -1) {
+            info.locations.append(GL_GetUniformLocation(program, name.data()));
+            if (info.size > 1) {
+                if (!name.ends_with("[0]")) {
+                    ASSERT_NOT_REACHED();
+                    return { };
+                }
+                name.resize(name.length() - 3);
+                for (GLint arrayIndex = 1; arrayIndex < info.size; ++arrayIndex) {
+                    auto elementName = (std::ostringstream() << name << '[' << arrayIndex << ']').str();
+                    info.locations.append(GL_GetUniformLocation(program, elementName.data()));
+                }
             }
         }
         result.append(WTF::move(info));

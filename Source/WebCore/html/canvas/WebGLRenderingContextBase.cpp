@@ -1796,7 +1796,7 @@ RefPtr<WebGLActiveInfo> WebGLRenderingContextBase::getActiveUniform(WebGLProgram
         return nullptr;
     }
     auto& info = activeUniforms[index];
-    return WebGLActiveInfo::create(String::fromUTF8(info.name.span()), info.type, info.locations.size());
+    return WebGLActiveInfo::create(String::fromUTF8(info.name.span()), info.type, info.size);
 }
 
 std::optional<Vector<Ref<WebGLShader>>> WebGLRenderingContextBase::getAttachedShaders(WebGLProgram& program)
