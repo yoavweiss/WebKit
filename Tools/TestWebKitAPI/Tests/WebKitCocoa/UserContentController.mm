@@ -1401,6 +1401,31 @@ TEST(WKUserContentController, BeforeBlurEvent)
     EXPECT_WK_STREQ([webView _test_waitForAlert], "blur-pass");
 }
 
+TEST(WKUserContentController, FocusedElementRemovedEvent)
+{
+    RetainPtr webView = adoptNS([TestWKWebView new]);
+    RetainPtr configuration = adoptNS([WKContentWorldConfiguration new]);
+    configuration.get().autofillScriptingEnabled = YES;
+    RetainPtr autofillWorld = [WKContentWorld worldWithConfiguration:configuration.get()];
+    NSString *pageWorldJS = @"document.querySelector('input').addEventListener('webkitfocusedelementdisconnected', () => alert('fail') )";
+    NSString *autofillWorldJS = @"document.querySelector('input').addEventListener('webkitfocusedelementdisconnected', () => { setTimeout(() => alert('pass'), 50); })";
+    RetainPtr pageWorldScript = adoptNS([[WKUserScript alloc] initWithSource:pageWorldJS injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:YES]);
+    RetainPtr autofillWorldScript = adoptNS([[WKUserScript alloc] initWithSource:autofillWorldJS injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:YES inContentWorld:autofillWorld.get()]);
+    RetainPtr<WKUserContentController> userContentController = [webView configuration].userContentController;
+    [userContentController addUserScript:pageWorldScript.get()];
+    [userContentController addUserScript:autofillWorldScript.get()];
+
+    [webView synchronouslyLoadHTMLString:@"<!DOCTYPE html><input><script>document.querySelector('input').focus()</script>"];
+
+    [webView waitForNextPresentationUpdate];
+
+    [webView objectByEvaluatingJavaScript:@"document.querySelector('input').remove();"];
+
+    [webView waitForNextPresentationUpdate];
+
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "pass");
+}
+
 #if WK_HAVE_C_SPI
 
 TEST(WKUserContentController, DisableAutofillSpellcheck)

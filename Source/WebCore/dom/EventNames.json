@@ -308,6 +308,7 @@
     "webkitbeginfullscreen": { },
     "webkitcurrentplaybacktargetiswirelesschanged": { },
     "webkitendfullscreen": { },
+    "webkitfocusedelementdisconnected": { },
     "webkitfullscreenchange": { },
     "webkitfullscreenerror": { },
     "webkitkeyadded": { },

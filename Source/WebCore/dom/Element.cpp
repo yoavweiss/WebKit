@@ -4322,6 +4322,15 @@ void Element::dispatchBlurEvent(RefPtr<Element>&& newFocusedElement)
         page->chrome().client().elementDidBlur(*this);
 }
 
+void Element::enqueueFocusedElementDisconnectedEvent()
+{
+    document().eventLoop().queueTask(TaskSource::DOMManipulation, [element = GCReachableRef { *this }] {
+        Ref event = FocusEvent::create(eventNames().webkitfocusedelementdisconnectedEvent, Event::CanBubble::No, Event::IsCancelable::No, element->document().windowProxy(), 0, nullptr);
+        event->setIsAutofillEvent();
+        element->dispatchEvent(event);
+    });
+}
+
 void Element::dispatchWebKitImageReadyEventForTesting()
 {
     if (document().settings().webkitImageReadyEventEnabled())
