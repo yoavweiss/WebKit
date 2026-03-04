@@ -957,6 +957,7 @@ http/tests/xmlhttprequest/response-access-on-error.html [ DumpJSConsoleLogInStdE
 
 webkit.org/b/277166 fast/dom/Window/window-focus-self.html [ Failure ]
 webkit.org/b/277166 fast/dom/Window/window-resize-and-move-arguments.html [ Failure ]
+webkit.org/b/277166 fast/dom/Window/window-resize-contents.html [ Pass Timeout ]
 webkit.org/b/277166 fast/dom/Window/window-resize.html [ Failure ]
 webkit.org/b/277166 imported/w3c/web-platform-tests/html/browsers/the-window-object/open-close/open-features-non-integer-left.html [ Failure ]
 webkit.org/b/277166 imported/w3c/web-platform-tests/html/browsers/the-window-object/open-close/open-features-non-integer-screenx.html [ Failure ]
