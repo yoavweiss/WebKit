@@ -134,6 +134,7 @@ webkit.org/b/306021 webrtc/peer-connection-audio-unmute.html [ Pass Failure ]
 webkit.org/b/235885 webrtc/audio-peer-connection-webaudio.html [ Pass Failure ]
 webkit.org/b/308372 webrtc/video-vp8-videorange.html [ Pass Timeout ]
 webkit.org/b/308373 webrtc/encoded-streams-quirks.html [ Pass Timeout ]
+webkit.org/b/308362 [ Debug ] webrtc/processIceTransportStateChange-gc.html [ Pass Crash ]
 
 webkit.org/b/305553 fast/selectors/selection-window-inactive-stroke-color.html [ ImageOnlyFailure ]
 
