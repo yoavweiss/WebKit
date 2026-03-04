@@ -76,7 +76,7 @@ private:
 
     // MediaPlayerPrivateInterface
     constexpr MediaPlayerType mediaPlayerType() const final { return MediaPlayerType::WirelessPlayback; }
-    void load(const String&) final;
+    void load(const URL&, const LoadOptions&) final;
 #if ENABLE(MEDIA_SOURCE)
     void load(const URL&, const LoadOptions&, MediaSourcePrivateClient&) final { }
 #endif
@@ -119,6 +119,7 @@ private:
     void setVolume(float) final { }
     float volume() const final { return 0; }
     void setMuted(bool) final { }
+    String engineDescription() const final;
 
     // MediaDeviceRouteClient
     void timeRangeDidChange(MediaDeviceRoute&) final;
@@ -134,6 +135,8 @@ private:
     uint64_t logIdentifier() const final { return m_logIdentifier; }
 #endif
 
+    enum class ShouldPlayToTarget : uint8_t { Unknown, No, Yes };
+
     ThreadSafeWeakPtr<MediaPlayer> m_player;
     PlatformTimeRanges m_buffered;
     URL m_url;
@@ -141,7 +144,7 @@ private:
     MediaPlayer::ReadyState m_readyState { MediaPlayer::ReadyState::HaveNothing };
     bool m_didLoadingProgress { false };
     bool m_allowsWirelessVideoPlayback { true };
-    bool m_shouldPlayToTarget { false };
+    ShouldPlayToTarget m_shouldPlayToTarget { ShouldPlayToTarget::Unknown };
     RefPtr<MediaPlaybackTarget> m_playbackTarget;
     MediaPlayer::CurrentTimeDidChangeCallback m_currentTimeDidChangeCallback;
     std::optional<SeekTarget> m_pendingSeekTarget;

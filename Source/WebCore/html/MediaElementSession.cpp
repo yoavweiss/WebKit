@@ -1109,8 +1109,7 @@ void MediaElementSession::mediaEngineUpdated()
         setWirelessVideoPlaybackDisabled(true);
     if (m_playbackTarget)
         client().setWirelessPlaybackTarget(*m_playbackTarget.copyRef());
-    if (m_shouldPlayToPlaybackTarget)
-        client().setShouldPlayToPlaybackTarget(true);
+    client().setShouldPlayToPlaybackTarget(m_shouldPlayToPlaybackTarget);
 #endif
 
 }

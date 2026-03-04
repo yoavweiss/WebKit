@@ -88,17 +88,16 @@ static bool supportsURL(const URL& url)
     return url.protocolIsInHTTPFamily();
 }
 
-void MediaPlayerPrivateWirelessPlayback::load(const String& urlString)
+void MediaPlayerPrivateWirelessPlayback::load(const URL& url, const LoadOptions&)
 {
     ALWAYS_LOG(LOGIDENTIFIER);
 
-    URL url { urlString };
     if (!supportsURL(url)) {
         setNetworkState(MediaPlayer::NetworkState::FormatError);
         return;
     }
 
-    m_url = WTF::move(url);
+    m_url = url;
     updateURLIfNeeded();
 }
 
@@ -144,7 +143,7 @@ OptionSet<MediaPlaybackTargetType> MediaPlayerPrivateWirelessPlayback::supported
 bool MediaPlayerPrivateWirelessPlayback::isCurrentPlaybackTargetWireless() const
 {
     if (RefPtr playbackTarget = m_playbackTarget)
-        return m_shouldPlayToTarget && playbackTarget->hasActiveRoute();
+        return m_shouldPlayToTarget == ShouldPlayToTarget::Yes && playbackTarget->hasActiveRoute();
     return false;
 }
 
@@ -169,17 +168,24 @@ void MediaPlayerPrivateWirelessPlayback::setWirelessPlaybackTarget(Ref<MediaPlay
     setNetworkState(MediaPlayer::NetworkState::FormatError);
 }
 
-void MediaPlayerPrivateWirelessPlayback::setShouldPlayToPlaybackTarget(bool shouldPlayToTarget)
+void MediaPlayerPrivateWirelessPlayback::setShouldPlayToPlaybackTarget(bool shouldPlay)
 {
+    auto shouldPlayToTarget = shouldPlay ? ShouldPlayToTarget::Yes : ShouldPlayToTarget::No;
     if (shouldPlayToTarget == m_shouldPlayToTarget)
         return;
 
     ALWAYS_LOG(LOGIDENTIFIER, shouldPlayToTarget);
     m_shouldPlayToTarget = shouldPlayToTarget;
+
+    if (!isCurrentPlaybackTargetWireless()) {
+        setNetworkState(MediaPlayer::NetworkState::FormatError);
+        return;
+    }
+
     updateURLIfNeeded();
 
     if (RefPtr player = m_player.get())
-        player->currentPlaybackTargetIsWirelessChanged(isCurrentPlaybackTargetWireless());
+        player->currentPlaybackTargetIsWirelessChanged(true);
 }
 
 MediaPlaybackTargetWirelessPlayback* MediaPlayerPrivateWirelessPlayback::wirelessPlaybackTarget() const
@@ -197,7 +203,7 @@ MediaDeviceRoute* MediaPlayerPrivateWirelessPlayback::route() const
 void MediaPlayerPrivateWirelessPlayback::updateURLIfNeeded()
 {
     RefPtr route = this->route();
-    if (!route || !m_shouldPlayToTarget || networkState() >= MediaPlayer::NetworkState::Loading)
+    if (!route || m_shouldPlayToTarget != ShouldPlayToTarget::Yes || networkState() >= MediaPlayer::NetworkState::Loading)
         return;
 
     ALWAYS_LOG(LOGIDENTIFIER);
@@ -343,6 +349,12 @@ void MediaPlayerPrivateWirelessPlayback::setReadyState(MediaPlayer::ReadyState r
     m_readyState = readyState;
     if (RefPtr player = m_player.get())
         player->readyStateChanged();
+}
+
+String MediaPlayerPrivateWirelessPlayback::engineDescription() const
+{
+    static NeverDestroyed<String> description(MAKE_STATIC_STRING_IMPL("Cocoa Wireless Playback Engine"));
+    return description;
 }
 
 void MediaPlayerPrivateWirelessPlayback::timeRangeDidChange(MediaDeviceRoute& route)
