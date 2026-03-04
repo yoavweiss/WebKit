@@ -158,11 +158,6 @@ NavigationAction NavigationAction::copyWithShouldOpenExternalURLsPolicy(ShouldOp
     return result;
 }
 
-void NavigationAction::setTargetBackForwardItem(HistoryItem& item)
-{
-    m_targetBackForwardItemIdentifier = item.itemID();
-}
-
 void NavigationAction::setSourceBackForwardItem(HistoryItem* item)
 {
     m_sourceBackForwardItemIdentifier = item ? std::make_optional(item->itemID()) : std::nullopt;

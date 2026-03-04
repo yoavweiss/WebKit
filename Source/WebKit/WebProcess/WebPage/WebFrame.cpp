@@ -45,6 +45,7 @@
 #include "NetworkProcessConnection.h"
 #include "PluginView.h"
 #include "ProvisionalFrameCreationParameters.h"
+#include "SessionStateConversion.h"
 #include "WKAPICast.h"
 #include "WKBundleAPICast.h"
 #include "WebChromeClient.h"
@@ -52,8 +53,10 @@
 #include "WebEventConversion.h"
 #include "WebEventFactory.h"
 #include "WebFrameProxyMessages.h"
+#include "WebHistoryItemClient.h"
 #include "WebImage.h"
 #include "WebKeyboardEvent.h"
+#include "WebLocalFrameLoaderClient.h"
 #include "WebPage.h"
 #include "WebPageProxyMessages.h"
 #include "WebProcess.h"
@@ -616,6 +619,11 @@ void WebFrame::didReceivePolicyDecision(uint64_t listenerID, PolicyDecision&& po
             documentLoader->setNavigationID(*policyDecision.navigationID);
     }
 
+    if (policyDecision.backForwardFrameState) {
+        RELEASE_LOG(Loading, "didReceivePolicyDecision: Received FrameState for child frame, URL=%" SENSITIVE_LOG_STRING, policyDecision.backForwardFrameState->urlString.utf8().data());
+        setHistoryItemForBackForwardNavigation(protect(*policyDecision.backForwardFrameState));
+    }
+
     if (policyDecision.policyAction == PolicyAction::Use && policyDecision.sandboxExtensionHandle) {
         if (RefPtr page = this->page()) {
             Ref mainWebFrame = page->mainWebFrame();
@@ -624,6 +632,22 @@ void WebFrame::didReceivePolicyDecision(uint64_t listenerID, PolicyDecision&& po
     }
 
     function(policyDecision.policyAction);
+}
+
+void WebFrame::setHistoryItemForBackForwardNavigation(const FrameState& frameState)
+{
+    RefPtr page = m_page.get();
+    RefPtr localFrame = dynamicDowncast<LocalFrame>(m_coreFrame.get());
+    if (!localFrame || !page)
+        return;
+
+    // Build HistoryItem from FrameState
+    Ref historyItemClient = page->historyItemClient();
+    auto ignoreHistoryItemChangesForScope = historyItemClient->ignoreChangesForScope();
+    Ref historyItem = toHistoryItem(historyItemClient, protect(frameState));
+
+    Ref frameLoader = localFrame->loader();
+    frameLoader->setRequestedHistoryItem(historyItem);
 }
 
 void WebFrame::startDownload(const WebCore::ResourceRequest& request, const String& suggestedName, FromDownloadAttribute fromDownloadAttribute)

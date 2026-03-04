@@ -32,6 +32,7 @@
 #include "MessageSenderInlines.h"
 #include "NavigationActionData.h"
 #include "WebFrame.h"
+#include "WebLocalFrameLoaderClient.h"
 #include "WebMouseEvent.h"
 #include "WebPage.h"
 #include "WebPageProxyMessages.h"

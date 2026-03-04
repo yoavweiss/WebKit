@@ -59,6 +59,7 @@ public:
     Ref<WebBackForwardListFrameItem> rootFrame();
     Ref<WebBackForwardListFrameItem> mainFrame();
     WebBackForwardListFrameItem* NODELETE childItemForFrameID(WebCore::FrameIdentifier);
+    WebBackForwardListFrameItem* NODELETE childItemAtIndex(uint64_t);
 
     WebBackForwardListItem* backForwardListItem() const;
 

@@ -314,6 +314,8 @@ private:
 
     CheckedRef<FrameInspectorTarget> ensureInspectorTarget();
 
+    void setHistoryItemForBackForwardNavigation(const FrameState&);
+
     WeakPtr<WebCore::Frame> m_coreFrame;
     WeakPtr<WebPage> m_page;
     RefPtr<WebCore::LocalFrame> m_provisionalFrame;

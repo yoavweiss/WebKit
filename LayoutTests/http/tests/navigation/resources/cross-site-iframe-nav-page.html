@@ -4,7 +4,7 @@
 <script src="navigation-utils.js"></script>
 <script>
 
-const page = location.hostname === sameSiteHostname ? "samesite" : "crosssite";
+const page = location.hostname === loopbackAddress ? "samesite" : "crosssite";
 
 window.onload = () => sendMessageToTop("load");
 window.onpageshow = ()=> sendMessageToTop("pageshow", event.persisted ? "persisted" : "not-persisted");
@@ -13,8 +13,5 @@ window.onpageshow = ()=> sendMessageToTop("pageshow", event.persisted ? "persist
 </head>
 <body>
 <h1>Iframe Page</h1>
-<script>
-document.getElementById("host").textContent = location.hostname + ":" + location.port;
-</script>
 </body>
 </html>

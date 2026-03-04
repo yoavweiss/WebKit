@@ -8491,8 +8491,37 @@ static bool NODELETE frameSandboxAllowsOpeningExternalCustomProtocols(SandboxFla
 }
 #endif
 
-void WebPageProxy::decidePolicyForNavigationAction(Ref<WebProcessProxy>&& process, WebFrameProxy& frame, NavigationActionData&& navigationActionData, CompletionHandler<void(PolicyDecision&&)>&& completionHandler)
+RefPtr<FrameState> WebPageProxy::frameStateForBackForwardChildFrame(WebFrameProxy& frame, WebCore::BackForwardItemIdentifier targetBackForwardItemIdentifier)
 {
+    auto index = frame.indexInFrameTreeSiblings();
+    if (!index)
+        return nullptr;
+
+    return backForwardList().findFrameStateInItem(targetBackForwardItemIdentifier, frame.parentFrame()->frameID(), *index);
+}
+
+void WebPageProxy::decidePolicyForNavigationAction(Ref<WebProcessProxy>&& process, WebFrameProxy& frame, NavigationActionData&& navigationActionData, CompletionHandler<void(PolicyDecision&&)>&& originalCompletionHandler)
+{
+    RefPtr<FrameState> frameStateForBackForwardNavigation;
+    if (protect(preferences())->useUIProcessForBackForwardItemLoading() && navigationActionData.navigationType == WebCore::NavigationType::BackForward && navigationActionData.targetBackForwardItemIdentifier) {
+        if (RefPtr frameState = frameStateForBackForwardChildFrame(frame, *navigationActionData.targetBackForwardItemIdentifier)) {
+            WEBPAGEPROXY_RELEASE_LOG(Loading, "frameStateForBackForwardChildFrame: Back/Forward child frame, rewriting URL to %" SENSITIVE_LOG_STRING, frameState->urlString.utf8().data());
+            navigationActionData.request.setURL(URL { frameState->urlString });
+
+            frameStateForBackForwardNavigation = WTF::move(frameState);
+        }
+    }
+
+    // Wrap completionHandler to include FrameState in response.
+    auto completionHandler = [
+        originalCompletionHandler = WTF::move(originalCompletionHandler),
+        frameStateForBackForwardNavigation = WTF::move(frameStateForBackForwardNavigation)
+    ](PolicyDecision&& policyDecision) mutable {
+        if (frameStateForBackForwardNavigation && (policyDecision.policyAction == PolicyAction::Use))
+            policyDecision.backForwardFrameState = WTF::move(frameStateForBackForwardNavigation);
+        originalCompletionHandler(WTF::move(policyDecision));
+    };
+
     auto frameInfo = navigationActionData.frameInfo;
     auto navigationID = navigationActionData.navigationID;
     auto originatingFrameInfoData = navigationActionData.originatingFrameInfoData;

@@ -757,6 +757,23 @@ void WebBackForwardList::backForwardListCounts(CompletionHandler<void(WebBackFor
     completionHandler(counts());
 }
 
+FrameState* WebBackForwardList::findFrameStateInItem(WebCore::BackForwardItemIdentifier itemID, WebCore::FrameIdentifier parentFrameID, uint64_t childFrameIndex)
+{
+    RefPtr targetItem = itemForID(itemID);
+    if (!targetItem)
+        return nullptr;
+
+    RefPtr parentFrameItem = protect(targetItem->mainFrameItem())->childItemForFrameID(parentFrameID);
+    if (!parentFrameItem)
+        return nullptr;
+
+    RefPtr childFrameItem = parentFrameItem->childItemAtIndex(childFrameIndex);
+    if (!childFrameItem)
+        return nullptr;
+
+    return &childFrameItem->frameState();
+}
+
 String WebBackForwardList::loggingString()
 {
     StringBuilder builder;

@@ -227,6 +227,7 @@ public:
     WebFrameProxy* parentFrame() const { return m_parentFrame; }
     Ref<WebFrameProxy> rootFrame();
     RefPtr<WebFrameProxy> childFrame(uint64_t index) const;
+    std::optional<uint64_t> indexInFrameTreeSiblings() const;
 
     WebProcessProxy& NODELETE process() const;
     void setProcess(FrameProcess&);

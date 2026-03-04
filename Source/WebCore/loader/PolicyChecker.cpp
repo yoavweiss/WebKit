@@ -335,6 +335,11 @@ void PolicyChecker::checkNavigationPolicy(ResourceRequest&& request, const Resou
         // We ignore the response from the client for initial empty document loads and proceed with the load synchronously.
         frameLoader->client().dispatchDecidePolicyForNavigationAction(action, request, redirectResponse, formState.get(), clientRedirectSourceForHistory, navigationID, hitTestResult(action), hasOpener, frameLoader->navigationUpgradeToHTTPSBehavior(), sandboxFlags, policyDecisionMode, [](PolicyAction) { });
         decisionHandler(PolicyAction::Use);
+    } else if (action.policyAlreadyDecided() == PolicyAlreadyDecided::Yes) {
+        // UIProcess already made the policy decision, skip IPC.
+        // We still run local security checks (CSP, etc.) above, but skip the IPC roundtrip.
+        POLICYCHECKER_RELEASE_LOG("checkNavigationPolicy: skipping UIProcess IPC (already decided)");
+        decisionHandler(PolicyAction::Use);
     } else
         frameLoader->client().dispatchDecidePolicyForNavigationAction(action, request, redirectResponse, formState.get(), clientRedirectSourceForHistory, navigationID, hitTestResult(action), hasOpener, frameLoader->navigationUpgradeToHTTPSBehavior(), sandboxFlags, policyDecisionMode, WTF::move(decisionHandler));
 }

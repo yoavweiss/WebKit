@@ -206,6 +206,8 @@ public:
     virtual void dispatchWillSendSubmitEvent(Ref<FormState>&&) = 0;
     virtual void dispatchWillSubmitForm(FormState&, URL&& requestURL, String&& method, CompletionHandler<void()>&&) = 0;
 
+    virtual void dispatchBackForwardItemLoading(const URL&, const String& referer, LocalFrame& childFrame);
+
     virtual void revertToProvisionalState(DocumentLoader*) = 0;
     virtual void setMainDocumentError(DocumentLoader*, const ResourceError&) = 0;
 

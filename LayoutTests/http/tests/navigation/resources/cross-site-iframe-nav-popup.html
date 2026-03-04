@@ -12,7 +12,7 @@ window.onpageshow = ()=> sendMessageToOpener("pageshow", event.persisted ? "pers
 
 window.onmessage = (event) => dispatchMessage(event.data, {
     opener: {
-        'navigate-to-cross-site': () => navigateIframeTo(`http://${crossSiteHostname}:8000/navigation/resources/cross-site-iframe-nav-page.html`),
+        'navigate-to-cross-site': () => navigateIframeTo(crossSiteUrl('cross-site-iframe-nav-page.html')),
         'navigate-to-other': () => navigateTo("cross-site-iframe-nav-other.html"),
         back2: () => history.back(),
     },

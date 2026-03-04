@@ -26,6 +26,7 @@
 #pragma once
 
 #include <WebCore/AdvancedPrivacyProtections.h>
+#include <WebCore/BackForwardItemIdentifier.h>
 #include <WebCore/Element.h>
 #include <WebCore/FrameLoaderTypes.h>
 #include <WebCore/ReferrerPolicy.h>
@@ -79,6 +80,9 @@ public:
     bool isFromNavigationAPI() const { return m_isFromNavigationAPI; }
     void setIsFromNavigationAPI(bool isFromNavigationAPI) { m_isFromNavigationAPI = isFromNavigationAPI; }
 
+    const std::optional<BackForwardItemIdentifier>& targetBackForwardItemIdentifier() const { return m_targetBackForwardItemIdentifier; }
+    void setTargetBackForwardItemIdentifier(BackForwardItemIdentifier itemID) { m_targetBackForwardItemIdentifier = itemID; }
+
 protected:
     FrameLoadRequestBase() = default;
     FrameLoadRequestBase(const FrameLoadRequestBase&) = default;
@@ -99,6 +103,7 @@ private:
     AtomString m_downloadAttribute;
     RefPtr<Element> m_sourceElement;
     InitiatedByMainFrame m_initiatedByMainFrame { InitiatedByMainFrame::Unknown };
+    std::optional<BackForwardItemIdentifier> m_targetBackForwardItemIdentifier;
     bool m_isRequestFromClientOrUserInput { false };
     bool m_isInitialFrameSrcLoad { false };
     bool m_isContentRuleListRedirect { false };

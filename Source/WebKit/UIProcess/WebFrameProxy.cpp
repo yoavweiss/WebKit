@@ -847,6 +847,21 @@ RefPtr<WebFrameProxy> WebFrameProxy::childFrame(uint64_t index) const
     return child;
 }
 
+std::optional<uint64_t> WebFrameProxy::indexInFrameTreeSiblings() const
+{
+    RefPtr parent = m_parentFrame.get();
+    if (!parent)
+        return std::nullopt;
+    uint64_t index = 0;
+    for (auto& child : parent->m_childFrames) {
+        if (child.ptr() == this)
+            return index;
+        index++;
+    }
+    ASSERT_NOT_REACHED("This frame should be in its parent's child frames");
+    return std::nullopt;
+}
+
 void WebFrameProxy::updateOpener(std::optional<WebCore::FrameIdentifier> newOpener)
 {
     RefPtr previousOpener = m_opener.get();
