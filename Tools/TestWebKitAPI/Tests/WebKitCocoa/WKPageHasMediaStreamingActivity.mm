@@ -88,11 +88,7 @@ TEST(WebKit, MSEHasMediaStreamingActivity)
 
 // FIXME when webkit.org/b/306970 is resolved.
 #if ENABLE(MEDIA_SOURCE)
-#if PLATFORM(MAC) && !defined(NDEBUG) && __MAC_OS_X_VERSION_MIN_REQUIRED >= 260000
-TEST(WebKit, DISABLED_ManagedMSEHasMediaStreamingActivity)
-#else
 TEST(WebKit, ManagedMSEHasMediaStreamingActivity)
-#endif
 {
     auto configuration = adoptNS([WKWebViewConfiguration new]);
     [[configuration preferences] _setManagedMediaSourceEnabled:YES];
