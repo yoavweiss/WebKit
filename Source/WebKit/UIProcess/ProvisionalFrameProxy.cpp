@@ -31,6 +31,7 @@
 #include "VisitedLinkStore.h"
 #include "WebFrameMessages.h"
 #include "WebFrameProxy.h"
+#include "WebPageInspectorController.h"
 #include "WebPageProxy.h"
 #include "WebProcessProxy.h"
 #include <wtf/TZoneMallocInlines.h>
@@ -54,6 +55,9 @@ ProvisionalFrameProxy::~ProvisionalFrameProxy()
 {
     if (!m_frameProcess)
         return;
+
+    if (RefPtr page = protect(m_frame)->page())
+        page->inspectorController().willDestroyProvisionalFrame(*this);
 
     Ref frame = m_frame.get();
     Ref process = this->process();

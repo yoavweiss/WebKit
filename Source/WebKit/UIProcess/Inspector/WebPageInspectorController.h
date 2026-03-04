@@ -82,6 +82,9 @@ public:
     void didCommitProvisionalPage(WebCore::PageIdentifier oldWebPageID, WebCore::PageIdentifier newWebPageID);
     void didCreateFrame(WebFrameProxy&);
     void willDestroyFrame(const WebFrameProxy&);
+    void didCreateProvisionalFrame(ProvisionalFrameProxy&);
+    void willDestroyProvisionalFrame(const ProvisionalFrameProxy&);
+    void didCommitProvisionalFrame(WebFrameProxy&, WebCore::ProcessIdentifier oldProcessID, WebCore::ProcessIdentifier newProcessID);
 
     InspectorBrowserAgent* NODELETE enabledBrowserAgent() const;
     void setEnabledBrowserAgent(InspectorBrowserAgent*);
@@ -95,6 +98,8 @@ private:
 
     void addTarget(std::unique_ptr<InspectorTargetProxy>&&);
     void removeTarget(const String& targetId);
+
+    bool shouldManageFrameTargets() const;
 
     const Ref<Inspector::FrontendRouter> m_frontendRouter;
     const Ref<Inspector::BackendDispatcher> m_backendDispatcher;

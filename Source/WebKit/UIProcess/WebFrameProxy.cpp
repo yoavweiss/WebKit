@@ -72,6 +72,7 @@
 #include <wtf/CallbackAggregator.h>
 #include <wtf/CheckedPtr.h>
 #include <wtf/RunLoop.h>
+#include <wtf/WeakPtr.h>
 #include <wtf/WeakRef.h>
 #include <wtf/text/WTFString.h>
 
@@ -551,6 +552,10 @@ void WebFrameProxy::prepareForProvisionalLoadInProcess(WebProcessProxy& process,
 
     m_provisionalFrame = nullptr;
     m_provisionalFrame = adoptRef(*new ProvisionalFrameProxy(*this, group.ensureProcessForSite(site, mainFrameSite, process, protect(page->preferences())), commitTiming));
+
+    if (RefPtr provisionalFrame = m_provisionalFrame)
+        page->inspectorController().didCreateProvisionalFrame(*provisionalFrame);
+
     protect(protect(page->websiteDataStore())->networkProcess())->addAllowedFirstPartyForCookies(process, mainFrameDomain, LoadedWebArchive::No, [pageID = page->webPageIDInProcess(process), completionHandler = WTF::move(completionHandler)] mutable {
         completionHandler(pageID);
     });
@@ -562,8 +567,14 @@ void WebFrameProxy::commitProvisionalFrame(IPC::Connection& connection, FrameIde
     if (m_provisionalFrame) {
         protect(process())->send(Messages::WebPage::LoadDidCommitInAnotherProcess(frameID, m_layerHostingContextIdentifier), *webPageIDInCurrentProcess());
 
+        WebCore::ProcessIdentifier oldProcessID = process().coreProcessIdentifier();
+        WebCore::ProcessIdentifier newProcessID = protect(m_provisionalFrame)->process().coreProcessIdentifier();
+
         if (RefPtr process = std::exchange(m_provisionalFrame, nullptr)->takeFrameProcess())
             setProcess(process.releaseNonNull());
+
+        if (RefPtr page = m_page.get())
+            page->inspectorController().didCommitProvisionalFrame(*this, oldProcessID, newProcessID);
     }
 
     protect(page())->didCommitLoadForFrame(connection, frameID, WTF::move(frameInfo), WTF::move(request), navigationID, WTF::move(mimeType), frameHasCustomContentProvider, frameLoadType, certificateInfo, usedLegacyTLS, privateRelayed, WTF::move(proxyName), source, containsPluginDocument, hasInsecureContent, mouseEventPolicy, WTF::move(documentSecurityPolicy), userData);

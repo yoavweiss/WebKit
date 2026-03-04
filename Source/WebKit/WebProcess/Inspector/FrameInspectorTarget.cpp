@@ -49,7 +49,7 @@ FrameInspectorTarget::~FrameInspectorTarget() = default;
 
 String FrameInspectorTarget::identifier() const
 {
-    return toTargetID(m_frame->frameID());
+    return toTargetID(protect(m_frame)->frameID(), WebCore::Process::identifier());
 }
 
 void FrameInspectorTarget::connect(Inspector::FrontendChannel::ConnectionType connectionType)
@@ -62,7 +62,8 @@ void FrameInspectorTarget::connect(Inspector::FrontendChannel::ConnectionType co
     ASSERT(page);
     m_channel = makeUnique<UIProcessForwardingFrontendChannel>(*page, identifier(), connectionType);
 
-    if (RefPtr coreFrame = frame->coreLocalFrame())
+    RefPtr coreFrame = frame->provisionalFrame() ?: frame->coreLocalFrame();
+    if (coreFrame)
         protect(coreFrame->inspectorController())->connectFrontend(*m_channel);
 }
 
@@ -71,7 +72,9 @@ void FrameInspectorTarget::disconnect()
     if (!m_channel)
         return;
 
-    if (RefPtr coreFrame = protect(m_frame)->coreLocalFrame())
+    Ref frame = m_frame.get();
+    RefPtr coreFrame = frame->provisionalFrame() ?: frame->coreLocalFrame();
+    if (coreFrame)
         protect(coreFrame->inspectorController())->disconnectFrontend(*m_channel);
 
     m_channel.reset();
@@ -79,13 +82,15 @@ void FrameInspectorTarget::disconnect()
 
 void FrameInspectorTarget::sendMessageToTargetBackend(const String& message)
 {
-    if (RefPtr coreFrame = protect(m_frame)->coreLocalFrame())
+    Ref frame = m_frame.get();
+    RefPtr coreFrame = frame->provisionalFrame() ?: frame->coreLocalFrame();
+    if (coreFrame)
         protect(coreFrame->inspectorController())->dispatchMessageFromFrontend(message);
 }
 
-String FrameInspectorTarget::toTargetID(WebCore::FrameIdentifier frameID)
+String FrameInspectorTarget::toTargetID(WebCore::FrameIdentifier frameID, WebCore::ProcessIdentifier processID)
 {
-    return makeString("frame-"_s, frameID.toUInt64());
+    return makeString("frame-"_s, frameID.toUInt64(), '-', processID.toUInt64());
 }
 
 } // namespace WebKit

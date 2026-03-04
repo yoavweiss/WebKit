@@ -92,8 +92,6 @@ Protocol::ErrorStringOr<void> InspectorTargetAgent::sendMessageToTarget(const St
 
 void InspectorTargetAgent::sendMessageFromTargetToFrontend(const String& targetId, const String& message)
 {
-    ASSERT_WITH_MESSAGE(m_targets.get(targetId), "Sending a message from an untracked target to the frontend.");
-
     m_frontendDispatcher->dispatchMessageFromTarget(targetId, message);
 }
 

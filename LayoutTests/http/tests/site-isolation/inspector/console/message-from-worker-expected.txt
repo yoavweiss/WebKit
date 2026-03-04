@@ -1,4 +1,4 @@
-CONSOLE MESSAGE: iframe is loaded in http://127.0.0.1:8000/site-isolation/inspector/console/message-from-worker.html [same-origin]
+CONSOLE MESSAGE: Hello from http://127.0.0.1:8000/site-isolation/inspector/console/resources/worker-in-iframe.html
 
 == Running test suite: MessageFromWorker
 -- Running test case: MessageFromWorker.WorkerInSamePage
@@ -6,7 +6,7 @@ Got message: Worker started
 Got message: Message received in the worker: Hello
 
 -- Running test case: MessageFromWorker.WorkerInSameOriginIFrame
-Got message: iframe is loaded in http://127.0.0.1:8000/site-isolation/inspector/console/message-from-worker.html [same-origin]
+Got message: Hello from http://127.0.0.1:8000/site-isolation/inspector/console/resources/worker-in-iframe.html
 Got message: Worker started
 Got message: Message received in the worker: Hello from http://127.0.0.1:8000/site-isolation/inspector/console/resources/worker-in-iframe.html
 

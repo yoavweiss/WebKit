@@ -4,7 +4,6 @@
     function addIFrame(url, testId) {
         const iframe = document.createElement("iframe");
         iframe.src = url;
-        iframe.onload = () => console.log("iframe is loaded in " + location.href + " [" + testId + "]");
         document.body.appendChild(iframe);
     }
 
@@ -47,7 +46,7 @@
             test: (resolve) => runMessageTest(resolve, 3, `addIFrame('resources/worker-in-iframe.html', 'same-origin')`),
         });
 
-        // FIXME <https://webkit.org/b/307733>: Additional work needed to make this test work.
+        // FIXME <rdar://143596746>: Additional work needed around presenting cross-origin workers.
         /* suite.addTestCase({
             name: "MessageFromWorker.WorkerInCrossOriginIFrame",
             description: "console message coming from worker in cross origin iframe",

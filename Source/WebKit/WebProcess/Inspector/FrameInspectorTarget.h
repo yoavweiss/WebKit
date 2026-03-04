@@ -27,6 +27,7 @@
 
 #include <JavaScriptCore/InspectorTarget.h>
 #include <WebCore/FrameIdentifier.h>
+#include <WebCore/ProcessIdentifier.h>
 #include <memory>
 #include <wtf/Noncopyable.h>
 #include <wtf/TZoneMalloc.h>
@@ -53,7 +54,7 @@ public:
     void disconnect() override;
     void sendMessageToTargetBackend(const String&) override;
 
-    static String toTargetID(WebCore::FrameIdentifier);
+    static String toTargetID(WebCore::FrameIdentifier, WebCore::ProcessIdentifier);
 
 private:
     WeakRef<WebFrame> m_frame;
