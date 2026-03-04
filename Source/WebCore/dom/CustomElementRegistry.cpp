@@ -261,14 +261,14 @@ WeakHashMap<Element, Ref<CustomElementRegistry>, WeakPtrImplWithEventTargetData>
 }
 
 template<typename Visitor>
-void CustomElementRegistry::visitJSCustomElementInterfaces(Visitor& visitor) const
+void CustomElementRegistry::visitJSCustomElementInterfacesInGCThread(Visitor& visitor) const
 {
     Locker locker { m_constructorMapLock };
     for (const auto& iterator : m_constructorMap)
         iterator.value->visitJSFunctions(visitor);
 }
 
-template void CustomElementRegistry::visitJSCustomElementInterfaces(JSC::AbstractSlotVisitor&) const;
-template void CustomElementRegistry::visitJSCustomElementInterfaces(JSC::SlotVisitor&) const;
+template void CustomElementRegistry::visitJSCustomElementInterfacesInGCThread(JSC::AbstractSlotVisitor&) const;
+template void CustomElementRegistry::visitJSCustomElementInterfacesInGCThread(JSC::SlotVisitor&) const;
 
 }

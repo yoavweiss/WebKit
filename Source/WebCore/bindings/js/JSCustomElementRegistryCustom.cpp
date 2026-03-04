@@ -253,7 +253,7 @@ JSValue JSCustomElementRegistry::whenDefined(JSGlobalObject& lexicalGlobalObject
 template<typename Visitor>
 void JSCustomElementRegistry::visitAdditionalChildren(Visitor& visitor)
 {
-    wrapped().visitJSCustomElementInterfaces(visitor);
+    wrapped().visitJSCustomElementInterfacesInGCThread(visitor);
 }
 
 DEFINE_VISIT_ADDITIONAL_CHILDREN(JSCustomElementRegistry);
