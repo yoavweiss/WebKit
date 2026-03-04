@@ -25,7 +25,7 @@
 
 #pragma once
 
-#if !PLATFORM(IOS_SIMULATOR) || !__has_feature(modules)
+#if !PLATFORM(IOS_SIMULATOR) || !__has_feature(modules) || HAVE(WEBGPU_IOS_SIMULATOR_OPENGL_SUPPORT)
 
 DECLARE_SYSTEM_HEADER
 

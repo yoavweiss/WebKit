@@ -112,15 +112,15 @@ ENABLE_WEBGPU_SWIFT[sdk=macosx*26.1*] = ;
 ENABLE_WEBGPU_SWIFT[sdk=macosx*14*] = ;
 ENABLE_WEBGPU_SWIFT[sdk=macosx*15*] = ;
 
-ENABLE_WEBGPU_SWIFT[sdk=iphoneos*] = ENABLE_WEBGPU_SWIFT;
-ENABLE_WEBGPU_SWIFT[sdk=iphoneos*26.0*] = ;
-ENABLE_WEBGPU_SWIFT[sdk=iphoneos*26.1*] = ;
-ENABLE_WEBGPU_SWIFT[sdk=iphoneos*26.2*] = ;
-ENABLE_WEBGPU_SWIFT[sdk=iphoneos*26.3*] = ;
+ENABLE_WEBGPU_SWIFT[sdk=iphone*] = ENABLE_WEBGPU_SWIFT;
+ENABLE_WEBGPU_SWIFT[sdk=iphone*26.0*] = ;
+ENABLE_WEBGPU_SWIFT[sdk=iphone*26.1*] = ;
+ENABLE_WEBGPU_SWIFT[sdk=iphone*26.2*] = ;
+ENABLE_WEBGPU_SWIFT[sdk=iphone*26.3*] = ;
 
-// FIXME: Support WebGPU swift in iOS simulator builds once the underlying
-// modules issue is fixed (https://bugs.webkit.org/show_bug.cgi?id=300146).
-ENABLE_WEBGPU_SWIFT[sdk=iphonesimulator*] = ;
+// WebGPU has a problem on iOS simulator on older SDKs
+// (https://bugs.webkit.org/show_bug.cgi?id=300146).
+ENABLE_WEBGPU_SWIFT[sdk=iphonesimulator26*] = ;
 
 ENABLE_WEBGPU_SWIFT[sdk=xros*] = ENABLE_WEBGPU_SWIFT;
 ENABLE_WEBGPU_SWIFT[sdk=xros*26.0*] = ;
