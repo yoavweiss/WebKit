@@ -34,7 +34,7 @@ WI.ColorSquare = class ColorSquare
         this._y = 0;
         this._gamut = null;
         this._crosshairPosition = null;
-        this._contrastBackgroundColor = null;
+        this._contrastColor = null;
 
         this._element = document.createElement("div");
         this._element.className = "color-square";
@@ -93,15 +93,15 @@ WI.ColorSquare = class ColorSquare
         this._updateBaseColor();
     }
 
-    get contrastBackgroundColor()
+    get contrastColor()
     {
-        return this._contrastBackgroundColor;
+        return this._contrastColor;
     }
 
-    set contrastBackgroundColor(color)
+    set contrastColor(color)
     {
         console.assert(!color || color instanceof WI.Color, color);
-        this._contrastBackgroundColor = color || null;
+        this._contrastColor = color || null;
         this._drawContrastLines();
     }
 
@@ -287,7 +287,7 @@ WI.ColorSquare = class ColorSquare
         if (this._gamut === WI.Color.Gamut.DisplayP3)
             this._drawSRGBOutline();
 
-        if (this._contrastBackgroundColor)
+        if (this._contrastColor)
             this._drawContrastLines();
     }
 
@@ -355,7 +355,7 @@ WI.ColorSquare = class ColorSquare
 
     _drawContrastLines()
     {
-        if (!this._contrastBackgroundColor) {
+        if (!this._contrastColor) {
             if (this._contrastSVGElement) {
                 this._contrastSVGElement.hidden = true;
                 this._contrastAALabelElement.hidden = true;
@@ -396,23 +396,23 @@ WI.ColorSquare = class ColorSquare
             ? WI.UIString("WCAG AAA enhanced contrast for large text (4.5:1)", "WCAG AAA enhanced contrast for large text (4.5:1) @ Tooltip for AAA contrast line in color picker", "Tooltip for AAA contrast line in color picker for large text")
             : WI.UIString("WCAG AAA enhanced contrast (7:1)", "WCAG AAA enhanced contrast (7:1) @ Tooltip for AAA contrast line in color picker", "Tooltip for AAA contrast line in color picker");
 
-        let backgroundLuminance = this._contrastBackgroundColor.relativeLuminance();
+        let referenceLuminance = this._contrastColor.relativeLuminance();
 
-        let aaPoints = this._calculateContrastLinePoints(aaThreshold, backgroundLuminance);
+        let aaPoints = this._calculateContrastLinePoints(aaThreshold, referenceLuminance);
         this._updatePolylinePoints(this._contrastAAPolylineElement, aaPoints);
-        this._updateContrastLabel(this._contrastAALabelElement, aaPoints, backgroundLuminance);
+        this._updateContrastLabel(this._contrastAALabelElement, aaPoints, referenceLuminance);
 
-        let aaaPoints = this._calculateContrastLinePoints(aaaThreshold, backgroundLuminance);
+        let aaaPoints = this._calculateContrastLinePoints(aaaThreshold, referenceLuminance);
         this._updatePolylinePoints(this._contrastAAAPolylineElement, aaaPoints);
-        this._updateContrastLabel(this._contrastAAALabelElement, aaaPoints, backgroundLuminance);
+        this._updateContrastLabel(this._contrastAAALabelElement, aaaPoints, referenceLuminance);
     }
 
-    _calculateContrastLinePoints(targetRatio, backgroundLuminance)
+    _calculateContrastLinePoints(targetRatio, referenceLuminance)
     {
-        if (backgroundLuminance >= 0.5)
+        if (referenceLuminance >= 0.5)
             targetRatio = 1 / targetRatio;
 
-        let targetLuminance = ((backgroundLuminance + 0.05) * targetRatio) - 0.05;
+        let targetLuminance = ((referenceLuminance + 0.05) * targetRatio) - 0.05;
 
         if (targetLuminance < 0 || targetLuminance > 1)
             return [];
@@ -444,8 +444,8 @@ WI.ColorSquare = class ColorSquare
             let color = new WI.Color(WI.Color.Format.ColorFunction, rgb.concat(this._opacity));
 
             let effectiveColor = color;
-            if (this._opacity < 1 && this._contrastBackgroundColor)
-                effectiveColor = color.blendOverBackground(this._contrastBackgroundColor);
+            if (this._opacity < 1 && this._contrastColor)
+                effectiveColor = color.blendOverBackground(this._contrastColor);
 
             let luminance = effectiveColor.relativeLuminance();
 
@@ -484,7 +484,7 @@ WI.ColorSquare = class ColorSquare
         }
     }
 
-    _updateContrastLabel(labelElement, points, backgroundLuminance)
+    _updateContrastLabel(labelElement, points, referenceLuminance)
     {
         if (points.length === 0) {
             labelElement.hidden = true;
@@ -508,7 +508,7 @@ WI.ColorSquare = class ColorSquare
         }
 
         let labelHeight = 16;
-        let yOffset = backgroundLuminance < 0.5 ? -labelHeight : 4;
+        let yOffset = referenceLuminance < 0.5 ? -labelHeight : 4;
         labelElement.style.top = `${Math.max(0, Math.min(this._dimension - labelHeight, point.y + yOffset))}px`;
     }
 };

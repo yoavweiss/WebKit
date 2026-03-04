@@ -255,6 +255,7 @@ localizedStrings["Average: %s"] = "Average: %s";
 localizedStrings["Axis value outside of supported range: %s – %s"] = "Axis value outside of supported range: %s – %s";
 localizedStrings["BMP"] = "BMP";
 localizedStrings["Back (%s)"] = "Back (%s)";
+localizedStrings["Background Color"] = "Background Color";
 localizedStrings["Backtrace"] = "Backtrace";
 /* Label for navigation item that controls what badges are shown in the main DOM tree. */
 localizedStrings["Badges @ Elements Tab"] = "Badges";
@@ -1754,6 +1755,7 @@ localizedStrings["Template Content"] = "Template Content";
 /* Dropdown option inside the popover used to creating an audit test case. */
 localizedStrings["Test Case @ Audit Tab Navigation Sidebar"] = "Test Case";
 localizedStrings["Text"] = "Text";
+localizedStrings["Text Color"] = "Text Color";
 localizedStrings["Text Frame"] = "Text Frame";
 localizedStrings["Text Node"] = "Text Node";
 localizedStrings["The Inspector Bootstrap Script is guaranteed to be the first script evaluated in any page, as well as any sub-frames."] = "The Inspector Bootstrap Script is guaranteed to be the first script evaluated in any page, as well as any sub-frames.";

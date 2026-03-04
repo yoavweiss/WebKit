@@ -33,8 +33,8 @@ WI.ColorPicker = class ColorPicker extends WI.Object
         this._contrastInfo = contrastInfo || null;
 
         this._colorSquare = new WI.ColorSquare(this, 200);
-        if (this._contrastInfo?.backgroundColor) {
-            this._colorSquare.contrastBackgroundColor = this._contrastInfo.backgroundColor;
+        if (this._contrastInfo?.contrastColor) {
+            this._colorSquare.contrastColor = this._contrastInfo.contrastColor;
             this._colorSquare.isLargeText = !!this._contrastInfo.isLargeText;
         }
 
@@ -98,7 +98,7 @@ WI.ColorPicker = class ColorPicker extends WI.Object
         }
 
         this._contrastInfoElement = null;
-        if (this._contrastInfo?.backgroundColor)
+        if (this._contrastInfo?.contrastColor)
             this._createContrastInfoSection();
 
         this._opacity = 0;
@@ -527,18 +527,19 @@ WI.ColorPicker = class ColorPicker extends WI.Object
         separatorElement.classList.add("contrast-separator");
         separatorElement.textContent = WI.UIString("vs", "vs @ Color Picker Contrast", "Separator between foreground and background colors in contrast info");
 
-        let backgroundSwatch = new WI.InlineSwatch(WI.InlineSwatch.Type.Color, this._contrastInfo.backgroundColor, {readOnly: true, tooltip: WI.UIString("Background Color")});
-        this._contrastInfoElement.appendChild(backgroundSwatch.element);
+        let swatchTooltip = this._contrastInfo.isBackgroundColor ? WI.UIString("Text Color") : WI.UIString("Background Color");
+        let contrastSwatch = new WI.InlineSwatch(WI.InlineSwatch.Type.Color, this._contrastInfo.contrastColor, {readOnly: true, tooltip: swatchTooltip});
+        this._contrastInfoElement.appendChild(contrastSwatch.element);
     }
 
     _updateContrastInfo()
     {
-        if (!this._contrastInfo?.backgroundColor || !this._contrastInfoElement)
+        if (!this._contrastInfo?.contrastColor || !this._contrastInfoElement)
             return;
 
-        let effectiveForeground = this._color.blendOverBackground(this._contrastInfo.backgroundColor);
+        let effectiveForeground = this._color.blendOverBackground(this._contrastInfo.contrastColor);
 
-        let ratio = effectiveForeground.contrastRatio(this._contrastInfo.backgroundColor);
+        let ratio = effectiveForeground.contrastRatio(this._contrastInfo.contrastColor);
         let isLargeText = !!this._contrastInfo.isLargeText;
         let compliance = WI.Color.contrastComplianceForRatio(ratio, {isLargeText});
 

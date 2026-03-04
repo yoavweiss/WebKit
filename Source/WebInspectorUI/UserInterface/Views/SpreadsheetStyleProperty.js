@@ -494,20 +494,22 @@ WI.SpreadsheetStyleProperty = class SpreadsheetStyleProperty extends WI.Object
     {
         let propertyName = this._property.name.toLowerCase();
         let isTextColorProperty = propertyName === "color" || propertyName === "-webkit-text-fill-color" || propertyName === "-webkit-text-stroke-color";
+        let isBackgroundColor = propertyName === "background-color" || propertyName === "background";
 
-        if (!isTextColorProperty)
+        if (!isTextColorProperty && !isBackgroundColor)
             return null;
 
         let computedStyle = this._property.ownerStyle.nodeStyles?.computedStyle;
         if (!computedStyle)
             return null;
 
-        let backgroundColor = WI.Color.fromString(computedStyle.propertyForName("background-color")?.value ?? "");
-        if (!backgroundColor)
+        let contrastPropertyName = isTextColorProperty ? "background-color" : "color";
+        let contrastColor = WI.Color.fromString(computedStyle.propertyForName(contrastPropertyName)?.value ?? "");
+        if (!contrastColor)
             return null;
 
-        if (backgroundColor.alpha < 1)
-            backgroundColor = backgroundColor.blendOverBackground(WI.Color.fromString("white"));
+        if (contrastColor.alpha < 1)
+            contrastColor = contrastColor.blendOverBackground(WI.Color.fromString("white"));
 
         let fontSizeInPt = parseFloat(computedStyle.propertyForName("font-size")?.value) * 0.75;
         let isLargeText = fontSizeInPt >= 18;
@@ -516,7 +518,7 @@ WI.SpreadsheetStyleProperty = class SpreadsheetStyleProperty extends WI.Object
             isLargeText = fontWeight >= 700;
         }
 
-        return {backgroundColor, isLargeText};
+        return {contrastColor, isLargeText, isBackgroundColor};
     }
 
     // Private
