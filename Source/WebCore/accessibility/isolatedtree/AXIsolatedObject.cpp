@@ -1062,10 +1062,16 @@ void AXIsolatedObject::updateBackingStore()
 {
     AX_ASSERT(!isMainThread());
 
+    if (AXIsolatedTree::anyTreeNeedsTearDown()) [[unlikely]] {
+        AXTreeStore<AXIsolatedTree>::applyPendingChangesForAllIsolatedTrees();
+        // Lean on the assumption that applyPendingChangesForAllIsolatedTrees() clears this
+        // flag (as it should) so we aren't constantly re-entering this branch for no reason.
+        AX_ASSERT(!AXIsolatedTree::anyTreeNeedsTearDown());
+        return;
+    }
+
     if (RefPtr tree = this->tree())
         tree->applyPendingChanges();
-    // AXIsolatedTree::applyPendingChanges can cause this object and / or the AXIsolatedTree to be destroyed.
-    // Make sure to protect `this` with a Ref before adding more logic to this function.
 }
 
 std::optional<SimpleRange> AXIsolatedObject::rangeForCharacterRange(const CharacterRange& axRange) const
@@ -1784,18 +1790,12 @@ AXIsolatedObject* AXIsolatedObject::crossFrameChildObject() const
         return nullptr;
 
     auto frameID = optionalAttributeValue<FrameIdentifier>(AXProperty::CrossFrameChildFrameID);
-    if (!frameID)
-        return nullptr;
-
-    RefPtr<AXIsolatedTree> childTree;
     // FIXME: We don't actually hold the lock here.
-    childTree = AXIsolatedTree::treeForFrameIDAlreadyLocked(*frameID);
-    if (!childTree)
-        return nullptr;
-
-    childTree->applyPendingChanges();
-
-    return childTree->rootNode();
+    if (RefPtr childTree = frameID ? AXIsolatedTree::treeForFrameIDAlreadyLocked(*frameID) : nullptr) {
+        childTree->applyPendingChanges();
+        return childTree->rootNode();
+    }
+    return nullptr;
 }
 
 #endif // ENABLE_ACCESSIBILITY_LOCAL_FRAME

@@ -62,6 +62,8 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(AXIDAndCharacterRange);
 
 static const Seconds CreationFeedbackInterval { 3_s };
 
+std::atomic<bool> AXIsolatedTree::s_anyTreeNeedsTearDown { false };
+
 HashMap<FrameIdentifier, Ref<AXIsolatedTree>>& AXIsolatedTree::treeFrameCache()
 {
     static NeverDestroyed<HashMap<FrameIdentifier, Ref<AXIsolatedTree>>> map;
@@ -90,6 +92,7 @@ void AXIsolatedTree::queueForDestruction()
 
     Locker locker { m_changeLogLock };
     m_queuedForDestruction = true;
+    s_anyTreeNeedsTearDown.store(true, std::memory_order_relaxed);
 }
 
 Ref<AXIsolatedTree> AXIsolatedTree::createEmpty(AXObjectCache& axObjectCache)
@@ -131,7 +134,8 @@ void AXIsolatedTree::createEmptyContent(AccessibilityObject& axRoot)
         return object->isWebArea();
     });
     if (!axWebArea) {
-        AX_ASSERT_NOT_REACHED();
+        // FIXME: Can hit this almost 100% of the time on google.com with ENABLE(ACCESSIBILITY_LOCAL_FRAME).
+        AX_BROKEN_ASSERT_NOT_REACHED();
         return;
     }
     auto webAreaData = createIsolatedObjectData(*axWebArea, *this);
@@ -1146,8 +1150,6 @@ void AXIsolatedTree::setInitialSortedNonRootWebAreas(Vector<AXID> webAreaIDs)
 std::optional<AXID> AXIsolatedTree::focusedNodeID()
 {
     AX_ASSERT(!isMainThread());
-    // applyPendingChanges can destroy `this` tree, so protect it until the end of this method.
-    Ref protectedThis { *this };
     // Apply pending changes in case focus has changed and hasn't been updated.
     // Use applyPendingChangesUnlessQueuedForDestruction() because this method may be called
     // while s_storeLock is held (e.g., from findAXTree() callback). If we used applyPendingChanges()
@@ -1353,9 +1355,42 @@ void AXIsolatedTree::applyPendingChangesUnlessQueuedForDestruction()
 
     Locker locker { m_changeLogLock };
 
-    if (m_queuedForDestruction)
+    if (m_queuedForDestruction) [[unlikely]]
         return;
     applyPendingChangesLocked();
+}
+
+DidTearDown AXIsolatedTree::applyPendingChangesOrTearDown()
+{
+    AX_ASSERT(!isMainThread());
+
+    Locker locker { m_changeLogLock };
+
+    if (m_queuedForDestruction) [[unlikely]] {
+        clearTreeContentsLocked();
+        return DidTearDown::Yes;
+    }
+
+    applyPendingChangesLocked();
+    return DidTearDown::No;
+}
+
+void AXIsolatedTree::clearTreeContentsLocked()
+{
+    AXTRACE("AXIsolatedTree::clearTreeContentsLocked"_s);
+    AX_ASSERT(!isMainThread());
+    AX_ASSERT(m_changeLogLock.isLocked());
+
+    for (const auto& object : m_readerThreadNodeMap.values())
+        object->detach(AccessibilityDetachmentType::CacheDestroyed);
+
+    // Because each AXIsolatedObject holds a RefPtr to this tree, clear out any member variable
+    // that holds an AXIsolatedObject so the ref-cycle is broken and this tree can be destroyed.
+    m_readerThreadNodeMap.clear();
+    m_rootNode = nullptr;
+    m_pendingAppends.clear();
+    // We don't need to bother clearing out any other non-cycle-causing member variables as they
+    // will be cleaned up automatically when the tree is destroyed.
 }
 
 void AXIsolatedTree::applyPendingChangesLocked()
@@ -1368,16 +1403,7 @@ void AXIsolatedTree::applyPendingChangesLocked()
         WTFBeginSignpostAlways(this, AccessibilityIsolatedTreeApplyPendingChanges, "tree ID: %" PRIVATE_LOG_STRING "", treeID().loggingString().utf8().data());
 
     if (m_queuedForDestruction) [[unlikely]] {
-        for (const auto& object : m_readerThreadNodeMap.values())
-            object->detach(AccessibilityDetachmentType::CacheDestroyed);
-
-        // Because each AXIsolatedObject holds a RefPtr to this tree, clear out any member variable
-        // that holds an AXIsolatedObject so the ref-cycle is broken and this tree can be destroyed.
-        m_readerThreadNodeMap.clear();
-        m_rootNode = nullptr;
-        m_pendingAppends.clear();
-        // We don't need to bother clearing out any other non-cycle-causing member variables as they
-        // will be cleaned up automatically when the tree is destroyed.
+        clearTreeContentsLocked();
 
         AX_ASSERT(AXTreeStore::contains(treeID()));
         AXTreeStore::remove(treeID());

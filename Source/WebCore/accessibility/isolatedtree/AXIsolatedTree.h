@@ -413,6 +413,8 @@ struct IsolatedObjectData {
     }
 };
 
+enum class DidTearDown : bool { No, Yes };
+
 DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(AXIsolatedTree);
 class AXIsolatedTree : public ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr<AXIsolatedTree>
     , public AXTreeStore<AXIsolatedTree> {
@@ -512,6 +514,20 @@ public:
     WEBCORE_EXPORT void applyPendingChanges();
     void applyPendingChangesUnlessQueuedForDestruction();
 
+    // Returns DidTearDown::Yes if this tree was queued for destruction and tree teardown was performed.
+    // "Tear down" is very intentionally chosen wording, as it means we've cleared all internal
+    // member variables that could hold a strong-ref to the tree, but we can't actually force
+    // tree destruction until its ref-count falls to zero (which may or may not happen from the
+    // teardown depending on the outstanding ref-count elsewhere).
+    //
+    // Callers are responsible for removing the tree from isolatedTreeMap() when true is returned
+    // (hence the [[nodiscard]]).
+    [[nodiscard]] DidTearDown applyPendingChangesOrTearDown();
+
+    // Returns true if any tree has been queued for destruction but not yet cleaned up.
+    static bool anyTreeNeedsTearDown() { return s_anyTreeNeedsTearDown.load(std::memory_order_relaxed); }
+    static void clearAnyTreeNeedsTearDown() { s_anyTreeNeedsTearDown.store(false, std::memory_order_relaxed); }
+
     constexpr AXTreeID treeID() const { return m_id; }
     constexpr ProcessID processID() const { return m_processID; }
     void setPageActivityState(OptionSet<ActivityState>);
@@ -546,6 +562,9 @@ private:
     void queueForDestruction();
 
     void applyPendingChangesLocked() WTF_REQUIRES_LOCK(m_changeLogLock);
+    void clearTreeContentsLocked() WTF_REQUIRES_LOCK(m_changeLogLock);
+
+    static std::atomic<bool> s_anyTreeNeedsTearDown;
 
     // rdar://161259641 (Figure out a way to enforce WTF_REQUIRES_LOCK when we might need to access it while already holding the lock)
     static HashMap<FrameIdentifier, Ref<AXIsolatedTree>>& treeFrameCache(); // WTF_REQUIRES_LOCK(s_storeLock);
