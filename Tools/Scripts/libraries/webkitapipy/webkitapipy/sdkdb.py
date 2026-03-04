@@ -478,7 +478,8 @@ class SDKDB:
                     '           ew.input_file IS NOT NULL) as export_found, '
                     '       sum(a.name IS NOT NULL AND '
                     '           a.cond_id IS c.nextid AND '
-                    '           (a.class_name = e.class_name IS NOT FALSE) AND '
+                    '           (ew.input_file IS NULL OR '
+                    '            a.class_name = e.class_name IS NOT FALSE) AND '
                     '           aw.input_file IS NOT NULL) as allow_found '
                     'FROM imports AS i '
                     'LEFT JOIN exports AS e USING (name, kind) '
@@ -495,13 +496,18 @@ class SDKDB:
                     # selector, or different allowlists that allow the same
                     # name. Coalesce the results and only return entries where
                     # an import name has *no* exports found, or an allowed name
-                    # comes from at least one loaded file.
+                    # comes from at least one loaded file. Ignore ObjC methods
+                    # in allowlists which partially match an exported method
+                    # (i.e. selector matches but class does not).
                     #
                     # This is sufficient to remove all rows in the common
                     # case--imported API that matches an exported delcaration.
-                    # The remaining logic to identify problem is done in Python below.
+                    # The remaining logic to identify problem is done in Python
+                    # below.
                     'GROUP BY i.kind, a.kind, i.name, a.name, i.input_file '
-                    'HAVING export_found = 0 OR allow_found > 0 '
+                    'HAVING export_found = 0 OR '
+                    '   (allow_found > 0 AND '
+                    '    e.class_name = a.class_name IS NOT FALSE) '
                     'ORDER BY i.input_file, i.kind, a.kind, i.name, a.name')
         for (arch, import_kind, input_path, import_name,
              allowed_kind, allowlist_paths, allowed_name, allow_unused,

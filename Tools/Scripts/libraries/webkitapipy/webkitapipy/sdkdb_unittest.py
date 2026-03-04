@@ -303,6 +303,31 @@ class TestSDKDB(TestCase):
         self.add_allowlist(A_QualifiedSelector)
         self.assertEmpty(self.audit_with(R_Client))
 
+    def test_audit_allowed_fully_qualified_selector_with_bystander(self):
+        # Same test as above but with an additional, unloaded, unrelated
+        # library exporting a method with the same selector.
+        bystander = APIReport(file=F, arch='arm64e',
+                              platform='iOS', min_os='1.0', sdk='1.0',
+                              methods={APIReport.Selector('initWithData:',
+                                                          'UnrelatedClass')})
+        self.add_library(bystander, file=F, file_hash=F_Hash)
+        self.reconnect()
+
+        self.add_partial_sdkdb()  # -[NSData initWithData:]
+        self.add_allowlist(A_QualifiedSelector)  # -[WKDoesntExist initWithData:]
+        self.assertEmpty(self.audit_with(R_Client))
+
+    def test_audit_allowed_fully_qualified_selector_with_different_class_unloaded(self):
+        # Add -[NSData initWithData:] to the exports table, then reconnect to
+        # move it out of the window.
+        self.add_partial_sdkdb()
+        self.reconnect()
+        # Add -[WKDoesntExist initWithData:] to the allow table.
+        self.add_allowlist(A_QualifiedSelector)
+        # A client that sends "initWithData:" should have no audit issues
+        # (it's covered by the WKDoesntExist entry).
+        self.assertEmpty(self.audit_with(R_Client))
+
     def test_audit_unused_allow_from_loaded_allowlist(self):
         self.add_allowlist()
         self.assertIn(A_UnusedAllow, self.sdkdb.audit())
