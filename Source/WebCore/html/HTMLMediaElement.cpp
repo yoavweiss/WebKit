@@ -4165,12 +4165,12 @@ double HTMLMediaElement::currentTime() const
 
 MediaTime HTMLMediaElement::currentMediaTime() const
 {
+    if (m_defaultPlaybackStartPosition != MediaTime::zeroTime())
+        return m_defaultPlaybackStartPosition;
+
     RefPtr player = m_player;
     if (!player)
         return MediaTime::zeroTime();
-
-    if (m_defaultPlaybackStartPosition != MediaTime::zeroTime())
-        return m_defaultPlaybackStartPosition;
 
     if (m_seeking) {
         HTMLMEDIAELEMENT_RELEASE_LOG(CURRENTMEDIATIME_SEEKING, m_lastSeekTime.toFloat());
