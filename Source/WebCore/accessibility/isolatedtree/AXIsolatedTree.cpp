@@ -894,8 +894,6 @@ void AXIsolatedTree::updateNodeProperties(AccessibilityObject& axObject, const A
             properties.append({ AXProperty::LinethroughColor, axObject.lineDecorationStyle().linethroughColor });
             break;
         case AXProperty::RevealableText: {
-            // We should only cache this property for ignored objects.
-            AX_ASSERT(axObject.isIgnored());
             if (String text = axObject.revealableText(); !text.isEmpty())
                 properties.append({ AXProperty::RevealableText, WTF::move(text).isolatedCopy() });
             break;
@@ -1673,7 +1671,7 @@ void AXIsolatedTree::processQueuedNodeUpdates()
             updateNodeProperties(*axObject, propertyUpdate.value);
     }
 
-    if (m_relationsNeedUpdate)
+    if (m_relationsNeedUpdate && cache)
         updateRelations(cache->relations());
 
     if (m_mostRecentlyPaintedTextIsDirty) {
@@ -1692,7 +1690,7 @@ void AXIsolatedTree::processQueuedNodeUpdates()
         //
         // So it's crucial to resolve the mostRecentlyPaintedText structure before the m_changeLogLock critical section,
         // and only perform a move or copy while in the critical section to avoid a deadlock.
-        auto mostRecentlyPaintedText = cache->mostRecentlyPaintedText();
+        auto mostRecentlyPaintedText = cache ? cache->mostRecentlyPaintedText() : HashMap<AXID, LineRange> { };
         Locker lock { m_changeLogLock };
         m_pendingMostRecentlyPaintedText = WTF::move(mostRecentlyPaintedText);
     }
