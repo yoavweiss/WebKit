@@ -115,7 +115,7 @@ bool SkiaGPUAtlas::uploadImages()
             if (!writeScope)
                 return false;
 
-            for (const auto& entry : m_layout.entries()) {
+            for (const auto& entry : m_layout->entries()) {
                 if (auto pixels = pixelDataInSRGB(entry.rasterImage))
                     gpuBuffer->updateContents(*writeScope, pixels->first, entry.atlasRect, pixels->second);
             }
@@ -126,7 +126,7 @@ bool SkiaGPUAtlas::uploadImages()
 #endif
 
     // GL fallback: use BitmapTexture::updateContents() per entry.
-    for (const auto& entry : m_layout.entries()) {
+    for (const auto& entry : m_layout->entries()) {
         if (auto pixels = pixelDataInSRGB(entry.rasterImage))
             m_atlasTexture->updateContents(pixels->first, entry.atlasRect, IntPoint::zero(), pixels->second, PixelFormat::BGRA8);
     }

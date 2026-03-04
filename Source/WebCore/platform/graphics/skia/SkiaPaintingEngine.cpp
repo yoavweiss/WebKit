@@ -165,6 +165,24 @@ RefPtr<SkiaGPUAtlas> SkiaPaintingEngine::createAtlas(const SkiaImageAtlasLayout&
     return atlas;
 }
 
+bool SkiaPaintingEngine::tryReuseCachedAtlases(SkiaRecordingResult& result)
+{
+    if (m_cachedGPUAtlases.isEmpty())
+        return false;
+
+    // Verify every current image exists in a cached atlas's imageToRect map.
+    for (const auto& layout : result.atlasLayouts()) {
+        for (const auto& entry : layout->entries()) {
+            if (!m_cachedGPUAtlases.containsIf([&](const auto& cachedAtlas) { return cachedAtlas->imageToRect().contains(entry.rasterImage.get()); }))
+                return false;
+        }
+    }
+
+    // Cache hit — reuse GPU atlases.
+    result.setGPUAtlases(copyToVectorOf<Ref<SkiaGPUAtlas>>(m_cachedGPUAtlases));
+    return true;
+}
+
 Ref<CoordinatedTileBuffer> SkiaPaintingEngine::paint(const GraphicsLayerCoordinated& layer, const IntRect& dirtyRect, bool contentsOpaque, float contentsScale)
 {
     // ### Synchronous rendering on main thread ###
@@ -219,34 +237,43 @@ Ref<SkiaRecordingResult> SkiaPaintingEngine::record(const GraphicsLayerCoordinat
     // Prepare GPU atlases on main thread before dispatching to workers.
     // Textures are acquired from BitmapTexturePool which handles recycling.
     if (result->hasAtlasLayouts()) {
-        PlatformDisplay::sharedDisplay().skiaGLContext()->makeContextCurrent();
+        // Fast path: reuse cached atlases if the image set is unchanged.
+        if (!tryReuseCachedAtlases(result.get())) {
+            PlatformDisplay::sharedDisplay().skiaGLContext()->makeContextCurrent();
 
-        auto* grContext = PlatformDisplay::sharedDisplay().skiaGrContext();
-        RELEASE_ASSERT(grContext);
+            auto* grContext = PlatformDisplay::sharedDisplay().skiaGrContext();
+            RELEASE_ASSERT(grContext);
 
-        Vector<Ref<SkiaGPUAtlas>> gpuAtlases;
-        auto uploadCondition = AtlasUploadCondition::create();
-        gpuAtlases.reserveInitialCapacity(result->atlasLayouts().size());
+            Vector<Ref<SkiaGPUAtlas>> gpuAtlases;
+            auto uploadCondition = AtlasUploadCondition::create();
+            gpuAtlases.reserveInitialCapacity(result->atlasLayouts().size());
 
-        for (const auto& layout : result->atlasLayouts()) {
-            if (auto atlas = createAtlas(layout.get(), uploadCondition.get()))
-                gpuAtlases.append(atlas.releaseNonNull());
+            for (const auto& layout : result->atlasLayouts()) {
+                if (auto atlas = createAtlas(layout.get(), uploadCondition.get()))
+                    gpuAtlases.append(atlas.releaseNonNull());
+            }
+
+            if (!gpuAtlases.isEmpty()) {
+                // Update cache for next frame.
+                m_cachedGPUAtlases = copyToVectorOf<Ref<SkiaGPUAtlas>>(gpuAtlases);
+
+                result->setGPUAtlases(WTF::move(gpuAtlases), WTF::move(uploadCondition));
+
+                // Flush and fence for the GL upload path, where
+                // BitmapTexture::updateContents() issues GL upload commands.
+                // On the DMA-buf path, uploading is CPU-side (memory-mapped),
+                // so this is a no-op flush but harmless.
+                auto& glDisplay = PlatformDisplay::sharedDisplay().glDisplay();
+                if (GLFence::isSupported(glDisplay)) {
+                    grContext->flushAndSubmit(GrSyncCpu::kNo);
+                    result->setUploadFence(GLFence::create(glDisplay));
+                } else
+                    grContext->flushAndSubmit(GrSyncCpu::kYes);
+            }
         }
-
-        if (!gpuAtlases.isEmpty()) {
-            result->setGPUAtlases(WTF::move(gpuAtlases), WTF::move(uploadCondition));
-
-            // Flush and fence for the GL upload path, where
-            // BitmapTexture::updateContents() issues GL upload commands.
-            // On the DMA-buf path, uploading is CPU-side (memory-mapped),
-            // so this is a no-op flush but harmless.
-            auto& glDisplay = PlatformDisplay::sharedDisplay().glDisplay();
-            if (GLFence::isSupported(glDisplay)) {
-                grContext->flushAndSubmit(GrSyncCpu::kNo);
-                result->setUploadFence(GLFence::create(glDisplay));
-            } else
-                grContext->flushAndSubmit(GrSyncCpu::kYes);
-        }
+    } else {
+        // No atlas layouts — clear cache to release GPU memory.
+        m_cachedGPUAtlases.clear();
     }
 
     return result;

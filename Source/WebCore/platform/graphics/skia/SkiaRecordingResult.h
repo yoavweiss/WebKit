@@ -104,7 +104,7 @@ public:
     const Vector<Ref<SkiaImageAtlasLayout>>& atlasLayouts() const { return m_atlasLayouts; }
 
     // GPU atlases prepared on main thread for worker threads to rewrap.
-    void setGPUAtlases(Vector<Ref<SkiaGPUAtlas>>&& atlases, Ref<AtlasUploadCondition>&& condition)
+    void setGPUAtlases(Vector<Ref<SkiaGPUAtlas>>&& atlases, RefPtr<AtlasUploadCondition>&& condition = nullptr)
     {
         m_gpuAtlases = WTF::move(atlases);
         m_uploadCondition = WTF::move(condition);
@@ -134,7 +134,7 @@ private:
     Vector<Ref<SkiaImageAtlasLayout>> m_atlasLayouts;
     Vector<Ref<SkiaGPUAtlas>> m_gpuAtlases;
     std::unique_ptr<GLFence> m_uploadFence; // Fence for async GPU upload
-    RefPtr<AtlasUploadCondition> m_uploadCondition; // Non-null when m_gpuAtlases is non-empty.
+    RefPtr<AtlasUploadCondition> m_uploadCondition;
     IntRect m_recordRect;
     RenderingMode m_renderingMode { RenderingMode::Unaccelerated };
     bool m_contentsOpaque : 1 { true };
