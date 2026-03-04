@@ -1748,6 +1748,40 @@ private:
                 break;
             }
 
+            case PromiseThen: {
+                JSGlobalObject* globalObject = m_graph.globalObjectFor(node->origin.semantic);
+                auto& promise = m_state.forNode(node->child1());
+                if (promise.isType(SpecPromiseObject)) {
+                    auto& structureSet = promise.m_structure;
+                    if (structureSet.isFinite()) {
+                        if (auto structure = structureSet.onlyStructure()) {
+                            if (structure.get() == globalObject->promiseStructure()) {
+                                if (m_graph.isWatchingPromiseSpeciesWatchpoint(node)) {
+                                    m_interpreter.execute(indexInBlock);
+                                    alreadyHandled = true;
+
+                                    auto* resultPromise = m_insertionSet.insertNode(indexInBlock, SpecPromiseObject, NewInternalFieldObject, node->origin, OpInfo(m_graph.registerStructure(globalObject->promiseStructure())));
+                                    m_insertionSet.insertNode(indexInBlock, SpecNone, ExitOK, node->origin);
+
+                                    unsigned firstChild = m_graph.m_varArgChildren.size();
+                                    m_graph.m_varArgChildren.append(Edge(node->child1().node(), KnownCellUse));
+                                    m_graph.m_varArgChildren.append(node->child2());
+                                    m_graph.m_varArgChildren.append(node->child3());
+                                    m_graph.m_varArgChildren.append(Edge(resultPromise, KnownCellUse));
+                                    m_insertionSet.insertNode(indexInBlock, SpecNone, PerformPromiseThen, node->origin, AdjacencyList(AdjacencyList::Variable, firstChild, 4));
+                                    m_insertionSet.insertNode(indexInBlock, SpecNone, ExitOK, node->origin);
+
+                                    node->convertToIdentityOn(resultPromise);
+                                    changed = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+
             case DoubleRep: {
                 switch (node->child1().useKind()) {
                 case NotCellNorBigIntUse:

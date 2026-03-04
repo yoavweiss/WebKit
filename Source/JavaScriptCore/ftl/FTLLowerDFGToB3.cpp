@@ -1926,6 +1926,10 @@ private:
             compilePromiseThen();
             break;
 
+        case PerformPromiseThen:
+            compilePerformPromiseThen();
+            break;
+
         case LoopHint: {
             compileLoopHint();
             codeGenerationResult = CodeGenerationResult::NotGenerated;
@@ -20504,6 +20508,16 @@ IGNORE_CLANG_WARNINGS_END
         LValue onFulfilled = lowJSValue(m_node->child2());
         LValue onRejected = lowJSValue(m_node->child3());
         setJSValue(vmCall(pointerType(), operationPromiseThen, weakPointer(globalObject), promise, onFulfilled, onRejected));
+    }
+
+    void compilePerformPromiseThen()
+    {
+        auto* globalObject = m_graph.globalObjectFor(m_origin.semantic);
+        LValue inputPromise = lowCell(m_graph.varArgChild(m_node, 0));
+        LValue onFulfilled = lowJSValue(m_graph.varArgChild(m_node, 1));
+        LValue onRejected = lowJSValue(m_graph.varArgChild(m_node, 2));
+        LValue resultPromise = lowCell(m_graph.varArgChild(m_node, 3));
+        vmCall(Void, operationPerformPromiseThen, weakPointer(globalObject), inputPromise, onFulfilled, onRejected, resultPromise);
     }
 
     void compileLoopHint()

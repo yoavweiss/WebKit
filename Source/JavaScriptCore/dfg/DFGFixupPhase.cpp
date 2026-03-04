@@ -3596,6 +3596,7 @@ private:
         case PromiseResolve:
         case PromiseReject:
         case PromiseThen:
+        case PerformPromiseThen:
             break;
 #else // not ASSERT_ENABLED
         default:

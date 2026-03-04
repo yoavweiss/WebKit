@@ -502,6 +502,7 @@ inline CapabilityLevel canCompile(Node* node)
     case PromiseResolve:
     case PromiseReject:
     case PromiseThen:
+    case PerformPromiseThen:
         // These are OK.
         break;
 

@@ -1771,6 +1771,7 @@ private:
         case PromiseResolve:
         case PromiseReject:
         case PromiseThen:
+        case PerformPromiseThen:
             break;
             
         // This gets ignored because it only pretends to produce a value.
