@@ -323,7 +323,7 @@ RefPtr<SharedBuffer> serializeIDBKeyData(const IDBKeyData& key)
         if (!readLittleEndian(data, length))
             return false;
 
-        if (data.size() < length * 2)
+        if (data.size() < static_cast<size_t>(length) * 2)
             return false;
 
         Vector<char16_t> buffer;

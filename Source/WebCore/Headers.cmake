@@ -512,6 +512,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     Modules/indexeddb/server/IDBBackingStore.h
     Modules/indexeddb/server/IDBConnectionToClient.h
     Modules/indexeddb/server/IDBConnectionToClientDelegate.h
+    Modules/indexeddb/server/IDBSerialization.h
     Modules/indexeddb/server/IDBServer.h
     Modules/indexeddb/server/IndexValueEntry.h
     Modules/indexeddb/server/IndexValueStore.h
