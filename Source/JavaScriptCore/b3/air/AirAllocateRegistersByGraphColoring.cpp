@@ -486,7 +486,7 @@ protected:
     Vector<Vector<IndexType, 0, UnsafeVectorOverflow, 4>, 0, UnsafeVectorOverflow> m_adjacencyList;
     Vector<IndexType, 0, UnsafeVectorOverflow> m_degrees;
 
-    using IndexTypeSet = SmallSet<IndexType, IntHash<IndexType>>;
+    using IndexTypeSet = SmallSet<IndexType, IntHash<IndexType>, WTF::UnsignedWithZeroKeyHashTraits<IndexType>>;
 
     UncheckedKeyHashMap<IndexType, IndexTypeSet, DefaultHash<IndexType>, WTF::UnsignedWithZeroKeyHashTraits<IndexType>> m_biases;
 
@@ -499,7 +499,7 @@ protected:
     Vector<MoveOperands, 0, UnsafeVectorOverflow> m_coalescingCandidates;
 
     // List of every move instruction associated with a Tmp.
-    Vector<SmallSet<unsigned, IntHash<unsigned>>> m_moveList;
+    Vector<SmallSet<unsigned, IntHash<unsigned>, WTF::UnsignedWithZeroKeyHashTraits<unsigned>>> m_moveList;
 
     // Colors.
     Vector<Reg, 0, UnsafeVectorOverflow> m_coloredTmp;
