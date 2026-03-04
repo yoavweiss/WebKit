@@ -71,7 +71,7 @@ private:
     Ref<BitmapTexture> m_atlasTexture;
     GrBackendTexture m_backendTexture;
     ImageToRectMap m_imageToRect;
-    Ref<const SkiaImageAtlasLayout> m_layout;
+    const SkiaImageAtlasLayout& m_layout;
     IntSize m_size;
 };
 
