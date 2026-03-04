@@ -120,6 +120,11 @@ static inline std::span<char*> span(char** strv LIFETIME_BOUND)
     return unsafeMakeSpan(strv, size);
 }
 
+static inline std::span<char*> span(const GUniquePtr<char*>& strv LIFETIME_BOUND)
+{
+    return span(strv.get());
+}
+
 static inline std::span<const char* const> span(const char* const* strv LIFETIME_BOUND)
 {
     auto size = g_strv_length(const_cast<char**>(strv));
