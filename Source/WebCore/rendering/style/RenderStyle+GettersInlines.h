@@ -343,11 +343,6 @@ inline bool RenderStyle::evaluationTimeZoomEnabled() const
     return m_computedStyle.evaluationTimeZoomEnabled();
 }
 
-inline float RenderStyle::deviceScaleFactor() const
-{
-    return m_computedStyle.deviceScaleFactor();
-}
-
 inline bool RenderStyle::useSVGZoomRulesForLength() const
 {
     return m_computedStyle.useSVGZoomRulesForLength();

@@ -299,11 +299,6 @@ inline void RenderStyle::setEvaluationTimeZoomEnabled(bool value)
     m_computedStyle.setEvaluationTimeZoomEnabled(value);
 }
 
-inline void RenderStyle::setDeviceScaleFactor(float value)
-{
-    m_computedStyle.setDeviceScaleFactor(value);
-}
-
 inline void RenderStyle::setUseSVGZoomRulesForLength(bool value)
 {
     m_computedStyle.setUseSVGZoomRulesForLength(value);

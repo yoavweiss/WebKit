@@ -105,7 +105,6 @@ public:
 #endif
 
     float usedZoom;
-    float deviceScaleFactor { 1.0f };
     WebkitTextStrokeWidth textStrokeWidth;
 
     Color textStrokeColor;

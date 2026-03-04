@@ -302,11 +302,6 @@ inline bool ComputedStyleBase::evaluationTimeZoomEnabled() const
     return m_inheritedRareData->evaluationTimeZoomEnabled;
 }
 
-inline float ComputedStyleBase::deviceScaleFactor() const
-{
-    return m_inheritedRareData->deviceScaleFactor;
-}
-
 inline bool ComputedStyleBase::useSVGZoomRulesForLength() const
 {
     return m_nonInheritedData->rareData->useSVGZoomRulesForLength;

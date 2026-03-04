@@ -234,9 +234,6 @@ public:
     inline bool evaluationTimeZoomEnabled() const;
     inline void setEvaluationTimeZoomEnabled(bool);
 
-    inline float deviceScaleFactor() const;
-    inline void setDeviceScaleFactor(float);
-
     inline bool useSVGZoomRulesForLength() const;
     inline void setUseSVGZoomRulesForLength(bool);
 

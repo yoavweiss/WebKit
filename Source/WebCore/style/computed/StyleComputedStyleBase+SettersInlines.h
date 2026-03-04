@@ -242,11 +242,6 @@ inline void ComputedStyleBase::setEvaluationTimeZoomEnabled(bool value)
     SET(m_inheritedRareData, evaluationTimeZoomEnabled, value);
 }
 
-inline void ComputedStyleBase::setDeviceScaleFactor(float value)
-{
-    SET(m_inheritedRareData, deviceScaleFactor, value);
-}
-
 inline void ComputedStyleBase::setUseSVGZoomRulesForLength(bool value)
 {
     SET_NESTED(m_nonInheritedData, rareData, useSVGZoomRulesForLength, value);
