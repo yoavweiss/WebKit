@@ -31,8 +31,10 @@
 #include "WasmBBQJIT.h"
 #include "WasmCallingConvention.h"
 #include "WasmCompilationContext.h"
+#include "WasmExceptionType.h"
 #include "WasmFunctionParser.h"
 #include "WasmLimits.h"
+#include <wtf/CheckedArithmetic.h>
 
 namespace JSC { namespace Wasm { namespace BBQJITImpl {
 
@@ -44,6 +46,11 @@ ALWAYS_INLINE bool BBQJIT::typeNeedsGPR2(TypeKind)
 template<typename Functor>
 auto BBQJIT::emitCheckAndPrepareAndMaterializePointerApply(Value pointer, uint64_t uoffset, uint32_t sizeOfOperation, Functor&& functor) -> decltype(auto)
 {
+    if (WTF::sumOverflows<uint64_t>(static_cast<uint64_t>(sizeOfOperation), uoffset)) {
+        recordJumpToThrowException(ExceptionType::OutOfBoundsMemoryAccess, m_jit.jump());
+        return functor(CCallHelpers::Address(wasmBaseMemoryPointer, 0));
+    }
+
     uint64_t boundary = static_cast<uint64_t>(sizeOfOperation) + uoffset - 1;
 
     ScratchScope<1, 0> scratches(*this);
@@ -51,25 +58,29 @@ auto BBQJIT::emitCheckAndPrepareAndMaterializePointerApply(Value pointer, uint64
 
     if (pointer.isConst()) {
         uint64_t constantPointer = m_info.theOnlyMemory().isMemory64() ? pointer.asI64() : static_cast<uint32_t>(pointer.asI32());
-        uint64_t finalOffset = constantPointer + uoffset;
-        if (!(finalOffset > static_cast<uint64_t>(std::numeric_limits<int32_t>::max()) || !B3::Air::Arg::isValidAddrForm(B3::Air::Move, static_cast<int32_t>(finalOffset), Width::Width128))) {
-            switch (m_mode) {
-            case MemoryMode::BoundsChecking: {
-                m_jit.move(TrustedImmPtr(constantPointer + boundary), wasmScratchGPR);
-                recordJumpToThrowException(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branchPtr(RelationalCondition::AboveOrEqual, wasmScratchGPR, wasmBoundsCheckingSizeRegister));
-                break;
-            }
-            case MemoryMode::Signaling: {
-                RELEASE_ASSERT(!m_info.theOnlyMemory().isMemory64());
-                if (uoffset >= Memory::fastMappedRedzoneBytes()) {
-                    uint64_t maximum = m_info.theOnlyMemory().maximum() ? m_info.theOnlyMemory().maximum().bytes() : std::numeric_limits<uint32_t>::max();
-                    if ((constantPointer + boundary) >= maximum)
-                        recordJumpToThrowException(ExceptionType::OutOfBoundsMemoryAccess, m_jit.jump());
+        if (WTF::sumOverflows<uint64_t>(constantPointer, boundary))
+            recordJumpToThrowException(ExceptionType::OutOfBoundsMemoryAccess, m_jit.jump());
+        else {
+            uint64_t finalOffset = constantPointer + uoffset;
+            if (finalOffset <= static_cast<uint64_t>(std::numeric_limits<int32_t>::max()) && B3::Air::Arg::isValidAddrForm(B3::Air::Move, static_cast<int32_t>(finalOffset), Width::Width128)) {
+                switch (m_mode) {
+                case MemoryMode::BoundsChecking: {
+                    m_jit.move(TrustedImmPtr(constantPointer + boundary), wasmScratchGPR);
+                    recordJumpToThrowException(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branchPtr(RelationalCondition::AboveOrEqual, wasmScratchGPR, wasmBoundsCheckingSizeRegister));
+                    break;
                 }
-                break;
+                case MemoryMode::Signaling: {
+                    // FIXME: it seems like this check is covered by the constantPointer + boundary >= maximum check below?
+                    if (uoffset >= Memory::fastMappedRedzoneBytes()) {
+                        uint64_t maximum = m_info.theOnlyMemory().maximum() ? m_info.theOnlyMemory().maximum().bytes() : std::numeric_limits<uint32_t>::max();
+                        if ((constantPointer + boundary) >= maximum)
+                            recordJumpToThrowException(ExceptionType::OutOfBoundsMemoryAccess, m_jit.jump());
+                    }
+                    break;
+                }
+                }
+                return functor(CCallHelpers::Address(wasmBaseMemoryPointer, static_cast<int32_t>(finalOffset)));
             }
-            }
-            return functor(CCallHelpers::Address(wasmBaseMemoryPointer, static_cast<int32_t>(finalOffset)));
         }
         pointerLocation = Location::fromGPR(scratches.gpr(0));
         emitMoveConst(pointer, pointerLocation);
@@ -81,13 +92,19 @@ auto BBQJIT::emitCheckAndPrepareAndMaterializePointerApply(Value pointer, uint64
     case MemoryMode::BoundsChecking: {
         // We're not using signal handling only when the memory is not shared.
         // Regardless of signaling, we must check that no memory access exceeds the current memory size.
-        m_jit.zeroExtend32ToWord(pointerLocation.asGPR(), wasmScratchGPR);
-        if (boundary)
-            m_jit.addPtr(TrustedImmPtr(boundary), wasmScratchGPR);
+        if (m_info.theOnlyMemory().isMemory64() && boundary) {
+            m_jit.move(TrustedImmPtr(boundary), wasmScratchGPR);
+            Jump overflow = m_jit.branchAddPtr(ResultCondition::Carry, pointerLocation.asGPR(), wasmScratchGPR);
+            recordJumpToThrowException(ExceptionType::OutOfBoundsMemoryAccess, overflow);
+        } else {
+            m_jit.zeroExtend32ToWord(pointerLocation.asGPR(), wasmScratchGPR);
+            if (boundary)
+                m_jit.addPtr(TrustedImmPtr(boundary), wasmScratchGPR);
+        }
+
         recordJumpToThrowException(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branchPtr(RelationalCondition::AboveOrEqual, wasmScratchGPR, wasmBoundsCheckingSizeRegister));
         break;
     }
-
     case MemoryMode::Signaling: {
         RELEASE_ASSERT(!m_info.theOnlyMemory().isMemory64());
         // We've virtually mapped 4GiB+redzone for this memory. Only the user-allocated pages are addressable, contiguously in range [0, current],
@@ -113,18 +130,29 @@ auto BBQJIT::emitCheckAndPrepareAndMaterializePointerApply(Value pointer, uint64
 
     bool canUseOffsetForm = uoffset <= static_cast<uint64_t>(std::numeric_limits<int32_t>::max()) && B3::Air::Arg::isValidAddrForm(B3::Air::Move, static_cast<int32_t>(uoffset), Width::Width128);
 #if CPU(ARM64)
-    if (canUseOffsetForm)
+    if (canUseOffsetForm) {
+        if (m_info.theOnlyMemory().isMemory64())
+            return functor(CCallHelpers::BaseIndex(wasmBaseMemoryPointer, pointerLocation.asGPR(), CCallHelpers::TimesOne, static_cast<int32_t>(uoffset)));
         return functor(CCallHelpers::BaseIndex(wasmBaseMemoryPointer, pointerLocation.asGPR(), CCallHelpers::TimesOne, static_cast<int32_t>(uoffset), CCallHelpers::Extend::ZExt32));
+    }
 
-    m_jit.addZeroExtend64(wasmBaseMemoryPointer, pointerLocation.asGPR(), wasmScratchGPR);
+    if (m_info.theOnlyMemory().isMemory64())
+        m_jit.addPtr(wasmBaseMemoryPointer, pointerLocation.asGPR(), wasmScratchGPR);
+    else
+        m_jit.addZeroExtend64(wasmBaseMemoryPointer, pointerLocation.asGPR(), wasmScratchGPR);
 #else
-    m_jit.zeroExtend32ToWord(pointerLocation.asGPR(), wasmScratchGPR);
-    m_jit.addPtr(wasmBaseMemoryPointer, wasmScratchGPR);
+    if (m_info.theOnlyMemory().isMemory64())
+        m_jit.addPtr(wasmBaseMemoryPointer, pointerLocation.asGPR(), wasmScratchGPR);
+    else {
+        m_jit.zeroExtend32ToWord(pointerLocation.asGPR(), wasmScratchGPR);
+        m_jit.addPtr(wasmBaseMemoryPointer, wasmScratchGPR);
+    }
 #endif
 
     if (canUseOffsetForm)
         return functor(Address(wasmScratchGPR, static_cast<int32_t>(uoffset)));
 
+    // FIXME: We (potentially) already computed this above before adding the boundary, we should preserve that add result and use it again here
     m_jit.addPtr(TrustedImmPtr(uoffset), wasmScratchGPR);
     return functor(Address(wasmScratchGPR));
 }

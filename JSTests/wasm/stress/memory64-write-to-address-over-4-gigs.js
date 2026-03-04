@@ -18,13 +18,15 @@ const instance = await instantiate(wat, {}, {reference_types: true});
 const {write, read} = instance.exports;
 
 const writeAddr = BigInt(Number.MAX_SAFE_INTEGER + 1);
+const outOfBoundsError = [
+    WebAssembly.RuntimeError,
+    "Out of bounds memory access (evaluating 'func(...args)')",
+];
+
 function test() {
-    const outOfBoundsError = [
-        WebAssembly.RuntimeError,
-        "Out of bounds memory access (evaluating 'func(...args)')",
-    ];
     assert.throws(() => write(42, writeAddr), ...outOfBoundsError);
     assert.throws(() => read(writeAddr), ...outOfBoundsError);
 }
 
-test();
+for (let i = 0; i < wasmTestLoopCount; i++)
+    test();

@@ -1,39 +1,94 @@
 //@ skip if $addressBits <= 32
-//@ runDefaultWasm("-m", "--useWasmMemory64=1", "--useOMGJIT=0")
-import { instantiate } from "../wabt-wrapper.js";
-import * as assert from "../assert.js";
+//@ runDefaultWasm("--useWasmMemory64=1", "--useOMGJIT=0")
 
-async function test() {
-  const wat = `
-  (module
-      (memory i64 1)
-      (func (export "load") (param $addr i64) (result i32)
-          local.get $addr
-          i32.load offset=1
-      )
-      (func (export "store") (param $addr i64)
-          local.get $addr
-          i32.const 0
-          i32.store offset=1
-      )
-  )
-  `;
+load("../spec-harness.js", "caller relative");
 
-  const instance = await instantiate(wat, {}, { threads: false });
-  const { load, store } = instance.exports;
+// u64 LEB128 encoding of 0xffffffffffffffff
+const kU64MaxLEB128 = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x01];
 
-  const outOfBoundsError = [
-    WebAssembly.RuntimeError,
-    "Out of bounds memory access (evaluating 'func(...args)')",
-  ];
-  // 0xFFFFFFFFFFFFFFFF + offset=1 wraps to 0x0, which is in bounds —
-  // without overflow detection this would incorrectly succeed.
-  assert.throws(() => load(0xffffffffffffffffn), ...outOfBoundsError);
-  assert.throws(() => store(0xffffffffffffffffn), ...outOfBoundsError);
+const builder = new WasmModuleBuilder();
+builder.addMemory64(1);
 
-  // 0xFFFFFFFFFFFFFFFE + offset=1 + size-1=3 wraps to 2, also falsely in bounds.
-  assert.throws(() => load(0xfffffffffffffffen), ...outOfBoundsError);
-  assert.throws(() => store(0xfffffffffffffffen), ...outOfBoundsError);
+builder.addFunction("testLoad", makeSig([kWasmI64], [kWasmI32]))
+    .addBody([
+        kExprGetLocal, 0,
+        kExprI32LoadMem, 0, 1,
+    ])
+    .exportAs("testLoad");
+
+builder.addFunction("testStore", makeSig([kWasmI64], []))
+    .addBody([
+        kExprGetLocal, 0,
+        kExprI32Const, 0,
+        kExprI32StoreMem, 0, 1,         
+    ])
+    .exportAs("testStore");
+
+builder.addFunction("constantLoad", makeSig([], [kWasmI32]))
+    .addBody([
+        kExprI64Const, 0x7F,  // -1 as signed LEB128 = 0xFFFFFFFFFFFFFFFF
+        kExprI32LoadMem, 0, 1,
+    ])
+    .exportAs("constantLoad");
+
+builder.addFunction("constantStore", makeSig([], []))
+    .addBody([
+        kExprI64Const, 0x7F,  // -1 as signed LEB128 = 0xFFFFFFFFFFFFFFFF
+        kExprI32Const, 0,
+        kExprI32StoreMem, 0, 1,
+    ])
+    .exportAs("constantStore");
+
+builder.addFunction("offsetLoad", makeSig([], [kWasmI32]))
+    .addBody([
+        kExprI64Const, 0,
+        kExprI32LoadMem, 0, ...kU64MaxLEB128,  
+    ])
+    .exportAs("offsetLoad");
+
+builder.addFunction("offsetStore", makeSig([], []))
+    .addBody([
+        kExprI64Const, 0,
+        kExprI32Const, 0,
+        kExprI32StoreMem, 0, ...kU64MaxLEB128,  
+    ])
+    .exportAs("offsetStore");
+
+const { testLoad, testStore, constantLoad, constantStore, offsetStore, offsetLoad } = builder.instantiate().exports;
+
+function testOverflow() {
+  assert.throws(() => testLoad(0xffffffffffffffffn), 
+      WebAssembly.RuntimeError, 
+      "Out of bounds memory access (evaluating 'testLoad(0xffffffffffffffffn)')");
+
+  assert.throws(() => testStore(0xffffffffffffffffn), 
+        WebAssembly.RuntimeError, 
+      "Out of bounds memory access (evaluating 'testStore(0xffffffffffffffffn)')");
+
+  assert.throws(() => testLoad(0xfffffffffffffffen), 
+      WebAssembly.RuntimeError, 
+      "Out of bounds memory access (evaluating 'testLoad(0xfffffffffffffffen)')");
+
+  assert.throws(() => testStore(0xfffffffffffffffen), 
+        WebAssembly.RuntimeError, 
+      "Out of bounds memory access (evaluating 'testStore(0xfffffffffffffffen)')");
+
+  assert.throws(() => constantLoad(), 
+        WebAssembly.RuntimeError, 
+        "Out of bounds memory access (evaluating 'constantLoad()')");
+
+  assert.throws(() => constantStore(), 
+        WebAssembly.RuntimeError, 
+        "Out of bounds memory access (evaluating 'constantStore()')");
+
+  assert.throws(() => offsetStore(), 
+        WebAssembly.RuntimeError, 
+        "Out of bounds memory access (evaluating 'offsetStore()')");
+
+    assert.throws(() => offsetLoad(), 
+        WebAssembly.RuntimeError, 
+        "Out of bounds memory access (evaluating 'offsetLoad()')");
 }
 
-await assert.asyncTest(test());
+for (let i = 0; i < wasmTestLoopCount; i++)
+    testOverflow();

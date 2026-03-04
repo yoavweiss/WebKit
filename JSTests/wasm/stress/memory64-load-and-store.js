@@ -54,7 +54,7 @@ let wat = `
     }
 )`;
 
-const instance = await instantiate(wat, {}, {reference_types: true});
+const instance = await instantiate(wat, {}, {memory64: true});
 const exports = instance.exports;
 
 function test() {

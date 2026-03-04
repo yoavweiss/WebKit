@@ -29,7 +29,7 @@ let wat = `
 `;
 
 const helloBytes = "hello";
-const instance = await instantiate(wat, {}, {reference_types: true});
+const instance = await instantiate(wat, {}, {memory64: true});
 const {testInit, testFill, testCopy, memory} = instance.exports;
 const len = helloBytes.length;
 const iterable = new DataView(memory.buffer);
