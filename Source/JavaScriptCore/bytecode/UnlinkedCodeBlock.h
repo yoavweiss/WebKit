@@ -180,6 +180,11 @@ public:
     void setQuickDFGTierUp(TriState state) { m_quickDFGTierUp = state; }
     TriState quickDFGTierUp() const { return m_quickDFGTierUp; }
 
+    bool hasQuickFTLTierUpUpdated() const { return m_quickFTLTierUp != TriState::Indeterminate; }
+    bool isQuickFTLTierUp() const { return m_quickFTLTierUp == TriState::True; }
+    void setQuickFTLTierUp(TriState state) { m_quickFTLTierUp = state; }
+    TriState quickFTLTierUp() const { return m_quickFTLTierUp; }
+
     // Special registers
     void setThisRegister(VirtualRegister thisRegister) { m_thisRegister = thisRegister; }
     void setScopeRegister(VirtualRegister scopeRegister) { m_scopeRegister = scopeRegister; }
@@ -435,6 +440,8 @@ private:
     bool m_hasCheckpoints : 1;
     LexicallyScopedFeatures m_lexicallyScopedFeatures : bitWidthOfLexicallyScopedFeatures { 0 };
     TriState m_quickDFGTierUp : 2 { TriState::Indeterminate };
+    TriState m_quickFTLTierUp : 2 { TriState::Indeterminate };
+
 public:
     ConcurrentJSLock m_lock;
 #if ENABLE(JIT)

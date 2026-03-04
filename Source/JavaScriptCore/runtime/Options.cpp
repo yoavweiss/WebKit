@@ -596,11 +596,6 @@ static void overrideDefaults()
     Options::worklistFTLLoadWeight() = 20;
 #endif
 
-#if PLATFORM(MAC)
-    Options::quickDFGTierUpThresholdFactor() = 0.15;
-    Options::relaxedProfileCoverageFactorForQuickDFGTierUp() = 0.85;
-#endif
-
 #if OS(LINUX) && CPU(ARM)
     Options::maximumFunctionForCallInlineCandidateBytecodeCostForDFG() = 77;
     Options::maximumOptimizationCandidateBytecodeCost() = 42403;

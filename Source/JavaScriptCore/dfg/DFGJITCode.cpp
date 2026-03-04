@@ -327,7 +327,12 @@ void JITCode::optimizeAfterWarmUp(CodeBlock* codeBlock)
     ASSERT(codeBlock->jitType() == JITType::DFGJIT);
     dataLogLnIf(Options::verboseOSR(), *codeBlock, ": FTL-optimizing after warm-up.");
     CodeBlock* baseline = codeBlock->baselineVersion();
-    codeBlock->dfgJITData()->tierUpCounter().setNewThreshold(baseline->adjustedCounterValue(Options::thresholdForFTLOptimizeAfterWarmUp()), baseline);
+    int32_t threshold = Options::thresholdForFTLOptimizeAfterWarmUp();
+    if (baseline->unlinkedCodeBlock()->isQuickFTLTierUp()) {
+        threshold = static_cast<int32_t>(threshold * Options::quickFTLTierUpThresholdFactor());
+        dataLogLnIf(Options::verboseOSR(), *codeBlock, ": Quick FTL tier-up enabled and code is stable, adjustedThreshold=", threshold, ", finalThreshold=", baseline->adjustedCounterValue(threshold));
+    }
+    codeBlock->dfgJITData()->tierUpCounter().setNewThreshold(baseline->adjustedCounterValue(threshold), baseline);
 }
 
 void JITCode::optimizeSoon(CodeBlock* codeBlock)
@@ -357,6 +362,7 @@ void JITCode::setOptimizationThresholdBasedOnCompilationResult(
     case CompilationResult::CompilationFailed:
         dontOptimizeAnytimeSoon(codeBlock);
         codeBlock->baselineVersion()->m_didFailFTLCompilation = true;
+        codeBlock->didFailFTLCompilation();
         return;
     case CompilationResult::CompilationDeferred:
         optimizeAfterWarmUp(codeBlock);

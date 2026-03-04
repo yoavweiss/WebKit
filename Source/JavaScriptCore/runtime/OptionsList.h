@@ -381,8 +381,9 @@ bool hasCapacityToUseLargeGigacage();
     v(Double, desiredProfileLivenessRate, 0.75, Normal, nullptr) \
     v(Double, desiredProfileFullnessRate, 0.35, Normal, nullptr) \
     \
-    v(Double, quickDFGTierUpThresholdFactor, 0.2, Normal, "Threshold factor for quick DFG tier-up"_s) \
-    v(Double, relaxedProfileCoverageFactorForQuickDFGTierUp, 1.0, Normal, "Profile coverage scaling factor for quick DFG tier-up"_s) \
+    v(Double, quickDFGTierUpThresholdFactor, defaultQuickDFGTierUpThresholdFactor(), Normal, "Threshold factor for quick DFG tier-up"_s) \
+    v(Double, relaxedProfileCoverageFactorForQuickDFGTierUp, defaultRelaxedProfileCoverageFactorForQuickDFGTierUp(), Normal, "Profile coverage scaling factor for quick DFG tier-up"_s) \
+    v(Double, quickFTLTierUpThresholdFactor, defaultQuickFTLTierUpThresholdFactor(), Normal, "Threshold factor for quick FTL tier-up"_s) \
     \
     v(Double, doubleVoteRatioForDoubleFormat, 2, Normal, nullptr) \
     v(Double, structureCheckVoteRatioForHoisting, 1, Normal, nullptr) \

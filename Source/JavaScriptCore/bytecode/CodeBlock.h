@@ -763,6 +763,12 @@ public:
     void didDFGJettison(Profiler::JettisonReason);
     void didFailDFGCompilation();
 
+#if ENABLE(FTL_JIT)
+    void didInstallFTLCode();
+    void didFTLJettison(Profiler::JettisonReason);
+    void didFailFTLCompilation();
+#endif
+
 #else // No JIT
     void optimizeAfterWarmUp() { }
     unsigned numberOfDFGCompiles() { return 0; }
