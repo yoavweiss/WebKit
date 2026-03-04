@@ -29,7 +29,9 @@ function notificationCallback(element, notificationName) {
                 // and style remain clean, causing crashes. Note this is a layout-test only problem, as actual ATs can't
                 // synchronously trigger JS in response to notifications like our testing infrastructure allows for tests.
                 eventSender.keyDown("\t");
-            }, 5);
+                // Avoid leaving lingering dirty style and layout by forcing it to be clean.
+                document.body.offsetHeight;
+            }, 50);
         }
 
         // We should get a total of 2 focus changes.

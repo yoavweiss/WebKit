@@ -705,7 +705,12 @@ void AXObjectCache::platformHandleFocusedUIElementChanged(AccessibilityObject*, 
     if (!rootWebArea)
         return;
 
-    [rootWebArea->wrapper() accessibilityPostedNotification:NSAccessibilityFocusChangedNotification userInfo:nil];
+    callOnMainThread([webArea = rootWebArea] {
+        // Do not post focus-changed notifications to layout tests synchronously. Otherwise JS event
+        // handlers could dirty style / layout in the middle of contexts where we expect clean style
+        // and layout, e.g. AXObjectCache::performDeferredCacheUpdate.
+        [webArea->wrapper() accessibilityPostedNotification:NSAccessibilityFocusChangedNotification userInfo:nil];
+    });
 }
 
 void AXObjectCache::handleScrolledToAnchor(const Node&)
