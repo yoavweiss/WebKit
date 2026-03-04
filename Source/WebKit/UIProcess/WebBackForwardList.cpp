@@ -884,14 +884,14 @@ WebCore::BackForwardItemIdentifier generateBackForwardItemIdentifier()
 }
 
 // rdar://168139823 is the task of doing a productionized version of WebKit Swift logging
-void doLog(const char* WTF_NONNULL msg)
+void doLog(const WTF::String& msg)
 {
-    LOG(BackForward, "%s", msg);
+    LOG(BackForward, "%s", msg.utf8().data());
 }
 
-void doLoadingReleaseLog(const char* WTF_NONNULL msg)
+void doLoadingReleaseLog(const WTF::String& msg)
 {
-    RELEASE_LOG(Loading, "%s", msg);
+    RELEASE_LOG(Loading, "%s", msg.utf8().data());
 }
 // rdar://168139740 is the task of doing a productionized Swift MESSAGE_CHECK
 void messageCheckFailed(Ref<WebKit::WebProcessProxy> process)

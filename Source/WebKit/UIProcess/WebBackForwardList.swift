@@ -74,29 +74,11 @@ extension WebKit.WebBackForwardListItem {
 private func backForwardLog(_ msgCreator: @autoclosure () -> String) {
     // rdar://133777029 likely will allow us to avoid the performance penalty
     // of creating the string if logging is disabled.
-    let msg = msgCreator()
-
-    let span = msg.utf8CString.span
-    // Safety: the buffer pointer is guaranteed to be
-    // valid and null-terminated during the call to
-    // doLog
-    unsafe span.withUnsafeBufferPointer { ptr in
-        // swift-format-ignore: NeverForceUnwrap
-        unsafe doLog(ptr.baseAddress!)
-    }
+    doLog(WTF.String(msgCreator()))
 }
 
 private func loadingReleaseLog(_ msgCreator: @autoclosure () -> String) {
-    let msg = msgCreator()
-
-    let span = msg.utf8CString.span
-    // Safety: the buffer pointer is guaranteed to be
-    // valid and null-terminated during the call to
-    // doLoadingReleaseLog
-    unsafe span.withUnsafeBufferPointer { ptr in
-        // swift-format-ignore: NeverForceUnwrap
-        unsafe doLoadingReleaseLog(ptr.baseAddress!)
-    }
+    doLoadingReleaseLog(WTF.String(msgCreator()))
 }
 
 // Temporary partial MESSAGE_CHECK_BASE support from Swift
