@@ -29,7 +29,6 @@
 #include <wtf/Assertions.h>
 #include <wtf/FastMalloc.h>
 #include <wtf/HashFunctions.h>
-#include <wtf/HashTraits.h>
 #include <wtf/MallocSpan.h>
 #include <wtf/Noncopyable.h>
 #include <wtf/StdLibExtras.h>
@@ -41,9 +40,10 @@ DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(SmallSet);
 // Functionally, this class is very similar to Variant<Vector<T, SmallArraySize>, HashSet<T>>
 // It is optimized primarily for space, but is also quite fast
 // Its main limitation is that it has no way to remove elements once they have been added to it
-// It uses HashTraits to determine its empty value.
+// Also, instead of being fully parameterized by a HashTrait parameter, it always uses -1 (all ones) as its empty value
+// Relatedly, it can only store objects of up to 64 bit size (but that particular limitation should be fairly easy to lift if needed)
 // Use it whenever you need to store an unbounded but probably small number of unsigned integers or pointers.
-template<typename T, typename Hash = PtrHashBase<T, false /* isSmartPtr */>, typename Traits = HashTraits<T>, unsigned SmallArraySize = 8>
+template<typename T, typename Hash = PtrHashBase<T, false /* isSmartPtr */>, unsigned SmallArraySize = 8>
 class SmallSet {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED(SmallSet);
     WTF_MAKE_NONCOPYABLE(SmallSet);
@@ -101,7 +101,7 @@ public:
         {
             ++m_index;
             ASSERT(m_index <= m_buffer.size());
-            while (m_index < m_buffer.size() && isEmptyBucket(m_buffer[m_index]))
+            while (m_index < m_buffer.size() && m_buffer[m_index] == emptyValue())
                 ++m_index;
             return *this;
         }
@@ -111,7 +111,7 @@ public:
         bool operator==(const iterator& other) const { ASSERT(m_buffer.data() == other.m_buffer.data()); return m_index == other.m_index; }
 
     private:
-        template<typename U, typename H, typename TR, unsigned S> friend class WTF::SmallSet;
+        template<typename U, typename H, unsigned S> friend class WTF::SmallSet;
         unsigned m_index;
         std::span<T> m_buffer;
     };
@@ -203,9 +203,11 @@ public:
     }
 
 private:
-    static bool isEmptyBucket(const T& value)
+    constexpr static T emptyValue()
     {
-        return isHashTraitsEmptyValue<Traits>(value);
+        if constexpr (std::is_pointer<T>::value)
+            return static_cast<T>(std::bit_cast<void*>(std::numeric_limits<uintptr_t>::max()));
+        return std::numeric_limits<T>::max();
     }
 
     bool equal(const T left, const T right) const
@@ -214,12 +216,14 @@ private:
             return Hash::equal(left, right);
         if (isValidEntry(left) && isValidEntry(right))
             return Hash::equal(left, right);
-        return left == right;
+        return left == right; 
     }
 
-    bool isValidEntry(const T& value) const
+    bool isValidEntry(const T value) const
     {
-        return !isEmptyBucket(value);
+        if constexpr (Hash::safeToCompareToEmptyOrDeleted)
+            return !Hash::equal(value, emptyValue());
+        return value != emptyValue();
     }
 
     inline bool isSmall() const
@@ -231,28 +235,34 @@ private:
     {
         m_size = 0;
         m_capacity = SmallArraySize;
-        initializeBuckets(std::span { m_inline.smallStorage });
+        memsetSpan(std::span { m_inline.smallStorage }, -1);
         ASSERT(isSmall());
-    }
-
-    static void initializeBuckets(std::span<T> span)
-    {
-        if constexpr (Traits::emptyValueIsZero)
-            memsetSpan(span, 0);
-        else {
-            for (auto& entry : span)
-                entry = Traits::emptyValue();
-        }
     }
 
     inline void grow(unsigned size)
     {
+        // We memset the new buffer with -1, so for consistency emptyValue() must return something which is all 1s.
+#if !defined(NDEBUG)
+        if constexpr (std::is_pointer<T>::value)
+            ASSERT(std::bit_cast<intptr_t>(emptyValue()) == -1ll);
+        else if constexpr (sizeof(T) == 8)
+            ASSERT(std::bit_cast<int64_t>(emptyValue()) == -1ll);
+        else if constexpr (sizeof(T) == 4)
+            ASSERT(std::bit_cast<int32_t>(emptyValue()) == -1);
+        else if constexpr (sizeof(T) == 2)
+            ASSERT(std::bit_cast<int16_t>(emptyValue()) == -1);
+        else if constexpr (sizeof(T) == 1)
+            ASSERT(std::bit_cast<int8_t>(emptyValue()) == -1);
+        else
+            RELEASE_ASSERT_NOT_REACHED();
+#endif
+
         size_t allocationSize = sizeof(T) * size;
         auto oldBuffer = buffer();
 
         unsigned oldCapacity = m_capacity;
         auto newBuffer = MallocSpan<T, SmallSetMalloc>::malloc(allocationSize);
-        initializeBuckets(newBuffer.mutableSpan());
+        memsetSpan(newBuffer.mutableSpan(), -1);
         m_capacity = size;
 
         for (unsigned i = 0; i < oldCapacity; i++) {
