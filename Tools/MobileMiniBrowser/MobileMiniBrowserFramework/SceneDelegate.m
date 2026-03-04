@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Apple Inc. All rights reserved.
+ * Copyright (C) 2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,28 +23,28 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "AppDelegate.h"
+#import "SceneDelegate.h"
 
 #import "WebViewController.h"
+#import <WebKit/WebKit.h>
 #import <WebKit/WKWebsiteDataStorePrivate.h>
 #import <WebKit/_WKWebsiteDataStoreDelegate.h>
 
-#import <WebKit/WebKit.h>
-
-@interface AppDelegate () <_WKWebsiteDataStoreDelegate>
+@interface SceneDelegate () <_WKWebsiteDataStoreDelegate>
 @end
 
-@implementation AppDelegate
+@implementation SceneDelegate
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+@synthesize window;
+
+- (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    UIStoryboard *frameworkMainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle bundleForClass:[AppDelegate class]]];
-    WebViewController *viewController = [frameworkMainStoryboard instantiateInitialViewController];
-#pragma clang diagnostic pop
-    if (!viewController)
-        return NO;
+    UIWindow *window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
+    self.window = window;
+
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle bundleForClass:[SceneDelegate class]]];
+    WebViewController *viewController = (WebViewController *)[storyboard instantiateInitialViewController];
+    window.rootViewController = viewController;
 
     WKWebsiteDataStore *dataStore = viewController.dataStore;
     [WKWebsiteDataStore _setWebPushActionHandler:^(_WKWebPushAction *action) {
@@ -52,35 +52,18 @@
     }];
     dataStore._delegate = self;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    NSURL *url = launchOptions[UIApplicationLaunchOptionsURLKey];
-#pragma clang diagnostic pop
+    if (connectionOptions.URLContexts.count)
+        [viewController setInitialURL:[connectionOptions.URLContexts anyObject].URL];
 
-    if (url)
-        viewController.initialURL = url;
-
-    if (!self.window)
-// FIXME: rdar://151039019 (Replace using 'init' in AppDelegate.m with non-deprecated method)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        self.window = [[UIWindow alloc] init];
-#pragma clang diagnostic pop
-    self.window.rootViewController = viewController;
-    [self.window makeKeyAndVisible];
-
-    return YES;
+    [window makeKeyAndVisible];
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options
+- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
 {
-    WebViewController *controller = (WebViewController *)self.window.rootViewController;
-    [controller.currentWebView loadRequest:[NSURLRequest requestWithURL:url]];
-    return YES;
+    WebViewController *viewController = (WebViewController *)self.window.rootViewController;
+    if (URLContexts.count)
+        [viewController.currentWebView loadRequest:[NSURLRequest requestWithURL:[URLContexts anyObject].URL]];
 }
-#pragma clang diagnostic pop
 
 - (void)websiteDataStore:(WKWebsiteDataStore *)dataStore openWindow:(NSURL *)url fromServiceWorkerOrigin:(WKSecurityOrigin *)serviceWorkerOrigin completionHandler:(void (^)(WKWebView *newWebView))completionHandler
 {
