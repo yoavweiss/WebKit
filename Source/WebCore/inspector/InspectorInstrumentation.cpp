@@ -78,6 +78,7 @@
 #include "WebSocketFrame.h"
 #include "WorkerInspectorController.h"
 #include "WorkerOrWorkletGlobalScope.h"
+#include "agents/frame/FrameRuntimeAgent.h"
 #include <JavaScriptCore/ConsoleMessage.h>
 #include <JavaScriptCore/ConsoleTypes.h>
 #include <JavaScriptCore/InspectorDebuggerAgent.h>
@@ -107,6 +108,13 @@ void InspectorInstrumentation::didClearWindowObjectInWorldImpl(InstrumentingAgen
 {
     if (auto* pageDebuggerAgent = instrumentingAgents.enabledPageDebuggerAgent())
         pageDebuggerAgent->didClearWindowObjectInWorld(frame, world);
+
+    if (auto* frameRuntimeAgent = frame.inspectorController().instrumentingAgents().enabledFrameRuntimeAgent()) {
+        frameRuntimeAgent->didClearWindowObjectInWorld(world);
+        if (CheckedPtr pageAgent = instrumentingAgents.enabledPageAgent())
+            pageAgent->didClearWindowObjectInWorld(frame, world);
+        return;
+    }
 
     if (auto* pageRuntimeAgent = instrumentingAgents.enabledPageRuntimeAgent())
         pageRuntimeAgent->didClearWindowObjectInWorld(frame, world);

@@ -1164,7 +1164,8 @@ WI.NetworkManager = class NetworkManager extends WI.Object
     executionContextCreated(payload)
     {
         let frame = this.frameForIdentifier(payload.frameId);
-        console.assert(frame);
+        // Under site isolation, FrameTargets report their own contexts.
+        // PageTarget should only handle contexts for frames in its own frame tree.
         if (!frame)
             return;
 

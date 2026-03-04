@@ -57,6 +57,7 @@ class InspectorNetworkAgent;
 class InspectorPageAgent;
 class InspectorTimelineAgent;
 class InspectorWorkerAgent;
+class FrameRuntimeAgent;
 class PageCanvasAgent;
 class PageDOMDebuggerAgent;
 class PageDebuggerAgent;
@@ -85,6 +86,7 @@ class WebHeapAgent;
 #define DEFINE_INSPECTOR_AGENT_LayerTree(macro, Getter, Setter) DEFINE_INSPECTOR_AGENT(macro, InspectorLayerTreeAgent, LayerTreeAgent, Getter, Setter)
 #define DEFINE_INSPECTOR_AGENT_Network(macro, Getter, Setter) DEFINE_INSPECTOR_AGENT(macro, InspectorNetworkAgent, NetworkAgent, Getter, Setter)
 #define DEFINE_INSPECTOR_AGENT_Page(macro, Getter, Setter) DEFINE_INSPECTOR_AGENT(macro, InspectorPageAgent, PageAgent, Getter, Setter)
+#define DEFINE_INSPECTOR_AGENT_Runtime_Frame(macro, Getter, Setter) DEFINE_INSPECTOR_AGENT(macro, FrameRuntimeAgent, FrameRuntimeAgent, Getter, Setter)
 #define DEFINE_INSPECTOR_AGENT_Runtime_Page(macro, Getter, Setter) DEFINE_INSPECTOR_AGENT(macro, PageRuntimeAgent, PageRuntimeAgent, Getter, Setter)
 #define DEFINE_INSPECTOR_AGENT_ScriptProfiler(macro, Getter, Setter) DEFINE_INSPECTOR_AGENT(macro, Inspector::InspectorScriptProfilerAgent, ScriptProfilerAgent, Getter, Setter)
 #define DEFINE_INSPECTOR_AGENT_Timeline(macro, Getter, Setter) DEFINE_INSPECTOR_AGENT(macro, InspectorTimelineAgent, TimelineAgent, Getter, Setter)
@@ -132,6 +134,7 @@ class WebHeapAgent;
     DEFINE_ENABLED_INSPECTOR_AGENT(macro, Memory) \
     DEFINE_ENABLED_INSPECTOR_AGENT(macro, Network) \
     DEFINE_ENABLED_INSPECTOR_AGENT(macro, Page) \
+    DEFINE_ENABLED_INSPECTOR_AGENT(macro, Runtime_Frame) \
     DEFINE_ENABLED_INSPECTOR_AGENT(macro, Runtime_Page) \
     DEFINE_ENABLED_INSPECTOR_AGENT(macro, Timeline) \
     DEFINE_ENABLED_INSPECTOR_AGENT(macro, Timeline_Page) \

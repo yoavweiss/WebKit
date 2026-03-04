@@ -835,6 +835,8 @@ localizedStrings["Frames"] = "Frames";
 localizedStrings["Frames %d \u2013 %d"] = "Frames %d \u2013 %d";
 /* Title for list of HTML subframe JavaScript execution contexts */
 localizedStrings["Frames @ Execution Context Picker"] = "Frames";
+/* Title for list of site-isolated frame JavaScript execution contexts */
+localizedStrings["Frame Targets"] = "Frame Targets";
 /* Title for Frames row in Media Sidebar */
 localizedStrings["Frames @ Media Sidebar Frame Count"] = "Frames";
 localizedStrings["Full Garbage Collection"] = "Full Garbage Collection";
