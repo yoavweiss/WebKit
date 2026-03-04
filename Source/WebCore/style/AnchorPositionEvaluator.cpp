@@ -345,7 +345,7 @@ static const ScopedName& implicitAnchorElementName()
     return name;
 }
 
-static BoxAxis mapInsetPropertyToPhysicalAxis(CSSPropertyID id, const WritingMode writingMode)
+static BoxAxis NODELETE mapInsetPropertyToPhysicalAxis(CSSPropertyID id, const WritingMode writingMode)
 {
     switch (id) {
     case CSSPropertyLeft:
@@ -366,7 +366,7 @@ static BoxAxis mapInsetPropertyToPhysicalAxis(CSSPropertyID id, const WritingMod
     }
 }
 
-static LogicalBoxAxis mapInsetPropertyToLogicalAxis(CSSPropertyID id, const WritingMode writingMode)
+static LogicalBoxAxis NODELETE mapInsetPropertyToLogicalAxis(CSSPropertyID id, const WritingMode writingMode)
 {
     switch (id) {
     case CSSPropertyLeft:
@@ -390,7 +390,7 @@ static LogicalBoxAxis mapInsetPropertyToLogicalAxis(CSSPropertyID id, const Writ
 // Physical sides (left/right/top/bottom) can only be used in certain inset properties. "For example,
 // left is usable in left, right, or the logical inset properties that refer to the horizontal axis."
 // See: https://drafts.csswg.org/css-anchor-position-1/#typedef-anchor-side
-static bool anchorSideMatchesInsetProperty(CSSValueID anchorSideID, BoxAxis physicalAxis)
+static bool NODELETE anchorSideMatchesInsetProperty(CSSValueID anchorSideID, BoxAxis physicalAxis)
 {
     switch (anchorSideID) {
     case CSSValueID::CSSValueInside:
@@ -554,7 +554,7 @@ LayoutRect AnchorPositionEvaluator::computeAnchorRectRelativeToContainingBlock(C
     return LayoutRect(anchorLocation, LayoutSize(anchorWidth, anchorHeight));
 }
 
-static bool inline isInsetPropertyContainerStartSide(CSSPropertyID insetPropertyID, PositionedLayoutConstraints& constraints)
+static bool inline NODELETE isInsetPropertyContainerStartSide(CSSPropertyID insetPropertyID, PositionedLayoutConstraints& constraints)
 {
     switch (insetPropertyID) {
     case CSSPropertyLeft:
@@ -579,7 +579,7 @@ static bool inline isInsetPropertyContainerStartSide(CSSPropertyID insetProperty
     }
 }
 
-static CSSPropertyID getOppositeInset(CSSPropertyID propertyID)
+static CSSPropertyID NODELETE getOppositeInset(CSSPropertyID propertyID)
 {
     switch (propertyID) {
     case CSSPropertyLeft:
@@ -877,7 +877,7 @@ std::optional<double> AnchorPositionEvaluator::evaluate(BuilderState& builderSta
 
 // Returns the default anchor size dimension to use when it is not specified in
 // anchor-size(). This matches the axis of the property that anchor-size() is used in.
-static AnchorSizeDimension defaultDimensionForPropertyID(CSSPropertyID propertyID)
+static AnchorSizeDimension NODELETE defaultDimensionForPropertyID(CSSPropertyID propertyID)
 {
     switch (propertyID) {
     case CSSPropertyWidth:
@@ -923,7 +923,7 @@ static AnchorSizeDimension defaultDimensionForPropertyID(CSSPropertyID propertyI
 }
 
 // Convert anchor size dimension to the physical dimension (width or height).
-static BoxAxis anchorSizeDimensionToPhysicalDimension(AnchorSizeDimension dimension, const RenderStyle& style, const RenderStyle& containerStyle)
+static BoxAxis NODELETE anchorSizeDimensionToPhysicalDimension(AnchorSizeDimension dimension, const RenderStyle& style, const RenderStyle& containerStyle)
 {
     switch (dimension) {
     case AnchorSizeDimension::Width:
@@ -1386,7 +1386,7 @@ bool AnchorPositionEvaluator::isLayoutTimeAnchorPositioned(const RenderStyle& st
     return style.justifySelf().isAnchorCenter() || style.alignSelf().isAnchorCenter();
 }
 
-static CSSPropertyID flipHorizontal(CSSPropertyID propertyID)
+static CSSPropertyID NODELETE flipHorizontal(CSSPropertyID propertyID)
 {
     switch (propertyID) {
     case CSSPropertyLeft:
@@ -1402,7 +1402,7 @@ static CSSPropertyID flipHorizontal(CSSPropertyID propertyID)
     }
 }
 
-static CSSPropertyID flipVertical(CSSPropertyID propertyID)
+static CSSPropertyID NODELETE flipVertical(CSSPropertyID propertyID)
 {
     switch (propertyID) {
     case CSSPropertyTop:

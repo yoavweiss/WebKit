@@ -189,7 +189,7 @@ public:
         SetForScope<bool> m_redirectAttachToFosterParentChange;
     };
 
-    static bool isFormattingTag(TagName);
+    static bool NODELETE isFormattingTag(TagName);
 
 private:
     Document& document() const { return m_document; }

@@ -38,7 +38,7 @@
 namespace WebCore {
 namespace Style {
 
-static bool isSiblingOrSubject(MatchElement matchElement)
+static bool NODELETE isSiblingOrSubject(MatchElement matchElement)
 {
     switch (matchElement) {
     case MatchElement::Subject:
@@ -86,7 +86,7 @@ bool isHasPseudoClassMatchElement(MatchElement matchElement)
     }
 }
 
-static bool isScopeBreaking(MatchElement matchElement)
+static bool NODELETE isScopeBreaking(MatchElement matchElement)
 {
     switch (matchElement) {
     case MatchElement::HasAnySibling:
@@ -205,7 +205,7 @@ static MatchElement computeNextMatchElement(MatchElement matchElement, CSSSelect
     return matchElement;
 };
 
-static MatchElement computeNextHasPseudoClassMatchElement(MatchElement matchElement, CSSSelector::Relation relation, CanBreakScope canBreakScope)
+static MatchElement NODELETE computeNextHasPseudoClassMatchElement(MatchElement matchElement, CSSSelector::Relation relation, CanBreakScope canBreakScope)
 {
     ASSERT(isHasPseudoClassMatchElement(matchElement));
 

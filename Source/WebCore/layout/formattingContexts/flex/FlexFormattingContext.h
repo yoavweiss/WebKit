@@ -43,7 +43,7 @@ public:
     FlexFormattingContext(const ElementBox& flexBox, LayoutState&);
 
     void layout(const ConstraintsForFlexContent&);
-    IntrinsicWidthConstraints computedIntrinsicWidthConstraints();
+    IntrinsicWidthConstraints NODELETE computedIntrinsicWidthConstraints();
 
     const ElementBox& root() const { return m_flexBox; }
     const FlexFormattingUtils& formattingUtils() const { return m_flexFormattingUtils; }

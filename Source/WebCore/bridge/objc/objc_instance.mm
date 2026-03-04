@@ -59,7 +59,7 @@
 namespace JSC {
 namespace Bindings {
 
-static RetainPtr<NSString>& globalException()
+static RetainPtr<NSString>& NODELETE globalException()
 {
     static NeverDestroyed<RetainPtr<NSString>> exception;
     return exception;
@@ -69,7 +69,7 @@ static RetainPtr<NSString>& globalException()
 // FIXME: A new object can happen to be equal to the old one, so even pointer comparison is not safe. Maybe we can use NeverDestroyed<JSC::Weak>?
 static JSGlobalObject* s_exceptionEnvironment;
 
-static HashMap<CFTypeRef, ObjcInstance*>& wrapperCache()
+static HashMap<CFTypeRef, ObjcInstance*>& NODELETE wrapperCache()
 {
     static NeverDestroyed<HashMap<CFTypeRef, ObjcInstance*>> map;
     return map;

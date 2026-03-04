@@ -44,7 +44,7 @@ public:
 
     unsigned NODELETE startOffset(const CSSParserTokenRange&);
     unsigned NODELETE previousTokenStartOffset(const CSSParserTokenRange&);
-    unsigned endOffset(const CSSParserTokenRange&); // Includes trailing comments
+    unsigned NODELETE endOffset(const CSSParserTokenRange&); // Includes trailing comments
 
     void NODELETE skipCommentsBefore(const CSSParserTokenRange&, bool leaveDirectlyBefore);
     void yieldCommentsBefore(const CSSParserTokenRange&);

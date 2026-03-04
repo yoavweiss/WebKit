@@ -79,7 +79,7 @@ private:
     bool selfHasRelativeLengths() const override;
     void notifyFinished(CachedResource&, const NetworkLoadMetrics&, LoadWillContinueInAnotherProcess) final;
 
-    Document* externalDocument() const;
+    Document* NODELETE externalDocument() const;
     void updateExternalDocument();
 
     FloatRect getBBox(StyleUpdateStrategy = AllowStyleUpdate) override;

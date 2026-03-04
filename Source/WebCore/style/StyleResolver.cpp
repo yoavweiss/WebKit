@@ -101,16 +101,16 @@
 namespace WTF {
 
 struct StyleRuleKeyframeKeyHash {
-    static unsigned hash(const WebCore::StyleRuleKeyframe::Key& p) { return pairIntHash(p.rangeName, p.offset); }
-    static bool equal(const WebCore::StyleRuleKeyframe::Key& a, const WebCore::StyleRuleKeyframe::Key& b) { return a == b; }
+    static unsigned NODELETE hash(const WebCore::StyleRuleKeyframe::Key& p) { return pairIntHash(p.rangeName, p.offset); }
+    static bool NODELETE equal(const WebCore::StyleRuleKeyframe::Key& a, const WebCore::StyleRuleKeyframe::Key& b) { return a == b; }
     static const bool safeToCompareToEmptyOrDeleted = true;
 };
 template<> struct HashTraits<WebCore::StyleRuleKeyframe::Key> : GenericHashTraits<WebCore::StyleRuleKeyframe::Key> {
-    static WebCore::StyleRuleKeyframe::Key emptyValue() { return { WebCore::CSSValueDefault, 0 }; }
-    static bool isEmptyValue(const WebCore::StyleRuleKeyframe::Key& value) { return value.rangeName == WebCore::CSSValueDefault; }
+    static WebCore::StyleRuleKeyframe::Key NODELETE emptyValue() { return { WebCore::CSSValueDefault, 0 }; }
+    static bool NODELETE isEmptyValue(const WebCore::StyleRuleKeyframe::Key& value) { return value.rangeName == WebCore::CSSValueDefault; }
 
-    static void constructDeletedValue(WebCore::StyleRuleKeyframe::Key& slot) { slot.rangeName = WebCore::CSSValueNone; }
-    static bool isDeletedValue(const WebCore::StyleRuleKeyframe::Key& slot) { return slot.rangeName == WebCore::CSSValueNone; }
+    static void NODELETE constructDeletedValue(WebCore::StyleRuleKeyframe::Key& slot) { slot.rangeName = WebCore::CSSValueNone; }
+    static bool NODELETE isDeletedValue(const WebCore::StyleRuleKeyframe::Key& slot) { return slot.rangeName == WebCore::CSSValueNone; }
 };
 template<> struct DefaultHash<WebCore::StyleRuleKeyframe::Key> : StyleRuleKeyframeKeyHash { };
 
@@ -145,10 +145,10 @@ public:
             m_rootElementStyle = document.initialContainingBlockStyle();
     }
 
-    const Element* element() const { return m_element; }
+    const Element* NODELETE element() const { return m_element; }
 
     void setStyle(std::unique_ptr<RenderStyle> style) { m_style = WTF::move(style); }
-    RenderStyle* style() const { return m_style.get(); }
+    RenderStyle* NODELETE style() const { return m_style.get(); }
     std::unique_ptr<RenderStyle> takeStyle() { return WTF::move(m_style); }
 
     void setParentStyle(std::unique_ptr<RenderStyle> parentStyle)
@@ -156,10 +156,10 @@ public:
         m_ownedParentStyle = WTF::move(parentStyle);
         m_parentStyle = m_ownedParentStyle.get();
     }
-    const RenderStyle* parentStyle() const { return m_parentStyle; }
-    const RenderStyle* rootElementStyle() const { return m_rootElementStyle; }
+    const RenderStyle* NODELETE parentStyle() const { return m_parentStyle; }
+    const RenderStyle* NODELETE rootElementStyle() const { return m_rootElementStyle; }
 
-    CheckedPtr<TreeResolutionState> treeResolutionState() { return m_treeResolutionState; }
+    CheckedPtr<TreeResolutionState> NODELETE treeResolutionState() { return m_treeResolutionState; }
 
 private:
     const Element* m_element { };

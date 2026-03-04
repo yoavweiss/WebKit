@@ -95,7 +95,7 @@ void TextBreakingPositionCache::clear()
     m_cachedContentSize = 0;
 }
 
-void add(Hasher& hasher, const TextBreakingPositionContext& context)
+void NODELETE add(Hasher& hasher, const TextBreakingPositionContext& context)
 {
     add(hasher, context.whitespaceCollapseBehavior, context.overflowWrap, context.lineBreak, context.wordBreak, context.nbspMode, context.locale);
 }

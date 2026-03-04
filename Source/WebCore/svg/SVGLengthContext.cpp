@@ -326,7 +326,7 @@ float SVGLengthContext::convertValueFromPercentageToUserUnits(float value, SVGLe
     return value * dimensionForLengthMode(lengthMode, viewportSize);
 }
 
-static inline const RenderStyle* renderStyleForLengthResolving(const SVGElement* context)
+static inline const RenderStyle* NODELETE renderStyleForLengthResolving(const SVGElement* context)
 {
     if (!context)
         return nullptr;

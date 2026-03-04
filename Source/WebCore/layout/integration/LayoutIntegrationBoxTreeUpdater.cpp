@@ -70,7 +70,7 @@ static std::unique_ptr<RenderStyle> firstLineStyleFor(const RenderObject& render
     return RenderStyle::clonePtr(firstLineStyle.get());
 }
 
-static Layout::Box::IsAnonymous isAnonymous(const RenderObject& renderer)
+static Layout::Box::IsAnonymous NODELETE isAnonymous(const RenderObject& renderer)
 {
     return renderer.isAnonymous() ? Layout::Box::IsAnonymous::Yes : Layout::Box::IsAnonymous::No;
 }

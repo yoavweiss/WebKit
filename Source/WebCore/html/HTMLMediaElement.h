@@ -1154,7 +1154,7 @@ private:
     void updatePlayerDynamicRangeLimit() const;
 
     bool NODELETE shouldLogWatchtimeEvent() const;
-    bool isWatchtimeTimerActive() const;
+    bool NODELETE isWatchtimeTimerActive() const;
     void startWatchtimeTimer();
     void pauseWatchtimeTimer();
     void fireAndRestartWatchtimeTimer();

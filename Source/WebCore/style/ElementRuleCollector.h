@@ -65,10 +65,10 @@ public:
     void setMedium(const MQ::MediaQueryEvaluator& medium) { m_isPrintStyle = medium.isPrintMedia(); }
 
 
-    const MatchResult& matchResult() const;
-    Ref<MatchResult> releaseMatchResult();
+    const MatchResult& NODELETE matchResult() const;
+    Ref<MatchResult> NODELETE releaseMatchResult();
 
-    const Vector<Ref<const StyleRule>>& matchedRuleList() const;
+    const Vector<Ref<const StyleRule>>& NODELETE matchedRuleList() const;
 
     void clearMatchedRules();
 
@@ -98,7 +98,7 @@ private:
     void collectMatchingRulesForList(const RuleSet::RuleDataVector*, const MatchRequest&);
     void collectMatchingRulesForList(const RuleSet::RuleDataVector&, const MatchRequest&);
     void collectMatchingRulesForListSlow(const RuleSet::RuleDataVector&, const MatchRequest&);
-    bool isFirstMatchModeAndHasMatchedAnyRules() const;
+    bool NODELETE isFirstMatchModeAndHasMatchedAnyRules() const;
     struct ScopingRootWithDistance {
         RefPtr<const ContainerNode> scopingRoot;
         unsigned distance { std::numeric_limits<unsigned>::max() };
@@ -110,7 +110,7 @@ private:
 
     void sortMatchedRules();
 
-    Vector<MatchedProperties>& declarationsForOrigin(DeclarationOrigin);
+    Vector<MatchedProperties>& NODELETE declarationsForOrigin(DeclarationOrigin);
     void sortAndTransferMatchedRules(DeclarationOrigin);
     void transferMatchedRules(DeclarationOrigin, std::optional<ScopeOrdinal> forScope = { });
 

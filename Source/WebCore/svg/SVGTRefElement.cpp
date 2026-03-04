@@ -58,7 +58,7 @@ public:
 
     void attach(RefPtr<Element>&& target);
     void detach();
-    bool isAttached() const { return m_target.get(); }
+    bool NODELETE isAttached() const { return m_target.get(); }
 
 private:
     explicit SVGTRefTargetEventListener(SVGTRefElement& trefElement);
@@ -263,7 +263,7 @@ void SVGTRefElement::removedFromAncestor(RemovalType removalType, ContainerNode&
 } // namespace WebCore
 
 SPECIALIZE_TYPE_TRAITS_BEGIN(WebCore::SVGTRefTargetEventListener)
-    static bool isType(const WebCore::EventListener& listener)
+    static bool NODELETE isType(const WebCore::EventListener& listener)
     {
         return listener.type() == WebCore::EventListener::SVGTRefTargetEventListenerType;
     }

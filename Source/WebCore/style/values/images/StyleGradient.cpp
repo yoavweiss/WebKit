@@ -49,7 +49,7 @@ template<> constexpr bool IsRepeatingGradient<CSSValueRepeatingRadialGradient> =
 template<> constexpr bool IsRepeatingGradient<CSSValueWebkitRepeatingRadialGradient> = true;
 template<> constexpr bool IsRepeatingGradient<CSSValueRepeatingConicGradient> = true;
 
-template<CSSValueID Name, typename T> static constexpr bool isRepeating(const FunctionNotation<Name, T>&)
+template<CSSValueID Name, typename T> static constexpr bool NODELETE isRepeating(const FunctionNotation<Name, T>&)
 {
     return IsRepeatingGradient<Name>;
 }
@@ -171,8 +171,8 @@ struct ResolvedGradientStop {
     WebCore::Color color;
     std::optional<float> offset;
 
-    bool isSpecified() const { return offset.has_value(); }
-    bool isMidpoint() const { return !color.isValid(); }
+    bool NODELETE isSpecified() const { return offset.has_value(); }
+    bool NODELETE isMidpoint() const { return !color.isValid(); }
 };
 
 class LinearGradientAdapter {
@@ -182,7 +182,7 @@ public:
     {
     }
 
-    float gradientLength() const
+    float NODELETE gradientLength() const
     {
         auto gradientSize = m_data.point0 - m_data.point1;
         return gradientSize.diagonalLength();
@@ -225,7 +225,7 @@ public:
     {
     }
 
-    float gradientLength() const { return m_data.endRadius; }
+    float NODELETE gradientLength() const { return m_data.endRadius; }
 
     // Radial gradients may need to extend further than the endpoints, because they have
     // to repeat out to the corners of the box.
@@ -289,7 +289,7 @@ private:
 
 class ConicGradientAdapter {
 public:
-    static constexpr float gradientLength() { return 1; }
+    static constexpr float NODELETE gradientLength() { return 1; }
     static constexpr float maxExtent(float) { return 1; }
 
     void normalizeStopsAndEndpointsOutsideRange(Vector<ResolvedGradientStop>& stops, ColorInterpolationMethod colorInterpolationMethod)

@@ -52,7 +52,7 @@ public:
         });
     }
     WEBCORE_EXPORT IsCallbackRegistered whenSettledWithResult(Function<void(JSDOMGlobalObject*, bool, JSC::JSValue)>&&);
-    JSC::JSValue result() const;
+    JSC::JSValue NODELETE result() const;
 
     void markAsHandled();
 

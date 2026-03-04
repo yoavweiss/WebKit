@@ -198,7 +198,7 @@ public:
         reject(*lexicalGlobalObject, jsValue, rejectAsHandled);
     }
 
-    JSC::JSValue promise() const;
+    JSC::JSValue NODELETE promise() const;
 
     void whenSettled(Function<void()>&& callback)
     {

@@ -77,8 +77,8 @@ public:
     TableGrid();
 
     void appendCell(const ElementBox&);
-    void insertCell(const ElementBox&, const ElementBox& before);
-    void removeCell(const ElementBox&);
+    void NODELETE insertCell(const ElementBox&, const ElementBox& before);
+    void NODELETE removeCell(const ElementBox&);
 
     void setHorizontalSpacing(LayoutUnit horizontalSpacing) { m_horizontalSpacing = horizontalSpacing; }
     LayoutUnit horizontalSpacing() const { return m_horizontalSpacing; }

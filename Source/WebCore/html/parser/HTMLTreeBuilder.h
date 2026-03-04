@@ -180,7 +180,7 @@ private:
 
     template <bool shouldClose(const HTMLStackItem&)> void processCloseWhenNestedTag(AtomHTMLToken&&);
 
-    void parseError(const AtomHTMLToken&);
+    void NODELETE parseError(const AtomHTMLToken&);
 
     void resetInsertionModeAppropriately();
 

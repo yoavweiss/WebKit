@@ -405,7 +405,7 @@ namespace WebCore {
 
 // This function is only used for a sanity check mechanism used in
 // CloneSerializer::addToObjectPoolIfNotDupe() and CloneDeserializer::addToObjectPool().
-static constexpr bool canBeAddedToObjectPool(SerializationTag tag)
+static constexpr bool NODELETE canBeAddedToObjectPool(SerializationTag tag)
 {
     // If you add a type to the allow ist (i.e. returns true) here, it means
     // that both the serializer and deserializer will push objects of this
@@ -435,7 +435,7 @@ static constexpr bool canBeAddedToObjectPool(SerializationTag tag)
 }
 
 
-static bool isTypeExposedToGlobalObject(JSC::JSGlobalObject& globalObject, SerializationTag tag)
+static bool NODELETE isTypeExposedToGlobalObject(JSC::JSGlobalObject& globalObject, SerializationTag tag)
 {
 #if ENABLE(WEB_AUDIO)
     if (!jsDynamicCast<JSAudioWorkletGlobalScope*>(&globalObject))
@@ -542,7 +542,7 @@ static bool isTypeExposedToGlobalObject(JSC::JSGlobalObject& globalObject, Seria
 #endif
 }
 
-static unsigned typedArrayElementSize(ArrayBufferViewSubtag tag)
+static unsigned NODELETE typedArrayElementSize(ArrayBufferViewSubtag tag)
 {
     switch (tag) {
     case DataViewTag:
@@ -595,7 +595,7 @@ static SerializableErrorType errorNameToSerializableErrorType(const String& name
     return SerializableErrorType::Error;
 }
 
-static ErrorType toErrorType(SerializableErrorType value)
+static ErrorType NODELETE toErrorType(SerializableErrorType value)
 {
     switch (value) {
     case SerializableErrorType::Error:
@@ -722,7 +722,7 @@ enum class CryptoAlgorithmIdentifierTag {
 
 const uint8_t cryptoAlgorithmIdentifierTagMaximumValue = 23;
 
-static unsigned countUsages(CryptoKeyUsageBitmap usages)
+static unsigned NODELETE countUsages(CryptoKeyUsageBitmap usages)
 {
     // Fast bit count algorithm for sparse bit maps.
     unsigned count = 0;
@@ -740,9 +740,9 @@ enum class CryptoKeyOKPOpNameTag : bool {
 const uint8_t cryptoKeyOKPOpNameTagMaximumValue = 1;
 static constexpr unsigned CurrentMajorVersion = 15;
 static constexpr unsigned CurrentMinorVersion = 0;
-static constexpr unsigned majorVersionFor(unsigned version) { return version & 0x00FFFFFF; }
-static constexpr unsigned minorVersionFor(unsigned version) { return version >> 24; }
-static constexpr unsigned makeVersion(unsigned major, unsigned minor)
+static constexpr unsigned NODELETE majorVersionFor(unsigned version) { return version & 0x00FFFFFF; }
+static constexpr unsigned NODELETE minorVersionFor(unsigned version) { return version >> 24; }
+static constexpr unsigned NODELETE makeVersion(unsigned major, unsigned minor)
 {
     ASSERT_UNDER_CONSTEXPR_CONTEXT(major < (1u << 24));
     ASSERT_UNDER_CONSTEXPR_CONTEXT(minor < (1u << 8));
@@ -769,7 +769,7 @@ static constexpr unsigned makeVersion(unsigned major, unsigned minor)
  * Version 14. encode booleans as uint8_t instead of int32_t.
  * Version 15. changed the terminator of the indexed property section in array.
  */
-static constexpr unsigned currentVersion() { return makeVersion(CurrentMajorVersion, CurrentMinorVersion); }
+static constexpr unsigned NODELETE currentVersion() { return makeVersion(CurrentMajorVersion, CurrentMinorVersion); }
 static constexpr unsigned TerminatorTag = 0xFFFFFFFF;
 static constexpr unsigned StringPoolTag = 0xFFFFFFFE;
 static constexpr unsigned NonIndexPropertiesTag = 0xFFFFFFFD;
@@ -990,7 +990,7 @@ protected:
     {
     }
 
-    void fail()
+    void NODELETE fail()
     {
         m_failed = true;
     }
@@ -1374,7 +1374,7 @@ private:
 
     SerializationReturnCode serialize(JSValue in);
 
-    bool isArray(JSValue value)
+    bool NODELETE isArray(JSValue value)
     {
         if (!value.isObject())
             return false;
@@ -1382,14 +1382,14 @@ private:
         return object->inherits<JSArray>();
     }
 
-    bool isMap(JSValue value)
+    bool NODELETE isMap(JSValue value)
     {
         if (!value.isObject())
             return false;
         JSObject* object = asObject(value);
         return object->inherits<JSMap>();
     }
-    bool isSet(JSValue value)
+    bool NODELETE isSet(JSValue value)
     {
         if (!value.isObject())
             return false;
@@ -3326,8 +3326,8 @@ private:
             }
             return m_jsString;
         }
-        const String& string() { return m_string; }
-        String takeString() { return WTF::move(m_string); }
+        const String& NODELETE string() { return m_string; }
+        String NODELETE takeString() { return WTF::move(m_string); }
 
     private:
         String m_string;
@@ -3343,7 +3343,7 @@ private:
         {
         }
         
-        CachedString* operator->() { ASSERT(m_base); return &m_base->at(m_index); }
+        CachedString* NODELETE operator->() { ASSERT(m_base); return &m_base->at(m_index); }
         
     private:
         Vector<CachedString>* m_base { nullptr };
@@ -3603,7 +3603,7 @@ private:
     Vector<RefPtr<DetachedMediaSourceHandle>> takeDetachedMediaSourceHandles() { return std::exchange(m_detachedMediaSourceHandles, { }); }
 #endif
 
-    bool isValid() const
+    bool NODELETE isValid() const
     {
         if (m_majorVersion > CurrentMajorVersion)
             return false;
@@ -3611,7 +3611,7 @@ private:
             return m_minorVersion <= 1;
         return !m_minorVersion;
     }
-    bool shouldRetryWithVersionUpgrade()
+    bool NODELETE shouldRetryWithVersionUpgrade()
     {
         if (m_majorVersion == 14 && !m_minorVersion)
             return true;
@@ -3619,7 +3619,7 @@ private:
             return true;
         return false;
     }
-    void upgradeVersion()
+    void NODELETE upgradeVersion()
     {
         ASSERT(shouldRetryWithVersionUpgrade());
         if (m_majorVersion == 14 && !m_minorVersion) {
@@ -3638,7 +3638,7 @@ private:
         appendObjectPoolTag(tag);
     }
 
-    template <typename T> bool readLittleEndian(T& value)
+    template <typename T> bool NODELETE readLittleEndian(T& value)
     {
         if (m_failed || !readLittleEndian(m_data, value)) {
             SERIALIZE_TRACE("FAIL deserialize");
@@ -3648,7 +3648,7 @@ private:
         return true;
     }
 #if ASSUME_LITTLE_ENDIAN
-    template <typename T> static bool readLittleEndian(std::span<const uint8_t>& span, T& value)
+    template <typename T> static bool NODELETE readLittleEndian(std::span<const uint8_t>& span, T& value)
     {
         if (span.size() < sizeof(value))
             return false;
@@ -3657,7 +3657,7 @@ private:
         return true;
     }
 #else
-    template <typename T> static bool readLittleEndian(std::span<const uint8_t>& span, T& value)
+    template <typename T> static bool NODELETE readLittleEndian(std::span<const uint8_t>& span, T& value)
     {
         if (span.size() < sizeof(value))
             return false;
@@ -3675,7 +3675,7 @@ private:
 #endif
 
     enum class ForceReadingAs8Bit : bool { No, Yes };
-    bool read(bool& b, ForceReadingAs8Bit forceReadingAs8Bit = ForceReadingAs8Bit::No)
+    bool NODELETE read(bool& b, ForceReadingAs8Bit forceReadingAs8Bit = ForceReadingAs8Bit::No)
     {
         if (m_majorVersion >= 14 || forceReadingAs8Bit == ForceReadingAs8Bit::Yes) {
             uint8_t integer;
@@ -3691,27 +3691,27 @@ private:
         return true;
     }
 
-    bool read(uint32_t& i)
+    bool NODELETE read(uint32_t& i)
     {
         return readLittleEndian(i);
     }
 
-    bool read(int32_t& i)
+    bool NODELETE read(int32_t& i)
     {
         return readLittleEndian(*reinterpret_cast<uint32_t*>(&i));
     }
 
-    bool read(uint16_t& i)
+    bool NODELETE read(uint16_t& i)
     {
         return readLittleEndian(i);
     }
 
-    bool read(uint8_t& i)
+    bool NODELETE read(uint8_t& i)
     {
         return readLittleEndian(i);
     }
 
-    bool read(double& d)
+    bool NODELETE read(double& d)
     {
         union {
             double d;
@@ -3723,22 +3723,22 @@ private:
         return true;
     }
 
-    bool read(uint64_t& i)
+    bool NODELETE read(uint64_t& i)
     {
         return readLittleEndian(i);
     }
 
-    std::optional<uint32_t> readStringIndex()
+    std::optional<uint32_t> NODELETE readStringIndex()
     {
         return readConstantPoolIndex(m_constantPool);
     }
 
-    std::optional<uint32_t> readImageDataIndex()
+    std::optional<uint32_t> NODELETE readImageDataIndex()
     {
         return readConstantPoolIndex(m_imageDataPool);
     }
 
-    template<typename T> std::optional<uint32_t> readConstantPoolIndex(const T& constantPool)
+    template<typename T> std::optional<uint32_t> NODELETE readConstantPoolIndex(const T& constantPool)
     {
         if (constantPool.size() <= 0xFF) {
             uint8_t i8;
@@ -3862,7 +3862,7 @@ private:
         return tag;
     }
 
-    bool readArrayBufferViewSubtag(ArrayBufferViewSubtag& tag)
+    bool NODELETE readArrayBufferViewSubtag(ArrayBufferViewSubtag& tag)
     {
         if (m_data.empty())
             return false;
@@ -4058,7 +4058,7 @@ private:
         return true;
     }
 
-    bool read(PredefinedColorSpace& result)
+    bool NODELETE read(PredefinedColorSpace& result)
     {
         uint8_t tag;
         if (!read(tag))
@@ -4084,7 +4084,7 @@ private:
         }
     }
 
-    bool read(DestinationColorSpaceTag& tag)
+    bool NODELETE read(DestinationColorSpaceTag& tag)
     {
         if (m_data.empty())
             return false;
@@ -4169,7 +4169,7 @@ private:
         return false;
     }
 
-    bool read(CryptoKeyOKP::NamedCurve& result)
+    bool NODELETE read(CryptoKeyOKP::NamedCurve& result)
     {
         uint8_t nameTag;
         if (!read(nameTag))
@@ -4189,7 +4189,7 @@ private:
         return true;
     }
 
-    bool read(CryptoAlgorithmIdentifier& result)
+    bool NODELETE read(CryptoAlgorithmIdentifier& result)
     {
         uint8_t algorithmTag;
         if (!read(algorithmTag))
@@ -4264,7 +4264,7 @@ private:
         return true;
     }
 
-    bool read(CryptoKeyClassSubtag& result)
+    bool NODELETE read(CryptoKeyClassSubtag& result)
     {
         uint8_t tag;
         if (!read(tag))
@@ -4275,7 +4275,7 @@ private:
         return true;
     }
 
-    bool read(CryptoKeyUsageTag& result)
+    bool NODELETE read(CryptoKeyUsageTag& result)
     {
         uint8_t tag;
         if (!read(tag))
@@ -4286,7 +4286,7 @@ private:
         return true;
     }
 
-    bool read(CryptoKeyAsymmetricTypeSubtag& result)
+    bool NODELETE read(CryptoKeyAsymmetricTypeSubtag& result)
     {
         uint8_t tag;
         if (!read(tag))
@@ -4542,7 +4542,7 @@ private:
         return true;
     }
 
-    bool read(SerializableErrorType& errorType)
+    bool NODELETE read(SerializableErrorType& errorType)
     {
         std::underlying_type_t<SerializableErrorType> errorTypeInt;
         if (!read(errorTypeInt) || errorTypeInt > std::to_underlying(SerializableErrorType::Last))

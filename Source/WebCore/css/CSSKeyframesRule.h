@@ -39,7 +39,7 @@ class StyleRuleKeyframe;
 
 class StyleRuleKeyframes final : public StyleRuleBase {
 public:
-    static Ref<StyleRuleKeyframes> create(const AtomString& name);
+    static Ref<StyleRuleKeyframes> NODELETE create(const AtomString& name);
     ~StyleRuleKeyframes();
     
     const Vector<Ref<StyleRuleKeyframe>>& NODELETE keyframes() const;

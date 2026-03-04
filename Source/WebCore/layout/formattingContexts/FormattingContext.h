@@ -76,7 +76,7 @@ public:
     bool isTableWrapperBlockFormattingContext() const { return isBlockFormattingContext() && root().isTableWrapperBox(); }
     bool isFlexFormattingContext() const { return root().establishesFlexFormattingContext(); }
 
-    static const InitialContainingBlock& initialContainingBlock(const Box&);
+    static const InitialContainingBlock& NODELETE initialContainingBlock(const Box&);
     static const ElementBox& containingBlock(const Box&);
 #if ASSERT_ENABLED
     static const ElementBox& formattingContextRoot(const Box&);

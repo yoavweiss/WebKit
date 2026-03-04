@@ -57,7 +57,7 @@ public:
 
     static bool getOwnPropertySlot(JSObject*, JSGlobalObject*, PropertyName, PropertySlot&);
     static bool put(JSCell*, JSGlobalObject*, PropertyName, JSValue, PutPropertySlot&);
-    static bool deleteProperty(JSCell*, JSGlobalObject*, PropertyName, DeletePropertySlot&);
+    static bool NODELETE deleteProperty(JSCell*, JSGlobalObject*, PropertyName, DeletePropertySlot&);
     static CallData getCallData(JSCell*);
     static CallData getConstructData(JSCell*);
 
@@ -84,7 +84,7 @@ protected:
     void finishCreation(VM&);
 
 private:
-    static GCClient::IsoSubspace* subspaceForImpl(VM&);
+    static GCClient::IsoSubspace* NODELETE subspaceForImpl(VM&);
 
     RefPtr<Instance> m_instance;
 };

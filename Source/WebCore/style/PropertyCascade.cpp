@@ -349,7 +349,7 @@ void PropertyCascade::addPositionTryFallbackProperties()
     addMatch(*m_positionTryFallbackProperties, Origin::PositionFallback, IsImportant::No);
 }
 
-static auto& declarationsForOrigin(const MatchResult& matchResult, PropertyCascade::Origin origin)
+static auto& NODELETE declarationsForOrigin(const MatchResult& matchResult, PropertyCascade::Origin origin)
 {
     switch (origin) {
     case PropertyCascade::Origin::UserAgent: return matchResult.userAgentDeclarations;

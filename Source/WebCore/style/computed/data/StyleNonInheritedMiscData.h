@@ -71,7 +71,7 @@ public:
     void dumpDifferences(TextStream&, const NonInheritedMiscData&) const;
 #endif
 
-    bool hasFilters() const;
+    bool NODELETE hasFilters() const;
 
     // This is here to pack in with m_refCount.
     Opacity opacity;

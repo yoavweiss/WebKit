@@ -77,7 +77,7 @@ static size_t estimatedDisplayBoxSize(size_t inlineItemSize)
     return std::min<size_t>(maximumEstimatedDisplayBoxSize, inlineItemSize * 0.6);
 }
 
-static std::optional<InlineItemRange> partialRangeForDamage(const InlineItemList& inlineItemList, const InlineDamage& lineDamage)
+static std::optional<InlineItemRange> NODELETE partialRangeForDamage(const InlineItemList& inlineItemList, const InlineDamage& lineDamage)
 {
     auto layoutStartPosition = lineDamage.layoutStartPosition()->inlineItemPosition;
     if (layoutStartPosition.index >= inlineItemList.size()) {
@@ -92,7 +92,7 @@ static std::optional<InlineItemRange> partialRangeForDamage(const InlineItemList
     return InlineItemRange { layoutStartPosition, { inlineItemList.size(), 0 } };
 }
 
-static bool isEmptyInlineContent(const InlineItemList& inlineItemList)
+static bool NODELETE isEmptyInlineContent(const InlineItemList& inlineItemList)
 {
     // Very common, pseudo before/after empty content.
     if (inlineItemList.size() != 1)

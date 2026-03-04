@@ -109,7 +109,7 @@ struct Filter : ListOrNone<FilterValueList> {
     bool hasFilterOfType() const;
 
     bool hasReferenceFilter() const;
-    bool isReferenceFilter() const;
+    bool NODELETE isReferenceFilter() const;
 
     IntOutsets calculateOutsets(ZoomFactor) const;
 };

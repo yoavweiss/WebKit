@@ -6,7 +6,6 @@
 #error "Please do not include this file anywhere except from RenderStyle+SettersInlines.h."
 #endif
 
-#include "RenderStyleBase+SettersInlines.h"
 #include "StyleComputedStyle+SettersInlines.h"
 
 namespace WebCore {

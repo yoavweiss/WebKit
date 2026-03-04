@@ -33,7 +33,7 @@
 namespace WebCore {
 
 namespace CryptoAlgorithmPBKDF2MacInternal {
-static CCPseudoRandomAlgorithm commonCryptoHMACAlgorithm(CryptoAlgorithmIdentifier hashFunction)
+static CCPseudoRandomAlgorithm NODELETE commonCryptoHMACAlgorithm(CryptoAlgorithmIdentifier hashFunction)
 {
     switch (hashFunction) {
     case CryptoAlgorithmIdentifier::SHA_1:

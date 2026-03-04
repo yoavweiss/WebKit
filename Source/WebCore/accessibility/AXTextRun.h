@@ -152,10 +152,10 @@ public:
         unsigned size = runs.size();
         return size ? runLengthSumTo(size - 1) : 0;
     }
-    unsigned runLengthSumTo(size_t index) const;
-    unsigned domOffset(unsigned) const;
+    unsigned NODELETE runLengthSumTo(size_t index) const;
+    unsigned NODELETE domOffset(unsigned) const;
 
-    size_t indexForOffset(unsigned textOffset, Affinity) const;
+    size_t NODELETE indexForOffset(unsigned textOffset, Affinity) const;
     AXTextRunLineID lineID(size_t index) const { return { containingBlock, runs[index].lineIndex }; }
     String toString() const { return text; }
     StringView toStringView() const { return StringView(text); }

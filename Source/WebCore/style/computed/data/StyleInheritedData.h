@@ -53,7 +53,7 @@ public:
 
     bool fastPathInheritedEqual(const InheritedData&) const;
     bool nonFastPathInheritedEqual(const InheritedData&) const;
-    void fastPathInheritFrom(const InheritedData&);
+    void NODELETE fastPathInheritFrom(const InheritedData&);
 
     WebkitBorderSpacing borderHorizontalSpacing;
     WebkitBorderSpacing borderVerticalSpacing;

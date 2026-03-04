@@ -152,12 +152,12 @@ protected:
 
     explicit CanvasRenderingContext(CanvasBase&, Type);
     bool NODELETE taintsOrigin(const CanvasPattern*);
-    bool taintsOrigin(const CanvasBase*);
+    bool NODELETE taintsOrigin(const CanvasBase*);
     bool taintsOrigin(const CachedImage*);
     bool taintsOrigin(const HTMLImageElement*);
     bool taintsOrigin(const SVGImageElement*);
     bool taintsOrigin(const HTMLVideoElement*);
-    bool taintsOrigin(const ImageBitmap*);
+    bool NODELETE taintsOrigin(const ImageBitmap*);
     bool taintsOrigin(const URL&);
 
     template<class T> void checkOrigin(const T* arg)
@@ -166,7 +166,7 @@ protected:
             m_canvas->setOriginTainted();
     }
     void checkOrigin(const URL&);
-    void checkOrigin(const CSSStyleImageValue&);
+    void NODELETE checkOrigin(const CSSStyleImageValue&);
 
     mutable std::atomic<size_t> m_memoryCost { 0 };
 

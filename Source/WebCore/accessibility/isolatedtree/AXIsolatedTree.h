@@ -469,7 +469,7 @@ public:
     void updateRootScreenRelativePosition();
     void overrideNodeProperties(AXID, AXPropertyVector&&);
 
-    double loadingProgress();
+    double NODELETE loadingProgress();
     void updateLoadingProgress(double);
 
     void addUnconnectedNode(Ref<AccessibilityObject>);
@@ -495,7 +495,7 @@ public:
     // of the IsolatedTree.
     // Focused node updates in AXObjectCache use setFocusNodeID.
     void setPendingRootNodeID(AXID);
-    void setPendingRootNodeIDLocked(AXID) WTF_REQUIRES_LOCK(m_changeLogLock);
+    void NODELETE setPendingRootNodeIDLocked(AXID) WTF_REQUIRES_LOCK(m_changeLogLock);
     void setFocusedNodeID(std::optional<AXID>);
     void applyPendingRootNodeLocked() WTF_REQUIRES_LOCK(m_changeLogLock);
 
@@ -533,7 +533,7 @@ public:
     void setPageActivityState(OptionSet<ActivityState>);
     OptionSet<ActivityState> pageActivityState() const;
     // Use only if the s_storeLock is already held like in findAXTree.
-    WEBCORE_EXPORT OptionSet<ActivityState> lockedPageActivityState() const;
+    WEBCORE_EXPORT OptionSet<ActivityState> NODELETE lockedPageActivityState() const;
 
     AXTextMarkerRange selectedTextMarkerRange() { return m_selectedTextMarkerRange; }
     void setSelectedTextMarkerRange(AXTextMarkerRange&&);
@@ -567,7 +567,7 @@ private:
     static std::atomic<bool> s_anyTreeNeedsTearDown;
 
     // rdar://161259641 (Figure out a way to enforce WTF_REQUIRES_LOCK when we might need to access it while already holding the lock)
-    static HashMap<FrameIdentifier, Ref<AXIsolatedTree>>& treeFrameCache(); // WTF_REQUIRES_LOCK(s_storeLock);
+    static HashMap<FrameIdentifier, Ref<AXIsolatedTree>>& NODELETE treeFrameCache(); // WTF_REQUIRES_LOCK(s_storeLock);
 
     void createEmptyContent(AccessibilityObject&);
     constexpr bool isUpdatingSubtree() const { return m_rootOfSubtreeBeingUpdated; }
@@ -700,7 +700,7 @@ private:
 };
 
 IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>&, Ref<AXIsolatedTree>);
-std::optional<AXPropertyFlag> convertToPropertyFlag(AXProperty);
+std::optional<AXPropertyFlag> NODELETE convertToPropertyFlag(AXProperty);
 
 inline AXObjectCache* AXIsolatedTree::axObjectCache() const
 {

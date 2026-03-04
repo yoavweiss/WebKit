@@ -82,13 +82,13 @@ public:
     // FIXME: Remove when computeInlinePreferredLogicalWidths is all IFC.
     static bool mayBreakInBetween(String previousContent, const RenderStyle& previousContentStyle, String nextContent, const RenderStyle& nextContentStyle);
     static unsigned findNextBreakablePosition(CachedLineBreakIteratorFactory&, unsigned startPosition, const RenderStyle&);
-    static TextBreakIterator::LineMode::Behavior lineBreakIteratorMode(LineBreak);
-    static TextBreakIterator::ContentAnalysis contentAnalysis(WordBreak);
+    static TextBreakIterator::LineMode::Behavior NODELETE lineBreakIteratorMode(LineBreak);
+    static TextBreakIterator::ContentAnalysis NODELETE contentAnalysis(WordBreak);
 
-    static bool shouldPreserveSpacesAndTabs(const Box&);
-    static bool shouldPreserveNewline(const Box&);
-    static bool isWrappingAllowed(const RenderStyle&);
-    static bool shouldTrailingWhitespaceHang(const RenderStyle&);
+    static bool NODELETE shouldPreserveSpacesAndTabs(const Box&);
+    static bool NODELETE shouldPreserveNewline(const Box&);
+    static bool NODELETE isWrappingAllowed(const RenderStyle&);
+    static bool NODELETE shouldTrailingWhitespaceHang(const RenderStyle&);
 
     static bool isStrongDirectionalityCharacter(char32_t);
     static bool containsStrongDirectionalityText(StringView);
@@ -114,7 +114,7 @@ public:
     static bool hasPositionDependentContentWidth(StringView);
 
     static char32_t baseCharacterFromGraphemeCluster(StringView graphemeCluster);
-    static char32_t lastBaseCharacterFromText(StringView);
+    static char32_t NODELETE lastBaseCharacterFromText(StringView);
 };
 
 } // namespace Layout

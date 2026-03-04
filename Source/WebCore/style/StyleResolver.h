@@ -114,7 +114,7 @@ public:
 
     Document& NODELETE document();
     const Document& NODELETE document() const;
-    const Settings& settings() const;
+    const Settings& NODELETE settings() const;
 
     ScopeType scopeType() const { return m_scopeType; }
 
@@ -146,10 +146,10 @@ public:
     bool hasSelectorForId(const AtomString&) const;
     bool hasSelectorForAttribute(const Element&, const AtomString&) const;
 
-    bool hasViewportDependentMediaQueries() const;
+    bool NODELETE hasViewportDependentMediaQueries() const;
     std::optional<DynamicMediaQueryEvaluationChanges> evaluateDynamicMediaQueries();
 
-    static KeyframesRuleMap& userAgentKeyframes();
+    static KeyframesRuleMap& NODELETE userAgentKeyframes();
     static void addUserAgentKeyframeStyle(Ref<StyleRuleKeyframes>&&);
     void addKeyframeStyle(Ref<StyleRuleKeyframes>&&);
     Vector<Ref<StyleRuleKeyframe>> keyframeRulesForName(const AtomString&, const TimingFunction*) const;
@@ -180,7 +180,7 @@ private:
     class State;
 
     State initializeStateAndStyle(const Element&, const ResolutionContext&, std::unique_ptr<RenderStyle>&& initialStyle = { });
-    BuilderContext builderContext(State&) const;
+    BuilderContext NODELETE builderContext(State&) const;
 
     void applyMatchedProperties(State&, const MatchResult&, PropertyCascade::IncludedProperties&&);
     void setGlobalStateAfterApplyingProperties(const BuilderState&);

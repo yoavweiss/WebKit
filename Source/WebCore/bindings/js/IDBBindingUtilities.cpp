@@ -120,7 +120,7 @@ static bool get(JSGlobalObject& lexicalGlobalObject, JSValue object, const Strin
     return true;
 }
 
-static bool canSet(JSValue object, const String& keyPathElement)
+static bool NODELETE canSet(JSValue object, const String& keyPathElement)
 {
     UNUSED_PARAM(keyPathElement);
     return object.isObject();

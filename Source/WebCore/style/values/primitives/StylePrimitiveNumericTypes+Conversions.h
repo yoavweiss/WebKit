@@ -40,8 +40,8 @@ namespace Style {
 
 // Out of line to avoid inclusion of RenderStyle+GettersInlines.h
 float adjustForZoom(float, const RenderStyle&);
-bool evaluationTimeZoomEnabled(const RenderStyle&);
-bool evaluationTimeZoomEnabled(const BuilderState&);
+bool NODELETE evaluationTimeZoomEnabled(const RenderStyle&);
+bool NODELETE evaluationTimeZoomEnabled(const BuilderState&);
 
 // MARK: Conversion Data specialization
 

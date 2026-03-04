@@ -71,7 +71,7 @@ public:
     static RefPtr<Value> parse(CSSParserTokenRange&, CSS::PropertyParserState&, CSS::Category, CSS::Range, CSSCalcSymbolsAllowed, CSSPropertyParserOptions);
 
     static Ref<Value> create(const Style::Calculation::Value&, const RenderStyle&);
-    static Ref<Value> create(CSS::Category, CSS::Range, CSSCalc::Tree&&);
+    static Ref<Value> NODELETE create(CSS::Category, CSS::Range, CSSCalc::Tree&&);
 
     ~Value();
 

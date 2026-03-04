@@ -145,12 +145,12 @@ public:
     static const Color& currentColor();
 
     bool containsCurrentColor() const;
-    bool isCurrentColor() const;
-    bool isColorMix() const;
-    bool isContrastColor() const;
-    bool isRelativeColor() const;
+    bool NODELETE isCurrentColor() const;
+    bool NODELETE isColorMix() const;
+    bool NODELETE isContrastColor() const;
+    bool NODELETE isRelativeColor() const;
 
-    bool isResolvedColor() const;
+    bool NODELETE isResolvedColor() const;
     const WebCore::Color& resolvedColor() const;
 
     WEBCORE_EXPORT WebCore::Color resolveColor(const WebCore::Color& currentColor) const;

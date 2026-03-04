@@ -170,9 +170,9 @@ DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(StyleRuleWithNesting);
 class StyleRuleWithNesting final : public StyleRule {
     WTF_DEPRECATED_MAKE_STRUCT_FAST_COMPACT_ALLOCATED_WITH_HEAP_IDENTIFIER(StyleRuleWithNesting, StyleRuleWithNesting);
 public:
-    static Ref<StyleRuleWithNesting> create(Ref<StyleProperties>&&, bool hasDocumentSecurityOrigin, CSSSelectorList&&, Vector<Ref<StyleRuleBase>>&& nestedRules);
+    static Ref<StyleRuleWithNesting> NODELETE create(Ref<StyleProperties>&&, bool hasDocumentSecurityOrigin, CSSSelectorList&&, Vector<Ref<StyleRuleBase>>&& nestedRules);
     static Ref<StyleRuleWithNesting> create(StyleRule&&);
-    Ref<StyleRuleWithNesting> copy() const;
+    Ref<StyleRuleWithNesting> NODELETE copy() const;
     ~StyleRuleWithNesting();
 
     const Vector<Ref<StyleRuleBase>>& nestedRules() const LIFETIME_BOUND { return m_nestedRules; }
@@ -397,7 +397,7 @@ public:
         std::optional<bool> inherits { };
         RefPtr<const CSSVariableData> initialValue { };
     };
-    static Ref<StyleRuleProperty> create(Descriptor&&);
+    static Ref<StyleRuleProperty> NODELETE create(Descriptor&&);
     Ref<StyleRuleProperty> copy() const { return adoptRef(*new StyleRuleProperty(*this)); }
 
     const Descriptor& descriptor() const LIFETIME_BOUND { return m_descriptor; }
@@ -411,9 +411,9 @@ private:
 
 class StyleRuleScope final : public StyleRuleGroup {
 public:
-    static Ref<StyleRuleScope> create(CSSSelectorList&&, CSSSelectorList&&, Vector<Ref<StyleRuleBase>>&&);
+    static Ref<StyleRuleScope> NODELETE create(CSSSelectorList&&, CSSSelectorList&&, Vector<Ref<StyleRuleBase>>&&);
     ~StyleRuleScope();
-    Ref<StyleRuleScope> copy() const;
+    Ref<StyleRuleScope> NODELETE copy() const;
 
     const CSSSelectorList& scopeStart() const LIFETIME_BOUND { return m_scopeStart; }
     const CSSSelectorList& scopeEnd() const LIFETIME_BOUND { return m_scopeEnd; }
@@ -422,7 +422,7 @@ public:
     void setScopeStart(CSSSelectorList&& scopeStart) { m_scopeStart = WTF::move(scopeStart); }
     void setScopeEnd(CSSSelectorList&& scopeEnd) { m_scopeEnd = WTF::move(scopeEnd); }
     WeakPtr<const StyleSheetContents> NODELETE styleSheetContents() const;
-    void setStyleSheetContents(const StyleSheetContents&);
+    void NODELETE setStyleSheetContents(const StyleSheetContents&);
 
 private:
     StyleRuleScope(CSSSelectorList&&, CSSSelectorList&&, Vector<Ref<StyleRuleBase>>&&);
@@ -440,7 +440,7 @@ private:
 
 class StyleRuleStartingStyle final : public StyleRuleGroup {
 public:
-    static Ref<StyleRuleStartingStyle> create(Vector<Ref<StyleRuleBase>>&&);
+    static Ref<StyleRuleStartingStyle> NODELETE create(Vector<Ref<StyleRuleBase>>&&);
     Ref<StyleRuleStartingStyle> copy() const { return adoptRef(*new StyleRuleStartingStyle(*this)); }
 
 private:
@@ -461,7 +461,7 @@ private:
 
 class StyleRuleNamespace final : public StyleRuleBase {
 public:
-    static Ref<StyleRuleNamespace> create(const AtomString& prefix, const AtomString& uri);
+    static Ref<StyleRuleNamespace> NODELETE create(const AtomString& prefix, const AtomString& uri);
 
     Ref<StyleRuleNamespace> copy() const { return adoptRef(*new StyleRuleNamespace(*this)); }
 

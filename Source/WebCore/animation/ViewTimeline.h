@@ -58,8 +58,8 @@ struct StickinessAdjustmentData {
 
     float entryDistanceAdjustment() const;
     float exitDistanceAdjustment() const;
-    float rangeStartAdjustment() const;
-    float rangeEndAdjustment() const;
+    float NODELETE rangeStartAdjustment() const;
+    float NODELETE rangeEndAdjustment() const;
 
     static StickinessAdjustmentData computeStickinessAdjustmentData(const StickyPositionViewportConstraints&, ScrollTimeline::ResolvedScrollDirection, float scrollContainerSize, float subjectSize, float subjectOffset);
 
@@ -74,7 +74,7 @@ public:
     static ExceptionOr<Ref<ViewTimeline>> create(Document&, ViewTimelineOptions&& = { });
     static Ref<ViewTimeline> create(const AtomString&, ScrollAxis, const Style::ViewTimelineInsetItem&);
 
-    const Element* subject() const;
+    const Element* NODELETE subject() const;
     const WeakStyleable subjectStyleable() const { return m_subject; }
     void setSubject(Element*);
     void setSubject(const Styleable&);

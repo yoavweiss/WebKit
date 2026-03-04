@@ -195,7 +195,7 @@ private:
     void runOrScheduleAsynchronousTasks(bool canDeferUpdateLayerPositions);
     bool inAsynchronousTasks() const { return m_inAsynchronousTasks; }
 
-    void setSubtreeLayoutRoot(RenderElement&);
+    void NODELETE setSubtreeLayoutRoot(RenderElement&);
 
 #if ENABLE(TEXT_AUTOSIZING)
     void applyTextSizingIfNeeded(RenderElement& layoutRoot);

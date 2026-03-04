@@ -56,7 +56,7 @@ static ExceptionOr<Vector<uint8_t>> signEd25519CryptoKit(const Vector<uint8_t>&s
 #endif
 }
 
-static ExceptionOr<bool>  verifyEd25519CryptoKit(const Vector<uint8_t>& pubKey, const Vector<uint8_t>& signature, const Vector<uint8_t>& data)
+static ExceptionOr<bool> verifyEd25519CryptoKit(const Vector<uint8_t>& pubKey, const Vector<uint8_t>& signature, const Vector<uint8_t>& data)
 {
 #if !defined(CLANG_WEBKIT_BRANCH)
     if (pubKey.size() != ed25519KeySize || signature.size() != ed25519SignatureSize)

@@ -59,7 +59,7 @@ public:
 #endif
 
 private:
-    void layoutFormattingContextSubtree(const ElementBox&);
+    void NODELETE layoutFormattingContextSubtree(const ElementBox&);
     LayoutState& NODELETE layoutState();
 
     const CheckedRef<LayoutState> m_layoutState;

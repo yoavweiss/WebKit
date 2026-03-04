@@ -145,7 +145,7 @@ public:
     WEBCORE_EXPORT ~SerializedScriptValue();
 
     enum class DeserializationBehavior : uint8_t { Fail, Succeed, LegacyMapToNull, LegacyMapToUndefined, LegacyMapToEmptyObject };
-    WEBCORE_EXPORT static DeserializationBehavior deserializationBehavior(JSC::JSObject&);
+    WEBCORE_EXPORT static DeserializationBehavior NODELETE deserializationBehavior(JSC::JSObject&);
 
 private:
     friend struct IPC::ArgumentCoder<SerializedScriptValue>;

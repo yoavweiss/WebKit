@@ -153,7 +153,7 @@ class TokenCounter {
 public:
     TokenCounter() : m_tokenCount(0) { }
 
-    template<typename CharacterType> bool processToken(std::span<const CharacterType>)
+    template<typename CharacterType> bool NODELETE processToken(std::span<const CharacterType>)
     {
         ++m_tokenCount;
         return true;

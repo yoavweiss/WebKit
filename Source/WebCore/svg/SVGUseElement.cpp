@@ -219,7 +219,7 @@ void SVGUseElement::svgAttributeChanged(const QualifiedName& attrName)
     SVGGraphicsElement::svgAttributeChanged(attrName);
 }
 
-static inline bool isDisallowedElement(const SVGElement& element)
+static inline bool NODELETE isDisallowedElement(const SVGElement& element)
 {
     using namespace ElementNames;
 
@@ -329,7 +329,7 @@ RenderPtr<RenderElement> SVGUseElement::createElementRenderer(RenderStyle&& styl
     return createRenderer<LegacyRenderSVGTransformableContainer>(*this, WTF::move(style));
 }
 
-static bool isDirectReference(const SVGElement& element)
+static bool NODELETE isDirectReference(const SVGElement& element)
 {
     using namespace SVGNames;
     return element.hasTagName(circleTag)

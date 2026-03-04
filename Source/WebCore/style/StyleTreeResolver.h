@@ -170,7 +170,7 @@ private:
     const Parent* boxGeneratingParent() const;
     const RenderStyle* parentBoxStyle() const;
     const RenderStyle* parentBoxStyleForPseudoElement(const ElementUpdate&) const;
-    const RenderStyle* documentElementStyle() const;
+    const RenderStyle* NODELETE documentElementStyle() const;
 
     LayoutInterleavingAction updateAnchorPositioningState(Element&, const RenderStyle*);
 
@@ -244,7 +244,7 @@ private:
         bool chosen { false };
         bool isFirstTry { true };
 
-        const RenderStyle& originalStyle() const;
+        const RenderStyle& NODELETE originalStyle() const;
         std::unique_ptr<RenderStyle> currentOption() const;
     };
     HashMap<AnchorPositionedKey, PositionOptions> m_positionOptions;
@@ -257,7 +257,7 @@ private:
 
 // Integrate with the HTML5 event loop instead, see EventLoop.cpp and consumers.
 void deprecatedQueuePostResolutionCallback(Function<void()>&&);
-bool postResolutionCallbacksAreSuspended();
+bool NODELETE postResolutionCallbacksAreSuspended();
 
 inline bool supportsFirstLineAndLetterPseudoElement(const RenderStyle& style)
 {

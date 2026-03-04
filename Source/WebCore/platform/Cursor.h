@@ -141,7 +141,7 @@ public:
     Cursor() = default;
     static std::optional<Cursor> fromIPCData(IPCData&&);
 
-    WEBCORE_EXPORT static const Cursor& fromType(Cursor::Type);
+    WEBCORE_EXPORT static const Cursor& NODELETE fromType(Cursor::Type);
 
     WEBCORE_EXPORT Cursor(Image*, const IntPoint& hotSpot);
 
@@ -188,49 +188,49 @@ private:
 
 IntPoint determineHotSpot(Image*, const IntPoint& specifiedHotSpot);
 
-WEBCORE_EXPORT const Cursor& pointerCursor();
-const Cursor& crossCursor();
-WEBCORE_EXPORT const Cursor& handCursor();
-const Cursor& moveCursor();
-WEBCORE_EXPORT const Cursor& iBeamCursor();
-const Cursor& waitCursor();
-const Cursor& helpCursor();
-const Cursor& eastResizeCursor();
-const Cursor& northResizeCursor();
-const Cursor& northEastResizeCursor();
-const Cursor& northWestResizeCursor();
-const Cursor& southResizeCursor();
-const Cursor& southEastResizeCursor();
-const Cursor& southWestResizeCursor();
-const Cursor& westResizeCursor();
-const Cursor& northSouthResizeCursor();
-const Cursor& eastWestResizeCursor();
-const Cursor& northEastSouthWestResizeCursor();
-const Cursor& northWestSouthEastResizeCursor();
-const Cursor& columnResizeCursor();
-const Cursor& rowResizeCursor();
-const Cursor& middlePanningCursor();
-const Cursor& eastPanningCursor();
-const Cursor& northPanningCursor();
-const Cursor& northEastPanningCursor();
-const Cursor& northWestPanningCursor();
-const Cursor& southPanningCursor();
-const Cursor& southEastPanningCursor();
-const Cursor& southWestPanningCursor();
-const Cursor& westPanningCursor();
-const Cursor& verticalTextCursor();
-const Cursor& cellCursor();
-const Cursor& contextMenuCursor();
-const Cursor& noDropCursor();
-const Cursor& notAllowedCursor();
-const Cursor& progressCursor();
-const Cursor& aliasCursor();
-const Cursor& zoomInCursor();
-const Cursor& zoomOutCursor();
-const Cursor& copyCursor();
-const Cursor& noneCursor();
-const Cursor& grabCursor();
-const Cursor& grabbingCursor();
+WEBCORE_EXPORT const Cursor& NODELETE pointerCursor();
+const Cursor& NODELETE crossCursor();
+WEBCORE_EXPORT const Cursor& NODELETE handCursor();
+const Cursor& NODELETE moveCursor();
+WEBCORE_EXPORT const Cursor& NODELETE iBeamCursor();
+const Cursor& NODELETE waitCursor();
+const Cursor& NODELETE helpCursor();
+const Cursor& NODELETE eastResizeCursor();
+const Cursor& NODELETE northResizeCursor();
+const Cursor& NODELETE northEastResizeCursor();
+const Cursor& NODELETE northWestResizeCursor();
+const Cursor& NODELETE southResizeCursor();
+const Cursor& NODELETE southEastResizeCursor();
+const Cursor& NODELETE southWestResizeCursor();
+const Cursor& NODELETE westResizeCursor();
+const Cursor& NODELETE northSouthResizeCursor();
+const Cursor& NODELETE eastWestResizeCursor();
+const Cursor& NODELETE northEastSouthWestResizeCursor();
+const Cursor& NODELETE northWestSouthEastResizeCursor();
+const Cursor& NODELETE columnResizeCursor();
+const Cursor& NODELETE rowResizeCursor();
+const Cursor& NODELETE middlePanningCursor();
+const Cursor& NODELETE eastPanningCursor();
+const Cursor& NODELETE northPanningCursor();
+const Cursor& NODELETE northEastPanningCursor();
+const Cursor& NODELETE northWestPanningCursor();
+const Cursor& NODELETE southPanningCursor();
+const Cursor& NODELETE southEastPanningCursor();
+const Cursor& NODELETE southWestPanningCursor();
+const Cursor& NODELETE westPanningCursor();
+const Cursor& NODELETE verticalTextCursor();
+const Cursor& NODELETE cellCursor();
+const Cursor& NODELETE contextMenuCursor();
+const Cursor& NODELETE noDropCursor();
+const Cursor& NODELETE notAllowedCursor();
+const Cursor& NODELETE progressCursor();
+const Cursor& NODELETE aliasCursor();
+const Cursor& NODELETE zoomInCursor();
+const Cursor& NODELETE zoomOutCursor();
+const Cursor& NODELETE copyCursor();
+const Cursor& NODELETE noneCursor();
+const Cursor& NODELETE grabCursor();
+const Cursor& NODELETE grabbingCursor();
 
 inline Cursor::Type Cursor::type() const
 {

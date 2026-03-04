@@ -98,12 +98,12 @@ public:
     void removePendingSheet(const Element&);
     void addPendingSheet(const ProcessingInstruction&);
     void removePendingSheet(const ProcessingInstruction&);
-    bool hasPendingSheets() const;
-    bool hasPendingSheetsBeforeBody() const;
-    bool hasPendingSheetsInBody() const;
-    bool hasPendingSheet(const Element&) const;
-    bool hasPendingSheetInBody(const Element&) const;
-    bool hasPendingSheet(const ProcessingInstruction&) const;
+    bool NODELETE hasPendingSheets() const;
+    bool NODELETE hasPendingSheetsBeforeBody() const;
+    bool NODELETE hasPendingSheetsInBody() const;
+    bool NODELETE hasPendingSheet(const Element&) const;
+    bool NODELETE hasPendingSheetInBody(const Element&) const;
+    bool NODELETE hasPendingSheet(const ProcessingInstruction&) const;
 
     bool usesStyleBasedEditability() const { return m_usesStyleBasedEditability; }
     bool usesHasPseudoClass() const { return m_usesHasPseudoClass; }
@@ -183,8 +183,8 @@ public:
     bool invalidateForAnchorDependencies(LayoutDependencyUpdateContext&);
 
 private:
-    Scope& documentScope();
-    bool isForUserAgentShadowTree() const;
+    Scope& NODELETE documentScope();
+    bool NODELETE isForUserAgentShadowTree() const;
 
     void didRemovePendingStylesheet();
 

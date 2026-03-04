@@ -424,7 +424,7 @@ bool HTMLElementStack::contains(Element& element) const
     return !!find(element);
 }
 
-template <bool isMarker(HTMLStackItem&)> bool inScopeCommon(HTMLElementStack::ElementRecord* top, ElementName targetElement)
+template <bool isMarker(HTMLStackItem&)> bool NODELETE inScopeCommon(HTMLElementStack::ElementRecord* top, ElementName targetElement)
 {
     ASSERT(targetElement != ElementName::Unknown);
     for (auto* record = top; record; record = record->next()) {

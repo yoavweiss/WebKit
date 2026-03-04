@@ -214,7 +214,7 @@ struct PropertyIdentifier {
 };
 TextStream& operator<<(TextStream&, const PropertyIdentifier&);
 
-void add(Hasher&, const PropertyIdentifier&);
+void NODELETE add(Hasher&, const PropertyIdentifier&);
 
 template<CSSValueID C> TextStream& operator<<(TextStream& ts, const Constant<C>&)
 {

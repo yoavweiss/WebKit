@@ -131,7 +131,7 @@ private:
         None
     };
 
-    static Type type(const IPCData&);
+    static Type NODELETE type(const IPCData&);
     static AtomString identifier(const IPCData&);
 
     Type m_type { Type::None };

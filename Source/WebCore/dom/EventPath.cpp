@@ -58,14 +58,14 @@ class RelatedNodeRetargeter {
 public:
     RelatedNodeRetargeter(Ref<Node>&& relatedNode, Node& target);
 
-    Node* currentNode(Node& currentTreeScope);
+    Node* NODELETE currentNode(Node& currentTreeScope);
     void moveToNewTreeScope(TreeScope* previousTreeScope, TreeScope& newTreeScope);
 
 private:
-    Node* nodeInLowestCommonAncestor();
+    Node* NODELETE nodeInLowestCommonAncestor();
     void collectTreeScopes();
 
-    void checkConsistency(Node& currentTarget);
+    void NODELETE checkConsistency(Node& currentTarget);
 
     const Ref<Node> m_relatedNode;
     RefPtr<Node> m_retargetedRelatedNode;

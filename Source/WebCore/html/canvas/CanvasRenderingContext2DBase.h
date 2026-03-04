@@ -425,7 +425,7 @@ private:
     void prepareForDisplay() final;
 
     void clearAccumulatedDirtyRect() final;
-    bool isEntireBackingStoreDirty() const;
+    bool NODELETE isEntireBackingStoreDirty() const;
     FloatRect backingStoreBounds() const { return FloatRect { { }, FloatSize { canvasBase().size() } }; }
 
     PixelFormat pixelFormat() const final;

@@ -223,19 +223,16 @@ layout/floats/PlacedFloats.cpp
 layout/formattingContexts/FormattingGeometry.cpp
 layout/formattingContexts/block/BlockFormattingContext.cpp
 layout/formattingContexts/block/BlockFormattingQuirks.cpp
-layout/formattingContexts/block/BlockMarginCollapse.cpp
 layout/formattingContexts/block/PrecomputedBlockMarginCollapse.cpp
 layout/formattingContexts/block/tablewrapper/TableWrapperBlockFormattingContext.cpp
 layout/formattingContexts/flex/FlexLayout.cpp
 layout/formattingContexts/inline/AbstractLineBuilder.cpp
 layout/formattingContexts/inline/InlineContentAligner.cpp
 layout/formattingContexts/inline/InlineContentBreaker.cpp
-layout/formattingContexts/inline/InlineContentConstrainer.cpp
 layout/formattingContexts/inline/InlineFormattingContext.cpp
 layout/formattingContexts/inline/InlineFormattingUtils.cpp
 layout/formattingContexts/inline/InlineItem.h
 layout/formattingContexts/inline/InlineItemsBuilder.cpp
-layout/formattingContexts/inline/InlineItemsBuilder.h
 layout/formattingContexts/inline/InlineLevelBoxInlines.h
 layout/formattingContexts/inline/InlineLine.cpp
 layout/formattingContexts/inline/InlineLineBox.cpp
@@ -244,7 +241,6 @@ layout/formattingContexts/inline/InlineLineBoxBuilder.cpp
 layout/formattingContexts/inline/InlineLineBoxBuilder.h
 layout/formattingContexts/inline/InlineLineBuilder.cpp
 layout/formattingContexts/inline/InlineQuirks.cpp
-layout/formattingContexts/inline/InlineTextItem.cpp
 layout/formattingContexts/inline/IntrinsicWidthHandler.cpp
 layout/formattingContexts/inline/RangeBasedLineBuilder.cpp
 layout/formattingContexts/inline/TextOnlySimpleLineBuilder.cpp
@@ -261,7 +257,6 @@ layout/integration/LayoutIntegrationBoxGeometryUpdater.cpp
 layout/integration/LayoutIntegrationBoxTreeUpdater.cpp
 layout/integration/LayoutIntegrationFormattingContextLayout.cpp
 layout/integration/flex/LayoutIntegrationFlexLayout.cpp
-layout/integration/flex/LayoutIntegrationFlexLayout.h
 layout/integration/inline/InlineIteratorBox.cpp
 layout/integration/inline/InlineIteratorBoxModernPath.h
 layout/integration/inline/InlineIteratorInlineBox.cpp
@@ -274,7 +269,6 @@ layout/integration/inline/InlineIteratorSVGTextBox.cpp
 layout/integration/inline/LayoutIntegrationInlineContentBuilder.cpp
 layout/integration/inline/LayoutIntegrationInlineContentPainter.cpp
 layout/integration/inline/LayoutIntegrationLineLayout.cpp
-layout/integration/inline/LayoutIntegrationLineLayout.h
 layout/integration/inline/LineSelection.h
 layout/layouttree/FormattingContextBoxIterator.h
 layout/layouttree/LayoutBox.cpp
@@ -499,7 +493,6 @@ rendering/mathml/RenderMathMLMenclose.h
 rendering/mathml/RenderMathMLOperator.cpp
 rendering/mathml/RenderMathMLPadded.cpp
 rendering/mathml/RenderMathMLRoot.cpp
-rendering/mathml/RenderMathMLRow.cpp
 rendering/mathml/RenderMathMLScripts.cpp
 rendering/mathml/RenderMathMLSpace.cpp
 rendering/mathml/RenderMathMLToken.cpp
@@ -530,7 +523,6 @@ rendering/svg/SVGRenderSupport.cpp
 rendering/svg/SVGRenderTreeAsText.cpp
 rendering/svg/SVGRenderingContext.cpp
 rendering/svg/SVGTextBoxPainter.cpp
-rendering/svg/SVGTextChunk.cpp
 rendering/svg/SVGTextLayoutEngine.cpp
 rendering/svg/SVGTextLayoutEngineBaseline.cpp
 rendering/svg/SVGTextMetrics.cpp
@@ -575,7 +567,6 @@ style/AttributeChangeInvalidation.cpp
 style/ChildChangeInvalidation.cpp
 style/ChildChangeInvalidation.h
 style/ClassChangeInvalidation.cpp
-style/ContainerQueryEvaluator.cpp
 style/ElementRuleCollector.cpp
 style/InlineTextBoxStyle.cpp
 style/MatchResultCache.cpp
@@ -605,13 +596,11 @@ style/Styleable.h
 style/computed/StyleComputedStyleBase.cpp
 style/values/color/StyleColor.cpp
 style/values/content/StyleContent.cpp
-style/values/fonts/StyleFontWeight.cpp
 style/values/grid/StyleGridPositionsResolver.cpp
 style/values/images/kinds/StyleCanvasImage.cpp
 style/values/images/kinds/StyleGradientImage.cpp
 style/values/images/kinds/StyleMultiImage.cpp
 style/values/images/kinds/StylePaintImage.cpp
-style/values/inline/StyleLineHeight.cpp
 style/values/primitives/StyleLengthResolution.cpp
 svg/SVGAElement.cpp
 svg/SVGClipPathElement.cpp

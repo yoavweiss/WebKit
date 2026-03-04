@@ -73,7 +73,7 @@ protected:
     static bool getOwnPropertySlot(JSObject*, JSGlobalObject*, PropertyName, PropertySlot&);
 
 private:
-    static GCClient::IsoSubspace* subspaceForImpl(VM&);
+    static GCClient::IsoSubspace* NODELETE subspaceForImpl(VM&);
 
     Bindings::Method* m_method;
 };

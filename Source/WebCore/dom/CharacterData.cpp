@@ -81,7 +81,7 @@ ExceptionOr<String> CharacterData::substringData(unsigned offset, unsigned count
     return m_data.substring(offset, count);
 }
 
-static ContainerNode::ChildChange makeChildChange(CharacterData& characterData, ContainerNode::ChildChange::Source source)
+static ContainerNode::ChildChange NODELETE makeChildChange(CharacterData& characterData, ContainerNode::ChildChange::Source source)
 {
     return {
         ContainerNode::ChildChange::Type::TextChanged,

@@ -48,8 +48,8 @@ public:
     bool isEmpty() const { return !length() && m_textItemType == TextItemType::Undefined; }
     bool isWhitespace() const { return m_textItemType == TextItemType::Whitespace; }
     bool isWordSeparator() const { return m_isWordSeparator; }
-    bool isZeroWidthSpaceSeparator() const;
-    bool isQuirkNonBreakingSpace() const;
+    bool NODELETE isZeroWidthSpaceSeparator() const;
+    bool NODELETE isQuirkNonBreakingSpace() const;
     bool isFullyTrimmable() const;
     bool hasTrailingSoftHyphen() const { return m_hasTrailingSoftHyphen; }
     std::optional<InlineLayoutUnit> width() const { return m_hasWidth ? std::make_optional(m_width) : std::optional<InlineLayoutUnit> { }; }
@@ -60,8 +60,8 @@ public:
     String content() const { return inlineTextBox().content().substring(start(), length()); }
     TextDirection direction() const { return bidiLevel() % 2 ? TextDirection::RTL : TextDirection::LTR; }
 
-    InlineTextItem left(unsigned length) const;
-    InlineTextItem right(unsigned length, std::optional<InlineLayoutUnit> width) const;
+    InlineTextItem NODELETE left(unsigned length) const;
+    InlineTextItem NODELETE right(unsigned length, std::optional<InlineLayoutUnit> width) const;
 
     static bool shouldPreserveSpacesAndTabs(const InlineTextItem&);
 
@@ -69,7 +69,7 @@ private:
     friend class InlineItemsBuilder;
     using InlineItem::TextItemType;
 
-    InlineTextItem split(size_t leftSideLength);
+    InlineTextItem NODELETE split(size_t leftSideLength);
     void setGlyphOverflow(LayoutUnit top, LayoutUnit bottom);
 
     InlineTextItem(const InlineTextBox&, unsigned start, unsigned length, UBiDiLevel, bool hasTrailingSoftHyphen, bool isWordSeparator, std::optional<InlineLayoutUnit> width, TextItemType);

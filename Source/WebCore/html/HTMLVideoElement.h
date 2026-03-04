@@ -116,7 +116,7 @@ public:
     void setVideoFullscreenFrame(const FloatRect&) final;
 
 #if ENABLE(PICTURE_IN_PICTURE_API)
-    void setPictureInPictureObserver(PictureInPictureObserver*);
+    void NODELETE setPictureInPictureObserver(PictureInPictureObserver*);
 #endif
 #endif
 

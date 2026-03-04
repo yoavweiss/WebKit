@@ -46,7 +46,7 @@ struct FlexBaseAndHypotheticalMainSize {
 };
 
 struct PositionAndMargins {
-    LayoutUnit margin() const { return marginStart + marginEnd; }
+    LayoutUnit NODELETE margin() const { return marginStart + marginEnd; }
 
     LayoutUnit position;
     LayoutUnit marginStart;
@@ -194,7 +194,7 @@ LayoutUnit FlexLayout::flexContainerInnerMainSize(const ConstraintsForFlexConten
     return mainAxisGeometry.availableSize.value_or(LayoutUnit::max());
 }
 
-static LayoutUnit outerMainSize(const LogicalFlexItem& flexItem, LayoutUnit mainSize, std::optional<LayoutUnit> usedMargin = { })
+static LayoutUnit NODELETE outerMainSize(const LogicalFlexItem& flexItem, LayoutUnit mainSize, std::optional<LayoutUnit> usedMargin = { })
 {
     auto outerMainSize = usedMargin.value_or(flexItem.mainAxis().margin());
     if (flexItem.isContentBoxBased())
@@ -203,7 +203,7 @@ static LayoutUnit outerMainSize(const LogicalFlexItem& flexItem, LayoutUnit main
     return outerMainSize;
 }
 
-static LayoutUnit outerCrossSize(const LogicalFlexItem& flexItem, LayoutUnit crossSize, std::optional<LayoutUnit> usedMargin = { })
+static LayoutUnit NODELETE outerCrossSize(const LogicalFlexItem& flexItem, LayoutUnit crossSize, std::optional<LayoutUnit> usedMargin = { })
 {
     auto outerCrossSize = usedMargin.value_or(flexItem.crossAxis().margin());
     if (flexItem.isContentBoxBased())

@@ -67,7 +67,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(Builder);
 
 static const CSSPropertyID firstLowPriorityProperty = static_cast<CSSPropertyID>(lastHighPriorityProperty + 1);
 
-inline bool isValidVisitedLinkProperty(CSSPropertyID id)
+inline bool NODELETE isValidVisitedLinkProperty(CSSPropertyID id)
 {
     switch (id) {
     case CSSPropertyBackgroundColor:

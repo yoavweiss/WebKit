@@ -86,9 +86,9 @@ private:
 
     bool NODELETE nextTwoCharsAreValidEscape();
     bool NODELETE nextCharsAreNumber(char16_t);
-    bool nextCharsAreNumber();
+    bool NODELETE nextCharsAreNumber();
     bool NODELETE nextCharsAreIdentifier(char16_t);
-    bool nextCharsAreIdentifier();
+    bool NODELETE nextCharsAreIdentifier();
 
     CSSParserToken blockStart(CSSParserTokenType);
     CSSParserToken blockStart(CSSParserTokenType blockType, CSSParserTokenType, StringView);

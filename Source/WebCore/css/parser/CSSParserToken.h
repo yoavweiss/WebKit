@@ -129,7 +129,7 @@ public:
     HashTokenType getHashTokenType() const { ASSERT(m_type == HashToken); return m_hashTokenType; }
     BlockType getBlockType() const { return static_cast<BlockType>(m_blockType); }
     CSSUnitType unitType() const { return static_cast<CSSUnitType>(m_unit); }
-    StringView unitString() const;
+    StringView NODELETE unitString() const;
     CSSValueID id() const;
     CSSValueID functionId() const;
 

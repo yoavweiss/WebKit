@@ -33,7 +33,7 @@ namespace WebCore {
 
 class CSSReflectValue final : public CSSValue {
 public:
-    static Ref<CSSReflectValue> create(CSSValueID direction, Ref<CSSValue>&& offset, RefPtr<CSSValue>&& mask);
+    static Ref<CSSReflectValue> NODELETE create(CSSValueID direction, Ref<CSSValue>&& offset, RefPtr<CSSValue>&& mask);
 
     CSSValueID direction() const { return m_direction; }
     const CSSValue& offset() const { return m_offset.get(); }

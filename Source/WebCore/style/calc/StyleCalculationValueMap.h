@@ -34,7 +34,7 @@ namespace Calculation {
 
 class ValueMap {
 public:
-    static ValueMap& calculationValues();
+    static ValueMap& NODELETE calculationValues();
 
     unsigned insert(Ref<Value>&&);
     void ref(unsigned handle);

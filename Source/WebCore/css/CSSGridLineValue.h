@@ -32,7 +32,7 @@ namespace WebCore {
 
 class CSSGridLineValue final : public CSSValue {
 public:
-    static Ref<CSSGridLineValue> create(RefPtr<CSSPrimitiveValue>&&, RefPtr<CSSPrimitiveValue>&&, RefPtr<CSSPrimitiveValue>&&);
+    static Ref<CSSGridLineValue> NODELETE create(RefPtr<CSSPrimitiveValue>&&, RefPtr<CSSPrimitiveValue>&&, RefPtr<CSSPrimitiveValue>&&);
 
     String customCSSText(const CSS::SerializationContext&) const;
     bool equals(const CSSGridLineValue& other) const;

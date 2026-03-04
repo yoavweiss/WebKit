@@ -48,7 +48,7 @@ struct VariantDeserializerHelper {
             return VariantType::deserialize(span);
         return VariantDeserializerHelper<index - 1, Types...>::deserialize(span, i);
     }
-    static size_t serializedLength(std::span<const uint8_t> span, size_t i)
+    static size_t NODELETE serializedLength(std::span<const uint8_t> span, size_t i)
     {
         if (i == index)
             return VariantType::serializedLength(span);
@@ -64,7 +64,7 @@ struct VariantDeserializerHelper<0, Types...> {
         ASSERT_UNUSED(i, !i);
         return VariantType::deserialize(span);
     }
-    static size_t serializedLength(std::span<const uint8_t> span, size_t i)
+    static size_t NODELETE serializedLength(std::span<const uint8_t> span, size_t i)
     {
         ASSERT_UNUSED(i, !i);
         return VariantType::serializedLength(span);

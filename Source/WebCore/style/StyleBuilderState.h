@@ -231,7 +231,7 @@ private:
     BuilderState(RenderStyle&);
     BuilderState(RenderStyle&, BuilderContext&&);
 
-    void adjustStyleForInterCharacterRuby();
+    void NODELETE adjustStyleForInterCharacterRuby();
 
     void updateFont();
 #if ENABLE(TEXT_AUTOSIZING)

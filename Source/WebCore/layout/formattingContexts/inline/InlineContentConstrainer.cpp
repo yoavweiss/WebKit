@@ -56,7 +56,7 @@ static const float textWrapPrettyMaxShrink = 3;
 // We would like 2 or more items on the last line for text-wrap-style:pretty to avoid orphans.
 static const size_t lastLinePreferredInlineItemCount = 2;
 
-static size_t lastLineBreakingPointOffset()
+static size_t NODELETE lastLineBreakingPointOffset()
 {
     return 2 * lastLinePreferredInlineItemCount + 1;
 }
@@ -106,7 +106,7 @@ static LayoutUnit computeLineWidthFromSlidingWidth(InlineLayoutUnit indentWidth,
     return LayoutUnit::fromFloatCeil(indentWidth + slidingWidth.width() + LayoutUnit::epsilon());
 }
 
-static bool containsTrailingSoftHyphen(const InlineItem& inlineItem)
+static bool NODELETE containsTrailingSoftHyphen(const InlineItem& inlineItem)
 {
     if (inlineItem.style().hyphens() == Hyphens::None)
         return false;

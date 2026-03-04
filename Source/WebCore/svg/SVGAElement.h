@@ -62,7 +62,7 @@ private:
     String title() const final;
     void defaultEventHandler(Event&) final;
 
-    bool hasRel(Relation) const;
+    bool NODELETE hasRel(Relation) const;
     
     bool supportsFocus() const final;
     bool isMouseFocusable() const final;

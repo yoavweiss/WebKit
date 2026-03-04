@@ -248,7 +248,7 @@ private:
 
         bool equals(const RareData&) const;
 
-        bool matchNth(int count);
+        bool NODELETE matchNth(int count);
 
         // For quirks mode, class and id are case-insensitive. In the case where uppercase
         // letters are used in quirks mode, |m_matchingValue| holds the lowercase class/id

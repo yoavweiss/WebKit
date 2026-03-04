@@ -94,7 +94,7 @@ enum class IncludeReasons : bool {
     }
 #endif
 
-static inline bool mayHaveScrollbarOrScrollableOverflow(const RenderStyle& style)
+static inline bool NODELETE mayHaveScrollbarOrScrollableOverflow(const RenderStyle& style)
 {
     return !style.isOverflowVisible() || !style.scrollbarGutter().isAuto();
 }

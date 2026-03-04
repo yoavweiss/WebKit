@@ -606,7 +606,7 @@ static LayoutUnit flexFractionFromTrackBaseSize(const FlexTrack& flexTrack)
     return flexTrack.baseSize;
 }
 
-static bool itemCrossesFlexibleTrack(const UnsizedTracks& tracks, const WTF::Range<size_t>& span)
+static bool NODELETE itemCrossesFlexibleTrack(const UnsizedTracks& tracks, const WTF::Range<size_t>& span)
 {
     for (size_t trackIndex = span.begin(); trackIndex < span.end(); ++trackIndex) {
         if (tracks[trackIndex].trackSizingFunction.max.isFlex())

@@ -36,7 +36,7 @@ struct GridItemSizingFunctions;
 
 namespace GridLayoutUtils {
 
-LayoutUnit totalGuttersSize(size_t tracksCount, LayoutUnit gapsSize);
+LayoutUnit NODELETE totalGuttersSize(size_t tracksCount, LayoutUnit gapsSize);
 
 LayoutUnit usedInlineSizeForGridItem(const PlacedGridItem&, LayoutUnit borderAndPadding, const TrackSizingFunctionsList&, LayoutUnit columnsSize, const IntegrationUtils&);
 LayoutUnit usedBlockSizeForGridItem(const PlacedGridItem&, LayoutUnit borderAndPadding, const TrackSizingFunctionsList&, LayoutUnit rowsSize, const IntegrationUtils&);
@@ -56,7 +56,7 @@ LayoutUnit blockAxisMaxContentContribution(const PlacedGridItem&, LayoutUnit inl
 GridItemSizingFunctions blockAxisGridItemSizingFunctions(const GridFormattingContext&);
 
 bool preferredSizeBehavesAsAuto(const Style::PreferredSize&);
-bool preferredSizeDependsOnContainingBlockSize(const Style::PreferredSize&);
+bool NODELETE preferredSizeDependsOnContainingBlockSize(const Style::PreferredSize&);
 
 } // namespace GridLayoutUtils
 } // namespace Layout

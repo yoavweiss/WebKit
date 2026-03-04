@@ -54,7 +54,7 @@ static constexpr size_t sizeCeil(float f)
     return f > s ? s + 1 : s;
 }
 
-static constexpr size_t keySizeInBitsFromNamedCurve(CryptoKeyEC::NamedCurve curve)
+static constexpr size_t NODELETE keySizeInBitsFromNamedCurve(CryptoKeyEC::NamedCurve curve)
 {
     switch (curve) {
     case CryptoKeyEC::NamedCurve::P256:

@@ -59,13 +59,13 @@ public:
     ~ElementBox();
 
     const Box* firstChild() const { return m_firstChild.get(); }
-    const Box* firstInFlowChild() const;
-    const Box* firstInFlowOrFloatingChild() const;
-    const Box* firstOutOfFlowChild() const;
+    const Box* NODELETE firstInFlowChild() const;
+    const Box* NODELETE firstInFlowOrFloatingChild() const;
+    const Box* NODELETE firstOutOfFlowChild() const;
     const Box* lastChild() const { return m_lastChild.get(); }
-    const Box* lastInFlowChild() const;
-    const Box* lastInFlowOrFloatingChild() const;
-    const Box* lastOutOfFlowChild() const;
+    const Box* NODELETE lastInFlowChild() const;
+    const Box* NODELETE lastInFlowOrFloatingChild() const;
+    const Box* NODELETE lastOutOfFlowChild() const;
 
     // FIXME: This is currently needed for style updates.
     Box* firstChild() { return m_firstChild.get(); }
@@ -73,7 +73,7 @@ public:
     bool hasChild() const { return firstChild(); }
     bool hasInFlowChild() const { return firstInFlowChild(); }
     bool hasInFlowOrFloatingChild() const { return firstInFlowOrFloatingChild(); }
-    bool hasOutOfFlowChild() const;
+    bool NODELETE hasOutOfFlowChild() const;
 
     void appendChild(UniqueRef<Box>);
     void insertChild(UniqueRef<Box>, Box* beforeChild = nullptr);
@@ -82,13 +82,13 @@ public:
     void setBaselineForIntegration(LayoutUnit baseline) { m_baselineForIntegration = baseline; }
     std::optional<LayoutUnit> baselineForIntegration() const { return m_baselineForIntegration; }
 
-    bool hasIntrinsicWidth() const;
-    bool hasIntrinsicHeight() const;
-    bool hasIntrinsicRatio() const;
+    bool NODELETE hasIntrinsicWidth() const;
+    bool NODELETE hasIntrinsicHeight() const;
+    bool NODELETE hasIntrinsicRatio() const;
     LayoutUnit intrinsicWidth() const;
     LayoutUnit intrinsicHeight() const;
-    LayoutUnit intrinsicRatio() const;
-    bool hasAspectRatio() const;
+    LayoutUnit NODELETE intrinsicRatio() const;
+    bool NODELETE hasAspectRatio() const;
 
     void setListMarkerAttributes(EnumSet<ListMarkerAttribute> listMarkerAttributes) { m_replacedData->listMarkerAttributes = listMarkerAttributes; }
 
@@ -102,7 +102,7 @@ public:
     // FIXME: This doesn't belong.
     CachedImage* cachedImage() const { return m_replacedData ? m_replacedData->cachedImage : nullptr; }
 
-    RenderElement* rendererForIntegration() const;
+    RenderElement* NODELETE rendererForIntegration() const;
 
 private:
     friend class Box;

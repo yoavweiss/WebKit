@@ -84,7 +84,7 @@ struct RuleAndSelector {
     uint16_t selectorIndex; // Keep in sync with RuleData's selectorIndex size.
     uint16_t selectorListIndex; // Keep in sync with RuleData's selectorListIndex size.
 
-    const CSSSelector& selector() const;
+    const CSSSelector& NODELETE selector() const;
 };
 
 struct RuleFeature : public RuleAndSelector {
@@ -170,13 +170,13 @@ private:
     void collectPseudoElementFeatures(const RuleData&);
 };
 
-bool isHasPseudoClassMatchElement(MatchElement);
+bool NODELETE isHasPseudoClassMatchElement(MatchElement);
 MatchElement computeHasPseudoClassMatchElement(const CSSSelector&);
 
 enum class InvalidationKeyType : uint8_t { Universal = 1, Class, Id, Attribute, Tag };
 PseudoClassInvalidationKey makePseudoClassInvalidationKey(CSSSelector::PseudoClass, InvalidationKeyType, const AtomString& = starAtom());
 
-bool unlikelyToHaveSelectorForAttribute(const AtomString&);
+bool NODELETE unlikelyToHaveSelectorForAttribute(const AtomString&);
 
 inline bool isUniversalInvalidation(const PseudoClassInvalidationKey& key)
 {

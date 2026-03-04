@@ -35,13 +35,13 @@ class ComputedStyle final : public ComputedStyleProperties {
 public:
     void inheritFrom(const ComputedStyle&);
     void inheritIgnoringCustomPropertiesFrom(const ComputedStyle&);
-    void inheritUnicodeBidiFrom(const ComputedStyle&);
+    void NODELETE inheritUnicodeBidiFrom(const ComputedStyle&);
     inline void inheritColumnPropertiesFrom(const ComputedStyle&);
     void fastPathInheritFrom(const ComputedStyle&);
     void copyNonInheritedFrom(const ComputedStyle&);
     void copyContentFrom(const ComputedStyle&);
     void copyPseudoElementsFrom(const ComputedStyle&);
-    void copyPseudoElementBitsFrom(const ComputedStyle&);
+    void NODELETE copyPseudoElementBitsFrom(const ComputedStyle&);
 
     // MARK: - Comparisons
 
@@ -57,7 +57,7 @@ public:
     inline bool columnSpanEqual(const ComputedStyle&) const;
     inline bool scrollPaddingEqual(const ComputedStyle&) const;
     inline bool fontCascadeEqual(const ComputedStyle&) const;
-    bool scrollSnapDataEquivalent(const ComputedStyle&) const;
+    bool NODELETE scrollSnapDataEquivalent(const ComputedStyle&) const;
 
     // MARK: - Style reset utilities
 

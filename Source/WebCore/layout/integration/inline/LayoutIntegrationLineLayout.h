@@ -69,7 +69,7 @@ public:
     LineLayout(RenderBlockFlow&);
     ~LineLayout();
 
-    static RenderBlockFlow* blockContainer(const RenderObject&);
+    static RenderBlockFlow* NODELETE blockContainer(const RenderObject&);
     static LineLayout* containing(RenderObject&);
     static const LineLayout* containing(const RenderObject&);
 
@@ -108,10 +108,10 @@ public:
     bool hasEllipsisInBlockDirectionOnLastFormattedLine() const;
     bool contains(const RenderElement& renderer) const;
 
-    bool isPaginated() const;
-    size_t lineCount() const;
-    bool hasContentfulInlineOrBlockLine() const;
-    bool hasContentfulInlineLine() const;
+    bool NODELETE isPaginated() const;
+    size_t NODELETE lineCount() const;
+    bool NODELETE hasContentfulInlineOrBlockLine() const;
+    bool NODELETE hasContentfulInlineLine() const;
     bool isSelfCollapsingContent() const;
     bool hasInkOverflow() const;
     std::optional<LayoutUnit> firstLineBaseline() const;
@@ -137,7 +137,7 @@ public:
 #endif
 
     // This is temporary, required by partial bailout check.
-    bool contentNeedsVisualReordering() const;
+    bool NODELETE contentNeedsVisualReordering() const;
     bool isDamaged() const { return !!m_lineDamage; }
     const Layout::InlineDamage* damage() const { return m_lineDamage.get(); }
 #ifndef NDEBUG
@@ -146,7 +146,7 @@ public:
 
     FloatRect applySVGTextFragments(SVGTextFragmentMap&&);
 
-    bool hasBlocks() const;
+    bool NODELETE hasBlocks() const;
 
 private:
     void preparePlacedFloats();

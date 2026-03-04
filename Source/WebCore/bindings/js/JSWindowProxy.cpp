@@ -207,12 +207,12 @@ static std::optional<FrameInfo> frameInfo(JSGlobalObject* globalObject)
     return FrameInfo { frame.releaseNonNull(), WTF::move(mainFrame) };
 }
 
-static bool hasSameMainFrame(const Frame* a, const FrameInfo& b)
+static bool NODELETE hasSameMainFrame(const Frame* a, const FrameInfo& b)
 {
     return a && (&a->mainFrame() == b.mainFrame.ptr());
 }
 
-static void logCrossTabPropertyAccess(Frame& childFrame, const Variant<PropertyName, unsigned>& propertyName)
+static void NODELETE logCrossTabPropertyAccess(Frame& childFrame, const Variant<PropertyName, unsigned>& propertyName)
 {
 #if LOG_DISABLED
     UNUSED_PARAM(childFrame);

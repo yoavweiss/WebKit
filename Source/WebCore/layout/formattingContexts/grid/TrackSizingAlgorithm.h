@@ -70,7 +70,7 @@ private:
     // Expand Flexible Tracks (spec section 11.7)
     static void expandFlexibleTracks(UnsizedTracks&, const AxisConstraint::FreeSpaceScenario&, std::optional<LayoutUnit> availableGridSpace, const LayoutUnit& gapSize,
         const PlacedGridItems&, const PlacedGridItemSpanList&, const TrackSizingGridItemConstraintList&, const GridItemSizingFunctions&);
-    static void expandFlexibleTracksForMinContent(UnsizedTracks&);
+    static void NODELETE expandFlexibleTracksForMinContent(UnsizedTracks&);
     static void expandFlexibleTracksForMaxContent(UnsizedTracks&, const FlexTracks&, const LayoutUnit& gapSize,
         const PlacedGridItems&, const PlacedGridItemSpanList&, const TrackSizingGridItemConstraintList&, const GridItemSizingFunctions&);
     static void expandFlexibleTracksForDefiniteLength(UnsizedTracks&, const FlexTracks&, std::optional<LayoutUnit> availableGridSpace, const LayoutUnit& gapSize);

@@ -296,7 +296,7 @@ AXCoreObject::AccessibilityChildrenVector AXCoreObject::tabChildren()
 }
 
 #if ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
-static bool isValidChildForTable(AXCoreObject& object)
+static bool NODELETE isValidChildForTable(AXCoreObject& object)
 {
     auto role = object.role();
     // Tables can only have these roles as exposed-to-AT children.
@@ -1617,7 +1617,7 @@ String AXCoreObject::languageIncludingAncestors() const
 }
 
 #if PLATFORM(COCOA)
-static bool isVisibleText(AccessibilityTextSource textSource)
+static bool NODELETE isVisibleText(AccessibilityTextSource textSource)
 {
     switch (textSource) {
     case AccessibilityTextSource::Visible:
@@ -1637,7 +1637,7 @@ static bool isVisibleText(AccessibilityTextSource textSource)
     }
 }
 
-static bool isDescriptiveText(AccessibilityTextSource textSource)
+static bool NODELETE isDescriptiveText(AccessibilityTextSource textSource)
 {
     switch (textSource) {
     case AccessibilityTextSource::Alternative:

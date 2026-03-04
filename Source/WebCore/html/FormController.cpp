@@ -50,7 +50,7 @@ struct AtomStringVectorReader {
     const Vector<AtomString>& vector;
     size_t index { 0 };
 
-    const AtomString& consumeString();
+    const AtomString& NODELETE consumeString();
     Vector<AtomString> consumeSubvector(size_t subvectorSize);
 };
 

@@ -40,7 +40,7 @@
 namespace WebCore {
 namespace Layout {
 
-static bool hasBorder(const BorderValue& borderValue)
+static bool NODELETE hasBorder(const BorderValue& borderValue)
 {
     if (!borderValue.hasVisibleStyle())
         return false;

@@ -92,9 +92,9 @@ public:
 
     void resetUserAgentMediaQueryStyle();
 
-    bool hasViewportDependentMediaQueries() const;
-    bool hasContainerQueries() const;
-    bool hasScopeRules() const;
+    bool NODELETE hasViewportDependentMediaQueries() const;
+    bool NODELETE hasContainerQueries() const;
+    bool NODELETE hasScopeRules() const;
 
     RefPtr<StyleRuleViewTransition> viewTransitionRule() const;
 

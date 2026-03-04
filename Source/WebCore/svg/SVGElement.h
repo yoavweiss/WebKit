@@ -65,24 +65,24 @@ class SVGElement : public StyledElement, public SVGPropertyOwner {
     WTF_MAKE_TZONE_ALLOCATED(SVGElement);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(SVGElement);
 public:
-    bool isInnerSVGSVGElement() const;
-    bool isOutermostSVGSVGElement() const;
+    bool NODELETE isInnerSVGSVGElement() const;
+    bool NODELETE isOutermostSVGSVGElement() const;
 
-    SVGSVGElement* ownerSVGElement() const;
+    SVGSVGElement* NODELETE ownerSVGElement() const;
 
     enum class ViewportElementType : uint8_t {
         Any, // Returns first SVGSVGElement, SVGImageElement, or symbol
         SVGSVGOnly // Returns only SVGSVGElement
     };
 
-    SVGElement* viewportElement(ViewportElementType = ViewportElementType::Any) const;
+    SVGElement* NODELETE viewportElement(ViewportElementType = ViewportElementType::Any) const;
 
     String title() const override;
     virtual bool supportsMarkers() const { return false; }
     bool hasRelativeLengths() const { return m_selfHasRelativeLengths || !m_childElementsWithRelativeLengths.isEmptyIgnoringNullReferences(); }
     virtual bool needsPendingResourceHandling() const { return true; }
-    bool instanceUpdatesBlocked() const;
-    void setInstanceUpdatesBlocked(bool);
+    bool NODELETE instanceUpdatesBlocked() const;
+    void NODELETE setInstanceUpdatesBlocked(bool);
     virtual AffineTransform localCoordinateSpaceTransform(CTMScope) const;
 
     bool hasPendingResources() const { return hasEventTargetFlag(EventTargetFlag::HasPendingResources); }
@@ -114,7 +114,7 @@ public:
     void updateSVGRendererForElementChange();
 
     // The instances of an element are clones made in shadow trees to implement <use>.
-    const WeakHashSet<SVGElement, WeakPtrImplWithEventTargetData>& instances() const;
+    const WeakHashSet<SVGElement, WeakPtrImplWithEventTargetData>& NODELETE instances() const;
 
     std::optional<FloatRect> getBoundingBox() const;
 
@@ -128,8 +128,8 @@ public:
     void removeReferencingCSSClient(SVGResourceElementClient&);
 
 
-    SVGElement* correspondingElement() const;
-    SVGUseElement* correspondingUseElement() const;
+    SVGElement* NODELETE correspondingElement() const;
+    SVGUseElement* NODELETE correspondingUseElement() const;
 
     void setCorrespondingElement(SVGElement*);
 
@@ -140,9 +140,9 @@ public:
     bool isAnimatableAttribute(const QualifiedName&) const;
 #endif
 
-    MutableStyleProperties* animatedSMILStyleProperties() const;
+    MutableStyleProperties* NODELETE animatedSMILStyleProperties() const;
     MutableStyleProperties& ensureAnimatedSMILStyleProperties();
-    void setUseOverrideComputedStyle(bool);
+    void NODELETE setUseOverrideComputedStyle(bool);
 
     virtual bool haveLoadedRequiredResources();
 
@@ -185,9 +185,9 @@ public:
     SVGAnimatedString& classNameAnimated() { return m_className; }
 
     SVGConditionalProcessingAttributes& conditionalProcessingAttributes();
-    SVGConditionalProcessingAttributes* conditionalProcessingAttributesIfExists() const;
+    SVGConditionalProcessingAttributes* NODELETE conditionalProcessingAttributesIfExists() const;
 
-    bool hasAssociatedSVGLayoutBox() const;
+    bool NODELETE hasAssociatedSVGLayoutBox() const;
     void invalidateInstances();
 
 protected:
@@ -203,7 +203,7 @@ protected:
     SVGElementRareData& ensureSVGRareData();
 
     void reportAttributeParsingError(SVGParsingError, const QualifiedName&, const AtomString&);
-    static CSSPropertyID cssPropertyIdForSVGAttributeName(const QualifiedName&, const Settings&);
+    static CSSPropertyID NODELETE cssPropertyIdForSVGAttributeName(const QualifiedName&, const Settings&);
 
     bool hasPresentationalHintsForAttribute(const QualifiedName&) const override;
     void collectPresentationalHintsForAttribute(const QualifiedName&, const AtomString&, MutableStyleProperties&) override;

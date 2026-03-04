@@ -90,7 +90,7 @@ UniqueRef<ScriptModuleLoader> ScriptModuleLoader::shadowRealmLoader(JSC::JSGloba
     return loader;
 }
 
-static bool isRootModule(JSC::JSValue importerModuleKey)
+static bool NODELETE isRootModule(JSC::JSValue importerModuleKey)
 {
     return importerModuleKey.isSymbol() || importerModuleKey.isUndefined();
 }

@@ -48,7 +48,7 @@ static inline size_t baseContentIndex(size_t rubyBaseStart, const InlineDisplay:
     return baseContentIndex;
 }
 
-static RubyPosition rubyPosition(const Box& rubyBaseLayoutBox)
+static RubyPosition NODELETE rubyPosition(const Box& rubyBaseLayoutBox)
 {
     ASSERT(rubyBaseLayoutBox.isRubyBase());
     auto computedRubyPosition = rubyBaseLayoutBox.style().rubyPosition();

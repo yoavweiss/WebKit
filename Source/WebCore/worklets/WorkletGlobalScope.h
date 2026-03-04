@@ -63,7 +63,7 @@ public:
     virtual bool isAudioWorkletGlobalScope() const { return false; }
 #endif
 
-    WEBCORE_EXPORT static unsigned numberOfWorkletGlobalScopes();
+    WEBCORE_EXPORT static unsigned NODELETE numberOfWorkletGlobalScopes();
 
     MessagePortChannelProvider& messagePortChannelProvider();
 

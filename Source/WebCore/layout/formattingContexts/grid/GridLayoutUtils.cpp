@@ -70,7 +70,7 @@ static std::optional<LayoutUnit> inlineSpecifiedSizeSuggestion(const PlacedGridI
     );
 }
 
-static std::optional<LayoutUnit> inlineTransferredSizeSuggestion(const PlacedGridItem&)
+static std::optional<LayoutUnit> NODELETE inlineTransferredSizeSuggestion(const PlacedGridItem&)
 {
     ASSERT_NOT_IMPLEMENTED_YET();
     return { };
@@ -95,7 +95,7 @@ static std::optional<LayoutUnit> blockSpecifiedSizeSuggestion(const PlacedGridIt
     });
 }
 
-static std::optional<LayoutUnit> blockTransferredSizeSuggestion(const PlacedGridItem&)
+static std::optional<LayoutUnit> NODELETE blockTransferredSizeSuggestion(const PlacedGridItem&)
 {
     ASSERT_NOT_IMPLEMENTED_YET();
     return { };
@@ -107,13 +107,13 @@ static LayoutUnit blockContentSizeSuggestion(const PlacedGridItem& gridItem, con
     return integrationUtils.minContentHeight(gridItem.layoutBox());
 }
 
-static bool hasScrollableInlineOverflow(const PlacedGridItem&)
+static bool NODELETE hasScrollableInlineOverflow(const PlacedGridItem&)
 {
     notImplemented();
     return false;
 }
 
-static bool hasScrollableBlockOverflow(const PlacedGridItem&)
+static bool NODELETE hasScrollableBlockOverflow(const PlacedGridItem&)
 {
     notImplemented();
     return false;

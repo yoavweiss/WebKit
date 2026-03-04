@@ -130,7 +130,7 @@ static inline void populateIFCWithNewlyPlacedFloats(auto& blockRenderer, auto& p
     }
 }
 
-static inline void updateRenderTreeLegacyLineClamp(auto& inlineLayoutState, auto& renderTreeLayoutState)
+static inline void NODELETE updateRenderTreeLegacyLineClamp(auto& inlineLayoutState, auto& renderTreeLayoutState)
 {
     auto& parentBlockLayoutState = inlineLayoutState.parentBlockLayoutState();
 
@@ -143,7 +143,7 @@ static inline void updateRenderTreeLegacyLineClamp(auto& inlineLayoutState, auto
     renderTreeLayoutState.setLegacyLineClamp(legacyLineClamp);
 }
 
-static inline void udpdateIFCLineClamp(auto& inlineLayoutState, auto& renderTreeLayoutState)
+static inline void NODELETE udpdateIFCLineClamp(auto& inlineLayoutState, auto& renderTreeLayoutState)
 {
     auto& parentBlockLayoutState = inlineLayoutState.parentBlockLayoutState();
 

@@ -162,14 +162,14 @@ public:
 
     bool NODELETE isAll8BitData() const { return m_isAll8BitData; }
 
-    void skipAtMostOneLeadingNewline()
+    void NODELETE skipAtMostOneLeadingNewline()
     {
         ASSERT(!isEmpty());
         if (m_text[0] == '\n')
             m_text = m_text.substring(1);
     }
 
-    void skipLeadingWhitespace()
+    void NODELETE skipLeadingWhitespace()
     {
         skipLeading<isASCIIWhitespace>();
     }
@@ -179,7 +179,7 @@ public:
         return takeLeading<isASCIIWhitespace>();
     }
 
-    void skipLeadingNonWhitespace()
+    void NODELETE skipLeadingNonWhitespace()
     {
         skipLeading<isNotASCIIWhitespace>();
     }
@@ -1583,13 +1583,13 @@ bool HTMLTreeBuilder::processBodyEndTagForInBody(AtomHTMLToken&& token)
     return true;
 }
 
-static bool itemMatchesName(const HTMLStackItem& item, ElementName elementName)
+static bool NODELETE itemMatchesName(const HTMLStackItem& item, ElementName elementName)
 {
     ASSERT(elementName != ElementName::Unknown);
     return item.elementName() == elementName;
 }
 
-static bool itemMatchesName(const HTMLStackItem& item, const AtomString& tagName)
+static bool NODELETE itemMatchesName(const HTMLStackItem& item, const AtomString& tagName)
 {
     return item.matchesHTMLTag(tagName);
 }
@@ -3046,7 +3046,7 @@ bool HTMLTreeBuilder::shouldProcessTokenInForeignContent(const AtomHTMLToken& to
     return true;
 }
 
-static bool hasAttribute(const AtomHTMLToken& token, const QualifiedName& name)
+static bool NODELETE hasAttribute(const AtomHTMLToken& token, const QualifiedName& name)
 {
     return findAttribute(token.attributes(), name);
 }

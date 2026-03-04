@@ -42,7 +42,7 @@ public:
     virtual ~FloatAvoider() = default;
 
     void setInlineStart(LayoutUnit);
-    void setBlockStart(LayoutUnit);
+    void NODELETE setBlockStart(LayoutUnit);
     void resetInlineStart() { m_absoluteTopLeft.setX(initialInlineStart()); }
 
     bool overflowsContainingBlock() const;
@@ -55,7 +55,7 @@ public:
 
 private:
     LayoutUnit borderBoxWidth() const { return m_borderBoxWidth; }
-    LayoutUnit initialInlineStart() const;
+    LayoutUnit NODELETE initialInlineStart() const;
 
     LayoutUnit marginBefore() const { return m_margin.vertical.before; }
     LayoutUnit marginAfter() const { return m_margin.vertical.after; }

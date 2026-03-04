@@ -43,7 +43,7 @@ class GeneratedImage::CachedGeneratedImage {
     WTF_MAKE_TZONE_ALLOCATED_INLINE(CachedGeneratedImage);
 public:
     CachedGeneratedImage(GeneratedImage&, FloatSize, WebCore::GeneratedImage&);
-    WebCore::GeneratedImage& image() const { return m_image; }
+    WebCore::GeneratedImage& NODELETE image() const { return m_image; }
     void puntEvictionTimer() { m_evictionTimer.restart(); }
 
 private:

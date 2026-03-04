@@ -37,7 +37,7 @@ class Image;
 class CSSCursorImageValue final : public CSSValue {
 public:
     static Ref<CSSCursorImageValue> create(Ref<CSSValue>&& imageValue, RefPtr<CSSValue>&& hotSpot);
-    static Ref<CSSCursorImageValue> create(Ref<CSSValue>&& imageValue, RefPtr<CSSValue>&& hotSpot, CSS::URL&&);
+    static Ref<CSSCursorImageValue> NODELETE create(Ref<CSSValue>&& imageValue, RefPtr<CSSValue>&& hotSpot, CSS::URL&&);
     ~CSSCursorImageValue();
 
     const CSS::URL& originalURL() const LIFETIME_BOUND { return m_originalURL; }

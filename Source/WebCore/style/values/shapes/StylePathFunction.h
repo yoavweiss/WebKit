@@ -83,7 +83,7 @@ template<> struct PathComputation<Path> { WebCore::Path operator()(const Path&, 
 
 // MARK: - Wind Rule
 
-template<> struct WindRuleComputation<Path> { WebCore::WindRule operator()(const Path&); };
+template<> struct WindRuleComputation<Path> { WebCore::WindRule NODELETE operator()(const Path&); };
 
 // MARK: - Blending
 

@@ -65,7 +65,7 @@ public:
 
     bool isInactiveStyleOriginatedTimeline() const { return m_isInactiveStyleOriginatedTimeline; }
 
-    bool matchesAnonymousScrollFunctionForSource(const Style::ScrollFunction&, const Styleable&) const;
+    bool NODELETE matchesAnonymousScrollFunctionForSource(const Style::ScrollFunction&, const Styleable&) const;
 
     AnimationTimeline::ShouldUpdateAnimationsAndSendEvents documentWillUpdateAnimationsAndSendEvents() override;
     void updateCurrentTimeIfStale();

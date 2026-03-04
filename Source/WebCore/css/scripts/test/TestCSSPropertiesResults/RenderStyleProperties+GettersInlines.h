@@ -6,7 +6,6 @@
 #error "Please do not include this file anywhere except from RenderStyle+GettersInlines.h."
 #endif
 
-#include <WebCore/RenderStyleBase+GettersInlines.h>
 #include <WebCore/StyleComputedStyle+GettersInlines.h>
 
 namespace WebCore {

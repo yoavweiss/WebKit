@@ -81,7 +81,7 @@ public:
     const Offset& specifiedOffset() const { return m_specifiedOffset; }
     void setComputedOffset(double offset) { m_computedOffset = offset; }
 
-    bool usesRangeOffset() const;
+    bool NODELETE usesRangeOffset() const;
 
     const RenderStyle* style() const { return m_style.get(); }
     void setStyle(std::unique_ptr<RenderStyle>&& style) { m_style = WTF::move(style); }
@@ -130,7 +130,7 @@ public:
     const HashSet<AnimatableCSSProperty>& properties() const { return m_properties; }
 
     bool containsAnimatableCSSProperty() const;
-    bool containsDirectionAwareProperty() const;
+    bool NODELETE containsDirectionAwareProperty() const;
 
     void clear();
     bool isEmpty() const { return m_keyframes.isEmpty(); }
@@ -145,12 +145,12 @@ public:
     auto begin() const LIFETIME_BOUND { return m_keyframes.begin(); }
     auto end() const LIFETIME_BOUND { return m_keyframes.end(); }
 
-    bool usesContainerUnits() const;
+    bool NODELETE usesContainerUnits() const;
     bool usesRelativeFontWeight() const { return m_usesRelativeFontWeight; }
     bool hasCSSVariableReferences() const { return m_containsCSSVariableReferences; }
     bool hasColorSetToCurrentColor() const;
-    bool hasPropertySetToCurrentColor() const;
-    const HashSet<AnimatableCSSProperty>& propertiesSetToInherit() const;
+    bool NODELETE hasPropertySetToCurrentColor() const;
+    const HashSet<AnimatableCSSProperty>& NODELETE propertiesSetToInherit() const;
 
     void updatePropertiesMetadata(const StyleProperties&);
 

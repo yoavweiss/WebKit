@@ -44,7 +44,7 @@ public:
         return object;
     }
 
-    ObjcInstance* getInternalObjCInstance() const;
+    ObjcInstance* NODELETE getInternalObjCInstance() const;
 
     DECLARE_INFO;
 

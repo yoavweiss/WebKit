@@ -120,7 +120,7 @@ private:
     CustomElementRegistry(ScriptExecutionContext&, LocalDOMWindow&);
     CustomElementRegistry(ScriptExecutionContext&);
 
-    static WeakHashMap<Element, Ref<CustomElementRegistry>, WeakPtrImplWithEventTargetData>& scopedCustomElementRegistryMap();
+    static WeakHashMap<Element, Ref<CustomElementRegistry>, WeakPtrImplWithEventTargetData>& NODELETE scopedCustomElementRegistryMap();
 
     WeakPtr<LocalDOMWindow, WeakPtrImplWithEventTargetData> m_window;
     HashMap<AtomString, Ref<JSCustomElementInterface>> m_nameMap;

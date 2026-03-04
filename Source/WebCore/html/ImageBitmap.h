@@ -140,7 +140,7 @@ public:
     bool isDetached() const { return !m_bitmap; }
     void close();
 
-    size_t memoryCost() const;
+    size_t NODELETE memoryCost() const;
 private:
     friend class ImageBitmapImageObserver;
     friend class PendingImageBitmap;

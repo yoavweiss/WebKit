@@ -81,11 +81,11 @@ public:
     void suspendAnimations() override;
     void resumeAnimations() override;
     WEBCORE_EXPORT unsigned numberOfActiveAnimationsForTesting() const;
-    WEBCORE_EXPORT unsigned numberOfAnimationTimelineInvalidationsForTesting() const;
+    WEBCORE_EXPORT unsigned NODELETE numberOfAnimationTimelineInvalidationsForTesting() const;
 
     Seconds convertTimelineTimeToOriginRelativeTime(Seconds) const;
 
-    std::optional<FramesPerSecond> maximumFrameRate() const;
+    std::optional<FramesPerSecond> NODELETE maximumFrameRate() const;
 
 #if ENABLE(THREADED_ANIMATIONS)
     void scheduleAcceleratedEffectStackUpdate();

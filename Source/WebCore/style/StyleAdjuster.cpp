@@ -174,7 +174,7 @@ static bool shouldInheritTextDecorationsInEffect(const RenderStyle& style, const
     return true;
 }
 
-static bool isScrollableOverflow(Overflow overflow)
+static bool NODELETE isScrollableOverflow(Overflow overflow)
 {
     return overflow == Overflow::Scroll || overflow == Overflow::Auto;
 }
@@ -321,12 +321,12 @@ OptionSet<EventListenerRegionType> Adjuster::computeEventListenerRegionTypes(con
     return types;
 }
 
-static bool isOverflowClipOrVisible(Overflow overflow)
+static bool NODELETE isOverflowClipOrVisible(Overflow overflow)
 {
     return overflow == Overflow::Clip || overflow == Overflow::Visible;
 }
 
-static bool shouldInlinifyForRuby(const RenderStyle& style, const RenderStyle& parentBoxStyle)
+static bool NODELETE shouldInlinifyForRuby(const RenderStyle& style, const RenderStyle& parentBoxStyle)
 {
     auto parentDisplay = parentBoxStyle.display();
     auto hasRubyParent = parentDisplay == DisplayType::InlineRuby
@@ -337,7 +337,7 @@ static bool shouldInlinifyForRuby(const RenderStyle& style, const RenderStyle& p
     return hasRubyParent && !style.hasOutOfFlowPosition() && style.floating() == Float::None;
 }
 
-static bool hasUnsupportedRubyDisplay(Display display, const Element* element, const Document& document)
+static bool NODELETE hasUnsupportedRubyDisplay(Display display, const Element* element, const Document& document)
 {
     if (document.settings().cssRubyDisplayTypesInAuthorStylesEnabled())
         return false;
@@ -359,7 +359,7 @@ static bool hasUnsupportedRubyDisplay(Display display, const Element* element, c
 }
 
 // https://drafts.csswg.org/css-ruby-1/#bidi
-static UnicodeBidi forceBidiIsolationForRuby(UnicodeBidi unicodeBidi)
+static UnicodeBidi NODELETE forceBidiIsolationForRuby(UnicodeBidi unicodeBidi)
 {
     switch (unicodeBidi) {
     case UnicodeBidi::Normal:
@@ -803,7 +803,7 @@ void Adjuster::adjust(RenderStyle& style) const
     adjustForSiteSpecificQuirks(style);
 }
 
-static bool hasEffectiveDisplayNoneForDisplayContents(const Element& element)
+static bool NODELETE hasEffectiveDisplayNoneForDisplayContents(const Element& element)
 {
     using namespace ElementNames;
 
@@ -1211,7 +1211,7 @@ std::unique_ptr<RenderStyle> Adjuster::restoreUsedDocumentElementStyleToComputed
 }
 
 #if ENABLE(TEXT_AUTOSIZING)
-static bool hasTextChild(const Element& element)
+static bool NODELETE hasTextChild(const Element& element)
 {
     for (auto* child = element.firstChild(); child; child = child->nextSibling()) {
         if (is<Text>(child))

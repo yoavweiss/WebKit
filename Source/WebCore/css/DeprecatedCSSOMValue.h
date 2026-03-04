@@ -96,7 +96,7 @@ public:
     }
 
     String cssText() const;
-    unsigned short cssValueType() const;
+    unsigned short NODELETE cssValueType() const;
 
 protected:
     DeprecatedCSSOMComplexValue(Ref<const CSSValue> value, CSSStyleDeclaration& owner)

@@ -98,7 +98,7 @@ namespace WebCore {
 
 static constexpr unsigned s_maxCachedStringSize = 40000;
 
-unsigned maxCachedSetInnerHTMLStringSize()
+unsigned NODELETE maxCachedSetInnerHTMLStringSize()
 {
     return s_maxCachedStringSize;
 }
@@ -119,7 +119,7 @@ ALWAYS_INLINE static bool isCachedSubtreeValid(Node& cachedContainer)
 }
 
 template<typename CharacterType>
-static bool isCachedPrefixMatch(const CachedSetInnerHTML& cache, std::span<const CharacterType> source, const ElementName& elementName)
+static bool NODELETE isCachedPrefixMatch(const CachedSetInnerHTML& cache, std::span<const CharacterType> source, const ElementName& elementName)
 {
     if (cache.source.length() > source.size())
         return false;
@@ -224,30 +224,30 @@ enum class HTMLFastPathResult : uint8_t {
     FailedCssPseudoDirEnabledAndDirAttributeDirty
 };
 
-template<typename CharacterType> static inline bool isQuoteCharacter(CharacterType character)
+template<typename CharacterType> static inline bool NODELETE isQuoteCharacter(CharacterType character)
 {
     return character == '"' || character == '\'';
 }
 
-template<typename CharacterType> static inline bool isValidUnquotedAttributeValueChar(CharacterType character)
+template<typename CharacterType> static inline bool NODELETE isValidUnquotedAttributeValueChar(CharacterType character)
 {
     return isASCIIAlphanumeric(character) || character == '_' || character == '-';
 }
 
 // https://html.spec.whatwg.org/#syntax-attribute-name
-template<typename CharacterType> static inline bool isValidAttributeNameChar(CharacterType character)
+template<typename CharacterType> static inline bool NODELETE isValidAttributeNameChar(CharacterType character)
 {
     if (character == '=') // Early return for the most common way to end an attribute.
         return false;
     return isASCIIAlphanumeric(character) || character == '-';
 }
 
-template<typename CharacterType> static inline bool isCharAfterTagNameOrAttribute(CharacterType character)
+template<typename CharacterType> static inline bool NODELETE isCharAfterTagNameOrAttribute(CharacterType character)
 {
     return character == ' ' || character == '>' || isASCIIWhitespace(character) || character == '/';
 }
 
-template<typename CharacterType> static inline bool isCharAfterUnquotedAttribute(CharacterType character)
+template<typename CharacterType> static inline bool NODELETE isCharAfterUnquotedAttribute(CharacterType character)
 {
     return character == ' ' || character == '>' || isASCIIWhitespace(character);
 }
@@ -398,11 +398,11 @@ private:
             {
                 return HTMLElementClass::create(document);
             }
-            static constexpr bool allowedInPhrasingOrFlowContent()
+            static constexpr bool NODELETE allowedInPhrasingOrFlowContent()
             {
                 return permittedParents == PermittedParents::PhrasingOrFlowContent;
             }
-            static constexpr bool allowedInFlowContent()
+            static constexpr bool NODELETE allowedInFlowContent()
             {
                 return permittedParents == PermittedParents::PhrasingOrFlowContent || permittedParents == PermittedParents::FlowContent;
             }

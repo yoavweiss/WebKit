@@ -67,11 +67,11 @@ public:
 
     PlacedFloats::Item makeFloatItem(const Box& floatBox, const BoxGeometry&, std::optional<size_t> line = { }) const;
 
-    bool isStartPositioned(const Box& floatBox) const;
+    bool NODELETE isStartPositioned(const Box& floatBox) const;
 
 private:
-    bool isFloatingCandidateStartPositionedInBlockFormattingContext(const Box&) const;
-    Clear clearInBlockFormattingContext(const Box&) const;
+    bool NODELETE isFloatingCandidateStartPositionedInBlockFormattingContext(const Box&) const;
+    Clear NODELETE clearInBlockFormattingContext(const Box&) const;
 
     const ElementBox& root() const { return m_formattingContextRoot; }
     // FIXME: Turn this into an actual geometry cache.

@@ -452,7 +452,7 @@ void SVGElement::finishParsingChildren()
     invalidateInstances();
 }
 
-static inline bool isSVGLayerAwareElement(const SVGElement& element)
+static inline bool NODELETE isSVGLayerAwareElement(const SVGElement& element)
 {
     using namespace ElementNames;
 

@@ -153,7 +153,7 @@ namespace WebCore {
 
 using namespace HTMLNames;
 
-static Node* nodeForRenderer(RenderObject& renderer)
+static Node* NODELETE nodeForRenderer(RenderObject& renderer)
 {
     if (!renderer.isRenderView()) [[likely]]
         return renderer.node();

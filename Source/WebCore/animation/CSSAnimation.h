@@ -47,8 +47,8 @@ public:
     const Style::ScopedName& scopedAnimationName() const { return m_animationName; }
 
     void effectTimingWasUpdatedUsingBindings(const OptionalEffectTiming&);
-    void effectKeyframesWereSetUsingBindings();
-    void effectCompositeOperationWasSetUsingBindings();
+    void NODELETE effectKeyframesWereSetUsingBindings();
+    void NODELETE effectCompositeOperationWasSetUsingBindings();
     void keyframesRuleDidChange();
     void updateKeyframesIfNeeded(const RenderStyle* oldStyle, const RenderStyle& newStyle, const Style::ResolutionContext&);
 

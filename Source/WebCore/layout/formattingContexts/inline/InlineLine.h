@@ -155,8 +155,8 @@ public:
         GlyphOverflow glyphOverflow() const { return m_glyphOverflow; }
 
         inline TextDirection inlineDirection() const;
-        InlineLayoutUnit letterSpacing() const;
-        bool hasTextCombine() const;
+        InlineLayoutUnit NODELETE letterSpacing() const;
+        bool NODELETE hasTextCombine() const;
         InlineLayoutUnit textSpacingAdjustment() const { return m_textSpacingAdjustment; }
 
         UBiDiLevel bidiLevel() const { return m_bidiLevel; }
@@ -203,10 +203,10 @@ public:
         static std::optional<TrailingWhitespace::Type> trailingWhitespaceType(const InlineTextItem&);
         InlineLayoutUnit removeTrailingWhitespace();
 
-        std::optional<Run> detachTrailingWhitespace();
+        std::optional<Run> NODELETE detachTrailingWhitespace();
 
-        bool hasTrailingLetterSpacing() const;
-        InlineLayoutUnit trailingLetterSpacing() const;
+        bool NODELETE hasTrailingLetterSpacing() const;
+        InlineLayoutUnit NODELETE trailingLetterSpacing() const;
         InlineLayoutUnit removeTrailingLetterSpacing();
 
         TrailingWhitespace m_trailingWhitespace { };
@@ -247,17 +247,17 @@ public:
     Result close();
 
     static bool restoreTrimmedTrailingWhitespace(InlineLayoutUnit trimmedTrailingWhitespaceWidth, RunList&, InlineItemRange, const InlineItemList&);
-    static bool hasTrailingForcedLineBreak(const RunList&);
+    static bool NODELETE hasTrailingForcedLineBreak(const RunList&);
 
 private:
     InlineLayoutUnit lastRunLogicalRight() const { return m_runs.isEmpty() ? 0.0f : m_runs.last().logicalRight(); }
 
-    void resetTrailingContent();
+    void NODELETE resetTrailingContent();
 
     bool lineHasVisuallyNonEmptyContent() const;
 
     bool isFirstFormattedLine() const { return m_isFirstFormattedLine; }
-    const InlineFormattingContext& formattingContext() const;
+    const InlineFormattingContext& NODELETE formattingContext() const;
 
     static bool appendTrailingInlineItemAsTrailingRun(RunList&, InlineLayoutUnit trimmedTrailingWhitespaceWidth, InlineItemRange, const InlineItemList&);
 

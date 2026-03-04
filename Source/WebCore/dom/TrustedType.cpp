@@ -64,11 +64,11 @@ struct TrustedTypeVisitor {
     {
         return value->toString();
     }
-    String operator()(const Ref<TrustedScript>& value)
+    String NODELETE operator()(const Ref<TrustedScript>& value)
     {
         return value->toString();
     }
-    String operator()(const Ref<TrustedScriptURL>& value)
+    String NODELETE operator()(const Ref<TrustedScriptURL>& value)
     {
         return value->toString();
     }

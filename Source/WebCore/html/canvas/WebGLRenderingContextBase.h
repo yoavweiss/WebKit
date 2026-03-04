@@ -490,7 +490,7 @@ public:
 
     bool isOpaque() const final;
 
-    WeakPtr<WebGLRenderingContextBase> createRefForContextObject();
+    WeakPtr<WebGLRenderingContextBase> NODELETE createRefForContextObject();
 
     bool compositingResultsNeedUpdating() const final { return m_compositingResultsNeedUpdating; }
     void prepareForDisplay() final;
@@ -1097,7 +1097,7 @@ GCGLboolean WebGLRenderingContextBase::validateIsWebGLObject(const T* object) co
 
 WebCoreOpaqueRoot NODELETE root(WebGLRenderingContextBase*);
 
-WebCoreOpaqueRoot root(const WebGLExtension<WebGLRenderingContextBase>*);
+WebCoreOpaqueRoot NODELETE root(const WebGLExtension<WebGLRenderingContextBase>*);
 
 } // namespace WebCore
 

@@ -109,7 +109,7 @@ typedef CF_ENUM(UInt32, AXTextSelectionGranularity)
 
 #endif // AXTextStateChangeDefined
 
-static AXTextStateChangeType platformChangeTypeForWebCoreChangeType(WebCore::AXTextStateChangeType changeType)
+static AXTextStateChangeType NODELETE platformChangeTypeForWebCoreChangeType(WebCore::AXTextStateChangeType changeType)
 {
     switch (changeType) {
     case WebCore::AXTextStateChangeType::Unknown:
@@ -125,7 +125,7 @@ static AXTextStateChangeType platformChangeTypeForWebCoreChangeType(WebCore::AXT
     }
 }
 
-static AXTextEditType platformEditTypeForWebCoreEditType(WebCore::AXTextEditType changeType)
+static AXTextEditType NODELETE platformEditTypeForWebCoreEditType(WebCore::AXTextEditType changeType)
 {
     switch (changeType) {
     case WebCore::AXTextEditType::Unknown:
@@ -149,7 +149,7 @@ static AXTextEditType platformEditTypeForWebCoreEditType(WebCore::AXTextEditType
     }
 }
 
-static AXTextSelectionDirection platformDirectionForWebCoreDirection(WebCore::AXTextSelectionDirection direction)
+static AXTextSelectionDirection NODELETE platformDirectionForWebCoreDirection(WebCore::AXTextSelectionDirection direction)
 {
     switch (direction) {
     case WebCore::AXTextSelectionDirection::Unknown:
@@ -167,7 +167,7 @@ static AXTextSelectionDirection platformDirectionForWebCoreDirection(WebCore::AX
     }
 }
 
-static AXTextSelectionGranularity platformGranularityForWebCoreGranularity(WebCore::AXTextSelectionGranularity granularity)
+static AXTextSelectionGranularity NODELETE platformGranularityForWebCoreGranularity(WebCore::AXTextSelectionGranularity granularity)
 {
     switch (granularity) {
     case WebCore::AXTextSelectionGranularity::Unknown:
@@ -730,7 +730,7 @@ void AXObjectCache::platformPerformDeferredCacheUpdate()
     m_deferredUnsortedObjects.clear();
 }
 
-static bool isTestAXClientType(AXClientType client)
+static bool NODELETE isTestAXClientType(AXClientType client)
 {
     return client == kAXClientTypeWebKitTesting || client == kAXClientTypeXCTest;
 }

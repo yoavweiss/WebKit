@@ -217,7 +217,7 @@ static RefPtr<CSSValue> parseSimpleLengthValue(StringView string, CSSParserMode 
 // Returns the number of characters which form a valid double
 // and are terminated by the given terminator character
 template <typename CharacterType>
-static size_t checkForValidDouble(std::span<const CharacterType> string, char terminator)
+static size_t NODELETE checkForValidDouble(std::span<const CharacterType> string, char terminator)
 {
     size_t length = string.size();
     if (length < 1)
@@ -353,7 +353,7 @@ static std::optional<uint8_t> parseColorIntOrPercentage(std::span<const Characte
 }
 
 template <typename CharacterType>
-static inline bool isTenthAlpha(std::span<const CharacterType> string)
+static inline bool NODELETE isTenthAlpha(std::span<const CharacterType> string)
 {
     // "0.X"
     if (string.size() == 3 && string[0] == '0' && string[1] == '.' && isASCIIDigit(string[2]))
@@ -413,7 +413,7 @@ static inline std::optional<uint8_t> parseRGBAlphaValue(std::span<const Characte
 }
 
 template <typename CharacterType>
-static inline bool mightBeRGBA(std::span<const CharacterType> characters)
+static inline bool NODELETE mightBeRGBA(std::span<const CharacterType> characters)
 {
     if (characters.size() < 5)
         return false;
@@ -425,7 +425,7 @@ static inline bool mightBeRGBA(std::span<const CharacterType> characters)
 }
 
 template <typename CharacterType>
-static inline bool mightBeRGB(std::span<const CharacterType> characters)
+static inline bool NODELETE mightBeRGB(std::span<const CharacterType> characters)
 {
     if (characters.size() < 4)
         return false;
@@ -436,7 +436,7 @@ static inline bool mightBeRGB(std::span<const CharacterType> characters)
 }
 
 template <typename CharacterType>
-static inline bool mightBeHSLA(std::span<const CharacterType> characters)
+static inline bool NODELETE mightBeHSLA(std::span<const CharacterType> characters)
 {
     if (characters.size() < 5)
         return false;
@@ -448,7 +448,7 @@ static inline bool mightBeHSLA(std::span<const CharacterType> characters)
 }
 
 template <typename CharacterType>
-static inline bool mightBeHSL(std::span<const CharacterType> characters)
+static inline bool NODELETE mightBeHSL(std::span<const CharacterType> characters)
 {
     if (characters.size() < 4)
         return false;

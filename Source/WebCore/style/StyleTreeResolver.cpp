@@ -1196,7 +1196,7 @@ auto TreeResolver::determineResolutionType(const Element& element, const RenderS
     return { };
 }
 
-static void clearNeedsStyleResolution(Element& element)
+static void NODELETE clearNeedsStyleResolution(Element& element)
 {
     element.setHasValidStyle();
     if (auto* before = element.beforePseudoElement())
@@ -1978,13 +1978,13 @@ unsigned TreeResolver::maximumRenderTreeDepth()
     return maximum;
 }
 
-static Vector<Function<void ()>>& postResolutionCallbackQueue()
+static Vector<Function<void ()>>& NODELETE postResolutionCallbackQueue()
 {
     static NeverDestroyed<Vector<Function<void ()>>> vector;
     return vector;
 }
 
-static Vector<Ref<Frame>>& memoryCacheClientCallsResumeQueue()
+static Vector<Ref<Frame>>& NODELETE memoryCacheClientCallsResumeQueue()
 {
     static NeverDestroyed<Vector<Ref<Frame>>> vector;
     return vector;

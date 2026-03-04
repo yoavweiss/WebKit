@@ -84,8 +84,8 @@ public:
 
     void addRule(const StyleRule&, unsigned selectorIndex, unsigned selectorListIndex);
     void addPageRule(StyleRulePage&);
-    void setViewTransitionRule(StyleRuleViewTransition&);
-    RefPtr<StyleRuleViewTransition> viewTransitionRule() const;
+    void NODELETE setViewTransitionRule(StyleRuleViewTransition&);
+    RefPtr<StyleRuleViewTransition> NODELETE viewTransitionRule() const;
 
     void addToRuleSet(const AtomString& key, AtomRuleMap&, const RuleData&);
     void shrinkToFit();
@@ -142,7 +142,7 @@ public:
     bool hasScopeRules() const { return !m_scopeRules.isEmpty(); }
     Vector<Ref<const StyleRuleScope>> scopeRulesFor(const RuleData&) const;
 
-    const RefPtr<const StyleRulePositionTry> positionTryRuleForName(const AtomString&) const;
+    const RefPtr<const StyleRulePositionTry> NODELETE positionTryRuleForName(const AtomString&) const;
 
     String selectorsForDebugging() const;
 

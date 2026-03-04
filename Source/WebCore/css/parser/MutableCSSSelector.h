@@ -98,7 +98,7 @@ public:
 
     MutableCSSSelector* precedingInComplexSelector() const { return m_precedingInComplexSelector.get(); }
     MutableCSSSelector* NODELETE leftmostSimpleSelector();
-    const MutableCSSSelector* leftmostSimpleSelector() const;
+    const MutableCSSSelector* NODELETE leftmostSimpleSelector() const;
     bool NODELETE startsWithExplicitCombinator() const;
     void setPrecedingInComplexSelector(std::unique_ptr<MutableCSSSelector> selector) { m_precedingInComplexSelector = WTF::move(selector); }
     void prependInComplexSelector(CSSSelector::Relation, std::unique_ptr<MutableCSSSelector>);

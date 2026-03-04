@@ -52,12 +52,12 @@ public:
         return JSC::Structure::create(vm, globalObject, prototype, JSC::TypeInfo(JSC::GlobalObjectType, StructureFlags), info());
     }
 
-    static bool supportsRichSourceInfo(const JSC::JSGlobalObject*);
-    static bool shouldInterruptScript(const JSC::JSGlobalObject*);
-    static bool shouldInterruptScriptBeforeTimeout(const JSC::JSGlobalObject*);
+    static bool NODELETE supportsRichSourceInfo(const JSC::JSGlobalObject*);
+    static bool NODELETE shouldInterruptScript(const JSC::JSGlobalObject*);
+    static bool NODELETE shouldInterruptScriptBeforeTimeout(const JSC::JSGlobalObject*);
     static JSC::RuntimeFlags javaScriptRuntimeFlags(const JSC::JSGlobalObject*);
     static JSC::ScriptExecutionStatus scriptExecutionStatus(JSC::JSGlobalObject*, JSC::JSObject*);
-    static void reportViolationForUnsafeEval(JSC::JSGlobalObject*, const String&);
+    static void NODELETE reportViolationForUnsafeEval(JSC::JSGlobalObject*, const String&);
 
 protected:
     JSWorkerGlobalScopeBase(JSC::VM&, JSC::Structure*, Ref<WorkerGlobalScope>&&);

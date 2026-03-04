@@ -39,7 +39,7 @@ namespace WebCore {
 
 // FIXME: This doesn't match SVGElement::viewportElement() as it has an extra check for
 // foreign object.
-static bool isViewportElement(const SVGElement* element)
+static bool NODELETE isViewportElement(const SVGElement* element)
 {
     if (!element)
         return false;

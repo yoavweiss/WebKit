@@ -884,16 +884,16 @@ template<typename T> inline Type getType(const IndirectNode<T>& root)
 }
 
 // Gets the Type representing a CanonicalDimension::Dimension.
-Type getType(CanonicalDimension::Dimension);
+Type NODELETE getType(CanonicalDimension::Dimension);
 
 // Gets the Type of the leaf node.
-Type getType(const Number&);
-Type getType(const Percentage&);
-Type getType(const NonCanonicalDimension&);
-Type getType(const CanonicalDimension&);
-Type getType(const Symbol&);
-Type getType(const SiblingCount&);
-Type getType(const SiblingIndex&);
+Type NODELETE getType(const Number&);
+Type NODELETE getType(const Percentage&);
+Type NODELETE getType(const NonCanonicalDimension&);
+Type NODELETE getType(const CanonicalDimension&);
+Type NODELETE getType(const Symbol&);
+Type NODELETE getType(const SiblingCount&);
+Type NODELETE getType(const SiblingIndex&);
 
 // Gets the Type of the child node.
 Type getType(const Child&);

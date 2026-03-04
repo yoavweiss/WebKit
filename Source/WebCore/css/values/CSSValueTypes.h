@@ -516,7 +516,7 @@ struct CSSValueCreationInvoker {
 };
 inline constexpr CSSValueCreationInvoker createCSSValue{};
 
-Ref<CSSValue> makePrimitiveCSSValue(CSSValueID);
+Ref<CSSValue> NODELETE makePrimitiveCSSValue(CSSValueID);
 Ref<CSSValue> makePrimitiveCSSValue(const CustomIdentifier&);
 Ref<CSSValue> makePrimitiveCSSValue(const PropertyIdentifier&);
 Ref<CSSValue> makePrimitiveCSSValue(const WTF::AtomString&);

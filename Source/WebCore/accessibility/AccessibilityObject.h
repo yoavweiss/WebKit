@@ -91,12 +91,12 @@ public:
     void addAncestorFlags(const OptionSet<AXAncestorFlag>& flags) { m_ancestorFlags.add(flags); }
     bool ancestorFlagsAreInitialized() const { return m_ancestorFlags.contains(AXAncestorFlag::FlagsInitialized); }
     // Computes the flags that this object matches (no traversal is done).
-    OptionSet<AXAncestorFlag> computeAncestorFlags() const;
+    OptionSet<AXAncestorFlag> NODELETE computeAncestorFlags() const;
     // Computes the flags that this object and all ancestors match, traversing all the way to the root.
     OptionSet<AXAncestorFlag> computeAncestorFlagsWithTraversal() const;
     void initializeAncestorFlags(const OptionSet<AXAncestorFlag>&);
     bool hasAncestorMatchingFlag(AXAncestorFlag) const;
-    bool matchesAncestorFlag(AXAncestorFlag) const;
+    bool NODELETE matchesAncestorFlag(AXAncestorFlag) const;
 
     bool hasRareData() const { return !!m_rareDataWithBitfields.pointer(); }
     AXObjectRareData* rareData() const { return m_rareDataWithBitfields.pointer(); }
@@ -299,7 +299,7 @@ public:
     virtual float stepValueForRange() const { return 0.0f; }
     int layoutCount() const override { return 0; }
     double loadingProgress() const final;
-    WEBCORE_EXPORT static bool isARIAControl(AccessibilityRole);
+    WEBCORE_EXPORT static bool NODELETE isARIAControl(AccessibilityRole);
     bool supportsCheckedState() const override;
 
     bool supportsARIAOwns() const override { return false; }
@@ -940,9 +940,9 @@ protected:
 
     virtual bool shouldIgnoreAttributeRole() const { return false; }
     virtual AccessibilityRole buttonRoleType() const;
-    bool dispatchTouchEvent();
+    bool NODELETE dispatchTouchEvent();
 
-    static bool isARIAInput(AccessibilityRole);
+    static bool NODELETE isARIAInput(AccessibilityRole);
 
     AccessibilityObject* radioGroupAncestor() const;
 
@@ -952,7 +952,7 @@ protected:
 #ifndef NDEBUG
     void verifyChildrenIndexInParent() const final { return AXCoreObject::verifyChildrenIndexInParent(m_children); }
 #endif
-    void resetChildrenIndexInParent() const;
+    void NODELETE resetChildrenIndexInParent() const;
 
 private:
     ProcessID processID() const final { return legacyPresentingApplicationPID(); }

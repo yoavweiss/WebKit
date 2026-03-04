@@ -58,9 +58,9 @@ struct WillChangeAnimatableFeature {
     Feature feature() const { return m_feature; }
     CSSPropertyID property() const { return feature() == Feature::Property ? static_cast<CSSPropertyID>(m_cssPropertyID) : CSSPropertyInvalid; }
 
-    static bool propertyCreatesStackingContext(CSSPropertyID);
-    static bool propertyTriggersCompositing(CSSPropertyID);
-    static bool propertyTriggersCompositingOnBoxesOnly(CSSPropertyID);
+    static bool NODELETE propertyCreatesStackingContext(CSSPropertyID);
+    static bool NODELETE propertyTriggersCompositing(CSSPropertyID);
+    static bool NODELETE propertyTriggersCompositingOnBoxesOnly(CSSPropertyID);
 
     template<typename... F> decltype(auto) switchOn(F&&... f) const
     {
@@ -128,7 +128,7 @@ private:
         const_iterator begin() const { return m_animatableFeatures.begin(); }
         const_iterator end() const { return m_animatableFeatures.end(); }
 
-        bool operator==(const Data&) const;
+        bool NODELETE operator==(const Data&) const;
 
     private:
         Data() { }

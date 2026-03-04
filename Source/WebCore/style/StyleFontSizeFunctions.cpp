@@ -160,7 +160,7 @@ float fontSizeForKeyword(unsigned keywordID, bool shouldUseFixedDefaultSize, con
 }
 
 template<typename T, std::size_t Extent>
-static int findNearestLegacyFontSize(int pixelFontSize, std::span<const T, Extent> table, int multiplier)
+static int NODELETE findNearestLegacyFontSize(int pixelFontSize, std::span<const T, Extent> table, int multiplier)
 {
     // Ignore table[0] because xx-small does not correspond to any legacy font size.
     for (size_t i = 1; i < table.size() - 1; ++i) {

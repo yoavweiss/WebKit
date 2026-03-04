@@ -55,7 +55,7 @@ WEBCORE_EXPORT bool NODELETE isSystemColorKeyword(CSSValueID);
 WEBCORE_EXPORT bool NODELETE isDeprecatedSystemColorKeyword(CSSValueID);
 
 bool NODELETE isColorKeyword(CSSValueID);
-bool isColorKeyword(CSSValueID, OptionSet<ColorType>);
+bool NODELETE isColorKeyword(CSSValueID, OptionSet<ColorType>);
 
 WebCore::Color colorFromAbsoluteKeyword(CSSValueID);
 WebCore::Color colorFromKeyword(CSSValueID, OptionSet<StyleColorOptions>);

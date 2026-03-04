@@ -54,8 +54,8 @@ public:
     ObjectStructPtr getObject() const { return _instance.get(); }
     
     JSValue stringValue(JSGlobalObject*) const;
-    JSValue numberValue(JSGlobalObject*) const;
-    JSValue booleanValue() const;
+    JSValue NODELETE numberValue(JSGlobalObject*) const;
+    JSValue NODELETE booleanValue() const;
 
     static bool isInStringValue();
 

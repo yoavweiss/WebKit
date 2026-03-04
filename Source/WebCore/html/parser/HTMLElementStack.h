@@ -124,7 +124,7 @@ public:
     bool NODELETE contains(Element&) const;
 
     bool NODELETE inScope(Element&) const;
-    bool inScope(ElementName) const;
+    bool NODELETE inScope(ElementName) const;
     bool NODELETE inListItemScope(ElementName) const;
     bool NODELETE inTableScope(ElementName) const;
     bool NODELETE hasAnyInTableScope(std::initializer_list<ElementName> targetElements) const;

@@ -82,7 +82,7 @@ public:
     int getCharNumAtPosition(DOMPointInit&&);
     ExceptionOr<void> selectSubString(unsigned charnum, unsigned nchars);
 
-    static const SVGTextContentElement* elementFromRenderer(const RenderObject*);
+    static const SVGTextContentElement* NODELETE elementFromRenderer(const RenderObject*);
 
     using PropertyRegistry = SVGPropertyOwnerRegistry<SVGTextContentElement, SVGGraphicsElement>;
 

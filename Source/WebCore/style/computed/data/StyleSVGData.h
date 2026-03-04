@@ -114,7 +114,7 @@ private:
     enum CreateDefaultType { CreateDefault };
     SVGData(CreateDefaultType); // Used to create the default style.
 
-    void setBitDefaults();
+    void NODELETE setBitDefaults();
 };
 
 } // namespace Style

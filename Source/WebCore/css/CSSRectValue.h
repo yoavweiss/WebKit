@@ -31,7 +31,7 @@ namespace WebCore {
 
 class CSSRectValue final : public CSSValue {
 public:
-    static Ref<CSSRectValue> create(Rect);
+    static Ref<CSSRectValue> NODELETE create(Rect);
 
     const Rect& rect() const LIFETIME_BOUND { return m_rect; }
 

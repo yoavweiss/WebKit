@@ -85,7 +85,7 @@ protected:
     void dispatchLoadEvent();
 
 private:
-    SVGElement& contextElement() const;
+    SVGElement& NODELETE contextElement() const;
 
     const Ref<SVGAnimatedString> m_href;
 };

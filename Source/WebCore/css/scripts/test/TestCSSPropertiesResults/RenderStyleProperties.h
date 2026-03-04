@@ -2,12 +2,24 @@
 
 #pragma once
 
-#include <WebCore/RenderStyleBase.h>
+#include <WebCore/StyleComputedStyle.h>
 
 namespace WebCore {
 
-class RenderStyleProperties : public RenderStyleBase {
+DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(RenderStyleProperties);
+class RenderStyleProperties {
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(RenderStyleProperties, RenderStyleProperties);
+    WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(RenderStyleProperties);
 public:
+    ~RenderStyleProperties() = default;
+
+    // Delegation to `Style::ComputedStyle` for `CheckedPtr` support.
+    ALWAYS_INLINE uint32_t checkedPtrCount() const { return m_computedStyle.checkedPtrCount(); }
+    ALWAYS_INLINE void incrementCheckedPtrCount() const { m_computedStyle.incrementCheckedPtrCount(); }
+    ALWAYS_INLINE void decrementCheckedPtrCount() const { m_computedStyle.decrementCheckedPtrCount(); }
+    ALWAYS_INLINE uint32_t checkedPtrCountWithoutThreadCheck() const { return m_computedStyle.checkedPtrCountWithoutThreadCheck(); }
+    ALWAYS_INLINE void setDidBeginCheckedPtrDeletion() { m_computedStyle.setDidBeginCheckedPtrDeletion(); }
+
     // 'test-color'
     inline const Style::Color& testColor() const;
     inline void setTestColor(Style::Color&&);
@@ -106,13 +118,21 @@ public:
     inline void setLogicalTestLogicalPropertyGroupPhysicalVertical(Style::Number<>);
 
 protected:
-    RenderStyleProperties(RenderStyleProperties&&) = default;
-    RenderStyleProperties& operator=(RenderStyleProperties&&) = default;
+    friend class RenderStyle;
+    friend class Style::DifferenceFunctions;
 
-    RenderStyleProperties(CreateDefaultStyleTag tag) : RenderStyleBase { tag } { }
-    RenderStyleProperties(const RenderStyleProperties& other, CloneTag tag) : RenderStyleBase { other, tag } { }
+    enum CloneTag { Clone };
+    enum CreateDefaultStyleTag { CreateDefaultStyle };
 
-    RenderStyleProperties(RenderStyleProperties& a, RenderStyleProperties&& b) : RenderStyleBase { a, WTF::move(b) } { }
+    RenderStyleProperties(RenderStyleProperties&&);
+    RenderStyleProperties& operator=(RenderStyleProperties&&);
+
+    RenderStyleProperties(CreateDefaultStyleTag);
+    RenderStyleProperties(const RenderStyleProperties&, CloneTag);
+
+    RenderStyleProperties(RenderStyleProperties&, RenderStyleProperties&&);
+
+    Style::ComputedStyle m_computedStyle;
 };
 
 } // namespace WebCore

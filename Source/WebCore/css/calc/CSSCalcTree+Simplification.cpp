@@ -1446,7 +1446,7 @@ Random::Sharing copyAndSimplify(const Random::Sharing& root, const Simplificatio
     return root;
 }
 
-CSS::Keyword::None copyAndSimplify(const CSS::Keyword::None& root, const SimplificationOptions&)
+CSS::Keyword::None NODELETE copyAndSimplify(const CSS::Keyword::None& root, const SimplificationOptions&)
 {
     return root;
 }

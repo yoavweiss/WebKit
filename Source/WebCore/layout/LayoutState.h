@@ -83,7 +83,7 @@ public:
     void destroyBlockFormattingState(const ElementBox& formattingContextRoot);
     void destroyInlineContentCache(const ElementBox& formattingContextRoot);
 
-    bool hasFormattingState(const ElementBox& formattingRoot) const;
+    bool NODELETE hasFormattingState(const ElementBox& formattingRoot) const;
 
 #ifndef NDEBUG
     void registerFormattingContext(const FormattingContext&);

@@ -103,7 +103,7 @@ public:
     }
 
     static bool elementMatchesIfIdAttributeMatch(const Element&);
-    static bool elementMatchesIfNameAttributeMatch(const Element&);
+    static bool NODELETE elementMatchesIfNameAttributeMatch(const Element&);
 
     // For CachedHTMLCollection.
     bool elementMatches(const Element& element) const { return elementMatches(element, m_name.impl()); }

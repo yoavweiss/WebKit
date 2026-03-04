@@ -72,7 +72,7 @@ public:
 
 #if ENABLE(MEDIA_SOURCE)
     SourceBuffer* NODELETE sourceBuffer() const;
-    void setSourceBuffer(SourceBuffer*);
+    void NODELETE setSourceBuffer(SourceBuffer*);
 #endif
 
     void setTrackList(TrackListBase&);

@@ -139,7 +139,7 @@ public:
 
     RefPtr<InputType> NODELETE inputType() const;
 
-    bool isSteppable() const; // stepUp()/stepDown() for user-interaction.
+    bool NODELETE isSteppable() const; // stepUp()/stepDown() for user-interaction.
     WEBCORE_EXPORT bool NODELETE isTextButton() const;
     bool NODELETE isRadioButton() const;
     WEBCORE_EXPORT bool isTextField() const final;
@@ -433,7 +433,7 @@ private:
     bool supportsReadOnly() const final;
     bool supportsMinLength() const { return isTextType(); }
     bool supportsMaxLength() const { return isTextType(); }
-    bool tooShort(StringView, NeedsToCheckDirtyFlag) const;
+    bool NODELETE tooShort(StringView, NeedsToCheckDirtyFlag) const;
     bool tooLong(StringView, NeedsToCheckDirtyFlag) const;
 
     bool supportsPlaceholder() const final;

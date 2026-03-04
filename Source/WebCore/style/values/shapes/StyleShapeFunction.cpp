@@ -43,7 +43,7 @@ namespace Style {
 
 // MARK: - Control Point Evaluation
 
-template<typename ControlPoint> static ControlPointAnchor evaluateControlPointAnchoring(const ControlPoint& value, ControlPointAnchor defaultValue)
+template<typename ControlPoint> static ControlPointAnchor NODELETE evaluateControlPointAnchoring(const ControlPoint& value, ControlPointAnchor defaultValue)
 {
     if (value.anchor)
         return *value.anchor;
@@ -290,7 +290,7 @@ public:
     {
     }
 
-    const std::optional<Position>& initialMove() const { return m_initialMove; }
+    const std::optional<Position>& NODELETE initialMove() const { return m_initialMove; }
 
 private:
     static Position toPosition(FloatPoint p)

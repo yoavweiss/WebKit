@@ -118,10 +118,10 @@ private:
 
     void set(CSSPropertyID, CSSValue&, const MatchedProperties&, Origin);
     void setLogicalGroupProperty(CSSPropertyID, CSSValue&, const MatchedProperties&, Origin);
-    static void setPropertyInternal(Property&, CSSPropertyID, CSSValue&, const MatchedProperties&, Origin);
+    static void NODELETE setPropertyInternal(Property&, CSSPropertyID, CSSValue&, const MatchedProperties&, Origin);
 
-    bool hasProperty(CSSPropertyID, const CSSValue&);
-    bool mayOverrideExistingProperty(CSSPropertyID, const CSSValue&);
+    bool NODELETE hasProperty(CSSPropertyID, const CSSValue&);
+    bool NODELETE mayOverrideExistingProperty(CSSPropertyID, const CSSValue&);
 
     unsigned logicalGroupPropertyIndex(CSSPropertyID) const;
     void setLogicalGroupPropertyIndex(CSSPropertyID, unsigned);

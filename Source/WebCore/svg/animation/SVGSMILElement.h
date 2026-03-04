@@ -84,7 +84,7 @@ public:
 
     void seekToIntervalCorrespondingToTime(SMILTime elapsed);
     bool progress(SMILTime elapsed, SVGSMILElement& firstAnimation, bool seekToTime);
-    SMILTime nextProgressTime() const;
+    SMILTime NODELETE nextProgressTime() const;
 
     void reset();
 
@@ -92,7 +92,7 @@ public:
     static SMILTime parseOffsetValue(StringView);
 
     bool isContributing(SMILTime elapsed) const;
-    bool isFrozen() const;
+    bool NODELETE isFrozen() const;
 
     unsigned documentOrderIndex() const { return m_documentOrderIndex; }
     void setDocumentOrderIndex(unsigned index) { m_documentOrderIndex = index; }

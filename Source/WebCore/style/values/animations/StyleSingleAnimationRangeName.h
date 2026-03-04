@@ -43,8 +43,8 @@ namespace Style {
 
 enum class SingleAnimationRangeName : uint8_t { Normal, Omitted, Cover, Contain, Entry, Exit, EntryCrossing, ExitCrossing, Scroll };
 
-CSSValueID convertSingleAnimationRangeNameToCSSValueID(SingleAnimationRangeName);
-SingleAnimationRangeName convertCSSValueIDToSingleAnimationRangeName(CSSValueID);
+CSSValueID NODELETE convertSingleAnimationRangeNameToCSSValueID(SingleAnimationRangeName);
+SingleAnimationRangeName NODELETE convertCSSValueIDToSingleAnimationRangeName(CSSValueID);
 
 String convertSingleAnimationRangeNameToRangeString(SingleAnimationRangeName);
 SingleAnimationRangeName convertRangeStringToSingleTimelineRangeName(const String&);

@@ -250,7 +250,7 @@ public:
     operator VisiblePosition() const;
     operator CharacterOffset() const;
     std::optional<BoundaryPoint> boundaryPoint() const;
-    bool hasSameObjectAndOffset(const AXTextMarker&) const;
+    bool NODELETE hasSameObjectAndOffset(const AXTextMarker&) const;
 
 #if PLATFORM(COCOA)
     RetainPtr<PlatformTextMarkerData> platformData() const;
@@ -281,7 +281,7 @@ public:
     // True if this marker points to an object with non-empty text runs.
     bool isInTextRun() const;
     AXTextMarker convertToDomOffset() const;
-    void clampOffsetToLengthIfNeeded(unsigned) const;
+    void NODELETE clampOffsetToLengthIfNeeded(unsigned) const;
 
     // Find the next or previous marker, optionally stopping at the given ID and returning an invalid marker.
     AXTextMarker findMarker(AXDirection, CoalesceObjectBreaks = CoalesceObjectBreaks::Yes, IgnoreBRs = IgnoreBRs::No, std::optional<AXID> = std::nullopt, ForceSingleOffsetMovement = ForceSingleOffsetMovement::No) const;
@@ -395,7 +395,7 @@ public:
     operator bool() const { return m_start && m_end; }
     operator VisiblePositionRange() const;
     std::optional<SimpleRange> simpleRange() const;
-    std::optional<CharacterRange> characterRange() const;
+    std::optional<CharacterRange> NODELETE characterRange() const;
 
     std::optional<AXTextMarkerRange> intersectionWith(const AXTextMarkerRange&) const;
 
@@ -416,7 +416,7 @@ public:
     AXTextMarker start() const { return m_start; }
     AXTextMarker end() const { return m_end; }
     bool isCollapsed() const { return m_start.isEqual(m_end); }
-    bool isConfinedTo(std::optional<AXID>) const;
+    bool NODELETE isConfinedTo(std::optional<AXID>) const;
     bool isConfined() const;
     String toString(IncludeListMarkerText = IncludeListMarkerText::Yes, IncludeImageAltText = IncludeImageAltText::No) const;
 

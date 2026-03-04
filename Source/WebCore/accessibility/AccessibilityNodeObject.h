@@ -145,8 +145,8 @@ public:
     String axColumnIndexText() const final;
     unsigned colSpan() const;
     unsigned rowSpan() const;
-    void incrementEffectiveRowSpan();
-    void resetEffectiveRowSpan();
+    void NODELETE incrementEffectiveRowSpan();
+    void NODELETE resetEffectiveRowSpan();
     void setAXColIndexFromRow(int);
     void setColumnIndex(unsigned);
 #if USE(ATSPI)

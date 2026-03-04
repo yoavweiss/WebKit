@@ -126,7 +126,7 @@ private:
     static EventType NODELETE eventType(Event&);
     bool treatLinkAsLiveForEventType(EventType) const;
 
-    Element* rootEditableElementForSelectionOnMouseDown() const;
+    Element* NODELETE rootEditableElementForSelectionOnMouseDown() const;
     void setRootEditableElementForSelectionOnMouseDown(Element*);
     void clearRootEditableElementForSelectionOnMouseDown();
 

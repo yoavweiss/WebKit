@@ -505,7 +505,7 @@ public:
     void removedLastRef();
 
     using DocumentsMap = HashMap<ScriptExecutionContextIdentifier, WeakRef<Document, WeakPtrImplWithEventTargetData>>;
-    WEBCORE_EXPORT static DocumentsMap::ValuesIteratorRange allDocuments();
+    WEBCORE_EXPORT static DocumentsMap::ValuesIteratorRange NODELETE allDocuments();
     WEBCORE_EXPORT static DocumentsMap& NODELETE allDocumentsMap();
 
     MediaQueryMatcher& mediaQueryMatcher();
@@ -727,7 +727,7 @@ public:
 
     const Style::CustomPropertyRegistry& NODELETE customPropertyRegistry() const;
     const CSSCounterStyleRegistry& NODELETE counterStyleRegistry() const;
-    CSSCounterStyleRegistry& counterStyleRegistry();
+    CSSCounterStyleRegistry& NODELETE counterStyleRegistry();
 
     WEBCORE_EXPORT const CSSParserContext& cssParserContext() const LIFETIME_BOUND;
     void invalidateCachedCSSParserContext();
@@ -962,7 +962,7 @@ public:
     bool parsing() const { return m_bParsing; }
 
     bool shouldScheduleLayout() const;
-    bool isLayoutPending() const;
+    bool NODELETE isLayoutPending() const;
 #if !LOG_DISABLED
     Seconds timeSinceDocumentCreation() const { return MonotonicTime::now() - m_documentCreationTime; };
 #endif
@@ -982,9 +982,9 @@ public:
     void setLinkColor(const Color& c) { m_linkColor = c; }
     void setVisitedLinkColor(const Color& c) { m_visitedLinkColor = c; }
     void setActiveLinkColor(const Color& c) { m_activeLinkColor = c; }
-    void resetLinkColor();
-    void resetVisitedLinkColor();
-    void resetActiveLinkColor();
+    void NODELETE resetLinkColor();
+    void NODELETE resetVisitedLinkColor();
+    void NODELETE resetActiveLinkColor();
     VisitedLinkState* visitedLinkStateIfExists() const { return m_visitedLinkState.get(); }
     inline VisitedLinkState& visitedLinkState() const;
 
@@ -1394,7 +1394,7 @@ public:
     void registerForCaptionPreferencesChangedCallbacks(HTMLMediaElement&);
     void unregisterForCaptionPreferencesChangedCallbacks(HTMLMediaElement&);
     void captionPreferencesChanged();
-    void setMediaElementShowingTextTrack(const HTMLMediaElement&);
+    void NODELETE setMediaElementShowingTextTrack(const HTMLMediaElement&);
     void clearMediaElementShowingTextTrack();
     void updateTextTrackRepresentationImageIfNeeded();
     WEBCORE_EXPORT void shouldSuppressHDRDidChange();
@@ -1960,14 +1960,14 @@ public:
 
     bool NODELETE hasHighlight() const;
     HighlightRegistry* highlightRegistryIfExists() const { return m_highlightRegistry.get(); }
-    HighlightRegistry& highlightRegistry();
+    HighlightRegistry& NODELETE highlightRegistry();
     void updateHighlightPositions();
 
     HighlightRegistry* fragmentHighlightRegistryIfExists() const { return m_fragmentHighlightRegistry.get(); }
-    HighlightRegistry& fragmentHighlightRegistry();
+    HighlightRegistry& NODELETE fragmentHighlightRegistry();
 
     HighlightRegistry* textExtractionHighlightRegistryIfExists() const { return m_textExtractionHighlightRegistry.get(); }
-    HighlightRegistry& textExtractionHighlightRegistry();
+    HighlightRegistry& NODELETE textExtractionHighlightRegistry();
 
 #if ENABLE(APP_HIGHLIGHTS)
     HighlightRegistry* appHighlightRegistryIfExists() { return m_appHighlightRegistry.get(); }
