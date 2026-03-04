@@ -116,6 +116,7 @@
 #include "PseudoElementUtilities.h"
 #include "PushManager.h"
 #include "PushStrategy.h"
+#include "RemoteDOMWindow.h"
 #include "RemoteFrame.h"
 #include "RequestAnimationFrameCallback.h"
 #include "ResourceLoadInfo.h"
@@ -2854,6 +2855,11 @@ ExceptionOr<RefPtr<Frame>> LocalDOMWindow::createWindow(const String& urlString,
 
     RefPtr localNewFrame = dynamicDowncast<LocalFrame>(newFrame);
     if (localNewFrame && protect(localNewFrame->document()->window())->isInsecureScriptAccess(activeWindow, completedURL.string()))
+        return noopener ? RefPtr<Frame> { nullptr } : newFrame;
+
+    // For when calling window.open and providing a target window which is already remote
+    RefPtr remoteNewFrame = dynamicDowncast<RemoteFrame>(newFrame);
+    if (remoteNewFrame && protect(remoteNewFrame->window())->isInsecureScriptAccess(activeWindow, completedURL.string()))
         return noopener ? RefPtr<Frame> { nullptr } : newFrame;
 
     if (prepareDialogFunction && localNewFrame)

@@ -1025,9 +1025,16 @@ bool DOMWindow::isInsecureScriptAccess(const LocalDOMWindow& activeWindow, const
         // FIXME: The name canAccess seems to be a roundabout way to ask "can execute script".
         // Can we name the SecurityOrigin function better to make this more clear?
 
-        // This check only makes sense with LocalDOMWindows as RemoteDOMWindows necessarily have different origins
         RefPtr localDocument = documentIfLocal();
         if (localDocument && protect(protect(activeWindow.document())->securityOrigin())->isSameOriginDomain(protect(localDocument->securityOrigin())))
+            return false;
+
+        // Although remote frames are defined to host cross origin sites with site isolation,
+        // this is an implementation decision and we should still check that origins match
+        // as the HTML navigation spec describes for navigation to javascript urls
+        // https://html.spec.whatwg.org/#the-javascript:-url-special-case
+        RefPtr remoteFrame = (m_type == DOMWindowType::Remote) ? dynamicDowncast<RemoteDOMWindow>(*this)->frame() : nullptr;
+        if (remoteFrame && protect(protect(activeWindow.document())->securityOrigin())->isSameOriginDomain(remoteFrame->frameDocumentSecurityOriginOrOpaque()))
             return false;
     }
 
