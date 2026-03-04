@@ -417,7 +417,8 @@ static void maximizeTracks(UnsizedTracks& unsizedTracks, std::optional<LayoutUni
 TrackSizes TrackSizingAlgorithm::sizeTracks(const PlacedGridItems& gridItems, const ComputedSizesList& gridItemComputedSizesList,
     const UsedBorderAndPaddingList& borderAndPaddingList, const PlacedGridItemSpanList& gridItemSpanList, const TrackSizingFunctionsList& trackSizingFunctions,
     std::optional<LayoutUnit> availableGridSpace, const TrackSizingGridItemConstraintList& oppositeAxisConstraints, const GridItemSizingFunctions& gridItemSizingFunctions,
-    const AxisConstraint::FreeSpaceScenario& freeSpaceScenario, const LayoutUnit gapSize, const StyleContentAlignmentData& usedContentAlignment)
+    const AxisConstraint::FreeSpaceScenario& freeSpaceScenario, const LayoutUnit gapSize, const StyleContentAlignmentData& usedContentAlignment,
+    std::optional<LayoutUnit> containerMinimumSize)
 {
     ASSERT(gridItems.size() == gridItemSpanList.size());
 
@@ -436,20 +437,25 @@ TrackSizes TrackSizingAlgorithm::sizeTracks(const PlacedGridItems& gridItems, co
     // https://drafts.csswg.org/css-grid-1/#algo-flex-tracks
     expandFlexibleTracks(unsizedTracks, freeSpaceScenario, availableGridSpace, gapSize, gridItems, gridItemSpanList, oppositeAxisConstraints, gridItemSizingFunctions);
 
-    auto gridContainerHasDefiniteMinimumSize = []() {
-        ASSERT_NOT_IMPLEMENTED_YET();
-        return false;
+    // https://drafts.csswg.org/css-grid-1/#algo-stretch
+    // 5. Stretch 'auto' Tracks
+    // If the free space is indefinite, but the grid container has a definite min-width/height,
+    // use that size to calculate the free space for this step instead.
+    auto freeSpaceForAutoStretchTracks = [&]() -> std::optional<LayoutUnit> {
+        switch (freeSpaceScenario) {
+        case AxisConstraint::FreeSpaceScenario::Definite:
+            return computeFreeSpace(availableGridSpace, unsizedTracks, gapSize);
+        case AxisConstraint::FreeSpaceScenario::MinContent:
+        case AxisConstraint::FreeSpaceScenario::MaxContent:
+            // If the free space is indefinite, but the grid container has a definite min-width/height, use that size to calculate the free space for this step instead.
+            if (containerMinimumSize)
+                return computeFreeSpace(containerMinimumSize, unsizedTracks, gapSize);
+            return computeFreeSpace(availableGridSpace, unsizedTracks, gapSize);
+        }
+        ASSERT_NOT_REACHED();
+        return { };
     };
-
-    // 5. Expand Stretched auto Tracks
-    auto freeSpace = computeFreeSpace(availableGridSpace, unsizedTracks, gapSize);
-
-    // but the grid container has a definite min-width/height, use that size to calculate the
-    // free space for this step instead.
-    if (!freeSpace && gridContainerHasDefiniteMinimumSize())
-        ASSERT_NOT_IMPLEMENTED_YET();
-
-    stretchAutoTracks(freeSpace, unsizedTracks, usedContentAlignment);
+    stretchAutoTracks(freeSpaceForAutoStretchTracks(), unsizedTracks, usedContentAlignment);
 
     // Each track has a base size, a <length> which grows throughout the algorithm and
     // which will eventually be the track’s final size...

@@ -401,6 +401,9 @@ static Vector<LayoutUnit> rowSizesForFirstIterationColumnSizing(const TrackSizin
             [](const CSS::Keyword::Auto&) -> LayoutUnit {
                 return LayoutUnit::max();
             },
+            [](const Style::GridTrackBreadth::Flex&) -> LayoutUnit {
+                return LayoutUnit::max();
+            },
             [](const auto&) -> LayoutUnit {
                 ASSERT_NOT_IMPLEMENTED_YET();
                 return { };
@@ -476,7 +479,7 @@ UsedTrackSizes GridLayout::performGridSizingAlgorithm(const GridLayoutState& lay
     // 1. First, the track sizing algorithm is used to resolve the sizes of the grid columns.
     auto columnSizes = TrackSizingAlgorithm::sizeTracks(placedGridItems, inlineAxisComputedSizesList, inlineBorderAndPaddingList, columnSpanList,
         columnTrackSizingFunctionsList, inlineAxisAvailableSpace, blockAxisConstraintList, GridLayoutUtils::inlineAxisGridItemSizingFunctions(formattingContext.integrationUtils()),
-        columnFreeSpaceScenario, layoutState.usedColumnGap, layoutState.usedJustifyContent);
+        columnFreeSpaceScenario, layoutState.usedColumnGap, layoutState.usedJustifyContent, layoutConstraints.inlineAxis.containerMinimumSize());
 
     // To find the inline-axis available space for any items whose block-axis size contributions
     // require it, use the grid column sizes calculated in the previous step.
@@ -488,7 +491,7 @@ UsedTrackSizes GridLayout::performGridSizingAlgorithm(const GridLayoutState& lay
     // 2. Next, the track sizing algorithm resolves the sizes of the grid rows.
     auto rowSizes = TrackSizingAlgorithm::sizeTracks(placedGridItems, blockAxisComputedSizesList, blockBorderAndPaddingList, rowSpanList,
         rowTrackSizingFunctionsList, blockAxisAvailableSpace, inlineAxisConstraintList, GridLayoutUtils::blockAxisGridItemSizingFunctions(formattingContext),
-        rowFreeSpaceScenario, layoutState.usedRowGap, layoutState.usedAlignContent);
+        rowFreeSpaceScenario, layoutState.usedRowGap, layoutState.usedAlignContent, layoutConstraints.blockAxis.containerMinimumSize());
 
     // 3. Then, if the min-content contribution of any grid item has changed based on the
     // row sizes and alignment calculated in step 2, re-resolve the sizes of the grid

@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "AxisConstraint.h"
 #include "GridTypeAliases.h"
 #include "LayoutUnit.h"
 
@@ -53,7 +54,8 @@ public:
     static TrackSizes sizeTracks(const PlacedGridItems&, const ComputedSizesList&, const UsedBorderAndPaddingList&,
         const PlacedGridItemSpanList&, const TrackSizingFunctionsList&, std::optional<LayoutUnit> availableGridSpace,
         const TrackSizingGridItemConstraintList& oppositeAxisConstraints, const GridItemSizingFunctions&,
-        const AxisConstraint::FreeSpaceScenario&, const LayoutUnit gapSize, const StyleContentAlignmentData& usedContentAlignment);
+        const AxisConstraint::FreeSpaceScenario&, const LayoutUnit gapSize, const StyleContentAlignmentData& usedContentAlignment,
+        std::optional<LayoutUnit> containerMinimumSize);
 
 private:
 
