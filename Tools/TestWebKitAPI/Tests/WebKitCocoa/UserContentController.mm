@@ -1306,12 +1306,7 @@ TEST(WKUserContentController, DidAssociateFormControls)
     EXPECT_WK_STREQ([webView _test_waitForAlert], "pass [object HTMLInputElement]");
 }
 
-// FIXME when webkit.org/b/304021 is resolved.
-#if PLATFORM(MAC)
-TEST(WKUserContentController, DISABLED_DidAssociateFormControlsFromShadowTree)
-#else
 TEST(WKUserContentController, DidAssociateFormControlsFromShadowTree)
-#endif
 {
     RetainPtr webView = adoptNS([TestWKWebView new]);
     RetainPtr configuration = adoptNS([WKContentWorldConfiguration new]);
@@ -1337,8 +1332,7 @@ TEST(WKUserContentController, DidAssociateFormControlsFromShadowTree)
         "}"
         "</script>"
         "<button onclick='addPasswordFieldToForm()'>Add Password Field</button>";
-    [webView synchronouslyLoadHTMLString:html];
-
+    [webView loadHTMLString:html baseURL:nil];
     EXPECT_WK_STREQ([webView _test_waitForAlert], "pass [object HTMLFormElement]");
     [webView evaluateJavaScript:@"addPasswordFieldToForm()" completionHandler:nil];
     EXPECT_WK_STREQ([webView _test_waitForAlert], "pass [object HTMLInputElement]");
