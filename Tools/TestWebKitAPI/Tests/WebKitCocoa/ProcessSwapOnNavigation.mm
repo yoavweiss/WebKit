@@ -5137,8 +5137,13 @@ static void runAPIControlledProcessSwappingThenBackTest(WithDelay withDelay)
     [webView goBack];
     TestWebKitAPI::Util::run(&done);
     done = false;
-    
-    EXPECT_EQ(pid1, [webView _webProcessIdentifier]);
+
+    // Page cache is currently disabled under Site Isolation.
+    // FIXME: Remove this SI-specific expectation once rdar://161762363 is fixed.
+    if (isSiteIsolationEnabled(webView.get()))
+        EXPECT_NE(pid1, [webView _webProcessIdentifier]);
+    else
+        EXPECT_EQ(pid1, [webView _webProcessIdentifier]);
 }
 
 TEST(ProcessSwap, APIControlledProcessSwappingThenBackWithDelay)
