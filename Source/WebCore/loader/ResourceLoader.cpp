@@ -409,8 +409,9 @@ void ResourceLoader::willSendRequestInternal(ResourceRequest&& request, const Re
     RefPtr documentLoader = m_documentLoader;
     if (!redirectResponse.isNull() && frameLoader && page && userContentProvider && documentLoader) {
         auto results = userContentProvider->processContentRuleListsForLoad(*page, request.url(), m_resourceType, *documentLoader, redirectResponse.url());
+        bool shouldBlock = results.shouldBlock();
         ContentExtensions::applyResultsToRequest(WTF::move(results), page.get(), request);
-        if (results.shouldBlock()) {
+        if (shouldBlock) {
             RESOURCELOADER_RELEASE_LOG("willSendRequestInternal: resource load canceled because of content blocker");
             didFail(blockedByContentBlockerError());
             completionHandler({ });

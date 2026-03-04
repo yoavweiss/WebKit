@@ -1145,8 +1145,12 @@ ResourceErrorOr<CachedResourceHandle<CachedResource>> CachedResourceLoader::requ
             const URL& redirectFromURL = (documentLoader->isContinuingLoadAfterNavigationPolicyDecision() && documentLoader->originalRequest().url() != resourceRequest.url()) ? documentLoader->originalRequest().url() : URL { };
             auto results = userContentProvider->processContentRuleListsForLoad(page, resourceRequest.url(), ContentExtensions::toResourceType(type, request.resourceRequest().requester(), frame->isMainFrame()), *documentLoader, redirectFromURL);
             madeHTTPS = results.summary.madeHTTPS;
+            bool shouldBlock = results.shouldBlock();
+            std::optional<String> consoleMessage;
+            if (shouldBlock && document)
+                consoleMessage = ContentExtensions::customTrackerBlockingMessageForConsole(results, resourceRequest.url());
             request.applyResults(WTF::move(results), page.ptr());
-            if (results.shouldBlock()) {
+            if (shouldBlock) {
                 CACHEDRESOURCELOADER_RELEASE_LOG_WITH_FRAME("requestResource: Resource blocked by content blocker", frame.get());
                 if (type == CachedResource::Type::MainResource) {
                     auto resource = createResource(type, WTF::move(request), page->sessionID(), protect(page->cookieJar()).ptr(), page->settings(), document.get());
@@ -1155,10 +1159,8 @@ ResourceErrorOr<CachedResourceHandle<CachedResource>> CachedResourceLoader::requ
                     resource->setResourceError(ResourceError(ContentExtensions::WebKitContentBlockerDomain, 0, resourceRequest.url(), WEB_UI_STRING("The URL was blocked by a content blocker", "WebKitErrorBlockedByContentBlocker description")));
                     return resource;
                 }
-                if (document) {
-                    if (auto message = ContentExtensions::customTrackerBlockingMessageForConsole(results, resourceRequest.url()))
-                        document->addConsoleMessage(MessageSource::ContentBlocker, MessageLevel::Info, WTF::move(*message));
-                }
+                if (document && consoleMessage)
+                    document->addConsoleMessage(MessageSource::ContentBlocker, MessageLevel::Info, WTF::move(*consoleMessage));
                 return makeUnexpected(ResourceError { errorDomainWebKitInternal, 0, url, "Resource blocked by content blocker"_s, ResourceError::Type::AccessControl });
             }
             if (type == CachedResource::Type::MainResource && RegistrableDomain { resourceRequest.url() } != originalDomain) {

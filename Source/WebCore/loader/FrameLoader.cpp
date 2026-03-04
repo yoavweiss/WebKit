@@ -3671,8 +3671,9 @@ ResourceLoaderIdentifier FrameLoader::loadResourceSynchronously(const ResourceRe
         RefPtr documentLoader = m_documentLoader;
         if (page && userContentProvider && documentLoader) {
             auto results = userContentProvider->processContentRuleListsForLoad(*page, newRequest.url(), ContentExtensions::ResourceType::Fetch, *documentLoader);
+            bool shouldBlock = results.shouldBlock();
             ContentExtensions::applyResultsToRequest(WTF::move(results), page.get(), newRequest);
-            if (results.shouldBlock()) {
+            if (shouldBlock) {
                 newRequest = { };
                 error = ResourceError(errorDomainWebKitInternal, 0, WTF::move(initialRequestURL), emptyString());
                 response = { };

@@ -80,8 +80,9 @@ static bool processContentRuleListsForLoad(const LocalFrame& frame, ResourceRequ
         return false;
 
     auto results = userContentProvider->processContentRuleListsForLoad(*page, request.url(), resourceType, *documentLoader);
+    bool shouldBlock = results.shouldBlock();
     ContentExtensions::applyResultsToRequest(WTF::move(results), page.get(), request);
-    return results.shouldBlock();
+    return shouldBlock;
 }
 
 #endif
