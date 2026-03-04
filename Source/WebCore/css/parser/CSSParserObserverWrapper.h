@@ -49,7 +49,7 @@ public:
     void NODELETE skipCommentsBefore(const CSSParserTokenRange&, bool leaveDirectlyBefore);
     void yieldCommentsBefore(const CSSParserTokenRange&);
 
-    CSSParserObserver& observer() { return m_observer; }
+    CSSParserObserver& observer() LIFETIME_BOUND { return m_observer; }
     void addComment(unsigned startOffset, unsigned endOffset, unsigned tokensBefore)
     {
         CommentPosition position = {startOffset, endOffset, tokensBefore};

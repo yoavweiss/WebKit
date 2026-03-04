@@ -38,7 +38,7 @@ public:
     static Ref<CSSStyleSheetObservableArray> create(ContainerNode& treeScope);
 
     ExceptionOr<void> setSheets(Vector<Ref<CSSStyleSheet>>&&);
-    const Vector<Ref<CSSStyleSheet>>& sheets() const { return m_sheets; }
+    const Vector<Ref<CSSStyleSheet>>& sheets() const LIFETIME_BOUND { return m_sheets; }
 
 private:
     explicit CSSStyleSheetObservableArray(ContainerNode& treeScope);

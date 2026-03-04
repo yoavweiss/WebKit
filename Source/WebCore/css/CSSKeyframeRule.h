@@ -60,7 +60,7 @@ public:
         m_keys.append(key);
     }
 
-    const Vector<Key>& keys() const { return m_keys; };
+    const Vector<Key>& keys() const LIFETIME_BOUND { return m_keys; };
 
     const StyleProperties& properties() const { return m_properties; }
     MutableStyleProperties& mutableProperties();

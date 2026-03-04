@@ -43,7 +43,7 @@ public:
     String toString() const;
     void serialize(StringBuilder&, OptionSet<SerializationArguments>) const;
 
-    const String& variable() const { return m_variable; }
+    const String& variable() const LIFETIME_BOUND { return m_variable; }
     CSSUnparsedValue* fallback() { return m_fallback.get(); }
     
 private:

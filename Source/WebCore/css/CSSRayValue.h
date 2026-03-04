@@ -44,7 +44,7 @@ public:
     }
 
 
-    const CSS::RayFunction& ray() const { return m_ray; }
+    const CSS::RayFunction& ray() const LIFETIME_BOUND { return m_ray; }
     CSSBoxType coordinateBox() const { return m_coordinateBox; }
 
     String customCSSText(const CSS::SerializationContext&) const;

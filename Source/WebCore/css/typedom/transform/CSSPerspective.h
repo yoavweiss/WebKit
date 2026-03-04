@@ -44,7 +44,7 @@ public:
 
     virtual ~CSSPerspective();
 
-    const CSSPerspectiveValue& length() const { return m_length; }
+    const CSSPerspectiveValue& length() const LIFETIME_BOUND { return m_length; }
     ExceptionOr<void> setLength(CSSPerspectiveValue);
 
     void serialize(StringBuilder&) const final;

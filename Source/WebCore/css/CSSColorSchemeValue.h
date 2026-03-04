@@ -39,7 +39,7 @@ public:
     bool NODELETE equals(const CSSColorSchemeValue&) const;
     IterationStatus customVisitChildren(NOESCAPE const Function<IterationStatus(CSSValue&)>&) const;
 
-    const CSS::ColorScheme& colorScheme() const { return m_colorScheme; }
+    const CSS::ColorScheme& colorScheme() const LIFETIME_BOUND { return m_colorScheme; }
 
 private:
     CSSColorSchemeValue(CSS::ColorScheme);

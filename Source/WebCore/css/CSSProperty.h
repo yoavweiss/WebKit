@@ -150,7 +150,7 @@ public:
     // This is used by the Inspector to filter keywords based on enabled settings.
     static bool isKeywordValidForPropertyValues(CSSPropertyID, CSSValueID, const CSSParserContext&);
 
-    const StylePropertyMetadata& metadata() const { return m_metadata; }
+    const StylePropertyMetadata& metadata() const LIFETIME_BOUND { return m_metadata; }
     static bool isColorProperty(CSSPropertyID propertyId)
     {
         return colorProperties.get(propertyId);

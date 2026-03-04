@@ -62,7 +62,7 @@ public:
     ExceptionOr<Ref<CSSUnitValue>> to(CSSUnitType);
     ExceptionOr<Ref<CSSMathSum>> toSum(FixedVector<String>&&);
 
-    const CSSNumericType& type() const { return m_type; }
+    const CSSNumericType& type() const LIFETIME_BOUND { return m_type; }
     
     static ExceptionOr<Ref<CSSNumericValue>> parse(Document&, String&&);
     static Ref<CSSNumericValue> rectifyNumberish(CSSNumberish&&);

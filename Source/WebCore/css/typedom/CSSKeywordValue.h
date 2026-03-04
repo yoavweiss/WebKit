@@ -40,7 +40,7 @@ class CSSKeywordValue final : public CSSStyleValue {
 public:
     static ExceptionOr<Ref<CSSKeywordValue>> create(const String&);
     
-    const String& value() const { return m_value; }
+    const String& value() const LIFETIME_BOUND { return m_value; }
     ExceptionOr<void> setValue(const String&);
     
     CSSStyleValueType styleValueType() const final { return CSSStyleValueType::CSSKeywordValue; }

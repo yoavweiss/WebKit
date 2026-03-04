@@ -45,7 +45,7 @@ public:
     ~CSSFontFaceSrcLocalValue();
 
     bool isEmpty() const { return m_fontFaceName.isEmpty(); }
-    const AtomString& fontFaceName() const { return m_fontFaceName; }
+    const AtomString& fontFaceName() const LIFETIME_BOUND { return m_fontFaceName; }
 
     SVGFontFaceElement* NODELETE svgFontFaceElement() const;
     void setSVGFontFaceElement(SVGFontFaceElement&);

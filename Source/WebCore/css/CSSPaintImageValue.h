@@ -46,7 +46,7 @@ public:
     }
     ~CSSPaintImageValue();
 
-    const String& name() const { return m_name; }
+    const String& name() const LIFETIME_BOUND { return m_name; }
 
     bool equals(const CSSPaintImageValue& other) const { return m_name == other.m_name; }
     String customCSSText(const CSS::SerializationContext&) const;

@@ -57,14 +57,14 @@ public:
 
     bool NODELETE isLoading() const;
     
-    const MQ::MediaQueryList& mediaQueries() const { return m_mediaQueries; }
+    const MQ::MediaQueryList& mediaQueries() const LIFETIME_BOUND { return m_mediaQueries; }
     void setMediaQueries(MQ::MediaQueryList&& queries) { m_mediaQueries = WTF::move(queries); }
 
     void requestStyleSheet();
     const CachedCSSStyleSheet* cachedCSSStyleSheet() const { return m_cachedSheet.get(); }
 
-    const std::optional<CascadeLayerName>& cascadeLayerName() const { return m_cascadeLayerName; }
-    const String& supportsText() const { return m_supportsCondition.text; }
+    const std::optional<CascadeLayerName>& cascadeLayerName() const LIFETIME_BOUND { return m_cascadeLayerName; }
+    const String& supportsText() const LIFETIME_BOUND { return m_supportsCondition.text; }
     bool supportsMatches() const { return m_supportsCondition.conditionMatches; }
 
 private:

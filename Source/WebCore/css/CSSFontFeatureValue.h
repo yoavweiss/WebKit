@@ -38,7 +38,7 @@ public:
         return adoptRef(*new CSSFontFeatureValue(WTF::move(tag), WTF::move(value)));
     }
 
-    const FontTag& tag() const { return m_tag; }
+    const FontTag& tag() const LIFETIME_BOUND { return m_tag; }
     const CSSValue& value() const { return m_value; }
     String customCSSText(const CSS::SerializationContext&) const;
 

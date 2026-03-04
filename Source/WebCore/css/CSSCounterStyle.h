@@ -47,20 +47,20 @@ public:
     }
 
     String text(int, WritingMode);
-    const CSSCounterStyleDescriptors::Name& name() const { return m_descriptors.m_name; }
+    const CSSCounterStyleDescriptors::Name& name() const LIFETIME_BOUND { return m_descriptors.m_name; }
     CSSCounterStyleDescriptors::System system() const { return m_descriptors.m_system; }
-    const CSSCounterStyleDescriptors::NegativeSymbols& negative() const { return m_descriptors.m_negativeSymbols; }
-    const CSSCounterStyleDescriptors::Symbol& prefix() const { return m_descriptors.m_prefix; }
-    const CSSCounterStyleDescriptors::Symbol& suffix() const { return m_descriptors.m_suffix; }
-    const CSSCounterStyleDescriptors::Ranges& ranges() const { return m_descriptors.m_ranges; }
-    const CSSCounterStyleDescriptors::Pad& pad() const { return m_descriptors.m_pad; }
-    const CSSCounterStyleDescriptors::Name& fallbackName() const { return m_descriptors.m_fallbackName; }
-    const Vector<CSSCounterStyleDescriptors::Symbol>& symbols() const { return m_descriptors.m_symbols; }
-    const CSSCounterStyleDescriptors::AdditiveSymbols& additiveSymbols() const { return m_descriptors.m_additiveSymbols; }
+    const CSSCounterStyleDescriptors::NegativeSymbols& negative() const LIFETIME_BOUND { return m_descriptors.m_negativeSymbols; }
+    const CSSCounterStyleDescriptors::Symbol& prefix() const LIFETIME_BOUND { return m_descriptors.m_prefix; }
+    const CSSCounterStyleDescriptors::Symbol& suffix() const LIFETIME_BOUND { return m_descriptors.m_suffix; }
+    const CSSCounterStyleDescriptors::Ranges& ranges() const LIFETIME_BOUND { return m_descriptors.m_ranges; }
+    const CSSCounterStyleDescriptors::Pad& pad() const LIFETIME_BOUND { return m_descriptors.m_pad; }
+    const CSSCounterStyleDescriptors::Name& fallbackName() const LIFETIME_BOUND { return m_descriptors.m_fallbackName; }
+    const Vector<CSSCounterStyleDescriptors::Symbol>& symbols() const LIFETIME_BOUND { return m_descriptors.m_symbols; }
+    const CSSCounterStyleDescriptors::AdditiveSymbols& additiveSymbols() const LIFETIME_BOUND { return m_descriptors.m_additiveSymbols; }
     CSSCounterStyleDescriptors::SpeakAs speakAs() const { return m_descriptors.m_speakAs; }
     const CSSCounterStyleDescriptors::Name extendsName() const { return m_descriptors.m_extendsName; }
     int firstSymbolValueForFixedSystem() const { return m_descriptors.m_fixedSystemFirstSymbolValue; }
-    const OptionSet<CSSCounterStyleDescriptors::ExplicitlySetDescriptors>& explicitlySetDescriptors() const { return m_descriptors.m_explicitlySetDescriptors; }
+    const OptionSet<CSSCounterStyleDescriptors::ExplicitlySetDescriptors>& explicitlySetDescriptors() const LIFETIME_BOUND { return m_descriptors.m_explicitlySetDescriptors; }
 
     void setSystem(CSSCounterStyleDescriptors::System system) { m_descriptors.m_system = system; }
     void setNegative(const CSSCounterStyleDescriptors::NegativeSymbols& negative) { m_descriptors.m_negativeSymbols = negative; }

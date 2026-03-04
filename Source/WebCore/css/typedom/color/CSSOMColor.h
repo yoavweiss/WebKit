@@ -37,7 +37,7 @@ public:
     std::optional<CSSKeywordish> NODELETE colorSpace() const;
     void NODELETE setColorSpace(std::optional<CSSKeywordish>);
 
-    const CSSNumberish& alpha() const { return m_alpha; }
+    const CSSNumberish& alpha() const LIFETIME_BOUND { return m_alpha; }
     void setAlpha(CSSNumberish alpha) { m_alpha = WTF::move(alpha); }
 
 private:

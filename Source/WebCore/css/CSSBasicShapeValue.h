@@ -42,7 +42,7 @@ public:
         return adoptRef(*new CSSBasicShapeValue(WTF::move(shape)));
     }
 
-    const CSS::BasicShape& shape() const { return m_shape; }
+    const CSS::BasicShape& shape() const LIFETIME_BOUND { return m_shape; }
 
     String customCSSText(const CSS::SerializationContext&) const;
     bool equals(const CSSBasicShapeValue&) const;

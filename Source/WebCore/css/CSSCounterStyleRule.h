@@ -39,10 +39,10 @@ public:
 
     Ref<StyleRuleCounterStyle> copy() const { return adoptRef(*new StyleRuleCounterStyle(*this)); }
 
-    const CSSCounterStyleDescriptors& descriptors() const { return m_descriptors; };
-    CSSCounterStyleDescriptors& mutableDescriptors() { return m_descriptors; };
+    const CSSCounterStyleDescriptors& descriptors() const LIFETIME_BOUND { return m_descriptors; };
+    CSSCounterStyleDescriptors& mutableDescriptors() LIFETIME_BOUND { return m_descriptors; };
 
-    const AtomString& name() const { return m_name; }
+    const AtomString& name() const LIFETIME_BOUND { return m_name; }
     String system() const { return m_descriptors.systemCSSText(); }
     String negative() const { return m_descriptors.negativeCSSText(); }
     String prefix() const { return m_descriptors.prefixCSSText(); }
@@ -103,8 +103,8 @@ private:
 
     bool setterInternal(CSSPropertyID, const String&);
     RefPtr<CSSValue> cssValueFromText(CSSPropertyID, const String&);
-    const CSSCounterStyleDescriptors& descriptors() const { return m_counterStyleRule->descriptors(); }
-    CSSCounterStyleDescriptors& mutableDescriptors() { return m_counterStyleRule->mutableDescriptors(); }
+    const CSSCounterStyleDescriptors& descriptors() const LIFETIME_BOUND { return m_counterStyleRule->descriptors(); }
+    CSSCounterStyleDescriptors& mutableDescriptors() LIFETIME_BOUND { return m_counterStyleRule->mutableDescriptors(); }
 
     Ref<StyleRuleCounterStyle> m_counterStyleRule;
 };

@@ -48,7 +48,7 @@ public:
 
     float effectiveSize();
 
-    const Vector<MQ::MediaQueryResult>& dynamicMediaQueryResults() const { return m_dynamicMediaQueryResults; }
+    const Vector<MQ::MediaQueryResult>& dynamicMediaQueryResults() const LIFETIME_BOUND { return m_dynamicMediaQueryResults; }
 
 private:
     std::optional<float> parse(CSSParserTokenRange, const CSSParserContext&);

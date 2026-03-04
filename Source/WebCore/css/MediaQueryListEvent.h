@@ -40,7 +40,7 @@ public:
     static Ref<MediaQueryListEvent> create(const AtomString& type, const String& media, bool matches);
     static Ref<MediaQueryListEvent> create(const AtomString& type, Init&&, IsTrusted = IsTrusted::No);
 
-    const String& media() const { return m_media; }
+    const String& media() const LIFETIME_BOUND { return m_media; }
     bool matches() const { return m_matches; }
 
 private:

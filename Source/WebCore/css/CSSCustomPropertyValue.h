@@ -48,8 +48,8 @@ public:
     static Ref<CSSCustomPropertyValue> createSyntaxAll(const AtomString& name, Ref<CSSVariableData>&&);
     static Ref<CSSCustomPropertyValue> createWithCSSWideKeyword(const AtomString& name, CSSWideKeyword);
 
-    const AtomString& name() const { return m_name; }
-    const VariantValue& value() const { return m_value; }
+    const AtomString& name() const LIFETIME_BOUND { return m_name; }
+    const VariantValue& value() const LIFETIME_BOUND { return m_value; }
 
     Ref<const CSSVariableData> asVariableData() const;
 

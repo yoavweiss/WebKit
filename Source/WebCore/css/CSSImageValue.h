@@ -56,7 +56,7 @@ public:
     CachedImage* cachedImage() const { return m_cachedImage ? m_cachedImage.value().get() : nullptr; }
 
     // Take care when using this, and read https://drafts.csswg.org/css-values/#relative-urls
-    const CSS::URL& url() const { return m_location; }
+    const CSS::URL& url() const LIFETIME_BOUND { return m_location; }
 
     String customCSSText(const CSS::SerializationContext&) const;
 

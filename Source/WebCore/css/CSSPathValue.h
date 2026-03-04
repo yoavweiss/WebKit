@@ -44,7 +44,7 @@ public:
         return adoptRef(*new CSSPathValue(WTF::move(path)));
     }
 
-    const CSS::PathFunction& path() const { return m_path; }
+    const CSS::PathFunction& path() const LIFETIME_BOUND { return m_path; }
 
     String customCSSText(const CSS::SerializationContext&) const;
     bool equals(const CSSPathValue&) const;

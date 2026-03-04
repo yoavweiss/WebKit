@@ -65,7 +65,7 @@ public:
     LoadStatus status() const;
 
     using ReadyPromise = DOMPromiseProxyWithResolveCallback<IDLInterface<FontFaceSet>>;
-    ReadyPromise& ready() { return m_readyPromise.get(); }
+    ReadyPromise& ready() LIFETIME_BOUND { return m_readyPromise.get(); }
     void documentDidFinishLoading();
 
     CSSFontFaceSet& backing() { return m_backing; }

@@ -116,7 +116,7 @@ public:
     static CSSSelectorList parsePageSelector(CSSParserTokenRange, StyleSheetContents*);
 
     bool supportsDeclaration(CSSParserTokenRange&);
-    const CSSParserContext& context() const { return m_context; }
+    const CSSParserContext& context() const LIFETIME_BOUND { return m_context; }
 
     // This function updates the range it's given.
     RefPtr<StyleRuleBase> consumeAtRule(CSSParserTokenRange&, AllowedRules);
@@ -128,7 +128,7 @@ public:
 
     static RefPtr<StyleRuleNestedDeclarations> parseNestedDeclarations(const CSSParserContext&, const String&);
 
-    CSSTokenizer* tokenizer() const { return m_tokenizer.get(); }
+    CSSTokenizer* tokenizer() const LIFETIME_BOUND { return m_tokenizer.get(); }
 
 private:
     struct NestingContext {

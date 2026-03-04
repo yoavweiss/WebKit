@@ -52,11 +52,11 @@ public:
     ~MutableCSSSelector();
 
     CSSSelector releaseSelector() { return WTF::move(m_selector); }
-    const CSSSelector& selector() const { return m_selector; };
-    CSSSelector& selector() { return m_selector; }
+    const CSSSelector& selector() const LIFETIME_BOUND { return m_selector; };
+    CSSSelector& selector() LIFETIME_BOUND { return m_selector; }
 
     void setValue(const AtomString& value, bool matchLowerCase = false) { m_selector.setValue(value, matchLowerCase); }
-    const AtomString& value() const { return m_selector.value(); }
+    const AtomString& value() const LIFETIME_BOUND { return m_selector.value(); }
 
     void setAttribute(const QualifiedName& value, CSSSelector::AttributeMatchType type) { m_selector.setAttribute(value, type); }
 

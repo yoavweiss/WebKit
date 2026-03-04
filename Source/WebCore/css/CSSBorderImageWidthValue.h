@@ -37,7 +37,7 @@ public:
     static Ref<CSSBorderImageWidthValue> create(Quad, bool overridesBorderWidths);
     ~CSSBorderImageWidthValue();
 
-    const Quad& widths() const { return m_widths; }
+    const Quad& widths() const LIFETIME_BOUND { return m_widths; }
     bool overridesBorderWidths() const { return m_overridesBorderWidths; }
 
     String customCSSText(const CSS::SerializationContext&) const;

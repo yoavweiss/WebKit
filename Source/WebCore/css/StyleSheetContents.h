@@ -64,9 +64,9 @@ public:
 
     WEBCORE_EXPORT ~StyleSheetContents();
     
-    const CSSParserContext& parserContext() const { return m_parserContext; }
+    const CSSParserContext& parserContext() const LIFETIME_BOUND { return m_parserContext; }
     
-    const AtomString& defaultNamespace() { return m_defaultNamespace; }
+    const AtomString& defaultNamespace() LIFETIME_BOUND { return m_defaultNamespace; }
     const AtomString& NODELETE namespaceURIFromPrefix(const AtomString& prefix);
 
     bool parseAuthorStyleSheet(const CachedCSSStyleSheet*, const SecurityOrigin*);
@@ -108,10 +108,10 @@ public:
     void clearRules();
 
     String encodingFromCharsetRule() const { return m_encodingFromCharsetRule; }
-    const Vector<Ref<StyleRuleLayer>>& layerRulesBeforeImportRules() const { return m_layerRulesBeforeImportRules; }
-    const Vector<Ref<StyleRuleImport>>& importRules() const { return m_importRules; }
-    const Vector<Ref<StyleRuleNamespace>>& namespaceRules() const { return m_namespaceRules; }
-    const Vector<Ref<StyleRuleBase>>& childRules() const { return m_childRules; }
+    const Vector<Ref<StyleRuleLayer>>& layerRulesBeforeImportRules() const LIFETIME_BOUND { return m_layerRulesBeforeImportRules; }
+    const Vector<Ref<StyleRuleImport>>& importRules() const LIFETIME_BOUND { return m_importRules; }
+    const Vector<Ref<StyleRuleNamespace>>& namespaceRules() const LIFETIME_BOUND { return m_namespaceRules; }
+    const Vector<Ref<StyleRuleBase>>& childRules() const LIFETIME_BOUND { return m_childRules; }
 
     void notifyLoadedSheet(const CachedCSSStyleSheet*);
     
@@ -123,7 +123,7 @@ public:
     // this style sheet. This property probably isn't useful for much except
     // the JavaScript binding (which needs to use this value for security).
     String originalURL() const { return m_originalURL; }
-    const URL& baseURL() const { return m_parserContext.baseURL; }
+    const URL& baseURL() const LIFETIME_BOUND { return m_parserContext.baseURL; }
 
     bool isEmpty() const { return !ruleCount(); }
     unsigned NODELETE ruleCount() const;

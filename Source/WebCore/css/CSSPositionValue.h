@@ -33,7 +33,7 @@ class CSSPositionValue final : public CSSValue {
 public:
     static Ref<CSSPositionValue> create(CSS::Position&&);
 
-    const CSS::Position& position() const { return m_position; }
+    const CSS::Position& position() const LIFETIME_BOUND { return m_position; }
 
     String customCSSText(const CSS::SerializationContext&) const;
     bool equals(const CSSPositionValue&) const;
@@ -50,7 +50,7 @@ class CSSPositionXValue final : public CSSValue {
 public:
     static Ref<CSSPositionXValue> create(CSS::PositionX&&);
 
-    const CSS::PositionX& position() const { return m_position; }
+    const CSS::PositionX& position() const LIFETIME_BOUND { return m_position; }
 
     String customCSSText(const CSS::SerializationContext&) const;
     bool equals(const CSSPositionXValue&) const;
@@ -67,7 +67,7 @@ class CSSPositionYValue final : public CSSValue {
 public:
     static Ref<CSSPositionYValue> create(CSS::PositionY&&);
 
-    const CSS::PositionY& position() const { return m_position; }
+    const CSS::PositionY& position() const LIFETIME_BOUND { return m_position; }
 
     String customCSSText(const CSS::SerializationContext&) const;
     bool equals(const CSSPositionYValue&) const;

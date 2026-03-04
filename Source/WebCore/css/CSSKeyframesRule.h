@@ -48,7 +48,7 @@ public:
     void wrapperAppendKeyframe(Ref<StyleRuleKeyframe>&&);
     void wrapperRemoveKeyframe(unsigned);
 
-    const AtomString& name() const { return m_name; }
+    const AtomString& name() const LIFETIME_BOUND { return m_name; }
     void setName(const AtomString& name) { m_name = name; }
 
     std::optional<size_t> findKeyframeIndex(const String& key) const;
@@ -75,7 +75,7 @@ public:
     String cssText() const final;
     void NODELETE reattach(StyleRuleBase&) final;
 
-    const AtomString& name() const { return m_keyframesRule->name(); }
+    const AtomString& name() const LIFETIME_BOUND { return m_keyframesRule->name(); }
     void setName(const AtomString&);
 
     CSSRuleList& cssRules();

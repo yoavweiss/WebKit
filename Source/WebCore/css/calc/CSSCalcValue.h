@@ -110,7 +110,7 @@ public:
 
     void dump(TextStream&) const;
 
-    const CSSCalc::Tree& tree() const { return m_tree; }
+    const CSSCalc::Tree& tree() const LIFETIME_BOUND { return m_tree; }
 
 private:
     explicit Value(CSS::Category, CSS::Range, CSSCalc::Tree&&);
