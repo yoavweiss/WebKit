@@ -34,6 +34,7 @@
 #include <WebCore/MediaPlayerIdentifier.h>
 #include <WebCore/NativeImage.h>
 #include <WebCore/NowPlayingManager.h>
+#include <WebCore/PlatformMediaDecodingType.h>
 #include <wtf/BitSet.h>
 #include <wtf/CheckedRef.h>
 #include <wtf/CompletionHandler.h>
@@ -45,6 +46,7 @@ class AudioDestination;
 class AudioIOCallback;
 class AudioVideoRenderer;
 class CDMFactory;
+class ContentType;
 class NowPlayingManager;
 class VideoFrame;
 
@@ -73,6 +75,7 @@ public:
 
 #if ENABLE(VIDEO)
     virtual void nativeImageFromVideoFrame(const VideoFrame&, CompletionHandler<void(std::optional<RefPtr<NativeImage>>&&)>&&);
+    virtual bool canDecodeExtendedType(PlatformMediaDecodingType, const ContentType&) { return false; }
 #endif
 
     virtual bool enableWebMMediaPlayer() const { return true; }

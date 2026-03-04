@@ -168,6 +168,7 @@ public:
 
 #if ENABLE(VIDEO)
     RemoteAudioVideoRendererProxyManager& remoteAudioVideoRendererProxyManager();
+    void canDecodeExtendedType(WebCore::PlatformMediaDecodingType, WebCore::ContentType, CompletionHandler<void(bool)>&&) const;
 #endif
 
     PAL::SessionID sessionID() const { return m_sessionID; }

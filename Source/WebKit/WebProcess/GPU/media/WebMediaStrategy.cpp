@@ -38,7 +38,8 @@
 #include <WebCore/MediaPlayer.h>
 #include <WebCore/NowPlayingManager.h>
 #include <WebCore/SharedAudioDestination.h>
-
+#include <wtf/NeverDestroyed.h>
+#include <wtf/threads/BinarySemaphore.h>
 #if PLATFORM(COCOA)
 #include <WebCore/MediaSessionManagerCocoa.h>
 #endif
@@ -75,6 +76,28 @@ Ref<WebCore::AudioDestination> WebMediaStrategy::createAudioDestination(const We
 RefPtr<AudioVideoRenderer> WebMediaStrategy::createAudioVideoRenderer(LoggerHelper* loggerHelper, WebCore::HTMLMediaElementIdentifier mediaElementIdentifier, WebCore::MediaPlayerIdentifier playerIdentifier) const
 {
     return AudioVideoRendererRemote::create(loggerHelper, mediaElementIdentifier, playerIdentifier, protect(WebProcess::singleton().ensureGPUProcessConnection()));
+}
+
+static WorkQueue& webMediaStrategyQueueSingleton()
+{
+    static const NeverDestroyed<Ref<WorkQueue>> workQueue = WorkQueue::create("WebMediaStrategy"_s);
+    return workQueue.get();
+}
+
+bool WebMediaStrategy::canDecodeExtendedType(PlatformMediaDecodingType platformType, const ContentType& contentType)
+{
+    std::atomic<bool> isSupported = false;
+    BinarySemaphore semaphore;
+    webMediaStrategyQueueSingleton().dispatch([&] {
+        if (RefPtr connection = WebProcess::singleton().existingGPUProcessConnection()) {
+            connection->connection().sendWithAsyncReplyOnDispatcher(Messages::GPUConnectionToWebProcess::CanDecodeExtendedType(platformType, contentType), webMediaStrategyQueueSingleton(), [&semaphore, &isSupported](bool supported) {
+                isSupported = supported;
+                semaphore.signal();
+            });
+        }
+    });
+    semaphore.wait();
+    return isSupported;
 }
 #endif
 

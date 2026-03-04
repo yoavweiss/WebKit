@@ -61,6 +61,9 @@ messages -> GPUConnectionToWebProcess WantsDispatchMessage {
 #if ENABLE(MEDIA_SOURCE)
     [EnabledBy=MediaSourceEnabled || ManagedMediaSourceEnabled] EnableMockMediaSource();
 #endif
+#if ENABLE(VIDEO)
+    CanDecodeExtendedType(enum:uint8_t WebCore::PlatformMediaDecodingType platformType, WebCore::ContentType contentType) -> (bool supported);
+#endif
 
 #if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
     UpdateSampleBufferDisplayLayerBoundsAndPosition(WebKit::SampleBufferDisplayLayerIdentifier identifier, WebCore::FloatRect bounds, std::optional<MachSendRightAnnotated> fence);

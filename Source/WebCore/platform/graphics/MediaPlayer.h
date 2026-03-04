@@ -112,17 +112,17 @@ struct VideoFrameMetadata;
 
 struct MediaEngineSupportParameters {
     ContentType type;
-    URL url;
+    URL url { };
     bool isMediaSource { false };
     bool isMediaStream { false };
     bool requiresRemotePlayback { false };
     bool supportsLimitedMatroska { false };
-    Vector<ContentType> contentTypesRequiringHardwareSupport;
-    std::optional<Vector<String>> allowedMediaContainerTypes;
-    std::optional<Vector<String>> allowedMediaCodecTypes;
-    std::optional<Vector<FourCC>> allowedMediaVideoCodecIDs;
-    std::optional<Vector<FourCC>> allowedMediaAudioCodecIDs;
-    std::optional<Vector<FourCC>> allowedMediaCaptionFormatTypes;
+    Vector<ContentType> contentTypesRequiringHardwareSupport { };
+    std::optional<Vector<String>> allowedMediaContainerTypes { };
+    std::optional<Vector<String>> allowedMediaCodecTypes { };
+    std::optional<Vector<FourCC>> allowedMediaVideoCodecIDs { };
+    std::optional<Vector<FourCC>> allowedMediaAudioCodecIDs { };
+    std::optional<Vector<FourCC>> allowedMediaCaptionFormatTypes { };
 #if ENABLE(WIRELESS_PLAYBACK_TARGET)
     MediaPlaybackTargetType playbackTargetType { MediaPlaybackTargetType::None };
 #endif
