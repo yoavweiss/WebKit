@@ -130,7 +130,7 @@ InheritedRareData::InheritedRareData()
     , autoRevealsWhenFound(false)
     , insideDefaultButton(false)
     , insideSubmitButton(false)
-    , evaluationTimeZoomEnabled(false)
+    , evaluationTimeZoomEnabled(true)
 #if HAVE(CORE_MATERIAL)
     , usedAppleVisualEffectForSubtree(static_cast<unsigned>(AppleVisualEffect::None))
 #endif
