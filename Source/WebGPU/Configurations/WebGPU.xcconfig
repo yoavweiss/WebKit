@@ -130,7 +130,7 @@ ENABLE_WEBGPU_SWIFT[sdk=xros*26.3*] = ;
 
 ENABLE_WEBGPU_SWIFT[sdk=appletvos*] = ;
 
-ENABLE_WEBGPU_SWIFT[sdk=watchos*] = ;
+ENABLE_WEBGPU_SWIFT[sdk=watch*] = ;
 
 SWIFT_OBJC_INTERFACE_HEADER_NAME = WebGPUSwift-Generated.h;
 SWIFT_VERSION = 6.0;
