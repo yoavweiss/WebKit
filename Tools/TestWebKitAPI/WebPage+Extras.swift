@@ -29,6 +29,10 @@ import WebKit_Private.WKPreferencesPrivate
 import WebKit_Private.WKWebViewPrivateForTesting
 import WebKit_Private.WKWebViewPrivate
 
+#if os(macOS)
+private import Carbon
+#endif
+
 extension WebPage {
     enum EditCommand: String {
         case deleteBackward = "DeleteBackward"
@@ -67,6 +71,47 @@ extension WebPage {
         let success = await backingWebView._executeEditCommand(command.rawValue, argument: argument)
         assert(success)
     }
+
+    #if os(macOS)
+    func click(at location: NSPoint) {
+        guard let window = unsafe backingWebView.window else {
+            preconditionFailure("Could not create NSEvent because there is no NSWindow.")
+        }
+
+        let timestamp = GetCurrentEventTime()
+
+        let mouseDown = NSEvent.mouseEvent(
+            with: .leftMouseDown,
+            location: location,
+            modifierFlags: [],
+            timestamp: timestamp,
+            windowNumber: window.windowNumber,
+            context: nil,
+            eventNumber: 0,
+            clickCount: 1,
+            pressure: 1
+        )
+
+        let mouseUp = NSEvent.mouseEvent(
+            with: .leftMouseUp,
+            location: location,
+            modifierFlags: [],
+            timestamp: timestamp,
+            windowNumber: window.windowNumber,
+            context: nil,
+            eventNumber: 0,
+            clickCount: 1,
+            pressure: 0
+        )
+
+        guard let mouseDown, let mouseUp else {
+            preconditionFailure("Could not create NSEvent.")
+        }
+
+        backingWebView.mouseDown(with: mouseDown)
+        backingWebView.mouseUp(with: mouseUp)
+    }
+    #endif // os(macOS)
 }
 
 #endif // ENABLE_SWIFTUI

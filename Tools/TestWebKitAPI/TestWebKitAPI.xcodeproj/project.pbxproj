@@ -53,6 +53,8 @@
 		0714677A2DFE8DEA00F77867 /* WebPageTransferableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 071467792DFE8DEA00F77867 /* WebPageTransferableTests.swift */; };
 		07180F612F1ACD26000CA4F9 /* small-video-test-now-playing.html in Copy Resources */ = {isa = PBXBuildFile; fileRef = 07180F5F2F1ACD25000CA4F9 /* small-video-test-now-playing.html */; };
 		07180F622F1ACD26000CA4F9 /* small-video-with-silent-audio.mp4 in Copy Resources */ = {isa = PBXBuildFile; fileRef = 07180F602F1ACD26000CA4F9 /* small-video-with-silent-audio.mp4 */; };
+		071B91902F57F11300E4ACAB /* Testing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 071B91882F57F10700E4ACAB /* Testing.swift */; };
+		071B91922F57F81800E4ACAB /* AppKit+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 071B91912F57F80E00E4ACAB /* AppKit+Extras.swift */; };
 		07275CBC2D01398C002315A5 /* _WebKit_SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07275CBB2D01398C002315A5 /* _WebKit_SwiftUI.framework */; };
 		073310B52E6E4EFC0048CF1E /* SmartLists.mm in Sources */ = {isa = PBXBuildFile; fileRef = 073310AD2E6E4E800048CF1E /* SmartLists.mm */; };
 		074E87E52CF920A20059E469 /* Bundle+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074E87E42CF920A20059E469 /* Bundle+Extras.swift */; };
@@ -2489,6 +2491,8 @@
 		071467792DFE8DEA00F77867 /* WebPageTransferableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebPageTransferableTests.swift; sourceTree = "<group>"; };
 		07180F5F2F1ACD25000CA4F9 /* small-video-test-now-playing.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "small-video-test-now-playing.html"; path = "Tests/WebKitCocoa/small-video-test-now-playing.html"; sourceTree = "<group>"; };
 		07180F602F1ACD26000CA4F9 /* small-video-with-silent-audio.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = "small-video-with-silent-audio.mp4"; path = "Tests/WebKitCocoa/small-video-with-silent-audio.mp4"; sourceTree = "<group>"; };
+		071B91882F57F10700E4ACAB /* Testing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Testing.swift; sourceTree = "<group>"; };
+		071B91912F57F80E00E4ACAB /* AppKit+Extras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppKit+Extras.swift"; sourceTree = "<group>"; };
 		0721D4582838295400A95853 /* start-offset.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = "start-offset.ts"; sourceTree = "<group>"; };
 		07275CBB2D01398C002315A5 /* _WebKit_SwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = _WebKit_SwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		073310AD2E6E4E800048CF1E /* SmartLists.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SmartLists.mm; sourceTree = "<group>"; };
@@ -4717,6 +4721,7 @@
 				A121EEB52CA734D600DB8BB8 /* app */,
 				A17C582F2C9B3EAE009DD0B5 /* TestBundle */,
 				A13EBB441B87332B00097110 /* WebProcessPlugIn */,
+				071B91912F57F80E00E4ACAB /* AppKit+Extras.swift */,
 				F4A74B9229DDD9F100CB5288 /* CGImagePixelReader.cpp */,
 				F4A74B9129DDD9F100CB5288 /* CGImagePixelReader.h */,
 				F44A530F21B8976900DBB99C /* ClassMethodSwizzler.h */,
@@ -4758,6 +4763,7 @@
 				DF6BC46F2534E120008F63CC /* TestDownloadDelegate.mm */,
 				CDD99F3E2EA2F3E8003FAFB8 /* TestElementFullscreenDelegate.h */,
 				CDD99F3F2EA2F3E8003FAFB8 /* TestElementFullscreenDelegate.mm */,
+				071B91882F57F10700E4ACAB /* Testing.swift */,
 				99C607F426FD5A1E00A0953F /* TestInspectorURLSchemeHandler.h */,
 				99C607F526FD5A1F00A0953F /* TestInspectorURLSchemeHandler.mm */,
 				5C72E8CD244FFCE300381EB7 /* TestLegacyDownloadDelegate.h */,
@@ -7854,6 +7860,7 @@
 				48124A272925A0C100EED506 /* AnimationControl.mm in Sources */,
 				712E4BC125DDC52A0007201C /* AnimationFrameRate.cpp in Sources */,
 				57152B5E21CC2045000C37CA /* ApduTest.cpp in Sources */,
+				071B91922F57F81800E4ACAB /* AppKit+Extras.swift in Sources */,
 				6354F4D11F7C3AB500D89DF3 /* ApplicationManifestParser.cpp in Sources */,
 				F46C45C427D42A2F00ECED2C /* ApplicationStateTracking.mm in Sources */,
 				DF6580942722168900B3F1C1 /* ASN1Utilities.cpp in Sources */,
@@ -8208,6 +8215,7 @@
 				F4E0A2B82122847400AF7C7F /* TestFilePromiseReceiver.mm in Sources */,
 				F4F5BB5221667BAA002D06B9 /* TestFontOptions.mm in Sources */,
 				7BA3936C271EDFCA0015911C /* TestGraphicsContextGLCocoa.mm in Sources */,
+				071B91902F57F11300E4ACAB /* Testing.swift in Sources */,
 				F45E15762112CE6200307E82 /* TestInputDelegate.mm in Sources */,
 				F45D3891215A7B4B002A2979 /* TestInspectorBar.mm in Sources */,
 				A17C48592C98FA3F0023F3C7 /* TestNSBundleExtras.m in Sources */,
