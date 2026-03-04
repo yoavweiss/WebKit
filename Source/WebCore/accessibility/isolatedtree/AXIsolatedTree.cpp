@@ -889,12 +889,13 @@ void AXIsolatedTree::updateNodeProperties(AccessibilityObject& axObject, const A
         case AXProperty::LinethroughColor:
             properties.append({ AXProperty::LinethroughColor, axObject.lineDecorationStyle().linethroughColor });
             break;
-        case AXProperty::RevealableText:
+        case AXProperty::RevealableText: {
             // We should only cache this property for ignored objects.
             AX_ASSERT(axObject.isIgnored());
             if (String text = axObject.revealableText(); !text.isEmpty())
                 properties.append({ AXProperty::RevealableText, WTF::move(text).isolatedCopy() });
             break;
+        }
         case AXProperty::TextColor: {
             if (RefPtr parent = axObject.parentObject()) {
                 auto color = axObject.textColor();
@@ -1630,7 +1631,12 @@ void AXIsolatedTree::processQueuedNodeUpdates()
         m_unresolvedPendingAppends.add(objectID);
     m_needsUpdateNode.clear();
 
-    for (const auto& propertyUpdate : m_needsPropertyUpdates) {
+    // Updating properties can trigger side-effects (e.g. isIgnored() detecting an
+    // ignored-state change) that call queueNodeUpdate, adding more entries to
+    // m_needsPropertyUpdates. Exchange the map so we iterate a snapshot; any
+    // newly-queued updates are picked up in the next timer cycle.
+    auto propertyUpdates = std::exchange(m_needsPropertyUpdates, { });
+    for (const auto& propertyUpdate : propertyUpdates) {
         if (m_unresolvedPendingAppends.contains(propertyUpdate.key))
             continue;
 
@@ -1640,7 +1646,6 @@ void AXIsolatedTree::processQueuedNodeUpdates()
         if (RefPtr axObject = cache->objectForID(propertyUpdate.key))
             updateNodeProperties(*axObject, propertyUpdate.value);
     }
-    m_needsPropertyUpdates.clear();
 
     if (m_relationsNeedUpdate)
         updateRelations(cache->relations());
