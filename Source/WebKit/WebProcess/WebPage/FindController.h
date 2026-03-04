@@ -126,10 +126,6 @@ private:
     // Index value is -1 if not found or if number of matches exceeds provided maximum.
     int m_foundStringMatchIndex { -1 };
 
-    // For instances where the normalized selection range is collapsed.
-    std::optional<WebCore::SimpleRange> m_lastFoundRange;
-    std::optional<WebCore::VisibleSelection> m_lastSelection;
-
 #if PLATFORM(IOS_FAMILY)
     RefPtr<WebCore::PageOverlay> m_findIndicatorOverlay;
     std::unique_ptr<FindIndicatorOverlayClientIOS> m_findIndicatorOverlayClient;

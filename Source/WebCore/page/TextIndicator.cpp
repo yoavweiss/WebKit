@@ -107,7 +107,7 @@ RefPtr<TextIndicator> TextIndicator::createWithRange(const SimpleRange& range, O
     auto rangeIndicatesCurrentSelection = [document](const SimpleRange& range) {
         auto selectionRange = document->selection().selection().toNormalizedRange();
         auto normalizedRange = VisibleSelection(range).toNormalizedRange();
-        return selectionRange && selectionRange == normalizedRange;
+        return selectionRange && !selectionRange->collapsed() && selectionRange == normalizedRange;
     };
 
     bool indicatesCurrentSelection = rangeIndicatesCurrentSelection(rangeToUse);
