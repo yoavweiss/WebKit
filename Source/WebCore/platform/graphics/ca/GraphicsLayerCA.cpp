@@ -2604,9 +2604,6 @@ void GraphicsLayerCA::updateContentsVisibility()
     if (m_contentsVisible) {
         if (m_drawsContent)
             layer->setNeedsDisplay();
-
-        if (RefPtr backdropLayer = m_backdropLayer)
-            backdropLayer->setHidden(false);
     } else {
         layer->clearContents();
 
@@ -2614,10 +2611,15 @@ void GraphicsLayerCA::updateContentsVisibility()
             for (auto& layer : m_layerClones->primaryLayerClones.values())
                 layer->setContents(nullptr);
         }
-
-        if (RefPtr backdropLayer = m_backdropLayer)
-            backdropLayer->setHidden(true);
     }
+
+    if (RefPtr backdropLayer = m_backdropLayer)
+        backdropLayer->setHidden(!m_contentsVisible);
+
+#if HAVE(MATERIAL_HOSTING)
+    if (RefPtr structuralLayer = m_structuralLayer; structuralLayer && structuralLayerPurpose() == StructuralLayerForMaterial)
+        structuralLayer->setHidden(!m_contentsVisible);
+#endif
 
     layer->setContentsHidden(!m_contentsVisible);
 }
