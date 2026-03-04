@@ -372,9 +372,6 @@ Bug(GTK) compositing/visible-rect [ Skip ]
 webkit.org/b/85211 ietestcenter/css3/flexbox/flexbox-align-stretch-001.htm [ ImageOnlyFailure ]
 webkit.org/b/85212 ietestcenter/css3/flexbox/flexbox-layout-002.htm [ ImageOnlyFailure ]
 
-# Skip the perf/ tests in debug builds
-Bug(GTK) [ Debug ] perf [ Skip ]
-
 # No concept of secure text input
 Bug(GTK) editing/secure-input [ Failure ]
 
@@ -585,9 +582,13 @@ webkit.org/b/120839 animations/cross-fade-background-image.html [ ImageOnlyFailu
 
 # Tests crashing due to failing assertions
 
-webkit.org/b/286132 inspector/debugger/breakpoints/resolved-dump-all-inline-script-pause-locations.html [ Crash ]
+webkit.org/b/286132 [ Debug ] inspector/debugger/breakpoints/resolved-dump-all-inline-script-pause-locations.html [ Crash ]
+webkit.org/b/286132 [ Release ] inspector/debugger/breakpoints/resolved-dump-all-inline-script-pause-locations.html [ Pass Crash ]
+
 webkit.org/b/299482 inspector/dom-debugger/event-animation-frame-breakpoints.html [ Pass Crash ]
-webkit.org/b/304644 inspector/unit-tests/editing-support.html [ Crash ]
+
+webkit.org/b/304644 [ Debug ] inspector/unit-tests/editing-support.html [ Crash Timeout ]
+webkit.org/b/304644 [ Release ] inspector/unit-tests/editing-support.html [ Pass Crash Timeout ]
 
 imported/w3c/web-platform-tests/selection/shadow-dom/cross-shadow-boundary-6.html [ Skip ]
 imported/w3c/web-platform-tests/selection/shadow-dom/tentative/Range-isPointInRange.html [ Skip ]
@@ -595,7 +596,8 @@ imported/w3c/web-platform-tests/selection/shadow-dom/tentative/Selection-getComp
 imported/w3c/web-platform-tests/selection/shadow-dom/tentative/Selection-getComposedRanges.html [ Skip ]
 imported/w3c/web-platform-tests/selection/shadow-dom/tentative/Selection-isCollapsed.html [ Skip ]
 
-webkit.org/b/304101 imported/w3c/web-platform-tests/selection/crashtests/selection-modify-per-word-in-table-header-group.html [ Crash ]
+webkit.org/b/304101 [ Debug ] imported/w3c/web-platform-tests/selection/crashtests/selection-modify-per-word-in-table-header-group.html [ Crash ]
+webkit.org/b/304101 [ Release ] imported/w3c/web-platform-tests/selection/crashtests/selection-modify-per-word-in-table-header-group.html [ Pass Crash ]
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Crashing tests
@@ -619,8 +621,6 @@ webkit.org/b/306687 fast/dynamic/window-scrollbars-test.html [ Failure Pass ]
 webkit.org/b/306688 fast/events/monotonic-event-time.html [ Failure Pass ]
 
 webkit.org/b/114735 svg/filters/filter-hidden-content.svg [ Failure Pass ]
-
-webkit.org/b/116961 perf/show-hide-table-rows.html [ Failure Pass ]
 
 webkit.org/b/129758 js/dom/create-lots-of-workers.html [ Crash Pass ]
 
@@ -1500,13 +1500,6 @@ webkit.org/b/286063 [ Debug ] fast/mediastream/RTCPeerConnection-page-cache.html
 webkit.org/b/286063 [ Debug ] media/audio-only-video-intrinsic-size.html [ Crash Pass ]
 webkit.org/b/286063 [ Debug ] storage/indexeddb/cursor-properties.html [ Crash Pass ]
 webkit.org/b/286063 [ Debug ] storage/indexeddb/modern/idbobjectstore-delete-failures-private.html [ Crash Pass ]
-
-webkit.org/b/304272 [ Debug ] imported/w3c/web-platform-tests/html/anonymous-iframe/local-storage.tentative.https.window.html [ Crash Failure Pass ]
-
-webkit.org/b/304275 [ Debug ] imported/w3c/web-platform-tests/html/canvas/offscreen/shadows/2d.shadow.image.alpha.html [ Crash Pass Timeout ]
-
-webkit.org/b/304053 [ Debug ] imported/w3c/web-platform-tests/html/cross-origin-embedder-policy/anonymous-iframe/local-storage.tentative.https.window.html [ Crash Pass ]
-webkit.org/b/304053 [ Debug ] imported/w3c/web-platform-tests/speculation-rules/speculation-tags/cross-site-to-same-site-redirection-prefetch.https.html [ Crash Pass ]
 
 webkit.org/b/304278 [ Debug ] inspector/worker/debugger-pause-subworker.html [ Crash Timeout ]
 

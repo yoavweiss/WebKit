@@ -1820,6 +1820,8 @@ webkit.org/b/281343 media/media-source/media-managedmse-webvtt-track.html [ Skip
 
 webkit.org/b/307142 media/video-currentTime.html [ Failure Pass ]
 
+webkit.org/b/184457 media/video-aspect-ratio.html [ Pass Failure ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of GStreamer-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
@@ -1885,6 +1887,8 @@ webkit.org/b/179948 fast/hidpi/filters-reference.html [ ImageOnlyFailure ]
 webkit.org/b/298269 imported/w3c/web-platform-tests/html/anonymous-iframe/session-storage.tentative.https.window.html [ Pass Failure ]
 
 webkit.org/b/305509 imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/track/track-element/track-cues-pause-on-exit.html [ Failure Pass ]
+
+imported/w3c/web-platform-tests/html/anonymous-iframe/local-storage.tentative.https.window.html [ Failure Pass ]
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of HTML-related bugs
@@ -2012,7 +2016,8 @@ webkit.org/b/168501 pageoverlay/overlay-remove-reinsert-view.html [ Failure Time
 # Perf-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
 
-webkit.org/b/119040 perf/nested-combined-selectors.html [ Failure Pass ]
+# Perf tests are very flaky because they run in parallel with other tests.
+perf [ Skip ]
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Perf-related bugs
@@ -2307,11 +2312,6 @@ webkit.org/b/264805 imported/w3c/web-platform-tests/websockets/basic-auth.any.se
 webkit.org/b/264805 imported/w3c/web-platform-tests/websockets/basic-auth.any.sharedworker.html?wss [ Failure ]
 webkit.org/b/264805 imported/w3c/web-platform-tests/websockets/basic-auth.any.worker.html?wss [ Failure ]
 
-webkit.org/b/305972 imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-allowed-for-self.https.sub.html [ Pass Crash ]
-webkit.org/b/305972 imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-allowed-for-some-override.https.sub.html [ Pass Crash ]
-webkit.org/b/305972 imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-allowed-for-some.https.sub.html [ Pass Crash ]
-webkit.org/b/305972 imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-disallowed-for-all.https.sub.html [ Pass Crash ]
-
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of SOUP and Networking-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
@@ -2549,10 +2549,6 @@ webgl/webgl-draft-extensions-flag-on.html [ Skip ]
 webgl/1.0.x/conformance/textures/misc/texture-corner-case-videos.html [ Failure Pass ]
 
 # WEBGL2 failures
-webkit.org/b/251106 webgl/1.0.x/conformance/offscreencanvas/context-lost-restored-worker.html [ Failure  ]
-webkit.org/b/251106 webgl/1.0.x/conformance/offscreencanvas/context-lost-worker.html [ Failure ]
-webkit.org/b/251106 webgl/2.0.y/conformance/offscreencanvas/context-lost-restored-worker.html [ Failure ]
-webkit.org/b/251106 webgl/2.0.y/conformance/offscreencanvas/context-lost-worker.html [ Failure ]
 webkit.org/b/251107 webgl/2.0.y/conformance2/extensions/ext-render-snorm.html [ Failure ]
 
 # WEBGL2 flakies
@@ -5094,8 +5090,6 @@ http/tests/performance/performance-resource-timing-redirection-cross-origin-medi
 http/tests/performance/performance-resource-timing-redirection-cross-origin-media.html [ Skip ]
 
 webkit.org/b/304180 media/modern-media-controls/tracks-support/on-off-text-track.html [ Failure ]
-
-webkit.org/b/304272 http/tests/webrtc/filtering-ice-candidate-same-origin-frame2.html [ Crash Pass ]
 
 webkit.org/b/150840 [ Debug ] imported/w3c/web-platform-tests/html/semantics/forms/the-select-element/customizable-select/select-popover-exit-animation.html [ Crash Pass Timeout ]
 
