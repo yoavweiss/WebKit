@@ -107,6 +107,20 @@ class DarwinTest(port_testcase.PortTestCase):
         port = self.make_port(host)
         self.assertEqual(port.path_to_crash_logs(), '/Users/mock/Library/Logs/DiagnosticReports')
 
+    def test_crash_log_directories(self):
+        port = self.make_port()
+        self.assertEqual(port.crash_log_directories(), ['/Users/mock/Library/Logs/CrashReporter'])
+
+        host = MockSystemHost(filesystem=MockFileSystem(files={
+            '/Users/mock/Library/Logs/DiagnosticReports/crashlog.crash': None,
+            '/Library/Logs/CrashboardArchive/somefile.ips': None,
+        }))
+        port = self.make_port(host)
+        self.assertEqual(port.crash_log_directories(), [
+            '/Users/mock/Library/Logs/DiagnosticReports',
+            '/Library/Logs/CrashboardArchive',
+        ])
+
     def test_tailspin(self):
 
         def logging_run_command(args):

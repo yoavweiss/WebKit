@@ -86,7 +86,13 @@ class ApplePort(Port):
         self.supports_localhost_aliases = True
 
     def setup_test_run(self, device_type=None):
-        self._crash_logs_to_skip_for_host[self.host] = self.host.filesystem.files_under(self.path_to_crash_logs())
+        files_to_skip = []
+        for directory in self.crash_log_directories():
+            files_to_skip.extend(self.host.filesystem.files_under(directory))
+        self._crash_logs_to_skip_for_host[self.host] = files_to_skip
+
+    def crash_log_directories(self):
+        return [self.path_to_crash_logs()]
 
     def default_timeout_ms(self):
         if self.get_option('guard_malloc'):

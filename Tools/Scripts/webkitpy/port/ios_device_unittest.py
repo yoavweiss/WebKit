@@ -50,6 +50,11 @@ class IOSDeviceTest(ios_testcase.IOSTest):
         with self.assertRaises(RuntimeError):
             port.path_to_crash_logs()
 
+    def test_crash_log_directories(self):
+        port = self.make_port()
+        with self.assertRaises(RuntimeError):
+            port.crash_log_directories()
+
     def test_tailspin(self):
         def logging_run_command(args):
             print(args)
