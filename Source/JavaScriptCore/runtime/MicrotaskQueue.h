@@ -254,13 +254,25 @@ protected:
     bool m_isScheduledToRun { false };
 
 private:
-    JS_EXPORT_PRIVATE std::pair<JSGlobalObject*, bool> drain(bool useCallOnEachMicrotask, JSGlobalObject* currentGlobalObject, VM&, TopExceptionScope&);
+    JS_EXPORT_PRIVATE std::pair<JSGlobalObject*, bool> drainWithUseCallOnEachMicrotask(JSGlobalObject* currentGlobalObject, VM&, TopExceptionScope&);
+    JS_EXPORT_PRIVATE std::pair<JSGlobalObject*, bool> drainWithoutUseCallOnEachMicrotask(JSGlobalObject* currentGlobalObject, VM&, TopExceptionScope&);
+
+    template<bool useCallOnEachMicrotask>
+    ALWAYS_INLINE std::pair<JSGlobalObject*, bool> drain(JSGlobalObject* globalObject, VM& vm, TopExceptionScope& scope)
+    {
+        if constexpr (useCallOnEachMicrotask)
+            return drainWithUseCallOnEachMicrotask(globalObject, vm, scope);
+        else
+            return drainWithoutUseCallOnEachMicrotask(globalObject, vm, scope);
+    }
+
+    template<bool useCallOnEachMicrotask>
+    std::pair<JSGlobalObject*, bool> drainImpl(JSGlobalObject*, VM&, TopExceptionScope&);
 
     MarkedMicrotaskDeque m_queue;
     MarkedMicrotaskDeque m_toKeep;
 };
 
-void runMicrotask(JSGlobalObject*, VM&, QueuedTask&);
 JS_EXPORT_PRIVATE void runMicrotaskWithDebugger(JSGlobalObject*, VM&, QueuedTask&);
 
 } // namespace JSC

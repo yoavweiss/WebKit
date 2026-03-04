@@ -55,16 +55,16 @@ bool QueuedTask::isRunnable() const
     return jsCast<JSGlobalObject*>(dispatcher())->microtaskRunnability() == QueuedTaskResult::Executed;
 }
 
-void runMicrotask(JSGlobalObject* globalObject, VM& vm, QueuedTask& task)
+static bool runMicrotask(JSGlobalObject* globalObject, TopExceptionScope& catchScope, VM& vm, QueuedTask& task)
 {
-    auto catchScope = DECLARE_TOP_EXCEPTION_SCOPE(vm);
     runInternalMicrotask(globalObject, vm, task.job(), task.payload(), task.arguments());
     if (auto* exception = catchScope.exception()) [[unlikely]] {
         if (!catchScope.clearExceptionExceptTermination()) [[unlikely]]
-            return;
+            return false;
         globalObject->globalObjectMethodTable()->reportUncaughtExceptionAtEventLoop(globalObject, exception);
-        catchScope.clearExceptionExceptTermination();
+        return catchScope.clearExceptionExceptTermination();
     }
+    return true;
 }
 
 void runMicrotaskWithDebugger(JSGlobalObject* globalObject, VM& vm, QueuedTask& task)
@@ -79,8 +79,7 @@ void runMicrotaskWithDebugger(JSGlobalObject* globalObject, VM& vm, QueuedTask& 
             return;
     }
 
-    runMicrotask(globalObject, vm, task);
-    if (!catchScope.clearExceptionExceptTermination()) [[unlikely]]
+    if (!runMicrotask(globalObject, catchScope, vm, task)) [[unlikely]]
         return;
 
     if (auto* debugger = globalObject->debugger(); debugger && identifier) [[unlikely]] {
@@ -168,7 +167,8 @@ void MarkedMicrotaskDeque::visitAggregateImpl(Visitor& visitor)
 }
 DEFINE_VISIT_AGGREGATE(MarkedMicrotaskDeque);
 
-std::pair<JSGlobalObject*, bool> MicrotaskQueue::drain(bool useCallOnEachMicrotask, JSGlobalObject* currentGlobalObject, VM& vm, TopExceptionScope& catchScope)
+template<bool useCallOnEachMicrotask>
+ALWAYS_INLINE std::pair<JSGlobalObject*, bool> MicrotaskQueue::drainImpl(JSGlobalObject* currentGlobalObject, VM& vm, TopExceptionScope& catchScope)
 {
     while (!m_queue.isEmpty()) {
         auto& front = m_queue.front();
@@ -187,7 +187,10 @@ std::pair<JSGlobalObject*, bool> MicrotaskQueue::drain(bool useCallOnEachMicrota
                 return { globalObject, false };
 
             auto task = m_queue.dequeue();
-            runMicrotask(globalObject, vm, task);
+            if (!runMicrotask(globalObject, catchScope, vm, task)) [[unlikely]] {
+                clear();
+                return { nullptr, true };
+            }
         } else {
             auto* jsMicrotaskDispatcher = jsCast<JSMicrotaskDispatcher*>(front.dispatcher());
             auto* globalObject = front.globalObject();
@@ -211,14 +214,14 @@ std::pair<JSGlobalObject*, bool> MicrotaskQueue::drain(bool useCallOnEachMicrota
                 m_toKeep.enqueue(WTF::move(task));
                 break;
             }
+
+            if (!catchScope.clearExceptionExceptTermination()) [[unlikely]] {
+                clear();
+                return { nullptr, true };
+            }
         }
 
-        if (!catchScope.clearExceptionExceptTermination()) [[unlikely]] {
-            clear();
-            return { nullptr, true };
-        }
-
-        if (useCallOnEachMicrotask) {
+        if constexpr (useCallOnEachMicrotask) {
             vm.callOnEachMicrotaskTick();
             if (!catchScope.clearExceptionExceptTermination()) [[unlikely]] {
                 clear();
@@ -228,6 +231,16 @@ std::pair<JSGlobalObject*, bool> MicrotaskQueue::drain(bool useCallOnEachMicrota
     }
 
     return { nullptr, true };
+}
+
+std::pair<JSGlobalObject*, bool> MicrotaskQueue::drainWithoutUseCallOnEachMicrotask(JSGlobalObject* currentGlobalObject, VM& vm, TopExceptionScope& catchScope)
+{
+    return drainImpl</* useCallOnEachMicrotask */ false>(currentGlobalObject, vm, catchScope);
+}
+
+std::pair<JSGlobalObject*, bool> MicrotaskQueue::drainWithUseCallOnEachMicrotask(JSGlobalObject* currentGlobalObject, VM& vm, TopExceptionScope& catchScope)
+{
+    return drainImpl</* useCallOnEachMicrotask */ true>(currentGlobalObject, vm, catchScope);
 }
 
 } // namespace JSC

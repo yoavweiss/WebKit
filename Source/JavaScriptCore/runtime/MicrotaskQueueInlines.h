@@ -88,7 +88,7 @@ inline void MicrotaskQueue::performMicrotaskCheckpoint(VM& vm, NOESCAPE const In
         JSGlobalObject* currentGlobalObject = nullptr;
 
         while (true) {
-            auto [nextGlobalObject, done] = drain(useCallOnEachMicrotask, currentGlobalObject, vm, catchScope);
+            auto [nextGlobalObject, done] = drain<useCallOnEachMicrotask>(currentGlobalObject, vm, catchScope);
             if (done)
                 break;
 
