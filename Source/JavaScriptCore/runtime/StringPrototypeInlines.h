@@ -777,7 +777,7 @@ ALWAYS_INLINE JSCellButterfly* addToRegExpSearchCache(VM& vm, JSGlobalObject* gl
             startPosition++;
             if (startPosition > source.length())
                 break;
-            if (U16_IS_LEAD(source[startPosition - 1]) && U16_IS_TRAIL(source[startPosition])) {
+            if (regExp->eitherUnicode() && U16_IS_LEAD(source[startPosition - 1]) && U16_IS_TRAIL(source[startPosition])) {
                 startPosition++;
                 if (startPosition > source.length())
                     break;
@@ -1186,7 +1186,7 @@ ALWAYS_INLINE JSString* replaceAllWithStringUsingRegExpSearchNoBackreferences(VM
             startPosition++;
             if (startPosition > sourceLen)
                 break;
-            if (U16_IS_LEAD(source[startPosition - 1]) && U16_IS_TRAIL(source[startPosition])) {
+            if (regExp->eitherUnicode() && U16_IS_LEAD(source[startPosition - 1]) && U16_IS_TRAIL(source[startPosition])) {
                 startPosition++;
                 if (startPosition > sourceLen)
                     break;
@@ -1243,7 +1243,7 @@ ALWAYS_INLINE JSString* replaceAllWithStringUsingRegExpSearch(VM& vm, JSGlobalOb
             startPosition++;
             if (startPosition > sourceLen)
                 break;
-            if (U16_IS_LEAD(source[startPosition - 1]) && U16_IS_TRAIL(source[startPosition])) {
+            if (regExp->eitherUnicode() && U16_IS_LEAD(source[startPosition - 1]) && U16_IS_TRAIL(source[startPosition])) {
                 startPosition++;
                 if (startPosition > sourceLen)
                     break;
@@ -1438,7 +1438,7 @@ ALWAYS_INLINE JSString* replaceUsingRegExpSearch(VM& vm, JSGlobalObject* globalO
                 startPosition++;
                 if (startPosition > sourceLen)
                     break;
-                if (U16_IS_LEAD(source[startPosition - 1]) && U16_IS_TRAIL(source[startPosition])) {
+                if (regExp->eitherUnicode() && U16_IS_LEAD(source[startPosition - 1]) && U16_IS_TRAIL(source[startPosition])) {
                     startPosition++;
                     if (startPosition > sourceLen)
                         break;
@@ -1523,7 +1523,7 @@ ALWAYS_INLINE JSString* replaceUsingRegExpSearch(VM& vm, JSGlobalObject* globalO
                 startPosition++;
                 if (startPosition > sourceLen)
                     break;
-                if (U16_IS_LEAD(source[startPosition - 1]) && U16_IS_TRAIL(source[startPosition])) {
+                if (regExp->eitherUnicode() && U16_IS_LEAD(source[startPosition - 1]) && U16_IS_TRAIL(source[startPosition])) {
                     startPosition++;
                     if (startPosition > sourceLen)
                         break;
