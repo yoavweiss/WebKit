@@ -160,6 +160,12 @@ test/built-ins/Temporal/Duration/prototype/round/next-day-out-of-range.js:
 test/built-ins/Temporal/Duration/prototype/round/options-read-before-algorithmic-validation.js:
   default: 'Test262Error: Actual [get options.largestUnit, get options.largestUnit.toString, call options.largestUnit.toString, get options.roundingIncrement, get options.roundingIncrement.valueOf, call options.roundingIncrement.valueOf, get options.roundingMode, get options.roundingMode.toString, call options.roundingMode.toString, get options.smallestUnit, get options.smallestUnit.toString, call options.smallestUnit.toString] and expected [get options.largestUnit, get options.largestUnit.toString, call options.largestUnit.toString, get options.relativeTo, get options.roundingIncrement, get options.roundingIncrement.valueOf, call options.roundingIncrement.valueOf, get options.roundingMode, get options.roundingMode.toString, call options.roundingMode.toString, get options.smallestUnit, get options.smallestUnit.toString, call options.smallestUnit.toString] should have the same contents. all options should be read first'
   strict mode: 'Test262Error: Actual [get options.largestUnit, get options.largestUnit.toString, call options.largestUnit.toString, get options.roundingIncrement, get options.roundingIncrement.valueOf, call options.roundingIncrement.valueOf, get options.roundingMode, get options.roundingMode.toString, call options.roundingMode.toString, get options.smallestUnit, get options.smallestUnit.toString, call options.smallestUnit.toString] and expected [get options.largestUnit, get options.largestUnit.toString, call options.largestUnit.toString, get options.relativeTo, get options.roundingIncrement, get options.roundingIncrement.valueOf, call options.roundingIncrement.valueOf, get options.roundingMode, get options.roundingMode.toString, call options.roundingMode.toString, get options.smallestUnit, get options.smallestUnit.toString, call options.smallestUnit.toString] should have the same contents. all options should be read first'
+test/built-ins/Temporal/Duration/prototype/round/relativeTo-ignores-incorrect-properties.js:
+  default: 'RangeError: Cannot round a duration of years, months, or weeks without a relativeTo option'
+  strict mode: 'RangeError: Cannot round a duration of years, months, or weeks without a relativeTo option'
+test/built-ins/Temporal/Duration/prototype/round/relativeTo-required-properties.js:
+  default: 'Test262Error: Expected a TypeError to be thrown but no exception was thrown at all'
+  strict mode: 'Test262Error: Expected a TypeError to be thrown but no exception was thrown at all'
 test/built-ins/Temporal/Duration/prototype/round/relativeto-balances-down-differently-depending-on-relative-date.js:
   default: 'RangeError: Cannot round a duration of years, months, or weeks without a relativeTo option'
   strict mode: 'RangeError: Cannot round a duration of years, months, or weeks without a relativeTo option'
@@ -175,9 +181,6 @@ test/built-ins/Temporal/Duration/prototype/round/relativeto-days-24-hours-relati
 test/built-ins/Temporal/Duration/prototype/round/relativeto-duration-out-of-range-added-to-relative-date.js:
   default: 'Test262Error: days out of range, positive, smallestUnit years Expected a RangeError but got a Error'
   strict mode: 'Test262Error: days out of range, positive, smallestUnit years Expected a RangeError but got a Error'
-test/built-ins/Temporal/Duration/prototype/round/relativeto-ignores-incorrect-properties.js:
-  default: 'RangeError: Cannot round a duration of years, months, or weeks without a relativeTo option'
-  strict mode: 'RangeError: Cannot round a duration of years, months, or weeks without a relativeTo option'
 test/built-ins/Temporal/Duration/prototype/round/relativeto-largestunit-smallestunit-combinations.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(63072000_000_000_000n /* = 1972-01-01T00Z */, \"UTC\")')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(63072000_000_000_000n /* = 1972-01-01T00Z */, \"UTC\")')"
@@ -187,9 +190,6 @@ test/built-ins/Temporal/Duration/prototype/round/relativeto-propertybag-optional
 test/built-ins/Temporal/Duration/prototype/round/relativeto-required-for-rounding-durations-with-calendar-units.js:
   default: 'Test262Error: Expected a RangeError but got a Error'
   strict mode: 'Test262Error: Expected a RangeError but got a Error'
-test/built-ins/Temporal/Duration/prototype/round/relativeto-required-properties.js:
-  default: 'Test262Error: Expected a TypeError to be thrown but no exception was thrown at all'
-  strict mode: 'Test262Error: Expected a TypeError to be thrown but no exception was thrown at all'
 test/built-ins/Temporal/Duration/prototype/round/relativeto-required-to-round-calendar-units.js:
   default: 'Test262Error: Expected a RangeError but got a Error'
   strict mode: 'Test262Error: Expected a RangeError but got a Error'
@@ -265,9 +265,6 @@ test/built-ins/Temporal/Duration/prototype/total/relativeto-calendar-units-depen
 test/built-ins/Temporal/Duration/prototype/total/relativeto-date-limits.js:
   default: 'Test262Error: +275760-09-12T00:00:01+00:00[UTC] is out of range as a relativeTo argument for total Expected a RangeError to be thrown but no exception was thrown at all'
   strict mode: 'Test262Error: +275760-09-12T00:00:01+00:00[UTC] is out of range as a relativeTo argument for total Expected a RangeError to be thrown but no exception was thrown at all'
-test/built-ins/Temporal/Duration/prototype/total/relativeto-must-have-required-properties.js:
-  default: 'Test262Error: Expected a TypeError but got a RangeError'
-  strict mode: 'Test262Error: Expected a TypeError but got a RangeError'
 test/built-ins/Temporal/Duration/prototype/total/relativeto-propertybag-invalid-offset-string.js:
   default: 'Test262Error: "0" is not a valid offset string Expected a TypeError but got a RangeError'
   strict mode: 'Test262Error: "0" is not a valid offset string Expected a TypeError but got a RangeError'
@@ -727,9 +724,15 @@ test/intl402/DateTimeFormat/prototype/formatToParts/temporal-plainyearmonth-form
 test/intl402/DateTimeFormat/prototype/formatToParts/temporal-zoneddatetime-not-supported.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
+test/intl402/Intl/supportedValuesOf/numberingSystems-with-simple-digit-mappings.js:
+  default: 'Test262Error: tols with simple digit mappings is supported'
+  strict mode: 'Test262Error: tols with simple digit mappings is supported'
 test/intl402/Locale/extensions-grandfathered.js:
   default: 'Test262Error: Expected SameValue(«"fr-Cyrl-FR-gaulish-u-nu-latn"», «"fr-Cyrl-FR-u-nu-latn"») to be true'
   strict mode: 'Test262Error: Expected SameValue(«"fr-Cyrl-FR-gaulish-u-nu-latn"», «"fr-Cyrl-FR-u-nu-latn"») to be true'
+test/intl402/NumberFormat/prototype/format/numbering-systems.js:
+  default: 'Test262Error: numberingSystem: tols, digit: 0 Expected SameValue(«"0"», «"𑷠"») to be true'
+  strict mode: 'Test262Error: numberingSystem: tols, digit: 0 Expected SameValue(«"0"», «"𑷠"») to be true'
 test/intl402/NumberFormat/prototype/format/unit-ja-JP.js:
   default: 'Test262Error: Expected SameValue(«"時速-987キロメートル"», «"時速 -987 キロメートル"») to be true'
   strict mode: 'Test262Error: Expected SameValue(«"時速-987キロメートル"», «"時速 -987 キロメートル"») to be true'
@@ -881,6 +884,30 @@ test/language/expressions/yield/star-rhs-iter-thrw-res-done-no-value.js:
   strict mode: 'Test262Error: access count (second iteration) Expected SameValue(«1», «0») to be true'
 test/language/identifier-resolution/assign-to-global-undefined.js:
   strict mode: Expected uncaught exception with name 'ReferenceError' but none was thrown
+test/language/identifiers/part-unicode-17.0.0-class-escaped.js:
+  default: "SyntaxError: Invalid unicode escape in identifier: '#_\\u1ACF'"
+  strict mode: "SyntaxError: Invalid unicode escape in identifier: '#_\\u1ACF'"
+test/language/identifiers/part-unicode-17.0.0-class.js:
+  default: "SyntaxError: Invalid character '\\u1acf'"
+  strict mode: "SyntaxError: Invalid character '\\u1acf'"
+test/language/identifiers/part-unicode-17.0.0-escaped.js:
+  default: "SyntaxError: Invalid unicode escape in identifier: '_\\u1ACF'"
+  strict mode: "SyntaxError: Invalid unicode escape in identifier: '_\\u1ACF'"
+test/language/identifiers/part-unicode-17.0.0.js:
+  default: "SyntaxError: Invalid character '\\u1acf'"
+  strict mode: "SyntaxError: Invalid character '\\u1acf'"
+test/language/identifiers/start-unicode-17.0.0-class-escaped.js:
+  default: "SyntaxError: Invalid unicode escape in identifier: '#\\u088F'"
+  strict mode: "SyntaxError: Invalid unicode escape in identifier: '#\\u088F'"
+test/language/identifiers/start-unicode-17.0.0-class.js:
+  default: "SyntaxError: Invalid character: '#'"
+  strict mode: "SyntaxError: Invalid character: '#'"
+test/language/identifiers/start-unicode-17.0.0-escaped.js:
+  default: "SyntaxError: Invalid unicode escape in identifier: '\\u088F'"
+  strict mode: "SyntaxError: Invalid unicode escape in identifier: '\\u088F'"
+test/language/identifiers/start-unicode-17.0.0.js:
+  default: "SyntaxError: Invalid character '\\u088f'"
+  strict mode: "SyntaxError: Invalid character '\\u088f'"
 test/language/import/import-bytes/bytes-from-empty.js:
   module: 'TypeError: Import attribute type "bytes" is not valid'
 test/language/import/import-bytes/bytes-from-js.js:
@@ -990,6 +1017,9 @@ test/staging/sm/RegExp/unicode-braced.js:
 test/staging/sm/RegExp/unicode-class-braced.js:
   default: 'SyntaxError: Invalid regular expression: regular expression too large'
   strict mode: 'SyntaxError: Invalid regular expression: regular expression too large'
+test/staging/sm/String/string-upper-lower-mapping.js:
+  default: 'Test262Error: Expected SameValue(«"꟎"», «"꟏"») to be true'
+  strict mode: 'Test262Error: Expected SameValue(«"꟎"», «"꟏"») to be true'
 test/staging/sm/TypedArray/constructor-buffer-sequence.js:
   default: 'Test262Error: Expected a ExpectedError but got a Error'
   strict mode: 'Test262Error: Expected a ExpectedError but got a Error'
