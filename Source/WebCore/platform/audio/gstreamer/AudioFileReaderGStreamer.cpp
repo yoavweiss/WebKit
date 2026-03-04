@@ -53,7 +53,7 @@ namespace WebCore {
 GST_DEBUG_CATEGORY(webkit_audio_file_reader_debug);
 #define GST_CAT_DEFAULT webkit_audio_file_reader_debug
 
-class AudioFileReader : public CanMakeWeakPtr<AudioFileReader> {
+class AudioFileReader : public CanMakeWeakPtr<AudioFileReader, WeakPtrFactoryInitialization::Eager> {
     WTF_MAKE_TZONE_ALLOCATED_INLINE(AudioFileReader);
     WTF_MAKE_NONCOPYABLE(AudioFileReader);
 public:

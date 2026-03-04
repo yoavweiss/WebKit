@@ -44,7 +44,9 @@ class CDMProxyDecryptionClientImplementation final : public WebCore::CDMProxyDec
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(CDMProxyDecryptionClientImplementation);
 public:
     CDMProxyDecryptionClientImplementation(WebKitMediaCommonEncryptionDecrypt* decryptor)
-        : m_decryptor(decryptor) { }
+        : m_decryptor(decryptor)
+    {
+    }
     virtual bool isAborting()
     {
         return webKitMediaCommonEncryptionDecryptIsAborting(m_decryptor);
@@ -501,7 +503,8 @@ bool webKitMediaCommonEncryptionDecryptIsAborting(WebKitMediaCommonEncryptionDec
 WeakPtr<WebCore::CDMProxyDecryptionClient> webKitMediaCommonEncryptionDecryptGetCDMProxyDecryptionClient(WebKitMediaCommonEncryptionDecrypt* self)
 {
     WebKitMediaCommonEncryptionDecryptPrivate* priv = WEBKIT_MEDIA_CENC_DECRYPT_GET_PRIVATE(self);
-    return *priv->cdmProxyDecryptionClientImplementation;
+    // FXIME: We should not need EnableWeakPtrThreadingAssertions::No here. This is likely indicative of a bug.
+    return WeakPtr { *priv->cdmProxyDecryptionClientImplementation, EnableWeakPtrThreadingAssertions::No };
 }
 
 static GstStateChangeReturn changeState(GstElement* element, GstStateChange transition)
