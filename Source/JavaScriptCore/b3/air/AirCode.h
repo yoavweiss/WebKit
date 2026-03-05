@@ -396,7 +396,7 @@ private:
     Vector<std::unique_ptr<BasicBlock>> m_blocks;
     SparseCollection<Special> m_specials;
     std::unique_ptr<CFG> m_cfg;
-    SmallSet<Tmp, DefaultHash<Tmp>, 2> m_fastTmps;
+    SmallSet<Tmp, DefaultHash<Tmp>, HashTraits<Tmp>, 2> m_fastTmps;
     CCallSpecial* m_cCallSpecial { nullptr };
     unsigned m_numGPTmps { 0 };
     unsigned m_numFPTmps { 0 };
