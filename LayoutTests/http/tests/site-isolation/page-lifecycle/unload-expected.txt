@@ -1,9 +1,10 @@
-Tests that pagehide is fired in iframes when site isolation is enabled.
+main frame - has 1 onunload handler(s)
+Tests that unload is fired when site isolation is enabled.
 
 On success, you will see a series of "PASS" messages, followed by "TEST COMPLETE".
 
 
-PASS event.data is "pagehide"
+PASS caughtEvent.name is "unload"
 PASS successfullyParsed is true
 
 TEST COMPLETE

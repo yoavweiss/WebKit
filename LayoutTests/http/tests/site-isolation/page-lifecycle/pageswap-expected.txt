@@ -3,9 +3,9 @@ Tests that pageswap is fired when site isolation is enabled.
 On success, you will see a series of "PASS" messages, followed by "TEST COMPLETE".
 
 
-PASS event.data.name is "pageswap"
-PASS event.data.activation is null
-PASS event.data.viewTransition is null
+PASS caughtEvent.name is "pageswap"
+PASS caughtEvent.params.activation is null
+PASS caughtEvent.params.viewTransition is null
 PASS successfullyParsed is true
 
 TEST COMPLETE
