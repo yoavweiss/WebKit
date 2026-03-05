@@ -1406,6 +1406,7 @@ typedef NS_ENUM(NSUInteger, _UIScrollDeviceCategory) {
 
 @interface UIScrollView ()
 @property (nonatomic, setter=_setUseVisionAlternateScrollIndicatorRendering:) BOOL _useVisionAlternateScrollIndicatorRendering;
+@property (readonly) NSString *_lookToScrollGroupName;
 @end
 
 #endif // PLATFORM(VISION)
