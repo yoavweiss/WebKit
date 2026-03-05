@@ -4281,7 +4281,9 @@ void SpeculativeJIT::compile(Node* node)
         break;
 
     case CountExecution:
+        JIT_COMMENT(*this, "Execution trace start");
         add64(TrustedImm32(1), AbsoluteAddress(node->executionCounter()->address()));
+        JIT_COMMENT(*this, "First non-trace instruction");
         break;
 
     case SuperSamplerBegin:

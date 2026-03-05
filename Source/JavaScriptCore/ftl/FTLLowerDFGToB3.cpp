@@ -16903,6 +16903,7 @@ IGNORE_CLANG_WARNINGS_END
 
     void compileCountExecution()
     {
+        // FIXME: Should this be a patchpoint with a JIT_COMMENT like we do for the other tiers? It seems a lot less valuable to bytecode profile at FTL anyway because of all the code motion that's possible.
         TypedPointer counter = m_out.absolute(m_node->executionCounter()->address());
         m_out.store64(m_out.add(m_out.load64(counter), m_out.constInt64(1)), counter);
     }

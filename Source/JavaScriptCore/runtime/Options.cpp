@@ -869,7 +869,8 @@ void Options::notifyOptionsChanged()
             || Options::dumpRegExpDisassembly()
             || Options::dumpWasmDisassembly()
             || Options::dumpBBQDisassembly()
-            || Options::dumpOMGDisassembly())
+            || Options::dumpOMGDisassembly()
+            || Options::useProfiler()) // For JIT comments in the profile.
             Options::needDisassemblySupport() = true;
 
         if (OptionsHelper::wasOverridden(jitPolicyScaleID))

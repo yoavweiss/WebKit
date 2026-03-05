@@ -210,7 +210,7 @@ public:
     // These methods are used to obtain handles to allow the code to be relinked / repatched later.
     
     template<PtrTag tag>
-    CodeLocationLabel<tag> entrypoint()
+    CodeLocationLabel<tag> entrypoint() const
     {
         return CodeLocationLabel<tag>(tagCodePtr<tag>(code()));
     }
@@ -354,7 +354,7 @@ private:
     }
 
     // Keep this private! - the underlying code should only be obtained externally via finalizeCode().
-    void* code()
+    void* code() const
     {
         return m_code.dataLocation();
     }
