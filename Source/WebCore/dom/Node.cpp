@@ -141,9 +141,9 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(SameSizeAsNode);
 static_assert(sizeof(Node) == sizeof(SameSizeAsNode), "Node should stay small");
 
 #if DUMP_NODE_STATISTICS
-static WeakHashSet<Node>& liveNodeSet()
+static WeakHashSet<Node, WeakPtrImplWithEventTargetData>& liveNodeSet()
 {
-    static NeverDestroyed<WeakHashSet<Node>> liveNodes;
+    static NeverDestroyed<WeakHashSet<Node, WeakPtrImplWithEventTargetData>> liveNodes;
     return liveNodes;
 }
 
@@ -202,8 +202,12 @@ static ASCIILiteral stringForRareDataUseType(NodeRareData::UseType useType)
         return "ExplicitlySetAttrElementsMap"_s;
     case NodeRareData::UseType::Popover:
         return "Popover"_s;
+    case NodeRareData::UseType::CustomStateSet:
+        return "CustomStateSet"_s;
     case NodeRareData::UseType::UserInfo:
         return "UserInfo"_s;
+    case NodeRareData::UseType::InvokedPopover:
+        return "InvokedPopover"_s;
     }
     return { };
 }
@@ -391,9 +395,9 @@ Node::Node(Document& document, NodeType type, OptionSet<TypeFlag> flags)
 #endif
 }
 
-static HashMap<WeakRef<Node, WeakPtrImplWithEventTargetData>, NodeIdentifier>& NODELETE nodeIdentifiersMap()
+static HashMap<WeakPtr<Node, WeakPtrImplWithEventTargetData>, NodeIdentifier>& NODELETE nodeIdentifiersMap()
 {
-    static MainThreadNeverDestroyed<HashMap<WeakRef<Node, WeakPtrImplWithEventTargetData>, NodeIdentifier>> map;
+    static MainThreadNeverDestroyed<HashMap<WeakPtr<Node, WeakPtrImplWithEventTargetData>, NodeIdentifier>> map;
     return map;
 }
 
@@ -3132,7 +3136,7 @@ Node* Node::fromIdentifier(NodeIdentifier identifier)
 {
     for (auto& [node, nodeIdentifier] : nodeIdentifiersMap()) {
         if (nodeIdentifier == identifier)
-            return node.ptr();
+            return node.get();
     }
     return nullptr;
 }
