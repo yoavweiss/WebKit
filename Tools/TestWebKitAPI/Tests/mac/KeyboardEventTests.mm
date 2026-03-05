@@ -28,7 +28,6 @@
 #if PLATFORM(MAC)
 
 #import "PlatformUtilities.h"
-#import "TestUIDelegate.h"
 #import "TestWKWebView.h"
 #import <WebKit/WKContentWorld.h>
 #import <WebKit/WKContentWorldPrivate.h>
@@ -148,11 +147,7 @@ TEST(KeyboardEventTests, TerminateWebContentProcessDuringKeyEventHandling)
 }
 
 // FIXME when rdar://168322007 is resolved.
-#if PLATFORM(MAC)
-TEST(KeyboardEventTests, DISABLED_UserTextInputEvent)
-#else
 TEST(KeyboardEventTests, UserTextInputEvent)
-#endif
 {
     RetainPtr webView = adoptNS([TestWKWebView new]);
     [webView addToTestWindow];
@@ -160,32 +155,56 @@ TEST(KeyboardEventTests, UserTextInputEvent)
     RetainPtr configuration = adoptNS([_WKContentWorldConfiguration new]);
     configuration.get().allowAutofill = YES;
     RetainPtr autofillWorld = [WKContentWorld _worldWithConfiguration:configuration.get()];
-    NSString *pageWorldJS = @"window.addEventListener('webkitusertextinput', () => alert('fail') )";
-    NSString *autofillWorldJS = @"window.addEventListener('webkitusertextinput', (e) => { setTimeout(() => alert('pass ' + e.target.id), 50)})";
+
+    __block RetainPtr<NSString> lastMessage;
+    __block bool receivedMessage = false;
+    RetainPtr messageHandler = adoptNS([[TestMessageHandler alloc] init]);
+    [messageHandler setDidReceiveScriptMessage:^(NSString *body) {
+        lastMessage = body;
+        receivedMessage = true;
+    }];
+
+    RetainPtr<WKUserContentController> userContentController = [webView configuration].userContentController;
+    [userContentController addScriptMessageHandler:messageHandler.get() contentWorld:autofillWorld.get() name:@"testHandler"];
+    [userContentController addScriptMessageHandler:messageHandler.get() contentWorld:WKContentWorld.pageWorld name:@"testHandler"];
+
+    NSString *pageWorldJS = @"window.addEventListener('webkitusertextinput', () => webkit.messageHandlers.testHandler.postMessage('fail'))";
+    NSString *autofillWorldJS = @"window.addEventListener('webkitusertextinput', (e) => { setTimeout(() => webkit.messageHandlers.testHandler.postMessage('pass ' + e.target.id), 50) })";
     RetainPtr pageWorldScript = adoptNS([[WKUserScript alloc] initWithSource:pageWorldJS injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES]);
     RetainPtr autofillWorldScript = adoptNS([[WKUserScript alloc] initWithSource:autofillWorldJS injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES inContentWorld:autofillWorld.get()]);
-    RetainPtr<WKUserContentController> userContentController = [webView configuration].userContentController;
     [userContentController addUserScript:pageWorldScript.get()];
     [userContentController addUserScript:autofillWorldScript.get()];
 
     [webView synchronouslyLoadHTMLString:@"<input id='input' type='text'><textarea id='textarea'></textarea>"];
 
     [webView objectByEvaluatingJavaScript:@"input.focus()"];
+    [webView waitForNextPresentationUpdate];
+    receivedMessage = false;
     [webView typeCharacter:'a'];
-    EXPECT_WK_STREQ([webView _test_waitForAlert], "pass input");
+    Util::run(&receivedMessage);
+    EXPECT_WK_STREQ(lastMessage.get(), "pass input");
 
     [webView objectByEvaluatingJavaScript:@"textarea.focus()"];
+    [webView waitForNextPresentationUpdate];
+    receivedMessage = false;
     [webView typeCharacter:'c'];
-    EXPECT_WK_STREQ([webView _test_waitForAlert], "pass textarea");
+    Util::run(&receivedMessage);
+    EXPECT_WK_STREQ(lastMessage.get(), "pass textarea");
 
     // Untrusted input changes should not cause webkitusertextinput to fire.
-    [webView objectByEvaluatingJavaScript:@"window.addEventListener('input', (e) => { setTimeout(() => alert('input without webkitusertextinput ' + e.target.id), 50)})"];
+    [webView objectByEvaluatingJavaScript:@"window.addEventListener('webkitusertextinput', () => webkit.messageHandlers.testHandler.postMessage('fail'))" inFrame:nil inContentWorld:autofillWorld.get()];
+    NSString *inputListenerJS = @"window.addEventListener('input', (e) => { setTimeout(() => webkit.messageHandlers.testHandler.postMessage('input without webkitusertextinput ' + e.target.id), 50) })";
+    [webView objectByEvaluatingJavaScript:inputListenerJS];
 
-    [webView objectByEvaluatingJavaScript:@"input.value += 'c'; input.dispatchEvent(new InputEvent('input', { data: 'c', inputType: 'insertText', bubbles: true }));"];
-    EXPECT_WK_STREQ([webView _test_waitForAlert], "input without webkitusertextinput input");
+    receivedMessage = false;
+    [webView evaluateJavaScript:@"input.value += 'c'; input.dispatchEvent(new InputEvent('input', { data: 'c', inputType: 'insertText', bubbles: true }));" completionHandler:nil];
+    Util::run(&receivedMessage);
+    EXPECT_WK_STREQ(lastMessage.get(), "input without webkitusertextinput input");
 
-    [webView objectByEvaluatingJavaScript:@"textarea.value += 'c'; textarea.dispatchEvent(new InputEvent('input', { data: 'c', inputType: 'insertText', bubbles: true }));"];
-    EXPECT_WK_STREQ([webView _test_waitForAlert], "input without webkitusertextinput textarea");
+    receivedMessage = false;
+    [webView evaluateJavaScript:@"textarea.value += 'c'; textarea.dispatchEvent(new InputEvent('input', { data: 'c', inputType: 'insertText', bubbles: true }));" completionHandler:nil];
+    Util::run(&receivedMessage);
+    EXPECT_WK_STREQ(lastMessage.get(), "input without webkitusertextinput textarea");
 }
 
 } // namespace TestWebKitAPI
