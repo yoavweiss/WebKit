@@ -2165,7 +2165,12 @@ TEST(SOAuthorizationPopUp, InterceptionCancel)
     Util::run(&allMessagesReceived);
 }
 
+// FIXME when webkit.org/b/309196 is resolved.
+#if PLATFORM(MAC) && !defined(NDEBUG)
+TEST(SOAuthorizationPopUp, DISABLED_InterceptionSucceedCloseByItself)
+#else
 TEST(SOAuthorizationPopUp, InterceptionSucceedCloseByItself)
+#endif
 {
     resetState();
     SWIZZLE_SOAUTH(PAL::getSOAuthorizationClassSingleton());
