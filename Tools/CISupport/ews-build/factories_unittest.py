@@ -389,6 +389,7 @@ class TestExpectedBuildSteps(unittest.TestCase):
             'extract-built-product',
             'wait-for-crash-collection',
             'run-layout-tests-in-stress-mode',
+            'run-layout-tests-in-site-isolation',
             'trigger-crash-log-submission',
             'set-build-summary'
         ],

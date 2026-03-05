@@ -4497,6 +4497,22 @@ class RunWebKitTestsInStressGuardmallocMode(RunWebKitTestsInStressMode):
     ENABLE_GUARD_MALLOC = True
 
 
+class RunWebKitTestsInSiteIsolation(RunWebKitTestsInStressMode):
+    name = 'run-layout-tests-in-site-isolation'
+    suffix = 'site-isolation'
+    FAILURE_MSG_IN_STRESS_MODE = 'Found test failures in site isolation'
+
+    def __init__(self):
+        super().__init__()
+
+    def setLayoutTestCommand(self):
+        RunWebKitTests.setLayoutTestCommand(self)
+        self.command += ['--site-isolation']
+        modified_tests = self.getProperty('modified_tests')
+        if modified_tests:
+            self.command += modified_tests
+
+
 class ReRunWebKitTests(RunWebKitTests):
     name = 're-run-layout-tests'
     NUM_FAILURES_TO_DISPLAY = 10
