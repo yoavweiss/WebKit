@@ -90,11 +90,11 @@ public:
     enum class Type : uint8_t { DedicatedWorker, ServiceWorker, SharedWorker };
     virtual Type type() const = 0;
 
-    const URL& url() const final { return m_url; }
-    const URL& cookieURL() const final { return url(); }
-    const URL& ownerURL() const { return m_ownerURL; }
+    const URL& url() const LIFETIME_BOUND final { return m_url; }
+    const URL& cookieURL() const LIFETIME_BOUND final { return url(); }
+    const URL& ownerURL() const LIFETIME_BOUND { return m_ownerURL; }
     String origin() const;
-    const String& inspectorIdentifier() const { return m_inspectorIdentifier; }
+    const String& inspectorIdentifier() const LIFETIME_BOUND { return m_inspectorIdentifier; }
 
     IDBClient::IDBConnectionProxy* NODELETE idbConnectionProxy() final;
     void suspend() final;
@@ -160,7 +160,7 @@ public:
     RefPtr<FontLoadRequest> fontLoadRequest(const String& url, bool isSVG, bool isInitiatingElementInUserAgentShadowTree, LoadedFromOpaqueSource) final;
     void beginLoadingFontSoon(FontLoadRequest&) final;
 
-    const SettingsValues& settingsValues() const final { return m_settingsValues; }
+    const SettingsValues& settingsValues() const LIFETIME_BOUND final { return m_settingsValues; }
 
     FetchOptions::Credentials credentials() const { return m_credentials; }
 
@@ -173,7 +173,7 @@ public:
 
     ClientOrigin clientOrigin() const { return { topOrigin().data(), securityOrigin()->data() }; }
 
-    WorkerClient* workerClient() { return m_workerClient.get(); }
+    WorkerClient* workerClient() LIFETIME_BOUND { return m_workerClient.get(); }
 
     void reportErrorToWorkerObject(const String&);
 

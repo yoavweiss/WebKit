@@ -72,7 +72,8 @@ WorkerThreadableLoader::~WorkerThreadableLoader()
 
 void WorkerThreadableLoader::loadResourceSynchronously(WorkerOrWorkletGlobalScope& workerOrWorkletGlobalScope, ResourceRequest&& request, ThreadableLoaderClient& client, const ThreadableLoaderOptions& options)
 {
-    WorkerRunLoop& runLoop = workerOrWorkletGlobalScope.workerOrWorkletThread()->runLoop();
+    RefPtr workerOrWorkletThread = workerOrWorkletGlobalScope.workerOrWorkletThread();
+    auto& runLoop = workerOrWorkletThread->runLoop();
 
     // Create a unique mode just for this synchronous resource load.
     auto mode = makeString("loadResourceSynchronouslyMode"_s, runLoop.createUniqueId());
