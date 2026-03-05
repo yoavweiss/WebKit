@@ -77,10 +77,11 @@ extension _Proto_LowLevelMeshResource_v1 {
         for (vertexBufferIndex, vertexData) in vertexData.enumerated() {
             let bufferSizeInByte = vertexData.bytes.byteCount
             self.replaceVertices(at: vertexBufferIndex) { vertexBytes in
-                vertexBytes.withUnsafeMutableBytes { ptr in
+                // FIXME: (rdar://164559261) understand/document/remove unsafety
+                unsafe vertexBytes.withUnsafeMutableBytes { ptr in
                     // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
                     // swift-format-ignore: NeverForceUnwrap
-                    vertexData.copyBytes(to: ptr.baseAddress!.assumingMemoryBound(to: UInt8.self), count: bufferSizeInByte)
+                    unsafe vertexData.copyBytes(to: ptr.baseAddress!.assumingMemoryBound(to: UInt8.self), count: bufferSizeInByte)
                 }
             }
         }
@@ -89,10 +90,11 @@ extension _Proto_LowLevelMeshResource_v1 {
     nonisolated func replaceIndexData(_ indexData: Data?) {
         if let indexData = indexData {
             self.replaceIndices { indicesBytes in
-                indicesBytes.withUnsafeMutableBytes { ptr in
+                // FIXME: (rdar://164559261) understand/document/remove unsafety
+                unsafe indicesBytes.withUnsafeMutableBytes { ptr in
                     // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
                     // swift-format-ignore: NeverForceUnwrap
-                    indexData.copyBytes(to: ptr.baseAddress!.assumingMemoryBound(to: UInt8.self), count: ptr.count)
+                    unsafe indexData.copyBytes(to: ptr.baseAddress!.assumingMemoryBound(to: UInt8.self), count: ptr.count)
                 }
             }
         }
