@@ -38,9 +38,9 @@ protocol CxxRef {
     func copyRef() -> Self
 }
 
-/// Conform any WTF::Vector<WTF::Ref<T>> to this protocol to get useful extensions and iterators.
-protocol CxxRefVector {
-    associatedtype Element: CxxRef // you only need to specify this in your conformance
+/// Conform any WTF::Vector<T> to this protocol to get useful extensions and iterators.
+protocol CxxVector {
+    associatedtype Element // you only need to specify this in your conformance
     init()
     mutating func append(consuming: Element)
     mutating func reserveCapacity(_ newCapacity: Int)
@@ -49,12 +49,16 @@ protocol CxxRefVector {
     func __atUnsafe(_ index: Int) -> UnsafePointer<Element>
 }
 
-// FIXME(rdar://164119356)): conform to LosslessStringConvertible
+/// Conform any WTF::Vector<WTF::Ref<T>> to this protocol to get useful extensions and iterators.
+protocol CxxRefVector: CxxVector where Element: CxxRef {
+}
+
+// FIXME(rdar://164119356): conform to LosslessStringConvertible
 // when this moves to WTF (requires members to be public)
 extension WTF.String {
     /// Construct a `WTF.String` from a `Swift.String`.
     init(_ string: Swift.String) {
-        // rdar://162517354 prevents us from simply writing
+        // rdar://167712240 prevents us from simply writing
         // self = WTF.String.fromUTF8(swiftString.utf8CString.span);
         // Safety - we are guaranteed to get a valid buffer from the Swift
         // string for the duration that we're using it to construct the WTF::String.
@@ -96,10 +100,10 @@ extension CxxRefVector {
     }
 }
 
-// Iterator for WTF::Vectors of Ref types.
+// Iterator for WTF::Vectors.
 // rdar://169297366 when fixed will conform WTF::Vector directly to Sequence.
 // We can't do that manually since this would require C++ interop types to be public
-struct CxxRefVectorIterator<Vec: CxxRefVector>: Sequence, IteratorProtocol {
+struct CxxVectorIterator<Vec: CxxVector>: Sequence, IteratorProtocol {
     typealias Element = Vec.Element
     var vec: Vec
     var pos: Int
@@ -119,7 +123,7 @@ struct CxxRefVectorIterator<Vec: CxxRefVector>: Sequence, IteratorProtocol {
         // within the vector bounds.
         let item = unsafe vec.__atUnsafe(pos)
         pos += 1
-        return unsafe item.pointee.copyRef()
+        return unsafe item.pointee
     }
 }
 
