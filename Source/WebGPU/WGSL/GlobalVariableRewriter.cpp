@@ -724,7 +724,7 @@ AST::IdentifierExpression& RewriteGlobalVariables::getBase(AST::Expression& expr
     RELEASE_ASSERT_NOT_REACHED();
 }
 
-static unsigned buffersForStage(const Configuration& configuration, ShaderStage stage)
+static unsigned NODELETE buffersForStage(const Configuration& configuration, ShaderStage stage)
 {
     switch (stage) {
     case ShaderStage::Compute:
@@ -1149,7 +1149,7 @@ void RewriteGlobalVariables::collectDynamicOffsetGlobals(const PipelineLayout& p
     }
 }
 
-static WGSL::StorageTextureAccess convertAccess(const AccessMode accessMode)
+static WGSL::StorageTextureAccess NODELETE convertAccess(const AccessMode accessMode)
 {
     switch (accessMode) {
     case AccessMode::Read:
@@ -1458,7 +1458,7 @@ enum class BindingType {
     TextureExternal,
 };
 
-static BindingType bindingTypeForPrimitive(const Types::Primitive& primitive)
+static BindingType NODELETE bindingTypeForPrimitive(const Types::Primitive& primitive)
 {
     switch (primitive.kind) {
     case Types::Primitive::AbstractInt:
@@ -1740,7 +1740,7 @@ static bool isSampler(const AST::Variable& variable, SamplerBindingType bindingT
     }
 }
 
-static bool textureKindEqualsViewDimension(Types::Texture::Kind kind, TextureViewDimension viewDimension, bool isMultisampled, TextureSampleType sampleType)
+static bool NODELETE textureKindEqualsViewDimension(Types::Texture::Kind kind, TextureViewDimension viewDimension, bool isMultisampled, TextureSampleType sampleType)
 {
     if (isMultisampled)
         return kind == Types::Texture::Kind::TextureMultisampled2d && viewDimension == TextureViewDimension::TwoDimensional;
@@ -1763,7 +1763,7 @@ static bool textureKindEqualsViewDimension(Types::Texture::Kind kind, TextureVie
     return false;
 }
 
-static bool depthTextureKindEqualsViewDimension(Types::TextureDepth::Kind kind, TextureViewDimension viewDimension, bool isMultisampled)
+static bool NODELETE depthTextureKindEqualsViewDimension(Types::TextureDepth::Kind kind, TextureViewDimension viewDimension, bool isMultisampled)
 {
     if (isMultisampled)
         return kind == Types::TextureDepth::Kind::TextureDepthMultisampled2d && viewDimension == TextureViewDimension::TwoDimensional;
@@ -1980,7 +1980,7 @@ static String errorValidatingTexture(const AST::Variable& variable, const Textur
     return emptyString();
 }
 
-static bool storageTextureKindEqualsViewDimension(Types::TextureStorage::Kind kind, TextureViewDimension viewDimension)
+static bool NODELETE storageTextureKindEqualsViewDimension(Types::TextureStorage::Kind kind, TextureViewDimension viewDimension)
 {
     switch (viewDimension) {
     case TextureViewDimension::OneDimensional:

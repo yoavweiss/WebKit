@@ -41,7 +41,7 @@ namespace WGSL {
 
 template<TokenType TT, TokenType... TTs>
 struct TemplateTypes {
-    static bool includes(TokenType tokenType)
+    static bool NODELETE includes(TokenType tokenType)
     {
         return TT == tokenType || TemplateTypes<TTs...>::includes(tokenType);
     }
@@ -55,7 +55,7 @@ struct TemplateTypes {
 
 template <TokenType TT>
 struct TemplateTypes<TT> {
-    static bool includes(TokenType tokenType)
+    static bool NODELETE includes(TokenType tokenType)
     {
         return TT == tokenType;
     }
@@ -163,7 +163,7 @@ bool Parser<Lexer>::canBeginUnaryExpression(const Token& token)
     }
 }
 
-static bool canContinueMultiplicativeExpression(const Token& token)
+static bool NODELETE canContinueMultiplicativeExpression(const Token& token)
 {
     switch (token.type) {
     case TokenType::Modulo:
@@ -190,7 +190,7 @@ bool Parser<Lexer>::canContinueAdditiveExpression(const Token& token)
     }
 }
 
-static bool canContinueBitwiseExpression(const Token& token)
+static bool NODELETE canContinueBitwiseExpression(const Token& token)
 {
     switch (token.type) {
     case TokenType::And:
@@ -202,7 +202,7 @@ static bool canContinueBitwiseExpression(const Token& token)
     }
 }
 
-static bool canContinueRelationalExpression(const Token& token)
+static bool NODELETE canContinueRelationalExpression(const Token& token)
 {
     switch (token.type) {
     case TokenType::Gt:
@@ -217,17 +217,17 @@ static bool canContinueRelationalExpression(const Token& token)
     }
 }
 
-static bool canContinueShortCircuitAndExpression(const Token& token)
+static bool NODELETE canContinueShortCircuitAndExpression(const Token& token)
 {
     return token.type == TokenType::AndAnd;
 }
 
-static bool canContinueShortCircuitOrExpression(const Token& token)
+static bool NODELETE canContinueShortCircuitOrExpression(const Token& token)
 {
     return token.type == TokenType::OrOr;
 }
 
-static bool canContinueCompoundAssignmentStatement(const Token& token)
+static bool NODELETE canContinueCompoundAssignmentStatement(const Token& token)
 {
     switch (token.type) {
     case TokenType::PlusEq:
@@ -246,7 +246,7 @@ static bool canContinueCompoundAssignmentStatement(const Token& token)
     }
 }
 
-static AST::BinaryOperation toBinaryOperation(const Token& token)
+static AST::BinaryOperation NODELETE toBinaryOperation(const Token& token)
 {
     switch (token.type) {
     case TokenType::And:
@@ -300,7 +300,7 @@ static AST::BinaryOperation toBinaryOperation(const Token& token)
     }
 }
 
-static AST::UnaryOperation toUnaryOperation(const Token& token)
+static AST::UnaryOperation NODELETE toUnaryOperation(const Token& token)
 {
     switch (token.type) {
     case TokenType::And:

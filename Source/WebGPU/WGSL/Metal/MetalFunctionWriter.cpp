@@ -205,10 +205,10 @@ public:
 
     void visit(const Type*, bool shouldPack = false);
 
-    StringBuilder& stringBuilder() { return m_body; }
-    Indentation<4>& indent() { return m_indent; }
-    unsigned metalAppleGPUFamily() const { return m_deviceState.appleGPUFamily; }
-    bool shaderValidationEnabled() const { return m_deviceState.shaderValidationEnabled; }
+    StringBuilder& NODELETE stringBuilder() { return m_body; }
+    Indentation<4>& NODELETE indent() { return m_indent; }
+    unsigned NODELETE metalAppleGPUFamily() const { return m_deviceState.appleGPUFamily; }
+    bool NODELETE shaderValidationEnabled() const { return m_deviceState.shaderValidationEnabled; }
 
 private:
     void emitNecessaryHelpers();
@@ -2000,7 +2000,7 @@ static void emitAtomicExchange(FunctionDefinitionWriter* writer, AST::CallExpres
     atomicFunction("atomic_exchange_explicit"_s, writer, call);
 }
 
-[[noreturn]] static void emitArrayLength(FunctionDefinitionWriter*, AST::CallExpression&)
+[[noreturn]] static void NODELETE emitArrayLength(FunctionDefinitionWriter*, AST::CallExpression&)
 {
     RELEASE_ASSERT_NOT_REACHED();
 }
