@@ -107,7 +107,7 @@ public:
     bool isCurrent() const; // Public as used in API tests.
 private:
     constexpr ThreadLikeAssertion(uint32_t uid);
-#if ASSERT_ENABLED
+#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
     uint32_t m_uid;
 #endif
     friend void assertIsCurrent(const ThreadLikeAssertion&);
@@ -116,7 +116,7 @@ private:
 
 inline ThreadLikeAssertion::ThreadLikeAssertion(CurrentThreadLike)
 {
-#if ASSERT_ENABLED
+#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
     m_uid = isMainThread() ? mainThreadLike : ThreadLike::currentSequence();
 #endif
 }
@@ -128,7 +128,7 @@ inline ThreadLikeAssertion::ThreadLikeAssertion(ThreadLikeAssertion&& other)
 
 inline ThreadLikeAssertion& ThreadLikeAssertion::operator=(ThreadLikeAssertion&& other)
 {
-#if ASSERT_ENABLED
+#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
     m_uid = std::exchange(other.m_uid, anyThreadLike);
 #else
     UNUSED_PARAM(other);
@@ -137,18 +137,16 @@ inline ThreadLikeAssertion& ThreadLikeAssertion::operator=(ThreadLikeAssertion&&
 }
 
 inline constexpr ThreadLikeAssertion::ThreadLikeAssertion(uint32_t uid)
-#if ASSERT_ENABLED
+#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
     : m_uid(uid)
 #endif
 {
-#if !ASSERT_ENABLED
     UNUSED_PARAM(uid);
-#endif
 }
 
 inline bool ThreadLikeAssertion::isCurrent() const
 {
-#if ASSERT_ENABLED
+#if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
     if (m_uid == anyThreadLike)
         return true;
     if (m_uid == mainThreadLike)
@@ -161,7 +159,8 @@ inline bool ThreadLikeAssertion::isCurrent() const
 
 inline void assertIsCurrent(const ThreadLikeAssertion& threadLikeAssertion) WTF_ASSERTS_ACQUIRED_CAPABILITY(threadLikeAssertion)
 {
-    ASSERT_UNUSED(threadLikeAssertion, threadLikeAssertion.isCurrent());
+    UNUSED_PARAM(threadLikeAssertion);
+    ASSERT_WITH_SECURITY_IMPLICATION(threadLikeAssertion.isCurrent());
 }
 
 inline ThreadLikeAssertion ThreadLike::createThreadLikeAssertion(uint32_t uid)

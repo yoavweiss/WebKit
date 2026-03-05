@@ -127,7 +127,7 @@ public:
             // from both different threads in a way that is likely concurrent and unsafe.
             // Derive from ThreadSafeRefCounted and make sure the destructor is safe on threads
             // that call deref, or ref/deref from a single thread or serial work queue.
-            ASSERT_WITH_SECURITY_IMPLICATION(m_ownerThread.isCurrent()); // Unsafe to ref/deref from different threads.
+            assertIsCurrent(m_ownerThread); // Unsafe to ref/deref from different threads.
         }
 #else
         UNUSED_PARAM(refCount);
