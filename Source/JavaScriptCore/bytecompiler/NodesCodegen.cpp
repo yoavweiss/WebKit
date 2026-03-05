@@ -6584,6 +6584,11 @@ void RestParameterNode::bindValue(BytecodeGenerator&, RegisterID*) const
 
 void RestParameterNode::emit(BytecodeGenerator& generator)
 {
+    if (RegisterID* directBinding = m_pattern->writableDirectBindingIfPossible(generator)) {
+        generator.emitRestParameter(directBinding, m_numParametersToSkip);
+        m_pattern->finishDirectBindingAssignment(generator);
+        return;
+    }
     RefPtr<RegisterID> temp = generator.newTemporary();
     generator.emitRestParameter(temp.get(), m_numParametersToSkip);
     m_pattern->bindValue(generator, temp.get());
