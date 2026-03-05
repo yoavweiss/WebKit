@@ -1258,6 +1258,10 @@ http/tests/paymentrequest [ Skip ]
 http/tests/inspector/paymentrequest [ Skip ]
 imported/w3c/web-platform-tests/payment-request [ Skip ]
 
+# Permissions-Policy HTTP header is not implemented
+webkit.org/b/253126 imported/w3c/web-platform-tests/permissions-policy/payment-allowed-by-permissions-policy.https.sub.html [ Skip ]
+webkit.org/b/253126 imported/w3c/web-platform-tests/permissions-policy/payment-disabled-by-permissions-policy.https.sub.html [ Skip ]
+
 webkit.org/b/182292 imported/w3c/web-platform-tests/css/cssom-view/scrollingElement-quirks-dynamic-001.html [ ImageOnlyFailure ]
 webkit.org/b/182292 imported/w3c/web-platform-tests/css/cssom-view/scrollingElement-quirks-dynamic-002.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-ui/text-overflow-015.html [ ImageOnlyFailure ]
@@ -6601,9 +6605,6 @@ imported/w3c/web-platform-tests/paint-timing/fcp-only/fcp-out-of-bounds.html [ S
 imported/w3c/web-platform-tests/paint-timing/fcp-only/fcp-out-of-bounds-translate.html [ Skip ]
 imported/w3c/web-platform-tests/paint-timing/fcp-only/fcp-pseudo-element-visibility.html [ Skip ]
 imported/w3c/web-platform-tests/paint-timing/fcp-only/svg-in-iframe.html [ Skip ]
-imported/w3c/web-platform-tests/payment-request/delegate-request.https.sub.html [ Skip ]
-imported/w3c/web-platform-tests/payment-request/payment-is-showing.https.html [ Skip ]
-imported/w3c/web-platform-tests/payment-request/payment-request-disallowed-when-hidden.https.html [ Skip ]
 imported/w3c/web-platform-tests/permissions/permissions-query-feature-policy-attribute.https.sub.html [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerlock/pointerevent_pointermove_in_pointerlock.html [ Skip ]
 imported/w3c/web-platform-tests/pointerlock/mouse_buttons_back_forward.html [ Skip ]

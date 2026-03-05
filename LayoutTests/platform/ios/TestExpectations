@@ -186,17 +186,12 @@ http/tests/paymentrequest/paymentrequest-isDelegatedRequest.https.html [ Skip ]
 http/tests/paymentrequest [ Pass ]
 imported/w3c/web-platform-tests/payment-request [ Pass ]
 
-# This test is failing due to lack of user activation.
-imported/w3c/web-platform-tests/payment-request/payment-is-showing.https.html [ Skip ]
+# hasEnrolledInstrument is not implemented
+webkit.org/b/197386 imported/w3c/web-platform-tests/payment-request/payment-request-hasenrolledinstrument-method.tentative.https.html [ Skip ]
+webkit.org/b/197386 imported/w3c/web-platform-tests/payment-request/payment-request-hasenrolledinstrument-method-protection.tentative.https.html [ Skip ]
 
-# Timeouts
-imported/w3c/web-platform-tests/payment-request/payment-request-canmakepayment-method.https.html [ Skip ]
-imported/w3c/web-platform-tests/payment-request/payment-request-hasenrolledinstrument-method.tentative.https.html [ Skip ]
-
-# skip in favor of tests in http/tests/paymentrequest
-imported/w3c/web-platform-tests/payment-request/payment-request-abort-method.https.html [ WontFix ]
-imported/w3c/web-platform-tests/payment-request/payment-request-show-method.https.html [ WontFix ]
-imported/w3c/web-platform-tests/payment-request/rejects_if_not_active.https.html [ WontFix ]
+# test_driver.minimize_window() times out in WebKit test infrastructure
+imported/w3c/web-platform-tests/payment-request/payment-request-disallowed-when-hidden.https.html [ Skip ]
 
 imported/w3c/web-platform-tests/html/rendering/non-replaced-elements/form-controls/text-transform.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/rendering/non-replaced-elements/phrasing-content-0/br-wbr-content/content-property.tentative.html [ ImageOnlyFailure ]
