@@ -1416,10 +1416,10 @@ JSC_DEFINE_HOST_FUNCTION(stringProtoFuncEndsWith, (JSGlobalObject* globalObject,
     return JSValue::encode(jsBoolean(stringToSearchIn->hasInfixEndingAt(searchString, end)));
 }
 
-static EncodedJSValue stringIncludesImpl(JSGlobalObject* globalObject, VM& vm, StringView stringToSearchIn, StringView searchString, JSValue positionArg)
+static EncodedJSValue stringIncludesImpl(JSGlobalObject* globalObject, VM& vm, JSString* string, JSString* search, JSValue positionArg)
 {
     auto scope = DECLARE_THROW_SCOPE(vm);
-    auto length = stringToSearchIn.length();
+    auto length = string->length();
     unsigned start;
     if (positionArg.isInt32())
         start = std::min(clampTo<unsigned>(positionArg.asInt32()), length);
@@ -1428,7 +1428,20 @@ static EncodedJSValue stringIncludesImpl(JSGlobalObject* globalObject, VM& vm, S
         RETURN_IF_EXCEPTION(scope, encodedJSValue());
     }
 
-    return JSValue::encode(jsBoolean(stringToSearchIn.find(vm.adaptiveStringSearcherTables(), searchString, start) != notFound));
+    if (search->length() == 1 && string->isRope() && string->length() >= JSString::minLengthForRopeWalk) {
+        auto searchView = search->view(globalObject);
+        RETURN_IF_EXCEPTION(scope, encodedJSValue());
+
+        if (auto result = string->tryFindOneChar(globalObject, searchView[0], start))
+            return JSValue::encode(jsBoolean(*result != notFound));
+    }
+
+    auto stringToSearchIn = string->view(globalObject);
+    RETURN_IF_EXCEPTION(scope, encodedJSValue());
+    auto searchString = search->view(globalObject);
+    RETURN_IF_EXCEPTION(scope, encodedJSValue());
+
+    return JSValue::encode(jsBoolean(stringToSearchIn->find(vm.adaptiveStringSearcherTables(), searchString, start) != notFound));
 }
 
 JSC_DEFINE_HOST_FUNCTION(stringProtoFuncIncludes, (JSGlobalObject* globalObject, CallFrame* callFrame))
@@ -1443,9 +1456,6 @@ JSC_DEFINE_HOST_FUNCTION(stringProtoFuncIncludes, (JSGlobalObject* globalObject,
     auto* string = thisValue.toString(globalObject);
     RETURN_IF_EXCEPTION(scope, { });
 
-    auto stringToSearchIn = string->view(globalObject);
-    RETURN_IF_EXCEPTION(scope, { });
-
     JSValue a0 = callFrame->argument(0);
     bool isRegularExpression = isRegExp(vm, globalObject, a0);
     RETURN_IF_EXCEPTION(scope, { });
@@ -1455,12 +1465,9 @@ JSC_DEFINE_HOST_FUNCTION(stringProtoFuncIncludes, (JSGlobalObject* globalObject,
     auto* search = a0.toString(globalObject);
     RETURN_IF_EXCEPTION(scope, { });
 
-    auto searchString = search->view(globalObject);
-    RETURN_IF_EXCEPTION(scope, { });
-
     JSValue positionArg = callFrame->argument(1);
 
-    RELEASE_AND_RETURN(scope, stringIncludesImpl(globalObject, vm, stringToSearchIn, searchString, positionArg));
+    RELEASE_AND_RETURN(scope, stringIncludesImpl(globalObject, vm, string, search, positionArg));
 }
 
 JSC_DEFINE_HOST_FUNCTION(builtinStringIncludesInternal, (JSGlobalObject* globalObject, CallFrame* callFrame))
@@ -1474,20 +1481,14 @@ JSC_DEFINE_HOST_FUNCTION(builtinStringIncludesInternal, (JSGlobalObject* globalO
     auto* string = thisValue.toString(globalObject);
     RETURN_IF_EXCEPTION(scope, { });
 
-    auto stringToSearchIn = string->view(globalObject);
-    RETURN_IF_EXCEPTION(scope, { });
-
     JSValue a0 = callFrame->uncheckedArgument(0);
 
     auto* search = a0.toString(globalObject);
     RETURN_IF_EXCEPTION(scope, { });
 
-    auto searchString = search->view(globalObject);
-    RETURN_IF_EXCEPTION(scope, { });
-
     JSValue positionArg = callFrame->argument(1);
 
-    RELEASE_AND_RETURN(scope, stringIncludesImpl(globalObject, vm, stringToSearchIn, searchString, positionArg));
+    RELEASE_AND_RETURN(scope, stringIncludesImpl(globalObject, vm, string, search, positionArg));
 }
 
 JSC_DEFINE_HOST_FUNCTION(stringProtoFuncIterator, (JSGlobalObject* globalObject, CallFrame* callFrame))
