@@ -27,13 +27,15 @@
 #import "WebKitMesh.h"
 
 #import "ModelTypes.h"
-#import "WebKitSwiftSoftLink.h"
 
+#import <WebCore/ProcessIdentity.h>
 #import <wtf/CheckedArithmetic.h>
 #import <wtf/MathExtras.h>
 #import <wtf/TZoneMallocInlines.h>
 #import <wtf/spi/cocoa/IOSurfaceSPI.h>
 #import <wtf/threads/BinarySemaphore.h>
+
+#import "WebKitSwiftSoftLink.h"
 
 namespace WebModel {
 
@@ -323,7 +325,7 @@ WebMesh::WebMesh(const WebModelCreateMeshDescriptor& descriptor)
         [m_textures addObject:[device newTextureWithDescriptor:textureDescriptor iosurface:ioSurface.get() plane:0]];
 
 #if ENABLE(GPU_PROCESS_MODEL)
-    WKBridgeUSDConfiguration *configuration = [WebKit::allocWKBridgeUSDConfigurationInstance() initWithDevice:device];
+    WKBridgeUSDConfiguration *configuration = [WebKit::allocWKBridgeUSDConfigurationInstance() initWithDevice:device memoryOwner:descriptor.processIdentity ? descriptor.processIdentity->taskIdToken() : 0];
     WKBridgeImageAsset *diffuseAsset = WebModel::convert(descriptor.diffuseTexture);
     WKBridgeImageAsset *specularAsset = WebModel::convert(descriptor.specularTexture);
     if (configuration) {

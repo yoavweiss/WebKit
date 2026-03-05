@@ -663,7 +663,7 @@ NS_SWIFT_SENDABLE
 @interface WKBridgeUSDConfiguration : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithDevice:(id<MTLDevice>)device NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithDevice:(id<MTLDevice>)device memoryOwner:(task_id_token_t)memoryOwner NS_DESIGNATED_INITIALIZER;
 
 - (void)createMaterialCompiler:(void (^)(void))completionHandler;
 
@@ -704,6 +704,10 @@ NS_HEADER_AUDIT_END(nullability, sendability)
 #endif
 
 #ifdef __cplusplus
+
+namespace WebCore {
+class ProcessIdentity;
+}
 
 namespace WebModel {
 
@@ -822,6 +826,7 @@ typedef struct WebModelCreateMeshDescriptor {
     Vector<RetainPtr<IOSurfaceRef>> ioSurfaces;
     const WebModel::ImageAsset& diffuseTexture;
     const WebModel::ImageAsset& specularTexture;
+    const WebCore::ProcessIdentity* processIdentity;
 } WebModelCreateMeshDescriptor;
 
 #endif

@@ -21,7 +21,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
 
-#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreRenderer, _version: 11)
+#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreRenderer, _version: 11) && compiler(>=6.2)
 
 @_weakLinked internal import DirectResource
 internal import Metal
@@ -76,17 +76,6 @@ extension _Proto_LowLevelMeshResource_v1 {
     nonisolated func replaceVertexData(_ vertexData: [Data]) {
         for (vertexBufferIndex, vertexData) in vertexData.enumerated() {
             let bufferSizeInByte = vertexData.bytes.byteCount
-            #if compiler(>=6.2)
-            // FIXME: (rdar://164559261) understand/document/remove unsafety
-            self.replaceVertices(at: vertexBufferIndex) { vertexBytes in
-                unsafe vertexBytes.withUnsafeMutableBytes { ptr in
-                    // FIXME(rdar://164559261): understand/document/remove unsafety
-                    // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
-                    // swift-format-ignore: NeverForceUnwrap
-                    unsafe vertexData.copyBytes(to: ptr.baseAddress!.assumingMemoryBound(to: UInt8.self), count: bufferSizeInByte)
-                }
-            }
-            #else
             self.replaceVertices(at: vertexBufferIndex) { vertexBytes in
                 vertexBytes.withUnsafeMutableBytes { ptr in
                     // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
@@ -94,27 +83,17 @@ extension _Proto_LowLevelMeshResource_v1 {
                     vertexData.copyBytes(to: ptr.baseAddress!.assumingMemoryBound(to: UInt8.self), count: bufferSizeInByte)
                 }
             }
-            #endif
         }
     }
 
     nonisolated func replaceIndexData(_ indexData: Data?) {
         if let indexData = indexData {
             self.replaceIndices { indicesBytes in
-                #if compiler(>=6.2)
-                // FIXME: (rdar://164559261) understand/document/remove unsafety
-                unsafe indicesBytes.withUnsafeMutableBytes { ptr in
-                    // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
-                    // swift-format-ignore: NeverForceUnwrap
-                    unsafe indexData.copyBytes(to: ptr.baseAddress!.assumingMemoryBound(to: UInt8.self), count: ptr.count)
-                }
-                #else
                 indicesBytes.withUnsafeMutableBytes { ptr in
                     // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
                     // swift-format-ignore: NeverForceUnwrap
                     indexData.copyBytes(to: ptr.baseAddress!.assumingMemoryBound(to: UInt8.self), count: ptr.count)
                 }
-                #endif
             }
         }
     }
