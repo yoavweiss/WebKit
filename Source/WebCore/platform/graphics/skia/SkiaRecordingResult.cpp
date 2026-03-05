@@ -34,6 +34,7 @@ SkiaRecordingResult::SkiaRecordingResult(sk_sp<SkPicture>&& picture, SkiaRecordi
     : m_picture(WTF::move(picture))
     , m_imageToFenceMap(WTF::move(recordingData.imageToFenceMap))
     , m_atlasLayouts(WTF::move(recordingData.atlasLayouts))
+    , m_imageSetFingerprint(recordingData.imageSetFingerprint)
     , m_recordRect(recordRect)
     , m_renderingMode(renderingMode)
     , m_contentsOpaque(contentsOpaque)

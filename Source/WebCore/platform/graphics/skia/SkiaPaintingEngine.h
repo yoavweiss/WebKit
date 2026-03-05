@@ -70,9 +70,12 @@ private:
     Ref<CoordinatedTileBuffer> createBuffer(RenderingMode, const IntSize&, bool contentsOpaque) const;
     void paintIntoGraphicsContext(const GraphicsLayer&, GraphicsContext&, const IntRect&, bool contentsOpaque, float contentsScale) const;
     RefPtr<SkiaGPUAtlas> createAtlas(const SkiaImageAtlasLayout&, AtlasUploadCondition&);
+    bool tryReuseCachedAtlases(SkiaRecordingResult&, unsigned fingerprint);
 
     RefPtr<WorkerPool> m_paintingWorkerPool;
     RefPtr<WorkQueue> m_uploadWorkQueue;
+    unsigned m_cachedImageFingerprint { 0 };
+    Vector<Ref<SkiaGPUAtlas>> m_cachedGPUAtlases;
 };
 
 } // namespace WebCore

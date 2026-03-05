@@ -58,6 +58,7 @@ void SkiaImageAtlasLayoutBuilder::collectRasterImage(const sk_sp<SkImage>& image
     if (!m_collectedSet.add(image.get()).isNewEntry)
         return;
 
+    add(m_hasher, image.get());
     m_collectedImages.append({ image, IntSize(width, height) });
 }
 

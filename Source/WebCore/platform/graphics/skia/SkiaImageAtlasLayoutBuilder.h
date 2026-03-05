@@ -36,6 +36,7 @@ WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 
 #include <wtf/HashSet.h>
+#include <wtf/Hasher.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/Vector.h>
 
@@ -66,6 +67,9 @@ public:
     // Number of collected images.
     size_t imageCount() const { return m_collectedImages.size(); }
 
+    // Fingerprint of all collected images, computed incrementally.
+    unsigned imageSetFingerprint() const { return m_hasher.hash(); }
+
     // Finalize: compute atlas packing, may create multiple atlases.
     // Returns vector of atlas layouts (empty if not enough images for atlasing).
     Vector<Ref<SkiaImageAtlasLayout>> finalize();
@@ -90,6 +94,7 @@ private:
 
     Vector<CollectedImage> m_collectedImages;
     HashSet<const SkImage*> m_collectedSet;
+    Hasher m_hasher;
     bool m_finalized { false };
 };
 

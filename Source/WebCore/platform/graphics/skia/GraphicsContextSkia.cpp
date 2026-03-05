@@ -1249,12 +1249,14 @@ SkiaRecordingData GraphicsContextSkia::endRecording()
     m_contextMode = ContextMode::PaintingMode;
 
     Vector<Ref<SkiaImageAtlasLayout>> atlasLayouts;
+    unsigned imageSetFingerprint = 0;
     if (m_atlasLayoutBuilder) {
         atlasLayouts = m_atlasLayoutBuilder->finalize();
+        imageSetFingerprint = m_atlasLayoutBuilder->imageSetFingerprint();
         m_atlasLayoutBuilder = nullptr;
     }
 
-    return { WTF::move(m_imageToFenceMap), WTF::move(atlasLayouts) };
+    return { WTF::move(m_imageToFenceMap), WTF::move(atlasLayouts), imageSetFingerprint };
 }
 
 void GraphicsContextSkia::enableStateReplayTracking()

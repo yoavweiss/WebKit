@@ -29,13 +29,11 @@
 
 #include "IntRect.h"
 #include "IntSize.h"
-#include <optional>
 
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
 #include <skia/core/SkImage.h>
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 
-#include <wtf/HashMap.h>
 #include <wtf/ThreadSafeRefCounted.h>
 #include <wtf/Vector.h>
 

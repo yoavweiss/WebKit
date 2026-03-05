@@ -83,6 +83,7 @@ private:
 struct SkiaRecordingData {
     SkiaImageToFenceMap imageToFenceMap;
     Vector<Ref<SkiaImageAtlasLayout>> atlasLayouts;
+    unsigned imageSetFingerprint { 0 };
 };
 
 class SkiaRecordingResult final : public ThreadSafeRefCounted<SkiaRecordingResult, WTF::DestructionThread::Main> {
@@ -102,9 +103,10 @@ public:
     // Atlas layouts for batched raster image uploads.
     bool hasAtlasLayouts() const { return !m_atlasLayouts.isEmpty(); }
     const Vector<Ref<SkiaImageAtlasLayout>>& atlasLayouts() const { return m_atlasLayouts; }
+    unsigned imageSetFingerprint() const { return m_imageSetFingerprint; }
 
     // GPU atlases prepared on main thread for worker threads to rewrap.
-    void setGPUAtlases(Vector<Ref<SkiaGPUAtlas>>&& atlases, Ref<AtlasUploadCondition>&& condition)
+    void setGPUAtlases(Vector<Ref<SkiaGPUAtlas>>&& atlases, RefPtr<AtlasUploadCondition>&& condition = nullptr)
     {
         m_gpuAtlases = WTF::move(atlases);
         m_uploadCondition = WTF::move(condition);
@@ -132,9 +134,10 @@ private:
     SkiaImageToFenceMap m_imageToFenceMap WTF_GUARDED_BY_LOCK(m_imageToFenceMapLock);
     Lock m_imageToFenceMapLock;
     Vector<Ref<SkiaImageAtlasLayout>> m_atlasLayouts;
+    unsigned m_imageSetFingerprint { 0 };
     Vector<Ref<SkiaGPUAtlas>> m_gpuAtlases;
     std::unique_ptr<GLFence> m_uploadFence; // Fence for async GPU upload
-    RefPtr<AtlasUploadCondition> m_uploadCondition; // Non-null when m_gpuAtlases is non-empty.
+    RefPtr<AtlasUploadCondition> m_uploadCondition;
     IntRect m_recordRect;
     RenderingMode m_renderingMode { RenderingMode::Unaccelerated };
     bool m_contentsOpaque : 1 { true };

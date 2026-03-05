@@ -165,6 +165,16 @@ RefPtr<SkiaGPUAtlas> SkiaPaintingEngine::createAtlas(const SkiaImageAtlasLayout&
     return atlas;
 }
 
+bool SkiaPaintingEngine::tryReuseCachedAtlases(SkiaRecordingResult& result, unsigned fingerprint)
+{
+    if (m_cachedGPUAtlases.isEmpty() || fingerprint != m_cachedImageFingerprint)
+        return false;
+
+    // Cache hit — reuse GPU atlases.
+    result.setGPUAtlases(copyToVectorOf<Ref<SkiaGPUAtlas>>(m_cachedGPUAtlases));
+    return true;
+}
+
 Ref<CoordinatedTileBuffer> SkiaPaintingEngine::paint(const GraphicsLayerCoordinated& layer, const IntRect& dirtyRect, bool contentsOpaque, float contentsScale)
 {
     // ### Synchronous rendering on main thread ###
@@ -217,36 +227,53 @@ Ref<SkiaRecordingResult> SkiaPaintingEngine::record(const GraphicsLayerCoordinat
     auto result = SkiaRecordingResult::create(WTF::move(picture), WTF::move(recordingData), recordRect, renderingMode, contentsOpaque, contentsScale);
 
     // Prepare GPU atlases on main thread before dispatching to workers.
-    // Textures are acquired from BitmapTexturePool which handles recycling.
     if (result->hasAtlasLayouts()) {
-        PlatformDisplay::sharedDisplay().skiaGLContext()->makeContextCurrent();
+        auto fingerprint = result->imageSetFingerprint();
 
-        auto* grContext = PlatformDisplay::sharedDisplay().skiaGrContext();
-        RELEASE_ASSERT(grContext);
+        // Fast path: reuse cached atlases if the image set is unchanged.
+        if (!tryReuseCachedAtlases(result.get(), fingerprint)) {
+            PlatformDisplay::sharedDisplay().skiaGLContext()->makeContextCurrent();
 
-        Vector<Ref<SkiaGPUAtlas>> gpuAtlases;
-        auto uploadCondition = AtlasUploadCondition::create();
-        gpuAtlases.reserveInitialCapacity(result->atlasLayouts().size());
+            auto* grContext = PlatformDisplay::sharedDisplay().skiaGrContext();
+            RELEASE_ASSERT(grContext);
 
-        for (const auto& layout : result->atlasLayouts()) {
-            if (auto atlas = createAtlas(layout.get(), uploadCondition.get()))
-                gpuAtlases.append(atlas.releaseNonNull());
+            Vector<Ref<SkiaGPUAtlas>> gpuAtlases;
+            auto uploadCondition = AtlasUploadCondition::create();
+            gpuAtlases.reserveInitialCapacity(result->atlasLayouts().size());
+
+            for (const auto& layout : result->atlasLayouts()) {
+                if (auto atlas = createAtlas(layout.get(), uploadCondition.get()))
+                    gpuAtlases.append(atlas.releaseNonNull());
+            }
+
+            if (!gpuAtlases.isEmpty()) {
+                // Only populate atlas cache when we see the same fingerprint twice in a row.
+                // This avoids holding the BitmapTextures by an extra frame, if not needed.
+                if (fingerprint == m_cachedImageFingerprint) {
+                    m_cachedGPUAtlases = WTF::move(gpuAtlases);
+                    result->setGPUAtlases(copyToVectorOf<Ref<SkiaGPUAtlas>>(m_cachedGPUAtlases), WTF::move(uploadCondition));
+                } else {
+                    m_cachedImageFingerprint = fingerprint;
+                    m_cachedGPUAtlases.clear();
+                    result->setGPUAtlases(WTF::move(gpuAtlases), WTF::move(uploadCondition));
+                }
+
+                // Flush and fence for the GL upload path, where
+                // BitmapTexture::updateContents() issues GL upload commands.
+                // On the DMA-buf path, uploading is CPU-side (memory-mapped),
+                // so this is a no-op flush but harmless.
+                auto& glDisplay = PlatformDisplay::sharedDisplay().glDisplay();
+                if (GLFence::isSupported(glDisplay)) {
+                    grContext->flushAndSubmit(GrSyncCpu::kNo);
+                    result->setUploadFence(GLFence::create(glDisplay));
+                } else
+                    grContext->flushAndSubmit(GrSyncCpu::kYes);
+            }
         }
-
-        if (!gpuAtlases.isEmpty()) {
-            result->setGPUAtlases(WTF::move(gpuAtlases), WTF::move(uploadCondition));
-
-            // Flush and fence for the GL upload path, where
-            // BitmapTexture::updateContents() issues GL upload commands.
-            // On the DMA-buf path, uploading is CPU-side (memory-mapped),
-            // so this is a no-op flush but harmless.
-            auto& glDisplay = PlatformDisplay::sharedDisplay().glDisplay();
-            if (GLFence::isSupported(glDisplay)) {
-                grContext->flushAndSubmit(GrSyncCpu::kNo);
-                result->setUploadFence(GLFence::create(glDisplay));
-            } else
-                grContext->flushAndSubmit(GrSyncCpu::kYes);
-        }
+    } else {
+        // No atlas layouts — clear cache to release GPU memory.
+        m_cachedImageFingerprint = 0;
+        m_cachedGPUAtlases.clear();
     }
 
     return result;
