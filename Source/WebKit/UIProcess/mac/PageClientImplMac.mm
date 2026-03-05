@@ -704,7 +704,7 @@ void PageClientImpl::dismissDigitalCredentialsPicker(WTF::CompletionHandler<void
 void PageClientImpl::wheelEventWasNotHandledByWebCore(const NativeWebWheelEvent& event)
 {
     if (RefPtr gestureController = m_impl->gestureController())
-        gestureController->wheelEventWasNotHandledByWebCore(RetainPtr { event.nativeEvent() }.get());
+        gestureController->wheelEventWasNotHandledByWebCore(event);
 }
 
 #if ENABLE(MAC_GESTURE_EVENTS)

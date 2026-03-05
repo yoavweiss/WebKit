@@ -299,12 +299,6 @@ static WebCore::FloatSize toRawPlatformDelta(WebCore::FloatSize delta)
     viewImpl->updateBannerViewForPanGesture([panGesture state]);
 #endif
 
-    // FIXME: Need to supply a real event here.
-    if (viewImpl->allowsBackForwardNavigationGestures() && protect(viewImpl->ensureGestureController())->handleScrollWheelEvent(nil)) {
-        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "View gesture controller handled gesture");
-        return;
-    }
-
     [self sendWheelEventForGesture:panGesture.get()];
     [self startMomentumIfNeededForGesture:panGesture.get()];
 }
@@ -607,7 +601,14 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
         momentumEndType
     };
 
-    page->handleNativeWheelEvent(WebKit::NativeWebWheelEvent { wheelEvent });
+    WebKit::NativeWebWheelEvent nativeEvent { wheelEvent };
+
+    if (viewImpl->allowsBackForwardNavigationGestures() && protect(viewImpl->ensureGestureController())->handleScrollWheelEvent(nativeEvent)) {
+        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "View gesture controller handled gesture");
+        return;
+    }
+
+    page->handleNativeWheelEvent(nativeEvent);
 }
 
 #pragma mark - Momentum Handling
