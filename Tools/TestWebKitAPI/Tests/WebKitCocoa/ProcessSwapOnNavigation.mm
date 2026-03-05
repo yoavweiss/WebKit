@@ -4133,7 +4133,7 @@ TEST(ProcessSwap, NumberOfPrewarmedProcesses)
     TestWebKitAPI::Util::run(&done);
     done = false;
 
-    EXPECT_EQ(2u, [processPool _webProcessCount]);
+    EXPECT_EQ(1u + [processPool _prewarmedProcessCountLimit], [processPool _webProcessCount]);
     EXPECT_EQ(1u, [processPool _webProcessCountIgnoringPrewarmedAndCached]);
     EXPECT_TRUE([processPool _hasPrewarmedWebProcess]);
 
@@ -4142,8 +4142,14 @@ TEST(ProcessSwap, NumberOfPrewarmedProcesses)
     TestWebKitAPI::Util::run(&done);
     done = false;
 
-    EXPECT_EQ(3u, [processPool _webProcessCount]);
-    EXPECT_EQ(2u, [processPool _webProcessCountIgnoringPrewarmedAndCached]);
+    EXPECT_EQ(2u + [processPool _prewarmedProcessCountLimit], [processPool _webProcessCount]);
+
+    // FIXME: The back/forward cache is currently disabled under site isolation; see rdar://161762363.
+    // With the back forward cache disabled, the web process for webkit.org will end up in the process cache.
+    if (isSiteIsolationEnabled(webView.get()))
+        EXPECT_EQ(1u, [processPool _webProcessCountIgnoringPrewarmedAndCached]);
+    else
+        EXPECT_EQ(2u, [processPool _webProcessCountIgnoringPrewarmedAndCached]);
     EXPECT_TRUE([processPool _hasPrewarmedWebProcess]);
 }
 

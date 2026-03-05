@@ -481,6 +481,11 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
     return count;
 }
 
+- (NSUInteger)_prewarmedProcessCountLimit
+{
+    return protect(*_processPool)->prewarmedProcessCountLimit();
+}
+
 - (size_t)_webPageContentProcessCount
 {
     auto result = _processPool->processes().size();
