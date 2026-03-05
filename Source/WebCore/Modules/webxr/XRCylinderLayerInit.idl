@@ -29,7 +29,6 @@
     EnabledBySetting=WebXRLayersAPIEnabled,
     LegacyNativeDictionaryRequiredInterfaceNullability,
 ] dictionary XRCylinderLayerInit : XRLayerInit {
-    XRTextureType textureType = "texture";
     WebXRRigidTransform? transform;
     float radius = 2.0;
     float centralAngle = 0.78539;

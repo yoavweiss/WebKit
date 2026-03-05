@@ -32,6 +32,7 @@ typedef unsigned long GLenum;
     LegacyNativeDictionaryRequiredInterfaceNullability,
 ] dictionary XRLayerInit {
     required WebXRSpace space;
+    XRTextureType textureType = "texture";
     GLenum colorFormat = 0x1908;
     GLenum? depthFormat;
     unsigned long mipLevels = 1;
