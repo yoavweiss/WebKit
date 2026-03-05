@@ -33,6 +33,9 @@ class WebKit::WebEvent {
     OptionSet<WebKit::WebEventModifier> modifiers();
     MonotonicTime timestamp();
     WTF::UUID authorizationToken();
+#if PLATFORM(GTK) || PLATFORM(WPE)
+    uintptr_t signpostIdentifier();
+#endif
 };
 
 enum class WebKit::WebEventType : uint32_t {

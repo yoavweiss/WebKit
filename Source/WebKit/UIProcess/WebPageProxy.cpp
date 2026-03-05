@@ -4139,6 +4139,10 @@ void WebPageProxy::handleMouseEvent(const NativeWebMouseEvent& event)
     if (!m_mainFrame)
         return;
 
+#if PLATFORM(GTK) || PLATFORM(WPE)
+    WTFBeginSignpost(event.signpostIdentifier(), HandleMouseEvent, "id: %" PRIuPTR ", type: %s", event.signpostIdentifier(), toString(event.type()).characters());
+#endif
+
 #if ENABLE(CONTEXT_MENU_EVENT)
     if (event.button() == WebMouseEventButton::Right && event.type() == WebEventType::MouseDown) {
         ASSERT(m_contextMenuPreventionState != EventPreventionState::Waiting);
@@ -11671,6 +11675,15 @@ void WebPageProxy::mouseEventHandlingCompleted(std::optional<WebEventType> event
         }
 #endif
     }
+
+#if PLATFORM(GTK) || PLATFORM(WPE)
+    WTFEndSignpost(event.signpostIdentifier(), HandleMouseEvent);
+    for (auto& coalescedEvent : event.coalescedEvents()) {
+        if (coalescedEvent.signpostIdentifier() == event.signpostIdentifier())
+            continue;
+        WTFEndSignpost(coalescedEvent.signpostIdentifier(), HandleMouseEvent);
+    }
+#endif
 
     if (!internals().mouseEventQueue.isEmpty()) {
         LOG(MouseHandling, " UIProcess: handling a queued mouse event from mouseEventHandlingCompleted");
