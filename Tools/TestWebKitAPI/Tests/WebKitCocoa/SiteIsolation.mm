@@ -7587,7 +7587,7 @@ TEST(SiteIsolation, CrossSiteIframeOpenWindowWithBlobURL)
 
     pid_t openedMainFramePID = [opened.webView mainFrame].info._processIdentifier;
     EXPECT_NE([opener.webView mainFrame].info._processIdentifier, openedMainFramePID);
-    EXPECT_NE([opener.webView firstChildFrame]._processIdentifier, openedMainFramePID);
+    EXPECT_EQ([opener.webView firstChildFrame]._processIdentifier, openedMainFramePID);
 }
 
 #if PLATFORM(MAC)
