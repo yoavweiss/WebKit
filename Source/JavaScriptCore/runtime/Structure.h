@@ -207,7 +207,7 @@ public:
 
     static_assert(JSCell::atomSize >= MarkedBlock::atomSize);
 
-    static constexpr int s_maxTransitionLength = 64;
+    static constexpr int s_maxTransitionLength = 128;
     static constexpr int s_maxTransitionLengthForNonEvalPutById = 512;
     static constexpr int s_maxTransitionLengthForRemove = 4096; // Picked from benchmarking measurement.
 
