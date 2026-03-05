@@ -51,7 +51,7 @@ public:
     float frameScaleFactor() const { return m_frameScaleFactor; }
     WEBCORE_EXPORT void setFrameScaleFactor(float);
 
-    const EventTrackingRegions& eventTrackingRegions() const { return m_eventTrackingRegions; }
+    const EventTrackingRegions& eventTrackingRegions() const LIFETIME_BOUND { return m_eventTrackingRegions; }
     WEBCORE_EXPORT void setEventTrackingRegions(const EventTrackingRegions&);
 
     ScrollBehaviorForFixedElements scrollBehaviorForFixedElements() const { return m_behaviorForFixed; }
@@ -88,29 +88,29 @@ public:
     WEBCORE_EXPORT void setBannerViewHeight(float);
 #endif
 
-    const LayerRepresentation& rootContentsLayer() const { return m_rootContentsLayer; }
+    const LayerRepresentation& rootContentsLayer() const LIFETIME_BOUND { return m_rootContentsLayer; }
     WEBCORE_EXPORT void setRootContentsLayer(const LayerRepresentation&);
 
     // This is a layer moved in the opposite direction to scrolling, for example for background-attachment:fixed
-    const LayerRepresentation& counterScrollingLayer() const { return m_counterScrollingLayer; }
+    const LayerRepresentation& counterScrollingLayer() const LIFETIME_BOUND { return m_counterScrollingLayer; }
     WEBCORE_EXPORT void setCounterScrollingLayer(const LayerRepresentation&);
 
     // This is a clipping layer that will scroll with the page for all y-delta scroll values between 0
     // and obscuredInset().top. Once the y-deltas get beyond the content inset point, this layer no longer
     // needs to move. If the obscuredInset().top is 0, this layer does not need to move at all. This is
     // only used on the Mac.
-    const LayerRepresentation& insetClipLayer() const { return m_insetClipLayer; }
+    const LayerRepresentation& insetClipLayer() const LIFETIME_BOUND { return m_insetClipLayer; }
     WEBCORE_EXPORT void setInsetClipLayer(const LayerRepresentation&);
 
-    const LayerRepresentation& contentShadowLayer() const { return m_contentShadowLayer; }
+    const LayerRepresentation& contentShadowLayer() const LIFETIME_BOUND { return m_contentShadowLayer; }
     WEBCORE_EXPORT void setContentShadowLayer(const LayerRepresentation&);
 
     // The header and footer layers scroll vertically with the page, they should remain fixed when scrolling horizontally.
-    const LayerRepresentation& headerLayer() const { return m_headerLayer; }
+    const LayerRepresentation& headerLayer() const LIFETIME_BOUND { return m_headerLayer; }
     WEBCORE_EXPORT void setHeaderLayer(const LayerRepresentation&);
 
     // The header and footer layers scroll vertically with the page, they should remain fixed when scrolling horizontally.
-    const LayerRepresentation& footerLayer() const { return m_footerLayer; }
+    const LayerRepresentation& footerLayer() const LIFETIME_BOUND { return m_footerLayer; }
     WEBCORE_EXPORT void setFooterLayer(const LayerRepresentation&);
 
     // True when the visual viewport is smaller than the layout viewport, indicating that panning should be possible.

@@ -63,7 +63,7 @@ public:
 
     USING_CAN_MAKE_WEAKPTR(EventTarget);
 
-    const String& url() const;
+    const String& url() const LIFETIME_BOUND;
     bool withCredentials() const;
 
     using State = short;
@@ -134,7 +134,7 @@ private:
     RefPtr<SecurityOrigin> m_eventStreamOrigin;
 };
 
-inline const String& EventSource::url() const
+inline const String& EventSource::url() const LIFETIME_BOUND
 {
     return m_url.string();
 }

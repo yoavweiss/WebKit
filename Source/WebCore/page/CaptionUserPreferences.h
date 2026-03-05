@@ -106,7 +106,7 @@ public:
     String primaryAudioTrackLanguageOverride() const;
 
     void setPreferredAudioCharacteristicsForTesting(const Vector<String>& characteristics) { m_preferredAudioCharacteristicsForTesting = characteristics; }
-    const Vector<String>& preferredAudioCharacteristicsForTesting() const { return m_preferredAudioCharacteristicsForTesting; }
+    const Vector<String>& preferredAudioCharacteristicsForTesting() const LIFETIME_BOUND { return m_preferredAudioCharacteristicsForTesting; }
 
     virtual bool testingMode() const { return m_testingModeCount; }
 

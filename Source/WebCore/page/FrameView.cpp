@@ -172,8 +172,9 @@ IntRect FrameView::scrollableAreaBoundingBox(bool*) const
 
 HostWindow* FrameView::hostWindow() const
 {
-    RefPtr page = frame().page();
-    return page ? &page->chrome() : nullptr;
+    if (auto* page = frame().page())
+        return &page->chrome();
+    return nullptr;
 }
 
 void FrameView::scrollbarStyleChanged(ScrollbarStyle newStyle, bool forceUpdate)

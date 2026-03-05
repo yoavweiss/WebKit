@@ -228,7 +228,7 @@ public:
     }
 
     // Used by ContentSecurityPolicySource
-    const String& selfProtocol() const { return m_selfSourceProtocol; };
+    const String& selfProtocol() const LIFETIME_BOUND { return m_selfSourceProtocol; };
 
     void setUpgradeInsecureRequests(bool);
     bool upgradeInsecureRequests() const { return m_upgradeInsecureRequests; }
@@ -250,11 +250,11 @@ public:
 
     bool isHeaderDelivered() const { return m_isHeaderDelivered; }
 
-    const String& evalErrorMessage() const { return m_lastPolicyEvalDisabledErrorMessage; }
-    const String& webAssemblyErrorMessage() const { return m_lastPolicyWebAssemblyDisabledErrorMessage; }
+    const String& evalErrorMessage() const LIFETIME_BOUND { return m_lastPolicyEvalDisabledErrorMessage; }
+    const String& webAssemblyErrorMessage() const LIFETIME_BOUND { return m_lastPolicyWebAssemblyDisabledErrorMessage; }
 
     ContentSecurityPolicyModeForExtension contentSecurityPolicyModeForExtension() const { return m_contentSecurityPolicyModeForExtension; }
-    const HashAlgorithmSetCollection& hashesToReport();
+    const HashAlgorithmSetCollection& hashesToReport() LIFETIME_BOUND;
 
     void setIsReportingToConsoleEnabled(bool value) { m_isReportingToConsoleEnabled = value; }
 

@@ -348,12 +348,12 @@ public:
     void removeSlowRepaintObject(RenderElement&);
     bool NODELETE hasSlowRepaintObject(const RenderElement& renderer) const;
     bool NODELETE hasSlowRepaintObjects() const;
-    SingleThreadWeakKeyHashSet<RenderElement>* slowRepaintObjects() const { return m_slowRepaintObjects.get(); }
+    SingleThreadWeakKeyHashSet<RenderElement>* slowRepaintObjects() const LIFETIME_BOUND { return m_slowRepaintObjects.get(); }
 
     // Includes fixed- and sticky-position objects.
     void addViewportConstrainedObject(RenderLayerModelObject&);
     void removeViewportConstrainedObject(RenderLayerModelObject&);
-    const SingleThreadWeakHashSet<RenderLayerModelObject>* viewportConstrainedObjects() const { return m_viewportConstrainedObjects.get(); }
+    const SingleThreadWeakHashSet<RenderLayerModelObject>* viewportConstrainedObjects() const LIFETIME_BOUND { return m_viewportConstrainedObjects.get(); }
     WEBCORE_EXPORT bool NODELETE hasViewportConstrainedObjects() const;
     bool hasAnchorPositionedViewportConstrainedObjects() const;
     void NODELETE clearCachedHasAnchorPositionedViewportConstrainedObjects();
@@ -580,7 +580,7 @@ public:
     WEBCORE_EXPORT void setTracksRepaints(bool);
     bool isTrackingRepaints() const { return m_isTrackingRepaints; }
     WEBCORE_EXPORT void resetTrackedRepaints();
-    const Vector<FloatRect>& trackedRepaintRects() const { return m_trackedRepaintRects; }
+    const Vector<FloatRect>& trackedRepaintRects() const LIFETIME_BOUND { return m_trackedRepaintRects; }
     String trackedRepaintRectsAsText() const;
 
     WEBCORE_EXPORT void NODELETE startTrackingLayoutUpdates();
@@ -594,11 +594,11 @@ public:
     // Returns whether the scrollable area has just been removed.
     WEBCORE_EXPORT bool removeScrollableArea(ScrollableArea*);
     bool NODELETE containsScrollableArea(ScrollableArea*) const;
-    const ScrollableAreaSet* scrollableAreas() const { return m_scrollableAreas.get(); }
+    const ScrollableAreaSet* scrollableAreas() const LIFETIME_BOUND { return m_scrollableAreas.get(); }
     
     void addScrollableAreaForAnimatedScroll(ScrollableArea*);
     void removeScrollableAreaForAnimatedScroll(ScrollableArea*);
-    const ScrollableAreaSet* scrollableAreasForAnimatedScroll() const { return m_scrollableAreasForAnimatedScroll.get(); }
+    const ScrollableAreaSet* scrollableAreasForAnimatedScroll() const LIFETIME_BOUND { return m_scrollableAreasForAnimatedScroll.get(); }
 
     WEBCORE_EXPORT void addChild(Widget&) final;
     WEBCORE_EXPORT void removeChild(Widget&) final;
@@ -616,7 +616,7 @@ public:
     // LocalFrameView. LocalFrameView::pagination() will return m_pagination if it has been set. Otherwise,
     // it will return Page::pagination() since currently there are no callers that need to
     // distinguish between the two.
-    const Pagination& pagination() const;
+    const Pagination& pagination() const LIFETIME_BOUND;
     void setPagination(const Pagination&);
 
 #if HAVE(RUBBER_BANDING)
@@ -666,7 +666,7 @@ public:
     void didAddWidgetToRenderTree(Widget&);
     void willRemoveWidgetFromRenderTree(Widget&);
 
-    const HashSet<SingleThreadWeakRef<Widget>>& widgetsInRenderTree() const { return m_widgetsInRenderTree; }
+    const HashSet<SingleThreadWeakRef<Widget>>& widgetsInRenderTree() const LIFETIME_BOUND { return m_widgetsInRenderTree; }
 
     void notifyAllFramesThatContentAreaWillPaint() const;
 
@@ -732,7 +732,7 @@ public:
     // overflow:hidden scrollable areas can participate in anchoring, so they need their own set.
     void addScrollableAreaForScrollAnchoring(ScrollableArea&);
     void removeScrollableAreaForScrollAnchoring(ScrollableArea&);
-    const ScrollableAreaSet* scrollableAreasForScrollAnchoring() const { return m_anchoringScrollableAreas.get(); }
+    const ScrollableAreaSet* scrollableAreasForScrollAnchoring() const LIFETIME_BOUND { return m_anchoringScrollableAreas.get(); }
 
     void dequeueScrollableAreaForScrollAnchoringUpdate(ScrollableArea&);
     void queueScrollableAreaForScrollAnchoringUpdate(ScrollableArea&);

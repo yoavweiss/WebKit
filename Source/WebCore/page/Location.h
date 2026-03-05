@@ -76,7 +76,7 @@ public:
 
     DOMWindow* window() { return m_window.get(); }
 
-    const URL& url() const;
+    const URL& url() const LIFETIME_BOUND;
 
 private:
     explicit Location(DOMWindow&);

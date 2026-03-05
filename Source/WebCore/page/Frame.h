@@ -81,7 +81,7 @@ public:
     const WindowProxy& windowProxy() const { return m_windowProxy; }
 
     DOMWindow* window() const { return virtualWindow(); }
-    FrameTree& tree() const { return m_treeNode; }
+    FrameTree& tree() const LIFETIME_BOUND { return m_treeNode; }
     WEBCORE_EXPORT std::optional<uint64_t> indexInFrameTreeSiblings() const;
     WEBCORE_EXPORT Vector<uint64_t> pathToFrame() const;
     FrameIdentifier frameID() const { return m_frameID; }
@@ -110,7 +110,7 @@ public:
     inline HTMLFrameOwnerElement* ownerElement() const; // Defined in FrameInlines.h.
 
     WEBCORE_EXPORT void disconnectOwnerElement();
-    NavigationScheduler& navigationScheduler() const { return m_navigationScheduler.get(); }
+    NavigationScheduler& navigationScheduler() const LIFETIME_BOUND { return m_navigationScheduler.get(); }
     WEBCORE_EXPORT void takeWindowProxyAndOpenerFrom(Frame&);
 
     virtual void frameDetached() = 0;

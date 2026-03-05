@@ -103,7 +103,7 @@ class DOMWindow : public RefCounted<DOMWindow>, public EventTarget {
 public:
     virtual ~DOMWindow();
 
-    const GlobalWindowIdentifier& identifier() const { return m_identifier; }
+    const GlobalWindowIdentifier& identifier() const LIFETIME_BOUND { return m_identifier; }
     virtual Frame* NODELETE frame() const = 0;
 
     enum class DOMWindowType : bool { Local, Remote };

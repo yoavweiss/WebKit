@@ -92,7 +92,7 @@ public:
 
     PerformanceNavigation& navigation();
     PerformanceTiming& timing();
-    EventCounts& eventCounts();
+    EventCounts& eventCounts() LIFETIME_BOUND;
 
     uint64_t interactionCount();
 

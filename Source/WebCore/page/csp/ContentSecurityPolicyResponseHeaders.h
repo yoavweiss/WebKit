@@ -55,7 +55,7 @@ public:
 
     void addPolicyHeadersTo(ResourceResponse&) const;
 
-    const Vector<std::pair<String, ContentSecurityPolicyHeaderType>>& headers() const { return m_headers; }
+    const Vector<std::pair<String, ContentSecurityPolicyHeaderType>>& headers() const LIFETIME_BOUND { return m_headers; }
     void setHeaders(Vector<std::pair<String, ContentSecurityPolicyHeaderType>>&& headers) { m_headers = WTF::move(headers); }
     int httpStatusCode() const { return m_httpStatusCode; }
     void setHTTPStatusCode(int httpStatusCode) { m_httpStatusCode = httpStatusCode; }

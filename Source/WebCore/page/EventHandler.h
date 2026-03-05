@@ -273,7 +273,7 @@ public:
     bool dispatchTouchEvent(const PlatformTouchEvent&, const AtomString&, const EventTargetTouchArrayMap&, float, float);
     WEBCORE_EXPORT bool dispatchSimulatedTouchEvent(IntPoint location);
     Frame* touchEventTargetSubframe() const { return m_touchEventTargetSubframe.get(); }
-    const TouchArray& touches() const { return m_touches; }
+    const TouchArray& touches() const LIFETIME_BOUND { return m_touches; }
 #endif
 
 #if ENABLE(IOS_GESTURE_EVENTS)

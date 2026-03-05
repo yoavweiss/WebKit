@@ -85,7 +85,7 @@ public:
 
     WEBCORE_EXPORT bool isRootNode() const;
 
-    const Vector<Ref<ScrollingTreeNode>>& children() const { return m_children; }
+    const Vector<Ref<ScrollingTreeNode>>& children() const LIFETIME_BOUND { return m_children; }
 
     void appendChild(Ref<ScrollingTreeNode>&&);
     void removeChild(ScrollingTreeNode&);

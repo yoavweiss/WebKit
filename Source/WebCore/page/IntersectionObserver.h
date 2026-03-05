@@ -94,10 +94,10 @@ public:
     ContainerNode* root() const { return m_root.get(); }
     String rootMargin() const;
     String scrollMargin() const;
-    const IntersectionObserverMarginBox& rootMarginBox() const { return m_rootMargin; }
-    const IntersectionObserverMarginBox& scrollMarginBox() const { return m_scrollMargin; }
-    const Vector<double>& thresholds() const { return m_thresholds; }
-    const Vector<WeakPtr<Element, WeakPtrImplWithEventTargetData>>& observationTargets() const { return m_observationTargets; }
+    const IntersectionObserverMarginBox& rootMarginBox() const LIFETIME_BOUND { return m_rootMargin; }
+    const IntersectionObserverMarginBox& scrollMarginBox() const LIFETIME_BOUND { return m_scrollMargin; }
+    const Vector<double>& thresholds() const LIFETIME_BOUND { return m_thresholds; }
+    const Vector<WeakPtr<Element, WeakPtrImplWithEventTargetData>>& observationTargets() const LIFETIME_BOUND { return m_observationTargets; }
     bool hasObservationTargets() const { return m_observationTargets.size(); }
     bool isObserving(const Element&) const;
 

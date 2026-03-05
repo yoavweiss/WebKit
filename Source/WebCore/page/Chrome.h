@@ -108,8 +108,8 @@ public:
     Chrome(Page&, UniqueRef<ChromeClient>&&);
     virtual ~Chrome();
 
-    ChromeClient& client() { return m_client; }
-    const ChromeClient& client() const { return m_client; }
+    ChromeClient& client() LIFETIME_BOUND { return m_client; }
+    const ChromeClient& client() const LIFETIME_BOUND { return m_client; }
 
     // HostWindow methods.
     void invalidateRootView(const IntRect&) override;

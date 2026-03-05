@@ -52,7 +52,7 @@ public:
     GraphicsLayer& layerWithDocumentOverlays();
     GraphicsLayer& layerWithViewOverlays();
 
-    const Vector<Ref<PageOverlay>>& pageOverlays() const { return m_pageOverlays; }
+    const Vector<Ref<PageOverlay>>& pageOverlays() const LIFETIME_BOUND { return m_pageOverlays; }
 
     WEBCORE_EXPORT void installPageOverlay(PageOverlay&, PageOverlay::FadeMode);
     WEBCORE_EXPORT void uninstallPageOverlay(PageOverlay&, PageOverlay::FadeMode);

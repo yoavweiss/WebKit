@@ -2140,7 +2140,7 @@ private:
     void createRenderTree();
     void detachParser();
 
-    DocumentEventTiming* documentEventTimingFromNavigationTiming();
+    std::optional<DocumentEventTiming> documentEventTimingFromNavigationTiming();
 
     // ScriptExecutionContext
     CSSFontSelector* cssFontSelector() final;

@@ -76,7 +76,7 @@ public:
     unsigned scrollingNodeCount() const { return m_scrollingNodeCount; }
 
     using StateNodeMap = HashMap<ScrollingNodeID, Ref<ScrollingStateNode>>;
-    const StateNodeMap& nodeMap() const { return m_stateNodeMap; }
+    const StateNodeMap& nodeMap() const LIFETIME_BOUND { return m_stateNodeMap; }
 
     LayerRepresentation::Type preferredLayerRepresentation() const { return m_preferredLayerRepresentation; }
     void setPreferredLayerRepresentation(LayerRepresentation::Type representation) { m_preferredLayerRepresentation = representation; }

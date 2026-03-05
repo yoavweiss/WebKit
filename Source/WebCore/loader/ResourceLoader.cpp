@@ -290,10 +290,9 @@ void ResourceLoader::setDefersLoading(bool defers)
 
 FrameLoader* ResourceLoader::frameLoader() const
 {
-    RefPtr frame = m_frame.get();
-    if (!frame)
-        return nullptr;
-    return &frame->loader();
+    if (m_frame)
+        return &m_frame->loader();
+    return nullptr;
 }
 
 void ResourceLoader::loadDataURL()

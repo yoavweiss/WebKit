@@ -55,12 +55,12 @@ bool ScrollingTreeOverflowScrollProxyNode::commitStateBeforeChildren(const Scrol
         m_overflowScrollingNodeID = overflowProxyStateNode->overflowScrollingNode();
 
     if (m_overflowScrollingNodeID) {
-        auto& relatedNodes = scrollingTree()->overflowRelatedNodes();
-        relatedNodes.ensure(*m_overflowScrollingNodeID, [] {
+        RefPtr scrollingTree = this->scrollingTree();
+        scrollingTree->overflowRelatedNodes().ensure(*m_overflowScrollingNodeID, [] {
             return Vector<ScrollingNodeID>();
         }).iterator->value.append(scrollingNodeID());
 
-        scrollingTree()->activeOverflowScrollProxyNodes().add(*this);
+        scrollingTree->activeOverflowScrollProxyNodes().add(*this);
     }
     
     return true;

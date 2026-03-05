@@ -57,8 +57,8 @@ public:
     void setTotalStateObjectPayloadLimitOverride(std::optional<uint32_t> limit) { m_totalStateObjectPayloadLimitOverride = limit; }
 
     ExceptionOr<SerializedScriptValue*> state();
-    JSValueInWrappedObject& cachedState();
-    JSValueInWrappedObject& cachedStateForGC() { return m_cachedState; }
+    JSValueInWrappedObject& cachedState() LIFETIME_BOUND;
+    JSValueInWrappedObject& cachedStateForGC() LIFETIME_BOUND { return m_cachedState; }
 
     ExceptionOr<void> back();
     ExceptionOr<void> forward();

@@ -31,8 +31,8 @@ class MouseEventWithHitTestResults {
 public:
     MouseEventWithHitTestResults(const PlatformMouseEvent&, const HitTestResult&);
 
-    const PlatformMouseEvent& event() const { return m_event; }
-    const HitTestResult& hitTestResult() const { return m_hitTestResult; }
+    const PlatformMouseEvent& event() const LIFETIME_BOUND { return m_event; }
+    const HitTestResult& hitTestResult() const LIFETIME_BOUND { return m_hitTestResult; }
     LayoutPoint localPoint() const { return m_hitTestResult.localPoint(); }
     Scrollbar* scrollbar() const { return m_hitTestResult.scrollbar(); }
     bool isOverLink() const;

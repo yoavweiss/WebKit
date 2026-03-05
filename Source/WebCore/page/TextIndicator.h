@@ -170,7 +170,7 @@ public:
     FloatRect contentImageWithoutSelectionRectInRootViewCoordinates() const { return m_data.contentImageWithoutSelectionRectInRootViewCoordinates; }
     void setContentImageWithoutSelectionRectInRootViewCoordinates(FloatRect contentImageWithoutSelectionRectInRootViewCoordinates) { m_data.contentImageWithoutSelectionRectInRootViewCoordinates = contentImageWithoutSelectionRectInRootViewCoordinates; }
 
-    const Vector<FloatRect>& textRectsInBoundingRectCoordinates() const { return m_data.textRectsInBoundingRectCoordinates; }
+    const Vector<FloatRect>& textRectsInBoundingRectCoordinates() const LIFETIME_BOUND { return m_data.textRectsInBoundingRectCoordinates; }
 
     float contentImageScaleFactor() const { return m_data.contentImageScaleFactor; }
     void setContentImageScaleFactor(float contentImageScaleFactor) { m_data.contentImageScaleFactor = contentImageScaleFactor; }

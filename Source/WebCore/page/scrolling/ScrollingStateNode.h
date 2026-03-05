@@ -313,7 +313,7 @@ public:
     
     virtual void reconcileLayerPositionForViewportRect(const LayoutRect& /*viewportRect*/, ScrollingLayerPositionAction) { }
 
-    const LayerRepresentation& layer() const { return m_layer; }
+    const LayerRepresentation& layer() const LIFETIME_BOUND { return m_layer; }
     WEBCORE_EXPORT void setLayer(const LayerRepresentation&);
 
     bool isAttachedToScrollingStateTree() const { return !!m_scrollingStateTree; }
@@ -330,8 +330,8 @@ public:
     void setParent(RefPtr<ScrollingStateNode>&& parent) { m_parent = parent; }
     std::optional<ScrollingNodeID> parentNodeID() const;
 
-    Vector<Ref<ScrollingStateNode>>& children() { return m_children; }
-    const Vector<Ref<ScrollingStateNode>>& children() const { return m_children; }
+    Vector<Ref<ScrollingStateNode>>& children() LIFETIME_BOUND { return m_children; }
+    const Vector<Ref<ScrollingStateNode>>& children() const LIFETIME_BOUND { return m_children; }
     Vector<Ref<ScrollingStateNode>> takeChildren() { return std::exchange(m_children, { }); }
     WEBCORE_EXPORT void setChildren(Vector<Ref<ScrollingStateNode>>&&);
     void traverse(NOESCAPE const Function<void(ScrollingStateNode&)>&);

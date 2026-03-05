@@ -58,8 +58,8 @@ public:
 
     RemoteDOMWindow& NODELETE window() const;
 
-    const RemoteFrameClient& client() const { return m_client.get(); }
-    RemoteFrameClient& client() { return m_client.get(); }
+    const RemoteFrameClient& client() const LIFETIME_BOUND { return m_client.get(); }
+    RemoteFrameClient& client() LIFETIME_BOUND { return m_client.get(); }
 
     RemoteFrameView* view() const { return m_view.get(); }
     WEBCORE_EXPORT void setView(RefPtr<RemoteFrameView>&&);
@@ -112,7 +112,7 @@ private:
     FrameView* NODELETE virtualView() const final;
     void disconnectView() final;
     DOMWindow* NODELETE virtualWindow() const final;
-    FrameLoaderClient& NODELETE loaderClient() final;
+    FrameLoaderClient& NODELETE loaderClient() LIFETIME_BOUND final;
     void reinitializeDocumentSecurityContext() final { }
 
     const Ref<RemoteDOMWindow> m_window;

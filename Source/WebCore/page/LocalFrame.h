@@ -162,14 +162,14 @@ public:
     WEBCORE_EXPORT RefPtr<const LocalFrame> NODELETE localMainFrame() const;
     WEBCORE_EXPORT RefPtr<LocalFrame> localMainFrame();
 
-    inline Editor& editor(); // Defined in LocalFrameInlines.h
-    inline const Editor& editor() const; // Defined in LocalFrameInlines.h
+    inline Editor& editor() LIFETIME_BOUND; // Defined in LocalFrameInlines.h
+    inline const Editor& editor() const LIFETIME_BOUND; // Defined in LocalFrameInlines.h
 
     EventHandler& eventHandler() { return m_eventHandler; }
     const EventHandler& eventHandler() const { return m_eventHandler; }
 
-    const FrameLoader& loader() const { return m_loader.get(); }
-    FrameLoader& loader() { return m_loader.get(); }
+    const FrameLoader& loader() const LIFETIME_BOUND { return m_loader.get(); }
+    FrameLoader& loader() LIFETIME_BOUND { return m_loader.get(); }
 
     inline FrameSelection& selection(); // Defined in LocalFrameInlines.h
     inline const FrameSelection& selection() const; // Defined in LocalFrameInlines.h
@@ -228,8 +228,8 @@ public:
     void deviceOrPageScaleFactorChanged();
 
 #if ENABLE(DATA_DETECTION)
-    DataDetectionResultsStorage* dataDetectionResultsIfExists() const { return m_dataDetectionResults.get(); }
-    WEBCORE_EXPORT DataDetectionResultsStorage& dataDetectionResults();
+    DataDetectionResultsStorage* dataDetectionResultsIfExists() const LIFETIME_BOUND { return m_dataDetectionResults.get(); }
+    WEBCORE_EXPORT DataDetectionResultsStorage& dataDetectionResults() LIFETIME_BOUND;
 #endif
 
 #if PLATFORM(COCOA)
@@ -249,7 +249,7 @@ public:
 #endif // PLATFORM(COCOA)
 
 #if PLATFORM(IOS_FAMILY)
-    const ViewportArguments& viewportArguments() const;
+    const ViewportArguments& viewportArguments() const LIFETIME_BOUND;
     WEBCORE_EXPORT void setViewportArguments(const ViewportArguments&);
 
     WEBCORE_EXPORT Node* deepestNodeAtLocation(const FloatPoint& viewportLocation);
@@ -391,7 +391,7 @@ private:
     void disconnectView() final;
     DOMWindow* NODELETE virtualWindow() const final;
     void reinitializeDocumentSecurityContext() final;
-    FrameLoaderClient& NODELETE loaderClient() final;
+    FrameLoaderClient& NODELETE loaderClient() LIFETIME_BOUND final;
     void documentURLForConsoleLog(CompletionHandler<void(const URL&)>&&) final;
 
     WeakHashSet<FrameDestructionObserver> m_destructionObservers;

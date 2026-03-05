@@ -46,9 +46,9 @@ class PerformanceResourceTiming : public PerformanceEntry {
 public:
     static Ref<PerformanceResourceTiming> create(MonotonicTime timeOrigin, ResourceTiming&&);
 
-    const String& initiatorType() const { return m_resourceTiming.initiatorType(); }
+    const String& initiatorType() const LIFETIME_BOUND { return m_resourceTiming.initiatorType(); }
     String deliveryType() const { return m_resourceTiming.deliveryType(); }
-    const String& NODELETE nextHopProtocol() const;
+    const String& NODELETE nextHopProtocol() const LIFETIME_BOUND;
 
     double workerStart() const;
     double redirectStart() const;
@@ -69,11 +69,11 @@ public:
     uint64_t NODELETE decodedBodySize() const;
     double workerRouterEvaluationStart() const;
     double workerCacheLookupStart() const;
-    const String& NODELETE workerMatchedRouterSource() const;
-    const String& NODELETE workerFinalRouterSource() const;
+    const String& NODELETE workerMatchedRouterSource() const LIFETIME_BOUND;
+    const String& NODELETE workerFinalRouterSource() const LIFETIME_BOUND;
 
-    const Vector<Ref<PerformanceServerTiming>>& serverTiming() const { return m_serverTiming; }
-    ResourceTiming& resourceTiming() { return m_resourceTiming; }
+    const Vector<Ref<PerformanceServerTiming>>& serverTiming() const LIFETIME_BOUND { return m_serverTiming; }
+    ResourceTiming& resourceTiming() LIFETIME_BOUND { return m_resourceTiming; }
 
     Type performanceEntryType() const override { return Type::Resource; }
     ASCIILiteral entryType() const override { return "resource"_s; }

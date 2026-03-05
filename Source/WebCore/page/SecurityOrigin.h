@@ -73,9 +73,9 @@ public:
     void setDomainFromDOM(const String& newDomain);
     bool domainWasSetInDOM() const { return m_domainWasSetInDOM; }
 
-    const String& protocol() const { return m_data.protocol(); }
-    const String& host() const { return m_data.host(); }
-    const String& domain() const { return m_domain; }
+    const String& protocol() const LIFETIME_BOUND { return m_data.protocol(); }
+    const String& host() const LIFETIME_BOUND { return m_data.host(); }
+    const String& domain() const LIFETIME_BOUND { return m_domain; }
     std::optional<uint16_t> port() const { return m_data.port(); }
 
     static bool shouldIgnoreHost(const URL&);
@@ -203,7 +203,7 @@ public:
     WEBCORE_EXPORT static bool isLocalHostOrLoopbackIPAddress(StringView);
     WEBCORE_EXPORT static bool isLocalhostAddress(StringView);
 
-    const SecurityOriginData& data() const { return m_data; }
+    const SecurityOriginData& data() const LIFETIME_BOUND { return m_data; }
 
     // This method checks that the scheme for this origin is an HTTP-family
     // scheme, e.g. HTTP and HTTPS.

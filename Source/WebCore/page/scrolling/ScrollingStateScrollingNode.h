@@ -72,22 +72,22 @@ class ScrollingStateScrollingNode : public ScrollingStateNode {
 public:
     virtual ~ScrollingStateScrollingNode();
 
-    const FloatSize& scrollableAreaSize() const { return m_scrollableAreaSize; }
+    const FloatSize& scrollableAreaSize() const LIFETIME_BOUND { return m_scrollableAreaSize; }
     WEBCORE_EXPORT void setScrollableAreaSize(const FloatSize&);
 
-    const FloatSize& totalContentsSize() const { return m_totalContentsSize; }
+    const FloatSize& totalContentsSize() const LIFETIME_BOUND { return m_totalContentsSize; }
     WEBCORE_EXPORT void setTotalContentsSize(const FloatSize&);
 
-    const FloatSize& reachableContentsSize() const { return m_reachableContentsSize; }
+    const FloatSize& reachableContentsSize() const LIFETIME_BOUND { return m_reachableContentsSize; }
     WEBCORE_EXPORT void setReachableContentsSize(const FloatSize&);
 
-    const FloatPoint& scrollPosition() const { return m_scrollPosition; }
+    const FloatPoint& scrollPosition() const LIFETIME_BOUND { return m_scrollPosition; }
     WEBCORE_EXPORT void setScrollPosition(const FloatPoint&);
 
-    const IntPoint& scrollOrigin() const { return m_scrollOrigin; }
+    const IntPoint& scrollOrigin() const LIFETIME_BOUND { return m_scrollOrigin; }
     WEBCORE_EXPORT void setScrollOrigin(const IntPoint&);
 
-    const FloatScrollSnapOffsetsInfo& snapOffsetsInfo() const { return m_snapOffsetsInfo; }
+    const FloatScrollSnapOffsetsInfo& snapOffsetsInfo() const LIFETIME_BOUND { return m_snapOffsetsInfo; }
     WEBCORE_EXPORT void setSnapOffsetsInfo(const FloatScrollSnapOffsetsInfo& newOffsetsInfo);
 
     std::optional<unsigned> currentHorizontalSnapPointIndex() const { return m_currentHorizontalSnapPointIndex; }
@@ -96,7 +96,7 @@ public:
     std::optional<unsigned> currentVerticalSnapPointIndex() const { return m_currentVerticalSnapPointIndex; }
     WEBCORE_EXPORT void setCurrentVerticalSnapPointIndex(std::optional<unsigned>);
 
-    const ScrollableAreaParameters& scrollableAreaParameters() const { return m_scrollableAreaParameters; }
+    const ScrollableAreaParameters& scrollableAreaParameters() const LIFETIME_BOUND { return m_scrollableAreaParameters; }
     WEBCORE_EXPORT void setScrollableAreaParameters(const ScrollableAreaParameters& params);
 
 #if ENABLE(SCROLLING_THREAD)
@@ -105,10 +105,10 @@ public:
     bool hasSynchronousScrollingReasons() const { return !m_synchronousScrollingReasons.isEmpty(); }
 #endif
 
-    const RequestedKeyboardScrollData& keyboardScrollData() const { return m_keyboardScrollData; }
+    const RequestedKeyboardScrollData& keyboardScrollData() const LIFETIME_BOUND { return m_keyboardScrollData; }
     WEBCORE_EXPORT void setKeyboardScrollData(const RequestedKeyboardScrollData&);
 
-    const ScrollRequestData& requestedScrollData() const { return m_requestedScrollData; }
+    const ScrollRequestData& requestedScrollData() const LIFETIME_BOUND { return m_requestedScrollData; }
 
     WEBCORE_EXPORT void setRequestedScrollData(RequestedScrollData&&);
 
@@ -117,17 +117,17 @@ public:
     bool isMonitoringWheelEvents() const { return m_isMonitoringWheelEvents; }
     WEBCORE_EXPORT void setIsMonitoringWheelEvents(bool);
 
-    const LayerRepresentation& scrollContainerLayer() const { return m_scrollContainerLayer; }
+    const LayerRepresentation& scrollContainerLayer() const LIFETIME_BOUND { return m_scrollContainerLayer; }
     WEBCORE_EXPORT void setScrollContainerLayer(const LayerRepresentation&);
 
     // This is a layer with the contents that move.
-    const LayerRepresentation& scrolledContentsLayer() const { return m_scrolledContentsLayer; }
+    const LayerRepresentation& scrolledContentsLayer() const LIFETIME_BOUND { return m_scrolledContentsLayer; }
     WEBCORE_EXPORT void setScrolledContentsLayer(const LayerRepresentation&);
 
-    const LayerRepresentation& horizontalScrollbarLayer() const { return m_horizontalScrollbarLayer; }
+    const LayerRepresentation& horizontalScrollbarLayer() const LIFETIME_BOUND { return m_horizontalScrollbarLayer; }
     WEBCORE_EXPORT void setHorizontalScrollbarLayer(const LayerRepresentation&);
 
-    const LayerRepresentation& verticalScrollbarLayer() const { return m_verticalScrollbarLayer; }
+    const LayerRepresentation& verticalScrollbarLayer() const LIFETIME_BOUND { return m_verticalScrollbarLayer; }
     WEBCORE_EXPORT void setVerticalScrollbarLayer(const LayerRepresentation&);
 
 #if PLATFORM(MAC)
@@ -143,7 +143,7 @@ public:
     ScrollbarEnabledState scrollbarEnabledState() const { return m_scrollbarEnabledState; }
     WEBCORE_EXPORT void setScrollbarEnabledState(ScrollbarOrientation, bool);
 
-    const std::optional<ScrollbarColor>& scrollbarColor() const { return m_scrollbarColor; }
+    const std::optional<ScrollbarColor>& scrollbarColor() const LIFETIME_BOUND { return m_scrollbarColor; }
     WEBCORE_EXPORT void setScrollbarColor(std::optional<ScrollbarColor>);
 
     void setScrollerImpsFromScrollbars(Scrollbar* verticalScrollbar, Scrollbar* horizontalScrollbar);
@@ -152,7 +152,7 @@ public:
     bool mouseIsOverContentArea() const { return m_mouseIsOverContentArea; }
 
     WEBCORE_EXPORT void setMouseMovedInContentArea(const MouseLocationState&);
-    const MouseLocationState& mouseLocationState() const { return m_mouseLocationState; }
+    const MouseLocationState& mouseLocationState() const LIFETIME_BOUND { return m_mouseLocationState; }
 
     WEBCORE_EXPORT void setScrollbarLayoutDirection(UserInterfaceLayoutDirection);
     UserInterfaceLayoutDirection scrollbarLayoutDirection() const { return m_scrollbarLayoutDirection; }

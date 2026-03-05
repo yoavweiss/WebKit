@@ -46,7 +46,7 @@ public:
     ~ShadowRealmGlobalScope();
 
     ShadowRealmGlobalScope& self();
-    ScriptModuleLoader& moduleLoader();
+    ScriptModuleLoader& moduleLoader() LIFETIME_BOUND;
     JSShadowRealmGlobalScopeBase* wrapper();
 
 protected:

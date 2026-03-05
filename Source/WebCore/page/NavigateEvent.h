@@ -102,7 +102,7 @@ public:
     DOMFormData* formData() { return m_formData.get(); }
     String downloadRequest() { return m_downloadRequest; }
     JSC::JSValue info() { return m_info.getValue(); }
-    JSValueInWrappedObject& infoWrapper() { return m_info; }
+    JSValueInWrappedObject& infoWrapper() LIFETIME_BOUND { return m_info; }
     Element* sourceElement() { return m_sourceElement.get(); }
 
     ExceptionOr<void> intercept(Document&, NavigationInterceptOptions&&);
@@ -113,7 +113,7 @@ public:
 
     void finish(Document&, InterceptionHandlersDidFulfill, FocusDidChange);
 
-    Vector<Ref<NavigationInterceptHandler>>& handlers() { return m_handlers; }
+    Vector<Ref<NavigationInterceptHandler>>& handlers() LIFETIME_BOUND { return m_handlers; }
 
 private:
     NavigateEvent(const AtomString& type, Init&&, EventIsTrusted, AbortController*);

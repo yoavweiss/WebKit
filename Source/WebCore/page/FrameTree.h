@@ -42,7 +42,7 @@ public:
 
     ~FrameTree();
 
-    const AtomString& specifiedName() const { return m_specifiedName; }
+    const AtomString& specifiedName() const LIFETIME_BOUND { return m_specifiedName; }
     WEBCORE_EXPORT AtomString uniqueName() const;
     WEBCORE_EXPORT void setSpecifiedName(const AtomString&);
     WEBCORE_EXPORT void clearName();

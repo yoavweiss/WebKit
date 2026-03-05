@@ -50,12 +50,12 @@ public:
 
     WEBCORE_EXPORT static PageGroup* pageGroup(const String& groupName);
 
-    const WeakHashSet<Page>& pages() const { return m_pages; }
+    const WeakHashSet<Page>& pages() const LIFETIME_BOUND { return m_pages; }
 
     void addPage(Page&);
     void removePage(Page&);
 
-    const String& name() { return m_name; }
+    const String& name() LIFETIME_BOUND { return m_name; }
     unsigned identifier() { return m_identifier; }
 
 #if ENABLE(VIDEO)
