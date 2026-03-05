@@ -42,8 +42,11 @@
     UIWindow *window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
     self.window = window;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle bundleForClass:[SceneDelegate class]]];
     WebViewController *viewController = (WebViewController *)[storyboard instantiateInitialViewController];
+#pragma clang diagnostic pop
     window.rootViewController = viewController;
 
     WKWebsiteDataStore *dataStore = viewController.dataStore;
