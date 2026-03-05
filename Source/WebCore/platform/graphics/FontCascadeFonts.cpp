@@ -568,6 +568,7 @@ void FontCascadeFonts::pruneSystemFallbacks()
         });
     }
     m_systemFallbackFontSet.clear();
+    m_shapedTextCache.clear();
 }
 
 const TextShapingResult* FontCascadeFonts::getOrCreateCachedShapedText(const TextRun& run, const FontCascade& fontCascade, unsigned from, std::optional<unsigned> to, ForTextEmphasis forTextEmphasis)
