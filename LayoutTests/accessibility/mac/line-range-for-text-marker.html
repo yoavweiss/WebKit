@@ -30,22 +30,29 @@ function lineTextForPoint(x, y) {
 }
 
 if (window.accessibilityController) {
-    var line = accessibilityController.accessibleElementById("line");
-    // Line text from first text marker (add one to make sure we get the first marker for THIS line).
-    lineText = lineTextForPoint(line.x + 1, line.y + 1);
-    output += expect("lineText", "expectedText");
+    window.jsTestIsAsync = true;
 
-    // Line text from center text marker.
-    lineText = lineTextForPoint(line.x + line.width / 2, line.y + line.height / 2);
-    output += expect("lineText", "expectedText");
+    setTimeout(async function() {
+        await waitFor(() => accessibilityController.rootElement.x != 0);
 
-    // Line text from last text marker (subtract one to make sure we get the last marker for THIS line).
-    lineText = lineTextForPoint(line.x + line.width - 1, line.y + line.height - 1);
-    output += expect("lineText", "expectedText");
+        var line = accessibilityController.accessibleElementById("line");
+        // Line text from first text marker (add one to make sure we get the first marker for THIS line).
+        lineText = lineTextForPoint(line.x + 1, line.y + 1);
+        output += expect("lineText", "expectedText");
 
-    // Hide superfluous text.
-    document.getElementById("container").style.display = "none";
-    debug(output);
+        // Line text from center text marker.
+        lineText = lineTextForPoint(line.x + line.width / 2, line.y + line.height / 2);
+        output += expect("lineText", "expectedText");
+
+        // Line text from last text marker (subtract one to make sure we get the last marker for THIS line).
+        lineText = lineTextForPoint(line.x + line.width - 1, line.y + line.height - 1);
+        output += expect("lineText", "expectedText");
+
+        // Hide superfluous text.
+        document.getElementById("container").style.display = "none";
+        debug(output);
+        finishJSTest();
+    });
 }
 </script>
 </body>

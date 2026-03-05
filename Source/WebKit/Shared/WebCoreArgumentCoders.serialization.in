@@ -9331,6 +9331,12 @@ header: <WebCore/AXObjectCache.h>
     bool isInert;
     bool isRenderHidden;
 };
+
+header: <WebCore/AXObjectCache.h>
+[CustomHeader] struct WebCore::FrameGeometry {
+    WebCore::IntPoint screenPosition;
+    WebCore::AffineTransform screenTransform;
+};
 #endif
 
 #if PLATFORM(COCOA)

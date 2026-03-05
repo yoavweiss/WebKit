@@ -230,6 +230,7 @@ static id attributeValue(id element, NSString *attribute)
         @"AXKeyShortcutsValue",
         @"AXOwns",
         @"AXPopupValue",
+        @"AXRelativeFrame", // Continue to support this for testing purposes with ENABLE(ACCESSIBILITY_LOCAL_FRAME).
         @"AXValue",
     ];
 

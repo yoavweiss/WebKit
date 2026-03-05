@@ -115,8 +115,14 @@ void AccessibilityRegionContext::takeBounds(const RenderInline* renderInline, La
 
 void AccessibilityRegionContext::takeBoundsInternal(const RenderBoxModelObject& renderObject, IntRect&& paintRect)
 {
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+    // contentsToView() just applies *this* frame's scroll position. Scroll from other frames will be accounted for in  frameScreenPosition.
+    if (RefPtr view = renderObject.document().view())
+        paintRect = view->contentsToView(paintRect);
+#else
     if (RefPtr view = renderObject.document().view())
         paintRect = view->contentsToRootView(paintRect);
+#endif
 
     if (CheckedPtr cache = renderObject.document().axObjectCache())
         cache->onPaint(renderObject, WTF::move(paintRect));
@@ -128,8 +134,14 @@ void AccessibilityRegionContext::takeBoundsInternal(const RenderBoxModelObject& 
 void AccessibilityRegionContext::takeBounds(const RenderText& renderText, FloatRect paintRect, size_t lineIndex)
 {
     auto mappedPaintRect = enclosingIntRect(mapRect(WTF::move(paintRect)));
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+    // contentsToView() just applies *this* frame's scroll position. Scroll from other frames will be accounted for in  frameScreenPosition.
+    if (RefPtr view = renderText.document().view())
+        mappedPaintRect = view->contentsToView(mappedPaintRect);
+#else
     if (RefPtr view = renderText.document().view())
         mappedPaintRect = view->contentsToRootView(mappedPaintRect);
+#endif
 
     auto accumulatedRectIterator = m_accumulatedRenderTextRects.find(renderText);
     if (accumulatedRectIterator == m_accumulatedRenderTextRects.end())
@@ -158,8 +170,18 @@ void AccessibilityRegionContext::onPaint(const ScrollView& scrollView)
     auto relativeFrame = frameView->frameRectShrunkByInset();
     // Only normalize the rect to the root view if this scrollview isn't already associated with the root view (i.e. it has a frame owner).
     if (RefPtr frameOwnerElement = frameView->frame().ownerElement()) {
-        if (RefPtr ownerDocumentFrameView = frameOwnerElement->document().view())
+        if (RefPtr ownerDocumentFrameView = frameOwnerElement->document().view()) {
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+            // contentsToView() just applies *this* frame's scroll position. Scroll from other frames will be accounted for in frameScreenPosition.
+            relativeFrame = ownerDocumentFrameView->contentsToView(relativeFrame);
+            // Zero out the iframe position since frameScreenPosition accounts for it.
+            // This matches AccessibilityScrollView::elementRect() which also zeros the
+            // location for subframe root scroll views.
+            relativeFrame.setLocation(IntPoint());
+#else
             relativeFrame = ownerDocumentFrameView->contentsToRootView(relativeFrame);
+#endif
+        }
     }
 
     if (CheckedPtr cache = frameView->axObjectCache())

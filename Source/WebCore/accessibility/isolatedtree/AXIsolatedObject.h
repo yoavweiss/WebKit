@@ -284,6 +284,10 @@ private:
     FloatPoint screenRelativePosition() const final;
     FloatRect screenRelativeRect() const;
     IntPoint remoteFrameOffset() const final;
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+    IntPoint frameScreenPosition() const final;
+    AffineTransform frameScreenTransform() const final;
+#endif
     std::optional<IntRect> cachedRelativeFrame() const { return optionalAttributeValue<IntRect>(AXProperty::RelativeFrame); }
 #if PLATFORM(MAC)
     FloatRect primaryScreenRect() const final;

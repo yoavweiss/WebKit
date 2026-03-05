@@ -29,6 +29,7 @@
 #include <WebCore/AXStitchGroup.h>
 #include <WebCore/AXTextRun.h>
 #include <WebCore/AccessibilityRole.h>
+#include <WebCore/AffineTransform.h>
 #include <WebCore/CharacterRange.h>
 #include <WebCore/Color.h>
 #include <WebCore/ColorConversion.h>
@@ -980,6 +981,11 @@ public:
     virtual FloatPoint screenRelativePosition() const = 0;
     // This is the amount that the RemoteFrame is offset from its containing parent.
     virtual IntPoint remoteFrameOffset() const = 0;
+
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+    virtual IntPoint frameScreenPosition() const = 0;
+    virtual AffineTransform frameScreenTransform() const = 0;
+#endif
 
     virtual FloatRect convertFrameToSpace(const FloatRect&, AccessibilityConversionSpace) const = 0;
 #if PLATFORM(COCOA)

@@ -800,6 +800,12 @@ webkit.org/b/167607 [ Debug ] http/tests/inspector/worker/blob-script-with-cross
 
 webkit.org/b/160042 accessibility/mac/value-change/value-change-user-info-contenteditable.html [ Pass Failure ]
 
+# Skipped because ACCESSIBILITY_LOCAL_FRAME is not compatable with relative frames.
+accessibility/mac/iframe-relative-frame.html [ Failure ]
+
+# Skipped because ACCESSIBILITY_LOCAL_FRAME doesn't yet account for dynamic position changes (like scroll).
+accessibility/mac/scroll-to-visible-action.html [ Failure ]
+
 webkit.org/b/160309 fast/dom/Window/child-window-focus.html [ Pass Failure ]
 
 webkit.org/b/161148 gamepad/gamepad-timestamp.html [ Pass Failure ]

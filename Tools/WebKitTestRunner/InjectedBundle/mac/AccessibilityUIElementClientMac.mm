@@ -233,6 +233,11 @@ JSRetainPtr<JSStringRef> AccessibilityUIElementClientMac::stringValue()
     return getStringAttribute("AXValue");
 }
 
+JSRetainPtr<JSStringRef> AccessibilityUIElementClientMac::domIdentifier() const
+{
+    return getStringAttribute("AXDOMIdentifier");
+}
+
 double AccessibilityUIElementClientMac::getNumberAttribute(const char* attributeName) const
 {
     if (!isValid())

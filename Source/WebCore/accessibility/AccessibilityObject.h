@@ -484,6 +484,10 @@ public:
 #else
     FloatPoint screenRelativePosition() const final { return convertFrameToSpace(elementRect(), AccessibilityConversionSpace::Screen).location(); }
 #endif
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+    IntPoint frameScreenPosition() const override { return IntPoint(); }
+    AffineTransform frameScreenTransform() const override { return { }; }
+#endif
     IntSize size() const final { return snappedIntRect(elementRect()).size(); }
     IntPoint clickPoint() final;
     IntPoint clickPointFromElementRect() const;

@@ -40,6 +40,9 @@
 #include "AXUtilities.h"
 #include "AccessibilityObjectInlines.h"
 #include "AccessibilityNodeObject.h"
+#include "AccessibilityScrollView.h"
+#include "Chrome.h"
+#include "ChromeClient.h"
 #include "DocumentPage.h"
 #include "DocumentView.h"
 #include "FrameSelection.h"
@@ -188,6 +191,11 @@ RefPtr<AXIsolatedTree> AXIsolatedTree::create(AXObjectCache& axObjectCache)
     tree->setInitialSortedLiveRegions(axIDs(axObjectCache.sortedLiveRegions()));
     tree->setInitialSortedNonRootWebAreas(axIDs(axObjectCache.sortedNonRootWebAreas()));
     tree->updateLoadingProgress(axObjectCache.loadingProgress());
+
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+    if (std::optional geometry = axObjectCache.getAndUpdateFrameGeometry())
+        tree->setFrameGeometry(FrameGeometry { *geometry });
+#endif
 
     auto relations = axObjectCache.relations();
     // Add unconnected nodes for relation origins and targets that are either
@@ -1242,6 +1250,14 @@ void AXIsolatedTree::setSelectedTextMarkerRange(AXTextMarkerRange&& range)
     m_pendingSelectedTextMarkerRange = WTF::move(range);
 }
 
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+void AXIsolatedTree::setFrameGeometry(FrameGeometry&& geometry)
+{
+    Locker locker { m_changeLogLock };
+    m_pendingFrameGeometry = WTF::move(geometry);
+}
+#endif
+
 void AXIsolatedTree::updateLoadingProgress(double newProgressValue)
 {
     AXTRACE("AXIsolatedTree::updateLoadingProgress"_s);
@@ -1273,8 +1289,15 @@ void AXIsolatedTree::updateRootScreenRelativePosition()
     AX_ASSERT(isMainThread());
 
     CheckedPtr cache = m_axObjectCache.get();
-    if (RefPtr axRoot = cache && cache->document() ? cache->getOrCreate(cache->document()->view()) : nullptr)
+    if (RefPtr axRoot = cache && cache->document() ? dynamicDowncast<AccessibilityScrollView>(cache->getOrCreate(cache->document()->view())) : nullptr) {
         queueNodeUpdate(axRoot->objectID(), { AXProperty::ScreenRelativePosition });
+
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+        // Sync current cache value to isolated tree and fire async request to keep it up-to-date.
+        if (std::optional geometry = cache->getAndUpdateFrameGeometry())
+            setFrameGeometry(FrameGeometry { *geometry });
+#endif
+    }
 }
 
 void AXIsolatedTree::removeNode(AXID axID, std::optional<AXID> parentID)
@@ -1525,6 +1548,11 @@ void AXIsolatedTree::applyPendingChangesLocked()
 
     if (m_pendingSelectedTextMarkerRange)
         m_selectedTextMarkerRange = std::exchange(m_pendingSelectedTextMarkerRange, std::nullopt).value();
+
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+    if (m_pendingFrameGeometry)
+        m_frameGeometry = std::exchange(m_pendingFrameGeometry, std::nullopt).value();
+#endif
 
     // Do this at the end because it requires looking up the root node by ID, so doing it at the end
     // ensures all additions to m_readerThreadNodeMap have been made by now.
@@ -2024,14 +2052,7 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
         bool isWebArea = axObject->isWebArea();
         bool isScrollArea = axObject->isScrollArea();
         if (isScrollArea && !axObject->parentObject()) {
-            // Eagerly cache the screen relative position for the root. AXIsolatedObject::screenRelativePosition()
-            // of non-root objects depend on the root object's screen relative position, so make sure it's there
-            // from the start. We keep this up-to-date via AXIsolatedTree::updateRootScreenRelativePosition().
-            setProperty(AXProperty::ScreenRelativePosition, axObject->screenRelativePosition());
-            // FIXME: We never update this property, e.g. when the iframe is moved in the hosting web content process.
-            setProperty(AXProperty::RemoteFrameOffset, object.remoteFrameOffset());
-
-#if ENABLE_ACCESSIBILITY_LOCAL_FRAME
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
             RefPtr crossFrameParent = axObject->crossFrameParentObject();
             if (crossFrameParent) {
                 WeakPtr parentCache = crossFrameParent->axObjectCache();
@@ -2040,7 +2061,14 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
                     setProperty(AXProperty::CrossFrameParentAXID, Markable { crossFrameParent->objectID() });
                 }
             }
-#endif // ENABLE_ACCESSIBILITY_LOCAL_FRAME
+#endif
+            // Eagerly cache the screen relative position for the root. AXIsolatedObject::screenRelativePosition()
+            // of non-root objects depend on the root object's screen relative position, so make sure it's there
+            // from the start. We keep this up-to-date via AXIsolatedTree::updateRootScreenRelativePosition().
+            setProperty(AXProperty::ScreenRelativePosition, axObject->screenRelativePosition());
+#if !ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+            setProperty(AXProperty::RemoteFrameOffset, object.remoteFrameOffset());
+#endif //
         }
 
         RefPtr geometryManager = tree->geometryManager();

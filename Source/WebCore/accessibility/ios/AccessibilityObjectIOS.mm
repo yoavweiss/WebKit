@@ -80,10 +80,7 @@ FloatRect AccessibilityObject::convertRectToPlatformSpace(const FloatRect& rect,
     auto* frameView = documentFrameView();
     WAKView *documentView = frameView ? frameView->documentView() : nullptr;
     if (documentView) {
-        CGPoint point = CGPointMake(rect.x(), rect.y());
-        CGSize size = CGSizeMake(rect.size().width(), rect.size().height());
-        CGRect cgRect = CGRectMake(point.x, point.y, size.width, size.height);
-
+        CGRect cgRect = CGRectMake(rect.x(), rect.y(), rect.width(), rect.height());
         cgRect = [documentView convertRect:cgRect toView:nil];
 
         // we need the web document view to give us our final screen coordinates

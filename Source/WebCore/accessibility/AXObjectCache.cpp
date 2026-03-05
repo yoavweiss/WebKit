@@ -1006,14 +1006,39 @@ AXCoreObject* AXObjectCache::rootObjectForFrame(LocalFrame& frame)
 }
 
 #if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+RefPtr<AccessibilityScrollView> AXObjectCache::scrollViewForFrame(LocalFrame& frame)
+{
+    return dynamicDowncast<AccessibilityScrollView>(rootObjectForFrame(frame));
+}
+
 void AXObjectCache::setFrameInheritedState(LocalFrame& frame, const InheritedFrameState& state)
 {
-    RefPtr scrollView = dynamicDowncast<AccessibilityScrollView>(rootObjectForFrame(frame));
+    RefPtr scrollView = scrollViewForFrame(frame);
     if (!scrollView)
         return;
 
     scrollView->setInheritedFrameState(state);
 }
+
+void AXObjectCache::setFrameGeometry(LocalFrame& frame, const FrameGeometry& geometry)
+{
+    UNUSED_PARAM(frame);
+    m_frameGeometry = geometry;
+
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+    if (RefPtr tree = AXIsolatedTree::treeForFrameID(m_frameID))
+        tree->setFrameGeometry(FrameGeometry { geometry });
+#endif
+}
+
+const std::optional<FrameGeometry>& AXObjectCache::getAndUpdateFrameGeometry()
+{
+    if (RefPtr page = document()->page())
+        page->chrome().client().requestFrameScreenPosition(frameID());
+
+    return frameGeometry();
+}
+
 #endif
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)

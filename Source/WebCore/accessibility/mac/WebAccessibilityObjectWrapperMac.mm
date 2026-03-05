@@ -667,7 +667,11 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
         NSAccessibilityTextInputMarkedRangeAttribute,
         NSAccessibilityTextInputMarkedTextMarkerRangeAttribute,
         NSAccessibilityVisibleCharacterRangeAttribute,
+#if !ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+        // With local frames enabled, all positions are returned in screen-space so
+        // that VoiceOver doesn't have to convert from relative -> screen space.
         NSAccessibilityRelativeFrameAttribute,
+#endif
         // AppKit needs to know the screen height in order to do the coordinate conversion.
         NSAccessibilityPrimaryScreenHeightAttribute,
         // All objects should expose the ARIA busy attribute (ARIA 1.1 with ISSUE-538).
@@ -2887,9 +2891,11 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
     if (backingObject->isStaticText())
         return staticTextParamAttrs.get().get();
 
+#if !ENABLE(ACCESSIBILITY_LOCAL_FRAME)
     // The object that serves up the remote frame also is the one that does the frame conversion.
     if (backingObject->hasRemoteFrameChild())
         return [paramAttrs.get().get() arrayByAddingObject:NSAccessibilityConvertRelativeFrameParameterizedAttribute];
+#endif
 
     return paramAttrs.get().get();
 }
@@ -4107,11 +4113,13 @@ static id handleCellForColumnAndRowParameterizedAttribute(WebAccessibilityObject
     return cell ? cell->wrapper() : nil;
 }
 
+#if !ENABLE(ACCESSIBILITY_LOCAL_FRAME)
 static id handleConvertRelativeFrameParameterizedAttribute(WebAccessibilityObjectWrapper*, AXCoreObject& backingObject, const ParameterizedAttributeContext& context)
 {
     RefPtr parent = backingObject.parentObject();
     return parent ? [NSValue valueWithRect:parent->convertFrameToSpace(FloatRect(context.rect), AccessibilityConversionSpace::Page)] : nil;
 }
+#endif
 
 static MemoryCompactLookupOnlyRobinHoodHashMap<String, ParameterizedAttributeHandlerEntry> createParameterizedAttributeHandlerMap()
 {
@@ -4173,7 +4181,9 @@ static MemoryCompactLookupOnlyRobinHoodHashMap<String, ParameterizedAttributeHan
         { NSAccessibilityLengthForTextMarkerRangeAttribute, { handleLengthForTextMarkerRangeAttribute } },
         { NSAccessibilityIntersectTextMarkerRangesAttribute, { handleIntersectTextMarkerRangesAttribute } },
         { NSAccessibilityCellForColumnAndRowParameterizedAttribute, { handleCellForColumnAndRowParameterizedAttribute, ParameterizedAttributePrecondition::IsExposableTable } },
+#if !ENABLE(ACCESSIBILITY_LOCAL_FRAME)
         { NSAccessibilityConvertRelativeFrameParameterizedAttribute, { handleConvertRelativeFrameParameterizedAttribute } },
+#endif
     });
 
     MemoryCompactLookupOnlyRobinHoodHashMap<String, ParameterizedAttributeHandlerEntry> map;

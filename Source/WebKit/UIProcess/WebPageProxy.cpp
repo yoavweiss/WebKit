@@ -9865,6 +9865,36 @@ void WebPageProxy::rootViewToAccessibilityScreen(const IntRect& viewRect, Comple
     completionHandler(pageClient->rootViewToAccessibilityScreen(viewRect));
 }
 
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+void WebPageProxy::requestFrameScreenPosition(FrameIdentifier frameID)
+{
+    static constexpr float unitRectSize = 1000;
+    convertRectToMainFrameCoordinates(FloatRect(0, 0, unitRectSize, unitRectSize), frameID, [weakThis = WeakPtr { *this }, frameID](std::optional<FloatRect> finalRect) mutable {
+        RefPtr protectedThis = weakThis.get();
+        if (!protectedThis || !finalRect)
+            return;
+
+        RefPtr pageClient = protectedThis->pageClient();
+        if (!pageClient)
+            return;
+
+        auto screenRect = pageClient->rootViewToAccessibilityScreen(enclosingIntRect(*finalRect));
+
+        FrameGeometry geometry;
+#if PLATFORM(MAC)
+        // On macOS, NSRect origin is the bottom-left corner, so screenRect.location()
+        // is offset downward by the rect's height. Add it back to get the content origin.
+        geometry.screenPosition = { screenRect.x(), screenRect.y() + screenRect.height() };
+#else
+        geometry.screenPosition = screenRect.location();
+#endif
+        geometry.screenTransform = AffineTransform::makeScale({ screenRect.width() / unitRectSize, screenRect.height() / unitRectSize });
+
+        protectedThis->sendToProcessContainingFrame(frameID, Messages::WebPage::UpdateRemotePageAccessibilityScreenPosition(frameID, geometry));
+    });
+}
+#endif // ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+
 void WebPageProxy::runBeforeUnloadConfirmPanel(IPC::Connection& connection, FrameIdentifier frameID, FrameInfoData&& frameInfo, String&& message, CompletionHandler<void(bool)>&& reply)
 {
     RefPtr frame = WebFrameProxy::webFrame(frameID);

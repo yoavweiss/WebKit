@@ -51,6 +51,7 @@ public:
     JSRetainPtr<JSStringRef> title() override;
     JSRetainPtr<JSStringRef> description() override;
     JSRetainPtr<JSStringRef> stringValue() override;
+    JSRetainPtr<JSStringRef> domIdentifier() const override;
     unsigned childrenCount() override;
     RefPtr<AccessibilityUIElement> childAtIndex(unsigned) override;
     int hierarchicalLevel() const override;

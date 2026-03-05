@@ -292,6 +292,9 @@ public:
     virtual std::optional<IntPoint> screenToRootViewUsingCachedPosition(const IntPoint&, const IntSize&) const { return std::nullopt; }
     virtual IntPoint accessibilityScreenToRootView(const IntPoint&) const = 0;
     virtual IntRect rootViewToAccessibilityScreen(const IntRect&) const = 0;
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+    virtual void requestFrameScreenPosition(FrameIdentifier) const { }
+#endif
 #if PLATFORM(IOS_FAMILY)
     virtual void relayAccessibilityNotification(String&&, RetainPtr<NSData>&&) const = 0;
     virtual void relayAriaNotifyNotification(AriaNotifyData&&) const = 0;

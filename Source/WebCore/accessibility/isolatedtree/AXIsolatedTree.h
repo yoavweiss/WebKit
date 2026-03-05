@@ -30,6 +30,7 @@
 
 #include <WebCore/AXCoreObject.h>
 #include <WebCore/AXLoggerBase.h>
+#include <WebCore/AXObjectCache.h>
 #include <WebCore/AXTextMarker.h>
 #include <WebCore/AXTextRun.h>
 #include <WebCore/AXTreeStore.h>
@@ -437,6 +438,11 @@ public:
     AXObjectCache* axObjectCache() const;
     constexpr AXGeometryManager* geometryManager() const { return m_geometryManager.get(); }
 
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+    FrameGeometry frameGeometry() const { return m_frameGeometry; }
+    void setFrameGeometry(FrameGeometry&&);
+#endif
+
     AXIsolatedObject* rootNode() { AX_ASSERT(!isMainThread()); return m_rootNode.get(); }
     std::optional<AXID> pendingRootNodeID();
     RefPtr<AXIsolatedObject> rootWebArea();
@@ -668,6 +674,9 @@ private:
     std::optional<HashMap<AXID, LineRange>> m_pendingMostRecentlyPaintedText WTF_GUARDED_BY_LOCK(m_changeLogLock);
     std::optional<HashMap<AXID, AXRelations>> m_pendingRelations WTF_GUARDED_BY_LOCK(m_changeLogLock);
     std::optional<AXTextMarkerRange> m_pendingSelectedTextMarkerRange WTF_GUARDED_BY_LOCK(m_changeLogLock);
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+    std::optional<FrameGeometry> m_pendingFrameGeometry WTF_GUARDED_BY_LOCK(m_changeLogLock);
+#endif
     Markable<AXID> m_focusedNodeID;
     std::atomic<double> m_loadingProgress { 0 };
     std::atomic<double> m_processingProgress { 1 };
@@ -677,6 +686,9 @@ private:
     Vector<AXID> m_sortedNonRootWebAreaIDs;
     HashMap<AXID, LineRange> m_mostRecentlyPaintedText;
     HashMap<AXID, AXRelations> m_relations;
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+    FrameGeometry m_frameGeometry;
+#endif
 
     // Set to true by the AXObjectCache and false by AXIsolatedTree.
     // Both are only to be used on the main-thread.

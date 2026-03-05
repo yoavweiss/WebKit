@@ -29,6 +29,7 @@
 #include <WebCore/AXTextMarker.h>
 #include <WebCore/AXTreeStore.h>
 #include <WebCore/AccessibilityRemoteToken.h>
+#include <WebCore/AffineTransform.h>
 #include <WebCore/Document.h>
 #include <WebCore/RenderView.h>
 #include <WebCore/SimpleRange.h>
@@ -228,6 +229,12 @@ struct InheritedFrameState {
     bool isInert { false };
     bool isRenderHidden { false };
 };
+
+// When this is updated, WebCoreArgumentCoders.serialization.in must be updated as well.
+struct FrameGeometry {
+    IntPoint screenPosition;
+    AffineTransform screenTransform;
+};
 #endif
 
 struct AXNotificationWithData {
@@ -314,6 +321,9 @@ public:
     AccessibilityObject* rootWebArea();
 #if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
     WEBCORE_EXPORT void setFrameInheritedState(LocalFrame&, const InheritedFrameState&);
+    WEBCORE_EXPORT void setFrameGeometry(LocalFrame&, const FrameGeometry&);
+    const std::optional<FrameGeometry>& frameGeometry() const { return m_frameGeometry; }
+    const std::optional<FrameGeometry>& getAndUpdateFrameGeometry();
 #endif
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
     WEBCORE_EXPORT void buildIsolatedTreeIfNeeded();
@@ -409,6 +419,10 @@ private:
     void attachWrapper(AccessibilityObject&);
 
     AccessibilityObject* getOrCreateSlow(Node&, IsPartOfRelation);
+
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+    RefPtr<AccessibilityScrollView> scrollViewForFrame(LocalFrame&);
+#endif
 
 public:
     void onPageActivityStateChange(OptionSet<ActivityState>);
@@ -919,6 +933,9 @@ private:
 
     const WeakPtr<Document, WeakPtrImplWithEventTargetData> m_document;
     const FrameIdentifier m_frameID; // constant for object's lifetime.
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+    std::optional<FrameGeometry> m_frameGeometry;
+#endif
     OptionSet<ActivityState> m_pageActivityState;
     HashMap<AXID, Ref<AccessibilityObject>> m_objects;
 
