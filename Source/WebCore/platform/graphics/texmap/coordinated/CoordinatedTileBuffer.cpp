@@ -150,7 +150,7 @@ bool CoordinatedUnacceleratedTileBuffer::tryEnsureSurface()
 
     auto imageInfo = SkImageInfo::Make(m_size.width(), m_size.height(), kBGRA_8888_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
     // FIXME: ref buffer and unref on release proc?
-    SkSurfaceProps properties = { 0, FontRenderOptions::singleton().subpixelOrder() };
+    SkSurfaceProps properties = FontRenderOptions::singleton().createSurfaceProps();
     m_surface = SkSurfaces::WrapPixels(imageInfo, data(), imageInfo.minRowBytes64(), &properties);
     return true;
 }
@@ -200,7 +200,7 @@ bool CoordinatedAcceleratedTileBuffer::tryEnsureSurface()
     unsigned msaaSampleCount = PlatformDisplay::sharedDisplay().msaaSampleCount();
 #endif
 
-    SkSurfaceProps properties = { 0, FontRenderOptions::singleton().subpixelOrder() };
+    SkSurfaceProps properties = FontRenderOptions::singleton().createSurfaceProps();
     m_surface = SkSurfaces::WrapBackendTexture(PlatformDisplay::sharedDisplay().skiaGrContext(),
         backendTexture,
         kTopLeft_GrSurfaceOrigin,

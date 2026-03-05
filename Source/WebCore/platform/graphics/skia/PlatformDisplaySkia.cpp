@@ -217,7 +217,7 @@ static unsigned initializeMSAASampleCount(GrDirectContext* grContext)
         // knows there are bugs. The only way to know whether our sample count will work is trying to create a
         // surface with that value and check whether it works.
         auto imageInfo = SkImageInfo::Make(512, 512, kRGBA_8888_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
-        SkSurfaceProps properties = { 0, FontRenderOptions::singleton().subpixelOrder() };
+        SkSurfaceProps properties = FontRenderOptions::singleton().createSurfaceProps();
         auto surface = SkSurfaces::RenderTarget(grContext, skgpu::Budgeted::kNo, imageInfo, sampleCount, kTopLeft_GrSurfaceOrigin, &properties);
 
         // If the creation of the surface failed, disable MSAA.

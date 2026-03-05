@@ -60,7 +60,7 @@ CheckedUint32 ShareableBitmapConfiguration::calculateBytesPerRow(const IntSize& 
 sk_sp<SkSurface> ShareableBitmap::createSurface()
 {
     ref();
-    SkSurfaceProps properties = { 0, FontRenderOptions::singleton().subpixelOrder() };
+    SkSurfaceProps properties = FontRenderOptions::singleton().createSurfaceProps();
     auto surface = SkSurfaces::WrapPixels(m_configuration.imageInfo(), mutableSpan().data(), bytesPerRow(), [](void*, void* context) {
         static_cast<ShareableBitmap*>(context)->deref();
     }, this, &properties);

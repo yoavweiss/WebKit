@@ -227,7 +227,7 @@ SkSurface* AcceleratedSurface::RenderTargetShareableBuffer::skiaSurface()
         if (!skiaGLContext->makeContextCurrent())
             return nullptr;
 
-        SkSurfaceProps properties { 0, FontRenderOptions::singleton().subpixelOrder() };
+        SkSurfaceProps properties = FontRenderOptions::singleton().createSurfaceProps();
         auto skiaSurface = SkSurfaces::WrapBackendRenderTarget(
             display.skiaGrContext(),
             renderTargetSkia,
