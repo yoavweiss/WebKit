@@ -3400,7 +3400,7 @@ TEST(WritingTools, ContextMenuItemsNonEditable)
         if (subItem.isSeparatorItem)
             continue;
 
-        EXPECT_EQ(subItem.enabled, subItem.tag != WTRequestedToolCompose);
+        EXPECT_TRUE(subItem.enabled);
     }
 #endif
 }
@@ -3507,7 +3507,7 @@ TEST(WritingTools, AppMenuNonEditable)
         if (subItem.isSeparatorItem)
             continue;
 
-        EXPECT_EQ([webView validateUserInterfaceItem:subItem], subItem.tag != WTRequestedToolCompose);
+        EXPECT_TRUE([webView validateUserInterfaceItem:subItem]);
     }
 }
 

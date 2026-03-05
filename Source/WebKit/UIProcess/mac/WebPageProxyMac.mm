@@ -1006,16 +1006,12 @@ bool WebPageProxy::shouldEnableWritingToolsRequestedTool(WebCore::WritingTools::
 {
     WTRequestedTool requestedTool = convertToPlatformRequestedTool(tool);
 
-    if (requestedTool == WTRequestedToolIndex)
+    if (requestedTool == WTRequestedToolIndex || requestedTool == WTRequestedToolCompose)
         return true;
 
     auto& editorState = this->editorState();
-    bool editorStateIsContentEditable = editorState.isContentEditable;
 
-    if (requestedTool == WTRequestedToolCompose)
-        return editorStateIsContentEditable;
-
-    if (editorStateIsContentEditable)
+    if (editorState.isContentEditable)
         return editorState.hasPostLayoutData() && !editorState.postLayoutData->paragraphContextForCandidateRequest.isEmpty();
 
     return true;
