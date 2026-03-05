@@ -509,10 +509,10 @@ void WebEditorClient::subFrameScrollPositionChanged()
 
 #if PLATFORM(COCOA)
 
-bool WebEditorClient::shouldAllowSingleClickToChangeSelection(WebCore::Node& targetNode, const WebCore::VisibleSelection& newSelection) const
+bool WebEditorClient::shouldAllowSingleClickToChangeSelection(WebCore::Node& targetNode, const WebCore::VisibleSelection& newSelection, WebCore::MouseEventInputSource inputSource) const
 {
     RefPtr page = m_page.get();
-    return page && page->shouldAllowSingleClickToChangeSelection(targetNode, newSelection);
+    return page && page->shouldAllowSingleClickToChangeSelection(targetNode, newSelection, inputSource);
 }
 
 #endif // PLATFORM(COCOA)

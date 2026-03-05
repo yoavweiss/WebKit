@@ -43,6 +43,7 @@ namespace WebCore {
 
 enum class DOMPasteAccessCategory : uint8_t;
 enum class DOMPasteAccessResponse : uint8_t;
+enum class MouseEventInputSource : uint8_t;
 
 #if ENABLE(ATTACHMENT_ELEMENT)
 enum class AttachmentAssociatedElementType : uint8_t;
@@ -210,7 +211,7 @@ public:
 
     virtual bool performTwoStepDrop(DocumentFragment&, const SimpleRange& destination, bool isMove) = 0;
 
-    virtual bool shouldAllowSingleClickToChangeSelection(Node&, const VisibleSelection&) const { return true; }
+    virtual bool shouldAllowSingleClickToChangeSelection(Node&, const VisibleSelection&, MouseEventInputSource) const { return true; }
 
     virtual void willChangeSelectionForAccessibility() { }
     virtual void didChangeSelectionForAccessibility() { }

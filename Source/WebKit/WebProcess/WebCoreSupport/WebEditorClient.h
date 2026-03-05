@@ -193,7 +193,7 @@ private:
 #endif
 
 #if PLATFORM(COCOA)
-    bool shouldAllowSingleClickToChangeSelection(WebCore::Node&, const WebCore::VisibleSelection&) const final;
+    bool shouldAllowSingleClickToChangeSelection(WebCore::Node&, const WebCore::VisibleSelection&, WebCore::MouseEventInputSource) const final;
 #endif
 
 #if PLATFORM(IOS_FAMILY)

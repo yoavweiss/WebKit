@@ -78,6 +78,8 @@
 		07DEB44A2E7A079400066C32 /* Foundation+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078B04492CF139BF00B453A6 /* Foundation+Extras.swift */; };
 		07DF05182E0531AD00007A1B /* WebPageNavigationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DF05172E0531AD00007A1B /* WebPageNavigationTests.swift */; };
 		07E499911F9E56DF002F1EF3 /* GetUserMediaReprompt.mm in Sources */ = {isa = PBXBuildFile; fileRef = 07E499901F9E56A1002F1EF3 /* GetUserMediaReprompt.mm */; };
+		07EFC6202F576F610079E8EB /* AppKitGestures.mm in Sources */ = {isa = PBXBuildFile; fileRef = 07EFC6182F576F560079E8EB /* AppKitGestures.mm */; };
+		07EFC6232F5771050079E8EB /* AppKitGesturesSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07EFC6222F5771010079E8EB /* AppKitGesturesSupport.swift */; };
 		07FAA74D2CE95E3200128360 /* WebPageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FAA74C2CE95E3200128360 /* WebPageTests.swift */; };
 		0DE559ED2A6B0AAF009AA320 /* WKWebViewResize.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0DE559E52A6B0AAF009AA320 /* WKWebViewResize.mm */; };
 		0E404A8C2166DE0A008271BA /* InjectedBundleNodeHandleIsSelectElement.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0E404A8A2166DDF8008271BA /* InjectedBundleNodeHandleIsSelectElement.mm */; };
@@ -2541,6 +2543,9 @@
 		07E499901F9E56A1002F1EF3 /* GetUserMediaReprompt.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GetUserMediaReprompt.mm; sourceTree = "<group>"; };
 		07EDEFAC1EB9400C00D43292 /* UserMediaDisabled.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = UserMediaDisabled.mm; sourceTree = "<group>"; };
 		07EF76D42540FC060053ED53 /* MediaMutedState.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MediaMutedState.mm; sourceTree = "<group>"; };
+		07EFC6182F576F560079E8EB /* AppKitGestures.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppKitGestures.mm; sourceTree = "<group>"; };
+		07EFC6212F5770200079E8EB /* AppKitGesturesSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppKitGesturesSupport.h; sourceTree = "<group>"; };
+		07EFC6222F5771010079E8EB /* AppKitGesturesSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppKitGesturesSupport.swift; sourceTree = "<group>"; };
 		07F4E92D20AF58D3002E3803 /* UserMediaSimulateFailedSandbox.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = UserMediaSimulateFailedSandbox.mm; sourceTree = "<group>"; };
 		07F7696C2CA8BAC500FF004B /* IOSMouseEventTestHarness.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOSMouseEventTestHarness.h; sourceTree = "<group>"; };
 		07F7696D2CA8BAC500FF004B /* IOSMouseEventTestHarness.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IOSMouseEventTestHarness.mm; sourceTree = "<group>"; };
@@ -4882,6 +4887,9 @@
 				A1EB6C302D5582530096D4F8 /* AllowInlinePlaybackInDesktopClassBrowsing.mm */,
 				A1DF74301C41B65800A2F4D0 /* AlwaysRevalidatedURLSchemes.mm */,
 				2DE71AFD1D49C0BD00904094 /* AnimatedResize.mm */,
+				07EFC6182F576F560079E8EB /* AppKitGestures.mm */,
+				07EFC6212F5770200079E8EB /* AppKitGesturesSupport.h */,
+				07EFC6222F5771010079E8EB /* AppKitGesturesSupport.swift */,
 				A1798B8122431D65000764BD /* ApplePay.mm */,
 				E5D2146E2D58002C007DB350 /* AppleVisualEffectTests.mm */,
 				63F668201F97C3AA0032EE51 /* ApplicationManifest.mm */,
@@ -7861,6 +7869,8 @@
 				712E4BC125DDC52A0007201C /* AnimationFrameRate.cpp in Sources */,
 				57152B5E21CC2045000C37CA /* ApduTest.cpp in Sources */,
 				071B91922F57F81800E4ACAB /* AppKit+Extras.swift in Sources */,
+				07EFC6202F576F610079E8EB /* AppKitGestures.mm in Sources */,
+				07EFC6232F5771050079E8EB /* AppKitGesturesSupport.swift in Sources */,
 				6354F4D11F7C3AB500D89DF3 /* ApplicationManifestParser.cpp in Sources */,
 				F46C45C427D42A2F00ECED2C /* ApplicationStateTracking.mm in Sources */,
 				DF6580942722168900B3F1C1 /* ASN1Utilities.cpp in Sources */,
