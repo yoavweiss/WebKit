@@ -127,19 +127,19 @@ void Parser<LexerType>::logError(bool shouldPrintToken, Args&&... args)
 template <typename LexerType>
 Parser<LexerType>::Parser(VM& vm, const SourceCode& source, ImplementationVisibility implementationVisibility, JSParserBuiltinMode builtinMode, LexicallyScopedFeatures lexicallyScopedFeatures, JSParserScriptMode scriptMode, SourceParseMode parseMode, FunctionMode functionMode, SuperBinding superBinding, ConstructorKind constructorKind, DerivedContextType derivedContextType, bool isEvalContext, EvalContextType evalContextType, DebuggerParseData* debuggerParseData, bool isInsideOrdinaryFunction)
     : m_vm(vm)
-    , m_source(&source)
-    , m_hasStackOverflow(false)
     , m_allowsIn(true)
+    , m_immediateParentAllowsFunctionDeclarationInStatement(false)
+    , m_parseMode(parseMode)
     , m_statementDepth(0)
+    , m_scriptMode(scriptMode)
+    , m_source(&source)
+    , m_functionMode(functionMode)
+    , m_superBinding(superBinding)
     , m_implementationVisibility(implementationVisibility)
     , m_parsingBuiltin(builtinMode == JSParserBuiltinMode::Builtin)
-    , m_parseMode(parseMode)
-    , m_functionMode(functionMode)
-    , m_scriptMode(scriptMode)
-    , m_superBinding(superBinding)
-    , m_immediateParentAllowsFunctionDeclarationInStatement(false)
-    , m_debuggerParseData(debuggerParseData)
     , m_isInsideOrdinaryFunction(isInsideOrdinaryFunction)
+    , m_hasStackOverflow(false)
+    , m_debuggerParseData(debuggerParseData)
 {
     m_lexer = makeUnique<LexerType>(vm, builtinMode, scriptMode);
     m_lexer->setCode(source, &m_parserArena);
@@ -149,7 +149,7 @@ Parser<LexerType>::Parser(VM& vm, const SourceCode& source, ImplementationVisibi
     m_token.m_endPosition.offset = source.startOffset();
     m_functionCache = vm.addSourceProviderCache(source.provider());
 
-    ScopeRef scope = pushScope();
+    Scope* scope = pushScope();
     scope->setLexicallyScopedFeatures(lexicallyScopedFeatures);
     scope->setSourceParseMode(parseMode);
     scope->setIsEvalContext(isEvalContext);
@@ -173,7 +173,7 @@ Parser<LexerType>::Parser(VM& vm, const SourceCode& source, ImplementationVisibi
 
 class Scope::MaybeParseAsGeneratorFunctionForScope {
 public:
-    MaybeParseAsGeneratorFunctionForScope(ScopeRef& scope, bool shouldParseAsGeneratorFunction)
+    MaybeParseAsGeneratorFunctionForScope(Scope* scope, bool shouldParseAsGeneratorFunction)
         : m_scope(scope)
         , m_oldValue(scope->m_isGeneratorFunction)
     {
@@ -186,7 +186,7 @@ public:
     }
 
 private:
-    ScopeRef m_scope;
+    Scope* m_scope;
     bool m_oldValue;
 };
 
@@ -218,7 +218,7 @@ Expected<typename Parser<LexerType>::ParseInnerResult, String> Parser<LexerType>
 {
     ASTBuilder context(const_cast<VM&>(m_vm), m_parserArena, const_cast<SourceCode*>(m_source));
     SourceParseMode parseMode = sourceParseMode();
-    ScopeRef scope = currentScope();
+    Scope* scope = currentScope();
     scope->setIsLexicalScope();
 
     bool hasPrivateNames = scope->isEvalContext() && parentScopePrivateNames && parentScopePrivateNames->size();
@@ -366,7 +366,7 @@ template <class TreeBuilder> bool Parser<LexerType>::isArrowFunctionParameters(T
         else {
             SyntaxChecker syntaxChecker(const_cast<VM&>(m_vm), m_lexer.get());
             // We make fake scope, otherwise parseFormalParameters will add variable to current scope that lead to errors
-            AutoPopScopeRef fakeScope(this, pushScope());
+            AutoPopScope fakeScope(this, pushScope());
 
             fakeScope->setSourceParseMode(SourceParseMode::ArrowFunctionMode);
             resetImplementationVisibilityIfNeeded();
@@ -539,7 +539,7 @@ template <class TreeBuilder> TreeSourceElements Parser<LexerType>::parseGenerato
     info.startLine = tokenLine();
 
     {
-        AutoPopScopeRef generatorBodyScope(this, pushScope());
+        AutoPopScope generatorBodyScope(this, pushScope());
 
         generatorBodyScope->setSourceParseMode(SourceParseMode::GeneratorBodyMode);
         resetImplementationVisibilityIfNeeded();
@@ -583,7 +583,7 @@ template <class TreeBuilder> TreeSourceElements Parser<LexerType>::parseAsyncFun
     bool bodyUsesAwait = false;
     SavePoint bodySavePoint = createSavePoint(context);
     {
-        AutoPopScopeRef asyncFunctionBodyScope(this, pushScope());
+        AutoPopScope asyncFunctionBodyScope(this, pushScope());
 
         asyncFunctionBodyScope->setSourceParseMode(sourceParseMode());
         resetImplementationVisibilityIfNeeded();
@@ -675,7 +675,7 @@ template <class TreeBuilder> TreeSourceElements Parser<LexerType>::parseAsyncGen
     SourceParseMode parseMode = SourceParseMode::AsyncGeneratorBodyMode;
     SetForScope innerParseMode(m_parseMode, parseMode);
     {
-        AutoPopScopeRef asyncFunctionBodyScope(this, pushScope());
+        AutoPopScope asyncFunctionBodyScope(this, pushScope());
 
         asyncFunctionBodyScope->setSourceParseMode(sourceParseMode());
         resetImplementationVisibilityIfNeeded();
@@ -1463,7 +1463,7 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseForStatement(
          for (var/let/const varDeclarationList; expressionOpt; expressionOpt)
          */
         if (isLetDeclaration || isConstDeclaration) {
-            ScopeRef newScope = pushScope();
+            Scope* newScope = pushScope();
             newScope->setIsLexicalScope();
             newScope->preventVarDeclarations();
             lexicalScope.setIsValid(newScope, this);
@@ -1764,7 +1764,7 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseWithStatement
     int endLine = tokenLine();
     handleProductionOrFail(CLOSEPAREN, ")", "start", "subject of a 'with' statement");
 
-    AutoPopScopeRef withScope(this, pushScope());
+    AutoPopScope withScope(this, pushScope());
     withScope->setTaintedByWithScope();
     withScope->preventAllVariableDeclarations();
 
@@ -1792,7 +1792,7 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseSwitchStateme
     
     handleProductionOrFail(CLOSEPAREN, ")", "end", "subject of a 'switch'");
     handleProductionOrFail(OPENBRACE, "{", "start", "body of a 'switch'");
-    AutoPopScopeRef lexicalScope(this, pushScope());
+    AutoPopScope lexicalScope(this, pushScope());
     lexicalScope->setIsLexicalScope();
     lexicalScope->preventVarDeclarations();
     startSwitch();
@@ -1887,7 +1887,7 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseTryStatement(
             DepthManager statementDepth(&m_statementDepth);
             semanticFailIfTrue(currentScope()->isStaticBlock() && match(AWAIT), "Cannot use 'await' as identifier within static block");
             m_statementDepth++;
-            AutoPopScopeRef catchScope(this, pushScope());
+            AutoPopScope catchScope(this, pushScope());
             catchScope->setIsLexicalScope();
             catchScope->preventVarDeclarations();
             const Identifier* ident = nullptr;
@@ -1956,7 +1956,7 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseBlockStatemen
     AutoCleanupLexicalScope lexicalScope;
     bool shouldPushLexicalScope = m_statementDepth > 0 || type == BlockType::StaticBlock;
     if (shouldPushLexicalScope) {
-        ScopeRef newScope = pushScope();
+        Scope* newScope = pushScope();
         newScope->setIsLexicalScope();
         switch (type) {
         case BlockType::CatchBlock:
@@ -2142,7 +2142,7 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseFunctionDecla
     // function a() {
     //     if (cond) { function foo() { } }
     // }
-    AutoPopScopeRef blockScope(this, pushScope());
+    AutoPopScope blockScope(this, pushScope());
     blockScope->setIsLexicalScope();
     blockScope->preventVarDeclarations();
     JSTokenLocation location(tokenLocation());
@@ -2234,7 +2234,7 @@ static ALWAYS_INLINE SuperBinding NODELETE adjustSuperBindingForBaseConstructor(
     return SuperBinding::Needed;
 }
 
-static ALWAYS_INLINE SuperBinding NODELETE adjustSuperBindingForBaseConstructor(ConstructorKind constructorKind, SuperBinding expectedSuperBinding, SourceParseMode parseMode, ScopeRef functionScope)
+static ALWAYS_INLINE SuperBinding NODELETE adjustSuperBindingForBaseConstructor(ConstructorKind constructorKind, SuperBinding expectedSuperBinding, SourceParseMode parseMode, Scope* functionScope)
 {
     return adjustSuperBindingForBaseConstructor(constructorKind, expectedSuperBinding, parseMode, functionScope->needsSuperBinding(), functionScope->usesEval(), functionScope->innerArrowFunctionFeatures());
 }
@@ -2463,12 +2463,12 @@ template <class TreeBuilder> bool Parser<LexerType>::parseFunctionInfo(TreeBuild
     auto mode = sourceParseMode();
     RELEASE_ASSERT(isFunctionParseMode(mode));
 
-    ScopeRef parentScope = currentScope();
+    Scope* parentScope = currentScope();
 
     bool functionNameIsAwait = isPossiblyEscapedAwait(m_token);
     const char* isDisallowedAwaitFunctionNameReason = functionNameIsAwait && !canUseIdentifierAwait() ? disallowedIdentifierAwaitReason() : nullptr;
 
-    AutoPopScopeRef functionScope(this, pushScope());
+    AutoPopScope functionScope(this, pushScope());
 
     functionScope->setSourceParseMode(mode);
     resetImplementationVisibilityIfNeeded();
@@ -2581,7 +2581,7 @@ template <class TreeBuilder> bool Parser<LexerType>::parseFunctionInfo(TreeBuild
         {
             // Parse formal parameters with [+Yield] parameterization, in order to ban YieldExpressions
             // in ArrowFormalParameters, per ES6 #sec-arrow-function-definitions-static-semantics-early-errors.
-            Scope::MaybeParseAsGeneratorFunctionForScope parseAsGeneratorFunction(functionScope, parentScope->isGeneratorFunction());
+            Scope::MaybeParseAsGeneratorFunctionForScope parseAsGeneratorFunction(functionScope.scope(), parentScope->isGeneratorFunction());
             SetForScope overrideAllowAwait(m_parserState.allowAwait, !parentScope->isAsyncFunction() && !isAsyncFunctionParseMode(mode));
             parseFunctionParameters(syntaxChecker, functionInfo);
             propagateError();
@@ -2704,7 +2704,7 @@ template <class TreeBuilder> bool Parser<LexerType>::parseFunctionInfo(TreeBuild
 
     ImplementationVisibility implementationVisibility = this->implementationVisibility();
     if (isGeneratorOrAsyncFunctionWrapperParseMode(mode)) {
-        AutoPopScopeRef generatorBodyScope(this, pushScope());
+        AutoPopScope generatorBodyScope(this, pushScope());
         SourceParseMode innerParseMode = isAsyncFunctionOrAsyncGeneratorWrapperParseMode(mode) ? getAsyncFunctionBodyParseMode(mode) : SourceParseMode::GeneratorBodyMode;
 
         generatorBodyScope->setSourceParseMode(innerParseMode);
@@ -2849,7 +2849,7 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseFunctionDecla
     failIfFalse((parseFunctionInfo(context, requirements, true, ConstructorKind::None, SuperBinding::NotNeeded, functionStart, functionInfo, FunctionDefinitionType::Declaration, functionConstructorParametersEndPosition)), "Cannot parse this function");
     ASSERT(functionInfo.name);
 
-    std::pair<DeclarationResultMask, ScopeRef> functionDeclaration = declareFunction(functionInfo.name);
+    std::pair<DeclarationResultMask, Scope*> functionDeclaration = declareFunction(functionInfo.name);
     DeclarationResultMask declarationResult = functionDeclaration.first;
     failIfTrueIfStrict(declarationResult & DeclarationResult::InvalidStrictMode, "Cannot declare a function named '", functionInfo.name->impl(), "' in strict mode");
     semanticFailIfTrue(declarationResult & DeclarationResult::InvalidDuplicateDeclaration, "Cannot declare a function that shadows a let/const/class/function variable '", functionInfo.name->impl(), "'");
@@ -2920,7 +2920,7 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseAsyncFunction
     failIfFalse((parseFunctionInfo(context, requirements, true, ConstructorKind::None, SuperBinding::NotNeeded, functionStart, functionInfo, FunctionDefinitionType::Declaration, functionConstructorParametersEndPosition)), "Cannot parse this async function");
     failIfFalse(functionInfo.name, "Async function statements must have a name");
 
-    std::pair<DeclarationResultMask, ScopeRef> functionDeclaration = declareFunction(functionInfo.name);
+    std::pair<DeclarationResultMask, Scope*> functionDeclaration = declareFunction(functionInfo.name);
     DeclarationResultMask declarationResult = functionDeclaration.first;
     failIfTrueIfStrict(declarationResult & DeclarationResult::InvalidStrictMode, "Cannot declare an async function named '", functionInfo.name->impl(), "' in strict mode");
     semanticFailIfTrue(declarationResult & DeclarationResult::InvalidDuplicateDeclaration, "Cannot declare an async function that shadows a let/const/class/function variable '", functionInfo.name->impl(), "'");
@@ -3008,7 +3008,7 @@ template <class TreeBuilder> TreeClassExpression Parser<LexerType>::parseClass(T
     //
     // We need to create two scopes here since private name lookup will traverse scope at linking time in CodeBlock.
     // This classHeadScope is similar to functionScope in FunctionExpression with name.
-    AutoPopScopeRef classHeadScope(this, pushScope());
+    AutoPopScope classHeadScope(this, pushScope());
     classHeadScope->setIsLexicalScope();
     classHeadScope->preventVarDeclarations();
     classHeadScope->setStrictMode();
@@ -3040,7 +3040,7 @@ template <class TreeBuilder> TreeClassExpression Parser<LexerType>::parseClass(T
     JSTextPosition classHeadEnd = lastTokenEndPosition();
     consumeOrFail(OPENBRACE, "Expected opening '{' at the start of a class body");
 
-    AutoPopScopeRef classScope(this, pushScope());
+    AutoPopScope classScope(this, pushScope());
     classScope->setIsLexicalScope();
     classScope->preventVarDeclarations();
     classScope->setStrictMode();
@@ -3446,7 +3446,7 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseExpressionOrL
         break;
     }
     const Identifier* unused = nullptr;
-    ScopeRef labelScope = currentScope();
+    Scope* labelScope = currentScope();
     for (auto& label : labels)
         pushLabel(label.m_ident, isLoop);
     m_immediateParentAllowsFunctionDeclarationInStatement = allowFunctionDeclarationAsStatement;
@@ -5294,7 +5294,7 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseMemberExpres
 
     if (newCount && consume(DOT)) {
         if (matchContextualKeyword(m_vm.propertyNames->target)) [[likely]] {
-            ScopeRef closestOrdinaryFunctionScope = closestParentOrdinaryFunctionNonLexicalScope();
+            Scope* closestOrdinaryFunctionScope = closestParentOrdinaryFunctionNonLexicalScope();
             bool isClassFieldInitializer = m_parserState.isParsingClassFieldInitializer;
             bool isFunctionEvalContextType = m_isInsideOrdinaryFunction && (closestOrdinaryFunctionScope->evalContextType() == EvalContextType::FunctionEvalContext || closestOrdinaryFunctionScope->evalContextType() == EvalContextType::InstanceFieldEvalContext);
             semanticFailIfFalse(currentScope()->isFunction() || currentScope()->isStaticBlock() || isFunctionEvalContextType || isClassFieldInitializer, "new.target is only valid inside functions or static blocks");
@@ -5310,14 +5310,21 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseMemberExpres
             failDueToUnexpectedToken();
         }
     } else if (baseIsSuper) {
-        ScopeRef closestOrdinaryFunctionScope = closestParentOrdinaryFunctionNonLexicalScope();
-        ScopeRef classScope = closestClassScopeOrTopLevelScope();
-        bool isClassFieldInitializer = classScope.index() > closestOrdinaryFunctionScope.index();
+        Scope* closestOrdinaryFunctionScope = closestParentOrdinaryFunctionNonLexicalScope();
+        Scope* classScope = closestClassScopeOrTopLevelScope();
+        // Check if classScope is deeper than closestOrdinaryFunctionScope (i.e., we're in a class field initializer).
+        bool isClassFieldInitializer = false;
+        for (Scope* scope = classScope->containingScope(); scope; scope = scope->containingScope()) {
+            if (scope == closestOrdinaryFunctionScope) {
+                isClassFieldInitializer = true;
+                break;
+            }
+        }
         semanticFailIfFalse(currentScope()->isFunction() || isClassFieldInitializer || (closestOrdinaryFunctionScope->isEvalContext() && closestOrdinaryFunctionScope->expectedSuperBinding() == SuperBinding::Needed), "super is not valid in this context");
         base = context.createSuperExpr(location);
         next();
         failIfTrue(match(OPENPAREN) && currentScope()->evalContextType() == EvalContextType::InstanceFieldEvalContext, "super call is not valid in this context");
-        ScopeRef functionScope = currentFunctionScope();
+        Scope* functionScope = currentFunctionScope();
         functionScope->setNeedsSuperBinding();
         // It unnecessary to check of using super during reparsing one more time. Also it can lead to syntax error
         // in case of arrow function because during reparsing we don't know whether we currently parse the arrow function
@@ -5442,13 +5449,13 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseMemberExpres
 
                     failIfFalse(arguments, "Cannot parse call arguments");
                     if (baseIsSuper) {
-                        ScopeRef functionScope = currentFunctionScope();
+                        Scope* functionScope = currentFunctionScope();
                         functionScope->setHasDirectSuper();
                         // It unnecessary to check of using super during reparsing one more time. Also it can lead to syntax error
                         // in case of arrow function because during reparsing we don't know whether we currently parse the arrow function
                         // inside of the constructor or method.
                         if (!m_lexer->isReparsingFunction()) {
-                            ScopeRef closestOrdinaryFunctionScope = closestParentOrdinaryFunctionNonLexicalScope();
+                            Scope* closestOrdinaryFunctionScope = closestParentOrdinaryFunctionNonLexicalScope();
                             semanticFailIfFalse(closestOrdinaryFunctionScope->constructorKind() == ConstructorKind::Extends || (closestOrdinaryFunctionScope->isEvalContext() && closestOrdinaryFunctionScope->derivedContextType() == DerivedContextType::DerivedConstructorContext), "super is not valid in this context");
                         }
                         if (currentScope()->isArrowFunction())
@@ -5772,5 +5779,5 @@ template <typename LexerType> void Parser<LexerType>::printUnexpectedTokenText(W
 // Instantiate the two flavors of Parser we need instead of putting most of this file in Parser.h
 template class Parser<Lexer<Latin1Character>>;
 template class Parser<Lexer<char16_t>>;
-    
+
 } // namespace JSC
