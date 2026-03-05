@@ -1539,6 +1539,8 @@ void HTMLMediaElement::prepareForLoad()
     if (!document().hasBrowsingContext())
         return;
 
+    MediaTime previousPlaybackPosition = currentMediaTime();
+
     createMediaPlayer();
 
     // 2 - Let pending tasks be a list of all tasks from the media element's media element event task source in one of the task queues.
@@ -1583,7 +1585,8 @@ void HTMLMediaElement::prepareForLoad()
         //       If this changed the official playback position, then queue a task to fire a simple event named timeupdate at the media element.
         m_lastSeekTime = MediaTime::zeroTime();
         m_playedTimeRanges = TimeRanges::create();
-        // FIXME: Add support for firing this event. e.g., scheduleEvent(eventNames().timeUpdateEvent);
+        if (previousPlaybackPosition > MediaTime::zeroTime())
+            scheduleEvent(eventNames().timeupdateEvent);
 
         // 4.9 - Set the initial playback position to 0.
         invalidateOfficialPlaybackPosition();
