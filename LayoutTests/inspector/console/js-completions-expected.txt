@@ -13,6 +13,9 @@ PASS: Completions should still contain myVariable before cache is cleared.
 PASS: Completions should change after cache is cleared.
 PASS: Completions should not contain myVariable after it's deleted by code run in console.
 
+-- Running test case: console.jsCompletions.revokedProxy
+PASS: Completions for a revoked proxy should return an empty array and should not crash.
+
 -- Running test case: console.jsCompletions.completionOrdering
 Completions with options={"baseString":"objectWithMixedPropertyKinds.","prefix":""}:
 [

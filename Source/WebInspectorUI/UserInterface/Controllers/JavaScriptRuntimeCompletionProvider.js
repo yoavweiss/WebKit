@@ -260,7 +260,7 @@ WI.JavaScriptRuntimeCompletionProvider = class JavaScriptRuntimeCompletionProvid
 
         function receivedObjectPropertyNames(propertyNames)
         {
-            receivedPropertyNames.call(this, Object.keys(propertyNames));
+            receivedPropertyNames.call(this, propertyNames ? Object.keys(propertyNames) : null);
         }
 
         function receivedArrayPropertyNames(propertyNames)
