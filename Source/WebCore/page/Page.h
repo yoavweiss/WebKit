@@ -435,6 +435,7 @@ public:
 #endif
     void setUserDidInteractWithPage(bool);
     bool NODELETE userDidInteractWithPage() const;
+    void NODELETE setUserDidInteractWithPageExcludingForcedUserGestures(bool didInteract) { m_userHasInteractedSinceLastPageLoadExcludingForcedUserGestures = didInteract; }
     void setAutofocusProcessed();
     bool NODELETE autofocusProcessed() const;
     bool NODELETE topDocumentHasDocumentClass(DocumentClass) const;
@@ -1755,6 +1756,7 @@ private:
     std::optional<Color> m_sampledPageTopColor;
     std::pair<UniqueRef<FixedContainerEdges>, WeakElementEdges> m_fixedContainerEdgesAndElements;
     bool m_userHasInteractedSinceLastPageLoad { false };
+    bool m_userHasInteractedSinceLastPageLoadExcludingForcedUserGestures { false };
 
     const bool m_httpsUpgradeEnabled { true };
     mutable Markable<MediaSessionGroupIdentifier> m_mediaSessionGroupIdentifier;

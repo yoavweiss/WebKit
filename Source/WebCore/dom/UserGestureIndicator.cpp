@@ -191,8 +191,10 @@ UserGestureIndicator::UserGestureIndicator(std::optional<IsProcessingUserGesture
             else
                 LOG_ONCE(SiteIsolation, "Unable to properly construct UserGestureIndicator::UserGestureIndicator() without access to the main frame document ");
         }
-        if (RefPtr page = document->page())
+        if (RefPtr page = document->page()) {
             page->setUserDidInteractWithPage(true);
+            page->setUserDidInteractWithPageExcludingForcedUserGestures(processInteractionStyle != ProcessInteractionStyle::Never);
+        }
         if (RefPtr frame = document->frame(); frame && !frame->hasHadUserInteraction()) {
             for (RefPtr<Frame> ancestor = WTF::move(frame); ancestor; ancestor = ancestor->tree().parent()) {
                 if (RefPtr localAncestor = dynamicDowncast<LocalFrame>(ancestor)) {
