@@ -351,7 +351,7 @@ RefPtr<SharedBuffer> serializeIDBKeyData(const IDBKeyData& key)
             return false;
 
         size_t size = static_cast<size_t>(size64);
-        Vector<uint8_t> dataVector(data);
+        Vector<uint8_t> dataVector(data.first(size));
         skip(data, size);
 
         result.setBinaryValue(ThreadSafeDataBuffer::create(WTF::move(dataVector)));
