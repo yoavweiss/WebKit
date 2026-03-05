@@ -2893,6 +2893,8 @@ webkit.org/b/154687 streams/pipe-to.html [ Slow ]
 
 webkit.org/b/52185 fast/css/vertical-align-baseline-rowspan-010.html [ ImageOnlyFailure ]
 
+webkit.org/b/309145 fast/css/vertical-text-overflow-ellipsis-text-align-center-mixed.html [ Pass Failure ]
+
 # Content Security Policy failures
 webkit.org/b/111869 http/tests/security/contentSecurityPolicy/eval-blocked-and-sends-report.html
 webkit.org/b/153148 http/tests/security/contentSecurityPolicy/eval-allowed-in-report-only-mode-and-sends-report.py

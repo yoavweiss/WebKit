@@ -600,6 +600,8 @@ imported/w3c/web-platform-tests/selection/shadow-dom/tentative/Selection-isColla
 webkit.org/b/304101 [ Debug ] imported/w3c/web-platform-tests/selection/crashtests/selection-modify-per-word-in-table-header-group.html [ Crash ]
 webkit.org/b/304101 [ Release ] imported/w3c/web-platform-tests/selection/crashtests/selection-modify-per-word-in-table-header-group.html [ Pass Crash ]
 
+webkit.org/b/309201 fast/css/getComputedStyle-font-variant-shorthand-crash.html [ Pass Crash ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Crashing tests
 #////////////////////////////////////////////////////////////////////////////////////////
