@@ -313,6 +313,7 @@ JSC_DEFINE_JIT_OPERATION(operationWasmToJSExitMarshalArguments, void, (void* sp,
     JSGlobalObject* globalObject = instance->globalObject();
     ASSERT(globalObject);
     VM& vm = instance->vm();
+    WasmOperationPrologueCallFrameTracer tracer(vm, callFrame, OUR_RETURN_ADDRESS);
 
     auto scope = DECLARE_THROW_SCOPE(vm);
 
