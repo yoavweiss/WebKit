@@ -91,7 +91,7 @@ std::optional<MotionPathData> MotionPath::motionPathDataForRenderer(const Render
     if (!canBuildMotionPathData)
         return std::nullopt;
 
-    auto startingPositionForOffsetPosition = [&](const Style::OffsetPosition& offsetPosition, const FloatRect& referenceRect, RenderBlock& container) -> FloatPoint {
+    auto startingPositionForOffsetPosition = [&](const Style::OffsetPosition& offsetPosition, const FloatRect& referenceRect, RenderBlock& container, Style::ZoomFactor zoom) -> FloatPoint {
         return WTF::switchOn(offsetPosition,
             [&](const CSS::Keyword::Normal&) {
                 // If offset-position is normal, the element does not have an offset starting position.
@@ -102,7 +102,7 @@ std::optional<MotionPathData> MotionPath::motionPathDataForRenderer(const Render
                 return offsetFromContainer(renderer, container, referenceRect);
             },
             [&](const Style::Position& position) {
-                return Style::evaluate<FloatPoint>(position, referenceRect.size(), Style::ZoomNeeded { });
+                return Style::evaluate<FloatPoint>(position, referenceRect.size(), zoom);
             }
         );
     };
@@ -115,17 +115,18 @@ std::optional<MotionPathData> MotionPath::motionPathDataForRenderer(const Render
     data.containingBlockBoundingRect = containingBlockRectForRenderer(renderer, *container, offsetPath);
     data.offsetFromContainingBlock = offsetFromContainer(renderer, *container, data.containingBlockBoundingRect.rect());
 
+    auto zoom = renderer.style().usedZoomForLength();
     auto& offsetPosition = renderer.style().offsetPosition();
 
     WTF::switchOn(offsetPath,
         [&](const Style::BasicShapePath&) {
-            data.usedStartingPosition = startingPositionForOffsetPosition(offsetPosition, data.containingBlockBoundingRect.rect(), *container);
+            data.usedStartingPosition = startingPositionForOffsetPosition(offsetPosition, data.containingBlockBoundingRect.rect(), *container, zoom);
         },
         [&](const Style::RayPath& offsetPath) {
             auto startingPosition = offsetPath.ray()->position;
             data.usedStartingPosition = startingPosition
-                ? Style::evaluate<FloatPoint>(*startingPosition, data.containingBlockBoundingRect.rect().size(), Style::ZoomNeeded { })
-                : startingPositionForOffsetPosition(offsetPosition, data.containingBlockBoundingRect.rect(), *container);
+                ? Style::evaluate<FloatPoint>(*startingPosition, data.containingBlockBoundingRect.rect().size(), zoom)
+                : startingPositionForOffsetPosition(offsetPosition, data.containingBlockBoundingRect.rect(), *container, zoom);
         },
         [&](const auto&) { }
     );
@@ -267,7 +268,7 @@ std::optional<Path> MotionPath::computePathForShape(const ShapePathOperation& pa
         return WTF::switchOn(pathOperation.shape(),
             [&]<Style::ShapeWithCenterCoordinate T>(const T& shape) -> std::optional<Path> {
                 if (!shape->position)
-                    return Style::pathForCenterCoordinate(*shape, containingBlockRect, motionPathData->usedStartingPosition);
+                    return Style::pathForCenterCoordinate(*shape, containingBlockRect, motionPathData->usedStartingPosition, zoom);
                 return Style::path(shape, containingBlockRect, zoom);
             },
             [&](const auto& shape) -> std::optional<Path> {

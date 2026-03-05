@@ -546,7 +546,7 @@ LayoutRect RenderReplaced::replacedContentRect(const LayoutSize& intrinsicSize) 
     if (intrinsicSize.isEmpty())
         return contentRect;
 
-    ObjectFit objectFit = style().objectFit();
+    auto objectFit = style().objectFit();
 
     LayoutRect finalRect = contentRect;
     switch (objectFit) {
@@ -565,9 +565,10 @@ LayoutRect RenderReplaced::replacedContentRect(const LayoutSize& intrinsicSize) 
     }
 
     auto& objectPosition = style().objectPosition();
+    auto zoom = style().usedZoomForLength();
 
-    auto xOffset = Style::evaluate<LayoutUnit>(objectPosition.x, contentRect.width() - finalRect.width(), Style::ZoomNeeded { });
-    auto yOffset = Style::evaluate<LayoutUnit>(objectPosition.y, contentRect.height() - finalRect.height(), Style::ZoomNeeded { });
+    auto xOffset = Style::evaluate<LayoutUnit>(objectPosition.x, contentRect.width() - finalRect.width(), zoom);
+    auto yOffset = Style::evaluate<LayoutUnit>(objectPosition.y, contentRect.height() - finalRect.height(), zoom);
 
     finalRect.move(xOffset, yOffset);
 

@@ -1603,6 +1603,7 @@ void RenderTableCell::paintBackgroundsBehindCell(PaintInfo& paintInfo, LayoutPoi
     } else
         fillRect = LayoutRect { adjustedPaintOffset, size() };
     auto compositeOp = document().compositeOperatorForBackgroundColor(color, *this);
+
     BackgroundPainter painter { *this, paintInfo };
 
     bool hasBackgroundClipText = false;
@@ -1615,7 +1616,7 @@ void RenderTableCell::paintBackgroundsBehindCell(PaintInfo& paintInfo, LayoutPoi
         painter.setOverrideClip(FillBox::BorderBox);
         painter.setOverrideOrigin(FillBox::BorderBox);
     }
-    painter.paintFillLayers(color, bgLayers, fillRect, BleedAvoidance::None, compositeOp, backgroundObject);
+    painter.paintFillLayers(color, bgLayers, style.usedZoomForLength(), fillRect, BleedAvoidance::None, compositeOp, backgroundObject);
 }
 
 void RenderTableCell::paintBoxDecorations(PaintInfo& paintInfo, const LayoutPoint& paintOffset)

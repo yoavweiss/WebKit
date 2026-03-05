@@ -34,7 +34,7 @@ namespace WebCore {
 namespace Style {
 
 struct Polygon {
-    using Vertex = SpaceSeparatedPoint<LengthPercentage<>>;
+    using Vertex = SpaceSeparatedPoint<LengthPercentage<CSS::AllUnzoomed>>;
     using Vertices = CommaSeparatedVector<Vertex>;
 
     // FIXME: Add support the "round" clause.

@@ -100,8 +100,8 @@ Ref<const LayoutShape> LayoutShape::createShape(const Style::BasicShape& basicSh
     auto shape = WTF::switchOn(basicShape,
         [&](const Style::CircleFunction& circle) -> Ref<LayoutShape> {
             auto boxSize = FloatSize { boxWidth, boxHeight };
-            auto center = Style::resolvePosition(*circle, boxSize);
-            auto radius = Style::resolveRadius(*circle, boxSize, center);
+            auto center = Style::resolvePosition(*circle, boxSize, zoom);
+            auto radius = Style::resolveRadius(*circle, boxSize, center, zoom);
 
             auto logicalCenter = physicalPointToLogical(center, logicalBoxSize.height(), writingMode);
             logicalCenter.moveBy(borderBoxOffset);
@@ -110,8 +110,8 @@ Ref<const LayoutShape> LayoutShape::createShape(const Style::BasicShape& basicSh
         },
         [&](const Style::EllipseFunction& ellipse) -> Ref<LayoutShape> {
             auto boxSize = FloatSize { boxWidth, boxHeight };
-            auto center = Style::resolvePosition(*ellipse, boxSize);
-            auto radii = Style::resolveRadii(*ellipse, boxSize, center);
+            auto center = Style::resolvePosition(*ellipse, boxSize, zoom);
+            auto radii = Style::resolveRadii(*ellipse, boxSize, center, zoom);
 
             auto logicalCenter = physicalPointToLogical(center, logicalBoxSize.height(), writingMode);
             logicalCenter.moveBy(borderBoxOffset);
@@ -121,14 +121,14 @@ Ref<const LayoutShape> LayoutShape::createShape(const Style::BasicShape& basicSh
             return createEllipseShape(logicalCenter, radii, logicalBoxSize.width());
         },
         [&](const Style::InsetFunction& inset) -> Ref<LayoutShape> {
-            auto left = Style::evaluate<float>(inset->insets.left(), boxWidth, Style::ZoomNeeded { });
-            auto top = Style::evaluate<float>(inset->insets.top(), boxHeight, Style::ZoomNeeded { });
+            auto left = Style::evaluate<float>(inset->insets.left(), boxWidth, zoom);
+            auto top = Style::evaluate<float>(inset->insets.top(), boxHeight, zoom);
 
             FloatRect rect {
                 left,
                 top,
-                std::max<float>(boxWidth - left - Style::evaluate<float>(inset->insets.right(), boxWidth, Style::ZoomNeeded { }), 0),
-                std::max<float>(boxHeight - top - Style::evaluate<float>(inset->insets.bottom(), boxHeight, Style::ZoomNeeded { }), 0)
+                std::max<float>(boxWidth - left - Style::evaluate<float>(inset->insets.right(), boxWidth, zoom), 0),
+                std::max<float>(boxHeight - top - Style::evaluate<float>(inset->insets.bottom(), boxHeight, zoom), 0)
             };
 
             auto logicalRect = physicalRectToLogical(rect, logicalBoxSize.height(), writingMode);
@@ -151,7 +151,7 @@ Ref<const LayoutShape> LayoutShape::createShape(const Style::BasicShape& basicSh
             auto boxSize = FloatSize { boxWidth, boxHeight };
 
             auto vertices = polygon->vertices.value.map([&](const auto& vertex) {
-                return physicalPointToLogical(Style::evaluate<FloatPoint>(vertex, boxSize, Style::ZoomNeeded { }) + borderBoxOffset, logicalBoxSize.height(), writingMode);
+                return physicalPointToLogical(Style::evaluate<FloatPoint>(vertex, boxSize, zoom) + borderBoxOffset, logicalBoxSize.height(), writingMode);
             });
 
             return createPolygonShape(WTF::move(vertices), logicalBoxSize.width());

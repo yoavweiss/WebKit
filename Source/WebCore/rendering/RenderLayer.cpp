@@ -2282,7 +2282,9 @@ FloatPoint RenderLayer::perspectiveOrigin() const
 {
     if (!renderer().hasTransformRelatedProperty())
         return { };
-    return Style::evaluate<FloatPoint>(renderer().style().perspectiveOrigin(), renderer().transformReferenceBoxRect(renderer().style()).size(), Style::ZoomNeeded { });
+
+    CheckedRef style = renderer().style();
+    return Style::evaluate<FloatPoint>(style->perspectiveOrigin(), renderer().transformReferenceBoxRect(style).size(), style->usedZoomForLength());
 }
 
 static inline bool isContainerForPositioned(RenderLayer& layer, PositionType position, bool establishesTopLayer)

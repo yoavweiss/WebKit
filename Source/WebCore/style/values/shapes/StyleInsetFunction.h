@@ -36,7 +36,7 @@ class Path;
 namespace Style {
 
 struct Inset {
-    using Insets = MinimallySerializingSpaceSeparatedRectEdges<LengthPercentage<>>;
+    using Insets = MinimallySerializingSpaceSeparatedRectEdges<LengthPercentage<CSS::AllUnzoomed>>;
 
     Insets insets;
     BorderRadius radii;
