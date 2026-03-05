@@ -535,7 +535,7 @@ void WebFrameProxy::didCreateSubframe(WebCore::FrameIdentifier frameID, String&&
 #endif
 }
 
-void WebFrameProxy::prepareForProvisionalLoadInProcess(WebProcessProxy& process, API::Navigation& navigation, BrowsingContextGroup& group, std::optional<SecurityOriginData> effectiveOrigin, CompletionHandler<void(WebCore::PageIdentifier)>&& completionHandler)
+void WebFrameProxy::prepareForProvisionalLoadInProcess(WebProcessProxy& process, API::Navigation& navigation, BrowsingContextGroup& group, std::optional<SecurityOriginData> effectiveOrigin, CompletionHandler<void(std::optional<WebCore::PageIdentifier>)>&& completionHandler)
 {
     if (isMainFrame())
         return completionHandler(*webPageIDInCurrentProcess());
@@ -556,7 +556,14 @@ void WebFrameProxy::prepareForProvisionalLoadInProcess(WebProcessProxy& process,
     if (RefPtr provisionalFrame = m_provisionalFrame)
         page->inspectorController().didCreateProvisionalFrame(*provisionalFrame);
 
-    protect(protect(page->websiteDataStore())->networkProcess())->addAllowedFirstPartyForCookies(process, mainFrameDomain, LoadedWebArchive::No, [pageID = page->webPageIDInProcess(process), completionHandler = WTF::move(completionHandler)] mutable {
+    protect(protect(page->websiteDataStore())->networkProcess())->addAllowedFirstPartyForCookies(process, mainFrameDomain, LoadedWebArchive::No, [weakProvisionalFrame = WeakPtr { m_provisionalFrame }, pageID = page->webPageIDInProcess(process), completionHandler = WTF::move(completionHandler)] mutable {
+        RefPtr provisionalFrame = weakProvisionalFrame.get();
+        if (!provisionalFrame || !protect(provisionalFrame->frame())->isConnected()) {
+            // Provisional loading was cancelled while network process was handling this message.
+            completionHandler(std::nullopt);
+            return;
+        }
+
         completionHandler(pageID);
     });
 }

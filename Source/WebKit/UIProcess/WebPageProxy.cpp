@@ -5647,8 +5647,9 @@ void WebPageProxy::continueNavigationInNewProcess(API::Navigation& navigation, W
             loadParameters = WTF::move(loadParameters),
             newProcess = newProcess.copyRef(),
             preventProcessShutdownScope = newProcess->shutdownPreventingScope()
-        ] (PageIdentifier pageID) mutable {
-            newProcess->send(Messages::WebPage::LoadRequest(WTF::move(loadParameters)), pageID);
+        ](std::optional<PageIdentifier> pageID) mutable {
+            if (pageID)
+                newProcess->send(Messages::WebPage::LoadRequest(WTF::move(loadParameters)), *pageID);
         });
         return;
     }

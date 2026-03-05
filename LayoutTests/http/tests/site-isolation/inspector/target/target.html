@@ -113,8 +113,7 @@
             },
         });
 
-        // FIXME <https://webkit.org/b/309172>: Fix timing around cancelling provisional loading and LoadRequest.
-        /* suite.addTestCase({
+        suite.addTestCase({
             name: "SiteIsolation.Target.ProvisionalFrameCancelledByRemoval",
             description: "Removing cross-origin iframe before loading completes destroys both targets.",
             test(resolve) {
@@ -128,7 +127,7 @@
             test(resolve) {
                 runCallbackCountingTest(resolve, 4, `addAndNavigateAwayIframe();`);
             },
-        }); */
+        });
 
         suite.runTestCasesAndFinish();
     }
