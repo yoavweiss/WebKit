@@ -9286,6 +9286,8 @@ void ByteCodeParser::parseBlock(unsigned limit)
             if (!generatedCase) {
                 Node* result = jsConstant(JSValue());
                 addToGraph(ForceOSRExit);
+                addToGraph(Phantom, get(bytecode.m_symbolIterator));
+                addToGraph(Phantom, get(bytecode.m_iterable));
                 set(bytecode.m_iterator, result);
                 set(bytecode.m_next, result);
 
@@ -9533,6 +9535,9 @@ void ByteCodeParser::parseBlock(unsigned limit)
             if (!generatedCase) {
                 Node* result = jsConstant(JSValue());
                 addToGraph(ForceOSRExit);
+                addToGraph(Phantom, get(bytecode.m_next));
+                addToGraph(Phantom, get(bytecode.m_iterator));
+                addToGraph(Phantom, get(bytecode.m_iterable));
                 set(bytecode.m_value, result);
                 set(bytecode.m_done, result);
 
