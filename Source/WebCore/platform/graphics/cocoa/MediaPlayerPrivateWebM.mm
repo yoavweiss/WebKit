@@ -149,7 +149,7 @@ void MediaPlayerPrivateWebM::getSupportedTypes(HashSet<String>& types)
 
 MediaPlayer::SupportsType MediaPlayerPrivateWebM::supportsType(const MediaEngineSupportParameters& parameters)
 {
-    if (parameters.isMediaSource || parameters.isMediaStream || parameters.requiresRemotePlayback)
+    if (parameters.platformType != PlatformMediaDecodingType::File || parameters.requiresRemotePlayback)
         return MediaPlayer::SupportsType::IsNotSupported;
 
 #if ENABLE(WIRELESS_PLAYBACK_TARGET)

@@ -739,9 +739,10 @@ bool SourceBufferPrivateAVFObjC::canSwitchToType(const ContentType& contentType)
     ASSERT(isOnCreationThread());
     ALWAYS_LOG(LOGIDENTIFIER, contentType);
 
-    MediaEngineSupportParameters parameters;
-    parameters.isMediaSource = true;
-    parameters.type = contentType;
+    MediaEngineSupportParameters parameters {
+        .platformType = PlatformMediaDecodingType::MediaSource,
+        .type = contentType
+    };
     if (MediaPlayerPrivateMediaSourceAVFObjC::supportsTypeAndCodecs(parameters) == MediaPlayer::SupportsType::IsNotSupported)
         return false;
     RefPtr parser = SourceBufferParser::create(contentType, m_configuration);

@@ -66,24 +66,18 @@ static std::optional<PlatformMediaCapabilitiesInfo> computeMediaCapabilitiesInfo
     PlatformMediaCapabilitiesInfo info;
 
     if (configuration.video) {
-        auto& videoConfiguration = configuration.video.value();
-        MediaEngineSupportParameters parameters { };
-        parameters.allowedMediaContainerTypes = configuration.allowedMediaContainerTypes;
-        parameters.allowedMediaCodecTypes = configuration.allowedMediaCodecTypes;
-
-        switch (configuration.type) {
-        case PlatformMediaDecodingType::File:
-            parameters.isMediaSource = false;
-            break;
-        case PlatformMediaDecodingType::MediaSource:
-            parameters.isMediaSource = true;
-            break;
-        case PlatformMediaDecodingType::WebRTC:
+        if (configuration.type == PlatformMediaDecodingType::WebRTC) {
             ASSERT_NOT_REACHED();
             return std::nullopt;
         }
+        auto& videoConfiguration = configuration.video.value();
+        MediaEngineSupportParameters parameters {
+            .platformType = configuration.type,
+            .type = ContentType(videoConfiguration.contentType),
+            .allowedMediaContainerTypes = configuration.allowedMediaContainerTypes,
+            .allowedMediaCodecTypes = configuration.allowedMediaCodecTypes
+        };
 
-        parameters.type = ContentType(videoConfiguration.contentType);
         if (MediaPlayer::supportsType(parameters) != MediaPlayer::SupportsType::IsSupported)
             return std::nullopt;
 
@@ -164,11 +158,12 @@ static std::optional<PlatformMediaCapabilitiesInfo> computeMediaCapabilitiesInfo
     if (!configuration.audio)
         return info;
 
-    MediaEngineSupportParameters parameters { };
-    parameters.type = ContentType(configuration.audio.value().contentType);
-    parameters.isMediaSource = configuration.type == PlatformMediaDecodingType::MediaSource;
-    parameters.allowedMediaContainerTypes = configuration.allowedMediaContainerTypes;
-    parameters.allowedMediaCodecTypes = configuration.allowedMediaCodecTypes;
+    MediaEngineSupportParameters parameters {
+        .platformType = configuration.type,
+        .type = ContentType(configuration.audio.value().contentType),
+        .allowedMediaContainerTypes = configuration.allowedMediaContainerTypes,
+        .allowedMediaCodecTypes = configuration.allowedMediaCodecTypes,
+    };
 
     if (MediaPlayer::supportsType(parameters) != MediaPlayer::SupportsType::IsSupported)
         return std::nullopt;

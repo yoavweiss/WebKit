@@ -2064,14 +2064,8 @@ static bool keySystemIsSupported(const String& keySystem)
 
 MediaPlayer::SupportsType MediaPlayerPrivateAVFoundationObjC::supportsTypeAndCodecs(const MediaEngineSupportParameters& parameters)
 {
-#if ENABLE(MEDIA_SOURCE)
-    if (parameters.isMediaSource)
+    if (parameters.platformType != PlatformMediaDecodingType::File)
         return MediaPlayer::SupportsType::IsNotSupported;
-#endif
-#if ENABLE(MEDIA_STREAM)
-    if (parameters.isMediaStream)
-        return MediaPlayer::SupportsType::IsNotSupported;
-#endif
 #if ENABLE(WIRELESS_PLAYBACK_TARGET)
     if (parameters.playbackTargetType != MediaPlaybackTargetType::None && !playbackTargetTypes().contains(parameters.playbackTargetType))
         return MediaPlayer::SupportsType::IsNotSupported;

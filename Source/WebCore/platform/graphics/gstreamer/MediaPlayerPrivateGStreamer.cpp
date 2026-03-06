@@ -3282,11 +3282,11 @@ MediaPlayer::SupportsType MediaPlayerPrivateGStreamer::supportsType(const MediaE
     MediaPlayer::SupportsType result = MediaPlayer::SupportsType::IsNotSupported;
 #if ENABLE(MEDIA_SOURCE)
     // MediaPlayerPrivateGStreamerMSE is in charge of mediasource playback, not us.
-    if (parameters.isMediaSource)
+    if (parameters.platformType == PlatformMediaDecodingType::MediaSource)
         return result;
 #endif
 
-    if (parameters.isMediaStream) {
+    if (parameters.platformType == PlatformMediaDecodingType::WebRTC) {
 #if ENABLE(MEDIA_STREAM)
         return MediaPlayer::SupportsType::IsSupported;
 #else

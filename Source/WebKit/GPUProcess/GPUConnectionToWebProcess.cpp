@@ -631,10 +631,8 @@ RemoteAudioVideoRendererProxyManager& GPUConnectionToWebProcess::remoteAudioVide
 void GPUConnectionToWebProcess::canDecodeExtendedType(PlatformMediaDecodingType platformType, ContentType contentType, CompletionHandler<void(bool)>&& completionHandler) const
 {
     MediaEngineSupportParameters parameters {
+        .platformType = platformType,
         .type = contentType,
-#if ENABLE(MEDIA_SOURCE)
-        .isMediaSource = platformType == PlatformMediaDecodingType::MediaSource
-#endif
     };
     completionHandler(MediaPlayer::supportsType(parameters) != MediaPlayer::SupportsType::IsNotSupported);
 }

@@ -40,6 +40,7 @@
 #include <WebCore/MediaPromiseTypes.h>
 #include <WebCore/PlatformDynamicRangeLimit.h>
 #include <WebCore/PlatformLayer.h>
+#include <WebCore/PlatformMediaDecodingType.h>
 #include <WebCore/PlatformTextTrack.h>
 #include <WebCore/ProcessIdentity.h>
 #include <WebCore/SecurityOriginData.h>
@@ -111,10 +112,9 @@ struct HostingContext;
 struct VideoFrameMetadata;
 
 struct MediaEngineSupportParameters {
+    PlatformMediaDecodingType platformType { PlatformMediaDecodingType::File };
     ContentType type;
     URL url { };
-    bool isMediaSource { false };
-    bool isMediaStream { false };
     bool requiresRemotePlayback { false };
     bool supportsLimitedMatroska { false };
     Vector<ContentType> contentTypesRequiringHardwareSupport { };

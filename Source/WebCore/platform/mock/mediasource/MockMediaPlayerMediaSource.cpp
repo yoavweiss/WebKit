@@ -84,7 +84,7 @@ void MockMediaPlayerMediaSource::getSupportedTypes(HashSet<String>& supportedTyp
 
 MediaPlayer::SupportsType MockMediaPlayerMediaSource::supportsType(const MediaEngineSupportParameters& parameters)
 {
-    if (!parameters.isMediaSource)
+    if (parameters.platformType != PlatformMediaDecodingType::MediaSource)
         return MediaPlayer::SupportsType::IsNotSupported;
 
     auto containerType = parameters.type.containerType().convertToASCIILowercase();

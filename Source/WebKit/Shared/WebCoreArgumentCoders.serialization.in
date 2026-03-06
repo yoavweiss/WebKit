@@ -4577,10 +4577,9 @@ struct WebCore::FourCC {
 #if ENABLE(VIDEO)
 header: <WebCore/MediaPlayer.h>
 [CustomHeader] struct WebCore::MediaEngineSupportParameters {
+    WebCore::PlatformMediaDecodingType platformType;
     WebCore::ContentType type;
     URL url;
-    bool isMediaSource;
-    bool isMediaStream;
     bool requiresRemotePlayback;
     bool supportsLimitedMatroska;
     Vector<WebCore::ContentType> contentTypesRequiringHardwareSupport;

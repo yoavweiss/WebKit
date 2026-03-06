@@ -624,7 +624,7 @@ void MediaPlayerPrivateGStreamerMSE::getSupportedTypes(HashSet<String>& types)
 MediaPlayer::SupportsType MediaPlayerPrivateGStreamerMSE::supportsType(const MediaEngineSupportParameters& parameters)
 {
     MediaPlayer::SupportsType result = MediaPlayer::SupportsType::IsNotSupported;
-    if (!parameters.isMediaSource)
+    if (parameters.platformType != PlatformMediaDecodingType::MediaSource)
         return result;
 
     if (!ensureGStreamerInitialized())

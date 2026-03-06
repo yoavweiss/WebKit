@@ -1447,18 +1447,16 @@ HTMLMediaElement::NetworkState HTMLMediaElement::networkState() const
 
 String HTMLMediaElement::canPlayType(const String& mimeType) const
 {
-    MediaEngineSupportParameters parameters;
-    ContentType contentType(mimeType);
-
-    parameters.type = contentType;
-    parameters.contentTypesRequiringHardwareSupport = mediaContentTypesRequiringHardwareSupport();
-    parameters.allowedMediaContainerTypes = allowedMediaContainerTypes();
-    parameters.allowedMediaCodecTypes = allowedMediaCodecTypes();
-    parameters.allowedMediaVideoCodecIDs = allowedMediaVideoCodecIDs();
-    parameters.allowedMediaAudioCodecIDs = allowedMediaAudioCodecIDs();
-    parameters.allowedMediaCaptionFormatTypes = allowedMediaCaptionFormatTypes();
-    parameters.supportsLimitedMatroska = limitedMatroskaSupportEnabled();
-
+    MediaEngineSupportParameters parameters {
+        .type = ContentType(mimeType),
+        .supportsLimitedMatroska = limitedMatroskaSupportEnabled(),
+        .contentTypesRequiringHardwareSupport = mediaContentTypesRequiringHardwareSupport(),
+        .allowedMediaContainerTypes = allowedMediaContainerTypes(),
+        .allowedMediaCodecTypes = allowedMediaCodecTypes(),
+        .allowedMediaVideoCodecIDs = allowedMediaVideoCodecIDs(),
+        .allowedMediaAudioCodecIDs = allowedMediaAudioCodecIDs(),
+        .allowedMediaCaptionFormatTypes = allowedMediaCaptionFormatTypes(),
+    };
     MediaPlayer::SupportsType support = MediaPlayer::supportsType(parameters);
     String canPlay;
 
@@ -5759,16 +5757,17 @@ URL HTMLMediaElement::selectNextSourceChild(ContentType* contentType, InvalidURL
         if (!type.isEmpty()) {
             if (shouldLog)
                 INFO_LOG(LOGIDENTIFIER, "'type' is ", type);
-            MediaEngineSupportParameters parameters;
-            parameters.type = ContentType(type);
-            parameters.url = mediaURL;
+            MediaEngineSupportParameters parameters {
 #if ENABLE(MEDIA_SOURCE)
-            parameters.isMediaSource = mediaURL.protocolIs(mediaSourceBlobProtocol) && MediaSource::lookup(mediaURL.string());
+                .platformType = mediaURL.protocolIs(mediaSourceBlobProtocol) && MediaSource::lookup(mediaURL.string()) ? PlatformMediaDecodingType::MediaSource : PlatformMediaDecodingType::File,
 #endif
+                .type = ContentType(type),
+                .url = mediaURL,
+                .supportsLimitedMatroska = limitedMatroskaSupportEnabled()
+            };
             parameters.requiresRemotePlayback = !!m_remotePlaybackConfiguration;
             if (!document().settings().allowMediaContentTypesRequiringHardwareSupportAsFallback() || Traversal<HTMLSourceElement>::nextSkippingChildren(source))
                 parameters.contentTypesRequiringHardwareSupport = mediaContentTypesRequiringHardwareSupport();
-            parameters.supportsLimitedMatroska = limitedMatroskaSupportEnabled();
 
             if (MediaPlayer::supportsType(parameters) == MediaPlayer::SupportsType::IsNotSupported)
                 goto CheckAgain;
