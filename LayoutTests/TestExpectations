@@ -7191,6 +7191,7 @@ imported/w3c/web-platform-tests/navigation-api/navigate-event/cross-window/submi
 # General flakes, almost exclusively on mac-wk2-stress.
 imported/w3c/web-platform-tests/navigation-api/navigation-methods/return-value/navigate-intercept-rejected.html [ Crash Pass ]
 imported/w3c/web-platform-tests/navigation-api/scroll-behavior/ [ Failure Pass ]
+imported/w3c/web-platform-tests/navigation-api/navigate-event/defer/tentative/defer-same-document.html [ Timeout Pass ]
 
 # WPT Test infrastructure issue. Tested in http/wpt. rdar://158262060
 imported/w3c/web-platform-tests/navigation-api/navigation-history-entry/opaque-origin.html [ Skip ]
@@ -7209,7 +7210,7 @@ imported/w3c/web-platform-tests/navigation-api/ordering-and-transition/navigate-
 imported/w3c/web-platform-tests/navigation-api/ordering-and-transition/navigate-intercept-precommitHandler.html?currententrychange [ Skip ]
 imported/w3c/web-platform-tests/navigation-api/ordering-and-transition/navigate-intercept-precommitHandler.html?no-currententrychange [ Skip ]
 imported/w3c/web-platform-tests/navigation-api/ordering-and-transition/reload-no-popstate.html [ Skip ]
-imported/w3c/web-platform-tests/navigation-api/ordering-and-transition/transition-to.tentative.html [ Skip ]
+imported/w3c/web-platform-tests/navigation-api/ordering-and-transition/transition-to.html [ Skip ]
 imported/w3c/web-platform-tests/navigation-api/precommit-handler/ [ Skip ]
 
 # Require enabling CSS Scroll Anchoring
