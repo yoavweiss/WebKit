@@ -60,4 +60,8 @@ typedef NS_OPTIONS(NSUInteger, RCPGlowEffectContentRenderingHints) {
 - (void)setBrightnessMultiplier:(CGFloat)multiplier forInputTypes:(RCPRemoteEffectInputTypes)inputTypes;
 @end
 
+@interface CARemoteExternalEffect (RealitySystemSupport)
++ (instancetype)rcp_requiresTwoHandedInteractionProcessorEffect;
+@end
+
 #endif // USE(APPLE_INTERNAL_SDK)
