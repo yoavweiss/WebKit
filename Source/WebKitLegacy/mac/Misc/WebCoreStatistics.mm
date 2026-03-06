@@ -255,7 +255,7 @@ static RetainPtr<NSCountedSet> createNSCountedSet(const HashCountedSet<ASCIILite
     return externalRepresentation(_private->coreFrame, { RenderAsTextFlag::PrintingMode }).createNSString().autorelease();
 }
 
-static OptionSet<RenderAsTextFlag> toRenderAsTextFlags(WebRenderTreeAsTextOptions options)
+static OptionSet<RenderAsTextFlag> NODELETE toRenderAsTextFlags(WebRenderTreeAsTextOptions options)
 {
     OptionSet<RenderAsTextFlag> flags;
 
