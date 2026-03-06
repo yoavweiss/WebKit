@@ -240,8 +240,9 @@ RefPtr<InjectedBundleRangeHandle> InjectedBundleNodeHandle::visibleRange()
 {
     if (!m_node)
         return nullptr;
-    VisiblePosition start = firstPositionInNode(m_node.get());
-    VisiblePosition end = lastPositionInNode(m_node.get());
+    Ref node = *m_node;
+    VisiblePosition start = firstPositionInNode(node);
+    VisiblePosition end = lastPositionInNode(node);
     return createHandle(makeSimpleRange(start, end));
 }
 

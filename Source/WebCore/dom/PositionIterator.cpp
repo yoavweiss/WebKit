@@ -56,11 +56,11 @@ PositionIterator::operator Position() const
         ASSERT(m_nodeAfterPositionInAnchor->parentNode() == anchorNode.get());
         // FIXME: This check is inadaquete because any ancestor could be ignored by editing
         if (positionBeforeOrAfterNodeIsCandidate(*anchorNode))
-            return positionBeforeNode(anchorNode.get());
-        return positionInParentBeforeNode(m_nodeAfterPositionInAnchor.get());
+            return positionBeforeNode(*anchorNode);
+        return positionInParentBeforeNode(*m_nodeAfterPositionInAnchor);
     }
     if (positionBeforeOrAfterNodeIsCandidate(*anchorNode))
-        return atStartOfNode() ? positionBeforeNode(anchorNode.get()) : positionAfterNode(anchorNode.get());
+        return atStartOfNode() ? positionBeforeNode(*anchorNode) : positionAfterNode(*anchorNode);
     if (anchorNode->hasChildNodes())
         return lastPositionInOrAfterNode(anchorNode.get());
     return makeDeprecatedLegacyPosition(WTF::move(anchorNode), m_offsetInAnchor);

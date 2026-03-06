@@ -53,7 +53,7 @@
 #include "DocumentQuirks.h"
 #include "DocumentSharedObjectPool.h"
 #include "DocumentView.h"
-#include "Editing.h"
+#include "EditingInlines.h"
 #include "ElementAncestorIteratorInlines.h"
 #include "ElementAnimationRareData.h"
 #include "ElementChildIteratorInlines.h"

@@ -52,7 +52,7 @@
 #include "DragEvent.h"
 #include "DragEventTargetData.h"
 #include "DragState.h"
-#include "Editing.h"
+#include "EditingInlines.h"
 #include "Editor.h"
 #include "EditorClient.h"
 #include "ElementInlines.h"
@@ -561,8 +561,8 @@ static VisibleSelection expandSelectionToRespectSelectOnMouseDown(Node& targetNo
         return selection;
 
     VisibleSelection newSelection(selection);
-    newSelection.setBase(positionBeforeNode(nodeToSelect.get()).upstream(CanCrossEditingBoundary));
-    newSelection.setExtent(positionAfterNode(nodeToSelect.get()).downstream(CanCrossEditingBoundary));
+    newSelection.setBase(positionBeforeNode(*nodeToSelect).upstream(CanCrossEditingBoundary));
+    newSelection.setExtent(positionAfterNode(*nodeToSelect).downstream(CanCrossEditingBoundary));
 
     return newSelection;
 }
@@ -1161,18 +1161,18 @@ void EventHandler::updateSelectionForMouseDrag(const HitTestResult& hitTestResul
 
     RefPtr rootUserSelectAllForMousePressNode = Position::rootUserSelectAllForNode(m_mousePressNode);
     if (rootUserSelectAllForMousePressNode && rootUserSelectAllForMousePressNode == Position::rootUserSelectAllForNode(target.get())) {
-        newSelection.setBase(positionBeforeNode(rootUserSelectAllForMousePressNode.get()).upstream(CanCrossEditingBoundary));
-        newSelection.setExtent(positionAfterNode(rootUserSelectAllForMousePressNode.get()).downstream(CanCrossEditingBoundary));
+        newSelection.setBase(positionBeforeNode(*rootUserSelectAllForMousePressNode).upstream(CanCrossEditingBoundary));
+        newSelection.setExtent(positionAfterNode(*rootUserSelectAllForMousePressNode).downstream(CanCrossEditingBoundary));
     } else {
         // Reset base for user select all when base is inside user-select-all area and extent < base.
         if (rootUserSelectAllForMousePressNode && target->renderer()->visiblePositionForPoint(hitTestResult.localPoint(), HitTestSource::User) < m_mousePressNode->renderer()->visiblePositionForPoint(m_dragStartPosition, HitTestSource::User))
-            newSelection.setBase(positionAfterNode(rootUserSelectAllForMousePressNode.get()).downstream(CanCrossEditingBoundary));
-        
+            newSelection.setBase(positionAfterNode(*rootUserSelectAllForMousePressNode).downstream(CanCrossEditingBoundary));
+
         RefPtr rootUserSelectAllForTarget = Position::rootUserSelectAllForNode(target.get());
         if (rootUserSelectAllForTarget && m_mousePressNode->renderer() && target->renderer()->visiblePositionForPoint(hitTestResult.localPoint(), HitTestSource::User) < m_mousePressNode->renderer()->visiblePositionForPoint(m_dragStartPosition, HitTestSource::User))
-            newSelection.setExtent(positionBeforeNode(rootUserSelectAllForTarget.get()).upstream(CanCrossEditingBoundary));
+            newSelection.setExtent(positionBeforeNode(*rootUserSelectAllForTarget).upstream(CanCrossEditingBoundary));
         else if (rootUserSelectAllForTarget && m_mousePressNode->renderer())
-            newSelection.setExtent(positionAfterNode(rootUserSelectAllForTarget.get()).downstream(CanCrossEditingBoundary));
+            newSelection.setExtent(positionAfterNode(*rootUserSelectAllForTarget).downstream(CanCrossEditingBoundary));
         else
             newSelection.setExtent(targetPosition);
     }
@@ -4381,14 +4381,14 @@ static void setInitialKeyboardSelection(LocalFrame& frame, SelectionDirection di
     case SelectionDirection::Backward:
     case SelectionDirection::Left:
         if (focusedElement)
-            visiblePosition = VisiblePosition(positionBeforeNode(focusedElement.get()));
+            visiblePosition = VisiblePosition(positionBeforeNode(*focusedElement));
         else
             visiblePosition = endOfDocument(document.get());
         break;
     case SelectionDirection::Forward:
     case SelectionDirection::Right:
         if (focusedElement)
-            visiblePosition = VisiblePosition(positionAfterNode(focusedElement.get()));
+            visiblePosition = VisiblePosition(positionAfterNode(*focusedElement));
         else
             visiblePosition = startOfDocument(document.get());
         break;

@@ -65,7 +65,7 @@ static bool isTableRow(const Node& node)
 static bool isTableCellEmpty(Node& cell)
 {
     ASSERT(isTableCell(cell));
-    return VisiblePosition(firstPositionInNode(&cell)) == VisiblePosition(lastPositionInNode(&cell));
+    return VisiblePosition(firstPositionInNode(cell)) == VisiblePosition(lastPositionInNode(cell));
 }
 
 static bool isTableRowEmpty(const Node& row)
@@ -141,7 +141,7 @@ static std::pair<Position, RefPtr<HTMLElement>> positionBeforeContainingSpecialE
     RefPtr element = firstInSpecialElement(position);
     if (!element)
         return { position, nullptr };
-    auto result = positionInParentBeforeNode(element.get());
+    auto result = positionInParentBeforeNode(*element);
     if (result.isNull() || result.containerNode()->rootEditableElement() != position.containerNode()->rootEditableElement())
         return { position, nullptr };
     return { result, WTF::move(element) };
@@ -152,7 +152,7 @@ static std::pair<Position, RefPtr<HTMLElement>> positionAfterContainingSpecialEl
     RefPtr element = lastInSpecialElement(position);
     if (!element)
         return { position, nullptr };
-    auto result = positionInParentAfterNode(element.get());
+    auto result = positionInParentAfterNode(*element);
     if (result.isNull() || result.deprecatedNode()->rootEditableElement() != position.containerNode()->rootEditableElement())
         return { position, nullptr };
     return { result, WTF::move(element) };
@@ -195,9 +195,9 @@ void DeleteSelectionCommand::initializeStartEnd(Position& start, Position& end)
     // For HRs, we'll get a position at (HR,1) when hitting delete from the beginning of the previous line, or (HR,0) when forward deleting,
     // but in these cases, we want to delete it, so manually expand the selection
     if (start.deprecatedNode()->hasTagName(hrTag))
-        start = positionBeforeNode(start.deprecatedNode());
+        start = positionBeforeNode(*start.deprecatedNode());
     else if (end.deprecatedNode()->hasTagName(hrTag))
-        end = positionAfterNode(end.deprecatedNode());
+        end = positionAfterNode(*end.deprecatedNode());
     
     // FIXME: This is only used so that moveParagraphs can avoid the bugs in special element expansion.
     if (!m_expandForSpecialElements)
@@ -216,11 +216,11 @@ void DeleteSelectionCommand::initializeStartEnd(Position& start, Position& end)
             break;
 
         // If we're going to expand to include the startSpecialContainer, it must be fully selected.
-        if (startSpecialContainer && !endSpecialContainer && positionInParentAfterNode(startSpecialContainer.get()) >= end)
+        if (startSpecialContainer && !endSpecialContainer && positionInParentAfterNode(*startSpecialContainer) >= end)
             break;
 
         // If we're going to expand to include the endSpecialContainer, it must be fully selected.
-        if (endSpecialContainer && !startSpecialContainer && start >= positionInParentBeforeNode(endSpecialContainer.get()))
+        if (endSpecialContainer && !startSpecialContainer && start >= positionInParentBeforeNode(*endSpecialContainer))
             break;
 
         if (startSpecialContainer && startSpecialContainer->isDescendantOf(endSpecialContainer.get())) {
@@ -464,7 +464,7 @@ bool DeleteSelectionCommand::handleSpecialCaseBRDelete()
     // FIXME: This code doesn't belong in here.
     // We detect the case where the start is an empty line consisting of BR not wrapped in a block element.
     if (upstreamStartIsBR && downstreamStartIsBR
-        && !(isStartOfBlock(positionBeforeNode(nodeAfterUpstreamStart.get())) && isEndOfBlock(positionAfterNode(nodeAfterDownstreamStart.get())))
+        && !(isStartOfBlock(positionBeforeNode(*nodeAfterUpstreamStart)) && isEndOfBlock(positionAfterNode(*nodeAfterDownstreamStart)))
         && (!nodeAfterUpstreamEnd || nodeAfterUpstreamEnd->hasTagName(brTag) || nodeAfterUpstreamEnd->previousSibling() != nodeAfterUpstreamStart)) {
         m_startsAtEmptyLine = true;
         m_endingPosition = m_downstreamEnd;
@@ -497,11 +497,11 @@ void DeleteSelectionCommand::insertBlockPlaceholderForTableCellIfNeeded(Element&
 void DeleteSelectionCommand::removeNodeUpdatingStates(Node& node, ShouldAssumeContentIsAlwaysEditable shouldAssumeContentIsAlwaysEditable)
 {
     if (&node == m_startBlock) {
-        auto prev = VisiblePosition(firstPositionInNode(protect(m_startBlock).get())).previous();
+        auto prev = VisiblePosition(firstPositionInNode(protect(*m_startBlock))).previous();
         if (!prev.isNull() && !isEndOfBlock(prev))
             m_needPlaceholder = true;
     } else if (&node == m_endBlock) {
-        auto next = VisiblePosition(lastPositionInNode(protect(m_endBlock).get())).next();
+        auto next = VisiblePosition(lastPositionInNode(protect(*m_endBlock))).next();
         if (!next.isNull() && !isStartOfBlock(next))
             m_needPlaceholder = true;
     }

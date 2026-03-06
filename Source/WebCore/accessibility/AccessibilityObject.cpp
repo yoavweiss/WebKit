@@ -867,7 +867,7 @@ std::optional<SimpleRange> AccessibilityObject::simpleRange() const
     // |this| is a stitching of multiple objects, so we need to include all of their contents in the range.
     CheckedPtr cache = axObjectCache();
     if (RefPtr endNode = cache ? lastNode(stitchGroup->members(), *cache) : nullptr) {
-        if (std::optional range = makeSimpleRange(positionBeforeNode(node.get()), positionAfterNode(endNode.get())))
+        if (std::optional range = makeSimpleRange(positionBeforeNode(*node), positionAfterNode(*endNode)))
             return range;
     }
     return AXObjectCache::rangeForNodeContents(*node);
@@ -1177,8 +1177,8 @@ static std::optional<TextOperationRange> textOperationRangeFromRange(const Simpl
     if (!rootEditableElement)
         return std::nullopt;
 
-    auto scopeStart = firstPositionInNode(rootEditableElement.get());
-    auto scopeEnd = lastPositionInNode(rootEditableElement.get());
+    auto scopeStart = firstPositionInNode(*rootEditableElement);
+    auto scopeEnd = lastPositionInNode(*rootEditableElement);
 
     std::optional<SimpleRange> scope = makeSimpleRange(scopeStart, scopeEnd);
     if (!scope)
@@ -1947,7 +1947,7 @@ static StringView lineStartListMarkerText(const RenderListItem* listItem, const 
         return { };
 
     // Only include the list marker if the range includes the line start (where the marker would be), and is in the same line as the marker.
-    if (!isStartOfLine(startVisiblePosition) || !inSameLine(startVisiblePosition, firstPositionInNode(listItem->element())))
+    if (!isStartOfLine(startVisiblePosition) || !inSameLine(startVisiblePosition, firstPositionInNode(*listItem->element())))
         return { };
     return *markerText;
 }

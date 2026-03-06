@@ -40,7 +40,7 @@
 #include "CSSValueList.h"
 #include "CSSValuePool.h"
 #include "ColorSerialization.h"
-#include "Editing.h"
+#include "EditingInlines.h"
 #include "Editor.h"
 #include "ElementInlines.h"
 #include "FilterOperations.h"

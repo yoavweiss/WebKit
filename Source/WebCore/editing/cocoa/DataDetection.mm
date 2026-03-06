@@ -35,7 +35,7 @@
 #import "CommonAtomStrings.h"
 #import "DataDetectionResultsStorage.h"
 #import "DocumentView.h"
-#import "Editing.h"
+#import "EditingInlines.h"
 #import "ElementAncestorIteratorInlines.h"
 #import "ElementRareData.h"
 #import "ElementTraversal.h"

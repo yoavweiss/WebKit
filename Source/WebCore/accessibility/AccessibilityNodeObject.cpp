@@ -4159,7 +4159,7 @@ String AccessibilityNodeObject::stringValue() const
             }
         }
 
-        std::optional range = makeSimpleRange(positionBeforeNode(node.get()), positionAfterNode(endNode.get()));
+        std::optional range = makeSimpleRange(positionBeforeNode(*node), positionAfterNode(*endNode));
         builder.append(range ? plainText(*range, textIteratorBehaviorForTextRange()) : emptyString());
 
         return builder.toString();

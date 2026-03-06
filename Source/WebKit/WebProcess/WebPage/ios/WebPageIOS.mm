@@ -311,10 +311,13 @@ static void computeEditableRootHasContentAndPlainText(const VisibleSelection& se
     if (!root || editingIgnoresContent(*root))
         return;
 
-    auto startInEditableRoot = firstPositionInNode(root);
+    auto startInEditableRoot = firstPositionInNode(*root);
     data.hasContent = root->hasChildNodes() && !isEndOfEditableOrNonEditableContent(startInEditableRoot);
     if (data.hasContent) {
-        auto range = makeSimpleRange(VisiblePosition { startInEditableRoot }, VisiblePosition { lastPositionInNode(root) });
+        auto range = makeSimpleRange(
+            VisiblePosition { startInEditableRoot },
+            VisiblePosition { lastPositionInNode(*root) }
+        );
         data.hasPlainText = range && hasAnyPlainText(*range);
     }
 }
@@ -1279,14 +1282,14 @@ static std::optional<SimpleRange> expandForImageOverlay(const SimpleRange& range
 
     for (auto start = expandedStart; insideImageOverlay(start); start = start.previous()) {
         if (RefPtr container = start.deepEquivalent().containerNode(); is<Text>(container)) {
-            expandedStart = firstPositionInNode(container.get()).downstream();
+            expandedStart = firstPositionInNode(*container).downstream();
             break;
         }
     }
 
     for (auto end = expandedEnd; insideImageOverlay(end); end = end.next()) {
         if (RefPtr container = end.deepEquivalent().containerNode(); is<Text>(container)) {
-            expandedEnd = lastPositionInNode(container.get()).upstream();
+            expandedEnd = lastPositionInNode(*container).upstream();
             break;
         }
     }

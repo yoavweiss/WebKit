@@ -2398,7 +2398,7 @@ RefPtr<CaretPosition> Document::caretPositionFromPoint(double x, double y, Caret
         adjustPosition = true;
     }
     if (adjustPosition)
-        position = positionInParentBeforeNode(anchorNode.get());
+        position = positionInParentBeforeNode(*anchorNode);
 
     position = position.parentAnchoredEquivalent();
 

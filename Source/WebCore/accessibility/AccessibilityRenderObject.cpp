@@ -718,8 +718,12 @@ String AccessibilityRenderObject::textUnderElement(TextUnderElementMode mode) co
                 // We define the start and end positions for the range as the ones right before and after
                 // the first and the last nodes in the DOM tree that is wrapped inside the anonymous block.
                 auto& firstNodeInBlock = *firstChildRenderer->node();
+                auto& lastNodeInBlock = *lastChildRenderer->node();
                 nodeDocument = firstNodeInBlock.document();
-                textRange = makeSimpleRange(positionInParentBeforeNode(&firstNodeInBlock), positionInParentAfterNode(lastChildRenderer->node()));
+                textRange = makeSimpleRange(
+                    positionInParentBeforeNode(firstNodeInBlock),
+                    positionInParentAfterNode(lastNodeInBlock)
+                );
             }
         }
 #endif // USE(ATSPI)
@@ -908,7 +912,7 @@ LayoutRect AccessibilityRenderObject::boundingBoxRect() const
             CheckedPtr cache = axObjectCache();
             RefPtr endNode = cache ? lastNode(stitchGroup->members(), *cache) : nullptr;
             if (endNode) {
-                if (std::optional range = makeSimpleRange(positionBeforeNode(node.get()), positionAfterNode(endNode.get()))) {
+                if (std::optional range = makeSimpleRange(positionBeforeNode(*node), positionAfterNode(*endNode))) {
                     quads = RenderObject::absoluteTextQuads(*range);
 
                     for (AXID axID : stitchGroup->members()) {

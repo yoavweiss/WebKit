@@ -75,8 +75,8 @@
 #import <WebCore/DocumentQuirks.h>
 #import <WebCore/DocumentView.h>
 #import <WebCore/DragImage.h>
-#import <WebCore/Editing.h>
 #import <WebCore/EditingHTMLConverter.h>
+#import <WebCore/EditingInlines.h>
 #import <WebCore/Editor.h>
 #import <WebCore/ElementAncestorIteratorInlines.h>
 #import <WebCore/EventHandler.h>
@@ -474,7 +474,7 @@ void WebPage::addDictationAlternative(const String& text, DictationContext conte
         return;
     }
 
-    auto firstEditablePosition = firstPositionInNode(editableRoot.get());
+    auto firstEditablePosition = firstPositionInNode(*editableRoot);
     auto selectionEnd = selection.end();
     auto searchRange = makeSimpleRange(firstEditablePosition, selectionEnd);
     if (!searchRange) {

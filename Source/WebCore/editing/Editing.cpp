@@ -274,8 +274,8 @@ Position firstEditablePositionAfterPositionInRoot(const Position& position, Cont
         return { };
 
     // position falls before highestRoot.
-    if (position < firstPositionInNode(highestRoot) && highestRoot->hasEditableStyle())
-        return firstPositionInNode(highestRoot);
+    if (auto result = firstPositionInNode(*highestRoot); position < result && highestRoot->hasEditableStyle())
+        return result;
 
     Position candidate = position;
 
@@ -284,11 +284,11 @@ Position firstEditablePositionAfterPositionInRoot(const Position& position, Cont
         if (!shadowAncestor)
             return { };
 
-        candidate = positionAfterNode(shadowAncestor.get());
+        candidate = positionAfterNode(*shadowAncestor);
     }
 
     while (candidate.deprecatedNode() && !isEditablePosition(candidate) && protect(candidate.deprecatedNode())->isDescendantOf(*highestRoot))
-        candidate = isAtomicNode(candidate.deprecatedNode()) ? positionInParentAfterNode(protect(candidate.deprecatedNode()).get()) : nextVisuallyDistinctCandidate(candidate);
+        candidate = isAtomicNode(candidate.deprecatedNode()) ? positionInParentAfterNode(protect(*candidate.deprecatedNode())) : nextVisuallyDistinctCandidate(candidate);
 
     if (candidate.deprecatedNode() && !protect(candidate.deprecatedNode())->isInclusiveDescendantOf(*highestRoot))
         return { };
@@ -302,8 +302,8 @@ Position lastEditablePositionBeforePositionInRoot(const Position& position, Cont
         return { };
 
     // When position falls after highestRoot, the result is easy to compute.
-    if (position > lastPositionInNode(highestRoot))
-        return lastPositionInNode(highestRoot);
+    if (auto result = lastPositionInNode(*highestRoot); position > result)
+        return result;
 
     Position candidate = position;
 
@@ -316,7 +316,7 @@ Position lastEditablePositionBeforePositionInRoot(const Position& position, Cont
     }
 
     while (candidate.deprecatedNode() && !isEditablePosition(candidate) && protect(candidate.deprecatedNode())->isDescendantOf(*highestRoot))
-        candidate = isAtomicNode(candidate.deprecatedNode()) ? positionInParentBeforeNode(protect(candidate.deprecatedNode()).get()) : previousVisuallyDistinctCandidate(candidate);
+        candidate = isAtomicNode(candidate.deprecatedNode()) ? positionInParentBeforeNode(protect(*candidate.deprecatedNode())) : previousVisuallyDistinctCandidate(candidate);
 
     if (candidate.deprecatedNode() && !protect(candidate.deprecatedNode())->isInclusiveDescendantOf(*highestRoot))
         return { };
@@ -456,7 +456,7 @@ VisiblePosition visiblePositionBeforeNode(Node& node)
         return VisiblePosition(firstPositionInOrBeforeNode(&node));
     ASSERT(node.parentNode());
     ASSERT(!node.parentNode()->isShadowRoot());
-    return positionInParentBeforeNode(&node);
+    return positionInParentBeforeNode(node);
 }
 
 // Returns the visible position at the ending of a node
@@ -466,7 +466,7 @@ VisiblePosition visiblePositionAfterNode(Node& node)
         return VisiblePosition(lastPositionInOrAfterNode(&node));
     ASSERT(node.parentNode());
     ASSERT(!node.parentNode()->isShadowRoot());
-    return positionInParentAfterNode(&node);
+    return positionInParentAfterNode(node);
 }
 
 VisiblePosition closestEditablePositionInElementForAbsolutePoint(const Element& element, const IntPoint& point)
@@ -677,7 +677,7 @@ bool canMergeLists(Element* firstList, Element* secondList)
         && first->hasEditableStyle() && second->hasEditableStyle() // both lists are editable
         && first->rootEditableElement() == second->rootEditableElement() // don't cross editing boundaries
         // Make sure there is no visible content between this li and the previous list.
-        && isVisiblyAdjacent(positionInParentAfterNode(first), positionInParentBeforeNode(second));
+        && isVisiblyAdjacent(positionInParentAfterNode(*first), positionInParentBeforeNode(*second));
 }
 
 static Node* previousNodeConsideringAtomicNodes(const Node* node)
@@ -850,25 +850,25 @@ void updatePositionForNodeRemoval(Position& position, Node& node)
     switch (position.anchorType()) {
     case Position::PositionIsBeforeChildren:
         if (node.isShadowIncludingInclusiveAncestorOf(position.containerNode()))
-            position = positionInParentBeforeNode(&node);
+            position = positionInParentBeforeNode(node);
         break;
     case Position::PositionIsAfterChildren:
         if (node.isShadowIncludingInclusiveAncestorOf(position.containerNode()))
-            position = positionInParentBeforeNode(&node);
+            position = positionInParentBeforeNode(node);
         break;
     case Position::PositionIsOffsetInAnchor:
         if (position.containerNode() == node.parentNode() && static_cast<unsigned>(position.offsetInContainerNode()) > node.computeNodeIndex())
             position.moveToOffset(position.offsetInContainerNode() - 1);
         else if (node.isShadowIncludingInclusiveAncestorOf(position.containerNode()))
-            position = positionInParentBeforeNode(&node);
+            position = positionInParentBeforeNode(node);
         break;
     case Position::PositionIsAfterAnchor:
         if (node.isShadowIncludingInclusiveAncestorOf(position.anchorNode()))
-            position = positionInParentAfterNode(&node);
+            position = positionInParentAfterNode(node);
         break;
     case Position::PositionIsBeforeAnchor:
         if (node.isShadowIncludingInclusiveAncestorOf(position.anchorNode()))
-            position = positionInParentBeforeNode(&node);
+            position = positionInParentBeforeNode(node);
         break;
     }
 }
@@ -1056,11 +1056,11 @@ bool isNodeVisiblyContainedWithin(Node& node, const SimpleRange& range)
     auto endPosition = makeDeprecatedLegacyPosition(range.end);
 
     bool startIsVisuallySame = visiblePositionBeforeNode(node) == startPosition;
-    if (startIsVisuallySame && positionInParentAfterNode(&node) < endPosition)
+    if (startIsVisuallySame && positionInParentAfterNode(node) < endPosition)
         return true;
 
     bool endIsVisuallySame = visiblePositionAfterNode(node) == endPosition;
-    if (endIsVisuallySame && startPosition < positionInParentBeforeNode(&node))
+    if (endIsVisuallySame && startPosition < positionInParentBeforeNode(node))
         return true;
 
     return startIsVisuallySame && endIsVisuallySame;

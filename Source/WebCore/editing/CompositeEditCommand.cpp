@@ -837,21 +837,21 @@ Position CompositeEditCommand::positionOutsideTabSpan(const Position& position)
     case Position::PositionIsOffsetInAnchor:
         break;
     case Position::PositionIsBeforeAnchor:
-        return positionInParentBeforeNode(position.anchorNode());
+        return positionInParentBeforeNode(*position.anchorNode());
     case Position::PositionIsAfterAnchor:
-        return positionInParentAfterNode(position.anchorNode());
+        return positionInParentAfterNode(*position.anchorNode());
     }
 
     RefPtr tabSpan { parentTabSpanNode(position.containerNode()) };
 
     if (position.offsetInContainerNode() <= caretMinOffset(*position.containerNode()))
-        return positionInParentBeforeNode(tabSpan.get());
+        return positionInParentBeforeNode(*tabSpan);
 
     if (position.offsetInContainerNode() >= caretMaxOffset(*position.containerNode()))
-        return positionInParentAfterNode(tabSpan.get());
+        return positionInParentAfterNode(*tabSpan);
 
     splitTextNodeContainingElement(downcast<Text>(*position.containerNode()), position.offsetInContainerNode());
-    return positionInParentBeforeNode(tabSpan.get());
+    return positionInParentBeforeNode(*tabSpan);
 }
 
 void CompositeEditCommand::insertNodeAtTabSpanPosition(Ref<Node>&& node, const Position& pos)
@@ -1271,7 +1271,7 @@ RefPtr<Node> CompositeEditCommand::moveParagraphContentsToNewBlockIfNecessary(co
 
     bool endWasBr = visibleParagraphEnd.deepEquivalent().deprecatedNode()->hasTagName(brTag);
 
-    moveParagraphs(visibleParagraphStart, visibleParagraphEnd, VisiblePosition(firstPositionInNode(newBlock.ptr())));
+    moveParagraphs(visibleParagraphStart, visibleParagraphEnd, VisiblePosition(firstPositionInNode(newBlock)));
 
     if (newBlock->lastChild() && newBlock->lastChild()->hasTagName(brTag) && !endWasBr)
         removeNode(*newBlock->lastChild());
@@ -1636,24 +1636,28 @@ bool CompositeEditCommand::breakOutOfEmptyListItem(ReconstitutePlainTextListIfNe
     Ref document = this->document();
     style->mergeTypingStyle(document);
 
-    RefPtr<Element> newBlock;
-    if (RefPtr blockEnclosingList = listNode->parentNode()) {
-        if (RefPtr liElement = dynamicDowncast<HTMLLIElement>(*blockEnclosingList)) { // listNode is inside another list item
-            if (visiblePositionAfterNode(*blockEnclosingList) == visiblePositionAfterNode(*listNode)) {
-                // If listNode appears at the end of the outer list item, then move listNode outside of this list item
-                // e.g. <ul><li>hello <ul><li><br></li></ul> </li></ul> should become <ul><li>hello</li> <ul><li><br></li></ul> </ul> after this section
-                // If listNode does NOT appear at the end, then we should consider it as a regular paragraph.
-                // e.g. <ul><li> <ul><li><br></li></ul> hello</li></ul> should become <ul><li> <div><br></div> hello</li></ul> at the end
-                splitElement(*liElement, *listNode);
-                removeNodePreservingChildren(*protect(listNode->parentNode()));
-                newBlock = HTMLLIElement::create(document);
+    Ref newBlock = [&] -> Ref<Element> {
+        if (RefPtr blockEnclosingList = listNode->parentNode()) {
+            // Check if listNode is inside another list item.
+            if (RefPtr liElement = dynamicDowncast<HTMLLIElement>(*blockEnclosingList)) {
+                if (visiblePositionAfterNode(*blockEnclosingList) == visiblePositionAfterNode(*listNode)) {
+                    // If listNode appears at the end of the outer list item, then move listNode outside of this list item
+                    // e.g. <ul><li>hello <ul><li><br></li></ul> </li></ul> should become <ul><li>hello</li> <ul><li><br></li></ul> </ul> after this section
+                    // If listNode does NOT appear at the end, then we should consider it as a regular paragraph.
+                    // e.g. <ul><li> <ul><li><br></li></ul> hello</li></ul> should become <ul><li> <div><br></div> hello</li></ul> at the end
+                    splitElement(*liElement, *listNode);
+                    removeNodePreservingChildren(*protect(listNode->parentNode()));
+                    return HTMLLIElement::create(document);
+                }
+                // If listNode does NOT appear at the end of the outer list item, then behave as if in a regular paragraph.
+                return createDefaultParagraphElement(document);
             }
-            // If listNode does NOT appear at the end of the outer list item, then behave as if in a regular paragraph.
-        } else if (blockEnclosingList->hasTagName(olTag) || blockEnclosingList->hasTagName(ulTag))
-            newBlock = HTMLLIElement::create(document);
-    }
-    if (!newBlock)
-        newBlock = createDefaultParagraphElement(document);
+
+            if (blockEnclosingList->hasTagName(olTag) || blockEnclosingList->hasTagName(ulTag))
+                return HTMLLIElement::create(document);
+        }
+        return createDefaultParagraphElement(document);
+    }();
 
     RefPtr<Node> previousListNode = emptyListItem->isElementNode() ? ElementTraversal::previousSibling(*emptyListItem): emptyListItem->previousSibling();
     RefPtr<Node> nextListNode = emptyListItem->isElementNode() ? ElementTraversal::nextSibling(*emptyListItem): emptyListItem->nextSibling();
@@ -1665,17 +1669,17 @@ bool CompositeEditCommand::breakOutOfEmptyListItem(ReconstitutePlainTextListIfNe
         // If emptyListItem is followed by other list item or nested list, then insert newBlock before the list node.
         // Because we have splitted the element, emptyListItem is the first element in the list node.
         // i.e. insert newBlock before ul or ol whose first element is emptyListItem
-        insertNodeBefore(*newBlock, *listNode);
+        insertNodeBefore(newBlock, *listNode);
         removeNode(*emptyListItem);
     } else {
         // When emptyListItem does not follow any list item or nested list, insert newBlock after the enclosing list node.
         // Remove the enclosing node if emptyListItem is the only child; otherwise just remove emptyListItem.
-        insertNodeAfter(*newBlock, *listNode);
+        insertNodeAfter(newBlock, *listNode);
         removeNode((previousListNode && (isListItem(*previousListNode) || isListHTMLElement(previousListNode.get()))) ? *emptyListItem : *listNode);
     }
 
-    appendBlockPlaceholder(*newBlock);
-    setEndingSelection(VisibleSelection(firstPositionInNode(newBlock.get()), Affinity::Downstream, endingSelection().directionality()));
+    appendBlockPlaceholder(newBlock.copyRef());
+    setEndingSelection(VisibleSelection(firstPositionInNode(newBlock), Affinity::Downstream, endingSelection().directionality()));
 
     if (reconstitutePlainTextListIfNeeded == ReconstitutePlainTextListIfNeeded::Yes) {
         if (auto smartListMarker = downcast<Element>(*listNode).getAttribute(HTMLNames::webkitsmartlistmarkerAttr); !smartListMarker.isEmpty())
@@ -1714,7 +1718,7 @@ bool CompositeEditCommand::breakOutOfEmptyMailBlockquotedParagraph()
     // We want to replace this quoted paragraph with an unquoted one, so insert a br
     // to hold the caret before the highest blockquote.
     insertNodeBefore(br, *highestBlockquote);
-    VisiblePosition atBR = positionBeforeNode(br.ptr());
+    VisiblePosition atBR = positionBeforeNode(br);
     // If the br we inserted collapsed, for example foo<br><blockquote>...</blockquote>, insert
     // a second one.
     if (!isStartOfParagraph(atBR))
@@ -1761,8 +1765,8 @@ Position CompositeEditCommand::positionAvoidingSpecialElementBoundary(const Posi
 
     // Don't avoid block level anchors, because that would insert content into the wrong paragraph.
     if (enclosingAnchor && !isBlock(*enclosingAnchor)) {
-        VisiblePosition firstInAnchor(firstPositionInNode(enclosingAnchor.get()));
-        VisiblePosition lastInAnchor(lastPositionInNode(enclosingAnchor.get()));
+        VisiblePosition firstInAnchor(firstPositionInNode(*enclosingAnchor));
+        VisiblePosition lastInAnchor(lastPositionInNode(*enclosingAnchor));
         // If visually just after the anchor, insert *inside* the anchor unless it's the last
         // VisiblePosition in the document, to match NSTextView.
         if (visiblePos == lastInAnchor) {
@@ -1780,7 +1784,7 @@ Position CompositeEditCommand::positionAvoidingSpecialElementBoundary(const Posi
             if (lineBreakExistsAtVisiblePosition(visiblePos) && protect(downstream.deprecatedNode())->isDescendantOf(enclosingAnchor.get()))
                 return original;
             
-            result = positionInParentAfterNode(enclosingAnchor.get());
+            result = positionInParentAfterNode(*enclosingAnchor);
         }
         // If visually just before an anchor, insert *outside* the anchor unless it's the first
         // VisiblePosition in a paragraph, to match NSTextView.
@@ -1794,7 +1798,7 @@ Position CompositeEditCommand::positionAvoidingSpecialElementBoundary(const Posi
             if (!enclosingAnchor)
                 return original;
 
-            result = positionInParentBeforeNode(enclosingAnchor.get());
+            result = positionInParentBeforeNode(*enclosingAnchor);
         }
     }
         
@@ -1822,7 +1826,7 @@ RefPtr<Node> CompositeEditCommand::splitTreeToNode(Node& start, Node& end, bool 
         if (!parentElement || editingIgnoresContent(*parentNode))
             break;
         // Do not split a node when doing so introduces an empty node.
-        VisiblePosition positionInParent = firstPositionInNode(parentNode.get());
+        VisiblePosition positionInParent = firstPositionInNode(*parentNode);
         VisiblePosition positionInNode = firstPositionInOrBeforeNode(node.get());
         if (positionInParent != positionInNode)
             splitElement(*parentElement, *node);

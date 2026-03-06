@@ -1071,7 +1071,7 @@ bool TextIterator::shouldRepresentNodeOffsetZero()
     // The currPos.isNotNull() check is needed because positions in non-HTML content
     // (like SVG) do not have visible positions, and we don't want to emit for them either.
     VisiblePosition startPos = VisiblePosition(Position(protect(m_startContainer), m_startOffset, Position::PositionIsOffsetInAnchor));
-    VisiblePosition currPos = VisiblePosition(positionBeforeNode(currentNode.ptr()));
+    VisiblePosition currPos = VisiblePosition(positionBeforeNode(currentNode));
     return startPos.isNotNull() && currPos.isNotNull() && !inSameLine(startPos, currPos);
 }
 

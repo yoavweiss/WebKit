@@ -91,7 +91,10 @@ VisibleSelection::VisibleSelection(const SimpleRange& range, Affinity affinity, 
 VisibleSelection VisibleSelection::selectionFromContentsOfNode(Node* node)
 {
     ASSERT(!editingIgnoresContent(*node));
-    return VisibleSelection(VisiblePosition { firstPositionInNode(node) }, VisiblePosition { lastPositionInNode(node) });
+    return VisibleSelection(
+        VisiblePosition { firstPositionInNode(*node) },
+        VisiblePosition { lastPositionInNode(*node) }
+    );
 }
 
 const Position& VisibleSelection::uncanonicalizedStart() const
@@ -486,12 +489,12 @@ Position VisibleSelection::adjustPositionForEnd(const Position& currentPosition,
 
     if (RefPtr ancestor = treeScope->ancestorNodeInThisScope(currentPosition.containerNode())) {
         if (ancestor->contains(startContainerNode))
-            return positionAfterNode(ancestor.get());
-        return positionBeforeNode(ancestor.get());
+            return positionAfterNode(*ancestor);
+        return positionBeforeNode(*ancestor);
     }
 
     if (RefPtr lastChild = treeScope->rootNode().lastChild())
-        return positionAfterNode(lastChild.get());
+        return positionAfterNode(*lastChild);
 
     return Position();
 }
@@ -504,12 +507,12 @@ Position VisibleSelection::adjustPositionForStart(const Position& currentPositio
     
     if (RefPtr ancestor = treeScope->ancestorNodeInThisScope(currentPosition.containerNode())) {
         if (ancestor->contains(endContainerNode))
-            return positionBeforeNode(ancestor.get());
-        return positionAfterNode(ancestor.get());
+            return positionBeforeNode(*ancestor);
+        return positionAfterNode(*ancestor);
     }
 
     if (RefPtr firstChild = treeScope->rootNode().firstChild())
-        return positionBeforeNode(firstChild.get());
+        return positionBeforeNode(*firstChild);
 
     return Position();
 }
@@ -610,13 +613,13 @@ void VisibleSelection::adjustSelectionToAvoidCrossingEditingBoundaries()
             Position p = previousVisuallyDistinctCandidate(m_end);
             RefPtr shadowAncestor = endRoot ? endRoot->shadowHost() : nullptr;
             if (p.isNull() && shadowAncestor)
-                p = positionAfterNode(shadowAncestor.get());
+                p = positionAfterNode(*shadowAncestor);
             while (p.isNotNull() && !(lowestEditableAncestor(protect(p.containerNode()).get()) == baseEditableAncestor && !isEditablePosition(p))) {
                 RefPtr root = editableRootForPosition(p);
                 shadowAncestor = root ? root->shadowHost() : nullptr;
-                p = isAtomicNode(protect(p.containerNode()).get()) ? positionInParentBeforeNode(protect(p.containerNode()).get()) : previousVisuallyDistinctCandidate(p);
+                p = isAtomicNode(protect(p.containerNode())) ? positionInParentBeforeNode(protect(*p.containerNode())) : previousVisuallyDistinctCandidate(p);
                 if (p.isNull() && shadowAncestor)
-                    p = positionAfterNode(shadowAncestor.get());
+                    p = positionAfterNode(*shadowAncestor);
             }
             VisiblePosition previous(p);
 
@@ -634,13 +637,13 @@ void VisibleSelection::adjustSelectionToAvoidCrossingEditingBoundaries()
             Position p = nextVisuallyDistinctCandidate(m_start);
             RefPtr shadowAncestor = startRoot ? startRoot->shadowHost() : nullptr;
             if (p.isNull() && shadowAncestor)
-                p = positionBeforeNode(shadowAncestor.get());
+                p = positionBeforeNode(*shadowAncestor);
             while (p.isNotNull() && !(lowestEditableAncestor(protect(p.containerNode()).get()) == baseEditableAncestor && !isEditablePosition(p))) {
                 RefPtr root = editableRootForPosition(p);
                 shadowAncestor = root ? root->shadowHost() : nullptr;
-                p = isAtomicNode(protect(p.containerNode()).get()) ? positionInParentAfterNode(protect(p.containerNode()).get()) : nextVisuallyDistinctCandidate(p);
+                p = isAtomicNode(protect(p.containerNode())) ? positionInParentAfterNode(protect(*p.containerNode())) : nextVisuallyDistinctCandidate(p);
                 if (p.isNull() && shadowAncestor)
-                    p = positionBeforeNode(shadowAncestor.get());
+                    p = positionBeforeNode(*shadowAncestor);
             }
             VisiblePosition next(p);
             

@@ -752,7 +752,7 @@ static Position positionForIndex(TextControlInnerTextElement* innerText, unsigne
     for (RefPtr<Node> node = innerText; node; node = NodeTraversal::next(*node, innerText)) {
         if (node->hasTagName(brTag)) {
             if (!remainingCharactersToMoveForward)
-                return positionBeforeNode(node.get());
+                return positionBeforeNode(*node);
             remainingCharactersToMoveForward--;
             lastBrOrText = node;
         } else if (auto* text = dynamicDowncast<Text>(*node)) {
@@ -771,7 +771,7 @@ unsigned HTMLTextFormControlElement::indexForPosition(const Position& passedPosi
     if (!innerText || !innerText->contains(passedPosition.anchorNode()) || passedPosition.isNull())
         return 0;
 
-    if (positionBeforeNode(innerText.get()) == passedPosition)
+    if (positionBeforeNode(*innerText) == passedPosition)
         return 0;
 
     unsigned index = 0;
