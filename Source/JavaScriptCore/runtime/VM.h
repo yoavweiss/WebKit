@@ -136,6 +136,7 @@ class IntlCache;
 class JSDestructibleObjectHeapCellType;
 class JSGlobalObject;
 class JSObject;
+struct JSPIContext;
 class JSPromise;
 class JSPropertyNameEnumerator;
 class JITSizeStatistics;
@@ -231,26 +232,6 @@ public:
 
 private:
     ScratchBuffer* m_scratchBuffer;
-};
-
-// A record marking the top (in memory address terms) of the "interesting" stack span when
-// handling a JSPI suspension. A pointer to it is saved in the VM as the 'topJSPIContext' field.
-struct JSPIContext {
-    enum class Purpose {
-        Promising, // Started in a 'WebAssembly.promising()' wrapper function.
-        Completing // Started in a PinballCompletion fulfillment handler.
-    };
-
-    JSPIContext(Purpose, VM&, CallFrame*, JSPromise*);
-    ~JSPIContext();
-
-    void deactivate(VM&);
-
-    Purpose purpose;
-    JSPIContext* previousContext;
-    CallFrame* limitFrame; // scan up to this frame, and return from it after evacuating the stack
-    PinballCompletion* completion { nullptr };
-    JSPromise* resultPromise;
 };
 
 enum VMIdentifierType { };
@@ -1394,22 +1375,6 @@ extern "C" void SYSV_ABI sanitizeStackForVMImpl(VM*);
 #endif
 
 JS_EXPORT_PRIVATE void sanitizeStackForVM(VM&);
-
-inline JSPIContext::JSPIContext(Purpose purpose, VM& vm, CallFrame* callFrame, JSPromise* resultPromise)
-    : purpose(purpose)
-    , previousContext(vm.topJSPIContext)
-    , limitFrame(callFrame)
-    , resultPromise(resultPromise)
-{
-    vm.topJSPIContext = this;
-}
-
-inline void JSPIContext::deactivate(VM& vm)
-{
-    vm.topJSPIContext = previousContext;
-    limitFrame = nullptr; // indicates that this has been deactivated
-}
-
 
 } // namespace JSC
 

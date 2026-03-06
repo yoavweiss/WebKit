@@ -813,7 +813,10 @@
 		23968F0E2F295B1B001AED63 /* WebAssemblySuspending.h in Headers */ = {isa = PBXBuildFile; fileRef = 23968F0C2F295B1B001AED63 /* WebAssemblySuspending.h */; };
 		23968F0F2F295B1B001AED63 /* WebAssemblyPromising.h in Headers */ = {isa = PBXBuildFile; fileRef = 23968F0A2F295B1B001AED63 /* WebAssemblyPromising.h */; };
 		23A356912E9790F40039C82A /* PinballCompletion.h in Headers */ = {isa = PBXBuildFile; fileRef = 23A3568E2E9790F40039C82A /* PinballCompletion.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		F04DFCBEDED74A4E92B8A9DA /* PinballHandlerContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 8791D173F2EE43A7E6469029 /* PinballHandlerContext.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		23A9696C2E95A903005A36F5 /* EvacuatedStack.h in Headers */ = {isa = PBXBuildFile; fileRef = 23A969692E95A903005A36F5 /* EvacuatedStack.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		23D7A3E22F3D0F4C00A27B88 /* JSPIContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 23D7A3E02F3D0F4C00A27B88 /* JSPIContext.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		23D7A3E32F3D0F4C00A27B88 /* JSPIContextInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 23D7A3E12F3D0F4C00A27B88 /* JSPIContextInlines.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		2600B5A7152BAAA70091EE5F /* JSStringJoiner.h in Headers */ = {isa = PBXBuildFile; fileRef = 2600B5A5152BAAA70091EE5F /* JSStringJoiner.h */; };
 		262D85B71C0D650F006ACB61 /* AirFixPartialRegisterStalls.h in Headers */ = {isa = PBXBuildFile; fileRef = 262D85B51C0D650F006ACB61 /* AirFixPartialRegisterStalls.h */; };
 		2684D4381C00161C0081D663 /* AirLiveness.h in Headers */ = {isa = PBXBuildFile; fileRef = 2684D4371C00161C0081D663 /* AirLiveness.h */; };
@@ -3973,6 +3976,7 @@
 		1CAA8B4A0D32C39A0041BCFF /* JavaScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScript.h; sourceTree = "<group>"; };
 		1CAA8B4B0D32C39A0041BCFF /* JavaScriptCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScriptCore.h; sourceTree = "<group>"; };
 		20ECB15EFC524624BC2F02D5 /* ModuleNamespaceAccessCase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ModuleNamespaceAccessCase.cpp; sourceTree = "<group>"; };
+		230F325B2F3D10AF00E9D286 /* JSPIContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSPIContext.cpp; sourceTree = "<group>"; };
 		233D76772E288A8600EB9FFB /* badModuleImportId.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = badModuleImportId.js; sourceTree = "<group>"; };
 		233D76782E288A8600EB9FFB /* bar.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = bar.js; sourceTree = "<group>"; };
 		233D76792E288A8600EB9FFB /* dependenciesEntry.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = dependenciesEntry.js; sourceTree = "<group>"; };
@@ -4003,9 +4007,12 @@
 		23968F0C2F295B1B001AED63 /* WebAssemblySuspending.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WebAssemblySuspending.h; path = js/WebAssemblySuspending.h; sourceTree = "<group>"; };
 		23968F0D2F295B1B001AED63 /* WebAssemblySuspending.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WebAssemblySuspending.cpp; path = js/WebAssemblySuspending.cpp; sourceTree = "<group>"; };
 		23A3568E2E9790F40039C82A /* PinballCompletion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PinballCompletion.h; sourceTree = "<group>"; };
+		8791D173F2EE43A7E6469029 /* PinballHandlerContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PinballHandlerContext.h; sourceTree = "<group>"; };
 		23A3568F2E9790F40039C82A /* PinballCompletion.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PinballCompletion.cpp; sourceTree = "<group>"; };
 		23A969692E95A903005A36F5 /* EvacuatedStack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EvacuatedStack.h; sourceTree = "<group>"; };
 		23A9696A2E95A903005A36F5 /* EvacuatedStack.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EvacuatedStack.cpp; sourceTree = "<group>"; };
+		23D7A3E02F3D0F4C00A27B88 /* JSPIContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSPIContext.h; sourceTree = "<group>"; };
+		23D7A3E12F3D0F4C00A27B88 /* JSPIContextInlines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSPIContextInlines.h; sourceTree = "<group>"; };
 		2600B5A4152BAAA70091EE5F /* JSStringJoiner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSStringJoiner.cpp; sourceTree = "<group>"; };
 		2600B5A5152BAAA70091EE5F /* JSStringJoiner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSStringJoiner.h; sourceTree = "<group>"; };
 		262D85B41C0D650F006ACB61 /* AirFixPartialRegisterStalls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AirFixPartialRegisterStalls.cpp; path = b3/air/AirFixPartialRegisterStalls.cpp; sourceTree = "<group>"; };
@@ -8944,6 +8951,9 @@
 				A7F9935E0FD7325100A0B2D0 /* JSONObject.cpp */,
 				A7F9935D0FD7325100A0B2D0 /* JSONObject.h */,
 				276B38782A71D11700252F4E /* JSONObjectInlines.h */,
+				230F325B2F3D10AF00E9D286 /* JSPIContext.cpp */,
+				23D7A3E02F3D0F4C00A27B88 /* JSPIContext.h */,
+				23D7A3E12F3D0F4C00A27B88 /* JSPIContextInlines.h */,
 				7C184E1817BEDBD3007CB63A /* JSPromise.cpp */,
 				7C184E1917BEDBD3007CB63A /* JSPromise.h */,
 				AA785BEC2E77BECF0097F688 /* JSPromiseCombinatorsContext.cpp */,
@@ -9136,6 +9146,7 @@
 				37C738D11EDB5672003F2B0B /* ParseInt.h */,
 				23A3568F2E9790F40039C82A /* PinballCompletion.cpp */,
 				23A3568E2E9790F40039C82A /* PinballCompletion.h */,
+				8791D173F2EE43A7E6469029 /* PinballHandlerContext.h */,
 				CE20BD02237D3AD40046E520 /* PredictionFileCreatingFuzzerAgent.cpp */,
 				CE20BD01237D3AD40046E520 /* PredictionFileCreatingFuzzerAgent.h */,
 				86B8690224B8A20800487C95 /* PrivateFieldPutKind.cpp */,
@@ -11917,6 +11928,8 @@
 				E32FEA2C27448F3700FF41C1 /* JSONAtomStringCacheInlines.h in Headers */,
 				A7F9935F0FD7325100A0B2D0 /* JSONObject.h in Headers */,
 				276B387B2A71D11800252F4E /* JSONObjectInlines.h in Headers */,
+				23D7A3E22F3D0F4C00A27B88 /* JSPIContext.h in Headers */,
+				23D7A3E32F3D0F4C00A27B88 /* JSPIContextInlines.h in Headers */,
 				7C184E1B17BEDBD3007CB63A /* JSPromise.h in Headers */,
 				AA785BEB2E77BECA0097F688 /* JSPromiseCombinatorsContext.h in Headers */,
 				AA785BEE2E77BED70097F688 /* JSPromiseCombinatorsContextInlines.h in Headers */,
@@ -12166,6 +12179,7 @@
 				E38DAB532A95D23A0050B7A8 /* PerfLog.h in Headers */,
 				A5AB49DD1BEC8086007020FB /* PerGlobalObjectWrapperWorld.h in Headers */,
 				23A356912E9790F40039C82A /* PinballCompletion.h in Headers */,
+				F04DFCBEDED74A4E92B8A9DA /* PinballHandlerContext.h in Headers */,
 				0FE834181A6EF97B00D04847 /* PolymorphicCallStubRoutine.h in Headers */,
 				521131F71F82BF14007CCEEE /* PolyProtoAccessChain.h in Headers */,
 				0F070A4B1D543A98006E7232 /* PreciseAllocation.h in Headers */,

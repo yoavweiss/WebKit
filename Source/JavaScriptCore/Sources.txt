@@ -952,6 +952,7 @@ runtime/JSModuleRecord.cpp
 runtime/JSNativeStdFunction.cpp
 runtime/JSONObject.cpp
 runtime/JSObject.cpp
+runtime/JSPIContext.cpp
 runtime/JSPromise.cpp
 runtime/JSPromiseCombinatorsContext.cpp
 runtime/JSPromiseCombinatorsGlobalContext.cpp

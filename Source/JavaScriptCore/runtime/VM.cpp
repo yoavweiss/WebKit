@@ -2053,9 +2053,4 @@ Wasm::DebugState* VM::debugState()
 }
 #endif
 
-JSPIContext::~JSPIContext()
-{
-    ASSERT_WITH_MESSAGE(!limitFrame, "JSPIContext is still active when leaving its scope");
-}
-
 } // namespace JSC
