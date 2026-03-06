@@ -706,6 +706,9 @@ void ProvisionalPageProxy::didReceiveMessage(IPC::Connection& connection, IPC::D
         || decoder.messageName() == Messages::WebPageProxy::DidSendRequestForResource::name()
         || decoder.messageName() == Messages::WebPageProxy::DidReceiveResponseForResource::name()
 #endif
+#if ENABLE(CONTENT_EXTENSIONS)
+        || decoder.messageName() == Messages::WebPageProxy::ContentRuleListNotification::name()
+#endif
         )
     {
         if (RefPtr page = m_page.get())
