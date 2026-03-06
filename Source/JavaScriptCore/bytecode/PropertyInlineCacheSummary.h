@@ -23,37 +23,57 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#include "config.h"
-#include "StubInfoSummary.h"
+#pragma once
 
-#include <wtf/PrintStream.h>
+namespace JSC {
+
+enum class PropertyInlineCacheSummary : int8_t {
+    NoInformation,
+    Simple,
+    Megamorphic,
+    MakesCalls,
+    TakesSlowPath,
+    TakesSlowPathAndMakesCalls
+};
+
+inline bool isInlineable(PropertyInlineCacheSummary summary)
+{
+    switch (summary) {
+    case PropertyInlineCacheSummary::Simple:
+    case PropertyInlineCacheSummary::Megamorphic:
+    case PropertyInlineCacheSummary::MakesCalls:
+        return true;
+    case PropertyInlineCacheSummary::NoInformation:
+    case PropertyInlineCacheSummary::TakesSlowPath:
+    case PropertyInlineCacheSummary::TakesSlowPathAndMakesCalls:
+        return false;
+    }
+    
+    RELEASE_ASSERT_NOT_REACHED();
+}
+
+inline PropertyInlineCacheSummary slowVersion(PropertyInlineCacheSummary summary)
+{
+    switch (summary) {
+    case PropertyInlineCacheSummary::Simple:
+    case PropertyInlineCacheSummary::Megamorphic:
+    case PropertyInlineCacheSummary::NoInformation:
+    case PropertyInlineCacheSummary::TakesSlowPath:
+        return PropertyInlineCacheSummary::TakesSlowPath;
+    case PropertyInlineCacheSummary::MakesCalls:
+    case PropertyInlineCacheSummary::TakesSlowPathAndMakesCalls:
+        return PropertyInlineCacheSummary::TakesSlowPathAndMakesCalls;
+    }
+    
+    RELEASE_ASSERT_NOT_REACHED();
+}
+
+} // namespace JSC
 
 namespace WTF {
 
-void printInternal(PrintStream& out, JSC::StubInfoSummary summary)
-{
-    switch (summary) {
-    case JSC::StubInfoSummary::NoInformation:
-        out.print("NoInformation");
-        return;
-    case JSC::StubInfoSummary::Simple:
-        out.print("Simple");
-        return;
-    case JSC::StubInfoSummary::Megamorphic:
-        out.print("Megamorphic");
-        return;
-    case JSC::StubInfoSummary::MakesCalls:
-        out.print("MakesCalls");
-        return;
-    case JSC::StubInfoSummary::TakesSlowPath:
-        out.print("TakesSlowPath");
-        return;
-    case JSC::StubInfoSummary::TakesSlowPathAndMakesCalls:
-        out.print("TakesSlowPathAndMakesCalls");
-        return;
-    }
-    RELEASE_ASSERT_NOT_REACHED();
-}
+class PrintStream;
+void printInternal(PrintStream&, JSC::PropertyInlineCacheSummary);
 
 } // namespace WTF
 

@@ -283,10 +283,10 @@ void JITCompiler::link(LinkBuffer& linkBuffer)
     finalizeInlineCaches(m_instanceOfs, linkBuffer);
     finalizeInlineCaches(m_privateBrandAccesses, linkBuffer);
 #else
-    m_jitCode->m_unlinkedStubInfos = FixedVector<UnlinkedStructureStubInfo>(m_unlinkedStubInfos.size());
-    if (m_jitCode->m_unlinkedStubInfos.size())
-        std::move(m_unlinkedStubInfos.begin(), m_unlinkedStubInfos.end(), m_jitCode->m_unlinkedStubInfos.begin());
-    ASSERT(m_jitCode->common.m_stubInfos.isEmpty());
+    m_jitCode->m_unlinkedPropertyInlineCaches = FixedVector<UnlinkedPropertyInlineCache>(m_unlinkedPropertyInlineCaches.size());
+    if (m_jitCode->m_unlinkedPropertyInlineCaches.size())
+        std::move(m_unlinkedPropertyInlineCaches.begin(), m_unlinkedPropertyInlineCaches.end(), m_jitCode->m_unlinkedPropertyInlineCaches.begin());
+    ASSERT(m_jitCode->common.m_propertyInlineCaches.isEmpty());
 #endif
 
     for (auto& record : m_jsDirectCalls) {
@@ -515,10 +515,10 @@ void JITCompiler::loadConstant(LinkerIR::Constant index, GPRReg dest)
 #endif
 }
 
-void JITCompiler::loadStructureStubInfo(StructureStubInfoIndex index, GPRReg dest)
+void JITCompiler::loadPropertyInlineCache(PropertyInlineCacheIndex index, GPRReg dest)
 {
 #if USE(JSVALUE64)
-    subPtr(GPRInfo::jitDataRegister, TrustedImm32(static_cast<uintptr_t>(index.m_index + 1) * sizeof(StructureStubInfo)), dest);
+    subPtr(GPRInfo::jitDataRegister, TrustedImm32(static_cast<uintptr_t>(index.m_index + 1) * sizeof(PropertyInlineCache)), dest);
 #else
     UNUSED_PARAM(index);
     UNUSED_PARAM(dest);
@@ -595,15 +595,15 @@ LinkerIR::Constant JITCompiler::addToConstantPool(LinkerIR::Type type, void* pay
     return result.iterator->value;
 }
 
-std::tuple<CompileTimeStructureStubInfo, StructureStubInfoIndex> JITCompiler::addStructureStubInfo()
+std::tuple<CompileTimePropertyInlineCache, PropertyInlineCacheIndex> JITCompiler::addPropertyInlineCache()
 {
 #if USE(JSVALUE64)
-    unsigned index = m_unlinkedStubInfos.size();
-    DFG::UnlinkedStructureStubInfo* stubInfo = &m_unlinkedStubInfos.alloc();
-    return std::tuple { stubInfo, StructureStubInfoIndex { index } };
+    unsigned index = m_unlinkedPropertyInlineCaches.size();
+    DFG::UnlinkedPropertyInlineCache* propertyCache = &m_unlinkedPropertyInlineCaches.alloc();
+    return std::tuple { propertyCache, PropertyInlineCacheIndex { index } };
 #else
-    StructureStubInfo* stubInfo = jitCode()->common.m_stubInfos.add();
-    return std::tuple { stubInfo, StructureStubInfoIndex(0) };
+    PropertyInlineCache* propertyCache = jitCode()->common.m_propertyInlineCaches.add();
+    return std::tuple { propertyCache, PropertyInlineCacheIndex(0) };
 #endif
 }
 

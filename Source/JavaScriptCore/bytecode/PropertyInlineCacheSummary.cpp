@@ -23,57 +23,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#pragma once
+#include "config.h"
+#include "PropertyInlineCacheSummary.h"
 
-namespace JSC {
-
-enum class StubInfoSummary : int8_t {
-    NoInformation,
-    Simple,
-    Megamorphic,
-    MakesCalls,
-    TakesSlowPath,
-    TakesSlowPathAndMakesCalls
-};
-
-inline bool isInlineable(StubInfoSummary summary)
-{
-    switch (summary) {
-    case StubInfoSummary::Simple:
-    case StubInfoSummary::Megamorphic:
-    case StubInfoSummary::MakesCalls:
-        return true;
-    case StubInfoSummary::NoInformation:
-    case StubInfoSummary::TakesSlowPath:
-    case StubInfoSummary::TakesSlowPathAndMakesCalls:
-        return false;
-    }
-    
-    RELEASE_ASSERT_NOT_REACHED();
-}
-
-inline StubInfoSummary slowVersion(StubInfoSummary summary)
-{
-    switch (summary) {
-    case StubInfoSummary::Simple:
-    case StubInfoSummary::Megamorphic:
-    case StubInfoSummary::NoInformation:
-    case StubInfoSummary::TakesSlowPath:
-        return StubInfoSummary::TakesSlowPath;
-    case StubInfoSummary::MakesCalls:
-    case StubInfoSummary::TakesSlowPathAndMakesCalls:
-        return StubInfoSummary::TakesSlowPathAndMakesCalls;
-    }
-    
-    RELEASE_ASSERT_NOT_REACHED();
-}
-
-} // namespace JSC
+#include <wtf/PrintStream.h>
 
 namespace WTF {
 
-class PrintStream;
-void printInternal(PrintStream&, JSC::StubInfoSummary);
+void printInternal(PrintStream& out, JSC::PropertyInlineCacheSummary summary)
+{
+    switch (summary) {
+    case JSC::PropertyInlineCacheSummary::NoInformation:
+        out.print("NoInformation");
+        return;
+    case JSC::PropertyInlineCacheSummary::Simple:
+        out.print("Simple");
+        return;
+    case JSC::PropertyInlineCacheSummary::Megamorphic:
+        out.print("Megamorphic");
+        return;
+    case JSC::PropertyInlineCacheSummary::MakesCalls:
+        out.print("MakesCalls");
+        return;
+    case JSC::PropertyInlineCacheSummary::TakesSlowPath:
+        out.print("TakesSlowPath");
+        return;
+    case JSC::PropertyInlineCacheSummary::TakesSlowPathAndMakesCalls:
+        out.print("TakesSlowPathAndMakesCalls");
+        return;
+    }
+    RELEASE_ASSERT_NOT_REACHED();
+}
 
 } // namespace WTF
 

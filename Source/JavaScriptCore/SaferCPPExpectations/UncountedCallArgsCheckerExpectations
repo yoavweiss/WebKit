@@ -34,7 +34,7 @@ bytecode/PutByStatus.cpp
 bytecode/Repatch.cpp
 bytecode/SetPrivateBrandStatus.cpp
 bytecode/SharedJITStubSet.h
-bytecode/StructureStubInfo.cpp
+bytecode/PropertyInlineCache.cpp
 bytecode/UnlinkedFunctionExecutable.cpp
 bytecompiler/BytecodeGenerator.cpp
 bytecompiler/BytecodeGenerator.h

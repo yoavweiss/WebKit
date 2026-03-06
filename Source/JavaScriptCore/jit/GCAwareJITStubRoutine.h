@@ -36,12 +36,12 @@
 namespace JSC {
 
 class AccessCase;
-class AdaptiveValueStructureStubClearingWatchpoint;
+class AdaptiveValuePropertyInlineCacheClearingWatchpoint;
 class CallLinkInfo;
 class JITStubRoutineSet;
 class OptimizingCallLinkInfo;
-class StructureTransitionStructureStubClearingWatchpoint;
-class WatchpointsOnStructureStubInfo;
+class StructureTransitionPropertyInlineCacheClearingWatchpoint;
+class WatchpointsOnPropertyInlineCache;
 
 // Use this stub routine if you know that your code might be on stack when
 // either GC or other kinds of stub deletion happen. Basicaly, if your stub
@@ -97,7 +97,7 @@ public:
     friend class JITStubRoutine;
     friend class GCAwareJITStubRoutine;
 
-    using Watchpoints = Bag<Variant<StructureTransitionStructureStubClearingWatchpoint, AdaptiveValueStructureStubClearingWatchpoint>>;
+    using Watchpoints = Bag<Variant<StructureTransitionPropertyInlineCacheClearingWatchpoint, AdaptiveValuePropertyInlineCacheClearingWatchpoint>>;
 
     PolymorphicAccessJITStubRoutine(Type, const MacroAssemblerCodeRef<JITStubRoutinePtrTag>&, VM&, FixedVector<Ref<AccessCase>>&&, FixedVector<StructureID>&&, JSCell* owner, bool isCodeImmutable);
     ~PolymorphicAccessJITStubRoutine();

@@ -349,7 +349,7 @@ public:
     };
 
     void loadConstant(LinkerIR::Constant, GPRReg);
-    void loadStructureStubInfo(StructureStubInfoIndex, GPRReg);
+    void loadPropertyInlineCache(PropertyInlineCacheIndex, GPRReg);
     void loadLinkableConstant(LinkableConstant, GPRReg);
     void storeLinkableConstant(LinkableConstant, Address);
 
@@ -371,7 +371,7 @@ public:
         return CCallHelpers::branchPtr(cond, left, CCallHelpers::TrustedImmPtr(constant.pointer()));
     }
 
-    std::tuple<CompileTimeStructureStubInfo, StructureStubInfoIndex> addStructureStubInfo();
+    std::tuple<CompileTimePropertyInlineCache, PropertyInlineCacheIndex> addPropertyInlineCache();
     std::tuple<CompileTimeCallLinkInfo, LinkableConstant> addCallLinkInfo(CodeOrigin);
     LinkerIR::Constant addToConstantPool(LinkerIR::Type, void*);
 
@@ -434,7 +434,7 @@ protected:
     Vector<DFG::OSREntryData> m_osrEntry;
     Vector<DFG::OSRExit> m_osrExit;
     Vector<DFG::SpeculationRecovery> m_speculationRecovery;
-    SegmentedVector<DFG::UnlinkedStructureStubInfo> m_unlinkedStubInfos;
+    SegmentedVector<DFG::UnlinkedPropertyInlineCache> m_unlinkedPropertyInlineCaches;
     SegmentedVector<DFG::UnlinkedCallLinkInfo> m_unlinkedCallLinkInfos;
     
     struct ExceptionHandlingOSRExitInfo {

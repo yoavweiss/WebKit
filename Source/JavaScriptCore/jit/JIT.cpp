@@ -91,11 +91,11 @@ JITConstantPool::Constant JIT::addToConstantPool(JITConstantPool::Type type, voi
     return result;
 }
 
-std::tuple<BaselineUnlinkedStructureStubInfo*, StructureStubInfoIndex> JIT::addUnlinkedStructureStubInfo()
+std::tuple<BaselineUnlinkedPropertyInlineCache*, PropertyInlineCacheIndex> JIT::addUnlinkedPropertyInlineCache()
 {
-    unsigned stubInfoIndex = m_unlinkedStubInfos.size();
-    BaselineUnlinkedStructureStubInfo* stubInfo = &m_unlinkedStubInfos.alloc();
-    return std::tuple { stubInfo, StructureStubInfoIndex { stubInfoIndex } };
+    unsigned propertyCacheIndex = m_unlinkedPropertyInlineCaches.size();
+    BaselineUnlinkedPropertyInlineCache* propertyCache = &m_unlinkedPropertyInlineCaches.alloc();
+    return std::tuple { propertyCache, PropertyInlineCacheIndex { propertyCacheIndex } };
 }
 
 BaselineUnlinkedCallLinkInfo* JIT::addUnlinkedCallLinkInfo()
@@ -927,8 +927,8 @@ RefPtr<BaselineJITCode> JIT::link(LinkBuffer& patchBuffer)
 
     auto finalizeICs = [&] (auto& generators) {
         for (auto& gen : generators) {
-            gen.m_unlinkedStubInfo->doneLocation = patchBuffer.locationOf<JSInternalPtrTag>(gen.m_done);
-            gen.m_unlinkedStubInfo->slowPathStartLocation = patchBuffer.locationOf<JITStubRoutinePtrTag>(gen.m_slowPathBegin);
+            gen.m_unlinkedPropertyCache->doneLocation = patchBuffer.locationOf<JSInternalPtrTag>(gen.m_done);
+            gen.m_unlinkedPropertyCache->slowPathStartLocation = patchBuffer.locationOf<JITStubRoutinePtrTag>(gen.m_slowPathBegin);
         }
     };
 
@@ -989,9 +989,9 @@ RefPtr<BaselineJITCode> JIT::link(LinkBuffer& patchBuffer)
                 return lhs.bytecodeIndex < rhs.bytecodeIndex;
             });
     }
-    jitCode->m_unlinkedStubInfos = FixedVector<BaselineUnlinkedStructureStubInfo>(m_unlinkedStubInfos.size());
-    if (jitCode->m_unlinkedStubInfos.size())
-        std::move(m_unlinkedStubInfos.begin(), m_unlinkedStubInfos.end(), jitCode->m_unlinkedStubInfos.begin());
+    jitCode->m_unlinkedPropertyInlineCaches = FixedVector<BaselineUnlinkedPropertyInlineCache>(m_unlinkedPropertyInlineCaches.size());
+    if (jitCode->m_unlinkedPropertyInlineCaches.size())
+        std::move(m_unlinkedPropertyInlineCaches.begin(), m_unlinkedPropertyInlineCaches.end(), jitCode->m_unlinkedPropertyInlineCaches.begin());
     jitCode->m_switchJumpTables = WTF::move(m_switchJumpTables);
     jitCode->m_stringSwitchJumpTables = WTF::move(m_stringSwitchJumpTables);
     jitCode->m_jitCodeMap = jitCodeMapBuilder.finalize();

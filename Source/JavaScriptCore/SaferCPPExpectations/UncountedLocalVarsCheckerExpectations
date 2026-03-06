@@ -18,7 +18,7 @@ bytecode/PropertyCondition.cpp
 bytecode/PutByStatus.cpp
 bytecode/Repatch.cpp
 bytecode/SetPrivateBrandStatus.cpp
-bytecode/StructureStubInfo.cpp
+bytecode/PropertyInlineCache.cpp
 bytecode/Watchpoint.cpp
 bytecompiler/BytecodeGenerator.cpp
 bytecompiler/BytecodeGeneratorBaseInlines.h

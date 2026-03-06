@@ -39,34 +39,34 @@
 namespace JSC {
 
 class CodeBlock;
-class StructureStubInfo;
+class PropertyInlineCache;
 
-class StructureStubInfoClearingWatchpoint final : public Watchpoint {
-    WTF_MAKE_NONCOPYABLE(StructureStubInfoClearingWatchpoint);
-    WTF_MAKE_TZONE_ALLOCATED(StructureStubInfoClearingWatchpoint);
+class PropertyInlineCacheClearingWatchpoint final : public Watchpoint {
+    WTF_MAKE_NONCOPYABLE(PropertyInlineCacheClearingWatchpoint);
+    WTF_MAKE_TZONE_ALLOCATED(PropertyInlineCacheClearingWatchpoint);
 public:
-    StructureStubInfoClearingWatchpoint(CodeBlock* owner, StructureStubInfo& stubInfo)
-        : Watchpoint(Watchpoint::Type::StructureStubInfoClearing)
+    PropertyInlineCacheClearingWatchpoint(CodeBlock* owner, PropertyInlineCache& propertyCache)
+        : Watchpoint(Watchpoint::Type::PropertyInlineCacheClearing)
         , m_owner(owner)
-        , m_stubInfo(stubInfo)
+        , m_propertyCache(propertyCache)
     {
     }
 
-    ~StructureStubInfoClearingWatchpoint();
+    ~PropertyInlineCacheClearingWatchpoint();
 
     void fireInternal(VM&, const FireDetail&);
 
 private:
     PackedCellPtr<CodeBlock> m_owner;
-    StructureStubInfo& m_stubInfo;
+    PropertyInlineCache& m_propertyCache;
 };
 
-class StructureTransitionStructureStubClearingWatchpoint final : public Watchpoint {
-    WTF_MAKE_NONCOPYABLE(StructureTransitionStructureStubClearingWatchpoint);
-    WTF_MAKE_TZONE_ALLOCATED(StructureTransitionStructureStubClearingWatchpoint);
+class StructureTransitionPropertyInlineCacheClearingWatchpoint final : public Watchpoint {
+    WTF_MAKE_NONCOPYABLE(StructureTransitionPropertyInlineCacheClearingWatchpoint);
+    WTF_MAKE_TZONE_ALLOCATED(StructureTransitionPropertyInlineCacheClearingWatchpoint);
 public:
-    StructureTransitionStructureStubClearingWatchpoint(PolymorphicAccessJITStubRoutine* owner, const ObjectPropertyCondition& key, WatchpointSet& watchpointSet)
-        : Watchpoint(Watchpoint::Type::StructureTransitionStructureStubClearing)
+    StructureTransitionPropertyInlineCacheClearingWatchpoint(PolymorphicAccessJITStubRoutine* owner, const ObjectPropertyCondition& key, WatchpointSet& watchpointSet)
+        : Watchpoint(Watchpoint::Type::StructureTransitionPropertyInlineCacheClearing)
         , m_owner(owner)
         , m_watchpointSet(watchpointSet)
         , m_key(key)
@@ -81,15 +81,15 @@ private:
     ObjectPropertyCondition m_key;
 };
 
-class AdaptiveValueStructureStubClearingWatchpoint final : public AdaptiveInferredPropertyValueWatchpointBase {
+class AdaptiveValuePropertyInlineCacheClearingWatchpoint final : public AdaptiveInferredPropertyValueWatchpointBase {
     using Base = AdaptiveInferredPropertyValueWatchpointBase;
-    WTF_MAKE_NONCOPYABLE(AdaptiveValueStructureStubClearingWatchpoint);
-    WTF_MAKE_TZONE_ALLOCATED(AdaptiveValueStructureStubClearingWatchpoint);
+    WTF_MAKE_NONCOPYABLE(AdaptiveValuePropertyInlineCacheClearingWatchpoint);
+    WTF_MAKE_TZONE_ALLOCATED(AdaptiveValuePropertyInlineCacheClearingWatchpoint);
 
     void handleFire(VM&, const FireDetail&) final;
 
 public:
-    AdaptiveValueStructureStubClearingWatchpoint(PolymorphicAccessJITStubRoutine* owner, const ObjectPropertyCondition& key, WatchpointSet& watchpointSet)
+    AdaptiveValuePropertyInlineCacheClearingWatchpoint(PolymorphicAccessJITStubRoutine* owner, const ObjectPropertyCondition& key, WatchpointSet& watchpointSet)
         : Base(key)
         , m_owner(owner)
         , m_watchpointSet(watchpointSet)

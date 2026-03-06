@@ -196,7 +196,7 @@ public:
         Structure* = nullptr, const ObjectPropertyConditionSet& = ObjectPropertyConditionSet(), RefPtr<PolyProtoAccessChain>&& = nullptr);
 
     static RefPtr<AccessCase> createTransition(VM&, JSCell* owner, CacheableIdentifier, PropertyOffset, Structure* oldStructure,
-        Structure* newStructure, const ObjectPropertyConditionSet&, RefPtr<PolyProtoAccessChain>&&, const StructureStubInfo&);
+        Structure* newStructure, const ObjectPropertyConditionSet&, RefPtr<PolyProtoAccessChain>&&, const PropertyInlineCache&);
 
     static Ref<AccessCase> createDelete(VM&, JSCell* owner, CacheableIdentifier, PropertyOffset, Structure* oldStructure, Structure* newStructure);
 
@@ -206,7 +206,7 @@ public:
 
     static Ref<AccessCase> createReplace(VM&, JSCell* owner, CacheableIdentifier, PropertyOffset, Structure* oldStructure, bool viaGlobalProxy);
     
-    static RefPtr<AccessCase> fromStructureStubInfo(VM&, JSCell* owner, CacheableIdentifier, StructureStubInfo&);
+    static RefPtr<AccessCase> fromPropertyInlineCache(VM&, JSCell* owner, CacheableIdentifier, PropertyInlineCache&);
 
     AccessType type() const { return m_type; }
     PropertyOffset offset() const { return m_offset; }
@@ -300,9 +300,9 @@ public:
     CacheableIdentifier identifier() const { return m_identifier; }
 
 #if ASSERT_ENABLED
-    void checkConsistency(StructureStubInfo&);
+    void checkConsistency(PropertyInlineCache&);
 #else
-    ALWAYS_INLINE void checkConsistency(StructureStubInfo&) { }
+    ALWAYS_INLINE void checkConsistency(PropertyInlineCache&) { }
 #endif
 
     unsigned hash() const

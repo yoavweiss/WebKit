@@ -24,27 +24,27 @@
  */
 
 #include "config.h"
-#include "StructureStubClearingWatchpoint.h"
+#include "PropertyInlineCacheClearingWatchpoint.h"
 
 #if ENABLE(JIT)
 
 #include "CodeBlockInlines.h"
 #include "JSCellInlines.h"
-#include "StructureStubInfo.h"
+#include "PropertyInlineCache.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace JSC {
 
-WTF_MAKE_TZONE_ALLOCATED_IMPL(StructureStubInfoClearingWatchpoint);
-WTF_MAKE_TZONE_ALLOCATED_IMPL(AdaptiveValueStructureStubClearingWatchpoint);
-WTF_MAKE_TZONE_ALLOCATED_IMPL(StructureTransitionStructureStubClearingWatchpoint);
+WTF_MAKE_TZONE_ALLOCATED_IMPL(PropertyInlineCacheClearingWatchpoint);
+WTF_MAKE_TZONE_ALLOCATED_IMPL(AdaptiveValuePropertyInlineCacheClearingWatchpoint);
+WTF_MAKE_TZONE_ALLOCATED_IMPL(StructureTransitionPropertyInlineCacheClearingWatchpoint);
 
-StructureStubInfoClearingWatchpoint::~StructureStubInfoClearingWatchpoint()
+PropertyInlineCacheClearingWatchpoint::~PropertyInlineCacheClearingWatchpoint()
 {
     ASSERT(!m_owner->wasDestructed());
 }
 
-void StructureStubInfoClearingWatchpoint::fireInternal(VM&, const FireDetail&)
+void PropertyInlineCacheClearingWatchpoint::fireInternal(VM&, const FireDetail&)
 {
     ASSERT(!m_owner->wasDestructed());
     if (m_owner->isPendingDestruction())
@@ -54,10 +54,10 @@ void StructureStubInfoClearingWatchpoint::fireInternal(VM&, const FireDetail&)
     // That works, because deleting a watchpoint removes it from the set's list, and
     // the set's list traversal for firing is robust against the set changing.
     ConcurrentJSLocker locker(m_owner->m_lock);
-    m_stubInfo.reset(locker, m_owner.get());
+    m_propertyCache.reset(locker, m_owner.get());
 }
 
-void StructureTransitionStructureStubClearingWatchpoint::fireInternal(VM& vm, const FireDetail&)
+void StructureTransitionPropertyInlineCacheClearingWatchpoint::fireInternal(VM& vm, const FireDetail&)
 {
     if (m_owner->ownerIsDead())
         return;
@@ -77,7 +77,7 @@ void StructureTransitionStructureStubClearingWatchpoint::fireInternal(VM& vm, co
     m_key.object()->structure()->addTransitionWatchpoint(this);
 }
 
-void AdaptiveValueStructureStubClearingWatchpoint::handleFire(VM& vm, const FireDetail&)
+void AdaptiveValuePropertyInlineCacheClearingWatchpoint::handleFire(VM& vm, const FireDetail&)
 {
     if (m_owner->ownerIsDead())
         return;

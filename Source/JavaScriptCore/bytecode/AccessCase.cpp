@@ -43,9 +43,9 @@
 #include "LLIntThunks.h"
 #include "LinkBuffer.h"
 #include "ModuleNamespaceAccessCase.h"
+#include "PropertyInlineCache.h"
 #include "ScopedArguments.h"
 #include "ScratchRegisterAllocator.h"
-#include "StructureStubInfo.h"
 #include "SuperSampler.h"
 #include "ThunkGenerators.h"
 
@@ -197,7 +197,7 @@ Ref<AccessCase> AccessCase::create(VM& vm, JSCell* owner, AccessType type, Cache
 
 RefPtr<AccessCase> AccessCase::createTransition(
     VM& vm, JSCell* owner, CacheableIdentifier identifier, PropertyOffset offset, Structure* oldStructure, Structure* newStructure,
-    const ObjectPropertyConditionSet& conditionSet, RefPtr<PolyProtoAccessChain>&& prototypeAccessChain, const StructureStubInfo& stubInfo)
+    const ObjectPropertyConditionSet& conditionSet, RefPtr<PolyProtoAccessChain>&& prototypeAccessChain, const PropertyInlineCache& propertyCache)
 {
     RELEASE_ASSERT(oldStructure == newStructure->previousID());
 
@@ -205,7 +205,7 @@ RefPtr<AccessCase> AccessCase::createTransition(
     // enough registers to make it happen.
     if (oldStructure->outOfLineCapacity() != newStructure->outOfLineCapacity()) {
         // In 64 bits jsc uses 1 register for value, and it uses 2 registers in 32 bits
-        size_t requiredRegisters = 1; // stubInfo.valueRegs()
+        size_t requiredRegisters = 1; // propertyCache.valueRegs()
 #if USE(JSVALUE32_64)
         ++requiredRegisters;
 #endif
@@ -214,7 +214,7 @@ RefPtr<AccessCase> AccessCase::createTransition(
         ++requiredRegisters;
 #if USE(JSVALUE32_64)
         // In 32 bits, jsc uses may use one extra register, if it is not a Cell
-        if (stubInfo.propertyRegs().tagGPR() != InvalidGPRReg)
+        if (propertyCache.propertyRegs().tagGPR() != InvalidGPRReg)
             ++requiredRegisters;
 #endif
 
@@ -222,13 +222,13 @@ RefPtr<AccessCase> AccessCase::createTransition(
         ++requiredRegisters;
 #if USE(JSVALUE32_64)
         // In 32 bits, jsc uses may use one extra register, if it is not a Cell
-        if (stubInfo.baseRegs().tagGPR() != InvalidGPRReg)
+        if (propertyCache.baseRegs().tagGPR() != InvalidGPRReg)
             ++requiredRegisters;
 #endif
 
-        if (stubInfo.m_stubInfoGPR != InvalidGPRReg)
+        if (propertyCache.m_propertyCacheGPR != InvalidGPRReg)
             ++requiredRegisters;
-        if (stubInfo.m_arrayProfileGPR != InvalidGPRReg)
+        if (propertyCache.m_arrayProfileGPR != InvalidGPRReg)
             ++requiredRegisters;
 
         // One extra register for scratchGPR
@@ -273,28 +273,28 @@ Ref<AccessCase> AccessCase::createReplace(VM& vm, JSCell* owner, CacheableIdenti
     return result;
 }
 
-RefPtr<AccessCase> AccessCase::fromStructureStubInfo(
-    VM& vm, JSCell* owner, CacheableIdentifier identifier, StructureStubInfo& stubInfo)
+RefPtr<AccessCase> AccessCase::fromPropertyInlineCache(
+    VM& vm, JSCell* owner, CacheableIdentifier identifier, PropertyInlineCache& propertyCache)
 {
-    switch (stubInfo.cacheType()) {
+    switch (propertyCache.cacheType()) {
     case CacheType::GetByIdSelf:
-        RELEASE_ASSERT(hasConstantIdentifier(stubInfo.accessType));
-        return ProxyableAccessCase::create(vm, owner, Load, identifier, stubInfo.byIdSelfOffset, stubInfo.inlineAccessBaseStructure());
+        RELEASE_ASSERT(hasConstantIdentifier(propertyCache.accessType));
+        return ProxyableAccessCase::create(vm, owner, Load, identifier, propertyCache.byIdSelfOffset, propertyCache.inlineAccessBaseStructure());
 
     case CacheType::PutByIdReplace:
-        RELEASE_ASSERT(hasConstantIdentifier(stubInfo.accessType));
-        return AccessCase::createReplace(vm, owner, identifier, stubInfo.byIdSelfOffset, stubInfo.inlineAccessBaseStructure(), false);
+        RELEASE_ASSERT(hasConstantIdentifier(propertyCache.accessType));
+        return AccessCase::createReplace(vm, owner, identifier, propertyCache.byIdSelfOffset, propertyCache.inlineAccessBaseStructure(), false);
 
     case CacheType::InByIdSelf:
-        RELEASE_ASSERT(hasConstantIdentifier(stubInfo.accessType));
-        return AccessCase::create(vm, owner, InHit, identifier, stubInfo.byIdSelfOffset, stubInfo.inlineAccessBaseStructure());
+        RELEASE_ASSERT(hasConstantIdentifier(propertyCache.accessType));
+        return AccessCase::create(vm, owner, InHit, identifier, propertyCache.byIdSelfOffset, propertyCache.inlineAccessBaseStructure());
 
     case CacheType::ArrayLength:
-        RELEASE_ASSERT(hasConstantIdentifier(stubInfo.accessType));
+        RELEASE_ASSERT(hasConstantIdentifier(propertyCache.accessType));
         return AccessCase::create(vm, owner, AccessCase::ArrayLength, CacheableIdentifier::createFromImmortalIdentifier(vm.propertyNames->length.impl()));
 
     case CacheType::StringLength:
-        RELEASE_ASSERT(hasConstantIdentifier(stubInfo.accessType));
+        RELEASE_ASSERT(hasConstantIdentifier(propertyCache.accessType));
         return AccessCase::create(vm, owner, AccessCase::StringLength, CacheableIdentifier::createFromImmortalIdentifier(vm.propertyNames->length.impl()));
 
     default:
@@ -1441,11 +1441,11 @@ inline void AccessCase::runWithDowncast(const Func& func)
 }
 
 #if ASSERT_ENABLED
-void AccessCase::checkConsistency(StructureStubInfo& stubInfo)
+void AccessCase::checkConsistency(PropertyInlineCache& propertyCache)
 {
     RELEASE_ASSERT(!(requiresInt32PropertyCheck() && requiresIdentifierNameMatch()));
 
-    if (hasConstantIdentifier(stubInfo.accessType)) {
+    if (hasConstantIdentifier(propertyCache.accessType)) {
         RELEASE_ASSERT(!requiresInt32PropertyCheck());
         RELEASE_ASSERT(requiresIdentifierNameMatch());
     }

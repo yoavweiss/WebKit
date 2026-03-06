@@ -24,7 +24,7 @@
  */
 
 #include "config.h"
-#include "StructureStubInfo.h"
+#include "PropertyInlineCache.h"
 
 #include "BaselineJITRegisters.h"
 #include "CacheableIdentifierInlines.h"
@@ -36,13 +36,13 @@ namespace JSC {
 
 #if ENABLE(JIT)
 
-namespace StructureStubInfoInternal {
+namespace PropertyInlineCacheInternal {
 static constexpr bool verbose = false;
 }
 
-StructureStubInfo::~StructureStubInfo() = default;
+PropertyInlineCache::~PropertyInlineCache() = default;
 
-void StructureStubInfo::initGetByIdSelf(const ConcurrentJSLockerBase& locker, CodeBlock* codeBlock, Structure* inlineAccessBaseStructure, PropertyOffset offset)
+void PropertyInlineCache::initGetByIdSelf(const ConcurrentJSLockerBase& locker, CodeBlock* codeBlock, Structure* inlineAccessBaseStructure, PropertyOffset offset)
 {
     ASSERT(m_cacheType == CacheType::Unset);
     ASSERT(hasConstantIdentifier(accessType));
@@ -51,19 +51,19 @@ void StructureStubInfo::initGetByIdSelf(const ConcurrentJSLockerBase& locker, Co
     byIdSelfOffset = offset;
 }
 
-void StructureStubInfo::initArrayLength(const ConcurrentJSLockerBase& locker)
+void PropertyInlineCache::initArrayLength(const ConcurrentJSLockerBase& locker)
 {
     ASSERT(m_cacheType == CacheType::Unset);
     setCacheType(locker, CacheType::ArrayLength);
 }
 
-void StructureStubInfo::initStringLength(const ConcurrentJSLockerBase& locker)
+void PropertyInlineCache::initStringLength(const ConcurrentJSLockerBase& locker)
 {
     ASSERT(m_cacheType == CacheType::Unset);
     setCacheType(locker, CacheType::StringLength);
 }
 
-void StructureStubInfo::initPutByIdReplace(const ConcurrentJSLockerBase& locker, CodeBlock* codeBlock, Structure* inlineAccessBaseStructure, PropertyOffset offset)
+void PropertyInlineCache::initPutByIdReplace(const ConcurrentJSLockerBase& locker, CodeBlock* codeBlock, Structure* inlineAccessBaseStructure, PropertyOffset offset)
 {
     ASSERT(m_cacheType == CacheType::Unset);
     ASSERT(hasConstantIdentifier(accessType));
@@ -72,7 +72,7 @@ void StructureStubInfo::initPutByIdReplace(const ConcurrentJSLockerBase& locker,
     byIdSelfOffset = offset;
 }
 
-void StructureStubInfo::initInByIdSelf(const ConcurrentJSLockerBase& locker, CodeBlock* codeBlock, Structure* inlineAccessBaseStructure, PropertyOffset offset)
+void PropertyInlineCache::initInByIdSelf(const ConcurrentJSLockerBase& locker, CodeBlock* codeBlock, Structure* inlineAccessBaseStructure, PropertyOffset offset)
 {
     ASSERT(m_cacheType == CacheType::Unset);
     ASSERT(hasConstantIdentifier(accessType));
@@ -81,12 +81,12 @@ void StructureStubInfo::initInByIdSelf(const ConcurrentJSLockerBase& locker, Cod
     byIdSelfOffset = offset;
 }
 
-void StructureStubInfo::deref()
+void PropertyInlineCache::deref()
 {
     m_stub.reset();
 }
 
-void StructureStubInfo::aboutToDie()
+void PropertyInlineCache::aboutToDie()
 {
     if (m_inlinedHandler)
         m_inlinedHandler->aboutToDie();
@@ -99,7 +99,7 @@ void StructureStubInfo::aboutToDie()
     }
 }
 
-AccessGenerationResult StructureStubInfo::upgradeForPolyProtoIfNecessary(const GCSafeConcurrentJSLocker&, VM&, CodeBlock*, const Vector<AccessCase*, 16>& list, AccessCase& caseToAdd)
+AccessGenerationResult PropertyInlineCache::upgradeForPolyProtoIfNecessary(const GCSafeConcurrentJSLocker&, VM&, CodeBlock*, const Vector<AccessCase*, 16>& list, AccessCase& caseToAdd)
 {
     // This method will add the casesToAdd to the list one at a time while preserving the
     // invariants:
@@ -141,7 +141,7 @@ AccessGenerationResult StructureStubInfo::upgradeForPolyProtoIfNecessary(const G
     return AccessGenerationResult::Buffered;
 }
 
-AccessGenerationResult StructureStubInfo::addAccessCase(const GCSafeConcurrentJSLocker& locker, JSGlobalObject* globalObject, CodeBlock* codeBlock, ECMAMode ecmaMode, CacheableIdentifier ident, RefPtr<AccessCase> accessCase)
+AccessGenerationResult PropertyInlineCache::addAccessCase(const GCSafeConcurrentJSLocker& locker, JSGlobalObject* globalObject, CodeBlock* codeBlock, ECMAMode ecmaMode, CacheableIdentifier ident, RefPtr<AccessCase> accessCase)
 {
     checkConsistency();
 
@@ -152,12 +152,12 @@ AccessGenerationResult StructureStubInfo::addAccessCase(const GCSafeConcurrentJS
         return AccessGenerationResult::GaveUp;
 
     AccessGenerationResult result = ([&](Ref<AccessCase>&& accessCase) -> AccessGenerationResult {
-        dataLogLnIf(StructureStubInfoInternal::verbose, "Adding access case: ", accessCase);
+        dataLogLnIf(PropertyInlineCacheInternal::verbose, "Adding access case: ", accessCase);
 
         if (useHandlerIC()) {
             auto list = listedAccessCases(locker);
             auto result = upgradeForPolyProtoIfNecessary(locker, vm, codeBlock, list, accessCase.get());
-            dataLogLnIf(StructureStubInfoInternal::verbose, "Had stub, result: ", result);
+            dataLogLnIf(PropertyInlineCacheInternal::verbose, "Had stub, result: ", result);
 
             if (result.shouldResetStubAndFireWatchpoints())
                 return result;
@@ -173,7 +173,7 @@ AccessGenerationResult StructureStubInfo::addAccessCase(const GCSafeConcurrentJS
             // If we didn't buffer any cases then bail. If this made no changes then we'll just try again
             // subject to cool-down.
             if (!result.buffered()) {
-                dataLogLnIf(StructureStubInfoInternal::verbose, "Didn't buffer anything, bailing.");
+                dataLogLnIf(PropertyInlineCacheInternal::verbose, "Didn't buffer anything, bailing.");
                 clearBufferedStructures();
                 return result;
             }
@@ -186,7 +186,7 @@ AccessGenerationResult StructureStubInfo::addAccessCase(const GCSafeConcurrentJS
         AccessGenerationResult result;
         if (m_stub) {
             result = m_stub->addCases(locker, vm, codeBlock, *this, nullptr, accessCase);
-            dataLogLnIf(StructureStubInfoInternal::verbose, "Had stub, result: ", result);
+            dataLogLnIf(PropertyInlineCacheInternal::verbose, "Had stub, result: ", result);
 
             if (result.shouldResetStubAndFireWatchpoints())
                 return result;
@@ -197,9 +197,9 @@ AccessGenerationResult StructureStubInfo::addAccessCase(const GCSafeConcurrentJS
             }
         } else {
             std::unique_ptr<PolymorphicAccess> access = makeUnique<PolymorphicAccess>();
-            result = access->addCases(locker, vm, codeBlock, *this, AccessCase::fromStructureStubInfo(vm, codeBlock, ident, *this), accessCase);
+            result = access->addCases(locker, vm, codeBlock, *this, AccessCase::fromPropertyInlineCache(vm, codeBlock, ident, *this), accessCase);
 
-            dataLogLnIf(StructureStubInfoInternal::verbose, "Created stub, result: ", result);
+            dataLogLnIf(PropertyInlineCacheInternal::verbose, "Created stub, result: ", result);
 
             if (result.shouldResetStubAndFireWatchpoints())
                 return result;
@@ -219,14 +219,14 @@ AccessGenerationResult StructureStubInfo::addAccessCase(const GCSafeConcurrentJS
         // If we didn't buffer any cases then bail. If this made no changes then we'll just try again
         // subject to cool-down.
         if (!result.buffered()) {
-            dataLogLnIf(StructureStubInfoInternal::verbose, "Didn't buffer anything, bailing.");
+            dataLogLnIf(PropertyInlineCacheInternal::verbose, "Didn't buffer anything, bailing.");
             clearBufferedStructures();
             return result;
         }
 
         // The buffering countdown tells us if we should be repatching now.
         if (bufferingCountdown) {
-            dataLogLnIf(StructureStubInfoInternal::verbose, "Countdown is too high: ", bufferingCountdown, ".");
+            dataLogLnIf(PropertyInlineCacheInternal::verbose, "Countdown is too high: ", bufferingCountdown, ".");
             return result;
         }
 
@@ -237,7 +237,7 @@ AccessGenerationResult StructureStubInfo::addAccessCase(const GCSafeConcurrentJS
         InlineCacheCompiler compiler(codeBlock->jitType(), vm, globalObject, ecmaMode, *this);
         result = compiler.compile(locker, *m_stub, codeBlock);
 
-        dataLogLnIf(StructureStubInfoInternal::verbose, "Regeneration result: ", result);
+        dataLogLnIf(PropertyInlineCacheInternal::verbose, "Regeneration result: ", result);
 
         RELEASE_ASSERT(!result.buffered());
         
@@ -272,7 +272,7 @@ AccessGenerationResult StructureStubInfo::addAccessCase(const GCSafeConcurrentJS
     return result;
 }
 
-void StructureStubInfo::reset(const ConcurrentJSLockerBase& locker, CodeBlock* codeBlock)
+void PropertyInlineCache::reset(const ConcurrentJSLockerBase& locker, CodeBlock* codeBlock)
 {
     clearBufferedStructures();
     m_inlineAccessBaseStructureID.clear();
@@ -387,7 +387,7 @@ void StructureStubInfo::reset(const ConcurrentJSLockerBase& locker, CodeBlock* c
 }
 
 template<typename Visitor>
-void StructureStubInfo::visitAggregateImpl(Visitor& visitor)
+void PropertyInlineCache::visitAggregateImpl(Visitor& visitor)
 {
     if (!m_identifier) {
         Locker locker { m_bufferedStructuresLock };
@@ -414,9 +414,9 @@ void StructureStubInfo::visitAggregateImpl(Visitor& visitor)
         m_stub->visitAggregate(visitor);
 }
 
-DEFINE_VISIT_AGGREGATE(StructureStubInfo);
+DEFINE_VISIT_AGGREGATE(PropertyInlineCache);
 
-void StructureStubInfo::visitWeak(const ConcurrentJSLockerBase& locker, CodeBlock* codeBlock)
+void PropertyInlineCache::visitWeak(const ConcurrentJSLockerBase& locker, CodeBlock* codeBlock)
 {
     VM& vm = codeBlock->vm();
     {
@@ -459,7 +459,7 @@ void StructureStubInfo::visitWeak(const ConcurrentJSLockerBase& locker, CodeBloc
 }
 
 template<typename Visitor>
-void StructureStubInfo::propagateTransitions(Visitor& visitor)
+void PropertyInlineCache::propagateTransitions(Visitor& visitor)
 {
     if (Structure* structure = inlineAccessBaseStructure())
         structure->markIfCheap(visitor);
@@ -479,10 +479,10 @@ void StructureStubInfo::propagateTransitions(Visitor& visitor)
     }
 }
 
-template void StructureStubInfo::propagateTransitions(AbstractSlotVisitor&);
-template void StructureStubInfo::propagateTransitions(SlotVisitor&);
+template void PropertyInlineCache::propagateTransitions(AbstractSlotVisitor&);
+template void PropertyInlineCache::propagateTransitions(SlotVisitor&);
 
-CallLinkInfo* StructureStubInfo::callLinkInfoAt(const ConcurrentJSLocker& locker, unsigned index, const AccessCase& accessCase)
+CallLinkInfo* PropertyInlineCache::callLinkInfoAt(const ConcurrentJSLocker& locker, unsigned index, const AccessCase& accessCase)
 {
     if (!useDataIC) {
         if (!m_handler)
@@ -505,16 +505,16 @@ CallLinkInfo* StructureStubInfo::callLinkInfoAt(const ConcurrentJSLocker& locker
     return nullptr;
 }
 
-StubInfoSummary StructureStubInfo::summary(const ConcurrentJSLocker& locker, VM& vm) const
+PropertyInlineCacheSummary PropertyInlineCache::summary(const ConcurrentJSLocker& locker, VM& vm) const
 {
-    StubInfoSummary takesSlowPath = StubInfoSummary::TakesSlowPath;
-    StubInfoSummary simple = StubInfoSummary::Simple;
+    PropertyInlineCacheSummary takesSlowPath = PropertyInlineCacheSummary::TakesSlowPath;
+    PropertyInlineCacheSummary simple = PropertyInlineCacheSummary::Simple;
     auto list = listedAccessCases(locker);
     for (unsigned i = 0; i < list.size(); ++i) {
         AccessCase& access = *list.at(i);
         if (access.doesCalls(vm)) {
-            takesSlowPath = StubInfoSummary::TakesSlowPathAndMakesCalls;
-            simple = StubInfoSummary::MakesCalls;
+            takesSlowPath = PropertyInlineCacheSummary::TakesSlowPathAndMakesCalls;
+            simple = PropertyInlineCacheSummary::MakesCalls;
             break;
         }
     }
@@ -526,7 +526,7 @@ StubInfoSummary StructureStubInfo::summary(const ConcurrentJSLocker& locker, VM&
         case AccessCase::IndexedMegamorphicStore:
         case AccessCase::InMegamorphic:
         case AccessCase::IndexedMegamorphicIn:
-            return StubInfoSummary::Megamorphic;
+            return PropertyInlineCacheSummary::Megamorphic;
         default:
             break;
         }
@@ -536,20 +536,20 @@ StubInfoSummary StructureStubInfo::summary(const ConcurrentJSLocker& locker, VM&
         return takesSlowPath;
     
     if (!everConsidered)
-        return StubInfoSummary::NoInformation;
+        return PropertyInlineCacheSummary::NoInformation;
     
     return simple;
 }
 
-StubInfoSummary StructureStubInfo::summary(const ConcurrentJSLocker& locker, VM& vm, const StructureStubInfo* stubInfo)
+PropertyInlineCacheSummary PropertyInlineCache::summary(const ConcurrentJSLocker& locker, VM& vm, const PropertyInlineCache* propertyCache)
 {
-    if (!stubInfo)
-        return StubInfoSummary::NoInformation;
+    if (!propertyCache)
+        return PropertyInlineCacheSummary::NoInformation;
     
-    return stubInfo->summary(locker, vm);
+    return propertyCache->summary(locker, vm);
 }
 
-bool StructureStubInfo::containsPC(void* pc) const
+bool PropertyInlineCache::containsPC(void* pc) const
 {
     // m_inlinedHandler is not having special out-of-inline code, so we do not care.
     if (auto* cursor = m_handler.get()) {
@@ -562,14 +562,14 @@ bool StructureStubInfo::containsPC(void* pc) const
     return false;
 }
 
-ALWAYS_INLINE void StructureStubInfo::setCacheType(const ConcurrentJSLockerBase&, CacheType newCacheType)
+ALWAYS_INLINE void PropertyInlineCache::setCacheType(const ConcurrentJSLockerBase&, CacheType newCacheType)
 {
     m_cacheType = newCacheType;
 }
 
-static CodePtr<OperationPtrTag> slowOperationFromUnlinkedStructureStubInfo(const UnlinkedStructureStubInfo& unlinkedStubInfo)
+static CodePtr<OperationPtrTag> slowOperationFromUnlinkedPropertyInlineCache(const UnlinkedPropertyInlineCache& unlinkedPropertyCache)
 {
-    switch (unlinkedStubInfo.accessType) {
+    switch (unlinkedPropertyCache.accessType) {
     case AccessType::DeleteByValStrict:
         return operationDeleteByValStrictOptimize;
     case AccessType::DeleteByValSloppy:
@@ -636,7 +636,7 @@ static CodePtr<OperationPtrTag> slowOperationFromUnlinkedStructureStubInfo(const
     return { };
 }
 
-void StructureStubInfo::initializePredefinedRegisters()
+void PropertyInlineCache::initializePredefinedRegisters()
 {
     switch (accessType) {
     case AccessType::DeleteByValStrict:
@@ -644,7 +644,7 @@ void StructureStubInfo::initializePredefinedRegisters()
         m_baseGPR = BaselineJITRegisters::DelByVal::baseJSR.payloadGPR();
         m_extraGPR = BaselineJITRegisters::DelByVal::propertyJSR.payloadGPR();
         m_valueGPR = BaselineJITRegisters::DelByVal::resultJSR.payloadGPR();
-        m_stubInfoGPR = BaselineJITRegisters::DelByVal::stubInfoGPR;
+        m_propertyCacheGPR = BaselineJITRegisters::DelByVal::propertyCacheGPR;
 #if USE(JSVALUE32_64)
         m_baseTagGPR = BaselineJITRegisters::DelByVal::baseJSR.tagGPR();
         m_extraTagGPR = BaselineJITRegisters::DelByVal::propertyJSR.tagGPR();
@@ -656,7 +656,7 @@ void StructureStubInfo::initializePredefinedRegisters()
         m_baseGPR = BaselineJITRegisters::DelById::baseJSR.payloadGPR();
         m_extraGPR = InvalidGPRReg;
         m_valueGPR = BaselineJITRegisters::DelById::resultJSR.payloadGPR();
-        m_stubInfoGPR = BaselineJITRegisters::DelById::stubInfoGPR;
+        m_propertyCacheGPR = BaselineJITRegisters::DelById::propertyCacheGPR;
 #if USE(JSVALUE32_64)
         m_baseTagGPR = BaselineJITRegisters::DelById::baseJSR.tagGPR();
         m_extraTagGPR = InvalidGPRReg;
@@ -668,7 +668,7 @@ void StructureStubInfo::initializePredefinedRegisters()
         m_baseGPR = BaselineJITRegisters::GetByVal::baseJSR.payloadGPR();
         m_extraGPR = BaselineJITRegisters::GetByVal::propertyJSR.payloadGPR();
         m_valueGPR = BaselineJITRegisters::GetByVal::resultJSR.payloadGPR();
-        m_stubInfoGPR = BaselineJITRegisters::GetByVal::stubInfoGPR;
+        m_propertyCacheGPR = BaselineJITRegisters::GetByVal::propertyCacheGPR;
         if (accessType == AccessType::GetByVal)
             m_arrayProfileGPR = BaselineJITRegisters::GetByVal::profileGPR;
 #if USE(JSVALUE32_64)
@@ -682,7 +682,7 @@ void StructureStubInfo::initializePredefinedRegisters()
         m_baseGPR = BaselineJITRegisters::Instanceof::valueJSR.payloadGPR();
         m_valueGPR = BaselineJITRegisters::Instanceof::resultJSR.payloadGPR();
         m_extraGPR = BaselineJITRegisters::Instanceof::protoJSR.payloadGPR();
-        m_stubInfoGPR = BaselineJITRegisters::Instanceof::stubInfoGPR;
+        m_propertyCacheGPR = BaselineJITRegisters::Instanceof::propertyCacheGPR;
 #if USE(JSVALUE32_64)
         m_baseTagGPR = BaselineJITRegisters::Instanceof::valueJSR.tagGPR();
         m_valueTagGPR = InvalidGPRReg;
@@ -695,7 +695,7 @@ void StructureStubInfo::initializePredefinedRegisters()
         m_baseGPR = BaselineJITRegisters::InByVal::baseJSR.payloadGPR();
         m_extraGPR = BaselineJITRegisters::InByVal::propertyJSR.payloadGPR();
         m_valueGPR = BaselineJITRegisters::InByVal::resultJSR.payloadGPR();
-        m_stubInfoGPR = BaselineJITRegisters::InByVal::stubInfoGPR;
+        m_propertyCacheGPR = BaselineJITRegisters::InByVal::propertyCacheGPR;
         if (accessType == AccessType::InByVal)
             m_arrayProfileGPR = BaselineJITRegisters::InByVal::profileGPR;
 #if USE(JSVALUE32_64)
@@ -708,7 +708,7 @@ void StructureStubInfo::initializePredefinedRegisters()
         m_extraGPR = InvalidGPRReg;
         m_baseGPR = BaselineJITRegisters::InById::baseJSR.payloadGPR();
         m_valueGPR = BaselineJITRegisters::InById::resultJSR.payloadGPR();
-        m_stubInfoGPR = BaselineJITRegisters::InById::stubInfoGPR;
+        m_propertyCacheGPR = BaselineJITRegisters::InById::propertyCacheGPR;
 #if USE(JSVALUE32_64)
         m_extraTagGPR = InvalidGPRReg;
         m_baseTagGPR = BaselineJITRegisters::InById::baseJSR.tagGPR();
@@ -722,7 +722,7 @@ void StructureStubInfo::initializePredefinedRegisters()
         m_extraGPR = InvalidGPRReg;
         m_baseGPR = BaselineJITRegisters::GetById::baseJSR.payloadGPR();
         m_valueGPR = BaselineJITRegisters::GetById::resultJSR.payloadGPR();
-        m_stubInfoGPR = BaselineJITRegisters::GetById::stubInfoGPR;
+        m_propertyCacheGPR = BaselineJITRegisters::GetById::propertyCacheGPR;
 #if USE(JSVALUE32_64)
         m_extraTagGPR = InvalidGPRReg;
         m_baseTagGPR = BaselineJITRegisters::GetById::baseJSR.tagGPR();
@@ -733,7 +733,7 @@ void StructureStubInfo::initializePredefinedRegisters()
         m_baseGPR = BaselineJITRegisters::GetByIdWithThis::baseJSR.payloadGPR();
         m_valueGPR = BaselineJITRegisters::GetByIdWithThis::resultJSR.payloadGPR();
         m_extraGPR = BaselineJITRegisters::GetByIdWithThis::thisJSR.payloadGPR();
-        m_stubInfoGPR = BaselineJITRegisters::GetByIdWithThis::stubInfoGPR;
+        m_propertyCacheGPR = BaselineJITRegisters::GetByIdWithThis::propertyCacheGPR;
 #if USE(JSVALUE32_64)
         m_baseTagGPR = BaselineJITRegisters::GetByIdWithThis::baseJSR.tagGPR();
         m_valueTagGPR = BaselineJITRegisters::GetByIdWithThis::resultJSR.tagGPR();
@@ -746,7 +746,7 @@ void StructureStubInfo::initializePredefinedRegisters()
         m_valueGPR = BaselineJITRegisters::GetByValWithThis::resultJSR.payloadGPR();
         m_extraGPR = BaselineJITRegisters::GetByValWithThis::thisJSR.payloadGPR();
         m_extra2GPR = BaselineJITRegisters::GetByValWithThis::propertyJSR.payloadGPR();
-        m_stubInfoGPR = BaselineJITRegisters::GetByValWithThis::stubInfoGPR;
+        m_propertyCacheGPR = BaselineJITRegisters::GetByValWithThis::propertyCacheGPR;
         m_arrayProfileGPR = BaselineJITRegisters::GetByValWithThis::profileGPR;
 #else
         // Registers are exhausted, we cannot have this IC on 32bit.
@@ -762,7 +762,7 @@ void StructureStubInfo::initializePredefinedRegisters()
         m_extraGPR = InvalidGPRReg;
         m_baseGPR = BaselineJITRegisters::PutById::baseJSR.payloadGPR();
         m_valueGPR = BaselineJITRegisters::PutById::valueJSR.payloadGPR();
-        m_stubInfoGPR = BaselineJITRegisters::PutById::stubInfoGPR;
+        m_propertyCacheGPR = BaselineJITRegisters::PutById::propertyCacheGPR;
 #if USE(JSVALUE32_64)
         m_extraTagGPR = InvalidGPRReg;
         m_baseTagGPR = BaselineJITRegisters::PutById::baseJSR.tagGPR();
@@ -778,7 +778,7 @@ void StructureStubInfo::initializePredefinedRegisters()
         m_baseGPR = BaselineJITRegisters::PutByVal::baseJSR.payloadGPR();
         m_extraGPR = BaselineJITRegisters::PutByVal::propertyJSR.payloadGPR();
         m_valueGPR = BaselineJITRegisters::PutByVal::valueJSR.payloadGPR();
-        m_stubInfoGPR = BaselineJITRegisters::PutByVal::stubInfoGPR;
+        m_propertyCacheGPR = BaselineJITRegisters::PutByVal::propertyCacheGPR;
         if (accessType != AccessType::DefinePrivateNameByVal && accessType != AccessType::SetPrivateNameByVal)
             m_arrayProfileGPR = BaselineJITRegisters::PutByVal::profileGPR;
 #if USE(JSVALUE32_64)
@@ -792,7 +792,7 @@ void StructureStubInfo::initializePredefinedRegisters()
         m_valueGPR = InvalidGPRReg;
         m_baseGPR = BaselineJITRegisters::PrivateBrand::baseJSR.payloadGPR();
         m_extraGPR = BaselineJITRegisters::PrivateBrand::propertyJSR.payloadGPR();
-        m_stubInfoGPR = BaselineJITRegisters::PrivateBrand::stubInfoGPR;
+        m_propertyCacheGPR = BaselineJITRegisters::PrivateBrand::propertyCacheGPR;
 #if USE(JSVALUE32_64)
         m_valueTagGPR = InvalidGPRReg;
         m_baseTagGPR = BaselineJITRegisters::PrivateBrand::baseJSR.tagGPR();
@@ -802,11 +802,11 @@ void StructureStubInfo::initializePredefinedRegisters()
     }
 }
 
-void StructureStubInfo::initializeFromUnlinkedStructureStubInfo(VM& vm, CodeBlock* codeBlock, const BaselineUnlinkedStructureStubInfo& unlinkedStubInfo)
+void PropertyInlineCache::initializeFromUnlinkedPropertyInlineCache(VM& vm, CodeBlock* codeBlock, const BaselineUnlinkedPropertyInlineCache& unlinkedPropertyCache)
 {
     ASSERT(!isCompilationThread());
-    accessType = unlinkedStubInfo.accessType;
-    preconfiguredCacheType = unlinkedStubInfo.preconfiguredCacheType;
+    accessType = unlinkedPropertyCache.accessType;
+    preconfiguredCacheType = unlinkedPropertyCache.preconfiguredCacheType;
     switch (preconfiguredCacheType) {
     case CacheType::ArrayLength:
         m_cacheType = CacheType::ArrayLength;
@@ -814,36 +814,36 @@ void StructureStubInfo::initializeFromUnlinkedStructureStubInfo(VM& vm, CodeBloc
     default:
         break;
     }
-    doneLocation = unlinkedStubInfo.doneLocation;
-    m_identifier = unlinkedStubInfo.m_identifier;
+    doneLocation = unlinkedPropertyCache.doneLocation;
+    m_identifier = unlinkedPropertyCache.m_identifier;
     m_globalObject = codeBlock->globalObject();
-    callSiteIndex = CallSiteIndex(BytecodeIndex(unlinkedStubInfo.bytecodeIndex.offset()));
-    codeOrigin = CodeOrigin(unlinkedStubInfo.bytecodeIndex);
+    callSiteIndex = CallSiteIndex(BytecodeIndex(unlinkedPropertyCache.bytecodeIndex.offset()));
+    codeOrigin = CodeOrigin(unlinkedPropertyCache.bytecodeIndex);
     if (Options::useHandlerIC())
         initializeWithUnitHandler(codeBlock, InlineCacheCompiler::generateSlowPathHandler(vm, accessType));
     else {
-        initializeWithUnitHandler(codeBlock, InlineCacheHandler::createNonHandlerSlowPath(unlinkedStubInfo.slowPathStartLocation));
-        slowPathStartLocation = unlinkedStubInfo.slowPathStartLocation;
+        initializeWithUnitHandler(codeBlock, InlineCacheHandler::createNonHandlerSlowPath(unlinkedPropertyCache.slowPathStartLocation));
+        slowPathStartLocation = unlinkedPropertyCache.slowPathStartLocation;
     }
-    propertyIsInt32 = unlinkedStubInfo.propertyIsInt32;
-    canBeMegamorphic = unlinkedStubInfo.canBeMegamorphic;
+    propertyIsInt32 = unlinkedPropertyCache.propertyIsInt32;
+    canBeMegamorphic = unlinkedPropertyCache.canBeMegamorphic;
     useDataIC = true;
 
-    if (unlinkedStubInfo.canBeMegamorphic)
+    if (unlinkedPropertyCache.canBeMegamorphic)
         bufferingCountdown = 1;
 
     usedRegisters = RegisterSet::stubUnavailableRegisters().toScalarRegisterSet();
 
-    m_slowOperation = slowOperationFromUnlinkedStructureStubInfo(unlinkedStubInfo);
+    m_slowOperation = slowOperationFromUnlinkedPropertyInlineCache(unlinkedPropertyCache);
     initializePredefinedRegisters();
 }
 
 #if ENABLE(DFG_JIT)
-void StructureStubInfo::initializeFromDFGUnlinkedStructureStubInfo(CodeBlock* codeBlock, const DFG::UnlinkedStructureStubInfo& unlinkedStubInfo)
+void PropertyInlineCache::initializeFromDFGUnlinkedPropertyInlineCache(CodeBlock* codeBlock, const DFG::UnlinkedPropertyInlineCache& unlinkedPropertyCache)
 {
     ASSERT(!isCompilationThread());
-    accessType = unlinkedStubInfo.accessType;
-    preconfiguredCacheType = unlinkedStubInfo.preconfiguredCacheType;
+    accessType = unlinkedPropertyCache.accessType;
+    preconfiguredCacheType = unlinkedPropertyCache.preconfiguredCacheType;
     switch (preconfiguredCacheType) {
     case CacheType::ArrayLength:
         m_cacheType = CacheType::ArrayLength;
@@ -851,10 +851,10 @@ void StructureStubInfo::initializeFromDFGUnlinkedStructureStubInfo(CodeBlock* co
     default:
         break;
     }
-    doneLocation = unlinkedStubInfo.doneLocation;
-    m_identifier = unlinkedStubInfo.m_identifier;
-    callSiteIndex = unlinkedStubInfo.callSiteIndex;
-    codeOrigin = unlinkedStubInfo.codeOrigin;
+    doneLocation = unlinkedPropertyCache.doneLocation;
+    m_identifier = unlinkedPropertyCache.m_identifier;
+    callSiteIndex = unlinkedPropertyCache.callSiteIndex;
+    codeOrigin = unlinkedPropertyCache.codeOrigin;
     if (codeOrigin.inlineCallFrame())
         m_globalObject = baselineCodeBlockForInlineCallFrame(codeOrigin.inlineCallFrame())->globalObject();
     else
@@ -862,28 +862,28 @@ void StructureStubInfo::initializeFromDFGUnlinkedStructureStubInfo(CodeBlock* co
     if (Options::useHandlerIC())
         initializeWithUnitHandler(codeBlock, InlineCacheCompiler::generateSlowPathHandler(codeBlock->vm(), accessType));
     else {
-        initializeWithUnitHandler(codeBlock, InlineCacheHandler::createNonHandlerSlowPath(unlinkedStubInfo.slowPathStartLocation));
-        slowPathStartLocation = unlinkedStubInfo.slowPathStartLocation;
+        initializeWithUnitHandler(codeBlock, InlineCacheHandler::createNonHandlerSlowPath(unlinkedPropertyCache.slowPathStartLocation));
+        slowPathStartLocation = unlinkedPropertyCache.slowPathStartLocation;
     }
 
-    propertyIsInt32 = unlinkedStubInfo.propertyIsInt32;
-    propertyIsSymbol = unlinkedStubInfo.propertyIsSymbol;
-    propertyIsString = unlinkedStubInfo.propertyIsString;
-    prototypeIsKnownObject = unlinkedStubInfo.prototypeIsKnownObject;
-    canBeMegamorphic = unlinkedStubInfo.canBeMegamorphic;
+    propertyIsInt32 = unlinkedPropertyCache.propertyIsInt32;
+    propertyIsSymbol = unlinkedPropertyCache.propertyIsSymbol;
+    propertyIsString = unlinkedPropertyCache.propertyIsString;
+    prototypeIsKnownObject = unlinkedPropertyCache.prototypeIsKnownObject;
+    canBeMegamorphic = unlinkedPropertyCache.canBeMegamorphic;
     useDataIC = true;
 
-    if (unlinkedStubInfo.canBeMegamorphic)
+    if (unlinkedPropertyCache.canBeMegamorphic)
         bufferingCountdown = 1;
 
     usedRegisters = RegisterSet::stubUnavailableRegisters().toScalarRegisterSet();
 
-    m_slowOperation = slowOperationFromUnlinkedStructureStubInfo(unlinkedStubInfo);
+    m_slowOperation = slowOperationFromUnlinkedPropertyInlineCache(unlinkedPropertyCache);
     initializePredefinedRegisters();
 }
 #endif
 
-void StructureStubInfo::setInlinedHandler(CodeBlock* codeBlock, Ref<InlineCacheHandler>&& handler)
+void PropertyInlineCache::setInlinedHandler(CodeBlock* codeBlock, Ref<InlineCacheHandler>&& handler)
 {
     ASSERT(!m_inlinedHandler);
     VM& vm = codeBlock->vm();
@@ -920,7 +920,7 @@ void StructureStubInfo::setInlinedHandler(CodeBlock* codeBlock, Ref<InlineCacheH
     }
 }
 
-void StructureStubInfo::clearInlinedHandler(CodeBlock* codeBlock)
+void PropertyInlineCache::clearInlinedHandler(CodeBlock* codeBlock)
 {
     ASSERT(useHandlerIC());
     m_inlinedHandler->removeOwner(codeBlock);
@@ -928,7 +928,7 @@ void StructureStubInfo::clearInlinedHandler(CodeBlock* codeBlock)
     m_inlineAccessBaseStructureID.clear();
 }
 
-void StructureStubInfo::initializeWithUnitHandler(CodeBlock* codeBlock, Ref<InlineCacheHandler>&& handler)
+void PropertyInlineCache::initializeWithUnitHandler(CodeBlock* codeBlock, Ref<InlineCacheHandler>&& handler)
 {
     if (useHandlerIC()) {
         if (m_inlinedHandler)
@@ -944,7 +944,7 @@ void StructureStubInfo::initializeWithUnitHandler(CodeBlock* codeBlock, Ref<Inli
     }
 }
 
-void StructureStubInfo::prependHandler(CodeBlock* codeBlock, Ref<InlineCacheHandler>&& handler, bool isMegamorphic)
+void PropertyInlineCache::prependHandler(CodeBlock* codeBlock, Ref<InlineCacheHandler>&& handler, bool isMegamorphic)
 {
     ASSERT(useHandlerIC());
     if (isMegamorphic) {
@@ -964,7 +964,7 @@ void StructureStubInfo::prependHandler(CodeBlock* codeBlock, Ref<InlineCacheHand
     m_handler->addOwner(codeBlock);
 }
 
-void StructureStubInfo::rewireStubAsJumpInAccess(CodeBlock* codeBlock, Ref<InlineCacheHandler>&& handler)
+void PropertyInlineCache::rewireStubAsJumpInAccess(CodeBlock* codeBlock, Ref<InlineCacheHandler>&& handler)
 {
     CodeLocationLabel label { handler->callTarget() };
     initializeWithUnitHandler(codeBlock, WTF::move(handler));
@@ -972,7 +972,7 @@ void StructureStubInfo::rewireStubAsJumpInAccess(CodeBlock* codeBlock, Ref<Inlin
         CCallHelpers::replaceWithJump(startLocation.retagged<JSInternalPtrTag>(), label);
 }
 
-void StructureStubInfo::resetStubAsJumpInAccess(CodeBlock* codeBlock)
+void PropertyInlineCache::resetStubAsJumpInAccess(CodeBlock* codeBlock)
 {
     if (useHandlerIC()) {
         if (m_inlinedHandler)
@@ -991,7 +991,7 @@ void StructureStubInfo::resetStubAsJumpInAccess(CodeBlock* codeBlock)
     rewireStubAsJumpInAccess(codeBlock, InlineCacheHandler::createNonHandlerSlowPath(slowPathStartLocation));
 }
 
-Vector<AccessCase*, 16> StructureStubInfo::listedAccessCases(const AbstractLocker&) const
+Vector<AccessCase*, 16> PropertyInlineCache::listedAccessCases(const AbstractLocker&) const
 {
     Vector<AccessCase*, 16> cases;
     if (m_stub) {
@@ -1017,7 +1017,7 @@ Vector<AccessCase*, 16> StructureStubInfo::listedAccessCases(const AbstractLocke
 }
 
 #if ASSERT_ENABLED
-void StructureStubInfo::checkConsistency()
+void PropertyInlineCache::checkConsistency()
 {
     switch (accessType) {
     case AccessType::GetByIdWithThis:

@@ -95,7 +95,7 @@ class LLIntPrototypeLoadAdaptiveStructureWatchpoint;
 class MetadataTable;
 class RegisterAtOffsetList;
 class ScriptExecutable;
-class StructureStubInfo;
+class PropertyInlineCache;
 class BaselineJITCode;
 class BaselineJITData;
 
@@ -151,7 +151,7 @@ private:
             This,
             Metadata,
             BaselineJITData,
-            StubInfoCount,
+            PropertyInlineCacheCount,
             DFGJITData,
             Destructed
         };
@@ -320,7 +320,7 @@ public:
     static constexpr ptrdiff_t offsetOfJITData() { return OBJECT_OFFSETOF(CodeBlock, m_jitData); }
 
     // O(n) operation. Use getICStatusMap() unless you really only intend to get one stub info.
-    StructureStubInfo* findStubInfo(CodeOrigin);
+    PropertyInlineCache* findPropertyCache(CodeOrigin);
 
     const JITCodeMap& jitCodeMap();
 
@@ -979,7 +979,7 @@ private:
     void ensureCatchLivenessIsComputedForBytecodeIndexSlow(const OpCatch&, BytecodeIndex);
 
     template<typename Func>
-    void forEachStructureStubInfo(Func);
+    void forEachPropertyInlineCache(Func);
 
     const unsigned m_numCalleeLocals;
     const unsigned m_numVars;

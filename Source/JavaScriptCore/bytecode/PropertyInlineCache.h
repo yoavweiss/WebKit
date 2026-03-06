@@ -33,11 +33,11 @@
 #include "JITStubRoutine.h"
 #include "MacroAssembler.h"
 #include "Options.h"
+#include "PropertyInlineCacheClearingWatchpoint.h"
+#include "PropertyInlineCacheSummary.h"
 #include "RegisterSet.h"
 #include "Structure.h"
 #include "StructureSet.h"
-#include "StructureStubClearingWatchpoint.h"
-#include "StubInfoSummary.h"
 #include <wtf/Box.h>
 #include <wtf/Lock.h>
 #include <wtf/TZoneMalloc.h>
@@ -47,14 +47,14 @@ namespace JSC {
 #if ENABLE(JIT)
 
 namespace DFG {
-struct UnlinkedStructureStubInfo;
+struct UnlinkedPropertyInlineCache;
 }
 
 class AccessCase;
 class AccessGenerationResult;
 class PolymorphicAccess;
 
-#define JSC_FOR_EACH_STRUCTURE_STUB_INFO_ACCESS_TYPE(macro) \
+#define JSC_FOR_EACH_PROPERTY_INLINE_CACHE_ACCESS_TYPE(macro) \
     macro(GetById) \
     macro(GetByIdWithThis) \
     macro(GetByIdDirect) \
@@ -90,33 +90,33 @@ class PolymorphicAccess;
 
 enum class AccessType : int8_t {
 #define JSC_DEFINE_ACCESS_TYPE(name) name,
-    JSC_FOR_EACH_STRUCTURE_STUB_INFO_ACCESS_TYPE(JSC_DEFINE_ACCESS_TYPE)
+    JSC_FOR_EACH_PROPERTY_INLINE_CACHE_ACCESS_TYPE(JSC_DEFINE_ACCESS_TYPE)
 #undef JSC_DEFINE_ACCESS_TYPE
 };
 
 #define JSC_INCREMENT_ACCESS_TYPE(name) + 1
-static constexpr unsigned numberOfAccessTypes = 0 JSC_FOR_EACH_STRUCTURE_STUB_INFO_ACCESS_TYPE(JSC_INCREMENT_ACCESS_TYPE);
+static constexpr unsigned numberOfAccessTypes = 0 JSC_FOR_EACH_PROPERTY_INLINE_CACHE_ACCESS_TYPE(JSC_INCREMENT_ACCESS_TYPE);
 #undef JSC_INCREMENT_ACCESS_TYPE
 
-struct UnlinkedStructureStubInfo;
-struct BaselineUnlinkedStructureStubInfo;
+struct UnlinkedPropertyInlineCache;
+struct BaselineUnlinkedPropertyInlineCache;
 
-class StructureStubInfo {
-    WTF_MAKE_NONCOPYABLE(StructureStubInfo);
-    WTF_MAKE_TZONE_ALLOCATED(StructureStubInfo);
+class PropertyInlineCache {
+    WTF_MAKE_NONCOPYABLE(PropertyInlineCache);
+    WTF_MAKE_TZONE_ALLOCATED(PropertyInlineCache);
 public:
-    StructureStubInfo(AccessType accessType, CodeOrigin codeOrigin)
+    PropertyInlineCache(AccessType accessType, CodeOrigin codeOrigin)
         : codeOrigin(codeOrigin)
         , accessType(accessType)
         , bufferingCountdown(Options::initialRepatchBufferingCountdown())
     {
     }
 
-    StructureStubInfo()
-        : StructureStubInfo(AccessType::GetById, { })
+    PropertyInlineCache()
+        : PropertyInlineCache(AccessType::GetById, { })
     { }
 
-    ~StructureStubInfo();
+    ~PropertyInlineCache();
 
     void initGetByIdSelf(const ConcurrentJSLockerBase&, CodeBlock*, Structure* inlineAccessBaseStructure, PropertyOffset);
     void initArrayLength(const ConcurrentJSLockerBase&);
@@ -131,8 +131,8 @@ public:
     void deref();
     void aboutToDie();
 
-    void initializeFromUnlinkedStructureStubInfo(VM&, CodeBlock*, const BaselineUnlinkedStructureStubInfo&);
-    void initializeFromDFGUnlinkedStructureStubInfo(CodeBlock*, const DFG::UnlinkedStructureStubInfo&);
+    void initializeFromUnlinkedPropertyInlineCache(VM&, CodeBlock*, const BaselineUnlinkedPropertyInlineCache&);
+    void initializeFromDFGUnlinkedPropertyInlineCache(CodeBlock*, const DFG::UnlinkedPropertyInlineCache&);
     void initializePredefinedRegisters();
 
     DECLARE_VISIT_AGGREGATE;
@@ -144,9 +144,9 @@ public:
     // This returns true if it has marked everything that it will ever mark.
     template<typename Visitor> void propagateTransitions(Visitor&);
         
-    StubInfoSummary summary(const ConcurrentJSLocker&, VM&) const;
+    PropertyInlineCacheSummary summary(const ConcurrentJSLocker&, VM&) const;
     
-    static StubInfoSummary summary(const ConcurrentJSLocker&, VM&, const StructureStubInfo*);
+    static PropertyInlineCacheSummary summary(const ConcurrentJSLocker&, VM&, const PropertyInlineCache*);
 
     CacheableIdentifier identifier() const { return m_identifier; }
 
@@ -356,16 +356,16 @@ private:
     void rewireStubAsJumpInAccess(CodeBlock*, Ref<InlineCacheHandler>&&);
 
 public:
-    static constexpr ptrdiff_t offsetOfByIdSelfOffset() { return OBJECT_OFFSETOF(StructureStubInfo, byIdSelfOffset); }
-    static constexpr ptrdiff_t offsetOfInlineAccessBaseStructureID() { return OBJECT_OFFSETOF(StructureStubInfo, m_inlineAccessBaseStructureID); }
-    static constexpr ptrdiff_t offsetOfInlineHolder() { return OBJECT_OFFSETOF(StructureStubInfo, m_inlineHolder); }
-    static constexpr ptrdiff_t offsetOfDoneLocation() { return OBJECT_OFFSETOF(StructureStubInfo, doneLocation); }
-    static constexpr ptrdiff_t offsetOfSlowPathStartLocation() { return OBJECT_OFFSETOF(StructureStubInfo, slowPathStartLocation); }
-    static constexpr ptrdiff_t offsetOfSlowOperation() { return OBJECT_OFFSETOF(StructureStubInfo, m_slowOperation); }
-    static constexpr ptrdiff_t offsetOfCountdown() { return OBJECT_OFFSETOF(StructureStubInfo, countdown); }
-    static constexpr ptrdiff_t offsetOfCallSiteIndex() { return OBJECT_OFFSETOF(StructureStubInfo, callSiteIndex); }
-    static constexpr ptrdiff_t offsetOfHandler() { return OBJECT_OFFSETOF(StructureStubInfo, m_handler); }
-    static constexpr ptrdiff_t offsetOfGlobalObject() { return OBJECT_OFFSETOF(StructureStubInfo, m_globalObject); }
+    static constexpr ptrdiff_t offsetOfByIdSelfOffset() { return OBJECT_OFFSETOF(PropertyInlineCache, byIdSelfOffset); }
+    static constexpr ptrdiff_t offsetOfInlineAccessBaseStructureID() { return OBJECT_OFFSETOF(PropertyInlineCache, m_inlineAccessBaseStructureID); }
+    static constexpr ptrdiff_t offsetOfInlineHolder() { return OBJECT_OFFSETOF(PropertyInlineCache, m_inlineHolder); }
+    static constexpr ptrdiff_t offsetOfDoneLocation() { return OBJECT_OFFSETOF(PropertyInlineCache, doneLocation); }
+    static constexpr ptrdiff_t offsetOfSlowPathStartLocation() { return OBJECT_OFFSETOF(PropertyInlineCache, slowPathStartLocation); }
+    static constexpr ptrdiff_t offsetOfSlowOperation() { return OBJECT_OFFSETOF(PropertyInlineCache, m_slowOperation); }
+    static constexpr ptrdiff_t offsetOfCountdown() { return OBJECT_OFFSETOF(PropertyInlineCache, countdown); }
+    static constexpr ptrdiff_t offsetOfCallSiteIndex() { return OBJECT_OFFSETOF(PropertyInlineCache, callSiteIndex); }
+    static constexpr ptrdiff_t offsetOfHandler() { return OBJECT_OFFSETOF(PropertyInlineCache, m_handler); }
+    static constexpr ptrdiff_t offsetOfGlobalObject() { return OBJECT_OFFSETOF(PropertyInlineCache, m_globalObject); }
 
     JSGlobalObject* globalObject() const { return m_globalObject; }
 
@@ -434,11 +434,11 @@ public:
     GPRReg m_valueGPR { InvalidGPRReg };
     GPRReg m_extraGPR { InvalidGPRReg };
     GPRReg m_extra2GPR { InvalidGPRReg };
-    GPRReg m_stubInfoGPR { InvalidGPRReg };
+    GPRReg m_propertyCacheGPR { InvalidGPRReg };
     GPRReg m_arrayProfileGPR { InvalidGPRReg };
 #if USE(JSVALUE32_64)
     GPRReg m_valueTagGPR { InvalidGPRReg };
-    // FIXME: [32-bits] Check if StructureStubInfo::m_baseTagGPR is used somewhere.
+    // FIXME: [32-bits] Check if PropertyInlineCache::m_baseTagGPR is used somewhere.
     // https://bugs.webkit.org/show_bug.cgi?id=204726
     GPRReg m_baseTagGPR { InvalidGPRReg };
     GPRReg m_extraTagGPR { InvalidGPRReg };
@@ -471,9 +471,9 @@ public:
     bool useDataIC : 1 { false };
 };
 
-inline CodeOrigin getStructureStubInfoCodeOrigin(StructureStubInfo& structureStubInfo)
+inline CodeOrigin getPropertyInlineCacheCodeOrigin(PropertyInlineCache& propertyInlineCache)
 {
-    return structureStubInfo.codeOrigin;
+    return propertyInlineCache.codeOrigin;
 }
 
 inline auto appropriateGetByIdOptimizeFunction(AccessType type) -> decltype(&operationGetByIdOptimize)
@@ -575,7 +575,7 @@ inline bool hasConstantIdentifier(AccessType accessType)
     return false;
 }
 
-struct UnlinkedStructureStubInfo {
+struct UnlinkedPropertyInlineCache {
     AccessType accessType;
     CacheType preconfiguredCacheType { CacheType::Unset };
     bool propertyIsInt32 : 1 { false };
@@ -588,11 +588,9 @@ struct UnlinkedStructureStubInfo {
     CodeLocationLabel<JITStubRoutinePtrTag> slowPathStartLocation;
 };
 
-struct BaselineUnlinkedStructureStubInfo : JSC::UnlinkedStructureStubInfo {
+struct BaselineUnlinkedPropertyInlineCache : JSC::UnlinkedPropertyInlineCache {
     BytecodeIndex bytecodeIndex;
 };
-
-using StubInfoMap = UncheckedKeyHashMap<CodeOrigin, StructureStubInfo*, CodeOriginApproximateHash>;
 
 #endif
 

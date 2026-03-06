@@ -291,9 +291,9 @@ bytecode/SetPrivateBrandVariant.cpp
 bytecode/SharedJITStubSet.cpp
 bytecode/SpeculatedType.cpp
 bytecode/StructureSet.cpp
-bytecode/StructureStubClearingWatchpoint.cpp
-bytecode/StructureStubInfo.cpp
-bytecode/StubInfoSummary.cpp
+bytecode/PropertyInlineCacheClearingWatchpoint.cpp
+bytecode/PropertyInlineCache.cpp
+bytecode/PropertyInlineCacheSummary.cpp
 bytecode/SuperSampler.cpp
 bytecode/ToThisStatus.cpp
 bytecode/TrackedReferences.cpp

@@ -33,8 +33,8 @@
 #include "GetByVariant.h"
 #include "ICStatusMap.h"
 #include "InlineCacheCompiler.h"
+#include "PropertyInlineCacheSummary.h"
 #include "ScopeOffset.h"
-#include "StubInfoSummary.h"
 
 namespace JSC {
 
@@ -43,7 +43,7 @@ class CodeBlock;
 class JSModuleEnvironment;
 class JSModuleNamespaceObject;
 class ModuleNamespaceAccessCase;
-class StructureStubInfo;
+class PropertyInlineCache;
 
 enum class CacheType : int8_t;
 
@@ -68,11 +68,11 @@ public:
         ProxyObject,
         // It will likely take the slow path.
         LikelyTakesSlowPath,
-        // It's known to take slow path. We also observed that the slow path was taken on StructureStubInfo.
+        // It's known to take slow path. We also observed that the slow path was taken on PropertyInlineCache.
         ObservedTakesSlowPath,
         // It will likely take the slow path and will make calls.
         MakesCalls,
-        // It known to take paths that make calls. We also observed that the slow path was taken on StructureStubInfo.
+        // It known to take paths that make calls. We also observed that the slow path was taken on PropertyInlineCache.
         ObservedSlowPathAndMakesCalls,
     };
 
@@ -87,7 +87,7 @@ public:
         ASSERT(state == NoInformation || state == LikelyTakesSlowPath || state == ObservedTakesSlowPath || state == MakesCalls || state == ObservedSlowPathAndMakesCalls);
     }
     
-    explicit GetByStatus(StubInfoSummary, StructureStubInfo*);
+    explicit GetByStatus(PropertyInlineCacheSummary, PropertyInlineCache*);
     
     GetByStatus(
         State state, bool wasSeenInJIT)
@@ -118,7 +118,7 @@ public:
     {
         return m_state == LikelyTakesSlowPath || m_state == ObservedTakesSlowPath || m_state == MakesCalls || m_state == ObservedSlowPathAndMakesCalls || m_state == CustomAccessor || m_state == ModuleNamespace || m_state == Megamorphic;
     }
-    bool observedStructureStubInfoSlowPath() const { return m_state == ObservedTakesSlowPath || m_state == ObservedSlowPathAndMakesCalls; }
+    bool observedPropertyInlineCacheSlowPath() const { return m_state == ObservedTakesSlowPath || m_state == ObservedSlowPathAndMakesCalls; }
     bool makesCalls() const;
     
     GetByStatus slowVersion() const;
@@ -160,7 +160,7 @@ private:
     
 #if ENABLE(JIT)
     GetByStatus(const ModuleNamespaceAccessCase&);
-    static GetByStatus computeForStubInfoWithoutExitSiteFeedback(const ConcurrentJSLocker&, CodeBlock* profiledBlock, StructureStubInfo*, CallLinkStatus::ExitSiteData, CodeOrigin);
+    static GetByStatus computeForPropertyInlineCacheWithoutExitSiteFeedback(const ConcurrentJSLocker&, CodeBlock* profiledBlock, PropertyInlineCache*, CallLinkStatus::ExitSiteData, CodeOrigin);
 #endif
     static GetByStatus computeFromLLInt(CodeBlock*, BytecodeIndex);
     static GetByStatus computeFor(CodeBlock*, ICStatusMap&, ExitFlag, CallLinkStatus::ExitSiteData, CodeOrigin);
