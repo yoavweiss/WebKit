@@ -558,6 +558,8 @@ typedef NS_ENUM(NSUInteger, _UIClickInteractionShouldBeginResult) {
 
 #if __has_include(<UIFoundation/NSTextTable.h>)
 #import <UIFoundation/NSTextTable.h>
+#elif __has_include(<UIKit/NSTextTable.h>)
+#import <UIKit/NSTextTable.h>
 #else
 
 typedef NS_ENUM(NSInteger, NSTextBlockLayer) {
