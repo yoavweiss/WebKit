@@ -292,8 +292,12 @@ FrameInfoData WebFrame::info(WithCertificateInfo withCertificateInfo) const
     RefPtr coreLocalFrame = this->coreLocalFrame();
     RefPtr document = coreLocalFrame ? coreLocalFrame->document() : nullptr;
     RefPtr page = m_page.get();
+    RefPtr loadingFrame = m_provisionalFrame ? m_provisionalFrame : coreLocalFrame;
 
     WebFrameMetrics metrics;
+    SecurityOriginData securityOriginData;
+    FrameType frameType = FrameType::Local;
+    String frameName;
     if (coreFrame) {
         if (RefPtr coreView = coreFrame->virtualView()) {
             IsScrollable isScrollable = hasHorizontalScrollbar() || hasVerticalScrollbar() ? IsScrollable::Yes : IsScrollable::No;
@@ -302,15 +306,19 @@ FrameInfoData WebFrame::info(WithCertificateInfo withCertificateInfo) const
             auto visibleContentSizeExcludingScrollbars = coreView->visibleContentRect().size();
             metrics = { isScrollable, contentSize, visibleContentSize, visibleContentSizeExcludingScrollbars };
         }
+        securityOriginData = SecurityOriginData::fromFrame(*coreFrame);
+        if (coreFrame->frameType() == WebCore::Frame::FrameType::Remote)
+            frameType = FrameType::Remote;
+        frameName = coreFrame->tree().specifiedName().string();
     }
 
     return {
         isMainFrame(),
-        coreLocalFrame ? FrameType::Local : FrameType::Remote,
+        frameType,
         // FIXME: This should use the full request.
         ResourceRequest(url()),
-        SecurityOriginData::fromFrame(coreLocalFrame.get()),
-        coreFrame ? coreFrame->tree().specifiedName().string() : String(),
+        WTF::move(securityOriginData),
+        WTF::move(frameName),
         frameID(),
         page ? std::optional { page->webPageProxyIdentifier() } : std::nullopt,
         parent ? std::optional { parent->frameID() } : std::nullopt,
@@ -318,7 +326,7 @@ FrameInfoData WebFrame::info(WithCertificateInfo withCertificateInfo) const
         withCertificateInfo == WithCertificateInfo::Yes ? certificateInfo() : CertificateInfo(),
         getCurrentProcessID(),
         isFocused(),
-        coreLocalFrame && coreLocalFrame->loader().errorOccurredInLoading(),
+        loadingFrame && loadingFrame->loader().errorOccurredInLoading(),
         WTF::move(metrics)
     };
 }

@@ -1356,7 +1356,7 @@ void LocalFrame::didAccessWindowProxyPropertyViaOpener(WindowProxyProperty prope
     if (m_accessedWindowProxyPropertiesViaOpener.contains(property))
         return;
 
-    auto origin = SecurityOriginData::fromFrame(this);
+    auto origin = SecurityOriginData::fromLocalFrame(this);
     if (origin.isNull() || origin.isOpaque())
         return;
 

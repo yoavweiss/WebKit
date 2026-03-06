@@ -7361,6 +7361,11 @@ void WebPageProxy::didStartProvisionalLoadForFrameShared(Ref<WebProcessProxy>&& 
             // FIXME: We need to actually notify m_navigationClient somehow.
             frame->frameLoadState().didFailProvisionalLoad();
         }
+
+        // A provisional frame does not necessarily know the current frame URL as previous URL is not sent to provisional process.
+        auto currentFrameURL = frame->url();
+        if (frameInfo.request.url() != currentFrameURL)
+            frameInfo.request = ResourceRequest { WTF::move(currentFrameURL) };
     }
 
     // If the page starts a new main frame provisional load, then cancel any pending one in a provisional process.
@@ -7593,6 +7598,13 @@ void WebPageProxy::didFailProvisionalLoadForFrameShared(Ref<WebProcessProxy>&& p
     RefPtr<API::Navigation> navigation;
     if (frame.isMainFrame() && navigationID)
         navigation = m_navigationState->takeNavigation(*navigationID);
+
+    if (protect(preferences())->siteIsolationEnabled()) {
+        // A provisional frame does not necessarily know the current frame URL as previous URL is not sent to provisional process.
+        auto currentFrameURL = frame.url();
+        if (frameInfo.request.url() != currentFrameURL)
+            frameInfo.request = ResourceRequest { WTF::move(currentFrameURL) };
+    }
 
     Ref protectedPageLoadState = pageLoadState();
     auto transaction = protectedPageLoadState->transaction();
