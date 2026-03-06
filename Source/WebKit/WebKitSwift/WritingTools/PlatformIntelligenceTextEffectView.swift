@@ -401,7 +401,7 @@ final class PlatformIntelligenceTextEffectView<Source>: CocoaView where Source: 
 /// An effect which shifts the remaining text (the text after the currently replaced text) either up or down,
 /// depending on if the newly replaced text is taller than the source text.
 @MainActor
-class PlatformIntelligenceRemainderAffordanceTextEffect<Chunk>: @MainActor PlatformIntelligenceTextEffect
+class PlatformIntelligenceRemainderAffordanceTextEffect<Chunk>: PlatformIntelligenceTextEffect
 where Chunk: PlatformIntelligenceTextEffectChunk {
     private enum AnimationKind {
         case contract
@@ -535,8 +535,7 @@ where Chunk: PlatformIntelligenceTextEffectChunk {
 
 /// A replacement effect, which essentially involves the original text fading away while at the same time the new text fades in right above it.
 @MainActor
-class PlatformIntelligenceReplacementTextEffect<Chunk>: @MainActor PlatformIntelligenceTextEffect
-where Chunk: PlatformIntelligenceTextEffectChunk {
+class PlatformIntelligenceReplacementTextEffect<Chunk>: PlatformIntelligenceTextEffect where Chunk: PlatformIntelligenceTextEffectChunk {
     let id = PlatformIntelligenceTextEffectID()
     let chunk: Chunk
 
@@ -655,8 +654,7 @@ where Chunk: PlatformIntelligenceTextEffectChunk {
 }
 
 /// An effect which adds a shimmer animation to some text, intended to indicate that some operation is pending.
-class PlatformIntelligencePonderingTextEffect<Chunk>: @MainActor PlatformIntelligenceTextEffect
-where Chunk: PlatformIntelligenceTextEffectChunk {
+class PlatformIntelligencePonderingTextEffect<Chunk>: PlatformIntelligenceTextEffect where Chunk: PlatformIntelligenceTextEffectChunk {
     #if canImport(UIKit)
     private typealias ChunkAdapter = UIPonderingTextEffectTextChunkAdapter
     #else

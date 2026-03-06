@@ -40,12 +40,12 @@ extension WKRKEntity {
     @nonobjc
     private let entity: Entity
 
-    weak var delegate: (any WKRKEntityDelegate)?
+    weak var delegate: WKRKEntityDelegate?
 
     @nonobjc
     private var animationPlaybackController: AnimationPlaybackController? = nil
     @nonobjc
-    private var animationFinishedSubscription: (any Cancellable)?
+    private var animationFinishedSubscription: Cancellable?
     @nonobjc
     private var backingDuration: TimeInterval? = nil
     @nonobjc

@@ -36,9 +36,9 @@ internal struct CameraTransform {
 }
 
 nonisolated class Renderer {
-    let device: any MTLDevice
-    let commandQueue: any MTLCommandQueue
-    var renderContext: (any _Proto_LowLevelRenderContext_v1)?
+    let device: MTLDevice
+    let commandQueue: MTLCommandQueue
+    var renderContext: _Proto_LowLevelRenderContext_v1?
     var renderer: _Proto_LowLevelRenderer_v1?
     var renderTargetDescriptor: _Proto_LowLevelRenderTarget_v1.Descriptor {
         // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
@@ -49,7 +49,7 @@ nonisolated class Renderer {
     var modelDistance: Float = 1.0
     let memoryOwner: task_id_token_t
 
-    init(device: any MTLDevice, memoryOwner: task_id_token_t) throws {
+    init(device: MTLDevice, memoryOwner: task_id_token_t) throws {
         guard let commandQueue = device.makeCommandQueue() else {
             fatalError("Failed to create command queue.")
         }
@@ -87,7 +87,7 @@ nonisolated class Renderer {
 
     func render(
         meshInstances: _Proto_LowLevelMeshInstanceArray_v1,
-        texture: any MTLTexture
+        texture: MTLTexture
     ) throws {
         guard let renderer else {
             return

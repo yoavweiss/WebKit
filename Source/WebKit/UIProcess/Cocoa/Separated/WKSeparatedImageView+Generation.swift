@@ -28,7 +28,7 @@ import os
 internal import WebKit_Internal
 
 extension WKSeparatedImageView {
-    func startImage3DGeneration() -> Task<Void, any Error> {
+    func startImage3DGeneration() -> Task<Void, Error> {
         #if canImport(RealityFoundation, _version: 387)
         if let imageHash = self.imageHash, let cachedData = ImagePresentationCache.shared[imageHash] {
             Logger.separatedImage.log("\(self.logPrefix) - Cache Hit for Image Generation.")

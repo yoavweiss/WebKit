@@ -50,7 +50,7 @@ extension WKIdentityDocumentPresentmentController {
 
         private let controller: IdentityDocumentWebPresentmentController
 
-        private var performRequestTask: Task<any IdentityDocumentWebPresentmentResponse, any Error>?
+        private var performRequestTask: Task<IdentityDocumentWebPresentmentResponse, Error>?
 
         weak var delegate: (any WKIdentityDocumentPresentmentDelegate)?
 

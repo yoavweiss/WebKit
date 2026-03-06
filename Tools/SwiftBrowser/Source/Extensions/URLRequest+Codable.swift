@@ -30,7 +30,7 @@ struct CodableURLRequest: Codable, Hashable {
         self.value = value
     }
 
-    init(from decoder: any Decoder) throws {
+    init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
 
         let data = try container.decode(Data.self)
@@ -41,7 +41,7 @@ struct CodableURLRequest: Codable, Hashable {
         self.value = ref as URLRequest
     }
 
-    func encode(to encoder: any Encoder) throws {
+    func encode(to encoder: Encoder) throws {
         let data = try NSKeyedArchiver.archivedData(withRootObject: value as URLRequest.ReferenceType, requiringSecureCoding: true)
 
         var container = encoder.singleValueContainer()
