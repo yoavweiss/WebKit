@@ -181,30 +181,30 @@ JSPromise* JSPromise::rejectedPromise(JSGlobalObject* globalObject, JSValue valu
 
 void JSPromise::resolve(JSGlobalObject* globalObject, VM& vm, JSValue value)
 {
-    uint32_t flags = this->flags();
+    int32_t flags = this->flags();
     ASSERT(!value.inherits<Exception>());
     if (!(flags & isFirstResolvingFunctionCalledFlag)) {
-        internalField(Field::Flags).set(vm, this, jsNumber(flags | isFirstResolvingFunctionCalledFlag));
+        internalField(Field::Flags).setWithoutWriteBarrier(jsNumber(static_cast<int32_t>(flags | isFirstResolvingFunctionCalledFlag)));
         resolvePromise(globalObject, vm, value);
     }
 }
 
 void JSPromise::reject(VM& vm, JSGlobalObject* globalObject, JSValue value)
 {
-    uint32_t flags = this->flags();
+    int32_t flags = this->flags();
     ASSERT(!value.inherits<Exception>());
     if (!(flags & isFirstResolvingFunctionCalledFlag)) {
-        internalField(Field::Flags).set(vm, this, jsNumber(flags | isFirstResolvingFunctionCalledFlag));
+        internalField(Field::Flags).setWithoutWriteBarrier(jsNumber(static_cast<int32_t>(flags | isFirstResolvingFunctionCalledFlag)));
         rejectPromise(vm, globalObject, value);
     }
 }
 
 void JSPromise::fulfill(VM& vm, JSGlobalObject* globalObject, JSValue value)
 {
-    uint32_t flags = this->flags();
+    int32_t flags = this->flags();
     ASSERT(!value.inherits<Exception>());
     if (!(flags & isFirstResolvingFunctionCalledFlag)) {
-        internalField(Field::Flags).set(vm, this, jsNumber(flags | isFirstResolvingFunctionCalledFlag));
+        internalField(Field::Flags).setWithoutWriteBarrier(jsNumber(static_cast<int32_t>(flags | isFirstResolvingFunctionCalledFlag)));
         fulfillPromise(vm, globalObject, value);
     }
 }
@@ -257,12 +257,14 @@ void JSPromise::performPromiseThen(VM& vm, JSGlobalObject* globalObject, JSValue
     case JSPromise::Status::Pending: {
         auto* reaction = JSPromiseReaction::create(vm, promiseOrCapability, onFulfilled, onRejected, jsUndefined(), jsDynamicCast<JSPromiseReaction*>(reactionsOrResult));
         setReactionsOrResult(vm, reaction);
+        markAsHandled();
         break;
     }
     case JSPromise::Status::Rejected: {
         if (!isHandled())
             globalObject->globalObjectMethodTable()->promiseRejectionTracker(globalObject, this, JSPromiseRejectionOperation::Handle);
         globalObject->queueMicrotask(vm, InternalMicrotask::PromiseReactionJob, static_cast<uint8_t>(Status::Rejected), promiseOrCapability, onRejected, reactionsOrResult);
+        markAsHandled();
         break;
     }
     case JSPromise::Status::Fulfilled: {
@@ -270,7 +272,6 @@ void JSPromise::performPromiseThen(VM& vm, JSGlobalObject* globalObject, JSValue
         break;
     }
     }
-    markAsHandled();
 }
 
 void JSPromise::performPromiseThenWithInternalMicrotask(VM& vm, JSGlobalObject* globalObject, InternalMicrotask task, JSValue promise, JSValue context)
@@ -281,12 +282,14 @@ void JSPromise::performPromiseThenWithInternalMicrotask(VM& vm, JSGlobalObject* 
         JSValue encodedTask = jsNumber(static_cast<int32_t>(task));
         auto* reaction = JSPromiseReaction::create(vm, promise, encodedTask, encodedTask, context, jsDynamicCast<JSPromiseReaction*>(reactionsOrResult));
         setReactionsOrResult(vm, reaction);
+        markAsHandled();
         break;
     }
     case JSPromise::Status::Rejected: {
         if (!isHandled())
             globalObject->globalObjectMethodTable()->promiseRejectionTracker(globalObject, this, JSPromiseRejectionOperation::Handle);
         globalObject->queueMicrotask(vm, task, static_cast<uint8_t>(Status::Rejected), promise, reactionsOrResult, context);
+        markAsHandled();
         break;
     }
     case JSPromise::Status::Fulfilled: {
@@ -294,7 +297,6 @@ void JSPromise::performPromiseThenWithInternalMicrotask(VM& vm, JSGlobalObject* 
         break;
     }
     }
-    markAsHandled();
 }
 
 bool isDefinitelyNonThenable(JSObject* object, JSGlobalObject* globalObject)
@@ -321,9 +323,9 @@ bool isDefinitelyNonThenable(JSObject* object, JSGlobalObject* globalObject)
 void JSPromise::rejectPromise(VM& vm, JSGlobalObject* globalObject, JSValue argument)
 {
     ASSERT(status() == Status::Pending);
-    uint32_t flags = this->flags();
+    int32_t flags = this->flags();
     auto* reactions = jsDynamicCast<JSPromiseReaction*>(this->reactionsOrResult());
-    internalField(Field::Flags).set(vm, this, jsNumber(flags | static_cast<uint32_t>(Status::Rejected)));
+    internalField(Field::Flags).setWithoutWriteBarrier(jsNumber(static_cast<int32_t>(flags | static_cast<uint32_t>(Status::Rejected))));
     internalField(Field::ReactionsOrResult).set(vm, this, argument);
 
     if (!isHandled())
@@ -337,9 +339,9 @@ void JSPromise::rejectPromise(VM& vm, JSGlobalObject* globalObject, JSValue argu
 void JSPromise::fulfillPromise(VM& vm, JSGlobalObject* globalObject, JSValue argument)
 {
     ASSERT(status() == Status::Pending);
-    uint32_t flags = this->flags();
+    int32_t flags = this->flags();
     auto* reactions = jsDynamicCast<JSPromiseReaction*>(this->reactionsOrResult());
-    internalField(Field::Flags).set(vm, this, jsNumber(flags | static_cast<uint32_t>(Status::Fulfilled)));
+    internalField(Field::Flags).setWithoutWriteBarrier(jsNumber(static_cast<int32_t>(flags | static_cast<uint32_t>(Status::Fulfilled))));
     internalField(Field::ReactionsOrResult).set(vm, this, argument);
     if (!reactions)
         return;

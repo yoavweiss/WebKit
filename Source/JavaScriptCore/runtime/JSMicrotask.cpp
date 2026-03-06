@@ -816,12 +816,14 @@ void runInternalMicrotask(JSGlobalObject* globalObject, VM& vm, InternalMicrotas
             JSValue encodedTask = jsNumber(static_cast<int32_t>(task));
             auto* reaction = JSPromiseReaction::create(vm, jsUndefined(), encodedTask, encodedTask, context, jsDynamicCast<JSPromiseReaction*>(promise->reactionsOrResult()));
             promise->setReactionsOrResult(vm, reaction);
+            promise->markAsHandled();
             break;
         }
         case JSPromise::Status::Rejected: {
             if (!promise->isHandled())
                 globalObject->globalObjectMethodTable()->promiseRejectionTracker(globalObject, promise, JSPromiseRejectionOperation::Handle);
             JSPromise::rejectWithInternalMicrotask(vm, globalObject, promise->reactionsOrResult(), task, context);
+            promise->markAsHandled();
             break;
         }
         case JSPromise::Status::Fulfilled: {
@@ -829,8 +831,6 @@ void runInternalMicrotask(JSGlobalObject* globalObject, VM& vm, InternalMicrotas
             break;
         }
         }
-
-        promise->markAsHandled();
         return;
     }
 

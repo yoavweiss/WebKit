@@ -46,14 +46,14 @@ public:
 
     DECLARE_EXPORT_INFO;
 
-    enum class Status : unsigned {
+    enum class Status : int32_t {
         Pending = 0, // Making this as 0, so that, we can change the status from Pending to others without masking.
         Fulfilled = 1,
         Rejected = 2,
     };
-    static constexpr uint32_t isHandledFlag = 4;
-    static constexpr uint32_t isFirstResolvingFunctionCalledFlag = 8;
-    static constexpr uint32_t stateMask = 0b11;
+    static constexpr int32_t isHandledFlag = 4;
+    static constexpr int32_t isFirstResolvingFunctionCalledFlag = 8;
+    static constexpr int32_t stateMask = 0b11;
 
     enum class Field : unsigned {
         Flags = 0,
@@ -64,7 +64,7 @@ public:
     static std::array<JSValue, numberOfInternalFields> initialValues()
     {
         return { {
-            jsNumber(static_cast<unsigned>(Status::Pending)),
+            jsNumber(static_cast<int32_t>(Status::Pending)),
             jsUndefined(),
         } };
     }
@@ -75,7 +75,7 @@ public:
     inline Status status() const
     {
         JSValue value = internalField(Field::Flags).get();
-        uint32_t flags = value.asUInt32AsAnyInt();
+        int32_t flags = value.asInt32AsAnyInt();
         return static_cast<Status>(flags & stateMask);
     }
 
@@ -112,7 +112,7 @@ public:
     // https://webidl.spec.whatwg.org/#mark-a-promise-as-handled
     void markAsHandled()
     {
-        uint32_t flags = this->flags();
+        int32_t flags = this->flags();
         internalField(Field::Flags).setWithoutWriteBarrier(jsNumber(flags | isHandledFlag));
     }
 
@@ -158,10 +158,10 @@ protected:
 
     static void triggerPromiseReactions(VM&, JSGlobalObject*, JSPromise::Status, JSPromiseReaction* head, JSValue argument);
 
-    inline uint32_t flags() const
+    inline int32_t flags() const
     {
         JSValue value = internalField(Field::Flags).get();
-        return value.asUInt32AsAnyInt();
+        return value.asInt32AsAnyInt();
     }
 };
 
