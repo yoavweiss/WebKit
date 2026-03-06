@@ -548,7 +548,7 @@ void ScrollingEffectsController::scrollAnimationDidEnd(ScrollAnimation& animatio
     UNUSED_PARAM(animation);
 #endif
 
-    if (is<ScrollAnimationKeyboard>(animation) || is<ScrollAnimationSmooth>(animation))
+    if (isAnyOf<ScrollAnimationKeyboard, ScrollAnimationSmooth>(animation))
         m_client.didStopAnimatedScroll();
 
     if (is<ScrollAnimationKeyboard>(animation)) {

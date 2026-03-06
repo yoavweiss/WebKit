@@ -76,7 +76,7 @@ void HTMLSelectedContentElement::didFinishInsertingNode()
             m_isDisabled = true;
             break;
         }
-        if (is<HTMLOptionElement>(ancestor) || is<HTMLSelectedContentElement>(ancestor)) {
+        if (isAnyOf<HTMLOptionElement, HTMLSelectedContentElement>(ancestor)) {
             m_isDisabled = true;
             break;
         }

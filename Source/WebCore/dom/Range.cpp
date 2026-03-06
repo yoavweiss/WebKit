@@ -735,7 +735,7 @@ ExceptionOr<Ref<DocumentFragment>> Range::createContextualFragment(Variant<Ref<T
         return stringValueHolder.releaseException();
 
     RefPtr<Element> element;
-    if (is<Document>(node) || is<DocumentFragment>(node))
+    if (isAnyOf<Document, DocumentFragment>(node))
         element = nullptr;
     else if (auto* maybeElement = dynamicDowncast<Element>(node.ptr()))
         element = maybeElement;

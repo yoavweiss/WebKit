@@ -83,9 +83,7 @@ static bool isAcceptableCSSStyleSheetParent(Node* parentNode)
     // Only these nodes can be parents of StyleSheets, and they need to call clearOwnerNode() when moved out of document.
     return !parentNode
         || parentNode->isDocumentNode()
-        || is<HTMLLinkElement>(*parentNode)
-        || is<HTMLStyleElement>(*parentNode)
-        || is<SVGStyleElement>(*parentNode)
+        || isAnyOf<HTMLLinkElement, HTMLStyleElement, SVGStyleElement>(*parentNode)
         || parentNode->nodeType() == NodeType::ProcessingInstruction;
 }
 #endif // ASSERT_ENABLED

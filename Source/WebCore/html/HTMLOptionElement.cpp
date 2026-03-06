@@ -506,7 +506,7 @@ String HTMLOptionElement::textIndentedToRespectGroupLabel() const
     for (Ref ancestor : ancestorsOfType<HTMLElement>(*this)) {
         if (is<HTMLOptGroupElement>(ancestor))
             return makeString("    "_s, label());
-        if (is<HTMLDataListElement>(ancestor) || is<HTMLSelectElement>(ancestor) || is<HTMLOptionElement>(ancestor) || is<HTMLHRElement>(ancestor))
+        if (isAnyOf<HTMLDataListElement, HTMLSelectElement, HTMLOptionElement, HTMLHRElement>(ancestor))
             return label();
     }
     return label();
@@ -525,7 +525,7 @@ bool HTMLOptionElement::isDisabledFormControl() const
     for (Ref ancestor : ancestorsOfType<HTMLElement>(*this)) {
         if (RefPtr optGroup = dynamicDowncast<HTMLOptGroupElement>(ancestor))
             return optGroup->isDisabledFormControl();
-        if (is<HTMLDataListElement>(ancestor) || is<HTMLSelectElement>(ancestor) || is<HTMLOptionElement>(ancestor) || is<HTMLHRElement>(ancestor))
+        if (isAnyOf<HTMLDataListElement, HTMLSelectElement, HTMLOptionElement, HTMLHRElement>(ancestor))
             return false;
     }
     return false;

@@ -4629,7 +4629,7 @@ static Vector<TextList> editableTextListsAtPositionInDescendingOrder(const Posit
         if (!ancestor->renderer())
             continue;
 
-        if (is<HTMLUListElement>(ancestor) || is<HTMLOListElement>(ancestor))
+        if (isAnyOf<HTMLUListElement, HTMLOListElement>(ancestor))
             enclosingLists.append(WTF::move(ancestor));
     }
 

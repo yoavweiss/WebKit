@@ -1019,7 +1019,7 @@ void RenderBlockFlow::simplifiedNormalFlowLayout()
             }
             continue;
         }
-        if (is<RenderText>(renderer) || is<RenderInline>(renderer))
+        if (isAnyOf<RenderText, RenderInline>(renderer))
             renderer.clearNeedsLayout();
     }
 
@@ -4122,7 +4122,7 @@ RenderBlockFlow::InlineContentStatus RenderBlockFlow::markInlineContentDirtyForL
         // Inline boxes report normal-child-needs-layout when their children need (any) layout.
         contentNeedsNormalChildLayoutOnly = contentNeedsNormalChildLayoutOnly.value_or(true) && (!renderer.needsLayout() || renderer.needsNormalChildOrSimplifiedLayoutOnly());
 
-        if (is<RenderLineBreak>(renderer) || is<RenderInline>(renderer) || is<RenderText>(renderer))
+        if (isAnyOf<RenderLineBreak, RenderInline, RenderText>(renderer))
             renderer.clearNeedsLayout();
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)

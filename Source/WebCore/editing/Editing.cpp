@@ -496,7 +496,7 @@ VisiblePosition closestEditablePositionInElementForAbsolutePoint(const Element& 
 
 bool isListHTMLElement(Node* node)
 {
-    return node && (is<HTMLUListElement>(*node) || is<HTMLOListElement>(*node) || is<HTMLDListElement>(*node));
+    return isAnyOf<HTMLUListElement, HTMLOListElement, HTMLDListElement>(node);
 }
 
 bool isListItem(const Node& node)
@@ -605,7 +605,7 @@ RefPtr<HTMLElement> enclosingList(Node* node)
     
     for (RefPtr ancestor = node->parentNode(); ancestor; ancestor = ancestor->parentNode()) {
         auto* htmlElement = dynamicDowncast<HTMLElement>(*ancestor);
-        if (htmlElement && (is<HTMLUListElement>(*htmlElement) || is<HTMLOListElement>(*htmlElement)))
+        if (htmlElement && (isAnyOf<HTMLUListElement, HTMLOListElement>(*htmlElement)))
             return htmlElement;
         if (ancestor == root)
             return nullptr;

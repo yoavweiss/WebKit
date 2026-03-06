@@ -998,7 +998,7 @@ bool Position::isCandidate() const
         return false;
 
     if (CheckedPtr block = dynamicDowncast<RenderBlock>(*renderer)) {
-        if (is<RenderBlockFlow>(*block) || is<RenderGrid>(*block) || is<RenderFlexibleBox>(*block)) {
+        if (isAnyOf<RenderBlockFlow, RenderGrid, RenderFlexibleBox>(*block)) {
             if (block->logicalHeight() || is<HTMLBodyElement>(*m_anchorNode) || m_anchorNode->isRootEditableElement()) {
                 if (!Position::hasRenderedNonAnonymousDescendantsWithHeight(*block))
                     return atFirstEditingPositionForNode() && !Position::nodeIsUserSelectNone(node.get());

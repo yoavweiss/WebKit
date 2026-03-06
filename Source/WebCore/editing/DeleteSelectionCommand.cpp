@@ -608,7 +608,7 @@ void DeleteSelectionCommand::makeStylingElementsDirectChildrenOfEditableRootToPr
     Vector<Ref<HTMLElement>> stylingElements;
     while (nodes) {
         Ref node = *nodes;
-        auto shouldMove = is<HTMLLinkElement>(node) || is<HTMLStyleElement>(node);
+        auto shouldMove = isAnyOf<HTMLLinkElement, HTMLStyleElement>(node);
         if (shouldMove) {
             nodes.advanceSkippingChildren();
             stylingElements.append(downcast<HTMLElement>(WTF::move(node)));

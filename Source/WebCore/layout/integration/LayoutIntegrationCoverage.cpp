@@ -348,7 +348,7 @@ bool canUseForPreferredWidthComputation(const RenderBlockFlow& blockContainer)
         if (!renderer->isInFlow())
             return false;
 
-        auto isFullySupportedInFlowRenderer = renderer->isRenderText() || is<RenderLineBreak>(renderer.get()) || is<RenderInline>(renderer.get()) || is<RenderListMarker>(renderer.get());
+        auto isFullySupportedInFlowRenderer = isAnyOf<RenderText, RenderLineBreak, RenderInline, RenderListMarker>(renderer);
         if (isFullySupportedInFlowRenderer)
             continue;
 

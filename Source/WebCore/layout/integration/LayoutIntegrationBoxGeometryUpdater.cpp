@@ -390,7 +390,7 @@ static std::optional<LayoutUnit> lastInflowBoxBaseline(const RenderBlock& blockC
             continue;
         }
 
-        if (is<RenderFlexibleBox>(*inflowBox) || is<RenderGrid>(*inflowBox) || is<RenderBlockFlow>(*inflowBox) || is<RenderTextControlInnerContainer>(*inflowBox) || is<RenderMenuList>(*inflowBox)) {
+        if (isAnyOf<RenderFlexibleBox, RenderGrid, RenderBlockFlow, RenderTextControlInnerContainer, RenderMenuList>(*inflowBox)) {
             if (auto baseline = baselineForBox(*inflowBox)) {
                 auto baselineValue = inflowBox->logicalTop() + *baseline;
                 return LayoutUnit { snapToInt(baselineValue, *inflowBox, SnapDirection::Floor) };
@@ -416,16 +416,20 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
     if (writingMode.computedWritingMode() != renderBox.writingMode().computedWritingMode())
         return { };
 
-    if (is<RenderIFrame>(renderBox)
-        || is<RenderEmbeddedObject>(renderBox)
-        || is<LegacyRenderSVGRoot>(renderBox)
-        || is<RenderHTMLCanvas>(renderBox)
-        || is<RenderViewTransitionCapture>(renderBox)
-        || is<RenderTextControlMultiLine>(renderBox)
+    bool noBoxBaseline = isAnyOf<
+        RenderIFrame,
+        RenderEmbeddedObject,
+        LegacyRenderSVGRoot,
+        RenderHTMLCanvas,
+        RenderViewTransitionCapture,
+        RenderTextControlMultiLine,
 #if ENABLE(MODEL_ELEMENT)
-        || is<RenderModel>(renderBox)
+        RenderModel,
 #endif
-        || is<RenderSVGRoot>(renderBox))
+        RenderSVGRoot
+    >(renderBox);
+
+    if (noBoxBaseline)
         return { };
 
     auto borderBoxBottom = renderBox.height();
@@ -503,12 +507,12 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
     if (is<RenderTable>(renderBox))
         return renderBox.firstLineBaseline();
 
-    if (is<RenderMenuList>(renderBox) || is<RenderTextControlInnerContainer>(renderBox)) {
+    if (isAnyOf<RenderMenuList, RenderTextControlInnerContainer>(renderBox)) {
         // Both menu list and inner container are types of flex box but they behave slightly differently so always check them before checking for flex.
         return lastInflowBoxBaseline(downcast<RenderBlock>(renderBox));
     }
 
-    if (is<RenderFlexibleBox>(renderBox) || is<RenderGrid>(renderBox))
+    if (isAnyOf<RenderFlexibleBox, RenderGrid>(renderBox))
         return renderBox.firstLineBaseline();
 
     if (renderBox.isFieldset()) {
@@ -606,24 +610,31 @@ static inline void setIntegrationBaseline(const RenderBox& renderBox)
         if (auto* renderListMarker = dynamicDowncast<RenderListMarker>(renderBox))
             return !renderListMarker->isImage();
 
-        if ((is<RenderReplaced>(renderBox) && renderBox.style().display() == Style::DisplayType::InlineFlow)
-            || is<RenderListBox>(renderBox)
-            || is<RenderSlider>(renderBox)
-            || is<RenderTextControlMultiLine>(renderBox)
-            || is<RenderTable>(renderBox)
-            || is<RenderGrid>(renderBox)
-            || is<RenderFlexibleBox>(renderBox)
-            || is<RenderDeprecatedFlexibleBox>(renderBox)
+        if (is<RenderReplaced>(renderBox) && renderBox.style().display() == Style::DisplayType::InlineFlow)
+            return true;
+
+        // These are special RenderBlock renderers that override the default baseline position behavior of the inline block box.
+
+        bool overrideDefaultBaselineBehavior = isAnyOf<
+            RenderListBox,
+            RenderSlider,
+            RenderTextControlMultiLine,
+            RenderTable,
+            RenderGrid,
+            RenderFlexibleBox,
+            RenderDeprecatedFlexibleBox,
 #if ENABLE(ATTACHMENT_ELEMENT)
-            || is<RenderAttachment>(renderBox)
+            RenderAttachment,
 #endif
 #if ENABLE(MATHML)
-            || is<RenderMathMLBlock>(renderBox)
+            RenderMathMLBlock,
 #endif
-            || is<RenderButton>(renderBox)) {
-            // These are special RenderBlock renderers that override the default baseline position behavior of the inline block box.
+            RenderButton
+        >(renderBox);
+
+        if (overrideDefaultBaselineBehavior)
             return true;
-        }
+
         auto* blockFlow = dynamicDowncast<RenderBlockFlow>(renderBox);
         if (!blockFlow)
             return false;

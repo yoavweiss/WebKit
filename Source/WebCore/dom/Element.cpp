@@ -379,8 +379,7 @@ bool Element::isNonceable() const
     if (hasDuplicateAttribute())
         return false;
 
-    if (hasAttributes()
-        && (is<HTMLScriptElement>(*this) || is<SVGScriptElement>(*this))) {
+    if (hasAttributes() && isAnyOf<HTMLScriptElement, SVGScriptElement>(*this)) {
         static constexpr auto scriptString = "<script"_s;
         static constexpr auto styleString = "<style"_s;
 
@@ -2344,7 +2343,7 @@ void Element::attributeChanged(const QualifiedName& name, const AtomString& oldV
         elementData()->setHasNameAttribute(!newValue.isNull());
         break;
     case AttributeNames::nonceAttr:
-        if (is<HTMLElement>(*this) || is<SVGElement>(*this))
+        if (isAnyOf<HTMLElement, SVGElement>(*this))
             setNonce(newValue.isNull() ? emptyAtom() : newValue);
         break;
     case AttributeNames::useragentpartAttr:

@@ -207,7 +207,7 @@ HTMLSelectElement* HTMLSelectElement::findOwnerSelect(ContainerNode* startNode, 
             return nullptr;
         return findOwnerSelect(startNode->parentNode(), ExcludeOptGroup::Yes);
     }
-    if (is<HTMLDataListElement>(*startNode) || is<HTMLHRElement>(*startNode) || is<HTMLOptionElement>(*startNode))
+    if (isAnyOf<HTMLDataListElement, HTMLHRElement, HTMLOptionElement>(*startNode))
         return nullptr;
     return findOwnerSelect(startNode->parentNode(), excludeOptGroup);
 }
@@ -563,7 +563,7 @@ bool HTMLSelectElement::childShouldCreateRenderer(const Node& child) const
     if (!HTMLFormControlElement::childShouldCreateRenderer(child))
         return false;
     if (!usesMenuList())
-        return is<HTMLOptionElement>(child) || is<HTMLOptGroupElement>(child) || validationMessageShadowTreeContains(child);
+        return isAnyOf<HTMLOptionElement, HTMLOptGroupElement>(child) || validationMessageShadowTreeContains(child);
     if (child.isInShadowTree() && child.containingShadowRoot() == userAgentShadowRoot())
         return true;
     if (isFirstElementChildButton(child))
@@ -1085,10 +1085,7 @@ void HTMLSelectElement::recalcListItems(bool updateSelectedStates, AllowStyleInv
                         optGroupIt.traverseNextSkippingChildren();
                         continue;
                     }
-                    if (is<HTMLOptGroupElement>(optGroupDescendant)
-                        || is<HTMLDataListElement>(optGroupDescendant)
-                        || is<HTMLSelectElement>(optGroupDescendant)
-                        || is<HTMLHRElement>(optGroupDescendant)) {
+                    if (isAnyOf<HTMLOptGroupElement, HTMLDataListElement, HTMLSelectElement, HTMLHRElement>(optGroupDescendant)) {
                         optGroupIt.traverseNextSkippingChildren();
                         continue;
                     }
@@ -1102,7 +1099,7 @@ void HTMLSelectElement::recalcListItems(bool updateSelectedStates, AllowStyleInv
                 it.traverseNextSkippingChildren();
                 continue;
             }
-            if (is<HTMLDataListElement>(descendant) || is<HTMLSelectElement>(descendant)) {
+            if (isAnyOf<HTMLDataListElement, HTMLSelectElement>(descendant)) {
                 it.traverseNextSkippingChildren();
                 continue;
             }

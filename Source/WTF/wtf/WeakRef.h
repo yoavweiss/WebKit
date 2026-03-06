@@ -207,6 +207,18 @@ inline bool is(const WeakRef<ArgType, WeakPtrImpl>& source)
     return is<ExpectedType>(source.get());
 }
 
+template<typename... ExpectedTypes, typename ArgType, typename WeakPtrImpl>
+inline bool isAnyOf(WeakRef<ArgType, WeakPtrImpl>& source)
+{
+    return isAnyOf<ExpectedTypes...>(source.get());
+}
+
+template<typename... ExpectedTypes, typename ArgType, typename WeakPtrImpl>
+inline bool isAnyOf(const WeakRef<ArgType, WeakPtrImpl>& source)
+{
+    return isAnyOf<ExpectedTypes...>(source.get());
+}
+
 template<typename Target, typename Source, typename WeakPtrImpl>
 inline WeakRef<match_constness_t<Source, Target>, WeakPtrImpl> downcast(WeakRef<Source, WeakPtrImpl> source)
 {

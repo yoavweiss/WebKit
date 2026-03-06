@@ -291,7 +291,7 @@ bool isRendererReplacedElement(RenderObject* renderer, TextIteratorBehaviors beh
         return true;
 
     if (RefPtr element = dynamicDowncast<Element>(renderer->node())) {
-        if (is<HTMLFormControlElement>(*element) || is<HTMLLegendElement>(*element) || is<HTMLProgressElement>(*element) || element->hasTagName(meterTag))
+        if (isAnyOf<HTMLFormControlElement, HTMLLegendElement, HTMLProgressElement>(*element) || element->hasTagName(meterTag))
             return true;
         if (equalLettersIgnoringASCIICase(element->attributeWithoutSynchronization(roleAttr), "img"_s))
             return true;
@@ -984,7 +984,7 @@ static bool shouldEmitExtraNewlineForNode(Node& node)
 
     // NOTE: We only do this for a select set of nodes, and WinIE appears not to do this at all.
     RefPtr element = dynamicDowncast<HTMLElement>(node);
-    if (!element || (!is<HTMLHeadingElement>(*element) && !is<HTMLParagraphElement>(*element)))
+    if (!element || !isAnyOf<HTMLHeadingElement, HTMLParagraphElement>(*element))
         return false;
 
     auto bottomMargin = renderBox->collapsedMarginAfter();

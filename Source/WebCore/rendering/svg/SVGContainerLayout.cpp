@@ -118,7 +118,7 @@ void SVGContainerLayout::positionChildrenRelativeToContainer()
         ASSERT(!renderer.isRenderSVGRoot()); // There is only one outermost RenderSVGRoot object
         ASSERT(!renderer.isRenderSVGInline()); // Inlines are only allowed within a RenderSVGText tree
 
-        if (is<RenderSVGModelObject>(renderer) || is<RenderSVGBlock>(renderer))
+        if (isAnyOf<RenderSVGModelObject, RenderSVGBlock>(renderer))
             return;
 
         ASSERT_NOT_REACHED();

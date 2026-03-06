@@ -89,8 +89,8 @@ EventPath::EventPath(Node& originalTarget, Event& event)
 
 void EventPath::buildPath(Node& originalTarget, Event& event)
 {
-    EventContext::Type contextType = [&]() {
-        if (is<MouseEvent>(event) || is<FocusEvent>(event))
+    auto contextType = [&] {
+        if (isAnyOf<MouseEvent, FocusEvent>(event))
             return EventContext::Type::MouseOrFocus;
 #if ENABLE(TOUCH_EVENTS)
         if (is<TouchEvent>(event))

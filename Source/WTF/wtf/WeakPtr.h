@@ -365,6 +365,18 @@ inline bool is(const WeakPtr<ArgType, WeakPtrImpl, PtrTraits>& source)
     return is<ExpectedType>(source.get());
 }
 
+template<typename... ExpectedTypes, typename ArgType, typename WeakPtrImpl, typename PtrTraits>
+inline bool isAnyOf(WeakPtr<ArgType, WeakPtrImpl, PtrTraits>& source)
+{
+    return isAnyOf<ExpectedTypes...>(source.get());
+}
+
+template<typename... ExpectedTypes, typename ArgType, typename WeakPtrImpl, typename PtrTraits>
+inline bool is(const WeakPtr<ArgType, WeakPtrImpl, PtrTraits>& source)
+{
+    return isAnyOf<ExpectedTypes...>(source.get());
+}
+
 template<typename Target, typename Source, typename WeakPtrImpl, typename PtrTraits>
 inline WeakPtr<match_constness_t<Source, Target>, WeakPtrImpl, PtrTraits> downcast(WeakPtr<Source, WeakPtrImpl, PtrTraits> source)
 {

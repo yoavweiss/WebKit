@@ -162,7 +162,7 @@ static bool shouldInvalidateLineLayoutAfterChangeFor(const RenderBlockFlow& root
             if (shouldOnlyCheckForRelativeDimension && !siblingHasRelativeDimensions)
                 continue;
 
-            if (siblingHasRelativeDimensions || (!is<RenderText>(*sibling) && !is<RenderLineBreak>(*sibling) && !is<RenderReplaced>(*sibling)))
+            if (siblingHasRelativeDimensions || (!isAnyOf<RenderText, RenderLineBreak, RenderReplaced>(*sibling)))
                 return true;
         }
         return !canUseForLineLayout(rootBlockContainer);

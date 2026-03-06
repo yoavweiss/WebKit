@@ -481,11 +481,7 @@ URL HitTestResult::absoluteImageURL() const
         return { };
 
     if (RefPtr element = dynamicDowncast<Element>(*imageNode); element
-        && (is<HTMLEmbedElement>(*element)
-        || is<HTMLImageElement>(*element)
-        || is<HTMLInputElement>(*element)
-        || is<HTMLObjectElement>(*element)
-        || is<SVGImageElement>(*element))) {
+        && isAnyOf<HTMLEmbedElement, HTMLImageElement, HTMLInputElement, HTMLObjectElement, SVGImageElement>(*element)) {
         auto imageURL = imageNode->document().completeURL(element->imageSourceURL());
         if (RefPtr page = imageNode->document().page())
             return page->applyLinkDecorationFiltering(imageURL, LinkDecorationFilteringTrigger::Unspecified);

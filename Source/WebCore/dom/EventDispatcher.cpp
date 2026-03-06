@@ -136,7 +136,7 @@ static bool shouldSuppressEventDispatchInDOM(Node& node, Event& event)
     if (auto* textEvent = dynamicDowncast<TextEvent>(event))
         return textEvent->isKeyboard() || textEvent->isComposition();
 
-    return is<CompositionEvent>(event) || is<InputEvent>(event) || is<KeyboardEvent>(event);
+    return isAnyOf<CompositionEvent, InputEvent, KeyboardEvent>(event);
 }
 
 static HTMLInputElement* NODELETE findInputElementInEventPath(const EventPath& path)

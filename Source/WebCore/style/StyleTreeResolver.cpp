@@ -375,8 +375,7 @@ auto TreeResolver::resolveElement(Element& element, const RenderStyle* existingS
 
     // FIXME: These elements should not change renderer based on appearance property.
     if (RefPtr input = dynamicDowncast<HTMLInputElement>(element); (input && input->isSearchField())
-        || is<HTMLMeterElement>(element)
-        || is<HTMLProgressElement>(element)) {
+        || isAnyOf<HTMLMeterElement, HTMLProgressElement>(element)) {
         if (existingStyle && update.style->usedAppearance() != existingStyle->usedAppearance()) {
             update.changes.add(Change::Renderer);
             descendantsToResolve = DescendantsToResolve::All;

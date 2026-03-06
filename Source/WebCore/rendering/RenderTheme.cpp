@@ -132,7 +132,7 @@ StyleAppearance RenderTheme::adjustAppearanceForElement(RenderStyle& style, cons
 
     auto appearance = style.usedAppearance();
     if (appearance == StyleAppearance::BaseSelect) {
-        if (is<HTMLSelectElement>(element) || is<SelectPopoverElement>(element)) [[likely]] {
+        if (isAnyOf<HTMLSelectElement, SelectPopoverElement>(element)) [[likely]] {
             style.setUsedAppearance(StyleAppearance::Base);
             return StyleAppearance::Base;
         }

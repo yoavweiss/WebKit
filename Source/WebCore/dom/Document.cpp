@@ -4204,7 +4204,7 @@ HTMLElement* Document::bodyOrFrameset() const
     if (!is<HTMLHtmlElement>(element))
         return nullptr;
     for (SUPPRESS_UNCHECKED_LOCAL auto& child : childrenOfType<HTMLElement>(*element)) {
-        if (is<HTMLBodyElement>(child) || is<HTMLFrameSetElement>(child))
+        if (isAnyOf<HTMLBodyElement, HTMLFrameSetElement>(child))
             return &child;
     }
     return nullptr;
@@ -6710,7 +6710,7 @@ static bool NODELETE shouldResetFocusNavigationStartingNode(Node& node)
 {
     // Setting focus navigation starting node to the following nodes means that we should start
     // the search from the beginning of the document.
-    return is<HTMLHtmlElement>(node) || is<HTMLDocument>(node);
+    return isAnyOf<HTMLHtmlElement, HTMLDocument>(node);
 }
 
 void Document::setFocusNavigationStartingNode(Node* node)

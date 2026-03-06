@@ -644,7 +644,7 @@ void ScriptElement::setTrustedScriptText(const String& text)
 
 bool isScriptElement(Node& node)
 {
-    return is<HTMLScriptElement>(node) || is<SVGScriptElement>(node);
+    return isAnyOf<HTMLScriptElement, SVGScriptElement>(node);
 }
 
 ScriptElement* dynamicDowncastScriptElement(Element& element)

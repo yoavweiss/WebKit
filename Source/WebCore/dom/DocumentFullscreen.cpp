@@ -193,7 +193,7 @@ void DocumentFullscreen::requestFullscreen(Ref<Element>&& element, FullscreenChe
         return handleError("Cannot request fullscreen on a document that is not fully active."_s, EmitErrorEvent::No, WTF::move(completionHandler));
 
     auto isElementTypeAllowedForFullscreen = [] (const auto& element) {
-        if (is<HTMLElement>(element) || is<SVGSVGElement>(element))
+        if (isAnyOf<HTMLElement, SVGSVGElement>(element))
             return true;
 #if ENABLE(MATHML)
         if (is<MathMLMathElement>(element))

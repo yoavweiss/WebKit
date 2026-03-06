@@ -711,7 +711,7 @@ void RenderTreeBuilder::normalizeTreeAfterStyleChange(RenderElement& renderer, R
     if (is<RenderBlock>(parent))
         noLongerAffectsParent = (!wasFloating && isFloating) || (!wasOutOfFlowPositioned && isOutOfFlowPositioned);
 
-    if (is<RenderBlockFlow>(parent) || is<RenderInline>(parent)) {
+    if (isAnyOf<RenderBlockFlow, RenderInline>(parent)) {
         startsAffectingParent = (wasFloating || wasOutOfFlowPositioned) && !isFloating && !isOutOfFlowPositioned;
         ASSERT(!startsAffectingParent || !noLongerAffectsParent);
     }
@@ -1108,7 +1108,7 @@ void RenderTreeBuilder::reportVisuallyNonEmptyContent(const RenderElement& paren
             m_view.frameView().incrementVisuallyNonEmptyCharacterCount(textRenderer->text());
         return;
     }
-    if (is<RenderHTMLCanvas>(child) || is<RenderEmbeddedObject>(child)) {
+    if (isAnyOf<RenderHTMLCanvas, RenderEmbeddedObject>(child)) {
         // Actual size is not known yet, report the default intrinsic size for replaced elements.
         auto& replacedRenderer = downcast<RenderReplaced>(child);
         m_view.frameView().incrementVisuallyNonEmptyPixelCount(roundedIntSize(replacedRenderer.intrinsicSize()));

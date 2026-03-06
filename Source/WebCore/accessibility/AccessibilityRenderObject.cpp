@@ -240,7 +240,7 @@ static inline CheckedPtr<RenderObject> firstChildConsideringContinuation(RenderO
 
 static inline RenderObject* lastChildConsideringContinuation(RenderObject& renderer)
 {
-    if (!is<RenderInline>(renderer) && !is<RenderBlock>(renderer))
+    if (!isAnyOf<RenderInline, RenderBlock>(renderer))
         return &renderer;
 
     auto& boxModelObject = uncheckedDowncast<RenderBoxModelObject>(renderer);
@@ -308,7 +308,7 @@ static inline RenderInline* startOfContinuations(RenderObject& renderer)
 
 static inline CheckedPtr<RenderObject> endOfContinuations(RenderObject& renderer)
 {
-    if (!is<RenderInline>(renderer) && !is<RenderBlock>(renderer))
+    if (!isAnyOf<RenderInline, RenderBlock>(renderer))
         return &renderer;
 
     CheckedPtr previous = uncheckedDowncast<RenderBoxModelObject>(&renderer);
@@ -402,7 +402,7 @@ AccessibilityObject* AccessibilityRenderObject::nextSibling() const
     if (!m_renderer)
         return AccessibilityNodeObject::nextSibling();
 
-    if (is<RenderView>(m_renderer))
+    if (is<RenderView>(*m_renderer))
         return nullptr;
 
     CheckedPtr<RenderObject> nextSibling;

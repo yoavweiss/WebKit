@@ -424,7 +424,7 @@ void RenderThemeIOS::adjustRoundBorderRadius(RenderStyle& style, RenderBox& box)
     auto minDimension = std::min(box.width(), box.height());
     auto unzoomedMinDimension = minDimension / usedZoom.value;
 
-    if ((is<RenderButton>(box) || is<RenderMenuList>(box)) && boxLogicalHeight >= largeButtonSize) {
+    if ((isAnyOf<RenderButton, RenderMenuList>(box)) && boxLogicalHeight >= largeButtonSize) {
         auto largeButtonBorderRadius = Style::LengthPercentage<CSS::NonnegativeUnzoomed>::Dimension { unzoomedMinDimension * largeButtonBorderRadiusRatio };
         style.setBorderRadius({ largeButtonBorderRadius, largeButtonBorderRadius });
         return;

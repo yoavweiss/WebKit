@@ -2281,7 +2281,7 @@ RenderBoxModelObject* RenderElement::offsetParent() const
     CheckedPtr current = parent();
     while (current && (!current->element() || (!current->isBody() && !(isFixedPositioned() ? current->canContainFixedPositionObjects() : current->canContainAbsolutelyPositionedObjects())))) {
         RefPtr element = current->element();
-        if (!skipTables && element && (is<HTMLTableElement>(*element) || is<HTMLTableCellElement>(*element)))
+        if (!skipTables && isAnyOf<HTMLTableElement, HTMLTableCellElement>(element))
             break;
 
         float newZoom = current->style().usedZoom();

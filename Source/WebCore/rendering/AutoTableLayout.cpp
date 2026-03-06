@@ -229,7 +229,7 @@ static bool shouldScaleColumnsForParent(const RenderTable& table)
         // logical width. In such situations no table logical width will be large enough to satisfy the constraint
         // set by the contents. So the idea is to use ~infinity to make sure we use all available size in the containing
         // block. However, this just doesn't work if this is a flex or grid item, so disallow scaling in that case.
-        if (is<RenderFlexibleBox>(containingBlock) || is<RenderGrid>(containingBlock))
+        if (isAnyOf<RenderFlexibleBox, RenderGrid>(containingBlock))
             return false;
         containingBlock = containingBlock->containingBlock();
     }

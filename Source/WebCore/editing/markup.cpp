@@ -1545,7 +1545,7 @@ static Vector<Ref<HTMLElement>> collectElementsToRemoveFromFragment(ContainerNod
             collectElementsToRemoveFromFragment(WTF::move(element));
             continue;
         }
-        if (is<HTMLHeadElement>(element) || is<HTMLBodyElement>(element))
+        if (isAnyOf<HTMLHeadElement, HTMLBodyElement>(element))
             toRemove.append(WTF::move(element));
     }
     return toRemove;

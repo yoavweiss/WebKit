@@ -3075,7 +3075,7 @@ bool RenderBox::sizesPreferredLogicalWidthToFitContent() const
     // stretching column flexbox.
     // FIXME: Think about block-flow here.
     // https://bugs.webkit.org/show_bug.cgi?id=46473
-    if (logicalWidth.isAuto() && !isStretchingColumnFlexItem() && element() && (is<HTMLInputElement>(*element()) || is<HTMLSelectElement>(*element()) || is<HTMLButtonElement>(*element()) || is<HTMLTextAreaElement>(*element()) || is<HTMLLegendElement>(*element())))
+    if (logicalWidth.isAuto() && !isStretchingColumnFlexItem() && isAnyOf<HTMLInputElement, HTMLSelectElement, HTMLButtonElement, HTMLTextAreaElement, HTMLLegendElement>(element()))
         return true;
 
     if (isHorizontalWritingMode() != containingBlock()->isHorizontalWritingMode())

@@ -786,7 +786,7 @@ static ContainerNode* findEnclosingScrollableContainer(ContainerNode* node, cons
         if (is<HTMLIFrameElement>(*candidate))
             continue;
 
-        if (is<HTMLHtmlElement>(*candidate) || is<HTMLDocument>(*candidate))
+        if (isAnyOf<HTMLHtmlElement, HTMLDocument>(*candidate))
             return nullptr;
 
         CheckedPtr box = candidate->renderBox();

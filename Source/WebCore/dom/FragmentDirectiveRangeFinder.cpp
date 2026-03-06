@@ -66,24 +66,21 @@ static bool NODELETE isSearchInvisible(const Node& node)
         return true;
     
     // FIXME: If the node serializes as void.
-    
-    if (is<HTMLIFrameElement>(node)
-        || is<HTMLImageElement>(node)
-        || is<HTMLMeterElement>(node)
-        || is<HTMLObjectElement>(node)
-        || is<HTMLProgressElement>(node)
-        || is<HTMLStyleElement>(node)
-        || is<HTMLScriptElement>(node)
-#if ENABLE(VIDEO)
-        || is<HTMLVideoElement>(node)
-        || is<HTMLAudioElement>(node)
-#endif // ENABLE(VIDEO)
-        )
-        return true;
-    
     // FIXME: Is a select element whose multiple content attribute is absent.
-    
-    return false;
+
+    return isAnyOf<
+#if ENABLE(VIDEO)
+        HTMLVideoElement,
+        HTMLAudioElement,
+#endif // ENABLE(VIDEO)
+        HTMLIFrameElement,
+        HTMLImageElement,
+        HTMLMeterElement,
+        HTMLObjectElement,
+        HTMLProgressElement,
+        HTMLStyleElement,
+        HTMLScriptElement
+    >(node);
 }
 
 // https://wicg.github.io/scroll-to-text-fragment/#non-searchable-subtree

@@ -256,7 +256,7 @@ void ReplacementFragment::removeContentsWithSideEffects()
     while (it != end) {
         Ref element = *it;
         if (isScriptElement(element) || (is<HTMLStyleElement>(element) && element->getAttribute(classAttr) != WebKitMSOListQuirksStyle)
-            || is<HTMLBaseElement>(element) || is<HTMLLinkElement>(element) || is<HTMLMetaElement>(element) || is<HTMLTitleElement>(element)) {
+            || isAnyOf<HTMLBaseElement, HTMLLinkElement, HTMLMetaElement, HTMLTitleElement>(element)) {
             elementsToRemove.append(WTF::move(element));
             it.traverseNextSkippingChildren();
             continue;

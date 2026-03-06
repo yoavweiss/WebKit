@@ -270,7 +270,7 @@ RenderObject::FragmentedFlowState RenderObject::computedFragmentedFlowState(cons
     auto inheritedFlowState = RenderObject::FragmentedFlowState::NotInsideFlow;
     if (is<RenderText>(renderer))
         inheritedFlowState = renderer.parent()->fragmentedFlowState();
-    else if (is<RenderSVGBlock>(renderer) || is<RenderSVGInline>(renderer) || is<LegacyRenderSVGModelObject>(renderer)) {
+    else if (isAnyOf<RenderSVGBlock, RenderSVGInline, LegacyRenderSVGModelObject>(renderer)) {
         // containingBlock() skips svg boundary (SVG root is a RenderReplaced).
         if (CheckedPtr svgRoot = SVGRenderSupport::findTreeRootObject(downcast<RenderElement>(renderer)))
             inheritedFlowState = svgRoot->fragmentedFlowState();
@@ -765,7 +765,7 @@ RenderBlock* RenderObject::containingBlockForPositionType(PositionType positionT
 RenderBlock* RenderObject::containingBlock() const
 {
     // FIXME: See https://bugs.webkit.org/show_bug.cgi?id=270977 for RenderLineBreak special treatment.
-    if (is<RenderText>(*this) || is<RenderLineBreak>(*this))
+    if (isAnyOf<RenderText, RenderLineBreak>(*this))
         return containingBlockForPositionType(PositionType::Static, *this);
 
     auto containingBlockForRenderer = [](const auto& renderer) -> RenderBlock* {
@@ -1649,7 +1649,7 @@ static inline RenderElement* containerForElement(const RenderObject& renderer, c
     // containingBlock() skips to the non-anonymous containing block.
     // This does mean that computeOutOfFlowPositionedLogicalWidth and computeOutOfFlowPositionedLogicalHeight have to use container().
     // FIXME: See https://bugs.webkit.org/show_bug.cgi?id=270977 for RenderLineBreak special treatment.
-    if (!is<RenderElement>(renderer) || is<RenderText>(renderer) || is<RenderLineBreak>(renderer))
+    if (!is<RenderElement>(renderer) || isAnyOf<RenderText, RenderLineBreak>(renderer))
         return renderer.parent();
 
     auto* renderElement = dynamicDowncast<RenderElement>(renderer);

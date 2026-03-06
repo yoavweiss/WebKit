@@ -2184,7 +2184,7 @@ ScrollableArea* EventHandler::enclosingScrollableArea(Node* node) const
         if (is<HTMLIFrameElement>(*ancestor))
             return nullptr;
 
-        if (is<HTMLHtmlElement>(*ancestor) || is<HTMLDocument>(*ancestor))
+        if (isAnyOf<HTMLHtmlElement, HTMLDocument>(*ancestor))
             break;
 
         CheckedPtr renderer = ancestor->renderer();

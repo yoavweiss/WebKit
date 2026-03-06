@@ -589,7 +589,7 @@ Ref<CSSValue> Builder::resolveInternalAutoBaseFunction(CSSValue& value)
             return true;
         if (m_state->style().appearance() != StyleAppearance::BaseSelect)
             return false;
-        return is<HTMLSelectElement>(m_state->element()) || is<SelectPopoverElement>(m_state->element());
+        return isAnyOf<HTMLSelectElement, SelectPopoverElement>(m_state->element());
     }();
     RefPtr result = const_cast<CSSValue*>(isAppearanceBase ? functionValue->item(1) : functionValue->item(0));
 

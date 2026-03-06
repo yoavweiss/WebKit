@@ -2664,7 +2664,7 @@ void InspectorDOMAgent::addEventListenersToNode(Node& node)
     };
 
 #if ENABLE(FULLSCREEN_API)
-    if (is<Document>(node) || is<HTMLMediaElement>(node))
+    if (isAnyOf<Document, HTMLMediaElement>(node))
         createEventListener(eventNames().webkitfullscreenchangeEvent);
 #endif // ENABLE(FULLSCREEN_API)
 
