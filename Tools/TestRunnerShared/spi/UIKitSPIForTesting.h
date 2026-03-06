@@ -558,6 +558,18 @@ typedef NS_ENUM(NSUInteger, _UIClickInteractionShouldBeginResult) {
 
 #if __has_include(<UIFoundation/NSTextTable.h>)
 #import <UIFoundation/NSTextTable.h>
+#elif __has_include(<UIKit/NSTextTable.h>)
+#import <UIKit/NSTextTable.h>
+
+@interface NSTextTableBlock : NSTextBlock
+- (NSTextTable *)table;
+- (NSInteger)startingColumn;
+- (NSInteger)startingRow;
+- (NSUInteger)numberOfColumns;
+- (NSInteger)columnSpan;
+- (NSInteger)rowSpan;
+@end
+
 #else
 
 typedef NS_ENUM(NSInteger, NSTextBlockLayer) {
@@ -565,10 +577,6 @@ typedef NS_ENUM(NSInteger, NSTextBlockLayer) {
     NSTextBlockLayerBorder   =  0,
     NSTextBlockLayerMargin   =  1
 };
-
-#if __has_include(<UIKit/NSTextTable.h>)
-#import <UIKit/NSTextTable.h>
-#else
 
 @interface NSTextBlock : NSObject
 - (CGFloat)widthForLayer:(NSTextBlockLayer)layer edge:(NSRectEdge)edge;
@@ -581,8 +589,6 @@ typedef NS_ENUM(NSInteger, NSTextBlockLayer) {
 @interface NSParagraphStyle (TextBlocks)
 - (NSArray<NSTextBlock *> *)textBlocks;
 @end
-
-#endif // !__has_include(<UIKit/NSTextTable.h>)
 
 @interface NSTextTableBlock : NSTextBlock
 - (NSTextTable *)table;
