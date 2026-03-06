@@ -6,7 +6,7 @@
 <script src="/navigation/resources/navigation-utils.js"></script>
 <script>
 
-description("Nested iframe history navigation works correctly with same-site iframe when back/forward cache is disabled.");
+description("Nested iframe history navigation works correctly with cross-site iframe when back/forward cache is disabled.");
 jsTestIsAsync = true;
 
 const page = "opener";
@@ -41,8 +41,8 @@ window.onmessage = (event) => dispatchMessage(event.data, {
             page1ShowCount++;
             if (page1ShowCount == 1) {
                 debug("Page1 displayed first time.");
-                sendMessageToPopup("navigate-to-page2");
-            } else if (page1ShowCount == 2) {
+                sendMessageToPopup("navigate-to-page2-cross-site-iframe");
+            } else {
                 testFailed("Page1 should be displayed only once.");
                 finishJSTest();
             }
@@ -83,10 +83,10 @@ window.onmessage = (event) => dispatchMessage(event.data, {
 </head>
 <body>
 <ul>
-    <li>Open a new window with back-iframe-popup.html. It has an iframe with page1 loaded initially.</li>
-    <li>Navigate iframe to page2.</li>
-    <li>Navigate main frame to other.</li>
-    <li>Go back. (back-iframe-popup.html with iframe showing page2)</li>
+    <li>Open a new window with back-iframe-popup.html. It has a same-site iframe with page1 loaded initially.</li>
+    <li>Navigate iframe to cross-site page2.</li>
+    <li>Navigate main frame to other (same-site).</li>
+    <li>Go back. (back-iframe-popup.html with iframe showing cross-site page2)</li>
 </ul>
 <p>... and ensures the nested iframe content is correctly restored to page2.</p>
 </body>
