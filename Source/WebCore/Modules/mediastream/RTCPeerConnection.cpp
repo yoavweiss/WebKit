@@ -651,7 +651,10 @@ void RTCPeerConnection::getStats(MediaStreamTrack* selector, Ref<DeferredPromise
                 return;
             }
         }
+        promise->reject(Exception { ExceptionCode::InvalidAccessError, "Selector is invalid"_s });
+        return;
     }
+
     promise->whenSettled([pendingActivity = makePendingActivity(*this)] { });
     protect(*m_backend)->getStats(WTF::move(promise));
 }
