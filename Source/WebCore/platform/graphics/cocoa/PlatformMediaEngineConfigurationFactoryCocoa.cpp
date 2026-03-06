@@ -125,6 +125,19 @@ static std::optional<PlatformMediaCapabilitiesInfo> computeMediaCapabilitiesInfo
             if (!parsedInfo)
                 return std::nullopt;
             info = *parsedInfo;
+        } else if (codec.startsWith("vp8"_s) || codec.startsWith("vp08"_s)) {
+            if (!isVP8DecoderAvailable())
+                return std::nullopt;
+            auto parameters = parseVPCodecParameters(codec);
+            if (!parameters)
+                return std::nullopt;
+            if (!isVPCodecConfigurationRecordSupported(*parameters))
+                return std::nullopt;
+            if (alphaChannel || hdrSupported)
+                return std::nullopt;
+            info.supported = true;
+            info.powerEfficient = false;
+            info.smooth = isVPSoftwareDecoderSmooth(videoConfiguration);
 #endif
 #if ENABLE(AV1)
         } else if (codec.startsWith("av01"_s)) {
