@@ -266,7 +266,7 @@ struct Latin1BufferTranslator {
 template<typename CharType>
 struct BufferFromStaticDataTranslator {
     using Buffer = HashTranslatorCharBuffer<CharType>;
-    static unsigned hash(const Buffer& buf)
+    static unsigned NODELETE hash(const Buffer& buf)
     {
         return buf.hash;
     }

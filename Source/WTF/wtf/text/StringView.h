@@ -231,7 +231,7 @@ private:
 
     WTF_EXPORT_PRIVATE bool NODELETE underlyingStringIsValidImpl() const;
     WTF_EXPORT_PRIVATE void NODELETE setUnderlyingStringImpl(const StringImpl*);
-    WTF_EXPORT_PRIVATE void setUnderlyingStringImpl(const StringView&);
+    WTF_EXPORT_PRIVATE void NODELETE setUnderlyingStringImpl(const StringView&);
 
 #if CHECK_STRINGVIEW_LIFETIME
     bool underlyingStringIsValid() const { return underlyingStringIsValidImpl(); }
@@ -868,18 +868,18 @@ public:
     using pointer = value_type*;
     using reference = value_type&;
 
-    StringView operator*() const;
+    StringView NODELETE operator*() const;
 
-    WTF_EXPORT_PRIVATE Iterator& operator++();
+    WTF_EXPORT_PRIVATE Iterator& NODELETE operator++();
 
-    bool operator==(const Iterator&) const;
+    bool NODELETE operator==(const Iterator&) const;
 
 private:
     enum PositionTag { AtEnd };
     Iterator(const SplitResult&);
     Iterator(const SplitResult&, PositionTag);
 
-    WTF_EXPORT_PRIVATE void findNextSubstring();
+    WTF_EXPORT_PRIVATE void NODELETE findNextSubstring();
 
     friend SplitResult;
 
