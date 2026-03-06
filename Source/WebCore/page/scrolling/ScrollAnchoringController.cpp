@@ -602,8 +602,12 @@ void ScrollAnchoringController::adjustScrollPositionForAnchoring()
         adjustment.scale(pageScale);
     }
 
+    auto roundedAdjustment = roundedIntSize(adjustment);
+    if (roundedAdjustment.isZero())
+        return;
+
     auto currentPosition = m_owningScrollableArea->scrollPosition();
-    auto newScrollPosition = currentPosition + roundedIntSize(adjustment);
+    auto newScrollPosition = currentPosition + roundedAdjustment;
     RELEASE_LOG(ScrollAnchoring, "ScrollAnchoringController::adjustScrollPositionForAnchoring() is main frame: %d, is main scroller: %d, adjusting from (%d, %d) to (%d, %d)",  frameView().frame().isMainFrame(), !m_owningScrollableArea->isRenderLayer(), currentPosition.x(), currentPosition.y(), newScrollPosition.x(), newScrollPosition.y());
     LOG_WITH_STREAM(ScrollAnchoring, stream << "ScrollAnchoringController " << this << " adjustScrollPositionForAnchoring() for scroller element: " << ValueOrNull(scrollableAreaBox()) << " anchor: " << *m_anchorObject << " adjusting from " << currentPosition << " to " << newScrollPosition);
 

@@ -1719,6 +1719,8 @@ int Element::scrollTop()
 
 void Element::setScrollLeft(int newLeft)
 {
+    LOG_WITH_STREAM(Scrolling, stream << "Element " << *this << " setScrollLeft " << newLeft);
+
     Ref document = this->document();
     document->updateLayoutIgnorePendingStylesheets({ LayoutOptions::TreatContentVisibilityHiddenAsVisible, LayoutOptions::TreatContentVisibilityAutoAsVisible }, this);
 
@@ -1745,6 +1747,8 @@ void Element::setScrollLeft(int newLeft)
 
 void Element::setScrollTop(int newTop)
 {
+    LOG_WITH_STREAM(Scrolling, stream << "Element " << *this << " setScrollTop " << newTop);
+
     Ref document = this->document();
     document->updateLayoutIgnorePendingStylesheets({ LayoutOptions::TreatContentVisibilityHiddenAsVisible, LayoutOptions::TreatContentVisibilityAutoAsVisible }, this);
 
