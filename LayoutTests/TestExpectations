@@ -2182,7 +2182,6 @@ webkit.org/b/186045 imported/w3c/web-platform-tests/css/css-fonts/variations/var
 webkit.org/b/186045 imported/w3c/web-platform-tests/css/selectors/remove-hovered-element.html [ Skip ]
 
 # These W3C tests time out.
-imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/loading-the-media-resource/autoplay-overrides-preload.html [ Skip ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/loading-the-media-resource/resource-selection-candidate-remove-addEventListener.html [ Skip ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/loading-the-media-resource/resource-selection-candidate-remove-onerror.html [ Skip ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/playing-the-media-resource/pause-remove-from-document-networkState.html [ Skip ]

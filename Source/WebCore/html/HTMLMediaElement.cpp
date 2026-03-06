@@ -1055,6 +1055,7 @@ void HTMLMediaElement::attributeChanged(const QualifiedName& name, const AtomStr
     case AttributeNames::autoplayAttr:
         if (processingUserGestureForMedia())
             removeBehaviorRestrictionsAfterFirstUserGesture();
+        maybeUpdatePlayerPreload();
         return;
     case AttributeNames::titleAttr:
         if (RefPtr mediaSession = m_mediaSession)
@@ -1847,7 +1848,12 @@ void HTMLMediaElement::loadNextSourceChild()
 
 void HTMLMediaElement::maybeUpdatePlayerPreload() const
 {
-    if (RefPtr player = m_player; player && !m_havePreparedToPlay && !autoplay())
+    RefPtr player = m_player;
+    if (!player || m_havePreparedToPlay)
+        return;
+    if (autoplay())
+        player->setPreload(MediaPlayer::Preload::Auto);
+    else
         player->setPreload(protect(mediaSession())->effectivePreloadForElement());
 }
 
