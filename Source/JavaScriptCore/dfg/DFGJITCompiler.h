@@ -115,6 +115,8 @@ public:
     
     void setForNode(Node* node)
     {
+        if (Options::useIRDump()) [[unlikely]]
+            m_irDumpLabels.append({ labelIgnoringWatchpoints(), node });
         if (!m_disassembler) [[likely]]
             return;
         m_disassembler->setForNode(node, labelIgnoringWatchpoints());
@@ -385,6 +387,7 @@ protected:
     void exitSpeculativeWithOSR(const OSRExit&, SpeculationRecovery*);
     void linkOSRExits();
     void disassemble(LinkBuffer&);
+    void collectIRDumpDebugInfo(LinkBuffer&);
 
     void makeCatchOSREntryBuffer();
 
@@ -442,6 +445,12 @@ protected:
     Vector<ExceptionHandlingOSRExitInfo> m_exceptionHandlerOSRExitCallSites;
     
     PCToCodeOriginMapBuilder m_pcToCodeOriginMapBuilder;
+
+    struct IRDumpLabel {
+        MacroAssembler::Label label;
+        Node* node;
+    };
+    Vector<IRDumpLabel> m_irDumpLabels;
 };
 
 } } // namespace JSC::DFG

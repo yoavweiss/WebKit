@@ -149,6 +149,8 @@ bool hasCapacityToUseLargeGigacage();
     v(Bool, useGdbJITInfo, false, Normal, "generates GDB JIT API side-data; to use with lldb on macos, add `settings set plugin.jit-loader.gdb.enable on` to .lldbinit") \
     v(Bool, useTextMarkers, false, Normal, "generates text markers side-data") \
     v(OptionString, jitDumpDirectory, nullptr, Normal, "Directory to place JITDump"_s) \
+    v(Bool, useIRDump, false, Normal, "generates IR dump files and JIT_CODE_DEBUG_INFO in JITDump"_s) \
+    v(OptionString, irDumpDirectory, nullptr, Normal, "Directory to place IR dump files"_s) \
     v(OptionString, textMarkersDirectory, nullptr, Normal, "Directory to place MarkerTxt") \
     v(OptionRange, bytecodeRangeToJITCompile, nullptr, Normal, "bytecode size range to allow compilation on, e.g. 1:100"_s) \
     v(OptionRange, bytecodeRangeToDFGCompile, nullptr, Normal, "bytecode size range to allow DFG compilation on, e.g. 1:100"_s) \

@@ -39,6 +39,7 @@
 #include "DFGThunks.h"
 #include "JSCJSValueInlines.h"
 #include "LinkBuffer.h"
+#include "Options.h"
 #include "ProbeContext.h"
 #include "ThunkGenerators.h"
 #include "VM.h"
@@ -377,6 +378,30 @@ void JITCompiler::disassemble(LinkBuffer& linkBuffer)
 
     if (m_graph.m_plan.compilation()) [[unlikely]]
         m_disassembler->reportToProfiler(m_graph.m_plan.compilation(), linkBuffer);
+}
+
+void JITCompiler::collectIRDumpDebugInfo(LinkBuffer& linkBuffer)
+{
+    if (!Options::useIRDump())
+        return;
+
+    if (m_irDumpLabels.isEmpty())
+        return;
+
+    auto debugInfo = makeUnique<IRDumpDebugInfo>(m_graph.m_codeBlock->inferredName());
+    auto nodeToLineIndex = m_graph.collectIRDumpDebugInfo(*debugInfo);
+
+    void* codeStart = linkBuffer.entrypoint<DisassemblyPtrTag>().untaggedPtr();
+    for (auto& entry : m_irDumpLabels) {
+        auto it = nodeToLineIndex.find(entry.node);
+        if (it == nodeToLineIndex.end())
+            continue;
+        auto location = linkBuffer.locationOf<DisassemblyPtrTag>(entry.label);
+        uint32_t codeOffset = static_cast<uint32_t>(location.dataLocation<uintptr_t>() - reinterpret_cast<uintptr_t>(codeStart));
+        debugInfo->codeEntries.append({ codeOffset, it->value });
+    }
+
+    linkBuffer.setIRDumpDebugInfo(WTF::move(debugInfo));
 }
 
 #if USE(JSVALUE32_64)

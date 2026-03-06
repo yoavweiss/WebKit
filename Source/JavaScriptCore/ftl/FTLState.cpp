@@ -36,6 +36,7 @@
 #include "FTLJITCode.h"
 #include "FTLJITFinalizer.h"
 #include "FTLPatchpointExceptionHandle.h"
+#include "Options.h"
 
 #include <wtf/RecursableLambda.h>
 
@@ -69,7 +70,7 @@ State::State(Graph& graph)
 
     proc = makeUniqueWithoutFastMallocCheck<Procedure>(/* usesSIMD = */ false);
 
-    if (graph.m_vm.shouldBuilderPCToCodeOriginMapping())
+    if (graph.m_vm.shouldBuilderPCToCodeOriginMapping() || Options::useIRDump())
         proc->setNeedsPCToOriginMap();
 
     proc->setOriginPrinter(

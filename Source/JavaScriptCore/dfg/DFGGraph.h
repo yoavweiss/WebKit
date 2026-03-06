@@ -57,6 +57,7 @@ namespace JSC {
 
 class CodeBlock;
 class CallFrame;
+class IRDumpDebugInfo;
 
 namespace DFG {
 
@@ -1320,6 +1321,8 @@ public:
     bool afterFixup() { return m_planStage >= PlanStage::AfterFixup; }
 
     RefPtr<JSON::Array> ionGraphPasses() const { return m_ionGraphPasses; }
+
+    UncheckedKeyHashMap<Node*, uint32_t> collectIRDumpDebugInfo(IRDumpDebugInfo&);
 
     StackCheck m_stackChecker;
     VM& m_vm;

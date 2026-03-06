@@ -182,6 +182,8 @@ void SpeculativeJIT::compile()
     link(linkBuffer);
     linkOSREntries(linkBuffer);
 
+    collectIRDumpDebugInfo(linkBuffer);
+
     disassemble(linkBuffer);
 
     auto codeRef = FINALIZE_DFG_CODE(linkBuffer, JSEntryPtrTag, "DFG JIT code for %s", toCString(CodeBlockWithJITType(m_codeBlock, JITType::DFGJIT)).data());
@@ -284,6 +286,8 @@ void SpeculativeJIT::compileFunction()
     }
     link(linkBuffer);
     linkOSREntries(linkBuffer);
+
+    collectIRDumpDebugInfo(linkBuffer);
 
     disassemble(linkBuffer);
 

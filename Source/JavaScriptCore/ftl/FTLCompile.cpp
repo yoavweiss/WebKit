@@ -36,12 +36,15 @@
 #include "B3ValueInlines.h"
 #include "CodeBlockWithJITType.h"
 #include "CCallHelpers.h"
+#include "DFGGraph.h"
 #include "DFGGraphSafepoint.h"
+#include "DFGNode.h"
 #include "FTLJITCode.h"
 #include "JITThunks.h"
 #include "LLIntEntrypoint.h"
 #include "LLIntThunks.h"
 #include "LinkBuffer.h"
+#include "Options.h"
 #include "PCToCodeOriginMap.h"
 #include "ThunkGenerators.h"
 #include <wtf/RecursableLambda.h>
@@ -201,6 +204,54 @@ void compile(State& state, Safepoint::Result& safepointResult)
     if (state.b3CodeLinkBuffer->didFailToAllocate()) {
         state.allocationFailed = true;
         return;
+    }
+
+    if (Options::useIRDump() && state.proc->needsPCToOriginMap()) {
+        auto debugInfo = makeUnique<IRDumpDebugInfo>(codeBlock->inferredName());
+        auto nodeToLineIndex = graph.collectIRDumpDebugInfo(*debugInfo);
+
+        auto& originMap = state.proc->pcToOriginMap();
+        void* codeStart = state.b3CodeLinkBuffer->entrypoint<DisassemblyPtrTag>().untaggedPtr();
+
+        DFG::Node* current = nullptr;
+        uint32_t currentLineIndex = 0;
+        std::optional<uint32_t> currentCodeOffset;
+        auto flush = [&] {
+            if (currentCodeOffset)
+                debugInfo->codeEntries.append({ currentCodeOffset.value(), currentLineIndex });
+            current = nullptr;
+            currentLineIndex = 0;
+            currentCodeOffset = std::nullopt;
+        };
+
+        auto append = [&](DFG::Node* node, uint32_t codeOffset, uint32_t lineIndex) {
+            if (current != node)
+                flush();
+            current = node;
+            currentLineIndex = lineIndex;
+            if (!currentCodeOffset)
+                currentCodeOffset = codeOffset;
+        };
+
+        for (auto& range : originMap.ranges()) {
+            auto origin = range.origin;
+            if (!origin || !origin.isDFGOrigin())
+                continue;
+            DFG::Node* node = origin.dfgOrigin();
+            if (!node)
+                continue;
+
+            auto it = nodeToLineIndex.find(node);
+            if (it == nodeToLineIndex.end())
+                continue;
+
+            auto location = state.b3CodeLinkBuffer->locationOf<DisassemblyPtrTag>(range.label);
+            uint32_t codeOffset = static_cast<uint32_t>(location.dataLocation<uintptr_t>() - reinterpret_cast<uintptr_t>(codeStart));
+            append(node, codeOffset, it->value);
+        }
+        flush();
+
+        state.b3CodeLinkBuffer->setIRDumpDebugInfo(WTF::move(debugInfo));
     }
 
     if (vm.shouldBuilderPCToCodeOriginMapping()) {

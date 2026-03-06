@@ -873,6 +873,9 @@ void Options::notifyOptionsChanged()
             || Options::useProfiler()) // For JIT comments in the profile.
             Options::needDisassemblySupport() = true;
 
+        if (Options::useIRDump() && !Options::useJITDump())
+            Options::useIRDump() = false;
+
         if (OptionsHelper::wasOverridden(jitPolicyScaleID))
             scaleJITPolicy();
 

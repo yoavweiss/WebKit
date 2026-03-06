@@ -40,10 +40,38 @@
 #include <JavaScriptCore/MacroAssemblerCodeRef.h>
 #include <wtf/DataLog.h>
 #include <wtf/TZoneMalloc.h>
+#include <wtf/text/CString.h>
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 
 namespace JSC {
+
+class IRDumpDebugInfo {
+    WTF_MAKE_TZONE_ALLOCATED(IRDumpDebugInfo);
+    WTF_MAKE_NONCOPYABLE(IRDumpDebugInfo);
+public:
+    // This is per-line either BasicBlock header annotation or actual IR node. Like,
+    //     BB#0
+    //         GetLocal
+    struct IRLine {
+        ASCIILiteral opName;
+        uint32_t blockIndex { 0 };
+    };
+
+    struct CodeEntry {
+        uint32_t codeOffset;
+        uint32_t irLineIndex;
+    };
+
+    IRDumpDebugInfo(CString&& name)
+        : functionName(WTF::move(name))
+    {
+    }
+
+    CString functionName;
+    Vector<IRLine> irLines;
+    Vector<CodeEntry> codeEntries;
+};
 
 // LinkBuffer:
 //
@@ -328,6 +356,8 @@ ALLOW_NONLITERAL_FORMAT_END
 
     void setIsThunk() { m_isThunk = true; }
 
+    void setIRDumpDebugInfo(std::unique_ptr<IRDumpDebugInfo>&& info) { m_irDumpDebugInfo = WTF::move(info); }
+
 private:
     JS_EXPORT_PRIVATE CodeRef<LinkBufferPtrTag> finalizeCodeWithoutDisassemblyImpl(ASCIILiteral);
     JS_EXPORT_PRIVATE CodeRef<LinkBufferPtrTag> finalizeCodeWithDisassemblyImpl(bool dumpDisassembly, ASCIILiteral, const char* format, ...) WTF_ATTRIBUTE_PRINTF(4, 5);
@@ -414,6 +444,7 @@ private:
     CodePtr<LinkBufferPtrTag> m_code;
     Vector<Ref<SharedTask<void(LinkBuffer&)>>> m_linkTasks;
     Vector<Ref<SharedTask<void(LinkBuffer&)>>> m_lateLinkTasks;
+    std::unique_ptr<IRDumpDebugInfo> m_irDumpDebugInfo;
 
     static size_t s_profileCummulativeLinkedSizes[numberOfProfiles];
     static size_t s_profileCummulativeLinkedCounts[numberOfProfiles];
