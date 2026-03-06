@@ -436,7 +436,6 @@ TestWebKitAPI.WKPreferencesPrivate
 TestWebKitAPI.WKProcessPoolConfiguration
 TestWebKitAPI.WKScrollGeometry
 TestWebKitAPI.WKScrollViewTests
-TestWebKitAPI.WKUserContentController
 TestWebKitAPI.WKWebExtension
 TestWebKitAPI.WKWebExtensionAPIAlarms
 TestWebKitAPI.WKWebExtensionAPICommands
