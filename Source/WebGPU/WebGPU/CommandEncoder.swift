@@ -151,12 +151,12 @@ public func CommandEncoder_beginComputePass_thunk(
 public func CommandEncoder_runClearEncoder_thunk(
     commandEncoder: WebGPU.CommandEncoder,
     attachmentsToClear: NSMutableDictionary,
-    depthStencilAttachmentToClear: inout MTLTexture?,
+    depthStencilAttachmentToClear: inout (any MTLTexture)?,
     depthAttachmentToClear: Bool,
     stencilAttachmentToClear: Bool,
     depthClearValue: Double,
     stencilClearValue: UInt32,
-    existingEncoder: MTLRenderCommandEncoder?
+    existingEncoder: (any MTLRenderCommandEncoder)?
 ) {
     guard let dInput = attachmentsToClear as? [NSNumber: TextureAndClearColor] else {
         preconditionFailure("Dictionary not convertible")
@@ -319,7 +319,7 @@ extension WebGPU.CommandEncoder {
         destination: WGPUImageCopyTexture,
         slice: UInt,
         device: WebGPU.Device,
-        blitCommandEncoder: MTLBlitCommandEncoder?
+        blitCommandEncoder: (any MTLBlitCommandEncoder)?
     ) {
         let texture = WebGPU.fromAPI(destination.texture)
         let mipLevel = UInt(destination.mipLevel)
@@ -331,7 +331,7 @@ extension WebGPU.CommandEncoder {
         _ mipLevel: UInt,
         _ slice: UInt,
         _ device: WebGPU.Device,
-        _ blitCommandEncoder: MTLBlitCommandEncoder?
+        _ blitCommandEncoder: (any MTLBlitCommandEncoder)?
     ) {
         if blitCommandEncoder == nil || texture.previouslyCleared(UInt32(mipLevel), UInt32(slice)) {
             return
@@ -449,20 +449,20 @@ extension WebGPU.CommandEncoder {
 
     func runClearEncoder(
         attachmentsToClear: [NSNumber: TextureAndClearColor],
-        depthStencilAttachmentToClear: inout MTLTexture?,
+        depthStencilAttachmentToClear: inout (any MTLTexture)?,
         depthAttachmentToClear: Bool,
         stencilAttachmentToClear: Bool,
         depthClearValue: Double,
         stencilClearValue: UInt32,
-        existingEncoder: MTLRenderCommandEncoder?
+        existingEncoder: (any MTLRenderCommandEncoder)?
     ) {
         func createSimplePso(
             attachmentsToClear: [NSNumber: TextureAndClearColor],
-            depthStencilAttachmentToClear: MTLTexture?,
+            depthStencilAttachmentToClear: (any MTLTexture)?,
             depthAttachmentToClear: Bool,
             stencilAttachmentToClear: Bool,
             device: WebGPU.Device
-        ) -> (MTLRenderPipelineState?, MTLDepthStencilState?) {
+        ) -> ((any MTLRenderPipelineState)?, (any MTLDepthStencilState)?) {
             let mtlRenderPipelineDescriptor = MTLRenderPipelineDescriptor()
 
             var sampleCount: UInt = 0
@@ -504,8 +504,8 @@ extension WebGPU.CommandEncoder {
                 fatalError()
             }
 
-            var pso: MTLRenderPipelineState? = nil
-            var depthStencil: MTLDepthStencilState? = nil
+            var pso: (any MTLRenderPipelineState)? = nil
+            var depthStencil: (any MTLDepthStencilState)? = nil
             do {
                 pso = try deviceMetal.makeRenderPipelineState(descriptor: mtlRenderPipelineDescriptor)
                 depthStencil = depthStencilDescriptor.flatMap { deviceMetal.makeDepthStencilState(descriptor: $0) }
@@ -1048,7 +1048,7 @@ extension WebGPU.CommandEncoder {
         }
     }
 
-    private func isMultisampleTexture(texture: MTLTexture) -> Bool {
+    private func isMultisampleTexture(texture: any MTLTexture) -> Bool {
         texture.textureType == .type2DMultisample || texture.textureType == .type2DMultisampleArray
     }
 
@@ -1237,7 +1237,7 @@ extension WebGPU.CommandEncoder {
                 mtlAttachment.storeAction = storeAction(storeOp: attachment.storeOp, hasResolveTarget: attachment.resolveTarget != nil)
 
                 zeroColorTargets = false
-                var textureToClear: MTLTexture? = nil
+                var textureToClear: (any MTLTexture)? = nil
                 if mtlAttachment.loadAction == .load && !texture.previouslyCleared() {
                     textureToClear = mtlAttachment.texture
                 }
@@ -1306,7 +1306,7 @@ extension WebGPU.CommandEncoder {
         var depthReadOnly = false
         var stencilReadOnly = false
         var hasStencilComponent = false
-        var depthStencilAttachmentToClear: MTLTexture? = nil
+        var depthStencilAttachmentToClear: (any MTLTexture)? = nil
         var depthAttachmentToClear = false
         if let attachment = wgpuGetRenderPassDescriptorDepthStencilAttachment(descriptorSpan)?[0] {
             let textureView = WebGPU.TextureOrTextureView(attachment)
@@ -1438,7 +1438,7 @@ extension WebGPU.CommandEncoder {
         }
 
         var visibilityResultBufferSize: UInt = 0
-        var visibilityResultBuffer: MTLBuffer? = nil
+        var visibilityResultBuffer: (any MTLBuffer)? = nil
         if let wgpuOcclusionQuery = descriptor.occlusionQuerySet {
             let occlusionQuery = WebGPU.fromAPI(wgpuOcclusionQuery)
             occlusionQuery.setCommandEncoder(self)

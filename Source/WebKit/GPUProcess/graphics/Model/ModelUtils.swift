@@ -125,7 +125,7 @@ extension _Proto_LowLevelTextureResource_v1.Descriptor {
         return descriptor
     }
 
-    static func from(_ texture: MTLTexture, swizzle: MTLTextureSwizzleChannels) -> _Proto_LowLevelTextureResource_v1.Descriptor {
+    static func from(_ texture: any MTLTexture, swizzle: MTLTextureSwizzleChannels) -> _Proto_LowLevelTextureResource_v1.Descriptor {
         var descriptor = _Proto_LowLevelTextureResource_v1.Descriptor()
         descriptor.width = texture.width
         descriptor.height = texture.height

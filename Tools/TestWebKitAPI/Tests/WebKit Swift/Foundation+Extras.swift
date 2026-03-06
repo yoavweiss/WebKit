@@ -30,10 +30,7 @@ typealias URL = Foundation.URL
 
 @available(macOS 15.0, iOS 18.0, *)
 extension RangeReplaceableCollection {
-    init<Failure>(
-        _ sequence: some AsyncSequence<Element, Failure>,
-        isolation: isolated (any Actor)? = #isolation
-    ) async throws(Failure) where Failure: Error {
+    nonisolated(nonsending) init<Failure>(_ sequence: some AsyncSequence<Element, Failure>) async throws(Failure) where Failure: Error {
         self.init()
 
         // Safety: this is actually safe; false positive is rdar://154775389
@@ -45,7 +42,7 @@ extension RangeReplaceableCollection {
 
 @available(macOS 15.0, iOS 18.0, *)
 extension AsyncSequence {
-    func wait(isolation: isolated (any Actor)? = #isolation) async throws(Failure) {
+    nonisolated(nonsending) func wait() async throws(Failure) {
         // Safety: this is actually safe; false positive is rdar://154775389
         for try await unsafe _ in self {
         }
