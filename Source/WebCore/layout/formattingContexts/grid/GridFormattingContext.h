@@ -25,8 +25,7 @@
 
 #pragma once
 
-#include <WebCore/GridLayoutConstraints.h>
-#include <WebCore/GridTypeAliases.h>
+#include "GridTypeAliases.h"
 #include <WebCore/LayoutIntegrationUtils.h>
 #include <WebCore/LayoutState.h>
 #include <wtf/CheckedRef.h>
@@ -40,6 +39,7 @@ class PlacedGridItem;
 class UnplacedGridItem;
 
 struct GridAreaLines;
+struct GridLayoutConstraints;
 struct UnplacedGridItems;
 struct UsedTrackSizes;
 

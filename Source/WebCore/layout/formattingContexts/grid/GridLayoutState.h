@@ -25,10 +25,10 @@
 
 #pragma once
 
+#include "GridLayoutConstraints.h"
+
 namespace WebCore {
 namespace Layout {
-
-struct GridLayoutConstraints;
 
 struct GridLayoutState {
     const GridLayoutConstraints gridLayoutConstraints;
