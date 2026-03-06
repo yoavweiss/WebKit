@@ -32,6 +32,7 @@
 #include <JavaScriptCore/SourceTaintedOrigin.h>
 #include <JavaScriptCore/StructureCache.h>
 #include <JavaScriptCore/Watchpoint.h>
+#include <JavaScriptCore/WeakGCMap.h>
 #include <JavaScriptCore/WeakGCSet.h>
 #include <wtf/FixedVector.h>
 #include <wtf/RetainPtr.h>
@@ -122,6 +123,7 @@ class ShadowRealmPrototype;
 class SourceCodeKey;
 class SourceOrigin;
 class StringConstructor;
+class SymbolTable;
 class WrapperMap;
 class WrapForValidIteratorPrototype;
 
@@ -476,6 +478,7 @@ public:
     FixedVector<LazyProperty<JSGlobalObject, JSCell>> m_linkTimeConstants;
 
     StructureCache m_structureCache;
+    WeakGCMap<SymbolTable*, SymbolTable> m_symbolTableCache;
 
     String m_name;
 
@@ -1046,6 +1049,7 @@ public:
     const String& name() const { return m_name; }
 
     StructureCache& structureCache() { return m_structureCache; }
+    WeakGCMap<SymbolTable*, SymbolTable>& symbolTableCache() { return m_symbolTableCache; }
 
     inline void setUnhandledRejectionCallback(VM&, JSObject*);
     JSObject* unhandledRejectionCallback() const { return m_unhandledRejectionCallback.get(); }

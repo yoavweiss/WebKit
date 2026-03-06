@@ -1071,9 +1071,17 @@ Vector<unsigned> CodeBlock::setConstantRegisters(const FixedVector<WriteBarrier<
                             symbolTable->prepareForTypeProfiling(locker);
                         }
 
-                        SymbolTable* clone = symbolTable->cloneScopePart(vm);
+                        // We have to make sure to use a single code block for constant watchpointing.
+                        // If we didn't then we could jettison a compilation because that constant changed
+                        // but invalidate the clone. Then the next compilation would see the original
+                        // watchpoint intact and assume the value is still the original constant.
+                        SymbolTable* clone = globalObject->symbolTableCache().get(symbolTable);
+                        if (!clone) {
+                            clone = symbolTable->cloneScopePart(vm);
+                            globalObject->symbolTableCache().set(symbolTable, clone);
+                        }
                         if (wasCompiledWithDebuggingOpcodes())
-                            clone->setRareDataCodeBlock(this);
+                            clone->collectDebuggerInfo(this);
 
                         constant = clone;
                     } else if (jsDynamicCast<JSTemplateObjectDescriptor*>(cell))
