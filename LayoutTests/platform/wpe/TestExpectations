@@ -1305,3 +1305,33 @@ webkit.org/b/308148 imported/w3c/web-platform-tests/css/css-conditional/containe
 webkit.org/b/308479 imported/w3c/web-platform-tests/html/canvas/element/manual/drawing-text-to-the-canvas/canvas.2d.disconnected-font-size-math.html [ ImageOnlyFailure Pass ]
 
 webkit.org/b/308540 fast/repaint/border-radius-partial-repaint-corner.html [ Pass ImageOnlyFailure ]
+
+webkit.org/b/309360 [ arm64 ] imported/w3c/web-platform-tests/webcodecs/video-encoder-rescaling.https.any.html?h264_annexb [ Crash ]
+webkit.org/b/309360 [ arm64 ] imported/w3c/web-platform-tests/webcodecs/video-encoder-rescaling.https.any.html?h264_avc [ Crash ]
+webkit.org/b/309360 [ arm64 ] imported/w3c/web-platform-tests/webcodecs/video-encoder-rescaling.https.any.worker.html?h264_annexb [ Crash ]
+webkit.org/b/309360 [ arm64 ] imported/w3c/web-platform-tests/webcodecs/video-encoder-rescaling.https.any.worker.html?h264_avc [ Crash ]
+
+webkit.org/b/309361 [ arm64 ] fast/speechsynthesis/speech-synthesis-real-client-version.html [ Crash ]
+
+webkit.org/b/309369 [ arm64 ] svg/custom/image-with-transform-clip-filter.svg [ Failure ]
+webkit.org/b/309369 [ arm64 ] svg/custom/use-on-symbol-inside-pattern.svg [ Failure ]
+webkit.org/b/309369 [ arm64 ] svg/filters/feImage-preserveAspectRatio-all.svg [ Failure ]
+webkit.org/b/309369 [ arm64 ] svg/filters/feImage-preserveAspectratio.svg [ Failure ]
+webkit.org/b/309369 [ arm64 ] svg/W3C-SVG-1.1/extend-namespace-01-f.svg [ Failure ]
+webkit.org/b/309369 [ arm64 ] svg/W3C-SVG-1.1/metadata-example-01-b.svg [ Failure ]
+
+
+webkit.org/b/309372 [ arm64 ] imported/w3c/web-platform-tests/webaudio/the-audio-api/the-audioparam-interface/k-rate-audiobuffersource-connections.html [ Failure ]
+webkit.org/b/309372 [ arm64 ] imported/w3c/web-platform-tests/webaudio/the-audio-api/the-audioparam-interface/k-rate-dynamics-compressor-connections.html [ Failure ]
+webkit.org/b/309372 [ arm64 ] imported/w3c/web-platform-tests/webaudio/the-audio-api/the-convolvernode-interface/convolution-mono-mono.html [ Failure ]
+webkit.org/b/309372 [ arm64 ] imported/w3c/web-platform-tests/webaudio/the-audio-api/the-convolvernode-interface/realtime-conv.html [ Failure ]
+webkit.org/b/309372 [ arm64 ] webaudio/Analyser/realtimeanalyser-freq-data.html [ Failure ]
+webkit.org/b/309372 [ arm64 ] webaudio/ScriptProcessor/scriptprocessor-offlineaudiocontext.html [ Failure ]
+
+webkit.org/b/309376 [ arm64 ] compositing/animation/animation-backing.html [ Failure Pass ]
+
+webkit.org/b/309377 [ arm64 ] imported/w3c/web-platform-tests/html/canvas/element/manual/imagebitmap/canvas-createImageBitmap-video-resize.html [ Failure Pass ]
+
+webkit.org/b/309381 [ arm64 ] webgl/2.0.y/conformance2/rendering/blitframebuffer-filter-srgb.html [ Failure ]
+
+webkit.org/b/309382 [ arm64 ] fast/canvas/2d.text.draw.fill.maxWidth.gradient.html [ Failure Pass ]

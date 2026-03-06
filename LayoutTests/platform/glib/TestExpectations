@@ -5294,6 +5294,8 @@ webkit.org/b/309257 media/video-fast-seek.html [ Pass Timeout ]
 webkit.org/b/309258 media/video-muted.html [ Pass Timeout ]
 webkit.org/b/309259 webrtc/canvas-to-peer-connection-vp8-2d.html [ Pass Failure Crash Timeout ]
 
+webkit.org/b/309373 [ x86_64 ] imported/w3c/web-platform-tests/webaudio/the-audio-api/the-audioworklet-interface/audioworklet-denormals.https.window.html [ Failure ]
+
 # End: Common failures between GTK and WPE.
 
 #////////////////////////////////////////////////////////////////////////////////////////
