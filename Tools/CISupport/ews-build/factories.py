@@ -192,7 +192,6 @@ class StressTestFactory(TestFactory):
         self.getProduct()
         self.addStep(WaitForCrashCollection())
         self.addStep(RunWebKitTestsInStressMode())
-        self.addStep(RunWebKitTestsInSiteIsolation())
         self.addStep(TriggerCrashLogSubmission())
         self.addStep(SetBuildSummary())
 
