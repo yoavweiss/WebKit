@@ -573,6 +573,11 @@ bool MediaSessionManagerCocoa::shouldUpdateNowPlaying(const NowPlayingInfo& nowP
         return true;
     }
 
+    if (m_nowPlayingInfo->fullscreenMode != nowPlayingInfo.fullscreenMode) {
+        INFO_LOG(LOGIDENTIFIER, "fullscreenMode changed");
+        return true;
+    }
+
     auto currentTime = nowPlayingInfo.currentTime;
 
     // Always update when currentTime changes while paused.
@@ -779,8 +784,8 @@ static id<MRNowPlayingActivityUIControllable> nowPlayingActivityController()
 
 void MediaSessionManagerCocoa::updateNowPlayingSuppression(const NowPlayingInfo* nowPlayingInfo)
 {
-    if (!nowPlayingInfo || !nowPlayingInfo->isVideo) {
-        RELEASE_LOG(Media, "MediaSessionManagerCocoa::updateNowPlayingSuppression: clearing suppressPresentationOverBundleIdentifiers (hasNowPlayingInfo=%d, isVideo=%d)", !!nowPlayingInfo, nowPlayingInfo && nowPlayingInfo->isVideo);
+    if (!nowPlayingInfo || !nowPlayingInfo->isVideo || nowPlayingInfo->fullscreenMode == MediaPlayerEnums::VideoFullscreenModeStandard) {
+        RELEASE_LOG(Media, "MediaSessionManagerCocoa::updateNowPlayingSuppression: clearing suppressPresentationOverBundleIdentifiers (hasNowPlayingInfo=%d, isVideo=%d, fullscreenMode=%d)", !!nowPlayingInfo, nowPlayingInfo && nowPlayingInfo->isVideo, nowPlayingInfo && nowPlayingInfo->fullscreenMode);
         [nowPlayingActivityController() suppressPresentationOverBundleIdentifiers:nil];
     } else {
         RetainPtr parentApplicationBundleIdentifier = applicationBundleIdentifier().createNSString();

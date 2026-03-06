@@ -7448,6 +7448,11 @@ bool HTMLMediaElement::videoUsesElementFullscreen() const
     }
 #endif
 
+#if HAVE(AVEXPERIENCECONTROLLER)
+    if (document().settings().isAVExperienceControllerFullscreenEnabled())
+        return false;
+#endif
+
 #if PLATFORM(IOS_FAMILY)
     if (document().settings().videoFullscreenRequiresElementFullscreen())
         return true;

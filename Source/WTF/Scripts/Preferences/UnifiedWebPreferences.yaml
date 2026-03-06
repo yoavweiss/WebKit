@@ -85,6 +85,7 @@ AVExperienceControllerFullscreenEnabled:
   status: unstable
   category: media
   getter: isAVExperienceControllerFullscreenEnabled
+  webcoreGetter: isAVExperienceControllerFullscreenEnabled
   humanReadableName: "AVExperienceController Fullscreen"
   humanReadableDescription: "Enable fullscreen video via AVExperienceController"
   condition: HAVE(AVEXPERIENCECONTROLLER)

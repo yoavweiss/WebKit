@@ -1513,6 +1513,12 @@ std::optional<NowPlayingInfo> MediaElementSession::computeNowPlayingInfo() const
         sourceApplicationIdentifier = page->presentingApplicationBundleIdentifier();
 #endif
 
+    MediaPlayerEnums::VideoFullscreenMode fullscreenMode = MediaPlayerEnums::VideoFullscreenModeNone;
+#if HAVE(AVEXPERIENCECONTROLLER)
+    if (element->document().settings().isAVExperienceControllerFullscreenEnabled())
+        fullscreenMode = element->fullscreenMode();
+#endif
+
     NowPlayingInfo info {
         {
             element->mediaSessionTitle(),
@@ -1529,7 +1535,8 @@ std::optional<NowPlayingInfo> MediaElementSession::computeNowPlayingInfo() const
         element->mediaUniqueIdentifier(),
         isPlaying,
         allowsNowPlayingControlsVisibility,
-        element->isVideo()
+        element->isVideo(),
+        fullscreenMode
     };
 
     if (page->usesEphemeralSession() && !element->document().settings().allowPrivacySensitiveOperationsInNonPersistentDataStores()) {

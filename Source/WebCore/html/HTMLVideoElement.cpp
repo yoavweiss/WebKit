@@ -248,6 +248,11 @@ bool HTMLVideoElement::supportsFullscreen(HTMLMediaElementEnums::VideoFullscreen
     if (!player()->supportsFullscreen())
         return false;
 
+#if HAVE(AVEXPERIENCECONTROLLER)
+    if (document().settings().isAVExperienceControllerFullscreenEnabled())
+        return true;
+#endif
+
 #if ENABLE(FULLSCREEN_API)
 #if PLATFORM(IOS_FAMILY)
     // Fullscreen implemented by player.

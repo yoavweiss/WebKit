@@ -605,7 +605,8 @@ std::optional<NowPlayingInfo> AudioContext::nowPlayingInfo() const
         m_currentIdentifier,
         isPlaying(),
         !page->isVisibleAndActive(),
-        false
+        false,
+        MediaPlayerEnums::VideoFullscreenModeNone
     };
 
     if (page->usesEphemeralSession() && !document->settings().allowPrivacySensitiveOperationsInNonPersistentDataStores())
