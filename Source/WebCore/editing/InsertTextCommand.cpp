@@ -143,7 +143,7 @@ bool InsertTextCommand::applySmartListsIfNeeded()
     if (!selectionAllowsSmartLists(m_text, endingSelection()))
         return false;
 
-    auto lineStart = startOfLine(endingSelection().visibleBase());
+    auto lineStart = logicalStartOfLine(endingSelection().visibleBase());
     if (lineStart.isNull() || lineStart.isOrphan()) {
         ASSERT_NOT_REACHED();
         return false;
