@@ -112,6 +112,7 @@ public:
     RefPtr<WebsiteDataStore> replacedDataStoreForWebArchiveLoad() const { return m_replacedDataStoreForWebArchiveLoad; }
 
     bool isProcessSwappingOnNavigationResponse() const { return m_isProcessSwappingOnNavigationResponse; }
+    bool didFailProvisionalLoad() const { return m_didFailProvisionalLoad; }
 
     DrawingAreaProxy* drawingArea() const { return m_drawingArea.get(); }
     RefPtr<DrawingAreaProxy> takeDrawingArea();
@@ -226,6 +227,7 @@ private:
     bool m_needsDidStartProvisionalLoad { true };
     bool m_shouldClosePage { true };
     bool m_needsMainFrameObserver { false };
+    bool m_didFailProvisionalLoad { false };
     URL m_provisionalLoadURL;
     WebPageProxyMessageReceiverRegistration m_messageReceiverRegistration;
     RefPtr<API::WebsitePolicies> m_mainFrameWebsitePolicies;

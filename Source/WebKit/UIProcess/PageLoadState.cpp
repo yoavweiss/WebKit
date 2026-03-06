@@ -311,13 +311,14 @@ void PageLoadState::didFailProvisionalLoad(const Transaction::Token& token)
 void PageLoadState::didCommitLoad(const Transaction::Token& token, const WebCore::CertificateInfo& certificateInfo, bool hasInsecureContent, bool usedLegacyTLS, bool wasPrivateRelayed, const String& proxyName, const WebCore::ResourceResponseSource source, const WebCore::SecurityOriginData& origin)
 {
     ASSERT_UNUSED(token, &token.m_pageLoadState == this);
-    ASSERT(m_uncommittedState.state == State::Provisional);
+    // State might be set to Finished in didFailProvisionalLoad with content filter error,
+    // but the load might commit with replacement data from content fitler.
+    ASSERT(m_uncommittedState.state == State::Provisional || m_uncommittedState.state == State::Finished);
 
     m_uncommittedState.state = State::Committed;
     m_uncommittedState.hasInsecureContent = hasInsecureContent;
     m_uncommittedState.certificateInfo = certificateInfo;
 
-    ASSERT(!m_uncommittedState.provisionalURL.isNull());
     m_uncommittedState.url = m_uncommittedState.provisionalURL.isNull() ? aboutBlankURL().string() : std::exchange(m_uncommittedState.provisionalURL, { });
     m_uncommittedState.negotiatedLegacyTLS = usedLegacyTLS;
     m_uncommittedState.wasPrivateRelayed = wasPrivateRelayed;
