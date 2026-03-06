@@ -162,9 +162,10 @@ bool XMLDocumentParser::updateLeafTextNode()
     if (!m_leafTextNode)
         return true;
 
-    if (isXHTMLDocument())
-        protect(m_leafTextNode)->parserAppendData(String::fromUTF8(m_bufferedText.span()));
-    else {
+    if (isXHTMLDocument()) {
+        StringBuilder buffer;
+        protect(m_leafTextNode)->parserAppendData(String::fromUTF8(m_bufferedText.span()), buffer);
+    } else {
         // This operation might fire mutation event, see below.
         protect(m_leafTextNode)->appendData(String::fromUTF8(m_bufferedText.span()));
     }
