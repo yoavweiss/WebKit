@@ -84,13 +84,13 @@ private:
 
     bool isFirstFormattedLine() const { return lineBox().isFirstFormattedLine(); }
 
-    const LineBox& lineBox() const { return m_lineBox; }
+    const LineBox& lineBox() const LIFETIME_BOUND { return m_lineBox; }
     size_t lineIndex() const { return lineBox().lineIndex(); }
-    const ConstraintsForInlineContent& constraints() const { return m_constraints; }
+    const ConstraintsForInlineContent& constraints() const LIFETIME_BOUND { return m_constraints; }
     const ElementBox& root() const { return m_formattingContext.root(); }
-    const RenderStyle& rootStyle() const { return lineIndex() ? root().style() : root().firstLineStyle(); }
-    InlineFormattingContext& formattingContext() { return m_formattingContext; }
-    const InlineFormattingContext& formattingContext() const { return m_formattingContext; }
+    const RenderStyle& rootStyle() const LIFETIME_BOUND { return lineIndex() ? root().style() : root().firstLineStyle(); }
+    InlineFormattingContext& formattingContext() LIFETIME_BOUND { return m_formattingContext; }
+    const InlineFormattingContext& formattingContext() const LIFETIME_BOUND { return m_formattingContext; }
 
 private:
     InlineFormattingContext& m_formattingContext;

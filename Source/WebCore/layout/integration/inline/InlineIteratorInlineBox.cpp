@@ -43,9 +43,9 @@ RectEdges<bool> InlineBox::closedEdges() const
 {
     // FIXME: Layout knows the answer to this question so we should consult it.
     RectEdges<bool> closedEdges { true };
-    if (style().boxDecorationBreak() == BoxDecorationBreak::Clone)
+    if (style()->boxDecorationBreak() == BoxDecorationBreak::Clone)
         return closedEdges;
-    auto writingMode = style().writingMode();
+    auto writingMode = style()->writingMode();
     bool isFirst = !nextInlineBoxLineLeftward() && !renderer().isContinuation();
     bool isLast = !nextInlineBoxLineRightward() && !renderer().continuation();
     closedEdges.setStart(isFirst, writingMode);

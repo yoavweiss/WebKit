@@ -86,9 +86,9 @@ public:
 
     const ElementBox& root() const { return m_gridBox; }
 
-    const IntegrationUtils& integrationUtils() const { return m_integrationUtils; }
+    const IntegrationUtils& integrationUtils() const LIFETIME_BOUND { return m_integrationUtils; }
 
-    const BoxGeometry& geometryForGridItem(const ElementBox&) const;
+    const BoxGeometry& geometryForGridItem(const ElementBox&) const LIFETIME_BOUND;
 
     const Style::ZoomFactor zoomFactor() const { return m_gridBox->style().usedZoomForLength(); }
 
@@ -113,11 +113,11 @@ public:
 private:
     UnplacedGridItems constructUnplacedGridItems() const;
 
-    const LayoutState& layoutState() const { return m_globalLayoutState; }
-    BoxGeometry& geometryForGridItem(const ElementBox&);
+    const LayoutState& layoutState() const LIFETIME_BOUND { return m_globalLayoutState; }
+    BoxGeometry& geometryForGridItem(const ElementBox&) LIFETIME_BOUND;
     void setGridItemGeometries(const GridItemRects&);
 
-    const RenderStyle& gridContainerStyle() const { return m_gridBox->style(); }
+    const RenderStyle& gridContainerStyle() const LIFETIME_BOUND { return m_gridBox->style(); }
 
     const CheckedRef<const ElementBox> m_gridBox;
     const CheckedRef<LayoutState> m_globalLayoutState;

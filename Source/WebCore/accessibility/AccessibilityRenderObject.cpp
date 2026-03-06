@@ -1647,14 +1647,15 @@ AXTextRuns AccessibilityRenderObject::textRuns()
         if (text.isEmpty())
             return;
 
-        if (textBox->style().textTransform().contains(Style::TextTransformValue::FullSizeKana)) {
+        CheckedRef textBoxStyle = textBox->style();
+        if (textBoxStyle->textTransform().contains(Style::TextTransformValue::FullSizeKana)) {
             // We don't want to serve transformed kana text to AT since it is a visual affordance.
             // Using the original text from the renderer provides the untransformed string.
             text = textBox->renderer().originalText().substring(textBox->start(), textBox->length());
         }
 
-        bool collapseTabs = textBox->style().collapseWhiteSpace();
-        bool collapseNewlines = !textBox->style().preserveNewline();
+        bool collapseTabs = textBoxStyle->collapseWhiteSpace();
+        bool collapseNewlines = !textBoxStyle->preserveNewline();
 
         auto textRun = textBox->textRun(InlineIterator::TextRunMode::Editing);
         auto lineBox = textBox->lineBox();

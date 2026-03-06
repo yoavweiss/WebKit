@@ -53,9 +53,9 @@ private:
     };
     EnclosingLineGeometry collectEnclosingLineGeometry(const LineLayoutResult&, const LineBox&, const InlineRect& lineBoxRect) const;
 
-    const ConstraintsForInlineContent& constraints() const { return m_constraints; }
-    const InlineFormattingContext& formattingContext() const { return m_inlineFormattingContext; }
-    InlineFormattingContext& formattingContext() { return m_inlineFormattingContext; }
+    const ConstraintsForInlineContent& constraints() const LIFETIME_BOUND { return m_constraints; }
+    const InlineFormattingContext& formattingContext() const LIFETIME_BOUND { return m_inlineFormattingContext; }
+    InlineFormattingContext& formattingContext() LIFETIME_BOUND { return m_inlineFormattingContext; }
     const Box& root() const { return formattingContext().root(); }
 
 private:

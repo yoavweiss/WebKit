@@ -74,7 +74,7 @@ public:
 
     void setMarginOffset(LayoutSize offset) { ASSERT(!isInPlacedTree()); m_marginOffset = offset; }
 
-    const LayoutRect& frameRect() const { ASSERT(isPlaced()); return m_frameRect; }
+    const LayoutRect& frameRect() const LIFETIME_BOUND { ASSERT(isPlaced()); return m_frameRect; }
     void setFrameRect(const LayoutRect& frameRect) { ASSERT(!isInPlacedTree()); m_frameRect = frameRect; }
 
     LayoutUnit paginationStrut() const { return m_paginationStrut; }
@@ -164,7 +164,7 @@ public:
 
     bool hasLeftObjects() const { return m_leftObjectsCount > 0; }
     bool hasRightObjects() const { return m_rightObjectsCount > 0; }
-    const FloatingObjectSet& set() const { return m_set; }
+    const FloatingObjectSet& set() const LIFETIME_BOUND { return m_set; }
 
     LayoutUnit logicalLeftOffset(LayoutUnit fixedOffset, LayoutUnit logicalTop, LayoutUnit logicalHeight);
     LayoutUnit logicalRightOffset(LayoutUnit fixedOffset, LayoutUnit logicalTop, LayoutUnit logicalHeight);

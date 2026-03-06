@@ -109,8 +109,8 @@ public:
 
     void removeFromParent();
 
-    LegacyInlineBox* nextOnLine() const { return m_nextOnLine; }
-    LegacyInlineBox* previousOnLine() const { return m_previousOnLine; }
+    LegacyInlineBox* nextOnLine() const LIFETIME_BOUND { return m_nextOnLine; }
+    LegacyInlineBox* previousOnLine() const LIFETIME_BOUND { return m_previousOnLine; }
     void setNextOnLine(LegacyInlineBox* next)
     {
         ASSERT(m_parent || !next);
@@ -126,13 +126,13 @@ public:
 
     virtual bool isLeaf() const { return true; }
     
-    LegacyInlineBox* nextLeafOnLine() const;
-    LegacyInlineBox* previousLeafOnLine() const;
+    LegacyInlineBox* nextLeafOnLine() const LIFETIME_BOUND;
+    LegacyInlineBox* previousLeafOnLine() const LIFETIME_BOUND;
 
     // FIXME: Hide this once all callers are using tighter types.
     RenderObject& renderer() const { return *m_renderer; }
 
-    LegacyInlineFlowBox* parent() const
+    LegacyInlineFlowBox* parent() const LIFETIME_BOUND
     {
         assertNotDeleted();
         ASSERT_WITH_SECURITY_IMPLICATION(!m_hasBadParent);
@@ -153,7 +153,7 @@ public:
     float y() const { return m_topLeft.y(); }
     float top() const { return m_topLeft.y(); }
 
-    const FloatPoint& topLeft() const { return m_topLeft; }
+    const FloatPoint& topLeft() const LIFETIME_BOUND { return m_topLeft; }
 
     float width() const { return isHorizontal() ? logicalWidth() : logicalHeight(); }
     float height() const { return isHorizontal() ? logicalHeight() : logicalWidth(); }
@@ -215,9 +215,9 @@ public:
     void invalidateParentChildList();
 #endif
 
-    const RenderStyle& lineStyle() const;
+    CheckedRef<const RenderStyle> lineStyle() const;
     
-    const Style::VerticalAlign& verticalAlign() const { return lineStyle().verticalAlign(); }
+    const Style::VerticalAlign& verticalAlign() const LIFETIME_BOUND { return lineStyle()->verticalAlign(); }
 
     // Use with caution! The type is not checked!
     RenderBoxModelObject* boxModelObject() const

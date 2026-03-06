@@ -759,7 +759,7 @@ static inline Style::TextDecorationLine computedTextDecorationType(const RenderS
     return textDecorations;
 }
 
-static inline const RenderStyle& decoratingBoxStyleForInlineBox(const InlineIterator::InlineBox& inlineBox, bool isFirstLine)
+static inline CheckedRef<const RenderStyle> decoratingBoxStyleForInlineBox(const InlineIterator::InlineBox& inlineBox, bool isFirstLine)
 {
     if (!inlineBox.isRootInlineBox())
         return inlineBox.style();
@@ -807,10 +807,10 @@ void TextBoxPainter::collectDecoratingBoxesForBackgroundPainting(DecoratingBoxLi
 
     enum UseOverriderDecorationStyle : bool { No, Yes };
     auto appendIfIsDecoratingBoxForBackground = [&] (auto& inlineBox, auto useOverriderDecorationStyle) {
-        auto& style = decoratingBoxStyleForInlineBox(*inlineBox, m_isFirstLine);
+        CheckedRef style = decoratingBoxStyleForInlineBox(*inlineBox, m_isFirstLine);
 
         auto computedDecorationStyle = [&] {
-            return TextDecorationPainter::stylesForRenderer(inlineBox->renderer(), style.textDecorationLineInEffect(), m_isFirstLine);
+            return TextDecorationPainter::stylesForRenderer(inlineBox->renderer(), style->textDecorationLineInEffect(), m_isFirstLine);
         };
         if (!isDecoratingBoxForBackground(*inlineBox, style)) {
             // Some cases even non-decoration boxes may have some decoration pieces coming from the marked text (e.g. highlight).
@@ -896,7 +896,7 @@ void TextBoxPainter::paintBackgroundDecorations(TextDecorationPainter& decoratio
         m_paintInfo.context().concatCTM(rotation(m_paintRect, RotationDirection::Counterclockwise));
 }
 
-static const RenderStyle& decoratingBoxStyle(const InlineIterator::TextBoxIterator& textBox)
+static CheckedRef<const RenderStyle> decoratingBoxStyle(const InlineIterator::TextBoxIterator& textBox)
 {
     if (auto parentInlineBox = textBox->parentInlineBox())
         return parentInlineBox->style();
@@ -907,9 +907,9 @@ static const RenderStyle& decoratingBoxStyle(const InlineIterator::TextBoxIterat
 void TextBoxPainter::paintForegroundDecorations(TextDecorationPainter& decorationPainter, const StyledMarkedText& markedText, const FloatRect& textBoxPaintRect)
 {
     auto textBox = makeIterator();
-    auto& styleForDecoration = decoratingBoxStyle(textBox);
+    CheckedRef styleForDecoration = decoratingBoxStyle(textBox);
     auto computedTextDecorationType = [&] {
-        auto textDecorations = styleForDecoration.textDecorationLineInEffect();
+        auto textDecorations = styleForDecoration->textDecorationLineInEffect();
         textDecorations.addOrReplaceIfNotNone(TextDecorationPainter::textDecorationsInEffectForStyle(markedText.style.textDecorationStyles));
         return textDecorations;
     }();
@@ -927,7 +927,7 @@ void TextBoxPainter::paintForegroundDecorations(TextDecorationPainter& decoratio
         , textBoxPaintRect.width()
         , textDecorationThickness
         , linethroughCenter
-        , wavyStrokeParameters(styleForDecoration.computedFontSize()) }, markedText.style.textDecorationStyles);
+        , wavyStrokeParameters(styleForDecoration->computedFontSize()) }, markedText.style.textDecorationStyles);
 
     if (m_isCombinedText)
         m_paintInfo.context().concatCTM(rotation(m_paintRect, RotationDirection::Counterclockwise));

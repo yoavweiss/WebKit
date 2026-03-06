@@ -189,7 +189,7 @@ static bool isNewLineAtPosition(const Position& position)
     return textNode->data()[offset] == '\n';
 }
 
-const RenderStyle* ApplyBlockElementCommand::renderStyleOfEnclosingTextNode(const Position& position)
+CheckedPtr<const RenderStyle> ApplyBlockElementCommand::renderStyleOfEnclosingTextNode(const Position& position)
 {
     RefPtr node = position.containerNode();
     if (position.anchorType() != Position::PositionIsOffsetInAnchor || !node || !node->isTextNode())

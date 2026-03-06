@@ -93,7 +93,8 @@ static LayoutUnit snapToInt(LayoutUnit value, const RenderObject& renderer, Snap
 
 static float ascent(const RenderObject& renderer)
 {
-    auto& fontMetrics = renderer.firstLineStyle().metricsOfPrimaryFont();
+    CheckedRef style = renderer.firstLineStyle();
+    auto& fontMetrics = style->metricsOfPrimaryFont();
     return renderer.settings().subpixelInlineLayoutEnabled() ? fontMetrics.ascent() : fontMetrics.intAscent();
 }
 

@@ -145,7 +145,8 @@ void GridLayout::updateGridItemRenderers()
 {
     for (CheckedRef layoutBox : formattingContextBoxes(gridBox())) {
         CheckedRef renderer = downcast<RenderBox>(*layoutBox->rendererForIntegration());
-        auto& gridItemGeometry = CheckedRef { layoutState() }->geometryForBox(layoutBox);
+        CheckedRef layoutState = this->layoutState();
+        auto& gridItemGeometry = layoutState->geometryForBox(layoutBox);
         auto borderBoxRect = Layout::BoxGeometry::borderBoxRect(gridItemGeometry);
 
         renderer->setLocation(borderBoxRect.topLeft());

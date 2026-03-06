@@ -293,7 +293,7 @@ public:
     void markAllDescendantsWithFloatsForLayout(RenderBox* floatToRemove = nullptr, bool inLayout = true);
     void markSiblingsWithFloatsForLayout(RenderBox* floatToRemove = nullptr);
 
-    const FloatingObjectSet* floatingObjectSet() const { return m_floatingObjects ? &m_floatingObjects->set() : nullptr; }
+    const FloatingObjectSet* floatingObjectSet() const LIFETIME_BOUND { return m_floatingObjects ? &m_floatingObjects->set() : nullptr; }
 
     FloatingObject& insertFloatingBox(RenderBox&);
 
@@ -561,8 +561,8 @@ public:
     bool relayoutForPagination();
 
     bool hasRareBlockFlowData() const { return m_rareBlockFlowData.get(); }
-    RenderBlockFlowRareData* rareBlockFlowData() const { ASSERT_WITH_SECURITY_IMPLICATION(hasRareBlockFlowData()); return m_rareBlockFlowData.get(); }
-    RenderBlockFlowRareData& ensureRareBlockFlowData();
+    RenderBlockFlowRareData* rareBlockFlowData() const LIFETIME_BOUND { ASSERT_WITH_SECURITY_IMPLICATION(hasRareBlockFlowData()); return m_rareBlockFlowData.get(); }
+    RenderBlockFlowRareData& ensureRareBlockFlowData() LIFETIME_BOUND;
     void materializeRareBlockFlowData();
 
 #if ENABLE(TEXT_AUTOSIZING)

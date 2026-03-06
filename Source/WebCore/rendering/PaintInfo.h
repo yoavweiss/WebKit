@@ -69,7 +69,7 @@ struct PaintInfo {
     {
     }
 
-    GraphicsContext& context() const
+    GraphicsContext& context() const LIFETIME_BOUND
     {
         ASSERT(m_context);
         return *m_context;

@@ -67,7 +67,7 @@ public:
     bool NODELETE isHorizontalFlow() const;
     Direction NODELETE crossAxisDirection() const;
 
-    const OrderIterator& orderIterator() const { return m_orderIterator; }
+    const OrderIterator& orderIterator() const LIFETIME_BOUND { return m_orderIterator; }
 
     LayoutOptionalOutsets allowedLayoutOverflow() const override;
 
@@ -119,7 +119,7 @@ private:
         LayoutUnit NODELETE hypotheticalMainAxisMarginBoxSize() const;
         LayoutUnit NODELETE flexBaseMarginBoxSize() const;
         LayoutUnit NODELETE flexedMarginBoxSize() const;
-        const RenderStyle& NODELETE style() const;
+        const RenderStyle& NODELETE style() const LIFETIME_BOUND;
         LayoutUnit constrainSizeByMinMax(const LayoutUnit size) const;
 
         CheckedRef<RenderBox> renderer;
@@ -153,12 +153,12 @@ private:
     bool NODELETE isLeftToRightFlow() const;
     bool NODELETE isMultiline() const;
     Style::FlexBasis flexBasisForFlexItem(const RenderBox& flexItem) const;
-    const Style::PreferredSize& NODELETE preferredMainSizeLengthForFlexItem(const RenderBox&) const;
-    const Style::MinimumSize& NODELETE minMainSizeLengthForFlexItem(const RenderBox&) const;
-    const Style::MaximumSize& NODELETE maxMainSizeLengthForFlexItem(const RenderBox&) const;
-    const Style::PreferredSize& NODELETE preferredCrossSizeLengthForFlexItem(const RenderBox&) const;
-    const Style::MinimumSize& NODELETE minCrossSizeLengthForFlexItem(const RenderBox&) const;
-    const Style::MaximumSize& NODELETE maxCrossSizeLengthForFlexItem(const RenderBox&) const;
+    const Style::PreferredSize& NODELETE preferredMainSizeLengthForFlexItem(const RenderBox&) const LIFETIME_BOUND;
+    const Style::MinimumSize& NODELETE minMainSizeLengthForFlexItem(const RenderBox&) const LIFETIME_BOUND;
+    const Style::MaximumSize& NODELETE maxMainSizeLengthForFlexItem(const RenderBox&) const LIFETIME_BOUND;
+    const Style::PreferredSize& NODELETE preferredCrossSizeLengthForFlexItem(const RenderBox&) const LIFETIME_BOUND;
+    const Style::MinimumSize& NODELETE minCrossSizeLengthForFlexItem(const RenderBox&) const LIFETIME_BOUND;
+    const Style::MaximumSize& NODELETE maxCrossSizeLengthForFlexItem(const RenderBox&) const LIFETIME_BOUND;
     bool shouldApplyMinSizeAutoForFlexItem(const RenderBox&) const;
     LayoutUnit NODELETE crossAxisExtentForFlexItem(const RenderBox& flexItem) const;
     LayoutUnit crossAxisIntrinsicExtentForFlexItem(RenderBox& flexItem);
