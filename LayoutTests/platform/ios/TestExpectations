@@ -5658,7 +5658,6 @@ fast/visual-viewport/ios/bottom-bar-with-keyboard.html [ Skip ]
 fast/visual-viewport/ios/fixed-element-on-bottom-with-keyboard.html [ Skip ]
 fast/visual-viewport/ios/zoomed-focus-in-fixed.html [ Skip ]
 http/tests/navigation/ping-attribute [ Skip ]
-http/tests/site-isolation/mixedContent/anchor-cross-origin-from-https-UpgradeMixedContent.html [ Skip ]
 
 # Uses WK1 TestRunner.setUseDeferredFramLoading
 webkit.org/b/153050 http/tests/security/cross-frame-access-custom.html [ Pass Failure ]
@@ -8473,8 +8472,6 @@ webkit.org/b/307582 compositing/overflow/rtl-scrollbar-layer-positioning.html [ 
 webkit.org/b/307889 http/tests/multipart/multipart-async-image.html [ Pass Failure ]
 
 imported/w3c/web-platform-tests/css/cssom-view/smooth-scrollIntoView-with-unrelated-gesture-scroll.html [ Skip ]
-
-webkit.org/b/308243 [ Release ] http/tests/site-isolation/mixedContent/redirect-https-to-http-iframe-in-main-frame.html [ Pass Failure ]
 
 imported/w3c/web-platform-tests/css/css-highlight-api/highlight-text-across-elements.html [ ImageOnlyFailure ]
 
