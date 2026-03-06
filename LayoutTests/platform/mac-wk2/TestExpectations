@@ -1685,6 +1685,7 @@ http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/textureLoad.h
 http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/transpose.html [ Skip ]
 http/tests/webgpu/webgpu/shader/execution/expression/access/vector/components.html [ Skip ]
 http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/refract.html [ Skip ]
+http/tests/webgpu/webgpu/shader/validation/functions/alias_analysis.html [ Skip ]
 
 # test output is out of order
 http/tests/webgpu/webgpu/shader/validation/decl/context_dependent_resolution.html [ Skip ]
