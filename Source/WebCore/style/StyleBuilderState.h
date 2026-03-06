@@ -151,6 +151,7 @@ public:
     const CSSToLengthConversionData& cssToLengthConversionData() const { return m_cssToLengthConversionData; }
 
     void setIsBuildingKeyframeStyle() { m_isBuildingKeyframeStyle = true; }
+    bool hasRevertRuleOrLayerInKeyframeStyle() const { return m_hasRevertRuleOrLayerInKeyframeStyle; }
 
     bool isAuthorOrigin() const
     {
@@ -261,6 +262,7 @@ private:
     Vector<AtomString> m_registeredContentAttributes;
 
     bool m_isBuildingKeyframeStyle { false };
+    bool m_hasRevertRuleOrLayerInKeyframeStyle { false };
 };
 
 } // namespace Style

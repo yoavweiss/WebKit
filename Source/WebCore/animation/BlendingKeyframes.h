@@ -93,6 +93,8 @@ public:
 
     bool containsDirectionAwareProperty() const { return m_containsDirectionAwareProperty; }
     void setContainsDirectionAwareProperty(bool containsDirectionAwareProperty) { m_containsDirectionAwareProperty = containsDirectionAwareProperty; }
+    bool hasPropertiesWithRevertRuleOrLayer() const { return m_hasPropertiesWithRevertRuleOrLayer; }
+    void setHasPropertiesWithRevertRuleOrLayer(bool value) { m_hasPropertiesWithRevertRuleOrLayer = value; }
 
 private:
     Offset m_specifiedOffset;
@@ -102,6 +104,7 @@ private:
     RefPtr<TimingFunction> m_timingFunction;
     std::optional<CompositeOperation> m_compositeOperation;
     bool m_containsDirectionAwareProperty { false };
+    bool m_hasPropertiesWithRevertRuleOrLayer { false };
 };
 
 using KeyframesIdentifier = Variant<AtomString, uint64_t>;
@@ -151,6 +154,7 @@ public:
     bool hasColorSetToCurrentColor() const;
     bool NODELETE hasPropertySetToCurrentColor() const;
     const HashSet<AnimatableCSSProperty>& NODELETE propertiesSetToInherit() const;
+    bool hasPropertiesWithRevertRuleOrLayer() const { return m_hasPropertiesWithRevertRuleOrLayer; }
 
     void updatePropertiesMetadata(const StyleProperties&);
 
@@ -185,6 +189,7 @@ private:
     bool m_hasDiscreteTransformInterval { false };
     bool m_hasExplicitlyInheritedKeyframeProperty { false };
     bool m_hasKeyframeNotUsingRangeOffset { false };
+    bool m_hasPropertiesWithRevertRuleOrLayer { false };
 };
 
 } // namespace WebCore

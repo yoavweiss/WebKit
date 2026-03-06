@@ -442,6 +442,8 @@ std::unique_ptr<RenderStyle> Resolver::styleForKeyframe(Element& element, const 
     Adjuster adjuster(document(), *state.parentStyle(), nullptr, !pseudoElementIdentifier ? &element : nullptr);
     adjuster.adjust(*state.style());
 
+    blendingKeyframe.setHasPropertiesWithRevertRuleOrLayer(builder.state().hasRevertRuleOrLayerInKeyframeStyle());
+
     return state.takeStyle();
 }
 

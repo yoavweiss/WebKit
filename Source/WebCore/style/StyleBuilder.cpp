@@ -375,8 +375,10 @@ void Builder::applyProperty(CSSPropertyID id, CSSValue& value, SelectorChecker::
     if (isAnyRevert) {
         // In @keyframes, 'revert-layer' and 'revert-rule' roll back the cascaded value to the author level.
         // We can just not apply the property in order to keep the value from the base style.
-        if ((isRevertLayer || isRevertRule) && m_state->m_isBuildingKeyframeStyle)
+        if ((isRevertLayer || isRevertRule) && m_state->m_isBuildingKeyframeStyle) {
+            m_state->m_hasRevertRuleOrLayerInKeyframeStyle = true;
             return;
+        }
 
         auto* rollbackCascade = [&] -> const PropertyCascade* {
             if (isRevert)
@@ -524,8 +526,10 @@ void Builder::applyCustomProperty(const AtomString& name, Variant<Ref<const Styl
             if (isAnyRevert) {
                 // In @keyframes, 'revert-layer' and 'revert-rule' roll back the cascaded value to the author level.
                 // We can just not apply the property in order to keep the value from the base style.
-                if ((isRevertLayer || isRevertRule) && m_state->m_isBuildingKeyframeStyle)
+                if ((isRevertLayer || isRevertRule) && m_state->m_isBuildingKeyframeStyle) {
+                    m_state->m_hasRevertRuleOrLayerInKeyframeStyle = true;
                     return;
+                }
 
                 auto* rollbackCascade = [&] -> const PropertyCascade* {
                     if (isRevert)
