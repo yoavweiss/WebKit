@@ -266,16 +266,27 @@ void ExtensionCapabilityGranter::setMediaCapabilityActive(MediaCapability& capab
 
     invokeAsync(protect(granterQueue()), [platformCapability = capability.platformCapability(), platformMediaEnvironment = RetainPtr { capability.platformMediaEnvironment() }, isActive] {
 #if USE(EXTENSIONKIT)
+
+#if HAVE(SCREEN_CAPTURE_KIT)
+#define PLATFORM_AGENT platformCapability
+#else
+#define PLATFORM_AGENT platformMediaEnvironment
+#endif
+
         NSError *error = nil;
         if (isActive)
-            [platformMediaEnvironment activateWithError:&error];
+            [PLATFORM_AGENT activateWithError:&error];
         else
-            [platformMediaEnvironment suspendWithError:&error];
-        if (error)
-            RELEASE_LOG_ERROR(ProcessCapabilities, "%{public}s failed with error: %{public}@", __FUNCTION__, error);
-        else
+            [PLATFORM_AGENT suspendWithError:&error];
+
+#undef PLATFORM_AGENT
+
+        if (!error)
             return ExtensionCapabilityActivationPromise::createAndResolve();
+
+        RELEASE_LOG_ERROR(ProcessCapabilities, "%{public}s failed with error: %{public}@", __FUNCTION__, error);
 #endif
+
         return ExtensionCapabilityActivationPromise::createAndReject(ExtensionCapabilityGrantError::PlatformError);
     })->whenSettled(RunLoop::mainSingleton(), [weakCapability = WeakPtr { capability }, isActive](auto&& result) {
         RefPtr capability = weakCapability.get();
