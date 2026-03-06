@@ -2449,6 +2449,8 @@ webkit.org/b/306808 http/tests/webgpu/webgpu/shader/validation/parse/blankspace.
 
 webkit.org/b/306821 [ Tahoe ] fast/css-grid-layout/grid-item-display.html [ Pass Failure ]
 
+webkit.org/b/306380 [ Release arm64 ] imported/w3c/web-platform-tests/media-source/mediasource-config-change-webm-av-audio-bitrate.html [ Pass Failure ]
+
 webkit.org/b/307084 [ Tahoe Release ] webgl/smell-test.html [ ImageOnlyFailure Pass ]
 webkit.org/b/307088 [ Tahoe Release ] webgl/webgl-and-dom-in-gpup.html [ ImageOnlyFailure Pass ]
 
@@ -2506,4 +2508,3 @@ tiled-drawing/mac/margin-tiles-with-banner-view-overlay-repeat-x.html [ Skip ]
 tiled-drawing/mac/margin-tiles-with-banner-view-overlay-repeat-y.html [ Skip ]
 
 webkit.org/b/308856 [ Debug ] http/tests/websocket/tests/hybi/handshake-ok-with-legacy-websocket-response-headers.html [ Failure Pass ]
-
