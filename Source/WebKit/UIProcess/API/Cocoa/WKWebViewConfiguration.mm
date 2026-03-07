@@ -931,7 +931,7 @@ static NSString *defaultApplicationNameForUserAgent()
 
 - (void)_setClickInteractionDriverForTesting:(id<_UIClickInteractionDriving>)driver
 {
-    _pageConfiguration->setClickInteractionDriverForTesting((NSObject<_UIClickInteractionDriving> *)driver);
+    protect(_pageConfiguration.get())->setClickInteractionDriverForTesting((NSObject<_UIClickInteractionDriving> *)driver);
 }
 
 - (id <_UIClickInteractionDriving>)_clickInteractionDriverForTesting

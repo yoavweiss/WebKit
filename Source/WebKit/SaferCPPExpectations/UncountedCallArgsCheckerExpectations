@@ -1,7 +1,3 @@
-[ iOS ] UIProcess/API/Cocoa/WKContextMenuElementInfo.mm
-[ iOS ] UIProcess/API/Cocoa/WKWebViewConfiguration.mm
-[ iOS ] UIProcess/ios/ViewGestureControllerIOS.mm
-[ iOS ] WebProcess/WebPage/Cocoa/WebPageCocoa.mm
 WebProcess/Extensions/API/Cocoa/WebExtensionAPIActionCocoa.mm
 WebProcess/Extensions/API/Cocoa/WebExtensionAPIDeclarativeNetRequestCocoa.mm
 WebProcess/Extensions/API/Cocoa/WebExtensionAPIRuntimeCocoa.mm

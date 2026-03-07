@@ -2986,7 +2986,7 @@ Awaitable<std::optional<WebCore::FrameIdentifier>> WebPage::commitPotentialTap(s
             constexpr OptionSet hitType { HitTestRequest::Type::ReadOnly, HitTestRequest::Type::Active, HitTestRequest::Type::AllowVisibleChildFrameContentOnly };
             auto roundedPoint = IntPoint { m_potentialTapLocation };
             auto result = localRootFrame->eventHandler().hitTestResultAtPoint(roundedPoint, hitType);
-            localRootFrame->eventHandler().setLastTouchedNode(result.innerNode());
+            localRootFrame->eventHandler().setLastTouchedNode(protect(result.innerNode()));
         }
 #endif
 
