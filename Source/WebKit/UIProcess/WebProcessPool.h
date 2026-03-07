@@ -273,7 +273,7 @@ public:
     DisplayLinkCollection& displayLinks() LIFETIME_BOUND { return m_displayLinks; }
 #endif
 
-    void NODELETE addSupportedPlugin(String&& matchingDomain, String&& name, HashSet<String>&& mimeTypes, HashSet<String> extensions);
+    void addSupportedPlugin(String&& matchingDomain, String&& name, HashSet<String>&& mimeTypes, HashSet<String> extensions);
     void NODELETE clearSupportedPlugins();
 
     HashSet<ProcessID> prewarmedProcessIdentifiers();

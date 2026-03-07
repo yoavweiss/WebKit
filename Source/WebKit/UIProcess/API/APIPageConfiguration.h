@@ -127,7 +127,7 @@ public:
     };
     const std::optional<OpenerInfo>& NODELETE openerInfo() const;
     void setOpenerInfo(std::optional<OpenerInfo>&&);
-    void NODELETE consumeOpenerInfo();
+    void consumeOpenerInfo();
 
     const WebCore::Site& NODELETE openedSite() const;
     void setOpenedSite(const WebCore::Site&);

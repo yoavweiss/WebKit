@@ -1118,7 +1118,7 @@ public:
     void setHasModelElement(bool);
 #endif
 
-    void NODELETE setPrivateClickMeasurement(std::nullopt_t);
+    void setPrivateClickMeasurement(std::nullopt_t);
     void setPrivateClickMeasurement(WebCore::PrivateClickMeasurement&&);
     void setPrivateClickMeasurement(WebCore::PrivateClickMeasurement&&, String sourceDescription, String purchaser);
     void setPrivateClickMeasurementImmediately(WebCore::PrivateClickMeasurement&&);
