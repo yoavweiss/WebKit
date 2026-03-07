@@ -8,7 +8,6 @@ Modules/mediastream/RTCPeerConnection.cpp
 Modules/mediastream/RTCRtpSender.cpp
 Modules/push-api/PushDatabase.cpp
 Modules/webaudio/OfflineAudioDestinationNode.cpp
-Modules/webauthn/AuthenticationExtensionsClientOutputs.cpp
 Modules/webcodecs/WebCodecsAudioDecoder.cpp
 Modules/webcodecs/WebCodecsAudioEncoder.cpp
 Modules/webcodecs/WebCodecsBase.cpp

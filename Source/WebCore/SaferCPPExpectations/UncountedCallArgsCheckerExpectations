@@ -44,6 +44,7 @@ Modules/webaudio/OfflineAudioDestinationNode.cpp
 Modules/webaudio/OscillatorNode.cpp
 Modules/webaudio/PannerNode.cpp
 Modules/webaudio/ScriptProcessorNode.cpp
+Modules/webauthn/AuthenticationExtensionsClientOutputs.cpp
 Modules/webauthn/AuthenticatorResponse.cpp
 Modules/webcodecs/WebCodecsAudioData.cpp
 Modules/webcodecs/WebCodecsAudioInternalData.h
