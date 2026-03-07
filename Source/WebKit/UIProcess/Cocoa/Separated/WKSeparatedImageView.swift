@@ -133,9 +133,7 @@ extension WKSeparatedImageView {
             return
         }
         Task {
-            // The compiler can't guarantee (yet) this closure won't be called multiple times.
-            nonisolated(unsafe) let captured = surface
-            await processSurface(captured)
+            await processSurface(surface)
         }
     }
 
@@ -174,10 +172,9 @@ extension WKSeparatedImageView: WKObservingLayerDelegate {
     }
 }
 
-@objc
-protocol WKObservingLayerDelegate {
-    nonisolated func layerSeparatedDidChange()
-    nonisolated func layerWasCleared()
+protocol WKObservingLayerDelegate: AnyObject {
+    func layerSeparatedDidChange()
+    func layerWasCleared()
 }
 
 class WKObservingLayer: CALayer {
