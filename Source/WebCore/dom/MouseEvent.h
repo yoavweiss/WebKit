@@ -71,7 +71,7 @@ public:
         OptionSet<Modifier>,
         MouseButton,
         unsigned short buttons,
-        EventTarget* relatedTarget,
+        RefPtr<EventTarget>&& relatedTarget,
         double force,
         SyntheticClickType,
         const Vector<Ref<MouseEvent>>& coalescedEvents,
@@ -107,7 +107,7 @@ public:
         MouseButton,
         unsigned short buttons,
         SyntheticClickType,
-        EventTarget* relatedTarget
+        RefPtr<EventTarget>&& relatedTarget
     );
 
     static Ref<MouseEvent> createForBindings();
@@ -135,7 +135,7 @@ public:
         bool shiftKey,
         bool metaKey,
         int16_t button,
-        EventTarget* relatedTarget
+        RefPtr<EventTarget>&& relatedTarget
     );
 
     const std::optional<MouseEventInputSource>& inputSource() const { return m_inputSource; }
@@ -177,7 +177,7 @@ protected:
         OptionSet<Modifier>,
         MouseButton,
         unsigned short buttons,
-        EventTarget* relatedTarget,
+        RefPtr<EventTarget>&& relatedTarget,
         double force,
         SyntheticClickType,
         const Vector<Ref<MouseEvent>>& coalescedEvents,
@@ -204,7 +204,7 @@ protected:
         MouseButton,
         unsigned short buttons,
         SyntheticClickType,
-        EventTarget* relatedTarget
+        RefPtr<EventTarget>&& relatedTarget
     );
 
     MouseEvent(enum EventInterfaceType, const AtomString& type, const MouseEventInit&, IsTrusted);
