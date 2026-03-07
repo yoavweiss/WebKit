@@ -27,7 +27,7 @@
 @_weakLinked @_spi(UsdLoaderAPI) internal import _USDKit_RealityKit
 @_spi(RealityCoreRendererAPI) import RealityKit
 
-nonisolated func makeParameters(
+func makeParameters(
     for function: any _Proto_LowLevelMaterialResource_v1.Function,
     renderContext: any _Proto_LowLevelRenderContext_v1,
     buffers: [_Proto_LowLevelBufferSpan_v1] = [],
@@ -43,7 +43,7 @@ nonisolated func makeParameters(
     )
 }
 
-nonisolated func makeParameters(
+func makeParameters(
     for material: _Proto_LowLevelMaterialResource_v1,
     renderContext: any _Proto_LowLevelRenderContext_v1,
     geometryBuffers: [_Proto_LowLevelBufferSpan_v1] = [],

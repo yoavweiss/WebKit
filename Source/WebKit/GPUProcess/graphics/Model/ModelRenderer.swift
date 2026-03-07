@@ -35,7 +35,7 @@ internal struct CameraTransform {
     var scale: simd_float3
 }
 
-nonisolated class Renderer {
+class Renderer {
     let device: any MTLDevice
     let commandQueue: any MTLCommandQueue
     var renderContext: (any _Proto_LowLevelRenderContext_v1)?

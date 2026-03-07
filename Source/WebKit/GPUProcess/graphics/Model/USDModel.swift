@@ -707,9 +707,6 @@ extension WKBridgeReceiver {
                         for partIndex in 0..<partCount {
                             // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
                             // swift-format-ignore: NeverForceUnwrap
-                            let meshInstance = meshToMeshInstances[identifier]![instanceIndex * data.parts.count + partIndex]
-                            // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
-                            // swift-format-ignore: NeverForceUnwrap
                             meshTransforms[identifier]![instanceIndex * data.parts.count + partIndex] = instanceTransform
                         }
                     }
@@ -863,7 +860,7 @@ private func webUpdateMeshRequestFromUpdateMeshRequest(
     )
 }
 
-nonisolated func webUpdateMaterialRequestFromUpdateMaterialRequest(
+func webUpdateMaterialRequestFromUpdateMaterialRequest(
     _ request: _Proto_MaterialDataUpdate_v1
 ) -> WKBridgeUpdateMaterial {
     WKBridgeUpdateMaterial(
@@ -910,7 +907,6 @@ final class USDModelLoader: _Proto_UsdStageSession_v1.Delegate {
     }
 
     func meshUpdated(data: consuming sending _Proto_MeshDataUpdate_v1) {
-        let identifier = data.identifier
         self.dispatchSerialQueue.async {
             self.objcLoader.updateMesh(webRequest: webUpdateMeshRequestFromUpdateMeshRequest(data))
         }
@@ -921,7 +917,6 @@ final class USDModelLoader: _Proto_UsdStageSession_v1.Delegate {
     }
 
     func materialUpdated(data: consuming sending _Proto_MaterialDataUpdate_v1) {
-        let identifier = data.identifier
         self.dispatchSerialQueue.async {
             self.objcLoader.updateMaterial(webRequest: webUpdateMaterialRequestFromUpdateMaterialRequest(data))
         }
@@ -932,7 +927,6 @@ final class USDModelLoader: _Proto_UsdStageSession_v1.Delegate {
     }
 
     func textureUpdated(data: consuming sending _Proto_TextureDataUpdate_v1) {
-        let identifier = data.identifier
         self.dispatchSerialQueue.async {
             self.objcLoader.updateTexture(webRequest: webUpdateTextureRequestFromUpdateTextureRequest(data))
         }
