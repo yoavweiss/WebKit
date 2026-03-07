@@ -51,6 +51,10 @@
 #import <wtf/cocoa/RuntimeApplicationChecksCocoa.h>
 #import <wtf/darwin/DispatchExtras.h>
 
+#if HAVE(AVEXPERIENCECONTROLLER)
+#import <WebKitAdditions/MediaSessionManagerCocoaAdditions.h>
+#endif
+
 #import "MediaRemoteSoftLink.h"
 #include <pal/cocoa/AVFoundationSoftLink.h>
 
@@ -787,6 +791,13 @@ void MediaSessionManagerCocoa::updateNowPlayingSuppression(const NowPlayingInfo*
     if (!nowPlayingInfo || !nowPlayingInfo->isVideo || nowPlayingInfo->fullscreenMode == MediaPlayerEnums::VideoFullscreenModeStandard) {
         RELEASE_LOG(Media, "MediaSessionManagerCocoa::updateNowPlayingSuppression: clearing suppressPresentationOverBundleIdentifiers (hasNowPlayingInfo=%d, isVideo=%d, fullscreenMode=%d)", !!nowPlayingInfo, nowPlayingInfo && nowPlayingInfo->isVideo, nowPlayingInfo && nowPlayingInfo->fullscreenMode);
         [nowPlayingActivityController() suppressPresentationOverBundleIdentifiers:nil];
+
+#if HAVE(AVEXPERIENCECONTROLLER)
+        if (nowPlayingInfo->fullscreenMode == MediaPlayerEnums::VideoFullscreenModeStandard) {
+            RELEASE_LOG(Media, "MediaSessionManagerCocoa::updateNowPlayingSuppression: taking Now Playing assertion");
+            [nowPlayingActivityController() acquireNowPlayingActivityAssertionForRouteIdentifier:MRNowPlayingActivityActiveRouteIdentifier withDuration:MRNowPlayingActivityUIDurationBrief preferredState:MRNowPlayingActivityUIStateUnsuppressed];
+        }
+#endif
     } else {
         RetainPtr parentApplicationBundleIdentifier = applicationBundleIdentifier().createNSString();
         RetainPtr presentingApplicationBundleIdentifier = nowPlayingInfo->metadata.sourceApplicationIdentifier.createNSString();
