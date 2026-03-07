@@ -59,7 +59,7 @@ extension _USDKit_RealityKit._Proto_DeformationData_v1.SkinningData {
 }
 
 extension MTLCaptureDescriptor {
-    fileprivate convenience init(from device: MTLDevice?) {
+    fileprivate convenience init(from device: (any MTLDevice)?) {
         self.init()
 
         captureObject = device
@@ -76,11 +76,11 @@ extension MTLCaptureDescriptor {
 
 private func makeMTLTextureFromImageAsset(
     _ imageAsset: WKBridgeImageAsset,
-    device: MTLDevice,
+    device: any MTLDevice,
     generateMips: Bool,
     memoryOwner: task_id_token_t,
     overridePixelFormat: Bool = false
-) -> MTLTexture? {
+) -> (any MTLTexture)? {
     guard let imageAssetData = imageAsset.data else {
         logError("no image data")
         return nil
@@ -160,9 +160,9 @@ private func makeMTLTextureFromImageAsset(
 
 private func makeTextureFromImageAsset(
     _ imageAsset: WKBridgeImageAsset,
-    device: MTLDevice,
-    renderContext: _Proto_LowLevelRenderContext_v1,
-    commandQueue: MTLCommandQueue,
+    device: any MTLDevice,
+    renderContext: any _Proto_LowLevelRenderContext_v1,
+    commandQueue: any MTLCommandQueue,
     generateMips: Bool,
     memoryOwner: task_id_token_t,
     overridePixelFormat: Bool,
@@ -206,8 +206,8 @@ private func makeTextureFromImageAsset(
 }
 
 private func makeParameters(
-    for function: _Proto_LowLevelMaterialResource_v1.Function?,
-    renderContext: _Proto_LowLevelRenderContext_v1,
+    for function: (any _Proto_LowLevelMaterialResource_v1.Function)?,
+    renderContext: any _Proto_LowLevelRenderContext_v1,
     textureResources: [String: _Proto_LowLevelTextureResource_v1]
 ) throws -> _Proto_LowLevelArgumentTable_v1? {
     guard let function else { return nil }
@@ -268,11 +268,11 @@ extension simd_float4x4 {
 @implementation
 extension WKBridgeUSDConfiguration {
     @nonobjc
-    fileprivate let device: MTLDevice
+    fileprivate let device: any MTLDevice
     @nonobjc
     fileprivate let appRenderer: Renderer
     @nonobjc
-    fileprivate final var commandQueue: MTLCommandQueue {
+    fileprivate final var commandQueue: any MTLCommandQueue {
         get { appRenderer.commandQueue }
     }
     @nonobjc
@@ -284,7 +284,7 @@ extension WKBridgeUSDConfiguration {
         }
     }
     @nonobjc
-    fileprivate final var renderContext: _Proto_LowLevelRenderContext_v1 {
+    fileprivate final var renderContext: any _Proto_LowLevelRenderContext_v1 {
         get {
             // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
             // swift-format-ignore: NeverForceUnwrap
@@ -298,7 +298,7 @@ extension WKBridgeUSDConfiguration {
     }
 
     @objc
-    init(device: MTLDevice, memoryOwner: task_id_token_t) {
+    init(device: any MTLDevice, memoryOwner: task_id_token_t) {
         self.device = device
         do {
             self.appRenderer = try Renderer(device: device, memoryOwner: memoryOwner)
@@ -321,14 +321,14 @@ extension WKBridgeUSDConfiguration {
 @implementation
 extension WKBridgeReceiver {
     @nonobjc
-    fileprivate let device: MTLDevice
+    fileprivate let device: any MTLDevice
     @nonobjc
     fileprivate let textureProcessingContext: _Proto_LowLevelTextureProcessingContext_v1
     @nonobjc
-    fileprivate let commandQueue: MTLCommandQueue
+    fileprivate let commandQueue: any MTLCommandQueue
 
     @nonobjc
-    fileprivate let renderContext: _Proto_LowLevelRenderContext_v1
+    fileprivate let renderContext: any _Proto_LowLevelRenderContext_v1
     @nonobjc
     fileprivate let renderer: _Proto_LowLevelRenderer_v1
     @nonobjc
@@ -458,7 +458,7 @@ extension WKBridgeReceiver {
     }
 
     @objc(renderWithTexture:)
-    func render(with texture: MTLTexture) {
+    func render(with texture: any MTLTexture) {
         for (identifier, meshes) in meshToMeshInstances {
             let originalTransforms = meshTransforms[identifier]
             // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
@@ -1092,9 +1092,9 @@ extension WKBridgeReceiver {
     internal func configureDeformation(
         identifier: _Proto_ResourceId,
         deformationData: WKBridgeDeformationData,
-        commandBuffer: MTLCommandBuffer
+        commandBuffer: any MTLCommandBuffer
     ) {
-        var deformers: [_Proto_LowLevelDeformerDescription_v1] = []
+        var deformers: [any _Proto_LowLevelDeformerDescription_v1] = []
 
         if let skinningData = deformationData.skinningData {
             let skinningDeformer = skinningData.makeDeformerDescription(device: self.device, memoryOwner: self.memoryOwner)
@@ -1214,7 +1214,7 @@ extension WKBridgeReceiver {
 }
 
 extension WKBridgeSkinningData {
-    fileprivate func makeDeformerDescription(device: MTLDevice, memoryOwner: mach_port_t) -> _Proto_LowLevelDeformerDescription_v1 {
+    fileprivate func makeDeformerDescription(device: any MTLDevice, memoryOwner: mach_port_t) -> any _Proto_LowLevelDeformerDescription_v1 {
         // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
         // swift-format-ignore: NeverForceUnwrap
         let jointTransformsBuffer = unsafe device.makeBuffer(
@@ -1301,7 +1301,7 @@ extension WKBridgeSkinningData {
 }
 
 extension WKBridgeBlendShapeData {
-    func makeDeformerDescription(device: MTLDevice, memoryOwner: task_id_token_t) throws -> _Proto_LowLevelDeformerDescription_v1 {
+    func makeDeformerDescription(device: any MTLDevice, memoryOwner: task_id_token_t) throws -> any _Proto_LowLevelDeformerDescription_v1 {
         var weights: [Float] = []
 
         var debugWeights = self.weights
@@ -1364,7 +1364,7 @@ extension WKBridgeBlendShapeData {
 }
 
 extension WKBridgeRenormalizationData {
-    func makeDeformerDescription(device: MTLDevice, memoryOwner: task_id_token_t) throws -> _Proto_LowLevelDeformerDescription_v1 {
+    func makeDeformerDescription(device: any MTLDevice, memoryOwner: task_id_token_t) throws -> any _Proto_LowLevelDeformerDescription_v1 {
         // Create adjacency buffer
         // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
         // swift-format-ignore: NeverForceUnwrap
@@ -1419,7 +1419,7 @@ extension WKBridgeRenormalizationData {
 @objc
 @implementation
 extension WKBridgeUSDConfiguration {
-    init(device: MTLDevice, memoryOwner: task_id_token_t) {
+    init(device: any MTLDevice, memoryOwner: task_id_token_t) {
     }
 
     @objc(createMaterialCompiler:)
@@ -1438,7 +1438,7 @@ extension WKBridgeReceiver {
     }
 
     @objc(renderWithTexture:)
-    func render(with texture: MTLTexture) {
+    func render(with texture: any MTLTexture) {
     }
 
     @objc(updateTexture:)

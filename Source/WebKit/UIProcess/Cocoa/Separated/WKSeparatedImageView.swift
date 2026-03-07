@@ -55,11 +55,11 @@ extension WKSeparatedImageView {
     final var imageHash: NSString?
 
     @nonobjc
-    final var computeHashTask: Task<Void, Error>?
+    final var computeHashTask: Task<Void, any Error>?
     @nonobjc
-    final var pickViewModeTask: Task<ViewMode, Error>?
+    final var pickViewModeTask: Task<ViewMode, any Error>?
     @nonobjc
-    final var generate3DImageTask: Task<Void, Error>?
+    final var generate3DImageTask: Task<Void, any Error>?
 
     #if canImport(RealityFoundation, _version: 387)
     @nonobjc
