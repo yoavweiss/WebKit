@@ -53,7 +53,6 @@
 #include "DiagnosticLoggingClient.h"
 #include "DiagnosticLoggingKeys.h"
 #include "DiagnosticLoggingResultType.h"
-#include "DocumentEventLoop.h"
 #include "DocumentFullscreen.h"
 #include "DocumentLoader.h"
 #include "DocumentMediaElement.h"
@@ -63,7 +62,6 @@
 #include "DocumentSecurityOrigin.h"
 #include "DocumentView.h"
 #include "ElementChildIteratorInlines.h"
-#include "EventLoop.h"
 #include "EventNames.h"
 #include "EventTargetInlines.h"
 #include "FourCC.h"
@@ -3902,8 +3900,8 @@ void HTMLMediaElement::setAudioOutputDevice(String&& deviceId, DOMPromiseDeferre
     if (RefPtr player = m_player)
         player->audioOutputDeviceChanged();
 
-    protect(protect(scriptExecutionContext())->eventLoop())->queueTask(TaskSource::MediaElement, [this, protectedThis = Ref { *this }, deviceId = WTF::move(deviceId), promise = WTF::move(promise)]() mutable {
-        m_audioOutputHashedDeviceId = WTF::move(deviceId);
+    queueTaskKeepingObjectAlive(*this, TaskSource::MediaElement, [deviceId = WTF::move(deviceId), promise = WTF::move(promise)](auto& element) mutable {
+        element.m_audioOutputHashedDeviceId = WTF::move(deviceId);
         promise.resolve();
     });
 }
@@ -9907,7 +9905,9 @@ void HTMLMediaElement::updateMediaPlayer(IntSize presentationSize, bool shouldMa
 
 void HTMLMediaElement::mediaPlayerQueueTaskOnEventLoop(Function<void()>&& task)
 {
-    protect(protect(document())->eventLoop())->queueTask(TaskSource::MediaElement, WTF::move(task));
+    queueTaskKeepingObjectAlive(*this, TaskSource::MediaElement, [task = WTF::move(task)](auto&) {
+        task();
+    });
 }
 
 template<typename T> void HTMLMediaElement::scheduleEventOn(T& target, Ref<Event>&& event)
