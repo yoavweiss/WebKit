@@ -1801,22 +1801,22 @@ void FrameSelection::setEnd(const VisiblePosition& position, UserTriggered trigg
 
 void FrameSelection::setBase(const VisiblePosition& position, UserTriggered userTriggered)
 {
-    setSelection(VisibleSelection(position.deepEquivalent(), m_selection.extent(), position.affinity(), Directionality::Strong), defaultSetSelectionOptions(userTriggered));
+    setSelection(VisibleSelection(position.deepEquivalent(), m_selection.focus(), position.affinity(), Directionality::Strong), defaultSetSelectionOptions(userTriggered));
 }
 
 void FrameSelection::setExtent(const VisiblePosition& position, UserTriggered userTriggered)
 {
-    setSelection(VisibleSelection(m_selection.base(), position.deepEquivalent(), position.affinity(), Directionality::Strong), defaultSetSelectionOptions(userTriggered));
+    setSelection(VisibleSelection(m_selection.anchor(), position.deepEquivalent(), position.affinity(), Directionality::Strong), defaultSetSelectionOptions(userTriggered));
 }
 
 void FrameSelection::setBase(const Position& position, Affinity affinity, UserTriggered userTriggered)
 {
-    setSelection(VisibleSelection(position, m_selection.extent(), affinity, Directionality::Strong), defaultSetSelectionOptions(userTriggered));
+    setSelection(VisibleSelection(position, m_selection.focus(), affinity, Directionality::Strong), defaultSetSelectionOptions(userTriggered));
 }
 
 void FrameSelection::setExtent(const Position& position, Affinity affinity, UserTriggered userTriggered)
 {
-    setSelection(VisibleSelection(m_selection.base(), position, affinity, Directionality::Strong), defaultSetSelectionOptions(userTriggered));
+    setSelection(VisibleSelection(m_selection.anchor(), position, affinity, Directionality::Strong), defaultSetSelectionOptions(userTriggered));
 }
 
 void CaretBase::clearCaretRect()
