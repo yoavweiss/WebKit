@@ -145,8 +145,8 @@ private:
     Scope& scope() { return m_scopeStack.last(); }
     const Scope& scope() const { return m_scopeStack.last(); }
 
-    Parent& parent() { return m_parentStack.last(); }
-    const Parent& parent() const { return m_parentStack.last(); }
+    Parent& parent() LIFETIME_BOUND { return m_parentStack.last(); }
+    const Parent& parent() const LIFETIME_BOUND { return m_parentStack.last(); }
 
     void pushScope(ShadowRoot&);
     void pushEnclosingScope();
@@ -167,9 +167,9 @@ private:
     ResolutionContext makeResolutionContext();
     ResolutionContext makeResolutionContextForPseudoElement(const ElementUpdate&, const PseudoElementIdentifier&);
     std::optional<ResolutionContext> makeResolutionContextForInheritedFirstLine(const ElementUpdate&, const RenderStyle& inheritStyle);
-    const Parent* boxGeneratingParent() const;
-    const RenderStyle* parentBoxStyle() const;
-    const RenderStyle* parentBoxStyleForPseudoElement(const ElementUpdate&) const;
+    const Parent* boxGeneratingParent() const LIFETIME_BOUND;
+    const RenderStyle* parentBoxStyle() const LIFETIME_BOUND;
+    const RenderStyle* parentBoxStyleForPseudoElement(const ElementUpdate&) const LIFETIME_BOUND;
     const RenderStyle* NODELETE documentElementStyle() const;
 
     LayoutInterleavingAction updateAnchorPositioningState(Element&, const RenderStyle*);
