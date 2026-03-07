@@ -140,6 +140,9 @@ imported/w3c/web-platform-tests/svg/text/reftests/opacity.svg [ Pass ]
 imported/w3c/web-platform-tests/webvtt/rendering/cues-with-video/processing-model/embedded_style_media_queries.html [ Pass ]
 imported/w3c/web-platform-tests/webvtt/rendering/cues-with-video/processing-model/embedded_style_media_queries_resized.html [ Pass ]
 
+compositing/scrolling/async-overflow-scrolling [ Pass ]
+compositing/scrolling/async-overflow-scrolling/mac [ Skip ]
+
 # RSA-PSS tests are for now skipped on all ports, so we for now explicitly enable the passing ones here.
 crypto/subtle/ecdh-import-pkcs8-key-p256-validate-ecprivatekey-parameters-publickey.html [ Pass ]
 crypto/subtle/ecdh-import-pkcs8-key-p384-validate-ecprivatekey-parameters-publickey.html [ Pass ]
