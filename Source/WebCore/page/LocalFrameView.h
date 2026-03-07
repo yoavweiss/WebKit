@@ -403,6 +403,7 @@ public:
 
     WEBCORE_EXPORT bool NODELETE wasScrolledByUser() const;
     bool wasEverScrolledExplicitlyByUser() const { return m_wasEverScrolledExplicitlyByUser; }
+    bool wasEverScrolledExplicitlyByUserBelowTopEdge() const { return m_wasEverScrolledExplicitlyByUserBelowTopEdge; }
 
     enum class UserScrollType : uint8_t { Explicit, Implicit };
     WEBCORE_EXPORT void setLastUserScrollType(std::optional<UserScrollType>);
@@ -1082,6 +1083,7 @@ private:
 
     std::optional<UserScrollType> m_lastUserScrollType;
     bool m_wasEverScrolledExplicitlyByUser { false };
+    bool m_wasEverScrolledExplicitlyByUserBelowTopEdge { false };
 
     bool m_shouldUpdateWhileOffscreen { true };
     bool m_canHaveScrollbars { true };

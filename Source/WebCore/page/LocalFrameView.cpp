@@ -269,6 +269,7 @@ void LocalFrameView::reset()
     m_updateEmbeddedObjectsTimer.stop();
     m_lastUserScrollType = std::nullopt;
     m_wasEverScrolledExplicitlyByUser = false;
+    m_wasEverScrolledExplicitlyByUserBelowTopEdge = false;
     m_delayedScrollEventTimer.stop();
     m_shouldScrollToFocusedElement = false;
     m_delayedScrollToFocusedElementTimer.stop();
@@ -5590,14 +5591,17 @@ void LocalFrameView::setLastUserScrollType(std::optional<UserScrollType> userScr
     if (userScrollType && document)
         document->setGotoAnchorNeededAfterStylesheetsLoad(false);
 
+    if (userScrollType == UserScrollType::Explicit) {
+        m_wasEverScrolledExplicitlyByUser = true;
+        if (scrollOffset().y() > minimumScrollOffset().y())
+            m_wasEverScrolledExplicitlyByUserBelowTopEdge = true;
+    }
+
     m_maintainScrollPositionAnchor = nullptr;
     if (m_lastUserScrollType == userScrollType)
         return;
     m_lastUserScrollType = userScrollType;
     adjustTiledBackingCoverage();
-
-    if (userScrollType == UserScrollType::Explicit)
-        m_wasEverScrolledExplicitlyByUser = true;
 }
 
 void LocalFrameView::willPaintContents(GraphicsContext& context, const IntRect&, PaintingState& paintingState, RegionContext* regionContext)

@@ -184,6 +184,24 @@ void WebPageProxyTesting::clearWheelEventTestMonitor()
     send(Messages::WebPageTesting::ClearWheelEventTestMonitor());
 }
 
+void WebPageProxyTesting::startMonitoringWheelEventsForTesting(CompletionHandler<void()>&& completionHandler)
+{
+    if (!protect(page())->hasRunningProcess()) {
+        completionHandler();
+        return;
+    }
+    sendWithAsyncReply(Messages::WebPageTesting::StartMonitoringWheelEventsForTesting(), WTF::move(completionHandler));
+}
+
+void WebPageProxyTesting::waitForWheelEventsToCompleteForTesting(CompletionHandler<void()>&& completionHandler)
+{
+    if (!protect(page())->hasRunningProcess()) {
+        completionHandler();
+        return;
+    }
+    sendWithAsyncReply(Messages::WebPageTesting::WaitForWheelEventsToCompleteForTesting(), WTF::move(completionHandler));
+}
+
 #if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
 void WebPageProxyTesting::setIndexOfGetDisplayMediaDeviceSelectedForTesting(std::optional<unsigned> index)
 {
