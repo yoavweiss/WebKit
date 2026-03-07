@@ -1301,6 +1301,7 @@ public:
     WEBCORE_EXPORT RetainPtr<id> platformElement() const;
 #endif
     void setWrapper(AccessibilityObjectWrapper* wrapper) { m_wrapper = wrapper; }
+    void setWrapperFrom(const AXCoreObject& other) { m_wrapper = other.m_wrapper; }
     void detachWrapper(AccessibilityDetachmentType);
 
 #if PLATFORM(IOS_FAMILY)

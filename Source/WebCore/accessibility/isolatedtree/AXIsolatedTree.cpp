@@ -1964,10 +1964,9 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
 
 #if ENABLE_ACCESSIBILITY_LOCAL_FRAME
         if (object.isLocalFrame()) {
-            if (auto* localFrame = dynamicDowncast<AXLocalFrame>(&object)) {
-                if (std::optional frameID = localFrame->frameID())
-                    setProperty(AXProperty::CrossFrameChildFrameID, *frameID);
-            }
+            RefPtr localFrame = dynamicDowncast<AXLocalFrame>(object);
+            if (auto frameID = localFrame ? localFrame->frameID() : std::nullopt)
+                setProperty(AXProperty::CrossFrameChildFrameID, *frameID);
         }
 #endif
     };

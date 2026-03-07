@@ -152,10 +152,9 @@ void AXIsolatedObject::attachPlatformWrapper(AccessibilityObjectWrapper* wrapper
 {
 #if ENABLE_ACCESSIBILITY_LOCAL_FRAME
     if (role() == AccessibilityRole::LocalFrame) {
-        AXIsolatedObject* crossFrameChild = crossFrameChildObject();
-        if (crossFrameChild) {
-            [wrapper attachIsolatedObject:*crossFrameChild];
-            crossFrameChild->setWrapper(wrapper);
+        if (RefPtr child = crossFrameChildObject()) {
+            [wrapper attachIsolatedObject:*child];
+            child->setWrapper(wrapper);
             return;
         }
     }

@@ -801,9 +801,11 @@ webkit.org/b/160042 accessibility/mac/value-change/value-change-user-info-conten
 
 # Skipped because ACCESSIBILITY_LOCAL_FRAME is not compatable with relative frames.
 accessibility/mac/iframe-relative-frame.html [ Failure ]
-
 # Skipped because ACCESSIBILITY_LOCAL_FRAME doesn't yet account for dynamic position changes (like scroll).
 accessibility/mac/scroll-to-visible-action.html [ Failure ]
+# Regression from ENABLE(ACCESSIBILITY_LOCAL_FRAME).
+accessibility/mac/visible-content-search-in-scrolled-iframe.html [ Failure ]
+platform/mac-wk2/accessibility/content-inset-scrollview-frame.html [ Failure ]
 
 webkit.org/b/160309 fast/dom/Window/child-window-focus.html [ Pass Failure ]
 

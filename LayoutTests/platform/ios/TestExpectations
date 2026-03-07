@@ -2394,15 +2394,20 @@ accessibility/dynamic-text-color-change-dirty-style-and-relations.html [ Pass ]
 accessibility/dynamically-ignored-canvas.html [ Pass ]
 accessibility/editable-webpage-focused-ui-element.html [ Pass ]
 accessibility/element-haspopup.html [ Pass ]
-accessibility/empty-text-under-element-cached.html [ Pass ]
+
+# Regressions from ENABLE(ACCESSIBILITY_LOCAL_FRAME).
+# accessibility/empty-text-under-element-cached.html [ Pass ]
+accessibility/ios-simulator/unobscured-content-rect.html [ Failure ]
+
 accessibility/heading-level.html [ Pass ]
 accessibility/hidden-elements-with-aria-attributes.html [ Pass ]
 accessibility/hidden-label.html [ Pass ]
 accessibility/hidden-slot.html [ Pass ]
 accessibility/html-element-aria-hidden.html [ Pass ]
 accessibility/html5-required-attribute.html [ Pass ]
-accessibility/iframe-tree-update-with-dirty-layout.html [ Pass ]
-accessibility/iframe-with-role.html [ Pass ]
+# Regressions from ENABLE(ACCESSIBILITY_LOCAL_FRAME).
+# accessibility/iframe-tree-update-with-dirty-layout.html [ Pass ]
+# accessibility/iframe-with-role.html [ Pass ]
 accessibility/indeterminate-progressbar-custom-element.html [ Pass ]
 accessibility/input-type-hidden-in-aria-hidden-false.html [ Pass ]
 accessibility/datetime/input-time-label-value.html [ Pass ]
@@ -2470,7 +2475,8 @@ accessibility/aria-labelledby-targeting-slot.html [ Pass ]
 accessibility/display-contents/search-traversal.html [ Pass ]
 accessibility/search-traversal-after-role-change.html [ Pass ]
 accessibility/table-search-traversal.html [ Pass ]
-accessibility/dynamically-changing-iframe-remains-accessible.html [ Pass ]
+# Regression from ENABLE(ACCESSIBILITY_LOCAL_FRAME).
+# accessibility/dynamically-changing-iframe-remains-accessible.html [ Pass ]
 accessibility/ignore-modals-without-any-content.html [ Pass ]
 
 accessibility/selected-state-changed-notifications.html [ Pass ]
@@ -8495,3 +8501,4 @@ webkit.org/b/308667 webanimations/threaded-animations/scroll-timeline-root-scrol
 webkit.org/b/308849 css3/filters/effect-drop-shadow.html [ Skip ]
 
 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-audio-element/audio-with-replaced-after-pseudo-crash.html [ Skip ] #Timeout
+

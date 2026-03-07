@@ -449,8 +449,8 @@ AXCoreObject::AccessibilityChildrenVector AXCoreObject::crossFrameUnignoredChild
             result.append(*crossFrameChild);
     } else {
         for (size_t i = 0; i < result.size(); i++) {
-            if (auto* crossFrameChild = result[i]->crossFrameChildObject())
-                result[i] = *crossFrameChild;
+            if (RefPtr crossFrameChild = protect(result[i])->crossFrameChildObject())
+                result[i] = crossFrameChild.releaseNonNull();
         }
     }
 #endif
@@ -472,13 +472,12 @@ AXCoreObject::AccessibilityChildrenVector AXCoreObject::crossFrameChildrenInclud
 {
     AXCoreObject::AccessibilityChildrenVector result = childrenIncludingIgnored(updateChildrenIfNeeded);
 
-#if ENABLE_ACCESSIBILITY_LOCAL_FRAME
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
     if (result.isEmpty()) {
-        AXCoreObject* crossFrameChild = crossFrameChildObject();
-        if (crossFrameChild)
-            result.append(*crossFrameChild);
+        if (RefPtr crossFrameChild = crossFrameChildObject())
+            result.append(crossFrameChild.releaseNonNull());
     }
-#endif
+#endif // ENABLE(ACCESSIBILITY_LOCAL_FRAME)
 
     return result;
 }

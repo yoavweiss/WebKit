@@ -106,7 +106,7 @@ private:
     void setFocused(bool) final;
     bool canSetFocusAttribute() const final;
     bool isFocused() const final;
-    void NODELETE addLocalFrameChild();
+    void addLocalFrameChild();
     void addRemoteFrameChild();
     const AccessibilityScrollView* frameRootScrollView() const;
 
