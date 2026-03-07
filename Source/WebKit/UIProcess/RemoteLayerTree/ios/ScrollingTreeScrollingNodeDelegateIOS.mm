@@ -506,7 +506,7 @@ WKBaseScrollView *ScrollingTreeScrollingNodeDelegateIOS::scrollView() const
 {
     // FIXME: This is a static analyzer false positive.
     SUPPRESS_UNRETAINED_LOCAL if (auto* delegate = protect(scrollLayer()).get().delegate) {
-        ASSERT(is<WKBaseScrollView>(delegate));
+        ASSERT(is_objc<WKBaseScrollView>(delegate));
         return dynamic_objc_cast<WKBaseScrollView>(delegate);
     }
     return nullptr;
