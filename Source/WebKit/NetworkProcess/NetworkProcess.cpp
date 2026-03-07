@@ -420,16 +420,14 @@ void NetworkProcess::createNetworkConnectionToWebProcess(ProcessIdentifier ident
         connection->connection().setIgnoreInvalidMessageForTesting();
 #endif
 
-    for (auto pageID : parameters.pagesWithRelaxedThirdPartyCookieBlocking)
-        m_pagesWithRelaxedThirdPartyCookieBlocking.add(pageID);
+    m_pagesWithRelaxedThirdPartyCookieBlocking.addAll(parameters.pagesWithRelaxedThirdPartyCookieBlocking);
 
     if (CheckedPtr session = networkSession(sessionID)) {
         Vector<WebCore::RegistrableDomain> allowedSites;
         auto iter = m_allowedFirstPartiesForCookies.find(identifier);
-        if (iter != m_allowedFirstPartiesForCookies.end()) {
-            for (auto& site : iter->value.second)
-                allowedSites.append(site);
-        }
+        if (iter != m_allowedFirstPartiesForCookies.end())
+            allowedSites = copyToVector(iter->value.second);
+
         session->storageManager().startReceivingMessageFromConnection(connection->connection(), allowedSites, connection->sharedPreferencesForWebProcessValue());
     }
 }
