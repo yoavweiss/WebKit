@@ -764,7 +764,7 @@ std::optional<bool> JSArray::fastIncludes(JSGlobalObject* globalObject, JSValue 
         if (searchElement.isInt32AsAnyInt())
             int32Value = searchElement.asInt32AsAnyInt();
         else if (searchElement.isUndefined()) [[unlikely]]
-            return containsHole(data, length64);
+            return containsHole(data + index, length - index);
         else if (!searchElement.isNumber() || searchElement.asNumber() != 0.0) [[unlikely]]
             return false;
 
@@ -803,7 +803,7 @@ std::optional<bool> JSArray::fastIncludes(JSGlobalObject* globalObject, JSValue 
         auto data = butterfly.contiguousDouble().data();
 
         if (searchElement.isUndefined())
-            return containsHole(data, length64);
+            return containsHole(data + index, length - index);
         if (!searchElement.isNumber())
             return false;
 
