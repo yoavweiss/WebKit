@@ -3894,6 +3894,17 @@ bool RenderThemeCocoa::paintSearchFieldResultsButtonForVectorBasedControls(const
     return paintSearchFieldDecorationPartForVectorBasedControls(box, paintInfo, rect);
 }
 
+static void setLogicalWidthForSwitch(RenderStyle& style, float usedZoom)
+{
+#if ENABLE(AX_ZOOM_ADJUSTMENTS)
+    setLogicalWidthForSwitchWithZoomAdjustments(style, logicalRefreshedSwitchWidth, usedZoom);
+#elif PLATFORM(VISION)
+    style.setLogicalWidth(Style::PreferredSize::Fixed { logicalSwitchWidth * usedZoom });
+#else
+    style.setLogicalWidth(Style::PreferredSize::Fixed { logicalRefreshedSwitchWidth * usedZoom });
+#endif
+}
+
 bool RenderThemeCocoa::adjustSwitchStyleForVectorBasedControls(RenderStyle& style, const Element* element) const
 {
     if (!formControlRefreshEnabled(element))
@@ -3902,11 +3913,7 @@ bool RenderThemeCocoa::adjustSwitchStyleForVectorBasedControls(RenderStyle& styl
     // FIXME: Deduplicate sizing with the generic code somehow.
     if (style.width().isIntrinsicOrLegacyIntrinsicOrAuto() || style.height().isIntrinsicOrLegacyIntrinsicOrAuto()) {
         auto usedZoom = usedZoomForComputedStyle(style);
-#if PLATFORM(VISION)
-        style.setLogicalWidth(Style::PreferredSize::Fixed { logicalSwitchWidth * usedZoom });
-#else
-        style.setLogicalWidth(Style::PreferredSize::Fixed { logicalRefreshedSwitchWidth * usedZoom });
-#endif
+        setLogicalWidthForSwitch(style, usedZoom);
         style.setLogicalHeight(Style::PreferredSize::Fixed { logicalSwitchHeight * usedZoom });
     }
 
