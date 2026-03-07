@@ -227,7 +227,7 @@ void RemoteMediaPlayerManager::getSupportedTypes(MediaPlayerEnums::MediaEngineId
 MediaPlayer::SupportsType RemoteMediaPlayerManager::supportsTypeAndCodecs(MediaPlayerEnums::MediaEngineIdentifier remoteEngineIdentifier, const MediaEngineSupportParameters& parameters)
 {
 #if ENABLE(MEDIA_STREAM)
-    if (parameters.platformType == PlatformMediaDecodingType::WebRTC)
+    if (parameters.platformType == PlatformMediaDecodingType::MediaStream)
         return MediaPlayer::SupportsType::IsNotSupported;
 #endif
 

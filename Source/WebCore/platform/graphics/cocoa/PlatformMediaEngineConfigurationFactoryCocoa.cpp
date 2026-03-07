@@ -66,7 +66,7 @@ static std::optional<PlatformMediaCapabilitiesInfo> computeMediaCapabilitiesInfo
     PlatformMediaCapabilitiesInfo info;
 
     if (configuration.video) {
-        if (configuration.type == PlatformMediaDecodingType::WebRTC) {
+        if (configuration.type == PlatformMediaDecodingType::MediaStream) {
             ASSERT_NOT_REACHED();
             return std::nullopt;
         }

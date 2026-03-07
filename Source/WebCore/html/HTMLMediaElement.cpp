@@ -5759,7 +5759,7 @@ URL HTMLMediaElement::selectNextSourceChild(ContentType* contentType, InvalidURL
                 INFO_LOG(LOGIDENTIFIER, "'type' is ", type);
             MediaEngineSupportParameters parameters {
 #if ENABLE(MEDIA_SOURCE)
-                .platformType = mediaURL.protocolIs(mediaSourceBlobProtocol) && MediaSource::lookup(mediaURL.string()) ? PlatformMediaDecodingType::MediaSource : PlatformMediaDecodingType::File,
+                .platformType = mediaURL.protocolIs(mediaSourceBlobProtocol) && MediaSource::lookup(mediaURL.string()) ? PlatformMediaDecodingType::MediaSource : PlatformMediaDecodingType::FileOrHLS,
 #endif
                 .type = ContentType(type),
                 .url = mediaURL,

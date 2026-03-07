@@ -3286,7 +3286,7 @@ MediaPlayer::SupportsType MediaPlayerPrivateGStreamer::supportsType(const MediaE
         return result;
 #endif
 
-    if (parameters.platformType == PlatformMediaDecodingType::WebRTC) {
+    if (parameters.platformType == PlatformMediaDecodingType::MediaStream) {
 #if ENABLE(MEDIA_STREAM)
         return MediaPlayer::SupportsType::IsSupported;
 #else

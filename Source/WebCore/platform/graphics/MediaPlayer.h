@@ -112,7 +112,7 @@ struct HostingContext;
 struct VideoFrameMetadata;
 
 struct MediaEngineSupportParameters {
-    PlatformMediaDecodingType platformType { PlatformMediaDecodingType::File };
+    PlatformMediaDecodingType platformType { PlatformMediaDecodingType::FileOrHLS };
     ContentType type;
     URL url { };
     bool requiresRemotePlayback { false };

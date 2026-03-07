@@ -4452,9 +4452,9 @@ struct WebCore::MediaSelectionOption {
 };
 
 enum class WebCore::PlatformMediaDecodingType : uint8_t {
-    File,
+    FileOrHLS,
     MediaSource,
-    WebRTC
+    MediaStream
 };
 
 enum class WebCore::PlatformMediaEncodingType : bool;

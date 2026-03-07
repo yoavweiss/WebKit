@@ -430,7 +430,7 @@ const MediaPlayerFactory* MediaPlayer::mediaEngine(MediaPlayerEnums::MediaEngine
 
 static const MediaPlayerFactory* bestMediaEngineForSupportParameters(const MediaEngineSupportParameters& parameters, const WeakHashSet<const MediaPlayerFactory>& attemptedEngines = { }, const MediaPlayerFactory* current = nullptr)
 {
-    if (parameters.type.isEmpty() && parameters.platformType == PlatformMediaDecodingType::File)
+    if (parameters.type.isEmpty() && parameters.platformType == PlatformMediaDecodingType::FileOrHLS)
         return nullptr;
 
     // 4.8.10.3 MIME types - In the absence of a specification to the contrary, the MIME type "application/octet-stream"
@@ -595,9 +595,9 @@ CheckedPtr<const MediaPlayerFactory> MediaPlayer::nextBestMediaEngine(const Medi
 #endif
 #if ENABLE(MEDIA_STREAM)
             if (!!m_mediaStream)
-                return PlatformMediaDecodingType::WebRTC;
+                return PlatformMediaDecodingType::MediaStream;
 #endif
-            return PlatformMediaDecodingType::File;
+            return PlatformMediaDecodingType::FileOrHLS;
         }(),
         .type = m_loadOptions.contentType,
         .url = m_url,
