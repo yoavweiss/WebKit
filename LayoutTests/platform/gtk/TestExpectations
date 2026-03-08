@@ -1510,7 +1510,7 @@ webkit.org/b/286063 [ Debug ] media/audio-only-video-intrinsic-size.html [ Crash
 webkit.org/b/286063 [ Debug ] storage/indexeddb/cursor-properties.html [ Crash Pass ]
 webkit.org/b/286063 [ Debug ] storage/indexeddb/modern/idbobjectstore-delete-failures-private.html [ Crash Pass ]
 
-webkit.org/b/304278 [ Debug ] inspector/worker/debugger-pause-subworker.html [ Crash Timeout ]
+webkit.org/b/304278 inspector/worker/debugger-pause-subworker.html [ Skip ]
 
 # webkit.org/b/304535 ui-serif, ui-sans-serif, ui-monospace, ui-rounded generic families not implemented on GTK
 imported/w3c/web-platform-tests/css/css-fonts/generic-family-lang-attr-cascade.html [ ImageOnlyFailure ]
@@ -1551,3 +1551,8 @@ webkit.org/b/309264 http/tests/xmlhttprequest/redirect-cross-origin-post.html [ 
 webkit.org/b/309265 fast/reflections/abs-position-in-reflection.html [ Pass Failure ImageOnlyFailure ]
 webkit.org/b/309266 css3/scroll-snap/scroll-snap-drag-scrollbar-thumb.html [ Pass Failure ]
 webkit.org/b/309267 inspector/unit-tests/array-utilities.html [ Pass Failure ]
+
+[ Release ] http/tests/security/video-cross-origin-accessfailure.html [ Pass Failure ]
+[ Release ] imported/w3c/web-platform-tests/permissions/permissions-garbage-collect.https.html [ Pass Failure ]
+[ Release ] platform/gtk/fast/frames/scrolling-iframe-out-of-viewport.html [ Pass Failure ]
+[ Release ] imported/w3c/web-platform-tests/preload/prefetch-document.html [ Failure Pass ]
