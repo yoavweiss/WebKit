@@ -504,11 +504,4 @@ private:
     const Style::SVGData& svgData() const LIFETIME_BOUND { return computedStyle().svgData(); }
 };
 
-constexpr BorderStyle collapsedBorderStyle(BorderStyle);
-
-inline bool pseudoElementRendererIsNeeded(const RenderStyle*);
-inline bool isNonVisibleOverflow(Overflow);
-
-inline bool isVisibleToHitTesting(const RenderStyle&, const HitTestRequest&);
-
 } // namespace WebCore
