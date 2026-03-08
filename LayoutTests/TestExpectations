@@ -6319,16 +6319,8 @@ webkit.org/b/241104 fast/css/fill-available-with-percent-height-no-quirk.html [ 
 
 # scroll anchoring failures
 imported/w3c/web-platform-tests/css/css-scroll-anchoring/anchor-inside-textarea.tentative.html [ Failure ]
-imported/w3c/web-platform-tests/css/css-scroll-anchoring/anchor-updates-after-explicit-scroll.html [ Failure ]
-imported/w3c/web-platform-tests/css/css-scroll-anchoring/clipped-scrollers-skipped.html [ Failure ]
-imported/w3c/web-platform-tests/css/css-scroll-anchoring/device-pixel-adjustment.html [ Failure ]
-imported/w3c/web-platform-tests/css/css-scroll-anchoring/history-restore-anchors.html [ Failure ]
 imported/w3c/web-platform-tests/css/css-scroll-anchoring/multicol-fragmented-anchor.html [ Failure ]
-imported/w3c/web-platform-tests/css/css-scroll-anchoring/opt-out.html [ Failure ]
-imported/w3c/web-platform-tests/css/css-scroll-anchoring/position-change-heuristic.html [ Failure ]
-imported/w3c/web-platform-tests/css/css-scroll-anchoring/shadow-dom-subscroller.html [ Pass Failure ]
-imported/w3c/web-platform-tests/css/css-scroll-anchoring/start-edge-in-block-layout-direction.html [ Failure ]
-imported/w3c/web-platform-tests/css/css-scroll-anchoring/nested-overflow-subtree-layout-vertical.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-scroll-anchoring/position-change-heuristic.html [ Pass Failure ]
 fast/repaint/absolute-position-changed.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/307272 fast/events/no-scroll-on-input-text-selection.html [ Failure ]
