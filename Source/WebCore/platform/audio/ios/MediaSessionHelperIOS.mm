@@ -267,7 +267,6 @@ void MediaSessionHelper::providePresentingApplicationPID(ProcessID)
 
 void MediaSessionHelper::updateActiveAudioRouteSupportsSpatialPlayback()
 {
-#if HAVE(AVAUDIOSESSION)
     AVAudioSession* audioSession = [PAL::getAVAudioSessionClassSingleton() sharedInstance];
     for (AVAudioSessionPortDescription* output in audioSession.currentRoute.outputs) {
         if (output.spatialAudioEnabled) {
@@ -275,7 +274,6 @@ void MediaSessionHelper::updateActiveAudioRouteSupportsSpatialPlayback()
             return;
         }
     }
-#endif // HAVE(AVAUDIOSESSION)
 
     setActiveAudioRouteSupportsSpatialPlayback(false);
 }
@@ -388,7 +386,6 @@ void MediaSessionHelperIOS::mediaServerConnectionDied()
 
 void MediaSessionHelperIOS::updateCarPlayIsConnected()
 {
-#if HAVE(AVAUDIOSESSION)
     AVAudioSession *audioSession = [PAL::getAVAudioSessionClassSingleton() sharedInstance];
     for (AVAudioSessionPortDescription *output in audioSession.currentRoute.outputs) {
         if ([output.portType isEqualToString:AVAudioSessionPortCarAudio]) {
@@ -396,7 +393,6 @@ void MediaSessionHelperIOS::updateCarPlayIsConnected()
             return;
         }
     }
-#endif // HAVE(AVAUDIOSESSION)
 
     setIsPlayingToAutomotiveHeadUnit(false);
 }

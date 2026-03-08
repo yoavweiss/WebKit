@@ -81,9 +81,7 @@ SOFT_LINK_CLASS_FOR_HEADER(PAL, AVSpeechUtterance)
 SOFT_LINK_CLASS_FOR_HEADER(PAL, AVStreamDataParser)
 SOFT_LINK_CLASS_FOR_HEADER(PAL, AVURLAsset)
 
-#if HAVE(AVAUDIOSESSION)
 SOFT_LINK_CLASS_FOR_HEADER(PAL, AVAudioSession)
-#endif
 
 #if PLATFORM(IOS_FAMILY)
 SOFT_LINK_CLASS_FOR_HEADER(PAL, AVPersistableContentKeyRequest)
@@ -409,7 +407,6 @@ SOFT_LINK_CONSTANT_MAY_FAIL_FOR_HEADER(PAL, AVFoundation, AVURLAssetExtendedMIME
 SOFT_LINK_CONSTANT_MAY_FAIL_FOR_HEADER(PAL, AVFoundation, AVURLAssetDoNotLogURLsKey, NSString *)
 #define AVURLAssetDoNotLogURLsKey PAL::get_AVFoundation_AVURLAssetDoNotLogURLsKeySingleton()
 
-#if HAVE(AVAUDIOSESSION)
 SOFT_LINK_CONSTANT_FOR_HEADER(PAL, AVFoundation, AVAudioSessionPortBuiltInMic, NSString *)
 #define AVAudioSessionPortBuiltInMic PAL::get_AVFoundation_AVAudioSessionPortBuiltInMicSingleton()
 SOFT_LINK_CONSTANT_FOR_HEADER(PAL, AVFoundation, AVAudioSessionPortBuiltInReceiver, NSString *)
@@ -428,7 +425,6 @@ SOFT_LINK_CONSTANT_FOR_HEADER(PAL, AVFoundation, AVAudioSessionPortLineOut, NSSt
 #define AVAudioSessionPortLineOut PAL::get_AVFoundation_AVAudioSessionPortLineOutSingleton()
 SOFT_LINK_CONSTANT_FOR_HEADER(PAL, AVFoundation, AVAudioSessionSpatialPlaybackCapabilitiesChangedNotification, NSString *)
 #define AVAudioSessionSpatialPlaybackCapabilitiesChangedNotification PAL::get_AVFoundation_AVAudioSessionSpatialPlaybackCapabilitiesChangedNotificationSingleton()
-#endif // HAVE(AVAUDIOSESSION)
 
 #if HAVE(AVSPEECHSYNTHESIS_VOICES_CHANGE_NOTIFICATION)
 SOFT_LINK_CONSTANT_FOR_HEADER(PAL, AVFoundation, AVSpeechSynthesisAvailableVoicesDidChangeNotification, NSString *)
