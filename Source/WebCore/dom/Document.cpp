@@ -2589,22 +2589,19 @@ void Document::unregisterForVisibilityStateChangedCallbacks(VisibilityChangeClie
 
 void Document::visibilityStateChanged()
 {
-    bool pageIsVisible = page() && page()->isVisible();
-
     // https://w3c.github.io/page-visibility/#reacting-to-visibilitychange-changes
-    if (!pageIsVisible)
+    if (bool pageIsVisible = page() && page()->isVisible(); !pageIsVisible)
         m_deferResizeEventForVisibilityChange = true;
 
-    eventLoop().queueTask(TaskSource::UserInteraction, [this, protectedDocument = Ref { *this }] {
-        dispatchEvent(Event::create(eventNames().visibilitychangeEvent, Event::CanBubble::Yes, Event::IsCancelable::No));
+    queueTaskKeepingNodeAlive(*this, TaskSource::UserInteraction, [](auto& document) {
+        document.dispatchEvent(Event::create(eventNames().visibilitychangeEvent, Event::CanBubble::Yes, Event::IsCancelable::No));
 
-        bool pageIsVisible = page() && page()->isVisible();
-        if (!pageIsVisible)
+        if (bool pageIsVisible = document.page() && document.page()->isVisible(); !pageIsVisible)
             return;
 
-        m_deferResizeEventForVisibilityChange = false;
-        if (m_needsDOMWindowResizeEvent || m_needsVisualViewportResizeEvent)
-            scheduleRenderingUpdate(RenderingUpdateStep::Resize);
+        document.m_deferResizeEventForVisibilityChange = false;
+        if (document.m_needsDOMWindowResizeEvent || document.m_needsVisualViewportResizeEvent)
+            document.scheduleRenderingUpdate(RenderingUpdateStep::Resize);
     });
 
     m_visibilityStateCallbackClients.forEach([](auto& client) {
@@ -7031,8 +7028,8 @@ void Document::whenWindowLoadEventOrDestroyed(CompletionHandler<void()>&& comple
 
 void Document::queueTaskToDispatchEvent(TaskSource source, Ref<Event>&& event)
 {
-    eventLoop().queueTask(source, [document = Ref { *this }, event = WTF::move(event)] {
-        document->dispatchEvent(event);
+    queueTaskKeepingNodeAlive(*this, source, [event = WTF::move(event)](auto& document) {
+        document.dispatchEvent(event);
     });
 }
 

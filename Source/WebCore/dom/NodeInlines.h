@@ -278,6 +278,7 @@ inline void collectChildNodes(Node& node, NodeVector& children)
 template<typename T, typename Task>
 void Node::queueTaskKeepingNodeAlive(T& node, TaskSource source, Task&& task)
 {
+    static_assert(!std::is_base_of_v<ActiveDOMObject, T>, "Use ActiveDOMObject::queueTaskKeepingObjectAlive instead");
     protect(protect(node.document())->eventLoop())->queueTask(source, [protectedThis = GCReachableRef(node), task = std::forward<Task>(task)]() mutable {
         // Static analyzer does not know about GCReachableRef.
         SUPPRESS_UNCOUNTED_ARG task(protectedThis.get());

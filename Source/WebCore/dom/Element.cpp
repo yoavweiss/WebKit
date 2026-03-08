@@ -61,7 +61,6 @@
 #include "ElementTextDirection.h"
 #include "EventDispatcher.h"
 #include "EventHandler.h"
-#include "EventLoop.h"
 #include "EventNames.h"
 #include "FocusController.h"
 #include "FocusEvent.h"
@@ -4319,10 +4318,10 @@ void Element::dispatchBlurEvent(RefPtr<Element>&& newFocusedElement)
 
 void Element::enqueueFocusedElementDisconnectedEvent()
 {
-    document().eventLoop().queueTask(TaskSource::DOMManipulation, [element = GCReachableRef { *this }] {
-        Ref event = FocusEvent::create(eventNames().webkitfocusedelementdisconnectedEvent, Event::CanBubble::No, Event::IsCancelable::No, element->document().windowProxy(), 0, nullptr);
+    queueTaskKeepingNodeAlive(*this, TaskSource::DOMManipulation, [](auto& element) {
+        Ref event = FocusEvent::create(eventNames().webkitfocusedelementdisconnectedEvent, Event::CanBubble::No, Event::IsCancelable::No, element.document().windowProxy(), 0, nullptr);
         event->setIsAutofillEvent();
-        element->dispatchEvent(event);
+        element.dispatchEvent(event);
     });
 }
 
@@ -4354,11 +4353,11 @@ bool Element::dispatchMouseForceWillBegin()
 
 void Element::enqueueSecurityPolicyViolationEvent(SecurityPolicyViolationEventInit&& eventInit)
 {
-    document().eventLoop().queueTask(TaskSource::DOMManipulation, [this, protectedThis = Ref { *this }, event = SecurityPolicyViolationEvent::create(eventNames().securitypolicyviolationEvent, WTF::move(eventInit), Event::IsTrusted::Yes)] {
-        if (!isConnected())
-            protect(document())->dispatchEvent(event);
+    queueTaskKeepingNodeAlive(*this, TaskSource::DOMManipulation, [event = SecurityPolicyViolationEvent::create(eventNames().securitypolicyviolationEvent, WTF::move(eventInit), Event::IsTrusted::Yes)](auto& element) {
+        if (!element.isConnected())
+            protect(element.document())->dispatchEvent(event);
         else
-            dispatchEvent(event);
+            element.dispatchEvent(event);
     });
 }
 
