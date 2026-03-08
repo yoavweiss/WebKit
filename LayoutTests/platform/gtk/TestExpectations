@@ -240,8 +240,6 @@ webkit.org/b/61661 editing/pasteboard/drag-drop-list.html [ Failure ]
 # Needs testRunner.enableAutoResizeMode()
 webkit.org/b/99028 fast/autoresize [ Failure ]
 
-webkit.org/b/224105 compositing/video/video-clip-change-src.html [ ImageOnlyFailure Pass ]
-
 # WebGL ANGLE backend failures
 webkit.org/b/245840 webgl/1.0.x/conformance/context/premultiplyalpha-test.html [ Failure ]
 webkit.org/b/245840 fast/canvas/webgl/drawingbuffer-test.html [ Failure ]

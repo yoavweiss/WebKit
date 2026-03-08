@@ -2702,6 +2702,8 @@ fast/mediastream/image-capture-grabFrame.html [ Failure ]
 fast/mediastream/microphone-interruption-and-audio-session.html [ Skip ]
 http/tests/webrtc/audioSessionInFrames.html [ Failure ]
 
+webkit.org/b/309435 webrtc/video-mute.html [ Pass Failure ]
+
 webrtc/clone-audio-track.html [ Pass Failure ]
 
 webkit.org/b/194611 http/wpt/webrtc/getUserMedia-processSwapping.html [ Failure ]
@@ -2715,6 +2717,10 @@ webkit.org/b/235885 webrtc/datachannel/datachannel-stats.html [ Skip ]
 webkit.org/b/235885 webrtc/datachannel/getStats-no-prflx-remote-candidate.html [ Failure ]
 # Crash due to webkit.org/b/286859
 webkit.org/b/187064 imported/w3c/web-platform-tests/webrtc/RTCPeerConnection-getStats.https.html [ Failure Crash ]
+
+# This test has an expectation that one subtest should fail, but in glib it passes rarely. If it starts passing
+# more consistently in glib we probably should have a baseline for glib ports.
+webkit.org/b/309440 imported/w3c/web-platform-tests/webrtc/RTCPeerConnection-createOffer.html [ Pass Failure ]
 
 # Missing support for qpSum WebRTC stats.
 webkit.org/b/269285 webrtc/h265.html [ Failure Timeout ]
@@ -2820,7 +2826,7 @@ webkit.org/b/235885 webrtc/peerconnection-page-cache.html [ Skip ]
 webkit.org/b/235885 webrtc/peerconnection-page-cache-long.html [ Skip ]
 webkit.org/b/235885 webrtc/peer-connection-remote-audio-mute2.html [ Crash Pass Failure ]
 webkit.org/b/235885 webrtc/peer-connection-track-end.html [ Failure ]
-webkit.org/b/235885 webrtc/video-disabled-black.html [ Crash Pass ]
+webkit.org/b/235885 webrtc/video-disabled-black.html [ Pass Failure ]
 webkit.org/b/235885 webrtc/video-maxFramerate.html [ Failure ]
 webkit.org/b/235885 webrtc/video-replace-muted-track.html [ Skip ]
 # webkit.org/b/235885 webrtc/video-stats.html [ Failure ]
@@ -2889,7 +2895,6 @@ imported/w3c/web-platform-tests/webrtc/RTCPeerConnection-connectionState.https.h
 imported/w3c/web-platform-tests/webrtc/RTCPeerConnection-constructor.html [ Pass ]
 imported/w3c/web-platform-tests/webrtc/RTCPeerConnection-createAnswer.html [ Pass ]
 imported/w3c/web-platform-tests/webrtc/RTCPeerConnection-createDataChannel.html [ Skip ] # Timeout
-imported/w3c/web-platform-tests/webrtc/RTCPeerConnection-createOffer.html [ Pass ]
 imported/w3c/web-platform-tests/webrtc/RTCPeerConnection-description-attributes-timing.https.html [ Pass ]
 imported/w3c/web-platform-tests/webrtc/RTCPeerConnection-generateCertificate.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/RTCPeerConnection-getStats-timestamp.https.html [ Pass Failure ]
@@ -3334,6 +3339,7 @@ webkit.org/b/232346 media/video-canvas-drawing-output.html [ Failure ]
 webkit.org/b/232346 media/video-orientation-canvas.html [ Failure ]
 
 webkit.org/b/307033 media/video-main-content-deny-not-in-dom.html [ Pass Timeout ]
+webkit.org/b/309436 media/video-load-preload-metadata.html [ Pass Failure ]
 
 # These are skipped globally as they only work with the web-platform.test domain.
 imported/w3c/web-platform-tests/fetch/metadata/fetch.https.sub.any.html [ Pass ]
@@ -3529,6 +3535,8 @@ imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/t
 imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/track/track-element/track-cues-seeking.html [ Skip ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/track/track-element/track-cues-sorted-before-dispatch.html [ Skip ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/offsets-into-the-media-resource/currentTime-move-within-document.html [ Skip ]
+
+webkit.org/b/309434 imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/loading-the-media-resource/resource-selection-source-media-env-change.html [ Pass Crash ]
 
 # PiP / presentation-mode is not supported yet
 webkit.org/b/202756 media/airplay-wirelessvideoplaybackdisabled.html [ Skip ]
@@ -4253,6 +4261,8 @@ webkit.org/b/229062 fast/forms/caps-lock-indicator-width.html [ Skip ]
 # Test is a flaky timeout. The test is also skipped in iOS and Windows.
 media/video-remote-control-playpause.html [ Skip ]
 
+webkit.org/b/309438 media/remote-control-command-scrubbing.html [ Pass Timeout ]
+
 # Failure Pass Crash Timeout
 webkit.org/b/207062 webkit.org/b/244776 imported/w3c/web-platform-tests/media-source/mediasource-replay.html [ Skip ]
 
@@ -4510,6 +4520,7 @@ webkit.org/b/169918 compositing/tiling/tiled-reflection-inwindow.html [ Failure 
 webkit.org/b/169918 compositing/tiling/transform-origin-tiled.html [ Failure ]
 # See also bug #175575
 webkit.org/b/169918 compositing/video/video-object-position.html [ Failure Timeout ]
+webkit.org/b/224105 compositing/video/video-clip-change-src.html [ Pass Timeout ]
 webkit.org/b/206499 compositing/visibility/visibility-change-in-subframe.html [ Failure ]
 webkit.org/b/169918 compositing/visibility/visibility-image-layers-dynamic.html [ Failure ]
 webkit.org/b/186667 compositing/repaint/iframes/composited-iframe-with-fixed-background-doc-repaint.html [ Failure Pass ]
