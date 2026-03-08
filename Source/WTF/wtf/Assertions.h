@@ -251,7 +251,7 @@ WTF_EXPORT_PRIVATE bool WTFIsDebuggerAttached(void);
 
 // This ordering was chosen to be consistent with JSC's JIT asserts. We probably shouldn't change this ordering
 // since it would make tooling crash reports much harder. If, for whatever reason, we decide to change the ordering
-// here we should update the abortWithReason functions.
+// here we should update the abortWithuint64_t functions.
 #define CRASH_ARG_GPR0 "rdi"
 #define CRASH_ARG_GPR1 "rsi"
 #define CRASH_ARG_GPR2 "rdx"
@@ -297,29 +297,15 @@ WTF_EXPORT_PRIVATE bool WTFIsDebuggerAttached(void);
 #define CRASH_GPR5 "x22"
 #define CRASH_GPR6 "x23"
 
-#elif CPU(ARM_THUMB2)
-
-#define WTF_FATAL_CRASH_INST "bkpt #0" // Remember to build with -mthumb
-
-// See comment above on the ordering.
-#define CRASH_ARG_GPR0 "r0"
-#define CRASH_ARG_GPR1 "r1"
-#define CRASH_ARG_GPR2 "r2"
-#define CRASH_ARG_GPR3 "r3"
-
-#define CRASH_GPR0 "r4"
-#define CRASH_GPR1 "r5"
-#define CRASH_GPR2 "r6"
-#define CRASH_GPR3 "r8"
-#define CRASH_GPR4 "r9"
-#define CRASH_GPR5 "r10"
-#define CRASH_GPR6 "r11"
-
-#endif // CPU(ARM_THUMB2)
+#endif // CPU(ARM64)
 
 #if ASAN_ENABLED
 #define WTFBreakpointTrap()  __builtin_trap()
-#elif CPU(X86_64) || CPU(X86) || CPU(ARM64) || CPU(ARM_THUMB2)
+#elif CPU(X86_64) || CPU(X86)
+#define WTFBreakpointTrap()  __asm__ volatile (WTF_FATAL_CRASH_INST)
+#elif CPU(ARM_THUMB2)
+#define WTFBreakpointTrap()  __asm__ volatile ("bkpt #0")
+#elif CPU(ARM64)
 #define WTFBreakpointTrap()  __asm__ volatile (WTF_FATAL_CRASH_INST)
 #else
 #define WTFBreakpointTrap() WTFCrash() // Not implemented.
@@ -329,7 +315,7 @@ WTF_EXPORT_PRIVATE bool WTFIsDebuggerAttached(void);
 
 #ifndef CRASH
 
-#if defined(NDEBUG) && (OS(DARWIN) || PLATFORM(PLAYSTATION) || OS(LINUX))
+#if defined(NDEBUG) && (OS(DARWIN) || PLATFORM(PLAYSTATION))
 // Crash with a SIGTRAP i.e EXC_BREAKPOINT.
 // We are not using __builtin_trap because it is only guaranteed to abort, but not necessarily
 // trigger a SIGTRAP. Instead, we use inline asm to ensure that we trigger the SIGTRAP.
@@ -916,13 +902,13 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END \
 
 // The combination of line, file, and function should be a unique number per call to this crash. This tricks the compiler into not coalescing calls to WTFCrashWithInfo.
 // The easiest way to fill these values per translation unit is to pass __LINE__, __FILE__, and WTF_PRETTY_FUNCTION.
-WTF_EXPORT_PRIVATE NO_RETURN_DUE_TO_CRASH NOT_TAIL_CALLED void NODELETE WTFCrashWithInfoImpl(int line, const char* file, const char* function, uintptr_t reason, uintptr_t misc1, uintptr_t misc2, uintptr_t misc3, uintptr_t misc4, uintptr_t misc5, uintptr_t misc6);
-WTF_EXPORT_PRIVATE NO_RETURN_DUE_TO_CRASH NOT_TAIL_CALLED void NODELETE WTFCrashWithInfoImpl(int line, const char* file, const char* function, uintptr_t reason, uintptr_t misc1, uintptr_t misc2, uintptr_t misc3, uintptr_t misc4, uintptr_t misc5);
-WTF_EXPORT_PRIVATE NO_RETURN_DUE_TO_CRASH NOT_TAIL_CALLED void WTFCrashWithInfoImpl(int line, const char* file, const char* function, uintptr_t reason, uintptr_t misc1, uintptr_t misc2, uintptr_t misc3, uintptr_t misc4);
-WTF_EXPORT_PRIVATE NO_RETURN_DUE_TO_CRASH NOT_TAIL_CALLED void WTFCrashWithInfoImpl(int line, const char* file, const char* function, uintptr_t reason, uintptr_t misc1, uintptr_t misc2, uintptr_t misc3);
-WTF_EXPORT_PRIVATE NO_RETURN_DUE_TO_CRASH NOT_TAIL_CALLED void WTFCrashWithInfoImpl(int line, const char* file, const char* function, uintptr_t reason, uintptr_t misc1, uintptr_t misc2);
-WTF_EXPORT_PRIVATE NO_RETURN_DUE_TO_CRASH NOT_TAIL_CALLED void WTFCrashWithInfoImpl(int line, const char* file, const char* function, uintptr_t reason, uintptr_t misc1);
-WTF_EXPORT_PRIVATE NO_RETURN_DUE_TO_CRASH NOT_TAIL_CALLED void WTFCrashWithInfoImpl(int line, const char* file, const char* function, uintptr_t reason);
+WTF_EXPORT_PRIVATE NO_RETURN_DUE_TO_CRASH NOT_TAIL_CALLED void NODELETE WTFCrashWithInfoImpl(int line, const char* file, const char* function, uint64_t reason, uint64_t misc1, uint64_t misc2, uint64_t misc3, uint64_t misc4, uint64_t misc5, uint64_t misc6);
+WTF_EXPORT_PRIVATE NO_RETURN_DUE_TO_CRASH NOT_TAIL_CALLED void NODELETE WTFCrashWithInfoImpl(int line, const char* file, const char* function, uint64_t reason, uint64_t misc1, uint64_t misc2, uint64_t misc3, uint64_t misc4, uint64_t misc5);
+WTF_EXPORT_PRIVATE NO_RETURN_DUE_TO_CRASH NOT_TAIL_CALLED void WTFCrashWithInfoImpl(int line, const char* file, const char* function, uint64_t reason, uint64_t misc1, uint64_t misc2, uint64_t misc3, uint64_t misc4);
+WTF_EXPORT_PRIVATE NO_RETURN_DUE_TO_CRASH NOT_TAIL_CALLED void WTFCrashWithInfoImpl(int line, const char* file, const char* function, uint64_t reason, uint64_t misc1, uint64_t misc2, uint64_t misc3);
+WTF_EXPORT_PRIVATE NO_RETURN_DUE_TO_CRASH NOT_TAIL_CALLED void WTFCrashWithInfoImpl(int line, const char* file, const char* function, uint64_t reason, uint64_t misc1, uint64_t misc2);
+WTF_EXPORT_PRIVATE NO_RETURN_DUE_TO_CRASH NOT_TAIL_CALLED void WTFCrashWithInfoImpl(int line, const char* file, const char* function, uint64_t reason, uint64_t misc1);
+WTF_EXPORT_PRIVATE NO_RETURN_DUE_TO_CRASH NOT_TAIL_CALLED void WTFCrashWithInfoImpl(int line, const char* file, const char* function, uint64_t reason);
 #if !ASAN_ENABLED && (OS(DARWIN) || PLATFORM(PLAYSTATION)) && (CPU(X86_64) || CPU(ARM64))
 NO_RETURN_DUE_TO_CRASH ALWAYS_INLINE void WTFCrashWithInfo(int line, const char* file, const char* function);
 #else
@@ -930,10 +916,10 @@ NO_RETURN_DUE_TO_CRASH NOT_TAIL_CALLED void WTFCrashWithInfo(int line, const cha
 #endif
 
 template<typename T>
-ALWAYS_INLINE uintptr_t wtfCrashArg(T* arg) { return reinterpret_cast<uintptr_t>(arg); }
+ALWAYS_INLINE uint64_t wtfCrashArg(T* arg) { return reinterpret_cast<uintptr_t>(arg); }
 
 template<typename T>
-ALWAYS_INLINE uintptr_t wtfCrashArg(T arg) { return static_cast<uintptr_t>(arg); }
+ALWAYS_INLINE uint64_t wtfCrashArg(T arg) { return static_cast<uint64_t>(arg); }
 
 template<typename T>
 NO_RETURN_DUE_TO_CRASH ALWAYS_INLINE void WTFCrashWithInfo(int line, const char* file, const char* function, T reason)
@@ -977,16 +963,16 @@ NO_RETURN_DUE_TO_CRASH ALWAYS_INLINE void WTFCrashWithInfo(int line, const char*
     WTFCrashWithInfoImpl(line, file, function, wtfCrashArg(reason), wtfCrashArg(misc1), wtfCrashArg(misc2), wtfCrashArg(misc3), wtfCrashArg(misc4), wtfCrashArg(misc5), wtfCrashArg(misc6));
 }
 
-#if !ASAN_ENABLED && (OS(DARWIN) || PLATFORM(PLAYSTATION) || OS(LINUX)) && (CPU(X86_64) || CPU(ARM64) || CPU(ARM_THUMB2))
+#if !ASAN_ENABLED && (OS(DARWIN) || PLATFORM(PLAYSTATION)) && (CPU(X86_64) || CPU(ARM64))
 
 NO_RETURN_DUE_TO_CRASH ALWAYS_INLINE void WTFCrashWithInfo(int line, const char* file, const char* function)
 {
-    uintptr_t x0Value = static_cast<uintptr_t>(static_cast<int64_t>(line));
-    uintptr_t x1Value = reinterpret_cast<uintptr_t>(file);
-    uintptr_t x2Value = reinterpret_cast<uintptr_t>(function);
-    register uintptr_t x0GPR __asm__(CRASH_ARG_GPR0) = x0Value;
-    register uintptr_t x1GPR __asm__(CRASH_ARG_GPR1) = x1Value;
-    register uintptr_t x2GPR __asm__(CRASH_ARG_GPR2) = x2Value;
+    uint64_t x0Value = static_cast<uint64_t>(static_cast<int64_t>(line));
+    uint64_t x1Value = reinterpret_cast<uintptr_t>(file);
+    uint64_t x2Value = reinterpret_cast<uintptr_t>(function);
+    register uint64_t x0GPR __asm__(CRASH_ARG_GPR0) = x0Value;
+    register uint64_t x1GPR __asm__(CRASH_ARG_GPR1) = x1Value;
+    register uint64_t x2GPR __asm__(CRASH_ARG_GPR2) = x2Value;
     __asm__ volatile (WTF_FATAL_CRASH_INST : : "r"(x0GPR), "r"(x1GPR), "r"(x2GPR));
     __builtin_unreachable();
 }
