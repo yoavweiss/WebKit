@@ -23,6 +23,8 @@
 #include <WebCore/CharacterData.h>
 #include <WebCore/Document.h>
 #include <WebCore/Element.h>
+#include <WebCore/EventLoop.h>
+#include <WebCore/GCReachableRef.h>
 #include <WebCore/InspectorInstrumentationPublic.h>
 #include <WebCore/LayoutRect.h>
 #include <WebCore/Node.h>
@@ -271,6 +273,15 @@ inline void collectChildNodes(Node& node, NodeVector& children)
 {
     for (SUPPRESS_UNCOUNTED_LOCAL Node* child = node.firstChild(); child; child = child->nextSibling())
         children.append(*child);
+}
+
+template<typename T, typename Task>
+void Node::queueTaskKeepingNodeAlive(T& node, TaskSource source, Task&& task)
+{
+    protect(protect(node.document())->eventLoop())->queueTask(source, [protectedThis = GCReachableRef(node), task = std::forward<Task>(task)]() mutable {
+        // Static analyzer does not know about GCReachableRef.
+        SUPPRESS_UNCOUNTED_ARG task(protectedThis.get());
+    });
 }
 
 } // namespace WebCore

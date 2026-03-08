@@ -38,10 +38,8 @@
 #include "ElementInlines.h"
 #include "ElementTextDirection.h"
 #include "Event.h"
-#include "EventLoop.h"
 #include "EventNames.h"
 #include "FrameSelection.h"
-#include "GCReachableRef.h"
 #include "HTMLBRElement.h"
 #include "HTMLFormElement.h"
 #include "HTMLInputElement.h"
@@ -594,9 +592,9 @@ void HTMLTextFormControlElement::scheduleSelectionChangeEvent()
         return;
 
     m_hasScheduledSelectionChangeEvent = true;
-    document().eventLoop().queueTask(TaskSource::UserInteraction, [textControl = GCReachableRef { *this }] {
-        textControl->m_hasScheduledSelectionChangeEvent = false;
-        textControl->dispatchEvent(Event::create(eventNames().selectionchangeEvent, Event::CanBubble::Yes, Event::IsCancelable::No));
+    queueTaskKeepingNodeAlive(*this, TaskSource::UserInteraction, [](auto& textControl) {
+        textControl.m_hasScheduledSelectionChangeEvent = false;
+        textControl.dispatchEvent(Event::create(eventNames().selectionchangeEvent, Event::CanBubble::Yes, Event::IsCancelable::No));
     });
 }
 
