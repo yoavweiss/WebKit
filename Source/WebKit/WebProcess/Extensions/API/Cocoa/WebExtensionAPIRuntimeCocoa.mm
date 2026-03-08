@@ -217,7 +217,8 @@ void WebExtensionAPIRuntime::getPlatformInfo(Ref<WebExtensionCallbackHandler>&& 
 #endif
 
     auto globalContext = callback->globalContext();
-    callback->call(fromObject(callback->globalContext(), {
+    // This is a safer cpp false positive (rdar://163760990).
+    SUPPRESS_UNCOUNTED_ARG callback->call(fromObject(callback->globalContext(), {
         { "os"_s, Protected(globalContext, JSValueMakeString(globalContext, toJSString(osValue).get())) },
         { "arch"_s, Protected(globalContext, JSValueMakeString(globalContext, toJSString(archValue).get())) }
     }));
