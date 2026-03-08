@@ -276,7 +276,6 @@ public:
     WEBCORE_EXPORT ExceptionOr<void> setAttribute(const AtomString& qualifiedName, const AtomString& value);
     ExceptionOr<void> setAttribute(const AtomString& qualifiedName, const TrustedTypeOrString& value);
     unsigned validateAttributeIndex(unsigned index, const QualifiedName& qname) const;
-    static ExceptionOr<QualifiedName> parseAttributeName(const AtomString& namespaceURI, const AtomString& qualifiedName);
     WEBCORE_EXPORT ExceptionOr<void> setAttributeNS(const AtomString& namespaceURI, const AtomString& qualifiedName, const AtomString& value);
     ExceptionOr<void> setAttributeNS(const AtomString& namespaceURI, const AtomString& qualifiedName, const TrustedTypeOrString& value);
 

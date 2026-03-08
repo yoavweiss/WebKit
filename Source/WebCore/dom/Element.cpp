@@ -107,6 +107,7 @@
 #include "Logging.h"
 #include "MutationObserverInterestGroup.h"
 #include "MutationRecord.h"
+#include "NameValidation.h"
 #include "NodeInlines.h"
 #include "NodeName.h"
 #include "NodeRenderStyle.h"
@@ -2119,8 +2120,8 @@ ALWAYS_INLINE unsigned Element::validateAttributeIndex(unsigned index, const Qua
 // https://dom.spec.whatwg.org/#dom-element-toggleattribute
 ExceptionOr<bool> Element::toggleAttribute(const AtomString& qualifiedName, std::optional<bool> force)
 {
-    if (!Document::isValidName(qualifiedName))
-        return Exception { ExceptionCode::InvalidCharacterError, makeString("Invalid qualified name: '"_s, qualifiedName, '\'') };
+    if (!NameValidation::isValidAttributeName(qualifiedName))
+        return Exception { ExceptionCode::InvalidCharacterError, makeString("Invalid attribute name: '"_s, qualifiedName, '\'') };
 
     synchronizeAttribute(qualifiedName);
 
@@ -2148,8 +2149,8 @@ ExceptionOr<void> Element::setAttribute(const AtomString& qualifiedName, const A
 
 ExceptionOr<void> Element::setAttribute(const AtomString& qualifiedName, const TrustedTypeOrString& value)
 {
-    if (!Document::isValidName(qualifiedName))
-        return Exception { ExceptionCode::InvalidCharacterError, makeString("Invalid qualified name: '"_s, qualifiedName, '\'') };
+    if (!NameValidation::isValidAttributeName(qualifiedName))
+        return Exception { ExceptionCode::InvalidCharacterError, makeString("Invalid attribute name: '"_s, qualifiedName, '\'') };
 
     synchronizeAttribute(qualifiedName);
     auto caseAdjustedQualifiedName = shouldIgnoreAttributeCase(*this) ? qualifiedName.convertToASCIILowercase() : qualifiedName;
@@ -3899,17 +3900,6 @@ ExceptionOr<Ref<Attr>> Element::removeAttributeNode(Attr& attr)
     return oldAttrNode;
 }
 
-ExceptionOr<QualifiedName> Element::parseAttributeName(const AtomString& namespaceURI, const AtomString& qualifiedName)
-{
-    auto parseResult = Document::parseQualifiedName(namespaceURI, qualifiedName);
-    if (parseResult.hasException())
-        return parseResult.releaseException();
-    QualifiedName parsedAttributeName { parseResult.releaseReturnValue() };
-    if (!Document::hasValidNamespaceForAttributes(parsedAttributeName))
-        return Exception { ExceptionCode::NamespaceError };
-    return parsedAttributeName;
-}
-
 ExceptionOr<void> Element::setAttributeNS(const AtomString& namespaceURI, const AtomString& qualifiedName, const AtomString& value)
 {
     return setAttributeNS(namespaceURI, qualifiedName, TrustedTypeOrString { value });
@@ -3917,13 +3907,15 @@ ExceptionOr<void> Element::setAttributeNS(const AtomString& namespaceURI, const 
 
 ExceptionOr<void> Element::setAttributeNS(const AtomString& namespaceURI, const AtomString& qualifiedName, const TrustedTypeOrString& value)
 {
-    auto result = parseAttributeName(namespaceURI, qualifiedName);
-    if (result.hasException())
-        return result.releaseException();
+    auto parseResult = NameValidation::parseQualifiedAttributeName(namespaceURI, qualifiedName);
+    if (parseResult.hasException())
+        return parseResult.releaseException();
+    QualifiedName parsedAttributeName { parseResult.releaseReturnValue() };
+    if (!NameValidation::hasValidNamespaceForAttributes(parsedAttributeName))
+        return Exception { ExceptionCode::NamespaceError };
     if (!document().settings().trustedTypesEnabled())
-        setAttribute(result.releaseReturnValue(), std::get<AtomString>(value));
+        setAttribute(parsedAttributeName, std::get<AtomString>(value));
     else {
-        QualifiedName parsedAttributeName = result.returnValue();
         AttributeTypeAndSink type;
         if (document().contextDocument().requiresTrustedTypes())
             type = trustedTypeForAttribute(nodeName(), parsedAttributeName.localName(), this->namespaceURI(), parsedAttributeName.namespaceURI());
@@ -3932,7 +3924,7 @@ ExceptionOr<void> Element::setAttributeNS(const AtomString& namespaceURI, const 
         if (compliantValue.hasException())
             return compliantValue.releaseException();
 
-        setAttribute(result.releaseReturnValue(), compliantValue.releaseReturnValue());
+        setAttribute(parsedAttributeName, compliantValue.releaseReturnValue());
     }
 
     return { };

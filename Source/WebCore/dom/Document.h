@@ -1250,19 +1250,6 @@ public:
     void setSiteForCookies(const URL& url) { m_siteForCookies = url; }
     bool isSameSiteForCookies(const URL&) const;
 
-    // The following implements the rule from HTML 4 for what valid names are.
-    // To get this right for all the XML cases, we probably have to improve this or move it
-    // and make it sensitive to the type of document.
-    static bool NODELETE isValidName(const String&);
-
-    // The following breaks a qualified name into a prefix and a local name.
-    // It also does a validity check, and returns an error if the qualified name is invalid.
-    static ExceptionOr<std::pair<AtomString, AtomString>> parseQualifiedName(const AtomString& qualifiedName);
-    static ExceptionOr<QualifiedName> parseQualifiedName(const AtomString& namespaceURI, const AtomString& qualifiedName);
-
-    // Checks to make sure prefix and namespace do not conflict (per DOM Core 3)
-    static bool hasValidNamespaceForElements(const QualifiedName&);
-    static bool hasValidNamespaceForAttributes(const QualifiedName&);
 
     // This is the "HTML body element" as defined by CSSOM View spec, the first body child of the
     // document element. See http://dev.w3.org/csswg/cssom-view/#the-html-body-element.

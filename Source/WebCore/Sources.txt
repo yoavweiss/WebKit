@@ -1321,6 +1321,7 @@ dom/MutationObserverInterestGroup.cpp
 dom/MutationObserverRegistration.cpp
 dom/MutationRecord.cpp
 dom/NameNodeList.cpp
+dom/NameValidation.cpp
 dom/NamedNodeMap.cpp
 dom/NativeNodeFilter.cpp
 dom/Node.cpp

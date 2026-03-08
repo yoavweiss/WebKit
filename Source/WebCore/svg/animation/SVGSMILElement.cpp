@@ -35,6 +35,7 @@
 #include "EventSender.h"
 #include "FloatConversion.h"
 #include "LocalFrameView.h"
+#include "NameValidation.h"
 #include "NodeName.h"
 #include "Page.h"
 #include "SMILTimeContainer.h"
@@ -214,7 +215,7 @@ bool SVGSMILElement::hasPresentationalHintsForAttribute(const QualifiedName& nam
 
 inline QualifiedName SVGSMILElement::constructAttributeName() const
 {
-    auto parseResult = Document::parseQualifiedName(attributeWithoutSynchronization(SVGNames::attributeNameAttr));
+    auto parseResult = NameValidation::parseQualifiedAttributeName(attributeWithoutSynchronization(SVGNames::attributeNameAttr));
     if (parseResult.hasException())
         return anyQName();
 

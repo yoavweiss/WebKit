@@ -30,6 +30,7 @@
 #include "DocumentInlines.h"
 #include "DocumentResourceLoader.h"
 #include "DocumentView.h"
+#include "FrameDestructionObserverInlines.h"
 #include "FrameLoader.h"
 #include "LocalFrame.h"
 #include "MediaQueryParser.h"

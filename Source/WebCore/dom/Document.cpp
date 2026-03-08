@@ -199,6 +199,7 @@
 #include "MouseEventWithHitTestResults.h"
 #include "MutationEvent.h"
 #include "NameNodeList.h"
+#include "NameValidation.h"
 #include "Navigation.h"
 #include "NavigationActivation.h"
 #include "NavigationDisabler.h"
@@ -519,24 +520,6 @@ static void CallbackForContainIntrinsicSize(const Vector<Ref<ResizeObserverEntry
             }
         }
     }
-}
-
-// https://www.w3.org/TR/xml/#NT-NameStartChar
-// NameStartChar       ::=       ":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
-static inline bool NODELETE isValidNameStart(char32_t c)
-{
-    return c == ':' || (c >= 'A' && c <= 'Z') || c == '_' || (c >= 'a' && c <= 'z') || (c >= 0x00C0 && c <= 0x00D6)
-        || (c >= 0x00D8 && c <= 0x00F6) || (c >= 0x00F8 && c <= 0x02FF) || (c >= 0x0370 && c <= 0x037D) || (c >= 0x037F && c <= 0x1FFF)
-        || (c >= 0x200C && c <= 0x200D) || (c >= 0x2070 && c <= 0x218F) || (c >= 0x2C00 && c <= 0x2FeF) || (c >= 0x3001 && c <= 0xD7FF)
-        || (c >= 0xF900 && c <= 0xFDCF) || (c >= 0xFDF0 && c <= 0xFFFD) || (c >= 0x10000 && c <= 0xEFFFF);
-}
-
-// https://www.w3.org/TR/xml/#NT-NameChar
-// NameChar       ::=       NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
-static inline bool NODELETE isValidNamePart(char32_t c)
-{
-    return isValidNameStart(c) || c == '-' || c == '.' || (c >= '0' && c <= '9') || c == 0x00B7
-        || (c >= 0x0300 && c <= 0x036F) || (c >= 0x203F && c <= 0x2040);
 }
 
 static Widget* NODELETE widgetForElement(Element* focusedElement)
@@ -1550,16 +1533,6 @@ static ALWAYS_INLINE Ref<HTMLElement> createUpgradeCandidateElement(Document& do
     return createUpgradeCandidateElement(document, registry, QualifiedName { nullAtom(), localName, xhtmlNamespaceURI });
 }
 
-static inline bool NODELETE isValidHTMLElementName(const AtomString& localName)
-{
-    return Document::isValidName(localName);
-}
-
-static inline bool NODELETE isValidHTMLElementName(const QualifiedName& name)
-{
-    return Document::isValidName(name.localName());
-}
-
 template<typename NameType>
 static ExceptionOr<Ref<Element>> createHTMLElementWithNameValidation(Document& document, const NameType& name, CustomElementRegistry* registry)
 {
@@ -1575,7 +1548,7 @@ static ExceptionOr<Ref<Element>> createHTMLElementWithNameValidation(Document& d
             return elementInterface->constructElementWithFallback(document, *registry, name);
     }
 
-    if (!isValidHTMLElementName(name)) [[unlikely]]
+    if (!NameValidation::isValidElementName(name)) [[unlikely]]
         return Exception { ExceptionCode::InvalidCharacterError };
 
     return Ref<Element> { createUpgradeCandidateElement(document, registry, name) };
@@ -1603,7 +1576,7 @@ ExceptionOr<Ref<Element>> Document::createElementForBindings(const AtomString& n
         if (document->isXHTMLDocument())
             return createHTMLElementWithNameValidation(document, name, registry.get());
 
-        if (!document->isValidName(name))
+        if (!NameValidation::isValidElementName(name))
             return Exception { ExceptionCode::InvalidCharacterError, makeString("Invalid qualified name: '"_s, name, '\'') };
 
         return createElement(QualifiedName(nullAtom(), name, nullAtom()), false, registry.get());
@@ -1654,8 +1627,8 @@ ExceptionOr<Ref<CDATASection>> Document::createCDATASection(String&& data)
 
 ExceptionOr<Ref<ProcessingInstruction>> Document::createProcessingInstruction(String&& target, String&& data)
 {
-    if (!isValidName(target))
-        return Exception { ExceptionCode::InvalidCharacterError, makeString("Invalid qualified name: '"_s, target, '\'') };
+    if (!NameValidation::isValidXMLName(target))
+        return Exception { ExceptionCode::InvalidCharacterError, makeString("Invalid processing instruction target: '"_s, target, '\'') };
 
     if (data.contains("?>"_s))
         return Exception { ExceptionCode::InvalidCharacterError };
@@ -1746,28 +1719,6 @@ ExceptionOr<Ref<Node>> Document::adoptNode(Node& source)
     source.setTreeScopeRecursively(*this);
 
     return Ref<Node> { source };
-}
-
-bool Document::hasValidNamespaceForElements(const QualifiedName& qName)
-{
-    // These checks are from DOM Core Level 2, createElementNS
-    // http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-DocCrElNS
-    if (!qName.prefix().isEmpty() && qName.namespaceURI().isNull()) // createElementNS(null, "html:div")
-        return false;
-    if (qName.prefix() == xmlAtom() && qName.namespaceURI() != XMLNames::xmlNamespaceURI) // createElementNS("http://www.example.com", "xml:lang")
-        return false;
-
-    // Required by DOM Level 3 Core and unspecified by DOM Level 2 Core:
-    // http://www.w3.org/TR/2004/REC-DOM-Level-3-Core-20040407/core.html#ID-DocCrElNS
-    // createElementNS("http://www.w3.org/2000/xmlns/", "foo:bar"), createElementNS(null, "xmlns:bar"), createElementNS(null, "xmlns")
-    if (qName.prefix() == xmlnsAtom() || (qName.prefix().isEmpty() && qName.localName() == xmlnsAtom()))
-        return qName.namespaceURI() == XMLNSNames::xmlnsNamespaceURI;
-    return qName.namespaceURI() != XMLNSNames::xmlnsNamespaceURI;
-}
-
-bool Document::hasValidNamespaceForAttributes(const QualifiedName& qName)
-{
-    return hasValidNamespaceForElements(qName);
 }
 
 static Ref<HTMLElement> createFallbackHTMLElement(Document& document, CustomElementRegistry* registry, const QualifiedName& name)
@@ -2039,11 +1990,11 @@ ExceptionOr<Ref<Element>> Document::createElementNS(const AtomString& namespaceU
         if (opportunisticallyMatchedBuiltinElement) [[likely]]
             return opportunisticallyMatchedBuiltinElement.releaseNonNull();
 
-        auto parseResult = Document::parseQualifiedName(namespaceURI, qualifiedName);
+        auto parseResult = NameValidation::parseQualifiedElementName(namespaceURI, qualifiedName);
         if (parseResult.hasException())
             return parseResult.releaseException();
         QualifiedName parsedName { parseResult.releaseReturnValue() };
-        if (!Document::hasValidNamespaceForElements(parsedName))
+        if (!NameValidation::hasValidNamespaceForElements(parsedName))
             return Exception { ExceptionCode::NamespaceError };
 
         if (parsedName.namespaceURI() == xhtmlNamespaceURI)
@@ -7476,138 +7427,6 @@ void Document::updateCachedCookiesEnabled()
     });
 }
 
-static bool NODELETE isValidNameNonASCII(std::span<const Latin1Character> characters)
-{
-    if (!isValidNameStart(characters[0]))
-        return false;
-
-    for (size_t i = 1; i < characters.size(); ++i) {
-        if (!isValidNamePart(characters[i]))
-            return false;
-    }
-
-    return true;
-}
-
-static bool NODELETE isValidNameNonASCII(std::span<const char16_t> characters)
-{
-    for (size_t i = 0; i < characters.size();) {
-        bool first = !i;
-        char32_t c;
-        U16_NEXT(characters, i, characters.size(), c); // Increments i.
-        if (first ? !isValidNameStart(c) : !isValidNamePart(c))
-            return false;
-    }
-
-    return true;
-}
-
-template<typename CharType>
-static inline bool NODELETE isValidNameASCII(std::span<const CharType> characters)
-{
-    CharType c = characters[0];
-    if (!(isASCIIAlpha(c) || c == ':' || c == '_'))
-        return false;
-
-    for (size_t i = 1; i < characters.size(); ++i) {
-        c = characters[i];
-        if (!(isASCIIAlphanumeric(c) || c == ':' || c == '_' || c == '-' || c == '.'))
-            return false;
-    }
-
-    return true;
-}
-
-static bool NODELETE isValidNameASCIIWithoutColon(std::span<const Latin1Character> characters)
-{
-    auto c = characters.front();
-    if (!(isASCIIAlpha(c) || c == '_'))
-        return false;
-
-    for (size_t i = 1; i < characters.size(); ++i) {
-        c = characters[i];
-        if (!(isASCIIAlphanumeric(c) || c == '_' || c == '-' || c == '.'))
-            return false;
-    }
-
-    return true;
-}
-
-bool Document::isValidName(const String& name)
-{
-    unsigned length = name.length();
-    if (!length)
-        return false;
-
-    if (name.is8Bit()) {
-        auto characters = name.span8();
-
-        if (isValidNameASCII(characters))
-            return true;
-
-        return isValidNameNonASCII(characters);
-    }
-
-    auto characters = name.span16();
-
-    if (isValidNameASCII(characters))
-        return true;
-
-    return isValidNameNonASCII(characters);
-}
-
-ExceptionOr<std::pair<AtomString, AtomString>> Document::parseQualifiedName(const AtomString& qualifiedName)
-{
-    unsigned length = qualifiedName.length();
-
-    if (!length)
-        return Exception { ExceptionCode::InvalidCharacterError };
-
-    bool nameStart = true;
-    bool sawColon = false;
-    unsigned colonPosition = 0;
-
-    bool isValidLocalName = qualifiedName.is8Bit() && isValidNameASCIIWithoutColon(qualifiedName.span8());
-    if (isValidLocalName) [[likely]]
-        return std::pair<AtomString, AtomString> { { }, { qualifiedName } };
-
-    for (unsigned i = 0; i < length; ) {
-        char32_t c;
-        U16_NEXT(qualifiedName, i, length, c);
-        if (c == ':') {
-            if (sawColon)
-                return Exception { ExceptionCode::InvalidCharacterError, makeString("Unexpected colon in qualified name '"_s, qualifiedName, '\'') };
-            nameStart = true;
-            sawColon = true;
-            colonPosition = i - 1;
-        } else if (nameStart) {
-            if (!isValidNameStart(c))
-                return Exception { ExceptionCode::InvalidCharacterError, makeString("Invalid qualified name start in '"_s, qualifiedName, '\'') };
-            nameStart = false;
-        } else {
-            if (!isValidNamePart(c))
-                return Exception { ExceptionCode::InvalidCharacterError, makeString("Invalid qualified name part in '"_s, qualifiedName, '\'') };
-        }
-    }
-
-    if (!sawColon)
-        return std::pair<AtomString, AtomString> { { }, { qualifiedName } };
-
-    if (!colonPosition || length - colonPosition <= 1)
-        return Exception { ExceptionCode::InvalidCharacterError, makeString("Namespace in qualified name '"_s, qualifiedName, "' is too short"_s) };
-
-    return std::pair<AtomString, AtomString> { StringView { qualifiedName }.left(colonPosition).toAtomString(), StringView { qualifiedName }.substring(colonPosition + 1).toAtomString() };
-}
-
-ExceptionOr<QualifiedName> Document::parseQualifiedName(const AtomString& namespaceURI, const AtomString& qualifiedName)
-{
-    auto parseResult = parseQualifiedName(qualifiedName);
-    if (parseResult.hasException())
-        return parseResult.releaseException();
-    auto parsedPieces = parseResult.releaseReturnValue();
-    return QualifiedName { parsedPieces.first, parsedPieces.second, namespaceURI };
-}
-
 void Document::setDecoder(RefPtr<TextResourceDecoder>&& decoder)
 {
     m_decoder = WTF::move(decoder);
@@ -8173,18 +7992,18 @@ ScriptModuleLoader& Document::ensureModuleLoader()
 
 ExceptionOr<Ref<Attr>> Document::createAttribute(const AtomString& localName)
 {
-    if (!isValidName(localName))
-        return Exception { ExceptionCode::InvalidCharacterError, makeString("Invalid qualified name: '"_s, localName, '\'') };
+    if (!NameValidation::isValidAttributeName(localName))
+        return Exception { ExceptionCode::InvalidCharacterError, makeString("Invalid attribute name: '"_s, localName, '\'') };
     return Attr::create(*this, QualifiedName { nullAtom(), isHTMLDocument() ? localName.convertToASCIILowercase() : localName, nullAtom() }, emptyAtom());
 }
 
 ExceptionOr<Ref<Attr>> Document::createAttributeNS(const AtomString& namespaceURI, const AtomString& qualifiedName, bool shouldIgnoreNamespaceChecks)
 {
-    auto parseResult = parseQualifiedName(namespaceURI, qualifiedName);
+    auto parseResult = NameValidation::parseQualifiedAttributeName(namespaceURI, qualifiedName);
     if (parseResult.hasException())
         return parseResult.releaseException();
     QualifiedName parsedName { parseResult.releaseReturnValue() };
-    if (!shouldIgnoreNamespaceChecks && !hasValidNamespaceForAttributes(parsedName))
+    if (!shouldIgnoreNamespaceChecks && !NameValidation::hasValidNamespaceForAttributes(parsedName))
         return Exception { ExceptionCode::NamespaceError };
     return Attr::create(*this, parsedName, emptyAtom());
 }

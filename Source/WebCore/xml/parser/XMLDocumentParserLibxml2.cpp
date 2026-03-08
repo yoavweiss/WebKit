@@ -52,6 +52,7 @@
 #include "LocalDOMWindow.h"
 #include "LocalFrame.h"
 #include "MIMETypeRegistry.h"
+#include "NameValidation.h"
 #include "NodeDocument.h"
 #include "NodeInlines.h"
 #include "OriginAccessPatterns.h"
@@ -764,11 +765,12 @@ static inline bool handleNamespaceAttributes(Vector<Attribute>& prefixedAttribut
         if (xmlNamespace.prefix)
             namespaceQName = makeAtomString("xmlns:"_s, toString(xmlNamespace.prefix));
 
-        auto result = Element::parseAttributeName(XMLNSNames::xmlnsNamespaceURI, namespaceQName);
-        if (result.hasException())
+        auto parseResult = NameValidation::parseQualifiedAttributeName(XMLNSNames::xmlnsNamespaceURI, namespaceQName);
+        if (parseResult.hasException())
             return false;
-
-        QualifiedName attributeName = result.releaseReturnValue();
+        QualifiedName attributeName { parseResult.releaseReturnValue() };
+        if (!NameValidation::hasValidNamespaceForAttributes(attributeName))
+            return false;
         if (attributeName == HTMLNames::customelementregistryAttr)
             shouldUseNullCustomElementRegistry = true;
 
@@ -796,11 +798,12 @@ static inline bool handleElementAttributes(Vector<Attribute>& prefixedAttributes
         AtomString attrURI = attrPrefix.isEmpty() ? nullAtom() : toAtomString(attribute.uri);
         AtomString attrQName = attrPrefix.isEmpty() ? toAtomString(attribute.localname) : makeAtomString(attrPrefix, ':', toString(attribute.localname));
 
-        auto result = Element::parseAttributeName(attrURI, attrQName);
-        if (result.hasException())
+        auto parseResult = NameValidation::parseQualifiedAttributeName(attrURI, attrQName);
+        if (parseResult.hasException())
             return false;
-
-        QualifiedName attributeName = result.releaseReturnValue();
+        QualifiedName attributeName { parseResult.releaseReturnValue() };
+        if (!NameValidation::hasValidNamespaceForAttributes(attributeName))
+            return false;
         if (attributeName == HTMLNames::customelementregistryAttr)
             shouldUseNullCustomElementRegistry = true;
 
