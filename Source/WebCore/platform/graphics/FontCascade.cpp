@@ -1158,23 +1158,21 @@ std::pair<unsigned, bool> FontCascade::expansionOpportunityCountInternal(std::sp
         ++count;
         isAfterExpansion = true;
     }
-    if (direction == TextDirection::LTR) {
-        for (auto character : characters) {
+    auto handleExpansionsForCharacters = [&](const auto& range) {
+        for (auto character : range) {
             if (treatAsSpace(character)) {
                 ++count;
                 isAfterExpansion = true;
             } else
                 isAfterExpansion = false;
         }
-    } else {
-        for (auto character : characters | std::views::reverse) {
-            if (treatAsSpace(character)) {
-                ++count;
-                isAfterExpansion = true;
-            } else
-                isAfterExpansion = false;
-        }
-    }
+    };
+
+    if (direction == TextDirection::LTR)
+        handleExpansionsForCharacters(characters);
+    else
+        handleExpansionsForCharacters(characters | std::views::reverse);
+
     if (!isAfterExpansion && expansionBehavior.right == ExpansionBehavior::Behavior::Force) {
         ++count;
         isAfterExpansion = true;
