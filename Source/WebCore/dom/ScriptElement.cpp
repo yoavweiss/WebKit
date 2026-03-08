@@ -301,8 +301,8 @@ bool ScriptElement::prepareScript(const TextPosition& scriptStartPosition)
     case ScriptType::SpeculationRules: {
         // If the element has a source attribute, queue a task to fire an event named error at the element, and return.
         if (hasSourceAttribute()) {
-            protect(protect(element->document())->eventLoop())->queueTask(TaskSource::DOMManipulation, [protectedThis = Ref { *this }] {
-                protectedThis->dispatchErrorEvent();
+            queueTaskKeepingObjectAlive(*this, TaskSource::DOMManipulation, [](auto& element) {
+                element.dispatchErrorEvent();
             });
             return false;
         }
@@ -391,8 +391,8 @@ bool ScriptElement::requestClassicScript(const String& sourceURL)
     if (m_loadableScript)
         return true;
 
-    document->eventLoop().queueTask(TaskSource::DOMManipulation, [protectedThis = Ref { *this }] {
-        protectedThis->dispatchErrorEvent();
+    queueTaskKeepingObjectAlive(*this, TaskSource::DOMManipulation, [](auto& element) {
+        element.dispatchErrorEvent();
     });
     return false;
 }
