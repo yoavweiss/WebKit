@@ -2277,8 +2277,8 @@ static uint64_t calculateFlattenedLength(JSGlobalObject* globalObject, JSArray* 
                 }
             } else {
                 if (element.isObject()) {
-                    auto elementObject = asObject(element);
-                    if (elementObject->isProxy()) [[unlikely]]
+                    JSType type = asObject(element)->type();
+                    if (type == ProxyObjectType || type == DerivedArrayType) [[unlikely]]
                         return std::numeric_limits<uint64_t>::max();
                 }
                 resultLength++;
