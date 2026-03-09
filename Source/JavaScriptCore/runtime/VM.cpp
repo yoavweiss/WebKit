@@ -1901,6 +1901,8 @@ void VM::visitAggregateImpl(Visitor& visitor)
     visitor.append(m_slowCanConstructBoundExecutable);
     visitor.append(lastCachedString);
     visitor.append(heapBigIntConstantOne);
+    visitor.append(m_cachedBigIntDivisor);
+    visitor.append(m_nextCachedBigIntDivisor);
 
     visitor.append(m_promiseResolvingFunctionResolveExecutable);
     visitor.append(m_promiseResolvingFunctionRejectExecutable);

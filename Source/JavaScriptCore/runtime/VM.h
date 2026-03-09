@@ -620,6 +620,12 @@ public:
 
     WriteBarrier<JSBigInt> heapBigIntConstantOne;
 
+    // Cached multiplicative inverse for BigInt modulo optimization.
+    WriteBarrier<JSBigInt> m_cachedBigIntDivisor;
+    WriteBarrier<JSBigInt> m_nextCachedBigIntDivisor;
+    Vector<UCPURegister> m_bigIntCachedInverse;
+    int m_bigIntDivisorCount { 0 };
+
     JSCell* orderedHashTableDeletedValue()
     {
         return m_orderedHashTableDeletedValue.get();
