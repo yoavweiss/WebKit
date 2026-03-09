@@ -115,6 +115,9 @@ void AutoTableLayout::recalcColumn(unsigned effCol)
                             // ignore width=0
                             if (fixedCellLogicalWidth.isPositive() && !columnLayout.logicalWidth.isPercentOrCalculated()) {
                                 float logicalWidth = cell->adjustBorderBoxLogicalWidthForBoxSizing(fixedCellLogicalWidth);
+                                // Honor the cell's CSS max-width constraint.
+                                if (auto fixedMaxWidth = cell->style().logicalMaxWidth().tryFixed())
+                                    logicalWidth = std::min(logicalWidth, cell->adjustBorderBoxLogicalWidthForBoxSizing(*fixedMaxWidth).toFloat());
                                 if (auto fixedColumnLayoutLogicalWidth = columnLayout.logicalWidth.tryFixed()) {
                                     // Nav/IE weirdness
                                     if ((logicalWidth > fixedColumnLayoutLogicalWidth->resolveZoom(cellUsedZoom))
