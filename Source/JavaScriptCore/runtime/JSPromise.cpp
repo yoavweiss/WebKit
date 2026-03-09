@@ -255,7 +255,7 @@ void JSPromise::performPromiseThen(VM& vm, JSGlobalObject* globalObject, JSValue
     JSValue reactionsOrResult = this->reactionsOrResult();
     switch (status()) {
     case JSPromise::Status::Pending: {
-        auto* reaction = JSPromiseReaction::create(vm, promiseOrCapability, onFulfilled, onRejected, jsUndefined(), jsDynamicCast<JSPromiseReaction*>(reactionsOrResult));
+        auto* reaction = JSPromiseReaction::create(vm, promiseOrCapability, onFulfilled, onRejected, jsUndefined(), reactionsOrResult ? jsCast<JSPromiseReaction*>(reactionsOrResult) : nullptr);
         setReactionsOrResult(vm, reaction);
         markAsHandled();
         break;
@@ -280,7 +280,7 @@ void JSPromise::performPromiseThenWithInternalMicrotask(VM& vm, JSGlobalObject* 
     switch (status()) {
     case JSPromise::Status::Pending: {
         JSValue encodedTask = jsNumber(static_cast<int32_t>(task));
-        auto* reaction = JSPromiseReaction::create(vm, promise, encodedTask, encodedTask, context, jsDynamicCast<JSPromiseReaction*>(reactionsOrResult));
+        auto* reaction = JSPromiseReaction::create(vm, promise, encodedTask, encodedTask, context, reactionsOrResult ? jsCast<JSPromiseReaction*>(reactionsOrResult) : nullptr);
         setReactionsOrResult(vm, reaction);
         markAsHandled();
         break;
@@ -324,7 +324,7 @@ void JSPromise::rejectPromise(VM& vm, JSGlobalObject* globalObject, JSValue argu
 {
     ASSERT(status() == Status::Pending);
     int32_t flags = this->flags();
-    auto* reactions = jsDynamicCast<JSPromiseReaction*>(this->reactionsOrResult());
+    JSValue reactions = this->reactionsOrResult();
     internalField(Field::Flags).setWithoutWriteBarrier(jsNumber(static_cast<int32_t>(flags | static_cast<uint32_t>(Status::Rejected))));
     internalField(Field::ReactionsOrResult).set(vm, this, argument);
 
@@ -333,19 +333,20 @@ void JSPromise::rejectPromise(VM& vm, JSGlobalObject* globalObject, JSValue argu
 
     if (!reactions)
         return;
-    triggerPromiseReactions(vm, globalObject, Status::Rejected, reactions, argument);
+    triggerPromiseReactions(vm, globalObject, Status::Rejected, jsCast<JSPromiseReaction*>(reactions), argument);
 }
 
 void JSPromise::fulfillPromise(VM& vm, JSGlobalObject* globalObject, JSValue argument)
 {
     ASSERT(status() == Status::Pending);
     int32_t flags = this->flags();
-    auto* reactions = jsDynamicCast<JSPromiseReaction*>(this->reactionsOrResult());
+    JSValue reactions = this->reactionsOrResult();
     internalField(Field::Flags).setWithoutWriteBarrier(jsNumber(static_cast<int32_t>(flags | static_cast<uint32_t>(Status::Fulfilled))));
     internalField(Field::ReactionsOrResult).set(vm, this, argument);
+
     if (!reactions)
         return;
-    triggerPromiseReactions(vm, globalObject, Status::Fulfilled, reactions, argument);
+    triggerPromiseReactions(vm, globalObject, Status::Fulfilled, jsCast<JSPromiseReaction*>(reactions), argument);
 }
 
 void JSPromise::resolvePromise(JSGlobalObject* globalObject, VM& vm, JSValue resolution)
@@ -550,8 +551,28 @@ std::tuple<JSFunction*, JSFunction*> JSPromise::createResolvingFunctionsWithInte
 
 void JSPromise::triggerPromiseReactions(VM& vm, JSGlobalObject* globalObject, Status status, JSPromiseReaction* head, JSValue argument)
 {
-    if (!head)
+    bool isResolved = status == JSPromise::Status::Fulfilled;
+
+    auto queue = [&](JSPromiseReaction* reaction) ALWAYS_INLINE_LAMBDA {
+        JSValue promise = reaction->promise();
+        JSValue handler = isResolved ? reaction->onFulfilled() : reaction->onRejected();
+        JSValue context = reaction->context();
+        JSValue arg = argument;
+        InternalMicrotask task = InternalMicrotask::PromiseReactionJob;
+        if (handler.isInt32()) {
+            task = static_cast<InternalMicrotask>(handler.asInt32());
+            handler = arg;
+            arg = context;
+        } else
+            ASSERT(context.isUndefinedOrNull());
+        globalObject->queueMicrotask(vm, task, static_cast<uint8_t>(status), promise, handler, arg);
+    };
+
+    ASSERT(head);
+    if (!head->next()) [[likely]] {
+        queue(head);
         return;
+    }
 
     // Reverse the order of singly-linked-list.
     JSPromiseReaction* previous = nullptr;
@@ -566,22 +587,12 @@ void JSPromise::triggerPromiseReactions(VM& vm, JSGlobalObject* globalObject, St
     }
     head = previous;
 
-    bool isResolved = status == JSPromise::Status::Fulfilled;
     auto* current = head;
-    while (current) {
-        JSValue promise = current->promise();
-        JSValue handler = isResolved ? current->onFulfilled() : current->onRejected();
-        JSValue context = current->context();
-        current = current->next();
-
-        if (handler.isInt32()) {
-            auto task = static_cast<InternalMicrotask>(handler.asInt32());
-            globalObject->queueMicrotask(vm, task, static_cast<uint8_t>(status), promise, argument, context);
-            continue;
-        }
-        ASSERT(context.isUndefinedOrNull());
-        globalObject->queueMicrotask(vm, InternalMicrotask::PromiseReactionJob, static_cast<uint8_t>(status), promise, handler, argument);
-    }
+    do {
+        auto* next = current->next();
+        queue(current);
+        current = next;
+    } while (current);
 }
 
 void JSPromise::resolveWithInternalMicrotaskForAsyncAwait(JSGlobalObject* globalObject, VM& vm, JSValue resolution, InternalMicrotask task, JSValue context)

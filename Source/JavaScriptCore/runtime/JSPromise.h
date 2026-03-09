@@ -65,7 +65,7 @@ public:
     {
         return { {
             jsNumber(static_cast<int32_t>(Status::Pending)),
-            jsUndefined(),
+            JSValue(),
         } };
     }
 
@@ -91,7 +91,6 @@ public:
             return jsUndefined();
         return internalField(Field::ReactionsOrResult).get();
     }
-
 
     JS_EXPORT_PRIVATE static JSPromise* resolvedPromise(JSGlobalObject*, JSValue);
     JS_EXPORT_PRIVATE static JSPromise* rejectedPromise(JSGlobalObject*, JSValue);
@@ -156,13 +155,14 @@ protected:
     JSPromise(VM&, Structure*);
     void finishCreation(VM&);
 
-    static void triggerPromiseReactions(VM&, JSGlobalObject*, JSPromise::Status, JSPromiseReaction* head, JSValue argument);
-
     inline int32_t flags() const
     {
         JSValue value = internalField(Field::Flags).get();
         return value.asInt32AsAnyInt();
     }
+
+private:
+    static void triggerPromiseReactions(VM&, JSGlobalObject*, JSPromise::Status, JSPromiseReaction* head, JSValue argument);
 };
 
 static constexpr PropertyOffset promiseCapabilityResolvePropertyOffset = 0;
