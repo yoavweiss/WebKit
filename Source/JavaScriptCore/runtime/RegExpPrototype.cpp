@@ -1046,7 +1046,7 @@ JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncReplace, (JSGlobalObject* globalObject, 
     }
 
     // 13. Let accumulatedResult be the empty String.
-    StringBuilder accumulatedResult;
+    StringBuilder accumulatedResult(OverflowPolicy::RecordOverflow);
 
     // 14. Let nextSourcePosition be 0.
     unsigned nextSourcePosition = 0;
