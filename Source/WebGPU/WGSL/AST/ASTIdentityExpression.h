@@ -39,6 +39,7 @@ class IdentityExpression final : public Expression {
 public:
     NodeKind kind() const override;
     Expression& expression() { return m_expression.get(); }
+    const Expression& expression() const { return m_expression.get(); }
 
 private:
     IdentityExpression(SourceSpan span, Expression::Ref&& expression)

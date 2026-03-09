@@ -224,6 +224,8 @@
 		97BCD6AE29D7422B00A82577 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1CBAB0912718CCA0006080BB /* JavaScriptCore.framework */; };
 		97C36CFE29F1730100CFB379 /* Constraints.h in Headers */ = {isa = PBXBuildFile; fileRef = 97C36CFC29F1730000CFB379 /* Constraints.h */; };
 		97C36CFF29F1730100CFB379 /* Constraints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 97C36CFD29F1730000CFB379 /* Constraints.cpp */; };
+		97CB27C02F43C25F0024DD32 /* AliasAnalysis.h in Headers */ = {isa = PBXBuildFile; fileRef = 97CB27BE2F43C25F0024DD32 /* AliasAnalysis.h */; };
+		97CB27C12F43C25F0024DD32 /* AliasAnalysis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 97CB27BF2F43C25F0024DD32 /* AliasAnalysis.cpp */; };
 		97D398E32B05106000D8C4AA /* ASTFloat16Literal.h in Headers */ = {isa = PBXBuildFile; fileRef = 97D398E22B05106000D8C4AA /* ASTFloat16Literal.h */; };
 		97D398E62B06A85B00D8C4AA /* ASTDiagnosticDirective.h in Headers */ = {isa = PBXBuildFile; fileRef = 97D398E42B06A85B00D8C4AA /* ASTDiagnosticDirective.h */; };
 		97D398E72B06A85B00D8C4AA /* ASTDiagnostic.h in Headers */ = {isa = PBXBuildFile; fileRef = 97D398E52B06A85B00D8C4AA /* ASTDiagnostic.h */; };
@@ -557,6 +559,8 @@
 		97B4CFCA2CAAF3CD00C87163 /* WGSLShaderModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WGSLShaderModule.cpp; sourceTree = "<group>"; };
 		97C36CFC29F1730000CFB379 /* Constraints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constraints.h; sourceTree = "<group>"; };
 		97C36CFD29F1730000CFB379 /* Constraints.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Constraints.cpp; sourceTree = "<group>"; };
+		97CB27BE2F43C25F0024DD32 /* AliasAnalysis.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AliasAnalysis.h; sourceTree = "<group>"; };
+		97CB27BF2F43C25F0024DD32 /* AliasAnalysis.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AliasAnalysis.cpp; sourceTree = "<group>"; };
 		97D398E22B05106000D8C4AA /* ASTFloat16Literal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASTFloat16Literal.h; sourceTree = "<group>"; };
 		97D398E42B06A85B00D8C4AA /* ASTDiagnosticDirective.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASTDiagnosticDirective.h; sourceTree = "<group>"; };
 		97D398E52B06A85B00D8C4AA /* ASTDiagnostic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASTDiagnostic.h; sourceTree = "<group>"; };
@@ -749,6 +753,8 @@
 				33EA185C27BC193D00A1DD52 /* AST */,
 				97296763299BFB72001C8BD4 /* generator */,
 				979240B1297018290050EA2C /* Metal */,
+				97CB27BF2F43C25F0024DD32 /* AliasAnalysis.cpp */,
+				97CB27BE2F43C25F0024DD32 /* AliasAnalysis.h */,
 				3AD0D2362988D3F90080D728 /* API.h */,
 				97A448A02AE3544800A4E147 /* AttributeValidator.cpp */,
 				97A4489F2AE3544800A4E147 /* AttributeValidator.h */,
@@ -1039,6 +1045,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				97CB27C02F43C25F0024DD32 /* AliasAnalysis.h in Headers */,
 				3AD0D2372988D3F90080D728 /* API.h in Headers */,
 				3A12AEB728FCE94C00C1B975 /* AST.h in Headers */,
 				3A12AED728FCFC5600C1B975 /* ASTAbstractFloatLiteral.h in Headers */,
@@ -1404,6 +1411,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				97CB27C12F43C25F0024DD32 /* AliasAnalysis.cpp in Sources */,
 				3AD0D23E2988F3AB0080D728 /* ASTBinaryExpression.cpp in Sources */,
 				97835C9529F7D85A00939EBA /* ASTBuilder.cpp in Sources */,
 				97E21C8B2A1F5DCC009CEB0E /* ASTDecrementIncrementStatement.cpp in Sources */,
