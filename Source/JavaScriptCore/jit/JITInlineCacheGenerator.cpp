@@ -63,7 +63,7 @@ void JITInlineCacheGenerator::finalize(
     LinkBuffer& fastPath, LinkBuffer& slowPath, CodeLocationLabel<JITStubRoutinePtrTag> start)
 {
     ASSERT(m_propertyCache);
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
     m_propertyCache->startLocation = start;
     m_propertyCache->doneLocation = fastPath.locationOf<JSInternalPtrTag>(m_done);
     m_propertyCache->m_slowPathCallLocation = slowPath.locationOf<JSInternalPtrTag>(m_slowPathCall);
@@ -73,13 +73,8 @@ void JITInlineCacheGenerator::finalize(
 void JITInlineCacheGenerator::generateDataICFastPath(CCallHelpers& jit, GPRReg propertyCacheGPR)
 {
     m_start = jit.label();
-    if (Options::useHandlerIC()) {
-        jit.loadPtr(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfHandler()), GPRInfo::handlerGPR);
-        jit.call(CCallHelpers::Address(GPRInfo::handlerGPR, InlineCacheHandler::offsetOfCallTarget()), JITStubRoutinePtrTag);
-    } else {
-        jit.loadPtr(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfHandler()), jit.scratchRegister());
-        jit.farJump(CCallHelpers::Address(jit.scratchRegister(), InlineCacheHandler::offsetOfCallTarget()), JITStubRoutinePtrTag);
-    }
+    jit.loadPtr(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfHandler()), GPRInfo::handlerGPR);
+    jit.call(CCallHelpers::Address(GPRInfo::handlerGPR, InlineCacheHandler::offsetOfCallTarget()), JITStubRoutinePtrTag);
     m_done = jit.label();
 }
 
@@ -96,12 +91,12 @@ void JITByIdGenerator::finalize(LinkBuffer& fastPath, LinkBuffer& slowPath)
 {
     ASSERT(m_propertyCache);
     JITInlineCacheGenerator::finalize(fastPath, slowPath, fastPath.locationOf<JITStubRoutinePtrTag>(m_start));
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
 }
 
 void JITByIdGenerator::generateFastCommon(CCallHelpers& jit, size_t inlineICSize)
 {
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
     jit.padBeforePatch(); // On ARMv7, this ensures that the patchable jump does not make the inline code too large.
     m_start = jit.label();
     size_t startSize = jit.m_assembler.buffer().codeSize();
@@ -165,20 +160,15 @@ static void generateGetByIdInlineAccessBaselineDataIC(CCallHelpers& jit, GPRReg 
     }
 
     slowCases.link(&jit);
-    if (Options::useHandlerIC()) {
-        jit.loadPtr(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfHandler()), GPRInfo::handlerGPR);
-        jit.call(CCallHelpers::Address(GPRInfo::handlerGPR, InlineCacheHandler::offsetOfCallTarget()), JITStubRoutinePtrTag);
-    } else {
-        jit.loadPtr(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfHandler()), jit.scratchRegister());
-        jit.farJump(CCallHelpers::Address(jit.scratchRegister(), InlineCacheHandler::offsetOfCallTarget()), JITStubRoutinePtrTag);
-    }
+    jit.loadPtr(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfHandler()), GPRInfo::handlerGPR);
+    jit.call(CCallHelpers::Address(GPRInfo::handlerGPR, InlineCacheHandler::offsetOfCallTarget()), JITStubRoutinePtrTag);
     doneCases.link(&jit);
 }
 
 void JITGetByIdGenerator::generateFastPath(CCallHelpers& jit)
 {
     ASSERT(m_propertyCache);
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
     generateFastCommon(jit, m_isLengthAccess ? InlineAccess::sizeForLengthAccess() : InlineAccess::sizeForPropertyAccess());
 }
 
@@ -210,7 +200,7 @@ JITGetByIdWithThisGenerator::JITGetByIdWithThisGenerator(
 void JITGetByIdWithThisGenerator::generateFastPath(CCallHelpers& jit)
 {
     ASSERT(m_propertyCache);
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
     generateFastCommon(jit, InlineAccess::sizeForPropertyAccess());
 }
 
@@ -248,13 +238,8 @@ static void generatePutByIdInlineAccessBaselineDataIC(CCallHelpers& jit, GPRReg 
     jit.storeProperty(valueJSR, baseJSR.payloadGPR(), scratch1GPR, scratch2GPR);
     auto done = jit.jump();
     doNotInlineAccess.link(&jit);
-    if (Options::useHandlerIC()) {
-        jit.loadPtr(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfHandler()), GPRInfo::handlerGPR);
-        jit.call(CCallHelpers::Address(GPRInfo::handlerGPR, InlineCacheHandler::offsetOfCallTarget()), JITStubRoutinePtrTag);
-    } else {
-        jit.loadPtr(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfHandler()), jit.scratchRegister());
-        jit.farJump(CCallHelpers::Address(jit.scratchRegister(), InlineCacheHandler::offsetOfCallTarget()), JITStubRoutinePtrTag);
-    }
+    jit.loadPtr(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfHandler()), GPRInfo::handlerGPR);
+    jit.call(CCallHelpers::Address(GPRInfo::handlerGPR, InlineCacheHandler::offsetOfCallTarget()), JITStubRoutinePtrTag);
     done.link(&jit);
 }
 
@@ -274,7 +259,7 @@ void JITPutByIdGenerator::generateDataICFastPath(CCallHelpers& jit)
 void JITPutByIdGenerator::generateFastPath(CCallHelpers& jit)
 {
     ASSERT(m_propertyCache);
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
     generateFastCommon(jit, InlineAccess::sizeForPropertyReplace());
 }
 
@@ -289,7 +274,7 @@ JITDelByValGenerator::JITDelByValGenerator(CodeBlock* codeBlock, CompileTimeProp
 void JITDelByValGenerator::generateFastPath(CCallHelpers& jit)
 {
     ASSERT(m_propertyCache);
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
     m_start = jit.label();
     m_slowPathJump = jit.patchableJump();
     m_done = jit.label();
@@ -305,7 +290,7 @@ void JITDelByValGenerator::finalize(LinkBuffer& fastPath, LinkBuffer& slowPath)
 {
     ASSERT(m_propertyCache);
     Base::finalize(fastPath, slowPath, fastPath.locationOf<JITStubRoutinePtrTag>(m_start));
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
 }
 
 JITDelByIdGenerator::JITDelByIdGenerator(CodeBlock* codeBlock, CompileTimePropertyInlineCache propertyCache, JITType jitType, CodeOrigin codeOrigin, CallSiteIndex callSiteIndex, AccessType accessType, const RegisterSet& usedRegisters, CacheableIdentifier propertyName, JSValueRegs base, JSValueRegs result, GPRReg propertyCacheGPR)
@@ -319,7 +304,7 @@ JITDelByIdGenerator::JITDelByIdGenerator(CodeBlock* codeBlock, CompileTimeProper
 void JITDelByIdGenerator::generateFastPath(CCallHelpers& jit)
 {
     ASSERT(m_propertyCache);
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
     m_start = jit.label();
     m_slowPathJump = jit.patchableJump();
     m_done = jit.label();
@@ -335,7 +320,7 @@ void JITDelByIdGenerator::finalize(LinkBuffer& fastPath, LinkBuffer& slowPath)
 {
     ASSERT(m_propertyCache);
     Base::finalize(fastPath, slowPath, fastPath.locationOf<JITStubRoutinePtrTag>(m_start));
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
 }
 
 JITInByValGenerator::JITInByValGenerator(CodeBlock* codeBlock, CompileTimePropertyInlineCache propertyCache, JITType jitType, CodeOrigin codeOrigin, CallSiteIndex callSiteIndex, AccessType accessType, const RegisterSet& usedRegisters, JSValueRegs base, JSValueRegs property, JSValueRegs result, GPRReg arrayProfileGPR, GPRReg propertyCacheGPR)
@@ -349,7 +334,7 @@ JITInByValGenerator::JITInByValGenerator(CodeBlock* codeBlock, CompileTimeProper
 void JITInByValGenerator::generateFastPath(CCallHelpers& jit)
 {
     ASSERT(m_propertyCache);
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
     m_start = jit.label();
     m_slowPathJump = jit.patchableJump();
     m_done = jit.label();
@@ -367,7 +352,7 @@ void JITInByValGenerator::finalize(
     ASSERT(m_start.isSet());
     ASSERT(m_propertyCache);
     Base::finalize(fastPath, slowPath, fastPath.locationOf<JITStubRoutinePtrTag>(m_start));
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
 }
 
 JITInByIdGenerator::JITInByIdGenerator(
@@ -388,20 +373,15 @@ static void generateInByIdInlineAccessBaselineDataIC(CCallHelpers& jit, GPRReg p
     jit.boxBoolean(true, resultJSR);
     auto finished = jit.jump();
     skipInlineAccess.link(&jit);
-    if (Options::useHandlerIC()) {
-        jit.loadPtr(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfHandler()), GPRInfo::handlerGPR);
-        jit.call(CCallHelpers::Address(GPRInfo::handlerGPR, InlineCacheHandler::offsetOfCallTarget()), JITStubRoutinePtrTag);
-    } else {
-        jit.loadPtr(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfHandler()), jit.scratchRegister());
-        jit.farJump(CCallHelpers::Address(jit.scratchRegister(), InlineCacheHandler::offsetOfCallTarget()), JITStubRoutinePtrTag);
-    }
+    jit.loadPtr(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfHandler()), GPRInfo::handlerGPR);
+    jit.call(CCallHelpers::Address(GPRInfo::handlerGPR, InlineCacheHandler::offsetOfCallTarget()), JITStubRoutinePtrTag);
     finished.link(&jit);
 }
 
 void JITInByIdGenerator::generateFastPath(CCallHelpers& jit)
 {
     ASSERT(m_propertyCache);
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
     generateFastCommon(jit, InlineAccess::sizeForPropertyAccess());
 }
 
@@ -431,7 +411,7 @@ JITInstanceOfGenerator::JITInstanceOfGenerator(
 void JITInstanceOfGenerator::generateFastPath(CCallHelpers& jit)
 {
     ASSERT(m_propertyCache);
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
     m_start = jit.label();
     m_slowPathJump = jit.patchableJump();
     m_done = jit.label();
@@ -447,7 +427,7 @@ void JITInstanceOfGenerator::finalize(LinkBuffer& fastPath, LinkBuffer& slowPath
 {
     ASSERT(m_propertyCache);
     Base::finalize(fastPath, slowPath, fastPath.locationOf<JITStubRoutinePtrTag>(m_start));
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
 }
 
 JITGetByValGenerator::JITGetByValGenerator(CodeBlock* codeBlock, CompileTimePropertyInlineCache propertyCache, JITType jitType, CodeOrigin codeOrigin, CallSiteIndex callSiteIndex, AccessType accessType, const RegisterSet& usedRegisters, JSValueRegs base, JSValueRegs property, JSValueRegs result, GPRReg arrayProfileGPR, GPRReg propertyCacheGPR)
@@ -463,7 +443,7 @@ JITGetByValGenerator::JITGetByValGenerator(CodeBlock* codeBlock, CompileTimeProp
 void JITGetByValGenerator::generateFastPath(CCallHelpers& jit)
 {
     ASSERT(m_propertyCache);
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
     m_start = jit.label();
     m_slowPathJump = jit.patchableJump();
     m_done = jit.label();
@@ -485,7 +465,7 @@ void JITGetByValGenerator::finalize(LinkBuffer& fastPath, LinkBuffer& slowPath)
 {
     ASSERT(m_propertyCache);
     Base::finalize(fastPath, slowPath, fastPath.locationOf<JITStubRoutinePtrTag>(m_start));
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
 }
 
 JITGetByValWithThisGenerator::JITGetByValWithThisGenerator(CodeBlock* codeBlock, CompileTimePropertyInlineCache propertyCache, JITType jitType, CodeOrigin codeOrigin, CallSiteIndex callSiteIndex, AccessType accessType, const RegisterSet& usedRegisters, JSValueRegs base, JSValueRegs property, JSValueRegs thisRegs, JSValueRegs result, GPRReg arrayProfileGPR, GPRReg propertyCacheGPR)
@@ -501,7 +481,7 @@ JITGetByValWithThisGenerator::JITGetByValWithThisGenerator(CodeBlock* codeBlock,
 void JITGetByValWithThisGenerator::generateFastPath(CCallHelpers& jit)
 {
     ASSERT(m_propertyCache);
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
     m_start = jit.label();
     m_slowPathJump = jit.patchableJump();
     m_done = jit.label();
@@ -525,7 +505,7 @@ void JITGetByValWithThisGenerator::finalize(LinkBuffer& fastPath, LinkBuffer& sl
 {
     ASSERT(m_propertyCache);
     Base::finalize(fastPath, slowPath, fastPath.locationOf<JITStubRoutinePtrTag>(m_start));
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
 }
 
 JITPutByValGenerator::JITPutByValGenerator(CodeBlock* codeBlock, CompileTimePropertyInlineCache propertyCache, JITType jitType, CodeOrigin codeOrigin, CallSiteIndex callSiteIndex, AccessType accessType, const RegisterSet& usedRegisters, JSValueRegs base, JSValueRegs property, JSValueRegs value, GPRReg arrayProfileGPR, GPRReg propertyCacheGPR)
@@ -541,7 +521,7 @@ JITPutByValGenerator::JITPutByValGenerator(CodeBlock* codeBlock, CompileTimeProp
 void JITPutByValGenerator::generateFastPath(CCallHelpers& jit)
 {
     ASSERT(m_propertyCache);
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
     m_start = jit.label();
     m_slowPathJump = jit.patchableJump();
     m_done = jit.label();
@@ -557,7 +537,7 @@ void JITPutByValGenerator::finalize(LinkBuffer& fastPath, LinkBuffer& slowPath)
 {
     ASSERT(m_propertyCache);
     Base::finalize(fastPath, slowPath, fastPath.locationOf<JITStubRoutinePtrTag>(m_start));
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
 }
 
 JITPrivateBrandAccessGenerator::JITPrivateBrandAccessGenerator(CodeBlock* codeBlock, CompileTimePropertyInlineCache propertyCache, JITType jitType, CodeOrigin codeOrigin, CallSiteIndex callSiteIndex, AccessType accessType, const RegisterSet& usedRegisters, JSValueRegs base, JSValueRegs brand, GPRReg propertyCacheGPR)
@@ -572,7 +552,7 @@ JITPrivateBrandAccessGenerator::JITPrivateBrandAccessGenerator(CodeBlock* codeBl
 void JITPrivateBrandAccessGenerator::generateFastPath(CCallHelpers& jit)
 {
     ASSERT(m_propertyCache);
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
     m_start = jit.label();
     m_slowPathJump = jit.patchableJump();
     m_done = jit.label();
@@ -588,7 +568,7 @@ void JITPrivateBrandAccessGenerator::finalize(LinkBuffer& fastPath, LinkBuffer& 
 {
     ASSERT(m_propertyCache);
     Base::finalize(fastPath, slowPath, fastPath.locationOf<JITStubRoutinePtrTag>(m_start));
-    ASSERT(!m_propertyCache->useDataIC);
+    ASSERT(!m_propertyCache->useHandlerIC);
 }
 
 } // namespace JSC

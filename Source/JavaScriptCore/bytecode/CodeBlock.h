@@ -390,8 +390,6 @@ public:
         return jitType() == JITType::BaselineJIT;
     }
 
-    bool useDataIC() const;
-
     CodePtr<JSEntryPtrTag> addressForCallConcurrently(const ConcurrentJSLocker&, ArityCheckMode) const;
 
 #if ENABLE(JIT)

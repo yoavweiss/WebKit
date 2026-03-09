@@ -322,7 +322,7 @@ void ftlThunkAwareRepatchCall(CodeBlock* codeBlock, CodeLocationCall<JSInternalP
 
 static void repatchSlowPathCall(CodeBlock* codeBlock, PropertyInlineCache& propertyCache, CodePtr<CFunctionPtrTag> newCalleeFunction)
 {
-    if (propertyCache.useDataIC) {
+    if (propertyCache.useHandlerIC) {
         propertyCache.m_slowOperation = newCalleeFunction.retagged<OperationPtrTag>();
         return;
     }

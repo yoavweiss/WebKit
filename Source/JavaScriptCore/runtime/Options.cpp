@@ -811,7 +811,7 @@ void Options::notifyOptionsChanged()
     Options::useRandomizingExecutableIslandAllocation() = false;
 #endif
 
-    Options::useDataICInFTL() = false; // Currently, it is not completed. Disable forcefully.
+    Options::useHandlerICInFTL() = false; // Currently, it is not completed. Disable forcefully.
     Options::forceUnlinkedDFG() = false; // Currently, IC is rapidly changing. We disable this until we get the final form of Data IC.
 
     if (!Options::allowDoubleShape())
@@ -1521,15 +1521,6 @@ SUPPRESS_ASAN bool canUseJITCage()
 #else
 bool canUseJITCage() { return false; }
 #endif
-
-bool canUseHandlerIC()
-{
-#if USE(JSVALUE64)
-    return true;
-#else
-    return false;
-#endif
-}
 
 bool canUseWasm()
 {

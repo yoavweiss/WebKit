@@ -4654,7 +4654,7 @@ private:
         patchpoint->append(m_notCellMask, ValueRep::lateReg(GPRInfo::notCellMaskRegister));
         patchpoint->append(m_numberTag, ValueRep::lateReg(GPRInfo::numberTagRegister));
         patchpoint->clobber(RegisterSet::macroClobberedGPRs());
-        patchpoint->numGPScratchRegisters = Options::useDataICInFTL() ? 1 : 0;
+        patchpoint->numGPScratchRegisters = Options::useHandlerICInFTL() ? 1 : 0;
 
         RefPtr<PatchpointExceptionHandle> exceptionHandle = preparePatchpointForExceptions(patchpoint);
 
@@ -4678,7 +4678,7 @@ private:
             GPRReg baseGPR = params[1].gpr();
             GPRReg thisValueGPR = params[2].gpr();
             GPRReg propertyGPR = params[3].gpr();
-            GPRReg propertyCacheGPR = Options::useDataICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
+            GPRReg propertyCacheGPR = Options::useHandlerICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
 
             auto* propertyCache = state->addPropertyInlineCache();
             auto generator = Box<JITGetByValWithThisGenerator>::create(
@@ -4701,11 +4701,11 @@ private:
 
                 if (notCell.isSet())
                     notCell.link(&jit);
-                if (!Options::useDataICInFTL())
+                if (!Options::useHandlerICInFTL())
                     generator->slowPathJump().link(&jit);
                 CCallHelpers::Label slowPathBegin = jit.label();
                 CCallHelpers::Call slowPathCall;
-                if (Options::useDataICInFTL()) {
+                if (Options::useHandlerICInFTL()) {
                     jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                     generator->propertyCache()->m_slowOperation = operationGetByValWithThisOptimize;
                     slowPathCall = callOperation(
@@ -4810,7 +4810,7 @@ private:
         patchpoint->append(m_notCellMask, ValueRep::lateReg(GPRInfo::notCellMaskRegister));
         patchpoint->append(m_numberTag, ValueRep::lateReg(GPRInfo::numberTagRegister));
         patchpoint->clobber(RegisterSet::macroClobberedGPRs());
-        patchpoint->numGPScratchRegisters = Options::useDataICInFTL() ? 1 : 0;
+        patchpoint->numGPScratchRegisters = Options::useHandlerICInFTL() ? 1 : 0;
 
         RefPtr<PatchpointExceptionHandle> exceptionHandle = preparePatchpointForExceptions(patchpoint);
 
@@ -4834,7 +4834,7 @@ private:
                 GPRReg resultGPR = params[0].gpr();
                 GPRReg baseGPR = params[1].gpr();
                 GPRReg propertyGPR = params[2].gpr();
-                GPRReg propertyCacheGPR = Options::useDataICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
+                GPRReg propertyCacheGPR = Options::useHandlerICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
 
                 auto* propertyCache = state->addPropertyInlineCache();
                 auto generator = Box<JITGetByValGenerator>::create(
@@ -4853,11 +4853,11 @@ private:
 
                     if (notCell.isSet())
                         notCell.link(&jit);
-                    if (!Options::useDataICInFTL())
+                    if (!Options::useHandlerICInFTL())
                         generator->slowPathJump().link(&jit);
                     CCallHelpers::Label slowPathBegin = jit.label();
                     CCallHelpers::Call slowPathCall;
-                    if (Options::useDataICInFTL()) {
+                    if (Options::useHandlerICInFTL()) {
                         jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                         generator->propertyCache()->m_slowOperation = operationGetPrivateNameOptimize;
                         slowPathCall = callOperation(
@@ -4954,7 +4954,7 @@ private:
         patchpoint->append(m_notCellMask, ValueRep::lateReg(GPRInfo::notCellMaskRegister));
         patchpoint->append(m_numberTag, ValueRep::lateReg(GPRInfo::numberTagRegister));
         patchpoint->clobber(RegisterSet::macroClobberedGPRs());
-        patchpoint->numGPScratchRegisters = Options::useDataICInFTL() ? 1 : 0;
+        patchpoint->numGPScratchRegisters = Options::useHandlerICInFTL() ? 1 : 0;
 
         RefPtr<PatchpointExceptionHandle> exceptionHandle = preparePatchpointForExceptions(patchpoint);
 
@@ -4977,7 +4977,7 @@ private:
 
             GPRReg baseGPR = params[0].gpr();
             GPRReg brandGPR = params[1].gpr();
-            GPRReg propertyCacheGPR = Options::useDataICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
+            GPRReg propertyCacheGPR = Options::useHandlerICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
 
             auto* propertyCache = state->addPropertyInlineCache();
             auto generator = Box<JITPrivateBrandAccessGenerator>::create(
@@ -5008,11 +5008,11 @@ private:
 
                 if (notCell.isSet())
                     notCell.link(&jit);
-                if (!Options::useDataICInFTL())
+                if (!Options::useHandlerICInFTL())
                     generator->slowPathJump().link(&jit);
                 CCallHelpers::Label slowPathBegin = jit.label();
                 CCallHelpers::Call slowPathCall;
-                if (Options::useDataICInFTL()) {
+                if (Options::useHandlerICInFTL()) {
                     jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                     generator->propertyCache()->m_slowOperation = appropriatePrivateAccessFunction(accessType);
                     slowPathCall = callOperation(
@@ -5187,7 +5187,7 @@ private:
         patchpoint->append(m_notCellMask, ValueRep::lateReg(GPRInfo::notCellMaskRegister));
         patchpoint->append(m_numberTag, ValueRep::lateReg(GPRInfo::numberTagRegister));
         patchpoint->clobber(RegisterSet::macroClobberedGPRs());
-        patchpoint->numGPScratchRegisters = Options::useDataICInFTL() ? 1 : 0;
+        patchpoint->numGPScratchRegisters = Options::useHandlerICInFTL() ? 1 : 0;
 
         RefPtr<PatchpointExceptionHandle> exceptionHandle = preparePatchpointForExceptions(patchpoint);
 
@@ -5212,7 +5212,7 @@ private:
             GPRReg baseGPR = params[0].gpr();
             GPRReg propertyGPR = params[1].gpr();
             GPRReg valueGPR = params[2].gpr();
-            GPRReg propertyCacheGPR = Options::useDataICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
+            GPRReg propertyCacheGPR = Options::useHandlerICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
 
             auto* propertyCache = state->addPropertyInlineCache();
             auto generator = Box<JITPutByValGenerator>::create(
@@ -5227,11 +5227,11 @@ private:
             params.addLatePath([=] (CCallHelpers& jit) {
                 AllowMacroScratchRegisterUsage allowScratch(jit);
 
-                if (!Options::useDataICInFTL())
+                if (!Options::useHandlerICInFTL())
                     generator->slowPathJump().link(&jit);
                 CCallHelpers::Label slowPathBegin = jit.label();
                 CCallHelpers::Call slowPathCall;
-                if (Options::useDataICInFTL()) {
+                if (Options::useHandlerICInFTL()) {
                     jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                     generator->propertyCache()->m_slowOperation = operation;
                     slowPathCall = callOperation(
@@ -5543,7 +5543,7 @@ private:
         patchpoint->append(m_notCellMask, ValueRep::reg(GPRInfo::notCellMaskRegister));
         patchpoint->append(m_numberTag, ValueRep::reg(GPRInfo::numberTagRegister));
         patchpoint->clobber(RegisterSet::macroClobberedGPRs());
-        patchpoint->numGPScratchRegisters = Options::useDataICInFTL() ? 3 : 0;
+        patchpoint->numGPScratchRegisters = Options::useHandlerICInFTL() ? 3 : 0;
 
         // FIXME: If this is a PutByIdFlush, we might want to late-clobber volatile registers.
         // https://bugs.webkit.org/show_bug.cgi?id=152848
@@ -5570,7 +5570,7 @@ private:
                 GPRReg propertyCacheGPR = InvalidGPRReg;
                 GPRReg scratchGPR = InvalidGPRReg;
                 GPRReg scratch2GPR = InvalidGPRReg;
-                if (Options::useDataICInFTL()) {
+                if (Options::useHandlerICInFTL()) {
                     propertyCacheGPR = params.gpScratch(0);
                     scratchGPR = params.gpScratch(1);
                     scratch2GPR = params.gpScratch(2);
@@ -5593,12 +5593,12 @@ private:
                     [=] (CCallHelpers& jit) {
                         AllowMacroScratchRegisterUsage allowScratch(jit);
 
-                        if (!Options::useDataICInFTL())
+                        if (!Options::useHandlerICInFTL())
                             generator->slowPathJump().link(&jit);
                         CCallHelpers::Label slowPathBegin = jit.label();
                         CCallHelpers::Call slowPathCall;
                         auto* operation = appropriatePutByIdOptimizeFunction(accessType);
-                        if (Options::useDataICInFTL()) {
+                        if (Options::useHandlerICInFTL()) {
                             jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                             generator->propertyCache()->m_slowOperation = operation;
                             slowPathCall = callOperation(
@@ -6502,7 +6502,7 @@ IGNORE_CLANG_WARNINGS_END
             patchpoint->append(m_notCellMask, ValueRep::lateReg(GPRInfo::notCellMaskRegister));
             patchpoint->append(m_numberTag, ValueRep::lateReg(GPRInfo::numberTagRegister));
             patchpoint->clobber(RegisterSet::macroClobberedGPRs());
-            patchpoint->numGPScratchRegisters = Options::useDataICInFTL() ? 1 : 0;
+            patchpoint->numGPScratchRegisters = Options::useHandlerICInFTL() ? 1 : 0;
 
             RefPtr<PatchpointExceptionHandle> exceptionHandle = preparePatchpointForExceptions(patchpoint);
 
@@ -6525,7 +6525,7 @@ IGNORE_CLANG_WARNINGS_END
                 GPRReg resultGPR = params[0].gpr();
                 GPRReg baseGPR = params[1].gpr();
                 GPRReg propertyGPR = params[2].gpr();
-                GPRReg propertyCacheGPR = Options::useDataICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
+                GPRReg propertyCacheGPR = Options::useHandlerICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
 
                 auto* propertyCache = state->addPropertyInlineCache();
                 auto generator = Box<JITGetByValGenerator>::create(
@@ -6548,11 +6548,11 @@ IGNORE_CLANG_WARNINGS_END
 
                     if (notCell.isSet())
                         notCell.link(&jit);
-                    if (!Options::useDataICInFTL())
+                    if (!Options::useHandlerICInFTL())
                         generator->slowPathJump().link(&jit);
                     CCallHelpers::Label slowPathBegin = jit.label();
                     CCallHelpers::Call slowPathCall;
-                    if (Options::useDataICInFTL()) {
+                    if (Options::useHandlerICInFTL()) {
                         jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                         generator->propertyCache()->m_slowOperation = operationGetByValOptimize;
                         slowPathCall = callOperation(
@@ -7232,7 +7232,7 @@ IGNORE_CLANG_WARNINGS_END
             patchpoint->append(m_notCellMask, ValueRep::lateReg(GPRInfo::notCellMaskRegister));
             patchpoint->append(m_numberTag, ValueRep::lateReg(GPRInfo::numberTagRegister));
             patchpoint->clobber(RegisterSet::macroClobberedGPRs());
-            patchpoint->numGPScratchRegisters = Options::useDataICInFTL() ? 1 : 0;
+            patchpoint->numGPScratchRegisters = Options::useHandlerICInFTL() ? 1 : 0;
 
             RefPtr<PatchpointExceptionHandle> exceptionHandle = preparePatchpointForExceptions(patchpoint);
 
@@ -7257,7 +7257,7 @@ IGNORE_CLANG_WARNINGS_END
                 GPRReg baseGPR = params[0].gpr();
                 GPRReg propertyGPR = params[1].gpr();
                 GPRReg valueGPR = params[2].gpr();
-                GPRReg propertyCacheGPR = Options::useDataICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
+                GPRReg propertyCacheGPR = Options::useHandlerICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
 
                 auto* propertyCache = state->addPropertyInlineCache();
                 auto generator = Box<JITPutByValGenerator>::create(
@@ -7274,12 +7274,12 @@ IGNORE_CLANG_WARNINGS_END
                 params.addLatePath([=] (CCallHelpers& jit) {
                     AllowMacroScratchRegisterUsage allowScratch(jit);
 
-                    if (!Options::useDataICInFTL())
+                    if (!Options::useHandlerICInFTL())
                         generator->slowPathJump().link(&jit);
                     CCallHelpers::Label slowPathBegin = jit.label();
                     CCallHelpers::Call slowPathCall;
                     auto operation = isDirect ? (ecmaMode.isStrict() ? operationDirectPutByValStrictOptimize : operationDirectPutByValSloppyOptimize) : (ecmaMode.isStrict() ? operationPutByValStrictOptimize : operationPutByValSloppyOptimize);
-                    if (Options::useDataICInFTL()) {
+                    if (Options::useHandlerICInFTL()) {
                         jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                         generator->propertyCache()->m_slowOperation = operation;
                         slowPathCall = callOperation(
@@ -7856,7 +7856,7 @@ IGNORE_CLANG_WARNINGS_END
         patchpoint->append(m_notCellMask, ValueRep::lateReg(GPRInfo::notCellMaskRegister));
         patchpoint->append(m_numberTag, ValueRep::lateReg(GPRInfo::numberTagRegister));
         patchpoint->clobber(RegisterSet::macroClobberedGPRs());
-        patchpoint->numGPScratchRegisters = Options::useDataICInFTL() ? 1 : 0;
+        patchpoint->numGPScratchRegisters = Options::useHandlerICInFTL() ? 1 : 0;
 
         RefPtr<PatchpointExceptionHandle> exceptionHandle =
             preparePatchpointForExceptions(patchpoint);
@@ -7889,7 +7889,7 @@ IGNORE_CLANG_WARNINGS_END
 
                 auto base = JSValueRegs(params[1].gpr());
                 auto returnGPR = params[0].gpr();
-                GPRReg propertyCacheGPR = Options::useDataICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
+                GPRReg propertyCacheGPR = Options::useHandlerICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
                 ASSERT(base.gpr() != returnGPR);
 
                 if (child1UseKind)
@@ -7935,7 +7935,7 @@ IGNORE_CLANG_WARNINGS_END
                 }();
 
                 generator->generateFastPath(jit);
-                if (!Options::useDataICInFTL())
+                if (!Options::useHandlerICInFTL())
                     slowCases.append(generator->slowPathJump());
                 CCallHelpers::Label done = jit.label();
 
@@ -7948,7 +7948,7 @@ IGNORE_CLANG_WARNINGS_END
                         CCallHelpers::Call slowPathCall;
 
                         if constexpr (kind == DelByKind::ByIdStrict || kind == DelByKind::ByIdSloppy) {
-                            if (Options::useDataICInFTL()) {
+                            if (Options::useHandlerICInFTL()) {
                                 jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                                 generator->propertyCache()->m_slowOperation = optimizationFunction;
                                 slowPathCall = callOperation(
@@ -7962,7 +7962,7 @@ IGNORE_CLANG_WARNINGS_END
                                     base, CCallHelpers::TrustedImmPtr(generator->propertyCache())).call();
                             }
                         } else {
-                            if (Options::useDataICInFTL()) {
+                            if (Options::useHandlerICInFTL()) {
                                 jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                                 generator->propertyCache()->m_slowOperation = optimizationFunction;
                                 slowPathCall = callOperation(
@@ -16167,9 +16167,9 @@ IGNORE_CLANG_WARNINGS_END
         patchpoint->append(m_numberTag, ValueRep::lateReg(GPRInfo::numberTagRegister));
         patchpoint->clobber(RegisterSet::macroClobberedGPRs());
         if constexpr (type == AccessType::InById)
-            patchpoint->numGPScratchRegisters = Options::useDataICInFTL() ? 2 : 0;
+            patchpoint->numGPScratchRegisters = Options::useHandlerICInFTL() ? 2 : 0;
         else
-            patchpoint->numGPScratchRegisters = Options::useDataICInFTL() ? 1 : 0;
+            patchpoint->numGPScratchRegisters = Options::useHandlerICInFTL() ? 1 : 0;
 
         RefPtr<PatchpointExceptionHandle> exceptionHandle = preparePatchpointForExceptions(patchpoint);
 
@@ -16190,7 +16190,7 @@ IGNORE_CLANG_WARNINGS_END
 
                 GPRReg propertyCacheGPR = InvalidGPRReg;
                 GPRReg scratchGPR = InvalidGPRReg;
-                if (Options::useDataICInFTL()) {
+                if (Options::useHandlerICInFTL()) {
                     propertyCacheGPR = params.gpScratch(0);
                     if constexpr (type == AccessType::InById)
                         scratchGPR = params.gpScratch(1);
@@ -16238,7 +16238,7 @@ IGNORE_CLANG_WARNINGS_END
 
                 CCallHelpers::JumpList slowCases;
                 generator->generateFastPath(jit);
-                if (!Options::useDataICInFTL())
+                if (!Options::useHandlerICInFTL())
                     slowCases.append(generator->slowPathJump());
                 CCallHelpers::Label done = jit.label();
 
@@ -16250,7 +16250,7 @@ IGNORE_CLANG_WARNINGS_END
                         CCallHelpers::Label slowPathBegin = jit.label();
                         CCallHelpers::Call slowPathCall;
                         if constexpr (type == AccessType::InById) {
-                            if (Options::useDataICInFTL()) {
+                            if (Options::useHandlerICInFTL()) {
                                 jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                                 generator->propertyCache()->m_slowOperation = optimizationFunction;
                                 slowPathCall = callOperation(
@@ -16264,7 +16264,7 @@ IGNORE_CLANG_WARNINGS_END
                                     base, CCallHelpers::TrustedImmPtr(generator->propertyCache())).call();
                             }
                         } else if constexpr (type == AccessType::InByVal) {
-                            if (Options::useDataICInFTL()) {
+                            if (Options::useHandlerICInFTL()) {
                                 jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                                 generator->propertyCache()->m_slowOperation = optimizationFunction;
                                 slowPathCall = callOperation(
@@ -16278,7 +16278,7 @@ IGNORE_CLANG_WARNINGS_END
                                     base, subscript, CCallHelpers::TrustedImmPtr(generator->propertyCache()), CCallHelpers::TrustedImmPtr(nullptr)).call();
                             }
                         } else {
-                            if (Options::useDataICInFTL()) {
+                            if (Options::useHandlerICInFTL()) {
                                 jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                                 generator->propertyCache()->m_slowOperation = optimizationFunction;
                                 slowPathCall = callOperation(
@@ -16751,7 +16751,7 @@ IGNORE_CLANG_WARNINGS_END
         patchpoint->appendSomeRegister(prototype);
         patchpoint->append(m_notCellMask, ValueRep::lateReg(GPRInfo::notCellMaskRegister));
         patchpoint->append(m_numberTag, ValueRep::lateReg(GPRInfo::numberTagRegister));
-        patchpoint->numGPScratchRegisters = Options::useDataICInFTL() ? 1 : 0;
+        patchpoint->numGPScratchRegisters = Options::useHandlerICInFTL() ? 1 : 0;
         patchpoint->resultConstraints = { ValueRep::SomeEarlyRegister };
         patchpoint->clobber(RegisterSet::macroClobberedGPRs());
 
@@ -16767,7 +16767,7 @@ IGNORE_CLANG_WARNINGS_END
                 GPRReg resultGPR = params[0].gpr();
                 GPRReg valueGPR = params[1].gpr();
                 GPRReg prototypeGPR = params[2].gpr();
-                GPRReg propertyCacheGPR = Options::useDataICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
+                GPRReg propertyCacheGPR = Options::useHandlerICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
 
                 CCallHelpers::Jump doneJump;
                 if (!valueIsCell) {
@@ -16793,7 +16793,7 @@ IGNORE_CLANG_WARNINGS_END
                     jit.codeBlock(), propertyCache, JITType::FTLJIT, semanticNodeOrigin, callSiteIndex,
                     params.unavailableRegisters(), resultGPR, valueGPR, prototypeGPR, propertyCacheGPR, prototypeIsObject);
                 generator->generateFastPath(jit);
-                if (!Options::useDataICInFTL())
+                if (!Options::useHandlerICInFTL())
                     slowCases.append(generator->slowPathJump());
                 CCallHelpers::Label done = jit.label();
 
@@ -16806,7 +16806,7 @@ IGNORE_CLANG_WARNINGS_END
                         slowCases.link(&jit);
                         CCallHelpers::Label slowPathBegin = jit.label();
                         CCallHelpers::Call slowPathCall;
-                        if (Options::useDataICInFTL()) {
+                        if (Options::useHandlerICInFTL()) {
                             jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                             generator->propertyCache()->m_slowOperation = optimizationFunction;
                             slowPathCall = callOperation(
@@ -17611,7 +17611,7 @@ IGNORE_CLANG_WARNINGS_END
         patchpoint->append(m_notCellMask, ValueRep::lateReg(GPRInfo::notCellMaskRegister));
         patchpoint->append(m_numberTag, ValueRep::lateReg(GPRInfo::numberTagRegister));
         patchpoint->clobber(RegisterSet::macroClobberedGPRs());
-        patchpoint->numGPScratchRegisters = Options::useDataICInFTL() ? 1 : 0;
+        patchpoint->numGPScratchRegisters = Options::useHandlerICInFTL() ? 1 : 0;
 
         RefPtr<PatchpointExceptionHandle> exceptionHandle = preparePatchpointForExceptions(patchpoint);
 
@@ -17635,7 +17635,7 @@ IGNORE_CLANG_WARNINGS_END
             GPRReg baseGPR = params[0].gpr();
             GPRReg propertyGPR = params[1].gpr();
             GPRReg valueGPR = params[2].gpr();
-            GPRReg propertyCacheGPR = Options::useDataICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
+            GPRReg propertyCacheGPR = Options::useHandlerICInFTL() ? params.gpScratch(0) : InvalidGPRReg;
 
             auto* propertyCache = state->addPropertyInlineCache();
             auto generator = Box<JITPutByValGenerator>::create(
@@ -17648,12 +17648,12 @@ IGNORE_CLANG_WARNINGS_END
             params.addLatePath([=] (CCallHelpers& jit) {
                 AllowMacroScratchRegisterUsage allowScratch(jit);
 
-                if (!Options::useDataICInFTL())
+                if (!Options::useHandlerICInFTL())
                     generator->slowPathJump().link(&jit);
                 CCallHelpers::Label slowPathBegin = jit.label();
                 CCallHelpers::Call slowPathCall;
                 auto operation = ecmaMode.isStrict() ? operationPutByValStrictOptimize : operationPutByValSloppyOptimize;
-                if (Options::useDataICInFTL()) {
+                if (Options::useHandlerICInFTL()) {
                     jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                     generator->propertyCache()->m_slowOperation = operation;
                     slowPathCall = callOperation(
@@ -19126,7 +19126,7 @@ IGNORE_CLANG_WARNINGS_END
         patchpoint->appendSomeRegister(base);
         patchpoint->append(m_notCellMask, ValueRep::lateReg(GPRInfo::notCellMaskRegister));
         patchpoint->append(m_numberTag, ValueRep::lateReg(GPRInfo::numberTagRegister));
-        patchpoint->numGPScratchRegisters = Options::useDataICInFTL() ? 2 : 0;
+        patchpoint->numGPScratchRegisters = Options::useHandlerICInFTL() ? 2 : 0;
 
         // FIXME: If this is a GetByIdFlush/GetByIdDirectFlush, we might get some performance boost if we claim that it
         // clobbers volatile registers late. It's not necessary for correctness, though, since the
@@ -19159,7 +19159,7 @@ IGNORE_CLANG_WARNINGS_END
 
                 GPRReg propertyCacheGPR = InvalidGPRReg;
                 GPRReg scratchGPR = InvalidGPRReg;
-                if (Options::useDataICInFTL()) {
+                if (Options::useHandlerICInFTL()) {
                     propertyCacheGPR = params.gpScratch(0);
                     scratchGPR = params.gpScratch(1);
                 }
@@ -19181,11 +19181,11 @@ IGNORE_CLANG_WARNINGS_END
 
                         auto optimizationFunction = appropriateGetByIdOptimizeFunction(type);
 
-                        if (!Options::useDataICInFTL())
+                        if (!Options::useHandlerICInFTL())
                             generator->slowPathJump().link(&jit);
                         CCallHelpers::Label slowPathBegin = jit.label();
                         CCallHelpers::Call slowPathCall;
-                        if (Options::useDataICInFTL()) {
+                        if (Options::useHandlerICInFTL()) {
                             jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                             generator->propertyCache()->m_slowOperation = optimizationFunction;
                             slowPathCall = callOperation(
@@ -19223,7 +19223,7 @@ IGNORE_CLANG_WARNINGS_END
         patchpoint->append(m_notCellMask, ValueRep::lateReg(GPRInfo::notCellMaskRegister));
         patchpoint->append(m_numberTag, ValueRep::lateReg(GPRInfo::numberTagRegister));
         patchpoint->clobber(RegisterSet::macroClobberedGPRs());
-        patchpoint->numGPScratchRegisters = Options::useDataICInFTL() ? 2 : 0;
+        patchpoint->numGPScratchRegisters = Options::useHandlerICInFTL() ? 2 : 0;
 
         RefPtr<PatchpointExceptionHandle> exceptionHandle =
             preparePatchpointForExceptions(patchpoint);
@@ -19249,7 +19249,7 @@ IGNORE_CLANG_WARNINGS_END
 
                 GPRReg propertyCacheGPR = InvalidGPRReg;
                 GPRReg scratchGPR = InvalidGPRReg;
-                if (Options::useDataICInFTL()) {
+                if (Options::useHandlerICInFTL()) {
                     propertyCacheGPR = params.gpScratch(0);
                     scratchGPR = params.gpScratch(1);
                 }
@@ -19271,11 +19271,11 @@ IGNORE_CLANG_WARNINGS_END
 
                         auto optimizationFunction = operationGetByIdWithThisOptimize;
 
-                        if (!Options::useDataICInFTL())
+                        if (!Options::useHandlerICInFTL())
                             generator->slowPathJump().link(&jit);
                         CCallHelpers::Label slowPathBegin = jit.label();
                         CCallHelpers::Call slowPathCall;
-                        if (Options::useDataICInFTL()) {
+                        if (Options::useHandlerICInFTL()) {
                             jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
                             generator->propertyCache()->m_slowOperation = optimizationFunction;
                             slowPathCall = callOperation(

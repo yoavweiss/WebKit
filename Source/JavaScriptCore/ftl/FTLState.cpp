@@ -171,7 +171,7 @@ PropertyInlineCache* State::addPropertyInlineCache()
 {
     ASSERT(!graph.m_plan.isUnlinked());
     auto* propertyCache = jitCode->common.m_propertyInlineCaches.add();
-    propertyCache->useDataIC = Options::useDataICInFTL();
+    propertyCache->useHandlerIC = Options::useHandlerICInFTL();
     return propertyCache;
 }
 

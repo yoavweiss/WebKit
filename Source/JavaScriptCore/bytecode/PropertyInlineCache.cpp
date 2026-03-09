@@ -154,7 +154,7 @@ AccessGenerationResult PropertyInlineCache::addAccessCase(const GCSafeConcurrent
     AccessGenerationResult result = ([&](Ref<AccessCase>&& accessCase) -> AccessGenerationResult {
         dataLogLnIf(PropertyInlineCacheInternal::verbose, "Adding access case: ", accessCase);
 
-        if (useHandlerIC()) {
+        if (useHandlerIC) {
             auto list = listedAccessCases(locker);
             auto result = upgradeForPolyProtoIfNecessary(locker, vm, codeBlock, list, accessCase.get());
             dataLogLnIf(PropertyInlineCacheInternal::verbose, "Had stub, result: ", result);
@@ -182,7 +182,7 @@ AccessGenerationResult PropertyInlineCache::addAccessCase(const GCSafeConcurrent
             return compiler.compileHandler(locker, WTF::move(list), codeBlock, accessCase.get());
         }
 
-        ASSERT(!useHandlerIC());
+        ASSERT(!useHandlerIC);
         AccessGenerationResult result;
         if (m_stub) {
             result = m_stub->addCases(locker, vm, codeBlock, *this, nullptr, accessCase);
@@ -245,7 +245,7 @@ AccessGenerationResult PropertyInlineCache::addAccessCase(const GCSafeConcurrent
             return result;
 
         // If we are using DataIC, we will continue using inlined code for the first case.
-        if (!useDataIC) {
+        if (!useHandlerIC) {
             // When we first transition to becoming a Stub, we might still be running the inline
             // access code. That's because when we first transition to becoming a Stub, we may
             // be buffered, and we have not yet generated any code. Once the Stub finally generates
@@ -262,7 +262,7 @@ AccessGenerationResult PropertyInlineCache::addAccessCase(const GCSafeConcurrent
         return result;
     })(accessCase.releaseNonNull());
     if (result.generatedSomeCode()) {
-        if (useHandlerIC())
+        if (useHandlerIC)
             prependHandler(codeBlock, Ref { *result.handler() }, result.generatedMegamorphicCode());
         else
             rewireStubAsJumpInAccess(codeBlock, Ref { *result.handler() });
@@ -464,7 +464,7 @@ void PropertyInlineCache::propagateTransitions(Visitor& visitor)
     if (Structure* structure = inlineAccessBaseStructure())
         structure->markIfCheap(visitor);
 
-    if (useHandlerIC()) {
+    if (useHandlerIC) {
         if (m_inlinedHandler)
             m_inlinedHandler->propagateTransitions(visitor);
         if (auto* cursor = m_handler.get()) {
@@ -484,7 +484,7 @@ template void PropertyInlineCache::propagateTransitions(SlotVisitor&);
 
 CallLinkInfo* PropertyInlineCache::callLinkInfoAt(const ConcurrentJSLocker& locker, unsigned index, const AccessCase& accessCase)
 {
-    if (!useDataIC) {
+    if (!useHandlerIC) {
         if (!m_handler)
             return nullptr;
         return m_handler->callLinkInfoAt(locker, index);
@@ -819,15 +819,10 @@ void PropertyInlineCache::initializeFromUnlinkedPropertyInlineCache(VM& vm, Code
     m_globalObject = codeBlock->globalObject();
     callSiteIndex = CallSiteIndex(BytecodeIndex(unlinkedPropertyCache.bytecodeIndex.offset()));
     codeOrigin = CodeOrigin(unlinkedPropertyCache.bytecodeIndex);
-    if (Options::useHandlerIC())
-        initializeWithUnitHandler(codeBlock, InlineCacheCompiler::generateSlowPathHandler(vm, accessType));
-    else {
-        initializeWithUnitHandler(codeBlock, InlineCacheHandler::createNonHandlerSlowPath(unlinkedPropertyCache.slowPathStartLocation));
-        slowPathStartLocation = unlinkedPropertyCache.slowPathStartLocation;
-    }
+    useHandlerIC = true;
+    initializeWithUnitHandler(codeBlock, InlineCacheCompiler::generateSlowPathHandler(vm, accessType));
     propertyIsInt32 = unlinkedPropertyCache.propertyIsInt32;
     canBeMegamorphic = unlinkedPropertyCache.canBeMegamorphic;
-    useDataIC = true;
 
     if (unlinkedPropertyCache.canBeMegamorphic)
         bufferingCountdown = 1;
@@ -859,19 +854,14 @@ void PropertyInlineCache::initializeFromDFGUnlinkedPropertyInlineCache(CodeBlock
         m_globalObject = baselineCodeBlockForInlineCallFrame(codeOrigin.inlineCallFrame())->globalObject();
     else
         m_globalObject = codeBlock->globalObject();
-    if (Options::useHandlerIC())
-        initializeWithUnitHandler(codeBlock, InlineCacheCompiler::generateSlowPathHandler(codeBlock->vm(), accessType));
-    else {
-        initializeWithUnitHandler(codeBlock, InlineCacheHandler::createNonHandlerSlowPath(unlinkedPropertyCache.slowPathStartLocation));
-        slowPathStartLocation = unlinkedPropertyCache.slowPathStartLocation;
-    }
+    useHandlerIC = true;
+    initializeWithUnitHandler(codeBlock, InlineCacheCompiler::generateSlowPathHandler(codeBlock->vm(), accessType));
 
     propertyIsInt32 = unlinkedPropertyCache.propertyIsInt32;
     propertyIsSymbol = unlinkedPropertyCache.propertyIsSymbol;
     propertyIsString = unlinkedPropertyCache.propertyIsString;
     prototypeIsKnownObject = unlinkedPropertyCache.prototypeIsKnownObject;
     canBeMegamorphic = unlinkedPropertyCache.canBeMegamorphic;
-    useDataIC = true;
 
     if (unlinkedPropertyCache.canBeMegamorphic)
         bufferingCountdown = 1;
@@ -922,7 +912,7 @@ void PropertyInlineCache::setInlinedHandler(CodeBlock* codeBlock, Ref<InlineCach
 
 void PropertyInlineCache::clearInlinedHandler(CodeBlock* codeBlock)
 {
-    ASSERT(useHandlerIC());
+    ASSERT(useHandlerIC);
     m_inlinedHandler->removeOwner(codeBlock);
     m_inlinedHandler = nullptr;
     m_inlineAccessBaseStructureID.clear();
@@ -930,7 +920,7 @@ void PropertyInlineCache::clearInlinedHandler(CodeBlock* codeBlock)
 
 void PropertyInlineCache::initializeWithUnitHandler(CodeBlock* codeBlock, Ref<InlineCacheHandler>&& handler)
 {
-    if (useHandlerIC()) {
+    if (useHandlerIC) {
         if (m_inlinedHandler)
             clearInlinedHandler(codeBlock);
         ASSERT(!m_inlinedHandler);
@@ -946,7 +936,7 @@ void PropertyInlineCache::initializeWithUnitHandler(CodeBlock* codeBlock, Ref<In
 
 void PropertyInlineCache::prependHandler(CodeBlock* codeBlock, Ref<InlineCacheHandler>&& handler, bool isMegamorphic)
 {
-    ASSERT(useHandlerIC());
+    ASSERT(useHandlerIC);
     if (isMegamorphic) {
         initializeWithUnitHandler(codeBlock, WTF::move(handler));
         return;
@@ -968,13 +958,13 @@ void PropertyInlineCache::rewireStubAsJumpInAccess(CodeBlock* codeBlock, Ref<Inl
 {
     CodeLocationLabel label { handler->callTarget() };
     initializeWithUnitHandler(codeBlock, WTF::move(handler));
-    if (!useDataIC)
+    if (!useHandlerIC)
         CCallHelpers::replaceWithJump(startLocation.retagged<JSInternalPtrTag>(), label);
 }
 
 void PropertyInlineCache::resetStubAsJumpInAccess(CodeBlock* codeBlock)
 {
-    if (useHandlerIC()) {
+    if (useHandlerIC) {
         if (m_inlinedHandler)
             clearInlinedHandler(codeBlock);
         auto* cursor = m_handler.get();
@@ -986,8 +976,6 @@ void PropertyInlineCache::resetStubAsJumpInAccess(CodeBlock* codeBlock)
         return;
     }
 
-    if (useDataIC)
-        m_inlineAccessBaseStructureID.clear(); // Clear out the inline access code.
     rewireStubAsJumpInAccess(codeBlock, InlineCacheHandler::createNonHandlerSlowPath(slowPathStartLocation));
 }
 

@@ -41,7 +41,6 @@ namespace JSC {
 #define MAXIMUM_NUMBER_OF_FTL_COMPILER_THREADS 8
 
 JS_EXPORT_PRIVATE bool canUseJITCage();
-bool canUseHandlerIC();
 bool canUseWasm();
 bool hasCapacityToUseLargeGigacage();
 
@@ -623,8 +622,7 @@ bool hasCapacityToUseLargeGigacage();
     v(Unsigned, maxNumericHotLoopSize, 225, Normal, nullptr) \
     v(Bool, printEachUnrolledLoop, false, Normal, nullptr) \
     v(Bool, verboseExecutablePoolAllocation, false, Normal, nullptr) \
-    v(Bool, useHandlerIC, canUseHandlerIC(), Normal, nullptr) \
-    v(Bool, useDataICInFTL, false, Normal, nullptr) \
+    v(Bool, useHandlerICInFTL, false, Normal, nullptr) \
     v(Bool, useLLIntICs, true, Normal, "Use property and call ICs in LLInt code."_s) \
     v(Bool, useBaselineJITCodeSharing, is64Bit(), Normal, nullptr) \
     v(Bool, libpasScavengeContinuously, false, Normal, nullptr) \

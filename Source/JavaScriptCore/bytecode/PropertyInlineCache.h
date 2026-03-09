@@ -154,7 +154,7 @@ public:
 
     uint32_t inlineCodeSize() const
     {
-        if (useDataIC)
+        if (useHandlerIC)
             return 0;
         int32_t inlineSize = MacroAssembler::differenceBetweenCodePtr(startLocation, doneLocation);
         ASSERT(inlineSize >= 0);
@@ -231,7 +231,6 @@ public:
 
     CallLinkInfo* callLinkInfoAt(const ConcurrentJSLocker&, unsigned index, const AccessCase&);
 
-    bool useHandlerIC() const { return useDataIC && Options::useHandlerIC(); }
 
     Vector<AccessCase*, 16> listedAccessCases(const AbstractLocker&) const;
 
@@ -404,7 +403,7 @@ public:
     JSCell* m_inlineHolder { nullptr };
     CacheableIdentifier m_identifier;
     // This is either the start of the inline IC for *byId caches. or the location of patchable jump for 'instanceof' caches.
-    // If useDataIC is true, then it is nullptr.
+    // If useHandlerIC is true, then it is nullptr.
     CodeLocationLabel<JITStubRoutinePtrTag> startLocation;
     CodeLocationLabel<JSInternalPtrTag> doneLocation;
     CodeLocationLabel<JITStubRoutinePtrTag> slowPathStartLocation;
@@ -468,7 +467,7 @@ public:
     bool propertyIsInt32 : 1 { false };
     bool propertyIsSymbol : 1 { false };
     bool canBeMegamorphic : 1 { false };
-    bool useDataIC : 1 { false };
+    bool useHandlerIC : 1 { false };
 };
 
 inline CodeOrigin getPropertyInlineCacheCodeOrigin(PropertyInlineCache& propertyInlineCache)

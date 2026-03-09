@@ -3684,21 +3684,6 @@ void CodeBlock::jitNextInvocation()
     m_unlinkedCode->llintExecuteCounter().setNewThreshold(0, this);
 }
 
-bool CodeBlock::useDataIC() const
-{
-#if ENABLE(DFG_JIT)
-    if (jitType() == JITType::DFGJIT) {
-        if (auto* jitCode = m_jitCode.get())
-            return static_cast<const DFG::JITCode*>(jitCode)->isUnlinked();
-    }
-#endif
-#if ENABLE(FTL_JIT)
-    if (jitType() == JITType::FTLJIT)
-        return Options::useDataICInFTL();
-#endif
-    return true;
-}
-
 CodePtr<JSEntryPtrTag> CodeBlock::addressForCallConcurrently(const ConcurrentJSLocker&, ArityCheckMode arityCheck) const
 {
     if (!m_jitCode)

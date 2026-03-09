@@ -179,7 +179,7 @@ bool InlineAccess::generateSelfPropertyAccess(PropertyInlineCache& propertyCache
     if (!hasConstantIdentifier(propertyCache.accessType))
         return false;
 
-    if (propertyCache.useDataIC)
+    if (propertyCache.useHandlerIC)
         return false;
 
     CCallHelpers jit;
@@ -236,7 +236,7 @@ bool InlineAccess::canGenerateSelfPropertyReplace(PropertyInlineCache& propertyC
     if (!hasConstantIdentifier(propertyCache.accessType))
         return false;
 
-    if (propertyCache.useDataIC)
+    if (propertyCache.useHandlerIC)
         return false;
 
     if (isInlineOffset(offset))
@@ -252,7 +252,7 @@ bool InlineAccess::generateSelfPropertyReplace(PropertyInlineCache& propertyCach
 
     ASSERT(canGenerateSelfPropertyReplace(propertyCache, offset));
 
-    if (propertyCache.useDataIC)
+    if (propertyCache.useHandlerIC)
         return false;
 
     CCallHelpers jit;
@@ -287,7 +287,7 @@ bool InlineAccess::isCacheableArrayLength(PropertyInlineCache& propertyCache, JS
     if (!hasConstantIdentifier(propertyCache.accessType))
         return false;
 
-    if (propertyCache.useDataIC)
+    if (propertyCache.useHandlerIC)
         return propertyCache.preconfiguredCacheType == CacheType::ArrayLength;
 
     if (!hasFreeRegister(propertyCache))
@@ -304,7 +304,7 @@ bool InlineAccess::generateArrayLength(PropertyInlineCache& propertyCache, JSArr
         return false;
 
     // ArrayLength fast path does not need any modification.
-    if (propertyCache.useDataIC)
+    if (propertyCache.useHandlerIC)
         return false;
 
     CCallHelpers jit;
@@ -329,7 +329,7 @@ bool InlineAccess::isCacheableStringLength(PropertyInlineCache& propertyCache)
     if (!hasConstantIdentifier(propertyCache.accessType))
         return false;
 
-    if (propertyCache.useDataIC)
+    if (propertyCache.useHandlerIC)
         return propertyCache.preconfiguredCacheType == CacheType::StringLength;
 
     return hasFreeRegister(propertyCache);
@@ -342,7 +342,7 @@ bool InlineAccess::generateStringLength(PropertyInlineCache& propertyCache)
     if (!hasConstantIdentifier(propertyCache.accessType))
         return false;
 
-    if (propertyCache.useDataIC)
+    if (propertyCache.useHandlerIC)
         return false;
 
     CCallHelpers jit;
@@ -378,7 +378,7 @@ bool InlineAccess::generateSelfInAccess(PropertyInlineCache& propertyCache, Stru
     if (!hasConstantIdentifier(propertyCache.accessType))
         return false;
 
-    if (propertyCache.useDataIC)
+    if (propertyCache.useHandlerIC)
         return false;
 
     GPRReg base = propertyCache.m_baseGPR;
