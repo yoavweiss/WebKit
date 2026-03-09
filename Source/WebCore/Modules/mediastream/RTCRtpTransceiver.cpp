@@ -45,9 +45,8 @@ namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RTCRtpTransceiver);
 
-RTCRtpTransceiver::RTCRtpTransceiver(Ref<RTCRtpSender>&& sender, Ref<RTCRtpReceiver>&& receiver, std::unique_ptr<RTCRtpTransceiverBackend>&& backend)
-    : m_direction(RTCRtpTransceiverDirection::Sendrecv)
-    , m_sender(WTF::move(sender))
+RTCRtpTransceiver::RTCRtpTransceiver(Ref<RTCRtpSender>&& sender, Ref<RTCRtpReceiver>&& receiver, UniqueRef<RTCRtpTransceiverBackend>&& backend)
+    : m_sender(WTF::move(sender))
     , m_receiver(WTF::move(receiver))
     , m_backend(WTF::move(backend))
 {
@@ -57,50 +56,22 @@ RTCRtpTransceiver::~RTCRtpTransceiver() = default;
 
 String RTCRtpTransceiver::mid() const
 {
-    return m_backend ? m_backend->mid() : String { };
-}
-
-bool RTCRtpTransceiver::hasSendingDirection() const
-{
-    return m_direction == RTCRtpTransceiverDirection::Sendrecv || m_direction == RTCRtpTransceiverDirection::Sendonly;
+    return m_backend->mid();
 }
 
 RTCRtpTransceiverDirection RTCRtpTransceiver::direction() const
 {
-    if (!m_backend)
-        return m_direction;
     return m_backend->direction();
 }
 
 std::optional<RTCRtpTransceiverDirection> RTCRtpTransceiver::currentDirection() const
 {
-    if (!m_backend)
-        return std::nullopt;
     return m_backend->currentDirection();
 }
 
 void RTCRtpTransceiver::setDirection(RTCRtpTransceiverDirection direction)
 {
-    m_direction = direction;
-    if (m_backend)
-        m_backend->setDirection(direction);
-}
-
-
-void RTCRtpTransceiver::enableSendingDirection()
-{
-    if (m_direction == RTCRtpTransceiverDirection::Recvonly)
-        m_direction = RTCRtpTransceiverDirection::Sendrecv;
-    else if (m_direction == RTCRtpTransceiverDirection::Inactive)
-        m_direction = RTCRtpTransceiverDirection::Sendonly;
-}
-
-void RTCRtpTransceiver::disableSendingDirection()
-{
-    if (m_direction == RTCRtpTransceiverDirection::Sendrecv)
-        m_direction = RTCRtpTransceiverDirection::Recvonly;
-    else if (m_direction == RTCRtpTransceiverDirection::Sendonly)
-        m_direction = RTCRtpTransceiverDirection::Inactive;
+    m_backend->setDirection(direction);
 }
 
 void RTCRtpTransceiver::setConnection(RTCPeerConnection& connection)
@@ -120,8 +91,7 @@ ExceptionOr<void> RTCRtpTransceiver::stop()
     m_stopped = true;
     m_receiver->stop();
     m_sender->stop();
-    if (m_backend)
-        m_backend->stop();
+    m_backend->stop();
 
     // No need to call negotiation needed, it will be done by the backend itself.
     return { };
@@ -129,18 +99,13 @@ ExceptionOr<void> RTCRtpTransceiver::stop()
 
 ExceptionOr<void> RTCRtpTransceiver::setCodecPreferences(const Vector<RTCRtpCodecCapability>& codecs)
 {
-    if (!m_backend)
-        return { };
-
     RELEASE_LOG_INFO(WebRTC, "RTCRtpTransceiver::setCodecPreferences");
     return m_backend->setCodecPreferences(codecs);
 }
 
 bool RTCRtpTransceiver::stopped() const
 {
-    if (m_backend)
-        return m_backend->stopped();
-    return m_stopped;
+    return m_backend->stopped();
 }
 
 void RtpTransceiverSet::append(Ref<RTCRtpTransceiver>&& transceiver)

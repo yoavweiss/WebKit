@@ -1291,7 +1291,7 @@ std::optional<bool> GStreamerMediaEndpoint::isIceGatheringComplete(const String&
     return true;
 }
 
-ExceptionOr<RefPtr<GStreamerRtpSenderBackend>> GStreamerMediaEndpoint::addTrack(MediaStreamTrack& track, const FixedVector<String>& mediaStreamIds)
+ExceptionOr<Ref<GStreamerRtpSenderBackend>> GStreamerMediaEndpoint::addTrack(MediaStreamTrack& track, const FixedVector<String>& mediaStreamIds)
 {
     GStreamerRtpSenderBackend::Source source;
     auto mediaStreamId = mediaStreamIds.isEmpty() ? "-"_s : mediaStreamIds[0];
@@ -1565,7 +1565,7 @@ void GStreamerMediaEndpoint::connectIncomingTrack(WebRTCTrackData& data)
             return;
         }
         const auto& trackId = data.trackId;
-        transceiver = peerConnectionBackend->newRemoteTransceiver(makeUnique<GStreamerRtpTransceiverBackend>(WTF::move(rtcTransceiver)), data.type, trackId.isolatedCopy());
+        transceiver = peerConnectionBackend->newRemoteTransceiver(makeUniqueRef<GStreamerRtpTransceiverBackend>(WTF::move(rtcTransceiver)), data.type, trackId.isolatedCopy());
         GST_DEBUG_OBJECT(m_pipeline.get(), "New remote transceiver created for track");
     }
 
@@ -1940,7 +1940,7 @@ ExceptionOr<GStreamerMediaEndpoint::Backends> GStreamerMediaEndpoint::createTran
     }, [](std::nullptr_t&) {
     });
 
-    auto transceiver = makeUnique<GStreamerRtpTransceiverBackend>(WTF::move(rtcTransceiver));
+    auto transceiver = makeUniqueRef<GStreamerRtpTransceiverBackend>(WTF::move(rtcTransceiver));
 
     return GStreamerMediaEndpoint::Backends { transceiver->createSenderBackend(WeakPtr { m_peerConnectionBackend }, WTF::move(source), WTF::move(initData)), transceiver->createReceiverBackend(), WTF::move(transceiver) };
 }
@@ -2444,7 +2444,7 @@ void GStreamerMediaEndpoint::collectTransceivers()
             return false;
         }
 
-        existingTransceiver = peerConnectionBackend->newRemoteTransceiver(WTF::makeUnique<GStreamerRtpTransceiverBackend>(WTF::move(transceiver)), m_mediaForMid.get(String(mid.span())), trackIdFromSDPMedia(*media));
+        existingTransceiver = peerConnectionBackend->newRemoteTransceiver(WTF::makeUniqueRef<GStreamerRtpTransceiverBackend>(WTF::move(transceiver)), m_mediaForMid.get(String(mid.span())), trackIdFromSDPMedia(*media));
         return false;
     });
 }

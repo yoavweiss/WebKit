@@ -384,7 +384,7 @@ void LibWebRTCMediaEndpoint::collectTransceivers()
             continue;
 
         Ref rtcReceiver = toRef(rtcTransceiver->receiver());
-        existingTransceiver = peerConnectionBackend->newRemoteTransceiver(makeUnique<LibWebRTCRtpTransceiverBackend>(toRef(WTF::move(rtcTransceiver))), rtcReceiver->media_type() == webrtc::MediaType::AUDIO ? RealtimeMediaSource::Type::Audio : RealtimeMediaSource::Type::Video);
+        existingTransceiver = peerConnectionBackend->newRemoteTransceiver(makeUniqueRef<LibWebRTCRtpTransceiverBackend>(toRef(WTF::move(rtcTransceiver))), rtcReceiver->media_type() == webrtc::MediaType::AUDIO ? RealtimeMediaSource::Type::Audio : RealtimeMediaSource::Type::Video);
     }
 }
 
@@ -405,7 +405,7 @@ ExceptionOr<LibWebRTCMediaEndpoint::Backends> LibWebRTCMediaEndpoint::createTran
     if (!result.ok())
         return toException(result.error());
 
-    auto transceiver = makeUnique<LibWebRTCRtpTransceiverBackend>(toRef(result.MoveValue()));
+    auto transceiver = makeUniqueRef<LibWebRTCRtpTransceiverBackend>(toRef(result.MoveValue()));
     return LibWebRTCMediaEndpoint::Backends { transceiver->createSenderBackend(*protect(m_peerConnectionBackend), WTF::move(source)), transceiver->createReceiverBackend(), WTF::move(transceiver) };
 }
 
@@ -466,6 +466,7 @@ std::unique_ptr<LibWebRTCRtpTransceiverBackend> LibWebRTCMediaEndpoint::transcei
         if (transceiver->sender().get() == backend.rtcSender())
             return makeUnique<LibWebRTCRtpTransceiverBackend>(toRef(webrtc::scoped_refptr { transceiver }));
     }
+    ASSERT_NOT_REACHED();
     return nullptr;
 }
 
