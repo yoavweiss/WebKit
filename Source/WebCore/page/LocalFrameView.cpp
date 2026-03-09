@@ -1269,7 +1269,7 @@ void LocalFrameView::adjustScrollbarsForLayout(bool isFirstLayout)
 
 void LocalFrameView::willDoLayout(SingleThreadWeakPtr<RenderElement> layoutRoot)
 {
-    if (!m_frame->document()->isInStyleInterleavedLayout())
+    if (!m_frame->document()->isInStyleInterleavedLayout() && !layoutContext().isLayoutNested())
         updateScrollAnchoringBeforeLayoutForScrollableAreas();
 
     bool subtreeLayout = !is<RenderView>(*layoutRoot);
@@ -4723,7 +4723,8 @@ void LocalFrameView::performPostLayoutTasks()
     updateLayoutViewport();
     viewportContentsChanged();
 
-    adjustScrollAnchoringPositionForScrollableAreas();
+    if (!layoutContext().isLayoutNested())
+        adjustScrollAnchoringPositionForScrollableAreas();
 
     resnapAfterLayout();
 

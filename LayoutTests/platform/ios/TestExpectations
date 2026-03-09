@@ -7627,6 +7627,7 @@ imported/w3c/web-platform-tests/css/css-scroll-anchoring/after-scrollable-range-
 imported/w3c/web-platform-tests/css/css-scroll-anchoring/contenteditable-insert-line-at-top.tentative.html [ Failure ]
 imported/w3c/web-platform-tests/css/css-scroll-anchoring/dirty-contents-reselect-anchor.tentative.html [ Pass Failure ]
 imported/w3c/web-platform-tests/css/css-scroll-anchoring/history-restore-anchors.html [ Failure ]
+imported/w3c/web-platform-tests/css/css-scroll-anchoring/ignore-adjustments-while-scrolling-to-anchor.tentative.html [ Pass Failure ]
 imported/w3c/web-platform-tests/css/css-scroll-anchoring/shadow-dom-subscroller.html [ Failure ]
 imported/w3c/web-platform-tests/css/css-scroll-anchoring/zero-scroll-offset-001.html [ Failure ]
 imported/w3c/web-platform-tests/css/css-scroll-anchoring/zero-scroll-offset-002.html [ Failure ]
