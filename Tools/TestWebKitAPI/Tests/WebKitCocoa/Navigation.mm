@@ -440,8 +440,6 @@ TEST(WKNavigation, FramesWithHTTPSNavigation)
 
     // Three navigation completions: main-frame finish, frame.com/navigate finish, and frame2.com/frame finish.
     [delegate waitForNavigations:3];
-    // FIXME: Site Isolation has a bug that initial document security origin will be set to null instead of inheriting from parent.
-    const char* initialIframeDocumentSecurityOrigin = isSiteIsolationEnabled(webView.get()) ? "" : "example.com";
     [delegate validateCallbacks: {
         {
             "start provisional",
@@ -456,7 +454,7 @@ TEST(WKNavigation, FramesWithHTTPSNavigation)
         }, {
             "start provisional",
             "",
-            initialIframeDocumentSecurityOrigin,
+            "example.com",
             "https://frame.com/navigate"
         }, {
             "commit",
@@ -509,10 +507,8 @@ TEST(WKNavigation, FramesWithLoadingError)
     [webView setNavigationDelegate:delegate.get()];
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/main"]]];
 
-    // Three navigation completions: main-frame finish, frame.com/frame finish.
+    // Two navigation completions: main-frame finish, frame.com/frame finish.
     [delegate waitForNavigations:2];
-    // FIXME: Site Isolation has a bug that initial document security origin will be set to null instead of inheriting from parent.
-    const char* initialIframeDocumentSecurityOrigin = isSiteIsolationEnabled(webView.get()) ? "" : "example.com";
     [delegate validateCallbacks: {
         {
             "start provisional",
@@ -527,12 +523,12 @@ TEST(WKNavigation, FramesWithLoadingError)
         }, {
             "start provisional",
             "",
-            initialIframeDocumentSecurityOrigin,
+            "example.com",
             "frameswitherror://frame"
         }, {
             "fail provisional",
             "",
-            initialIframeDocumentSecurityOrigin,
+            "example.com",
             "frameswitherror://frame"
         }, {
             "finish",

@@ -66,6 +66,7 @@
 #include <WebCore/MIMETypeRegistry.h>
 #include <WebCore/NavigationScheduler.h>
 #include <WebCore/RemoteFrameLayoutInfo.h>
+#include <WebCore/SecurityPolicy.h>
 #include <WebCore/ShareableBitmapHandle.h>
 #include <WebCore/WebKitJSHandle.h>
 #include <stdio.h>
@@ -119,7 +120,7 @@ bool WebFrameProxy::canCreateFrame(FrameIdentifier frameID)
         && !allFrames().contains(frameID);
 }
 
-WebFrameProxy::WebFrameProxy(WebPageProxy& page, FrameProcess& process, FrameIdentifier frameID, SandboxFlags effectiveSandboxFlags, ReferrerPolicy effectiveReferrerPolicy, WebCore::ScrollbarMode scrollingMode, WebFrameProxy* opener, IsMainFrame isMainFrame)
+WebFrameProxy::WebFrameProxy(WebPageProxy& page, FrameProcess& process, FrameIdentifier frameID, SandboxFlags effectiveSandboxFlags, ReferrerPolicy effectiveReferrerPolicy, WebCore::ScrollbarMode scrollingMode, WebFrameProxy* opener, WebFrameProxy* parent, IsMainFrame isMainFrame, std::optional<URL>&& previousURL)
     : m_page(page)
     , m_frameProcess(process)
     , m_opener(opener)
@@ -137,6 +138,13 @@ WebFrameProxy::WebFrameProxy(WebPageProxy& page, FrameProcess& process, FrameIde
     page.inspectorController().didCreateFrame(*this);
 
     protect(m_frameProcess)->incrementFrameCount();
+
+    m_parentFrame = parent;
+
+    if (previousURL)
+        frameLoadState().setURL(WTF::move(*previousURL));
+
+    updateDocumentSecurityOrigin(parent ? parent : opener);
 }
 
 WebFrameProxy::~WebFrameProxy()
@@ -334,6 +342,7 @@ void WebFrameProxy::didCommitLoad(const String& contentType, const WebCore::Cert
     m_certificateInfo = certificateInfo;
     m_containsPluginDocument = containsPluginDocument;
     m_documentSecurityPolicy = WTF::move(documentSecurityPolicy);
+    updateDocumentSecurityOrigin(nullptr);
 
     RefPtr webPage = page();
     if (webPage && protect(webPage->preferences())->siteIsolationEnabled())
@@ -523,7 +532,7 @@ void WebFrameProxy::didCreateSubframe(WebCore::FrameIdentifier frameID, String&&
     if ((frameID.toUInt64() >> 32) != process().coreProcessIdentifier().toUInt64())
         return;
 
-    Ref child = WebFrameProxy::create(*page, m_frameProcess, frameID, effectiveSandboxFlags, effectiveReferrerPolicy, scrollingMode, nullptr, IsMainFrame::No);
+    Ref child = WebFrameProxy::create(*page, m_frameProcess, frameID, effectiveSandboxFlags, effectiveReferrerPolicy, scrollingMode, nullptr, this, IsMainFrame::No, std::nullopt);
     child->m_parentFrame = *this;
     child->m_frameName = WTF::move(frameName);
     page->observeAndCreateRemoteSubframesInOtherProcesses(child, child->m_frameName);
@@ -712,7 +721,8 @@ Ref<FrameTreeSyncData> WebFrameProxy::calculateFrameTreeSyncData() const
 
 Ref<SecurityOrigin> WebFrameProxy::securityOrigin() const
 {
-    return SecurityOrigin::create(url());
+    ASSERT(m_documentSecurityOrigin);
+    return *m_documentSecurityOrigin;
 }
 
 bool WebFrameProxy::isSameOriginAs(const WebFrameProxy& frame) const
@@ -1031,6 +1041,24 @@ ProvisionalFrameCreationParameters WebFrameProxy::provisionalFrameCreationParame
         remoteFrameRect(),
         commitTiming,
     };
+}
+
+void WebFrameProxy::updateDocumentSecurityOrigin(WebFrameProxy* creator)
+{
+    if (m_effectiveSandboxFlags.contains(SandboxFlag::Origin)) {
+        m_documentSecurityOrigin = WebCore::SecurityOrigin::opaqueOrigin();
+        return;
+    }
+
+    if (SecurityPolicy::shouldInheritSecurityOriginFromOwner(url())) {
+        if (RefPtr creatorFrame = creator)
+            m_documentSecurityOrigin = creatorFrame->securityOrigin().ptr();
+        else
+            m_documentSecurityOrigin = WebCore::SecurityOrigin::opaqueOrigin();
+        return;
+    }
+
+    m_documentSecurityOrigin = SecurityOrigin::create(url());
 }
 
 } // namespace WebKit

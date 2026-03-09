@@ -131,9 +131,9 @@ struct WebsitePoliciesData;
 
 class WebFrameProxy : public API::ObjectImpl<API::Object::Type::Frame>, public IPC::MessageReceiver {
 public:
-    static Ref<WebFrameProxy> create(WebPageProxy& page, FrameProcess& process, WebCore::FrameIdentifier frameID, WebCore::SandboxFlags sandboxFlags, WebCore::ReferrerPolicy referrerPolicy, WebCore::ScrollbarMode scrollingMode, WebFrameProxy* opener, IsMainFrame isMainFrame)
+    static Ref<WebFrameProxy> create(WebPageProxy& page, FrameProcess& process, WebCore::FrameIdentifier frameID, WebCore::SandboxFlags sandboxFlags, WebCore::ReferrerPolicy referrerPolicy, WebCore::ScrollbarMode scrollingMode, WebFrameProxy* opener, WebFrameProxy* parent, IsMainFrame isMainFrame, std::optional<URL>&& previousURL)
     {
-        return adoptRef(*new WebFrameProxy(page, process, frameID, sandboxFlags, referrerPolicy, scrollingMode, opener, isMainFrame));
+        return adoptRef(*new WebFrameProxy(page, process, frameID, sandboxFlags, referrerPolicy, scrollingMode, opener, parent, isMainFrame, WTF::move(previousURL)));
     }
 
     void ref() const final { API::ObjectImpl<API::Object::Type::Frame>::ref(); }
@@ -310,12 +310,13 @@ public:
 
     ProvisionalFrameCreationParameters provisionalFrameCreationParameters(std::optional<WebCore::FrameIdentifier>, std::optional<WebCore::LayerHostingContextIdentifier>, CommitTiming);
 private:
-    WebFrameProxy(WebPageProxy&, FrameProcess&, WebCore::FrameIdentifier, WebCore::SandboxFlags, WebCore::ReferrerPolicy, WebCore::ScrollbarMode, WebFrameProxy*, IsMainFrame);
+    WebFrameProxy(WebPageProxy&, FrameProcess&, WebCore::FrameIdentifier, WebCore::SandboxFlags, WebCore::ReferrerPolicy, WebCore::ScrollbarMode, WebFrameProxy*, WebFrameProxy*, IsMainFrame, std::optional<URL>&&);
 
     std::optional<SharedPreferencesForWebProcess> sharedPreferencesForWebProcess() const;
 
     std::optional<WebCore::PageIdentifier> NODELETE pageIdentifier() const;
     Ref<WebCore::SecurityOrigin> securityOrigin() const;
+    void updateDocumentSecurityOrigin(WebFrameProxy*);
 
     RefPtr<WebFrameProxy> deepLastChild();
     WebFrameProxy* NODELETE firstChild() const;
@@ -351,6 +352,7 @@ private:
     WebCore::ReferrerPolicy m_effectiveReferrerPolicy { WebCore::ReferrerPolicy::EmptyString };
     WebCore::ScrollbarMode m_scrollingMode;
     std::optional<WebCore::DocumentSecurityPolicy> m_documentSecurityPolicy;
+    RefPtr<WebCore::SecurityOrigin> m_documentSecurityOrigin;
 } SWIFT_SHARED_REFERENCE(refWebFrameProxy, derefWebFrameProxy);
 
 } // namespace WebKit
