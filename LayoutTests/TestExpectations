@@ -8073,7 +8073,6 @@ webkit.org/b/297505 ipc/LocalSampleBufferDisplayLayer-LogIdentifier-data-race-ua
 
 # Fix upstream in WPT by increasing pixel tolerance
 imported/w3c/web-platform-tests/svg/shapes/rect-03.svg [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/svg/shapes/reftests/pathlength-002.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/shapes/reftests/pathlength-003.svg [ ImageOnlyFailure ]
 
 imported/w3c/web-platform-tests/css/css-pseudo/first-line-line-height-003.html [ ImageOnlyFailure ]
