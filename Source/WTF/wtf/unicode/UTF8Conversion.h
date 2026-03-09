@@ -66,13 +66,5 @@ struct CheckedUTF8 {
 };
 WTF_EXPORT_PRIVATE CheckedUTF8 checkUTF8(std::span<const char8_t>);
 
-// The computeUTF16LengthWithHash function returns a length and hash of 0 if the
-// source is exhausted or invalid. The hash is of the computeHashAndMaskTop8Bits variety.
-struct UTF16LengthWithHash {
-    size_t lengthUTF16 { };
-    unsigned hash { };
-};
-WTF_EXPORT_PRIVATE UTF16LengthWithHash computeUTF16LengthWithHash(std::span<const char8_t>);
-
 } // namespace Unicode
 } // namespace WTF

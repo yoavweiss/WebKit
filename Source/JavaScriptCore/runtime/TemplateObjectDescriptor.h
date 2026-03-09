@@ -27,6 +27,7 @@
 #pragma once
 
 #include <limits>
+#include <wtf/HashFunctions.h>
 #include <wtf/Vector.h>
 #include <wtf/text/StringHash.h>
 #include <wtf/text/WTFString.h>
@@ -91,14 +92,10 @@ inline TemplateObjectDescriptor::TemplateObjectDescriptor(EmptyValueTag)
 
 inline unsigned TemplateObjectDescriptor::calculateHash(const StringVector& rawStrings)
 {
-    SuperFastHash hasher;
-    for (const String& string : rawStrings) {
-        if (string.is8Bit())
-            hasher.addCharacters(string.span8());
-        else
-            hasher.addCharacters(string.span16());
-    }
-    return hasher.hash();
+    unsigned hash = WTF::stringHashingStartValue;
+    for (const String& string : rawStrings)
+        hash = pairIntHash(hash, string.hash());
+    return hash;
 }
 
 } // namespace JSC
