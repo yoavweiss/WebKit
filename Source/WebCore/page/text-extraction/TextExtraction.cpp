@@ -1114,6 +1114,9 @@ static RefPtr<ContainerNode> findLargeContainerAboveNode(Node& node, FloatSize m
     return { };
 }
 
+// FIXME: Consider making this size threshold client-configurable in the future.
+static constexpr FloatSize minimumSizeForLargeContainer { 280, 300 };
+
 #if ENABLE(DATA_DETECTION)
 
 static RefPtr<ContainerNode> findContainerNodeForDataDetectorResults(Node& rootNode, OptionSet<DataDetectorType> types)
@@ -1146,9 +1149,7 @@ static RefPtr<ContainerNode> findContainerNodeForDataDetectorResults(Node& rootN
     if (!commonAncestor)
         return { };
 
-    // FIXME: Consider making this size threshold client-configurable in the future.
-    static constexpr FloatSize minimumSize { 280, 300 };
-    return findLargeContainerAboveNode(*commonAncestor, minimumSize, &rootNode);
+    return findLargeContainerAboveNode(*commonAncestor, minimumSizeForLargeContainer, &rootNode);
 }
 
 #endif // ENABLE(DATA_DETECTION)
@@ -1174,13 +1175,16 @@ Result extractItem(Request&& request, LocalFrame& frame)
         return nodeFromJSHandle(*request.targetNodeHandleIdentifier);
     }();
 
+    bool extractingWithDataDetectors = false;
 #if ENABLE(DATA_DETECTION)
-    if (request.dataDetectorTypes && extractionRootNode)
+    if (request.dataDetectorTypes && extractionRootNode) {
         extractionRootNode = findContainerNodeForDataDetectorResults(*extractionRootNode, request.dataDetectorTypes);
+        extractingWithDataDetectors = true;
+    }
 #endif
 
     if (extractionRootNode)
-        addBoxShadowIfNeeded(*extractionRootNode, "#0088FF"_s);
+        addBoxShadowIfNeeded(*extractionRootNode, extractingWithDataDetectors ? "#0088FF"_s : "#ff8d28"_s);
 
     if (!extractionRootNode)
         return { root, 0 };
@@ -2343,6 +2347,25 @@ RefPtr<Element> elementForExtractedText(const LocalFrame& frame, ExtractedText&&
 
     RefPtr element = dynamicDowncast<Element>(node);
     return element ? element : RefPtr { node->parentElementInComposedTree() };
+}
+
+RefPtr<Element> containerElementForExtractedText(const LocalFrame& frame, ExtractedText&& extractedText)
+{
+    RefPtr element = elementForExtractedText(frame, WTF::move(extractedText));
+    if (!element)
+        return { };
+
+    RefPtr container = findLargeContainerAboveNode(*element, minimumSizeForLargeContainer);
+    if (!container)
+        return element;
+
+    if (RefPtr containerElement = dynamicDowncast<Element>(container))
+        return containerElement;
+
+    if (RefPtr containerElement = container->parentElementInComposedTree())
+        return containerElement;
+
+    return element;
 }
 
 std::optional<SimpleRange> rangeForExtractedText(const LocalFrame& frame, ExtractedText&& extractedText)
