@@ -267,7 +267,7 @@ public:
     AccessibilityReplacedText() = default;
     AccessibilityReplacedText(const VisibleSelection&);
     void postTextStateChangeNotification(AXObjectCache*, AXTextEditType, const String&, const VisibleSelection&);
-    const VisiblePositionIndexRange& replacedRange() { return m_replacedRange; }
+    const VisiblePositionIndexRange& replacedRange() LIFETIME_BOUND { return m_replacedRange; }
 protected:
     String m_replacedText;
     VisiblePositionIndexRange m_replacedRange;
@@ -322,8 +322,8 @@ public:
 #if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
     WEBCORE_EXPORT void setFrameInheritedState(LocalFrame&, const InheritedFrameState&);
     WEBCORE_EXPORT void setFrameGeometry(LocalFrame&, const FrameGeometry&);
-    const std::optional<FrameGeometry>& frameGeometry() const { return m_frameGeometry; }
-    const std::optional<FrameGeometry>& getAndUpdateFrameGeometry();
+    const std::optional<FrameGeometry>& frameGeometry() const LIFETIME_BOUND { return m_frameGeometry; }
+    const std::optional<FrameGeometry>& getAndUpdateFrameGeometry() LIFETIME_BOUND;
 #endif
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
     WEBCORE_EXPORT void buildIsolatedTreeIfNeeded();
@@ -690,7 +690,7 @@ public:
     void startCachingComputedObjectAttributesUntilTreeMutates();
     void stopCachingComputedObjectAttributes();
 
-    AXComputedObjectAttributeCache* computedObjectAttributeCache() { return m_computedObjectAttributeCache.get(); }
+    AXComputedObjectAttributeCache* computedObjectAttributeCache() LIFETIME_BOUND { return m_computedObjectAttributeCache.get(); }
 
     Document* document() const { return m_document; }
     FrameIdentifier frameID() const { return m_frameID; }

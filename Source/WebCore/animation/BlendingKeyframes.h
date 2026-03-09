@@ -76,14 +76,14 @@ public:
     bool isBlendingKeyframe() const final { return true; }
 
     void addProperty(const AnimatableCSSProperty&);
-    const HashSet<AnimatableCSSProperty>& properties() const { return m_properties; }
+    const HashSet<AnimatableCSSProperty>& properties() const LIFETIME_BOUND { return m_properties; }
 
-    const Offset& specifiedOffset() const { return m_specifiedOffset; }
+    const Offset& specifiedOffset() const LIFETIME_BOUND { return m_specifiedOffset; }
     void setComputedOffset(double offset) { m_computedOffset = offset; }
 
     bool NODELETE usesRangeOffset() const;
 
-    const RenderStyle* style() const { return m_style.get(); }
+    const RenderStyle* style() const LIFETIME_BOUND { return m_style.get(); }
     void setStyle(std::unique_ptr<RenderStyle>&& style) { m_style = WTF::move(style); }
 
     TimingFunction* timingFunction() const { return m_timingFunction.get(); }
@@ -122,15 +122,15 @@ public:
     BlendingKeyframes& operator=(BlendingKeyframes&&) = default;
     bool operator==(const BlendingKeyframes&) const;
 
-    const KeyframesIdentifier& identifier() const { return m_identifier; }
-    const AtomString& keyframesName() const { return std::holds_alternative<AtomString>(m_identifier) ? std::get<AtomString>(m_identifier) : nullAtom(); }
-    const String& acceleratedAnimationName() const;
+    const KeyframesIdentifier& identifier() const LIFETIME_BOUND { return m_identifier; }
+    const AtomString& keyframesName() const LIFETIME_BOUND { return std::holds_alternative<AtomString>(m_identifier) ? std::get<AtomString>(m_identifier) : nullAtom(); }
+    const String& acceleratedAnimationName() const LIFETIME_BOUND;
 
     void insert(BlendingKeyframe&&);
 
     void addProperty(const AnimatableCSSProperty&);
     bool containsProperty(const AnimatableCSSProperty&) const;
-    const HashSet<AnimatableCSSProperty>& properties() const { return m_properties; }
+    const HashSet<AnimatableCSSProperty>& properties() const LIFETIME_BOUND { return m_properties; }
 
     bool containsAnimatableCSSProperty() const;
     bool NODELETE containsDirectionAwareProperty() const;
@@ -153,7 +153,7 @@ public:
     bool hasCSSVariableReferences() const { return m_containsCSSVariableReferences; }
     bool hasColorSetToCurrentColor() const;
     bool NODELETE hasPropertySetToCurrentColor() const;
-    const HashSet<AnimatableCSSProperty>& NODELETE propertiesSetToInherit() const;
+    const HashSet<AnimatableCSSProperty>& NODELETE propertiesSetToInherit() const LIFETIME_BOUND;
     bool hasPropertiesWithRevertRuleOrLayer() const { return m_hasPropertiesWithRevertRuleOrLayer; }
 
     void updatePropertiesMetadata(const StyleProperties&);

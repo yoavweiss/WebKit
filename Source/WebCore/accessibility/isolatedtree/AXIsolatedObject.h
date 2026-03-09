@@ -77,7 +77,7 @@ public:
     bool hasMarkTag() const final { return elementName() == ElementName::HTML_mark; }
     bool hasRowGroupTag() const final;
 
-    const AccessibilityChildrenVector& children(bool updateChildrenIfNeeded = true) final;
+    const AccessibilityChildrenVector& children(bool updateChildrenIfNeeded = true) LIFETIME_BOUND final;
     AXIsolatedObject* parentObject() const final { return tree().objectForID(parent()); }
     AXIsolatedObject* parentObjectUnignored() const final { return downcast<AXIsolatedObject>(AXCoreObject::parentObjectUnignored()); }
     bool isEditableWebArea() const final { return boolAttributeValue(AXProperty::IsEditableWebArea); }

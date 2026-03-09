@@ -67,7 +67,7 @@ public:
     AffineTransform frameScreenTransform() const final { return frameGeometry().screenTransform; }
 
     void setInheritedFrameState(InheritedFrameState);
-    const InheritedFrameState& inheritedFrameState() const { return m_inheritedFrameState; }
+    const InheritedFrameState& inheritedFrameState() const LIFETIME_BOUND { return m_inheritedFrameState; }
     bool isAXHidden() const final;
     bool isARIAHidden() const final;
     void updateHostedFrameInheritedState();

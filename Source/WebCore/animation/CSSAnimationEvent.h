@@ -50,7 +50,7 @@ public:
 
     virtual ~CSSAnimationEvent();
 
-    const String& animationName() const { return m_animationName; }
+    const String& animationName() const LIFETIME_BOUND { return m_animationName; }
 
 private:
     CSSAnimationEvent(const AtomString& type, WebAnimation*, std::optional<Seconds> scheduledTime, double elapsedTime, const std::optional<Style::PseudoElementIdentifier>&, const String& animationName);

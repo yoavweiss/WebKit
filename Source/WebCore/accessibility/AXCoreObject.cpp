@@ -624,7 +624,7 @@ AXCoreObject* AXCoreObject::nextSiblingIncludingIgnored(bool updateChildrenIfNee
     return indexOfThis + 1 < siblings.size() ? siblings[indexOfThis + 1].unsafePtr() : nullptr;
 }
 
-AXCoreObject* AXCoreObject::previousSiblingIncludingIgnored(bool updateChildrenIfNeeded)
+RefPtr<AXCoreObject> AXCoreObject::previousSiblingIncludingIgnored(bool updateChildrenIfNeeded)
 {
     RefPtr parent = parentObject();
     if (!parent)
@@ -632,10 +632,10 @@ AXCoreObject* AXCoreObject::previousSiblingIncludingIgnored(bool updateChildrenI
 
     const auto& siblings = parent->childrenIncludingIgnored(updateChildrenIfNeeded);
     size_t indexOfThis = indexInSiblings(siblings);
-    if (indexOfThis == notFound)
+    if (indexOfThis == notFound || indexOfThis < 1)
         return nullptr;
 
-    return indexOfThis >= 1 ? siblings[indexOfThis - 1].ptr() : nullptr;
+    return siblings[indexOfThis - 1].copyRef();
 }
 
 AXCoreObject* AXCoreObject::nextUnignoredSibling(bool updateChildrenIfNeeded, AXCoreObject* unignoredParent) const

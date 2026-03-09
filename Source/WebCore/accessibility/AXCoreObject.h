@@ -1067,9 +1067,9 @@ public:
     // When it is not, it returns unignored children. After ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
     // is the default, we should rename this function to childrenIncludingIgnored, and all callers
     // should be audited to either use that, or unignoredChildren.
-    virtual const AccessibilityChildrenVector& children(bool updateChildrenIfNeeded = true) = 0;
+    virtual const AccessibilityChildrenVector& children(bool updateChildrenIfNeeded = true) LIFETIME_BOUND = 0;
 
-    const AccessibilityChildrenVector& childrenIncludingIgnored(bool updateChildrenIfNeeded = true)
+    const AccessibilityChildrenVector& childrenIncludingIgnored(bool updateChildrenIfNeeded = true) LIFETIME_BOUND
     {
         return children(updateChildrenIfNeeded);
     };
@@ -1079,7 +1079,7 @@ public:
     AccessibilityChildrenVector unignoredChildren(bool updateChildrenIfNeeded = true);
     bool hasUnignoredChild();
 #else
-    const AccessibilityChildrenVector& unignoredChildren(bool updateChildrenIfNeeded = true) { return children(updateChildrenIfNeeded); }
+    const AccessibilityChildrenVector& unignoredChildren(bool updateChildrenIfNeeded = true) LIFETIME_BOUND { return children(updateChildrenIfNeeded); }
     bool hasUnignoredChild()
     {
         const auto& children = this->children();
@@ -1127,7 +1127,7 @@ public:
     }
 
     RefPtr<AXCoreObject> previousInPreOrder(bool updateChildrenIfNeeded = true, AXCoreObject* stayWithin = nullptr);
-    AXCoreObject* previousSiblingIncludingIgnored(bool updateChildrenIfNeeded);
+    RefPtr<AXCoreObject> previousSiblingIncludingIgnored(bool updateChildrenIfNeeded);
     AXCoreObject* deepestLastChildIncludingIgnored(bool updateChildrenIfNeeded);
 
     void setIndexInParent(unsigned index)

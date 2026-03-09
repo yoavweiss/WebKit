@@ -51,7 +51,7 @@ public:
 
     virtual ~CSSTransitionEvent();
 
-    const String& propertyName() const { return m_propertyName; }
+    const String& propertyName() const LIFETIME_BOUND { return m_propertyName; }
 
 private:
     CSSTransitionEvent(const AtomString& type, WebAnimation*, std::optional<Seconds> scheduledTime, double elapsedTime, const std::optional<Style::PseudoElementIdentifier>&, const String propertyName);
