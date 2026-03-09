@@ -1352,7 +1352,7 @@ bool LineLayout::hitTest(const HitTestRequest& request, HitTestResult& result, c
     return false;
 }
 
-void LineLayout::shiftLinesBy(LayoutUnit blockShift)
+void LineLayout::shiftLinesByInBlockDirection(LayoutUnit blockShift)
 {
     if (!m_inlineContent)
         return;

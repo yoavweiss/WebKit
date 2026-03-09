@@ -773,7 +773,7 @@ LayoutUnit RenderBlockFlow::shiftForAlignContent(LayoutUnit intrinsicLogicalHeig
 
     // Now shift all our content.
     if (CheckedPtr inlineLayout = this->inlineLayout())
-        inlineLayout->shiftLinesBy(space);
+        inlineLayout->shiftLinesByInBlockDirection(space);
     else if (auto* svgTextLayout = this->svgTextLayout()) {
         if (isHorizontalWritingMode())
             svgTextLayout->shiftLineBy(0, space);
