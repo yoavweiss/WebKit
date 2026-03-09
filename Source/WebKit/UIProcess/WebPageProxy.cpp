@@ -8173,6 +8173,15 @@ void WebPageProxy::didFailLoadForFrame(IPC::Connection& connection, FrameIdentif
     if (!frame)
         return;
 
+    // If there is an ongoing provisional load and this message is not from the load's process,
+    // the message could be sent by original process whose load gets cancelled as the provisional
+    // load is continuing in another process.
+    Ref process = WebProcessProxy::fromConnection(connection);
+    if (m_provisionalPage && frame->isMainFrame() && m_provisionalPage->process() != process.get()) {
+        WEBPAGEPROXY_RELEASE_LOG(Loading, "didFailLoadForFrame: frameID=%" PRIu64 ", isMainFrame=%d, domain=%s, code=%d, provisionalPID=%i", frameID.toUInt64(), frame->isMainFrame(), error.domain().utf8().data(), error.errorCode(), m_provisionalPage->process().processID());
+        return;
+    }
+
     WEBPAGEPROXY_RELEASE_LOG_ERROR(Loading, "didFailLoadForFrame: frameID=%" PRIu64 ", isMainFrame=%d, domain=%s, code=%d", frameID.toUInt64(), frame->isMainFrame(), error.domain().utf8().data(), error.errorCode());
 
     // FIXME: We should message check that navigationID is not zero here, but it's currently zero for some navigations through the back/forward cache.
@@ -8202,7 +8211,6 @@ void WebPageProxy::didFailLoadForFrame(IPC::Connection& connection, FrameIdentif
     if (RefPtr automationSession = activeAutomationSession())
         automationSession->navigationFailedForFrame(*frame, navigationID);
 #endif
-    Ref process = WebProcessProxy::fromConnection(connection);
     if (m_loaderClient)
         m_loaderClient->didFailLoadWithErrorForFrame(*this, *frame, navigation.get(), error, process->transformHandlesToObjects(protect(userData.object()).get()).get());
     else {
