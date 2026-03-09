@@ -64,8 +64,8 @@ public:
     bool stopped() const;
     ExceptionOr<void> stop();
     ExceptionOr<void> setCodecPreferences(const Vector<RTCRtpCodecCapability>&);
-
-    RTCRtpTransceiverBackend& backend() { return m_backend.get(); }
+    
+    RTCRtpTransceiverBackend& backend() LIFETIME_BOUND { return m_backend.get(); }
     void setConnection(RTCPeerConnection&);
 
     std::optional<RTCRtpTransceiverDirection> firedDirection() const { return m_firedDirection; }
