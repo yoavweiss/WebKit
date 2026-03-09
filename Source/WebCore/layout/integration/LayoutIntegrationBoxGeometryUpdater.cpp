@@ -666,7 +666,7 @@ static inline void setIntegrationBaseline(const RenderBox& renderBox)
                 return marginBefore + snapToInt(contentBoxBottom, renderBox);
             }
 
-            return snapToInt(marginBoxLogicalHeight, renderBox);
+            return snapToInt(rootWritingMode.prefersCentralBaseline() && !isWritingModeRoot ? marginBoxLogicalHeight / 2: marginBoxLogicalHeight, renderBox);
         };
         const_cast<Layout::ElementBox&>(*renderBox.layoutBox()).setBaselineForIntegration(baselinePosition());
     }
