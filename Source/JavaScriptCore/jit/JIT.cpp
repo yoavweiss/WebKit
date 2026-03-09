@@ -971,7 +971,26 @@ RefPtr<BaselineJITCode> JIT::link(LinkBuffer& patchBuffer)
     std::unique_ptr<PCToCodeOriginMap> pcToCodeOriginMap;
     if (m_pcToCodeOriginMapBuilder.didBuildMapping())
         pcToCodeOriginMap = makeUnique<PCToCodeOriginMap>(WTF::move(m_pcToCodeOriginMapBuilder), patchBuffer);
-    
+
+    if (Options::useSourceCodeDump() && m_profiledCodeBlock) [[unlikely]] {
+        auto debugInfo = makeUnique<SourceCodeDumpDebugInfo>(m_profiledCodeBlock->inferredName());
+        if (RefPtr provider = m_profiledCodeBlock->ownerExecutable()->source().provider()) {
+            void* codeStart = patchBuffer.entrypoint<DisassemblyPtrTag>().untaggedPtr();
+            for (unsigned bytecodeOffset = 0; bytecodeOffset < m_labels.size(); ++bytecodeOffset) {
+                if (!m_labels[bytecodeOffset].isSet())
+                    continue;
+                BytecodeIndex bytecodeIndex(bytecodeOffset);
+                if (bytecodeIndex.offset() >= m_profiledCodeBlock->instructionsSize())
+                    continue;
+                LineColumn lineColumn = m_profiledCodeBlock->lineColumnForBytecodeIndex(bytecodeIndex);
+                auto location = patchBuffer.locationOf<DisassemblyPtrTag>(m_labels[bytecodeOffset]);
+                uint32_t codeOffset = static_cast<uint32_t>(location.dataLocation<uintptr_t>() - reinterpret_cast<uintptr_t>(codeStart));
+                debugInfo->codeEntries.append({ codeOffset, lineColumn, provider.releaseNonNull() });
+            }
+            patchBuffer.setSourceCodeDumpDebugInfo(WTF::move(debugInfo));
+        }
+    }
+
     // FIXME: Make a version of CodeBlockWithJITType that knows about UnlinkedCodeBlock.
     CodeRef<JSEntryPtrTag> result = FINALIZE_BASELINE_CODE(
         patchBuffer, JSEntryPtrTag,

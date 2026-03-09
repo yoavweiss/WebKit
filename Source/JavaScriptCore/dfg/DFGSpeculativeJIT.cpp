@@ -183,6 +183,7 @@ void SpeculativeJIT::compile()
     linkOSREntries(linkBuffer);
 
     collectIRDumpDebugInfo(linkBuffer);
+    collectSourceCodeDumpDebugInfo(linkBuffer);
 
     disassemble(linkBuffer);
 
@@ -288,6 +289,7 @@ void SpeculativeJIT::compileFunction()
     linkOSREntries(linkBuffer);
 
     collectIRDumpDebugInfo(linkBuffer);
+    collectSourceCodeDumpDebugInfo(linkBuffer);
 
     disassemble(linkBuffer);
 

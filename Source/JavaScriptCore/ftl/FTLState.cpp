@@ -70,7 +70,7 @@ State::State(Graph& graph)
 
     proc = makeUniqueWithoutFastMallocCheck<Procedure>(/* usesSIMD = */ false);
 
-    if (graph.m_vm.shouldBuilderPCToCodeOriginMapping() || Options::useIRDump())
+    if (graph.m_vm.shouldBuilderPCToCodeOriginMapping() || Options::useIRDump() || Options::useSourceCodeDump())
         proc->setNeedsPCToOriginMap();
 
     proc->setOriginPrinter(

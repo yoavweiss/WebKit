@@ -404,6 +404,44 @@ void JITCompiler::collectIRDumpDebugInfo(LinkBuffer& linkBuffer)
     linkBuffer.setIRDumpDebugInfo(WTF::move(debugInfo));
 }
 
+void JITCompiler::collectSourceCodeDumpDebugInfo(LinkBuffer& linkBuffer)
+{
+    if (!Options::useSourceCodeDump())
+        return;
+
+    if (m_irDumpLabels.isEmpty())
+        return;
+
+    auto debugInfo = makeUnique<SourceCodeDumpDebugInfo>(m_graph.m_codeBlock->inferredName());
+    void* codeStart = linkBuffer.entrypoint<DisassemblyPtrTag>().untaggedPtr();
+
+    for (auto& entry : m_irDumpLabels) {
+        CodeOrigin codeOrigin = entry.node->origin.semantic;
+        if (!codeOrigin.isSet())
+            continue;
+
+        InlineCallFrame* inlineCallFrame = codeOrigin.inlineCallFrame();
+        CodeBlock* codeBlock = inlineCallFrame ? inlineCallFrame->baselineCodeBlock.get() : m_graph.m_codeBlock;
+        if (!codeBlock)
+            continue;
+
+        BytecodeIndex bytecodeIndex = codeOrigin.bytecodeIndex();
+        if (bytecodeIndex.offset() >= codeBlock->instructionsSize())
+            continue;
+
+        LineColumn lineColumn = codeBlock->lineColumnForBytecodeIndex(bytecodeIndex);
+        RefPtr provider = codeBlock->ownerExecutable()->source().provider();
+        if (!provider)
+            continue;
+
+        auto location = linkBuffer.locationOf<DisassemblyPtrTag>(entry.label);
+        uint32_t codeOffset = static_cast<uint32_t>(location.dataLocation<uintptr_t>() - reinterpret_cast<uintptr_t>(codeStart));
+        debugInfo->codeEntries.append({ codeOffset, lineColumn, provider.releaseNonNull() });
+    }
+
+    linkBuffer.setSourceCodeDumpDebugInfo(WTF::move(debugInfo));
+}
+
 #if USE(JSVALUE32_64)
 void* JITCompiler::addressOfDoubleConstant(Node* node)
 {

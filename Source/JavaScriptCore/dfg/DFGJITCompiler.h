@@ -115,7 +115,7 @@ public:
     
     void setForNode(Node* node)
     {
-        if (Options::useIRDump()) [[unlikely]]
+        if (Options::useIRDump() || Options::useSourceCodeDump()) [[unlikely]]
             m_irDumpLabels.append({ labelIgnoringWatchpoints(), node });
         if (!m_disassembler) [[likely]]
             return;
@@ -388,6 +388,7 @@ protected:
     void linkOSRExits();
     void disassemble(LinkBuffer&);
     void collectIRDumpDebugInfo(LinkBuffer&);
+    void collectSourceCodeDumpDebugInfo(LinkBuffer&);
 
     void makeCatchOSREntryBuffer();
 

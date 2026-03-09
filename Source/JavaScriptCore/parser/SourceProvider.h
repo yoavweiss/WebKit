@@ -37,6 +37,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 #include <JavaScriptCore/CodeSpecializationKind.h>
 #include <JavaScriptCore/SourceOrigin.h>
 #include <JavaScriptCore/SourceTaintedOrigin.h>
+#include <wtf/Lock.h>
 #include <wtf/RefCounted.h>
 #include <wtf/text/TextPosition.h>
 #include <wtf/text/WTFString.h>
@@ -112,6 +113,8 @@ public:
 
     virtual bool isScriptBufferSourceProvider() const { return false; }
 
+    JS_EXPORT_PRIVATE CString sourceCodeDumpFilePath(const CString& dumpDirectory);
+
 private:
     JS_EXPORT_PRIVATE virtual void lockUnderlyingBufferImpl();
     JS_EXPORT_PRIVATE virtual void unlockUnderlyingBufferImpl();
@@ -129,6 +132,10 @@ private:
     TextPosition m_startPosition;
     SourceID m_id { 0 };
     SourceTaintedOrigin m_taintedness;
+
+    std::atomic<bool> m_sourceCodeDumped { false };
+    Lock m_sourceCodeDumpLock;
+    CString m_sourceCodeDumpFilePath WTF_GUARDED_BY_LOCK(m_sourceCodeDumpLock);
 };
 
 DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(StringSourceProvider);

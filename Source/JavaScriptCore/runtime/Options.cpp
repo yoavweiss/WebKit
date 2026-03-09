@@ -876,6 +876,11 @@ void Options::notifyOptionsChanged()
         if (Options::useIRDump() && !Options::useJITDump())
             Options::useIRDump() = false;
 
+        if (Options::useSourceCodeDump() && !Options::useJITDump())
+            Options::useSourceCodeDump() = false;
+        if (Options::useSourceCodeDump() && Options::useIRDump())
+            Options::useSourceCodeDump() = false;
+
         if (OptionsHelper::wasOverridden(jitPolicyScaleID))
             scaleJITPolicy();
 
