@@ -773,14 +773,16 @@ JSObject* JSPromise::promiseResolve(JSGlobalObject* globalObject, JSObject* cons
 
     if (argument.inherits<JSPromise>()) {
         auto* promise = jsCast<JSPromise*>(argument);
-        if (promiseSpeciesWatchpointIsValid(vm, promise)) [[likely]]
-            return promise;
+        if (promiseSpeciesWatchpointIsValid(vm, promise)) [[likely]] {
+            if (constructor == promise->globalObject()->promiseConstructor())
+                return promise;
+        } else {
+            auto property = promise->get(globalObject, vm.propertyNames->constructor);
+            RETURN_IF_EXCEPTION(scope, { });
 
-        auto property = promise->get(globalObject, vm.propertyNames->constructor);
-        RETURN_IF_EXCEPTION(scope, { });
-
-        if (property == constructor)
-            return promise;
+            if (property == constructor)
+                return promise;
+        }
     }
 
     if (constructor == globalObject->promiseConstructor()) [[likely]] {
