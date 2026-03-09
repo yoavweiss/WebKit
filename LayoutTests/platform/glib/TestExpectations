@@ -479,11 +479,6 @@ imported/w3c/web-platform-tests/quirks/text-decoration-doesnt-propagate-into-tab
 imported/w3c/web-platform-tests/web-animations/timing-model/animations/update-playback-rate-zero.html [ Pass ]
 webkit.org/b/306459 imported/w3c/web-platform-tests/web-animations/timing-model/timelines/timelines.html [ Failure Pass ]
 
-# Tests that timeout on Apple platforms.
-webkit.org/b/185859 imported/w3c/web-platform-tests/css/selectors/focus-visible-002.html [ Pass ]
-webkit.org/b/185859 imported/w3c/web-platform-tests/css/selectors/focus-visible-003.html [ Pass ]
-webkit.org/b/185859 imported/w3c/web-platform-tests/css/selectors/focus-visible-004.html [ Pass ]
-
 # These tests are expected to fail with GPU process and on Mac, but pass on GTK and WPE
 http/tests/media/media-document-referer.html [ Pass ]
 http/tests/media/media-document.html [ Pass ]
