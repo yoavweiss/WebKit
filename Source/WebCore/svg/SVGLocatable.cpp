@@ -62,18 +62,6 @@ SVGElement* SVGLocatable::nearestViewportElement(const SVGElement* element)
     return nullptr;
 }
 
-SVGElement* SVGLocatable::farthestViewportElement(const SVGElement* element)
-{
-    ASSERT(element);
-    SUPPRESS_UNCOUNTED_LOCAL SVGElement* farthest = nullptr;
-    for (RefPtr current = element->parentOrShadowHostElement(); current; current = current->parentOrShadowHostElement()) {
-        auto* svgElement = dynamicDowncast<SVGElement>(*current);
-        if (isViewportElement(svgElement))
-            farthest = svgElement;
-    }
-    return farthest;
-}
-
 FloatRect SVGLocatable::getBBox(SVGElement* element, StyleUpdateStrategy styleUpdateStrategy)
 {
     ASSERT(element);
