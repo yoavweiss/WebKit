@@ -7404,6 +7404,49 @@ class TestDetermineLabelOwner(BuildStepMixinAdditions, unittest.TestCase):
         self.expect_outcome(result=FAILURE, state_string="Unable to determine owner of PR 17518\n")
         self.run_step()
 
+    @classmethod
+    def mock_sleep(cls):
+        return patch('twisted.internet.task.deferLater', lambda *_, **__: None)
+
+    @defer.inlineCallbacks
+    def test_github_api_returns_none(self):
+        with self.mock_sleep():
+            self.setup_step(DetermineLabelOwner())
+            self.setProperty('github.number', 17518)
+            self.setProperty('buildername', 'Merge-Queue')
+            GitHubMixin.query_graph_ql = lambda self, query: None
+            next_steps = []
+            self.patch(self.build, 'addStepsAfterCurrentStep', lambda s: next_steps.extend(s))
+            self.expect_outcome(result=FAILURE, state_string='Unable to determine owner of PR 17518\n')
+            yield self.run_step()
+            self.assertTrue(any(isinstance(step, RemoveLabelsFromPullRequest) for step in next_steps))
+
+    @defer.inlineCallbacks
+    def test_github_api_returns_false(self):
+        with self.mock_sleep():
+            self.setup_step(DetermineLabelOwner())
+            self.setProperty('github.number', 17518)
+            self.setProperty('buildername', 'Merge-Queue')
+            GitHubMixin.query_graph_ql = lambda self, query: False
+            next_steps = []
+            self.patch(self.build, 'addStepsAfterCurrentStep', lambda s: next_steps.extend(s))
+            self.expect_outcome(result=FAILURE, state_string='Unable to determine owner of PR 17518\n')
+            yield self.run_step()
+            self.assertTrue(any(isinstance(step, RemoveLabelsFromPullRequest) for step in next_steps))
+
+    @defer.inlineCallbacks
+    def test_graphql_errors_response(self):
+        with self.mock_sleep():
+            self.setup_step(DetermineLabelOwner())
+            self.setProperty('github.number', 17518)
+            self.setProperty('buildername', 'Merge-Queue')
+            GitHubMixin.query_graph_ql = lambda self, query: {'errors': [{'message': 'API rate limit exceeded'}]}
+            next_steps = []
+            self.patch(self.build, 'addStepsAfterCurrentStep', lambda s: next_steps.extend(s))
+            self.expect_outcome(result=FAILURE, state_string='Unable to determine owner of PR 17518\n')
+            yield self.run_step()
+            self.assertTrue(any(isinstance(step, RemoveLabelsFromPullRequest) for step in next_steps))
+
 
 class TestDetermineLandedIdentifier(BuildStepMixinAdditions, unittest.TestCase):
     def setUp(self):

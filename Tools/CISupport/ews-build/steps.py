@@ -2307,16 +2307,28 @@ class DetermineLabelOwner(buildstep.BuildStep, GitHubMixin, AddToLogMixin):
         query_body = '{repository(owner:"%s", name:"%s") { pullRequest(number: %s) {timelineItems(itemTypes: LABELED_EVENT, last: 5) {nodes {... on LabeledEvent {actor { login } label { name } createdAt } } } } } }' % (owner, name, pr_number)
         query = {'query': query_body}
 
-        response = yield self.query_graph_ql(query)
-        if 'errors' in response:
-            yield self._addToLog('stdio', response['errors'][0]['message'])
-            return defer.returnValue(FAILURE)
-        if response:
-            yield self._addToLog('stdio', 'Retrieved labels.\n')
-            label_events = response['data']['repository']['pullRequest']['timelineItems']['nodes']
-        else:
-            yield self._addToLog('stdio', 'Failed to retrieve label author.\n')
-            return defer.returnValue(FAILURE)
+        retry = 3
+        for attempt in range(retry + 1):
+            try:
+                response = yield self.query_graph_ql(query)
+                if not response:
+                    yield self._addToLog('stdio', 'Failed to retrieve label author.\n')
+                elif 'errors' in response:
+                    yield self._addToLog('stdio', response['errors'][0]['message'])
+                else:
+                    yield self._addToLog('stdio', 'Retrieved labels.\n')
+                    label_events = response['data']['repository']['pullRequest']['timelineItems']['nodes']
+                    break
+            except Exception as e:
+                yield self._addToLog('stdio', f'Failed to retrieve label author: {e}\n')
+
+            if attempt >= retry:
+                yield self._addToLog('stdio', 'Failed to determine label owner.\n')
+                self.build.addStepsAfterCurrentStep([RemoveLabelsFromPullRequest(alwaysRun=True)])
+                return defer.returnValue(FAILURE)
+            wait_for = (attempt + 1) * 15
+            yield self._addToLog('stdio', f'\nBacking off for {wait_for} seconds before retrying.\n')
+            yield task.deferLater(reactor, wait_for, lambda: None)
 
         owner = None
         label = builder_name.lower()
@@ -2343,7 +2355,7 @@ class DetermineLabelOwner(buildstep.BuildStep, GitHubMixin, AddToLogMixin):
         if self.results == SUCCESS:
             return {'step': f"Owner of PR {self.getProperty('github.number')} determined to be {self.getProperty('owners')[0]}\n"}
         elif self.results == FAILURE:
-            return {'step': f"Unable to determine owner of PR {self.getProperty('github.number')}\n"}
+            return {'step': f"Unable to determine owner of PR {self.getProperty('github.number')}\n", 'build': 'Unexpected issue with GitHub API, please try again by re-adding the merge-queue label on the PR\n'}
 
 
 class SetCommitQueueMinusFlagOnPatch(buildstep.BuildStep, BugzillaMixin):
