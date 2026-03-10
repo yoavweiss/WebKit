@@ -62,6 +62,13 @@ static void waitForPendingKeyEvents(TestController* testController)
     testController->runUntil(done, 100_ms);
 }
 
+static void waitForPendingMouseEvents(TestController* testController)
+{
+    bool done = false;
+    WKPageDoAfterProcessingAllPendingMouseEvents(testController->mainWebView()->page(), &done, runPendingEventsCallback);
+    testController->runUntil(done, 100_ms);
+}
+
 // WebCore and layout tests assume this value
 static const float pixelsPerScrollTick = 40;
 
@@ -290,24 +297,31 @@ static inline unsigned stateModifierForGdkButton(unsigned button)
     return 1 << (8 + button - 1);
 }
 
-void EventSenderProxy::mouseDown(unsigned button, WKEventModifiers wkModifiers, WKStringRef pointerType)
+void EventSenderProxy::mouseDown(unsigned button, WKEventModifiers wkModifiers, WKStringRef pointerType, CompletionHandler<void()>&& completionHandler)
 {
     unsigned gdkButton = eventSenderButtonToGDKButton(button);
     auto modifier = stateModifierForGdkButton(gdkButton);
 
     // If the same mouse button is already in the down position don't
     // send another event as it may confuse Xvfb.
-    if (m_mouseButtonsCurrentlyDown & modifier)
+    if (m_mouseButtonsCurrentlyDown & modifier) {
+        if (completionHandler)
+            completionHandler();
         return;
+    }
 
     updateClickCountForButton(button);
     m_mouseButtonsCurrentlyDown |= modifier;
 
     webkitWebViewBaseSynthesizeMouseEvent(toWebKitGLibAPI(m_testController->mainWebView()->platformView()),
         MouseEventType::Press, gdkButton, m_mouseButtonsCurrentlyDown, m_position.x, m_position.y, webkitModifiersToGDKModifiers(wkModifiers), m_clickCount, toWTFString(pointerType));
+    if (completionHandler) {
+        waitForPendingMouseEvents(m_testController);
+        completionHandler();
+    }
 }
 
-void EventSenderProxy::mouseUp(unsigned button, WKEventModifiers wkModifiers, WKStringRef pointerType)
+void EventSenderProxy::mouseUp(unsigned button, WKEventModifiers wkModifiers, WKStringRef pointerType, CompletionHandler<void()>&& completionHandler)
 {
     unsigned gdkButton = eventSenderButtonToGDKButton(button);
     auto modifier = stateModifierForGdkButton(gdkButton);
@@ -317,15 +331,23 @@ void EventSenderProxy::mouseUp(unsigned button, WKEventModifiers wkModifiers, WK
 
     m_clickPosition = m_position;
     m_clickTime = m_time;
+    if (completionHandler) {
+        waitForPendingMouseEvents(m_testController);
+        completionHandler();
+    }
 }
 
-void EventSenderProxy::mouseMoveTo(double x, double y, WKStringRef pointerType)
+void EventSenderProxy::mouseMoveTo(double x, double y, WKStringRef pointerType, CompletionHandler<void()>&& completionHandler)
 {
     m_position.x = x;
     m_position.y = y;
 
     webkitWebViewBaseSynthesizeMouseEvent(toWebKitGLibAPI(m_testController->mainWebView()->platformView()),
         MouseEventType::Motion, 0, m_mouseButtonsCurrentlyDown, m_position.x, m_position.y, 0, 0, toWTFString(pointerType));
+    if (completionHandler) {
+        waitForPendingMouseEvents(m_testController);
+        completionHandler();
+    }
 }
 
 void EventSenderProxy::mouseScrollBy(int horizontal, int vertical)
@@ -449,31 +471,5 @@ void EventSenderProxy::setTouchModifier(WKEventModifiers, bool)
 {
 }
 #endif // ENABLE(TOUCH_EVENTS)
-
-struct DoAfterProcessingAllPendingMouseEventsCallbackContext {
-    bool done { false };
-    bool timedOut { false };
-};
-
-static void doAfterProcessingAllPendingMouseEventsCallback(void* userData)
-{
-    auto* context = static_cast<DoAfterProcessingAllPendingMouseEventsCallbackContext*>(userData);
-    if (context->timedOut) {
-        delete context;
-        return;
-    }
-    context->done = true;
-}
-
-void EventSenderProxy::waitForPendingMouseEvents()
-{
-    auto* context = new DoAfterProcessingAllPendingMouseEventsCallbackContext;
-    WKPageDoAfterProcessingAllPendingMouseEvents(m_testController->mainWebView()->page(), context, doAfterProcessingAllPendingMouseEventsCallback);
-    m_testController->runUntil(context->done, 100_ms);
-    if (context->done)
-        delete context;
-    else
-        context->timedOut = true;
-}
 
 } // namespace WTR

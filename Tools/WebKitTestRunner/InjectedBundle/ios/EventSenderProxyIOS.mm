@@ -59,16 +59,22 @@ void EventSenderProxy::updateClickCountForButton(int button)
     m_clickButton = button;
 }
 
-void EventSenderProxy::mouseDown(unsigned buttonNumber, WKEventModifiers modifiers, WKStringRef pointerType)
+void EventSenderProxy::mouseDown(unsigned buttonNumber, WKEventModifiers modifiers, WKStringRef pointerType, CompletionHandler<void()>&& completionHandler)
 {
+    if (completionHandler)
+        completionHandler();
 }
 
-void EventSenderProxy::mouseUp(unsigned buttonNumber, WKEventModifiers modifiers, WKStringRef pointerType)
+void EventSenderProxy::mouseUp(unsigned buttonNumber, WKEventModifiers modifiers, WKStringRef pointerType, CompletionHandler<void()>&& completionHandler)
 {
+    if (completionHandler)
+        completionHandler();
 }
 
-void EventSenderProxy::mouseMoveTo(double x, double y, WKStringRef pointerType)
+void EventSenderProxy::mouseMoveTo(double x, double y, WKStringRef pointerType, CompletionHandler<void()>&& completionHandler)
 {
+    if (completionHandler)
+        completionHandler();
 }
 
 void EventSenderProxy::leapForward(int milliseconds)
@@ -149,9 +155,5 @@ void EventSenderProxy::cancelTouchPoint(int index)
 }
 
 #endif
-
-void EventSenderProxy::waitForPendingMouseEvents()
-{
-}
 
 } // namespace WTR

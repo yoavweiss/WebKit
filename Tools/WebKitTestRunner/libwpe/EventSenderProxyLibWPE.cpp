@@ -56,6 +56,13 @@ static void waitForPendingKeyEvents(TestController* testController)
     testController->runUntil(done, 100_ms);
 }
 
+static void waitForPendingMouseEvents(TestController* testController)
+{
+    bool done = false;
+    WKPageDoAfterProcessingAllPendingMouseEvents(testController->mainWebView()->page(), &done, runPendingEventsCallback);
+    testController->runUntil(done, 100_ms);
+}
+
 EventSenderProxy::EventSenderProxy(TestController* testController)
     : m_testController(testController)
     // WPE event timestamps are just MonotonicTime, not actual WallTime, so we can
@@ -93,24 +100,36 @@ void EventSenderProxy::updateClickCountForButton(int button)
     m_clickButton = button;
 }
 
-void EventSenderProxy::mouseDown(unsigned button, WKEventModifiers wkModifiers, WKStringRef pointerType)
+void EventSenderProxy::mouseDown(unsigned button, WKEventModifiers wkModifiers, WKStringRef pointerType, CompletionHandler<void()>&& completionHandler)
 {
     updateClickCountForButton(button);
     m_client->mouseDown(button, m_time, wkModifiers, m_position.x, m_position.y, m_clickCount, m_mouseButtonsCurrentlyDown);
+    if (completionHandler) {
+        waitForPendingMouseEvents(m_testController);
+        completionHandler();
+    }
 }
 
-void EventSenderProxy::mouseUp(unsigned button, WKEventModifiers wkModifiers, WKStringRef pointerType)
+void EventSenderProxy::mouseUp(unsigned button, WKEventModifiers wkModifiers, WKStringRef pointerType, CompletionHandler<void()>&& completionHandler)
 {
     m_client->mouseUp(button, m_time, wkModifiers, m_position.x, m_position.y, m_mouseButtonsCurrentlyDown);
     m_clickPosition = m_position;
     m_clickTime = m_time;
+    if (completionHandler) {
+        waitForPendingMouseEvents(m_testController);
+        completionHandler();
+    }
 }
 
-void EventSenderProxy::mouseMoveTo(double x, double y, WKStringRef pointerType)
+void EventSenderProxy::mouseMoveTo(double x, double y, WKStringRef pointerType, CompletionHandler<void()>&& completionHandler)
 {
     m_position.x = x;
     m_position.y = y;
     m_client->mouseMoveTo(x, y, m_time, m_clickButton, m_mouseButtonsCurrentlyDown);
+    if (completionHandler) {
+        waitForPendingMouseEvents(m_testController);
+        completionHandler();
+    }
 }
 
 void EventSenderProxy::mouseScrollBy(int horizontal, int vertical)
@@ -213,31 +232,5 @@ void EventSenderProxy::cancelTouchPoint(int index)
 }
 
 #endif // ENABLE(TOUCH_EVENTS)
-
-struct DoAfterProcessingAllPendingMouseEventsCallbackContext {
-    bool done { false };
-    bool timedOut { false };
-};
-
-static void doAfterProcessingAllPendingMouseEventsCallback(void* userData)
-{
-    auto* context = static_cast<DoAfterProcessingAllPendingMouseEventsCallbackContext*>(userData);
-    if (context->timedOut) {
-        delete context;
-        return;
-    }
-    context->done = true;
-}
-
-void EventSenderProxy::waitForPendingMouseEvents()
-{
-    auto* context = new DoAfterProcessingAllPendingMouseEventsCallbackContext;
-    WKPageDoAfterProcessingAllPendingMouseEvents(m_testController->mainWebView()->page(), context, doAfterProcessingAllPendingMouseEventsCallback);
-    m_testController->runUntil(context->done, 100_ms);
-    if (context->done)
-        delete context;
-    else
-        context->timedOut = true;
-}
 
 } // namespace WTR

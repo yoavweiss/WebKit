@@ -1927,17 +1927,14 @@ constexpr auto eventSenderJS = R"eventSenderJS(
 if (window.eventSender) {
     let post = window.webkit.messageHandlers.webkitTestRunner.postMessage.bind(window.webkit.messageHandlers.webkitTestRunner);
 
-    eventSender.asyncMouseDown = async (button, modifierArray, pointerType, callback) => { // NOLINT
+    eventSender.asyncMouseDown = async (button, modifierArray, pointerType) => { // NOLINT
         await post(['AsyncMouseDown', button, modifierArray, pointerType]);
-        callback?.();
     };
-    eventSender.asyncMouseUp = async (button, modifierArray, pointerType, callback) => { // NOLINT
+    eventSender.asyncMouseUp = async (button, modifierArray, pointerType) => { // NOLINT
         await post(['AsyncMouseUp', button, modifierArray, pointerType]);
-        callback?.();
     };
-    eventSender.asyncMouseMoveTo = async (x, y, pointerType, callback) => { // NOLINT
+    eventSender.asyncMouseMoveTo = async (x, y, pointerType) => { // NOLINT
         await post(['AsyncMouseMoveTo', x, y, pointerType]);
-        callback?.();
     };
     eventSender.asyncKeyDown = async (key, modifiers) => { // NOLINT
         await post(['AsyncKeyDown', key, modifiers]);
@@ -2742,9 +2739,8 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
         WKArrayAppendItem(array.get(), argument2);
         WKPagePostMessageToInjectedBundle(mainWebView()->page(), toWK("SetMousePosition").get(), array.get());
 
-        m_eventSenderProxy->mouseMoveTo(x, y, pointerType);
-        m_eventSenderProxy->waitForPendingMouseEvents();
-        completionHandler(nullptr);
+        m_eventSenderProxy->mouseMoveTo(x, y, pointerType,
+            [completionHandler = WTF::move(completionHandler)] mutable { completionHandler(nullptr); });
         return;
     }
 
@@ -2752,10 +2748,8 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
         const auto button = static_cast<uint64_t>(doubleValue(argument));
         const auto array = arrayValue(argument2);
         const auto pointerType = stringValue(argument3);
-
-        m_eventSenderProxy->mouseDown(button, parseModifierArray(array), pointerType);
-        m_eventSenderProxy->waitForPendingMouseEvents();
-        completionHandler(nullptr);
+        m_eventSenderProxy->mouseDown(button, parseModifierArray(array), pointerType,
+            [completionHandler = WTF::move(completionHandler)] mutable { completionHandler(nullptr); });
         return;
     }
 
@@ -2763,10 +2757,8 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
         const auto button = static_cast<uint64_t>(doubleValue(argument));
         const auto array = arrayValue(argument2);
         const auto pointerType = stringValue(argument3);
-
-        m_eventSenderProxy->mouseUp(button, parseModifierArray(array), pointerType);
-        m_eventSenderProxy->waitForPendingMouseEvents();
-        completionHandler(nullptr);
+        m_eventSenderProxy->mouseUp(button, parseModifierArray(array), pointerType,
+            [completionHandler = WTF::move(completionHandler)] mutable { completionHandler(nullptr); });
         return;
     }
 
