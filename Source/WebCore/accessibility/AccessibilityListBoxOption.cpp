@@ -31,6 +31,7 @@
 
 #include "AXLoggerBase.h"
 #include "AXObjectCacheInlines.h"
+#include "AccessibilityNodeObjectInlines.h"
 #include "AccessibilityObjectInlines.h"
 #include "ContainerNodeInlines.h"
 #include "ElementInlines.h"

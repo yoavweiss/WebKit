@@ -32,7 +32,6 @@
 #include <WebCore/LayoutRect.h>
 #include <WebCore/LocalFrame.h>
 #include <WebCore/LocalFrameViewLayoutContext.h>
-#include <WebCore/Page.h>
 #include <WebCore/Pagination.h>
 #include <WebCore/PaintPhase.h>
 #include <WebCore/RenderPtr.h>
@@ -92,6 +91,8 @@ enum class TiledBackingScrollability : uint8_t;
 Pagination::Mode NODELETE paginationModeForRenderStyle(const RenderStyle&);
 
 enum class LayoutViewportConstraint : bool { Unconstrained, ConstrainedToDocumentRect };
+
+using WeakElementEdges = RectEdges<WeakPtr<Element, WeakPtrImplWithEventTargetData>>;
 
 class LocalFrameView final : public FrameView {
     WTF_MAKE_TZONE_ALLOCATED(LocalFrameView);

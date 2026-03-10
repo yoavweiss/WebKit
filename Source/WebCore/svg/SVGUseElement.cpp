@@ -39,6 +39,7 @@
 #include "LegacyRenderSVGTransformableContainer.h"
 #include "NodeName.h"
 #include "RenderSVGTransformableContainer.h"
+#include "RenderStyle+GettersInlines.h"
 #include "SVGDocumentExtensions.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGGElement.h"
@@ -48,6 +49,7 @@
 #include "ScriptDisallowedScope.h"
 #include "Settings.h"
 #include "ShadowRoot.h"
+#include "StyleDisplay.h"
 #include "TypedElementDescendantIteratorInlines.h"
 #include "XLinkNames.h"
 #include <wtf/RobinHoodHashSet.h>

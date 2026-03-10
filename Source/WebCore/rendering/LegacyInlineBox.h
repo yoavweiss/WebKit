@@ -21,11 +21,8 @@
 
 #pragma once
 
-#include <WebCore/HitTestRequest.h>
 #include <WebCore/RenderBoxModelObject.h>
-#include <WebCore/RenderStyle+GettersInlines.h>
 #include <WebCore/RenderText.h>
-#include <WebCore/TextFlags.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/TypeCasts.h>
 #include <wtf/WeakPtr.h>
@@ -216,8 +213,8 @@ public:
 #endif
 
     CheckedRef<const RenderStyle> lineStyle() const;
-    
-    const Style::VerticalAlign& verticalAlign() const LIFETIME_BOUND { return lineStyle()->verticalAlign(); }
+
+    inline const Style::VerticalAlign& verticalAlign() const LIFETIME_BOUND; // Defined in LegacyInlineBoxInlines.h
 
     // Use with caution! The type is not checked!
     RenderBoxModelObject* boxModelObject() const

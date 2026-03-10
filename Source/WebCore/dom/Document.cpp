@@ -318,7 +318,7 @@
 #include "StyleScope.h"
 #include "StyleSheetContents.h"
 #include "StyleSheetList.h"
-#include "StyleTreeResolver.h"
+#include "StyleTreeResolverInlines.h"
 #include "StyleZoomPrimitivesInlines.h"
 #include "SubresourceLoader.h"
 #include "SystemPreviewInfo.h"

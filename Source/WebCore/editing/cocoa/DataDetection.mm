@@ -53,6 +53,7 @@
 #import "QualifiedName.h"
 #import "Range.h"
 #import "RenderObject.h"
+#import "RenderStyle+GettersInlines.h"
 #import "StyleProperties.h"
 #import "Text.h"
 #import "TextIterator.h"

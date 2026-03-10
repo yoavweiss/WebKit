@@ -28,6 +28,7 @@
 #include "ReferencedSVGResources.h"
 
 #include "LegacyRenderSVGResourceClipper.h"
+#include "LegacyRenderSVGResourceContainerInlines.h"
 #include "PathOperation.h"
 #include "RenderLayer.h"
 #include "RenderLayerModelObject.h"

@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <WebCore/AccessibilityRegionContext.h>
 #include <WebCore/AffineTransform.h>
 #include <WebCore/EventRegion.h>
 #include <WebCore/GraphicsContext.h>
@@ -39,6 +38,7 @@
 
 namespace WebCore {
 
+class AccessibilityRegionContext;
 class OverlapTestRequestClient;
 class RenderInline;
 class RenderLayer;
@@ -123,7 +123,7 @@ struct PaintInfo {
     }
 
     EventRegionContext* eventRegionContext() { return dynamicDowncast<EventRegionContext>(regionContext); }
-    AccessibilityRegionContext* accessibilityRegionContext() { return dynamicDowncast<AccessibilityRegionContext>(regionContext); }
+    inline AccessibilityRegionContext* accessibilityRegionContext();
 
     LayoutRect rect;
     PaintPhase phase;

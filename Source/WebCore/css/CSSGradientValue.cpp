@@ -26,6 +26,9 @@
 #include "config.h"
 #include "CSSGradientValue.h"
 
+#include "CSSColorInlines.h"
+#include "CSSGradientInlines.h"
+
 #include "CSSPrimitiveNumericTypes+CSSValueVisitation.h"
 #include "CSSPrimitiveNumericTypes+Serialization.h"
 #include "ColorInterpolation.h"

@@ -26,6 +26,7 @@
 #pragma once
 
 #include "GridLayoutConstraints.h"
+#include "StyleContentAlignmentData.h"
 
 namespace WebCore {
 namespace Layout {

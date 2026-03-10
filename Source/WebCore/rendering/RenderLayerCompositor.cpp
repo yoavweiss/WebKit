@@ -575,6 +575,7 @@ RenderLayerCompositor::RenderLayerCompositor(RenderView& renderView)
     : m_renderView(renderView)
     , m_updateCompositingLayersTimer(*this, &RenderLayerCompositor::updateCompositingLayersTimerFired)
     , m_updateRenderingTimer(*this, &RenderLayerCompositor::scheduleRenderingUpdate)
+    , m_compositingPolicy { CompositingPolicy::Normal }
     , m_compositingPolicyHysteresis([](PAL::HysteresisState) { }, conservativeCompositingPolicyHysteresisDuration)
 {
 #if PLATFORM(IOS_FAMILY)

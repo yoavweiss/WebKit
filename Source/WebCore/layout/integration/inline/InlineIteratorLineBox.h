@@ -100,7 +100,7 @@ public:
     LineBoxIterator next() const;
     LineBoxIterator previous() const;
 
-    size_t lineIndex() const;
+    inline size_t lineIndex() const; // Defined in InlineIteratorLineBoxInlines.h
 
 private:
     friend class LineBoxIterator;
@@ -326,13 +326,6 @@ inline bool LineBox::hasBlockContent() const
 {
     return WTF::switchOn(m_pathVariant, [](const auto& path) {
         return path.hasBlockLevelBox();
-    });
-}
-
-inline size_t LineBox::lineIndex() const
-{
-    return WTF::switchOn(m_pathVariant, [](const auto& path) {
-        return path.lineIndex();
     });
 }
 

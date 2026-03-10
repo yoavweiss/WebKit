@@ -614,6 +614,11 @@ class EmptyVisitedLinkStore final : public VisitedLinkStore {
     void NODELETE addVisitedLink(Page&, SharedStringHash) final { }
 };
 
+RefPtr<Page> EmptyChromeClient::createWindow(LocalFrame&, const String&, const WindowFeatures&, const NavigationAction&)
+{
+    return nullptr;
+}
+
 RefPtr<PopupMenu> EmptyChromeClient::createPopupMenu(PopupMenuClient&) const
 {
     return adoptRef(*new EmptyPopupMenu);

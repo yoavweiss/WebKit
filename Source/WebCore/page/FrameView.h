@@ -26,7 +26,7 @@
 #pragma once
 
 #include <WebCore/ScrollView.h>
-#include <wtf/TZoneMallocInlines.h>
+#include <wtf/TZoneMalloc.h>
 
 namespace WebCore {
 

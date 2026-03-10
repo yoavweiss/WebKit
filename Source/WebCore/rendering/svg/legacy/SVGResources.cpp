@@ -22,6 +22,7 @@
 
 #include "FilterOperation.h"
 #include "LegacyRenderSVGResourceClipperInlines.h"
+#include "LegacyRenderSVGResourceContainerInlines.h"
 #include "LegacyRenderSVGResourceFilterInlines.h"
 #include "LegacyRenderSVGResourceMarkerInlines.h"
 #include "LegacyRenderSVGResourceMaskerInlines.h"

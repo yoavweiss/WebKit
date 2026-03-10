@@ -30,6 +30,7 @@
 #include "HTMLNames.h"
 #include "Icon.h"
 #include "InlineIteratorInlineBox.h"
+#include "InlineIteratorTextBox.h"
 #include "LocalizedStrings.h"
 #include "NodeInlines.h"
 #include "PaintInfo.h"

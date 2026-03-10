@@ -28,6 +28,9 @@
 #include "GridTypeAliases.h"
 #include <WebCore/LayoutIntegrationUtils.h>
 #include <WebCore/LayoutState.h>
+#include <WebCore/StyleGapGutter.h>
+#include <WebCore/StyleGridTemplateList.h>
+#include <WebCore/StyleGridTrackSizes.h>
 #include <wtf/CheckedRef.h>
 
 namespace WebCore {

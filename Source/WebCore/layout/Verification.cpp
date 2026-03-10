@@ -39,6 +39,8 @@
 #include "LayoutInitialContainingBlock.h"
 #include "LayoutTreeBuilder.h"
 #include "LegacyInlineTextBox.h"
+#include "LegacyRootInlineBox.h"
+#include "RenderBlockFlowInlines.h"
 #include "RenderBoxInlines.h"
 #include "RenderInline.h"
 #include "RenderLineBreak.h"

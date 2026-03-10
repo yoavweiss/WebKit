@@ -31,11 +31,12 @@
 #include "InlineWalker.h"
 #include "LayoutIntegrationLineLayout.h"
 #include "LegacyRenderSVGRoot.h"
+#include "LegacyRootInlineBox.h"
 #if ENABLE(MULTI_REPRESENTATION_HEIC)
 #include "MultiRepresentationHEICMetrics.h"
 #endif
 #include "RenderAttachment.h"
-#include "RenderBlockFlow.h"
+#include "RenderBlockFlowInlines.h"
 #include "RenderBoxInlines.h"
 #include "RenderButton.h"
 #include "RenderDeprecatedFlexibleBox.h"

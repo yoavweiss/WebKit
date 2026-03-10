@@ -39,6 +39,7 @@
 #include "LocalFrameView.h"
 #include "Logging.h"
 #include "Quirks.h"
+#include "RenderBlockFlowInlines.h"
 #include "RenderBoxInlines.h"
 #include "RenderDescendantIterator.h"
 #include "RenderElement.h"

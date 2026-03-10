@@ -38,6 +38,7 @@
 #include "InlineTextBoxStyle.h"
 #include "LineSelection.h"
 #include "PaintInfo.h"
+#include "PaintInfoInlines.h"
 #include "RenderBlock.h"
 #include "RenderBoxModelObjectInlines.h"
 #include "RenderCombineText.h"

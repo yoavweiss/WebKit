@@ -47,6 +47,7 @@
 #import "LocalFrameInlines.h"
 #import "Logging.h"
 #import "NodeRenderStyle.h"
+#import "Page.h"
 #import "RenderStyle+GettersInlines.h"
 #import "RenderedDocumentMarker.h"
 #import "TextAnimationTypes.h"

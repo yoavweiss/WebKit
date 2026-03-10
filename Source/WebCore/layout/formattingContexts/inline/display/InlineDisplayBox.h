@@ -115,7 +115,7 @@ struct Box {
     bool hasContent() const { return m_hasContent; }
     inline bool isVisible() const;
     // Inline boxes around blocks are visible to hit testing but don't paint.
-    bool isVisibleIgnoringUsedVisibility() const { return !isFullyTruncated() && style().visibility() == Visibility::Visible; }
+    inline bool isVisibleIgnoringUsedVisibility() const; // Defined in InlineDisplayBoxInlines.h
     bool isFullyTruncated() const { return m_isFullyTruncated; } 
 
     const FloatRect& visualRectIgnoringBlockDirection() const LIFETIME_BOUND { return m_unflippedVisualRect; }

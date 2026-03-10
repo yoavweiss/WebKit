@@ -28,6 +28,7 @@
 #include "LocalFrameView.h"
 
 #include "AXObjectCache.h"
+#include "AccessibilityRegionContext.h"
 #include "AnchorPositionEvaluator.h"
 #include "BackForwardCache.h"
 #include "BackForwardController.h"
@@ -130,6 +131,7 @@
 #include "ScrollingCoordinator.h"
 #include "Settings.h"
 #include "ShadowRoot.h"
+#include "SimpleRange.h"
 #include "StyleResolver.h"
 #include "StyleScope.h"
 #include "TextIndicator.h"

@@ -28,6 +28,7 @@
 #include "RenderInline.h"
 #include "RenderListMarker.h"
 #include "RenderText.h"
+#include "TrailingObjects.h"
 #include "UnicodeBidi.h"
 #include <wtf/StdLibExtras.h>
 

@@ -51,6 +51,7 @@ class ScrollingCoordinator;
 class StickyPositionViewportConstraints;
 class TiledBacking;
 
+enum class CompositingPolicy : bool;
 enum class ScrollingNodeType : uint8_t;
 
 enum class CompositingUpdateType {
@@ -635,7 +636,7 @@ private:
     ChromeClient::CompositingTriggerFlags m_compositingTriggers { static_cast<ChromeClient::CompositingTriggerFlags>(ChromeClient::AllTriggers) };
     bool m_hasAcceleratedCompositing { true };
     
-    CompositingPolicy m_compositingPolicy { CompositingPolicy::Normal };
+    CompositingPolicy m_compositingPolicy;
     PAL::HysteresisActivity m_compositingPolicyHysteresis;
 
     bool m_showDebugBorders { false };

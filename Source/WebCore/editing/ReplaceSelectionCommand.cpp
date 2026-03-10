@@ -66,6 +66,7 @@
 #include "NodeList.h"
 #include "NodeName.h"
 #include "NodeRenderStyle.h"
+#include "Page.h"
 #include "Position.h"
 #include "RenderInline.h"
 #include "RenderStyle+GettersInlines.h"

@@ -51,6 +51,7 @@
 #include "OutlinePainter.h"
 #include "Page.h"
 #include "PaintInfo.h"
+#include "PaintInfoInlines.h"
 #include "RenderBlockFlow.h"
 #include "RenderBlockInlines.h"
 #include "RenderBoxFragmentInfo.h"

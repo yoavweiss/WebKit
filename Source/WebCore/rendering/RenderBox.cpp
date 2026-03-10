@@ -37,6 +37,7 @@
 #include "EventHandler.h"
 #include "FloatQuad.h"
 #include "FloatRoundedRect.h"
+#include "FloatingObjects.h"
 #include "FontBaseline.h"
 #include "GraphicsContext.h"
 #include "HTMLBodyElement.h"

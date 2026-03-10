@@ -264,7 +264,9 @@ layout/integration/inline/InlineIteratorLineBox.cpp
 layout/integration/inline/InlineIteratorLineBox.h
 layout/integration/inline/InlineIteratorLineBoxInlines.h
 layout/integration/inline/InlineIteratorLineBoxLegacyPath.h
+layout/integration/inline/InlineIteratorLineBoxLegacyPathInlines.h
 layout/integration/inline/InlineIteratorLogicalOrderTraversal.cpp
+layout/integration/inline/InlineIteratorLogicalOrderTraversal.h
 layout/integration/inline/InlineIteratorSVGTextBox.cpp
 layout/integration/inline/LayoutIntegrationInlineContentBuilder.cpp
 layout/integration/inline/LayoutIntegrationInlineContentPainter.cpp

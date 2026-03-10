@@ -70,6 +70,7 @@
 #include "StylePositionTryFallbackTactic.h"
 #include "StyleResolver.h"
 #include "StyleScope.h"
+#include "StyleTreeResolverInlines.h"
 #include "Text.h"
 #include "TypedElementDescendantIteratorInlines.h"
 #include "ViewTransition.h"

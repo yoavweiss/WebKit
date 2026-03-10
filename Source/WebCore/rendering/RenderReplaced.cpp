@@ -41,6 +41,7 @@
 #include "LineSelection.h"
 #include "LocalFrame.h"
 #include "PositionedLayoutConstraints.h"
+#include "PaintInfoInlines.h"
 #include "RenderBlock.h"
 #include "RenderBoxInlines.h"
 #include "RenderChildIterator.h"
