@@ -352,6 +352,15 @@ bool MediaControlsHost::isMediaControlsMacInlineSizeSpecsEnabled() const
 #endif
 }
 
+bool MediaControlsHost::isAVExperienceControllerFullscreenEnabled() const
+{
+#if HAVE(AVEXPERIENCECONTROLLER)
+    return protect(m_mediaElement)->document().settings().isAVExperienceControllerFullscreenEnabled();
+#else
+    return false;
+#endif
+}
+
 String MediaControlsHost::externalDeviceDisplayName() const
 {
 #if ENABLE(WIRELESS_PLAYBACK_TARGET)
