@@ -32,11 +32,10 @@
 #include "AV1UtilitiesCocoa.h"
 #include "HEVCUtilitiesCocoa.h"
 #include "MediaPlayer.h"
-#include "MediaSessionHelperIOS.h"
 #include "PlatformMediaCapabilitiesDecodingInfo.h"
 #include "PlatformMediaDecodingConfiguration.h"
 #include "PlatformMediaEngineConfigurationFactory.h"
-#include "PlatformMediaSessionManager.h"
+#include "SpatialAudioPlaybackHelper.h"
 #include "VP9UtilitiesCocoa.h"
 #include <pal/avfoundation/OutputContext.h>
 #include <pal/avfoundation/OutputDevice.h>
@@ -172,15 +171,7 @@ static std::optional<PlatformMediaCapabilitiesInfo> computeMediaCapabilitiesInfo
     if (!configuration.audio->spatialRendering.value_or(false))
         return info;
 
-    RefPtr manager = configuration.pageIdentifier ? PlatformMediaEngineConfigurationFactory::mediaSessionManagerForPageIdentifier(configuration.pageIdentifier.value()) : nullptr;
-    if (!manager)
-        return std::nullopt;
-
-    auto supportsSpatialPlayback = manager->supportsSpatialAudioPlaybackForConfiguration(configuration);
-    if (!supportsSpatialPlayback.has_value())
-        return std::nullopt;
-
-    info.supported = supportsSpatialPlayback.value();
+    info.supported = SpatialAudioPlaybackHelper::supportsSpatialAudioPlaybackForConfiguration(configuration);
 
     return info;
 }
