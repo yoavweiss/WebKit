@@ -645,6 +645,20 @@ static void applyHorizontalGlyphStretch(GlyphBuffer& glyphBuffer, unsigned glyph
     }
 }
 
+TextSpacing::CharacterClass WidthIterator::applyTextAutospaceIfNeededAndGetCharacterClass(GlyphBuffer& glyphBuffer, const TextAutospace& textAutospace, unsigned characterIndex, GlyphIndexRange glyphIndexRange, TextSpacing::CharacterClass previousCharacterClass)
+{
+    if (textAutospace.isNoAutospace())
+        return TextSpacing::CharacterClass::Undefined;
+
+    auto currentCharacterClass = TextSpacing::characterClass(m_run.get()[characterIndex]);
+    if (textAutospace.shouldApplySpacing(currentCharacterClass, previousCharacterClass)) {
+        auto textAutospaceSpacing = TextAutospace::textAutospaceSize(protect(glyphBuffer.fontAt(glyphIndexRange.leadingGlyphIndex)));
+        glyphBuffer.expandAdvanceToLogicalRight(glyphIndexRange.leadingGlyphIndex, textAutospaceSpacing);
+        m_runWidthSoFar += textAutospaceSpacing;
+    }
+    return currentCharacterClass;
+}
+
 void WidthIterator::applyExtraSpacingAfterShaping(GlyphBuffer& glyphBuffer, unsigned characterStartIndex, unsigned glyphBufferStartIndex, unsigned characterDestinationIndex, float startingRunWidth)
 {
     auto [characterIndexToGlyphIndexRange, advanceWidths] = buildCharacterToGlyphMapping(glyphBuffer, glyphBufferStartIndex, m_run->length());
@@ -661,17 +675,7 @@ void WidthIterator::applyExtraSpacingAfterShaping(GlyphBuffer& glyphBuffer, unsi
         auto width = calculateAdditionalWidth(glyphBuffer, characterIndex, glyphIndexRange->leadingGlyphIndex, glyphIndexRange->trailingGlyphIndex, position);
         applyAdditionalWidth(glyphBuffer, glyphIndexRange.value(), width.left, width.right, width.leftExpansion, width.rightExpansion);
 
-        auto textAutospaceSpacing = 0.f;
-        auto characterClass = TextSpacing::CharacterClass::Undefined;
-        if (!textAutospace.isNoAutospace()) {
-            characterClass = TextSpacing::characterClass(m_run.get()[characterIndex]);
-            if (textAutospace.shouldApplySpacing(characterClass, previousCharacterClass)) {
-                textAutospaceSpacing = TextAutospace::textAutospaceSize(protect(glyphBuffer.fontAt(glyphIndexRange->leadingGlyphIndex)));
-                glyphBuffer.expandAdvanceToLogicalRight(glyphIndexRange->leadingGlyphIndex, textAutospaceSpacing);
-                m_runWidthSoFar += textAutospaceSpacing;
-            }
-        }
-        previousCharacterClass = characterClass;
+        previousCharacterClass = applyTextAutospaceIfNeededAndGetCharacterClass(glyphBuffer, textAutospace, characterIndex, *glyphIndexRange, previousCharacterClass);
 
         m_isAfterExpansion = (ltr() && width.rightExpansion) || (rtl() && width.leftExpansion);
 

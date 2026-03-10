@@ -34,12 +34,17 @@ namespace WebCore {
 class FontCascade;
 class FontCascadeDescription;
 class Font;
+class TextAutospace;
 class TextRun;
 struct GlyphData;
 struct GlyphIndexRange;
 struct OriginalAdvancesForCharacterTreatedAsSpace;
 struct AdvanceInternalState;
 struct SmallCapsState;
+
+namespace TextSpacing {
+enum class CharacterClass : uint8_t;
+}
 
 using CharactersTreatedAsSpace = Vector<OriginalAdvancesForCharacterTreatedAsSpace, 64>;
 
@@ -81,6 +86,7 @@ private:
 
     bool hasExtraSpacing() const;
     void applyExtraSpacingAfterShaping(GlyphBuffer&, unsigned characterStartIndex, unsigned glyphBufferStartIndex, unsigned characterDestinationIndex, float startingRunWidth);
+    TextSpacing::CharacterClass applyTextAutospaceIfNeededAndGetCharacterClass(GlyphBuffer&, const TextAutospace&, unsigned characterIndex, GlyphIndexRange, TextSpacing::CharacterClass previousCharacterClass);
     void applyCSSVisibilityRules(GlyphBuffer&, unsigned glyphBufferStartIndex);
 
     struct AdditionalWidth {
