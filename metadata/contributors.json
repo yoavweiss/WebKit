@@ -8393,6 +8393,17 @@
    },
    {
       "emails" : [
+         "v_rubanova@apple.com"
+      ],
+      "github" : "valrubanova",
+      "name" : "Valeriia Rubanova",
+      "nicks" : [
+         "vrubanova",
+         "valrubanova"
+      ]
+   },
+   {
+      "emails" : [
          "vangelis@chromium.org"
       ],
       "name" : "Vangelis Kokkevis",
