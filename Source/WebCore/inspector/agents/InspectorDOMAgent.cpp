@@ -368,6 +368,9 @@ void InspectorDOMAgent::willDestroyFrontendAndBackend(Inspector::DisconnectReaso
 
 Vector<Document*> InspectorDOMAgent::documents()
 {
+    if (!m_document)
+        return { };
+
     Vector<Document*> result;
     for (RefPtr<Frame> frame = m_document->frame(); frame; frame = frame->tree().traverseNext()) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(frame);
