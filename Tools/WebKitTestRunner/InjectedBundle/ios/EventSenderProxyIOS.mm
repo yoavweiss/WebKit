@@ -29,6 +29,7 @@
 #import "PlatformWebView.h"
 #import "StringFunctions.h"
 #import "TestController.h"
+#import <wtf/CompletionHandler.h>
 #import <wtf/RetainPtr.h>
 #import <WebKit/WKString.h>
 
@@ -75,8 +76,10 @@ void EventSenderProxy::leapForward(int milliseconds)
     m_time += milliseconds / 1000.0;
 }
 
-void EventSenderProxy::keyDown(WKStringRef key, WKEventModifiers modifiers, unsigned keyLocation)
+void EventSenderProxy::keyDown(WKStringRef key, WKEventModifiers modifiers, unsigned keyLocation, CompletionHandler<void()>&& completionHandler)
 {
+    if (completionHandler)
+        completionHandler();
 }
 
 void EventSenderProxy::rawKeyDown(WKStringRef key, WKEventModifiers modifiers, unsigned keyLocation)

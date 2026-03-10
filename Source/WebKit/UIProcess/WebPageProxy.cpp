@@ -4295,6 +4295,29 @@ void WebPageProxy::flushPendingMouseEventCallbacks()
     internals().callbackHandlersAfterProcessingPendingMouseEvents.clear();
 }
 
+void WebPageProxy::doAfterProcessingAllPendingKeyEvents(WTF::Function<void ()>&& action)
+{
+    if (!isProcessingKeyboardEvents()) {
+        action();
+        return;
+    }
+
+    internals().callbackHandlersAfterProcessingPendingKeyEvents.append(WTF::move(action));
+}
+
+void WebPageProxy::didFinishProcessingAllPendingKeyEvents()
+{
+    flushPendingKeyEventCallbacks();
+}
+
+void WebPageProxy::flushPendingKeyEventCallbacks()
+{
+    for (auto& callback : internals().callbackHandlersAfterProcessingPendingKeyEvents)
+        callback();
+
+    internals().callbackHandlersAfterProcessingPendingKeyEvents.clear();
+}
+
 #if PLATFORM(IOS_FAMILY)
 void WebPageProxy::dispatchWheelEventWithoutScrolling(const WebWheelEvent& event, CompletionHandler<void(bool)>&& completionHandler)
 {
@@ -11812,6 +11835,7 @@ void WebPageProxy::keyEventHandlingCompleted(std::optional<WebEventType> eventTy
     if (!canProcessMoreKeyEvents) {
         if (RefPtr automationSession = configuration().processPool().automationSession())
             automationSession->keyboardEventsFlushedForPage(*this);
+        didFinishProcessingAllPendingKeyEvents();
     }
 }
 

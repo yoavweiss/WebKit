@@ -41,12 +41,26 @@
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
 #include <webkit/WebKitWebViewBaseInternal.h>
+#include <wtf/CompletionHandler.h>
+#include <wtf/Seconds.h>
 #include <wtf/StdLibExtras.h>
 #include <wtf/UniqueArray.h>
 #include <wtf/glib/GUniquePtr.h>
 #include <wtf/text/WTFString.h>
 
 namespace WTR {
+
+static void runPendingEventsCallback(void* userData)
+{
+    *static_cast<bool*>(userData) = true;
+}
+
+static void waitForPendingKeyEvents(TestController* testController)
+{
+    bool done = false;
+    WKPageDoAfterProcessingAllPendingKeyEvents(testController->mainWebView()->page(), &done, runPendingEventsCallback);
+    testController->runUntil(done, 100_ms);
+}
 
 // WebCore and layout tests assume this value
 static const float pixelsPerScrollTick = 40;
@@ -248,9 +262,13 @@ static inline void processKeyEvent(WebKitWebViewBase* webViewBase, WKStringRef k
     webkitWebViewBaseSynthesizeKeyEvent(webViewBase, type, gdkKeySym, modifiers, ShouldTranslateKeyboardState::No);
 }
 
-void EventSenderProxy::keyDown(WKStringRef keyRef, WKEventModifiers wkModifiers, unsigned location)
+void EventSenderProxy::keyDown(WKStringRef keyRef, WKEventModifiers wkModifiers, unsigned location, CompletionHandler<void()>&& completionHandler)
 {
     processKeyEvent(toWebKitGLibAPI(m_testController->mainWebView()->platformView()), keyRef, wkModifiers, location, KeyEventType::Insert);
+    if (completionHandler) {
+        waitForPendingKeyEvents(m_testController);
+        completionHandler();
+    }
 }
 
 void EventSenderProxy::rawKeyDown(WKStringRef key, WKEventModifiers wkModifiers, unsigned keyLocation)

@@ -5803,9 +5803,11 @@ imported/w3c/web-platform-tests/uievents/order-of-events/mouse-events/click-orde
 imported/w3c/web-platform-tests/uievents/order-of-events/mouse-events/mousemove-across.html [ Skip ]
 imported/w3c/web-platform-tests/uievents/order-of-events/mouse-events/mousemove-between.html [ Skip ]
 imported/w3c/web-platform-tests/uievents/order-of-events/mouse-events/mouseover-out.html [ Skip ]
+imported/w3c/web-platform-tests/uievents/textInput/basic.html [ Skip ]
 imported/w3c/web-platform-tests/uievents/textInput/delete-selection.html [ Skip ]
 imported/w3c/web-platform-tests/uievents/textInput/delete.html [ Skip ]
 imported/w3c/web-platform-tests/uievents/textInput/enter-input.html [ Skip ]
+imported/w3c/web-platform-tests/uievents/textInput/enter-textarea-contenteditable.html [ Skip ]
 
 imported/w3c/web-platform-tests/html/webappapis/scripting/processing-model-2/unhandled-promise-rejections/promise-rejection-events-onerror.html [ Pass Failure ]
 imported/w3c/web-platform-tests/uievents/click/click_events_on_input.html [ Pass Failure ]

@@ -1939,6 +1939,9 @@ if (window.eventSender) {
         await post(['AsyncMouseMoveTo', x, y, pointerType]);
         callback?.();
     };
+    eventSender.asyncKeyDown = async (key, modifiers) => { // NOLINT
+        await post(['AsyncKeyDown', key, modifiers]);
+    };
 }
 )eventSenderJS";
 
@@ -2764,6 +2767,14 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
         m_eventSenderProxy->mouseUp(button, parseModifierArray(array), pointerType);
         m_eventSenderProxy->waitForPendingMouseEvents();
         completionHandler(nullptr);
+        return;
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "AsyncKeyDown")) {
+        const auto key = stringValue(argument);
+        const auto array = arrayValue(argument2);
+        m_eventSenderProxy->keyDown(key, parseModifierArray(array), 0,
+            [completionHandler = WTF::move(completionHandler)] mutable { completionHandler(nullptr); });
         return;
     }
 

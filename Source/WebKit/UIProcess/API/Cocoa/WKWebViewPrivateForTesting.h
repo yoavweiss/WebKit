@@ -129,6 +129,7 @@ typedef NSVisualEffectView _WKPlatformVisualEffectView;
 - (void)_setThrottleStateForTesting:(int)type;
 
 - (void)_doAfterProcessingAllPendingMouseEvents:(dispatch_block_t)action;
+- (void)_doAfterProcessingAllPendingKeyEvents:(dispatch_block_t)action;
 
 + (void)_setApplicationBundleIdentifier:(NSString *)bundleIdentifier;
 + (void)_clearApplicationBundleIdentifierTestingOverride;

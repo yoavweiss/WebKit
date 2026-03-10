@@ -1464,6 +1464,10 @@ public:
     void didFinishProcessingAllPendingMouseEvents();
     void flushPendingMouseEventCallbacks();
 
+    void doAfterProcessingAllPendingKeyEvents(Function<void()>&&);
+    void didFinishProcessingAllPendingKeyEvents();
+    void flushPendingKeyEventCallbacks();
+
     bool NODELETE isProcessingWheelEvents() const;
     void handleNativeWheelEvent(const NativeWebWheelEvent&);
     void continueWheelEventHandling(const WebWheelEvent&, const WebCore::WheelEventHandlingResult&, std::optional<bool> willStartSwipe);

@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <wtf/CompletionHandler.h>
 #include <wtf/Deque.h>
 #include <wtf/HashFunctions.h>
 #include <wtf/HashMap.h>
@@ -92,7 +93,7 @@ public:
 
     void leapForward(int milliseconds);
 
-    void keyDown(WKStringRef key, WKEventModifiers, unsigned location);
+    void keyDown(WKStringRef key, WKEventModifiers, unsigned location, CompletionHandler<void()>&& = nullptr);
     void rawKeyDown(WKStringRef key, WKEventModifiers, unsigned location);
     void rawKeyUp(WKStringRef key, WKEventModifiers, unsigned location);
 

@@ -30,7 +30,9 @@
 #include "TestController.h"
 #include <WebCore/NotImplemented.h>
 #include <WebKit/WKPagePrivate.h>
+#include <wtf/CompletionHandler.h>
 #include <wtf/MonotonicTime.h>
+#include <wtf/Seconds.h>
 
 #if USE(LIBWPE)
 #include "EventSenderProxyClientLibWPE.h"
@@ -41,6 +43,18 @@
 #endif
 
 namespace WTR {
+
+static void runPendingEventsCallback(void* userData)
+{
+    *static_cast<bool*>(userData) = true;
+}
+
+static void waitForPendingKeyEvents(TestController* testController)
+{
+    bool done = false;
+    WKPageDoAfterProcessingAllPendingKeyEvents(testController->mainWebView()->page(), &done, runPendingEventsCallback);
+    testController->runUntil(done, 100_ms);
+}
 
 EventSenderProxy::EventSenderProxy(TestController* testController)
     : m_testController(testController)
@@ -122,9 +136,13 @@ void EventSenderProxy::leapForward(int milliseconds)
     m_time += milliseconds / 1000.0;
 }
 
-void EventSenderProxy::keyDown(WKStringRef keyRef, WKEventModifiers wkModifiers, unsigned location)
+void EventSenderProxy::keyDown(WKStringRef keyRef, WKEventModifiers wkModifiers, unsigned location, CompletionHandler<void()>&& completionHandler)
 {
     m_client->keyDown(keyRef, m_time, wkModifiers, location);
+    if (completionHandler) {
+        waitForPendingKeyEvents(m_testController);
+        completionHandler();
+    }
 }
 
 void EventSenderProxy::rawKeyDown(WKStringRef keyRef, WKEventModifiers wkModifiers, unsigned location)

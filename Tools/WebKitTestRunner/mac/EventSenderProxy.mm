@@ -42,8 +42,10 @@
 #import <WebKit/WKWebViewPrivate.h>
 #import <WebKit/WKWebViewPrivateForTesting.h>
 #import <pal/spi/cocoa/IOKitSPI.h>
+#import <wtf/BlockPtr.h>
 #import <wtf/RetainPtr.h>
 #import <wtf/cocoa/TypeCastsCocoa.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 @interface NSApplication (Details)
 - (void)_setCurrentEvent:(NSEvent *)event;
@@ -655,11 +657,11 @@ void EventSenderProxy::leapForward(int milliseconds)
     m_time += milliseconds / 1000.0;
 }
 
-void EventSenderProxy::keyDown(WKStringRef key, WKEventModifiers modifiers, unsigned keyLocation)
+void EventSenderProxy::keyDown(WKStringRef key, WKEventModifiers modifiers, unsigned keyLocation, CompletionHandler<void()>&& completionHandler)
 {
-    RetainPtr<ModifierKeys> modifierKeys = [ModifierKeys modifierKeysWithKey:toWTFString(key).createNSString().get() modifiers:buildModifierFlags(modifiers) keyLocation:keyLocation];
+    RetainPtr modifierKeys = [ModifierKeys modifierKeysWithKey:toWTFString(key).createNSString().get() modifiers:buildModifierFlags(modifiers) keyLocation:keyLocation];
 
-    NSEvent *event = [NSEvent keyEventWithType:NSEventTypeKeyDown
+    RetainPtr keyDownEvent = [NSEvent keyEventWithType:NSEventTypeKeyDown
         location:NSMakePoint(5, 5)
         modifierFlags:modifierKeys->modifierFlags
         timestamp:absoluteTimeForEventTime(currentEventTime())
@@ -670,24 +672,44 @@ void EventSenderProxy::keyDown(WKStringRef key, WKEventModifiers modifiers, unsi
         isARepeat:NO
         keyCode:modifierKeys->keyCode];
 
-    [NSApp _setCurrentEvent:event];
-    [[m_testController->mainWebView()->platformWindow() firstResponder] keyDown:event];
-    [NSApp _setCurrentEvent:nil];
+    RetainPtr keyUpEvent = [NSEvent keyEventWithType:NSEventTypeKeyUp
+        location:NSMakePoint(5, 5)
+        modifierFlags:modifierKeys->modifierFlags
+        timestamp:absoluteTimeForEventTime(currentEventTime())
+        windowNumber:[m_testController->mainWebView()->platformWindow() windowNumber]
+        context:[NSGraphicsContext currentContext]
+        characters:modifierKeys->eventCharacter.get()
+        charactersIgnoringModifiers:modifierKeys->charactersIgnoringModifiers.get()
+        isARepeat:NO
+        keyCode:modifierKeys->keyCode];
 
-    event = [NSEvent keyEventWithType:NSEventTypeKeyUp
-                        location:NSMakePoint(5, 5)
-                        modifierFlags:modifierKeys->modifierFlags
-                        timestamp:absoluteTimeForEventTime(currentEventTime())
-                        windowNumber:[m_testController->mainWebView()->platformWindow() windowNumber]
-                        context:[NSGraphicsContext currentContext]
-                        characters:modifierKeys->eventCharacter.get()
-                        charactersIgnoringModifiers:modifierKeys->charactersIgnoringModifiers.get()
-                        isARepeat:NO
-                        keyCode:modifierKeys->keyCode];
+    RetainPtr firstResponder = [m_testController->mainWebView()->platformWindow() firstResponder];
 
-    [NSApp _setCurrentEvent:event];
-    [[m_testController->mainWebView()->platformWindow() firstResponder] keyUp:event];
-    [NSApp _setCurrentEvent:nil];
+    auto dispatchKeyEvents = [keyDownEvent, keyUpEvent, firstResponder] {
+        [NSApp _setCurrentEvent:keyDownEvent];
+        [firstResponder keyDown:keyDownEvent];
+        [NSApp _setCurrentEvent:nil];
+
+        [NSApp _setCurrentEvent:keyUpEvent];
+        [firstResponder keyUp:keyUpEvent];
+        [NSApp _setCurrentEvent:nil];
+    };
+
+    if (!completionHandler) {
+        dispatchKeyEvents();
+        return;
+    }
+
+    RetainPtr webView = m_testController->mainWebView()->platformView();
+
+    dispatch_async(mainDispatchQueueSingleton(), makeBlockPtr([dispatchKeyEvents = WTF::move(dispatchKeyEvents), webView, completionHandler = WTF::move(completionHandler)] mutable {
+        dispatchKeyEvents();
+
+        [webView _doAfterProcessingAllPendingKeyEvents:makeBlockPtr([completionHandler = WTF::move(completionHandler)] mutable {
+            if (completionHandler)
+                completionHandler();
+        }).get()];
+    }).get());
 }
 
 void EventSenderProxy::rawKeyDown(WKStringRef key, WKEventModifiers modifiers, unsigned keyLocation)

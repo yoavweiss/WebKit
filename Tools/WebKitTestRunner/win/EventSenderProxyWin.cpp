@@ -31,8 +31,22 @@
 #include "TestController.h"
 #include <WebCore/NotImplemented.h>
 #include <WebKit/WKPagePrivate.h>
+#include <wtf/CompletionHandler.h>
+#include <wtf/Seconds.h>
 
 namespace WTR {
+
+static void runPendingEventsCallback(void* userData)
+{
+    *static_cast<bool*>(userData) = true;
+}
+
+static void waitForPendingKeyEvents(TestController* testController)
+{
+    bool done = false;
+    WKPageDoAfterProcessingAllPendingKeyEvents(testController->mainWebView()->page(), &done, runPendingEventsCallback);
+    testController->runUntil(done, 100_ms);
+}
 
 LRESULT EventSenderProxy::dispatchMessage(UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -198,7 +212,7 @@ static void pumpMessageQueue()
     }
 }
 
-void EventSenderProxy::keyDown(WKStringRef keyRef, WKEventModifiers wkModifiers, unsigned location)
+void EventSenderProxy::keyDown(WKStringRef keyRef, WKEventModifiers wkModifiers, unsigned location, CompletionHandler<void()>&& completionHandler)
 {
     int virtualKeyCode = 0;
     int charCode = 0;
@@ -312,6 +326,10 @@ void EventSenderProxy::keyDown(WKStringRef keyRef, WKEventModifiers wkModifiers,
 
     if (wkModifiers || needsShiftKeyModifier)
         SetKeyboardState(keyState);
+    if (completionHandler) {
+        waitForPendingKeyEvents(m_testController);
+        completionHandler();
+    }
 }
 
 void EventSenderProxy::rawKeyDown(WKStringRef key, WKEventModifiers modifiers, unsigned keyLocation)

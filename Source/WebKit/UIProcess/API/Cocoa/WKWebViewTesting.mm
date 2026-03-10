@@ -524,6 +524,13 @@ static void dumpCALayer(TextStream& ts, CALayer *layer, bool traverse)
     });
 }
 
+- (void)_doAfterProcessingAllPendingKeyEvents:(dispatch_block_t)action
+{
+    _page->doAfterProcessingAllPendingKeyEvents([action = makeBlockPtr(action)] {
+        action();
+    });
+}
+
 + (void)_setApplicationBundleIdentifier:(NSString *)bundleIdentifier
 {
     setApplicationBundleIdentifierOverride(String(bundleIdentifier));

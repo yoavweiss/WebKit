@@ -364,7 +364,7 @@ window.test_driver_internal.send_keys = async function(element, keys)
     }
 
     for (const key of keyList)
-        eventSender.keyDown(key, modifiers);
+        await eventSender.asyncKeyDown(key, modifiers);
 }
 
 /**

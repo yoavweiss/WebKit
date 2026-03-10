@@ -3535,3 +3535,12 @@ void WKPageDoAfterProcessingAllPendingMouseEvents(WKPageRef page, void* context,
         completionHandler(context);
     });
 }
+
+#if !PLATFORM(COCOA)
+void WKPageDoAfterProcessingAllPendingKeyEvents(WKPageRef page, void* context, WKPageDoAfterProcessingAllPendingKeyEventsFunction completionHandler)
+{
+    protect(toImpl(page))->doAfterProcessingAllPendingKeyEvents([context, completionHandler] {
+        completionHandler(context);
+    });
+}
+#endif
