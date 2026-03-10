@@ -1334,3 +1334,5 @@ webkit.org/b/309377 [ arm64 ] imported/w3c/web-platform-tests/html/canvas/elemen
 webkit.org/b/309381 [ arm64 ] webgl/2.0.y/conformance2/rendering/blitframebuffer-filter-srgb.html [ Failure ]
 
 webkit.org/b/309382 [ arm64 ] fast/canvas/2d.text.draw.fill.maxWidth.gradient.html [ Failure Pass ]
+
+webkit.org/b/309575 imported/w3c/web-platform-tests/uievents/textInput/enter-textarea-contenteditable.html [ Pass Failure ]
