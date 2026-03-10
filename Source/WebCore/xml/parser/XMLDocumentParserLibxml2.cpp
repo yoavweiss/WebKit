@@ -693,6 +693,8 @@ XMLDocumentParser::~XMLDocumentParser()
     // FIXME: m_pendingScript handling should be moved into XMLDocumentParser.cpp!
     if (RefPtr pendingScript = m_pendingScript)
         pendingScript->clearClient();
+
+    m_scriptWaitingForStylesheets = nullptr;
 }
 
 void XMLDocumentParser::doWrite(const String& parseString)
@@ -960,7 +962,10 @@ void XMLDocumentParser::endElementNs()
     protect(document->eventLoop())->performMicrotaskCheckpoint(document->vm());
     if (scriptElement->prepareScript(m_scriptStartPosition)) {
         if (scriptElement->readyToBeParserExecuted()) {
-            if (scriptElement->scriptType() == ScriptType::Classic)
+            if (!document->haveStylesheetsLoaded()) {
+                m_scriptWaitingForStylesheets = PendingScript::create(*scriptElement, m_scriptStartPosition);
+                pauseParsing();
+            } else if (scriptElement->scriptType() == ScriptType::Classic)
                 scriptElement->executeClassicScript(ScriptSourceCode(scriptElement->scriptContent(), scriptElement->sourceTaintedOrigin(), URL(document->url()), m_scriptStartPosition, JSC::SourceProviderSourceType::Program, InlineClassicScript::create(*scriptElement)));
             else
                 scriptElement->registerImportMap(ScriptSourceCode(scriptElement->scriptContent(), scriptElement->sourceTaintedOrigin(), URL(document->url()), m_scriptStartPosition, JSC::SourceProviderSourceType::ImportMap));
