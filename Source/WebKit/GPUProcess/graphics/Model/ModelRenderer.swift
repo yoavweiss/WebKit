@@ -47,6 +47,7 @@ class Renderer {
     }
     var pose: _Proto_Pose_v1
     var modelDistance: Float = 1.0
+    var clearColor: MTLClearColor = .init(red: 1, green: 1, blue: 1, alpha: 1)
     let memoryOwner: task_id_token_t
 
     init(device: any MTLDevice, memoryOwner: task_id_token_t) throws {
@@ -106,7 +107,7 @@ class Renderer {
 
         renderer.cameras[0].pose = pose
         renderer.cameras[0].projection = projection
-        renderer.output.clearColor = .init(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
+        renderer.output.clearColor = clearColor
         renderer.output.color = .init(texture: texture)
         renderer.meshInstances = meshInstances
 
@@ -124,6 +125,10 @@ class Renderer {
             translation: [0, 0, distance],
             rotation: simd_quatf(angle: 0, axis: [0, 0, 1]),
         )
+    }
+
+    internal func setBackgroundColor(_ color: simd_float3) {
+        clearColor = MTLClearColor(red: Double(color.x), green: Double(color.y), blue: Double(color.z), alpha: 1)
     }
 
     internal func setCameraTransform(_ transform: CameraTransform) {

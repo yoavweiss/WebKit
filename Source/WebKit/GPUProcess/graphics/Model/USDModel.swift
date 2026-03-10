@@ -733,6 +733,11 @@ extension WKBridgeReceiver {
     }
 
     @objc
+    func setBackgroundColor(_ color: simd_float3) {
+        appRenderer.setBackgroundColor(color)
+    }
+
+    @objc
     func setPlaying(_ play: Bool) {
         // resourceContext.setEnableModelRotation(play)
     }
@@ -1453,6 +1458,10 @@ extension WKBridgeReceiver {
 
     @objc
     func setCameraDistance(_ distance: Float) {
+    }
+
+    @objc
+    func setBackgroundColor(_ color: simd_float3) {
     }
 
     @objc

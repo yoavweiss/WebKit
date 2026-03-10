@@ -464,9 +464,17 @@ WebCore::ModelPlayerIdentifier WebModelPlayer::identifier() const
     return m_id;
 }
 
-void WebModelPlayer::configureGraphicsLayer(WebCore::GraphicsLayer& graphicsLayer, WebCore::ModelPlayerGraphicsLayerConfiguration&&)
+void WebModelPlayer::configureGraphicsLayer(WebCore::GraphicsLayer& graphicsLayer, WebCore::ModelPlayerGraphicsLayerConfiguration&& configuration)
 {
     graphicsLayer.setContentsDisplayDelegate(contentsDisplayDelegate(), WebCore::GraphicsLayer::ContentsLayerPurpose::Canvas);
+    if (RefPtr currentModel = m_currentModel) {
+        auto backgroundColor = configuration.backgroundColor;
+        if (backgroundColor.isValid()) {
+            auto opaqueColor = backgroundColor.opaqueColor();
+            auto [r, g, b, _a] = opaqueColor.toResolvedColorComponentsInColorSpace(WebCore::ColorSpace::LinearSRGB);
+            currentModel->setBackgroundColor(simd_make_float3(r, g, b));
+        }
+    }
 }
 
 const MachSendRight* WebModelPlayer::displayBuffer() const
