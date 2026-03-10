@@ -129,6 +129,7 @@ public:
 
     T* get() const
     {
+        static_assert(IsCompleteType<T>, "T must be a complete type (are you missing an #include?)");
         static_assert(
             HasRefPtrMemberFunctions<T>::value || HasCheckedPtrMemberFunctions<T>::value || IsDeprecatedWeakRefSmartPointerException<std::remove_cv_t<T>>::value,
             "Classes that offer weak pointers should also offer RefPtr or CheckedPtr. Please do not add new exceptions.");
@@ -158,6 +159,7 @@ public:
 
     T* operator->() const
     {
+        static_assert(IsCompleteType<T>, "T must be a complete type (are you missing an #include?)");
         static_assert(
             HasRefPtrMemberFunctions<T>::value || HasCheckedPtrMemberFunctions<T>::value || IsDeprecatedWeakRefSmartPointerException<std::remove_cv_t<T>>::value,
             "Classes that offer weak pointers should also offer RefPtr or CheckedPtr. Please do not add new exceptions.");
@@ -173,6 +175,7 @@ public:
 
     T& operator*() const
     {
+        static_assert(IsCompleteType<T>, "T must be a complete type (are you missing an #include?)");
         static_assert(
             HasRefPtrMemberFunctions<T>::value || HasCheckedPtrMemberFunctions<T>::value || IsDeprecatedWeakRefSmartPointerException<std::remove_cv_t<T>>::value,
             "Classes that offer weak pointers should also offer RefPtr or CheckedPtr. Please do not add new exceptions.");
