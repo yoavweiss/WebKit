@@ -115,6 +115,10 @@ public:
     bool isFixedPitch(const FontCascadeDescription&, FontSelector*);
 
     bool canTakeFixedPitchFastContentMeasuring(const FontCascadeDescription&, FontSelector*);
+    TriState NODELETE cachedCanTakeFixedPitchFastContentMeasuring() const
+    {
+        return m_canTakeFixedPitchFastContentMeasuring;
+    }
 
     bool isLoadingCustomFonts() const;
 
@@ -143,6 +147,7 @@ public:
     const TextShapingResult* getOrCreateCachedShapedText(const TextRun&, const FontCascade&, unsigned from, std::optional<unsigned> to, ForTextEmphasis);
 
     const Font& primaryFont(const FontCascadeDescription&, FontSelector*);
+    const Font* NODELETE cachedPrimaryFont() const { return m_cachedPrimaryFont.get(); }
     WEBCORE_EXPORT const FontRanges& realizeFallbackRangesAt(const FontCascadeDescription&, FontSelector*, unsigned fallbackIndex);
 
     void pruneSystemFallbacks();

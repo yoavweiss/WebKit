@@ -386,6 +386,8 @@ private:
 
 inline const Font& FontCascade::primaryFont() const
 {
+    if (m_fonts->cachedPrimaryFont())
+        return *m_fonts->cachedPrimaryFont();
     WeakRef font = protect(m_fonts)->primaryFont(m_fontDescription, protect(fontSelector()).get());
     m_fontDescription.resolveFontSizeAdjustFromFontIfNeeded(protect(font));
     return font;
@@ -403,6 +405,9 @@ inline bool FontCascade::isFixedPitch() const
 
 inline bool FontCascade::canTakeFixedPitchFastContentMeasuring() const
 {
+    auto cachedCanTakeFixedPitch = m_fonts->cachedCanTakeFixedPitchFastContentMeasuring();
+    if (cachedCanTakeFixedPitch != TriState::Indeterminate)
+        return cachedCanTakeFixedPitch == TriState::True;
     return protect(m_fonts)->canTakeFixedPitchFastContentMeasuring(m_fontDescription, protect(fontSelector()).get());
 }
 
