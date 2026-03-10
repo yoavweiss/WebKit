@@ -8148,8 +8148,6 @@ webkit.org/b/295408 imported/w3c/web-platform-tests/xhr/send-redirect.htm [ Pass
 [ Debug ] imported/w3c/web-platform-tests/beacon/beacon-redirect.https.window.html [ Pass Failure ]
 imported/w3c/web-platform-tests/beacon/beacon-cors.https.window.html [ Pass Failure ]
 
-webkit.org/b/296199 fast/events/onunload-not-on-body.html [ Pass Failure ]
-
 webkit.org/b/296200 [ Debug ] fast/dom/Element/scale-page-bounding-client-rect.html [ Pass Failure ]
 
 webkit.org/b/296202 imported/w3c/web-platform-tests/service-workers/service-worker/skip-waiting-installed.https.html [ Pass Failure ]
