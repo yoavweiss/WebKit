@@ -1594,6 +1594,7 @@ class TestRunJavaScriptCoreTests(BuildStepMixinAdditions, unittest.TestCase):
         self.setup_step(RunJavaScriptCoreTests())
         self.prefix = RunJavaScriptCoreTests.prefix
         self.command_extra = RunJavaScriptCoreTests.command_extra
+        RunJavaScriptCoreTests.filter_failures_using_results_db = lambda self, stress_test_failures, binary_failures: ''
         if platform:
             self.setProperty('platform', platform)
         if fullPlatform:
@@ -2521,7 +2522,7 @@ class TestRunWebKitTestsInSiteIsolationMode(BuildStepMixinAdditions, unittest.Te
                         logfiles={'json': self.jsonFileName},
                         log_environ=False,
                         timeout=19800,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --skipped always --site-isolation test1 test2 2>&1 | Tools/Scripts/filter-test-logs layout'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release -2 --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --skipped always --site-isolation test1 test2 2>&1 | Tools/Scripts/filter-test-logs layout'],
                         )
             .exit(0),
         )
@@ -2543,7 +2544,7 @@ class TestRunWebKitTestsInSiteIsolationMode(BuildStepMixinAdditions, unittest.Te
                         logfiles={'json': self.jsonFileName},
                         log_environ=False,
                         timeout=19800,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release --dump-render-tree --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --skipped always --site-isolation test1 test2 2>&1 | Tools/Scripts/filter-test-logs layout'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release -1 --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --skipped always --site-isolation test1 test2 2>&1 | Tools/Scripts/filter-test-logs layout'],
                         )
             .exit(0),
         )
@@ -2561,7 +2562,7 @@ class TestRunWebKitTestsInSiteIsolationMode(BuildStepMixinAdditions, unittest.Te
                         logfiles={'json': self.jsonFileName},
                         log_environ=False,
                         timeout=19800,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --skipped always --site-isolation test 2>&1 | Tools/Scripts/filter-test-logs layout'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release -2 --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --skipped always --site-isolation test 2>&1 | Tools/Scripts/filter-test-logs layout'],
                         )
             .log('stdio', stdout='9 failures found.')
             .exit(2),
@@ -10318,6 +10319,7 @@ class TestFindUnexpectedStaticAnalyzerResults(BuildStepMixinAdditions, unittest.
     def test_changed_expectations_no_match(self):
         self.configureStep(True)
         FindUnexpectedStaticAnalyzerResults.decode_results_data = lambda self: {'passes': {'WebCore': {'NoUncountedMemberChecker': ['css/ShorthandSerializer.cpp']}}, 'failures': {'WebCore': {'NoUncountedMemberChecker': ['inspector/agents/worker/WorkerWorkerAgent.h']}}}
+        FindUnexpectedStaticAnalyzerResults.filter_results_using_results_db = lambda self, logText: False
         self.setProperty('user_removed_tests', [])
         self.setProperty('user_added_tests', ['WebCore/css/ShorthandSerializer.cpp/NoUncountedMemberChecker'])
         next_steps = []

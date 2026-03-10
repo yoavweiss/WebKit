@@ -4527,7 +4527,9 @@ class RunWebKitTestsInSiteIsolationMode(RunWebKitTestsInStressMode):
 
     def setLayoutTestCommand(self):
         if self.layout_test_class == RunWebKit1Tests:
-            self.setProperty('use-dump-render-tree', True)
+            self.setProperty('layout-test-driver', 'DumpRenderTree')
+        else:
+            self.setProperty('layout-test-driver', 'WebKitTestRunner')
         RunWebKitTests.setLayoutTestCommand(self)
 
         self.command += ['--site-isolation']
