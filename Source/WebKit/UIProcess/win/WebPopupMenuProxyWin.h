@@ -29,9 +29,9 @@
 #include "PlatformPopupMenuData.h"
 #include "WebPopupItem.h"
 #include "WebPopupMenuProxy.h"
-#include <OleAcc.h>
 #include <WebCore/ScrollableArea.h>
 #include <WebCore/Scrollbar.h>
+#include <oleacc.h>
 #include <wtf/TZoneMalloc.h>
 
 #if USE(SKIA)

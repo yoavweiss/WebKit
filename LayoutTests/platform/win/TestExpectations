@@ -1195,6 +1195,12 @@ webkit.org/b/149630 css3/font-variant-all.html [ ImageOnlyFailure ]
 # Font feature settings is not implemented.
 css3/font-feature-settings-rendering.html [ Skip ]
 webkit.org/b/149771 css3/font-feature-settings-font-face-rendering.html [ Skip ]
+
+# HarfBuzz AAT morx regression: newer HarfBuzz doesn't apply morx feature
+# substitutions (smcp, c2sc, titl) correctly for these test fonts.
+# See also webkit.org/b/216853 (same issue on glib for font-synthesis-small-caps).
+css3/font-synthesis-small-caps.html [ ImageOnlyFailure ]
+fast/canvas/fill-text-with-font-features.html [ ImageOnlyFailure ]
 webkit.org/b/149771 css3/font-variant-font-face-override.html [ Skip ]
 webkit.org/b/149774 css3/font-variant-petite-caps-synthesis.html [ Skip ]
 webkit.org/b/149774 css3/font-variant-small-caps-synthesis.html [ Skip ]
