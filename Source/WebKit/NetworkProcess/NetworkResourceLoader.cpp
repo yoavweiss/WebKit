@@ -430,7 +430,7 @@ void NetworkResourceLoader::startNetworkLoad(ResourceRequest&& request, FirstLoa
 
     if (shouldSendResourceLoadMessages()) {
         std::optional<IPC::FormDataReference> httpBody;
-        if (auto formData = request.httpBody()) {
+        if (RefPtr formData = request.httpBody()) {
             static constexpr auto maxSerializedRequestSize = 1024 * 1024;
             if (formData->lengthInBytes() <= maxSerializedRequestSize)
                 httpBody = IPC::FormDataReference { WTF::move(formData) };

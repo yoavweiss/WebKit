@@ -140,17 +140,17 @@ static RetainPtr<NSCountedSet> createNSCountedSet(const HashCountedSet<ASCIILite
 
 + (size_t)cachedFontDataCount
 {
-    return FontCache::forCurrentThread()->fontCount();
+    return protect(FontCache::forCurrentThread())->fontCount();
 }
 
 + (size_t)cachedFontDataInactiveCount
 {
-    return FontCache::forCurrentThread()->inactiveFontCount();
+    return protect(FontCache::forCurrentThread())->inactiveFontCount();
 }
 
 + (void)purgeInactiveFontData
 {
-    FontCache::forCurrentThread()->purgeInactiveFontData();
+    protect(FontCache::forCurrentThread())->purgeInactiveFontData();
 }
 
 + (size_t)glyphPageCount

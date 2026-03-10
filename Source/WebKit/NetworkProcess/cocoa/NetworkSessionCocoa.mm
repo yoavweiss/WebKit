@@ -328,7 +328,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         return;
     }
 
-    auto body = networkDataTask->firstRequest().httpBody();
+    RefPtr body = networkDataTask->firstRequest().httpBody();
     if (!body) {
         completionHandler(nil);
         return;
