@@ -1712,11 +1712,11 @@ class ScanBuild(steps.ShellSequence, ShellMixin):
         self.commands = []
 
         build_command = f"Tools/Scripts/build-and-analyze --output-dir {os.path.join(self.getProperty('builddir'), f'build/{SCAN_BUILD_OUTPUT_DIR}')} --configuration {self.build.getProperty('configuration')} --only-smart-pointers "
-        if self.getProperty('platform', '').lower() == 'ios':
-            sdkroot = 'iphonesimulator'
+        sdkroot = 'iphonesimulator' if self.getProperty('platform', '').lower() == 'ios' else 'macosx'
+        # FIXME: Remove conditioning on platform when Sequoia Safer-CPP queue is disabled
+        if self.getProperty('platform', '').lower() == 'ios' or self.getProperty('fullPlatform', '').lower() == 'mac-tahoe':
             build_command += f'--toolchains={SWIFT_TOOLCHAIN_BUNDLE_IDENTIFIER} --swift-conditions=SWIFT_WEBKIT_TOOLCHAIN '
         else:
-            sdkroot = 'macosx'
             build_command += f"--analyzer-path={os.path.join(self.getProperty('builddir'), 'llvm-project/build/bin/clang')} --preprocessor-additions=CLANG_WEBKIT_BRANCH=1 "
         build_command += f'--scan-build-path=../llvm-project/clang/tools/scan-build/bin/scan-build --sdkroot={sdkroot} '
         build_command += '2>&1 | python3 Tools/Scripts/filter-test-logs scan-build --output build-log.txt'
@@ -2398,4 +2398,6 @@ class BuildSwift(steps.ShellSequence, ShellMixin):
         return {'step': 'Successfully built Swift'}
 
     def doStepIf(self, step):
-        return self.getProperty('canonical_swift_tag') and self.getProperty('current_swift_tag', '') != self.getProperty('canonical_swift_tag')
+        # FIXME: Remove conditioning on platform when Sequoia Safer-CPP queue is disabled
+        is_platform_relevant = self.getProperty('fullPlatform', '').lower() in {'ios', 'mac-tahoe'}
+        return is_platform_relevant and self.getProperty('canonical_swift_tag') and self.getProperty('current_swift_tag', '') != self.getProperty('canonical_swift_tag')
