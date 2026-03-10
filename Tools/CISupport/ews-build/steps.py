@@ -7755,7 +7755,9 @@ class BuildSwift(steps.ShellSequence, ShellMixin):
         return {'step': 'Successfully built Swift'}
 
     def doStepIf(self, step):
-        return self.getProperty('canonical_swift_tag') and self.getProperty('current_swift_tag', '') != self.getProperty('canonical_swift_tag')
+        # FIXME: Remove conditioning on platform when Sequoia Safer-CPP queue is disabled
+        platform_matches = self.getProperty('fullPlatform', '') in {'ios-26', 'mac-tahoe'}
+        return platform_matches and self.getProperty('canonical_swift_tag') and self.getProperty('current_swift_tag', '') != self.getProperty('canonical_swift_tag')
 
 
 # FIXME: Share static analyzer steps with build-webkit-org since they have a lot of similarities
@@ -7776,11 +7778,11 @@ class ScanBuild(steps.ShellSequence, ShellMixin):
         self.commands = []
 
         build_command = f"Tools/Scripts/build-and-analyze --output-dir {os.path.join(self.getProperty('builddir'), f'build/{self.output_directory}')} --configuration {self.build.getProperty('configuration')} --only-smart-pointers "
-        if self.getProperty('platform', '').lower() == 'ios':
-            sdkroot = 'iphonesimulator'
+        sdkroot = 'iphonesimulator' if self.getProperty('platform', '').lower() == 'ios' else 'macosx'
+        # FIXME: Remove conditioning on platform when Sequoia Safer-CPP queue is disabled
+        if self.getProperty('platform', '').lower() == 'ios' or self.getProperty('fullPlatform', '') == 'mac-tahoe':
             build_command += f'--toolchains={SWIFT_TOOLCHAIN_BUNDLE_IDENTIFIER} --swift-conditions=SWIFT_WEBKIT_TOOLCHAIN '
         else:
-            sdkroot = 'macosx'
             build_command += f"--analyzer-path={os.path.join(self.getProperty('builddir'), 'llvm-project/build/bin/clang')} --preprocessor-additions=CLANG_WEBKIT_BRANCH=1 "
         build_command += f'--scan-build-path=../llvm-project/clang/tools/scan-build/bin/scan-build --sdkroot={sdkroot} '
         if SHOULD_FILTER_LOGS is True:

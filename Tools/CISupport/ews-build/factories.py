@@ -101,15 +101,13 @@ class SaferCPPStaticAnalyzerFactory(factory.BuildFactory):
         self.addStep(GetLLVMVersion())
         self.addStep(PrintClangVersion())
         self.addStep(CheckOutLLVMProject())
-        if platform.startswith('ios'):
-            self.addStep(GetSwiftTagName())
-            self.addStep(PrintSwiftVersion())
-            self.addStep(CheckOutSwiftProject())
-            self.addStep(UpdateSwiftCheckouts())
-            self.addStep(BuildSwift())
-            self.addStep(InstallMetalToolchain())
-        else:
-            self.addStep(UpdateClang())
+        self.addStep(GetSwiftTagName())
+        self.addStep(PrintSwiftVersion())
+        self.addStep(CheckOutSwiftProject())
+        self.addStep(UpdateSwiftCheckouts())
+        self.addStep(BuildSwift())
+        self.addStep(InstallMetalToolchain())
+        self.addStep(UpdateClang())
         self.addStep(FindModifiedSaferCPPExpectations())
         self.addStep(ScanBuild())
 

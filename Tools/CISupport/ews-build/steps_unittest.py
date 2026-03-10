@@ -9663,6 +9663,7 @@ class TestBuildSwift(BuildStepMixinAdditions, unittest.TestCase):
         self.setup_step(BuildSwift())
         self.setProperty('archForUpload', 'arm64')
         self.setProperty('builddir', 'webkit')
+        self.setProperty('fullPlatform', 'mac-tahoe')
         self.setProperty('canonical_swift_tag', 'swift-6.0.3-RELEASE')
 
     def expectedShellCommand(self):
@@ -9932,6 +9933,28 @@ class TestScanBuild(BuildStepMixinAdditions, unittest.TestCase):
             .exit(0),
             ExpectShell(workdir=self.WORK_DIR,
                         command=self.EXPECTED_IOS_BUILD_COMMAND,
+                        log_environ=False,
+                        timeout=2 * 60 * 60)
+            .log('stdio', stdout='ANALYZE SUCCEEDED No issues found.\n')
+            .exit(0)
+        )
+        self.expect_outcome(result=SUCCESS, state_string='Found 0 issues')
+        return self.run_step()
+
+    def test_success_mac_tahoe(self):
+        self.configureStep()
+        self.setProperty('fullPlatform', 'mac-tahoe')
+        next_steps = []
+        self.patch(self.build, 'addStepsAfterCurrentStep', lambda s: next_steps.extend(s))
+        expected_build_command = ['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'Tools/Scripts/build-and-analyze --output-dir wkdir/build/{SCAN_BUILD_OUTPUT_DIR} --configuration release --only-smart-pointers --toolchains={SWIFT_TOOLCHAIN_BUNDLE_IDENTIFIER} --swift-conditions=SWIFT_WEBKIT_TOOLCHAIN --scan-build-path=../llvm-project/clang/tools/scan-build/bin/scan-build --sdkroot=macosx 2>&1 | python3 Tools/Scripts/filter-test-logs scan-build --output build-log.txt']
+        self.expectRemoteCommands(
+            ExpectShell(workdir=self.WORK_DIR,
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'/bin/rm -rf wkdir/build/{SCAN_BUILD_OUTPUT_DIR}'],
+                        log_environ=False,
+                        timeout=2 * 60 * 60)
+            .exit(0),
+            ExpectShell(workdir=self.WORK_DIR,
+                        command=expected_build_command,
                         log_environ=False,
                         timeout=2 * 60 * 60)
             .log('stdio', stdout='ANALYZE SUCCEEDED No issues found.\n')
