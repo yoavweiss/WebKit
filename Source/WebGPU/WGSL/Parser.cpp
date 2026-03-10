@@ -752,19 +752,30 @@ Result<AST::Attribute::Ref> Parser<Lexer>::parseAttribute()
         auto* interpolationType = parseInterpolationType(interpolate);
         if (!interpolationType)
             FAIL("Unknown interpolation type. Expected 'flat', 'linear' or 'perspective'"_s);
-        InterpolationSampling sampleType { InterpolationSampling::Center };
+        std::optional<InterpolationSampling> sampleType;
         if (current().type == TokenType::Comma) {
             consume();
-            PARSE(sampling, Identifier);
-            auto* interpolationSampling = parseInterpolationSampling(sampling);
-            if (!interpolationSampling)
-                FAIL("Unknown interpolation sampling. Expected 'center', 'centroid', 'sample', 'first' or 'either"_s);
-            sampleType = *interpolationSampling;
+
+            if (current().type == TokenType::Identifier) {
+                PARSE(sampling, Identifier);
+                auto* interpolationSampling = parseInterpolationSampling(sampling);
+                if (!interpolationSampling)
+                    FAIL("Unknown interpolation sampling. Expected 'center', 'centroid', 'sample', 'first' or 'either"_s);
+                sampleType = *interpolationSampling;
+                if (current().type == TokenType::Comma)
+                    consume();
+            }
         }
-        if (current().type == TokenType::Comma)
-            consume();
+
+        if (!sampleType) {
+            if (*interpolationType == InterpolationType::Flat)
+                sampleType = InterpolationSampling::First;
+            else
+                sampleType = InterpolationSampling::Center;
+        }
+
         CONSUME_TYPE(ParenRight);
-        RETURN_ARENA_NODE(InterpolateAttribute, *interpolationType, sampleType);
+        RETURN_ARENA_NODE(InterpolateAttribute, *interpolationType, *sampleType);
     }
 
     if (ident.ident == "size"_s) {

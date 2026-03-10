@@ -1957,8 +1957,9 @@ webkit.org/b/287122 imported/w3c/web-platform-tests/html/capability-delegation/d
 [ arm64 ] fast/webgpu/regression/repro_283595-for.html [ Skip ]
 [ arm64 ] fast/webgpu/regression/repro_283595-loop.html [ Skip ]
 [ arm64 ] fast/webgpu/regression/repro_283595-while.html [ Skip ]
-[ arm64 ] fast/webgpu/nocrash/fuzz-284937.html [ Skip ]
 [ arm64 ] fast/webgpu/nocrash/fuzz-287444.html [ Skip ]
+
+webkit.org/b/309524 fast/webgpu/nocrash/fuzz-284937.html [ Skip ]
 
 webkit.org/b/287865 pdf/two-pages-continuous-to-discrete.html [ Pass ImageOnlyFailure ]
 

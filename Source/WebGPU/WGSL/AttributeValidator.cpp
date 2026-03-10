@@ -69,6 +69,7 @@ private:
     void validateBuiltinIO(const SourceSpan&, const Type*, ShaderStage, Builtin, Direction, Builtins&);
     void validateLocationIO(const SourceSpan&, const Type*, ShaderStage, unsigned, Locations&);
     void validateStructIO(ShaderStage, const Types::Struct&, Direction, Builtins&, Locations&);
+    void validateInterpolationIO(const SourceSpan&, ShaderStage, Direction, const Type*, const std::optional<AST::Interpolation>&);
     void validateAlignment(const SourceSpan&, AddressSpace, const Type*);
 
     template<typename T>
@@ -650,6 +651,18 @@ void AttributeValidator::validateInterpolation(const SourceSpan& span, const std
 {
     if (interpolation && !location) [[unlikely]]
         error(span, "@interpolate is only allowed on declarations that have a @location attribute"_s);
+    if (!interpolation)
+        return;
+    auto type = interpolation->type;
+    auto sampling = interpolation->sampling;
+
+    if (type == InterpolationType::Flat) {
+        if (sampling != InterpolationSampling::First && sampling != InterpolationSampling::Either) [[unlikely]]
+            error(span, "flat interpolation attribute must have a sampling parameter of `first` or `either`"_s);
+    } else {
+        if (sampling != InterpolationSampling::Center && sampling != InterpolationSampling::Centroid && sampling != InterpolationSampling::Sample) [[unlikely]]
+            error(span, makeString(toString(type), " interpolation attribute must have a sampling parameter of `center`, `centroid` or `sample`"_s));
+    }
 }
 
 void AttributeValidator::validateInvariant(const SourceSpan& span, const std::optional<Builtin>& builtin, bool invariant)
@@ -713,6 +726,7 @@ std::optional<FailedCheck> AttributeValidator::validateIO()
 
             if (auto location = parameter.location()) {
                 CHECK(validateLocationIO(span, type, entryPoint.stage, *location, locations));
+                CHECK(validateInterpolationIO(span, entryPoint.stage, Direction::Input, type, parameter.interpolation()));
                 continue;
             }
 
@@ -833,6 +847,23 @@ void AttributeValidator::validateLocationIO(const SourceSpan& span, const Type* 
         error(span, "@location("_s, location, ") appears multiple times"_s);
 }
 
+void AttributeValidator::validateInterpolationIO(const SourceSpan& span, ShaderStage stage, Direction direction, const Type* type, const std::optional<AST::Interpolation>& interpolation)
+{
+    if (!(stage == ShaderStage::Vertex && direction == Direction::Output) && !(stage == ShaderStage::Fragment && direction == Direction::Input)) [[unlikely]]
+        return;
+
+    if (!satisfies(type, Constraints::Integer)) {
+        auto* vector = std::get_if<Types::Vector>(type);
+        if (!vector || !satisfies(vector->element, Constraints::Integer)) [[unlikely]]
+            return;
+    }
+
+    if (!interpolation || interpolation->type != InterpolationType::Flat) [[unlikely]] {
+        auto location = stage == ShaderStage::Vertex ? "vertex output"_s : "fragment input"_s;
+        error(span, makeString("integral user-defined "_s, location, " must have a @interpolate(flat) attribute"_s));
+    }
+}
+
 void AttributeValidator::validateStructIO(ShaderStage stage, const Types::Struct& structType, Direction direction, Builtins& builtins, Locations& locations)
 {
     for (auto& member : structType.structure.members()) {
@@ -848,6 +879,9 @@ void AttributeValidator::validateStructIO(ShaderStage stage, const Types::Struct
 
         if (auto location = member.location()) {
             validateLocationIO(span, type, stage, *location, locations);
+            if (hasError()) [[unlikely]]
+                return;
+            validateInterpolationIO(span, stage, direction, type, member.interpolation());
             if (hasError()) [[unlikely]]
                 return;
             continue;
