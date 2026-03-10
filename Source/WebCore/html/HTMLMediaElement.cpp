@@ -278,6 +278,8 @@ static const double AutoplayInterferenceTimeThreshold = 10;
 static const Seconds hideMediaControlsAfterEndedDelay { 6_s };
 static const Seconds WatchtimeTimerInterval { 5_min };
 
+static constexpr double maximumHLSPlaybackRate = 2;
+
 #if ENABLE(MEDIA_SOURCE)
 // URL protocol used to signal that the media source API is being used.
 static constexpr auto mediaSourceBlobProtocol = "blob"_s;
@@ -3319,6 +3321,9 @@ void HTMLMediaElement::setReadyState(MediaPlayer::ReadyState state)
             scheduleResizeEvent(player->naturalSize());
             scheduleEvent(eventNames().loadedmetadataEvent);
 
+            if (m_requestedPlaybackRate > maximumHLSPlaybackRate && protect(document())->quirks().shouldLimitHLSPlaybackRate() && movieLoadType() == HTMLMediaElement::MovieLoadType::HttpLiveStream)
+                setPlaybackRate(m_requestedPlaybackRate);
+
             if (m_defaultPlaybackStartPosition > MediaTime::zeroTime()) {
                 // We reset it before to cause currentMediaTime() to return the actual current time (not
                 // defaultPlaybackPosition) and avoid the seek code to think that the seek was already done.
@@ -4350,6 +4355,11 @@ void HTMLMediaElement::setPlaybackRate(double rate)
     if (m_mediaStreamSrcObject)
         return;
 #endif
+
+    if (rate > maximumHLSPlaybackRate && protect(document())->quirks().shouldLimitHLSPlaybackRate() && movieLoadType() == HTMLMediaElement::MovieLoadType::HttpLiveStream) {
+        ALWAYS_LOG(LOGIDENTIFIER, "Limiting rate to ", maximumHLSPlaybackRate);
+        rate = maximumHLSPlaybackRate;
+    }
 
     if (m_player && potentiallyPlaying() && !m_mediaController)
         RefPtr { m_player }->setRate(rate);

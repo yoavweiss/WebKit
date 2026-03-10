@@ -2090,6 +2090,14 @@ bool Quirks::needsMozillaFileTypeForDataTransfer() const
     return m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::NeedsMozillaFileTypeForDataTransferQuirk);
 }
 
+// spotify.com rdar://171119015
+bool Quirks::shouldLimitHLSPlaybackRate() const
+{
+    QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
+
+    return m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::ShouldLimitHLSPlaybackRate);
+}
+
 // spotify.com rdar://140707449
 bool Quirks::shouldAvoidStartingSelectionOnMouseDownOverPointerCursor(const Node& target) const
 {
@@ -3223,6 +3231,7 @@ static void handleSpotifyQuirks(QuirksData& quirksData, const URL& quirksURL, co
         // spotify.com rdar://138918575
         QuirksData::SiteSpecificQuirk::NeedsBodyScrollbarWidthNoneDisabledQuirk,
         QuirksData::SiteSpecificQuirk::ShouldAvoidStartingSelectionOnMouseDownOverPointerCursor,
+        QuirksData::SiteSpecificQuirk::ShouldLimitHLSPlaybackRate,
     });
 }
 

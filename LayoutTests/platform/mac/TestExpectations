@@ -1628,6 +1628,9 @@ webkit.org/b/228189 http/tests/media/hls/hls-webvtt-seek-backwards.html [ Pass T
 
 webkit.org/b/230411 http/tests/media/hls/video-controller-getStartDate.html [ Pass Failure ]
 
+# HLS stream fails to become ready to play on headless bots
+http/tests/media/hls/hls-limit-play-rate.html
+
 # rdar://65641438 ([WebGL2] tex-srgb-mipmap test fails on macOS Intel + iOS (but passes on macOS Apple Silicon) (214392))
 [ arm64 ] webgl/2.0.0/conformance2/textures/misc/tex-srgb-mipmap.html [ Failure ]
 
