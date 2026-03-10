@@ -2630,9 +2630,16 @@ auto ByteCodeParser::handleIntrinsicCall(Node* callee, Operand resultOperand, Ca
         }
 
         case PowIntrinsic: {
-            if (argumentCountIncludingThis < 3) {
-                // Math.pow() and Math.pow(x) return NaN.
+            if (argumentCountIncludingThis == 1) {
+                // Math.pow() returns NaN.
                 insertChecks();
+                setResult(addToGraph(JSConstant, OpInfo(m_constantNaN)));
+                return CallOptimizationResult::Inlined;
+            }
+            if (argumentCountIncludingThis == 2) {
+                // Math.pow(x) returns NaN, but ToNumber(x) may have side effects.
+                insertChecks();
+                addToGraph(Phantom, Edge(get(virtualRegisterForArgumentIncludingThis(1, registerOffset)), NumberUse));
                 setResult(addToGraph(JSConstant, OpInfo(m_constantNaN)));
                 return CallOptimizationResult::Inlined;
             }
