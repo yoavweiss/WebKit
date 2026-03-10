@@ -709,13 +709,12 @@ bool RenderView::shouldPaintBaseBackground() const
 {
     Ref document = this->document();
     Ref frameView = this->frameView();
-    RefPtr ownerElement = document->ownerElement();
 
     // Fill with a base color if we're the root document.
     if (frameView->frame().isMainFrame())
         return !frameView->isTransparent();
 
-    if (ownerElement && ownerElement->hasTagName(HTMLNames::frameTag))
+    if (RefPtr ownerElement = document->ownerElement(); ownerElement && ownerElement->hasTagName(HTMLNames::frameTag))
         return true;
 
     // Locate the <body> element using the DOM. This is easier than trying
@@ -732,15 +731,15 @@ bool RenderView::shouldPaintBaseBackground() const
     if (is<HTMLFrameSetElement>(*body))
         return true;
 
-    auto* frameRenderer = ownerElement ? ownerElement->renderer() : nullptr;
-    if (!frameRenderer)
-        return false;
-
-    // iframes should fill with a base color if the used color scheme of the
-    // element and the used color scheme of the embedded document’s root
-    // element do not match.
-    if (frameView->useDarkAppearance() != frameRenderer->useDarkAppearance())
-        return !frameView->isTransparent();
+    if (RefPtr parentFrame = frameView->frame().parent()) {
+        if (RefPtr parentFrameView = parentFrame->virtualView()) {
+            // iframes should fill with a base color if the used color scheme of the
+            // element and the used color scheme of the embedded document’s root
+            // element do not match.
+            if (frameView->useDarkAppearance() != parentFrameView->ownerElementOfChildFrameUsesDarkAppearance(frameView->frame()))
+                return !frameView->isTransparent();
+        }
+    }
 
     return false;
 }

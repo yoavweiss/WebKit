@@ -2139,6 +2139,19 @@ std::optional<LayoutRect> LocalFrameView::visibleRectOfChild(const Frame& child)
     return rects.transform([] (const auto& repaintRects) { return repaintRects.clippedOverflowRect; });
 }
 
+bool LocalFrameView::ownerElementOfChildFrameUsesDarkAppearance(const Frame& child) const
+{
+    RefPtr childOwnerRenderer = child.ownerRenderer();
+    if (!childOwnerRenderer)
+        return false;
+
+    // Ensure |child| is a child of this frame.
+    ASSERT(child.tree().parent()->frameID() == m_frame->frameID());
+    ASSERT(childOwnerRenderer->frame().frameID() == m_frame->frameID());
+
+    return childOwnerRenderer->useDarkAppearance();
+}
+
 LayoutRect LocalFrameView::rectForFixedPositionLayout() const
 {
     if (m_frame->settings().visualViewportEnabled())

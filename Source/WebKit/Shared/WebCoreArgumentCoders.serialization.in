@@ -2197,6 +2197,7 @@ class WebCore::LayoutRect {
 struct WebCore::RemoteFrameLayoutInfo {
     std::optional<WebCore::LayoutRect> visibleRectInParent;
     float usedZoom;
+    bool useDarkAppearance;
 };
 
 header: <WebCore/VP9Utilities.h>

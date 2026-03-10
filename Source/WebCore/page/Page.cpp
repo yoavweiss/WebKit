@@ -2179,7 +2179,9 @@ void Page::syncLocalFrameInfoToRemote()
                 if (CheckedPtr ownerRenderer = child->ownerRenderer())
                     usedZoom = ownerRenderer->style().usedZoom();
 
-                childrenFrameLayoutInfo.add(child->frameID(), RemoteFrameLayoutInfo { .visibleRectInParent = visibleRect, .usedZoom = usedZoom });
+                auto useDarkAppearance = frameView->useDarkAppearance();
+
+                childrenFrameLayoutInfo.add(child->frameID(), RemoteFrameLayoutInfo { .visibleRectInParent = visibleRect, .usedZoom = usedZoom, .useDarkAppearance = useDarkAppearance });
             }
 
             frame.loader().client().broadcastChildrenFrameLayoutInfoToOtherProcesses(childrenFrameLayoutInfo);
