@@ -7804,6 +7804,7 @@ media/modern-media-controls/scrubber-support/scrubber-support-seek-back.html [ S
 # Following test fails due to lack of `tabbing` to move focus
 imported/w3c/web-platform-tests/html/interaction/focus/focus-01.html [ Skip ]
 imported/w3c/web-platform-tests/html/interaction/focus/focus-02.html [ Skip ]
+imported/w3c/web-platform-tests/html/interaction/focus/sequential-focus-navigation-after-disabled.html [ Skip ]
 imported/w3c/web-platform-tests/html/interaction/focus/sequential-focus-navigation-and-the-tabindex-attribute/focus-tabindex-negative.html [ Skip ]
 imported/w3c/web-platform-tests/html/interaction/focus/sequential-focus-navigation-and-the-tabindex-attribute/focus-tabindex-order.html [ Skip ]
 imported/w3c/web-platform-tests/html/interaction/focus/sequential-focus-navigation-and-the-tabindex-attribute/focus-tabindex-positive.html [ Skip ]
