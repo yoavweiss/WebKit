@@ -4175,8 +4175,11 @@ class RunWebKitTests(shell.Test, AddToLogMixin, ShellMixin):
         platform = self.getProperty('platform')
         self.command += customBuildFlag(platform, self.getProperty('fullPlatform'))
 
-        if self.getProperty('use-dump-render-tree', False):
-            self.command += ['--dump-render-tree']
+        driver = self.getProperty('layout-test-driver', None)
+        if driver == 'DumpRenderTree':
+            self.command += ['-1']
+        elif driver == 'WebKitTestRunner':
+            self.command += ['-2']
 
         self.command += ['--results-directory', self.resultDirectory]
         self.command += ['--debug-rwt-logging']
@@ -4297,9 +4300,10 @@ class RunWebKitTests(shell.Test, AddToLogMixin, ShellMixin):
         if style and style in ['debug', 'release']:
             configuration['style'] = style
 
-        if self.getProperty('use-dump-render-tree', False):
+        driver = self.getProperty('layout-test-driver', None)
+        if driver == 'DumpRenderTree':
             configuration['flavor'] = 'wk1'
-        else:
+        elif driver == 'WebKitTestRunner':
             configuration['flavor'] = 'wk2'
 
         yield self._addToLog(self.results_db_log_name, f'Checking Results database for failing tests. Identifier: {identifier}, configuration: {configuration}')
@@ -4446,7 +4450,9 @@ class RunWebKitTestsInStressMode(RunWebKitTests):
 
     def setLayoutTestCommand(self):
         if self.layout_test_class == RunWebKit1Tests:
-            self.setProperty('use-dump-render-tree', True)
+            self.setProperty('layout-test-driver', 'DumpRenderTree')
+        else:
+            self.setProperty('layout-test-driver', 'WebKitTestRunner')
         RunWebKitTests.setLayoutTestCommand(self)
 
         self.command += ['--iterations', self.num_iterations]
@@ -4999,7 +5005,7 @@ class AnalyzeLayoutTestsResults(buildstep.BuildStep, BugzillaMixin, GitHubMixin)
 class RunWebKit1Tests(RunWebKitTests):
     @defer.inlineCallbacks
     def run(self):
-        self.setProperty('use-dump-render-tree', True)
+        self.setProperty('layout-test-driver', 'DumpRenderTree')
         rc = yield RunWebKitTests.run(self)
         defer.returnValue(rc)
 
