@@ -4483,6 +4483,7 @@ class RunWebKitTestsInStressMode(RunWebKitTests):
             self.descriptionDone = message
             self.build.results = SUCCESS
             self.setProperty('build_summary', message)
+            self.setProperty('stress_mode_passed', True)
         else:
             self.setProperty('build_summary', self.FAILURE_MSG_IN_STRESS_MODE)
             steps_to_add += [
@@ -4501,6 +4502,29 @@ class RunWebKitTestsInStressGuardmallocMode(RunWebKitTestsInStressMode):
     name = 'run-layout-tests-in-guard-malloc-stress-mode'
     suffix = 'guard-malloc'
     ENABLE_GUARD_MALLOC = True
+
+
+class RunWebKitTestsInSiteIsolationMode(RunWebKitTestsInStressMode):
+    name = 'run-layout-tests-in-site-isolation'
+    suffix = 'site-isolation'
+    FAILURE_MSG_IN_STRESS_MODE = 'Found test failures in site isolation mode'
+
+    def __init__(self, layout_test_class=RunWebKitTests):
+        self.layout_test_class = layout_test_class
+        RunWebKitTests.__init__(self)
+
+    def setLayoutTestCommand(self):
+        if self.layout_test_class == RunWebKit1Tests:
+            self.setProperty('use-dump-render-tree', True)
+        RunWebKitTests.setLayoutTestCommand(self)
+
+        self.command += ['--site-isolation']
+        modified_tests = self.getProperty('modified_tests')
+        if modified_tests:
+            self.command += modified_tests
+
+    def doStepIf(self, step):
+        return self.getProperty('modified_tests', False) and self.getProperty('stress_mode_passed', False)
 
 
 class ReRunWebKitTests(RunWebKitTests):
