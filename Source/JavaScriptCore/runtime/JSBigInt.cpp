@@ -800,12 +800,16 @@ std::span<JSBigInt::Digit> JSBigInt::multiplySingle(std::span<const Digit> multi
         result[i] = zi; \
     } while (0)
 
-std::span<JSBigInt::Digit> JSBigInt::multiplyTextbook(std::span<const Digit> x, std::span<const Digit> y, std::span<Digit> result)
+std::span<JSBigInt::Digit> JSBigInt::multiplyTextbook(std::span<const Digit> xSpan, std::span<const Digit> ySpan, std::span<Digit> resultSpan)
 {
-    ASSERT(x.size() >= y.size());
-    ASSERT(result.size() >= x.size() + y.size());
-    ASSERT(x.size());
-    ASSERT(y.size());
+    RELEASE_ASSERT(xSpan.size() >= ySpan.size());
+    RELEASE_ASSERT(resultSpan.size() >= xSpan.size() + ySpan.size());
+    RELEASE_ASSERT(xSpan.size());
+    RELEASE_ASSERT(ySpan.size());
+
+    const auto* x = xSpan.data();
+    const auto* y = ySpan.data();
+    auto* result = resultSpan.data();
 
     Digit next = 0, nextCarry = 0, carry = 0;
     // Unrolled first iteration: it's trivial.
@@ -816,15 +820,15 @@ std::span<JSBigInt::Digit> JSBigInt::multiplyTextbook(std::span<const Digit> x, 
     }
     size_t i = 1;
     // Unrolled second iteration: a little less setup.
-    if (i < y.size()) {
+    if (i < ySpan.size()) {
         Digit zi = next;
         next = 0;
         MULTIPLY_BODY(0, 1);
         i++;
     }
 
-    // Main part: since x.size() >= y.size() > i, no bounds checks are needed.
-    for (; i < y.size(); i++) {
+    // Main part: since xSpan.size() >= ySpan.size() > i, no bounds checks are needed.
+    for (; i < ySpan.size(); i++) {
         Digit temp = 0;
         Digit zi = digitAdd(next, carry, temp);
         next = nextCarry + temp;
@@ -834,10 +838,10 @@ std::span<JSBigInt::Digit> JSBigInt::multiplyTextbook(std::span<const Digit> x, 
     }
 
     // Last part: i exceeds y now, we have to be careful about bounds.
-    size_t loopEnd = x.size() + y.size() - 2;
+    size_t loopEnd = xSpan.size() + ySpan.size() - 2;
     for (; i <= loopEnd; i++) {
-        size_t maxXIndex = std::min<size_t>(i, x.size() - 1);
-        size_t maxYIndex = y.size() - 1;
+        size_t maxXIndex = std::min<size_t>(i, xSpan.size() - 1);
+        size_t maxYIndex = ySpan.size() - 1;
         size_t minXIndex = i - maxYIndex;
         Digit temp = 0;
         Digit zi = digitAdd(next, carry, temp);
@@ -851,16 +855,20 @@ std::span<JSBigInt::Digit> JSBigInt::multiplyTextbook(std::span<const Digit> x, 
     Digit temp = 0;
     result[i++] = digitAdd(next, carry, temp);
     ASSERT(!temp);
-    return result.first(i);
+    return resultSpan.first(i);
 }
 
 // For the needs of cachedMod, computes only the low result.size() digits of X * Y.
-void JSBigInt::multiplySpecialLow(std::span<const Digit> x, std::span<const Digit> y, std::span<Digit> result)
+void JSBigInt::multiplySpecialLow(std::span<const Digit> xSpan, std::span<const Digit> ySpan, std::span<Digit> resultSpan)
 {
-    ASSERT(y.size() >= 1);
-    ASSERT(x.size() >= 2);
-    ASSERT(x.size() >= y.size() - 1);
-    ASSERT(result.size());
+    RELEASE_ASSERT(ySpan.size() >= 1);
+    RELEASE_ASSERT(xSpan.size() >= 2);
+    RELEASE_ASSERT(xSpan.size() >= ySpan.size() - 1);
+    RELEASE_ASSERT(resultSpan.size());
+
+    const auto* x = xSpan.data();
+    const auto* y = ySpan.data();
+    auto* result = resultSpan.data();
 
     Digit next, nextCarry = 0, carry = 0;
     // Unrolled first iteration: it's trivial.
@@ -871,15 +879,15 @@ void JSBigInt::multiplySpecialLow(std::span<const Digit> x, std::span<const Digi
     }
     size_t i = 1;
     // Unrolled second iteration: a little less setup.
-    if (i < y.size()) {
+    if (i < ySpan.size()) {
         Digit zi = next;
         next = 0;
         MULTIPLY_BODY(0, 1);
         i++;
     }
     // Main part: no bounds checks in the loop.
-    size_t loopEnd = result.size() - 1;
-    size_t mainEnd = std::min({ x.size(), y.size(), loopEnd });
+    size_t loopEnd = resultSpan.size() - 1;
+    size_t mainEnd = std::min({ xSpan.size(), ySpan.size(), loopEnd });
     for (; i < mainEnd; i++) {
         Digit temp = 0;
         Digit zi = digitAdd(next, carry, temp);
@@ -890,8 +898,8 @@ void JSBigInt::multiplySpecialLow(std::span<const Digit> x, std::span<const Digi
     }
     // Last part: we have to be careful about bounds.
     for (; i <= loopEnd; i++) {
-        size_t maxXIndex = std::min<size_t>(i, x.size() - 1);
-        size_t maxYIndex = std::min<size_t>(i, y.size() - 1);
+        size_t maxXIndex = std::min<size_t>(i, xSpan.size() - 1);
+        size_t maxYIndex = std::min<size_t>(i, ySpan.size() - 1);
         size_t minXIndex = i - maxYIndex;
         Digit temp = 0;
         Digit zi = digitAdd(next, carry, temp);
@@ -1638,7 +1646,7 @@ std::span<const JSBigInt::Digit> JSBigInt::cachedMod(VM& vm, std::span<Digit> r,
     multiplySpecialLow(b, qSpan, productLow);
 
     // Step 4: R = A[0..n-1] - product_low[0..n-1].
-    Digit borrow = subtractAndReturnBorrow(r, a.first(n), productLow.first(n));
+    Digit borrow = subtractAndReturnBorrow(r, a, productLow.first(n));
 
     // Track the extra digit: r_high = A[n] - product_low[n] - borrow.
     Digit an = a.size() > n ? a[n] : 0;
@@ -1657,7 +1665,7 @@ std::span<const JSBigInt::Digit> JSBigInt::cachedMod(VM& vm, std::span<Digit> r,
             rHigh -= inplaceSub(r, b);
     }
 
-    return normalize(r);
+    return r.first(n);
 }
 
 template <typename BigIntImpl1, typename BigIntImpl2>
@@ -1706,11 +1714,12 @@ JSBigInt::ImplResult JSBigInt::remainderImpl(JSGlobalObject* globalObject, BigIn
         return remainder;
     }
 
+    Vector<Digit, 16> r(ySpan.size());
+
     // Cached multiplicative inverse optimization for repeated modulo with the same divisor.
     if constexpr (std::is_same_v<BigIntImpl2, HeapBigIntImpl>) {
         if (vm.m_cachedBigIntDivisor.get() == y.toHeapBigInt(globalObject)) {
             if (xSpan.size() <= 2 * ySpan.size()) {
-                Vector<Digit, 16> r(ySpan.size());
                 auto rSpan = cachedMod(vm, r.mutableSpan(), xSpan, ySpan);
                 RELEASE_AND_RETURN(scope, tryCreateFromImpl(globalObject, vm, x.sign(), rSpan));
             }
@@ -1725,7 +1734,6 @@ JSBigInt::ImplResult JSBigInt::remainderImpl(JSGlobalObject* globalObject, BigIn
         }
     }
 
-    Vector<Digit, 16> r(ySpan.size());
     std::span<const Digit> rSpan;
     if (xSpan.size() == ySpan.size())
         rSpan = remainderSameSize(r.mutableSpan(), xSpan, ySpan);
