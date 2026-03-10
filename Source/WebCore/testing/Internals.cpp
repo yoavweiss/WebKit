@@ -560,6 +560,8 @@ static bool markerTypeFrom(const String& markerType, DocumentMarkerType& result)
 #endif
     else if (equalLettersIgnoringASCIICase(markerType, "transparentcontent"_s))
         result = DocumentMarkerType::TransparentContent;
+    else if (equalLettersIgnoringASCIICase(markerType, "dictationstreamingopacity"_s))
+        result = DocumentMarkerType::DictationStreamingOpacity;
     else
         return false;
 
@@ -3037,6 +3039,11 @@ bool Internals::hasWritingToolsTextSuggestionMarker(int from, int length)
 bool Internals::hasTransparentContentMarker(int from, int length)
 {
     return hasMarkerFor(DocumentMarkerType::TransparentContent, from, length);
+}
+
+bool Internals::hasDictationStreamingOpacityMarker(int from, int length)
+{
+    return hasMarkerFor(DocumentMarkerType::DictationStreamingOpacity, from, length);
 }
 
 void Internals::setContinuousSpellCheckingEnabled(bool enabled)

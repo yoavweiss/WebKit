@@ -590,6 +590,22 @@ void WebPageProxy::clearDictationAlternatives(Vector<DictationContext>&& alterna
     protect(legacyMainFrameProcess())->send(Messages::WebPage::ClearDictationAlternatives(WTF::move(alternativesToClear)), webPageIDInMainFrameProcess());
 }
 
+void WebPageProxy::setDictationStreamingOpacity(const String& hypothesisText, WebCore::CharacterRange streamingRangeInHypothesis, float opacity)
+{
+    if (!hasRunningProcess())
+        return;
+
+    protect(legacyMainFrameProcess())->send(Messages::WebPage::SetDictationStreamingOpacity(hypothesisText, streamingRangeInHypothesis, opacity), webPageIDInMainFrameProcess());
+}
+
+void WebPageProxy::clearDictationStreamingOpacity()
+{
+    if (!hasRunningProcess())
+        return;
+
+    protect(legacyMainFrameProcess())->send(Messages::WebPage::ClearDictationStreamingOpacity(), webPageIDInMainFrameProcess());
+}
+
 ResourceError WebPageProxy::errorForUnpermittedAppBoundDomainNavigation(const URL& url)
 {
     return { WKErrorDomain, WKErrorNavigationAppBoundDomain, url, localizedDescriptionForErrorCode(WKErrorNavigationAppBoundDomain).get() };

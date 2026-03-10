@@ -116,6 +116,7 @@
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <UniformTypeIdentifiers/UTCoreTypes.h>
 #import <WebCore/AppHighlight.h>
+#import <WebCore/CharacterRange.h>
 #import <WebCore/ColorCocoa.h>
 #import <WebCore/ColorSerialization.h>
 #import <WebCore/CompositionHighlight.h>
@@ -6000,6 +6001,22 @@ static void logTextInteraction(const char* methodName, UIGestureRecognizer *loup
 
     _autocorrectionContextNeedsUpdate = YES;
     protect(_page)->replaceDictatedText(oldText, newText);
+}
+
+- (void)_setDictationStreamingOpacity:(CGFloat)opacity forHypothesisText:(NSString *)hypothesisText streamingRange:(NSRange)streamingRange
+{
+    if (!_page)
+        return;
+
+    protect(_page)->setDictationStreamingOpacity(hypothesisText, { streamingRange }, static_cast<float>(opacity));
+}
+
+- (void)_clearDictationStreamingOpacity
+{
+    if (!_page)
+        return;
+
+    protect(_page)->clearDictationStreamingOpacity();
 }
 
 // The completion handler should pass the rect of the correction text after replacing the input text, or nil if the replacement could not be performed.

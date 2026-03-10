@@ -1350,6 +1350,8 @@ public:
     void addDictationAlternative(const String& text, WebCore::DictationContext, CompletionHandler<void(bool)>&&);
     void dictationAlternativesAtSelection(CompletionHandler<void(Vector<WebCore::DictationContext>&&)>&&);
     void clearDictationAlternatives(Vector<WebCore::DictationContext>&&);
+    void setDictationStreamingOpacity(const String& hypothesisText, WebCore::CharacterRange streamingRangeInHypothesis, float opacity);
+    void clearDictationStreamingOpacity();
 #endif // PLATFORM(COCOA)
 
 #if PLATFORM(MAC)
@@ -2753,6 +2755,8 @@ private:
 
 #if PLATFORM(COCOA)
     WebCore::BoxSideSet sidesRequiringFixedContainerEdges() const;
+
+    std::optional<WebCore::SimpleRange> findDictatedTextRangeBeforeCursor(WebCore::LocalFrame&, const String&);
 #endif
 
     void frameNameWasChangedInAnotherProcess(WebCore::FrameIdentifier, const String& frameName);
