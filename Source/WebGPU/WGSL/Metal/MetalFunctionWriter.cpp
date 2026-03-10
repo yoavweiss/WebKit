@@ -464,6 +464,20 @@ void FunctionDefinitionWriter::emitNecessaryHelpers()
         m_output.append(m_indent, "}\n\n"_s);
     }
 
+    if (m_shaderModule.usesWorkgroupUniformLoadAtomic()) {
+        m_output.append(m_indent, "template<typename T>\n"_s,
+            m_indent, (shaderValidationEnabled() ? "[[clang::optnone]] "_s : ""_s), "static T __workgroup_uniform_load(threadgroup atomic<T>* const ptr)\n"_s,
+            m_indent, "{\n"_s);
+        {
+            IndentationScope scope(m_indent);
+            m_output.append(m_indent, "threadgroup_barrier(mem_flags::mem_threadgroup);\n"_s,
+                m_indent, "auto result = atomic_load_explicit(ptr, memory_order_relaxed);\n"_s,
+                m_indent, "threadgroup_barrier(mem_flags::mem_threadgroup);\n"_s,
+                m_indent, "return result;\n"_s);
+        }
+        m_output.append(m_indent, "}\n\n"_s);
+    }
+
     if (m_shaderModule.usesDivision()) {
         m_output.append(m_indent, "template<typename T, typename U, typename V = conditional_t<is_scalar_v<U>, T, U>>\n"_s,
             m_indent, "static V __wgslDiv(T lhs, U rhs)\n"_s,

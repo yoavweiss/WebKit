@@ -93,6 +93,9 @@ public:
     bool usesWorkgroupUniformLoad() const { return m_usesWorkgroupUniformLoad; }
     void setUsesWorkgroupUniformLoad() { m_usesWorkgroupUniformLoad = true; }
 
+    bool usesWorkgroupUniformLoadAtomic() const { return m_usesWorkgroupUniformLoadAtomic; }
+    void setUsesWorkgroupUniformLoadAtomic() { m_usesWorkgroupUniformLoadAtomic = true; }
+
     bool usesDivision() const { return m_usesDivision; }
     void setUsesDivision() { m_usesDivision = true; }
 
@@ -309,6 +312,7 @@ private:
     bool m_usesPackVector { false };
     bool m_usesUnpackVector { false };
     bool m_usesWorkgroupUniformLoad { false };
+    bool m_usesWorkgroupUniformLoadAtomic { false };
     bool m_usesDivision { false };
     bool m_usesModulo { false };
     bool m_usesFrexp { false };

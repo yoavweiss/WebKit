@@ -144,8 +144,10 @@ void AttributeValidator::visit(AST::Function& function)
             continue;
         }
 
-        error(attribute.span(), "invalid attribute for function declaration"_s);
-        return;
+        if (!is<AST::DiagnosticAttribute>(attribute)) [[unlikely]] {
+            error(attribute.span(), "invalid attribute for function declaration"_s);
+            return;
+        }
     }
 
     if (function.workgroupSize().has_value() && (!function.stage().has_value() || *function.stage() != ShaderStage::Compute)) [[unlikely]] {

@@ -40,6 +40,7 @@
 #include "PhaseTimer.h"
 #include "PointerRewriter.h"
 #include "TypeCheck.h"
+#include "UniformityAnalysis.h"
 #include "VisibilityValidator.h"
 #include "WGSLShaderModule.h"
 
@@ -83,6 +84,7 @@ Variant<SuccessfulCheck, FailedCheck> staticCheck(const String& wgsl, const std:
     RUN_PASS(mangleNames, shaderModule);
     RUN_PASS(rewritePointers, shaderModule);
     CHECK_PASS(aliasAnalysis, shaderModule);
+    CHECK_PASS(uniformityAnalysis, shaderModule);
 
     Vector<Warning> warnings { };
     return Variant<SuccessfulCheck, FailedCheck>(WTF::InPlaceType<SuccessfulCheck>, WTF::move(warnings), WTF::move(shaderModule));

@@ -1,99 +1,19 @@
 
-FAIL :valid_params:severity="off";rule="derivative_uniformity";type="attribute" assert_unreached:
-  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
-
-    ---- shader ----
-    @diagnostic(off, derivative_uniformity) fn foo() { }
-      at (elided: below max severity)
-  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
-    1:0: invalid attribute for function declaration
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
- Reached unreachable code
+PASS :valid_params:severity="off";rule="derivative_uniformity";type="attribute"
 PASS :valid_params:severity="off";rule="derivative_uniformity";type="directive"
-FAIL :valid_params:severity="off";rule="subgroup_uniformity";type="attribute" assert_unreached:
-  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
-
-    ---- shader ----
-    @diagnostic(off, subgroup_uniformity) fn foo() { }
-      at (elided: below max severity)
-  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
-    1:0: invalid attribute for function declaration
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
- Reached unreachable code
+PASS :valid_params:severity="off";rule="subgroup_uniformity";type="attribute"
 PASS :valid_params:severity="off";rule="subgroup_uniformity";type="directive"
-FAIL :valid_params:severity="info";rule="derivative_uniformity";type="attribute" assert_unreached:
-  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
-
-    ---- shader ----
-    @diagnostic(info, derivative_uniformity) fn foo() { }
-      at (elided: below max severity)
-  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
-    1:0: invalid attribute for function declaration
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
- Reached unreachable code
+PASS :valid_params:severity="info";rule="derivative_uniformity";type="attribute"
 PASS :valid_params:severity="info";rule="derivative_uniformity";type="directive"
-FAIL :valid_params:severity="info";rule="subgroup_uniformity";type="attribute" assert_unreached:
-  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
-
-    ---- shader ----
-    @diagnostic(info, subgroup_uniformity) fn foo() { }
-      at (elided: below max severity)
-  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
-    1:0: invalid attribute for function declaration
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
- Reached unreachable code
+PASS :valid_params:severity="info";rule="subgroup_uniformity";type="attribute"
 PASS :valid_params:severity="info";rule="subgroup_uniformity";type="directive"
-FAIL :valid_params:severity="warning";rule="derivative_uniformity";type="attribute" assert_unreached:
-  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
-
-    ---- shader ----
-    @diagnostic(warning, derivative_uniformity) fn foo() { }
-      at (elided: below max severity)
-  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
-    1:0: invalid attribute for function declaration
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
- Reached unreachable code
+PASS :valid_params:severity="warning";rule="derivative_uniformity";type="attribute"
 PASS :valid_params:severity="warning";rule="derivative_uniformity";type="directive"
-FAIL :valid_params:severity="warning";rule="subgroup_uniformity";type="attribute" assert_unreached:
-  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
-
-    ---- shader ----
-    @diagnostic(warning, subgroup_uniformity) fn foo() { }
-      at (elided: below max severity)
-  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
-    1:0: invalid attribute for function declaration
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
- Reached unreachable code
+PASS :valid_params:severity="warning";rule="subgroup_uniformity";type="attribute"
 PASS :valid_params:severity="warning";rule="subgroup_uniformity";type="directive"
-FAIL :valid_params:severity="error";rule="derivative_uniformity";type="attribute" assert_unreached:
-  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
-
-    ---- shader ----
-    @diagnostic(error, derivative_uniformity) fn foo() { }
-      at (elided: below max severity)
-  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
-    1:0: invalid attribute for function declaration
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
- Reached unreachable code
+PASS :valid_params:severity="error";rule="derivative_uniformity";type="attribute"
 PASS :valid_params:severity="error";rule="derivative_uniformity";type="directive"
-FAIL :valid_params:severity="error";rule="subgroup_uniformity";type="attribute" assert_unreached:
-  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
-
-    ---- shader ----
-    @diagnostic(error, subgroup_uniformity) fn foo() { }
-      at (elided: below max severity)
-  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
-    1:0: invalid attribute for function declaration
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
- Reached unreachable code
+PASS :valid_params:severity="error";rule="subgroup_uniformity";type="attribute"
 PASS :valid_params:severity="error";rule="subgroup_uniformity";type="directive"
 PASS :invalid_severity:severity="none";type="attribute"
 PASS :invalid_severity:severity="none";type="directive"
@@ -107,70 +27,44 @@ PASS :invalid_severity:severity="severe";type="attribute"
 PASS :invalid_severity:severity="severe";type="directive"
 FAIL :warning_unknown_rule:type="attribute";rule="unknown" assert_unreached:
   - VALIDATION FAILED: Missing expected 'warning' message.
-    1:1: error: invalid attribute for function declaration
-      at (elided: below max severity)
-  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
-    1:0: invalid attribute for function declaration
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
+
+    expectCompileWarning@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:131:28
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:121:25
  Reached unreachable code
 FAIL :warning_unknown_rule:type="attribute";rule="blahblahblah" assert_unreached:
   - VALIDATION FAILED: Missing expected 'warning' message.
-    1:1: error: invalid attribute for function declaration
-      at (elided: below max severity)
-  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
-    1:0: invalid attribute for function declaration
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
+
+    expectCompileWarning@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:131:28
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:121:25
  Reached unreachable code
 FAIL :warning_unknown_rule:type="attribute";rule="derivative_uniform" assert_unreached:
   - VALIDATION FAILED: Missing expected 'warning' message.
-    1:1: error: invalid attribute for function declaration
-      at (elided: below max severity)
-  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
-    1:0: invalid attribute for function declaration
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
+
+    expectCompileWarning@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:131:28
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:121:25
  Reached unreachable code
 FAIL :warning_unknown_rule:type="directive";rule="unknown" assert_unreached:
   - VALIDATION FAILED: Missing expected 'warning' message.
 
-    expectCompileWarning@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:124:28
+    expectCompileWarning@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:131:28
     @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:121:25
  Reached unreachable code
 FAIL :warning_unknown_rule:type="directive";rule="blahblahblah" assert_unreached:
   - VALIDATION FAILED: Missing expected 'warning' message.
 
-    expectCompileWarning@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:124:28
+    expectCompileWarning@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:131:28
     @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:121:25
  Reached unreachable code
 FAIL :warning_unknown_rule:type="directive";rule="derivative_uniform" assert_unreached:
   - VALIDATION FAILED: Missing expected 'warning' message.
 
-    expectCompileWarning@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:124:28
+    expectCompileWarning@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:131:28
     @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:121:25
  Reached unreachable code
 PASS :valid_locations:type="attribute";location="module";rule="derivative_uniformity"
 PASS :valid_locations:type="attribute";location="module";rule="subgroup_uniformity"
-FAIL :valid_locations:type="attribute";location="function";rule="derivative_uniformity" assert_unreached:
-  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
-
-    ---- shader ----
-    @diagnostic(info, derivative_uniformity) fn foo() { }
-      at (elided: below max severity)
-  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
-    1:0: invalid attribute for function declaration
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
- Reached unreachable code
-FAIL :valid_locations:type="attribute";location="function";rule="subgroup_uniformity" assert_unreached:
-  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
-
-    ---- shader ----
-    @diagnostic(info, subgroup_uniformity) fn foo() { }
-      at (elided: below max severity)
-  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
-    1:0: invalid attribute for function declaration
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
- Reached unreachable code
+PASS :valid_locations:type="attribute";location="function";rule="derivative_uniformity"
+PASS :valid_locations:type="attribute";location="function";rule="subgroup_uniformity"
 FAIL :valid_locations:type="attribute";location="compound";rule="derivative_uniformity" assert_unreached:
   - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
     1:12: error: Not a valid statement
@@ -362,26 +256,32 @@ PASS :invalid_locations:type="attribute";location="module_const";rule="subgroup_
 PASS :invalid_locations:type="attribute";location="module_override";rule="derivative_uniformity"
 PASS :invalid_locations:type="attribute";location="module_override";rule="subgroup_uniformity"
 FAIL :invalid_locations:type="attribute";location="struct";rule="derivative_uniformity" assert_unreached:
+  - EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     @diagnostic(info, derivative_uniformity) struct S { x : u32 }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:160:24
-  - EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
+    async run@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:682:31
+    @http://127.0.0.1:8000/webgpu/common/runtime/wpt.js:75:27
  Reached unreachable code
 FAIL :invalid_locations:type="attribute";location="struct";rule="subgroup_uniformity" assert_unreached:
+  - EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     @diagnostic(info, subgroup_uniformity) struct S { x : u32 }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:160:24
-  - EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
+    async run@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:682:31
+    @http://127.0.0.1:8000/webgpu/common/runtime/wpt.js:75:27
  Reached unreachable code
 PASS :invalid_locations:type="attribute";location="struct_member";rule="derivative_uniformity"
 PASS :invalid_locations:type="attribute";location="struct_member";rule="subgroup_uniformity"
@@ -433,270 +333,339 @@ PASS :invalid_locations:type="directive";location="pre_for_params";rule="derivat
 PASS :invalid_locations:type="directive";location="pre_for_params";rule="subgroup_uniformity"
 PASS :conflicting_directive:s1="off";s2="off"
 FAIL :conflicting_directive:s1="off";s2="info" assert_unreached:
+  - EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     diagnostic(off, derivative_uniformity);
     diagnostic(info, derivative_uniformity);
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:171:24
-  - EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
+    async run@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:682:31
+    @http://127.0.0.1:8000/webgpu/common/runtime/wpt.js:75:27
  Reached unreachable code
 FAIL :conflicting_directive:s1="off";s2="warning" assert_unreached:
+  - EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     diagnostic(off, derivative_uniformity);
     diagnostic(warning, derivative_uniformity);
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:171:24
-  - EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
+    async run@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:682:31
+    @http://127.0.0.1:8000/webgpu/common/runtime/wpt.js:75:27
  Reached unreachable code
 FAIL :conflicting_directive:s1="off";s2="error" assert_unreached:
+  - EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     diagnostic(off, derivative_uniformity);
     diagnostic(error, derivative_uniformity);
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:171:24
-  - EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
+    async run@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:682:31
+    @http://127.0.0.1:8000/webgpu/common/runtime/wpt.js:75:27
  Reached unreachable code
 FAIL :conflicting_directive:s1="info";s2="off" assert_unreached:
+  - EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     diagnostic(info, derivative_uniformity);
     diagnostic(off, derivative_uniformity);
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:171:24
-  - EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
+    async run@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:682:31
+    @http://127.0.0.1:8000/webgpu/common/runtime/wpt.js:75:27
  Reached unreachable code
 PASS :conflicting_directive:s1="info";s2="info"
 FAIL :conflicting_directive:s1="info";s2="warning" assert_unreached:
+  - EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     diagnostic(info, derivative_uniformity);
     diagnostic(warning, derivative_uniformity);
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:171:24
-  - EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
+    async run@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:682:31
+    @http://127.0.0.1:8000/webgpu/common/runtime/wpt.js:75:27
  Reached unreachable code
 FAIL :conflicting_directive:s1="info";s2="error" assert_unreached:
+  - EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     diagnostic(info, derivative_uniformity);
     diagnostic(error, derivative_uniformity);
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:171:24
-  - EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
+    async run@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:682:31
+    @http://127.0.0.1:8000/webgpu/common/runtime/wpt.js:75:27
  Reached unreachable code
 FAIL :conflicting_directive:s1="warning";s2="off" assert_unreached:
+  - EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     diagnostic(warning, derivative_uniformity);
     diagnostic(off, derivative_uniformity);
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:171:24
-  - EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
+    async run@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:682:31
+    @http://127.0.0.1:8000/webgpu/common/runtime/wpt.js:75:27
  Reached unreachable code
 FAIL :conflicting_directive:s1="warning";s2="info" assert_unreached:
+  - EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     diagnostic(warning, derivative_uniformity);
     diagnostic(info, derivative_uniformity);
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:171:24
-  - EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
+    async run@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:682:31
+    @http://127.0.0.1:8000/webgpu/common/runtime/wpt.js:75:27
  Reached unreachable code
 PASS :conflicting_directive:s1="warning";s2="warning"
 FAIL :conflicting_directive:s1="warning";s2="error" assert_unreached:
+  - EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     diagnostic(warning, derivative_uniformity);
     diagnostic(error, derivative_uniformity);
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:171:24
-  - EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
+    async run@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:682:31
+    @http://127.0.0.1:8000/webgpu/common/runtime/wpt.js:75:27
  Reached unreachable code
 FAIL :conflicting_directive:s1="error";s2="off" assert_unreached:
+  - EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     diagnostic(error, derivative_uniformity);
     diagnostic(off, derivative_uniformity);
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:171:24
-  - EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
+    async run@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:682:31
+    @http://127.0.0.1:8000/webgpu/common/runtime/wpt.js:75:27
  Reached unreachable code
 FAIL :conflicting_directive:s1="error";s2="info" assert_unreached:
+  - EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     diagnostic(error, derivative_uniformity);
     diagnostic(info, derivative_uniformity);
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:171:24
-  - EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
+    async run@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:682:31
+    @http://127.0.0.1:8000/webgpu/common/runtime/wpt.js:75:27
  Reached unreachable code
 FAIL :conflicting_directive:s1="error";s2="warning" assert_unreached:
+  - EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     diagnostic(error, derivative_uniformity);
     diagnostic(warning, derivative_uniformity);
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:171:24
-  - EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
+    async run@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:682:31
+    @http://127.0.0.1:8000/webgpu/common/runtime/wpt.js:75:27
  Reached unreachable code
 PASS :conflicting_directive:s1="error";s2="error"
-PASS :duplicate_attribute_same_location:loc="function";same_rule=true
-FAIL :duplicate_attribute_same_location:loc="function";same_rule=false assert_unreached:
-  - (in subcase: s1="off";s2="off") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
+FAIL :duplicate_attribute_same_location:loc="function";same_rule=true assert_unreached:
+  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: s1="off";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
 
     ---- shader ----
-    @diagnostic(off, derivative_uniformity) @diagnostic(off, another_diagnostic_rule) fn foo() { }
-      at (elided: below max severity)
+    @diagnostic(off, derivative_uniformity) @diagnostic(off, derivative_uniformity) fn foo() { }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="off") INFO: subcase ran
-  - (in subcase: s1="off";s2="info") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
-
-    ---- shader ----
-    @diagnostic(off, derivative_uniformity) @diagnostic(info, another_diagnostic_rule) fn foo() { }
+  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
       at (elided: below max severity)
-  - (in subcase: s1="off";s2="info") INFO: subcase ran
-  - (in subcase: s1="off";s2="warning") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
+  - (in subcase: s1="off";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
 
     ---- shader ----
-    @diagnostic(off, derivative_uniformity) @diagnostic(warning, another_diagnostic_rule) fn foo() { }
+    @diagnostic(off, derivative_uniformity) @diagnostic(info, derivative_uniformity) fn foo() { }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
+  - (in subcase: s1="off";s2="info") INFO: subcase ran
+  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: s1="off";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+    @diagnostic(off, derivative_uniformity) @diagnostic(warning, derivative_uniformity) fn foo() { }
       at (elided: only 2 shown)
   - (in subcase: s1="off";s2="warning") INFO: subcase ran
-  - (in subcase: s1="off";s2="error") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
+  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: s1="off";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
 
     ---- shader ----
-    @diagnostic(off, derivative_uniformity) @diagnostic(error, another_diagnostic_rule) fn foo() { }
+    @diagnostic(off, derivative_uniformity) @diagnostic(error, derivative_uniformity) fn foo() { }
       at (elided: only 2 shown)
   - (in subcase: s1="off";s2="error") INFO: subcase ran
-  - (in subcase: s1="info";s2="off") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
+  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: s1="info";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
 
     ---- shader ----
-    @diagnostic(info, derivative_uniformity) @diagnostic(off, another_diagnostic_rule) fn foo() { }
+    @diagnostic(info, derivative_uniformity) @diagnostic(off, derivative_uniformity) fn foo() { }
       at (elided: only 2 shown)
   - (in subcase: s1="info";s2="off") INFO: subcase ran
-  - (in subcase: s1="info";s2="info") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
+  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: s1="info";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
 
     ---- shader ----
-    @diagnostic(info, derivative_uniformity) @diagnostic(info, another_diagnostic_rule) fn foo() { }
+    @diagnostic(info, derivative_uniformity) @diagnostic(info, derivative_uniformity) fn foo() { }
       at (elided: only 2 shown)
   - (in subcase: s1="info";s2="info") INFO: subcase ran
-  - (in subcase: s1="info";s2="warning") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
+  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: s1="info";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
 
     ---- shader ----
-    @diagnostic(info, derivative_uniformity) @diagnostic(warning, another_diagnostic_rule) fn foo() { }
+    @diagnostic(info, derivative_uniformity) @diagnostic(warning, derivative_uniformity) fn foo() { }
       at (elided: only 2 shown)
   - (in subcase: s1="info";s2="warning") INFO: subcase ran
-  - (in subcase: s1="info";s2="error") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
+  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: s1="info";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
 
     ---- shader ----
-    @diagnostic(info, derivative_uniformity) @diagnostic(error, another_diagnostic_rule) fn foo() { }
+    @diagnostic(info, derivative_uniformity) @diagnostic(error, derivative_uniformity) fn foo() { }
       at (elided: only 2 shown)
   - (in subcase: s1="info";s2="error") INFO: subcase ran
-  - (in subcase: s1="warning";s2="off") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
+  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: s1="warning";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
 
     ---- shader ----
-    @diagnostic(warning, derivative_uniformity) @diagnostic(off, another_diagnostic_rule) fn foo() { }
+    @diagnostic(warning, derivative_uniformity) @diagnostic(off, derivative_uniformity) fn foo() { }
       at (elided: only 2 shown)
   - (in subcase: s1="warning";s2="off") INFO: subcase ran
-  - (in subcase: s1="warning";s2="info") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
+  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: s1="warning";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
 
     ---- shader ----
-    @diagnostic(warning, derivative_uniformity) @diagnostic(info, another_diagnostic_rule) fn foo() { }
+    @diagnostic(warning, derivative_uniformity) @diagnostic(info, derivative_uniformity) fn foo() { }
       at (elided: only 2 shown)
   - (in subcase: s1="warning";s2="info") INFO: subcase ran
-  - (in subcase: s1="warning";s2="warning") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
+  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: s1="warning";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
 
     ---- shader ----
-    @diagnostic(warning, derivative_uniformity) @diagnostic(warning, another_diagnostic_rule) fn foo() { }
+    @diagnostic(warning, derivative_uniformity) @diagnostic(warning, derivative_uniformity) fn foo() { }
       at (elided: only 2 shown)
   - (in subcase: s1="warning";s2="warning") INFO: subcase ran
-  - (in subcase: s1="warning";s2="error") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
+  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: s1="warning";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
 
     ---- shader ----
-    @diagnostic(warning, derivative_uniformity) @diagnostic(error, another_diagnostic_rule) fn foo() { }
+    @diagnostic(warning, derivative_uniformity) @diagnostic(error, derivative_uniformity) fn foo() { }
       at (elided: only 2 shown)
   - (in subcase: s1="warning";s2="error") INFO: subcase ran
-  - (in subcase: s1="error";s2="off") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
+  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: s1="error";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
 
     ---- shader ----
-    @diagnostic(error, derivative_uniformity) @diagnostic(off, another_diagnostic_rule) fn foo() { }
+    @diagnostic(error, derivative_uniformity) @diagnostic(off, derivative_uniformity) fn foo() { }
       at (elided: only 2 shown)
   - (in subcase: s1="error";s2="off") INFO: subcase ran
-  - (in subcase: s1="error";s2="info") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
+  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: s1="error";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
 
     ---- shader ----
-    @diagnostic(error, derivative_uniformity) @diagnostic(info, another_diagnostic_rule) fn foo() { }
+    @diagnostic(error, derivative_uniformity) @diagnostic(info, derivative_uniformity) fn foo() { }
       at (elided: only 2 shown)
   - (in subcase: s1="error";s2="info") INFO: subcase ran
-  - (in subcase: s1="error";s2="warning") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
+  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: s1="error";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
 
     ---- shader ----
-    @diagnostic(error, derivative_uniformity) @diagnostic(warning, another_diagnostic_rule) fn foo() { }
+    @diagnostic(error, derivative_uniformity) @diagnostic(warning, derivative_uniformity) fn foo() { }
       at (elided: only 2 shown)
   - (in subcase: s1="error";s2="warning") INFO: subcase ran
-  - (in subcase: s1="error";s2="error") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
-    1:1: error: invalid attribute for function declaration
+  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: s1="error";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
 
     ---- shader ----
-    @diagnostic(error, derivative_uniformity) @diagnostic(error, another_diagnostic_rule) fn foo() { }
+    @diagnostic(error, derivative_uniformity) @diagnostic(error, derivative_uniformity) fn foo() { }
       at (elided: only 2 shown)
   - (in subcase: s1="error";s2="error") INFO: subcase ran
-  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
-    1:0: invalid attribute for function declaration
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
+PASS :duplicate_attribute_same_location:loc="function";same_rule=false
 PASS :duplicate_attribute_same_location:loc="compound";same_rule=true
 FAIL :duplicate_attribute_same_location:loc="compound";same_rule=false assert_unreached:
   - (in subcase: s1="off";s2="off") VALIDATION FAILED: Unexpected compilationInfo 'error' message.
@@ -934,300 +903,304 @@ FAIL :duplicate_attribute_same_location:loc="if_stmt";same_rule=false assert_unr
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :duplicate_attribute_same_location:loc="if_then";same_rule=true assert_unreached:
+  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(off, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="off") INFO: subcase ran
+  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(off, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="info") INFO: subcase ran
+  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(off, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") INFO: subcase ran
+  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(off, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") INFO: subcase ran
+  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(info, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") INFO: subcase ran
+  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(info, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") INFO: subcase ran
+  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(info, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") INFO: subcase ran
+  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(info, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") INFO: subcase ran
+  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(warning, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") INFO: subcase ran
+  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(warning, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") INFO: subcase ran
+  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(warning, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") INFO: subcase ran
+  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(warning, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") INFO: subcase ran
+  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(error, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") INFO: subcase ran
+  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(error, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") INFO: subcase ran
+  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(error, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") INFO: subcase ran
+  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true @diagnostic(error, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") INFO: subcase ran
  Reached unreachable code
 PASS :duplicate_attribute_same_location:loc="if_then";same_rule=false
 FAIL :duplicate_attribute_same_location:loc="if_else";same_rule=true assert_unreached:
+  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(off, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="off") INFO: subcase ran
+  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(off, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="info") INFO: subcase ran
+  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(off, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") INFO: subcase ran
+  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(off, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") INFO: subcase ran
+  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(info, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") INFO: subcase ran
+  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(info, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") INFO: subcase ran
+  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(info, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") INFO: subcase ran
+  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(info, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") INFO: subcase ran
+  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(warning, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") INFO: subcase ran
+  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(warning, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") INFO: subcase ran
+  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(warning, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") INFO: subcase ran
+  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(warning, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") INFO: subcase ran
+  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(error, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") INFO: subcase ran
+  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(error, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") INFO: subcase ran
+  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(error, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") INFO: subcase ran
+  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { if true { } else @diagnostic(error, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") INFO: subcase ran
  Reached unreachable code
 PASS :duplicate_attribute_same_location:loc="if_else";same_rule=false
@@ -1350,449 +1323,455 @@ FAIL :duplicate_attribute_same_location:loc="switch_stmt";same_rule=false assert
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :duplicate_attribute_same_location:loc="switch_body";same_rule=true assert_unreached:
+  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(off, derivative_uniformity) @diagnostic(off, derivative_uniformity) { default { } } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="off") INFO: subcase ran
+  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(off, derivative_uniformity) @diagnostic(info, derivative_uniformity) { default { } } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="info") INFO: subcase ran
+  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(off, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") INFO: subcase ran
+  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(off, derivative_uniformity) @diagnostic(error, derivative_uniformity) { default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") INFO: subcase ran
+  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(info, derivative_uniformity) @diagnostic(off, derivative_uniformity) { default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") INFO: subcase ran
+  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(info, derivative_uniformity) @diagnostic(info, derivative_uniformity) { default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") INFO: subcase ran
+  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(info, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") INFO: subcase ran
+  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(info, derivative_uniformity) @diagnostic(error, derivative_uniformity) { default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") INFO: subcase ran
+  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(warning, derivative_uniformity) @diagnostic(off, derivative_uniformity) { default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") INFO: subcase ran
+  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(warning, derivative_uniformity) @diagnostic(info, derivative_uniformity) { default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") INFO: subcase ran
+  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(warning, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") INFO: subcase ran
+  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(warning, derivative_uniformity) @diagnostic(error, derivative_uniformity) { default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") INFO: subcase ran
+  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(error, derivative_uniformity) @diagnostic(off, derivative_uniformity) { default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") INFO: subcase ran
+  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(error, derivative_uniformity) @diagnostic(info, derivative_uniformity) { default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") INFO: subcase ran
+  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(error, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") INFO: subcase ran
+  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 @diagnostic(error, derivative_uniformity) @diagnostic(error, derivative_uniformity) { default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") INFO: subcase ran
  Reached unreachable code
 PASS :duplicate_attribute_same_location:loc="switch_body";same_rule=false
 FAIL :duplicate_attribute_same_location:loc="switch_default";same_rule=true assert_unreached:
+  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(off, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="off") INFO: subcase ran
+  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(off, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="info") INFO: subcase ran
+  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(off, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") INFO: subcase ran
+  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(off, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") INFO: subcase ran
+  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(info, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") INFO: subcase ran
+  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(info, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") INFO: subcase ran
+  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(info, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") INFO: subcase ran
+  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(info, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") INFO: subcase ran
+  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(warning, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") INFO: subcase ran
+  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(warning, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") INFO: subcase ran
+  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(warning, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") INFO: subcase ran
+  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(warning, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") INFO: subcase ran
+  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(error, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") INFO: subcase ran
+  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(error, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") INFO: subcase ran
+  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(error, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") INFO: subcase ran
+  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { default @diagnostic(error, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") INFO: subcase ran
  Reached unreachable code
 PASS :duplicate_attribute_same_location:loc="switch_default";same_rule=false
 FAIL :duplicate_attribute_same_location:loc="switch_case";same_rule=true assert_unreached:
+  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(off, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } default { } } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="off") INFO: subcase ran
+  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(off, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } default { } } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="info") INFO: subcase ran
+  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(off, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") INFO: subcase ran
+  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(off, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") INFO: subcase ran
+  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(info, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") INFO: subcase ran
+  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(info, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") INFO: subcase ran
+  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(info, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") INFO: subcase ran
+  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(info, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") INFO: subcase ran
+  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(warning, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") INFO: subcase ran
+  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(warning, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") INFO: subcase ran
+  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(warning, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") INFO: subcase ran
+  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(warning, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") INFO: subcase ran
+  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(error, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") INFO: subcase ran
+  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(error, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") INFO: subcase ran
+  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(error, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") INFO: subcase ran
+  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { switch 0 { case 0 @diagnostic(error, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } default { } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") INFO: subcase ran
  Reached unreachable code
 PASS :duplicate_attribute_same_location:loc="switch_case";same_rule=false
@@ -1915,300 +1894,304 @@ FAIL :duplicate_attribute_same_location:loc="loop_stmt";same_rule=false assert_u
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :duplicate_attribute_same_location:loc="loop_body";same_rule=true assert_unreached:
+  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(off, derivative_uniformity) @diagnostic(off, derivative_uniformity) { break; } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="off") INFO: subcase ran
+  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(off, derivative_uniformity) @diagnostic(info, derivative_uniformity) { break; } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="info") INFO: subcase ran
+  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(off, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") INFO: subcase ran
+  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(off, derivative_uniformity) @diagnostic(error, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") INFO: subcase ran
+  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(info, derivative_uniformity) @diagnostic(off, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") INFO: subcase ran
+  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(info, derivative_uniformity) @diagnostic(info, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") INFO: subcase ran
+  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(info, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") INFO: subcase ran
+  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(info, derivative_uniformity) @diagnostic(error, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") INFO: subcase ran
+  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(warning, derivative_uniformity) @diagnostic(off, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") INFO: subcase ran
+  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(warning, derivative_uniformity) @diagnostic(info, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") INFO: subcase ran
+  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(warning, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") INFO: subcase ran
+  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(warning, derivative_uniformity) @diagnostic(error, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") INFO: subcase ran
+  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(error, derivative_uniformity) @diagnostic(off, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") INFO: subcase ran
+  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(error, derivative_uniformity) @diagnostic(info, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") INFO: subcase ran
+  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(error, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") INFO: subcase ran
+  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop @diagnostic(error, derivative_uniformity) @diagnostic(error, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") INFO: subcase ran
  Reached unreachable code
 PASS :duplicate_attribute_same_location:loc="loop_body";same_rule=false
 FAIL :duplicate_attribute_same_location:loc="loop_continuing";same_rule=true assert_unreached:
+  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(off, derivative_uniformity) @diagnostic(off, derivative_uniformity) { break if true; } } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="off") INFO: subcase ran
+  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(off, derivative_uniformity) @diagnostic(info, derivative_uniformity) { break if true; } } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="info") INFO: subcase ran
+  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(off, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { break if true; } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") INFO: subcase ran
+  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(off, derivative_uniformity) @diagnostic(error, derivative_uniformity) { break if true; } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") INFO: subcase ran
+  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(info, derivative_uniformity) @diagnostic(off, derivative_uniformity) { break if true; } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") INFO: subcase ran
+  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(info, derivative_uniformity) @diagnostic(info, derivative_uniformity) { break if true; } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") INFO: subcase ran
+  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(info, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { break if true; } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") INFO: subcase ran
+  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(info, derivative_uniformity) @diagnostic(error, derivative_uniformity) { break if true; } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") INFO: subcase ran
+  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(warning, derivative_uniformity) @diagnostic(off, derivative_uniformity) { break if true; } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") INFO: subcase ran
+  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(warning, derivative_uniformity) @diagnostic(info, derivative_uniformity) { break if true; } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") INFO: subcase ran
+  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(warning, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { break if true; } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") INFO: subcase ran
+  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(warning, derivative_uniformity) @diagnostic(error, derivative_uniformity) { break if true; } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") INFO: subcase ran
+  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(error, derivative_uniformity) @diagnostic(off, derivative_uniformity) { break if true; } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") INFO: subcase ran
+  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(error, derivative_uniformity) @diagnostic(info, derivative_uniformity) { break if true; } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") INFO: subcase ran
+  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(error, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { break if true; } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") INFO: subcase ran
+  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { loop { continuing @diagnostic(error, derivative_uniformity) @diagnostic(error, derivative_uniformity) { break if true; } } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") INFO: subcase ran
  Reached unreachable code
 PASS :duplicate_attribute_same_location:loc="loop_continuing";same_rule=false
@@ -2331,151 +2314,153 @@ FAIL :duplicate_attribute_same_location:loc="while_stmt";same_rule=false assert_
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :duplicate_attribute_same_location:loc="while_body";same_rule=true assert_unreached:
+  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(off, derivative_uniformity) @diagnostic(off, derivative_uniformity) { break; } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="off") INFO: subcase ran
+  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(off, derivative_uniformity) @diagnostic(info, derivative_uniformity) { break; } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="info") INFO: subcase ran
+  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(off, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") INFO: subcase ran
+  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(off, derivative_uniformity) @diagnostic(error, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") INFO: subcase ran
+  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(info, derivative_uniformity) @diagnostic(off, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") INFO: subcase ran
+  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(info, derivative_uniformity) @diagnostic(info, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") INFO: subcase ran
+  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(info, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") INFO: subcase ran
+  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(info, derivative_uniformity) @diagnostic(error, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") INFO: subcase ran
+  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(warning, derivative_uniformity) @diagnostic(off, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") INFO: subcase ran
+  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(warning, derivative_uniformity) @diagnostic(info, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") INFO: subcase ran
+  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(warning, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") INFO: subcase ran
+  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(warning, derivative_uniformity) @diagnostic(error, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") INFO: subcase ran
+  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(error, derivative_uniformity) @diagnostic(off, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") INFO: subcase ran
+  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(error, derivative_uniformity) @diagnostic(info, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") INFO: subcase ran
+  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(error, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") INFO: subcase ran
+  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { while true @diagnostic(error, derivative_uniformity) @diagnostic(error, derivative_uniformity) { break; } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") INFO: subcase ran
  Reached unreachable code
 PASS :duplicate_attribute_same_location:loc="while_body";same_rule=false
@@ -2598,151 +2583,153 @@ FAIL :duplicate_attribute_same_location:loc="for_stmt";same_rule=false assert_un
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :duplicate_attribute_same_location:loc="for_body";same_rule=true assert_unreached:
+  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(off, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="off") INFO: subcase ran
+  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(off, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:194:24
-  - (in subcase: s1="off";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:534:28
   - (in subcase: s1="off";s2="info") INFO: subcase ran
+  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(off, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="warning") INFO: subcase ran
+  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(off, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="off";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="off";s2="error") INFO: subcase ran
+  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(info, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="off") INFO: subcase ran
+  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(info, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="info") INFO: subcase ran
+  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(info, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="warning") INFO: subcase ran
+  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(info, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="info";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="info";s2="error") INFO: subcase ran
+  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(warning, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="off") INFO: subcase ran
+  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(warning, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="info") INFO: subcase ran
+  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(warning, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="warning") INFO: subcase ran
+  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(warning, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="warning";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="warning";s2="error") INFO: subcase ran
+  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(error, derivative_uniformity) @diagnostic(off, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="off") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="off") INFO: subcase ran
+  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(error, derivative_uniformity) @diagnostic(info, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="info") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="info") INFO: subcase ran
+  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(error, derivative_uniformity) @diagnostic(warning, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="warning") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="warning") INFO: subcase ran
+  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
     fn foo() { for (var i = 0; i < 10; i++) @diagnostic(error, derivative_uniformity) @diagnostic(error, derivative_uniformity) { } }
       at (elided: only 2 shown)
-  - (in subcase: s1="error";s2="error") EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: s1="error";s2="error") INFO: subcase ran
  Reached unreachable code
 PASS :duplicate_attribute_same_location:loc="for_body";same_rule=false
@@ -3602,9 +3589,11 @@ FAIL :diagnostic_scoping:case="override_global_warn" assert_unreached:
  Reached unreachable code
 FAIL :diagnostic_scoping:case="global_if_nothing_else_warn" assert_unreached:
   - VALIDATION FAILED: Missing expected 'warning' message.
-
-    expectCompileWarning@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:124:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/parse/diagnostic.spec.js:465:27
+    12:13: error: call to 'textureSample' requires uniform control flow
+      at (elided: below max severity)
+  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
+    12:12: call to 'textureSample' requires uniform control flow
+    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :diagnostic_scoping:case="deepest_nesting_warn" assert_unreached:
   - VALIDATION FAILED: Missing expected 'warning' message.

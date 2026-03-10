@@ -67,10 +67,13 @@ public:
     std::optional<Interpolation> returnTypeInterpolation() const { return m_returnTypeInterpolation; }
     std::optional<unsigned> returnTypeLocation() const { return m_returnTypeLocation; }
 
+    const String& originalName() const { return m_originalName; }
+
 private:
     Function(SourceSpan span, Identifier&& name, Parameter::List&& parameters, Expression::Ptr returnType, CompoundStatement::Ref&& body, Attribute::List&& attributes, Attribute::List&& returnAttributes)
         : Declaration(span)
         , m_name(WTF::move(name))
+        , m_originalName(m_name.id())
         , m_parameters(WTF::move(parameters))
         , m_attributes(WTF::move(attributes))
         , m_returnAttributes(WTF::move(returnAttributes))
@@ -79,6 +82,7 @@ private:
     { }
 
     Identifier m_name;
+    String m_originalName;
     Parameter::List m_parameters;
     Attribute::List m_attributes;
     Attribute::List m_returnAttributes;
