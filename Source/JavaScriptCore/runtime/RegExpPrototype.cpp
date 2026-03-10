@@ -668,7 +668,7 @@ JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncSplitFast, (JSGlobalObject* globalObject
         // d. Return A.
         JSArray* result = constructEmptyArray(globalObject, nullptr);
         RETURN_IF_EXCEPTION(scope, { });
-        auto matchResult = regexp->match(globalObject, input, 0);
+        auto matchResult = globalObject->regExpGlobalData().performMatch(globalObject, regexp, inputString, input, 0);
         RETURN_IF_EXCEPTION(scope, { });
         if (!matchResult) {
             result->putDirectIndex(globalObject, 0, inputString);
@@ -694,13 +694,15 @@ JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncSplitFast, (JSGlobalObject* globalObject
                 if (newlinePos.position == WTF::notFound)
                     break;
 
+                // Record before pushing so limit-abort still reports the last match (matches genericSplit behavior).
+                lastMatchResult = MatchResult(newlinePos.position, newlinePos.position + newlinePos.length);
+
                 result->putDirectIndex(globalObject, resultLength++, jsSubstringOfResolved(vm, inputString, position, newlinePos.position - position));
                 RETURN_IF_EXCEPTION(scope, AbortSplit);
 
                 if (resultLength >= limit)
                     break;
 
-                lastMatchResult = MatchResult(newlinePos.position, newlinePos.position + newlinePos.length);
                 position = newlinePos.position + newlinePos.length;
             }
             return ContinueSplit;
@@ -712,14 +714,14 @@ JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncSplitFast, (JSGlobalObject* globalObject
             processSplit(input->span16());
         RETURN_IF_EXCEPTION(scope, { });
 
+        if (lastMatchResult)
+            globalObject->regExpGlobalData().recordMatch(vm, globalObject, regexp, inputString, lastMatchResult, false);
+
         if (resultLength >= limit)
             return JSValue::encode(result);
 
         result->putDirectIndex(globalObject, resultLength++, jsSubstringOfResolved(vm, inputString, position, inputSize - position));
         RETURN_IF_EXCEPTION(scope, { });
-
-        if (lastMatchResult)
-            globalObject->regExpGlobalData().recordMatch(vm, globalObject, regexp, inputString, lastMatchResult, false);
 
         return JSValue::encode(result);
     }
