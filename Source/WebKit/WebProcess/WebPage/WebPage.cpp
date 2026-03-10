@@ -609,6 +609,7 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
     , m_drawingArea(DrawingArea::create(*this, parameters))
     , m_webPageTesting(WebPageTesting::create(*this))
     , m_mainFrame(WebFrame::create(*this, parameters.mainFrameIdentifier))
+    , m_pageGroup(WebProcess::singleton().webPageGroup(WTF::move(parameters.pageGroupData)))
 #if ENABLE(TILED_CA_DRAWING_AREA)
     , m_drawingAreaType(parameters.drawingAreaType)
 #endif
@@ -782,8 +783,6 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
         }
     }
 #endif
-
-    m_pageGroup = WebProcess::singleton().webPageGroup(WTF::move(parameters.pageGroupData));
 
     auto frameType = parameters.remotePageParameters ? Frame::FrameType::Remote : Frame::FrameType::Local;
     ASSERT(!parameters.remotePageParameters || parameters.remotePageParameters->frameTreeParameters.frameID == parameters.mainFrameIdentifier);
@@ -8443,9 +8442,9 @@ WebURLSchemeHandlerProxy* WebPage::urlSchemeHandlerForScheme(StringView scheme)
 
 void WebPage::stopAllURLSchemeTasks()
 {
-    HashSet<RefPtr<WebURLSchemeHandlerProxy>> handlers;
+    HashSet<Ref<WebURLSchemeHandlerProxy>> handlers;
     for (auto& handler : m_schemeToURLSchemeHandlerProxyMap.values())
-        handlers.add(handler.get());
+        handlers.add(handler);
 
     for (auto& handler : handlers)
         handler->stopAllTasks();
@@ -10526,10 +10525,8 @@ bool WebPage::hasAccessoryMousePointingDevice() const
 #if ENABLE(VIDEO)
 void WebPage::setCaptionDisplaySettingsPreviewProfileID(const String& profileID)
 {
-    if (RefPtr pageGroup = m_pageGroup) {
-        if (RefPtr captionPreferences = pageGroup->corePageGroup()->captionPreferences())
-            captionPreferences->setCaptionPreviewProfileID(profileID);
-    }
+    if (RefPtr captionPreferences = m_pageGroup->corePageGroup()->captionPreferences())
+        captionPreferences->setCaptionPreviewProfileID(profileID);
 }
 
 void WebPage::showCaptionDisplaySettingsPreview(HTMLMediaElementIdentifier identifier)

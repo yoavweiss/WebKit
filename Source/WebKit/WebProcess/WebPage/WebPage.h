@@ -642,7 +642,7 @@ public:
     const WebCore::CornerRadii& scrollbarAvoidanceCornerRadii() const LIFETIME_BOUND { return m_scrollbarAvoidanceCornerRadii; }
 #endif
 
-    WebPageGroupProxy* pageGroup() const { return m_pageGroup.get(); }
+    WebPageGroupProxy& pageGroup() const { return m_pageGroup; }
 
     bool scrollBy(WebCore::ScrollDirection, WebCore::ScrollGranularity);
 
@@ -2773,7 +2773,7 @@ private:
 
     const Ref<WebFrame> m_mainFrame;
 
-    RefPtr<WebPageGroupProxy> m_pageGroup;
+    const Ref<WebPageGroupProxy> m_pageGroup;
 
     String m_userAgent;
     bool m_hasCustomUserAgent { false };

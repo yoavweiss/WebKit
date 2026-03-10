@@ -140,7 +140,7 @@ private:
 #if ENABLE(CONTENT_EXTENSIONS)
     WebCore::ContentExtensions::ContentExtensionsBackend m_contentExtensionBackend;
 #endif
-    HashMap<ContentWorldIdentifier, HashMap<String, RefPtr<WebCore::WebKitBuffer>>> m_buffers;
+    HashMap<ContentWorldIdentifier, HashMap<String, Ref<WebCore::WebKitBuffer>>> m_buffers;
 };
 
 } // namespace WebKit

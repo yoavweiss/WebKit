@@ -641,7 +641,7 @@ void WebLoaderStrategy::scheduleLoadFromNetworkProcess(ResourceLoader& resourceL
 
 void WebLoaderStrategy::scheduleInternallyFailedLoad(WebCore::ResourceLoader& resourceLoader)
 {
-    m_internallyFailedResourceLoaders.add(&resourceLoader);
+    m_internallyFailedResourceLoaders.add(resourceLoader);
     m_internallyFailedLoadTimer.startOneShot(0_s);
 }
 

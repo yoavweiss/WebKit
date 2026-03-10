@@ -276,7 +276,7 @@ public:
     void addWebFrame(WebCore::FrameIdentifier, WebFrame*);
     void removeWebFrame(WebCore::FrameIdentifier, WebPage*);
 
-    WebPageGroupProxy* webPageGroup(WebPageGroupData&&);
+    WebPageGroupProxy& webPageGroup(WebPageGroupData&&);
 
     std::optional<WebCore::UserGestureTokenIdentifier> userGestureTokenIdentifier(std::optional<WebCore::PageIdentifier>, RefPtr<WebCore::UserGestureToken>);
     void userGestureTokenDestroyed(WebCore::PageIdentifier, WebCore::UserGestureToken&);
@@ -776,7 +776,7 @@ private:
     bool isProcessBeingCachedForPerformance();
 
     HashMap<WebCore::PageIdentifier, Ref<WebPage>> m_pageMap;
-    HashMap<PageGroupIdentifier, RefPtr<WebPageGroupProxy>> m_pageGroupMap;
+    HashMap<PageGroupIdentifier, Ref<WebPageGroupProxy>> m_pageGroupMap;
     const RefPtr<InjectedBundle> m_injectedBundle;
 
     EventDispatcher m_eventDispatcher;

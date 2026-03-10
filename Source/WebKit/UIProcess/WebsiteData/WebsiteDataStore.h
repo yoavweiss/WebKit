@@ -473,7 +473,7 @@ public:
 
     void updateServiceWorkerInspectability();
 
-    HashSet<RefPtr<WebProcessPool>> processPools(size_t limit = std::numeric_limits<size_t>::max()) const;
+    HashSet<Ref<WebProcessPool>> processPools(size_t limit = std::numeric_limits<size_t>::max()) const;
 
     void setServiceWorkerOverridePreferences(WebPreferences* preferences) { m_serviceWorkerOverridePreferences = preferences; }
     WebPreferences* serviceWorkerOverridePreferences() const { return m_serviceWorkerOverridePreferences.get(); }
@@ -555,7 +555,7 @@ private:
     void createHandleFromResolvedPathIfPossible(const String& resolvedPath, SandboxExtension::Handle&, SandboxExtension::Type = SandboxExtension::Type::ReadWrite);
 
     // Will create a temporary process pool is none exists yet.
-    HashSet<RefPtr<WebProcessPool>> ensureProcessPools() const;
+    HashSet<Ref<WebProcessPool>> ensureProcessPools() const;
 
     static Vector<WebCore::SecurityOriginData> mediaKeysStorageOrigins(const String& mediaKeysStorageDirectory);
     static void removeMediaKeysStorage(const String& mediaKeysStorageDirectory, WallTime modifiedSince);

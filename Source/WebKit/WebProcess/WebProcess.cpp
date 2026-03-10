@@ -1183,15 +1183,11 @@ void WebProcess::removeWebFrame(FrameIdentifier frameID, WebPage* page)
     page->send(Messages::WebPageProxy::DidDestroyFrame(frameID));
 }
 
-WebPageGroupProxy* WebProcess::webPageGroup(WebPageGroupData&& pageGroupData)
+WebPageGroupProxy& WebProcess::webPageGroup(WebPageGroupData&& pageGroupData)
 {
-    auto result = m_pageGroupMap.add(pageGroupData.pageGroupID, nullptr);
-    if (result.isNewEntry) {
-        ASSERT(!result.iterator->value);
-        result.iterator->value = WebPageGroupProxy::create(WTF::move(pageGroupData));
-    }
-
-    return result.iterator->value.get();
+    return m_pageGroupMap.ensure(pageGroupData.pageGroupID, [&] {
+        return WebPageGroupProxy::create(WTF::move(pageGroupData));
+    }).iterator->value;
 }
 
 std::optional<WebCore::UserGestureTokenIdentifier> WebProcess::userGestureTokenIdentifier(std::optional<PageIdentifier> pageID, RefPtr<UserGestureToken> token)

@@ -738,7 +738,7 @@ static inline WKEditorInsertAction toWK(WebCore::EditorInsertAction action)
 
 - (NSString *)_groupIdentifier
 {
-    return _page->pageGroup()->identifier().createNSString().autorelease();
+    return _page->pageGroup().identifier().createNSString().autorelease();
 }
 
 @end

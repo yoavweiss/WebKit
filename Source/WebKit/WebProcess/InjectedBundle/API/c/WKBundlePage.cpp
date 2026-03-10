@@ -713,7 +713,7 @@ void WKBundlePageRemoveAllUserContent(WKBundlePageRef pageRef)
 
 WKStringRef WKBundlePageCopyGroupIdentifier(WKBundlePageRef pageRef)
 {
-    return WebKit::toCopiedAPI(WebKit::toImpl(pageRef)->pageGroup()->identifier());
+    return WebKit::toCopiedAPI(WebKit::toImpl(pageRef)->pageGroup().identifier());
 }
 
 void WKBundlePageSetCaptionDisplayMode(WKBundlePageRef pageRef, WKStringRef mode)
