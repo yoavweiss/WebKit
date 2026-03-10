@@ -4338,7 +4338,6 @@ imported/w3c/web-platform-tests/css/css-backgrounds/background-size/vector/wide-
 # Flaky tests detected both on GTK and WPE on May2023
 webkit.org/b/257624 animations/background-position.html [ ImageOnlyFailure Pass ]
 webkit.org/b/257624 http/tests/workers/service/postmessage-after-terminating-hung-worker.html [ Timeout Pass ]
-webkit.org/b/257624 imported/w3c/web-platform-tests/navigation-timing/nav2_test_redirect_xserver.html [ Failure Pass ]
 
 webkit.org/b/258162 fast/images/image-alt-text-vertical.html [ ImageOnlyFailure ]
 
