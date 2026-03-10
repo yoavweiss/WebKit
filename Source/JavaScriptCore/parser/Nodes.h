@@ -99,10 +99,11 @@ namespace JSC {
         SwitchType switchType;
     };
 
-    enum class AssignmentContext : uint8_t { 
-        DeclarationStatement, 
-        ConstDeclarationStatement, 
-        AssignmentExpression 
+    enum class AssignmentContext : uint8_t {
+        DeclarationStatement,
+        ConstDeclarationStatement,
+        UsingDeclarationStatement,
+        AssignmentExpression
     };
 
     class ParserArenaFreeable {
@@ -280,6 +281,9 @@ namespace JSC {
 
         VariableEnvironment& lexicalVariables() LIFETIME_BOUND { return m_lexicalVariables; }
         FunctionStack& functionStack() LIFETIME_BOUND { return m_functionStack; }
+
+        bool hasUsingDeclaration() const { return m_lexicalVariables.hasUsingDeclaration(); }
+        unsigned usingDeclarationCount() const { return m_lexicalVariables.usingDeclarationCount(); }
 
     protected:
         VariableEnvironment m_lexicalVariables;

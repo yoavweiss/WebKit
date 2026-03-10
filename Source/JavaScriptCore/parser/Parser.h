@@ -86,10 +86,11 @@ enum class DestructuringKind {
     DestructureToExpressions
 };
 
-enum class DeclarationType { 
-    VarDeclaration, 
+enum class DeclarationType {
+    VarDeclaration,
     LetDeclaration,
-    ConstDeclaration
+    ConstDeclaration,
+    UsingDeclaration,
 };
 
 enum class DeclarationImportType {
@@ -455,7 +456,7 @@ public:
     DeclarationStacks::FunctionStack takeFunctionDeclarations() { return WTF::move(m_functionDeclarations); }
     
 
-    DeclarationResultMask declareLexicalVariable(const Identifier* ident, bool isConstant, DeclarationImportType importType = DeclarationImportType::NotImported)
+    DeclarationResultMask declareLexicalVariable(const Identifier* ident, bool isConstant, DeclarationImportType importType = DeclarationImportType::NotImported, bool isUsing = false)
     {
         ASSERT(m_allowsLexicalDeclarations);
         DeclarationResultMask result = DeclarationResult::Valid;
@@ -466,6 +467,8 @@ public:
             addResult.iterator->value.setIsConst();
         else
             addResult.iterator->value.setIsLet();
+        if (isUsing)
+            addResult.iterator->value.setIsUsing();
 
         if (importType == DeclarationImportType::Imported)
             addResult.iterator->value.setIsImported();
@@ -667,6 +670,8 @@ public:
 
     void setUsesAwait() { m_usesAwait = true; }
     bool usesAwait() const { return m_usesAwait; }
+
+    bool hasUsingDeclaration() const { return m_lexicalVariables.hasUsingDeclaration(); }
 
     bool hasDirectSuper() const { return m_hasDirectSuper; }
     void setHasDirectSuper() { m_hasDirectSuper = true; }
@@ -1160,6 +1165,9 @@ private:
             return DestructuringKind::DestructureToLet;
         case DeclarationType::ConstDeclaration:
             return DestructuringKind::DestructureToConst;
+        case DeclarationType::UsingDeclaration:
+            RELEASE_ASSERT_NOT_REACHED();
+            return DestructuringKind::DestructureToVariables;
         }
 
         RELEASE_ASSERT_NOT_REACHED();
@@ -1174,6 +1182,8 @@ private:
         case DeclarationType::LetDeclaration:
         case DeclarationType::ConstDeclaration:
             return "lexical variable name";
+        case DeclarationType::UsingDeclaration:
+            return "using variable name";
         }
         RELEASE_ASSERT_NOT_REACHED();
         return "invalid";
@@ -1184,6 +1194,8 @@ private:
         switch (type) {
         case DeclarationType::ConstDeclaration:
             return AssignmentContext::ConstDeclarationStatement;
+        case DeclarationType::UsingDeclaration:
+            return AssignmentContext::UsingDeclarationStatement;
         default:
             return AssignmentContext::DeclarationStatement;
         }
@@ -1370,7 +1382,7 @@ private:
         if (type == DeclarationType::VarDeclaration)
             return declareHoistedVariable(ident);
 
-        ASSERT(type == DeclarationType::LetDeclaration || type == DeclarationType::ConstDeclaration);
+        ASSERT(type == DeclarationType::LetDeclaration || type == DeclarationType::ConstDeclaration || type == DeclarationType::UsingDeclaration);
         // Lexical variables declared at a top level scope that shadow arguments or vars are not allowed.
         if (!m_lexer->isReparsingFunction() && m_statementDepth == 1 && (hasDeclaredParameter(*ident) || hasDeclaredVariable(*ident)))
             return DeclarationResult::InvalidDuplicateDeclaration;
@@ -1379,7 +1391,8 @@ private:
         if (scope->isCatchBlockScope() && scope->containingScope()->hasLexicallyDeclaredVariable(*ident))
             return DeclarationResult::InvalidDuplicateDeclaration;
 
-        return scope->declareLexicalVariable(ident, type == DeclarationType::ConstDeclaration, importType);
+        bool isUsing = type == DeclarationType::UsingDeclaration;
+        return scope->declareLexicalVariable(ident, type == DeclarationType::ConstDeclaration || isUsing, importType, isUsing);
     }
 
     std::pair<DeclarationResultMask, Scope*> declareFunction(const Identifier* ident)
@@ -2063,6 +2076,7 @@ private:
     bool m_parsingBuiltin;
     bool m_isEvalContext;
     bool m_isInsideOrdinaryFunction;
+    bool m_insideSwitchCaseBody { false };
 
     ParserArena m_parserArena;
     CallOrApplyDepthScope* m_callOrApplyDepthScope { nullptr };

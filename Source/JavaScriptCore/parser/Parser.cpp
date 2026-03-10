@@ -790,6 +790,21 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseStatementList
             failDueToUnexpectedToken();
         [[fallthrough]];
     case IDENT:
+        if (Options::useExplicitResourceManagement()
+            && *m_token.m_data.ident == m_vm.propertyNames->usingIdentifier
+            && !m_token.m_data.escaped) [[unlikely]] {
+            SavePoint savePoint = createSavePoint(context);
+            next();
+            if (!m_lexer->hasLineTerminatorBeforeToken() && matchSpecIdentifier()) {
+                restoreSavePoint(context, savePoint);
+                semanticFailIfTrue(currentScope()->isGlobalCode() && !currentScope()->isModuleCode() && m_statementDepth == 1, "'using' declaration is not allowed at the top level of a script or eval");
+                semanticFailIfTrue(m_insideSwitchCaseBody, "'using' declaration is not allowed directly in a switch case or default clause");
+                result = parseVariableDeclaration(context, DeclarationType::UsingDeclaration);
+                shouldSetPauseLocation = true;
+                break;
+            }
+            restoreSavePoint(context, savePoint);
+        }
         if (*m_token.m_data.ident == m_vm.propertyNames->async && !m_token.m_data.escaped) [[unlikely]] {
             // Eagerly parse as AsyncFunctionDeclaration. This is the uncommon case,
             // but could be mistakenly parsed as an AsyncFunctionExpression.
@@ -838,7 +853,7 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseStatementList
 template <typename LexerType>
 template <class TreeBuilder> TreeStatement Parser<LexerType>::parseVariableDeclaration(TreeBuilder& context, DeclarationType declarationType, ExportType exportType)
 {
-    ASSERT(match(VAR) || match(LET) || match(CONSTTOKEN));
+    ASSERT(match(VAR) || match(LET) || match(CONSTTOKEN) || (declarationType == DeclarationType::UsingDeclaration && match(IDENT)));
     JSTokenLocation location(tokenLocation());
     int start = tokenLine();
     int end = 0;
@@ -905,13 +920,14 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseWhileStatemen
 template <typename LexerType>
 template <class TreeBuilder> TreeExpression Parser<LexerType>::parseVariableDeclarationList(TreeBuilder& context, int& declarations, TreeDestructuringPattern& lastPattern, TreeExpression& lastInitializer, JSTextPosition& identStart, JSTextPosition& initStart, JSTextPosition& initEnd, VarDeclarationListContext declarationListContext, DeclarationType declarationType, ExportType exportType, bool& forLoopConstDoesNotHaveInitializer)
 {
-    ASSERT(declarationType == DeclarationType::LetDeclaration || declarationType == DeclarationType::VarDeclaration || declarationType == DeclarationType::ConstDeclaration);
+    ASSERT(declarationType == DeclarationType::LetDeclaration || declarationType == DeclarationType::VarDeclaration || declarationType == DeclarationType::ConstDeclaration || declarationType == DeclarationType::UsingDeclaration);
     TreeExpression head = 0;
     JSTokenLocation headLocation;
     TreeExpression tail = 0;
     const Identifier* lastIdent;
-    JSToken lastIdentToken; 
+    JSToken lastIdentToken;
     AssignmentContext assignmentContext = assignmentContextFromDeclarationType(declarationType);
+    bool isUsingDeclaration = declarationType == DeclarationType::UsingDeclaration;
     do {
         lastPattern = TreeDestructuringPattern(0);
         lastIdent = nullptr;
@@ -926,9 +942,14 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseVariableDecl
         bool hasInitializer = false;
 
         failIfTrue(match(PRIVATENAME), "Cannot use a private name to declare a variable");
+        if (isUsingDeclaration) {
+            // 'using' declarations cannot have a destructuring pattern.
+            failIfTrue(match(OPENBRACE) || match(OPENBRACKET), "'using' declarations cannot have a destructuring pattern");
+            failIfFalse(matchSpecIdentifier(), "Expected an identifier name in 'using' declaration");
+        }
         if (matchSpecIdentifier()) {
             semanticFailIfTrue(currentScope()->isStaticBlock() && isArgumentsIdentifier(), "Cannot use 'arguments' as an identifier in static block");
-            failIfTrue(isPossiblyEscapedLet(m_token) && (declarationType == DeclarationType::LetDeclaration || declarationType == DeclarationType::ConstDeclaration), 
+            failIfTrue(isPossiblyEscapedLet(m_token) && (declarationType == DeclarationType::LetDeclaration || declarationType == DeclarationType::ConstDeclaration || declarationType == DeclarationType::UsingDeclaration),
                 "Cannot use 'let' as an identifier name for a LexicalDeclaration");
             semanticFailIfTrue(isDisallowedIdentifierAwait(m_token), "Cannot use 'await' as a ", declarationTypeToVariableKind(declarationType), " ", disallowedIdentifierAwaitReason());
             JSTextPosition varStart = tokenStartPosition();
@@ -945,6 +966,7 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseVariableDecl
                 if (declarationResult & DeclarationResult::InvalidDuplicateDeclaration) [[unlikely]] {
                     semanticFailIfTrue(declarationType == DeclarationType::LetDeclaration, "Cannot declare a let variable twice: '", name->impl(), "'");
                     semanticFailIfTrue(declarationType == DeclarationType::ConstDeclaration, "Cannot declare a const variable twice: '", name->impl(), "'");
+                    semanticFailIfTrue(isUsingDeclaration, "Cannot declare a using variable twice: '", name->impl(), "'");
                     ASSERT(declarationType == DeclarationType::VarDeclaration);
                     semanticFail("Cannot declare a var variable that shadows a let/const/class variable: '", name->impl(), "'");
                 }
@@ -963,9 +985,15 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseVariableDecl
                 initEnd = lastTokenEndPosition();
                 lastInitializer = initializer;
                 failIfFalse(initializer, "Expected expression as the intializer for the variable '", name->impl(), "'");
-                
+
                 node = context.createAssignResolve(location, *name, initializer, varStart, varDivot, lastTokenEndPosition(), assignmentContext);
             } else {
+                if (isUsingDeclaration) {
+                    if (declarationListContext == ForLoopContext)
+                        forLoopConstDoesNotHaveInitializer = true;
+                    else
+                        failIfFalse(false, "'using' declaration requires an initializer");
+                }
                 if (declarationListContext == ForLoopContext && declarationType == DeclarationType::ConstDeclaration)
                     forLoopConstDoesNotHaveInitializer = true;
                 failIfTrue(declarationListContext != ForLoopContext && declarationType == DeclarationType::ConstDeclaration, "const declared variable '", name->impl(), "'", " must have an initializer");
@@ -976,6 +1004,7 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseVariableDecl
             }
         } else {
             lastIdent = nullptr;
+            ASSERT(!isUsingDeclaration); // Already handled above with failIfFalse(matchSpecIdentifier()).
             TreeDestructuringPattern pattern;
             {
                 bool allowsInOperator = true;
@@ -1444,25 +1473,46 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseForStatement(
     bool isVarDeclaration = match(VAR);
     bool isLetDeclaration = match(LET);
     bool isConstDeclaration = match(CONSTTOKEN);
+    bool isUsingDeclaration = false;
+    if (Options::useExplicitResourceManagement() && match(IDENT)
+        && *m_token.m_data.ident == m_vm.propertyNames->usingIdentifier
+        && !m_token.m_data.escaped) {
+        SavePoint savePoint = createSavePoint(context);
+        next();
+        if (!m_lexer->hasLineTerminatorBeforeToken() && matchSpecIdentifier()) {
+            if (matchContextualKeyword(m_vm.propertyNames->of)) {
+                // "for (using of ..." - the spec has [lookahead != `using` `of`] on ForDeclaration,
+                // so this is only a using declaration if 'of' is a binding name with an initializer.
+                // "for (using of = init; ...)" -> using declaration, 'of' is binding name
+                // "for (using of expr)" -> for-of loop, 'using' is identifier, 'of' is keyword
+                // "for (using of of expr)" -> for-of loop, 'using' is identifier, first 'of' is keyword
+                next(); // consume 'of'
+                if (match(EQUAL))
+                    isUsingDeclaration = true;
+            } else
+                isUsingDeclaration = true;
+        }
+        restoreSavePoint(context, savePoint);
+    }
     bool forLoopConstDoesNotHaveInitializer = false;
     bool forLoopinitializerContainsClosure = false;
 
     AutoCleanupLexicalScope lexicalScope;
 
     auto popLexicalScopeIfNecessary = [&]() -> VariableEnvironment {
-        if (isLetDeclaration || isConstDeclaration) {
+        if (isLetDeclaration || isConstDeclaration || isUsingDeclaration) {
             auto [lexicalVariables, functionDeclarations] = popScope(lexicalScope, TreeBuilder::NeedsFreeVariableInfo);
             return lexicalVariables;
         }
         return { };
     };
 
-    if (isVarDeclaration || isLetDeclaration || isConstDeclaration) {
+    if (isVarDeclaration || isLetDeclaration || isConstDeclaration || isUsingDeclaration) {
         /*
-         for (var/let/const IDENT in/of expression) statement
+         for (var/let/const/using IDENT in/of expression) statement
          for (var/let/const varDeclarationList; expressionOpt; expressionOpt)
          */
-        if (isLetDeclaration || isConstDeclaration) {
+        if (isLetDeclaration || isConstDeclaration || isUsingDeclaration) {
             Scope* newScope = pushScope();
             newScope->setIsLexicalScope();
             newScope->preventVarDeclarations();
@@ -1481,6 +1531,8 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseForStatement(
             declarationType = DeclarationType::LetDeclaration;
         else if (isConstDeclaration)
             declarationType = DeclarationType::ConstDeclaration;
+        else if (isUsingDeclaration)
+            declarationType = DeclarationType::UsingDeclaration;
         else
             RELEASE_ASSERT_NOT_REACHED();
         unsigned candidateCountBeforeInitializer = currentScope()->closedVariableCandidates().size();
@@ -1503,6 +1555,7 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseForStatement(
             isOfEnumeration = true;
             next();
         } else {
+            failIfTrue(isUsingDeclaration, "Cannot use 'using' declaration in for-in loop");
             failIfFalse(!isAwaitFor, "Expected 'of' in for-await syntax");
             next();
         }
@@ -1567,6 +1620,7 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseForStatement(
         next();
         TreeExpression condition = 0;
         failIfTrue(forLoopConstDoesNotHaveInitializer && isConstDeclaration, "const variables in for loops must have initializers");
+        failIfTrue(forLoopConstDoesNotHaveInitializer && isUsingDeclaration, "'using' declaration requires an initializer");
         
         if (!match(SEMICOLON)) {
             condition = parseExpression(context);
@@ -1821,13 +1875,14 @@ template <class TreeBuilder> TreeClauseList Parser<LexerType>::parseSwitchClause
     TreeExpression condition = parseExpression(context);
     failIfFalse(condition, "Cannot parse switch clause");
     consumeOrFail(COLON, "Expected a ':' after switch clause expression");
+    SetForScope switchCaseScope(m_insideSwitchCaseBody, true);
     TreeSourceElements statements = parseSourceElements(context, DontCheckForStrictMode);
     failIfFalse(statements, "Cannot parse the body of a switch clause");
     TreeClause clause = context.createClause(condition, statements);
     context.setStartOffset(clause, startOffset);
     TreeClauseList clauseList = context.createClauseList(clause);
     TreeClauseList tail = clauseList;
-    
+
     while (match(CASE)) {
         startOffset = tokenStart();
         next();
@@ -1851,6 +1906,7 @@ template <class TreeBuilder> TreeClause Parser<LexerType>::parseSwitchDefaultCla
     unsigned startOffset = tokenStart();
     next();
     consumeOrFail(COLON, "Expected a ':' after switch default clause");
+    SetForScope switchCaseScope(m_insideSwitchCaseBody, true);
     TreeSourceElements statements = parseSourceElements(context, DontCheckForStrictMode);
     failIfFalse(statements, "Cannot parse the body of a switch default clause");
     TreeClause result = context.createClause(0, statements);
@@ -1951,7 +2007,10 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseBlockStatemen
 {
     ASSERT(match(OPENBRACE));
 
-    // We should treat the first block statement of the function (the body of the function) as the lexical 
+    // A block statement inside a switch case/default clause allows using declarations.
+    SetForScope switchCaseScope(m_insideSwitchCaseBody, false);
+
+    // We should treat the first block statement of the function (the body of the function) as the lexical
     // scope of the function itself, and not the lexical scope of a 'block' statement within the function.
     AutoCleanupLexicalScope lexicalScope;
     bool shouldPushLexicalScope = m_statementDepth > 0 || type == BlockType::StaticBlock;

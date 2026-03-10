@@ -327,6 +327,15 @@ namespace JSC {
         TryData* tryData;
     };
 
+    struct UsingSlot {
+        RefPtr<RegisterID> value;
+        RefPtr<RegisterID> method;
+    };
+
+    struct UsingScope {
+        Vector<UsingSlot> slots;
+        unsigned nextSlot { 0 };
+    };
 
     struct JSGeneratorTraits {
         using OpcodeTraits = JSOpcodeTraits;
@@ -869,6 +878,12 @@ namespace JSC {
         void emitTryWithFinallyThatDoesNotShadowException(const ScopedLambda<void(BytecodeGenerator&)>& emitTry, const ScopedLambda<void(BytecodeGenerator&)>& emitFinally);
         void emitTryWithFinallyThatDoesNotShadowException(FinallyContext&, const ScopedLambda<void(BytecodeGenerator&)>& emitTry, const ScopedLambda<void(BytecodeGenerator&)>& emitFinally);
 
+        // Explicit Resource Management: using declarations
+        UsingScope& currentUsingScope() { ASSERT(!m_usingScopeStack.isEmpty()); return m_usingScopeStack.last(); }
+        void emitPrepareDisposable(RegisterID* value, const JSTextPosition& divot);
+        void emitUsingBodyScope(unsigned usingCount, const ScopedLambda<void(BytecodeGenerator&)>& emitBody);
+        void emitBodyWithUsingIfNeeded(unsigned usingCount, const ScopedLambda<void(BytecodeGenerator&)>& emitBody);
+
         void emitGenericEnumeration(ThrowableExpressionData* enumerationNode, ExpressionNode* subjectNode, const ScopedLambda<void(BytecodeGenerator&, RegisterID*)>& callBack, ForOfNode* = nullptr, RegisterID* forLoopSymbolTable = nullptr);
         void emitEnumeration(ThrowableExpressionData* enumerationNode, ExpressionNode* subjectNode, const ScopedLambda<void(BytecodeGenerator&, RegisterID*)>& callBack, ForOfNode* = nullptr, RegisterID* forLoopSymbolTable = nullptr);
 
@@ -1357,6 +1372,7 @@ namespace JSC {
         Vector<SwitchInfo> m_switchContextStack;
         Vector<Ref<ForInContext>> m_forInContextStack;
         Vector<TryContext> m_tryContextStack;
+        Vector<UsingScope> m_usingScopeStack;
         unsigned m_yieldPoints { 0 };
         bool m_needsGeneratorification { false };
 
