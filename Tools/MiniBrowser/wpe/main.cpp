@@ -436,23 +436,34 @@ static void automationStartedCallback(WebKitWebContext*, WebKitAutomationSession
     g_signal_connect(session, "create-web-view", G_CALLBACK(createWebViewForAutomationCallback), view);
 }
 
+static void loadConfigFile(WebKitSettings* webkitSettings
 #if ENABLE_WPE_PLATFORM
-void loadConfigFile(WPESettings* settings)
+    , WPESettings* wpeSettings
+#endif
+    )
 {
     GError* error = nullptr;
-    GKeyFile* keyFile = g_key_file_new();
+    g_autoptr(GKeyFile) keyFile = g_key_file_new();
     if (!g_key_file_load_from_file(keyFile, configFile, G_KEY_FILE_NONE, &error)) {
         g_warning("Error loading key file '%s': %s", configFile, error->message);
         g_clear_error(&error);
         return;
     }
 
-    if (!wpe_settings_load_from_keyfile(settings, keyFile, &error)) {
-        g_warning("Error parsing config file '%s': %s", configFile, error->message);
+    if (g_key_file_has_group(keyFile, "websettings")) {
+        if (!webkit_settings_apply_from_key_file(webkitSettings, keyFile, "websettings", &error)) {
+            g_warning("Error applying WebKit settings from key file '%s': %s", configFile, error->message);
+            g_clear_error(&error);
+        }
+    }
+
+#if ENABLE_WPE_PLATFORM
+    if (wpeSettings && !wpe_settings_load_from_keyfile(wpeSettings, keyFile, &error)) {
+        g_warning("Error applying WPE platform settings from key file '%s': %s", configFile, error->message);
         g_clear_error(&error);
     }
-}
 #endif
+}
 
 #if defined(USE_LIBWPE) && USE_LIBWPE
 static void activate(GApplication* application, WPEToolingBackends::ViewBackend* backend)
@@ -657,10 +668,17 @@ static void activate(GApplication* application, gpointer)
         g_signal_connect(wpeView, "event", G_CALLBACK(wpeViewEventCallback), webView);
         wpe_toplevel_set_title(wpeToplevel, defaultWindowTitle);
         g_signal_connect(webView, "notify::title", G_CALLBACK(webViewTitleChanged), wpeView);
-        if (configFile)
-            loadConfigFile(wpe_display_get_settings(wpe_view_get_display(wpeView)));
     }
 #endif
+
+    if (configFile) {
+#if ENABLE_WPE_PLATFORM
+        auto* wpeView = webkit_web_view_get_wpe_view(webView);
+        loadConfigFile(webkit_web_view_get_settings(webView), wpeView ? wpe_display_get_settings(wpe_view_get_display(wpeView)) : nullptr);
+#else
+        loadConfigFile(webkit_web_view_get_settings(webView));
+#endif
+    }
 
     openViews = g_hash_table_new_full(nullptr, nullptr, g_object_unref, nullptr);
 
