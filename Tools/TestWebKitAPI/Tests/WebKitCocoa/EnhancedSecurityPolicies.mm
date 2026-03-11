@@ -1448,6 +1448,27 @@ TEST_WITH_AND_WITHOUT_SITE_ISOLATION(ContentRuleListCallbackOccurs)
 
 #endif // ENABLE(CONTENT_EXTENSIONS)
 
+// MARK: - Force Disabled Tests
+
+static void runForceDisabledOverridesHeuristics(bool useSiteIsolation)
+{
+    HTTPServer plaintextServer({
+        { "http://insecure.example.internal/"_s, { "<script>alert('insecure-page')</script>"_s } },
+    });
+
+    RetainPtr webView = enhancedSecurityTestConfiguration(&plaintextServer, nullptr, useSiteIsolation);
+
+    for (_WKFeature *feature in [WKPreferences _features]) {
+        if ([feature.key isEqualToString:@"EnhancedSecurityForceDisabled"])
+            [webView.get().configuration.preferences _setEnabled:YES forFeature:feature];
+    }
+
+    loadRequestAndCheckEnhancedSecurityAlerts(webView, @"http://insecure.example.internal/", {
+        { "insecure-page"_s, ExpectedEnhancedSecurity::Disabled }
+    });
+}
+TEST_WITH_AND_WITHOUT_SITE_ISOLATION(ForceDisabledOverridesHeuristics)
+
 #if USE(APPLE_INTERNAL_SDK) && __has_include(<WebKitAdditions/EnhancedSecurityPoliciesAdditions.mm>)
 #import <WebKitAdditions/EnhancedSecurityPoliciesAdditions.mm>
 #endif

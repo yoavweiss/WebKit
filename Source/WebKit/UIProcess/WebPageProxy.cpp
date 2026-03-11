@@ -5272,6 +5272,9 @@ void WebPageProxy::receivedNavigationActionPolicyDecision(WebProcessProxy& proce
     if (RefPtr process = browsingContextGroup->processForSite(Site { navigation.currentRequest().url() }))
         enhancedSecurity = process->process().enhancedSecurity();
 
+    if (preferences->enhancedSecurityForceDisabled())
+        enhancedSecurity = EnhancedSecurity::Disabled;
+
     if (preferences->enhancedSecurityHeuristicsEnabled())
         protect(this->websiteDataStore())->trackEnhancedSecurityForDomain(RegistrableDomain { navigation.currentRequest().url() }, enhancedSecurity);
 
