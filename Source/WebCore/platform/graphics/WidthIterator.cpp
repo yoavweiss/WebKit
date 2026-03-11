@@ -46,9 +46,9 @@ WidthIterator::WidthIterator(const FontCascade& fontCascade, const TextRun& run,
     , m_run(run)
     , m_fallbackFonts(fallbackFonts)
     , m_expansion(run.expansion())
+    , m_glyphBounds { accountForGlyphBounds }
     , m_direction(m_run->direction())
     , m_isAfterExpansion(run.expansionBehavior().left == ExpansionBehavior::Behavior::Forbid)
-    , m_accountForGlyphBounds(accountForGlyphBounds)
     , m_enableKerning(fontCascade.enableKerning())
     , m_requiresShaping(fontCascade.requiresShaping())
     , m_forTextEmphasis(forTextEmphasis)
@@ -373,11 +373,22 @@ static void updateCharacterAndSmallCapsIfNeeded(SmallCapsState& smallCapsState, 
     }
 }
 
+void WidthIterator::GlyphBounds::computeIfNeeded(Glyph glyph, const Font& font, unsigned charIndex, float glyphWidth)
+{
+    if (!shouldCompute)
+        return;
+    auto bounds = font.boundsForGlyph(glyph);
+    if (!charIndex)
+        firstGlyphLeftOverflowX = std::max<float>(0.f, -bounds.x());
+    maxY = std::max(maxY, bounds.maxY());
+    minY = std::min(minY, bounds.y());
+    lastGlyphRightOverflowX = std::max<float>(0.f, bounds.maxX() - glyphWidth);
+}
+
 template <typename TextIterator>
 inline void WidthIterator::advanceInternal(TextIterator& textIterator, GlyphBuffer& glyphBuffer)
 {
     // The core logic here needs to match FontCascade::widthForTextUsingSimplifiedMeasuring()
-    FloatRect bounds;
     auto& fontDescription = m_fontCascade->fontDescription();
     Ref primaryFont = m_fontCascade->primaryFont();
     AdvanceInternalState advanceInternalState(glyphBuffer, primaryFont, textIterator.currentIndex());
@@ -469,11 +480,7 @@ inline void WidthIterator::advanceInternal(TextIterator& textIterator, GlyphBuff
         if (FontCascade::treatAsSpace(characterToWrite))
             advanceInternalState.charactersTreatedAsSpace.constructAndAppend(advanceInternalState.currentCharacterIndex, characterToWrite == space, characterToWrite == tabCharacter ? width : advanceInternalState.nextRangeFont->spaceWidth(Font::SyntheticBoldInclusion::Exclude));
 
-        if (m_accountForGlyphBounds) {
-            bounds = Ref { *advanceInternalState.nextRangeFont }->boundsForGlyph(glyph);
-            if (!advanceInternalState.currentCharacterIndex)
-                m_firstGlyphOverflow = std::max<float>(0, -bounds.x());
-        }
+        m_glyphBounds.computeIfNeeded(glyph, Ref { *advanceInternalState.nextRangeFont }, advanceInternalState.currentCharacterIndex, width);
 
         if (m_forTextEmphasis && !FontCascade::canReceiveTextEmphasis(characterToWrite))
             glyph = deletedGlyph;
@@ -485,12 +492,6 @@ inline void WidthIterator::advanceInternal(TextIterator& textIterator, GlyphBuff
         advanceInternalState.currentCharacterIndex = textIterator.currentIndex();
 
         m_runWidthSoFar += width;
-
-        if (m_accountForGlyphBounds) {
-            m_maxGlyphBoundingBoxY = std::max(m_maxGlyphBoundingBoxY, bounds.maxY());
-            m_minGlyphBoundingBoxY = std::min(m_minGlyphBoundingBoxY, bounds.y());
-            m_lastGlyphOverflow = std::max<float>(0, bounds.maxX() - width);
-        }
     }
     advanceInternalState.rangeFont = advanceInternalState.nextRangeFont;
     commitCurrentFontRange(advanceInternalState);

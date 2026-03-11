@@ -351,8 +351,8 @@ float FontCascade::width(CodePath codePathToUse, const TextRun& run, SingleThrea
     if (glyphOverflow) {
         glyphOverflow->top = std::max<double>(glyphOverflow->top, -it.minGlyphBoundingBoxY() - (glyphOverflow->computeBounds ? 0 : metricsOfPrimaryFont().ascent()));
         glyphOverflow->bottom = std::max<double>(glyphOverflow->bottom, it.maxGlyphBoundingBoxY() - (glyphOverflow->computeBounds ? 0 : metricsOfPrimaryFont().descent()));
-        glyphOverflow->left = it.firstGlyphOverflow();
-        glyphOverflow->right = it.lastGlyphOverflow();
+        glyphOverflow->left = it.firstGlyphOverflowX();
+        glyphOverflow->right = it.lastGlyphOverflowX();
     }
     return it.runWidthSoFar();
 }
