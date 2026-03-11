@@ -265,7 +265,6 @@ TestWebKitAPI.DatabaseTracker
 TestWebKitAPI.DateInputTests
 TestWebKitAPI.Decimal
 TestWebKitAPI.DeviceOrientation
-TestWebKitAPI.DeviceScaleFactorOnBack
 TestWebKitAPI.DisableAutomaticSpellingCorrection
 TestWebKitAPI.DisplayListRecorderTest/DisplayListRecorderResultStateTest/0
 TestWebKitAPI.DisplayListRecorderTest/DisplayListRecorderResultStateTest/1
