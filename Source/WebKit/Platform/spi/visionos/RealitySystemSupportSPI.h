@@ -31,7 +31,7 @@ DECLARE_SYSTEM_HEADER
 #import <RealitySystemSupport/RealitySystemSupport.h>
 #else
 
-#import <QuartzCore/CALayer.h>
+#import <pal/spi/cocoa/QuartzCoreSPI.h>
 
 @class CARemoteEffectGroup;
 
