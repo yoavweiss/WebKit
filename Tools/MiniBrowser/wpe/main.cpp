@@ -73,12 +73,12 @@ static guint defaultWindowHeightLegacyAPI = 720;
 static GHashTable* openViews;
 static gboolean windowMaximized;
 static gboolean windowFullscreen;
+static const char* configFile;
 #if ENABLE_WPE_PLATFORM
 #if defined(USE_LIBWPE) && USE_LIBWPE
 static gboolean useLegacyAPI;
 #endif
 static const char* defaultWindowTitle = "WPEWebKit MiniBrowser";
-static const char* configFile;
 #endif
 
 static gboolean parseWindowSize(const char*, const char* value, gpointer, GError** error)
@@ -135,8 +135,8 @@ static const GOptionEntry commandLineOptions[] =
 #if defined(USE_LIBWPE) && USE_LIBWPE
     { "use-legacy-api", 0, 0, G_OPTION_ARG_NONE, &useLegacyAPI, "Use the WPE legacy API (libwpe)", nullptr },
 #endif
-    { "config-file", 0, 0, G_OPTION_ARG_FILENAME, &configFile, "Config file to load for settings", "FILE" },
 #endif
+    { "config-file", 0, 0, G_OPTION_ARG_FILENAME, &configFile, "Config file to load for settings", "FILE" },
     { "size", 's', 0, G_OPTION_ARG_CALLBACK, reinterpret_cast<gpointer>(parseWindowSize), "Specify the window size to use, e.g. --size=\"800x600\"", nullptr },
     { "version", 'v', 0, G_OPTION_ARG_NONE, &printVersion, "Print the WPE version", nullptr },
     { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &uriArguments, nullptr, "[URL]" },
