@@ -79,6 +79,8 @@ Ref<AccessCase> AccessCase::create(VM& vm, JSCell* owner, AccessType type, Cache
     case StringLength:
     case DirectArgumentsLength:
     case ScopedArgumentsLength:
+    case RegExpLastIndexLoad:
+    case RegExpLastIndexStore:
     case ModuleNamespaceLoad:
     case Replace:
     case ProxyObjectIn:
@@ -338,6 +340,8 @@ bool AccessCase::guardedByStructureCheckSkippingConstantIdentifierCheck() const
     case StringLength:
     case DirectArgumentsLength:
     case ScopedArgumentsLength:
+    case RegExpLastIndexLoad:
+    case RegExpLastIndexStore:
     case ModuleNamespaceLoad:
     case ProxyObjectIn:
     case ProxyObjectLoad:
@@ -484,6 +488,8 @@ bool AccessCase::requiresIdentifierNameMatch() const
     case StringLength:
     case DirectArgumentsLength:
     case ScopedArgumentsLength:
+    case RegExpLastIndexLoad:
+    case RegExpLastIndexStore:
     case ModuleNamespaceLoad:
     case ProxyObjectIn:
     case ProxyObjectLoad:
@@ -612,6 +618,8 @@ bool AccessCase::requiresInt32PropertyCheck() const
     case StringLength:
     case DirectArgumentsLength:
     case ScopedArgumentsLength:
+    case RegExpLastIndexLoad:
+    case RegExpLastIndexStore:
     case ModuleNamespaceLoad:
     case ProxyObjectIn:
     case ProxyObjectLoad:
@@ -776,6 +784,8 @@ void AccessCase::forEachDependentCell(VM&, const Functor& functor) const
     case StringLength:
     case DirectArgumentsLength:
     case ScopedArgumentsLength:
+    case RegExpLastIndexLoad:
+    case RegExpLastIndexStore:
     case ProxyObjectIn:
     case ProxyObjectLoad:
     case ProxyObjectStore:
@@ -913,6 +923,8 @@ bool AccessCase::doesCalls(VM&) const
     case StringLength:
     case DirectArgumentsLength:
     case ScopedArgumentsLength:
+    case RegExpLastIndexLoad:
+    case RegExpLastIndexStore:
     case ModuleNamespaceLoad:
     case InstanceOfHit:
     case InstanceOfMiss:
@@ -1068,6 +1080,8 @@ bool AccessCase::canReplace(const AccessCase& other) const
     case StringLength:
     case DirectArgumentsLength:
     case ScopedArgumentsLength:
+    case RegExpLastIndexLoad:
+    case RegExpLastIndexStore:
     case IndexedScopedArgumentsLoad:
     case IndexedDirectArgumentsLoad:
     case IndexedTypedArrayInt8Load:
@@ -1315,6 +1329,8 @@ inline void AccessCase::runWithDowncast(const Func& func)
     case StringLength:
     case DirectArgumentsLength:
     case ScopedArgumentsLength:
+    case RegExpLastIndexLoad:
+    case RegExpLastIndexStore:
     case CheckPrivateBrand:
     case SetPrivateBrand:
     case IndexedMegamorphicLoad:
@@ -1499,6 +1515,8 @@ bool AccessCase::canBeShared(const AccessCase& lhs, const AccessCase& rhs)
     case StringLength:
     case DirectArgumentsLength:
     case ScopedArgumentsLength:
+    case RegExpLastIndexLoad:
+    case RegExpLastIndexStore:
     case CheckPrivateBrand:
     case SetPrivateBrand:
     case IndexedMegamorphicLoad:

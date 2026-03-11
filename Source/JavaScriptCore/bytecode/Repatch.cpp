@@ -61,6 +61,7 @@
 #include "ModuleNamespaceAccessCase.h"
 #include "PropertyInlineCache.h"
 #include "PropertyInlineCacheClearingWatchpoint.h"
+#include "RegExpObject.h"
 #include "ScopedArguments.h"
 #include "ScratchRegisterAllocator.h"
 #include "StackAlignment.h"
@@ -477,6 +478,11 @@ static InlineCacheAction tryCacheGetBy(JSGlobalObject* globalObject, CodeBlock* 
                 if (!arguments->overrodeThings())
                     newCase = AccessCase::create(vm, codeBlock, AccessCase::ScopedArgumentsLength, lengthPropertyName);
             }
+        }
+
+        if (!newCase && propertyName == vm.propertyNames->lastIndex) {
+            if (jsDynamicCast<RegExpObject*>(baseCell))
+                newCase = AccessCase::create(vm, codeBlock, AccessCase::RegExpLastIndexLoad, CacheableIdentifier::createFromImmortalIdentifier(vm.propertyNames->lastIndex.impl()));
         }
 
         if (!propertyName.isSymbol() && baseCell->inherits<JSModuleNamespaceObject>() && !slot.isUnset()) {
@@ -1032,7 +1038,12 @@ static InlineCacheAction tryCachePutBy(JSGlobalObject* globalObject, CodeBlock* 
 
         RefPtr<AccessCase> newCase;
 
-        if (slot.base() == baseValue && slot.isCacheablePut()) {
+        if (propertyName == vm.propertyNames->lastIndex) {
+            if (jsDynamicCast<RegExpObject*>(baseCell))
+                newCase = AccessCase::create(vm, codeBlock, AccessCase::RegExpLastIndexStore, propertyName);
+        }
+
+        if (!newCase && slot.base() == baseValue && slot.isCacheablePut()) {
             if (slot.type() == PutPropertySlot::ExistingProperty) {
                 // This assert helps catch bugs if we accidentally forget to disable caching
                 // when we transition then store to an existing property. This is common among

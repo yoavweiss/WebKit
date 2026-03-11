@@ -79,6 +79,8 @@ DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(AccessCase);
     macro(StringLength) \
     macro(DirectArgumentsLength) \
     macro(ScopedArgumentsLength) \
+    macro(RegExpLastIndexLoad) \
+    macro(RegExpLastIndexStore) \
     macro(ModuleNamespaceLoad) \
     macro(ProxyObjectIn) \
     macro(ProxyObjectLoad) \

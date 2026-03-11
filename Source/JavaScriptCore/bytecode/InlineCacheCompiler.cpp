@@ -252,6 +252,8 @@ static bool needsScratchFPR(AccessCase::AccessType type)
     case AccessCase::StringLength:
     case AccessCase::DirectArgumentsLength:
     case AccessCase::ScopedArgumentsLength:
+    case AccessCase::RegExpLastIndexLoad:
+    case AccessCase::RegExpLastIndexStore:
     case AccessCase::ModuleNamespaceLoad:
     case AccessCase::ProxyObjectIn:
     case AccessCase::ProxyObjectLoad:
@@ -371,6 +373,8 @@ static bool forInBy(AccessCase::AccessType type)
     case AccessCase::StringLength:
     case AccessCase::DirectArgumentsLength:
     case AccessCase::ScopedArgumentsLength:
+    case AccessCase::RegExpLastIndexLoad:
+    case AccessCase::RegExpLastIndexStore:
     case AccessCase::CheckPrivateBrand:
     case AccessCase::SetPrivateBrand:
     case AccessCase::IndexedMegamorphicLoad:
@@ -522,6 +526,8 @@ static bool isStateless(AccessCase::AccessType type)
     case AccessCase::StringLength:
     case AccessCase::DirectArgumentsLength:
     case AccessCase::ScopedArgumentsLength:
+    case AccessCase::RegExpLastIndexLoad:
+    case AccessCase::RegExpLastIndexStore:
     case AccessCase::IndexedProxyObjectLoad:
     case AccessCase::IndexedMegamorphicLoad:
     case AccessCase::IndexedMegamorphicStore:
@@ -656,6 +662,8 @@ static bool doesJSCalls(AccessCase::AccessType type)
     case AccessCase::StringLength:
     case AccessCase::DirectArgumentsLength:
     case AccessCase::ScopedArgumentsLength:
+    case AccessCase::RegExpLastIndexLoad:
+    case AccessCase::RegExpLastIndexStore:
     case AccessCase::IndexedMegamorphicLoad:
     case AccessCase::IndexedMegamorphicStore:
     case AccessCase::IndexedInt32Load:
@@ -791,6 +799,8 @@ static bool isMegamorphic(AccessCase::AccessType type)
     case AccessCase::StringLength:
     case AccessCase::DirectArgumentsLength:
     case AccessCase::ScopedArgumentsLength:
+    case AccessCase::RegExpLastIndexLoad:
+    case AccessCase::RegExpLastIndexStore:
     case AccessCase::IndexedInt32Load:
     case AccessCase::IndexedDoubleLoad:
     case AccessCase::IndexedContiguousLoad:
@@ -916,6 +926,8 @@ bool canBeViaGlobalProxy(AccessCase::AccessType type)
     case AccessCase::StringLength:
     case AccessCase::DirectArgumentsLength:
     case AccessCase::ScopedArgumentsLength:
+    case AccessCase::RegExpLastIndexLoad:
+    case AccessCase::RegExpLastIndexStore:
     case AccessCase::IndexedMegamorphicLoad:
     case AccessCase::IndexedMegamorphicStore:
     case AccessCase::IndexedInt32Load:
@@ -2005,6 +2017,27 @@ void InlineCacheCompiler::generateWithGuard(unsigned index, AccessCase& accessCa
             CCallHelpers::Address(baseGPR, ScopedArguments::offsetOfTotalLength()),
             valueRegs.payloadGPR());
         jit.boxInt32(valueRegs.payloadGPR(), valueRegs);
+        succeed();
+        return;
+    }
+
+    case AccessCase::RegExpLastIndexLoad: {
+        ASSERT(!accessCase.viaGlobalProxy());
+        fallThrough.append(jit.branchIfNotType(baseGPR, RegExpObjectType));
+        jit.loadValue(CCallHelpers::Address(baseGPR, RegExpObject::offsetOfLastIndex()), valueRegs);
+        succeed();
+        return;
+    }
+
+    case AccessCase::RegExpLastIndexStore: {
+        ASSERT(!accessCase.viaGlobalProxy());
+        fallThrough.append(jit.branchIfNotType(baseGPR, RegExpObjectType));
+        fallThrough.append(
+            jit.branchTestPtr(
+                CCallHelpers::NonZero,
+                CCallHelpers::Address(baseGPR, RegExpObject::offsetOfRegExpAndFlags()),
+                CCallHelpers::TrustedImm32(RegExpObject::lastIndexIsNotWritableFlag)));
+        jit.storeValue(valueRegs, CCallHelpers::Address(baseGPR, RegExpObject::offsetOfLastIndex()));
         succeed();
         return;
     }
@@ -3809,6 +3842,8 @@ void InlineCacheCompiler::generateAccessCase(unsigned index, AccessCase& accessC
 
     case AccessCase::DirectArgumentsLength:
     case AccessCase::ScopedArgumentsLength:
+    case AccessCase::RegExpLastIndexLoad:
+    case AccessCase::RegExpLastIndexStore:
     case AccessCase::ModuleNamespaceLoad:
     case AccessCase::ProxyObjectIn:
     case AccessCase::ProxyObjectLoad:
