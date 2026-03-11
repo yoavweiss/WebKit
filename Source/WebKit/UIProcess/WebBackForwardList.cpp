@@ -689,11 +689,11 @@ void WebBackForwardList::backForwardUpdateItem(IPC::Connection& connection, Ref<
         auto newFrameID = frameItem->frameID();
 
         if (oldFrameID && newFrameID && oldFrameID != newFrameID)
-            updateAllFrameIDs(*oldFrameID, *newFrameID);
+            updateFrameIdentifier(*oldFrameID, *newFrameID);
     }
 }
 
-void WebBackForwardList::updateAllFrameIDs(FrameIdentifier oldFrameID, FrameIdentifier newFrameID)
+void WebBackForwardList::updateFrameIdentifier(FrameIdentifier oldFrameID, FrameIdentifier newFrameID)
 {
     for (auto& entry : m_entries)
         entry->updateFrameID(oldFrameID, newFrameID);

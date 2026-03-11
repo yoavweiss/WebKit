@@ -1121,6 +1121,11 @@ void WebFrameLoaderClient::shouldGoToHistoryItemAsync(WebCore::HistoryItem&, Com
     RELEASE_ASSERT_NOT_REACHED();
 }
 
+void WebFrameLoaderClient::dispatchGoToBackForwardItemAtIndex(int, WebCore::FrameLoadType)
+{
+    // Not needed in WebKitLegacy — single process, useUIProcessForBackForwardItemLoading is never enabled.
+}
+
 bool WebFrameLoaderClient::shouldFallBack(const WebCore::ResourceError& error) const
 {
     // FIXME: Needs to check domain.

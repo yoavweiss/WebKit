@@ -1027,6 +1027,7 @@ public:
     void didChangeBackForwardList(WebBackForwardListItem* addedItem, Vector<Ref<WebBackForwardListItem>>&& removed);
     void shouldGoToBackForwardListItem(WebCore::BackForwardItemIdentifier, bool inBackForwardCache, CompletionHandler<void(WebCore::ShouldGoToHistoryItem)>&&);
     void shouldGoToBackForwardListItemSync(WebCore::BackForwardItemIdentifier, CompletionHandler<void(WebCore::ShouldGoToHistoryItem)>&&);
+    void goToBackForwardItemAtIndex(int32_t steps, WebCore::FrameLoadType);
 
     bool shouldKeepCurrentBackForwardListItemInList(WebBackForwardListItem&);
 

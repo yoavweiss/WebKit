@@ -49,6 +49,7 @@
 #include "LocalFrameView.h"
 #include "Logging.h"
 #include "Navigation.h"
+#include "NavigationScheduler.h"
 #include "Page.h"
 #include "ProcessSwapDisposition.h"
 #include "ScrollingCoordinator.h"
@@ -200,6 +201,7 @@ void HistoryController::restoreScrollPositionAndViewState()
 
 void HistoryController::updateBackForwardListForFragmentScroll()
 {
+    m_frame->navigationScheduler().adjustPendingHistoryNavigationForNewBackForwardEntry();
     updateBackForwardListClippedAtTarget(false);
 }
 
@@ -1071,6 +1073,7 @@ void HistoryController::pushState(RefPtr<SerializedScriptValue>&& stateObject, c
 
     LOG(History, "HistoryController %p pushState: Adding top item %p, setting url of current item %p to %s, scrollRestoration is %s", this, topItem.ptr(), m_currentItem.get(), urlString.ascii().data(), topItem->shouldRestoreScrollPosition() ? "auto" : "manual");
 
+    m_frame->navigationScheduler().adjustPendingHistoryNavigationForNewBackForwardEntry();
     protect(page->backForward())->addItem(WTF::move(topItem));
 
     if (!canRecordHistoryForFrame(frame))

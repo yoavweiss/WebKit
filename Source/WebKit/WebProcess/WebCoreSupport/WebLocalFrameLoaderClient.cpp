@@ -1172,6 +1172,7 @@ void WebLocalFrameLoaderClient::dispatchBackForwardItemLoading(const URL& url, c
 void WebLocalFrameLoaderClient::dispatchDecidePolicyForBackForwardNavigationAction(WebCore::FrameLoadRequest&& frameLoadRequest, const String& referer, WebCore::FrameLoadType loadType)
 {
     Ref localFrame = m_localFrame.get();
+    localFrame->loader().setPendingAsyncBackForwardNavigation();
 
     NavigationAction navigationAction { frameLoadRequest, NavigationType::BackForward, nullptr };
 
@@ -1192,12 +1193,21 @@ void WebLocalFrameLoaderClient::dispatchDecidePolicyForBackForwardNavigationActi
         localFrame->effectiveSandboxFlags(),
         PolicyDecisionMode::Asynchronous,
         [weakLocalFrame = WeakPtr { localFrame.ptr() }, url = request.url(), referer, loadType](PolicyAction action) {
-            if (action != PolicyAction::Use)
-                return;
-
             RefPtr localFrame = weakLocalFrame.get();
             if (!localFrame)
                 return;
+
+            if (action == PolicyAction::LoadWillContinueInAnotherProcess)
+                return;
+
+            if (action == PolicyAction::Ignore) {
+                // Reset the pending async state and re-check completeness
+                // on the parent since this child won't be loading.
+                localFrame->loader().cancelPendingAsyncBackForwardNavigation();
+                if (RefPtr parent = dynamicDowncast<LocalFrame>(localFrame->tree().parent()))
+                    parent->loader().checkCompleted();
+                return;
+            }
 
             RefPtr historyItem = localFrame->loader().requestedHistoryItem();
             if (!historyItem) {
@@ -1413,6 +1423,15 @@ void WebLocalFrameLoaderClient::shouldGoToHistoryItemAsync(HistoryItem& item, Co
     }
 
     webPage->sendWithAsyncReply(Messages::WebPageProxy::ShouldGoToBackForwardListItem(item.itemID(), item.isInBackForwardCache()), WTF::move(completionHandler));
+}
+
+void WebLocalFrameLoaderClient::dispatchGoToBackForwardItemAtIndex(int steps, FrameLoadType frameLoadType)
+{
+    RefPtr webPage = m_frame->page();
+    if (!webPage)
+        return;
+
+    webPage->send(Messages::WebPageProxy::GoToBackForwardItemAtIndex(steps, frameLoadType));
 }
 
 bool WebLocalFrameLoaderClient::shouldFallBack(const ResourceError& error) const

@@ -269,7 +269,7 @@ public:
     void loadDone(LoadCompletionType);
     void subresourceLoadDone(LoadCompletionType);
     void finishedParsing();
-    void checkCompleted();
+    WEBCORE_EXPORT void checkCompleted();
 
     bool isComplete() const { return m_isComplete; }
 
@@ -359,6 +359,11 @@ public:
     WEBCORE_EXPORT void loadRequestedHistoryItem(FrameLoadType, PolicyAlreadyDecided = PolicyAlreadyDecided::No);
 
     void updateURLAndHistory(const URL&, RefPtr<SerializedScriptValue>&& stateObject, NavigationHistoryBehavior = NavigationHistoryBehavior::Replace);
+
+    WEBCORE_EXPORT void setPendingAsyncBackForwardNavigation();
+    WEBCORE_EXPORT void cancelPendingAsyncBackForwardNavigation();
+    WEBCORE_EXPORT bool shouldProceedWithAsyncBackForwardNavigation();
+    bool isWaitingForAsyncBackForwardNavigation() const { return m_asyncBackForwardNavigationState != AsyncBackForwardNavigationState::None; }
 
     void setRequiredCookiesVersion(uint64_t version) { m_requiredCookiesVersion = version; }
     uint64_t requiredCookiesVersion() const { return m_requiredCookiesVersion; }
@@ -548,6 +553,9 @@ private:
 
     URL m_previousURL;
     RefPtr<HistoryItem> m_requestedHistoryItem;
+
+    enum class AsyncBackForwardNavigationState : uint8_t { None, Pending, Cancelled };
+    AsyncBackForwardNavigationState m_asyncBackForwardNavigationState { AsyncBackForwardNavigationState::None };
 
     bool m_alwaysAllowLocalWebarchive { false };
 

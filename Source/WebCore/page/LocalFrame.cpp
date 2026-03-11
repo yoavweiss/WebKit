@@ -381,6 +381,8 @@ void LocalFrame::frameDetached()
 
 bool LocalFrame::preventsParentFromBeingComplete() const
 {
+    if (loader().isWaitingForAsyncBackForwardNavigation())
+        return true;
     return !loader().isComplete() && (!ownerElement() || !ownerElement()->isLazyLoadObserverActive());
 }
 

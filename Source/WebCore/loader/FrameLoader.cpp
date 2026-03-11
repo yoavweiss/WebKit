@@ -831,6 +831,7 @@ void FrameLoader::didBeginDocument(bool dispatch, LocalDOMWindow* previousWindow
 {
     m_needsClear = true;
     m_isComplete = false;
+    m_asyncBackForwardNavigationState = AsyncBackForwardNavigationState::None;
     m_didCallImplicitClose = false;
     Ref frame = m_frame.get();
     Ref document = *frame->document();
@@ -1959,6 +1960,7 @@ void FrameLoader::loadWithDocumentLoader(DocumentLoader* loader, FrameLoadType t
     }
 
     protect(frame->navigationScheduler())->cancel(NewLoadInProgress::Yes);
+    cancelPendingAsyncBackForwardNavigation();
 
     if (shouldTreatCurrentLoadAsContinuingLoad()) {
         continueLoadAfterNavigationPolicy(loader->request(), formSubmission.get(), NavigationPolicyDecision::ContinueLoad, allowNavigationToInvalidURL);
@@ -4666,6 +4668,23 @@ void FrameLoader::setRequestedHistoryItem(HistoryItem& item)
 
     item.setFrameID(frame->frameID());
     m_requestedHistoryItem = item;
+}
+
+void FrameLoader::setPendingAsyncBackForwardNavigation()
+{
+    m_asyncBackForwardNavigationState = AsyncBackForwardNavigationState::Pending;
+}
+
+void FrameLoader::cancelPendingAsyncBackForwardNavigation()
+{
+    if (m_asyncBackForwardNavigationState == AsyncBackForwardNavigationState::Pending)
+        m_asyncBackForwardNavigationState = AsyncBackForwardNavigationState::Cancelled;
+}
+
+bool FrameLoader::shouldProceedWithAsyncBackForwardNavigation()
+{
+    auto state = std::exchange(m_asyncBackForwardNavigationState, AsyncBackForwardNavigationState::None);
+    return state != AsyncBackForwardNavigationState::Cancelled;
 }
 
 void FrameLoader::loadRequestedHistoryItem(FrameLoadType loadType, PolicyAlreadyDecided policyAlreadyDecided)

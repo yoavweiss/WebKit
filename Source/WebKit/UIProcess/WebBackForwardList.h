@@ -98,6 +98,7 @@ public:
     void backForwardGoToItemShared(WebCore::BackForwardItemIdentifier, CompletionHandler<void(const WebBackForwardListCounts&)>&&);
 
     FrameState* findFrameStateInItem(WebCore::BackForwardItemIdentifier, WebCore::FrameIdentifier, uint64_t);
+    void updateFrameIdentifier(WebCore::FrameIdentifier oldFrameID, WebCore::FrameIdentifier newFrameID);
 
     String loggingString();
 
@@ -110,8 +111,6 @@ private:
     const BackForwardListItemVector& entries() const LIFETIME_BOUND { return m_entries; }
     WebBackForwardListCounts NODELETE counts() const;
     Ref<FrameState> completeFrameStateForNavigation(Ref<FrameState>&&);
-
-    void updateAllFrameIDs(WebCore::FrameIdentifier oldFrameID, WebCore::FrameIdentifier newFrameID);
 
     // IPC messages
     void backForwardAddItem(IPC::Connection&, Ref<FrameState>&&);

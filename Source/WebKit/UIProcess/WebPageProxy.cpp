@@ -2784,6 +2784,23 @@ void WebPageProxy::shouldGoToBackForwardListItemSync(BackForwardItemIdentifier i
     shouldGoToBackForwardListItem(itemID, false, WTF::move(completionHandler));
 }
 
+void WebPageProxy::goToBackForwardItemAtIndex(int32_t steps, FrameLoadType frameLoadType)
+{
+    WEBPAGEPROXY_RELEASE_LOG(Loading, "goToBackForwardItemAtIndex: steps=%d", steps);
+
+    RefPtr item = backForwardList().itemAtIndex(steps);
+    if (!item)
+        return;
+
+    Ref frameItem = item->mainFrameItem();
+    if (RefPtr currentItem = backForwardList().currentItem()) {
+        if (RefPtr childItem = currentItem->navigatedFrameID() ? frameItem->childItemForFrameID(*currentItem->navigatedFrameID()) : nullptr)
+            frameItem = childItem.releaseNonNull();
+    }
+
+    goToBackForwardItem(frameItem, frameLoadType);
+}
+
 bool WebPageProxy::shouldKeepCurrentBackForwardListItemInList(WebBackForwardListItem& item)
 {
     RefPtr protectedPageClient { pageClient() };
@@ -5661,11 +5678,6 @@ void WebPageProxy::continueNavigationInNewProcess(API::Navigation& navigation, W
         // send GoToBackForwardItem so the new process performs a proper history navigation using
         // the FrameState stored on the Navigation object.
         if (RefPtr frameState = navigation.backForwardFrameState()) {
-            // The FrameState from the BackForwardList may contain an old frameID from a
-            // previous incarnation of this child frame. Update it to the current frameID
-            // so the new process can find the correct frame to navigate.
-            frameState->frameID = frame.frameID();
-
             WEBPAGEPROXY_RELEASE_LOG(Loading, "continueNavigationInNewProcess: Sending GoToBackForwardItem for child frame to new process, URL=%" SENSITIVE_LOG_STRING, frameState->urlString.utf8().data());
             auto publicSuffix = WebCore::PublicSuffixStore::singleton().publicSuffix(navigation.currentRequest().url());
             frame.prepareForProvisionalLoadInProcess(newProcess, navigation, browsingContextGroup, originator, [
@@ -8587,7 +8599,14 @@ RefPtr<FrameState> WebPageProxy::frameStateForBackForwardChildFrame(WebFrameProx
     if (!index)
         return nullptr;
 
-    return backForwardList().findFrameStateInItem(targetBackForwardItemIdentifier, frame.parentFrame()->frameID(), *index);
+    RefPtr frameState = backForwardList().findFrameStateInItem(targetBackForwardItemIdentifier, frame.parentFrame()->frameID(), *index);
+    if (!frameState)
+        return nullptr;
+
+    if (auto currentFrameID = frameState->frameID; currentFrameID && *currentFrameID != frame.frameID())
+        backForwardList().updateFrameIdentifier(*currentFrameID, frame.frameID());
+
+    return frameState;
 }
 
 void WebPageProxy::decidePolicyForNavigationAction(Ref<WebProcessProxy>&& process, WebFrameProxy& frame, NavigationActionData&& navigationActionData, CompletionHandler<void(PolicyDecision&&)>&& originalCompletionHandler)
@@ -8666,7 +8685,7 @@ void WebPageProxy::decidePolicyForNavigationAction(Ref<WebProcessProxy>&& proces
 
     // Store frameState on navigation for Site Isolation process swap.
     if (frameStateForBackForwardNavigation && navigation)
-        navigation->setBackForwardFrameState(frameStateForBackForwardNavigation->copy());
+        navigation->setBackForwardFrameState(WTF::move(frameStateForBackForwardNavigation));
 
     if (!checkURLReceivedFromCurrentOrPreviousWebProcess(process, request.url())) {
         WEBPAGEPROXY_RELEASE_LOG_ERROR(Process, "Ignoring request to load this main resource because it is outside the sandbox");
