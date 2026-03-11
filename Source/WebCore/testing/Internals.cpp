@@ -696,6 +696,9 @@ void Internals::resetToConsistentState(Page& page)
 
     printContextForTesting() = nullptr;
 
+    MemoryPressureHandler::singleton().endSimulatedMemoryWarning();
+    MemoryPressureHandler::singleton().endSimulatedMemoryPressure();
+
 #if ENABLE(WEB_RTC)
     auto& rtcProvider = page.webRTCProvider();
 #if USE(LIBWEBRTC)
