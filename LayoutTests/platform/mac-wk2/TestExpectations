@@ -806,6 +806,9 @@ accessibility/mac/iframe-relative-frame.html [ Failure ]
 accessibility/mac/visible-content-search-in-scrolled-iframe.html [ Failure ]
 platform/mac-wk2/accessibility/content-inset-scrollview-frame.html [ Failure ]
 
+# Regression from disabling ACCESSIBILITY_LOCAL_FRAME.
+http/tests/site-isolation/accessibility/remote-element-returned.html [ Failure ]
+
 webkit.org/b/160309 fast/dom/Window/child-window-focus.html [ Pass Failure ]
 
 webkit.org/b/161148 gamepad/gamepad-timestamp.html [ Pass Failure ]
