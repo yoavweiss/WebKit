@@ -541,15 +541,15 @@ std::optional<CursorType> cursorTypeFrom(const StyleProperties& properties)
     return std::nullopt;
 }
 
-RefPtr<Node> lastNode(const FixedVector<AXID>& axIDs, AXObjectCache& cache)
+RefPtr<Node> lastNonAriaHiddenNode(const FixedVector<AXID>& axIDs, AXObjectCache& cache)
 {
     AX_ASSERT(isMainThread());
 
     for (auto axID = axIDs.rbegin(); axID != axIDs.rend(); ++axID) {
-        if (RefPtr object = cache.objectForID(*axID)) {
-            if (RefPtr node = object->node())
-                return node;
-        }
+        RefPtr object = cache.objectForID(*axID);
+        RefPtr node = object ? object->node() : nullptr;
+        if (node && !object->isAXHidden())
+            return node;
     }
     return nullptr;
 }

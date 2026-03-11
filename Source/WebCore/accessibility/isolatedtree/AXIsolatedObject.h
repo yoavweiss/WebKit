@@ -105,6 +105,8 @@ public:
     String description() const final { return stringAttributeValue(AXProperty::Description); }
 
     bool isIgnored() const final { return boolAttributeValue(AXProperty::IsIgnored); }
+    std::optional<bool> cachedIsIgnored() const final { return isIgnored(); }
+    bool isARIAHidden() const final { return boolAttributeValue(AXProperty::IsARIAHidden); }
 
     AXTextMarkerRange textMarkerRange() const final;
 

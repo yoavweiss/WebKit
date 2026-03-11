@@ -4039,6 +4039,12 @@ Vector<AXStitchGroup> AccessibilityNodeObject::stitchGroups() const
     Vector<AXStitchGroup> stitchGroups;
     Vector<AXID> currentGroup;
     std::optional<AXID> representativeID;
+    // Multiple layout boxes can share the same renderer, so we need to avoid
+    // appending the same AXID consecutively.
+    auto appendToCurrentGroup = [&](AXID axID) {
+        if (currentGroup.isEmpty() || currentGroup.last() != axID)
+            currentGroup.append(axID);
+    };
     for (auto lineBox = inlineLayout->firstLineBox(); lineBox && !shouldStop; lineBox.traverseNext()) {
         for (auto box = lineBox->logicalLeftmostLeafBox(); box; box.traverseLogicalRightwardOnLine()) {
             auto updateLastRenderer = makeScopeExit([&] {
@@ -4047,7 +4053,7 @@ Vector<AXStitchGroup> AccessibilityNodeObject::stitchGroups() const
 
             if (CheckedPtr renderListMarker = dynamicDowncast<RenderListMarker>(box->renderer()); renderListMarker && !renderListMarker->isDisclosureMarker()) {
                 if (RefPtr object = cache->getOrCreate(const_cast<RenderListMarker&>(*renderListMarker)))
-                    currentGroup.append(object->objectID());
+                    appendToCurrentGroup(object->objectID());
                 continue;
             }
 
@@ -4091,7 +4097,7 @@ Vector<AXStitchGroup> AccessibilityNodeObject::stitchGroups() const
 
                     if (!representativeID)
                         representativeID = axID;
-                    currentGroup.append(axID);
+                    appendToCurrentGroup(axID);
                 }
             }
         }
@@ -4143,26 +4149,45 @@ String AccessibilityNodeObject::stringValue() const
         // We can compute the stringValue of rendered text using AXProperty::TextRuns.
         // See AccessibilityObject::shouldCacheStringValue.
         CheckedPtr cache = axObjectCache();
-
-        RefPtr endNode = cache ? lastNode(stitchGroup->members(), *cache) : nullptr;
-        if (!endNode)
+        if (!cache)
             return textUnderElement();
 
+        // Build text from consecutive runs of non-AXHidden members. Using contiguous
+        // ranges for each run preserves inter-element whitespace, while skipping
+        // aria-hidden members avoids including their text.
         StringBuilder builder;
+        RefPtr<Node> runStartNode;
+        RefPtr<Node> runEndNode;
+        auto flushRun = [&] {
+            if (!runStartNode || !runEndNode)
+                return;
+            if (std::optional range = makeSimpleRange(positionBeforeNode(*runStartNode), positionAfterNode(*runEndNode)))
+                builder.append(plainText(*range, textIteratorBehaviorForTextRange()));
+            runStartNode = nullptr;
+            runEndNode = nullptr;
+        };
+
         for (AXID axID : stitchGroup->members()) {
-            if (axID == objectID())
-                break;
-            if (RefPtr object = cache->objectForID(axID)) {
-                // The only objects preceeding the group representative in the accessibility tree are renderer-only
-                // objects like list markers and CSS generated content.
-                AX_ASSERT(!object->node());
-                if (CheckedPtr renderListMarker = dynamicDowncast<RenderListMarker>(object->renderer()))
-                    builder.append(renderListMarker->textWithSuffix());
+            RefPtr object = cache->objectForID(axID);
+            if (!object)
+                continue;
+
+            if (object->isAXHidden()) {
+                flushRun();
+                continue;
+            }
+
+            if (RefPtr memberNode = object->node()) {
+                if (!runStartNode)
+                    runStartNode = memberNode;
+                runEndNode = memberNode;
+            } else if (CheckedPtr renderListMarker = dynamicDowncast<RenderListMarker>(object->renderer())) {
+                // List markers have no DOM node. Flush any pending text run, then append marker text.
+                flushRun();
+                builder.append(renderListMarker->textWithSuffix());
             }
         }
-
-        std::optional range = makeSimpleRange(positionBeforeNode(*node), positionAfterNode(*endNode));
-        builder.append(range ? plainText(*range, textIteratorBehaviorForTextRange()) : emptyString());
+        flushRun();
 
         return builder.toString();
     }

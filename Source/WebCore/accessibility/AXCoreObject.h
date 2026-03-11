@@ -682,6 +682,8 @@ public:
     bool supportsRequiredAttribute() const;
     virtual bool isExpanded() const = 0;
     virtual bool isVisible() const = 0;
+    virtual bool isARIAHidden() const { return false; }
+    bool isAXHidden() const;
     virtual void setIsExpanded(bool) = 0;
     virtual bool supportsCheckedState() const = 0;
 
@@ -724,6 +726,8 @@ public:
     virtual RenderObject* renderer() const = 0;
 
     virtual bool isIgnored() const = 0;
+    // Returns std::nullopt if we don't have a cached ignored value.
+    virtual std::optional<bool> cachedIsIgnored() const = 0;
 
     unsigned blockquoteLevel() const;
     unsigned headingLevel() const;

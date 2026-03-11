@@ -68,7 +68,6 @@ public:
 
     void setInheritedFrameState(InheritedFrameState);
     const InheritedFrameState& inheritedFrameState() const LIFETIME_BOUND { return m_inheritedFrameState; }
-    bool isAXHidden() const final;
     bool isARIAHidden() const final;
     void updateHostedFrameInheritedState();
 

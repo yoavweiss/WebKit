@@ -418,6 +418,26 @@ AXCoreObject* AXCoreObject::blockFlowAncestor() const
     });
 }
 
+// ARIA component of hidden definition.
+// https://www.w3.org/TR/wai-aria/#dfn-hidden
+bool AXCoreObject::isAXHidden() const
+{
+    if (isFocused())
+        return false;
+
+    if (std::optional cachedIsIgnored = this->cachedIsIgnored()) {
+        if (!*cachedIsIgnored) {
+            // aria-hidden="true" makes itself and all descendants ignored, so try to early-exit
+            // before the ancestry traversal if we can cheaply determine we aren't ignored.
+            return false;
+        }
+    }
+
+    return Accessibility::findAncestor<AXCoreObject>(*this, /* includeSelf */ true, [] (const auto& object) {
+        return object.isARIAHidden();
+    }) != nullptr;
+}
+
 std::optional<AXStitchGroup> AXCoreObject::stitchGroupFromGroups(const Vector<AXStitchGroup>* groups, IncludeGroupMembers includeGroupMembers) const
 {
     if (!groups)

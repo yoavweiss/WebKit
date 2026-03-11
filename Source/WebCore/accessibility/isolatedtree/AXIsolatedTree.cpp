@@ -762,6 +762,9 @@ void AXIsolatedTree::updateNodeProperties(AccessibilityObject& axObject, const A
         case AXProperty::IsHiddenUntilFoundContainer:
             properties.append({ AXProperty::IsHiddenUntilFoundContainer, axObject.isHiddenUntilFoundContainer() });
             break;
+        case AXProperty::IsARIAHidden:
+            properties.append({ AXProperty::IsARIAHidden, axObject.isARIAHidden() });
+            break;
         case AXProperty::IsIgnored:
             properties.append({ AXProperty::IsIgnored, axObject.isIgnored() });
             break;
@@ -1772,6 +1775,8 @@ std::optional<AXPropertyFlag> convertToPropertyFlag(AXProperty property)
         return AXPropertyFlag::HasPlainText;
     case AXProperty::HasPointerEventsNone:
         return AXPropertyFlag::HasPointerEventsNone;
+    case AXProperty::IsARIAHidden:
+        return AXPropertyFlag::IsARIAHidden;
     case AXProperty::IsBlockFlow:
         return AXPropertyFlag::IsBlockFlow;
     case AXProperty::IsEnabled:
@@ -1973,6 +1978,7 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
 
     bool isIgnored = object.isIgnored();
     setProperty(AXProperty::IsIgnored, isIgnored);
+    setProperty(AXProperty::IsARIAHidden, object.isARIAHidden());
 
     // Do not set any properties in this block, as this is before we reserve capacity for the property vector.
 

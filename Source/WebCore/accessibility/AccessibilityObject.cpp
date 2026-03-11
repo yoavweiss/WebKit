@@ -866,7 +866,7 @@ std::optional<SimpleRange> AccessibilityObject::simpleRange() const
 
     // |this| is a stitching of multiple objects, so we need to include all of their contents in the range.
     CheckedPtr cache = axObjectCache();
-    if (RefPtr endNode = cache ? lastNode(stitchGroup->members(), *cache) : nullptr) {
+    if (RefPtr endNode = cache ? lastNonAriaHiddenNode(stitchGroup->members(), *cache) : nullptr) {
         if (std::optional range = makeSimpleRange(positionBeforeNode(*node), positionAfterNode(*endNode)))
             return range;
     }
@@ -3953,18 +3953,6 @@ bool AccessibilityObject::isARIAHidden() const
     return element && equalLettersIgnoringASCIICase(element->attributeWithDefaultARIA(aria_hiddenAttr), "true"_s);
 }
 
-// ARIA component of hidden definition.
-// https://www.w3.org/TR/wai-aria/#dfn-hidden
-bool AccessibilityObject::isAXHidden() const
-{
-    if (isFocused())
-        return false;
-
-    return Accessibility::findAncestor<AccessibilityObject>(*this, true, [] (const auto& object) {
-        return object.isARIAHidden();
-    }) != nullptr;
-}
-
 bool AccessibilityObject::isShowingValidationMessage() const
 {
     if (RefPtr element = this->element()) {
@@ -4093,6 +4081,19 @@ bool AccessibilityObject::isIgnored() const
         attributeCache->setIgnored(objectID(), ignored ? AccessibilityObjectInclusion::IgnoreObject : AccessibilityObjectInclusion::IncludeObject);
 
     return ignored;
+}
+
+std::optional<bool> AccessibilityObject::cachedIsIgnored() const
+{
+    switch (m_lastKnownIsIgnoredValue) {
+    case AccessibilityObjectInclusion::IgnoreObject:
+        return true;
+    case AccessibilityObjectInclusion::IncludeObject:
+        return false;
+    case AccessibilityObjectInclusion::DefaultBehavior:
+        return std::nullopt;
+    }
+    return std::nullopt;
 }
 
 bool AccessibilityObject::isIgnoredWithoutCache(AXObjectCache* cache) const

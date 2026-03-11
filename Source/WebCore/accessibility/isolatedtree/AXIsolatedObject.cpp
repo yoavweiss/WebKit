@@ -1243,8 +1243,11 @@ FloatRect AXIsolatedObject::relativeFrame() const
                         continue;
 
                     if (RefPtr object = tree->objectForID(axID)) {
-                        if (std::optional otherCachedFrame = object->cachedRelativeFrame())
+                        if (std::optional otherCachedFrame = object->cachedRelativeFrame()) {
+                            if (object->isAXHidden())
+                                continue;
                             relativeFrame = unionRect(relativeFrame, *otherCachedFrame);
+                        }
                     }
                 }
             }
@@ -1933,26 +1936,23 @@ String AXIsolatedObject::stringValue() const
             //
             // We can compute the stringValue of rendered text using AXProperty::TextRuns.
             // See AccessibilityObject::shouldCacheStringValue.
-            auto startMarker = AXTextMarker { *this, 0 };
-            AXTextMarker endMarker;
-
             RefPtr tree = std::get<RefPtr<AXIsolatedTree>>(axTreeForID(treeID()));
             if (!tree)
                 return textMarkerRange().toString(IncludeListMarkerText::No);
 
-            for (auto axID = stitchGroup->members().rbegin(); axID != stitchGroup->members().rend(); ++axID) {
-                if (RefPtr object = tree->objectForID(*axID)) {
-                    if (const auto* runs = object->textRuns()) {
-                        endMarker = AXTextMarker { *object, runs->totalLength() };
-                        break;
-                    }
-                }
+            StringBuilder builder;
+            for (AXID axID : stitchGroup->members()) {
+                RefPtr object = tree->objectForID(axID);
+                if (!object || object->isAXHidden())
+                    continue;
+
+                if (const auto* runs = object->textRuns())
+                    builder.append(runs->toString());
+                else
+                    builder.append(object->listMarkerText());
             }
 
-            if (!endMarker.isValid())
-                return textMarkerRange().toString(IncludeListMarkerText::No);
-
-            return AXTextMarkerRange { WTF::move(startMarker), WTF::move(endMarker) }.toString(IncludeListMarkerText::Yes);
+            return builder.toString();
         }
         return emptyString();
     }

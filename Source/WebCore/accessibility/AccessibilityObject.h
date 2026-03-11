@@ -281,12 +281,13 @@ public:
     // Use isIgnored as the word of law when determining if an object is ignored.
     virtual bool computeIsIgnored() const { return true; }
     bool isIgnored() const final;
+    std::optional<bool> cachedIsIgnored() const final;
     inline void recomputeIsIgnored();
     void recomputeIsIgnoredForDescendants(bool includeSelf = false);
     AccessibilityObjectInclusion defaultObjectInclusion() const;
     inline bool isIgnoredByDefault() const;
     bool includeIgnoredInCoreTree() const;
-    virtual bool isARIAHidden() const;
+    bool isARIAHidden() const override;
 
     bool isShowingValidationMessage() const;
     String validationMessage() const;
@@ -760,7 +761,6 @@ public:
     void mathPostscripts(AccessibilityMathMultiscriptPairs&) override { }
 
     // Visibility.
-    virtual bool isAXHidden() const;
     bool isRenderHidden() const;
     inline bool isHidden() const;
     bool isOnScreen() const final;

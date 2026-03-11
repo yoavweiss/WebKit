@@ -599,15 +599,6 @@ FrameGeometry AccessibilityScrollView::frameGeometry() const
     return { };
 }
 
-bool AccessibilityScrollView::isAXHidden() const
-{
-    // If this is the root scroll view, use the inherited state from the parent frame.
-    if (isRoot())
-        return m_inheritedFrameState.isAXHidden;
-
-    return AccessibilityObject::isAXHidden();
-}
-
 bool AccessibilityScrollView::isARIAHidden() const
 {
     // This is necessary to implement on root scrollviews so that the base isAXHidden ancestor traversal works as expected.
