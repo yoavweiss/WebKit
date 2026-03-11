@@ -411,6 +411,83 @@ TEST(ScrollbarTests, ScrollbarAvoidanceInConcentricContainerWithNonUniformCorner
     runTestCaseWithCornerRadii(container, webView, caseTwo);
 }
 
+TEST(ScrollbarTests, VerticalScrollbarXPositionAccountsForObscuredContentInsets)
+{
+    RetainPtr webView = scrollbarAvoidanceTestWebView();
+
+    [webView synchronouslyLoadHTMLString:@"<body style='height: 2000px;'></body>"];
+    [webView stringByEvaluatingJavaScript:@"internals.setUsesOverlayScrollbars(false)"];
+    [webView waitForNextPresentationUpdate];
+
+    auto frameWidth = [webView frame].size.width;
+
+    auto verticalFrameRect = scrollbarFrameRect(webView.get(), ScrollbarType::Vertical);
+    ASSERT_TRUE(verticalFrameRect);
+
+    auto scrollbarWidth = verticalFrameRect->size.width;
+    EXPECT_EQ(verticalFrameRect->origin.x, frameWidth - scrollbarWidth);
+
+    [webView setObscuredContentInsets:NSEdgeInsetsMake(0, 0, 0, 50)];
+    [webView waitForNextPresentationUpdate];
+
+    verticalFrameRect = scrollbarFrameRect(webView.get(), ScrollbarType::Vertical);
+    ASSERT_TRUE(verticalFrameRect);
+
+    EXPECT_EQ(verticalFrameRect->origin.x, frameWidth - scrollbarWidth - 50);
+
+    [webView setObscuredContentInsets:NSEdgeInsetsMake(0, 0, 0, 0)];
+
+    [webView synchronouslyLoadHTMLString:@"<html dir='rtl'><body style='height: 2000px;'></body></html>"];
+    [webView stringByEvaluatingJavaScript:@"internals.setUsesOverlayScrollbars(false)"];
+    [webView waitForNextPresentationUpdate];
+
+    verticalFrameRect = scrollbarFrameRect(webView.get(), ScrollbarType::Vertical);
+    ASSERT_TRUE(verticalFrameRect);
+
+    EXPECT_EQ(verticalFrameRect->origin.x, 0);
+
+    [webView setObscuredContentInsets:NSEdgeInsetsMake(0, 50, 0, 0)];
+    [webView waitForNextPresentationUpdate];
+
+    verticalFrameRect = scrollbarFrameRect(webView.get(), ScrollbarType::Vertical);
+    ASSERT_TRUE(verticalFrameRect);
+
+    EXPECT_EQ(verticalFrameRect->origin.x, 50);
+
+    [webView setObscuredContentInsets:NSEdgeInsetsMake(0, 0, 0, 0)];
+}
+
+TEST(ScrollbarTests, HorizontalScrollbarYPositionAccountsForObscuredContentInsets)
+{
+    RetainPtr webView = scrollbarAvoidanceTestWebView();
+
+    [webView synchronouslyLoadHTMLString:@"<body style='width: 2000px;'></body>"];
+    [webView stringByEvaluatingJavaScript:@"internals.setUsesOverlayScrollbars(false)"];
+    [webView waitForNextPresentationUpdate];
+
+    auto frameHeight = [webView frame].size.height;
+
+    auto horizontalFrameRect = scrollbarFrameRect(webView.get(), ScrollbarType::Horizontal);
+    EXPECT_TRUE(horizontalFrameRect.has_value());
+    if (!horizontalFrameRect.has_value())
+        return;
+
+    auto scrollbarHeight = horizontalFrameRect->size.height;
+    EXPECT_EQ(horizontalFrameRect->origin.y, frameHeight - scrollbarHeight);
+
+    [webView setObscuredContentInsets:NSEdgeInsetsMake(0, 0, 50, 0)];
+    [webView waitForNextPresentationUpdate];
+
+    horizontalFrameRect = scrollbarFrameRect(webView.get(), ScrollbarType::Horizontal);
+    EXPECT_TRUE(horizontalFrameRect.has_value());
+    if (!horizontalFrameRect.has_value())
+        return;
+
+    EXPECT_EQ(horizontalFrameRect->origin.y, frameHeight - scrollbarHeight - 50);
+
+    [webView setObscuredContentInsets:NSEdgeInsetsMake(0, 0, 0, 0)];
+}
+
 #endif // HAVE(NSVIEW_CORNER_CONFIGURATION)
 
 } // namespace TestWebKitAPI

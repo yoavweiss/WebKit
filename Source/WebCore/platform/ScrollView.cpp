@@ -768,9 +768,11 @@ void ScrollView::updateScrollbars(const ScrollPosition& desiredPosition)
         auto horizontalOffset = leftOffset + (shouldPlaceVerticalScrollbarOnLeft() && m_verticalScrollbar ? m_verticalScrollbar->occupiedWidth() : 0.f);
         auto barWidth = width() - (m_verticalScrollbar ? m_verticalScrollbar->occupiedWidth() : 0.f) - leftOffset - rightOffset;
 
+        auto horizontalScrollbarY = height() - m_horizontalScrollbar->height() - contentInsets.bottom();
+
         m_horizontalScrollbar->setFrameRect(roundedIntRect({
             horizontalOffset,
-            static_cast<float>(height() - m_horizontalScrollbar->height()),
+            static_cast<float>(horizontalScrollbarY),
             barWidth,
             static_cast<float>(m_horizontalScrollbar->height())
         }));
@@ -805,8 +807,10 @@ void ScrollView::updateScrollbars(const ScrollPosition& desiredPosition)
 
         auto barHeight = height() - (m_horizontalScrollbar ? m_horizontalScrollbar->occupiedHeight() : 0) - topOffset - bottomOffset;
 
+        auto verticalScrollbarX = isRTL ? contentInsets.left() : width() - m_verticalScrollbar->width() - contentInsets.right();
+
         m_verticalScrollbar->setFrameRect(roundedIntRect({
-            shouldPlaceVerticalScrollbarOnLeft() ? 0.f : width() - m_verticalScrollbar->width(),
+            verticalScrollbarX,
             topOffset,
             static_cast<float>(m_verticalScrollbar->width()),
             barHeight
