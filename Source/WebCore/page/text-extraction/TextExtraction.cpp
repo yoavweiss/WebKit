@@ -1579,16 +1579,24 @@ static std::optional<SimpleRange> searchForText(Node& node, const String& search
         return std::nullopt;
 
     auto searchRange = makeRangeSelectingNodeContents(node);
-    auto foundRange = findPlainText(searchRange, searchText, {
+    auto caseSensitiveRange = findPlainText(searchRange, searchText, {
+        FindOption::DoNotRevealSelection,
+        FindOption::DoNotSetSelection,
+    });
+
+    if (!caseSensitiveRange.collapsed())
+        return { WTF::move(caseSensitiveRange) };
+
+    auto caseInsensitiveRange = findPlainText(searchRange, searchText, {
         FindOption::DoNotRevealSelection,
         FindOption::DoNotSetSelection,
         FindOption::CaseInsensitive,
     });
 
-    if (foundRange.collapsed())
-        return { };
+    if (!caseInsensitiveRange.collapsed())
+        return { WTF::move(caseInsensitiveRange) };
 
-    return { WTF::move(foundRange) };
+    return { };
 }
 
 static String invalidNodeIdentifierDescription(std::optional<NodeIdentifier>&& identifier)

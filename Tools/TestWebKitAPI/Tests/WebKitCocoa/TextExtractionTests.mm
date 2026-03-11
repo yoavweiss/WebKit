@@ -571,9 +571,10 @@ TEST(TextExtractionTests, NodesToSkip)
     }()];
 
     NSArray<NSString *> *lines = [debugText componentsSeparatedByString:@"\n"];
-    EXPECT_EQ([lines count], 2u);
+    EXPECT_EQ([lines count], 3u);
     EXPECT_WK_STREQ("Test", lines[0]);
-    EXPECT_WK_STREQ("0", lines[1]);
+    EXPECT_WK_STREQ("subject SUBJECT", lines[1]);
+    EXPECT_WK_STREQ("0", lines[2]);
 }
 
 TEST(TextExtractionTests, RequestJSHandleForNodeIdentifier)
@@ -616,6 +617,46 @@ TEST(TextExtractionTests, RequestJSHandleForNodeIdentifier)
     }()];
 
     EXPECT_WK_STREQ(debugTextForBody.get(), @"root,'“The quick brown fox jumped over the lazy dog”'");
+}
+
+TEST(TextExtractionTests, RequestJSHandleForNodeIdentifierCaseSensitive)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:^{
+        RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+        [[configuration preferences] _setTextExtractionEnabled:YES];
+        return configuration.autorelease();
+    }()]);
+
+    [webView synchronouslyLoadTestPageNamed:@"debug-text-extraction"];
+
+    RetainPtr extractionResult = [webView synchronouslyExtractDebugTextResult:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setIncludeRects:NO];
+        [configuration setIncludeURLs:NO];
+        return configuration.autorelease();
+    }()];
+
+    RetainPtr debugTextForLowercase = [webView synchronouslyGetDebugText:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setIncludeRects:NO];
+        [configuration setIncludeURLs:NO];
+        [configuration setNodeIdentifierInclusion:_WKTextExtractionNodeIdentifierInclusionNone];
+        [configuration setTargetNode:[extractionResult jsHandleForNodeIdentifier:nil searchText:@"subject"]];
+        return configuration.autorelease();
+    }()];
+
+    EXPECT_WK_STREQ(debugTextForLowercase.get(), @"root\n\taria-label='Lowercase','subject'");
+
+    RetainPtr debugTextForUppercase = [webView synchronouslyGetDebugText:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setIncludeRects:NO];
+        [configuration setIncludeURLs:NO];
+        [configuration setNodeIdentifierInclusion:_WKTextExtractionNodeIdentifierInclusionNone];
+        [configuration setTargetNode:[extractionResult jsHandleForNodeIdentifier:nil searchText:@"SUBJECT"]];
+        return configuration.autorelease();
+    }()];
+
+    EXPECT_WK_STREQ(debugTextForUppercase.get(), @"root\n\taria-label='Uppercase','SUBJECT'");
 }
 
 TEST(TextExtractionTests, RequestContainerJSHandleForNodeIdentifier)
