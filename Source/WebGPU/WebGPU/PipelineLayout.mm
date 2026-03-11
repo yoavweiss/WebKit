@@ -379,5 +379,5 @@ void wgpuPipelineLayoutRelease(WGPUPipelineLayout pipelineLayout)
 
 void wgpuPipelineLayoutSetLabel(WGPUPipelineLayout pipelineLayout, const char* label)
 {
-    WebGPU::fromAPI(pipelineLayout).setLabel(WebGPU::fromAPI(label));
+    protect(WebGPU::fromAPI(pipelineLayout))->setLabel(WebGPU::fromAPI(label));
 }

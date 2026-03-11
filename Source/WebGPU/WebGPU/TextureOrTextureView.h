@@ -52,19 +52,26 @@ public:
     {
     }
 
-#define TEXTURE_OR_VIEW_HELPER(x) auto x() const { return m_view ? m_view->x() : protect(m_texture)->x(); }
-#define TEXTURE_OR_VIEW_HELPER_REF(x) const auto& x() const { return m_view ? m_view->x() : protect(m_texture)->x(); }
-#define TEXTURE_OR_VIEW_HELPER_PROTECT(x) auto x() const { return m_view ? protect(m_view)->x() : protect(m_texture)->x(); }
+#define TEXTURE_OR_VIEW_INVOKE(x) return m_view ? RefPtr { m_view }->x() : RefPtr { m_texture }->x()
+#define TEXTURE_OR_VIEW_HELPER(x) auto x() const { TEXTURE_OR_VIEW_INVOKE(x); }
+#define TEXTURE_OR_VIEW_HELPER_NONCONST(x) auto x() { TEXTURE_OR_VIEW_INVOKE(x); }
+#define TEXTURE_OR_VIEW_HELPER_REF(x) const auto& x() const { TEXTURE_OR_VIEW_INVOKE(x); }
 
+    TEXTURE_OR_VIEW_HELPER(width)
+    TEXTURE_OR_VIEW_HELPER(height)
     TEXTURE_OR_VIEW_HELPER(is2DTexture)
     TEXTURE_OR_VIEW_HELPER(is2DArrayTexture)
     TEXTURE_OR_VIEW_HELPER(is3DTexture)
     TEXTURE_OR_VIEW_HELPER(sampleCount)
     TEXTURE_OR_VIEW_HELPER(format)
     TEXTURE_OR_VIEW_HELPER(isDestroyed)
+    TEXTURE_OR_VIEW_HELPER(depthOrArrayLayers)
     TEXTURE_OR_VIEW_HELPER(baseArrayLayer)
     TEXTURE_OR_VIEW_HELPER(baseMipLevel)
     TEXTURE_OR_VIEW_HELPER(parentTexture)
+    TEXTURE_OR_VIEW_HELPER(parentRelativeSlice)
+    TEXTURE_OR_VIEW_HELPER(previouslyCleared)
+    TEXTURE_OR_VIEW_HELPER_NONCONST(setPreviouslyCleared)
     TEXTURE_OR_VIEW_HELPER(texture)
     TEXTURE_OR_VIEW_HELPER(isValid)
     TEXTURE_OR_VIEW_HELPER(usage)
@@ -74,26 +81,20 @@ public:
     TEXTURE_OR_VIEW_HELPER_REF(apiParentTexture)
     TEXTURE_OR_VIEW_HELPER_REF(device)
 
-    TEXTURE_OR_VIEW_HELPER_PROTECT(depthOrArrayLayers)
-    TEXTURE_OR_VIEW_HELPER_PROTECT(height)
-    TEXTURE_OR_VIEW_HELPER_PROTECT(parentRelativeSlice)
-    TEXTURE_OR_VIEW_HELPER_PROTECT(previouslyCleared)
-    TEXTURE_OR_VIEW_HELPER_PROTECT(width)
-    TEXTURE_OR_VIEW_HELPER_PROTECT(setPreviouslyCleared)
-
     void setCommandEncoder(CommandEncoder& encoder)
     {
-        m_view ? protect(m_view)->setCommandEncoder(encoder) : protect(m_texture)->setCommandEncoder(encoder);
+        m_view ? RefPtr { m_view }->setCommandEncoder(encoder) : RefPtr { m_texture }->setCommandEncoder(encoder);
     }
 
     id<MTLRasterizationRateMap> rasterizationMapForSlice(uint32_t slice)
     {
-        return m_view ? m_view->rasterizationMapForSlice(slice) : m_texture->rasterizationMapForSlice(slice);
+        return m_view ? RefPtr { m_view }->rasterizationMapForSlice(slice) : RefPtr { m_texture }->rasterizationMapForSlice(slice);
     }
 
 #undef TEXTURE_OR_VIEW_INVOKE
 #undef TEXTURE_OR_VIEW_HELPER
 #undef TEXTURE_OR_VIEW_HELPER_REF
+#undef TEXTURE_OR_VIEW_HELPER_NONCONST
 
     operator bool() const { return m_texture || m_view; }
 

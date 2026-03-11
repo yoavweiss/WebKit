@@ -2019,5 +2019,5 @@ WGPUBindGroupLayout wgpuRenderPipelineGetBindGroupLayout(WGPURenderPipeline rend
 
 void wgpuRenderPipelineSetLabel(WGPURenderPipeline renderPipeline, const char* label)
 {
-    WebGPU::fromAPI(renderPipeline).setLabel(WebGPU::fromAPI(label));
+    protect(WebGPU::fromAPI(renderPipeline))->setLabel(WebGPU::fromAPI(label));
 }

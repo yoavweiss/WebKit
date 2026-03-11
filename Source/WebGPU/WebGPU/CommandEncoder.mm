@@ -201,7 +201,7 @@ id<MTLBlitCommandEncoder> CommandEncoder::ensureBlitCommandEncoder()
         finalizeBlitCommandEncoder();
     }
 
-    if (!m_device->isValid())
+    if (!protect(m_device)->isValid())
         return nil;
 
     MTLBlitPassDescriptor *descriptor = [MTLBlitPassDescriptor new];
@@ -995,7 +995,7 @@ NSString* CommandEncoder::errorValidatingCopyBufferToTexture(const WGPUImageCopy
             return ERROR_STRING(@"source.layout.offset is not a multiple of four for depth stencil format");
     }
 
-    if (NSString* errorString = Texture::errorValidatingLinearTextureData(source.layout, fromAPI(source.buffer).initialSize(), aspectSpecificFormat, copySize))
+    if (NSString* errorString = Texture::errorValidatingLinearTextureData(source.layout, protect(fromAPI(source.buffer))->initialSize(), aspectSpecificFormat, copySize))
         return ERROR_STRING(errorString);
 #undef ERROR_STRING
     return nil;
@@ -1289,7 +1289,7 @@ NSString* CommandEncoder::errorValidatingCopyTextureToBuffer(const WGPUImageCopy
     if (NSString* error = errorValidatingImageCopyBuffer(destination))
         return ERROR_STRING(error);
 
-    if (!(fromAPI(destination.buffer).usage() & WGPUBufferUsage_CopyDst))
+    if (!(protect(fromAPI(destination.buffer))->usage() & WGPUBufferUsage_CopyDst))
         return ERROR_STRING(@"destination buffer usage does not contain CopyDst");
 
     if (NSString* error = Texture::errorValidatingTextureCopyRange(source, copySize))
@@ -1306,7 +1306,7 @@ NSString* CommandEncoder::errorValidatingCopyTextureToBuffer(const WGPUImageCopy
             return ERROR_STRING(@"destination.layout.offset is not a multiple of 4");
     }
 
-    if (NSString* errorString = Texture::errorValidatingLinearTextureData(destination.layout, fromAPI(destination.buffer).initialSize(), aspectSpecificFormat, copySize))
+    if (NSString* errorString = Texture::errorValidatingLinearTextureData(destination.layout, protect(fromAPI(destination.buffer))->initialSize(), aspectSpecificFormat, copySize))
         return ERROR_STRING(errorString);
 #undef ERROR_STRING
     return nil;
@@ -1827,7 +1827,7 @@ NSString* CommandEncoder::errorValidatingCopyTextureToTexture(const WGPUImageCop
     if (source.texture == destination.texture) {
         // Mip levels are never ranges.
         if (source.mipLevel == destination.mipLevel) {
-            switch (fromAPI(source.texture).dimension()) {
+            switch (protect(fromAPI(source.texture))->dimension()) {
             case WGPUTextureDimension_1D:
                 return ERROR_STRING(@"can't copy 1D texture to itself");
             case WGPUTextureDimension_2D: {

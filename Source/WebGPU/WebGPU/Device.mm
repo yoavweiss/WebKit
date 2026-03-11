@@ -1135,7 +1135,7 @@ WGPUComputePipeline wgpuDeviceCreateComputePipeline(WGPUDevice device, const WGP
 
 void wgpuDevicePauseErrorReporting(WGPUDevice device, WGPUBool pauseErrors)
 {
-    WebGPU::fromAPI(device).pauseErrorReporting(!!pauseErrors);
+    protect(WebGPU::fromAPI(device))->pauseErrorReporting(!!pauseErrors);
 }
 
 void wgpuDeviceCreateComputePipelineAsync(WGPUDevice device, const WGPUComputePipelineDescriptor* descriptor, WGPUCreateComputePipelineAsyncCallback callback, void* userdata)
@@ -1223,12 +1223,12 @@ size_t wgpuDeviceEnumerateFeatures(WGPUDevice device, WGPUFeatureName* features)
 
 WGPUBool wgpuDeviceGetLimits(WGPUDevice device, WGPUSupportedLimits* limits)
 {
-    return WebGPU::fromAPI(device).getLimits(*limits);
+    return protect(WebGPU::fromAPI(device))->getLimits(*limits);
 }
 
 WGPUQueue wgpuDeviceGetQueue(WGPUDevice device)
 {
-    return &WebGPU::fromAPI(device).getQueueReference();
+    return &protect(WebGPU::fromAPI(device))->getQueueReference();
 }
 
 WGPUBool wgpuDeviceHasFeature(WGPUDevice device, WGPUFeatureName feature)
@@ -1298,5 +1298,5 @@ void wgpuDeviceSetUncapturedErrorCallbackWithBlock(WGPUDevice device, WGPUErrorB
 
 void wgpuDeviceSetLabel(WGPUDevice device, const char* label)
 {
-    WebGPU::fromAPI(device).setLabel(WebGPU::fromAPI(label));
+    protect(WebGPU::fromAPI(device))->setLabel(WebGPU::fromAPI(label));
 }

@@ -252,7 +252,7 @@ void Buffer::destroy()
     setState(State::Destroyed);
     m_device->makeSubmitInvalidClearingEncoders(m_commandEncoders);
     m_device->removeBufferFromCache(m_buffer.gpuAddress);
-    m_buffer = m_device->placeholderBuffer();
+    m_buffer = protect(m_device)->placeholderBuffer();
 }
 
 bool Buffer::validateGetMappedRange(size_t offset, size_t rangeSize) const
@@ -421,7 +421,7 @@ void Buffer::unmap()
 {
     // https://gpuweb.github.io/gpuweb/#dom-gpubuffer-unmap
 
-    if (!validateUnmap() && !m_device->isValid())
+    if (!validateUnmap() && !protect(m_device)->isValid())
         return;
 
     decrementBufferMapCount();
@@ -509,7 +509,7 @@ static bool verifyIndexBufferData(id<MTLBuffer> buffer, uint32_t firstIndex, uin
 void Buffer::takeSlowIndexValidationPath(CommandBuffer& commandBuffer, uint32_t firstIndex, uint32_t indexCount, MTLIndexType indexType, uint32_t primitiveOffset, uint32_t vertexCount)
 {
     WTFLogAlways("WARNING: Severe performance penalty due to encoding drawIndexed calls out of order with submission"); // NOLINT
-    Ref queue = m_device->getQueue();
+    Ref queue = protect(m_device)->getQueue();
     queue->waitForAllCommitedWorkToComplete();
     queue->synchronizeResourceAndWait(m_buffer);
     bool verified = false;
@@ -537,7 +537,7 @@ void Buffer::takeSlowIndexValidationPath(CommandBuffer& commandBuffer, uint32_t 
 void Buffer::takeSlowIndirectIndexValidationPath(CommandBuffer& commandBuffer, Buffer& apiIndexBuffer, MTLIndexType indexType, uint32_t indexBufferOffsetInBytes, uint32_t indirectOffset, uint32_t minVertexCount, MTLPrimitiveType primitiveType)
 {
     WTFLogAlways("WARNING: Severe performance penalty due to encoding drawIndexedIndirect calls out of order with submission"); // NOLINT
-    Ref queue = m_device->getQueue();
+    Ref queue = protect(m_device)->getQueue();
     queue->waitForAllCommitedWorkToComplete();
     queue->synchronizeResourceAndWait(m_buffer);
     if (m_buffer.length < indexBufferOffsetInBytes + sizeof(MTLDrawIndexedPrimitivesIndirectArguments))
@@ -580,7 +580,7 @@ static bool NODELETE verifyIndirectBufferData(MTLDrawPrimitivesIndirectArguments
 void Buffer::takeSlowIndirectValidationPath(CommandBuffer& commandBuffer, uint64_t indirectOffset, uint32_t minVertexCount, uint32_t minInstanceCount)
 {
     WTFLogAlways("WARNING: Severe performance penalty due to encoding drawIndirect calls out of order with submission"); // NOLINT
-    Ref queue = m_device->getQueue();
+    Ref queue = protect(m_device)->getQueue();
     queue->waitForAllCommitedWorkToComplete();
     queue->synchronizeResourceAndWait(m_buffer);
     auto bufferSubData = span<MTLDrawPrimitivesIndirectArguments>(m_buffer, indirectOffset);
@@ -782,7 +782,7 @@ void wgpuBufferDestroy(WGPUBuffer buffer)
 
 WGPUBufferMapState wgpuBufferGetMapState(WGPUBuffer buffer)
 {
-    switch (WebGPU::fromAPI(buffer).state()) {
+    switch (protect(WebGPU::fromAPI(buffer))->state()) {
     case WebGPU::Buffer::State::Mapped:
         return WGPUBufferMapState_Mapped;
     case WebGPU::Buffer::State::MappedAtCreation:
@@ -808,7 +808,7 @@ std::span<uint8_t> wgpuBufferGetBufferContents(WGPUBuffer buffer)
 
 uint64_t wgpuBufferGetInitialSize(WGPUBuffer buffer)
 {
-    return WebGPU::fromAPI(buffer).initialSize();
+    return protect(WebGPU::fromAPI(buffer))->initialSize();
 }
 
 uint64_t wgpuBufferGetCurrentSize(WGPUBuffer buffer)
@@ -842,7 +842,7 @@ void wgpuBufferSetLabel(WGPUBuffer buffer, const char* label)
 
 WGPUBufferUsageFlags wgpuBufferGetUsage(WGPUBuffer buffer)
 {
-    return WebGPU::fromAPI(buffer).usage();
+    return protect(WebGPU::fromAPI(buffer))->usage();
 }
 
 void NODELETE wgpuBufferCopy(WGPUBuffer buffer, std::span<const uint8_t> data, size_t offset)

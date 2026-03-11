@@ -246,5 +246,5 @@ WGPUBindGroupLayout wgpuComputePipelineGetBindGroupLayout(WGPUComputePipeline co
 
 void wgpuComputePipelineSetLabel(WGPUComputePipeline computePipeline, const char* label)
 {
-    WebGPU::fromAPI(computePipeline).setLabel(WebGPU::fromAPI(label));
+    protect(WebGPU::fromAPI(computePipeline))->setLabel(WebGPU::fromAPI(label));
 }
