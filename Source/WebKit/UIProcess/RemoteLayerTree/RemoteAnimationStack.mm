@@ -127,6 +127,12 @@ void RemoteAnimationStack::initEffectsFromMainThread(PlatformLayer *layer)
     // use this alone to determine whether this stack interpolates `filter`.
     auto* canonicalFilters = longestFilterList();
 
+    // FIXME: If we're only animating a filter property and we haven't found a filter, then
+    // we won't have anything to animate. Ideally, we wouldn't end up in this state where we
+    // have a no-op animation stack. See https://bugs.webkit.org/show_bug.cgi?id=309658.
+    if (!canonicalFilters && m_affectedLayerProperties.containsOnly({ LayerProperty::Filter }))
+        return;
+
     auto numberOfPresentationModifiers = [&]() {
         size_t count = 0;
         if (canonicalFilters)
@@ -164,7 +170,8 @@ void RemoteAnimationStack::initEffectsFromMainThread(PlatformLayer *layer)
 
 void RemoteAnimationStack::applyEffects() const
 {
-    ASSERT(m_presentationModifierGroup);
+    if (!m_presentationModifierGroup)
+        return;
 
     auto computedValues = computeValues();
 
@@ -216,7 +223,8 @@ WebCore::AcceleratedEffectValues RemoteAnimationStack::computeValues() const
 void RemoteAnimationStack::clear(PlatformLayer *layer)
 {
 #if PLATFORM(MAC)
-    ASSERT(m_presentationModifierGroup);
+    if (!m_presentationModifierGroup)
+        return;
 
     for (auto& filterPresentationModifier : m_filterPresentationModifiers)
         [layer removePresentationModifier:filterPresentationModifier.second.get()];
