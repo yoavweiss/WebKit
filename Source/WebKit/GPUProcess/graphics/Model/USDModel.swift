@@ -944,9 +944,7 @@ final class USDModelLoader: _Proto_UsdStageSession_v1.Delegate {
     func loadModel(from url: Foundation.URL) {
         do {
             let stage = try UsdStage(contentsOf: url)
-            self.timeCodePerSecond = stage.timeCodesPerSecond
-            self.startTime = stage.startTimeCode
-            self.endTime = stage.endTimeCode
+            self.setupTimes(from: stage)
             self.usdLoader.loadStage(stage)
         } catch {
             fatalError(error.localizedDescription)
@@ -962,34 +960,38 @@ final class USDModelLoader: _Proto_UsdStageSession_v1.Delegate {
                 logError("model data is corrupted")
                 return
             }
-            self.timeCodePerSecond = stage.timeCodesPerSecond
-            self.startTime = stage.startTimeCode
-            self.endTime = stage.endTimeCode
+            self.setupTimes(from: stage)
             self.usdLoader.loadStage(stage)
         } catch {
             fatalError(error.localizedDescription)
         }
     }
 
-    func duration() -> Double {
-        if timeCodePerSecond > 0 {
-            return (endTime - startTime) / timeCodePerSecond
-        }
+    func setupTimes(from stage: UsdStage) {
+        timeCodePerSecond = stage.timeCodesPerSecond > 0 ? stage.timeCodesPerSecond : 1
+        startTime = stage.startTimeCode / timeCodePerSecond
+        endTime = stage.endTimeCode / timeCodePerSecond
+    }
 
-        return 0.0
+    func duration() -> Double {
+        endTime - startTime
     }
 
     func currentTime() -> Double {
         time - startTime
     }
 
+    func setCurrentTime(_ newTime: Double) {
+        time = startTime + newTime
+    }
+
     func loadModel(from data: Data) {
     }
 
     func update(deltaTime: TimeInterval) {
-        usdLoader.update(time: time)
-
-        time = fmod(deltaTime * self.timeCodePerSecond + time - startTime, max(endTime - startTime, 1)) + startTime
+        let newTime = currentTime() + deltaTime
+        time = startTime + fmod(newTime, max(duration(), 1))
+        usdLoader.update(time: time * timeCodePerSecond)
     }
 }
 
@@ -1063,6 +1065,11 @@ extension WKBridgeModelLoader {
             return 0.0
         }
         return loader.currentTime()
+    }
+
+    @objc
+    func setCurrentTime(_ newTime: Double) {
+        loader?.setCurrentTime(newTime)
     }
 
     fileprivate func updateMesh(webRequest: WKBridgeUpdateMesh) {
@@ -1516,6 +1523,10 @@ extension WKBridgeModelLoader {
     @objc
     func currentTime() -> Double {
         0.0
+    }
+
+    @objc
+    func setCurrentTime(_ newTime: Double) {
     }
 }
 #endif

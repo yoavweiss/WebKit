@@ -598,6 +598,18 @@ bool WebModelPlayer::paused() const
     return m_pauseState != PauseState::Playing;
 }
 
+Seconds WebModelPlayer::currentTime() const
+{
+    return Seconds([m_modelLoader currentTime]);
+}
+
+void WebModelPlayer::setCurrentTime(Seconds currentTime, CompletionHandler<void()>&& completion)
+{
+    double clamped = std::clamp(currentTime.seconds(), 0.0, duration());
+    [m_modelLoader setCurrentTime:clamped];
+    completion();
+}
+
 std::optional<WebCore::TransformationMatrix> WebModelPlayer::entityTransform() const
 {
 #if PLATFORM(COCOA)
