@@ -146,7 +146,7 @@ typedef enum {
 } WebNotificationPermission;
 
 #if TARGET_OS_IPHONE
-@interface WebUITextIndicatorData : NSObject
+@interface WebUITextIndicator : NSObject
 @property (nonatomic, retain) UIImage *dataInteractionImage;
 @property (nonatomic, assign) CGRect selectionRectInRootViewCoordinates;
 @property (nonatomic, assign) CGRect textBoundingRectInRootViewCoordinates;
@@ -157,6 +157,10 @@ typedef enum {
 @property (nonatomic, retain) UIImage *contentImageWithoutSelection;
 @property (nonatomic, assign) CGRect contentImageWithoutSelectionRectInRootViewCoordinates;
 @property (nonatomic, retain) UIColor *estimatedBackgroundColor;
+@end
+
+// Backwards compatibility alias
+@interface WebUITextIndicatorData : WebUITextIndicator
 @end
 #endif
 
@@ -438,7 +442,8 @@ Could be worth adding to the API.
 #if TARGET_OS_IOS
 - (BOOL)_requestStartDataInteraction:(CGPoint)clientPosition globalPosition:(CGPoint)globalPosition;
 - (WebUITextIndicatorData *)_getDataInteractionData;
-@property (nonatomic, readonly, strong, getter=_dataOperationTextIndicator) WebUITextIndicatorData *dataOperationTextIndicator;
+- (WebUITextIndicator *)_getDataInteraction;
+@property (nonatomic, readonly, strong, getter=_dataOperationTextIndicator) WebUITextIndicator *dataOperationTextIndicator;
 @property (nonatomic, readonly) NSUInteger _dragSourceAction;
 @property (nonatomic, strong, readonly) NSString *_draggedLinkTitle;
 @property (nonatomic, strong, readonly) NSURL *_draggedLinkURL;
