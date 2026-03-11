@@ -733,11 +733,6 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
     auto shouldBlockWebInspector = parameters.store.getBoolValueForKey(WebPreferencesKey::blockWebInspectorInWebContentSandboxKey());
     if (shouldBlockWebInspector)
         sandbox_enable_state_flag("BlockWebInspectorInWebContentSandbox", *auditToken);
-#if PLATFORM(IOS)
-    auto shouldBlockMobileGestalt = parameters.store.getBoolValueForKey(WebPreferencesKey::blockMobileGestaltInWebContentSandboxKey());
-    if (shouldBlockMobileGestalt)
-        sandbox_enable_state_flag("BlockMobileGestaltInWebContentSandbox", *auditToken);
-#endif
     auto shouldBlockMobileAsset = parameters.store.getBoolValueForKey(WebPreferencesKey::blockMobileAssetInWebContentSandboxKey());
     if (shouldBlockMobileAsset)
         sandbox_enable_state_flag("BlockMobileAssetInWebContentSandbox", *auditToken);
