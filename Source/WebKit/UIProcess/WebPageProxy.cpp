@@ -10555,7 +10555,17 @@ void WebPageProxy::showDataListSuggestions(WebCore::DataListSuggestionInformatio
     if (!internals().dataListSuggestionsDropdown)
         return;
 
-    protect(*internals().dataListSuggestionsDropdown)->show(WTF::move(info));
+    convertRectToMainFrameCoordinates(info.elementRect, info.rootFrameID, [weakThis = WeakPtr { *this }, info = WTF::move(info)](std::optional<FloatRect> convertedRect) mutable {
+        RefPtr protectedThis = weakThis.get();
+        if (!protectedThis || !convertedRect)
+            return;
+
+        if (!protectedThis->internals().dataListSuggestionsDropdown)
+            return;
+
+        info.elementRect = IntRect(*convertedRect);
+        protect(*protectedThis->internals().dataListSuggestionsDropdown)->show(WTF::move(info));
+    });
 }
 
 void WebPageProxy::handleKeydownInDataList(const String& key)
