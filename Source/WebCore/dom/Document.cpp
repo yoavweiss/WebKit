@@ -4960,6 +4960,11 @@ IDBClient::IDBConnectionProxy* Document::idbConnectionProxy()
     return m_idbConnectionProxy.get();
 }
 
+void Document::clearIDBConnectionProxy()
+{
+    m_idbConnectionProxy = nullptr;
+}
+
 StorageConnection* Document::storageConnection()
 {
     return page() ? &page()->storageConnection() : nullptr;

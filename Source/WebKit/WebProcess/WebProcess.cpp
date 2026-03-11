@@ -147,6 +147,7 @@
 #include <WebCore/SharedWorkerThreadProxy.h>
 #include <WebCore/UserGestureIndicator.h>
 #include <WebCore/WebKitJSHandle.h>
+#include <WebCore/WorkerGlobalScope.h>
 #include <algorithm>
 #include <pal/Logging.h>
 #include <wtf/CallbackAggregator.h>
@@ -1398,6 +1399,9 @@ NetworkProcessConnection& WebProcess::ensureNetworkProcessConnection()
             for (auto& webPage : m_pageMap.values())
                 webPage->synchronizeCORSDisablingPatternsWithNetworkProcess();
         });
+
+        if (std::exchange(m_needsIDBConnectionRefreshForWorkers, false))
+            refreshIDBConnectionForWorkers();
     }
     
     return *m_networkProcessConnection;
@@ -1447,7 +1451,7 @@ void WebProcess::networkProcessConnectionClosed(NetworkProcessConnection* connec
         
         if (RefPtr existingIDBConnectionToServer = connection->existingIDBConnectionToServer()) {
             ASSERT_UNUSED(existingIDBConnectionToServer, idbConnection.get() == &existingIDBConnectionToServer->coreConnectionToServer());
-            corePage->clearIDBConnection();
+            corePage->clearIDBConnectionOnAllDocuments();
         }
     }
 
@@ -1491,6 +1495,14 @@ void WebProcess::networkProcessConnectionClosed(NetworkProcessConnection* connec
     for (auto& weakSession : sessions) {
         if (RefPtr webtransportSession = weakSession.get())
             webtransportSession->didFail(std::nullopt, String(emptyString()));
+    }
+}
+
+void WebProcess::refreshIDBConnectionForWorkers()
+{
+    for (auto& page : m_pageMap.values()) {
+        if (RefPtr corePage = page->corePage())
+            corePage->refreshIDBConnectionForWorkers();
     }
 }
 
