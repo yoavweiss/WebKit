@@ -4516,9 +4516,6 @@ fast/css/highlight-text-repaint.html [ Skip ] # Failure
 fast/css/text-underline-offset-repaint.html [ Skip ] # Failure
 fast/flexbox/missing-repaint-when-flext-item-never-had-layout.html [ Skip ] # Failure
 
-fast/canvas/fillText-edge-clip-shadow.html [ ImageOnlyFailure ]
-fast/canvas/fillText-edge-shadow.html [ ImageOnlyFailure ]
-
 webkit.org/b/286284 fast/canvas/canvas-image-shadow.html [ Failure ]
 webkit.org/b/286284 webgl/2.0.y/conformance/canvas/to-data-url-test.html [ Failure ]
 
