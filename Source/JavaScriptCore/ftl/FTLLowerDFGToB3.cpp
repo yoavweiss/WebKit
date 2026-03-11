@@ -12440,8 +12440,7 @@ IGNORE_CLANG_WARNINGS_END
 
             LBasicBlock lastNext = m_out.appendTo(notTriviallyEqualCase, continuation);
 
-            ValueFromBlock slowResult = m_out.anchor(m_out.notZero64(
-                m_out.callWithoutSideEffects(Int64, operationCompareHeapBigIntEq, left, right)));
+            ValueFromBlock slowResult = m_out.anchor(m_out.notZero64(vmCall(Int64, operationCompareHeapBigIntEq, left, right)));
             m_out.jump(continuation);
 
             m_out.appendTo(continuation, lastNext);
@@ -19385,19 +19384,19 @@ IGNORE_CLANG_WARNINGS_END
             LValue result;
             switch (m_node->op()) {
             case CompareLess:
-                result = m_out.callWithoutSideEffects(Int64, operationCompareHeapBigIntLess, left, right);
+                result = vmCall(Int64, operationCompareHeapBigIntLess, left, right);
                 break;
             case CompareLessEq:
-                result = m_out.callWithoutSideEffects(Int64, operationCompareHeapBigIntLessEq, left, right);
+                result = vmCall(Int64, operationCompareHeapBigIntLessEq, left, right);
                 break;
             case CompareGreater:
-                result = m_out.callWithoutSideEffects(Int64, operationCompareHeapBigIntGreater, left, right);
+                result = vmCall(Int64, operationCompareHeapBigIntGreater, left, right);
                 break;
             case CompareGreaterEq:
-                result = m_out.callWithoutSideEffects(Int64, operationCompareHeapBigIntGreaterEq, left, right);
+                result = vmCall(Int64, operationCompareHeapBigIntGreaterEq, left, right);
                 break;
             case CompareEq:
-                result = m_out.callWithoutSideEffects(Int64, operationCompareHeapBigIntEq, left, right);
+                result = vmCall(Int64, operationCompareHeapBigIntEq, left, right);
                 break;
             default:
                 RELEASE_ASSERT_NOT_REACHED();
