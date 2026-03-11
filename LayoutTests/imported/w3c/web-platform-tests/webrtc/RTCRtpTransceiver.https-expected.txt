@@ -20,7 +20,7 @@ PASS checkAddTrackPairs
 PASS checkReplaceTrackNullDoesntPreventPairing
 PASS checkRemoveAndReadd
 PASS checkAddTrackExistingTransceiverThenRemove
-FAIL checkRemoveTrackNegotiation assert_equals: expected "[{currentDirection:\"inactive\"},{currentDirection:\"inactive\"}]" but got "[{currentDirection:\"inactive\"},{currentDirection:\"inactive\"},{},{}]"
+PASS checkRemoveTrackNegotiation
 FAIL checkStop assert_equals: expected "[{currentDirection:\"sendrecv\",direction:\"stopped\",receiver:{track:{kind:\"audio\",readyState:\"ended\"}},sender:{track:{kind:\"audio\"}}}]" but got "[{currentDirection:\"sendrecv\",direction:\"inactive\",receiver:{track:{kind:\"audio\",readyState:\"ended\"}},sender:{track:null}}]"
 FAIL checkStopAfterCreateOffer assert_equals: expected "[{currentDirection:\"sendrecv\",direction:\"stopped\"}]" but got "[{currentDirection:\"sendrecv\",direction:\"inactive\"}]"
 FAIL checkStopAfterSetLocalOffer assert_equals: expected "[{currentDirection:\"sendrecv\",direction:\"stopped\"}]" but got "[{currentDirection:\"sendrecv\",direction:\"inactive\"}]"
@@ -30,7 +30,7 @@ FAIL checkStopAfterSetLocalAnswer assert_equals: expected "[{currentDirection:\"
 PASS checkStopAfterClose
 FAIL checkLocalRollback assert_equals: expected "[{direction:\"stopped\"}]" but got "[{direction:\"inactive\"}]"
 PASS checkRollbackAndSetRemoteOfferWithDifferentType
-FAIL checkRemoteRollback assert_equals: expected "[]" but got "[{}]"
+FAIL checkRemoteRollback assert_equals: expected "{currentDirection:\"stopped\",mid:null}" but got "{currentDirection:\"inactive\",mid:null}"
 FAIL checkMsectionReuse assert_equals: expected "stopped" but got "inactive"
 PASS checkStopAfterCreateOfferWithReusedMsection
 PASS checkAddIceCandidateToStoppedTransceiver

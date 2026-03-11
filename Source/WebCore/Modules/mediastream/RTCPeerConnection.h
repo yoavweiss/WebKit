@@ -146,6 +146,7 @@ public:
     bool isStopped() const { return m_isStopped; }
 
     void addInternalTransceiver(Ref<RTCRtpTransceiver>&&);
+    void removeTransceiver(const RTCRtpTransceiver&);
 
     // 5.1 RTCPeerConnection extensions
     Vector<std::reference_wrapper<RTCRtpSender>> getSenders() const;

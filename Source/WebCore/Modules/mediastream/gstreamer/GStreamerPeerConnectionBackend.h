@@ -99,9 +99,10 @@ private:
     GStreamerRtpSenderBackend::Source createSourceForTrack(MediaStreamTrack&);
 
     RefPtr<RTCRtpTransceiver> existingTransceiver(WTF::Function<bool(GStreamerRtpTransceiverBackend&)>&&);
-    Ref<RTCRtpTransceiver> newRemoteTransceiver(UniqueRef<GStreamerRtpTransceiverBackend>&&, RealtimeMediaSource::Type, String&&);
+    Ref<RTCRtpTransceiver> addInternalTransceiver(UniqueRef<GStreamerRtpTransceiverBackend>&&, RealtimeMediaSource::Type, String&&);
+    void removeTransceiver(const RTCRtpTransceiver&);
 
-    void collectTransceivers() final;
+    void collectTransceivers(Vector<Ref<RTCRtpTransceiver>>&&) final;
 
     bool isLocalDescriptionSet() const final { return m_isLocalDescriptionSet; }
 

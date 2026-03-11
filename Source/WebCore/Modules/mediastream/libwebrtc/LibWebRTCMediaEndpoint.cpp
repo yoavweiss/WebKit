@@ -370,22 +370,28 @@ void LibWebRTCMediaEndpoint::OnSignalingChange(webrtc::PeerConnectionInterface::
 {
 }
 
-void LibWebRTCMediaEndpoint::collectTransceivers()
+void LibWebRTCMediaEndpoint::collectTransceivers(Vector<Ref<RTCRtpTransceiver>>&& currentTransceivers)
 {
     if (m_isStopped)
         return;
 
     Ref peerConnectionBackend = *m_peerConnectionBackend.get();
     for (webrtc::scoped_refptr rtcTransceiver : m_backend->GetTransceivers()) {
-        RefPtr existingTransceiver = peerConnectionBackend->existingTransceiver([&](auto& transceiverBackend) {
-            return rtcTransceiver.get() == transceiverBackend.rtcTransceiver();
+        auto position = currentTransceivers.findIf([&](auto& transceiver) {
+            return rtcTransceiver.get() == downcast<LibWebRTCRtpTransceiverBackend>(transceiver->backend()).rtcTransceiver();
         });
-        if (existingTransceiver)
+
+        if (position != notFound) {
+            currentTransceivers.removeAt(position);
             continue;
+        }
 
         Ref rtcReceiver = toRef(rtcTransceiver->receiver());
-        existingTransceiver = peerConnectionBackend->newRemoteTransceiver(makeUniqueRef<LibWebRTCRtpTransceiverBackend>(toRef(WTF::move(rtcTransceiver))), rtcReceiver->media_type() == webrtc::MediaType::AUDIO ? RealtimeMediaSource::Type::Audio : RealtimeMediaSource::Type::Video);
+        peerConnectionBackend->addInternalTransceiver(makeUniqueRef<LibWebRTCRtpTransceiverBackend>(toRef(WTF::move(rtcTransceiver))), rtcReceiver->media_type() == webrtc::MediaType::AUDIO ? RealtimeMediaSource::Type::Audio : RealtimeMediaSource::Type::Video);
     }
+
+    for (auto& transceiver : currentTransceivers)
+        peerConnectionBackend->removeTransceiver(transceiver);
 }
 
 std::optional<bool> LibWebRTCMediaEndpoint::canTrickleIceCandidates() const

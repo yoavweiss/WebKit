@@ -104,7 +104,7 @@ public:
 
     GStreamerRtpSenderBackend::Source createSourceForTrack(MediaStreamTrack&);
 
-    void collectTransceivers();
+    void collectTransceivers(Vector<Ref<RTCRtpTransceiver>>&&);
 
     void createSessionDescriptionSucceeded(GUniquePtr<GstWebRTCSessionDescription>&&);
     void createSessionDescriptionFailed(RTCSdpType, GUniquePtr<GError>&&);

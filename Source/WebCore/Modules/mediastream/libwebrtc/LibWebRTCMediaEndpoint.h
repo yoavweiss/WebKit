@@ -116,7 +116,7 @@ public:
     std::unique_ptr<LibWebRTCRtpTransceiverBackend> transceiverBackendFromSender(LibWebRTCRtpSenderBackend&);
 
     void setSenderSourceFromTrack(LibWebRTCRtpSenderBackend&, MediaStreamTrack&);
-    void collectTransceivers();
+    void collectTransceivers(Vector<Ref<RTCRtpTransceiver>>&&);
 
     std::optional<bool> canTrickleIceCandidates() const;
 

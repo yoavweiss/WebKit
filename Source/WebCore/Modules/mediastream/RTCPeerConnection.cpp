@@ -804,6 +804,11 @@ void RTCPeerConnection::addInternalTransceiver(Ref<RTCRtpTransceiver>&& transcei
     m_transceiverSet.append(WTF::move(transceiver));
 }
 
+void RTCPeerConnection::removeTransceiver(const RTCRtpTransceiver& transceiver)
+{
+    m_transceiverSet.remove(transceiver);
+}
+
 void RTCPeerConnection::setSignalingState(RTCSignalingState newState)
 {
     if (m_signalingState == newState)
@@ -1202,14 +1207,14 @@ void RTCPeerConnection::updateTransceiverTransports()
 // https://w3c.github.io/webrtc-pc/#set-description step 4.9.1
 void RTCPeerConnection::updateTransceiversAfterSuccessfulLocalDescription()
 {
-    protect(*m_backend)->collectTransceivers();
+    protect(*m_backend)->collectTransceivers(Vector { m_transceiverSet.list() });
     updateTransceiverTransports();
 }
 
 // https://w3c.github.io/webrtc-pc/#set-description step 4.9.2
 void RTCPeerConnection::updateTransceiversAfterSuccessfulRemoteDescription()
 {
-    protect(*m_backend)->collectTransceivers();
+    protect(*m_backend)->collectTransceivers(Vector { m_transceiverSet.list() });
     updateTransceiverTransports();
 }
 

@@ -429,7 +429,7 @@ RefPtr<RTCRtpTransceiver> GStreamerPeerConnectionBackend::existingTransceiver(WT
     return nullptr;
 }
 
-Ref<RTCRtpTransceiver> GStreamerPeerConnectionBackend::newRemoteTransceiver(UniqueRef<GStreamerRtpTransceiverBackend>&& transceiverBackend, RealtimeMediaSource::Type type, String&& receiverTrackId)
+Ref<RTCRtpTransceiver> GStreamerPeerConnectionBackend::addInternalTransceiver(UniqueRef<GStreamerRtpTransceiverBackend>&& transceiverBackend, RealtimeMediaSource::Type type, String&& receiverTrackId)
 {
     auto trackKind = type == RealtimeMediaSource::Type::Audio ? "audio"_s : "video"_s;
     Ref peerConnection = m_peerConnection.get();
@@ -442,9 +442,15 @@ Ref<RTCRtpTransceiver> GStreamerPeerConnectionBackend::newRemoteTransceiver(Uniq
     return transceiver;
 }
 
-void GStreamerPeerConnectionBackend::collectTransceivers()
+void GStreamerPeerConnectionBackend::removeTransceiver(const RTCRtpTransceiver& transceiver)
 {
-    m_endpoint->collectTransceivers();
+    Ref peerConnection = m_peerConnection.get();
+    peerConnection->removeTransceiver(transceiver);
+}
+
+void GStreamerPeerConnectionBackend::collectTransceivers(Vector<Ref<RTCRtpTransceiver>>&& transceivers)
+{
+    m_endpoint->collectTransceivers(WTF::move(transceivers));
 }
 
 void GStreamerPeerConnectionBackend::removeTrack(RTCRtpSender& sender)

@@ -113,6 +113,13 @@ void RtpTransceiverSet::append(Ref<RTCRtpTransceiver>&& transceiver)
     m_transceivers.append(WTF::move(transceiver));
 }
 
+void RtpTransceiverSet::remove(const RTCRtpTransceiver& transceiver)
+{
+    m_transceivers.removeFirstMatching([&](auto& existing) {
+        return existing.ptr() == &transceiver;
+    });
+}
+
 Vector<std::reference_wrapper<RTCRtpSender>> RtpTransceiverSet::senders() const
 {
     Vector<std::reference_wrapper<RTCRtpSender>> senders;
