@@ -1290,6 +1290,8 @@ imported/w3c/web-platform-tests/resource-timing/TAO-match.html [ Pass Failure ]
 imported/w3c/web-platform-tests/resource-timing/iframe-failed-commit.html [ Pass Failure ]
 imported/w3c/web-platform-tests/resource-timing/fetch-cross-origin-redirect.https.html [ Pass Failure ]
 
+webkit.org/b/309622 imported/w3c/web-platform-tests/event-timing/buffered-and-duration-threshold.html [ Pass Failure ]
+
 # Partially implemented:
 webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/event-counts-maplike-iterators-always-updated.html [ Pass Failure ]
 
@@ -8300,6 +8302,8 @@ imported/w3c/web-platform-tests/editing/other/insertparagraph-in-child-of-head.t
 imported/w3c/web-platform-tests/editing/other/insertparagraph-in-child-of-head.tentative.html?designMode=on&white-space=pre-wrap [ Pass Failure ]
 
 webkit.org/b/288546 imported/w3c/web-platform-tests/fullscreen/api/element-ready-allowed.html [ Pass Failure ]
+
+webkit.org/b/309619 imported/w3c/web-platform-tests/fullscreen/rendering/backdrop-object.html [ Pass ImageOnlyFailure Timeout ]
 
 # Tests that timed out
 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/history-traversal/pageswap/pageswap-push-from-click.html [ Skip ]
