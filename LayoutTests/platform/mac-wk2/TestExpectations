@@ -2385,10 +2385,6 @@ webkit.org/b/304616 fast/images/mac/play-all-pause-all-animations-context-menu-i
 
 webkit.org/b/304851 imported/w3c/web-platform-tests/workers/worker-performance.worker.html [ Pass Failure ]
 
-# webkit.org/b/304865 [macOS Debug ] ASSERTION FAILED: m_wrapper /Volumes/Data/worker/macOS-Tahoe-Debug-Build-EWS/build/Source/WebCore/bindings/js/ in fast/webgpu/repro_301290.html
-[ Debug ] fast/webgpu/repeated-out-of-memory-error.html [ Skip ]
-[ Debug ] fast/webgpu/repro_301290.html [ Skip ]
-
 webkit.org/b/304995 [ Release ] imported/w3c/web-platform-tests/largest-contentful-paint/video-poster.html [ Pass Failure ]
 
 webkit.org/b/305086 [ arm64 ] imported/w3c/web-platform-tests/media-source/mediasource-changetype-play-without-codecs-parameter.html [ Pass Failure ]
