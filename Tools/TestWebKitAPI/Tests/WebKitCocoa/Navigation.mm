@@ -849,7 +849,7 @@ static bool navigationComplete;
     EXPECT_STREQ(item.URL.absoluteString.UTF8String, expectedURL);
     EXPECT_TRUE(item.title == nil);
     EXPECT_STREQ(item.initialURL.absoluteString.UTF8String, expectedURL);
-    EXPECT_TRUE(inPageCache);
+    EXPECT_EQ(inPageCache, isUsingBackForwardCache(webView));
     isDone = true;
 }
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
@@ -861,10 +861,6 @@ static bool navigationComplete;
 TEST(WKNavigation, WillGoToBackForwardListItem)
 {
     auto webView = adoptNS([[WKWebView alloc] init]);
-    // FIXME: Page cache is currently disabled under site isolation; see rdar://161762363.
-    if (isSiteIsolationEnabled(webView.get()))
-        return;
-
     auto delegate = adoptNS([[BackForwardDelegate alloc] init]);
     [webView setNavigationDelegate:delegate.get()];
     [webView loadRequest:[NSURLRequest requestWithURL:[NSBundle.test_resourcesBundle URLForResource:@"simple" withExtension:@"html"]]];
@@ -892,7 +888,8 @@ static bool didRejectNavigation = false;
 {
     EXPECT_EQ(item, _targetItem);
     EXPECT_TRUE(item.title == nil);
-    EXPECT_TRUE(willUseInstantBack);
+
+    EXPECT_EQ(willUseInstantBack, isUsingBackForwardCache(webView));
 
     completionHandler(_allowNavigation);
     if (!_allowNavigation)
@@ -925,7 +922,7 @@ static bool didRejectNavigation = false;
 {
     EXPECT_EQ(item, _targetItem);
     EXPECT_TRUE(item.title == nil);
-    EXPECT_TRUE(inPageCache);
+    EXPECT_EQ(inPageCache, isUsingBackForwardCache(webView));
 
     completionHandler(_allowNavigation);
     if (!_allowNavigation)
@@ -941,12 +938,6 @@ static bool didRejectNavigation = false;
 TEST(WKNavigation, ShouldGoToBackForwardListItem)
 {
     auto webView = adoptNS([[WKWebView alloc] init]);
-
-    // FIXME: Page cache is currently disabled under site isolation; see rdar://161762363.
-    // This test relies on the back forward cache. Once it is enabled, remove this early return.
-    if (isSiteIsolationEnabled(webView.get()))
-        return;
-
     navigationComplete = false;
     auto delegate = adoptNS([[BackForwardDelegateWithShouldGo alloc] init]);
     [webView setNavigationDelegate:delegate.get()];

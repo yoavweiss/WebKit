@@ -1204,12 +1204,6 @@ TEST(ResourceLoadStatistics, BackForwardPerPageData)
     [configuration setURLSchemeHandler:schemeHandler.get() forURLScheme:@"resource-load-statistics"];
 
     auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600) configuration:configuration.get()]);
-
-    // FIXME: Page cache is currently disabled under site isolation; see rdar://161762363.
-    // This test relies on the backforward cache. Once it is enabled in site isolation, remove this early return.
-    if (isSiteIsolationEnabled(webView.get()))
-        return;
-
     [webView setNavigationDelegate:delegate.get()];
 
     static bool doneFlag = false;

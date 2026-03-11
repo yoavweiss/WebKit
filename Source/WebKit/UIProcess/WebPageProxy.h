@@ -2974,6 +2974,8 @@ public:
     bool hasShownSafeBrowsingWarningAfterLastLoadCommit() const { return m_hasShownSafeBrowsingWarningAfterLastLoadCommit; }
 #endif
 
+    bool shouldUseBackForwardCache() const;
+
 private:
     WebPageProxy(PageClient&, WebProcessProxy&, Ref<API::PageConfiguration>&&);
     void platformInitialize();
@@ -2985,7 +2987,6 @@ private:
     void removeAllMessageReceivers();
 
     void notifyProcessPoolToPrewarm();
-    bool shouldUseBackForwardCache() const;
 
     bool attachmentElementEnabled();
     bool modelElementEnabled();
