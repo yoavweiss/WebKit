@@ -4416,7 +4416,7 @@ private:
         patchpoint->append(m_notCellMask, ValueRep::lateReg(GPRInfo::notCellMaskRegister));
         patchpoint->append(m_numberTag, ValueRep::lateReg(GPRInfo::numberTagRegister));
         patchpoint->clobber(RegisterSet::macroClobberedGPRs());
-        patchpoint->numGPScratchRegisters = 3;
+        patchpoint->numGPScratchRegisters = 4;
 
         RefPtr<PatchpointExceptionHandle> exceptionHandle = preparePatchpointForExceptions(patchpoint);
 
@@ -4443,8 +4443,13 @@ private:
             GPRReg scratch1GPR = params.gpScratch(0);
             GPRReg scratch2GPR = params.gpScratch(1);
             GPRReg scratch3GPR = params.gpScratch(2);
+            GPRReg scratch4GPR = params.gpScratch(3);
 
-            CCallHelpers::JumpList slowCases = jit.loadMegamorphicProperty(state->vm(), baseGPR, InvalidGPRReg, uid, resultGPR, scratch1GPR, scratch2GPR, scratch3GPR);
+            jit.move(baseGPR, scratch4GPR);
+            auto notString = jit.branchIfNotString(scratch4GPR);
+            jit.move(CCallHelpers::TrustedImmPtr(globalObject->stringPrototype()), scratch4GPR);
+            notString.link(jit);
+            CCallHelpers::JumpList slowCases = jit.loadMegamorphicProperty(state->vm(), scratch4GPR, InvalidGPRReg, uid, resultGPR, scratch1GPR, scratch2GPR, scratch3GPR);
             CCallHelpers::Label doneForSlow = jit.label();
 
             params.addLatePath([=](CCallHelpers& jit) {

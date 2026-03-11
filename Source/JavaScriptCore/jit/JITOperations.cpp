@@ -404,18 +404,23 @@ static ALWAYS_INLINE JSValue getByIdMegamorphic(JSGlobalObject* globalObject, VM
     auto* uid = identifier.uid();
     PropertySlot slot(thisValue, PropertySlot::InternalMethodType::Get);
 
+    JSObject* baseObject = nullptr;
     if (!baseValue.isObject()) [[unlikely]] {
-        if (propertyCache && propertyCache->considerRepatchingCacheMegamorphic(vm))
-            repatchGetBySlowPathCall(callFrame->codeBlock(), *propertyCache, kind);
-        return baseValue.get(globalObject, uid, slot);
-    }
+        if (!baseValue.isString()) [[unlikely]] {
+            if (propertyCache && propertyCache->considerRepatchingCacheMegamorphic(vm))
+                repatchGetBySlowPathCall(callFrame->codeBlock(), *propertyCache, kind);
+            return baseValue.get(globalObject, uid, slot);
+        }
 
-    JSObject* baseObject = asObject(baseValue);
+        baseObject = globalObject->stringPrototype();
+    } else
+        baseObject = asObject(baseValue);
+
     JSObject* object = baseObject;
     bool shouldGiveUp = false;
     bool cacheable = true;
     while (true) {
-        if (TypeInfo::overridesGetOwnPropertySlot(object->inlineTypeFlags()) && object->type() != ArrayType && object->type() != JSFunctionType && object != globalObject->arrayPrototype()) [[unlikely]] {
+        if (TypeInfo::overridesGetOwnPropertySlot(object->inlineTypeFlags()) && object->type() != ArrayType && object->type() != JSFunctionType && object->type() != DerivedStringObjectType && object != globalObject->arrayPrototype()) [[unlikely]] {
             if (propertyCache && propertyCache->considerRepatchingCacheMegamorphic(vm))
                 repatchGetBySlowPathCall(callFrame->codeBlock(), *propertyCache, kind);
             if (object->getNonIndexPropertySlot(globalObject, uid, slot))
@@ -433,7 +438,7 @@ static ALWAYS_INLINE JSValue getByIdMegamorphic(JSGlobalObject* globalObject, VM
         if (hasProperty) {
             if (cacheable && slot.isCacheableValue() && slot.cachedOffset() <= MegamorphicCache::maxOffset) [[likely]] {
                 if (slot.slotBase() == baseObject || !baseObject->structure()->isDictionary())
-                    vm.megamorphicCache()->initAsHit(baseObject->structureID(), uid, slot.slotBase(), slot.cachedOffset(), slot.slotBase() == baseObject);
+                    vm.megamorphicCache()->initAsHit(baseObject->structureID(), uid, slot.slotBase(), slot.cachedOffset(), slot.slotBase() == thisValue);
                 else {
                     if (baseObject->structure()->hasBeenFlattenedBefore()) [[unlikely]] {
                         if (propertyCache && propertyCache->considerRepatchingCacheMegamorphic(vm))

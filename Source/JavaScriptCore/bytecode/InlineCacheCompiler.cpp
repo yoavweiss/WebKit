@@ -2923,18 +2923,31 @@ void InlineCacheCompiler::generateWithGuard(unsigned index, AccessCase& accessCa
         GPRReg scratch2GPR = allocator.allocateScratchGPR();
         GPRReg scratch3GPR = allocator.allocateScratchGPR();
         GPRReg scratch4GPR = allocator.allocateScratchGPR();
+        GPRReg scratch5GPR = allocator.allocateScratchGPR();
 
         ScratchRegisterAllocator::PreservedState preservedState = allocator.preserveReusedRegistersByPushing(jit, ScratchRegisterAllocator::ExtraStackSpace::NoExtraSpace);
 
         CCallHelpers::JumpList slowCases;
+
+        jit.move(baseGPR, scratch5GPR);
+        auto isString = jit.branchIfString(scratch5GPR);
+        auto label = jit.label();
         if (useHandlerIC()) {
             jit.loadPtr(CCallHelpers::Address(GPRInfo::handlerGPR, InlineCacheHandler::offsetOfUid()), scratch4GPR);
-            slowCases.append(jit.loadMegamorphicProperty(vm, baseGPR, scratch4GPR, nullptr, valueRegs.payloadGPR(), scratchGPR, scratch2GPR, scratch3GPR));
+            slowCases.append(jit.loadMegamorphicProperty(vm, scratch5GPR, scratch4GPR, nullptr, valueRegs.payloadGPR(), scratchGPR, scratch2GPR, scratch3GPR));
         } else
-            slowCases.append(jit.loadMegamorphicProperty(vm, baseGPR, InvalidGPRReg, uid, valueRegs.payloadGPR(), scratchGPR, scratch2GPR, scratch3GPR));
+            slowCases.append(jit.loadMegamorphicProperty(vm, scratch5GPR, InvalidGPRReg, uid, valueRegs.payloadGPR(), scratchGPR, scratch2GPR, scratch3GPR));
 
         allocator.restoreReusedRegistersByPopping(jit, preservedState);
         succeed();
+
+        isString.link(jit);
+        if (useHandlerIC()) {
+            jit.loadPtr(CCallHelpers::Address(m_propertyCache.m_propertyCacheGPR, PropertyInlineCache::offsetOfGlobalObject()), scratch5GPR);
+            jit.loadPtr(CCallHelpers::Address(scratch5GPR, JSGlobalObject::offsetOfStringPrototype()), scratch5GPR);
+        } else
+            jit.move(CCallHelpers::TrustedImmPtr(m_globalObject->stringPrototype()), scratch5GPR);
+        jit.jump().linkTo(label, jit);
 
         if (allocator.didReuseRegisters()) {
             slowCases.link(&jit);

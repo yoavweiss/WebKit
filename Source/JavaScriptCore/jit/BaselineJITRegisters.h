@@ -156,10 +156,11 @@ namespace GetById {
     static constexpr GPRReg scratch2GPR { scratchRegisters[1] };
     static constexpr GPRReg scratch3GPR { scratchRegisters[2] };
     static constexpr GPRReg scratch4GPR { scratchRegisters[3] };
+    static constexpr GPRReg scratch5GPR { scratchRegisters[4] };
 
     static_assert(noOverlap(baseJSR, propertyCacheGPR), "Required for DataIC");
     static_assert(noOverlap(resultJSR, propertyCacheGPR));
-    static_assert(noOverlap(baseJSR, propertyCacheGPR, scratch1GPR, scratch2GPR, scratch3GPR, scratch4GPR), "Required for HandlerIC");
+    static_assert(noOverlap(baseJSR, propertyCacheGPR, scratch1GPR, scratch2GPR, scratch3GPR, scratch4GPR, scratch5GPR), "Required for HandlerIC");
 }
 
 namespace GetByIdWithThis {

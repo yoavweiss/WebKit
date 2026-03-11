@@ -7987,14 +7987,22 @@ void SpeculativeJIT::compileGetByIdMegamorphic(Node* node)
     GPRTemporary scratch1(this);
     GPRTemporary scratch2(this);
     GPRTemporary scratch3(this);
+    GPRTemporary scratch4(this);
 
     GPRReg baseGPR = base.gpr();
     GPRReg scratch1GPR = scratch1.gpr();
     GPRReg scratch2GPR = scratch2.gpr();
     GPRReg scratch3GPR = scratch3.gpr();
+    GPRReg scratch4GPR = scratch4.gpr();
 
     UniquedStringImpl* uid = node->cacheableIdentifier().uid();
-    JumpList slowCases = loadMegamorphicProperty(vm(), baseGPR, InvalidGPRReg, uid, scratch3GPR, scratch1GPR, scratch2GPR, scratch3GPR);
+    JSGlobalObject* globalObject = m_graph.globalObjectFor(node->origin.semantic);
+
+    move(baseGPR, scratch4GPR);
+    auto notString = branchIfNotString(scratch4GPR);
+    loadLinkableConstant(LinkableConstant(*this, globalObject->stringPrototype()), scratch4GPR);
+    notString.link(this);
+    JumpList slowCases = loadMegamorphicProperty(vm(), scratch4GPR, InvalidGPRReg, uid, scratch3GPR, scratch1GPR, scratch2GPR, scratch3GPR);
     addSlowPathGenerator(slowPathCall(slowCases, this, operationGetByIdMegamorphicGeneric, scratch3GPR, LinkableConstant::globalObject(*this, node), baseGPR, node->cacheableIdentifier().rawBits()));
     jsValueResult(scratch3GPR, node);
 }
