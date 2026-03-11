@@ -121,9 +121,6 @@ webkit.org/b/21916 tables/mozilla_expected_failures/bugs/bug178855.xml [ Pass Im
 fast/dom/Window/slow-unload-handler.html
 fast/dom/Window/slow-unload-handler-only-frame-is-stopped.html
 
-# Skipped because ACCESSIBILITY_LOCAL_FRAME doesn't support dynamic updates yet.
-accessibility/dynamic-changes-update-position.html [ Failure ]
-
 webkit.org/b/306558 accessibility/mac/style-range.html [ Failure ]
 
 # Skip accessibility tests that use the accessibility client API on most builders;
