@@ -1064,6 +1064,26 @@ JSRetainPtr<JSStringRef> AccessibilityUIElementMac::description()
     return nullptr;
 }
 
+JSRetainPtr<JSStringRef> AccessibilityUIElementMac::debugDescription()
+{
+    BEGIN_AX_OBJC_EXCEPTIONS
+    auto description = descriptionOfValue(attributeValue(@"_AXDebugDescription").get());
+    return concatenateAttributeAndValue(@"_AXDebugDescription", description.get());
+    END_AX_OBJC_EXCEPTIONS
+
+    return nullptr;
+}
+
+JSRetainPtr<JSStringRef> AccessibilityUIElementMac::rawRoleForTesting()
+{
+    BEGIN_AX_OBJC_EXCEPTIONS
+    auto description = descriptionOfValue(attributeValue(@"_AXRawRoleForTesting").get());
+    return concatenateAttributeAndValue(@"_AXRawRoleForTesting", description.get());
+    END_AX_OBJC_EXCEPTIONS
+
+    return nullptr;
+}
+
 JSRetainPtr<JSStringRef> AccessibilityUIElementMac::brailleLabel() const
 {
     BEGIN_AX_OBJC_EXCEPTIONS

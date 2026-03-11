@@ -3429,6 +3429,9 @@ void TestController::didReceiveSynchronousMessageFromInjectedBundle(WKStringRef 
 
     if (WKStringIsEqualToUTF8CString(messageName, "AXCopyAttributeValueAsSize"))
         return completionHandler(handleAXCopyAttributeValueAsSize(dictionaryValue(messageBody)).get());
+
+    if (WKStringIsEqualToUTF8CString(messageName, "AXSearchPredicate"))
+        return completionHandler(handleAXSearchPredicate(dictionaryValue(messageBody)).get());
 #endif
 
     completionHandler(protectedCurrentInvocation()->didReceiveSynchronousMessageFromInjectedBundle(messageName, messageBody).get());
@@ -5613,6 +5616,89 @@ WKRetainPtr<WKTypeRef> TestController::handleAXCopyAttributeValueAsSize(WKDictio
     setValue(dictionary, "width", size.width);
     setValue(dictionary, "height", size.height);
     return dictionary;
+}
+
+WKRetainPtr<WKTypeRef> TestController::handleAXSearchPredicate(WKDictionaryRef messageBody)
+{
+    uint64_t elementToken = uint64Value(messageBody, "elementToken");
+    uint64_t startElementToken = uint64Value(messageBody, "startElementToken");
+    bool isDirectionNext = booleanValue(messageBody, "isDirectionNext");
+    uint64_t resultsLimit = uint64Value(messageBody, "resultsLimit");
+    bool visibleOnly = booleanValue(messageBody, "visibleOnly");
+    bool immediateDescendantsOnly = booleanValue(messageBody, "immediateDescendantsOnly");
+    WKStringRef searchKey = stringValue(messageBody, "searchKey");
+    WKStringRef searchText = stringValue(messageBody, "searchText");
+
+    AXUIElementRef element = static_cast<AXUIElementRef>(getAXElement(elementToken));
+    if (!element)
+        return nullptr;
+
+    // Build the search predicate parameter dictionary using CF APIs.
+    RetainPtr paramDictionary = adoptCF(CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+
+    if (startElementToken) {
+        if (AXUIElementRef startElement = static_cast<AXUIElementRef>(getAXElement(startElementToken)))
+            CFDictionarySetValue(paramDictionary.get(), CFSTR("AXStartElement"), startElement);
+    }
+
+    CFDictionarySetValue(paramDictionary.get(), CFSTR("AXDirection"),
+        isDirectionNext ? CFSTR("AXDirectionNext") : CFSTR("AXDirectionPrevious"));
+
+    int resultsLimitInt = static_cast<int>(resultsLimit);
+    RetainPtr resultsLimitNum = adoptCF(CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &resultsLimitInt));
+    CFDictionarySetValue(paramDictionary.get(), CFSTR("AXResultsLimit"), resultsLimitNum.get());
+
+    if (searchKey) {
+        RetainPtr searchKeyCF = adoptCF(CFStringCreateWithCString(kCFAllocatorDefault, toSTD(searchKey).c_str(), kCFStringEncodingUTF8));
+        CFDictionarySetValue(paramDictionary.get(), CFSTR("AXSearchKey"), searchKeyCF.get());
+    }
+
+    if (searchText) {
+        auto searchTextStd = toSTD(searchText);
+        if (!searchTextStd.empty()) {
+            RetainPtr searchTextCF = adoptCF(CFStringCreateWithCString(kCFAllocatorDefault, searchTextStd.c_str(), kCFStringEncodingUTF8));
+            CFDictionarySetValue(paramDictionary.get(), CFSTR("AXSearchText"), searchTextCF.get());
+        }
+    }
+
+    CFDictionarySetValue(paramDictionary.get(), CFSTR("AXVisibleOnly"), visibleOnly ? kCFBooleanTrue : kCFBooleanFalse);
+    CFDictionarySetValue(paramDictionary.get(), CFSTR("AXImmediateDescendantsOnly"), immediateDescendantsOnly ? kCFBooleanTrue : kCFBooleanFalse);
+
+    CFTypeRef resultValue = nullptr;
+    AXError error = AXUIElementCopyParameterizedAttributeValue(element, CFSTR("AXUIElementsForSearchPredicate"), paramDictionary.get(), &resultValue);
+
+    if (error != kAXErrorSuccess || !resultValue)
+        return nullptr;
+
+    RetainPtr result = adoptCF(resultValue);
+
+    if (CFGetTypeID(result.get()) != CFArrayGetTypeID())
+        return nullptr;
+
+    CFArrayRef resultArray = static_cast<CFArrayRef>(result.get());
+    CFIndex count = CFArrayGetCount(resultArray);
+
+    WKRetainPtr tokenArray = adoptWK(WKMutableArrayCreate());
+    for (CFIndex i = 0; i < count; i++) {
+        CFTypeRef item = CFArrayGetValueAtIndex(resultArray, i);
+
+        AXUIElementRef resultElement = nullptr;
+        if (CFGetTypeID(item) == AXUIElementGetTypeID())
+            resultElement = static_cast<AXUIElementRef>(const_cast<void*>(item));
+        else if (CFGetTypeID(item) == CFDictionaryGetTypeID()) {
+            CFTypeRef searchResultElement = CFDictionaryGetValue(static_cast<CFDictionaryRef>(item), CFSTR("AXSearchResultElement"));
+            if (searchResultElement && CFGetTypeID(searchResultElement) == AXUIElementGetTypeID())
+                resultElement = static_cast<AXUIElementRef>(const_cast<void*>(searchResultElement));
+        }
+
+        if (resultElement) {
+            uint64_t token = storeAXElement(resultElement);
+            WKRetainPtr tokenRef = adoptWK(WKUInt64Create(token));
+            WKArrayAppendItem(tokenArray.get(), tokenRef.get());
+        }
+    }
+
+    return tokenArray;
 }
 
 #endif // PLATFORM(MAC)

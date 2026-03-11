@@ -42,6 +42,7 @@
 #import "AXTextMarker.h"
 #import "AXTreeStore.h"
 #import "AXTreeStoreInlines.h"
+#import "AXUtilities.h"
 #import "AccessibilityObjectInlines.h"
 #import "AccessibilityProgressIndicator.h"
 #import "AccessibilityRenderObject.h"
@@ -2450,6 +2451,14 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
 }
 ALLOW_DEPRECATED_IMPLEMENTATIONS_END
 
+static String debugDescriptionFrom(AXCoreObject* object)
+{
+    String objectDescription = "null backingObject"_s;
+    if (object)
+        objectDescription = object->debugDescription();
+    return makeString("PID: "_s, getpid(), ", "_s, objectDescription).createNSString().autorelease();
+}
+
 id attributeValueForTesting(const RefPtr<AXCoreObject>& backingObject, NSString *attributeName)
 {
     ASSERT_WITH_MESSAGE(AXObjectCache::clientIsInTestMode(), "Should be used for testing only, not for AT clients.");
@@ -2532,6 +2541,12 @@ id attributeValueForTesting(const RefPtr<AXCoreObject>& backingObject, NSString 
 
     if ([attributeName isEqualToString:NSAccessibilityPageRelativePositionAttribute])
         return [NSValue valueWithPoint:(CGPoint)backingObject->relativeFrame().location()];
+
+    if ([attributeName isEqualToString:@"_AXDebugDescription"])
+        return debugDescriptionFrom(backingObject.get()).createNSString().autorelease();
+
+    if ([attributeName isEqualToString:@"_AXRawRoleForTesting"])
+        return roleToString(backingObject->role()).createNSString().autorelease();
 
     return nil;
 }
@@ -4452,11 +4467,8 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
 - (NSString *)debugDescription
 {
-    String backingObjectDescription = "null backingObject"_s;
     RefPtr<AXCoreObject> backingObject = self.updateObjectBackingStore;
-    if (backingObject)
-        backingObjectDescription = backingObject->debugDescription();
-    return makeString("PID: "_s, getpid(), ", "_s, backingObjectDescription).createNSString().autorelease();
+    return debugDescriptionFrom(backingObject.get()).createNSString().autorelease();
 }
 @end
 

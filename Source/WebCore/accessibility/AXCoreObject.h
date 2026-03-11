@@ -859,6 +859,11 @@ public:
     AXCoreObject* parentObjectIncludingCrossFrame() const;
     AXCoreObject* parentObjectUnignoredIncludingCrossFrame() const;
 
+    // Finds the next or previous sibling that is not ignored. Uses the parent's
+    // children() list, so it works for both live objects and isolated objects.
+    AXCoreObject* nextSiblingUnignored() const;
+    AXCoreObject* previousSiblingUnignored() const;
+
     // Finds objects within |this| object matching the given search criteria.
     virtual AccessibilityChildrenVector findMatchingObjectsWithin(AccessibilitySearchCriteria&&);
     virtual bool isDescendantOfRole(AccessibilityRole) const = 0;

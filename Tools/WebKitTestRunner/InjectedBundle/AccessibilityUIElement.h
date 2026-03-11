@@ -141,6 +141,8 @@ public:
     virtual JSRetainPtr<JSStringRef> computedRoleString();
     virtual JSRetainPtr<JSStringRef> title();
     virtual JSRetainPtr<JSStringRef> description();
+    virtual JSRetainPtr<JSStringRef> debugDescription() { return nullptr; }
+    virtual JSRetainPtr<JSStringRef> rawRoleForTesting() { return nullptr; }
     virtual JSRetainPtr<JSStringRef> language();
     virtual JSRetainPtr<JSStringRef> stringValue();
     virtual JSRetainPtr<JSStringRef> dateValue();

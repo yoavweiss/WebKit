@@ -115,6 +115,8 @@ public:
     JSRetainPtr<JSStringRef> computedRoleString() override;
     JSRetainPtr<JSStringRef> title() override;
     JSRetainPtr<JSStringRef> description() override;
+    JSRetainPtr<JSStringRef> debugDescription() override;
+    JSRetainPtr<JSStringRef> rawRoleForTesting() override;
     JSRetainPtr<JSStringRef> language() override;
     JSRetainPtr<JSStringRef> stringValue() override;
     JSRetainPtr<JSStringRef> dateValue() override;
