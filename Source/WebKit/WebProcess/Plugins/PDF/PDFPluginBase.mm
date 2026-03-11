@@ -1099,7 +1099,7 @@ Ref<Scrollbar> PDFPluginBase::createScrollbar(ScrollbarOrientation orientation)
             scrollAnimator().setWheelEventTestMonitor(page->wheelEventTestMonitor());
     }
 
-    if (RefPtr frame = protect(m_view.get())->frame()) {
+    if (RefPtr frame = m_view.get()->frame()) {
         if (RefPtr frameView = frame->view())
             frameView->addChild(widget);
     }
@@ -1521,7 +1521,7 @@ void PDFPluginBase::registerPDFTest(RefPtr<WebCore::VoidCallback>&& callback)
 
 std::optional<FrameIdentifier> PDFPluginBase::rootFrameID() const
 {
-    return protect(m_view.get())->frame()->rootFrame().frameID();
+    return m_view.get()->frame()->rootFrame().frameID();
 }
 
 // FIXME: Share more of the style sheet between the embed/non-embed case.

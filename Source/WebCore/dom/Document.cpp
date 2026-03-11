@@ -2132,7 +2132,7 @@ void Document::removeVisualUpdatePreventedReasons(OptionSet<VisualUpdatesPrevent
             if (frame()->isMainFrame()) {
                 frameView->addPaintPendingMilestones(LayoutMilestone::DidFirstPaintAfterSuppressedIncrementalRendering);
                 if (page->requestedLayoutMilestones() & LayoutMilestone::DidFirstLayoutAfterSuppressedIncrementalRendering)
-                    protect(frame())->loader().didReachLayoutMilestone(LayoutMilestone::DidFirstLayoutAfterSuppressedIncrementalRendering);
+                    frame()->loader().didReachLayoutMilestone(LayoutMilestone::DidFirstLayoutAfterSuppressedIncrementalRendering);
             }
         }
         m_visualUpdatesAllowedChangeRequiresLayoutMilestones = false;
@@ -4035,12 +4035,12 @@ ExceptionOr<void> Document::open(Document* entryDocument)
             }
         }
 
-        bool isNavigating = frame->loader().policyChecker().delegateIsDecidingNavigationPolicy() || frame->loader().state() == FrameState::Provisional || protect(frame->navigationScheduler())->hasQueuedNavigation();
+        bool isNavigating = frame->loader().policyChecker().delegateIsDecidingNavigationPolicy() || frame->loader().state() == FrameState::Provisional || frame->navigationScheduler().hasQueuedNavigation();
         if (frame->loader().policyChecker().delegateIsDecidingNavigationPolicy())
             frame->loader().policyChecker().stopCheck();
         // Null-checking m_frame again as `policyChecker().stopCheck()` may have cleared it.
         if (isNavigating && m_frame)
-            protect(this->frame())->loader().stopAllLoaders();
+            this->frame()->loader().stopAllLoaders();
     }
 
     removeAllEventListeners();
@@ -4300,8 +4300,8 @@ void Document::implicitClose()
 
         // Always do a layout after loading if needed.
         if (view() && renderView() && (!renderView()->firstChild() || renderView()->needsLayout())) {
-            protect(view())->layoutContext().layout();
-            protect(view())->layoutContext().updateCompositingLayersAfterLayoutIfNeeded();
+            view()->layoutContext().layout();
+            view()->layoutContext().updateCompositingLayersAfterLayoutIfNeeded();
         }
     }
 
@@ -6888,7 +6888,7 @@ void Document::adjustFocusNavigationNodeOnNodeRemoval(Node& node, NodeRemoval no
 void Document::textInserted(Node& text, unsigned offset, unsigned length)
 {
     for (auto& range : m_ranges)
-        Ref { range.get() }->textInserted(text, offset, length);
+        range.get().textInserted(text, offset, length);
 
     if (!m_markers)
         return;
@@ -6905,7 +6905,7 @@ void Document::textInserted(Node& text, unsigned offset, unsigned length)
 void Document::textRemoved(Node& text, unsigned offset, unsigned length)
 {
     for (auto& range : m_ranges)
-        Ref { range.get() }->textRemoved(text, offset, length);
+        range.get().textRemoved(text, offset, length);
 
     if (!m_markers)
         return;
@@ -7244,7 +7244,7 @@ ExceptionOr<String> Document::cookie()
         return String();
 
     if (!isDOMCookieCacheValid() && page())
-        setCachedDOMCookies(protect(page())->cookieJar().cookies(*this, cookieURL));
+        setCachedDOMCookies(page()->cookieJar().cookies(*this, cookieURL));
 
     return String { cachedDOMCookies() };
 }
@@ -9477,7 +9477,7 @@ bool Document::allowsContentJavaScript() const
         return !m_contextDocument || m_contextDocument->allowsContentJavaScript();
     }
 
-    return protect(frame())->loader().client().allowsContentJavaScriptFromMostRecentNavigation() == AllowsContentJavaScript::Yes;
+    return frame()->loader().client().allowsContentJavaScriptFromMostRecentNavigation() == AllowsContentJavaScript::Yes;
 }
 
 Element* eventTargetElementForDocument(Document* document)
@@ -10375,7 +10375,7 @@ bool Document::hasSkippedResizeObservations() const
 void Document::setHasSkippedResizeObservations(bool skipped)
 {
     for (auto& observer : m_resizeObservers)
-        Ref { *observer }->setHasSkippedObservations(skipped);
+        observer->setHasSkippedObservations(skipped);
 }
 
 void Document::updateResizeObservations(Page& page)

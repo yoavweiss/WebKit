@@ -479,7 +479,7 @@ RenderPtr<RenderElement> SVGSVGElement::createElementRenderer(RenderStyle&& styl
 {
     if (isOutermostSVGSVGElement()) {
         if (document().settings().layerBasedSVGEngineEnabled()) {
-            protect(document())->setMayHaveRenderedSVGRootElements();
+            document().setMayHaveRenderedSVGRootElements();
             return createRenderer<RenderSVGRoot>(*this, WTF::move(style));
         }
         return createRenderer<LegacyRenderSVGRoot>(*this, WTF::move(style));
@@ -549,12 +549,12 @@ bool SVGSVGElement::resumePausedAnimationsIfNeeded(const IntRect& visibleRect)
 
 bool SVGSVGElement::animationsPaused() const
 {
-    return protect(timeContainer())->isPaused();
+    return timeContainer().isPaused();
 }
 
 bool SVGSVGElement::hasActiveAnimation() const
 {
-    return protect(timeContainer())->isActive();
+    return timeContainer().isActive();
 }
 
 float SVGSVGElement::getCurrentTime() const

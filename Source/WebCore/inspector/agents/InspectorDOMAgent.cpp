@@ -1261,7 +1261,7 @@ bool InspectorDOMAgent::handleMousePress()
     if (!m_searchingForNode)
         return false;
 
-    if (RefPtr node = protect(overlay())->highlightedNode()) {
+    if (RefPtr node = overlay().highlightedNode()) {
         inspect(node.get());
         return true;
     }

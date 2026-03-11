@@ -410,7 +410,7 @@ ExceptionOr<void> ReadableByteStreamController::enqueue(JSDOMGlobalObject& globa
 // https://streams.spec.whatwg.org/#abstract-opdef-readablebytestreamcontrollerprocessreadrequestsusingqueue
 void ReadableByteStreamController::processReadRequestsUsingQueue(JSDOMGlobalObject& globalObject)
 {
-    RefPtr reader = protect(stream())->defaultReader();
+    RefPtr reader = stream().defaultReader();
 
     ASSERT(reader);
 
@@ -538,11 +538,11 @@ bool ReadableByteStreamController::shouldCallPull()
     if (!m_started)
         return false;
 
-    RefPtr defaultReader = protect(stream())->defaultReader();
+    RefPtr defaultReader = stream().defaultReader();
     if (defaultReader && defaultReader->getNumReadRequests() > 0)
         return true;
 
-    RefPtr byobReader = protect(stream())->byobReader();
+    RefPtr byobReader = stream().byobReader();
     if (byobReader && byobReader->readIntoRequestsSize() > 0)
         return true;
 

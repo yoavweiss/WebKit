@@ -177,7 +177,7 @@ bool isInsideOverlay(const SimpleRange& range)
 bool isInsideOverlay(const Node& node)
 {
     RefPtr host = imageOverlayHost(node);
-    return host && protect(host->userAgentShadowRoot())->contains(node);
+    return host && host->userAgentShadowRoot()->contains(node);
 }
 
 bool isOverlayText(const Node* node)

@@ -3219,7 +3219,7 @@ static RenderObject* rendererForView(NSView* view)
     if (!frame)
         return nullptr;
 
-    RefPtr<Node> node = protect(frame->document())->ownerElement();
+    RefPtr<Node> node = frame->document()->ownerElement();
     if (!node)
         return nullptr;
 

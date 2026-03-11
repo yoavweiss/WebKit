@@ -53,7 +53,7 @@ SelectFallbackButtonElement::SelectFallbackButtonElement(Document& document)
 
 HTMLSelectElement& SelectFallbackButtonElement::selectElement() const
 {
-    return downcast<HTMLSelectElement>(*protect(containingShadowRoot())->host());
+    return downcast<HTMLSelectElement>(*containingShadowRoot()->host());
 }
 
 void SelectFallbackButtonElement::updateText(HTMLOptionElement* selectedOption, int optionIndex)

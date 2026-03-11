@@ -519,7 +519,7 @@ void FocusController::setFocusedFrame(Frame* frame, BroadcastFocusedFrame broadc
     }
 
     if (shouldBroadcast)
-        protect(m_page)->chrome().focusedFrameChanged(frame);
+        m_page->chrome().focusedFrameChanged(frame);
 
     m_isChangingFocusedFrame = false;
 }
@@ -867,7 +867,7 @@ FocusableElementSearchResult FocusController::findFocusableElementAcrossFocusSco
                         clearSelectionIfNeeded(currentFrame.get(), nullptr, nullptr);
                         currentNode->document().setFocusedElement(nullptr);
                     }
-                    downcast<RemoteFrame>(frame)->client().findFocusableElementContinuingFromFrame(direction, currentNode->document().frame()->frameID(), focusEventData, shouldFocusElement);
+                    downcast<RemoteFrame>(*frame).client().findFocusableElementContinuingFromFrame(direction, currentNode->document().frame()->frameID(), focusEventData, shouldFocusElement);
                     return { nullptr, ContinuedSearchInRemoteFrame::Yes };
                 case Frame::FrameType::Local:
                     if (RefPtr ownerElement = frame->ownerElement())

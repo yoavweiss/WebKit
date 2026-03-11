@@ -1376,7 +1376,7 @@ InstrumentingAgents* InspectorInstrumentation::instrumentingAgents(ScriptExecuti
 {
     // Using RefPtr makes us hit the m_inRemovedLastRefFunction assert.
     if (WeakPtr document = dynamicDowncast<Document>(context))
-        return instrumentingAgents(protect(document->page()).get());
+        return instrumentingAgents(document->page());
     if (RefPtr workerOrWorkletGlobal = dynamicDowncast<WorkerOrWorkletGlobalScope>(context))
         return &instrumentingAgents(*workerOrWorkletGlobal);
     return nullptr;

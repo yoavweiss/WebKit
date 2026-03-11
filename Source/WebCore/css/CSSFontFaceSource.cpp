@@ -126,7 +126,7 @@ void CSSFontFaceSource::deref() const
 
 bool CSSFontFaceSource::shouldIgnoreFontLoadCompletions() const
 {
-    return protect(cssFontFace())->shouldIgnoreFontLoadCompletions();
+    return cssFontFace().shouldIgnoreFontLoadCompletions();
 }
 
 void CSSFontFaceSource::opportunisticallyStartFontDataURLLoading(DownloadableBinaryFontTrustedTypes trustedType)
@@ -201,7 +201,7 @@ void CSSFontFaceSource::load(DownloadableBinaryFontTrustedTypes trustedTypes, Do
             FontCascadeDescription fontDescription;
             fontDescription.setOneFamily(m_fontFaceName);
             fontDescription.setComputedSize(1);
-            fontDescription.setShouldAllowUserInstalledFonts(protect(cssFontFace())->allowUserInstalledFonts());
+            fontDescription.setShouldAllowUserInstalledFonts(cssFontFace().allowUserInstalledFonts());
             success = protect(FontCache::forCurrentThread())->fontForFamily(fontDescription, m_fontFaceName, { }, FontLookupOptions::ExactFamilyNameMatch);
             if (document && document->settings().webAPIStatisticsEnabled())
                 ResourceLoadObserver::singleton().logFontLoad(*document, m_fontFaceName.string(), success);

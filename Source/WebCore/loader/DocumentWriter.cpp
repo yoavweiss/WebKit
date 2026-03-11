@@ -283,7 +283,7 @@ TextResourceDecoder& DocumentWriter::decoder()
         // FIXME: This might be too cautious for non-7bit-encodings and
         // we may consider relaxing this later after testing.
         if (canReferToParentFrameEncoding(frame.ptr(), parentFrame.get()))
-            decoder->setHintEncoding(protect(parentFrame->document()->decoder()).get());
+            decoder->setHintEncoding(parentFrame->document()->decoder());
         if (m_encoding.isEmpty()) {
             if (canReferToParentFrameEncoding(frame.ptr(), parentFrame.get()))
                 decoder->setEncoding(parentFrame->document()->textEncoding(), TextResourceDecoder::EncodingFromParentFrame);
@@ -366,7 +366,7 @@ void DocumentWriter::setFrame(LocalFrame& frame)
 void DocumentWriter::setDocumentWasLoadedAsPartOfNavigation()
 {
     ASSERT(m_parser && !m_parser->isStopped());
-    protect(m_parser)->setDocumentWasLoadedAsPartOfNavigation();
+    m_parser->setDocumentWasLoadedAsPartOfNavigation();
 }
 
 } // namespace WebCore

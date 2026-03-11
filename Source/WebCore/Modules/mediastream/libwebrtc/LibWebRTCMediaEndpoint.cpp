@@ -254,7 +254,7 @@ bool LibWebRTCMediaEndpoint::addTrack(LibWebRTCRtpSenderBackend& sender, MediaSt
     case RealtimeMediaSource::Type::Video: {
         auto videoSource = RealtimeOutgoingVideoSource::create(track.privateTrack());
 
-        RefPtr context = protect(protect(m_peerConnectionBackend)->connection())->scriptExecutionContext();
+        RefPtr context = m_peerConnectionBackend->connection().scriptExecutionContext();
         if (context && context->settingsValues().peerConnectionVideoScalingAdaptationDisabled)
             videoSource->disableVideoScaling();
 
@@ -317,7 +317,7 @@ webrtc::scoped_refptr<LibWebRTCStatsCollector> LibWebRTCMediaEndpoint::createSta
         if (protectedThis->isStopped())
             return;
 
-        ActiveDOMObject::queueTaskKeepingObjectAlive(protect(protect(protectedThis->m_peerConnectionBackend)->connection()).get(), TaskSource::Networking, [promise = WTF::move(promise), rtcReport](auto&) {
+        ActiveDOMObject::queueTaskKeepingObjectAlive(protectedThis->m_peerConnectionBackend->connection(), TaskSource::Networking, [promise = WTF::move(promise), rtcReport](auto&) {
             promise->resolve<IDLInterface<RTCStatsReport>>(LibWebRTCStatsCollector::createReport(rtcReport));
         });
     });
@@ -431,7 +431,7 @@ std::pair<LibWebRTCRtpSenderBackend::Source, Ref<webrtc::MediaStreamTrackInterfa
     case RealtimeMediaSource::Type::Video: {
         Ref videoSource = RealtimeOutgoingVideoSource::create(track.privateTrack());
 
-        RefPtr context = protect(protect(m_peerConnectionBackend)->connection())->scriptExecutionContext();
+        RefPtr context = m_peerConnectionBackend->connection().scriptExecutionContext();
         if (context && context->settingsValues().peerConnectionVideoScalingAdaptationDisabled)
             videoSource->disableVideoScaling();
 
@@ -553,7 +553,7 @@ void LibWebRTCMediaEndpoint::OnStandardizedIceConnectionChange(webrtc::PeerConne
     callOnMainThread([protectedThis = Ref { *this }, connectionState] {
         if (protectedThis->isStopped())
             return;
-        Ref connection = protect(protectedThis->m_peerConnectionBackend)->connection();
+        Ref connection = protectedThis->m_peerConnectionBackend->connection();
         connection->updateIceConnectionState(connectionState);
     });
 }
@@ -781,7 +781,7 @@ static Vector<LibWebRTCMediaEndpointTransceiverState> transceiverStatesFromPeerC
 
 Vector<Ref<MediaStream>> LibWebRTCMediaEndpoint::mediaStreamsFromRTCStreamIds(const Vector<String>& receiverStreamIds)
 {
-    Ref document = downcast<Document>(*protect(protect(m_peerConnectionBackend)->connection())->scriptExecutionContext());
+    Ref document = downcast<Document>(*m_peerConnectionBackend->connection().scriptExecutionContext());
     return WTF::map(receiverStreamIds, [this, &document](auto& id) {
         auto addResult = m_remoteStreamsById.ensure(id, [id, &document]() {
             return MediaStream::create(document, MediaStreamPrivate::create(document->logger(), { }, String(id)), MediaStream::AllowEventTracks::Yes);

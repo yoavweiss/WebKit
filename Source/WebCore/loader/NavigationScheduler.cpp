@@ -594,7 +594,7 @@ inline bool NavigationScheduler::shouldScheduleNavigation(const URL& url) const
         return false;
     if (url.protocolIsJavaScript())
         return true;
-    return NavigationDisabler::isNavigationAllowed(protect(m_frame));
+    return NavigationDisabler::isNavigationAllowed(m_frame.get());
 }
 
 void NavigationScheduler::scheduleRedirect(Document& initiatingDocument, double delay, const URL& url, IsMetaRefresh isMetaRefresh)

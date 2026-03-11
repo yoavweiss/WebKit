@@ -66,12 +66,12 @@ bool WebPageProxyTesting::sendMessageWithAsyncReply(UniqueRef<IPC::Encoder>&& en
 
 IPC::Connection* WebPageProxyTesting::messageSenderConnection() const
 {
-    return &protect(protect(page())->legacyMainFrameProcess())->connection();
+    return &page().legacyMainFrameProcess().connection();
 }
 
 uint64_t WebPageProxyTesting::messageSenderDestinationID() const
 {
-    return protect(page())->webPageIDInMainFrameProcess().toUInt64();
+    return page().webPageIDInMainFrameProcess().toUInt64();
 }
 
 void WebPageProxyTesting::dispatchActivityStateUpdate()
@@ -179,7 +179,7 @@ void WebPageProxyTesting::clearNotificationPermissionState()
 
 void WebPageProxyTesting::clearWheelEventTestMonitor()
 {
-    if (!protect(page())->hasRunningProcess())
+    if (!page().hasRunningProcess())
         return;
     send(Messages::WebPageTesting::ClearWheelEventTestMonitor());
 }
@@ -221,7 +221,7 @@ void WebPageProxyTesting::setObscuredContentInsets(float top, float right, float
 
 void WebPageProxyTesting::resetStateBetweenTests()
 {
-    protect(protect(page())->legacyMainFrameProcess())->resetState();
+    page().legacyMainFrameProcess().resetState();
 
     if (RefPtr mainFrame = m_page->mainFrame())
         mainFrame->disownOpener();

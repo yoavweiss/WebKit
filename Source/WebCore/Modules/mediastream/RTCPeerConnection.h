@@ -182,7 +182,7 @@ public:
     void scheduleEvent(Ref<Event>&&);
 
     void disableICECandidateFiltering() { protect(*m_backend)->disableICECandidateFiltering(); }
-    void enableICECandidateFiltering() { protect(*m_backend)->enableICECandidateFiltering(); }
+    void enableICECandidateFiltering() { m_backend->enableICECandidateFiltering(); }
 
     void clearController() { m_controller = nullptr; }
 

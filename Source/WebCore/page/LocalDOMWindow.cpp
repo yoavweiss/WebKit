@@ -1472,7 +1472,7 @@ unsigned LocalDOMWindow::length() const
     if (!isCurrentlyDisplayedInFrame())
         return 0;
 
-    return protect(frame())->tree().scopedChildCount();
+    return frame()->tree().scopedChildCount();
 }
 
 AtomString LocalDOMWindow::name() const

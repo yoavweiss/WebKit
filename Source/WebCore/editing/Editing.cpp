@@ -287,10 +287,10 @@ Position firstEditablePositionAfterPositionInRoot(const Position& position, Cont
         candidate = positionAfterNode(*shadowAncestor);
     }
 
-    while (candidate.deprecatedNode() && !isEditablePosition(candidate) && protect(candidate.deprecatedNode())->isDescendantOf(*highestRoot))
-        candidate = isAtomicNode(candidate.deprecatedNode()) ? positionInParentAfterNode(protect(*candidate.deprecatedNode())) : nextVisuallyDistinctCandidate(candidate);
+    while (candidate.deprecatedNode() && !isEditablePosition(candidate) && candidate.deprecatedNode()->isDescendantOf(*highestRoot))
+        candidate = isAtomicNode(candidate.deprecatedNode()) ? positionInParentAfterNode(*candidate.deprecatedNode()) : nextVisuallyDistinctCandidate(candidate);
 
-    if (candidate.deprecatedNode() && !protect(candidate.deprecatedNode())->isInclusiveDescendantOf(*highestRoot))
+    if (candidate.deprecatedNode() && !candidate.deprecatedNode()->isInclusiveDescendantOf(*highestRoot))
         return { };
 
     return candidate;
@@ -315,10 +315,10 @@ Position lastEditablePositionBeforePositionInRoot(const Position& position, Cont
         candidate = firstPositionInOrBeforeNode(shadowAncestor.get());
     }
 
-    while (candidate.deprecatedNode() && !isEditablePosition(candidate) && protect(candidate.deprecatedNode())->isDescendantOf(*highestRoot))
-        candidate = isAtomicNode(candidate.deprecatedNode()) ? positionInParentBeforeNode(protect(*candidate.deprecatedNode())) : previousVisuallyDistinctCandidate(candidate);
+    while (candidate.deprecatedNode() && !isEditablePosition(candidate) && candidate.deprecatedNode()->isDescendantOf(*highestRoot))
+        candidate = isAtomicNode(candidate.deprecatedNode()) ? positionInParentBeforeNode(*candidate.deprecatedNode()) : previousVisuallyDistinctCandidate(candidate);
 
-    if (candidate.deprecatedNode() && !protect(candidate.deprecatedNode())->isInclusiveDescendantOf(*highestRoot))
+    if (candidate.deprecatedNode() && !candidate.deprecatedNode()->isInclusiveDescendantOf(*highestRoot))
         return { };
     
     return candidate;

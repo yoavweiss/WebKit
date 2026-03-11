@@ -135,7 +135,7 @@ bool RenderMarquee::isHorizontal() const
 
 int RenderMarquee::computePosition(MarqueeDirection dir, bool stopAtContentEdge)
 {
-    CheckedPtr box = protect(layer())->renderBox();
+    CheckedPtr box = layer().renderBox();
     ASSERT(box);
     CheckedRef boxStyle = box->style();
     if (isHorizontal()) {
@@ -216,7 +216,7 @@ void RenderMarquee::updateMarqueePosition()
 {
     bool activate = (m_totalLoops <= 0 || m_currentLoop < m_totalLoops);
     if (activate) {
-        MarqueeBehavior behavior = protect(layer())->renderer().style().marqueeBehavior();
+        MarqueeBehavior behavior = layer().renderer().style().marqueeBehavior();
         m_start = computePosition(direction(), behavior == MarqueeBehavior::Alternate);
         m_end = computePosition(reverseDirection(direction()), behavior == MarqueeBehavior::Alternate || behavior == MarqueeBehavior::Slide);
         if (!m_stopped)

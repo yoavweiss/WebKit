@@ -99,7 +99,7 @@ Node* Range::commonAncestorContainer() const
 void Range::updateAssociatedSelection()
 {
     if (m_isAssociatedWithSelection)
-        protect(m_ownerDocument)->selection().updateFromAssociatedLiveRange();
+        m_ownerDocument->selection().updateFromAssociatedLiveRange();
 }
 
 void Range::updateAssociatedHighlight()
@@ -340,8 +340,8 @@ ExceptionOr<RefPtr<DocumentFragment>> Range::processContents(ActionType action)
         RangeBoundaryPoint originalEnd(m_end);
 
         // what is the highest node that partially selects the start / end of the range?
-        RefPtr partialStart = highestAncestorUnderCommonRoot(protect(originalStart.container()).ptr(), commonRoot.get());
-        RefPtr partialEnd = highestAncestorUnderCommonRoot(protect(originalEnd.container()).ptr(), commonRoot.get());
+        RefPtr partialStart = highestAncestorUnderCommonRoot(&originalStart.container(), commonRoot.get());
+        RefPtr partialEnd = highestAncestorUnderCommonRoot(&originalEnd.container(), commonRoot.get());
 
         // Start and end containers are different.
         // There are three possibilities here:
@@ -382,10 +382,10 @@ ExceptionOr<RefPtr<DocumentFragment>> Range::processContents(ActionType action)
         }
 
         // delete all children of commonRoot between the start and end container
-        RefPtr processStart = childOfCommonRootBeforeOffset(protect(originalStart.container()).ptr(), originalStart.offset(), commonRoot.get());
+        RefPtr processStart = childOfCommonRootBeforeOffset(&originalStart.container(), originalStart.offset(), commonRoot.get());
         if (processStart && &originalStart.container() != commonRoot) // processStart contains nodes before m_start.
             processStart = processStart->nextSibling();
-        RefPtr processEnd = childOfCommonRootBeforeOffset(protect(originalEnd.container()).ptr(), originalEnd.offset(), commonRoot.get());
+        RefPtr processEnd = childOfCommonRootBeforeOffset(&originalEnd.container(), originalEnd.offset(), commonRoot.get());
 
         // Collapse the range, making sure that the result is not within a node that was partially selected.
         if (action == Extract || action == Delete) {
@@ -928,7 +928,7 @@ static inline void boundaryNodeWillBeRemoved(RangeBoundaryPoint& boundary, Node&
 {
     if (boundary.childBefore() == &nodeToBeRemoved)
         boundary.childBeforeWillBeRemoved();
-    else if (nodeToBeRemoved.contains(protect(boundary.container()).ptr()))
+    else if (nodeToBeRemoved.contains(&boundary.container()))
         boundary.setToBeforeNode(nodeToBeRemoved);
 }
 

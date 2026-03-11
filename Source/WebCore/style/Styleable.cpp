@@ -174,7 +174,7 @@ RenderElement* Styleable::renderer() const
             return correctGroup.get();
 
         // Go through all descendants until we find the relevant pseudo element otherwise.
-        for (auto& descendant : descendantsOfType<RenderBox>(CheckedRef { *correctGroup }.get())) {
+        for (auto& descendant : descendantsOfType<RenderBox>(*correctGroup)) {
             if (descendant.style().pseudoElementType() == pseudoElementIdentifier->type)
                 return &descendant;
         }
@@ -312,7 +312,7 @@ void Styleable::animationWasRemoved(WebAnimation& animation) const
 void Styleable::elementWasRemoved() const
 {
     cancelStyleOriginatedAnimations();
-    if (CheckedPtr styleOriginatedTimelinesController = protect(element.document())->styleOriginatedTimelinesController())
+    if (CheckedPtr styleOriginatedTimelinesController = element.document().styleOriginatedTimelinesController())
         styleOriginatedTimelinesController->styleableWasRemoved(*this);
 }
 
@@ -334,11 +334,11 @@ void Styleable::cancelStyleOriginatedAnimations() const
     // It is important we don't cancel style-originated animations when entering the page cache
     // since any JS wrapper that is kept alive in the page cache could be associated with an animation
     // that itself has not been kept alive (or rather canceled) when entering the page cache.
-    if (protect(element.document())->backForwardCacheState() != Document::NotInBackForwardCache)
+    if (element.document().backForwardCacheState() != Document::NotInBackForwardCache)
         return;
 
     cancelStyleOriginatedAnimations({ });
-    if (CheckedPtr styleOriginatedTimelinesController = protect(element.document())->styleOriginatedTimelinesController())
+    if (CheckedPtr styleOriginatedTimelinesController = element.document().styleOriginatedTimelinesController())
         styleOriginatedTimelinesController->unregisterNamedTimelinesAssociatedWithElement(*this);
 }
 

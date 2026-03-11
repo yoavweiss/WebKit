@@ -361,7 +361,7 @@ static void selectionPositionInformation(WebPage& page, const InteractionInforma
     CheckedPtr renderer = hitNode->renderer();
 
     info.selectability = ([&] {
-        if (protect(renderer->style())->usedUserSelect() == WebCore::UserSelect::None)
+        if (renderer->style().usedUserSelect() == WebCore::UserSelect::None)
             return InteractionInformationAtPosition::Selectability::UnselectableDueToUserSelectNoneOrQuirk;
 
         if (RefPtr element = dynamicDowncast<WebCore::Element>(*hitNode)) {
@@ -581,7 +581,7 @@ InteractionInformationAtPosition positionInformationForWebPage(WebPage& page, co
     info.request = request;
 
     WebCore::FloatPoint adjustedPoint;
-    RefPtr localMainFrame = WTF::protect(page.corePage())->localMainFrame();
+    RefPtr localMainFrame = page.corePage()->localMainFrame();
     if (!localMainFrame)
         return info;
 

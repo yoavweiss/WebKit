@@ -704,7 +704,7 @@ void HistoryController::recursiveUpdateForCommit()
     // For each frame that already had the content the item requested (based on
     // (a matching URL and frame tree snapshot), just restore the scroll position.
     // Save form state (works from currentItem, since m_frameLoadComplete is true)
-    if (m_currentItem && itemsAreClones(*protect(currentItem()), protect(provisionalItem()).get())) {
+    if (m_currentItem && itemsAreClones(*currentItem(), provisionalItem())) {
         ASSERT(m_frameLoadComplete);
         saveDocumentState();
         saveScrollPositionAndViewStateToItem(protect(currentItem()).get());

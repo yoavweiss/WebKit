@@ -551,12 +551,12 @@ bool RenderElement::repaintBeforeStyleChange(Style::Difference diff, const Rende
     }
 
     if (shouldRepaintBeforeStyleChange == RequiredRepaint::RendererOnly) {
-        if (isOutOfFlowPositioned() && protect(downcast<RenderLayerModelObject>(*this).layer())->isSelfPaintingLayer()) {
+        if (isOutOfFlowPositioned() && downcast<RenderLayerModelObject>(*this).layer()->isSelfPaintingLayer()) {
             if (oldStyle.usedVisibility() == Visibility::Hidden) {
                 // Repaint on hidden renderer is a no-op.
                 return false;
             }
-            if (auto cachedClippedOverflowRect = protect(downcast<RenderLayerModelObject>(*this).layer())->cachedClippedOverflowRect()) {
+            if (auto cachedClippedOverflowRect = downcast<RenderLayerModelObject>(*this).layer()->cachedClippedOverflowRect()) {
                 repaintUsingContainer(containerForRepaint().renderer.get(), *cachedClippedOverflowRect);
                 return true;
             }
@@ -826,9 +826,9 @@ void RenderElement::moveLayers(RenderLayer& newParent)
 
 RenderLayer* RenderElement::layerParent() const
 {
-    ASSERT_IMPLIES(isInTopLayerOrBackdrop(style(), protect(element()).get()), hasLayer());
+    ASSERT_IMPLIES(isInTopLayerOrBackdrop(style(), element()), hasLayer());
 
-    if (hasLayer() && isInTopLayerOrBackdrop(style(), protect(element()).get()))
+    if (hasLayer() && isInTopLayerOrBackdrop(style(), element()))
         return view().layer();
 
     return parent()->enclosingLayer();
@@ -1035,9 +1035,9 @@ void RenderElement::styleWillChange(Style::Difference diff, const RenderStyle& n
     bool hasOutline = newStyle.hasOutline();
     if (hadOutline != hasOutline) {
         if (hasOutline)
-            protect(view())->incrementRendersWithOutline();
+            view().incrementRendersWithOutline();
         else
-            protect(view())->decrementRendersWithOutline();
+            view().decrementRendersWithOutline();
     }
 
     bool newStyleSlowScroll = false;
@@ -1129,7 +1129,7 @@ void RenderElement::styleDidChange(Style::Difference diff, const RenderStyle* ol
 
 #if !PLATFORM(IOS_FAMILY)
     if (oldStyle && oldStyle->cursor() != style().cursor())
-        protect(frame())->eventHandler().scheduleCursorUpdate();
+        frame().eventHandler().scheduleCursorUpdate();
 #endif
 
     bool hadOutlineAuto = oldStyle && oldStyle->outlineStyle() == OutlineStyle::Auto;
@@ -1262,7 +1262,7 @@ void RenderElement::willBeDestroyed()
         unregisterImages(m_style);
 
         if (style().hasOutline())
-            protect(view())->decrementRendersWithOutline();
+            view().decrementRendersWithOutline();
 
         if (auto* firstLineStyle = style().getCachedPseudoStyle({ PseudoElementType::FirstLine }))
             unregisterImages(*firstLineStyle);

@@ -321,7 +321,7 @@ void WebPage::performDictionaryLookupAtLocation(const FloatPoint& floatPoint)
     }
 #endif
     
-    RefPtr localMainFrame = protect(corePage())->localMainFrame();
+    RefPtr localMainFrame = corePage()->localMainFrame();
     if (!localMainFrame)
         return;
     // Find the frame the point is over.
@@ -373,7 +373,7 @@ DictionaryPopupInfo WebPage::dictionaryPopupInfoForRange(LocalFrame& frame, cons
 
     IntRect rangeRect = protect(frame.view())->contentsToWindow(quads[0].enclosingBoundingBox());
 
-    const CheckedPtr style = protect(range.startContainer())->renderStyle();
+    const CheckedPtr style = range.startContainer().renderStyle();
     float scaledAscent = style ? style->metricsOfPrimaryFont().intAscent() * pageScaleFactor() : 0;
     dictionaryPopupInfo.origin = FloatPoint(rangeRect.x(), rangeRect.y() + scaledAscent);
 
@@ -811,7 +811,7 @@ WebPaymentCoordinator* WebPage::paymentCoordinator()
 
 void WebPage::getContentsAsAttributedString(CompletionHandler<void(const WebCore::AttributedString&)>&& completionHandler)
 {
-    RefPtr localFrame = protect(corePage())->localMainFrame();
+    RefPtr localFrame = corePage()->localMainFrame();
     completionHandler(localFrame ? attributedString(makeRangeSelectingNodeContents(*protect(localFrame->document())), IgnoreUserSelectNone::No) : AttributedString { });
 }
 
@@ -1182,10 +1182,10 @@ std::pair<URL, DidFilterLinkDecoration> WebPage::applyLinkDecorationFilteringWit
     };
 
     bool hasOptedInToLinkDecorationFiltering = [&] {
-        if (isLinkDecorationFilteringEnabled(RefPtr { mainFrame->loader().activeDocumentLoader() }.get()))
+        if (isLinkDecorationFilteringEnabled(mainFrame->loader().activeDocumentLoader()))
             return true;
 
-        return isLinkDecorationFilteringEnabled(RefPtr { mainFrame->loader().policyDocumentLoader() }.get());
+        return isLinkDecorationFilteringEnabled(mainFrame->loader().policyDocumentLoader());
     }();
 
     RefPtr document = mainFrame ? mainFrame->document() : nullptr;
@@ -2493,7 +2493,7 @@ void WebPage::selectWithGesture(const IntPoint& point, GestureType gestureType, 
 void WebPage::updateFocusBeforeSelectingTextAtLocation(const IntPoint& point)
 {
     static constexpr OptionSet hitType { HitTestRequest::Type::ReadOnly, HitTestRequest::Type::Active, HitTestRequest::Type::AllowVisibleChildFrameContentOnly };
-    RefPtr localMainFrame = WTF::protect(m_page)->localMainFrame();
+    RefPtr localMainFrame = m_page->localMainFrame();
     if (!localMainFrame)
         return;
 

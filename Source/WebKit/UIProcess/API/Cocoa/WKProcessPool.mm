@@ -249,7 +249,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
 
 - (id)_objectForBundleParameter:(NSString *)parameter
 {
-    return [protect(protect(*_processPool)->bundleParameters()) objectForKey:parameter];
+    return [protect((*_processPool).bundleParameters()) objectForKey:parameter];
 }
 
 - (void)_setObject:(id <NSCopying, NSSecureCoding>)object forBundleParameter:(NSString *)parameter
@@ -370,7 +370,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
 
 - (void)_clearSupportedPlugins
 {
-    protect(*_processPool)->clearSupportedPlugins();
+    (*_processPool).clearSupportedPlugins();
 }
 
 - (void)_terminateServiceWorkers

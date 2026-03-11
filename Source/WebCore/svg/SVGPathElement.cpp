@@ -118,10 +118,10 @@ void SVGPathElement::attributeChanged(const QualifiedName& name, const AtomStrin
     if (name == SVGNames::dAttr) {
         auto& cache = PathSegListCache::singleton();
         if (newValue.isEmpty())
-            Ref { m_pathSegList }->baseVal()->clearByteStreamData();
+            m_pathSegList->baseVal()->clearByteStreamData();
         else if (auto data = cache.get(newValue))
-            Ref { m_pathSegList }->baseVal()->updateByteStreamData(WTF::move(data.value()));
-        else if (Ref { m_pathSegList }->baseVal()->parse(newValue))
+            m_pathSegList->baseVal()->updateByteStreamData(WTF::move(data.value()));
+        else if (m_pathSegList->baseVal()->parse(newValue))
             cache.add(newValue, m_pathSegList->baseVal()->existingPathByteStream().data());
         else
             protect(protect(document())->svgExtensions())->reportError(makeString("Problem parsing d=\""_s, newValue, "\""_s));

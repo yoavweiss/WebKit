@@ -1844,7 +1844,7 @@ WritingDirection EditingStyle::textDirectionForSelection(const VisibleSelection&
             return WritingDirection::Natural;
 
         // In the range case, make sure that the embedding element persists until the end of the range.
-        if (selection.isRange() && !protect(end.deprecatedNode())->isDescendantOf(*node))
+        if (selection.isRange() && !end.deprecatedNode()->isDescendantOf(*node))
             return WritingDirection::Natural;
         
         foundDirection = directionValue == CSSValueLtr ? WritingDirection::LeftToRight : WritingDirection::RightToLeft;

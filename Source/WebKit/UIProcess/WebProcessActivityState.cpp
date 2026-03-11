@@ -81,7 +81,7 @@ void WebProcessActivityState::takeTextExtractionAssertion()
         return weakPageRef.get();
     }, m_page);
 
-    auto processID = protect(process())->processID();
+    auto processID = process().processID();
     Ref assertion = ProcessAssertion::create(protect(process()), "WebKit text extraction"_s, ProcessAssertionType::Background);
     m_textExtractionAssertion = assertion.copyRef();
     assertion->setInvalidationHandler([processID, weakPage = page] {

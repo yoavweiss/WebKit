@@ -869,7 +869,7 @@ void LocalFrame::clearTimers(LocalFrameView *view, Document *document)
     protect(view->layoutContext())->unscheduleLayout();
     if (CheckedPtr timelines = document->timelinesController())
         timelines->suspendAnimations();
-    protect(view->frame())->eventHandler().stopAutoscrollTimer();
+    view->frame().eventHandler().stopAutoscrollTimer();
 }
 
 void LocalFrame::clearTimers()

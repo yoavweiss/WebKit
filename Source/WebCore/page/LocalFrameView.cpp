@@ -4623,9 +4623,9 @@ void LocalFrameView::scrollToPendingTextFragmentRange()
                 return;
         }
         if (m_haveCreatedTextIndicator)
-            protect(document->page())->chrome().client().updateTextIndicator(WTF::move(textIndicator));
+            document->page()->chrome().client().updateTextIndicator(WTF::move(textIndicator));
         else {
-            protect(document->page())->chrome().client().setTextIndicator(WTF::move(textIndicator));
+            document->page()->chrome().client().setTextIndicator(WTF::move(textIndicator));
             m_haveCreatedTextIndicator = true;
         }
     }

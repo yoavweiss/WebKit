@@ -945,7 +945,7 @@ bool RenderBundleEncoder::validToEncodeCommand() const
     if (!m_device->isValid())
         return false;
 
-    return !m_finished || (m_renderPassEncoder && RefPtr { m_renderPassEncoder.get() }->renderCommandEncoder() && !m_makeSubmitInvalid);
+    return !m_finished || (m_renderPassEncoder && m_renderPassEncoder->renderCommandEncoder() && !m_makeSubmitInvalid);
 }
 
 void RenderBundleEncoder::resetIndexBuffer()

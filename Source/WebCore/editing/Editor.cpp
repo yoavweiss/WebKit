@@ -2347,7 +2347,7 @@ String Editor::compositionText() const
     if (!m_compositionNode)
         return { };
 
-    return protect(compositionNode())->data().substring(m_compositionStart, m_compositionEnd - m_compositionStart);
+    return compositionNode()->data().substring(m_compositionStart, m_compositionEnd - m_compositionStart);
 }
 
 bool Editor::hasDeadKeyComposition() const

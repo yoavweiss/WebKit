@@ -202,7 +202,7 @@ namespace ax = WebCore::Accessibility;
     if (!cache)
         return;
 
-    RefPtr mainFrame = m_page ? Ref { *m_page }->mainFrame() : nullptr;
+    RefPtr mainFrame = m_page ? m_page->mainFrame() : nullptr;
     if (!mainFrame)
         return;
 

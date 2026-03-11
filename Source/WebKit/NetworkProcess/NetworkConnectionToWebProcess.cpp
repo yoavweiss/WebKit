@@ -1651,7 +1651,7 @@ void NetworkConnectionToWebProcess::entangleLocalPortInThisProcessToRemote(const
     m_processEntangledPorts.add(local);
     protect(m_networkProcess->messagePortChannelRegistry())->didEntangleLocalToRemote(local, remote, m_webProcessIdentifier);
 
-    RefPtr channel = protect(m_networkProcess->messagePortChannelRegistry())->existingChannelContainingPort(local);
+    RefPtr channel = m_networkProcess->messagePortChannelRegistry().existingChannelContainingPort(local);
     if (channel && channel->hasAnyMessagesPendingOrInFlight())
         m_connection->send(Messages::NetworkProcessConnection::MessagesAvailableForPort(local), 0);
 }
@@ -1694,7 +1694,7 @@ void NetworkConnectionToWebProcess::postMessageToRemote(MessageWithMessagePorts&
 {
     if (protect(m_networkProcess->messagePortChannelRegistry())->didPostMessageToRemote(WTF::move(message), port)) {
         // Look up the process for that port
-        RefPtr channel = protect(m_networkProcess->messagePortChannelRegistry())->existingChannelContainingPort(port);
+        RefPtr channel = m_networkProcess->messagePortChannelRegistry().existingChannelContainingPort(port);
         ASSERT(channel);
         auto processIdentifier = channel->processForPort(port);
         if (processIdentifier) {

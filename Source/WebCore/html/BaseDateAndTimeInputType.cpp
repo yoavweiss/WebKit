@@ -586,7 +586,7 @@ void BaseDateAndTimeInputType::didChangeValueFromControl()
         return;
     }
 
-    if (protect(input->userAgentShadowRoot())->containsFocusedElement())
+    if (input->userAgentShadowRoot()->containsFocusedElement())
         input->dispatchFormControlInputEvent();
     else
         input->dispatchFormControlChangeEvent();

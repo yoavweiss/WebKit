@@ -187,7 +187,7 @@ void MediaControlTextTrackContainerElement::updateDisplay()
         for (auto& interval : activeCues) {
             Ref cue = *interval.data();
 
-            if (protect(cue->track())->isSpoken())
+            if (cue->track()->isSpoken())
                 continue;
 
             if (RefPtr vttCue = dynamicDowncast<VTTCue>(cue))

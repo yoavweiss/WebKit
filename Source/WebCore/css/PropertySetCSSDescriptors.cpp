@@ -299,7 +299,7 @@ CSSRule* PropertySetCSSDescriptors::parentRule() const
 CSSParserContext PropertySetCSSDescriptors::cssParserContext() const
 {
     RefPtr cssStyleSheet = parentStyleSheet();
-    auto context = cssStyleSheet ? cssStyleSheet->contents().parserContext() : CSSParserContext(protect(propertySet())->cssParserMode());
+    auto context = cssStyleSheet ? cssStyleSheet->contents().parserContext() : CSSParserContext(propertySet().cssParserMode());
 
     context.enclosingRuleType = ruleType();
 

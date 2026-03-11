@@ -726,7 +726,7 @@ static NSDictionary<NSString *, id> *extractResolutionReport(NSError *error)
             return;
         if (!_session)
             return;
-        RefPtr download = protect(protect(_session)->networkProcess().downloadManager())->download(*downloadID);
+        RefPtr download = protect(_session->networkProcess().downloadManager())->download(*downloadID);
         if (!download)
             return;
 

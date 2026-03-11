@@ -267,7 +267,7 @@ static bool isClippedByFrameAncestor(const Document& document, TextIteratorBehav
     if (!behaviors.contains(TextIteratorBehavior::ClipsToFrameAncestors))
         return false;
 
-    for (RefPtr owner = document.ownerElement(); owner; owner = protect(owner->document())->ownerElement()) {
+    for (RefPtr owner = document.ownerElement(); owner; owner = owner->document().ownerElement()) {
         BitStack ownerClipStack;
         setUpFullyClippedStack(ownerClipStack, *owner, behaviors);
         if (ownerClipStack.top())
@@ -549,7 +549,7 @@ void TextIterator::advance()
                 bool pastEnd = nextNode(m_behaviors, *currentNode) == m_pastEndNode;
                 RefPtr parentNode = parentNodeOrShadowHost(m_behaviors, *currentNode);
                 while (!next && parentNode) {
-                    if ((pastEnd && parentNode == m_endContainer.get()) || isDescendantOf(m_behaviors, *protect(m_endContainer), *parentNode))
+                    if ((pastEnd && parentNode == m_endContainer.get()) || isDescendantOf(m_behaviors, *m_endContainer, *parentNode))
                         return;
                     bool haveRenderer = isRendererAccessible(protect(currentNode->renderer()), m_behaviors);
                     RefPtr exitedNode = WTF::move(currentNode);
@@ -988,7 +988,7 @@ static bool shouldEmitExtraNewlineForNode(Node& node)
         return false;
 
     auto bottomMargin = renderBox->collapsedMarginAfter();
-    auto fontSize = protect(renderBox->style())->fontDescription().computedSize();
+    auto fontSize = renderBox->style().fontDescription().computedSize();
     return bottomMargin * 2 >= fontSize;
 }
 
@@ -1163,7 +1163,7 @@ void TextIterator::exitNode(Node* exitedNode)
     }
     
     // If nothing was emitted, see if we need to emit a space.
-    if (!m_positionNode && shouldEmitSpaceBeforeAndAfterNode(*protect(m_currentNode))) {
+    if (!m_positionNode && shouldEmitSpaceBeforeAndAfterNode(*m_currentNode)) {
         RefPtr parentNode = baseNode->parentNode();
         emitCharacter(' ', WTF::move(parentNode), WTF::move(baseNode), 1, 1);
     }
@@ -1220,7 +1220,7 @@ SimpleRange TextIterator::range() const
     ASSERT(!atEnd());
     // Use the current run information, if we have it.
     if (m_positionOffsetBaseNode) {
-        unsigned index = protect(m_positionOffsetBaseNode)->computeNodeIndex();
+        unsigned index = m_positionOffsetBaseNode->computeNodeIndex();
         m_positionStartOffset += index;
         m_positionEndOffset += index;
         m_positionOffsetBaseNode = nullptr;
@@ -1432,7 +1432,7 @@ CheckedPtr<RenderText> SimplifiedBackwardsTextIterator::handleFirstLetter(int& s
 
 bool SimplifiedBackwardsTextIterator::handleReplacedElement()
 {
-    unsigned index = protect(m_node)->computeNodeIndex();
+    unsigned index = m_node->computeNodeIndex();
     // We want replaced elements to behave like punctuation for boundary
     // finding, and to simply take up space for the selection preservation
     // code in moveParagraphs, so we use a comma. Unconditionally emit

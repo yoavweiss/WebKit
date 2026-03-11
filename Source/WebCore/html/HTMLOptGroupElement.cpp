@@ -128,7 +128,7 @@ auto HTMLOptGroupElement::insertedIntoAncestor(InsertionType insertionType, Cont
         return result;
 
     if (!m_ownerSelect) {
-        if (RefPtr select = HTMLSelectElement::findOwnerSelect(protect(parentNode()), HTMLSelectElement::ExcludeOptGroup::Yes)) {
+        if (RefPtr select = HTMLSelectElement::findOwnerSelect(parentNode(), HTMLSelectElement::ExcludeOptGroup::Yes)) {
             m_ownerSelect = select.get();
             select->setRecalcListItems();
         }
@@ -150,7 +150,7 @@ void HTMLOptGroupElement::removedFromAncestor(RemovalType removalType, Container
     if (!document().settings().htmlEnhancedSelectParsingEnabled() || !m_ownerSelect)
         return;
 
-    if (RefPtr select = HTMLSelectElement::findOwnerSelect(protect(parentNode()), HTMLSelectElement::ExcludeOptGroup::Yes)) {
+    if (RefPtr select = HTMLSelectElement::findOwnerSelect(parentNode(), HTMLSelectElement::ExcludeOptGroup::Yes)) {
         ASSERT_UNUSED(select, select == m_ownerSelect.get());
         return;
     }

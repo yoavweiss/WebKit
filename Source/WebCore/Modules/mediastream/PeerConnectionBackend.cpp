@@ -431,7 +431,7 @@ void PeerConnectionBackend::setLocalDescriptionSucceeded(std::optional<Descripti
             }
 
             for (auto& pair : removeList) {
-                DEBUG_LOG(LOGIDENTIFIER, "Removing track "_s, protect(pair.track)->id(), " from MediaStream "_s, protect(pair.stream)->id());
+                DEBUG_LOG(LOGIDENTIFIER, "Removing track "_s, pair.track->id(), " from MediaStream "_s, pair.stream->id());
                 pair.stream->privateStream().removeTrack(pair.track->privateTrack());
                 if (peerConnection.isClosed())
                     return;
@@ -776,7 +776,7 @@ void PeerConnectionBackend::generateCertificate(Document& document, const Certif
 
 ScriptExecutionContext* PeerConnectionBackend::context() const
 {
-    return protect(m_peerConnection)->scriptExecutionContext();
+    return m_peerConnection->scriptExecutionContext();
 }
 
 #if !RELEASE_LOG_DISABLED

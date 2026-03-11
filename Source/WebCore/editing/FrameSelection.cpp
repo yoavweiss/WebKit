@@ -587,7 +587,7 @@ static bool removingNodeRemovesPosition(Node& node, const Position& position)
         return true;
 
     RefPtr element = dynamicDowncast<Element>(node);
-    return element && element->isShadowIncludingInclusiveAncestorOf(protect(position.anchorNode()).get());
+    return element && element->isShadowIncludingInclusiveAncestorOf(position.anchorNode());
 }
 
 void DragCaretController::nodeWillBeRemoved(Node& node)
@@ -2510,7 +2510,7 @@ void FrameSelection::setFocusedElementIfNeeded(OptionSet<SetSelectionOption> opt
                 FocusOptions focusOptions;
                 if (options & SetSelectionOption::ForBindings)
                     focusOptions.trigger = FocusTrigger::Bindings;
-                protect(document->page())->focusController().setFocusedElement(target.get(), protect(document->frame()).get(), focusOptions);
+                document->page()->focusController().setFocusedElement(target.get(), document->frame(), focusOptions);
                 return;
             }
             target = target->parentOrShadowHostElement();
@@ -2519,7 +2519,7 @@ void FrameSelection::setFocusedElementIfNeeded(OptionSet<SetSelectionOption> opt
     }
 
     if (caretBrowsing)
-        protect(document->page())->focusController().setFocusedElement(nullptr, protect(document->frame()).get());
+        document->page()->focusController().setFocusedElement(nullptr, document->frame());
 }
 
 void DragCaretController::paintDragCaret(LocalFrame* frame, GraphicsContext& p, const LayoutPoint& paintOffset) const

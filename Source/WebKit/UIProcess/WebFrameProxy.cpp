@@ -137,7 +137,7 @@ WebFrameProxy::WebFrameProxy(WebPageProxy& page, FrameProcess& process, FrameIde
 
     page.inspectorController().didCreateFrame(*this);
 
-    protect(m_frameProcess)->incrementFrameCount();
+    m_frameProcess->incrementFrameCount();
 
     m_parentFrame = parent;
 
@@ -163,7 +163,7 @@ WebFrameProxy::~WebFrameProxy()
     ASSERT(allFrames().get(m_frameID) == this);
     allFrames().remove(m_frameID);
 
-    protect(m_frameProcess)->decrementFrameCount();
+    m_frameProcess->decrementFrameCount();
 }
 
 template<typename M, typename C> void WebFrameProxy::sendWithAsyncReply(M&& message, C&& completionHandler)
@@ -584,7 +584,7 @@ void WebFrameProxy::commitProvisionalFrame(IPC::Connection& connection, FrameIde
         protect(process())->send(Messages::WebPage::LoadDidCommitInAnotherProcess(frameID, m_layerHostingContextIdentifier), *webPageIDInCurrentProcess());
 
         WebCore::ProcessIdentifier oldProcessID = process().coreProcessIdentifier();
-        WebCore::ProcessIdentifier newProcessID = protect(m_provisionalFrame)->process().coreProcessIdentifier();
+        WebCore::ProcessIdentifier newProcessID = m_provisionalFrame->process().coreProcessIdentifier();
 
         if (RefPtr process = std::exchange(m_provisionalFrame, nullptr)->takeFrameProcess())
             setProcess(process.releaseNonNull());
@@ -674,9 +674,9 @@ void WebFrameProxy::setProcess(FrameProcess& process)
 {
     ASSERT(m_frameProcess.ptr() != &process);
 
-    protect(m_frameProcess)->decrementFrameCount();
+    m_frameProcess->decrementFrameCount();
     m_frameProcess = process;
-    protect(m_frameProcess)->incrementFrameCount();
+    m_frameProcess->incrementFrameCount();
 }
 
 void WebFrameProxy::removeChildFrames()

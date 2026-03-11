@@ -283,7 +283,7 @@ bool SWRegistrationDatabase::prepareDatabase(ShouldCreateIfNotExists shouldCreat
         return false;
     }
 
-    protect(m_database)->disableThreadingChecks();
+    m_database->disableThreadingChecks();
 
     int version = 1;
     {

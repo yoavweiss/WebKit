@@ -103,7 +103,7 @@ bool isInsideImageControls(const Node& node)
     if (!host)
         return false;
 
-    return protect(host->userAgentShadowRoot())->contains(node);
+    return host->userAgentShadowRoot()->contains(node);
 }
 
 void createImageControls(HTMLElement& element)

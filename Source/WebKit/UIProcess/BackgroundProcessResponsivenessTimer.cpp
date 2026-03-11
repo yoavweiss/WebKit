@@ -104,7 +104,7 @@ void BackgroundProcessResponsivenessTimer::timeoutTimerFired()
 
     // This shouldn't happen but still check to be 100% sure we don't report
     // suspended processes as unresponsive.
-    if (protect(m_webProcessProxy)->throttler().isSuspended())
+    if (m_webProcessProxy->throttler().isSuspended())
         return;
 
     if (!m_isResponsive)

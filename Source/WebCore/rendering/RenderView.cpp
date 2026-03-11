@@ -369,7 +369,7 @@ RenderElement* RenderView::rendererForRootBackground() const
     if (documentRenderer.shouldApplyAnyContainment())
         return nullptr;
 
-    if (RefPtr body = protect(document())->body()) {
+    if (RefPtr body = document().body()) {
         if (auto* renderer = body->renderer()) {
             if (!renderer->shouldApplyAnyContainment())
                 return renderer;
@@ -414,7 +414,7 @@ void RenderView::paintBoxDecorations(PaintInfo& paintInfo, const LayoutPoint&)
     // FIXME: This needs to be dynamic.  We should be able to go back to blitting if we ever stop being inside
     // a transform, transparency layer, etc.
     Ref document = this->document();
-    for (RefPtr element = document->ownerElement(); element && element->renderer(); element = protect(element->document())->ownerElement()) {
+    for (RefPtr element = document->ownerElement(); element && element->renderer(); element = element->document().ownerElement()) {
         CheckedPtr layer = element->renderer()->enclosingLayer();
         if (layer->cannotBlitToWindow()) {
             frameView().setCannotBlitToWindow();
@@ -582,7 +582,7 @@ void RenderView::flushAccumulatedRepaintRegion() const
     IntSize rectOffset;
 
     CheckedPtr<RenderBox> iframeOwnerRenderer;
-    if (RefPtr ownerElement = protect(document())->ownerElement()) {
+    if (RefPtr ownerElement = document().ownerElement()) {
         iframeOwnerRenderer = ownerElement->renderBox();
         if (!iframeOwnerRenderer) {
             m_accumulatedRepaintRegion = nullptr;

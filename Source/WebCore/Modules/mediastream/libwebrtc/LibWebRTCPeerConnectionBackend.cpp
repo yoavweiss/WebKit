@@ -284,7 +284,7 @@ void LibWebRTCPeerConnectionBackend::doAddIceCandidate(RTCIceCandidate& candidat
 
 Ref<RTCRtpReceiver> LibWebRTCPeerConnectionBackend::createReceiver(UniqueRef<LibWebRTCRtpReceiverBackend>&& backend)
 {
-    Ref document = downcast<Document>(*protect(m_peerConnection)->scriptExecutionContext());
+    Ref document = downcast<Document>(*m_peerConnection->scriptExecutionContext());
 
     auto source = backend->createSource(document.get());
 

@@ -318,7 +318,7 @@ void ViewGestureController::didSameDocumentNavigationForMainFrame(SameDocumentNa
 void ViewGestureController::checkForActiveLoads()
 {
     RefPtr page = m_webPageProxy.get();
-    if (page && protect(page->pageLoadState())->isLoading()) {
+    if (page && page->pageLoadState().isLoading()) {
         if (!m_swipeActiveLoadMonitoringTimer.isActive())
             m_swipeActiveLoadMonitoringTimer.startRepeating(swipeSnapshotRemovalActiveLoadMonitoringInterval);
         return;
@@ -694,7 +694,7 @@ void ViewGestureController::willEndSwipeGesture(WebBackForwardListItem& targetIt
 #if ENABLE(BACK_FORWARD_LIST_SWIFT)
     RefPtr currentItem = page->backForwardList().currentItem();
 #else
-    RefPtr currentItem = protect(page->backForwardList())->currentItem();
+    RefPtr currentItem = page->backForwardList().currentItem();
 #endif
     // The main frame will not be navigated so hide the snapshot right away.
     if (currentItem && currentItem->itemIsClone(targetItem)) {

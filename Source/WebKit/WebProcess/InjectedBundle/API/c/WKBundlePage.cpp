@@ -306,7 +306,7 @@ void WKBundlePageClose(WKBundlePageRef pageRef)
 
 bool WKBundlePageIsClosed(WKBundlePageRef pageRef)
 {
-    return protect(WebKit::toImpl(pageRef))->isClosed();
+    return WebKit::toImpl(pageRef)->isClosed();
 }
 
 double WKBundlePageGetTextZoomFactor(WKBundlePageRef pageRef)
@@ -441,7 +441,7 @@ WKImageRef WKBundlePageCreateScaledSnapshotInDocumentCoordinates(WKBundlePageRef
 
 double WKBundlePageGetBackingScaleFactor(WKBundlePageRef pageRef)
 {
-    return protect(WebKit::toImpl(pageRef))->deviceScaleFactor();
+    return WebKit::toImpl(pageRef)->deviceScaleFactor();
 }
 
 void WKBundlePageListenForLayoutMilestones(WKBundlePageRef pageRef, WKLayoutMilestones milestones)
@@ -599,7 +599,7 @@ bool WKBundlePageIsUsingEphemeralSession(WKBundlePageRef pageRef)
 
 bool WKBundlePageIsControlledByAutomation(WKBundlePageRef pageRef)
 {
-    return protect(WebKit::toImpl(pageRef))->isControlledByAutomation();
+    return WebKit::toImpl(pageRef)->isControlledByAutomation();
 }
 
 #if TARGET_OS_IPHONE

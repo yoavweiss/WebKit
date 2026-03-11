@@ -132,7 +132,7 @@ AffineTransform* SVGGraphicsElement::ensureSupplementalTransform()
 void SVGGraphicsElement::attributeChanged(const QualifiedName& name, const AtomString& oldValue, const AtomString& newValue, AttributeModificationReason attributeModificationReason)
 {
     if (name == SVGNames::transformAttr)
-        Ref { m_transform }->baseVal()->parse(newValue);
+        m_transform->baseVal()->parse(newValue);
 
     SVGTests::parseAttribute(name, newValue);
     SVGElement::attributeChanged(name, oldValue, newValue, attributeModificationReason);

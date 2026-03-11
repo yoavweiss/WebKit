@@ -1080,7 +1080,7 @@ WebCore::FloatRect PluginView::rectForSelectionInRootView(PDFSelection *selectio
 
 bool PluginView::isUsingUISideCompositing() const
 {
-    return protect(m_webPage.get())->isUsingUISideCompositing();
+    return m_webPage.get()->isUsingUISideCompositing();
 }
 
 void PluginView::didChangeSettings()
@@ -1227,7 +1227,7 @@ void PluginView::updateDocumentForPluginSizingBehavior()
     if (!m_plugin->shouldSizeToFitContent())
         return;
     // The styles in PluginDocumentParser are constructed to respond to this class.
-    if (RefPtr documentElement = protect(m_pluginElement->document())->documentElement())
+    if (RefPtr documentElement = m_pluginElement->document().documentElement())
         documentElement->setAttributeWithoutSynchronization(HTMLNames::classAttr, "plugin-fits-content"_s);
 }
 

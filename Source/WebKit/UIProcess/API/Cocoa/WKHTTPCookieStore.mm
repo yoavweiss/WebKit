@@ -112,7 +112,7 @@ WK_OBJECT_DISABLE_DISABLE_KVC_IVAR_ACCESS;
 
 - (void)getAllCookies:(void (^)(NSArray<NSHTTPCookie *> *))completionHandler
 {
-    bool isOptInCookiePartitioningEnabled = protect(*_cookieStore)->isOptInCookiePartitioningEnabled();
+    bool isOptInCookiePartitioningEnabled = _cookieStore->isOptInCookiePartitioningEnabled();
     protect(*_cookieStore)->cookies([isOptInCookiePartitioningEnabled, handler = adoptNS([completionHandler copy])](const Vector<WebCore::Cookie>& cookies) {
         auto rawHandler = (void (^)(NSArray<NSHTTPCookie *> *))handler.get();
         rawHandler(coreCookiesToNSCookies(cookies, isOptInCookiePartitioningEnabled));
@@ -213,7 +213,7 @@ static WKCookiePolicy NODELETE toWKCookiePolicy(WebCore::HTTPCookieAcceptPolicy 
 
 - (void)getCookiesForURL:(NSURL *)url completionHandler:(void (^)(NSArray<NSHTTPCookie *> *))completionHandler
 {
-    bool isOptInCookiePartitioningEnabled = protect(*_cookieStore)->isOptInCookiePartitioningEnabled();
+    bool isOptInCookiePartitioningEnabled = _cookieStore->isOptInCookiePartitioningEnabled();
     protect(*_cookieStore)->cookiesForURL(url, [isOptInCookiePartitioningEnabled, handler = makeBlockPtr(completionHandler)] (const Vector<WebCore::Cookie>& cookies) {
         handler.get()(coreCookiesToNSCookies(cookies, isOptInCookiePartitioningEnabled));
     });

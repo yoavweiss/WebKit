@@ -237,7 +237,7 @@ void CachedFrame::open()
     ASSERT(m_document || is<RemoteFrameView>(m_view.get()));
 
     if (RefPtr localFrameView = dynamicDowncast<LocalFrameView>(m_view.get()))
-        protect(localFrameView->frame())->loader().open(*this);
+        localFrameView->frame().loader().open(*this);
 }
 
 void CachedFrame::clear()

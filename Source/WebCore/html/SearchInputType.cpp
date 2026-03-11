@@ -118,7 +118,7 @@ PopupMenuStyle SearchInputType::itemStyle(unsigned) const
 PopupMenuStyle SearchInputType::menuStyle() const
 {
     auto defaultStyle = RenderStyle::create();
-    CheckedPtr renderer = dynamicDowncast<RenderSearchField>(protect(element())->renderer());
+    CheckedPtr renderer = dynamicDowncast<RenderSearchField>(element()->renderer());
     CheckedRef style = renderer ? renderer->style() : defaultStyle;
     return PopupMenuStyle(
         style->visitedDependentColorApplyingColorFilter(),
@@ -152,13 +152,13 @@ int SearchInputType::clientInsetRight() const
 
 LayoutUnit SearchInputType::clientPaddingLeft() const
 {
-    CheckedPtr renderer = dynamicDowncast<RenderSearchField>(protect(element())->renderer());
+    CheckedPtr renderer = dynamicDowncast<RenderSearchField>(element()->renderer());
     return renderer ? renderer->clientPaddingLeft() : 0_lu;
 }
 
 LayoutUnit SearchInputType::clientPaddingRight() const
 {
-    CheckedPtr renderer = dynamicDowncast<RenderSearchField>(protect(element())->renderer());
+    CheckedPtr renderer = dynamicDowncast<RenderSearchField>(element()->renderer());
     return renderer ? renderer->clientPaddingRight() : 0_lu;
 }
 

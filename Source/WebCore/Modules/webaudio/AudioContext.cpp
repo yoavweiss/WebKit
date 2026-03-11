@@ -542,7 +542,7 @@ void AudioContext::didReceiveRemoteControlCommand(PlatformMediaSession::RemoteCo
 std::optional<MediaSessionGroupIdentifier> AudioContext::mediaSessionGroupIdentifier() const
 {
     RefPtr document = this->document();
-    return document && document->page() ? protect(document->page())->mediaSessionGroupIdentifier() : std::nullopt;
+    return document && document->page() ? document->page()->mediaSessionGroupIdentifier() : std::nullopt;
 }
 
 static bool hasPlayBackAudioSession(Document* document)

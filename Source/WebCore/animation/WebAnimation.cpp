@@ -913,11 +913,11 @@ void WebAnimation::enqueueAnimationEvent(Ref<AnimationEventBase>&& event)
             return timeline;
         if (RefPtr scrollTimeline = dynamicDowncast<ScrollTimeline>(m_timeline)) {
             if (RefPtr source = scrollTimeline->source())
-                return Ref { source->document() }->existingTimeline();
+                return source->document().existingTimeline();
         }
         if (RefPtr keyframeEffect = this->keyframeEffect()) {
             if (RefPtr target = keyframeEffect->target())
-                return protect(target->document())->existingTimeline();
+                return target->document().existingTimeline();
         }
         return nullptr;
     };

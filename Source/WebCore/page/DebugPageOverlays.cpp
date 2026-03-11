@@ -462,7 +462,7 @@ static void drawCheckbox(const String& text, GraphicsContext& context, const Fon
 
 FloatRect InteractionRegionOverlay::rectForSettingAtIndex(unsigned index) const
 {
-    RefPtr mainFrameView = protect(protect(m_page)->mainFrame())->virtualView();
+    RefPtr mainFrameView = protect(m_page->mainFrame())->virtualView();
     if (!mainFrameView)
         return FloatRect();
     auto viewSize = mainFrameView->layoutSize();

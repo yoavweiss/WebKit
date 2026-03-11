@@ -303,7 +303,7 @@ std::unique_ptr<SVGResources> SVGResources::buildCachedResources(const RenderEle
         auto* linkedResource = getRenderSVGResourceContainerById(document, id);
         if (!linkedResource)
             treeScope->addPendingSVGResource(id, element);
-        else if (isChainableResource(element, protect(linkedResource->element())))
+        else if (isChainableResource(element, linkedResource->element()))
             ensureResources(foundResources).setLinkedResource(linkedResource);
     }
 

@@ -228,7 +228,7 @@ void WebExtensionAPIRuntime::getBackgroundPage(Ref<WebExtensionCallbackHandler>&
 {
     // Documentation: https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/runtime/getBackgroundPage
 
-    if (auto backgroundPage = protect(extensionContext())->backgroundPage()) {
+    if (auto backgroundPage = extensionContext().backgroundPage()) {
         callback->call(toWindowObject(callback->globalContext(), *backgroundPage));
         return;
     }
@@ -621,7 +621,7 @@ static bool matches(WebFrame& frame, const std::optional<WebExtensionMessageTarg
 
     // Skip all pages / frames / documents that don't match the target parameters.
     auto& pageProxyIdentifier = targetParameters.value().pageProxyIdentifier;
-    if (pageProxyIdentifier && pageProxyIdentifier != protect(frame.page())->webPageProxyIdentifier())
+    if (pageProxyIdentifier && pageProxyIdentifier != frame.page()->webPageProxyIdentifier())
         return false;
 
     auto& frameIdentifier = targetParameters.value().frameIdentifier;
@@ -676,7 +676,7 @@ void WebExtensionContextProxy::internalDispatchRuntimeMessageEvent(WebExtensionC
     bool anyListenerHandledMessage = false;
     enumerateFramesAndNamespaceObjects([&, callbackAggregatorWrapper = RetainPtr { callbackAggregatorWrapper }](WebFrame& frame, WebExtensionAPINamespace& namespaceObject) {
         // Don't send the message to any listeners in the sender's page.
-        if (senderParameters.pageProxyIdentifier == protect(frame.page())->webPageProxyIdentifier())
+        if (senderParameters.pageProxyIdentifier == frame.page()->webPageProxyIdentifier())
             return;
 
         // Skip all frames that don't match the target parameters.
@@ -781,7 +781,7 @@ void WebExtensionContextProxy::internalDispatchRuntimeConnectEvent(WebExtensionC
 
         auto globalContext = frame.jsContextForWorld(toDOMWrapperWorld(contentWorldType));
         for (auto& listener : listeners) {
-            Ref port = WebExtensionAPIPort::create(namespaceObject, protect(frame.page())->webPageProxyIdentifier(), sourceContentWorldType, channelIdentifier, name, senderParameters);
+            Ref port = WebExtensionAPIPort::create(namespaceObject, frame.page()->webPageProxyIdentifier(), sourceContentWorldType, channelIdentifier, name, senderParameters);
             listener->call(toJS(globalContext, port.ptr()));
         }
     }, toDOMWrapperWorld(contentWorldType));

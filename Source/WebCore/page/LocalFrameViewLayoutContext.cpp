@@ -917,7 +917,7 @@ LocalFrameView& LocalFrameViewLayoutContext::view() const
 
 RenderView* LocalFrameViewLayoutContext::renderView() const
 {
-    return protect(view())->renderView();
+    return view().renderView();
 }
 
 Document* LocalFrameViewLayoutContext::document() const

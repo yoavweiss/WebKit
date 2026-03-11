@@ -228,7 +228,7 @@ bool SourceBufferPrivateAVFObjC::precheckInitializationSegment(const Initializat
 
     if (!mediaContentTypesRequiringHardwareSupport.isEmpty()) {
         for (auto& info : segment.videoTracks) {
-            auto codec = FourCC::fromString(Ref { *info.description }->codec());
+            auto codec = FourCC::fromString(info.description->codec());
             if (!codec)
                 continue;
             if (!codecsMeetHardwareDecodeRequirements({ { *codec } }, mediaContentTypesRequiringHardwareSupport))
