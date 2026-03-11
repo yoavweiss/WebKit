@@ -168,7 +168,7 @@ public:
     virtual unsigned numberOfCharacters() const;
     virtual int insertionPointLineNumber();
     virtual JSRetainPtr<JSStringRef> selectedTextRange();
-    virtual JSRetainPtr<JSStringRef> intersectionWithSelectionRange();
+    virtual RefPtr<AccessibilityTextMarkerRange> intersectionWithSelectionRange();
     virtual JSRetainPtr<JSStringRef> textInputMarkedRange() const;
     virtual bool isAtomicLiveRegion() const;
     virtual bool isBusy() const;

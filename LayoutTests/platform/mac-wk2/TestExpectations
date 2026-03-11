@@ -2510,3 +2510,6 @@ tiled-drawing/mac/margin-tiles-with-banner-view-overlay-repeat-x.html [ Skip ]
 tiled-drawing/mac/margin-tiles-with-banner-view-overlay-repeat-y.html [ Skip ]
 
 webkit.org/b/308856 [ Debug ] http/tests/websocket/tests/hybi/handshake-ok-with-legacy-websocket-response-headers.html [ Failure Pass ]
+
+# webkit.org/b/308169 Skip until after macOS 26.4, where AXIntersectionWithSelectionRange returns AXTextMarkerRangeRef.
+[ Tahoe ] accessibility/mac/intersection-with-selection-range.html [ Skip ]
