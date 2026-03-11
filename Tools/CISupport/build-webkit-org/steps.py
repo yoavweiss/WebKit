@@ -179,7 +179,7 @@ class ConfigureBuild(buildstep.BuildStep, AddToLogMixin):
     description = ["configuring build"]
     descriptionDone = ["configured build"]
 
-    def __init__(self, platform, configuration, architecture, buildOnly, additionalArguments, device_model, triggers, *args, **kwargs):
+    def __init__(self, platform, configuration, architecture, buildOnly, additionalArguments, device_model, triggers, deployment_target=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.platform = platform
         if platform != 'jsc-only':
@@ -191,6 +191,7 @@ class ConfigureBuild(buildstep.BuildStep, AddToLogMixin):
         self.additionalArguments = additionalArguments
         self.device_model = device_model
         self.triggers = triggers
+        self.deployment_target = deployment_target
 
     @defer.inlineCallbacks
     def run(self):
@@ -203,6 +204,8 @@ class ConfigureBuild(buildstep.BuildStep, AddToLogMixin):
         self.setProperty("additionalArguments", self.additionalArguments)
         self.setProperty("device_model", self.device_model)
         self.setProperty("triggers", self.triggers)
+        if self.deployment_target:
+            self.setProperty("deployment_target", self.deployment_target)
         yield self._addToLog('stdio', 'Set build properties')
         return defer.returnValue(SUCCESS)
 
@@ -405,6 +408,9 @@ class CompileWebKit(shell.Compile, CustomFlagsMixin, ShellMixin, AddToLogMixin):
                 # Some projects (namely lldbWebKitTester) require full debug info, and may override this.
                 build_command += ['DEBUG_INFORMATION_FORMAT=dwarf-with-dsym']
                 build_command += ['CLANG_DEBUG_INFORMATION_LEVEL=\\$\\(WK_OVERRIDE_DEBUG_INFORMATION_LEVEL:default=line-tables-only\\)']
+            deployment_target = self.getProperty('deployment_target')
+            if deployment_target and platform == 'mac':
+                build_command += [f'MACOSX_DEPLOYMENT_TARGET={deployment_target}']
 
         build_command += self.customBuildFlag(platform, self.getProperty('fullPlatform'))
 
