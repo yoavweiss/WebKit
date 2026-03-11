@@ -7083,8 +7083,6 @@ css3/scroll-snap/ios/scroll-snap-mainframe-pinch-out.html [ Skip ]
 
 webkit.org/b/263052 fast/events/ios/keydown-keyup-keypress-keys-in-non-editable-using-chinese-keyboard.html [ Skip ]
 
-webkit.org/b/263662 fast/forms/listbox-bidi-align.html [ Failure ]
-
 webkit.org/b/260640 [ Release arm64 ] editing/execCommand/apply-inline-style-to-element-with-no-renderer-crash.html [ Pass Failure ]
 
 # This test relies on mouse input.

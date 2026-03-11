@@ -387,7 +387,16 @@ Style::PaddingBox RenderThemeIOS::popupInternalPaddingBox(const RenderStyle& sty
         // FIXME: Reduce code duplication with toTruncatedPaddingEdge.
         auto value = Style::PaddingEdge::Fixed { static_cast<float>(std::trunc(padding + Style::evaluate<float>(style.usedBorderTopWidth(),  Style::ZoomNeeded { }))) / style.usedZoom() };
 
-        if (style.writingMode().isBidiRTL())
+        bool padLeft = [&] {
+            auto textAlign = style.textAlign();
+            if (textAlign == Style::TextAlign::Start)
+                return style.writingMode().isBidiRTL();
+            if (textAlign == Style::TextAlign::End)
+                return style.writingMode().isBidiLTR();
+            return textAlign == Style::TextAlign::Right;
+        }();
+
+        if (padLeft)
             return { 0_css_px, 0_css_px, 0_css_px, value };
         return { 0_css_px, value, 0_css_px, 0_css_px };
     }
