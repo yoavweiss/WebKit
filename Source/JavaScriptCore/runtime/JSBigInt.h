@@ -625,7 +625,9 @@ private:
     inline const Digit* dataStorage() const { return std::bit_cast<const Digit*>(std::bit_cast<const uint8_t*>(this) + offsetOfData()); }
     inline Digit* dataStorageUnsafe() { return dataStorage(); }
 
-    const unsigned m_length;
+    void setLength(unsigned length) { m_length = length; }
+
+    unsigned m_length;
     unsigned m_hash { 0 };
 };
 

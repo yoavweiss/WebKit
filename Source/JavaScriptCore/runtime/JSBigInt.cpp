@@ -937,8 +937,31 @@ JSBigInt::ImplResult JSBigInt::multiplyImpl(JSGlobalObject* globalObject, BigInt
         }
     }
 
-    Vector<Digit, 32> digits(resultLength);
-    auto span = digits.mutableSpan();
+    // N * M result with non-zero digits N / M is guaranteed to be (N + M - 1) or (N + M) length.
+    // It is not so wasteful if we just allocate JSBigInt with N + M here.
+    // It is possible that we will hit the JSBigInt size limit, so let's validate it after all the computation.
+    if (resultLength - 1 > maxLength) [[unlikely]] {
+        throwOutOfMemoryError(globalObject, scope, "BigInt generated from this operation is too big"_s);
+        return nullptr;
+    }
+
+    auto xSpan = x.digits();
+    auto ySpan = y.digits();
+    ASSERT(xSpan.size() >= 1);
+    ASSERT(ySpan.size() >= 1);
+
+    // Note that resultLength can be one-larger than maxLength.
+    // We still accept. And if the adjusted result is still larger, we will throw an OOM error.
+    auto* cell = tryAllocateCell<JSBigInt>(vm, JSBigInt::allocationSize(resultLength));
+    if (!cell) [[unlikely]] {
+        throwOutOfMemoryError(globalObject, scope, "BigInt generated from this operation is too big"_s);
+        return nullptr;
+    }
+
+    JSBigInt* bigInt = new (NotNull, cell) JSBigInt(vm, vm.bigIntStructure.get(), resultLength);
+    bigInt->finishCreation(vm);
+    bigInt->setSign(resultSign);
+
     std::span<Digit> result = ([](std::span<const Digit> x, std::span<const Digit> y, std::span<Digit> span) -> std::span<Digit> {
         if (x.size() == y.size()) {
             switch (y.size()) {
@@ -957,8 +980,18 @@ JSBigInt::ImplResult JSBigInt::multiplyImpl(JSGlobalObject* globalObject, BigInt
         if (y.size() == 1)
             return multiplySingle(x, y[0], span);
         return multiplyTextbook(x, y, span);
-    }(x.digits(), y.digits(), span));
-    RELEASE_AND_RETURN(scope, tryCreateFromImpl(globalObject, vm, resultSign, result));
+    }(xSpan, ySpan, bigInt->digits()));
+    ASSERT(!result.empty());
+    if (!result.back())
+        result = result.first(result.size() - 1);
+
+    if (result.size() > maxLength) [[unlikely]] {
+        throwOutOfMemoryError(globalObject, scope, "BigInt generated from this operation is too big"_s);
+        return nullptr;
+    }
+    bigInt->setLength(result.size());
+
+    return bigInt;
 }
 
 JSValue JSBigInt::multiply(JSGlobalObject* globalObject, JSBigInt* x, JSBigInt* y)
