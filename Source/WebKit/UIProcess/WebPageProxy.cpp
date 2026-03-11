@@ -10551,21 +10551,21 @@ void WebPageProxy::endDataListSuggestions()
         dataListSuggestionsDropdown->close();
 }
 
-void WebPageProxy::didCloseSuggestions()
+void WebPageProxy::didCloseSuggestions(std::optional<WebCore::FrameIdentifier> targetFrameID)
 {
     if (!internals().dataListSuggestionsDropdown)
         return;
 
     internals().dataListSuggestionsDropdown = nullptr;
-    send(Messages::WebPage::DidCloseSuggestions());
+    sendToProcessContainingFrame(targetFrameID, Messages::WebPage::DidCloseSuggestions());
 }
 
-void WebPageProxy::didSelectOption(const String& selectedOption)
+void WebPageProxy::didSelectOption(const String& selectedOption, std::optional<WebCore::FrameIdentifier> targetFrameID)
 {
     if (!hasRunningProcess())
         return;
 
-    send(Messages::WebPage::DidSelectDataListOption(selectedOption));
+    sendToProcessContainingFrame(targetFrameID, Messages::WebPage::DidSelectDataListOption(selectedOption));
 }
 
 void WebPageProxy::showDateTimePicker(WebCore::DateTimeChooserParameters&& params)

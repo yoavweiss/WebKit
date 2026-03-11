@@ -2315,8 +2315,8 @@ public:
 
     WebCore::IntRect syncRootViewToScreen(const WebCore::IntRect& viewRect);
 
-    void didSelectOption(const String&);
-    void didCloseSuggestions();
+    void didSelectOption(const String&, std::optional<WebCore::FrameIdentifier>);
+    void didCloseSuggestions(std::optional<WebCore::FrameIdentifier>);
 
     void didChooseDate(StringView);
     void didEndDateTimePicker();
