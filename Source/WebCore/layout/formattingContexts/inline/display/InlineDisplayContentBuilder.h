@@ -50,8 +50,8 @@ private:
     void processNonBidiContent(const LineLayoutResult&, InlineDisplay::Boxes&);
     void processBidiContent(const LineLayoutResult&, InlineDisplay::Boxes&);
     bool processBidiLinesWithNoContent(const LineLayoutResult&, InlineDisplay::Boxes&);
-    void collectInkOverflowForInlineBoxes(InlineDisplay::Boxes&);
-    void collectInkOverflowForTextDecorations(InlineDisplay::Boxes&);
+    void collectInkOverflowForInlineBoxes(std::span<InlineDisplay::Box>);
+    void collectInkOverflowForTextDecorations(std::span<InlineDisplay::Box>);
     void truncateForEllipsisPolicy(LineEndingTruncationPolicy, const LineLayoutResult&, InlineDisplay::Boxes&);
 
     void appendTextDisplayBox(const Line::Run&, const InlineRect&, InlineDisplay::Boxes&);
@@ -70,7 +70,7 @@ private:
     inline InlineRect mapInlineRectLogicalToVisual(const InlineRect& logicalRect, const InlineRect& containerLogicalRect, WritingMode);
 
     void setInlineBoxGeometry(const Box& inlineBox, Layout::BoxGeometry&, const InlineRect&, bool isFirstInlineBoxFragment);
-    void adjustVisualGeometryForDisplayBox(size_t displayBoxNodeIndex, InlineLayoutUnit& accumulatedOffset, InlineLayoutUnit lineBoxLogicalTop, const DisplayBoxTree&, InlineDisplay::Boxes&, const HashMap<const Box*, IsFirstLastIndex>&);
+    void adjustVisualGeometryForDisplayBox(size_t displayBoxNodeIndex, InlineLayoutUnit& accumulatedOffset, InlineLayoutUnit lineBoxLogicalTop, const DisplayBoxTree&, std::span<InlineDisplay::Box>, const HashMap<const Box*, IsFirstLastIndex>&);
     size_t ensureDisplayBoxForContainer(const ElementBox&, DisplayBoxTree&, AncestorStack&, InlineDisplay::Boxes&);
 
     template <typename BoxType, typename LayoutUnitType>

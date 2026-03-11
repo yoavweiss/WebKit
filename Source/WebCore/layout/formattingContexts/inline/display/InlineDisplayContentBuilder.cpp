@@ -109,8 +109,9 @@ InlineDisplay::Boxes InlineDisplayContentBuilder::build(const LineLayoutResult& 
 
     insertRubyAnnotationBoxes(processRubyContent(boxes.mutableSpan(), lineLayoutResult), boxes);
 
-    collectInkOverflowForTextDecorations(boxes);
-    collectInkOverflowForInlineBoxes(boxes);
+    auto newDisplayBoxes = boxes.mutableSpan();
+    collectInkOverflowForTextDecorations(newDisplayBoxes);
+    collectInkOverflowForInlineBoxes(newDisplayBoxes);
     return boxes;
 }
 
@@ -715,7 +716,7 @@ struct IsFirstLastIndex {
     std::optional<size_t> last;
 };
 using IsFirstLastIndexesMap = HashMap<const Box*, IsFirstLastIndex>;
-void InlineDisplayContentBuilder::adjustVisualGeometryForDisplayBox(size_t displayBoxNodeIndex, InlineLayoutUnit& contentLineRightEdge, InlineLayoutUnit lineBoxLogicalTop, const DisplayBoxTree& displayBoxTree, InlineDisplay::Boxes& boxes, const IsFirstLastIndexesMap& isFirstLastIndexesMap)
+void InlineDisplayContentBuilder::adjustVisualGeometryForDisplayBox(size_t displayBoxNodeIndex, InlineLayoutUnit& contentLineRightEdge, InlineLayoutUnit lineBoxLogicalTop, const DisplayBoxTree& displayBoxTree, std::span<InlineDisplay::Box> boxes, const IsFirstLastIndexesMap& isFirstLastIndexesMap)
 {
     auto rootWritingMode = root().writingMode();
     auto isHorizontalWritingMode = rootWritingMode.isHorizontal();
@@ -1054,13 +1055,13 @@ void InlineDisplayContentBuilder::processBidiContent(const LineLayoutResult& lin
             auto contentLineRightEdge = contentLineLeftEdge;
 
             for (auto childDisplayBoxNodeIndex : displayBoxTree.root().children)
-                adjustVisualGeometryForDisplayBox(childDisplayBoxNodeIndex, contentLineRightEdge, lineLogicalTop, displayBoxTree, boxes, isFirstLastIndexesMap);
+                adjustVisualGeometryForDisplayBox(childDisplayBoxNodeIndex, contentLineRightEdge, lineLogicalTop, displayBoxTree, boxes.mutableSpan(), isFirstLastIndexesMap);
         };
         adjustVisualGeometryWithInlineBoxes();
     };
     handleInlineBoxes();
 
-    auto handleTrailingOpenInlineBoxes = [&] {
+    auto closeInlineBoxes = [&] {
         for (auto& lineRun : lineLayoutResult.runs | std::views::reverse) {
             if (!lineRun.isInlineBoxStart() || lineRun.bidiLevel() != InlineItem::opaqueBidiLevel)
                 break;
@@ -1074,19 +1075,17 @@ void InlineDisplayContentBuilder::processBidiContent(const LineLayoutResult& lin
             setInlineBoxGeometry(lineRun.layoutBox(), formattingContext().geometryForBox(lineRun.layoutBox()), { { }, lineBox.logicalRect().right(), { }, { } }, inlineBox.isFirstBox());
         }
     };
-    handleTrailingOpenInlineBoxes();
+    closeInlineBoxes();
 }
 
-void InlineDisplayContentBuilder::collectInkOverflowForInlineBoxes(InlineDisplay::Boxes& boxes)
+void InlineDisplayContentBuilder::collectInkOverflowForInlineBoxes(std::span<InlineDisplay::Box> boxes)
 {
     if (!m_contentHasInkOverflow && !m_hasSeenNestedInlineBoxesWithDifferentFontCascade)
         return;
     // Visit the inline boxes and propagate ink overflow to their parents -except to the root inline box.
     // (e.g. <span style="font-size: 10px;">Small font size<span style="font-size: 300px;">Larger font size. This overflows the top most span.</span></span>).
     auto accumulatedInkOverflowRect = InlineRect { { }, { } };
-    for (size_t index = boxes.size(); index--;) {
-        auto& displayBox = boxes[index];
-
+    for (auto& displayBox : boxes | std::views::reverse) {
         auto mayHaveInkOverflow = displayBox.isText() || displayBox.isAtomicInlineBox() || displayBox.isGenericInlineLevelBox() || displayBox.isNonRootInlineBox();
         if (!mayHaveInkOverflow)
             continue;
@@ -1177,7 +1176,7 @@ void InlineDisplayContentBuilder::setGeometryForBlockLevelOutOfFlowBoxes(const V
     setGeometryForOutOfFlowBoxes(indexListOfOutOfFlowBoxes, firstOutOfFlowIndexWithPreviousInflowSibling, lineRuns, visualOrderList, formattingContext, lineBox(), constraints());
 }
 
-static float logicalBottomForTextDecorationContent(const InlineDisplay::Boxes& boxes, bool isHorizontalWritingMode)
+static float logicalBottomForTextDecorationContent(std::span<InlineDisplay::Box> boxes, bool isHorizontalWritingMode)
 {
     auto logicalBottom = std::optional<float> { };
     for (auto& displayBox : boxes) {
@@ -1195,7 +1194,7 @@ static float logicalBottomForTextDecorationContent(const InlineDisplay::Boxes& b
     return logicalBottom.value_or(0.f);
 }
 
-void InlineDisplayContentBuilder::collectInkOverflowForTextDecorations(InlineDisplay::Boxes& boxes)
+void InlineDisplayContentBuilder::collectInkOverflowForTextDecorations(std::span<InlineDisplay::Box> boxes)
 {
     if (!m_hasSeenTextDecoration)
         return;
