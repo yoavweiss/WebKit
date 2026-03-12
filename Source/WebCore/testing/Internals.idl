@@ -811,6 +811,7 @@ enum ContentsFormat {
     unsigned long long verticalScrollbarLayerID(optional Node? node = null);
     DOMRect horizontalScrollbarFrameRect(optional Node? node = null);
     DOMRect verticalScrollbarFrameRect(optional Node? node = null);
+    DOMRect scrollCornerRect(optional Node? node = null);
 
     ScrollingNodeID scrollingNodeIDForNode(optional Node? node = null);
 
