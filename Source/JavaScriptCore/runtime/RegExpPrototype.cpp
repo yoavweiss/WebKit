@@ -1216,7 +1216,7 @@ JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncMatchAll, (JSGlobalObject* globalObject,
         bool fullUnicode = regExp->eitherUnicode();
 
         double lastIndexDouble = regExpObject->getLastIndex().asNumber();
-        size_t lastIndex = (lastIndexDouble >= 0 && lastIndexDouble <= maxSafeInteger()) ? static_cast<size_t>(lastIndexDouble) : 0;
+        size_t lastIndex = lastIndexDouble > 0 ? static_cast<size_t>(std::min(lastIndexDouble, maxSafeInteger())) : 0;
 
         Structure* structure = globalObject->regExpStructure();
         RegExpObject* matcher = RegExpObject::create(vm, structure, regExp);
