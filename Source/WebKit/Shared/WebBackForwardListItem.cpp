@@ -79,7 +79,7 @@ WebBackForwardListItem* WebBackForwardListItem::itemForID(BackForwardItemIdentif
     return allItems().get(identifier);
 }
 
-static const FrameState* childItemWithTarget(const FrameState& frameState, const String& target)
+static const FrameState* NODELETE childItemWithTarget(const FrameState& frameState, const String& target)
 {
     for (auto& child : frameState.children) {
         if (child->target == target)
@@ -101,7 +101,7 @@ bool WebBackForwardListItem::itemIsInSameDocument(const WebBackForwardListItem& 
     return mainFrameState->documentSequenceNumber == otherMainFrameState->documentSequenceNumber;
 }
 
-static bool hasSameFrames(const FrameState& a, const FrameState& b)
+static bool NODELETE hasSameFrames(const FrameState& a, const FrameState& b)
 {
     if (a.target != b.target)
         return false;

@@ -167,7 +167,7 @@ using namespace WebCore;
 
 static unsigned s_maxProcessCount { 400 };
 
-static WeakListHashSet<WebProcessProxy>& liveProcessesLRU()
+static WeakListHashSet<WebProcessProxy>& NODELETE liveProcessesLRU()
 {
     ASSERT(RunLoop::isMain());
     static NeverDestroyed<WeakListHashSet<WebProcessProxy>> processes;

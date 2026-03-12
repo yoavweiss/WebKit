@@ -167,7 +167,7 @@ void WebLoaderStrategy::schedulePluginStreamLoad(LocalFrame& frame, NetscapePlug
     });
 }
 
-static Seconds maximumBufferingTime(CachedResource* resource)
+static Seconds NODELETE maximumBufferingTime(CachedResource* resource)
 {
     if (!resource)
         return 0_s;
