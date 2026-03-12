@@ -334,7 +334,7 @@ auto RenderLayerModelObject::computeVisibleRectsInSVGContainer(const RepaintRect
     LayoutSize locationOffset;
     if (CheckedPtr modelObject = dynamicDowncast<RenderSVGModelObject>(this))
         locationOffset = modelObject->locationOffsetEquivalent();
-    else if (CheckedPtr svgBlock = dynamicDowncast<RenderSVGBlock>(this))
+    else if (auto* svgBlock = dynamicDowncast<RenderSVGBlock>(this))
         locationOffset = svgBlock->locationOffset();
 
 

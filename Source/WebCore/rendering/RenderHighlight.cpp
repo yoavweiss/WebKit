@@ -116,7 +116,7 @@ bool RenderHighlight::setRenderRange(const HighlightRange& highlightRange)
     unsigned startOffset = startPosition.computeOffsetInContainerNode();
     unsigned endOffset = endPosition.computeOffsetInContainerNode();
 
-    setRenderRange({ startRenderer.get(), endRenderer.get(), startOffset, endOffset });
+    setRenderRange({ startRenderer, endRenderer, startOffset, endOffset });
     return true;
 }
 

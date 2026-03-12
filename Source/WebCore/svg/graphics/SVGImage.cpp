@@ -366,7 +366,7 @@ LocalFrameView* SVGImage::frameView() const
     if (!m_page)
         return nullptr;
 
-    RefPtr localMainFrame = m_page->localMainFrame();
+    auto* localMainFrame = m_page->localMainFrame();
     if (!localMainFrame)
         return nullptr;
 

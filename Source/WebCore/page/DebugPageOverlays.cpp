@@ -118,7 +118,7 @@ private:
 
 bool MouseWheelRegionOverlay::updateRegion()
 {
-    RefPtr page = m_page;
+    auto* page = m_page.get();
     if (!page)
         return false;
 #if ENABLE(WHEEL_EVENT_REGIONS)
@@ -570,7 +570,7 @@ void InteractionRegionOverlay::drawRect(PageOverlay&, GraphicsContext& context, 
                 clipPaths.append(existingClip);
             } else {
                 auto scaleFactor = 1.f;
-                if (RefPtr page = m_page)
+                if (auto* page = m_page.get())
                     scaleFactor = page->pageScaleFactor();
 
                 if (region->useContinuousCorners) {
@@ -863,11 +863,11 @@ void DebugPageOverlays::hideRegionOverlay(Page& page, RegionType regionType)
 
 void DebugPageOverlays::regionChanged(LocalFrame& frame, RegionType regionType)
 {
-    RefPtr page = frame.page();
+    auto* page = frame.page();
     if (!page)
         return;
 
-    if (RefPtr visualizer = regionOverlayForPage(*page, regionType))
+    if (auto* visualizer = regionOverlayForPage(*page, regionType))
         visualizer->setRegionChanged();
 }
 

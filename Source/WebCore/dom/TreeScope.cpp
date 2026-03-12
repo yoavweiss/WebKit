@@ -550,7 +550,7 @@ Element* TreeScope::pointerLockElement() const
     RefPtr element = page->pointerLockController().element();
     if (!element || &element->document() != document.ptr())
         return nullptr;
-    return ancestorElementInThisScope(element.get());
+    return ancestorElementInThisScope(element);
 }
 
 #endif

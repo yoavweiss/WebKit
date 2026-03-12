@@ -643,7 +643,7 @@ void UIDelegate::UIClient::didResignInputElementStrongPasswordAppearance(WebPage
 
 bool UIDelegate::UIClient::canRunBeforeUnloadConfirmPanel() const
 {
-    RefPtr uiDelegate = m_uiDelegate.get();
+    auto* uiDelegate = m_uiDelegate.get();
     return uiDelegate && uiDelegate->m_delegateMethods.webViewRunBeforeUnloadConfirmPanelWithMessageInitiatedByFrameCompletionHandler;
 }
 
@@ -962,7 +962,7 @@ void UIDelegate::UIClient::unfocus(WebPageProxy*)
 #if PLATFORM(MAC)
 bool UIDelegate::UIClient::canRunModal() const
 {
-    RefPtr uiDelegate = m_uiDelegate.get();
+    auto* uiDelegate = m_uiDelegate.get();
     return uiDelegate && uiDelegate->m_delegateMethods.webViewRunModal;
 }
 
@@ -1307,7 +1307,7 @@ void UIDelegate::UIClient::callDisplayCapturePermissionDelegate(WebPageProxy& pa
     });
 
     std::optional<WebCore::FrameIdentifier> mainFrameID;
-    if (RefPtr mainFrame = frame.page() ? frame.page()->mainFrame() : nullptr)
+    if (auto* mainFrame = frame.page() ? frame.page()->mainFrame() : nullptr)
         mainFrameID = mainFrame->frameID();
     RetainPtr<WKFrameInfo> frameInfoWrapper = wrapper(API::FrameInfo::create(WTF::move(frameInfo)));
 
@@ -1378,7 +1378,7 @@ void UIDelegate::UIClient::decidePolicyForUserMediaPermissionRequest(WebPageProx
         });
 
         std::optional<WebCore::FrameIdentifier> mainFrameID;
-        if (RefPtr mainFrame = frame.page() ? frame.page()->mainFrame() : nullptr)
+        if (auto* mainFrame = frame.page() ? frame.page()->mainFrame() : nullptr)
             mainFrameID = mainFrame->frameID();
         RetainPtr<WKFrameInfo> frameInfoWrapper = wrapper(API::FrameInfo::create(FrameInfoData { request.frameInfo() }));
 
@@ -1454,7 +1454,7 @@ void UIDelegate::UIClient::decidePolicyForScreenCaptureUnmuting(WebPageProxy& pa
     });
 
     std::optional<WebCore::FrameIdentifier> mainFrameID;
-    if (RefPtr mainFrame = frame.page() ? frame.page()->mainFrame() : nullptr)
+    if (auto* mainFrame = frame.page() ? frame.page()->mainFrame() : nullptr)
         mainFrameID = mainFrame->frameID();
     RetainPtr<WKFrameInfo> frameInfoWrapper = wrapper(API::FrameInfo::create(WTF::move(frameInfo)));
 

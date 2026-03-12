@@ -1089,7 +1089,7 @@ void Internals::setOverrideResourceLoadPriority(ResourceLoadPriority priority)
 
 void Internals::setStrictRawResourceValidationPolicyDisabled(bool disabled)
 {
-    if (RefPtr localFrame = frame())
+    if (auto* localFrame = frame())
         localFrame->loader().setStrictRawResourceValidationPolicyDisabledForTesting(disabled);
 }
 
@@ -5367,7 +5367,7 @@ bool Internals::elementIsBlockingDisplaySleep(const HTMLMediaElement& element) c
 
 bool Internals::isPlayerVisibleInViewport(const HTMLMediaElement& element) const
 {
-    RefPtr player = element.player();
+    auto* player = element.player();
     return player && player->isVisibleInViewport();
 }
 
@@ -7153,8 +7153,8 @@ void Internals::reloadWithoutContentExtensions()
 
 void Internals::disableContentExtensionsChecks()
 {
-    RefPtr frame = this->frame();
-    RefPtr loader = frame ? frame->loader().documentLoader() : nullptr;
+    auto* frame = this->frame();
+    auto* loader = frame ? frame->loader().documentLoader() : nullptr;
     if (loader)
         loader->setContentExtensionEnablement({ ContentExtensionDefaultEnablement::Disabled, { } });
 }
@@ -8239,7 +8239,7 @@ void Internals::getImageBufferResourceLimits(ImageBufferResourceLimitsPromise&& 
 
 void Internals::setResourceCachingDisabledByWebInspector(bool disabled)
 {
-    RefPtr document = contextDocument();
+    auto* document = contextDocument();
     if (!document || !document->page())
         return;
 
@@ -8276,7 +8276,7 @@ void Internals::setResourceMonitorNetworkUsageThreshold(size_t threshold, double
 
 bool Internals::shouldSkipResourceMonitorThrottling() const
 {
-    if (RefPtr document = contextDocument())
+    if (auto* document = contextDocument())
         return document->shouldSkipResourceMonitorThrottling();
 
     return false;
@@ -8284,7 +8284,7 @@ bool Internals::shouldSkipResourceMonitorThrottling() const
 
 void Internals::setShouldSkipResourceMonitorThrottling(bool flag)
 {
-    if (RefPtr document = contextDocument())
+    if (auto* document = contextDocument())
         document->setShouldSkipResourceMonitorThrottling(flag);
 }
 #endif
@@ -8328,11 +8328,11 @@ RefPtr<MediaSessionManagerInterface> Internals::sessionManager() const
 
 bool Internals::hasMediaSessionManager() const
 {
-    RefPtr document = contextDocument();
+    auto* document = contextDocument();
     if (!document)
         return false;
 
-    RefPtr page = document->page();
+    auto* page = document->page();
     if (!page)
         return false;
 
@@ -8405,7 +8405,7 @@ ExceptionOr<Ref<WritableStream>> Internals::writableStreamFromMessagePort(JSDOMG
 #if ENABLE(MODEL_ELEMENT)
 void Internals::disableModelLoadDelaysForTesting()
 {
-    RefPtr document = contextDocument();
+    auto* document = contextDocument();
     if (!document || !document->page())
         return;
 

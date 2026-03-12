@@ -235,7 +235,7 @@ void UnifiedPDFPlugin::installAnnotationContainer()
     Ref shadowRoot = element->ensureUserAgentShadowRoot();
     m_shadowRoot = shadowRoot.copyRef();
     shadowRoot->appendChild(*annotationContainer);
-    if (CheckedPtr renderer = dynamicDowncast<RenderEmbeddedObject>(element->renderer()))
+    if (auto* renderer = dynamicDowncast<RenderEmbeddedObject>(element->renderer()))
         renderer->setHasShadowContent();
 
     document->updateLayoutIgnorePendingStylesheets();
@@ -295,7 +295,7 @@ void UnifiedPDFPlugin::setPresentationController(RefPtr<PDFPresentationControlle
 
 LocalFrameView* UnifiedPDFPlugin::frameView() const
 {
-    if (RefPtr frame = m_frame.get())
+    if (auto* frame = m_frame.get())
         return frame->coreLocalFrame()->view();
 
     return nullptr;

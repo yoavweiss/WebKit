@@ -1884,7 +1884,7 @@ RenderFlexibleBox::FlexLayoutItem RenderFlexibleBox::constructFlexLayoutItem(Ren
 {
     auto everHadLayout = flexItem.everHadLayout();
     flexItem.clearOverridingSize();
-    if (CheckedPtr flexibleBox = dynamicDowncast<RenderFlexibleBox>(flexItem))
+    if (auto* flexibleBox = dynamicDowncast<RenderFlexibleBox>(flexItem))
         flexibleBox->resetHasDefiniteHeight();
 
     if (everHadLayout && flexItem.hasTrimmedMargin(std::optional<Style::MarginTrimSide> { }))

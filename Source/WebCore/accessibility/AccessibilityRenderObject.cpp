@@ -682,7 +682,7 @@ String AccessibilityRenderObject::textUnderElement(TextUnderElementMode mode) co
         return fileUpload->buttonValue();
 
     if (mode.includeListMarkers == IncludeListMarkerText::Yes) {
-        if (CheckedPtr listMarker = dynamicDowncast<RenderListMarker>(*m_renderer))
+        if (auto* listMarker = dynamicDowncast<RenderListMarker>(*m_renderer))
             return listMarker->textWithSuffix();
     }
 
@@ -773,11 +773,11 @@ bool AccessibilityRenderObject::shouldGetTextFromNode(const TextUnderElementMode
 
     // AccessibilityRenderObject::textUnderElement() calls rangeOfContents() to create the text
     // range. rangeOfContents() does not include CSS-generated content.
-    if (CheckedPtr renderElement = dynamicDowncast<RenderElement>(m_renderer.get()); renderElement && renderElement->isBeforeOrAfterContent())
+    if (auto* renderElement = dynamicDowncast<RenderElement>(m_renderer.get()); renderElement && renderElement->isBeforeOrAfterContent())
         return true;
-    if (RefPtr node = m_renderer->node()) {
-        RefPtr firstChild = node->pseudoAwareFirstChild();
-        RefPtr lastChild = node->pseudoAwareLastChild();
+    if (auto* node = m_renderer->node()) {
+        auto* firstChild = node->pseudoAwareFirstChild();
+        auto* lastChild = node->pseudoAwareLastChild();
         if ((firstChild && firstChild->isPseudoElement()) || (lastChild && lastChild->isPseudoElement()))
             return true;
     }
@@ -1297,7 +1297,7 @@ bool AccessibilityRenderObject::computeIsIgnored() const
             return true;
 
         // The alt attribute may be set on a text fragment through CSS, which should be honored.
-        if (CheckedPtr renderTextFragment = dynamicDowncast<RenderTextFragment>(renderText.get())) {
+        if (auto* renderTextFragment = dynamicDowncast<RenderTextFragment>(renderText.get())) {
             auto altTextInclusion = objectInclusionFromAltText(renderTextFragment->altText());
             if (altTextInclusion == AccessibilityObjectInclusion::IgnoreObject)
                 return true;
@@ -1497,7 +1497,7 @@ bool AccessibilityRenderObject::computeIsIgnored() const
     // Don't ignore generic focusable elements like <div tabindex=0>
     // unless they're completely empty, with no children.
     if (isGenericFocusableElement() && node->firstChild()) {
-        RefPtr shadowRoot = node->containingShadowRoot();
+        auto* shadowRoot = node->containingShadowRoot();
         if (shadowRoot && shadowRoot->mode() == ShadowRootMode::UserAgent && is<HTMLInputElement>(shadowRoot->host())) {
             // We do still want to ignore the user-agent generic div rendered within text inputs.
             return true;
@@ -1548,7 +1548,7 @@ bool AccessibilityRenderObject::computeIsIgnored() const
 
 int AccessibilityRenderObject::layoutCount() const
 {
-    CheckedPtr view = dynamicDowncast<RenderView>(m_renderer.get());
+    auto* view = dynamicDowncast<RenderView>(m_renderer.get());
     return view ? view->frameView().layoutUpdateCount() : 0;
 }
 
@@ -2081,9 +2081,9 @@ bool AccessibilityRenderObject::isVisiblePositionRangeInDifferentDocument(const 
         return false;
 
     VisibleSelection newSelection = VisibleSelection(range.start, range.end);
-    if (RefPtr newSelectionDocument = newSelection.base().document()) {
-        if (RefPtr newSelectionFrame = newSelectionDocument->frame()) {
-            RefPtr frame = this->frame();
+    if (auto* newSelectionDocument = newSelection.base().document()) {
+        if (auto* newSelectionFrame = newSelectionDocument->frame()) {
+            auto* frame = this->frame();
             if (!frame || (newSelectionFrame != frame && newSelectionDocument != frame->document()))
                 return true;
         }
@@ -2422,7 +2422,7 @@ bool AccessibilityRenderObject::renderObjectIsObservable(RenderObject& renderer)
         return true;
 
     // Element-based check for HTMLSelectElement listbox.
-    if (RefPtr selectElement = dynamicDowncast<HTMLSelectElement>(*element); selectElement && !selectElement->usesMenuList())
+    if (auto* selectElement = dynamicDowncast<HTMLSelectElement>(*element); selectElement && !selectElement->usesMenuList())
         return true;
 
     // Textboxes should send out notifications.

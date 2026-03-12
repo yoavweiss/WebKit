@@ -78,7 +78,7 @@ void RemoteScrollingCoordinator::scheduleTreeStateCommit()
 
 bool RemoteScrollingCoordinator::coordinatesScrollingForFrameView(const LocalFrameView& frameView) const
 {
-    CheckedPtr renderView = frameView.renderView();
+    auto* renderView = frameView.renderView();
     return renderView && renderView->usesCompositing();
 }
 

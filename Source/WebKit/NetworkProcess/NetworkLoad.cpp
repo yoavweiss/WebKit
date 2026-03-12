@@ -102,7 +102,7 @@ NetworkLoad::~NetworkLoad()
     ASSERT(RunLoop::isMain());
     if (RefPtr scheduler = m_scheduler.get())
         scheduler->unschedule(*this);
-    if (RefPtr task = m_task)
+    if (auto* task = m_task.get())
         task->clearClient();
 }
 
@@ -162,7 +162,7 @@ void NetworkLoad::convertTaskToDownload(PendingDownload& pendingDownload, const 
 
 void NetworkLoad::setPendingDownloadID(DownloadID downloadID)
 {
-    if (RefPtr task = m_task)
+    if (auto* task = m_task.get())
         task->setPendingDownloadID(downloadID);
 }
 
@@ -176,7 +176,7 @@ void NetworkLoad::setSuggestedFilename(const String& suggestedName)
 
 void NetworkLoad::setPendingDownload(PendingDownload& pendingDownload)
 {
-    if (RefPtr task = m_task)
+    if (auto* task = m_task.get())
         task->setPendingDownload(pendingDownload);
 }
 
@@ -380,7 +380,7 @@ String NetworkLoad::attributedBundleIdentifier(WebPageProxyIdentifier pageID)
 
 size_t NetworkLoad::bytesTransferredOverNetwork() const
 {
-    if (RefPtr task = m_task)
+    if (auto* task = m_task.get())
         return task->bytesTransferredOverNetwork();
     return 0;
 }

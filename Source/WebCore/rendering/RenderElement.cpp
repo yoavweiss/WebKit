@@ -1879,9 +1879,9 @@ std::unique_ptr<RenderStyle> RenderElement::getUncachedPseudoStyle(const Style::
 
 RenderElement* RenderElement::rendererForPseudoStyleAcrossShadowBoundary() const
 {
-    if (RefPtr root = element()->containingShadowRoot()) {
+    if (auto* root = element()->containingShadowRoot()) {
         if (root->mode() == ShadowRootMode::UserAgent) {
-            RefPtr currentElement = element()->shadowHost();
+            auto* currentElement = element()->shadowHost();
             // When an element has display: contents, this element doesn't have a renderer
             // and its children will render as children of the parent element.
             while (currentElement && currentElement->hasDisplayContents())
@@ -2280,7 +2280,7 @@ RenderBoxModelObject* RenderElement::offsetParent() const
     float currZoom = style().usedZoom();
     CheckedPtr current = parent();
     while (current && (!current->element() || (!current->isBody() && !(isFixedPositioned() ? current->canContainFixedPositionObjects() : current->canContainAbsolutelyPositionedObjects())))) {
-        RefPtr element = current->element();
+        auto* element = current->element();
         if (!skipTables && isAnyOf<HTMLTableElement, HTMLTableCellElement>(element))
             break;
 

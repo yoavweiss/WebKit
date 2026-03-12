@@ -116,7 +116,7 @@ static constexpr auto chromeUserAgentScript = "(function() { let userAgent = nav
 
 static inline OptionSet<AutoplayQuirk> allowedAutoplayQuirks(Document& document)
 {
-    RefPtr loader = document.loader();
+    auto* loader = document.loader();
     if (!loader)
         return { };
 
@@ -991,11 +991,11 @@ bool Quirks::shouldMakeEventListenerPassive(const EventTarget& eventTarget, cons
         if (is<LocalDOMWindow>(eventTarget))
             return true;
 
-        if (RefPtr node = dynamicDowncast<Node>(eventTarget)) {
+        if (auto* node = dynamicDowncast<Node>(eventTarget)) {
             if (is<Document>(*node))
                 return true;
-            Ref document = node->document();
-            return document->documentElement() == node || document->body() == node;
+            auto& document = node->document();
+            return document.documentElement() == node || document.body() == node;
         }
         return false;
     };
@@ -2106,7 +2106,7 @@ bool Quirks::shouldAvoidStartingSelectionOnMouseDownOverPointerCursor(const Node
     if (!m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::ShouldAvoidStartingSelectionOnMouseDownOverPointerCursor))
         return false;
 
-    if (CheckedPtr style = target.renderStyle()) {
+    if (auto* style = target.renderStyle()) {
         if (style->cursorType() == CursorType::Pointer)
             return true;
     }

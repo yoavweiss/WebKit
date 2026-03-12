@@ -920,7 +920,7 @@ bool Position::hasRenderedNonAnonymousDescendantsWithHeight(const RenderElement&
                 return true;
             continue;
         }
-        if (CheckedPtr renderBox = dynamicDowncast<RenderBox>(*descendant)) {
+        if (auto* renderBox = dynamicDowncast<RenderBox>(*descendant)) {
             if (roundToInt(renderBox->logicalHeight()))
                 return true;
             continue;
@@ -940,7 +940,7 @@ bool Position::nodeIsUserSelectAll(const Node* node)
 {
     if (!node)
         return false;
-    CheckedPtr renderer = node->renderer();
+    auto* renderer = node->renderer();
     return renderer && renderer->style().usedUserSelect() == UserSelect::All;
 }
 

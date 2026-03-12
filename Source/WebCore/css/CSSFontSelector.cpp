@@ -526,7 +526,7 @@ bool CSSFontSelector::isSimpleFontSelectorForDescription() const
         return false;
 
     // FIXME: remove this when we fix counter style rules mutation.
-    if (RefPtr document = dynamicDowncast<Document>(m_context.get())) {
+    if (auto* document = dynamicDowncast<Document>(m_context.get())) {
         if (document->counterStyleRegistry().hasAuthorCounterStyles())
             return false;
     }

@@ -2640,7 +2640,7 @@ RefPtr<HTMLAnchorElement> WebPage::containingLinkAnchorElement(Element& element)
     // FIXME: There is code in the drag controller that supports any link, even if it's not an HTMLAnchorElement. Why is this different?
     for (Ref currentElement : lineageOfType<HTMLAnchorElement>(element)) {
         if (currentElement->isLink())
-            return currentElement;
+            return currentElement.ptr();
     }
     return nullptr;
 }

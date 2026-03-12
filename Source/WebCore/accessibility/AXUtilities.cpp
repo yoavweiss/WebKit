@@ -530,10 +530,10 @@ std::optional<CursorType> cursorTypeFrom(const StyleProperties& properties)
 {
     for (auto property : properties) {
         if (property.id() == CSSPropertyCursor) {
-            if (RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(property.value()))
+            if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(property.value()))
                 return fromCSSValue<CursorType>(*primitiveValue);
-            if (RefPtr valueList = dynamicDowncast<CSSValueList>(property.value()); valueList && valueList->size() >= 2) {
-                if (RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>((*valueList)[valueList->size() - 1]))
+            if (auto* valueList = dynamicDowncast<CSSValueList>(property.value()); valueList && valueList->size() >= 2) {
+                if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>((*valueList)[valueList->size() - 1]))
                     return fromCSSValue<CursorType>(*primitiveValue);
             }
         }

@@ -699,7 +699,7 @@ inline TrailingObjects::CollapseFirstSpace checkWhitespaceCollapsingTransitions(
         if (currpoint == lBreak) {
             // We hit the line break before the start point. Shave off the start point.
             lineWhitespaceCollapsingState.decrementNumTransitions();
-            if (CheckedPtr renderText = dynamicDowncast<RenderText>(*endpoint.renderer()); renderText && renderText->style().collapseWhiteSpace()) {
+            if (auto* renderText = dynamicDowncast<RenderText>(*endpoint.renderer()); renderText && renderText->style().collapseWhiteSpace()) {
                 lineWhitespaceCollapsingState.decrementTransitionAt(lineWhitespaceCollapsingState.numTransitions() - 1);
                 return TrailingObjects::CollapseFirstSpace::No;
             }

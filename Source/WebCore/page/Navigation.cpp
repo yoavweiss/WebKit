@@ -269,7 +269,7 @@ Navigation::~Navigation() = default;
 
 ScriptExecutionContext* Navigation::scriptExecutionContext() const
 {
-    RefPtr window = this->window();
+    auto* window = this->window();
     return window ? window->document() : nullptr;
 }
 

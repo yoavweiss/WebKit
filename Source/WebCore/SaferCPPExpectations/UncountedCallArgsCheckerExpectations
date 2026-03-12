@@ -220,7 +220,6 @@ dom/Element.cpp
 dom/ElementData.cpp
 dom/ElementInternals.cpp
 dom/ElementIteratorInlines.h
-dom/ElementTraversal.h
 dom/EventPath.cpp
 dom/ExtensionStyleSheets.cpp
 dom/GCReachableRef.h
@@ -270,7 +269,6 @@ editing/ModifySelectionListLevel.cpp
 editing/RemoveFormatCommand.cpp
 editing/ReplaceSelectionCommand.cpp
 editing/SpellChecker.cpp
-editing/TextIterator.cpp
 editing/TextManipulationController.cpp
 editing/TypingCommand.cpp
 editing/VisiblePosition.cpp

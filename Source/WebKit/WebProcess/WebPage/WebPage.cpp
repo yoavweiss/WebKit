@@ -1907,7 +1907,7 @@ Ref<API::Array> WebPage::trackedRepaintRects()
 
 PluginView* WebPage::focusedPluginViewForFrame(LocalFrame& frame)
 {
-    RefPtr pluginDocument = dynamicDowncast<PluginDocument>(frame.document());
+    auto* pluginDocument = dynamicDowncast<PluginDocument>(frame.document());
     if (!pluginDocument)
         return nullptr;
 
@@ -1921,7 +1921,7 @@ PluginView* WebPage::pluginViewForFrame(LocalFrame* frame)
 {
     if (!frame)
         return nullptr;
-    RefPtr document = dynamicDowncast<PluginDocument>(frame->document());
+    auto* document = dynamicDowncast<PluginDocument>(frame->document());
     if (!document)
         return nullptr;
     return downcast<PluginView>(document->pluginWidget());
@@ -2442,7 +2442,7 @@ void WebPage::goToBackForwardItem(GoToBackForwardItemParameters&& parameters)
 
     m_lastNavigationWasAppInitiated = parameters.lastNavigationWasAppInitiated;
     if (RefPtr localMainFrame = corePage()->localMainFrame()) {
-        if (RefPtr documentLoader = localMainFrame->loader().documentLoader())
+        if (auto* documentLoader = localMainFrame->loader().documentLoader())
             documentLoader->setLastNavigationWasAppInitiated(parameters.lastNavigationWasAppInitiated);
     }
 
@@ -3010,7 +3010,7 @@ FloatSize WebPage::screenSizeForFingerprintingProtections(const LocalFrame& fram
 
 void WebPage::listenForLayoutMilestones(OptionSet<WebCore::LayoutMilestone> milestones)
 {
-    if (RefPtr page = m_page)
+    if (auto* page = m_page.get())
         page->addLayoutMilestones(milestones);
 }
 
@@ -4727,7 +4727,7 @@ void WebPage::getRenderTreeExternalRepresentation(CompletionHandler<void(const S
 static RefPtr<LocalFrame> frameWithSelection(Page* page)
 {
     for (RefPtr frame = page->mainFrame(); frame; frame = frame->tree().traverseNext()) {
-        RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame);
+        auto* localFrame = dynamicDowncast<LocalFrame>(*frame);
         if (!localFrame)
             continue;
         if (localFrame->selection().isRange())
@@ -5216,7 +5216,7 @@ bool WebPage::shouldTriggerRenderingUpdate(unsigned rescheduledRenderingUpdateCo
         return true;
 
     static constexpr unsigned maxDelayedRenderingUpdateCount = 2;
-    RefPtr proxy = m_remoteRenderingBackendProxy;
+    auto* proxy = m_remoteRenderingBackendProxy.get();
     if (proxy && proxy->delayedRenderingUpdateCount() > maxDelayedRenderingUpdateCount)
         return false;
 #endif
@@ -5279,7 +5279,7 @@ void WebPage::willDestroyDecodedDataForAllImages()
 unsigned WebPage::remoteImagesCountForTesting() const
 {
 #if ENABLE(GPU_PROCESS)
-    if (RefPtr renderingBackend = m_remoteRenderingBackendProxy)
+    if (auto* renderingBackend = m_remoteRenderingBackendProxy.get())
         return renderingBackend->nativeImageCountForTesting();
 #endif
     return 0;
@@ -5683,7 +5683,7 @@ void WebPage::didStartDrag(std::optional<FrameIdentifier> frameID)
     m_isStartingDrag = false;
 
     if (RefPtr frame = frameID ? WebProcess::singleton().webFrame(*frameID) : &mainWebFrame()) {
-        if (RefPtr localFrame = frame->coreLocalFrame())
+        if (auto* localFrame = frame->coreLocalFrame())
             localFrame->eventHandler().didStartDrag();
     }
 }
@@ -7120,7 +7120,7 @@ Frame* WebPage::mainFrame() const
 
 RefPtr<WebCore::LocalFrame> WebPage::localMainFrame() const
 {
-    if (RefPtr page = m_page)
+    if (auto* page = m_page.get())
         return page->localMainFrame();
     return nullptr;
 }
@@ -10498,7 +10498,7 @@ RefPtr<MediaSessionManagerInterface> WebPage::mediaSessionManager() const
 
 MediaSessionManagerInterface* WebPage::mediaSessionManagerIfExists() const
 {
-    RefPtr page { corePage() };
+    auto* page = corePage();
     return page ? page->mediaSessionManagerIfExists() : nullptr;
 
 }

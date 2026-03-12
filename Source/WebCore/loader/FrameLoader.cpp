@@ -257,7 +257,7 @@ static bool NODELETE isDocumentSandboxed(LocalFrame& frame, SandboxFlag flag)
 
 static bool isInVisibleAndActivePage(const LocalFrame& frame)
 {
-    RefPtr page = frame.page();
+    auto* page = frame.page();
     return page && page->isVisibleAndActive();
 }
 
@@ -277,13 +277,13 @@ struct ForbidPromptsScope : public PageLevelForbidScope {
     explicit ForbidPromptsScope(Page* page)
         : PageLevelForbidScope(page)
     {
-        if (RefPtr page = m_page.get())
+        if (auto* page = m_page.get())
             page->forbidPrompts();
     }
 
     ~ForbidPromptsScope()
     {
-        if (RefPtr page = m_page.get())
+        if (auto* page = m_page.get())
             page->allowPrompts();
     }
 };
@@ -292,13 +292,13 @@ struct ForbidSynchronousLoadsScope : public PageLevelForbidScope {
     explicit ForbidSynchronousLoadsScope(Page* page)
         : PageLevelForbidScope(page)
     {
-        if (RefPtr page = m_page.get())
+        if (auto* page = m_page.get())
             page->forbidSynchronousLoads();
     }
 
     ~ForbidSynchronousLoadsScope()
     {
-        if (RefPtr page = m_page.get())
+        if (auto* page = m_page.get())
             page->allowSynchronousLoads();
     }
 };
@@ -395,7 +395,7 @@ FrameLoader::~FrameLoader()
     frame->disownOpener();
     frame->detachFromAllOpenedFrames();
 
-    if (RefPtr networkingContext = m_networkingContext)
+    if (auto* networkingContext = m_networkingContext.get())
         networkingContext->invalidate();
 }
 
@@ -951,7 +951,7 @@ bool FrameLoader::allChildrenAreComplete() const
 
 bool FrameLoader::allAncestorsAreComplete() const
 {
-    for (RefPtr<Frame> ancestor = m_frame.ptr(); ancestor; ancestor = ancestor->tree().parent()) {
+    for (Frame* ancestor = m_frame.ptr(); ancestor; ancestor = ancestor->tree().parent()) {
         auto* localAncestor = dynamicDowncast<LocalFrame>(*ancestor);
         if (!localAncestor)
             continue;
@@ -1023,7 +1023,7 @@ void FrameLoader::checkCompletenessNow()
 {
     Ref frame = m_frame.get();
 
-    if (RefPtr page = frame->page()) {
+    if (auto* page = frame->page()) {
         if (page->defersLoading())
             return;
     }
@@ -1159,7 +1159,7 @@ RefPtr<LocalFrame> FrameLoader::nonSrcdocFrame() const
 {
     // See http://www.whatwg.org/specs/web-apps/current-work/#fetching-resources
     // for why we walk the parent chain for srcdoc documents.
-    RefPtr<Frame> frame = m_frame.ptr();
+    Frame* frame = m_frame.ptr();
     while (frame && is<LocalFrame>(*frame) && downcast<LocalFrame>(*frame).document()->isSrcdocDocument()) {
         frame = frame->tree().parent();
         // Srcdoc documents cannot be top-level documents, by definition,
@@ -1333,7 +1333,7 @@ void FrameLoader::loadInSameDocument(URL url, RefPtr<SerializedScriptValue> stat
             history().updateBackForwardListForFragmentScroll();
 
         if (!document->hasRecentUserInteractionForNavigationFromJS() && !documentLoader()->triggeringAction().isRequestFromClientOrUserInput()) {
-            if (RefPtr currentItem = history().currentItem())
+            if (auto* currentItem = history().currentItem())
                 currentItem->setWasCreatedByJSWithoutUserInteraction(true);
         }
     }
@@ -1418,8 +1418,8 @@ void FrameLoader::completed()
 
 void FrameLoader::started()
 {
-    for (RefPtr<Frame> frame = m_frame.ptr(); frame; frame = frame->tree().parent()) {
-        if (RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame))
+    for (Frame* frame = m_frame.ptr(); frame; frame = frame->tree().parent()) {
+        if (auto* localFrame = dynamicDowncast<LocalFrame>(*frame))
             localFrame->loader().m_isComplete = false;
     }
 }
@@ -1712,9 +1712,9 @@ void FrameLoader::loadURL(FrameLoadRequest&& frameLoadRequest, const String& ref
     loadWithNavigationAction(WTF::move(request), WTF::move(action), newLoadType, WTF::move(formSubmission), allowNavigationToInvalidURL, frameLoadRequest.shouldTreatAsContinuingLoad(), [this, protectedThis = Ref { *this }, isRedirect, sameURL, newLoadType, completionHandler = completionHandlerCaller.release()] () mutable {
         if (isRedirect) {
             m_quickRedirectComing = false;
-            if (RefPtr provisionalDocumentLoader = m_provisionalDocumentLoader)
+            if (auto* provisionalDocumentLoader = m_provisionalDocumentLoader.get())
                 provisionalDocumentLoader->setIsClientRedirect(true);
-            else if (RefPtr policyDocumentLoader = m_policyDocumentLoader)
+            else if (auto* policyDocumentLoader = m_policyDocumentLoader.get())
                 policyDocumentLoader->setIsClientRedirect(true);
         } else if (sameURL && !isReload(newLoadType)) {
             // Example of this case are sites that reload the same URL with a different cookie
@@ -1901,7 +1901,7 @@ void FrameLoader::loadWithDocumentLoader(DocumentLoader* loader, FrameLoadType t
     if (!isNavigationAllowed())
         return;
 
-    if (RefPtr page = frame->page(); page && page->isInSwipeAnimation())
+    if (auto* page = frame->page(); page && page->isInSwipeAnimation())
         loader->setLoadStartedDuringSwipeAnimation();
 
     if (frame->document())
@@ -2255,7 +2255,7 @@ DocumentLoader* FrameLoader::activeDocumentLoader() const
 
 bool FrameLoader::isLoading() const
 {
-    RefPtr documentLoader = activeDocumentLoader();
+    auto* documentLoader = activeDocumentLoader();
     return documentLoader && documentLoader->isLoading();
 }
 
@@ -2837,7 +2837,7 @@ FrameLoadType NODELETE FrameLoader::loadType() const
     
 CachePolicy FrameLoader::subresourceCachePolicy(const URL& url) const
 {
-    if (RefPtr page = m_frame->page()) {
+    if (auto* page = m_frame->page()) {
         if (page->isResourceCachingDisabledByWebInspector())
             return CachePolicy::Reload;
     }
@@ -2848,7 +2848,7 @@ CachePolicy FrameLoader::subresourceCachePolicy(const URL& url) const
     if (m_loadType == FrameLoadType::ReloadFromOrigin)
         return CachePolicy::Reload;
 
-    if (RefPtr parentFrame = dynamicDowncast<LocalFrame>(m_frame->tree().parent())) {
+    if (auto* parentFrame = dynamicDowncast<LocalFrame>(m_frame->tree().parent())) {
         CachePolicy parentCachePolicy = parentFrame->loader().subresourceCachePolicy(url);
         if (parentCachePolicy != CachePolicy::Verify)
             return parentCachePolicy;
@@ -3324,7 +3324,7 @@ void FrameLoader::dispatchOnloadEvents()
 {
     m_client->dispatchDidDispatchOnloadEvents();
 
-    if (RefPtr documentLoader = this->documentLoader())
+    if (auto* documentLoader = this->documentLoader())
         documentLoader->dispatchOnloadEvents();
 }
 
@@ -3666,9 +3666,9 @@ void FrameLoader::loadPostRequest(FrameLoadRequest&& request, const String& refe
     loadWithNavigationAction(WTF::move(workingResourceRequest), WTF::move(action), loadType, WTF::move(formSubmission), allowNavigationToInvalidURL, request.shouldTreatAsContinuingLoad(), [this, protectedThis = Ref { *this }, isRedirect, completionHandler = WTF::move(completionHandler)] () mutable {
         if (isRedirect) {
             m_quickRedirectComing = false;
-            if (RefPtr provisionalDocumentLoader = m_provisionalDocumentLoader)
+            if (auto* provisionalDocumentLoader = m_provisionalDocumentLoader.get())
                 provisionalDocumentLoader->setIsClientRedirect(true);
-            else if (RefPtr policyDocumentLoader = m_policyDocumentLoader)
+            else if (auto* policyDocumentLoader = m_policyDocumentLoader.get())
                 policyDocumentLoader->setIsClientRedirect(true);
         }
         completionHandler();
@@ -3957,7 +3957,7 @@ static bool shouldAskForNavigationConfirmation(Document& document, const BeforeU
     if (document.isSandboxed(SandboxFlag::Modals))
         return false;
 
-    RefPtr page = document.page();
+    auto* page = document.page();
     bool userDidInteractWithPage = page ? page->userDidInteractWithPage() : false;
 
     // Web pages can request we ask for confirmation before navigating by:
@@ -4951,7 +4951,7 @@ void FrameLoader::switchBrowsingContextsGroup()
     // Disown opener.
     Ref frame = m_frame.get();
     frame->disownOpener();
-    if (RefPtr page = m_frame->page())
+    if (auto* page = m_frame->page())
         page->setOpenedByDOMWithOpener(false);
 
     frame->detachFromAllOpenedFrames();
@@ -4964,7 +4964,7 @@ void FrameLoader::switchBrowsingContextsGroup()
 
     // On same-origin navigation from the initial empty document, we normally reuse the window for the new document. We need to prevent
     // this when we want to isolate so old window proxies will indeed start pointing to a frameless window and appear closed.
-    if (RefPtr window = frame->window())
+    if (auto* window = frame->window())
         window->setMayReuseForNavigation(false);
 }
 

@@ -2345,12 +2345,12 @@ bool WebProcessProxy::isAssociatedWithPage(WebPageProxyIdentifier pageID) const
 {
     if (m_pageMap.contains(pageID))
         return true;
-    for (Ref provisionalPage : m_provisionalPages) {
-        if (provisionalPage->page() && provisionalPage->page()->identifier() == pageID)
+    for (auto& provisionalPage : m_provisionalPages) {
+        if (provisionalPage.page() && provisionalPage.page()->identifier() == pageID)
             return true;
     }
-    for (Ref suspendedPage : m_suspendedPages) {
-        if (suspendedPage->page() && suspendedPage->page()->identifier() == pageID)
+    for (auto& suspendedPage : m_suspendedPages) {
+        if (suspendedPage.page() && suspendedPage.page()->identifier() == pageID)
             return true;
     }
     return false;

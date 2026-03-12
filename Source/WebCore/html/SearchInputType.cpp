@@ -368,15 +368,15 @@ bool SearchInputType::sizeShouldIncludeDecoration(int, int& preferredSize) const
 float SearchInputType::decorationWidth(float) const
 {
     float width = 0;
-    if (RefPtr resultsButton = m_resultsButton; resultsButton && resultsButton->renderStyle()) {
+    if (auto* resultsButton = m_resultsButton.get(); resultsButton && resultsButton->renderStyle()) {
         // FIXME: Document what invariant holds to allow only using fixed logical widths?
-        CheckedPtr renderStyle = resultsButton->renderStyle();
+        auto* renderStyle = resultsButton->renderStyle();
         if (auto fixedLogicalWidth = renderStyle->logicalWidth().tryFixed())
             width += fixedLogicalWidth->resolveZoom(renderStyle->usedZoomForLength());
     }
-    if (RefPtr cancelButton = m_cancelButton; cancelButton && cancelButton->renderStyle()) {
+    if (auto* cancelButton = m_cancelButton.get(); cancelButton && cancelButton->renderStyle()) {
         // FIXME: Document what invariant holds to allow only using fixed logical widths?
-        CheckedPtr renderStyle = cancelButton->renderStyle();
+        auto* renderStyle = cancelButton->renderStyle();
         if (auto fixedLogicalWidth = renderStyle->logicalWidth().tryFixed())
             width += fixedLogicalWidth->resolveZoom(renderStyle->usedZoomForLength());
     }

@@ -244,7 +244,7 @@ void FileInputType::createShadowSubtree()
 
 static RefPtr<HTMLInputElement> fileSelectorButton(const Element& element)
 {
-    RefPtr root = element.userAgentShadowRoot();
+    auto* root = element.userAgentShadowRoot();
     return root ? downcast<HTMLInputElement>(root->firstChild()) : nullptr;
 }
 
@@ -348,7 +348,7 @@ void FileInputType::setFiles(RefPtr<FileList>&& files, RequestIcon shouldRequest
     if (length != m_fileList->length())
         pathsChanged = true;
     else {
-        Ref currentFiles = m_fileList;
+        auto& currentFiles = m_fileList;
         for (unsigned i = 0; i < length; ++i) {
             if (files->file(i).path() != currentFiles->file(i).path() || !FileSystem::fileIDsAreEqual(files->file(i).fileID(), currentFiles->file(i).fileID())) {
                 pathsChanged = true;

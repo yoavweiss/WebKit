@@ -183,7 +183,7 @@ CachedFrame::CachedFrame(Frame& frame)
 
     // Clear FrameView to reset flags such as 'firstVisuallyNonEmptyLayoutCallbackPending' so that the
     // 'DidFirstVisuallyNonEmptyLayout' callback gets called against when restoring from the BackForwardCache.
-    if (RefPtr localFrameView = dynamicDowncast<LocalFrameView>(m_view.get()))
+    if (auto* localFrameView = dynamicDowncast<LocalFrameView>(m_view.get()))
         localFrameView->resetLayoutMilestones();
 
     // The main frame is reused for the navigation and the opener link to its should thus persist.

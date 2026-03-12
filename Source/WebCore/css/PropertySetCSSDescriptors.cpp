@@ -285,7 +285,7 @@ void PropertySetCSSDescriptors::didMutate(MutationType type)
 
 CSSStyleSheet* PropertySetCSSDescriptors::parentStyleSheet() const
 {
-    RefPtr strongParentRule = m_parentRule.get();
+    auto* strongParentRule = m_parentRule.get();
     if (!strongParentRule)
         return nullptr;
     return strongParentRule->parentStyleSheet();

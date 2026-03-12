@@ -85,7 +85,7 @@ void HTMLSelectedContentElement::didFinishInsertingNode()
         return;
 
     if (m_owningSelect != nearestAncestorSelect) {
-        if (RefPtr oldSelect = m_owningSelect)
+        if (auto* oldSelect = m_owningSelect.get())
             oldSelect->unregisterSelectedContentElement();
         m_owningSelect = nearestAncestorSelect;
         nearestAncestorSelect->registerSelectedContentElement();

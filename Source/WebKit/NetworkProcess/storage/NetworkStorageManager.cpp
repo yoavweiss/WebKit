@@ -1756,7 +1756,7 @@ void NetworkStorageManager::establishTransaction(WebCore::IDBDatabaseConnectionI
 
 void NetworkStorageManager::databaseConnectionPendingClose(WebCore::IDBDatabaseConnectionIdentifier databaseConnectionIdentifier)
 {
-    if (RefPtr connection = m_idbStorageRegistry->connection(databaseConnectionIdentifier))
+    if (auto* connection = m_idbStorageRegistry->connection(databaseConnectionIdentifier))
         connection->connectionPendingCloseFromClient();
 }
 

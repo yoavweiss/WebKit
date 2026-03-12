@@ -210,7 +210,7 @@ ScrollTimeline::ResolvedScrollDirection ScrollTimeline::resolvedScrollDirection(
 {
     auto writingMode = [&] -> WritingMode {
         if (RefPtr source = this->source()) {
-            if (CheckedPtr renderer = source->renderer())
+            if (auto* renderer = source->renderer())
                 return renderer->style().writingMode();
         }
 

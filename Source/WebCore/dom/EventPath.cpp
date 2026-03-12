@@ -313,10 +313,10 @@ EventPath::EventPath(EventTarget& target)
 
 static Node* NODELETE moveOutOfAllShadowRoots(Node& startingNode)
 {
-    CheckedPtr node = &startingNode;
+    auto* node = &startingNode;
     while (node && node->isInShadowTree())
         node = downcast<ShadowRoot>(node->rootNode()).host();
-    return node.unsafeGet();
+    return node;
 }
 
 RelatedNodeRetargeter::RelatedNodeRetargeter(Ref<Node>&& relatedNode, Node& target)

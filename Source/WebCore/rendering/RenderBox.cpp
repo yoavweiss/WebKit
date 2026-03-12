@@ -3300,7 +3300,7 @@ RenderBox::LogicalExtentComputedValues RenderBox::computeLogicalHeight(LayoutUni
         return computedValues;
 
     // Let's allow the table cell to compute its preferred size.
-    if (CheckedPtr tableCell = dynamicDowncast<RenderTableCell>(*this); tableCell && !tableCell->isComputingPreferredSize()) {
+    if (auto* tableCell = dynamicDowncast<RenderTableCell>(*this); tableCell && !tableCell->isComputingPreferredSize()) {
         // Use the value set by table layout for orthogonal cells which in this case the logical width of the cell from the table's point of view.
         // see RenderTableCell::setCellLogicalWidth.
         if (tableCell->isOrthogonal())
@@ -3464,7 +3464,7 @@ LayoutUnit RenderBox::computeLogicalHeightWithoutLayout() const
 
 template<typename SizeType> std::optional<LayoutUnit> RenderBox::computeLogicalHeightUsingGeneric(const SizeType& logicalHeight, std::optional<LayoutUnit> intrinsicContentHeight) const
 {
-    if (CheckedPtr replaced = dynamicDowncast<RenderReplaced>(*this)) {
+    if (auto* replaced = dynamicDowncast<RenderReplaced>(*this)) {
         if constexpr (std::same_as<SizeType, Style::MinimumSize>) {
             if (!replaced->replacedMinLogicalHeightComputesAsNone())
                 return replaced->computeReplacedLogicalHeightUsing(logicalHeight) + borderAndPaddingLogicalHeight();

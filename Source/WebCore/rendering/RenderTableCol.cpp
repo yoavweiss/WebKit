@@ -226,14 +226,14 @@ const BorderValue& RenderTableCol::borderAdjoiningCellEndBorder() const
 
 const BorderValue& RenderTableCol::borderAdjoiningCellBefore(const RenderTableCell& cell) const
 {
-    CheckedPtr table = this->table();
+    auto* table = this->table();
     ASSERT_UNUSED(cell, table->colElement(cell.col() + cell.colSpan()) == this);
     return style().borderStart(table->writingMode());
 }
 
 const BorderValue& RenderTableCol::borderAdjoiningCellAfter(const RenderTableCell& cell) const
 {
-    CheckedPtr table = this->table();
+    auto* table = this->table();
     ASSERT_UNUSED(cell, table->colElement(cell.col() - 1) == this);
     return style().borderEnd(table->writingMode());
 }

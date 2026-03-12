@@ -121,7 +121,7 @@ bool TextFieldInputType::isEmptyValue() const
         return visibleValue().isEmpty();
     }
 
-    for (RefPtr text = TextNodeTraversal::firstWithin(*innerText); text; text = TextNodeTraversal::next(*text, innerText.get())) {
+    for (auto* text = TextNodeTraversal::firstWithin(*innerText); text; text = TextNodeTraversal::next(*text, innerText.get())) {
         if (text->length())
             return false;
     }
@@ -413,7 +413,7 @@ void TextFieldInputType::removeShadowSubtree()
     m_innerText = nullptr;
     m_placeholder = nullptr;
     m_innerBlock = nullptr;
-    if (RefPtr innerSpinButton = m_innerSpinButton)
+    if (auto* innerSpinButton = m_innerSpinButton.get())
         innerSpinButton->removeSpinButtonOwner();
     m_innerSpinButton = nullptr;
     m_capsLockIndicator = nullptr;

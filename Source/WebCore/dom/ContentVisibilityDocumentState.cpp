@@ -149,7 +149,7 @@ bool ContentVisibilityDocumentState::checkRelevancyOfContentVisibilityElement(El
         setRelevancyValue(ContentRelevancy::Selected, targetContainsSelection(target));
 
     auto hasTopLayerinSubtree = [](const Element& target) {
-        for (Ref element : target.document().topLayerElements()) {
+        for (auto& element : target.document().topLayerElements()) {
             if (element->isDescendantOf(target))
                 return true;
         }

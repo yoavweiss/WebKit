@@ -121,7 +121,7 @@ static bool indexIsAtWordBoundary(const String& string, unsigned index)
 // https://wicg.github.io/scroll-to-text-fragment/#visible-text-node
 static bool NODELETE isVisibleTextNode(const Node& node)
 {
-    if (CheckedPtr renderText = dynamicDowncast<RenderText>(node.renderer()))
+    if (auto* renderText = dynamicDowncast<RenderText>(node.renderer()))
         return renderText->style().visibility() == Visibility::Visible;
     return false;
 }
@@ -236,7 +236,7 @@ static std::optional<SimpleRange> rangeOfStringInRange(const String& query, Simp
         Vector<Ref<Text>> textNodeList;
         // FIXME: this is O^2 since treeOrder will also do traversal, optimize.
         while (currentNode && currentNode->isDescendantOf(blockAncestor) && is_lteq(treeOrder(BoundaryPoint(*currentNode, 0), searchRange.end))) {
-            if (CheckedPtr renderElement = dynamicDowncast<RenderElement>(currentNode->renderer()); renderElement && renderElement->style().display().isBlockType())
+            if (auto* renderElement = dynamicDowncast<RenderElement>(currentNode->renderer()); renderElement && renderElement->style().display().isBlockType())
                 break;
 
             if (isSearchInvisible(*currentNode)) {

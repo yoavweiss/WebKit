@@ -508,7 +508,8 @@ AccessibilityRole AccessibilityNodeObject::determineAccessibilityRoleFromNode(Tr
 
     if (element->isLink())
         return AccessibilityRole::Link;
-    if (RefPtr selectElement = dynamicDowncast<HTMLSelectElement>(*element)) {
+    if (auto* selectElement = dynamicDowncast<HTMLSelectElement>(*element)) {
+        UNUSED_VARIABLE(selectElement);
 #if PLATFORM(IOS_FAMILY)
         // On iOS, all select elements (including multiple) use popup menus, so use PopUpButton role.
         return AccessibilityRole::PopUpButton;
@@ -1022,7 +1023,7 @@ bool AccessibilityNodeObject::computeIsIgnored() const
 
 bool AccessibilityNodeObject::hasElementDescendant() const
 {
-    RefPtr element = dynamicDowncast<Element>(node());
+    auto* element = dynamicDowncast<Element>(node());
     return element && childrenOfType<Element>(*element).first();
 }
 
@@ -1054,7 +1055,7 @@ bool AccessibilityNodeObject::isNativeTextControl() const
     if (is<HTMLTextAreaElement>(node()))
         return true;
 
-    RefPtr input = dynamicDowncast<HTMLInputElement>(node());
+    auto* input = dynamicDowncast<HTMLInputElement>(node());
     return input && (input->isText() || input->isNumberField());
 }
 
@@ -1090,7 +1091,7 @@ bool AccessibilityNodeObject::isSearchField() const
 
 bool AccessibilityNodeObject::isNativeImage() const
 {
-    RefPtr node = this->node();
+    auto* node = this->node();
     if (!node)
         return false;
 
@@ -1101,7 +1102,7 @@ bool AccessibilityNodeObject::isNativeImage() const
     if (elementName == ElementName::HTML_applet || elementName == ElementName::HTML_embed || elementName == ElementName::HTML_object)
         return true;
 
-    if (RefPtr input = dynamicDowncast<HTMLInputElement>(*node))
+    if (auto* input = dynamicDowncast<HTMLInputElement>(*node))
         return input->isImageButton();
 
     return false;
@@ -1172,7 +1173,7 @@ bool AccessibilityNodeObject::isChecked() const
         return false;
 
     // First test for native checkedness semantics
-    if (RefPtr input = dynamicDowncast<HTMLInputElement>(*node))
+    if (auto* input = dynamicDowncast<HTMLInputElement>(*node))
         return input->matchesCheckedPseudoClass();
 
     // Else, if this is an ARIA checkbox or radio, respect the aria-checked attribute
@@ -1469,8 +1470,8 @@ Element* AccessibilityNodeObject::anchorElement() const
     if (!node)
         return nullptr;
 
-    if (RefPtr areaElement = dynamicDowncast<HTMLAreaElement>(*node))
-        return areaElement.unsafeGet();
+    if (auto* areaElement = dynamicDowncast<HTMLAreaElement>(*node))
+        return areaElement;
 
     CheckedPtr cache = axObjectCache();
     if (!cache)
@@ -2927,7 +2928,7 @@ bool AccessibilityNodeObject::isTableHeaderCell() const
         return true;
 
     if (elementName == ElementName::HTML_td) {
-        RefPtr current = element->parentNode();
+        auto* current = element->parentNode();
         // i < 2 is used here because in a properly structured table, the thead should be 2 levels away from the td.
         for (int i = 0; i < 2 && current; i++) {
             if (WebCore::elementName(*current) == ElementName::HTML_thead)
@@ -3414,7 +3415,7 @@ void AccessibilityNodeObject::alternativeText(Vector<AccessibilityText>& textOrd
                     bool figureHasFlowContent = false;
                     // Iterate over the direct children of the <img>'s ancestor <figure> for any common
                     // flow content, including non-whitespace text nodes.
-                    for (RefPtr figureNodeChild = figure->firstChild(); figureNodeChild; figureNodeChild = figureNodeChild->nextSibling()) {
+                    for (auto* figureNodeChild = figure->firstChild(); figureNodeChild; figureNodeChild = figureNodeChild->nextSibling()) {
                         if (isFlowContent(*figureNodeChild)) {
                             figureHasFlowContent = true;
                             break;
@@ -3588,13 +3589,13 @@ String AccessibilityNodeObject::alternativeTextForWebArea() const
         return String();
 
     // Check if the HTML element has an aria-label for the webpage.
-    if (RefPtr documentElement = document->documentElement()) {
+    if (auto* documentElement = document->documentElement()) {
         const AtomString& ariaLabel = documentElement->attributeWithoutSynchronization(aria_labelAttr);
         if (!ariaLabel.isEmpty())
             return ariaLabel;
     }
 
-    if (RefPtr owner = document->ownerElement()) {
+    if (auto* owner = document->ownerElement()) {
         auto elementName = owner->elementName();
         if (elementName == ElementName::HTML_frame || elementName == ElementName::HTML_iframe) {
             const AtomString& title = owner->attributeWithoutSynchronization(titleAttr);

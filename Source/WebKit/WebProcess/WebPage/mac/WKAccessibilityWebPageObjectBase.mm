@@ -108,7 +108,7 @@ namespace ax = WebCore::Accessibility;
     if (!isMainRunLoop()) {
         if (RefPtr tree = m_isolatedTree.get()) {
             tree->applyPendingChanges();
-            if (RefPtr root = tree->rootNode())
+            if (auto* root = tree->rootNode())
                 return root->wrapper();
         }
     }

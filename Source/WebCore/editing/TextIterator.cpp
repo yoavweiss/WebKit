@@ -199,11 +199,11 @@ bool BitStack::top() const
 static RefPtr<Node> nextInPreOrderCrossingShadowBoundaries(Node& rangeEndContainer, int rangeEndOffset)
 {
     if (rangeEndOffset >= 0 && !rangeEndContainer.isCharacterDataNode()) {
-        if (RefPtr next = rangeEndContainer.traverseToChildAt(rangeEndOffset))
+        if (auto* next = rangeEndContainer.traverseToChildAt(rangeEndOffset))
             return next;
     }
-    for (RefPtr node = rangeEndContainer; node; node = node->parentOrShadowHostNode()) {
-        if (RefPtr next = node->nextSibling())
+    for (auto* node = &rangeEndContainer; node; node = node->parentOrShadowHostNode()) {
+        if (auto* next = node->nextSibling())
             return next;
     }
     return nullptr;
@@ -213,7 +213,7 @@ static inline bool fullyClipsContents(const Node& node, TextIteratorBehaviors be
 {
     CheckedPtr renderer = node.renderer();
     if (!renderer) {
-        RefPtr element = dynamicDowncast<Element>(node);
+        auto* element = dynamicDowncast<Element>(node);
         return element && !element->hasDisplayContents();
     }
     CheckedPtr box = dynamicDowncast<RenderBox>(*renderer);
@@ -234,7 +234,7 @@ static inline bool fullyClipsContents(const Node& node, TextIteratorBehaviors be
 
 static inline bool ignoresContainerClip(const Node& node)
 {
-    CheckedPtr renderer = node.renderer();
+    auto* renderer = node.renderer();
     if (!renderer || renderer->isRenderTextOrLineBreak())
         return false;
     return renderer->isOutOfFlowPositioned();
@@ -442,7 +442,7 @@ static inline Node* parentNodeOrShadowHost(TextIteratorBehaviors options, Node& 
 
 static inline bool hasDisplayContents(Node& node)
 {
-    RefPtr element = dynamicDowncast<Element>(node);
+    auto* element = dynamicDowncast<Element>(node);
     return element && element->hasDisplayContents();
 }
 
@@ -591,7 +591,7 @@ static bool hasVisibleTextNode(RenderText& renderer)
 {
     if (renderer.style().visibility() == Visibility::Visible)
         return true;
-    if (CheckedPtr renderTextFragment = dynamicDowncast<RenderTextFragment>(renderer)) {
+    if (auto* renderTextFragment = dynamicDowncast<RenderTextFragment>(renderer)) {
         if (auto firstLetter = renderTextFragment->firstLetter()) {
             if (firstLetter->style().visibility() == Visibility::Visible)
                 return true;
@@ -889,7 +889,7 @@ static bool shouldEmitTabBeforeNode(Node& node)
 
 static bool shouldEmitNewlineForNode(Node* node, bool emitsOriginalText)
 {
-    CheckedPtr renderer = node->renderer();
+    auto* renderer = node->renderer();
     if (!(renderer ? renderer->isBR() : node->hasTagName(brTag)))
         return false;
     return emitsOriginalText || !(node->isInShadowTree() && is<HTMLInputElement>(*node->shadowHost()));
@@ -910,7 +910,7 @@ bool shouldEmitNewlinesBeforeAndAfterNode(Node& node)
     if (!renderer) {
         if (hasDisplayContents(node))
             return false;
-        RefPtr element = dynamicDowncast<HTMLElement>(node);
+        auto* element = dynamicDowncast<HTMLElement>(node);
         return element && (is<HTMLHeadingElement>(*element)
             || element->hasTagName(blockquoteTag)
             || element->hasTagName(ddTag)
@@ -934,8 +934,8 @@ bool shouldEmitNewlinesBeforeAndAfterNode(Node& node)
     
     // Need to make an exception for table row elements, because they are neither
     // "inline" or "RenderBlock", but we want newlines for them.
-    if (CheckedPtr tableRow = dynamicDowncast<RenderTableRow>(*renderer)) {
-        CheckedPtr table = tableRow->table();
+    if (auto* tableRow = dynamicDowncast<RenderTableRow>(*renderer)) {
+        auto* table = tableRow->table();
         if (table && !table->isInline())
             return true;
     }
@@ -1015,7 +1015,7 @@ static int maxOffsetIncludingCollapsedSpaces(Node& node)
 bool TextIterator::shouldRepresentNodeOffsetZero()
 {
     if (m_behaviors.contains(TextIteratorBehavior::EmitsCharactersBetweenAllVisiblePositions)) {
-        if (CheckedPtr renderer = m_currentNode->renderer(); renderer && renderer->isRenderTable())
+        if (auto* renderer = m_currentNode->renderer(); renderer && renderer->isRenderTable())
             return true;
     }
 
@@ -1061,7 +1061,7 @@ bool TextIterator::shouldRepresentNodeOffsetZero()
     if (!currentNode->renderer() || currentNode->renderer()->style().visibility() != Visibility::Visible)
         return false;
 
-    if (CheckedPtr renderBlockFlow = dynamicDowncast<RenderBlockFlow>(*currentNode->renderer())) {
+    if (auto* renderBlockFlow = dynamicDowncast<RenderBlockFlow>(*currentNode->renderer())) {
         if (!renderBlockFlow->height() && !is<HTMLBodyElement>(currentNode))
             return false;
     }

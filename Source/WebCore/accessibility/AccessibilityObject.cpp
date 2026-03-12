@@ -1996,7 +1996,7 @@ bool AccessibilityObject::shouldCacheStringValue() const
     // Only consider RenderTexts for now.
 
     if (renderer->isAnonymous()) {
-        CheckedPtr parent = renderer ? renderer->parent() : nullptr;
+        auto* parent = renderer ? renderer->parent() : nullptr;
         if (is<PseudoElement>(parent ? parent->element() : nullptr)) {
             // RenderTexts descending from pseudo-elements (e.g. ::before) can have alt text that
             // we don't currently handle via text runs, and thus we must cache the string value.
@@ -2554,12 +2554,12 @@ AccessibilityCurrentState AccessibilityObject::currentState() const
 
 bool AccessibilityObject::isModalDescendant(Node& modalNode) const
 {
-    RefPtr node = this->node();
+    auto* node = this->node();
     // ARIA 1.1 aria-modal, indicates whether an element is modal when displayed.
     // For the decendants of the modal object, they should also be considered as aria-modal=true.
     // Determine descendancy by iterating the composed tree which inherently accounts for shadow roots and slots.
-    for (RefPtr ancestor = node.get(); ancestor; ancestor = ancestor->parentInComposedTree()) {
-        if (ancestor.get() == &modalNode)
+    for (auto* ancestor = node; ancestor; ancestor = ancestor->parentInComposedTree()) {
+        if (ancestor == &modalNode)
             return true;
     }
     return false;
@@ -4156,13 +4156,13 @@ Vector<Ref<Element>> AccessibilityObject::elementsFromAttribute(const QualifiedN
 #if PLATFORM(COCOA)
 bool AccessibilityObject::preventKeyboardDOMEventDispatch() const
 {
-    RefPtr frame = this->frame();
+    auto* frame = this->frame();
     return frame && frame->settings().preventKeyboardDOMEventDispatch();
 }
 
 void AccessibilityObject::setPreventKeyboardDOMEventDispatch(bool on)
 {
-    RefPtr frame = this->frame();
+    auto* frame = this->frame();
     if (!frame)
         return;
     frame->settings().setPreventKeyboardDOMEventDispatch(on);

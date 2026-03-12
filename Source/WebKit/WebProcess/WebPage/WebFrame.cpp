@@ -213,23 +213,23 @@ WebFrame::WebFrame(WebPage& page, WebCore::FrameIdentifier frameID)
 
 WebLocalFrameLoaderClient* WebFrame::localFrameLoaderClient() const
 {
-    if (RefPtr localFrame = dynamicDowncast<LocalFrame>(m_coreFrame.get()))
+    if (auto* localFrame = dynamicDowncast<LocalFrame>(m_coreFrame.get()))
         return dynamicDowncast<WebLocalFrameLoaderClient>(localFrame->loader().client());
     return nullptr;
 }
 
 WebRemoteFrameClient* WebFrame::remoteFrameClient() const
 {
-    if (RefPtr remoteFrame = dynamicDowncast<RemoteFrame>(m_coreFrame.get()))
+    if (auto* remoteFrame = dynamicDowncast<RemoteFrame>(m_coreFrame.get()))
         return downcast<WebRemoteFrameClient>(&remoteFrame->client());
     return nullptr;
 }
 
 WebFrameLoaderClient* WebFrame::frameLoaderClient() const
 {
-    if (RefPtr localFrame = dynamicDowncast<LocalFrame>(m_coreFrame.get()))
+    if (auto* localFrame = dynamicDowncast<LocalFrame>(m_coreFrame.get()))
         return dynamicDowncast<WebLocalFrameLoaderClient>(localFrame->loader().client());
-    if (RefPtr remoteFrame = dynamicDowncast<RemoteFrame>(m_coreFrame.get()))
+    if (auto* remoteFrame = dynamicDowncast<RemoteFrame>(m_coreFrame.get()))
         return downcast<WebRemoteFrameClient>(&remoteFrame->client());
     return nullptr;
 }
@@ -622,8 +622,8 @@ void WebFrame::didReceivePolicyDecision(uint64_t listenerID, PolicyDecision&& po
 
     m_policyDownloadID = policyDecision.downloadID;
     if (policyDecision.navigationID) {
-        RefPtr localFrame = dynamicDowncast<LocalFrame>(m_coreFrame.get());
-        if (RefPtr documentLoader = localFrame ? localFrame->loader().policyDocumentLoader() : nullptr)
+        auto* localFrame = dynamicDowncast<LocalFrame>(m_coreFrame.get());
+        if (auto* documentLoader = localFrame ? localFrame->loader().policyDocumentLoader() : nullptr)
             documentLoader->setNavigationID(*policyDecision.navigationID);
     }
 
@@ -798,7 +798,7 @@ bool WebFrame::isFrameSet() const
 
 bool WebFrame::isMainFrame() const
 {
-    RefPtr coreFrame = m_coreFrame.get();
+    auto* coreFrame = m_coreFrame.get();
     return coreFrame && coreFrame->isMainFrame();
 }
 
@@ -857,11 +857,11 @@ String WebFrame::innerText() const
 
 RefPtr<WebFrame> WebFrame::parentFrame() const
 {
-    RefPtr frame = m_coreFrame.get();
+    auto* frame = m_coreFrame.get();
     if (!frame)
         return nullptr;
 
-    RefPtr parentFrame = frame->tree().parent();
+    auto* parentFrame = frame->tree().parent();
     if (!parentFrame)
         return nullptr;
 
@@ -1087,25 +1087,25 @@ bool WebFrame::getDocumentBackgroundColor(double* red, double* green, double* bl
 
 bool WebFrame::containsAnyFormElements() const
 {
-    RefPtr localFrame = dynamicDowncast<LocalFrame>(m_coreFrame.get());
+    auto* localFrame = dynamicDowncast<LocalFrame>(m_coreFrame.get());
     if (!localFrame)
         return false;
-    
-    RefPtr document = localFrame->document();
+
+    auto* document = localFrame->document();
     return document && childrenOfType<HTMLFormElement>(*document).first();
 }
 
 bool WebFrame::containsAnyFormControls() const
 {
-    RefPtr localFrame = dynamicDowncast<LocalFrame>(m_coreFrame.get());
+    auto* localFrame = dynamicDowncast<LocalFrame>(m_coreFrame.get());
     if (!localFrame)
         return false;
-    
-    RefPtr document = localFrame->document();
+
+    auto* document = localFrame->document();
     if (!document)
         return false;
 
-    for (Ref child : childrenOfType<Element>(*document)) {
+    for (auto& child : childrenOfType<Element>(*document)) {
         if (is<HTMLTextFormControlElement>(child) || is<HTMLSelectElement>(child))
             return true;
     }

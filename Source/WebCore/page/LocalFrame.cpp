@@ -540,7 +540,7 @@ String LocalFrame::searchForLabelsBeforeElement(const Vector<String>& labels, El
         if (is<HTMLFormElement>(*n))
             break;
 
-        if (RefPtr element = dynamicDowncast<Element>(*n); element && element->isValidatedFormListedElement())
+        if (auto* element = dynamicDowncast<Element>(*n); element && element->isValidatedFormListedElement())
             break;
 
         if (n->hasTagName(tdTag) && !startingTableCell)
@@ -750,24 +750,24 @@ FloatSize LocalFrame::resizePageRectsKeepingRatio(const FloatSize& originalSize,
 
 const UserContentProvider* LocalFrame::userContentProvider() const
 {
-    RefPtr document = this->document();
-    if (RefPtr documentLoader = document ? document->loader() : nullptr) {
+    auto* document = this->document();
+    if (auto* documentLoader = document ? document->loader() : nullptr) {
         if (auto* userContentProvider = documentLoader->preferences().userContentProvider.get())
             return userContentProvider;
     }
-    if (RefPtr page = this->page())
+    if (auto* page = this->page())
         return &page->userContentProviderForFrame();
     return nullptr;
 }
 
 UserContentProvider* LocalFrame::userContentProvider()
 {
-    RefPtr document = this->document();
-    if (RefPtr documentLoader = document ? document->loader() : nullptr) {
+    auto* document = this->document();
+    if (auto* documentLoader = document ? document->loader() : nullptr) {
         if (auto* userContentProvider = documentLoader->preferences().userContentProvider.get())
             return userContentProvider;
     }
-    if (RefPtr page = this->page())
+    if (auto* page = this->page())
         return &page->userContentProviderForFrame();
     return nullptr;
 }
@@ -1163,8 +1163,8 @@ void LocalFrame::resumeActiveDOMObjectsAndAnimations()
 
 void LocalFrame::deviceOrPageScaleFactorChanged()
 {
-    for (RefPtr child = tree().firstChild(); child; child = child->tree().nextSibling()) {
-        if (RefPtr localFrame = dynamicDowncast<LocalFrame>(child.get()))
+    for (auto* child = tree().firstChild(); child; child = child->tree().nextSibling()) {
+        if (auto* localFrame = dynamicDowncast<LocalFrame>(child))
             localFrame->deviceOrPageScaleFactorChanged();
     }
 
@@ -1382,21 +1382,21 @@ void LocalFrame::didAccessWindowProxyPropertyViaOpener(WindowProxyProperty prope
 
 String LocalFrame::customUserAgent() const
 {
-    if (RefPtr documentLoader = loader().activeDocumentLoader())
+    if (auto* documentLoader = loader().activeDocumentLoader())
         return documentLoader->customUserAgent();
     return { };
 }
 
 String LocalFrame::customUserAgentAsSiteSpecificQuirks() const
 {
-    if (RefPtr documentLoader = loader().activeDocumentLoader())
+    if (auto* documentLoader = loader().activeDocumentLoader())
         return documentLoader->customUserAgentAsSiteSpecificQuirks();
     return { };
 }
 
 String LocalFrame::customNavigatorPlatform() const
 {
-    if (RefPtr documentLoader = loader().activeDocumentLoader())
+    if (auto* documentLoader = loader().activeDocumentLoader())
         return documentLoader->customNavigatorPlatform();
     return { };
 }
@@ -1410,7 +1410,7 @@ OptionSet<AdvancedPrivacyProtections> LocalFrame::advancedPrivacyProtections() c
 
 AutoplayPolicy LocalFrame::autoplayPolicy() const
 {
-    if (RefPtr documentLoader = loader().activeDocumentLoader())
+    if (auto* documentLoader = loader().activeDocumentLoader())
         return documentLoader->autoplayPolicy();
     return AutoplayPolicy::Default;
 }
@@ -1418,7 +1418,7 @@ AutoplayPolicy LocalFrame::autoplayPolicy() const
 SandboxFlags LocalFrame::effectiveSandboxFlags() const
 {
     auto effectiveSandboxFlags = m_sandboxFlags;
-    if (RefPtr document = this->document())
+    if (auto* document = this->document())
         effectiveSandboxFlags.add(document->sandboxFlags());
     return effectiveSandboxFlags;
 }

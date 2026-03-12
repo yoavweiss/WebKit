@@ -89,13 +89,13 @@ static inline WebFoundTextRange createWebFoundTextRange(SimpleRange& simpleRange
 
 static inline bool canConvertToWebFoundTextRange(SimpleRange& range)
 {
-    Ref document = range.startContainer().document();
+    auto& document = range.startContainer().document();
 
-    RefPtr element = document->documentElement();
+    auto* element = document.documentElement();
     if (!element)
         return false;
 
-    RefPtr frame = document->frame();
+    auto* frame = document.frame();
     if (!frame)
         return false;
 

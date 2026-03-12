@@ -320,7 +320,7 @@ void RenderListItem::updateListMarkerNumbers()
         return;
 
     bool isInReversedOrderedList = false;
-    if (RefPtr orderedList = dynamicDowncast<HTMLOListElement>(*list)) {
+    if (auto* orderedList = dynamicDowncast<HTMLOListElement>(*list)) {
         orderedList->itemCountChanged();
         isInReversedOrderedList = orderedList->isReversed();
     }

@@ -556,7 +556,7 @@ RefPtr<Node> highestEnclosingNodeOfType(const Position& position, bool (*nodeIsO
 
 static bool hasARenderedDescendant(Node* node, Node* excludedNode)
 {
-    for (RefPtr n = node->firstChild(); n;) {
+    for (auto* n = node->firstChild(); n;) {
         if (n == excludedNode) {
             n = NodeTraversal::nextSkippingChildren(*n, node);
             continue;
@@ -589,8 +589,8 @@ RefPtr<Element> enclosingTableCell(const Position& position)
 
 RefPtr<Element> enclosingAnchorElement(const Position& p)
 {
-    for (RefPtr node = p.deprecatedNode(); node; node = node->parentNode()) {
-        if (RefPtr element = dynamicDowncast<Element>(*node); element && element->isLink())
+    for (auto* node = p.deprecatedNode(); node; node = node->parentNode()) {
+        if (auto* element = dynamicDowncast<Element>(*node); element && element->isLink())
             return element;
     }
     return nullptr;
@@ -603,7 +603,7 @@ RefPtr<HTMLElement> enclosingList(Node* node)
         
     RefPtr root = highestEditableRoot(firstPositionInOrBeforeNode(node));
     
-    for (RefPtr ancestor = node->parentNode(); ancestor; ancestor = ancestor->parentNode()) {
+    for (auto* ancestor = node->parentNode(); ancestor; ancestor = ancestor->parentNode()) {
         auto* htmlElement = dynamicDowncast<HTMLElement>(*ancestor);
         if (htmlElement && (isAnyOf<HTMLUListElement, HTMLOListElement>(*htmlElement)))
             return htmlElement;
@@ -624,7 +624,7 @@ RefPtr<Node> enclosingListChild(Node* node)
     RefPtr root = highestEditableRoot(firstPositionInOrBeforeNode(node));
     
     // FIXME: This function is inappropriately named since it starts with node instead of node->parentNode()
-    for (RefPtr n = node; n && n->parentNode(); n = n->parentNode()) {
+    for (auto* n = node; n && n->parentNode(); n = n->parentNode()) {
         if (is<HTMLLIElement>(*n) || (isListHTMLElement(n->parentNode()) && n != root))
             return n;
         if (n == root || isTableCell(*n))
@@ -729,7 +729,7 @@ Node* nextLeafNode(const Node* nodeArg)
 // FIXME: Do not require renderer, so that this can be used within fragments.
 bool isRenderedTable(const Node* node)
 {
-    RefPtr element = dynamicDowncast<HTMLElement>(node);
+    auto* element = dynamicDowncast<HTMLElement>(node);
     if (!element)
         return false;
     auto* renderer = element->renderer();
@@ -889,8 +889,8 @@ int caretMinOffset(const Node& node)
     if (renderer && renderer->isRenderText())
         return renderer->caretMinOffset();
 
-    if (RefPtr pictureElement = dynamicDowncast<HTMLPictureElement>(node)) {
-        if (RefPtr firstImage = childrenOfType<HTMLImageElement>(*pictureElement).first())
+    if (auto* pictureElement = dynamicDowncast<HTMLPictureElement>(node)) {
+        if (auto* firstImage = childrenOfType<HTMLImageElement>(*pictureElement).first())
             return firstImage->computeNodeIndex();
     }
 
@@ -1560,10 +1560,10 @@ EnclosingLayerInfomation computeEnclosingLayer(const SimpleRange& range)
 
         RefPtr graphicsLayer = [layer] -> RefPtr<GraphicsLayer> {
             auto* backing = layer->backing();
-            if (RefPtr scrolledContentsLayer = backing->scrolledContentsLayer())
+            if (auto* scrolledContentsLayer = backing->scrolledContentsLayer())
                 return scrolledContentsLayer;
 
-            if (RefPtr foregroundLayer = backing->foregroundLayer())
+            if (auto* foregroundLayer = backing->foregroundLayer())
                 return foregroundLayer;
 
             if (backing->isFrameLayerWithTiledBacking())

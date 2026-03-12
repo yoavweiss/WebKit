@@ -272,7 +272,7 @@ static void removeAllBeforeUnloadEventListeners(LocalDOMWindow* domWindow)
 static bool allowsBeforeUnloadListeners(LocalDOMWindow* window)
 {
     ASSERT_ARG(window, window);
-    RefPtr frame = window->frame();
+    auto* frame = window->frame();
     if (!frame)
         return false;
     if (!frame->page())
@@ -393,7 +393,7 @@ FloatRect LocalDOMWindow::adjustWindowRect(Page& page, const FloatRect& pendingC
 
 bool LocalDOMWindow::allowPopUp(LocalFrame& firstFrame)
 {
-    if (RefPtr documentLoader = firstFrame.loader().documentLoader()) {
+    if (auto* documentLoader = firstFrame.loader().documentLoader()) {
         // If pop-up policy was set during navigation, use it. If not, use the global settings.
         PopUpPolicy popUpPolicy = documentLoader->popUpPolicy();
         if (popUpPolicy == PopUpPolicy::Allow)
@@ -416,8 +416,8 @@ bool LocalDOMWindow::allowPopUp()
 bool LocalDOMWindow::canShowModalDialog(const LocalFrame& frame)
 {
     // Override support for layout testing purposes.
-    if (RefPtr document = frame.document()) {
-        if (RefPtr window = document->window()) {
+    if (auto* document = frame.document()) {
+        if (auto* window = document->window()) {
             if (window->m_canShowModalDialogOverride)
                 return window->m_canShowModalDialogOverride.value();
         }
@@ -1061,7 +1061,7 @@ DOMSelection* LocalDOMWindow::getSelection()
 
 HTMLFrameOwnerElement* LocalDOMWindow::frameElement() const
 {
-    RefPtr frame = this->frame();
+    auto* frame = this->frame();
     if (!frame)
         return nullptr;
 
@@ -1076,7 +1076,7 @@ void LocalDOMWindow::focus(LocalDOMWindow& incumbentWindow)
         if (!openerFrame || openerFrame == frame || incumbentWindow.frame() != openerFrame)
             return false;
 
-        RefPtr page = openerFrame->page();
+        auto* page = openerFrame->page();
         return page && page->isVisibleAndActive();
     }());
 }
@@ -1154,7 +1154,7 @@ void LocalDOMWindow::print()
     if (page->isControlledByAutomation())
         return;
 
-    if (RefPtr loader = frame->loader().activeDocumentLoader(); loader && loader->isLoading()) {
+    if (auto* loader = frame->loader().activeDocumentLoader(); loader && loader->isLoading()) {
         m_shouldPrintWhenFinishedLoading = true;
         return;
     }
@@ -1477,7 +1477,7 @@ unsigned LocalDOMWindow::length() const
 
 AtomString LocalDOMWindow::name() const
 {
-    RefPtr frame = this->frame();
+    auto* frame = this->frame();
     if (!frame)
         return nullAtom();
 
@@ -1558,11 +1558,11 @@ bool LocalDOMWindow::consumeTransientActivation()
     if (!hasTransientActivation())
         return false;
 
-    for (RefPtr<Frame> frame = this->frame() ? &this->frame()->tree().top() : nullptr; frame; frame = frame->tree().traverseNext()) {
-        RefPtr localFrame = dynamicDowncast<LocalFrame>(frame.get());
+    for (auto* frame = this->frame() ? &this->frame()->tree().top() : nullptr; frame; frame = frame->tree().traverseNext()) {
+        auto* localFrame = dynamicDowncast<LocalFrame>(frame);
         if (!localFrame)
             continue;
-        if (RefPtr window = localFrame->window())
+        if (auto* window = localFrame->window())
             window->consumeLastActivationIfNecessary();
     }
 
@@ -1581,11 +1581,11 @@ bool LocalDOMWindow::consumeHistoryActionUserActivation()
     if (!hasHistoryActionActivation())
         return false;
 
-    for (RefPtr<Frame> frame = this->frame() ? &this->frame()->tree().top() : nullptr; frame; frame = frame->tree().traverseNext()) {
-        RefPtr localFrame = dynamicDowncast<LocalFrame>(frame.get());
+    for (auto* frame = this->frame() ? &this->frame()->tree().top() : nullptr; frame; frame = frame->tree().traverseNext()) {
+        auto* localFrame = dynamicDowncast<LocalFrame>(frame);
         if (!localFrame)
             continue;
-        if (RefPtr window = localFrame->window())
+        if (auto* window = localFrame->window())
             window->m_lastHistoryActionActivationTimestamp = window->m_lastActivationTimestamp;
     }
 
@@ -1614,11 +1614,11 @@ void LocalDOMWindow::notifyActivated(MonotonicTime activationTime)
     if (frame()->settings().closeWatcherEnabled())
         closeWatcherManager().notifyAboutUserActivation();
 
-    for (RefPtr ancestor = frame() ? frame()->tree().parent() : nullptr; ancestor; ancestor = ancestor->tree().parent()) {
-        RefPtr localAncestor = dynamicDowncast<LocalFrame>(ancestor.get());
+    for (auto* ancestor = frame() ? frame()->tree().parent() : nullptr; ancestor; ancestor = ancestor->tree().parent()) {
+        auto* localAncestor = dynamicDowncast<LocalFrame>(ancestor);
         if (!localAncestor)
             continue;
-        if (RefPtr window = localAncestor->window())
+        if (auto* window = localAncestor->window())
             window->setLastActivationTimestamp(activationTime);
     }
 
@@ -1814,7 +1814,7 @@ void LocalDOMWindow::scrollTo(const ScrollToOptions& options, ScrollClamping cla
 
 bool LocalDOMWindow::allowedToChangeWindowGeometry() const
 {
-    RefPtr frame = this->frame();
+    auto* frame = this->frame();
     if (!frame)
         return false;
     if (!frame->page())
@@ -2841,7 +2841,7 @@ ExceptionOr<RefPtr<Frame>> LocalDOMWindow::createWindow(const String& urlString,
 
     if (!noopener) {
         ASSERT(!newFrame->opener() || newFrame->opener() == &openerFrame);
-        if (RefPtr page = newFrame->page())
+        if (auto* page = newFrame->page())
             page->setOpenedByDOMWithOpener(true);
     }
 
@@ -2946,7 +2946,7 @@ ExceptionOr<RefPtr<WindowProxy>> LocalDOMWindow::open(LocalDOMWindow& activeWind
         targetFrame = frame->tree().top();
     else if (isParentTargetFrameName(frameName)) {
         if (RefPtr parent = frame->tree().parent())
-            targetFrame = parent.get();
+            targetFrame = parent;
         else
             targetFrame = frame;
     }

@@ -467,7 +467,7 @@ MediaList* CSSStyleSheet::media() const
 
 CSSStyleSheet* CSSStyleSheet::parentStyleSheet() const 
 { 
-    RefPtr ownerRule = m_ownerRule.get();
+    auto* ownerRule = m_ownerRule.get();
     return ownerRule ? ownerRule->parentStyleSheet() : nullptr;
 }
 

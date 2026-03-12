@@ -64,8 +64,8 @@ SVGFELightElement::SVGFELightElement(const QualifiedName& tagName, Document& doc
 
 SVGFELightElement* SVGFELightElement::findLightElement(const SVGElement* svgElement)
 {
-    for (Ref child : childrenOfType<SVGElement>(*svgElement)) {
-        if (auto* element = dynamicDowncast<SVGFELightElement>(child.get()))
+    for (auto& child : childrenOfType<SVGElement>(*svgElement)) {
+        if (auto* element = dynamicDowncast<SVGFELightElement>(child))
             return const_cast<SVGFELightElement*>(element);
     }
     return nullptr;

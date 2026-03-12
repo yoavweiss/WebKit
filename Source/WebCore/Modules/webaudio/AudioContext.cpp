@@ -648,7 +648,7 @@ WeakPtr<PlatformMediaSessionInterface> AudioContext::selectBestMediaSession(cons
 
 bool AudioContext::isSuspended() const
 {
-    RefPtr document = this->document();
+    auto* document = this->document();
     return !document || document->activeDOMObjectsAreSuspended() || document->activeDOMObjectsAreStopped();
 }
 

@@ -1042,8 +1042,8 @@ CachedResourceLoader& Document::ensureCachedResourceLoader()
     ASSERT(m_constructionDidFinish);
     ASSERT(!m_cachedResourceLoader);
     m_cachedResourceLoader = [&]() -> Ref<CachedResourceLoader> {
-        if (RefPtr frame = this->frame()) {
-            if (RefPtr loader = frame->loader().activeDocumentLoader())
+        if (auto* frame = this->frame()) {
+            if (auto* loader = frame->loader().activeDocumentLoader())
                 return loader->cachedResourceLoader();
         }
         return CachedResourceLoader::create(nullptr);
@@ -1096,7 +1096,7 @@ URL Document::topURL() const
     if (isTopDocument())
         return url();
 
-    if (RefPtr page = this->page())
+    if (auto* page = this->page())
         return page->mainFrameURL();
 
     return { };
@@ -2264,7 +2264,7 @@ String Document::contentType() const
     if (!m_overriddenMIMEType.isNull())
         return m_overriddenMIMEType;
 
-    if (RefPtr documentLoader = loader())
+    if (auto* documentLoader = loader())
         return documentLoader->currentContentType();
 
     String mimeType = suggestedMIMEType();
@@ -2535,9 +2535,9 @@ template<typename TitleElement> Element* NODELETE selectNewTitleElement(Document
     // Optimized common case: We have no title element yet.
     // We can figure out which title element should be used without searching.
     bool isEligible = Traits::isInEligibleLocation(*changingTitleElement);
-    CheckedPtr newTitleElement = isEligible ? changingTitleElement : nullptr;
+    auto* newTitleElement = isEligible ? changingTitleElement : nullptr;
     ASSERT(newTitleElement == Traits::findTitleElement(document));
-    return newTitleElement.unsafeGet();
+    return newTitleElement;
 }
 
 void Document::updateTitleElement(Element& changingTitleElement)
@@ -3401,8 +3401,8 @@ void Document::createRenderTree()
 
     // FIXME: It would be better if we could pass the resolved document style directly here.
     m_renderView = createRenderer<RenderView>(*this, RenderStyle::create());
-    CheckedPtr renderView = m_renderView.get();
-    Node::setRenderer(renderView.get());
+    auto* renderView = m_renderView.get();
+    Node::setRenderer(renderView);
 
     renderView->setIsInWindow(true);
 
@@ -3903,7 +3903,7 @@ void Document::collectHighlightRangesFromRegister(Vector<WeakPtr<HighlightRange>
             if (highlightRange->startPosition().isNotNull() && highlightRange->endPosition().isNotNull() && !highlightRange->range().isLiveRange())
                 continue;
 
-            if (RefPtr liveRange = dynamicDowncast<Range>(highlightRange->range()); liveRange && !liveRange->didChangeForHighlight())
+            if (auto* liveRange = dynamicDowncast<Range>(highlightRange->range()); liveRange && !liveRange->didChangeForHighlight())
                 continue;
 
             auto simpleRange = makeSimpleRange(highlightRange->range());
@@ -3916,7 +3916,7 @@ void Document::collectHighlightRangesFromRegister(Vector<WeakPtr<HighlightRange>
     // One range can belong to multiple highlights so resetting a range's flag cannot be done in the loops above.
     for (auto& highlight : highlightRegistry.map()) {
         for (auto& highlightRange : highlight.value->highlightRanges()) {
-            if (RefPtr liveRange = dynamicDowncast<Range>(highlightRange->range()); liveRange && liveRange->didChangeForHighlight())
+            if (auto* liveRange = dynamicDowncast<Range>(highlightRange->range()); liveRange && liveRange->didChangeForHighlight())
                 liveRange->resetDidChangeForHighlight();
         }
     }
@@ -4715,9 +4715,9 @@ URL Document::fallbackBaseURL() const
     }
 
     if (documentURL.isAboutBlank()) {
-        RefPtr creator = parentDocument();
+        auto* creator = parentDocument();
         if (!creator && frame()) {
-            if (RefPtr localOpener = dynamicDowncast<LocalFrame>(frame()->opener()))
+            if (auto* localOpener = dynamicDowncast<LocalFrame>(frame()->opener()))
                 creator = localOpener->document();
         }
         if (creator)
@@ -5348,7 +5348,7 @@ bool Document::isViewportDocument() const
         return outermostFullscreenDocument == this;
 #endif
 
-    if (RefPtr frame = this->frame())
+    if (auto* frame = this->frame())
         return frame->isMainFrame();
 
     return false;
@@ -5618,7 +5618,7 @@ bool Document::canAcceptChild(const Node& newChild, const Node* refChild, Accept
         return true;
     case NodeType::DocumentFragment: {
         bool hasSeenElementChild = false;
-        for (RefPtr node = uncheckedDowncast<DocumentFragment>(newChild).firstChild(); node; node = node->nextSibling()) {
+        for (auto* node = uncheckedDowncast<DocumentFragment>(newChild).firstChild(); node; node = node->nextSibling()) {
             if (is<Element>(*node)) {
                 if (hasSeenElementChild)
                     return false;
@@ -5630,7 +5630,7 @@ bool Document::canAcceptChild(const Node& newChild, const Node* refChild, Accept
         break;
     }
     case NodeType::DocumentType: {
-        RefPtr existingDocType = childrenOfType<DocumentType>(*this).first();
+        auto* existingDocType = childrenOfType<DocumentType>(*this).first();
         if (operation == AcceptChildOperation::Replace) {
             //  parent has a doctype child that is not child, or an element is preceding child.
             if (existingDocType && existingDocType != refChild)
@@ -5647,7 +5647,7 @@ bool Document::canAcceptChild(const Node& newChild, const Node* refChild, Accept
         break;
     }
     case NodeType::Element: {
-        CheckedPtr existingElementChild = firstElementChild();
+        auto* existingElementChild = firstElementChild();
         if (operation == AcceptChildOperation::Replace) {
             if (existingElementChild && existingElementChild != refChild)
                 return false;
@@ -7419,7 +7419,7 @@ void Document::updateCachedCookiesEnabled()
     }
 
     page->cookieJar().remoteCookiesEnabled(*this, [weakDocument = WeakPtr { *this }](bool enabled) mutable {
-        if (RefPtr document = weakDocument.get())
+        if (auto* document = weakDocument.get())
             document->setCachedCookiesEnabled(enabled);
     });
 }
@@ -7631,7 +7631,7 @@ void Document::unregisterForDocumentSuspensionCallbacks(Element& element)
 
 bool Document::requiresUserGestureForAudioPlayback() const
 {
-    if (RefPtr loader = this->loader()) {
+    if (auto* loader = this->loader()) {
         // If an audio playback policy was set during navigation, use it. If not, use the global settings.
         AutoplayPolicy policy = loader->autoplayPolicy();
         if (policy != AutoplayPolicy::Default)
@@ -7643,7 +7643,7 @@ bool Document::requiresUserGestureForAudioPlayback() const
 
 bool Document::requiresUserGestureForVideoPlayback() const
 {
-    if (RefPtr loader = this->loader()) {
+    if (auto* loader = this->loader()) {
         // If a video playback policy was set during navigation, use it. If not, use the global settings.
         AutoplayPolicy policy = loader->autoplayPolicy();
         if (policy != AutoplayPolicy::Default)
@@ -7655,7 +7655,7 @@ bool Document::requiresUserGestureForVideoPlayback() const
 
 bool Document::mediaDataLoadsAutomatically() const
 {
-    if (RefPtr loader = this->loader()) {
+    if (auto* loader = this->loader()) {
         AutoplayPolicy policy = loader->autoplayPolicy();
         if (policy != AutoplayPolicy::Default)
             return policy != AutoplayPolicy::Deny;
@@ -7911,7 +7911,7 @@ Document* Document::parentDocument() const
 {
     if (!m_frame)
         return nullptr;
-    RefPtr parent = dynamicDowncast<LocalFrame>(m_frame->tree().parent());
+    auto* parent = dynamicDowncast<LocalFrame>(m_frame->tree().parent());
     if (!parent)
         return nullptr;
     return parent->document();
@@ -9252,7 +9252,7 @@ void Document::didAddTouchEventHandler(Node& handler)
 #if ENABLE(TOUCH_EVENTS)
     m_touchEventTargets.add(handler);
 
-    if (RefPtr parent = parentDocument()) {
+    if (auto* parent = parentDocument()) {
         parent->didAddTouchEventHandler(*this);
         return;
     }
@@ -9272,7 +9272,7 @@ void Document::didRemoveTouchEventHandler(Node& handler, EventHandlerRemoval rem
 #if ENABLE(TOUCH_EVENTS)
     removeHandlerFromSet(m_touchEventTargets, handler, removal);
 
-    if (RefPtr parent = parentDocument())
+    if (auto* parent = parentDocument())
         parent->didRemoveTouchEventHandler(*this, removal);
 
 #if ENABLE(TOUCH_EVENT_REGIONS)
@@ -9495,7 +9495,7 @@ Element* eventTargetElementForDocument(Document* document)
 #endif
     CheckedPtr element = document->focusedElement();
     if (!element) {
-        if (CheckedPtr pluginDocument = dynamicDowncast<PluginDocument>(*document))
+        if (auto* pluginDocument = dynamicDowncast<PluginDocument>(*document))
             element = pluginDocument->pluginElement();
     }
     if (!element && document->isHTMLDocument())
@@ -9847,7 +9847,7 @@ bool Document::useDarkAppearance([[maybe_unused]] const Style::ComputedStyle* st
 
 bool Document::useElevatedUserInterfaceLevel() const
 {
-    if (RefPtr documentPage = page())
+    if (auto* documentPage = page())
         return documentPage->useElevatedUserInterfaceLevel();
     return false;
 }
@@ -9971,7 +9971,7 @@ bool Document::hasFocus() const
     RefPtr page = this->page();
     if (!page || !page->focusController().isActive() || !page->focusController().isFocused())
         return false;
-    if (RefPtr focusedFrame = page->focusController().focusedFrame()) {
+    if (auto* focusedFrame = page->focusController().focusedFrame()) {
         if (focusedFrame->tree().isDescendantOf(frame()))
             return true;
     }
@@ -10550,7 +10550,7 @@ void Document::updateVideoCaptureStateForMicrophoneInterruption(bool isMicrophon
 
 const AtomString& Document::bgColor() const
 {
-    RefPtr bodyElement = body();
+    auto* bodyElement = body();
     if (!bodyElement)
         return emptyAtom();
     return bodyElement->attributeWithoutSynchronization(bgcolorAttr);
@@ -10564,7 +10564,7 @@ void Document::setBgColor(const AtomString& value)
 
 const AtomString& Document::fgColor() const
 {
-    RefPtr bodyElement = body();
+    auto* bodyElement = body();
     return bodyElement ? bodyElement->attributeWithoutSynchronization(textAttr) : emptyAtom();
 }
 
@@ -10576,7 +10576,7 @@ void Document::setFgColor(const AtomString& value)
 
 const AtomString& Document::alinkColor() const
 {
-    RefPtr bodyElement = body();
+    auto* bodyElement = body();
     return bodyElement ? bodyElement->attributeWithoutSynchronization(alinkAttr) : emptyAtom();
 }
 
@@ -10588,7 +10588,7 @@ void Document::setAlinkColor(const AtomString& value)
 
 const AtomString& Document::linkColorForBindings() const
 {
-    RefPtr bodyElement = body();
+    auto* bodyElement = body();
     return bodyElement ? bodyElement->attributeWithoutSynchronization(linkAttr) : emptyAtom();
 }
 
@@ -10600,7 +10600,7 @@ void Document::setLinkColorForBindings(const AtomString& value)
 
 const AtomString& Document::vlinkColor() const
 {
-    RefPtr bodyElement = body();
+    auto* bodyElement = body();
     return bodyElement ? bodyElement->attributeWithoutSynchronization(vlinkAttr) : emptyAtom();
 }
 
@@ -10961,7 +10961,7 @@ void Document::handlePopoverLightDismiss(const PointerEvent& event, Node& target
                             else if (RefPtr popover = button->popoverTargetElement(); popover && isShowingAutoPopover(*popover))
                                 invokerPopover = WTF::move(popover);
                         } else if (settings().htmlEnhancedSelectEnabled()) {
-                            if (RefPtr select = dynamicDowncast<HTMLSelectElement>(*htmlElement)) {
+                            if (auto* select = dynamicDowncast<HTMLSelectElement>(*htmlElement)) {
                                 if (RefPtr popover = select->pickerPopoverElement(); popover && isShowingAutoPopover(*popover))
                                     invokerPopover = WTF::move(popover);
                             }
@@ -11570,7 +11570,7 @@ NotificationClient* Document::notificationClient()
     if (!page)
         return nullptr;
 
-    return &NotificationController::from(page.get())->client();
+    return &NotificationController::from(page)->client();
 #else
     return nullptr;
 #endif
@@ -11692,7 +11692,7 @@ OptionSet<AdvancedPrivacyProtections> Document::advancedPrivacyProtections() con
     if (!mainFrameDocument)
         return { };
 
-    if (RefPtr loader = mainFrameDocument->loader())
+    if (auto* loader = mainFrameDocument->loader())
         return loader->advancedPrivacyProtections();
 
     return { };
@@ -11942,7 +11942,7 @@ ResourceMonitor& Document::resourceMonitor()
 
 ResourceMonitor* Document::parentResourceMonitorIfExists()
 {
-    if (RefPtr parent = parentDocument())
+    if (auto* parent = parentDocument())
         return parent->resourceMonitorIfExists();
 
     return nullptr;

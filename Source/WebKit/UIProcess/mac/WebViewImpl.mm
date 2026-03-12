@@ -6441,7 +6441,7 @@ bool WebViewImpl::completeBackSwipeForTesting()
 
 bool WebViewImpl::didCallEndSwipeGestureForTesting() const
 {
-    RefPtr gestureController = m_gestureController;
+    auto* gestureController = m_gestureController.get();
     return gestureController && gestureController->didCallEndSwipeGesture();
 }
 

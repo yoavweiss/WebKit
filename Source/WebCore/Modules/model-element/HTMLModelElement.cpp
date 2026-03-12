@@ -842,7 +842,7 @@ void HTMLModelElement::enterFullscreen()
 
 bool HTMLModelElement::supportsDragging() const
 {
-    RefPtr modelPlayer = m_modelPlayer;
+    auto* modelPlayer = m_modelPlayer.get();
     if (!modelPlayer)
         return true;
 
@@ -868,7 +868,7 @@ void HTMLModelElement::attributeChanged(const QualifiedName& name, const AtomStr
     if (name == srcAttr)
         sourcesChanged();
     else if (name == interactiveAttr) {
-        if (RefPtr modelPlayer = m_modelPlayer)
+        if (auto* modelPlayer = m_modelPlayer.get())
             modelPlayer->setInteractionEnabled(isInteractive());
     }
 #if ENABLE(MODEL_ELEMENT_ANIMATIONS_CONTROL)

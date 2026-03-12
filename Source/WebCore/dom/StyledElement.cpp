@@ -92,7 +92,7 @@ Ref<MutableStyleProperties> StyledElement::ensureMutableInlineStyle()
         inlineStyle = mutableProperties.copyRef();
         return mutableProperties;
     }
-    if (RefPtr mutableProperties = dynamicDowncast<MutableStyleProperties>(*inlineStyle))
+    if (auto* mutableProperties = dynamicDowncast<MutableStyleProperties>(*inlineStyle))
         return *mutableProperties;
     Ref mutableProperties = inlineStyle->mutableCopy();
     inlineStyle = mutableProperties.copyRef();

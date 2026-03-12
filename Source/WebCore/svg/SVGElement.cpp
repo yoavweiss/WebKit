@@ -684,7 +684,7 @@ const RenderStyle* SVGElement::computedStyle(const std::optional<Style::PseudoEl
         return Element::computedStyle(pseudoElementIdentifier);
 
     const RenderStyle* parentStyle = nullptr;
-    if (RefPtr parent = parentOrShadowHostElement()) {
+    if (auto* parent = parentOrShadowHostElement()) {
         if (auto renderer = parent->renderer())
             parentStyle = &renderer->style();
     }

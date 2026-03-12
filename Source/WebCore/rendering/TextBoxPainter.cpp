@@ -260,7 +260,7 @@ void TextBoxPainter::paint()
 #endif
             if (m_containsComposition && !m_compositionWithCustomUnderlines)
                 return true;
-            if (CheckedPtr markers = m_document->markersIfExists(); markers && markers->hasMarkers())
+            if (auto* markers = m_document->markersIfExists(); markers && markers->hasMarkers())
                 return true;
             if (m_document->hasHighlight())
                 return true;
@@ -403,7 +403,7 @@ void TextBoxPainter::paintForegroundAndDecorations()
             return true;
         if (shouldPaintSelectionForeground)
             return true;
-        if (CheckedPtr markers = m_document->markersIfExists(); markers && markers->hasMarkers())
+        if (auto* markers = m_document->markersIfExists(); markers && markers->hasMarkers())
             return true;
         if (m_document->hasHighlight())
             return true;

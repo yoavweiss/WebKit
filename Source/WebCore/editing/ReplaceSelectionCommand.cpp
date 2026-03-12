@@ -135,13 +135,13 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(ReplacementFragment);
 
 static bool isInterchangeNewlineNode(const Node& node)
 {
-    RefPtr br = dynamicDowncast<HTMLBRElement>(node);
+    auto* br = dynamicDowncast<HTMLBRElement>(node);
     return br && br->attributeWithoutSynchronization(classAttr) == AppleInterchangeNewline;
 }
 
 static bool isInterchangeConvertedSpaceSpan(const Node& node)
 {
-    RefPtr element = dynamicDowncast<HTMLElement>(node);
+    auto* element = dynamicDowncast<HTMLElement>(node);
     return element && element->attributeWithoutSynchronization(classAttr) == AppleConvertedSpace;
 }
 
@@ -628,7 +628,7 @@ static bool fragmentNeedsColorTransformed(ReplacementFragment& fragment, const P
     {
         ScriptDisallowedScope::InMainThread scriptDisallowedScope;
 
-        CheckedPtr editableRootRenderer = editableRoot->renderer();
+        auto* editableRootRenderer = editableRoot->renderer();
         if (!editableRootRenderer || editableRootRenderer->style().appleColorFilter().isNone())
             return false;
 

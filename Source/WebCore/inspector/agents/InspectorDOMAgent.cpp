@@ -587,15 +587,15 @@ void InspectorDOMAgent::discardBindings()
 
 static RefPtr<Element> elementToPushForStyleable(const Styleable& styleable)
 {
-    Ref element = styleable.element;
+    auto& element = styleable.element;
     // FIXME: We want to get rid of PseudoElement.
     if (styleable.pseudoElementIdentifier) {
         if (styleable.pseudoElementIdentifier->type == PseudoElementType::Before)
-            return element->beforePseudoElement();
+            return element.beforePseudoElement();
         if (styleable.pseudoElementIdentifier->type == PseudoElementType::After)
-            return element->afterPseudoElement();
+            return element.afterPseudoElement();
     }
-    return element;
+    return &element;
 }
 
 Inspector::Protocol::DOM::NodeId InspectorDOMAgent::pushStyleableElementToFrontend(const Styleable& styleable)
@@ -2615,9 +2615,9 @@ unsigned InspectorDOMAgent::innerChildNodeCount(Node* node)
 Node* InspectorDOMAgent::innerParentNode(Node* node)
 {
     ASSERT(node);
-    if (RefPtr document = dynamicDowncast<Document>(*node))
+    if (auto* document = dynamicDowncast<Document>(*node))
         return document->ownerElement();
-    if (RefPtr shadowRoot = dynamicDowncast<ShadowRoot>(*node))
+    if (auto* shadowRoot = dynamicDowncast<ShadowRoot>(*node))
         return shadowRoot->host();
     return node->parentNode();
 }

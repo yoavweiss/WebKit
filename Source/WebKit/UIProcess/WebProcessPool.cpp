@@ -498,7 +498,7 @@ static bool NODELETE shouldReportNetworkOrGPUProcessCrash(ProcessTerminationReas
 
 void WebProcessPool::networkProcessDidTerminate(NetworkProcessProxy& networkProcessProxy, ProcessTerminationReason reason)
 {
-    for (Ref process : m_processes)
+    for (auto& process : m_processes)
         process->resetHasRegisteredServiceWorkerClients();
 
     if (shouldReportNetworkOrGPUProcessCrash(reason))
@@ -1876,9 +1876,9 @@ bool WebProcessPool::httpPipeliningEnabled() const
 
 RefPtr<WebProcessProxy> WebProcessPool::webProcessProxyFromConnection(const IPC::Connection& connection) const
 {
-    for (Ref process : m_processes) {
+    for (auto& process : m_processes) {
         if (process->hasConnection(connection))
-            return process;
+            return &process.get();
     }
 
     ASSERT_NOT_REACHED();

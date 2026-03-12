@@ -180,7 +180,7 @@ void ApplyBlockElementCommand::formatSelection(const VisiblePosition& startOfSel
 
 static bool isNewLineAtPosition(const Position& position)
 {
-    RefPtr textNode = dynamicDowncast<Text>(position.containerNode());
+    auto* textNode = dynamicDowncast<Text>(position.containerNode());
     if (!textNode)
         return false;
     unsigned offset = position.offsetInContainerNode();
@@ -197,7 +197,7 @@ CheckedPtr<const RenderStyle> ApplyBlockElementCommand::renderStyleOfEnclosingTe
 
     document().updateStyleIfNeeded();
 
-    if (CheckedPtr renderText = dynamicDowncast<RenderText>(node->renderer()))
+    if (auto* renderText = dynamicDowncast<RenderText>(node->renderer()))
         return &renderText->style();
     return { };
 }

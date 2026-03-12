@@ -328,7 +328,7 @@ void HTMLOptionElement::defaultEventHandler(Event& event)
 
 HTMLFormElement* HTMLOptionElement::form() const
 {
-    if (RefPtr selectElement = ownerSelectElement())
+    if (auto* selectElement = ownerSelectElement())
         return selectElement->form();
     return nullptr;
 }

@@ -2604,9 +2604,9 @@ void HTMLMediaElement::textTrackModeChanged(TextTrack& track)
     bool trackIsLoaded = true;
     if (track.trackType() == TextTrack::TrackElement) {
         trackIsLoaded = false;
-        for (Ref trackElement : childrenOfType<HTMLTrackElement>(*this)) {
-            if (&trackElement->track() == &track) {
-                if (trackElement->readyState() == HTMLTrackElement::LOADING || trackElement->readyState() == HTMLTrackElement::LOADED)
+        for (auto& trackElement : childrenOfType<HTMLTrackElement>(*this)) {
+            if (&trackElement.track() == &track) {
+                if (trackElement.readyState() == HTMLTrackElement::LOADING || trackElement.readyState() == HTMLTrackElement::LOADED)
                     trackIsLoaded = true;
                 break;
             }
@@ -4147,7 +4147,7 @@ MediaPlayer::MovieLoadType HTMLMediaElement::movieLoadType() const
 
 std::optional<MediaSessionGroupIdentifier> HTMLMediaElement::mediaSessionGroupIdentifier() const
 {
-    RefPtr page = document().page();
+    auto* page = document().page();
     return page ? page->mediaSessionGroupIdentifier() : std::nullopt;
 }
 
@@ -7533,7 +7533,7 @@ void HTMLMediaElement::enterFullscreen(VideoFullscreenMode mode)
         auto fullscreenCheckType = m_ignoreFullscreenPermissionsPolicy ? DocumentFullscreen::ExemptIFrameAllowFullscreenRequirement : DocumentFullscreen::EnforceIFrameAllowFullscreenRequirement;
         m_ignoreFullscreenPermissionsPolicy = false;
         protect(protect(document())->fullscreen())->requestFullscreen(*this, fullscreenCheckType, [weakThis = WeakPtr { *this }](ExceptionOr<void> result) {
-            RefPtr protectedThis = weakThis.get();
+            auto* protectedThis = weakThis.get();
             if (!protectedThis || !result.hasException())
                 return;
             protectedThis->m_changingVideoFullscreenMode = false;
@@ -7818,10 +7818,10 @@ bool HTMLMediaElement::hasClosedCaptions() const
         return false;
 
     for (unsigned i = 0; i < m_textTracks->length(); ++i) {
-        Ref track = *m_textTracks->item(i);
-        if (track->readinessState() == TextTrack::FailedToLoad)
+        auto& track = *m_textTracks->item(i);
+        if (track.readinessState() == TextTrack::FailedToLoad)
             continue;
-        if (track->kind() == TextTrack::Kind::Captions || track->kind() == TextTrack::Kind::Subtitles)
+        if (track.kind() == TextTrack::Kind::Captions || track.kind() == TextTrack::Kind::Subtitles)
             return true;
     }
 
@@ -8114,10 +8114,10 @@ void HTMLMediaElement::markCaptionAndSubtitleTracksAsUnconfigured(ReconfigureMod
     // captions and non-default tracks should be displayed based on language
     // preferences if the user has turned captions on).
     for (unsigned i = 0; i < m_textTracks->length(); ++i) {
-        Ref track = *m_textTracks->item(i);
-        auto kind = track->kind();
+        auto& track = *m_textTracks->item(i);
+        auto kind = track.kind();
         if (kind == TextTrack::Kind::Subtitles || kind == TextTrack::Kind::Captions)
-            track->setHasBeenConfigured(false);
+            track.setHasBeenConfigured(false);
     }
 
     m_processingPreferenceChange = true;
@@ -9535,7 +9535,7 @@ bool HTMLMediaElement::effectiveMuted() const
     if (m_mediaController && m_mediaController->muted())
         return true;
 
-    if (RefPtr page = document().page(); page && page->isAudioMuted())
+    if (auto* page = document().page(); page && page->isAudioMuted())
         return true;
 
     if (m_cachedIsInVisibilityAdjustmentSubtree)

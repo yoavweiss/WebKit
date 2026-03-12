@@ -461,7 +461,7 @@ unsigned InspectorFrontendClientLocal::inspectionLevel() const
 
 Page* InspectorFrontendClientLocal::inspectedPage() const
 {
-    RefPtr inspectedPageController = m_inspectedPageController.get();
+    auto* inspectedPageController = m_inspectedPageController.get();
     return inspectedPageController ? &inspectedPageController->inspectedPage() : nullptr;
 }
 

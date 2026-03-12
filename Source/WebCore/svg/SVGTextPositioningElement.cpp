@@ -102,8 +102,8 @@ void SVGTextPositioningElement::svgAttributeChanged(const QualifiedName& attrNam
         if (attrName != SVGNames::rotateAttr)
             updateRelativeLengthsInformation();
 
-        if (CheckedPtr renderer = this->renderer()) {
-            if (CheckedPtr textAncestor = RenderSVGText::locateRenderSVGTextAncestor(*renderer))
+        if (auto* renderer = this->renderer()) {
+            if (auto* textAncestor = RenderSVGText::locateRenderSVGTextAncestor(*renderer))
                 textAncestor->setNeedsPositioningValuesUpdate();
         }
         updateSVGRendererForElementChange();

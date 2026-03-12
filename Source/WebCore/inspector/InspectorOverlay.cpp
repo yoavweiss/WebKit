@@ -1141,7 +1141,7 @@ void InspectorOverlay::drawRulers(GraphicsContext& context, const InspectorOverl
 
 static bool rendererIsFlexboxItem(RenderObject& renderer)
 {
-    if (CheckedPtr parentFlexRenderer = dynamicDowncast<RenderFlexibleBox>(renderer.parent()))
+    if (auto* parentFlexRenderer = dynamicDowncast<RenderFlexibleBox>(renderer.parent()))
         return !parentFlexRenderer->orderIterator().shouldSkipChild(renderer);
 
     return false;

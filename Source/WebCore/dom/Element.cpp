@@ -447,7 +447,7 @@ bool Element::isKeyboardFocusable(const FocusEventData&) const
 {
     if (!isFocusable() || shouldBeIgnoredInSequentialFocusNavigation() || tabIndexSetExplicitly().value_or(0) < 0)
         return false;
-    if (RefPtr root = shadowRoot()) {
+    if (auto* root = shadowRoot()) {
         if (root->delegatesFocus())
             return false;
     }
@@ -1417,8 +1417,8 @@ static double localZoomForRenderer(const RenderElement& renderer)
     if (renderer.style().usedZoom() != 1) {
         // Need to find the nearest enclosing RenderElement that set up
         // a differing zoom, and then we divide our result by it to eliminate the zoom.
-        CheckedPtr prev = &renderer;
-        for (CheckedPtr curr = prev->parent(); curr; curr = curr->parent()) {
+        auto* prev = &renderer;
+        for (auto* curr = prev->parent(); curr; curr = curr->parent()) {
             if (curr->style().usedZoom() != prev->style().usedZoom()) {
                 zoomFactor = Style::evaluate<double>(prev->style().zoom());
                 break;
@@ -1674,7 +1674,7 @@ double Element::currentCSSZoom()
             initialZoom = frame->pageZoomFactor();
     }
 
-    if (CheckedPtr renderer = this->renderer())
+    if (auto* renderer = this->renderer())
         return renderer->style().usedZoom() / initialZoom;
     return 1.0;
 }
@@ -1740,7 +1740,7 @@ void Element::setScrollLeft(int newLeft)
     if (CheckedPtr renderer = renderBox()) {
         int clampedLeft = clampToInteger(newLeft * renderer->style().usedZoom());
         renderer->setScrollLeft(clampedLeft, options);
-        if (CheckedPtr scrollableArea = renderer && renderer->layer() ? renderer->layer()->scrollableArea() : nullptr)
+        if (auto* scrollableArea = renderer && renderer->layer() ? renderer->layer()->scrollableArea() : nullptr)
             scrollableArea->setScrollShouldClearLatchedState(true);
     }
 }
@@ -1768,7 +1768,7 @@ void Element::setScrollTop(int newTop)
     if (CheckedPtr renderer = renderBox()) {
         int clampedTop = clampToInteger(newTop * renderer->style().usedZoom());
         renderer->setScrollTop(clampedTop, options);
-        if (CheckedPtr scrollableArea = renderer && renderer->layer() ? renderer->layer()->scrollableArea() : nullptr)
+        if (auto* scrollableArea = renderer && renderer->layer() ? renderer->layer()->scrollableArea() : nullptr)
             scrollableArea->setScrollShouldClearLatchedState(true);
     }
 }
@@ -2442,10 +2442,10 @@ static RefPtr<Element> getElementByIdIncludingDisconnected(const Element& startE
     // Attr associated element lookup does not depend on whether the element
     // is connected. However, the TreeScopeOrderedMap that is used for
     // TreeScope::getElementById() only stores connected elements.
-    if (RefPtr root = startElement.rootElement()) {
-        for (CheckedRef element : descendantsOfType<Element>(*root)) {
-            if (element->getIdAttribute() == id)
-                return const_cast<Element*>(element.ptr());
+    if (auto* root = startElement.rootElement()) {
+        for (auto& element : descendantsOfType<Element>(*root)) {
+            if (element.getIdAttribute() == id)
+                return const_cast<Element*>(&element);
         }
     }
 
@@ -3256,7 +3256,7 @@ void Element::removedFromAncestor(RemovalType removalType, ContainerNode& oldPar
 
     if (usesEffectiveTextDirection()) [[unlikely]] {
         if (!hasValidTextDirectionState()) {
-            if (CheckedPtr parent = parentOrShadowHostElement(); !(parent && parent->usesEffectiveTextDirection()))
+            if (auto* parent = parentOrShadowHostElement(); !(parent && parent->usesEffectiveTextDirection()))
                 setUsesEffectiveTextDirection(false);
         }
     }
@@ -3380,8 +3380,8 @@ static bool canAttachAuthorShadowRoot(const Element& element)
     }
 
     if (auto localName = element.localName(); Document::validateCustomElementName(localName) == CustomElementNameValidationStatus::Valid) {
-        if (RefPtr window = element.document().window()) {
-            RefPtr registry = window->customElementRegistry();
+        if (auto* window = element.document().window()) {
+            auto* registry = window->customElementRegistry();
             if (registry && registry->isShadowDisabled(localName))
                 return false;
         }
@@ -4065,7 +4065,7 @@ static bool isProgramaticallyFocusable(Element& element)
 // https://html.spec.whatwg.org/multipage/interaction.html#autofocus-delegate
 static RefPtr<Element> autoFocusDelegate(ContainerNode& target, FocusTrigger trigger)
 {
-    if (RefPtr root = target.shadowRoot(); root && !root->delegatesFocus())
+    if (auto* root = target.shadowRoot(); root && !root->delegatesFocus())
         return nullptr;
 
     for (Ref element : descendantsOfType<Element>(target)) {
@@ -4093,7 +4093,7 @@ static RefPtr<Element> autoFocusDelegate(ContainerNode& target, FocusTrigger tri
 // https://html.spec.whatwg.org/multipage/interaction.html#focus-delegate
 RefPtr<Element> Element::findFocusDelegateForTarget(ContainerNode& target, FocusTrigger trigger)
 {
-    if (RefPtr root = target.shadowRoot(); root && !root->delegatesFocus())
+    if (auto* root = target.shadowRoot(); root && !root->delegatesFocus())
         return nullptr;
     if (RefPtr element = autoFocusDelegate(target, trigger))
         return element;
@@ -6388,7 +6388,7 @@ bool Element::isInVisibilityAdjustmentSubtree() const
         return false;
 
     auto lineageIsInAdjustmentSubtree = [this] {
-        for (CheckedRef element : lineageOfType<Element>(*this)) {
+        for (Ref element : lineageOfType<Element>(*this)) {
             if (element->visibilityAdjustment().contains(VisibilityAdjustment::Subtree))
                 return true;
         }
@@ -6441,8 +6441,8 @@ RefPtr<HTMLElement> Element::topmostPopoverAncestor(TopLayerElementType topLayer
 
         // https://html.spec.whatwg.org/#nearest-inclusive-open-popover
         auto nearestInclusiveOpenPopover = [](Element& candidate) -> HTMLElement* {
-            for (RefPtr element = candidate; element; element = element->parentElementInComposedTree()) {
-                if (auto* htmlElement = dynamicDowncast<HTMLElement>(element.get())) {
+            for (auto* element = &candidate; element; element = element->parentElementInComposedTree()) {
+                if (auto* htmlElement = dynamicDowncast<HTMLElement>(element)) {
                     if (htmlElement->popoverState() == PopoverState::Auto && htmlElement->popoverData()->visibilityState() == PopoverVisibilityState::Showing)
                         return htmlElement;
                 }

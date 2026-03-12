@@ -63,7 +63,7 @@ void HTMLFrameOwnerElement::setContentFrame(Frame& frame)
     ASSERT(isConnected());
     m_contentFrame = frame;
 
-    for (RefPtr<ContainerNode> node = this; node; node = node->parentOrShadowHostNode())
+    for (Node* node = this; node; node = node->parentOrShadowHostNode())
         node->incrementConnectedSubframeCount();
 }
 
@@ -74,7 +74,7 @@ void HTMLFrameOwnerElement::clearContentFrame()
 
     m_contentFrame = nullptr;
 
-    for (RefPtr<ContainerNode> node = this; node; node = node->parentOrShadowHostNode())
+    for (Node* node = this; node; node = node->parentOrShadowHostNode())
         node->decrementConnectedSubframeCount();
 }
 

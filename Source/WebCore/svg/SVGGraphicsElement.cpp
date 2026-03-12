@@ -181,8 +181,8 @@ RenderPtr<RenderElement> SVGGraphicsElement::createElementRenderer(RenderStyle&&
 void SVGGraphicsElement::didAttachRenderers()
 {
     if (document().settings().layerBasedSVGEngineEnabled()) {
-        if (CheckedPtr svgRenderer = dynamicDowncast<RenderLayerModelObject>(renderer()); svgRenderer && lineageOfType<RenderSVGHiddenContainer>(*svgRenderer).first()) {
-            if (CheckedPtr layer = svgRenderer->layer())
+        if (auto* svgRenderer = dynamicDowncast<RenderLayerModelObject>(renderer()); svgRenderer && lineageOfType<RenderSVGHiddenContainer>(*svgRenderer).first()) {
+            if (auto* layer = svgRenderer->layer())
                 layer->dirtyVisibleContentStatus();
         }
     }

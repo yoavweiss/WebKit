@@ -448,7 +448,7 @@ void WebLocalFrameLoaderClient::dispatchDidChangeMainDocument()
     webPage->setMainFrameDocumentVisualUpdatesAllowed(true);
 
     std::optional<NavigationIdentifier> navigationID;
-    if (RefPtr documentLoader = m_localFrame->loader().documentLoader())
+    if (auto* documentLoader = m_localFrame->loader().documentLoader())
         navigationID = documentLoader->navigationID();
 
     webPage->send(Messages::WebPageProxy::DidChangeMainDocument(m_frame->frameID(), navigationID));
@@ -2096,7 +2096,7 @@ void WebLocalFrameLoaderClient::frameNameChanged(const String& frameName)
 
 bool WebLocalFrameLoaderClient::siteIsolationEnabled() const
 {
-    if (RefPtr coreFrame = m_frame->coreFrame())
+    if (auto* coreFrame = m_frame->coreFrame())
         return coreFrame->settings().siteIsolationEnabled();
     return false;
 }

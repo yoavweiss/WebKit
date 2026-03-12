@@ -388,11 +388,11 @@ bool EventHandler::eventLoopHandleMouseDragged(const MouseEventWithHitTestResult
 // event target node can't still be the shadow node.
 static inline bool shouldRefetchEventTarget(const MouseEventWithHitTestResults& mouseEvent)
 {
-    RefPtr targetNode = mouseEvent.targetNode();
+    auto* targetNode = mouseEvent.targetNode();
     ASSERT(targetNode);
     if (!targetNode->parentNode())
         return true;
-    RefPtr shadowRoot = dynamicDowncast<ShadowRoot>(*targetNode);
+    auto* shadowRoot = dynamicDowncast<ShadowRoot>(*targetNode);
     return shadowRoot && is<HTMLInputElement>(shadowRoot->host());
 }
 
@@ -1029,7 +1029,7 @@ bool EventHandler::handleMouseDraggedEvent(const MouseEventWithHitTestResults& e
 
     CheckedPtr renderer = targetNode->renderer();
     if (!renderer) {
-        RefPtr parent = targetNode->parentOrShadowHostElement();
+        auto* parent = targetNode->parentOrShadowHostElement();
         if (!parent)
             return false;
 
@@ -1545,7 +1545,7 @@ RefPtr<Frame> EventHandler::subframeForTargetNode(Node* node)
 
 static bool isSubmitImage(Node* node)
 {
-    RefPtr input = dynamicDowncast<HTMLInputElement>(node);
+    auto* input = dynamicDowncast<HTMLInputElement>(node);
     return input && input->isImageButton();
 }
 
@@ -2701,7 +2701,7 @@ bool EventHandler::canDropCurrentlyDraggedImageAsFile() const
 
 static std::pair<bool, RefPtr<Frame>> contentFrameForNode(Node* target)
 {
-    RefPtr frameElement = dynamicDowncast<HTMLFrameElementBase>(target);
+    auto* frameElement = dynamicDowncast<HTMLFrameElementBase>(target);
     if (!frameElement)
         return { false, nullptr };
 
@@ -2951,7 +2951,7 @@ MouseEventWithHitTestResults EventHandler::prepareMouseEvent(const HitTestReques
 
 static bool hierarchyHasCapturingEventListeners(Element* element, const AtomString& pointerEventName, const AtomString& compatibilityMouseEventName)
 {
-    for (RefPtr<ContainerNode> curr = element; curr; curr = curr->parentInComposedTree()) {
+    for (ContainerNode* curr = element; curr; curr = curr->parentInComposedTree()) {
         if (curr->hasCapturingEventListeners(pointerEventName) || curr->hasCapturingEventListeners(compatibilityMouseEventName))
             return true;
     }
@@ -2997,7 +2997,7 @@ static RefPtr<Element> getElementOrAncestorElementForNode(Node* targetNode)
 {
     RefPtr<Element> targetElement;
     while (targetNode) {
-        if (RefPtr asElement = dynamicDowncast<Element>(*targetNode)) {
+        if (auto* asElement = dynamicDowncast<Element>(*targetNode)) {
             targetElement = asElement;
             break;
         }
@@ -3827,7 +3827,7 @@ bool EventHandler::sendContextMenuEvent(const PlatformMouseEvent& event)
 
 #if ENABLE(POINTER_LOCK)
     // Context menus should not be handled while pointer is locked.
-    if (RefPtr page = frame->page(); !page || page->pointerLockController().isLocked())
+    if (auto* page = frame->page(); !page || page->pointerLockController().isLocked())
         return false;
 #endif
 
@@ -4128,7 +4128,7 @@ bool EventHandler::keyEvent(const PlatformKeyboardEvent& keyEvent)
     MonotonicTime savedLastHandledUserGestureTimestamp;
     bool savedUserDidInteractWithPage = page ? page->userDidInteractWithPage() : false;
 
-    if (RefPtr document = frame->document())
+    if (auto* document = frame->document())
         savedLastHandledUserGestureTimestamp = document->lastHandledUserGestureTimestamp();
 
     bool wasHandled = internalKeyEvent(keyEvent);

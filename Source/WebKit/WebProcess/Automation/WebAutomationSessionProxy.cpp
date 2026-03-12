@@ -726,7 +726,7 @@ static WebCore::Element* containerElementForElement(WebCore::Element& element)
         return nullptr;
     }
 
-    if (RefPtr optgroup = dynamicDowncast<WebCore::HTMLOptGroupElement>(element)) {
+    if (auto* optgroup = dynamicDowncast<WebCore::HTMLOptGroupElement>(element)) {
         if (auto* parentElement = optgroup->ownerSelectElement())
             return parentElement;
         return nullptr;

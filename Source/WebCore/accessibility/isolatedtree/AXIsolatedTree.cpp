@@ -1516,7 +1516,7 @@ void AXIsolatedTree::applyPendingChangesLocked()
     m_pendingAppends.clear();
 
     for (const auto& parentUpdate : m_pendingParentUpdates) {
-        if (RefPtr object = objectForID(parentUpdate.key))
+        if (auto* object = objectForID(parentUpdate.key))
             object->setParent(parentUpdate.value);
     }
     m_pendingParentUpdates.clear();

@@ -85,7 +85,7 @@ void SMILTimeContainer::notifyIntervalsChanged()
 
 Seconds SMILTimeContainer::animationFrameDelay() const
 {
-    RefPtr page = m_ownerSVGElement->document().page();
+    auto* page = m_ownerSVGElement->document().page();
     if (!page)
         return SMILAnimationFrameDelay;
     return (page->isLowPowerModeEnabled() || page->isAggressiveThermalMitigationEnabled()) ? SMILAnimationFrameThrottledDelay : SMILAnimationFrameDelay;

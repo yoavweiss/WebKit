@@ -64,7 +64,7 @@ public:
     size_t lineIndex() const
     {
         size_t precedingLines = 0;
-        for (CheckedPtr rootBox = rootInlineBox().prevRootBox(); rootBox; rootBox = rootBox->prevRootBox())
+        for (auto* rootBox = rootInlineBox().prevRootBox(); rootBox; rootBox = rootBox->prevRootBox())
             ++precedingLines;
         return precedingLines;
     }

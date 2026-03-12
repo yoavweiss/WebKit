@@ -254,7 +254,7 @@ SWScriptStorage& SWRegistrationDatabase::scriptStorage()
 
 bool SWRegistrationDatabase::prepareDatabase(ShouldCreateIfNotExists shouldCreateIfNotExists)
 {
-    if (CheckedPtr database = m_database.get(); database && database->isOpen())
+    if (auto* database = m_database.get(); database && database->isOpen())
         return true;
 
     if (m_directory.isEmpty())

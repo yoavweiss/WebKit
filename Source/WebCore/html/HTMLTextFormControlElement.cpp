@@ -351,7 +351,7 @@ bool HTMLTextFormControlElement::setSelectionRange(unsigned start, unsigned end,
         protect(document())->updateLayoutIgnorePendingStylesheets();
 
         // Cache selection if renderer is invisible.
-        if (CheckedPtr renderer = this->renderer()) {
+        if (auto* renderer = this->renderer()) {
             if (renderer->style().visibility() == Visibility::Hidden || !innerText->renderBox() || !innerText->renderBox()->height())
                 return cacheSelection(start, end, direction);
         }
@@ -497,7 +497,7 @@ const AtomString& HTMLTextFormControlElement::selectionDirection() const
 TextFieldSelectionDirection HTMLTextFormControlElement::computeSelectionDirection() const
 {
     ASSERT(isTextField());
-    RefPtr frame { document().frame() };
+    auto* frame = document().frame();
     if (!frame)
         return SelectionHasNoDirection;
 
@@ -876,11 +876,11 @@ HTMLTextFormControlElement* enclosingTextFormControl(const Position& position)
         || position.containerNode() || !position.anchorNode()->shadowHost()
         || hasShadowRootParent(*position.anchorNode()));
         
-    RefPtr<Node> container = position.containerNode();
+    auto* container = position.containerNode();
     if (!container)
         return nullptr;
-    RefPtr<Element> ancestor = container->shadowHost();
-    return ancestor && ancestor->isTextField() ? downcast<HTMLTextFormControlElement>(ancestor.get()) : nullptr;
+    auto* ancestor = container->shadowHost();
+    return ancestor && ancestor->isTextField() ? downcast<HTMLTextFormControlElement>(ancestor) : nullptr;
 }
 
 String HTMLTextFormControlElement::directionForFormData() const

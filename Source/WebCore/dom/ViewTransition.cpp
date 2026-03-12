@@ -1044,7 +1044,7 @@ ExceptionOr<void> ViewTransition::updatePseudoElementRenderers()
                 if (RefPtr frame = document->frame(); !viewTransitionCapture->canUseExistingLayers()) {
                     document->updateLayoutIgnorePendingStylesheets();
                     image = snapshotElementVisualOverflowClippedToViewport(*frame, *renderer, capturedElement->newState.overflowRect);
-                } else if (CheckedPtr layer = renderer->isDocumentElementRenderer() ? renderer->view().layer() : renderer->layer())
+                } else if (auto* layer = renderer->isDocumentElementRenderer() ? renderer->view().layer() : renderer->layer())
                     layer->setNeedsCompositingGeometryUpdate();
                 viewTransitionCapture->setImage(image);
             }
@@ -1107,15 +1107,15 @@ Document* ViewTransition::document() const
 
 bool ViewTransition::documentElementIsCaptured() const
 {
-    RefPtr document = this->document();
+    auto* document = this->document();
     if (!document)
         return false;
 
-    RefPtr documentElement = document->documentElement();
+    auto* documentElement = document->documentElement();
     if (!documentElement)
         return false;
 
-    CheckedPtr renderer = documentElement->renderer();
+    auto* renderer = documentElement->renderer();
     if (!renderer)
         return false;
 

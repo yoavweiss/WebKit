@@ -203,8 +203,8 @@ void StyleOriginatedTimelinesController::registerNamedScrollTimeline(const AtomS
     });
 
     if (existingTimelineIndex != notFound) {
-        Ref existingScrollTimeline = timelines[existingTimelineIndex].get();
-        existingScrollTimeline->setAxis(axis);
+        auto& existingScrollTimeline = timelines[existingTimelineIndex].get();
+        existingScrollTimeline.setAxis(axis);
     } else {
         auto newScrollTimeline = ScrollTimeline::create(name, axis);
         newScrollTimeline->setSource(source);

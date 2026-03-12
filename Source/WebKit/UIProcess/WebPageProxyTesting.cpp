@@ -223,7 +223,7 @@ void WebPageProxyTesting::resetStateBetweenTests()
 {
     page().legacyMainFrameProcess().resetState();
 
-    if (RefPtr mainFrame = m_page->mainFrame())
+    if (auto* mainFrame = m_page->mainFrame())
         mainFrame->disownOpener();
 
     protect(page())->forEachWebContentProcess([&](auto& webProcess, auto pageID) {

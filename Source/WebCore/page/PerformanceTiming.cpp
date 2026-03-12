@@ -351,7 +351,7 @@ unsigned long long PerformanceTiming::loadEventEnd() const
 
 const DocumentLoader* PerformanceTiming::documentLoader() const
 {
-    RefPtr frame = this->frame();
+    auto* frame = this->frame();
     if (!frame)
         return nullptr;
 
@@ -360,7 +360,7 @@ const DocumentLoader* PerformanceTiming::documentLoader() const
 
 const DocumentEventTiming* PerformanceTiming::documentEventTiming() const
 {
-    RefPtr frame = this->frame();
+    auto* frame = this->frame();
     if (!frame)
         return nullptr;
 

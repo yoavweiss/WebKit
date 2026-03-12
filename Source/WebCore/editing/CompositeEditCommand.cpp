@@ -450,7 +450,7 @@ RefPtr<DataTransfer> CompositeEditCommand::inputEventDataTransfer() const
 
 EditCommandComposition* CompositeEditCommand::composition() const
 {
-    for (RefPtr command = this; command; command = command->parent()) {
+    for (auto* command = this; command; command = command->parent()) {
         if (auto* composition = command->m_composition.get()) {
             ASSERT(!command->parent());
             return composition;
@@ -996,7 +996,7 @@ void CompositeEditCommand::prepareWhitespaceAtPositionForSplit(Position& positio
     
     {
         ScriptDisallowedScope::InMainThread scriptDisallowedScope;
-        CheckedPtr renderer = textNode->renderer();
+        auto* renderer = textNode->renderer();
         if (renderer && !renderer->style().collapseWhiteSpace())
             return;        
     }

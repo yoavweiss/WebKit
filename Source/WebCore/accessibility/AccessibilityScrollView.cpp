@@ -483,7 +483,7 @@ LayoutRect AccessibilityScrollView::elementRect() const
 
 Document* AccessibilityScrollView::document() const
 {
-    if (RefPtr frameView = dynamicDowncast<LocalFrameView>(m_scrollView.get()))
+    if (auto* frameView = dynamicDowncast<LocalFrameView>(m_scrollView.get()))
         return frameView->frame().document();
 
     // For the RemoteFrameView case, we need to return the document of our hosting parent so axObjectCache() resolves correctly.
@@ -500,7 +500,7 @@ LocalFrameView* AccessibilityScrollView::documentFrameView() const
     if (auto* localFrameView = dynamicDowncast<LocalFrameView>(m_scrollView.get()))
         return localFrameView;
 
-    RefPtr element = m_frameOwnerElement.get();
+    auto* element = m_frameOwnerElement.get();
     if (element && element->contentDocument())
         return element->contentDocument()->view();
     return nullptr;
@@ -615,7 +615,7 @@ bool AccessibilityScrollView::isHostingFrameInert() const
         return m_inheritedFrameState.isInert;
 
     RefPtr frameOwner = frameOwnerElement();
-    if (CheckedPtr renderer = frameOwner ? frameOwner->renderer() : nullptr)
+    if (auto* renderer = frameOwner ? frameOwner->renderer() : nullptr)
         return renderer->style().effectiveInert();
 
     return false;
@@ -627,7 +627,7 @@ bool AccessibilityScrollView::isHostingFrameRenderHidden() const
         return m_inheritedFrameState.isRenderHidden;
 
     RefPtr frameOwner = frameOwnerElement();
-    if (CheckedPtr renderer = frameOwner ? frameOwner->renderer() : nullptr)
+    if (auto* renderer = frameOwner ? frameOwner->renderer() : nullptr)
         return WebCore::isRenderHidden(protect(renderer->style()).get());
 
     return false;

@@ -260,7 +260,7 @@ static inline bool NODELETE isDisallowedElement(const SVGElement& element)
 
 static inline bool isDisallowedElement(const Element& element)
 {
-    RefPtr svgElement = dynamicDowncast<SVGElement>(element);
+    auto* svgElement = dynamicDowncast<SVGElement>(element);
     return !svgElement || isDisallowedElement(*svgElement);
 }
 
@@ -320,7 +320,7 @@ void SVGUseElement::updateUserAgentShadowTree()
 
 RefPtr<SVGElement> SVGUseElement::targetClone() const
 {
-    RefPtr root = userAgentShadowRoot();
+    auto* root = userAgentShadowRoot();
     return root ? downcast<SVGElement>(root->firstChild()) : nullptr;
 }
 

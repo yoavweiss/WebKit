@@ -63,7 +63,7 @@ SpeechSynthesis::SpeechSynthesis(ScriptExecutionContext& context)
     , m_restrictions({ })
     , m_speechSynthesisClient(nullptr)
 {
-    if (RefPtr document = dynamicDowncast<Document>(context)) {
+    if (auto* document = dynamicDowncast<Document>(context)) {
 #if PLATFORM(IOS_FAMILY)
         if (document->requiresUserGestureForAudioPlayback())
             m_restrictions = BehaviorRestrictionFlags::RequireUserGestureForSpeechStart;

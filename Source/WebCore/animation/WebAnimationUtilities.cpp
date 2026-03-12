@@ -118,7 +118,7 @@ static bool compareStyleOriginatedAnimationOwningElementPositionsInDocumentTreeO
 
     if (aReferenceElement.ptr() == bReferenceElement.ptr()) {
         if (isNamedViewTransitionPseudoElement(a.pseudoElementIdentifier) && isNamedViewTransitionPseudoElement(b.pseudoElementIdentifier) && a.pseudoElementIdentifier->nameOrPart != b.pseudoElementIdentifier->nameOrPart) {
-            RefPtr activeViewTransition = aReferenceElement->document().activeViewTransition();
+            auto* activeViewTransition = aReferenceElement->document().activeViewTransition();
             ASSERT(activeViewTransition);
             for (auto& key : activeViewTransition->namedElements().keys()) {
                 if (key == a.pseudoElementIdentifier->nameOrPart)

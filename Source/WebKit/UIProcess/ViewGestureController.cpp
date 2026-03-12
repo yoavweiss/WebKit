@@ -634,7 +634,7 @@ bool ViewGestureController::isPhysicallySwipingLeft(SwipeDirection direction) co
 
 bool ViewGestureController::shouldUseSnapshotForSize(ViewSnapshot& snapshot, FloatSize swipeLayerSize, FloatBoxExtent obscuredContentInsets)
 {
-    RefPtr page = m_webPageProxy.get();
+    auto* page = m_webPageProxy.get();
     if (!page)
         return false;
 
@@ -718,7 +718,7 @@ void ViewGestureController::willEndSwipeGesture(WebBackForwardListItem& targetIt
     // FIXME: Like on iOS, we should ensure that even if one of the timeouts fires,
     // we never show the old page content, instead showing the snapshot background color.
 
-    if (RefPtr snapshot = targetItem.snapshot())
+    if (auto* snapshot = targetItem.snapshot())
         m_backgroundColorForCurrentSnapshot = snapshot->backgroundColor();
 }
 
@@ -854,7 +854,7 @@ double ViewGestureController::magnification() const
     if (m_activeGestureType == ViewGestureType::Magnification)
         return m_magnification;
 
-    RefPtr page = m_webPageProxy.get();
+    auto* page = m_webPageProxy.get();
     return page ? page->pageScaleFactor() : 1;
 }
 

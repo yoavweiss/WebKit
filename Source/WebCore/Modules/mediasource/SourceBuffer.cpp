@@ -1247,7 +1247,7 @@ Ref<MediaPromise> SourceBuffer::sourceBufferPrivateDurationChanged(const MediaTi
 {
     if (!isRemoved())
         protect(m_source)->setDurationInternal(duration);
-    if (RefPtr textTracks = m_textTracks)
+    if (auto* textTracks = m_textTracks.get())
         textTracks->setDuration(duration);
     return MediaPromise::createAndResolve();
 }

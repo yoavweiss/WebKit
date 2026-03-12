@@ -419,7 +419,7 @@ bool InjectedBundleNodeHandle::isSelectElement() const
 
 bool InjectedBundleNodeHandle::isSelectableTextNode() const
 {
-    if (CheckedPtr renderText = dynamicDowncast<RenderText>(m_node->renderer()))
+    if (auto* renderText = dynamicDowncast<RenderText>(m_node->renderer()))
         return renderText->style().usedUserSelect() != UserSelect::None;
     return false;
 }

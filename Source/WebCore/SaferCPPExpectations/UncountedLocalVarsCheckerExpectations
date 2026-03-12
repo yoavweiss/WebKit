@@ -66,7 +66,6 @@ html/HTMLMediaElement.cpp
 html/HTMLOptionElement.cpp
 [ iOS ] html/HTMLPictureElement.cpp
 html/HTMLSelectElement.cpp
-html/MediaElementSession.cpp
 html/OffscreenCanvas.cpp
 html/canvas/CanvasRenderingContext2DBase.cpp
 inspector/InspectorAuditAccessibilityObject.cpp

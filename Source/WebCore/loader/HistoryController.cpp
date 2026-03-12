@@ -69,14 +69,14 @@ static inline void addVisitedLink(Page& page, const URL& url)
 
 static inline bool canRecordHistoryForFrame(const LocalFrame& frame)
 {
-    RefPtr page = frame.page();
+    auto* page = frame.page();
     if (!page)
         return false;
 
     if (!page->usesEphemeralSession())
         return true;
 
-    if (RefPtr document = frame.document())
+    if (auto* document = frame.document())
         return document->settings().allowPrivacySensitiveOperationsInNonPersistentDataStores();
 
     return false;
@@ -312,7 +312,7 @@ void HistoryController::invalidateCurrentItemCachedPage()
 
 bool HistoryController::shouldStopLoadingForHistoryItem(HistoryItem& targetItem) const
 {
-    RefPtr currentItem = m_currentItem;
+    auto* currentItem = m_currentItem.get();
     if (!currentItem)
         return false;
 
@@ -911,7 +911,7 @@ Ref<HistoryItem> HistoryController::createItemTree(HistoryItemClient& client, Lo
         // we should copy the documentSequenceNumber over to the newly create
         // item.  Non-target items are just clones, and they should therefore
         // preserve the same itemSequenceNumber.
-        if (RefPtr previousItem = m_previousItem) {
+        if (auto* previousItem = m_previousItem.get()) {
             if (m_frame.ptr() != &targetFrame)
                 item->setItemSequenceNumber(previousItem->itemSequenceNumber());
             item->setDocumentSequenceNumber(previousItem->documentSequenceNumber());

@@ -303,7 +303,7 @@ void FindController::findString(const String& string, OptionSet<FindOptions> opt
 #if ENABLE(PDF_PLUGIN)
     if (pluginView) {
         found = pluginView->findString(string, coreOptions, maxMatchCount);
-        if (RefPtr frame = pluginView->frame(); frame && found)
+        if (auto* frame = pluginView->frame(); frame && found)
             idOfFrameContainingString = frame->frameID();
     } else
 #endif

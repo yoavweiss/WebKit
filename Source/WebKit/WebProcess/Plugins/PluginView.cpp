@@ -553,7 +553,7 @@ void PluginView::paint(GraphicsContext& context, const IntRect& dirtyRect, Widge
             context.drawImage(*image, frameRect());
         } else {
             auto deviceScaleFactor = 1;
-            if (RefPtr page = m_pluginElement->document().page())
+            if (auto* page = m_pluginElement->document().page())
                 deviceScaleFactor = page->deviceScaleFactor();
             transientPaintingSnapshot->paint(context, deviceScaleFactor, frameRect().location(), transientPaintingSnapshot->bounds());
         }
@@ -561,7 +561,7 @@ void PluginView::paint(GraphicsContext& context, const IntRect& dirtyRect, Widge
     }
 
     bool isSnapshotting = [&]() {
-        RefPtr frameView = frame()->view();
+        auto* frameView = frame()->view();
         if (!frameView)
             return false;
 

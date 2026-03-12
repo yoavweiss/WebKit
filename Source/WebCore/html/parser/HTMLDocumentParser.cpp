@@ -177,7 +177,7 @@ inline bool HTMLDocumentParser::shouldDelayEnd() const
 
 void HTMLDocumentParser::didBeginYieldingParser()
 {
-    if (RefPtr parserScheduler = m_parserScheduler)
+    if (auto* parserScheduler = m_parserScheduler.get())
         parserScheduler->didBeginYieldingParser();
 }
 
@@ -213,7 +213,7 @@ void HTMLDocumentParser::pumpTokenizerIfPossible(SynchronousMode mode)
 
 bool HTMLDocumentParser::isScheduledForResume() const
 {
-    RefPtr scheduler = m_parserScheduler;
+    auto* scheduler = m_parserScheduler.get();
     return scheduler && scheduler->isScheduledForResume();
 }
 

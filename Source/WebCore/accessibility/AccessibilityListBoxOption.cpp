@@ -190,10 +190,10 @@ HTMLSelectElement* AccessibilityListBoxOption::listBoxOptionParentNode() const
     if (!m_node)
         return nullptr;
 
-    if (RefPtr option = dynamicDowncast<HTMLOptionElement>(*m_node))
+    if (auto* option = dynamicDowncast<HTMLOptionElement>(*m_node))
         return option->ownerSelectElement();
 
-    if (RefPtr optgroup = dynamicDowncast<HTMLOptGroupElement>(*m_node))
+    if (auto* optgroup = dynamicDowncast<HTMLOptGroupElement>(*m_node))
         return optgroup->ownerSelectElement();
 
     return nullptr;

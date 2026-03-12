@@ -163,7 +163,7 @@ void FrameInspectorController::connectFrontend(Inspector::FrontendChannel& front
     UNUSED_PARAM(isAutomaticInspection);
     UNUSED_PARAM(immediatelyPause);
 
-    if (RefPtr page = m_frame->page())
+    if (auto* page = m_frame->page())
         page->settings().setDeveloperExtrasEnabled(true);
 
     bool connectedFirstFrontend = !m_frontendRouter->hasFrontends();
@@ -216,7 +216,7 @@ void FrameInspectorController::dispatchMessageFromFrontend(const String& message
 
 bool FrameInspectorController::developerExtrasEnabled() const
 {
-    RefPtr page = m_frame->page();
+    auto* page = m_frame->page();
     return page && page->settings().developerExtrasEnabled();
 }
 

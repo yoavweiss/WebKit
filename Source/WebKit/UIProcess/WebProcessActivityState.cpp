@@ -251,7 +251,7 @@ void WebProcessActivityState::takeAccessibilityActivityWhenInWindow()
     bool isCurrentlyInWindow = WTF::switchOn(m_page, [](WeakRef<WebPageProxy> page) -> bool {
         return page->isInWindow();
     }, [](WeakRef<RemotePageProxy> remotePage) -> bool {
-        if (RefPtr page = remotePage->page())
+        if (auto* page = remotePage->page())
             return page->isInWindow();
         return false;
     });

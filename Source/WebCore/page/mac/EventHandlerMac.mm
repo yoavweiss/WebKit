@@ -823,11 +823,11 @@ static bool eventTargetIsPlatformWidget(Element* eventTarget)
 
 static WeakPtr<ScrollableArea> scrollableAreaForContainerNode(ContainerNode& container)
 {
-    CheckedPtr box = container.renderBox();
+    auto* box = container.renderBox();
     if (!box)
         return { };
 
-    CheckedPtr scrollableAreaPtr = scrollableAreaForBox(*box);
+    auto* scrollableAreaPtr = scrollableAreaForBox(*box);
     if (!scrollableAreaPtr)
         return { };
     

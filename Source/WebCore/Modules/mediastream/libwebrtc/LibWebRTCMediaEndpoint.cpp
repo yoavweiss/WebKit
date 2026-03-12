@@ -512,7 +512,7 @@ void LibWebRTCMediaEndpoint::stop()
     if (!m_isClosed)
         close();
 
-    for (Ref stream : m_remoteStreamsById.values())
+    for (auto& stream : m_remoteStreamsById.values())
         stream->inactivate();
     m_remoteStreamsById.clear();
 }

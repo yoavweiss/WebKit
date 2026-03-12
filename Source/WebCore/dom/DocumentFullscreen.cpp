@@ -419,7 +419,7 @@ bool DocumentFullscreen::didEnterFullscreen()
 bool DocumentFullscreen::isSimpleFullscreenDocument() const
 {
     bool foundFullscreenFlag = false;
-    for (Ref element : document().topLayerElements()) {
+    for (auto& element : document().topLayerElements()) {
         if (element->hasFullscreenFlag()) {
             if (foundFullscreenFlag)
                 return false;
@@ -502,7 +502,7 @@ void DocumentFullscreen::exitFullscreen(CompletionHandler<void(ExceptionOr<void>
 
     m_pendingExitFullscreen = true;
     auto resetPendingExitFullscreenScope = makeScopeExit([weakThis = WeakPtr { *this }] {
-        if (RefPtr protectedThis = weakThis.get())
+        if (auto* protectedThis = weakThis.get())
             protectedThis->m_pendingExitFullscreen = false;
     });
 
@@ -701,7 +701,7 @@ void DocumentFullscreen::fullyExitFullscreen()
 
     m_pendingExitFullscreen = true;
     auto resetPendingExitFullscreenScope = makeScopeExit([weakThis = WeakPtr { *this }] {
-        if (RefPtr protectedThis = weakThis.get())
+        if (auto* protectedThis = weakThis.get())
             protectedThis->m_pendingExitFullscreen = false;
     });
 

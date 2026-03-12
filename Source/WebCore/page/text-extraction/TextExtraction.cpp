@@ -138,7 +138,7 @@ using TextAndSelectedRangeMap = HashMap<Ref<Text>, TextAndSelectedRange>;
 
 static bool hasEnclosingAutoFilledInput(Node& node)
 {
-    RefPtr input = dynamicDowncast<HTMLInputElement>(node.shadowHost());
+    auto* input = dynamicDowncast<HTMLInputElement>(node.shadowHost());
     if (!input)
         return false;
 
@@ -463,7 +463,7 @@ enum class SkipExtraction : bool {
 
 static bool shouldTreatAsPasswordField(const Element* element)
 {
-    RefPtr input = dynamicDowncast<HTMLInputElement>(element);
+    auto* input = dynamicDowncast<HTMLInputElement>(element);
     return input && input->hasEverBeenPasswordField();
 }
 
@@ -1745,7 +1745,7 @@ static SelectOptionResult selectOptionByValue(NodeIdentifier identifier, const S
 
 static HTMLElement* documentBodyElement(const LocalFrame& frame)
 {
-    if (RefPtr document = frame.document())
+    if (auto* document = frame.document())
         return document->body();
 
     return nullptr;
@@ -1914,7 +1914,7 @@ static void focusAndInsertText(NodeIdentifier identifier, String&& text, bool re
     if (RefPtr element = dynamicDowncast<Element>(*foundNode); element && element->isTextField())
         elementToFocus = element;
     else if (RefPtr host = foundNode->shadowHost(); host && host->isTextField()) {
-        if (RefPtr formControl = dynamicDowncast<HTMLTextFormControlElement>(host.get()))
+        if (RefPtr formControl = dynamicDowncast<HTMLTextFormControlElement>(host))
             elementToFocus = WTF::move(formControl);
     }
 

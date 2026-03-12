@@ -51,7 +51,7 @@ CachedCSSStyleSheet::CachedCSSStyleSheet(CachedResourceRequest&& request, PAL::S
 
 CachedCSSStyleSheet::~CachedCSSStyleSheet()
 {
-    if (RefPtr parsedStyleSheetCache = m_parsedStyleSheetCache)
+    if (auto* parsedStyleSheetCache = m_parsedStyleSheetCache.get())
         parsedStyleSheetCache->removedFromMemoryCache();
 }
 
@@ -227,7 +227,7 @@ void CachedCSSStyleSheet::saveParsedStyleSheet(Ref<StyleSheetContents>&& sheet)
 {
     ASSERT(sheet->isCacheable());
 
-    if (RefPtr parsedStyleSheetCache = m_parsedStyleSheetCache)
+    if (auto* parsedStyleSheetCache = m_parsedStyleSheetCache.get())
         parsedStyleSheetCache->removedFromMemoryCache();
     m_parsedStyleSheetCache = sheet.copyRef();
     sheet->addedToMemoryCache();

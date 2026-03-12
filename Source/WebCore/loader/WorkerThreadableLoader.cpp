@@ -192,7 +192,7 @@ WorkerThreadableLoader::MainThreadBridge::MainThreadBridge(ThreadableLoaderClien
 
 WorkerThreadableLoader::MainThreadBridge::~MainThreadBridge()
 {
-    if (RefPtr loader = m_mainThreadLoader)
+    if (auto* loader = m_mainThreadLoader.get())
         loader->clearClient();
 }
 

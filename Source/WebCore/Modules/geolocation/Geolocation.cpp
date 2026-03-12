@@ -162,7 +162,7 @@ SecurityOrigin* Geolocation::securityOrigin() const
 
 Page* Geolocation::page() const
 {
-    RefPtr document = this->document();
+    auto* document = this->document();
     return document ? document->page() : nullptr;
 }
     

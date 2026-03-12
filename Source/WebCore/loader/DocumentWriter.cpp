@@ -174,7 +174,7 @@ bool DocumentWriter::begin(const URL& urlReference, bool dispatch, Document* own
     RefPtr<LocalDOMWindow> previousWindow;
     if (shouldReuseDefaultView) {
         ASSERT(frameLoader->documentLoader());
-        if (CheckedPtr contentSecurityPolicy = frameLoader->documentLoader()->contentSecurityPolicy())
+        if (auto* contentSecurityPolicy = frameLoader->documentLoader()->contentSecurityPolicy())
             shouldReuseDefaultView = !contentSecurityPolicy->sandboxFlags().contains(SandboxFlag::Origin);
     } else {
         previousWindow = frame->window();

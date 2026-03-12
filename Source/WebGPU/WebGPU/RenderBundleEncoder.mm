@@ -221,7 +221,7 @@ bool RenderBundleEncoder::replayingCommands() const
 
 id<MTLIndirectRenderCommand> RenderBundleEncoder::currentRenderCommand()
 {
-    if (RefPtr renderPassEncoder = m_renderPassEncoder.get())
+    if (auto* renderPassEncoder = m_renderPassEncoder.get())
         return (id<MTLIndirectRenderCommand>)renderPassEncoder->renderCommandEncoder();
 
     if (m_currentCommand)

@@ -109,9 +109,9 @@ MarqueeDirection RenderMarquee::direction() const
 {
     // FIXME: Support the CSS3 "auto" value for determining the direction of the marquee.
     // For now just map MarqueeDirection::Auto to MarqueeDirection::Backward
-    CheckedRef layer = m_layer.get();
-    auto result = layer->renderer().style().marqueeDirection();
-    auto writingMode = layer->renderer().writingMode();
+    auto& layer = m_layer.get();
+    auto result = layer.renderer().style().marqueeDirection();
+    auto writingMode = layer.renderer().writingMode();
     if (result == MarqueeDirection::Auto)
         result = MarqueeDirection::Backward;
     if (result == MarqueeDirection::Forward)
@@ -122,7 +122,7 @@ MarqueeDirection RenderMarquee::direction() const
     // Now we have the real direction.  Next we check to see if the increment is negative.
     // If so, then we reverse the direction.
     // FIXME: This will fail for `increment` that uses `calc()`, though this can currently never happen due to the property being internal
-    if (auto& increment = layer->renderer().style().marqueeIncrement(); increment.isKnownNegative())
+    if (auto& increment = layer.renderer().style().marqueeIncrement(); increment.isKnownNegative())
         result = reverseDirection(result);
     
     return result;

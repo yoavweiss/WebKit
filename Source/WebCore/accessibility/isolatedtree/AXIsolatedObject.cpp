@@ -391,10 +391,10 @@ void AXIsolatedObject::insertMathPairs(Vector<std::pair<Markable<AXID>, Markable
 {
     for (const auto& pair : isolatedPairs) {
         AccessibilityMathMultiscriptPair prescriptPair;
-        if (RefPtr object = tree().objectForID(pair.first))
-            prescriptPair.first = object.get();
-        if (RefPtr object = tree().objectForID(pair.second))
-            prescriptPair.second = object.get();
+        if (auto* object = tree().objectForID(pair.first))
+            prescriptPair.first = object;
+        if (auto* object = tree().objectForID(pair.second))
+            prescriptPair.second = object;
         pairs.append(prescriptPair);
     }
 }

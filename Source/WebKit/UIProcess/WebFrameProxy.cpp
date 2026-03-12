@@ -190,7 +190,7 @@ RefPtr<ProvisionalFrameProxy> WebFrameProxy::takeProvisionalFrame()
 
 WebProcessProxy& WebFrameProxy::provisionalLoadProcess()
 {
-    if (RefPtr provisionalFrame = m_provisionalFrame)
+    if (auto* provisionalFrame = m_provisionalFrame.get())
         return provisionalFrame->process();
     if (isMainFrame()) {
         if (WeakPtr provisionalPage = m_page ? m_page->provisionalPageProxy() : nullptr)
@@ -877,7 +877,7 @@ RefPtr<WebFrameProxy> WebFrameProxy::childFrame(uint64_t index) const
 
 std::optional<uint64_t> WebFrameProxy::indexInFrameTreeSiblings() const
 {
-    RefPtr parent = m_parentFrame.get();
+    auto* parent = m_parentFrame.get();
     if (!parent)
         return std::nullopt;
     uint64_t index = 0;

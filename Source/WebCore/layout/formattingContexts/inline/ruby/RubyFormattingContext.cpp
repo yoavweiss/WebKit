@@ -148,9 +148,9 @@ size_t RubyFormattingContext::applyRubyAlignOnBaseContent(size_t rubyBaseStart, 
     }
     CheckedRef rubyBaseLayoutBox = runs[rubyBaseStart].layoutBox();
     auto rubyBaseEnd = [&]() -> std::optional<size_t> {
-        CheckedRef rubyBox = rubyBaseLayoutBox->parent();
+        auto& rubyBox = rubyBaseLayoutBox->parent();
         for (auto index = rubyBaseStart + 1; index < runs.size(); ++index) {
-            if (&runs[index].layoutBox().parent() == rubyBox.ptr())
+            if (&runs[index].layoutBox().parent() == &rubyBox)
                 return index;
         }
         // We somehow managed to break content inside the base.

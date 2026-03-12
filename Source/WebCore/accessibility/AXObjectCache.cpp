@@ -167,8 +167,8 @@ static bool isSecureFieldOrContainedBySecureField(AccessibilityObject& object)
 static bool rendererNeedsDeferredUpdate(const RenderObject& renderer)
 {
     AX_ASSERT(!renderer.beingDestroyed());
-    Ref document = renderer.document();
-    return renderer.needsLayout() || document->needsStyleRecalc() || document->inRenderTreeUpdate() || (document->view() && document->view()->layoutContext().isInRenderTreeLayout());
+    auto& document = renderer.document();
+    return renderer.needsLayout() || document.needsStyleRecalc() || document.inRenderTreeUpdate() || (document.view() && document.view()->layoutContext().isInRenderTreeLayout());
 }
 
 static bool NODELETE nodeRendererIsValid(Node& node)
@@ -291,7 +291,7 @@ AXObjectCache::AXObjectCache(LocalFrame& localFrame, Document* document)
 
     // If loading completed before the cache was created, loading progress will have been reset to zero.
     // Consider loading progress to be 100% in this case.
-    if (RefPtr page = localFrame.page()) {
+    if (auto* page = localFrame.page()) {
         m_loadingProgress = page->progress().estimatedProgress();
         m_pageActivityState = page->activityState();
     }
@@ -512,7 +512,7 @@ bool AXObjectCache::isNodeVisible(const Node* node) const
     // Check whether this object or any of its ancestors has opacity 0.
     // The resulting opacity of a RenderObject is computed as the multiplication
     // of its opacity times the opacities of its ancestors.
-    for (CheckedPtr ancestor = renderer; ancestor; ancestor = ancestor->parent()) {
+    for (auto* ancestor = renderer.get(); ancestor; ancestor = ancestor->parent()) {
         if (ancestor->style().opacity().isTransparent())
             return false;
     }
@@ -6001,22 +6001,22 @@ void AXObjectCache::updateRelationsForTree(ContainerNode& rootNode)
 {
     AX_ASSERT(!rootNode.parentNode());
     for (Ref element : descendantsOfType<Element>(rootNode)) {
-        if (!canHaveRelations(element.get()))
+        if (!canHaveRelations(element))
             continue;
 
         if (RefPtr shadowRoot = element->shadowRoot(); shadowRoot && shadowRoot->mode() != ShadowRootMode::UserAgent)
             updateRelationsForTree(*shadowRoot);
-        if (RefPtr frameOwnerElement = dynamicDowncast<HTMLFrameOwnerElement>(element)) {
+        if (RefPtr frameOwnerElement = dynamicDowncast<HTMLFrameOwnerElement>(element.get())) {
             if (RefPtr document = frameOwnerElement->contentDocument())
                 updateRelationsForTree(*document);
         }
 
         for (const auto& attribute : relationAttributes())
-            addRelation(element.get(), attribute);
+            addRelation(element, attribute);
 
         // In addition to ARIA specified relations, there may be other relevant relations.
         // For instance, LabelFor in HTMLLabelElements.
-        addLabelForRelation(element.get());
+        addLabelForRelation(element);
     }
 }
 

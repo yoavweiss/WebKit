@@ -58,7 +58,7 @@ public:
         if (m_object == object)
             return *this;
         m_object = WTF::move(object);
-        if (RefPtr object = m_object)
+        if (auto* object = m_object.get())
             didBind(*object);
         return *this;
     }

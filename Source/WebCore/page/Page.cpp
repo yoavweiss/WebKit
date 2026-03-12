@@ -565,7 +565,7 @@ Page::~Page()
         scrollingCoordinator->pageDestroyed();
 
 #if ENABLE(RESOURCE_USAGE)
-    if (RefPtr resourceUsageOverlay = m_resourceUsageOverlay)
+    if (auto* resourceUsageOverlay = m_resourceUsageOverlay.get())
         resourceUsageOverlay->detachFromPage();
 #endif
 
@@ -607,7 +607,7 @@ uint64_t Page::renderTreeSize() const
 {
     uint64_t total = 0;
     forEachDocument([&] (Document& document) {
-        if (CheckedPtr renderView = document.renderView())
+        if (auto* renderView = document.renderView())
             total += renderView->rendererCount();
     });
     return total;
@@ -632,7 +632,7 @@ void Page::destroyRenderTrees()
 
 OptionSet<DisabledAdaptations> Page::disabledAdaptations() const
 {
-    if (RefPtr localTopDocument = this->localTopDocument())
+    if (auto* localTopDocument = this->localTopDocument())
         return localTopDocument->disabledAdaptations();
     return { };
 }
@@ -970,7 +970,7 @@ void Page::updateTopDocumentSyncData(const DocumentSyncSerializationData& data)
 
 void Page::updateTopDocumentSyncData(Ref<DocumentSyncData>&& data)
 {
-    if (RefPtr localFrame = dynamicDowncast<LocalFrame>(m_mainFrame.get())) {
+    if (auto* localFrame = dynamicDowncast<LocalFrame>(m_mainFrame.get())) {
         // Prefer the main LocalFrame document's data, but if the main LocalFrame
         // has no document, accept the remote pushed data.
         if (localFrame->document())
@@ -2012,9 +2012,9 @@ void Page::setHorizontalScrollElasticity(ScrollElasticity elasticity)
         return;
     
     m_horizontalScrollElasticity = elasticity;
-    
-    RefPtr localMainFrame = this->localMainFrame();
-    if (RefPtr view = localMainFrame ? localMainFrame->view() : nullptr)
+
+    auto* localMainFrame = this->localMainFrame();
+    if (auto* view = localMainFrame ? localMainFrame->view() : nullptr)
         view->setHorizontalScrollElasticity(elasticity);
 }
 
@@ -2603,7 +2603,7 @@ void Page::prioritizeVisibleResources()
             return LoadSchedulingMode::Prioritized;
         
         // Async script execution may generate more resource loads that benefit from prioritization.
-        if (CheckedPtr scriptRunner = localTopDocument->scriptRunnerIfExists(); scriptRunner && scriptRunner->hasPendingScripts())
+        if (auto* scriptRunner = localTopDocument->scriptRunnerIfExists(); scriptRunner && scriptRunner->hasPendingScripts())
             return LoadSchedulingMode::Prioritized;
         
         // We still haven't finished loading the visible resources.
@@ -3138,7 +3138,7 @@ RefPtr<HTMLMediaElement> Page::bestMediaElementForRemoteControls(MediaElementSes
         return !document || &element->document() == document;
     }, purpose);
 
-    if (RefPtr mediaElementSession = dynamicDowncast<MediaElementSession>(selectedSession.get()))
+    if (auto* mediaElementSession = dynamicDowncast<MediaElementSession>(selectedSession.get()))
         return mediaElementSession->element();
 
     return nullptr;
@@ -4361,7 +4361,7 @@ bool Page::useDarkAppearance() const
     if (m_useDarkAppearanceOverride)
         return m_useDarkAppearanceOverride.value();
 
-    if (RefPtr documentLoader = localMainFrame->loader().documentLoader()) {
+    if (auto* documentLoader = localMainFrame->loader().documentLoader()) {
         auto colorSchemePreference = documentLoader->colorSchemePreference();
         if (colorSchemePreference != ColorSchemePreference::NoPreference)
             return colorSchemePreference == ColorSchemePreference::Dark;
@@ -4457,7 +4457,7 @@ LocalFrame* Page::localMainFrame() const
 
 Document* Page::localTopDocument() const
 {
-    if (RefPtr localMainFrame = this->localMainFrame())
+    if (auto* localMainFrame = this->localMainFrame())
         return localMainFrame->document();
     return nullptr;
 }
@@ -5155,7 +5155,7 @@ void Page::setupForRemoteWorker(const URL& scriptURL, const SecurityOriginData& 
     document->setSiteForCookies(originAsURL);
     document->setFirstPartyForCookies(originAsURL);
 
-    if (RefPtr documentLoader = localMainFrame->loader().documentLoader())
+    if (auto* documentLoader = localMainFrame->loader().documentLoader())
         documentLoader->setAdvancedPrivacyProtections(advancedPrivacyProtections);
 
     if (document->settings().storageBlockingPolicy() != StorageBlockingPolicy::BlockThirdParty)

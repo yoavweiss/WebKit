@@ -496,7 +496,7 @@ void WebSWServerToContextConnection::reportNetworkUsageToWorkerClient(const WebC
 
 std::optional<SharedPreferencesForWebProcess> WebSWServerToContextConnection::sharedPreferencesForWebProcess() const
 {
-    if (RefPtr connection = m_connection.get())
+    if (auto* connection = m_connection.get())
         return connection->sharedPreferencesForWebProcess();
 
     return std::nullopt;

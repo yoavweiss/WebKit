@@ -69,7 +69,7 @@ const std::optional<const Styleable> Styleable::fromRenderer(const RenderElement
 {
     auto pseudoElementType = renderer.style().pseudoElementType();
     if (!pseudoElementType) {
-        if (RefPtr element = renderer.element())
+        if (auto* element = renderer.element())
             return fromElement(*element);
         return { };
     }
@@ -105,16 +105,16 @@ const std::optional<const Styleable> Styleable::fromRenderer(const RenderElement
     case PseudoElementType::ViewTransitionImagePair:
     case PseudoElementType::ViewTransitionNew:
     case PseudoElementType::ViewTransitionOld:
-        if (RefPtr documentElement = renderer.document().documentElement())
+        if (auto* documentElement = renderer.document().documentElement())
             return Styleable(*documentElement, renderer.style().pseudoElementIdentifier());
         break;
     case PseudoElementType::ViewTransition:
-        if (RefPtr documentElement = renderer.document().documentElement())
+        if (auto* documentElement = renderer.document().documentElement())
             return Styleable(*documentElement, Style::PseudoElementIdentifier { PseudoElementType::ViewTransition });
         break;
     case PseudoElementType::After:
     case PseudoElementType::Before:
-        if (RefPtr element = renderer.element())
+        if (auto* element = renderer.element())
             return fromElement(*element);
         break;
     default:
@@ -579,7 +579,7 @@ static void updateCSSTransitionsForStyleableAndProperty(const Styleable& styleab
     RefPtr animation = keyframeEffect ? keyframeEffect->animation() : nullptr;
 
     bool isDeclarative = false;
-    if (RefPtr styleOriginatedAnimation = dynamicDowncast<StyleOriginatedAnimation>(animation.get())) {
+    if (auto* styleOriginatedAnimation = dynamicDowncast<StyleOriginatedAnimation>(animation.get())) {
         if (auto owningElement = styleOriginatedAnimation->owningElement())
             isDeclarative = *owningElement == styleable;
     }

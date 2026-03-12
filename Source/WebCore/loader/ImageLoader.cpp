@@ -527,7 +527,7 @@ void ImageLoader::notifyFinished(CachedResource& resource, const NetworkLoadMetr
 
 RenderImageResource* ImageLoader::renderImageResource()
 {
-    CheckedPtr renderer = element().renderer();
+    auto* renderer = element().renderer();
     if (!renderer)
         return nullptr;
 
