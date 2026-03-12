@@ -1373,9 +1373,9 @@ Style::MinimumSizePair RenderTheme::minimumControlSize(StyleAppearance appearanc
 
     // Other StyleAppearance types are composed controls with shadow subtree.
     if (appearance == StyleAppearance::Radio || appearance == StyleAppearance::Checkbox) {
-        if (minSize.width().isIntrinsicOrLegacyIntrinsicOrAuto())
+        if (minSize.width().isSizingKeywordOrAuto())
             resultWidth = preferredSize.width().asMinimumSize();
-        if (minSize.height().isIntrinsicOrLegacyIntrinsicOrAuto())
+        if (minSize.height().isSizingKeywordOrAuto())
             resultHeight = preferredSize.height().asMinimumSize();
     }
 

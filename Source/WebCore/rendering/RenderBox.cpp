@@ -2326,7 +2326,7 @@ LayoutRect RenderBox::clipRect(const LayoutPoint& location) const
 }
 
 LayoutUnit RenderBox::shrinkLogicalWidthToAvoidFloats(LayoutUnit childMarginStart, LayoutUnit childMarginEnd, const RenderBlock& containingBlock) const
-{    
+{
     LayoutUnit logicalTopPosition = logicalTop();
     LayoutUnit logicalHeight = containingBlock.logicalHeightForChild(*this);
     LayoutUnit result = containingBlock.availableLogicalWidthForLine(logicalTopPosition, logicalHeight) - childMarginStart - childMarginEnd;
@@ -4140,7 +4140,7 @@ template<typename SizeType> LayoutUnit RenderBox::computeOutOfFlowPositionedLogi
             auto preferredMinWidth = minPreferredLogicalWidth() - inlineConstraints.bordersPlusPadding();
             return std::min(std::max(preferredMinWidth, inlineConstraints.availableContentSpace()), preferredWidth);
         }
-        return std::max(0_lu, inlineConstraints.availableContentSpace());
+        return inlineConstraints.availableContentSpace();
     };
 
     auto intrinsic = [&](const auto& keyword) -> LayoutUnit {
@@ -4281,7 +4281,7 @@ LayoutUnit RenderBox::computeOutOfFlowPositionedLogicalHeightUsing(const Style::
 
     bool shrinkToFit = blockConstraints.insetFitsContent() || !blockConstraints.alignmentAppliesStretch(ItemPosition::Stretch);
     if (!shrinkToFit)
-        return std::max<LayoutUnit>(0, blockConstraints.availableContentSpace());
+        return blockConstraints.availableContentSpace();
 
     return contentLogicalHeight;
 }

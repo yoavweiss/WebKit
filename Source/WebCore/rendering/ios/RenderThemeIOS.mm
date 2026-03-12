@@ -134,7 +134,7 @@ void RenderThemeIOS::adjustCheckboxStyle(RenderStyle& style, const Element*) con
 {
     adjustMinimumIntrinsicSizeForAppearance(StyleAppearance::Checkbox, style);
 
-    if (!style.width().isIntrinsicOrLegacyIntrinsicOrAuto() && !style.height().isAuto())
+    if (!style.width().isSizingKeywordOrAuto() && !style.height().isAuto())
         return;
 
     auto size = Style::PreferredSize::Fixed { std::max(style.computedFontSize(), 10.f) };
@@ -226,7 +226,7 @@ void RenderThemeIOS::adjustRadioStyle(RenderStyle& style, const Element*) const
 {
     adjustMinimumIntrinsicSizeForAppearance(StyleAppearance::Radio, style);
 
-    if (!style.width().isIntrinsicOrLegacyIntrinsicOrAuto() && !style.height().isAuto())
+    if (!style.width().isSizingKeywordOrAuto() && !style.height().isAuto())
         return;
 
     auto size = std::max(style.computedFontSize(), 10.0f);
@@ -762,7 +762,7 @@ void RenderThemeIOS::adjustSliderThumbSize(RenderStyle& style, const Element* el
     style.setBorderRadius({ 50_css_percentage, 50_css_percentage });
 
     // Enforce a 16x16 size if no size is provided.
-    if (style.width().isIntrinsicOrLegacyIntrinsicOrAuto() || style.height().isAuto()) {
+    if (style.width().isSizingKeywordOrAuto() || style.height().isAuto()) {
         style.setWidth(defaultSliderThumbSize);
         style.setHeight(defaultSliderThumbSize);
     }
@@ -952,7 +952,7 @@ void RenderThemeIOS::adjustButtonStyle(RenderStyle& style, const Element* elemen
     // If no size is specified, ensure the height of the button matches ControlBaseHeight scaled
     // with the font size. min-height is used rather than height to avoid clipping the contents of
     // the button in cases where the button contains more than one line of text.
-    if (style.logicalWidth().isIntrinsicOrLegacyIntrinsicOrAuto() || style.logicalHeight().isAuto()) {
+    if (style.logicalWidth().isSizingKeywordOrAuto() || style.logicalHeight().isAuto()) {
         auto minimumHeight = ControlBaseHeight / ControlBaseFontSize * style.fontDescription().computedSize();
         if (auto fixedLogicalMinHeight = style.logicalMinHeight().tryFixed())
             minimumHeight = std::max(minimumHeight, fixedLogicalMinHeight->resolveZoom(style.usedZoomForLength()));

@@ -117,7 +117,7 @@ static void addIntrinsicMargins(RenderStyle& style)
 
     // FIXME: Using width/height alone and not also dealing with min-width/max-width is flawed.
     // FIXME: Using "hasQuirk" to decide the margin wasn't set is kind of lame.
-    if (style.width().isIntrinsicOrLegacyIntrinsicOrAuto()) {
+    if (style.width().isSizingKeywordOrAuto()) {
         if (style.marginLeft().hasQuirk())
             style.setMarginLeft(intrinsicMargin);
         if (style.marginRight().hasQuirk())

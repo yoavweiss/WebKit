@@ -3517,7 +3517,7 @@ bool RenderThemeCocoa::adjustSliderThumbSizeForVectorBasedControls(RenderStyle& 
     const auto usedZoom = usedZoomForComputedStyle(style);
 
     // Enforce a 24x16 size (16x24 in vertical mode) if no size is provided.
-    if (style.width().isIntrinsicOrLegacyIntrinsicOrAuto() || style.height().isAuto()) {
+    if (style.width().isSizingKeywordOrAuto() || style.height().isAuto()) {
         style.setWidth(Style::PreferredSize::Fixed { sliderThumbWidthForLayout * usedZoom });
         style.setHeight(Style::PreferredSize::Fixed { sliderThumbHeightForLayout * usedZoom });
     }
@@ -3911,7 +3911,7 @@ bool RenderThemeCocoa::adjustSwitchStyleForVectorBasedControls(RenderStyle& styl
         return false;
 
     // FIXME: Deduplicate sizing with the generic code somehow.
-    if (style.width().isIntrinsicOrLegacyIntrinsicOrAuto() || style.height().isIntrinsicOrLegacyIntrinsicOrAuto()) {
+    if (style.width().isSizingKeywordOrAuto() || style.height().isSizingKeywordOrAuto()) {
         auto usedZoom = usedZoomForComputedStyle(style);
         setLogicalWidthForSwitch(style, usedZoom);
         style.setLogicalHeight(Style::PreferredSize::Fixed { logicalSwitchHeight * usedZoom });

@@ -83,7 +83,7 @@ public:
 
     LayoutUnit insetModifiedContainingSize() const { return m_insetModifiedContainingRange.size(); }
     LayoutRange insetModifiedContainingRange() const { return m_insetModifiedContainingRange; }
-    LayoutUnit availableContentSpace() const { return insetModifiedContainingSize() - marginBeforeValue() - bordersPlusPadding() - marginAfterValue(); } // This may be negative.
+    LayoutUnit availableContentSpace() const { return std::max(0_lu, insetModifiedContainingSize() - marginBeforeValue() - bordersPlusPadding() - marginAfterValue()); }
 
     void resolvePosition(RenderBox::LogicalExtentComputedValues&) const;
     LayoutUnit resolveAlignmentShift(const LayoutUnit unusedSpace, const LayoutUnit itemSize) const;
