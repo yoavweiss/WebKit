@@ -218,6 +218,21 @@ static std::optional<Exception> validateSendEncodings(Vector<RTCRtpEncodingParam
     return { };
 }
 
+// https://w3c.github.io/webrtc-pc/#dfn-addtransceiver-sendencodings-validation-steps (partial implementation).
+static std::optional<Exception> validateRTCRtpTransceiverInitSendEncodings(const RTCRtpTransceiverInit& init)
+{
+    for (auto& encoding : init.sendEncodings) {
+        if (encoding.rid.length() > 16)
+            return Exception { ExceptionCode::TypeError, "Rid is too long"_s };
+        bool hasInvalidCharacter = encoding.rid.find([](auto character) {
+            return !isASCIIAlphanumeric(character) && character != '-' && character != '_';
+        }) != notFound;
+        if (hasInvalidCharacter)
+            return Exception { ExceptionCode::TypeError, "Rid contains invalid character(s)"_s };
+    }
+    return { };
+}
+
 ExceptionOr<Ref<RTCRtpTransceiver>> RTCPeerConnection::addTransceiver(AddTransceiverTrackOrKind&& withTrack, RTCRtpTransceiverInit&& init)
 {
     INFO_LOG(LOGIDENTIFIER);
@@ -228,10 +243,13 @@ ExceptionOr<Ref<RTCRtpTransceiver>> RTCPeerConnection::addTransceiver(AddTransce
     if (std::holds_alternative<String>(withTrack)) {
         const String& kind = std::get<String>(withTrack);
         if (kind != "audio"_s && kind != "video"_s)
-            return Exception { ExceptionCode::TypeError };
+            return Exception { ExceptionCode::TypeError, "Kind should be audio or video"_s };
 
         if (isClosed())
-            return Exception { ExceptionCode::InvalidStateError };
+            return Exception { ExceptionCode::InvalidStateError, "RTCPeerConnection is closed"_s };
+
+        if (auto exception = validateRTCRtpTransceiverInitSendEncodings(init))
+            return WTF::move(*exception);
 
         return protect(*m_backend)->addTransceiver(kind, init, PeerConnectionBackend::IgnoreNegotiationNeededFlag::No);
     }
