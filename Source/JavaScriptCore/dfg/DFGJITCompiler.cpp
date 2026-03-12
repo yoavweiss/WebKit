@@ -286,7 +286,8 @@ void JITCompiler::link(LinkBuffer& linkBuffer)
     m_jitCode->m_unlinkedPropertyInlineCaches = FixedVector<UnlinkedPropertyInlineCache>(m_unlinkedPropertyInlineCaches.size());
     if (m_jitCode->m_unlinkedPropertyInlineCaches.size())
         std::move(m_unlinkedPropertyInlineCaches.begin(), m_unlinkedPropertyInlineCaches.end(), m_jitCode->m_unlinkedPropertyInlineCaches.begin());
-    ASSERT(m_jitCode->common.m_propertyInlineCaches.isEmpty());
+    ASSERT(m_jitCode->common.m_handlerPropertyInlineCaches.isEmpty());
+    ASSERT(m_jitCode->common.m_repatchingPropertyInlineCaches.isEmpty());
 #endif
 
     for (auto& record : m_jsDirectCalls) {
@@ -556,7 +557,7 @@ void JITCompiler::loadConstant(LinkerIR::Constant index, GPRReg dest)
 void JITCompiler::loadPropertyInlineCache(PropertyInlineCacheIndex index, GPRReg dest)
 {
 #if USE(JSVALUE64)
-    subPtr(GPRInfo::jitDataRegister, TrustedImm32(static_cast<uintptr_t>(index.m_index + 1) * sizeof(PropertyInlineCache)), dest);
+    subPtr(GPRInfo::jitDataRegister, TrustedImm32(static_cast<uintptr_t>(index.m_index + 1) * sizeof(HandlerPropertyInlineCache)), dest);
 #else
     UNUSED_PARAM(index);
     UNUSED_PARAM(dest);
@@ -640,7 +641,7 @@ std::tuple<CompileTimePropertyInlineCache, PropertyInlineCacheIndex> JITCompiler
     DFG::UnlinkedPropertyInlineCache* propertyCache = &m_unlinkedPropertyInlineCaches.alloc();
     return std::tuple { propertyCache, PropertyInlineCacheIndex { index } };
 #else
-    PropertyInlineCache* propertyCache = jitCode()->common.m_propertyInlineCaches.add();
+    PropertyInlineCache* propertyCache = jitCode()->common.m_handlerPropertyInlineCaches.add();
     return std::tuple { propertyCache, PropertyInlineCacheIndex(0) };
 #endif
 }

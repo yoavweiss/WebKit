@@ -20,7 +20,7 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #pragma once
@@ -42,9 +42,10 @@
 #include <wtf/Lock.h>
 #include <wtf/TZoneMalloc.h>
 
-namespace JSC {
 
 #if ENABLE(JIT)
+
+namespace JSC {
 
 namespace DFG {
 struct UnlinkedPropertyInlineCache;
@@ -98,23 +99,18 @@ enum class AccessType : int8_t {
 static constexpr unsigned numberOfAccessTypes = 0 JSC_FOR_EACH_PROPERTY_INLINE_CACHE_ACCESS_TYPE(JSC_INCREMENT_ACCESS_TYPE);
 #undef JSC_INCREMENT_ACCESS_TYPE
 
+enum class PropertyInlineCacheType : uint8_t { Handler, Repatching };
+
 struct UnlinkedPropertyInlineCache;
 struct BaselineUnlinkedPropertyInlineCache;
+
+class HandlerPropertyInlineCache;
+class RepatchingPropertyInlineCache;
 
 class PropertyInlineCache {
     WTF_MAKE_NONCOPYABLE(PropertyInlineCache);
     WTF_MAKE_TZONE_ALLOCATED(PropertyInlineCache);
 public:
-    PropertyInlineCache(AccessType accessType, CodeOrigin codeOrigin)
-        : codeOrigin(codeOrigin)
-        , accessType(accessType)
-        , bufferingCountdown(Options::initialRepatchBufferingCountdown())
-    {
-    }
-
-    PropertyInlineCache()
-        : PropertyInlineCache(AccessType::GetById, { })
-    { }
 
     ~PropertyInlineCache();
 
@@ -131,8 +127,6 @@ public:
     void deref();
     void aboutToDie();
 
-    void initializeFromUnlinkedPropertyInlineCache(VM&, CodeBlock*, const BaselineUnlinkedPropertyInlineCache&);
-    void initializeFromDFGUnlinkedPropertyInlineCache(CodeBlock*, const DFG::UnlinkedPropertyInlineCache&);
     void initializePredefinedRegisters();
 
     DECLARE_VISIT_AGGREGATE;
@@ -140,26 +134,17 @@ public:
     // Check if the stub has weak references that are dead. If it does, then it resets itself,
     // either entirely or just enough to ensure that those dead pointers don't get used anymore.
     void visitWeak(const ConcurrentJSLockerBase&, CodeBlock*);
-    
+
     // This returns true if it has marked everything that it will ever mark.
     template<typename Visitor> void propagateTransitions(Visitor&);
-        
+
     PropertyInlineCacheSummary summary(const ConcurrentJSLocker&, VM&) const;
-    
+
     static PropertyInlineCacheSummary summary(const ConcurrentJSLocker&, VM&, const PropertyInlineCache*);
 
     CacheableIdentifier identifier() const { return m_identifier; }
 
     bool containsPC(void* pc) const;
-
-    uint32_t inlineCodeSize() const
-    {
-        if (useHandlerIC)
-            return 0;
-        int32_t inlineSize = MacroAssembler::differenceBetweenCodePtr(startLocation, doneLocation);
-        ASSERT(inlineSize >= 0);
-        return inlineSize;
-    }
 
     JSValueRegs valueRegs() const
     {
@@ -189,6 +174,8 @@ public:
     }
 
     bool thisValueIsInExtraGPR() const { return accessType == AccessType::GetByIdWithThis || accessType == AccessType::GetByValWithThis; }
+
+    bool isHandlerIC() const { return m_icType == PropertyInlineCacheType::Handler; }
 
 #if ASSERT_ENABLED
     void checkConsistency();
@@ -241,7 +228,7 @@ private:
     {
         AssertNoGC assertNoGC;
 
-        
+
         // This method is called from the Optimize variants of IC slow paths. The first part of this
         // method tries to determine if the Optimize variant should really behave like the
         // non-Optimize variant and leave the IC untouched.
@@ -250,7 +237,7 @@ private:
         // to determine if this Structure would impact the IC at all. We know that it won't, if we
         // have already buffered something on its behalf. That's what the m_bufferedStructures set is
         // for.
-        
+
         everConsidered = true;
         if (!countdown) {
             // Check if we have been doing repatching too frequently. If so, then we should cool off
@@ -268,12 +255,12 @@ private:
                     numberOfCoolDowns,
                     static_cast<uint8_t>(std::numeric_limits<uint8_t>::max() - 1));
                 WTF::incrementWithSaturation(numberOfCoolDowns);
-                
+
                 // We may still have had something buffered. Trigger generation now.
                 bufferingCountdown = 0;
                 return true;
             }
-            
+
             // We don't want to return false due to buffering indefinitely.
             if (!bufferingCountdown) {
                 // Note that when this returns true, it's possible that we will not even get an
@@ -281,12 +268,12 @@ private:
                 // repatching.
                 return true;
             }
-            
+
             bufferingCountdown--;
 
             if (!structure)
                 return true;
-            
+
             // Now protect the IC buffering. We want to proceed only if this is a structure that
             // we don't already have a case buffered for. Note that if this returns true but the
             // bufferingCountdown is not zero then we will buffer the access case for later without
@@ -348,8 +335,19 @@ private:
             });
     }
 
-    void setInlinedHandler(CodeBlock*, Ref<InlineCacheHandler>&&);
-    void clearInlinedHandler(CodeBlock*);
+protected:
+    PropertyInlineCache(PropertyInlineCacheType icType, AccessType accessType, CodeOrigin codeOrigin)
+        : codeOrigin(codeOrigin)
+        , accessType(accessType)
+        , bufferingCountdown(Options::initialRepatchBufferingCountdown())
+        , m_icType(icType)
+    {
+    }
+
+    PropertyInlineCache(PropertyInlineCacheType icType)
+        : PropertyInlineCache(icType, AccessType::GetById, { })
+    { }
+
     void initializeWithUnitHandler(CodeBlock*, Ref<InlineCacheHandler>&&);
     void prependHandler(CodeBlock*, Ref<InlineCacheHandler>&&, bool isMegamorphic);
     void rewireStubAsJumpInAccess(CodeBlock*, Ref<InlineCacheHandler>&&);
@@ -359,10 +357,9 @@ public:
     static constexpr ptrdiff_t offsetOfInlineAccessBaseStructureID() { return OBJECT_OFFSETOF(PropertyInlineCache, m_inlineAccessBaseStructureID); }
     static constexpr ptrdiff_t offsetOfInlineHolder() { return OBJECT_OFFSETOF(PropertyInlineCache, m_inlineHolder); }
     static constexpr ptrdiff_t offsetOfDoneLocation() { return OBJECT_OFFSETOF(PropertyInlineCache, doneLocation); }
-    static constexpr ptrdiff_t offsetOfSlowPathStartLocation() { return OBJECT_OFFSETOF(PropertyInlineCache, slowPathStartLocation); }
-    static constexpr ptrdiff_t offsetOfSlowOperation() { return OBJECT_OFFSETOF(PropertyInlineCache, m_slowOperation); }
     static constexpr ptrdiff_t offsetOfCountdown() { return OBJECT_OFFSETOF(PropertyInlineCache, countdown); }
     static constexpr ptrdiff_t offsetOfCallSiteIndex() { return OBJECT_OFFSETOF(PropertyInlineCache, callSiteIndex); }
+    static constexpr ptrdiff_t offsetOfSlowPathStartLocation() { return OBJECT_OFFSETOF(PropertyInlineCache, slowPathStartLocation); }
     static constexpr ptrdiff_t offsetOfHandler() { return OBJECT_OFFSETOF(PropertyInlineCache, m_handler); }
     static constexpr ptrdiff_t offsetOfGlobalObject() { return OBJECT_OFFSETOF(PropertyInlineCache, m_globalObject); }
 
@@ -402,21 +399,14 @@ public:
     WriteBarrierStructureID m_inlineAccessBaseStructureID;
     JSCell* m_inlineHolder { nullptr };
     CacheableIdentifier m_identifier;
-    // This is either the start of the inline IC for *byId caches. or the location of patchable jump for 'instanceof' caches.
-    // If useHandlerIC is true, then it is nullptr.
-    CodeLocationLabel<JITStubRoutinePtrTag> startLocation;
     CodeLocationLabel<JSInternalPtrTag> doneLocation;
     CodeLocationLabel<JITStubRoutinePtrTag> slowPathStartLocation;
 
-    union {
-        CodeLocationCall<JSInternalPtrTag> m_slowPathCallLocation;
-        CodePtr<OperationPtrTag> m_slowOperation;
-    };
-
     JSGlobalObject* m_globalObject { nullptr };
 private:
-    std::unique_ptr<PolymorphicAccess> m_stub;
-    RefPtr<InlineCacheHandler> m_inlinedHandler;
+    // Handler chain: used by both modes. Handler IC uses this as the main dispatch chain
+    // (accessed from JIT via offsetOfHandler()). Repatching IC uses it in
+    // rewireStubAsJumpInAccess() and initializeWithUnitHandler().
     RefPtr<InlineCacheHandler> m_handler;
     // Represents those structures that already have buffered AccessCases in the PolymorphicAccess.
     // Note that it's always safe to clear this. If we clear it prematurely, then if we see the same
@@ -429,6 +419,7 @@ public:
 
     CallSiteIndex callSiteIndex;
 
+    // FIXME: These should only be needed by the repatching ICs but it's slightly non-trivial to move them there as different AccessTypes use different pinned registers.
     GPRReg m_baseGPR { InvalidGPRReg };
     GPRReg m_valueGPR { InvalidGPRReg };
     GPRReg m_extraGPR { InvalidGPRReg };
@@ -445,7 +436,7 @@ public:
 #endif
 
     AccessType accessType { AccessType::GetById };
-private:
+protected:
     CacheType m_cacheType { CacheType::Unset };
 public:
     CacheType preconfiguredCacheType { CacheType::Unset };
@@ -467,13 +458,59 @@ public:
     bool propertyIsInt32 : 1 { false };
     bool propertyIsSymbol : 1 { false };
     bool canBeMegamorphic : 1 { false };
-    bool useHandlerIC : 1 { false };
+    const PropertyInlineCacheType m_icType : 1;
 };
 
-inline CodeOrigin getPropertyInlineCacheCodeOrigin(PropertyInlineCache& propertyInlineCache)
-{
-    return propertyInlineCache.codeOrigin;
-}
+// HandlerPropertyInlineCache: Used by Baseline JIT and DFG.
+// Data-only dispatch through a handler chain — code is never rewritten.
+class HandlerPropertyInlineCache final : public PropertyInlineCache {
+    WTF_MAKE_NONCOPYABLE(HandlerPropertyInlineCache);
+public:
+    HandlerPropertyInlineCache()
+        : PropertyInlineCache(PropertyInlineCacheType::Handler)
+    { }
+
+    HandlerPropertyInlineCache(AccessType accessType, CodeOrigin codeOrigin)
+        : PropertyInlineCache(PropertyInlineCacheType::Handler, accessType, codeOrigin)
+    { }
+
+    void initializeFromUnlinkedPropertyInlineCache(VM&, CodeBlock*, const BaselineUnlinkedPropertyInlineCache&);
+    void initializeFromDFGUnlinkedPropertyInlineCache(CodeBlock*, const DFG::UnlinkedPropertyInlineCache&);
+
+    void setInlinedHandler(CodeBlock*, Ref<InlineCacheHandler>&&);
+    void clearInlinedHandler(CodeBlock*);
+
+    static constexpr ptrdiff_t offsetOfSlowOperation() { return OBJECT_OFFSETOF(HandlerPropertyInlineCache, m_slowOperation); }
+
+    CodePtr<OperationPtrTag> m_slowOperation;
+    RefPtr<InlineCacheHandler> m_inlinedHandler;
+};
+
+// RepatchingPropertyInlineCache: Used by FTL (when handler IC is not enabled) and 32-bit DFG.
+// Classic inline cache where code is recompiled/repatched on the fly.
+class RepatchingPropertyInlineCache final : public PropertyInlineCache {
+    WTF_MAKE_NONCOPYABLE(RepatchingPropertyInlineCache);
+public:
+    RepatchingPropertyInlineCache()
+        : PropertyInlineCache(PropertyInlineCacheType::Repatching)
+    { }
+
+    RepatchingPropertyInlineCache(AccessType accessType, CodeOrigin codeOrigin)
+        : PropertyInlineCache(PropertyInlineCacheType::Repatching, accessType, codeOrigin)
+    { }
+
+    // This is either the start of the inline IC for *byId caches, or the location of patchable jump for 'instanceof' caches.
+    CodeLocationLabel<JITStubRoutinePtrTag> startLocation;
+    CodeLocationCall<JSInternalPtrTag> m_slowPathCallLocation;
+    std::unique_ptr<PolymorphicAccess> m_stub;
+
+    uint32_t inlineCodeSize() const
+    {
+        int32_t inlineSize = MacroAssembler::differenceBetweenCodePtr(startLocation, doneLocation);
+        ASSERT(inlineSize >= 0);
+        return inlineSize;
+    }
+};
 
 inline auto appropriateGetByIdOptimizeFunction(AccessType type) -> decltype(&operationGetByIdOptimize)
 {
@@ -591,13 +628,23 @@ struct BaselineUnlinkedPropertyInlineCache : JSC::UnlinkedPropertyInlineCache {
     BytecodeIndex bytecodeIndex;
 };
 
-#endif
-
 } // namespace JSC
 
-namespace WTF {
+SPECIALIZE_TYPE_TRAITS_BEGIN(JSC::HandlerPropertyInlineCache)
+    static bool isType(const JSC::PropertyInlineCache& cache)
+    {
+        return cache.isHandlerIC();
+    }
+SPECIALIZE_TYPE_TRAITS_END()
 
-#if ENABLE(JIT)
+SPECIALIZE_TYPE_TRAITS_BEGIN(JSC::RepatchingPropertyInlineCache)
+    static bool isType(const JSC::PropertyInlineCache& cache)
+    {
+        return !cache.isHandlerIC();
+    }
+SPECIALIZE_TYPE_TRAITS_END()
+
+namespace WTF {
 
 template<typename T> struct DefaultHash;
 template<> struct DefaultHash<JSC::AccessType> : public IntHash<JSC::AccessType> { };
@@ -605,6 +652,6 @@ template<> struct DefaultHash<JSC::AccessType> : public IntHash<JSC::AccessType>
 template<typename T> struct HashTraits;
 template<> struct HashTraits<JSC::AccessType> : public StrongEnumHashTraits<JSC::AccessType> { };
 
-#endif
-
 } // namespace WTF
+
+#endif // ENABLE(JIT)

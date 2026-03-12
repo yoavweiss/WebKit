@@ -323,11 +323,11 @@ void ftlThunkAwareRepatchCall(CodeBlock* codeBlock, CodeLocationCall<JSInternalP
 
 static void repatchSlowPathCall(CodeBlock* codeBlock, PropertyInlineCache& propertyCache, CodePtr<CFunctionPtrTag> newCalleeFunction)
 {
-    if (propertyCache.useHandlerIC) {
-        propertyCache.m_slowOperation = newCalleeFunction.retagged<OperationPtrTag>();
+    if (auto* handlerIC = dynamicDowncast<HandlerPropertyInlineCache>(propertyCache)) {
+        handlerIC->m_slowOperation = newCalleeFunction.retagged<OperationPtrTag>();
         return;
     }
-    ftlThunkAwareRepatchCall(codeBlock, propertyCache.m_slowPathCallLocation, newCalleeFunction);
+    ftlThunkAwareRepatchCall(codeBlock, downcast<RepatchingPropertyInlineCache>(propertyCache).m_slowPathCallLocation, newCalleeFunction);
 }
 
 enum InlineCacheAction {

@@ -132,7 +132,9 @@ public:
     FixedVector<JumpReplacement> m_jumpReplacements;
     FixedVector<std::unique_ptr<BoyerMooreHorspoolTable<uint8_t>>> m_stringSearchTable8;
     FixedVector<std::unique_ptr<ConcatKeyAtomStringCache>> m_concatKeyAtomStringCaches;
-    Bag<PropertyInlineCache> m_propertyInlineCaches;
+    // FIXME: These seem like they should be FixedVectors.
+    Bag<HandlerPropertyInlineCache> m_handlerPropertyInlineCaches;
+    Bag<RepatchingPropertyInlineCache> m_repatchingPropertyInlineCaches;
     Bag<OptimizingCallLinkInfo> m_callLinkInfos;
     Bag<DirectCallLinkInfo> m_directCallLinkInfos;
     Yarr::YarrBoyerMooreData m_boyerMooreData;

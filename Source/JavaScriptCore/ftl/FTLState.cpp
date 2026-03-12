@@ -170,9 +170,9 @@ State::~State() = default;
 PropertyInlineCache* State::addPropertyInlineCache()
 {
     ASSERT(!graph.m_plan.isUnlinked());
-    auto* propertyCache = jitCode->common.m_propertyInlineCaches.add();
-    propertyCache->useHandlerIC = Options::useHandlerICInFTL();
-    return propertyCache;
+    if (Options::useHandlerICInFTL())
+        return jitCode->common.m_handlerPropertyInlineCaches.add();
+    return jitCode->common.m_repatchingPropertyInlineCaches.add();
 }
 
 OptimizingCallLinkInfo* State::addCallLinkInfo(CodeOrigin codeOrigin)

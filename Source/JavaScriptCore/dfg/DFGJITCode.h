@@ -153,10 +153,10 @@ private:
     FixedVector<Value> m_constants;
 };
 
-class JITData final : public ButterflyArray<JITData, PropertyInlineCache, void*> {
+class JITData final : public ButterflyArray<JITData, HandlerPropertyInlineCache, void*> {
     friend class JSC::LLIntOffsetsExtractor;
 public:
-    using Base = ButterflyArray<JITData, PropertyInlineCache, void*>;
+    using Base = ButterflyArray<JITData, HandlerPropertyInlineCache, void*>;
     using ExitVector = FixedVector<MacroAssemblerCodeRef<OSRExitPtrTag>>;
 
     static constexpr ptrdiff_t offsetOfExits() { return OBJECT_OFFSETOF(JITData, m_exits); }
@@ -182,7 +182,7 @@ public:
         return leadingSpan();
     }
 
-    PropertyInlineCache& propertyCache(unsigned index)
+    HandlerPropertyInlineCache& propertyCache(unsigned index)
     {
         auto span = propertyInlineCaches();
         return span[span.size() - index - 1];

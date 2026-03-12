@@ -115,10 +115,10 @@ public:
     bool m_isShareable { true };
 };
 
-class BaselineJITData final : public ButterflyArray<BaselineJITData, PropertyInlineCache, void*> {
+class BaselineJITData final : public ButterflyArray<BaselineJITData, HandlerPropertyInlineCache, void*> {
     friend class LLIntOffsetsExtractor;
 public:
-    using Base = ButterflyArray<BaselineJITData, PropertyInlineCache, void*>;
+    using Base = ButterflyArray<BaselineJITData, HandlerPropertyInlineCache, void*>;
 
     static std::unique_ptr<BaselineJITData> create(unsigned propertyCacheSize, unsigned poolSize, CodeBlock* codeBlock)
     {
@@ -133,7 +133,7 @@ public:
     static constexpr ptrdiff_t offsetOfJITExecutionActiveThreshold() { return OBJECT_OFFSETOF(BaselineJITData, m_executeCounter) + OBJECT_OFFSETOF(BaselineExecutionCounter, m_activeThreshold); }
     static constexpr ptrdiff_t offsetOfJITExecutionTotalCount() { return OBJECT_OFFSETOF(BaselineJITData, m_executeCounter) + OBJECT_OFFSETOF(BaselineExecutionCounter, m_totalCount); }
 
-    PropertyInlineCache& propertyCache(unsigned index)
+    HandlerPropertyInlineCache& propertyCache(unsigned index)
     {
         auto span = propertyInlineCaches();
         return span[span.size() - index - 1];

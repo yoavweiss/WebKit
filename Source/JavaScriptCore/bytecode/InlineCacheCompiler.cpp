@@ -1023,7 +1023,7 @@ void InlineCacheCompiler::restoreScratch()
 
 inline bool InlineCacheCompiler::useHandlerIC() const
 {
-    return m_propertyCache.useHandlerIC;
+    return m_propertyCache.isHandlerIC();
 }
 
 void InlineCacheCompiler::succeed()
@@ -1034,7 +1034,7 @@ void InlineCacheCompiler::succeed()
         m_jit->ret();
         return;
     }
-    if (m_propertyCache.useHandlerIC) {
+    if (m_propertyCache.isHandlerIC()) {
         m_jit->farJump(CCallHelpers::Address(m_propertyCache.m_propertyCacheGPR, PropertyInlineCache::offsetOfDoneLocation()), JSInternalPtrTag);
         return;
     }
@@ -1076,7 +1076,7 @@ const ScalarRegisterSet& InlineCacheCompiler::calculateLiveRegistersForCallAndEx
         }
 
         auto liveRegistersForCall = RegisterSet(m_liveRegistersToPreserveAtExceptionHandlingCallSite.toRegisterSet(), m_allocator->usedRegisters());
-        if (m_propertyCache.useHandlerIC)
+        if (m_propertyCache.isHandlerIC())
             liveRegistersForCall.add(m_propertyCache.m_propertyCacheGPR, IgnoreVectors);
         liveRegistersForCall.exclude(calleeSaveRegisters().includeWholeRegisterWidth());
         m_liveRegistersForCall = liveRegistersForCall.toScalarRegisterSet();
@@ -1107,7 +1107,7 @@ auto InlineCacheCompiler::preserveLiveRegistersToStackForCall(const RegisterSet&
 auto InlineCacheCompiler::preserveLiveRegistersToStackForCallWithoutExceptions() -> SpillState
 {
     RegisterSet liveRegisters = m_allocator->usedRegisters();
-    if (m_propertyCache.useHandlerIC)
+    if (m_propertyCache.isHandlerIC())
         liveRegisters.add(m_propertyCache.m_propertyCacheGPR, IgnoreVectors);
     liveRegisters.exclude(calleeSaveRegisters().includeWholeRegisterWidth());
     liveRegisters.filter(RegisterSet::allScalarRegisters());
@@ -1334,7 +1334,7 @@ static MacroAssemblerCodeRef<JITThunkPtrTag> getByIdSlowPathCodeGenerator(VM& vm
     jit.prepareCallOperation(vm);
     jit.setupArguments<SlowOperation>(baseJSR, propertyCacheGPR);
     static_assert(preferredArgumentGPR<SlowOperation, 1>() == propertyCacheGPR, "Needed for branch to slow operation via PropertyCache");
-    jit.call(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
+    jit.call(CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
 
     jit.emitNonPatchableExceptionCheck(vm).linkThunk(CodeLocationLabel(vm.getCTIStub(CommonJITThunkID::HandleException).retaggedCode<NoPtrTag>()), &jit);
 
@@ -1363,7 +1363,7 @@ static MacroAssemblerCodeRef<JITThunkPtrTag> getByIdWithThisSlowPathCodeGenerato
     jit.prepareCallOperation(vm);
     jit.setupArguments<SlowOperation>(baseJSR, thisJSR, propertyCacheGPR);
     static_assert(preferredArgumentGPR<SlowOperation, 2>() == propertyCacheGPR, "Needed for branch to slow operation via PropertyCache");
-    jit.call(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
+    jit.call(CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
 
     jit.emitNonPatchableExceptionCheck(vm).linkThunk(CodeLocationLabel(vm.getCTIStub(CommonJITThunkID::HandleException).retaggedCode<NoPtrTag>()), &jit);
 
@@ -1393,7 +1393,7 @@ static MacroAssemblerCodeRef<JITThunkPtrTag> getByValSlowPathCodeGenerator(VM& v
     jit.prepareCallOperation(vm);
     jit.setupArguments<SlowOperation>(baseJSR, propertyJSR, propertyCacheGPR, profileGPR);
     static_assert(preferredArgumentGPR<SlowOperation, 2>() == propertyCacheGPR, "Needed for branch to slow operation via PropertyCache");
-    jit.call(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
+    jit.call(CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
 
     jit.emitNonPatchableExceptionCheck(vm).linkThunk(CodeLocationLabel(vm.getCTIStub(CommonJITThunkID::HandleException).retaggedCode<NoPtrTag>()), &jit);
 
@@ -1422,7 +1422,7 @@ static MacroAssemblerCodeRef<JITThunkPtrTag> getPrivateNameSlowPathCodeGenerator
     jit.prepareCallOperation(vm);
     jit.setupArguments<SlowOperation>(baseJSR, propertyJSR, propertyCacheGPR);
     static_assert(preferredArgumentGPR<SlowOperation, 2>() == propertyCacheGPR, "Needed for branch to slow operation via PropertyCache");
-    jit.call(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
+    jit.call(CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
 
     jit.emitNonPatchableExceptionCheck(vm).linkThunk(CodeLocationLabel(vm.getCTIStub(CommonJITThunkID::HandleException).retaggedCode<NoPtrTag>()), &jit);
 
@@ -1454,7 +1454,7 @@ static MacroAssemblerCodeRef<JITThunkPtrTag> getByValWithThisSlowPathCodeGenerat
     jit.prepareCallOperation(vm);
     jit.setupArguments<SlowOperation>(baseJSR, propertyJSR, thisJSR, propertyCacheGPR, profileGPR);
     static_assert(preferredArgumentGPR<SlowOperation, 3>() == propertyCacheGPR, "Needed for branch to slow operation via PropertyCache");
-    jit.call(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
+    jit.call(CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
 
     jit.emitNonPatchableExceptionCheck(vm).linkThunk(CodeLocationLabel(vm.getCTIStub(CommonJITThunkID::HandleException).retaggedCode<NoPtrTag>()), &jit);
 
@@ -1484,7 +1484,7 @@ static MacroAssemblerCodeRef<JITThunkPtrTag> putByIdSlowPathCodeGenerator(VM& vm
     jit.prepareCallOperation(vm);
     jit.setupArguments<SlowOperation>(valueJSR, baseJSR, propertyCacheGPR);
     static_assert(preferredArgumentGPR<SlowOperation, 2>() == propertyCacheGPR, "Needed for branch to slow operation via PropertyCache");
-    jit.call(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
+    jit.call(CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
 
     jit.emitNonPatchableExceptionCheck(vm).linkThunk(CodeLocationLabel(vm.getCTIStub(CommonJITThunkID::HandleException).retaggedCode<NoPtrTag>()), &jit);
 
@@ -1514,7 +1514,7 @@ static MacroAssemblerCodeRef<JITThunkPtrTag> putByValSlowPathCodeGenerator(VM& v
     // Call slow operation
     jit.prepareCallOperation(vm);
     jit.setupArguments<SlowOperatoin>(baseJSR, propertyJSR, valueJSR, propertyCacheGPR, profileGPR);
-    jit.call(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
+    jit.call(CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
 #if CPU(ARM_THUMB2)
     // ARMv7 clobbers metadataTable register. Thus we need to restore them back here.
     JIT::emitMaterializeMetadataAndConstantPoolRegisters(jit);
@@ -1547,7 +1547,7 @@ static MacroAssemblerCodeRef<JITThunkPtrTag> instanceOfSlowPathCodeGenerator(VM&
     jit.prepareCallOperation(vm);
     jit.setupArguments<SlowOperation>(valueJSR, protoJSR, propertyCacheGPR);
     static_assert(preferredArgumentGPR<SlowOperation, 2>() == propertyCacheGPR, "Needed for branch to slow operation via PropertyCache");
-    jit.call(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
+    jit.call(CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
 
     jit.emitNonPatchableExceptionCheck(vm).linkThunk(CodeLocationLabel(vm.getCTIStub(CommonJITThunkID::HandleException).retaggedCode<NoPtrTag>()), &jit);
 
@@ -1575,7 +1575,7 @@ static MacroAssemblerCodeRef<JITThunkPtrTag> delByIdSlowPathCodeGenerator(VM& vm
     jit.prepareCallOperation(vm);
     jit.setupArguments<SlowOperation>(baseJSR, propertyCacheGPR);
     static_assert(preferredArgumentGPR<SlowOperation, 1>() == propertyCacheGPR, "Needed for branch to slow operation via PropertyCache");
-    jit.call(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
+    jit.call(CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
 
     jit.emitNonPatchableExceptionCheck(vm).linkThunk(CodeLocationLabel(vm.getCTIStub(CommonJITThunkID::HandleException).retaggedCode<NoPtrTag>()), &jit);
 
@@ -1604,7 +1604,7 @@ static MacroAssemblerCodeRef<JITThunkPtrTag> delByValSlowPathCodeGenerator(VM& v
     jit.prepareCallOperation(vm);
     jit.setupArguments<SlowOperation>(baseJSR, propertyJSR, propertyCacheGPR);
     static_assert(preferredArgumentGPR<SlowOperation, 2>() == propertyCacheGPR, "Needed for branch to slow operation via PropertyCache");
-    jit.call(CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
+    jit.call(CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), OperationPtrTag);
 
     jit.emitNonPatchableExceptionCheck(vm).linkThunk(CodeLocationLabel(vm.getCTIStub(CommonJITThunkID::HandleException).retaggedCode<NoPtrTag>()), &jit);
 
@@ -2996,7 +2996,7 @@ void InlineCacheCompiler::generateWithGuard(unsigned index, AccessCase& accessCa
         {
             // Handle the case where we are allocating out-of-line using an operation.
             InlineCacheCompiler::SpillState spillState = preserveLiveRegistersToStackForCall();
-            if (m_propertyCache.useHandlerIC) {
+            if (m_propertyCache.isHandlerIC()) {
                 callSiteIndexForExceptionHandlingOrOriginal();
                 jit.transfer32(CCallHelpers::Address(m_propertyCache.m_propertyCacheGPR, PropertyInlineCache::offsetOfCallSiteIndex()), CCallHelpers::tagFor(CallFrameSlot::argumentCountIncludingThis));
             } else
@@ -3127,7 +3127,7 @@ void InlineCacheCompiler::generateWithGuard(unsigned index, AccessCase& accessCa
         {
             // Handle the case where we are allocating out-of-line using an operation.
             InlineCacheCompiler::SpillState spillState = preserveLiveRegistersToStackForCall();
-            if (m_propertyCache.useHandlerIC) {
+            if (m_propertyCache.isHandlerIC()) {
                 callSiteIndexForExceptionHandlingOrOriginal();
                 jit.transfer32(CCallHelpers::Address(m_propertyCache.m_propertyCacheGPR, PropertyInlineCache::offsetOfCallSiteIndex()), CCallHelpers::tagFor(CallFrameSlot::argumentCountIncludingThis));
             } else
@@ -3323,7 +3323,7 @@ void InlineCacheCompiler::generateAccessCase(unsigned index, AccessCase& accessC
         // exception handling call site.
         InlineCacheCompiler::SpillState spillState = preserveLiveRegistersToStackForCall();
 
-        if (m_propertyCache.useHandlerIC) {
+        if (m_propertyCache.isHandlerIC()) {
             callSiteIndexForExceptionHandlingOrOriginal();
             jit.transfer32(CCallHelpers::Address(m_propertyCache.m_propertyCacheGPR, PropertyInlineCache::offsetOfCallSiteIndex()), CCallHelpers::tagFor(CallFrameSlot::argumentCountIncludingThis));
         } else
@@ -3459,7 +3459,7 @@ void InlineCacheCompiler::generateAccessCase(unsigned index, AccessCase& accessC
         // exception handling call site.
         InlineCacheCompiler::SpillState spillState = preserveLiveRegistersToStackForCall();
 
-        if (m_propertyCache.useHandlerIC) {
+        if (m_propertyCache.isHandlerIC()) {
             callSiteIndexForExceptionHandlingOrOriginal();
             jit.transfer32(CCallHelpers::Address(m_propertyCache.m_propertyCacheGPR, PropertyInlineCache::offsetOfCallSiteIndex()), CCallHelpers::tagFor(CallFrameSlot::argumentCountIncludingThis));
         } else
@@ -3549,7 +3549,7 @@ void InlineCacheCompiler::generateAccessCase(unsigned index, AccessCase& accessC
         if (isGetter)
             jit.setupResults(valueRegs);
 
-        if (m_propertyCache.useHandlerIC) {
+        if (m_propertyCache.isHandlerIC()) {
             jit.loadPtr(CCallHelpers::Address(GPRInfo::jitDataRegister, BaselineJITData::offsetOfStackOffset()), scratchGPR);
             if (useHandlerIC())
                 jit.addPtr(CCallHelpers::TrustedImm32(-(sizeof(CallerFrameAndPC) + maxFrameExtentForSlowPathCall + m_preservedReusedRegisterState.numberOfBytesPreserved + spillState.numberOfStackBytesUsedForRegisterPreservation)), scratchGPR);
@@ -3690,7 +3690,7 @@ void InlineCacheCompiler::generateAccessCase(unsigned index, AccessCase& accessC
                 extraRegistersToPreserve.add(valueRegs, IgnoreVectors);
                 InlineCacheCompiler::SpillState spillState = preserveLiveRegistersToStackForCall(extraRegistersToPreserve);
 
-                if (m_propertyCache.useHandlerIC) {
+                if (m_propertyCache.isHandlerIC()) {
                     callSiteIndexForExceptionHandlingOrOriginal();
                     jit.transfer32(CCallHelpers::Address(m_propertyCache.m_propertyCacheGPR, PropertyInlineCache::offsetOfCallSiteIndex()), CCallHelpers::tagFor(CallFrameSlot::argumentCountIncludingThis));
                 } else
@@ -3966,7 +3966,7 @@ void InlineCacheCompiler::emitDOMJITGetter(JSGlobalObject* globalObjectForDOMJIT
     GPRReg baseGPR = m_propertyCache.m_baseGPR;
     GPRReg scratchGPR = m_scratchGPR;
 
-    if (m_propertyCache.useHandlerIC) {
+    if (m_propertyCache.isHandlerIC()) {
         callSiteIndexForExceptionHandlingOrOriginal();
         jit.transfer32(CCallHelpers::Address(m_propertyCache.m_propertyCacheGPR, PropertyInlineCache::offsetOfCallSiteIndex()), CCallHelpers::tagFor(CallFrameSlot::argumentCountIncludingThis));
     } else
@@ -4069,7 +4069,7 @@ void InlineCacheCompiler::emitDOMJITGetter(JSGlobalObject* globalObjectForDOMJIT
         usedRegisters.add(reg, IgnoreVectors);
     for (FPRReg reg : fpScratch)
         usedRegisters.add(reg, IgnoreVectors);
-    if (m_propertyCache.useHandlerIC)
+    if (m_propertyCache.isHandlerIC())
         usedRegisters.add(m_propertyCache.m_propertyCacheGPR, IgnoreVectors);
     auto registersToSpillForCCall = RegisterSet::registersToSaveForCCall(usedRegisters);
 
@@ -4125,7 +4125,7 @@ void InlineCacheCompiler::emitProxyObjectAccess(unsigned index, AccessCase& acce
 
     InlineCacheCompiler::SpillState spillState = preserveLiveRegistersToStackForCall();
 
-    if (m_propertyCache.useHandlerIC) {
+    if (m_propertyCache.isHandlerIC()) {
         callSiteIndexForExceptionHandlingOrOriginal();
         jit.transfer32(CCallHelpers::Address(m_propertyCache.m_propertyCacheGPR, PropertyInlineCache::offsetOfCallSiteIndex()), CCallHelpers::tagFor(CallFrameSlot::argumentCountIncludingThis));
     } else
@@ -4282,7 +4282,7 @@ void InlineCacheCompiler::emitProxyObjectAccess(unsigned index, AccessCase& acce
         jit.setupResults(valueRegs);
 
 
-    if (m_propertyCache.useHandlerIC) {
+    if (m_propertyCache.isHandlerIC()) {
         jit.loadPtr(CCallHelpers::Address(GPRInfo::jitDataRegister, BaselineJITData::offsetOfStackOffset()), m_scratchGPR);
         if (useHandlerIC())
             jit.addPtr(CCallHelpers::TrustedImm32(-(sizeof(CallerFrameAndPC) + maxFrameExtentForSlowPathCall + m_preservedReusedRegisterState.numberOfBytesPreserved + spillState.numberOfStackBytesUsedForRegisterPreservation)), m_scratchGPR);
@@ -5008,7 +5008,7 @@ AccessGenerationResult InlineCacheCompiler::compile(const GCSafeConcurrentJSLock
     m_jit = &jit;
 
     if (ASSERT_ENABLED) {
-        if (m_propertyCache.useHandlerIC) {
+        if (m_propertyCache.isHandlerIC()) {
             jit.loadPtr(CCallHelpers::Address(GPRInfo::jitDataRegister, BaselineJITData::offsetOfStackOffset()), jit.scratchRegister());
             jit.addPtr(jit.scratchRegister(), GPRInfo::callFrameRegister, jit.scratchRegister());
         } else
@@ -5162,7 +5162,7 @@ AccessGenerationResult InlineCacheCompiler::compile(const GCSafeConcurrentJSLock
         // of something that isn't patchable. The slow path will decrement "countdown" and will only
         // patch things if the countdown reaches zero. We increment the slow path count here to ensure
         // that the slow path does not try to patch.
-        if (m_propertyCache.useHandlerIC)
+        if (m_propertyCache.isHandlerIC())
             jit.add8(CCallHelpers::TrustedImm32(1), CCallHelpers::Address(m_propertyCache.m_propertyCacheGPR, PropertyInlineCache::offsetOfCountdown()));
         else {
             jit.move(CCallHelpers::TrustedImmPtr(&m_propertyCache.countdown), m_scratchGPR);
@@ -5191,7 +5191,7 @@ AccessGenerationResult InlineCacheCompiler::compile(const GCSafeConcurrentJSLock
         InlineCacheCompiler::SpillState spillState = this->spillStateForJSCall();
         ASSERT(!spillState.isEmpty());
         jit.loadPtr(vm().addressOfCallFrameForCatch(), GPRInfo::callFrameRegister);
-        if (m_propertyCache.useHandlerIC) {
+        if (m_propertyCache.isHandlerIC()) {
             ASSERT(!JITCode::isBaselineCode(m_jitType));
             jit.loadPtr(CCallHelpers::Address(GPRInfo::jitDataRegister, BaselineJITData::offsetOfStackOffset()), m_scratchGPR);
             jit.addPtr(CCallHelpers::TrustedImm32(-(m_preservedReusedRegisterState.numberOfBytesPreserved + spillState.numberOfStackBytesUsedForRegisterPreservation)), m_scratchGPR);
@@ -5223,7 +5223,7 @@ AccessGenerationResult InlineCacheCompiler::compile(const GCSafeConcurrentJSLock
     }
 
     CodeLocationLabel<JSInternalPtrTag> successLabel = m_propertyCache.doneLocation;
-    if (m_propertyCache.useHandlerIC) {
+    if (m_propertyCache.isHandlerIC()) {
         JIT_COMMENT(jit, "failure far jump");
         failure.link(&jit);
         jit.farJump(CCallHelpers::Address(m_propertyCache.m_propertyCacheGPR, PropertyInlineCache::offsetOfSlowPathStartLocation()), JITStubRoutinePtrTag);
@@ -5239,12 +5239,12 @@ AccessGenerationResult InlineCacheCompiler::compile(const GCSafeConcurrentJSLock
     }
 
 
-    if (m_propertyCache.useHandlerIC)
+    if (m_propertyCache.isHandlerIC())
         ASSERT(m_success.empty());
 
     dataLogLnIf(InlineCacheCompilerInternal::verbose, FullCodeOrigin(codeBlock, m_propertyCache.codeOrigin), ": Generating polymorphic access stub for ", listDump(keys));
 
-    MacroAssemblerCodeRef<JITStubRoutinePtrTag> code = FINALIZE_CODE_FOR(codeBlock, linkBuffer, JITStubRoutinePtrTag, categoryName(m_propertyCache.accessType), "%s", toCString("Access stub for ", *codeBlock, " ", m_propertyCache.codeOrigin, " with start: ", m_propertyCache.startLocation, " with return point ", successLabel, ": ", listDump(keys)).data());
+    MacroAssemblerCodeRef<JITStubRoutinePtrTag> code = FINALIZE_CODE_FOR(codeBlock, linkBuffer, JITStubRoutinePtrTag, categoryName(m_propertyCache.accessType), "%s", toCString("Access stub for ", *codeBlock, " ", m_propertyCache.codeOrigin, " with start: ", downcast<RepatchingPropertyInlineCache>(m_propertyCache).startLocation, " with return point ", successLabel, ": ", listDump(keys)).data());
 
     CodeBlock* owner = codeBlock;
     FixedVector<StructureID> weakStructures(WTF::move(m_weakStructures));
@@ -6913,7 +6913,7 @@ AccessGenerationResult InlineCacheCompiler::compileHandler(const GCSafeConcurren
         return compileOneAccessCaseHandler(poly, codeBlock, *megamorphicCase, WTF::move(additionalWatchpointSets));
 
     additionalWatchpointSets.appendVector(WTF::move(sets));
-    ASSERT(m_propertyCache.useHandlerIC);
+    ASSERT(m_propertyCache.isHandlerIC());
     return compileOneAccessCaseHandler(poly, codeBlock, accessCase, WTF::move(additionalWatchpointSets));
 }
 
@@ -7729,9 +7729,9 @@ AccessGenerationResult InlineCacheCompiler::compileOneAccessCaseHandler(const Ve
     ASSERT(m_success.empty());
 
     auto keys = FixedVector<Ref<AccessCase>> { Ref { accessCase } };
-    dataLogLnIf(InlineCacheCompilerInternal::verbose, FullCodeOrigin(codeBlock, m_propertyCache.codeOrigin), ": Generating polymorphic access stub for ", listDump(keys));
+    dataLogLnIf(InlineCacheCompilerInternal::verbose, FullCodeOrigin(codeBlock, m_propertyCache.codeOrigin), ": Generating polymorphic access stub handler for ", listDump(keys));
 
-    MacroAssemblerCodeRef<JITStubRoutinePtrTag> code = FINALIZE_CODE_FOR(codeBlock, linkBuffer, JITStubRoutinePtrTag, categoryName(m_propertyCache.accessType), "%s", toCString("Access stub for ", *codeBlock, " ", m_propertyCache.codeOrigin, " with start: ", m_propertyCache.startLocation, ": ", listDump(keys)).data());
+    MacroAssemblerCodeRef<JITStubRoutinePtrTag> code = FINALIZE_CODE_FOR(codeBlock, linkBuffer, JITStubRoutinePtrTag, categoryName(m_propertyCache.accessType), "%s", toCString("Access stub handler for ", *codeBlock, " ", m_propertyCache.codeOrigin, ": ", listDump(keys)).data());
 
     if (statelessType) {
         auto stub = createPreCompiledICJITStubRoutine(WTF::move(code), vm, codeBlock);

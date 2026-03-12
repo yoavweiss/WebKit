@@ -1152,7 +1152,11 @@ inline void CodeBlock::forEachPropertyInlineCache(Func func)
 #if ENABLE(JIT)
     if (JSC::JITCode::isOptimizingJIT(jitType())) {
 #if ENABLE(DFG_JIT)
-        for (auto* propertyCache : jitCode()->dfgCommon()->m_propertyInlineCaches) {
+        for (auto* propertyCache : jitCode()->dfgCommon()->m_handlerPropertyInlineCaches) {
+            if (func(*propertyCache) == IterationStatus::Done)
+                return;
+        }
+        for (auto* propertyCache : jitCode()->dfgCommon()->m_repatchingPropertyInlineCaches) {
             if (func(*propertyCache) == IterationStatus::Done)
                 return;
         }

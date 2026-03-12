@@ -4712,10 +4712,10 @@ private:
                 CCallHelpers::Call slowPathCall;
                 if (Options::useHandlerICInFTL()) {
                     jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                    generator->propertyCache()->m_slowOperation = operationGetByValWithThisOptimize;
+                    downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = operationGetByValWithThisOptimize;
                     slowPathCall = callOperation(
                         *state, params.unavailableRegisters(), jit, nodeSemanticOrigin,
-                        exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), resultGPR,
+                        exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), resultGPR,
                         baseGPR, propertyGPR, thisValueGPR, propertyCacheGPR, CCallHelpers::TrustedImmPtr(nullptr)).call();
                 } else {
                     slowPathCall = callOperation(
@@ -4864,10 +4864,10 @@ private:
                     CCallHelpers::Call slowPathCall;
                     if (Options::useHandlerICInFTL()) {
                         jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                        generator->propertyCache()->m_slowOperation = operationGetPrivateNameOptimize;
+                        downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = operationGetPrivateNameOptimize;
                         slowPathCall = callOperation(
                             *state, params.unavailableRegisters(), jit, nodeSemanticOrigin,
-                            exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), resultGPR,
+                            exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), resultGPR,
                             baseGPR, propertyGPR, propertyCacheGPR).call();
                     } else {
                         slowPathCall = callOperation(
@@ -5019,10 +5019,10 @@ private:
                 CCallHelpers::Call slowPathCall;
                 if (Options::useHandlerICInFTL()) {
                     jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                    generator->propertyCache()->m_slowOperation = appropriatePrivateAccessFunction(accessType);
+                    downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = appropriatePrivateAccessFunction(accessType);
                     slowPathCall = callOperation(
                         *state, params.unavailableRegisters(), jit, nodeSemanticOrigin,
-                        exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), InvalidGPRReg,
+                        exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), InvalidGPRReg,
                         baseGPR, brandGPR, propertyCacheGPR).call();
                 } else {
                     slowPathCall = callOperation(
@@ -5238,10 +5238,10 @@ private:
                 CCallHelpers::Call slowPathCall;
                 if (Options::useHandlerICInFTL()) {
                     jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                    generator->propertyCache()->m_slowOperation = operation;
+                    downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = operation;
                     slowPathCall = callOperation(
                         *state, params.unavailableRegisters(), jit, nodeSemanticOrigin,
-                        exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), InvalidGPRReg,
+                        exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), InvalidGPRReg,
                         baseGPR, propertyGPR, valueGPR, propertyCacheGPR, CCallHelpers::TrustedImmPtr(nullptr)).call();
                 } else {
                     slowPathCall = callOperation(
@@ -5605,10 +5605,10 @@ private:
                         auto* operation = appropriatePutByIdOptimizeFunction(accessType);
                         if (Options::useHandlerICInFTL()) {
                             jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                            generator->propertyCache()->m_slowOperation = operation;
+                            downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = operation;
                             slowPathCall = callOperation(
                                 *state, params.unavailableRegisters(), jit, nodeSemanticOrigin,
-                                exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), InvalidGPRReg,
+                                exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), InvalidGPRReg,
                                 params[1].gpr(), params[0].gpr(), propertyCacheGPR).call();
                         } else {
                             slowPathCall = callOperation(
@@ -6559,10 +6559,10 @@ IGNORE_CLANG_WARNINGS_END
                     CCallHelpers::Call slowPathCall;
                     if (Options::useHandlerICInFTL()) {
                         jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                        generator->propertyCache()->m_slowOperation = operationGetByValOptimize;
+                        downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = operationGetByValOptimize;
                         slowPathCall = callOperation(
                             *state, params.unavailableRegisters(), jit, nodeSemanticOrigin,
-                            exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), resultGPR,
+                            exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), resultGPR,
                             baseGPR, propertyGPR, propertyCacheGPR, CCallHelpers::TrustedImmPtr(nullptr)).call();
                     } else {
                         slowPathCall = callOperation(
@@ -7286,10 +7286,10 @@ IGNORE_CLANG_WARNINGS_END
                     auto operation = isDirect ? (ecmaMode.isStrict() ? operationDirectPutByValStrictOptimize : operationDirectPutByValSloppyOptimize) : (ecmaMode.isStrict() ? operationPutByValStrictOptimize : operationPutByValSloppyOptimize);
                     if (Options::useHandlerICInFTL()) {
                         jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                        generator->propertyCache()->m_slowOperation = operation;
+                        downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = operation;
                         slowPathCall = callOperation(
                             *state, params.unavailableRegisters(), jit, nodeSemanticOrigin,
-                            exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), InvalidGPRReg,
+                            exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), InvalidGPRReg,
                             baseGPR, propertyGPR, valueGPR, propertyCacheGPR, CCallHelpers::TrustedImmPtr(nullptr)).call();
                     } else {
                         slowPathCall = callOperation(
@@ -7955,10 +7955,10 @@ IGNORE_CLANG_WARNINGS_END
                         if constexpr (kind == DelByKind::ByIdStrict || kind == DelByKind::ByIdSloppy) {
                             if (Options::useHandlerICInFTL()) {
                                 jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                                generator->propertyCache()->m_slowOperation = optimizationFunction;
+                                downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = optimizationFunction;
                                 slowPathCall = callOperation(
                                     *state, params.unavailableRegisters(), jit, nodeSemanticOrigin,
-                                    exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), returnGPR,
+                                    exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), returnGPR,
                                     base, propertyCacheGPR).call();
                             } else {
                                 slowPathCall = callOperation(
@@ -7969,10 +7969,10 @@ IGNORE_CLANG_WARNINGS_END
                         } else {
                             if (Options::useHandlerICInFTL()) {
                                 jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                                generator->propertyCache()->m_slowOperation = optimizationFunction;
+                                downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = optimizationFunction;
                                 slowPathCall = callOperation(
                                     *state, params.unavailableRegisters(), jit, nodeSemanticOrigin,
-                                    exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), returnGPR,
+                                    exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), returnGPR,
                                     base, subscript, propertyCacheGPR).call();
                             } else {
                                 slowPathCall = callOperation(
@@ -16256,10 +16256,10 @@ IGNORE_CLANG_WARNINGS_END
                         if constexpr (type == AccessType::InById) {
                             if (Options::useHandlerICInFTL()) {
                                 jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                                generator->propertyCache()->m_slowOperation = optimizationFunction;
+                                downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = optimizationFunction;
                                 slowPathCall = callOperation(
                                     *state, params.unavailableRegisters(), jit, semanticNodeOrigin,
-                                    exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), returnGPR,
+                                    exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), returnGPR,
                                     base, propertyCacheGPR).call();
                             } else {
                                 slowPathCall = callOperation(
@@ -16270,10 +16270,10 @@ IGNORE_CLANG_WARNINGS_END
                         } else if constexpr (type == AccessType::InByVal) {
                             if (Options::useHandlerICInFTL()) {
                                 jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                                generator->propertyCache()->m_slowOperation = optimizationFunction;
+                                downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = optimizationFunction;
                                 slowPathCall = callOperation(
                                     *state, params.unavailableRegisters(), jit, semanticNodeOrigin,
-                                    exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), returnGPR,
+                                    exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), returnGPR,
                                     base, subscript, propertyCacheGPR, CCallHelpers::TrustedImmPtr(nullptr)).call();
                             } else {
                                 slowPathCall = callOperation(
@@ -16284,10 +16284,10 @@ IGNORE_CLANG_WARNINGS_END
                         } else {
                             if (Options::useHandlerICInFTL()) {
                                 jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                                generator->propertyCache()->m_slowOperation = optimizationFunction;
+                                downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = optimizationFunction;
                                 slowPathCall = callOperation(
                                     *state, params.unavailableRegisters(), jit, semanticNodeOrigin,
-                                    exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), returnGPR,
+                                    exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), returnGPR,
                                     base, subscript, propertyCacheGPR).call();
                             } else {
                                 slowPathCall = callOperation(
@@ -16812,10 +16812,10 @@ IGNORE_CLANG_WARNINGS_END
                         CCallHelpers::Call slowPathCall;
                         if (Options::useHandlerICInFTL()) {
                             jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                            generator->propertyCache()->m_slowOperation = optimizationFunction;
+                            downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = optimizationFunction;
                             slowPathCall = callOperation(
                                 *state, params.unavailableRegisters(), jit, semanticNodeOrigin,
-                                exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), resultGPR,
+                                exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), resultGPR,
                                 valueGPR, prototypeGPR, propertyCacheGPR).call();
                         } else {
                             slowPathCall = callOperation(
@@ -17659,10 +17659,10 @@ IGNORE_CLANG_WARNINGS_END
                 auto operation = ecmaMode.isStrict() ? operationPutByValStrictOptimize : operationPutByValSloppyOptimize;
                 if (Options::useHandlerICInFTL()) {
                     jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                    generator->propertyCache()->m_slowOperation = operation;
+                    downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = operation;
                     slowPathCall = callOperation(
                         *state, params.unavailableRegisters(), jit, nodeSemanticOrigin,
-                        exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), InvalidGPRReg,
+                        exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), InvalidGPRReg,
                         baseGPR, propertyGPR, valueGPR, propertyCacheGPR, CCallHelpers::TrustedImmPtr(nullptr)).call();
                 } else {
                     slowPathCall = callOperation(
@@ -19191,10 +19191,10 @@ IGNORE_CLANG_WARNINGS_END
                         CCallHelpers::Call slowPathCall;
                         if (Options::useHandlerICInFTL()) {
                             jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                            generator->propertyCache()->m_slowOperation = optimizationFunction;
+                            downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = optimizationFunction;
                             slowPathCall = callOperation(
                                 *state, params.unavailableRegisters(), jit, semanticNodeOrigin,
-                                exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), params[0].gpr(),
+                                exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), params[0].gpr(),
                                 params[1].gpr(), propertyCacheGPR).call();
                         } else {
                             slowPathCall = callOperation(
@@ -19281,10 +19281,10 @@ IGNORE_CLANG_WARNINGS_END
                         CCallHelpers::Call slowPathCall;
                         if (Options::useHandlerICInFTL()) {
                             jit.move(CCallHelpers::TrustedImmPtr(generator->propertyCache()), propertyCacheGPR);
-                            generator->propertyCache()->m_slowOperation = optimizationFunction;
+                            downcast<HandlerPropertyInlineCache>(*generator->propertyCache()).m_slowOperation = optimizationFunction;
                             slowPathCall = callOperation(
                                 *state, params.unavailableRegisters(), jit, semanticNodeOrigin,
-                                exceptions.get(), CCallHelpers::Address(propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), params[0].gpr(),
+                                exceptions.get(), CCallHelpers::Address(propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), params[0].gpr(),
                                 params[1].gpr(), params[2].gpr(), propertyCacheGPR).call();
                         } else {
                             slowPathCall = callOperation(

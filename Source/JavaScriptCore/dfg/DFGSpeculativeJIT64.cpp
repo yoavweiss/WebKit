@@ -180,7 +180,7 @@ void SpeculativeJIT::cachedGetById(Node* node, CodeOrigin codeOrigin, JSValueReg
     loadPropertyInlineCache(propertyCacheConstant, BaselineJITRegisters::GetById::propertyCacheGPR);
     gen.generateDataICFastPath(*this);
     auto slowPath = slowPathICCall(
-        slowCases, this, propertyCacheConstant, BaselineJITRegisters::GetById::propertyCacheGPR, Address(BaselineJITRegisters::GetById::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), appropriateGetByIdOptimizeFunction(type),
+        slowCases, this, propertyCacheConstant, BaselineJITRegisters::GetById::propertyCacheGPR, Address(BaselineJITRegisters::GetById::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), appropriateGetByIdOptimizeFunction(type),
         DontSpill, ExceptionCheckRequirement::CheckNeeded,
         resultRegs, BaselineJITRegisters::GetById::baseJSR, BaselineJITRegisters::GetById::propertyCacheGPR);
 
@@ -216,7 +216,7 @@ void SpeculativeJIT::cachedGetByIdWithThis(Node* node, CodeOrigin codeOrigin, JS
     loadPropertyInlineCache(propertyCacheConstant, BaselineJITRegisters::GetByIdWithThis::propertyCacheGPR);
     gen.generateDataICFastPath(*this);
     auto slowPath = slowPathICCall(
-        slowCases, this, propertyCacheConstant, BaselineJITRegisters::GetByIdWithThis::propertyCacheGPR, Address(BaselineJITRegisters::GetByIdWithThis::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operationGetByIdWithThisOptimize,
+        slowCases, this, propertyCacheConstant, BaselineJITRegisters::GetByIdWithThis::propertyCacheGPR, Address(BaselineJITRegisters::GetByIdWithThis::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operationGetByIdWithThisOptimize,
         DontSpill, ExceptionCheckRequirement::CheckNeeded,
         resultRegs, BaselineJITRegisters::GetByIdWithThis::baseJSR, BaselineJITRegisters::GetByIdWithThis::thisJSR, BaselineJITRegisters::GetByIdWithThis::propertyCacheGPR);
 
@@ -2738,7 +2738,7 @@ void SpeculativeJIT::compileGetByVal(Node* node, const ScopedLambda<std::tuple<J
         loadPropertyInlineCache(propertyCacheConstant, BaselineJITRegisters::GetByVal::propertyCacheGPR);
         gen.generateDataICFastPath(*this);
         auto slowPath = slowPathICCall(
-            slowCases, this, propertyCacheConstant, BaselineJITRegisters::GetByVal::propertyCacheGPR, Address(BaselineJITRegisters::GetByVal::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operationGetByValOptimize,
+            slowCases, this, propertyCacheConstant, BaselineJITRegisters::GetByVal::propertyCacheGPR, Address(BaselineJITRegisters::GetByVal::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operationGetByValOptimize,
             resultRegs, BaselineJITRegisters::GetByVal::baseJSR, BaselineJITRegisters::GetByVal::propertyJSR, BaselineJITRegisters::GetByVal::propertyCacheGPR, BaselineJITRegisters::GetByVal::profileGPR);
 
         addGetByVal(gen, slowPath.get());
@@ -5943,7 +5943,7 @@ void SpeculativeJIT::compile(Node* node)
             loadPropertyInlineCache(propertyCacheConstant, BaselineJITRegisters::InByVal::propertyCacheGPR);
             gen.generateDataICFastPath(*this);
             auto slowPath = slowPathICCall(
-                slowCases, this, propertyCacheConstant, BaselineJITRegisters::InByVal::propertyCacheGPR, Address(BaselineJITRegisters::InByVal::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operationInByValOptimize,
+                slowCases, this, propertyCacheConstant, BaselineJITRegisters::InByVal::propertyCacheGPR, Address(BaselineJITRegisters::InByVal::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operationInByValOptimize,
                 DontSpill, ExceptionCheckRequirement::CheckNeeded,
                 resultRegs, BaselineJITRegisters::InByVal::baseJSR, BaselineJITRegisters::InByVal::propertyJSR, BaselineJITRegisters::InByVal::propertyCacheGPR, BaselineJITRegisters::InByVal::profileGPR);
 
@@ -6975,7 +6975,7 @@ void SpeculativeJIT::compileGetByValWithThis(Node* node)
     loadPropertyInlineCache(propertyCacheConstant, BaselineJITRegisters::GetByValWithThis::propertyCacheGPR);
     gen.generateDataICFastPath(*this);
     auto slowPath = slowPathICCall(
-        slowCases, this, propertyCacheConstant, BaselineJITRegisters::GetByValWithThis::propertyCacheGPR, Address(BaselineJITRegisters::GetByValWithThis::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operationGetByValWithThisOptimize,
+        slowCases, this, propertyCacheConstant, BaselineJITRegisters::GetByValWithThis::propertyCacheGPR, Address(BaselineJITRegisters::GetByValWithThis::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operationGetByValWithThisOptimize,
         resultRegs.payloadGPR(), BaselineJITRegisters::GetByValWithThis::baseJSR, BaselineJITRegisters::GetByValWithThis::propertyJSR, BaselineJITRegisters::GetByValWithThis::thisJSR, BaselineJITRegisters::GetByValWithThis::propertyCacheGPR, BaselineJITRegisters::GetByValWithThis::profileGPR);
 
     addGetByValWithThis(gen, slowPath.get());
@@ -7068,7 +7068,7 @@ void SpeculativeJIT::compileDeleteById(Node* node)
         gen.generateDataICFastPath(*this);
         ASSERT(!gen.propertyCache());
         auto slowPath = slowPathICCall(
-            slowCases, this, propertyCacheConstant, BaselineJITRegisters::DelById::propertyCacheGPR, Address(BaselineJITRegisters::DelById::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operation,
+            slowCases, this, propertyCacheConstant, BaselineJITRegisters::DelById::propertyCacheGPR, Address(BaselineJITRegisters::DelById::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operation,
             resultRegs.payloadGPR(), BaselineJITRegisters::DelById::baseJSR, BaselineJITRegisters::DelById::propertyCacheGPR);
 
         addDelById(gen, slowPath.get());
@@ -7135,7 +7135,7 @@ void SpeculativeJIT::compileDeleteByVal(Node* node)
         gen.generateDataICFastPath(*this);
         ASSERT(!gen.propertyCache());
         auto slowPath = slowPathICCall(
-            slowCases, this, propertyCacheConstant, BaselineJITRegisters::DelByVal::propertyCacheGPR, Address(BaselineJITRegisters::DelByVal::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operation,
+            slowCases, this, propertyCacheConstant, BaselineJITRegisters::DelByVal::propertyCacheGPR, Address(BaselineJITRegisters::DelByVal::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operation,
             resultRegs.payloadGPR(), BaselineJITRegisters::DelByVal::baseJSR, BaselineJITRegisters::DelByVal::propertyJSR, BaselineJITRegisters::DelByVal::propertyCacheGPR);
 
         addDelByVal(gen, slowPath.get());
@@ -7192,7 +7192,7 @@ void SpeculativeJIT::compileInById(Node* node)
     gen.generateDataICFastPath(*this);
     ASSERT(!gen.propertyCache());
     auto slowPath = slowPathICCall(
-        slowCases, this, propertyCacheConstant, BaselineJITRegisters::InById::propertyCacheGPR, Address(BaselineJITRegisters::InById::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operationInByIdOptimize,
+        slowCases, this, propertyCacheConstant, BaselineJITRegisters::InById::propertyCacheGPR, Address(BaselineJITRegisters::InById::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operationInByIdOptimize,
         DontSpill, ExceptionCheckRequirement::CheckNeeded,
         resultRegs, BaselineJITRegisters::InById::baseJSR, BaselineJITRegisters::InById::propertyCacheGPR);
 
@@ -7238,7 +7238,7 @@ void SpeculativeJIT::compileInByVal(Node* node)
     gen.generateDataICFastPath(*this);
     ASSERT(!gen.propertyCache());
     auto slowPath = slowPathICCall(
-        slowCases, this, propertyCacheConstant, BaselineJITRegisters::InByVal::propertyCacheGPR, Address(BaselineJITRegisters::InByVal::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operationInByValOptimize,
+        slowCases, this, propertyCacheConstant, BaselineJITRegisters::InByVal::propertyCacheGPR, Address(BaselineJITRegisters::InByVal::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operationInByValOptimize,
         DontSpill, ExceptionCheckRequirement::CheckNeeded,
         resultRegs, BaselineJITRegisters::InByVal::baseJSR, BaselineJITRegisters::InByVal::propertyJSR, BaselineJITRegisters::InByVal::propertyCacheGPR, BaselineJITRegisters::InByVal::profileGPR);
 
@@ -7290,7 +7290,7 @@ void SpeculativeJIT::compileHasPrivate(Node* node, AccessType type)
     gen.generateDataICFastPath(*this);
     ASSERT(!gen.propertyCache());
     auto slowPath = slowPathICCall(
-        slowCases, this, propertyCacheConstant, BaselineJITRegisters::InByVal::propertyCacheGPR, Address(BaselineJITRegisters::InByVal::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), type == AccessType::HasPrivateName ? operationHasPrivateNameOptimize : operationHasPrivateBrandOptimize,
+        slowCases, this, propertyCacheConstant, BaselineJITRegisters::InByVal::propertyCacheGPR, Address(BaselineJITRegisters::InByVal::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), type == AccessType::HasPrivateName ? operationHasPrivateNameOptimize : operationHasPrivateBrandOptimize,
         DontSpill, ExceptionCheckRequirement::CheckNeeded,
         resultRegs, BaselineJITRegisters::InByVal::baseJSR, BaselineJITRegisters::InByVal::propertyJSR, BaselineJITRegisters::InByVal::propertyCacheGPR);
 
@@ -7414,7 +7414,7 @@ void SpeculativeJIT::compilePutByVal(Node* node)
         loadPropertyInlineCache(propertyCacheConstant, BaselineJITRegisters::PutByVal::propertyCacheGPR);
         gen.generateDataICFastPath(*this);
         auto slowPath = slowPathICCall(
-            slowCases, this, propertyCacheConstant, BaselineJITRegisters::PutByVal::propertyCacheGPR, Address(BaselineJITRegisters::PutByVal::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operation,
+            slowCases, this, propertyCacheConstant, BaselineJITRegisters::PutByVal::propertyCacheGPR, Address(BaselineJITRegisters::PutByVal::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operation,
             NoResult, BaselineJITRegisters::PutByVal::baseJSR, BaselineJITRegisters::PutByVal::propertyJSR, BaselineJITRegisters::PutByVal::valueJSR, BaselineJITRegisters::PutByVal::propertyCacheGPR, BaselineJITRegisters::PutByVal::profileGPR);
 
         addPutByVal(gen, slowPath.get());
@@ -7569,7 +7569,7 @@ void SpeculativeJIT::compileGetPrivateNameByVal(Node* node, JSValueRegs baseRegs
     loadPropertyInlineCache(propertyCacheConstant, BaselineJITRegisters::GetByVal::propertyCacheGPR);
     gen.generateDataICFastPath(*this);
     auto slowPath = slowPathICCall(
-        slowCases, this, propertyCacheConstant, BaselineJITRegisters::GetByVal::propertyCacheGPR, Address(BaselineJITRegisters::GetByVal::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operationGetPrivateNameOptimize,
+        slowCases, this, propertyCacheConstant, BaselineJITRegisters::GetByVal::propertyCacheGPR, Address(BaselineJITRegisters::GetByVal::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operationGetPrivateNameOptimize,
         result.regs(), BaselineJITRegisters::GetByVal::baseJSR, BaselineJITRegisters::GetByVal::propertyJSR, BaselineJITRegisters::GetByVal::propertyCacheGPR);
 
     addGetByVal(gen, slowPath.get());
@@ -7685,7 +7685,7 @@ void SpeculativeJIT::compilePutPrivateName(Node* node)
     loadPropertyInlineCache(propertyCacheConstant, BaselineJITRegisters::PutByVal::propertyCacheGPR);
     gen.generateDataICFastPath(*this);
     auto slowPath = slowPathICCall(
-        slowCases, this, propertyCacheConstant, BaselineJITRegisters::PutByVal::propertyCacheGPR, Address(BaselineJITRegisters::PutByVal::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operation,
+        slowCases, this, propertyCacheConstant, BaselineJITRegisters::PutByVal::propertyCacheGPR, Address(BaselineJITRegisters::PutByVal::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operation,
         NoResult, BaselineJITRegisters::PutByVal::baseJSR, BaselineJITRegisters::PutByVal::propertyJSR, BaselineJITRegisters::PutByVal::valueJSR, BaselineJITRegisters::PutByVal::propertyCacheGPR, BaselineJITRegisters::PutByVal::profileGPR);
 
     addPutByVal(gen, slowPath.get());
@@ -7734,7 +7734,7 @@ void SpeculativeJIT::compileCheckPrivateBrand(Node* node)
     loadPropertyInlineCache(propertyCacheConstant, BaselineJITRegisters::PrivateBrand::propertyCacheGPR);
     gen.generateDataICFastPath(*this);
     auto slowPath = slowPathICCall(
-        slowCases, this, propertyCacheConstant, BaselineJITRegisters::PrivateBrand::propertyCacheGPR, Address(BaselineJITRegisters::PrivateBrand::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operationCheckPrivateBrandOptimize, NoResult,
+        slowCases, this, propertyCacheConstant, BaselineJITRegisters::PrivateBrand::propertyCacheGPR, Address(BaselineJITRegisters::PrivateBrand::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operationCheckPrivateBrandOptimize, NoResult,
         BaselineJITRegisters::PrivateBrand::baseJSR, BaselineJITRegisters::PrivateBrand::propertyJSR, BaselineJITRegisters::PrivateBrand::propertyCacheGPR);
 
     addPrivateBrandAccess(gen, slowPath.get());
@@ -7782,7 +7782,7 @@ void SpeculativeJIT::compileSetPrivateBrand(Node* node)
     loadPropertyInlineCache(propertyCacheConstant, BaselineJITRegisters::PrivateBrand::propertyCacheGPR);
     gen.generateDataICFastPath(*this);
     auto slowPath = slowPathICCall(
-        slowCases, this, propertyCacheConstant, BaselineJITRegisters::PrivateBrand::propertyCacheGPR, Address(BaselineJITRegisters::PrivateBrand::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operationSetPrivateBrandOptimize, NoResult,
+        slowCases, this, propertyCacheConstant, BaselineJITRegisters::PrivateBrand::propertyCacheGPR, Address(BaselineJITRegisters::PrivateBrand::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operationSetPrivateBrandOptimize, NoResult,
         BaselineJITRegisters::PrivateBrand::baseJSR, BaselineJITRegisters::PrivateBrand::propertyJSR, BaselineJITRegisters::PrivateBrand::propertyCacheGPR);
 
     addPrivateBrandAccess(gen, slowPath.get());
@@ -7819,7 +7819,7 @@ void SpeculativeJIT::compileInstanceOf(Node* node)
 
         loadPropertyInlineCache(propertyCacheConstant, BaselineJITRegisters::Instanceof::propertyCacheGPR);
         gen.generateDataICFastPath(*this);
-        auto slowPath = slowPathICCall(slowCases, this, propertyCacheConstant, BaselineJITRegisters::Instanceof::propertyCacheGPR, Address(BaselineJITRegisters::Instanceof::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operationInstanceOfOptimize, resultGPR, BaselineJITRegisters::Instanceof::valueJSR, BaselineJITRegisters::Instanceof::protoJSR, BaselineJITRegisters::Instanceof::propertyCacheGPR);
+        auto slowPath = slowPathICCall(slowCases, this, propertyCacheConstant, BaselineJITRegisters::Instanceof::propertyCacheGPR, Address(BaselineJITRegisters::Instanceof::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operationInstanceOfOptimize, resultGPR, BaselineJITRegisters::Instanceof::valueJSR, BaselineJITRegisters::Instanceof::protoJSR, BaselineJITRegisters::Instanceof::propertyCacheGPR);
 
         addInstanceOf(gen, slowPath.get());
         addSlowPathGenerator(WTF::move(slowPath));
@@ -7928,7 +7928,7 @@ void SpeculativeJIT::cachedPutById(Node*, CodeOrigin codeOrigin, GPRReg baseGPR,
     auto* operation = appropriatePutByIdOptimizeFunction(accessType);
     loadPropertyInlineCache(propertyCacheConstant, BaselineJITRegisters::PutById::propertyCacheGPR);
     gen.generateDataICFastPath(*this);
-    auto slowPath = slowPathICCall(slowCases, this, propertyCacheConstant, BaselineJITRegisters::PutById::propertyCacheGPR, Address(BaselineJITRegisters::PutById::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operation, NoResult, BaselineJITRegisters::PutById::valueJSR, BaselineJITRegisters::PutById::baseJSR, BaselineJITRegisters::PutById::propertyCacheGPR);
+    auto slowPath = slowPathICCall(slowCases, this, propertyCacheConstant, BaselineJITRegisters::PutById::propertyCacheGPR, Address(BaselineJITRegisters::PutById::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operation, NoResult, BaselineJITRegisters::PutById::valueJSR, BaselineJITRegisters::PutById::baseJSR, BaselineJITRegisters::PutById::propertyCacheGPR);
 
     addPutById(gen, slowPath.get());
     addSlowPathGenerator(WTF::move(slowPath));
@@ -8314,7 +8314,7 @@ void SpeculativeJIT::compileEnumeratorPutByVal(Node* node)
             loadPropertyInlineCache(propertyCacheConstant, BaselineJITRegisters::PutByVal::propertyCacheGPR);
             gen.generateDataICFastPath(*this);
             auto slowPath = slowPathICCall(
-                slowCases, this, propertyCacheConstant, BaselineJITRegisters::PutByVal::propertyCacheGPR, Address(BaselineJITRegisters::PutByVal::propertyCacheGPR, PropertyInlineCache::offsetOfSlowOperation()), operation,
+                slowCases, this, propertyCacheConstant, BaselineJITRegisters::PutByVal::propertyCacheGPR, Address(BaselineJITRegisters::PutByVal::propertyCacheGPR, HandlerPropertyInlineCache::offsetOfSlowOperation()), operation,
                 NoResult, BaselineJITRegisters::PutByVal::baseJSR, BaselineJITRegisters::PutByVal::propertyJSR, BaselineJITRegisters::PutByVal::valueJSR, BaselineJITRegisters::PutByVal::propertyCacheGPR, BaselineJITRegisters::PutByVal::profileGPR);
 
             addPutByVal(gen, slowPath.get());

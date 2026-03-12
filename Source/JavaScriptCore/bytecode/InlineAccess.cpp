@@ -20,7 +20,7 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #include "config.h"
@@ -149,7 +149,7 @@ void InlineAccess::dumpCacheSizesAndCrash()
 }
 
 
-ALWAYS_INLINE static bool linkCodeInline(const char* name, CCallHelpers& jit, PropertyInlineCache& propertyCache)
+ALWAYS_INLINE static bool linkCodeInline(const char* name, CCallHelpers& jit, RepatchingPropertyInlineCache& propertyCache)
 {
     if (jit.m_assembler.buffer().codeSize() <= propertyCache.inlineCodeSize()) {
         bool needsBranchCompaction = true;
@@ -179,11 +179,12 @@ bool InlineAccess::generateSelfPropertyAccess(PropertyInlineCache& propertyCache
     if (!hasConstantIdentifier(propertyCache.accessType))
         return false;
 
-    if (propertyCache.useHandlerIC)
+    auto* repatchingIC = dynamicDowncast<RepatchingPropertyInlineCache>(propertyCache);
+    if (!repatchingIC)
         return false;
 
     CCallHelpers jit;
-    
+
     GPRReg base = propertyCache.m_baseGPR;
     JSValueRegs value = propertyCache.valueRegs();
 
@@ -198,11 +199,11 @@ bool InlineAccess::generateSelfPropertyAccess(PropertyInlineCache& propertyCache
         jit.loadPtr(CCallHelpers::Address(base, JSObject::butterflyOffset()), value.payloadGPR());
         storage = value.payloadGPR();
     }
-    
+
     jit.loadValue(
         MacroAssembler::Address(storage, offsetRelativeToBase(offset)), value);
 
-    return linkCodeInline("property access", jit, propertyCache);
+    return linkCodeInline("property access", jit, *repatchingIC);
 }
 
 ALWAYS_INLINE static GPRReg getScratchRegister(PropertyInlineCache& propertyCache)
@@ -236,7 +237,7 @@ bool InlineAccess::canGenerateSelfPropertyReplace(PropertyInlineCache& propertyC
     if (!hasConstantIdentifier(propertyCache.accessType))
         return false;
 
-    if (propertyCache.useHandlerIC)
+    if (propertyCache.isHandlerIC())
         return false;
 
     if (isInlineOffset(offset))
@@ -250,10 +251,11 @@ bool InlineAccess::generateSelfPropertyReplace(PropertyInlineCache& propertyCach
     if (!hasConstantIdentifier(propertyCache.accessType))
         return false;
 
-    ASSERT(canGenerateSelfPropertyReplace(propertyCache, offset));
-
-    if (propertyCache.useHandlerIC)
+    auto* repatchingIC = dynamicDowncast<RepatchingPropertyInlineCache>(propertyCache);
+    if (!repatchingIC)
         return false;
+
+    ASSERT(canGenerateSelfPropertyReplace(propertyCache, offset));
 
     CCallHelpers jit;
 
@@ -277,7 +279,7 @@ bool InlineAccess::generateSelfPropertyReplace(PropertyInlineCache& propertyCach
     jit.storeValue(
         value, MacroAssembler::Address(storage, offsetRelativeToBase(offset)));
 
-    return linkCodeInline("property replace", jit, propertyCache);
+    return linkCodeInline("property replace", jit, *repatchingIC);
 }
 
 bool InlineAccess::isCacheableArrayLength(PropertyInlineCache& propertyCache, JSArray* array)
@@ -287,7 +289,7 @@ bool InlineAccess::isCacheableArrayLength(PropertyInlineCache& propertyCache, JS
     if (!hasConstantIdentifier(propertyCache.accessType))
         return false;
 
-    if (propertyCache.useHandlerIC)
+    if (propertyCache.isHandlerIC())
         return propertyCache.preconfiguredCacheType == CacheType::ArrayLength;
 
     if (!hasFreeRegister(propertyCache))
@@ -303,8 +305,8 @@ bool InlineAccess::generateArrayLength(PropertyInlineCache& propertyCache, JSArr
     if (!hasConstantIdentifier(propertyCache.accessType))
         return false;
 
-    // ArrayLength fast path does not need any modification.
-    if (propertyCache.useHandlerIC)
+    auto* repatchingIC = dynamicDowncast<RepatchingPropertyInlineCache>(propertyCache);
+    if (!repatchingIC)
         return false;
 
     CCallHelpers jit;
@@ -321,7 +323,7 @@ bool InlineAccess::generateArrayLength(PropertyInlineCache& propertyCache, JSArr
     jit.load32(CCallHelpers::Address(value.payloadGPR(), ArrayStorage::lengthOffset()), value.payloadGPR());
     jit.boxInt32(value.payloadGPR(), value);
 
-    return linkCodeInline("array length", jit, propertyCache);
+    return linkCodeInline("array length", jit, *repatchingIC);
 }
 
 bool InlineAccess::isCacheableStringLength(PropertyInlineCache& propertyCache)
@@ -329,7 +331,7 @@ bool InlineAccess::isCacheableStringLength(PropertyInlineCache& propertyCache)
     if (!hasConstantIdentifier(propertyCache.accessType))
         return false;
 
-    if (propertyCache.useHandlerIC)
+    if (propertyCache.isHandlerIC())
         return propertyCache.preconfiguredCacheType == CacheType::StringLength;
 
     return hasFreeRegister(propertyCache);
@@ -342,7 +344,8 @@ bool InlineAccess::generateStringLength(PropertyInlineCache& propertyCache)
     if (!hasConstantIdentifier(propertyCache.accessType))
         return false;
 
-    if (propertyCache.useHandlerIC)
+    auto* repatchingIC = dynamicDowncast<RepatchingPropertyInlineCache>(propertyCache);
+    if (!repatchingIC)
         return false;
 
     CCallHelpers jit;
@@ -367,7 +370,7 @@ bool InlineAccess::generateStringLength(PropertyInlineCache& propertyCache)
     done.link(&jit);
     jit.boxInt32(value.payloadGPR(), value);
 
-    return linkCodeInline("string length", jit, propertyCache);
+    return linkCodeInline("string length", jit, *repatchingIC);
 }
 
 
@@ -378,7 +381,8 @@ bool InlineAccess::generateSelfInAccess(PropertyInlineCache& propertyCache, Stru
     if (!hasConstantIdentifier(propertyCache.accessType))
         return false;
 
-    if (propertyCache.useHandlerIC)
+    auto* repatchingIC = dynamicDowncast<RepatchingPropertyInlineCache>(propertyCache);
+    if (!repatchingIC)
         return false;
 
     GPRReg base = propertyCache.m_baseGPR;
@@ -390,7 +394,7 @@ bool InlineAccess::generateSelfInAccess(PropertyInlineCache& propertyCache, Stru
         MacroAssembler::TrustedImm32(std::bit_cast<uint32_t>(structure->id()))).linkThunk(propertyCache.slowPathStartLocation, &jit);
     jit.boxBoolean(true, value);
 
-    return linkCodeInline("in access", jit, propertyCache);
+    return linkCodeInline("in access", jit, *repatchingIC);
 }
 
 } // namespace JSC
