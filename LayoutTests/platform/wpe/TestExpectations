@@ -1307,6 +1307,7 @@ webkit.org/b/308479 imported/w3c/web-platform-tests/html/canvas/element/manual/d
 
 webkit.org/b/308540 fast/repaint/border-radius-partial-repaint-corner.html [ Pass ImageOnlyFailure ]
 
+webkit.org/b/309744 [ arm64 ] fast/events/monotonic-event-time.html [ Failure ]
 webkit.org/b/309627 [ arm64 ] fast/forms/textarea/textarea-placeholder-paint-order-2.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/309360 [ arm64 ] imported/w3c/web-platform-tests/webcodecs/video-encoder-rescaling.https.any.html?h264_annexb [ Crash ]
