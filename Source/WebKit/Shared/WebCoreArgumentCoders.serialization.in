@@ -2372,6 +2372,7 @@ struct WebCore::DateTimeChooserParameters {
     bool hasSecondField;
     bool hasMillisecondField;
     bool wasActivatedByKeyboard;
+    std::optional<WebCore::FrameIdentifier> rootFrameID;
 }
 
 header: <WebCore/ScreenProperties.h>

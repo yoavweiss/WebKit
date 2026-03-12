@@ -223,6 +223,7 @@
 #include <WebCore/CrossSiteNavigationDataTransfer.h>
 #include <WebCore/CryptoKey.h>
 #include <WebCore/DOMPasteAccess.h>
+#include <WebCore/DateTimeChooserParameters.h>
 #include <WebCore/DeprecatedGlobalSettings.h>
 #include <WebCore/DiagnosticLoggingClient.h>
 #include <WebCore/DiagnosticLoggingKeys.h>
@@ -10609,7 +10610,17 @@ void WebPageProxy::showDateTimePicker(WebCore::DateTimeChooserParameters&& param
     if (!m_dateTimePicker)
         return;
 
-    protect(*m_dateTimePicker)->showDateTimePicker(WTF::move(params));
+    convertRectToMainFrameCoordinates(params.anchorRectInRootView, params.rootFrameID, [weakThis = WeakPtr { *this }, params = WTF::move(params)](std::optional<FloatRect> convertedRect) mutable {
+        RefPtr protectedThis = weakThis.get();
+        if (!protectedThis || !convertedRect)
+            return;
+
+        if (!protectedThis->m_dateTimePicker)
+            return;
+
+        params.anchorRectInRootView = IntRect(*convertedRect);
+        protect(*protectedThis->m_dateTimePicker)->showDateTimePicker(WTF::move(params));
+    });
 }
 
 void WebPageProxy::endDateTimePicker()
@@ -10625,18 +10636,18 @@ void WebPageProxy::didChooseDate(StringView date)
     if (!hasRunningProcess())
         return;
 
-    auto targetFrameID = focusedOrMainFrame() ? std::optional(focusedOrMainFrame()->frameID()) : std::nullopt;
-    sendToProcessContainingFrame(targetFrameID, Messages::WebPage::DidChooseDate(date.toString()));
+    auto frameID = m_dateTimePicker ? m_dateTimePicker->frameID() : std::nullopt;
+    sendToProcessContainingFrame(frameID, Messages::WebPage::DidChooseDate(date.toString()));
 }
 
 void WebPageProxy::didEndDateTimePicker()
 {
+    auto frameID = m_dateTimePicker ? m_dateTimePicker->frameID() : std::nullopt;
     m_dateTimePicker = nullptr;
     if (!hasRunningProcess())
         return;
 
-    auto targetFrameID = focusedOrMainFrame() ? std::optional(focusedOrMainFrame()->frameID()) : std::nullopt;
-    sendToProcessContainingFrame(targetFrameID, Messages::WebPage::DidEndDateTimePicker());
+    sendToProcessContainingFrame(frameID, Messages::WebPage::DidEndDateTimePicker());
 }
 
 WebInspectorUIProxy* WebPageProxy::inspector() const
