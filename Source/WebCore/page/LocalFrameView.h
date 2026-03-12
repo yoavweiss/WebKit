@@ -213,7 +213,7 @@ public:
     WEBCORE_EXPORT void setTransparent(bool isTransparent);
     
     // True if the FrameView is not transparent, and the base background color is opaque.
-    bool hasOpaqueBackground() const;
+    bool NODELETE hasOpaqueBackground() const;
 
     WEBCORE_EXPORT Color NODELETE baseBackgroundColor() const;
     WEBCORE_EXPORT void setBaseBackgroundColor(const Color&);
@@ -619,7 +619,7 @@ public:
     // LocalFrameView. LocalFrameView::pagination() will return m_pagination if it has been set. Otherwise,
     // it will return Page::pagination() since currently there are no callers that need to
     // distinguish between the two.
-    const Pagination& pagination() const LIFETIME_BOUND;
+    const Pagination& NODELETE pagination() const LIFETIME_BOUND;
     void setPagination(const Pagination&);
 
 #if HAVE(RUBBER_BANDING)
@@ -802,7 +802,7 @@ private:
     bool NODELETE isVerticalDocument() const final;
     bool NODELETE isFlippedDocument() const final;
 
-    void incrementVisuallyNonEmptyCharacterCountSlowCase(const String&);
+    void NODELETE incrementVisuallyNonEmptyCharacterCountSlowCase(const String&);
 
     void reset();
     void init();

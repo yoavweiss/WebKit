@@ -558,7 +558,7 @@ public:
     void clearClipRects(ClipRectsType typeToClear = AllClipRectTypes);
 
     void addBlockSelectionGapsBounds(const LayoutRect&);
-    void clearBlockSelectionGapsBounds();
+    void NODELETE clearBlockSelectionGapsBounds();
     void repaintBlockSelectionGaps();
 
     // FIXME: We should ASSERT(!m_visibleContentStatusDirty) here, but see https://bugs.webkit.org/show_bug.cgi?id=71044
@@ -606,8 +606,8 @@ public:
 #endif
     };
 
-    bool isVisibilityHiddenOrOpacityZero() const;
-    bool isSubtreeVisibilityHiddenOrOpacityZero() const;
+    bool NODELETE isVisibilityHiddenOrOpacityZero() const;
+    bool NODELETE isSubtreeVisibilityHiddenOrOpacityZero() const;
 
     // Returns true if this layer has visible content (ignoring any child layers).
     bool isVisuallyNonEmpty(PaintedContentRequest* = nullptr) const;
@@ -640,7 +640,7 @@ public:
     RenderLayer* NODELETE enclosingOverflowClipLayer(IncludeSelfOrNot) const;
 
     // Enclosing compositing layer; if includeSelf is true, may return this.
-    RenderLayer* enclosingCompositingLayer(IncludeSelfOrNot = IncludeSelf) const;
+    RenderLayer* NODELETE enclosingCompositingLayer(IncludeSelfOrNot = IncludeSelf) const;
     struct EnclosingCompositingLayerStatus {
         bool fullRepaintAlreadyScheduled { false };
         RenderLayer* layer { nullptr };
@@ -655,7 +655,7 @@ public:
     bool hasAncestorWithFilterOutsets() const;
 
     inline bool NODELETE canUseOffsetFromAncestor() const;
-    bool canUseOffsetFromAncestor(const RenderLayer& ancestor) const;
+    bool NODELETE canUseOffsetFromAncestor(const RenderLayer& ancestor) const;
 
     // FIXME: adjustForColumns allows us to position compositing layers in columns correctly, but eventually they need to be split across columns too.
     enum ColumnOffsetAdjustment { DontAdjustForColumns, AdjustForColumns };
@@ -955,7 +955,7 @@ public:
         return zOrderListsDirty() || normalFlowListDirty();
     }
 
-    RenderLayer* enclosingFragmentedFlowAncestor() const;
+    RenderLayer* NODELETE enclosingFragmentedFlowAncestor() const;
 
     WEBCORE_EXPORT void simulateFrequentPaint();
     bool paintingFrequently() const { return m_paintFrequencyTracker.paintingFrequently(); }
@@ -1547,7 +1547,7 @@ private:
 
 void makeMatrixRenderable(TransformationMatrix&, bool has3DRendering);
 
-bool compositedWithOwnBackingStore(const RenderLayer&);
+bool NODELETE compositedWithOwnBackingStore(const RenderLayer&);
 
 WTF::TextStream& operator<<(WTF::TextStream&, ClipRectsType);
 WTF::TextStream& operator<<(WTF::TextStream&, const RenderLayer&);

@@ -355,8 +355,8 @@ public:
     void wrapWithStyleNode(StyleProperties*, bool isBlock = false);
     String takeResults();
     
-    bool needRelativeStyleWrapper() const { return m_needRelativeStyleWrapper; }
-    bool needClearingDiv() const { return m_needClearingDiv; }
+    bool NODELETE needRelativeStyleWrapper() const { return m_needRelativeStyleWrapper; }
+    bool NODELETE needClearingDiv() const { return m_needClearingDiv; }
 
     using MarkupAccumulator::append;
 
@@ -467,7 +467,7 @@ private:
         return node.hasChildNodes();
     }
 
-    bool isDescendantOf(Node& node, Node& possibleAncestor)
+    bool NODELETE isDescendantOf(Node& node, Node& possibleAncestor)
     {
         if (m_useComposedTree) [[unlikely]]
             return node.isShadowIncludingDescendantOf(&possibleAncestor);
@@ -479,12 +479,12 @@ private:
 
     bool appendNodeToPreserveMSOList(Node&);
 
-    bool shouldAnnotate()
+    bool NODELETE shouldAnnotate()
     {
         return m_annotate == AnnotateForInterchange::Yes;
     }
 
-    bool shouldApplyWrappingStyle(const Node& node) const
+    bool NODELETE shouldApplyWrappingStyle(const Node& node) const
     {
         return m_highestNodeToBeSerialized && m_highestNodeToBeSerialized->parentNode() == node.parentNode() && m_wrappingStyle && m_wrappingStyle->style();
     }
@@ -1026,7 +1026,7 @@ static RefPtr<EditingStyle> styleFromMatchedRulesAndInlineDecl(Node& node)
     return style;
 }
 
-static bool isElementPresentational(const Node& node)
+static bool NODELETE isElementPresentational(const Node& node)
 {
     return node.hasTagName(uTag) || node.hasTagName(sTag) || node.hasTagName(strikeTag)
         || node.hasTagName(iTag) || node.hasTagName(emTag) || node.hasTagName(bTag) || node.hasTagName(strongTag);
@@ -1580,7 +1580,7 @@ ExceptionOr<Ref<DocumentFragment>> createContextualFragment(Element& element, co
     return fragment;
 }
 
-static inline RefPtr<Text> singleTextChild(ContainerNode& node)
+static inline RefPtr<Text> NODELETE singleTextChild(ContainerNode& node)
 {
     return node.hasOneChild() ? dynamicDowncast<Text>(node.firstChild()) : nullptr;
 }

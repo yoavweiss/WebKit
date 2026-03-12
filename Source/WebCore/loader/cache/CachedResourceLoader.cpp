@@ -1419,7 +1419,7 @@ CachedResourceHandle<CachedResource> CachedResourceLoader::loadResource(CachedRe
     return resource;
 }
 
-static inline bool mustReloadFromServiceWorkerOptions(const ResourceLoaderOptions& options, const ResourceLoaderOptions& cachedOptions)
+static inline bool NODELETE mustReloadFromServiceWorkerOptions(const ResourceLoaderOptions& options, const ResourceLoaderOptions& cachedOptions)
 {
     if (cachedOptions.cachingPolicy == CachingPolicy::AllowCachingMainResourcePrefetch)
         return false;

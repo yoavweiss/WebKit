@@ -141,7 +141,7 @@ public:
     virtual void error(CachedResource::Status);
 
     void setResourceError(const ResourceError& error) { mutableResponseData().m_error = error; }
-    const ResourceError& resourceError() const;
+    const ResourceError& NODELETE resourceError() const;
 
     virtual bool shouldIgnoreHTTPStatusCodeErrors() const { return false; }
 
@@ -157,7 +157,7 @@ public:
     static bool shouldUsePingLoad(Type type) { return type == Type::Beacon || type == Type::Ping; }
 
     ResourceLoadPriority loadPriority() const { return m_loadPriority; }
-    void setLoadPriority(const std::optional<ResourceLoadPriority>&, RequestPriority);
+    void NODELETE setLoadPriority(const std::optional<ResourceLoadPriority>&, RequestPriority);
 
     WEBCORE_EXPORT void addClient(CachedResourceClient&);
     WEBCORE_EXPORT void removeClient(CachedResourceClient&);
@@ -249,7 +249,7 @@ public:
     void NODELETE setCrossOrigin();
     bool NODELETE isCrossOrigin() const;
     bool NODELETE isCORSCrossOrigin() const;
-    bool isCORSSameOrigin() const;
+    bool NODELETE isCORSSameOrigin() const;
     ResourceResponse::Tainting responseTainting() const { return m_responseTainting; }
 
     void loadFrom(const CachedResource&);
@@ -264,9 +264,9 @@ public:
     bool isExpired() const;
 
     void cancelLoad(LoadWillContinueInAnotherProcess = LoadWillContinueInAnotherProcess::No);
-    bool wasCanceled() const;
+    bool NODELETE wasCanceled() const;
     bool errorOccurred() const { return m_status == LoadError || m_status == DecodeError; }
-    bool loadFailedOrCanceled() const;
+    bool NODELETE loadFailedOrCanceled() const;
 
     bool shouldSendResourceLoadCallbacks() const { return m_options.sendLoadCallbacks == SendCallbackPolicy::SendCallbacks; }
     DataBufferingPolicy dataBufferingPolicy() const { return m_options.dataBufferingPolicy; }
@@ -300,7 +300,7 @@ public:
     CachedResource* resourceToRevalidate() const { return m_resourceToRevalidate.get(); }
 
     // HTTP revalidation support methods for CachedResourceLoader.
-    void setResourceToRevalidate(CachedResource*);
+    void NODELETE setResourceToRevalidate(CachedResource*);
     virtual void switchClientsToRevalidatedResource();
     void clearResourceToRevalidate();
     void updateResponseAfterRevalidation(const ResourceResponse& validatingResponse);

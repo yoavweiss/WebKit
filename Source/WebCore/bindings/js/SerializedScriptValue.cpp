@@ -4690,7 +4690,7 @@ private:
         return toJSNewlyCreated(m_lexicalGlobalObject, jsCast<JSDOMGlobalObject*>(m_globalObject), T::create(x, y, width, height));
     }
 
-    std::optional<DOMPointInit> readDOMPointInit()
+    std::optional<DOMPointInit> NODELETE readDOMPointInit()
     {
         DOMPointInit point;
         if (!read(point.x))
@@ -5783,7 +5783,7 @@ private:
     Vector<RefPtr<MediaStreamTrackHandle>> m_mediaStreamTrackHandles;
 #endif
 
-    String blobFilePathForBlobURL(const String& blobURL)
+    String NODELETE blobFilePathForBlobURL(const String& blobURL)
     {
         size_t i = 0;
         for (; i < m_blobURLs.size(); ++i) {

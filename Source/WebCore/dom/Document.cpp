@@ -642,7 +642,7 @@ auto Document::allDocuments() -> DocumentsMap::ValuesIteratorRange
     return allDocumentsMap().values();
 }
 
-static inline IntDegrees currentOrientation(LocalFrame* frame)
+static inline IntDegrees NODELETE currentOrientation(LocalFrame* frame)
 {
 #if ENABLE(ORIENTATION_EVENTS)
     if (frame)

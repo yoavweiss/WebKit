@@ -1123,7 +1123,7 @@ Position adjustedSelectionStartForStyleComputation(const VisibleSelection& selec
 }
 
 // FIXME: Should this be deprecated like deprecatedEnclosingBlockFlowElement is?
-static Element* elementIfBlockFlow(Node& node)
+static Element* NODELETE elementIfBlockFlow(Node& node)
 {
     auto* element = dynamicDowncast<Element>(node);
     if (!element)
@@ -1137,7 +1137,7 @@ bool isBlockFlowElement(const Node& node)
     return elementIfBlockFlow(const_cast<Node&>(node));
 }
 
-Element* deprecatedEnclosingBlockFlowElement(Node* node)
+Element* NODELETE deprecatedEnclosingBlockFlowElement(Node* node)
 {
     if (!node)
         return nullptr;

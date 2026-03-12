@@ -101,8 +101,8 @@ public:
     ReadableStream& NODELETE stream() const { return m_stream; }
     ReadableStream* NODELETE branch1() const { return m_branch1.get(); }
     ReadableStream* NODELETE branch2() const { return m_branch2.get(); }
-    void setBranch1(ReadableStream& stream) { m_branch1 = &stream; }
-    void setBranch2(ReadableStream& stream) { m_branch2 = &stream; }
+    void NODELETE setBranch1(ReadableStream& stream) { m_branch1 = &stream; }
+    void NODELETE setBranch2(ReadableStream& stream) { m_branch2 = &stream; }
 
     ReadableStreamBYOBReader* NODELETE byobReader() const { return m_byobReader.get(); }
     RefPtr<ReadableStreamBYOBReader> takeBYOBReader() { return std::exchange(m_byobReader, { }); }

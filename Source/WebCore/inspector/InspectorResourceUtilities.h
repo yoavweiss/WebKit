@@ -51,10 +51,10 @@ bool mainResourceContent(WebCore::LocalFrame*, bool withBase64Encode, String* re
 
 String sourceMapURLForResource(WebCore::CachedResource*);
 WebCore::CachedResource* cachedResource(const WebCore::LocalFrame*, const URL&);
-Inspector::ResourceType inspectorResourceType(WebCore::CachedResource::Type);
+Inspector::ResourceType NODELETE inspectorResourceType(WebCore::CachedResource::Type);
 Inspector::ResourceType inspectorResourceType(const WebCore::CachedResource&);
 
-Inspector::Protocol::Page::ResourceType resourceTypeToProtocol(Inspector::ResourceType);
+Inspector::Protocol::Page::ResourceType NODELETE resourceTypeToProtocol(Inspector::ResourceType);
 Inspector::Protocol::Page::ResourceType cachedResourceTypeToProtocol(const WebCore::CachedResource&);
 WebCore::LocalFrame* findFrameWithSecurityOrigin(WebCore::Page&, const String& originRawString);
 WebCore::DocumentLoader* assertDocumentLoader(Inspector::Protocol::ErrorString&, WebCore::LocalFrame*);

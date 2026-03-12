@@ -494,7 +494,7 @@ static bool NODELETE mediaSessionMayBeConfusedWithMainContent(const MediaElement
     return true;
 }
 
-static bool defaultVolumeLocked()
+SUPPRESS_NODELETE static bool NODELETE defaultVolumeLocked()
 {
 #if PLATFORM(IOS)
     return PAL::currentUserInterfaceIdiomIsSmallScreen();

@@ -3813,7 +3813,7 @@ bool FrameLoader::shouldPerformFragmentNavigation(bool isFormSubmission, const S
         && !stateMachine().isDisplayingInitialEmptyDocument();
 }
 
-static bool itemAllowsScrollRestoration(HistoryItem* historyItem, FrameLoadType loadType)
+static bool NODELETE itemAllowsScrollRestoration(HistoryItem* historyItem, FrameLoadType loadType)
 {
     if (!historyItem)
         return true;

@@ -100,7 +100,7 @@ public:
     RevalidationDecision makeRevalidationDecision(CachePolicy) const override;
     void load(CachedResourceLoader&) override;
 
-    bool isOriginClean(SecurityOrigin*);
+    bool NODELETE isOriginClean(SecurityOrigin*);
 
     bool NODELETE isClientWaitingForAsyncDecoding(const CachedImageClient&) const;
     void addClientWaitingForAsyncDecoding(CachedImageClient&);

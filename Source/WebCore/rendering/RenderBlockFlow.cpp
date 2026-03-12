@@ -3013,7 +3013,7 @@ std::optional<LayoutUnit> RenderBlockFlow::lowestInitialLetterLogicalBottom() co
     return lowestFloatBottom;
 }
 
-static RenderLayer* enclosingFloatPaintingLayer(const RenderBox& renderer)
+static RenderLayer* NODELETE enclosingFloatPaintingLayer(const RenderBox& renderer)
 {
     for (auto& box : lineageOfType<RenderBox>(renderer)) {
         if (box.layer() && box.layer()->isSelfPaintingLayer())

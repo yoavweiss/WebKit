@@ -147,7 +147,7 @@ public:
     // last layout location, in order to repaint correctly.
     // If we're doing a full repaint m_layoutState will be 0, but in that case layoutDelta doesn't matter.
     LayoutSize NODELETE layoutDelta() const;
-    void addLayoutDelta(const LayoutSize& delta);
+    void NODELETE addLayoutDelta(const LayoutSize& delta);
 #if ASSERT_ENABLED
     bool layoutDeltaMatches(const LayoutSize& delta);
 #endif

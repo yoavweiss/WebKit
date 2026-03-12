@@ -124,10 +124,10 @@ public:
     bool hasEventListeners(const AtomString& eventType) const;
     bool hasAnyEventListeners(Vector<AtomString> eventTypes) const;
     bool hasCapturingEventListeners(const AtomString& eventType);
-    bool hasActiveEventListeners(const AtomString& eventType) const;
+    bool NODELETE hasActiveEventListeners(const AtomString& eventType) const;
 
     Vector<AtomString> eventTypes() const;
-    const EventListenerVector& eventListeners(const AtomString& eventType);
+    const EventListenerVector& NODELETE eventListeners(const AtomString& eventType);
 
     enum class EventInvokePhase { Capturing, Bubbling };
     void fireEventListeners(Event&, EventInvokePhase);

@@ -121,8 +121,8 @@ public:
     WEBCORE_EXPORT void skipWaiting();
     bool isSkipWaitingFlagSet() const { return m_isSkipWaitingFlagSet; }
 
-    WEBCORE_EXPORT static SWServerWorker* existingWorkerForIdentifier(ServiceWorkerIdentifier);
-    static HashMap<ServiceWorkerIdentifier, WeakRef<SWServerWorker>>& allWorkers();
+    WEBCORE_EXPORT static SWServerWorker* NODELETE existingWorkerForIdentifier(ServiceWorkerIdentifier);
+    static HashMap<ServiceWorkerIdentifier, WeakRef<SWServerWorker>>& NODELETE allWorkers();
 
     const ServiceWorkerData& data() const LIFETIME_BOUND { return m_data; }
     ServiceWorkerContextData contextData() const;
@@ -130,7 +130,7 @@ public:
     WEBCORE_EXPORT const ClientOrigin& origin() const;
     const RegistrableDomain& topRegistrableDomain() const LIFETIME_BOUND { return m_topSite.domain(); }
     const Site& topSite() const LIFETIME_BOUND { return m_topSite; }
-    WEBCORE_EXPORT std::optional<ScriptExecutionContextIdentifier> serviceWorkerPageIdentifier() const;
+    WEBCORE_EXPORT std::optional<ScriptExecutionContextIdentifier> NODELETE serviceWorkerPageIdentifier() const;
 
     WEBCORE_EXPORT SWServerToContextConnection* contextConnection();
     String userAgent() const;

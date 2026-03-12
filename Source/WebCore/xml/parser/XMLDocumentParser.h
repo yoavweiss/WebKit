@@ -120,7 +120,7 @@ private:
 
     void end();
 
-    void pauseParsing();
+    void NODELETE pauseParsing();
     void resumeParsing();
 
     bool appendFragmentSource(const String&);

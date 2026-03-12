@@ -3112,7 +3112,7 @@ static void handleMenloSecurityQuirks(QuirksData& quirksData, const URL& quirksU
     quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::ShouldDisableWritingSuggestionsByDefaultQuirk);
 }
 
-static void handleNBAQuirks(QuirksData& quirksData, const URL& /* quirksURL */, const String& quirksDomainString, const URL& /* documentURL */)
+static void NODELETE handleNBAQuirks(QuirksData& quirksData, const URL& /* quirksURL */, const String& quirksDomainString, const URL& /* documentURL */)
 {
 #if PLATFORM(IOS)
     QUIRKS_EARLY_RETURN_IF_NOT_DOMAIN("nba.com"_s);

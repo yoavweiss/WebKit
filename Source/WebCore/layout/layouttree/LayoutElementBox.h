@@ -85,8 +85,8 @@ public:
     bool NODELETE hasIntrinsicWidth() const;
     bool NODELETE hasIntrinsicHeight() const;
     bool NODELETE hasIntrinsicRatio() const;
-    LayoutUnit intrinsicWidth() const;
-    LayoutUnit intrinsicHeight() const;
+    LayoutUnit NODELETE intrinsicWidth() const;
+    LayoutUnit NODELETE intrinsicHeight() const;
     LayoutUnit NODELETE intrinsicRatio() const;
     bool NODELETE hasAspectRatio() const;
 

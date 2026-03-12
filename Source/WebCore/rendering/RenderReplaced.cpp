@@ -693,14 +693,14 @@ void RenderReplaced::computeAspectRatioAdjustedIntrinsicLogicalWidths(LayoutUnit
     maxLogicalWidth = minLogicalWidth;
 }
 
-static inline LayoutUnit resolveWidthForRatio(LayoutUnit borderAndPaddingLogicalHeight, LayoutUnit borderAndPaddingLogicalWidth, LayoutUnit logicalHeight, double aspectRatio, BoxSizing boxSizing)
+static inline LayoutUnit NODELETE resolveWidthForRatio(LayoutUnit borderAndPaddingLogicalHeight, LayoutUnit borderAndPaddingLogicalWidth, LayoutUnit logicalHeight, double aspectRatio, BoxSizing boxSizing)
 {
     if (boxSizing == BoxSizing::BorderBox)
         return LayoutUnit((logicalHeight + borderAndPaddingLogicalHeight) * aspectRatio) - borderAndPaddingLogicalWidth;
     return LayoutUnit(logicalHeight * aspectRatio);
 }
 
-static inline bool hasIntrinsicSize(RenderBox*contentRenderer, bool hasIntrinsicWidth, bool hasIntrinsicHeight )
+static inline bool NODELETE hasIntrinsicSize(RenderBox*contentRenderer, bool hasIntrinsicWidth, bool hasIntrinsicHeight )
 {
     if (hasIntrinsicWidth && hasIntrinsicHeight)
         return true;

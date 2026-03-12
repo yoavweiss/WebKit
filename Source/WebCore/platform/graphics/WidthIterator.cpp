@@ -122,7 +122,7 @@ inline auto WidthIterator::applyFontTransforms(GlyphBuffer& glyphBuffer, unsigne
     return { afterWidth - beforeWidth, initialAdvance };
 }
 
-static inline std::pair<bool, bool> expansionLocation(bool ideograph, bool treatAsSpace, bool ltr, bool isAfterExpansion, bool forbidLeftExpansion, bool forbidRightExpansion, bool forceLeftExpansion, bool forceRightExpansion)
+static inline std::pair<bool, bool> NODELETE expansionLocation(bool ideograph, bool treatAsSpace, bool ltr, bool isAfterExpansion, bool forbidLeftExpansion, bool forbidRightExpansion, bool forceLeftExpansion, bool forceRightExpansion)
 {
     bool expandLeft = ideograph;
     bool expandRight = ideograph;
@@ -151,7 +151,7 @@ static inline std::pair<bool, bool> expansionLocation(bool ideograph, bool treat
     return std::make_pair(expandLeft, expandRight);
 }
 
-static void expandWithInitialAdvance(GlyphBufferAdvance& advanceToExpand, const GlyphBufferAdvance& initialAdvance)
+static void NODELETE expandWithInitialAdvance(GlyphBufferAdvance& advanceToExpand, const GlyphBufferAdvance& initialAdvance)
 {
     setWidth(advanceToExpand, width(advanceToExpand) + width(initialAdvance));
     setHeight(advanceToExpand, height(advanceToExpand) + height(initialAdvance));
@@ -190,7 +190,7 @@ bool WidthIterator::hasExtraSpacing() const
     return (m_fontCascade->letterSpacing() || m_fontCascade->wordSpacing() || m_expansion) && !m_run->spacingDisabled();
 }
 
-static void resetGlyphBuffer(GlyphBuffer& glyphBuffer, GlyphBufferStringOffset index)
+static void NODELETE resetGlyphBuffer(GlyphBuffer& glyphBuffer, GlyphBufferStringOffset index)
 {
 #if USE(CG)
     ASSERT(index >= 0);
@@ -248,13 +248,13 @@ struct SmallCapsState {
         isSmallCaps = false;
     }
 
-    void setIsSmallCaps(bool isSmallCaps)
+    void NODELETE setIsSmallCaps(bool isSmallCaps)
     {
         isLastSmallCaps = this->isSmallCaps;
         this->isSmallCaps = isSmallCaps;
     }
 
-    bool skipSmallCapsProcessing() const
+    bool NODELETE skipSmallCapsProcessing() const
     {
         return fontVariantCaps == FontVariantCaps::Normal;
     }
@@ -287,7 +287,7 @@ struct AdvanceInternalState {
     {
     }
 
-    bool fontChanged() const
+    bool NODELETE fontChanged() const
     {
         return font != lastFont;
     }
@@ -318,7 +318,7 @@ void WidthIterator::commitCurrentFontRange(AdvanceInternalState& advanceInternal
     advanceInternalState.lastGlyphCount = advanceInternalState.glyphBuffer.size();
 }
 
-static const Font* fontForRange(const Font* font, const SmallCapsState& smallCapsData, bool isSmallCaps)
+static const Font* NODELETE fontForRange(const Font* font, const SmallCapsState& smallCapsData, bool isSmallCaps)
 {
     if (!smallCapsData.synthesizedFont)
         return font;
@@ -359,7 +359,7 @@ static bool resetFontRangeIfNeeded(AdvanceInternalState& advanceInternalState, S
     return false;
 }
 
-static void updateCharacterAndSmallCapsIfNeeded(SmallCapsState& smallCapsState, std::optional<char32_t> capitalizedCharacter, char32_t& characterToWrite)
+static void NODELETE updateCharacterAndSmallCapsIfNeeded(SmallCapsState& smallCapsState, std::optional<char32_t> capitalizedCharacter, char32_t& characterToWrite)
 {
     if (smallCapsState.skipSmallCapsProcessing())
         return;

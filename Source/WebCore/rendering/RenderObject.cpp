@@ -2585,7 +2585,7 @@ static void adjustTextDirectionForCoalescedGeometries(const SelectionEndpointDir
     }
 }
 
-static bool shouldRenderSelectionOnSeparateLine(const RenderObject* currentRenderer)
+static bool NODELETE shouldRenderSelectionOnSeparateLine(const RenderObject* currentRenderer)
 {
     if (!currentRenderer)
         return false;

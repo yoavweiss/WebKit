@@ -147,7 +147,7 @@ public:
     LocalFrame* frame() const; // Can be null
     Document* document() const { return m_document.get(); } // Can be null
     void setDocument(Document* document) { m_document = document; }
-    void clearDocumentLoader(); 
+    void NODELETE clearDocumentLoader();
     void loadDone(LoadCompletionType, bool shouldPerformPostLoadActions = true);
 
     WEBCORE_EXPORT void garbageCollectDocumentResources();
