@@ -180,6 +180,7 @@ public:
     void platformPurgeInactiveFontData();
 
     static void releaseNoncriticalMemoryInAllFontCaches();
+    static void releaseCriticalMemoryInAllFontCaches();
 
     void updateFontCascade(const FontCascade&);
 

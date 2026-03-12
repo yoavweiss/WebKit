@@ -448,6 +448,13 @@ void FontCache::releaseNoncriticalMemoryInAllFontCaches()
     });
 }
 
+void FontCache::releaseCriticalMemoryInAllFontCaches()
+{
+    dispatchToAllFontCaches([](FontCache& fontCache) {
+        fontCache.m_fontCascadeCache.clearShapedTextCaches();
+    });
+}
+
 bool FontCache::useBackslashAsYenSignForFamily(const AtomString& family)
 {
     if (family.isEmpty())
