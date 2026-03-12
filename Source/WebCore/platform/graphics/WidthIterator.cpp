@@ -373,6 +373,18 @@ static void updateCharacterAndSmallCapsIfNeeded(SmallCapsState& smallCapsState, 
     }
 }
 
+static RefPtr<Font> applyTextSpacingTrimIfNeeded(GlyphData& glyphData, char32_t character, TextSpacingTrim textSpacingTrim)
+{
+    if (textSpacingTrim.isSpaceAll())
+        return nullptr;
+    TextSpacing::CharactersData charactersData = { .currentCharacter = character, .currentCharacterClass = TextSpacing::characterClass(character) };
+    if (RefPtr halfWidthFont = TextSpacing::getHalfWidthFontIfNeeded(*protect(glyphData.font), textSpacingTrim, charactersData)) {
+        glyphData.font = halfWidthFont.get();
+        return halfWidthFont;
+    }
+    return nullptr;
+}
+
 void WidthIterator::GlyphBounds::computeIfNeeded(Glyph glyph, const Font& font, unsigned charIndex, float glyphWidth)
 {
     if (!shouldCompute)
@@ -403,13 +415,7 @@ inline void WidthIterator::advanceInternal(TextIterator& textIterator, GlyphBuff
 
     auto glyphData = m_fontCascade->glyphDataForCharacter(character, false, FontVariant::NormalVariant);
 
-    RefPtr<Font> halfWidthFont;
-    auto shouldProcessTextSpacingTrim = !fontDescription.textSpacingTrim().isSpaceAll();
-    if (shouldProcessTextSpacingTrim) {
-        TextSpacing::CharactersData charactersData = { .currentCharacter = character, .currentCharacterClass = TextSpacing::characterClass(character) };
-        halfWidthFont = TextSpacing::getHalfWidthFontIfNeeded(*protect(glyphData.font), fontDescription.textSpacingTrim(), charactersData);
-        glyphData.font = halfWidthFont ? halfWidthFont.get() : glyphData.font;
-    }
+    RefPtr halfWidthFont = applyTextSpacingTrimIfNeeded(glyphData, character, fontDescription.textSpacingTrim());
 
     advanceInternalState.updateFont(glyphData.font ? protect(glyphData.font).get() : primaryFont.ptr());
     auto capitalizedCharacter = capitalized(character);
@@ -441,11 +447,7 @@ inline void WidthIterator::advanceInternal(TextIterator& textIterator, GlyphBuff
 #endif
         auto glyphData = m_fontCascade->glyphDataForCharacter(character, false, FontVariant::NormalVariant);
 
-        if (shouldProcessTextSpacingTrim) {
-            TextSpacing::CharactersData charactersData = { .currentCharacter = character, .currentCharacterClass = TextSpacing::characterClass(character) };
-            halfWidthFont = TextSpacing::getHalfWidthFontIfNeeded(*protect(glyphData.font), fontDescription.textSpacingTrim(), charactersData);
-            glyphData.font = halfWidthFont ? halfWidthFont.get() : glyphData.font;
-        }
+        halfWidthFont = applyTextSpacingTrimIfNeeded(glyphData, character, fontDescription.textSpacingTrim());
 
         advanceInternalState.updateFont(glyphData.font ? protect(glyphData.font).get() : primaryFont.ptr());
         smallCapsState.shouldSynthesizeCharacter = shouldSynthesizeSmallCaps(smallCapsState.dontSynthesizeSmallCaps, advanceInternalState.font.get(), character, capitalizedCharacter, smallCapsState.fontVariantCaps, smallCapsState.engageAllSmallCapsProcessing);
