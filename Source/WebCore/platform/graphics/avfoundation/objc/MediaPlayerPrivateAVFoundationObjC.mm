@@ -905,15 +905,14 @@ void MediaPlayerPrivateAVFoundationObjC::createAVAssetForURL(const URL& url, Ret
     if (!identifier.isEmpty())
         [options setObject:identifier.createNSString().get() forKey:AVURLAssetClientBundleIdentifierKey];
 #endif
-    if (PAL::canLoad_AVFoundation_AVAssetPrefersSandboxedParsingOptionKey())
-        [options setObject:@YES forKey:AVAssetPrefersSandboxedParsingOptionKey];
+    [options setObject:@YES forKey:AVAssetPrefersSandboxedParsingOptionKey];
 
     if (player->inPrivateBrowsingMode() && PAL::canLoad_AVFoundation_AVURLAssetDoNotLogURLsKey())
         [options setObject:@YES forKey:AVURLAssetDoNotLogURLsKey];
 
     auto type = player->contentMIMEType();
 
-    if (PAL::canLoad_AVFoundation_AVURLAssetOutOfBandMIMETypeKey() && !type.isEmpty() && !player->contentMIMETypeWasInferredFromExtension()) {
+    if (!type.isEmpty() && !player->contentMIMETypeWasInferredFromExtension()) {
         // FIXME: Remove that check once AVFoundation allows it (rdar://163119790). This should also not be restricted to blobs.
         if (type == "application/ogg"_s && url.protocolIsBlob())
             type = "audio/ogg"_s;

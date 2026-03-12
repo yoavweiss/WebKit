@@ -2507,6 +2507,8 @@ webkit.org/b/218010 imported/w3c/web-platform-tests/webaudio/the-audio-api/the-a
 webaudio/crashtest/audioworklet-concurrent-resampler-crash.html [ Timeout Pass ]
 
 webkit.org/b/309202 webaudio/audiomix-bufferingpolicy.html [ Pass Timeout Crash ]
+webkit.org/b/307727 webaudio/decode-audio-data-aac.html [ Failure ]
+webkit.org/b/307727 webaudio/decode-audio-data-mp3-8000.html [ Failure ]
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of WebAudio-related bugs
