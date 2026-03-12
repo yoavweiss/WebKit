@@ -1159,12 +1159,12 @@ bool WebPageProxy::useGPUProcessForDOMRenderingEnabled() const
         return true;
 #endif
 
-    HashSet<RefPtr<const WebPageProxy>> visitedPages;
-    visitedPages.add(this);
-    for (RefPtr page = configuration->relatedPage(); page && !visitedPages.contains(page); page = page->configuration().relatedPage()) {
+    HashSet<Ref<const WebPageProxy>> visitedPages;
+    visitedPages.add(*this);
+    for (RefPtr page = configuration->relatedPage(); page && !visitedPages.contains(*page); page = page->configuration().relatedPage()) {
         if (protect(page->preferences())->useGPUProcessForDOMRenderingEnabled())
             return true;
-        visitedPages.add(page);
+        visitedPages.add(page.releaseNonNull());
     }
 
     return false;

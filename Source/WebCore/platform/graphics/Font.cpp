@@ -419,11 +419,9 @@ static RefPtr<GlyphPage> createAndFillGlyphPage(unsigned pageNumber, const Font&
 
 const GlyphPage* Font::glyphPage(unsigned pageNumber) const
 {
-    auto addResult = m_glyphPages.add(pageNumber, nullptr);
-    if (addResult.isNewEntry)
-        addResult.iterator->value = createAndFillGlyphPage(pageNumber, *this);
-
-    return addResult.iterator->value.get();
+    return m_glyphPages.ensure(pageNumber, [&] {
+        return createAndFillGlyphPage(pageNumber, *this);
+    }).iterator->value.get();
 }
 
 Glyph Font::glyphForCharacter(char32_t character) const
