@@ -897,13 +897,13 @@ final class WebBackForwardList {
         if let oldFrameID = Optional(fromCxx: oldFrameID) {
             if let newFrameID = Optional(fromCxx: newFrameID) {
                 if !contentsMatch(oldFrameID, newFrameID) {
-                    updateAllFrameIDs(oldFrameID: oldFrameID, newFrameID: newFrameID)
+                    updateFrameIdentifier(oldFrameID: oldFrameID, newFrameID: newFrameID)
                 }
             }
         }
     }
 
-    private func updateAllFrameIDs(oldFrameID: WebCore.FrameIdentifier, newFrameID: WebCore.FrameIdentifier) {
+    func updateFrameIdentifier(oldFrameID: WebCore.FrameIdentifier, newFrameID: WebCore.FrameIdentifier) {
         for entry in entries {
             entry.updateFrameID(oldFrameID, newFrameID)
         }
