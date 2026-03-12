@@ -180,9 +180,6 @@
             "/webkit/WebKitWebView/is-playing-audio": {
                 "expected": {"all": {"status": ["FAIL", "TIMEOUT"], "bug": "webkit.org/b/274344"}}
             },
-            "/webkit/WebKitWebView/submit-form": {
-                "expected": {"gtk": {"status": ["FAIL", "TIMEOUT"], "bug": "webkit.org/b/279009"}}
-            },
             "/webkit/WebKitWebView/run-async-js-functions": {
                 "expected": {"gtk": {"status": ["PASS", "TIMEOUT"], "bug": "webkit.org/b/284812"}}
             },
