@@ -2345,7 +2345,14 @@ void NetworkProcess::findPendingDownloadLocation(NetworkDataTask& networkDataTas
 {
     String suggestedFilename = networkDataTask.suggestedFilename();
 
-    RefPtr { downloadProxyConnection() }->sendWithAsyncReply(Messages::DownloadProxy::DecideDestinationWithSuggestedFilename(response, suggestedFilename), [this, protectedThis = Ref { *this }, completionHandler = WTF::move(completionHandler), networkDataTask = Ref { networkDataTask }] (String&& destination, SandboxExtension::Handle&& sandboxExtensionHandle, AllowOverwrite allowOverwrite, WebKit::UseDownloadPlaceholder usePlaceholder, URL&& alternatePlaceholderURL, SandboxExtension::Handle&& placeholderSandboxExtensionHandle, std::span<const uint8_t> placeholderBookmarkData, std::span<const uint8_t> activityAccessToken) mutable {
+    RefPtr connection = downloadProxyConnection();
+    if (!connection) {
+        RELEASE_LOG_ERROR(Network, "NetworkProcess::findPendingDownloadLocation: No download proxy connection for download %" PRIu64, networkDataTask.pendingDownloadID()->toUInt64());
+        completionHandler(PolicyAction::Ignore);
+        return;
+    }
+
+    connection->sendWithAsyncReply(Messages::DownloadProxy::DecideDestinationWithSuggestedFilename(response, suggestedFilename), [this, protectedThis = Ref { *this }, completionHandler = WTF::move(completionHandler), networkDataTask = Ref { networkDataTask }] (String&& destination, SandboxExtension::Handle&& sandboxExtensionHandle, AllowOverwrite allowOverwrite, WebKit::UseDownloadPlaceholder usePlaceholder, URL&& alternatePlaceholderURL, SandboxExtension::Handle&& placeholderSandboxExtensionHandle, std::span<const uint8_t> placeholderBookmarkData, std::span<const uint8_t> activityAccessToken) mutable {
 #if !HAVE(MODERN_DOWNLOADPROGRESS)
         UNUSED_PARAM(placeholderBookmarkData);
         UNUSED_PARAM(activityAccessToken);
