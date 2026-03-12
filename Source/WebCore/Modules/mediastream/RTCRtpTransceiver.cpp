@@ -69,9 +69,16 @@ std::optional<RTCRtpTransceiverDirection> RTCRtpTransceiver::currentDirection() 
     return m_backend->currentDirection();
 }
 
-void RTCRtpTransceiver::setDirection(RTCRtpTransceiverDirection direction)
+ExceptionOr<void> RTCRtpTransceiver::setDirection(RTCRtpTransceiverDirection direction)
 {
+    if (m_isStopping)
+        return Exception { ExceptionCode::InvalidStateError, "RTCRtpTransceiver has been stopped"_s };
+
+    if (direction == RTCRtpTransceiverDirection::Stopped && this->direction() != RTCRtpTransceiverDirection::Stopped)
+        return Exception { ExceptionCode::TypeError, "RTCRtpTransceiver direction is stopped"_s };
+
     m_backend->setDirection(direction);
+    return { };
 }
 
 void RTCRtpTransceiver::setConnection(RTCPeerConnection& connection)
@@ -85,10 +92,10 @@ ExceptionOr<void> RTCRtpTransceiver::stop()
     if (!m_connection || m_connection->isClosed())
         return Exception { ExceptionCode::InvalidStateError, "RTCPeerConnection is closed"_s };
 
-    if (m_stopped)
+    if (m_isStopping)
         return { };
 
-    m_stopped = true;
+    m_isStopping = true;
     m_receiver->stop();
     m_sender->stop();
     m_backend->stop();

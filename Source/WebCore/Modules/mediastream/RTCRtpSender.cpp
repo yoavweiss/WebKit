@@ -97,7 +97,6 @@ void RTCRtpSender::stop()
         m_transform->detachFromSender(*this);
 
     m_trackId = { };
-    m_track = nullptr;
     m_isStopped = true;
 }
 
@@ -202,7 +201,7 @@ std::optional<RTCRtpCapabilities> RTCRtpSender::getCapabilities(ScriptExecutionC
 
 RTCDTMFSender* RTCRtpSender::dtmf()
 {
-    if (!m_dtmfSender && m_connection && m_connection->scriptExecutionContext() && !isStopped() && m_trackKind == "audio"_s)
+    if (!m_dtmfSender && m_connection && m_connection->scriptExecutionContext() && m_trackKind == "audio"_s)
         m_dtmfSender = RTCDTMFSender::create(*protect(m_connection->scriptExecutionContext()), *this, m_backend->createDTMFBackend());
 
     return m_dtmfSender.get();

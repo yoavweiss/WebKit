@@ -55,7 +55,7 @@ public:
 
     RTCRtpTransceiverDirection direction() const;
     std::optional<RTCRtpTransceiverDirection> currentDirection() const;
-    void setDirection(RTCRtpTransceiverDirection);
+    ExceptionOr<void> setDirection(RTCRtpTransceiverDirection);
     String mid() const;
 
     RTCRtpSender& sender() { return m_sender.get(); }
@@ -74,7 +74,7 @@ public:
 private:
     RTCRtpTransceiver(Ref<RTCRtpSender>&&, Ref<RTCRtpReceiver>&&, UniqueRef<RTCRtpTransceiverBackend>&&);
 
-    bool m_stopped { false };
+    bool m_isStopping { false };
     std::optional<RTCRtpTransceiverDirection> m_firedDirection;
 
     const Ref<RTCRtpSender> m_sender;
