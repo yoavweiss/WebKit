@@ -696,6 +696,7 @@ NS_SWIFT_SENDABLE
 - (void)loadModelFrom:(NSURL *)url;
 - (void)loadModel:(NSData *)data;
 - (void)update:(double)deltaTime;
+- (void)setLoop:(BOOL)loop;
 - (void)requestCompleted:(NSObject *)request;
 - (void)setCallbacksWithModelUpdatedCallback:(void (^)(WKBridgeUpdateMesh *))modelUpdatedCallback textureUpdatedCallback:(void (^)(WKBridgeUpdateTexture *))textureUpdatedCallback materialUpdatedCallback:(void (^)(WKBridgeUpdateMaterial *))materialUpdatedCallback;
 

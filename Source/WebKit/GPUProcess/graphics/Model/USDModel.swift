@@ -902,6 +902,8 @@ final class USDModelLoader: _Proto_UsdStageSession_v1.Delegate {
     fileprivate var endTime: TimeInterval = 1
     @nonobjc
     fileprivate var timeCodePerSecond: TimeInterval = 1
+    @nonobjc
+    fileprivate var loop: Bool = false
 
     init(objcInstance: WKBridgeModelLoader) {
         objcLoader = objcInstance
@@ -997,7 +999,7 @@ final class USDModelLoader: _Proto_UsdStageSession_v1.Delegate {
 
     func update(deltaTime: TimeInterval) {
         let newTime = currentTime() + deltaTime
-        time = startTime + fmod(newTime, max(duration(), 1))
+        time = startTime + (loop ? fmod(newTime, max(duration(), 1)) : min(newTime, duration()))
         usdLoader.update(time: time * timeCodePerSecond)
     }
 }
@@ -1051,6 +1053,11 @@ extension WKBridgeModelLoader {
     @objc
     func update(_ deltaTime: Double) {
         self.loader?.update(deltaTime: deltaTime)
+    }
+
+    @objc
+    func setLoop(_ loop: Bool) {
+        self.loader?.loop = loop
     }
 
     @objc
@@ -1516,6 +1523,10 @@ extension WKBridgeModelLoader {
 
     @objc
     func update(_ deltaTime: Double) {
+    }
+
+    @objc
+    func setLoop(_ loop: Bool) {
     }
 
     @objc
