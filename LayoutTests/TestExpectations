@@ -8334,8 +8334,6 @@ imported/w3c/web-platform-tests/editing/other/insertparagraph-in-child-of-head.t
 
 webkit.org/b/288546 imported/w3c/web-platform-tests/fullscreen/api/element-ready-allowed.html [ Pass Failure ]
 
-webkit.org/b/309619 imported/w3c/web-platform-tests/fullscreen/rendering/backdrop-object.html [ Pass ImageOnlyFailure Timeout ]
-
 # Tests that timed out
 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/history-traversal/pageswap/pageswap-push-from-click.html [ Skip ]
 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/history-traversal/pageswap/pageswap-push-navigation-hidden-document.html [ Skip ]
