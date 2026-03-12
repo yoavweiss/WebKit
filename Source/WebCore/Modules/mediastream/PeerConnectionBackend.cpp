@@ -363,16 +363,18 @@ static bool NODELETE isDirectionReceiving(RTCRtpTransceiverDirection direction)
 // https://w3c.github.io/webrtc-pc/#process-remote-tracks
 static void processRemoteTracks(RTCRtpTransceiver& transceiver, PeerConnectionBackend::TransceiverState&& state, Vector<MediaStreamAndTrackItem>& addList, Vector<MediaStreamAndTrackItem>& removeList, Vector<Ref<RTCTrackEvent>>& trackEventList, Vector<Ref<MediaStreamTrack>>& muteTrackList)
 {
-    auto addListSize = addList.size();
-    auto& receiver = transceiver.receiver();
-    setAssociatedRemoteStreams(receiver, state, addList, removeList);
-    if ((state.firedDirection && isDirectionReceiving(*state.firedDirection) && (!transceiver.firedDirection() || !isDirectionReceiving(*transceiver.firedDirection()))) || addListSize != addList.size()) {
-        // https://w3c.github.io/webrtc-pc/#process-remote-track-addition
-        trackEventList.append(RTCTrackEvent::create(eventNames().trackEvent, Event::CanBubble::No, Event::IsCancelable::No, receiver, receiver.track(), WTF::move(state.receiverStreams), transceiver));
+    Ref receiver = transceiver.receiver();
+    if (!transceiver.stopped()) {
+        auto addListSize = addList.size();
+        setAssociatedRemoteStreams(receiver.get(), state, addList, removeList);
+        if ((state.firedDirection && isDirectionReceiving(*state.firedDirection) && (!transceiver.firedDirection() || !isDirectionReceiving(*transceiver.firedDirection()))) || addListSize != addList.size()) {
+            // https://w3c.github.io/webrtc-pc/#process-remote-track-addition
+            trackEventList.append(RTCTrackEvent::create(eventNames().trackEvent, Event::CanBubble::No, Event::IsCancelable::No, receiver.copyRef(), receiver->track(), WTF::move(state.receiverStreams), transceiver));
+        }
     }
     if (!(state.firedDirection && isDirectionReceiving(*state.firedDirection)) && transceiver.firedDirection() && isDirectionReceiving(*transceiver.firedDirection())) {
         // https://w3c.github.io/webrtc-pc/#process-remote-track-removal
-        muteTrackList.append(receiver.track());
+        muteTrackList.append(receiver->track());
     }
     transceiver.setFiredDirection(state.firedDirection);
 }
