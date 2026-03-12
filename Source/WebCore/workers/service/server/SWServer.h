@@ -236,6 +236,7 @@ public:
     void registrationStoreImportComplete();
     void registrationStoreDatabaseFailedToOpen();
     void storeRegistrationForWorker(SWServerWorker&);
+    void loadWorkerScripts(const SWServerWorker&, CompletionHandler<void()>&&);
 
     WEBCORE_EXPORT void getOriginsWithRegistrations(CompletionHandler<void(const HashSet<SecurityOriginData>&)>&&);
 
