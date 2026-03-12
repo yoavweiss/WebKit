@@ -150,7 +150,7 @@ void CoordinatedPlatformLayerBufferExternalOES::paintToTextureMapper(TextureMapp
     OptionSet<BitmapTexture::Flags> textureFlags { BitmapTexture::Flags::ExternalOESRenderTarget };
     if (m_flags.contains(TextureMapperFlags::ShouldBlend))
         textureFlags.add(BitmapTexture::Flags::SupportsAlpha);
-    auto texture = BitmapTexturePool::singleton().createTextureForImage(image, textureFlags);
+    auto texture = BitmapTexturePool::singleton().createTextureForImage(image, m_size, textureFlags);
     textureMapper.drawTextureExternalOESYUV(texture->id(), m_flags, targetRect, modelViewMatrix, opacity);
     display.destroyEGLImage(image);
 #endif // USE(GSTREAMER) && USE(GBM)
