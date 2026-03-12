@@ -274,6 +274,12 @@
             },
             "ImageBufferTests/AnyTwoImageBufferOptionsTest.PutPixelBufferAffectsDrawOutput/1byteobject011byteobject01": {
                 "expected": {"all": {"status": ["SKIP"], "bug":"webkit.org/b/286456"}}
+            },
+            "GStreamerTest.gstStructureGetters": {
+                "expected": {"wpe:arm64": {"status": ["FAIL"], "bug": "webkit.org/b/309745"}}
+            },
+            "GStreamerTest.gstStructureJSONSerializing": {
+                "expected": {"wpe:arm64": {"status": ["FAIL"], "bug": "webkit.org/b/309745"}}
             }
         }
     },
@@ -414,6 +420,15 @@
             },
             "WTF_DateMath.calculateLocalTimeOffset": {
                 "expected": {"wpe": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/297780"}}
+            },
+            "WTF.clampSameSignIntegers": {
+                "expected": {"wpe:arm64": {"status": ["FAIL"], "bug": "webkit.org/b/309746"}}
+            },
+            "WTF.clampUnsignedToSigned": {
+                "expected": {"wpe:arm64": {"status": ["FAIL"], "bug": "webkit.org/b/309746"}}
+            },
+            "WTF.clampSignedToUnsigned": {
+                "expected": {"wpe:arm64": {"status": ["FAIL"], "bug": "webkit.org/b/309746"}}
             },
             "CompletionHandlerDeathTest.MainThreadHandlerOnThreadAssertsDeathTest": {
                 "expected": {"gtk": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/299598" }}
