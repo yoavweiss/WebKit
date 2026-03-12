@@ -683,19 +683,36 @@ void WebPageProxy::showPDFContextMenu(const WebKit::PDFContextMenu& contextMenu,
         [nsMenu insertItem:nsItem.get() atIndex:i];
     }
     RetainPtr window = pageClient->platformWindow();
-    auto location = [window convertRectFromScreen: { contextMenu.point, NSZeroSize }].origin;
-    auto event = createSyntheticEventForContextMenu(location);
 
     RetainPtr<NSView> view = window.get().contentView;
-    [NSMenu popUpContextMenu:nsMenu.get() withEvent:event.get() forView:view.get()];
+    auto locationInWindowCoordinates = [window convertRectFromScreen: { contextMenu.point, NSZeroSize }].origin;
 
-    if (RetainPtr selectedMenuItem = [menuTarget selectedMenuItem]) {
-        NSInteger tag = selectedMenuItem.get().tag;
-        if (contextMenu.openInDefaultViewerTag == tag)
-            pdfOpenWithPreview(identifier, frameID);
-        return completionHandler(tag);
+    auto handleSelectedMenuItem = [this, protectedThis = Ref { *this }, menuTarget, contextMenu, frameID, identifier, completionHandler = WTF::move(completionHandler)] mutable {
+        if (RetainPtr selectedMenuItem = [menuTarget selectedMenuItem]) {
+            NSInteger tag = [selectedMenuItem tag];
+            if (contextMenu.openInDefaultViewerTag == tag)
+                pdfOpenWithPreview(identifier, frameID);
+
+            completionHandler(tag);
+            return;
+        }
+
+        completionHandler(std::nullopt);
+    };
+
+    if (contextMenu.inputSource == WebMouseEventInputSource::Automation) {
+#if HAVE(APPKIT_GESTURES_SUPPORT)
+        NSPoint locationInScreenCoordinates = [window convertPointToScreen:locationInWindowCoordinates];
+        RetainPtr screenRelativeContext = [_NSViewMenuContext menuContextWithLocation:locationInScreenCoordinates source:contextMenuRequestSourceForAutomation()];
+        [NSMenu _popUpContextMenu:nsMenu.get() withContext:screenRelativeContext.get() forView:view.get() completionBlock:makeBlockPtr(WTF::move(handleSelectedMenuItem)).get()];
+#else
+        RELEASE_ASSERT_NOT_REACHED();
+#endif
+    } else {
+        RetainPtr event = createSyntheticEventForContextMenu(locationInWindowCoordinates);
+        [NSMenu popUpContextMenu:nsMenu.get() withEvent:event.get() forView:view.get()];
+        handleSelectedMenuItem();
     }
-    completionHandler(std::nullopt);
 }
 #endif
 
