@@ -614,6 +614,12 @@ void LocalDOMWindow::resetUnlessSuspendedForDocumentSuspension()
 
 void LocalDOMWindow::suspendForBackForwardCache()
 {
+    // Without this, entries queued just before navigation would have their
+    // duration computed after restoration:
+    if (m_performanceEventTimingCandidates.size())
+        LOG_WITH_STREAM(PerformanceTimeline, stream << "Dispatching event timing entries before suspending to back-forward cache.");
+    finalizeAndQueueEventTimingEntries();
+
     SetForScope isSuspendingObservers(m_isSuspendingObservers, true);
     RELEASE_ASSERT(frame());
 
@@ -2641,7 +2647,7 @@ void LocalDOMWindow::queueEventTimingCandidateForDispatch(PerformanceEventTiming
     page->scheduleRenderingUpdate(RenderingUpdateStep::EventTiming);
 }
 
-PerformanceEventTimingCandidate LocalDOMWindow::initializeEventTimingEntry(Event& event, EventType type)
+PerformanceEventTimingCandidate LocalDOMWindow::initializeEventTiming(Event& event, EventType type)
 {
     auto startTime = performance().relativeTimeFromTimeOriginInReducedResolutionSeconds(event.timeStamp());
     auto processingStart = performance().nowInReducedResolutionSeconds();
@@ -2669,8 +2675,9 @@ PerformanceEventTimingCandidate LocalDOMWindow::initializeEventTimingEntry(Event
     };
 }
 
-void LocalDOMWindow::finalizeEventTimingEntry(PerformanceEventTimingCandidate& entry, const Event& event, EventType type)
+void LocalDOMWindow::markEndOfProcessingForEventTiming(PerformanceEventTimingCandidate& entry, const Event& event, EventType type)
 {
+    // Maps to "Finalize event timing" in the spec.
     auto processingEnd = performance().nowInReducedResolutionSeconds();
     entry.processingEnd = processingEnd;
     entry.target = event.target();
@@ -2738,8 +2745,9 @@ void LocalDOMWindow::finalizeEventTimingEntry(PerformanceEventTimingCandidate& e
     }
 }
 
-void LocalDOMWindow::dispatchPendingEventTimingEntries()
+void LocalDOMWindow::finalizeAndQueueEventTimingEntries()
 {
+    // Maps to "Dispatch pending Event Timing entries" in the spec.
     auto renderingTime = performance().nowInReducedResolutionSeconds();
     if (m_pendingPointerDown && !m_pendingPointerDown->duration)
         m_pendingPointerDown->duration = std::max(renderingTime - m_pendingPointerDown->startTime, Seconds::fromMilliseconds(1));
