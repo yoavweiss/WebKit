@@ -5166,6 +5166,15 @@ void Page::setupForRemoteWorker(const URL& scriptURL, const SecurityOriginData& 
     if (auto policy = parseReferrerPolicy(referrerPolicy, ReferrerPolicySource::HTTPHeader))
         document->setReferrerPolicy(*policy);
 
+    // Mark the synthetic document's load event as finished so that the
+    // CachedResourceLoader's m_validatedURLs optimization (which avoids
+    // re-fetching resources during initial page load) does not apply. Without
+    // this, worker module fetches to the same URL with different import
+    // attributes (e.g. JSON vs JavaScript) can incorrectly reuse a cached
+    // response from the MemoryCache, because m_validatedURLs bypasses all
+    // freshness and revalidation checks.
+    document->dispatchWindowLoadEvent();
+
     localMainFrame->setDocument(WTF::move(document));
 }
 
