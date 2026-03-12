@@ -135,11 +135,18 @@ private func makeMTLTextureFromImageAsset(
 
     let bytesPerRow = imageAsset.width * imageAsset.bytesPerPixel
     let bytesPerImage = bytesPerRow * imageAsset.height
+    let totalBytesNeeded = sliceCount * bytesPerImage
 
     unsafe imageAssetData.bytes.withUnsafeBytes { textureBytes in
         guard let textureBytesBaseAddress = textureBytes.baseAddress else {
             return
         }
+
+        // Validate that we have enough data
+        guard textureBytes.count >= totalBytesNeeded else {
+            return
+        }
+
         for face in 0..<sliceCount {
             let offset = face * bytesPerImage
             let facePointer = unsafe textureBytesBaseAddress.advanced(by: offset)
