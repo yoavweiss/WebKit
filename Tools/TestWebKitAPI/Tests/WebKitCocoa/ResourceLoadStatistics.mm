@@ -91,7 +91,8 @@ static void ensureITPFileIsCreated()
     [dataStore _setResourceLoadStatisticsEnabled:NO];
 }
 
-TEST(ResourceLoadStatistics, GrandfatherCallback)
+// FIXME when rdar://172325390 is resolved
+TEST(ResourceLoadStatistics, DISABLED_GrandfatherCallback)
 {
     auto dataStoreConfiguration = adoptNS([_WKWebsiteDataStoreConfiguration new]);
     dataStoreConfiguration.get().pcmMachServiceName = nil;
