@@ -111,6 +111,10 @@ namespace WGSL {
     value(Off, off) \
     value(Warning, warning) \
 
+#define ENUM_TriggeringRule(value) \
+    value(DerivativeUniformity, derivative_uniformity) \
+    value(SubgroupUniformity, subgroup_uniformity) \
+
 #define ENUM_Builtin(value) \
     value(FragDepth, frag_depth) \
     value(FrontFacing, front_facing) \
@@ -162,6 +166,7 @@ ENUM_DECLARE(InterpolationType);
 ENUM_DECLARE(InterpolationSampling);
 ENUM_DECLARE(ShaderStage);
 ENUM_DECLARE(SeverityControl);
+ENUM_DECLARE(TriggeringRule);
 ENUM_DECLARE(Builtin);
 ENUM_DECLARE(Extension);
 ENUM_DECLARE(LanguageFeature);

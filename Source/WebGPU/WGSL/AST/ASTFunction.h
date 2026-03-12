@@ -28,6 +28,7 @@
 #include "ASTAttribute.h"
 #include "ASTCompoundStatement.h"
 #include "ASTDeclaration.h"
+#include "ASTDiagnostic.h"
 #include "ASTParameter.h"
 #include "ASTWorkgroupSizeAttribute.h"
 
@@ -39,7 +40,7 @@ class AttributeValidator;
 
 namespace AST {
 
-class Function final : public Declaration {
+class Function final : public Declaration, public DiagnosticContainer {
     WGSL_AST_BUILDER_NODE(Function);
     friend AttributeValidator;
 

@@ -506,8 +506,6 @@ Result<void> TypeChecker::visit(AST::Declaration& declaration)
 
 Result<void> TypeChecker::visit(AST::Structure& structure)
 {
-    CHECK(visitAttributes(structure.attributes()));
-
     HashMap<String, const Type*> fields;
     for (unsigned i = 0; i < structure.members().size(); ++i) {
         auto& member = structure.members()[i];
@@ -1130,7 +1128,7 @@ Result<void> TypeChecker::visit(AST::SwitchStatement& statement)
         return { };
     };
 
-    CHECK(visitAttributes(statement.valueAttributes()));
+    CHECK(visitAttributes(statement.bodyAttributes()));
     CHECK(visitClause(statement.defaultClause()));
     for (auto& clause : statement.clauses())
         CHECK(visitClause(clause));

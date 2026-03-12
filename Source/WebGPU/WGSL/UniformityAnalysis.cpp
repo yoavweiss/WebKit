@@ -33,6 +33,7 @@
 #include <wtf/DataLog.h>
 #include <wtf/HashMap.h>
 #include <wtf/HashSet.h>
+#include <wtf/Scope.h>
 #include <wtf/text/MakeString.h>
 
 namespace WGSL {
@@ -70,6 +71,16 @@ enum class FunctionTag : uint8_t {
     ReturnValueMayBeNonUniform,
 };
 
+struct CallSiteRequirement {
+    CallSiteTag tag { CallSiteTag::NoRestriction };
+    SeverityControl severity { SeverityControl::Error };
+};
+
+struct ParameterRequirement {
+    ParameterTag tag { ParameterTag::NoRestriction };
+    SeverityControl severity { SeverityControl::Error };
+};
+
 struct ParameterInfo {
     String name;
     unsigned index;
@@ -77,7 +88,7 @@ struct ParameterInfo {
     Node* ptrInputContents { nullptr };
     Node* ptrOutputContents { nullptr };
 
-    ParameterTag tagDirect { ParameterTag::NoRestriction };
+    ParameterRequirement tagDirect;
     ParameterTag tagRetval { ParameterTag::NoRestriction };
 
     bool pointerMayBecomeNonUniform { false };
@@ -95,13 +106,25 @@ struct LoopSwitchInfo {
 
 struct FunctionInfo {
     AST::Function* astNode;
-    Node* requiredToBeUniform { nullptr };
+    Node* requiredToBeUniform[3] { nullptr, nullptr, nullptr }; // indexed: 0=Error, 1=Warning, 2=Info
     Node* mayBeNonUniform { nullptr };
     Node* cfStart { nullptr };
     Node* valueReturn { nullptr };
 
-    CallSiteTag callSiteTag { CallSiteTag::NoRestriction };
+    CallSiteRequirement callSiteTag;
     FunctionTag functionTag { FunctionTag::NoRestriction };
+
+    Node* requiredToBeUniformForSeverity(SeverityControl severity)
+    {
+        switch (severity) {
+        case SeverityControl::Error:   return requiredToBeUniform[0];
+        case SeverityControl::Warning: return requiredToBeUniform[1];
+        case SeverityControl::Info:    return requiredToBeUniform[2];
+        case SeverityControl::Off:     return nullptr;
+        }
+        RELEASE_ASSERT_NOT_REACHED();
+    }
+
     Vector<ParameterInfo> parameters;
 
     Vector<std::unique_ptr<Node>> nodes;
@@ -180,7 +203,7 @@ public:
     {
     }
 
-    std::optional<Error> run();
+    std::optional<FailedCheck> run();
 
 private:
     std::optional<Error> processFunction(AST::Function&);
@@ -200,10 +223,16 @@ private:
     static AST::IdentifierExpression* rootIdentifier(AST::Expression&);
     static bool isGlobalNonUniform(AST::Variable&);
 
+    SeverityControl currentSeverity() const
+    {
+        return m_severityStack.last();
+    }
+
     ShaderModule& m_shaderModule;
     HashMap<String, FunctionInfo> m_functions;
     FunctionInfo* m_currentFunction { nullptr };
-    bool m_derivativeUniformityOff { false };
+    Vector<SeverityControl> m_severityStack;
+    Vector<Warning> m_warnings;
     Vector<LoopSwitchInfo*> m_loopSwitchStack;
     Vector<std::unique_ptr<LoopSwitchInfo>> m_loopSwitchInfos;
 };
@@ -252,26 +281,21 @@ bool UniformityGraph::isGlobalNonUniform(AST::Variable& globalVar)
     return false;
 }
 
-std::optional<Error> UniformityGraph::run()
+std::optional<FailedCheck> UniformityGraph::run()
 {
     dataLogLnIf(shouldLogUniformityAnalysis, "Starting graph-based uniformity analysis");
 
-    for (auto& directive : m_shaderModule.directives()) {
-        if (auto* diagDirective = dynamicDowncast<AST::DiagnosticDirective>(directive)) {
-            auto& diagnostic = diagDirective->diagnostic();
-            if (diagnostic.triggeringRule.name.id() == "derivative_uniformity"_s
-                && diagnostic.severity == SeverityControl::Off)
-                m_derivativeUniformityOff = true;
-        }
-    }
+    m_severityStack.append(m_shaderModule.severityFor(TriggeringRule::DerivativeUniformity).value_or(SeverityControl::Error));
 
     for (auto& declaration : m_shaderModule.declarations()) {
         if (auto* function = dynamicDowncast<AST::Function>(declaration)) {
             if (auto error = processFunction(*function))
-                return error;
+                return FailedCheck { Vector<Error> { *error }, WTF::move(m_warnings) };
         }
     }
 
+    if (!m_warnings.isEmpty())
+        return FailedCheck { { }, WTF::move(m_warnings) };
     return std::nullopt;
 }
 
@@ -286,7 +310,9 @@ std::optional<Error> UniformityGraph::processFunction(AST::Function& function)
     info.astNode = &function;
     m_currentFunction = &info;
 
-    info.requiredToBeUniform = info.createNode();
+    info.requiredToBeUniform[0] = info.createNode();
+    info.requiredToBeUniform[1] = info.createNode();
+    info.requiredToBeUniform[2] = info.createNode();
     info.mayBeNonUniform = info.createNode();
     info.cfStart = info.createNode();
 
@@ -347,7 +373,16 @@ std::optional<Error> UniformityGraph::processFunction(AST::Function& function)
         }
     }
 
+    bool pushedFunctionSeverity = false;
+    if (auto severity = function.severityFor(TriggeringRule::DerivativeUniformity)) {
+        m_severityStack.append(*severity);
+        pushedFunctionSeverity = true;
+    }
+
     processStatements(info.cfStart, function.body().statements());
+
+    if (pushedFunctionSeverity)
+        m_severityStack.removeLast();
 
     for (auto& paramInfo : info.parameters) {
         if (paramInfo.ptrOutputContents) {
@@ -376,38 +411,48 @@ std::optional<Error> UniformityGraph::processFunction(AST::Function& function)
     };
 
     {
-        info.resetVisited();
-        HashSet<Node*> reachable;
-        traverse(info.requiredToBeUniform, &reachable);
+        static constexpr SeverityControl severities[] = { SeverityControl::Error, SeverityControl::Warning, SeverityControl::Info };
+        for (auto severity : severities) {
+            auto* sentinel = info.requiredToBeUniformForSeverity(severity);
+            info.resetVisited();
+            HashSet<Node*> reachable;
+            traverse(sentinel, &reachable);
 
-        if (reachable.contains(info.mayBeNonUniform)) {
-            String callName;
-            const AST::Node* callAst = nullptr;
-            for (auto* edge : info.requiredToBeUniform->edges) {
-                if (!edge->ast)
-                    continue;
-                if (auto* callExpr = dynamicDowncast<AST::CallExpression>(*edge->ast)) {
-                    callAst = callExpr;
-                    if (auto* target = dynamicDowncast<AST::IdentifierExpression>(callExpr->target()))
-                        callName = target->identifier().id();
-                    break;
+            if (reachable.contains(info.mayBeNonUniform)) {
+                String callName;
+                const AST::Node* callAst = nullptr;
+                for (auto* edge : sentinel->edges) {
+                    if (!edge->ast)
+                        continue;
+                    if (auto* callExpr = dynamicDowncast<AST::CallExpression>(*edge->ast)) {
+                        callAst = callExpr;
+                        if (auto* target = dynamicDowncast<AST::IdentifierExpression>(callExpr->target()))
+                            callName = target->identifier().id();
+                        break;
+                    }
+                }
+                RELEASE_ASSERT(callAst);
+                RELEASE_ASSERT(!callName.isEmpty());
+
+                if (auto it = m_functions.find(callName); it != m_functions.end())
+                    callName = it->value.astNode->originalName();
+
+                auto message = makeString("call to '"_s, callName, "' requires uniform control flow"_s);
+                if (severity == SeverityControl::Error)
+                    return Error { WTF::move(message), callAst->span() };
+                m_warnings.append(Warning { WTF::move(message), callAst->span() });
+            }
+
+            if (reachable.contains(info.cfStart) && info.callSiteTag.tag == CallSiteTag::NoRestriction)
+                info.callSiteTag = { CallSiteTag::RequiredToBeUniform, severity };
+
+            for (unsigned i = 0; i < info.parameters.size(); ++i) {
+                if (info.parameters[i].tagDirect.tag == ParameterTag::NoRestriction) {
+                    auto tag = getParamTag(reachable, i);
+                    if (tag != ParameterTag::NoRestriction)
+                        info.parameters[i].tagDirect = { tag, severity };
                 }
             }
-            RELEASE_ASSERT(callAst);
-            RELEASE_ASSERT(!callName.isEmpty());
-
-            if (auto it = m_functions.find(callName); it != m_functions.end())
-                callName = it->value.astNode->originalName();
-
-            return Error { makeString("call to '"_s, callName, "' requires uniform control flow"_s), callAst->span() };
-        }
-
-        if (reachable.contains(info.cfStart))
-            info.callSiteTag = CallSiteTag::RequiredToBeUniform;
-
-        for (unsigned i = 0; i < info.parameters.size(); ++i) {
-            if (info.parameters[i].tagDirect == ParameterTag::NoRestriction)
-                info.parameters[i].tagDirect = getParamTag(reachable, i);
         }
     }
 
@@ -462,6 +507,16 @@ Node* UniformityGraph::processStatements(Node* cf, AST::Statement::List& stateme
 Node* UniformityGraph::processStatement(Node* cf, AST::Statement& statement)
 {
     auto& info = *m_currentFunction;
+
+    bool pushedSeverity = false;
+    if (auto severity = statement.severityFor(TriggeringRule::DerivativeUniformity)) {
+        m_severityStack.append(*severity);
+        pushedSeverity = true;
+    }
+    auto popSeverity = makeScopeExit([&] {
+        if (pushedSeverity)
+            m_severityStack.removeLast();
+    });
 
     switch (statement.kind()) {
     case AST::NodeKind::CompoundStatement: {
@@ -1170,6 +1225,7 @@ std::pair<Node*, Node*> UniformityGraph::processCall(Node* cf, AST::CallExpressi
     auto* cfAfter = info.createNode(&call);
 
     CallSiteTag callSiteTag = CallSiteTag::NoRestriction;
+    SeverityControl callSiteSeverity = SeverityControl::Error;
     FunctionTag functionTag = FunctionTag::NoRestriction;
     const FunctionInfo* funcInfo = nullptr;
 
@@ -1177,7 +1233,8 @@ std::pair<Node*, Node*> UniformityGraph::processCall(Node* cf, AST::CallExpressi
         auto it = m_functions.find(name);
         if (it != m_functions.end()) {
             funcInfo = &it->value;
-            callSiteTag = funcInfo->callSiteTag;
+            callSiteTag = funcInfo->callSiteTag.tag;
+            callSiteSeverity = funcInfo->callSiteTag.severity;
             functionTag = funcInfo->functionTag;
         } else {
             static constexpr SortedArraySet barrierFunctions { std::to_array<ComparableASCIILiteral>({
@@ -1220,7 +1277,8 @@ std::pair<Node*, Node*> UniformityGraph::processCall(Node* cf, AST::CallExpressi
             else if (name == "workgroupUniformLoad"_s)
                 callSiteTag = CallSiteTag::RequiredToBeUniform;
             else if (derivativeFunctions.contains(name)) {
-                if (!m_derivativeUniformityOff)
+                callSiteSeverity = currentSeverity();
+                if (callSiteSeverity != SeverityControl::Off)
                     callSiteTag = CallSiteTag::RequiredToBeUniform;
                 functionTag = FunctionTag::ReturnValueMayBeNonUniform;
             } else if (atomicFunctions.contains(name))
@@ -1246,13 +1304,16 @@ std::pair<Node*, Node*> UniformityGraph::processCall(Node* cf, AST::CallExpressi
         if (funcInfo) {
             auto& paramInfo = funcInfo->parameters[i];
 
-            switch (paramInfo.tagDirect) {
+            switch (paramInfo.tagDirect.tag) {
             case ParameterTag::ValueRequiredToBeUniform:
-                info.requiredToBeUniform->addEdge(args[i]);
+                if (auto* node = info.requiredToBeUniformForSeverity(paramInfo.tagDirect.severity))
+                    node->addEdge(args[i]);
                 break;
             case ParameterTag::ContentsRequiredToBeUniform:
-                if (ptrArgContents[i])
-                    info.requiredToBeUniform->addEdge(ptrArgContents[i]);
+                if (ptrArgContents[i]) {
+                    if (auto* node = info.requiredToBeUniformForSeverity(paramInfo.tagDirect.severity))
+                        node->addEdge(ptrArgContents[i]);
+                }
                 break;
             case ParameterTag::NoRestriction:
                 break;
@@ -1308,14 +1369,17 @@ std::pair<Node*, Node*> UniformityGraph::processCall(Node* cf, AST::CallExpressi
                         }
                     }
                 }
-                info.requiredToBeUniform->addEdge(ptrValueNode);
+                if (auto* node = info.requiredToBeUniformForSeverity(callSiteSeverity))
+                    node->addEdge(ptrValueNode);
             } else
                 result->addEdge(args[i]);
         }
     }
 
-    if (callSiteTag == CallSiteTag::RequiredToBeUniform)
-        info.requiredToBeUniform->addEdge(callNode);
+    if (callSiteTag == CallSiteTag::RequiredToBeUniform) {
+        if (auto* node = info.requiredToBeUniformForSeverity(callSiteSeverity))
+            node->addEdge(callNode);
+    }
 
     return { cfAfter, result };
 }
@@ -1325,9 +1389,7 @@ std::pair<Node*, Node*> UniformityGraph::processCall(Node* cf, AST::CallExpressi
 std::optional<FailedCheck> uniformityAnalysis(ShaderModule& shaderModule)
 {
     UniformityGraph graph(shaderModule);
-    if (auto error = graph.run())
-        return FailedCheck { Vector<Error> { *error }, { } };
-    return std::nullopt;
+    return graph.run();
 }
 
 } // namespace WGSL

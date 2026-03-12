@@ -27,6 +27,7 @@
 
 #include "ASTBuilder.h"
 #include "ASTDeclaration.h"
+#include "ASTDiagnostic.h"
 #include "ASTDirective.h"
 #include "ASTIdentityExpression.h"
 #include "CallGraph.h"
@@ -42,7 +43,7 @@
 
 namespace WGSL {
 
-class ShaderModule {
+class ShaderModule : public AST::DiagnosticContainer {
     WTF_MAKE_TZONE_ALLOCATED(ShaderModule);
 public:
     explicit ShaderModule(const String& source)

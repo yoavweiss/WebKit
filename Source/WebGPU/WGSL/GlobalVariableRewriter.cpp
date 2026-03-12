@@ -953,7 +953,6 @@ const Type* RewriteGlobalVariables::packStructType(const Types::Struct* structTy
         SourceSpan::empty(),
         AST::Identifier::make(packedStructName),
         AST::StructureMember::List(structType->structure.members()),
-        AST::Attribute::List { },
         AST::StructureRole::PackedResource,
         &structType->structure
     );
@@ -1672,7 +1671,6 @@ void RewriteGlobalVariables::finalizeArgumentBufferStruct(unsigned group, Vector
         SourceSpan::empty(),
         argumentBufferStructName(group),
         WTF::move(structMembers),
-        AST::Attribute::List { },
         AST::StructureRole::BindGroup
     );
     argumentBufferStruct.m_inferredType = m_shaderModule.types().structType(argumentBufferStruct);
@@ -2596,6 +2594,7 @@ void RewriteGlobalVariables::storeInitialValue(AST::Expression& target, AST::Sta
 
         auto& forStatement = m_shaderModule.astBuilder().construct<AST::ForStatement>(
             SourceSpan::empty(),
+            AST::Attribute::List { },
             &forInitializer,
             &forTest,
             &forUpdate,

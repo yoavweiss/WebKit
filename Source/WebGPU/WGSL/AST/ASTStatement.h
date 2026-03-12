@@ -26,6 +26,7 @@
 #pragma once
 
 #include "ASTBuilder.h"
+#include "ASTDiagnostic.h"
 #include "ASTNode.h"
 #include <wtf/OptionSet.h>
 #include <wtf/ReferenceWrapperVector.h>
@@ -40,7 +41,7 @@ enum class Behavior : uint8_t {
 };
 using Behaviors = OptionSet<Behavior>;
 
-class Statement : public Node {
+class Statement : public Node, public DiagnosticContainer {
     WGSL_AST_BUILDER_NODE(Statement);
 public:
     using Ref = std::reference_wrapper<Statement>;

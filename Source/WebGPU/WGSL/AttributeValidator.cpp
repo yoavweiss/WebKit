@@ -48,18 +48,26 @@ public:
     std::optional<FailedCheck> validate();
     std::optional<FailedCheck> validateIO();
 
+    void visit(AST::DiagnosticDirective&) override;
     void visit(AST::Function&) override;
     void visit(AST::Parameter&) override;
     void visit(AST::Variable&) override;
     void visit(AST::Structure&) override;
     void visit(AST::StructureMember&) override;
     void visit(AST::CompoundStatement&) override;
+    void visit(AST::ForStatement&) override;
+    void visit(AST::WhileStatement&) override;
+    void visit(AST::LoopStatement&) override;
+    void visit(AST::Continuing&) override;
+    void visit(AST::SwitchStatement&) override;
+    void visit(AST::IfStatement&) override;
 
 private:
     bool parseBuiltin(AST::Function*, std::optional<Builtin>&, AST::Attribute&);
     bool parseInterpolate(std::optional<AST::Interpolation>&, AST::Attribute&);
     bool parseInvariant(bool&, AST::Attribute&);
     bool parseLocation(AST::Function*, std::optional<unsigned>&, AST::Attribute&, const Type*);
+    bool parseDiagnostic(AST::DiagnosticContainer&, AST::Attribute&);
 
     void validateInterpolation(const SourceSpan&, const std::optional<AST::Interpolation>&, const std::optional<unsigned>&);
     void validateInvariant(const SourceSpan&, const std::optional<Builtin>&, bool);
@@ -96,6 +104,19 @@ std::optional<FailedCheck> AttributeValidator::validate()
     if (!hasError()) [[likely]]
         return std::nullopt;
     return FailedCheck { Vector<Error> { result().error() }, { } };
+}
+
+void AttributeValidator::visit(AST::DiagnosticDirective& diagnosticDirective)
+{
+    auto& diagnostic = diagnosticDirective.diagnostic();
+    if (auto& severity = m_shaderModule.severityFor(diagnostic.triggeringRule)) {
+        if (severity != diagnostic.severity) {
+            error(diagnosticDirective.span(), "conflicting diagnostic directive"_s);
+            return;
+        }
+    }
+
+    m_shaderModule.setSeverityFor(diagnostic.triggeringRule, diagnostic.severity);
 }
 
 void AttributeValidator::visit(AST::Function& function)
@@ -144,10 +165,11 @@ void AttributeValidator::visit(AST::Function& function)
             continue;
         }
 
-        if (!is<AST::DiagnosticAttribute>(attribute)) [[unlikely]] {
-            error(attribute.span(), "invalid attribute for function declaration"_s);
-            return;
-        }
+        if (parseDiagnostic(function, attribute))
+            continue;
+
+        error(attribute.span(), "invalid attribute for function declaration"_s);
+        return;
     }
 
     if (function.workgroupSize().has_value() && (!function.stage().has_value() || *function.stage() != ShaderStage::Compute)) [[unlikely]] {
@@ -563,11 +585,107 @@ void AttributeValidator::visit(AST::StructureMember& member)
 void AttributeValidator::visit(AST::CompoundStatement& statement)
 {
     for (auto& attribute : statement.attributes()) {
-        if (!is<AST::DiagnosticAttribute>(attribute)) [[unlikely]] {
-            error(attribute.span(), "invalid attribute for compound statement"_s);
-            return;
-        }
+        if (parseDiagnostic(statement, attribute))
+            continue;
+
+        error(attribute.span(), "invalid attribute for compound statement"_s);
+        return;
     }
+
+    AST::Visitor::visit(statement);
+}
+
+void AttributeValidator::visit(AST::ForStatement& statement)
+{
+    for (auto& attribute : statement.attributes()) {
+        if (parseDiagnostic(statement, attribute))
+            continue;
+
+        error(attribute.span(), "invalid attribute for `for` statement"_s);
+        return;
+    }
+
+    AST::Visitor::visit(statement);
+}
+
+void AttributeValidator::visit(AST::WhileStatement& statement)
+{
+    for (auto& attribute : statement.attributes()) {
+        if (parseDiagnostic(statement, attribute))
+            continue;
+
+        error(attribute.span(), "invalid attribute for compound statement"_s);
+        return;
+    }
+
+    AST::Visitor::visit(statement);
+}
+
+void AttributeValidator::visit(AST::LoopStatement& statement)
+{
+    for (auto& attribute : statement.attributes()) {
+        if (parseDiagnostic(statement, attribute))
+            continue;
+
+        error(attribute.span(), "invalid attribute for `loop` statement"_s);
+        return;
+    }
+
+    for (auto& attribute : statement.bodyAttributes()) {
+        if (parseDiagnostic(statement.bodyDiagnostics(), attribute))
+            continue;
+
+        error(attribute.span(), "invalid attribute for `loop` body"_s);
+        return;
+    }
+
+    AST::Visitor::visit(statement);
+}
+
+void AttributeValidator::visit(AST::Continuing& continuing)
+{
+    for (auto& attribute : continuing.attributes) {
+        if (parseDiagnostic(continuing, attribute))
+            continue;
+
+        error(attribute.span(), "invalid attribute for `continuing` body"_s);
+        return;
+    }
+
+    AST::Visitor::visit(continuing);
+}
+
+void AttributeValidator::visit(AST::SwitchStatement& statement)
+{
+    for (auto& attribute : statement.attributes()) {
+        if (parseDiagnostic(statement, attribute))
+            continue;
+
+        error(attribute.span(), "invalid attribute for `switch` statement"_s);
+        return;
+    }
+
+    for (auto& attribute : statement.bodyAttributes()) {
+        if (parseDiagnostic(statement.bodyDiagnostics(), attribute))
+            continue;
+
+        error(attribute.span(), "invalid attribute for `switch` body"_s);
+        return;
+    }
+
+    AST::Visitor::visit(statement);
+}
+
+void AttributeValidator::visit(AST::IfStatement& statement)
+{
+    for (auto& attribute : statement.attributes()) {
+        if (parseDiagnostic(statement, attribute))
+            continue;
+
+        error(attribute.span(), "invalid attribute for `if` statement"_s);
+        return;
+    }
+
     AST::Visitor::visit(statement);
 }
 
@@ -646,6 +764,22 @@ bool AttributeValidator::parseLocation(AST::Function* function, std::optional<un
     }
 
     update(attribute.span(), location, static_cast<unsigned>(locationValue));
+    return true;
+}
+
+bool AttributeValidator::parseDiagnostic(AST::DiagnosticContainer& statement, AST::Attribute& attribute)
+{
+    auto* diagnosticAttribute = dynamicDowncast<AST::DiagnosticAttribute>(&attribute);
+    if (!diagnosticAttribute)
+        return false;
+
+    auto& diagnostic = diagnosticAttribute->diagnostic();
+    if (statement.severityFor(diagnostic.triggeringRule)) {
+        error(attribute.span(), "duplicate @diagnostic attribute"_s);
+        return true;
+    }
+
+    statement.setSeverityFor(diagnostic.triggeringRule, diagnostic.severity);
     return true;
 }
 

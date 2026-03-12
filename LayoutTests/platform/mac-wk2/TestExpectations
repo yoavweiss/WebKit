@@ -1704,7 +1704,6 @@ http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/smoothstep.ht
 http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/textureSample.html [ Skip ]
 http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/textureSampleGrad.html [ Skip ]
 http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/textureSampleLevel.html [ Skip ]
-http/tests/webgpu/webgpu/shader/validation/parse/diagnostic.html [ Skip ]
 http/tests/webgpu/webgpu/shader/validation/parse/shadow_builtins.html [ Skip ]
 http/tests/webgpu/webgpu/shader/validation/shader_io/group_and_binding.html [ Skip ]
 http/tests/webgpu/webgpu/api/operation/memory_sync/buffer/multiple_buffers.html  [ Skip ]

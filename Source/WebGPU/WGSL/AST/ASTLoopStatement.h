@@ -29,7 +29,15 @@
 
 namespace WGSL::AST {
 
-struct Continuing {
+class Continuing : public AST::DiagnosticContainer {
+public:
+    Continuing(Statement::List&& body, Attribute::List&& attributes, Expression::Ptr breakIf)
+        : body(WTF::move(body))
+        , attributes(WTF::move(attributes))
+        , breakIf(breakIf)
+    {
+    }
+
     Statement::List body;
     Attribute::List attributes;
     Expression::Ptr breakIf;
@@ -40,6 +48,7 @@ class LoopStatement final : public Statement {
 public:
     NodeKind kind() const override;
     Attribute::List& attributes() LIFETIME_BOUND { return m_attributes; }
+    Attribute::List& bodyAttributes() LIFETIME_BOUND { return m_bodyAttributes; }
     Statement::List& body() LIFETIME_BOUND { return m_body; }
     std::optional<Continuing>& continuing() LIFETIME_BOUND { return m_continuing; }
 
@@ -49,20 +58,25 @@ public:
     Behaviors bodyBehaviors() const { return m_bodyBehaviors; }
     void setBodyBehaviors(Behaviors behaviors) { m_bodyBehaviors = behaviors; }
 
+    DiagnosticContainer& bodyDiagnostics() { return m_bodyDiagnostics; }
+
 private:
-    LoopStatement(SourceSpan span, Attribute::List&& attributes, Statement::List&& body, std::optional<Continuing>&& continuing)
+    LoopStatement(SourceSpan span, Attribute::List&& attributes, Attribute::List&& bodyAttributes, Statement::List&& body, std::optional<Continuing>&& continuing)
         : Statement(span)
         , m_attributes(WTF::move(attributes))
+        , m_bodyAttributes(WTF::move(bodyAttributes))
         , m_body(WTF::move(body))
         , m_continuing(WTF::move(continuing))
     { }
 
     Attribute::List m_attributes;
+    Attribute::List m_bodyAttributes;
     Statement::List m_body;
     std::optional<Continuing> m_continuing;
 
     bool m_containsSwitch { false };
     Behaviors m_bodyBehaviors;
+    DiagnosticContainer m_bodyDiagnostics;
 };
 
 } // namespace WGSL::AST
