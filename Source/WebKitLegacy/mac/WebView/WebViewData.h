@@ -59,7 +59,7 @@ class PlaybackSessionModelMediaElement;
 }
 
 @class UIImage;
-@class WebUITextIndicator;
+@class WebUITextIndicatorData;
 @class WebImmediateActionController;
 @class WebInspector;
 @class WebNodeHighlight;
@@ -250,8 +250,8 @@ class WebSelectionServiceController;
 #endif
     
 #if PLATFORM(IOS_FAMILY) && ENABLE(DRAG_SUPPORT)
-    RetainPtr<WebUITextIndicator> textIndicator;
-    RetainPtr<WebUITextIndicator> dataOperationTextIndicator;
+    RetainPtr<WebUITextIndicatorData> textIndicatorData;
+    RetainPtr<WebUITextIndicatorData> dataOperationTextIndicator;
     CGRect dragPreviewFrameInRootViewCoordinates;
     WebDragSourceAction dragSourceAction;
     RetainPtr<NSURL> draggedLinkURL;

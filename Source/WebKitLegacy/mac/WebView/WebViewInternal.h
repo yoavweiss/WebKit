@@ -129,9 +129,9 @@ OptionSet<WebCore::LayoutMilestone> coreLayoutMilestones(WebLayoutMilestones);
 WebLayoutMilestones kitLayoutMilestones(OptionSet<WebCore::LayoutMilestone>);
 
 #if PLATFORM(IOS_FAMILY) && ENABLE(DRAG_SUPPORT) && defined(__cplusplus)
-@interface WebUITextIndicator (WebUITextIndicatorInternal)
-- (WebUITextIndicator *)initWithImage:(CGImageRef)image textIndicator:(RefPtr<WebCore::TextIndicator>&&)indicator scale:(CGFloat)scale;
-- (WebUITextIndicator *)initWithImage:(CGImageRef)image scale:(CGFloat)scale;
+@interface WebUITextIndicatorData (WebUITextIndicatorInternal)
+- (WebUITextIndicatorData *)initWithImage:(CGImageRef)image textIndicator:(RefPtr<WebCore::TextIndicator>&&)indicator scale:(CGFloat)scale;
+- (WebUITextIndicatorData *)initWithImage:(CGImageRef)image scale:(CGFloat)scale;
 @end
 #endif
 

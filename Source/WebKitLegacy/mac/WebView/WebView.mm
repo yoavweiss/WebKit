@@ -825,7 +825,7 @@ static bool isLockdownModeEnabled()
 
 #if PLATFORM(IOS_FAMILY) && ENABLE(DRAG_SUPPORT)
 
-@implementation WebUITextIndicator
+@implementation WebUITextIndicatorData
 
 @synthesize dataInteractionImage = _dataInteractionImage;
 @synthesize selectionRectInRootViewCoordinates = _selectionRectInRootViewCoordinates;
@@ -851,9 +851,9 @@ static bool isLockdownModeEnabled()
 
 @end
 
-@implementation WebUITextIndicator (WebUITextIndicatorInternal)
+@implementation WebUITextIndicatorData (WebUITextIndicatorInternal)
 
-- (WebUITextIndicator *)initWithImage:(CGImageRef)image textIndicator:(RefPtr<WebCore::TextIndicator>&&)indicator scale:(CGFloat)scale
+- (WebUITextIndicatorData *)initWithImage:(CGImageRef)image textIndicator:(RefPtr<WebCore::TextIndicator>&&)indicator scale:(CGFloat)scale
 {
     if (!(self = [super init]))
         return nil;
@@ -882,7 +882,7 @@ static bool isLockdownModeEnabled()
     return self;
 }
 
-- (WebUITextIndicator *)initWithImage:(CGImageRef)image scale:(CGFloat)scale
+- (WebUITextIndicatorData *)initWithImage:(CGImageRef)image scale:(CGFloat)scale
 {
     if (!(self = [super init]))
         return nil;
@@ -893,13 +893,7 @@ static bool isLockdownModeEnabled()
 }
 
 @end
-
-@implementation WebUITextIndicatorData
-@end
 #elif !PLATFORM(MAC)
-@implementation WebUITextIndicator
-@end
-
 @implementation WebUITextIndicatorData
 @end
 #endif
@@ -1919,9 +1913,9 @@ static void WebKitInitializeGamepadProviderIfNecessary()
     RefPtr<WebCore::TextIndicator> textIndicator = dragImage.textIndicator();
 
     if (textIndicator)
-        _private->textIndicator = adoptNS([[WebUITextIndicator alloc] initWithImage:image textIndicator:WTF::move(textIndicator) scale:_private->page->deviceScaleFactor()]);
+        _private->textIndicatorData = adoptNS([[WebUITextIndicatorData alloc] initWithImage:image textIndicator:WTF::move(textIndicator) scale:_private->page->deviceScaleFactor()]);
     else
-        _private->textIndicator = adoptNS([[WebUITextIndicator alloc] initWithImage:image scale:_private->page->deviceScaleFactor()]);
+        _private->textIndicatorData = adoptNS([[WebUITextIndicatorData alloc] initWithImage:image scale:_private->page->deviceScaleFactor()]);
     _private->draggedLinkURL = dragItem.url.isEmpty() ? RetainPtr<NSURL>() : dragItem.url.createNSURL();
     _private->draggedLinkTitle = dragItem.title.isEmpty() ? nil : dragItem.title.createNSString().get();
     _private->dragPreviewFrameInRootViewCoordinates = dragItem.dragPreviewFrameInRootViewCoordinates;
@@ -1937,7 +1931,7 @@ static void WebKitInitializeGamepadProviderIfNecessary()
     return { };
 }
 
-- (WebUITextIndicator *)_dataOperationTextIndicator
+- (WebUITextIndicatorData *)_dataOperationTextIndicator
 {
     return _private->dataOperationTextIndicator.get();
 }
@@ -1964,12 +1958,7 @@ static void WebKitInitializeGamepadProviderIfNecessary()
 
 - (WebUITextIndicatorData *)_getDataInteractionData
 {
-    return (WebUITextIndicatorData *)_private->textIndicator.get();
-}
-
-- (WebUITextIndicator *)_getDataInteraction
-{
-    return _private->textIndicator.get();
+    return _private->textIndicatorData.get();
 }
 
 - (WebDragDestinationAction)dragDestinationActionMaskForSession:(id <UIDropSession>)session
@@ -2071,7 +2060,7 @@ static void WebKitInitializeGamepadProviderIfNecessary()
         return;
     if (auto range = frame->selection().selection().toNormalizedRange()) {
         if (RefPtr textIndicator = WebCore::TextIndicator::createWithRange(*range, defaultEditDragTextIndicatorOptions, WebCore::TextIndicatorPresentationTransition::None, WebCore::FloatSize()))
-            _private->dataOperationTextIndicator = adoptNS([[WebUITextIndicator alloc] initWithImage:nil textIndicator:WTF::move(textIndicator) scale:page->deviceScaleFactor()]);
+            _private->dataOperationTextIndicator = adoptNS([[WebUITextIndicatorData alloc] initWithImage:nil textIndicator:WTF::move(textIndicator) scale:page->deviceScaleFactor()]);
     }
 }
 
@@ -2082,12 +2071,12 @@ static void WebKitInitializeGamepadProviderIfNecessary()
     return NO;
 }
 
-- (WebUITextIndicator *)_getDataInteraction
+- (WebUITextIndicatorData *)_getDataInteractionData
 {
     return nil;
 }
 
-- (WebUITextIndicator *)_dataOperationTextIndicator
+- (WebUITextIndicatorData *)_dataOperationTextIndicator
 {
     return nil;
 }
