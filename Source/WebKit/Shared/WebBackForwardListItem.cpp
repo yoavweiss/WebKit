@@ -95,10 +95,7 @@ bool WebBackForwardListItem::itemIsInSameDocument(const WebBackForwardListItem& 
         return false;
 
     // The following logic must be kept in sync with WebCore::HistoryItem::shouldDoSameDocumentNavigationTo().
-    Ref mainFrameState = this->mainFrameState();
-    Ref otherMainFrameState = other.mainFrameState();
-
-    return mainFrameState->documentSequenceNumber == otherMainFrameState->documentSequenceNumber;
+    return mainFrameState().documentSequenceNumber == other.mainFrameState().documentSequenceNumber;
 }
 
 static bool NODELETE hasSameFrames(const FrameState& a, const FrameState& b)
@@ -124,8 +121,8 @@ bool WebBackForwardListItem::itemIsClone(const WebBackForwardListItem& other)
     if (this == &other)
         return false;
 
-    Ref mainFrameState = this->mainFrameState();
-    Ref otherMainFrameState = other.mainFrameState();
+    Ref mainFrameState = copyMainFrameStateWithChildren();
+    Ref otherMainFrameState = other.copyMainFrameStateWithChildren();
 
     if (mainFrameState->itemSequenceNumber != otherMainFrameState->itemSequenceNumber)
         return false;
@@ -162,7 +159,12 @@ Ref<FrameState> WebBackForwardListItem::navigatedFrameState() const
     return protect(navigatedFrameItem())->copyFrameStateWithChildren();
 }
 
-Ref<FrameState> WebBackForwardListItem::mainFrameState() const
+const FrameState& WebBackForwardListItem::mainFrameState() const
+{
+    return m_mainFrameItem->frameState();
+}
+
+Ref<FrameState> WebBackForwardListItem::copyMainFrameStateWithChildren() const
 {
     return m_mainFrameItem->copyFrameStateWithChildren();
 }
