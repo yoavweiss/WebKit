@@ -21,22 +21,22 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
 
-internal import Metal
+import Metal
 import OSLog
 import WebKit
 import simd
 
 #if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreRenderer, _version: 11) && compiler(>=6.2)
-@_weakLinked @_spi(UsdLoaderAPI) internal import _USDKit_RealityKit
+@_weakLinked @_spi(UsdLoaderAPI) import _USDKit_RealityKit
 @_spi(RealityCoreRendererAPI) import RealityKit
-@_weakLinked @_spi(RealityCoreTextureProcessingAPI) internal import RealityCoreTextureProcessing
-@_weakLinked internal import USDKit
-@_weakLinked @_spi(SwiftAPI) internal import DirectResource
-@_weakLinked internal import USDKit
-@_weakLinked internal import _USDKit_RealityKit
+@_weakLinked @_spi(RealityCoreTextureProcessingAPI) import RealityCoreTextureProcessing
+@_weakLinked import USDKit
+@_weakLinked @_spi(SwiftAPI) import DirectResource
+@_weakLinked import USDKit
+@_weakLinked import _USDKit_RealityKit
 import RealityKit
-@_weakLinked @_spi(SGPrivate) internal import ShaderGraph
-@_weakLinked internal import RealityCoreDeformation
+@_weakLinked @_spi(SGPrivate) import ShaderGraph
+@_weakLinked import RealityCoreDeformation
 
 extension _USDKit_RealityKit._Proto_MeshDataUpdate_v1 {
     @_silgen_name("$s18_USDKit_RealityKit24_Proto_MeshDataUpdate_v1V18instanceTransformsSaySo13simd_float4x4aGvg")

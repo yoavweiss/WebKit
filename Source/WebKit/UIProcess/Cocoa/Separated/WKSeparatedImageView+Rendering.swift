@@ -24,12 +24,12 @@
 #if HAVE_CORE_ANIMATION_SEPARATED_LAYERS && compiler(>=6.2)
 
 #if canImport(CoreRE)
-@_weakLinked internal import CoreRE
+@_weakLinked import CoreRE
 #endif
 import os
-@_weakLinked @_spi(Private) @_spi(RealityKit) internal import RealityKit
-@_weakLinked @_spi(Private) @_spi(ForUIKitOnly) internal import SwiftUI
-internal import WebKit_Internal
+@_weakLinked @_spi(Private) @_spi(RealityKit) import RealityKit
+@_weakLinked @_spi(Private) @_spi(ForUIKitOnly) import SwiftUI
+import WebKit_Internal
 
 extension WKSeparatedImageView {
     func layoutCustomSubtree() {
