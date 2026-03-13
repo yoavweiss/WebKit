@@ -23,9 +23,8 @@
 
 #if ENABLE_SWIFTUI
 
-import SwiftUI
+public import SwiftUI
 @_spi(Private) @_spi(CrossImportOverlay) import WebKit
-import WebKit_Private
 
 #if canImport(UIKit)
 typealias CocoaView = UIView

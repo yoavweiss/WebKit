@@ -22,7 +22,7 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 
 import Foundation
-public import WebKit_Private.WKPreferencesPrivate
+import WebKit_Private.WKPreferencesPrivate
 
 // MARK: _WKFeature
 

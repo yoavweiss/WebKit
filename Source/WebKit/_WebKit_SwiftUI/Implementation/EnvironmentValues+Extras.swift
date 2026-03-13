@@ -24,7 +24,7 @@
 #if ENABLE_SWIFTUI
 
 import Foundation
-import SwiftUI
+public import SwiftUI
 
 extension EnvironmentValues {
     @Entry

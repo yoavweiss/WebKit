@@ -23,9 +23,9 @@
 
 #if os(macOS)
 
-public import AppKit
+import AppKit
 import Foundation
-public import SwiftUI
+import SwiftUI
 
 extension NSWindow {
     /// Create a new NSWindow with the specified size, containing a SwiftUI view.

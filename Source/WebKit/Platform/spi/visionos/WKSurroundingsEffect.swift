@@ -24,9 +24,9 @@
 #if os(visionOS)
 
 import Observation
-@_weakLinked import SwiftUI
+@_weakLinked internal import SwiftUI
 import UIKit
-import WebKit_Internal
+internal import WebKit_Internal
 
 @MainActor
 @Observable

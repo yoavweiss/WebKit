@@ -23,7 +23,7 @@
 
 #if HAVE_DIGITAL_CREDENTIALS_UI
 
-import IdentityDocumentServices
+internal import IdentityDocumentServices
 import os
 
 #if canImport(UIKit)

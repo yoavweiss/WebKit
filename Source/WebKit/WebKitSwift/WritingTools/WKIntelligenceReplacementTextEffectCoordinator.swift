@@ -35,9 +35,9 @@ import WebKit
 
 #if os(macOS)
 #if USE_APPLE_INTERNAL_SDK
-@_weakLinked import WritingToolsUI_Private._WTTextEffectView
+@_weakLinked internal import WritingToolsUI_Private._WTTextEffectView
 #else
-@_weakLinked import WritingToolsUI_Private_SPI
+@_weakLinked internal import WritingToolsUI_Private_SPI
 #endif // USE_APPLE_INTERNAL_SDK
 #endif // os(macOS)
 

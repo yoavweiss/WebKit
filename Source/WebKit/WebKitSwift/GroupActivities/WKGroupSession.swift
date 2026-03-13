@@ -30,7 +30,7 @@ import Foundation
 @_spi(Safari) @_weakLinked import GroupActivities
 #else
 import GroupActivities
-import GroupActivities_SPI
+internal import GroupActivities_SPI
 #endif
 
 extension WKGroupSessionState {

@@ -21,16 +21,16 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
 
-import Metal
+internal import Metal
 import WebKit
 
 #if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreRenderer, _version: 11) && compiler(>=6.2)
-@_weakLinked @_spi(UsdLoaderAPI) import _USDKit_RealityKit
+@_weakLinked @_spi(UsdLoaderAPI) internal import _USDKit_RealityKit
 @_spi(RealityCoreRendererAPI) import RealityKit
-@_weakLinked import USDKit
-@_weakLinked @_spi(SwiftAPI) import DirectResource
-@_weakLinked import _USDKit_RealityKit
-@_weakLinked import ShaderGraph
+@_weakLinked internal import USDKit
+@_weakLinked @_spi(SwiftAPI) internal import DirectResource
+@_weakLinked internal import _USDKit_RealityKit
+@_weakLinked internal import ShaderGraph
 #endif
 
 @objc

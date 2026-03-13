@@ -25,7 +25,7 @@
 
 #if ENABLE_BACK_FORWARD_LIST_SWIFT
 
-import WebKit_Internal
+internal import WebKit_Internal
 
 extension API.Array {
     /// Create an API.Array from a Swift array.

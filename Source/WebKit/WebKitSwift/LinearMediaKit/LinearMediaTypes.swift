@@ -25,12 +25,12 @@
 
 #if canImport(AVKit, _version: 1270)
 #if USE_APPLE_INTERNAL_SDK
-@_spi(LinearMediaKit) @_spi(LinearMediaKit_WebKitOnly) public import AVKit
+@_spi(LinearMediaKit) @_spi(LinearMediaKit_WebKitOnly) import AVKit
 #else
-public import AVKit_SPI
+import AVKit_SPI
 #endif
 #else
-@_spi(WebKitOnly) public import LinearMediaKit
+@_spi(WebKitOnly) import LinearMediaKit
 #endif
 
 // MARK: Objective-C Implementations

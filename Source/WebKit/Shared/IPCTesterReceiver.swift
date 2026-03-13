@@ -23,8 +23,8 @@
 
 #if ENABLE_IPC_TESTING_API && ENABLE_IPC_TESTING_SWIFT
 
-import WebKit_Internal
-import wtf
+internal import WebKit_Internal
+internal import wtf
 
 // Proxy interface to test IPC activities related to receiving messages in Swift.
 final class IPCTesterReceiver {

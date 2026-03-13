@@ -24,7 +24,7 @@
 #if HAVE_APPKIT_GESTURES_SUPPORT
 
 import Foundation
-import WebCore_Private
+internal import WebCore_Private
 
 extension CGRect {
     /// Creates a `CGRect` from an `IntRect`.

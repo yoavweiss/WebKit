@@ -23,10 +23,10 @@
 
 #if HAVE_UIINTELLIGENCESUPPORT_FRAMEWORK
 
-import WebKit_Internal
-import WebKit_Private
+internal import WebKit_Internal
+internal import WebKit_Private
 
-@_spiOnly public import UIIntelligenceSupport
+@_spiOnly import UIIntelligenceSupport
 
 #if canImport(UIKit)
 @_spi(UIIntelligenceSupport) import UIKit

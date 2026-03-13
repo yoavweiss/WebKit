@@ -26,7 +26,6 @@ import Foundation
 import Observation
 import UniformTypeIdentifiers
 @_spi(Private) @_spi(CrossImportOverlay) import WebKit
-import WebKit_Private
 import os
 
 struct PDF {

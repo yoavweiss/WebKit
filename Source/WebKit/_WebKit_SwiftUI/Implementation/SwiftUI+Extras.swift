@@ -23,8 +23,8 @@
 
 #if ENABLE_SWIFTUI
 
-import SwiftUI
-@_spi(CrossImportOverlay) import WebKit
+public import SwiftUI
+@_spi(CrossImportOverlay) public import WebKit
 
 extension EdgeInsets {
     #if canImport(UIKit)

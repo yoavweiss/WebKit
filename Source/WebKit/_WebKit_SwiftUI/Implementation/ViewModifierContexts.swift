@@ -23,8 +23,8 @@
 
 #if ENABLE_SWIFTUI
 
-import SwiftUI
-@_spi(Private) import WebKit
+internal import SwiftUI
+@_spi(Private) internal import WebKit
 
 struct ContextMenuContext {
     #if os(macOS)
