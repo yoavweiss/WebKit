@@ -5322,6 +5322,8 @@ webkit.org/b/309570 imported/w3c/web-platform-tests/html/semantics/embedded-cont
 webkit.org/b/246356 imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/autoplay-allowed-by-feature-policy.https.sub.html [ Pass Failure ]
 webkit.org/b/246356 imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/autoplay-default-feature-policy.https.sub.html [ Pass Failure ]
 
+webkit.org/b/309893 http/tests/images/heic-as-heif.html [ Pass Timeout ImageOnlyFailure ]
+
 # End: Common failures between GTK and WPE.
 
 #////////////////////////////////////////////////////////////////////////////////////////

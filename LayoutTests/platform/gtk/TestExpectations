@@ -1555,3 +1555,6 @@ webkit.org/b/309267 inspector/unit-tests/array-utilities.html [ Pass Failure ]
 [ Release ] imported/w3c/web-platform-tests/permissions/permissions-garbage-collect.https.html [ Pass Failure ]
 [ Release ] platform/gtk/fast/frames/scrolling-iframe-out-of-viewport.html [ Pass Failure ]
 [ Release ] imported/w3c/web-platform-tests/preload/prefetch-document.html [ Failure Pass ]
+
+webkit.org/b/309892 accessibility/aria-role-on-label.html [ Pass Crash ]
+webkit.org/b/309894 http/tests/inspector/target/pause-on-inline-debugger-statement.html [ Pass Timeout ]
