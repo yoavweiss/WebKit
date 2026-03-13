@@ -63,7 +63,7 @@ class Renderer {
     }
 
     func createMaterialCompiler(colorPixelFormat: MTLPixelFormat, rasterSampleCount: Int, colorSpace: CGColorSpace? = nil) async throws {
-        #if canImport(RealityCoreRenderer, _version: 9999)
+        #if canImport(RealityCoreRenderer, _version: 12)
         var configuration = _Proto_LowLevelRenderContextStandaloneConfiguration_v1(device: device)
         configuration.memoryOwner = self.memoryOwner
         #else
