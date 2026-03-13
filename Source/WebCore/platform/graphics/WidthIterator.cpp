@@ -318,6 +318,13 @@ void WidthIterator::commitCurrentFontRange(AdvanceInternalState& advanceInternal
     advanceInternalState.lastGlyphCount = advanceInternalState.glyphBuffer.size();
 }
 
+void WidthIterator::commitIgnorable(char32_t characterToWrite, AdvanceInternalState& advanceInternalState, const Font& primaryFont)
+{
+    commitCurrentFontRange(advanceInternalState);
+    addToGlyphBuffer(advanceInternalState.glyphBuffer, deletedGlyph, primaryFont, 0, advanceInternalState.currentCharacterIndex, characterToWrite);
+    advanceInternalState.updateFont(&primaryFont);
+}
+
 static const Font* NODELETE fontForRange(const Font* font, const SmallCapsState& smallCapsData, bool isSmallCaps)
 {
     if (!smallCapsData.synthesizedFont)
@@ -432,15 +439,20 @@ inline void WidthIterator::advanceInternal(TextIterator& textIterator, GlyphBuff
         unsigned advanceLength = clusterLength;
         if (advanceInternalState.currentCharacterIndex + advanceLength == m_run->length())
             m_lastCharacterIndex = advanceInternalState.currentCharacterIndex;
-        bool characterMustDrawSomething = !isDefaultIgnorableCodePoint(character);
+        bool isDefaultIgnorable = isDefaultIgnorableCodePoint(character);
 
         capitalizedCharacter = capitalized(character);
         char32_t characterToWrite = character;
 
+        auto advanceToNextCharacter = [&] {
+            textIterator.advance(advanceLength);
+            advanceInternalState.currentCharacterIndex = textIterator.currentIndex();
+        };
+
 #if USE(FREETYPE)
         // Freetype based ports only override the characters with Default_Ignorable unicode property when the font
         // doesn't support the code point. We should ignore them at this point to ensure they are not displayed.
-        if (!characterMustDrawSomething) {
+        if (isDefaultIgnorable) {
             textIterator.advance(advanceLength);
             continue;
         }
@@ -465,14 +477,10 @@ inline void WidthIterator::advanceInternal(TextIterator& textIterator, GlyphBuff
         if (glyphData.font.get() != advanceInternalState.nextRangeFont || character != characterToWrite)
             glyph = Ref { *advanceInternalState.nextRangeFont }->glyphForCharacter(characterToWrite);
 
-        if (!glyph && !characterMustDrawSomething) {
-            commitCurrentFontRange(advanceInternalState);
-
-            addToGlyphBuffer(advanceInternalState.glyphBuffer, deletedGlyph, primaryFont, 0, advanceInternalState.currentCharacterIndex, characterToWrite);
-
-            textIterator.advance(advanceLength);
-            advanceInternalState.currentCharacterIndex = textIterator.currentIndex();
-            advanceInternalState.updateFont(primaryFont.ptr());
+        bool isIgnorable = !glyph && isDefaultIgnorable;
+        if (isIgnorable) {
+            commitIgnorable(characterToWrite, advanceInternalState, primaryFont);
+            advanceToNextCharacter();
             continue;
         }
 
@@ -489,9 +497,7 @@ inline void WidthIterator::advanceInternal(TextIterator& textIterator, GlyphBuff
 
         addToGlyphBuffer(glyphBuffer, glyph,  Ref { *advanceInternalState.nextRangeFont }, width, advanceInternalState.currentCharacterIndex, characterToWrite);
 
-        // Advance past the character we just dealt with.
-        textIterator.advance(advanceLength);
-        advanceInternalState.currentCharacterIndex = textIterator.currentIndex();
+        advanceToNextCharacter();
 
         m_runWidthSoFar += width;
     }

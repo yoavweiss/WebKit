@@ -81,6 +81,7 @@ private:
     };
     ApplyFontTransformsResult applyFontTransforms(GlyphBuffer&, unsigned lastGlyphCount, const Font&, CharactersTreatedAsSpace&);
     void commitCurrentFontRange(AdvanceInternalState&);
+    void commitIgnorable(char32_t characterToWrite, AdvanceInternalState&, const Font& primaryFont);
     void startNewFontRangeIfNeeded(AdvanceInternalState&, SmallCapsState&, const FontCascadeDescription&);
     void NODELETE applyInitialAdvance(GlyphBuffer&, GlyphBufferAdvance initialAdvance, unsigned lastGlyphCount);
 
