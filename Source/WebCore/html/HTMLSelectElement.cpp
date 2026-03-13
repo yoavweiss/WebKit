@@ -1434,6 +1434,9 @@ void HTMLSelectElement::menuListDefaultEventHandler(Event& event)
     ASSERT(renderer());
     ASSERT(usesMenuList());
 
+    if (!event.isTrusted())
+        return;
+
     auto& eventNames = WebCore::eventNames();
 
     bool isBaseSelectPicker = usesBaseAppearancePicker();
