@@ -38,6 +38,7 @@ fast/events/ios/single-tap-verify-user-gesture.html [ Skip ]
 fast/events/ios/ipad [ Skip ]
 fast/forms/ios [ Pass ]
 fast/forms/ios/ipad [ Skip ]
+http/tests/site-isolation/select-in-cross-origin-iframe.html [ Pass ]
 fast/forms/switch [ Pass ]
 fast/snapshot [ Skip ]
 
