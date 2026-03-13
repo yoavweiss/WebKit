@@ -799,11 +799,10 @@ webkit.org/b/167607 [ Debug ] http/tests/inspector/worker/blob-script-with-cross
 webkit.org/b/160042 accessibility/mac/value-change/value-change-user-info-contenteditable.html [ Pass Failure ]
 
 # Skipped because ACCESSIBILITY_LOCAL_FRAME is not compatable with relative frames.
-accessibility/mac/iframe-relative-frame.html [ Failure ]
+accessibility/mac/iframe-relative-frame.html [ Skip ]
 
 # Regression from ENABLE(ACCESSIBILITY_LOCAL_FRAME).
 accessibility/mac/visible-content-search-in-scrolled-iframe.html [ Failure ]
-platform/mac-wk2/accessibility/content-inset-scrollview-frame.html [ Failure ]
 
 # Regression from disabling ACCESSIBILITY_LOCAL_FRAME.
 http/tests/site-isolation/accessibility/remote-element-returned.html [ Failure ]
