@@ -545,7 +545,10 @@ final class WebBackForwardList {
                 continue
             }
             backForwardListState.items.append(
-                consuming: WebKit.BackForwardListItemState(frameState: entry.mainFrameState(), navigatedFrameID: entry.navigatedFrameID())
+                consuming: WebKit.BackForwardListItemState(
+                    frameState: entry.copyMainFrameStateWithChildren(),
+                    navigatedFrameID: entry.navigatedFrameID()
+                )
             )
         }
 
@@ -754,7 +757,7 @@ final class WebBackForwardList {
         if mainFrameItem.childItemForFrameID(navigatedFrameID) == nil {
             return navigatedFrameState
         }
-        let frameState = currentItem.mainFrameState().ptr()
+        let frameState = currentItem.copyMainFrameStateWithChildren().ptr()
         setBackForwardItemIdentifier(frameState: frameState, itemID: navigatedFrameState.itemID.pointee)
         frameState.replaceChildFrameState(consuming: WebKit.RefFrameState(navigatedFrameState))
         return frameState
@@ -977,7 +980,7 @@ final class WebBackForwardList {
             return
         }
         guard let frameItem = item.mainFrameItem().childItemForFrameID(frameID) else {
-            callCompletionHandler(completionHandler, consuming: WebKit.RefPtrFrameState(item.mainFrameState().ptr()))
+            callCompletionHandler(completionHandler, consuming: WebKit.RefPtrFrameState(item.copyMainFrameStateWithChildren().ptr()))
             return
         }
         callCompletionHandler(completionHandler, consuming: WebKit.RefPtrFrameState(frameItem.copyFrameStateWithChildren().ptr()))
