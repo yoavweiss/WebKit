@@ -55,9 +55,9 @@ static double networkLoadTimeToDOMHighResTimeStamp(MonotonicTime timeOrigin, Mon
     return result.milliseconds();
 }
 
-static double fetchStart(MonotonicTime timeOrigin, const ResourceTiming& resourceTiming)
+static double fetchStart(MonotonicTime timeOrigin, const ResourceTiming& resourceTiming, bool restrictForTAO)
 {
-    if (auto fetchStart = resourceTiming.networkLoadMetrics().fetchStart; fetchStart && !resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (auto fetchStart = resourceTiming.networkLoadMetrics().fetchStart; fetchStart && !restrictForTAO)
         return networkLoadTimeToDOMHighResTimeStamp(timeOrigin, fetchStart);
 
     // fetchStart is a required property.
@@ -70,7 +70,7 @@ static double entryStartTime(MonotonicTime timeOrigin, const ResourceTiming& res
 {
     if (resourceTiming.networkLoadMetrics().failsTAOCheck
         || !resourceTiming.networkLoadMetrics().redirectCount)
-        return fetchStart(timeOrigin, resourceTiming);
+        return fetchStart(timeOrigin, resourceTiming, resourceTiming.networkLoadMetrics().failsTAOCheck);
 
     if (resourceTiming.networkLoadMetrics().redirectStart)
         return networkLoadTimeToDOMHighResTimeStamp(timeOrigin, resourceTiming.networkLoadMetrics().redirectStart);
@@ -103,7 +103,7 @@ PerformanceResourceTiming::~PerformanceResourceTiming() = default;
 
 const String& PerformanceResourceTiming::nextHopProtocol() const
 {
-    if (m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (shouldRestrictTimingForTAO())
         return emptyString();
 
     return m_resourceTiming.networkLoadMetrics().protocol;
@@ -111,7 +111,7 @@ const String& PerformanceResourceTiming::nextHopProtocol() const
 
 double PerformanceResourceTiming::workerStart() const
 {
-    if (m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (shouldRestrictTimingForTAO())
         return 0.0;
 
     return networkLoadTimeToDOMHighResTimeStamp(m_timeOrigin, m_resourceTiming.networkLoadMetrics().workerStart);
@@ -119,7 +119,7 @@ double PerformanceResourceTiming::workerStart() const
 
 double PerformanceResourceTiming::redirectStart() const
 {
-    if (m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (shouldRestrictTimingForTAO())
         return 0.0;
 
     if (m_resourceTiming.isLoadedFromServiceWorker())
@@ -133,7 +133,7 @@ double PerformanceResourceTiming::redirectStart() const
 
 double PerformanceResourceTiming::redirectEnd() const
 {
-    if (m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (shouldRestrictTimingForTAO())
         return 0.0;
 
     if (m_resourceTiming.isLoadedFromServiceWorker())
@@ -149,12 +149,12 @@ double PerformanceResourceTiming::redirectEnd() const
 
 double PerformanceResourceTiming::fetchStart() const
 {
-    return WebCore::fetchStart(m_timeOrigin, m_resourceTiming);
+    return WebCore::fetchStart(m_timeOrigin, m_resourceTiming, shouldRestrictTimingForTAO());
 }
 
 double PerformanceResourceTiming::domainLookupStart() const
 {
-    if (m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (shouldRestrictTimingForTAO())
         return 0.0;
 
     if (m_resourceTiming.isLoadedFromServiceWorker())
@@ -168,7 +168,7 @@ double PerformanceResourceTiming::domainLookupStart() const
 
 double PerformanceResourceTiming::domainLookupEnd() const
 {
-    if (m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (shouldRestrictTimingForTAO())
         return 0.0;
 
     if (m_resourceTiming.isLoadedFromServiceWorker())
@@ -182,7 +182,7 @@ double PerformanceResourceTiming::domainLookupEnd() const
 
 double PerformanceResourceTiming::connectStart() const
 {
-    if (m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (shouldRestrictTimingForTAO())
         return 0.0;
 
     if (m_resourceTiming.isLoadedFromServiceWorker())
@@ -196,7 +196,7 @@ double PerformanceResourceTiming::connectStart() const
 
 double PerformanceResourceTiming::connectEnd() const
 {
-    if (m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (shouldRestrictTimingForTAO())
         return 0.0;
 
     if (m_resourceTiming.isLoadedFromServiceWorker())
@@ -210,7 +210,7 @@ double PerformanceResourceTiming::connectEnd() const
 
 double PerformanceResourceTiming::secureConnectionStart() const
 {
-    if (m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (shouldRestrictTimingForTAO())
         return 0.0;
 
     if (m_resourceTiming.networkLoadMetrics().secureConnectionStart == reusedTLSConnectionSentinel)
@@ -224,7 +224,7 @@ double PerformanceResourceTiming::secureConnectionStart() const
 
 double PerformanceResourceTiming::requestStart() const
 {
-    if (m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (shouldRestrictTimingForTAO())
         return 0.0;
 
     // requestStart is 0 when a network request is not made.
@@ -236,7 +236,7 @@ double PerformanceResourceTiming::requestStart() const
 
 double PerformanceResourceTiming::finalResponseHeadersStart() const
 {
-    if (m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (shouldRestrictTimingForTAO())
         return 0.0;
 
     // Return 0 if no final response headers timing was captured.
@@ -248,7 +248,7 @@ double PerformanceResourceTiming::finalResponseHeadersStart() const
 
 double PerformanceResourceTiming::firstInterimResponseStart() const
 {
-    if (m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (shouldRestrictTimingForTAO())
         return 0.0;
 
     // Return 0 if no interim (1xx) response was received.
@@ -260,7 +260,7 @@ double PerformanceResourceTiming::firstInterimResponseStart() const
 
 double PerformanceResourceTiming::responseStart() const
 {
-    if (m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (shouldRestrictTimingForTAO())
         return 0.0;
 
     // Per https://github.com/w3c/resource-timing/pull/408:
@@ -302,7 +302,7 @@ uint64_t PerformanceResourceTiming::transferSize() const
 {
     // This is intentionally stricter than a TAO check.
     // See https://github.com/w3c/server-timing/issues/89
-    if (!m_resourceTiming.isSameOriginRequest() || m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (!m_resourceTiming.isSameOriginRequest() || shouldRestrictTimingForTAO())
         return 0;
 
     auto encodedBodySize = m_resourceTiming.networkLoadMetrics().responseBodyBytesReceived;
@@ -318,7 +318,7 @@ uint64_t PerformanceResourceTiming::encodedBodySize() const
 {
     // This is intentionally stricter than a TAO check.
     // See https://github.com/w3c/server-timing/issues/89
-    if (!m_resourceTiming.isSameOriginRequest() || m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (!m_resourceTiming.isSameOriginRequest() || shouldRestrictTimingForTAO())
         return 0;
 
     auto encodedBodySize = m_resourceTiming.networkLoadMetrics().responseBodyBytesReceived;
@@ -332,7 +332,7 @@ uint64_t PerformanceResourceTiming::decodedBodySize() const
 {
     // This is intentionally stricter than a TAO check.
     // See https://github.com/w3c/server-timing/issues/89
-    if (!m_resourceTiming.isSameOriginRequest() || m_resourceTiming.networkLoadMetrics().failsTAOCheck)
+    if (!m_resourceTiming.isSameOriginRequest() || shouldRestrictTimingForTAO())
         return 0;
 
     auto decodedBodySize = m_resourceTiming.networkLoadMetrics().responseBodyDecodedSize;
