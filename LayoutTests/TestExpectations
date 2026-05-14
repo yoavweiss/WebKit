@@ -5981,6 +5981,9 @@ webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activatio
 webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/yyy-CloseWatcher-dialog-popover.html [ Skip ]
 webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/yyy-popovers.html [ Skip ]
 webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/yyy.html?dialog [ Skip ]
+webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/iframes/dialog-same-origin-nn.html [ Skip ]
+webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/iframes/dialog-same-origin-ynn.html [ Skip ]
+webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/iframes/dialog-same-origin-ynyn.html [ Skip ]
 
 # Needs moveBefore support
 webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/focus-preserve-render.html [ Skip ]
