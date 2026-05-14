@@ -86,6 +86,7 @@ private:
     String m_returnValue;
     bool m_isModal { false };
     bool m_isOpen { false };
+    bool m_isRequestingToClose { false };
     WeakPtr<Element, WeakPtrImplWithEventTargetData> m_previouslyFocusedElement;
 
     RefPtr<ToggleEventTask> m_toggleEventTask;
