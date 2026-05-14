@@ -31,6 +31,7 @@
 #include "CodeBlockSetInlines.h"
 #include "JITStubRoutineSet.h"
 #include "JSCast.h"
+#include "MarkedBlockInlines.h"
 #include "WasmCallee.h"
 #include <wtf/OSAllocator.h>
 
