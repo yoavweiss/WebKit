@@ -113,6 +113,7 @@ public:
     ItemPosition alignmentForFlexItem(const RenderBox&) const;
     Style::FlexBasis flexBasisForFlexItem(const RenderBox&) const;
     bool hasDefiniteCrossSizeForFlexItem(const RenderBox& flexItem) const;
+    bool canResolveCrossSizeFromAspectRatioDuringLayout() const;
 
 protected:
     void computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const override;
