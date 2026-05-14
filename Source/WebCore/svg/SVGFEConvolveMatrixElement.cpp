@@ -248,8 +248,8 @@ RefPtr<FilterEffect> SVGFEConvolveMatrixElement::createFilterEffect(const Filter
         float filterDivisor = 0;
 
         // The spec says the default value is the sum of all values in kernelMatrix.
-        for (unsigned i = 0; i < kernelMatrix.length(); ++i)
-            filterDivisor += kernelMatrix.items()[i]->value();
+        for (auto& item : kernelMatrix.items())
+            filterDivisor += item->value();
 
         // The spec says if the sum is zero, then the divisor is set to the initial value.
         return filterDivisor ? filterDivisor : initialDivisorValue;
