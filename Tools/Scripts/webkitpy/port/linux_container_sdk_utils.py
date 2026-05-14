@@ -179,6 +179,17 @@ def _bind_mount(src, dst, options='rslave'):
     return ['--mount', 'type=bind,source={},destination={},{}'.format(src, dst, options)]
 
 
+def _container_hostname():
+    # Linux caps hostnames at HOST_NAME_MAX (64) bytes; sethostname(2) returns
+    # EINVAL above that, which surfaces from crun as "sethostname: Invalid
+    # argument" and aborts container startup. In a Kubernetes pod the host
+    # hostname is already up to 63 chars, so blindly appending it overflows.
+    hostname = '{}.{}'.format(WKDEV_CONTAINER_NAME, socket.gethostname())
+    if len(hostname) > 63:
+        hostname = hostname[:63]
+    return hostname
+
+
 def _build_podman_create_args(pinned_version):
     image_ref = '{}:{}'.format(WKDEV_SDK_IMAGE_REPOSITORY, pinned_version)
     container_home = _container_home_path()
@@ -188,7 +199,7 @@ def _build_podman_create_args(pinned_version):
 
     args = [
         '--name', WKDEV_CONTAINER_NAME,
-        '--hostname', '{}.{}'.format(WKDEV_CONTAINER_NAME, socket.gethostname()),
+        '--hostname', _container_hostname(),
         '--workdir', '/home/{}'.format(user),
         '--userns', 'keep-id',
         '--user', 'root:root',
