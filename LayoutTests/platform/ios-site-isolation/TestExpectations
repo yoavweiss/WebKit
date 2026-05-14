@@ -222,7 +222,6 @@ http/tests/security/xss-DENIED-window-open-javascript-url-with-spaces.html [ Fai
 http/tests/security/xss-DENIED-window-open-javascript-url.html [ Failure ]
 http/tests/ssl/applepay/page-cache-active-apple-pay-session.html [ Failure ]
 http/tests/ssl/applepay/page-cache-inactive-apple-pay-session.html [ Failure ]
-http/tests/ssl/media-stream/get-user-media-secure-connection.html [ Failure ]
 http/tests/webrtc/audioSessionInFrames.html [ Failure ]
 http/tests/workers/service/client-added-to-clients-when-restored-from-page-cache.html [ Failure ]
 http/tests/workers/service/client-removed-from-clients-while-in-page-cache.html [ Failure ]
