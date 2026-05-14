@@ -183,6 +183,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		1C60FF1214E6D9AF006CD77D /* Copy User Interface Resources */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
