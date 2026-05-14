@@ -171,9 +171,6 @@ void SVGImage::setContainerSize(const FloatSize& size)
     if (!rootElement || !rootElement->renderer() || !rootElement->renderer()->isRenderOrLegacyRenderSVGRoot())
         return;
 
-    RefPtr view = frameView();
-    view->resize(containerSize());
-
     if (CheckedPtr renderer = dynamicDowncast<LegacyRenderSVGRoot>(rootElement->renderer())) {
         renderer->setContainerSize(IntSize(size));
         return;
