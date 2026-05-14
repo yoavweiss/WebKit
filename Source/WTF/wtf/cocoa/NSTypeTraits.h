@@ -20,6 +20,7 @@
 #pragma once
 
 #include <concepts>
+#include <wtf/Forward.h>
 #include <wtf/Platform.h>
 
 #ifdef __OBJC__
