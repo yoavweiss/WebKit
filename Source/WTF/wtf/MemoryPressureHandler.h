@@ -264,9 +264,13 @@ private:
     Configuration m_configuration;
 
 #if OS(WINDOWS)
+    friend VOID CALLBACK lowMemoryNotificationCallback(PVOID, BOOLEAN);
     void windowsMeasurementTimerFired();
+    void windowsLowMemoryNotificationFired();
+    void beginWaitingForLowMemoryNotification();
     RunLoop::Timer m_windowsMeasurementTimer;
     Win32Handle m_lowMemoryHandle;
+    HANDLE m_lowMemoryWaitHandle { nullptr };
 #endif
 
 #if (OS(LINUX) || OS(FREEBSD) || OS(HAIKU) || OS(QNX)) && !OS(ANDROID)
