@@ -429,12 +429,7 @@ TEST(WKWebExtensionAPIScripting, ExecuteScriptWithDocumentIds)
     [manager run];
 }
 
-// FIXME when webkit.org/b/314126 is resolved.
-#if PLATFORM(MAC)
-TEST(WKWebExtensionAPIScripting, DISABLED_ExecuteScriptWithUserGesture)
-#else
 TEST(WKWebExtensionAPIScripting, ExecuteScriptWithUserGesture)
-#endif
 {
     TestWebKitAPI::HTTPServer server({
         { "/"_s, { { { "Content-Type"_s, "text/html"_s } }, ""_s } },
@@ -442,6 +437,11 @@ TEST(WKWebExtensionAPIScripting, ExecuteScriptWithUserGesture)
 
     auto *backgroundScript = Util::constructScript(@[
         @"browser.action.setPopup({ popup: '' })",
+
+        @"browser.tabs.onUpdated.addListener((tabId, changeInfo) => {",
+        @"  if (changeInfo.status === 'complete')",
+        @"    browser.test.sendMessage('Page Ready')",
+        @"})",
 
         @"browser.action.onClicked.addListener(async (tab) => {",
         @"  browser.test.assertTrue(navigator.userActivation.isActive, 'User gesture should be active at the scripting.executeScript call site')",
@@ -463,9 +463,11 @@ TEST(WKWebExtensionAPIScripting, ExecuteScriptWithUserGesture)
 
     auto manager = Util::loadExtension(scriptingActionManifest, @{ @"background.js": backgroundScript });
 
+    [manager runUntilTestMessage:@"Background Ready"];
+
     [manager.get().defaultTab.webView loadRequest:server.requestWithLocalhost()];
 
-    [manager runUntilTestMessage:@"Background Ready"];
+    [manager runUntilTestMessage:@"Page Ready"];
 
     [manager.get().context performActionForTab:manager.get().defaultTab];
 

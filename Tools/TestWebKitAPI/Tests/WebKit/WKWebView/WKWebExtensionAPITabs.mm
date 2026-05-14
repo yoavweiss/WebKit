@@ -2565,8 +2565,7 @@ TEST(WKWebExtensionAPITabs, PortPostMessageWithoutUserGesture)
     [manager run];
 }
 
-// FIXME when webkit.org/b/314126 is resolved.
-TEST(WKWebExtensionAPITabs, DISABLED_PortPostMessageGestureFromContentScriptIsNotPropagated)
+TEST(WKWebExtensionAPITabs, PortPostMessageGestureFromContentScriptIsNotPropagated)
 {
     // Gestures from content scripts are intentionally not propagated to extension pages,
     // even when the content script sends a port message inside a user gesture.
@@ -2585,7 +2584,6 @@ TEST(WKWebExtensionAPITabs, DISABLED_PortPostMessageGestureFromContentScriptIsNo
             @"type": @"module",
             @"persistent": @NO,
         },
-        @"action": @{ },
         @"content_scripts": @[ @{
             @"js": @[ @"content.js" ],
             @"matches": @[ @"*://localhost/*" ],
@@ -2593,10 +2591,12 @@ TEST(WKWebExtensionAPITabs, DISABLED_PortPostMessageGestureFromContentScriptIsNo
     };
 
     auto *backgroundScript = Util::constructScript(@[
-        @"browser.action.setPopup({ popup: '' })",
+        @"browser.test.onMessage.addListener(async (message) => {",
+        @"  if (message !== 'Connect')",
+        @"    return",
 
-        @"browser.action.onClicked.addListener(async (tab) => {",
-        @"  const port = browser.tabs.connect(tab.id, { name: 'gesturePort' })",
+        @"  const [currentTab] = await browser.tabs.query({ active: true, currentWindow: true })",
+        @"  const port = browser.tabs.connect(currentTab.id, { name: 'gesturePort' })",
         @"  port.onMessage.addListener((message) => {",
         @"    if (message !== 'check-gesture')",
         @"      return",
@@ -2630,7 +2630,7 @@ TEST(WKWebExtensionAPITabs, DISABLED_PortPostMessageGestureFromContentScriptIsNo
     [manager runUntilTestMessage:@"Background Ready"];
     [manager runUntilTestMessage:@"Content Ready"];
 
-    [manager.get().context performActionForTab:manager.get().defaultTab];
+    [manager sendTestMessage:@"Connect"];
 
     [manager run];
 }
