@@ -7581,6 +7581,57 @@ TEST(SiteIsolation, DragOverStateInfo)
     EXPECT_TRUE(dragStarted);
 }
 
+TEST(SiteIsolation, DropExternalFileInCrossOriginSubframe)
+{
+    static constexpr ASCIILiteral mainframeHTML = "<body style='margin: 0'>"
+    "<iframe width='400' height='400' style='border: none;' src='https://domain2.com/subframe'></iframe>"
+    "</body>"_s;
+
+    static constexpr ASCIILiteral subframeHTML = "<body style='margin: 0; width: 100%; height: 100vh;'>"
+    "<script>"
+    "    window.dropFileName = '';"
+    "    document.addEventListener('dragover', (e) => e.preventDefault());"
+    "    document.addEventListener('drop', (e) => {"
+    "        e.preventDefault();"
+    "        window.dropFileName = e.dataTransfer.files[0].name;"
+    "    });"
+    "</script>"
+    "</body>"_s;
+
+    HTTPServer server({
+        { "/mainframe"_s, { mainframeHTML } },
+        { "/subframe"_s, { subframeHTML } }
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    RetainPtr navigationDelegate = adoptNS([TestNavigationDelegate new]);
+    [navigationDelegate allowAnyTLSCertificate];
+
+    RetainPtr configuration = server.httpsProxyConfiguration();
+    enableSiteIsolation(configuration.get());
+
+    RetainPtr simulator = adoptNS([[DragAndDropSimulator alloc] initWithWebViewFrame:NSMakeRect(0, 0, 400, 400) configuration:configuration.get()]);
+    RetainPtr webView = [simulator webView];
+    [webView setNavigationDelegate:navigationDelegate.get()];
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://domain1.com/mainframe"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+    [webView waitForNextPresentationUpdate];
+
+    RetainPtr fileURL = [NSBundle.test_resourcesBundle URLForResource:@"apple" withExtension:@"gif"];
+    [simulator writeFiles:@[ fileURL.get() ]];
+    [simulator runFrom:CGPointMake(200, 200) to:CGPointMake(200, 200)];
+
+    __block RetainPtr<NSString> dropFileName;
+    __block bool done = false;
+    [webView evaluateJavaScript:@"window.dropFileName" inFrame:[webView firstChildFrame] completionHandler:^(id result, NSError *error) {
+        dropFileName = result;
+        done = true;
+    }];
+    TestWebKitAPI::Util::run(&done);
+
+    EXPECT_WK_STREQ(dropFileName.get(), "apple.gif");
+}
+
 #endif // ENABLE(DRAG_SUPPORT) && PLATFORM(MAC)
 
 TEST(SiteIsolation, AlternateRequest)

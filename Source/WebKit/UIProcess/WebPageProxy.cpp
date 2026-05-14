@@ -3995,7 +3995,9 @@ void WebPageProxy::dragExited(DragData& dragData)
 #if PLATFORM(COCOA)
 void WebPageProxy::propagateDragAndDrop(DragEventForwardingData&& forwardingData, const String& dragStorageName, DragData&& dragData)
 {
-    grantAccessToCurrentPasteboardData(dragStorageName, [weakThis = WeakPtr { *this }, &forwardingData, dragStorageName, dragData = WTF::move(dragData)] () mutable {
+    auto targetFrameID = forwardingData.targetFrameID;
+
+    grantAccessToCurrentPasteboardData(dragStorageName, [weakThis = WeakPtr { *this }, forwardingData = WTF::move(forwardingData), dragStorageName, dragData = WTF::move(dragData)] () mutable {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)
             return;
@@ -4010,7 +4012,7 @@ void WebPageProxy::propagateDragAndDrop(DragEventForwardingData&& forwardingData
                     protectedThis->propagateDragAndDrop(WTF::move(forwardingData), dragStorageName, WTF::move(dragDataCopy));
             });
         });
-    }, forwardingData.targetFrameID);
+    }, targetFrameID);
 }
 #endif
 
