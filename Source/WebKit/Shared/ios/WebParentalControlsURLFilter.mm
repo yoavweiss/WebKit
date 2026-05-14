@@ -72,10 +72,13 @@ bool WebParentalControlsURLFilter::isEnabledImpl() const
 
 void WebParentalControlsURLFilter::isURLAllowedImpl(WebCore::IsMainFrameLoad isMainFrame, const URL& mainDocumentURL, const URL& url, CompletionHandler<void(bool, NSData *)>&& completionHandler)
 {
+    // mainDocumentURL acts as a root for Parental Controls policies. Accordingly, mainDocumentURL and url are required to match on mainframe navigations.
+    auto& effectiveMainDocumentURL = (isMainFrame == WebCore::IsMainFrameLoad::Yes) ? url : mainDocumentURL;
+
     workQueueSingleton().dispatch([this,
         protectedThis = Ref { *this },
         currentIsEnabled = isEnabled(),
-        mainDocumentURL = crossThreadCopy(mainDocumentURL),
+        mainDocumentURL = crossThreadCopy(effectiveMainDocumentURL),
         url = crossThreadCopy(url),
         isMainFrame,
         completionHandler = WTF::move(completionHandler)]() mutable {
