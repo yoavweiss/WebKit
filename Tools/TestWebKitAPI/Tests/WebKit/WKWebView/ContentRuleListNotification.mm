@@ -656,3 +656,47 @@ TEST(ContentRuleList, RedirectBeforeBlock)
     [webView loadRequest:server.request("/to-be-blocked"_s)];
     EXPECT_WK_STREQ([webView _test_waitForAlert], "Redirected!");
 }
+
+TEST(ContentRuleList, InterpretURLFilterCacheDoesNotConfuseSameStartDomains)
+{
+    NSString *ruleSource = @"[{\"action\":{\"type\":\"block\"},\"trigger\":{\"url-filter\":\"^apitest://example\\\\.com/\"}}]";
+    NSString *attackerURL = @"apitest://example.com.evil.com/test.html";
+    NSString *legitURL = @"apitest://example.com/test.html";
+    static unsigned counter = 0;
+
+    auto makeWebView = [&]() -> RetainPtr<WKWebView> {
+        NSString *identifier = [NSString stringWithFormat:@"sameStartDomains-%u", counter++];
+        RetainPtr delegate = adoptNS([[ContentRuleListNotificationDelegate alloc] init]);
+        RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+        [[configuration userContentController] addContentRuleList:makeContentRuleList(ruleSource, identifier).get()];
+        [configuration setURLSchemeHandler:delegate.get() forURLScheme:@"apitest"];
+        RetainPtr webView = adoptNS([[WKWebView alloc] initWithFrame:NSZeroRect configuration:configuration.get()]);
+        [webView setNavigationDelegate:delegate.get()];
+        [webView setUIDelegate:delegate.get()];
+        return webView;
+    };
+
+    auto fetchIsBlocked = [](WKWebView *webView, NSString *urlString) -> bool {
+        notificationList.clear();
+        receivedAlert = false;
+        NSString *html = [NSString stringWithFormat:@"<script>fetch('%@',{mode:'no-cors'}).then(()=>alert('l')).catch(()=>alert('b'))</script>", urlString];
+        [webView loadHTMLString:html baseURL:[NSURL URLWithString:@"apitest:///"]];
+        TestWebKitAPI::Util::run(&receivedAlert);
+        for (const Notification& notification : notificationList) {
+            if (notification.url == String(urlString) && notification.blockedLoad)
+                return true;
+        }
+        return false;
+    };
+
+    auto checkSequence = [&](NSArray<NSString *> *urls) {
+        RetainPtr cached = makeWebView();
+        for (NSString *url in urls) {
+            RetainPtr fresh = makeWebView();
+            EXPECT_EQ(fetchIsBlocked(fresh.get(), url), fetchIsBlocked(cached.get(), url));
+        }
+    };
+
+    checkSequence(@[attackerURL, legitURL, attackerURL, legitURL]);
+    checkSequence(@[legitURL, attackerURL, legitURL, attackerURL]);
+}
