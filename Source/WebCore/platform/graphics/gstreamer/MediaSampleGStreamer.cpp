@@ -199,6 +199,35 @@ Ref<MediaSample> MediaSampleGStreamer::createNonDisplayingCopy() const
     return adoptRef(*new MediaSampleGStreamer(WTF::move(sample), m_presentationSize, m_trackId));
 }
 
+Ref<MediaSample> MediaSampleGStreamer::createCopyWithAdjustedStartTime(const MediaTime& offset) const
+{
+    MediaTime clampedOffset = std::max(MediaTime::zeroTime(), std::min(offset, m_duration));
+
+    MediaTime newPresentationTime = m_pts + clampedOffset;
+    MediaTime newDecodeTime = m_dts + clampedOffset;
+    MediaTime adjustedDuration = m_duration - clampedOffset;
+
+    if (!m_sample)
+        return createFakeSample(nullptr, newPresentationTime, newDecodeTime, adjustedDuration, m_presentationSize, m_trackId);
+
+    GRefPtr<GstSample> newSample = adoptGRef(gst_sample_copy(m_sample.get()));
+
+    GRefPtr buffer = gst_sample_get_buffer(newSample.get());
+    if (!buffer) [[unlikely]]
+        return createFakeSample(nullptr, newPresentationTime, newDecodeTime, adjustedDuration, m_presentationSize, m_trackId);
+
+    auto newBuffer = adoptGRef(gst_buffer_make_writable(buffer.leakRef()));
+    GST_BUFFER_PTS(newBuffer.get()) = toGstClockTime(newPresentationTime);
+    GST_BUFFER_DTS(newBuffer.get()) = toGstClockTime(newDecodeTime);
+    GST_BUFFER_DURATION(newBuffer.get()) = toGstClockTime(adjustedDuration);
+    newSample = adoptGRef(gst_sample_make_writable(newSample.leakRef()));
+    gst_sample_set_buffer(newSample.get(), newBuffer.get());
+
+    Ref copy = adoptRef(*new MediaSampleGStreamer(WTF::move(newSample), m_presentationSize, m_trackId));
+    copy->m_flags = m_flags;
+    return copy;
+}
+
 void MediaSampleGStreamer::dump(PrintStream& out) const
 {
     out.print("{PTS(", presentationTime(), "), DTS(", decodeTime(), "), duration(", duration(), "), flags(");

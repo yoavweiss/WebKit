@@ -84,6 +84,43 @@ void TrackBuffer::addBufferedRange(const MediaTime& start, const MediaTime& end,
     m_buffered.add(start, end, addTimeRangeOption);
 }
 
+void TrackBuffer::adjustSampleStartTime(MediaSample& original, const MediaTime& offset)
+{
+    // Replace an already-buffered sample with a copy whose presentation and
+    // decode timestamps are shifted forward by `offset` (duration shrinks
+    // correspondingly; presentationEndTime is preserved; payload is unchanged).
+    //
+    // Both the SampleMap and m_decodeQueue need to be kept consistent: later
+    // removals look samples up by their current decode key, and leaving the
+    // pre-adjustment entry in the queue would orphan it.
+    Ref replacement = original.createCopyWithAdjustedStartTime(offset);
+
+    MediaTime originalStart = original.presentationTime();
+    MediaTime originalEnd = original.presentationEndTime();
+    DecodeOrderSampleMap::KeyType originalDecodeKey(original.decodeTime(), original.presentationTime());
+
+    MediaTime replacementStart = replacement->presentationTime();
+    MediaTime replacementEnd = replacement->presentationEndTime();
+    DecodeOrderSampleMap::KeyType replacementDecodeKey(replacement->decodeTime(), replacementStart);
+
+    PlatformTimeRanges invertedRange(originalStart, originalEnd);
+    invertedRange.invert();
+    m_buffered.intersectWith(invertedRange);
+
+    m_samples.replaceSample(original, replacement.copyRef());
+
+    addBufferedRange(replacementStart, replacementEnd, AddTimeRangeOption::EliminateSmallGaps);
+
+    // Since `offset` moves the key forward by at most timeFudgeFactor (much
+    // smaller than the typical inter-sample DTS gap), the iterator returned by
+    // erase() is a valid insertion-point hint for the adjusted entry.
+    auto queueIt = m_decodeQueue.find(originalDecodeKey);
+    if (queueIt != m_decodeQueue.end()) {
+        auto hint = m_decodeQueue.erase(queueIt);
+        m_decodeQueue.insert(hint, { replacementDecodeKey, WTF::move(replacement) });
+    }
+}
+
 void TrackBuffer::addSample(MediaSample& sample)
 {
     m_samples.addSample(sample);

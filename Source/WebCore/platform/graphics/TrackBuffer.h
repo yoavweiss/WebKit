@@ -52,6 +52,11 @@ public:
     MediaTime NODELETE maximumBufferedTime() const;
     void addBufferedRange(const MediaTime& start, const MediaTime& end, AddTimeRangeOption = AddTimeRangeOption::None);
     void addSample(MediaSample&);
+    // Replace an already-buffered sample with a copy whose presentation and
+    // decode timestamps are shifted forward by `offset` (duration shrinks
+    // accordingly; presentationEndTime is preserved). Updates both the
+    // SampleMap and m_decodeQueue, and adjusts m_buffered to match.
+    void adjustSampleStartTime(MediaSample& original, const MediaTime& offset);
 
     bool reenqueueMediaForTime(const MediaTime&, const MediaTime& timeFudgeFactor, bool isEnded = false);
     MediaTime findSeekTimeForTargetTime(const MediaTime& targetTime, const MediaTime& negativeThreshold, const MediaTime& positiveThreshold);
