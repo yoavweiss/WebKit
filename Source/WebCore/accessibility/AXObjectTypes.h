@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "Node.h"
+#include <WebCore/Node.h>
 #include <optional>
 #include <wtf/ProcessID.h>
 #include <wtf/RefPtr.h>
