@@ -239,7 +239,8 @@ _PATH_RULES_SPECIFIER = [
       "-security/printf",
       "-runtime/lock_guard",
       "-runtime/wtf_make_unique",
-      "-runtime/wtf_move"]),
+      "-runtime/wtf_move",
+      "-runtime/wtf_to_array"]),
 
     ([
       # To use GStreamer GL without conflicts of GL symbols,
@@ -438,7 +439,8 @@ _PATH_RULES_SPECIFIER = [
     ([  # MiniBrowser doesn't use WTF, but only public WebKit API.
      os.path.join('Tools', 'MiniBrowser')],
      ["-runtime/wtf_make_unique",
-      "-runtime/wtf_move"]),
+      "-runtime/wtf_move",
+      "-runtime/wtf_to_array"]),
 
     ([  # Ignore formatting and whitespace issues in gmock.
      os.path.join('Source', 'ThirdParty', 'gmock')],
@@ -449,6 +451,7 @@ _PATH_RULES_SPECIFIER = [
       "-readability",
       "-runtime/unsigned",
       "-runtime/wtf_move",
+      "-runtime/wtf_to_array",
       "-whitespace"]),
 
     ([  # Ignore whitespace issues in third party library esprima.js

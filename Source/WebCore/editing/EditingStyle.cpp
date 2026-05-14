@@ -1050,9 +1050,9 @@ bool EditingStyle::conflictsWithInlineStyleOfElement(StyledElement& element, Ref
     return conflicts;
 }
 
-SUPPRESS_NODELETE static std::span<const HTMLElementEquivalent* const> NODELETE htmlElementEquivalents()
+static std::span<const HTMLElementEquivalent* const> NODELETE htmlElementEquivalents()
 {
-    static const auto equivalents = std::to_array<const HTMLElementEquivalent*>({
+    static const auto equivalents = WTF::toArray<const HTMLElementEquivalent*>({
         new HTMLFontWeightEquivalent(HTMLNames::bTag),
         new HTMLFontWeightEquivalent(HTMLNames::strongTag),
 
@@ -1084,9 +1084,9 @@ bool EditingStyle::conflictsWithImplicitStyleOfElement(HTMLElement& element, Edi
     return false;
 }
 
-SUPPRESS_NODELETE static std::span<const HTMLAttributeEquivalent* const> NODELETE htmlAttributeEquivalents()
+static std::span<const HTMLAttributeEquivalent* const> NODELETE htmlAttributeEquivalents()
 {
-    static const auto equivalents = std::to_array<const HTMLAttributeEquivalent*>({
+    static const auto equivalents = WTF::toArray<const HTMLAttributeEquivalent*>({
         // elementIsStyledSpanOrHTMLEquivalent depends on the fact each HTMLAttriuteEquivalent matches exactly one attribute
         // of exactly one element except dirAttr.
         new HTMLAttributeEquivalent(CSSPropertyColor, HTMLNames::fontTag, HTMLNames::colorAttr),

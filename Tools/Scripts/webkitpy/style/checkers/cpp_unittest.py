@@ -6230,6 +6230,24 @@ class WebKitStyleTest(CppStyleTestBase):
             "  [runtime/wtf_move] [4]",
             'foo.mm')
 
+    def test_wtf_to_array(self):
+        self.assert_lint(
+            'auto a = WTF::toArray<int>({ 1, 2, 3 });',
+            '',
+            'foo.cpp')
+
+        self.assert_lint(
+            'auto a = std::to_array<int>({ 1, 2, 3 });',
+            "Use 'WTF::toArray()' instead of 'std::to_array()'."
+            "  [runtime/wtf_to_array] [4]",
+            'foo.cpp')
+
+        self.assert_lint(
+            'auto a = std::to_array(src);',
+            "Use 'WTF::toArray()' instead of 'std::to_array()'."
+            "  [runtime/wtf_to_array] [4]",
+            'foo.cpp')
+
     def test_protected_getter(self):
         # Regular getter is fine.
         self.assert_lint(

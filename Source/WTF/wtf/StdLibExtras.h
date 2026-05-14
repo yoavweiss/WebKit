@@ -871,6 +871,20 @@ template<typename T>
     return std::move(std::forward<T>(value));
 }
 
+template<typename T, std::size_t N>
+[[nodiscard]] SUPPRESS_NODELETE constexpr std::array<std::remove_cv_t<T>, N> NODELETE toArray(T (&array)[N])
+    noexcept(std::is_nothrow_constructible_v<T, T&>)
+{
+    return std::to_array<T>(array); // NOLINT(runtime/wtf_to_array)
+}
+
+template<typename T, std::size_t N>
+[[nodiscard]] SUPPRESS_NODELETE constexpr std::array<std::remove_cv_t<T>, N> NODELETE toArray(T (&&array)[N])
+    noexcept(std::is_nothrow_move_constructible_v<T>)
+{
+    return std::to_array<T>(WTF::move(array)); // NOLINT(runtime/wtf_to_array)
+}
+
 template<class T, class... Args>
 [[nodiscard]] ALWAYS_INLINE decltype(auto) makeUnique(Args&&... args)
 {
