@@ -67,6 +67,15 @@ using namespace WebCore;
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RemoteAudioVideoRendererProxyManager);
 
+static WebCore::MediaTimeUpdateData timeUpdateDataFor(WebCore::AudioVideoRenderer& renderer)
+{
+    return {
+        .currentTime = renderer.currentTime(),
+        .effectiveRate = renderer.timeIsProgressing() ? renderer.effectiveRate() : 0.0,
+        .wallTime = MonotonicTime::now(),
+    };
+}
+
 RefPtr<AudioVideoRenderer> RemoteAudioVideoRendererProxyManager::createRenderer()
 {
 #if USE(AVFOUNDATION)
@@ -351,28 +360,34 @@ void RemoteAudioVideoRendererProxyManager::notifyWhenErrorOccurs(RemoteAudioVide
 }
 
 // SynchronizerInterface
-void RemoteAudioVideoRendererProxyManager::play(RemoteAudioVideoRendererIdentifier identifier, std::optional<MonotonicTime> hostTime)
+void RemoteAudioVideoRendererProxyManager::play(RemoteAudioVideoRendererIdentifier identifier, std::optional<MonotonicTime> hostTime, CompletionHandler<void(WebCore::MediaTimeUpdateData&&)>&& completionHandler)
 {
     if (RefPtr renderer = rendererFor(identifier)) {
         renderer->play(hostTime);
-        m_gpuConnectionToWebProcess.get()->connection().send(Messages::AudioVideoRendererRemoteMessageReceiver::StateUpdate(stateFor(identifier)), identifier);
+        completionHandler(timeUpdateDataFor(*renderer));
+        return;
     }
+    completionHandler({ });
 }
 
-void RemoteAudioVideoRendererProxyManager::pause(RemoteAudioVideoRendererIdentifier identifier, std::optional<MonotonicTime> hostTime)
+void RemoteAudioVideoRendererProxyManager::pause(RemoteAudioVideoRendererIdentifier identifier, std::optional<MonotonicTime> hostTime, CompletionHandler<void(WebCore::MediaTimeUpdateData&&)>&& completionHandler)
 {
     if (RefPtr renderer = rendererFor(identifier)) {
         renderer->pause(hostTime);
-        m_gpuConnectionToWebProcess.get()->connection().send(Messages::AudioVideoRendererRemoteMessageReceiver::StateUpdate(stateFor(identifier)), identifier);
+        completionHandler(timeUpdateDataFor(*renderer));
+        return;
     }
+    completionHandler({ });
 }
 
-void RemoteAudioVideoRendererProxyManager::setRate(RemoteAudioVideoRendererIdentifier identifier, double rate)
+void RemoteAudioVideoRendererProxyManager::setRate(RemoteAudioVideoRendererIdentifier identifier, double rate, CompletionHandler<void(WebCore::MediaTimeUpdateData&&)>&& completionHandler)
 {
     if (RefPtr renderer = rendererFor(identifier)) {
         renderer->setRate(rate);
-        m_gpuConnectionToWebProcess.get()->connection().send(Messages::AudioVideoRendererRemoteMessageReceiver::StateUpdate(stateFor(identifier)), identifier);
+        completionHandler(timeUpdateDataFor(*renderer));
+        return;
     }
+    completionHandler({ });
 }
 
 void RemoteAudioVideoRendererProxyManager::stall(RemoteAudioVideoRendererIdentifier identifier)
@@ -579,11 +594,7 @@ RemoteAudioVideoRendererState RemoteAudioVideoRendererProxyManager::stateFor(Rem
     if (!renderer)
         return { };
     return {
-        .timeUpdateData = {
-            .currentTime = renderer->currentTime(),
-            .effectiveRate = renderer->timeIsProgressing() ? renderer->effectiveRate() : 0.0,
-            .wallTime = MonotonicTime::now(),
-        },
+        .timeUpdateData = timeUpdateDataFor(*renderer),
         .paused = renderer->paused(),
         .videoPlaybackQualityMetrics = renderer->videoPlaybackQualityMetrics()
     };

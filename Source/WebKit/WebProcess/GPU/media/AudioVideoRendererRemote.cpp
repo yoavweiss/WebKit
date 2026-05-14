@@ -124,12 +124,10 @@ void AudioVideoRendererRemote::TimeProgressEstimator::setRate(double rate)
         auto elapsed = std::min(now - m_wallTime, kUpdateInterval);
         m_cachedTime += MediaTime::createWithDouble(currentRate * elapsed.seconds());
         m_wallTime = now;
-        m_effectiveRate = rate;
     }
-    if (!rate) {
-        m_effectiveRate = 0;
+    m_effectiveRate = rate;
+    if (!rate)
         m_lastReturnedTime.reset();
-    }
     m_forceUseCachedTime = true;
 }
 
@@ -476,9 +474,12 @@ void AudioVideoRendererRemote::play(std::optional<MonotonicTime> hostTime)
         Locker locker { m_lock };
         m_cachedState.paused = false;
     }
-    // The GPU will reply with a StateUpdate carrying the new effective rate so the estimator can resume extrapolation without waiting for the 250ms periodic tick.
+    // The GPU will reply with the current MediaTimeUpdateData so the estimator can resume extrapolation without waiting for the 250ms periodic tick.
     ensureOnDispatcherWithConnection([hostTime](auto& renderer, auto& connection) {
-        connection.send(Messages::RemoteAudioVideoRendererProxyManager::Play(renderer.m_identifier, hostTime), 0);
+        connection.sendWithAsyncReplyOnDispatcher(Messages::RemoteAudioVideoRendererProxyManager::Play(renderer.m_identifier, hostTime), queueSingleton(), [weakThis = ThreadSafeWeakPtr { renderer }](WebCore::MediaTimeUpdateData&& timeUpdateData) {
+            if (RefPtr protectedThis = weakThis.get())
+                protectedThis->m_timeEstimator.setTime(timeUpdateData);
+        });
     });
 }
 
@@ -489,9 +490,12 @@ void AudioVideoRendererRemote::pause(std::optional<MonotonicTime> hostTime)
         m_cachedState.paused = true;
     }
     m_timeEstimator.pause();
-    // The GPU will reply with a StateUpdate so cached fields (videoPlaybackQualityMetrics, etc.) match its view immediately.
+    // The GPU will reply with the current MediaTimeUpdateData so the estimator re-anchors against the GPU's view.
     ensureOnDispatcherWithConnection([hostTime](auto& renderer, auto& connection) {
-        connection.send(Messages::RemoteAudioVideoRendererProxyManager::Pause(renderer.m_identifier, hostTime), 0);
+        connection.sendWithAsyncReplyOnDispatcher(Messages::RemoteAudioVideoRendererProxyManager::Pause(renderer.m_identifier, hostTime), queueSingleton(), [weakThis = ThreadSafeWeakPtr { renderer }](WebCore::MediaTimeUpdateData&& timeUpdateData) {
+            if (RefPtr protectedThis = weakThis.get())
+                protectedThis->m_timeEstimator.setTime(timeUpdateData);
+        });
     });
 }
 
@@ -504,9 +508,12 @@ bool AudioVideoRendererRemote::paused() const
 void AudioVideoRendererRemote::setRate(double rate)
 {
     m_timeEstimator.setRate(rate);
-    // The GPU will reply with a StateUpdate that unfreezes the estimator (setTime clears m_forceUseCachedTime) with the real effective rate.
+    // The GPU will reply with the current MediaTimeUpdateData that unfreezes the estimator (setTime clears m_forceUseCachedTime) with the real effective rate.
     ensureOnDispatcherWithConnection([rate](auto& renderer, auto& connection) {
-        connection.send(Messages::RemoteAudioVideoRendererProxyManager::SetRate(renderer.m_identifier, rate), 0);
+        connection.sendWithAsyncReplyOnDispatcher(Messages::RemoteAudioVideoRendererProxyManager::SetRate(renderer.m_identifier, rate), queueSingleton(), [weakThis = ThreadSafeWeakPtr { renderer }](WebCore::MediaTimeUpdateData&& timeUpdateData) {
+            if (RefPtr protectedThis = weakThis.get())
+                protectedThis->m_timeEstimator.setTime(timeUpdateData);
+        });
     });
 }
 

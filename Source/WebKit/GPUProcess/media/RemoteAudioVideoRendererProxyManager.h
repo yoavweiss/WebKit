@@ -113,9 +113,9 @@ private:
     void notifyWhenErrorOccurs(RemoteAudioVideoRendererIdentifier, CompletionHandler<void(WebCore::PlatformMediaError)>&&);
 
     // SynchronizerInterface
-    void play(RemoteAudioVideoRendererIdentifier, std::optional<MonotonicTime>);
-    void pause(RemoteAudioVideoRendererIdentifier, std::optional<MonotonicTime>);
-    void setRate(RemoteAudioVideoRendererIdentifier, double);
+    void play(RemoteAudioVideoRendererIdentifier, std::optional<MonotonicTime>, CompletionHandler<void(WebCore::MediaTimeUpdateData&&)>&&);
+    void pause(RemoteAudioVideoRendererIdentifier, std::optional<MonotonicTime>, CompletionHandler<void(WebCore::MediaTimeUpdateData&&)>&&);
+    void setRate(RemoteAudioVideoRendererIdentifier, double, CompletionHandler<void(WebCore::MediaTimeUpdateData&&)>&&);
     void stall(RemoteAudioVideoRendererIdentifier);
     void prepareToSeek(RemoteAudioVideoRendererIdentifier, const MediaTime&, CompletionHandler<void(WebCore::MediaTimePromise::Result&&)>&&);
     void finishSeek(RemoteAudioVideoRendererIdentifier, const MediaTime&, CompletionHandler<void(GenericPromise::Result&&)>&&);
