@@ -96,6 +96,13 @@ header: "CoreIPCNSURLRequest.h"
 using WebKit::CoreIPCNSURLRequestData::BodyParts = Variant<WebKit::CoreIPCString, WebKit::CoreIPCData>;
 using WebKit::CoreIPCNSURLRequestData::HeaderField = std::pair<String, Variant<String, Vector<String>>>;
 
+header: "CoreIPCNSURLRequest.h"
+[CustomHeader, WebKitPlatform] enum class WebKit::APProxyRequestType : uint8_t {
+    Undefined,
+    WebView,
+    Video
+}
+
 [CustomHeader, WebKitPlatform] struct WebKit::ProtocolProperties {
     std::optional<bool> isTopLevelNavigation;
     std::optional<bool> allowAllPOSTCaching;
@@ -105,6 +112,10 @@ using WebKit::CoreIPCNSURLRequestData::HeaderField = std::pair<String, Variant<S
     std::optional<WebKit::CoreIPCNumber> fileProtocolExpectedDevice;
     std::optional<bool> shouldSniff;
     std::optional<bool> contentDecoderSkipURLCheck;
+    std::optional<WebKit::CoreIPCString> adIdentifier;
+    std::optional<WebKit::CoreIPCNumber> maximumRequestCount;
+    std::optional<bool> apProxyIsRecursive;
+    std::optional<WebKit::APProxyRequestType> requestType;
 }
 
 header: "CoreIPCNSURLRequest.h"

@@ -99,6 +99,13 @@ CoreIPCNSURLRequest::CoreIPCNSURLRequest(NSURLRequest *request)
         SET_PROTOCOL_PROPERTY(protocolPropertiesDict, @"NSURLRequestFileProtocolExpectedDevice", NSNumber, CoreIPCNumber, props.fileProtocolExpectedDevice);
         SET_PROTOCOL_PROPERTY_BOOL(protocolPropertiesDict, @"_kCFURLConnectionPropertyShouldSniff", props.shouldSniff);
         SET_PROTOCOL_PROPERTY_BOOL(protocolPropertiesDict, @"kCFURLRequestContentDecoderSkipURLCheck", props.contentDecoderSkipURLCheck);
+        SET_PROTOCOL_PROPERTY(protocolPropertiesDict, @"adIdentifier", NSString, CoreIPCString, props.adIdentifier);
+        SET_PROTOCOL_PROPERTY(protocolPropertiesDict, @"maximumRequestCount", NSNumber, CoreIPCNumber, props.maximumRequestCount);
+        SET_PROTOCOL_PROPERTY_BOOL(protocolPropertiesDict, @"com.apple.ap.pc.proxy-is-recursive", props.apProxyIsRecursive);
+        if (RetainPtr value = dynamic_objc_cast<NSNumber>([protocolPropertiesDict objectForKey:@"requestType"])) {
+            if (auto integerValue = [value integerValue]; isValidEnum<APProxyRequestType>(integerValue))
+                props.requestType = static_cast<APProxyRequestType>(integerValue);
+        }
 
         m_data.protocolProperties = WTF::move(props);
     }
@@ -255,7 +262,7 @@ RetainPtr<id> CoreIPCNSURLRequest::toID() const
     RetainPtr dict = adoptNS([[NSMutableDictionary alloc] initWithCapacity:CoreIPCNSURLRequestData::numberOfFields]);
 
     if (m_data.protocolProperties) {
-        RetainPtr protocolPropertiesDict = adoptNS([[NSMutableDictionary alloc] initWithCapacity:8]);
+        RetainPtr protocolPropertiesDict = adoptNS([[NSMutableDictionary alloc] initWithCapacity:12]);
         SET_PROTOCOL_DICT_BOOL(protocolPropertiesDict, @"_kCFHTTPCookiePolicyPropertyIsTopLevelNavigation", m_data.protocolProperties->isTopLevelNavigation);
         SET_PROTOCOL_DICT_BOOL(protocolPropertiesDict, @"kCFURLRequestAllowAllPOSTCaching", m_data.protocolProperties->allowAllPOSTCaching);
         SET_PROTOCOL_DICT_MEMBER(protocolPropertiesDict, @"_kCFHTTPCookiePolicyPropertySiteForCookies", m_data.protocolProperties->siteForCookies);
@@ -264,6 +271,11 @@ RetainPtr<id> CoreIPCNSURLRequest::toID() const
         SET_PROTOCOL_DICT_MEMBER(protocolPropertiesDict, @"NSURLRequestFileProtocolExpectedDevice", m_data.protocolProperties->fileProtocolExpectedDevice);
         SET_PROTOCOL_DICT_BOOL(protocolPropertiesDict, @"_kCFURLConnectionPropertyShouldSniff", m_data.protocolProperties->shouldSniff);
         SET_PROTOCOL_DICT_BOOL(protocolPropertiesDict, @"kCFURLRequestContentDecoderSkipURLCheck", m_data.protocolProperties->contentDecoderSkipURLCheck);
+        SET_PROTOCOL_DICT_MEMBER(protocolPropertiesDict, @"adIdentifier", m_data.protocolProperties->adIdentifier);
+        SET_PROTOCOL_DICT_MEMBER(protocolPropertiesDict, @"maximumRequestCount", m_data.protocolProperties->maximumRequestCount);
+        SET_PROTOCOL_DICT_BOOL(protocolPropertiesDict, @"com.apple.ap.pc.proxy-is-recursive", m_data.protocolProperties->apProxyIsRecursive);
+        if (m_data.protocolProperties->requestType)
+            [protocolPropertiesDict setObject:[NSNumber numberWithInteger:static_cast<NSInteger>(*m_data.protocolProperties->requestType)] forKey:@"requestType"];
 
         [dict setObject:protocolPropertiesDict.get() forKey:@"protocolProperties"];
     }

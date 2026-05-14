@@ -97,6 +97,12 @@ enum class NSURLRequestFlags : int16_t {
     ShouldStartSynchronously = (1 << 12)
 };
 
+enum class APProxyRequestType : uint8_t {
+    Undefined,
+    WebView,
+    Video
+};
+
 struct ProtocolProperties {
     std::optional<bool> isTopLevelNavigation;
     std::optional<bool> allowAllPOSTCaching;
@@ -106,6 +112,10 @@ struct ProtocolProperties {
     std::optional<CoreIPCNumber> fileProtocolExpectedDevice;
     std::optional<bool> shouldSniff;
     std::optional<bool> contentDecoderSkipURLCheck;
+    std::optional<CoreIPCString> adIdentifier;
+    std::optional<CoreIPCNumber> maximumRequestCount;
+    std::optional<bool> apProxyIsRecursive;
+    std::optional<APProxyRequestType> requestType;
 };
 
 struct CoreIPCNSURLRequestData {

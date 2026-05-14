@@ -1745,6 +1745,10 @@ TEST(IPCSerialization, NSURLRequestProtocolProperties)
     props.fileProtocolExpectedDevice = WebKit::CoreIPCNumber(@123);
     props.shouldSniff = false;
     props.contentDecoderSkipURLCheck = true;
+    props.adIdentifier = WebKit::CoreIPCString(@"test-ad-id");
+    props.maximumRequestCount = WebKit::CoreIPCNumber(@5);
+    props.apProxyIsRecursive = true;
+    props.requestType = WebKit::APProxyRequestType::WebView;
     requestData.protocolProperties = WTF::move(props);
 
     WebKit::CoreIPCNSURLRequest wrapper(WTF::move(requestData));
@@ -1756,7 +1760,7 @@ TEST(IPCSerialization, NSURLRequestProtocolProperties)
     RetainPtr plistData = [reconstructedRequest _webKitPropertyListData];
     RetainPtr protocolProperties = [plistData.get() objectForKey:@"protocolProperties"];
     EXPECT_TRUE(protocolProperties != nil);
-    EXPECT_EQ([protocolProperties count], 8U);
+    EXPECT_EQ([protocolProperties count], 12U);
 
     EXPECT_TRUE([[protocolProperties objectForKey:@"_kCFHTTPCookiePolicyPropertyIsTopLevelNavigation"] boolValue]);
     EXPECT_FALSE([[protocolProperties objectForKey:@"kCFURLRequestAllowAllPOSTCaching"] boolValue]);
@@ -1766,6 +1770,10 @@ TEST(IPCSerialization, NSURLRequestProtocolProperties)
     EXPECT_EQ([[protocolProperties objectForKey:@"NSURLRequestFileProtocolExpectedDevice"] intValue], 123);
     EXPECT_FALSE([[protocolProperties objectForKey:@"_kCFURLConnectionPropertyShouldSniff"] boolValue]);
     EXPECT_TRUE([[protocolProperties objectForKey:@"kCFURLRequestContentDecoderSkipURLCheck"] boolValue]);
+    EXPECT_TRUE([[protocolProperties objectForKey:@"adIdentifier"] isEqualToString:@"test-ad-id"]);
+    EXPECT_EQ([[protocolProperties objectForKey:@"maximumRequestCount"] intValue], 5);
+    EXPECT_TRUE([[protocolProperties objectForKey:@"com.apple.ap.pc.proxy-is-recursive"] boolValue]);
+    EXPECT_EQ([[protocolProperties objectForKey:@"requestType"] intValue], 1);
 
     // Test full round-trip serialization
     runTestNS({ reconstructedRequest });
@@ -1819,6 +1827,26 @@ TEST(IPCSerialization, NSURLRequestProtocolProperties)
     EXPECT_EQ([[protocolProperties3 objectForKey:@"NSURLRequestFileProtocolExpectedDevice"] intValue], 0);
 
     runTestNS({ reconstructedRequest3 });
+}
+
+TEST(IPCSerialization, NSURLRequestNSURLProtocolProperties)
+{
+    RetainPtr request = adoptNS([[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"https://webkit.org/"]]);
+    [NSURLProtocol setProperty:@"ad-123" forKey:@"adIdentifier" inRequest:request.get()];
+    [NSURLProtocol setProperty:@3 forKey:@"maximumRequestCount" inRequest:request.get()];
+    [NSURLProtocol setProperty:@YES forKey:@"com.apple.ap.pc.proxy-is-recursive" inRequest:request.get()];
+    [NSURLProtocol setProperty:@2 forKey:@"requestType" inRequest:request.get()];
+
+    WebKit::CoreIPCNSURLRequest wrapper(request.get());
+    RetainPtr reconstructed = dynamic_objc_cast<NSURLRequest>(wrapper.toID().get());
+    EXPECT_TRUE(reconstructed);
+
+    EXPECT_TRUE([[NSURLProtocol propertyForKey:@"adIdentifier" inRequest:reconstructed.get()] isEqualToString:@"ad-123"]);
+    EXPECT_EQ([[NSURLProtocol propertyForKey:@"maximumRequestCount" inRequest:reconstructed.get()] intValue], 3);
+    EXPECT_TRUE([[NSURLProtocol propertyForKey:@"com.apple.ap.pc.proxy-is-recursive" inRequest:reconstructed.get()] boolValue]);
+    EXPECT_EQ([[NSURLProtocol propertyForKey:@"requestType" inRequest:reconstructed.get()] integerValue], 2);
+
+    runTestNS({ request.get() });
 }
 
 #endif // PLATFORM(COCOA) && HAVE(WK_SECURE_CODING_NSURLREQUEST)
