@@ -782,10 +782,13 @@ WebCore::RectEdges<bool> ScrollingTree::pinnedStateIncludingAncestorsAtPoint(Flo
     if (!rootNode)
         return false;
 
-    Locker locker { m_treeStateLock };
-
     FloatPoint position = viewPoint;
-    position.move(rootNode->viewToContentsOffset(m_treeState.mainFrameScrollPosition));
+    {
+        Locker locker { m_treeStateLock };
+        position.move(rootNode->viewToContentsOffset(m_treeState.mainFrameScrollPosition));
+    }
+
+    HitTestLocker hitTestLocker { *this };
 
     WebCore::RectEdges<bool> pinnedState = { true, true, true, true };
 

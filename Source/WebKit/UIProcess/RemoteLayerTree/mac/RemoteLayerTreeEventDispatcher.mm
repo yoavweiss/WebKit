@@ -237,7 +237,7 @@ void RemoteLayerTreeEventDispatcher::scrollingThreadHandleWheelEvent(const WebWh
     if (!scrollingTree)
         return;
 
-    auto locker = RemoteLayerTreeHitTestLocker { *scrollingTree };
+    ScrollingTree::HitTestLocker locker { *scrollingTree };
 
     auto platformWheelEvent = platform(webWheelEvent);
     auto processingSteps = determineWheelEventProcessing(platformWheelEvent, rubberBandableEdges);
@@ -468,7 +468,7 @@ void RemoteLayerTreeEventDispatcher::didRefreshDisplay(PlatformDisplayID display
 #if ENABLE(MOMENTUM_EVENT_DISPATCHER)
     {
         // Make sure the lock is held for the handleSyntheticWheelEvent callback.
-        auto locker = RemoteLayerTreeHitTestLocker { *scrollingTree };
+        ScrollingTree::HitTestLocker locker { *scrollingTree };
         m_momentumEventDispatcher->displayDidRefresh(displayID);
     }
 #endif

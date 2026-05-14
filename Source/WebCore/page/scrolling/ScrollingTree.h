@@ -234,6 +234,21 @@ public:
     virtual void lockLayersForHitTesting() { }
     virtual void unlockLayersForHitTesting() { }
 
+    class HitTestLocker {
+    public:
+        HitTestLocker(ScrollingTree& tree)
+            : m_tree(tree)
+        {
+            m_tree->lockLayersForHitTesting();
+        }
+        ~HitTestLocker()
+        {
+            m_tree->unlockLayersForHitTesting();
+        }
+    private:
+        const Ref<ScrollingTree> m_tree;
+    };
+
     virtual bool isScrollingSynchronizedWithMainThread() WTF_REQUIRES_LOCK(m_treeLock) { return true; }
 
     Lock& treeLock() LIFETIME_BOUND WTF_RETURNS_LOCK(m_treeLock) { return m_treeLock; }
