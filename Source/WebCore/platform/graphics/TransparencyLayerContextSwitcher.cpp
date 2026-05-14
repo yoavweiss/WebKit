@@ -42,8 +42,17 @@ TransparencyLayerContextSwitcher::TransparencyLayerContextSwitcher(GraphicsConte
         m_filterStyles = m_filter->createFilterStyles(destinationContext, sourceImageRect);
 }
 
-void TransparencyLayerContextSwitcher::beginClipAndDrawSourceImage(GraphicsContext& destinationContext, const FloatRect&, const FloatRect& clipRect)
+void TransparencyLayerContextSwitcher::beginClipAndDrawSourceImage(GraphicsContext& destinationContext, const FloatRect&, const FloatRect& clipRect, NOESCAPE const Function<void(GraphicsContext&)>& applyAdditionalDestinationClip)
 {
+    // Workaround for a CG accelerated-drawing bug rdar://177036180: CGStyle filters fail if there's a
+    // non-rectangular clip, so apply the rounded clip in its own wrapping transparency layer.
+    if (applyAdditionalDestinationClip) {
+        destinationContext.save();
+        applyAdditionalDestinationClip(destinationContext);
+        destinationContext.beginTransparencyLayer(1);
+        m_beganOuterClipLayer = true;
+    }
+
     for (auto& filterStyle : m_filterStyles) {
         destinationContext.save();
         destinationContext.clip(intersection(filterStyle.imageRect, clipRect));
@@ -72,6 +81,12 @@ void TransparencyLayerContextSwitcher::endDrawSourceImage(GraphicsContext& desti
     for ([[maybe_unused]] auto& filterStyle : m_filterStyles) {
         destinationContext.endTransparencyLayer();
         destinationContext.restore();
+    }
+
+    if (m_beganOuterClipLayer) {
+        destinationContext.endTransparencyLayer();
+        destinationContext.restore();
+        m_beganOuterClipLayer = false;
     }
 
     if (m_beganOpacityLayer) {

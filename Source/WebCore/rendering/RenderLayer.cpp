@@ -3234,7 +3234,6 @@ void RenderLayer::paint(GraphicsContext& context, const LayoutRect& damageRect, 
 
 void RenderLayer::clipToRect(GraphicsContext& context, GraphicsContextStateSaver& stateSaver, RegionContextStateSaver& regionContextStateSaver, const LayerPaintingInfo& paintingInfo, OptionSet<PaintBehavior> paintBehavior, const ClipRect& clipRect, BorderRadiusClippingRule rule)
 {
-    float deviceScaleFactor = renderer().document().deviceScaleFactor();
     bool needsClipping = !clipRect.isInfinite() && clipRect.rect() != paintingInfo.paintDirtyRect;
     if (needsClipping || clipRect.affectedByRadius())
         stateSaver.save();
@@ -3247,27 +3246,33 @@ void RenderLayer::clipToRect(GraphicsContext& context, GraphicsContextStateSaver
         regionContextStateSaver.pushClip(enclosingIntRect(snappedClipRect));
     }
 
-    if (clipRect.affectedByRadius()) {
-        // If the clip rect has been tainted by a border radius, then we have to walk up our layer chain applying the clips from
-        // any layers with overflow. The condition for being able to apply these clips is that the overflow object be in our
-        // containing block chain so we check that also.
-        for (RenderLayer* layer = rule == IncludeSelfForBorderRadius ? this : parent(); layer; layer = layer->parent()) {
-            if (paintBehavior.contains(PaintBehavior::CompositedOverflowScrollContent) && layer->usesCompositedScrolling())
-                break;
-        
-            if (layer->renderer().hasNonVisibleOverflow() && layer->renderer().style().border().hasBorderRadius() && ancestorLayerIsInContainingBlockChain(*layer)) {
-                auto adjustedClipRect = LayoutRect { LayoutPoint { layer->offsetFromAncestor(paintingInfo.rootLayer, AdjustForColumns) }, layer->rendererBorderBoxRect().size() };
-                adjustedClipRect.move(paintingInfo.subpixelOffset);
-                auto borderShape = BorderShape::shapeForBorderRect(layer->renderer().style(), adjustedClipRect);
-                if (borderShape.innerShapeContains(paintingInfo.paintDirtyRect))
-                    context.clip(snapRectToDevicePixels(intersection(paintingInfo.paintDirtyRect, adjustedClipRect), deviceScaleFactor));
-                else
-                    borderShape.clipToInnerShape(context, deviceScaleFactor);
-            }
-            
-            if (layer == paintingInfo.rootLayer)
-                break;
+    if (clipRect.affectedByRadius())
+        applyAncestorClippingForBorderRadius(context, paintingInfo, paintBehavior, rule);
+}
+
+void RenderLayer::applyAncestorClippingForBorderRadius(GraphicsContext& context, const LayerPaintingInfo& paintingInfo, OptionSet<PaintBehavior> paintBehavior, BorderRadiusClippingRule rule)
+{
+    float deviceScaleFactor = renderer().document().deviceScaleFactor();
+
+    // If the clip rect has been tainted by a border radius, then we have to walk up our layer chain applying the clips from
+    // any layers with overflow. The condition for being able to apply these clips is that the overflow object be in our
+    // containing block chain so we check that also.
+    for (RenderLayer* layer = rule == IncludeSelfForBorderRadius ? this : parent(); layer; layer = layer->parent()) {
+        if (paintBehavior.contains(PaintBehavior::CompositedOverflowScrollContent) && layer->usesCompositedScrolling())
+            break;
+
+        if (layer->renderer().hasNonVisibleOverflow() && layer->renderer().style().border().hasBorderRadius() && ancestorLayerIsInContainingBlockChain(*layer)) {
+            auto adjustedClipRect = LayoutRect { LayoutPoint { layer->offsetFromAncestor(paintingInfo.rootLayer, AdjustForColumns) }, layer->rendererBorderBoxRect().size() };
+            adjustedClipRect.move(paintingInfo.subpixelOffset);
+            auto borderShape = BorderShape::shapeForBorderRect(layer->renderer().style(), adjustedClipRect);
+            if (borderShape.innerShapeContains(paintingInfo.paintDirtyRect))
+                context.clip(snapRectToDevicePixels(intersection(paintingInfo.paintDirtyRect, adjustedClipRect), deviceScaleFactor));
+            else
+                borderShape.clipToInnerShape(context, deviceScaleFactor);
         }
+
+        if (layer == paintingInfo.rootLayer)
+            break;
     }
 }
 
@@ -3624,7 +3629,18 @@ GraphicsContext* RenderLayer::setupFilters(GraphicsContext& destinationContext, 
 
     auto rootRelativeBounds = calculateLayerBounds(paintingInfo.rootLayer, offsetFromRoot, { RenderLayer::PreserveAncestorFlags });
 
-    GraphicsContext* filterContext = paintingFilters->beginFilterEffect(renderer(), destinationContext, enclosingIntRect(rootRelativeBounds), enclosingIntRect(paintingInfo.paintDirtyRect), enclosingIntRect(filterRepaintRect), backgroundRect.rect());
+    // When the filter is applied via a transparency layer directly on the destination context (e.g. CG drop-shadow),
+    // the switcher doesn't consult applyFilters's clipToRect path, so the ancestor border-radius clip would be lost.
+    // Provide a callback that applies that rounded clip on the destination before the transparency layer begins.
+    Function<void(GraphicsContext&)> applyAdditionalDestinationClip;
+    if (backgroundRect.affectedByRadius()) {
+        applyAdditionalDestinationClip = [checkedThis = CheckedPtr { this }, &paintingInfo](GraphicsContext& context) {
+            checkedThis->applyAncestorClippingForBorderRadius(context, paintingInfo, paintingInfo.paintBehavior);
+        };
+    }
+
+    GraphicsContext* filterContext = paintingFilters->beginFilterEffect(renderer(), destinationContext, enclosingIntRect(rootRelativeBounds), enclosingIntRect(paintingInfo.paintDirtyRect), enclosingIntRect(filterRepaintRect),
+        backgroundRect.rect(), applyAdditionalDestinationClip);
     if (!filterContext)
         return nullptr;
 

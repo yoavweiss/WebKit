@@ -63,7 +63,7 @@ GraphicsContext* ImageBufferContextSwitcher::drawingContext(GraphicsContext& con
     return m_sourceImage ? &m_sourceImage->context() : &context;
 }
 
-void ImageBufferContextSwitcher::beginClipAndDrawSourceImage(GraphicsContext& destinationContext, const FloatRect& repaintRect, const FloatRect&)
+void ImageBufferContextSwitcher::beginClipAndDrawSourceImage(GraphicsContext& destinationContext, const FloatRect& repaintRect, const FloatRect&, NOESCAPE const Function<void(GraphicsContext&)>&)
 {
     if (auto* context = drawingContext(destinationContext)) {
         context->save();
