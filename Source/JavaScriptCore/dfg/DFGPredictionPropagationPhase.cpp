@@ -1812,6 +1812,7 @@ private:
         case PromiseReject:
         case PromiseThen:
         case PerformPromiseThen:
+        case PerformPromiseThenOneHandler:
             break;
             
         // This gets ignored because it only pretends to produce a value.

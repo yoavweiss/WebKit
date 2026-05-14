@@ -663,6 +663,7 @@ namespace JSC { namespace DFG {
     macro(PromiseReject, NodeMustGenerate | NodeResultJS) \
     macro(PromiseThen, NodeMustGenerate | NodeResultJS) \
     macro(PerformPromiseThen, NodeMustGenerate | NodeHasVarArgs) \
+    macro(PerformPromiseThenOneHandler, NodeMustGenerate) \
 
 
 // This enum generates a monotonically increasing id for all Node types,

@@ -1978,6 +1978,9 @@ private:
         case PerformPromiseThen:
             compilePerformPromiseThen();
             break;
+        case PerformPromiseThenOneHandler:
+            compilePerformPromiseThenOneHandler();
+            break;
 
         case LoopHint: {
             compileLoopHint();
@@ -21111,6 +21114,41 @@ IGNORE_CLANG_WARNINGS_END
         LValue onRejected = lowJSValue(m_graph.varArgChild(m_node, 2));
         LValue resultPromise = lowCell(m_graph.varArgChild(m_node, 3));
         vmCall(Void, operationPerformPromiseThen, weakPointer(globalObject), inputPromise, onFulfilled, onRejected, resultPromise);
+    }
+
+    void compilePerformPromiseThenOneHandler()
+    {
+        auto* globalObject = m_graph.globalObjectFor(m_origin.semantic);
+        auto kind = m_node->performPromiseThenInlineReactionKind();
+
+        LValue inputPromise = lowCell(m_node->child1());
+        LValue handler = lowCell(m_node->child2());
+        LValue resultPromise = lowCell(m_node->child3());
+
+        constexpr unsigned pointerBits = CompactPointerTuple<JSCell*, uint16_t>::maxNumberOfBitsInPointer;
+        constexpr uint64_t pointerMask = (1ULL << pointerBits) - 1;
+        constexpr uint64_t flagMask = static_cast<uint64_t>(JSPromise::stateMask | JSPromise::inlineReactionKindMask) << pointerBits;
+        constexpr uint64_t mask = pointerMask | flagMask;
+        uint64_t orBits = static_cast<uint64_t>(JSPromise::isHandledFlag | (static_cast<uint16_t>(kind) << JSPromise::inlineReactionKindShift)) << pointerBits;
+
+        LBasicBlock fastPath = m_out.newBlock();
+        LBasicBlock slowPath = m_out.newBlock();
+        LBasicBlock continuation = m_out.newBlock();
+
+        LValue packed = m_out.load64(inputPromise, m_heaps.JSPromise_packed);
+        m_out.branch(m_out.notZero64(m_out.bitAnd(packed, m_out.constInt64(mask))), rarely(slowPath), usually(fastPath));
+
+        LBasicBlock lastNext = m_out.appendTo(fastPath, slowPath);
+        LValue newPacked = m_out.bitOr(m_out.bitOr(packed, m_out.constInt64(orBits)), resultPromise);
+        m_out.store64(handler, inputPromise, m_heaps.JSPromise_slot);
+        m_out.store64(newPacked, inputPromise, m_heaps.JSPromise_packed);
+        m_out.jump(continuation);
+
+        m_out.appendTo(slowPath, continuation);
+        vmCall(Void, operationPerformPromiseThenOneHandler, weakPointer(globalObject), inputPromise, handler, resultPromise, m_out.constInt32(static_cast<int32_t>(kind)));
+        m_out.jump(continuation);
+
+        m_out.appendTo(continuation, lastNext);
     }
 
     void compileLoopHint()

@@ -4429,6 +4429,10 @@ void SpeculativeJIT::compile(Node* node)
         compilePerformPromiseThen(node);
         break;
 
+    case PerformPromiseThenOneHandler:
+        compilePerformPromiseThenOneHandler(node);
+        break;
+
     case Unreachable:
         unreachable(node);
         break;

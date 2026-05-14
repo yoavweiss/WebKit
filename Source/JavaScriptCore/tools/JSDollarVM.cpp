@@ -2216,6 +2216,7 @@ static JSC_DECLARE_HOST_FUNCTION(functionGetStructureTransitionList);;
 static JSC_DECLARE_HOST_FUNCTION(functionGetConcurrently);
 static JSC_DECLARE_HOST_FUNCTION(functionHasOwnLengthProperty);
 static JSC_DECLARE_HOST_FUNCTION(functionRejectPromiseAsHandled);
+static JSC_DECLARE_HOST_FUNCTION(functionMarkPromiseAsHandled);
 static JSC_DECLARE_HOST_FUNCTION(functionSetUserPreferredLanguages);
 static JSC_DECLARE_HOST_FUNCTION(functionICUVersion);
 static JSC_DECLARE_HOST_FUNCTION(functionICUMinorVersion);
@@ -3990,6 +3991,14 @@ JSC_DEFINE_HOST_FUNCTION(functionRejectPromiseAsHandled, (JSGlobalObject* global
     return JSValue::encode(jsUndefined());
 }
 
+JSC_DEFINE_HOST_FUNCTION(functionMarkPromiseAsHandled, (JSGlobalObject*, CallFrame* callFrame))
+{
+    DollarVMAssertScope assertScope;
+    JSPromise* promise = uncheckedDowncast<JSPromise>(callFrame->uncheckedArgument(0));
+    promise->markAsHandled();
+    return JSValue::encode(jsUndefined());
+}
+
 JSC_DEFINE_HOST_FUNCTION(functionSetUserPreferredLanguages, (JSGlobalObject* globalObject, CallFrame* callFrame))
 {
     DollarVMAssertScope assertScope;
@@ -4549,6 +4558,7 @@ void JSDollarVM::finishCreation(VM& vm)
 
     addFunction(vm, allowIfNotFuzz, "hasOwnLengthProperty"_s, functionHasOwnLengthProperty, 1);
     addFunction(vm, allowIfNotFuzz, "rejectPromiseAsHandled"_s, functionRejectPromiseAsHandled, 1);
+    addFunction(vm, allowIfNotFuzz, "markPromiseAsHandled"_s, functionMarkPromiseAsHandled, 1);
 
     addFunction(vm, allowIfNotFuzz, "setUserPreferredLanguages"_s, functionSetUserPreferredLanguages, 1);
     addFunction(vm, allowIfNotFuzz, "icuVersion"_s, functionICUVersion, 0);

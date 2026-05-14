@@ -518,6 +518,7 @@ inline CapabilityLevel canCompile(Node* node)
     case PromiseReject:
     case PromiseThen:
     case PerformPromiseThen:
+    case PerformPromiseThenOneHandler:
         // These are OK.
         break;
 

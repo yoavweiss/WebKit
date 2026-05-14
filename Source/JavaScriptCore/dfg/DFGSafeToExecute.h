@@ -804,6 +804,7 @@ bool safeToExecute(AbstractStateType& state, Graph& graph, Node* node, bool igno
     case PromiseReject:
     case PromiseThen:
     case PerformPromiseThen:
+    case PerformPromiseThenOneHandler:
     case SetAdd:
     case MapSet:
     case MapOrSetDelete:

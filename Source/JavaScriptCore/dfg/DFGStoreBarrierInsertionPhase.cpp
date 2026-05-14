@@ -349,6 +349,12 @@ private:
                 break;
             }
 
+            case PerformPromiseThenOneHandler: {
+                considerBarrier(m_node->child1(), m_node->child2());
+                considerBarrier(m_node->child1(), m_node->child3());
+                break;
+            }
+
             case PutCellButterflySlot: {
                 considerBarrier(m_node->child1(), m_node->child3());
                 break;
@@ -527,6 +533,10 @@ private:
                         break;
                     case NukeStructureAndSetButterfly:
                         escape(m_node->child2().node());
+                        break;
+                    case PerformPromiseThenOneHandler:
+                        escape(m_node->child2().node());
+                        escape(m_node->child3().node());
                         break;
                     case SetLocal:
                     case PutStack:

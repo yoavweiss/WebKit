@@ -1821,6 +1821,7 @@ public:
     void compilePromiseReject(Node*);
     void compilePromiseThen(Node*);
     void compilePerformPromiseThen(Node*);
+    void compilePerformPromiseThenOneHandler(Node*);
 
     template<typename JSClass, typename Operation>
     void compileCreateInternalFieldObject(Node*, Operation);

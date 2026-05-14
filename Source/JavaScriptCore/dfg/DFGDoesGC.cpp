@@ -505,6 +505,7 @@ bool doesGC(Graph& graph, Node* node)
     case PromiseReject:
     case PromiseThen:
     case PerformPromiseThen:
+    case PerformPromiseThenOneHandler:
     case ArrayIsArray:
 #else // not ASSERT_ENABLED
     // See comment at the top for why the default for all nodes should be to

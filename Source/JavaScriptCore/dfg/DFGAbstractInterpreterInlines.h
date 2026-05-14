@@ -5992,6 +5992,7 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
     }
 
     case PerformPromiseThen:
+    case PerformPromiseThenOneHandler:
         clobberWorld();
         break;
 

@@ -1730,6 +1730,18 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationPerformPromiseThen, void, (JSGlobalOb
     inputPromise->performPromiseThen(vm, globalObject, JSValue::decode(onFulfilled), JSValue::decode(onRejected), resultPromise);
 }
 
+JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationPerformPromiseThenOneHandler, void, (JSGlobalObject* globalObject, JSPromise* inputPromise, JSObject* handler, JSPromise* resultPromise, int32_t kindAsInt))
+{
+    VM& vm = globalObject->vm();
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    auto kind = static_cast<JSPromise::InlineReactionKind>(kindAsInt);
+    JSValue handlerValue(handler);
+    JSValue onFulfilled = (kind == JSPromise::InlineReactionKind::FulfillHandler) ? handlerValue : jsUndefined();
+    JSValue onRejected = (kind == JSPromise::InlineReactionKind::RejectHandler) ? handlerValue : jsUndefined();
+    inputPromise->performPromiseThen(vm, globalObject, onFulfilled, onRejected, resultPromise);
+}
+
 JSC_DEFINE_JIT_OPERATION(operationRegExpTestString, size_t, (JSGlobalObject* globalObject, RegExpObject* regExpObject, JSString* input))
 {
     SuperSamplerScope superSamplerScope(false);

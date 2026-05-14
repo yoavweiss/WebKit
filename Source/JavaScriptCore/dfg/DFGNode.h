@@ -53,6 +53,7 @@
 #include "GetByVariant.h"
 #include "InlineCacheCompiler.h"
 #include "JSCJSValue.h"
+#include "JSPromise.h"
 #include "JSPropertyNameEnumerator.h"
 #include "Operands.h"
 #include "PrivateFieldPutKind.h"
@@ -1612,6 +1613,12 @@ public:
     {
         ASSERT(hasInternalFieldIndex());
         return m_opInfo.as<uint32_t>();
+    }
+
+    JSPromise::InlineReactionKind performPromiseThenInlineReactionKind()
+    {
+        ASSERT(op() == PerformPromiseThenOneHandler);
+        return static_cast<JSPromise::InlineReactionKind>(m_opInfo.as<uint32_t>());
     }
     
     bool hasDirectArgumentsOffset()

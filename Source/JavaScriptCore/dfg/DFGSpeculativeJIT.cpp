@@ -18400,6 +18400,45 @@ void SpeculativeJIT::compilePerformPromiseThen(Node* node)
     noResult(node);
 }
 
+void SpeculativeJIT::compilePerformPromiseThenOneHandler(Node* node)
+{
+    auto kind = node->performPromiseThenInlineReactionKind();
+
+    SpeculateCellOperand inputPromise(this, node->child1());
+    SpeculateCellOperand handler(this, node->child2());
+    SpeculateCellOperand resultPromise(this, node->child3());
+
+    GPRReg inputPromiseGPR = inputPromise.gpr();
+    GPRReg handlerGPR = handler.gpr();
+    GPRReg resultPromiseGPR = resultPromise.gpr();
+
+#if USE(JSVALUE64)
+    GPRTemporary packed(this);
+    GPRReg packedGPR = packed.gpr();
+
+    constexpr unsigned pointerBits = CompactPointerTuple<JSCell*, uint16_t>::maxNumberOfBitsInPointer;
+    constexpr uint64_t pointerMask = (1ULL << pointerBits) - 1;
+    constexpr uint64_t flagMask = static_cast<uint64_t>(JSPromise::stateMask | JSPromise::inlineReactionKindMask) << pointerBits;
+    constexpr uint64_t mask = pointerMask | flagMask;
+
+    load64(Address(inputPromiseGPR, JSPromise::offsetOfPacked()), packedGPR);
+    Jump slowPath = branchTest64(NonZero, packedGPR, TrustedImm64(mask));
+
+    uint64_t orBits = static_cast<uint64_t>(JSPromise::isHandledFlag | (static_cast<uint16_t>(kind) << JSPromise::inlineReactionKindShift)) << pointerBits;
+    or64(TrustedImm64(orBits), packedGPR);
+    or64(resultPromiseGPR, packedGPR);
+
+    store64(handlerGPR, Address(inputPromiseGPR, JSPromise::offsetOfSlot()));
+    store64(packedGPR, Address(inputPromiseGPR, JSPromise::offsetOfPacked()));
+
+    addSlowPathGenerator(slowPathCall(slowPath, this, operationPerformPromiseThenOneHandler, NeedToSpill, ExceptionCheckRequirement::CheckNotNeeded, NoResult, LinkableConstant::globalObject(*this, node), inputPromiseGPR, handlerGPR, resultPromiseGPR, TrustedImm32(static_cast<int32_t>(kind))));
+#else
+    flushRegisters();
+    callOperationWithoutExceptionCheck(operationPerformPromiseThenOneHandler, LinkableConstant::globalObject(*this, node), inputPromiseGPR, handlerGPR, resultPromiseGPR, TrustedImm32(static_cast<int32_t>(kind)));
+#endif
+    noResult(node);
+}
+
 unsigned SpeculativeJIT::appendExceptionHandlingOSRExit(ExitKind kind, unsigned eventStreamIndex, CodeOrigin opCatchOrigin, HandlerInfo* exceptionHandler, CallSiteIndex callSite, MacroAssembler::JumpList jumpsToFail)
 {
     if (Options::validateDFGMayExit()) [[unlikely]] {
