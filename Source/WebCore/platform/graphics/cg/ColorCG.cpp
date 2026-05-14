@@ -37,6 +37,7 @@
 #include <wtf/Lock.h>
 #include <wtf/RetainPtr.h>
 #include <wtf/StdLibExtras.h>
+#include <wtf/ThreadSpecific.h>
 #include <wtf/TinyLRUCache.h>
 
 namespace WebCore {
@@ -252,8 +253,8 @@ ColorComponents<float, 4> platformConvertColorComponents(ColorSpace inputColorSp
     std::array<CGFloat, 4> sourceComponents { c1, c2, c3, c4 };
     std::array<CGFloat, 4> destinationComponents { };
 
-    static NeverDestroyed<std::pair<RetainPtr<CGColorSpaceRef>, RetainPtr<CGColorTransformRef>>> cachedTransform;
-    auto& [cachedSpace, transform] = cachedTransform.get();
+    static NeverDestroyed<ThreadSpecific<std::pair<RetainPtr<CGColorSpaceRef>, RetainPtr<CGColorTransformRef>>>> cachedTransform;
+    auto& [cachedSpace, transform] = *cachedTransform.get();
     RetainPtr outputColorSpacePlatform = outputColorSpace.platformColorSpace();
     if (!transform || !CGColorSpaceEqualToColorSpace(cachedSpace.get(), outputColorSpacePlatform.get())) {
         cachedSpace = WTF::move(outputColorSpacePlatform);
