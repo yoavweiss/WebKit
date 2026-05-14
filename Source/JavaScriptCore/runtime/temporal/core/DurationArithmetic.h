@@ -138,9 +138,5 @@ TemporalResult<void> JS_EXPORT_PRIVATE roundRelativeDuration(ISO8601::InternalDu
     TemporalUnit largestUnit, double increment, TemporalUnit smallestUnit,
     RoundingMode, const TimeZone*, CalendarID);
 
-TemporalResult<ISO8601::InternalDuration> JS_EXPORT_PRIVATE differenceZonedDateTimeForDuration(
-    ISO8601::ExactTime startExact, ISO8601::ExactTime endExact,
-    const TimeZone&, TemporalUnit largestUnit, CalendarID = iso8601CalendarID());
-
 } // namespace TemporalCore
 } // namespace JSC

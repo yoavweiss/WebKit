@@ -200,7 +200,8 @@ static TemporalResult<ISO8601::InternalDuration> differenceZonedDateTime(ISO8601
     if (timeSign == sign)
         dayCorrection++;
 
-    // Steps 10-12: day-correction loop.
+    // Step 10: success = false.
+    // Step 11: Repeat while dayCorrection ≤ maxDayCorrection and success = false.
     ISO8601::PlainDate intermediateDate = endDate;
     Int128 adjustedTimeDiff = timeDiff;
     bool success = false;
@@ -208,30 +209,33 @@ static TemporalResult<ISO8601::InternalDuration> differenceZonedDateTime(ISO8601
         // Step 11.a: intermediateDate = AddDaysToISODate(endDate, dayCorrection × sign).
         intermediateDate = balanceISODate(endDate.year(), static_cast<int32_t>(endDate.month()),
             static_cast<int64_t>(endDate.day()) + dayCorrection * sign);
-        // Step 11.c: intermediateNs = GetEpochNanosecondsFor(timeZone, intermediateDateTime, compatible).
+        // Step 11.b: intermediateDateTime = CombineISODateAndTimeRecord(intermediateDate, startTime).
+        // Step 11.c: intermediateNs = GetEpochNanosecondsFor(timeZone, intermediateDateTime, compatible). (11.b+11.c fused)
         auto intermediateNsResult = getEpochNanosecondsFor(timeZone, intermediateDate, startTime, TemporalDisambiguation::Compatible);
         if (!intermediateNsResult)
             return makeUnexpected(intermediateNsResult.error());
-        // Step 11.d: timeDuration = ns2 - intermediateNs.
+        // Step 11.d: timeDuration = TimeDurationFromEpochNanosecondsDifference(ns2, intermediateNs).
         adjustedTimeDiff = nsB - intermediateNsResult->epochNanoseconds();
+        // Step 11.e: timeSign = TimeDurationSign(timeDuration).
         int32_t adjTimeSign = (adjustedTimeDiff < 0) ? -1 : (adjustedTimeDiff > 0) ? 1 : 0;
-        // Step 11.f: If sign ≠ timeSign -> success.
+        // Step 11.f: If sign ≠ timeSign, success = true.
         if (sign != adjTimeSign)
             success = true;
+        // Step 11.g: dayCorrection++.
         dayCorrection++;
     }
-    // Step 13: Assert success.
+    // Step 12: Assert: success is true.
     ASSERT(success);
 
-    // Step 14: dateLargestUnit = max(largestUnit, day).
+    // Step 13: dateLargestUnit = LargerOfTwoTemporalUnits(largestUnit, day).
     TemporalUnit dateLargestUnit = (largestUnit > TemporalUnit::Day) ? TemporalUnit::Day : largestUnit;
-    // Step 15: dateDifference = CalendarDateUntil(startDate, intermediateDate, dateLargestUnit).
+    // Step 14: dateDifference = CalendarDateUntil(startDate, intermediateDate, dateLargestUnit).
     auto dateDiffResult = TemporalCore::calendarDateUntil(calendarId, startDate, intermediateDate, dateLargestUnit);
     if (!dateDiffResult)
         return makeUnexpected(dateDiffResult.error());
     auto& dateDiff = *dateDiffResult;
 
-    // Step 16: Return CombineDateAndTimeDuration(dateDifference, timeDuration).
+    // Step 15: Return CombineDateAndTimeDuration(dateDifference, timeDuration).
     ISO8601::Duration datePart(static_cast<double>(dateDiff.years()), static_cast<double>(dateDiff.months()),
         static_cast<double>(dateDiff.weeks()), static_cast<double>(dateDiff.days()), 0, 0, 0, 0, 0, 0);
     return ISO8601::InternalDuration::combineDateAndTimeDuration(datePart, adjustedTimeDiff);
@@ -239,7 +243,7 @@ static TemporalResult<ISO8601::InternalDuration> differenceZonedDateTime(ISO8601
 
 // DifferenceZonedDateTimeWithRounding — temporal_rs: ZonedDateTime::diff_zoned_datetime (src/builtins/core/zoned_date_time.rs)
 // https://tc39.es/proposal-temporal/#sec-temporal-differencezoneddatetimewithrounding
-TemporalResult<ISO8601::Duration> differenceZonedDateTimeWithRounding(
+TemporalResult<ISO8601::InternalDuration> differenceZonedDateTimeWithRounding(
     ISO8601::ExactTime ns1,
     ISO8601::ExactTime ns2,
     const TimeZone& timeZone,
@@ -262,7 +266,7 @@ TemporalResult<ISO8601::Duration> differenceZonedDateTimeWithRounding(
                 lengthInNanoseconds(smallestUnit) * (Int128)std::trunc(increment), roundingMode);
             internalDuration = ISO8601::InternalDuration::combineDateAndTimeDuration(ISO8601::Duration(), roundedTime);
         }
-        return temporalDurationFromInternal(internalDuration, largestUnit);
+        return internalDuration;
     }
 
     // Step 2: difference = DifferenceZonedDateTime(ns1, ns2, timeZone, calendar, largestUnit).
@@ -273,7 +277,7 @@ TemporalResult<ISO8601::Duration> differenceZonedDateTimeWithRounding(
 
     // Step 3: If smallestUnit=nanosecond and increment=1 -> return difference.
     if (smallestUnit == TemporalUnit::Nanosecond && increment == 1)
-        return temporalDurationFromInternal(internalDuration, largestUnit);
+        return internalDuration;
 
     // Step 4: dateTime = GetISODateTimeFor(timeZone, ns1). (split: getOffsetNanosecondsFor + exactTimeToLocalDateAndTime)
     auto offset1 = getOffsetNanosecondsFor(timeZone, ns1);
@@ -288,7 +292,7 @@ TemporalResult<ISO8601::Duration> differenceZonedDateTimeWithRounding(
         largestUnit, increment, smallestUnit, roundingMode, &timeZone, calendarId);
     if (!roundResult)
         return makeUnexpected(roundResult.error());
-    return temporalDurationFromInternal(internalDuration, largestUnit);
+    return internalDuration;
 }
 
 } // namespace TemporalCore

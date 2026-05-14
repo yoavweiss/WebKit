@@ -213,12 +213,16 @@ ISO8601::PlainTime plainTimeFromSubdayNs(Int128 ns)
 }
 
 // totalTimeDuration — temporal_rs: TimeDuration::total (src/builtins/core/duration/normalized.rs)
+// https://tc39.es/proposal-temporal/#sec-temporal-totaltimeduration
 // Returns the total time portion of a duration as a fractional count of the given unit.
 double totalTimeDuration(Int128 timeDuration, TemporalUnit unit)
 {
-    double divisor = static_cast<double>(lengthInNanoseconds(unit));
-    ASSERT(isSafeInteger(divisor));
-    return fractionToDouble(timeDuration, divisor);
+    Int128 unitLength = lengthInNanoseconds(unit);
+    // All "Length in Nanoseconds" values in spec Table 21 are ≤ nsPerDay = 8.64e13 < 2^53.
+    ASSERT(isSafeInteger(static_cast<double>(unitLength)));
+    // Spec NOTE: timeDuration may exceed safe integer range; fractionToDouble
+    // implements the required software emulation (double-double arithmetic).
+    return fractionToDouble(timeDuration, static_cast<double>(unitLength));
 }
 
 // toInternalDuration — temporal_rs: Duration::to_internal_duration_record (src/builtins/core/duration.rs)
@@ -664,7 +668,7 @@ TemporalResult<Nudged> nudgeToCalendarUnit(int32_t sign,
     // Step 15: Let total be r1 + progress × increment × sign.
     // (NOTE: computed via integer arithmetic before the final float division per spec note.)
     Int128 totalNumerator = Int128(static_cast<int64_t>(nudgeWindow.r1)) * progressDenominator + progressNumerator * Int128(static_cast<int64_t>(increment)) * Int128(sign);
-    double total = fractionToDouble(totalNumerator, static_cast<double>(absInt128(progressDenominator))) * (progressDenominator < 0 ? -1.0 : 1.0);
+    double total = fractionToDouble(totalNumerator, absInt128(progressDenominator)) * (progressDenominator < 0 ? -1.0 : 1.0);
     Int128 progress = progressNumerator / progressDenominator;
     // Step 16: Assert: 0 ≤ progress ≤ 1.
     ASSERT(0 <= progress && progress <= 1);
@@ -924,106 +928,6 @@ TemporalResult<void> roundRelativeDuration(ISO8601::InternalDuration& duration,
     }
     // Step 10: Return duration.
     return { };
-}
-
-// differenceZonedDateTimeForDuration — temporal_rs: ZonedDateTime::diff_zoned_datetime (src/builtins/core/zoned_date_time.rs)
-// https://tc39.es/proposal-temporal/#sec-temporal-differencezoneddatetime
-TemporalResult<ISO8601::InternalDuration> differenceZonedDateTimeForDuration(
-    ISO8601::ExactTime startExact, ISO8601::ExactTime endExact,
-    const TimeZone& timeZone, TemporalUnit largestUnit, CalendarID calendarId)
-{
-    Int128 nsA = startExact.epochNanoseconds();
-    Int128 nsB = endExact.epochNanoseconds();
-    // Step 1: If ns1 = ns2, return CombineDateAndTimeDuration(ZeroDateDuration(), 0).
-    if (nsA == nsB)
-        return ISO8601::InternalDuration::combineDateAndTimeDuration(ISO8601::Duration(), Int128(0));
-    // Step 2: Let startDateTime be GetISODateTimeFor(timeZone, ns1).
-    // Step 3: Let endDateTime be GetISODateTimeFor(timeZone, ns2).
-    // (Each GetISODateTimeFor is split: getOffsetNanosecondsFor computes the offset,
-    //  exactTimeToLocalDateAndTime completes the date/time extraction.)
-    auto offset1Result = getOffsetNanosecondsFor(timeZone, startExact);
-    if (!offset1Result)
-        return makeUnexpected(offset1Result.error());
-    auto offset2Result = getOffsetNanosecondsFor(timeZone, endExact);
-    if (!offset2Result)
-        return makeUnexpected(offset2Result.error());
-
-    ISO8601::PlainDate startDate, endDate;
-    ISO8601::PlainTime startTime, endTime;
-    exactTimeToLocalDateAndTime(startExact, *offset1Result, startDate, startTime);
-    exactTimeToLocalDateAndTime(endExact, *offset2Result, endDate, endTime);
-
-    // Step 4: If CompareISODate(startDateTime.[[ISODate]], endDateTime.[[ISODate]]) = 0, return CombineDateAndTimeDuration(ZeroDateDuration(), ns2 - ns1).
-    if (!isoDateCompare(startDate, endDate))
-        return ISO8601::InternalDuration::combineDateAndTimeDuration(ISO8601::Duration(), nsB - nsA);
-
-    // Step 5: If ns2 - ns1 < 0, let sign be 1; else let sign be -1.
-    int32_t diffSign = (nsB - nsA < Int128 { 0 }) ? 1 : -1;
-    // Step 6: If sign = -1, let maxDayCorrection be 2; else let maxDayCorrection be 1.
-    int32_t maxDayCorrection = (diffSign == -1) ? 2 : 1;
-    // Step 7: Let dayCorrection be 0.
-    int32_t dayCorrection = 0;
-    // Step 8: Let timeDuration be DifferenceTime(startDateTime.[[Time]], endDateTime.[[Time]]).
-    Int128 timeDiff = timeDurationFromComponents(
-        static_cast<double>(endTime.hour()) - static_cast<double>(startTime.hour()),
-        static_cast<double>(endTime.minute()) - static_cast<double>(startTime.minute()),
-        static_cast<double>(endTime.second()) - static_cast<double>(startTime.second()),
-        static_cast<double>(endTime.millisecond()) - static_cast<double>(startTime.millisecond()),
-        static_cast<double>(endTime.microsecond()) - static_cast<double>(startTime.microsecond()),
-        static_cast<double>(endTime.nanosecond()) - static_cast<double>(startTime.nanosecond()));
-    int32_t timeSign = (timeDiff < 0) ? -1 : (timeDiff > 0) ? 1 : 0;
-    // Step 9: If timeSign = sign, set dayCorrection to dayCorrection + 1.
-    if (timeSign == diffSign)
-        dayCorrection++;
-
-    // Step 10: Let success be false.
-    ISO8601::PlainDate intermediateDate = endDate;
-    Int128 adjustedTimeDiff = timeDiff;
-    bool success = false;
-    // Step 11: Repeat, while dayCorrection ≤ maxDayCorrection and success is false,
-    while (dayCorrection <= maxDayCorrection && !success) {
-        // Step 11.a: Let intermediateDate be AddDaysToISODate(endDateTime.[[ISODate]], dayCorrection × sign).
-        intermediateDate = balanceISODate(endDate.year(), static_cast<int32_t>(endDate.month()), static_cast<int64_t>(endDate.day()) + dayCorrection * diffSign);
-        // Step 11.b: intermediateDateTime = CombineISODateAndTimeRecord(intermediateDate, startDateTime.[[Time]]).
-        // Step 11.c: intermediateNs = GetEpochNanosecondsFor(timeZone, intermediateDateTime, ~compatible~). (11.b+11.c fused)
-        auto intermediateNsResult = getEpochNanosecondsFor(timeZone, intermediateDate, startTime, TemporalDisambiguation::Compatible);
-        if (!intermediateNsResult)
-            return makeUnexpected(intermediateNsResult.error());
-        // Step 11.d: Set timeDuration to TimeDurationFromEpochNanosecondsDifference(ns2, intermediateNs).
-        adjustedTimeDiff = nsB - intermediateNsResult->epochNanoseconds();
-        // Step 11.e: Let timeSign be TimeDurationSign(timeDuration).
-        int32_t adjTimeSign = (adjustedTimeDiff < 0) ? -1 : (adjustedTimeDiff > 0) ? 1 : 0;
-        // Step 11.f: If sign ≠ timeSign, set success to true.
-        if (diffSign != adjTimeSign)
-            success = true;
-        // Step 11.g: Set dayCorrection to dayCorrection + 1.
-        dayCorrection++;
-    }
-    // Step 12: Assert: success is true.
-    ASSERT(success);
-
-    // Step 13: Let dateLargestUnit be LargerOfTwoTemporalUnits(largestUnit, ~day~).
-    TemporalUnit dateLargestUnit = (largestUnit > TemporalUnit::Day) ? TemporalUnit::Day : largestUnit;
-    // Step 14: Let dateDifference be CalendarDateUntil(calendar, startDateTime.[[ISODate]], intermediateDate, dateLargestUnit).
-    // (Note: intermediateDateTime.[[ISODate]] = intermediateDate computed above.)
-    auto dateDiffResult = TemporalCore::calendarDateUntil(calendarId, startDate, intermediateDate, dateLargestUnit);
-    if (!dateDiffResult)
-        return makeUnexpected(dateDiffResult.error());
-    ISO8601::Duration dateDiff = *dateDiffResult;
-
-    // Step 15: Return CombineDateAndTimeDuration(dateDifference, timeDuration).
-    // (Implementation folds days into time when largestUnit > day.)
-    constexpr Int128 nsPerDay = ISO8601::ExactTime::nsPerDay;
-    double remainingDays = 0;
-    Int128 timeDuration = adjustedTimeDiff;
-    if (largestUnit != dateLargestUnit)
-        timeDuration = adjustedTimeDiff + Int128(dateDiff.days()) * nsPerDay;
-    else
-        remainingDays = static_cast<double>(dateDiff.days());
-
-    ISO8601::Duration datePart(dateDiff.years(), dateDiff.months(),
-        dateDiff.weeks(), static_cast<int64_t>(remainingDays), 0, 0, 0, 0, Int128(0), Int128(0));
-    return ISO8601::InternalDuration::combineDateAndTimeDuration(datePart, timeDuration);
 }
 
 } // namespace TemporalCore

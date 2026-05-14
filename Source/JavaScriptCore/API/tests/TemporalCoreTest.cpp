@@ -3010,8 +3010,7 @@ static void testNudgeFunctions()
     }
 
     // --- nudgeToCalendarUnit: P0DT1H with unit=Day relative to 2020-01-15 ---
-    // Using Day (not Year) to keep denominator (1 day = 8.64e13 ns) within fractionToDouble's safe range.
-    // Year-level denominators (~3e16 ns) exceed safe integer range and require __float128 per spec NOTE.
+    // Using Day unit; Year-scale denominators (≈3e16 ns > 2^53) now handled correctly via Int128 fractionToDouble.
     {
         ISO8601::PlainDate date { 2020, 1, 15 };
         ISO8601::PlainTime time;
@@ -3076,10 +3075,10 @@ static void testRoundRelativeToZonedDateTime()
     Int128 startNs = Int128(1000000000000000000LL);
     Int128 endNs = startNs + Int128(90000000000000LL); // +25h
 
-    // differenceZonedDateTimeForDuration(start, end, tz, Day, iso8601)
-    auto diff = differenceZonedDateTimeForDuration(
+    // differenceZonedDateTimeWithRounding(start, end, tz, Day, Nanosecond, Trunc, 1, iso8601)
+    auto diff = differenceZonedDateTimeWithRounding(
         ISO8601::ExactTime(startNs), ISO8601::ExactTime(endNs),
-        tz, TemporalUnit::Day, calendarIDFromString("iso8601"_s));
+        tz, TemporalUnit::Day, TemporalUnit::Nanosecond, RoundingMode::Trunc, 1.0, calendarIDFromString("iso8601"_s));
     TCHECK_TRUE(diff.has_value(), "roundRelZDT: diff ok");
     // 25h with +04:30 (no DST) = 1 day + 1 hour
     TCHECK_EQ(static_cast<int64_t>(diff->dateDuration().days()), 1LL, "roundRelZDT: days=1");
@@ -3105,10 +3104,10 @@ static void testDurationTotalZDT()
     Int128 p2756h = Int128(2756LL) * Int128(3600000000000LL);
     Int128 endNs = startR->epochNanoseconds() + p2756h;
 
-    // differenceZonedDateTimeForDuration(start, end, Rome, Month)
-    auto diff = differenceZonedDateTimeForDuration(
+    // differenceZonedDateTimeWithRounding(start, end, Rome, Month, Nanosecond, Trunc, 1)
+    auto diff = differenceZonedDateTimeWithRounding(
         *startR, ISO8601::ExactTime(endNs),
-        romeTz, TemporalUnit::Month, calendarIDFromString("iso8601"_s));
+        romeTz, TemporalUnit::Month, TemporalUnit::Nanosecond, RoundingMode::Trunc, 1.0, calendarIDFromString("iso8601"_s));
     TCHECK_TRUE(diff.has_value(), "totalZDT: diff ok");
 
     // Convert to total months: months + remaining time as fraction
@@ -3149,9 +3148,9 @@ static void testNudgePastEnd()
     // Verify a normal diff near max succeeds (the out-of-range error is in getStartOfDay above).
     Int128 nearMax = maxEpoch - Int128(3600000000000LL); // 1h before max
     Int128 nearMaxEnd = nearMax + Int128(60000000000LL); // +1min
-    auto diffNear = differenceZonedDateTimeForDuration(
+    auto diffNear = differenceZonedDateTimeWithRounding(
         ISO8601::ExactTime(nearMax), ISO8601::ExactTime(nearMaxEnd),
-        utc, TemporalUnit::Hour, calendarIDFromString("iso8601"_s));
+        utc, TemporalUnit::Hour, TemporalUnit::Nanosecond, RoundingMode::Trunc, 1.0, calendarIDFromString("iso8601"_s));
     TCHECK_TRUE(diffNear.has_value(), "nudgePast: normal diff near max ok");
 }
 
@@ -3168,7 +3167,7 @@ static void testRoundZeroDurationZDT()
 
     // Start and end are the same (zero duration) -> diff = zero
     ISO8601::ExactTime epoch(Int128(0LL));
-    auto diff = differenceZonedDateTimeForDuration(epoch, epoch, utc, TemporalUnit::Day, calendarIDFromString("iso8601"_s));
+    auto diff = differenceZonedDateTimeWithRounding(epoch, epoch, utc, TemporalUnit::Day, TemporalUnit::Nanosecond, RoundingMode::Trunc, 1.0, calendarIDFromString("iso8601"_s));
     TCHECK_TRUE(diff.has_value(), "roundZeroZDT: zero diff ok");
     TCHECK_EQ(static_cast<int64_t>(diff->dateDuration().days()), 0LL, "roundZeroZDT: days=0");
     TCHECK_EQ(diff->time(), Int128(0LL), "roundZeroZDT: time=0");
@@ -3189,7 +3188,7 @@ static void testRoundIncrementRegressionZDT()
     // P48H = 2 * 86400000000000 ns from epoch 0
     ISO8601::ExactTime start(Int128(0LL));
     ISO8601::ExactTime end(Int128(172800000000000LL)); // 48h
-    auto diff = differenceZonedDateTimeForDuration(start, end, utc, TemporalUnit::Day, calendarIDFromString("iso8601"_s));
+    auto diff = differenceZonedDateTimeWithRounding(start, end, utc, TemporalUnit::Day, TemporalUnit::Nanosecond, RoundingMode::Trunc, 1.0, calendarIDFromString("iso8601"_s));
     TCHECK_TRUE(diff.has_value(), "roundIncZDT: 48h diff ok");
     TCHECK_EQ(static_cast<int64_t>(diff->dateDuration().days()), 2LL, "roundIncZDT: days=2");
     TCHECK_EQ(diff->time(), Int128(0LL), "roundIncZDT: time=0");

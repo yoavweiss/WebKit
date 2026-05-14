@@ -51,7 +51,7 @@ TemporalResult<ISO8601::ExactTime> JS_EXPORT_PRIVATE interpretISODateTimeOffset(
 
 TemporalResult<ISO8601::ExactTime> JS_EXPORT_PRIVATE getStartOfDay(const TimeZone&, ISO8601::PlainDate);
 
-TemporalResult<ISO8601::Duration> JS_EXPORT_PRIVATE differenceZonedDateTimeWithRounding(
+TemporalResult<ISO8601::InternalDuration> JS_EXPORT_PRIVATE differenceZonedDateTimeWithRounding(
     ISO8601::ExactTime ns1,
     ISO8601::ExactTime ns2,
     const TimeZone&,
