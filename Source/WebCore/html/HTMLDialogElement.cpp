@@ -246,7 +246,11 @@ void HTMLDialogElement::requestClose(const String& returnValue, Element* source)
     if (!isOpen())
         return;
 
-    // FIXME(311746): Add missing prelimanary checks that should prevent this function running.
+    if (!isConnected())
+        return;
+
+    if (!protect(this->document())->isFullyActive())
+        return;
 
     if (m_isRequestingToClose)
         return;
