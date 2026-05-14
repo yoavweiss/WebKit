@@ -80,7 +80,7 @@ void CloseWatcherManager::escapeKeyHandler(KeyboardEvent& event)
         auto& group = m_groups.last();
         Vector<Ref<CloseWatcher>> groupCopy(group);
         for (Ref watcher : groupCopy | std::views::reverse) {
-            if (!watcher->requestToClose())
+            if (!watcher->requestToClose(RequireHistoryActionActivation::Yes))
                 break;
         }
     }
