@@ -60,153 +60,6 @@ enum class OffsetBehaviour : uint8_t {
     Option, // +HH:MM present — use inlineOffsetNs
 };
 
-// https://tc39.es/proposal-temporal/#sec-temporal-totemporalcalendaridentifier
-// temporal_rs: AnyCalendarKind (icu_calendar crate, imported by builtins/core/calendar.rs)
-enum class CalendarKind : uint8_t {
-    Iso8601 = 0, // must be 0 so zero-initialised objects default to iso8601
-    Buddhist,
-    Chinese,
-    Coptic,
-    Dangi,
-    Ethiopic,
-    EthioAA,
-    Gregory,
-    Hebrew,
-    Indian,
-    Islamic,
-    IslamicCivil,
-    IslamicRGSA,
-    IslamicTBLA,
-    IslamicUmmAlQura,
-    Japanese,
-    Persian,
-    Roc,
-    Bangla,
-    Gujarati,
-    Kannada,
-    Marathi,
-    Odia,
-    Tamil,
-    Telugu,
-    Vikram,
-};
-
-inline ASCIILiteral toCalendarIdentifier(CalendarKind k)
-{
-    switch (k) {
-    case CalendarKind::Iso8601:
-        return "iso8601"_s;
-    case CalendarKind::Buddhist:
-        return "buddhist"_s;
-    case CalendarKind::Chinese:
-        return "chinese"_s;
-    case CalendarKind::Coptic:
-        return "coptic"_s;
-    case CalendarKind::Dangi:
-        return "dangi"_s;
-    case CalendarKind::Ethiopic:
-        return "ethiopic"_s;
-    case CalendarKind::EthioAA:
-        return "ethioaa"_s;
-    case CalendarKind::Gregory:
-        return "gregory"_s;
-    case CalendarKind::Hebrew:
-        return "hebrew"_s;
-    case CalendarKind::Indian:
-        return "indian"_s;
-    case CalendarKind::Islamic:
-        return "islamic"_s;
-    case CalendarKind::IslamicCivil:
-        return "islamic-civil"_s;
-    case CalendarKind::IslamicRGSA:
-        return "islamic-rgsa"_s;
-    case CalendarKind::IslamicTBLA:
-        return "islamic-tbla"_s;
-    case CalendarKind::IslamicUmmAlQura:
-        return "islamic-umalqura"_s;
-    case CalendarKind::Japanese:
-        return "japanese"_s;
-    case CalendarKind::Persian:
-        return "persian"_s;
-    case CalendarKind::Roc:
-        return "roc"_s;
-    case CalendarKind::Bangla:
-        return "bangla"_s;
-    case CalendarKind::Gujarati:
-        return "gujarati"_s;
-    case CalendarKind::Kannada:
-        return "kannada"_s;
-    case CalendarKind::Marathi:
-        return "marathi"_s;
-    case CalendarKind::Odia:
-        return "odia"_s;
-    case CalendarKind::Tamil:
-        return "tamil"_s;
-    case CalendarKind::Telugu:
-        return "telugu"_s;
-    case CalendarKind::Vikram:
-        return "vikram"_s;
-    }
-    RELEASE_ASSERT_NOT_REACHED();
-}
-
-inline CalendarKind toCalendarKind(WTF::StringView s)
-{
-    if (s.isEmpty() || s == "iso8601"_s)
-        return CalendarKind::Iso8601;
-    if (s == "buddhist"_s)
-        return CalendarKind::Buddhist;
-    if (s == "chinese"_s)
-        return CalendarKind::Chinese;
-    if (s == "coptic"_s)
-        return CalendarKind::Coptic;
-    if (s == "dangi"_s)
-        return CalendarKind::Dangi;
-    if (s == "ethiopic"_s)
-        return CalendarKind::Ethiopic;
-    if (s == "ethioaa"_s || s == "ethiopic-amete-alem"_s)
-        return CalendarKind::EthioAA;
-    if (s == "gregory"_s || s == "gregorian"_s)
-        return CalendarKind::Gregory;
-    if (s == "hebrew"_s)
-        return CalendarKind::Hebrew;
-    if (s == "indian"_s)
-        return CalendarKind::Indian;
-    if (s == "islamic"_s)
-        return CalendarKind::Islamic;
-    if (s == "islamic-civil"_s || s == "islamicc"_s)
-        return CalendarKind::IslamicCivil;
-    if (s == "islamic-rgsa"_s)
-        return CalendarKind::IslamicRGSA;
-    if (s == "islamic-tbla"_s)
-        return CalendarKind::IslamicTBLA;
-    if (s == "islamic-umalqura"_s)
-        return CalendarKind::IslamicUmmAlQura;
-    if (s == "japanese"_s)
-        return CalendarKind::Japanese;
-    if (s == "persian"_s)
-        return CalendarKind::Persian;
-    if (s == "roc"_s)
-        return CalendarKind::Roc;
-    if (s == "bangla"_s)
-        return CalendarKind::Bangla;
-    if (s == "gujarati"_s)
-        return CalendarKind::Gujarati;
-    if (s == "kannada"_s)
-        return CalendarKind::Kannada;
-    if (s == "marathi"_s)
-        return CalendarKind::Marathi;
-    if (s == "odia"_s)
-        return CalendarKind::Odia;
-    if (s == "tamil"_s)
-        return CalendarKind::Tamil;
-    if (s == "telugu"_s)
-        return CalendarKind::Telugu;
-    if (s == "vikram"_s)
-        return CalendarKind::Vikram;
-    return CalendarKind::Iso8601;
-}
-
 // -----------------------------------------------------------------------
 // Temporal unit
 // -----------------------------------------------------------------------
@@ -279,6 +132,9 @@ constexpr Int128 lengthInNanoseconds(TemporalUnit unit)
     }
     RELEASE_ASSERT_NOT_REACHED();
 }
+
+// https://tc39.es/proposal-temporal/#sec-temporal-iscalendarunit
+constexpr bool isCalendarUnit(TemporalUnit unit) { return unit <= TemporalUnit::Week; }
 
 // -----------------------------------------------------------------------
 // Rounding enums

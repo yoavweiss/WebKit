@@ -26,28 +26,10 @@
 
 #pragma once
 
+#include <JavaScriptCore/DurationArithmetic.h>
 #include <JavaScriptCore/ISO8601.h>
 
 namespace JSC {
-
-class NudgeResult final {
-    public:
-    ISO8601::InternalDuration m_duration;
-    Int128 m_nudgedEpochNs;
-    bool m_didExpandCalendarUnit;
-    NudgeResult() { }
-    NudgeResult(ISO8601::InternalDuration d, Int128 ns, bool expanded)
-        : m_duration(d), m_nudgedEpochNs(ns), m_didExpandCalendarUnit(expanded) { }
-};
-
-class Nudged final {
-    public:
-    NudgeResult m_nudgeResult;
-    double m_total;
-    Nudged() { }
-    Nudged(NudgeResult n, double t)
-        : m_nudgeResult(n), m_total(t) { }
-};
 
 class TemporalDuration final : public JSNonFinalObject {
 public:

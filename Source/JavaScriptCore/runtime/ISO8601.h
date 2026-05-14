@@ -276,7 +276,7 @@ public:
 
     Duration dateDuration() const { return m_dateDuration; }
 
-    static InternalDuration NODELETE combineDateAndTimeDuration(Duration, Int128);
+    static InternalDuration NODELETE JS_EXPORT_PRIVATE combineDateAndTimeDuration(Duration, Int128);
 private:
 
     // Time fields are ignored
@@ -487,7 +487,7 @@ uint8_t daysInMonth(uint8_t month);
 String formatTimeZoneOffsetString(int64_t);
 String temporalTimeToString(PlainTime, std::tuple<Precision, unsigned>);
 String temporalDateToString(PlainDate);
-String temporalDateTimeToString(PlainDate, PlainTime, std::tuple<Precision, unsigned>);
+String JS_EXPORT_PRIVATE temporalDateTimeToString(PlainDate, PlainTime, std::tuple<Precision, unsigned>);
 String temporalYearMonthToString(PlainYearMonth, StringView);
 String temporalMonthDayToString(PlainMonthDay, StringView);
 String monthCode(uint32_t);

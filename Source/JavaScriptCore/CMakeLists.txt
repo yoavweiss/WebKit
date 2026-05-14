@@ -1485,13 +1485,17 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     runtime/WriteBarrierInlines.h
 
     runtime/temporal/core/CalendarArithmetic.h
+    runtime/temporal/core/CalendarFields.h
     runtime/temporal/core/CalendarICUBridge.h
+    runtime/temporal/core/DurationArithmetic.h
     runtime/temporal/core/ISOArithmetic.h
     runtime/temporal/core/InstantCore.h
+    runtime/temporal/core/PlainDateTimeCore.h
     runtime/temporal/core/Rounding.h
     runtime/temporal/core/TemporalCoreTypes.h
     runtime/temporal/core/TemporalEnums.h
     runtime/temporal/core/TimeZoneICUBridge.h
+    runtime/temporal/core/ZonedDateTimeCore.h
 
     tools/Integrity.h
     tools/IntegrityInlines.h

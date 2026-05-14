@@ -1152,11 +1152,15 @@ runtime/WideningNumberPredictionFuzzerAgent.cpp
 runtime/WrapForValidIteratorPrototype.cpp
 
 runtime/temporal/core/CalendarArithmetic.cpp
+runtime/temporal/core/CalendarFields.cpp
 runtime/temporal/core/CalendarICUBridge.cpp
+runtime/temporal/core/DurationArithmetic.cpp
 runtime/temporal/core/InstantCore.cpp
 runtime/temporal/core/ISOArithmetic.cpp
+runtime/temporal/core/PlainDateTimeCore.cpp
 runtime/temporal/core/Rounding.cpp
 runtime/temporal/core/TimeZoneICUBridge.cpp
+runtime/temporal/core/ZonedDateTimeCore.cpp
 
 tools/CellList.cpp
 tools/CharacterPropertyDataGenerator.cpp

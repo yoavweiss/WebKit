@@ -466,7 +466,7 @@ ISO8601::Duration TemporalDuration::add(JSGlobalObject* globalObject, JSValue ot
 
     // FIXME: Implement relativeTo parameter after PlainDateTime / ZonedDateTime.
     auto largestUnit = std::min(largestSubduration(m_duration), largestSubduration(other));
-    if (largestUnit <= TemporalUnit::Week) {
+    if (isCalendarUnit(largestUnit)) {
         throwRangeError(globalObject, scope, "Cannot add a duration of years, months, or weeks without a relativeTo option"_s);
         return { };
     }
@@ -603,7 +603,7 @@ ISO8601::Duration TemporalDuration::subtract(JSGlobalObject* globalObject, JSVal
 
     // FIXME: Implement relativeTo parameter after PlainDateTime / ZonedDateTime.
     auto largestUnit = std::min(largestSubduration(m_duration), largestSubduration(other));
-    if (largestUnit <= TemporalUnit::Week) {
+    if (isCalendarUnit(largestUnit)) {
         throwRangeError(globalObject, scope, "Cannot subtract a duration of years, months, or weeks without a relativeTo option"_s);
         return { };
     }
@@ -906,21 +906,21 @@ void TemporalDuration::roundRelativeDuration(JSGlobalObject* globalObject, ISO86
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    bool irregularLengthUnit = smallestUnit <= TemporalUnit::Week;
+    bool irregularLengthUnit = isCalendarUnit(smallestUnit);
     int32_t sign = duration.sign() < 0 ? -1 : 1;
     NudgeResult nudgeResult;
     if (irregularLengthUnit) {
         Nudged record = nudgeToCalendarUnit(globalObject, sign, duration, destEpochNs, isoDate, increment, smallestUnit, roundingMode);
         RETURN_IF_EXCEPTION(scope, void());
-        nudgeResult = record.m_nudgeResult;
+        nudgeResult = record.nudgeResult;
     } else {
         nudgeResult = nudgeToDayOrTime(globalObject, duration, destEpochNs, largestUnit, increment, smallestUnit, roundingMode);
         RETURN_IF_EXCEPTION(scope, void());
     }
-    duration = nudgeResult.m_duration;
-    if (nudgeResult.m_didExpandCalendarUnit && smallestUnit != TemporalUnit::Week) {
+    duration = nudgeResult.duration;
+    if (nudgeResult.didExpandCalendarUnit && smallestUnit != TemporalUnit::Week) {
         auto startUnit = smallestUnit <= TemporalUnit::Day ? smallestUnit : TemporalUnit::Day;
-        duration = bubbleRelativeDuration(globalObject, sign, duration, nudgeResult.m_nudgedEpochNs, isoDate, largestUnit, startUnit);
+        duration = bubbleRelativeDuration(globalObject, sign, duration, nudgeResult.nudgedEpochNs, isoDate, largestUnit, startUnit);
         RETURN_IF_EXCEPTION(scope, void());
     }
 }
@@ -1035,12 +1035,12 @@ ISO8601::Duration TemporalDuration::round(JSGlobalObject* globalObject, JSValue 
         return { };
     }
 
-    if (largestUnit <= TemporalUnit::Week || smallestUnit <= TemporalUnit::Week) [[unlikely]] {
+    if (isCalendarUnit(largestUnit) || isCalendarUnit(smallestUnit)) [[unlikely]] {
         throwVMError(globalObject, scope, "FIXME: years, months, or weeks rounding with relativeTo not implemented yet"_s);
         return { };
     }
 
-    if (existingLargestUnit <= TemporalUnit::Week || largestUnit <= TemporalUnit::Week) [[unlikely]] {
+    if (isCalendarUnit(existingLargestUnit) || isCalendarUnit(largestUnit)) [[unlikely]] {
         throwRangeError(globalObject, scope, "Invalid largest unit for rounding"_s);
         return { };
     }
@@ -1084,7 +1084,7 @@ double TemporalDuration::total(JSGlobalObject* globalObject, JSValue optionsValu
         throwRangeError(globalObject, scope, "Cannot total a duration of years, months, or weeks without a relativeTo option"_s);
         return { };
     }
-    if (unit <= TemporalUnit::Week) {
+    if (isCalendarUnit(unit)) {
         throwVMError(globalObject, scope, "FIXME: years, months, or weeks totalling with relativeTo not implemented yet"_s);
         return { };
     }

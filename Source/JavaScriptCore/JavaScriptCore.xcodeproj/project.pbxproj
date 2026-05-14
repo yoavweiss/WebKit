@@ -946,6 +946,7 @@
 		2A83638618D7D0EE0000EBCC /* EdenGCActivityCallback.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A83638418D7D0EE0000EBCC /* EdenGCActivityCallback.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		2A83638A18D7D0FE0000EBCC /* FullGCActivityCallback.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A83638818D7D0FE0000EBCC /* FullGCActivityCallback.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		2AA109412F8D5DE600347316 /* UnifiedSource166.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2AA109402F8D5DE600347316 /* UnifiedSource166.cpp */; };
+		FF41D81E2FA317C2001D30AA /* UnifiedSource167.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF41D81F2FA317C2001D30AA /* UnifiedSource167.cpp */; };
 		2AAAA31218BD49D100394CC8 /* TypeInfoBlob.h in Headers */ = {isa = PBXBuildFile; fileRef = 2AAAA31018BD49D100394CC8 /* TypeInfoBlob.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		2AABCDE718EF294200002096 /* GCLogging.h in Headers */ = {isa = PBXBuildFile; fileRef = 2AABCDE618EF294200002096 /* GCLogging.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		2AACE63D18CA5A0300ED0191 /* GCActivityCallback.h in Headers */ = {isa = PBXBuildFile; fileRef = 2AACE63B18CA5A0300ED0191 /* GCActivityCallback.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -2370,6 +2371,10 @@
 		FFE88B9E2EC96CA700C9F5E2 /* ExecutionHandlerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FFE88B9D2EC96CA700C9F5E2 /* ExecutionHandlerTest.cpp */; };
 		FFF3373F2BCDF1240070D04B /* JSCBytecodeCacheVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = FFF3373E2BCDF1240070D04B /* JSCBytecodeCacheVersion.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		FFF4D5A32CE304CD006EA634 /* DeferredWorkTimerInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = FFF4D5A22CE304C2006EA634 /* DeferredWorkTimerInlines.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		FFF79F9A2FB2F1B2003FF02A /* PlainDateTimeCore.h in Headers */ = {isa = PBXBuildFile; fileRef = FFF79F962FB2F1B2003FF02A /* PlainDateTimeCore.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		FFF79F9B2FB2F1B2003FF02A /* CalendarFields.h in Headers */ = {isa = PBXBuildFile; fileRef = FFF79F922FB2F1B2003FF02A /* CalendarFields.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		FFF79F9C2FB2F1B2003FF02A /* ZonedDateTimeCore.h in Headers */ = {isa = PBXBuildFile; fileRef = FFF79F982FB2F1B2003FF02A /* ZonedDateTimeCore.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		FFF79F9D2FB2F1B2003FF02A /* DurationArithmetic.h in Headers */ = {isa = PBXBuildFile; fileRef = FFF79F942FB2F1B2003FF02A /* DurationArithmetic.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		FFFAF8CB2EC97B2B00042238 /* TestScripts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FFFAF8CA2EC97B2B00042238 /* TestScripts.cpp */; };
 		FFFAF8CE2EC9A7C000042238 /* ExecutionHandlerTestSupport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FFFAF8CD2EC9A7C000042238 /* ExecutionHandlerTestSupport.cpp */; };
 /* End PBXBuildFile section */
@@ -4231,6 +4236,7 @@
 		2A83638718D7D0FE0000EBCC /* FullGCActivityCallback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FullGCActivityCallback.cpp; sourceTree = "<group>"; };
 		2A83638818D7D0FE0000EBCC /* FullGCActivityCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FullGCActivityCallback.h; sourceTree = "<group>"; };
 		2AA109402F8D5DE600347316 /* UnifiedSource166.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UnifiedSource166.cpp; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource166.cpp"; sourceTree = BUILT_PRODUCTS_DIR; };
+		FF41D81F2FA317C2001D30AA /* UnifiedSource167.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UnifiedSource167.cpp; path = "DerivedSources/JavaScriptCore/unified-sources/UnifiedSource167.cpp"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AAAA31018BD49D100394CC8 /* TypeInfoBlob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TypeInfoBlob.h; sourceTree = "<group>"; };
 		2AABCDE618EF294200002096 /* GCLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCLogging.h; sourceTree = "<group>"; };
 		2AACE63A18CA5A0300ED0191 /* GCActivityCallback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCActivityCallback.cpp; sourceTree = "<group>"; };
@@ -6583,6 +6589,14 @@
 		FFF3373D2BCDF1240070D04B /* JSCBytecodeCacheVersion.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSCBytecodeCacheVersion.cpp; sourceTree = "<group>"; };
 		FFF3373E2BCDF1240070D04B /* JSCBytecodeCacheVersion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSCBytecodeCacheVersion.h; sourceTree = "<group>"; };
 		FFF4D5A22CE304C2006EA634 /* DeferredWorkTimerInlines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DeferredWorkTimerInlines.h; sourceTree = "<group>"; };
+		FFF79F922FB2F1B2003FF02A /* CalendarFields.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CalendarFields.h; sourceTree = "<group>"; };
+		FFF79F932FB2F1B2003FF02A /* CalendarFields.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CalendarFields.cpp; sourceTree = "<group>"; };
+		FFF79F942FB2F1B2003FF02A /* DurationArithmetic.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DurationArithmetic.h; sourceTree = "<group>"; };
+		FFF79F952FB2F1B2003FF02A /* DurationArithmetic.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DurationArithmetic.cpp; sourceTree = "<group>"; };
+		FFF79F962FB2F1B2003FF02A /* PlainDateTimeCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlainDateTimeCore.h; sourceTree = "<group>"; };
+		FFF79F972FB2F1B2003FF02A /* PlainDateTimeCore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PlainDateTimeCore.cpp; sourceTree = "<group>"; };
+		FFF79F982FB2F1B2003FF02A /* ZonedDateTimeCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZonedDateTimeCore.h; sourceTree = "<group>"; };
+		FFF79F992FB2F1B2003FF02A /* ZonedDateTimeCore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ZonedDateTimeCore.cpp; sourceTree = "<group>"; };
 		FFFAF8C92EC97B2B00042238 /* TestScripts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestScripts.h; sourceTree = "<group>"; };
 		FFFAF8CA2EC97B2B00042238 /* TestScripts.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TestScripts.cpp; sourceTree = "<group>"; };
 		FFFAF8CC2EC9A7C000042238 /* ExecutionHandlerTestSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExecutionHandlerTestSupport.h; sourceTree = "<group>"; };
@@ -8187,6 +8201,7 @@
 				538F15DA368FBBB600D601C4 /* UnifiedSource164.cpp */,
 				538F15DF368FBBB600D601C4 /* UnifiedSource165.cpp */,
 				2AA109402F8D5DE600347316 /* UnifiedSource166.cpp */,
+				FF41D81F2FA317C2001D30AA /* UnifiedSource167.cpp */,
 			);
 			path = "unified-sources";
 			sourceTree = "<group>";
@@ -10886,18 +10901,26 @@
 			children = (
 				FF62739E2FAD56220098B5A3 /* CalendarArithmetic.cpp */,
 				FF62739D2FAD56220098B5A3 /* CalendarArithmetic.h */,
+				FFF79F932FB2F1B2003FF02A /* CalendarFields.cpp */,
+				FFF79F922FB2F1B2003FF02A /* CalendarFields.h */,
 				FF629D9C2FAE9B500098B5A3 /* CalendarICUBridge.cpp */,
 				FF629D9B2FAE9B500098B5A3 /* CalendarICUBridge.h */,
+				FFF79F952FB2F1B2003FF02A /* DurationArithmetic.cpp */,
+				FFF79F942FB2F1B2003FF02A /* DurationArithmetic.h */,
 				FF6273A02FAD56220098B5A3 /* InstantCore.cpp */,
 				FF62739F2FAD56220098B5A3 /* InstantCore.h */,
 				FF6273A22FAD56220098B5A3 /* ISOArithmetic.cpp */,
 				FF6273A12FAD56220098B5A3 /* ISOArithmetic.h */,
+				FFF79F972FB2F1B2003FF02A /* PlainDateTimeCore.cpp */,
+				FFF79F962FB2F1B2003FF02A /* PlainDateTimeCore.h */,
 				FF6273A42FAD56220098B5A3 /* Rounding.cpp */,
 				FF6273A32FAD56220098B5A3 /* Rounding.h */,
 				FF356CF32FA9832600213929 /* TemporalCoreTypes.h */,
 				FF356CF42FA9832600213929 /* TemporalEnums.h */,
 				FF629D9F2FAE9B500098B5A3 /* TimeZoneICUBridge.cpp */,
 				FF629D9E2FAE9B500098B5A3 /* TimeZoneICUBridge.h */,
+				FFF79F992FB2F1B2003FF02A /* ZonedDateTimeCore.cpp */,
+				FFF79F982FB2F1B2003FF02A /* ZonedDateTimeCore.h */,
 			);
 			path = core;
 			sourceTree = "<group>";
@@ -11326,6 +11349,7 @@
 				1409ECC0225E178100BEDD54 /* CacheUpdate.h in Headers */,
 				0FEC3C601F379F5300F59B6C /* CagedBarrierPtr.h in Headers */,
 				FF6273A82FAD56220098B5A3 /* CalendarArithmetic.h in Headers */,
+				FFF79F9B2FB2F1B2003FF02A /* CalendarFields.h in Headers */,
 				FF629DA32FAE9B500098B5A3 /* CalendarICUBridge.h in Headers */,
 				BC18C3ED0E16F5CD00B34460 /* CallData.h in Headers */,
 				0F64B27A1A7957B2006E4E66 /* CallEdge.h in Headers */,
@@ -11643,6 +11667,7 @@
 				E35CA1541DBC3A5C00F83516 /* DOMJITHeapRange.h in Headers */,
 				E350708A1DC49BBF0089BCD6 /* DOMJITSignature.h in Headers */,
 				A70447EE17A0BD7000F5898E /* DumpContext.h in Headers */,
+				FFF79F9D2FB2F1B2003FF02A /* DurationArithmetic.h in Headers */,
 				145FF2C8243BB9D600569E71 /* ECMAMode.h in Headers */,
 				2A83638618D7D0EE0000EBCC /* EdenGCActivityCallback.h in Headers */,
 				1AB2A6FB9608AD5DF73332D4 /* EmbedderArrayLike.h in Headers */,
@@ -12437,6 +12462,7 @@
 				A5AB49DD1BEC8086007020FB /* PerGlobalObjectWrapperWorld.h in Headers */,
 				23A356912E9790F40039C82A /* PinballCompletion.h in Headers */,
 				F04DFCBEDED74A4E92B8A9DA /* PinballHandlerContext.h in Headers */,
+				FFF79F9A2FB2F1B2003FF02A /* PlainDateTimeCore.h in Headers */,
 				0FE834181A6EF97B00D04847 /* PolymorphicCallStubRoutine.h in Headers */,
 				521131F71F82BF14007CCEEE /* PolyProtoAccessChain.h in Headers */,
 				0F070A4B1D543A98006E7232 /* PreciseAllocation.h in Headers */,
@@ -12955,6 +12981,7 @@
 				86704B8A12DBA33700A9FE7B /* YarrPattern.h in Headers */,
 				86704B4312DB8A8100A9FE7B /* YarrSyntaxChecker.h in Headers */,
 				659CDA5B1F6753F200D3E53F /* YarrUnicodeProperties.h in Headers */,
+				FFF79F9C2FB2F1B2003FF02A /* ZonedDateTimeCore.h in Headers */,
 				E390287D2DD1E7D90083D675 /* Zydis.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -14203,6 +14230,7 @@
 				538F15DA268FBBB600D601C4 /* UnifiedSource164.cpp in Sources */,
 				538F15DF268FBBB600D601C4 /* UnifiedSource165.cpp in Sources */,
 				2AA109412F8D5DE600347316 /* UnifiedSource166.cpp in Sources */,
+				FF41D81E2FA317C2001D30AA /* UnifiedSource167.cpp in Sources */,
 				E3C091E929B07D4C00CD6D97 /* WasmBBQJIT.cpp in Sources */,
 				4615E46B2B5849F4001D4D53 /* WasmBBQJIT64.cpp in Sources */,
 				642D20D52B476A2E0030545E /* WasmIPIntSlowPaths.cpp in Sources */,

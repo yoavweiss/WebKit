@@ -106,8 +106,8 @@ inline const LocaleSet& intlDurationFormatAvailableLocales() { return intlAvaila
 using CalendarID = unsigned;
 JS_EXPORT_PRIVATE const Vector<String>& intlAvailableCalendars();
 
-extern CalendarID iso8601CalendarIDStorage;
-CalendarID iso8601CalendarIDSlow();
+extern CalendarID JS_EXPORT_PRIVATE iso8601CalendarIDStorage;
+CalendarID JS_EXPORT_PRIVATE iso8601CalendarIDSlow();
 inline CalendarID iso8601CalendarID()
 {
     unsigned value = iso8601CalendarIDStorage;

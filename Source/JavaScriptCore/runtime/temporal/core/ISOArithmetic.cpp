@@ -27,6 +27,7 @@
 #include "ISOArithmetic.h"
 
 #include "DateConstructor.h"
+#include "Rounding.h"
 #include <wtf/CheckedArithmetic.h>
 #include <wtf/DateMath.h>
 
@@ -314,6 +315,82 @@ ISO8601::InternalDuration diffISODateTime(const ISO8601::PlainDate& d1, const IS
         static_cast<double>(dateDiff.weeks()),
         remainingDays, 0, 0, 0, 0, 0, 0);
     return ISO8601::InternalDuration::combineDateAndTimeDuration(datePart, timeDuration);
+}
+
+// RoundTime steps 1–6 (quantity only) — temporal_rs: IsoTime::round (src/iso.rs)
+// https://tc39.es/proposal-temporal/#sec-temporal-roundtime
+// Returns {quantity, baseOffset} in ns; caller does RoundNumberToIncrement + BalanceTime in Int128
+// to avoid double precision loss. Day unit omitted — caller handles overflow via nsPerDay bounds.
+static std::pair<Int128, Int128> roundTime(const ISO8601::PlainTime& t, TemporalUnit unit)
+{
+    using ET = ISO8601::ExactTime;
+    const Int128 lH = Int128(t.hour());
+    const Int128 lMi = Int128(t.minute());
+    const Int128 lS = Int128(t.second());
+    const Int128 lMs = Int128(t.millisecond());
+    const Int128 lUs = Int128(t.microsecond());
+    const Int128 lNs = Int128(t.nanosecond());
+    switch (unit) {
+    case TemporalUnit::Hour:
+        // Step 1: quantity = full time from midnight in ns.
+        return { lH * ET::nsPerHour + lMi * ET::nsPerMinute + lS * ET::nsPerSecond + lMs * ET::nsPerMillisecond + lUs * ET::nsPerMicrosecond + lNs, 0 };
+    case TemporalUnit::Minute:
+        // Step 2: quantity = minute-relative; baseOffset = hours.
+        return { lMi * ET::nsPerMinute + lS * ET::nsPerSecond + lMs * ET::nsPerMillisecond + lUs * ET::nsPerMicrosecond + lNs, lH * ET::nsPerHour };
+    case TemporalUnit::Second:
+        // Step 3: quantity = second-relative; baseOffset = hours+minutes.
+        return { lS * ET::nsPerSecond + lMs * ET::nsPerMillisecond + lUs * ET::nsPerMicrosecond + lNs, lH * ET::nsPerHour + lMi * ET::nsPerMinute };
+    case TemporalUnit::Millisecond:
+        // Step 4: quantity = ms-relative; baseOffset = hours+minutes+seconds.
+        return { lMs * ET::nsPerMillisecond + lUs * ET::nsPerMicrosecond + lNs, lH * ET::nsPerHour + lMi * ET::nsPerMinute + lS * ET::nsPerSecond };
+    case TemporalUnit::Microsecond:
+        // Step 5: quantity = us-relative; baseOffset = hours+minutes+seconds+ms.
+        return { lUs * ET::nsPerMicrosecond + lNs, lH * ET::nsPerHour + lMi * ET::nsPerMinute + lS * ET::nsPerSecond + lMs * ET::nsPerMillisecond };
+    default: // Nanosecond
+        // Step 6: Assert unit is nanosecond. quantity = ns; baseOffset = everything else.
+        return { lNs, lH * ET::nsPerHour + lMi * ET::nsPerMinute + lS * ET::nsPerSecond + lMs * ET::nsPerMillisecond + lUs * ET::nsPerMicrosecond };
+    }
+}
+
+// RoundISODateTime — temporal_rs: IsoDateTime::round (src/iso.rs)
+// https://tc39.es/proposal-temporal/#sec-temporal-roundisodatetime
+RoundedISODateTime roundISODateTime(ISO8601::PlainDate date, ISO8601::PlainTime time, Int128 incrementNs, TemporalUnit unit, RoundingMode mode)
+{
+    using ET = ISO8601::ExactTime;
+
+    // Step 1: Assert ISODateTimeWithinLimits(isoDateTime).
+    ASSERT(ISO8601::isDateTimeWithinLimits(date.year(), date.month(), date.day(), time.hour(), time.minute(), time.second(), time.millisecond(), time.microsecond(), time.nanosecond()));
+
+    // Step 2: roundedTime = RoundTime(time, increment, unit, roundingMode).
+    auto [quantity, baseOffset] = roundTime(time, unit);
+    Int128 roundedLocalNs = baseOffset + roundNumberToIncrementInt128(quantity, incrementNs, mode);
+
+    // Step 3: balanceResult = AddDaysToISODate(isoDate, roundedTime.[[Days]]).
+    if (roundedLocalNs < 0) {
+        roundedLocalNs += ET::nsPerDay;
+        int32_t days = WTF::daysFromYearMonth(date.year(), date.month() - 1) + (date.day() - 1) - 1;
+        auto [y, m, d] = WTF::yearMonthDayFromDays(days);
+        date = ISO8601::PlainDate(y, static_cast<uint8_t>(m + 1), static_cast<uint8_t>(d));
+    } else if (roundedLocalNs >= ET::nsPerDay) {
+        roundedLocalNs -= ET::nsPerDay;
+        int32_t days = WTF::daysFromYearMonth(date.year(), date.month() - 1) + (date.day() - 1) + 1;
+        auto [y, m, d] = WTF::yearMonthDayFromDays(days);
+        date = ISO8601::PlainDate(y, static_cast<uint8_t>(m + 1), static_cast<uint8_t>(d));
+    }
+
+    // Step 4: CombineISODateAndTimeRecord(balanceResult, roundedTime).
+    Int128 rem = roundedLocalNs;
+    unsigned h = static_cast<unsigned>(rem / ET::nsPerHour);
+    rem %= ET::nsPerHour;
+    unsigned mi = static_cast<unsigned>(rem / ET::nsPerMinute);
+    rem %= ET::nsPerMinute;
+    unsigned s = static_cast<unsigned>(rem / ET::nsPerSecond);
+    rem %= ET::nsPerSecond;
+    unsigned ms = static_cast<unsigned>(rem / ET::nsPerMillisecond);
+    rem %= ET::nsPerMillisecond;
+    unsigned us = static_cast<unsigned>(rem / ET::nsPerMicrosecond);
+    unsigned ns = static_cast<unsigned>(rem % ET::nsPerMicrosecond);
+    return { date, ISO8601::PlainTime(h, mi, s, ms, us, ns) };
 }
 
 } // namespace TemporalCore

@@ -473,7 +473,7 @@ TemporalResult<ISO8601::ExactTime> getEpochNanosecondsFor(const TimeZone& timeZo
 
 // addZonedDateTime — temporal_rs: ZonedDateTime::add_zoned_date_time (src/builtins/core/zoned_date_time.rs)
 // https://tc39.es/proposal-temporal/#sec-temporal-addzoneddatetime
-TemporalResult<ISO8601::ExactTime> addZonedDateTime(ISO8601::ExactTime startEpochNs, const TimeZone& timeZone, const ISO8601::Duration& duration, TemporalOverflow overflow, StringView calendarId)
+TemporalResult<ISO8601::ExactTime> addZonedDateTime(ISO8601::ExactTime startEpochNs, const TimeZone& timeZone, const ISO8601::Duration& duration, TemporalOverflow overflow, CalendarID calendarId)
 {
     // NOTE: Pre-compute the time duration (norm) as nanoseconds; used by AddInstant in steps 1 and 7.
     CheckedInt128 m = checkedCastDoubleToInt128(duration.minutes()) + checkedCastDoubleToInt128(duration.hours()) * Int128(60);
@@ -508,11 +508,10 @@ TemporalResult<ISO8601::ExactTime> addZonedDateTime(ISO8601::ExactTime startEpoc
     // 3. Let addedDate be ? CalendarDateAdd(calendar, isoDateTime.[[ISODate]], duration.[[Date]], overflow).
     ISO8601::Duration dateDuration(duration.years(), duration.months(), duration.weeks(), duration.days(), 0, 0, 0, 0, 0, 0);
     TemporalResult<ISO8601::PlainDate> addedDateResult;
-    CalendarID calId = calendarIDFromString(calendarId);
-    if (calendarIsISO(calId))
+    if (calendarIsISO(calendarId))
         addedDateResult = calendarDateAdd(date, dateDuration, overflow);
     else
-        addedDateResult = TemporalCore::calendarDateAdd(calId, date, dateDuration, overflow);
+        addedDateResult = TemporalCore::calendarDateAdd(calendarId, date, dateDuration, overflow);
     if (!addedDateResult)
         return makeUnexpected(addedDateResult.error());
 

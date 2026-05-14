@@ -77,14 +77,15 @@ static std::unique_ptr<UCalendar, ICUDeleter<ucal_close>> openCalendar(CalendarI
     return cal;
 }
 
-// chineseCalendarUsesEpochOffset — probes ICU UCAL_EXTENDED_YEAR for Chinese to detect epoch-based vs ISO-proleptic year numbering.
-// Result is cached: it depends only on the ICU version, which is fixed for the process lifetime.
-bool chineseCalendarUsesEpochOffset()
+// chineseCalendarExtendedYearFor1972 — probes ICU UCAL_EXTENDED_YEAR for the Chinese calendar
+// at ISO 1972-02-15. Returns 1972 on ISO-proleptic ICU; epoch-based year on older Apple ICU.
+// Result is cached: ICU version is fixed for the process lifetime.
+int32_t chineseCalendarExtendedYearFor1972()
 {
-    static bool cached = []() -> bool {
+    static int32_t cached = []() -> int32_t {
         auto cal = openCalendar(chineseCalendarID());
         if (!cal)
-            return false;
+            return 1972; // fallback: assume ISO-proleptic
         // Use ucal_setMillis with a precomputed ISO epoch time — NOT ucal_setDateTime which
         // sets calendar-native fields (not ISO fields) on a non-Gregorian calendar.
         // ISO 1972-02-15 00:00:00 UTC = 66,960,000,000 ms from Unix epoch (1970-01-01).
@@ -93,9 +94,10 @@ bool chineseCalendarUsesEpochOffset()
         ucal_setMillis(cal.get(), iso1972Feb15EpochMs, &status);
         int32_t extYear = ucal_get(cal.get(), UCAL_EXTENDED_YEAR, &status);
         if (U_FAILURE(status))
-            return false;
-        // Epoch-based: extYear = 4608 (Chinese year for 1972 CE); ISO-proleptic: extYear = 1972.
-        return extYear > 3000;
+            return 1972; // fallback: assume ISO-proleptic
+        // Return the raw EXTENDED_YEAR: 1972 on ISO-proleptic ICU,
+        // epoch-based year (whatever the current ICU uses) on older Apple ICU.
+        return extYear;
     }();
     return cached;
 }

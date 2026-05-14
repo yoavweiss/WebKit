@@ -82,7 +82,7 @@ TemporalResult<std::optional<ISO8601::ExactTime>> JS_EXPORT_PRIVATE getTimeZoneT
 
 TemporalResult<ISO8601::ExactTime> JS_EXPORT_PRIVATE getEpochNanosecondsFor(const TimeZone&, const ISO8601::PlainDate&, const ISO8601::PlainTime&, TemporalDisambiguation);
 
-TemporalResult<ISO8601::ExactTime> JS_EXPORT_PRIVATE addZonedDateTime(ISO8601::ExactTime startEpochNs, const TimeZone&, const ISO8601::Duration&, TemporalOverflow, StringView calendarId = "iso8601"_s);
+TemporalResult<ISO8601::ExactTime> JS_EXPORT_PRIVATE addZonedDateTime(ISO8601::ExactTime startEpochNs, const TimeZone&, const ISO8601::Duration&, TemporalOverflow, CalendarID calendarKind = iso8601CalendarID());
 
 } // namespace TemporalCore
 } // namespace JSC

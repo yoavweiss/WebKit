@@ -25,10 +25,11 @@
 
 #pragma once
 
-// JSC Temporal Core — ISO 8601 date arithmetic
-// temporal_rs reference: src/iso.rs
+// JSC Temporal Core — PlainDateTime algorithms
+// temporal_rs reference: src/builtins/core/plain_date_time.rs
 // Last synced: v0.2.3
 
+#include <JavaScriptCore/CalendarICUBridge.h>
 #include <JavaScriptCore/ISO8601.h>
 #include <JavaScriptCore/JSExportMacros.h>
 #include <JavaScriptCore/TemporalCoreTypes.h>
@@ -37,27 +38,15 @@
 namespace JSC {
 namespace TemporalCore {
 
-ISO8601::PlainYearMonth JS_EXPORT_PRIVATE balanceISOYearMonth(int64_t year, int64_t month);
+int32_t NODELETE JS_EXPORT_PRIVATE compareISODateTime(ISO8601::PlainDate, ISO8601::PlainTime, ISO8601::PlainDate, ISO8601::PlainTime);
 
-ISO8601::PlainDate JS_EXPORT_PRIVATE balanceISODate(int32_t year, int32_t month, int64_t day);
-
-TemporalResult<ISO8601::PlainDate> JS_EXPORT_PRIVATE regulateISODate(int32_t year, int32_t month, int64_t day, TemporalOverflow);
-
-TemporalResult<ISO8601::PlainDate> JS_EXPORT_PRIVATE isoDateAdd(const ISO8601::PlainDate&, const ISO8601::Duration&, TemporalOverflow);
-
-int32_t NODELETE JS_EXPORT_PRIVATE isoDateCompare(const ISO8601::PlainDate&, const ISO8601::PlainDate&);
-
-int32_t NODELETE JS_EXPORT_PRIVATE isoTimeCompare(const ISO8601::PlainTime&, const ISO8601::PlainTime&);
-
-ISO8601::Duration JS_EXPORT_PRIVATE diffISODate(const ISO8601::PlainDate& one, const ISO8601::PlainDate& two, TemporalUnit largestUnit);
-
-ISO8601::InternalDuration JS_EXPORT_PRIVATE diffISODateTime(const ISO8601::PlainDate& d1, const ISO8601::PlainTime& t1, const ISO8601::PlainDate& d2, const ISO8601::PlainTime& t2, TemporalUnit largestUnit);
-
-struct RoundedISODateTime {
-    ISO8601::PlainDate date;
-    ISO8601::PlainTime time;
-};
-RoundedISODateTime JS_EXPORT_PRIVATE roundISODateTime(ISO8601::PlainDate, ISO8601::PlainTime, Int128 incrementNs, TemporalUnit, RoundingMode);
+TemporalResult<ISO8601::Duration> JS_EXPORT_PRIVATE differenceTemporalPlainDateTime(
+    DifferenceOperation,
+    ISO8601::PlainDate thisDate, ISO8601::PlainTime thisTime,
+    ISO8601::PlainDate otherDate, ISO8601::PlainTime otherTime,
+    CalendarID,
+    TemporalUnit smallestUnit, TemporalUnit largestUnit,
+    RoundingMode, double increment);
 
 } // namespace TemporalCore
 } // namespace JSC

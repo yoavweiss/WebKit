@@ -26,6 +26,7 @@
 #include "config.h"
 #include "TemporalPlainDateTime.h"
 
+#include "ISOArithmetic.h"
 #include "IntlObjectInlines.h"
 #include "JSCInlines.h"
 #include "LazyPropertyInlines.h"
@@ -184,28 +185,6 @@ int32_t TemporalPlainDateTime::compare(TemporalPlainDateTime* plainDateTime1, Te
     return TemporalPlainTime::compare(plainDateTime1->plainTime(), plainDateTime2->plainTime());
 }
 
-static void incrementDay(ISO8601::Duration& duration)
-{
-    double year = duration.years();
-    double month = duration.months();
-    double day = duration.days();
-
-    double daysInMonth = ISO8601::daysInMonth(year, month);
-    if (day < daysInMonth) {
-        duration.setField(TemporalUnit::Day, day + 1);
-        return;
-    }
-
-    duration.setField(TemporalUnit::Day, 1);
-    if (month < 12) {
-        duration.setField(TemporalUnit::Month, month + 1);
-        return;
-    }
-
-    duration.setField(TemporalUnit::Month, 1);
-    duration.setField(TemporalUnit::Year, year + 1);
-}
-
 String TemporalPlainDateTime::toString(JSGlobalObject* globalObject, JSValue optionsValue) const
 {
     VM& vm = globalObject->vm();
@@ -232,16 +211,8 @@ String TemporalPlainDateTime::toString(JSGlobalObject* globalObject, JSValue opt
     RETURN_IF_EXCEPTION(scope, { });
 
     double extraDays = duration.days();
-    duration.setYears(static_cast<int64_t>(year()));
-    duration.setMonths(static_cast<int64_t>(month()));
-    duration.setDays(static_cast<int64_t>(day()));
-    if (extraDays) {
-        ASSERT(extraDays == 1);
-        incrementDay(duration);
-    }
-
-    auto plainDate = TemporalPlainDate::toPlainDate(globalObject, duration);
-    RETURN_IF_EXCEPTION(scope, { });
+    ASSERT(!extraDays || extraDays == 1);
+    auto plainDate = TemporalCore::balanceISODate(year(), month(), day() + static_cast<int64_t>(extraDays));
 
     return ISO8601::temporalDateTimeToString(plainDate, plainTime, data.precision);
 }
@@ -319,7 +290,7 @@ TemporalPlainDateTime* TemporalPlainDateTime::round(JSGlobalObject* globalObject
             return { };
         }
 
-        if (smallest.value() <= TemporalUnit::Week) {
+        if (isCalendarUnit(smallest.value())) {
             throwRangeError(globalObject, scope, "smallestUnit is a disallowed unit"_s);
             return { };
         }
@@ -366,16 +337,8 @@ TemporalPlainDateTime* TemporalPlainDateTime::round(JSGlobalObject* globalObject
     RETURN_IF_EXCEPTION(scope, { });
 
     double extraDays = duration.days();
-    duration.setYears(static_cast<int64_t>(year()));
-    duration.setMonths(static_cast<int64_t>(month()));
-    duration.setDays(static_cast<int64_t>(day()));
-    if (extraDays) {
-        ASSERT(extraDays == 1);
-        incrementDay(duration);
-    }
-
-    auto plainDate = TemporalPlainDate::toPlainDate(globalObject, duration);
-    RETURN_IF_EXCEPTION(scope, { });
+    ASSERT(!extraDays || extraDays == 1);
+    auto plainDate = TemporalCore::balanceISODate(year(), month(), day() + static_cast<int64_t>(extraDays));
 
     RELEASE_AND_RETURN(scope, TemporalPlainDateTime::tryCreateIfValid(globalObject, globalObject->plainDateTimeStructure(), WTF::move(plainDate), WTF::move(plainTime)));
 }
