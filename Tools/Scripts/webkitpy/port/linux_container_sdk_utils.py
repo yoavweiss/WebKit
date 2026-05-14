@@ -65,6 +65,8 @@ _ENV_VARS_TO_KEEP = frozenset((
     'RESULTS_SERVER_API_KEY',
     'SSLKEYLOGFILE',
     'TERM',
+    'USER',
+    'USERNAME',
     'XDG_SESSION_TYPE',
     'XR_RUNTIME_JSON',
 ))
