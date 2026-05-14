@@ -1397,9 +1397,7 @@ bool RenderFlexibleBox::flexItemHasComputableAspectRatio(const RenderBox& flexIt
 {
     if (!flexItemHasAspectRatio(flexItem))
         return false;
-    return flexItem.intrinsicSize().height()
-        || flexItem.style().aspectRatio().hasRatio()
-        || isSVGRootWithIntrinsicAspectRatio(flexItem);
+    return flexItem.preferredAspectRatioAsSize().aspectRatioDouble() > 0;
 }
 
 bool RenderFlexibleBox::flexItemHasComputableAspectRatioAndCrossSizeIsConsideredDefinite(const RenderBox& flexItem)
