@@ -1457,3 +1457,5 @@ webkit.org/b/313649 editing/pasteboard/reveal-selection-after-pasting-images.htm
 webkit.org/b/313985 fullscreen/fullscreen-clears-hover-on-overlay.html [ Failure Pass ]
 
 webkit.org/b/303859 imported/w3c/web-platform-tests/html/canvas/element/manual/text/canvas.2d.disconnected.html [ Pass ImageOnlyFailure ]
+
+webkit.org/b/314817 imported/w3c/web-platform-tests/svg/geometry/reftests/circle-004.svg [ ImageOnlyFailure ]
