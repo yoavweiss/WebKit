@@ -84,7 +84,7 @@ template<typename Output> static ALWAYS_INLINE void appendOutputForElement(Outpu
 static bool NODELETE canBeUsedForIdFastPath(const CSSSelector& selector)
 {
     return selector.match() == CSSSelector::Match::Id
-        || (selector.match() == CSSSelector::Match::Exact && selector.attribute() == HTMLNames::idAttr && !selector.attributeValueMatchingIsCaseInsensitive());
+        || (selector.match() == CSSSelector::Match::Exact && selector.attribute() == HTMLNames::idAttr && selector.attributeMatchType() != CSSSelector::AttributeMatchType::CaseInsensitive);
 }
 
 static IdMatchingType NODELETE findIdMatchingType(const CSSSelector& firstSelector)
@@ -105,7 +105,7 @@ static IdMatchingType NODELETE findIdMatchingType(const CSSSelector& firstSelect
 static bool canOptimizeSingleAttributeExactMatch(const CSSSelector& selector)
 {
     // Bailout if attribute name needs to be definitely case-insensitive.
-    if (selector.attributeValueMatchingIsCaseInsensitive())
+    if (selector.attributeMatchType() == CSSSelector::AttributeMatchType::CaseInsensitive)
         return false;
 
     const auto& attribute = selector.attribute();

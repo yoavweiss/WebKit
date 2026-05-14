@@ -387,8 +387,14 @@ static AttributeCaseSensitivity attributeSelectorCaseSensitivity(const CSSSelect
     if (selector.match() == CSSSelector::Match::Set)
         return AttributeCaseSensitivity::CaseSensitive;
 
-    if (selector.attributeValueMatchingIsCaseInsensitive())
+    switch (selector.attributeMatchType()) {
+    case CSSSelector::AttributeMatchType::CaseInsensitive:
         return AttributeCaseSensitivity::CaseInsensitive;
+    case CSSSelector::AttributeMatchType::CaseSensitive:
+        return AttributeCaseSensitivity::CaseSensitive;
+    case CSSSelector::AttributeMatchType::Default:
+        break;
+    }
     if (HTMLDocument::isCaseSensitiveAttribute(selector.attribute()))
         return AttributeCaseSensitivity::CaseSensitive;
     return AttributeCaseSensitivity::HTMLLegacyCaseInsensitive;
@@ -400,7 +406,7 @@ public:
         : m_selector(&selector)
         , m_attributeCaseSensitivity(attributeSelectorCaseSensitivity(selector))
     {
-        ASSERT(!(m_attributeCaseSensitivity == AttributeCaseSensitivity::CaseInsensitive && !selector.attributeValueMatchingIsCaseInsensitive()));
+        ASSERT(!(m_attributeCaseSensitivity == AttributeCaseSensitivity::CaseInsensitive && selector.attributeMatchType() != CSSSelector::AttributeMatchType::CaseInsensitive));
         ASSERT(!(selector.match() == CSSSelector::Match::Set && m_attributeCaseSensitivity != AttributeCaseSensitivity::CaseSensitive));
     }
 

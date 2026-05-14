@@ -122,7 +122,7 @@ public:
         Right,
     };
 
-    enum AttributeMatchType { CaseSensitive, CaseInsensitive };
+    enum class AttributeMatchType : uint8_t { Default, CaseInsensitive, CaseSensitive };
 
     // Maps from the selector pseudo-element type to the style type. Only pseudo-elements that are not element-backed have a type in style.
     static std::optional<PseudoElementType> NODELETE stylePseudoElementTypeFor(PseudoElement);
@@ -154,7 +154,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
     const AtomString& serializingValue() const LIFETIME_BOUND;
     const QualifiedName& attribute() const LIFETIME_BOUND;
     const AtomString& argument() const LIFETIME_BOUND { return m_hasRareData ? m_data.rareData->argument : nullAtom(); }
-    bool attributeValueMatchingIsCaseInsensitive() const;
+    AttributeMatchType attributeMatchType() const;
     const FixedVector<int>* integerList() const LIFETIME_BOUND { return m_hasRareData ? std::get_if<FixedVector<int>>(&m_data.rareData->argumentList) : nullptr; }
     const FixedVector<AtomString>* stringList() const LIFETIME_BOUND { return m_hasRareData ? std::get_if<FixedVector<AtomString>>(&m_data.rareData->argumentList) : nullptr; }
     const FixedVector<PossiblyQuotedIdentifier>* langList() const LIFETIME_BOUND { return m_hasRareData ? std::get_if<FixedVector<PossiblyQuotedIdentifier>>(&m_data.rareData->argumentList) : nullptr; }
@@ -231,9 +231,9 @@ private:
     unsigned m_hasRareData : 1 { false };
     unsigned m_isForPage : 1 { false };
     unsigned m_tagIsForNamespaceRule : 1 { false };
-    unsigned m_caseInsensitiveAttributeValueMatching : 1 { false };
+    unsigned m_attributeMatchType : 2 { std::to_underlying(AttributeMatchType::Default) };
     unsigned m_isImplicit : 1 { false };
-    // 25 bits
+    // 26 bits
 #if !ASSERT_WITH_SECURITY_IMPLICATION_DISABLED
     unsigned m_destructorHasBeenCalled : 1 { false };
 #endif
@@ -383,7 +383,7 @@ inline CSSSelector::CSSSelector(CSSSelector&& other)
     , m_hasRareData(other.m_hasRareData)
     , m_isForPage(other.m_isForPage)
     , m_tagIsForNamespaceRule(other.m_tagIsForNamespaceRule)
-    , m_caseInsensitiveAttributeValueMatching(other.m_caseInsensitiveAttributeValueMatching)
+    , m_attributeMatchType(other.m_attributeMatchType)
     , m_isImplicit(other.m_isImplicit)
     , m_data(WTF::move(other.m_data))
 {
@@ -445,9 +445,9 @@ inline const AtomString& CSSSelector::serializingValue() const
     return *reinterpret_cast<const AtomString*>(&m_data.value);
 }
 
-inline bool CSSSelector::attributeValueMatchingIsCaseInsensitive() const
+inline auto CSSSelector::attributeMatchType() const -> AttributeMatchType
 {
-    return m_caseInsensitiveAttributeValueMatching;
+    return static_cast<AttributeMatchType>(m_attributeMatchType);
 }
 
 inline auto CSSSelector::pseudoClass() const -> PseudoClass

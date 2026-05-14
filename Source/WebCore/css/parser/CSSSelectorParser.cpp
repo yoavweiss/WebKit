@@ -790,7 +790,7 @@ std::unique_ptr<MutableCSSSelector> CSSSelectorParser::consumeAttribute(CSSParse
     auto selector = makeUnique<MutableCSSSelector>();
 
     if (block.atEnd()) {
-        selector->setAttribute(qualifiedName, CSSSelector::CaseSensitive);
+        selector->setAttribute(qualifiedName, CSSSelector::AttributeMatchType::Default);
         selector->setMatch(CSSSelector::Match::Set);
         return selector;
     }
@@ -1140,12 +1140,14 @@ CSSSelector::Match CSSSelectorParser::consumeAttributeMatch(CSSParserTokenRange&
 CSSSelector::AttributeMatchType CSSSelectorParser::consumeAttributeFlags(CSSParserTokenRange& range)
 {
     if (range.peek().type() != IdentToken)
-        return CSSSelector::CaseSensitive;
+        return CSSSelector::AttributeMatchType::Default;
     const CSSParserToken& flag = range.consumeIncludingWhitespace();
     if (equalLettersIgnoringASCIICase(flag.value(), "i"_s))
-        return CSSSelector::CaseInsensitive;
+        return CSSSelector::AttributeMatchType::CaseInsensitive;
+    if (equalLettersIgnoringASCIICase(flag.value(), "s"_s))
+        return CSSSelector::AttributeMatchType::CaseSensitive;
     m_failedParsing = true;
-    return CSSSelector::CaseSensitive;
+    return CSSSelector::AttributeMatchType::Default;
 }
 
 // <an+b> token sequences have special serialization rules: https://www.w3.org/TR/css-syntax-3/#serializing-anb

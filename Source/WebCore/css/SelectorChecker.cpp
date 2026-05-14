@@ -695,11 +695,18 @@ bool SelectorChecker::attributeSelectorMatches(const Element& element, const Qua
     auto& selectorName = isHTML ? selectorAttribute.localNameLowercase() : selectorAttribute.localName();
     if (!Attribute::nameMatchesFilter(attributeName, selectorAttribute.prefix(), selectorName, selectorAttribute.namespaceURI()))
         return false;
-    bool caseSensitive = true;
-    if (selector.attributeValueMatchingIsCaseInsensitive())
-        caseSensitive = false;
-    else if (element.document().isHTMLDocument() && element.isHTMLElement() && !HTMLDocument::isCaseSensitiveAttribute(selector.attribute()))
-        caseSensitive = false;
+    bool caseSensitive = [&] {
+        switch (selector.attributeMatchType()) {
+        case CSSSelector::AttributeMatchType::CaseInsensitive:
+            return false;
+        case CSSSelector::AttributeMatchType::CaseSensitive:
+            return true;
+        case CSSSelector::AttributeMatchType::Default:
+            return !(element.document().isHTMLDocument() && element.isHTMLElement() && !HTMLDocument::isCaseSensitiveAttribute(selector.attribute()));
+        }
+        ASSERT_NOT_REACHED();
+        return true;
+    }();
     return attributeValueMatches(Attribute(attributeName, attributeValue), selector.match(), selector.value(), caseSensitive);
 }
 
@@ -810,11 +817,18 @@ bool SelectorChecker::checkOne(CheckingContext& checkingContext, LocalContext& c
             return false;
 
         const QualifiedName& attr = selector.attribute();
-        bool caseSensitive = true;
-        if (selector.attributeValueMatchingIsCaseInsensitive())
-            caseSensitive = false;
-        else if (m_documentIsHTML && element->isHTMLElement() && !HTMLDocument::isCaseSensitiveAttribute(attr))
-            caseSensitive = false;
+        bool caseSensitive = [&] {
+            switch (selector.attributeMatchType()) {
+            case CSSSelector::AttributeMatchType::CaseInsensitive:
+                return false;
+            case CSSSelector::AttributeMatchType::CaseSensitive:
+                return true;
+            case CSSSelector::AttributeMatchType::Default:
+                return !(m_documentIsHTML && element->isHTMLElement() && !HTMLDocument::isCaseSensitiveAttribute(attr));
+            }
+            ASSERT_NOT_REACHED();
+            return true;
+        }();
 
         return anyAttributeMatches(element, selector, attr, caseSensitive);
     }
