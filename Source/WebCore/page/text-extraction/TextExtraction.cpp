@@ -270,6 +270,8 @@ static void addBoxShadowIfNeeded(Node& node, const String& colorAsString)
 
 using ClientNodeAttributesMap = WeakHashMap<Node, HashMap<String, String>, WeakPtrImplWithEventTargetData>;
 
+static constexpr unsigned maxExtractionRecursionDepth = 255;
+
 struct TraversalContext {
     const Request originalRequest;
     const ClientNodeAttributesMap clientNodeAttributes;
@@ -280,7 +282,9 @@ struct TraversalContext {
     Vector<WeakPtr<Node, WeakPtrImplWithEventTargetData>> enclosingBlocks;
     WeakHashMap<Node, unsigned, WeakPtrImplWithEventTargetData> enclosingBlockNumberMap;
     WeakHashSet<Node, WeakPtrImplWithEventTargetData> additionalContainersToCollect;
+    WeakHashSet<Node, WeakPtrImplWithEventTargetData> visitedContainers;
     unsigned inAdditionalContainerToCollectCount { 0 };
+    unsigned depth { 0 };
     Vector<bool, 1> hasOverflowItemsStack;
     Vector<unsigned, 2> visualBlockContainerStack { 0 };
     unsigned nextVisualBlockContainerNumber { 1 };
@@ -859,8 +863,21 @@ static bool isVisuallyDistinctContainer(const RenderStyle& style, const FloatRec
 
 static inline void extractRecursive(Node& node, Item& parentItem, TraversalContext& context)
 {
+    if (context.depth >= maxExtractionRecursionDepth)
+        return;
+
     if (context.nodesToSkip.contains(node))
         return;
+
+    if (RefPtr container = dynamicDowncast<ContainerNode>(node)) {
+        if (!context.visitedContainers.add(*container).isNewEntry)
+            return;
+    }
+
+    ++context.depth;
+    auto depthScope = makeScopeExit([&] {
+        --context.depth;
+    });
 
     bool isBlock = WebCore::isBlock(node);
     if (isBlock)
@@ -1382,7 +1399,9 @@ Result extractItem(Request&& request, LocalFrame& frame)
             .enclosingBlocks = { },
             .enclosingBlockNumberMap = { },
             .additionalContainersToCollect = WTF::move(additionalContainersToCollect),
+            .visitedContainers = { },
             .inAdditionalContainerToCollectCount = 0,
+            .depth = 0,
             .hasOverflowItemsStack = { false },
             .onlyCollectTextAndLinksCount = 0,
             .mergeParagraphs = request.mergeParagraphs,
