@@ -111,7 +111,7 @@ void* runWebAssemblySuspendingFunction(JSGlobalObject* globalObject, CallFrame* 
     }
 
     CPURegister* vmEntryFrameCalleeSaves = vmEntryRecord(vm.topEntryFrame)->calleeSaveRegistersBuffer;
-    memcpySpan(std::span<CPURegister>(vmEntryFrameCalleeSaves, NUMBER_OF_CALLEE_SAVES_REGISTERS), std::span(originalCalleeSaves, NUMBER_OF_CALLEE_SAVES_REGISTERS));
+    memcpySpan(unsafeMakeSpan(vmEntryFrameCalleeSaves, NUMBER_OF_CALLEE_SAVES_REGISTERS), unsafeMakeSpan(originalCalleeSaves, NUMBER_OF_CALLEE_SAVES_REGISTERS));
 
     JSObject* callee = callFrame->jsCallee();
     JSFunctionWithFields* self = uncheckedDowncast<JSFunctionWithFields>(callee);

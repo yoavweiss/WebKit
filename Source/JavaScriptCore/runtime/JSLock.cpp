@@ -163,6 +163,7 @@ void JSLock::unlock()
 }
 
 #if PLATFORM(COCOA) && CPU(ADDRESS64) && CPU(ARM64)
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 // FIXME: rdar://168614004
 NO_RETURN_DUE_TO_CRASH NEVER_INLINE void JSLock::dumpInfoAndCrashForLockNotOwned() // __attribute__((optnone))
 {
@@ -266,6 +267,7 @@ NO_RETURN_DUE_TO_CRASH NEVER_INLINE void JSLock::dumpInfoAndCrashForLockNotOwned
 
 #undef updateDumpState
 }
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 #endif
 
 // Use WTF_IGNORES_THREAD_SAFETY_ANALYSIS because this function conditionally unlocks m_lock, which

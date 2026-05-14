@@ -77,8 +77,6 @@ extern "C" uint8_t os_script_config_storage_stub[] __asm__("_os_script_config_st
 extern "C" uint8_t os_script_config_storage[];
 #endif
 
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
-
 inline OpcodeConfig* addressOfOpcodeConfig() { return std::bit_cast<OpcodeConfig*>(&os_script_config_storage); }
 
 #define g_opcodeConfig (*JSC::LLInt::addressOfOpcodeConfig())

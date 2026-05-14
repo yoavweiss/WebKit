@@ -424,17 +424,17 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
         std::call_once(registerFlag, [this]() {
             int pid = getpid();
             const char* key = "com.apple.WebKit.bytecode.profiler";
-            dataLogF("<BYTECODE.STAT><%d> Registering callback for dumping profiles, dumping to %s.\n", pid, pathOutString->data());
-            dataLogF("<BYTECODE.STAT><%d> Use `notifyutil -v -p %s` to dump statistics.\n", pid, key);
+            dataLogLn("<BYTECODE.STAT><", pid, "> Registering callback for dumping profiles, dumping to ", pathOutString.get(), ".");
+            dataLogLn("<BYTECODE.STAT><", pid, "> Use `notifyutil -v -p ", key, "` to dump statistics.");
 
             int token;
             notify_register_dispatch(key, &token, mainDispatchQueueSingleton(), ^(int) {
-                dataLogF("<BYTECODE.STAT><%d> Dumping\n", pid);
+                dataLogLn("<BYTECODE.STAT><", pid, "> Dumping");
                 if (!m_perBytecodeProfiler->save(pathOutString->data()))
-                    dataLogF("<BYTECODE.STAT><%d> Failed to dump to %s. Do you need to add a sandbox extension? ((allow file-write* (subpath \"/private/tmp/\")) in WebProcess.sb.in\n", pid, pathOutString->data());
+                    dataLogLn("<BYTECODE.STAT><", pid, "> Failed to dump to ", pathOutString.get(), ". Do you need to add a sandbox extension? ((allow file-write* (subpath \"/private/tmp/\")) in WebProcess.sb.in");
                 else
-                    dataLogF("<BYTECODE.STAT><%d> Dumped to %s\n", pid, pathOutString->data());
-                dataLogF("<BYTECODE.STAT><%d> Dumping finished\n", pid);
+                    dataLogLn("<BYTECODE.STAT><", pid, "> Dumped to ", pathOutString.get());
+                dataLogLn("<BYTECODE.STAT><", pid, "> Dumping finished");
             });
         });
 #endif
