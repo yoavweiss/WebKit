@@ -13,7 +13,7 @@ shouldBeEqualToString("(new FontFace('4\\'a', 'url(garbage.otf)')).family", "\"4
 shouldBeEqualToString("(new FontFace('4\\'a\"b', 'url(garbage.otf)')).family", "\"4'a\\\"b\"");
 shouldBeEqualToString("(new FontFace('ab', 'url(garbage.otf)')).family", "ab");
 shouldBeEqualToString("(new FontFace('\"ab\"', 'url(garbage.otf)')).family", "\"\\\"ab\\\"\"");
-shouldBeEqualToString("(new FontFace('a b', 'url(garbage.otf)')).family", "\"a b\"");
+shouldBeEqualToString("(new FontFace('a b', 'url(garbage.otf)')).family", "a b");
 shouldBeEqualToString("(new FontFace('a b, c', 'url(garbage.otf)')).family", "\"a b, c\"");
 shouldBeEqualToString("(new FontFace('ab,c', 'url(garbage.otf)')).family", "\"ab,c\"");
 </script>

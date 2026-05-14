@@ -7,7 +7,7 @@ PASS e.style['font-family'] = "Monospace" should set the property value
 PASS e.style['font-family'] = "System-UI" should set the property value
 PASS e.style['font-family'] = "serif, sans-serif, cursive, fantasy, monospace, system-ui" should set the property value
 PASS e.style['font-family'] = "Helvetica, Verdana, sans-serif" should set the property value
-FAIL e.style['font-family'] = "\"New Century Schoolbook\", serif" should set the property value assert_equals: serialization should be canonical expected "New Century Schoolbook, serif" but got "\"New Century Schoolbook\", serif"
+PASS e.style['font-family'] = "\"New Century Schoolbook\", serif" should set the property value
 PASS e.style['font-family'] = "'21st Century', fantasy" should set the property value
 PASS e.style['font-family'] = "\"inherit\", \"serif\"" should set the property value
 

@@ -154,21 +154,44 @@ String serializeString(StringView string)
 
 static bool shouldQuoteFontFamily(StringView string)
 {
-    if (!isCSSTokenizerIdentifier(string))
-        return true;
-
     // Font family names that match CSS-wide keywords, 'default', or generic
     // family keywords must be quoted to prevent confusion with the keywords
     // of the same names.
     // https://www.w3.org/TR/css-fonts-4/#family-name-syntax
+    //
+    // FIXME: We also quote when the first word of a multi-word name is a
+    // generic keyword, matching parser behavior. See webkit.org/b/314837.
     //
     // Note: system-ui is excluded from quoting because the parser always
     // stores it as a CSS_FONT_FAMILY string (not a CSSValueID), even when
     // used as a generic keyword. Since we cannot distinguish the generic
     // keyword from a quoted family name at this point, and the generic
     // keyword is the common case, we leave it unquoted.
-    auto valueID = cssValueKeywordID(string);
-    return valueID != CSSValueSystemUi && (!isValidCustomIdentifier(valueID) || isGenericFontFamilyKeyword(valueID));
+    auto stringID = cssValueKeywordID(string);
+    if (stringID == CSSValueSystemUi)
+        return false;
+    if (isGenericFontFamilyKeyword(stringID))
+        return true;
+
+    // Leading, trailing, or consecutive spaces are collapsed on re-parse,
+    // so names containing them must be quoted to round-trip.
+    if (string.startsWith(' ') || string.endsWith(' ') || string.contains("  "_s))
+        return true;
+
+    bool isFirstWord = true;
+    bool hasWord = false;
+    for (auto word : string.split(' ')) {
+        if (!isCSSTokenizerIdentifier(word))
+            return true;
+        auto valueID = cssValueKeywordID(word);
+        if (!isValidCustomIdentifier(valueID))
+            return true;
+        if (isFirstWord && isGenericFontFamilyKeyword(valueID))
+            return true;
+        hasWord = true;
+        isFirstWord = false;
+    }
+    return !hasWord;
 }
 
 void serializeFontFamily(StringBuilder& builder, StringView string)

@@ -341,7 +341,7 @@ TEST(WKWebViewEditActions, SetFontFamily)
     EXPECT_WK_STREQ("normal", [webView stylePropertyAtSelectionStart:@"font-style"]);
 
     [webView _setFont:[UIFont fontWithName:@"TimesNewRomanPS-BoldMT" size:12] sender:nil];
-    EXPECT_WK_STREQ("\"Times New Roman\"", [webView stylePropertyAtSelectionStart:@"font-family"]);
+    EXPECT_WK_STREQ("Times New Roman", [webView stylePropertyAtSelectionStart:@"font-family"]);
     EXPECT_WK_STREQ("12px", [webView stylePropertyAtSelectionStart:@"font-size"]);
     EXPECT_WK_STREQ("700", [webView stylePropertyAtSelectionStart:@"font-weight"]);
     EXPECT_WK_STREQ("normal", [webView stylePropertyAtSelectionStart:@"font-style"]);

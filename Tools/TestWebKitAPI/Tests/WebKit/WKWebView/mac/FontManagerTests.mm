@@ -242,7 +242,7 @@ TEST(FontManagerTests, ChangeFontWithPanel)
     [fontManager modifyFontViaPanel:fontPanel];
     EXPECT_WK_STREQ("bar", [webView selectedText]);
     EXPECT_WK_STREQ("<span id=\"bar\" style=\"font-size: 10px;\"><font face=\"Times New Roman\" size=\"1\"><b>bar</b></font></span>", [webView stringByEvaluatingJavaScript:@"bar.outerHTML"]);
-    EXPECT_WK_STREQ("\"Times New Roman\"", [webView stringByEvaluatingJavaScript:@"getComputedStyle(bar.firstChild.firstChild)['font-family']"]);
+    EXPECT_WK_STREQ("Times New Roman", [webView stringByEvaluatingJavaScript:@"getComputedStyle(bar.firstChild.firstChild)['font-family']"]);
     EXPECT_WK_STREQ("10px", [webView stringByEvaluatingJavaScript:@"getComputedStyle(bar.firstChild.firstChild)['font-size']"]);
     EXPECT_WK_STREQ("700", [webView stringByEvaluatingJavaScript:@"getComputedStyle(bar.firstChild.firstChild)['font-weight']"]);
     expectSameAttributes(smallBoldTimesFont, fontManager.selectedFont);

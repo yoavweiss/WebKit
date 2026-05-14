@@ -5,4 +5,7 @@ PASS family: A, B
 PASS family: inherit
 PASS family: a 1
 PASS family:
+PASS family: a  b
+PASS family:  a b
+PASS family: a b
 
