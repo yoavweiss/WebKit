@@ -174,6 +174,25 @@ def _container_hostname():
     return hostname
 
 
+def _running_inside_container():
+    """True if this process is itself already inside a container. Selects the
+    device-passthrough strategy in `_build_podman_run_args`: a nested rootless
+    pod's /dev has no /dev/console, so crun cannot create one when we bind the
+    host's entire /dev over the container's. Inside a container we instead let
+    crun own /dev (so --tty works) and re-expose host devices explicitly."""
+    # Cheap marker-file check first; fall back to systemd-detect-virt for
+    # minimal pod images that omit it.
+    if os.path.exists('/run/.containerenv') or os.path.exists('/.dockerenv'):
+        return True
+    try:
+        virt = subprocess.run(['systemd-detect-virt', '--container'],
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.DEVNULL).stdout.decode().strip()
+    except FileNotFoundError:
+        return False
+    return bool(virt) and virt != 'none'
+
+
 def _build_podman_run_args(pinned_version):
     """Static `podman run` flags for an ephemeral wkdev-build container.
 
@@ -249,23 +268,19 @@ def _build_podman_run_args(pinned_version):
         if os.path.exists(src):
             args += _bind_mount(src, dst, options='ro')
 
-    # Give the container its own devpts so crun does not fail to chown the
-    # caller's host /dev/pts/N when setting up the controlling TTY in rootless
-    # mode. Skipped under LXC, which does not permit a nested devpts mount.
-    try:
-        virt = subprocess.run(['systemd-detect-virt'], stdout=subprocess.PIPE,
-                              stderr=subprocess.DEVNULL).stdout.decode().strip()
-    except FileNotFoundError:
-        virt = ''
-    if virt != 'lxc':
-        args += ['--mount', 'type=devpts,destination=/dev/pts']
-
-    # Devices: gamepads, GPU, NVIDIA via CDI when available
-    args += ['-v', '/dev:/dev:rslave']
+    # Devices: gamepads, GPU, NVIDIA via CDI when available. Binding the host's
+    # entire /dev shadows the container's, so under --tty crun cannot create
+    # /dev/console from the pty in a nested rootless pod (the pod's /dev has
+    # none). Inside a container, let crun own /dev; GPU is passed explicitly.
+    if not _running_inside_container():
+        args += ['-v', '/dev:/dev:rslave']
+    args += ['--mount', 'type=devpts,destination=/dev/pts']
     if os.path.isdir('/run/udev'):
         args += ['-v', '/run/udev:/run/udev']
     if os.path.isdir('/dev/dri'):
         args += ['--device', '/dev/dri']
+    if os.path.isdir('/dev/input'):
+        args += ['--device', '/dev/input']
     if os.path.exists('/etc/cdi/nvidia.yaml') or os.path.exists('/var/run/cdi/nvidia.yaml'):
         args += ['--device', 'nvidia.com/gpu=all']
 
@@ -451,7 +466,7 @@ def maybe_enter_webkit_container_sdk(argv=None):
         container_command,
     ] + argv[1:]
 
-    print('Running inside WebKit Container SDK wkdev-sdk {}.'.format(pinned_version), file=sys.stderr)
+    print('Launching WebKit Container SDK wkdev-build {}.'.format(pinned_version), file=sys.stderr)
     sys.stdout.flush()
     sys.stderr.flush()
     os.execvp('podman', run_cmd)
