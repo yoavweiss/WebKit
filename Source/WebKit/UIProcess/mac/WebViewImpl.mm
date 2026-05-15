@@ -5604,10 +5604,25 @@ void WebViewImpl::interpretKeyEvent(NSEvent *event, void(^completionHandler)(BOO
 #endif
 
         bool hasInsertText = false;
+        bool hasOnlyInsertText = !commands.isEmpty();
         for (auto& command : commands) {
             if (command.commandName == "insertText:"_s)
                 hasInsertText = true;
+            else
+                hasOnlyInsertText = false;
         }
+
+        // If the input method only produced insertText: commands (no setMarkedText:, no other
+        // commands) AND there is no existing composition, this is a modeless insertion — e.g.
+        // Simple Telex or Korean Hangul typing a character that commits inline. Route it through
+        // the keypress flow (handled=NO) so the keydown reports the real keyCode, a keypress
+        // fires, and executeKeypressCommandsInternal runs the insertText: during the Char phase
+        // with underlyingEvent=keypress. Composition activity (setMarkedText:), and insertText:
+        // that commits an existing composition (e.g. Japanese Enter on a marked candidate), keep
+        // handled=YES so the keydown reports keyCode 229 and google.com's keyCode==13 listener
+        // doesn't treat it as a real Enter.
+        if (handled && hasOnlyInsertText && !checkedThis->m_page->editorState().hasComposition)
+            handled = NO;
 
         LOG(TextInput, "... handleEventByInputMethod%s handled", handled ? "" : " not");
         if (handled) {
@@ -5690,8 +5705,13 @@ void WebViewImpl::insertText(id string, NSRange replacementRange)
     // - If it's sent outside of keyboard event processing (e.g. from Character Viewer, or when confirming an inline input area with a mouse),
     // then we also execute it immediately, as there will be no other chance.
     if (m_collectedKeypressCommands && !m_isTextInsertionReplacingSoftSpace) {
-        ASSERT(replacementRange.location == NSNotFound);
-        WebCore::KeypressCommand command("insertText:"_s, text.get());
+        // Modeless input methods (Vietnamese Simple Telex, Korean Hangul) call insertText: with a
+        // replacementRange during their handleEventByInputMethod: callback to commit a previously
+        // inserted character into a longer sequence (e.g. replace 'v' with 'vi'). Queue it with
+        // the replacement range preserved so executeKeypressCommandsInternal can replay it during
+        // the keydown default handler, after keydown has fired but before composition/input —
+        // matching the event ordering 297270@main set up for plain insertText:.
+        WebCore::KeypressCommand command("insertText:"_s, text.get(), { }, { }, { }, EditingRange { replacementRange }.toCharacterRange());
         m_collectedKeypressCommands->append(command);
         LOG(TextInput, "...stored");
         m_page->registerKeypressCommandName(command.commandName);
@@ -5718,7 +5738,32 @@ void WebViewImpl::selectedRangeWithCompletionHandler(void(^completionHandlerPtr)
     auto completionHandler = adoptNS([completionHandlerPtr copy]);
 
     LOG(TextInput, "selectedRange");
-    m_page->getSelectedRangeAsync([completionHandler, stagedSelectedRange = m_stagedMarkedRange](const EditingRange& editingRangeResult, const EditingRange& compositionRange) {
+
+    // When the IME calls insertText: during its handleEventByInputMethod: callback and then polls
+    // selectedRange to verify, the queued insertText: hasn't reached the web process yet, so the
+    // cursor appears not to have advanced. Modeless input methods (Vietnamese Simple Telex,
+    // Korean Hangul) interpret that stale cursor as "my insertion didn't stick" and fall back to
+    // setMarkedText: for the rest of the session. Surface the cumulative insertText: advance from
+    // the queue so the IME observes the cursor it expects, while leaving the actual execution
+    // (and 310826's event ordering) untouched. Only applies when every queued command is
+    // insertText:; if setMarkedText: is in the mix, the IME is already in composition mode and
+    // the unstaged selectedRange is the right answer.
+    size_t stagedInsertLength = 0;
+    if (m_collectedKeypressCommands && !m_collectedKeypressCommands->isEmpty()) {
+        bool onlyInsertText = true;
+        size_t total = 0;
+        for (auto& command : *m_collectedKeypressCommands) {
+            if (command.commandName != "insertText:"_s) {
+                onlyInsertText = false;
+                break;
+            }
+            total += command.text.length();
+        }
+        if (onlyInsertText)
+            stagedInsertLength = total;
+    }
+
+    m_page->getSelectedRangeAsync([completionHandler, stagedSelectedRange = m_stagedMarkedRange, stagedInsertLength](const EditingRange& editingRangeResult, const EditingRange& compositionRange) {
         void (^completionHandlerBlock)(NSRange) = (void (^)(NSRange))completionHandler.get();
 
         if (stagedSelectedRange) {
@@ -5727,6 +5772,10 @@ void WebViewImpl::selectedRangeWithCompletionHandler(void(^completionHandlerPtr)
         }
 
         NSRange result = editingRangeResult;
+        if (stagedInsertLength && result.location != NSNotFound) {
+            result.location += stagedInsertLength;
+            result.length = 0;
+        }
         if (result.location == NSNotFound)
             LOG(TextInput, "    -> selectedRange returned (NSNotFound, %zu)", result.length);
         else
