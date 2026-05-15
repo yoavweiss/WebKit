@@ -89,7 +89,8 @@ void RenderMathMLToken::computePreferredLogicalWidths()
     if (m_mathVariantCodePoint) {
         auto mathVariantGlyph = style().fontCascade().glyphDataForCharacter(m_mathVariantCodePoint.value(), m_mathVariantIsMirrored);
         if (mathVariantGlyph.font) {
-            m_maxPreferredLogicalWidth = m_minPreferredLogicalWidth = mathVariantGlyph.font->widthForGlyph(mathVariantGlyph.glyph);
+            m_maxPreferredLogicalWidth = mathVariantGlyph.font->widthForGlyph(mathVariantGlyph.glyph);
+            m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth;
             adjustPreferredLogicalWidthsForBorderAndPadding();
             clearNeedsPreferredWidthsUpdate();
             return;

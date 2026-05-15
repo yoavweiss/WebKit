@@ -134,7 +134,8 @@ void RenderMathMLRow::computePreferredLogicalWidths()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 
-    m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth = preferredLogicalWidthOfRowItems();
+    m_maxPreferredLogicalWidth = preferredLogicalWidthOfRowItems();
+    m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth;
 
     auto sizes = sizeAppliedToMathContent(LayoutPhase::CalculatePreferredLogicalWidth);
     applySizeToMathContent(LayoutPhase::CalculatePreferredLogicalWidth, sizes);

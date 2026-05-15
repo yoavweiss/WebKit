@@ -2245,7 +2245,8 @@ void RenderBlock::computePreferredLogicalWidths()
         computeIntrinsicLogicalWidths(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
         m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth;
     } else if (shouldComputeLogicalWidthFromAspectRatio()) {
-        m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth = (computeLogicalWidthFromAspectRatio() - borderAndPaddingLogicalWidth());
+        m_maxPreferredLogicalWidth = computeLogicalWidthFromAspectRatio() - borderAndPaddingLogicalWidth();
+        m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth;
         m_minPreferredLogicalWidth = std::max(0_lu, m_minPreferredLogicalWidth);
         m_maxPreferredLogicalWidth = std::max(0_lu, m_maxPreferredLogicalWidth);
         applyAutomaticContentBasedMinimumSize(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);

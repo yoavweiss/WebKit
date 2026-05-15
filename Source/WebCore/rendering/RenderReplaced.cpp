@@ -816,7 +816,8 @@ LayoutUnit RenderReplaced::computeReplacedLogicalHeight(std::optional<LayoutUnit
 
 void RenderReplaced::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const
 {
-    minLogicalWidth = maxLogicalWidth = intrinsicLogicalWidth();
+    maxLogicalWidth = intrinsicLogicalWidth();
+    minLogicalWidth = maxLogicalWidth;
 }
 
 void RenderReplaced::computeIntrinsicKeywordLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const

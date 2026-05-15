@@ -220,7 +220,8 @@ void RenderMathMLOperator::computePreferredLogicalWidths()
     // FIXME: The spacing should only be added inside (perhaps inferred) mrow (http://www.w3.org/TR/MathML/chapter3.html#presm.opspacing).
     preferredWidth = leadingSpace() + preferredWidth + trailingSpace();
 
-    m_maxPreferredLogicalWidth = m_minPreferredLogicalWidth = preferredWidth;
+    m_minPreferredLogicalWidth = preferredWidth;
+    m_maxPreferredLogicalWidth = preferredWidth;
 
     clearNeedsPreferredWidthsUpdate();
 }

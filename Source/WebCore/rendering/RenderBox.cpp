@@ -2928,25 +2928,29 @@ LayoutUnit RenderBox::fillAvailableMeasure(LayoutUnit availableLogicalWidth, Lay
 template<typename Keyword> void RenderBox::computeIntrinsicKeywordLogicalWidths(Keyword, LayoutUnit borderAndPadding, LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const
 {
     if constexpr (std::same_as<Keyword, CSS::Keyword::MinIntrinsic>)
-        computeIntrinsicKeywordLogicalWidths(minLogicalWidth, maxLogicalWidth);
-    else {
-        if (shouldComputeLogicalWidthFromAspectRatio()) {
-            minLogicalWidth = maxLogicalWidth = computeLogicalWidthFromAspectRatio() - borderAndPadding;
-            applyAutomaticContentBasedMinimumSize(minLogicalWidth, maxLogicalWidth);
-        } else if (CheckedPtr renderReplaced = dynamicDowncast<RenderReplaced>(*this)) {
-            // For replaced elements with an intrinsic aspect ratio (e.g. <img>) and a
-            // specified block size, compute the transferred min/max-content inline size
-            // through the intrinsic ratio rather than using the raw natural width.
-            auto preferredRatio = renderReplaced->preferredAspectRatioAsSize().aspectRatioDouble();
-            if (preferredRatio && style().logicalHeight().isSpecified()) {
-                auto computedValues = computeLogicalHeight(logicalHeight(), logicalTop());
-                auto contentBlockSize = std::max(0_lu, computedValues.extent - borderAndPaddingLogicalHeight());
-                minLogicalWidth = maxLogicalWidth = LayoutUnit(contentBlockSize * preferredRatio);
-            } else
-                computeIntrinsicKeywordLogicalWidths(minLogicalWidth, maxLogicalWidth);
-        } else
-            computeIntrinsicKeywordLogicalWidths(minLogicalWidth, maxLogicalWidth);
+        return computeIntrinsicKeywordLogicalWidths(minLogicalWidth, maxLogicalWidth);
+
+    if (shouldComputeLogicalWidthFromAspectRatio()) {
+        maxLogicalWidth = computeLogicalWidthFromAspectRatio() - borderAndPadding;
+        minLogicalWidth = maxLogicalWidth;
+        applyAutomaticContentBasedMinimumSize(minLogicalWidth, maxLogicalWidth);
+        return;
     }
+
+    if (CheckedPtr renderReplaced = dynamicDowncast<RenderReplaced>(*this)) {
+        // For replaced elements with an intrinsic aspect ratio (e.g. <img>) and a
+        // specified block size, compute the transferred min/max-content inline size
+        // through the intrinsic ratio rather than using the raw natural width.
+        auto preferredRatio = renderReplaced->preferredAspectRatioAsSize().aspectRatioDouble();
+        if (preferredRatio && style().logicalHeight().isSpecified()) {
+            auto computedValues = computeLogicalHeight(logicalHeight(), logicalTop());
+            auto contentBlockSize = std::max(0_lu, computedValues.extent - borderAndPaddingLogicalHeight());
+            maxLogicalWidth = LayoutUnit { contentBlockSize * preferredRatio };
+            minLogicalWidth = maxLogicalWidth;
+            return;
+        }
+    }
+    computeIntrinsicKeywordLogicalWidths(minLogicalWidth, maxLogicalWidth);
 }
 
 static inline bool NODELETE isOrthogonal(const RenderBox& renderer, const RenderElement& ancestor)

@@ -182,7 +182,8 @@ void RenderMathMLRoot::computePreferredLogicalWidths()
         preferredWidth += m_radicalOperator.maxPreferredWidth();
         preferredWidth += getBase().maxPreferredLogicalWidth() + marginIntrinsicLogicalWidthForChild(getBase());
     }
-    m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth = preferredWidth;
+    m_maxPreferredLogicalWidth = preferredWidth;
+    m_minPreferredLogicalWidth = preferredWidth;
 
     auto sizes = sizeAppliedToMathContent(LayoutPhase::CalculatePreferredLogicalWidth);
     applySizeToMathContent(LayoutPhase::CalculatePreferredLogicalWidth, sizes);

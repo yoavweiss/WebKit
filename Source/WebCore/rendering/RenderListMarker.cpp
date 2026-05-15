@@ -443,7 +443,8 @@ void RenderListMarker::computePreferredLogicalWidths()
 
     if (isImage()) {
         LayoutSize imageSize = LayoutSize(m_image->imageSize(this, style().usedZoom()));
-        m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth = writingMode().isHorizontal() ? imageSize.width() : imageSize.height();
+        m_maxPreferredLogicalWidth = writingMode().isHorizontal() ? imageSize.width() : imageSize.height();
+        m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth;
         clearNeedsPreferredWidthsUpdate();
         updateInlineMargins();
         return;

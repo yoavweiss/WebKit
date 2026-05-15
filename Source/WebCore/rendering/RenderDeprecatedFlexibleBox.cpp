@@ -270,10 +270,12 @@ void RenderDeprecatedFlexibleBox::computePreferredLogicalWidths()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 
-    m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth = 0;
-    if (auto fixedWidth = style().width().tryFixed(); fixedWidth && fixedWidth->isPositive())
-        m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedWidth);
-    else
+    m_minPreferredLogicalWidth = 0;
+    m_maxPreferredLogicalWidth = 0;
+    if (auto fixedWidth = style().width().tryFixed(); fixedWidth && fixedWidth->isPositive()) {
+        m_maxPreferredLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedWidth);
+        m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth;
+    } else
         computeIntrinsicLogicalWidths(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
 
     constrainPreferredLogicalWidthsByMinMax(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
