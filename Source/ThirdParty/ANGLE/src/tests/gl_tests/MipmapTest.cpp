@@ -2528,6 +2528,7 @@ TEST_P(MipmapTestES3, MismatchingLevelFormats)
     glUniform1f(lodLoc, 2);
     drawQuad(verify, essl3_shaders::PositionAttrib(), 0.5f);
     EXPECT_PIXEL_COLOR_EQ(0, 0, GLColor::green);
+}
 
 // Verifies texture uploads work correctly after size transitions that change mipmap dimensions.
 TEST_P(MipmapTest, UploadAfterSizeTransition)
