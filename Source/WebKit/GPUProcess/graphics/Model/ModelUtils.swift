@@ -21,33 +21,33 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
 
-#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreTextureProcessing, _version: 24) && canImport(_USDKit_RealityKit, _version: 42) && arch(arm64)
+#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreTextureProcessing, _version: 24) && canImport(_USDKit_RealityKit, _version: 42) && canImport(RealityCoreRenderer, _version: 22) && canImport(ShaderGraph, _version: 156) && arch(arm64)
 
 import DirectResource
 import Metal
 import USDKit
 @_spi(UsdLoaderAPI) import _USDKit_RealityKit
-@_spi(RealityCoreRendererAPI) import RealityKit
+import RealityKit
 
 final class MeshInstancePool {
-    private(set) var meshInstances: _Proto_LowLevelMeshInstanceArray_v1
-    private let renderContext: any _Proto_LowLevelRenderContext_v1
+    private(set) var meshInstances: LowLevelMeshInstanceArray
+    private let renderContext: any LowLevelRenderContext
 
     init(
-        renderContext: any _Proto_LowLevelRenderContext_v1,
-        renderTargets: [_Proto_LowLevelRenderTarget_v1.Descriptor],
+        renderContext: any LowLevelRenderContext,
+        renderTargets: [LowLevelRenderTarget.Descriptor],
         initialCapacity: Int
     ) throws {
         self.renderContext = renderContext
-        self.meshInstances = try renderContext.makeMeshInstanceArray(renderTargets: renderTargets, count: initialCapacity)
+        self.meshInstances = try renderContext.makeMeshInstanceArray(renderTargets: .init(renderTargets), count: initialCapacity)
     }
 
-    init(renderContext: any _Proto_LowLevelRenderContext_v1, meshInstances: _Proto_LowLevelMeshInstanceArray_v1) {
+    init(renderContext: any LowLevelRenderContext, meshInstances: LowLevelMeshInstanceArray) {
         self.renderContext = renderContext
         self.meshInstances = meshInstances
     }
 
-    func add(_ instance: _Proto_LowLevelMeshInstance_v1) throws {
+    func add(_ instance: LowLevelMeshInstance) throws {
         if let emptyIndex = meshInstances.firstIndex(where: { $0 == nil }) {
             try meshInstances.setMeshInstance(instance, index: emptyIndex)
         } else {
@@ -61,7 +61,7 @@ final class MeshInstancePool {
         }
     }
 
-    func remove(_ instance: _Proto_LowLevelMeshInstance_v1) throws {
+    func remove(_ instance: LowLevelMeshInstance) throws {
         guard let index = meshInstances.firstIndex(where: { $0 === instance }) else {
             fatalError("Mesh instance not found in MeshInstancePool")
         }
@@ -85,7 +85,7 @@ extension simd_float4x4 {
     }
 }
 
-extension _Proto_LowLevelMeshResource_v1.Descriptor {
+extension LowLevelMeshResource.Descriptor {
     static func fromLlmDescriptor(_ llmDescriptor: LowLevelMesh.Descriptor) -> Self {
         var descriptor = Self.init()
         descriptor.vertexCapacity = llmDescriptor.vertexCapacity
@@ -118,7 +118,7 @@ private func copyDataIntoBuffer(_ buffer: inout MutableRawSpan, from data: Data)
     unsafe buffer.withUnsafeMutableBytes { unsafe $0.copyBytes(from: data) }
 }
 
-extension _Proto_LowLevelMeshResource_v1 {
+extension LowLevelMeshResource {
     func replaceVertexData(_ vertexData: [Data]) {
         for (vertexBufferIndex, vertexData) in vertexData.enumerated() {
             self.replaceVertices(at: vertexBufferIndex) { copyDataIntoBuffer(&$0, from: vertexData) }
@@ -140,9 +140,9 @@ extension _Proto_LowLevelMeshResource_v1 {
     }
 }
 
-extension _Proto_LowLevelTextureResource_v1.Descriptor {
-    static func from(_ textureDescriptor: MTLTextureDescriptor) -> _Proto_LowLevelTextureResource_v1.Descriptor {
-        var descriptor = _Proto_LowLevelTextureResource_v1.Descriptor()
+extension LowLevelTextureResource.Descriptor {
+    static func from(_ textureDescriptor: MTLTextureDescriptor) -> LowLevelTextureResource.Descriptor {
+        var descriptor = LowLevelTextureResource.Descriptor()
         descriptor.width = textureDescriptor.width
         descriptor.height = textureDescriptor.height
         descriptor.depth = textureDescriptor.depth
@@ -156,8 +156,8 @@ extension _Proto_LowLevelTextureResource_v1.Descriptor {
         return descriptor
     }
 
-    static func from(_ texture: any MTLTexture, swizzle: MTLTextureSwizzleChannels) -> _Proto_LowLevelTextureResource_v1.Descriptor {
-        var descriptor = _Proto_LowLevelTextureResource_v1.Descriptor()
+    static func from(_ texture: any MTLTexture, swizzle: MTLTextureSwizzleChannels) -> LowLevelTextureResource.Descriptor {
+        var descriptor = LowLevelTextureResource.Descriptor()
         descriptor.width = texture.width
         descriptor.height = texture.height
         descriptor.depth = texture.depth
@@ -186,7 +186,7 @@ extension _Proto_LowLevelTextureResource_v1.Descriptor {
     }
 }
 
-private func mapSemantic(_ semantic: LowLevelMesh.VertexSemantic) -> _Proto_LowLevelMeshResource_v1.VertexSemantic {
+private func mapSemantic(_ semantic: LowLevelMesh.VertexSemantic) -> LowLevelMeshResource.VertexSemantic {
     switch semantic {
     case .position: .position
     case .color: .color
@@ -206,7 +206,7 @@ private func mapSemantic(_ semantic: LowLevelMesh.VertexSemantic) -> _Proto_LowL
     }
 }
 
-private func mapSemantic(_ semantic: WKBridgeVertexSemantic) -> _Proto_LowLevelMeshResource_v1.VertexSemantic {
+private func mapSemantic(_ semantic: WKBridgeVertexSemantic) -> LowLevelMeshResource.VertexSemantic {
     switch semantic {
     case .position: .position
     case .color: .color
@@ -226,7 +226,7 @@ private func mapSemantic(_ semantic: WKBridgeVertexSemantic) -> _Proto_LowLevelM
     }
 }
 
-extension _Proto_LowLevelMeshResource_v1.Descriptor {
+extension LowLevelMeshResource.Descriptor {
     static func fromLlmDescriptor(_ llmDescriptor: WKBridgeMeshDescriptor) -> Self {
         var descriptor = Self.init()
         descriptor.vertexCapacity = Int(llmDescriptor.vertexCapacity)

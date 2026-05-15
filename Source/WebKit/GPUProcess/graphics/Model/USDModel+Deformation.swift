@@ -26,9 +26,8 @@ import OSLog
 import WebKit
 import simd
 
-#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreTextureProcessing, _version: 24) && canImport(_USDKit_RealityKit, _version: 42) && arch(arm64)
+#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreTextureProcessing, _version: 24) && canImport(_USDKit_RealityKit, _version: 42) && canImport(RealityCoreRenderer, _version: 22) && canImport(ShaderGraph, _version: 156) && arch(arm64)
 @_spi(UsdLoaderAPI) import _USDKit_RealityKit
-@_spi(RealityCoreRendererAPI) import RealityKit
 @_spi(RealityCoreTextureProcessingAPI) import RealityCoreTextureProcessing
 import USDKit
 @_spi(SwiftAPI) import DirectResource
@@ -358,7 +357,7 @@ func configureDeformation(
     deformationData: WKBridgeDeformationData,
     commandBuffer: any MTLCommandBuffer,
     device: any MTLDevice,
-    meshResource: _Proto_LowLevelMeshResource_v1,
+    meshResource: LowLevelMeshResource,
     meshResourceToDeformationContext: inout [WKBridgeTypedResourceId: DeformationContext],
     deformationSystem: _Proto_LowLevelDeformationSystem_v1,
     memoryOwner: task_id_token_t
@@ -404,7 +403,7 @@ func updateDeformationContextInPlace(deformationData: WKBridgeDeformationData, c
 }
 
 func buildDeformationContext(
-    meshResource: _Proto_LowLevelMeshResource_v1,
+    meshResource: LowLevelMeshResource,
     deformationData: WKBridgeDeformationData,
     commandBuffer: any MTLCommandBuffer,
     device: any MTLDevice,
@@ -496,7 +495,7 @@ struct DeformationMeshDescriptionData {
 }
 
 func makeMeshDescriptionForDeformation(
-    meshResource: _Proto_LowLevelMeshResource_v1,
+    meshResource: LowLevelMeshResource,
     deformationData: WKBridgeDeformationData,
     commandBuffer: any MTLCommandBuffer,
     isInput: Bool,
@@ -513,7 +512,7 @@ func makeMeshDescriptionForDeformation(
     // Similar usage as the buffer index table. See comment above
     var meshResourceLayoutIndexToDeformationLayoutIndex: [Int: Int] = [:]
 
-    var inputAttributeSemantics: [_Proto_LowLevelMeshResource_v1.VertexSemantic] = [.position]
+    var inputAttributeSemantics: [LowLevelMeshResource.VertexSemantic] = [.position]
     if deformationData.renormalizationData != nil {
         inputAttributeSemantics.append(contentsOf: [.normal, .tangent, .bitangent])
     }
@@ -533,7 +532,7 @@ func makeMeshDescriptionForDeformation(
         } else {
             meshResourceBufferIndexToDeformationBufferIndex[bufferIndex] = deformationBufferIndex
 
-            let vertexBuffer = meshResource.readVertices_v2(at: bufferIndex, using: commandBuffer)
+            let vertexBuffer = meshResource.readVertices(at: bufferIndex, commandBuffer: commandBuffer)
             if isInput {
                 // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
                 // swift-format-ignore: NeverForceUnwrap
@@ -572,7 +571,7 @@ func makeMeshDescriptionForDeformation(
 }
 
 func makeInputMeshDescriptionForDeformation(
-    meshResource: _Proto_LowLevelMeshResource_v1,
+    meshResource: LowLevelMeshResource,
     deformationData: WKBridgeDeformationData,
     commandBuffer: any MTLCommandBuffer,
     device: any MTLDevice,
@@ -624,7 +623,7 @@ func makeInputMeshDescriptionForDeformation(
 }
 
 func makeOutputMeshDescriptionForDeformation(
-    meshResource: _Proto_LowLevelMeshResource_v1,
+    meshResource: LowLevelMeshResource,
     deformationData: WKBridgeDeformationData,
     commandBuffer: any MTLCommandBuffer,
     device: any MTLDevice,
@@ -655,7 +654,7 @@ func makeOutputMeshDescriptionForDeformation(
     }
 }
 
-extension _Proto_LowLevelMeshResource_v1.VertexSemantic {
+extension LowLevelMeshResource.VertexSemantic {
     func toDeformationVertexSemantic() -> _Proto_LowLevelDeformationDescription_v1.MeshSemantic? {
         switch self {
         case .position:

@@ -26,7 +26,7 @@ import OSLog
 import WebKit
 import simd
 
-#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreTextureProcessing, _version: 24) && canImport(_USDKit_RealityKit, _version: 42) && arch(arm64)
+#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreTextureProcessing, _version: 24) && canImport(_USDKit_RealityKit, _version: 42) && canImport(RealityCoreRenderer, _version: 22) && canImport(ShaderGraph, _version: 156) && arch(arm64)
 @_spi(UsdLoaderAPI) import _USDKit_RealityKit
 @_spi(RealityCoreRendererAPI) import RealityKit
 import USDKit
@@ -212,14 +212,14 @@ private func makeMTLTextureFromImageAsset(
 private func makeTextureFromImageAsset(
     _ imageAsset: WKBridgeImageAsset,
     device: any MTLDevice,
-    renderContext: any _Proto_LowLevelRenderContext_v1,
+    renderContext: any LowLevelRenderContext,
     commandQueue: any MTLCommandQueue,
     generateMips: Bool,
     memoryOwner: task_id_token_t,
     swizzle: MTLTextureSwizzleChannels,
-    existingTexture: _Proto_LowLevelTextureResource_v1?,
+    existingTexture: LowLevelTextureResource?,
     layout: [WKBridgeTextureLevelInfo]
-) -> _Proto_LowLevelTextureResource_v1? {
+) -> LowLevelTextureResource? {
     guard
         let (mtlTexture, mipLevelsInData) = makeMTLTextureFromImageAsset(
             imageAsset,
@@ -233,7 +233,7 @@ private func makeTextureFromImageAsset(
         return nil
     }
 
-    let descriptor = _Proto_LowLevelTextureResource_v1.Descriptor.from(mtlTexture, swizzle: swizzle)
+    let descriptor = LowLevelTextureResource.Descriptor.from(mtlTexture, swizzle: swizzle)
     if let textureResource = existingTexture ?? (try? renderContext.makeTextureResource(descriptor: descriptor)) {
         guard let commandBuffer = commandQueue.makeCommandBuffer() else {
             fatalError("Could not create command buffer")
@@ -245,7 +245,7 @@ private func makeTextureFromImageAsset(
             blitEncoder.generateMipmaps(for: mtlTexture)
         }
 
-        let outTexture = textureResource.replace(using: commandBuffer)
+        let outTexture = textureResource.replace(commandBuffer: commandBuffer)
         blitEncoder.copy(from: mtlTexture, to: outTexture)
 
         blitEncoder.endEncoding()
@@ -260,12 +260,12 @@ private func makeTextureFromImageAsset(
 private func makeTextureFromImageAsset(
     _ imageAsset: WKBridgeImageAsset,
     device: any MTLDevice,
-    renderContext: any _Proto_LowLevelRenderContext_v1,
+    renderContext: any LowLevelRenderContext,
     commandQueue: any MTLCommandQueue,
     generateMips: Bool,
     memoryOwner: task_id_token_t,
     swizzle: MTLTextureSwizzleChannels = .init(red: .red, green: .green, blue: .blue, alpha: .alpha)
-) -> _Proto_LowLevelTextureResource_v1? {
+) -> LowLevelTextureResource? {
     makeTextureFromImageAsset(
         imageAsset,
         device: device,
@@ -282,13 +282,13 @@ private func makeTextureFromImageAsset(
 private func makeTextureFromImageAsset(
     _ imageAsset: WKBridgeImageAsset,
     device: any MTLDevice,
-    renderContext: any _Proto_LowLevelRenderContext_v1,
+    renderContext: any LowLevelRenderContext,
     commandQueue: any MTLCommandQueue,
     generateMips: Bool,
     memoryOwner: task_id_token_t,
-    existingTexture: _Proto_LowLevelTextureResource_v1?,
+    existingTexture: LowLevelTextureResource?,
     layout: [WKBridgeTextureLevelInfo]
-) -> _Proto_LowLevelTextureResource_v1? {
+) -> LowLevelTextureResource? {
     makeTextureFromImageAsset(
         imageAsset,
         device: device,
@@ -303,16 +303,16 @@ private func makeTextureFromImageAsset(
 }
 
 private func makeParameters(
-    for function: (any _Proto_LowLevelMaterialResource_v1.Function)?,
-    renderContext: any _Proto_LowLevelRenderContext_v1,
-    textureHashesAndResources: [WKBridgeTypedResourceId: (String, _Proto_LowLevelTextureResource_v1)],
-    fallbackTexture: _Proto_LowLevelTextureResource_v1
-) throws -> _Proto_LowLevelArgumentTable_v1? {
+    for function: (any LowLevelMaterialResource.Function)?,
+    renderContext: any LowLevelRenderContext,
+    textureHashesAndResources: [WKBridgeTypedResourceId: (String, LowLevelTextureResource)],
+    fallbackTexture: LowLevelTextureResource
+) throws -> LowLevelArgumentTable? {
     guard let function else { return nil }
     guard let argumentTableDescriptor = function.argumentTableDescriptor else { return nil }
     let parameterMapping = function.parameterMapping
 
-    var optTextures: [_Proto_LowLevelTextureResource_v1?] = argumentTableDescriptor.textures.map({ _ in nil })
+    var optTextures: [LowLevelTextureResource?] = argumentTableDescriptor.textures.map({ _ in nil })
     for parameter in parameterMapping?.textures ?? [] {
         if let textureHashAndResource = textureHashesAndResources.values.first(where: { $0.0 == parameter.name }) {
             optTextures[parameter.textureIndex] = textureHashAndResource.1
@@ -324,7 +324,7 @@ private func makeParameters(
     }
     let textures = optTextures.map({ $0! })
 
-    let buffers: [_Proto_LowLevelBufferSpan_v1] = try argumentTableDescriptor.buffers.map { bufferRequirements in
+    let buffers: [LowLevelBufferSlice] = try argumentTableDescriptor.buffers.map { bufferRequirements in
         let capacity = (bufferRequirements.size + 16 - 1) / 16 * 16
         let buffer = try renderContext.makeBufferResource(descriptor: .init(capacity: capacity))
         buffer.replace { span in
@@ -332,7 +332,7 @@ private func makeParameters(
                 span.storeBytes(of: 0, toByteOffset: byteOffset, as: UInt8.self)
             }
         }
-        return try _Proto_LowLevelBufferSpan_v1(buffer: buffer, offset: 0, size: bufferRequirements.size)
+        return try LowLevelBufferSlice(buffer: buffer, offset: 0, size: bufferRequirements.size)
     }
 
     return try renderContext.makeArgumentTable(
@@ -366,7 +366,7 @@ extension WKBridgeUSDConfiguration {
         get { appRenderer.commandQueue }
     }
     @nonobjc
-    fileprivate final var renderer: _Proto_LowLevelRenderer_v1 {
+    fileprivate final var renderer: LowLevelRenderer {
         get {
             // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
             // swift-format-ignore: NeverForceUnwrap
@@ -374,7 +374,7 @@ extension WKBridgeUSDConfiguration {
         }
     }
     @nonobjc
-    fileprivate final var renderContext: any _Proto_LowLevelRenderContext_v1 {
+    fileprivate final var renderContext: any LowLevelRenderContext {
         get {
             // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
             // swift-format-ignore: NeverForceUnwrap
@@ -383,7 +383,7 @@ extension WKBridgeUSDConfiguration {
     }
 
     @nonobjc
-    fileprivate final var renderTarget: _Proto_LowLevelRenderTarget_v1.Descriptor {
+    fileprivate final var renderTarget: LowLevelRenderTarget.Descriptor {
         get { appRenderer.renderTargetDescriptor }
     }
 
@@ -419,31 +419,31 @@ extension WKBridgeReceiver {
     fileprivate let commandQueue: any MTLCommandQueue
 
     @nonobjc
-    fileprivate let renderContext: any _Proto_LowLevelRenderContext_v1
+    fileprivate let renderContext: any LowLevelRenderContext
     @nonobjc
-    fileprivate let renderer: _Proto_LowLevelRenderer_v1
+    fileprivate let renderer: LowLevelRenderer
     @nonobjc
     fileprivate let appRenderer: Renderer
     @nonobjc
-    fileprivate let lightingFunction: _Proto_LowLevelMaterialResource_v1.LightingFunction
+    fileprivate let lightingFunction: LowLevelMaterialResource.LightingFunction
     @nonobjc
-    fileprivate let lightingArguments: _Proto_LowLevelArgumentTable_v1
+    fileprivate let lightingArguments: LowLevelArgumentTable
     @nonobjc
-    fileprivate var lightingArgumentBuffer: _Proto_LowLevelArgumentTable_v1?
+    fileprivate var lightingArgumentBuffer: LowLevelArgumentTable?
 
     @nonobjc
-    fileprivate final var renderTarget: _Proto_LowLevelRenderTarget_v1.Descriptor {
+    fileprivate final var renderTarget: LowLevelRenderTarget.Descriptor {
         get { appRenderer.renderTargetDescriptor }
     }
     @nonobjc
     fileprivate var meshInstancePool: MeshInstancePool
 
     @nonobjc
-    fileprivate var meshResources: [WKBridgeTypedResourceId: _Proto_LowLevelMeshResource_v1] = [:]
+    fileprivate var meshResources: [WKBridgeTypedResourceId: LowLevelMeshResource] = [:]
     @nonobjc
     fileprivate var meshResourceToMaterials: [WKBridgeTypedResourceId: [WKBridgeTypedResourceId]] = [:]
     @nonobjc
-    fileprivate var meshToMeshInstances: [WKBridgeTypedResourceId: [_Proto_LowLevelMeshInstance_v1]] = [:]
+    fileprivate var meshToMeshInstances: [WKBridgeTypedResourceId: [LowLevelMeshInstance]] = [:]
     @nonobjc
     fileprivate var rotationAngle: Float = 0
 
@@ -454,16 +454,16 @@ extension WKBridgeReceiver {
     fileprivate var meshResourceToDeformationContext: [WKBridgeTypedResourceId: DeformationContext] = [:]
 
     struct Material {
-        let resource: _Proto_LowLevelMaterialResource_v1
-        let geometryArguments: _Proto_LowLevelArgumentTable_v1?
-        let surfaceArguments: _Proto_LowLevelArgumentTable_v1?
-        let blending: _Proto_LowLevelMaterialResource_v1.ShaderGraphOutput.Blending
+        let resource: LowLevelMaterialResource
+        let geometryArguments: LowLevelArgumentTable?
+        let surfaceArguments: LowLevelArgumentTable?
+        let blending: LowLevelMaterialResource.ShaderGraphOutput.Blending
     }
     @nonobjc
     fileprivate var materialsAndParams: [WKBridgeTypedResourceId: Material] = [:]
 
     @nonobjc
-    fileprivate var textureHashesAndResources: [WKBridgeTypedResourceId: (String, _Proto_LowLevelTextureResource_v1)] = [:]
+    fileprivate var textureHashesAndResources: [WKBridgeTypedResourceId: (String, LowLevelTextureResource)] = [:]
 
     @nonobjc
     fileprivate var dontCaptureAgain: Bool = false
@@ -474,7 +474,7 @@ extension WKBridgeReceiver {
     }
 
     @nonobjc
-    fileprivate let fallbackTexture: _Proto_LowLevelTextureResource_v1
+    fileprivate let fallbackTexture: LowLevelTextureResource
 
     struct DeferredMeshUpdate {
         enum UpdateType {
@@ -486,9 +486,9 @@ extension WKBridgeReceiver {
 
         let identifier: WKBridgeTypedResourceId
         let type: UpdateType
-        var updatedInstances: [_Proto_LowLevelMeshInstance_v1]
+        var updatedInstances: [LowLevelMeshInstance]
 
-        init(identifier: WKBridgeTypedResourceId, type: UpdateType, updatedInstances: [_Proto_LowLevelMeshInstance_v1]) {
+        init(identifier: WKBridgeTypedResourceId, type: UpdateType, updatedInstances: [LowLevelMeshInstance]) {
             self.identifier = identifier
             self.type = type
             self.updatedInstances = updatedInstances
@@ -514,7 +514,7 @@ extension WKBridgeReceiver {
         self.deformationSystem = try _Proto_LowLevelDeformationSystem_v1.make(configuration.device, configuration.commandQueue).get()
         let meshInstances = try configuration.renderContext.makeMeshInstanceArray(renderTargets: [configuration.renderTarget], count: 16)
         self.meshInstancePool = MeshInstancePool(renderContext: configuration.renderContext, meshInstances: meshInstances)
-        let lightingFunction = configuration.renderContext.makePhysicallyBasedLightingFunction()
+        let lightingFunction = configuration.renderContext.lighting.makeImageBasedLightingFunction()
         guard
             let diffuseTexture = makeTextureFromImageAsset(
                 diffuseAsset,
@@ -622,7 +622,7 @@ extension WKBridgeReceiver {
             let existingTexture = textureHashesAndResources[textureData.identifier]?.1
             let needsNewTexture: Bool
             if let existingTexture {
-                needsNewTexture = existingTexture.descriptor != _Proto_LowLevelTextureResource_v1.Descriptor(from: asset)
+                needsNewTexture = existingTexture.descriptor != LowLevelTextureResource.Descriptor(from: asset)
             } else {
                 needsNewTexture = true
             }
@@ -652,11 +652,14 @@ extension WKBridgeReceiver {
                 let identifier = data.identifier
                 logInfo("updateMaterial \(identifier)")
 
-                guard let shaderGraph = _Proto_ShaderNodeGraph.fromWKDescriptor(data.materialGraph) else {
+                guard let shaderGraph = ShaderGraph.fromWKDescriptor(data.materialGraph) else {
                     fatalError("No materialGraph data provided for material \(identifier)")
                 }
 
-                let shaderGraphOutput = try await renderContext.makeShaderGraphFunctions(shaderGraph: shaderGraph)
+                let shaderGraphOutput = try await renderContext.shaderGraph.makeShaderGraphFunctions(
+                    shaderGraph: shaderGraph,
+                    constantValues: .init()
+                )
 
                 let geometryArguments = try makeParameters(
                     for: shaderGraphOutput.geometryModifier,
@@ -736,12 +739,12 @@ extension WKBridgeReceiver {
             for meshData in updates {
                 let identifier = meshData.identifier
 
-                let meshResource: _Proto_LowLevelMeshResource_v1
+                let meshResource: LowLevelMeshResource
                 if meshData.updateType == .initial || meshData.descriptor != nil {
                     // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
                     // swift-format-ignore: NeverForceUnwrap
                     let meshDescriptor = meshData.descriptor!
-                    let descriptor = _Proto_LowLevelMeshResource_v1.Descriptor.fromLlmDescriptor(meshDescriptor)
+                    let descriptor = LowLevelMeshResource.Descriptor.fromLlmDescriptor(meshDescriptor)
                     if let cachedMeshResource = meshResources[identifier] {
                         meshResource = cachedMeshResource
                     } else {
@@ -814,20 +817,21 @@ extension WKBridgeReceiver {
                                 indexCount: meshData.parts[partIndex].indexCount,
                                 primitive: meshData.parts[partIndex].topology,
                                 windingOrder: .counterClockwise,
-                                boundsMin: meshData.parts[partIndex].boundsMin,
-                                boundsMax: meshData.parts[partIndex].boundsMax
+                                bounds: .init(
+                                    boxMin: meshData.parts[partIndex].boundsMin,
+                                    boxMax: meshData.parts[partIndex].boundsMax
+                                )
                             )
 
                             for instanceTransform in meshData.instanceTransforms {
-                                let position = instanceTransform.transformPosition(.zero)
                                 let meshInstance = try renderContext.makeMeshInstance(
                                     meshPart: meshPart,
                                     pipeline: pipeline,
                                     geometryArguments: material.geometryArguments,
                                     surfaceArguments: material.surfaceArguments,
                                     lightingArguments: lightingArguments,
-                                    transform: .single(instanceTransform),
-                                    sortCategory: material.blending == .transparent ? .transparent(sortPosition: position) : .opaque
+                                    transform: instanceTransform,
+                                    sortCategory: material.blending == .transparent ? .transparent : .opaque
                                 )
 
                                 // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
@@ -843,7 +847,7 @@ extension WKBridgeReceiver {
                         // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
                         // swift-format-ignore: NeverForceUnwrap
                         var newTransforms: [simd_float4x4] = []
-                        var updatedInstances: [_Proto_LowLevelMeshInstance_v1] = []
+                        var updatedInstances: [LowLevelMeshInstance] = []
 
                         let partCount = meshToMeshInstances[identifier]!.count / meshData.instanceTransforms.count
                         for (instanceIndex, instanceTransform) in meshData.instanceTransforms.enumerated() {
@@ -879,7 +883,7 @@ extension WKBridgeReceiver {
                     }
                 case .transformUpdate(let newTransforms):
                     for (instanceIndex, meshInstance) in deferredUpdate.updatedInstances.enumerated() {
-                        meshInstance.setTransform(.single(newTransforms[instanceIndex]))
+                        meshInstance.transform = newTransforms[instanceIndex]
                     }
                 }
             }
@@ -930,13 +934,13 @@ extension WKBridgeReceiver {
             let diffuseMTLTextureDescriptor = try self.imageBasedLightTextureGenerator.makeDiffuseDescriptor(
                 fromCube: cubeMTLTexture
             )
-            let diffuseTextureDescriptor = _Proto_LowLevelTextureResource_v1.Descriptor.from(diffuseMTLTextureDescriptor)
+            let diffuseTextureDescriptor = LowLevelTextureResource.Descriptor.from(diffuseMTLTextureDescriptor)
             let diffuseTexture = try self.renderContext.makeTextureResource(descriptor: diffuseTextureDescriptor)
 
             let specularMTLTextureDescriptor = try self.imageBasedLightTextureGenerator.makeSpecularDescriptor(
                 fromCube: cubeMTLTexture
             )
-            let specularTextureDescriptor = _Proto_LowLevelTextureResource_v1.Descriptor.from(specularMTLTextureDescriptor)
+            let specularTextureDescriptor = LowLevelTextureResource.Descriptor.from(specularMTLTextureDescriptor)
             let specularTexture = try self.renderContext.makeTextureResource(descriptor: specularTextureDescriptor)
 
             // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
@@ -949,8 +953,8 @@ extension WKBridgeReceiver {
                 into: cubeMTLTexture
             )
 
-            let diffuseMTLTexture = diffuseTexture.replace(using: commandBuffer)
-            let specularMTLTexture = specularTexture.replace(using: commandBuffer)
+            let diffuseMTLTexture = diffuseTexture.replace(commandBuffer: commandBuffer)
+            let specularMTLTexture = specularTexture.replace(commandBuffer: commandBuffer)
 
             try self.imageBasedLightTextureGenerator.generateDiffuse(
                 using: commandBuffer,
@@ -963,8 +967,8 @@ extension WKBridgeReceiver {
                 into: specularMTLTexture
             )
 
-            try self.lightingArguments.setTexture(at: 0, diffuseTexture)
-            try self.lightingArguments.setTexture(at: 1, specularTexture)
+            try self.lightingArguments.setTexture(diffuseTexture, at: 0)
+            try self.lightingArguments.setTexture(specularTexture, at: 1)
 
             commandBuffer.commit()
         } catch {
@@ -1349,7 +1353,7 @@ private func texcoordName(for coord: _Proto_TextureCoordinate) -> String {
     }
 }
 
-private func textureCoordinate(from name: String) -> _Proto_TextureCoordinate? {
+private func textureCoordinate(from name: String) -> ShaderGraph.TextureCoordinate? {
     switch name {
     case "UV0": .uv0
     case "UV1": .uv1
@@ -1435,23 +1439,23 @@ func webUpdateMaterialRequestFromUpdateMaterialRequest(
     )
 }
 
-extension _Proto_ShaderNodeGraph {
-    // Reconstructs the graph from the IPC bridge representation using the _Proto_ShaderNodeGraph API.
-    static func fromWKDescriptor(_ descriptor: WKBridgeMaterialGraph?) -> _Proto_ShaderNodeGraph? {
+extension ShaderGraph {
+    // Reconstructs the graph from the IPC bridge representation using the ShaderGraph API.
+    static func fromWKDescriptor(_ descriptor: WKBridgeMaterialGraph?) -> ShaderGraph? {
         guard let descriptor else { return nil }
 
         do {
-            let graph = try _Proto_ShaderNodeGraph(
+            let graph = try ShaderGraph(
                 named: descriptor.graphName.isEmpty ? "MaterialGraph" : descriptor.graphName,
                 inputs: descriptor.inputs.map {
-                    _Proto_ShaderGraphNodeDefinition.Input(
+                    ShaderGraph.NodeDefinition.Input(
                         name: $0.name,
                         type: fromWKBridgeDataType($0.type),
                         semanticType: $0.semanticTypeName.map { .init(name: $0) }
                     )
                 },
                 outputs: descriptor.outputs.map {
-                    _Proto_ShaderGraphNodeDefinition.Output(
+                    ShaderGraph.NodeDefinition.Output(
                         name: $0.name,
                         type: fromWKBridgeDataType($0.type),
                         semanticType: $0.semanticTypeName.map { .init(name: $0) }
@@ -1459,19 +1463,19 @@ extension _Proto_ShaderNodeGraph {
                 }
             )
 
-            let library = _Proto_ShaderNodeGraphLibrary.shared
+            let library = ShaderGraph.NodeLibrary(version: .materialX138)
 
             for bridgeNode in descriptor.nodes {
                 switch bridgeNode.bridgeNodeType {
                 case .constant:
                     if let constant = bridgeNode.constant {
-                        try graph.add(constant: fromWKBridgeConstant(constant), named: constant.name)
+                        try graph.addConstant(fromWKBridgeConstant(constant), named: constant.name)
                     }
                 case .builtin:
                     if let builtin = bridgeNode.builtin, !builtin.definition.isEmpty,
                         let definition = library.definition(named: builtin.definition)
                     {
-                        try graph.add(node: .init(name: builtin.name, data: .definition(definition)))
+                        try graph.addNode(.init(name: builtin.name, data: .definition(definition)))
                     }
                 case .arguments, .results:
                     break
@@ -1485,9 +1489,9 @@ extension _Proto_ShaderNodeGraph {
                 do {
                     try graph.connect(
                         bridgeEdge.outputNode,
-                        bridgeEdge.outputPort,
+                        outputPort: bridgeEdge.outputPort,
                         to: bridgeEdge.inputNode,
-                        bridgeEdge.inputPort
+                        inputPort: bridgeEdge.inputPort
                     )
                 } catch {
                     logError(
@@ -1516,7 +1520,7 @@ extension _Proto_ShaderNodeGraph {
     }
 }
 
-private func fromWKBridgeDataType(_ dataType: WKBridgeDataType) -> _Proto_ShaderDataType {
+private func fromWKBridgeDataType(_ dataType: WKBridgeDataType) -> ShaderGraph.DataType {
     switch dataType {
     case .bool: .bool
     case .uchar: .uchar
@@ -1528,6 +1532,8 @@ private func fromWKBridgeDataType(_ dataType: WKBridgeDataType) -> _Proto_Shader
     case .float: .float
     case .cgColor3: .cgColor3
     case .cgColor4: .cgColor4
+    case .color3h: .cgColor3
+    case .color4h: .cgColor4
     case .float2: .float2
     case .float3: .float3
     case .float4: .float4
@@ -1541,18 +1547,17 @@ private func fromWKBridgeDataType(_ dataType: WKBridgeDataType) -> _Proto_Shader
     case .matrix2h: .half2x2
     case .matrix3h: .half3x3
     case .matrix4h: .half4x4
-    case .quat: .quaternion
     case .surfaceShader: .surfaceShader
     case .geometryModifier: .geometryModifier
     case .postLightingShader: .postLightingShader
     case .string: .string
-    case .token: .string // Map token to string
-    case .asset: .filename // Map asset to filename
-    @unknown default: .invalid
+    case .asset: .texture
+    case .token, .quat: .string
+    @unknown default: fatalError("fromWKBridgeDataType: unknown WKBridgeDataType")
     }
 }
 
-private func fromWKBridgeConstant(_ constant: WKBridgeConstantContainer) -> _Proto_ShaderGraphValue {
+private func fromWKBridgeConstant(_ constant: WKBridgeConstantContainer) -> ShaderGraph.Value {
     let values = constant.constantValues
 
     switch constant.constant {
@@ -1570,7 +1575,7 @@ private func fromWKBridgeConstant(_ constant: WKBridgeConstantContainer) -> _Pro
         return .uint(UInt32(v.number.uintValue))
     case .half:
         guard let v = values.first else { fatalError("fromWKBridgeConstant: missing value for half constant '\(constant.name)'") }
-        return .half(v.number.uint16Value)
+        return .half(.init(bitPattern: v.number.uint16Value))
     case .float:
         guard let v = values.first else { fatalError("fromWKBridgeConstant: missing value for float constant '\(constant.name)'") }
         return .float(v.number.floatValue)
@@ -1620,9 +1625,9 @@ private func fromWKBridgeConstant(_ constant: WKBridgeConstantContainer) -> _Pro
             fatalError("fromWKBridgeConstant: expected 2 values for half2 constant '\(constant.name)', got \(values.count)")
         }
         return .half2(
-            SIMD2<UInt16>(
-                values[0].number.uint16Value,
-                values[1].number.uint16Value
+            SIMD2<Float16>(
+                .init(bitPattern: values[0].number.uint16Value),
+                .init(bitPattern: values[1].number.uint16Value)
             )
         )
     case .vector3h, .half3, .point3h, .normal3h, .texCoord3h:
@@ -1631,10 +1636,10 @@ private func fromWKBridgeConstant(_ constant: WKBridgeConstantContainer) -> _Pro
             fatalError("fromWKBridgeConstant: expected 3 values for half3 constant '\(constant.name)', got \(values.count)")
         }
         return .half3(
-            SIMD3<UInt16>(
-                values[0].number.uint16Value,
-                values[1].number.uint16Value,
-                values[2].number.uint16Value
+            SIMD3<Float16>(
+                .init(bitPattern: values[0].number.uint16Value),
+                .init(bitPattern: values[1].number.uint16Value),
+                .init(bitPattern: values[2].number.uint16Value)
             )
         )
     case .half4:
@@ -1642,11 +1647,11 @@ private func fromWKBridgeConstant(_ constant: WKBridgeConstantContainer) -> _Pro
             fatalError("fromWKBridgeConstant: expected 4 values for half4 constant '\(constant.name)', got \(values.count)")
         }
         return .half4(
-            SIMD4<UInt16>(
-                values[0].number.uint16Value,
-                values[1].number.uint16Value,
-                values[2].number.uint16Value,
-                values[3].number.uint16Value
+            SIMD4<Float16>(
+                .init(bitPattern: values[0].number.uint16Value),
+                .init(bitPattern: values[1].number.uint16Value),
+                .init(bitPattern: values[2].number.uint16Value),
+                .init(bitPattern: values[3].number.uint16Value)
             )
         )
     case .int2:
@@ -1688,9 +1693,11 @@ private func fromWKBridgeConstant(_ constant: WKBridgeConstantContainer) -> _Pro
             fatalError("fromWKBridgeConstant: expected 9 values for matrix3f constant '\(constant.name)', got \(values.count)")
         }
         return .float3x3(
-            SIMD3<Float>(values[0].number.floatValue, values[1].number.floatValue, values[2].number.floatValue),
-            SIMD3<Float>(values[3].number.floatValue, values[4].number.floatValue, values[5].number.floatValue),
-            SIMD3<Float>(values[6].number.floatValue, values[7].number.floatValue, values[8].number.floatValue)
+            .init(
+                SIMD3<Float>(values[0].number.floatValue, values[1].number.floatValue, values[2].number.floatValue),
+                SIMD3<Float>(values[3].number.floatValue, values[4].number.floatValue, values[5].number.floatValue),
+                SIMD3<Float>(values[6].number.floatValue, values[7].number.floatValue, values[8].number.floatValue)
+            )
         )
     case .matrix4f:
         // matrix4f maps to float4x4 - needs 16 values (4 columns of 4 rows each)
@@ -1698,29 +1705,31 @@ private func fromWKBridgeConstant(_ constant: WKBridgeConstantContainer) -> _Pro
             fatalError("fromWKBridgeConstant: expected 16 values for matrix4f constant '\(constant.name)', got \(values.count)")
         }
         return .float4x4(
-            SIMD4<Float>(
-                values[0].number.floatValue,
-                values[1].number.floatValue,
-                values[2].number.floatValue,
-                values[3].number.floatValue
-            ),
-            SIMD4<Float>(
-                values[4].number.floatValue,
-                values[5].number.floatValue,
-                values[6].number.floatValue,
-                values[7].number.floatValue
-            ),
-            SIMD4<Float>(
-                values[8].number.floatValue,
-                values[9].number.floatValue,
-                values[10].number.floatValue,
-                values[11].number.floatValue
-            ),
-            SIMD4<Float>(
-                values[12].number.floatValue,
-                values[13].number.floatValue,
-                values[14].number.floatValue,
-                values[15].number.floatValue
+            .init(
+                SIMD4<Float>(
+                    values[0].number.floatValue,
+                    values[1].number.floatValue,
+                    values[2].number.floatValue,
+                    values[3].number.floatValue
+                ),
+                SIMD4<Float>(
+                    values[4].number.floatValue,
+                    values[5].number.floatValue,
+                    values[6].number.floatValue,
+                    values[7].number.floatValue
+                ),
+                SIMD4<Float>(
+                    values[8].number.floatValue,
+                    values[9].number.floatValue,
+                    values[10].number.floatValue,
+                    values[11].number.floatValue
+                ),
+                SIMD4<Float>(
+                    values[12].number.floatValue,
+                    values[13].number.floatValue,
+                    values[14].number.floatValue,
+                    values[15].number.floatValue
+                )
             )
         )
     case .quatf, .quath:
@@ -1788,7 +1797,7 @@ private func fromWKBridgeConstant(_ constant: WKBridgeConstantContainer) -> _Pro
         ]
         return .cgColor3(CGColor(red: components3f[0], green: components3f[1], blue: components3f[2], alpha: 1.0))
     case .color3h:
-        // USD/MaterialX color3h — half-precision; represented as cgColor3 in _Proto_ShaderGraphValue.
+        // USD/MaterialX color3h — half-precision; represented as cgColor3 in ShaderGraph.Value.
         guard values.count >= 3 else {
             fatalError("fromWKBridgeConstant: expected 3 values for color3h constant '\(constant.name)', got \(values.count)")
         }
@@ -1801,7 +1810,7 @@ private func fromWKBridgeConstant(_ constant: WKBridgeConstantContainer) -> _Pro
             )
         )
     case .color4h:
-        // USD/MaterialX color4h — half-precision; represented as cgColor4 in _Proto_ShaderGraphValue.
+        // USD/MaterialX color4h — half-precision; represented as cgColor4 in ShaderGraph.Value.
         guard values.count >= 4 else {
             fatalError("fromWKBridgeConstant: expected 4 values for color4h constant '\(constant.name)', got \(values.count)")
         }
@@ -2109,13 +2118,13 @@ extension WKBridgeModelLoader {
 }
 
 private func makeFallBackTextureResource(
-    _ renderContext: any _Proto_LowLevelRenderContext_v1,
+    _ renderContext: any LowLevelRenderContext,
     commandQueue: any MTLCommandQueue,
     device: any MTLDevice,
     memoryOwner: task_id_token_t
-) -> _Proto_LowLevelTextureResource_v1 {
+) -> LowLevelTextureResource {
     // Create 1x1 white fallback texture
-    let fallbackDescriptor = _Proto_LowLevelTextureResource_v1.Descriptor(
+    let fallbackDescriptor = LowLevelTextureResource.Descriptor(
         textureType: .type2D,
         pixelFormat: .rgba8Unorm,
         width: 1,
@@ -2134,7 +2143,7 @@ private func makeFallBackTextureResource(
     // Create command buffer to upload white pixel data
     // swift-format-ignore: NeverForceUnwrap
     let fallbackCommandBuffer = commandQueue.makeCommandBuffer()!
-    let fallbackMTLTexture = fallbackTexture.replace(using: fallbackCommandBuffer)
+    let fallbackMTLTexture = fallbackTexture.replace(commandBuffer: fallbackCommandBuffer)
 
     // Use blit encoder to copy from buffer to texture
     // swift-format-ignore: NeverForceUnwrap

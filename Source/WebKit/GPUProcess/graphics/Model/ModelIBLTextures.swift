@@ -21,7 +21,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
 
-#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreTextureProcessing, _version: 24) && canImport(_USDKit_RealityKit, _version: 42) && arch(arm64)
+#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreTextureProcessing, _version: 24) && canImport(_USDKit_RealityKit, _version: 42) && canImport(RealityCoreRenderer, _version: 22) && canImport(ShaderGraph, _version: 156) && arch(arm64)
 
 import Metal
 import USDKit
@@ -30,12 +30,12 @@ import USDKit
 
 class IBLTextures {
     static func loadIBLTextures(
-        renderContext: any _Proto_LowLevelRenderContext_v1,
+        renderContext: any LowLevelRenderContext,
         diffuseTextureOriginal: any MTLTexture,
         specularTextureOriginal: any MTLTexture
     ) throws -> (
-        diffuse: _Proto_LowLevelTextureResource_v1,
-        specular: _Proto_LowLevelTextureResource_v1
+        diffuse: LowLevelTextureResource,
+        specular: LowLevelTextureResource
     ) {
         guard let commandQueue = renderContext.device.makeCommandQueue() else {
             fatalError("Failed to create command queue")
@@ -81,8 +81,8 @@ class IBLTextures {
             )
         )
 
-        let diffuseTexture = diffuseTextureResource.replace(using: commandBuffer)
-        let specularTexture = specularTextureResource.replace(using: commandBuffer)
+        let diffuseTexture = diffuseTextureResource.replace(commandBuffer: commandBuffer)
+        let specularTexture = specularTextureResource.replace(commandBuffer: commandBuffer)
 
         // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
         // swift-format-ignore: NeverForceUnwrap

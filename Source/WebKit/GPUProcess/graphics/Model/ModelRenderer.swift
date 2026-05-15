@@ -21,26 +21,27 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
 
-#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreTextureProcessing, _version: 24) && canImport(_USDKit_RealityKit, _version: 42) && arch(arm64)
+#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreTextureProcessing, _version: 24) && canImport(_USDKit_RealityKit, _version: 42) && canImport(RealityCoreRenderer, _version: 22) && canImport(ShaderGraph, _version: 156) && arch(arm64)
 
 import QuartzCore
 import USDKit
 @_spi(UsdLoaderAPI) import _USDKit_RealityKit
-@_spi(RealityCoreRendererAPI) @_spi(Private) import RealityKit
+@_spi(Private) import RealityKit
 import simd
 
 class Renderer {
     let device: any MTLDevice
     let commandQueue: any MTLCommandQueue
-    var renderContext: (any _Proto_LowLevelRenderContext_v1)?
-    var renderer: _Proto_LowLevelRenderer_v1?
-    var renderTargetDescriptor: _Proto_LowLevelRenderTarget_v1.Descriptor {
+    var renderContext: (any LowLevelRenderContext)?
+    var renderer: LowLevelRenderer?
+    var renderTargetDescriptor: LowLevelRenderTarget.Descriptor {
         // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
         // swift-format-ignore: NeverForceUnwrap
         renderer!.renderTargetDescriptor
     }
 
-    var pose: _Proto_Pose_v1
+    var cameraPosition: SIMD3<Float>
+    var cameraRotation: simd_quatf
     static let cameraDistance: Float = 0.5
     var effectiveCameraDistance: Float = Renderer.cameraDistance
     var fovY: Float = 60 * .pi / 180
@@ -55,29 +56,28 @@ class Renderer {
 
         self.device = device
         self.commandQueue = commandQueue
-        self.pose = .init(
-            translation: [0, 0, Renderer.cameraDistance],
-            rotation: .init(ix: 0, iy: 0, iz: 0, r: 1)
-        )
+        self.cameraPosition = [0, 0, Renderer.cameraDistance]
+        self.cameraRotation = .init(ix: 0, iy: 0, iz: 0, r: 1)
         self.memoryOwner = memoryOwner
     }
 
     func createMaterialCompiler(colorPixelFormat: MTLPixelFormat, rasterSampleCount: Int, colorSpace: CGColorSpace? = nil) async throws {
-        var configuration = _Proto_LowLevelRenderContextStandaloneConfiguration_v1(device: device)
+        var configuration = LowLevelRenderContextStandalone.Configuration(device: device)
         configuration.memoryOwner = self.memoryOwner
-        configuration.residencySetBehavior = _Proto_LowLevelRenderContextStandaloneConfiguration_v1.ResidencySetBehavior.disable
-        let renderContext = try await _Proto_makeLowLevelRenderContextStandalone_v1(configuration: configuration)
+        configuration.residencySetBehavior = LowLevelRenderContextStandalone.Configuration.ResidencySetBehavior.disable
+        let renderContext = try await LowLevelRenderContextStandalone(configuration: configuration)
 
-        let renderer = try await _Proto_LowLevelRenderer_v1(
+        let renderer = try await LowLevelRenderer(
             configuration: .init(
                 output: .init(colorPixelFormat: colorPixelFormat),
                 rasterSampleCount: rasterSampleCount,
                 enableTonemap: true,
                 enableColorMatch: colorSpace != nil,
-                hasTransparentContent: false
+                alphaPremultiply: false
             ),
             renderContext: renderContext
         )
+        renderer.meshInstancesArrayCount = 1
         self.renderContext = renderContext
         self.renderer = renderer
     }
@@ -91,7 +91,7 @@ class Renderer {
     }
 
     func render(
-        meshInstances: _Proto_LowLevelMeshInstanceArray_v1,
+        meshInstances: LowLevelMeshInstanceArray,
         texture: any MTLTexture,
         commandBuffer: any MTLCommandBuffer
     ) throws {
@@ -104,7 +104,7 @@ class Renderer {
 
         let aspect = Float(texture.width) / Float(texture.height)
         let d = effectiveCameraDistance
-        let projection = _Proto_LowLevelRenderer_v1.Camera.Projection.perspective(
+        let projection = LowLevelRenderer.Camera.Projection.perspective(
             fovYRadians: fovY,
             aspectRatio: aspect,
             nearZ: d * 0.01,
@@ -112,14 +112,31 @@ class Renderer {
             reverseZ: true
         )
 
-        renderer.cameras[0].pose = pose
+        renderer.cameras[0].position = cameraPosition
+        renderer.cameras[0].rotation = cameraRotation
         renderer.cameras[0].projection = projection
         renderer.output.clearColor = clearColor
         renderer.output.color = .init(texture: texture)
-        renderer.meshInstances = meshInstances
+        try renderer.setMeshInstances(meshInstances, at: 0)
 
         commandBuffer.label = "Render Camera"
-        try renderer.render(for: commandBuffer)
+        var indices = Array(meshInstances.indices)
+        indices = LowLevelRenderer.cullMeshInstances(
+            meshInstances,
+            indices: indices.span,
+            configuration: .init(frustum: .init(from: renderer.cameras[0]))
+        )
+        var span = indices.mutableSpan
+        LowLevelRenderer.sortMeshInstances(
+            meshInstances,
+            indices: &span,
+            configuration: .init(cameraPosition: renderer.cameras[0].position)
+        )
+        renderer.render(using: commandBuffer) { state in
+            for index in indices {
+                state.render(meshInstancesArrayIndex: 0, meshInstanceIndex: index)
+            }
+        }
         commandBuffer.commit()
     }
 
@@ -144,12 +161,13 @@ class Renderer {
         let col2 = simd_float3(cameraMatrix.columns.2.x, cameraMatrix.columns.2.y, cameraMatrix.columns.2.z)
         let scale = simd_float3(simd_length(col0), simd_length(col1), simd_length(col2))
         let rotation = simd_quatf(simd_float3x3(col0 / scale.x, col1 / scale.y, col2 / scale.z))
-        let translation = simd_float3(cameraMatrix.columns.3.x, cameraMatrix.columns.3.y, cameraMatrix.columns.3.z)
-        pose = .init(translation: translation, rotation: rotation)
+        let position = simd_float3(cameraMatrix.columns.3.x, cameraMatrix.columns.3.y, cameraMatrix.columns.3.z)
+        cameraPosition = position
+        cameraRotation = rotation
         // Derive the near/far distance from the camera's world-space position.
         // The model lives at its USD-space coordinates, so the camera can be far from
         // origin for large or offset models; simd_length gives the actual view distance.
-        effectiveCameraDistance = max(simd_length(translation), Self.cameraDistance)
+        effectiveCameraDistance = max(simd_length(position), Self.cameraDistance)
     }
 }
 
