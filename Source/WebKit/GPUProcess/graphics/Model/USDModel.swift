@@ -26,10 +26,9 @@ import OSLog
 import WebKit
 import simd
 
-#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreTextureProcessing, _version: 19) && canImport(_USDKit_RealityKit, _version: 42) && arch(arm64)
+#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreTextureProcessing, _version: 24) && canImport(_USDKit_RealityKit, _version: 42) && arch(arm64)
 @_spi(UsdLoaderAPI) import _USDKit_RealityKit
 @_spi(RealityCoreRendererAPI) import RealityKit
-@_spi(RealityCoreTextureProcessingAPI) import RealityCoreTextureProcessing
 import USDKit
 @_spi(SwiftAPI) import DirectResource
 import RealityKit
@@ -413,7 +412,9 @@ extension WKBridgeReceiver {
     @nonobjc
     fileprivate let device: any MTLDevice
     @nonobjc
-    fileprivate let textureProcessingContext: _Proto_LowLevelTextureProcessingContext_v1
+    fileprivate let skyboxGenerator: SkyboxGenerator
+    @nonobjc
+    fileprivate let imageBasedLightTextureGenerator: ImageBasedLightTextureGenerator
     @nonobjc
     fileprivate let commandQueue: any MTLCommandQueue
 
@@ -507,7 +508,8 @@ extension WKBridgeReceiver {
         self.renderer = configuration.renderer
         self.appRenderer = configuration.appRenderer
         self.device = configuration.device
-        self.textureProcessingContext = _Proto_LowLevelTextureProcessingContext_v1(device: configuration.device)
+        self.skyboxGenerator = SkyboxGenerator(device: configuration.device)
+        self.imageBasedLightTextureGenerator = ImageBasedLightTextureGenerator(device: configuration.device)
         self.commandQueue = configuration.commandQueue
         self.deformationSystem = try _Proto_LowLevelDeformationSystem_v1.make(configuration.device, configuration.commandQueue).get()
         let meshInstances = try configuration.renderContext.makeMeshInstanceArray(renderTargets: [configuration.renderTarget], count: 16)
@@ -917,7 +919,7 @@ extension WKBridgeReceiver {
                 fatalError("Could not make metal texture from environment asset data")
             }
 
-            let cubeMTLTextureDescriptor = try self.textureProcessingContext.createCubeDescriptor(
+            let cubeMTLTextureDescriptor = try self.skyboxGenerator.makeDescriptor(
                 fromEquirectangular: mtlTextureEquirectangular
             )
             // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
@@ -925,13 +927,13 @@ extension WKBridgeReceiver {
             let cubeMTLTexture = self.device.makeTexture(descriptor: cubeMTLTextureDescriptor)!
             cubeMTLTexture.__setOwnerWithIdentity(self.memoryOwner)
 
-            let diffuseMTLTextureDescriptor = try self.textureProcessingContext.createImageBasedLightDiffuseDescriptor(
+            let diffuseMTLTextureDescriptor = try self.imageBasedLightTextureGenerator.makeDiffuseDescriptor(
                 fromCube: cubeMTLTexture
             )
             let diffuseTextureDescriptor = _Proto_LowLevelTextureResource_v1.Descriptor.from(diffuseMTLTextureDescriptor)
             let diffuseTexture = try self.renderContext.makeTextureResource(descriptor: diffuseTextureDescriptor)
 
-            let specularMTLTextureDescriptor = try self.textureProcessingContext.createImageBasedLightSpecularDescriptor(
+            let specularMTLTextureDescriptor = try self.imageBasedLightTextureGenerator.makeSpecularDescriptor(
                 fromCube: cubeMTLTexture
             )
             let specularTextureDescriptor = _Proto_LowLevelTextureResource_v1.Descriptor.from(specularMTLTextureDescriptor)
@@ -941,7 +943,7 @@ extension WKBridgeReceiver {
             // swift-format-ignore: NeverForceUnwrap
             let commandBuffer = self.commandQueue.makeCommandBuffer()!
 
-            try self.textureProcessingContext.generateCube(
+            try self.skyboxGenerator.generateSkybox(
                 using: commandBuffer,
                 fromEquirectangular: mtlTextureEquirectangular,
                 into: cubeMTLTexture
@@ -950,12 +952,12 @@ extension WKBridgeReceiver {
             let diffuseMTLTexture = diffuseTexture.replace(using: commandBuffer)
             let specularMTLTexture = specularTexture.replace(using: commandBuffer)
 
-            try self.textureProcessingContext.generateImageBasedLightDiffuse(
+            try self.imageBasedLightTextureGenerator.generateDiffuse(
                 using: commandBuffer,
                 fromSkyboxCube: cubeMTLTexture,
                 into: diffuseMTLTexture
             )
-            try self.textureProcessingContext.generateImageBasedLightSpecular(
+            try self.imageBasedLightTextureGenerator.generateSpecular(
                 using: commandBuffer,
                 fromSkyboxCube: cubeMTLTexture,
                 into: specularMTLTexture
