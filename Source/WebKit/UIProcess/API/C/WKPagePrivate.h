@@ -175,7 +175,7 @@ WK_EXPORT void WKPageSetUseDarkAppearanceForTesting(WKPageRef pageRef, bool useD
 WK_EXPORT WKProcessID WKPageGetProcessIdentifier(WKPageRef page);
 WK_EXPORT WKProcessID WKPageGetGPUProcessIdentifier(WKPageRef page);
 
-typedef void (*WKPageGetApplicationManifestFunction)(void* functionContext);
+typedef void (*WKPageGetApplicationManifestFunction)(void* functionContext, bool success);
 WK_EXPORT void WKPageGetApplicationManifest(WKPageRef page, void* context, WKPageGetApplicationManifestFunction block);
 
 typedef void (*WKPageDumpPrivateClickMeasurementFunction)(WKStringRef privateClickMeasurementRepresentation, void* functionContext);

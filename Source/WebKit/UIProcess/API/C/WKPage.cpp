@@ -3206,11 +3206,11 @@ void WKPageGetApplicationManifest(WKPageRef pageRef, void* context, WKPageGetApp
     CRASH_IF_SUSPENDED;
 #if ENABLE(APPLICATION_MANIFEST)
     protect(toImpl(pageRef))->getApplicationManifest([function, context](const std::optional<WebCore::ApplicationManifest>& manifest) {
-        function(context);
+        function(context, !!manifest);
     });
 #else
     UNUSED_PARAM(pageRef);
-    function(context);
+    function(context, false);
 #endif
 }
 
