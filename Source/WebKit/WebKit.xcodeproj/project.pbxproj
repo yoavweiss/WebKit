@@ -8722,6 +8722,8 @@
 		E3DCC9AA2DA07FA0008712FE /* WebKitServiceNames.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebKitServiceNames.h; sourceTree = "<group>"; };
 		E3E1B33C2F85021400B584C4 /* com.apple.WebProcess.x86.sb */ = {isa = PBXFileReference; lastKnownFileType = file; path = com.apple.WebProcess.x86.sb; sourceTree = "<group>"; };
 		E3E1B33F2F85084300B584C4 /* com.apple.WebProcess.x86.sb.in */ = {isa = PBXFileReference; lastKnownFileType = text; name = com.apple.WebProcess.x86.sb.in; path = WebProcess/com.apple.WebProcess.x86.sb.in; sourceTree = "<group>"; };
+		E3E1B3402F85274B00B584C4 /* xpc-parent.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "xpc-parent.plist"; sourceTree = "<group>"; };
+		E3E1B3412F85274B00B584C4 /* xpc-self.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "xpc-self.plist"; sourceTree = "<group>"; };
 		E3E6297C2D5FA8F200DAE50C /* ServiceWorkerDebuggableProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ServiceWorkerDebuggableProxy.h; sourceTree = "<group>"; };
 		E3E6297D2D5FA8F200DAE50C /* ServiceWorkerDebuggableProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ServiceWorkerDebuggableProxy.cpp; sourceTree = "<group>"; };
 		E3E84BED2AE1AA5A0091B3C2 /* ExtensionKitSPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExtensionKitSPI.h; sourceTree = "<group>"; };
@@ -10124,6 +10126,7 @@
 		1A4F9769100E7B6600637A18 /* Configurations */ = {
 			isa = PBXGroup;
 			children = (
+				E3E1B3422F85274B00B584C4 /* LaunchConstraints */,
 				07275C5F2D00CAAD002315A5 /* _WebKit_SwiftUI.xcconfig */,
 				5CAF7AA626F93AA50003F19E /* adattributiond.xcconfig */,
 				A1EDD2D91884ACE000BBFE98 /* All.xcconfig */,
@@ -17576,6 +17579,15 @@
 				E361284B2F3668E000F85DA8 /* webcontent-defines.sb */,
 			);
 			path = macOS;
+			sourceTree = "<group>";
+		};
+		E3E1B3422F85274B00B584C4 /* LaunchConstraints */ = {
+			isa = PBXGroup;
+			children = (
+				E3E1B3402F85274B00B584C4 /* xpc-parent.plist */,
+				E3E1B3412F85274B00B584C4 /* xpc-self.plist */,
+			);
+			path = LaunchConstraints;
 			sourceTree = "<group>";
 		};
 		E404906F21DE65D70037F0DB /* mac */ = {
