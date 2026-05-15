@@ -3570,8 +3570,8 @@ RefPtr<Element> Element::retargetReferenceTargetForBindings(RefPtr<Element> elem
 
 ShadowRoot* Element::userAgentShadowRoot() const
 {
-    ASSERT(!shadowRoot() || shadowRoot()->mode() == ShadowRootMode::UserAgent);
-    return shadowRoot();
+    auto* root = shadowRoot();
+    return root && root->mode() == ShadowRootMode::UserAgent ? root : nullptr;
 }
 
 ShadowRoot& Element::ensureUserAgentShadowRoot()
