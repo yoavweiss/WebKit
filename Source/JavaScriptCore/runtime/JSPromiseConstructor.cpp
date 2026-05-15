@@ -499,10 +499,8 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAll, (JSGlobalObject* globalObjec
             }
         }
 
-        if (!onRejected) {
-            auto [resolve, reject] = promise->createFirstResolvingFunctions(vm, globalObject);
-            onRejected = reject;
-        }
+        if (!onRejected)
+            onRejected = promise->createFirstRejectFunction(vm, globalObject);
         JSValue then = nextPromise->get(globalObject, vm.propertyNames->then);
         RETURN_IF_EXCEPTION(scope, void());
         CallData thenCallData = getCallDataInline(then);
@@ -1299,10 +1297,8 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAny, (JSGlobalObject* globalObjec
         }
 
         // For Promise.any, onFulfilled just resolves the main promise directly
-        if (!resolve) {
-            auto [onFulfilled, onRejected] = promise->createFirstResolvingFunctions(vm, globalObject);
-            resolve = onFulfilled;
-        }
+        if (!resolve)
+            resolve = promise->createFirstResolveFunction(vm, globalObject);
 
         auto* onRejected = JSFunctionWithFields::create(vm, globalObject, vm.promiseAnyRejectFunctionExecutable(), 1, emptyString());
         onRejected->setField(vm, JSFunctionWithFields::Field::PromiseAnyContext, context);

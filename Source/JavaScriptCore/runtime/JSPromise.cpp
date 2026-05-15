@@ -687,15 +687,23 @@ std::tuple<JSFunction*, JSFunction*> JSPromise::createResolvingFunctions(VM& vm,
     return std::tuple { resolve, reject };
 }
 
-std::tuple<JSFunction*, JSFunction*> JSPromise::createFirstResolvingFunctions(VM& vm, JSGlobalObject* globalObject)
+JSFunction* JSPromise::createFirstResolveFunction(VM& vm, JSGlobalObject* globalObject)
 {
     auto* resolve = JSFunctionWithFields::create(vm, globalObject, vm.promiseFirstResolvingFunctionResolveExecutable(), 1, nullString());
-    auto* reject = JSFunctionWithFields::create(vm, globalObject, vm.promiseFirstResolvingFunctionRejectExecutable(), 1, nullString());
-
     resolve->setField(vm, JSFunctionWithFields::Field::FirstResolvingPromise, this);
-    reject->setField(vm, JSFunctionWithFields::Field::FirstResolvingPromise, this);
+    return resolve;
+}
 
-    return std::tuple { resolve, reject };
+JSFunction* JSPromise::createFirstRejectFunction(VM& vm, JSGlobalObject* globalObject)
+{
+    auto* reject = JSFunctionWithFields::create(vm, globalObject, vm.promiseFirstResolvingFunctionRejectExecutable(), 1, nullString());
+    reject->setField(vm, JSFunctionWithFields::Field::FirstResolvingPromise, this);
+    return reject;
+}
+
+std::tuple<JSFunction*, JSFunction*> JSPromise::createFirstResolvingFunctions(VM& vm, JSGlobalObject* globalObject)
+{
+    return std::tuple { createFirstResolveFunction(vm, globalObject), createFirstRejectFunction(vm, globalObject) };
 }
 
 std::tuple<JSFunction*, JSFunction*> JSPromise::createResolvingFunctionsWithInternalMicrotask(VM& vm, JSGlobalObject* globalObject, InternalMicrotask task, JSValue context)
