@@ -626,6 +626,12 @@ AcceleratedSurface::SwapChain::SwapChain(AcceleratedSurface& surface)
         setupBufferFormat();
         break;
 #endif
+#else
+    case PlatformDisplay::Type::Surfaceless:
+#if USE(GBM)
+    case PlatformDisplay::Type::GBM:
+#endif
+        break;
 #endif // PLATFORM(GTK) || ENABLE(WPE_PLATFORM)
 #if USE(WPE_RENDERER)
     case PlatformDisplay::Type::WPE:
