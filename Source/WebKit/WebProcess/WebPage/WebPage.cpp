@@ -1121,6 +1121,16 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
             page->send(Messages::WebPageProxy::SetAccessibilityMode(mode));
     });
 
+    if (auto mode = WebCore::AXObjectCache::accessibilityMode(); !WebCore::isAccessibilityModeOff(mode)) {
+        // If accessibility was already enabled process-wide before this WebPage was
+        // created (e.g. WebProcess::setEnhancedAccessibility ran before initialize),
+        // the mode transition fired before the sync callback above was registered, so
+        // the new WebPageProxy on the UIProcess never learned about it. Sync the
+        // current mode now so requestFrameScreenPosition and other AX-mode-gated
+        // IPCs aren't dropped.
+        send(Messages::WebPageProxy::SetAccessibilityMode(mode));
+    }
+
 #if PLATFORM(MAC)
     if (WebCore::AXObjectCache::shouldForceAccessibilityEnabled())
         WebCore::AXObjectCache::enableAccessibility(WebCore::AXObjectCache::ForceAXThreadMode::Yes);
