@@ -17196,7 +17196,9 @@ void WebPageProxy::getLoadedSubresourceDomains(CompletionHandler<void(Vector<Reg
 
 void WebPageProxy::clearLoadedSubresourceDomains()
 {
-    send(Messages::WebPage::ClearLoadedSubresourceDomains());
+    forEachWebContentProcess([](auto& process, auto pageID) {
+        process.send(Messages::WebPage::ClearLoadedSubresourceDomains(), pageID);
+    });
 }
 
 #if ENABLE(GPU_PROCESS)
