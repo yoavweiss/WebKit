@@ -1325,6 +1325,27 @@ bool SourceBufferPrivate::processMediaSample(SourceBufferPrivateClient& client, 
             }
         }
 
+        // Proposed amendment to "Coded Frame Processing" tracked at
+        // w3c/media-source#375 (presentation-timestamp collision cleanup).
+        // Sits between step 1.13 (overlap check) and step 1.14 (remove existing
+        // coded frames) of the algorithm.
+        //
+        // Remove coded frames whose presentation timestamp is within 1
+        // microsecond of the incoming sample's presentation timestamp. The
+        // tolerance matches the one used by step 1.13 and is there for
+        // float/rational timestamp conversion robustness. Must run
+        // unconditionally: a continuous mid-stream append where the incoming
+        // sample's presentation timestamp coincides with an existing sample's
+        // can reach step 1.16 "Add the coded frame" with all other cleanup
+        // steps (1.13, 1.14-first, 1.14-second, step-1.15 sweep) no-opping.
+        {
+            MediaTime lowerPresentationTime = sample->presentationTime() - microsecond;
+            MediaTime upperPresentationTime = sample->presentationTime() + microsecond;
+            auto presentationRange = trackBuffer.samples().presentationOrder().findSamplesBetweenPresentationTimes(lowerPresentationTime, upperPresentationTime);
+            for (auto it = presentationRange.first; it != presentationRange.second; ++it)
+                erasedSamples.addSample(it->second.copyRef());
+        }
+
         // 1.14 Remove existing coded frames in track buffer:
         // If highest presentation timestamp for track buffer is not set:
         if (trackBuffer.highestPresentationTimestamp().isInvalid()) {
@@ -1366,17 +1387,16 @@ bool SourceBufferPrivate::processMediaSample(SourceBufferPrivateClient& client, 
             while (nextSyncSample != trackBuffer.samples().decodeOrder().end() && Ref { nextSyncSample->second }->presentationTime() <= sample->presentationTime())
                 nextSyncSample = trackBuffer.samples().decodeOrder().findSyncSampleAfterDecodeIterator(nextSyncSample);
 
-            // Note that prev(begin()) is Undefined Behaviour, so we exclude that case for nextSyncSample in the if.
-            // We also want to make sure that the list isn't empty in case nextSyncSample is end(), so there's at least
-            // a previous element to get in that case.
-            if (nextSampleInDecodeOrderRef->presentationTime() < sample->presentationTime()
-                && nextSyncSample != trackBuffer.samples().decodeOrder().begin()
-                && trackBuffer.samples().decodeOrder().size() > 0) {
+            // Note: findSyncSampleAfterDecodeIterator pre-increments its input before scanning
+            // (see SampleMap.cpp: std::find_if(++currentSampleDTS, end(), ...)), so it always
+            // returns either end() or an iterator strictly past nextSampleInDecodeOrder.
+            // Since nextSampleInDecodeOrder is not end() by the earlier guard, nextSyncSample
+            // cannot equal begin(), so std::prev(nextSyncSample) is safe.
+            if (nextSampleInDecodeOrderRef->presentationTime() < sample->presentationTime()) {
                 // Try to fix the out-of-ordering by placing the decoding timestamp of sample after the decoding timestamp
-                // of the last pre-existing sample before the next sync sample whis has a presentationTime lower than sample.
+                // of the last pre-existing sample before the next sync sample which has a presentationTime lower than sample.
                 // This would have been the last sample to be erased if this decoding timestamp correction wasn't applied.
                 auto lastSampleBeforeSyncOrBeforeEnd = std::prev(nextSyncSample);
-                // We also exclude the case of no sample previous to the last one.
                 auto lastSampleBeforeSyncOrBeforeEndRef = lastSampleBeforeSyncOrBeforeEnd->second;
                 if (lastSampleBeforeSyncOrBeforeEndRef->presentationTime() < sample->presentationTime()) {
                     const MediaTime epsilon = MediaTime(100, 1000000); // 100 µs.
@@ -1472,12 +1492,27 @@ bool SourceBufferPrivate::processMediaSample(SourceBufferPrivateClient& client, 
             auto nextSyncIter = trackBuffer.samples().decodeOrder().findSyncSampleAfterDecodeIterator(lastDecodeIter);
             dependentSamples.insert(firstDecodeIter, nextSyncIter);
 
-            // NOTE: in the case of b-frames, the previous step may leave in place samples whose presentation
-            // timestamp < presentationTime, but whose decode timestamp >= decodeTime. These will eventually cause
-            // a decode error if left in place, so remove these samples as well.
-            DecodeOrderSampleMap::KeyType decodeKey(sample->decodeTime(), sample->presentationTime());
-            if (auto samplesWithHigherDecodeTimes = trackBuffer.samples().decodeOrder().findSamplesBetweenDecodeKeys(decodeKey, erasedSamples.decodeOrder().begin()->first); samplesWithHigherDecodeTimes.size())
-                dependentSamples.insert(samplesWithHigherDecodeTimes.begin(), samplesWithHigherDecodeTimes.end());
+            // Proposed amendment to "Coded Frame Processing" tracked at
+            // w3c/media-source#374 (SAP Type 2 decode-shadowed orphan cleanup).
+            //
+            // Remove non-sync coded frames whose decode timestamp is strictly
+            // greater than the incoming sample's and whose presentation
+            // timestamp is less than the incoming sample's. The issue's
+            // amendment note permits implementations to bound the scan; the
+            // bound used here is erasedSamples.decodeOrder().begin()->first,
+            // relying on the predicate itself to preserve random access points
+            // and samples whose presentation timestamp is at or after the
+            // incoming sample's when the bound does not line up exactly with
+            // the next random access point in decode order.
+            DecodeOrderSampleMap::KeyType incomingDecodeKey(sample->decodeTime(), sample->presentationTime());
+            auto samplesInRange = trackBuffer.samples().decodeOrder().findSamplesBetweenDecodeKeys(incomingDecodeKey, erasedSamples.decodeOrder().begin()->first);
+            for (auto& entry : samplesInRange) {
+                Ref existingSample = entry.second;
+                if (existingSample->isSync())
+                    continue;
+                if (existingSample->presentationTime() < sample->presentationTime())
+                    dependentSamples.insert(entry);
+            }
 
             PlatformTimeRanges erasedRanges = removeSamplesFromTrackBuffer(dependentSamples, trackBuffer, "didReceiveSample"_s);
 

@@ -123,6 +123,14 @@ void TrackBuffer::adjustSampleStartTime(MediaSample& original, const MediaTime& 
 
 void TrackBuffer::addSample(MediaSample& sample)
 {
+    // The track buffer's main SampleMap must never receive a duplicate
+    // (PT) / (DTS, PT) key: SampleMap accounts for sizeInBytes() unconditionally
+    // (used by eviction), and a silent insert no-op would skew that accounting
+    // and leave the presentation- and decode-order maps inconsistent. Callers
+    // (notably SourceBufferPrivate::processMediaSample) are responsible for
+    // erasing any colliding sample before adding the new one.
+    ASSERT(m_samples.decodeOrder().findSampleWithDecodeKey(DecodeOrderSampleMap::KeyType(sample.decodeTime(), sample.presentationTime())) == m_samples.decodeOrder().end());
+
     m_samples.addSample(sample);
 
     // Note: The terminology here is confusing: "enqueuing" means providing a frame to the inner media framework.

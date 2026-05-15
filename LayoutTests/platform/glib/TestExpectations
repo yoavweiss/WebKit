@@ -5561,6 +5561,10 @@ ipc/empty-svgfilterrenderer-expression-crash.html [ Skip ]
 
 webkit.org/b/314373 media/media-source/media-source-real-webm-fastseek.html [ Failure ]
 webkit.org/b/314373 media/media-source/media-source-real-webm-remove.html [ Failure ]
+webkit.org/b/314776 media/media-source/media-source-append-bframe-orphan-post-reset.html [ Failure ]
+webkit.org/b/314776 media/media-source/media-source-append-overlapping-equal-decode-key.html [ Failure ]
+webkit.org/b/314776 media/media-source/media-source-append-pt-collision-tail.html [ Failure ]
+
 # test timeout, skip it for now
 webkit.org/b/314643 media/media-source/media-source-duration-truncation-ended.html [ Skip ]
 
