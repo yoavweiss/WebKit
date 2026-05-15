@@ -539,13 +539,12 @@ void RenderBlock::layout()
 
     // Table cells call layoutBlock directly, so don't add any logic here. Put code into layoutBlock().
     {
-        std::optional<SubtreeScrollbarChangesStateScope> subtreeScrollbarChangesStateScope;
-        if (needsToTrackDescendantScrollbarChanges(*this, layoutContext))
-            subtreeScrollbarChangesStateScope.emplace(layoutContext, *this);
-
-        bool willHandleDescendantScrollbarChanges = subtreeScrollbarChangesStateScope.has_value() || canContainDescendantScrollbarChanges(*this, layoutContext);
         auto scope = LayoutScope { *this };
-        if (willHandleDescendantScrollbarChanges) {
+        if (needsToTrackDescendantScrollbarChanges(*this, layoutContext)) {
+            SubtreeScrollbarChangesStateScope subtreeScrollbarChangesStateScope(layoutContext, *this);
+            SubtreeScrollbarChangesHandler descendantScrollbarChangesHandler(*this);
+            layoutBlock(RelayoutChildren::No);
+        } else if (canContainDescendantScrollbarChanges(*this, layoutContext)) {
             SubtreeScrollbarChangesHandler descendantScrollbarChangesHandler(*this);
             layoutBlock(RelayoutChildren::No);
         } else

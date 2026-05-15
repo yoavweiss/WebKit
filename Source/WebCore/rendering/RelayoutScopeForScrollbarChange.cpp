@@ -56,6 +56,7 @@ RelayoutScopeForScrollbarChange::~RelayoutScopeForScrollbarChange()
     if (m_renderBlock->style().overflowX() == Overflow::Auto || m_renderBlock->style().overflowY() == Overflow::Auto) {
         if (m_inOverflowRelayout == InOverflowRelayout::No) {
             if (auto& subtreeScrollbarChangesState = m_renderBlock->layoutContext().subtreeScrollbarChangesState(); subtreeScrollbarChangesState && subtreeScrollbarChangesState->isEligibleForScrollbarHandlingByAncestor(m_renderBlock.get())) {
+                ASSERT(m_renderBlock.ptr() != subtreeScrollbarChangesState->subtreeRoot.ptr());
                 subtreeScrollbarChangesState->renderersWithScrollbarChange.add(m_renderBlock);
                 return;
             }
