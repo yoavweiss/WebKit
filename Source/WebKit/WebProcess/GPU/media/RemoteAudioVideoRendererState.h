@@ -27,7 +27,6 @@
 
 #include <WebCore/FloatSize.h>
 #include <WebCore/MediaTimeUpdateData.h>
-#include <WebCore/VideoPlaybackQualityMetrics.h>
 #include <wtf/MediaTime.h>
 #include <wtf/Seconds.h>
 
@@ -41,7 +40,6 @@ constexpr Seconds remoteAudioVideoRendererUpdateInterval = 250_ms;
 struct RemoteAudioVideoRendererState {
     WebCore::MediaTimeUpdateData timeUpdateData { };
     bool paused { false };
-    std::optional<WebCore::VideoPlaybackQualityMetrics> videoPlaybackQualityMetrics { };
 };
 
 }

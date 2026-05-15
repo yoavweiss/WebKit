@@ -425,8 +425,39 @@ Ref<AudioVideoRenderer::BitmapImagePromise> AudioVideoRendererRemote::currentBit
 
 std::optional<VideoPlaybackQualityMetrics> AudioVideoRendererRemote::videoPlaybackQualityMetrics()
 {
-    Locker locker { m_lock };
-    return m_cachedState.videoPlaybackQualityMetrics;
+    constexpr Seconds maximumPlaybackQualityMetricsSampleTimeDelta = 250_ms;
+    constexpr Seconds minimumPlaybackQualityMetricsUpdateInterval = 250_ms;
+
+    std::optional<Seconds> newInterval;
+    std::optional<VideoPlaybackQualityMetrics> cached;
+    Seconds timeSinceLastQuery;
+    Seconds currentInterval;
+    {
+        Locker locker { m_lock };
+        auto now = MonotonicTime::now();
+        timeSinceLastQuery = now - m_lastPlaybackQualityMetricsQueryTime;
+        if (!m_videoPlaybackMetricsUpdateInterval)
+            newInterval = 1_s;
+        else if (std::abs((timeSinceLastQuery - m_videoPlaybackMetricsUpdateInterval).value()) > maximumPlaybackQualityMetricsSampleTimeDelta.value())
+            newInterval = std::max(timeSinceLastQuery, minimumPlaybackQualityMetricsUpdateInterval);
+        m_lastPlaybackQualityMetricsQueryTime = now;
+        if (newInterval)
+            m_videoPlaybackMetricsUpdateInterval = *newInterval;
+        currentInterval = m_videoPlaybackMetricsUpdateInterval;
+        cached = m_cachedState.videoPlaybackQualityMetrics;
+    }
+    DEBUG_LOG(LOGIDENTIFIER, "timeSinceLastQuery=", timeSinceLastQuery.value(), "s interval=", currentInterval.value(), "s", newInterval ? " (interval updated)" : "", cached ? " cached=yes" : " cached=no");
+    if (newInterval)
+        updateVideoPlaybackMetricsUpdateInterval(*newInterval);
+    return cached;
+}
+
+void AudioVideoRendererRemote::updateVideoPlaybackMetricsUpdateInterval(const Seconds& interval)
+{
+    DEBUG_LOG(LOGIDENTIFIER, "interval=", interval.value(), "s");
+    ensureOnDispatcherWithConnection([identifier = m_identifier, interval](AudioVideoRendererRemote&, IPC::Connection& connection) {
+        connection.send(Messages::RemoteAudioVideoRendererProxyManager::SetVideoPlaybackMetricsUpdateInterval(identifier, interval.value()), 0);
+    });
 }
 
 PlatformLayer* AudioVideoRendererRemote::platformVideoLayer() const
@@ -877,10 +908,19 @@ WTFLogChannel& AudioVideoRendererRemote::logChannel() const
 
 void AudioVideoRendererRemote::updateCacheState(const RemoteAudioVideoRendererState& state)
 {
+    constexpr Seconds playbackQualityMetricsTimeout = 30_s;
     m_timeEstimator.setTime(state.timeUpdateData);
-    Locker locker { m_lock };
-    m_cachedState.paused = state.paused;
-    m_cachedState.videoPlaybackQualityMetrics = state.videoPlaybackQualityMetrics;
+    bool shouldDisableMetrics = false;
+    {
+        Locker locker { m_lock };
+        m_cachedState.paused = state.paused;
+        if (m_videoPlaybackMetricsUpdateInterval && (MonotonicTime::now() - m_lastPlaybackQualityMetricsQueryTime) > playbackQualityMetricsTimeout) {
+            m_videoPlaybackMetricsUpdateInterval = 0_s;
+            shouldDisableMetrics = true;
+        }
+    }
+    if (shouldDisableMetrics)
+        updateVideoPlaybackMetricsUpdateInterval(0_s);
 }
 
 AudioVideoRendererRemote::ReadyForMoreDataState& AudioVideoRendererRemote::readyForMoreDataState(TrackIdentifier trackIdentifier)
@@ -1097,11 +1137,15 @@ void AudioVideoRendererRemote::MessageReceiver::firstFrameAvailable(RemoteAudioV
     }
 }
 
-void AudioVideoRendererRemote::MessageReceiver::hasAvailableVideoFrame(MediaTime time, double clockTime, RemoteAudioVideoRendererState state)
+void AudioVideoRendererRemote::MessageReceiver::hasAvailableVideoFrame(MediaTime time, double clockTime, RemoteAudioVideoRendererState state, std::optional<VideoPlaybackQualityMetrics> metrics)
 {
     if (RefPtr parent = m_parent.get()) {
         assertIsCurrent(queueSingleton());
         parent->updateCacheState(state);
+        if (metrics) {
+            Locker locker { parent->m_lock };
+            parent->m_cachedState.videoPlaybackQualityMetrics = WTF::move(metrics);
+        }
         if (parent->m_hasAvailableVideoFrameCallback)
             parent->m_hasAvailableVideoFrameCallback(time, clockTime);
     }
@@ -1208,6 +1252,15 @@ void AudioVideoRendererRemote::MessageReceiver::stateUpdate(RemoteAudioVideoRend
 {
     if (RefPtr parent = m_parent.get())
         parent->updateCacheState(state);
+}
+
+void AudioVideoRendererRemote::MessageReceiver::updatePlaybackQualityMetrics(WebCore::VideoPlaybackQualityMetrics metrics)
+{
+    if (RefPtr parent = m_parent.get()) {
+        DEBUG_LOG_WITH_THIS(parent.get(), LOGIDENTIFIER_WITH_THIS(parent.get()), "total=", metrics.totalVideoFrames, " dropped=", metrics.droppedVideoFrames, " corrupted=", metrics.corruptedVideoFrames, " displayComposited=", metrics.displayCompositedVideoFrames, " frameDelay=", metrics.totalFrameDelay);
+        Locker locker { parent->m_lock };
+        parent->m_cachedState.videoPlaybackQualityMetrics = WTF::move(metrics);
+    }
 }
 
 #if PLATFORM(COCOA)

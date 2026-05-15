@@ -1116,55 +1116,31 @@ unsigned VideoMediaSampleRenderer::totalDisplayedFrames() const
     return isUsingDecompressionSession() ? m_presentedVideoFrames.load() : ++m_sampleCount;
 }
 
-unsigned VideoMediaSampleRenderer::totalVideoFrames() const
+std::optional<VideoPlaybackQualityMetrics> VideoMediaSampleRenderer::videoPlaybackQualityMetrics() const
 {
     assertIsMainThread();
 
-    if (isUsingDecompressionSession() && !m_decompressionSessionBlocked)
-        return m_totalVideoFrames;
+    if (isUsingDecompressionSession() && !m_decompressionSessionBlocked) {
+        return VideoPlaybackQualityMetrics {
+            m_totalVideoFrames.load(),
+            m_droppedVideoFrames.load(),
+            m_corruptedVideoFrames.load(),
+            m_totalFrameDelay.toDouble(),
+            m_presentedVideoFrames.load()
+        };
+    }
 #if PLATFORM(WATCHOS)
-    return 0;
+    return std::nullopt;
 #else
-    return [renderer() videoPerformanceMetrics].totalNumberOfVideoFrames;
-#endif
-}
-
-unsigned VideoMediaSampleRenderer::droppedVideoFrames() const
-{
-    assertIsMainThread();
-
-    if (isUsingDecompressionSession() && !m_decompressionSessionBlocked)
-        return m_droppedVideoFrames;
-#if PLATFORM(WATCHOS)
-    return 0;
-#else
-    return [renderer() videoPerformanceMetrics].numberOfDroppedVideoFrames + m_droppedVideoFramesOffset;
-#endif
-}
-
-unsigned VideoMediaSampleRenderer::corruptedVideoFrames() const
-{
-    assertIsMainThread();
-
-    if (isUsingDecompressionSession() && !m_decompressionSessionBlocked)
-        return m_corruptedVideoFrames;
-#if PLATFORM(WATCHOS)
-    return 0;
-#else
-    return [renderer() videoPerformanceMetrics].numberOfCorruptedVideoFrames + m_corruptedVideoFrames;
-#endif
-}
-
-MediaTime VideoMediaSampleRenderer::totalFrameDelay() const
-{
-    assertIsMainThread();
-
-    if (isUsingDecompressionSession() && !m_decompressionSessionBlocked)
-        return m_totalFrameDelay;
-#if PLATFORM(WATCHOS)
-    return MediaTime::invalidTime();
-#else
-    return MediaTime::createWithDouble([renderer() videoPerformanceMetrics].totalFrameDelay);
+    RetainPtr renderer = this->renderer();
+    RetainPtr metrics = [renderer videoPerformanceMetrics];
+    return VideoPlaybackQualityMetrics {
+        static_cast<uint32_t>([metrics totalNumberOfVideoFrames]),
+        static_cast<uint32_t>([metrics numberOfDroppedVideoFrames] + m_droppedVideoFramesOffset),
+        static_cast<uint32_t>([metrics numberOfCorruptedVideoFrames] + m_corruptedVideoFrames.load()),
+        [metrics totalFrameDelay],
+        totalDisplayedFrames()
+    };
 #endif
 }
 

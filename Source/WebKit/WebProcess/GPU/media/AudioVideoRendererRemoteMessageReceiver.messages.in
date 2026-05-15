@@ -32,7 +32,7 @@
 messages -> AudioVideoRendererRemoteMessageReceiver {
     ReadyForMoreMediaData(WebCore::SamplesRendererTrackIdentifier identifier)
     FirstFrameAvailable(struct WebKit::RemoteAudioVideoRendererState state)
-    HasAvailableVideoFrame(MediaTime time, double clockTime, struct WebKit::RemoteAudioVideoRendererState state)
+    HasAvailableVideoFrame(MediaTime time, double clockTime, struct WebKit::RemoteAudioVideoRendererState state, struct std::optional<WebCore::VideoPlaybackQualityMetrics> metrics)
     RequiresFlushToResume(struct WebKit::RemoteAudioVideoRendererState state)
     RenderingModeChanged(struct WebKit::RemoteAudioVideoRendererState state)
     SizeChanged(MediaTime time, WebCore::FloatSize size, struct WebKit::RemoteAudioVideoRendererState state)
@@ -42,6 +42,7 @@ messages -> AudioVideoRendererRemoteMessageReceiver {
     TaskTimeReached(MediaTime time, struct WebKit::RemoteAudioVideoRendererState state)
     ErrorOccurred(WebCore::PlatformMediaError error)
     StateUpdate(struct WebKit::RemoteAudioVideoRendererState state)
+    UpdatePlaybackQualityMetrics(struct WebCore::VideoPlaybackQualityMetrics metrics)
 
 #if PLATFORM(COCOA)
     LayerHostingContextChanged(struct WebKit::RemoteAudioVideoRendererState state, struct WebCore::HostingContext hostingContext, WebCore::FloatSize presentationSize);

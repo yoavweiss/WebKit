@@ -857,13 +857,7 @@ std::optional<VideoPlaybackQualityMetrics> AudioVideoRendererAVFObjC::videoPlayb
     if (!videoRenderer)
         return std::nullopt;
 
-    return VideoPlaybackQualityMetrics {
-        videoRenderer->totalVideoFrames(),
-        videoRenderer->droppedVideoFrames(),
-        videoRenderer->corruptedVideoFrames(),
-        videoRenderer->totalFrameDelay().toDouble(),
-        videoRenderer->totalDisplayedFrames()
-    };
+    return videoRenderer->videoPlaybackQualityMetrics();
 }
 
 PlatformLayer* AudioVideoRendererAVFObjC::platformVideoLayer() const

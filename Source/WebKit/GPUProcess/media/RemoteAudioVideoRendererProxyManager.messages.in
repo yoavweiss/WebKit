@@ -79,6 +79,7 @@ messages -> RemoteAudioVideoRendererProxyManager {
     SetShouldDisableHDR(WebKit::RemoteAudioVideoRendererIdentifier identifier, bool disable)
     SetPlatformDynamicRangeLimit(WebKit::RemoteAudioVideoRendererIdentifier identifier, WebCore::PlatformDynamicRangeLimit limit)
     SetResourceOwner(WebKit::RemoteAudioVideoRendererIdentifier identifier, WebCore::ProcessIdentity resourceOwner)
+    SetVideoPlaybackMetricsUpdateInterval(WebKit::RemoteAudioVideoRendererIdentifier identifier, double interval)
     FlushAndRemoveImage(WebKit::RemoteAudioVideoRendererIdentifier identifier)
     CurrentVideoFrame(WebKit::RemoteAudioVideoRendererIdentifier identifier) -> (struct std::optional<WebKit::RemoteVideoFrameProxyProperties> videoFrame) Synchronous
     CurrentBitmapImage(WebKit::RemoteAudioVideoRendererIdentifier identifier) -> (std::optional<WebCore::ShareableBitmapHandle> image)

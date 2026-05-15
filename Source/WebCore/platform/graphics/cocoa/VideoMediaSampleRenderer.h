@@ -30,6 +30,7 @@
 #include "MediaReorderQueue.h"
 #include "ProcessIdentity.h"
 #include "SampleMap.h"
+#include "VideoPlaybackQualityMetrics.h"
 #include "WebAVSampleBufferListener.h"
 #include <wtf/Deque.h>
 #include <wtf/Forward.h>
@@ -116,10 +117,7 @@ public:
     DisplayedPixelBufferEntry copyDisplayedPixelBuffer();
 
     unsigned NODELETE totalDisplayedFrames() const;
-    unsigned totalVideoFrames() const;
-    unsigned droppedVideoFrames() const;
-    unsigned corruptedVideoFrames() const;
-    MediaTime totalFrameDelay() const;
+    std::optional<VideoPlaybackQualityMetrics> videoPlaybackQualityMetrics() const;
 
     void setResourceOwner(const ProcessIdentity&);
 
