@@ -5066,8 +5066,10 @@ static void convertAndAddHighlight(Vector<Ref<WebCore::SharedMemory>>& buffers, 
 - (void)_switchFromStaticFontRegistryToUserFontRegistry
 {
     THROW_IF_SUSPENDED;
+#if !ENABLE(REMOVE_XPC_AND_MACH_SANDBOX_EXTENSIONS_IN_WEBCONTENT)
     if (_page)
         _page->switchFromStaticFontRegistryToUserFontRegistry();
+#endif
 }
 
 - (void)_didLoadAppInitiatedRequest:(void (^)(BOOL result))completionHandler

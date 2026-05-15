@@ -2418,8 +2418,9 @@ public:
 
     void grantAccessToAssetServices();
     void revokeAccessToAssetServices();
+#if !ENABLE(REMOVE_XPC_AND_MACH_SANDBOX_EXTENSIONS_IN_WEBCONTENT)
     void switchFromStaticFontRegistryToUserFontRegistry();
-
+#endif
     void disableURLSchemeCheckInDataDetectors() const;
 
     void setIsTakingSnapshotsForApplicationSuspension(bool);

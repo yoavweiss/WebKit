@@ -191,8 +191,9 @@ messages -> WebProcess : AuxiliaryProcess WantsAsyncDispatchMessage {
 
     GrantAccessToAssetServices(Vector<WebKit::SandboxExtensionHandle> assetServicesHandles)
     RevokeAccessToAssetServices()
+#if !ENABLE(REMOVE_XPC_AND_MACH_SANDBOX_EXTENSIONS_IN_WEBCONTENT)
     SwitchFromStaticFontRegistryToUserFontRegistry(Vector<WebKit::SandboxExtensionHandle> fontMachExtensionHandles)
-
+#endif
 #if PLATFORM(COCOA)
     DisableURLSchemeCheckInDataDetectors()
     UnblockServicesRequiredByAccessibility(Vector<WebKit::SandboxExtensionHandle> handleArray)

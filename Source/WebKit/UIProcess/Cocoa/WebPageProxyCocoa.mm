@@ -1065,11 +1065,13 @@ void WebPageProxy::disableURLSchemeCheckInDataDetectors() const
     protect(legacyMainFrameProcess())->send(Messages::WebProcess::DisableURLSchemeCheckInDataDetectors(), 0);
 }
 
+#if !ENABLE(REMOVE_XPC_AND_MACH_SANDBOX_EXTENSIONS_IN_WEBCONTENT)
 void WebPageProxy::switchFromStaticFontRegistryToUserFontRegistry()
 {
     if (auto handles = protect(legacyMainFrameProcess())->fontdMachExtensionHandles())
         protect(legacyMainFrameProcess())->send(Messages::WebProcess::SwitchFromStaticFontRegistryToUserFontRegistry(WTF::move(*handles)), 0);
 }
+#endif // !ENABLE(REMOVE_XPC_AND_MACH_SANDBOX_EXTENSIONS_IN_WEBCONTENT)
 
 NSDictionary *WebPageProxy::contentsOfUserInterfaceItem(NSString *userInterfaceItem)
 {

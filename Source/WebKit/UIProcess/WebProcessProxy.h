@@ -543,8 +543,10 @@ public:
 
 #if PLATFORM(COCOA)
     std::optional<audit_token_t> auditToken() const;
+#if !ENABLE(REMOVE_XPC_AND_MACH_SANDBOX_EXTENSIONS_IN_WEBCONTENT)
     std::optional<Vector<SandboxExtension::Handle>> fontdMachExtensionHandles();
 #endif
+#endif // PLATFORM(COCOA)
 
     bool isConnectedToHardwareConsole() const { return m_isConnectedToHardwareConsole; }
 

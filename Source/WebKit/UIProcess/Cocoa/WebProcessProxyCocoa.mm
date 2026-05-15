@@ -275,12 +275,14 @@ std::optional<audit_token_t> WebProcessProxy::auditToken() const
     return protect(connection())->getAuditToken();
 }
 
+#if !ENABLE(REMOVE_XPC_AND_MACH_SANDBOX_EXTENSIONS_IN_WEBCONTENT)
 std::optional<Vector<SandboxExtension::Handle>> WebProcessProxy::fontdMachExtensionHandles()
 {
     if (std::exchange(m_sentFontdMachExtensionHandles, true))
         return std::nullopt;
     return SandboxExtension::createHandlesForMachLookup({ "com.apple.fonts"_s }, auditToken(), SandboxExtension::MachBootstrapOptions::EnableMachBootstrap);
 }
+#endif // !ENABLE(REMOVE_XPC_AND_MACH_SANDBOX_EXTENSIONS_IN_WEBCONTENT)
 
 #if USE(APPLE_INTERNAL_SDK) && __has_include(<WebKitAdditions/WebProcessProxyCocoaAdditions.mm>)
 #import <WebKitAdditions/WebProcessProxyCocoaAdditions.mm>

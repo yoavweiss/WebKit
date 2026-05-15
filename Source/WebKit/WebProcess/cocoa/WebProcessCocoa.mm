@@ -1505,6 +1505,7 @@ void WebProcess::disableURLSchemeCheckInDataDetectors() const
 #endif
 }
 
+#if !ENABLE(REMOVE_XPC_AND_MACH_SANDBOX_EXTENSIONS_IN_WEBCONTENT)
 void WebProcess::switchFromStaticFontRegistryToUserFontRegistry(Vector<WebKit::SandboxExtensionHandle>&& fontMachExtensionHandles)
 {
     SandboxExtension::consumePermanently(fontMachExtensionHandles);
@@ -1512,6 +1513,7 @@ void WebProcess::switchFromStaticFontRegistryToUserFontRegistry(Vector<WebKit::S
     CTFontManagerEnableAllUserFonts(true);
 #endif
 }
+#endif // !ENABLE(REMOVE_XPC_AND_MACH_SANDBOX_EXTENSIONS_IN_WEBCONTENT)
 
 void WebProcess::setScreenProperties(const WebCore::ScreenProperties& properties)
 {
