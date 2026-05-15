@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2003-2026 Apple Inc. All rights reserved.
  * Copyright (C) 2008-2009 Torch Mobile, Inc.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -191,6 +191,8 @@ public:
     virtual bool knownToHaveFloatBasedBacking() const { return false; }
 
     virtual RenderingMode renderingMode() const { return RenderingMode::Unaccelerated; }
+    virtual std::optional<RenderingMethod> renderingMethod() const { return RenderingMethod::Local; }
+
     WEBCORE_EXPORT RenderingMode renderingModeForCompatibleBuffer() const;
 
     // Shapes

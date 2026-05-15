@@ -36,9 +36,9 @@ enum class DecodingMode : uint8_t {
     Asynchronous
 };
 
-// FIXME: Add and handle the DecodingDestination::BaseAndGainMap
 enum class DecodingDestination : uint8_t {
     Base,
+    BaseAndGainMap,
     ShouldDecodeToHDR
 };
 
@@ -66,8 +66,14 @@ public:
 
     bool isCompatibleWith(const DecodingOptions& other) const
     {
-        if (decodingDestination() != other.decodingDestination())
-            return false;
+        if (decodingDestination() != other.decodingDestination()) {
+            // This is the only exception. A fully decoded HDR image is compatible
+            // with DecodingDestination::BaseAndGainMap request.
+            if (decodingDestination() != DecodingDestination::ShouldDecodeToHDR)
+                return false;
+            if (other.decodingDestination() != DecodingDestination::BaseAndGainMap)
+                return false;
+        }
 
         if (isAuto() || other.isAuto())
             return false;

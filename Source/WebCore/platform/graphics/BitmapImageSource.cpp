@@ -335,10 +335,13 @@ bool BitmapImageSource::hasEverAnimated() const
     return m_frameAnimator && m_frameAnimator->hasEverAnimated();
 }
 
-DecodingDestination BitmapImageSource::preferredDecodingDestination(GraphicsContext&, ImagePaintingOptions options) const
+DecodingDestination BitmapImageSource::preferredDecodingDestination(GraphicsContext& context, ImagePaintingOptions options) const
 {
     if (options.drawsHDRContent() == DrawsHDRContent::No || options.dynamicRangeLimit() == PlatformDynamicRangeLimit::standard() || !hasHDRGainMap())
         return DecodingDestination::Base;
+
+    if (options.allowAcceleratedApplyGainMap() == AllowAcceleratedApplyGainMap::Yes && !context.renderingMethod())
+        return DecodingDestination::BaseAndGainMap;
 
     return DecodingDestination::ShouldDecodeToHDR;
 }
@@ -372,9 +375,9 @@ bool BitmapImageSource::isPendingDecodingAtIndex(unsigned index, SubsamplingLeve
     return m_workQueue->isPendingDecodingAtIndex(index, subsamplingLevel, options);
 }
 
-bool BitmapImageSource::isCompatibleWithOptionsAtIndex(unsigned index, SubsamplingLevel subsamplingLevel, const DecodingOptions& options) const
+std::optional<DecodingDestination> BitmapImageSource::compatibleDecodingDestinationWithOptionsAtIndex(unsigned index, SubsamplingLevel subsamplingLevel, const DecodingOptions& options) const
 {
-    return frameAtIndex(index).hasDecodedNativeImageCompatibleWithOptions(options, subsamplingLevel);
+    return frameAtIndex(index).compatibleDecodingDestinationWithOptions(options, subsamplingLevel);
 }
 
 void BitmapImageSource::decode(Function<void(DecodingStatus)>&& decodeCallback)
@@ -389,10 +392,10 @@ void BitmapImageSource::decode(Function<void(DecodingStatus)>&& decodeCallback)
 
     // FIXME: HTMLImageElement.decode() needs a parameter to control whether it should decode SDR or HDR image.
     auto preferredDecodingDestination = hasHDRContent() ? DecodingDestination::ShouldDecodeToHDR : DecodingDestination::Base;
-    auto isCompatibleNativeImage = isCompatibleWithOptionsAtIndex(index, SubsamplingLevel::Default, { DecodingMode::Asynchronous, preferredDecodingDestination });
+    auto compatibleDecodingDestination = compatibleDecodingDestinationWithOptionsAtIndex(index, SubsamplingLevel::Default, { DecodingMode::Asynchronous, preferredDecodingDestination });
 
     RefPtr frameAnimator = this->frameAnimator();
-    if (frameAnimator && (frameAnimator->hasEverAnimated() || isCompatibleNativeImage)) {
+    if (frameAnimator && (frameAnimator->hasEverAnimated() || compatibleDecodingDestination)) {
         // startAnimation() always decodes the nextFrame which is currentFrameIndex + 1.
         // If primaryFrameIndex = 0, then the sequence of decoding is { 1, 2, .., n, 0, 1, ...}.
         if (startAnimation(SubsamplingLevel::Default, DecodingMode::Asynchronous)) {
@@ -401,7 +404,7 @@ void BitmapImageSource::decode(Function<void(DecodingStatus)>&& decodeCallback)
         }
     }
 
-    if (!isCompatibleNativeImage) {
+    if (!compatibleDecodingDestination) {
         LOG(Images, "BitmapImageSource::%s - %p - url: %s. Decoding for frame at index = %d will be requested.", __FUNCTION__, this, sourceUTF8().data(), index);
         requestNativeImageAtIndex(index, SubsamplingLevel::Default, ImageAnimatingState::No, { DecodingMode::Asynchronous, preferredDecodingDestination });
         return;
@@ -557,23 +560,23 @@ DecodingStatus BitmapImageSource::requestNativeImageAtIndex(unsigned index, Subs
     return DecodingStatus::Decoding;
 }
 
-DecodingStatus BitmapImageSource::requestNativeImageAtIndexIfNeeded(unsigned index, SubsamplingLevel subsamplingLevel, ImageAnimatingState animatingState, const DecodingOptions& options)
+Expected<DecodingDestination, DecodingStatus> BitmapImageSource::requestNativeImageAtIndexIfNeeded(unsigned index, SubsamplingLevel subsamplingLevel, ImageAnimatingState animatingState, const DecodingOptions& options)
 {
     if (index >= m_frames.size())
-        return DecodingStatus::Invalid;
+        return makeUnexpected(DecodingStatus::Invalid);
 
     // Never decode the same frame from two different threads.
     if (isPendingDecodingAtIndex(index, subsamplingLevel, options)) {
         LOG(Images, "BitmapImageSource::%s - %p - url: %s. Frame at index = %d is being decoded.", __FUNCTION__, this, sourceUTF8().data(), index);
         ++m_blankDrawCountForTesting;
-        return DecodingStatus::Decoding;
+        return makeUnexpected(DecodingStatus::Decoding);
     }
 
-    // isCompatibleWithOptionsAtIndex() returns true only if the frame is complete.
-    if (isCompatibleWithOptionsAtIndex(index, subsamplingLevel, options))
-        return DecodingStatus::Complete;
+    // compatibleDecodingDestination() returns a DecodingDestination only if the frame is complete.
+    if (auto compatibleDecodingDestination = compatibleDecodingDestinationWithOptionsAtIndex(index, subsamplingLevel, options))
+        return *compatibleDecodingDestination;
 
-    return requestNativeImageAtIndex(index, subsamplingLevel, animatingState, options);
+    return makeUnexpected(requestNativeImageAtIndex(index, subsamplingLevel, animatingState, options));
 }
 
 Expected<Ref<NativeImage>, DecodingStatus> BitmapImageSource::nativeImageAtIndexCacheIfNeeded(unsigned index, SubsamplingLevel subsamplingLevel, const DecodingOptions& options)
@@ -592,18 +595,25 @@ Expected<Ref<NativeImage>, DecodingStatus> BitmapImageSource::nativeImageAtIndex
         return makeUnexpected(DecodingStatus::Decoding);
     }
 
-    if (!isCompatibleWithOptionsAtIndex(index, subsamplingLevel, options)) {
-        DecodingOptions decodingOptions = { DecodingMode::Synchronous, options.decodingDestination() };
-        PlatformImagePtr platformImage = m_decoder->createFrameImageAtIndex(index, subsamplingLevel, decodingOptions);
+    auto decodingDestination = options.decodingDestination();
 
-        RefPtr nativeImage = NativeImage::create(WTF::move(platformImage));
-        if (!nativeImage)
+    if (auto compatibleDecodingDestination = compatibleDecodingDestinationWithOptionsAtIndex(index, subsamplingLevel, options))
+        decodingDestination = *compatibleDecodingDestination;
+    else {
+        auto decodingOptions = DecodingOptions { DecodingMode::Synchronous, decodingDestination };
+
+        auto result = m_decoder->createNativeImageAtIndex(index, subsamplingLevel, decodingOptions);
+        if (!result)
             return makeUnexpected(DecodingStatus::Invalid);
 
-        cacheNativeImageAtIndex(index, subsamplingLevel, decodingOptions, nativeImage.releaseNonNull());
+        Ref nativeImage = WTF::move(std::get<Ref<NativeImage>>(*result));
+        decodingDestination = std::get<DecodingDestination>(*result);
+
+        decodingOptions = { DecodingMode::Synchronous, decodingDestination };
+        cacheNativeImageAtIndex(index, subsamplingLevel, decodingOptions, WTF::move(nativeImage));
     }
 
-    if (RefPtr nativeImage = frameAtIndex(index).nativeImage(options.decodingDestination()))
+    if (RefPtr nativeImage = frameAtIndex(index).nativeImage(decodingDestination))
         return nativeImage.releaseNonNull();
 
     return makeUnexpected(DecodingStatus::Invalid);
@@ -616,11 +626,12 @@ Expected<Ref<NativeImage>, DecodingStatus> BitmapImageSource::nativeImageAtIndex
 
     ASSERT(!isAnimated());
 
-    auto status = requestNativeImageAtIndexIfNeeded(index, subsamplingLevel, ImageAnimatingState::No, options);
-    if (status == DecodingStatus::Invalid || status == DecodingStatus::Decoding)
-        return makeUnexpected(status);
+    auto decodingDestinationOrStatus = requestNativeImageAtIndexIfNeeded(index, subsamplingLevel, ImageAnimatingState::No, options);
+    if (!decodingDestinationOrStatus)
+        return makeUnexpected(decodingDestinationOrStatus.error());
 
-    if (RefPtr nativeImage = frameAtIndex(index).nativeImage(options.decodingDestination()))
+    auto decodingDestination = decodingDestinationOrStatus.value();
+    if (RefPtr nativeImage = frameAtIndex(index).nativeImage(decodingDestination))
         return nativeImage.releaseNonNull();
 
     return makeUnexpected(DecodingStatus::Invalid);

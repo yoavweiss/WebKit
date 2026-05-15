@@ -635,9 +635,12 @@ bool ImageDecoderCG::fetchFrameMetaDataAtIndex(size_t index, SubsamplingLevel su
     return true;
 }
 
-std::optional<GainMap> ImageDecoderCG::frameGainMapAtIndex(size_t index, const DecodingOptions&)
+std::optional<GainMap> ImageDecoderCG::frameGainMapAtIndex(size_t index, const DecodingOptions& decodingOptions)
 {
 #if HAVE(SUPPORT_HDR_DISPLAY_APIS)
+    if (decodingOptions.decodingDestination() != DecodingDestination::BaseAndGainMap)
+        return std::nullopt;
+
     RetainPtr auxiliaryOptions = adoptCF(CFDictionaryCreateMutable(nullptr, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
     CFDictionarySetValue(auxiliaryOptions.get(), kCGImageAuxiliaryDataRepresentation, kCGImageAuxiliaryDataRepresentationPixelBuffer);
 
@@ -662,6 +665,7 @@ std::optional<GainMap> ImageDecoderCG::frameGainMapAtIndex(size_t index, const D
     };
 #else
     UNUSED_PARAM(index);
+    UNUSED_PARAM(decodingOptions);
     return std::nullopt;
 #endif
 }

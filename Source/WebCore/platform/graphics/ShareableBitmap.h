@@ -78,7 +78,7 @@ public:
     IntSize size() const { return m_size; }
     const DestinationColorSpace& colorSpace() const { return m_colorSpace ? *m_colorSpace : DestinationColorSpace::SRGB(); }
     PlatformColorSpaceValue platformColorSpace() const { return colorSpace().platformColorSpace(); }
-    Headroom headroom() const { return m_headroom; }
+    Headroom baseImageHeadroom() const { return m_baseImageHeadroom; }
     bool isOpaque() const { return m_isOpaque; }
 
     unsigned bitsPerComponent() const { ASSERT(!m_bitsPerComponent.hasOverflowed()); return m_bitsPerComponent; }
@@ -109,7 +109,7 @@ private:
 
     IntSize m_size;
     std::optional<DestinationColorSpace> m_colorSpace;
-    Headroom m_headroom { Headroom::None };
+    Headroom m_baseImageHeadroom { Headroom::None };
     bool m_isOpaque { false };
 
     CheckedUint32 m_bitsPerComponent;

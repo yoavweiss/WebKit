@@ -63,7 +63,6 @@ NativeImage::NativeImage(PlatformImagePtr&& platformImage, std::optional<GainMap
     , m_gainMap(WTF::move(gainMap))
 {
     computeHeadroom();
-    ASSERT_IMPLIES(m_gainMap, m_headroom == Headroom::None);
 }
 #endif
 
@@ -93,7 +92,6 @@ void NativeImage::replacePlatformImage(PlatformImagePtr&& platformImage) const
     ASSERT(platformImage);
     m_platformImage = WTF::move(platformImage);
     computeHeadroom();
-    ASSERT_IMPLIES(m_gainMap, m_headroom == Headroom::None);
 }
 
 #if !USE(CG)

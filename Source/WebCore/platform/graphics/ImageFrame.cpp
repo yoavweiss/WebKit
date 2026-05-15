@@ -84,6 +84,9 @@ size_t ImageFrame::clearImage(std::optional<DecodingDestination> decodingDestina
     if (!decodingDestination || *decodingDestination == DecodingDestination::Base)
         sizeInBytes += destination(DecodingDestination::Base).clear();
 
+    if (!decodingDestination || *decodingDestination == DecodingDestination::BaseAndGainMap)
+        sizeInBytes += destination(DecodingDestination::BaseAndGainMap).clear();
+
     if (!decodingDestination || *decodingDestination == DecodingDestination::ShouldDecodeToHDR)
         sizeInBytes += destination(DecodingDestination::ShouldDecodeToHDR).clear();
 
@@ -107,9 +110,17 @@ bool ImageFrame::hasFullSizeNativeImage(DecodingDestination decodingDestination,
     return destination(decodingDestination).hasFullSizeNativeImage() && subsamplingLevel >= m_subsamplingLevel;
 }
 
-bool ImageFrame::hasDecodedNativeImageCompatibleWithOptions(const DecodingOptions& decodingOptions, SubsamplingLevel subsamplingLevel) const
+std::optional<DecodingDestination> ImageFrame::compatibleDecodingDestinationWithOptions(const DecodingOptions& decodingOptions, SubsamplingLevel subsamplingLevel) const
 {
-    return isComplete() && destination(decodingOptions.decodingDestination()).hasDecodedNativeImageCompatibleWithOptions(decodingOptions) && subsamplingLevel >= m_subsamplingLevel;
+    if (!isComplete() || subsamplingLevel < m_subsamplingLevel)
+        return std::nullopt;
+
+    for (auto& destination : m_destinations) {
+        if (destination.hasDecodedNativeImageCompatibleWithOptions(decodingOptions))
+            return destination.decodingOptions.decodingDestination();
+    }
+
+    return std::nullopt;
 }
 
 } // namespace WebCore

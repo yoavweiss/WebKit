@@ -36,10 +36,10 @@ namespace WebCore {
 DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER_AND_EXPORT(ShareableBitmap, WTF_INTERNAL);
 DEFINE_ALLOCATOR_WITH_HEAP_IDENTIFIER(ShareableBitmap);
 
-ShareableBitmapConfiguration::ShareableBitmapConfiguration(const IntSize& size, std::optional<DestinationColorSpace> colorSpace, Headroom headroom, bool isOpaque)
+ShareableBitmapConfiguration::ShareableBitmapConfiguration(const IntSize& size, std::optional<DestinationColorSpace> colorSpace, Headroom baseImageHeadroom, bool isOpaque)
     : m_size(size)
     , m_colorSpace(validateColorSpace(colorSpace))
-    , m_headroom(headroom)
+    , m_baseImageHeadroom(baseImageHeadroom)
     , m_isOpaque(isOpaque)
     , m_bitsPerComponent(calculateBitsPerComponent(this->colorSpace()))
     , m_bytesPerPixel(calculateBytesPerPixel(this->colorSpace()))
@@ -52,10 +52,10 @@ ShareableBitmapConfiguration::ShareableBitmapConfiguration(const IntSize& size, 
 #endif
 {
     ASSERT(!m_size.isEmpty());
-    ASSERT(headroom >= Headroom::None);
+    ASSERT(m_baseImageHeadroom >= Headroom::None);
 }
 
-ShareableBitmapConfiguration::ShareableBitmapConfiguration(const IntSize& size, std::optional<DestinationColorSpace> colorSpace, Headroom headroom, bool isOpaque, unsigned bitsPerComponent, unsigned bytesPerPixel, unsigned bytesPerRow
+ShareableBitmapConfiguration::ShareableBitmapConfiguration(const IntSize& size, std::optional<DestinationColorSpace> colorSpace, Headroom baseImageHeadroom, bool isOpaque, unsigned bitsPerComponent, unsigned bytesPerPixel, unsigned bytesPerRow
 #if USE(CG)
     , CGBitmapInfo bitmapInfo
     , std::optional<ShareableGainMap>&& shareableGainMap
@@ -63,7 +63,7 @@ ShareableBitmapConfiguration::ShareableBitmapConfiguration(const IntSize& size, 
 )
     : m_size(size)
     , m_colorSpace(colorSpace)
-    , m_headroom(headroom)
+    , m_baseImageHeadroom(baseImageHeadroom)
     , m_isOpaque(isOpaque)
     , m_bitsPerComponent(bitsPerComponent)
     , m_bytesPerPixel(bytesPerPixel)
@@ -78,7 +78,7 @@ ShareableBitmapConfiguration::ShareableBitmapConfiguration(const IntSize& size, 
 {
     // This constructor is called when decoding ShareableBitmapConfiguration. So this constructor
     // will behave like the default constructor if a null ShareableBitmapHandle was encoded.
-    ASSERT(headroom >= Headroom::None);
+    ASSERT(m_baseImageHeadroom >= Headroom::None);
 }
 
 CheckedUint32 ShareableBitmapConfiguration::calculateSizeInBytes(const IntSize& size, const DestinationColorSpace& colorSpace)
@@ -96,7 +96,7 @@ RefPtr<ShareableBitmap> ShareableBitmap::create(const ShareableBitmapConfigurati
     if (!sharedMemory)
         return nullptr;
 
-    ASSERT(configuration.headroom() >= Headroom::None);
+    ASSERT(configuration.baseImageHeadroom() >= Headroom::None);
     return adoptRef(new ShareableBitmap(configuration, sharedMemory.releaseNonNull()));
 }
 
@@ -176,7 +176,7 @@ ShareableBitmap::ShareableBitmap(const ShareableBitmapConfiguration& configurati
     : m_configuration(configuration)
     , m_sharedMemory(WTF::move(sharedMemory))
 {
-    ASSERT(m_configuration.headroom() >= Headroom::None);
+    ASSERT(m_configuration.baseImageHeadroom() >= Headroom::None);
 }
 
 std::span<const uint8_t> ShareableBitmap::span() const LIFETIME_BOUND

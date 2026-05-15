@@ -46,6 +46,7 @@ namespace WebCore {
 
 class FragmentedSharedBuffer;
 class ImageFrame;
+class NativeImage;
 
 struct ImageDecoderFrameInfo {
     bool hasAlpha;
@@ -126,6 +127,8 @@ public:
 
     virtual std::optional<GainMap> frameGainMapAtIndex(size_t, const DecodingOptions&) { return std::nullopt; }
     virtual PlatformImagePtr createFrameImageAtIndex(size_t, SubsamplingLevel = SubsamplingLevel::Default, const DecodingOptions& = DecodingOptions(DecodingMode::Synchronous)) = 0;
+
+    std::optional<std::tuple<Ref<NativeImage>, DecodingDestination>> createNativeImageAtIndex(size_t, SubsamplingLevel, const DecodingOptions&);
 
     virtual void setExpectedContentSize(long long) { }
     virtual void setData(const FragmentedSharedBuffer&, bool allDataReceived) = 0;

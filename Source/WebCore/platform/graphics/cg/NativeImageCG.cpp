@@ -95,15 +95,22 @@ DestinationColorSpace NativeImage::colorSpace() const
 
 void NativeImage::computeHeadroom() const
 {
+    constexpr float whiteLevel = 203.0; // Default reference white 203 nits
+    constexpr float peakLevel = 1000.0; // Default to 1000 nits
+    constexpr auto gainMapImageHeadroom = Headroom(peakLevel / whiteLevel);
+
 #if HAVE(SUPPORT_HDR_DISPLAY)
     float headroom = CGImageGetContentHeadroom(m_platformImage.get());
-    m_headroom = Headroom(std::max<float>(headroom, Headroom::None));
+    m_baseImageHeadroom = Headroom(std::max<float>(headroom, Headroom::None));
+#else
+    m_baseImageHeadroom = Headroom::None;
 #endif
-}
 
-Headroom NativeImage::headroom() const
-{
-    return m_headroom;
+    if (hasHDRGainMap()) {
+        m_headroom = gainMapImageHeadroom;
+        ASSERT(m_baseImageHeadroom == Headroom::None);
+    } else
+        m_headroom = m_baseImageHeadroom;
 }
 
 std::optional<Color> NativeImage::singlePixelSolidColor() const

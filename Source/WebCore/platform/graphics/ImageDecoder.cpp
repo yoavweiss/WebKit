@@ -171,4 +171,21 @@ bool ImageDecoder::fetchFrameMetaDataAtIndex(size_t index, SubsamplingLevel subs
     return true;
 }
 
+std::optional<std::tuple<Ref<NativeImage>, DecodingDestination>> ImageDecoder::createNativeImageAtIndex(size_t index, SubsamplingLevel subsamplingLevel, const DecodingOptions& options)
+{
+    DecodingOptions decodingOptions = options;
+
+    auto gainMap = frameGainMapAtIndex(index, decodingOptions);
+    if (!gainMap && decodingOptions.decodingDestination() == DecodingDestination::BaseAndGainMap)
+        decodingOptions = { decodingOptions.decodingMode(), DecodingDestination::ShouldDecodeToHDR, decodingOptions.sizeForDrawing() };
+
+    PlatformImagePtr platformImage = createFrameImageAtIndex(index, subsamplingLevel, decodingOptions);
+    if (!platformImage)
+        return std::nullopt;
+
+    RefPtr nativeImage = NativeImage::create(WTF::move(platformImage), WTF::move(gainMap));
+
+    return { { nativeImage.releaseNonNull(), decodingOptions.decodingDestination() } };
+}
+
 } // namespace WebCore

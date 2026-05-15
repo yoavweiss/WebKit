@@ -44,7 +44,7 @@ namespace WebCore {
 ShareableBitmapConfiguration::ShareableBitmapConfiguration(const NativeImage& image)
     : m_size(image.size())
     , m_colorSpace(image.colorSpace())
-    , m_headroom(image.headroom())
+    , m_baseImageHeadroom(image.baseImageHeadroom())
     , m_bitsPerComponent(CGImageGetBitsPerComponent(image.platformImage().get()))
     , m_bytesPerPixel(CGImageGetBitsPerPixel(image.platformImage().get()) / 8)
     , m_bytesPerRow(CGImageGetBytesPerRow(image.platformImage().get()))
@@ -237,16 +237,15 @@ PlatformImagePtr ShareableBitmap::createBasePlatformImage(BackingStoreCopy copyB
     unsigned bytesPerRow = m_configuration.bytesPerRow();
 
 #if HAVE(SUPPORT_HDR_DISPLAY_APIS)
-    if (m_configuration.headroom() > Headroom::None)
-        return adoptCF(CGImageCreateWithContentHeadroom(m_configuration.headroom(), size().width(), size().height(), bitsPerComponent, bitsPerPixel, bytesPerRow, protect(m_configuration.platformColorSpace()).get(), m_configuration.bitmapInfo(), dataProvider.get(), 0, shouldInterpolate == ShouldInterpolate::Yes, kCGRenderingIntentDefault));
+    if (m_configuration.baseImageHeadroom() > Headroom::None)
+        return adoptCF(CGImageCreateWithContentHeadroom(m_configuration.baseImageHeadroom(), size().width(), size().height(), bitsPerComponent, bitsPerPixel, bytesPerRow, protect(m_configuration.platformColorSpace()).get(), m_configuration.bitmapInfo(), dataProvider.get(), 0, shouldInterpolate == ShouldInterpolate::Yes, kCGRenderingIntentDefault));
 #endif
     return adoptCF(CGImageCreate(size().width(), size().height(), bitsPerComponent, bitsPerPixel, bytesPerRow, protect(m_configuration.platformColorSpace()).get(), m_configuration.bitmapInfo(), dataProvider.get(), 0, shouldInterpolate == ShouldInterpolate::Yes, kCGRenderingIntentDefault));
-
 }
 
 PlatformImagePtr ShareableBitmap::createPlatformImage(BackingStoreCopy copyBehavior, ShouldInterpolate shouldInterpolate)
 {
-    auto basePlatformImage = createBasePlatformImage(copyBehavior, shouldInterpolate);
+    RetainPtr basePlatformImage = createBasePlatformImage(copyBehavior, shouldInterpolate);
     if (!basePlatformImage)
         return basePlatformImage;
 
@@ -254,7 +253,7 @@ PlatformImagePtr ShareableBitmap::createPlatformImage(BackingStoreCopy copyBehav
     if (!shareableGainMap)
         return basePlatformImage;
 
-    auto outputPlatformImage = shareableGainMap->applyGainMapToBaseImage(basePlatformImage);
+    RetainPtr outputPlatformImage = shareableGainMap->applyGainMapToBaseImage(basePlatformImage);
     if (!outputPlatformImage)
         return basePlatformImage;
 

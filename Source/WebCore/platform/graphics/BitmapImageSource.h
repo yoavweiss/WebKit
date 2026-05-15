@@ -75,7 +75,7 @@ public:
     const ImageFrame& primaryImageFrame(const std::optional<SubsamplingLevel>& subsamplingLevel = std::nullopt) final { return frameAtIndexCacheIfNeeded(primaryFrameIndex(), subsamplingLevel); }
 
     // NativeImage
-    DecodingStatus requestNativeImageAtIndexIfNeeded(unsigned index, SubsamplingLevel, ImageAnimatingState, const DecodingOptions&);
+    Expected<DecodingDestination, DecodingStatus> requestNativeImageAtIndexIfNeeded(unsigned index, SubsamplingLevel, ImageAnimatingState, const DecodingOptions&);
 
     RefPtr<NativeImage> primaryNativeImageIfExists() { return frameAtIndex(primaryFrameIndex()).nativeImage(std::nullopt); }
     RefPtr<NativeImage> primaryNativeImage() final { return nativeImageAtIndex(primaryFrameIndex()); }
@@ -124,9 +124,9 @@ private:
 
     // Decoding
     DecodingDestination preferredDecodingDestination(GraphicsContext&, ImagePaintingOptions) const final;
+    std::optional<DecodingDestination> compatibleDecodingDestinationWithOptionsAtIndex(unsigned index, SubsamplingLevel, const DecodingOptions&) const;
     bool isLargeForDecoding() const final;
     bool NODELETE isDecodingWorkQueueIdle() const;
-    bool isCompatibleWithOptionsAtIndex(unsigned index, SubsamplingLevel, const DecodingOptions&) const;
     void stopDecodingWorkQueue() final;
     void decode(Function<void(DecodingStatus)>&& decodeCallback) final;
     void callDecodeCallbacks(DecodingStatus);

@@ -79,6 +79,7 @@ private:
     bool knownToHaveFloatBasedBacking() const final;
 
     WebCore::RenderingMode renderingMode() const final;
+    std::optional<WebCore::RenderingMethod> renderingMethod() const final { return std::nullopt; }
 
     void save(WebCore::GraphicsContextState::Purpose) final;
     void restore(WebCore::GraphicsContextState::Purpose) final;

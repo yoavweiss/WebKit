@@ -92,7 +92,7 @@ public:
     bool hasNativeImage(DecodingDestination decodingDestination) const { return m_destinations[decodingDestination].hasNativeImage(); }
     bool NODELETE hasNativeImage(DecodingDestination, SubsamplingLevel) const;
     bool NODELETE hasFullSizeNativeImage(DecodingDestination, SubsamplingLevel) const;
-    bool hasDecodedNativeImageCompatibleWithOptions(const DecodingOptions&, SubsamplingLevel) const;
+    std::optional<DecodingDestination> compatibleDecodingDestinationWithOptions(const DecodingOptions&, SubsamplingLevel) const;
     bool hasMetadata() const { return !size().isEmpty(); }
 
 private:
@@ -136,6 +136,8 @@ private:
     {
         if (m_destinations[DecodingDestination::ShouldDecodeToHDR].hasNativeImage())
             return DecodingDestination::ShouldDecodeToHDR;
+        if (m_destinations[DecodingDestination::BaseAndGainMap].hasNativeImage())
+            return DecodingDestination::BaseAndGainMap;
         return DecodingDestination::Base;
     }
 

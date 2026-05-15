@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <WebCore/DecodingOptions.h>
 #include <WebCore/GainMap.h>
 #include <WebCore/ImageTypes.h>
 #include <WebCore/PlatformImage.h>
@@ -74,7 +75,9 @@ public:
     std::optional<Color> singlePixelSolidColor() const;
     WEBCORE_EXPORT virtual DestinationColorSpace colorSpace() const;
     WEBCORE_EXPORT bool hasHDRContent() const;
-    WEBCORE_EXPORT Headroom NODELETE headroom() const;
+    bool hasHDRGainMap() const { return m_gainMap.has_value(); }
+    Headroom baseImageHeadroom() const { return m_baseImageHeadroom; }
+    Headroom headroom() const { return m_headroom; }
 
     void clearSubimages();
 
@@ -110,6 +113,7 @@ protected:
 
     mutable PlatformImagePtr m_platformImage;
     mutable std::optional<GainMap> m_gainMap;
+    mutable Headroom m_baseImageHeadroom { Headroom::None };
     mutable Headroom m_headroom { Headroom::None };
     mutable WeakHashSet<RenderingResourceObserver> m_observers;
     RenderingResourceIdentifier m_renderingResourceIdentifier { RenderingResourceIdentifier::generate() };
