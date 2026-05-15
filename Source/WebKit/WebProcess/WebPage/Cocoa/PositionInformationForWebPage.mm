@@ -395,16 +395,24 @@ static void selectionPositionInformation(WebPage& page, const InteractionInforma
             info.url = URL::fileURLWithFileSystemPath(attachment->file()->path());
     }
 
-    for (auto* currentNode = hitNode.get(); currentNode; currentNode = currentNode->parentOrShadowHostNode()) {
-        auto* renderer = currentNode->renderer();
+    for (RefPtr currentNode = hitNode; currentNode; currentNode = currentNode->parentOrShadowHostNode()) {
+        CheckedPtr renderer = currentNode->renderer();
         if (!renderer)
             continue;
 
-        auto& style = renderer->style();
-        if (style.usedUserSelect() == WebCore::UserSelect::None && style.userDrag() == WebCore::UserDrag::Element) {
+        CheckedRef style = renderer->style();
+        if (style->userDrag() == WebCore::UserDrag::Element)
+            info.isDHTMLDraggable = true;
+        if (style->usedUserSelect() == WebCore::UserSelect::None && style->userDrag() == WebCore::UserDrag::Element)
             info.prefersDraggingOverTextSelection = true;
-            break;
+
+        if (!info.isColorInput) {
+            if (RefPtr input = dynamicDowncast<WebCore::HTMLInputElement>(currentNode); input && input->isColorControl() && !input->isDisabledFormControl())
+                info.isColorInput = true;
         }
+
+        if (info.prefersDraggingOverTextSelection || info.isDHTMLDraggable || info.isColorInput)
+            break;
     }
 #if PLATFORM(MACCATALYST)
     bool isInsideFixedPosition;

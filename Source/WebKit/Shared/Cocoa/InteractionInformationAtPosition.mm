@@ -41,6 +41,8 @@ InteractionInformationAtPosition::InteractionInformationAtPosition(
     Selectability&& selectability,
     bool isSelected,
     bool prefersDraggingOverTextSelection,
+    bool isDHTMLDraggable,
+    bool isColorInput,
     bool isNearMarkedText,
 #if PLATFORM(IOS_FAMILY)
     bool touchCalloutEnabled,
@@ -103,6 +105,8 @@ InteractionInformationAtPosition::InteractionInformationAtPosition(
     , selectability(selectability)
     , isSelected(isSelected)
     , prefersDraggingOverTextSelection(prefersDraggingOverTextSelection)
+    , isDHTMLDraggable(isDHTMLDraggable)
+    , isColorInput(isColorInput)
     , isNearMarkedText(isNearMarkedText)
 #if PLATFORM(IOS_FAMILY)
     , touchCalloutEnabled(touchCalloutEnabled)
