@@ -1,0 +1,255 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import json
+import logging
+import os
+import re
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+from typing import IO
+
+log = logging.getLogger('measure-build-time')
+
+SCRIPTS = Path(__file__).parent
+
+# --- Tests and subtests ----------------------------------------------------- 
+
+class Task:
+    name: str
+    depends: frozenset[type[Task]] = frozenset()
+
+    build_command: str
+    stdout_filter: str | None
+    build_dir: Path
+    source_dir: Path
+
+    result: TestResult | None
+
+    def __init__(self, args):
+        self.build_command = args.build_command
+        self.stdout_filter = args.stdout_filter
+        self.source_dir = args.source_dir
+        self.build_dir = args.build_dir
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
+    def run(self):
+        with self:
+            self.result = run_test(self.name, self.build_command, self.stdout_filter)
+        return self.result
+
+
+class CleanBuild(Task):
+    name = 'clean'
+
+    def __enter__(self):
+        if self.build_dir.exists():
+            if sys.stdin.isatty():
+                # Prompt for confirmation when being run interactively.
+                if input(f'OK to delete {self.build_dir}? [yN] ').lower() != 'y':
+                    raise SystemExit('Clean build aborted, exiting')
+            subprocess.run(('rm', '-r', self.build_dir), check=True)
+
+
+class NullBuild(Task):
+    name = 'null'
+    depends = frozenset([CleanBuild])
+
+
+AVAILABLE_TESTS = [
+    CleanBuild,
+    NullBuild
+]
+
+
+# --- Test execution and result parsing ---------------------------------------
+
+TIMING_ENTRY_RE = re.compile(
+    r'^(.+?)\s+\(\d+\s+tasks?\)\s+\|\s+([\d.]+)\s+seconds$',
+    re.MULTILINE,
+)
+
+XCODE_TIMING_SUMMARY_RE = re.compile(
+    r'^Build Timing Summary$(.+?)(?=^\*\* BUILD|\Z)',
+    re.MULTILINE | re.DOTALL,
+)
+
+TestResult = dict
+
+
+def sanitize_phase_name(task_name: str) -> str:
+    sanitized = task_name.replace('+', 'Plus')
+    return re.sub(r'[^a-zA-Z0-9]', '', sanitized)
+
+
+def parse_timing_summary(log_fd: IO[bytes]) -> dict[str, int]:
+    """Extract per-phase timing from Xcode's Build Timing Summary section."""
+
+    # The build log might be very long, but the timing summary is always at
+    # the end. Only search the final 8K of the log.
+    log_fd.seek(0, os.SEEK_END)
+    size = log_fd.tell()
+    log_fd.seek(max(0, size - 8192))
+    match = XCODE_TIMING_SUMMARY_RE.search(log_fd.read().decode('utf-8', errors='replace'))
+    if not match:
+        return {}
+    section = match.group(1)
+    timing: dict[str, int] = {}
+    for m in TIMING_ENTRY_RE.finditer(section):
+        timing[m.group(1)] = int(float(m.group(2)) * 1000)
+    return timing
+
+
+def build_type_result(wall_time_ms: int, timing_summary: dict[str, int]) -> dict:
+    result: dict = {
+        'metrics': {
+            'Time': {'current': [wall_time_ms]},
+        },
+    }
+    if timing_summary:
+        phase_tests: dict = {}
+        for task_name, task_ms in timing_summary.items():
+            phase_tests[sanitize_phase_name(task_name)] = {
+                'metrics': {'Time': {'current': [task_ms]}},
+            }
+        result['tests'] = {
+            'Phases': {
+                'metrics': {
+                    'CPUTime': {'current': [sum(timing_summary.values())]},
+                },
+                'tests': phase_tests,
+            },
+        }
+    return result
+
+
+def run_build(command: str, stdout_filter: str | None = None) -> tuple[int, int, IO[bytes]]:
+    """Run the build command, capturing output. Returns (exit_code, wall_time_ms, log_fd)."""
+    log_fd = tempfile.NamedTemporaryFile(prefix='measure-build-time-')
+    filter_cmd = stdout_filter if stdout_filter else 'cat'
+    full_command = f'set -o pipefail; ({command}) 2>&1 | tee {log_fd.name} | {filter_cmd}'
+
+    start = time.monotonic()
+    proc = subprocess.run(full_command, shell=True, executable='/bin/bash')
+    elapsed_ms = int((time.monotonic() - start) * 1000)
+
+    log_fd.seek(0)
+    return proc.returncode, elapsed_ms, log_fd
+
+
+def run_test(name: str, command: str, stdout_filter: str | None = None) -> TestResult | None:
+    log.info('Running %s build: %s', name, command)
+    rc, wall_time_ms, stdout_fd = run_build(command, stdout_filter)
+    if rc != 0:
+        log.error('%s build failed with exit code %d', name, rc)
+        return None
+    timing_summary = parse_timing_summary(stdout_fd)
+    log.info('%s build: %dms wall, %d phases parsed', name, wall_time_ms, len(timing_summary))
+    return build_type_result(wall_time_ms, timing_summary)
+
+
+# --- Test runner ------------------------------------------------------------
+
+DEFAULT_MAKE_COMMAND = ('make ARGS="' + ' '.join((
+                            '-showBuildTimingSummary',
+                            'COMPILATION_CACHE_ENABLE_CACHING=NO',
+                        )) + '"')
+
+def main() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s %(levelname)s %(message)s',
+    )
+
+    parser = argparse.ArgumentParser(
+        description='Measure build time and emit perf metrics JSON.',
+    )
+
+    cmd_parser = parser.add_mutually_exclusive_group(required=True)
+    cmd_parser.add_argument('--build-command',
+                            help='Shell command to run the build')
+    cmd_parser.add_argument('--make', dest='build_command', action='store_const',
+                            const=DEFAULT_MAKE_COMMAND,
+                            help='Use a default Make invocation to build WebKit. '
+                            'Does not set configuration or workspace (use set-webkit-configuration).')
+    parser.add_argument('--build-dir', type=Path,
+                        help='Path to top-level build directory (deleted by `clean` test)')
+    parser.add_argument('--source-dir', type=Path,
+                        help='Path to WebKit checkout used for incremental build testing')
+    parser.add_argument('--tests', nargs='+', default=[t.name for t in AVAILABLE_TESTS],
+                        choices=[t.name for t in AVAILABLE_TESTS],
+                        help='Which tests to run (default: all). Will skip test dependencies which are not listed.')
+    parser.add_argument('--metric-key', default='BuildTime-Unspecified',
+                        help='Top-level test key in the results. '
+                        'Can be omitted, but must be provided when emitting a real benchmark score.')
+    parser.add_argument('--stdout-filter', default=None,
+                        help='Shell command to filter build stdout through (e.g. filter-build-webkit)')
+    parser.add_argument('--output', '-o', default='build-time-results.json',
+                        help='Output JSON file path (default: build-time-results.json)')
+
+    args = parser.parse_args()
+
+    if not args.build_dir:
+        args.build_dir = Path(subprocess.check_output(
+            (SCRIPTS / 'webkit-build-directory', '--top-level'),
+            text=True
+        ).rstrip())
+    if not args.source_dir:
+        args.source_dir = SCRIPTS.parent.parent
+
+    # Read each test's `depends` lists to compute a topological order to run
+    # all the tests. Does NOT perform cycle detection.
+    plan: list[type[Task]] = []
+    roots = {T for T in AVAILABLE_TESTS if not T.depends}
+    edges = {T: set(T.depends) for T in AVAILABLE_TESTS}
+
+    while roots:
+        T = roots.pop()
+        plan.append(T)
+        for T2 in AVAILABLE_TESTS:
+            if T in edges[T2]:
+                edges[T2].remove(T)
+                if not edges[T2]:
+                    roots.add(T2)
+            
+
+    tests: dict[str, TestResult] = {}
+    for T in plan:
+        if T.name not in args.tests:
+            continue
+        if any(T2.name not in tests for T2 in T.depends if T2.name in args.tests):
+            log.info('Skipping %s build due to failed dependencies', T.name)
+            continue
+        result = T(args).run()
+        if result:
+            tests[T.name] = result
+
+    if not tests:
+        raise SystemExit('All tests failed, exiting.')
+
+    results = {
+        args.metric_key: {
+            'tests': tests,
+        },
+    }
+
+    output_json = json.dumps(results, indent=2)
+
+    with open(args.output, 'w') as f:
+        f.write(output_json)
+        f.write('\n')
+
+    print(output_json)
+
+
+if __name__ == '__main__':
+    main()
