@@ -439,6 +439,7 @@ inline Color::~Color()
 {
     if (isOutOfLine())
         asOutOfLine().deref();
+    secureZeroBytes(m_colorAndFlags);
 }
 
 inline bool Color::isValid() const
