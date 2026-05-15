@@ -779,14 +779,10 @@ void WebPageProxy::rootViewToWindow(const WebCore::IntRect& viewRect, WebCore::I
     windowRect = pageClient ? pageClient->rootViewToWindow(viewRect) : WebCore::IntRect { };
 }
 
-void WebPageProxy::showValidationMessage(const IntRect& anchorClientRect, String&& message)
+void WebPageProxy::showValidationMessageWithMainFrameRect(const IntRect& mainFrameAnchorRect)
 {
-    RefPtr pageClient = this->pageClient();
-    if (!pageClient)
-        return;
-
-    m_validationBubble = pageClient->createValidationBubble(WTF::move(message), { protect(preferences())->minimumFontSize() });
-    protect(m_validationBubble)->showRelativeTo(anchorClientRect);
+    if (RefPtr bubble = m_validationBubble)
+        bubble->showRelativeTo(mainFrameAnchorRect);
 }
 
 RetainPtr<NSView> WebPageProxy::inspectorAttachmentView()

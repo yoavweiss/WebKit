@@ -748,7 +748,7 @@ public:
 
     void scrollbarWidthChanged(ScrollbarWidth) override;
 
-    std::optional<FrameIdentifier> NODELETE rootFrameID() const final;
+    WEBCORE_EXPORT std::optional<FrameIdentifier> NODELETE rootFrameID() const final;
 
     IntSize totalScrollbarSpace() const final;
     int scrollbarGutterWidth(bool isHorizontalWritingMode = true) const;

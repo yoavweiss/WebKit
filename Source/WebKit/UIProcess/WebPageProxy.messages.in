@@ -65,7 +65,7 @@ messages -> WebPageProxy {
     SetAccessibilityMode(enum:uint8_t WebCore::AccessibilityMode mode)
 
 #if PLATFORM(COCOA) || PLATFORM(GTK)
-    ShowValidationMessage(WebCore::IntRect anchorRect, String message)
+    ShowValidationMessage(WebCore::IntRect anchorRect, String message, std::optional<WebCore::FrameIdentifier> rootFrameID)
     HideValidationMessage()
 #endif
 

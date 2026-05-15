@@ -1232,26 +1232,27 @@ void WebPageProxy::dispatchDidUpdateEditorState()
     m_waitingForPostLayoutEditorStateUpdateAfterFocusingElement = false;
 }
 
-void WebPageProxy::showValidationMessage(const IntRect& anchorClientRect, String&& message)
+void WebPageProxy::showValidationMessageWithMainFrameRect(const IntRect& mainFrameAnchorRect)
 {
+    RefPtr bubble = m_validationBubble;
+    if (!bubble)
+        return;
+
     RefPtr pageClient = this->pageClient();
     if (!pageClient)
         return;
 
-    m_validationBubble = pageClient->createValidationBubble(WTF::move(message), { protect(m_preferences)->minimumFontSize() });
-    Ref validationBubble = *m_validationBubble;
-
-    validationBubble->setShouldSuppressPresentation(pageClient->shouldSuppressFormValidationBubble());
+    bubble->setShouldSuppressPresentation(pageClient->shouldSuppressFormValidationBubble());
 
     // FIXME: When in element fullscreen, UIClient::presentingViewController() may not return the
     // WKFullScreenViewController even though that is the presenting view controller of the WKWebView.
     // We should call PageClientImpl::presentingViewController() instead.
-    validationBubble->setAnchorRect(anchorClientRect, protect(uiClient().presentingViewController()));
+    bubble->setAnchorRect(mainFrameAnchorRect, protect(uiClient().presentingViewController()));
 
     // If we are currently doing a scrolling / zoom animation, then we'll delay showing the validation
     // bubble until the animation is over.
     if (!m_isScrollingOrZooming)
-        validationBubble->show();
+        bubble->show();
 }
 
 void WebPageProxy::setIsScrollingOrZooming(bool isScrollingOrZooming)

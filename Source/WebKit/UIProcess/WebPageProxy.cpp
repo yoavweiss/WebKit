@@ -16114,6 +16114,24 @@ void WebPageProxy::hideValidationMessage()
 #endif
 }
 
+#if PLATFORM(COCOA) || PLATFORM(GTK)
+void WebPageProxy::showValidationMessage(const IntRect& anchorClientRect, String&& message, std::optional<WebCore::FrameIdentifier>&& rootFrameID)
+{
+    RefPtr pageClient = this->pageClient();
+    if (!pageClient)
+        return;
+
+    m_validationBubble = pageClient->createValidationBubble(WTF::move(message), { protect(preferences())->minimumFontSize() });
+
+    convertRectToMainFrameCoordinates(anchorClientRect, rootFrameID, [weakThis = WeakPtr { *this }](std::optional<FloatRect> convertedRect) {
+        RefPtr protectedThis = weakThis.get();
+        if (!protectedThis || !convertedRect)
+            return;
+        protectedThis->showValidationMessageWithMainFrameRect(IntRect(*convertedRect));
+    });
+}
+#endif
+
 // FIXME: Consolidate with dismissContentRelativeChildWindows
 void WebPageProxy::closeOverlayedViews()
 {
