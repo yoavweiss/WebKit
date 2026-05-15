@@ -155,7 +155,6 @@ public:
 
     WebPageProxyMessageReceiverRegistration& messageReceiverRegistration() LIFETIME_BOUND { return m_messageReceiverRegistration; }
 
-    bool needsMainFrameObserver() const { return m_needsMainFrameObserver; }
     void updateFrameProcess();
 
 private:
@@ -232,7 +231,6 @@ private:
     bool m_needsCookieAccessAddedInNetworkProcess { false };
     bool m_needsDidStartProvisionalLoad { true };
     bool m_shouldClosePage { true };
-    bool m_needsMainFrameObserver { false };
     bool m_didFailProvisionalLoad { false };
     std::optional<WebCore::Site> m_deferredRemoteTransitionSite;
     URL m_provisionalLoadURL;
