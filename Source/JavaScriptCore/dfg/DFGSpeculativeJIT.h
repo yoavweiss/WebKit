@@ -1779,6 +1779,7 @@ public:
     void compileObjectAssign(Node*);
     void compileObjectCreate(Node*);
     void compileObjectToString(Node*);
+    void compileSymbolToString(Node*);
     void compileCreateThis(Node*);
     void compileCreatePromise(Node*);
     void compileCreateGenerator(Node*);

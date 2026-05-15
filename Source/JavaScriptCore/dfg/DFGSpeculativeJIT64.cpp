@@ -4685,6 +4685,11 @@ void SpeculativeJIT::compile(Node* node)
         break;
     }
 
+    case SymbolToString: {
+        compileSymbolToString(node);
+        break;
+    }
+
     case CreateThis: {
         compileCreateThis(node);
         break;

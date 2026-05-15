@@ -3683,7 +3683,20 @@ auto ByteCodeParser::handleIntrinsicCall(Node* callee, Operand resultOperand, Ca
             setResult(resultNode);
             return CallOptimizationResult::Inlined;
         }
-            
+
+        case SymbolPrototypeToStringIntrinsic: {
+            if (m_inlineStackTop->m_exitProfile.hasExitSite(m_currentIndex, BadType))
+                return CallOptimizationResult::DidNothing;
+            if (m_inlineStackTop->m_exitProfile.hasExitSite(m_currentIndex, BadConstantValue))
+                return CallOptimizationResult::DidNothing;
+            if (m_inlineStackTop->m_exitProfile.hasExitSite(m_currentIndex, BadCache))
+                return CallOptimizationResult::DidNothing;
+
+            insertChecks();
+            setResult(addToGraph(SymbolToString, Edge(get(virtualRegisterForArgumentIncludingThis(0, registerOffset)), SymbolUse)));
+            return CallOptimizationResult::Inlined;
+        }
+
         case RoundIntrinsic:
         case FloorIntrinsic:
         case CeilIntrinsic:

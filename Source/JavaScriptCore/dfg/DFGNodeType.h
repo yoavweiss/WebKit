@@ -327,6 +327,7 @@ namespace JSC { namespace DFG {
     macro(ObjectGetOwnPropertySymbols, NodeMustGenerate | NodeResultJS) \
     macro(ObjectToString, NodeMustGenerate | NodeResultJS) \
     macro(ReflectOwnKeys, NodeMustGenerate | NodeResultJS) \
+    macro(SymbolToString, NodeResultJS) \
     \
     /* Atomics object functions. */\
     macro(AtomicsAdd, NodeResultJS | NodeMustGenerate | NodeHasVarArgs) \

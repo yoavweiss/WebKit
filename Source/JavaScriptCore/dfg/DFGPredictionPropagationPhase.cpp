@@ -1413,6 +1413,10 @@ private:
             setPrediction(SpecString);
             break;
 
+        case SymbolToString:
+            setPrediction(SpecStringResolved);
+            break;
+
         case Spread:
             setPrediction(SpecCellOther);
             break;

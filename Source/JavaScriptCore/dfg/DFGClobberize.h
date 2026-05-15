@@ -271,6 +271,7 @@ void clobberize(Graph& graph, Node* node, const ReadFunctor& read, const WriteFu
     case GetExecutable:
     case BottomValue:
     case TypeOf:
+    case SymbolToString:
         def(PureValue(node));
         return;
 

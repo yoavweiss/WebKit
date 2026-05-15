@@ -2494,6 +2494,11 @@ private:
             break;
         }
 
+        case SymbolToString: {
+            fixEdge<SymbolUse>(node->child1());
+            break;
+        }
+
         case CheckIdent: {
             if (node->uidOperand()->isSymbol())
                 fixEdge<SymbolUse>(node->child1());

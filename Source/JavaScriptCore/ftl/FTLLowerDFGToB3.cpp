@@ -1239,6 +1239,9 @@ private:
         case ObjectToString:
             compileObjectToString();
             break;
+        case SymbolToString:
+            compileSymbolToString();
+            break;
         case NewObject:
             compileNewObject();
             break;
@@ -9512,6 +9515,27 @@ IGNORE_CLANG_WARNINGS_END
             RELEASE_ASSERT_NOT_REACHED();
             break;
         }
+    }
+
+    void compileSymbolToString()
+    {
+        JSGlobalObject* globalObject = m_graph.globalObjectFor(m_origin.semantic);
+
+        LBasicBlock slowCase = m_out.newBlock();
+        LBasicBlock continuation = m_out.newBlock();
+
+        auto symbol = lowSymbol(m_node->child1());
+        auto cached = m_out.loadPtr(symbol, m_heaps.Symbol_string);
+        ValueFromBlock fastResult = m_out.anchor(cached);
+        m_out.branch(m_out.notNull(cached), usually(continuation), rarely(slowCase));
+
+        LBasicBlock lastNext = m_out.appendTo(slowCase, continuation);
+        auto slowResultValue = vmCall(pointerType(), operationSymbolToString, weakPointer(globalObject), symbol);
+        ValueFromBlock slowResult = m_out.anchor(slowResultValue);
+        m_out.jump(continuation);
+
+        m_out.appendTo(continuation, lastNext);
+        setJSValue(m_out.phi(pointerType(), fastResult, slowResult));
     }
 
     void compileObjectAssign()

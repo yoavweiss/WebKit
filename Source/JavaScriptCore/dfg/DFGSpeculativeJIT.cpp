@@ -15993,6 +15993,25 @@ void SpeculativeJIT::compileObjectToString(Node* node)
     }
 }
 
+void SpeculativeJIT::compileSymbolToString(Node* node)
+{
+    SpeculateCellOperand argument(this, node->child1());
+    GPRTemporary result(this);
+
+    GPRReg argumentGPR = argument.gpr();
+    GPRReg resultGPR = result.gpr();
+
+    speculateSymbol(node->child1(), argumentGPR);
+
+    JumpList slowCases;
+    loadPtr(Address(argumentGPR, Symbol::offsetOfString()), resultGPR);
+    slowCases.append(branchTestPtr(Zero, resultGPR));
+
+    addSlowPathGenerator(slowPathCall(slowCases, this, operationSymbolToString, resultGPR, LinkableConstant::globalObject(*this, node), argumentGPR));
+
+    cellResult(resultGPR, node);
+}
+
 void SpeculativeJIT::compileCreateThis(Node* node)
 {
     // Note that there is not so much profit to speculate here. The only things we

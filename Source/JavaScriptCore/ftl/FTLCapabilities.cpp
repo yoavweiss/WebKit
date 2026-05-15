@@ -250,6 +250,7 @@ inline CapabilityLevel canCompile(Node* node)
     case ObjectGetOwnPropertyNames:
     case ObjectGetOwnPropertySymbols:
     case ObjectToString:
+    case SymbolToString:
     case ReflectOwnKeys:
     case MakeRope:
     case MakeAtomString:
