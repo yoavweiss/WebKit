@@ -29,7 +29,6 @@ import WebKit
 @_spi(RealityCoreRendererAPI) import RealityKit
 import USDKit
 @_spi(SwiftAPI) import DirectResource
-import _USDKit_RealityKit
 import ShaderGraph
 #endif
 
