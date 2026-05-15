@@ -21070,7 +21070,7 @@ IGNORE_CLANG_WARNINGS_END
     {
         auto* globalObject = m_graph.globalObjectFor(m_origin.semantic);
 
-        if (!(abstractValue(m_node->child1()).m_type & SpecObject)) {
+        if (m_node->isResolvedValueKnownNonThenable() || !(abstractValue(m_node->child1()).m_type & SpecObject)) {
             LValue argument = lowJSValue(m_node->child1());
 
             LBasicBlock slowCase = m_out.newBlock();

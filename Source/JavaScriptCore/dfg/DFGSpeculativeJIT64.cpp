@@ -8811,7 +8811,7 @@ void SpeculativeJIT::compileNewPromise(Node* node)
 void SpeculativeJIT::compileNewResolvedPromise(Node* node)
 {
     JSGlobalObject* globalObject = m_graph.globalObjectFor(node->origin.semantic);
-    if (!(m_state.forNode(node->child1()).m_type & SpecObject)) {
+    if (node->isResolvedValueKnownNonThenable() || !(m_state.forNode(node->child1()).m_type & SpecObject)) {
         JSValueOperand argument(this, node->child1());
 
         GPRTemporary result(this);

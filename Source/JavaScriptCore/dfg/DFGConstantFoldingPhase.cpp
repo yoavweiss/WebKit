@@ -2009,7 +2009,7 @@ private:
                         if (argument.isType(~SpecObject)) {
                             m_interpreter.execute(indexInBlock); // Push CFA over this node after we get the state before.
                             alreadyHandled = true; // Don't allow the default constant folder to do things to this.
-                            node->convertToNewResolvedPromise(node->child2());
+                            node->convertToNewResolvedPromise(node->child2(), /* isResolvedValueKnownNonThenable */ true);
                             changed = true;
                             break;
                         }
@@ -2035,7 +2035,7 @@ private:
                                     if (m_graph.watchConditions(conditionSet)) {
                                         m_interpreter.execute(indexInBlock); // Push CFA over this node after we get the state before.
                                         alreadyHandled = true; // Don't allow the default constant folder to do things to this.
-                                        node->convertToNewResolvedPromise(node->child2());
+                                        node->convertToNewResolvedPromise(node->child2(), /* isResolvedValueKnownNonThenable */ true);
                                         changed = true;
                                         break;
                                     }

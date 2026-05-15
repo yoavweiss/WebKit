@@ -4012,6 +4012,11 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
     }
 
     case NewResolvedPromise:
+        if (!node->isResolvedValueKnownNonThenable())
+            clobberWorld();
+        setTypeForNode(node, SpecPromiseObject);
+        break;
+
     case NewRejectedPromise: {
         clobberWorld();
         setTypeForNode(node, SpecPromiseObject);

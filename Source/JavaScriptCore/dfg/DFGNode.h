@@ -931,13 +931,19 @@ public:
         children = AdjacencyList();
     }
 
-    void convertToNewResolvedPromise(Edge argument)
+    void convertToNewResolvedPromise(Edge argument, bool isResolvedValueKnownNonThenable)
     {
         ASSERT(m_op == PromiseResolve);
         setOpAndDefaultFlags(NewResolvedPromise);
         children = AdjacencyList(AdjacencyList::Fixed, argument);
-        m_opInfo = OpInfoWrapper();
+        m_opInfo = static_cast<uint32_t>(isResolvedValueKnownNonThenable);
         m_opInfo2 = OpInfoWrapper();
+    }
+
+    bool isResolvedValueKnownNonThenable()
+    {
+        ASSERT(op() == NewResolvedPromise);
+        return m_opInfo.as<bool>();
     }
 
     void NODELETE convertToNewArrayBuffer(FrozenValue* immutableButterfly);
