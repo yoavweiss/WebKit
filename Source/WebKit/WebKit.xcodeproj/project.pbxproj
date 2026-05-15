@@ -2799,6 +2799,8 @@
 			inputFiles = (
 				"$(SRCROOT)/Scripts/postprocess-header-rule",
 				"$(SRCROOT)/mac/replace-webkit-additions-includes.py",
+				"$(WK_WEBKITADDITIONS_POSTPROCESS_SCRIPTS_INPUT)",
+				"$(WK_WEBKITADDITIONS_BRANCH_CONFIG_INPUT)",
 			);
 			isEditable = 1;
 			outputFiles = (
@@ -20452,11 +20454,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create Symlink to Cryptex Path";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;
@@ -20486,6 +20490,7 @@
 			);
 			name = "Add Symlink in /System/Library/PrivateFrameworks";
 			outputPaths = (
+				"$(INSTALL_ROOT)/$(WK_ALTERNATE_FRAMEWORKS_DIR)$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks/WebKit.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
@@ -20530,11 +20535,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create Symlink to Cryptex Path";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;
@@ -20628,6 +20635,7 @@
 			);
 			inputPaths = (
 				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+				"$(SRCROOT)/../../Tools/Scripts/check-for-inappropriate-objc-class-names",
 			);
 			name = "Check For Inappropriate Objective-C Class Names";
 			outputPaths = (
@@ -20797,6 +20805,7 @@
 			);
 			inputPaths = (
 				"$(SRCROOT)/DerivedSources.make",
+				"$(SRCROOT)/Scripts/check-xcfilelists.sh",
 			);
 			name = "Check .xcfilelists";
 			outputFileListPaths = (
@@ -20837,11 +20846,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create symlink";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;
@@ -20874,11 +20885,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create Symlink to Cryptex Path";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;
@@ -20975,6 +20988,7 @@
 			);
 			inputPaths = (
 				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+				"$(SRCROOT)/../../Tools/Scripts/check-for-weak-vtables-and-externals",
 			);
 			name = "Check For Weak VTables and Externals";
 			outputPaths = (
@@ -20991,6 +21005,7 @@
 			);
 			inputPaths = (
 				"$(CPP_HEADERMAP_PRODUCT_HEADERS_VFS_FILE)",
+				"$(SRCROOT)/../../Tools/Scripts/check-for-webkit-framework-include-consistency",
 			);
 			name = "Check For Framework Include Consistency";
 			outputPaths = (
@@ -21050,11 +21065,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create Symlink to Cryptex Path";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;
@@ -21068,11 +21085,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create Symlink to Cryptex Path";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;
@@ -21086,11 +21105,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create Symlink to Cryptex Path";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;
@@ -21104,11 +21125,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create Symlink to Cryptex Path";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;
@@ -21122,11 +21145,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create Symlink to Cryptex Path";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;
@@ -21140,11 +21165,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create Symlink to Cryptex Path";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;
@@ -21158,11 +21185,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create Symlink to Cryptex Path";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;
@@ -21300,6 +21329,7 @@
 			);
 			inputPaths = (
 				"$(CPP_HEADERMAP_PRODUCT_HEADERS_VFS_FILE)",
+				"$(SRCROOT)/../../Tools/Scripts/check-for-inappropriate-macros-in-external-headers",
 			);
 			name = "Check For Inappropriate Macros in External Headers";
 			outputPaths = (
@@ -21427,6 +21457,11 @@
 			);
 			inputPaths = (
 				"$(WTF_BUILD_SCRIPTS_DIR)/audit-spi-if-needed.sh",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/platform-enabled-swift-args.arm64.resp",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/platform-enabled-swift-args.arm64_32.resp",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/platform-enabled-swift-args.arm64e.resp",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/platform-enabled-swift-args.armv7k.resp",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/platform-enabled-swift-args.x86_64.resp",
 			);
 			name = "Audit SPI use";
 			outputFileListPaths = (
@@ -21559,11 +21594,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create symlink";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;
@@ -21577,11 +21614,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create symlink";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;
@@ -21595,11 +21634,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create symlink";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;
@@ -21613,11 +21654,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create symlink";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;

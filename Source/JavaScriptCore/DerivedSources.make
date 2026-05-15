@@ -323,6 +323,7 @@ INSPECTOR_GENERATOR_SCRIPTS = \
 	$(JavaScriptCore)/inspector/scripts/codegen/__init__.py \
 	$(JavaScriptCore)/inspector/scripts/codegen/cpp_generator_templates.py \
 	$(JavaScriptCore)/inspector/scripts/codegen/cpp_generator.py \
+	$(JavaScriptCore)/inspector/scripts/codegen/generate_cpp_alternate_backend_dispatcher_header.py \
 	$(JavaScriptCore)/inspector/scripts/codegen/generate_cpp_backend_dispatcher_header.py \
 	$(JavaScriptCore)/inspector/scripts/codegen/generate_cpp_backend_dispatcher_implementation.py \
 	$(JavaScriptCore)/inspector/scripts/codegen/generate_cpp_frontend_dispatcher_header.py \
@@ -330,9 +331,21 @@ INSPECTOR_GENERATOR_SCRIPTS = \
 	$(JavaScriptCore)/inspector/scripts/codegen/generate_cpp_protocol_types_header.py \
 	$(JavaScriptCore)/inspector/scripts/codegen/generate_cpp_protocol_types_implementation.py \
 	$(JavaScriptCore)/inspector/scripts/codegen/generate_js_backend_commands.py \
+	$(JavaScriptCore)/inspector/scripts/codegen/generate_objc_backend_dispatcher_header.py \
+	$(JavaScriptCore)/inspector/scripts/codegen/generate_objc_backend_dispatcher_implementation.py \
+	$(JavaScriptCore)/inspector/scripts/codegen/generate_objc_configuration_header.py \
+	$(JavaScriptCore)/inspector/scripts/codegen/generate_objc_configuration_implementation.py \
+	$(JavaScriptCore)/inspector/scripts/codegen/generate_objc_frontend_dispatcher_implementation.py \
+	$(JavaScriptCore)/inspector/scripts/codegen/generate_objc_header.py \
+	$(JavaScriptCore)/inspector/scripts/codegen/generate_objc_internal_header.py \
+	$(JavaScriptCore)/inspector/scripts/codegen/generate_objc_protocol_type_conversions_header.py \
+	$(JavaScriptCore)/inspector/scripts/codegen/generate_objc_protocol_type_conversions_implementation.py \
+	$(JavaScriptCore)/inspector/scripts/codegen/generate_objc_protocol_types_implementation.py \
 	$(JavaScriptCore)/inspector/scripts/codegen/generator_templates.py \
 	$(JavaScriptCore)/inspector/scripts/codegen/generator.py \
 	$(JavaScriptCore)/inspector/scripts/codegen/models.py \
+	$(JavaScriptCore)/inspector/scripts/codegen/objc_generator.py \
+	$(JavaScriptCore)/inspector/scripts/codegen/objc_generator_templates.py \
 	$(JavaScriptCore)/inspector/scripts/generate-inspector-protocol-bindings.py \
 	$(JavaScriptCore_SCRIPTS_DIR)/generate-combined-inspector-json.py \
 #

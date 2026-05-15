@@ -3248,6 +3248,7 @@
 			);
 			inputPaths = (
 				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+				"$(SRCROOT)/../../Tools/Scripts/check-for-inappropriate-objc-class-names",
 			);
 			name = "Check For Inappropriate Objective-C Class Names";
 			outputPaths = (
@@ -3266,6 +3267,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/../../Tools/Scripts/check-for-inappropriate-files-in-framework",
 			);
 			name = "Check For Inappropriate Files In Framework";
 			outputFileListPaths = (
@@ -3285,6 +3287,7 @@
 			);
 			inputPaths = (
 				"$(SRCROOT)/DerivedSources.make",
+				"$(SRCROOT)/scripts/check-xcfilelists.sh",
 			);
 			name = "Check .xcfilelists";
 			outputFileListPaths = (
@@ -3342,6 +3345,7 @@
 			);
 			inputPaths = (
 				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+				"$(SRCROOT)/../../Tools/Scripts/check-for-weak-vtables-and-externals",
 			);
 			name = "Check For Weak VTables and Externals";
 			outputPaths = (
@@ -3364,7 +3368,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"${OUTPUT_CRYPTEX_SYMLINK_PATH}",
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
@@ -3380,6 +3384,7 @@
 			inputPaths = (
 				"$(WTF_BUILD_SCRIPTS_DIR)/Preferences/UnifiedWebPreferences.yaml",
 				"$(WTF_BUILD_SCRIPTS_DIR)/GeneratePreferences.rb",
+				"$(SRCROOT)/mac/Scripts/generate-preferences.sh",
 				"$(SRCROOT)/mac/Scripts/PreferencesTemplates/WebPreferencesDefinitions.h.erb",
 				"$(SRCROOT)/mac/Scripts/PreferencesTemplates/WebPreferencesExperimentalFeatures.mm.erb",
 				"$(SRCROOT)/mac/Scripts/PreferencesTemplates/WebPreferencesInternalFeatures.mm.erb",
@@ -3476,6 +3481,11 @@
 			);
 			inputPaths = (
 				"$(WTF_BUILD_SCRIPTS_DIR)/audit-spi-if-needed.sh",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKitLegacy/platform-enabled-swift-args.arm64.resp",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKitLegacy/platform-enabled-swift-args.arm64_32.resp",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKitLegacy/platform-enabled-swift-args.arm64e.resp",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKitLegacy/platform-enabled-swift-args.armv7k.resp",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKitLegacy/platform-enabled-swift-args.x86_64.resp",
 			);
 			name = "Audit SPI use";
 			outputFileListPaths = (

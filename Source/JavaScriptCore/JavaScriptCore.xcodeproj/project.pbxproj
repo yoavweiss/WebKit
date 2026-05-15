@@ -2488,6 +2488,9 @@
 			filePatterns = "*.h";
 			fileType = pattern.proxy;
 			inputFiles = (
+				"$(SRCROOT)/Scripts/postprocess-header-rule",
+				"$(WK_WEBKITADDITIONS_POSTPROCESS_SCRIPTS_INPUT)",
+				"$(WK_WEBKITADDITIONS_BRANCH_CONFIG_INPUT)",
 			);
 			isEditable = 1;
 			outputFiles = (
@@ -5681,6 +5684,7 @@
 		ADE8029D1E08F2260058DE78 /* WebAssemblyLinkErrorConstructor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WebAssemblyLinkErrorConstructor.cpp; path = js/WebAssemblyLinkErrorConstructor.cpp; sourceTree = "<group>"; };
 		AEDA37D0C69F462084E47142 /* WeakInlinesLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeakInlinesLight.h; sourceTree = "<group>"; };
 		BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = ToolExecutable.xcconfig; sourceTree = "<group>"; };
+		DD8A31502F17A00000000001 /* LLIntExtractor.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = LLIntExtractor.xcconfig; sourceTree = "<group>"; };
 		BC02E9040E1839DB000F9297 /* ErrorConstructor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ErrorConstructor.cpp; sourceTree = "<group>"; };
 		BC02E9050E1839DB000F9297 /* ErrorConstructor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ErrorConstructor.h; sourceTree = "<group>"; };
 		BC02E9060E1839DB000F9297 /* ErrorPrototype.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ErrorPrototype.cpp; sourceTree = "<group>"; };
@@ -7926,6 +7930,7 @@
 				1C9051430BA9E8A70081E9D0 /* JavaScriptCore.xcconfig */,
 				5DAFD6CB146B686300FBEFB4 /* JSC.xcconfig */,
 				44F93DFD2AE71EBD00FFA37C /* libJavaScriptCore.xcconfig */,
+				DD8A31502F17A00000000001 /* LLIntExtractor.xcconfig */,
 				FEE0A12229FE250400CED5E4 /* TestExecutable.xcconfig */,
 				BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */,
 			);
@@ -13354,6 +13359,7 @@
 			);
 			name = "Add Symlink in /System/Library/PrivateFrameworks";
 			outputPaths = (
+				"$(INSTALL_ROOT)/$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks/JavaScriptCore.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
@@ -13366,6 +13372,7 @@
 			);
 			inputPaths = (
 				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+				"$(SRCROOT)/../../Tools/Scripts/check-for-inappropriate-objc-class-names",
 			);
 			name = "Check For Inappropriate Objective-C Class Names";
 			outputPaths = (
@@ -13401,6 +13408,7 @@
 			);
 			inputPaths = (
 				"$(SRCROOT)/DerivedSources.make",
+				"$(SRCROOT)/Scripts/check-xcfilelists.sh",
 			);
 			name = "Check .xcfilelists";
 			outputFileListPaths = (
@@ -13461,6 +13469,7 @@
 			);
 			inputPaths = (
 				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+				"$(SRCROOT)/../../Tools/Scripts/check-for-weak-vtables-and-externals",
 			);
 			name = "Check For Weak VTables and Externals";
 			outputPaths = (
@@ -13510,11 +13519,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Scripts/create-symlink-to-cryptex.sh",
 			);
 			name = "Create Symlink to Cryptex Path";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(OUTPUT_CRYPTEX_SYMLINK_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/zsh;
@@ -13548,6 +13559,7 @@
 			);
 			inputPaths = (
 				"$(CPP_HEADERMAP_PRODUCT_HEADERS_VFS_FILE)",
+				"$(SRCROOT)/../../Tools/Scripts/check-for-inappropriate-macros-in-external-headers",
 			);
 			name = "Check For Inappropriate Macros in External Headers";
 			outputPaths = (
@@ -13567,6 +13579,11 @@
 			);
 			inputPaths = (
 				"$(WTF_BUILD_SCRIPTS_DIR)/audit-spi-if-needed.sh",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/JavaScriptCore/platform-enabled-swift-args.arm64.resp",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/JavaScriptCore/platform-enabled-swift-args.arm64_32.resp",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/JavaScriptCore/platform-enabled-swift-args.arm64e.resp",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/JavaScriptCore/platform-enabled-swift-args.armv7k.resp",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/JavaScriptCore/platform-enabled-swift-args.x86_64.resp",
 			);
 			name = "Audit SPI use";
 			outputFileListPaths = (
@@ -13654,6 +13671,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/../../Tools/Scripts/check-for-inappropriate-files-in-framework",
 			);
 			name = "Check For Inappropriate Files In Framework";
 			outputFileListPaths = (
@@ -14557,28 +14575,28 @@
 		};
 		0FF922CB14F46B130041A24E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
+			baseConfigurationReference = DD8A31502F17A00000000001 /* LLIntExtractor.xcconfig */;
 			buildSettings = {
 			};
 			name = Debug;
 		};
 		0FF922CC14F46B130041A24E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
+			baseConfigurationReference = DD8A31502F17A00000000001 /* LLIntExtractor.xcconfig */;
 			buildSettings = {
 			};
 			name = Release;
 		};
 		0FF922CD14F46B130041A24E /* Profiling */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
+			baseConfigurationReference = DD8A31502F17A00000000001 /* LLIntExtractor.xcconfig */;
 			buildSettings = {
 			};
 			name = Profiling;
 		};
 		0FF922CE14F46B130041A24E /* Production */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
+			baseConfigurationReference = DD8A31502F17A00000000001 /* LLIntExtractor.xcconfig */;
 			buildSettings = {
 			};
 			name = Production;
@@ -14716,7 +14734,7 @@
 		};
 		14BD688A215191310050DAFF /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
+			baseConfigurationReference = DD8A31502F17A00000000001 /* LLIntExtractor.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -14724,7 +14742,7 @@
 		};
 		14BD688B215191310050DAFF /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
+			baseConfigurationReference = DD8A31502F17A00000000001 /* LLIntExtractor.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -14732,7 +14750,7 @@
 		};
 		14BD688C215191310050DAFF /* Profiling */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
+			baseConfigurationReference = DD8A31502F17A00000000001 /* LLIntExtractor.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -14740,7 +14758,7 @@
 		};
 		14BD688D215191310050DAFF /* Production */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */;
+			baseConfigurationReference = DD8A31502F17A00000000001 /* LLIntExtractor.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
