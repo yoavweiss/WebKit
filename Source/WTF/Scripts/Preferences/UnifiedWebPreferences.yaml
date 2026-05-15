@@ -901,7 +901,7 @@ BlockIOKitInWebContentSandbox:
   humanReadableName: "IOKit blocking in the WebContent sandbox"
   humanReadableDescription: "Block IOKit access in the WebContent sandbox"
   webcoreBinding: none
-  condition: HAVE(SANDBOX_STATE_FLAGS)
+  condition: PLATFORM(COCOA)
   exposed: [ WebKit ]
   defaultValue:
     WebKit:
