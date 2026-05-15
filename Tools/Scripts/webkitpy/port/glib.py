@@ -154,8 +154,8 @@ class GLibPort(Port):
         # actual sound card.
         environment['WEBKIT_GST_MAX_NUMBER_OF_AUDIO_OUTPUT_CHANNELS'] = '2'
 
-        # Workaround for bots not using latest SDK version.
-        environment['RICE_LOG'] = 'none'
+        # LibRice logging, example: RICE_LOG=trace.
+        self._copy_values_from_environ_with_prefix(environment, 'RICE_')
 
         if self.get_option("leaks"):
             # Turn off GLib memory optimisations https://wiki.gnome.org/Valgrind.
