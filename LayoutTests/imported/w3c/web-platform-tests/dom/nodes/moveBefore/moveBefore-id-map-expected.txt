@@ -1,3 +1,6 @@
 
-FAIL moveBefore() correctly updates id map assert_equals: expected Element node <span id="target" data-span=""></span> but got Element node <div id="target" data-target=""></div>
+PASS moveBefore() correctly updates id map when moving into shadow root
+PASS moveBefore() correctly updates window map when moving id-mapped element into shadow root
+PASS moveBefore() correctly updates id map when moving between shadow roots
+PASS moveBefore() correctly updates id map when swapping elements with duplicate ids
 

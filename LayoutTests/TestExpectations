@@ -5992,6 +5992,9 @@ webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/moveBef
 webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/select-option-optgroup.html [ Skip ]
 webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/css-transition-trigger.html [ Skip ]
 webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/relevant-mutations.html [ Skip ]
+webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/selection-preserve.html [ Skip ]
+webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/hover-style-update.html [ Skip ]
+webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/pointer-events.html [ Skip ]
 
 # uncategorized dialog element failures
 webkit.org/b/286022 imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element/dialog-close-via-attribute.tentative.html [ Skip ]

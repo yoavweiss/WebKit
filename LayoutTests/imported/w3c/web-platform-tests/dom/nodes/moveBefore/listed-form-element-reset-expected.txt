@@ -1,4 +1,4 @@
 
 
-FAIL Listed form element form owner is reset when a new form is moved closer before the listed element assert_equals: button.form is correctly reset to form2 expected Element node <form id="form1"></form> but got Element node <form id="form1"></form>
+PASS Listed form element form owner is reset when a new form is moved closer before the listed element
 

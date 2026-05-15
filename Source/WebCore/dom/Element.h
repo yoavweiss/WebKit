@@ -929,6 +929,7 @@ protected:
 
     NeedsPostConnectionSteps insertionSteps(InsertionType, ContainerNode&) override;
     void removingSteps(RemovalType, ContainerNode&) override;
+    void movingSteps(bool, ContainerNode&) override;
     void childrenChanged(const ChildChange&) override;
     void removeAllEventListeners() override;
 

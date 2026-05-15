@@ -1,4 +1,3 @@
- window.__ranHTMLInsideMoveBefore = true; window.__ranSVGInsideMoveBefore = true;
 
 PASS Synchronous script execution in HTMLScriptElement during moveBefore should be blocked
 PASS Synchronous script execution in SVGScriptElement during moveBefore should be blocked

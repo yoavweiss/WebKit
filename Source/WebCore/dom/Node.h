@@ -508,6 +508,9 @@ public:
     // https://dom.spec.whatwg.org/#concept-node-remove-ext
     virtual void removingSteps(RemovalType, ContainerNode& oldParentOfRemovedTree);
 
+    // https://dom.spec.whatwg.org/#concept-node-move-ext
+    virtual void movingSteps(bool, ContainerNode&) { };
+
     virtual String description() const;
     virtual String debugDescription() const;
 

@@ -1,3 +1,3 @@
 
-FAIL moveBefore() is allowed in ShadowRoots (i.e., connected DocumentFragments) assert_equals: Original lastChild is now firstChild expected Element node <p>Child2</p> but got Element node <p>Child1</p>
+PASS moveBefore() is allowed in ShadowRoots (i.e., connected DocumentFragments)
 

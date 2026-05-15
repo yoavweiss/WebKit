@@ -15,18 +15,17 @@ PASS moveBefore() on disconnected parent throws a HierarchyRequestError
 PASS moveBefore() with disconnected target node throws a HierarchyRequestError
 PASS moveBefore() on a cross-document target node throws a HierarchyRequestError
 PASS moveBefore() into a Document throws a HierarchyRequestError
-FAIL moveBefore() CharacterData into a Document assert_equals: expected Document node with 1 child but got Element node <body><!--comment--></body>
+PASS moveBefore() CharacterData into a Document
 PASS moveBefore() with node being an inclusive ancestor of parent throws a HierarchyRequestError
 PASS moveBefore() with a non-{Element, CharacterData} throws a HierarchyRequestError
-FAIL moveBefore with an Element or CharacterData succeeds assert_equals: expected Text node "child text" but got Text node "
-"
-FAIL moveBefore on a paragraph's Text node child assert_equals: expected Text node "Some content" but got Element node <iframe></iframe>
+PASS moveBefore with an Element or CharacterData succeeds
+PASS moveBefore on a paragraph's Text node child
 PASS moveBefore with reference child whose parent is NOT the destination parent (context node) throws a NotFoundError.
 FAIL moveBefore() returns undefined assert_array_equals: expected property 0 to be Element node <div></div> but got Element node <div></div> (expected array [Element node <div></div>, Element node <div></div>] got object "[object NodeList]")
 PASS Moving a node before itself should not move the node
 PASS Moving a node from a disconnected container to a disconnected new parent without a shared ancestor throws a HIERARCHY_REQUEST_ERR
-FAIL Moving a node from a disconnected container to a disconnected new parent in the same tree succeeds assert_equals: <p> Was successfully moved expected Element node <p></p> but got null
-FAIL Moving a node from a disconnected container to a disconnected new parent in the same tree succeeds,also across shadow-roots assert_equals: <p> Was successfully moved expected Element node <p></p> but got null
+PASS Moving a node from a disconnected container to a disconnected new parent in the same tree succeeds
+PASS Moving a node from a disconnected container to a disconnected new parent in the same tree succeeds,also across shadow-roots
 PASS Moving a node from disconnected->connected throws a HIERARCHY_REQUEST_ERR
 PASS Moving a node from connected->disconnected throws a HIERARCHY_REQUEST_ERR
 PASS No custom element callbacks are run during disconnected moveBefore()

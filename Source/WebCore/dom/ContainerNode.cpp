@@ -51,6 +51,7 @@
 #include "LabelsNodeList.h"
 #include "LocalFrameView.h"
 #include "MutationEvent.h"
+#include "Node.h"
 #include "NodeRareData.h"
 #include "NodeRenderStyle.h"
 #include "RadioNodeList.h"
@@ -1461,12 +1462,63 @@ ExceptionOr<void> ContainerNode::moveBefore(Node& node, RefPtr<Node>&& refChild)
         }
     }
 
-    if (isConnected()) {
-        for (RefPtr inclusiveDescendant = &node; inclusiveDescendant; inclusiveDescendant = NodeTraversal::next(*inclusiveDescendant, &node)) {
+    RefPtr oldParent = node.parentNode();
+    ASSERT(oldParent);
+
+    RefPtr oldPreviousSibling = node.previousSibling();
+    RefPtr oldNextSibling = node.nextSibling();
+
+    // FIXME(281223): Run NodeIterator and live range pre-remove steps.
+
+    {
+        WidgetHierarchyUpdatesSuspensionScope suspendWidgetHierarchyUpdates;
+        ScriptDisallowedScope::InMainThread scriptDisallowedScope;
+
+        if (oldNextSibling) {
+            oldNextSibling->setPreviousSibling(oldPreviousSibling.get());
+            node.setNextSibling(nullptr);
+        } else {
+            ASSERT(oldParent->lastChild() == &node);
+            oldParent->setLastChild(oldPreviousSibling.get());
+        }
+
+        if (oldPreviousSibling) {
+            oldPreviousSibling->setNextSibling(oldNextSibling.get());
+            node.setPreviousSibling(nullptr);
+        } else {
+            ASSERT(oldParent->firstChild() == &node);
+            oldParent->setFirstChild(oldNextSibling.get());
+        }
+
+        node.updateAncestorConnectedSubframeCountForRemoval();
+        node.setParentNode(nullptr);
+
+        // FIXME(281223): Handle slot assignments and live ranges.
+
+        if (refChild)
+            insertBeforeCommon(*refChild, node);
+        else
+            appendChildCommon(node);
+
+        node.setTreeScopeRecursively(treeScope());
+        node.updateAncestorConnectedSubframeCountForInsertion();
+    }
+
+    auto newParentIsConnected = isConnected();
+
+    // FIXME(281223): Need to recurse into shadow trees.
+    for (RefPtr inclusiveDescendant = &node; inclusiveDescendant; inclusiveDescendant = NodeTraversal::next(*inclusiveDescendant, &node)) {
+        bool isSubtreeRoot = inclusiveDescendant.get() == &node;
+
+        inclusiveDescendant->movingSteps(isSubtreeRoot, *oldParent);
+
+        if (newParentIsConnected) {
             if (RefPtr element = dynamicDowncast<Element>(*inclusiveDescendant); element && element->isDefinedCustomElement())
                 CustomElementReactionQueue::enqueueConnectedMoveCallbackIfNeeded(*element);
         }
     }
+
+    // FIXME(281223): Queue tree mutation records.
 
     return { };
 }
