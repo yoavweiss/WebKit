@@ -257,10 +257,20 @@ void RenderWidget::paintContents(PaintInfo& paintInfo, const LayoutPoint& paintO
     ASSERT(!isSkippedContentRoot(*this));
 
     if (paintInfo.requireSecurityOriginAccessForWidgets) {
-        if (RefPtr contentDocument = frameOwnerElement().contentDocument()) {
-            if (!protect(document().securityOrigin())->isSameOriginDomain(contentDocument->securityOrigin()))
-                return;
-        }
+        bool shouldAllow = [&] () {
+            RefPtr contentFrame = protect(frameOwnerElement())->contentFrame();
+            if (!contentFrame)
+                return false;
+
+            RefPtr frameSecurityOrigin = contentFrame->frameDocumentSecurityOrigin();
+            if (!frameSecurityOrigin)
+                return false;
+
+            return protect(document().securityOrigin())->isSameOriginDomain(*frameSecurityOrigin);
+        }();
+
+        if (!shouldAllow)
+            return;
     }
 
     auto contentPaintOffset = paintOffset + location() + contentBoxRect().location();
