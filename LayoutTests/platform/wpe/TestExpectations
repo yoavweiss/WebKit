@@ -475,6 +475,8 @@ imported/w3c/web-platform-tests/pointerevents/pointerevent_attributes.html?touch
 
 css3/scroll-snap/resnap-after-layout.html [ Skip ] # Timeout.
 
+webkit.org/b/314537 imported/w3c/web-platform-tests/css/filter-effects/css-filters-animation-combined-001.html [ ImageOnlyFailure ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # 4. TESTS CRASHING
 #////////////////////////////////////////////////////////////////////////////////////////

@@ -141,10 +141,10 @@ void DrawingAreaCoordinatedGraphics::updatePreferences(const WebPreferencesStore
         settings.setAsyncOverflowScrollingEnabled(false);
     }
 
-    if (!settings.useSkiaForComposition()) {
+    if (settings.useSkiaForComposition()) {
         static auto useSkiaForComposition = String::fromLatin1(getenv("WEBKIT_USE_SKIA_FOR_COMPOSITION"));
-        if (!useSkiaForComposition.isEmpty() && useSkiaForComposition != "0"_s)
-            settings.setUseSkiaForComposition(true);
+        if (!useSkiaForComposition.isEmpty() && useSkiaForComposition == "0"_s)
+            settings.setUseSkiaForComposition(false);
     }
 }
 
