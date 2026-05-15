@@ -410,21 +410,47 @@ bool isDefinitelyNonThenable(JSObject* object, JSGlobalObject* globalObject)
         return false;
 
     auto* structure = object->structure();
-    if (globalObject->iteratorResultObjectStructure() == structure)
+    auto state = structure->definitelyNonThenableState();
+    if (state == Structure::DefinitelyNonThenableState::NonThenable && structure->realm() == globalObject)
         return true;
+    if (state == Structure::DefinitelyNonThenableState::MaybeThenable)
+        return false;
 
-    while (structure) {
-        if (structure->hasSpecialProperties())
-            return false;
-        if (structure->typeInfo().getOwnPropertySlotIsImpureForPropertyAbsence())
-            return false;
-        if (structure->typeInfo().overridesGetPrototype())
-            return false;
-        if (!structure->hasMonoProto())
-            return false;
-        structure = structure->storedPrototypeStructure();
+    bool result = true;
+    auto* current = structure;
+    while (current) {
+        if (current->hasSpecialProperties()
+            || current->typeInfo().getOwnPropertySlotIsImpureForPropertyAbsence()
+            || current->typeInfo().overridesGetPrototype()
+            || !current->hasMonoProto()) {
+            result = false;
+            break;
+        }
+        current = current->storedPrototypeStructure();
     }
-    return true;
+
+    // Dictionary structures are mutated in place when properties are added or removed,
+    // so the cached state could become stale (e.g. caching NonThenable, then adding `then`).
+    // Give up caching entirely for them; the per-call walk above remains correct because
+    // `hasSpecialProperties` is updated in place even for dictionaries.
+    if (state == Structure::DefinitelyNonThenableState::NotComputed && !structure->isDictionary()) [[unlikely]] {
+        if (!result) {
+            // Always safe: a stale `false` only loses the optimization, never miscompiles.
+            structure->setDefinitelyNonThenableState(Structure::DefinitelyNonThenableState::MaybeThenable);
+        } else {
+            // A `true` result is cacheable only when the entire prototype chain stays
+            // under the protection of promiseThenWatchpointSet, which watches `then`
+            // absence on Object.prototype. That limits the cacheable chain to [self]
+            // (null proto) or [self, Object.prototype]. Mark anything else Uncacheable
+            // so subsequent calls skip this check and go straight to the walk.
+            JSValue proto = structure->storedPrototype();
+            if (!proto.isObject() || asObject(proto) == globalObject->objectPrototype())
+                structure->setDefinitelyNonThenableState(Structure::DefinitelyNonThenableState::NonThenable);
+            else
+                structure->setDefinitelyNonThenableState(Structure::DefinitelyNonThenableState::Uncacheable);
+        }
+    }
+    return result;
 }
 
 ALWAYS_INLINE void JSPromise::settleInlineInternalMicrotask(VM& vm, JSGlobalObject* globalObject, Status newStatus, JSValue argument, uint16_t flagsSnapshot)

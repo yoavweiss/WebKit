@@ -848,13 +848,20 @@ public:
 private:
     JS_EXPORT_PRIVATE void didReplacePropertySlow(PropertyOffset);
 
-    typedef enum { 
+    typedef enum {
         NoneDictionaryKind = 0,
         CachedDictionaryKind = 1,
         UncachedDictionaryKind = 2
     } DictionaryKind;
 
 public:
+    enum class DefinitelyNonThenableState : uint8_t {
+        NotComputed = 0,
+        NonThenable = 1, // Cached `true`. Sound only while the realm's promiseThenWatchpointSet is intact.
+        MaybeThenable = 2, // Cached `false`. Always safe (a stale `false` only loses the optimization).
+        Uncacheable = 3, // Prototype chain isn't covered by the watchpoint; always recompute.
+    };
+
 #define DEFINE_BITFIELD(type, lowerName, upperName, width, offset) \
     static constexpr uint32_t s_##lowerName##Shift = offset;\
     static constexpr uint32_t s_##lowerName##Mask = ((1 << (width - 1)) | ((1 << (width - 1)) - 1));\
@@ -874,6 +881,7 @@ public:
     DEFINE_BITFIELD(bool, isQuickPropertyAccessAllowedForEnumeration, IsQuickPropertyAccessAllowedForEnumeration, 1, 5);
     DEFINE_BITFIELD(bool, hasNonEnumerableProperties, HasNonEnumerableProperties, 1, 6);
     DEFINE_BITFIELD(bool, hasSpecialProperties, HasSpecialProperties, 1, 7);
+    DEFINE_BITFIELD(DefinitelyNonThenableState, definitelyNonThenableState, DefinitelyNonThenableState, 2, 8); // This flag can be flipped on the main thread at any timing.
     DEFINE_BITFIELD(TransitionKind, transitionKind, TransitionKind, 5, 13);
     DEFINE_BITFIELD(bool, isWatchingReplacement, IsWatchingReplacement, 1, 18); // This flag can be fliped on the main thread at any timing.
     DEFINE_BITFIELD(bool, mayBePrototype, MayBePrototype, 1, 19);
