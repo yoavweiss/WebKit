@@ -1620,7 +1620,6 @@ TestWebKitAPI.MouseEventTests.CmdModifierIsKeptWhenJSInterceptsClick
 TestWebKitAPI.MouseEventTests.CmdShiftModifierIsKeptWhenJSInterceptsClick
 TestWebKitAPI.MouseEventTests.CoalesceMouseMoveEvents
 TestWebKitAPI.MouseEventTests.MouseEnterDoesNotDispatchMultipleMouseMoveEvents
-TestWebKitAPI.MouseEventTests.ProcessSwapWithDeferredMouseMoveEventCompletion
 TestWebKitAPI.MouseEventTests.SendMouseMoveEventStream
 TestWebKitAPI.MouseEventTests.ShiftModifierIsKeptWhenJSInterceptsClick
 TestWebKitAPI.MouseEventTests.ShouldDelayWindowOrderingForEvent
@@ -1882,7 +1881,6 @@ TestWebKitAPI.SOAuthorizationSubFrame.AuthorizationOptions
 TestWebKitAPI.SOAuthorizationSubFrame.InterceptionCancel
 TestWebKitAPI.SOAuthorizationSubFrame.InterceptionError
 TestWebKitAPI.SOAuthorizationSubFrame.InterceptionErrorMessageOrder
-TestWebKitAPI.SOAuthorizationSubFrame.InterceptionErrorWithReferrer
 TestWebKitAPI.SOAuthorizationSubFrame.InterceptionSucceedWithCookie
 TestWebKitAPI.SOAuthorizationSubFrame.InterceptionSucceedWithCookieButCSPDeny
 TestWebKitAPI.SOAuthorizationSubFrame.InterceptionSucceedWithCookieButXFrameDeny
@@ -2796,7 +2794,6 @@ TestWebKitAPI.SiteIsolation.ParentNavigatingCrossOriginIframeToSameOrigin
 TestWebKitAPI.SiteIsolation.ParentOpener
 TestWebKitAPI.SiteIsolation.PartitionWebProcessCache
 TestWebKitAPI.SiteIsolation.PostMessageToIFrameWithOpaqueOrigin
-TestWebKitAPI.SiteIsolation.PostMessageWithMessagePorts
 TestWebKitAPI.SiteIsolation.PostMessageWithNotAllowedTargetOrigin
 TestWebKitAPI.SiteIsolation.PreferencesUpdatesToAllProcesses
 TestWebKitAPI.SiteIsolation.PresentationUpdateAfterCrossSiteNavigation
@@ -3168,7 +3165,6 @@ TestWebKitAPI.WKWebExtensionAPIDeclarativeNetRequest.NumbersArePositiveIntegers
 TestWebKitAPI.WKWebExtensionAPIDeclarativeNetRequest.OnlyOneOfResourceTypesAndExcludedResourceTypesIsSpecified
 TestWebKitAPI.WKWebExtensionAPIDeclarativeNetRequest.PropertiesHaveCorrectType
 TestWebKitAPI.WKWebExtensionAPIDeclarativeNetRequest.RegexRuleConversion
-TestWebKitAPI.WKWebExtensionAPIDeclarativeNetRequest.RemoveDynamicRules
 TestWebKitAPI.WKWebExtensionAPIDeclarativeNetRequest.RepeatedMainFrameResourceRuleConversion
 TestWebKitAPI.WKWebExtensionAPIDeclarativeNetRequest.RequiredAndOptionalKeys
 TestWebKitAPI.WKWebExtensionAPIDeclarativeNetRequest.RuleConversionWithDomainType
@@ -3794,9 +3790,7 @@ TestWebKitAPI.WritingTools.IntelligenceTextEffectCoordinatorDelegate_UpdateTextV
 TestWebKitAPI.WritingTools.IsWritingToolsActiveAPI
 TestWebKitAPI.WritingTools.IsWritingToolsActiveAPIWithNoInlineEditing
 TestWebKitAPI.WritingTools.NoCrashWhenWebProcessTerminates
-TestWebKitAPI.WritingTools.ProofreadingAcceptReject
 TestWebKitAPI.WritingTools.ProofreadingReview
-TestWebKitAPI.WritingTools.ProofreadingShowOriginal
 TestWebKitAPI.WritingTools.ProofreadingShowOriginalWithMultiwordSuggestions
 TestWebKitAPI.WritingTools.ProofreadingWithImage
 TestWebKitAPI.WritingTools.ProofreadingWithLinks
@@ -4013,7 +4007,6 @@ TestWebKitAPI._WKDownload.SystemPreviewUSDZBlobNaming
 [ ios ] TestWebKitAPI.CopyHTML.SanitizationPreservesCharacterSet
 [ ios ] TestWebKitAPI.CopyHTML.SanitizationPreservesCharacterSetInSelectedText
 [ ios ] TestWebKitAPI.CopyHTML.SanitizationPreservesRelativeURLInAttributedString
-[ ios ] TestWebKitAPI.CopyHTML.Sanitizes
 [ ios ] TestWebKitAPI.CopyRTF.DoesNotCrashWithDirectoryFileWrapperFromImageSrcset
 [ ios ] TestWebKitAPI.CopyRTF.StripsDataDetectorsLinks
 [ ios ] TestWebKitAPI.CopyRTF.StripsDefaultTextColorOfDarkContent
@@ -4327,9 +4320,7 @@ TestWebKitAPI._WKDownload.SystemPreviewUSDZBlobNaming
 [ ios ] TestWebKitAPI.InAppBrowserPrivacy.WebViewCannotUpdateAppBoundFlagOnceSet
 [ ios ] TestWebKitAPI.InAppBrowserPrivacy.WebViewWithoutAppBoundFlagCanFreelyNavigate
 [ ios ] TestWebKitAPI.IndexedDB.DeleteRecovery
-[ ios ] TestWebKitAPI.IndexedDB.IDBObjectStoreInfoUpgradeToV2
 [ ios ] TestWebKitAPI.IndexedDB.IndexedDBInPageCache
-[ ios ] TestWebKitAPI.IndexedDB.IndexedDBMultiProcess
 [ ios ] TestWebKitAPI.IndexedDB.IndexedDBPersistence
 [ ios ] TestWebKitAPI.IndexedDB.IndexedDBPersistencePrivate
 [ ios ] TestWebKitAPI.IndexedDB.IndexedDBSuspendImminently
@@ -4429,7 +4420,6 @@ TestWebKitAPI._WKDownload.SystemPreviewUSDZBlobNaming
 [ ios ] TestWebKitAPI.PasteHTML.DoesNotTransformColorsOfLightContent
 [ ios ] TestWebKitAPI.PasteHTML.ExposesHTMLTypeInDataTransfer
 [ ios ] TestWebKitAPI.PasteHTML.KeepsHTTPURLs
-[ ios ] TestWebKitAPI.PasteHTML.PasteDarkTextOnWhiteBackgroundIntoDarkModeEditor
 [ ios ] TestWebKitAPI.PasteHTML.PreservesMSOList
 [ ios ] TestWebKitAPI.PasteHTML.PreservesMSOListInCompatibilityMode
 [ ios ] TestWebKitAPI.PasteHTML.PreservesMSOListOnH4
@@ -4707,7 +4697,6 @@ TestWebKitAPI._WKDownload.SystemPreviewUSDZBlobNaming
 [ ios ] TestWebKitAPI.ServiceWorkers.ServiceWorkerCacheReference
 [ ios ] TestWebKitAPI.ServiceWorkers.ServiceWorkerStorageTiming
 [ ios ] TestWebKitAPI.ServiceWorkers.ThrottleCrash
-[ ios ] TestWebKitAPI.ServiceWorkers.V2DatabaseUpgrade
 [ ios ] TestWebKitAPI.ServiceWorkers.WaitForPolicyDelegate
 [ ios ] TestWebKitAPI.ServiceWorkers.WebProcessCache
 [ ios ] TestWebKitAPI.ShareSheetTests.ShareAnchorElementAsURL
@@ -4847,10 +4836,7 @@ TestWebKitAPI._WKDownload.SystemPreviewUSDZBlobNaming
 [ ios ] TestWebKitAPI.WKAttachmentTests.CopyAndPasteImageBetweenWebViews
 [ ios ] TestWebKitAPI.WKAttachmentTests.CopyAndPasteRemoteImages
 [ ios ] TestWebKitAPI.WKAttachmentTests.CustomFileWrapperSubclass
-[ ios ] TestWebKitAPI.WKAttachmentTests.CutAndPasteAttachmentBetweenWebViews
 [ ios ] TestWebKitAPI.WKAttachmentTests.DropFolderAsAttachmentAndMoveByDragging
-[ ios ] TestWebKitAPI.WKAttachmentTests.InsertAndRemoveDuplicateAttachment
-[ ios ] TestWebKitAPI.WKAttachmentTests.InsertDataURLImagesAsAttachments
 [ ios ] TestWebKitAPI.WKAttachmentTests.InsertDuplicateAttachmentAndUpdateData
 [ ios ] TestWebKitAPI.WKAttachmentTests.InsertPastedAttributedStringContainingImage
 [ ios ] TestWebKitAPI.WKAttachmentTests.InsertPastedAttributedStringContainingMultipleAttachments
@@ -4874,7 +4860,6 @@ TestWebKitAPI._WKDownload.SystemPreviewUSDZBlobNaming
 [ ios ] TestWebKitAPI.WKAttachmentTestsIOS.InsertDroppedMapItemAsAttachment
 [ ios ] TestWebKitAPI.WKAttachmentTestsIOS.InsertDroppedRichAndPlainTextFilesAsAttachments
 [ ios ] TestWebKitAPI.WKAttachmentTestsIOS.InsertDroppedZipArchiveAsAttachment
-[ ios ] TestWebKitAPI.WKAttachmentTestsIOS.InsertPastedMapItemAsAttachment
 [ ios ] TestWebKitAPI.WKAttachmentTestsIOS.TargetedPreviewIsClippedWhenDroppingTallImage
 [ ios ] TestWebKitAPI.WKAttachmentTestsIOS.TargetedPreviewsWhenDroppingImages
 [ ios ] TestWebKitAPI.WKAttachmentTestsMac.CallAcceptsFirstMouseWhileDraggingAttachment
@@ -4971,7 +4956,6 @@ TestWebKitAPI._WKDownload.SystemPreviewUSDZBlobNaming
 [ ios ] TestWebKitAPI.WKNavigation.CrashRecoveryRightAfterLoadRequest
 [ ios ] TestWebKitAPI.WKNavigation.FailureToStartWebProcessAfterCrashRecovery
 [ ios ] TestWebKitAPI.WKNavigation.FailureToStartWebProcessRecovery
-[ ios ] TestWebKitAPI.WKNavigation.HTTPSFirstRedirectNoHTTPDowngradeRedirect
 [ ios ] TestWebKitAPI.WKNavigation.MultipleProcessCrashesRelatedWebViews
 [ ios ] TestWebKitAPI.WKNavigation.PreferredHTTPSPolicyAutomaticHTTPFallbackAfterSessionRestore
 [ ios ] TestWebKitAPI.WKNavigation.PreferredHTTPSPolicyAutomaticHTTPFallbackAfterTerminateProcess
@@ -4980,11 +4964,9 @@ TestWebKitAPI._WKDownload.SystemPreviewUSDZBlobNaming
 [ ios ] TestWebKitAPI.WKNavigation.PreferredHTTPSPolicyAutomaticHTTPFallbackHTTPDowngradeAndSameSiteNavigation
 [ ios ] TestWebKitAPI.WKNavigation.PreferredHTTPSPolicyAutomaticHTTPFallbackHTTPDowngradeRedirect
 [ ios ] TestWebKitAPI.WKNavigation.PreferredHTTPSPolicyAutomaticHTTPFallbackLocalHostIPAddress
-[ ios ] TestWebKitAPI.WKNavigation.PreferredHTTPSPolicyAutomaticHTTPFallbackRedirectNoHTTPDowngradeRedirect
 [ ios ] TestWebKitAPI.WKNavigation.PreferredHTTPSPolicyAutomaticHTTPFallbackWithHTTPRedirect
 [ ios ] TestWebKitAPI.WKNavigation.PreferredHTTPSPolicyNoFallbackInitialLoad
 [ ios ] TestWebKitAPI.WKNavigation.PreferredHTTPSPolicyNoFallbackOnCertificateError
-[ ios ] TestWebKitAPI.WKNavigation.PreferredHTTPSPolicyNoFallbackRedirectNoHTTPDowngradeRedirect
 [ ios ] TestWebKitAPI.WKNavigation.PreferredHTTPSPolicyUserMediatedHTTPFallbackHTTPFallbackContinue
 [ ios ] TestWebKitAPI.WKNavigation.PreferredHTTPSPolicyUserMediatedHTTPFallbackHTTPFallbackGoBack
 [ ios ] TestWebKitAPI.WKNavigation.PreferredHTTPSPolicyUserMediatedHTTPFallbackInitialLoad
@@ -5377,7 +5359,6 @@ TestWebKitAPI._WKDownload.SystemPreviewUSDZBlobNaming
 [ ios ] TestWebKitAPI.WKWebExtensionAPIWebNavigation.DeniedFilter
 [ ios ] TestWebKitAPI.WKWebExtensionAPIWebNavigation.DocumentIdAcrossEvents
 [ ios ] TestWebKitAPI.WKWebExtensionAPIWebNavigation.ErrorOccurred
-[ ios ] TestWebKitAPI.WKWebExtensionAPIWebNavigation.ErrorOccurredEventDuringLoad
 [ ios ] TestWebKitAPI.WKWebExtensionAPIWebNavigation.ErrorOccurredEventDuringProvisionalLoad
 [ ios ] TestWebKitAPI.WKWebExtensionAPIWebNavigation.Errors
 [ ios ] TestWebKitAPI.WKWebExtensionAPIWebNavigation.EventListenerRegistration
@@ -5510,11 +5491,9 @@ TestWebKitAPI._WKDownload.SystemPreviewUSDZBlobNaming
 [ ios ] TestWebKitAPI.WKWebsiteDataStore.FetchNonPersistentWebStorage
 [ ios ] TestWebKitAPI.WKWebsiteDataStore.FetchPersistentWebStorage
 [ ios ] TestWebKitAPI.WKWebsiteDataStore.ListIdentifiers
-[ ios ] TestWebKitAPI.WKWebsiteDataStore.RemoveAndFetchData
 [ ios ] TestWebKitAPI.WKWebsiteDataStore.RemoveDataStoreWithIdentifier
 [ ios ] TestWebKitAPI.WKWebsiteDataStore.RemoveDataStoreWithIdentifierErrorWhenInUse
 [ ios ] TestWebKitAPI.WKWebsiteDataStore.RemoveDataStoreWithIdentifierRemoveCredentials
-[ ios ] TestWebKitAPI.WKWebsiteDataStore.RemoveDataWaitUntilWebProcessesExit
 [ ios ] TestWebKitAPI.WKWebsiteDataStore.RemoveNonPersistentCredentials
 [ ios ] TestWebKitAPI.WKWebsiteDataStore.RemoveSessionWithIdentifierFromNetworkProcess
 [ ios ] TestWebKitAPI.WKWebsiteDataStore.SessionSetCount
@@ -5553,13 +5532,7 @@ TestWebKitAPI._WKDownload.SystemPreviewUSDZBlobNaming
 [ ios ] TestWebKitAPI.WebArchive.SaveResourcesWithUTF8Encoding
 [ ios ] TestWebKitAPI.WebAuthenticationPanel.CloseHidCancel
 [ ios ] TestWebKitAPI.WebAuthenticationPanel.FakePanelHidCtapNoCredentialsFound
-[ ios ] TestWebKitAPI.WebAuthenticationPanel.FakePanelHidSuccess
-[ ios ] TestWebKitAPI.WebAuthenticationPanel.GetAssertionInternalUV
-[ ios ] TestWebKitAPI.WebAuthenticationPanel.GetAssertionInternalUVPinFallback
 [ ios ] TestWebKitAPI.WebAuthenticationPanel.GetAssertionLA
-[ ios ] TestWebKitAPI.WebAuthenticationPanel.GetAssertionPin
-[ ios ] TestWebKitAPI.WebAuthenticationPanel.GetAssertionPinAuthBlockedError
-[ ios ] TestWebKitAPI.WebAuthenticationPanel.GetAssertionPinProtocol2
 [ ios ] TestWebKitAPI.WebAuthenticationPanel.InvalidAuthenticatorAttachmentDoesNotThrow
 [ ios ] TestWebKitAPI.WebAuthenticationPanel.LAError
 [ ios ] TestWebKitAPI.WebAuthenticationPanel.LAGetAssertion
@@ -5584,8 +5557,6 @@ TestWebKitAPI._WKDownload.SystemPreviewUSDZBlobNaming
 [ ios ] TestWebKitAPI.WebAuthenticationPanel.PanelHidCancelReloadNoCrash
 [ ios ] TestWebKitAPI.WebAuthenticationPanel.PanelHidCtapNoCredentialsFound
 [ ios ] TestWebKitAPI.WebAuthenticationPanel.PanelHidCtapNoCredentialsFoundCancelNoCrash
-[ ios ] TestWebKitAPI.WebAuthenticationPanel.PanelHidSuccess2
-[ ios ] TestWebKitAPI.WebAuthenticationPanel.PanelHidSuccessCancelNoCrash
 [ ios ] TestWebKitAPI.WebAuthenticationPanel.PanelMultipleNFCTagsPresent
 [ ios ] TestWebKitAPI.WebAuthenticationPanel.PanelRacy1
 [ ios ] TestWebKitAPI.WebAuthenticationPanel.PanelRacy2
@@ -5920,7 +5891,6 @@ TestWebKitAPI._WKDownload.SystemPreviewUSDZBlobNaming
 [ ios ] TestWebKitAPI.WritingTools.APIWithBehaviorComplete
 [ ios ] TestWebKitAPI.WritingTools.APIWithBehaviorDefault
 [ ios ] TestWebKitAPI.WritingTools.APIWithBehaviorNone
-[ ios ] TestWebKitAPI.WritingTools.CompositionWithMultipleChunks
 [ ios ] TestWebKitAPI.WritingTools.ContextMenuItemsEditable
 [ ios ] TestWebKitAPI.WritingTools.ContextMenuItemsEditableEmpty
 [ ios ] TestWebKitAPI.WritingTools.ContextMenuItemsNonEditable
