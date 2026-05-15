@@ -143,7 +143,7 @@ auto CSSValueConversion<PositionTryFallback>::operator()(BuilderState& state, co
     }
 
     // Turn the inlined position-area fallback into properties object that can be applied similarly to @position-try declarations.
-    auto property = CSSProperty { CSSPropertyPositionArea, Ref { const_cast<CSSValue&>(value) } };
+    auto property = CSSProperty { CSSPropertyPositionArea, protect(const_cast<CSSValue&>(value)) };
     return {
         .positionArea = { ImmutableStyleProperties::createDeduplicating(std::span { &property, 1 }, HTMLStandardMode) }
     };

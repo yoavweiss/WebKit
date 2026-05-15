@@ -609,7 +609,7 @@ static void updateCSSTransitionsForStyleableAndProperty(const Styleable& styleab
             if (auto* keyframeEffectStack = styleable.keyframeEffectStack()) {
                 for (const auto& effect : keyframeEffectStack->sortedEffects()) {
                     if (effect->animatesProperty(property))
-                        Ref { *effect }->apply(style, { nullptr });
+                        protect(*effect)->apply(style, { nullptr });
                 }
             }
             return style;
@@ -697,7 +697,7 @@ static void updateCSSTransitionsForStyleableAndProperty(const Styleable& styleab
             if (auto* lastStyleChangeEventStyle = styleable.lastStyleChangeEventStyle()) {
                 auto style = RenderStyle::clone(*lastStyleChangeEventStyle);
                 ASSERT(previouslyRunningTransition->keyframeEffect());
-                Ref { *previouslyRunningTransition->keyframeEffect() }->apply(style, { nullptr });
+                protect(*previouslyRunningTransition->keyframeEffect())->apply(style, { nullptr });
                 return style;
             }
             return RenderStyle::clone(currentStyle);

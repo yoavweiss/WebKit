@@ -1304,7 +1304,7 @@ void TreeResolver::resolveComposedTree()
             continue;
         }
 
-        Ref element = Ref { downcast<Element>(node.get()) };
+        Ref element { downcast<Element>(node.get()) };
 
         // At the maximum render tree depth, only the first child per parent gets a renderer.
         // The HTML parser caps DOM depth by attaching overflow elements as siblings at this
