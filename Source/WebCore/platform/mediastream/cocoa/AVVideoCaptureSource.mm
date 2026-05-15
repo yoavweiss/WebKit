@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2013-2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -82,7 +82,11 @@ using namespace WebCore;
 - (instancetype)initWithMediaEnvironment:(NSString *)mediaEnvironment;
 @end
 
-@interface WebCoreAVVideoCaptureSourceObserver : NSObject<AVCaptureVideoDataOutputSampleBufferDelegate, AVCapturePhotoCaptureDelegate> {
+@interface WebCoreAVVideoCaptureSourceObserver : NSObject<AVCaptureVideoDataOutputSampleBufferDelegate,
+#if HAVE(AVCAPTUREPHOTOOUTPUT_READINESS_COORDINATOR)
+    AVCapturePhotoOutputReadinessCoordinatorDelegate,
+#endif
+    AVCapturePhotoCaptureDelegate> {
     ThreadSafeWeakPtr<AVVideoCaptureSource> m_captureSource;
 }
 
@@ -92,13 +96,19 @@ using namespace WebCore;
 -(void)removeNotificationObservers;
 -(void)captureOutput:(AVCaptureOutput*)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection*)connection;
 -(void)observeValueForKeyPath:keyPath ofObject:(id)object change:(NSDictionary*)change context:(void*)context;
+-(void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhoto:(AVCapturePhoto *)photo error:(NSError *)error;
+
 #if PLATFORM(IOS_FAMILY)
 -(void)sessionRuntimeError:(NSNotification*)notification;
 -(void)beginSessionInterrupted:(NSNotification*)notification;
 -(void)endSessionInterrupted:(NSNotification*)notification;
 -(void)deviceConnectedDidChange:(NSNotification*)notification;
 #endif
-- (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhoto:(AVCapturePhoto *)photo error:(NSError *)error;
+
+#if HAVE(AVCAPTUREPHOTOOUTPUT_READINESS_COORDINATOR)
+-(void)readinessCoordinator:(AVCapturePhotoOutputReadinessCoordinator *)coordinator captureReadinessDidChange:(AVCapturePhotoOutputCaptureReadiness)captureReadiness;
+#endif
+
 @end
 
 namespace WebCore {
@@ -356,6 +366,14 @@ void AVVideoCaptureSource::clearSession()
     [m_session removeObserver:m_objcObserver.get() forKeyPath:@"running"];
     m_session = nullptr;
     m_photoOutput = nullptr;
+#if HAVE(AVCAPTUREPHOTOOUTPUT_READINESS_COORDINATOR)
+    m_readinessCoordinator = nullptr;
+    if (m_pendingPhotoSettings) {
+        m_pendingPhotoSettings = nullptr;
+        m_pendingCaptureWatchdog = nullptr;
+        rejectPendingPhotoRequest("Session cleared"_s);
+    }
+#endif
 }
 
 void AVVideoCaptureSource::startProducingData()
@@ -661,6 +679,11 @@ AVCapturePhotoOutput* AVVideoCaptureSource::photoOutput()
     }
     [session() addOutput:m_photoOutput.get()];
 
+#if HAVE(AVCAPTUREPHOTOOUTPUT_READINESS_COORDINATOR)
+    m_readinessCoordinator = adoptNS([PAL::allocAVCapturePhotoOutputReadinessCoordinatorInstance() initWithPhotoOutput:m_photoOutput.get()]);
+    [m_readinessCoordinator setDelegate:m_objcObserver.get()];
+#endif
+
     return m_photoOutput.get();
 }
 
@@ -748,7 +771,6 @@ auto AVVideoCaptureSource::takePhotoInternal(PhotoSettings&& photoSettings) -> R
 {
     assertIsCurrent(RunLoop::mainSingleton());
 
-    auto identifier = LOGIDENTIFIER;
     RetainPtr<AVCapturePhotoOutput> photoOutput = this->photoOutput();
     if (!photoOutput)
         return TakePhotoNativePromise::createAndReject("Internal error"_s);
@@ -757,7 +779,7 @@ auto AVVideoCaptureSource::takePhotoInternal(PhotoSettings&& photoSettings) -> R
     {
         Locker lock { m_photoLock };
         if (m_photoProducer) {
-            ERROR_LOG_IF_POSSIBLE(identifier, "m_photoProducer should be NULL!");
+            ERROR_LOG_IF_POSSIBLE(LOGIDENTIFIER, "m_photoProducer should be NULL!");
             return TakePhotoNativePromise::createAndReject("Internal error"_s);
         }
 
@@ -767,43 +789,87 @@ auto AVVideoCaptureSource::takePhotoInternal(PhotoSettings&& photoSettings) -> R
 
     RetainPtr<AVCapturePhotoSettings> avPhotoSettings = photoConfiguration(photoSettings, photoOutput.get());
     if (!avPhotoSettings) {
-        ERROR_LOG_IF_POSSIBLE(identifier, "photoConfiguration() failed");
+        ERROR_LOG_IF_POSSIBLE(LOGIDENTIFIER, "photoConfiguration() failed");
         return TakePhotoNativePromise::createAndReject("Internal error"_s);
     }
 
-    photoQueueSingleton().dispatch([protectedThis = Ref { *this }, this, photoOutput = WTF::move(photoOutput), avPhotoSettings = WTF::move(avPhotoSettings), identifier = WTF::move(identifier)] mutable {
-        assertIsCurrent(photoQueueSingleton());
-
-        @try {
-            if ([avPhotoSettings respondsToSelector:@selector(setMaxPhotoDimensions:)]) {
-                auto requestedPhotoDimensions = toIntSize([avPhotoSettings maxPhotoDimensions]);
-                if (!requestedPhotoDimensions.isEmpty()) {
-                    auto maxOutputDimensions = toIntSize([photoOutput maxPhotoDimensions]);
-                    if (requestedPhotoDimensions.width() > maxOutputDimensions.width() || requestedPhotoDimensions.height() > maxOutputDimensions.height())
-                        [photoOutput setMaxPhotoDimensions:toCMVideoDimensions(requestedPhotoDimensions)];
+    if ([avPhotoSettings respondsToSelector:@selector(setMaxPhotoDimensions:)]) {
+        auto requestedDims = toIntSize([avPhotoSettings maxPhotoDimensions]);
+        if (!requestedDims.isEmpty()) {
+            auto currentDims = toIntSize([photoOutput maxPhotoDimensions]);
+            if (requestedDims.width() > currentDims.width() || requestedDims.height() > currentDims.height()) {
+                @try {
+                    [photoOutput setMaxPhotoDimensions:toCMVideoDimensions(requestedDims)];
+                } @catch (NSException *exception) {
+                    ERROR_LOG_IF_POSSIBLE(LOGIDENTIFIER, "error calling setMaxPhotoDimensions: ", [[exception name] UTF8String], ", reason: ", [exception reason]);
+                    rejectPendingPhotoRequest("setMaxPhotoDimensions failed"_s);
+                    return promise.releaseNonNull();
                 }
             }
-        } @catch(NSException *exception) {
-            RunLoop::mainSingleton().dispatch([protectedThis = WTF::move(protectedThis), identifier = WTF::move(identifier), exception = RetainPtr { exception }] mutable {
-                ERROR_LOG_WITH_THIS_IF_POSSIBLE(protectedThis, identifier, "error configuring photo output ", [[exception name] UTF8String], ", reason : ", [exception reason]);
-                protectedThis->rejectPendingPhotoRequest("setMaxPhotoDimensions failed"_s);
-            });
-            return;
         }
+    }
 
+#if HAVE(AVCAPTUREPHOTOOUTPUT_READINESS_COORDINATOR)
+    if (m_readinessCoordinator && [m_readinessCoordinator captureReadiness] != AVCapturePhotoOutputCaptureReadinessReady) {
+        m_pendingPhotoSettings = WTF::move(avPhotoSettings);
+        m_pendingCaptureWatchdog = WTF::makeUnique<Timer>([this, protectedThis = Ref { *this }, identifier = LOGIDENTIFIER] {
+            assertIsCurrent(RunLoop::mainSingleton());
+            if (!m_pendingPhotoSettings)
+                return;
+
+            ERROR_LOG_IF_POSSIBLE(identifier, "photo pipeline readiness timeout");
+            m_pendingPhotoSettings = nullptr;
+            rejectPendingPhotoRequest("Photo capture timed out waiting for pipeline readiness"_s);
+        });
+        m_pendingCaptureWatchdog->startOneShot(photoCapturePipelineReadinessTimeout);
+        return promise.releaseNonNull();
+    }
+#endif
+
+    dispatchCaptureOnPhotoQueue(WTF::move(photoOutput), WTF::move(avPhotoSettings));
+    return promise.releaseNonNull();
+}
+
+void AVVideoCaptureSource::dispatchCaptureOnPhotoQueue(RetainPtr<AVCapturePhotoOutput> photoOutput, RetainPtr<AVCapturePhotoSettings>&& avPhotoSettings)
+{
+    assertIsCurrent(RunLoop::mainSingleton());
+    auto identifier = LOGIDENTIFIER;
+    photoQueueSingleton().dispatch([protectedThis = Ref { *this }, this,
+        photoOutput = WTF::move(photoOutput), avPhotoSettings = WTF::move(avPhotoSettings), identifier] mutable {
+        assertIsCurrent(photoQueueSingleton());
         @try {
             [photoOutput capturePhotoWithSettings:avPhotoSettings.get() delegate:m_objcObserver.get()];
-        } @catch(NSException *exception) {
-            RunLoop::mainSingleton().dispatch([protectedThis = WTF::move(protectedThis), identifier = WTF::move(identifier), exception = RetainPtr { exception }] mutable {
-                ERROR_LOG_WITH_THIS_IF_POSSIBLE(protectedThis, identifier, "error taking photo ", [[exception name] UTF8String], ", reason : ", [exception reason]);
+        } @catch (NSException *exception) {
+            RunLoop::mainSingleton().dispatch([protectedThis = WTF::move(protectedThis), identifier, exception = RetainPtr { exception }] mutable {
+                ERROR_LOG_WITH_THIS_IF_POSSIBLE(protectedThis, identifier, "error taking photo ", [[exception name] UTF8String], ", reason: ", [exception reason]);
                 protectedThis->rejectPendingPhotoRequest("capturePhotoWithSettings failed"_s);
             });
         }
-
     });
-
-    return promise.releaseNonNull();
 }
+
+#if HAVE(AVCAPTUREPHOTOOUTPUT_READINESS_COORDINATOR)
+void AVVideoCaptureSource::captureReadinessDidChange()
+{
+    assertIsCurrent(RunLoop::mainSingleton());
+    if (!m_readinessCoordinator || !m_pendingPhotoSettings)
+        return;
+
+    auto readiness = [m_readinessCoordinator captureReadiness];
+    if (readiness == AVCapturePhotoOutputCaptureReadinessSessionNotRunning) {
+        m_pendingPhotoSettings = nullptr;
+        m_pendingCaptureWatchdog = nullptr;
+        rejectPendingPhotoRequest("Session not running"_s);
+        return;
+    }
+    if (readiness != AVCapturePhotoOutputCaptureReadinessReady)
+        return;
+
+    m_pendingCaptureWatchdog = nullptr;
+    auto pendingSettings = std::exchange(m_pendingPhotoSettings, { });
+    dispatchCaptureOnPhotoQueue(m_photoOutput, WTF::move(pendingSettings));
+}
+#endif
 
 auto AVVideoCaptureSource::getPhotoCapabilities() -> Ref<PhotoCapabilitiesNativePromise>
 {
@@ -1537,7 +1603,7 @@ void AVVideoCaptureSource::deviceDisconnected(RetainPtr<NSNotification> notifica
 
 - (void)addNotificationObservers
 {
-    auto source = m_captureSource.get();
+    RefPtr source = m_captureSource.get();
     ASSERT(source);
 
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -1559,15 +1625,26 @@ void AVVideoCaptureSource::deviceDisconnected(RetainPtr<NSNotification> notifica
 
 - (void)captureOutput:(AVCaptureOutput*)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection*)connection
 {
-    if (auto source = m_captureSource.get())
+    if (RefPtr source = m_captureSource.get())
         source->captureOutputDidOutputSampleBufferFromConnection(captureOutput, sampleBuffer, connection);
 }
 
 - (void)captureOutput:(AVCapturePhotoOutput *)captureOutput didFinishProcessingPhoto:(AVCapturePhoto *)photo error:(NSError *)error
 {
-    if (auto source = m_captureSource.get())
+    if (RefPtr source = m_captureSource.get())
         source->captureOutputDidFinishProcessingPhoto(captureOutput, photo, error);
 }
+
+#if HAVE(AVCAPTUREPHOTOOUTPUT_READINESS_COORDINATOR)
+- (void)readinessCoordinator:(AVCapturePhotoOutputReadinessCoordinator *)coordinator captureReadinessDidChange:(AVCapturePhotoOutputCaptureReadiness)captureReadiness
+{
+    UNUSED_PARAM(coordinator);
+    UNUSED_PARAM(captureReadiness);
+
+    if (RefPtr source = m_captureSource.get())
+        source->captureReadinessDidChange();
+}
+#endif
 
 - (void)observeValueForKeyPath:keyPath ofObject:(id)object change:(NSDictionary*)change context:(void*)context
 {
@@ -1602,7 +1679,7 @@ void AVVideoCaptureSource::deviceDisconnected(RetainPtr<NSNotification> notifica
 
 - (void)deviceConnectedDidChange:(NSNotification*)notification
 {
-    if (auto source = m_captureSource.get())
+    if (RefPtr source = m_captureSource.get())
         source->deviceDisconnected(notification);
 }
 
@@ -1610,19 +1687,19 @@ void AVVideoCaptureSource::deviceDisconnected(RetainPtr<NSNotification> notifica
 - (void)sessionRuntimeError:(NSNotification*)notification
 {
     NSError *error = notification.userInfo[AVCaptureSessionErrorKey];
-    if (auto source = m_captureSource.get())
+    if (RefPtr source = m_captureSource.get())
         source->captureSessionRuntimeError(error);
 }
 
 - (void)beginSessionInterrupted:(NSNotification*)notification
 {
-    if (auto source = m_captureSource.get())
+    if (RefPtr source = m_captureSource.get())
         source->captureSessionBeginInterruption(notification);
 }
 
 - (void)endSessionInterrupted:(NSNotification*)notification
 {
-    if (auto source = m_captureSource.get())
+    if (RefPtr source = m_captureSource.get())
         source->captureSessionEndInterruption(notification);
 }
 #endif

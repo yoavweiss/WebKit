@@ -42,6 +42,7 @@ OBJC_CLASS AVCaptureDeviceFormat;
 OBJC_CLASS AVCaptureDeviceRotationCoordinator;
 OBJC_CLASS AVCapturePhoto;
 OBJC_CLASS AVCapturePhotoOutput;
+OBJC_CLASS AVCapturePhotoOutputReadinessCoordinator;
 OBJC_CLASS AVCapturePhotoSettings;
 OBJC_CLASS AVCaptureOutput;
 OBJC_CLASS AVCaptureResolvedPhotoSettings;
@@ -78,6 +79,9 @@ public:
     void captureOutputDidOutputSampleBufferFromConnection(AVCaptureOutput*, CMSampleBufferRef, AVCaptureConnection*);
     void captureDeviceSuspendedDidChange();
     void captureOutputDidFinishProcessingPhoto(RetainPtr<AVCapturePhotoOutput>, RetainPtr<AVCapturePhoto>, RetainPtr<NSError>);
+#if HAVE(AVCAPTUREPHOTOOUTPUT_READINESS_COORDINATOR)
+    void captureReadinessDidChange();
+#endif
 
     void configurationChanged() final;
 
@@ -160,6 +164,7 @@ private:
     RetainPtr<AVCapturePhotoSettings> photoConfiguration(const PhotoSettings&, AVCapturePhotoOutput*);
     IntSize maxPhotoSizeForCurrentPreset(IntSize requestedSize) const;
     AVCapturePhotoOutput* photoOutput();
+    void dispatchCaptureOnPhotoQueue(RetainPtr<AVCapturePhotoOutput>, RetainPtr<AVCapturePhotoSettings>&&);
 
     RefPtr<VideoFrame> m_buffer;
     RetainPtr<AVCaptureVideoDataOutput> m_videoOutput;
@@ -177,6 +182,12 @@ private:
 
     RetainPtr<AVCapturePhotoOutput> m_photoOutput WTF_GUARDED_BY_CAPABILITY(RunLoop::mainSingleton());
     std::unique_ptr<TakePhotoNativePromise::Producer> m_photoProducer WTF_GUARDED_BY_LOCK(m_photoLock);
+#if HAVE(AVCAPTUREPHOTOOUTPUT_READINESS_COORDINATOR)
+    RetainPtr<AVCapturePhotoOutputReadinessCoordinator> m_readinessCoordinator WTF_GUARDED_BY_CAPABILITY(RunLoop::mainSingleton());
+    RetainPtr<AVCapturePhotoSettings> m_pendingPhotoSettings WTF_GUARDED_BY_CAPABILITY(RunLoop::mainSingleton());
+    std::unique_ptr<Timer> m_pendingCaptureWatchdog WTF_GUARDED_BY_CAPABILITY(RunLoop::mainSingleton());
+    static constexpr Seconds photoCapturePipelineReadinessTimeout = 60_s;
+#endif
 
     Lock m_photoLock;
     std::optional<VideoPreset> m_currentPreset WTF_GUARDED_BY_CAPABILITY(RunLoop::mainSingleton());
