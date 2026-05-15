@@ -379,7 +379,7 @@ void WebPageInspectorController::willDestroyProvisionalFrame(const ProvisionalFr
     removeTarget(targetId);
 }
 
-void WebPageInspectorController::didCommitProvisionalFrame(WebFrameProxy& frame, WebCore::ProcessIdentifier oldProcessID, WebCore::ProcessIdentifier newProcessID)
+void WebPageInspectorController::didCommitProvisionalFrame(WebFrameProxy& frame, WebCore::ProcessIdentifier oldProcessID, std::optional<WebCore::PageIdentifier> oldPageID, WebCore::ProcessIdentifier newProcessID)
 {
     if (!shouldManageFrameTargets())
         return;
@@ -397,16 +397,16 @@ void WebPageInspectorController::didCommitProvisionalFrame(WebFrameProxy& frame,
     if (auto oldTarget = m_targets.take(oldTargetID))
         targetAgent->targetDestroyed(protect(*oldTarget));
 
-    // Instrument the new process for network events now that the
-    // frame has committed in its final process.
-    // FIXME: We should also disable instrumentation for the old process that was
-    // hosting this frame before the process swap. Currently the old (processID, pageID)
-    // pair retains a refcount in m_instrumentedProcessPageCounts and the IPC message
-    // receiver stays registered until the old process is torn down.
+    // Instrument the new process for network events now that the frame has
+    // committed in its final process. Also disable instrumentation for the
+    // old process; the frame no longer lives there.
+    RefPtr oldProcess = WebProcessProxy::processForIdentifier(oldProcessID);
     Ref process = frame.process();
 
     RefPtr networkAgent = m_networkAgent;
     if (networkAgent && networkAgent->isEnabled()) {
+        if (oldProcess && oldPageID)
+            networkAgent->disableInstrumentationForProcess(*oldProcess, *oldPageID);
         if (auto pageID = frame.webPageIDInCurrentProcess())
             networkAgent->enableInstrumentationForProcess(process, *pageID);
     }
