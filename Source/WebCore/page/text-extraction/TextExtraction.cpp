@@ -532,6 +532,17 @@ static bool isInDisabledFormControl(Node& node)
     return control && control->isDisabledFormControl();
 }
 
+static String normalizedLabelText(const Element& element)
+{
+    for (auto attribute : { HTMLNames::aria_labelAttr.get(), HTMLNames::labelAttr.get() }) {
+        auto text = normalizeText(element.attributeWithoutSynchronization(attribute));
+        if (!text.isEmpty())
+            return text;
+    }
+
+    return { };
+}
+
 enum class SkipExtraction : bool {
     Self,
     SelfAndSubtree
@@ -614,13 +625,21 @@ static inline Variant<SkipExtraction, ItemData, URL, Editable> extractItemData(N
         return { SkipExtraction::Self };
     }
 
+    bool focused = protect(element->document())->activeElement() == element;
+
     if (!element->isInUserAgentShadowTree() && element->isRootEditableElement()) {
-        if (context.mergeParagraphs)
-            return { Editable { } };
+        if (context.mergeParagraphs) {
+            return { Editable {
+                .label = normalizedLabelText(*element),
+                .placeholder = { },
+                .isSecure = false,
+                .isFocused = focused,
+            } };
+        }
 
         return { ContentEditableData {
             .isPlainTextOnly = !element->hasRichlyEditableStyle(),
-            .isFocused = protect(element->document())->activeElement() == element,
+            .isFocused = focused,
         } };
     }
 
@@ -2276,17 +2295,6 @@ void handleInteraction(Interaction&& interaction, LocalFrame& frame, CompletionH
             bounds = rootViewBounds(*targetNode);
         completion(success, WTF::move(message), bounds);
     });
-}
-
-static String normalizedLabelText(const Element& element)
-{
-    for (auto attribute : { HTMLNames::aria_labelAttr.get(), HTMLNames::labelAttr.get() }) {
-        auto text = normalizeText(element.attributeWithoutSynchronization(attribute));
-        if (!text.isEmpty())
-            return text;
-    }
-
-    return { };
 }
 
 static String wrapWithDoubleQuotes(StringView text)
