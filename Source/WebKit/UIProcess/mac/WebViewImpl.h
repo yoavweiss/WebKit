@@ -57,6 +57,7 @@
 #include <wtf/BlockPtr.h>
 #include <wtf/CheckedPtr.h>
 #include <wtf/CompletionHandler.h>
+#include <wtf/Deque.h>
 #include <wtf/RetainPtr.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/WeakObjCPtr.h>
@@ -1121,9 +1122,9 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     // that has been already sent to WebCore.
     RetainPtr<NSEvent> m_keyDownEventBeingResent;
 
-    std::optional<Vector<WebCore::KeypressCommand>> m_collectedKeypressCommands;
     std::optional<NSRange> m_stagedMarkedRange;
-    Vector<Function<void()>> m_interpretKeyEventHoldingTank;
+    Deque<Vector<WebCore::KeypressCommand>> m_collectedKeypressCommands;
+    Deque<Function<void()>> m_interpretKeyEventHoldingTank;
 
     String m_lastStringForCandidateRequest;
     NSInteger m_lastCandidateRequestSequenceNumber;

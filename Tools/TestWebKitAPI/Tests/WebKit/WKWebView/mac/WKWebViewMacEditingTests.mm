@@ -131,6 +131,7 @@
 
 @interface MockTextInputContext : NSTextInputContext
 @property (nonatomic, assign) NSMutableArray<MockTextInputContextAction *> *actions;
+@property (nonatomic, assign) NSMutableArray<NSString *> *eventLog;
 @end
 
 @implementation MockTextInputContext
@@ -144,8 +145,11 @@
         }
         MockTextInputContextAction *lastItem = _actions.firstObject;
         [_actions removeObjectAtIndex:0];
+        NSString *label = lastItem.markedText ?: lastItem.insertedText;
+        [_eventLog addObject:[NSString stringWithFormat:@"received_%@", label]];
         double delay = lastItem ? lastItem.delay : 10;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), mainDispatchQueueSingleton(), ^{
+            [_eventLog addObject:[NSString stringWithFormat:@"fired_%@", label]];
             if (lastItem.markedText)
                 [self.client setMarkedText:lastItem.markedText selectedRange:lastItem.selectedRange replacementRange:lastItem.replacementRange];
             else
@@ -472,6 +476,48 @@ TEST(WKWebViewMacEditingTests, ModelessInputMethodEventOrderingMatchesNormalTypi
     // Per keystroke: keydown -> keypress -> input -> keyup. No composition events for modeless.
     EXPECT_STREQ("keydown,keypress,input,keyup,keydown,keypress,input,keyup",
         [webView stringByEvaluatingJavaScript:@"window.events.join(',')"].UTF8String);
+}
+
+TEST(WKWebViewMacEditingTests, ConcurrentInputMethodKeyDownsScopeQueueingPerKey)
+{
+    RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    for (_WKFeature *feature in WKPreferences._features) {
+        NSString *key = feature.key;
+        if ([key isEqualToString:@"InputMethodUsesCorrectKeyEventOrder"])
+            [[configuration preferences] _setEnabled:YES forFeature:feature];
+    }
+
+    RetainPtr webView = adoptNS([[TestWebViewWithMockTextInputContext alloc] initWithFrame:NSMakeRect(0, 0, 400, 400) configuration:configuration.get()]);
+    // Two keydowns dispatched back-to-back. The mock's 0.1s delay on each keydown action
+    // means both keydowns must reach the IM (super.handleEventByInputMethod:) before
+    // either action fires. With the rdar://177042301 fix (Zhuyin Traditional stall),
+    // keydowns flow through to the IM directly and each gets its own deque entry, so
+    // both are claimed before action 1 runs. Without the fix, the second keydown is
+    // held in WebKit until the first keydown's IM completion fires (after action 1
+    // runs), serializing the events.
+    RetainPtr action1 = adoptNS([[MockTextInputContextAction alloc] initWithMarkedText:@"a" selectedRange:NSMakeRange(0, 1) replacementRange:NSMakeRange(NSNotFound, 0)]);
+    [action1 setDelay:0.1];
+    RetainPtr action2 = adoptNS([[MockTextInputContextAction alloc] initWithMarkedText:@"ab" selectedRange:NSMakeRange(0, 2) replacementRange:NSMakeRange(NSNotFound, 0)]);
+    [action2 setDelay:0.1];
+    [webView _web_superInputContext].actions = [@[action1.get(), action2.get()].mutableCopy autorelease];
+    [webView _web_superInputContext].eventLog = [NSMutableArray array];
+
+    [webView synchronouslyLoadHTMLString:@"<body contenteditable></body>"];
+    [webView stringByEvaluatingJavaScript:@"document.body.focus();"];
+    [webView waitForNextPresentationUpdate];
+    [webView removeFromSuperview];
+
+    [webView typeCharacter:'a'];
+    [webView typeCharacter:'b'];
+    Util::runFor(2_s);
+
+    EXPECT_STREQ("ab", [webView stringByEvaluatingJavaScript:@"document.body.textContent"].UTF8String);
+    // The mock log records "received_<text>" when super.handleEventByInputMethod: completes
+    // for a keydown (the IM has been told about it) and "fired_<text>" when the action's
+    // dispatch_after block runs (the IM responds with setMarkedText:). With per-key queue
+    // scoping, both keydowns are received before either action fires.
+    EXPECT_STREQ("received_a,received_ab,fired_a,fired_ab",
+        [[[webView _web_superInputContext].eventLog componentsJoinedByString:@","] UTF8String]);
 }
 
 TEST(WKWebViewMacEditingTests, DoNotCrashWhenInterpretingKeyEventWhileDeallocatingView)
