@@ -4762,10 +4762,18 @@ bool EventHandler::handleDrag(const MouseEventWithHitTestResults& event, CheckDr
         else
             m_dragMayStartSelectionInstead = dragState().type.contains(DragSourceAction::Selection);
     }
-    
-    // For drags starting in the selection, the user must wait between the mousedown and mousedrag,
-    // or else we bail on the dragging stuff and allow selection to occur
-    if (m_mouseDownMayStartDrag && m_dragMayStartSelectionInstead && dragState().type.contains(DragSourceAction::Selection) && event.event().timestamp() - m_mouseDownTimestamp < TextDragDelay) {
+
+    // Selection-drag candidates need a disambiguation window between mousedown and the first
+    // mousedrag so that the user can choose between extending a selection and dragging it.
+    // Automation-source events come from upstream components that have already disambiguated
+    // the interaction, so they bypass the window.
+    const bool isSelectionDragCandidate = m_mouseDownMayStartDrag
+        && m_dragMayStartSelectionInstead
+        && dragState().type.contains(DragSourceAction::Selection);
+    const bool inputRequiresDisambiguation = event.event().inputSource() != MouseEventInputSource::Automation;
+    const bool isWithinDisambiguationWindow = event.event().timestamp() - m_mouseDownTimestamp < TextDragDelay;
+
+    if (isSelectionDragCandidate && inputRequiresDisambiguation && isWithinDisambiguationWindow) {
         ASSERT(event.event().type() == PlatformEvent::Type::MouseMoved);
         if (dragState().type.contains(DragSourceAction::Image)) {
             // ... unless the mouse is over an image, then we start dragging just the image
