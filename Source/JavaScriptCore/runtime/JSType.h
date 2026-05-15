@@ -36,8 +36,6 @@ namespace JSC {
     /* (e.g. String value comparison). Keep in sync with LastValueCompareCellType. */ \
     macro(StringType, SpecString) \
     macro(HeapBigIntType, SpecHeapBigInt) \
-    macro(HeapDoubleType, SpecCellOther) \
-    macro(HeapInt32Type, SpecCellOther) \
     \
     macro(SymbolType, SpecSymbol) \
     \
@@ -172,7 +170,7 @@ enum JSType : uint8_t {
 
 static constexpr uint8_t EmbedderArrayLikeType = 0b11101101;
 
-static constexpr uint32_t LastValueCompareCellType = HeapInt32Type;
+static constexpr uint32_t LastValueCompareCellType = HeapBigIntType;
 
 static constexpr uint32_t FirstTypedArrayType = Int8ArrayType;
 static constexpr uint32_t LastTypedArrayType = DataViewType;

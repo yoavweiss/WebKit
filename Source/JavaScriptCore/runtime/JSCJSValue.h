@@ -39,8 +39,6 @@ namespace JSC {
 class AssemblyHelpers;
 class DeletePropertySlot;
 class JSBigInt;
-class JSHeapDouble;
-class JSHeapInt32;
 class CallFrame;
 class JSCell;
 class JSValueSource;

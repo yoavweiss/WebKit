@@ -1051,8 +1051,8 @@ void JIT::compileOpStrictEqJump(const JSInstruction* currentInstruction)
     else
         notTaken.append(branch64(Equal, regT1, regT0));
 
-    // Pointers differ. Cell comparison is complicated only when they are Strings / HeapBigInts /
-    // HeapDoubles / HeapInt32s. If either cell is something else, the pointer compare answers correctly.
+    // Pointers differ. Cell comparison is complicated only when they are Strings / HeapBigInts.
+    // If either cell is something else, the pointer compare answers correctly.
     if constexpr (std::same_as<Op, OpJstricteq>) {
         notTaken.append(branch8(Above, Address(regT0, JSCell::typeInfoTypeOffset()), TrustedImm32(LastValueCompareCellType)));
         notTaken.append(branch8(Above, Address(regT1, JSCell::typeInfoTypeOffset()), TrustedImm32(LastValueCompareCellType)));
