@@ -995,7 +995,9 @@ macro strictEqOp(opcodeName, opcodeStruct, createBoolean)
         # result = (left == right);
         # if (result)
         #     goto done;
-        # if (left is Cell || right is Cell)
+        # if (left is non-cell || right is non-cell)
+        #     done (result is already false)
+        # if (left is empty || right is empty || either is String/HeapBigInt)
         #     goto slowPath;
         # done:
         # return result;
@@ -1016,10 +1018,15 @@ macro strictEqOp(opcodeName, opcodeStruct, createBoolean)
         cqeq t0, t1, t5
         btqnz t5, t5, .done #is there a better way of checking t5 != 0 ?
 
-        move t0, t2
-        # This andq could be an 'or' if not for BigInt32 (since it makes it possible for a Cell to be strictEqual to a non-Cell)
-        andq t1, t2
-        btqz t2, notCellMask, .slow
+        # Pointer-equal failed. Doubles were filtered above, so any non-cell here is
+        # Int32 / Null / Undefined / true / false, and a non-cell on either side means
+        # strict equality is already known to be false.
+        btqnz t0, notCellMask, .done
+        btqnz t1, notCellMask, .done
+        # Both are cells. Only String / HeapBigInt have value-based equality, so if either
+        # cell is something else the pointer compare result (false) is correct.
+        bba JSCell::m_type[t0], constexpr LastValueCompareCellType, .done
+        bbbeq JSCell::m_type[t1], constexpr LastValueCompareCellType, .slow
 
     .done:
         createBoolean(t5)
@@ -1052,7 +1059,9 @@ macro strictEqualityJumpOp(opcodeName, opcodeStruct, jumpIfEqual, jumpIfNotEqual
         #     goto slowPath;
         # if (left == right)
         #     goto jumpTarget;
-        # if (left is Cell || right is Cell)
+        # if (left is non-cell || right is non-cell)
+        #     goto otherJumpTarget (result is already not equal)
+        # if (left is empty || right is empty || either is String/HeapBigInt)
         #     goto slowPath;
         # goto otherJumpTarget
 
@@ -1071,11 +1080,17 @@ macro strictEqualityJumpOp(opcodeName, opcodeStruct, jumpIfEqual, jumpIfNotEqual
 
         bqeq t0, t1, .equal
 
-        move t0, t2
-        # This andq could be an 'or' if not for BigInt32 (since it makes it possible for a Cell to be strictEqual to a non-Cell)
-        andq t1, t2
-        btqz t2, notCellMask, .slow
+        # Pointer-equal failed. Doubles were filtered above, so any non-cell here is
+        # Int32 / Null / Undefined / true / false, and a non-cell on either side means
+        # strict equality is already known to be false.
+        btqnz t0, notCellMask, .notEqual
+        btqnz t1, notCellMask, .notEqual
+        # Both are cells. Only String / HeapBigInt have value-based equality, so if either
+        # cell is something else the pointer compare result (false) is correct.
+        bba JSCell::m_type[t0], constexpr LastValueCompareCellType, .notEqual
+        bbbeq JSCell::m_type[t1], constexpr LastValueCompareCellType, .slow
 
+    .notEqual:
         jumpIfNotEqual(jump, m_targetLabel, dispatch)
 
     .equal:
@@ -2129,7 +2144,7 @@ macro llintJumpTrueOrFalseOp(opcodeName, opcodeStruct, miscConditionOp, truthyCe
 
     .maybeCell:
         btqnz t0, notCellMask, .slow
-        bbbeq JSCell::m_type[t0], constexpr LastMaybeFalsyCellPrimitive, .slow
+        bbbeq JSCell::m_type[t0], constexpr LastValueCompareCellType, .slow
         btbnz JSCell::m_flags[t0], constexpr MasqueradesAsUndefined, .slow
         truthyCellConditionOp(dispatch)
 
