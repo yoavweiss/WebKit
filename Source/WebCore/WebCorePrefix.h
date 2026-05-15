@@ -18,6 +18,8 @@
  *
  */
 
+#pragma once
+
 /* This prefix file should contain only:
  *    1) files to precompile for faster builds
  *    2) in one case at least: OS-X-specific performance bug workarounds

@@ -1819,7 +1819,9 @@ if (WTF_CPU_X86_64 OR WTF_CPU_X86)
         Source/webrtc/modules/audio_processing/aec3/vector_math_avx2.cc
         Source/webrtc/modules/audio_processing/agc2/rnn_vad/vector_math_avx2.cc
     )
-    set_source_files_properties(${webrtc_avx_SOURCES} PROPERTIES COMPILE_OPTIONS "-mavx2;-mfma")
+    set_source_files_properties(${webrtc_avx_SOURCES} PROPERTIES
+        COMPILE_OPTIONS "-mavx2;-mfma"
+        SKIP_PRECOMPILE_HEADERS ON)
     list(APPEND webrtc_SOURCES ${webrtc_avx_SOURCES})
     add_definitions(-DWEBRTC_ENABLE_AVX2)
 endif()
@@ -2009,7 +2011,9 @@ if (WTF_CPU_ARM)
         Source/webrtc/modules/audio_processing/aec3/suppression_filter.cc
         Source/webrtc/modules/audio_processing/aec3/suppression_gain.cc
     )
-    set_source_files_properties(${webrtc_neon_SOURCES} PROPERTIES COMPILE_OPTIONS "-mfpu=neon;-mfloat-abi=hard")
+    set_source_files_properties(${webrtc_neon_SOURCES} PROPERTIES
+        COMPILE_OPTIONS "-mfpu=neon;-mfloat-abi=hard"
+        SKIP_PRECOMPILE_HEADERS ON)
 endif ()
 
 if (WTF_CPU_MIPS)

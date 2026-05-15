@@ -23,10 +23,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Chained on top of WebCorePrefix.h; do not include that file here -- the
-   base PCH supplies it. Anchors below are headers that >=80% of the
-   dom/html/page/rendering/accessibility/animation/style TUs include and that
-   are not already in the base PCH closure. */
+#include "WebCorePrefix.h"
 
 #ifdef __cplusplus
 #undef new

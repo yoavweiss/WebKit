@@ -23,11 +23,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if defined(HAVE_CONFIG_H) && HAVE_CONFIG_H && defined(BUILDING_WITH_CMAKE)
-#include "cmakeconfig.h"
-#endif
-
-#include <wtf/Platform.h>
+#include "WebCorePrefix.h"
 
 #ifdef __cplusplus
 #undef new

@@ -23,9 +23,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Chained on top of WebKitPrefix.h; do not include that file here -- the
-   base PCH supplies it. Anchors below are headers that >=80% of WebProcess/
-   TUs include and that are not already in the base PCH closure. */
+#include "WebKitPrefix.h"
 
 #ifdef __cplusplus
 #undef new
