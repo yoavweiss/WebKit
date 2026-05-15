@@ -164,6 +164,14 @@ extension WebPage {
         }
     }
 
+    /// Copies the current selection to the system pasteboard and returns its string representation.
+    public func copySelection() async -> String? {
+        NSPasteboard.general.clearContents()
+        NSApp.sendAction(#selector(NSText.copy(_:)), to: backingWebView, from: nil)
+        await waitForNextPresentationUpdate()
+        return NSPasteboard.general.string(forType: .string)
+    }
+
     private func mouseEvent(
         _ type: NSEvent.EventType,
         at location: NSPoint,

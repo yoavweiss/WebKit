@@ -199,6 +199,48 @@ struct AppKitGesturesTests {
         #expect(newSelection == crazySelection)
     }
 
+    @Test(
+        .bug("https://webkit.org/b/314804", "Triple click does not generate a line selection on PDF")
+    )
+    func tripleClickingInPDFSelectsLine() async throws {
+        let pdfURL = try #require(Bundle.testResources.url(forResource: "test", withExtension: "pdf"))
+        try await page.load(URLRequest(url: pdfURL)).wait()
+        await page.waitForNextPresentationUpdate()
+
+        // Recap requires this test to be ran within an app host.
+        guard NSApp.isActive else {
+            return
+        }
+
+        let pointInDOMCoords = try #require(
+            DOMRect(decodedRepresentation: [
+                "x": 100.0,
+                "y": 100.0,
+                "width": 0.0,
+                "height": 0.0,
+            ])
+        )
+        let clickPoint = convertToCoreGraphicsScreenCoordinates(
+            rectInViewportCoordinates: pointInDOMCoords,
+            window: window
+        )
+        .origin
+
+        await recap.play { composer in
+            composer._wk_click(at: clickPoint, for: .seconds(0.1))
+            composer.advanceTime(0.1)
+            composer._wk_click(at: clickPoint, for: .seconds(0.1))
+            composer.advanceTime(0.1)
+            composer._wk_click(at: clickPoint, for: .seconds(0.1))
+        }
+
+        await page.waitForPendingMouseEvents()
+        await page.waitForNextPresentationUpdate()
+
+        let selectedText = await page.copySelection()
+        #expect(selectedText == "Test PDF Content")
+    }
+
     @Test(arguments: [0.1, 0.5, 0.9])
     func clickingInWordChangesSelection(fractionOfWordToClick: Double) async throws {
         try await loadHTML(contentEditable: true)

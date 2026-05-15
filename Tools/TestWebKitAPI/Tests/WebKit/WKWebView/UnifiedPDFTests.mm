@@ -865,6 +865,27 @@ UNIFIED_PDF_TEST(SelectAllTextInObjectHostedPDF)
     });
 }
 
+UNIFIED_PDF_TEST(TripleClickSelectsLineInPDF)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 600, 600) configuration:configurationForWebViewTestingUnifiedPDF().get()]);
+    [webView synchronouslyLoadRequest:[NSURLRequest requestWithURL:[NSBundle.test_resourcesBundle URLForResource:@"test" withExtension:@"pdf"]]];
+    [webView waitForNextPresentationUpdate];
+
+    [[webView window] makeFirstResponder:webView.get()];
+    [[webView window] makeKeyAndOrderFront:nil];
+    [[webView window] orderFrontRegardless];
+
+    [[NSPasteboard generalPasteboard] clearContents];
+
+    [webView sendClicksAtPoint:NSMakePoint(100, 500) numberOfClicks:3];
+    [webView waitForPendingMouseEvents];
+    [webView waitForNextPresentationUpdate];
+    [webView copy:nil];
+    [webView waitForNextPresentationUpdate];
+
+    EXPECT_WK_STREQ("Test PDF Content", [[NSPasteboard generalPasteboard] stringForType:NSPasteboardTypeString]);
+}
+
 #endif // PLATFORM(MAC)
 
 #if PLATFORM(IOS_FAMILY)
