@@ -3936,6 +3936,19 @@ void HTMLMediaElement::seekWithTolerance(const SeekTarget& target, bool fromDOM)
     // 4 - Set the seeking IDL attribute to true.
     // The flag will be cleared when the engine tells us the time has actually changed.
     setSeeking(true);
+
+    // Drop any queued timeupdate task before the seekTask (or any other task)
+    // has a chance to dispatch, per the HTML spec time-marches-on algorithm
+    // (https://html.spec.whatwg.org/multipage/media.html#time-marches-on, step 6):
+    //   "(In the other cases, such as explicit seeks, relevant events get fired
+    //   as part of the overall process of changing the current playback
+    //   position.)"
+    // This must happen synchronously from the DOM-side entry point: the seek
+    // path below enqueues seekTask onto the same task queue where a pending
+    // timeupdate may already be waiting, and the event loop would otherwise
+    // dispatch the timeupdate first.
+    m_timeupdateCancellationGroup.cancel();
+
     if (m_playing) {
         if (m_lastSeekTime < now)
             addPlayedRange(m_lastSeekTime, now);
@@ -4026,7 +4039,8 @@ void HTMLMediaElement::seekTask()
         ALWAYS_LOG(LOGIDENTIFIER, "ignored seek to ", time);
         if (time == now) {
             scheduleEvent(eventNames().seekingEvent);
-            scheduleTimeupdateEvent(false);
+            // Emit directly: scheduleTimeupdateEvent's m_seeking guard would drop it.
+            scheduleEvent(eventNames().timeupdateEvent);
             scheduleEvent(eventNames().seekedEvent);
 
             if (protect(document())->quirks().needsCanPlayAfterSeekedQuirk() && m_readyState > HAVE_CURRENT_DATA)
@@ -4041,13 +4055,6 @@ void HTMLMediaElement::seekTask()
     m_lastSeekTime = time;
     m_pendingSeekType = thisSeekType;
     setSeeking(true);
-
-    // Before scheduling the 'seeking' event, drop any queued periodic timeupdate
-    // task. Without this, a periodic timeupdate queued by playbackProgressTimerFired
-    // just before setCurrentTime could dispatch ahead of 'seeking', producing the
-    // spec-incorrect event ordering observed in mediasource-duration.html. The
-    // seek-completion timeupdate is queued separately by finishSeek and survives.
-    m_periodicTimeupdateCancellationGroup.cancel();
 
     // 10 - Queue a task to fire a simple event named seeking at the element.
     scheduleEvent(eventNames().seekingEvent);
@@ -5066,9 +5073,9 @@ void HTMLMediaElement::scheduleTimeupdateEvent(bool periodicEvent)
     // Per HTML spec, the periodic timeupdate is only for "the time reached through the
     // usual monotonic increase of the current playback position during normal playback".
     // During an active seek, the seek algorithm's own events (seeking -> timeupdate ->
-    // seeked via finishSeek) are responsible for notifying the page. Suppress periodic
-    // timeupdates while seeking so they don't interleave with the seek-driven ordering.
-    if (periodicEvent && m_seeking)
+    // seeked via finishSeek) are responsible for notifying the page. Suppress timeupdates
+    // while seeking so they don't interleave with the seek-driven ordering.
+    if (m_seeking)
         return;
 
     MonotonicTime now = MonotonicTime::now();
@@ -5085,14 +5092,14 @@ void HTMLMediaElement::scheduleTimeupdateEvent(bool periodicEvent)
     // event at a given time so filter here
     MediaTime movieTime = currentMediaTime();
     if (movieTime != m_lastTimeUpdateEventMovieTime) {
-        if (periodicEvent) {
-            // Periodic timeupdates are cancellable by the seek path — if a seek starts
-            // before this task dispatches, the pending timeupdate would race ahead of
-            // the 'seeking' event, producing spec-incorrect event ordering that fails
-            // mediasource-duration.html.
-            queueCancellableTaskToDispatchEvent(*this, TaskSource::MediaElement, m_periodicTimeupdateCancellationGroup, Event::create(eventNames().timeupdateEvent, Event::CanBubble::No, Event::IsCancelable::Yes));
-        } else
-            scheduleEvent(eventNames().timeupdateEvent);
+        // Route through the cancellation group so seek() can drop the pending
+        // timeupdate before queueing 'seeking', per the HTML spec
+        // time-marches-on algorithm
+        // (https://html.spec.whatwg.org/multipage/media.html#time-marches-on, step 6):
+        //   "(In the other cases, such as explicit seeks, relevant events get
+        //   fired as part of the overall process of changing the current
+        //   playback position.)"
+        queueCancellableTaskToDispatchEvent(*this, TaskSource::MediaElement, m_timeupdateCancellationGroup, Event::create(eventNames().timeupdateEvent, Event::CanBubble::No, Event::IsCancelable::Yes));
         m_clockTimeAtLastUpdateEvent = now;
         m_lastTimeUpdateEventMovieTime = movieTime;
     }

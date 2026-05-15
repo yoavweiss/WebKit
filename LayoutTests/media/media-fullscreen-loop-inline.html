@@ -5,6 +5,7 @@
     <script src="video-test.js"></script>
     <script src="media-file.js"></script>
     <script>
+    var lastTime = 0;
     function go()
     {
         if (!window.internals) {
@@ -56,7 +57,9 @@
 
     function timeupdate()
     {
-        if (video.currentTime == 0) {
+        // Detect the loop via the backward time jump: finishSeek's post-loop
+        // timeupdate fires after clearSeeking(), so currentTime may not be 0 yet.
+        if (video.currentTime < lastTime) {
             consoleWrite("Looped");
             run('video.ontimeupdate = null');
             testExpected('video.playsInline', false);
@@ -65,6 +68,7 @@
                endTest();
             }, 0);
         }
+        lastTime = video.currentTime;
     }
     </script>
 </head>

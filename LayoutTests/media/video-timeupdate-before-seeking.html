@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<title>A timeupdate event queued before an explicit seek must not dispatch ahead of 'seeking'</title>
+<script src="../resources/testharness.js"></script>
+<script src="../resources/testharnessreport.js"></script>
+<script src="media-file.js"></script>
+<body>
+<video></video>
+<script>
+// Per HTML spec time-marches-on step 6
+// (https://html.spec.whatwg.org/multipage/media.html#time-marches-on):
+//   "(In the other cases, such as explicit seeks, relevant events get fired
+//   as part of the overall process of changing the current playback position.)"
+// — any timeupdate queued before a JS-driven explicit seek must give way to
+// the seek's own events. This test reproduces the race using pause() to
+// queue a non-periodic timeupdate immediately followed by a currentTime
+// assignment to trigger the seek.
+
+async_test(function(t) {
+    var video = document.querySelector('video');
+    video.src = findMediaFile('video', 'content/test-25fps');
+
+    var events = [];
+    var record = t.step_func(function(e) { events.push(e.type); });
+    ['timeupdate', 'seeking', 'seeked', 'pause'].forEach(function(type) {
+        video.addEventListener(type, record);
+    });
+
+    video.addEventListener('error', t.unreached_func('error'));
+
+    video.addEventListener('playing', t.step_func(function() {
+        // Let playback advance long enough that currentTime differs from
+        // m_lastTimeUpdateEventMovieTime — otherwise pause() won't queue a
+        // timeupdate (the scheduleTimeupdateEvent deduplication check would
+        // filter it out).
+        t.step_timeout(function() {
+            // Clear any events accumulated before this point (canplay-time
+            // timeupdates, the 'playing' itself). From here on, we assert
+            // the ordering of the new events we trigger.
+            events.length = 0;
+
+            // pause() synchronously calls pauseInternal(), which queues a
+            // non-periodic timeupdate followed by a 'pause' event on the
+            // media-element task queue.
+            video.pause();
+
+            // Setting currentTime triggers HTMLMediaElement::seek(), which
+            // must cancel any still-pending timeupdate before queueing
+            // 'seeking'.
+            video.currentTime = video.duration / 2;
+        }, 300);
+    }));
+
+    video.addEventListener('seeked', t.step_func_done(function() {
+        // Events observed after the pause()+seek pair.
+        //
+        // With the cancellation in place: ['pause', 'seeking', 'timeupdate', 'seeked']
+        //   ('timeupdate' here is the post-seek one queued by finishSeek.)
+        // Without the cancellation (the race): ['timeupdate', 'pause', 'seeking', ...]
+        //   or similar — a pre-seek 'timeupdate' appears before 'seeking'.
+
+        var seekingIdx = events.indexOf('seeking');
+        assert_not_equals(seekingIdx, -1, "'seeking' event fired");
+
+        var preSeekingEvents = events.slice(0, seekingIdx);
+        assert_equals(preSeekingEvents.indexOf('timeupdate'), -1,
+            "no 'timeupdate' event dispatched before 'seeking'. Saw: " + JSON.stringify(events));
+    }));
+
+    video.addEventListener('canplay', t.step_func(function() {
+        video.play().catch(t.unreached_func('play() rejected'));
+    }), { once: true });
+}, "timeupdate queued before an explicit seek must not dispatch ahead of 'seeking'");
+</script>
+</body>
+</html>
