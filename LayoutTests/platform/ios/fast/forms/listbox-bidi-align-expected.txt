@@ -25,13 +25,13 @@ layer at (0,0) size 800x277
             RenderTableCell {TD} at (334,2) size 160x24 [r=0 c=2 rs=1 cs=1]
               RenderMenuList {SELECT} at (1,2) size 158x21 [bgcolor=#E9E9EA] [border: (1px solid #FFFFFF)]
                 RenderSelectFallbackButton {DIV} at (6,3) size 146x14
-                  RenderText at (0,0) size 0x14
-                    text run at (0,0) width 0 RTL: " "
+                  RenderText at (12,0) size 0x14
+                    text run at (12,0) width 0 RTL: " "
             RenderTableCell {TD} at (496,2) size 168x24 [r=0 c=3 rs=1 cs=1]
               RenderMenuList {SELECT} at (1,2) size 166x21 [bgcolor=#E9E9EA] [border: (1px solid #FFFFFF)]
                 RenderSelectFallbackButton {DIV} at (6,3) size 154x14
-                  RenderText at (0,0) size 0x14
-                    text run at (0,0) width 0 RTL: " "
+                  RenderText at (12,0) size 0x14
+                    text run at (12,0) width 0 RTL: " "
           RenderTableRow {TR} at (0,27) size 666x24
             RenderTableCell {TD} at (2,27) size 160x24 [r=1 c=0 rs=1 cs=1]
               RenderMenuList {SELECT} at (1,2) size 158x21 [bgcolor=#E9E9EA] [border: (1px solid #FFFFFF)]
@@ -73,13 +73,13 @@ layer at (0,0) size 800x277
             RenderTableCell {TD} at (2,27) size 167x24 [r=1 c=0 rs=1 cs=1]
               RenderMenuList {SELECT} at (1,2) size 165x21 [bgcolor=#E9E9EA] [border: (1px solid #FFFFFF)]
                 RenderSelectFallbackButton {DIV} at (6,3) size 153x14
-                  RenderText at (153,0) size 0x14
-                    text run at (153,0) width 0: " "
+                  RenderText at (141,0) size 0x14
+                    text run at (141,0) width 0: " "
             RenderTableCell {TD} at (171,27) size 154x24 [r=1 c=1 rs=1 cs=1]
               RenderMenuList {SELECT} at (1,2) size 152x21 [bgcolor=#E9E9EA] [border: (1px solid #FFFFFF)]
                 RenderSelectFallbackButton {DIV} at (6,3) size 140x14
-                  RenderText at (140,0) size 0x14
-                    text run at (140,0) width 0: " "
+                  RenderText at (128,0) size 0x14
+                    text run at (128,0) width 0: " "
       RenderBlock (anonymous) at (0,166) size 784x20
         RenderText {#text} at (0,0) size 456x20
           text run at (0,0) width 456: "All the items in the following select elements should be center-aligned."
@@ -89,13 +89,13 @@ layer at (0,0) size 800x277
             RenderTableCell {TD} at (2,2) size 177x24 [r=0 c=0 rs=1 cs=1]
               RenderMenuList {SELECT} at (1,2) size 175x21 [bgcolor=#E9E9EA] [border: (1px solid #FFFFFF)]
                 RenderSelectFallbackButton {DIV} at (6,3) size 163x14
-                  RenderText at (75,0) size 1x14
-                    text run at (75,0) width 1 RTL: " "
+                  RenderText at (87,0) size 1x14
+                    text run at (87,0) width 1 RTL: " "
             RenderTableCell {TD} at (181,2) size 166x24 [r=0 c=1 rs=1 cs=1]
               RenderMenuList {SELECT} at (1,2) size 164x21 [bgcolor=#E9E9EA] [border: (1px solid #FFFFFF)]
                 RenderSelectFallbackButton {DIV} at (6,3) size 152x14
-                  RenderText at (70,0) size 0x14
-                    text run at (70,0) width 0 RTL: " "
+                  RenderText at (82,0) size 0x14
+                    text run at (82,0) width 0 RTL: " "
             RenderTableCell {TD} at (349,2) size 177x24 [r=0 c=2 rs=1 cs=1]
               RenderMenuList {SELECT} at (1,2) size 175x21 [bgcolor=#E9E9EA] [border: (1px solid #FFFFFF)]
                 RenderSelectFallbackButton {DIV} at (6,3) size 163x14

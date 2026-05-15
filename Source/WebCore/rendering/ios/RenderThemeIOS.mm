@@ -399,21 +399,7 @@ Style::PaddingBox RenderThemeIOS::platformPopupInternalPaddingBox(const RenderSt
         auto value = Style::PaddingEdge::Fixed { static_cast<float>(std::trunc(padding + Style::evaluate<float>(style.usedBorderTopWidth(),  Style::ZoomNeeded { }))) / style.usedZoom() };
 
         // Return in horizontal-tb LTR; popupInternalPaddingBox() handles conversion.
-        bool padStart = [&] {
-            switch (style.textAlign()) {
-            case Style::TextAlign::Start:
-                return false;
-            case Style::TextAlign::End:
-                return true;
-            case Style::TextAlign::Right:
-                return style.writingMode().isBidiLTR();
-            default:
-                return style.writingMode().isBidiRTL();
-            }
-        }();
-
-        if (padStart)
-            return { 0_css_px, 0_css_px, 0_css_px, value };
+        // The chevron is always on the logical end, so pad the end to prevent text from overlapping with it.
         return { 0_css_px, value, 0_css_px, 0_css_px };
     }
     return { 0_css_px };
