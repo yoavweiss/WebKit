@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 Apple Inc. All rights reserved.
+ * Copyright (C) 2014-2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -581,9 +581,11 @@ WTF_EXTERN_C_END
 - (void)_setExplicitCookieStorage:(CFHTTPCookieStorageRef)storage;
 @end
 
+#if !__has_include(<CFNetwork/CFNSURLConnection.h>)
 @interface NSURLSessionWebSocketTask (SPI)
-- (void)_sendCloseCode:(NSURLSessionWebSocketCloseCode)closeCode reason:(NSData *)reason;
+- (void)_sendCloseCode:(NSURLSessionWebSocketCloseCode)closeCode reason:(NSData * _Nullable)reason;
 @end
+#endif
 
 @interface NSMutableURLRequest (Staging_88972294)
 @property (setter=_setPrivacyProxyFailClosedForUnreachableNonMainHosts:) BOOL _privacyProxyFailClosedForUnreachableNonMainHosts;
@@ -611,7 +613,7 @@ WTF_EXTERN_C_END
 #endif
 
 @interface NSURLProtectionSpace (SPI)
-- (void)_setServerTrust:(SecTrustRef)serverTrust;
+- (void)_setServerTrust:(SecTrustRef _Nullable)serverTrust;
 @end
 
 #endif // defined(__OBJC__)
