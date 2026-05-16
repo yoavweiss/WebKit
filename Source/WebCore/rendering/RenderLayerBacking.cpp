@@ -96,6 +96,7 @@
 #include "ScaleTransformOperation.h"
 #include "ScrollingCoordinator.h"
 #include "Settings.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StyleResolver.h"
 #include "StyleTransformResolver.h"
 #include "Styleable.h"
@@ -738,7 +739,7 @@ static LayoutRect overflowControlsHostLayerRect(const RenderBox& renderBox)
 
 void RenderLayerBacking::updateOpacity(const RenderStyle& style)
 {
-    m_graphicsLayer->setOpacity(compositingOpacity(style.opacity().value.value));
+    m_graphicsLayer->setOpacity(compositingOpacity(Style::evaluate<float>(style.opacity())));
 }
 
 void RenderLayerBacking::updateTransform(const RenderStyle& style)
@@ -4753,7 +4754,7 @@ bool RenderLayerBacking::startAnimation(double timeOffset, const GraphicsLayerAn
             transformVector.insert(makeUnique<GraphicsLayerTransformAnimationValue>(offset, Style::toPlatform(keyframeStyle->transform(), referenceBoxRect.size()), tf));
 
         if (currentKeyframe.animatesProperty(CSSPropertyOpacity))
-            opacityVector.insert(makeUnique<GraphicsLayerFloatAnimationValue>(offset, keyframeStyle->opacity().value.value, tf));
+            opacityVector.insert(makeUnique<GraphicsLayerFloatAnimationValue>(offset, Style::evaluate<float>(keyframeStyle->opacity()), tf));
 
         if (currentKeyframe.animatesProperty(CSSPropertyFilter))
             filterVector.insert(makeUnique<GraphicsLayerFilterAnimationValue>(offset, Style::toPlatform(keyframeStyle->filter(), renderer().style()), tf));

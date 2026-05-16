@@ -51,9 +51,11 @@
 #include "StyleBuilderChecking.h"
 #include "StyleFontFamily.h"
 #include "StyleFontSizeFunctions.h"
+#include "StyleFontWeight.h"
 #include "StyleKeyword+Mappings.h"
 #include "StyleLengthResolution.h"
 #include "StylePrimitiveNumericTypes+Conversions.h"
+#include "StylePrimitiveNumericTypes+DeprecatedCSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "WebKitFontFamilyNames.h"
 
@@ -68,7 +70,7 @@ FontSelectionValue fontWeightFromCSSValueDeprecated(const CSSValue& value)
 {
     if (RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
         ASSERT(primitiveValue->isNumber());
-        return FontSelectionValue(clampTo<float>(primitiveValue->resolveAsNumberDeprecated(), 1, 1000));
+        return FontSelectionValue(static_cast<float>(deprecatedToStyleFromCSSValue<FontWeight::Number>(*primitiveValue)->value));
     }
 
     switch (valueID(value)) {
@@ -118,7 +120,7 @@ FontSelectionValue fontStretchFromCSSValueDeprecated(const CSSValue& value)
 {
     if (RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
         ASSERT(primitiveValue->isPercentage());
-        return FontSelectionValue::clampFloat(primitiveValue->resolveAsPercentageDeprecated<float>());
+        return FontSelectionValue::clampFloat(deprecatedToStyleFromCSSValue<Percentage<CSS::Nonnegative, float>>(*primitiveValue)->value);
     }
 
     const auto& keywordValue = downcast<CSSKeywordValue>(value);

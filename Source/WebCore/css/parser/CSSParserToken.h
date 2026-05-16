@@ -113,6 +113,7 @@ public:
     bool operator==(const CSSParserToken& other) const;
 
     // Converts NumberToken to DimensionToken.
+    void convertToDimensionWithUnit(CSSUnitType);
     void NODELETE convertToDimensionWithUnit(StringView);
 
     // Converts NumberToken to PercentageToken.

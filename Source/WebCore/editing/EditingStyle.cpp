@@ -66,6 +66,8 @@
 #include "StyleColor.h"
 #include "StyleExtractor.h"
 #include "StyleFontSizeFunctions.h"
+#include "StyleFontWeight.h"
+#include "StylePrimitiveNumericTypes+DeprecatedCSSValueConversion.h"
 #include "StylePropertyShorthand.h"
 #include "StyleResolveForFont.h"
 #include "StyleResolver.h"
@@ -191,7 +193,7 @@ template<typename T> CSSValueID identifierForStyleProperty(T& style, CSSProperty
         return *resolvedAngle >= italicThreshold() ? CSSValueItalic : CSSValueNormal;
     }
     if (RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
-        if (propertyID == CSSPropertyFontWeight && primitiveValue->isNumber() && primitiveValue->resolveAsNumberDeprecated() >= boldThreshold())
+        if (propertyID == CSSPropertyFontWeight && primitiveValue->isNumber() && Style::deprecatedToStyleFromCSSValue<Style::FontWeight::Number>(*primitiveValue)->value >= boldThreshold())
             return CSSValueBold;
     } else if (RefPtr keywordValue = dynamicDowncast<CSSKeywordValue>(value)) {
         auto identifier = keywordValue->valueID();
@@ -318,7 +320,7 @@ static bool fontWeightValueIsBold(CSSValue& fontWeight)
         return false;
 
     ASSERT(primitiveValue->isNumber());
-    return primitiveValue->resolveAsNumberDeprecated<float>() >= static_cast<float>(boldThreshold());
+    return Style::deprecatedToStyleFromCSSValue<Style::FontWeight::Number>(*primitiveValue)->value >= boldThreshold();
 }
 
 class HTMLFontWeightEquivalent : public HTMLElementEquivalent {
@@ -636,7 +638,7 @@ void EditingStyle::extractFontSizeDelta()
     if (!primitiveValue->isPx())
         return;
 
-    m_fontSizeDelta = primitiveValue->resolveAsLengthDeprecated<float>();
+    m_fontSizeDelta = Style::deprecatedToStyleFromCSSValue<Style::Length<CSS::All, float>>(*primitiveValue)->resolveZoom(Style::ZoomNeeded { });
     mutableStyle->removeProperty(CSSPropertyWebkitFontSizeDelta);
 }
 
@@ -2118,7 +2120,7 @@ static bool NODELETE isCSSValueLength(CSSPrimitiveValue& value)
 int legacyFontSizeFromCSSValue(Document& document, CSSValue& value, bool shouldUseFixedFontDefaultSize, LegacyFontSizeMode mode)
 {
     if (RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value); primitiveValue && isCSSValueLength(*primitiveValue)) {
-        int pixelFontSize = primitiveValue->resolveAsLengthDeprecated<int>();
+        int pixelFontSize = Style::deprecatedToStyleFromCSSValue<Style::Length<CSS::Nonnegative, int>>(*primitiveValue)->resolveZoom(Style::ZoomNeeded { });
         int legacyFontSize = Style::legacyFontSizeForPixelSize(pixelFontSize, shouldUseFixedFontDefaultSize, document);
         // Use legacy font size only if pixel value matches exactly to that of legacy font size.
         int cssPrimitiveEquivalent = legacyFontSize - 1 + CSSValueXSmall;

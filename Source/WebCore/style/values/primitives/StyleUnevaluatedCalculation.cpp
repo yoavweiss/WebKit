@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2025-2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,6 +26,7 @@
 #include "StyleUnevaluatedCalculation.h"
 
 #include "StyleCalculationValue.h"
+#include "StyleZoomPrimitives.h"
 
 namespace WebCore {
 namespace Style {
@@ -57,6 +58,16 @@ UnevaluatedCalculationBase& UnevaluatedCalculationBase::operator=(const Unevalua
 UnevaluatedCalculationBase& UnevaluatedCalculationBase::operator=(UnevaluatedCalculationBase&&) = default;
 
 UnevaluatedCalculationBase::~UnevaluatedCalculationBase() = default;
+
+double UnevaluatedCalculationBase::evaluate(double percentageBasis, ZoomFactor zoom) const
+{
+    return protect(m_calc)->evaluate(percentageBasis, zoom);
+}
+
+double UnevaluatedCalculationBase::evaluate(double percentageBasis, ZoomNeeded token) const
+{
+    return protect(m_calc)->evaluate(percentageBasis, token);
+}
 
 bool UnevaluatedCalculationBase::equal(const UnevaluatedCalculationBase& other) const
 {

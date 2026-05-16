@@ -43,7 +43,7 @@ inline bool RenderElement::hasMask() const { return Style::hasImageInAnyLayer(st
 inline bool RenderElement::hasOutline() const { return style().hasOutline() || hasOutlineAnnotation(); }
 inline bool RenderElement::hasShapeOutside() const { return !style().shapeOutside().isNone(); }
 inline bool RenderElement::isTransparent() const { return !style().opacity().isOpaque(); }
-inline float RenderElement::opacity() const { return style().opacity().value.value; }
+inline float RenderElement::opacity() const { return style().opacity().value.value.value; }
 inline FloatRect RenderElement::transformReferenceBoxRect() const { return transformReferenceBoxRect(style()); }
 inline FloatRect RenderElement::transformReferenceBoxRect(const RenderStyle& style) const { return referenceBoxRect(transformBoxToCSSBoxType(style.transformBox())); }
 

@@ -28,6 +28,7 @@
 #include "RenderStyle+GettersInlines.h"
 #include "RenderView.h"
 #include "SVGRenderSupport.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {
@@ -49,7 +50,7 @@ auto LegacyRenderSVGResourceSolidColor::applyResource(RenderElement& renderer, c
 
     if (resourceMode.contains(RenderSVGResourceMode::ApplyToFill)) {
         if (!isRenderingMask)
-            context->setAlpha(style.fillOpacity().value.value);
+            context->setAlpha(Style::evaluate<float>(style.fillOpacity()));
         else
             context->setAlpha(1);
         context->setFillColor(colorResolver.colorApplyingColorFilter(m_color));
@@ -63,7 +64,7 @@ auto LegacyRenderSVGResourceSolidColor::applyResource(RenderElement& renderer, c
     } else if (resourceMode.contains(RenderSVGResourceMode::ApplyToStroke)) {
         // When rendering the mask for a LegacyRenderSVGResourceClipper, the stroke code path is never hit.
         ASSERT(!isRenderingMask);
-        context->setAlpha(style.strokeOpacity().value.value);
+        context->setAlpha(Style::evaluate<float>(style.strokeOpacity()));
         context->setStrokeColor(colorResolver.colorApplyingColorFilter(m_color));
 
         SVGRenderSupport::applyStrokeStyleToContext(*context, style, renderer);

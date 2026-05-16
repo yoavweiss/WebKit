@@ -74,6 +74,7 @@
 #include "Settings.h"
 #include "StyleCachedImage.h"
 #include "StyleComputedStyle+InitialInlines.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include <math.h>
 
 namespace WebCore {
@@ -191,7 +192,7 @@ static void writeSVGFillPaintingResource(TextStream& ts, const RenderElement& re
     writeSVGPaintingResource(ts, fillPaintingResource);
 
     auto& style = renderer.style();
-    writeIfNotDefault(ts, "opacity"_s, style.fillOpacity().value.value, 1.0f);
+    writeIfNotDefault(ts, "opacity"_s, Style::evaluate<float>(style.fillOpacity()), 1.0f);
     writeIfNotDefault(ts, "fill rule"_s, style.fillRule(), WindRule::NonZero);
     ts << "}]"_s;
 }
@@ -211,9 +212,9 @@ static void writeSVGStrokePaintingResource(TextStream& ts, const RenderElement& 
         return lengthContext.valueForLength(length, Style::ZoomNeeded { });
     });
 
-    writeIfNotDefault(ts, "opacity"_s, style.strokeOpacity().value.value, 1.0f);
+    writeIfNotDefault(ts, "opacity"_s, Style::evaluate<float>(style.strokeOpacity()), 1.0f);
     writeIfNotDefault(ts, "stroke width"_s, strokeWidth, 1.0);
-    writeIfNotDefault(ts, "miter limit"_s, style.strokeMiterLimit().value.value, 4.0f);
+    writeIfNotDefault(ts, "miter limit"_s, Style::evaluate<float>(style.strokeMiterLimit()), 4.0f);
     writeIfNotDefault(ts, "line cap"_s, style.capStyle(), LineCap::Butt);
     writeIfNotDefault(ts, "line join"_s, style.joinStyle(), LineJoin::Miter);
     writeIfNotDefault(ts, "dash offset"_s, dashOffset, 0.0);
@@ -235,7 +236,7 @@ void writeSVGPaintingFeatures(TextStream& ts, const RenderElement& renderer, Opt
     if (!renderer.localTransform().isIdentity() && !renderer.document().settings().layerBasedSVGEngineEnabled())
         writeNameValuePair(ts, "transform"_s, renderer.localTransform());
     writeIfNotDefault(ts, "image rendering"_s, style.imageRendering(), Style::ComputedStyle::initialImageRendering());
-    writeIfNotDefault(ts, "opacity"_s, style.opacity().value.value, 1.0f);
+    writeIfNotDefault(ts, "opacity"_s, Style::evaluate<float>(style.opacity()), 1.0f);
 
     if (auto* shape = dynamicDowncast<LegacyRenderSVGShape>(renderer)) {
         Color fallbackColor;

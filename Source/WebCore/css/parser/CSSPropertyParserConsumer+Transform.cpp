@@ -385,11 +385,11 @@ RefPtr<CSSValue> consumeScale(CSSParserTokenRange& range, CSS::PropertyParserSta
 
     range.consumeWhitespace();
 
-    auto xValue = x->resolveAsNumberIfNotCalculated();
-    auto yValue = y->resolveAsNumberIfNotCalculated();
+    auto xRaw = x->raw();
+    auto yRaw = y->raw();
 
     if (range.atEnd()) {
-        if (!xValue || !yValue || *xValue != *yValue)
+        if (!xRaw || !yRaw || *xRaw != *yRaw)
             return CSSValueList::createSpaceSeparated(x.releaseNonNull(), y.releaseNonNull());
 
         return CSSValueList::createSpaceSeparated(x.releaseNonNull());
@@ -399,12 +399,12 @@ RefPtr<CSSValue> consumeScale(CSSParserTokenRange& range, CSS::PropertyParserSta
     if (!z)
         return nullptr;
 
-    auto zValue = z->resolveAsNumberIfNotCalculated();
+    auto zRaw = z->raw();
 
-    if (zValue != 1.0)
+    if (!zRaw || zRaw->value != 1.0)
         return CSSValueList::createSpaceSeparated(x.releaseNonNull(), y.releaseNonNull(), z.releaseNonNull());
 
-    if (!xValue || !yValue || *xValue != *yValue)
+    if (!xRaw || !yRaw || *xRaw != *yRaw)
         return CSSValueList::createSpaceSeparated(x.releaseNonNull(), y.releaseNonNull());
 
     return CSSValueList::createSpaceSeparated(x.releaseNonNull());

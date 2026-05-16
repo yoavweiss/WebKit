@@ -200,7 +200,32 @@ static ExceptionOr<Ref<CSSStyleValue>> reifyValue(const T& numeric)
             return upcast<CSSStyleValue>(result.releaseReturnValue());
         },
         [&](const typename T::Raw& raw) -> ExceptionOr<Ref<CSSStyleValue>> {
-            return upcast<CSSStyleValue>(CSSUnitValue::create(raw.value, toCSSUnitType(raw.unit)));
+            if constexpr (T::category == CSS::Category::Integer) {
+                // Integer is special cased to resolved the same as <number>.
+                return upcast<CSSStyleValue>(CSSUnitValue::create(raw.value, CSSUnitType::CSS_NUMBER));
+            } else {
+                return upcast<CSSStyleValue>(CSSUnitValue::create(raw.value, toCSSUnitType(raw.unit)));
+            }
+        }
+    );
+}
+
+static ExceptionOr<Ref<CSSStyleValue>> reifyValue(const CSSPrimitiveValue& primitiveValue)
+{
+    return WTF::switchOn(primitiveValue,
+        [&](const CSSPrimitiveValue::Calc& calc) -> ExceptionOr<Ref<CSSStyleValue>> {
+            auto result = CSSNumericValue::reifyMathExpression(calc.tree());
+            if (result.hasException())
+                return result.releaseException();
+            return upcast<CSSStyleValue>(result.releaseReturnValue());
+        },
+        [&](const CSSPrimitiveValue::Raw& raw) -> ExceptionOr<Ref<CSSStyleValue>> {
+            if (raw.unit == CSSUnitType::CSS_INTEGER) {
+                // Integer is special cased to resolved the same as <number>.
+                return upcast<CSSStyleValue>(CSSUnitValue::create(raw.value, CSSUnitType::CSS_NUMBER));
+            } else {
+                return upcast<CSSStyleValue>(CSSUnitValue::create(raw.value, raw.unit));
+            }
         }
     );
 }
@@ -230,106 +255,11 @@ static ExceptionOr<Ref<CSSStyleValue>> reifyValue(const CSS::CustomIdent& custom
 
 ExceptionOr<Ref<CSSStyleValue>> CSSStyleValueFactory::reifyValue(Document& document, const CSSValue& cssValue, std::optional<CSSPropertyID> propertyID)
 {
-    if (RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(cssValue)) {
-        if (RefPtr calcValue = primitiveValue->cssCalcValue()) {
-            auto result = CSSNumericValue::reifyMathExpression(calcValue->tree());
-            if (result.hasException())
-                return result.releaseException();
-            return upcast<CSSStyleValue>(result.releaseReturnValue());
-        }
-        switch (primitiveValue->primitiveType()) {
-        case CSSUnitType::CSS_NUMBER:
-        case CSSUnitType::CSS_INTEGER:
-            return Ref<CSSStyleValue> { CSSNumericFactory::number(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_PERCENTAGE:
-            return Ref<CSSStyleValue> { CSSNumericFactory::percent(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_EM:
-            return Ref<CSSStyleValue> { CSSNumericFactory::em(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_REM:
-            return Ref<CSSStyleValue> { CSSNumericFactory::rem(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_EX:
-            return Ref<CSSStyleValue> { CSSNumericFactory::ex(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_CAP:
-            return Ref<CSSStyleValue> { CSSNumericFactory::cap(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_RCAP:
-            return Ref<CSSStyleValue> { CSSNumericFactory::rcap(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_CH:
-            return Ref<CSSStyleValue> { CSSNumericFactory::ch(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_RCH:
-            return Ref<CSSStyleValue> { CSSNumericFactory::rch(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_IC:
-            return Ref<CSSStyleValue> { CSSNumericFactory::ic(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_RIC:
-            return Ref<CSSStyleValue> { CSSNumericFactory::ric(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_LH:
-            return Ref<CSSStyleValue> { CSSNumericFactory::lh(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_RLH:
-            return Ref<CSSStyleValue> { CSSNumericFactory::rlh(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_VW:
-            return Ref<CSSStyleValue> { CSSNumericFactory::vw(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_VH:
-            return Ref<CSSStyleValue> { CSSNumericFactory::vh(primitiveValue->valueNoConversionDataRequired<double>()) };
-        // FIXME: Add CSSNumericFactory::vi & ::vb
-        case CSSUnitType::CSS_VMIN:
-            return Ref<CSSStyleValue> { CSSNumericFactory::vmin(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_VMAX:
-            return Ref<CSSStyleValue> { CSSNumericFactory::vmax(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_CM:
-            return Ref<CSSStyleValue> { CSSNumericFactory::cm(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_MM:
-            return Ref<CSSStyleValue> { CSSNumericFactory::mm(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_Q:
-            return Ref<CSSStyleValue> { CSSNumericFactory::q(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_IN:
-            return Ref<CSSStyleValue> { CSSNumericFactory::in(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_PT:
-            return Ref<CSSStyleValue> { CSSNumericFactory::pt(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_PC:
-            return Ref<CSSStyleValue> { CSSNumericFactory::pc(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_PX:
-            return Ref<CSSStyleValue> { CSSNumericFactory::px(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_DEG:
-            return Ref<CSSStyleValue> { CSSNumericFactory::deg(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_GRAD:
-            return Ref<CSSStyleValue> { CSSNumericFactory::grad(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_RAD:
-            return Ref<CSSStyleValue> { CSSNumericFactory::rad(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_TURN:
-            return Ref<CSSStyleValue> { CSSNumericFactory::turn(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_S:
-            return Ref<CSSStyleValue> { CSSNumericFactory::s(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_MS:
-            return Ref<CSSStyleValue> { CSSNumericFactory::ms(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_HZ:
-            return Ref<CSSStyleValue> { CSSNumericFactory::hz(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_KHZ:
-            return Ref<CSSStyleValue> { CSSNumericFactory::kHz(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_DPI:
-            return Ref<CSSStyleValue> { CSSNumericFactory::dpi(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_DPCM:
-            return Ref<CSSStyleValue> { CSSNumericFactory::dpcm(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_DPPX:
-            return Ref<CSSStyleValue> { CSSNumericFactory::dppx(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_FR:
-            return Ref<CSSStyleValue> { CSSNumericFactory::fr(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_CQW:
-            return Ref<CSSStyleValue> { CSSNumericFactory::cqw(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_CQH:
-            return Ref<CSSStyleValue> { CSSNumericFactory::cqh(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_CQI:
-            return Ref<CSSStyleValue> { CSSNumericFactory::cqi(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_CQB:
-            return Ref<CSSStyleValue> { CSSNumericFactory::cqb(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_CQMIN:
-            return Ref<CSSStyleValue> { CSSNumericFactory::cqmin(primitiveValue->valueNoConversionDataRequired<double>()) };
-        case CSSUnitType::CSS_CQMAX:
-            return Ref<CSSStyleValue> { CSSNumericFactory::cqmax(primitiveValue->valueNoConversionDataRequired<double>()) };
-        default:
-            break;
-        }
-    } else if (auto* keywordValue = dynamicDowncast<CSSKeywordValue>(cssValue)) {
+    if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(cssValue))
+        return WebCore::reifyValue(*primitiveValue);
+    else if (auto* keywordValue = dynamicDowncast<CSSKeywordValue>(cssValue))
         return WebCore::reifyValue(keywordValue->keyword());
-    } else if (auto* customIdentValue = dynamicDowncast<CSSCustomIdentValue>(cssValue))
+    else if (auto* customIdentValue = dynamicDowncast<CSSCustomIdentValue>(cssValue))
         return WebCore::reifyValue(customIdentValue->customIdent());
     else if (auto* imageValue = dynamicDowncast<CSSImageValue>(cssValue))
         return Ref<CSSStyleValue> { CSSStyleImageValue::create(const_cast<CSSImageValue&>(*imageValue), document) };

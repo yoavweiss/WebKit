@@ -109,6 +109,10 @@ inline constexpr auto ClosedUnitRangeClampUpperUnzoomed = Range { 0, 1, RangePar
 inline constexpr auto ClosedUnitRangeClampBoth = Range { 0, 1, RangeParseTimeBehavior::Clamp, RangeParseTimeBehavior::Clamp };
 inline constexpr auto ClosedUnitRangeClampBothUnzoomed = Range { 0, 1, RangeParseTimeBehavior::Clamp, RangeParseTimeBehavior::Clamp, RangeZoomOptions::Unzoomed };
 
+// Constant value for `[0,1(ignore both)]`.
+inline constexpr auto ClosedUnitRangeIgnoreBoth = Range { 0, 1, RangeParseTimeBehavior::Ignore, RangeParseTimeBehavior::Ignore };
+inline constexpr auto ClosedUnitRangeIgnoreBothUnzoomed = Range { 0, 1, RangeParseTimeBehavior::Ignore, RangeParseTimeBehavior::Ignore, RangeZoomOptions::Unzoomed };
+
 // Constant value for `[0,100]`.
 inline constexpr auto ClosedPercentageRange = Range { 0, 100 };
 inline constexpr auto ClosedPercentageRangeUnzoomed = Range { 0, 100, RangeParseTimeBehavior::Default, RangeParseTimeBehavior::Default, RangeZoomOptions::Unzoomed };
@@ -120,6 +124,10 @@ inline constexpr auto ClosedPercentageRangeClampUpperUnzoomed = Range { 0, 100, 
 // Constant value for `[0,100(clamp both)]`.
 inline constexpr auto ClosedPercentageRangeClampBoth = Range { 0, 100, RangeParseTimeBehavior::Clamp, RangeParseTimeBehavior::Clamp };
 inline constexpr auto ClosedPercentageRangeClampBothUnzoomed = Range { 0, 100, RangeParseTimeBehavior::Clamp, RangeParseTimeBehavior::Clamp, RangeZoomOptions::Unzoomed };
+
+// Constant value for `[0,100(ignore both)]`.
+inline constexpr auto ClosedPercentageRangeIgnoreBoth = Range { 0, 100, RangeParseTimeBehavior::Ignore, RangeParseTimeBehavior::Ignore };
+inline constexpr auto ClosedPercentageRangeIgnoreBothUnzoomed = Range { 0, 100, RangeParseTimeBehavior::Ignore, RangeParseTimeBehavior::Ignore, RangeZoomOptions::Unzoomed };
 
 // Special Range constants that restrict down to what LayoutUnit supports.
 

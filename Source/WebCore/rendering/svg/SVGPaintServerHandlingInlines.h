@@ -28,6 +28,7 @@
 #include "SVGPaintServerHandling.h"
 #include "SVGRenderSupport.h"
 #include "StyleComputedStyle+InitialInlines.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 
 namespace WebCore {
 
@@ -127,7 +128,7 @@ inline void SVGPaintServerHandling::prepareFillOperation(const RenderLayerModelO
         m_context.setAlpha(1);
         m_context.setFillRule(style.clipRule());
     } else {
-        m_context.setAlpha(style.fillOpacity().value.value);
+        m_context.setAlpha(Style::evaluate<float>(style.fillOpacity()));
         m_context.setFillRule(style.fillRule());
     }
 
@@ -137,7 +138,7 @@ inline void SVGPaintServerHandling::prepareFillOperation(const RenderLayerModelO
 
 inline void SVGPaintServerHandling::prepareStrokeOperation(const RenderLayerModelObject& renderer, const RenderStyle& style, const Color& strokeColor) const
 {
-    m_context.setAlpha(style.strokeOpacity().value.value);
+    m_context.setAlpha(Style::evaluate<float>(style.strokeOpacity()));
 
     Style::ColorResolver colorResolver { style };
     m_context.setStrokeColor(colorResolver.colorApplyingColorFilter(strokeColor));

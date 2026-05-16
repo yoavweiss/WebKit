@@ -49,6 +49,8 @@
 #include "SharedBuffer.h"
 #include "StyleKeyword+Mappings.h"
 #include "StylePrimitiveNumericTypes+Conversions.h"
+#include "StylePrimitiveNumericTypes+DeprecatedCSSValueConversion.h"
+#include "StylePrimitiveNumericTypes+DeprecatedConversions.h"
 #include "StyleProperties.h"
 #include "StyleResolveForFont.h"
 #include "StyleRule.h"
@@ -315,8 +317,10 @@ void CSSFontFace::setFeatureSettings(CSSValue& featureSettings)
     if (auto* list = dynamicDowncast<CSSValueList>(featureSettings)) {
         for (Ref rangeValue : *list) {
             Ref feature = downcast<CSSFontFeatureValue>(rangeValue);
-            if (RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(feature->value()))
-                settings.insert({ feature->tag(), primitiveValue->resolveAsIntegerDeprecated() });
+            settings.insert({
+                feature->tag(),
+                Style::deprecatedToStyle(feature->value()).value,
+            });
         }
     }
 
@@ -335,7 +339,7 @@ void CSSFontFace::setSizeAdjust(CSSValue& value)
     mutableProperties().setProperty(CSSPropertySizeAdjust, value);
 
     auto& sizeAdjustValue = downcast<CSSPrimitiveValue>(value);
-    auto sizeAdjust = sizeAdjustValue.resolveAsPercentageDeprecated<float>() / 100;
+    auto sizeAdjust = Style::deprecatedToStyleFromCSSValue<Style::Percentage<CSS::Nonnegative, float>>(sizeAdjustValue)->value / 100;
 
     if (m_sizeAdjust == sizeAdjust)
         return;

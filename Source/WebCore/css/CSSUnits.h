@@ -75,7 +75,6 @@ enum class CSSUnitType : uint8_t {
     CSS_S,
     CSS_HZ,
     CSS_KHZ,
-    CSS_DIMENSION,
 
     CSS_VW,
     CSS_VH,
@@ -160,8 +159,9 @@ enum class CSSUnitCategory : uint8_t {
 CSSUnitCategory NODELETE unitCategory(CSSUnitType);
 CSSUnitType NODELETE canonicalUnitTypeForCategory(CSSUnitCategory);
 CSSUnitType NODELETE canonicalUnitTypeForUnitType(CSSUnitType);
-double NODELETE conversionToCanonicalUnitsScaleFactor(CSSUnitType);
+std::optional<double> NODELETE conversionToCanonicalUnitsScaleFactor(CSSUnitType);
 bool NODELETE conversionToCanonicalUnitRequiresConversionData(CSSUnitType);
+ASCIILiteral unitTypeString(CSSUnitType);
 
 WTF::TextStream& operator<<(WTF::TextStream&, CSSUnitCategory);
 WTF::TextStream& operator<<(WTF::TextStream&, CSSUnitType);

@@ -173,11 +173,21 @@ struct SingleAnimationRange {
 
 // MARK: - Conversion
 
-template<> struct CSSValueConversion<SingleAnimationRangeStart> { auto operator()(BuilderState&, const CSSValue&) -> SingleAnimationRangeStart; };
-template<> struct CSSValueConversion<SingleAnimationRangeEnd> { auto operator()(BuilderState&, const CSSValue&) -> SingleAnimationRangeEnd; };
+template<> struct CSSValueConversion<SingleAnimationRangeStart> {
+    auto operator()(BuilderState&, const CSSValue&) -> SingleAnimationRangeStart;
+    auto operator()(const CSSToLengthConversionData&, const CSSValue&) -> SingleAnimationRangeStart;
+};
+template<> struct CSSValueConversion<SingleAnimationRangeEnd> {
+    auto operator()(BuilderState&, const CSSValue&) -> SingleAnimationRangeEnd;
+    auto operator()(const CSSToLengthConversionData&, const CSSValue&) -> SingleAnimationRangeEnd;
+};
 
-template<> struct DeprecatedCSSValueConversion<SingleAnimationRangeStart> { auto operator()(const RefPtr<Element>&, const CSSValue&) -> std::optional<SingleAnimationRangeStart>; };
-template<> struct DeprecatedCSSValueConversion<SingleAnimationRangeEnd> { auto operator()(const RefPtr<Element>&, const CSSValue&) -> std::optional<SingleAnimationRangeEnd>; };
+template<> struct DeprecatedCSSValueConversion<SingleAnimationRangeStart> {
+    auto operator()(const CSSValue&) -> std::optional<SingleAnimationRangeStart>;
+};
+template<> struct DeprecatedCSSValueConversion<SingleAnimationRangeEnd> {
+    auto operator()(const CSSValue&) -> std::optional<SingleAnimationRangeEnd>;
+};
 
 } // namespace Style
 } // namespace WebCore

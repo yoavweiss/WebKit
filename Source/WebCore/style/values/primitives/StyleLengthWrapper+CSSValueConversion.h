@@ -109,29 +109,6 @@ auto convertLengthWrapperFromCSSValue(BuilderState& state, const CSSKeywordValue
 // MARK: <length-percentage> conversion
 
 template<LengthWrapperBaseDerived StyleType, typename... Rest>
-auto convertLengthWrapperFromCSSValue(const CSSPrimitiveValue& value, Rest&&... rest) -> std::optional<StyleType>
-{
-    using CSSSpecified = typename StyleType::Specified::CSS;
-    using CSSRaw = typename CSSSpecified::Raw;
-    using CSSDimensionRaw = typename CSSRaw::Dimension;
-    using CSSPercentageRaw = typename CSSRaw::Percentage;
-
-    return WTF::switchOn(value,
-        [&](const CSSPrimitiveValue::Calc&) -> std::optional<StyleType> {
-            return std::nullopt;
-        },
-        [&](const CSSPrimitiveValue::Raw& raw) -> std::optional<StyleType> {
-            if (auto unit = CSSPercentageRaw::UnitTraits::validate(raw.unit))
-                return StyleType { toStyle(CSSPercentageRaw(*unit, raw.value), NoConversionDataRequiredToken { }, std::forward<Rest>(rest)...) };
-            if (raw.unit == CSSUnitType::CSS_PX)
-                return StyleType { toStyle(CSSDimensionRaw(CSS::LengthUnit::Px, raw.value), NoConversionDataRequiredToken { }, std::forward<Rest>(rest)...) };
-
-            return std::nullopt;
-        }
-    );
-}
-
-template<LengthWrapperBaseDerived StyleType, typename... Rest>
 auto convertLengthWrapperFromCSSValue(const CSSToLengthConversionData& conversionData, const CSSPrimitiveValue& value, Rest&&... rest) -> std::optional<StyleType>
 {
     using CSSSpecified = typename StyleType::Specified::CSS;
@@ -184,27 +161,6 @@ auto convertLengthWrapperFromCSSValue(BuilderState& state, const CSSPrimitiveVal
 // MARK: <length-percentage> + keyword conversion
 
 template<LengthWrapperBaseDerived StyleType, typename... Rest>
-auto convertLengthWrapperFromCSSValue(const CSSValue& value, Rest&&... rest) -> std::optional<StyleType>
-{
-    using namespace CSS::Literals;
-
-    if constexpr (!StyleType::Keywords::count) {
-        RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value);
-        if (!primitiveValue)
-            return std::nullopt;
-        return convertLengthWrapperFromCSSValue<StyleType>(*primitiveValue, std::forward<Rest>(rest)...);
-    } else {
-        if (RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value))
-            return convertLengthWrapperFromCSSValue<StyleType>(*primitiveValue, std::forward<Rest>(rest)...);
-
-        RefPtr keywordValue = dynamicDowncast<CSSKeywordValue>(value);
-        if (!keywordValue)
-            return std::nullopt;
-        return convertLengthWrapperFromCSSValue<StyleType>(*keywordValue, std::forward<Rest>(rest)...);
-    }
-}
-
-template<LengthWrapperBaseDerived StyleType, typename... Rest>
 auto convertLengthWrapperFromCSSValue(const CSSToLengthConversionData& conversionData, const CSSValue& value, Rest&&... rest) -> std::optional<StyleType>
 {
     using namespace CSS::Literals;
@@ -247,6 +203,25 @@ auto convertLengthWrapperFromCSSValue(BuilderState& state, const CSSValue& value
 }
 
 template<LengthWrapperBaseDerived StyleType> struct CSSValueConversion<StyleType> {
+    template<typename... Rest> auto operator()(const CSSToLengthConversionData& conversionData, const CSSPrimitiveValue& value, Rest&&... rest) -> StyleType
+    {
+        using namespace CSS::Literals;
+
+        return convertLengthWrapperFromCSSValue<StyleType>(conversionData, value, std::forward<Rest>(rest)...).value_or(StyleType { 0_css_px });
+    }
+    template<typename... Rest> auto operator()(const CSSToLengthConversionData& conversionData, const CSSKeywordValue& value, Rest&&... rest) -> StyleType
+    {
+        using namespace CSS::Literals;
+
+        return convertLengthWrapperFromCSSValue<StyleType>(conversionData, value, std::forward<Rest>(rest)...).value_or(StyleType { 0_css_px });
+    }
+    template<typename... Rest> auto operator()(const CSSToLengthConversionData& conversionData, const CSSValue& value, Rest&&... rest) -> StyleType
+    {
+        using namespace CSS::Literals;
+
+        return convertLengthWrapperFromCSSValue<StyleType>(conversionData, value, std::forward<Rest>(rest)...).value_or(StyleType { 0_css_px });
+    }
+
     template<typename... Rest> auto operator()(BuilderState& state, const CSSPrimitiveValue& value, Rest&&... rest) -> StyleType
     {
         return convertLengthWrapperFromCSSValue<StyleType>(state, value, std::forward<Rest>(rest)...);

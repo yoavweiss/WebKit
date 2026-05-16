@@ -3342,14 +3342,7 @@ class GenerateCSSPropertyInitialValues:
     # MARK: - Helper generator functions for CSSPropertyInitialValuesGeneratedInlines.h
 
     def _generate_css_property_initial_values_generated_inlines_h_types(self, *, to):
-        to.write(f"struct InitialNumericValue {{")
-        with to.indent():
-            to.write(f"double number;")
-            to.write(f"CSSUnitType type {{ CSSUnitType::CSS_NUMBER }};")
-        to.write(f"}};")
-        to.newline()
-
-        to.write(f"using InitialValue = Variant<CSSValueID, InitialNumericValue>;")
+        to.write(f"using InitialValue = Variant<CSSValueID, CSSPrimitiveValue::Raw>;")
         to.newline()
 
     def _generate_css_property_initial_values_generated_inlines_h_initial_value_for_longhand(self, *, to):
@@ -3383,7 +3376,7 @@ class GenerateCSSPropertyInitialValues:
 
                 with to.indent():
                     if isinstance(initial.list[0], NumericLiteral):
-                        to.write(f"return InitialNumericValue {{ {initial.list[0].digits}, {initial.list[0].cpp_unit_type} }};")
+                        to.write(f"return CSSPrimitiveValue::Raw {{ {initial.list[0].cpp_unit_type}, {initial.list[0].digits} }};")
                     elif isinstance(initial.list[0], ValueKeywordName):
                         to.write(f"return {initial.list[0].id_without_scope};")
 
@@ -3409,8 +3402,8 @@ class GenerateCSSPropertyInitialValues:
             self.generation_context.generate_includes(
                 to=writer,
                 headers=[
+                    "CSSPrimitiveValue.h",
                     "CSSPropertyNames.h",
-                    "CSSUnits.h",
                     "CSSValueKeywords.h",
                 ],
                 system_headers=[

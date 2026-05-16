@@ -24,34 +24,64 @@
 
 #pragma once
 
-#include "Element.h"
 #include "StyleLengthWrapper+CSSValueConversion.h"
+#include "StylePrimitiveNumericTypes+DeprecatedConversions.h"
 
 namespace WebCore {
 namespace Style {
 
 // MARK: - Deprecated Conversions
 
-std::optional<CSSToLengthConversionData> deprecatedLengthConversionCreateCSSToLengthConversionData(RefPtr<Element>);
+template<LengthWrapperBaseDerived StyleType, typename... Rest>
+auto deprecatedConvertLengthWrapperFromCSSValue(const CSSPrimitiveValue& value, Rest&&... rest) -> std::optional<StyleType>
+{
+    using CSSSpecified = typename StyleType::Specified::CSS;
+    using CSSRaw = typename CSSSpecified::Raw;
+    using CSSDimensionRaw = typename CSSRaw::Dimension;
+    using CSSPercentageRaw = typename CSSRaw::Percentage;
+
+    return WTF::switchOn(value,
+        [&](const CSSPrimitiveValue::Calc&) -> std::optional<StyleType> {
+            return std::nullopt;
+        },
+        [&](const CSSPrimitiveValue::Raw& raw) -> std::optional<StyleType> {
+            if (auto unit = CSSPercentageRaw::UnitTraits::validate(raw.unit))
+                return StyleType { deprecatedToStyle(CSSPercentageRaw(*unit, raw.value), std::forward<Rest>(rest)...) };
+            if (raw.unit == CSSUnitType::CSS_PX)
+                return StyleType { deprecatedToStyle(CSSDimensionRaw(CSS::LengthUnit::Px, raw.value), std::forward<Rest>(rest)...) };
+
+            return std::nullopt;
+        }
+    );
+}
+
+template<LengthWrapperBaseDerived StyleType, typename... Rest>
+auto deprecatedConvertLengthWrapperFromCSSValue(const CSSValue& value, Rest&&... rest) -> std::optional<StyleType>
+{
+    using namespace CSS::Literals;
+
+    if constexpr (!StyleType::Keywords::count) {
+        RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value);
+        if (!primitiveValue)
+            return std::nullopt;
+        return deprecatedConvertLengthWrapperFromCSSValue<StyleType>(*primitiveValue, std::forward<Rest>(rest)...);
+    } else {
+        if (RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value))
+            return deprecatedConvertLengthWrapperFromCSSValue<StyleType>(*primitiveValue, std::forward<Rest>(rest)...);
+
+        RefPtr keywordValue = dynamicDowncast<CSSKeywordValue>(value);
+        if (!keywordValue)
+            return std::nullopt;
+
+        // NOTE: The non-deprecated `convertLengthWrapperFromCSSValue` can be used for keywords, since they never require conversion data.
+        return convertLengthWrapperFromCSSValue<StyleType>(*keywordValue, std::forward<Rest>(rest)...);
+    }
+}
 
 template<LengthWrapperBaseDerived StyleType> struct DeprecatedCSSValueConversion<StyleType> {
-    auto operator()(const RefPtr<Element>& element, const CSSPrimitiveValue& value) -> std::optional<StyleType>
+    template<typename... Rest> auto operator()(const CSSValue& value, Rest&&... rest) -> std::optional<StyleType>
     {
-        if (auto conversionData = deprecatedLengthConversionCreateCSSToLengthConversionData(element))
-            return convertLengthWrapperFromCSSValue<StyleType>(*conversionData, value);
-        return convertLengthWrapperFromCSSValue<StyleType>(value);
-    }
-
-    auto operator()(const RefPtr<Element>&, const CSSKeywordValue& value) -> std::optional<StyleType>
-    {
-        return convertLengthWrapperFromCSSValue<StyleType>(value);
-    }
-
-    auto operator()(const RefPtr<Element>& element, const CSSValue& value) -> std::optional<StyleType>
-    {
-        if (auto conversionData = deprecatedLengthConversionCreateCSSToLengthConversionData(element))
-            return convertLengthWrapperFromCSSValue<StyleType>(*conversionData, value);
-        return convertLengthWrapperFromCSSValue<StyleType>(value);
+        return deprecatedConvertLengthWrapperFromCSSValue<StyleType>(value, std::forward<Rest>(rest)...);
     }
 };
 

@@ -51,88 +51,6 @@
 
 namespace WebCore {
 
-static inline bool NODELETE isValidCSSUnitTypeForDoubleConversion(CSSUnitType unitType)
-{
-    switch (unitType) {
-    case CSSUnitType::CSS_CALC:
-    case CSSUnitType::CSS_CALC_PERCENTAGE_WITH_ANGLE:
-    case CSSUnitType::CSS_CALC_PERCENTAGE_WITH_LENGTH:
-    case CSSUnitType::CSS_CAP:
-    case CSSUnitType::CSS_CH:
-    case CSSUnitType::CSS_IC:
-    case CSSUnitType::CSS_CM:
-    case CSSUnitType::CSS_DEG:
-    case CSSUnitType::CSS_DIMENSION:
-    case CSSUnitType::CSS_DVB:
-    case CSSUnitType::CSS_DVH:
-    case CSSUnitType::CSS_DVI:
-    case CSSUnitType::CSS_DVMAX:
-    case CSSUnitType::CSS_DVMIN:
-    case CSSUnitType::CSS_DVW:
-    case CSSUnitType::CSS_EM:
-    case CSSUnitType::CSS_EX:
-    case CSSUnitType::CSS_FR:
-    case CSSUnitType::CSS_GRAD:
-    case CSSUnitType::CSS_HZ:
-    case CSSUnitType::CSS_IN:
-    case CSSUnitType::CSS_KHZ:
-    case CSSUnitType::CSS_MM:
-    case CSSUnitType::CSS_MS:
-    case CSSUnitType::CSS_NUMBER:
-    case CSSUnitType::CSS_INTEGER:
-    case CSSUnitType::CSS_PC:
-    case CSSUnitType::CSS_PERCENTAGE:
-    case CSSUnitType::CSS_PT:
-    case CSSUnitType::CSS_PX:
-    case CSSUnitType::CSS_Q:
-    case CSSUnitType::CSS_LH:
-    case CSSUnitType::CSS_LVB:
-    case CSSUnitType::CSS_LVH:
-    case CSSUnitType::CSS_LVI:
-    case CSSUnitType::CSS_LVMAX:
-    case CSSUnitType::CSS_LVMIN:
-    case CSSUnitType::CSS_LVW:
-    case CSSUnitType::CSS_RLH:
-    case CSSUnitType::CSS_QUIRKY_EM:
-    case CSSUnitType::CSS_RAD:
-    case CSSUnitType::CSS_RCAP:
-    case CSSUnitType::CSS_RCH:
-    case CSSUnitType::CSS_REM:
-    case CSSUnitType::CSS_REX:
-    case CSSUnitType::CSS_RIC:
-    case CSSUnitType::CSS_S:
-    case CSSUnitType::CSS_SVB:
-    case CSSUnitType::CSS_SVH:
-    case CSSUnitType::CSS_SVI:
-    case CSSUnitType::CSS_SVMAX:
-    case CSSUnitType::CSS_SVMIN:
-    case CSSUnitType::CSS_SVW:
-    case CSSUnitType::CSS_TURN:
-    case CSSUnitType::CSS_VB:
-    case CSSUnitType::CSS_VH:
-    case CSSUnitType::CSS_VI:
-    case CSSUnitType::CSS_VMAX:
-    case CSSUnitType::CSS_VMIN:
-    case CSSUnitType::CSS_VW:
-    case CSSUnitType::CSS_DPCM:
-    case CSSUnitType::CSS_DPI:
-    case CSSUnitType::CSS_DPPX:
-    case CSSUnitType::CSS_X:
-    case CSSUnitType::CSS_CQW:
-    case CSSUnitType::CSS_CQH:
-    case CSSUnitType::CSS_CQI:
-    case CSSUnitType::CSS_CQB:
-    case CSSUnitType::CSS_CQMIN:
-    case CSSUnitType::CSS_CQMAX:
-        return true;
-    case CSSUnitType::CSS_UNKNOWN:
-        return false;
-    }
-
-    ASSERT_NOT_REACHED();
-    return false;
-}
-
 static HashMap<const CSSPrimitiveValue*, String>& NODELETE serializedPrimitiveValues()
 {
     static NeverDestroyed<HashMap<const CSSPrimitiveValue*, String>> map;
@@ -177,7 +95,6 @@ CSSPrimitiveValue::~CSSPrimitiveValue()
     case CSSUnitType::CSS_CALC_PERCENTAGE_WITH_LENGTH:
         ASSERT_NOT_REACHED();
         break;
-    case CSSUnitType::CSS_DIMENSION:
     case CSSUnitType::CSS_NUMBER:
     case CSSUnitType::CSS_INTEGER:
     case CSSUnitType::CSS_PERCENTAGE:
@@ -302,184 +219,7 @@ Ref<CSSPrimitiveValue> CSSPrimitiveValue::createInteger(double value)
     return adoptRef(*new CSSPrimitiveValue(value, CSSUnitType::CSS_INTEGER));
 }
 
-bool CSSPrimitiveValue::conversionToCanonicalUnitRequiresConversionData() const
-{
-    if (isCalculated())
-        return m_value.calc->requiresConversionData();
-    return WebCore::conversionToCanonicalUnitRequiresConversionData(primitiveType());
-}
-
-template<> int CSSPrimitiveValue::resolveAsLength(const CSSToLengthConversionData& conversionData) const
-{
-    return Style::roundForImpreciseConversion<int>(resolveAsLengthDouble(conversionData));
-}
-
-template<> unsigned CSSPrimitiveValue::resolveAsLength(const CSSToLengthConversionData& conversionData) const
-{
-    return Style::roundForImpreciseConversion<unsigned>(resolveAsLengthDouble(conversionData));
-}
-
-template<> float CSSPrimitiveValue::resolveAsLength(const CSSToLengthConversionData& conversionData) const
-{
-    return narrowPrecisionToFloat(resolveAsLengthDouble(conversionData));
-}
-
-template<> double CSSPrimitiveValue::resolveAsLength(const CSSToLengthConversionData& conversionData) const
-{
-    return resolveAsLengthDouble(conversionData);
-}
-
-template<> short CSSPrimitiveValue::resolveAsLength(const CSSToLengthConversionData& conversionData) const
-{
-    return Style::roundForImpreciseConversion<short>(resolveAsLengthDouble(conversionData));
-}
-
-template<> unsigned short CSSPrimitiveValue::resolveAsLength(const CSSToLengthConversionData& conversionData) const
-{
-    return Style::roundForImpreciseConversion<unsigned short>(resolveAsLengthDouble(conversionData));
-}
-
-template<> LayoutUnit CSSPrimitiveValue::resolveAsLength(const CSSToLengthConversionData& conversionData) const
-{
-    return LayoutUnit(resolveAsLengthDouble(conversionData));
-}
-
-double CSSPrimitiveValue::resolveAsLengthDouble(const CSSToLengthConversionData& conversionData) const
-{
-    if (RefPtr calcValue = cssCalcValue()) {
-        // The multiplier and factor is applied to each value in the calc expression individually
-        return calcValue->computeLengthPx(conversionData, CSSCalcSymbolTable { });
-    }
-
-    auto lengthUnit = CSS::toLengthUnit(primitiveType());
-    if (!lengthUnit) {
-        ASSERT_NOT_REACHED();
-        return -1.0;
-    }
-    return Style::computeNonCalcLengthDouble(m_value.number, *lengthUnit, conversionData);
-}
-
-std::optional<double> CSSPrimitiveValue::conversionToCanonicalUnitsScaleFactor(CSSUnitType unitType)
-{
-    // FIXME: the switch can be replaced by an array of scale factors.
-    switch (unitType) {
-    // These are "canonical" units in their respective categories.
-    case CSSUnitType::CSS_PX:
-    case CSSUnitType::CSS_DEG:
-    case CSSUnitType::CSS_S:
-    case CSSUnitType::CSS_HZ:
-    case CSSUnitType::CSS_DPPX:
-        return 1.0;
-
-    case CSSUnitType::CSS_X:
-        return CSS::dppxPerX;
-    case CSSUnitType::CSS_CM:
-        return CSS::pixelsPerCm;
-    case CSSUnitType::CSS_DPCM:
-        return CSS::dppxPerDpcm;
-    case CSSUnitType::CSS_MM:
-        return CSS::pixelsPerMm;
-    case CSSUnitType::CSS_Q:
-        return CSS::pixelsPerQ;
-    case CSSUnitType::CSS_IN:
-        return CSS::pixelsPerInch;
-    case CSSUnitType::CSS_DPI:
-        return CSS::dppxPerDpi;
-    case CSSUnitType::CSS_PT:
-        return CSS::pixelsPerPt;
-    case CSSUnitType::CSS_PC:
-        return CSS::pixelsPerPc;
-    case CSSUnitType::CSS_RAD:
-        return degreesPerRadianDouble;
-    case CSSUnitType::CSS_GRAD:
-        return degreesPerGradientDouble;
-    case CSSUnitType::CSS_TURN:
-        return degreesPerTurnDouble;
-    case CSSUnitType::CSS_MS:
-        return CSS::secondsPerMillisecond;
-    case CSSUnitType::CSS_KHZ:
-        return CSS::hertzPerKilohertz;
-
-    default:
-        return std::nullopt;
-    }
-}
-
-ExceptionOr<float> CSSPrimitiveValue::getFloatValueDeprecated(CSSUnitType targetUnit) const
-{
-    auto result = doubleValueInternalDeprecated(targetUnit);
-    if (!result)
-        return Exception { ExceptionCode::InvalidAccessError };
-    return clampTo<float>(result.value());
-}
-
-// MARK: Arbitrarily converting
-
-double CSSPrimitiveValue::doubleValue(CSSUnitType targetUnit, const CSSToLengthConversionData& conversionData) const
-{
-    return doubleValueInternal(targetUnit, conversionData).value_or(0);
-}
-
-double CSSPrimitiveValue::doubleValueNoConversionDataRequired(CSSUnitType targetUnit) const
-{
-    ASSERT(!isCalculated());
-    return doubleValueInternalDeprecated(targetUnit).value_or(0);
-}
-
-double CSSPrimitiveValue::doubleValueDeprecated(CSSUnitType targetUnit) const
-{
-    return doubleValueInternalDeprecated(targetUnit).value_or(0);
-}
-
 // MARK: Non-converting
-
-double CSSPrimitiveValue::doubleValue(const CSSToLengthConversionData& conversionData) const
-{
-    if (RefPtr calcValue = cssCalcValue())
-        return calcValue->doubleValue(conversionData, { });
-    return m_value.number;
-}
-
-double CSSPrimitiveValue::doubleValueDeprecated() const
-{
-    if (RefPtr calcValue = cssCalcValue())
-        return calcValue->doubleValueDeprecated();
-    return m_value.number;
-}
-
-// MARK: `doubleValueDividingBy100IfPercentage`.
-
-double CSSPrimitiveValue::doubleValueDividingBy100IfPercentage(const CSSToLengthConversionData& conversionData) const
-{
-    ASSERT(isNumberOrInteger() || isPercentage());
-
-    if (RefPtr calcValue = cssCalcValue())
-        return calcValue->primitiveType() == CSSUnitType::CSS_PERCENTAGE ? calcValue->doubleValue(conversionData, { }) / 100.0 : calcValue->doubleValue(conversionData, { });
-    if (isPercentage())
-        return m_value.number / 100.0;
-    return m_value.number;
-}
-
-double CSSPrimitiveValue::doubleValueDividingBy100IfPercentageNoConversionDataRequired() const
-{
-    ASSERT(isNumberOrInteger() || isPercentage());
-    ASSERT(!isCalculated());
-
-    if (isPercentage())
-        return m_value.number / 100.0;
-    return m_value.number;
-}
-
-double CSSPrimitiveValue::doubleValueDividingBy100IfPercentageDeprecated() const
-{
-    ASSERT(isNumberOrInteger() || isPercentage());
-
-    if (RefPtr calcValue = cssCalcValue())
-        return calcValue->primitiveType() == CSSUnitType::CSS_PERCENTAGE ? calcValue->doubleValueDeprecated() / 100.0 : calcValue->doubleValueDeprecated();
-    if (isPercentage())
-        return m_value.number / 100.0;
-    return m_value.number;
-}
 
 std::optional<bool> CSSPrimitiveValue::isZero() const
 {
@@ -509,128 +249,6 @@ std::optional<bool> CSSPrimitiveValue::isNegative() const
     return m_value.number < 0;
 }
 
-std::optional<double> CSSPrimitiveValue::doubleValueInternal(CSSUnitType requestedUnitType, const CSSToLengthConversionData& conversionData) const
-{
-    if (!isValidCSSUnitTypeForDoubleConversion(primitiveUnitType()) || !isValidCSSUnitTypeForDoubleConversion(requestedUnitType))
-        return std::nullopt;
-
-    CSSUnitType sourceUnitType = primitiveType();
-    if (requestedUnitType == sourceUnitType || requestedUnitType == CSSUnitType::CSS_DIMENSION)
-        return doubleValue(conversionData);
-
-    CSSUnitCategory sourceCategory = unitCategory(sourceUnitType);
-    ASSERT(sourceCategory != CSSUnitCategory::Other);
-
-    CSSUnitType targetUnitType = requestedUnitType;
-    CSSUnitCategory targetCategory = unitCategory(targetUnitType);
-    ASSERT(targetCategory != CSSUnitCategory::Other);
-
-    // Cannot convert between unrelated unit categories if one of them is not CSSUnitCategory::Number.
-    if (sourceCategory != targetCategory && sourceCategory != CSSUnitCategory::Number && targetCategory != CSSUnitCategory::Number)
-        return std::nullopt;
-
-    if (targetCategory == CSSUnitCategory::Number) {
-        // Cannot convert between numbers and percent.
-        if (sourceCategory == CSSUnitCategory::Percent)
-            return std::nullopt;
-        // We interpret conversion to CSSUnitType::CSS_NUMBER as conversion to a canonical unit in this value's category.
-        targetUnitType = canonicalUnitTypeForCategory(sourceCategory);
-        if (targetUnitType == CSSUnitType::CSS_UNKNOWN)
-            return std::nullopt;
-    }
-
-    if (sourceUnitType == CSSUnitType::CSS_NUMBER || sourceUnitType == CSSUnitType::CSS_INTEGER) {
-        // Cannot convert between numbers and percent.
-        if (targetCategory == CSSUnitCategory::Percent)
-            return std::nullopt;
-        // We interpret conversion from CSSUnitType::CSS_NUMBER in the same way as CSSParser::validUnit() while using non-strict mode.
-        sourceUnitType = canonicalUnitTypeForCategory(targetCategory);
-        if (sourceUnitType == CSSUnitType::CSS_UNKNOWN)
-            return std::nullopt;
-    }
-
-    double convertedValue = doubleValue(conversionData);
-
-    // If we don't need to scale it, don't worry about if we can scale it.
-    if (sourceUnitType == targetUnitType)
-        return convertedValue;
-
-    // First convert the value from primitiveUnitType() to canonical type.
-    auto sourceFactor = conversionToCanonicalUnitsScaleFactor(sourceUnitType);
-    if (!sourceFactor.has_value())
-        return std::nullopt;
-    convertedValue *= sourceFactor.value();
-
-    // Now convert from canonical type to the target unitType.
-    auto targetFactor = conversionToCanonicalUnitsScaleFactor(targetUnitType);
-    if (!targetFactor.has_value())
-        return std::nullopt;
-    convertedValue /= targetFactor.value();
-
-    return convertedValue;
-}
-
-std::optional<double> CSSPrimitiveValue::doubleValueInternalDeprecated(CSSUnitType requestedUnitType) const
-{
-    if (!isValidCSSUnitTypeForDoubleConversion(primitiveUnitType()) || !isValidCSSUnitTypeForDoubleConversion(requestedUnitType))
-        return std::nullopt;
-
-    CSSUnitType sourceUnitType = primitiveType();
-    if (requestedUnitType == sourceUnitType || requestedUnitType == CSSUnitType::CSS_DIMENSION)
-        return doubleValueDeprecated();
-
-    CSSUnitCategory sourceCategory = unitCategory(sourceUnitType);
-    ASSERT(sourceCategory != CSSUnitCategory::Other);
-
-    CSSUnitType targetUnitType = requestedUnitType;
-    CSSUnitCategory targetCategory = unitCategory(targetUnitType);
-    ASSERT(targetCategory != CSSUnitCategory::Other);
-
-    // Cannot convert between unrelated unit categories if one of them is not CSSUnitCategory::Number.
-    if (sourceCategory != targetCategory && sourceCategory != CSSUnitCategory::Number && targetCategory != CSSUnitCategory::Number)
-        return std::nullopt;
-
-    if (targetCategory == CSSUnitCategory::Number) {
-        // Cannot convert between numbers and percent.
-        if (sourceCategory == CSSUnitCategory::Percent)
-            return std::nullopt;
-        // We interpret conversion to CSSUnitType::CSS_NUMBER as conversion to a canonical unit in this value's category.
-        targetUnitType = canonicalUnitTypeForCategory(sourceCategory);
-        if (targetUnitType == CSSUnitType::CSS_UNKNOWN)
-            return std::nullopt;
-    }
-
-    if (sourceUnitType == CSSUnitType::CSS_NUMBER || sourceUnitType == CSSUnitType::CSS_INTEGER) {
-        // Cannot convert between numbers and percent.
-        if (targetCategory == CSSUnitCategory::Percent)
-            return std::nullopt;
-        // We interpret conversion from CSSUnitType::CSS_NUMBER in the same way as CSSParser::validUnit() while using non-strict mode.
-        sourceUnitType = canonicalUnitTypeForCategory(targetCategory);
-        if (sourceUnitType == CSSUnitType::CSS_UNKNOWN)
-            return std::nullopt;
-    }
-
-    double convertedValue = doubleValueDeprecated();
-
-    // If we don't need to scale it, don't worry about if we can scale it.
-    if (sourceUnitType == targetUnitType)
-        return convertedValue;
-
-    // First convert the value from primitiveUnitType() to canonical type.
-    auto sourceFactor = conversionToCanonicalUnitsScaleFactor(sourceUnitType);
-    if (!sourceFactor.has_value())
-        return std::nullopt;
-    convertedValue *= sourceFactor.value();
-
-    // Now convert from canonical type to the target unitType.
-    auto targetFactor = conversionToCanonicalUnitsScaleFactor(targetUnitType);
-    if (!targetFactor.has_value())
-        return std::nullopt;
-    convertedValue /= targetFactor.value();
-
-    return convertedValue;
-}
-
 NEVER_INLINE String CSSPrimitiveValue::formatNumberValue(ASCIILiteral suffix) const
 {
     return CSS::formatCSSNumberValue(CSS::SerializableNumber { m_value.number, suffix });
@@ -641,87 +259,6 @@ NEVER_INLINE String CSSPrimitiveValue::formatIntegerValue(ASCIILiteral suffix) c
     if (!std::isfinite(m_value.number))
         return CSS::formatNonfiniteCSSNumberValue(CSS::SerializableNumber { m_value.number, suffix });
     return makeString(m_value.number, suffix);
-}
-
-ASCIILiteral CSSPrimitiveValue::unitTypeString(CSSUnitType unitType)
-{
-    switch (unitType) {
-    case CSSUnitType::CSS_CAP: return "cap"_s;
-    case CSSUnitType::CSS_CH: return "ch"_s;
-    case CSSUnitType::CSS_CM: return "cm"_s;
-    case CSSUnitType::CSS_CQB: return "cqb"_s;
-    case CSSUnitType::CSS_CQH: return "cqh"_s;
-    case CSSUnitType::CSS_CQI: return "cqi"_s;
-    case CSSUnitType::CSS_CQMAX: return "cqmax"_s;
-    case CSSUnitType::CSS_CQMIN: return "cqmin"_s;
-    case CSSUnitType::CSS_CQW: return "cqw"_s;
-    case CSSUnitType::CSS_DEG: return "deg"_s;
-    case CSSUnitType::CSS_DPCM: return "dpcm"_s;
-    case CSSUnitType::CSS_DPI: return "dpi"_s;
-    case CSSUnitType::CSS_DPPX: return "dppx"_s;
-    case CSSUnitType::CSS_DVB: return "dvb"_s;
-    case CSSUnitType::CSS_DVH: return "dvh"_s;
-    case CSSUnitType::CSS_DVI: return "dvi"_s;
-    case CSSUnitType::CSS_DVMAX: return "dvmax"_s;
-    case CSSUnitType::CSS_DVMIN: return "dvmin"_s;
-    case CSSUnitType::CSS_DVW: return "dvw"_s;
-    case CSSUnitType::CSS_EM: return "em"_s;
-    case CSSUnitType::CSS_EX: return "ex"_s;
-    case CSSUnitType::CSS_FR: return "fr"_s;
-    case CSSUnitType::CSS_GRAD: return "grad"_s;
-    case CSSUnitType::CSS_HZ: return "hz"_s;
-    case CSSUnitType::CSS_IC: return "ic"_s;
-    case CSSUnitType::CSS_IN: return "in"_s;
-    case CSSUnitType::CSS_KHZ: return "khz"_s;
-    case CSSUnitType::CSS_LH: return "lh"_s;
-    case CSSUnitType::CSS_LVB: return "lvb"_s;
-    case CSSUnitType::CSS_LVH: return "lvh"_s;
-    case CSSUnitType::CSS_LVI: return "lvi"_s;
-    case CSSUnitType::CSS_LVMAX: return "lvmax"_s;
-    case CSSUnitType::CSS_LVMIN: return "lvmin"_s;
-    case CSSUnitType::CSS_LVW: return "lvw"_s;
-    case CSSUnitType::CSS_MM: return "mm"_s;
-    case CSSUnitType::CSS_MS: return "ms"_s;
-    case CSSUnitType::CSS_PC: return "pc"_s;
-    case CSSUnitType::CSS_PERCENTAGE: return "%"_s;
-    case CSSUnitType::CSS_PT: return "pt"_s;
-    case CSSUnitType::CSS_PX: return "px"_s;
-    case CSSUnitType::CSS_Q: return "q"_s;
-    case CSSUnitType::CSS_RAD: return "rad"_s;
-    case CSSUnitType::CSS_RCAP: return "rcap"_s;
-    case CSSUnitType::CSS_RCH: return "rch"_s;
-    case CSSUnitType::CSS_REM: return "rem"_s;
-    case CSSUnitType::CSS_REX: return "rex"_s;
-    case CSSUnitType::CSS_RIC: return "ric"_s;
-    case CSSUnitType::CSS_RLH: return "rlh"_s;
-    case CSSUnitType::CSS_S: return "s"_s;
-    case CSSUnitType::CSS_SVB: return "svb"_s;
-    case CSSUnitType::CSS_SVH: return "svh"_s;
-    case CSSUnitType::CSS_SVI: return "svi"_s;
-    case CSSUnitType::CSS_SVMAX: return "svmax"_s;
-    case CSSUnitType::CSS_SVMIN: return "svmin"_s;
-    case CSSUnitType::CSS_SVW: return "svw"_s;
-    case CSSUnitType::CSS_TURN: return "turn"_s;
-    case CSSUnitType::CSS_VB: return "vb"_s;
-    case CSSUnitType::CSS_VH: return "vh"_s;
-    case CSSUnitType::CSS_VI: return "vi"_s;
-    case CSSUnitType::CSS_VMAX: return "vmax"_s;
-    case CSSUnitType::CSS_VMIN: return "vmin"_s;
-    case CSSUnitType::CSS_VW: return "vw"_s;
-    case CSSUnitType::CSS_X: return "x"_s;
-
-    case CSSUnitType::CSS_CALC:
-    case CSSUnitType::CSS_CALC_PERCENTAGE_WITH_ANGLE:
-    case CSSUnitType::CSS_CALC_PERCENTAGE_WITH_LENGTH:
-    case CSSUnitType::CSS_DIMENSION:
-    case CSSUnitType::CSS_INTEGER:
-    case CSSUnitType::CSS_NUMBER:
-    case CSSUnitType::CSS_QUIRKY_EM:
-    case CSSUnitType::CSS_UNKNOWN:
-        return ""_s;
-    }
-    ASSERT_NOT_REACHED();
-    return ""_s;
 }
 
 ALWAYS_INLINE String CSSPrimitiveValue::serializeInternal(const CSS::SerializationContext& context) const
@@ -795,9 +332,6 @@ ALWAYS_INLINE String CSSPrimitiveValue::serializeInternal(const CSS::Serializati
         return formatNumberValue(unitTypeString(type));
     case CSSUnitType::CSS_CALC:
         return protect(cssCalcValue())->cssText(context);
-    case CSSUnitType::CSS_DIMENSION:
-        // FIXME: This isn't correct.
-        return formatNumberValue(""_s);
     case CSSUnitType::CSS_INTEGER:
         return formatIntegerValue(""_s);
     case CSSUnitType::CSS_QUIRKY_EM:
@@ -896,7 +430,6 @@ bool CSSPrimitiveValue::equals(const CSSPrimitiveValue& other) const
     case CSSUnitType::CSS_Q:
     case CSSUnitType::CSS_LH:
     case CSSUnitType::CSS_RLH:
-    case CSSUnitType::CSS_DIMENSION:
     case CSSUnitType::CSS_CQW:
     case CSSUnitType::CSS_CQH:
     case CSSUnitType::CSS_CQI:
@@ -982,7 +515,6 @@ bool CSSPrimitiveValue::addDerivedHash(Hasher& hasher) const
     case CSSUnitType::CSS_Q:
     case CSSUnitType::CSS_LH:
     case CSSUnitType::CSS_RLH:
-    case CSSUnitType::CSS_DIMENSION:
     case CSSUnitType::CSS_CQW:
     case CSSUnitType::CSS_CQH:
     case CSSUnitType::CSS_CQI:

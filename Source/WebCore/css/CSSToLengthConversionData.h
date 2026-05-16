@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013 Google Inc. All rights reserved.
+ * Copyright (C) 2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -58,6 +59,10 @@ public:
     CSSToLengthConversionData(const RenderStyle&, Style::BuilderState&);
     // This constructor ignores the `zoom` property.
     CSSToLengthConversionData(const RenderStyle&, const RenderStyle* rootStyle, const RenderStyle* parentStyle, const RenderView*, const Element* elementForContainerUnitResolution = nullptr, CSS::RangeZoomOptions = CSS::RangeZoomOptions::Default);
+
+    // Used for resolutions that don't take place during normal style resolution.
+    static std::optional<CSSToLengthConversionData> tryCreateForNonStyleBuildingResolution(Element&);
+    static std::optional<CSSToLengthConversionData> tryCreateForNonStyleBuildingResolution(Element*);
 
     WEBCORE_EXPORT ~CSSToLengthConversionData();
 

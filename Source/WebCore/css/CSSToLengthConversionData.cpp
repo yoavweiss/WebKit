@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013 Google Inc. All rights reserved.
+ * Copyright (C) 2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -31,6 +32,7 @@
 #include "config.h"
 #include "CSSToLengthConversionData.h"
 
+#include "ContainerNodeInlines.h"
 #include "DocumentView.h"
 #include "FloatSize.h"
 #include "RenderStyle+GettersInlines.h"
@@ -70,6 +72,33 @@ CSSToLengthConversionData::CSSToLengthConversionData(const RenderStyle& style, c
     , m_zoom(1.f)
     , m_rangeZoomOption(rangeZoomOptions)
 {
+}
+
+std::optional<CSSToLengthConversionData> CSSToLengthConversionData::tryCreateForNonStyleBuildingResolution(Element& element)
+{
+    CheckedPtr elementRenderer = element.renderer();
+    if (!elementRenderer)
+        return std::nullopt;
+    CheckedPtr elementParentRenderer = elementRenderer->parent();
+    Ref document = element.document();
+    CheckedPtr documentElement = document->documentElement();
+    if (!documentElement)
+        return std::nullopt;
+
+    // FIXME: Investigate container query units
+    return CSSToLengthConversionData {
+        elementRenderer->style(),
+        documentElement->renderer() ? &documentElement->renderer()->style() : nullptr,
+        elementParentRenderer ? &elementParentRenderer->style() : nullptr,
+        document->renderView()
+    };
+}
+
+std::optional<CSSToLengthConversionData> CSSToLengthConversionData::tryCreateForNonStyleBuildingResolution(Element* element)
+{
+    if (!element)
+        return std::nullopt;
+    return tryCreateForNonStyleBuildingResolution(*element);
 }
 
 CSSToLengthConversionData::~CSSToLengthConversionData() = default;

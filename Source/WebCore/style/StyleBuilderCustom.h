@@ -771,16 +771,47 @@ inline void BuilderCustom::applyValueFontSize(BuilderState& builderState, CSSVal
             break;
         }
     } else if (RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
-        builderState.setFontDescriptionIsAbsoluteSize(parentIsAbsoluteSize || !primitiveValue->isParentFontRelativeLength());
+        // FIXME: Checking `primitiveValue->isPercentageOrParentFontRelativeLength()` is not sufficient to determine if any parent relative length units have been used, as arbitrary calc() expressions may contain them as well. For example, `font-size: calc(1px + 1em)`.
+        builderState.setFontDescriptionIsAbsoluteSize(parentIsAbsoluteSize || !primitiveValue->isPercentageOrParentFontRelativeLength());
+
         auto conversionData = builderState.cssToLengthConversionData().copyForFontSize();
-        if (primitiveValue->isLength())
-            size = primitiveValue->resolveAsLength<float>(conversionData);
-        else if (primitiveValue->isPercentage())
-            size = (primitiveValue->resolveAsPercentage<float>(conversionData) * parentSize) / 100.0f;
-        else if (primitiveValue->isCalculatedPercentageWithLength())
-            size = primitiveValue->cssCalcValue()->createCalculationValue(conversionData, CSSCalcSymbolTable { })->evaluate(parentSize, Style::ZoomNeeded { });
-        else
-            return;
+
+        using StyleType = LengthPercentage<CSS::Nonnegative, float>;
+
+        auto handleLength = [](const auto& length) -> float { return length.resolveZoom(ZoomNeeded { }); };
+        auto handlePercentage = [&](const auto& percentage) -> float { return percentage.value * parentSize / 100.0f; };
+        auto handleCalc = [&](const auto& calc) -> float { return calc.evaluate(parentSize, ZoomNeeded { }); };
+
+        size =  WTF::switchOn(*primitiveValue,
+            [&](const CSSPrimitiveValue::Calc& calc) -> float {
+                using CSSRaw = typename StyleType::CSS::Raw;
+
+                auto resolved = toStyle(CSS::UnevaluatedCalc<CSSRaw>(const_cast<CSSPrimitiveValue::Calc&>(calc)), conversionData);
+                return WTF::switchOn(resolved,
+                    [&](const typename StyleType::Dimension& length) {
+                        return handleLength(length);
+                    },
+                    [&](const typename StyleType::Percentage& percentage) {
+                        return handlePercentage(percentage);
+                    },
+                    [&](const typename StyleType::Calc& calc) {
+                        return handleCalc(calc);
+                    }
+                );
+            },
+            [&](const CSSPrimitiveValue::Raw& raw) -> float {
+                using CSSDimensionRaw = typename StyleType::Dimension::CSS::Raw;
+                using CSSPercentageRaw = typename StyleType::Percentage::CSS::Raw;
+
+                if (auto unit = CSSDimensionRaw::UnitTraits::validate(raw.unit))
+                    return handleLength(toStyle(CSSDimensionRaw(*unit, raw.value), conversionData));
+                if (auto unit = CSSPercentageRaw::UnitTraits::validate(raw.unit))
+                    return handlePercentage(toStyle(CSSPercentageRaw(*unit, raw.value), conversionData));
+
+                builderState.setCurrentPropertyInvalidAtComputedValueTime();
+                return 0;
+            }
+        );
     } else {
         builderState.setCurrentPropertyInvalidAtComputedValueTime();
         return;

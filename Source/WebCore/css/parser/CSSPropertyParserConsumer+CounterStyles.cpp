@@ -44,6 +44,7 @@
 #include "CSSValueList.h"
 #include "CSSValuePair.h"
 #include "CSSValuePool.h"
+#include "StylePrimitiveNumericTypes+DeprecatedCSSValueConversion.h"
 
 namespace WebCore {
 namespace CSSPropertyParserHelpers {
@@ -192,9 +193,12 @@ RefPtr<CSSValue> consumeCounterStyleRange(CSSParserTokenRange& range, CSS::Prope
         // NOTE: `infinity` means negative infinity when used for the lower bound and positive infinity when used for the upper bound, so if either value was `infinity`, the bound is valid.
         RefPtr primitiveValueLowerBound = dynamicDowncast<CSSPrimitiveValue>(lowerBound);
         RefPtr primitiveValueUpperBound = dynamicDowncast<CSSPrimitiveValue>(upperBound);
-        if (primitiveValueLowerBound && primitiveValueUpperBound && primitiveValueLowerBound->resolveAsIntegerDeprecated() > primitiveValueUpperBound->resolveAsIntegerDeprecated())
-            return nullptr;
-
+        if (primitiveValueLowerBound && primitiveValueUpperBound) {
+            auto resolvedLowerBound = Style::deprecatedToStyleFromCSSValue<Style::Integer<>>(*primitiveValueLowerBound)->value;
+            auto resolvedUpperBound = Style::deprecatedToStyleFromCSSValue<Style::Integer<>>(*primitiveValueUpperBound)->value;
+            if (resolvedLowerBound > resolvedUpperBound)
+                return nullptr;
+        }
         return CSSValuePair::createNoncoalescing(lowerBound.releaseNonNull(), upperBound.releaseNonNull());
     });
 
@@ -223,7 +227,7 @@ RefPtr<CSSValue> consumeCounterStyleAdditiveSymbols(CSSParserTokenRange& range, 
             return nullptr;
 
         // Additive tuples must be specified in order of strictly descending weight.
-        auto weight = integer->resolveAsIntegerDeprecated();
+        auto weight = Style::deprecatedToStyleFromCSSValue<Style::Integer<CSS::Nonnegative>>(*integer)->value;
         if (lastWeight && !(weight < lastWeight))
             return nullptr;
         lastWeight = weight;

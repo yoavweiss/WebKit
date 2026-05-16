@@ -48,6 +48,7 @@
 #include "RenderText.h"
 #include "ScriptDisallowedScope.h"
 #include "StyleExtractor.h"
+#include "StylePrimitiveNumericTypes+DeprecatedCSSValueConversion.h"
 #include "StyleProperties.h"
 #include "StyleResolver.h"
 #include "Text.h"
@@ -1515,10 +1516,11 @@ float ApplyStyleCommand::computedFontSize(Node* node)
     if (!node)
         return 0;
 
+    // FIXME: This should not be using Style::Extractor to extract a CSSValue. Instead, we should make it possible to get at the computed style that exists on Style::ComputedStyle/RenderStyle directly, avoiding unnecessary and lossy conversion through CSSValue.
     RefPtr value = dynamicDowncast<CSSPrimitiveValue>(Style::Extractor(node).propertyValue(CSSPropertyFontSize));
     if (!value)
         return 0;
-    return value->resolveAsLengthDeprecated();
+    return Style::deprecatedToStyleFromCSSValue<Style::Length<CSS::Nonnegative, float>>(*value)->resolveZoom(Style::ZoomNeeded { });
 }
 
 void ApplyStyleCommand::joinChildTextNodes(Node* node, const Position& start, const Position& end)

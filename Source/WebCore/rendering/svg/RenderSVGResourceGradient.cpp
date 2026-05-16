@@ -25,6 +25,7 @@
 #include "RenderSVGResourceGradientInlines.h"
 #include "RenderSVGShape.h"
 #include "RenderStyle+GettersInlines.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {
@@ -114,7 +115,7 @@ bool RenderSVGResourceGradient::prepareFillOperation(GraphicsContext& context, c
     if (!buildGradientIfNeeded(targetRenderer, style, userspaceTransform))
         return false;
 
-    context.setAlpha(style.fillOpacity().value.value);
+    context.setAlpha(Style::evaluate<float>(style.fillOpacity()));
     context.setFillRule(style.fillRule());
     context.setFillGradient(m_gradient.copyRef().releaseNonNull(), userspaceTransform);
     return true;
@@ -131,7 +132,7 @@ bool RenderSVGResourceGradient::prepareStrokeOperation(GraphicsContext& context,
             userspaceTransform = shape->nonScalingStrokeTransform() * userspaceTransform;
     }
 
-    context.setAlpha(style.strokeOpacity().value.value);
+    context.setAlpha(Style::evaluate<float>(style.strokeOpacity()));
     SVGRenderSupport::applyStrokeStyleToContext(context, style, targetRenderer);
     context.setStrokeGradient(m_gradient.copyRef().releaseNonNull(), userspaceTransform);
     return true;

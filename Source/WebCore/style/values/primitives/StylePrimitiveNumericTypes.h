@@ -117,6 +117,7 @@ template<CSS::Range nR = CSS::All, CSS::Range pR = nR, typename V = double> stru
 
     constexpr bool operator==(const NumberOrPercentageResolvedToNumber&) const = default;
     constexpr bool operator==(typename Number::ResolvedValueType other) const { return value.value == other; };
+    constexpr auto operator<=>(const NumberOrPercentageResolvedToNumber&) const = default;
 };
 
 // Standard Numbers

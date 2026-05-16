@@ -30,6 +30,7 @@
 #include "RenderSVGText.h"
 #include "RenderStyle+GettersInlines.h"
 #include "SVGRenderingContext.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {
@@ -135,13 +136,13 @@ static inline void applyGradientResource(RenderElement& renderer, const RenderSt
     auto userspaceTransform = gradientData.userspaceTransform;
 
     if (resourceMode.contains(RenderSVGResourceMode::ApplyToFill)) {
-        context.setAlpha(style.fillOpacity().value.value);
+        context.setAlpha(Style::evaluate<float>(style.fillOpacity()));
         context.setFillGradient(*gradientData.gradient, userspaceTransform);
         context.setFillRule(style.fillRule());
     } else if (resourceMode.contains(RenderSVGResourceMode::ApplyToStroke)) {
         if (style.vectorEffect() == VectorEffect::NonScalingStroke)
             userspaceTransform = LegacyRenderSVGResourceContainer::transformOnNonScalingStroke(&renderer, gradientData.userspaceTransform);
-        context.setAlpha(style.strokeOpacity().value.value);
+        context.setAlpha(Style::evaluate<float>(style.strokeOpacity()));
         context.setStrokeGradient(*gradientData.gradient, userspaceTransform);
         SVGRenderSupport::applyStrokeStyleToContext(context, style, renderer);
     }

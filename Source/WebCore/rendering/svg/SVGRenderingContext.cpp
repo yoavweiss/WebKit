@@ -45,6 +45,7 @@
 #include "SVGResources.h"
 #include "SVGResourcesCache.h"
 #include "Settings.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include <numbers>
 #include <wtf/MathExtras.h>
 
@@ -112,7 +113,7 @@ void SVGRenderingContext::prepareToRenderSVGContent(RenderElement& renderer, Pai
     // Setup transparency layers before setting up SVG resources!
     bool isRenderingMask = isRenderingMaskImage(*m_renderer);
     // RenderLayer takes care of root opacity.
-    float opacity = (renderer.isLegacyRenderSVGRoot() || isRenderingMask) ? 1 : style.opacity().value.value;
+    float opacity = (renderer.isLegacyRenderSVGRoot() || isRenderingMask) ? 1 : Style::evaluate<float>(style.opacity());
     bool hasBlendMode = style.blendMode() != BlendMode::Normal;
     bool hasIsolation = style.isolation() != Isolation::Auto;
     bool isolateMaskForBlending = false;

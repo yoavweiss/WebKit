@@ -33,12 +33,13 @@
 #include "CSSParserTokenRange.h"
 #include "CSSPrimitiveValue.h"
 #include "CSSPropertyParser.h"
-#include "CSSPropertyParserConsumer+CSSPrimitiveValueResolver.h"
 #include "CSSPropertyParserConsumer+Ident.h"
+#include "CSSPropertyParserConsumer+MetaConsumer.h"
 #include "CSSPropertyParserConsumer+PercentageDefinitions.h"
 #include "CSSPropertyParserConsumer+Timeline.h"
 #include "CSSPropertyParserState.h"
 #include "CSSStringValue.h"
+#include "StylePrimitiveNumericTypes+DeprecatedConversions.h"
 
 namespace WebCore {
 namespace CSSPropertyParserHelpers {
@@ -50,12 +51,12 @@ Vector<std::pair<CSSValueID, double>> consumeKeyframeKeyList(CSSParserTokenRange
 
     enum class RestrictedToZeroToHundredRange : bool { No, Yes };
     auto consumeAndConvertPercentage = [&](CSSParserTokenRange& range, RestrictedToZeroToHundredRange restricted) -> std::optional<double> {
-        // FIXME: We use resolveAsPercentageDeprecated() to deal with calc() and % values.
+        // FIXME: We use Style::deprecatedToStyle() to deal with calc() and % values.
         // We will eventually want to return a CSS value that can be kept as-is on a
         // BlendingKeyframe so that resolution happens when we have the necessary context
         // when the keyframes are associated with a target element.
-        if (auto percentageValue = CSSPrimitiveValueResolver<CSS::Percentage<>>::consumeAndResolve(range, state)) {
-            auto resolvedPercentage = percentageValue->resolveAsPercentageDeprecated();
+        if (auto percentageValue = MetaConsumer<CSS::Percentage<>>::consume(range, state)) {
+            auto resolvedPercentage = Style::deprecatedToStyle(*percentageValue).value;
             if (restricted == RestrictedToZeroToHundredRange::No)
                 return resolvedPercentage / 100;
             if (resolvedPercentage >= 0 && resolvedPercentage <= 100)

@@ -175,10 +175,6 @@ public:
     static constexpr size_t ValueSeparatorBits = 2;
     enum ValueSeparator : uint8_t { SpaceSeparator, CommaSeparator, SlashSeparator };
 
-    inline bool isInteger() const;
-    inline int integer(const CSSToLengthConversionData&) const;
-    inline int integerDeprecated() const;
-
     inline const CSSValue& first() const; // CSSValuePair
     inline const CSSValue& second() const; // CSSValuePair
     inline const Quad& quad() const; // CSSValueQuad

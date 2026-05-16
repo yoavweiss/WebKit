@@ -34,6 +34,7 @@
 #include "CSSStringValue.h"
 #include "CSSValueList.h"
 #include "CSSValuePair.h"
+#include "StylePrimitiveNumericTypes+DeprecatedCSSValueConversion.h"
 #include <utility>
 #include <wtf/text/MakeString.h>
 #include <wtf/text/StringBuilder.h>
@@ -57,14 +58,19 @@ CSSCounterStyleDescriptors::Ranges rangeFromCSSValue(const CSSValue& value)
     for (Ref rangeValue : *list) {
         if (!rangeValue->isPair())
             return { };
-        RefPtr low = dynamicDowncast<CSSPrimitiveValue>(rangeValue->first());
-        RefPtr high = dynamicDowncast<CSSPrimitiveValue>(rangeValue->second());
+
         int convertedLow { std::numeric_limits<int>::min() };
         int convertedHigh { std::numeric_limits<int>::max() };
-        if (low && low->isInteger())
-            convertedLow = low->resolveAsIntegerDeprecated();
-        if (high && high->isInteger())
-            convertedHigh = high->resolveAsIntegerDeprecated();
+
+        if (RefPtr lowPrimitiveValue = dynamicDowncast<CSSPrimitiveValue>(rangeValue->first())) {
+            if (auto resolvedLow = Style::deprecatedToStyleFromCSSValue<Style::Integer<>>(*lowPrimitiveValue))
+                convertedLow = resolvedLow->value;
+        }
+        if (RefPtr highPrimitiveValue = dynamicDowncast<CSSPrimitiveValue>(rangeValue->second())) {
+            if (auto resolvedHigh = Style::deprecatedToStyleFromCSSValue<Style::Integer<>>(*highPrimitiveValue))
+                convertedHigh = resolvedHigh->value;
+        }
+
         result.append({ convertedLow, convertedHigh });
     }
     return result;
@@ -95,7 +101,7 @@ CSSCounterStyleDescriptors::AdditiveSymbols additiveSymbolsFromCSSValue(const CS
     CSSCounterStyleDescriptors::AdditiveSymbols result;
     for (Ref additiveSymbol : downcast<CSSValueList>(value)) {
         Ref pair = downcast<CSSValuePair>(additiveSymbol);
-        auto weight = downcast<CSSPrimitiveValue>(pair->first()).resolveAsIntegerDeprecated<unsigned>();
+        auto weight = Style::deprecatedToStyleFromCSSValue<Style::Integer<CSS::Nonnegative, unsigned>>(downcast<CSSPrimitiveValue>(pair->first()))->value;
         auto symbol = symbolFromCSSValue(&pair->second());
         result.constructAndAppend(symbol, weight);
     }
@@ -114,7 +120,7 @@ CSSCounterStyleDescriptors::Pad padFromCSSValue(const CSSValue& value)
 {
     auto& list = downcast<CSSValueList>(value);
     ASSERT(list.size() == 2);
-    auto length = downcast<CSSPrimitiveValue>(list[0]).resolveAsIntegerDeprecated();
+    auto length = Style::deprecatedToStyleFromCSSValue<Style::Integer<CSS::Nonnegative>>(downcast<CSSPrimitiveValue>(list[0]))->value;
     ASSERT(length >= 0);
     return { static_cast<unsigned>(std::max(0, length)), symbolFromCSSValue(&list[1]) };
 }
@@ -219,8 +225,10 @@ CSSCounterStyleDescriptors::SystemData extractSystemDataFromCSSValue(const CSSVa
             else
                 result.first = downcast<CSSCustomIdentValue>(secondValue)->customIdent().value;
         } else if (system == CSSCounterStyleDescriptors::System::Fixed) {
-            ASSERT(secondValue->isInteger());
-            result.second = secondValue->isInteger() ? secondValue->integerDeprecated() : 1;
+            if (auto secondValueInteger = Style::deprecatedToStyleFromCSSValue<Style::Integer<>>(secondValue))
+                result.second = secondValueInteger->value;
+            else
+                result.second = 1;
         }
     }
     return result;

@@ -541,7 +541,7 @@ bool SubstitutionResolver::substituteAttrFunction(CSSParserTokenRange argumentsR
         if (attrType == AttrType::Percentage)
             token.convertToPercentage();
         else
-            token.convertToDimensionWithUnit(CSSPrimitiveValue::unitTypeString(parsedAttrType->unitType));
+            token.convertToDimensionWithUnit(parsedAttrType->unitType);
         tokens.append(token);
         return true;
     }

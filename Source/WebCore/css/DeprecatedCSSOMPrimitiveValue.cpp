@@ -72,7 +72,6 @@ unsigned short DeprecatedCSSOMPrimitiveValue::primitiveType() const
     switch (primitiveValue->primitiveType()) {
     case CSSUnitType::CSS_CM:                           return CSS_CM;
     case CSSUnitType::CSS_DEG:                          return CSS_DEG;
-    case CSSUnitType::CSS_DIMENSION:                    return CSS_DIMENSION;
     case CSSUnitType::CSS_EM:                           return CSS_EMS;
     case CSSUnitType::CSS_EX:                           return CSS_EXS;
     case CSSUnitType::CSS_GRAD:                         return CSS_GRAD;
@@ -97,11 +96,28 @@ unsigned short DeprecatedCSSOMPrimitiveValue::primitiveType() const
 
 ExceptionOr<float> DeprecatedCSSOMPrimitiveValue::getFloatValue(unsigned short unitType) const
 {
-    auto numericType = [&] -> std::optional<CSSUnitType> {
+    RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(m_value.get());
+    if (!primitiveValue)
+        return Exception { ExceptionCode::InvalidAccessError };
+
+    auto doubleValueDeprecated = [&] {
+        return WTF::switchOn(*primitiveValue,
+            [](const CSSPrimitiveValue::Calc& calc) {
+                return calc.doubleValueDeprecated();
+            },
+            [](const CSSPrimitiveValue::Raw& raw) {
+                return raw.value;
+            }
+        );
+    };
+
+    if (unitType == CSS_DIMENSION)
+        return clampTo<float>(doubleValueDeprecated());
+
+    auto requestedUnitType = [&] -> std::optional<CSSUnitType> {
         switch (unitType) {
         case CSS_CM:            return CSSUnitType::CSS_CM;
         case CSS_DEG:           return CSSUnitType::CSS_DEG;
-        case CSS_DIMENSION:     return CSSUnitType::CSS_DIMENSION;
         case CSS_EMS:           return CSSUnitType::CSS_EM;
         case CSS_EXS:           return CSSUnitType::CSS_EX;
         case CSS_GRAD:          return CSSUnitType::CSS_GRAD;
@@ -120,11 +136,73 @@ ExceptionOr<float> DeprecatedCSSOMPrimitiveValue::getFloatValue(unsigned short u
         default:                return std::nullopt;
         }
     }();
-
-    RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(m_value.get());
-    if (!numericType || !primitiveValue)
+    if (!requestedUnitType)
         return Exception { ExceptionCode::InvalidAccessError };
-    return primitiveValue->getFloatValueDeprecated(*numericType);
+    auto targetUnitType = *requestedUnitType;
+
+    auto selfUnitType = WTF::switchOn(*primitiveValue,
+        [](const CSSPrimitiveValue::Calc&) -> std::optional<CSSUnitType> {
+            return std::nullopt;
+        },
+        [](const CSSPrimitiveValue::Raw& raw) -> std::optional<CSSUnitType> {
+            return raw.unit;
+        }
+    );
+    if (!selfUnitType)
+        return Exception { ExceptionCode::InvalidAccessError };
+    auto sourceUnitType = *selfUnitType;
+
+    if (targetUnitType == sourceUnitType)
+        return clampTo<float>(doubleValueDeprecated());
+
+    auto sourceCategory = unitCategory(sourceUnitType);
+    ASSERT(sourceCategory != CSSUnitCategory::Other);
+    auto targetCategory = unitCategory(targetUnitType);
+    ASSERT(targetCategory != CSSUnitCategory::Other);
+
+    // Cannot convert between unrelated unit categories if one of them is not CSSUnitCategory::Number.
+    if (sourceCategory != targetCategory && sourceCategory != CSSUnitCategory::Number && targetCategory != CSSUnitCategory::Number)
+        return Exception { ExceptionCode::InvalidAccessError };
+
+    if (targetCategory == CSSUnitCategory::Number) {
+        // Cannot convert between numbers and percent.
+        if (sourceCategory == CSSUnitCategory::Percent)
+            return Exception { ExceptionCode::InvalidAccessError };
+        // We interpret conversion to CSSUnitType::CSS_NUMBER as conversion to a canonical unit in this value's category.
+        targetUnitType = canonicalUnitTypeForCategory(sourceCategory);
+        if (targetUnitType == CSSUnitType::CSS_UNKNOWN)
+            return Exception { ExceptionCode::InvalidAccessError };
+    }
+
+    if (sourceUnitType == CSSUnitType::CSS_NUMBER || sourceUnitType == CSSUnitType::CSS_INTEGER) {
+        // Cannot convert between numbers and percent.
+        if (targetCategory == CSSUnitCategory::Percent)
+            return Exception { ExceptionCode::InvalidAccessError };
+        // We interpret conversion from CSSUnitType::CSS_NUMBER in the same way as CSSParser::validUnit() while using non-strict mode.
+        sourceUnitType = canonicalUnitTypeForCategory(targetCategory);
+        if (sourceUnitType == CSSUnitType::CSS_UNKNOWN)
+            return Exception { ExceptionCode::InvalidAccessError };
+    }
+
+    double convertedValue = doubleValueDeprecated();
+
+    // If we don't need to scale it, don't worry about if we can scale it.
+    if (sourceUnitType == targetUnitType)
+        return clampTo<float>(convertedValue);
+
+    // First convert the value from the source unit type the to the canonical type.
+    auto sourceFactor = conversionToCanonicalUnitsScaleFactor(sourceUnitType);
+    if (!sourceFactor.has_value())
+        return Exception { ExceptionCode::InvalidAccessError };
+    convertedValue *= sourceFactor.value();
+
+    // Now convert from canonical type to the target unitType.
+    auto targetFactor = conversionToCanonicalUnitsScaleFactor(targetUnitType);
+    if (!targetFactor.has_value())
+        return Exception { ExceptionCode::InvalidAccessError };
+    convertedValue /= targetFactor.value();
+
+    return clampTo<float>(convertedValue);
 }
 
 ExceptionOr<String> DeprecatedCSSOMPrimitiveValue::getStringValue() const

@@ -125,5 +125,11 @@ double UnevaluatedCalcBase::evaluate(CSS::Category category, NoConversionDataReq
     return protect(calcValue())->doubleValue(token, symbolTable);
 }
 
+double UnevaluatedCalcBase::evaluateDeprecated(CSS::Category category) const
+{
+    ASSERT_UNUSED(category, protect(calcValue())->category() == category);
+    return protect(calcValue())->doubleValueDeprecated();
+}
+
 } // namespace CSS
 } // namespace WebCore

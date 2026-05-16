@@ -1,6 +1,6 @@
 // Copyright 2014 The Chromium Authors. All rights reserved.
 // Copyright (C) 2016-2025 Apple Inc. All rights reserved.
-// Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
+// Copyright (C) 2025-2026 Samuel Weinig <sam@webkit.org>
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -49,11 +49,11 @@
 #include "CSSPositionTryRule.h"
 #include "CSSPropertyParser.h"
 #include "CSSPropertyParserConsumer+Animations.h"
-#include "CSSPropertyParserConsumer+CSSPrimitiveValueResolver.h"
 #include "CSSPropertyParserConsumer+CounterStyles.h"
 #include "CSSPropertyParserConsumer+Font.h"
 #include "CSSPropertyParserConsumer+Ident.h"
 #include "CSSPropertyParserConsumer+IntegerDefinitions.h"
+#include "CSSPropertyParserConsumer+MetaConsumer.h"
 #include "CSSPropertyParserConsumer+Primitives.h"
 #include "CSSPropertyParserConsumer+Timeline.h"
 #include "CSSSelectorParser.h"
@@ -77,6 +77,8 @@
 #include "NestingLevelIncrementer.h"
 #include "NodeDocument.h"
 #include "StyleColor.h"
+#include "StylePrimitiveNumericTypes+DeprecatedCSSValueConversion.h"
+#include "StylePrimitiveNumericTypes+DeprecatedConversions.h"
 #include "StylePropertiesInlines.h"
 #include "StyleRule.h"
 #include "StyleRuleFunction.h"
@@ -842,11 +844,10 @@ RefPtr<StyleRuleFontFeatureValuesBlock> CSSParser::consumeFontFeatureValuesRuleB
         auto state = CSS::PropertyParserState { .context = m_context };
         Vector<unsigned> values;
         while (!range.atEnd()) {
-            auto value = CSSPropertyParserHelpers::CSSPrimitiveValueResolver<CSS::Integer<CSS::Nonnegative>>::consumeAndResolve(range, state);
+            auto value = CSSPropertyParserHelpers::MetaConsumer<CSS::Integer<CSS::Nonnegative>>::consume(range, state);
             if (!value)
                 return { };
-            ASSERT(value->isInteger());
-            auto tagInteger = value->resolveAsIntegerDeprecated();
+            auto tagInteger = Style::deprecatedToStyle(*value).value;
             ASSERT(tagInteger >= 0);
             values.append(unsignedCast(tagInteger));
             if (maxValues && values.size() > *maxValues)
@@ -958,8 +959,14 @@ RefPtr<StyleRuleFontPaletteValues> CSSParser::consumeFontPaletteValuesRule(CSSPa
     std::optional<FontPaletteIndex> basePalette;
     if (auto basePaletteValue = properties->getPropertyCSSValue(CSSPropertyBasePalette)) {
         if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(*basePaletteValue)) {
-            if (primitiveValue->isInteger())
-                basePalette = FontPaletteIndex(primitiveValue->resolveAsIntegerDeprecated<unsigned>());
+            // FIXME: This should not be using `deprecatedToStyleFromCSSValue`. CSS Fonts 4 specifies how @font-palette-value descriptors with numeric types should be resolved, stating:
+            //   "Math functions, such as calc(), and also var(), and env(), are valid within
+            //    descriptor values in a @font-palette-values rule. They are evaluated within
+            //    the context of the root element. Relative units are also evaluated within the
+            //    context of the root element."
+            //   (https://drafts.csswg.org/css-fonts/#font-palette-values)
+            if (auto resolvedInteger = Style::deprecatedToStyleFromCSSValue<Style::Integer<CSS::Nonnegative, unsigned>>(*primitiveValue))
+                basePalette = FontPaletteIndex(resolvedInteger->value);
         } else if (auto* keywordValue = dynamicDowncast<CSSKeywordValue>(*basePaletteValue)) {
             switch (keywordValue->valueID()) {
             case CSSValueLight:
@@ -981,7 +988,13 @@ RefPtr<StyleRuleFontPaletteValues> CSSParser::consumeFontPaletteValuesRule(CSSPa
             Ref first = pair->first();
             Ref second = pair->second();
 
-            auto key = downcast<CSSPrimitiveValue>(first)->template resolveAsIntegerDeprecated<unsigned>();
+            // FIXME: This should not be using `deprecatedToStyleFromCSSValue`. CSS Fonts 4 specifies how @font-palette-value descriptors with numeric types should be resolved, stating:
+            //   "Math functions, such as calc(), and also var(), and env(), are valid within
+            //    descriptor values in a @font-palette-values rule. They are evaluated within
+            //    the context of the root element. Relative units are also evaluated within the
+            //    context of the root element."
+            //   (https://drafts.csswg.org/css-fonts/#font-palette-values)
+            auto key = Style::deprecatedToStyleFromCSSValue<Style::Integer<CSS::Nonnegative, unsigned>>(downcast<CSSPrimitiveValue>(first))->value;
             auto color = CSSColorValue::absoluteColor(second);
             if (!color.isValid())
                 return { };

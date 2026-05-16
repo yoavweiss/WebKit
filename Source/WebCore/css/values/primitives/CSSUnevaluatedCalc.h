@@ -87,6 +87,7 @@ public:
     double evaluate(CSS::Category, const CSSToLengthConversionData&, const CSSCalcSymbolTable&) const;
     double evaluate(CSS::Category, NoConversionDataRequiredToken) const;
     double evaluate(CSS::Category, NoConversionDataRequiredToken, const CSSCalcSymbolTable&) const;
+    double evaluateDeprecated(CSS::Category) const;
 
     bool equal(const UnevaluatedCalcBase&) const;
 

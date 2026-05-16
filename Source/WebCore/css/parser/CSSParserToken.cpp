@@ -414,6 +414,23 @@ static StringView NODELETE mergeIfAdjacent(StringView a, StringView b)
     return { };
 }
 
+void CSSParserToken::convertToDimensionWithUnit(CSSUnitType unit)
+{
+    ASSERT(m_type == NumberToken);
+    auto originalNumberText = originalText();
+    auto originalNumberTextLength = originalNumberText.length();
+    auto unitString = unitTypeString(unit);
+    auto string = StringView { unitString };
+    if (originalNumberTextLength && originalNumberTextLength < 16) {
+        if (auto merged = mergeIfAdjacent(originalNumberText, unitString))
+            string = merged;
+    }
+    m_type = DimensionToken;
+    m_unit = static_cast<unsigned>(unit);
+    m_nonUnitPrefixLength = string == unitString ? 0 : originalNumberTextLength;
+    initValueFromStringView(string);
+}
+
 void CSSParserToken::convertToDimensionWithUnit(StringView unit)
 {
     ASSERT(m_type == NumberToken);

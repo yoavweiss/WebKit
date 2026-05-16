@@ -42,7 +42,9 @@
 #include "ScrollAnchoringController.h"
 #include "ScrollingConstraints.h"
 #include "StyleableInlines.h"
+#include "StyleBuilderState.h"
 #include "StyleKeyword+Logging.h"
+#include "StyleLengthWrapper+CSSValueConversion.h"
 #include "StyleLengthWrapper+DeprecatedCSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StylePrimitiveNumericTypes+Logging.h"
@@ -345,10 +347,12 @@ void ViewTimeline::cacheCurrentTime()
         auto subjectSize = scrollDirection.isVertical ? subjectBounds.height() : subjectBounds.width();
 
         if (m_specifiedInsets) {
-            RefPtr subjectElement { &subject->element };
+            auto conversionData = CSSToLengthConversionData::tryCreateForNonStyleBuildingResolution(subject->element);
 
             auto computedInset = [&](const CSSValue& specifiedInset) {
-                return Style::deprecatedToStyleFromCSSValue<Style::ViewTimelineInsetItem::Length>(subjectElement, specifiedInset).value_or(Style::ViewTimelineInsetItem::Length { CSS::Keyword::Auto { } });
+                if (!conversionData)
+                    return Style::deprecatedToStyleFromCSSValue<Style::ViewTimelineInsetItem::Length>(specifiedInset).value_or(Style::ViewTimelineInsetItem::Length { CSS::Keyword::Auto { } });
+                return Style::toStyleFromCSSValue<Style::ViewTimelineInsetItem::Length>(*conversionData, specifiedInset);
             };
 
             if (m_specifiedInsets->start && m_specifiedInsets->end) {

@@ -38,6 +38,7 @@
 #include "RenderStyle+SettersInlines.h"
 #include "RenderWidget.h"
 #include "ScrollbarInlines.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StyleResolver.h"
 
 namespace WebCore {
@@ -365,7 +366,7 @@ float RenderScrollbar::opacity() const
     if (!partRenderer)
         return 1;
 
-    return partRenderer->style().opacity().value.value;
+    return Style::evaluate<float>(partRenderer->style().opacity());
 }
 
 bool RenderScrollbar::isHiddenByStyle() const
@@ -374,4 +375,4 @@ bool RenderScrollbar::isHiddenByStyle() const
     return partStyle && partStyle->display() == Style::DisplayType::None;
 }
 
-}
+} // namespace WebCore

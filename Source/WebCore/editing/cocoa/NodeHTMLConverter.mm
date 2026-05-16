@@ -75,6 +75,7 @@
 #import "RenderStyle+GettersInlines.h"
 #import "RenderText.h"
 #import "StyleExtractor.h"
+#import "StylePrimitiveNumericTypes+DeprecatedCSSValueConversion.h"
 #import "StyleProperties.h"
 #import "StylePropertiesInlines.h"
 #import "StyledElement.h"
@@ -648,19 +649,11 @@ String HTMLConverterCaches::propertyValueForNode(Node& node, CSSPropertyID prope
 
 static inline bool floatValueFromPrimitiveValue(CSSPrimitiveValue& primitiveValue, float& result)
 {
-    switch (primitiveValue.primitiveType()) {
-    case CSSUnitType::CSS_PX:
-    case CSSUnitType::CSS_PT:
-    case CSSUnitType::CSS_PC:
-    case CSSUnitType::CSS_CM:
-    case CSSUnitType::CSS_MM:
-    case CSSUnitType::CSS_Q:
-    case CSSUnitType::CSS_IN:
-        result = primitiveValue.resolveAsLengthDeprecated();
+    if (primitiveValue.isFontIndependentLength()) {
+        result = WebCore::Style::deprecatedToStyleFromCSSValue<WebCore::Style::Length<CSS::All, float>>(primitiveValue)->resolveZoom(WebCore::Style::ZoomNeeded { });
         return true;
-    default:
-        return false;
     }
+    return false;
 }
 
 bool HTMLConverterCaches::floatPropertyValueForNode(Node& node, CSSPropertyID propertyId, float& result)

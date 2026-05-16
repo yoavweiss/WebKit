@@ -33,6 +33,7 @@
 #include "RenderScrollbarTheme.h"
 #include "RenderStyle+GettersInlines.h"
 #include "RenderView.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include <wtf/StackStats.h>
 #include <wtf/TZoneMallocInlines.h>
 
@@ -177,7 +178,7 @@ void RenderScrollbarPart::paintIntoRect(GraphicsContext& graphicsContext, const 
     if (needsTransparencyLayer) {
         graphicsContext.save();
         graphicsContext.clip(rect);
-        graphicsContext.beginTransparencyLayer(style().opacity().value.value);
+        graphicsContext.beginTransparencyLayer(Style::evaluate<float>(style().opacity()));
     }
     
     // Now do the paint.

@@ -32,6 +32,7 @@
 #include "SVGElementTypeHelpers.h"
 #include "SVGFitToViewBox.h"
 #include "SVGVisitedRendererTracking.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {
@@ -135,7 +136,7 @@ bool RenderSVGResourcePattern::prepareFillOperation(GraphicsContext& context, co
     if (!pattern)
         return false;
 
-    context.setAlpha(style.fillOpacity().value.value);
+    context.setAlpha(Style::evaluate<float>(style.fillOpacity()));
     context.setFillRule(style.fillRule());
     context.setFillPattern(*pattern);
     return true;
@@ -147,7 +148,7 @@ bool RenderSVGResourcePattern::prepareStrokeOperation(GraphicsContext& context, 
     if (!pattern)
         return false;
 
-    context.setAlpha(style.strokeOpacity().value.value);
+    context.setAlpha(Style::evaluate<float>(style.strokeOpacity()));
     SVGRenderSupport::applyStrokeStyleToContext(context, style, targetRenderer);
     if (style.vectorEffect() == VectorEffect::NonScalingStroke) {
         if (CheckedPtr shape = dynamicDowncast<RenderSVGShape>(targetRenderer))

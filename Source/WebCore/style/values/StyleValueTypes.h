@@ -368,6 +368,24 @@ template<typename CSSType, size_t inlineCapacity> struct ToStyle<CommaSeparatedV
     }
 };
 
+// MARK: - Conversion from "CSS" to "Style" when lacking BuilderState or CSSToLengthConversionData. Should not be used for new code and should be phased out.
+
+// All leaf types must implement the following:
+//
+//    template<> struct WebCore::Style::DeprecatedToStyle<StyleType> {
+//        StyleType operator()(const CSSType&);
+//    };
+
+template<typename> struct DeprecatedToStyle;
+
+struct DeprecatedToStyleInvoker {
+    template<typename CSSType, typename... Rest> decltype(auto) operator()(const CSSType& cssType, Rest&&... rest) const
+    {
+        return DeprecatedToStyle<CSSType>{}(cssType, std::forward<Rest>(rest)...);
+    }
+};
+inline constexpr DeprecatedToStyleInvoker deprecatedToStyle{};
+
 // MARK: - Conversion directly from "Style to "Ref<CSSValue>"
 
 // All leaf types must implement the following:
@@ -497,25 +515,24 @@ template<typename StyleType> inline constexpr CSSValueConversionInvoker<StyleTyp
 // All leaf types must implement the following:
 //
 //    template<> struct WebCore::Style::DeprecatedCSSValueConversion<StyleType> {
-//                   std::optional<StyleType> operator()(const RefPtr<Element>&&, const CSSValue&);
-//                   std::optional<StyleType> operator()(const RefPtr<Element>&&, const CSSPrimitiveValue&);
-//        [optional] std::optional<StyleType> operator()(const RefPtr<Element>&&, [std::derived_from<CSSValue>]);
+//                   std::optional<StyleType> operator()(const CSSValue&);
+//        [optional] std::optional<StyleType> operator()([std::derived_from<CSSValue>]);
 //    };
 
 template<typename StyleType> struct DeprecatedCSSValueConversion;
 
 template<typename StyleType> struct DeprecatedCSSValueConversionInvoker {
-    template<typename... Rest> std::optional<StyleType> operator()(const RefPtr<Element>& element, const CSSValue& value, Rest&&... rest) const
+    template<typename... Rest> std::optional<StyleType> operator()(const CSSValue& value, Rest&&... rest) const
     {
-        return DeprecatedCSSValueConversion<StyleType>{}(element, value, std::forward<Rest>(rest)...);
+        return DeprecatedCSSValueConversion<StyleType>{}(value, std::forward<Rest>(rest)...);
     }
-    template<typename... Rest> std::optional<StyleType> operator()(const RefPtr<Element>& element, const CSSPrimitiveValue& value, Rest&&... rest) const
+    template<typename... Rest> std::optional<StyleType> operator()(const CSSPrimitiveValue& value, Rest&&... rest) const
     {
-        return DeprecatedCSSValueConversion<StyleType>{}(element, value, std::forward<Rest>(rest)...);
+        return DeprecatedCSSValueConversion<StyleType>{}(value, std::forward<Rest>(rest)...);
     }
-    template<typename... Rest> std::optional<StyleType> operator()(const RefPtr<Element>& element, std::derived_from<CSSValue> auto const& value, Rest&&... rest) const
+    template<typename... Rest> std::optional<StyleType> operator()(std::derived_from<CSSValue> auto const& value, Rest&&... rest) const
     {
-        return DeprecatedCSSValueConversion<StyleType>{}(element, value, std::forward<Rest>(rest)...);
+        return DeprecatedCSSValueConversion<StyleType>{}(value, std::forward<Rest>(rest)...);
     }
 };
 template<typename StyleType> inline constexpr DeprecatedCSSValueConversionInvoker<StyleType> deprecatedToStyleFromCSSValue{};

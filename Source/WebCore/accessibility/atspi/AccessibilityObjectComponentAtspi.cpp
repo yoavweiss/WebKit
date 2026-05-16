@@ -31,6 +31,7 @@
 #include "RenderLayer.h"
 #include "RenderObjectStyle.h"
 #include "RenderStyle+GettersInlines.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 
 namespace WebCore {
 
@@ -160,7 +161,7 @@ float AccessibilityObjectAtspi::opacity() const
         return 1;
 
     if (auto* renderer = m_coreObject->renderer())
-        return renderer->style().opacity().value.value;
+        return Style::evaluate<float>(renderer->style().opacity());
 
     return 1;
 }

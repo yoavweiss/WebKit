@@ -644,7 +644,6 @@ style/RuleSet.cpp
 style/RuleSetBuilder.cpp
 style/StyleAdjuster.cpp
 style/StyleBuilder.cpp
-style/StyleBuilderCustom.h
 style/StyleBuilderState.cpp
 style/StyleDifference.cpp
 style/StyleExtractor.cpp

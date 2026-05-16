@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2024-2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -36,6 +36,9 @@ class Value;
 struct Child;
 }
 
+struct ZoomFactor;
+struct ZoomNeeded;
+
 // Non-generic base type to allow code sharing and out-of-line definitions.
 class UnevaluatedCalculationBase {
 public:
@@ -51,6 +54,9 @@ public:
     WEBCORE_EXPORT ~UnevaluatedCalculationBase();
 
     Calculation::Value& calculation() const { return m_calc; }
+
+    double evaluate(double percentageBasis, ZoomFactor) const;
+    double evaluate(double percentageBasis, ZoomNeeded) const;
 
     bool equal(const UnevaluatedCalculationBase&) const;
 

@@ -30,6 +30,7 @@
 #include "SVGGradientElement.h"
 #include "SVGNames.h"
 #include "SVGParserUtilities.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {
@@ -106,7 +107,7 @@ Color SVGStopElement::stopColorIncludingOpacity() const
 
     CheckedRef style = renderer()->style();
     auto stopColor = style->stopColorResolvingCurrentColor();
-    return stopColor.colorWithAlphaMultipliedBy(style->stopOpacity().value.value);
+    return stopColor.colorWithAlphaMultipliedBy(Style::evaluate<float>(style->stopOpacity()));
 }
 
-}
+} // namespace WebCore

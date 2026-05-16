@@ -55,8 +55,8 @@ public:
     WEBCORE_EXPORT static Ref<Value> NODELETE create(CSS::Category, CSS::Range, Tree&&);
     WEBCORE_EXPORT ~Value();
 
-    double evaluate(double percentResolutionLength, const ZoomFactor& usedZoom) const;
-    double evaluate(double percentResolutionLength, const ZoomNeeded&) const;
+    double evaluate(double percentResolutionLength, ZoomFactor) const;
+    double evaluate(double percentResolutionLength, ZoomNeeded) const;
 
     CSS::Category category() const { return m_category; }
     CSS::Range range() const { return m_range; }

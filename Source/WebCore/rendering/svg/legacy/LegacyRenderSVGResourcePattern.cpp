@@ -35,6 +35,7 @@
 #include "SVGRenderingContext.h"
 #include "SVGResources.h"
 #include "SVGResourcesCache.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {
@@ -176,13 +177,13 @@ auto LegacyRenderSVGResourcePattern::applyResource(RenderElement& renderer, cons
     context->save();
 
     if (resourceMode.contains(RenderSVGResourceMode::ApplyToFill)) {
-        context->setAlpha(style.fillOpacity().value.value);
+        context->setAlpha(Style::evaluate<float>(style.fillOpacity()));
         context->setFillPattern(*patternData->pattern);
         context->setFillRule(style.fillRule());
     } else if (resourceMode.contains(RenderSVGResourceMode::ApplyToStroke)) {
         if (style.vectorEffect() == VectorEffect::NonScalingStroke)
             patternData->pattern->setPatternSpaceTransform(transformOnNonScalingStroke(&renderer, patternData->transform));
-        context->setAlpha(style.strokeOpacity().value.value);
+        context->setAlpha(Style::evaluate<float>(style.strokeOpacity()));
         context->setStrokePattern(*patternData->pattern);
         SVGRenderSupport::applyStrokeStyleToContext(*context, style, renderer);
     }

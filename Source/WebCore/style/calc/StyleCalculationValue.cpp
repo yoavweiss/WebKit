@@ -56,20 +56,20 @@ Value::Value(CSS::Category category, CSS::Range range, Tree&& tree)
 
 Value::~Value() = default;
 
-double Value::evaluate(double percentResolutionLength, const ZoomFactor& usedZoom) const
+double Value::evaluate(double percentageBasis, ZoomFactor zoom) const
 {
-    auto result = Calculation::evaluate(m_tree, percentResolutionLength, usedZoom);
+    auto result = Calculation::evaluate(m_tree, percentageBasis, zoom);
     if (std::isnan(result))
         return 0;
-    return std::clamp(result, m_range.min, m_range.max);
+    return CSS::clampToRange<double>(result, m_range);
 }
 
-double Value::evaluate(double percentResolutionLength, const ZoomNeeded& zoomNeeded) const
+double Value::evaluate(double percentageBasis, ZoomNeeded token) const
 {
-    auto result = Calculation::evaluate(m_tree, percentResolutionLength, zoomNeeded);
+    auto result = Calculation::evaluate(m_tree, percentageBasis, token);
     if (std::isnan(result))
         return 0;
-    return std::clamp(result, m_range.min, m_range.max);
+    return CSS::clampToRange<double>(result, m_range);
 }
 
 Tree Value::copyTree() const

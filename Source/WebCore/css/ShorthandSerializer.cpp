@@ -1004,9 +1004,16 @@ String ShorthandSerializer::serializeFont() const
     auto widthKeyword = longhandValueID(widthIndex);
     if (widthKeyword == CSSValueInvalid) {
         Ref widthValue = downcast<CSSPrimitiveValue>(longhandValue(widthIndex));
-        if (widthValue->isCalculated() || !widthValue->isPercentage())
-            return String();
-        auto keyword = fontWidthKeyword(widthValue->resolveAsPercentageNoConversionDataRequired());
+        auto keyword = WTF::switchOn(widthValue.get(),
+            [](const CSSPrimitiveValue::Calc&) -> std::optional<CSSValueID> {
+                return std::nullopt;
+            },
+            [](const CSSPrimitiveValue::Raw& raw) -> std::optional<CSSValueID> {
+                if (raw.unit != CSSUnitType::CSS_PERCENTAGE)
+                    return std::nullopt;
+                return fontWidthKeyword(raw.value);
+            }
+        );
         if (!keyword)
             return String();
         widthKeyword = *keyword;
@@ -1457,12 +1464,20 @@ String ShorthandSerializer::serializeTextWrap() const
 String ShorthandSerializer::serializeSingleAnimationRange(const CSSValue& value, Style::SingleAnimationRangeType type, CSSValueID startValueID) const
 {
     auto isDefault = [](const auto& primitiveValue, auto type) {
-        if (!primitiveValue || !primitiveValue->isPercentage() || primitiveValue->isCalculated())
+        if (!primitiveValue)
             return false;
-        auto percentageValue = primitiveValue->resolveAsPercentageNoConversionDataRequired();
-        if (type == Style::SingleAnimationRangeType::Start)
-            return percentageValue == 0;
-        return percentageValue == 100;
+        return WTF::switchOn(*primitiveValue,
+            [](const CSSPrimitiveValue::Calc&) {
+                return false;
+            },
+            [type](const CSSPrimitiveValue::Raw& raw) {
+                if (raw.unit != CSSUnitType::CSS_PERCENTAGE)
+                    return false;
+                if (type == Style::SingleAnimationRangeType::Start)
+                    return raw.value == 0;
+                return raw.value == 100;
+            }
+        );
     };
 
     auto isRangeOffset = [](const auto& value) {

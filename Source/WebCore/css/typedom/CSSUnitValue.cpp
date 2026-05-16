@@ -69,7 +69,7 @@ ASCIILiteral CSSUnitValue::unit() const
 
 ASCIILiteral CSSUnitValue::unitSerialization() const
 {
-    return CSSPrimitiveValue::unitTypeString(m_unit);
+    return unitTypeString(m_unit);
 }
 
 void CSSUnitValue::serialize(StringBuilder& builder, OptionSet<SerializationArguments>) const
@@ -104,7 +104,7 @@ RefPtr<CSSUnitValue> CSSUnitValue::convertTo(CSSUnitType unit) const
     if (unitCategory(unitEnum()) != unitCategory(unit))
         return nullptr;
 
-    return create(m_value * conversionToCanonicalUnitsScaleFactor(unitEnum()) / conversionToCanonicalUnitsScaleFactor(unit), unit);
+    return create(m_value * conversionToCanonicalUnitsScaleFactor(unitEnum()).value_or(1) / conversionToCanonicalUnitsScaleFactor(unit).value_or(1), unit);
 }
 
 auto CSSUnitValue::toSumValue() const -> std::optional<SumValue>
@@ -114,7 +114,7 @@ auto CSSUnitValue::toSumValue() const -> std::optional<SumValue>
     if (canonicalUnit == CSSUnitType::CSS_UNKNOWN)
         canonicalUnit = m_unit;
     
-    auto convertedValue = m_value * conversionToCanonicalUnitsScaleFactor(unitEnum()) / conversionToCanonicalUnitsScaleFactor(canonicalUnit);
+    auto convertedValue = m_value * conversionToCanonicalUnitsScaleFactor(unitEnum()).value_or(1) / conversionToCanonicalUnitsScaleFactor(canonicalUnit).value_or(1);
 
     if (m_unit == CSSUnitType::CSS_NUMBER)
         return { { { convertedValue, { } } } };
