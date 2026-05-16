@@ -48,8 +48,12 @@ DEFINE_VISIT_CHILDREN(JSPromiseReaction);
 JSValue JSPromiseReaction::tryGetContext(JSValue reactionsValue)
 {
     if (auto* slim = dynamicDowncast<JSSlimPromiseReaction>(reactionsValue)) {
-        if (slim->internalMicrotask() != InternalMicrotask::None)
+        InternalMicrotask task = slim->internalMicrotask();
+        if (task != InternalMicrotask::None) {
+            if (promiseReactionPacksGlobalContextAndIndex(task))
+                return slim->promise(); // This is actually JSPromiseCombinatorsGlobalContext.
             return slim->handlerOrContext();
+        }
         return { };
     }
     if (auto* full = dynamicDowncast<JSFullPromiseReaction>(reactionsValue))

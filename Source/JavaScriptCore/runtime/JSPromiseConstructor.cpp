@@ -486,14 +486,12 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAll, (JSGlobalObject* globalObjec
         RETURN_IF_EXCEPTION(scope, void());
         globalContext->setRemainingElementsCount(vm, jsNumber(count + 1));
 
-        JSPromiseCombinatorsContext* context = JSPromiseCombinatorsContext::create(vm, globalContext, index);
-
         if (nextPromise->isThenFastAndNonObservable()) [[likely]] {
             auto* constructor = promiseSpeciesConstructor(globalObject, nextPromise);
             RETURN_IF_EXCEPTION(scope, void());
             if (constructor == globalObject->promiseConstructor()) [[likely]] {
                 scope.release();
-                nextPromise->performPromiseThenWithInternalMicrotask(vm, globalObject, InternalMicrotask::PromiseAllResolveJob, promise, context);
+                nextPromise->performPromiseThenWithInternalMicrotask(vm, globalObject, InternalMicrotask::PromiseAllResolveJob, globalContext, jsNumber(index));
                 ++index;
                 return;
             }
@@ -509,6 +507,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAll, (JSGlobalObject* globalObjec
             return;
         }
 
+        JSPromiseCombinatorsContext* context = JSPromiseCombinatorsContext::create(vm, globalContext, index);
         auto* onFulfilled = JSFunctionWithFields::create(vm, globalObject, vm.promiseAllFulfillFunctionExecutable(), 1, emptyString());
         onFulfilled->setField(vm, JSFunctionWithFields::Field::PromiseAllContext, context);
 
@@ -809,19 +808,18 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAllSettled, (JSGlobalObject* glob
         RETURN_IF_EXCEPTION(scope, void());
         globalContext->setRemainingElementsCount(vm, jsNumber(count + 1));
 
-        JSPromiseCombinatorsContext* context = JSPromiseCombinatorsContext::create(vm, globalContext, index);
-
         if (nextPromise->isThenFastAndNonObservable()) [[likely]] {
             auto* constructor = promiseSpeciesConstructor(globalObject, nextPromise);
             RETURN_IF_EXCEPTION(scope, void());
             if (constructor == globalObject->promiseConstructor()) [[likely]] {
                 scope.release();
-                nextPromise->performPromiseThenWithInternalMicrotask(vm, globalObject, InternalMicrotask::PromiseAllSettledResolveJob, promise, context);
+                nextPromise->performPromiseThenWithInternalMicrotask(vm, globalObject, InternalMicrotask::PromiseAllSettledResolveJob, globalContext, jsNumber(index));
                 ++index;
                 return;
             }
         }
 
+        JSPromiseCombinatorsContext* context = JSPromiseCombinatorsContext::create(vm, globalContext, index);
         auto* onFulfilled = JSFunctionWithFields::create(vm, globalObject, vm.promiseAllSettledFulfillFunctionExecutable(), 1, emptyString());
         onFulfilled->setField(vm, JSFunctionWithFields::Field::PromiseAllSettledContext, context);
 
@@ -1283,14 +1281,12 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAny, (JSGlobalObject* globalObjec
         RETURN_IF_EXCEPTION(scope, void());
         globalContext->setRemainingElementsCount(vm, jsNumber(count + 1));
 
-        JSPromiseCombinatorsContext* context = JSPromiseCombinatorsContext::create(vm, globalContext, index);
-
         if (nextPromise->isThenFastAndNonObservable()) [[likely]] {
             auto* constructor = promiseSpeciesConstructor(globalObject, nextPromise);
             RETURN_IF_EXCEPTION(scope, void());
             if (constructor == globalObject->promiseConstructor()) [[likely]] {
                 scope.release();
-                nextPromise->performPromiseThenWithInternalMicrotask(vm, globalObject, InternalMicrotask::PromiseAnyResolveJob, promise, context);
+                nextPromise->performPromiseThenWithInternalMicrotask(vm, globalObject, InternalMicrotask::PromiseAnyResolveJob, globalContext, jsNumber(index));
                 ++index;
                 return;
             }
@@ -1300,6 +1296,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAny, (JSGlobalObject* globalObjec
         if (!resolve)
             resolve = promise->createFirstResolveFunction(vm, globalObject);
 
+        JSPromiseCombinatorsContext* context = JSPromiseCombinatorsContext::create(vm, globalContext, index);
         auto* onRejected = JSFunctionWithFields::create(vm, globalObject, vm.promiseAnyRejectFunctionExecutable(), 1, emptyString());
         onRejected->setField(vm, JSFunctionWithFields::Field::PromiseAnyContext, context);
 

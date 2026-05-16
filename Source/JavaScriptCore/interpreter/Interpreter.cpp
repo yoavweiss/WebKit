@@ -60,7 +60,6 @@
 #include "JSModuleRecord.h"
 #include "JSObject.h"
 #include "JSPromise.h"
-#include "JSPromiseCombinatorsContext.h"
 #include "JSPromiseCombinatorsGlobalContext.h"
 #include "JSPromiseReaction.h"
 #include "JSRemoteFunction.h"
@@ -473,15 +472,13 @@ void Interpreter::getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results,
             return generator;
 
         // handle `Promise.all`, `Promise.allSettled`, and `Promise.any`
-        if (auto* promiseCombinatorsContext = dynamicDowncast<JSPromiseCombinatorsContext>(promiseContext)) {
-            if (auto* globalContext = promiseCombinatorsContext->globalContext()) {
-                JSValue promiseValue = globalContext->promise();
-                ASSERT(promiseValue);
-                if (auto* promise = dynamicDowncast<JSPromise>(promiseValue)) {
-                    if (JSValue promiseContext = getContextValueFromPromise(promise)) {
-                        if (auto* generator = dynamicDowncast<JSGenerator>(promiseContext))
-                            return generator;
-                    }
+        if (auto* globalContext = dynamicDowncast<JSPromiseCombinatorsGlobalContext>(promiseContext)) {
+            JSValue promiseValue = globalContext->promise();
+            ASSERT(promiseValue);
+            if (auto* promise = dynamicDowncast<JSPromise>(promiseValue)) {
+                if (JSValue promiseContext = getContextValueFromPromise(promise)) {
+                    if (auto* generator = dynamicDowncast<JSGenerator>(promiseContext))
+                        return generator;
                 }
             }
         }

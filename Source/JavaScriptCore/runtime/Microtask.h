@@ -89,6 +89,15 @@ enum class InternalMicrotask : uint8_t {
 
 constexpr unsigned maxMicrotaskArguments = 3;
 
+// True for Promise.all/allSettled/any element jobs, whose reaction packs
+// (globalContext cell, element index) instead of a single context cell.
+constexpr bool promiseReactionPacksGlobalContextAndIndex(InternalMicrotask task)
+{
+    static_assert(static_cast<uint8_t>(InternalMicrotask::PromiseAllSettledResolveJob) == static_cast<uint8_t>(InternalMicrotask::PromiseAllResolveJob) + 1);
+    static_assert(static_cast<uint8_t>(InternalMicrotask::PromiseAnyResolveJob) == static_cast<uint8_t>(InternalMicrotask::PromiseAllSettledResolveJob) + 1);
+    return task >= InternalMicrotask::PromiseAllResolveJob && task <= InternalMicrotask::PromiseAnyResolveJob;
+}
+
 enum class QueuedTaskResult : uint8_t {
     Executed,
     Discard,

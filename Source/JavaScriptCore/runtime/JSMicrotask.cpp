@@ -47,7 +47,6 @@
 #include "JSModuleNamespaceObject.h"
 #include "JSModuleRecord.h"
 #include "JSPromise.h"
-#include "JSPromiseCombinatorsContext.h"
 #include "JSPromiseCombinatorsGlobalContext.h"
 #include "JSPromiseConstructor.h"
 #include "JSPromisePrototype.h"
@@ -359,11 +358,10 @@ static void promiseRaceResolveJob(JSGlobalObject* globalObject, VM& vm, JSPromis
     }
 }
 
-static void promiseAllResolveJob(JSGlobalObject* globalObject, VM& vm, JSPromise* promise, JSValue resolution, JSPromiseCombinatorsContext* context, JSPromise::Status status)
+static void promiseAllResolveJob(JSGlobalObject* globalObject, VM& vm, JSPromiseCombinatorsGlobalContext* globalContext, JSValue resolution, uint64_t index, JSPromise::Status status)
 {
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    auto* globalContext = context->globalContext();
     switch (status) {
     case JSPromise::Status::Pending: {
         RELEASE_ASSERT_NOT_REACHED();
@@ -371,7 +369,6 @@ static void promiseAllResolveJob(JSGlobalObject* globalObject, VM& vm, JSPromise
     }
     case JSPromise::Status::Fulfilled: {
         auto* values = uncheckedDowncast<JSArray>(globalContext->values());
-        uint64_t index = context->index();
 
         values->putDirectIndex(globalObject, index, resolution);
         RETURN_IF_EXCEPTION(scope, void());
@@ -382,12 +379,14 @@ static void promiseAllResolveJob(JSGlobalObject* globalObject, VM& vm, JSPromise
         --count;
         globalContext->setRemainingElementsCount(vm, jsNumber(count));
         if (!count) {
+            auto* promise = uncheckedDowncast<JSPromise>(globalContext->promise());
             scope.release();
             promise->resolve(globalObject, vm, values);
         }
         break;
     }
     case JSPromise::Status::Rejected: {
+        auto* promise = uncheckedDowncast<JSPromise>(globalContext->promise());
         scope.release();
         promise->reject(vm, globalObject, resolution);
         break;
@@ -395,13 +394,11 @@ static void promiseAllResolveJob(JSGlobalObject* globalObject, VM& vm, JSPromise
     }
 }
 
-static void promiseAllSettledResolveJob(JSGlobalObject* globalObject, VM& vm, JSPromise* promise, JSValue resolution, JSPromiseCombinatorsContext* context, JSPromise::Status status)
+static void promiseAllSettledResolveJob(JSGlobalObject* globalObject, VM& vm, JSPromiseCombinatorsGlobalContext* globalContext, JSValue resolution, uint64_t index, JSPromise::Status status)
 {
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    auto* globalContext = context->globalContext();
     auto* values = uncheckedDowncast<JSArray>(globalContext->values());
-    uint64_t index = context->index();
 
     JSObject* resultObject = nullptr;
     switch (status) {
@@ -428,16 +425,15 @@ static void promiseAllSettledResolveJob(JSGlobalObject* globalObject, VM& vm, JS
     --count;
     globalContext->setRemainingElementsCount(vm, jsNumber(count));
     if (!count) {
+        auto* promise = uncheckedDowncast<JSPromise>(globalContext->promise());
         scope.release();
         promise->resolve(globalObject, vm, values);
     }
 }
 
-static void promiseAnyResolveJob(JSGlobalObject* globalObject, VM& vm, JSPromise* promise, JSValue resolution, JSPromiseCombinatorsContext* context, JSPromise::Status status)
+static void promiseAnyResolveJob(JSGlobalObject* globalObject, VM& vm, JSPromiseCombinatorsGlobalContext* globalContext, JSValue resolution, uint64_t index, JSPromise::Status status)
 {
     auto scope = DECLARE_THROW_SCOPE(vm);
-
-    auto* globalContext = context->globalContext();
 
     switch (status) {
     case JSPromise::Status::Pending: {
@@ -445,13 +441,13 @@ static void promiseAnyResolveJob(JSGlobalObject* globalObject, VM& vm, JSPromise
         break;
     }
     case JSPromise::Status::Fulfilled: {
+        auto* promise = uncheckedDowncast<JSPromise>(globalContext->promise());
         scope.release();
         promise->resolve(globalObject, vm, resolution);
         break;
     }
     case JSPromise::Status::Rejected: {
         auto* errors = uncheckedDowncast<JSArray>(globalContext->values());
-        uint64_t index = context->index();
 
         errors->putDirectIndex(globalObject, index, resolution);
         RETURN_IF_EXCEPTION(scope, void());
@@ -462,6 +458,7 @@ static void promiseAnyResolveJob(JSGlobalObject* globalObject, VM& vm, JSPromise
         --count;
         globalContext->setRemainingElementsCount(vm, jsNumber(count));
         if (!count) {
+            auto* promise = uncheckedDowncast<JSPromise>(globalContext->promise());
             auto* aggregateError = createAggregateError(vm, globalObject->errorStructure(ErrorType::AggregateError), errors, String(), jsUndefined());
             scope.release();
             promise->reject(vm, globalObject, aggregateError);
@@ -1489,13 +1486,13 @@ void runInternalMicrotask(JSGlobalObject* globalObject, VM& vm, InternalMicrotas
         RELEASE_AND_RETURN(scope, promiseRaceResolveJob(globalObject, vm, uncheckedDowncast<JSPromise>(arguments[0]), arguments[1], static_cast<JSPromise::Status>(payload)));
 
     case InternalMicrotask::PromiseAllResolveJob:
-        RELEASE_AND_RETURN(scope, promiseAllResolveJob(globalObject, vm, uncheckedDowncast<JSPromise>(arguments[0]), arguments[1], uncheckedDowncast<JSPromiseCombinatorsContext>(arguments[2]), static_cast<JSPromise::Status>(payload)));
+        RELEASE_AND_RETURN(scope, promiseAllResolveJob(globalObject, vm, uncheckedDowncast<JSPromiseCombinatorsGlobalContext>(arguments[0]), arguments[1], static_cast<uint64_t>(arguments[2].asAnyInt()), static_cast<JSPromise::Status>(payload)));
 
     case InternalMicrotask::PromiseAllSettledResolveJob:
-        RELEASE_AND_RETURN(scope, promiseAllSettledResolveJob(globalObject, vm, uncheckedDowncast<JSPromise>(arguments[0]), arguments[1], uncheckedDowncast<JSPromiseCombinatorsContext>(arguments[2]), static_cast<JSPromise::Status>(payload)));
+        RELEASE_AND_RETURN(scope, promiseAllSettledResolveJob(globalObject, vm, uncheckedDowncast<JSPromiseCombinatorsGlobalContext>(arguments[0]), arguments[1], static_cast<uint64_t>(arguments[2].asAnyInt()), static_cast<JSPromise::Status>(payload)));
 
     case InternalMicrotask::PromiseAnyResolveJob:
-        RELEASE_AND_RETURN(scope, promiseAnyResolveJob(globalObject, vm, uncheckedDowncast<JSPromise>(arguments[0]), arguments[1], uncheckedDowncast<JSPromiseCombinatorsContext>(arguments[2]), static_cast<JSPromise::Status>(payload)));
+        RELEASE_AND_RETURN(scope, promiseAnyResolveJob(globalObject, vm, uncheckedDowncast<JSPromiseCombinatorsGlobalContext>(arguments[0]), arguments[1], static_cast<uint64_t>(arguments[2].asAnyInt()), static_cast<JSPromise::Status>(payload)));
 
     case InternalMicrotask::PromiseReactionJob: {
         JSValue promiseOrCapability = arguments[0];
