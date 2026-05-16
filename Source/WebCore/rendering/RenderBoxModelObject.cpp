@@ -324,6 +324,16 @@ static bool hasDefiniteHeightByStyle(const RenderBlock& containingBlock)
     if (isOutOfFlowPositionedWithImplicitHeight(containingBlock))
         return true;
 
+    // An out-of-flow containing block always gets computed used dimensions, even when
+    // an ancestor's style height is auto. Percentage and stretch heights resolve against
+    // those used dimensions, so they are definite - matching the slow paths out-of-flow early-bail
+    // in containingBlockForAutoHeightDetectionGeneric.
+    if (containingBlock.isOutOfFlowPositioned()) {
+        auto& logicalHeight = containingBlock.style().logicalHeight();
+        if (logicalHeight.isPercentOrCalculated() || logicalHeight.isStretch())
+            return true;
+    }
+
     if (containingBlock.isGridItem() && containingBlock.gridAreaContentLogicalHeight())
         return true;
 
