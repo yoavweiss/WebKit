@@ -991,6 +991,11 @@
 		473DA4A4764C45FE871B0485 /* DefinePropertyAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 169948EDE68D4054B01EF797 /* DefinePropertyAttributes.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		4B1F22F62900BFC700CB5E66 /* Width.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BBA4CD428FF5FE5003EBFC4 /* Width.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		4B46940328984FA800512FDF /* MacroAssemblerARM64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEB137561BB11EEE00CD5100 /* MacroAssemblerARM64.cpp */; };
+		5C7E1A012DA1B0E100A4C001 /* JSTypedArrayViewPrototypeFunctions1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C7E1A112DA1B0E100A4C001 /* JSTypedArrayViewPrototypeFunctions1.cpp */; };
+		5C7E1A022DA1B0E100A4C002 /* JSTypedArrayViewPrototypeFunctions2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C7E1A122DA1B0E100A4C002 /* JSTypedArrayViewPrototypeFunctions2.cpp */; };
+		5C7E1A032DA1B0E100A4C003 /* JSTypedArrayViewPrototypeFunctions3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C7E1A132DA1B0E100A4C003 /* JSTypedArrayViewPrototypeFunctions3.cpp */; };
+		5C7E1A042DA1B0E100A4C004 /* JSTypedArrayViewPrototypeFunctions4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C7E1A142DA1B0E100A4C004 /* JSTypedArrayViewPrototypeFunctions4.cpp */; };
+		5C7E1A052DA1B0E100A4C005 /* JSTypedArrayViewPrototypeInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C7E1A152DA1B0E100A4C005 /* JSTypedArrayViewPrototypeInternal.h */; };
 		4B46940428984FEE00512FDF /* MacroAssemblerX86_64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7A4AE0717973B26005612B1 /* MacroAssemblerX86_64.cpp */; };
 		4B78E09E294427FC003C6682 /* B3Const128Value.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B78E099294427D2003C6682 /* B3Const128Value.h */; };
 		4B78E09F29442801003C6682 /* B3SIMDValue.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B78E09A294427D2003C6682 /* B3SIMDValue.h */; };
@@ -4672,6 +4677,11 @@
 		53F11F40209138D700E411A7 /* JSCellButterfly.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSCellButterfly.h; sourceTree = "<group>"; };
 		53F11F422091749800E411A7 /* JSCellButterfly.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSCellButterfly.cpp; sourceTree = "<group>"; };
 		53F256E11B87E28000B4B768 /* JSTypedArrayViewPrototype.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSTypedArrayViewPrototype.cpp; sourceTree = "<group>"; };
+		5C7E1A112DA1B0E100A4C001 /* JSTypedArrayViewPrototypeFunctions1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSTypedArrayViewPrototypeFunctions1.cpp; sourceTree = "<group>"; };
+		5C7E1A122DA1B0E100A4C002 /* JSTypedArrayViewPrototypeFunctions2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSTypedArrayViewPrototypeFunctions2.cpp; sourceTree = "<group>"; };
+		5C7E1A132DA1B0E100A4C003 /* JSTypedArrayViewPrototypeFunctions3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSTypedArrayViewPrototypeFunctions3.cpp; sourceTree = "<group>"; };
+		5C7E1A142DA1B0E100A4C004 /* JSTypedArrayViewPrototypeFunctions4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSTypedArrayViewPrototypeFunctions4.cpp; sourceTree = "<group>"; };
+		5C7E1A152DA1B0E100A4C005 /* JSTypedArrayViewPrototypeInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSTypedArrayViewPrototypeInternal.h; sourceTree = "<group>"; };
 		53F40E841D58F9770099A1B6 /* WasmSections.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WasmSections.h; sourceTree = "<group>"; };
 		53F40E8A1D5901BB0099A1B6 /* WasmFunctionParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WasmFunctionParser.h; sourceTree = "<group>"; };
 		53F40E8C1D5901F20099A1B6 /* WasmParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WasmParser.h; sourceTree = "<group>"; };
@@ -9194,6 +9204,11 @@
 				534C457B1BC72411007476A7 /* JSTypedArrayViewConstructor.h */,
 				53F256E11B87E28000B4B768 /* JSTypedArrayViewPrototype.cpp */,
 				53917E7C1B791106000EBD33 /* JSTypedArrayViewPrototype.h */,
+				5C7E1A112DA1B0E100A4C001 /* JSTypedArrayViewPrototypeFunctions1.cpp */,
+				5C7E1A122DA1B0E100A4C002 /* JSTypedArrayViewPrototypeFunctions2.cpp */,
+				5C7E1A132DA1B0E100A4C003 /* JSTypedArrayViewPrototypeFunctions3.cpp */,
+				5C7E1A142DA1B0E100A4C004 /* JSTypedArrayViewPrototypeFunctions4.cpp */,
+				5C7E1A152DA1B0E100A4C005 /* JSTypedArrayViewPrototypeInternal.h */,
 				6507D2970E871E4A00D7D896 /* JSTypeInfo.h */,
 				0F2B66D417B6B5AB00A7AE3F /* JSUint16Array.h */,
 				0F2B66D517B6B5AB00A7AE3F /* JSUint32Array.h */,
@@ -12243,6 +12258,7 @@
 				0F2B66FF17B6B5AB00A7AE3F /* JSTypedArrays.h in Headers */,
 				534C457C1BC72411007476A7 /* JSTypedArrayViewConstructor.h in Headers */,
 				DEA7E2451BBC677F00D78440 /* JSTypedArrayViewPrototype.h in Headers */,
+				5C7E1A052DA1B0E100A4C005 /* JSTypedArrayViewPrototypeInternal.h in Headers */,
 				6507D29E0E871E5E00D7D896 /* JSTypeInfo.h in Headers */,
 				0F2B670217B6B5AB00A7AE3F /* JSUint16Array.h in Headers */,
 				0F2B670317B6B5AB00A7AE3F /* JSUint32Array.h in Headers */,
@@ -14054,6 +14070,10 @@
 				A3EE8543262514B000FC9B8D /* IntlWorkaround.cpp in Sources */,
 				DD28467C291AF1B20009A61D /* JSCBuiltins.cpp in Sources */,
 				E38E8790254B978400F6F9E4 /* JSDateMath.cpp in Sources */,
+				5C7E1A012DA1B0E100A4C001 /* JSTypedArrayViewPrototypeFunctions1.cpp in Sources */,
+				5C7E1A022DA1B0E100A4C002 /* JSTypedArrayViewPrototypeFunctions2.cpp in Sources */,
+				5C7E1A032DA1B0E100A4C003 /* JSTypedArrayViewPrototypeFunctions3.cpp in Sources */,
+				5C7E1A042DA1B0E100A4C004 /* JSTypedArrayViewPrototypeFunctions4.cpp in Sources */,
 				539900052A218CC4007F4335 /* JSWebAssemblyArray.cpp in Sources */,
 				4BE92D442898522400FA48E1 /* LowLevelInterpreter.asm in Sources */,
 				4BE92D452898522400FA48E1 /* LowLevelInterpreter.cpp in Sources */,

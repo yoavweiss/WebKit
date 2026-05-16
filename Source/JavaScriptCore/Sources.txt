@@ -982,6 +982,10 @@ runtime/JSTypedArrayConstructors.cpp
 runtime/JSTypedArrayPrototypes.cpp
 runtime/JSTypedArrayViewConstructor.cpp
 runtime/JSTypedArrayViewPrototype.cpp
+runtime/JSTypedArrayViewPrototypeFunctions1.cpp @no-unify
+runtime/JSTypedArrayViewPrototypeFunctions2.cpp @no-unify
+runtime/JSTypedArrayViewPrototypeFunctions3.cpp @no-unify
+runtime/JSTypedArrayViewPrototypeFunctions4.cpp @no-unify
 runtime/JSTypedArrays.cpp
 runtime/JSWeakMap.cpp
 runtime/JSWeakObjectRef.cpp
