@@ -27,6 +27,7 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <bit>
 #include <cassert>
 #include <cmath>
@@ -34,8 +35,10 @@
 #include <cstring>
 #include <functional>
 #include <limits>
+#include <map>
 #include <memory>
 #include <optional>
+#include <set>
 #include <span>
 #include <string>
 #include <string_view>
@@ -46,9 +49,15 @@
 #include <variant>
 #include <vector>
 
+#include "absl/container/inlined_vector.h"
 #include "absl/strings/str_cat.h"
+#include "absl/strings/str_format.h"
 
+#include "api/array_view.h"
+#include "api/rtp_parameters.h"
 #include "api/scoped_refptr.h"
+#include "api/units/timestamp.h"
 #include "rtc_base/checks.h"
+#include "rtc_base/logging.h"
 
 #endif
