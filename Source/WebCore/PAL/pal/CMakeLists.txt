@@ -150,6 +150,7 @@ if (PORT STREQUAL GTK OR PORT STREQUAL WPE)
     WEBKIT_ADD_TARGET_CXX_FLAGS(PAL
         -Wunsafe-buffer-usage
         -Wunsafe-buffer-usage-in-libc-call
+        -Wno-unsafe-buffer-usage-in-format-attr-call
         -fsafe-buffer-usage-suggestions
     )
 endif ()
