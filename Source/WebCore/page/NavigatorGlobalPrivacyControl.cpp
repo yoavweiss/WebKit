@@ -26,7 +26,9 @@
 #include "config.h"
 #include "NavigatorGlobalPrivacyControl.h"
 
+#include "ContextDestructionObserverInlines.h"
 #include "Navigator.h"
+#include "Settings.h"
 #include "WorkerNavigator.h"
 
 namespace WebCore {
