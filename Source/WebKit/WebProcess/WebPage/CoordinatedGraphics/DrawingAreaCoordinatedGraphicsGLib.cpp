@@ -141,6 +141,14 @@ void DrawingAreaCoordinatedGraphics::updatePreferences(const WebPreferencesStore
         settings.setAsyncOverflowScrollingEnabled(false);
     }
 
+#if PLATFORM(WPE)
+    // Skia compositor is not yet supported by WPE legacy API.
+    if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::WPE) {
+        settings.setUseSkiaForComposition(false);
+        return;
+    }
+#endif
+
     if (settings.useSkiaForComposition()) {
         static auto useSkiaForComposition = String::fromLatin1(getenv("WEBKIT_USE_SKIA_FOR_COMPOSITION"));
         if (!useSkiaForComposition.isEmpty() && useSkiaForComposition == "0"_s)
