@@ -623,7 +623,7 @@ public:
     [[nodiscard]] PartialResult addRefFunc(FunctionSpaceIndex index, ExpressionType& result)
     {
         if (m_mode == Mode::Evaluate) {
-            JSValue wrapper = m_instance->getFunctionWrapper(index);
+            JSValue wrapper = m_instance->ensureFunctionWrapper(index);
             ASSERT(!wrapper.isNull());
             ASSERT(wrapper.isObject());
             m_keepAlive.appendWithCrashOnOverflow(asObject(wrapper));

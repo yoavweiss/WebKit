@@ -169,6 +169,7 @@ wasm/js/JSWebAssemblyInstance.cpp
 wasm/js/JSWebAssemblyInstance.h
 wasm/js/JSWebAssemblyMemory.cpp
 wasm/js/JSWebAssemblyMemory.h
+wasm/js/WebAssemblyFunction.cpp
 wasm/js/WebAssemblyFunction.h
 wasm/js/WebAssemblyInstanceConstructor.cpp
 wasm/js/WebAssemblyModuleConstructor.cpp

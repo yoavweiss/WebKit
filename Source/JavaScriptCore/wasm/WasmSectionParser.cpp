@@ -257,9 +257,6 @@ auto SectionParser::parseFunction() -> PartialResult
         m_info->functions.append({ start, end, Vector<uint8_t>() });
     }
 
-    // Note that `initializeFunctionTrackers` should only be used after both parseImport and parseFunction
-    // finish updating importFunctionTypeSignatureIndices and internalFunctionTypeSignatureIndices.
-    m_info->initializeFunctionTrackers();
     return { };
 }
 
@@ -830,7 +827,6 @@ auto SectionParser::parseInitExpr(uint8_t& opcode, bool& isExtendedConstantExpre
         WASM_PARSER_FAIL_IF(!parseVarUInt32(index), "can't get ref.func index"_s);
         WASM_PARSER_FAIL_IF(index >= m_info->functionIndexSpaceSize(), "ref.func index "_s, index, " exceeds the number of functions "_s, m_info->functionIndexSpaceSize());
         auto spaceIndex = FunctionSpaceIndex(index);
-        m_info->addReferencedFunction(spaceIndex);
         TypeIndex typeIndex = m_info->rtt(spaceIndex).asTypeIndex();
         resultType = { TypeKind::Ref, typeIndex };
         bitsOrImportNumber = index;

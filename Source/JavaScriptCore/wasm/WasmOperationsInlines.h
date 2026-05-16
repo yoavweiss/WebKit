@@ -48,7 +48,7 @@ namespace Wasm {
 
 inline EncodedJSValue refFunc(JSWebAssemblyInstance* instance, uint32_t index)
 {
-    JSValue value = instance->getFunctionWrapper(index);
+    JSValue value = instance->ensureFunctionWrapper(Wasm::FunctionSpaceIndex(index));
     ASSERT(value.isCallable());
     return JSValue::encode(value);
 }

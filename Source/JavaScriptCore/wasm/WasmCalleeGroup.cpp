@@ -33,6 +33,7 @@
 #include "WasmCallee.h"
 #include "WasmIPIntPlan.h"
 #include "WasmMachineThreads.h"
+#include "WasmModuleInformation.h"
 #include "WasmWorklist.h"
 
 namespace JSC { namespace Wasm {
@@ -51,12 +52,15 @@ CalleeGroup::CalleeGroup(MemoryMode mode, const CalleeGroup& other)
     : m_calleeCount(other.m_calleeCount)
     , m_mode(mode)
     , m_ipintCallees(other.m_ipintCallees)
-    , m_jsToWasmCallees(other.m_jsToWasmCallees)
     , m_callers(m_calleeCount)
     , m_wasmIndirectCallEntrypoints(other.m_wasmIndirectCallEntrypoints)
     , m_wasmIndirectCallWasmCallees(other.m_wasmIndirectCallWasmCallees)
     , m_wasmToWasmExitStubs(other.m_wasmToWasmExitStubs)
 {
+    {
+        Locker otherLocker { other.m_jsToWasmCalleesLock };
+        m_jsToWasmCallees = other.m_jsToWasmCallees;
+    }
     Locker locker { m_lock };
     setCompilationFinished();
 }
@@ -85,7 +89,6 @@ CalleeGroup::CalleeGroup(VM& vm, MemoryMode mode, ModuleInformation& moduleInfor
         }
 
         m_wasmToWasmExitStubs = m_plan->takeWasmToWasmExitStubs();
-        m_jsToWasmCallees = static_cast<IPIntPlan*>(m_plan.get())->takeJSToWasmCallees();
 
         setCompilationFinished();
     })));
@@ -102,6 +105,23 @@ CalleeGroup::CalleeGroup(VM& vm, MemoryMode mode, ModuleInformation& moduleInfor
 }
 
 CalleeGroup::~CalleeGroup() = default;
+
+JSToWasmCallee& CalleeGroup::ensureJSToWasmCallee(const ModuleInformation& moduleInformation, FunctionSpaceIndex functionIndexSpace)
+{
+    ASSERT(runnable());
+    ASSERT(functionIndexSpace >= functionImportCount());
+    unsigned calleeIndex = functionIndexSpace - functionImportCount();
+
+    Locker locker { m_jsToWasmCalleesLock };
+    auto addResult = m_jsToWasmCallees.ensure(calleeIndex, [&] {
+        auto& ipintCallee = m_ipintCallees->at(calleeIndex).get();
+        bool usesSIMD = moduleInformation.usesSIMD(FunctionCodeIndex(calleeIndex));
+        auto callee = JSToWasmCallee::create(Ref<const RTT> { ipintCallee.signatureRTT() }, usesSIMD);
+        callee->setWasmCallee(CalleeBits::encodeNativeCallee(&ipintCallee));
+        return callee;
+    });
+    return *addResult.iterator->value;
+}
 
 void CalleeGroup::waitUntilFinished()
 {

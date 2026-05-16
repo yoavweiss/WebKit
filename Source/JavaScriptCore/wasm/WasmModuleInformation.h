@@ -119,16 +119,6 @@ struct ModuleInformation final : public ThreadSafeRefCounted<ModuleInformation> 
     const TableInformation& table(unsigned index) const { return tables[index]; }
     const GlobalInformation& global(unsigned index) const { return globals[index]; }
 
-    void initializeFunctionTrackers() const
-    {
-        size_t totalNumberOfFunctions = functionIndexSpaceSize();
-        m_referencedFunctions = FixedBitVector(totalNumberOfFunctions);
-    }
-
-    const FixedBitVector& referencedFunctions() const LIFETIME_BOUND { return m_referencedFunctions; }
-    bool hasReferencedFunction(FunctionSpaceIndex functionIndexSpace) const { return m_referencedFunctions.test(functionIndexSpace); }
-    void addReferencedFunction(FunctionSpaceIndex functionIndexSpace) const { m_referencedFunctions.concurrentTestAndSet(functionIndexSpace); }
-
     bool isDeclaredFunction(FunctionSpaceIndex index) const { return m_declaredFunctions.contains(index); }
     void addDeclaredFunction(FunctionSpaceIndex index) { m_declaredFunctions.set(index); }
 
@@ -233,7 +223,6 @@ struct ModuleInformation final : public ThreadSafeRefCounted<ModuleInformation> 
 
     BitVector m_declaredFunctions;
     BitVector m_declaredExceptions;
-    mutable FixedBitVector m_referencedFunctions;
     size_t m_totalFunctionSize { 0 };
     uint32_t m_numSmallFunctions { 0 };
 

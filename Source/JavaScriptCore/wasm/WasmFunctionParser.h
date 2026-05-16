@@ -386,7 +386,6 @@ private:
 
     // FIXME add a macro as above for WASM_TRY_APPEND_TO_CONTROL_STACK https://bugs.webkit.org/show_bug.cgi?id=165862
 
-    void addReferencedFunctions(const Element&);
     [[nodiscard]] PartialResult parseArrayTypeDefinition(ASCIILiteral, bool, TypeSignatureIndex&, FieldType&, Type&);
     [[nodiscard]] PartialResult parseBlockSignatureAndNotifySIMDUseIfNeeded(BlockSignature&);
 
@@ -1908,20 +1907,6 @@ auto FunctionParser<Context>::checkExpressionStack(const ControlType& controlDat
 }
 
 template<typename Context>
-void FunctionParser<Context>::addReferencedFunctions(const Element& segment)
-{
-    if (!isSubtype(segment.elementType, funcrefType()))
-        return;
-
-    // Add each function index as a referenced function. This ensures that
-    // wrappers will be created for GC.
-    for (uint32_t i = 0; i < segment.length(); i++) {
-        if (segment.initTypes[i] == Element::InitializationType::FromRefFunc)
-            m_info.addReferencedFunction(FunctionSpaceIndex(segment.initialBitsOrIndices[i]));
-    }
-}
-
-template<typename Context>
 auto FunctionParser<Context>::parseArrayTypeDefinition(ASCIILiteral operation, bool isNullable, TypeSignatureIndex& typeIndex, FieldType& elementType, Type& arrayRefType) -> PartialResult
 {
     // Parse type index
@@ -2608,10 +2593,6 @@ FOR_EACH_WASM_MEMORY_STORE_OP(CREATE_CASE)
             WASM_VALIDATOR_FAIL_IF(storageType.is<PackedType>(), "type mismatch in array.new_elem: expected `funcref` or `externref`");
 
             WASM_VALIDATOR_FAIL_IF(!isSubtype(elementsSegment.elementType, storageType.unpacked()), "type mismatch in array.new_elem: segment elements have type ", elementsSegment.elementType, " but array.new_elem operation expects elements of type ", storageType.unpacked());
-            // Create function wrappers for any functions in this element segment.
-            // We conservatively assume that the `array.new_canon_elem` instruction will be executed.
-            // An optimization would be to lazily create the wrappers when the array is initialized.
-            addReferencedFunctions(elementsSegment);
 
             // Get the array size
             TypedExpression size;
@@ -2770,7 +2751,6 @@ FOR_EACH_WASM_MEMORY_STORE_OP(CREATE_CASE)
             WASM_VALIDATOR_FAIL_IF(dstFieldType.mutability != Mutability::Mutable, "array.init_elem index ", dstTypeIndex, " does not reference a mutable array definition");
 
             WASM_VALIDATOR_FAIL_IF(!isSubtype(segmentElementType, unpackedElementType), "type mismatch in array.init_elem: segment elements have type ", segmentElementType, " but array.init_elem operation expects elements of type ", unpackedElementType);
-            addReferencedFunctions(elementsSegment);
 
             TypedExpression dst, dstOffset, srcOffset, size;
             WASM_TRY_POP_EXPRESSION_STACK_INTO(size, "array.init_elem"_s);
@@ -3117,7 +3097,6 @@ FOR_EACH_WASM_MEMORY_STORE_OP(CREATE_CASE)
         // Function references don't need to be declared in constant expression contexts.
         if constexpr (!std::is_same<Context, ConstExprGenerator>())
             WASM_VALIDATOR_FAIL_IF(!m_info.isDeclaredFunction(index), "ref.func index "_s, index, " isn't declared"_s);
-        m_info.addReferencedFunction(index);
 
         ExpressionType result;
         WASM_TRY_ADD_TO_CONTEXT(addRefFunc(index, result));

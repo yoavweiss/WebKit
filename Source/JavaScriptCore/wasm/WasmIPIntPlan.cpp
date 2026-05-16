@@ -78,10 +78,6 @@ bool IPIntPlan::prepareImpl()
         return false;
     m_wasmInternalFunctions.resize(functions.size());
 
-    if (!tryReserveCapacity(m_entrypoints, functions.size(), " WebAssembly functions"_s))
-        return false;
-    m_entrypoints.resize(functions.size());
-
     if (!m_ipintCallees)
         m_ipintCallees = IPIntCallees::create(functions.size());
     return true;
@@ -112,7 +108,6 @@ void IPIntPlan::compileFunction(FunctionCodeIndex functionIndex)
 
     m_wasmInternalFunctions[functionIndex] = WTF::move(*parseAndCompileResult);
 
-    IPIntCallee* ipintCallee = nullptr;
     {
         auto callee = IPIntCallee::create(*m_wasmInternalFunctions[functionIndex], functionIndexSpace, signature, m_moduleInformation->nameSection->get(functionIndexSpace));
         ASSERT(!callee->entrypoint());
@@ -136,30 +131,8 @@ void IPIntPlan::compileFunction(FunctionCodeIndex functionIndex)
             entrypoint = LLInt::getCodeFunctionPtr<CFunctionPtrTag>(ipint_trampoline);
 
         callee->setEntrypointWithoutRegistration(entrypoint);
-        ipintCallee = callee.ptr();
         m_ipintCallees->at(functionIndex) = WTF::move(callee);
     }
-
-    // If the function is exported via module, then we ensure JSToWasm entrypoint.
-    if (m_compilerMode != CompilerMode::Validation) {
-        if (m_exportedFunctionIndices.contains(functionIndex)) {
-            if (!ensureEntrypoint(*ipintCallee, functionIndex)) {
-                Locker locker { m_lock };
-                Base::fail(makeString("JIT is disabled, but the entrypoint for "_s, functionIndex.rawIndex(), " requires JIT"_s));
-                return;
-            }
-        }
-    }
-
-}
-
-bool IPIntPlan::ensureEntrypoint(IPIntCallee&, FunctionCodeIndex functionIndex)
-{
-    if (m_entrypoints[functionIndex])
-        return true;
-
-    m_entrypoints[functionIndex] = JSToWasmCallee::create(Ref { m_moduleInformation->rtt(m_moduleInformation->internalFunctionTypeSignatureIndices[functionIndex]) }, m_moduleInformation->usesSIMD(functionIndex));
-    return true;
 }
 
 void IPIntPlan::didCompleteCompilation()
@@ -175,22 +148,6 @@ void IPIntPlan::didCompleteCompilation()
 
     if (m_compilerMode == CompilerMode::Validation)
         return;
-
-    for (uint32_t functionIndex = 0; functionIndex < m_moduleInformation->functions.size(); functionIndex++) {
-        if (!m_entrypoints[functionIndex]) {
-            const FunctionSpaceIndex functionIndexSpace = FunctionSpaceIndex(functionIndex + m_moduleInformation->importFunctionCount());
-            if (m_exportedFunctionIndices.contains(functionIndex) || m_moduleInformation->hasReferencedFunction(functionIndexSpace)) {
-                if (!ensureEntrypoint(m_ipintCallees->at(functionIndex).get(), FunctionCodeIndex(functionIndex))) {
-                    Base::fail(makeString("JIT is disabled, but the entrypoint for "_s, functionIndex, " requires JIT"_s));
-                    return;
-                }
-            }
-        }
-        if (auto& callee = m_entrypoints[functionIndex]) {
-            callee->setWasmCallee(CalleeBits::encodeNativeCallee(&m_ipintCallees->at(functionIndex).get()));
-            m_jsToWasmCallees.add(functionIndex, callee);
-        }
-    }
 
     for (auto& unlinked : m_unlinkedWasmToWasmCalls) {
         for (auto& call : unlinked) {

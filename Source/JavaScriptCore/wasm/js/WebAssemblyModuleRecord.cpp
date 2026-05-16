@@ -548,47 +548,13 @@ void WebAssemblyModuleRecord::initializeExports(JSGlobalObject* globalObject)
         m_instance->setTag(moduleInformation.importExceptionCount() + index, Wasm::Tag::create(Ref { moduleInformation.rtt(typeSignatureIndex) }));
     }
 
-    unsigned functionImportCount = calleeGroup->functionImportCount();
-    auto makeFunctionWrapper = [&] (Wasm::FunctionSpaceIndex functionIndexSpace) -> JSValue {
-        // If we already made a wrapper, do not make a new one.
-        JSValue wrapper = m_instance->getFunctionWrapper(functionIndexSpace);
-
-        if (!wrapper.isNull())
-            return wrapper;
-
-        // 1. If e is a closure c:
-        //   i. If there is an Exported Function Exotic Object func in funcs whose func.[[Closure]] equals c, then return func.
-        //   ii. (Note: At most one wrapper is created for any closure, so func is unique, even if there are multiple occurrences in the list. Moreover, if the item was an import that is already an Exported Function Exotic Object, then the original function object will be found. For imports that are regular JS functions, a new wrapper will be created.)
-        if (functionIndexSpace < functionImportCount) {
-            JSObject* functionImport = m_instance->getImportFunctionObject(functionIndexSpace, globalObject);
-            if (isWebAssemblyHostFunction(functionImport))
-                wrapper = functionImport;
-            else {
-                Ref rtt = module->rttFromFunctionIndexSpace(functionIndexSpace);
-                wrapper = WebAssemblyWrapperFunction::create(vm, globalObject, globalObject->webAssemblyWrapperFunctionStructure(), functionImport, functionIndexSpace, m_instance.get(), WTF::move(rtt));
-            }
-        } else {
-            //   iii. Otherwise:
-            //     a. Let func be an Exported Function Exotic Object created from c.
-            //     b. Append func to funcs.
-            //     c. Return func.
-            auto& jsToWasmCallee = calleeGroup->jsToWasmCalleeFromFunctionIndexSpace(functionIndexSpace);
-            auto wasmCallee = calleeGroup->wasmCalleeFromFunctionIndexSpace(functionIndexSpace);
-            ASSERT(wasmCallee);
-            Wasm::WasmToWasmImportableFunction::LoadLocation entrypointLoadLocation = calleeGroup->entrypointLoadLocationFromFunctionIndexSpace(functionIndexSpace);
-            Ref rtt = module->rttFromFunctionIndexSpace(functionIndexSpace);
-            WebAssemblyFunction* function = WebAssemblyFunction::create(vm, globalObject, globalObject->webAssemblyFunctionStructure(), rtt->argumentCount(), makeString(functionIndexSpace.rawIndex()), m_instance.get(), jsToWasmCallee, *wasmCallee, entrypointLoadLocation, WTF::move(rtt));
-            wrapper = function;
-        }
-
-        ASSERT(wrapper.isCallable());
-        m_instance->setFunctionWrapper(functionIndexSpace, wrapper);
-
-        return wrapper;
-    };
-
-    for (auto functionIndexSpace : moduleInformation.referencedFunctions())
-        makeFunctionWrapper(Wasm::FunctionSpaceIndex(functionIndexSpace));
+    // Eagerly materialize wrappers only for exported functions. Wrappers for
+    // functions referenced only by ref.func or element segments are created
+    // lazily by ensureFunctionWrapper when needed.
+    for (const auto& exp : moduleInformation.exports) {
+        if (exp.kind == Wasm::ExternalKind::Function)
+            m_instance->ensureFunctionWrapper(Wasm::FunctionSpaceIndex(exp.kindIndex));
+    }
 
     // Tables
     for (unsigned i = 0; i < moduleInformation.tableCount(); ++i) {
@@ -617,8 +583,8 @@ void WebAssemblyModuleRecord::initializeExports(JSGlobalObject* globalObject)
             case Wasm::TableInformation::FromRefFunc: {
                 ASSERT(initialBitsOrImportNumber < moduleInformation.functionIndexSpaceSize());
                 auto functionSpaceIndex = Wasm::FunctionSpaceIndex(initialBitsOrImportNumber);
-                ASSERT(makeFunctionWrapper(functionSpaceIndex).isCallable());
-                initialBitsOrImportNumber = JSValue::encode(makeFunctionWrapper(functionSpaceIndex));
+                ASSERT(m_instance->ensureFunctionWrapper(functionSpaceIndex).isCallable());
+                initialBitsOrImportNumber = JSValue::encode(m_instance->ensureFunctionWrapper(functionSpaceIndex));
                 break;
             }
             case Wasm::TableInformation::FromExtendedExpression: {
@@ -681,8 +647,8 @@ void WebAssemblyModuleRecord::initializeExports(JSGlobalObject* globalObject)
             } else if (global.initializationType == Wasm::GlobalInformation::FromRefFunc) {
                 ASSERT(global.initialBits.initialBitsOrImportNumber < moduleInformation.functionIndexSpaceSize());
                 auto functionSpaceIndex = Wasm::FunctionSpaceIndex(global.initialBits.initialBitsOrImportNumber);
-                ASSERT(makeFunctionWrapper(functionSpaceIndex).isCallable());
-                initialBits = JSValue::encode(makeFunctionWrapper(functionSpaceIndex));
+                ASSERT(m_instance->ensureFunctionWrapper(functionSpaceIndex).isCallable());
+                initialBits = JSValue::encode(m_instance->ensureFunctionWrapper(functionSpaceIndex));
             } else if (global.initializationType == Wasm::GlobalInformation::FromExtendedExpression) {
                 ASSERT(global.initialBits.initialBitsOrImportNumber < moduleInformation.constantExpressions.size());
                 evaluateConstantExpression(globalObject, moduleInformation.constantExpressions[global.initialBits.initialBitsOrImportNumber], moduleInformation, global.type, initialBits);
@@ -722,9 +688,9 @@ void WebAssemblyModuleRecord::initializeExports(JSGlobalObject* globalObject)
         switch (exp.kind) {
         case Wasm::ExternalKind::Function: {
             auto functionSpaceIndex = Wasm::FunctionSpaceIndex(exp.kindIndex);
-            exportedValue = makeFunctionWrapper(functionSpaceIndex);
+            exportedValue = m_instance->ensureFunctionWrapper(functionSpaceIndex);
             ASSERT(exportedValue.isCallable());
-            ASSERT(makeFunctionWrapper(functionSpaceIndex) == exportedValue);
+            ASSERT(m_instance->ensureFunctionWrapper(functionSpaceIndex) == exportedValue);
             break;
         }
         case Wasm::ExternalKind::Table: {
@@ -818,11 +784,10 @@ void WebAssemblyModuleRecord::initializeExports(JSGlobalObject* globalObject)
             ASSERT(startFunction);
             m_startFunction.set(vm, this, startFunction);
         } else {
-            auto& jsToWasmCallee = calleeGroup->jsToWasmCalleeFromFunctionIndexSpace(startFunctionIndexSpace);
             auto wasmCallee = calleeGroup->wasmCalleeFromFunctionIndexSpace(startFunctionIndexSpace);
             ASSERT(wasmCallee);
             Wasm::WasmToWasmImportableFunction::LoadLocation entrypointLoadLocation = calleeGroup->entrypointLoadLocationFromFunctionIndexSpace(startFunctionIndexSpace);
-            WebAssemblyFunction* function = WebAssemblyFunction::create(vm, globalObject, globalObject->webAssemblyFunctionStructure(), rtt->argumentCount(), "start"_s, m_instance.get(), jsToWasmCallee, *wasmCallee, entrypointLoadLocation, WTF::move(rtt));
+            WebAssemblyFunction* function = WebAssemblyFunction::create(vm, globalObject, globalObject->webAssemblyFunctionStructure(), rtt->argumentCount(), "start"_s, m_instance.get(), *wasmCallee, entrypointLoadLocation, WTF::move(rtt));
             m_startFunction.set(vm, this, function);
         }
     }
