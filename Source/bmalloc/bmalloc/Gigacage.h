@@ -87,6 +87,8 @@ constexpr ptrdiff_t offsetOfPrimitiveGigacageBasePtr = static_cast<ptrdiff_t>(Pr
 
 extern "C" BEXPORT bool disablePrimitiveGigacageRequested;
 
+BALLOW_UNSAFE_BUFFER_USAGE_BEGIN
+
 BINLINE bool isEnabled() { return g_gigacageConfig.isEnabled; }
 
 BEXPORT void ensureGigacage();
@@ -124,10 +126,8 @@ BINLINE void* basePtr(Kind kind)
 
 BINLINE void* addressOfBasePtr(Kind kind)
 {
-BALLOW_UNSAFE_BUFFER_USAGE_BEGIN
     RELEASE_BASSERT(kind < NumberOfKinds);
     return &g_gigacageConfig.basePtrs[static_cast<size_t>(kind)];
-BALLOW_UNSAFE_BUFFER_USAGE_END
 }
 
 BINLINE constexpr size_t maxSize(Kind kind)
@@ -193,6 +193,8 @@ BINLINE bool contains(const void* ptr)
     auto* p = reinterpret_cast<const uint8_t*>(ptr);
     return static_cast<size_t>(p - start) < g_gigacageConfig.totalSize;
 }
+
+BALLOW_UNSAFE_BUFFER_USAGE_END
 
 BEXPORT bool shouldBeEnabled();
 

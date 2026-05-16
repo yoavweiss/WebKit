@@ -2799,7 +2799,6 @@ if (PORT STREQUAL GTK OR PORT STREQUAL WPE)
         -Wunsafe-buffer-usage
         -Wunsafe-buffer-usage-in-libc-call
         -Wno-unsafe-buffer-usage-in-format-attr-call
-        -fsafe-buffer-usage-suggestions
     )
 endif ()
 

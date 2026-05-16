@@ -592,12 +592,12 @@ bool GLContext::isExtensionSupported(const char* extensionList, const char* exte
     int extensionLen = strlen(extension);
     WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN // GLib / Windows ports.
     const char* extensionListPtr = extensionList;
-    WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
     while ((extensionListPtr = strstr(extensionListPtr, extension))) {
         if (extensionListPtr[extensionLen] == ' ' || extensionListPtr[extensionLen] == '\0')
             return true;
         extensionListPtr += extensionLen;
     }
+    WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
     return false;
 }
 IGNORE_CLANG_WARNINGS_END

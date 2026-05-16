@@ -1737,7 +1737,6 @@ if (NOT WIN32)
         -Wunsafe-buffer-usage
         -Wunsafe-buffer-usage-in-libc-call
         -Wno-unsafe-buffer-usage-in-format-attr-call
-        -fsafe-buffer-usage-suggestions
     )
 endif ()
 
