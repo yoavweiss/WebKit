@@ -54,6 +54,7 @@ private:
 STATIC_ASSERT_ISO_SUBSPACE_SHARABLE(RegExpConstructor, InternalFunction);
 
 JSObject* constructRegExp(JSGlobalObject*, const ArgList&, JSObject* callee = nullptr, JSValue newTarget = JSValue());
+JSObject* regExpCreate(JSGlobalObject*, JSValue newTarget, JSValue patternArg, JSValue flagsArg);
 
 ALWAYS_INLINE bool isRegExp(VM&, JSGlobalObject*, JSValue); // Defined in RegExpConstructorInlines.h
 

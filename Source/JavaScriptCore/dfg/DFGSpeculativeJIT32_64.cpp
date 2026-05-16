@@ -3172,6 +3172,11 @@ void SpeculativeJIT::compile(Node* node)
         break;
     }
 
+    case StringMatch: {
+        compileStringMatch(node);
+        break;
+    }
+
     case StringLastIndexOf: {
         compileStringLastIndexOf(node);
         break;

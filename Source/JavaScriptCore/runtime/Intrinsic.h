@@ -130,6 +130,7 @@ namespace JSC {
     macro(StringPrototypeEndsWithIntrinsic) \
     macro(StringPrototypeLocaleCompareIntrinsic) \
     macro(StringPrototypeValueOfIntrinsic) \
+    macro(StringPrototypeMatchIntrinsic) \
     macro(StringPrototypeReplaceIntrinsic) \
     macro(StringPrototypeReplaceAllIntrinsic) \
     macro(StringPrototypeSplitIntrinsic) \

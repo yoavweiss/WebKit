@@ -349,6 +349,7 @@ BasicBlock* CloneHelper::cloneBlock(BasicBlock* const block, const CustomizeSucc
     CLONE_STATUS(StringReplaceString, Common) \
     CLONE_STATUS(StringSlice, Common) \
     CLONE_STATUS(StringSplit, Common) \
+    CLONE_STATUS(StringMatch, Common) \
     CLONE_STATUS(StringSubstring, Common) \
     CLONE_STATUS(StrCat, Common) \
     CLONE_STATUS(Switch, Special) \

@@ -497,6 +497,7 @@ bool doesGC(Graph& graph, Node* node)
     case StringStartsWith:
     case StringEndsWith:
     case StringSplit:
+    case StringMatch:
     case ResolvePromiseFirstResolving:
     case RejectPromiseFirstResolving:
     case FulfillPromiseFirstResolving:

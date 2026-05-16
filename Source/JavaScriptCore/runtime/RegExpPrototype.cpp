@@ -190,13 +190,18 @@ JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncExec, (JSGlobalObject* globalObject, Cal
     RELEASE_AND_RETURN(scope, JSValue::encode(regexp->exec(globalObject, string)));
 }
 
+JSValue regExpMatchFast(JSGlobalObject* globalObject, RegExpObject* regExpObject, JSString* string)
+{
+    if (!regExpObject->regExp()->global())
+        return regExpObject->exec(globalObject, string);
+    return regExpObject->matchGlobal(globalObject, string);
+}
+
 JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncMatchFast, (JSGlobalObject* globalObject, CallFrame* callFrame))
 {
     RegExpObject* thisObject = uncheckedDowncast<RegExpObject>(callFrame->thisValue());
     JSString* string = uncheckedDowncast<JSString>(callFrame->uncheckedArgument(0));
-    if (!thisObject->regExp()->global())
-        return JSValue::encode(thisObject->exec(globalObject, string));
-    return JSValue::encode(thisObject->matchGlobal(globalObject, string));
+    return JSValue::encode(regExpMatchFast(globalObject, thisObject, string));
 }
 
 JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncCompile, (JSGlobalObject* globalObject, CallFrame* callFrame))

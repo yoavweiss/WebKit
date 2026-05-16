@@ -59,6 +59,7 @@ JSC_DECLARE_HOST_FUNCTION(regExpProtoFuncSplitFast);
 class RegExpObject;
 class JSString;
 
+JSValue regExpMatchFast(JSGlobalObject*, RegExpObject*, JSString* inputString);
 JSCell* regExpSplitFast(JSGlobalObject*, RegExpObject*, JSString* inputString, unsigned limit);
 
 } // namespace JSC

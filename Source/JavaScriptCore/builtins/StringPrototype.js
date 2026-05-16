@@ -25,24 +25,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-function match(regexp)
-{
-    "use strict";
-
-    if (@isUndefinedOrNull(this))
-        @throwTypeError("String.prototype.match requires that |this| not be null or undefined");
-
-    if (@isObject(regexp)) {
-        var matcher = regexp.@@match;
-        if (!@isUndefinedOrNull(matcher))
-            return matcher.@call(regexp, this);
-    }
-
-    var thisString = @toString(this);
-    var createdRegExp = @regExpCreate(regexp, @undefined);
-    return createdRegExp.@@match(thisString);
-}
-
 function matchAll(arg)
 {
     "use strict";

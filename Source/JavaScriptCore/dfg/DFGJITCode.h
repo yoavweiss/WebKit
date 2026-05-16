@@ -101,6 +101,7 @@ public:
         StructureCacheClearedWatchpointSet,
         StringToStringWatchpointSet,
         StringValueOfWatchpointSet,
+        StringSymbolMatchWatchpointSet,
         StringSymbolReplaceWatchpointSet,
         StringSymbolSplitWatchpointSet,
         StringSymbolToPrimitiveWatchpointSet,

@@ -375,6 +375,12 @@ private:
             break;
         }
 
+        case StringMatch: {
+            node->child1()->mergeFlags(NodeBytecodeUsesAsValue);
+            node->child2()->mergeFlags(NodeBytecodeUsesAsValue);
+            break;
+        }
+
         case StringSlice:
         case StringSubstring: {
             node->child1()->mergeFlags(NodeBytecodeUsesAsValue);

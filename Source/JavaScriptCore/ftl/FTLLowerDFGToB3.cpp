@@ -1404,6 +1404,9 @@ private:
         case StringSplit:
             compileStringSplit();
             break;
+        case StringMatch:
+            compileStringMatch();
+            break;
         case GetByOffset:
         case GetGetterSetterByOffset:
             compileGetByOffset();
@@ -12102,6 +12105,19 @@ IGNORE_CLANG_WARNINGS_END
         }
         LValue separator = lowString(m_node->child2());
         setJSValue(vmCall(pointerType(), operationStringSplit, weakPointer(globalObject), base, separator, limit));
+    }
+
+    void compileStringMatch()
+    {
+        LValue base = lowString(m_node->child1());
+        auto* globalObject = m_graph.globalObjectFor(m_origin.semantic);
+        if (m_node->child2().useKind() == RegExpObjectUse) {
+            LValue regexp = lowRegExpObject(m_node->child2());
+            setJSValue(vmCall(Int64, operationStringMatchRegExp, weakPointer(globalObject), base, regexp));
+            return;
+        }
+        LValue regexp = lowString(m_node->child2());
+        setJSValue(vmCall(Int64, operationStringMatch, weakPointer(globalObject), base, regexp));
     }
 
     void compileStringLastIndexOf()

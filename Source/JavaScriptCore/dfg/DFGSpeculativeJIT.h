@@ -1804,6 +1804,7 @@ public:
     void compileStringLastIndexOf(Node*);
     void compileStringStartsOrEndsWith(Node*);
     void compileStringSplit(Node*);
+    void compileStringMatch(Node*);
     void compileDateGet(Node*);
     void compileDateSet(Node*);
     void compileGlobalIsNaN(Node*);

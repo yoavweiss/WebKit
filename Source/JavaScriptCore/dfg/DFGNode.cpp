@@ -367,6 +367,15 @@ void Node::convertToRegExpMatchFastGlobalWithoutChecks(FrozenValue* regExp)
     m_opInfo = regExp;
 }
 
+void Node::convertToRegExpMatchFast(Node* globalObjectNode)
+{
+    ASSERT(op() == StringMatch);
+    Edge stringEdge = child1();
+    Edge regExpEdge = child2();
+    setOpAndDefaultFlags(RegExpMatchFast);
+    children = AdjacencyList(AdjacencyList::Fixed, Edge(globalObjectNode), regExpEdge, stringEdge);
+}
+
 void Node::convertToDefineDataProperty(Graph& graph, Edge base, Edge property, Edge value, Edge attributes)
 {
     ASSERT(op() == ObjectDefinePropertyFromFields);

@@ -1221,6 +1221,11 @@ private:
             break;
         }
 
+        case StringMatch: {
+            setPrediction(SpecOther | SpecArray);
+            break;
+        }
+
         case StringLocaleCompare: {
             setPrediction(SpecInt32Only);
             break;

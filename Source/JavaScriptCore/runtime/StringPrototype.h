@@ -60,6 +60,8 @@ JSString* replaceUsingRegExpSearch(VM&, JSGlobalObject*, JSString*, JSValue sear
 JSString* replaceUsingRegExpSearch(VM&, JSGlobalObject*, JSString*, JSValue searchValue, JSValue replaceValue);
 
 JSC_DECLARE_HOST_FUNCTION(stringProtoFuncRepeatCharacter);
+JSC_DECLARE_HOST_FUNCTION(stringProtoFuncMatch);
+JSValue stringMatchSlow(JSGlobalObject*, JSString* thisString, JSValue regexpValue);
 JSC_DECLARE_HOST_FUNCTION(stringProtoFuncSplit);
 JSCell* stringSplitFast(JSGlobalObject*, JSString* thisString, JSString* separatorString, unsigned limit);
 JSC_DECLARE_HOST_FUNCTION(stringProtoFuncSubstring);
