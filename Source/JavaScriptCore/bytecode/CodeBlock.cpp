@@ -2867,18 +2867,14 @@ bool CodeBlock::shouldReoptimizeFromLoopNow()
 void CodeBlock::didInstallDFGCode()
 {
 #if PLATFORM(MAC)
-    // On macOS, normally allow tier up recovery after reinstall.
-    // However, we don't do this for builtins because we expect they
-    // are used by many workloads and we already don't persist their
-    // value profiles on UnlinkedCodeBlock; they are one-shot.
-    if (!unlinkedCodeBlock()->isBuiltinFunction()) {
-        unlinkedCodeBlock()->setQuickDFGTierUp(TriState::True);
-        return;
-    }
-#endif
-    // One-shot: once failed, stays disabled.
+    // Always reset — allows quick tier-up recovery after reinstall.
+    // Enable this only on macOS due to perf regression on iOS.
+    unlinkedCodeBlock()->setQuickDFGTierUp(TriState::True);
+#else
+    // Restore old one-shot behavior — once failed, stays disabled.
     if (!unlinkedCodeBlock()->hasQuickDFGTierUpUpdated())
         unlinkedCodeBlock()->setQuickDFGTierUp(TriState::True);
+#endif
 }
 
 void CodeBlock::didDFGJettison(Profiler::JettisonReason reason)
@@ -2895,21 +2891,18 @@ void CodeBlock::didFailDFGCompilation()
 #if ENABLE(FTL_JIT)
 void CodeBlock::didInstallFTLCode()
 {
-    // We normally allow recovery.
-    // Like DFG quick tier up, we don't allow recovery for builtins.
-    if (!unlinkedCodeBlock()->isBuiltinFunction() || !unlinkedCodeBlock()->hasQuickFTLTierUpUpdated())
-        unlinkedCodeBlock()->setQuickFTLTierUp(TriState::True);
+    unlinkedCodeBlock()->setQuickFTLTierUp(true);
 }
 
 void CodeBlock::didFTLJettison(Profiler::JettisonReason reason)
 {
     if (Profiler::isSpeculationFailure(reason))
-        unlinkedCodeBlock()->setQuickFTLTierUp(TriState::False);
+        unlinkedCodeBlock()->setQuickFTLTierUp(false);
 }
 
 void CodeBlock::didFailFTLCompilation()
 {
-    unlinkedCodeBlock()->setQuickFTLTierUp(TriState::False);
+    unlinkedCodeBlock()->setQuickFTLTierUp(false);
 }
 #endif
 
