@@ -461,8 +461,4 @@ list(APPEND WebKit_DERIVED_SOURCES
 )
 
 # Generated JSWebExtension*.mm IDL bindings need -fobjc-arc; route to WebKitARC.
-foreach (_file IN ITEMS ${WebKit_BINDINGS_IN_FILES})
-    get_filename_component(_name ${_file} NAME_WE)
-    list(APPEND WebKit_ARC_SOURCES ${WebKit_DERIVED_SOURCES_DIR}/JS${_name}.mm)
-    set_source_files_properties(${WebKit_DERIVED_SOURCES_DIR}/JS${_name}.mm PROPERTIES GENERATED TRUE)
-endforeach ()
+list(APPEND WebKit_ARC_SOURCES ${WebKit_DERIVED_SOURCES_DIR}/JSWebExtensionAPIUnified.mm)
