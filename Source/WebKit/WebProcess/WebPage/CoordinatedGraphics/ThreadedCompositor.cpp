@@ -97,25 +97,21 @@ ThreadedCompositor::ThreadedCompositor(WebPage& webPage, LayerTreeHost& layerTre
         // a plain C cast expression in this one instance works in all cases.
         static_assert(sizeof(GLNativeWindowType) <= sizeof(uint64_t), "GLNativeWindowType must not be longer than 64 bits.");
         auto nativeSurfaceHandle = (GLNativeWindowType)m_surface->window();
-        if (m_useSkia && !nativeSurfaceHandle) {
-            // When using Skia for composition, use the thread-local SkiaGLContext from sharedDisplay()
-            // instead of creating a separate GLContext. This avoids expensive context switching between
-            // the compositor's context and Skia's context during paintToSkiaCanvas().
-            if (auto* context = PlatformDisplay::sharedDisplay().skiaGLContext()) {
-                context->makeContextCurrent();
-                glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_maxTextureSize);
-            }
+        auto context = GLContext::create(PlatformDisplay::sharedDisplay(), nativeSurfaceHandle);
+        if (!context || !context->makeContextCurrent()) {
+            m_state.state = State::Invalidated;
             return;
         }
 
-        m_context = GLContext::create(PlatformDisplay::sharedDisplay(), nativeSurfaceHandle);
-        if (m_context && m_context->makeContextCurrent()) {
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_maxTextureSize);
+
+        if (m_useSkia)
+            PlatformDisplay::sharedDisplay().setSkiaGLContextForCurrentThread(WTF::move(context));
+        else {
+            m_context = WTF::move(context);
+            m_textureMapper = TextureMapper::create();
             if (!nativeSurfaceHandle)
                 m_flipY = !m_flipY;
-            glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_maxTextureSize);
-
-            if (!m_useSkia)
-                m_textureMapper = TextureMapper::create();
         }
     });
 }
@@ -364,11 +360,6 @@ void ThreadedCompositor::paintToSkiaCanvas(const TransformationMatrix& matrix, c
     auto& rootLayer = m_sceneState->rootLayer().ensureSkiaTarget();
     rootLayer.setTransform(matrix);
 
-    // We only need context switching here for the old API (indicated by m_context != nullptr).
-    auto& display = PlatformDisplay::sharedDisplay();
-    if (m_context)
-        display.skiaGLContext()->makeContextCurrent();
-
     m_surface->clear(reasons);
 
     canvas->save();
@@ -393,10 +384,7 @@ void ThreadedCompositor::paintToSkiaCanvas(const TransformationMatrix& matrix, c
 #endif
 
     if (auto* surface = canvas->getSurface())
-        display.skiaGrContext()->flushAndSubmit(surface, GrSyncCpu::kNo);
-
-    if (m_context)
-        m_context->makeContextCurrent();
+        PlatformDisplay::sharedDisplay().skiaGrContext()->flushAndSubmit(surface, GrSyncCpu::kNo);
 
     if (sceneHasRunningAnimations)
         requestComposition(CompositionReason::Animation);
@@ -494,6 +482,8 @@ void ThreadedCompositor::renderLayerTree()
 
     if (m_context)
         m_context->swapBuffers();
+    else
+        PlatformDisplay::sharedDisplay().skiaGLContext()->swapBuffers();
 
     m_surface->didRenderFrame();
     m_surface->sendFrame();

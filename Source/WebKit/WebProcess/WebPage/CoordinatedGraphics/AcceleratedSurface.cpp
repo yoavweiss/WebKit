@@ -46,6 +46,9 @@
 
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
 #include <skia/core/SkCanvas.h>
+#include <skia/gpu/ganesh/GrBackendSurface.h>
+#include <skia/gpu/ganesh/SkSurfaceGanesh.h>
+#include <skia/gpu/ganesh/gl/GrGLBackendSurface.h>
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 
 #if PLATFORM(GTK) || ENABLE(WPE_PLATFORM)
@@ -533,6 +536,7 @@ std::unique_ptr<AcceleratedSurface::RenderTarget> AcceleratedSurface::RenderTarg
 
 AcceleratedSurface::RenderTargetWPEBackend::RenderTargetWPEBackend(AcceleratedSurface& surface, const IntSize& initialSize, UnixFileDescriptor&& hostFD)
     : RenderTarget(surface)
+    , m_size(initialSize)
 {
     ASSERT(hostFD, "RenderTargetWPEBackend created with invalid host FD");
     m_backend = wpe_renderer_backend_egl_target_create(hostFD.release());
@@ -550,7 +554,7 @@ AcceleratedSurface::RenderTargetWPEBackend::RenderTargetWPEBackend(AcceleratedSu
     };
     wpe_renderer_backend_egl_target_set_client(m_backend, &s_client, const_cast<AcceleratedSurface*>(&surface));
     wpe_renderer_backend_egl_target_initialize(m_backend, downcast<PlatformDisplayLibWPE>(PlatformDisplay::sharedDisplay()).backend(),
-        std::max(1, initialSize.width()), std::max(1, initialSize.height()));
+        std::max(1, m_size.width()), std::max(1, m_size.height()));
 }
 
 AcceleratedSurface::RenderTargetWPEBackend::~RenderTargetWPEBackend()
@@ -577,11 +581,27 @@ uint64_t AcceleratedSurface::RenderTargetWPEBackend::window() const
 
 void AcceleratedSurface::RenderTargetWPEBackend::resize(const IntSize& size)
 {
-    wpe_renderer_backend_egl_target_resize(m_backend, std::max(1, size.width()), std::max(1, size.height()));
+    m_size = size;
+    wpe_renderer_backend_egl_target_resize(m_backend, std::max(1, m_size.width()), std::max(1, m_size.height()));
+    m_skiaSurface = nullptr;
 }
 
 void AcceleratedSurface::RenderTargetWPEBackend::willRenderFrame()
 {
+    if (m_surface->useSkia() && !m_skiaSurface) {
+        GLint stencilBits;
+        glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
+        GLint fbo;
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
+
+        GrGLFramebufferInfo fbInfo;
+        fbInfo.fFBOID = fbo;
+        fbInfo.fFormat = GL_RGBA8;
+        GrBackendRenderTarget renderTargetSkia = GrBackendRenderTargets::MakeGL(m_size.width(), m_size.height(), 0, stencilBits, fbInfo);
+        auto* grContext = PlatformDisplay::sharedDisplay().skiaGrContext();
+        RELEASE_ASSERT(grContext);
+        m_skiaSurface = SkSurfaces::WrapBackendRenderTarget(grContext, renderTargetSkia, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
+    }
     wpe_renderer_backend_egl_target_frame_will_render(m_backend);
 }
 

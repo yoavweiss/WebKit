@@ -332,6 +332,7 @@ private:
         void didRenderFrame() override;
 
         struct wpe_renderer_backend_egl_target* m_backend { nullptr };
+        WebCore::IntSize m_size;
     };
 #endif
 

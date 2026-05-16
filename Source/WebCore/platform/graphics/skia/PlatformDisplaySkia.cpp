@@ -236,6 +236,11 @@ public:
         return adoptRef(*new SkiaGLContext(display));
     }
 
+    static Ref<SkiaGLContext> create(std::unique_ptr<GLContext>&& glContext)
+    {
+        return adoptRef(*new SkiaGLContext(WTF::move(glContext)));
+    }
+
     ~SkiaGLContext()
     {
         if (m_skiaGLContext) {
@@ -264,8 +269,12 @@ public:
 
 private:
     explicit SkiaGLContext(PlatformDisplay& display)
+        : SkiaGLContext(GLContext::createOffscreen(display))
     {
-        auto glContext = GLContext::createOffscreen(display);
+    }
+
+    explicit SkiaGLContext(std::unique_ptr<GLContext>&& glContext)
+    {
         if (!glContext || !glContext->makeContextCurrent())
             return;
 
@@ -301,6 +310,13 @@ GLContext* PlatformDisplay::skiaGLContext()
     // the current thread so Skia cannot use OpenGL with coordinated graphics.
     return nullptr;
 #endif
+}
+
+void PlatformDisplay::setSkiaGLContextForCurrentThread(std::unique_ptr<GLContext>&& glContext)
+{
+    ASSERT(!s_skiaGLContext);
+    s_skiaGLContext = SkiaGLContext::create(WTF::move(glContext));
+    m_skiaGLContexts.add(*s_skiaGLContext);
 }
 
 GrDirectContext* PlatformDisplay::skiaGrContext() const
