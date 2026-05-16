@@ -10347,6 +10347,7 @@
         "web-platform-tests/css/cssom/CSSStyleSheet-constructable-concat-ref.html",
         "web-platform-tests/css/cssom/CSSStyleSheet-constructable-insertRule-base-uri-ref.html",
         "web-platform-tests/css/cssom/HTMLLinkElement-disabled-alternate-ref.html",
+        "web-platform-tests/css/cssom/all-initial-csstext-ref.html",
         "web-platform-tests/css/cssom/insertRule-from-script-ref.html",
         "web-platform-tests/css/cssom/medialist-dynamic-001-ref.html",
         "web-platform-tests/css/cssom/selectorText-modification-restyle-001-ref.html",
