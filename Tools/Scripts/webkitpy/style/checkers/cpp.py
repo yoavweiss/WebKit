@@ -3763,26 +3763,6 @@ def check_objc_protocol(clean_lines, line_number, file_extension, error):
     error(line_number, 'spacing/objc-protocol', 2, "Protocol names shouldn't have a space before them.")
 
 
-def check_rbs_assertion(clean_lines, line_number, error):
-    """Looks for uses of [RBSAssertion alloc]
-
-    Before an RBSAssertion is deallocated, we must call invalidate on it.
-    This is easy to forget, and will cause a crash if forgotten. So we
-    must instead use WKRBSAssertion which automatically calls invalidate
-    before deallocation.
-
-    Args:
-      clean_lines: A CleansedLines instance containing the file.
-      line_number: The number of the line to check.
-      error: The function to call with any errors found.
-    """
-
-    line = clean_lines.elided[line_number]  # Get rid of comments and strings.
-
-    if search(r'\bRBSAssertion\s+alloc\b', line):
-        error(line_number, 'runtime/rbs_assertion', 5, 'Do not directly allocate RBSAssertion. Use WKRBSAssertion instead.')
-
-
 def check_safer_cpp(clean_lines, line_number, error):
     """Looks for safer C++ errors.
 
@@ -5136,7 +5116,6 @@ def process_line(filename, file_extension,
     check_ismainthread(filename, clean_lines, line, file_state, error)
     check_mainthreadneverdestroyed(filename, clean_lines, line, file_state, error)
     check_mainthreadlazyneverdestroyed(filename, clean_lines, line, file_state, error)
-    check_rbs_assertion(clean_lines, line, error)
 
 
 class _InlineASMState(object):
@@ -5280,7 +5259,6 @@ class CppChecker(object):
         'runtime/once_flag',
         'runtime/printf',
         'runtime/printf_format',
-        'runtime/rbs_assertion',
         'runtime/references',
         'runtime/retainptr',
         'runtime/rtti',
