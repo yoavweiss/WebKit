@@ -185,6 +185,24 @@ static bool isSiblingCombinator(CSSSelector::Relation relation)
     return relation == CSSSelector::Relation::DirectAdjacent || relation == CSSSelector::Relation::IndirectAdjacent;
 }
 
+static bool compoundContainsHostPseudoClass(const CSSSelector& anySimpleInCompound)
+{
+    // Iterate every simple selector in this compound. WebKit stores compound members
+    // contiguously in selector storage; firstInCompound returns the subject (rightmost
+    // in source) and lastInCompound returns the leftmost. Walk from leftmost to subject.
+    auto* leftmost = anySimpleInCompound.lastInCompound();
+    auto* subject = anySimpleInCompound.firstInCompound();
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
+    for (auto* simple = leftmost; ; ++simple) {
+        if (simple->match() == CSSSelector::Match::PseudoClass && simple->isHostPseudoClass())
+            return true;
+        if (simple == subject)
+            break;
+    }
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
+    return false;
+}
+
 static MatchElement computeSubSelectorMatchElement(MatchElement matchElement, const CSSSelector& selector, const CSSSelector& childSelector)
 {
     if (selector.match() == CSSSelector::Match::PseudoClass) {
@@ -204,6 +222,14 @@ static MatchElement computeSubSelectorMatchElement(MatchElement matchElement, co
 
         if (type == CSSSelector::PseudoClass::Has) {
             auto hasArgumentRelation = computeHasArgumentRelation(childSelector);
+            // :host:has(...) — has-bearer is the shadow host. Collapse Child/Descendant to
+            // HostDescendant so the invalidator can cross the shadow boundary upward.
+            // Sibling relations are kept as-is (the host has no shadow-tree siblings, so
+            // these will simply not match at runtime).
+            if (compoundContainsHostPseudoClass(selector)) {
+                if (hasArgumentRelation == MatchElement::HasRelation::Child || hasArgumentRelation == MatchElement::HasRelation::Descendant)
+                    hasArgumentRelation = MatchElement::HasRelation::HostDescendant;
+            }
             return { matchElement.relation, hasArgumentRelation };
         }
     }
@@ -234,6 +260,7 @@ static bool isHasScopeBreakingCombinator(CSSSelector::Relation relation, MatchEl
         case MatchElement::HasRelation::Descendant:
         case MatchElement::HasRelation::SiblingChild:
         case MatchElement::HasRelation::SiblingDescendant:
+        case MatchElement::HasRelation::HostDescendant:
             return false;
         }
     }

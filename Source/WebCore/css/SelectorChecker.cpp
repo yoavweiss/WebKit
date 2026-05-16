@@ -796,8 +796,8 @@ bool SelectorChecker::checkOne(CheckingContext& checkingContext, LocalContext& c
         // https://bugs.webkit.org/show_bug.cgi?id=283062
         bool isNotPseudoClass = selector.match() == CSSSelector::Match::PseudoClass && selector.pseudoClass() == CSSSelector::PseudoClass::Not;
 
-        // We can early return when we know it's neither :host, :scope (which can match when the scoping root is the shadow host), a compound :is(:host) , a pseudo-element.
-        if (!selector.isHostPseudoClass() && !isPseudoElement && !selector.isScopePseudoClass() && (!selector.selectorList() || isNotPseudoClass))
+        // We can early return when we know it's neither :host, :scope (which can match when the scoping root is the shadow host), a compound :is(:host) , a pseudo-element, nor the implicit :has() scope sentinel anchored at the host.
+        if (!selector.isHostPseudoClass() && !isPseudoElement && !selector.isScopePseudoClass() && selector.match() != CSSSelector::Match::HasScope && (!selector.selectorList() || isNotPseudoClass))
             return false;
     }
 
@@ -842,7 +842,12 @@ bool SelectorChecker::checkOne(CheckingContext& checkingContext, LocalContext& c
 
     if (selector.match() == CSSSelector::Match::HasScope) {
         checkingContext.matchedInsideScope = true;
-        return element.ptr() == checkingContext.hasScope || checkingContext.matchesAllHasScopes;
+        bool matched = element.ptr() == checkingContext.hasScope || checkingContext.matchesAllHasScopes;
+        // For :host:has() the implicit scope sentinel anchors at the host; treat hitting it
+        // on the host as satisfying the mustMatchHostPseudoClass requirement.
+        if (matched && context.mustMatchHostPseudoClass && element->shadowRoot())
+            context.matchedHostPseudoClass = true;
+        return matched;
     }
 
     if (selector.match() == CSSSelector::Match::PseudoClass) {
@@ -1006,7 +1011,7 @@ bool SelectorChecker::checkOne(CheckingContext& checkingContext, LocalContext& c
                 return hasMatchedAnything;
             }
         case CSSSelector::PseudoClass::Has:
-            return matchHasPseudoClass(checkingContext, element, *selector.selectorList());
+            return matchHasPseudoClass(checkingContext, element, *selector.selectorList(), context.mustMatchHostPseudoClass);
         case CSSSelector::PseudoClass::PlaceholderShown:
             if (auto* formControl = dynamicDowncast<HTMLTextFormControlElement>(element.get()))
                 return formControl->isPlaceholderVisible();
@@ -1496,7 +1501,7 @@ static bool canJITCompileHasArgument(const CSSSelector& selector)
 }
 #endif
 
-bool SelectorChecker::matchHasPseudoClass(CheckingContext& checkingContext, const Element& element, const CSSSelectorList& selectorList) const
+bool SelectorChecker::matchHasPseudoClass(CheckingContext& checkingContext, const Element& element, const CSSSelectorList& selectorList, bool matchingHost) const
 {
     // :has() should never be nested with another :has()
     // This is generally discarded at parsing time, but
@@ -1515,7 +1520,7 @@ bool SelectorChecker::matchHasPseudoClass(CheckingContext& checkingContext, cons
 
         unsigned argIndex = 0;
         for (auto& hasSelector : selectorList) {
-            if (matchHasArgumentSelector(checkingContext, element, hasSelector, &compiledSelectors[argIndex++]))
+            if (matchHasArgumentSelector(checkingContext, element, hasSelector, &compiledSelectors[argIndex++], matchingHost))
                 return true;
         }
         return false;
@@ -1523,13 +1528,13 @@ bool SelectorChecker::matchHasPseudoClass(CheckingContext& checkingContext, cons
 #endif
 
     for (auto& hasSelector : selectorList) {
-        if (matchHasArgumentSelector(checkingContext, element, hasSelector, nullptr))
+        if (matchHasArgumentSelector(checkingContext, element, hasSelector, nullptr, matchingHost))
             return true;
     }
     return false;
 }
 
-bool SelectorChecker::matchHasArgumentSelector(CheckingContext& checkingContext, const Element& element, const CSSSelector& hasSelector, CompiledSelector* compiledSelector) const
+bool SelectorChecker::matchHasArgumentSelector(CheckingContext& checkingContext, const Element& element, const CSSSelector& hasSelector, CompiledSelector* compiledSelector, bool matchingHost) const
 {
     UNUSED_PARAM(compiledSelector);
     auto matchElement = Style::computeHasArgumentRelation(hasSelector);
@@ -1553,13 +1558,22 @@ bool SelectorChecker::matchHasArgumentSelector(CheckingContext& checkingContext,
         }
     }();
 
+    // When :has() is part of a :host compound (either the subject is the shadow host, or
+    // the ancestor walk has crossed the shadow root upward), :has() must traverse the host's
+    // shadow tree, not its light-tree descendants.
+    bool traversesShadowTree = matchingHost && element.shadowRoot();
+    CheckedRef<const ContainerNode> traversalRoot = traversesShadowTree ? static_cast<const ContainerNode&>(*element.shadowRoot()) : element;
+
     auto canMatch = [&] {
         switch (traversalType) {
         case HasTraversalType::Children:
         case HasTraversalType::Descendants:
-            return !!element.firstElementChild();
+            return !!traversalRoot->firstElementChild();
         case HasTraversalType::Siblings:
         case HasTraversalType::SiblingDescendants:
+            // A shadow root has no element siblings, so :host:has(~ x) never matches.
+            if (traversesShadowTree)
+                return false;
             return !!element.nextElementSibling();
         }
         ASSERT_NOT_REACHED();
@@ -1592,6 +1606,9 @@ bool SelectorChecker::matchHasArgumentSelector(CheckingContext& checkingContext,
         return *match;
 
     auto filterForElement = [&]() -> Style::HasSelectorFilter* {
+        // Filters are keyed by light-tree context; skip for shadow-tree traversal.
+        if (traversesShadowTree)
+            return nullptr;
         if (!checkingContext.selectorMatchingState)
             return nullptr;
         auto type = [&]() -> std::optional<Style::HasSelectorFilter::Type> {
@@ -1632,7 +1649,8 @@ bool SelectorChecker::matchHasArgumentSelector(CheckingContext& checkingContext,
 
     auto checkRelative = [&](auto& elementToCheck) {
 #if ENABLE(CSS_SELECTOR_JIT)
-        if (compiledSelector) {
+        // Shadow-tree traversal needs the interpreter; gate per-call so the static-only canJITCompileHasArgument cache (shared across rules) isn't poisoned.
+        if (compiledSelector && !traversesShadowTree) {
             if (compiledSelector->status == SelectorCompilationStatus::NotCompiled) {
                 if (canJITCompileHasArgument(hasSelector))
                     SelectorCompiler::compileSelector(*compiledSelector, hasSelector, SelectorCompiler::SelectorContext::RuleCollector, SelectorCompiler::SelectorPurpose::HasArgument);
@@ -1663,7 +1681,7 @@ bool SelectorChecker::matchHasArgumentSelector(CheckingContext& checkingContext,
         return result;
     };
 
-    auto checkDescendants = [&](const Element& descendantRoot) {
+    auto checkDescendants = [&](const ContainerNode& descendantRoot) {
         for (auto it = descendantsOfType<Element>(descendantRoot).begin(); it;) {
             CheckedRef descendant = *it;
             if (checkRelative(descendant))
@@ -1687,28 +1705,30 @@ bool SelectorChecker::matchHasArgumentSelector(CheckingContext& checkingContext,
         switch (traversalType) {
         case HasTraversalType::Children:
             // :has(> .child)
-            for (CheckedRef child : childrenOfType<Element>(element)) {
+            for (CheckedRef child : childrenOfType<Element>(traversalRoot)) {
                 if (checkRelative(child))
                     return true;
             }
             break;
         case HasTraversalType::Descendants: {
             // :has(.descendant)
-            if (cache) {
+            if (cache && !traversesShadowTree) {
                 // See if we already know this descendant selector doesn't match in this subtree.
+                // Only valid for light-tree traversal; shadow-tree walks don't share a failure subtree with light ancestors.
                 for (CheckedPtr ancestor = element.parentElement(); ancestor; ancestor = ancestor->parentElement()) {
                     auto key = Style::makeHasPseudoClassCacheKey(*ancestor, hasSelector);
                     if (cache->get(key) == Style::HasPseudoClassMatch::FailsSubtree)
                         return false;
                 }
             }
-            if (checkDescendants(element))
+            if (checkDescendants(traversalRoot))
                 return true;
 
             break;
         }
         case HasTraversalType::Siblings:
             // :has(~ .sibling)
+            ASSERT(!traversesShadowTree);
             for (CheckedPtr sibling = element.nextElementSibling(); sibling; sibling = sibling->nextElementSibling()) {
                 if (checkRelative(*sibling))
                     return true;
@@ -1716,6 +1736,7 @@ bool SelectorChecker::matchHasArgumentSelector(CheckingContext& checkingContext,
             break;
         case HasTraversalType::SiblingDescendants:
             // :has(~ .sibling .descendant)
+            ASSERT(!traversesShadowTree);
             for (CheckedPtr sibling = element.nextElementSibling(); sibling; sibling = sibling->nextElementSibling()) {
                 if (checkDescendants(*sibling))
                     return true;

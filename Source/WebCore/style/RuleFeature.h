@@ -69,6 +69,7 @@ struct MatchElement {
         IndirectSibling, // :has(~ .changed)
         SiblingChild, // :has(~ .a > .changed)
         SiblingDescendant, // :has(~ .a .changed)
+        HostDescendant, // :host:has(...) — has-bearer is a shadow host, .changed is anywhere in its shadow tree (covers the Child case too).
     };
 
     Relation relation;

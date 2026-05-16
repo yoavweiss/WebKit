@@ -140,8 +140,8 @@ private:
     MatchResult matchRecursively(CheckingContext&, LocalContext&, EnumSet<PseudoElementType>&) const;
     bool checkOne(CheckingContext&, LocalContext&, MatchType&) const;
     bool matchSelectorList(CheckingContext&, const LocalContext&, const Element&, const CSSSelectorList&) const;
-    bool matchHasPseudoClass(CheckingContext&, const Element&, const CSSSelectorList&) const;
-    bool matchHasArgumentSelector(CheckingContext&, const Element&, const CSSSelector&, CompiledSelector*) const;
+    bool matchHasPseudoClass(CheckingContext&, const Element&, const CSSSelectorList&, bool matchingHost) const;
+    bool matchHasArgumentSelector(CheckingContext&, const Element&, const CSSSelector&, CompiledSelector*, bool matchingHost) const;
 
     bool NODELETE checkScrollbarPseudoClass(const CheckingContext&, const Element&, const CSSSelector&) const;
     bool NODELETE checkViewTransitionPseudoClass(const CheckingContext&, const Element&, const CSSSelector&) const;

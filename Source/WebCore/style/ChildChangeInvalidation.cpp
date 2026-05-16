@@ -66,6 +66,7 @@ static bool isSiblingHasRelation(const MatchElement& matchElement)
         return true;
     case MatchElement::HasRelation::Child:
     case MatchElement::HasRelation::Descendant:
+    case MatchElement::HasRelation::HostDescendant:
         return false;
     }
     ASSERT_NOT_REACHED();
@@ -91,6 +92,7 @@ void ChildChangeInvalidation::invalidateForChangedElement(Element& changedElemen
         case MatchElement::HasRelation::Descendant:
         case MatchElement::HasRelation::SiblingChild:
         case MatchElement::HasRelation::SiblingDescendant:
+        case MatchElement::HasRelation::HostDescendant:
             return true;
         default:
             return true;

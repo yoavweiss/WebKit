@@ -7510,12 +7510,6 @@ imported/w3c/web-platform-tests/css/css-scoping/has-slotted-functional-flattened
 imported/w3c/web-platform-tests/css/css-scoping/has-slotted-functional-flattened-004.tentative.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-scoping/has-slotted-functional-flattened-006.tentative.html [ ImageOnlyFailure ]
 
-# :host:has - https://bugs.webkit.org/show_bug.cgi?id=282687
-imported/w3c/web-platform-tests/css/css-scoping/host-has-internal-001.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-scoping/host-has-internal-002.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-scoping/host-has-internal-003.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-scoping/host-has-internal-004.html [ ImageOnlyFailure ]
-
 imported/w3c/web-platform-tests/webrtc-encoded-transform/script-transform-generateKeyFrame-simulcast.https.html [ Pass Failure ]
 imported/w3c/web-platform-tests/webrtc-encoded-transform/RTCRtpScriptTransform-encoded-transform.https.html [ Pass Failure ]
 

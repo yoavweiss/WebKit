@@ -399,6 +399,20 @@ void Invalidator::invalidateStyleWithMatchElement(Element& element, MatchElement
             }
             return;
         }
+        if (hasRelation == HasRelation::HostDescendant) {
+            // :host:has(...) .subject — has-bearer is the host; subjects live in the shadow tree.
+            RefPtr shadowRoot = element.containingShadowRoot();
+            if (!shadowRoot)
+                return;
+            for (Ref shadowChild : childrenOfType<Element>(*shadowRoot)) {
+                SelectorMatchingState shadowMatchingState;
+                invalidateIfNeeded(shadowChild.get(), &shadowMatchingState);
+                invalidateStyleForDescendants(shadowChild.get(), &shadowMatchingState);
+            }
+            if (RefPtr host = shadowRoot->host())
+                invalidateIfNeeded(*host, nullptr);
+            return;
+        }
         if (matchElement.relation == Relation::Ancestor && hasRelation == HasRelation::Descendant) {
             // .foo:has(.changed) .subject — find outermost ancestor matching any scope selector (.foo) to bound traversal.
             // If no ancestor matches any ruleset's scope and no ruleset is scope-breaking, no bearer exists and we can skip.
@@ -506,6 +520,14 @@ void Invalidator::invalidateStyleWithMatchElement(Element& element, MatchElement
         for (RefPtr ancestor : ancestors | std::views::reverse) {
             invalidateIfNeeded(*ancestor, &selectorMatchingState);
             selectorMatchingState.selectorFilter.pushParent(ancestor.get());
+        }
+        break;
+    }
+    case HasRelation::HostDescendant: {
+        // :host:has(...) — has-bearer is the changed element's shadow host.
+        if (RefPtr shadowRoot = element.containingShadowRoot()) {
+            if (RefPtr host = shadowRoot->host())
+                invalidateIfNeeded(*host, nullptr);
         }
         break;
     }
