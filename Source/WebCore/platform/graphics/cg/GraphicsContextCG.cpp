@@ -1366,6 +1366,9 @@ void GraphicsContextCG::setLineDash(const DashArray& dashes, float dashOffset)
         float length = 0;
         for (size_t i = 0; i < dashes.size(); ++i)
             length += static_cast<float>(dashes[i]);
+        // CGContextSetLineDash repeats odd-length arrays, so the effective cycle is twice the sum.
+        if (dashes.size() % 2)
+            length *= 2;
         if (length)
             dashOffset = fmod(dashOffset, length) + length;
     }
