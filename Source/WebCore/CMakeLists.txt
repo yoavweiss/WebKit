@@ -3148,7 +3148,9 @@ WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebCore WebCoreJSBindings
 WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebCore WebCoreDOMAndRendering
     PREFIX WebCoreDOMAndRenderingPrefix.h
     PREFIX_LANGUAGES CXX OBJCXX
-    DIRS accessibility animation dom html page rendering style)
+    DIRS accessibility animation css cssjit dom domjit editing history html
+         layout loader page plugins rendering storage style svg workers
+         worklets xml)
 WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebCore WebCoreInspector
     PREFIX WebCoreInspectorPrefix.h
     PREFIX_LANGUAGES CXX
