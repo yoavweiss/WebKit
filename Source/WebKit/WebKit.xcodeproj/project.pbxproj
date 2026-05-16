@@ -682,7 +682,6 @@
 		2ADBEA4C2F358BEF00EDB398 /* WKWebView+WKBannerViewOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ADBEA4B2F358BEF00EDB398 /* WKWebView+WKBannerViewOverlay.swift */; };
 		2AE6D2B72F501404002BE327 /* WebViewRepresentable+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ADBEA4B2F358BEF00EDB399 /* WebViewRepresentable+Extras.swift */; };
 		2BBCCE242EB2B3F500FE7E5A /* RemotePageScreenOrientationManagerProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBCCE232EB2B3F500FE7E5A /* RemotePageScreenOrientationManagerProxy.h */; };
-		F5AE074483234F46B7D93F3F /* RemotePageWebAuthenticatorCoordinatorProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 729F145827DA4BFB83A7C750 /* RemotePageWebAuthenticatorCoordinatorProxy.h */; };
 		2D0C56FD229F1DEA00BD33E7 /* DeviceManagementSoftLink.h in Headers */ = {isa = PBXBuildFile; fileRef = 2D0C56FB229F1DEA00BD33E7 /* DeviceManagementSoftLink.h */; };
 		2D0C56FE229F1DEA00BD33E7 /* DeviceManagementSoftLink.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2D0C56FC229F1DEA00BD33E7 /* DeviceManagementSoftLink.mm */; };
 		2D0FD45E2F75127900B1A53C /* SwipeProgressTrackerMac.h in Headers */ = {isa = PBXBuildFile; fileRef = 2D0FD45C2F75126800B1A53C /* SwipeProgressTrackerMac.h */; };
@@ -2710,6 +2709,7 @@
 		F4FE87B72E2F25030065A3F5 /* _WKTextExtractionInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = F4FE87B62E2F25030065A3F5 /* _WKTextExtractionInternal.h */; };
 		F4FE87B82E2F25030065A3F5 /* _WKTextExtraction.h in Headers */ = {isa = PBXBuildFile; fileRef = F4FE87B42E2F25030065A3F5 /* _WKTextExtraction.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		F4FE87B92E2F25030065A3F5 /* _WKTextExtraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FE87B52E2F25030065A3F5 /* _WKTextExtraction.swift */; };
+		F5AE074483234F46B7D93F3F /* RemotePageWebAuthenticatorCoordinatorProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 729F145827DA4BFB83A7C750 /* RemotePageWebAuthenticatorCoordinatorProxy.h */; };
 		F6113E25126CE1820057D0A7 /* APIUserContentURLPattern.h in Headers */ = {isa = PBXBuildFile; fileRef = F6113E24126CE1820057D0A7 /* APIUserContentURLPattern.h */; };
 		F6113E29126CE19B0057D0A7 /* WKUserContentURLPattern.h in Headers */ = {isa = PBXBuildFile; fileRef = F6113E27126CE19B0057D0A7 /* WKUserContentURLPattern.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		F634445612A885C8000612D8 /* APISecurityOrigin.h in Headers */ = {isa = PBXBuildFile; fileRef = F634445512A885C8000612D8 /* APISecurityOrigin.h */; };
@@ -4880,8 +4880,6 @@
 		2B1B1C3C2E3A86F400D7D9ED /* UnretainedLocalVarsCheckerExpectations */ = {isa = PBXFileReference; lastKnownFileType = text; path = UnretainedLocalVarsCheckerExpectations; sourceTree = "<group>"; };
 		2BBCCE222EB2B3DA00FE7E5A /* RemotePageScreenOrientationManagerProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RemotePageScreenOrientationManagerProxy.cpp; sourceTree = "<group>"; };
 		2BBCCE232EB2B3F500FE7E5A /* RemotePageScreenOrientationManagerProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemotePageScreenOrientationManagerProxy.h; sourceTree = "<group>"; };
-		729F145827DA4BFB83A7C750 /* RemotePageWebAuthenticatorCoordinatorProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemotePageWebAuthenticatorCoordinatorProxy.h; sourceTree = "<group>"; };
-		729F145827DA4BFB83A7C751 /* RemotePageWebAuthenticatorCoordinatorProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RemotePageWebAuthenticatorCoordinatorProxy.cpp; sourceTree = "<group>"; };
 		2D0035221BC7414800DA8716 /* PDFPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PDFPlugin.h; path = PDF/PDFPlugin.h; sourceTree = "<group>"; };
 		2D0035231BC7414800DA8716 /* PDFPlugin.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PDFPlugin.mm; path = PDF/PDFPlugin.mm; sourceTree = "<group>"; };
 		2D0440922D58810D00E98A2E /* RemoteImageBufferSetConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemoteImageBufferSetConfiguration.h; sourceTree = "<group>"; };
@@ -6970,6 +6968,8 @@
 		727A7F492408AEE6004D2931 /* RemoteImageBufferProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemoteImageBufferProxy.h; sourceTree = "<group>"; };
 		728E86EF1795188C0087879E /* WebColorPickerMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebColorPickerMac.h; sourceTree = "<group>"; };
 		728E86F01795188C0087879E /* WebColorPickerMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebColorPickerMac.mm; sourceTree = "<group>"; };
+		729F145827DA4BFB83A7C750 /* RemotePageWebAuthenticatorCoordinatorProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemotePageWebAuthenticatorCoordinatorProxy.h; sourceTree = "<group>"; };
+		729F145827DA4BFB83A7C751 /* RemotePageWebAuthenticatorCoordinatorProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RemotePageWebAuthenticatorCoordinatorProxy.cpp; sourceTree = "<group>"; };
 		72A87BBB287678A700289098 /* RemoteRenderingBackend.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RemoteRenderingBackend.cpp; sourceTree = "<group>"; };
 		72B53157253C1E4D0049295A /* RemoteResourceCacheProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RemoteResourceCacheProxy.cpp; sourceTree = "<group>"; };
 		72B53158253C1E4D0049295A /* RemoteResourceCacheProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemoteResourceCacheProxy.h; sourceTree = "<group>"; };

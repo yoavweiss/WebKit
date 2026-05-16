@@ -1424,6 +1424,7 @@ void TestController::resetPreferencesToConsistentValues(const TestOptions& optio
         WKPreferencesSetMinimumFontSize(preferences, 0);
 
         WKPreferencesSetBoolValueForKeyForTesting(preferences, options.allowTestOnlyIPC(), toWK("AllowTestOnlyIPC").get());
+        WKPreferencesSetBoolValueForKeyForTesting(preferences, false, toWK("GlobalPrivacyControlEnabled").get());
 
         for (const auto& [key, value] : options.boolWebPreferenceFeatures())
             WKPreferencesSetBoolValueForKeyForTesting(preferences, value, toWK(key).get());

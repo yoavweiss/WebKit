@@ -402,6 +402,7 @@ static void addParametersShared(const LocalFrame* frame, NetworkResourceLoadPara
         parameters.isClearSiteDataExecutionContextEnabled = document->settings().clearSiteDataExecutionContextsSupportEnabled();
         parameters.mayBlockNetworkRequest = (!isMainFrameNavigation && document->settings().scriptTrackingPrivacyNetworkRequestBlockingLatchEnabled()) ?
             std::optional { WebProcess::singleton().shouldBlockRequest(parameters.request.url(), protect(document->topOrigin())) } : std::nullopt;
+        parameters.globalPrivacyControlEnabled = document->settings().globalPrivacyControlEnabled();
     }
 
     if (RefPtr page = frame->page()) {

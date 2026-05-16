@@ -131,6 +131,7 @@ struct NetworkResourceLoadParameters {
 
     bool isInitiatorPrefetch { false };
     bool isInitiatedByDedicatedWorker { false };
+    bool globalPrivacyControlEnabled { false };
 };
 
 } // namespace WebKit

@@ -443,6 +443,12 @@ void NetworkResourceLoader::startNetworkLoad(ResourceRequest&& request, FirstLoa
     if (networkSession->shouldSendPrivateTokenIPCForTesting())
         connectionToWebProcess().networkProcess().parentProcessConnection()->send(Messages::NetworkProcessProxy::DidAllowPrivateTokenUsageByThirdPartyForTesting(sessionID(), request.isPrivateTokenUsageByThirdPartyAllowed(), request.url()), 0);
 
+    if (m_parameters.globalPrivacyControlEnabled) {
+        auto requestOrigin = SecurityOrigin::create(request.url());
+        if (requestOrigin->isPotentiallyTrustworthy())
+            request.addHTTPHeaderFieldIfNotPresent(HTTPHeaderName::SecGPC, "1"_s);
+    }
+
     parameters.request = WTF::move(request);
     parameters.isNavigatingToAppBoundDomain = m_parameters.isNavigatingToAppBoundDomain;
     m_networkLoad = NetworkLoad::create(*this, WTF::move(parameters), *networkSession);
