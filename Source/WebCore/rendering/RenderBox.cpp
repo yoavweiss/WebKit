@@ -3736,7 +3736,7 @@ template<typename SizeType> std::optional<LayoutUnit> RenderBox::computeSizingKe
 
                 if (!isOrthogonal(*this, containingBlock))
                     view().addPercentHeightDescendant(const_cast<RenderBox&>(*this));
-                if (!containingBlockHasDefiniteBlockSize())
+                if (!isBlockSizeResolvableForStretch())
                     return { };
                 if (isOrthogonal(*this, containingBlock))
                     return containingBlockLogicalWidthForContent();
@@ -5190,10 +5190,45 @@ static inline bool shouldComputeLogicalWidthFromAspectRatioAndInsets(const Rende
     return style.logicalHeight().isAuto();
 }
 
-bool RenderBox::containingBlockHasDefiniteBlockSize() const
+static RenderBlock* containingBlockForStretchResolution(const RenderBox& box)
 {
-    CheckedPtr containingBlock = this->containingBlock();
-    ASSERT(containingBlock);
+    auto isIgnoredAsContainingBlock = [](auto& candidate) {
+        // Flow threads (multicol/paged) are invisible to the DOM; their children should
+        // resolve against the multicol or paged container.
+        if (candidate.isRenderFragmentedFlow())
+            return true;
+
+        // Only anonymous boxes are subject to the CSS 2 Section 9.2.1.1 "ignored when
+        // resolving values" rule. RenderView and view-transition pseudos are excluded
+        // because they are not anonymous boxes in the spec sense.
+        if (!candidate.shouldSkipForPercentageResolution())
+            return false;
+
+        // Among anonymous boxes, only the implementation-detail kinds are spec-ignored:
+        // block-flow wrappers around inlines that have block siblings, multicol flow
+        // threads, and inline-flow-root wrappers for ruby runs. Anonymous flex items,
+        // grid items, table cells, and ruby bases are CSS-mandated structures that
+        // remain as legitimate containing blocks.
+        auto display = candidate.style().display();
+        return display == Style::DisplayType::BlockFlow || display == Style::DisplayType::InlineFlowRoot;
+    };
+
+    // Walks past anonymous boxes that the CSS 2 Section 9.2.1.1 rule says to ignore
+    // when resolving values that would refer to them, returning the first ancestor
+    // that is a legitimate containing block for value resolution.
+    auto* ancestor = box.containingBlock();
+    while (ancestor && isIgnoredAsContainingBlock(*ancestor))
+        ancestor = ancestor->containingBlock();
+    return ancestor;
+}
+
+bool RenderBox::isBlockSizeResolvableForStretch() const
+{
+    // css-sizing-4 Section 6.7 defines stretch as behaving like 100%, so stretch
+    // resolution shares the percent rule from CSS 2 Section 9.2.1.1.
+    CheckedPtr containingBlock = containingBlockForStretchResolution(*this);
+    if (!containingBlock)
+        return false;
 
     // Orthogonal children's block axis maps to the parent's inline axis, which is always definite.
     if (isOrthogonal(*this, *containingBlock))
