@@ -120,6 +120,7 @@ wasm/WasmOperations.cpp
 wasm/WasmOperationsInlines.h
 wasm/WasmSectionParser.cpp
 wasm/WasmStreamingCompiler.cpp
+wasm/WasmTable.cpp
 wasm/WasmTypeDefinition.cpp
 wasm/WasmWorklist.cpp
 wasm/js/JSWebAssembly.cpp

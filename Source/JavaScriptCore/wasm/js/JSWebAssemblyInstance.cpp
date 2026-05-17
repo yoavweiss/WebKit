@@ -575,6 +575,15 @@ void JSWebAssemblyInstance::initElementSegment(uint32_t tableIndex, const Elemen
             // for the import.
             // https://bugs.webkit.org/show_bug.cgi?id=165510
             auto functionIndex = Wasm::FunctionSpaceIndex(initialBitsOrIndex);
+            if (!isImportFunction(functionIndex)) {
+                // Install wasm-side metadata only; the JS wrapper is materialized
+                // on demand from table.get. Imports stay eager because their
+                // callees do not carry a recoverable FunctionSpaceIndex.
+                auto* funcRefTable = jsTable->table()->asFuncrefTable();
+                ASSERT(funcRefTable);
+                funcRefTable->setLazy(dstIndex, this, functionIndex);
+                continue;
+            }
             JSValue wrapper = ensureFunctionWrapper(functionIndex);
             ASSERT(wrapper.isCallable());
             jsTable->set(dstIndex, wrapper);

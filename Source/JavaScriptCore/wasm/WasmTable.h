@@ -83,10 +83,10 @@ public:
 
     void clear(uint32_t);
     void set(uint32_t, JSValue);
-    JSValue get(uint32_t) const;
+    JSValue get(uint32_t);
 
     std::optional<uint32_t> grow(uint32_t delta, JSValue defaultValue);
-    void copy(const Table* srcTable, uint32_t dstIndex, uint32_t srcIndex);
+    void copy(Table* srcTable, uint32_t dstIndex, uint32_t srcIndex);
 
     DECLARE_VISIT_AGGREGATE;
 
@@ -142,13 +142,15 @@ public:
         WasmOrJSImportableFunction m_function;
         WriteBarrier<Unknown> m_value { NullWriteBarrierTag };
         void* m_padding { nullptr };
+        bool isEmpty() const { return !m_function.rtt; }
         static constexpr ptrdiff_t offsetOfFunction() { return OBJECT_OFFSETOF(Function, m_function); }
         static constexpr ptrdiff_t offsetOfValue() { return OBJECT_OFFSETOF(Function, m_value); }
     };
 
     void setFunction(uint32_t, WebAssemblyFunctionBase*);
+    void setLazy(uint32_t, JSWebAssemblyInstance* targetInstance, FunctionSpaceIndex);
     const Function& NODELETE function(uint32_t) const;
-    void copyFunction(const FuncRefTable* srcTable, uint32_t dstIndex, uint32_t srcIndex);
+    void copyFunction(FuncRefTable* srcTable, uint32_t dstIndex, uint32_t srcIndex);
 
     static constexpr ptrdiff_t offsetOfFunctions() { return OBJECT_OFFSETOF(FuncRefTable, m_importableFunctions); }
     static constexpr ptrdiff_t offsetOfTail() { return WTF::roundUpToMultipleOf<alignof(Function)>(sizeof(FuncRefTable)); }
@@ -168,7 +170,7 @@ public:
 
     void clear(uint32_t);
     void set(uint32_t, JSValue);
-    JSValue get(uint32_t index) const { return m_importableFunctions.get()[index].m_value.get(); }
+    JSValue get(uint32_t index);
 
     void registerInstance(JSWebAssemblyInstance&);
 

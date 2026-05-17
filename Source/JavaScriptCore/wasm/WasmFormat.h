@@ -959,6 +959,7 @@ struct alignas(8) WasmCallableFunction {
 struct WasmToWasmImportableFunction : public WasmCallableFunction {
     WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(WasmToWasmImportableFunction);
     static constexpr ptrdiff_t offsetOfRTT() { return OBJECT_OFFSETOF(WasmToWasmImportableFunction, rtt); }
+
     const RTT* rtt { nullptr };
 };
 using FunctionIndexSpace = Vector<WasmToWasmImportableFunction>;
@@ -973,8 +974,9 @@ struct WasmOrJSImportableFunction : public WasmToWasmImportableFunction {
 
 struct WasmOrJSImportableFunctionCallLinkInfo final : public WasmOrJSImportableFunction {
     WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(WasmOrJSImportableFunctionCallLinkInfo);
-    std::unique_ptr<DataOnlyCallLinkInfo> callLinkInfo { };
     static constexpr ptrdiff_t offsetOfCallLinkInfo() { return OBJECT_OFFSETOF(WasmOrJSImportableFunctionCallLinkInfo, callLinkInfo); }
+
+    std::unique_ptr<DataOnlyCallLinkInfo> callLinkInfo { };
 };
 
 #if ASSERT_ENABLED

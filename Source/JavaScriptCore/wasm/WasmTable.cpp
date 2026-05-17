@@ -176,7 +176,7 @@ std::optional<uint32_t> Table::grow(uint32_t delta, JSValue defaultValue)
     return newLength;
 }
 
-void Table::copy(const Table* srcTable, uint32_t dstIndex, uint32_t srcIndex)
+void Table::copy(Table* srcTable, uint32_t dstIndex, uint32_t srcIndex)
 {
     ASSERT(isExternrefTable());
     ASSERT(srcTable->isExternrefTable());
@@ -203,7 +203,7 @@ void Table::set(uint32_t index, JSValue value)
     });
 }
 
-JSValue Table::get(uint32_t index) const
+JSValue Table::get(uint32_t index)
 {
     ASSERT(index < length());
     ASSERT(m_owner);
@@ -226,8 +226,14 @@ void Table::visitAggregateImpl(Visitor& visitor)
     }
     case TableElementType::Funcref: {
         auto* table = static_cast<FuncRefTable*>(this);
-        for (unsigned i = 0; i < m_length; ++i)
-            visitor.append(table->m_importableFunctions.get()[i].m_value);
+        for (unsigned i = 0; i < m_length; ++i) {
+            auto& slot = table->m_importableFunctions.get()[i];
+            if (slot.isEmpty())
+                continue;
+            visitor.append(slot.m_value);
+            visitor.append(slot.m_function.targetInstance);
+            visitor.append(slot.m_function.importFunction);
+        }
         break;
     }
     }
@@ -277,7 +283,7 @@ FuncRefTable::FuncRefTable(VM& vm, uint32_t initial, std::optional<uint32_t> max
 
     for (uint32_t i = 0; i < allocatedLength(m_length); ++i) {
         new (&m_importableFunctions.get()[i]) Function();
-        ASSERT(!m_importableFunctions.get()[i].m_function.rtt); // We rely on this in compiled code.
+        ASSERT(m_importableFunctions.get()[i].isEmpty()); // We rely on this in compiled code.
         ASSERT(m_importableFunctions.get()[i].m_value.isNull());
     }
 }
@@ -305,20 +311,59 @@ void FuncRefTable::setFunction(uint32_t index, WebAssemblyFunctionBase* function
     slot.m_value.set(function->instance()->vm(), m_owner, function);
 }
 
+void FuncRefTable::setLazy(uint32_t index, JSWebAssemblyInstance* targetInstance, FunctionSpaceIndex functionIndex)
+{
+    ASSERT(index < length());
+    auto* calleeGroup = targetInstance->calleeGroup();
+    auto wasmCallee = calleeGroup->wasmCalleeFromFunctionIndexSpace(functionIndex);
+    ASSERT(wasmCallee);
+
+    auto& slot = m_importableFunctions.get()[index];
+    slot.m_function = WasmOrJSImportableFunction { };
+    slot.m_function.boxedCallee = wasmCallee.get();
+    slot.m_function.targetInstance.setWithoutWriteBarrier(targetInstance);
+    slot.m_function.entrypointLoadLocation = calleeGroup->entrypointLoadLocationFromFunctionIndexSpace(functionIndex);
+    slot.m_function.rtt = &targetInstance->module().rttFromFunctionIndexSpace(functionIndex);
+
+    slot.m_value.clear();
+    // The struct copy into slot.m_function does not propagate a write barrier for its
+    // embedded WriteBarriers (targetInstance, importFunction), so fire one on m_owner.
+    m_owner->vm().writeBarrier(m_owner);
+}
+
+JSValue FuncRefTable::get(uint32_t index)
+{
+    auto& slot = m_importableFunctions.get()[index];
+    if (JSValue cached = slot.m_value.get())
+        return cached;
+    if (slot.isEmpty())
+        return jsNull();
+
+    auto* wasmCallee = uncheckedDowncast<Wasm::Callee>(slot.m_function.boxedCallee.asNativeCallee());
+    FunctionSpaceIndex functionIndex = wasmCallee->index();
+    JSWebAssemblyInstance* targetInstance = slot.m_function.targetInstance.get();
+    ASSERT(targetInstance);
+    JSValue wrapper = targetInstance->ensureFunctionWrapper(functionIndex);
+    ASSERT(wrapper.isCallable());
+    slot.m_value.set(m_owner->vm(), m_owner, wrapper);
+    return wrapper;
+}
+
 const FuncRefTable::Function& FuncRefTable::function(uint32_t index) const
 {
     return m_importableFunctions.get()[index];
 }
 
-void FuncRefTable::copyFunction(const FuncRefTable* srcTable, uint32_t dstIndex, uint32_t srcIndex)
+void FuncRefTable::copyFunction(FuncRefTable* srcTable, uint32_t dstIndex, uint32_t srcIndex)
 {
     ASSERT(dstIndex < length());
-    if (srcTable->get(srcIndex).isNull()) {
+    const auto& srcSlot = srcTable->m_importableFunctions.get()[srcIndex];
+    if (srcSlot.isEmpty()) {
         clear(dstIndex);
         return;
     }
 
-    m_importableFunctions.get()[dstIndex] = srcTable->function(srcIndex);
+    m_importableFunctions.get()[dstIndex] = srcSlot;
     // Write barrier our owner for good measure.
     m_owner->vm().writeBarrier(m_owner);
 }
@@ -327,7 +372,7 @@ void FuncRefTable::clear(uint32_t index)
 {
     ASSERT(wasmType().isNullable());
     m_importableFunctions.get()[index] = FuncRefTable::Function { };
-    ASSERT(!m_importableFunctions.get()[index].m_function.rtt); // We rely on this in compiled code.
+    ASSERT(m_importableFunctions.get()[index].isEmpty()); // We rely on this in compiled code.
     ASSERT(m_importableFunctions.get()[index].m_value.isNull());
 }
 
