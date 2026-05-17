@@ -77,6 +77,50 @@ struct AppKitGesturesTests {
         self.window.makeKeyAndOrderFront(nil)
     }
 
+    @Test(
+        .bug("https://webkit.org/b/314880", "Only mouse tracking mode produces pointer events"),
+        arguments: [true, false]
+    )
+    func singleClickFiresPointerMouseAndClickEvents(contentEditable: Bool) async throws {
+        try await loadHTML(contentEditable: contentEditable)
+
+        let expectedEvents = ["pointerdown", "mousedown", "pointerup", "mouseup", "click"]
+
+        try await page.callJavaScript(
+            """
+            window.eventLog = [];
+            const target = document.getElementById("div");
+            for (const eventType of events) {
+                target.addEventListener(eventType, e => window.eventLog.push(e.type));
+            }
+            """,
+            arguments: ["events": expectedEvents]
+        )
+
+        if contentEditable {
+            // FIXME: <rdar://177201499> This workaround establishes a selection first so that the synthetic click does not change insertion point.
+            try await page.callJavaScript(JavaScriptMessages.SetSelection(in: "div", offset: 0))
+            await page.waitForNextPresentationUpdate()
+        }
+
+        let toBounds = try await screenBoundsOfText("to")
+
+        guard NSApp.isActive else { return }
+
+        await recap.play { composer in
+            composer._wk_click(at: toBounds.center, for: .seconds(0.05))
+        }
+
+        await page.waitForPendingMouseEvents()
+        await page.waitForNextPresentationUpdate()
+
+        let eventLog = try await #require(page.callJavaScript("return window.eventLog;") as? [String])
+
+        for eventType in expectedEvents {
+            #expect(eventLog.contains(eventType))
+        }
+    }
+
     @Test(arguments: [true, false])
     func updatingTextRangeSelectionByUserInteractionUpdatesEditorState(contentEditable: Bool) async throws {
         try await loadHTML(contentEditable: contentEditable)
