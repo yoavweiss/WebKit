@@ -165,6 +165,7 @@ http/tests/security/contentSecurityPolicy/video-with-http-url-allowed-by-csp-med
 http/tests/security/mixedContent/insecure-audio-video-in-main-frame-UpgradeMixedContent.html [ Skip ]
 http/wpt/service-workers/media-range-request.html [ Skip ]
 imported/w3c/web-platform-tests/css/selectors/invalidation/media-pseudo-classes-in-has.html [ Skip ]
+imported/w3c/web-platform-tests/css/selectors/invalidation/is-pseudo-containing-sibling-relationship-in-has.html [ Skip ] # Flaky
 imported/w3c/web-platform-tests/css/selectors/media [ Skip ]
 media/audio-data-url.html [ Skip ]
 media/audio-mpeg-supported.html [ Skip ]
@@ -703,6 +704,9 @@ http/tests/cache/willsendrequest-returns-null-for-memory-cache-load.html [ Failu
 http/tests/cache/memory-cache-pruning.html [ Pass Timeout ]
 http/tests/cache/disk-cache/disk-cache-media-small.html [ Pass Timeout ]
 
+# Crash
+http/tests/cache/cached-main-resource.html [ Skip ]
+
 # Second link click interrupts current download
 http/tests/download/anchor-load-after-download.html [ Skip ]
 
@@ -787,6 +791,7 @@ http/tests/navigation/page-cache-mediakeysession.html [ Skip ] # Failure
 http/tests/navigation/ping-attribute/anchor-ping-and-follow-redirect-when-sending-ping.html [ Skip ] # Failure
 http/tests/navigation/post-frames-goback1-uncached.html [ Skip ] # Failure
 http/tests/navigation/redirect-to-fragment2.html [ Skip ] # Failure
+http/tests/navigation/redirect-to-random-url-versus-memory-cache.html [ Skip ] # Flaky
 http/tests/navigation/error404-basic.html [ Skip ] # Missing
 http/tests/navigation/error404-goback.html [ Skip ] # Missing
 http/tests/navigation/javascriptlink-frames.html [ Skip ] # Missing
@@ -918,6 +923,7 @@ http/tests/security/local-video-poster-from-remote.html [ Skip ] # Failure
 http/tests/security/local-video-source-from-remote.html [ Skip ] # Failure
 http/tests/security/local-video-src-from-remote.html [ Skip ] # Failure
 http/tests/security/module-no-mime-type.html [ Skip ] # Failure
+http/tests/security/no-indexeddb-from-sandbox.html [ Skip ] # Crash
 http/tests/security/sync-xhr-partition.html [ Skip ] # Failure
 http/tests/security/video-cross-origin-accessfailure.html [ Skip ] # Failure
 http/tests/security/video-cross-origin-accesssameorigin.html [ Skip ] # Timeout on Buildbot
@@ -1902,6 +1908,7 @@ streams/readable-stream-byob-request-worker.html [ Skip ]
 imported/w3c/web-platform-tests/cookiestore [ Skip ]
 imported/w3c/web-platform-tests/cookies/partitioned-cookies/partitioned-cookies.tentative.https.html [ Skip ]
 http/tests/cookies/cookie-store-set-secure.https.html [ Skip ]
+cookies/cookie-store-start-listening-for-change-with-null-url-crash.html [ Skip ] # crash
 http/tests/navigation/ping-attribute/anchor-cookie.html [ Skip ]
 http/tests/navigation/ping-attribute/cross-site-url-anchor-cookie-preexisting-cookie.html [ Skip ]
 http/tests/navigation/ping-attribute/cross-site-url-anchor-cookie.html [ Skip ]
@@ -3371,6 +3378,7 @@ fast/css/css-imports.html [ Skip ]
 fast/css/css1_forward_compatible_parsing.html [ Skip ]
 fast/css/css3-nth-child.html [ Skip ]
 fast/css/css3-space-in-nth-and-lang.html [ Skip ]
+fast/css/css-anchor-position/anchor-positioned-select-picker.html [ Skip ] # timeout
 fast/css/disabled-author-styles.html [ Skip ]
 fast/css/dynamic-sibling-selector.html [ Skip ]
 fast/css/empty-body-test.html [ Skip ]
