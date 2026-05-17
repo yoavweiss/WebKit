@@ -49,12 +49,14 @@ public:
     }
 
     inline static Structure* createStructure(VM&, JSGlobalObject*, JSValue);
-    static ModuleLoaderPayload* create(VM&, JSPromise*);
+    static ModuleLoaderPayload* create(VM&, JSPromise*, bool deferred = false);
 
     JSPromise* promise() const { return m_promise.get(); }
 
     JSValue fulfillment() const { return m_fulfillment.get(); }
     void setFulfillment(VM& vm, JSValue value) { m_fulfillment.set(vm, this, value); }
+
+    bool deferred() const { return m_deferred; }
 
     bool decrementRemaining()
     {
@@ -63,13 +65,14 @@ public:
     }
 
 private:
-    ModuleLoaderPayload(VM&, Structure*, JSPromise*);
+    ModuleLoaderPayload(VM&, Structure*, JSPromise*, bool deferred);
 
     void finishCreation(VM&);
 
     WriteBarrier<JSPromise> m_promise;
     WriteBarrier<Unknown> m_fulfillment;
     uint8_t m_remainingFulfillments { 2 };
+    bool m_deferred { false };
 };
 
 } // namespace JSC

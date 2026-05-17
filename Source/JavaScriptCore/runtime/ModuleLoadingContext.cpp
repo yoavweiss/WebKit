@@ -62,20 +62,18 @@ ModuleLoadingContext* ModuleLoadingContext::create(VM& vm, Step step, const JSMo
     return context;
 }
 
-ModuleLoadingContext::ModuleLoadingContext(VM& vm, Structure* structure, AbstractModuleRecord::ModuleRequest&& moduleRequest, RefPtr<ScriptFetcher> scriptFetcher, bool evaluate, bool dynamic, bool useImportMap)
+ModuleLoadingContext::ModuleLoadingContext(VM& vm, Structure* structure, AbstractModuleRecord::ModuleRequest&& moduleRequest, RefPtr<ScriptFetcher> scriptFetcher, OptionSet<ModuleLoadFlag> flags)
     : Base(vm, structure)
     , m_moduleRequest(WTF::move(moduleRequest))
     , m_scriptFetcher(WTF::move(scriptFetcher))
-    , m_evaluate(evaluate)
-    , m_dynamic(dynamic)
-    , m_useImportMap(useImportMap)
+    , m_flags(flags)
 {
 }
 
-ModuleLoadingContext* ModuleLoadingContext::create(VM& vm, const AbstractModuleRecord::ModuleRequest& moduleRequest, RefPtr<ScriptFetcher> scriptFetcher, bool evaluate, bool dynamic, bool useImportMap)
+ModuleLoadingContext* ModuleLoadingContext::create(VM& vm, const AbstractModuleRecord::ModuleRequest& moduleRequest, RefPtr<ScriptFetcher> scriptFetcher, OptionSet<ModuleLoadFlag> flags)
 {
     AbstractModuleRecord::ModuleRequest requestCopy { moduleRequest };
-    auto* context = new (NotNull, allocateCell<ModuleLoadingContext>(vm)) ModuleLoadingContext(vm, vm.moduleLoadingContextStructure.get(), WTF::move(requestCopy), WTF::move(scriptFetcher), evaluate, dynamic, useImportMap);
+    auto* context = new (NotNull, allocateCell<ModuleLoadingContext>(vm)) ModuleLoadingContext(vm, vm.moduleLoadingContextStructure.get(), WTF::move(requestCopy), WTF::move(scriptFetcher), flags);
     context->finishCreation(vm);
     return context;
 }

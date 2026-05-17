@@ -5464,17 +5464,27 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseMemberExpres
     } else if (baseIsImport) {
         next();
         JSTextPosition expressionEnd = lastTokenEndPosition();
+        bool isImportMeta = false;
+        bool deferred = false;
         if (consume(DOT)) {
             if (matchContextualKeyword(m_vm.propertyNames->builtinNames().metaPublicName())) [[likely]] {
                 semanticFailIfFalse(m_scriptMode == JSParserScriptMode::Module, "import.meta is only valid inside modules");
                 base = context.createImportMetaExpr(location, createResolveAndUseVariable(context, &m_vm.propertyNames->metaPrivateName, false, expressionStart, location));
                 currentScope()->setUsesImportMeta();
+                isImportMeta = true;
                 next();
+            } else if (Options::useImportDefer() && matchContextualKeyword(m_vm.propertyNames->deferKeyword)) {
+                // ImportCall : import . defer ImportCallArguments
+                // https://tc39.es/proposal-defer-import-eval/#sec-import-call-runtime-semantics-evaluation
+                deferred = true;
+                next();
+                expressionEnd = lastTokenEndPosition();
             } else {
-                failIfTrue(match(IDENT), "\"import.\" can only be followed with meta");
+                failIfTrue(match(IDENT), Options::useImportDefer() ? "\"import.\" can only be followed with meta or defer" : "\"import.\" can only be followed with meta");
                 failDueToUnexpectedToken();
             }
-        } else {
+        }
+        if (!isImportMeta) {
             semanticFailIfTrue(newCount, "Cannot use new with import");
             consumeOrFail(OPENPAREN, "import call expects one or two arguments");
             SetForScope nonLHSCountScope(m_parserState.nonLHSCount);
@@ -5489,7 +5499,7 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseMemberExpres
                 }
             }
             consumeOrFail(CLOSEPAREN, "import call expects one or two arguments");
-            base = context.createImportExpr(location, expr, optionExpression, expressionStart, expressionEnd, lastTokenEndPosition());
+            base = context.createImportExpr(location, expr, optionExpression, deferred, expressionStart, expressionEnd, lastTokenEndPosition());
         }
     } else {
         const bool isAsync = matchContextualKeyword(m_vm.propertyNames->async);

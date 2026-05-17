@@ -33,9 +33,10 @@ namespace JSC {
 
 const ClassInfo ModuleLoaderPayload::s_info = { "ModuleLoaderPayload"_s, nullptr, nullptr, nullptr, CREATE_METHOD_TABLE(ModuleLoaderPayload) };
 
-ModuleLoaderPayload::ModuleLoaderPayload(VM& vm, Structure* structure, JSPromise* promise)
+ModuleLoaderPayload::ModuleLoaderPayload(VM& vm, Structure* structure, JSPromise* promise, bool deferred)
     : Base(vm, structure)
     , m_promise(promise, WriteBarrierEarlyInit)
+    , m_deferred(deferred)
 {
 }
 
@@ -57,9 +58,9 @@ void ModuleLoaderPayload::visitChildrenImpl(JSCell* cell, Visitor& visitor)
 
 DEFINE_VISIT_CHILDREN(ModuleLoaderPayload);
 
-ModuleLoaderPayload* ModuleLoaderPayload::create(VM& vm, JSPromise* promise)
+ModuleLoaderPayload* ModuleLoaderPayload::create(VM& vm, JSPromise* promise, bool deferred)
 {
-    ModuleLoaderPayload* instance = new (NotNull, allocateCell<ModuleLoaderPayload>(vm)) ModuleLoaderPayload(vm, vm.moduleLoaderPayloadStructure.get(), promise);
+    ModuleLoaderPayload* instance = new (NotNull, allocateCell<ModuleLoaderPayload>(vm)) ModuleLoaderPayload(vm, vm.moduleLoaderPayloadStructure.get(), promise, deferred);
     instance->finishCreation(vm);
     return instance;
 }
