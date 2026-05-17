@@ -51,7 +51,7 @@ private actor Recap {
 }
 
 @MainActor
-@Suite(.serialized)
+@Suite(.serialized, .timeLimit(.minutes(1)))
 struct AppKitGesturesTests {
     private static let text = "Here's to the crazy ones."
 
