@@ -2187,8 +2187,7 @@ bool LocalDOMWindow::hasPermissionToReceiveDeviceMotionOrOrientationEvents(Strin
             message = "No browsing context"_s;
             return false;
         }
-        Ref document = *this->document();
-        auto accessState = document->deviceOrientationAndMotionAccessController().accessState(document);
+        auto accessState = page()->deviceOrientationAndMotionAccessController().accessState(protect(*this->document()));
         switch (accessState) {
         case DeviceOrientationOrMotionPermissionState::Denied:
             message = "Permission to use the API was denied"_s;

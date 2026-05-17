@@ -397,7 +397,6 @@
 #if ENABLE(DEVICE_ORIENTATION)
 #include "DeviceMotionData.h"
 #include "DeviceMotionEvent.h"
-#include "DeviceOrientationAndMotionAccessController.h"
 #include "DeviceOrientationData.h"
 #include "DeviceOrientationEvent.h"
 #endif
@@ -11365,24 +11364,6 @@ bool Document::hitTest(const HitTestRequest& request, const HitTestLocation& loc
     }
     return resultLayer;
 }
-
-#if ENABLE(DEVICE_ORIENTATION)
-
-DeviceOrientationAndMotionAccessController& Document::deviceOrientationAndMotionAccessController()
-{
-    if (!isTopDocument()) {
-        if (RefPtr mainFrameDocument = this->mainFrameDocument())
-            return mainFrameDocument->deviceOrientationAndMotionAccessController();
-
-        LOG_ONCE(SiteIsolation, "Unable to properly access Document::deviceOrientationAndMotionAccessController() without access to the main frame document ");
-    }
-
-    if (!m_deviceOrientationAndMotionAccessController)
-        m_deviceOrientationAndMotionAccessController = makeUnique<DeviceOrientationAndMotionAccessController>(*this);
-    return *m_deviceOrientationAndMotionAccessController;
-}
-
-#endif
 
 PaintWorklet& Document::ensurePaintWorklet()
 {

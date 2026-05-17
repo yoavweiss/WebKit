@@ -356,6 +356,13 @@ void RemotePageProxy::setCurrentOrientation(WebCore::ScreenOrientationType orien
         manager->setCurrentOrientation(orientation);
 }
 
+#if ENABLE(DEVICE_ORIENTATION)
+void RemotePageProxy::clearDeviceOrientationAndMotionPermissions()
+{
+    m_process->send(Messages::WebPage::ClearDeviceOrientationAndMotionPermissions(), m_webPageID);
+}
+#endif
+
 #if HAVE(VISIBILITY_PROPAGATION_VIEW)
 void RemotePageProxy::didCreateContextInWebProcessForVisibilityPropagation(LayerHostingContextID contextID)
 {

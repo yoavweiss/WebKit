@@ -124,6 +124,10 @@ public:
 
     void disconnect();
 
+#if ENABLE(DEVICE_ORIENTATION)
+    void clearDeviceOrientationAndMotionPermissions();
+#endif
+
 #if HAVE(VISIBILITY_PROPAGATION_VIEW)
     void didCreateContextInWebProcessForVisibilityPropagation(LayerHostingContextID);
     LayerHostingContextID contextIDForVisibilityPropagationInWebProcess() const { return m_contextIDForVisibilityPropagationInWebProcess; }

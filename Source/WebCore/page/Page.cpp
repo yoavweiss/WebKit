@@ -61,6 +61,7 @@
 #include "DatabaseProvider.h"
 #include "DebugOverlayRegions.h"
 #include "DebugPageOverlays.h"
+#include "DeviceOrientationAndMotionAccessController.h"
 #include "DiagnosticLoggingClient.h"
 #include "DiagnosticLoggingKeys.h"
 #include "DisplayRefreshMonitorManager.h"
@@ -4506,6 +4507,10 @@ void Page::didChangeMainDocument(Document* newDocument)
 
     clearSampledPageTopColor();
 
+#if ENABLE(DEVICE_ORIENTATION)
+    clearDeviceOrientationAndMotionPermissions();
+#endif
+
     m_elementTargetingController->didChangeMainDocument(newDocument);
 
     updateActiveNowPlayingSessionNow();
@@ -4542,6 +4547,21 @@ void Page::forEachDocument(NOESCAPE const Function<void(Document&)>& functor) co
 {
     forEachDocumentFromMainFrame(protect(mainFrame()), functor);
 }
+
+#if ENABLE(DEVICE_ORIENTATION)
+DeviceOrientationAndMotionAccessController& Page::deviceOrientationAndMotionAccessController()
+{
+    if (!m_deviceOrientationAndMotionAccessController)
+        m_deviceOrientationAndMotionAccessController = makeUnique<DeviceOrientationAndMotionAccessController>(*this);
+    return *m_deviceOrientationAndMotionAccessController;
+}
+
+void Page::clearDeviceOrientationAndMotionPermissions()
+{
+    if (m_deviceOrientationAndMotionAccessController)
+        protect(m_deviceOrientationAndMotionAccessController)->clearPermissions();
+}
+#endif
 
 bool Page::findMatchingLocalDocument(NOESCAPE const Function<bool(Document&)>& functor) const
 {

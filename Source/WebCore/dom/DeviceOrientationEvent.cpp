@@ -127,7 +127,8 @@ void DeviceOrientationEvent::initDeviceOrientationEvent(const AtomString& type, 
 void DeviceOrientationEvent::requestPermission(Document& document, PermissionPromise&& promise)
 {
     RefPtr window = document.window();
-    if (!window || !document.page())
+    RefPtr page = document.page();
+    if (!window || !page)
         return promise.reject(Exception { ExceptionCode::InvalidStateError, "No browsing context"_s });
 
     String errorMessage;
@@ -136,7 +137,7 @@ void DeviceOrientationEvent::requestPermission(Document& document, PermissionPro
         return promise.resolve(PermissionState::Denied);
     }
 
-    protect(document.deviceOrientationAndMotionAccessController())->shouldAllowAccess(document, [promise = WTF::move(promise)](PermissionState permissionState) mutable {
+    protect(page->deviceOrientationAndMotionAccessController())->shouldAllowAccess(protect(document), [promise = WTF::move(promise)](PermissionState permissionState) mutable {
         if (permissionState == PermissionState::Prompt)
             return promise.reject(Exception { ExceptionCode::NotAllowedError, "Requesting device orientation access requires a user gesture to prompt"_s });
         promise.resolve(permissionState);

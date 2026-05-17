@@ -125,7 +125,6 @@ class Database;
 class DatabaseThread;
 class DeviceMotionClient;
 class DeviceMotionController;
-class DeviceOrientationAndMotionAccessController;
 class DeviceOrientationClient;
 class DeviceOrientationController;
 class DocumentFontLoader;
@@ -1512,10 +1511,6 @@ public:
     WEBCORE_EXPORT void simulateDeviceOrientationChange(double alpha, double beta, double gamma);
 #endif
 
-#if ENABLE(DEVICE_ORIENTATION)
-    DeviceOrientationAndMotionAccessController& deviceOrientationAndMotionAccessController();
-#endif
-
     WEBCORE_EXPORT double monotonicTimestamp() const;
     const DocumentEventTiming& eventTiming() const LIFETIME_BOUND { return m_eventTiming; }
 
@@ -2506,10 +2501,6 @@ private:
     std::unique_ptr<DeviceMotionController> m_deviceMotionController;
     std::unique_ptr<DeviceOrientationClient> m_deviceOrientationClient;
     std::unique_ptr<DeviceOrientationController> m_deviceOrientationController;
-#endif
-
-#if ENABLE(DEVICE_ORIENTATION)
-    std::unique_ptr<DeviceOrientationAndMotionAccessController> m_deviceOrientationAndMotionAccessController;
 #endif
 
     Timer m_pendingTasksTimer;
