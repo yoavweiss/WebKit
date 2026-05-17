@@ -202,7 +202,7 @@ public:
     {
         // Don't make warnings fatal when creating the backend, since atk produces warnings when a11y bus is not running.
         removeLogFatalFlag(G_LOG_LEVEL_WARNING);
-        auto* headlessBackend = new WPEToolingBackends::HeadlessViewBackend(800, 600);
+        auto* headlessBackend = new WPEToolingBackends::HeadlessViewBackend(1024, 768);
         addLogFatalFlag(G_LOG_LEVEL_WARNING);
         // Make the view initially hidden for consistency with GTK tests.
         wpe_view_backend_remove_activity_state(headlessBackend->backend(), wpe_view_activity_state_visible | wpe_view_activity_state_focused);

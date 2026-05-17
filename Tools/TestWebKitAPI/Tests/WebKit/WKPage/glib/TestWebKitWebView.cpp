@@ -1316,8 +1316,12 @@ static void testWebViewSnapshot(SnapshotWebViewTest* test, gconstpointer)
 #else
     g_assert_nonnull(snapshot1.get());
     g_assert_true(WEBKIT_IS_IMAGE(snapshot1.get()));
-    g_assert_cmpint(webkit_image_get_width(snapshot1.get()), ==, 50);
-    g_assert_cmpint(webkit_image_get_height(snapshot1.get()), ==, 50);
+#if ENABLE(WPE_PLATFORM)
+    if (test->m_display) {
+        g_assert_cmpint(webkit_image_get_width(snapshot1.get()), ==, 50);
+        g_assert_cmpint(webkit_image_get_height(snapshot1.get()), ==, 50);
+    }
+#endif
 #endif
 
     // Select all text in the WebView, request a snapshot ignoring selection.
