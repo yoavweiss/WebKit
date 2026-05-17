@@ -85,7 +85,7 @@ CSSFilterRenderer::CSSFilterRenderer(Vector<Ref<FilterFunction>>&& functions, co
     clampFilterRegionIfNeeded();
 }
 
-static RefPtr<SVGFilterElement> referenceFilterElement(const Style::FilterReference& filterReference, RenderElement& renderer)
+static RefPtr<SVGFilterElement> referenceFilterElement(const Style::FilterReference& filterReference, const RenderElement& renderer)
 {
     RefPtr filterElement = ReferencedSVGResources::referencedFilterElement(protect(renderer.treeScopeForSVGReferences()), filterReference);
 
@@ -100,7 +100,7 @@ static RefPtr<SVGFilterElement> referenceFilterElement(const Style::FilterRefere
     return filterElement;
 }
 
-static bool isIdentityReferenceFilter(const Style::FilterReference& filterReference, RenderElement& renderer)
+static bool isIdentityReferenceFilter(const Style::FilterReference& filterReference, const RenderElement& renderer)
 {
     RefPtr filterElement = referenceFilterElement(filterReference, renderer);
     if (!filterElement)
@@ -109,7 +109,7 @@ static bool isIdentityReferenceFilter(const Style::FilterReference& filterRefere
     return SVGFilterRenderer::isIdentity(*filterElement);
 }
 
-static IntOutsets calculateReferenceFilterOutsets(const Style::FilterReference& filterReference, RenderElement& renderer, const FloatRect& targetBoundingBox)
+static IntOutsets calculateReferenceFilterOutsets(const Style::FilterReference& filterReference, const RenderElement& renderer, const FloatRect& targetBoundingBox)
 {
     RefPtr filterElement = referenceFilterElement(filterReference, renderer);
     if (!filterElement)
@@ -260,7 +260,7 @@ void CSSFilterRenderer::setFilterRegion(const FloatRect& filterRegion)
     clampFilterRegionIfNeeded();
 }
 
-bool CSSFilterRenderer::isIdentity(RenderElement& renderer, const Style::Filter& filter)
+bool CSSFilterRenderer::isIdentity(const RenderElement& renderer, const Style::Filter& filter)
 {
     if (filter.hasFilterThatShouldBeRestrictedBySecurityOrigin())
         return false;
@@ -281,7 +281,7 @@ bool CSSFilterRenderer::isIdentity(RenderElement& renderer, const Style::Filter&
     return true;
 }
 
-IntOutsets CSSFilterRenderer::calculateOutsets(RenderElement& renderer, const Style::Filter& filter, const FloatRect& targetBoundingBox)
+IntOutsets CSSFilterRenderer::calculateOutsets(const RenderElement& renderer, const Style::Filter& filter, const FloatRect& targetBoundingBox)
 {
     IntOutsets outsets;
 

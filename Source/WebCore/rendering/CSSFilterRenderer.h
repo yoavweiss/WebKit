@@ -58,8 +58,8 @@ public:
     RefPtr<FilterImage> apply(FilterImage* sourceImage, FilterResults&) final;
     FilterStyleVector createFilterStyles(GraphicsContext&, const FilterStyle& sourceStyle) const final;
 
-    static bool isIdentity(RenderElement&, const Style::Filter&);
-    static IntOutsets calculateOutsets(RenderElement&, const Style::Filter&, const FloatRect& targetBoundingBox);
+    static bool isIdentity(const RenderElement&, const Style::Filter&);
+    static IntOutsets calculateOutsets(const RenderElement&, const Style::Filter&, const FloatRect& targetBoundingBox);
 
 private:
     CSSFilterRenderer(const FilterGeometry&, OptionSet<FilterRenderingOption>, bool hasFilterThatMovesPixels, bool hasFilterThatShouldBeRestrictedBySecurityOrigin);

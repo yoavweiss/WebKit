@@ -409,6 +409,7 @@ void RenderImage::repaintOrMarkForLayout(ImageSizeChangeType imageSizeChange, co
             FloatSize sourceSize = srcImg->size() / style().usedZoom();
             repaintRect.intersect(enclosingIntRect(mapRect(*rect, FloatRect(FloatPoint(), sourceSize), repaintRect)));
         }
+        // FIXME: This needs to account for filter outsets: webkit.org/b/293553.
         repaintRectangle(repaintRect);
     }
 

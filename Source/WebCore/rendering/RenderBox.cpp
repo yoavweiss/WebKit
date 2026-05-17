@@ -31,6 +31,7 @@
 #include "BorderPainter.h"
 #include "BorderShape.h"
 #include "ContainerNodeInlines.h"
+#include "CSSFilter.h"
 #include "CSSFontSelector.h"
 #include "Document.h"
 #include "EditingInlines.h"
@@ -4631,12 +4632,28 @@ bool RenderBox::avoidsFloats() const
     return false;
 }
 
+IntBoxExtent RenderBox::computeFilterOutsets() const
+{
+    if (!hasFilter())
+        return { };
+
+    auto zoom = style().usedZoomForLength();
+
+    if (auto outsets = style().filter().calculateOutsets(zoom))
+        return *outsets;
+
+    // FIXME: Need to compute outsets for reference filters: webkit.org/b/237538.
+    return { };
+}
+
 void RenderBox::addVisualEffectOverflow()
 {
     bool hasBoxShadow = !style().boxShadow().isNone();
     bool hasBorderImageOutsets = style().hasBorderImageOutsets();
     bool hasOutline = outlineStyleForRepaint().hasOutlineInVisualOverflow();
-    if (!hasBoxShadow && !hasBorderImageOutsets && !hasOutline)
+    bool hasInflatingFilters = hasFilter() && !computeFilterOutsets().isZero();
+
+    if (!hasBoxShadow && !hasBorderImageOutsets && !hasOutline && !hasInflatingFilters)
         return;
 
     addVisualOverflow(applyVisualEffectOverflow(borderBoxRect()));
@@ -4645,7 +4662,8 @@ void RenderBox::addVisualEffectOverflow()
         fragmentedFlow->addFragmentsVisualEffectOverflow(*this);
 }
 
-static void NODELETE convertOutsetsToOverflowCoordinates(LayoutBoxExtent& outsets, WritingMode writingMode)
+template<typename T>
+static void NODELETE convertOutsetsToOverflowCoordinates(RectEdges<T>& outsets, WritingMode writingMode)
 {
     switch (writingMode.blockDirection()) {
     case FlowDirection::TopToBottom:
@@ -4660,7 +4678,7 @@ static void NODELETE convertOutsetsToOverflowCoordinates(LayoutBoxExtent& outset
     }
 }
 
-LayoutRect RenderBox::applyVisualEffectOverflow(const LayoutRect& borderBox) const
+LayoutRect RenderBox::applyVisualEffectOverflow(const LayoutRect& borderBox, EnumSet<VisualEffectOverflowOption> options) const
 {
     LayoutUnit overflowMinX = borderBox.x();
     LayoutUnit overflowMaxX = borderBox.maxX();
@@ -4693,12 +4711,24 @@ LayoutRect RenderBox::applyVisualEffectOverflow(const LayoutRect& borderBox) con
     }
 
     if (outlineStyleForRepaint().hasOutlineInVisualOverflow()) {
-        LayoutUnit outlineSize { outlineStyleForRepaint().usedOutlineSize() };
+        auto outlineSize = LayoutUnit { outlineStyleForRepaint().usedOutlineSize() };
+
         overflowMinX = std::min(overflowMinX, borderBox.x() - outlineSize);
         overflowMaxX = std::max(overflowMaxX, borderBox.maxX() + outlineSize);
         overflowMinY = std::min(overflowMinY, borderBox.y() - outlineSize);
         overflowMaxY = std::max(overflowMaxY, borderBox.maxY() + outlineSize);
     }
+
+    if (hasFilter() && !options.contains(VisualEffectOverflowOption::ExcludeFilterOutsets)) {
+        auto outsets = computeFilterOutsets();
+        convertOutsetsToOverflowCoordinates(outsets, writingMode());
+
+        overflowMinX = std::min(overflowMinX, borderBox.x() - outsets.left());
+        overflowMaxX = std::max(overflowMaxX, borderBox.maxX() + outsets.right());
+        overflowMinY = std::min(overflowMinY, borderBox.y() - outsets.top());
+        overflowMaxY = std::max(overflowMaxY, borderBox.maxY() + outsets.bottom());
+    }
+
     // Add in the final overflow with shadows and outsets combined.
     return LayoutRect(overflowMinX, overflowMinY, overflowMaxX - overflowMinX, overflowMaxY - overflowMinY);
 }
@@ -4779,6 +4809,14 @@ void RenderBox::addOverflowWithRendererOffset(const RenderBox& renderer, LayoutS
     if (!childVisualOverflowRect)
         computeChildVisualOverflowRect();
     addVisualOverflow(*childVisualOverflowRect);
+}
+
+bool RenderBox::hasLayoutOverflow() const
+{
+    if (!m_overflow)
+        return false;
+
+    return !flippedClientBoxRect().contains(m_overflow->layoutOverflowRect());
 }
 
 LayoutOptionalOutsets RenderBox::allowedLayoutOverflow() const

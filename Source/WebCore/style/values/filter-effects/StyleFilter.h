@@ -111,7 +111,7 @@ struct Filter : ListOrNone<FilterValueList> {
     bool hasReferenceFilter() const;
     bool NODELETE isReferenceFilter() const;
 
-    IntOutsets calculateOutsets(ZoomFactor) const;
+    std::optional<IntOutsets> calculateOutsets(ZoomFactor) const;
 };
 DEFINE_TYPE_MAPPING(CSS::Filter, Filter)
 

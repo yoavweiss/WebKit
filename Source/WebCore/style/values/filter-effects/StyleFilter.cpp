@@ -92,9 +92,10 @@ bool Filter::hasFilterThatShouldBeRestrictedBySecurityOrigin() const
     });
 }
 
-IntOutsets Filter::calculateOutsets(ZoomFactor zoom) const
+std::optional<IntOutsets> Filter::calculateOutsets(ZoomFactor zoom) const
 {
     IntOutsets totalOutsets;
+    bool haveReferenceFilter = false;
     for (auto& filterValue : *this) {
         WTF::switchOn(filterValue,
             [&](const BlurFunction& blurFunction) {
@@ -103,12 +104,16 @@ IntOutsets Filter::calculateOutsets(ZoomFactor zoom) const
             [&](const DropShadowFunction& dropShadowFunction) {
                 totalOutsets += dropShadowFunction->calculateOutsets(zoom);
             },
-            [](const FilterReference&) {
-                ASSERT_NOT_REACHED();
+            [&](const FilterReference&) {
+                haveReferenceFilter = true;
             },
             [](const auto&) { }
         );
     }
+
+    if (haveReferenceFilter)
+        return { };
+
     return totalOutsets;
 }
 
