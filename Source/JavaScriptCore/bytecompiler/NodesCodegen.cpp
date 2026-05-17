@@ -55,6 +55,7 @@
 #include "UnlinkedMetadataTableInlines.h"
 #include "YarrFlags.h"
 #include <wtf/Assertions.h>
+#include <wtf/MathExtras.h>
 #include <wtf/text/StringBuilder.h>
 
 namespace JSC {
@@ -5060,7 +5061,7 @@ static void processClauseList(ClauseListNode* list, Vector<ExpressionNode*, 8>& 
         literalVector.append(clauseExpression);
         if (clauseExpression->isNumber()) {
             double value = static_cast<NumberNode*>(clauseExpression)->value();
-            int32_t intVal = static_cast<int32_t>(value);
+            int32_t intVal = truncateDoubleToInt32(value);
             if ((typeForTable & ~SwitchNumber) || (intVal != value)) {
                 typeForTable = SwitchNeither;
                 break;
