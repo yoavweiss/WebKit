@@ -66,7 +66,7 @@
 <!-- Its intended to allow building WebKit using as much as libraries from your distribution as possible -->
 <!-- In order to ensure its minimal, all the modules should have a pkg-config declaration line -->
 
-  <cmake id="libwpe">
+  <cmake id="libwpe" cmakeargs="-DCMAKE_POLICY_VERSION_MINIMUM=3.5">
     <branch repo="github-tarball"
             module="WebPlatformForEmbedded/libwpe/releases/download/${version}/libwpe-${version}.tar.xz"
             version="1.14.1"
@@ -159,7 +159,7 @@
             tag="v0.9.3"/>
   </cmake>
 
-  <cmake id="libyuv">
+  <cmake id="libyuv" cmakeargs="-DCMAKE_POLICY_VERSION_MINIMUM=3.5">
     <branch module="libyuv/libyuv"
             repo="chromium.googlesource.com"
             tag="stable"
@@ -246,6 +246,7 @@
   <!-- libjxl required for JPEGXL support -->
   <cmake id="libjxl"
          cmakeargs="-DBUILD_TESTING=OFF
+                    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
                     -DPROVISION_DEPENDENCIES=ON
                     -DJPEGXL_ENABLE_FUZZERS=OFF
                     -DJPEGXL_ENABLE_DEVTOOLS=OFF
