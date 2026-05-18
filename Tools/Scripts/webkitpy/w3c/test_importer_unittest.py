@@ -753,6 +753,22 @@ class TestImporterTest(unittest.TestCase):
         self.assertTrue(fs.exists('/test.checkout/LayoutTests/platform/test-linux-x86_64/w3c/web-platform-tests/t/test-expected.txt'))
         self.assertTrue(fs.exists('/test.checkout/LayoutTests/platform/unknown-platform/w3c/web-platform-tests/t/test-expected.txt'))
 
+    def test_unmodified_files_not_rewritten(self):
+        """HTML files that need no conversion should be copied verbatim, not parsed and re-serialized."""
+        # HTMLParser lowercases end tags, so this content would be mangled by a parse/serialize cycle.
+        TEST_HTML = '<!DOCTYPE html>\n<script src="/resources/testharness.js"></script>\n<script src="/resources/testharnessreport.js"></script>\n<p>Content</P></BODY></HTML>'
+        FAKE_FILES = {
+            f'{FAKE_WPT_DIR}/t/test.html': TEST_HTML,
+            '/mock-checkout/Source/WebCore/css/CSSProperties.json': '{"properties":{}}',
+            '/mock-checkout/Source/WebCore/css/CSSValueKeywords.in': '',
+        }
+        FAKE_FILES.update(FAKE_RESOURCES)
+
+        fs = self.import_downloaded_tests(['--no-fetch', '--import-all', '--no-clean-dest-dir', '-d', 'w3c'], FAKE_FILES)
+
+        imported = fs.read_text_file('/mock-checkout/LayoutTests/w3c/web-platform-tests/t/test.html')
+        self.assertEqual(imported, TEST_HTML)
+
     def test_resource_files_not_rewritten(self):
         """Resource HTML files should be copied without HTML parsing to avoid corrupting non-UTF-8 encoded content."""
         RESOURCE_HTML = '<span data-bytes="1B 24 42 26 41 1B 28 42">&A</span>'

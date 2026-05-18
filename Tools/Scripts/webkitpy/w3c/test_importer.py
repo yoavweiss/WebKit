@@ -660,7 +660,7 @@ class TestImporter(object):
                 mimetype = mimetypes.guess_type(orig_filepath)
                 is_resource = file_to_copy.get('is_resource', False)
                 if should_rewrite_files and not is_resource and ('text/' in str(mimetype[0]) or 'application/' in str(mimetype[0])) \
-                                        and ('html' in str(mimetype[0]) or 'xml' in str(mimetype[0])  or 'css' in str(mimetype[0]) or 'javascript' in str(mimetype[0])):
+                                        and ('html' in str(mimetype[0]) or 'xml' in str(mimetype[0])  or 'css' in str(mimetype[0])):
                     _log.info("Rewriting: %s" % new_filepath)
                     try:
                         converted_file = convert_for_webkit(new_path, filename=orig_filepath, reference_support_info=reference_support_info, reference_file_renames=reference_file_renames, host=self.host, webkit_test_runner_options=self._webkit_test_runner_options(new_filepath))

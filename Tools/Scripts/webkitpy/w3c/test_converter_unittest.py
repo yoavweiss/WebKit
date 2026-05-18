@@ -91,7 +91,7 @@ CONTENT OF TEST
             converter.close()
             converted = converter.output()
 
-        self.verify_no_conversion_happened(converted, test_html)
+        self.assertIsNone(converted)
 
     def test_convert_for_webkit_harness_only(self):
         """ Tests convert_for_webkit() using a basic JS test that uses testharness.js only and has no prefixed properties """
@@ -107,10 +107,7 @@ CONTENT OF TEST
         converter.close()
         converted = converter.output()
 
-        self.verify_conversion_happened(converted)
-        self.verify_test_harness_paths(converted[2], 1, 1)
-        self.verify_prefixed_properties(converted, [])
-        self.verify_prefixed_property_values(converted, [])
+        self.assertIsNone(converted)
 
     def test_convert_for_webkit_properties_only(self):
         """ Tests convert_for_webkit() using a test that has 2 prefixed properties: 1 in a style block + 1 inline style """
@@ -195,8 +192,7 @@ CONTENT OF TEST
             converter.close()
             converted = converter.output()
 
-        self.verify_conversion_happened(converted)
-        self.verify_test_harness_paths(converted[2], 2, 1)
+        self.assertIsNone(converted)
 
     def test_convert_prefixed_properties(self):
         """ Tests convert_prefixed_properties() file that has 20 properties requiring the -webkit- prefix:

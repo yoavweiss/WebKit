@@ -46,13 +46,16 @@ def convert_for_webkit(new_path, filename, reference_support_info, reference_fil
 
     converter = _W3CTestConverter(new_path, filename, reference_support_info, reference_file_renames, host, webkit_test_runner_options)
     if filename.endswith('.css'):
-        return converter.add_webkit_prefix_to_unprefixed_properties_and_values(contents)
-    elif filename.endswith('.js'):
-        return ([], [], contents)
-    else:
+        result = converter.add_webkit_prefix_to_unprefixed_properties_and_values(contents)
+        if not result[0] and not result[1]:
+            return None
+        return result
+    elif filename.endswith(('.html', '.htm', '.xhtml', '.xht', '.xml', '.svg')):
         converter.feed(contents)
         converter.close()
         return converter.output()
+    else:
+        assert False, f"Unexpected file extension: {filename}"
 
 
 class _W3CTestConverter(HTMLParser):
@@ -73,6 +76,7 @@ class _W3CTestConverter(HTMLParser):
         self.reference_file_renames = reference_file_renames
         self.webkit_test_runner_options = webkit_test_runner_options
         self.has_started = False
+        self._modified = False
 
         # These settings might vary between WebKit and Blink
         css_property_file = self.path_from_webkit_root('Source', 'WebCore', 'css', 'CSSProperties.json')
@@ -87,6 +91,8 @@ class _W3CTestConverter(HTMLParser):
         self.prop_value_re = re.compile(prop_value_regex)
 
     def output(self):
+        if not self._modified:
+            return None
         return (self.converted_properties, self.converted_property_values, ''.join(self.converted_data))
 
     def path_from_webkit_root(self, *comps):
@@ -170,6 +176,7 @@ class _W3CTestConverter(HTMLParser):
         converted = text
         for path in self.reference_support_info['files']:
             if converted.find(path) != -1:
+                self._modified = True
                 # FIXME: This doesn't handle an edge case where simply removing the relative path doesn't work.
                 # See http://webkit.org/b/135677 for details.
                 new_path = re.sub(re.escape(self.reference_support_info['reference_relpath']), '', path, 1)
@@ -180,8 +187,10 @@ class _W3CTestConverter(HTMLParser):
     def convert_style_data(self, data):
         converted = self.add_webkit_prefix_to_unprefixed_properties_and_values(data)
         if converted[0]:
+            self._modified = True
             self.converted_properties.extend(list(converted[0]))
         if converted[1]:
+            self._modified = True
             self.converted_property_values.extend(list(converted[1]))
 
         if self.reference_support_info is None or self.reference_support_info == {}:
@@ -198,7 +207,10 @@ class _W3CTestConverter(HTMLParser):
                 converted = re.sub(re.escape(attr[1]), new_style, converted)
             if attr[0] == 'name' and attr[1] == 'fuzzy' and tag == 'meta':
                 for rename in self.reference_file_renames:
-                    converted = re.sub(rename['src'], rename['dest'], converted)
+                    new_converted = re.sub(rename['src'], rename['dest'], converted)
+                    if new_converted != converted:
+                        self._modified = True
+                        converted = new_converted
 
         # Convert relative paths
         src_tags = ('script', 'style', 'img', 'frame', 'iframe', 'input', 'layer', 'textarea', 'video', 'audio')
@@ -220,6 +232,7 @@ class _W3CTestConverter(HTMLParser):
             return
         self.has_started = True
         if self.webkit_test_runner_options:
+            self._modified = True
             self.converted_data[-1] = self.converted_data[-1] + self.webkit_test_runner_options
 
     def handle_starttag(self, tag, attrs):
