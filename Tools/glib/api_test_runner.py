@@ -49,6 +49,9 @@ def port_options(options):
         setattr(port_options, 'configuration', 'Debug')
     elif options.release:
         setattr(port_options, 'configuration', 'Release')
+    # Forward result_report_flavor so uploaded results are tagged with it
+    # (Port.configuration_for_upload reads it via get_option).
+    setattr(port_options, 'result_report_flavor', getattr(options, 'result_report_flavor', None))
     return port_options
 
 class TestRunner(object):

@@ -76,6 +76,11 @@ if __name__ == "__main__":
 
     options, args = option_parser.parse_args(args)
 
+    if options.wpe_legacy_api:
+        if options.result_report_flavor:
+            raise RuntimeError('--wpe-legacy-api implicitly sets the result flavor, this should not be overridden')
+        options.result_report_flavor = 'wpe-legacy-api'
+
     logging.basicConfig(level=logging.INFO, format="%(message)s")
 
     runner = WPETestRunner(options, args)
