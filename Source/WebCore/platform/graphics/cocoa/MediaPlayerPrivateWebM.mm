@@ -1515,6 +1515,16 @@ void MediaPlayerPrivateWebM::didProvideMediaDataForTrackId(Ref<MediaSampleAVFObj
         return;
     TrackBuffer& trackBuffer = it->second;
 
+    // WebM MediaRecorder may generate consecutive audio packets with identical (DTS, PTS).
+    // We disambiguate with 1 micro second bumps.
+    DecodeOrderSampleMap::KeyType incomingKey { sample->decodeTime(), sample->presentationTime() };
+    while (trackBuffer.samples().decodeOrder().findSampleWithDecodeKey(incomingKey) != trackBuffer.samples().decodeOrder().end()) {
+        MediaTime bumpedPTS = sample->presentationTime() + MediaTime(1, 1000000);
+        MediaTime bumpedDTS = sample->decodeTime() + MediaTime(1, 1000000);
+        sample->setTimestamps(bumpedPTS, bumpedDTS);
+        incomingKey = { bumpedDTS, bumpedPTS };
+    }
+
     trackBuffer.addSample(sample);
 
     // appendCompleted() fires only once per network buffer, so if the file is delivered in large
