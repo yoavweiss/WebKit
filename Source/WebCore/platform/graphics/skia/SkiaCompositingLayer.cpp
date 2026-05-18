@@ -248,14 +248,14 @@ void SkiaCompositingLayer::addDamage(Damage&& damage)
 
 void SkiaCompositingLayer::addPreviousRectToSharedFrameDamage()
 {
-    if (!m_previousLayerRectInFrameCoordinates)
+    if (m_previousLayerRectInFrameCoordinates.isEmpty())
         return;
 
     // In many cases, damaging the whole layer in the "new" state is not enough.
     // When e.g. changing size, transform, etc. the layer (or its parts) effectively disappears from one place
     // and re-appears in another. Therefore the damaging of a layer in the "old" state is required as well.
     ASSERT(m_sharedFrameDamage);
-    m_sharedFrameDamage->add(*m_previousLayerRectInFrameCoordinates);
+    m_sharedFrameDamage->add(std::exchange(m_previousLayerRectInFrameCoordinates, { }));
 }
 
 void SkiaCompositingLayer::recursiveAddPreviousRectToSharedFrameDamage(Ref<SkiaCompositingLayer> layer)
@@ -440,7 +440,6 @@ bool SkiaCompositingLayer::paint(SkCanvas& canvas, std::optional<Damage>& damage
 void SkiaCompositingLayer::paintSelf(SkCanvas& canvas, PaintContext& context)
 {
 #if ENABLE(DAMAGE_TRACKING)
-    m_previousLayerRectInFrameCoordinates = std::nullopt;
     auto cleanup = WTF::makeScopeExit([&] {
         m_layerDamage = std::nullopt;
     });
@@ -513,10 +512,12 @@ void SkiaCompositingLayer::paintSelf(SkCanvas& canvas, PaintContext& context)
 
 #if ENABLE(DAMAGE_TRACKING)
     if (frameDamagePropagationEnabled() && context.frameDamage) {
-        m_previousLayerRectInFrameCoordinates = transform.mapRect(effectiveLayerRect());
+        auto frameDamage = transform.mapRect(effectiveLayerRect());
         auto clipBounds = FloatRect(this->clipBounds(canvas, context));
         if (!clipBounds.isEmpty())
-            m_previousLayerRectInFrameCoordinates->intersect(clipBounds);
+            frameDamage.intersect(clipBounds);
+
+        m_previousLayerRectInFrameCoordinates.unite(frameDamage);
 
         if (m_layerDamage) {
             for (const auto& rect : *m_layerDamage) {
@@ -526,7 +527,7 @@ void SkiaCompositingLayer::paintSelf(SkCanvas& canvas, PaintContext& context)
                 context.frameDamage->add(damageRect);
             }
         } else if ((m_contentsSolidColor.isValid() && m_contentsSolidColor.isVisible()) || m_contentsBuffer || m_imageBackingStore)
-            context.frameDamage->add(*m_previousLayerRectInFrameCoordinates);
+            context.frameDamage->add(frameDamage);
     }
 #endif
 

@@ -257,7 +257,7 @@ private:
 #if ENABLE(DAMAGE_TRACKING)
     std::shared_ptr<Damage> m_sharedFrameDamage;
     std::optional<Damage> m_layerDamage;
-    std::optional<FloatRect> m_previousLayerRectInFrameCoordinates;
+    FloatRect m_previousLayerRectInFrameCoordinates;
     FloatRect m_accumulatedOverlapRegionFrameDamage;
 #endif
 };
