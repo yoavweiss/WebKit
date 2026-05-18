@@ -102,6 +102,10 @@ double computeUnzoomedNonCalcLengthDouble(double value, CSS::LengthUnit lengthUn
 {
     using enum CSS::LengthUnit;
 
+    auto effectiveRangeZoomOption = (propertyToCompute == CSSPropertyFontSize)
+        ? CSS::RangeZoomOptions::Unzoomed
+        : rangeZoomOption;
+
     switch (lengthUnit) {
     case Px:
         return value;
@@ -125,7 +129,7 @@ double computeUnzoomedNonCalcLengthDouble(double value, CSS::LengthUnit lengthUn
     case Rem: {
         ASSERT(fontCascadeForUnit);
         auto& fontDescription = fontCascadeForUnit->fontDescription();
-        return ((propertyToCompute == CSSPropertyFontSize) ? fontDescription.specifiedSize() :  fontDescription.computedSizeForRangeZoomOption(rangeZoomOption)) * value;
+        return ((propertyToCompute == CSSPropertyFontSize) ? fontDescription.specifiedSize() :  fontDescription.computedSizeForRangeZoomOption(effectiveRangeZoomOption)) * value;
     }
     case Ex:
     case Rex: {
@@ -133,8 +137,8 @@ double computeUnzoomedNonCalcLengthDouble(double value, CSS::LengthUnit lengthUn
         auto& fontDescription = fontCascadeForUnit->fontDescription();
         auto& fontMetrics = fontCascadeForUnit->metricsOfPrimaryFont();
         if (fontMetrics.xHeight())
-            return unzoomFontMetricIfNeeded(fontMetrics.xHeight().value(), fontDescription, rangeZoomOption) * value;
-        return ((propertyToCompute == CSSPropertyFontSize) ? fontDescription.specifiedSize() : fontDescription.computedSizeForRangeZoomOption(rangeZoomOption)) / 2.0 * value;
+            return unzoomFontMetricIfNeeded(fontMetrics.xHeight().value(), fontDescription, effectiveRangeZoomOption) * value;
+        return ((propertyToCompute == CSSPropertyFontSize) ? fontDescription.specifiedSize() : fontDescription.computedSizeForRangeZoomOption(effectiveRangeZoomOption)) / 2.0 * value;
     }
     case Cap:
     case Rcap: {
@@ -142,14 +146,14 @@ double computeUnzoomedNonCalcLengthDouble(double value, CSS::LengthUnit lengthUn
         auto& fontDescription = fontCascadeForUnit->fontDescription();
         auto& fontMetrics = fontCascadeForUnit->metricsOfPrimaryFont();
         if (fontMetrics.capHeight())
-            return unzoomFontMetricIfNeeded(fontMetrics.capHeight().value(), fontDescription, rangeZoomOption) * value;
-        return unzoomFontMetricIfNeeded(fontMetrics.intAscent(), fontDescription, rangeZoomOption) * value;
+            return unzoomFontMetricIfNeeded(fontMetrics.capHeight().value(), fontDescription, effectiveRangeZoomOption) * value;
+        return unzoomFontMetricIfNeeded(fontMetrics.intAscent(), fontDescription, effectiveRangeZoomOption) * value;
     }
     case Ch:
     case Rch: {
         ASSERT(fontCascadeForUnit);
         auto& fontDescription = fontCascadeForUnit->fontDescription();
-        return unzoomFontMetricIfNeeded(fontCascadeForUnit->zeroWidth(), fontDescription, rangeZoomOption) * value;
+        return unzoomFontMetricIfNeeded(fontCascadeForUnit->zeroWidth(), fontDescription, effectiveRangeZoomOption) * value;
     }
     case Ic:
     case Ric: {
@@ -157,8 +161,8 @@ double computeUnzoomedNonCalcLengthDouble(double value, CSS::LengthUnit lengthUn
         auto& fontDescription = fontCascadeForUnit->fontDescription();
         auto ideogramWidth = fontCascadeForUnit->metricsOfPrimaryFont().ideogramWidth();
         if (!ideogramWidth)
-            return fontDescription.computedSizeForRangeZoomOption(rangeZoomOption) * value;
-        return unzoomFontMetricIfNeeded(ideogramWidth.value(), fontDescription, rangeZoomOption) * value;
+            return fontDescription.computedSizeForRangeZoomOption(effectiveRangeZoomOption) * value;
+        return unzoomFontMetricIfNeeded(ideogramWidth.value(), fontDescription, effectiveRangeZoomOption) * value;
     }
 
     // MARK: "viewport percentage" resolution
