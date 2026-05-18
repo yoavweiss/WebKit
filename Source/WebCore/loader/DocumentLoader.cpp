@@ -306,12 +306,6 @@ void DocumentLoader::mainReceivedError(const ResourceError& error, LoadWillConti
         protect(frameLoader()->client())->dispatchDidFailLoading(this, *m_identifierForLoadWithoutResourceLoader, error);
     }
 
-    // There is a bug in CFNetwork where callbacks can be dispatched even when loads are deferred.
-    // See <rdar://problem/6304600> for more details.
-#if !USE(CF)
-    ASSERT(!mainResourceLoader() || !mainResourceLoader()->defersLoading());
-#endif
-
     setMainDocumentError(error);
     clearMainResourceLoader();
     protect(frameLoader())->receivedMainResourceError(error, loadWillContinueInAnotherProcess);
@@ -499,12 +493,6 @@ void DocumentLoader::finishedLoading()
         frame->loader().load(WTF::move(frameLoadRequest));
         return;
     }
-
-    // There is a bug in CFNetwork where callbacks can be dispatched even when loads are deferred.
-    // See <rdar://problem/6304600> for more details.
-#if !USE(CF)
-    ASSERT(!m_frame->page()->defersLoading() || protect(frameLoader())->stateMachine().creatingInitialEmptyDocument() || InspectorInstrumentation::isDebuggerPaused(m_frame.get()));
-#endif
 
     Ref<DocumentLoader> protectedThis(*this);
 
@@ -1019,12 +1007,6 @@ void DocumentLoader::responseReceived(ResourceResponse&& response, CompletionHan
         }
     }
 
-    // There is a bug in CFNetwork where callbacks can be dispatched even when loads are deferred.
-    // See <rdar://problem/6304600> for more details.
-#if !USE(CF)
-    ASSERT(!mainResourceLoader() || !mainResourceLoader()->defersLoading());
-#endif
-
     if (m_isLoadingMultipartContent) {
         setupForMultipartReplace();
         m_mainResource->clear();
@@ -1458,12 +1440,6 @@ void DocumentLoader::dataReceived(const SharedBuffer& buffer)
 
     ASSERT(!buffer.span().empty());
     ASSERT(!m_response.isNull());
-
-    // There is a bug in CFNetwork where callbacks can be dispatched even when loads are deferred.
-    // See <rdar://problem/6304600> for more details.
-#if !USE(CF)
-    ASSERT(!mainResourceLoader() || !mainResourceLoader()->defersLoading());
-#endif
 
     if (m_identifierForLoadWithoutResourceLoader)
         frameLoader()->notifier().dispatchDidReceiveData(this, *m_identifierForLoadWithoutResourceLoader, &buffer, buffer.size(), -1);

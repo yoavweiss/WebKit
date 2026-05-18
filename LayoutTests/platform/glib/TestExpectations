@@ -2214,10 +2214,8 @@ webkit.org/b/313804 fast/scrolling/always-on-scrollbar-dark-appearance.html [ Im
 
 webkit.org/b/257624 http/tests/security/video-cross-origin-caching.html [ Pass Timeout ]
 
-webkit.org/b/201270 [ Release ] http/tests/security/navigate-when-restoring-cached-page.html [ Timeout ]
-webkit.org/b/201270 [ Debug ] http/tests/security/navigate-when-restoring-cached-page.html [ Crash ]
-webkit.org/b/201270 [ Release ] http/tests/security/showModalDialog-sync-cross-origin-page-load2.html [ Timeout ]
-webkit.org/b/201270 [ Debug ] http/tests/security/showModalDialog-sync-cross-origin-page-load2.html [ Crash ]
+webkit.org/b/201270 http/tests/security/navigate-when-restoring-cached-page.html [ Timeout ]
+webkit.org/b/201270 http/tests/security/showModalDialog-sync-cross-origin-page-load2.html [ Timeout ]
 
 webkit.org/b/164539 http/tests/security/module-crossorigin-error-event-information.html [ Failure ]
 
