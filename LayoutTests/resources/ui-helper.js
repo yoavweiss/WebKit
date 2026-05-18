@@ -1894,6 +1894,13 @@ window.UIHelper = class UIHelper {
         });
     }
 
+    static async chooseLanguageInMediaContextMenu(language)
+    {
+        if (this.isIOSFamily())
+            await this.chooseMenuAction("Languages");
+        await this.chooseMenuAction(language);
+    }
+
     static waitForEvent(target, eventName)
     {
         return new Promise(resolve => target.addEventListener(eventName, resolve, { once: true }));
