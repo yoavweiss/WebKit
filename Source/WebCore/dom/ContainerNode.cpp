@@ -1470,6 +1470,8 @@ ExceptionOr<void> ContainerNode::moveBefore(Node& node, RefPtr<Node>&& refChild)
 
     // FIXME(281223): Run NodeIterator and live range pre-remove steps.
 
+    auto removalChildChange = makeChildChangeForRemoval(node, ChildChange::Source::API);
+
     {
         WidgetHierarchyUpdatesSuspensionScope suspendWidgetHierarchyUpdates;
         ScriptDisallowedScope::InMainThread scriptDisallowedScope;
@@ -1517,6 +1519,11 @@ ExceptionOr<void> ContainerNode::moveBefore(Node& node, RefPtr<Node>&& refChild)
                 CustomElementReactionQueue::enqueueConnectedMoveCallbackIfNeeded(*element);
         }
     }
+
+    // FIXME: Add a new type for ChildChange.
+
+    oldParent->childrenChanged(removalChildChange);
+    childrenChanged(makeChildChangeForInsertion(*this, node, refChild, ChildChange::Source::API, ReplacedAllChildren::No));
 
     // FIXME(281223): Queue tree mutation records.
 

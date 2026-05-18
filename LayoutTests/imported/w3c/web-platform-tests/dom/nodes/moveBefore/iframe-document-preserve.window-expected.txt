@@ -5,5 +5,5 @@ PASS moveBefore(): cross-origin iframe is preserved: remove new parent
 PASS moveBefore(): cross-origin iframe is preserved: remove self
 PASS moveBefore(): cross-origin iframe is preserved: remove self via replaceChildren()
 PASS moveBefore(): cross-origin iframe is preserved: remove self via innerHTML
-FAIL window.frames ordering does not change due to moveBefore() assert_equals: iframe3 comes first in DOM after moveBefore expected "iframe3" but got "iframe1"
+PASS window.frames ordering does not change due to moveBefore()
 

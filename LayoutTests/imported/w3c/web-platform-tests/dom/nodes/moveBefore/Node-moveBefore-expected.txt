@@ -21,7 +21,7 @@ PASS moveBefore() with a non-{Element, CharacterData} throws a HierarchyRequestE
 PASS moveBefore with an Element or CharacterData succeeds
 PASS moveBefore on a paragraph's Text node child
 PASS moveBefore with reference child whose parent is NOT the destination parent (context node) throws a NotFoundError.
-FAIL moveBefore() returns undefined assert_array_equals: expected property 0 to be Element node <div></div> but got Element node <div></div> (expected array [Element node <div></div>, Element node <div></div>] got object "[object NodeList]")
+PASS moveBefore() returns undefined
 PASS Moving a node before itself should not move the node
 PASS Moving a node from a disconnected container to a disconnected new parent without a shared ancestor throws a HIERARCHY_REQUEST_ERR
 PASS Moving a node from a disconnected container to a disconnected new parent in the same tree succeeds

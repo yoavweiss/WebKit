@@ -1,6 +1,6 @@
 
 
-FAIL moveBefore() correctly updates name map when moving into shadow root assert_equals: expected 0 but got 1
+PASS moveBefore() correctly updates name map when moving into shadow root
 PASS moveBefore() correctly updates window map
-FAIL moveBefore() correctly updates name map ordering in document assert_equals: expected Element node <img name="duplicate"></img> but got Element node <img name="duplicate"></img>
+PASS moveBefore() correctly updates name map ordering in document
 
