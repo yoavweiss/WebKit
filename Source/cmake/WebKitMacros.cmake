@@ -727,6 +727,38 @@ macro(WEBKIT_CREATE_SYMLINK target src dest)
         COMMENT "Create symlink from ${src} to ${dest}")
 endmacro()
 
+function(_webkit_setup_swift_header_deps _target _stamp _header)
+    # Discover _CopyHeaders/_CopyPrivateHeaders targets for this target and its
+    # direct framework dependencies. Called via cmake_language(DEFER CALL ...)
+    # so targets declared after WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER
+    # (e.g. ${_target}_CopyHeaders itself) are visible to if(TARGET ...).
+    set(_candidates "${_target}")
+    if (DEFINED ${_target}_FRAMEWORKS)
+        list(APPEND _candidates ${${_target}_FRAMEWORKS})
+    endif ()
+    set(_deps "")
+    foreach (_lib IN LISTS _candidates)
+        foreach (_suffix IN ITEMS _CopyHeaders _CopyPrivateHeaders)
+            if (TARGET "${_lib}${_suffix}")
+                list(APPEND _deps "${_lib}${_suffix}")
+            endif ()
+        endforeach ()
+    endforeach ()
+    list(REMOVE_DUPLICATES _deps)
+
+    if (_deps)
+        # Wrap the header-generation command in its own custom target so it
+        # does NOT inherit cmake_object_order_depends_target_${_target} (which
+        # would gate it on every link dependency). It can start as soon as the
+        # relevant headers are staged.
+        add_custom_target(${_target}_SwiftCxxHeader DEPENDS ${_stamp})
+        add_dependencies(${_target}_SwiftCxxHeader ${_deps})
+        add_dependencies(${_target} ${_target}_SwiftCxxHeader)
+    else ()
+        target_sources(${_target} PRIVATE ${_header})
+    endif ()
+endfunction()
+
 macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_name _interop_module_path _output_header)
     if (SWIFT_REQUIRED)
         set_target_properties(${_target} PROPERTIES Swift_MODULE_NAME ${_module_name})
@@ -937,18 +969,10 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
             COMMAND_EXPAND_LISTS)
 
         target_include_directories(${_target} PUBLIC ${_header_base_path})
-        if (DEFINED ${_target}_SWIFT_HEADER_DEPENDS)
-            # The -emit-clang-header pass only needs the staged headers it actually
-            # reads, not the target's linked frameworks. When the caller names
-            # those header-producing targets, wrap the command in its own
-            # custom target so it does NOT inherit
-            # cmake_object_order_depends_target_${_target} (which would gate it
-            # on every link dependency) and can start as soon as headers exist.
-            add_custom_target(${_target}_SwiftCxxHeader DEPENDS ${_header_stamp_path})
-            add_dependencies(${_target}_SwiftCxxHeader ${${_target}_SWIFT_HEADER_DEPENDS})
-            add_dependencies(${_target} ${_target}_SwiftCxxHeader)
-        else ()
-            target_sources(${_target} PRIVATE ${_header_stamp_path})
-        endif ()
+        # Defer dependency wiring until end-of-directory so if(TARGET ...) inside
+        # _webkit_setup_swift_header_deps sees targets declared after this macro
+        # call (e.g. ${_target}_CopyHeaders is often created later in the same file).
+        cmake_language(DEFER CALL _webkit_setup_swift_header_deps
+            "${_target}" "${_header_stamp_path}" "${_header_path}")
     endif ()
 endmacro()

@@ -117,13 +117,6 @@ if (SWIFT_REQUIRED AND NOT (PORT STREQUAL GTK OR PORT STREQUAL WPE))
         list(APPEND PAL_SWIFT_EXTRA_OPTIONS "-Xcc" "-I${CMAKE_BINARY_DIR}/ICU/Headers")
     endif ()
 
-    # Declare a header-only dependency for WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER below.
-    set(PAL_SWIFT_HEADER_DEPENDS
-        PAL_CopyHeaders
-        WTF_CopyHeaders
-        bmalloc_CopyHeaders
-    )
-
     WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER(PAL pal
         "${PAL_FRAMEWORK_HEADERS_DIR}/pal"
         "PALSwift-Generated.h")

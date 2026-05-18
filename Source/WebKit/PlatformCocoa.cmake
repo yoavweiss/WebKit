@@ -172,18 +172,6 @@ set(WebKit_SWIFT_INCLUDE_DIRECTORIES
     "${WEBKIT_DIR}/Platform/spi/ios"
 )
 
-# Targets that stage the headers the -typecheck/-emit-clang-header pass reads.
-# Declaring these lets WEBKIT_TARGET_ADD_SWIFT_SOURCES detach the header
-# command from cmake_object_order_depends_target_WebKit so it starts once
-# headers are copied instead of waiting for WebCore/WebKitLegacy to link.
-set(WebKit_SWIFT_HEADER_DEPENDS
-    PAL_CopyHeaders
-    WTF_CopyHeaders
-    WebKit_CopyHeaders
-    bmalloc_CopyHeaders
-    bmalloc_CopyPrivateHeaders
-)
-
 file(WRITE "${CMAKE_BINARY_DIR}/WebKit/WebPushDaemonStubs.cpp"
 "#include \"config.h\"\n#if ENABLE(WEB_PUSH_NOTIFICATIONS)\nnamespace WebKit {\nint WebPushDaemonMain(int, char**) { return 1; }\nint WebPushToolMain(int, char**) { return 1; }\n}\n#endif\n")
 list(APPEND WebKit_SOURCES "${CMAKE_BINARY_DIR}/WebKit/WebPushDaemonStubs.cpp")
