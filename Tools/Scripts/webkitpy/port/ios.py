@@ -118,18 +118,19 @@ class IOSPort(EmbeddedPort):
 
     def _api_test_platform_cascade(self):
         cascade = []
-        internal_version = self._api_test_version_name(self._os_version, table=INTERNAL_TABLE) if apple_additions() else None
+        version = self.device_version()
+        internal_version = self._api_test_version_name(version, table=INTERNAL_TABLE) if apple_additions() else None
         internal_name = 'ios-{}'.format(internal_version) if internal_version else None
         cascade.append(('ios', internal_name))
 
-        if self._os_version:
-            cascade.append(('ios-{}'.format(self._os_version.major), internal_name))
+        if version:
+            cascade.append(('ios-{}'.format(version.major), internal_name))
 
         if 'simulator' in self.SDK:
             internal_sim_name = 'ios-{}-simulator'.format(internal_version) if internal_version else None
             cascade.append(('ios-simulator', internal_sim_name))
-            if self._os_version:
-                cascade.append(('ios-simulator-{}'.format(self._os_version.major), internal_sim_name))
+            if version:
+                cascade.append(('ios-simulator-{}'.format(version.major), internal_sim_name))
 
         return cascade
 
@@ -140,8 +141,9 @@ class IOSPort(EmbeddedPort):
         config = super(IOSPort, self).api_test_current_configuration()
         config['platform'] = 'ios'
 
-        if self._os_version:
-            config['version'] = 'ios{}'.format(self._os_version.major)
+        version = self.device_version()
+        if version:
+            config['version'] = 'ios{}'.format(version.major)
 
         config['hardware'] = 'simulator' if 'simulator' in self.SDK else 'device'
 
