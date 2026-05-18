@@ -36,6 +36,7 @@
 #include "PlatformDisplay.h"
 
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
+#include <skia/core/SkCanvas.h>
 #include <skia/gpu/ganesh/SkImageGanesh.h>
 #include <skia/gpu/ganesh/SkSurfaceGanesh.h>
 #include <skia/gpu/ganesh/gl/GrGLBackendSurface.h>
@@ -122,6 +123,15 @@ std::unique_ptr<GLFence> flushAndSubmitWithFence(GrDirectContext* grContext)
 {
     grContext->flush();
     return createFenceAfterFlush(grContext);
+}
+
+void paintImageRectToSurface(sk_sp<SkSurface>& surface, const sk_sp<SkImage>& image, const FloatRect& rect)
+{
+    ASSERT(surface && surface->getCanvas());
+    SkPaint paint;
+    paint.setBlendMode(SkBlendMode::kSrc);
+    surface->getCanvas()->drawImageRect(image, SkRect::MakeWH(rect.width(), rect.height()), SkRect(rect),
+        SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone), &paint, SkCanvas::kFast_SrcRectConstraint);
 }
 
 SkBlendMode toSkiaBlendMode(BlendMode blendMode, std::optional<CompositeOperator> operation)

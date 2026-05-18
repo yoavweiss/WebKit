@@ -134,7 +134,8 @@ bool CoordinatedPlatformLayerBufferNativeImage::tryEnsureBuffer(UseSkiaForCompos
         if (!surface)
             return false;
 
-        surface->writePixels(pixmap, 0, 0);
+        auto image = SkImages::RasterFromPixmap(pixmap, nullptr, nullptr);
+        SkiaUtilities::paintImageRectToSurface(surface, image, FloatRect({ }, m_size));
     } else
         texture->updateContents(pixmap.addr(), IntRect(IntPoint(), m_size), IntPoint(), image->imageInfo().minRowBytes(), PixelFormat::BGRA8);
 #endif
