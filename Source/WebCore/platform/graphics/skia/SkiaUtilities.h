@@ -63,6 +63,10 @@ sk_sp<SkSurface> createSurface(GrDirectContext*, const BitmapTexture&, const SkS
 // original image's color type, alpha type, and color space.
 sk_sp<SkImage> rewrapImageForContext(GrDirectContext*, const SkImage&);
 
+// Wraps a GrBackendTexture as a non-owning SkImage for the given context,
+// using RGBA8, premultiplied alpha, and sRGB color space.
+sk_sp<SkImage> borrowBackendTextureAsImage(GrDirectContext*, const GrBackendTexture&, GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin);
+
 // Extracts the GL texture ID from a GPU-backed SkImage, if available.
 std::optional<unsigned> retrieveGLTextureID(const SkImage&);
 
