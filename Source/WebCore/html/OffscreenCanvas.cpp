@@ -35,6 +35,7 @@
 #include "Chrome.h"
 #include "Document.h"
 #include "EventDispatcher.h"
+#include "EventNames.h"
 #include "GPU.h"
 #include "GPUCanvasContext.h"
 #include "HTMLCanvasElement.h"
@@ -430,6 +431,29 @@ ScriptExecutionContext* OffscreenCanvas::scriptExecutionContext() const
 ScriptExecutionContext* OffscreenCanvas::canvasBaseScriptExecutionContext() const
 {
     return ContextDestructionObserver::scriptExecutionContext();
+}
+
+bool OffscreenCanvas::virtualHasPendingActivity() const
+{
+#if ENABLE(WEBGL)
+    if (m_hasRelevantWebGLEventListener) {
+        // This runs on a GC thread.
+        SUPPRESS_UNCOUNTED_LOCAL auto* context = dynamicDowncast<WebGLRenderingContextBase>(m_context.get());
+        // WebGL rendering context may fire contextlost / contextrestored events at any point.
+        return context && !context->isContextUnrecoverablyLost();
+    }
+#endif
+
+    return false;
+}
+
+void OffscreenCanvas::eventListenersDidChange()
+{
+#if ENABLE(WEBGL)
+    auto& eventNames = WebCore::eventNames();
+    m_hasRelevantWebGLEventListener = hasEventListeners(eventNames.webglcontextlostEvent)
+        || hasEventListeners(eventNames.webglcontextrestoredEvent);
+#endif
 }
 
 }
