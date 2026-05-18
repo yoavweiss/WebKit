@@ -2322,9 +2322,14 @@ void beforeAll()
 #endif
     WebViewTest::add("WebKitWebView", "is-audio-muted", testWebViewIsAudioMuted);
     WebViewTest::add("WebKitWebView", "autoplay-policy", testWebViewAutoplayPolicy);
-    WebViewTest::add("WebKitWebView", "is-web-process-responsive", testWebViewIsWebProcessResponsive);
     WebViewTerminateWebProcessTest::add("WebKitWebView", "terminate-web-process", testWebViewTerminateWebProcess);
+#if defined(NDEBUG)
+    // ResponsivenessTimer::mayBecomeUnresponsive() short-circuits to false in
+    // Debug builds, so the web process is never reported as unresponsive and
+    // these tests would hang waiting for the property change.
+    WebViewTest::add("WebKitWebView", "is-web-process-responsive", testWebViewIsWebProcessResponsive);
     WebViewTerminateWebProcessTest::add("WebKitWebView", "terminate-unresponsive-web-process", testWebViewTerminateUnresponsiveWebProcess);
+#endif
     WebViewTest::add("WebKitWebView", "cors-allowlist", testWebViewCORSAllowlist);
     WebViewTest::add("WebKitWebView", "default-content-security-policy", testWebViewDefaultContentSecurityPolicy);
     WebViewTest::add("WebKitWebView", "web-extension-mode", testWebViewWebExtensionMode);
