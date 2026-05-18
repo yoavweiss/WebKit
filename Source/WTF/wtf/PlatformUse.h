@@ -281,7 +281,7 @@
 #endif
 
 // Use OS(MACOS) to pick up JSCOnly ports on Mac.
-#if OS(MACOS) || PLATFORM(MACCATALYST)
+#if OS(MACOS) || PLATFORM(MACCATALYST) || (PLATFORM(IOS_FAMILY) && TARGET_OS_SIMULATOR)
 #if USE(APPLE_INTERNAL_SDK)
 /* Always use the macro on internal builds */
 #define USE_PTHREAD_JIT_PERMISSIONS_API 0 
