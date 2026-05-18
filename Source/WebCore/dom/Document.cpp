@@ -3577,7 +3577,8 @@ void Document::willBeRemovedFromFrame()
     clearTouchEventHandlersAndListeners();
 #endif
 
-    protect(undoManager())->removeAllItems();
+    if (m_undoManager)
+        m_undoManager->removeAllItems();
 
     m_textManipulationController = nullptr; // Free nodes kept alive by TextManipulationController.
 
