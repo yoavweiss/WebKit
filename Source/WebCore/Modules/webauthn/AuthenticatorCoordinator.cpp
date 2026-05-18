@@ -39,6 +39,8 @@
 #include "DocumentSecurityOrigin.h"
 #include "FrameDestructionObserverInlines.h"
 #include "JSBasicCredential.h"
+#include "LegacySchemeRegistry.h"
+#include "LocalFrameInlines.h"
 #include "JSCredentialCreationOptions.h"
 #include "JSCredentialRequestOptions.h"
 #include "JSDOMConvertBoolean.h"
@@ -55,7 +57,7 @@
 #include "PublicKeyCredentialCreationOptions.h"
 #include "PublicKeyCredentialRequestOptions.h"
 #include "RegistrableDomain.h"
-#include "LegacySchemeRegistry.h"
+#include "RemoteFrame.h"
 #include "UnknownCredentialOptions.h"
 #include "WebAuthenticationConstants.h"
 #include "WebAuthenticationUtils.h"
@@ -107,11 +109,12 @@ static ScopeAndCrossOriginParent scopeAndCrossOriginParent(const Document& docum
     Ref origin = document.securityOrigin();
     auto url = document.url();
     std::optional<SecurityOriginData> crossOriginParent;
-    for (RefPtr parentDocument = document.parentDocument(); parentDocument; parentDocument = parentDocument->parentDocument()) {
-        if (!origin->isSameOriginDomain(protect(parentDocument->securityOrigin())) && !areRegistrableDomainsEqual(url, parentDocument->url()))
+    for (RefPtr parentFrame = document.frame() ? document.frame()->tree().parent() : nullptr; parentFrame; parentFrame = parentFrame->tree().parent()) {
+        RefPtr parentOrigin = parentFrame->frameDocumentSecurityOrigin();
+        if (!parentOrigin || is<RemoteFrame>(parentFrame) || RegistrableDomain(parentOrigin->data()) != RegistrableDomain(origin->data()))
             isSameSite = false;
-        if (!crossOriginParent && !origin->isSameOriginAs(protect(parentDocument->securityOrigin())))
-            crossOriginParent = parentDocument->securityOrigin().data();
+        if (parentOrigin && !origin->isSameOriginAs(*parentOrigin))
+            crossOriginParent = parentOrigin->data();
     }
 
     if (!crossOriginParent)

@@ -238,7 +238,6 @@ http/wpt/css/css-view-transitions/navigation/old_vt_promises_bfcache.html [ Fail
 http/wpt/fetch/inspect-preflight.html [ Failure ]
 http/wpt/html/browsers/browsing-the-web/navigating-across-documents/navigating-iframe-sandbox.html [ Failure ]
 http/wpt/service-workers/third-party-registration.html [ Failure ]
-http/wpt/webauthn/public-key-credential-same-origin-with-ancestors.https.html [ Failure ]
 http/wpt/webcodecs/audioData-serialization.html [ Failure ]
 http/wpt/webcodecs/videoFrame-serialization.html [ Failure ]
 http/wpt/webrtc/third-party-frame-ice-candidate-filtering.html [ Failure ]
