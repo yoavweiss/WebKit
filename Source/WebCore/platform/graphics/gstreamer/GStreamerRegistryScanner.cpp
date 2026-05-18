@@ -487,10 +487,17 @@ void GStreamerRegistryScanner::initializeDecoders(const GStreamerRegistryScanner
         m_decoderCodecMap.add("mp4a.40.05"_s, result); // MPEG-4 HE-AAC v1 (AAC LC + SBR)
         m_decoderCodecMap.add("mp4a.40.29"_s, result); // MPEG-4 HE-AAC v2 (AAC LC + SBR + PS)
         // As of writing, support for Extended HE-AAC (MPEG-D USAC) and xHE-AAC (MPEG-D USAC + MPEG-D DRC) -- which uses the
-        // USAC AOT, is not yet widely available enough to be enabled by default.
-        auto value = CStringView::unsafeFromUTF8(g_getenv("WEBKIT_GST_CAN_PLAY_USAC"));
-        bool canPlayUsac = value.isEmpty() ? false : (WTF::equalLettersIgnoringASCIICase(value.span(), "true"_s)
-            || WTF::equalLettersIgnoringASCIICase(value.span(), "1"_s));
+        // USAC AOT, is not yet widely available enough to be enabled by default except in platforms with a mechanism to autodetect it.
+        auto envCanPlayUsac = CStringView::unsafeFromUTF8(g_getenv("WEBKIT_GST_CAN_PLAY_USAC"));
+        bool canPlayUsac;
+        if (envCanPlayUsac.isEmpty()) {
+            // A few hardware platforms (Amlogic and MediaTek) explicitly report support for USAC via stream-format=usac.
+            // If an element supporting such caps exists, we can safely assume USAC to be supported. See: https://github.com/WebPlatformForEmbedded/WPEWebKit/pull/1654
+            canPlayUsac = factories.hasElementForMediaType(ElementFactories::Type::AudioDecoder, "audio/mpeg, mpegversion=(int)4, stream-format=(string)usac"_s).isSupported;
+        } else {
+            canPlayUsac = (WTF::equalLettersIgnoringASCIICase(envCanPlayUsac.span(), "true"_s)
+                || WTF::equalLettersIgnoringASCIICase(envCanPlayUsac.span(), "1"_s));
+        }
         if (canPlayUsac)
             m_decoderCodecMap.add("mp4a.40.42"_s, result); // MPEG-4 Extended HE-AAC and xHE-AAC (USAC AOT)
     }
