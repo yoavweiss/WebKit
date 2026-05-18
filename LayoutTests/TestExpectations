@@ -7950,6 +7950,7 @@ imported/w3c/web-platform-tests/css/CSS2/normal-flow/width-applies-to-015.xht [ 
 
 imported/w3c/web-platform-tests/intersection-observer/animating.html [ Pass Failure ]
 imported/w3c/web-platform-tests/intersection-observer/cross-origin-tall-iframe-rendering.sub.html [ Pass ImageOnlyFailure ]
+imported/w3c/web-platform-tests/intersection-observer/v2/3d-transform-occlusion.html [ Skip ] # timeout
 
 # Standardized CSS zoom tests.
 imported/w3c/web-platform-tests/css/css-viewport/zoom/border-spacing.html [ ImageOnlyFailure ]
