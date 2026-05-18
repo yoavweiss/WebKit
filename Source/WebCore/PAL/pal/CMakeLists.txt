@@ -146,11 +146,10 @@ if (SWIFT_REQUIRED AND NOT (PORT STREQUAL GTK OR PORT STREQUAL WPE))
     )
 endif ()
 
-if (PORT STREQUAL GTK OR PORT STREQUAL WPE)
+if (ENABLE_UNSAFE_BUFFER_USAGE_WARNING)
     WEBKIT_ADD_TARGET_CXX_FLAGS(PAL
         -Wunsafe-buffer-usage
         -Wunsafe-buffer-usage-in-libc-call
-        -Wno-unsafe-buffer-usage-in-format-attr-call
     )
 endif ()
 
