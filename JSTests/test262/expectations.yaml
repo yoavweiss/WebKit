@@ -894,9 +894,6 @@ test/staging/sm/RegExp/unicode-braced.js:
 test/staging/sm/RegExp/unicode-class-braced.js:
   default: 'SyntaxError: Invalid regular expression: regular expression too large'
   strict mode: 'SyntaxError: Invalid regular expression: regular expression too large'
-test/staging/sm/TypedArray/constructor-buffer-sequence.js:
-  default: 'Test262Error: Expected a ExpectedError but got a Error'
-  strict mode: 'Test262Error: Expected a ExpectedError but got a Error'
 test/staging/sm/TypedArray/slice-memcpy.js:
   default: 'Test262Error: Actual [1, 2, 1, 2, 3, 4] and expected [1, 2, 1, 2, 1, 2] should have the same contents. '
   strict mode: 'Test262Error: Actual [1, 2, 1, 2, 3, 4] and expected [1, 2, 1, 2, 1, 2] should have the same contents. '

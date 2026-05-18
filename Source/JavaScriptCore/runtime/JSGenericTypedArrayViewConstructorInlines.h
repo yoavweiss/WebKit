@@ -281,17 +281,20 @@ ALWAYS_INLINE EncodedJSValue constructGenericTypedArrayViewImpl(JSGlobalObject* 
     size_t offset = 0;
     std::optional<size_t> length;
     if (auto* arrayBuffer = dynamicDowncast<JSArrayBuffer>(firstValue)) {
-        if (argCount > 1) {
-            offset = callFrame->uncheckedArgument(1).toIndex(globalObject, "byteOffset"_s);
-            RETURN_IF_EXCEPTION(scope, { });
-        }
-
         if (arrayBuffer->isResizableOrGrowableShared()) {
             structure = JSC_GET_DERIVED_STRUCTURE(vm, resizableOrGrowableSharedTypedArrayStructureWithTypedArrayType<ViewClass::TypedArrayStorageType>, newTarget, callFrame->jsCallee());
             RETURN_IF_EXCEPTION(scope, { });
         } else {
             structure = JSC_GET_DERIVED_STRUCTURE(vm, typedArrayStructureWithTypedArrayType<ViewClass::TypedArrayStorageType>, newTarget, callFrame->jsCallee());
             RETURN_IF_EXCEPTION(scope, { });
+        }
+
+        if (argCount > 1) {
+            offset = callFrame->uncheckedArgument(1).toIndex(globalObject, "byteOffset"_s);
+            RETURN_IF_EXCEPTION(scope, { });
+
+            if (offset % ViewClass::elementSize) [[unlikely]]
+                return throwVMRangeError(globalObject, scope, "byteOffset modulo TypedArray.BYTES_PER_ELEMENT must be 0"_s);
         }
 
         if (argCount > 2) {
