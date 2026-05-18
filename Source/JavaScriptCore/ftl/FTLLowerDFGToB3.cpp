@@ -12172,9 +12172,112 @@ IGNORE_CLANG_WARNINGS_END
             setInt32(vmCall(Int32, operationStringLastIndexOf, weakPointer(globalObject), base, search));
     }
 
+    static constexpr unsigned maxConstantSearchLength = 16;
+
+    void compileStringStartsOrEndsWithConstant(bool isStartsWith, std::span<const Latin1Character> search)
+    {
+        ASSERT(!search.empty() && search.size() <= maxConstantSearchLength);
+        const unsigned searchLength = static_cast<unsigned>(search.size());
+        auto* globalObject = m_graph.globalObjectFor(m_origin.semantic);
+
+        LValue base = lowString(m_node->child1());
+        LValue argument = lowString(m_node->child2());
+
+        LBasicBlock notRopeCase = m_out.newBlock();
+        LBasicBlock lengthOKCase = m_out.newBlock();
+        LBasicBlock is8BitCase = m_out.newBlock();
+        LBasicBlock trueCase = m_out.newBlock();
+        LBasicBlock falseCase = m_out.newBlock();
+        LBasicBlock slowCase = m_out.newBlock();
+        LBasicBlock continuation = m_out.newBlock();
+
+        m_out.branch(isRopeString(base, m_node->child1()), rarely(slowCase), usually(notRopeCase));
+
+        LBasicBlock lastNext = m_out.appendTo(notRopeCase, lengthOKCase);
+        LValue impl = m_out.loadPtr(base, m_heaps.JSString_value);
+        LValue length = m_out.load32(impl, m_heaps.StringImpl_length);
+        m_out.branch(m_out.below(length, m_out.constInt32(searchLength)), unsure(falseCase), unsure(lengthOKCase));
+
+        m_out.appendTo(lengthOKCase, is8BitCase);
+        m_out.branch(
+            m_out.testIsZero32(m_out.load32(impl, m_heaps.StringImpl_hashAndFlags), m_out.constInt32(StringImpl::flagIs8Bit())),
+            rarely(slowCase), usually(is8BitCase));
+
+        m_out.appendTo(is8BitCase, trueCase);
+        // Anchor the window at data[0] for startsWith, or data[length - searchLength] for endsWith.
+        LValue data = m_out.loadPtr(impl, m_heaps.StringImpl_data);
+        LValue windowBase = isStartsWith
+            ? data
+            : m_out.add(data, m_out.zeroExtPtr(m_out.sub(length, m_out.constInt32(searchLength))));
+
+        // Encode the search bytes as little-endian immediates so the comparison is a few
+        // wide loads + compares, with overlap when searchLength isn't a power of two.
+        auto chunk = [&](unsigned offset, unsigned width) -> uint64_t {
+            uint64_t value = 0;
+            for (unsigned i = 0; i < width; ++i)
+                value |= static_cast<uint64_t>(search[offset + i]) << (i * 8);
+            return value;
+        };
+        auto loadAt = [&](unsigned offset, unsigned width) -> LValue {
+            LValue ptr = m_out.add(windowBase, m_out.constIntPtr(offset));
+            TypedPointer typed(m_heaps.characters8.atAnyIndex(), ptr);
+            if (width == 8)
+                return m_out.load64(typed);
+            if (width == 4)
+                return m_out.load32(typed);
+            if (width == 2)
+                return m_out.load16ZeroExt32(typed);
+            return m_out.load8ZeroExt32(typed);
+        };
+
+        LValue matches;
+        if (searchLength >= 8) {
+            matches = m_out.equal(loadAt(0, 8), m_out.constInt64(chunk(0, 8)));
+            if (searchLength > 8)
+                matches = m_out.bitAnd(matches, m_out.equal(loadAt(searchLength - 8, 8), m_out.constInt64(chunk(searchLength - 8, 8))));
+        } else if (searchLength >= 4) {
+            matches = m_out.equal(loadAt(0, 4), m_out.constInt32(static_cast<int32_t>(chunk(0, 4))));
+            if (searchLength > 4)
+                matches = m_out.bitAnd(matches, m_out.equal(loadAt(searchLength - 4, 4), m_out.constInt32(static_cast<int32_t>(chunk(searchLength - 4, 4)))));
+        } else if (searchLength >= 2) {
+            matches = m_out.equal(loadAt(0, 2), m_out.constInt32(static_cast<int32_t>(chunk(0, 2))));
+            if (searchLength > 2)
+                matches = m_out.bitAnd(matches, m_out.equal(loadAt(searchLength - 2, 2), m_out.constInt32(static_cast<int32_t>(chunk(searchLength - 2, 2)))));
+        } else
+            matches = m_out.equal(loadAt(0, 1), m_out.constInt32(search[0]));
+        m_out.branch(matches, unsure(trueCase), unsure(falseCase));
+
+        m_out.appendTo(trueCase, falseCase);
+        ValueFromBlock trueResult = m_out.anchor(m_out.booleanTrue);
+        m_out.jump(continuation);
+
+        m_out.appendTo(falseCase, slowCase);
+        ValueFromBlock falseResult = m_out.anchor(m_out.booleanFalse);
+        m_out.jump(continuation);
+
+        m_out.appendTo(slowCase, continuation);
+        LValue slowValue = vmCall(
+            Int32, isStartsWith ? operationStringStartsWith : operationStringEndsWith,
+            weakPointer(globalObject), base, argument);
+        ValueFromBlock slowResult = m_out.anchor(slowValue);
+        m_out.jump(continuation);
+
+        m_out.appendTo(continuation, lastNext);
+        setBoolean(m_out.phi(Int32, trueResult, falseResult, slowResult));
+    }
+
     void compileStringStartsOrEndsWith()
     {
         bool isStartsWith = m_node->op() == StringStartsWith;
+
+        if (!m_node->child3()) {
+            String search = m_node->child2()->tryGetString(m_graph);
+            if (!search.isNull() && search.length() >= 1 && search.length() <= maxConstantSearchLength && search.is8Bit()) {
+                compileStringStartsOrEndsWithConstant(isStartsWith, search.span8());
+                return;
+            }
+        }
+
         LValue base = lowString(m_node->child1());
         LValue search = lowString(m_node->child2());
         auto* globalObject = m_graph.globalObjectFor(m_origin.semantic);

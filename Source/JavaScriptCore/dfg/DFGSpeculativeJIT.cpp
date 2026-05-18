@@ -17977,9 +17977,115 @@ void SpeculativeJIT::compileStringLastIndexOf(Node* node)
     strictInt32Result(resultGPR, node);
 }
 
+#if USE(JSVALUE64)
+static constexpr unsigned maxConstantSearchLength = 16;
+
+void SpeculativeJIT::compileStringStartsOrEndsWithConstant(Node* node, bool isStartsWith, std::span<const Latin1Character> search)
+{
+    ASSERT(!search.empty() && search.size() <= maxConstantSearchLength);
+    const unsigned searchLength = static_cast<unsigned>(search.size());
+
+    SpeculateCellOperand base(this, node->child1());
+    SpeculateCellOperand argument(this, node->child2());
+    GPRTemporary impl(this);
+    GPRTemporary length(this);
+    GPRTemporary scratch(this);
+
+    GPRReg baseGPR = base.gpr();
+    GPRReg argumentGPR = argument.gpr();
+    GPRReg implGPR = impl.gpr();
+    GPRReg lengthGPR = length.gpr();
+    GPRReg scratchGPR = scratch.gpr();
+
+    speculateString(node->child1(), baseGPR);
+    speculateString(node->child2(), argumentGPR);
+
+    JumpList trueCase;
+    JumpList falseCase;
+    JumpList slowCase;
+
+    loadPtr(Address(baseGPR, JSString::offsetOfValue()), implGPR);
+    slowCase.append(branchIfRopeStringImpl(implGPR));
+
+    load32(Address(implGPR, StringImpl::lengthMemoryOffset()), lengthGPR);
+    falseCase.append(branch32(Below, lengthGPR, TrustedImm32(searchLength)));
+
+    // 16-bit base strings (and any other rare width mismatch) fall to the runtime helper.
+    slowCase.append(branchTest32(Zero, Address(implGPR, StringImpl::flagsOffset()), TrustedImm32(StringImpl::flagIs8Bit())));
+
+    // Anchor implGPR at the start of the matched window: data[0] for startsWith, or
+    // data[length - searchLength] for endsWith.
+    loadPtr(Address(implGPR, StringImpl::dataOffset()), implGPR);
+    if (!isStartsWith) {
+        addPtr(lengthGPR, implGPR);
+        subPtr(TrustedImm32(searchLength), implGPR);
+    }
+
+    // Encode the search bytes as little-endian immediates so the comparison is a few
+    // wide loads + compares, with overlap when searchLength isn't a power of two.
+    auto chunk = [&](unsigned offset, unsigned width) -> uint64_t {
+        uint64_t value = 0;
+        for (unsigned i = 0; i < width; ++i)
+            value |= static_cast<uint64_t>(search[offset + i]) << (i * 8);
+        return value;
+    };
+
+    if (searchLength >= 8) {
+        load64(Address(implGPR), scratchGPR);
+        falseCase.append(branch64(NotEqual, scratchGPR, TrustedImm64(static_cast<int64_t>(chunk(0, 8)))));
+        if (searchLength > 8) {
+            load64(Address(implGPR, searchLength - 8), scratchGPR);
+            falseCase.append(branch64(NotEqual, scratchGPR, TrustedImm64(static_cast<int64_t>(chunk(searchLength - 8, 8)))));
+        }
+    } else if (searchLength >= 4) {
+        load32(Address(implGPR), scratchGPR);
+        falseCase.append(branch32(NotEqual, scratchGPR, TrustedImm32(static_cast<int32_t>(chunk(0, 4)))));
+        if (searchLength > 4) {
+            load32(Address(implGPR, searchLength - 4), scratchGPR);
+            falseCase.append(branch32(NotEqual, scratchGPR, TrustedImm32(static_cast<int32_t>(chunk(searchLength - 4, 4)))));
+        }
+    } else if (searchLength >= 2) {
+        load16(Address(implGPR), scratchGPR);
+        falseCase.append(branch32(NotEqual, scratchGPR, TrustedImm32(static_cast<int32_t>(chunk(0, 2)))));
+        if (searchLength > 2) {
+            load16(Address(implGPR, searchLength - 2), scratchGPR);
+            falseCase.append(branch32(NotEqual, scratchGPR, TrustedImm32(static_cast<int32_t>(chunk(searchLength - 2, 2)))));
+        }
+    } else {
+        load8(Address(implGPR), scratchGPR);
+        falseCase.append(branch32(NotEqual, scratchGPR, TrustedImm32(search[0])));
+    }
+    trueCase.append(jump());
+
+    falseCase.link(this);
+    move(TrustedImm32(0), implGPR);
+    Jump done = jump();
+
+    trueCase.link(this);
+    move(TrustedImm32(1), implGPR);
+
+    done.link(this);
+    addSlowPathGenerator(slowPathCall(
+        slowCase, this, isStartsWith ? operationStringStartsWith : operationStringEndsWith,
+        implGPR, LinkableConstant::globalObject(*this, node), baseGPR, argumentGPR));
+
+    unblessedBooleanResult(implGPR, node);
+}
+#endif // USE(JSVALUE64)
+
 void SpeculativeJIT::compileStringStartsOrEndsWith(Node* node)
 {
     bool isStartsWith = node->op() == StringStartsWith;
+
+#if USE(JSVALUE64)
+    if (!node->child3()) {
+        String search = node->child2()->tryGetString(m_graph);
+        if (!search.isNull() && search.length() >= 1 && search.length() <= maxConstantSearchLength && search.is8Bit()) {
+            compileStringStartsOrEndsWithConstant(node, isStartsWith, search.span8());
+            return;
+        }
+    }
+#endif
 
     if (node->child3()) {
         SpeculateCellOperand base(this, node->child1());

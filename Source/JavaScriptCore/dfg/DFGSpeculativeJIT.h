@@ -1803,6 +1803,9 @@ public:
     void compileStringIndexOf(Node*);
     void compileStringLastIndexOf(Node*);
     void compileStringStartsOrEndsWith(Node*);
+#if USE(JSVALUE64)
+    void compileStringStartsOrEndsWithConstant(Node*, bool isStartsWith, std::span<const Latin1Character> search);
+#endif
     void compileStringSplit(Node*);
     void compileStringMatch(Node*);
     void compileDateGet(Node*);
