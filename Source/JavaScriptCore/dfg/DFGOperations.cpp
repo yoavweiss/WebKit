@@ -3358,6 +3358,18 @@ JSC_DEFINE_JIT_OPERATION(operationStringSubstr, JSCell*, (JSGlobalObject* global
     OPERATION_RETURN(scope, jsSubstring(globalObject, vm, uncheckedDowncast<JSString>(cell), from, span));
 }
 
+JSC_DEFINE_JIT_OPERATION(operationStringSubstrGeneric, JSCell*, (JSGlobalObject* globalObject, JSCell* cell, int32_t start, int32_t length))
+{
+    VM& vm = globalObject->vm();
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    JSString* string = uncheckedDowncast<JSString>(cell);
+    auto [from, span] = extractSubstrOffsets(static_cast<int32_t>(string->length()), start, length);
+    OPERATION_RETURN(scope, jsSubstring(globalObject, vm, string, from, span));
+}
+
 JSC_DEFINE_JIT_OPERATION(operationStringSlice, JSString*, (JSGlobalObject* globalObject, JSString* string, int32_t start))
 {
     VM& vm = globalObject->vm();

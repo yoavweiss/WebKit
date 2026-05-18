@@ -2565,6 +2565,7 @@ void clobberize(Graph& graph, Node* node, const ReadFunctor& read, const WriteFu
 
     case StringSlice:
     case StringSubstring:
+    case StringSubstr:
         def(PureValue(node));
         return;
 

@@ -1902,6 +1902,9 @@ private:
         case StringSubstring:
             compileStringSubstring();
             break;
+        case StringSubstr:
+            compileStringSubstr();
+            break;
         case ToUpperCase:
             compileToUpperCase();
             break;
@@ -20197,6 +20200,105 @@ IGNORE_CLANG_WARNINGS_END
             setJSValue(vmCall(pointerType(), operationStringSubstringWithEnd, weakPointer(globalObject), lowString(m_node->child1()), lowInt32(m_node->child2()), lowInt32(m_node->child3())));
         else
             setJSValue(vmCall(pointerType(), operationStringSubstring, weakPointer(globalObject), lowString(m_node->child1()), lowInt32(m_node->child2())));
+    }
+
+    void compileStringSubstr()
+    {
+        JSGlobalObject* globalObject = m_graph.globalObjectFor(m_origin.semantic);
+        LBasicBlock lengthCheckCase = m_out.newBlock();
+        LBasicBlock emptyCase = m_out.newBlock();
+        LBasicBlock notEmptyCase = m_out.newBlock();
+        LBasicBlock oneCharCase = m_out.newBlock();
+        LBasicBlock is8Bit = m_out.newBlock();
+        LBasicBlock is16Bit = m_out.newBlock();
+        LBasicBlock bitsContinuation = m_out.newBlock();
+        LBasicBlock bigCharacter = m_out.newBlock();
+        LBasicBlock slowCase = m_out.newBlock();
+        LBasicBlock ropeSlowCase = m_out.newBlock();
+        LBasicBlock continuation = m_out.newBlock();
+
+        LValue string = lowString(m_node->child1());
+        LValue start = lowInt32(m_node->child2());
+        LValue length = nullptr;
+        if (m_node->child3())
+            length = lowInt32(m_node->child3());
+        m_out.branch(isRopeString(string, m_node->child1()), rarely(ropeSlowCase), usually(lengthCheckCase));
+
+        LBasicBlock lastNext = m_out.appendTo(lengthCheckCase, emptyCase);
+        LValue stringImpl = m_out.loadPtr(string, m_heaps.JSString_value);
+        LValue strLength;
+        if (auto stringLength = tryGetConstantStringLength(m_node->child1()))
+            strLength = m_out.constInt32(*stringLength);
+        else
+            strLength = m_out.load32NonNegative(stringImpl, m_heaps.StringImpl_length);
+
+        LValue from = populateSliceRange(start, nullptr, strLength).first;
+
+        LValue maxSize = m_out.sub(strLength, from);
+        LValue span;
+        if (length) {
+            // span = max(0, min(length, maxSize))
+            LValue clamped = m_out.select(m_out.lessThan(length, maxSize), length, maxSize);
+            span = m_out.select(m_out.lessThan(clamped, m_out.int32Zero), m_out.int32Zero, clamped);
+        } else
+            span = maxSize;
+
+        m_out.branch(m_out.lessThanOrEqual(span, m_out.int32Zero), unsure(emptyCase), unsure(notEmptyCase));
+
+        Vector<ValueFromBlock, 5> results;
+
+        m_out.appendTo(emptyCase, notEmptyCase);
+        results.append(m_out.anchor(weakPointer(jsEmptyString(vm()))));
+        m_out.jump(continuation);
+
+        m_out.appendTo(notEmptyCase, oneCharCase);
+        m_out.branch(m_out.equal(span, m_out.int32One), unsure(oneCharCase), unsure(slowCase));
+
+        m_out.appendTo(oneCharCase, is8Bit);
+        LValue storage = m_out.loadPtr(stringImpl, m_heaps.StringImpl_data);
+        m_out.branch(
+            m_out.testIsZero32(
+                m_out.load32(stringImpl, m_heaps.StringImpl_hashAndFlags),
+                m_out.constInt32(StringImpl::flagIs8Bit())),
+            unsure(is16Bit), unsure(is8Bit));
+
+        m_out.appendTo(is8Bit, is16Bit);
+        ValueFromBlock char8Bit = m_out.anchor(m_out.load8ZeroExt32(m_out.baseIndex(m_heaps.characters8, storage, m_out.zeroExtPtr(from))));
+        m_out.jump(bitsContinuation);
+
+        m_out.appendTo(is16Bit, bigCharacter);
+        LValue char16BitValue = m_out.load16ZeroExt32(m_out.baseIndex(m_heaps.characters16, storage, m_out.zeroExtPtr(from)));
+        ValueFromBlock char16Bit = m_out.anchor(char16BitValue);
+        m_out.branch(
+            m_out.above(char16BitValue, m_out.constInt32(maxSingleCharacterString)),
+            rarely(bigCharacter), usually(bitsContinuation));
+
+        m_out.appendTo(bigCharacter, bitsContinuation);
+        results.append(m_out.anchor(vmCall(
+            Int64, operationSingleCharacterString,
+            m_vmValue, char16BitValue)));
+        m_out.jump(continuation);
+
+        m_out.appendTo(bitsContinuation, slowCase);
+        LValue character = m_out.phi(Int32, char8Bit, char16Bit);
+        LValue smallStrings = m_out.constIntPtr(vm().smallStrings.singleCharacterStrings());
+        results.append(m_out.anchor(m_out.loadPtr(m_out.baseIndex(
+            m_heaps.singleCharacterStrings, smallStrings, m_out.zeroExtPtr(character)))));
+        m_out.jump(continuation);
+
+        m_out.appendTo(slowCase, ropeSlowCase);
+        results.append(m_out.anchor(vmCall(pointerType(), operationStringSubstr, weakPointer(globalObject), string, from, span)));
+        m_out.jump(continuation);
+
+        m_out.appendTo(ropeSlowCase, continuation);
+        if (length)
+            results.append(m_out.anchor(vmCall(pointerType(), operationStringSubstrGeneric, weakPointer(globalObject), string, start, length)));
+        else
+            results.append(m_out.anchor(vmCall(pointerType(), operationStringSubstrGeneric, weakPointer(globalObject), string, start, m_out.constInt32(std::numeric_limits<int32_t>::max()))));
+        m_out.jump(continuation);
+
+        m_out.appendTo(continuation, lastNext);
+        setJSValue(m_out.phi(pointerType(), results));
     }
 
     void compileToUpperCase()

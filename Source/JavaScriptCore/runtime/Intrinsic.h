@@ -136,6 +136,7 @@ namespace JSC {
     macro(StringPrototypeSplitIntrinsic) \
     macro(StringPrototypeSliceIntrinsic) \
     macro(StringPrototypeSubstringIntrinsic) \
+    macro(StringPrototypeSubstrIntrinsic) \
     macro(StringPrototypeToLowerCaseIntrinsic) \
     macro(StringPrototypeToUpperCaseIntrinsic) \
     macro(SymbolPrototypeToStringIntrinsic) \

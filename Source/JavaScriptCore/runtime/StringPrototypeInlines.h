@@ -103,6 +103,20 @@ ALWAYS_INLINE std::tuple<int32_t, int32_t> extractSubstringOffsets(int32_t lengt
     return { start, end };
 }
 
+ALWAYS_INLINE std::tuple<int32_t, int32_t> extractSubstrOffsets(int32_t length, int32_t startValue, std::optional<int32_t> lengthValue)
+{
+    int32_t from;
+    if (startValue < 0)
+        from = std::max<int32_t>(length + startValue, 0);
+    else
+        from = std::min<int32_t>(startValue, length);
+
+    int32_t span = lengthValue.value_or(length - from);
+    if (span <= 0)
+        return { 0, 0 };
+    return { from, std::min<int32_t>(span, length - from) };
+}
+
 ALWAYS_INLINE JSString* stringSubstring(JSGlobalObject* globalObject, JSString* string, int32_t startValue, std::optional<int32_t> endValue)
 {
     int length = string->length();

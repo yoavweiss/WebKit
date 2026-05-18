@@ -1234,6 +1234,7 @@ private:
         case StringValueOf:
         case StringSlice:
         case StringSubstring:
+        case StringSubstr:
         case ToUpperCase:
         case ToLowerCase:
             setPrediction(SpecString);

@@ -1634,7 +1634,8 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
     }
 
     case StringSubstring:
-    case StringSlice: {
+    case StringSlice:
+    case StringSubstr: {
         setTypeForNode(node, SpecString);
         break;
     }

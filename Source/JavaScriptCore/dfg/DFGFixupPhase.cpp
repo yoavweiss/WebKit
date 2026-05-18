@@ -3312,7 +3312,8 @@ private:
         }
 
         case StringSlice:
-        case StringSubstring: {
+        case StringSubstring:
+        case StringSubstr: {
             fixEdge<StringUse>(node->child1());
             fixEdge<Int32Use>(node->child2());
             if (node->child3())

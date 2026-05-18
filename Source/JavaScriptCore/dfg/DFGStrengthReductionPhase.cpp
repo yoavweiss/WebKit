@@ -1379,6 +1379,44 @@ private:
             break;
         }
 
+        case StringSubstr: {
+            Node* stringNode = m_node->child1().node();
+
+            if (!m_node->child2()->isInt32Constant())
+                break;
+
+            int32_t startValue = m_node->child2()->asInt32();
+            std::optional<int32_t> lengthValue = std::nullopt;
+            if (m_node->child3()) {
+                if (!m_node->child3()->isInt32Constant())
+                    break;
+                lengthValue = m_node->child3()->asInt32();
+                if (lengthValue.value() <= 0) {
+                    // Regardless of whatever the string is, it generates empty string.
+                    m_changed = true;
+                    m_insertionSet.insertNode(m_nodeIndex, SpecNone, Check, m_node->origin, m_node->children.justChecks());
+                    m_node->convertToLazyJSConstant(m_graph, LazyJSValue::newString(m_graph, emptyString()));
+                    break;
+                }
+            }
+
+            String string = stringNode->tryGetString(m_graph);
+            if (!string)
+                break;
+
+            int32_t length = string.length();
+            auto [start, span] = extractSubstrOffsets(length, startValue, lengthValue);
+
+            m_changed = true;
+            m_insertionSet.insertNode(m_nodeIndex, SpecNone, Check, m_node->origin, m_node->children.justChecks());
+            if (!start && span == length) {
+                m_node->convertToIdentityOn(stringNode);
+                break;
+            }
+            m_node->convertToLazyJSConstant(m_graph, LazyJSValue::newString(m_graph, string.substring(start, span)));
+            break;
+        }
+
         case StringIndexOf: {
             Node* stringNode = m_node->child1().node();
             String string = stringNode->tryGetString(m_graph);

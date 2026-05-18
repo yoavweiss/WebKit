@@ -284,6 +284,7 @@ JSC_DECLARE_JIT_OPERATION(operationEnsureArrayStorage, Butterfly*, (VM*, JSCell*
 JSC_DECLARE_JIT_OPERATION(operationSingleCharacterString, JSString*, (VM*, int32_t));
 
 JSC_DECLARE_JIT_OPERATION(operationStringSubstr, JSCell*, (JSGlobalObject*, JSCell*, int32_t, int32_t));
+JSC_DECLARE_JIT_OPERATION(operationStringSubstrGeneric, JSCell*, (JSGlobalObject*, JSCell*, int32_t, int32_t));
 JSC_DECLARE_JIT_OPERATION(operationStringSlice, JSString*, (JSGlobalObject*, JSString*, int32_t));
 JSC_DECLARE_JIT_OPERATION(operationStringSliceWithEnd, JSString*, (JSGlobalObject*, JSString*, int32_t, int32_t));
 JSC_DECLARE_JIT_OPERATION(operationStringValueOf, JSString*, (JSGlobalObject*, EncodedJSValue));
