@@ -30,6 +30,8 @@
 
 #import "CAFrameRateRangeUtilities.h"
 #import "PageClient.h"
+#import "RemoteLayerTreeCommitBundle.h"
+#import "RemoteLayerTreeScrollingPerformanceData.h"
 #import "RemoteScrollingCoordinatorProxyIOS.h"
 #import "WebPageProxy.h"
 #import "WebPreferences.h"
@@ -447,6 +449,26 @@ UIView *RemoteLayerTreeDrawingAreaProxyIOS::viewWithLayerIDForTesting(WebCore::P
     if (RefPtr node = m_remoteLayerTreeHost->nodeForID(layerID))
         return node->uiView();
     return nil;
+}
+
+void RemoteLayerTreeDrawingAreaProxyIOS::didCommitLayerTree(IPC::Connection&, const RemoteLayerTreeTransaction& transaction, const RemoteScrollingCoordinatorTransaction&, const std::optional<MainFrameData>& mainFrameData, const TransactionID&)
+{
+    if (!mainFrameData)
+        return;
+
+    RefPtr page = this->page();
+    if (!page)
+        return;
+
+    CheckedRef scrollingCoordinatorProxy = *page->scrollingCoordinatorProxy();
+    page->setScrollPerformanceDataCollectionEnabled(scrollingCoordinatorProxy->scrollingPerformanceTestingEnabled());
+
+    if (transaction.createdLayers().size() > 0) {
+        if (auto* scrollPerfData = page->scrollingPerformanceData()) {
+            auto visibleRect = WebCore::FloatRect(transaction.scrollPosition(), mainFrameData->baseLayoutViewportSize);
+            scrollPerfData->didCommitLayerTree(visibleRect);
+        }
+    }
 }
 
 } // namespace WebKit

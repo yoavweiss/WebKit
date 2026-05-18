@@ -12812,9 +12812,7 @@ void WebPageProxy::resetState(ResetStateReason resetStateReason)
 
 #if PLATFORM(COCOA)
     m_scrollingPerformanceData = nullptr;
-#if PLATFORM(MAC)
     m_scrollPerformanceDataCollectionEnabled = false;
-#endif
     internals().firstLayerTreeTransactionIdAfterDidCommitLoad = { };
 #endif
 

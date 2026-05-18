@@ -35,6 +35,10 @@
 #import <wtf/TZoneMallocInlines.h>
 #import <wtf/cocoa/VectorCocoa.h>
 
+#if PLATFORM(IOS_FAMILY)
+#import <UIKit/UIKit.h>
+#endif
+
 namespace WebKit {
 using namespace WebCore;
 
@@ -57,12 +61,10 @@ void RemoteLayerTreeScrollingPerformanceData::didCommitLayerTree(const FloatRect
 void RemoteLayerTreeScrollingPerformanceData::didScroll(const FloatRect& visibleRect)
 {
     auto pixelCount = blankPixelCount(visibleRect);
-#if PLATFORM(MAC)
     if (pixelCount || m_lastUnfilledArea)
         m_lastUnfilledArea = pixelCount;
     else
         return;
-#endif
     appendBlankPixelCount(ScrollingLogEvent::Exposed, pixelCount);
     logData();
 }
@@ -117,6 +119,15 @@ static CALayer *findTileGridContainerLayer(CALayer *layer)
             return foundLayer.autorelease();
     }
 
+#if PLATFORM(IOS_FAMILY)
+    if (auto *view = dynamic_objc_cast<UIView>(layer.delegate)) {
+        for (UIView *subview in view.subviews) {
+            if (RetainPtr foundLayer = findTileGridContainerLayer(subview.layer))
+                return foundLayer.autorelease();
+        }
+    }
+#endif
+
     return nil;
 }
 
@@ -137,6 +148,8 @@ unsigned RemoteLayerTreeScrollingPerformanceData::blankPixelCount(const FloatRec
     Region paintedVisibleTileRegion;
 
     for (CALayer *tileLayer : [tileGridContainer sublayers]) {
+        if (!tileLayer.contents)
+            continue;
         FloatRect tileRect = [tileLayer convertRect:[tileLayer bounds] toLayer:tileGridContainer.get()];
     
         tileRect.intersect(visibleRectExcludingToolbar);
@@ -153,7 +166,6 @@ unsigned RemoteLayerTreeScrollingPerformanceData::blankPixelCount(const FloatRec
 
 void RemoteLayerTreeScrollingPerformanceData::logData()
 {
-#if PLATFORM(MAC)
     for (auto event : m_events) {
         switch (event.eventType) {
         case ScrollingLogEvent::SwitchedScrollingMode: {
@@ -176,7 +188,6 @@ void RemoteLayerTreeScrollingPerformanceData::logData()
         }
     }
     m_events.clear();
-#endif
 }
 
 }
