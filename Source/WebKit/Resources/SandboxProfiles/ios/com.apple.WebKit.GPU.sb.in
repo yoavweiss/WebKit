@@ -59,6 +59,12 @@
 (allow file-read*
     (literal "/"))
 
+#if USE(EXTENSIONKIT)
+(allow file-read* file-write*
+    (container-subpath "Library/Caches")
+    (container-subpath "tmp"))
+#endif // USE(EXTENSIONKIT)
+
 (device-access)
 
 ;; <rdar://problem/14215718>

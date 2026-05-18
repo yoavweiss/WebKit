@@ -220,7 +220,9 @@ void XPCServiceEventHandler(xpc_connection_t peer)
                 setUserDirSuffix(networkingServiceName);
                 entryPointFunctionName = CFSTR(STRINGIZE_VALUE_OF(NETWORK_SERVICE_INITIALIZER));
             } else if (serviceName == gpuServiceName) {
+#if !USE(EXTENSIONKIT)
                 setUserDirSuffix(gpuServiceName);
+#endif
                 entryPointFunctionName = CFSTR(STRINGIZE_VALUE_OF(GPU_SERVICE_INITIALIZER));
             } else if (serviceName == modelServiceName)
                 entryPointFunctionName = CFSTR(STRINGIZE_VALUE_OF(MODEL_SERVICE_INITIALIZER));

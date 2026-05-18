@@ -377,11 +377,11 @@ void ProcessLauncher::tryFinishLaunchingProcess(ASCIILiteral name, Function<void
     }
 
 #if PLATFORM(IOS_FAMILY)
-    bool isWebContentExtension = false;
+    bool isWebContentOrGPUExtension = false;
 #if USE(EXTENSIONKIT)
-    isWebContentExtension = (m_launchOptions.processType == ProcessLauncher::ProcessType::Web);
+    isWebContentOrGPUExtension = (m_launchOptions.processType == ProcessLauncher::ProcessType::Web) || (m_launchOptions.processType == ProcessLauncher::ProcessType::GPU);
 #endif
-    if (!isWebContentExtension) {
+    if (!isWebContentOrGPUExtension) {
         // Clients that set these environment variables explicitly do not have the values automatically forwarded by libxpc.
         auto containerEnvironmentVariables = adoptOSObject(xpc_dictionary_create(nullptr, nullptr, 0));
         if (const char* environmentHOME = getenv("HOME"))
