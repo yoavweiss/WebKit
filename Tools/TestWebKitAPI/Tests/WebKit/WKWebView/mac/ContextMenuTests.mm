@@ -308,6 +308,30 @@ TEST(ContextMenuTests, HitTestResultDoesNotContainEmptyURLs)
     Util::run(&gotProposedMenu);
 }
 
+TEST(ContextMenuTests, HitTestResultImageURLNotDoubleEncoded)
+{
+    RetainPtr delegate = adoptNS([[TestUIDelegate alloc] init]);
+
+    __block bool gotProposedMenu = false;
+    [delegate setGetContextMenuFromProposedMenu:^(NSMenu *menu, _WKContextMenuElementInfo *elementInfo, id<NSSecureCoding>, void (^completion)(NSMenu *)) {
+        _WKHitTestResult *hitTestResult = elementInfo.hitTestResult;
+        EXPECT_NOT_NULL(hitTestResult);
+        EXPECT_WK_STREQ(@"file:///flower%20%5BA%5D.jpg", hitTestResult.absoluteImageURL.absoluteString);
+        completion(nil);
+        gotProposedMenu = true;
+    }];
+
+    NSString *html = @"<body style='margin:0'><img src='flower [A].jpg' width='400' height='400'>";
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:NSMakeRect(0, 0, 400, 400)]);
+    [webView setUIDelegate:delegate.get()];
+    [webView synchronouslyLoadHTMLString:html baseURL:[NSURL URLWithString:@"file:///"]];
+    [webView waitForNextPresentationUpdate];
+
+    [webView mouseDownAtPoint:NSMakePoint(200, 200) simulatePressure:NO withFlags:0 eventType:NSEventTypeRightMouseDown];
+    [webView mouseUpAtPoint:NSMakePoint(200, 200) withFlags:0 eventType:NSEventTypeRightMouseUp];
+    Util::run(&gotProposedMenu);
+}
+
 #if ENABLE(CONTEXT_MENU_QR_CODE_DETECTION)
 
 static NSString *qrCodeSVGString()
