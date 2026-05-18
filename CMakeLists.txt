@@ -111,23 +111,16 @@ if (SWIFT_REQUIRED)
     endif ()
 
     # Override Swift compiler to a wrapper script to work around the
-    # fact pkg-config feeds CFLAGS even to swiftc.
-    # Guard against cache poisoning: if CMAKE_Swift_COMPILER already IS the
-    # wrapper (from a previous configure), find the real compiler via 'which'.
+    # fact CMake feeds incorrect flags to swiftc.
     set(_swift_wrapper "${CMAKE_SOURCE_DIR}/Tools/Scripts/swift/swiftc-wrapper.sh")
     if (CMAKE_Swift_COMPILER STREQUAL _swift_wrapper)
-        execute_process(COMMAND which swiftc RESULT_VARIABLE _which_retcode OUTPUT_VARIABLE _real_swiftc OUTPUT_STRIP_TRAILING_WHITESPACE)
-        if (NOT _which_retcode EQUAL 0)
-            message(FATAL_ERROR "swiftc not found in PATH")
-        endif ()
+        find_program(ORIGINAL_Swift_COMPILER NAMES swiftc REQUIRED)
     else ()
-        set(_real_swiftc "${CMAKE_Swift_COMPILER}")
+        set(ORIGINAL_Swift_COMPILER "${CMAKE_Swift_COMPILER}" CACHE FILEPATH "Original Swift compiler" FORCE)
     endif ()
-    set(ORIGINAL_Swift_COMPILER "${_real_swiftc}" CACHE FILEPATH "Original Swift compiler" FORCE)
-    set(CMAKE_Swift_COMPILER "${_swift_wrapper}" CACHE FILEPATH "Swift compiler wrapper" FORCE)
+    set(CMAKE_Swift_COMPILER "${_swift_wrapper}")
     add_compile_options($<$<COMPILE_LANGUAGE:Swift>:--original-swift-compiler=${ORIGINAL_Swift_COMPILER}>)
     unset(_swift_wrapper)
-    unset(_real_swiftc)
 endif ()
 
 # -----------------------------------------------------------------------------

@@ -6,6 +6,31 @@
 if (NOT HAS_RUN_WEBKIT_COMMON)
     set(HAS_RUN_WEBKIT_COMMON TRUE)
 
+    # Preset values are not replayed on auto-reconfigure; if CMake's "compiler
+    # changed" path wipes the cache, these silently revert. Stamp them outside
+    # the cache and refuse to proceed if any go missing.
+    set(WEBKIT_IDENTITY_VARS CMAKE_BUILD_TYPE PORT DEVELOPER_MODE ENABLE_SANITIZERS CMAKE_IOS_SIMULATOR)
+    set(_config_stamp "${CMAKE_BINARY_DIR}/.webkit-config-stamp")
+    if (EXISTS "${_config_stamp}")
+        file(STRINGS "${_config_stamp}" _stamp_lines)
+        foreach (_line IN LISTS _stamp_lines)
+            if (_line MATCHES "^([^=]+)=(.*)$")
+                set(_var "${CMAKE_MATCH_1}")
+                set(_prev "${CMAKE_MATCH_2}")
+                if (NOT DEFINED CACHE{${_var}})
+                    message(FATAL_ERROR
+                        "${_var} is not in the CMake cache, but this build directory was "
+                        "previously configured with ${_var}='${_prev}'. The cache was "
+                        "probably wiped by an auto-reconfigure (\"You have changed "
+                        "variables that require your cache to be deleted\"). Re-run "
+                        "'cmake --preset <name>' to restore your configuration, or "
+                        "delete the build directory.")
+                endif ()
+            endif ()
+        endforeach ()
+        unset(_stamp_lines)
+    endif ()
+
     if (NOT CMAKE_BUILD_TYPE)
         message(WARNING "No CMAKE_BUILD_TYPE value specified, defaulting to RelWithDebInfo.")
         set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Choose the type of build." FORCE)
@@ -63,6 +88,16 @@ if (NOT HAS_RUN_WEBKIT_COMMON)
     endif ()
 
     string(TOLOWER ${PORT} WEBKIT_PORT_DIR)
+
+    set(_stamp_content "")
+    foreach (_var IN LISTS WEBKIT_IDENTITY_VARS)
+        if (DEFINED CACHE{${_var}})
+            string(APPEND _stamp_content "${_var}=$CACHE{${_var}}\n")
+        endif ()
+    endforeach ()
+    file(WRITE "${_config_stamp}" "${_stamp_content}")
+    unset(_stamp_content)
+    unset(_config_stamp)
 
     # -----------------------------------------------------------------------------
     # Determine the compiler
