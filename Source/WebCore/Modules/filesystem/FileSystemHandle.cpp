@@ -139,8 +139,13 @@ void FileSystemHandle::isSameEntry(FileSystemHandle& handle, DOMPromiseDeferred<
         if (!success)
             return promise.reject(Exception { ExceptionCode::InvalidStateError, "Handle is invalid"_s });
 
-        protect(m_connection)->isSameEntry(*m_identifier, handle->identifier(), [promise = WTF::move(promise)](auto result) mutable {
-            promise.settle(WTF::move(result));
+        handle->ensureIdentifier([this, protectedThis = WTF::move(protectedThis), handle, promise = WTF::move(promise)](bool success) mutable {
+            if (!success)
+                return promise.reject(Exception { ExceptionCode::InvalidStateError, "Handle is invalid"_s });
+
+            protect(m_connection)->isSameEntry(*m_identifier, handle->identifier(), [promise = WTF::move(promise)](auto result) mutable {
+                promise.settle(WTF::move(result));
+            });
         });
     });
 }
