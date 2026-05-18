@@ -1215,7 +1215,7 @@ private:
     TaskCancellationGroup m_updateShouldAutoplayTaskCancellationGroup;
     RefPtr<TimeRanges> m_playedTimeRanges;
     TaskCancellationGroup m_asyncEventsCancellationGroup;
-    TaskCancellationGroup m_timeupdateCancellationGroup;
+    TaskCancellationGroup m_periodicTimeupdateCancellationGroup;
     TaskCancellationGroup m_volumeRevertTaskCancellationGroup;
 
     PlayPromiseVector m_pendingPlayPromises;
