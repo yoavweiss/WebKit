@@ -42,8 +42,9 @@ sys.path.insert(0, os.path.join(top_level_directory, 'Tools', 'flatpak'))
 sys.path.insert(0, os.path.join(top_level_directory, 'Tools', 'jhbuild'))
 sys.path.insert(0, os.path.join(top_level_directory, 'Tools', 'Scripts', 'webkitpy'))
 
-from webkitpy.port.linux_container_sdk_utils import maybe_enter_webkit_container_sdk
+from webkitpy.port.linux_container_sdk_utils import maybe_enter_webkit_container_sdk, maybe_use_container_sdk_root_dir
 maybe_enter_webkit_container_sdk()
+maybe_use_container_sdk_root_dir()
 
 import jhbuildutils
 import flatpakutils
