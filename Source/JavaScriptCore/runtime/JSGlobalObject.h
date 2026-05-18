@@ -400,6 +400,7 @@ public:
     WriteBarrierStructureID m_asyncGeneratorFunctionStructure;
     WriteBarrierStructureID m_generatorFunctionStructure;
     WriteBarrierStructureID m_generatorStructure;
+    WriteBarrierStructureID m_asyncFunctionGeneratorStructure;
     WriteBarrierStructureID m_asyncGeneratorStructure;
     WriteBarrierStructureID m_functionWithFieldsStructure;
     WriteBarrierStructureID m_iteratorStructure;
@@ -947,6 +948,7 @@ public:
     Structure* regExpStructure() const { return m_regExpStructure.get(); }
     Structure* shadowRealmStructure() const { return m_shadowRealmObjectStructure.get(); }
     Structure* generatorStructure() const { return m_generatorStructure.get(); }
+    Structure* asyncFunctionGeneratorStructure() const { return m_asyncFunctionGeneratorStructure.get(); }
     Structure* asyncFromSyncIteratorStructure() const { return m_asyncFromSyncIteratorStructure.get(); }
     Structure* asyncGeneratorStructure() const { return m_asyncGeneratorStructure.get(); }
     Structure* functionWithFieldsStructure() const { return m_functionWithFieldsStructure.get(); }

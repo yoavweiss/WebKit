@@ -38,6 +38,7 @@
 #include "FrameTracers.h"
 #include "IteratorOperations.h"
 #include "JSArrayIterator.h"
+#include "JSAsyncFunctionGenerator.h"
 #include "JSAsyncGenerator.h"
 #include "JSBoundFunction.h"
 #include "JSCInlines.h"
@@ -264,6 +265,14 @@ JSC_DEFINE_COMMON_SLOW_PATH(slow_path_new_generator)
     BEGIN();
     auto bytecode = pc->as<OpNewGenerator>();
     JSGenerator* result = JSGenerator::create(vm, globalObject->generatorStructure());
+    RETURN(result);
+}
+
+JSC_DEFINE_COMMON_SLOW_PATH(slow_path_new_async_function_generator)
+{
+    BEGIN();
+    auto bytecode = pc->as<OpNewAsyncFunctionGenerator>();
+    JSAsyncFunctionGenerator* result = JSAsyncFunctionGenerator::create(vm, globalObject->asyncFunctionGeneratorStructure());
     RETURN(result);
 }
 

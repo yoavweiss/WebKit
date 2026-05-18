@@ -7551,7 +7551,14 @@ void ByteCodeParser::parseBlock(unsigned limit)
             set(bytecode.m_dst, addToGraph(NewInternalFieldObject, OpInfo(m_graph.registerStructure(globalObject->generatorStructure()))));
             NEXT_OPCODE(op_new_generator);
         }
-            
+
+        case op_new_async_function_generator: {
+            auto bytecode = currentInstruction->as<OpNewAsyncFunctionGenerator>();
+            JSGlobalObject* globalObject = m_graph.globalObjectFor(currentNodeOrigin().semantic);
+            set(bytecode.m_dst, addToGraph(NewInternalFieldObject, OpInfo(m_graph.registerStructure(globalObject->asyncFunctionGeneratorStructure()))));
+            NEXT_OPCODE(op_new_async_function_generator);
+        }
+
         case op_new_array: {
             auto bytecode = currentInstruction->as<OpNewArray>();
             int startOperand = bytecode.m_argv.offset();

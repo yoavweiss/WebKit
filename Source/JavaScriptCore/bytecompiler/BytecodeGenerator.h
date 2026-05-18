@@ -35,6 +35,7 @@
 #include "CodeBlock.h"
 #include "Instruction.h"
 #include "Interpreter.h"
+#include "JSAsyncFunctionGenerator.h"
 #include "JSAsyncGenerator.h"
 #include "JSBigInt.h"
 #include "JSGenerator.h"
@@ -761,6 +762,7 @@ namespace JSC {
         RegisterID* emitNewObject(RegisterID* dst);
         RegisterID* emitNewPromise(RegisterID* dst);
         RegisterID* emitNewGenerator(RegisterID* dst);
+        RegisterID* emitNewAsyncFunctionGenerator(RegisterID* dst);
         RegisterID* emitNewArray(RegisterID* dst, ElementNode*, unsigned length, IndexingType recommendedIndexingType); // stops at first elision
         RegisterID* emitNewArrayBuffer(RegisterID* dst, JSCellButterfly*, IndexingType recommendedIndexingType);
         // FIXME: new_array_with_spread should use an array allocation profile and take a recommendedIndexingType

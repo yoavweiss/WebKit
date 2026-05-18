@@ -1565,8 +1565,6 @@ static JSGenerator::Field NODELETE generatorInternalFieldIndex(BytecodeIntrinsic
         return JSGenerator::Field::This;
     if (node->entry().emitter() == &BytecodeIntrinsicNode::emit_intrinsic_generatorFieldFrame)
         return JSGenerator::Field::Frame;
-    if (node->entry().emitter() == &BytecodeIntrinsicNode::emit_intrinsic_generatorFieldContext)
-        return JSGenerator::Field::Context;
     RELEASE_ASSERT_NOT_REACHED();
     return JSGenerator::Field::State;
 }

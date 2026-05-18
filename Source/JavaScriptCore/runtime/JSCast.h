@@ -151,6 +151,7 @@ using JSResizableOrGrowableSharedBigUint64Array = JSGenericResizableOrGrowableSh
     macro(ShadowRealmObject, JSType::ShadowRealmType, JSType::ShadowRealmType) \
     macro(JSDataView, JSType::DataViewType, JSType::DataViewType) \
     macro(JSGenerator, JSType::JSGeneratorType, JSType::JSGeneratorType) \
+    macro(JSAsyncFunctionGenerator, JSType::JSAsyncFunctionGeneratorType, JSType::JSAsyncFunctionGeneratorType) \
     macro(JSAsyncGenerator, JSType::JSAsyncGeneratorType, JSType::JSAsyncGeneratorType) \
     macro(WebAssemblyGCObjectBase, JSType::WebAssemblyGCObjectType, JSType::WebAssemblyGCObjectType) \
 

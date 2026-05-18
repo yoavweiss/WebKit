@@ -77,6 +77,7 @@ using JSOrWasmInstruction = Variant<const JSInstruction*, uintptr_t /* IPIntOffs
     class ProgramExecutable;
     class ModuleProgramExecutable;
     class Register;
+    class JSAsyncFunctionGenerator;
     class JSGenerator;
     class JSObject;
     class JSScope;
@@ -164,7 +165,7 @@ using JSOrWasmInstruction = Variant<const JSInstruction*, uintptr_t /* IPIntOffs
         void getStackTrace(JSCell* owner, Vector<StackFrame>& results, size_t framesToSkip = 0, size_t maxStackSize = std::numeric_limits<size_t>::max(), JSCell* caller = nullptr, JSCell* ownerOfCallLinkInfo = nullptr, CallLinkInfo* = nullptr);
 
     private:
-        void getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results, JSGenerator* initialGenerator, size_t maxStackSize);
+        void getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results, JSAsyncFunctionGenerator* initialGenerator, size_t maxStackSize);
         enum ExecutionFlag { Normal, InitializeAndReturn };
 
         CodeBlock* prepareForCachedCall(CachedCall&, JSFunction*);

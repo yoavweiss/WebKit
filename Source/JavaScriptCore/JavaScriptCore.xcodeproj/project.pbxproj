@@ -2141,6 +2141,7 @@
 		E39EEAF322812450008474F4 /* CachedSpecialPropertyAdaptiveStructureWatchpoint.h in Headers */ = {isa = PBXBuildFile; fileRef = E39EEAF22281244C008474F4 /* CachedSpecialPropertyAdaptiveStructureWatchpoint.h */; };
 		E39F87C229AB764200D17E85 /* VMEntryScopeInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = E39F87C129AB764100D17E85 /* VMEntryScopeInlines.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		E39FEBE32339C5D900B40AB0 /* JSAsyncGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = E39FEBE22339C5D400B40AB0 /* JSAsyncGenerator.h */; };
+		CC444EAB9DED4BDA85B438E4 /* JSAsyncFunctionGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = D9265ECE120A4535BAEBB52D /* JSAsyncFunctionGenerator.h */; };
 		E3A0531A21342B680022EC14 /* WasmStreamingParser.h in Headers */ = {isa = PBXBuildFile; fileRef = E3A0531621342B660022EC14 /* WasmStreamingParser.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		E3A0531C21342B680022EC14 /* WasmSectionParser.h in Headers */ = {isa = PBXBuildFile; fileRef = E3A0531821342B670022EC14 /* WasmSectionParser.h */; };
 		E3A107282B7F2F8100ED24A3 /* ProfilerSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = E3A107272B7F2F7E00ED24A3 /* ProfilerSupport.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -6137,6 +6138,8 @@
 		E39F87C129AB764100D17E85 /* VMEntryScopeInlines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMEntryScopeInlines.h; sourceTree = "<group>"; };
 		E39FEBE12339C5D400B40AB0 /* JSAsyncGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSAsyncGenerator.cpp; sourceTree = "<group>"; };
 		E39FEBE22339C5D400B40AB0 /* JSAsyncGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSAsyncGenerator.h; sourceTree = "<group>"; };
+		8339D081B3824931A2C198EB /* JSAsyncFunctionGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSAsyncFunctionGenerator.cpp; sourceTree = "<group>"; };
+		D9265ECE120A4535BAEBB52D /* JSAsyncFunctionGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSAsyncFunctionGenerator.h; sourceTree = "<group>"; };
 		E3A0531621342B660022EC14 /* WasmStreamingParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WasmStreamingParser.h; sourceTree = "<group>"; };
 		E3A0531721342B660022EC14 /* WasmSectionParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WasmSectionParser.cpp; sourceTree = "<group>"; };
 		E3A0531821342B670022EC14 /* WasmSectionParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WasmSectionParser.h; sourceTree = "<group>"; };
@@ -8987,6 +8990,8 @@
 				8CB955CC2C8AF8F500282DA2 /* JSAsyncFromSyncIteratorInlines.h */,
 				5B70CFD91DB69E5C00EC23F9 /* JSAsyncFunction.cpp */,
 				5B70CFD81DB69E5C00EC23F9 /* JSAsyncFunction.h */,
+				8339D081B3824931A2C198EB /* JSAsyncFunctionGenerator.cpp */,
+				D9265ECE120A4535BAEBB52D /* JSAsyncFunctionGenerator.h */,
 				276B38BB2A71D25B00252F4E /* JSAsyncFunctionInlines.h */,
 				E39FEBE12339C5D400B40AB0 /* JSAsyncGenerator.cpp */,
 				E39FEBE22339C5D400B40AB0 /* JSAsyncGenerator.h */,
@@ -12074,6 +12079,7 @@
 				8CB955CB2C8AF8E100282DA2 /* JSAsyncFromSyncIterator.h in Headers */,
 				8CB955CD2C8AF8F500282DA2 /* JSAsyncFromSyncIteratorInlines.h in Headers */,
 				5B70CFDE1DB69E6600EC23F9 /* JSAsyncFunction.h in Headers */,
+				CC444EAB9DED4BDA85B438E4 /* JSAsyncFunctionGenerator.h in Headers */,
 				276B38E02A71D26400252F4E /* JSAsyncFunctionInlines.h in Headers */,
 				E39FEBE32339C5D900B40AB0 /* JSAsyncGenerator.h in Headers */,
 				8BC064891E1ABA6400B2B8CA /* JSAsyncGeneratorFunction.h in Headers */,

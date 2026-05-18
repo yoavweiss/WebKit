@@ -82,6 +82,7 @@
 #include "JSArrayIterator.h"
 #include "JSAsyncFromSyncIterator.h"
 #include "JSAsyncFunction.h"
+#include "JSAsyncFunctionGenerator.h"
 #include "JSAsyncGenerator.h"
 #include "JSAsyncGeneratorFunction.h"
 #include "JSBoundFunction.h"
@@ -9713,6 +9714,9 @@ IGNORE_CLANG_WARNINGS_END
         case JSGeneratorType:
             compileNewInternalFieldObjectImpl<JSGenerator>(operationNewGenerator);
             break;
+        case JSAsyncFunctionGeneratorType:
+            compileNewInternalFieldObjectImpl<JSAsyncFunctionGenerator>(operationNewAsyncFunctionGenerator);
+            break;
         case JSAsyncGeneratorType:
             compileNewInternalFieldObjectImpl<JSAsyncGenerator>(operationNewAsyncGenerator);
             break;
@@ -18903,6 +18907,9 @@ IGNORE_CLANG_WARNINGS_END
             break;
         case JSGeneratorType:
             compileMaterializeNewInternalFieldObjectImpl<JSGenerator>(operationNewGenerator);
+            break;
+        case JSAsyncFunctionGeneratorType:
+            compileMaterializeNewInternalFieldObjectImpl<JSAsyncFunctionGenerator>(operationNewAsyncFunctionGenerator);
             break;
         case JSAsyncGeneratorType:
             compileMaterializeNewInternalFieldObjectImpl<JSAsyncGenerator>(operationNewAsyncGenerator);

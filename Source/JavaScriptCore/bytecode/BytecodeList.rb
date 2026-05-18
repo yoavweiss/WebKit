@@ -1210,6 +1210,11 @@ op :new_generator,
         dst: VirtualRegister,
     }
 
+op :new_async_function_generator,
+    args: {
+        dst: VirtualRegister,
+    }
+
 op :argument_count,
     args: {
         dst: VirtualRegister,

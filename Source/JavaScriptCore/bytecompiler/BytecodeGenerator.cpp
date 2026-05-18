@@ -851,8 +851,8 @@ IGNORE_GCC_WARNINGS_END
 
         if (!isAsyncFunctionWithoutAwait) {
             emitNewPromise(promiseRegister());
-            emitNewGenerator(m_generatorRegister);
-            emitPutInternalField(generatorRegister(), static_cast<unsigned>(JSGenerator::Field::Context), promiseRegister());
+            emitNewAsyncFunctionGenerator(m_generatorRegister);
+            emitPutInternalField(generatorRegister(), static_cast<unsigned>(JSAsyncFunctionGenerator::Field::Context), promiseRegister());
         }
         break;
     }
@@ -3195,6 +3195,12 @@ RegisterID* BytecodeGenerator::emitCreateGenerator(RegisterID* dst, RegisterID* 
 RegisterID* BytecodeGenerator::emitNewGenerator(RegisterID* dst)
 {
     OpNewGenerator::emit(this, dst);
+    return dst;
+}
+
+RegisterID* BytecodeGenerator::emitNewAsyncFunctionGenerator(RegisterID* dst)
+{
+    OpNewAsyncFunctionGenerator::emit(this, dst);
     return dst;
 }
 

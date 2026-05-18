@@ -39,6 +39,7 @@
 #include "JSArrayIterator.h"
 #include "JSAsyncFromSyncIterator.h"
 #include "JSAsyncFunction.h"
+#include "JSAsyncFunctionGenerator.h"
 #include "JSAsyncGenerator.h"
 #include "JSAsyncGeneratorFunction.h"
 #include "JSCellButterfly.h"
@@ -224,6 +225,9 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationPopulateObjectInOSR, void, (JSGlobalO
             break;
         case JSGeneratorType:
             materialize(uncheckedDowncast<JSGenerator>(target));
+            break;
+        case JSAsyncFunctionGeneratorType:
+            materialize(uncheckedDowncast<JSAsyncFunctionGenerator>(target));
             break;
         case JSAsyncGeneratorType:
             materialize(uncheckedDowncast<JSAsyncGenerator>(target));
@@ -520,6 +524,8 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationMaterializeObjectInOSR, HeapCell*, (J
             return create.operator()<JSRegExpStringIterator>();
         case JSGeneratorType:
             return create.operator()<JSGenerator>();
+        case JSAsyncFunctionGeneratorType:
+            return create.operator()<JSAsyncFunctionGenerator>();
         case JSAsyncGeneratorType:
             return create.operator()<JSAsyncGenerator>();
         default:

@@ -58,6 +58,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 #include "JSArrayIterator.h"
 #include "JSAsyncFromSyncIterator.h"
 #include "JSAsyncFunction.h"
+#include "JSAsyncFunctionGenerator.h"
 #include "JSAsyncGeneratorFunction.h"
 #include "JSBoundFunction.h"
 #include "JSCInlines.h"
@@ -16297,6 +16298,9 @@ void SpeculativeJIT::compileNewInternalFieldObject(Node* node)
         break;
     case JSGeneratorType:
         compileNewInternalFieldObjectImpl<JSGenerator>(node, operationNewGenerator);
+        break;
+    case JSAsyncFunctionGeneratorType:
+        compileNewInternalFieldObjectImpl<JSAsyncFunctionGenerator>(node, operationNewAsyncFunctionGenerator);
         break;
     case JSAsyncGeneratorType:
         compileNewInternalFieldObjectImpl<JSAsyncGenerator>(node, operationNewAsyncGenerator);

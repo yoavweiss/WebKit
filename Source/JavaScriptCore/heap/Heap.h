@@ -214,6 +214,7 @@ class Heap;
     v(arrayBufferSpace, cellHeapCellType, JSArrayBuffer) \
     v(arrayIteratorSpace, cellHeapCellType, JSArrayIterator) \
     v(asyncGeneratorSpace, cellHeapCellType, JSAsyncGenerator) \
+    v(asyncFunctionGeneratorSpace, cellHeapCellType, JSAsyncFunctionGenerator) \
     v(bigInt64ArraySpace, cellHeapCellType, JSBigInt64Array) \
     v(bigIntObjectSpace, cellHeapCellType, BigIntObject) \
     v(bigUint64ArraySpace, cellHeapCellType, JSBigUint64Array) \

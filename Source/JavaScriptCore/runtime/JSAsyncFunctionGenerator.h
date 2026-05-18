@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 Apple Inc. All rights reserved.
+ * Copyright (C) 2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,55 +25,45 @@
 
 #pragma once
 
-#include <JavaScriptCore/JSInternalFieldObjectImpl.h>
-#include <wtf/EnumClassOperatorOverloads.h>
+#include "JSGenerator.h"
+#include "JSInternalFieldObjectImpl.h"
 
 namespace JSC {
 
-class JSGenerator final : public JSInternalFieldObjectImpl<4> {
+class JSAsyncFunctionGenerator final : public JSInternalFieldObjectImpl<5> {
 public:
-    using Base = JSInternalFieldObjectImpl<4>;
+    using Base = JSInternalFieldObjectImpl<5>;
 
     template<typename CellType, SubspaceAccess mode>
     static GCClient::IsoSubspace* subspaceFor(VM& vm)
     {
-        return vm.generatorSpace<mode>();
+        return vm.asyncFunctionGeneratorSpace<mode>();
     }
 
-    enum class ResumeMode : int32_t {
-        NormalMode = 0,
-        ReturnMode = 1,
-        ThrowMode = 2
-    };
-
-    enum class State : int32_t {
-        Completed = -1,
-        Executing = -2,
-        Init = 0,
-    };
-
-    // [this], @generator, @generatorState, @generatorValue, @generatorResumeMode, @generatorFrame.
-    enum class Argument : int32_t {
-        ThisValue = 0,
-        Generator = 1,
-        State = 2,
-        Value = 3,
-        ResumeMode = 4,
-        Frame = 5,
-        NumberOfArguments = Frame,
-    };
+    // Reuse JSGenerator's State / ResumeMode / Argument enums so existing bytecode
+    // generation logic that mixes both classes keeps a single source of truth.
+    using State = JSGenerator::State;
+    using ResumeMode = JSGenerator::ResumeMode;
+    using Argument = JSGenerator::Argument;
 
     enum class Field : uint32_t {
         State = 0,
         Next,
         This,
         Frame,
+        Context,
     };
-    static_assert(numberOfInternalFields == 4);
+    static_assert(numberOfInternalFields == 5);
+    static_assert(static_cast<uint32_t>(Field::State) == static_cast<uint32_t>(JSGenerator::Field::State));
+    static_assert(static_cast<uint32_t>(Field::Next) == static_cast<uint32_t>(JSGenerator::Field::Next));
+    static_assert(static_cast<uint32_t>(Field::This) == static_cast<uint32_t>(JSGenerator::Field::This));
+    static_assert(static_cast<uint32_t>(Field::Frame) == static_cast<uint32_t>(JSGenerator::Field::Frame));
+
     static std::array<JSValue, numberOfInternalFields> initialValues()
     {
         return { {
             jsNumber(static_cast<int32_t>(State::Init)),
+            jsUndefined(),
             jsUndefined(),
             jsUndefined(),
             jsUndefined(),
@@ -84,8 +74,8 @@ public:
     const WriteBarrier<Unknown>& internalField(Field field) const { return Base::internalField(static_cast<uint32_t>(field)); }
     WriteBarrier<Unknown>& internalField(Field field) { return Base::internalField(static_cast<uint32_t>(field)); }
 
-    static JSGenerator* create(VM&, Structure*);
-    static JSGenerator* createWithInitialValues(VM&, Structure*);
+    static JSAsyncFunctionGenerator* create(VM&, Structure*);
+    static JSAsyncFunctionGenerator* createWithInitialValues(VM&, Structure*);
     static Structure* createStructure(VM&, JSGlobalObject*, JSValue);
 
     int32_t state() const
@@ -113,15 +103,18 @@ public:
         return Base::internalField(static_cast<unsigned>(Field::Frame)).get();
     }
 
+    JSValue context() const
+    {
+        return Base::internalField(static_cast<unsigned>(Field::Context)).get();
+    }
+
     DECLARE_EXPORT_INFO;
 
     DECLARE_VISIT_CHILDREN;
 
 private:
-    JSGenerator(VM&, Structure*);
+    JSAsyncFunctionGenerator(VM&, Structure*);
     void finishCreation(VM&);
 };
-
-OVERLOAD_RELATIONAL_OPERATORS_FOR_ENUM_CLASS_WITH_INTEGRALS(JSGenerator::Argument);
 
 } // namespace JSC

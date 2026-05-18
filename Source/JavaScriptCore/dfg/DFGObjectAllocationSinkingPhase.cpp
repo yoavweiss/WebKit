@@ -42,6 +42,7 @@
 #include "DFGValidate.h"
 #include "JSArrayIterator.h"
 #include "JSAsyncFromSyncIterator.h"
+#include "JSAsyncFunctionGenerator.h"
 #include "JSAsyncGenerator.h"
 #include "JSGenerator.h"
 #include "JSIteratorHelper.h"
@@ -1153,6 +1154,9 @@ private:
                 break;
             case JSGeneratorType:
                 target = handleInternalFieldClass<JSGenerator>(node, writes);
+                break;
+            case JSAsyncFunctionGeneratorType:
+                target = handleInternalFieldClass<JSAsyncFunctionGenerator>(node, writes);
                 break;
             case JSAsyncGeneratorType:
                 target = handleInternalFieldClass<JSAsyncGenerator>(node, writes);

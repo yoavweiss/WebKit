@@ -40,7 +40,7 @@ class CallFrame;
 class CodeBlock;
 class DebuggerCallFrame;
 class Exception;
-class JSGenerator;
+class JSAsyncFunctionGenerator;
 class JSGlobalObject;
 class Microtask;
 class NativeExecutable;
@@ -338,7 +338,7 @@ private:
     JSValue m_currentException;
     CallFrame* m_pauseOnCallFrame { nullptr };
     CallFrame* m_currentCallFrame { nullptr };
-    Weak<JSGenerator> m_pauseForAwaitInGenerator;
+    Weak<JSAsyncFunctionGenerator> m_pauseForAwaitInGenerator;
     bool m_didPauseInAwait { false };
     unsigned m_lastExecutedLine;
     SourceID m_lastExecutedSourceID;

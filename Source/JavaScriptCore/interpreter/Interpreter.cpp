@@ -52,6 +52,7 @@
 #include "InterpreterInlines.h"
 #include "JITCode.h"
 #include "JSArrayInlines.h"
+#include "JSAsyncFunctionGenerator.h"
 #include "JSBoundFunctionInlines.h"
 #include "JSCInlines.h"
 #include "JSCellButterfly.h"
@@ -443,7 +444,7 @@ bool Interpreter::isOpcode(Opcode opcode)
 #endif // ASSERT_ENABLED
 
 
-void Interpreter::getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results, JSGenerator* generator, size_t maxStackSize)
+void Interpreter::getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results, JSAsyncFunctionGenerator* generator, size_t maxStackSize)
 {
     RELEASE_ASSERT(Options::useAsyncStackTrace());
     ASSERT(generator);
@@ -458,8 +459,8 @@ void Interpreter::getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results,
         return promise->asyncStackTraceContext();
     };
 
-    auto getParentGenerator = [&](JSGenerator* gen) -> JSGenerator* {
-        JSValue generatorContext = gen->internalField(static_cast<unsigned>(JSGenerator::Field::Context)).get();
+    auto getParentGenerator = [&](JSAsyncFunctionGenerator* gen) -> JSAsyncFunctionGenerator* {
+        JSValue generatorContext = gen->internalField(static_cast<unsigned>(JSAsyncFunctionGenerator::Field::Context)).get();
         ASSERT(generatorContext);
         JSPromise* awaitedPromise = dynamicDowncast<JSPromise>(generatorContext);
         JSValue promiseContext = getContextValueFromPromise(awaitedPromise);
@@ -468,7 +469,7 @@ void Interpreter::getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results,
             return nullptr;
 
         // handle simple `await`
-        if (auto* generator = dynamicDowncast<JSGenerator>(promiseContext))
+        if (auto* generator = dynamicDowncast<JSAsyncFunctionGenerator>(promiseContext))
             return generator;
 
         // handle `Promise.all`, `Promise.allSettled`, and `Promise.any`
@@ -477,7 +478,7 @@ void Interpreter::getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results,
             ASSERT(promiseValue);
             if (auto* promise = dynamicDowncast<JSPromise>(promiseValue)) {
                 if (JSValue promiseContext = getContextValueFromPromise(promise)) {
-                    if (auto* generator = dynamicDowncast<JSGenerator>(promiseContext))
+                    if (auto* generator = dynamicDowncast<JSAsyncFunctionGenerator>(promiseContext))
                         return generator;
                 }
             }
@@ -486,7 +487,7 @@ void Interpreter::getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results,
         // handle and `Promise.race`
         if (auto* contextPromise = dynamicDowncast<JSPromise>(promiseContext)) {
             if (JSValue parentContext = getContextValueFromPromise(contextPromise)) {
-                if (auto* generator = dynamicDowncast<JSGenerator>(parentContext))
+                if (auto* generator = dynamicDowncast<JSAsyncFunctionGenerator>(parentContext))
                     return generator;
             }
         }
@@ -494,9 +495,9 @@ void Interpreter::getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results,
         return nullptr;
     };
 
-    auto computeBytecodeIndex = [&](CodeBlock* codeBlock, JSGenerator* generator) -> BytecodeIndex {
+    auto computeBytecodeIndex = [&](CodeBlock* codeBlock, JSAsyncFunctionGenerator* generator) -> BytecodeIndex {
         BytecodeIndex bytecodeIndex(0);
-        JSValue stateValue = generator->internalField(static_cast<unsigned>(JSGenerator::Field::State)).get();
+        JSValue stateValue = generator->internalField(static_cast<unsigned>(JSAsyncFunctionGenerator::Field::State)).get();
         if (stateValue.isInt32()) {
             int32_t state = stateValue.asInt32();
             size_t numberOfJumpTables = codeBlock->numberOfUnlinkedSwitchJumpTables();
@@ -511,9 +512,9 @@ void Interpreter::getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results,
         return bytecodeIndex;
     };
 
-    JSGenerator* currentGenerator = getParentGenerator(generator);
+    JSAsyncFunctionGenerator* currentGenerator = getParentGenerator(generator);
     while (currentGenerator && results.size() < maxStackSize) {
-        JSValue nextValue = currentGenerator->internalField(static_cast<unsigned>(JSGenerator::Field::Next)).get();
+        JSValue nextValue = currentGenerator->internalField(static_cast<unsigned>(JSAsyncFunctionGenerator::Field::Next)).get();
         JSFunction* asyncFunction = dynamicDowncast<JSFunction>(nextValue);
         if (asyncFunction && !asyncFunction->isHostOrBuiltinFunction()) {
             if (FunctionExecutable* executable = asyncFunction->jsExecutable()) {
@@ -578,7 +579,7 @@ void Interpreter::getStackTrace(JSCell* owner, Vector<StackFrame>& results, size
     }
 
     bool foundCaller = !caller;
-    JSGenerator* asyncStackTraceOriginGenerator = nullptr;
+    JSAsyncFunctionGenerator* asyncStackTraceOriginGenerator = nullptr;
     size_t asyncStackTraceInsertPos = 0;
     EntryFrame* previousEntryFrame = nullptr;
     size_t previousEntryFrameStackTraceInsertPos = 0;
@@ -586,7 +587,7 @@ void Interpreter::getStackTrace(JSCell* owner, Vector<StackFrame>& results, size
         ASSERT(Options::useAsyncStackTrace());
         auto* record = vmEntryRecord(previousEntryFrame);
         if (record->m_context) {
-            if (auto* generator = dynamicDowncast<JSGenerator>(record->m_context)) {
+            if (auto* generator = dynamicDowncast<JSAsyncFunctionGenerator>(record->m_context)) {
                 asyncStackTraceOriginGenerator = generator;
                 asyncStackTraceInsertPos = previousEntryFrameStackTraceInsertPos;
             }

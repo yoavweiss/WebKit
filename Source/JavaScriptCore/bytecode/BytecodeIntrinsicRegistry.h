@@ -148,7 +148,6 @@ enum class LinkTimeConstant : int32_t;
     macro(generatorFieldNext) \
     macro(generatorFieldThis) \
     macro(generatorFieldFrame) \
-    macro(generatorFieldContext) \
     macro(GeneratorResumeModeNormal) \
     macro(GeneratorResumeModeThrow) \
     macro(GeneratorResumeModeReturn) \

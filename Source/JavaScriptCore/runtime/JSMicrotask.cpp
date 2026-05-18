@@ -38,6 +38,7 @@
 #include "IteratorOperations.h"
 #include "MicrotaskCallInlines.h"
 #include "JSArray.h"
+#include "JSAsyncFunctionGenerator.h"
 #include "JSAsyncGenerator.h"
 #include "JSFunction.h"
 #include "JSGenerator.h"
@@ -1651,7 +1652,7 @@ void runInternalMicrotask(JSGlobalObject* globalObject, VM& vm, InternalMicrotas
 
     case InternalMicrotask::AsyncFunctionResume: {
         JSValue resolution = arguments[1];
-        auto* generator = uncheckedDowncast<JSGenerator>(arguments[2]);
+        auto* generator = uncheckedDowncast<JSAsyncFunctionGenerator>(arguments[2]);
         JSGenerator::ResumeMode resumeMode = JSGenerator::ResumeMode::NormalMode;
         switch (static_cast<JSPromise::Status>(payload)) {
         case JSPromise::Status::Pending: {

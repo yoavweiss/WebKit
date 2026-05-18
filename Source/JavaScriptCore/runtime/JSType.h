@@ -135,6 +135,7 @@ namespace JSC {
     macro(JSDateType, SpecDateObject) \
     macro(ProxyObjectType, SpecProxyObject) \
     macro(JSGeneratorType, SpecObjectOther) \
+    macro(JSAsyncFunctionGeneratorType, SpecObjectOther) \
     macro(JSAsyncGeneratorType, SpecObjectOther) \
     macro(JSArrayIteratorType, SpecObjectOther) \
     macro(JSIteratorType, SpecObjectOther) \

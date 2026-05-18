@@ -905,6 +905,7 @@ runtime/JSArrayBufferPrototype.cpp
 runtime/JSArrayBufferView.cpp
 runtime/JSAsyncDisposableStack.cpp
 runtime/JSAsyncFunction.cpp
+runtime/JSAsyncFunctionGenerator.cpp
 runtime/JSAsyncFromSyncIterator.cpp
 runtime/JSAsyncGenerator.cpp
 runtime/JSAsyncGeneratorFunction.cpp
