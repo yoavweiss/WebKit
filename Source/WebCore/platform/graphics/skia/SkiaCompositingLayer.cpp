@@ -558,7 +558,6 @@ void SkiaCompositingLayer::paintSelf(SkCanvas& canvas, PaintContext& context)
     if (m_repaintCount) {
         constexpr float pointSize = 14;
         constexpr float padding = 3;
-        auto counterString = String::number(*m_repaintCount).ascii();
 
         static SkFont font = [] {
             auto typeface = FontCache::forCurrentThread().fontManager().matchFamilyStyle("monospace", SkFontStyle::Bold());
@@ -568,10 +567,15 @@ void SkiaCompositingLayer::paintSelf(SkCanvas& canvas, PaintContext& context)
             return f;
         }();
 
-        SkRect textBounds;
-        font.measureText(counterString.data(), counterString.length(), SkTextEncoding::kUTF8, &textBounds);
-        float textWidth = textBounds.width() + padding * 2;
-        float textHeight = textBounds.height() + padding * 2;
+        if (m_repaintCountOverlay.count != m_repaintCount) {
+            m_repaintCountOverlay.count = m_repaintCount;
+            m_repaintCountOverlay.string = String::number(*m_repaintCount).ascii();
+            SkRect textBounds;
+            font.measureText(m_repaintCountOverlay.string.data(), m_repaintCountOverlay.string.length(), SkTextEncoding::kUTF8, &textBounds);
+            m_repaintCountOverlay.backgroundWidth = textBounds.width() + padding * 2;
+            m_repaintCountOverlay.backgroundHeight = textBounds.height() + padding * 2;
+            m_repaintCountOverlay.baselineOffset = -textBounds.fTop + padding;
+        }
 
         SkAutoCanvasRestore autoRestore(&canvas, true);
         canvas.resetMatrix();
@@ -579,12 +583,12 @@ void SkiaCompositingLayer::paintSelf(SkCanvas& canvas, PaintContext& context)
         SkPaint backgroundPaint;
         backgroundPaint.setColor(m_debugBorder ? SkColor(m_debugBorder->color) : SK_ColorBLACK);
         backgroundPaint.setStyle(SkPaint::kFill_Style);
-        canvas.drawRect(SkRect::MakeXYWH(deviceOrigin.x(), deviceOrigin.y(), textWidth, textHeight), backgroundPaint);
+        canvas.drawRect(SkRect::MakeXYWH(deviceOrigin.x(), deviceOrigin.y(), m_repaintCountOverlay.backgroundWidth, m_repaintCountOverlay.backgroundHeight), backgroundPaint);
 
         SkPaint textPaint;
         textPaint.setColor(SK_ColorWHITE);
         textPaint.setAntiAlias(true);
-        canvas.drawString(counterString.data(), deviceOrigin.x() + padding, deviceOrigin.y() - textBounds.fTop + padding, font, textPaint);
+        canvas.drawString(m_repaintCountOverlay.string.data(), deviceOrigin.x() + padding, deviceOrigin.y() + m_repaintCountOverlay.baselineOffset, font, textPaint);
     }
 }
 

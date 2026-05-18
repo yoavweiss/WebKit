@@ -47,6 +47,7 @@ WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 #include <wtf/MonotonicTime.h>
 #include <wtf/RefCountedAndCanMakeWeakPtr.h>
 #include <wtf/TZoneMalloc.h>
+#include <wtf/text/CString.h>
 
 namespace WebCore {
 class CoordinatedAnimatedBackingStoreClient;
@@ -228,6 +229,18 @@ private:
     Color m_contentsSolidColor;
     std::optional<DebugBorder> m_debugBorder;
     std::optional<unsigned> m_repaintCount;
+
+    // Cached repaint-counter overlay shaping, recomputed only when the count
+    // changes rather than on every composite of this layer. count is the
+    // value string/geometry were computed for.
+    struct {
+        std::optional<unsigned> count;
+        CString string;
+        float backgroundWidth { 0 };
+        float backgroundHeight { 0 };
+        float baselineOffset { 0 };
+    } m_repaintCountOverlay;
+
     std::optional<Filter> m_filter;
     struct {
         sk_sp<SkImageFilter> filter;
