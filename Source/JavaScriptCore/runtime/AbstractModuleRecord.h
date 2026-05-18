@@ -31,6 +31,7 @@
 #include <JavaScriptCore/ModuleMap.h>
 #include <JavaScriptCore/ScriptFetchParameters.h>
 #include <JavaScriptCore/ScriptFetcher.h>
+#include <wtf/OrderedHashMap.h>
 #include <wtf/OrderedHashSet.h>
 #include <wtf/RefPtr.h>
 
@@ -105,9 +106,9 @@ public:
         Identifier localName;
     };
 
-    typedef WTF::OrderedHashSet<RefPtr<UniquedStringImpl>, IdentifierRepHash> OrderedIdentifierSet;
-    typedef UncheckedKeyHashMap<RefPtr<UniquedStringImpl>, ImportEntry, IdentifierRepHash, HashTraits<RefPtr<UniquedStringImpl>>> ImportEntries;
-    typedef UncheckedKeyHashMap<RefPtr<UniquedStringImpl>, ExportEntry, IdentifierRepHash, HashTraits<RefPtr<UniquedStringImpl>>> ExportEntries;
+    using OrderedIdentifierSet = WTF::OrderedHashSet<RefPtr<UniquedStringImpl>, IdentifierRepHash>;
+    using ImportEntries = WTF::OrderedHashMap<RefPtr<UniquedStringImpl>, ImportEntry, IdentifierRepHash, HashTraits<RefPtr<UniquedStringImpl>>>;
+    using ExportEntries = WTF::OrderedHashMap<RefPtr<UniquedStringImpl>, ExportEntry, IdentifierRepHash, HashTraits<RefPtr<UniquedStringImpl>>>;
 
     struct ModuleRequest {
         Identifier m_specifier;
@@ -131,8 +132,8 @@ public:
     void addImportEntry(const ImportEntry&);
     void addExportEntry(const ExportEntry&);
 
-    std::optional<ImportEntry> NODELETE tryGetImportEntry(UniquedStringImpl* localName);
-    std::optional<ExportEntry> NODELETE tryGetExportEntry(UniquedStringImpl* exportName);
+    std::optional<ImportEntry> tryGetImportEntry(UniquedStringImpl* localName);
+    std::optional<ExportEntry> tryGetExportEntry(UniquedStringImpl* exportName);
 
     class AsyncEvaluationOrder {
     public:
@@ -246,19 +247,6 @@ private:
 
     // The loader resolves the given module name to the module key. The module key is the unique value to represent this module.
     Identifier m_moduleKey;
-
-    // Currently, we don't keep the occurrence order of the import / export entries.
-    // So, we does not guarantee the order of the errors.
-    // e.g. The import declaration that occurs later than another import declaration may
-    //      throw the error even if the former import declaration also has the invalid content.
-    //
-    //      import ... // (1) this has some invalid content.
-    //      import ... // (2) this also has some invalid content.
-    //
-    //      In the above case, (2) may throw the error earlier than (1)
-    //
-    // But, in all cases, we will throw the syntax error. So except for the content of the syntax error,
-    // there are no differences.
 
     // Map localName -> ImportEntry.
     ImportEntries m_importEntries;
