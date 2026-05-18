@@ -10341,17 +10341,30 @@ void SpeculativeJIT::compileArrayIndexOfOrArrayIncludes(Node* node)
             loadPtr(Address(leftStringGPR, StringImpl::dataOffset()), leftStringGPR);
             loadPtr(Address(rightStringGPR, StringImpl::dataOffset()), rightStringGPR);
 
+            constexpr unsigned pointerSize = sizeof(void*);
+
+            Jump longString = branch32(AboveOrEqual, compareLengthGPR, TrustedImm32(pointerSize));
+
+            Label byteLoop = label();
             sub32(TrustedImm32(1), compareLengthGPR);
-
-            Label compareLoop = label();
-
             load8(BaseIndex(leftStringGPR, compareLengthGPR, TimesOne), leftCharGPR);
             load8(BaseIndex(rightStringGPR, compareLengthGPR, TimesOne), rightCharGPR);
             falseCase.append(branch32(NotEqual, leftCharGPR, rightCharGPR));
+            branchTest32(NonZero, compareLengthGPR).linkTo(byteLoop, this);
+            trueCase.append(jump());
 
-            sub32(TrustedImm32(1), compareLengthGPR);
-            trueCase.append(branch32(LessThan, compareLengthGPR, TrustedImm32(0)));
-            jump(compareLoop);
+            longString.link(this);
+            Label wordLoop = label();
+            sub32(TrustedImm32(pointerSize), compareLengthGPR);
+            loadPtr(BaseIndex(leftStringGPR, compareLengthGPR, TimesOne), leftCharGPR);
+            loadPtr(BaseIndex(rightStringGPR, compareLengthGPR, TimesOne), rightCharGPR);
+            falseCase.append(branchPtr(NotEqual, leftCharGPR, rightCharGPR));
+            branch32(AboveOrEqual, compareLengthGPR, TrustedImm32(pointerSize)).linkTo(wordLoop, this);
+
+            trueCase.append(branchTest32(Zero, compareLengthGPR));
+            loadPtr(Address(leftStringGPR), leftCharGPR);
+            loadPtr(Address(rightStringGPR), rightCharGPR);
+            trueCase.append(branchPtr(Equal, leftCharGPR, rightCharGPR));
 
             falseCase.link(this);
 

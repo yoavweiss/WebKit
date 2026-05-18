@@ -8663,6 +8663,11 @@ IGNORE_CLANG_WARNINGS_END
             LBasicBlock loadBytes = m_out.newBlock();
             LBasicBlock compareBytesLoop = m_out.newBlock();
             LBasicBlock checkCompareBytesLoopEnd = m_out.newBlock();
+            LBasicBlock compareWordsPreheader = m_out.newBlock();
+            LBasicBlock compareWordsLoop = m_out.newBlock();
+            LBasicBlock checkCompareWordsLoopEnd = m_out.newBlock();
+            LBasicBlock compareWordsTail = m_out.newBlock();
+            LBasicBlock compareWordsTailLoad = m_out.newBlock();
             LBasicBlock loopNext = m_out.newBlock();
             LBasicBlock notFound = m_out.newBlock();
             LBasicBlock continuation = m_out.newBlock();
@@ -8741,9 +8746,9 @@ IGNORE_CLANG_WARNINGS_END
             LValue elementData = m_out.loadPtr(elementImpl, m_heaps.StringImpl_data);
             LValue searchElementData = m_out.loadPtr(searchElementImpl, m_heaps.StringImpl_data);
 
+            constexpr unsigned pointerSize = sizeof(void*);
             ValueFromBlock compareBytesLoopIndexAtStart = m_out.anchor(elementLength);
-
-            m_out.jump(compareBytesLoop);
+            m_out.branch(m_out.below(elementLength, m_out.constInt32(pointerSize)), usually(compareBytesLoop), rarely(compareWordsPreheader));
 
             m_out.appendTo(compareBytesLoop, checkCompareBytesLoopEnd);
 
@@ -8757,9 +8762,32 @@ IGNORE_CLANG_WARNINGS_END
 
             m_out.branch(m_out.notEqual(elementByte, searchElementByte), unsure(loopNext), unsure(checkCompareBytesLoopEnd));
 
-            m_out.appendTo(checkCompareBytesLoopEnd, loopNext);
+            m_out.appendTo(checkCompareBytesLoopEnd, compareWordsPreheader);
             m_out.addIncomingToPhi(compareBytesLoopIndexAtLoopTop, m_out.anchor(compareBytesLoopIndexInLoop));
             m_out.branch(m_out.notZero32(compareBytesLoopIndexInLoop), unsure(compareBytesLoop), unsure(continuation));
+
+            m_out.appendTo(compareWordsPreheader, compareWordsLoop);
+            ValueFromBlock compareWordsLoopIndexAtStart = m_out.anchor(m_out.zeroExtPtr(elementLength));
+            m_out.jump(compareWordsLoop);
+
+            m_out.appendTo(compareWordsLoop, checkCompareWordsLoopEnd);
+            LValue compareWordsLoopIndexAtLoopTop = m_out.phi(pointerType(), compareWordsLoopIndexAtStart);
+            LValue compareWordsLoopIndexInLoop = m_out.sub(compareWordsLoopIndexAtLoopTop, m_out.constIntPtr(pointerSize));
+            LValue elementWord = m_out.load64(TypedPointer(m_heaps.characters8.atAnyIndex(), m_out.add(elementData, compareWordsLoopIndexInLoop)));
+            LValue searchElementWord = m_out.load64(TypedPointer(m_heaps.characters8.atAnyIndex(), m_out.add(searchElementData, compareWordsLoopIndexInLoop)));
+            m_out.branch(m_out.notEqual(elementWord, searchElementWord), unsure(loopNext), unsure(checkCompareWordsLoopEnd));
+
+            m_out.appendTo(checkCompareWordsLoopEnd, compareWordsTail);
+            m_out.addIncomingToPhi(compareWordsLoopIndexAtLoopTop, m_out.anchor(compareWordsLoopIndexInLoop));
+            m_out.branch(m_out.aboveOrEqual(compareWordsLoopIndexInLoop, m_out.constIntPtr(pointerSize)), unsure(compareWordsLoop), unsure(compareWordsTail));
+
+            m_out.appendTo(compareWordsTail, compareWordsTailLoad);
+            m_out.branch(m_out.isNull(compareWordsLoopIndexInLoop), unsure(continuation), unsure(compareWordsTailLoad));
+
+            m_out.appendTo(compareWordsTailLoad, loopNext);
+            LValue elementTailWord = m_out.load64(TypedPointer(m_heaps.characters8.atAnyIndex(), elementData));
+            LValue searchElementTailWord = m_out.load64(TypedPointer(m_heaps.characters8.atAnyIndex(), searchElementData));
+            m_out.branch(m_out.notEqual(elementTailWord, searchElementTailWord), unsure(loopNext), unsure(continuation));
 
             m_out.appendTo(loopNext,  notFound);
             LValue nextIndex = m_out.add(index, m_out.intPtrOne);
