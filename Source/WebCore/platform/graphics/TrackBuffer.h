@@ -133,6 +133,20 @@ private:
     void updateMinimumUpcomingPresentationTime();
     void clearDecodeQueue();
 
+    // Result of attempting to split the sample whose presentation range contains a given time.
+    struct DivideResult {
+        // Presentation timestamp of the "after" piece (the piece whose range starts at the split
+        // point). Invalid if no split happened (no containing sample, not divisible, or
+        // MediaSample::divide returned null halves).
+        MediaTime afterSplitPresentationTime { MediaTime::invalidTime() };
+        // Byte sizes of the pieces produced by the split, valid only when
+        // afterSplitPresentationTime is valid.
+        int64_t beforeSplitSize { 0 };
+        int64_t afterSplitSize { 0 };
+    };
+    enum class ApplyDivide : bool { No, Yes };
+    DivideResult tryDivideSampleAtTime(const MediaTime&, ApplyDivide);
+
     SampleMap m_samples;
     DecodeOrderSampleMap::MapType m_decodeQueue;
     RefPtr<MediaDescription> m_description;

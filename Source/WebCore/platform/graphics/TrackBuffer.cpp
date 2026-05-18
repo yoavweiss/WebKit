@@ -407,20 +407,34 @@ PlatformTimeRanges TrackBuffer::removeSamples(const DecodeOrderSampleMap::MapTyp
     bytesRemoved += startBufferSize - m_samples.sizeInBytes();
 #endif
 
-    // Because we may have added artificial padding in the buffered ranges when adding samples, we may
-    // need to remove that padding when removing those same samples. Walk over the erased ranges looking
-    // for unbuffered areas and expand erasedRanges to encompass those areas.
+    // Walk each disjoint erased range and consult its retained neighbour on
+    // each side. The neighbour can be in one of four states, handled
+    // symmetrically at both boundaries:
+    //   - no neighbour: extend erasedRanges out to 0 or +inf so the
+    //     surrounding unbuffered area is erased too.
+    //   - gap (neighbour doesn't reach the erased range): pad the gap so
+    //     artificial padding added during append() is removed here as well.
+    //   - contiguous: nothing to do.
+    //   - overlap (neighbour's range reaches inside the erased range):
+    //     clip the erased range so m_buffered isn't stripped of coverage
+    //     that a retained sample still holds (e.g. WebM sub-ms overlaps
+    //     allowed by contiguousFrameTolerance).
+    PlatformTimeRanges clippedErasedRanges;
     PlatformTimeRanges additionalErasedRanges;
     for (unsigned i = 0; i < erasedRanges.length(); ++i) {
         auto erasedStart = erasedRanges.start(i);
         auto erasedEnd = erasedRanges.end(i);
+
         auto startIterator = m_samples.presentationOrder().reverseFindSampleBeforePresentationTime(erasedStart);
         if (startIterator == m_samples.presentationOrder().rend())
             additionalErasedRanges.add(MediaTime::zeroTime(), erasedStart);
         else {
             Ref previousSample = startIterator->second.get();
-            if (previousSample->presentationTime() + previousSample->duration() < erasedStart)
-                additionalErasedRanges.add(previousSample->presentationTime() + previousSample->duration(), erasedStart);
+            auto previousEnd = previousSample->presentationTime() + previousSample->duration();
+            if (previousEnd < erasedStart)
+                additionalErasedRanges.add(previousEnd, erasedStart);
+            else if (previousEnd > erasedStart)
+                erasedStart = std::min(previousEnd, erasedEnd);
         }
 
         auto endIterator = m_samples.presentationOrder().findSampleStartingAfterPresentationTime(erasedStart);
@@ -428,10 +442,17 @@ PlatformTimeRanges TrackBuffer::removeSamples(const DecodeOrderSampleMap::MapTyp
             additionalErasedRanges.add(erasedEnd, MediaTime::positiveInfiniteTime());
         else {
             Ref nextSample = endIterator->second.get();
-            if (nextSample->presentationTime() > erasedEnd)
-                additionalErasedRanges.add(erasedEnd, nextSample->presentationTime());
+            auto nextStart = nextSample->presentationTime();
+            if (nextStart > erasedEnd)
+                additionalErasedRanges.add(erasedEnd, nextStart);
+            else if (nextStart < erasedEnd)
+                erasedEnd = std::max(nextStart, erasedStart);
         }
+
+        if (erasedStart < erasedEnd)
+            clippedErasedRanges.add(erasedStart, erasedEnd, AddTimeRangeOption::EliminateSmallGaps);
     }
+    erasedRanges = WTF::move(clippedErasedRanges);
     if (additionalErasedRanges.length())
         erasedRanges.unionWith(additionalErasedRanges);
 
@@ -467,27 +488,17 @@ int64_t TrackBuffer::removeCodedFrames(const MediaTime& start, const MediaTime& 
 
     // NOTE: To handle MediaSamples which may be an amalgamation of multiple shorter samples, find samples whose presentation
     // interval straddles the start and end times, and divide them if possible:
-    auto divideSampleIfPossibleAtPresentationTime = [&] (const MediaTime& time) {
-        auto sampleIterator = m_samples.presentationOrder().findSampleContainingPresentationTime(time);
-        if (sampleIterator == m_samples.presentationOrder().end())
-            return;
-        Ref sample = sampleIterator->second;
-        if (!sample->isDivisable())
-            return;
-        MediaTime microsecond(1, 1000000);
-        MediaTime roundedTime = roundTowardsTimeScaleWithRoundingMargin(time, sample->presentationTime().timeScale(), microsecond);
-        std::pair<RefPtr<MediaSample>, RefPtr<MediaSample>> replacementSamples = sample->divide(roundedTime);
-        if (!replacementSamples.first || !replacementSamples.second)
-            return;
-        DEBUG_LOG_IF(m_logger, LOGIDENTIFIER, "splitting sample ", sample.get(), " into ", Ref { *replacementSamples.first }.get(), " and ", Ref { *replacementSamples.second }.get());
-        m_samples.removeSample(sample);
-        m_samples.addSample(replacementSamples.first.releaseNonNull());
-        m_samples.addSample(replacementSamples.second.releaseNonNull());
-    };
-    divideSampleIfPossibleAtPresentationTime(start);
-    divideSampleIfPossibleAtPresentationTime(end);
+    // Per spec 3.5.9 step 3.3, only samples with starting PTS >= start should be removed.
+    // If the sample whose range contains `start` was successfully split, the "after" piece is the
+    // first sample to erase — find it by its actual PTS (which may differ slightly from `start`
+    // due to timescale rounding, in either direction). Otherwise the original sample (with PTS <
+    // start) must be retained per spec; use findSampleStartingOnOrAfter to skip it.
+    auto splitAtStart = tryDivideSampleAtTime(start, ApplyDivide::Yes);
+    tryDivideSampleAtTime(end, ApplyDivide::Yes);
 
-    auto removePresentationStart = m_samples.presentationOrder().findSampleContainingOrAfterPresentationTime(start);
+    auto removePresentationStart = splitAtStart.afterSplitPresentationTime.isValid()
+        ? m_samples.presentationOrder().findSampleStartingOnOrAfterPresentationTime(splitAtStart.afterSplitPresentationTime)
+        : m_samples.presentationOrder().findSampleStartingOnOrAfterPresentationTime(start);
     auto removePresentationEnd = m_samples.presentationOrder().findSampleStartingOnOrAfterPresentationTime(end);
     if (removePresentationStart == m_samples.presentationOrder().end() || removePresentationStart == removePresentationEnd)
         return framesSizeBefore - samples().sizeInBytes(); // This could be negative if new frames were created above.
@@ -529,29 +540,24 @@ int64_t TrackBuffer::codedFramesIntervalSize(const MediaTime& start, const Media
 {
     ASSERT(start.isValid());
     ASSERT(end.isValid());
-    auto removePresentationStart = m_samples.presentationOrder().findSampleContainingOrAfterPresentationTime(start);
+
+    // Mirror removeCodedFrames' iterator selection. Compute split sizes without mutating the
+    // sample map (ApplyDivide::No).
+    auto splitAtStart = tryDivideSampleAtTime(start, ApplyDivide::No);
+    auto splitAtEnd = tryDivideSampleAtTime(end, ApplyDivide::No);
+
+    auto removePresentationStart = splitAtStart.afterSplitPresentationTime.isValid()
+        ? m_samples.presentationOrder().findSampleStartingOnOrAfterPresentationTime(splitAtStart.afterSplitPresentationTime)
+        : m_samples.presentationOrder().findSampleStartingOnOrAfterPresentationTime(start);
     auto removePresentationEnd = m_samples.presentationOrder().findSampleStartingOnOrAfterPresentationTime(end);
     if (removePresentationStart == m_samples.presentationOrder().end() || removePresentationStart == removePresentationEnd)
         return 0;
 
-    auto divideSampleIfPossibleAtPresentationTime = [&] (const MediaTime& time, bool dropFirstPart) -> int64_t  {
-        auto sampleIterator = m_samples.presentationOrder().findSampleContainingPresentationTime(time);
-        if (sampleIterator == m_samples.presentationOrder().end())
-            return 0;
-        Ref sample = sampleIterator->second;
-        if (!sample->isDivisable())
-            return 0;
-        MediaTime microsecond(1, 1000000);
-        MediaTime roundedTime = roundTowardsTimeScaleWithRoundingMargin(time, sample->presentationTime().timeScale(), microsecond);
-        std::pair<RefPtr<MediaSample>, RefPtr<MediaSample>> replacementSamples = sample->divide(roundedTime);
-        if (!replacementSamples.first || !replacementSamples.second)
-            return 0;
-        return dropFirstPart ? Ref { *replacementSamples.first }->sizeInBytes() : Ref { *replacementSamples.second }->sizeInBytes();
-    };
-
     int64_t framesSize = 0;
-    framesSize -= divideSampleIfPossibleAtPresentationTime(start, true);
-    framesSize -= divideSampleIfPossibleAtPresentationTime(end, false);
+    // Subtract the "before" piece at start (kept) and the "after" piece at end (kept) from the
+    // total below; everything between is summed.
+    framesSize -= splitAtStart.beforeSplitSize;
+    framesSize -= splitAtEnd.afterSplitSize;
 
     auto minmaxDecodeTimeIterPair = std::minmax_element(removePresentationStart, removePresentationEnd, decodeTimeComparator);
     Ref firstSample = minmaxDecodeTimeIterPair.first->second.get();
@@ -566,6 +572,33 @@ int64_t TrackBuffer::codedFramesIntervalSize(const MediaTime& start, const Media
         framesSize += Ref { erasedPair.second }->sizeInBytes();
 
     return framesSize;
+}
+
+TrackBuffer::DivideResult TrackBuffer::tryDivideSampleAtTime(const MediaTime& time, ApplyDivide applyDivide)
+{
+    auto sampleIterator = m_samples.presentationOrder().findSampleContainingPresentationTime(time);
+    if (sampleIterator == m_samples.presentationOrder().end())
+        return { };
+    Ref sample = sampleIterator->second;
+    if (!sample->isDivisable())
+        return { };
+    MediaTime microsecond(1, 1000000);
+    MediaTime roundedTime = roundTowardsTimeScaleWithRoundingMargin(time, sample->presentationTime().timeScale(), microsecond);
+    std::pair<RefPtr<MediaSample>, RefPtr<MediaSample>> replacementSamples = sample->divide(roundedTime);
+    if (!replacementSamples.first || !replacementSamples.second)
+        return { };
+    DivideResult result {
+        .afterSplitPresentationTime = protect(replacementSamples.second)->presentationTime(),
+        .beforeSplitSize = static_cast<int64_t>(protect(replacementSamples.first)->sizeInBytes()),
+        .afterSplitSize = static_cast<int64_t>(protect(replacementSamples.second)->sizeInBytes()),
+    };
+    if (applyDivide == ApplyDivide::Yes) {
+        DEBUG_LOG_IF(m_logger, LOGIDENTIFIER, "splitting sample ", sample.get(), " into ", Ref { *replacementSamples.first }.get(), " and ", Ref { *replacementSamples.second }.get());
+        m_samples.removeSample(sample);
+        m_samples.addSample(replacementSamples.first.releaseNonNull());
+        m_samples.addSample(replacementSamples.second.releaseNonNull());
+    }
+    return result;
 }
 
 void TrackBuffer::resetTimestampOffset()
