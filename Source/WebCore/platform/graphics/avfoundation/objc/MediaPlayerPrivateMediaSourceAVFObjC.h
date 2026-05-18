@@ -107,6 +107,7 @@ public:
     void durationChanged();
 
     void effectiveRateChanged();
+    void notifyEndOfMediaIfNeeded();
     void setNaturalSize(const FloatSize&);
     void characteristicsFromMediaSourceChanged() final;
 

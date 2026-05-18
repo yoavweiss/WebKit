@@ -537,7 +537,7 @@ void AudioVideoRendererAVFObjC::notifyTimeReachedAndStall(const MediaTime& timeB
         [protectedThis->m_synchronizer setRate:0 time:PAL::toCMTime(timeBoundary)];
         protectedThis->m_lastSetSyncRate = 0;
 
-        callback(now);
+        callback(timeBoundary);
     }).get()];
 }
 

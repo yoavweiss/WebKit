@@ -1039,6 +1039,27 @@ void MediaPlayerPrivateMediaSourceAVFObjC::effectiveRateChanged()
     ALWAYS_LOG(LOGIDENTIFIER, effectiveRate());
     if (RefPtr player = m_player.get())
         player->rateChanged();
+    notifyEndOfMediaIfNeeded();
+}
+
+void MediaPlayerPrivateMediaSourceAVFObjC::notifyEndOfMediaIfNeeded()
+{
+    assertIsMainThread();
+    // Observed: in some runs, playback drains at end of media (the renderer
+    // stops producing frames) without the boundary observer programmed in
+    // bufferedChanged() firing. The effective rate still transitions to 0
+    // in that case, which gives us a reliable signal: if MediaSource has
+    // transitioned to 'ended' and there is no future data past the current
+    // time, route a timeChanged() through so HTMLMediaElement's
+    // mediaPlayerTimeChanged schedules the 'ended' event.
+    if (effectiveRate())
+        return;
+    RefPtr mediaSourcePrivate = m_mediaSourcePrivate;
+    if (!mediaSourcePrivate || !mediaSourcePrivate->isEnded())
+        return;
+    if (mediaSourcePrivate->hasFutureTime(currentTime()))
+        return;
+    timeChanged();
 }
 
 void MediaPlayerPrivateMediaSourceAVFObjC::setNaturalSize(const FloatSize& size)
@@ -1182,10 +1203,7 @@ void MediaPlayerPrivateMediaSourceAVFObjC::mediaSourceHasRetrievedAllData()
 {
     assertIsMainThread();
     setNetworkState(MediaPlayer::NetworkState::Loaded);
-    if (!effectiveRate()) {
-        // Playback had stalled; make transition for the element to ended if needed.
-        timeChanged();
-    }
+    notifyEndOfMediaIfNeeded();
 }
 
 ALLOW_NEW_API_WITHOUT_GUARDS_BEGIN

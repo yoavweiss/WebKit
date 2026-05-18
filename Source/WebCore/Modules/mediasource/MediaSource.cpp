@@ -704,7 +704,11 @@ ExceptionOr<void> MediaSource::setDurationInternal(const MediaTime& newDuration)
 
     // 4. If new duration is less than highest end time, then
     // 4.1. Update new duration to equal highest end time.
-    auto duration = highestEndTime.isValid() && newDuration < highestEndTime ? highestEndTime : newDuration;
+    // Use <= so that when the JS-supplied duration equals highest end time, we
+    // pick the precise rational MediaTime from highest end time rather than the
+    // DoubleValue MediaTime created from the JS Number, preserving precision
+    // through the seek path.
+    auto duration = highestEndTime.isValid() && newDuration <= highestEndTime ? highestEndTime : newDuration;
 
     ALWAYS_LOG(LOGIDENTIFIER, duration);
 
