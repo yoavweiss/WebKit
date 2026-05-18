@@ -41,7 +41,7 @@
 #endif
 
 #if USE(SKIA)
-#include "SkiaUtilities.h"
+#include "ColorSpaceSkia.h"
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
 #include <skia/core/SkColorSpace.h>
 #include <skia/core/SkImage.h>
@@ -184,7 +184,7 @@ sk_sp<SkImage> CoordinatedPlatformLayerBufferExternalOES::skiaImage()
     externalTexture.fID = m_textureID;
     externalTexture.fFormat = GL_RGBA8;
     auto backendTexture = GrBackendTextures::MakeGL(m_size.width(), m_size.height(), skgpu::Mipmapped::kNo, externalTexture);
-    return SkiaUtilities::borrowBackendTextureAsImage(grContext, backendTexture);
+    return SkImages::BorrowTextureFrom(grContext, backendTexture, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, kPremul_SkAlphaType, sRGBColorSpaceSingleton());
 }
 #endif
 

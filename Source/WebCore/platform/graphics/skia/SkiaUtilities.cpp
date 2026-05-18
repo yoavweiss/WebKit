@@ -58,7 +58,8 @@ GrBackendTexture createBackendTexture(const BitmapTexture& texture)
     GrGLTextureInfo externalTexture;
     externalTexture.fTarget = GL_TEXTURE_2D;
     externalTexture.fID = texture.id();
-    externalTexture.fFormat = GL_RGBA8;
+    // EXT_texture_format_BGRA8888 (unsized form, matches BitmapTexture::textureFormat).
+    externalTexture.fFormat = texture.flags().contains(BitmapTexture::Flags::UseBGRALayout) ? GL_BGRA : GL_RGBA8;
     return GrBackendTextures::MakeGL(texture.size().width(), texture.size().height(), skgpu::Mipmapped::kNo, externalTexture);
 }
 
@@ -76,11 +77,6 @@ sk_sp<SkImage> rewrapImageForContext(GrDirectContext* grContext, const SkImage& 
     if (!SkImages::GetBackendTextureFromImage(&image, &backendTexture, false))
         return nullptr;
     return SkImages::BorrowTextureFrom(grContext, backendTexture, kTopLeft_GrSurfaceOrigin, image.colorType(), image.alphaType(), image.refColorSpace());
-}
-
-sk_sp<SkImage> borrowBackendTextureAsImage(GrDirectContext* grContext, const GrBackendTexture& backendTexture, GrSurfaceOrigin origin)
-{
-    return SkImages::BorrowTextureFrom(grContext, backendTexture, origin, kRGBA_8888_SkColorType, kPremul_SkAlphaType, sRGBColorSpaceSingleton());
 }
 
 std::optional<unsigned> retrieveGLTextureID(const SkImage& image)
