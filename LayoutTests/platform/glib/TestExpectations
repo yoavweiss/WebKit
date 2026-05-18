@@ -967,6 +967,8 @@ accessibility/aria-table-selection-support.html [ Skip ]
 # AccessibilityUIElement::isAttributeSupported doesn't handle AXExpanded.
 accessibility/aria-expanded-links.html [ Skip ]
 
+accessibility/dialog-focus-on-open.html [ Failure ]
+
 # AccessibilityUIElement::customContent is not implemented.
 accessibility/dynamic-aria-describedby-subtree.html [ Failure ]
 accessibility/dynamic-aria-describedby-text.html [ Failure ]

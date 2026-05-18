@@ -697,6 +697,18 @@ void AXObjectCache::frameLoadingEventPlatformNotification(RenderView* renderView
 
 void AXObjectCache::platformHandleFocusedUIElementChanged(AccessibilityObject*, AccessibilityObject*)
 {
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+    // Process any pending isolated-tree node updates (e.g. queued children-changed walks for
+    // newly-revealed subtrees like the contents of a just-opened <dialog>) before calling
+    // NSAccessibilityHandleFocusChanged. AppKit synchronously calls [NSApp accessibilityFocusedUIElement]
+    // from inside NSAccessibilityHandleFocusChanged on the same call stack. That query lands on
+    // our wrapper's accessibilityFocusedUIElement, which goes through the AX thread to
+    // AXIsolatedTree::focusedNode. If we serve that query before the focused object's subtree
+    // has been resolved into the isolated tree's pending appends, focusedNode returns null,
+    // meaning VoiceOver won't move to it.
+    processQueuedIsolatedNodeUpdates();
+#endif
+
     NSAccessibilityHandleFocusChanged();
     // AXFocusChanged is a test specific notification name and not something a real AT will be listening for
     if (!gShouldRepostNotificationsForTests) [[unlikely]]
@@ -706,12 +718,15 @@ void AXObjectCache::platformHandleFocusedUIElementChanged(AccessibilityObject*, 
     if (!rootWebArea)
         return;
 
-    callOnMainThread([webArea = rootWebArea] {
-        // Do not post focus-changed notifications to layout tests synchronously. Otherwise JS event
-        // handlers could dirty style / layout in the middle of contexts where we expect clean style
-        // and layout, e.g. AXObjectCache::performDeferredCacheUpdate.
-        [webArea->wrapper() accessibilityPostedNotification:NSAccessibilityFocusChangedNotification userInfo:nil];
-    });
+    // Post the test-only notification synchronously so layout tests observe the same timing
+    // as AppKit's synchronous [NSApp accessibilityFocusedUIElement] query inside
+    // NSAccessibilityHandleFocusChanged, i.e. while the focus change is still on the call stack
+    // and before performDeferredCacheUpdate has finished its remaining work. (Delivery to a real
+    // AT like VoiceOver crosses a process boundary and is async; what we're mirroring is the
+    // local same-stack moment when AppKit asks for the focused element.) Tests that need to dirty
+    // style/layout in response should defer that work via setTimeout, since real ATs can't trigger
+    // JS synchronously in response to notifications but our test infrastructure can.
+    [rootWebArea->wrapper() accessibilityPostedNotification:NSAccessibilityFocusChangedNotification userInfo:nil];
 }
 
 void AXObjectCache::handleScrolledToAnchor(const Node&)
