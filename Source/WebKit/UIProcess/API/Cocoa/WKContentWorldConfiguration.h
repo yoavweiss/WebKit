@@ -57,10 +57,10 @@ WK_CLASS_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA))
  object for the application to use in future JavaScript programs.
  Refer to the `WKJSSerializedNode` documentation for more information.
  */
-@property (nonatomic) BOOL nodeSerializationEnabled WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
+@property (nonatomic) BOOL nodeSerializationEnabled;
 
 /*! @abstract A boolean indicating whether or not `window.webkit.createJSHandle` is available. */
-@property (nonatomic, setter=setJSHandleCreationEnabled:) BOOL jsHandleCreationEnabled WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
+@property (nonatomic, setter=setJSHandleCreationEnabled:) BOOL jsHandleCreationEnabled;
 
 /*! @abstract A boolean indicating whether the JavaScript in this world is visible to the Web Inspector. */
 @property (nonatomic, getter=isInspectable) BOOL inspectable;
