@@ -34,7 +34,16 @@ for arg in "$@"; do
 done
 
 for arg in "$@"; do
+    if [[ -n "$pass_next_verbatim" ]]; then
+        args+=("$arg")
+        pass_next_verbatim=
+        continue
+    fi
     case "$arg" in
+        "-Xcc"|"-Xlinker"|"-Xfrontend")
+            args+=("$arg")
+            pass_next_verbatim=1
+            ;;
         "-mfpmath=sse") ;;
         "-msse") ;;
         "-msse2") ;;

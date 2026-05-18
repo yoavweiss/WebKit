@@ -130,6 +130,9 @@ WEBKIT_OPTION_DEFAULT_PORT_VALUE(ENABLE_WRITING_TOOLS PRIVATE ON)
 
 WEBKIT_OPTION_END()
 
+# rdar://177360289
+SET_AND_EXPOSE_TO_BUILD(ENABLE_BACK_FORWARD_LIST_SWIFT ON)
+
 # -----------------------------------------------------------------------------
 # Toolchain / SDK resolution
 # -----------------------------------------------------------------------------

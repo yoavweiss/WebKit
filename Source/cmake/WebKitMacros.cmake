@@ -811,6 +811,21 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
                 endif ()
             endforeach ()
         endif ()
+        # The clang importer must agree with C++ TUs on every layout-affecting
+        # feature check; sanitizers gate ASAN_ENABLED → ENABLE_SECURITY_ASSERTIONS
+        # → RefCountDebuggerImpl members. Without this, Swift's inline `new` of a
+        # RefCounted C++ type undersizes the allocation and the C++ ctor overflows
+        # it. -sanitize= instruments Swift codegen; the importer ignores -Xcc
+        # -fsanitize= for __has_feature(), so define __SANITIZE_*__ directly so
+        # Compiler.h's #ifdef path sets ASAN_ENABLED/TSAN_ENABLED.
+        foreach (_sanitizer IN LISTS ENABLE_SANITIZERS)
+            list(APPEND _swift_options "-sanitize=${_sanitizer}")
+            if (_sanitizer STREQUAL "address")
+                list(APPEND _swift_options "-Xcc" "-D__SANITIZE_ADDRESS__")
+            elseif (_sanitizer STREQUAL "thread")
+                list(APPEND _swift_options "-Xcc" "-D__SANITIZE_THREAD__")
+            endif ()
+        endforeach ()
         # swiftc spawns swift-plugin-server under sandbox-exec to expand macros
         # (e.g. SwiftUI @State). When the cmake build itself runs inside an
         # outer sandbox that disallows nested sandbox_apply, macro expansion
@@ -819,15 +834,9 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
         # WebKit's own, so the isolation it provides isn't load-bearing here.
         list(APPEND _swift_options "-disable-sandbox")
         if (NOT (PORT STREQUAL GTK OR PORT STREQUAL WPE))
-            # This does not yet work on non-Apple platforms for reasons yet to be determined.
-            list(APPEND _swift_options "-explicit-module-build")
-            # -explicit-module-build makes swiftc scan and compile every transitive
-            # SDK Clang module to .pcm before typechecking. Without a fixed cache
-            # path each invocation does that into a private temp dir and discards
-            # it, so the -typecheck/-emit-clang-header pass below and cmake's own
-            # Swift compile each pay the full SDK-module cold cost, every build.
-            # Pin the cache so the second invocation -- and every later rebuild --
-            # reuses the first one's .pcm set.
+            # Implicit module builds share work via -module-cache-path; explicit
+            # builds were tried but strip project -Xcc -include/-I from per-module
+            # PCM compiles, which breaks the C++ interop modules' prefix header.
             list(APPEND _swift_options "-module-cache-path" "${CMAKE_BINARY_DIR}/SwiftModuleCache")
             set_property(DIRECTORY "${CMAKE_BINARY_DIR}" APPEND PROPERTY ADDITIONAL_CLEAN_FILES "${CMAKE_BINARY_DIR}/SwiftModuleCache")
         endif ()

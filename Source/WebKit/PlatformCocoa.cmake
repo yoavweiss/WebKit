@@ -95,6 +95,7 @@ list(APPEND WebKit_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBKIT_DIR}/UIProcess/API/Cocoa"
     "${WEBKIT_DIR}/UIProcess/Authentication/cocoa"
     "${WEBKIT_DIR}/UIProcess/Cocoa"
+    "${WEBKIT_DIR}/UIProcess/Cocoa/Separated"
     "${WEBKIT_DIR}/UIProcess/Cocoa/SOAuthorization"
     "${WEBKIT_DIR}/UIProcess/Cocoa/TextExtraction"
     "${WEBKIT_DIR}/UIProcess/Extensions/Cocoa"
