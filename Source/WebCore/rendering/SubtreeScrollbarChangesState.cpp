@@ -94,9 +94,7 @@ SubtreeScrollbarChangesHandler::~SubtreeScrollbarChangesHandler()
     if (!isSubtreeRootHandlingScrollbarChanges) {
         while (!descendantsWithScrollbarChange.isEmpty()) {
             CheckedPtr rendererWithScrollbarChange = descendantsWithScrollbarChange.takeFirst();
-            auto scope = LayoutScope { *rendererWithScrollbarChange };
-            rendererWithScrollbarChange->setNeedsLayout(MarkingBehavior::MarkOnlyThis);
-            rendererWithScrollbarChange->layoutBlock(RelayoutChildren::Yes);
+            RenderBlock::relayoutRenderBlockForScrollbarChange(*rendererWithScrollbarChange);
         }
         return;
     }

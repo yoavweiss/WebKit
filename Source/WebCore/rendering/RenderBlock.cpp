@@ -520,6 +520,15 @@ std::optional<ScrollbarUpdateScope> RenderBlock::updateScrollInfoAfterLayout()
     return { };
 }
 
+void RenderBlock::relayoutRenderBlockForScrollbarChange(RenderBlock& block)
+{
+    if (block.sizesPreferredLogicalWidthToFitContent())
+        block.setNeedsPreferredWidthsUpdate();
+    block.setNeedsLayout(MarkingBehavior::MarkOnlyThis);
+    auto scope = LayoutScope { block, InOverflowRelayout::Yes };
+    block.layoutBlock(RelayoutChildren::Yes);
+}
+
 static bool needsToTrackDescendantScrollbarChanges(const RenderBlock& renderBlock, const LocalFrameViewLayoutContext& layoutContext)
 {
     auto computedLogicalWidth = renderBlock.style().logicalWidth();

@@ -3145,7 +3145,8 @@ bool RenderBox::sizesPreferredLogicalWidthToFitContent() const
 
     // This code may look a bit strange.  Basically width:intrinsic should clamp the size when testing both
     // min-width and width.  max-width is only clamped if it is also intrinsic.
-    auto& logicalWidth = style().logicalWidth();
+    auto& style = this->style();
+    auto& logicalWidth = style.logicalWidth();
     if (logicalWidth.isIntrinsicKeyword())
         return true;
 
@@ -3193,6 +3194,9 @@ bool RenderBox::sizesPreferredLogicalWidthToFitContent() const
 
     if (isHorizontalWritingMode() != containingBlock()->isHorizontalWritingMode())
         return true;
+
+    if (isOutOfFlowPositioned() && logicalWidth.isAuto() && !shouldComputeLogicalWidthFromAspectRatio())
+        return style.logicalLeft().isAuto() || style.logicalRight().isAuto();
 
     return false;
 }

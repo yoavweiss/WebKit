@@ -260,6 +260,8 @@ public:
 
     void layoutOutOfFlowBoxes(RelayoutChildren, bool fixedPositionObjectsOnly = false);
 
+    static void relayoutRenderBlockForScrollbarChange(RenderBlock&);
+
 protected:
     RenderFragmentedFlow* locateEnclosingFragmentedFlow() const override;
     bool establishesIndependentFormattingContextIgnoringDisplayType(const RenderStyle&) const;
