@@ -2312,3 +2312,5 @@ webkit.org/b/313554 [ Debug ] http/tests/security/javascriptURL/xss-ALLOWED-from
 webkit.org/b/313664 [ Tahoe+ ] imported/w3c/web-platform-tests/css/filter-effects/filter-function/filter-function-linear-gradient.html [ ImageOnlyFailure ]
 
 webkit.org/b/313764 [ Tahoe+ Debug ] webrtc/ephemeral-certificates-and-cnames.html [ Pass Timeout ]
+
+webkit.org/b/315040 imported/w3c/web-platform-tests/dom/events/Event-timestamp-high-resolution.html [ Pass Failure ]
