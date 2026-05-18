@@ -357,7 +357,7 @@ static void checkFrameInfo(WKFrameInfo *frame, bool isMainFrame, NSString *url, 
 
 #if USE(APPLE_INTERNAL_SDK) || PLATFORM(IOS) || PLATFORM(VISION)
 
-bool addKeyToKeychain(const String& privateKeyBase64, const String& rpId, const String& userHandleBase64, bool synchronizable = false)
+bool addKeyToKeychain(const String& privateKeyBase64, const String& rpId, const String& userHandleBase64, bool synchronizable = false, const String& credentialIdBase64 = "SMSXHngF7hEOsElA73C3RY+8bR4="_s)
 {
     NSDictionary* options = @{
         (id)kSecAttrKeyType: (id)kSecAttrKeyTypeECSECPrimeRandom,
@@ -379,7 +379,7 @@ bool addKeyToKeychain(const String& privateKeyBase64, const String& rpId, const 
     if (keyError)
         return false;
 
-    RetainPtr credentialID = adoptNS([[NSData alloc] initWithBase64EncodedString:@"SMSXHngF7hEOsElA73C3RY+8bR4=" options:0]);
+    RetainPtr credentialID = adoptNS([[NSData alloc] initWithBase64EncodedString:credentialIdBase64.createNSString().get() options:0]);
     RetainPtr addQuery = adoptNS([[NSMutableDictionary alloc] init]);
     [addQuery setDictionary:@{
         (id)kSecValueRef: (id)key.get(),
@@ -1470,7 +1470,7 @@ TEST(WebAuthenticationPanel, LAGetAssertionMultipleOrder)
     [webView focus];
 
     ASSERT_TRUE(addKeyToKeychain(testES256PrivateKeyBase64, emptyString(), testUserEntityBundleBase64));
-    ASSERT_TRUE(addKeyToKeychain(testES256PrivateKeyBase64Alternate, emptyString(), "omJpZEoAAQIDBAUGBwgJZG5hbWVkSmFuZQ=="_s/* { "id": h'00010203040506070809', "name": "Jane" } */));
+    ASSERT_TRUE(addKeyToKeychain(testES256PrivateKeyBase64Alternate, emptyString(), "omJpZEoAAQIDBAUGBwgJZG5hbWVkSmFuZQ=="_s/* { "id": h'00010203040506070809', "name": "Jane" } */, false, "AAECAwQFBgcICQoLDA0ODxAREhM="_s));
 
     [webView loadRequest:[NSURLRequest requestWithURL:testURL.get()]];
     [webView waitForMessage:@"Succeeded!"];
