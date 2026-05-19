@@ -151,7 +151,7 @@ std::unique_ptr<InlineLayoutResult> InlineFormattingContext::layout(const Constr
             return { };
         auto lastLineIndex = lineDamage->layoutStartPosition()->lineIndex - 1;
         // FIXME: We should be able to extract the last line information and provide it to layout as "previous line" (ends in line break and inline direction).
-        return PreviousLine { lastLineIndex, { }, { }, { }, { } };
+        return PreviousLine { lastLineIndex, { }, { }, true, { }, { } };
     }();
 
     auto& inlineLayoutState = layoutState();
@@ -354,7 +354,7 @@ UniqueRef<InlineLayoutResult> InlineFormattingContext::lineLayout(AbstractLineBu
             break;
         }
 
-        previousLine = PreviousLine { lineIndex, lineLayoutResult.contentGeometry.trailingOverflowingContentWidth, lineLayoutResult.endsWithLineBreak(), lineLayoutResult.directionality.inlineBaseDirection, WTF::move(lineLayoutResult.floatContent.suspendedFloats) };
+        previousLine = PreviousLine { lineIndex, lineLayoutResult.contentGeometry.trailingOverflowingContentWidth, lineLayoutResult.endsWithLineBreak(), lineLayoutResult.hasContentfulInFlowContent(), lineLayoutResult.directionality.inlineBaseDirection, WTF::move(lineLayoutResult.floatContent.suspendedFloats) };
         previousLineEnd = lineContentEnd;
         lineLogicalTop = formattingUtils().logicalTopForNextLine(lineLayoutResult, lineLogicalRect, floatingContext);
     }

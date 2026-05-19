@@ -460,7 +460,9 @@ void LineBuilder::initialize(const InlineRect& initialLineLogicalRect, const Inl
         // where "text" sits at the block's content bottom plus 100px.
         auto lineLogicalRect = initialLineLogicalRect;
         auto& marginState = blockLayoutState().marginState();
-        if (!marginState.atBeforeSideOfBlock)
+        // If the previous line had no contentful in-flow content (float-only or empty), the same pending margin
+        // is already baked into its top via this advance. Re-applying would double-count.
+        if (!marginState.atBeforeSideOfBlock && previousLine && previousLine->hasContentfulInFlowContent)
             lineLogicalRect.moveVertically(marginState.margin());
         auto constraints = floatAvoidingRect(lineLogicalRect, { });
         m_lineIsConstrainedByFloat = constraints.constrainedSideSet;
