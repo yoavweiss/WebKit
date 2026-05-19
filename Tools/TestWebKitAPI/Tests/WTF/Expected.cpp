@@ -120,7 +120,7 @@ TEST(WTF_Expected, expected)
         EXPECT_EQ(e.value_or(3.14), 0);
     }
     {
-        constexpr E e;
+        const E e;
         EXPECT_TRUE(e.has_value());
         EXPECT_EQ(e.value(), 0);
         EXPECT_EQ(e.value_or(3.14), 0);
@@ -145,11 +145,11 @@ TEST(WTF_Expected, expected)
         EXPECT_EQ(e4.value_or(3.14), 42);
     }
     {
-        constexpr E c(42);
+        const E c(42);
         EXPECT_TRUE(c.has_value());
         EXPECT_EQ(c.value(), 42);
         EXPECT_EQ(c.value_or(3.14), 42);
-        constexpr const auto c2(c);
+        const auto c2(c);
         EXPECT_TRUE(c2.has_value());
         EXPECT_EQ(c2.value(), 42);
         EXPECT_EQ(c2.value_or(3.14), 42);

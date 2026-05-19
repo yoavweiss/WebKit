@@ -33,7 +33,7 @@ namespace WebCore {
 
 class CSSGridLineValue final : public CSSValue {
 public:
-    static Ref<CSSGridLineValue> NODELETE create(CSS::GridLine);
+    static Ref<CSSGridLineValue> create(CSS::GridLine);
 
     const CSS::GridLine& line() const { return m_line; }
 

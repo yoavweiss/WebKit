@@ -47,7 +47,7 @@ class PathSegListCache {
 public:
     static PathSegListCache& NODELETE singleton();
 
-    std::optional<DataRef<SVGPathByteStream::Data>> NODELETE get(const AtomString& attributeValue) const;
+    std::optional<DataRef<SVGPathByteStream::Data>> get(const AtomString& attributeValue) const;
     void add(const AtomString& attributeValue, DataRef<SVGPathByteStream::Data>);
     void clear();
 
