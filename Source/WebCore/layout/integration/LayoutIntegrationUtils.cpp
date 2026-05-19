@@ -58,8 +58,15 @@ LayoutUnit IntegrationUtils::minContentWidth(const ElementBox& box) const
 
 LayoutUnit IntegrationUtils::minContentHeight(const ElementBox& box) const
 {
-    ASSERT(box.isFlexItem() || box.isGridItem());
+    ASSERT(box.isFlexItem());
     return m_globalLayoutState->logicalHeightWithFormattingContextForBox(box, LayoutIntegration::LogicalHeightType::MinContent);
+}
+
+LayoutUnit IntegrationUtils::minContentHeight(const ElementBox& box, LayoutUnit inlineConstraint) const
+{
+    ASSERT(box.isGridItem());
+    m_globalLayoutState->layoutWithFormattingContextForBox(box, inlineConstraint, { });
+    return m_globalLayoutState->geometryForBox(box).borderBoxHeight();
 }
 
 LayoutUnit IntegrationUtils::preferredMinWidth(const ElementBox& box) const

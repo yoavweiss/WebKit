@@ -48,6 +48,7 @@ public:
     LayoutUnit maxContentWidth(const ElementBox&) const;
     LayoutUnit minContentWidth(const ElementBox&) const;
     LayoutUnit minContentHeight(const ElementBox&) const;
+    LayoutUnit minContentHeight(const ElementBox&, LayoutUnit inlineConstraint) const;
     LayoutUnit preferredMinWidth(const ElementBox&) const;
     LayoutUnit preferredMaxWidth(const ElementBox&) const;
     void layoutWithFormattingContextForBlockInInline(const ElementBox& block, LayoutPoint blockLineLogicalTopLeft, const InlineLayoutState&) const;
