@@ -54,13 +54,14 @@ class Config(object):
         "Release": "--release",
     }
 
-    def __init__(self, executive, filesystem, port_implementation=None):
+    def __init__(self, executive, filesystem, port_implementation=None, use_cmake=False):
         self._executive = executive
         self._filesystem = filesystem
         self._webkit_finder = webkit_finder.WebKitFinder(self._filesystem)
         self._default_configuration = None
         self._build_directories = {}
         self._port_implementation = port_implementation
+        self._use_cmake = use_cmake
 
     def build_directory(self, configuration, for_host=False):
         """Returns the path to the build directory for the configuration."""
@@ -73,19 +74,23 @@ class Config(object):
         if self._port_implementation and not for_host:
             flags.append('--' + self._port_implementation)
 
-        if not self._build_directories.get(configuration):
+        if self._use_cmake:
+            flags.append('--cmake')
+
+        cache_key = (configuration, self._use_cmake)
+        if not self._build_directories.get(cache_key):
             args = ["perl", self._webkit_finder.path_to_script("webkit-build-directory")] + flags
             output = self._executive.run_command(args, cwd=self._webkit_finder.webkit_base(), return_stderr=False).rstrip()
             parts = output.split("\n")
-            self._build_directories[configuration] = parts[0]
+            self._build_directories[cache_key] = parts[0]
 
             if len(parts) == 2:
                 default_configuration = parts[1][len(parts[0]):]
                 if default_configuration.startswith("/"):
                     default_configuration = default_configuration[1:]
-                self._build_directories[default_configuration] = parts[1]
+                self._build_directories[(default_configuration, self._use_cmake)] = parts[1]
 
-        return self._build_directories[configuration]
+        return self._build_directories[cache_key]
 
     def flag_for_configuration(self, configuration):
         if not configuration:

@@ -172,7 +172,12 @@ class Port(object):
         self._executive = host.executive
         self._filesystem = host.filesystem
         self._webkit_finder = WebKitFinder(host.filesystem)
-        self._config = port_config.Config(self._executive, self._filesystem, self.port_name)
+        self._config = port_config.Config(
+            self._executive,
+            self._filesystem,
+            self.port_name,
+            use_cmake=bool(getattr(self._options, 'use_cmake', False)),
+        )
         self.pretty_patch = PrettyPatch(self._executive, self.path_from_webkit_base(), self._filesystem)
 
         self._http_server = None
