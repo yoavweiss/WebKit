@@ -923,6 +923,10 @@ FontCascade::CodePath FontCascade::characterRangeCodePath(std::span<const char16
                 return CodePath::Complex;
             if (supplementaryCharacter < 0x11CC0) // Marchen
                 return CodePath::Complex;
+            if (supplementaryCharacter < 0x16B00)
+                continue;
+            if (supplementaryCharacter < 0x16B90) // Pahawh Hmong
+                return CodePath::Complex;
             if (supplementaryCharacter < 0x1E900)
                 continue;
             if (supplementaryCharacter < 0x1E960) // Adlam
