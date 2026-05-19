@@ -289,8 +289,6 @@ public:
     NetworkProcessConnection& ensureNetworkProcessConnection();
 
     void networkProcessConnectionClosed(NetworkProcessConnection*);
-    void refreshIDBConnectionForWorkers();
-    void setNeedsIDBConnectionRefreshForWorkers() { m_needsIDBConnectionRefreshForWorkers = true; }
     NetworkProcessConnection* existingNetworkProcessConnection() { return m_networkProcessConnection.get(); }
     WebLoaderStrategy& NODELETE webLoaderStrategy() LIFETIME_BOUND;
     WebFileSystemStorageConnection& fileSystemStorageConnection();
@@ -822,7 +820,6 @@ private:
 
     String m_uiProcessBundleIdentifier;
     RefPtr<NetworkProcessConnection> m_networkProcessConnection;
-    bool m_needsIDBConnectionRefreshForWorkers { false };
     const UniqueRef<WebLoaderStrategy> m_webLoaderStrategy;
     RefPtr<WebFileSystemStorageConnection> m_fileSystemStorageConnection;
 

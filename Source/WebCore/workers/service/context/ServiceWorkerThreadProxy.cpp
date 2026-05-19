@@ -161,6 +161,14 @@ RefPtr<CacheStorageConnection> ServiceWorkerThreadProxy::createCacheStorageConne
     return m_cacheStorageConnection;
 }
 
+RefPtr<IDBClient::IDBConnectionProxy> ServiceWorkerThreadProxy::createIDBConnectionProxy()
+{
+    // Service workers are terminated by WebProcess::networkProcessConnectionClosed()
+    // when the network process crashes, so there is no surviving worker to
+    // refresh an IDB proxy for.
+    return nullptr;
+}
+
 RefPtr<RTCDataChannelRemoteHandlerConnection> ServiceWorkerThreadProxy::createRTCDataChannelRemoteHandlerConnection()
 {
     ASSERT(isMainThread());

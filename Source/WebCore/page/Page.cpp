@@ -4213,33 +4213,18 @@ void Page::setAllowsMediaDocumentInlinePlayback(bool flag)
 
 IDBClient::IDBConnectionToServer& Page::idbConnection()
 {
+    if (RefPtr cached = m_idbConnectionToServer; cached && !cached->isValid())
+        m_idbConnectionToServer = nullptr;
+
     if (!m_idbConnectionToServer)
         m_idbConnectionToServer = m_databaseProvider->idbConnectionToServerForSession(m_sessionID);
-    
+
     return *m_idbConnectionToServer;
 }
 
 IDBClient::IDBConnectionToServer* Page::optionalIDBConnection()
 {
     return m_idbConnectionToServer.get();
-}
-
-void Page::clearIDBConnection()
-{
-    m_idbConnectionToServer = nullptr;
-}
-
-void Page::clearIDBConnectionOnAllDocuments()
-{
-    clearIDBConnection();
-    forEachDocument([](Document& document) {
-        document.clearIDBConnectionProxy();
-    });
-}
-
-void Page::refreshIDBConnectionForWorkers()
-{
-    WorkerGlobalScope::replaceIDBConnectionProxyOnAllWorkers(idbConnection().proxy());
 }
 
 #if ENABLE(RESOURCE_USAGE)

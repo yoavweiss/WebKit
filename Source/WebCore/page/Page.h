@@ -1077,9 +1077,6 @@ public:
 
     IDBClient::IDBConnectionToServer& idbConnection();
     WEBCORE_EXPORT IDBClient::IDBConnectionToServer* NODELETE optionalIDBConnection();
-    WEBCORE_EXPORT void clearIDBConnection();
-    WEBCORE_EXPORT void clearIDBConnectionOnAllDocuments();
-    WEBCORE_EXPORT void refreshIDBConnectionForWorkers();
 
     void setShowAllPlugins(bool showAll) { m_showAllPlugins = showAll; }
     bool showAllPlugins() const;

@@ -1403,12 +1403,9 @@ NetworkProcessConnection& WebProcess::ensureNetworkProcessConnection()
         RunLoop::mainSingleton().dispatch([this, protectedThis = Ref { *this }] {
             for (auto& webPage : m_pageMap.values())
                 webPage->synchronizeCORSDisablingPatternsWithNetworkProcess();
-
-            if (std::exchange(m_needsIDBConnectionRefreshForWorkers, false))
-                refreshIDBConnectionForWorkers();
         });
     }
-    
+
     return *m_networkProcessConnection;
 }
 
@@ -1446,18 +1443,6 @@ void WebProcess::networkProcessConnectionClosed(NetworkProcessConnection* connec
     for (auto key : copyToVector(m_storageAreaMaps.keys())) {
         if (RefPtr map = m_storageAreaMaps.get(key))
             map->disconnect();
-    }
-
-    for (auto& page : m_pageMap.values()) {
-        RefPtr corePage = page->corePage();
-        RefPtr idbConnection = corePage->optionalIDBConnection();
-        if (!idbConnection)
-            continue;
-        
-        if (RefPtr existingIDBConnectionToServer = connection->existingIDBConnectionToServer()) {
-            ASSERT_UNUSED(existingIDBConnectionToServer, idbConnection.get() == &existingIDBConnectionToServer->coreConnectionToServer());
-            corePage->clearIDBConnectionOnAllDocuments();
-        }
     }
 
     if (SWContextManager::singleton().connection())
@@ -1500,14 +1485,6 @@ void WebProcess::networkProcessConnectionClosed(NetworkProcessConnection* connec
     for (auto& weakSession : sessions) {
         if (RefPtr webtransportSession = weakSession.get())
             webtransportSession->didFail(std::nullopt, String(emptyString()));
-    }
-}
-
-void WebProcess::refreshIDBConnectionForWorkers()
-{
-    for (auto& page : m_pageMap.values()) {
-        if (RefPtr corePage = page->corePage())
-            corePage->refreshIDBConnectionForWorkers();
     }
 }
 

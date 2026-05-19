@@ -920,7 +920,6 @@ public:
     bool requiresTrustedTypes() const { return m_requiresTrustedTypes && !shouldBypassMainWorldContentSecurityPolicy(); }
 
     IDBClient::IDBConnectionProxy* idbConnectionProxy() final;
-    void clearIDBConnectionProxy();
     StorageConnection* storageConnection();
     SocketProvider* NODELETE socketProvider() final;
     RefPtr<RTCDataChannelRemoteHandlerConnection> createRTCDataChannelRemoteHandlerConnection() final;

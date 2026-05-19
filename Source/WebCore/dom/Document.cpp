@@ -4953,6 +4953,8 @@ void Document::setTrustedTypesEnforcement(JSC::TrustedTypesEnforcement enforceme
 
 IDBClient::IDBConnectionProxy* Document::idbConnectionProxy()
 {
+    if (RefPtr connectionProxy = m_idbConnectionProxy; connectionProxy && !connectionProxy->isValid())
+        m_idbConnectionProxy = nullptr;
     if (!m_idbConnectionProxy) {
         RefPtr currentPage = page();
         if (!currentPage)
@@ -4960,11 +4962,6 @@ IDBClient::IDBConnectionProxy* Document::idbConnectionProxy()
         m_idbConnectionProxy = currentPage->idbConnection().proxy();
     }
     return m_idbConnectionProxy.get();
-}
-
-void Document::clearIDBConnectionProxy()
-{
-    m_idbConnectionProxy = nullptr;
 }
 
 StorageConnection* Document::storageConnection()

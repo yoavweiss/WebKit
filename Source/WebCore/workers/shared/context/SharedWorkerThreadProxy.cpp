@@ -187,6 +187,14 @@ RefPtr<CacheStorageConnection> SharedWorkerThreadProxy::createCacheStorageConnec
     return m_cacheStorageConnection;
 }
 
+RefPtr<IDBClient::IDBConnectionProxy> SharedWorkerThreadProxy::createIDBConnectionProxy()
+{
+    // Unlike dedicated workers, whether shared workers remain usable after a
+    // network process crash is not yet well-defined; skip IDB recovery here
+    // until that is settled.
+    return nullptr;
+}
+
 RefPtr<RTCDataChannelRemoteHandlerConnection> SharedWorkerThreadProxy::createRTCDataChannelRemoteHandlerConnection()
 {
     ASSERT(isMainThread());

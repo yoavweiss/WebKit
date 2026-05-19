@@ -123,6 +123,7 @@ private:
     RefPtr<CacheStorageConnection> createCacheStorageConnection() final;
     RefPtr<FileSystemStorageConnection> createFileSystemStorageConnection() final;
     RefPtr<RTCDataChannelRemoteHandlerConnection> createRTCDataChannelRemoteHandlerConnection() final;
+    RefPtr<IDBClient::IDBConnectionProxy> createIDBConnectionProxy() final;
 
     // WorkerDebuggerProxy
     void postMessageToDebugger(const String&) final;

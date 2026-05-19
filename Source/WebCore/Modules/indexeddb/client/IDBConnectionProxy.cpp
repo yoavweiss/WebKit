@@ -62,6 +62,11 @@ void IDBConnectionProxy::ref()
     m_connectionToServer->ref();
 }
 
+bool IDBConnectionProxy::isValid() const
+{
+    return m_connectionToServer->isValid();
+}
+
 void IDBConnectionProxy::deref()
 {
     m_connectionToServer->deref();

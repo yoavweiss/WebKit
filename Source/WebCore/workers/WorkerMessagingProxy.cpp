@@ -342,6 +342,23 @@ RefPtr<RTCDataChannelRemoteHandlerConnection> WorkerMessagingProxy::createRTCDat
     return document->page()->webRTCProvider().createRTCDataChannelRemoteHandlerConnection();
 }
 
+RefPtr<IDBClient::IDBConnectionProxy> WorkerMessagingProxy::createIDBConnectionProxy()
+{
+    ASSERT(isMainThread());
+    RefPtr document = dynamicDowncast<Document>(*m_scriptExecutionContext);
+    if (!document)
+        document = Document::allDocumentsMap().get(m_loaderContextIdentifier);
+
+    if (!document)
+        return nullptr;
+
+    RefPtr page = document->page();
+    if (!page)
+        return nullptr;
+
+    return &page->idbConnection().proxy();
+}
+
 void WorkerMessagingProxy::postExceptionToWorkerObject(const String& errorMessage, int lineNumber, int columnNumber, const String& sourceURL)
 {
     if (!m_scriptExecutionContextIdentifier)

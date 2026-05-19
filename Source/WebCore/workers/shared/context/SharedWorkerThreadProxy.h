@@ -83,6 +83,7 @@ private:
     RefPtr<CacheStorageConnection> createCacheStorageConnection() final;
     RefPtr<FileSystemStorageConnection> createFileSystemStorageConnection() final;
     RefPtr<RTCDataChannelRemoteHandlerConnection> createRTCDataChannelRemoteHandlerConnection() final;
+    RefPtr<IDBClient::IDBConnectionProxy> createIDBConnectionProxy() final;
     void postTaskToLoader(ScriptExecutionContext::Task&&) final;
     ScriptExecutionContextIdentifier loaderContextIdentifier() const final;
 

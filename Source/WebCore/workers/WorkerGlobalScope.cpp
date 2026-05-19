@@ -245,22 +245,22 @@ RefPtr<RTCDataChannelRemoteHandlerConnection> WorkerGlobalScope::createRTCDataCh
 
 IDBClient::IDBConnectionProxy* WorkerGlobalScope::idbConnectionProxy()
 {
+    if (RefPtr connectionProxy = m_connectionProxy; connectionProxy && connectionProxy->isValid())
+        return m_connectionProxy.get();
+
+    // Request a fresh connection from the loader context on the main thread.
+    // Fetching it goes through Page::idbConnection() which lazily relaunches the network process.
+    RefPtr<IDBClient::IDBConnectionProxy> newConnectionProxy;
+    callOnMainThreadAndWait([workerThread = Ref { thread() }, &newConnectionProxy]() mutable {
+        if (workerThread->runLoop().terminated())
+            return;
+        if (CheckedPtr loader = workerThread->workerLoaderProxy())
+            newConnectionProxy = loader->createIDBConnectionProxy();
+    });
+    if (newConnectionProxy)
+        m_connectionProxy = WTF::move(newConnectionProxy);
+
     return m_connectionProxy.get();
-}
-
-void WorkerGlobalScope::replaceIDBConnectionProxy(RefPtr<IDBClient::IDBConnectionProxy>&& proxy)
-{
-    m_connectionProxy = WTF::move(proxy);
-}
-
-void WorkerGlobalScope::replaceIDBConnectionProxyOnAllWorkers(RefPtr<IDBClient::IDBConnectionProxy>&& proxy)
-{
-    Locker locker { allWorkerGlobalScopeIdentifiersLock };
-    for (auto& globalScopeIdentifier : allWorkerGlobalScopeIdentifiers()) {
-        postTaskTo(globalScopeIdentifier, [proxy](auto& context) {
-            downcast<WorkerGlobalScope>(context).replaceIDBConnectionProxy(RefPtr { proxy });
-        });
-    }
 }
 
 GraphicsClient* WorkerGlobalScope::graphicsClient()

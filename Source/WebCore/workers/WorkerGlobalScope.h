@@ -96,9 +96,7 @@ public:
     String origin() const;
     const String& inspectorIdentifier() const LIFETIME_BOUND { return m_inspectorIdentifier; }
 
-    IDBClient::IDBConnectionProxy* NODELETE idbConnectionProxy() final;
-    void replaceIDBConnectionProxy(RefPtr<IDBClient::IDBConnectionProxy>&&);
-    WEBCORE_EXPORT static void replaceIDBConnectionProxyOnAllWorkers(RefPtr<IDBClient::IDBConnectionProxy>&&);
+    IDBClient::IDBConnectionProxy* idbConnectionProxy() final;
     void suspend() final;
     void resume() final;
     GraphicsClient* graphicsClient() final;

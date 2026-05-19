@@ -38,6 +38,7 @@
 #include "DocumentPage.h"
 #include "DocumentSettingsValues.h"
 #include "FileSystemStorageConnection.h"
+#include "IDBConnectionProxy.h"
 #include "LocalFrame.h"
 #include "WebRTCProvider.h"
 #include "WorkletParameters.h"
@@ -89,6 +90,12 @@ bool AudioWorkletMessagingProxy::postTaskForModeToWorkletGlobalScope(ScriptExecu
 }
 
 RefPtr<CacheStorageConnection> AudioWorkletMessagingProxy::createCacheStorageConnection()
+{
+    ASSERT_NOT_REACHED();
+    return nullptr;
+}
+
+RefPtr<IDBClient::IDBConnectionProxy> AudioWorkletMessagingProxy::createIDBConnectionProxy()
 {
     ASSERT_NOT_REACHED();
     return nullptr;
