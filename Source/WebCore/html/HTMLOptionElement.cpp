@@ -64,7 +64,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(HTMLOptionElement);
 using namespace HTMLNames;
 
 HTMLOptionElement::HTMLOptionElement(const QualifiedName& tagName, Document& document)
-    : HTMLElement(tagName, document)
+    : HTMLElement(tagName, document, TypeFlag::HasCustomStyleResolveCallbacks)
 {
     ASSERT(hasTagName(optionTag));
 }
@@ -509,6 +509,14 @@ void HTMLOptionElement::childrenChanged(const ChildChange& change)
             select->optionElementChildrenChanged();
     }
     HTMLElement::childrenChanged(change);
+}
+
+void HTMLOptionElement::willResetComputedStyle()
+{
+    if (RefPtr select = ownerSelectElement()) {
+        if (CheckedPtr selectRenderer = select->renderer())
+            selectRenderer->repaint();
+    }
 }
 
 HTMLSelectElement* HTMLOptionElement::ownerSelectElement() const

@@ -5867,11 +5867,18 @@ void Element::resetComputedStyle()
     if (!hasRareData() || !elementRareData()->computedStyle())
         return;
 
-    elementRareData()->setComputedStyle(nullptr);
+    auto reset = [](Element& element) {
+        // FIXME: This fires whenever computed style is cleared, even if the new
+        // style ends up identical, so observers may do redundant work.
+        if (element.hasCustomStyleResolveCallbacks() && !element.renderer())
+            element.willResetComputedStyle();
+        element.elementRareData()->setComputedStyle(nullptr);
+    };
+    reset(*this);
     for (Ref child : descendantsOfType<Element>(*this)) {
         if (!child->hasRareData() || !child->elementRareData()->computedStyle() || child->hasDisplayContents() || child->hasDisplayNone())
             continue;
-        child->elementRareData()->setComputedStyle(nullptr);
+        reset(child);
     }
 }
 
@@ -5930,6 +5937,11 @@ void Element::willRecalcStyle(OptionSet<Style::Change>)
 }
 
 void Element::didRecalcStyle(OptionSet<Style::Change>)
+{
+    ASSERT(hasCustomStyleResolveCallbacks());
+}
+
+void Element::willResetComputedStyle()
 {
     ASSERT(hasCustomStyleResolveCallbacks());
 }
