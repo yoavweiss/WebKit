@@ -144,7 +144,6 @@ typedef void (*WKPageDidResignInputElementStrongPasswordAppearanceCallback)(WKPa
 typedef bool (*WKPageShouldAllowDeviceOrientationAndMotionAccessCallback)(WKPageRef page, WKSecurityOriginRef securityOrigin, WKFrameInfoRef frame, const void *clientInfo);
 
 typedef void (*WKPageRunWebAuthenticationPanelCallback)(void);
-typedef void (*WKPageDecidePolicyForSpeechRecognitionPermissionRequestCallback)(WKPageRef page, WKSecurityOriginRef topOrigin, WKSpeechRecognitionPermissionCallbackRef callback);
 
 typedef void (*WKPageDecidePolicyForMediaKeySystemPermissionRequestCallback)(WKPageRef page, WKSecurityOriginRef topOrigin, WKStringRef keySystem, WKMediaKeySystemPermissionCallbackRef callback);
 typedef void (*WKQueryPermissionCallback)(WKStringRef permissionName, WKSecurityOriginRef topOrigin, WKQueryPermissionResultCallbackRef callback);
@@ -1475,7 +1474,7 @@ typedef struct WKPageUIClientV15 {
     WKPageRunWebAuthenticationPanelCallback                             runWebAuthenticationPanel;
 
     // Version 15.
-    WKPageDecidePolicyForSpeechRecognitionPermissionRequestCallback     decidePolicyForSpeechRecognitionPermissionRequest;
+    void*                                                               unused8; // Used to be decidePolicyForSpeechRecognitionPermissionRequest.
     
 } WKPageUIClientV15;
 
@@ -1586,7 +1585,7 @@ typedef struct WKPageUIClientV16 {
     WKPageRunWebAuthenticationPanelCallback                             runWebAuthenticationPanel;
 
     // Version 15.
-    WKPageDecidePolicyForSpeechRecognitionPermissionRequestCallback     decidePolicyForSpeechRecognitionPermissionRequest;
+    void*                                                               unused8; // Used to be decidePolicyForSpeechRecognitionPermissionRequest.
 
     // Version 16.
     WKPageDecidePolicyForMediaKeySystemPermissionRequestCallback        decidePolicyForMediaKeySystemPermissionRequest;
@@ -1700,7 +1699,7 @@ typedef struct WKPageUIClientV17 {
     WKPageRunWebAuthenticationPanelCallback                             runWebAuthenticationPanel;
 
     // Version 15.
-    WKPageDecidePolicyForSpeechRecognitionPermissionRequestCallback     decidePolicyForSpeechRecognitionPermissionRequest;
+    void*                                                               unused8; // Used to be decidePolicyForSpeechRecognitionPermissionRequest.
 
     // Version 16.
     WKPageDecidePolicyForMediaKeySystemPermissionRequestCallback        decidePolicyForMediaKeySystemPermissionRequest;
@@ -1814,7 +1813,7 @@ typedef struct WKPageUIClientV18 {
     WKPageRunWebAuthenticationPanelCallback                             runWebAuthenticationPanel;
 
     // Version 15.
-    WKPageDecidePolicyForSpeechRecognitionPermissionRequestCallback     decidePolicyForSpeechRecognitionPermissionRequest;
+    void*                                                               unused8; // Used to be decidePolicyForSpeechRecognitionPermissionRequest.
 
     // Version 16.
     WKPageDecidePolicyForMediaKeySystemPermissionRequestCallback        decidePolicyForMediaKeySystemPermissionRequest;
@@ -1930,7 +1929,7 @@ typedef struct WKPageUIClientV19 {
     WKPageRunWebAuthenticationPanelCallback                             runWebAuthenticationPanel;
 
     // Version 15.
-    WKPageDecidePolicyForSpeechRecognitionPermissionRequestCallback     decidePolicyForSpeechRecognitionPermissionRequest;
+    void*                                                               unused8; // Used to be decidePolicyForSpeechRecognitionPermissionRequest.
 
     // Version 16.
     WKPageDecidePolicyForMediaKeySystemPermissionRequestCallback        decidePolicyForMediaKeySystemPermissionRequest;
