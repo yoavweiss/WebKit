@@ -14583,35 +14583,35 @@ void SpeculativeJIT::compileObjectDefinePropertyFromFields(Node* node)
     // Children layout:
     //   [0] target (ObjectUse)
     //   [1] key (UntypedUse)
-    //   [2] enumerable  (UntypedUse or JSConstant(empty) if absent)
-    //   [3] configurable
-    //   [4] value
-    //   [5] writable
-    //   [6] get
-    //   [7] set
+    //   [2..7] descriptor slots, indexed by Node::DescriptorSlot
+    //          (UntypedUse or JSConstant(empty) if absent).
     SpeculateCellOperand target(this, m_graph.varArgChild(node, 0));
     JSValueOperand key(this, m_graph.varArgChild(node, 1));
-    JSValueOperand enumerable(this, m_graph.varArgChild(node, 2));
-    JSValueOperand configurable(this, m_graph.varArgChild(node, 3));
-    JSValueOperand value(this, m_graph.varArgChild(node, 4));
-    JSValueOperand writable(this, m_graph.varArgChild(node, 5));
-    JSValueOperand getter(this, m_graph.varArgChild(node, 6));
-    JSValueOperand setter(this, m_graph.varArgChild(node, 7));
+    GPRTemporary buffer(this);
 
     GPRReg targetGPR = target.gpr();
     JSValueRegs keyRegs = key.jsValueRegs();
-    JSValueRegs enumerableRegs = enumerable.jsValueRegs();
-    JSValueRegs configurableRegs = configurable.jsValueRegs();
-    JSValueRegs valueRegs = value.jsValueRegs();
-    JSValueRegs writableRegs = writable.jsValueRegs();
-    JSValueRegs getterRegs = getter.jsValueRegs();
-    JSValueRegs setterRegs = setter.jsValueRegs();
+    GPRReg bufferGPR = buffer.gpr();
 
     speculateObject(m_graph.varArgChild(node, 0), targetGPR);
 
+    constexpr size_t scratchSize = sizeof(EncodedJSValue) * Node::numberOfDescriptorSlots;
+    ScratchBuffer* scratchBuffer = vm().scratchBufferForSize(scratchSize);
+    EncodedJSValue* scratchData = static_cast<EncodedJSValue*>(scratchBuffer->dataBuffer());
+
+    move(TrustedImmPtr(scratchData), bufferGPR);
+    for (unsigned slot = 0; slot < Node::numberOfDescriptorSlots; ++slot) {
+        JSValueOperand operand(this, m_graph.varArgChild(node, slot + 2));
+        storeValue(operand.jsValueRegs(), Address(bufferGPR, sizeof(EncodedJSValue) * slot));
+        operand.use();
+    }
+
+    target.use();
+    key.use();
+
     flushRegisters();
-    callOperation(operationObjectDefinePropertyFromFields, LinkableConstant::globalObject(*this, node), targetGPR, keyRegs, enumerableRegs, configurableRegs, valueRegs, writableRegs, getterRegs, setterRegs);
-    noResult(node);
+    callOperation(operationObjectDefinePropertyFromFields, LinkableConstant::globalObject(*this, node), targetGPR, keyRegs, bufferGPR);
+    noResult(node, UseChildrenCalledExplicitly);
 }
 
 void SpeculativeJIT::emitAllocateButterfly(GPRReg storageResultGPR, GPRReg sizeGPR, GPRReg scratch1, GPRReg scratch2, GPRReg scratch3, JumpList& slowCases)

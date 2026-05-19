@@ -5593,13 +5593,14 @@ private:
         ASSERT(m_graph.varArgNumChildren(m_node) == 8);
         LValue target = lowObject(m_graph.varArgChild(m_node, 0));
         LValue key = lowJSValue(m_graph.varArgChild(m_node, 1));
-        LValue enumerable = lowJSValue(m_graph.varArgChild(m_node, 2));
-        LValue configurable = lowJSValue(m_graph.varArgChild(m_node, 3));
-        LValue value = lowJSValue(m_graph.varArgChild(m_node, 4));
-        LValue writable = lowJSValue(m_graph.varArgChild(m_node, 5));
-        LValue getter = lowJSValue(m_graph.varArgChild(m_node, 6));
-        LValue setter = lowJSValue(m_graph.varArgChild(m_node, 7));
-        vmCall(Void, operationObjectDefinePropertyFromFields, weakPointer(globalObject), target, key, enumerable, configurable, value, writable, getter, setter);
+
+        constexpr size_t scratchSize = sizeof(EncodedJSValue) * Node::numberOfDescriptorSlots;
+        ScratchBuffer* scratchBuffer = vm().scratchBufferForSize(scratchSize);
+        EncodedJSValue* buffer = static_cast<EncodedJSValue*>(scratchBuffer->dataBuffer());
+        for (unsigned slot = 0; slot < Node::numberOfDescriptorSlots; ++slot)
+            m_out.store64(lowJSValue(m_graph.varArgChild(m_node, slot + 2)), m_out.absolute(buffer + slot));
+
+        vmCall(Void, operationObjectDefinePropertyFromFields, weakPointer(globalObject), target, key, m_out.constIntPtr(buffer));
     }
 
     void compileDefineAccessorProperty()

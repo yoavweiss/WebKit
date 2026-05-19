@@ -39,6 +39,7 @@
 #include "ConcatKeyAtomStringCacheInlines.h"
 #include "DFGDriver.h"
 #include "DFGJITCode.h"
+#include "DFGNode.h"
 #include "DFGToFTLDeferredCompilationCallback.h"
 #include "DFGToFTLForOSREntryDeferredCompilationCallback.h"
 #include "DateInstance.h"
@@ -2219,22 +2220,32 @@ JSC_DEFINE_JIT_OPERATION(operationObjectDefineProperty, void, (JSGlobalObject* g
     OPERATION_RETURN(scope);
 }
 
-JSC_DEFINE_JIT_OPERATION(operationObjectDefinePropertyFromFields, void, (JSGlobalObject* globalObject, JSObject* target, EncodedJSValue encodedKey, EncodedJSValue encodedEnumerable, EncodedJSValue encodedConfigurable, EncodedJSValue encodedValue, EncodedJSValue encodedWritable, EncodedJSValue encodedGetter, EncodedJSValue encodedSetter))
+JSC_DEFINE_JIT_OPERATION(operationObjectDefinePropertyFromFields, void, (JSGlobalObject* globalObject, JSObject* target, EncodedJSValue encodedKey, EncodedJSValue* descriptorBuffer))
 {
     VM& vm = globalObject->vm();
     CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
     JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    JSValue enumerable;
+    JSValue configurable;
+    JSValue value;
+    JSValue writable;
+    JSValue getter;
+    JSValue setter;
+    {
+        ActiveScratchBufferScope activeScratchBufferScope(ScratchBuffer::fromData(descriptorBuffer), Node::numberOfDescriptorSlots);
+
+        enumerable = JSValue::decode(descriptorBuffer[Node::EnumerableSlot]);
+        configurable = JSValue::decode(descriptorBuffer[Node::ConfigurableSlot]);
+        value = JSValue::decode(descriptorBuffer[Node::ValueSlot]);
+        writable = JSValue::decode(descriptorBuffer[Node::WritableSlot]);
+        getter = JSValue::decode(descriptorBuffer[Node::GetSlot]);
+        setter = JSValue::decode(descriptorBuffer[Node::SetSlot]);
+    }
+
     auto propertyName = JSValue::decode(encodedKey).toPropertyKey(globalObject);
     OPERATION_RETURN_IF_EXCEPTION(scope);
-
-    JSValue enumerable = JSValue::decode(encodedEnumerable);
-    JSValue configurable = JSValue::decode(encodedConfigurable);
-    JSValue value = JSValue::decode(encodedValue);
-    JSValue writable = JSValue::decode(encodedWritable);
-    JSValue getter = JSValue::decode(encodedGetter);
-    JSValue setter = JSValue::decode(encodedSetter);
 
     PropertyDescriptor desc;
     if (enumerable)
