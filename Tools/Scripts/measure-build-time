@@ -17,7 +17,7 @@ log = logging.getLogger('measure-build-time')
 
 SCRIPTS = Path(__file__).parent
 
-# --- Tests and subtests ----------------------------------------------------- 
+# --- Tests and subtests -----------------------------------------------------
 
 class Task:
     name: str
@@ -95,10 +95,10 @@ def parse_timing_summary(log_fd: IO[bytes]) -> dict[str, int]:
     """Extract per-phase timing from Xcode's Build Timing Summary section."""
 
     # The build log might be very long, but the timing summary is always at
-    # the end. Only search the final 8K of the log.
+    # the end. Only search the final 1MB of the log.
     log_fd.seek(0, os.SEEK_END)
     size = log_fd.tell()
-    log_fd.seek(max(0, size - 8192))
+    log_fd.seek(max(0, size - 2**20))
     match = XCODE_TIMING_SUMMARY_RE.search(log_fd.read().decode('utf-8', errors='replace'))
     if not match:
         return {}
@@ -159,10 +159,8 @@ def run_test(name: str, command: str, stdout_filter: str | None = None) -> TestR
 
 # --- Test runner ------------------------------------------------------------
 
-DEFAULT_MAKE_COMMAND = ('make ARGS="' + ' '.join((
-                            '-showBuildTimingSummary',
-                            'COMPILATION_CACHE_ENABLE_CACHING=NO',
-                        )) + '"')
+DEFAULT_MAKE_COMMAND = ('make -C {workspace_dir} {configuration} '
+                        'ARGS=-showBuildTimingSummary')
 
 def main() -> None:
     logging.basicConfig(
@@ -177,18 +175,19 @@ def main() -> None:
     cmd_parser = parser.add_mutually_exclusive_group(required=True)
     cmd_parser.add_argument('--build-command',
                             help='Shell command to run the build')
-    cmd_parser.add_argument('--make', dest='build_command', action='store_const',
-                            const=DEFAULT_MAKE_COMMAND,
+    cmd_parser.add_argument('--make', action='store_true',
                             help='Use a default Make invocation to build WebKit. '
                             'Does not set configuration or workspace (use set-webkit-configuration).')
     parser.add_argument('--build-dir', type=Path,
                         help='Path to top-level build directory (deleted by `clean` test)')
     parser.add_argument('--source-dir', type=Path,
                         help='Path to WebKit checkout used for incremental build testing')
+    parser.add_argument('--configuration', default='debug',
+                        help='Build configuration to use (default: debug)')
     parser.add_argument('--tests', nargs='+', default=[t.name for t in AVAILABLE_TESTS],
                         choices=[t.name for t in AVAILABLE_TESTS],
                         help='Which tests to run (default: all). Will skip test dependencies which are not listed.')
-    parser.add_argument('--metric-key', default='BuildTime-Unspecified',
+    parser.add_argument('--metric-key',
                         help='Top-level test key in the results. '
                         'Can be omitted, but must be provided when emitting a real benchmark score.')
     parser.add_argument('--stdout-filter', default=None,
@@ -205,6 +204,15 @@ def main() -> None:
         ).rstrip())
     if not args.source_dir:
         args.source_dir = SCRIPTS.parent.parent
+    if args.make:
+        internal_dir = args.source_dir / '../Internal/WebKit'
+        args.build_command = DEFAULT_MAKE_COMMAND.format(
+            configuration=args.configuration.lower(),
+            workspace_dir=str(internal_dir if internal_dir.exists() else args.source_dir)
+        )
+    if not args.metric_key:
+        # e.g. "BuildTime-Debug"
+        args.metric_key = f'BuildTime-{args.configuration.capitalize()}'
 
     # Read each test's `depends` lists to compute a topological order to run
     # all the tests. Does NOT perform cycle detection.
@@ -220,7 +228,7 @@ def main() -> None:
                 edges[T2].remove(T)
                 if not edges[T2]:
                     roots.add(T2)
-            
+
 
     tests: dict[str, TestResult] = {}
     for T in plan:
