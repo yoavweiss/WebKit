@@ -31,6 +31,7 @@
 #import <WebKit/WKWebProcessPlugInFrame.h>
 #import <WebKit/WKWebProcessPlugInLoadDelegate.h>
 #import <WebKit/WKWebProcessPlugInScriptWorld.h>
+#import <wtf/RetainPtr.h>
 
 @interface ClearWrappersNavigatePlugIn : NSObject <WKWebProcessPlugIn, WKWebProcessPlugInLoadDelegate>
 @end
