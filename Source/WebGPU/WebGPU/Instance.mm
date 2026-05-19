@@ -119,10 +119,12 @@ static NSArray<id<MTLDevice>> *sortedDevices(NSArray<id<MTLDevice>> *devices, WG
 #if PLATFORM(MAC) || PLATFORM(MACCATALYST)
         return [devices sortedArrayWithOptions:NSSortStable usingComparator:^NSComparisonResult (id<MTLDevice> obj1, id<MTLDevice> obj2)
         {
+            ALLOW_DEPRECATED_DECLARATIONS_BEGIN
             if (obj1.lowPower == obj2.lowPower)
                 return NSOrderedSame;
             if (obj1.lowPower)
                 return NSOrderedAscending;
+            ALLOW_DEPRECATED_DECLARATIONS_END
             return NSOrderedDescending;
         }];
 #else
@@ -132,10 +134,12 @@ static NSArray<id<MTLDevice>> *sortedDevices(NSArray<id<MTLDevice>> *devices, WG
 #if PLATFORM(MAC) || PLATFORM(MACCATALYST)
         return [devices sortedArrayWithOptions:NSSortStable usingComparator:^NSComparisonResult (id<MTLDevice> obj1, id<MTLDevice> obj2)
         {
+            ALLOW_DEPRECATED_DECLARATIONS_BEGIN
             if (obj1.lowPower == obj2.lowPower)
                 return NSOrderedSame;
             if (obj1.lowPower)
                 return NSOrderedDescending;
+            ALLOW_DEPRECATED_DECLARATIONS_END
             return NSOrderedAscending;
         }];
 #else

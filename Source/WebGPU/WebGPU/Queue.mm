@@ -458,11 +458,13 @@ bool Queue::validateWriteBuffer(const Buffer& buffer, uint64_t bufferOffset, siz
 void Queue::synchronizeResourceAndWait(id<MTLBuffer> buffer)
 {
 #if PLATFORM(MAC) || PLATFORM(MACCATALYST)
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     if (buffer.storageMode != MTLStorageModeManaged)
         return;
 
     ensureBlitCommandEncoder();
     [m_blitCommandEncoder synchronizeResource:buffer];
+    ALLOW_DEPRECATED_DECLARATIONS_END
     id<MTLCommandBuffer> commandBuffer = m_commandBuffer;
     finalizeBlitCommandEncoder();
     [commandBuffer waitUntilCompleted];
@@ -567,10 +569,12 @@ void Queue::writeBuffer(Buffer& buffer, uint64_t bufferOffset, std::span<uint8_t
             SUPPRESS_UNCOUNTED_ARG memcpySpan(borrow(buffer)->getBufferContents().subspan(bufferOffset, data.size()), data);
             return;
 #if PLATFORM(MAC) || PLATFORM(MACCATALYST)
+        ALLOW_DEPRECATED_DECLARATIONS_BEGIN
         case MTLStorageModeManaged:
             SUPPRESS_UNCOUNTED_ARG memcpySpan(borrow(buffer)->getBufferContents().subspan(bufferOffset, data.size()), data);
             [buffer.buffer() didModifyRange:NSMakeRange(bufferOffset, data.size())];
             return;
+        ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
         case MTLStorageModePrivate:
             // The only way to get data into a private resource is to tell the GPU to copy it in.
@@ -1018,7 +1022,9 @@ void Queue::writeTexture(const WGPUImageCopyTexture& destination, std::span<uint
         switch (mtlTexture.storageMode) {
         case MTLStorageModeShared:
 #if PLATFORM(MAC) || PLATFORM(MACCATALYST)
+        ALLOW_DEPRECATED_DECLARATIONS_BEGIN
         case MTLStorageModeManaged:
+        ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
             {
                 switch (textureDimension) {

@@ -298,6 +298,7 @@ Device::Device(id<MTLDevice> device, id<MTLCommandQueue> defaultQueue, HardwareC
     , m_maxVerticesPerDrawCall(computeMaxCountForDevice(device))
 {
 #if PLATFORM(MAC)
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     auto devices = MTLCopyAllDevicesWithObserver(&m_deviceObserver, [weakThis = ThreadSafeWeakPtr { *this }](id<MTLDevice> device, MTLDeviceNotificationName) {
         RefPtr<Device> protectedThis = weakThis.get();
         if (!protectedThis)
@@ -310,6 +311,7 @@ Device::Device(id<MTLDevice> device, id<MTLCommandQueue> defaultQueue, HardwareC
             });
         }
     });
+    ALLOW_DEPRECATED_DECLARATIONS_END
 
 #if ASSERT_ENABLED
     bool found = false;
@@ -341,7 +343,9 @@ Device::Device(id<MTLDevice> device, id<MTLCommandQueue> defaultQueue, HardwareC
     desc.pixelFormat = MTLPixelFormatBGRA8Unorm;
     desc.textureType = MTLTextureType2D;
 #if PLATFORM(MAC)
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     desc.storageMode = hasUnifiedMemory() ? MTLStorageModeShared : MTLStorageModeManaged;
+    ALLOW_DEPRECATED_DECLARATIONS_END
 #else
     desc.storageMode = MTLStorageModeShared;
 #endif
@@ -368,7 +372,9 @@ Device::Device(Adapter& adapter)
 Device::~Device()
 {
 #if PLATFORM(MAC)
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     MTLRemoveDeviceObserver(m_deviceObserver);
+    ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
     if (m_deviceLostCallback) {
         m_deviceLostCallback(WGPUDeviceLostReason_Destroyed, ""_s);

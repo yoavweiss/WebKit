@@ -265,11 +265,13 @@ void PresentationContextIOSurface::configure(Device& device, const WGPUSwapChain
     MTLTextureDescriptor *textureDescriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:Texture::pixelFormat(effectiveFormat) width:width height:height mipmapped:NO];
     textureDescriptor.usage = Texture::usage(descriptor.usage, effectiveFormat);
 #if PLATFORM(MAC) || PLATFORM(MACCATALYST)
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
 #if ENABLE(WEBGPU_BY_DEFAULT)
     textureDescriptor.storageMode = device.hasUnifiedMemory() ? MTLStorageModeShared : MTLStorageModeManaged;
 #else
     textureDescriptor.storageMode = MTLStorageModeManaged;
 #endif
+    ALLOW_DEPRECATED_DECLARATIONS_END
 #else
     textureDescriptor.storageMode = MTLStorageModeShared;
 #endif

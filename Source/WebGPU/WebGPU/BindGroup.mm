@@ -485,7 +485,9 @@ Device::ExternalTextureData Device::createExternalTextureFromPixelBuffer(CVPixel
             textureDescriptor.mipmapLevelCount = 1;
             textureDescriptor.sampleCount = 1;
 #if PLATFORM(MAC) || PLATFORM(MACCATALYST)
+            ALLOW_DEPRECATED_DECLARATIONS_BEGIN
             textureDescriptor.storageMode = hasUnifiedMemory() ? MTLStorageModeShared : MTLStorageModeManaged;
+            ALLOW_DEPRECATED_DECLARATIONS_END
 #else
             textureDescriptor.storageMode = hasUnifiedMemory() ? MTLStorageModeShared : MTLStorageModePrivate;
 #endif

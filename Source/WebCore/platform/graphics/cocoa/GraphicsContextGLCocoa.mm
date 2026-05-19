@@ -94,8 +94,10 @@ static bool platformSupportsMetal()
 #if PLATFORM(MAC) || PLATFORM(MACCATALYST)
     // Old Macs, such as MacBookPro11,4 cannot use WebGL via Metal.
     // This check can be removed once they are no longer supported.
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     if (![device supportsFamily:MTLGPUFamilyMac2])
         return false;
+    ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
     return true;
 }

@@ -1478,9 +1478,11 @@ void CommandEncoder::addBuffer(id<MTLBuffer> buffer)
         return;
 
 #if CPU(X86_64) && (PLATFORM(MAC) || PLATFORM(MACCATALYST))
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     if (buffer.storageMode == MTLStorageModeManaged)
         [m_managedBuffers addObject:buffer];
     else
+    ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
         [m_retainedBuffers addObject:buffer];
 }
@@ -1490,9 +1492,11 @@ void CommandEncoder::addTexture(id<MTLTexture> texture)
         return;
 
 #if CPU(X86_64) && (PLATFORM(MAC) || PLATFORM(MACCATALYST))
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     if (texture.storageMode == MTLStorageModeManaged)
         [m_managedTextures addObject:texture];
     else
+    ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
         [m_retainedTextures addObject:texture];
 }
@@ -2133,6 +2137,7 @@ Ref<CommandBuffer> CommandEncoder::finish(const WGPUCommandBufferDescriptor& des
     commandBuffer.label = descriptor.label.createNSString().get();
 
 #if CPU(X86_64) && (PLATFORM(MAC) || PLATFORM(MACCATALYST))
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     if (m_managedBuffers.count || m_managedTextures.count) {
         id<MTLBlitCommandEncoder> blitCommandEncoder = [commandBuffer blitCommandEncoder];
         for (id<MTLBuffer> buffer in m_managedBuffers)
@@ -2141,6 +2146,7 @@ Ref<CommandBuffer> CommandEncoder::finish(const WGPUCommandBufferDescriptor& des
             [blitCommandEncoder synchronizeResource:texture];
         [blitCommandEncoder endEncoding];
     }
+    ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
 
     auto result = CommandBuffer::create(commandBuffer, m_device, m_sharedEvent, m_sharedEventSignalValue, WTF::move(m_onCommitHandlers), *this);
