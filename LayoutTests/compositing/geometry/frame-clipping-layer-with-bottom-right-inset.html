@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+    body {
+        height: 2000px;
+        margin: 0;
+    }
+
+    .composited {
+        width: 100px;
+        height: 100px;
+        background-color: green;
+        will-change: transform;
+    }
+</style>
+<script>
+    if (window.testRunner) {
+        testRunner.dumpAsText();
+        testRunner.waitUntilDone();
+    }
+
+    async function doTest()
+    {
+        await testRunner.setObscuredContentInsets(0, 50, 50, 0);
+        await testRunner.updatePresentation();
+
+        document.getElementById("layerTree").innerText = window.internals.layerTreeAsText(document, internals.LAYER_TREE_INCLUDES_ROOT_LAYERS | internals.LAYER_TREE_INCLUDES_CLIPPING);
+        testRunner.notifyDone();
+    }
+
+    window.addEventListener("load", doTest);
+</script>
+</head>
+<body>
+<div class="composited"></div>
+<pre id="layerTree"></pre>
+</body>
+</html>

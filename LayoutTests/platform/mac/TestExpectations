@@ -82,6 +82,9 @@ media/mediacapabilities/mediacapabilities-decodingInfo-spatialRendering.html [ F
 # Individually failing tests should be marked in separate expectations.
 [ Sonoma+ ] imported/w3c/web-platform-tests/css/css-text/word-break/auto-phrase [ Pass ]
 
+compositing/geometry/frame-clipping-layer-with-bottom-right-inset.html [ Pass ]
+compositing/geometry/frame-clipping-layer-with-top-left-inset.html [ Pass ]
+
 #//////////////////////////////////////////////////////////////////////////////////////////
 # End platform-specific directories.
 #//////////////////////////////////////////////////////////////////////////////////////////

@@ -808,6 +808,7 @@ enum ContentsFormat {
     const unsigned short LAYER_TREE_INCLUDES_EVENT_REGION = 512;
     const unsigned short LAYER_TREE_INCLUDES_EXTENDED_COLOR = 1024;
     const unsigned short LAYER_TREE_INCLUDES_DEVICE_SCALE = 2048;
+    const unsigned short LAYER_TREE_INCLUDES_ROOT_LAYERS = 4096;
     DOMString layerTreeAsText(Document document, optional unsigned short flags = 0);
 
     unsigned long long layerIDForElement(Element element);

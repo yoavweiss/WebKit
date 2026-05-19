@@ -2669,7 +2669,16 @@ FloatRect LocalFrameView::insetClipLayerRect(const FloatPoint& scrollPosition, c
 
     auto adjustedSize = sizeForVisibleContent;
     if (obscuredContentInset.top())
-        adjustedSize.setHeight(std::max(0.f, sizeForVisibleContent.height() - position.y()));
+        adjustedSize.setHeight(std::max(0.f, adjustedSize.height() - position.y()));
+
+    if (obscuredContentInset.bottom())
+        adjustedSize.setHeight(std::max(0.f, adjustedSize.height() - obscuredContentInset.bottom()));
+
+    if (obscuredContentInset.left())
+        adjustedSize.setWidth(std::max(0.f, adjustedSize.width() - position.x()));
+
+    if (obscuredContentInset.right())
+        adjustedSize.setWidth(std::max(0.f, adjustedSize.width() - obscuredContentInset.right()));
 
     return { position, adjustedSize };
 }

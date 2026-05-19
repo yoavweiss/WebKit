@@ -1,0 +1,45 @@
+(GraphicsLayer
+  (children 3
+    (GraphicsLayer
+      (position 50.00 50.00)
+      (anchor 0.00 0.00)
+      (bounds 750.00 550.00)
+      (backgroundColor #FFFFFF)
+    )
+    (GraphicsLayer
+      (position 50.00 50.00)
+      (anchor 0.00 0.00)
+      (bounds 735.00 550.00)
+      (clips 1)
+      (children 1
+        (GraphicsLayer
+          (anchor 0.00 0.00)
+          (children 1
+            (GraphicsLayer
+              (anchor 0.00 0.00)
+              (bounds 735.00 2000.00)
+              (children 1
+                (GraphicsLayer
+                  (bounds 735.00 2000.00)
+                  (contentsOpaque 1)
+                  (children 1
+                    (GraphicsLayer
+                      (bounds 100.00 100.00)
+                      (contentsOpaque 1)
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+    (GraphicsLayer
+      (position 785.00 50.00)
+      (bounds 15.00 550.00)
+      (drawsContent 1)
+    )
+  )
+)
+

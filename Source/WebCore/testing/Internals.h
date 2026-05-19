@@ -563,6 +563,7 @@ public:
         LAYER_TREE_INCLUDES_EVENT_REGION = 512,
         LAYER_TREE_INCLUDES_EXTENDED_COLOR = 1024,
         LAYER_TREE_INCLUDES_DEVICE_SCALE = 2048,
+        LAYER_TREE_INCLUDES_ROOT_LAYERS = 4096,
     };
     ExceptionOr<String> layerTreeAsText(Document&, unsigned short flags) const;
     ExceptionOr<uint64_t> layerIDForElement(Element&);

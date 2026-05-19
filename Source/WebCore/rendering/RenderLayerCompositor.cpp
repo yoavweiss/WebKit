@@ -4994,6 +4994,7 @@ void RenderLayerCompositor::updateSizeAndPositionForOverhangAreaLayer()
     Ref frameView = m_renderView.frameView();
     auto obscuredContentInsets = frameView->obscuredContentInsets();
     IntSize overhangAreaSize = frameView->frameRect().size();
+    // FIXME: Handle bottom and right insets too.
     overhangAreaSize.contract(obscuredContentInsets.left(), obscuredContentInsets.top());
     overhangAreaSize.clampNegativeToZero();
     layer->setSize(overhangAreaSize);

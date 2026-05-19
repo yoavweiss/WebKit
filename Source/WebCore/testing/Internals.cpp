@@ -3560,6 +3560,8 @@ static OptionSet<LayerTreeAsTextOptions> NODELETE toLayerTreeAsTextOptions(unsig
         layerTreeFlags.add(LayerTreeAsTextOptions::IncludeExtendedColor);
     if (flags & Internals::LAYER_TREE_INCLUDES_DEVICE_SCALE)
         layerTreeFlags.add(LayerTreeAsTextOptions::IncludeDeviceScale);
+    if (flags & Internals::LAYER_TREE_INCLUDES_ROOT_LAYERS)
+        layerTreeFlags.add(LayerTreeAsTextOptions::IncludeRootLayers);
 
     return layerTreeFlags;
 }

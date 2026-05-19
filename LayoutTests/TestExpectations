@@ -406,6 +406,10 @@ fast/events/do-not-drag-and-drop-data-detectors-link.html [ Skip ]
 # Testing against scroller style changes only makes sense on Mac
 scrollbars/custom-scrollbar-scroller-style-change.html [ Skip ]
 
+# Only useful on macOS
+compositing/geometry/frame-clipping-layer-with-bottom-right-inset.html [ Skip ]
+compositing/geometry/frame-clipping-layer-with-top-left-inset.html [ Skip ]
+
 # A rounding error may cause 90deg 3d-rotated elements to count as painted
 imported/w3c/web-platform-tests/paint-timing/fcp-only/fcp-invisible-3d-rotate-descendant.html
 
