@@ -32,14 +32,16 @@
 
 namespace WebCore {
 
-RefPtr<WebGLOpaqueTexture> WebGLOpaqueTexture::create(WebGLRenderingContextBase& context, PlatformGLObject object)
+RefPtr<WebGLOpaqueTexture> WebGLOpaqueTexture::create(WebGLRenderingContextBase& context, PlatformGLObject object, GCGLenum target)
 {
-    return adoptRef(*new WebGLOpaqueTexture { context, object });
+    return adoptRef(*new WebGLOpaqueTexture { context, object, target });
 }
 
-WebGLOpaqueTexture::WebGLOpaqueTexture(WebGLRenderingContextBase& context, PlatformGLObject object)
+WebGLOpaqueTexture::WebGLOpaqueTexture(WebGLRenderingContextBase& context, PlatformGLObject object, GCGLenum target)
     : WebGLTexture(context, object)
 {
+    // Opaque textures bypass the normal bindTexture path, so m_target would stay 0. Set it directly so WebGL validation knows the correct target type.
+    didBind(target);
 }
 
 void WebGLOpaqueTexture::deleteObjectImpl(const AbstractLocker&, GraphicsContextGL*, PlatformGLObject)

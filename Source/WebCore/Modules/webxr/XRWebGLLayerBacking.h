@@ -43,6 +43,13 @@ enum class CompositionLayerType : uint8_t;
 
 namespace WebCore {
 
+// Based on https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/modules/xr/xr_webgl_binding.cc
+struct SwapchainFormats {
+    GCGLenum format { 0 };
+    GCGLenum internalFormat { 0 };
+};
+SwapchainFormats swapchainFormatsForLayerFormat(GCGLenum layerFormat);
+
 class WebGLOpaqueTexture;
 class WebGLRenderingContextBase;
 class WebXROpaqueFramebuffer;
@@ -75,23 +82,25 @@ public:
     bool allColorTexturesAreBound() const final;
 
 protected:
-    XRWebGLLayerBacking(PlatformXR::LayerHandle, std::unique_ptr<WebXRWebGLSwapchain>&& colorSwapchain, std::unique_ptr<WebXRWebGLSwapchain>&& depthSwapchain);
+    XRWebGLLayerBacking(PlatformXR::LayerHandle, std::unique_ptr<WebXRWebGLSwapchain>&& colorSwapchain, std::unique_ptr<WebXRWebGLSwapchain>&& depthSwapchain, uint32_t colorTextureArrayLength);
 
     struct XRLayerSwapchains {
         PlatformXR::LayerHandle handle;
         std::unique_ptr<WebXRWebGLSwapchain> colorSwapchain;
         std::unique_ptr<WebXRWebGLSwapchain> depthSwapchain;
+        uint32_t colorTextureArrayLength { 1 };
     };
 
     static ExceptionOr<XRLayerSwapchains> createCompositionLayerSwapchains(WebXRSession&, WebGLRenderingContextBase&, PlatformXR::CompositionLayerType, const XRLayerInit&);
     static ExceptionOr<XRLayerSwapchains> createProjectionLayerSwapchains(WebXRSession&, WebGLRenderingContextBase&, const XRProjectionLayerInit&);
 
 private:
-    static ExceptionOr<XRLayerSwapchains> createColorAndDepthSwapchains(WebGLRenderingContextBase&, PlatformXR::LayerHandle, GCGLenum colorFormat, std::optional<GCGLenum> depthFormat, IntSize, bool clearOnAccess, size_t numImages);
-    static std::unique_ptr<WebXRWebGLSwapchain> createDepthSwapchain(WebGLRenderingContextBase&, GCGLenum depthFormat, IntSize, bool clearOnAccess, size_t imageCount);
+    static ExceptionOr<XRLayerSwapchains> createColorAndDepthSwapchains(WebGLRenderingContextBase&, PlatformXR::LayerHandle, GCGLenum colorFormat, std::optional<GCGLenum> depthFormat, IntSize, bool clearOnAccess, size_t numImages, uint32_t arrayLength, GCGLenum colorTextureType);
+    static std::unique_ptr<WebXRWebGLSwapchain> createDepthSwapchain(WebGLRenderingContextBase&, GCGLenum depthFormat, IntSize, bool clearOnAccess, size_t imageCount, uint32_t arrayLength, GCGLenum textureType);
 
     std::unique_ptr<WebXRWebGLSwapchain> m_colorSwapchain;
     std::unique_ptr<WebXRWebGLSwapchain> m_depthSwapchain;
+    uint32_t m_colorTextureArrayLength { 1 };
 };
 
 } // namespace WebCore

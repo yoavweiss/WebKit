@@ -45,7 +45,7 @@ public:
     static ExceptionOr<Ref<XRWebGLEquirectLayerBacking>> create(WebXRSession&, WebGLRenderingContextBase&, const XREquirectLayerInit&);
 
 private:
-    XRWebGLEquirectLayerBacking(PlatformXR::LayerHandle, std::unique_ptr<WebXRWebGLSwapchain>&& colorSwapchain, std::unique_ptr<WebXRWebGLSwapchain>&& depthSwapchain, const XREquirectLayerInit&);
+    XRWebGLEquirectLayerBacking(PlatformXR::LayerHandle, std::unique_ptr<WebXRWebGLSwapchain>&& colorSwapchain, std::unique_ptr<WebXRWebGLSwapchain>&& depthSwapchain, uint32_t colorTextureArrayLength, const XREquirectLayerInit&);
 
     XREquirectLayerInit m_init;
 };

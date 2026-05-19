@@ -42,12 +42,12 @@ ExceptionOr<Ref<XRWebGLProjectionLayerBacking>> XRWebGLProjectionLayerBacking::c
     auto swapchains = XRWebGLLayerBacking::createProjectionLayerSwapchains(session, context, init);
     if (swapchains.hasException())
         return swapchains.releaseException();
-    auto [handle, colorSwapchain, depthSwapchain] = swapchains.releaseReturnValue();
-    return adoptRef(*new XRWebGLProjectionLayerBacking(handle, WTF::move(colorSwapchain), WTF::move(depthSwapchain)));
+    auto [handle, colorSwapchain, depthSwapchain, arrayLength] = swapchains.releaseReturnValue();
+    return adoptRef(*new XRWebGLProjectionLayerBacking(handle, WTF::move(colorSwapchain), WTF::move(depthSwapchain), arrayLength));
 }
 
-XRWebGLProjectionLayerBacking::XRWebGLProjectionLayerBacking(PlatformXR::LayerHandle handle, std::unique_ptr<WebXRWebGLSwapchain>&& colorSwapchain, std::unique_ptr<WebXRWebGLSwapchain>&& depthSwapchain)
-    : XRWebGLLayerBacking(handle, WTF::move(colorSwapchain), WTF::move(depthSwapchain))
+XRWebGLProjectionLayerBacking::XRWebGLProjectionLayerBacking(PlatformXR::LayerHandle handle, std::unique_ptr<WebXRWebGLSwapchain>&& colorSwapchain, std::unique_ptr<WebXRWebGLSwapchain>&& depthSwapchain, uint32_t colorTextureArrayLength)
+    : XRWebGLLayerBacking(handle, WTF::move(colorSwapchain), WTF::move(depthSwapchain), colorTextureArrayLength)
 {
 };
 

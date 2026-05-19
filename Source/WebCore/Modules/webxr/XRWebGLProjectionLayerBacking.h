@@ -46,7 +46,7 @@ public:
     static ExceptionOr<Ref<XRWebGLProjectionLayerBacking>> create(WebXRSession&, WebGLRenderingContextBase&, const XRProjectionLayerInit&);
 
 private:
-    XRWebGLProjectionLayerBacking(PlatformXR::LayerHandle, std::unique_ptr<WebXRWebGLSwapchain>&& colorSwapchain, std::unique_ptr<WebXRWebGLSwapchain>&& depthSwapchain);
+    XRWebGLProjectionLayerBacking(PlatformXR::LayerHandle, std::unique_ptr<WebXRWebGLSwapchain>&& colorSwapchain, std::unique_ptr<WebXRWebGLSwapchain>&& depthSwapchain, uint32_t colorTextureArrayLength);
 };
 
 } // namespace WebCore

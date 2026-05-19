@@ -42,12 +42,12 @@ ExceptionOr<Ref<XRWebGLCylinderLayerBacking>> XRWebGLCylinderLayerBacking::creat
     auto swapchains = XRWebGLLayerBacking::createCompositionLayerSwapchains(session, context, PlatformXR::CompositionLayerType::Cylinder, init);
     if (swapchains.hasException())
         return swapchains.releaseException();
-    auto [handle, colorSwapchain, depthSwapchain] = swapchains.releaseReturnValue();
-    return adoptRef(*new XRWebGLCylinderLayerBacking(handle, WTF::move(colorSwapchain), WTF::move(depthSwapchain), init));
+    auto [handle, colorSwapchain, depthSwapchain, arrayLength] = swapchains.releaseReturnValue();
+    return adoptRef(*new XRWebGLCylinderLayerBacking(handle, WTF::move(colorSwapchain), WTF::move(depthSwapchain), arrayLength, init));
 }
 
-XRWebGLCylinderLayerBacking::XRWebGLCylinderLayerBacking(PlatformXR::LayerHandle handle, std::unique_ptr<WebXRWebGLSwapchain>&& colorSwapchain, std::unique_ptr<WebXRWebGLSwapchain>&& depthSwapchain, const XRCylinderLayerInit& init)
-    : XRWebGLLayerBacking(handle, WTF::move(colorSwapchain), WTF::move(depthSwapchain))
+XRWebGLCylinderLayerBacking::XRWebGLCylinderLayerBacking(PlatformXR::LayerHandle handle, std::unique_ptr<WebXRWebGLSwapchain>&& colorSwapchain, std::unique_ptr<WebXRWebGLSwapchain>&& depthSwapchain, uint32_t colorTextureArrayLength, const XRCylinderLayerInit& init)
+    : XRWebGLLayerBacking(handle, WTF::move(colorSwapchain), WTF::move(depthSwapchain), colorTextureArrayLength)
     , m_init(init)
 {
 }

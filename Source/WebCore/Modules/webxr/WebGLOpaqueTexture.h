@@ -27,6 +27,7 @@
 
 #if ENABLE(WEBXR_LAYERS)
 
+#include "GraphicsTypesGL.h"
 #include "WebGLTexture.h"
 #include <wtf/RefPtr.h>
 #include <wtf/Vector.h>
@@ -37,10 +38,10 @@ class WebGLOpaqueTexture final : public WebGLTexture {
 public:
     virtual ~WebGLOpaqueTexture();
 
-    static RefPtr<WebGLOpaqueTexture> create(WebGLRenderingContextBase&, PlatformGLObject);
+    static RefPtr<WebGLOpaqueTexture> create(WebGLRenderingContextBase&, PlatformGLObject, GCGLenum target);
 
 private:
-    WebGLOpaqueTexture(WebGLRenderingContextBase&, PlatformGLObject);
+    WebGLOpaqueTexture(WebGLRenderingContextBase&, PlatformGLObject, GCGLenum target);
     void deleteObjectImpl(const AbstractLocker&, GraphicsContextGL*, PlatformGLObject) override;
 };
 

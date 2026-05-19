@@ -45,7 +45,7 @@ public:
     static ExceptionOr<Ref<XRWebGLCylinderLayerBacking>> create(WebXRSession&, WebGLRenderingContextBase&, const XRCylinderLayerInit&);
 
 private:
-    XRWebGLCylinderLayerBacking(PlatformXR::LayerHandle, std::unique_ptr<WebXRWebGLSwapchain>&& colorSwapchain, std::unique_ptr<WebXRWebGLSwapchain>&& depthSwapchain, const XRCylinderLayerInit&);
+    XRWebGLCylinderLayerBacking(PlatformXR::LayerHandle, std::unique_ptr<WebXRWebGLSwapchain>&& colorSwapchain, std::unique_ptr<WebXRWebGLSwapchain>&& depthSwapchain, uint32_t colorTextureArrayLength, const XRCylinderLayerInit&);
 
     XRCylinderLayerInit m_init;
 };

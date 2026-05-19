@@ -102,7 +102,7 @@ private:
     ExceptionOr<Vector<RefPtr<WebGLOpaqueTexture>>> allocateDepthTexturesForLayer(XRCompositionLayer&, XRTextureType, const XRLayerInit&);
     bool validateXRWebGLSubImageCreation(const XRCompositionLayer&, const WebXRFrame&) const;
 
-    IntRect rectForView(const XRProjectionLayer&, const WebXRView&) const;
+    IntRect rectForView(const XRProjectionLayer&, const XRTextureType, const WebXRView&) const;
 
     const Ref<WebXRSession> m_session;
     WebXRWebGLRenderingContext m_context;

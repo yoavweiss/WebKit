@@ -31,6 +31,7 @@
 #include "GraphicsTypesGL.h"
 #include "PlatformXR.h"
 #include "WebXRSwapchain.h"
+#include <wtf/Function.h>
 #include <wtf/Ref.h>
 #include <wtf/RetainPtr.h>
 #include <wtf/Vector.h>
@@ -82,16 +83,24 @@ public:
 
     RefPtr<WebGLRenderingContextBase> context();
 
-    IntSize size() const { return m_texSize; }
+    virtual IntSize size() const { return m_texSize; }
 
     virtual void startFrame(PlatformXR::FrameData::LayerData&) = 0;
     virtual void endFrame(PlatformXR::DeviceLayer&) = 0;
 
     virtual bool allTexturesAreBound() const = 0;
 
+    virtual GCGLenum textureTarget() const { return GraphicsContextGL::TEXTURE_2D; }
+
 protected:
     WebXRWebGLSwapchain(WebGLRenderingContextBase&, SwapchainTargets, bool clearOnAccess, size_t imageCount);
-    void clearCurrentTexture(GraphicsContextGL&);
+    virtual void clearCurrentTexture(GraphicsContextGL&);
+
+    using BindAttachmentFunction = Function<void(GCGLenum attachment, GCGLint layer)>;
+    void clearTextureLayers(GraphicsContextGL&, uint32_t layerCount, NOESCAPE const BindAttachmentFunction&);
+
+    void setupExternalImage(const PlatformXR::FrameData::LayerSetupData&);
+    void signalEndFrame(GraphicsContextGL&, PlatformXR::DeviceLayer&);
 
     PlatformXR::LayerHandle m_handle;
     RefPtr<WebGLRenderingContextBase> m_context;
@@ -120,7 +129,6 @@ public:
 
 private:
     WebXRWebGLSharedImageSwapchain(WebGLRenderingContextBase&, SwapchainTargets, GCGLenum format, IntSize initialSize, bool clearOnAccess, size_t imageCount);
-    void setupExternalImage(GraphicsContextGL&, const PlatformXR::FrameData::LayerSetupData&);
 
     const WebXRExternalImages* reusableTextures(const PlatformXR::FrameData::ExternalTextureData&) const;
     void releaseTexturesAtIndex(size_t index);
@@ -147,6 +155,8 @@ public:
         bool clearOnAccess { false };
         SwapchainTargets targets;
         size_t imageCount { 0 };
+        uint32_t arrayLength { 1 };
+        GCGLenum textureType { GraphicsContextGL::TEXTURE_2D };
     };
     static std::unique_ptr<WebXRWebGLStaticImageSwapchain> create(WebGLRenderingContextBase&, StaticImageAttributes);
     ~WebXRWebGLStaticImageSwapchain() override;
@@ -158,16 +168,64 @@ public:
 
     bool allTexturesAreBound() const override;
 
+    GCGLenum textureTarget() const override { return m_imageAttributes.textureType; }
+
 private:
     WebXRWebGLStaticImageSwapchain(WebGLRenderingContextBase&, StaticImageAttributes);
     void bindCompositorTexturesForDisplay(GraphicsContextGL&, PlatformXR::FrameData::LayerData&);
     void releaseDisplayImagesAtIndex(size_t);
+    void clearCurrentTexture(GraphicsContextGL&) override;
 
     StaticImageAttributes m_imageAttributes;
 #if USE(OPENXR)
     WTF::UnixFileDescriptor m_fenceFD;
 #endif
     Vector<PlatformGLObject> m_textures;
+};
+
+// Swapchain that renders internally into a GL_TEXTURE_2D_ARRAY and blits each array slice into the corresponding
+// horizontal region of a side-by-side shared texture exported to the UIProcess. Used whenever texture arrays
+// cannot be shared directly (like with DMABuf) so this approach keeps the existing sharing mechanism intact.
+class WebXRWebGLTextureArraySwapchain final : public WebXRWebGLSwapchain {
+    WTF_MAKE_TZONE_ALLOCATED(WebXRWebGLTextureArraySwapchain);
+    WTF_MAKE_NONCOPYABLE(WebXRWebGLTextureArraySwapchain);
+public:
+    static std::unique_ptr<WebXRWebGLTextureArraySwapchain> create(WebGLRenderingContextBase&, SwapchainTargets, GCGLenum internalFormat, bool clearOnAccess, size_t imageCount, uint32_t arrayLength);
+    ~WebXRWebGLTextureArraySwapchain() override;
+
+    PlatformGLObject currentTexture() override;
+
+    void startFrame(PlatformXR::FrameData::LayerData&) override;
+    void endFrame(PlatformXR::DeviceLayer&) override;
+
+    bool allTexturesAreBound() const override;
+
+    GCGLenum textureTarget() const override { return GraphicsContextGL::TEXTURE_2D_ARRAY; }
+    uint32_t arrayLength() const { return m_arrayLength; }
+
+private:
+    struct TextureSet {
+        PlatformGLObject arrayTexture { 0 };
+        WebXRExternalImages sharedImage;
+
+        explicit operator bool() const { return arrayTexture && sharedImage; }
+        void release(GraphicsContextGL&);
+        void leakObject();
+    };
+
+    WebXRWebGLTextureArraySwapchain(WebGLRenderingContextBase&, SwapchainTargets, GCGLenum internalFormat, bool clearOnAccess, size_t imageCount, uint32_t arrayLength);
+
+    void clearCurrentTexture(GraphicsContextGL&) override;
+    void bindCompositorTexturesForDisplay(GraphicsContextGL&, PlatformXR::FrameData::LayerData&);
+    void blitTextureArrayToSharedImage(GraphicsContextGL&);
+    void releaseTexturesAtIndex(size_t);
+    const WebXRExternalImages* reusableTextures(const PlatformXR::FrameData::ExternalTextureData&) const;
+
+    uint32_t m_arrayLength;
+    GCGLenum m_internalFormat;
+    Vector<TextureSet> m_textureSets;
+    PlatformGLObject m_blitReadFBO { 0 };
+    PlatformGLObject m_blitDrawFBO { 0 };
 };
 
 } // namespace WebCore
