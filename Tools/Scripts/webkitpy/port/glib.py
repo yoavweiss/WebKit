@@ -157,6 +157,9 @@ class GLibPort(Port):
         # LibRice logging, example: RICE_LOG=trace.
         self._copy_values_from_environ_with_prefix(environment, 'RICE_')
 
+        # For GDB debuginfod support.
+        self._copy_values_from_environ_with_prefix(environment, 'DEBUGINFOD_')
+
         if self.get_option("leaks"):
             # Turn off GLib memory optimisations https://wiki.gnome.org/Valgrind.
             environment['G_SLICE'] = 'always-malloc'
