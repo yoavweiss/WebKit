@@ -3344,6 +3344,11 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
         clobberWorld();
         makeHeapTopForNode(node);
         break;
+
+    case ArrayShift:
+        clobberWorld();
+        makeHeapTopForNode(node);
+        break;
         
     case GetMyArgumentByVal:
     case GetMyArgumentByValOutOfBounds: {
