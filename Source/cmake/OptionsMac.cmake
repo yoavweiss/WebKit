@@ -187,6 +187,11 @@ if (_bindir_name STREQUAL "ASan" AND NOT ENABLE_SANITIZERS MATCHES "address")
         "Build directory '${CMAKE_BINARY_DIR}' is an ASan tree but ENABLE_SANITIZERS='${ENABLE_SANITIZERS}'. "
         "CMakeCache.txt was likely deleted or never configured via the preset. Re-run: cmake --preset mac-asan")
 endif ()
+if (_bindir_name STREQUAL "TSan" AND NOT ENABLE_SANITIZERS MATCHES "thread")
+    message(FATAL_ERROR
+        "Build directory '${CMAKE_BINARY_DIR}' is a TSan tree but ENABLE_SANITIZERS='${ENABLE_SANITIZERS}'. "
+        "CMakeCache.txt was likely deleted or never configured via the preset. Re-run: cmake --preset mac-tsan")
+endif ()
 unset(_bindir_name)
 
 set(bmalloc_LIBRARY_TYPE OBJECT)

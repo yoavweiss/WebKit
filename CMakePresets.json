@@ -226,6 +226,10 @@
                     "type": "STRING",
                     "value": "thread"
                 },
+                "USE_SYSTEM_MALLOC": {
+                    "type": "BOOL",
+                    "value": "ON"
+                },
                 "ENABLE_EXPERIMENTAL_FEATURES": {
                     "type": "BOOL",
                     "value": "OFF"
