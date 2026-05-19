@@ -1669,7 +1669,7 @@ static std::optional<LayoutUnit> extraMarginFromSubgridAncestorGutters(const Ren
 
         if (gridItemSpanInAncestor.startLine())
             gutterTotal += (currentAncestorSubgrid.gridGap(direction) - currentAncestorSubgridParent->gridGap(direction)) / 2;
-        if (itemSpan.endLine() != numTracksForCurrentAncestor)
+        if (gridItemSpanInAncestor.endLine() != numTracksForCurrentAncestor)
             gutterTotal += (currentAncestorSubgrid.gridGap(direction) - currentAncestorSubgridParent->gridGap(direction)) / 2;
         direction = GridLayoutFunctions::flowAwareDirectionForParent(currentAncestorSubgrid, *currentAncestorSubgridParent, direction);
     }
