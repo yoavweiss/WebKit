@@ -91,7 +91,17 @@ ThreadedCompositor::ThreadedCompositor(WebPage& webPage, LayerTreeHost& layerTre
 
     initializeFPSCounter();
 #if ENABLE(DAMAGE_TRACKING)
-    m_damage.visualizer = TextureMapperDamageVisualizer::create();
+    if (m_useSkia) {
+        // WEBKIT_SHOW_DAMAGE=N renders the frame damage rects, insetting them
+        // by N-1 pixels (mirrors TextureMapperDamageVisualizer's behavior).
+        if (const auto* showDamageVariable = getenv("WEBKIT_SHOW_DAMAGE")) {
+            if (auto value = parseInteger<unsigned>(StringView::fromLatin1(showDamageVariable)); value && *value) {
+                m_damage.showSkiaDamage = true;
+                m_damage.skiaDamageMargin = *value - 1;
+            }
+        }
+    } else
+        m_damage.visualizer = TextureMapperDamageVisualizer::create();
 #endif
 
     updateSceneAttributes(webPage.size(), webPage.deviceScaleFactor());
@@ -253,7 +263,7 @@ void ThreadedCompositor::setSize(const IntSize& size, float deviceScaleFactor)
 void ThreadedCompositor::setDamagePropagationFlags(std::optional<OptionSet<DamagePropagationFlags>> flags)
 {
     m_damage.flags = flags;
-    if (m_damage.visualizer && m_damage.flags) {
+    if ((m_damage.visualizer || m_damage.showSkiaDamage) && m_damage.flags) {
         // We don't use damage when rendering layers if the visualizer is enabled, because we need to make sure the whole
         // frame is invalidated in the next paint so that previous damage rects are cleared.
         m_damage.flags->remove(DamagePropagationFlags::UseForCompositing);
@@ -388,6 +398,17 @@ void ThreadedCompositor::paintToSkiaCanvas(const TransformationMatrix& matrix, c
 
         if (!frameDamage->isEmpty())
             m_surface->setFrameDamage(WTF::move(*frameDamage));
+    }
+#endif
+
+#if ENABLE(DAMAGE_TRACKING)
+    if (m_damage.showSkiaDamage) {
+        if (auto damage = m_surface->frameDamage())
+            drawSkiaDamage(*canvas, damage);
+
+        // When the damage visualizer is active we cannot send the original damage to the platform, as the
+        // damage rects visualized in the previous frame may not get erased if the platform uses damage.
+        m_surface->setFrameDamage(Damage(size, Damage::Mode::Full));
     }
 #endif
 
@@ -705,6 +726,19 @@ void ThreadedCompositor::drawFPSCounter(SkCanvas& canvas)
     textPaint.setAntiAlias(true);
     canvas.drawString(m_fpsCounter.fpsString.data(), padding, m_fpsCounter.textBaseline, font, textPaint);
 }
+
+#if ENABLE(DAMAGE_TRACKING)
+void ThreadedCompositor::drawSkiaDamage(SkCanvas& canvas, const std::optional<WebCore::Damage>& damage)
+{
+    SkPaint paint;
+    paint.setStyle(SkPaint::kFill_Style);
+    paint.setColor(SkColorSetARGB(200, 255, 0, 0));
+
+    const auto margin = static_cast<SkScalar>(m_damage.skiaDamageMargin);
+    for (const auto& rect : *damage)
+        canvas.drawRect(SkRect::MakeXYWH(rect.x() - margin, rect.y() - margin, rect.width() + margin * 2, rect.height() + margin * 2), paint);
+}
+#endif
 
 void ThreadedCompositor::fillGLInformation(RenderProcessInfo&& info, CompletionHandler<void(RenderProcessInfo&&)>&& completionHandler)
 {

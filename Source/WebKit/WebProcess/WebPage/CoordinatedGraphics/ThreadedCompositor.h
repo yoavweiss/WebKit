@@ -121,6 +121,9 @@ private:
     void initializeFPSCounter();
     void updateFPSCounter();
     void drawFPSCounter(SkCanvas&);
+#if ENABLE(DAMAGE_TRACKING)
+    void drawSkiaDamage(SkCanvas&, const std::optional<WebCore::Damage>&);
+#endif
 
     const Ref<WorkQueue> m_workQueue;
     CheckedPtr<LayerTreeHost> m_layerTreeHost;
@@ -181,6 +184,10 @@ private:
     struct {
         std::optional<OptionSet<DamagePropagationFlags>> flags;
         std::unique_ptr<WebCore::TextureMapperDamageVisualizer> visualizer;
+
+        bool showSkiaDamage { false };
+        unsigned skiaDamageMargin { 0 };
+
         std::atomic<bool> shouldNotifyFrameDamageForTesting { false };
     } m_damage;
 #endif
