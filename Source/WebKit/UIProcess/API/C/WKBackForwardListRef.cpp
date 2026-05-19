@@ -65,12 +65,14 @@ void WKBackForwardListClear(WKBackForwardListRef listRef)
 
 unsigned WKBackForwardListGetBackListCount(WKBackForwardListRef listRef)
 {
-    return toImpl(listRef)->backListCount();
+    RefPtr impl = toImpl(listRef);
+    return impl->backListCountForAPI();
 }
 
 unsigned WKBackForwardListGetForwardListCount(WKBackForwardListRef listRef)
 {
-    return toImpl(listRef)->forwardListCount();
+    RefPtr impl = toImpl(listRef);
+    return impl->forwardListCountForAPI();
 }
 
 WKArrayRef WKBackForwardListCopyBackListWithLimit(WKBackForwardListRef listRef, unsigned limit)

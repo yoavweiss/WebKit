@@ -333,46 +333,82 @@ std::pair<RefPtr<WebBackForwardListItem>, size_t> WebBackForwardList::itemAtInde
     return { { m_entries[index] }, index };
 }
 
-unsigned WebBackForwardList::backListCount() const
+unsigned WebBackForwardList::rawBackListEntryCount() const
 {
     ASSERT(!m_currentIndex || *m_currentIndex < m_entries.size());
 
     return m_page && m_currentIndex ? *m_currentIndex : 0;
 }
 
-unsigned WebBackForwardList::forwardListCount() const
+unsigned WebBackForwardList::rawForwardListEntryCount() const
 {
     ASSERT(!m_currentIndex || *m_currentIndex < m_entries.size());
 
     return m_page && m_currentIndex ? m_entries.size() - (*m_currentIndex + 1) : 0;
 }
 
-WebBackForwardListCounts WebBackForwardList::counts() const
+unsigned WebBackForwardList::backListCountForAPI() const
 {
-    return WebBackForwardListCounts { backListCount(), forwardListCount() };
+    auto listInfo = backListWithLimitInternal(rawBackListEntryCount(), MakeAPIArray::No);
+    return listInfo.first;
+}
+
+unsigned WebBackForwardList::forwardListCountForAPI() const
+{
+    auto listInfo = forwardListWithLimitInternal(rawForwardListEntryCount(), MakeAPIArray::No);
+    return listInfo.first;
+}
+
+WebBackForwardListCounts WebBackForwardList::rawCounts() const
+{
+    return WebBackForwardListCounts { rawBackListEntryCount(), rawForwardListEntryCount() };
 }
 
 Ref<API::Array> WebBackForwardList::backList() const
 {
-    return backListAsAPIArrayWithLimit(backListCount());
+    return backListAsAPIArrayWithLimit(rawBackListEntryCount());
 }
 
 Ref<API::Array> WebBackForwardList::forwardList() const
 {
-    return forwardListAsAPIArrayWithLimit(forwardListCount());
+    return forwardListAsAPIArrayWithLimit(rawForwardListEntryCount());
 }
 
 Ref<API::Array> WebBackForwardList::backListAsAPIArrayWithLimit(unsigned limit) const
 {
+    auto listInfo = backListWithLimitInternal(limit, MakeAPIArray::Yes);
+    RELEASE_ASSERT(listInfo.second);
+    return listInfo.second.releaseNonNull();
+}
+
+Ref<API::Array> WebBackForwardList::forwardListAsAPIArrayWithLimit(unsigned limit) const
+{
+    auto listInfo = forwardListWithLimitInternal(limit, MakeAPIArray::Yes);
+    RELEASE_ASSERT(listInfo.second);
+    return listInfo.second.releaseNonNull();
+}
+
+static std::pair<unsigned, RefPtr<API::Array>> makeListPairResult(Vector<RefPtr<API::Object>>&& vector, WebBackForwardList::MakeAPIArray makeAPIArray)
+{
+    std::pair<unsigned, RefPtr<API::Array>> result;
+    result.first = vector.size();
+    if (makeAPIArray == WebBackForwardList::MakeAPIArray::Yes)
+        result.second = vector.size() ? API::Array::create(WTF::move(vector)) : API::Array::create();
+
+    return result;
+}
+
+std::pair<unsigned, RefPtr<API::Array>> WebBackForwardList::backListWithLimitInternal(unsigned limit, MakeAPIArray makeAPIArray) const
+{
     ASSERT(!m_currentIndex || *m_currentIndex < m_entries.size());
 
     if (!m_page || !m_currentIndex)
-        return API::Array::create();
+        return makeListPairResult({ }, makeAPIArray);
 
-    unsigned backListSize = static_cast<unsigned>(backListCount());
+    unsigned backListSize = rawBackListEntryCount();
     unsigned size = std::min(backListSize, limit);
     if (!size)
-        return API::Array::create();
+        return makeListPairResult({ }, makeAPIArray);
 
     ASSERT(backListSize >= size);
 
@@ -380,18 +416,18 @@ Ref<API::Array> WebBackForwardList::backListAsAPIArrayWithLimit(unsigned limit) 
         Vector<RefPtr<API::Object>> vector;
 
         size_t nextStartingIndex = *m_currentIndex;
-        while (backListSize) {
+        while (size) {
             auto item = itemStartingAtIndexSkippingItemsAddedByJSWithoutUserGesture(NavigationDirection::Backward, nextStartingIndex);
             if (item.first)
                 vector.append(item.first);
 
-            if (!item.first || !--backListSize || !item.second)
+            if (!item.first || !--size || !item.second)
                 break;
             nextStartingIndex = item.second;
         }
         vector.reverse();
 
-        return API::Array::create(WTF::move(vector));
+        return makeListPairResult(WTF::move(vector), makeAPIArray);
     }
 
     size_t startIndex = backListSize - size;
@@ -401,19 +437,19 @@ Ref<API::Array> WebBackForwardList::backListAsAPIArrayWithLimit(unsigned limit) 
         SUPPRESS_UNCOUNTED_LAMBDA_CAPTURE return m_entries[startIndex + i].ptr();
     });
 
-    return API::Array::create(WTF::move(vector));
+    return makeListPairResult(WTF::move(vector), makeAPIArray);
 }
 
-Ref<API::Array> WebBackForwardList::forwardListAsAPIArrayWithLimit(unsigned limit) const
+std::pair<unsigned, RefPtr<API::Array>> WebBackForwardList::forwardListWithLimitInternal(unsigned limit, MakeAPIArray makeAPIArray) const
 {
     ASSERT(!m_currentIndex || *m_currentIndex < m_entries.size());
 
     if (!m_page || !m_currentIndex)
-        return API::Array::create();
+        return makeListPairResult({ }, makeAPIArray);
 
-    unsigned size = std::min(static_cast<unsigned>(forwardListCount()), limit);
+    unsigned size = std::min(rawForwardListEntryCount(), limit);
     if (!size)
-        return API::Array::create();
+        return makeListPairResult({ }, makeAPIArray);
 
     if (shouldSkipItemsWithoutUserGestureForWebKitAPI()) {
         Vector<RefPtr<API::Object>> vector;
@@ -429,7 +465,7 @@ Ref<API::Array> WebBackForwardList::forwardListAsAPIArrayWithLimit(unsigned limi
             nextStartingIndex = item.second;
         }
 
-        return API::Array::create(WTF::move(vector));
+        return makeListPairResult(WTF::move(vector), makeAPIArray);
     }
 
     size_t startIndex = *m_currentIndex + 1;
@@ -437,7 +473,7 @@ Ref<API::Array> WebBackForwardList::forwardListAsAPIArrayWithLimit(unsigned limi
         return m_entries[startIndex + i].ptr();
     });
 
-    return API::Array::create(WTF::move(vector));
+    return makeListPairResult(WTF::move(vector), makeAPIArray);
 }
 
 void WebBackForwardList::removeAllItems()
@@ -816,7 +852,7 @@ void WebBackForwardList::backForwardGoToItem(BackForwardItemIdentifier itemID, C
     // Any real new load in the committed process would have cleared m_provisionalPage.
     if (RefPtr webPageProxy = m_page.get()) {
         if (webPageProxy->hasProvisionalPage())
-            return completionHandler(counts());
+            return completionHandler(rawCounts());
     }
 
     backForwardGoToItemShared(itemID, WTF::move(completionHandler));
@@ -830,14 +866,14 @@ void WebBackForwardList::backForwardListContainsItem(WebCore::BackForwardItemIde
 void WebBackForwardList::backForwardGoToItemShared(BackForwardItemIdentifier itemID, CompletionHandler<void(const WebBackForwardListCounts&)>&& completionHandler)
 {
     if (RefPtr webPageProxy = m_page.get())
-        MESSAGE_CHECK_COMPLETION(Ref { webPageProxy->legacyMainFrameProcess() }, !WebKit::isInspectorPage(*webPageProxy), completionHandler(counts()));
+        MESSAGE_CHECK_COMPLETION(Ref { webPageProxy->legacyMainFrameProcess() }, !WebKit::isInspectorPage(*webPageProxy), completionHandler(rawCounts()));
 
     RefPtr item = itemForID(itemID);
     if (!item)
-        return completionHandler(counts());
+        return completionHandler(rawCounts());
 
     goToItem(*item);
-    completionHandler(counts());
+    completionHandler(rawCounts());
 }
 
 void WebBackForwardList::backForwardAllItems(FrameIdentifier frameID, CompletionHandler<void(Vector<Ref<FrameState>>&&)>&& completionHandler)
@@ -864,7 +900,7 @@ void WebBackForwardList::backForwardItemAtIndexForWebContent(int32_t delta, Fram
 
 void WebBackForwardList::backForwardListCounts(CompletionHandler<void(WebBackForwardListCounts&&)>&& completionHandler)
 {
-    completionHandler(counts());
+    completionHandler(rawCounts());
 }
 
 FrameState* WebBackForwardList::findFrameStateInItem(WebCore::BackForwardItemIdentifier itemID, WebCore::FrameIdentifier parentFrameID, uint64_t childFrameIndex)
@@ -936,24 +972,24 @@ RefPtr<WebBackForwardListItem> WebBackForwardListWrapper::itemAtDeltaFromCurrent
     return m_impl->itemAtDeltaFromCurrentIndex(index, allowSkipping == AllowSkippingBackForwardItems::Yes ? true : false);
 }
 
-unsigned WebBackForwardListWrapper::backListCount() const
+unsigned WebBackForwardListWrapper::backListCountForAPI() const
 {
-    return m_impl->backListCount();
+    return m_impl->backListCountForAPI();
 }
 
-unsigned WebBackForwardListWrapper::forwardListCount() const
+unsigned WebBackForwardListWrapper::forwardListCountForAPI() const
 {
-    return m_impl->forwardListCount();
+    return m_impl->forwardListCountForAPI();
 }
 
 Ref<API::Array> WebBackForwardListWrapper::backList() const
 {
-    return backListAsAPIArrayWithLimit(backListCount());
+    return backListAsAPIArrayWithLimit(backListCountForAPI());
 }
 
 Ref<API::Array> WebBackForwardListWrapper::forwardList() const
 {
-    return forwardListAsAPIArrayWithLimit(forwardListCount());
+    return forwardListAsAPIArrayWithLimit(forwardListCountForAPI());
 }
 
 Ref<API::Array> WebBackForwardListWrapper::backListAsAPIArrayWithLimit(unsigned limit) const

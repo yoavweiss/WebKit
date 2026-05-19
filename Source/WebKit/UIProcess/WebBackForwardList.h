@@ -80,8 +80,8 @@ public:
 
     RefPtr<WebBackForwardListItem> goBackItemSkippingItemsWithoutUserGesture() const;
     RefPtr<WebBackForwardListItem> goForwardItemSkippingItemsWithoutUserGesture() const;
-    unsigned NODELETE backListCount() const;
-    unsigned NODELETE forwardListCount() const;
+    unsigned backListCountForAPI() const;
+    unsigned forwardListCountForAPI() const;
 
     Ref<API::Array> backList() const;
     Ref<API::Array> forwardList() const;
@@ -106,6 +106,8 @@ public:
 
     String loggingString() const;
 
+    enum class MakeAPIArray : bool { No, Yes };
+
 private:
     explicit WebBackForwardList(WebPageProxy&);
 
@@ -113,11 +115,17 @@ private:
     std::pair<RefPtr<WebBackForwardListItem>, size_t> itemStartingAtIndexSkippingItemsAddedByJSWithoutUserGesture(NavigationDirection, size_t startingIndex) const;
     std::pair<RefPtr<WebBackForwardListItem>, size_t> itemAtIndexWithoutSkipping(size_t) const;
 
+    std::pair<unsigned, RefPtr<API::Array>> backListWithLimitInternal(unsigned limit, MakeAPIArray) const;
+    std::pair<unsigned, RefPtr<API::Array>> forwardListWithLimitInternal(unsigned limit, MakeAPIArray) const;
+
+    unsigned NODELETE rawBackListEntryCount() const;
+    unsigned NODELETE rawForwardListEntryCount() const;
+
     void addItem(Ref<WebBackForwardListItem>&&);
     void addChildItem(WebCore::FrameIdentifier, Ref<FrameState>&&);
     void didRemoveItem(WebBackForwardListItem&);
     const BackForwardListItemVector& entries() const LIFETIME_BOUND { return m_entries; }
-    WebBackForwardListCounts NODELETE counts() const;
+    WebBackForwardListCounts NODELETE rawCounts() const;
     Ref<FrameState> completeFrameStateForNavigation(Ref<FrameState>&&);
 
     // IPC messages
@@ -169,8 +177,8 @@ public:
     Ref<API::Array> backList() const;
     Ref<API::Array> forwardList() const;
 
-    unsigned backListCount() const;
-    unsigned forwardListCount() const;
+    unsigned backListCountForAPI() const;
+    unsigned forwardListCountForAPI() const;
 
     Ref<API::Array> backListAsAPIArrayWithLimit(unsigned limit) const;
     Ref<API::Array> forwardListAsAPIArrayWithLimit(unsigned limit) const;

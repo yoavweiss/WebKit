@@ -33,11 +33,15 @@
 #import "Helpers/cocoa/TestUIDelegate.h"
 #import "Helpers/cocoa/TestWKWebView.h"
 #import "TestURLSchemeHandler.h"
+#import <WebKit/WKArray.h>
 #import <WebKit/WKBackForwardListItemPrivate.h>
 #import <WebKit/WKBackForwardListPrivate.h>
+#import <WebKit/WKBackForwardListRef.h>
 #import <WebKit/WKNavigationDelegatePrivate.h>
 #import <WebKit/WKNavigationPrivate.h>
+#import <WebKit/WKPagePrivate.h>
 #import <WebKit/WKProcessPoolPrivate.h>
+#import <WebKit/WKRetainPtr.h>
 #import <WebKit/WKWebViewPrivate.h>
 #import <WebKit/WKWebViewPrivateForTesting.h>
 #import <WebKit/_WKFrameTreeNode.h>
@@ -532,6 +536,23 @@ struct SkipItemsBackForwardListFixture {
     RetainPtr<NSURL> url3;
 };
 
+@interface WKWebView (WKBackForwardListTestingPrivate)
+- (WKPageRef)_pageForTesting;
+@end
+
+static void verifyBackForwardListCountsMatchArraySizes(WKWebView *webView)
+{
+    WKBackForwardListRef list = WKPageGetBackForwardList([webView _pageForTesting]);
+
+    unsigned forwardCount = WKBackForwardListGetForwardListCount(list);
+    auto forwardArray = adoptWK(WKBackForwardListCopyForwardListWithLimit(list, forwardCount));
+    EXPECT_EQ(static_cast<size_t>(forwardCount), WKArrayGetSize(forwardArray.get()));
+
+    unsigned backCount = WKBackForwardListGetBackListCount(list);
+    auto backArray = adoptWK(WKBackForwardListCopyBackListWithLimit(list, backCount));
+    EXPECT_EQ(static_cast<size_t>(backCount), WKArrayGetSize(backArray.get()));
+}
+
 // Builds the back/forward list:
 // url1 -> url2 -> url2#a (no user gesture) -> url2#b (no user gesture) -> url2#c (no user gesture) -> url3 **
 static SkipItemsBackForwardListFixture setupBackForwardListWithItemsWithoutUserGesture(NOESCAPE Function<void(WKWebView *, ASCIILiteral destination)>&& navigate)
@@ -609,6 +630,7 @@ static SkipItemsBackForwardListFixture setupBackForwardListWithItemsWithoutUserG
 
     EXPECT_EQ([webView backForwardList].backList.count, 2U);
     EXPECT_EQ([webView backForwardList].forwardList.count, 0U);
+    verifyBackForwardListCountsMatchArraySizes(webView.get());
 
     SkipItemsBackForwardListFixture fixture;
     fixture.webView = WTF::move(webView);
@@ -631,6 +653,7 @@ static void runBackForwardNavigationSkipsItemsWithoutUserGestureCheck(const Skip
     EXPECT_STREQ([fixture.webView URL].absoluteString.UTF8String, expectedURLString.get().UTF8String);
     EXPECT_EQ([fixture.webView backForwardList].backList.count, 1U);
     EXPECT_EQ([fixture.webView backForwardList].forwardList.count, 1U);
+    verifyBackForwardListCountsMatchArraySizes(fixture.webView.get());
 
     // Let's go back again.
     [fixture.webView goBack];
@@ -641,6 +664,7 @@ static void runBackForwardNavigationSkipsItemsWithoutUserGestureCheck(const Skip
     EXPECT_STREQ([fixture.webView URL].absoluteString.UTF8String, [fixture.url1 absoluteString].UTF8String);
     EXPECT_EQ([fixture.webView backForwardList].backList.count, 0U);
     EXPECT_EQ([fixture.webView backForwardList].forwardList.count, 2U);
+    verifyBackForwardListCountsMatchArraySizes(fixture.webView.get());
 
     // Now let's go forward.
     [fixture.webView goForward];
@@ -652,6 +676,7 @@ static void runBackForwardNavigationSkipsItemsWithoutUserGestureCheck(const Skip
     EXPECT_STREQ([fixture.webView URL].absoluteString.UTF8String, expectedURLString.get().UTF8String);
     EXPECT_EQ([fixture.webView backForwardList].backList.count, 1U);
     EXPECT_EQ([fixture.webView backForwardList].forwardList.count, 1U);
+    verifyBackForwardListCountsMatchArraySizes(fixture.webView.get());
 
     // Let's go forward again.
     [fixture.webView goForward];
@@ -662,6 +687,7 @@ static void runBackForwardNavigationSkipsItemsWithoutUserGestureCheck(const Skip
 
     EXPECT_EQ([fixture.webView backForwardList].backList.count, 2U);
     EXPECT_EQ([fixture.webView backForwardList].forwardList.count, 0U);
+    verifyBackForwardListCountsMatchArraySizes(fixture.webView.get());
 }
 
 // Phase 2 check: mutating — leaves state on url2#b. Must run after the Phase 1 check.
@@ -675,6 +701,7 @@ static void runJSHistoryBackDoesNotSkipItemsWithoutUserGestureCheck(const SkipIt
     EXPECT_STREQ([fixture.webView URL].absoluteString.UTF8String, expectedURLString.get().UTF8String);
     EXPECT_EQ([fixture.webView backForwardList].backList.count, 1U);
     EXPECT_EQ([fixture.webView backForwardList].forwardList.count, 1U);
+    verifyBackForwardListCountsMatchArraySizes(fixture.webView.get());
 
     [fixture.webView _evaluateJavaScriptWithoutUserGesture:@"history.back();" completionHandler:^(id, NSError *) { }];
     [fixture.navigationDelegate waitForDidFinishNavigationOrDidSameDocumentNavigation];
@@ -682,6 +709,7 @@ static void runJSHistoryBackDoesNotSkipItemsWithoutUserGestureCheck(const SkipIt
     EXPECT_STREQ([fixture.webView URL].absoluteString.UTF8String, expectedURLString.get().UTF8String);
     EXPECT_EQ([fixture.webView backForwardList].backList.count, 1U);
     EXPECT_EQ([fixture.webView backForwardList].forwardList.count, 1U);
+    verifyBackForwardListCountsMatchArraySizes(fixture.webView.get());
 }
 
 // Test fixtures: the back/forward list setup is built once per fixture (via SetUpTestSuite)
@@ -753,6 +781,37 @@ TEST_F(WKBackForwardListSkipItemsPushStateAfterEvaluateJSTest, BackForwardNaviga
 TEST_F(WKBackForwardListSkipItemsPushStateAfterEvaluateJSTest, JSHistoryBackDoesNotSkipItemsWithoutUserGesture)
 {
     runJSHistoryBackDoesNotSkipItemsWithoutUserGestureCheck(*s_fixture);
+}
+
+TEST(WKBackForwardList, BackForwardListAsAPIArrayWithLimitRespectsLimit)
+{
+    // bf list: url1 -> url2 -> url2#a (no UG) -> url2#b (no UG) -> url2#c (no UG) -> url3 **
+    // Raw back entry count is 5; the filter only exposes 2 items in the back list (url1, url2).
+    auto fixture = setupBackForwardListWithItemsWithoutUserGesture(pushStateNavigate);
+    EXPECT_EQ([fixture.webView backForwardList].backList.count, 2U);
+
+    WKBackForwardListRef list = WKPageGetBackForwardList([fixture.webView _pageForTesting]);
+
+    // Limit must cap the array; once limit exceeds the visible count, the visible count is the cap.
+    EXPECT_EQ(0u, WKArrayGetSize(adoptWK(WKBackForwardListCopyBackListWithLimit(list, 0)).get()));
+    EXPECT_EQ(1u, WKArrayGetSize(adoptWK(WKBackForwardListCopyBackListWithLimit(list, 1)).get()));
+    EXPECT_EQ(2u, WKArrayGetSize(adoptWK(WKBackForwardListCopyBackListWithLimit(list, 2)).get()));
+    EXPECT_EQ(2u, WKArrayGetSize(adoptWK(WKBackForwardListCopyBackListWithLimit(list, 3)).get()));
+    EXPECT_EQ(2u, WKArrayGetSize(adoptWK(WKBackForwardListCopyBackListWithLimit(list, 100)).get()));
+
+    // Navigate to url1 so the visible items are in the forward list:
+    [fixture.webView goBack];
+    [fixture.navigationDelegate waitForDidFinishNavigationOrDidSameDocumentNavigation];
+    [fixture.webView goBack];
+    [fixture.navigationDelegate waitForDidFinishNavigationOrDidSameDocumentNavigation];
+    EXPECT_STREQ([fixture.webView URL].absoluteString.UTF8String, [fixture.url1 absoluteString].UTF8String);
+    EXPECT_EQ([fixture.webView backForwardList].forwardList.count, 2U);
+
+    EXPECT_EQ(0u, WKArrayGetSize(adoptWK(WKBackForwardListCopyForwardListWithLimit(list, 0)).get()));
+    EXPECT_EQ(1u, WKArrayGetSize(adoptWK(WKBackForwardListCopyForwardListWithLimit(list, 1)).get()));
+    EXPECT_EQ(2u, WKArrayGetSize(adoptWK(WKBackForwardListCopyForwardListWithLimit(list, 2)).get()));
+    EXPECT_EQ(2u, WKArrayGetSize(adoptWK(WKBackForwardListCopyForwardListWithLimit(list, 3)).get()));
+    EXPECT_EQ(2u, WKArrayGetSize(adoptWK(WKBackForwardListCopyForwardListWithLimit(list, 100)).get()));
 }
 
 TEST(WKBackForwardList, BackForwardNavigationSkipsItemsWithoutUserGestureSubframe)

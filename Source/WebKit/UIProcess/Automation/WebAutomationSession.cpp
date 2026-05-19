@@ -941,12 +941,12 @@ void WebAutomationSession::traverseHistoryInBrowsingContext(const Inspector::Pro
 
 #if ENABLE(BACK_FORWARD_LIST_SWIFT)
     WebBackForwardListWrapper& backForwardList = page->backForwardListWrapper();
-    unsigned backCount = backForwardList.backListCount();
-    unsigned forwardCount = backForwardList.forwardListCount();
+    unsigned backCount = backForwardList.backListCountForAPI();
+    unsigned forwardCount = backForwardList.forwardListCountForAPI();
 #else
     Ref backForwardList = page->backForwardListWrapper();
-    unsigned backCount = backForwardList->backListCount();
-    unsigned forwardCount = backForwardList->forwardListCount();
+    unsigned backCount = backForwardList->backListCountForAPI();
+    unsigned forwardCount = backForwardList->forwardListCountForAPI();
 #endif
     int currentIndex = static_cast<int>(backCount);
     int targetIndex = currentIndex + delta;

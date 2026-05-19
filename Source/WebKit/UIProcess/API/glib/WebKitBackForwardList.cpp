@@ -229,7 +229,7 @@ guint webkit_back_forward_list_get_length(WebKitBackForwardList* backForwardList
 
     WebKitBackForwardListPrivate* priv = backForwardList->priv;
     guint currentItem = webkit_back_forward_list_get_current_item(backForwardList) ? 1 : 0;
-    return priv->backForwardItems->backListCount() + priv->backForwardItems->forwardListCount() + currentItem;
+    return priv->backForwardItems->backListCountForAPI() + priv->backForwardItems->forwardListCountForAPI() + currentItem;
 }
 
 /**
@@ -245,7 +245,7 @@ GList* webkit_back_forward_list_get_back_list(WebKitBackForwardList* backForward
 {
     g_return_val_if_fail(WEBKIT_IS_BACK_FORWARD_LIST(backForwardList), 0);
 
-    return webkit_back_forward_list_get_back_list_with_limit(backForwardList, backForwardList->priv->backForwardItems->backListCount());
+    return webkit_back_forward_list_get_back_list_with_limit(backForwardList, backForwardList->priv->backForwardItems->backListCountForAPI());
 }
 
 /**
@@ -280,7 +280,7 @@ GList* webkit_back_forward_list_get_forward_list(WebKitBackForwardList* backForw
 {
     g_return_val_if_fail(WEBKIT_IS_BACK_FORWARD_LIST(backForwardList), 0);
 
-    return webkit_back_forward_list_get_forward_list_with_limit(backForwardList, backForwardList->priv->backForwardItems->forwardListCount());
+    return webkit_back_forward_list_get_forward_list_with_limit(backForwardList, backForwardList->priv->backForwardItems->forwardListCountForAPI());
 }
 
 /**
