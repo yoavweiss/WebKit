@@ -1645,8 +1645,6 @@ webkit.org/b/221100 imported/w3c/web-platform-tests/webaudio/the-audio-api/the-a
 
 webkit.org/b/222205 css3/calc/transforms-translate.html [ Pass ImageOnlyFailure ]
 
-webkit.org/b/314792 imported/w3c/web-platform-tests/media-source/mediasource-duration.html [ Pass Failure ]
-
 webkit.org/b/222573 media/media-fullscreen-pause-inline.html [ Pass Failure ]
 
 webkit.org/b/222692 inspector/page/empty-or-missing-resources.html [ Pass Timeout ]

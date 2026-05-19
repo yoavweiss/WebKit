@@ -1191,7 +1191,10 @@ void HTMLMediaElement::pauseAfterDetachedTask()
     if (m_inActiveDocument)
         return;
 
-    if (m_videoFullscreenMode != VideoFullscreenModePictureInPicture && m_networkState > NETWORK_EMPTY && !m_wasInterruptedForInvisibleAutoplay)
+    // Don't pause during an in-flight seek: pause()'s spec-mandated 'timeupdate' would race
+    // with the seek's own seeking/timeupdate/seeked events, and listeners attached to the
+    // (now-detached) element by an active test still receive these events.
+    if (m_videoFullscreenMode != VideoFullscreenModePictureInPicture && m_networkState > NETWORK_EMPTY && !m_wasInterruptedForInvisibleAutoplay && !m_seeking)
         pause();
     if (m_videoFullscreenMode == VideoFullscreenModeStandard && !protect(document())->quirks().needsNowPlayingFullscreenSwapQuirk())
         exitFullscreen();
@@ -3936,6 +3939,14 @@ void HTMLMediaElement::seekWithTolerance(const SeekTarget& target, bool fromDOM)
     // 4 - Set the seeking IDL attribute to true.
     // The flag will be cleared when the engine tells us the time has actually changed.
     setSeeking(true);
+
+    // Drop any periodic timeupdate already on the task queue. For fromDOM=true seeks,
+    // seekTask runs asynchronously, so a periodic timeupdate queued by
+    // playbackProgressTimerFired just before setCurrentTime could otherwise dispatch
+    // ahead of 'seeking'. The m_seeking guard in scheduleTimeupdateEvent suppresses any
+    // periodic queued in the window between this point and seekTask running.
+    m_periodicTimeupdateCancellationGroup.cancel();
+
     if (m_playing) {
         if (m_lastSeekTime < now)
             addPlayedRange(m_lastSeekTime, now);
@@ -4041,13 +4052,6 @@ void HTMLMediaElement::seekTask()
     m_lastSeekTime = time;
     m_pendingSeekType = thisSeekType;
     setSeeking(true);
-
-    // Before scheduling the 'seeking' event, drop any queued periodic timeupdate
-    // task. Without this, a periodic timeupdate queued by playbackProgressTimerFired
-    // just before setCurrentTime could dispatch ahead of 'seeking', producing the
-    // spec-incorrect event ordering observed in mediasource-duration.html. The
-    // seek-completion timeupdate is queued separately by finishSeek and survives.
-    m_periodicTimeupdateCancellationGroup.cancel();
 
     // 10 - Queue a task to fire a simple event named seeking at the element.
     scheduleEvent(eventNames().seekingEvent);
@@ -5901,10 +5905,13 @@ void HTMLMediaElement::mediaPlayerTimeChanged()
     if (m_seekRequested && m_readyState >= HAVE_CURRENT_DATA && !protect(player())->seeking())
         finishSeek();
 
-    // Always call scheduleTimeupdateEvent when the media engine reports a time discontinuity,
-    // it will only queue a 'timeupdate' event if we haven't already posted one at the current
-    // movie time.
-    else
+    // Otherwise schedule a discontinuity 'timeupdate' (per the spec's timeupdate event
+    // definition: "the current playback position changed [...] in an especially
+    // interesting way, for example discontinuously"). Skip while m_seeking is true:
+    // the seek's own seeking/timeupdate/seeked events would race with this one, and
+    // m_seekRequested is still false in the gap before seekTask runs so the if-branch
+    // above can't catch it.
+    else if (!m_seeking)
         scheduleTimeupdateEvent(false);
 
 #if ENABLE(MEDIA_SOURCE)
