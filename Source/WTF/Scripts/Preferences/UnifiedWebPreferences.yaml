@@ -894,19 +894,6 @@ BlobFileAccessEnforcementEnabled:
       "PLATFORM(COCOA)": true
       default: false
 
-BlockIOKitInWebContentSandbox:
-  type: bool
-  status: internal
-  category: networking
-  humanReadableName: "IOKit blocking in the WebContent sandbox"
-  humanReadableDescription: "Block IOKit access in the WebContent sandbox"
-  webcoreBinding: none
-  condition: PLATFORM(COCOA)
-  exposed: [ WebKit ]
-  defaultValue:
-    WebKit:
-      default: true
-
 BlockMediaLayerRehostingInWebContentProcess:
   type: bool
   status: internal

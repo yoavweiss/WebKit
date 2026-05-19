@@ -760,7 +760,7 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
         sandbox_enable_state_flag("BlockUserInstalledFonts", *auditToken);
 #endif // PLATFORM(MAC)
 #endif // HAVE(SANDBOX_STATE_FLAGS)
-    auto shouldBlockIOKit = parameters.store.getBoolValueForKey(WebPreferencesKey::blockIOKitInWebContentSandboxKey())
+    auto shouldBlockIOKit = m_shouldRenderDOMInGPUProcess
 #if ENABLE(WEBGL)
         && m_shouldRenderWebGLInGPUProcess
 #if ENABLE(TILED_CA_DRAWING_AREA)
@@ -768,7 +768,6 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
 #endif
 #endif
         && m_shouldRenderCanvasInGPUProcess
-        && m_shouldRenderDOMInGPUProcess
         && m_shouldPlayMediaInGPUProcess;
 
     if (shouldBlockIOKit) {
