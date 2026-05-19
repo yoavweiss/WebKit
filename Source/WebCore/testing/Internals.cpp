@@ -2015,6 +2015,17 @@ bool Internals::isSupportingVP9HardwareDecoder() const
     return false;
 }
 
+bool Internals::isSupportingAV1HardwareDecoder() const
+{
+#if USE(LIBWEBRTC)
+    if (auto* page = contextDocument()->page()) {
+        auto& rtcProvider = downcast<LibWebRTCProvider>(page->webRTCProvider());
+        return rtcProvider.isSupportingAV1HardwareDecoder();
+    }
+#endif
+    return false;
+}
+
 void Internals::isVP9HardwareDecoderUsed(RTCPeerConnection& connection, DOMPromiseDeferred<IDLBoolean>&& promise)
 {
     connection.gatherDecoderImplementationName([promise = WTF::move(promise)](auto&& name) mutable {

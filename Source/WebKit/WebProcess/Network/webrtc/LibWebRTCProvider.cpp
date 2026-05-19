@@ -100,6 +100,11 @@ void LibWebRTCProvider::setVP9HardwareSupportForTesting(std::optional<bool> valu
 {
     WebProcess::singleton().libWebRTCCodecs().setVP9HardwareSupportForTesting(value);
 }
+
+bool LibWebRTCProvider::isSupportingAV1HardwareDecoder() const
+{
+    return WebProcess::singleton().libWebRTCCodecs().hasAV1HardwareDecoder();
+}
 #endif
 
 class RTCSocketFactory final : public LibWebRTCProvider::SuspendableSocketFactory {

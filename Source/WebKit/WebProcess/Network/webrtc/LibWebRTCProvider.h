@@ -81,7 +81,9 @@ private:
 #if PLATFORM(COCOA) && USE(LIBWEBRTC)
     bool isSupportingVP9HardwareDecoder() const final;
     void setVP9HardwareSupportForTesting(std::optional<bool>) final;
+    bool isSupportingAV1HardwareDecoder() const final;
 #endif
+
     void disableNonLocalhostConnections() final;
     void startedNetworkThread() final;
     RefPtr<WebCore::RTCDataChannelRemoteHandlerConnection> createRTCDataChannelRemoteHandlerConnection() final;

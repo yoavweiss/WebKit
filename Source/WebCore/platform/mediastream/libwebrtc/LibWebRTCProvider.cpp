@@ -587,10 +587,8 @@ std::optional<PlatformMediaCapabilitiesDecodingInfo> LibWebRTCProvider::videoDec
         info.powerEfficient = info.smooth = true;
     else if (equalLettersIgnoringASCIICase(containerType, "video/h265"_s))
         info.powerEfficient = info.smooth = true;
-    else if (equalLettersIgnoringASCIICase(containerType, "video/av1"_s)) {
-        // FIXME: Set value to true if AV1 is only enabled when HW decoder support is enabled.
-        info.powerEfficient = false;
-    }
+    else if (equalLettersIgnoringASCIICase(containerType, "video/av1"_s))
+        info.powerEfficient = info.smooth = isSupportingAV1HardwareDecoder();
 
     info.supported = true;
     return { info };
