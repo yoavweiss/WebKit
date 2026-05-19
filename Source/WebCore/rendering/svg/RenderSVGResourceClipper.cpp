@@ -33,6 +33,7 @@
 #include "ReferencedSVGResources.h"
 #include "RenderLayerInlines.h"
 #include "RenderSVGResourceClipperInlines.h"
+#include "RenderSVGShape.h"
 #include "RenderSVGText.h"
 #include "RenderStyle.h"
 #include "RenderView.h"
@@ -111,6 +112,12 @@ void RenderSVGResourceClipper::applyPathClipping(GraphicsContext& context, const
 
     const auto& clipPath = clipRenderer.computeClipPath(clipPathTransform);
     auto windRule = clipRenderer.style().clipRule();
+
+    if (auto* shape = dynamicDowncast<RenderSVGShape>(targetRenderer); shape && shape->shapeType() == RenderSVGShape::ShapeType::Rectangle) {
+        // When clipping a rect with a path, if we know the path is entirely inside the rect, we can skip a clip when filling the rect.
+        auto clipBounds = clipPathTransform.mapRect(clipPath.fastBoundingRect());
+        shape->setFillRequiresClip(!objectBoundingBox.contains(clipBounds));
+    }
 
     // The SVG specification wants us to clip everything, if clip-path doesn't have a child.
     if (clipPath.isEmpty())

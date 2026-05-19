@@ -88,6 +88,9 @@ public:
 
     ShapeType shapeType() const { return m_shapeType; }
 
+    bool fillRequiresClip() const { return m_fillRequiresClip; }
+    void setFillRequiresClip(bool fillRequiresClip) const { m_fillRequiresClip = fillRequiresClip; }
+
     FloatRect objectBoundingBox() const final { return m_fillBoundingBox; }
     FloatRect strokeBoundingBox() const final;
     FloatRect approximateStrokeBoundingBox() const;
@@ -152,6 +155,7 @@ protected:
     mutable Markable<FloatRect> m_approximateStrokeBoundingBox;
 private:
     bool m_needsShapeUpdate { true };
+    mutable bool m_fillRequiresClip : 1 { true };
 protected:
     ShapeType m_shapeType : 3 { ShapeType::Empty };
 private:
