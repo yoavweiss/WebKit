@@ -2268,6 +2268,8 @@ webkit.org/b/308165 [ Debug ] scrollingcoordinator/mac/latching/simple-page-rubb
 
 webkit.org/b/311759 [ Release arm64 ] imported/w3c/web-platform-tests/event-timing/keydown.html [ Pass Failure ]
 
+webkit.org/b/315060 imported/w3c/web-platform-tests/dom/events/Event-timestamp-high-resolution.https.html [ Pass Failure ]
+
 webkit.org/b/308325 [ Debug ] http/wpt/cache-storage/cache-in-stopped-context.html [ Pass Failure ]
 
 webkit.org/b/309173 imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/module/modulepreload-referrerpolicy.html [ Pass Failure ]
