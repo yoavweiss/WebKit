@@ -283,4 +283,10 @@ void WebRemoteFrameClient::findFocusableElementContinuingFromFrame(WebCore::Focu
     m_frame->send(Messages::WebFrameProxy::FindFocusableElementContinuingFromFrame(direction, frameID, focusEventData, shouldFocusElement));
 }
 
+void WebRemoteFrameClient::dispatchCrossOriginBeforeUnloadCheck(const WebCore::SecurityOriginData& navigatingFrameOrigin)
+{
+    if (RefPtr page = m_frame->page())
+        page->send(Messages::WebPageProxy::DispatchCrossOriginBeforeUnloadCheckForFrame(m_frame->frameID(), navigatingFrameOrigin));
+}
+
 }

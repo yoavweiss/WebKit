@@ -308,6 +308,7 @@ messages -> WebPage WantsAsyncDispatchMessage {
 
     Close()
     TryClose() -> (bool shouldClose)
+    DispatchCrossOriginBeforeUnloadCheckForFrame(WebCore::FrameIdentifier frameID, WebCore::SecurityOriginData navigatingFrameOrigin)
 
     SetEditable(bool editable)
     ValidateCommand(String name) -> (bool isEnabled, int32_t state)
