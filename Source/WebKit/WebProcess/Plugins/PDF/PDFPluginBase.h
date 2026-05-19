@@ -479,6 +479,7 @@ protected:
     std::optional<WebCore::PageIdentifier> NODELETE pageIdentifier() const;
 
     WebCore::Color pluginBackgroundColor() const;
+    void updateFullFramePluginBackgroundColor();
 
     SingleThreadWeakPtr<PluginView> m_view;
     WeakPtr<WebFrame> m_frame;

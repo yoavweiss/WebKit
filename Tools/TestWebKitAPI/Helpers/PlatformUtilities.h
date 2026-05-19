@@ -109,6 +109,15 @@ static inline ::testing::AssertionResult assertWKStringEqual(const char* expecte
 #define EXPECT_WK_STREQ(expected, actual) \
     EXPECT_PRED_FORMAT2(TestWebKitAPI::Util::assertWKStringEqual, expected, actual)
 
+template<typename T, typename U>
+static inline ::testing::AssertionResult assertWKStringNotEqual(const char* expected_expression, const char* actual_expression, T expected, U actual)
+{
+    return ::testing::internal::CmpHelperSTRNE(expected_expression, actual_expression, Util::toSTD(expected).c_str(), Util::toSTD(actual).c_str());
+}
+
+#define EXPECT_WK_STRNE(expected, actual) \
+    EXPECT_PRED_FORMAT2(TestWebKitAPI::Util::assertWKStringNotEqual, expected, actual)
+
 #endif // !PLATFORM(COCOA) || !__has_feature(modules)
 
 #if PLATFORM(MAC)

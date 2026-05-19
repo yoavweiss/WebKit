@@ -140,10 +140,7 @@ PDFPluginBase::PDFPluginBase(HTMLPlugInElement& element)
     , m_incrementalPDFLoadingEnabled(element.document().settings().incrementalPDFLoadingEnabled())
 #endif
 {
-    if (isFullFramePlugin()) {
-        Ref document = element.document();
-        RefPtr { document->bodyOrFrameset() }->setInlineStyleProperty(CSSPropertyBackgroundColor, serializationForHTML(pluginBackgroundColor()));
-    }
+    updateFullFramePluginBackgroundColor();
 }
 
 PDFPluginBase::~PDFPluginBase()
@@ -1646,6 +1643,20 @@ Color PDFPluginBase::pluginBackgroundColor() const
     static NeverDestroyed color = roundAndClampToSRGBALossy(RetainPtr { [CocoaColor grayColor].CGColor }.get());
     return color.get();
 #endif
+}
+
+void PDFPluginBase::updateFullFramePluginBackgroundColor()
+{
+    if (!isFullFramePlugin())
+        return;
+
+    RefPtr element = m_element.get();
+    if (!element)
+        return;
+
+    Ref document = element->document();
+    if (RefPtr body = document->bodyOrFrameset())
+        body->setInlineStyleProperty(CSSPropertyBackgroundColor, serializationForHTML(pluginBackgroundColor()));
 }
 
 unsigned PDFPluginBase::countFindMatches(const String& target, WebCore::FindOptions options, unsigned maxMatchCount)

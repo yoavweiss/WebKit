@@ -1568,6 +1568,30 @@ UNIFIED_PDF_TEST(EmbeddedPDFScrollbarDoesNotAdaptToDarkMode)
     EXPECT_FALSE([pluginNode containsString:@"uses dark appearance for scrollbars"]);
 }
 
+UNIFIED_PDF_TEST(BackgroundColorAdaptsToAppearance)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 600, 600) configuration:configurationForWebViewTestingUnifiedPDF().get() addToWindow:YES]);
+    [webView synchronouslyLoadRequest:[NSURLRequest requestWithURL:[NSBundle.test_resourcesBundle URLForResource:@"test" withExtension:@"pdf"]]];
+
+    [webView forceLightMode];
+    [webView waitForNextPresentationUpdate];
+
+    RetainPtr lightColor = [webView stringByEvaluatingJavaScript:@"document.body.style.backgroundColor"];
+
+    [webView forceDarkMode];
+    [webView waitForNextPresentationUpdate];
+
+    RetainPtr darkColor = [webView stringByEvaluatingJavaScript:@"document.body.style.backgroundColor"];
+
+    EXPECT_GT([lightColor length], 0u);
+    EXPECT_GT([darkColor length], 0u);
+#if HAVE(LIQUID_GLASS)
+    EXPECT_WK_STRNE(lightColor.get(), darkColor.get());
+#else
+    EXPECT_WK_STREQ(lightColor.get(), darkColor.get());
+#endif
+}
+
 } // namespace TestWebKitAPI
 
 #endif // ENABLE(UNIFIED_PDF)

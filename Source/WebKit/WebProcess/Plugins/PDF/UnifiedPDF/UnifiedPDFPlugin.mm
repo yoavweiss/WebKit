@@ -4946,6 +4946,7 @@ void UnifiedPDFPlugin::effectiveAppearanceDidChange()
     if (RefPtr rootLayer = m_rootLayer)
         rootLayer->setBackgroundColor(pluginBackgroundColor());
 
+    updateFullFramePluginBackgroundColor();
     updateScrollbarOverlayStyle();
 }
 
