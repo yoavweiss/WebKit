@@ -1737,4 +1737,26 @@ TEST(TextExtractionTests, InteractedElementBounds)
     }
 }
 
+#if PLATFORM(MAC)
+TEST(TextExtractionTests, KeyPressInsertsCharactersInOrder)
+{
+    // Regression test for https://bugs.webkit.org/show_bug.cgi?id=315027.
+    RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    [[configuration preferences] _setTextExtractionEnabled:YES];
+
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 400) configuration:configuration.get()]);
+    [webView synchronouslyLoadHTMLString:@"<input type='text' id='q'>"];
+    [webView stringByEvaluatingJavaScript:@"document.getElementById('q').focus()"];
+
+    for (NSString *character in @[ @"a", @"b", @"c" ]) {
+        RetainPtr interaction = adoptNS([[_WKTextExtractionInteraction alloc] initWithAction:_WKTextExtractionActionKeyPress]);
+        [interaction setText:character];
+        RetainPtr result = [webView synchronouslyPerformInteraction:interaction.get()];
+        EXPECT_NULL([result error]);
+    }
+
+    EXPECT_WK_STREQ("abc", [webView stringByEvaluatingJavaScript:@"document.getElementById('q').value"]);
+}
+#endif // PLATFORM(MAC)
+
 } // namespace TestWebKitAPI
