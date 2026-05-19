@@ -2110,6 +2110,7 @@ private:
                         Edge(inputPromise.node(), KnownCellUse),
                         Edge(handlerEdge.node(), KnownCellUse),
                         Edge(resultPromise.node(), KnownCellUse));
+                    m_insertionSet.insertNode(indexInBlock, SpecNone, ExitOK, node->origin);
                     node->remove(m_graph);
                     changed = true;
                 }
