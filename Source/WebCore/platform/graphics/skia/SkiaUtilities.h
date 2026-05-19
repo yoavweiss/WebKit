@@ -85,10 +85,6 @@ std::unique_ptr<GLFence> flushAndSubmitImageWithFence(GrDirectContext*, const sk
 // supported or creation fails, and returns nullptr.
 std::unique_ptr<GLFence> flushAndSubmitWithFence(GrDirectContext*);
 
-// Paint image into surface at given rectangle using source over blend mode.
-// This is used to upload pixels to the GPU.
-void paintImageRectToSurface(sk_sp<SkSurface>&, const sk_sp<SkImage>&, const FloatRect&);
-
 SkBlendMode toSkiaBlendMode(BlendMode, std::optional<CompositeOperator> = std::nullopt);
 
 } // namespace SkiaUtilities
