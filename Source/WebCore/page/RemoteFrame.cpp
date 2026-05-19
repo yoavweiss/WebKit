@@ -208,6 +208,11 @@ std::optional<DocumentSecurityPolicy> RemoteFrame::frameDocumentSecurityPolicy()
     return frameTreeSyncData().frameDocumentSecurityPolicy;
 }
 
+bool RemoteFrame::frameDocumentIsSandboxedOrigin() const
+{
+    return frameTreeSyncData().frameDocumentIsSandboxedOrigin;
+}
+
 String RemoteFrame::frameURLProtocol() const
 {
     return frameTreeSyncData().frameURLProtocol;

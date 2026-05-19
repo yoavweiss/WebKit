@@ -8386,6 +8386,20 @@ void Document::inheritPolicyContainerFrom(const PolicyContainer& policyContainer
     SecurityContext::inheritPolicyContainerFrom(policyContainer);
 }
 
+void Document::enforceSandboxFlags(SandboxFlags flags, SandboxFlagsSource source)
+{
+    bool wasSandboxedOrigin = isSandboxed(SandboxFlag::Origin);
+    SecurityContext::enforceSandboxFlags(flags, source);
+
+    if (m_frame && settings().siteIsolationEnabled()) {
+        bool sandboxedStateDidChange = wasSandboxedOrigin != isSandboxed(SandboxFlag::Origin);
+        if (!sandboxedStateDidChange)
+            return;
+
+        m_frame->loader().client().broadcastFrameDocumentIsSandboxedOriginToOtherProcesses(isSandboxed(SandboxFlag::Origin));
+    }
+}
+
 // https://html.spec.whatwg.org/#the-rules-for-choosing-a-browsing-context-given-a-browsing-context-name (Step 8.2)
 bool Document::shouldForceNoOpenerBasedOnCOOP() const
 {

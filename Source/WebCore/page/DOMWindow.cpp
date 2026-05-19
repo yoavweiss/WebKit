@@ -977,17 +977,17 @@ String DOMWindow::crossDomainAccessErrorMessage(const LocalDOMWindow& activeWind
     URL activeURL = activeWindow.document()->url();
     RefPtr<const SecurityOrigin> remoteFrameSecurityOrigin = (m_type == DOMWindowType::Remote) ? remoteFrame->frameDocumentSecurityOriginOrOpaque() : RefPtr<const SecurityOrigin>();
     URL targetURL = localDocument ? localDocument->url() : remoteFrameSecurityOrigin->toURL();
-    bool localSandboxed = (localDocument && localDocument->isSandboxed(SandboxFlag::Origin));
+    bool targetSandboxed = localDocument ? localDocument->isSandboxed(SandboxFlag::Origin) : (remoteFrame && remoteFrame->frameDocumentIsSandboxedOrigin());
 
-    if (localSandboxed || activeWindow.document()->isSandboxed(SandboxFlag::Origin)) {
+    if (targetSandboxed || activeWindow.document()->isSandboxed(SandboxFlag::Origin)) {
         if (includeTargetOrigin == IncludeTargetOrigin::Yes)
             message = makeString("Blocked a frame at \""_s, SecurityOrigin::create(activeURL).get().toString(), "\" from accessing a frame at \""_s, SecurityOrigin::create(targetURL).get().toString(), "\". "_s);
         else
             message = makeString("Blocked a frame at \""_s, SecurityOrigin::create(activeURL).get().toString(), "\" from accessing a cross-origin frame. "_s);
 
-        if (localSandboxed && activeWindow.document()->isSandboxed(SandboxFlag::Origin))
+        if (targetSandboxed && activeWindow.document()->isSandboxed(SandboxFlag::Origin))
             return makeString("Sandbox access violation: "_s, message, " Both frames are sandboxed and lack the \"allow-same-origin\" flag."_s);
-        if (localSandboxed)
+        if (targetSandboxed)
             return makeString("Sandbox access violation: "_s, message, " The frame being accessed is sandboxed and lacks the \"allow-same-origin\" flag."_s);
         return makeString("Sandbox access violation: "_s, message, " The frame requesting access is sandboxed and lacks the \"allow-same-origin\" flag."_s);
     }
