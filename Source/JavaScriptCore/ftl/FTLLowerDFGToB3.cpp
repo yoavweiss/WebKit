@@ -1188,6 +1188,9 @@ private:
         case ArrayShift:
             compileArrayShift();
             break;
+        case ArrayUnshift:
+            compileArrayUnshift();
+            break;
         case ArraySlice:
             compileArraySlice();
             break;
@@ -8288,10 +8291,11 @@ IGNORE_CLANG_WARNINGS_END
             m_out.branch(beyondVectorLength, rarely(slowCallPath), usually(continuation));
 
             m_out.appendTo(slowCallPath, continuation);
-            auto* operation = &operationArrayPushMultiple;
+            ValueFromBlock slowResult;
             if (m_node->arrayMode().type() == Array::Double)
-                operation = &operationArrayPushDoubleMultiple;
-            ValueFromBlock slowResult = m_out.anchor(vmCall(Int64, operation, weakPointer(globalObject), base, buffer, m_out.constInt32(elementCount)));
+                slowResult = m_out.anchor(vmCall(Int64, operationArrayPushDoubleMultiple, weakPointer(globalObject), base, buffer, m_out.constInt32(elementCount)));
+            else
+                slowResult = m_out.anchor(vmCall(Int64, operationArrayPushMultiple, weakPointer(globalObject), base, buffer, m_out.constInt32(elementCount)));
             m_out.jump(continuation);
 
             m_out.appendTo(continuation, lastNext);
@@ -9074,6 +9078,131 @@ IGNORE_CLANG_WARNINGS_END
             DFG_CRASH(m_graph, m_node, "Bad array type");
             return;
         }
+    }
+
+    void compileArrayUnshift()
+    {
+        ASSERT(m_node->arrayMode().type() == Array::Int32
+            || m_node->arrayMode().type() == Array::Double
+            || m_node->arrayMode().type() == Array::Contiguous);
+
+        JSGlobalObject* globalObject = m_graph.globalObjectFor(m_origin.semantic);
+        Edge storageEdge = m_graph.varArgChild(m_node, 0);
+        Edge arrayEdge = m_graph.varArgChild(m_node, 1);
+        unsigned elementOffset = 2;
+        unsigned elementCount = m_node->numChildren() - elementOffset;
+        ASSERT(elementCount >= 1);
+
+        LValue base = lowCell(arrayEdge);
+        LValue storage = lowStorage(storageEdge);
+
+        bool isDouble = m_node->arrayMode().type() == Array::Double;
+        IndexedAbstractHeap& heap = m_heaps.forArrayType(m_node->arrayMode().type());
+
+        if (elementCount == 1) {
+            Edge valueEdge = m_graph.varArgChild(m_node, elementOffset);
+            speculate(valueEdge);
+
+            LValue value;
+            Output::StoreType storeType;
+            if (isDouble) {
+                value = lowDouble(valueEdge);
+                storeType = Output::StoreDouble;
+            } else {
+                value = lowJSValue(valueEdge, ManualOperandSpeculation);
+                storeType = Output::Store64;
+            }
+
+            LBasicBlock checkLengthZero = m_out.newBlock();
+            LBasicBlock checkLengthOneCapacity = m_out.newBlock();
+            LBasicBlock loadAndCheckEmpty = m_out.newBlock();
+            LBasicBlock storeShifted = m_out.newBlock();
+            LBasicBlock checkEmptyCapacity = m_out.newBlock();
+            LBasicBlock writeFront = m_out.newBlock();
+            LBasicBlock slowCase = m_out.newBlock();
+            LBasicBlock continuation = m_out.newBlock();
+
+            LValue prevLength = m_out.load32(storage, m_heaps.Butterfly_publicLength);
+            LValue vectorLength = m_out.load32(storage, m_heaps.Butterfly_vectorLength);
+            TypedPointer ptr0 = m_out.baseIndex(heap, storage, m_out.intPtrZero);
+            TypedPointer ptr1 = m_out.baseIndex(heap, storage, m_out.intPtrOne);
+
+            Vector<ValueFromBlock, 2> results;
+
+            m_out.branch(m_out.aboveOrEqual(prevLength, m_out.constInt32(2)), rarely(slowCase), usually(checkLengthZero));
+
+            LBasicBlock lastNext = m_out.appendTo(checkLengthZero, checkLengthOneCapacity);
+            m_out.branch(m_out.isZero32(prevLength), unsure(checkEmptyCapacity), unsure(checkLengthOneCapacity));
+
+            m_out.appendTo(checkLengthOneCapacity, loadAndCheckEmpty);
+            m_out.branch(m_out.below(vectorLength, m_out.constInt32(2)), rarely(slowCase), usually(loadAndCheckEmpty));
+
+            m_out.appendTo(loadAndCheckEmpty, storeShifted);
+            LValue existing = isDouble ? m_out.loadDouble(ptr0) : m_out.load64(ptr0);
+            if (isDouble)
+                m_out.branch(m_out.doubleEqual(existing, existing), usually(storeShifted), rarely(slowCase));
+            else
+                m_out.branch(m_out.isZero64(existing), rarely(slowCase), usually(storeShifted));
+
+            m_out.appendTo(storeShifted, checkEmptyCapacity);
+            m_out.store(existing, ptr1, storeType);
+            m_out.jump(writeFront);
+
+            m_out.appendTo(checkEmptyCapacity, writeFront);
+            m_out.branch(m_out.isZero32(vectorLength), rarely(slowCase), usually(writeFront));
+
+            m_out.appendTo(writeFront, slowCase);
+            m_out.store(value, ptr0, storeType);
+            LValue newLength = m_out.add(prevLength, m_out.int32One);
+            m_out.store32(newLength, storage, m_heaps.Butterfly_publicLength);
+            results.append(m_out.anchor(boxInt32(newLength)));
+            m_out.jump(continuation);
+
+            m_out.appendTo(slowCase, continuation);
+            LValue slowResult = isDouble
+                ? vmCall(Int64, operationArrayUnshiftDouble, weakPointer(globalObject), base, value)
+                : vmCall(Int64, operationArrayUnshift, weakPointer(globalObject), base, value);
+            results.append(m_out.anchor(slowResult));
+            m_out.jump(continuation);
+
+            m_out.appendTo(continuation, lastNext);
+            setJSValue(m_out.phi(Int64, results));
+            return;
+        }
+
+        for (unsigned elementIndex = 0; elementIndex < elementCount; ++elementIndex) {
+            Edge element = m_graph.varArgChild(m_node, elementIndex + elementOffset);
+            speculate(element);
+        }
+
+        size_t scratchSize = (isDouble ? sizeof(double) : sizeof(EncodedJSValue)) * elementCount;
+        static_assert(sizeof(EncodedJSValue) == sizeof(double));
+        ASSERT(scratchSize);
+        ScratchBuffer* scratchBuffer = vm().scratchBufferForSize(scratchSize);
+        LValue buffer = m_out.constIntPtr(static_cast<EncodedJSValue*>(scratchBuffer->dataBuffer()));
+
+        for (unsigned elementIndex = 0; elementIndex < elementCount; ++elementIndex) {
+            Edge& element = m_graph.varArgChild(m_node, elementIndex + elementOffset);
+
+            LValue value;
+            Output::StoreType storeType;
+            if (isDouble) {
+                value = lowDouble(element);
+                storeType = Output::StoreDouble;
+            } else {
+                value = lowJSValue(element, ManualOperandSpeculation);
+                storeType = Output::Store64;
+            }
+
+            m_out.store(value, m_out.baseIndex(heap, buffer, m_out.constInt32(elementIndex), jsNumber(elementIndex)), storeType);
+        }
+
+        LValue result = nullptr;
+        if (isDouble)
+            result = vmCall(Int64, operationArrayUnshiftDoubleMultiple, weakPointer(globalObject), base, buffer, m_out.constInt32(elementCount));
+        else
+            result = vmCall(Int64, operationArrayUnshiftMultiple, weakPointer(globalObject), base, buffer, m_out.constInt32(elementCount));
+        setJSValue(result);
     }
 
     void compilePushWithScope()

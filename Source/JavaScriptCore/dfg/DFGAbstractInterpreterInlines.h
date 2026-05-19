@@ -3281,6 +3281,7 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
     }
 
     case ArrayPush:
+    case ArrayUnshift:
         switch (node->arrayMode().type()) {
         case Array::ForceExit:
             m_state.setIsValid(false);
@@ -3349,7 +3350,7 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
         clobberWorld();
         makeHeapTopForNode(node);
         break;
-        
+
     case GetMyArgumentByVal:
     case GetMyArgumentByValOutOfBounds: {
         JSValue index = forNode(node->child2()).m_value;

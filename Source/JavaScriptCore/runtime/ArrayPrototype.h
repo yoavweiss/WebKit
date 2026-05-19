@@ -52,4 +52,6 @@ JSC_DECLARE_HOST_FUNCTION(arrayProtoFuncValues);
 JSArray* tryConcatAppendArrayFastWithWatchpoints(JSGlobalObject*, VM&, JSArray* firstArray, JSArray* secondArray);
 JSArray* tryConcatOneArgFast(JSGlobalObject*, VM&, JSArray* firstArray, JSValue argument);
 
+extern const ASCIILiteral unshiftArrayLengthExceeded;
+
 } // namespace JSC
