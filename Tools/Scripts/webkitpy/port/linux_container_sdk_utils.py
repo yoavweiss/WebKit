@@ -203,6 +203,7 @@ def _build_podman_run_args(pinned_version):
     uid = os.getuid()
     gid = os.getgid()
     xdg = _xdg_runtime_dir()
+    share_host_pid_ns = os.environ.get('WEBKIT_CONTAINER_SDK_SHARE_HOST_PID_NAMESPACE', '1') != '0'
 
     args = [
         # Ephemeral: container is removed as soon as the user command exits.
@@ -213,12 +214,9 @@ def _build_podman_run_args(pinned_version):
         # container's full lifetime -- collision-free across concurrent
         # invocations, and `--rm` frees the name when the command exits.
         '--name', '{}-{}'.format(WKDEV_CONTAINER_NAME, os.getpid()),
-        # tini-style PID 1 forwards signals and reaps zombies, so the user
-        # command does not have to play PID 1 itself. `--init` requires the
-        # `catatonit` helper on the host and only works with `crun`, not
-        # `runc`, so pin the runtime here rather than relying on the host
-        # default.
-        '--init',
+        # Pin the OCI runtime so behavior does not vary with the host default
+        # (some distros still ship `runc`). `crun` is also required by
+        # `--init` below when we run with a private PID namespace.
         '--runtime', 'crun',
         '--hostname', _container_hostname(),
         '--userns', 'keep-id',
@@ -247,6 +245,14 @@ def _build_podman_run_args(pinned_version):
         '--mount', 'type=tmpfs,destination=/run/user/{},tmpfs-mode=0700,chown=true'.format(uid),
         '--ipc', 'host',
         '--network', 'host',
+        # PID namespace: share with the host by default so coredumpctl works
+        # end-to-end. The host's systemd-coredump records crashes against the
+        # host PID, so the matching journal entries (bind-mounted in below)
+        # only resolve from inside the container when its PIDs are the host's.
+        # Same goes for gdb/lldb attach and perf against host processes. Opt
+        # out with WEBKIT_CONTAINER_SDK_SHARE_HOST_PID_NAMESPACE=0 to get an
+        # isolated PID namespace instead.
+        '--pid', 'host' if share_host_pid_ns else 'private',
         # Pull only when the tag is not already cached. .wkdev-sdk-version
         # uses immutable tags, so a registry round-trip per host-wrapper
         # invocation would be wasted work; new tags still pull on first use.
@@ -257,6 +263,13 @@ def _build_podman_run_args(pinned_version):
         '--env', 'HOST_HOME=/host/home/{}'.format(user),
         '--env', 'XDG_RUNTIME_DIR=/run/user/{}'.format(uid),
     ]
+    # tini-style PID 1 forwards signals and reaps zombies, so the user command
+    # does not have to play PID 1 itself. `--init` needs the `catatonit` helper
+    # on the host and a private PID namespace -- podman refuses to inject a new
+    # PID 1 when sharing the host's namespace (where PID 1 already exists),
+    # and in that case reparenting to host PID 1 reaps zombies for us anyway.
+    if not share_host_pid_ns:
+        args += ['--init']
     args += _bind_mount(container_home, '/home/{}'.format(user))
     args += _bind_mount(os.path.realpath(os.environ['HOME']), '/host/home/{}'.format(user))
 
