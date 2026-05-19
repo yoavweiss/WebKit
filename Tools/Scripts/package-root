@@ -74,7 +74,7 @@ usage() if $showHelp;
 
 setConfiguration();
 
-my @privateFrameworks = qw(WebGPU);
+my @privateFrameworks = qw(WebCore WebGPU WebKitLegacy);
 my @publicFrameworks = qw(JavaScriptCore WebKit);
 my @extensions = qw(GPUExtension NetworkingExtension WebContentCaptivePortalExtension WebContentEnhancedSecurityExtension WebContentExtension);
 my $packagedRootBasePath = usesCryptexPath() ? "/System/Cryptexes/OS/" : "/";
