@@ -1846,6 +1846,7 @@ class ValidateChange(buildstep.BuildStep, BugzillaMixin, GitHubMixin):
         verifyNoDraftForMergeQueue=False,
         enableSkipEWSLabel=True,
         branches=None,
+        excluded_branches=None,
     ):
         self.verifyObsolete = verifyObsolete
         self.verifyBugClosed = verifyBugClosed
@@ -1858,6 +1859,9 @@ class ValidateChange(buildstep.BuildStep, BugzillaMixin, GitHubMixin):
 
         branches = branches or [r'.+']
         self.branches = [re.compile(branch) if isinstance(branch, str) else branch for branch in branches]
+
+        excluded_branches = excluded_branches or []
+        self.excluded_branches = [re.compile(branch) if isinstance(branch, str) else branch for branch in excluded_branches]
 
         super().__init__()
 
@@ -1890,6 +1894,10 @@ class ValidateChange(buildstep.BuildStep, BugzillaMixin, GitHubMixin):
         patch_id = self.getProperty('patch_id', '')
         pr_number = self.getProperty('github.number', self.getProperty('pr_number', ''))
         branch = self.getProperty('github.base.ref', DEFAULT_BRANCH)
+
+        if any(candidate.match(branch) for candidate in self.excluded_branches):
+            rc = yield self.skip_build(f"Skipping as {'PR ' + str(pr_number) if pr_number else 'patch'} targets '{branch}' branch")
+            return defer.returnValue(rc)
 
         if not any(candidate.match(branch) for candidate in self.branches):
             rc = yield self.skip_build(f"Changes to '{branch}' are not tested")

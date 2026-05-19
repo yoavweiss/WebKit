@@ -6801,6 +6801,32 @@ class TestValidateChange(BuildStepMixinAdditions, unittest.TestCase):
         self.expect_property('fast_commit_queue', None, 'fast_commit_queue is unexpectedly set')
         return rc
 
+    def test_excluded_branch(self):
+        self.setup_step(ValidateChange(verifyBugClosed=False, excluded_branches=[r'webkitglib/\d+\.\d+']))
+        ValidateChange.get_pr_json = lambda x, pull_request, repository_url=None, retry=None: self.get_pr(pr_number=pull_request)
+        self.setProperty('github.number', '1234')
+        self.setProperty('repository', 'https://github.com/WebKit/WebKit')
+        self.setProperty('github.head.sha', '7496f8ecc4cc8011f19c8cc1bc7b18fe4a88ad5c')
+        self.setProperty('github.base.ref', 'webkitglib/2.46')
+
+        self.expect_outcome(result=FAILURE, state_string="Skipping as PR 1234 targets 'webkitglib/2.46' branch")
+        rc = self.run_step()
+        self.expect_property('fast_commit_queue', None, 'fast_commit_queue is unexpectedly set')
+        return rc
+
+    def test_allowed_branch_not_in_excluded(self):
+        self.setup_step(ValidateChange(verifyBugClosed=False, excluded_branches=[r'webkitglib/\d+\.\d+']))
+        ValidateChange.get_pr_json = lambda x, pull_request, repository_url=None, retry=None: self.get_pr(pr_number=pull_request)
+        self.setProperty('github.number', '1234')
+        self.setProperty('repository', 'https://github.com/WebKit/WebKit')
+        self.setProperty('github.head.sha', '7496f8ecc4cc8011f19c8cc1bc7b18fe4a88ad5c')
+        self.setProperty('github.base.ref', 'safari-123-branch')
+
+        self.expect_outcome(result=SUCCESS, state_string='Validated change')
+        rc = self.run_step()
+        self.expect_property('fast_commit_queue', None, 'fast_commit_queue is unexpectedly set')
+        return rc
+
 
 class TestRetrievePRDataFromLabel(BuildStepMixinAdditions, unittest.TestCase):
     def setUp(self):
