@@ -259,9 +259,10 @@ static uint32_t computeMaxCountForDevice(id<MTLDevice> device)
     if ([device supportsFamily:MTLGPUFamilyApple9])
         return 3 * GB;
 #endif
+ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     if ([device supportsFamily:MTLGPUFamilyMac2])
         return 3 * GB;
-
+ALLOW_DEPRECATED_DECLARATIONS_END
     return 2 * GB;
 }
 

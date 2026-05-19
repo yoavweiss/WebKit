@@ -597,9 +597,10 @@ static std::optional<HardwareCapabilities> rawHardwareCapabilities(id<MTLDevice>
         merge(apple7(device));
 #endif
     // MTLGPUFamilyMac1 is not supported (yet?).
+ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     if ([device supportsFamily:MTLGPUFamilyMac2])
         merge(mac2(device));
-
+ALLOW_DEPRECATED_DECLARATIONS_END
     if (result) {
         auto maxBufferLength = maxBufferSize(device);
         result->limits.maxUniformBufferBindingSize = maxBufferLength;
