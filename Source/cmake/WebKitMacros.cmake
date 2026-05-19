@@ -705,6 +705,12 @@ macro(WEBKIT_ADD_TARGET_PROPERTIES _target _property _flags)
     unset(_tmp)
 endmacro()
 
+function(WEBKIT_ADD_TARGET_UNSAFE_BUFFER_WARNINGS _target)
+    if (ENABLE_UNSAFE_BUFFER_USAGE_WARNING AND WEBKIT_UNSAFE_BUFFER_WARNING_FLAGS)
+        WEBKIT_ADD_TARGET_CXX_FLAGS(${_target} ${WEBKIT_UNSAFE_BUFFER_WARNING_FLAGS})
+    endif ()
+endfunction()
+
 macro(WEBKIT_POPULATE_LIBRARY_VERSION library_name)
     if (NOT DEFINED ${library_name}_VERSION_MAJOR)
         set(${library_name}_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})

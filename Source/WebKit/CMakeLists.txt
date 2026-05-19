@@ -835,6 +835,7 @@ set(WebKit_SWIFT_INTEROP_MODULE_PATH "${WEBKIT_DIR}/Modules/Internal")
 
 WEBKIT_FRAMEWORK_DECLARE(WebKit)
 WEBKIT_INCLUDE_CONFIG_FILES_IF_EXISTS()
+WEBKIT_ADD_TARGET_UNSAFE_BUFFER_WARNINGS(WebKit)
 
 # The full WebKit_Internal C++ module pulls in WebPageProxy.h and friends, which
 # quote-include across the entire WebKit/WebCore/JSC private header set. Mirror
@@ -929,13 +930,6 @@ set(WebKit_SWIFT_TYPECHECK_EXTRA_DEPENDS ${WebKit_DERIVED_SOURCES_DIR}/WebKitLog
 WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER(WebKit WebKit
     "${WebKit_SWIFT_INTEROP_MODULE_PATH}"
     "${WebKit_DERIVED_SOURCES_DIR}/WebKit-Swift-CPP.h")
-
-if (ENABLE_UNSAFE_BUFFER_USAGE_WARNING)
-    WEBKIT_ADD_TARGET_CXX_FLAGS(WebKit
-        -Wunsafe-buffer-usage
-        -Wunsafe-buffer-usage-in-libc-call
-    )
-endif ()
 
 if (WebKit_PUBLIC_FRAMEWORK_HEADERS)
     WEBKIT_COPY_FILES(WebKit_CopyHeaders

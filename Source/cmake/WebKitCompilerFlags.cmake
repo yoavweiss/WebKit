@@ -151,7 +151,12 @@ macro(WEBKIT_ADD_TARGET_CXX_FLAGS _target)
     WEBKIT_ADD_COMPILER_FLAGS(CXX TARGET ${_target} ${ARGN})
 endmacro()
 
-
+# Used by WEBKIT_ADD_TARGET_UNSAFE_BUFFER_WARNINGS(), may be overriden in
+# the per-port Options${PORT}.cmake files.
+set(WEBKIT_UNSAFE_BUFFER_WARNING_FLAGS
+    -Wunsafe-buffer-usage
+    -Wunsafe-buffer-usage-in-libc-call
+)
 option(ENABLE_UNSAFE_BUFFER_USAGE_WARNING "Build with -Wunsafe-buffer-usage" OFF)
 
 option(DEVELOPER_MODE_FATAL_WARNINGS "Build with warnings as errors if DEVELOPER_MODE is also enabled" ON)
