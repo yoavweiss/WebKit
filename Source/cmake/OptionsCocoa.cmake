@@ -105,7 +105,7 @@ unset(_additions_found)
 if (EXISTS "/usr/local/include/WebKitAdditions" AND NOT EXISTS "/usr/local/include/AppleFeatures/AppleFeatures.h")
     set(_apple_features_stub "${CMAKE_BINARY_DIR}/generated-stubs/AppleFeatures")
     file(MAKE_DIRECTORY "${_apple_features_stub}")
-    file(WRITE "${_apple_features_stub}/AppleFeatures.h"
+    file(CONFIGURE OUTPUT "${_apple_features_stub}/AppleFeatures.h" CONTENT
         "/* Auto-generated stub -- AppleFeatures not available in this SDK. */\n")
     add_compile_options("$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-isystem${CMAKE_BINARY_DIR}/generated-stubs>")
     message(STATUS "AppleFeatures stub generated (WebKitAdditions present, AppleFeatures SDK absent)")

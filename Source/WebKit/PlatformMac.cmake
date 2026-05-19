@@ -84,7 +84,7 @@ set(WebKit_SWIFT_INTEROP_MODULE_PATH "${WEBKIT_DIR}/Modules/Internal")
 # WebCore:: types it uses are reachable transitively via WebKit_Internal headers.
 set(WebKit_CMAKE_MODULEMAP_DIR "${CMAKE_BINARY_DIR}/WebKit/SwiftModules")
 file(MAKE_DIRECTORY "${WebKit_CMAKE_MODULEMAP_DIR}")
-file(WRITE "${WebKit_CMAKE_MODULEMAP_DIR}/module.modulemap"
+file(CONFIGURE OUTPUT "${WebKit_CMAKE_MODULEMAP_DIR}/module.modulemap" CONTENT
 "module WebCore_Private [system] {
     requires cplusplus
     header \"${WebCore_PRIVATE_FRAMEWORK_HEADERS_DIR}/WebCore/DiagnosticLoggingKeys.h\"

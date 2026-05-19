@@ -15,7 +15,7 @@ if (ENABLE_WEBKIT_TEST_RUNNER AND ENABLE_WEBKIT)
     # LayoutTestHelper locks screen color profile during test runs (mac.py:start_helper).
     # FIXME: Stub config.h works around DRT/config.h pulling in JSC headers.
     # https://bugs.webkit.org/show_bug.cgi?id=312070
-    file(WRITE "${CMAKE_BINARY_DIR}/LayoutTestHelper-stub/config.h"
+    file(CONFIGURE OUTPUT "${CMAKE_BINARY_DIR}/LayoutTestHelper-stub/config.h" CONTENT
         "// Stub: https://bugs.webkit.org/show_bug.cgi?id=312070\n#include <wtf/Platform.h>\n")
     add_executable(LayoutTestHelper DumpRenderTree/mac/LayoutTestHelper.m)
     target_include_directories(LayoutTestHelper BEFORE PRIVATE

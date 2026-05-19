@@ -121,7 +121,7 @@ target_compile_definitions(WebGPU PRIVATE
 )
 
 # Generate an empty cmakeconfig.h for the WebGPU target
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/cmakeconfig.h "")
+file(CONFIGURE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cmakeconfig.h CONTENT "")
 target_include_directories(WebGPU PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 target_compile_options(WebGPU PRIVATE -std=c++2b -fobjc-arc)

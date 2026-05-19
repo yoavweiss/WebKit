@@ -173,7 +173,7 @@ set(WebKit_SWIFT_INCLUDE_DIRECTORIES
     "${WEBKIT_DIR}/Platform/spi/ios"
 )
 
-file(WRITE "${CMAKE_BINARY_DIR}/WebKit/WebPushDaemonStubs.cpp"
+file(CONFIGURE OUTPUT "${CMAKE_BINARY_DIR}/WebKit/WebPushDaemonStubs.cpp" CONTENT
 "#include \"config.h\"\n#if ENABLE(WEB_PUSH_NOTIFICATIONS)\nnamespace WebKit {\nint WebPushDaemonMain(int, char**) { return 1; }\nint WebPushToolMain(int, char**) { return 1; }\n}\n#endif\n")
 list(APPEND WebKit_SOURCES "${CMAKE_BINARY_DIR}/WebKit/WebPushDaemonStubs.cpp")
 
