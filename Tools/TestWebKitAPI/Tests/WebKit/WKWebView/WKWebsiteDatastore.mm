@@ -2184,4 +2184,60 @@ TEST(TimeBasedEviction, ServiceWorkerRegistrationsOnlyMode)
     }
 }
 
+TEST(TimeBasedEviction, PushSubscriptionOriginNotEvicted)
+{
+    RetainPtr uuid = adoptNS([[NSUUID alloc] initWithUUIDString:@"68753a44-4d6f-1226-9c60-0050e4c0006f"]);
+    done = false;
+    [WKWebsiteDataStore _removeDataStoreWithIdentifier:uuid.get() completionHandler:^(NSError *error) {
+        done = true;
+    }];
+    TestWebKitAPI::Util::run(&done);
+
+    RetainPtr websiteDataStoreConfiguration = adoptNS([[_WKWebsiteDataStoreConfiguration alloc] initWithIdentifier:uuid.get()]);
+    [websiteDataStoreConfiguration setTimeBasedEvictionMode:_WKTimeBasedEvictionModeAllTypes];
+    [websiteDataStoreConfiguration setTimeBasedEvictionThreshold:0];
+    [websiteDataStoreConfiguration setTimeBasedEvictionIntervalOverride:@0];
+    [websiteDataStoreConfiguration setDefaultTrackingPreventionEnabledOverride:@NO];
+    [websiteDataStoreConfiguration setMockPushSubscriptionOriginsForTesting:@[@"https://example1.com"]];
+
+    NSString *idbHTML = @"<script> \
+        var request = indexedDB.open('testDB'); \
+        request.onupgradeneeded = function(event) { \
+            event.target.result.createObjectStore('store'); \
+        }; \
+        request.onsuccess = function() { \
+            window.webkit.messageHandlers.testHandler.postMessage('done'); \
+        }; \
+        request.onerror = function() { \
+            window.webkit.messageHandlers.testHandler.postMessage('error'); \
+        }; \
+    </script>";
+
+    @autoreleasepool {
+        RetainPtr websiteDataStore = adoptNS([[WKWebsiteDataStore alloc] _initWithConfiguration:websiteDataStoreConfiguration.get()]);
+        RetainPtr handler = adoptNS([[WKWebsiteDataStoreMessageHandler alloc] init]);
+        RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+        [[configuration userContentController] addScriptMessageHandler:handler.get() name:@"testHandler"];
+        [configuration setWebsiteDataStore:websiteDataStore.get()];
+        RetainPtr webView = adoptNS([[WKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600) configuration:configuration.get()]);
+
+        // Write data for example1.com (the push-subscribed origin) and example2.com.
+        receivedScriptMessage = false;
+        [webView loadHTMLString:idbHTML baseURL:[NSURL URLWithString:@"https://example1.com/"]];
+        TestWebKitAPI::Util::run(&receivedScriptMessage);
+        EXPECT_WK_STREQ(@"done", [lastScriptMessage body]);
+
+        receivedScriptMessage = false;
+        [webView loadHTMLString:idbHTML baseURL:[NSURL URLWithString:@"https://example2.com/"]];
+        TestWebKitAPI::Util::run(&receivedScriptMessage);
+        EXPECT_WK_STREQ(@"done", [lastScriptMessage body]);
+    }
+
+    // Eviction should remove example2.com but spare example1.com because it has
+    // a push subscription according to the mock.
+    auto evictedDomains = triggerTimeBasedEviction(websiteDataStoreConfiguration.get());
+    EXPECT_EQ(1u, evictedDomains.get().count);
+    EXPECT_WK_STREQ(@"example2.com", evictedDomains.get()[0]);
+}
+
 } // namespace TestWebKitAPI

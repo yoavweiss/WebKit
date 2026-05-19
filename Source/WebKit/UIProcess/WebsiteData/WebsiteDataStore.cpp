@@ -2256,6 +2256,7 @@ WebsiteDataStoreParameters WebsiteDataStore::parameters()
     networkSessionParameters.timeBasedEvictionThreshold = m_configuration->timeBasedEvictionThreshold();
     networkSessionParameters.lastModificationTimeUpdateIntervalOverride = m_configuration->lastModificationTimeUpdateIntervalOverride();
     networkSessionParameters.timeBasedEvictionIntervalOverride = m_configuration->timeBasedEvictionIntervalOverride();
+    networkSessionParameters.mockPushSubscriptionOriginsForTesting = m_configuration->mockPushSubscriptionOriginsForTesting();
 #if ENABLE(DECLARATIVE_WEB_PUSH)
     networkSessionParameters.isDeclarativeWebPushEnabled = m_configuration->isDeclarativeWebPushEnabled();
 #endif

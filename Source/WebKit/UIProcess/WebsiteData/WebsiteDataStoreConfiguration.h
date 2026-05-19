@@ -26,6 +26,7 @@
 #pragma once
 
 #include "APIObject.h"
+#include <WebCore/SecurityOriginData.h>
 #include <wtf/Markable.h>
 #include <wtf/URL.h>
 #include <wtf/UUID.h>
@@ -80,6 +81,8 @@ public:
     void setLastModificationTimeUpdateIntervalOverride(std::optional<Seconds> interval) { m_lastModificationTimeUpdateIntervalOverride = interval; }
     std::optional<Seconds> timeBasedEvictionIntervalOverride() const { return m_timeBasedEvictionIntervalOverride; }
     void setTimeBasedEvictionIntervalOverride(std::optional<Seconds> interval) { m_timeBasedEvictionIntervalOverride = interval; }
+    const Vector<WebCore::SecurityOriginData>& mockPushSubscriptionOriginsForTesting() const { return m_mockPushSubscriptionOriginsForTesting; }
+    void setMockPushSubscriptionOriginsForTesting(Vector<WebCore::SecurityOriginData>&& origins) { m_mockPushSubscriptionOriginsForTesting = WTF::move(origins); }
 
     std::optional<double> totalQuotaRatio() const { return m_totalQuotaRatio; }
     void setTotalQuotaRatio(std::optional<double> ratio) { m_totalQuotaRatio = ratio; }
@@ -318,6 +321,7 @@ private:
     Seconds m_timeBasedEvictionThreshold { 180 * 24_h };
     std::optional<Seconds> m_lastModificationTimeUpdateIntervalOverride;
     std::optional<Seconds> m_timeBasedEvictionIntervalOverride;
+    Vector<WebCore::SecurityOriginData> m_mockPushSubscriptionOriginsForTesting;
     std::optional<double> m_totalQuotaRatio;
     std::optional<uint64_t> m_standardVolumeCapacity;
     std::optional<uint64_t> m_volumeCapacityOverride;

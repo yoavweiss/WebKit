@@ -30,6 +30,7 @@
 #include "UnifiedOriginStorageLevel.h"
 #include "WebPushDaemonConnectionConfiguration.h"
 #include <WebCore/NetworkStorageSession.h>
+#include <WebCore/SecurityOriginData.h>
 #include <pal/SessionID.h>
 #include <wtf/Seconds.h>
 #include <wtf/URL.h>
@@ -131,6 +132,7 @@ struct NetworkSessionCreationParameters {
     Seconds timeBasedEvictionThreshold { 180 * 24_h };
     std::optional<Seconds> lastModificationTimeUpdateIntervalOverride;
     std::optional<Seconds> timeBasedEvictionIntervalOverride;
+    Vector<WebCore::SecurityOriginData> mockPushSubscriptionOriginsForTesting;
 #if ENABLE(DECLARATIVE_WEB_PUSH)
     bool isDeclarativeWebPushEnabled { false };
 #endif

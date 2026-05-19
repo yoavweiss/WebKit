@@ -191,6 +191,7 @@ Ref<WebsiteDataStoreConfiguration> WebsiteDataStoreConfiguration::copy() const
     copy->m_timeBasedEvictionThreshold = this->m_timeBasedEvictionThreshold;
     copy->m_lastModificationTimeUpdateIntervalOverride = this->m_lastModificationTimeUpdateIntervalOverride;
     copy->m_timeBasedEvictionIntervalOverride = this->m_timeBasedEvictionIntervalOverride;
+    copy->m_mockPushSubscriptionOriginsForTesting = this->m_mockPushSubscriptionOriginsForTesting;
     copy->m_defaultTrackingPreventionEnabledOverride = this->m_defaultTrackingPreventionEnabledOverride;
 
     return copy;

@@ -243,6 +243,7 @@ public:
 
     void registrableDomainsWithLastAccessedTime(PAL::SessionID, CompletionHandler<void(std::optional<HashMap<RegistrableDomain, WallTime>>&&)>&&);
     void diskCacheOriginAccessTimes(PAL::SessionID, CompletionHandler<void(HashMap<WebCore::RegistrableDomain, WallTime>&&)>&&);
+    void getAllPushSubscriptionOrigins(PAL::SessionID, CompletionHandler<void(Vector<WebCore::SecurityOriginData>&&)>&&);
     void registrableDomainsExemptFromWebsiteDataDeletion(PAL::SessionID, CompletionHandler<void(HashSet<RegistrableDomain>)>&&);
     void clearPrevalentResource(PAL::SessionID, RegistrableDomain&&, CompletionHandler<void()>&&);
     void clearUserInteraction(PAL::SessionID, RegistrableDomain&&, CompletionHandler<void()>&&);

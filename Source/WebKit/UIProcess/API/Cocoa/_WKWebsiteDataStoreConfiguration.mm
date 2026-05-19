@@ -28,6 +28,7 @@
 
 #import "TimeBasedEvictionMode.h"
 #import "UnifiedOriginStorageLevel.h"
+#import <WebCore/SecurityOriginData.h>
 #import <WebCore/WebCoreObjCExtras.h>
 #import <wtf/RetainPtr.h>
 
@@ -572,6 +573,29 @@ static WebKit::UnifiedOriginStorageLevel NODELETE toUnifiedOriginStorageLevel(_W
         _configuration->setTimeBasedEvictionIntervalOverride(Seconds([seconds doubleValue]));
     else
         _configuration->setTimeBasedEvictionIntervalOverride(std::nullopt);
+}
+
+- (NSArray<NSString *> *)mockPushSubscriptionOriginsForTesting
+{
+    auto& origins = _configuration->mockPushSubscriptionOriginsForTesting();
+    RetainPtr result = adoptNS([[NSMutableArray alloc] initWithCapacity:origins.size()]);
+    for (auto& origin : origins)
+        [result addObject:origin.toString().createNSString().get()];
+    return result.autorelease();
+}
+
+- (void)setMockPushSubscriptionOriginsForTesting:(NSArray<NSString *> *)originStrings
+{
+    Vector<WebCore::SecurityOriginData> origins;
+    origins.reserveInitialCapacity(originStrings.count);
+    for (NSString *originString in originStrings) {
+        auto origin = WebCore::SecurityOriginData::fromURL(URL { String { originString } });
+        if (origin.isNull() || origin.isOpaque())
+            continue;
+
+        origins.append(WTF::move(origin));
+    }
+    SUPPRESS_UNCOUNTED_ARG _configuration->setMockPushSubscriptionOriginsForTesting(WTF::move(origins));
 }
 
 - (NSNumber *)originQuotaRatio

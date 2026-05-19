@@ -310,6 +310,28 @@ template<> struct TestArgumentCoder<URL> {
     }
 };
 
+template<> struct TestArgumentCoder<WebCore::SecurityOriginData> {
+    template<typename Encoder> static void encode(Encoder&, const WebCore::SecurityOriginData&)
+    {
+        // Tests only need to decode the reply; encoding is not exercised.
+        ASSERT_NOT_REACHED();
+    }
+    template<typename Decoder> static std::optional<WebCore::SecurityOriginData> decode(Decoder& decoder)
+    {
+        // Wire format mirrors IPC::ArgumentCoder<Variant<Tuple, OpaqueOriginIdentifierProcessQualified>>:
+        // a uint8_t variant index followed by the alternative's payload.
+        auto index = decoder.template decode<uint8_t>();
+        if (!index || *index)
+            return std::nullopt;
+        auto protocol = decoder.template decode<String>();
+        auto host = decoder.template decode<String>();
+        auto port = decoder.template decode<std::optional<uint16_t>>();
+        if (!protocol || !host || !port)
+            return std::nullopt;
+        return WebCore::SecurityOriginData { WTF::move(*protocol), WTF::move(*host), WTF::move(*port) };
+    }
+};
+
 class TestEncoder {
 public:
     template<typename T> void encodeHeader()
@@ -1487,6 +1509,17 @@ TEST_F(WebPushDTest, SubscribeTest)
 
     auto& ignored = topics.second;
     ASSERT_EQ(ignored.size(), 0u);
+
+    auto connection = createAndConfigureConnectionToService("org.webkit.webpushtestdaemon.service");
+    auto sender = WebPushXPCConnectionMessageSender { connection.get() };
+    Vector<WebCore::SecurityOriginData> origins;
+    bool done = false;
+    sender.sendWithAsyncReplyWithoutUsingIPCConnection(Messages::PushClientConnection::GetAllPushSubscriptionOrigins(), [&](Vector<WebCore::SecurityOriginData> result) {
+        origins = WTF::move(result);
+        done = true;
+    });
+    TestWebKitAPI::Util::run(&done);
+    ASSERT_TRUE(origins.contains(WebCore::SecurityOriginData::fromURL(URL { "https://example.com"_s })));
 }
 
 TEST_F(WebPushDTest, SubscribeWithBadIPCVersionRaisesExceptionTest)

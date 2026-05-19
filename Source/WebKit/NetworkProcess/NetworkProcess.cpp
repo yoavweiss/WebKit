@@ -709,6 +709,23 @@ void NetworkProcess::diskCacheOriginAccessTimes(PAL::SessionID sessionID, Comple
     completionHandler({ });
 }
 
+void NetworkProcess::getAllPushSubscriptionOrigins(PAL::SessionID sessionID, CompletionHandler<void(Vector<WebCore::SecurityOriginData>&&)>&& completionHandler)
+{
+    CheckedPtr session = networkSession(sessionID);
+    if (session && !session->mockPushSubscriptionOriginsForTesting().isEmpty()) {
+        completionHandler(Vector { session->mockPushSubscriptionOriginsForTesting() });
+        return;
+    }
+
+#if ENABLE(WEB_PUSH_NOTIFICATIONS)
+    if (session) {
+        session->notificationManager().getAllPushSubscriptionOrigins(WTF::move(completionHandler));
+        return;
+    }
+#endif
+    completionHandler({ });
+}
+
 void NetworkProcess::registrableDomainsExemptFromWebsiteDataDeletion(PAL::SessionID sessionID, CompletionHandler<void(HashSet<RegistrableDomain>)>&& completionHandler)
 {
     if (CheckedPtr session = networkSession(sessionID)) {

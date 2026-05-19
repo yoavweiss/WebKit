@@ -179,6 +179,7 @@ NetworkSession::NetworkSession(NetworkProcess& networkProcess, const NetworkSess
         ref.set(makeUniqueRef<WebSharedWorkerServer>(session));
     })
     , m_storageManager(createNetworkStorageManager(networkProcess, parameters))
+    , m_mockPushSubscriptionOriginsForTesting(parameters.mockPushSubscriptionOriginsForTesting)
 #if ENABLE(WEB_PUSH_NOTIFICATIONS)
     , m_notificationManager(NetworkNotificationManager::create(parameters.sessionID.isEphemeral() ? String { } : parameters.webPushMachServiceName, configurationWithHostAuditToken(networkProcess, parameters.webPushDaemonConnectionConfiguration), networkProcess))
 #endif

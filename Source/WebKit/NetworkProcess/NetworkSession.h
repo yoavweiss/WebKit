@@ -278,6 +278,8 @@ public:
     NetworkNotificationManager& notificationManager() { return m_notificationManager.get(); }
 #endif
 
+    const Vector<WebCore::SecurityOriginData>& mockPushSubscriptionOriginsForTesting() const { return m_mockPushSubscriptionOriginsForTesting; }
+
 #if ENABLE(INSPECTOR_NETWORK_THROTTLING)
     std::optional<int64_t> bytesPerSecondLimit() const { return m_bytesPerSecondLimit; }
     void setEmulatedConditions(std::optional<int64_t>&& bytesPerSecondLimit);
@@ -412,6 +414,7 @@ protected:
     HashMap<WebPageProxyIdentifier, String> m_attributedBundleIdentifierFromPageIdentifiers;
     HashMap<WebPageProxyIdentifier, HashSet<WebCore::RegistrableDomain>> m_trackerBlockingPolicyByPageIdentifier;
 
+    Vector<WebCore::SecurityOriginData> m_mockPushSubscriptionOriginsForTesting;
 #if ENABLE(WEB_PUSH_NOTIFICATIONS)
     const Ref<NetworkNotificationManager> m_notificationManager;
 #endif

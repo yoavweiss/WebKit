@@ -650,20 +650,32 @@ void NetworkStorageManager::prepareForTimeBasedEviction(TimeBasedEvictionMode mo
             if (!protectedThis || protectedThis->m_closed)
                 return;
 
-            protectedThis->workQueue().dispatch([weakThis = WTF::move(weakThis), mode, threshold, result = crossThreadCopy(WTF::move(result))]() mutable {
-                if (RefPtr protectedThis = weakThis)
-                    protectedThis->donePrepareForTimeBasedEviction(mode, threshold, WTF::move(result));
+            RefPtr process = protectedThis->m_process;
+            if (!process)
+                return;
+
+            process->getAllPushSubscriptionOrigins(protectedThis->m_sessionID, [weakThis = WTF::move(weakThis), mode, threshold, result = WTF::move(result)](Vector<WebCore::SecurityOriginData>&& pushSubscriptionOrigins) mutable {
+                RefPtr protectedThis = weakThis;
+                if (!protectedThis || protectedThis->m_closed)
+                    return;
+
+                protectedThis->workQueue().dispatch([weakThis = WTF::move(weakThis), mode, threshold, result = crossThreadCopy(WTF::move(result)), pushSubscriptionOrigins = crossThreadCopy(WTF::move(pushSubscriptionOrigins))]() mutable {
+                    if (RefPtr protectedThis = weakThis)
+                        protectedThis->donePrepareForTimeBasedEviction(mode, threshold, WTF::move(result), WTF::move(pushSubscriptionOrigins));
+                });
             });
         });
     });
 }
 
-void NetworkStorageManager::donePrepareForTimeBasedEviction(TimeBasedEvictionMode mode, Seconds threshold, HashMap<WebCore::RegistrableDomain, WallTime>&& diskCacheAccessTimes)
+void NetworkStorageManager::donePrepareForTimeBasedEviction(TimeBasedEvictionMode mode, Seconds threshold, HashMap<WebCore::RegistrableDomain, WallTime>&& diskCacheAccessTimes, Vector<WebCore::SecurityOriginData>&& pushSubscriptionOrigins)
 {
     assertIsCurrent(workQueue());
 
     if (m_closed)
         return;
+
+    HashSet<WebCore::SecurityOriginData> pushSubscriptionOriginSet { WTF::move(pushSubscriptionOrigins) };
 
     auto startTime = MonotonicTime::now();
     HashMap<WebCore::SecurityOriginData, AccessRecord> originRecords;
@@ -695,6 +707,11 @@ void NetworkStorageManager::donePrepareForTimeBasedEviction(TimeBasedEvictionMod
 
         if (record.lastAccessTime >= cutoffTime)
             continue;
+
+        if (pushSubscriptionOriginSet.contains(topOrigin)) {
+            RELEASE_LOG(Storage, "%p - NetworkStorageManager::performTimeBasedEviction sessionID=%" PRIu64 " skipping origin %" SENSITIVE_LOG_STRING " with active push subscription", this, m_sessionID.toUInt64(), topOrigin.toString().ascii().data());
+            continue;
+        }
 
         auto types = mode == TimeBasedEvictionMode::ServiceWorkerRegistrationsOnly ? OptionSet<WebsiteDataType> { WebsiteDataType::ServiceWorkerRegistrations } : allManagedTypes();
         performEvictionForOrigin(topOrigin, record, types);

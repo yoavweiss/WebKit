@@ -968,6 +968,19 @@ void WebPushDaemon::removePushSubscriptionsForOrigin(PushClientConnection& conne
     });
 }
 
+void WebPushDaemon::getAllPushSubscriptionOrigins(PushClientConnection&, CompletionHandler<void(Vector<WebCore::SecurityOriginData>&&)>&& replySender)
+{
+    runAfterStartingPushService([replySender = WTF::move(replySender)]() mutable {
+        auto& daemon = WebPushDaemon::singleton();
+        if (!daemon.m_pushService) {
+            replySender({ });
+            return;
+        }
+
+        daemon.m_pushService->getAllPushSubscriptionOrigins(WTF::move(replySender));
+    });
+}
+
 void WebPushDaemon::setPublicTokenForTesting(PushClientConnection& connection, const String& publicToken, CompletionHandler<void()>&& replySender)
 {
     if (!connection.hostAppHasPushInjectEntitlement()) {
