@@ -600,6 +600,7 @@ public:
 
     NSDragOperation dragSourceOperationMask(NSDraggingSession *, NSDraggingContext);
     void draggingSessionEnded(NSDraggingSession *, NSPoint, NSDragOperation);
+    void cancelDrag();
 
     NSString *fileNameForFilePromiseProvider(NSFilePromiseProvider *, NSString *fileType);
     void writeToURLForFilePromiseProvider(NSFilePromiseProvider *, NSURL *, void(^)(NSError *));
@@ -630,6 +631,9 @@ public:
     ViewGestureController& ensureGestureController();
 #if HAVE(APPKIT_GESTURES_SUPPORT)
     WKAppKitGestureController *appKitGestureController() const LIFETIME_BOUND { return m_appKitGestureController.get(); }
+    void setTextSelectionDragGesture(NSGestureRecognizer *, void (^completionHandler)(NSDraggingSession *));
+    void invalidateCachedPositionInformation();
+    void positionInformationDidChange(const InteractionInformationAtPosition&);
 #endif
     void NODELETE setAllowsBackForwardNavigationGestures(bool);
     bool allowsBackForwardNavigationGestures() const { return m_allowsBackForwardNavigationGestures; }

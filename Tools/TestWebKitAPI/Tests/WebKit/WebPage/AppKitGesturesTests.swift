@@ -362,6 +362,165 @@ struct AppKitGesturesTests {
         let expected = "Here's to the cra".count
         #expect(selection == expected)
     }
+
+    // MARK: - Drag Press Disambiguation Tests
+
+    @Test(
+        .bug("rdar://176317069", "REGRESSION(312023@main): Text cannot be selected with press + drag gesture"),
+        arguments: [true, false]
+    )
+    func pressDragOverTextCreatesSelection(contentEditable: Bool) async throws {
+        try await loadHTML(contentEditable: contentEditable)
+
+        let toBounds = try await screenBoundsOfText("to")
+        let crazyBounds = try await screenBoundsOfText("crazy")
+
+        try await page.callJavaScript(JavaScriptMessages.SetSelection(in: "div", offset: 0))
+        await page.waitForNextPresentationUpdate()
+
+        guard NSApp.isActive else { return }
+
+        await recap.play { composer in
+            composer._wk_drag(
+                withStart: toBounds.center,
+                end: crazyBounds.center,
+                duration: .seconds(1.5),
+                pressAndWait: .seconds(1.0)
+            )
+        }
+
+        await page.waitForNextPresentationUpdate()
+
+        let selection = try await page.callJavaScript(JavaScriptMessages.GetSelection())
+
+        if contentEditable {
+            // In editable text the gesture moves the insertion point rather
+            // than creating a range selection. Verify the caret moved away
+            // from the offset 0 we set above.
+            guard case .collapsed(let position) = selection else {
+                Issue.record("expected press-drag to leave a collapsed selection (caret) in editable text, got \(selection)")
+                return
+            }
+            #expect(position.container == "div")
+            #expect(position.offset > 0)
+        } else {
+            guard case .range = selection else {
+                Issue.record("expected press-drag to create a range selection in non-editable text, got \(selection)")
+                return
+            }
+        }
+    }
+
+    @Test(
+        .bug("rdar://176317069", "REGRESSION(312023@main): Text cannot be selected with press + drag gesture")
+    )
+    func pressDragOnLinkInitiatesDragAndDrop() async throws {
+        let html = """
+            <a id="link" href="https://webkit.org" style="font-size: 30px; display: block;">WebKit Link</a>
+            """
+        try await page.load(html: html).wait()
+
+        let linkRange = try #require("WebKit Link".utf16Range(of: "WebKit Link"))
+        let linkBounds = try await {
+            let viewportCoordinates = try await page.callJavaScript(
+                JavaScriptMessages.BoundingClientRect(in: "link", range: linkRange)
+            )
+            return convertToCoreGraphicsScreenCoordinates(
+                rectInViewportCoordinates: viewportCoordinates,
+                window: window
+            )
+        }()
+
+        let dragEnd = CGPoint(x: linkBounds.maxX + 50, y: linkBounds.midY)
+
+        guard NSApp.isActive else { return }
+
+        let dragInitiated = Future()
+
+        let implementation: @convention(block) (NSView, NSArray, NSGestureRecognizer, AnyObject) -> NSDraggingSession? = { _, _, _, _ in
+            dragInitiated.signal()
+            return NSDraggingSession()
+        }
+
+        try await withSwizzledObjectiveCInstanceMethod(
+            replacing: NSView.self,
+            name: #selector(NSView.beginDraggingSession(items:gesture:source:)),
+            with: implementation
+        ) {
+            await recap.play { composer in
+                composer._wk_drag(
+                    withStart: linkBounds.center,
+                    end: dragEnd,
+                    duration: .seconds(1.5),
+                    pressAndWait: .seconds(1.0)
+                )
+            }
+
+            await dragInitiated.wait()
+        }
+
+        await page.waitForNextPresentationUpdate()
+
+        let selection = try await page.callJavaScript(JavaScriptMessages.GetSelection())
+        #expect(selection == JavaScriptSelection.none)
+    }
+
+    @Test(
+        .bug("rdar://176317069", "REGRESSION(312023@main): Text cannot be selected with press + drag gesture")
+    )
+    func pressDragOnExistingSelectionDoesNotExtendSelection() async throws {
+        try await loadHTML(contentEditable: false)
+
+        let crazyRange = try #require(Self.text.utf16Range(of: "crazy"))
+        let onesRange = try #require(Self.text.utf16Range(of: "ones"))
+        let crazySelection = JavaScriptSelection.range(
+            base: .init(in: "div", at: crazyRange.lowerBound),
+            extent: .init(in: "div", at: crazyRange.upperBound)
+        )
+        try await page.callJavaScript(JavaScriptMessages.SetSelection(crazySelection))
+        await page.waitForNextPresentationUpdate()
+
+        let crazyBounds = try await screenBoundsOfText("crazy")
+        let onesBounds = try await screenBoundsOfText("ones")
+
+        guard NSApp.isActive else { return }
+
+        let dragInitiated = Future()
+
+        let implementation: @convention(block) (NSView, NSArray, NSGestureRecognizer, AnyObject) -> NSDraggingSession? = { _, _, _, _ in
+            dragInitiated.signal()
+            return NSDraggingSession()
+        }
+
+        try await withSwizzledObjectiveCInstanceMethod(
+            replacing: NSView.self,
+            name: #selector(NSView.beginDraggingSession(items:gesture:source:)),
+            with: implementation
+        ) {
+            await recap.play { composer in
+                composer._wk_drag(
+                    withStart: crazyBounds.center,
+                    end: onesBounds.center,
+                    duration: .seconds(1.5),
+                    pressAndWait: .seconds(1.0)
+                )
+            }
+
+            await dragInitiated.wait()
+        }
+
+        await page.waitForNextPresentationUpdate()
+
+        let selection = try await page.callJavaScript(JavaScriptMessages.GetSelection())
+
+        #expect(
+            selection
+                != .range(
+                    base: .init(in: "div", at: crazyRange.lowerBound),
+                    extent: .init(in: "div", at: onesRange.upperBound)
+                )
+        )
+    }
 }
 
 // MARK: Helpers

@@ -44,6 +44,7 @@ class IntSize;
 namespace WebKit {
 class WebPageProxy;
 class WebViewImpl;
+struct InteractionInformationAtPosition;
 }
 
 OBJC_CLASS NSPanGestureRecognizer;
@@ -61,6 +62,9 @@ OBJC_CLASS NSPanGestureRecognizer;
 - (NSGestureRecognizer *)activeDragGestureRecognizer;
 - (void)setGestureDraggingSession:(NSDraggingSession *)session;
 - (void)clearGestureDragState;
+- (void)setTextSelectionDragGesture:(NSGestureRecognizer *)gesture completionHandler:(void (^)(NSDraggingSession *))completionHandler;
+- (void)positionInformationDidChange:(const WebKit::InteractionInformationAtPosition&)info;
+- (void)didCommitLoadForMainFrame;
 - (void)reset;
 
 #if ENABLE(TWO_PHASE_CLICKS)

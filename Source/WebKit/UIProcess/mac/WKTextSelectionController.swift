@@ -184,31 +184,15 @@ extension WKTextSelectionController {
 
         Logger.viewGestures.log("[pageProxyID=\(page.logIdentifier())] \(#function) point: \(String(reflecting: point))")
 
-        let timestamp = GetCurrentEventTime()
         let windowNumber = impl.windowNumber()
 
-        let mouseDown = NSEvent.mouseEvent(
-            with: .rightMouseDown,
-            location: point,
-            modifierFlags: [],
-            timestamp: timestamp,
-            windowNumber: windowNumber,
-            context: nil,
-            eventNumber: 0,
-            clickCount: 1,
-            pressure: 1
-        )
-        let mouseUp = NSEvent.mouseEvent(
-            with: .rightMouseUp,
-            location: point,
-            modifierFlags: [],
-            timestamp: timestamp,
-            windowNumber: windowNumber,
-            context: nil,
-            eventNumber: 0,
-            clickCount: 1,
-            pressure: 0
-        )
+        guard
+            let mouseDown = NSEvent.syntheticMouseEvent(.rightMouseDown, location: point, windowNumber: windowNumber, pressure: 1),
+            let mouseUp = NSEvent.syntheticMouseEvent(.rightMouseUp, location: point, windowNumber: windowNumber, pressure: 0)
+        else {
+            assertionFailure("NSEvent.mouseEvent(with:...) returned nil for context-menu synthesis")
+            return
+        }
 
         impl.mouseDown(mouseDown, .Automation)
         impl.mouseUp(mouseUp, .Automation)
@@ -216,11 +200,95 @@ extension WKTextSelectionController {
 
     @objc(dragSelectionWithGesture:completionHandler:)
     func dragSelection(withGesture gesture: NSGestureRecognizer, completionHandler: @escaping @Sendable (NSDraggingSession) -> Void) {
-        guard let page = view._protectedPage().get() else {
+        guard let page = view._protectedPage().get(), let impl = view._impl() else {
             return
         }
 
         Logger.viewGestures.log("[pageProxyID=\(page.logIdentifier())] \(#function) gesture: \(String(reflecting: gesture))")
+
+        let locationInWindow = gesture.location(in: nil)
+        let windowNumber = impl.windowNumber()
+        let modifierFlags = gesture.modifierFlags
+
+        let mouseDown = NSEvent.syntheticMouseEvent(
+            .leftMouseDown,
+            location: locationInWindow,
+            modifierFlags: modifierFlags,
+            windowNumber: windowNumber,
+            pressure: 1
+        )
+        let mouseDragged = NSEvent.syntheticMouseEvent(
+            .leftMouseDragged,
+            location: locationInWindow,
+            modifierFlags: modifierFlags,
+            windowNumber: windowNumber,
+            pressure: 1
+        )
+
+        guard let mouseDown, let mouseDragged else {
+            assertionFailure("NSEvent.mouseEvent(with:...) returned nil for drag-selection synthesis")
+            return
+        }
+
+        impl.setTextSelectionDragGesture(gesture) { session in
+            guard let session else { return }
+            completionHandler(session)
+        }
+
+        impl.mouseDown(mouseDown, .Automation, .Yes)
+        impl.mouseDragged(mouseDragged, .Automation, .Yes)
+
+        gesture.addTarget(self, action: #selector(textSelectionDragGestureUpdated(_:)))
+    }
+
+    @objc
+    private func textSelectionDragGestureUpdated(_ gesture: NSGestureRecognizer) {
+        guard let impl = view._impl() else {
+            gesture.removeTarget(self, action: #selector(textSelectionDragGestureUpdated(_:)))
+            return
+        }
+
+        let locationInWindow = gesture.location(in: nil)
+        let windowNumber = impl.windowNumber()
+        let modifierFlags = gesture.modifierFlags
+
+        switch gesture.state {
+        case .changed:
+            guard
+                let mouseDragged = NSEvent.syntheticMouseEvent(
+                    .leftMouseDragged,
+                    location: locationInWindow,
+                    modifierFlags: modifierFlags,
+                    windowNumber: windowNumber,
+                    pressure: 1
+                )
+            else {
+                assertionFailure("NSEvent.mouseEvent(with:...) returned nil for drag-update synthesis")
+                return
+            }
+
+            impl.mouseDragged(mouseDragged, .Automation, .Yes)
+
+        case .ended, .cancelled, .failed:
+            guard
+                let mouseUp = NSEvent.syntheticMouseEvent(
+                    .leftMouseUp,
+                    location: locationInWindow,
+                    modifierFlags: modifierFlags,
+                    windowNumber: windowNumber,
+                    pressure: 0
+                )
+            else {
+                assertionFailure("NSEvent.mouseEvent(with:...) returned nil for drag-end synthesis")
+                break
+            }
+
+            impl.mouseUp(mouseUp, .Automation, .Yes)
+            gesture.removeTarget(self, action: #selector(textSelectionDragGestureUpdated(_:)))
+
+        default:
+            break
+        }
     }
 
     @objc(beginRangeSelectionAtPoint:withGranularity:)
@@ -299,6 +367,28 @@ extension WebCore.TextGranularity {
             case .paragraph: .ParagraphGranularity
             @unknown default: .CharacterGranularity
             }
+    }
+}
+
+extension NSEvent {
+    fileprivate static func syntheticMouseEvent(
+        _ type: NSEvent.EventType,
+        location: NSPoint,
+        modifierFlags: NSEvent.ModifierFlags = [],
+        windowNumber: Int,
+        pressure: Float
+    ) -> NSEvent? {
+        NSEvent.mouseEvent(
+            with: type,
+            location: location,
+            modifierFlags: modifierFlags,
+            timestamp: GetCurrentEventTime(),
+            windowNumber: windowNumber,
+            context: nil,
+            eventNumber: 0,
+            clickCount: 1,
+            pressure: pressure
+        )
     }
 }
 

@@ -46,6 +46,7 @@
 #import "ViewGestureController.h"
 #import "ViewSnapshotStore.h"
 #import "WKAPICast.h"
+#import "WKAppKitGestureController.h"
 #import "WKFullScreenWindowController.h"
 #import "WKStringCF.h"
 #import "WKViewInternal.h"
@@ -315,6 +316,9 @@ void PageClientImpl::didCommitLoadForMainFrame(const String&, bool)
     impl->dismissContentRelativeChildWindowsWithAnimation(true);
     impl->clearPromisedImageDragData();
     impl->pageDidScroll({ 0, 0 });
+#if HAVE(APPKIT_GESTURES_SUPPORT)
+    impl->invalidateCachedPositionInformation();
+#endif
 #if ENABLE(WRITING_TOOLS)
     impl->hideTextAnimationView();
 #endif
@@ -1224,8 +1228,15 @@ void PageClientImpl::showCaptionDisplaySettings(WebCore::HTMLMediaElementIdentif
     protect(m_impl)->showCaptionDisplaySettings(identifier, options, WTF::move(completionHandler));
 }
 
-void PageClientImpl::positionInformationDidChange(const InteractionInformationAtPosition&)
+void PageClientImpl::positionInformationDidChange(const InteractionInformationAtPosition& info)
 {
+    CheckedPtr impl = m_impl.get();
+    if (!impl)
+        return;
+
+#if HAVE(APPKIT_GESTURES_SUPPORT)
+    impl->positionInformationDidChange(info);
+#endif
 }
 
 } // namespace WebKit

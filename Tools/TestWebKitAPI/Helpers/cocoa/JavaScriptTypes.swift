@@ -51,6 +51,9 @@ public enum JavaScriptSelection: Sendable, Equatable {
         }
     }
 
+    /// No current selection.
+    case none
+
     /// A collapsed selection.
     case collapsed(Position)
 
@@ -91,6 +94,10 @@ extension JavaScriptSelection: WebPage.JavaScriptEncodable {
     // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
     public func encoded() -> [String: Any?] {
         switch self {
+        case .none:
+            [
+                "kind": "none"
+            ]
         case .collapsed(let position):
             [
                 "kind": "collapsed",
@@ -115,6 +122,9 @@ extension JavaScriptSelection: WebPage.JavaScriptDecodable {
         }
 
         switch kind {
+        case "none":
+            self = .none
+
         case "collapsed":
             guard
                 let position = decodedRepresentation["position"] as? [String: Any?],

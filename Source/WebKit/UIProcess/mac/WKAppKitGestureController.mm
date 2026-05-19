@@ -30,10 +30,13 @@
 
 #import "AppKitSPI.h"
 #import "IdentifierTypes.h"
+#import "InteractionInformationAtPosition.h"
+#import "InteractionInformationRequest.h"
 #import "NativeWebWheelEvent.h"
 #import "RemoteLayerTreeDrawingAreaProxy.h"
 #import "ScrollingAccelerationCurve.h"
 #import "ViewGestureController.h"
+#import "WKDeferringGestureRecognizer.h"
 #import "WKWebView.h"
 #import "WebEventModifier.h"
 #import "WebEventType.h"
@@ -53,6 +56,7 @@
 #import <WebCore/PointerID.h>
 #import <WebCore/Scrollbar.h>
 #import <source_location>
+#import <wtf/BlockPtr.h>
 #import <wtf/CheckedPtr.h>
 #import <wtf/Markable.h>
 #import <wtf/MonotonicTime.h>
@@ -150,7 +154,19 @@ static WebCore::FloatSize toRawPlatformDelta(WebCore::FloatSize delta)
     return -delta;
 }
 
-@interface WKAppKitGestureController () <NSGestureRecognizerDelegatePrivate>
+using InteractionInformationCallback = Function<void(const WebKit::InteractionInformationAtPosition&)>;
+
+struct InteractionInformationRequestAndCallback {
+    WebKit::InteractionInformationRequest request;
+    InteractionInformationCallback callback;
+};
+
+static bool representsDraggableElement(const WebKit::InteractionInformationAtPosition& info)
+{
+    return info.isLink || info.isImage || info.isAttachment || info.isDHTMLDraggable || info.isColorInput || info.prefersDraggingOverTextSelection;
+}
+
+@interface WKAppKitGestureController () <NSGestureRecognizerDelegatePrivate, WKDeferringGestureRecognizerDelegate>
 @end
 
 @implementation WKAppKitGestureController {
@@ -162,6 +178,10 @@ static WebCore::FloatSize toRawPlatformDelta(WebCore::FloatSize delta)
     RetainPtr<NSPressGestureRecognizer> _singleClickGestureRecognizer;
     RetainPtr<NSClickGestureRecognizer> _doubleClickGestureRecognizer;
     RetainPtr<NSPressGestureRecognizer> _secondaryClickGestureRecognizer;
+
+    // Auxiliary gesture recognizers to support drag-and-drop.
+    RetainPtr<NSGestureRecognizer> _textSelectionDragGesture;
+    RetainPtr<WKDeferringGestureRecognizer> _dragDeferringGestureRecognizer;
 
     bool _isMomentumActive;
 
@@ -181,7 +201,14 @@ static WebCore::FloatSize toRawPlatformDelta(WebCore::FloatSize delta)
 
     RetainPtr<NSPressGestureRecognizer> _dragPressGestureRecognizer;
     RetainPtr<NSDraggingSession> _gestureDraggingSession;
+    BlockPtr<void(NSDraggingSession *)> _textSelectionDragCompletionHandler;
     bool _dragGestureHasSentMouseDown;
+
+    WebKit::InteractionInformationAtPosition _positionInformation;
+    std::optional<WebKit::InteractionInformationRequest> _lastOutstandingPositionInformationRequest;
+    Vector<std::optional<InteractionInformationRequestAndCallback>> _pendingPositionInformationHandlers;
+    uint64_t _positionInformationCallbackDepth;
+    bool _hasValidPositionInformation;
 }
 
 #if __has_include(<WebKitAdditions/WKAppKitGestureControllerAdditionsImpl.mm>)
@@ -213,6 +240,7 @@ static WebCore::FloatSize toRawPlatformDelta(WebCore::FloatSize delta)
     [self setUpDoubleClickGestureRecognizer];
     [self setUpSecondaryClickGestureRecognizer];
     [self setUpDragPressGestureRecognizer];
+    [self setUpDragDeferringGestureRecognizer];
 }
 
 - (void)setUpPanGestureRecognizer
@@ -259,6 +287,22 @@ static WebCore::FloatSize toRawPlatformDelta(WebCore::FloatSize delta)
     [_secondaryClickGestureRecognizer setName:@"WKSecondaryClickGesture"];
 }
 
+- (void)setUpDragPressGestureRecognizer
+{
+    _dragPressGestureRecognizer = adoptNS([[NSPressGestureRecognizer alloc] initWithTarget:self action:@selector(dragPressGestureRecognized:)]);
+    [self configureForDragPress:_dragPressGestureRecognizer];
+    [_dragPressGestureRecognizer setDelegate:self];
+    [_dragPressGestureRecognizer setName:@"WKDragPressGesture"];
+}
+
+- (void)setUpDragDeferringGestureRecognizer
+{
+    _dragDeferringGestureRecognizer = adoptNS([[WKDeferringGestureRecognizer alloc] initWithDeferringGestureDelegate:self]);
+    [self configureForDragDeferral:_dragDeferringGestureRecognizer];
+    [_dragDeferringGestureRecognizer setDelegate:self];
+    [_dragDeferringGestureRecognizer setName:@"WKDragDeferringGesture"];
+}
+
 - (void)addGesturesToWebView
 {
     CheckedPtr viewImpl = _viewImpl.get();
@@ -274,8 +318,8 @@ static WebCore::FloatSize toRawPlatformDelta(WebCore::FloatSize delta)
     [webView addGestureRecognizer:_singleClickGestureRecognizer.get()];
     [webView addGestureRecognizer:_doubleClickGestureRecognizer.get()];
     [webView addGestureRecognizer:_secondaryClickGestureRecognizer.get()];
-
-    // FIXME: Add drag press gesture after rdar://problem/176383341 is resolved.
+    [webView addGestureRecognizer:_dragPressGestureRecognizer.get()];
+    [webView addGestureRecognizer:_dragDeferringGestureRecognizer.get()];
 }
 
 - (void)enableGesturesIfNeeded
@@ -285,8 +329,7 @@ static WebCore::FloatSize toRawPlatformDelta(WebCore::FloatSize delta)
     [self enableGestureIfNeeded:_singleClickGestureRecognizer.get()];
     [self enableGestureIfNeeded:_doubleClickGestureRecognizer.get()];
     [self enableGestureIfNeeded:_secondaryClickGestureRecognizer.get()];
-
-    // FIXME: Enable drag press gesture after rdar://problem/176383341 is resolved.
+    [self enableGestureIfNeeded:_dragPressGestureRecognizer.get()];
 }
 
 - (void)enableGestureIfNeeded:(NSGestureRecognizer *)gesture
@@ -573,15 +616,211 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     }
 }
 
-#pragma mark - Drag Press Gesture
+#pragma mark - WKDeferringGestureRecognizerDelegate
 
-- (void)setUpDragPressGestureRecognizer
+- (BOOL)deferringGestureRecognizer:(WKDeferringGestureRecognizer *)deferringGestureRecognizer shouldDeferOtherGestureRecognizer:(NSGestureRecognizer *)gestureRecognizer
 {
-    _dragPressGestureRecognizer = adoptNS([[NSPressGestureRecognizer alloc] initWithTarget:self action:@selector(dragPressGestureRecognized:)]);
-    [self configureForDragPress:_dragPressGestureRecognizer.get()];
-    [_dragPressGestureRecognizer setDelegate:self];
-    [_dragPressGestureRecognizer setName:@"WKDragPressGesture"];
+    CheckedPtr viewImpl = _viewImpl.get();
+    if (!viewImpl)
+        return NO;
+
+    RetainPtr webView = viewImpl->view();
+    if (!webView)
+        return NO;
+
+    for (NSGestureRecognizer *textSelectionGesture in [[webView textSelectionManager] gesturesForFailureRequirements]) {
+        if (gestureRecognizer == textSelectionGesture)
+            return deferringGestureRecognizer == _dragDeferringGestureRecognizer;
+    }
+
+    return NO;
 }
+
+- (BOOL)deferringGestureRecognizer:(WKDeferringGestureRecognizer *)deferringGestureRecognizer shouldDeferGesturesForEventThatWillBeginAction:(NSEvent *)event
+{
+    CheckedPtr viewImpl = _viewImpl.get();
+    if (!viewImpl)
+        return NO;
+
+    RetainPtr webView = viewImpl->view();
+    if (!webView)
+        return NO;
+
+    if (deferringGestureRecognizer == _dragDeferringGestureRecognizer) {
+        NSPoint locationInView = [webView convertPoint:[event locationInWindow] fromView:nil];
+        if (viewImpl->isTextSelectedAtPoint(locationInView)) {
+            WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Drag deferral: not deferring; text already selected at %@", NSStringFromPoint(locationInView));
+            return NO;
+        }
+
+        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Drag deferral: deferring; awaiting position info at %@", NSStringFromPoint(locationInView));
+
+        WebKit::InteractionInformationRequest request { WebCore::IntPoint { locationInView } };
+        [self doAfterPositionInformationUpdate:[weakSelf = WeakObjCPtr<WKAppKitGestureController>(self), weakDeferring = WeakObjCPtr<WKDeferringGestureRecognizer>(deferringGestureRecognizer)](const auto& info) {
+            RetainPtr strongSelf = weakSelf.get();
+            RetainPtr strongDeferring = weakDeferring.get();
+            if (!strongSelf || !strongDeferring)
+                return;
+
+            auto deferralState = [strongDeferring state];
+            if (deferralState != NSGestureRecognizerStatePossible) {
+                WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { strongSelf->_page.get() }->logIdentifier(),
+                    "Drag deferral: position info arrived after deferring gesture exited Possible (state=%ld); skipping resolution", static_cast<long>(deferralState));
+                return;
+            }
+            bool isDraggable = representsDraggableElement(info);
+            WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { strongSelf->_page.get() }->logIdentifier(),
+                "Drag deferral resolved: isDraggable=%d (link=%d image=%d attachment=%d dhtml=%d color=%d prefersDrag=%d)",
+                isDraggable, info.isLink, info.isImage, info.isAttachment, info.isDHTMLDraggable, info.isColorInput, info.prefersDraggingOverTextSelection);
+            [strongDeferring endDeferralShouldPreventGestures:isDraggable];
+        } forRequest:request];
+
+        return YES;
+    }
+
+    return NO;
+}
+
+- (void)deferringGestureRecognizer:(WKDeferringGestureRecognizer *)deferringGestureRecognizer didEndActionWithEvent:(NSEvent *)event
+{
+    if (deferringGestureRecognizer.state != NSGestureRecognizerStatePossible)
+        return;
+
+    if (deferringGestureRecognizer == _dragDeferringGestureRecognizer) {
+        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Drag deferral: press ended before position info arrived; unblocking text selection");
+        if (auto abandonedRequest = std::exchange(_lastOutstandingPositionInformationRequest, std::nullopt)) {
+            for (auto& slot : _pendingPositionInformationHandlers) {
+                if (slot && slot->request.isValidForRequest(*abandonedRequest))
+                    slot.reset();
+            }
+        }
+    }
+
+    [deferringGestureRecognizer endDeferralShouldPreventGestures:NO];
+}
+
+- (void)deferringGestureRecognizer:(WKDeferringGestureRecognizer *)deferringGestureRecognizer didTransitionToState:(NSGestureRecognizerState)state
+{
+}
+
+#pragma mark - Position Information
+
+- (void)_invalidateCurrentPositionInformation
+{
+    _hasValidPositionInformation = false;
+    _positionInformation = { };
+}
+
+- (void)didCommitLoadForMainFrame
+{
+    [self _invalidateCurrentPositionInformation];
+}
+
+- (void)requestAsynchronousPositionInformationUpdate:(WebKit::InteractionInformationRequest)request
+{
+    if ([self _currentPositionInformationIsValidForRequest:request])
+        return;
+
+    RefPtr page = _page.get();
+    if (!page || !page->hasRunningProcess())
+        return;
+
+    _lastOutstandingPositionInformationRequest = request;
+    page->requestPositionInformation(request);
+}
+
+- (void)doAfterPositionInformationUpdate:(Function<void(const WebKit::InteractionInformationAtPosition&)>&&)handler forRequest:(WebKit::InteractionInformationRequest)request
+{
+    if ([self _currentPositionInformationIsValidForRequest:request]) {
+        handler(_positionInformation);
+        return;
+    }
+
+    _pendingPositionInformationHandlers.constructAndAppend(std::in_place, request, WTF::move(handler));
+
+    if (![self _hasValidOutstandingPositionInformationRequest:request])
+        [self requestAsynchronousPositionInformationUpdate:request];
+}
+
+- (BOOL)_currentPositionInformationIsValidForRequest:(const WebKit::InteractionInformationRequest&)request
+{
+    return _hasValidPositionInformation && _positionInformation.request.isValidForRequest(request);
+}
+
+- (BOOL)_hasValidOutstandingPositionInformationRequest:(const WebKit::InteractionInformationRequest&)request
+{
+    return _lastOutstandingPositionInformationRequest.and_then([&request](const auto& outstandingRequest) -> std::optional<bool> {
+        return outstandingRequest.isValidForRequest(request);
+    }).value_or(false);
+}
+
+- (void)_invokeAndRemovePendingHandlersValidForCurrentPositionInformation
+{
+    ASSERT(_hasValidPositionInformation);
+
+    ++_positionInformationCallbackDepth;
+    auto updatedPositionInformation = _positionInformation;
+
+    for (size_t index = 0; index < _pendingPositionInformationHandlers.size(); ++index) {
+        auto& slot = _pendingPositionInformationHandlers[index];
+        if (!slot)
+            continue;
+        if (![self _currentPositionInformationIsValidForRequest:slot->request])
+            continue;
+
+        auto requestAndHandler = std::exchange(slot, std::nullopt);
+        if (requestAndHandler->callback)
+            requestAndHandler->callback(updatedPositionInformation);
+    }
+
+    if (--_positionInformationCallbackDepth)
+        return;
+
+    for (int index = _pendingPositionInformationHandlers.size() - 1; index >= 0; --index) {
+        if (!_pendingPositionInformationHandlers[index])
+            _pendingPositionInformationHandlers.removeAt(index);
+    }
+}
+
+- (void)positionInformationDidChange:(const WebKit::InteractionInformationAtPosition&)info
+{
+    // Handlers run in `_invokeAndRemovePendingHandlersValidForCurrentPositionInformation`
+    // can re-enter into client code (e.g. UI delegate callbacks), which may release
+    // the WKWebView and tear `self` down before this method returns.
+    RetainPtr protectedSelf = self;
+
+    if (_lastOutstandingPositionInformationRequest && info.request.isValidForRequest(*_lastOutstandingPositionInformationRequest))
+        _lastOutstandingPositionInformationRequest = std::nullopt;
+
+    auto newInfo = info;
+    newInfo.mergeCompatibleOptionalInformation(_positionInformation);
+
+    _positionInformation = newInfo;
+    _hasValidPositionInformation = _positionInformation.canBeValid;
+
+    [self _invokeAndRemovePendingHandlersValidForCurrentPositionInformation];
+}
+
+- (BOOL)_dragPressShouldBeginAtLocation:(NSPoint)locationInViewCoordinates
+{
+    WebKit::InteractionInformationRequest request { WebCore::IntPoint { locationInViewCoordinates } };
+    int radius = static_cast<int>(std::ceil([_dragPressGestureRecognizer allowableMovement]));
+    // FIXME: Migrate to requestDragStart: IPC for an authoritative decision.
+    // The heuristic below approximates DragController::draggableElement() by consulting the same element-type and style signals.
+    bool isDraggable = representsDraggableElement(_positionInformation);
+    bool requestIsValid = _hasValidPositionInformation && _positionInformation.request.isApproximatelyValidForRequest(request, radius);
+    bool shouldDrag = requestIsValid && isDraggable;
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(),
+        "Drag-press shouldBegin → %d (hasInfo=%d link=%d image=%d attachment=%d dhtml=%d color=%d prefersDrag=%d radius=%d)",
+        shouldDrag, _hasValidPositionInformation,
+        _positionInformation.isLink, _positionInformation.isImage, _positionInformation.isAttachment,
+        _positionInformation.isDHTMLDraggable, _positionInformation.isColorInput, _positionInformation.prefersDraggingOverTextSelection, radius);
+    if (!requestIsValid)
+        [self _invalidateCurrentPositionInformation];
+    return shouldDrag;
+}
+
+#pragma mark - Drag Handling
 
 - (void)dragPressGestureRecognized:(NSGestureRecognizer *)gesture
 {
@@ -955,19 +1194,42 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
 
 - (NSGestureRecognizer *)activeDragGestureRecognizer
 {
+    if (_textSelectionDragGesture)
+        return _textSelectionDragGesture.get();
     if (_dragGestureHasSentMouseDown)
         return _dragPressGestureRecognizer.get();
     return nil;
 }
 
+- (void)setTextSelectionDragGesture:(NSGestureRecognizer *)gesture completionHandler:(void (^)(NSDraggingSession *))completionHandler
+{
+    if (_textSelectionDragGesture) {
+        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(),
+            "Replacing prior text-selection drag gesture %@ (completion handler set: %d); prior drag never reached setGestureDraggingSession:",
+            _textSelectionDragGesture.get(), !!_textSelectionDragCompletionHandler);
+        ASSERT_NOT_REACHED();
+    }
+
+    _textSelectionDragGesture = gesture;
+    _textSelectionDragCompletionHandler = makeBlockPtr(completionHandler);
+}
+
 - (void)setGestureDraggingSession:(NSDraggingSession *)session
 {
     _gestureDraggingSession = session;
+    if (!_gestureDraggingSession)
+        return;
+
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Drag session began");
+    if (auto handler = std::exchange(_textSelectionDragCompletionHandler, nullptr))
+        handler(_gestureDraggingSession);
 }
 
 - (void)clearGestureDragState
 {
     _gestureDraggingSession = nil;
+    _textSelectionDragGesture = nil;
+    _textSelectionDragCompletionHandler = nullptr;
     _dragGestureHasSentMouseDown = false;
 }
 
@@ -980,6 +1242,9 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     _isSuppressingSingleClickGestureForTextSelection = false;
     _latestClickID.reset();
     _layerTreeTransactionIdAtLastInteractionStart.reset();
+    [self _invalidateCurrentPositionInformation];
+    _lastOutstandingPositionInformationRequest.reset();
+    _pendingPositionInformationHandlers.clear();
 }
 
 #pragma mark - NSGestureRecognizerDelegate
@@ -1000,6 +1265,9 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
     WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Gesture: %@, Other gesture: %@", gestureRecognizer, otherGestureRecognizer);
 
     if (isSamePair(gestureRecognizer, otherGestureRecognizer, _singleClickGestureRecognizer.get(), _panGestureRecognizer.get()))
+        return YES;
+
+    if ([gestureRecognizer isKindOfClass:WKDeferringGestureRecognizer.class] || [otherGestureRecognizer isKindOfClass:WKDeferringGestureRecognizer.class])
         return YES;
 
     if (isSamePair(gestureRecognizer, otherGestureRecognizer, _mouseTrackingGestureRecognizer.get(), _singleClickGestureRecognizer.get()))
@@ -1051,8 +1319,10 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
     if (!webView)
         return NO;
 
-    // Fail any gestures from the text selection manager if the secondary click GR handles them.
+    if (gestureRecognizer == _dragDeferringGestureRecognizer)
+        return [_dragDeferringGestureRecognizer shouldDeferGestureRecognizer:otherGestureRecognizer];
 
+    // Fail any gestures from the text selection manager if the secondary click GR handles them.
     for (NSGestureRecognizer *gestureForFailureRequirements in [[webView textSelectionManager] gesturesForFailureRequirements]) {
         if (gestureRecognizer == _secondaryClickGestureRecognizer && otherGestureRecognizer == gestureForFailureRequirements)
             return YES;
@@ -1093,9 +1363,12 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
         return NO;
     }
 
-    if (gestureRecognizer == _singleClickGestureRecognizer || gestureRecognizer == _mouseTrackingGestureRecognizer) {
-        // The platform text selection interaction should handle any gestures on a selection.
+    if (gestureRecognizer == _singleClickGestureRecognizer || gestureRecognizer == _mouseTrackingGestureRecognizer || gestureRecognizer == _dragPressGestureRecognizer) {
         NSPoint locationInViewCoordinates = [gestureRecognizer locationInView:webView];
+
+        if (gestureRecognizer == _dragPressGestureRecognizer)
+            return [self _dragPressShouldBeginAtLocation:locationInViewCoordinates];
+
         return !viewImpl->isTextSelectedAtPoint(locationInViewCoordinates);
     }
 
@@ -1121,7 +1394,8 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
 
     bool isOurClickGesture = preventingGestureRecognizer == _singleClickGestureRecognizer
         || preventingGestureRecognizer == _secondaryClickGestureRecognizer
-        || preventingGestureRecognizer == _mouseTrackingGestureRecognizer;
+        || preventingGestureRecognizer == _mouseTrackingGestureRecognizer
+        || preventingGestureRecognizer == _dragPressGestureRecognizer;
 
     if (!isOurClickGesture)
         return YES;

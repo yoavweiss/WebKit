@@ -4703,6 +4703,14 @@ void WebViewImpl::draggingSessionEnded(NSDraggingSession *, NSPoint endPoint, NS
 #endif
 }
 
+void WebViewImpl::cancelDrag()
+{
+    m_page->dragCancelled();
+#if HAVE(APPKIT_GESTURES_SUPPORT)
+    [appKitGestureController() clearGestureDragState];
+#endif
+}
+
 #endif // ENABLE(DRAG_SUPPORT)
 
 void WebViewImpl::startWindowDrag()
@@ -4714,7 +4722,7 @@ void WebViewImpl::startDrag(const WebCore::DragItem& item, ShareableBitmap::Hand
 {
     auto dragImageAsBitmap = ShareableBitmap::create(WTF::move(dragImageHandle));
     if (!dragImageAsBitmap) {
-        m_page->dragCancelled();
+        cancelDrag();
         return;
     }
 
@@ -4757,7 +4765,7 @@ void WebViewImpl::startDrag(const WebCore::DragItem& item, ShareableBitmap::Hand
             bool missingDragInitiator = !lastMouseDownEvent;
 #endif
             if (missingDragInitiator) {
-                page->dragCancelled();
+                protectedThis->cancelDrag();
                 return;
             }
 
@@ -4772,13 +4780,13 @@ void WebViewImpl::startDrag(const WebCore::DragItem& item, ShareableBitmap::Hand
             if (promisedAttachmentInfo) {
                 RefPtr attachment = page->attachmentForIdentifier(promisedAttachmentInfo.attachmentIdentifier);
                 if (!attachment) {
-                    page->dragCancelled();
+                    protectedThis->cancelDrag();
                     return;
                 }
 
                 RetainPtr utiType = attachment->utiType().createNSString();
                 if (![utiType length]) {
-                    page->dragCancelled();
+                    protectedThis->cancelDrag();
                     return;
                 }
 
@@ -4814,8 +4822,7 @@ void WebViewImpl::startDrag(const WebCore::DragItem& item, ShareableBitmap::Hand
                 RetainPtr session = [view beginDraggingSessionWithItems:@[ draggingItem ] gesture:gesture source:static_cast<id<NSDraggingSource>>(view.get())];
                 [gestureController setGestureDraggingSession:session.get()];
                 if (!session) {
-                    page->dragCancelled();
-                    [gestureController clearGestureDragState];
+                    protectedThis->cancelDrag();
                     return;
                 }
             } else
@@ -7720,6 +7727,21 @@ void WebViewImpl::addTextSelectionManager()
 bool WebViewImpl::isTextSelectedAtPoint(NSPoint point)
 {
     return [m_textSelectionController isTextSelectedAtPoint:point];
+}
+
+void WebViewImpl::setTextSelectionDragGesture(NSGestureRecognizer *gesture, void (^completionHandler)(NSDraggingSession *))
+{
+    [m_appKitGestureController setTextSelectionDragGesture:gesture completionHandler:completionHandler];
+}
+
+void WebViewImpl::invalidateCachedPositionInformation()
+{
+    [m_appKitGestureController didCommitLoadForMainFrame];
+}
+
+void WebViewImpl::positionInformationDidChange(const InteractionInformationAtPosition& info)
+{
+    [m_appKitGestureController positionInformationDidChange:info];
 }
 
 void WebViewImpl::beginSuppressingSingleClickGestureForTextSelection()

@@ -163,6 +163,9 @@ extension JavaScriptMessages {
         public static var expression: String {
             """
             const selection = getSelection();
+            if (selection.rangeCount === 0 || selection.anchorNode === null) {
+                return { "kind": "none" };
+            }
             if (selection.isCollapsed) {
                 return {
                     "kind": "collapsed",
