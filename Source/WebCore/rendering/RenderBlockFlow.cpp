@@ -5233,6 +5233,11 @@ void RenderBlockFlow::computeInlinePreferredLogicalWidths(LayoutUnit& minLogical
 
             lastText = renderText.get();
 
+            // If this text begins with a forced soft-break, the previous line ends here; trim its trailing whitespace (same what resetLineForForcedLineBreak does for <br>).
+            // 'text <span style="white-space: pre-wrap">\n</span>' vs. 'text <br>'
+            if (widths.hasBreak && !widths.beginMax && trailingSpaceChild && trailingSpaceChild->style().collapseWhiteSpace())
+                stripTrailingSpace(inlineMax, inlineMin, trailingSpaceChild);
+
             if (stripFrontSpaces)
                 trailingSpaceChild = child;
             else
