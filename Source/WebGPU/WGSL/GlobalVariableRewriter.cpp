@@ -172,6 +172,7 @@ private:
     HashSet<AST::Expression*> m_doNotUnpack;
     CheckedUint32 m_combinedFunctionVariablesSize;
     bool m_isTopLevelExpression { true };
+    bool m_suppressOverrideValidation { false };
 };
 
 std::optional<Error> RewriteGlobalVariables::run()
@@ -596,7 +597,20 @@ Packing RewriteGlobalVariables::getPacking(AST::IndexAccessExpression& expressio
 Packing RewriteGlobalVariables::getPacking(AST::BinaryExpression& expression)
 {
     pack(Packing::Unpacked, expression.leftExpression());
+
+    if (expression.operation() == AST::BinaryOperation::ShortCircuitAnd || expression.operation() == AST::BinaryOperation::ShortCircuitOr) {
+        auto leftEval = expression.leftExpression().maybeEvaluation().value_or(Evaluation::Runtime);
+        if (leftEval == Evaluation::Override) {
+            SetForScope suppressScope(m_suppressOverrideValidation, true);
+            pack(Packing::Unpacked, expression.rightExpression());
+            return Packing::Unpacked;
+        }
+    }
+
     pack(Packing::Unpacked, expression.rightExpression());
+
+    if (m_suppressOverrideValidation)
+        return Packing::Unpacked;
 
     auto operation = toASCIILiteral(expression.operation());
     if (auto* overload = m_shaderModule.lookupOverload(operation)) {
@@ -719,20 +733,22 @@ Packing RewriteGlobalVariables::getPacking(AST::CallExpression& call)
     for (auto& argument : call.arguments())
         pack(Packing::Unpacked, argument);
 
-    if (auto validate = call.validationFunction()) {
-        m_shaderModule.addOverrideValidation([&shaderModule = m_shaderModule, &call, validate](auto& overrideValues) -> std::optional<Error> {
-            unsigned argumentCount = call.arguments().size();
-            FixedVector<std::optional<ConstantValue>> validationArguments(argumentCount);
-            for (unsigned i = 0; i < argumentCount; ++i) {
-                if (auto value = evaluate(shaderModule, call.arguments()[i], overrideValues))
-                    validationArguments[i] = { *value };
-            }
+    if (!m_suppressOverrideValidation) {
+        if (auto validate = call.validationFunction()) {
+            m_shaderModule.addOverrideValidation([&shaderModule = m_shaderModule, &call, validate](auto& overrideValues) -> std::optional<Error> {
+                unsigned argumentCount = call.arguments().size();
+                FixedVector<std::optional<ConstantValue>> validationArguments(argumentCount);
+                for (unsigned i = 0; i < argumentCount; ++i) {
+                    if (auto value = evaluate(shaderModule, call.arguments()[i], overrideValues))
+                        validationArguments[i] = { *value };
+                }
 
-            if (auto error = validate(WTF::move(validationArguments)))
-                return Error(*error, call.span());
+                if (auto error = validate(WTF::move(validationArguments)))
+                    return Error(*error, call.span());
 
-            return std::nullopt;
-        });
+                return std::nullopt;
+            });
+        }
     }
 
     return Packing::Unpacked;
