@@ -8623,6 +8623,8 @@ webkit.org/b/312120 imported/w3c/web-platform-tests/credential-management/creden
 # rdar://173890240 ([iOS] imported/w3c/web-platform-tests/css/css-images/gradient/gradient-analogous-missing-components-003.html has 2 component pixel difference)
 imported/w3c/web-platform-tests/css/css-images/gradient/gradient-analogous-missing-components-003.html [ Pass ImageOnlyFailure ]
 
+webkit.org/b/315123 imported/w3c/web-platform-tests/css/css-viewport/animations/zoom-interpolation.html [ Failure ]
+
 webkit.org/b/315060 imported/w3c/web-platform-tests/dom/events/Event-timestamp-high-resolution.https.html [ Pass Failure ]
 
 # webkit.org/b/312385 NEW TEST (311246@main): [iOS] 7 tests in imported/w3c/web-platform-tests/html/semantics/popovers/ are failing
