@@ -33,6 +33,7 @@
 #include "CSSPrimitiveNumericTypes+Serialization.h"
 #include "ColorInterpolation.h"
 #include "StyleBuilderState.h"
+#include "StyleCalculationValue.h"
 #include "StyleGradientImage.h"
 #include "StylePrimitiveNumericTypes+Conversions.h"
 #include <wtf/text/StringBuilder.h>

@@ -24,11 +24,15 @@
 
 #pragma once
 
-#include <WebCore/StyleCalculationValue.h>
 #include <WebCore/StyleZoomPrimitives.h>
+#include <wtf/Ref.h>
 
 namespace WebCore {
 namespace Style {
+
+namespace Calculation {
+class Value;
+}
 
 enum class LengthWrapperDataKind : uint8_t {
     Default,

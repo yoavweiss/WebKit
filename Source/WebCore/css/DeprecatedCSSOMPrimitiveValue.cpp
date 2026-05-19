@@ -28,6 +28,7 @@
 #include "DeprecatedCSSOMPrimitiveValue.h"
 
 #include "CSSAttrValue.h"
+#include "CSSCalcValue.h"
 #include "CSSColorValue.h"
 #include "CSSCounterValue.h"
 #include "CSSCustomIdentValue.h"

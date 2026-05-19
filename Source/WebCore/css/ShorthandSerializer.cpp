@@ -27,6 +27,7 @@
 #include "ShorthandSerializer.h"
 
 #include "CSSBorderImageWidthValue.h"
+#include "CSSCalcValue.h"
 #include "CSSCustomIdentValue.h"
 #include "CSSGridAutoFlowValue.h"
 #include "CSSGridLineValue.h"

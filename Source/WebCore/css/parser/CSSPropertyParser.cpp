@@ -69,6 +69,7 @@
 #include "CSSWideKeyword.h"
 #include "ComputedStyleDependencies.h"
 #include "StyleBuilder.h"
+#include "StyleCalculationValue.h"
 #include "StyleCustomIdent.h"
 #include "StyleCustomProperty.h"
 #include "StylePrimitiveNumericTypes+CSSValueConversion.h"

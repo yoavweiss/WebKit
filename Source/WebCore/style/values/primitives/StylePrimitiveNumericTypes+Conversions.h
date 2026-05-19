@@ -31,7 +31,6 @@
 #include "CSSToLengthConversionData.h"
 #include "FloatConversion.h"
 #include "StyleBuilderState.h"
-#include "StyleCalculationValue.h"
 #include "StylePrimitiveNumericTypes.h"
 #include "StylePrimitiveNumericTypes+Rounding.h"
 

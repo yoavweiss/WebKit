@@ -59,6 +59,11 @@ UnevaluatedCalculationBase& UnevaluatedCalculationBase::operator=(UnevaluatedCal
 
 UnevaluatedCalculationBase::~UnevaluatedCalculationBase() = default;
 
+Ref<Calculation::Value> CLANG_POINTER_CONVERSION Calculation::protect(Calculation::Value& value)
+{
+    return value;
+}
+
 double UnevaluatedCalculationBase::evaluate(double percentageBasis, ZoomFactor zoom) const
 {
     return protect(m_calc)->evaluate(percentageBasis, zoom);

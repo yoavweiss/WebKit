@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <WebCore/CSSCalcRandomSharingOptions.h>
 #include <WebCore/CSSCalcType.h>
 #include <WebCore/CSSCustomIdent.h>
 #include <WebCore/CSSPrimitiveNumeric.h>
@@ -761,18 +762,7 @@ struct Random {
     static constexpr auto id = CSSValueRandom;
 
     // <random-value-sharing> = [ [ auto | <dashed-ident> ] || element-scoped ] | fixed <number [0,1]>
-    struct SharingOptions {
-        struct Auto {
-            CSSPropertyID property;
-            unsigned index;
-
-            bool operator==(const Auto&) const = default;
-        };
-        Variant<Auto, CSS::CustomIdent> identifier;
-        std::optional<CSS::Keyword::ElementScoped> elementScoped;
-
-        bool operator==(const SharingOptions&) const = default;
-    };
+    using SharingOptions = RandomSharingOptions;
     struct SharingFixed {
         CSS::Number<CSS::ClosedUnitRange> value;
 

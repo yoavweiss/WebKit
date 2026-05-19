@@ -22,7 +22,6 @@
 
 #pragma once
 
-#include <WebCore/CSSCalcValue.h>
 #include <WebCore/CSSPrimitiveNumericUnits.h>
 #include <WebCore/CSSValue.h>
 #include <WebCore/CSSValueKeywords.h>
@@ -37,6 +36,12 @@ class CSSToLengthConversionData;
 class FontCascade;
 class RenderStyle;
 class RenderView;
+
+namespace CSSCalc {
+class Value;
+Ref<const Value> CLANG_POINTER_CONVERSION protect(const Value&);
+RefPtr<const Value> CLANG_POINTER_CONVERSION protect(const Value*);
+}
 
 template<typename> class ExceptionOr;
 
@@ -80,7 +85,7 @@ public:
     {
         auto visitor = WTF::makeVisitor(std::forward<F>(f)...);
         if (isCalculated())
-            return visitor(protect(*m_value.calc));
+            SUPPRESS_FORWARD_DECL_ARG return visitor(protect(*m_value.calc));
         return visitor(Raw { primitiveUnitType(), m_value.number });
     }
 

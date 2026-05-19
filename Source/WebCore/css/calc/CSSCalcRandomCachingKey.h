@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <WebCore/CSSCalcTree.h>
+#include <WebCore/CSSCalcRandomSharingOptions.h>
 #include <WebCore/StyleCustomIdent.h>
 #include <optional>
 #include <wtf/HashFunctions.h>
@@ -36,19 +36,19 @@ namespace CSSCalc {
 
 struct RandomCachingKey {
     using Identifier = Variant<
-        Random::SharingOptions::Auto,
+        RandomSharingOptions::Auto,
         Style::CustomIdent,
         WTF::HashTableDeletedValueType,
         WTF::HashTableEmptyValueType
     >;
     Identifier identifier;
 
-    RandomCachingKey(const Random::SharingOptions::Auto& identifier)
+    RandomCachingKey(const RandomSharingOptions::Auto& identifier)
         : identifier { identifier }
     {
     }
 
-    RandomCachingKey(Random::SharingOptions::Auto&& identifier)
+    RandomCachingKey(RandomSharingOptions::Auto&& identifier)
         : identifier { WTF::move(identifier) }
     {
     }
@@ -63,12 +63,12 @@ struct RandomCachingKey {
     {
     }
 
-    RandomCachingKey(Variant<Random::SharingOptions::Auto, Style::CustomIdent>&& identifier)
+    RandomCachingKey(Variant<RandomSharingOptions::Auto, Style::CustomIdent>&& identifier)
         : identifier { convertToIdentifier(WTF::move(identifier)) }
     {
     }
 
-    RandomCachingKey(const Variant<Random::SharingOptions::Auto, Style::CustomIdent>& identifier)
+    RandomCachingKey(const Variant<RandomSharingOptions::Auto, Style::CustomIdent>& identifier)
         : identifier { convertToIdentifier(identifier) }
     {
     }
@@ -89,12 +89,12 @@ struct RandomCachingKey {
     bool operator==(const RandomCachingKey&) const = default;
 
 private:
-    static Identifier convertToIdentifier(Variant<Random::SharingOptions::Auto, Style::CustomIdent>&& identifier)
+    static Identifier convertToIdentifier(Variant<RandomSharingOptions::Auto, Style::CustomIdent>&& identifier)
     {
         return WTF::switchOn(WTF::move(identifier), [](auto&& alternative) { return Identifier { WTF::move(alternative) }; });
     }
 
-    static Identifier convertToIdentifier(const Variant<Random::SharingOptions::Auto, Style::CustomIdent>& identifier)
+    static Identifier convertToIdentifier(const Variant<RandomSharingOptions::Auto, Style::CustomIdent>& identifier)
     {
         return WTF::switchOn(identifier, [](const auto& alternative) { return Identifier { alternative }; });
     }
@@ -111,7 +111,7 @@ struct CSSCalcRandomCachingKeyHash {
         Hasher hasher;
         add(hasher, key.identifier.index());
         WTF::switchOn(key.identifier,
-            [&](const WebCore::CSSCalc::Random::SharingOptions::Auto& autoValue) {
+            [&](const WebCore::CSSCalc::RandomSharingOptions::Auto& autoValue) {
                 add(hasher, autoValue.property);
                 add(hasher, autoValue.index);
             },

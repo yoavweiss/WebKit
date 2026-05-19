@@ -129,7 +129,7 @@ template<typename Numeric, CSS::SpecificKeyword... Ks> struct LengthWrapperBase 
 
              if (opaqueType == indexForFixed)       return visitor(Fixed { m_value.value() });
         else if (opaqueType == indexForPercentage)  return visitor(Percentage { m_value.value() });
-        else if (opaqueType == indexForCalc)        return visitor(Calc { m_value.calculationValue() });
+        else if (opaqueType == indexForCalc)        SUPPRESS_FORWARD_DECL_ARG return visitor(Calc { m_value.calculationValue() });
 
         RELEASE_ASSERT_NOT_REACHED();
     }

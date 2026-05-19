@@ -29,6 +29,7 @@
 
 #include "CSSBorderImageSliceValue.h"
 #include "CSSBorderImageWidthValue.h"
+#include "CSSCalcValue.h"
 #include "CSSKeywordValueInlines.h"
 #include "CSSOffsetRotateValue.h"
 #include "CSSPrimitiveValue.h"
