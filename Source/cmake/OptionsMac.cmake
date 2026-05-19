@@ -150,11 +150,6 @@ if (EXISTS "${_clang}")
     set(CMAKE_OBJCXX_COMPILER "${_clang}++")
 endif ()
 
-# Ask xcrun directly; CMake's default sysroot discovery can lag Xcode versions.
-if (NOT CMAKE_OSX_SYSROOT)
-    WEBKIT_XCRUN(CMAKE_OSX_SYSROOT --show-sdk-path)
-endif ()
-
 # Deployment target must match SDK version -- PlatformHave.h SPI guards depend on
 # __MAC_OS_X_VERSION_MIN_REQUIRED. Auto-bump if the preset floor is below the SDK.
 string(REGEX MATCH "^[0-9]+\\.[0-9]+" _sdk_major_minor "${_sdk_version}")
