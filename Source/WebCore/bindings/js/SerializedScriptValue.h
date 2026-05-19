@@ -71,8 +71,8 @@ template<typename> class ExceptionOr;
 
 enum class SerializationReturnCode;
 
-enum class SerializationErrorMode { NonThrowing, Throwing };
-enum class SerializationContext { Default, WorkerPostMessage, WindowPostMessage, CloneAcrossWorlds };
+enum class SerializationErrorMode : bool { NonThrowing, Throwing };
+enum class SerializationContext : bool { Default, CloneAcrossWorlds };
 enum class SerializationForStorage : bool { No, Yes };
 
 struct ErrorInformation {
@@ -91,8 +91,8 @@ DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(SerializedScriptValue);
 class SerializedScriptValue : public ThreadSafeRefCounted<SerializedScriptValue> {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(SerializedScriptValue, SerializedScriptValue);
 public:
-    WEBCORE_EXPORT static ExceptionOr<Ref<SerializedScriptValue>> create(JSC::JSGlobalObject&, JSC::JSValue, Vector<JSC::Strong<JSC::JSObject>>&& transfer, Vector<Ref<MessagePort>>&, SerializationForStorage = SerializationForStorage::No, SerializationContext = SerializationContext::Default);
-    WEBCORE_EXPORT static RefPtr<SerializedScriptValue> create(JSC::JSGlobalObject&, JSC::JSValue, SerializationForStorage = SerializationForStorage::No, SerializationErrorMode = SerializationErrorMode::Throwing, SerializationContext = SerializationContext::Default);
+    WEBCORE_EXPORT static ExceptionOr<Ref<SerializedScriptValue>> create(JSC::JSGlobalObject&, JSC::JSValue, Vector<JSC::Strong<JSC::JSObject>>&& transfer, Vector<Ref<MessagePort>>&, SerializationForStorage, SerializationContext = SerializationContext::Default);
+    WEBCORE_EXPORT static RefPtr<SerializedScriptValue> create(JSC::JSGlobalObject&, JSC::JSValue, SerializationForStorage, SerializationErrorMode = SerializationErrorMode::Throwing, SerializationContext = SerializationContext::Default);
     WEBCORE_EXPORT static RefPtr<SerializedScriptValue> convert(JSC::JSGlobalObject&, JSC::JSValue);
 
     WEBCORE_EXPORT static RefPtr<SerializedScriptValue> create(StringView);

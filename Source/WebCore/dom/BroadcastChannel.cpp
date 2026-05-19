@@ -197,7 +197,7 @@ ExceptionOr<void> BroadcastChannel::postMessage(JSC::JSGlobalObject& globalObjec
         return Exception { ExceptionCode::InvalidStateError, "This BroadcastChannel is closed"_s };
 
     Vector<Ref<MessagePort>> ports;
-    auto messageData = SerializedScriptValue::create(globalObject, message, { }, ports, SerializationForStorage::No, SerializationContext::WorkerPostMessage);
+    auto messageData = SerializedScriptValue::create(globalObject, message, { }, ports, SerializationForStorage::No);
     if (messageData.hasException())
         return messageData.releaseException();
     ASSERT(ports.isEmpty());

@@ -1,5 +1,5 @@
 
 PASS postMessaging a shared WebAssembly.Memory to a dedicated worker
-FAIL postMessaging a shared WebAssembly.Memory to a same-origin iframe The object can not be cloned.
+PASS postMessaging a shared WebAssembly.Memory to a same-origin iframe
 PASS Cloning a shared WebAssembly.Memory through a MessageChannel
 

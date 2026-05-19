@@ -91,7 +91,7 @@ static ExceptionOr<Ref<SerializedScriptValue>> createSerializedScriptValue(Scrip
         return Exception { ExceptionCode::TypeError, "Notification cannot be created without a global object"_s };
 
     Vector<Ref<MessagePort>> dummyPorts;
-    return SerializedScriptValue::create(*globalObject, value, { }, dummyPorts);
+    return SerializedScriptValue::create(*globalObject, value, { }, dummyPorts, SerializationForStorage::Yes);
 }
 
 ExceptionOr<Ref<Notification>> Notification::create(ScriptExecutionContext& context, String&& title, Options&& options)

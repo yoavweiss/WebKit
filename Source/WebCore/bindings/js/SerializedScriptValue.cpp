@@ -2291,8 +2291,10 @@ private:
 #endif
 #if ENABLE(WEBASSEMBLY)
             if (JSWebAssemblyModule* module = dynamicDowncast<JSWebAssemblyModule>(obj)) {
-                if (m_context != SerializationContext::WorkerPostMessage && m_context != SerializationContext::WindowPostMessage)
-                    return false;
+                if (m_forStorage == SerializationForStorage::Yes) {
+                    code = SerializationReturnCode::DataCloneError;
+                    return true;
+                }
 
                 uint32_t index = m_wasmModules.size();
                 m_wasmModules.append(Ref { module->module() });
@@ -2302,11 +2304,11 @@ private:
                 return true;
             }
             if (JSWebAssemblyMemory* memory = dynamicDowncast<JSWebAssemblyMemory>(obj)) {
-                if (!JSC::Options::useSharedArrayBuffer() || memory->memory().sharingMode() != JSC::MemorySharingMode::Shared) {
+                if (m_forStorage == SerializationForStorage::Yes || memory->memory().sharingMode() != JSC::MemorySharingMode::Shared) {
                     code = SerializationReturnCode::DataCloneError;
                     return true;
                 }
-                if (m_context != SerializationContext::WorkerPostMessage) {
+                if (!isCrossOriginIsolatedContext(m_lexicalGlobalObject) && !JSC::Options::useSharedArrayBuffer()) {
                     code = SerializationReturnCode::DataCloneError;
                     return true;
                 }
@@ -5629,15 +5631,13 @@ private:
         }
 #if ENABLE(WEBASSEMBLY)
         case WasmModuleTag: {
-            if (m_majorVersion >= 12) {
-                // https://webassembly.github.io/spec/web-api/index.html#serialization
-                CachedStringRef agentClusterID;
-                bool agentClusterIDSuccessfullyRead = readStringData(agentClusterID);
-                if (!agentClusterIDSuccessfullyRead || agentClusterID->string() != agentClusterIDFromGlobalObject(*m_globalObject)) {
-                    SERIALIZE_TRACE("FAIL deserialize");
-                    fail();
-                    return JSValue();
-                }
+            // https://webassembly.github.io/spec/web-api/index.html#serialization
+            CachedStringRef agentClusterID;
+            bool agentClusterIDSuccessfullyRead = readStringData(agentClusterID);
+            if (!agentClusterIDSuccessfullyRead || agentClusterID->string() != agentClusterIDFromGlobalObject(*m_globalObject)) {
+                SERIALIZE_TRACE("FAIL deserialize");
+                fail();
+                return JSValue();
             }
             uint32_t index;
             bool indexSuccessfullyRead = read(index);
@@ -5649,18 +5649,16 @@ private:
             return JSC::JSWebAssemblyModule::create(m_lexicalGlobalObject->vm(), m_globalObject->webAssemblyModuleStructure(), m_wasmModules->at(index).copyRef());
         }
         case WasmMemoryTag: {
-            if (m_majorVersion >= 12) {
-                CachedStringRef agentClusterID;
-                bool agentClusterIDSuccessfullyRead = readStringData(agentClusterID);
-                if (!agentClusterIDSuccessfullyRead || agentClusterID->string() != agentClusterIDFromGlobalObject(*m_globalObject)) {
-                    SERIALIZE_TRACE("FAIL deserialize");
-                    fail();
-                    return JSValue();
-                }
+            CachedStringRef agentClusterID;
+            bool agentClusterIDSuccessfullyRead = readStringData(agentClusterID);
+            if (!agentClusterIDSuccessfullyRead || agentClusterID->string() != agentClusterIDFromGlobalObject(*m_globalObject)) {
+                SERIALIZE_TRACE("FAIL deserialize");
+                fail();
+                return JSValue();
             }
             uint32_t index;
             bool indexSuccessfullyRead = read(index);
-            if (!indexSuccessfullyRead || !m_wasmMemoryHandles || index >= m_wasmMemoryHandles->size() || !JSC::Options::useSharedArrayBuffer()) {
+            if (!indexSuccessfullyRead || !m_wasmMemoryHandles || index >= m_wasmMemoryHandles->size()) {
                 SERIALIZE_TRACE("FAIL deserialize");
                 fail();
                 return JSValue();
@@ -6964,7 +6962,7 @@ ExceptionOr<Ref<SerializedScriptValue>> SerializedScriptValue::create(JSGlobalOb
         , .inMemoryMessagePorts = WTF::move(inMemoryMessagePorts)
 #if ENABLE(WEBASSEMBLY)
         , .wasmModulesArray = wasmModules.isEmpty() ? nullptr : makeUnique<WasmModuleArray>(WTF::move(wasmModules))
-        , .wasmMemoryHandlesArray = context == SerializationContext::WorkerPostMessage ? makeUnique<WasmMemoryHandleArray>(wasmMemoryHandles) : nullptr
+        , .wasmMemoryHandlesArray = makeUnique<WasmMemoryHandleArray>(WTF::move(wasmMemoryHandles))
 #endif
         , .blobHandles = crossThreadCopy(WTF::move(blobHandles))
     }));
@@ -6989,7 +6987,7 @@ RefPtr<SerializedScriptValue> SerializedScriptValue::create(JSContextRef originC
     auto scope = DECLARE_TOP_EXCEPTION_SCOPE(vm);
 
     JSValue value = toJS(lexicalGlobalObject, apiValue);
-    auto serializedValue = SerializedScriptValue::create(*lexicalGlobalObject, value);
+    auto serializedValue = SerializedScriptValue::create(*lexicalGlobalObject, value, SerializationForStorage::No);
     if (scope.exception()) [[unlikely]] {
         if (exception)
             *exception = toRef(lexicalGlobalObject, scope.exception()->value());
