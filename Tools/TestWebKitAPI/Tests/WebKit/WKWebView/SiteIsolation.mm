@@ -96,6 +96,12 @@
 @end
 #endif
 
+#if PLATFORM(MAC)
+@interface NSMenu ()
+- (id)_menuImpl;
+@end
+#endif
+
 @interface SiteIsolationTextManipulationDelegate : NSObject <_WKTextManipulationDelegate>
 - (void)_webView:(WKWebView *)webView didFindTextManipulationItems:(NSArray<_WKTextManipulationItem *> *)items;
 @property (nonatomic, readonly, copy) NSArray<_WKTextManipulationItem *> *items;
@@ -7786,6 +7792,70 @@ TEST(SiteIsolation, ColorInputPickerLocation)
 
     NSRect popoverPositioningViewBoundsInWebViewCoordinates = [popoverPositioningView convertRect:[popoverPositioningView bounds] toView:webView.get()];
     EXPECT_EQ(popoverPositioningViewBoundsInWebViewCoordinates, NSMakeRect(168, 168, 50, 50));
+}
+
+TEST(SiteIsolation, SelectElementPopupAfterFocusChangesDuringTracking)
+{
+    auto mainframeHTML = "<body style='margin:0'>"
+        "<select id='sel' style='width:200px;height:30px;'>"
+        "<option value='a'>Alpha</option>"
+        "<option value='b'>Bravo</option>"
+        "<option value='c'>Charlie</option>"
+        "</select>"
+        "<iframe id='iframe' style='display:block;width:100%;height:500px;border:none;' src='https://domain2.com/subframe'></iframe>"
+        "</body>"_s;
+    auto subframeHTML = "<body style='margin:0'><script>alert('iframe loaded');</script></body>"_s;
+
+    HTTPServer server({
+        { "/mainframe"_s, { mainframeHTML } },
+        { "/subframe"_s, { subframeHTML } }
+    }, HTTPServer::Protocol::HttpsProxy);
+    RetainPtr configuration = server.httpsProxyConfiguration();
+    enableFeature(configuration.get(), @"SelectShowPickerEnabled");
+    auto [webViewBinding, navigationDelegate] = siteIsolatedViewAndDelegate(configuration, CGRectMake(0, 0, 800, 600));
+    RetainPtr webView = webViewBinding;
+
+    // Replace AppKit's modal popUpMenu: tracking with a synchronous poke at the
+    // backing NSPopUpButtonCell. WebPopupMenuProxyMac::showPopupMenu reads
+    // [m_popup indexOfSelectedItem] after this returns to compute the
+    // value-change IPC payload. The cell is normally the NSMenu's delegate;
+    // fall back to a menu item's target in case AppKit's wiring changes.
+    RetainPtr menuProto = adoptNS([NSMenu new]);
+    InstanceMethodSwizzler popUpSwizzler {
+        [[menuProto _menuImpl] class],
+        NSSelectorFromString(@"popUpMenu:atLocation:width:forView:withSelectedItem:withFont:withFlags:withOptions:"),
+        imp_implementationWithBlock(^(id, NSMenu *menu, NSPoint, CGFloat, NSView *, NSInteger, NSFont *, NSUInteger, NSDictionary *) {
+            id delegate = [menu delegate];
+            NSPopUpButtonCell *popupCell = [delegate isKindOfClass:[NSPopUpButtonCell class]] ? (NSPopUpButtonCell *)delegate : nil;
+            if (!popupCell) {
+                for (NSMenuItem *item in [menu itemArray]) {
+                    if ([item.target isKindOfClass:[NSPopUpButtonCell class]]) {
+                        popupCell = (NSPopUpButtonCell *)item.target;
+                        break;
+                    }
+                }
+            }
+            [popupCell selectItemAtIndex:2];
+        })
+    };
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://domain1.com/mainframe"]]];
+    EXPECT_WK_STREQ("iframe loaded", [webView _test_waitForAlert]);
+
+    // Park focus in the remote iframe so that focusedOrMainFrame() resolves to
+    // the iframe's process when valueChangedForPopupMenu fires — that's the
+    // bug condition under the old code.
+    [webView evaluateJavaScript:@"document.getElementById('iframe').focus()" completionHandler:nil];
+    while ([webView mainFrame].info._isFocused || ![webView firstChildFrame]._isFocused)
+        Util::spinRunLoop();
+
+    // showPicker() opens the popup without focusing the <select>, so focus
+    // remains in the iframe through to the IPC.
+    [webView objectByEvaluatingJavaScriptWithUserGesture:@"document.getElementById('sel').showPicker()"];
+
+    EXPECT_TRUE(Util::waitFor([&] {
+        return [[webView objectByEvaluatingJavaScript:@"document.getElementById('sel').value"] isEqualToString:@"c"];
+    }));
 }
 
 #endif
