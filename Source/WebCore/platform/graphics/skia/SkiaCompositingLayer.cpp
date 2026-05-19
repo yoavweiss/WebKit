@@ -405,7 +405,7 @@ bool SkiaCompositingLayer::computeTransformsAndAnimations(const TransformationMa
         hasRunningAnimations |= m_mask->computeTransformsAndAnimations(maskParent.m_transforms.combined, maskParent.m_transforms.futureCombined, time);
     }
     if (m_replica)
-        hasRunningAnimations |= m_replica->computeTransformsAndAnimations(m_replica->m_replicatedLayer->m_transforms.combined, m_replica->m_replicatedLayer->m_transforms.futureCombined, time);
+        hasRunningAnimations |= m_replica->computeTransformsAndAnimations(m_transforms.combined, m_transforms.futureCombined, time);
 
     m_shouldBlend = !!m_blendMode;
     for (auto& child : m_children) {
