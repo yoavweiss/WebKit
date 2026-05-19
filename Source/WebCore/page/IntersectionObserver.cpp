@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Apple Inc. All rights reserved.
+ * Copyright (C) 2016-2026 Apple Inc. All rights reserved.
  * Copyright (C) 2020 Google Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -694,12 +694,13 @@ auto IntersectionObserver::updateObservations(const Frame& hostFrame) -> NeedNot
                 ASSERT(intersectionState.absoluteRootBounds);
 
                 RefPtr targetFrameView = target.document().view();
-                targetBoundingClientRect = targetFrameView->absoluteToClientRect(*intersectionState.absoluteTargetRect, target.renderer()->style().usedZoom());
+                auto targetZoomForClient = target.document().zoomForClient(target.renderer()->style());
+                targetBoundingClientRect = targetFrameView->absoluteToClientRect(*intersectionState.absoluteTargetRect, targetZoomForClient);
                 clientRootBounds = hostFrameView->absoluteToLayoutViewportRect(*intersectionState.absoluteRootBounds);
 
                 if (intersectionState.isIntersecting) {
                     ASSERT(intersectionState.absoluteIntersectionRect);
-                    clientIntersectionRect = targetFrameView->absoluteToClientRect(*intersectionState.absoluteIntersectionRect, target.renderer()->style().usedZoom());
+                    clientIntersectionRect = targetFrameView->absoluteToClientRect(*intersectionState.absoluteIntersectionRect, targetZoomForClient);
                 }
             }
 
