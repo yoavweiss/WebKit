@@ -173,7 +173,15 @@ bool ParentalControlsURLFilter::isEnabled() const
 {
 #if PLATFORM(MAC)
     // FIXME: This can be removed after rdar://159207397 is fixed.
-    return isEnabledImpl();
+    static std::optional<bool> cachedWcrFilterEnabled;
+    bool wcrFilterEnabled = isEnabledImpl();
+
+    if (cachedWcrFilterEnabled != wcrFilterEnabled) {
+        RELEASE_LOG(ContentFiltering, "%p - ParentalControlsURLFilter::isEnabled %d", this, wcrFilterEnabled);
+        cachedWcrFilterEnabled = wcrFilterEnabled;
+    }
+
+    return wcrFilterEnabled;
 #else
     if (!m_isEnabled) {
         m_isEnabled = isEnabledImpl();
