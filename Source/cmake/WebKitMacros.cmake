@@ -949,7 +949,7 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
         add_custom_command(
             OUTPUT ${_header_stamp_path}
             BYPRODUCTS ${_header_path}
-            DEPENDS ${_swift_sources}
+            DEPENDS ${_swift_sources} ${${_target}_SWIFT_TYPECHECK_EXTRA_DEPENDS}
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMAND
                 ${CMAKE_Swift_COMPILER} --original-swift-compiler=${ORIGINAL_Swift_COMPILER} -typecheck
