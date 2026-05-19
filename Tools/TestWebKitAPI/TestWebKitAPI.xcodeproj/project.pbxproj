@@ -2249,7 +2249,7 @@
 			shellScript = (
 				"ditto \"${PLATFORM_DIR}/Developer/Library/Frameworks/Testing.framework\" \"${BUILT_PRODUCTS_DIR}/Testing.framework\"",
 				"",
-				"if [ \"${USE_INTERNAL_SDK}\" = \"YES\" ] && [ -e \"${PLATFORM_DIR}/Developer/usr/lib/lib_TestingInterop.dylib\" ]; then",
+				"if [ -e \"${PLATFORM_DIR}/Developer/usr/lib/lib_TestingInterop.dylib\" ]; then",
 				"    ditto \"${PLATFORM_DIR}/Developer/usr/lib/lib_TestingInterop.dylib\" \"${BUILT_PRODUCTS_DIR}/lib_TestingInterop.dylib\"",
 				"fi",
 				"",
