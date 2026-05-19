@@ -2673,7 +2673,7 @@ void LocalDOMWindow::queueEventTimingCandidateForDispatch(PerformanceEventTiming
 PerformanceEventTimingCandidate LocalDOMWindow::initializeEventTiming(Event& event, EventType type)
 {
     auto startTime = performance().relativeTimeFromTimeOriginInReducedResolutionSeconds(event.timeStamp());
-    auto processingStart = performance().nowInReducedResolutionSeconds().deprecatedNonRoundedSeconds();
+    auto processingStart = performance().nowInReducedResolutionSeconds();
     LOG_WITH_STREAM(PerformanceTimeline, stream << "Initializing event timing entry (type=" << event.type() << "; tstamp=" << startTime << ") at t=" << processingStart);
     if (startTime > processingStart)
         startTime = processingStart;
@@ -2701,7 +2701,7 @@ PerformanceEventTimingCandidate LocalDOMWindow::initializeEventTiming(Event& eve
 void LocalDOMWindow::markEndOfProcessingForEventTiming(PerformanceEventTimingCandidate& entry, const Event& event, EventType type)
 {
     // Maps to "Finalize event timing" in the spec.
-    auto processingEnd = performance().nowInReducedResolutionSeconds().deprecatedNonRoundedSeconds();
+    auto processingEnd = performance().nowInReducedResolutionSeconds();
     entry.processingEnd = processingEnd;
     entry.target = event.target();
 
@@ -2771,7 +2771,7 @@ void LocalDOMWindow::markEndOfProcessingForEventTiming(PerformanceEventTimingCan
 void LocalDOMWindow::finalizeAndQueueEventTimingEntries()
 {
     // Maps to "Dispatch pending Event Timing entries" in the spec.
-    auto renderingTime = performance().nowInReducedResolutionSeconds().deprecatedNonRoundedSeconds();
+    auto renderingTime = performance().nowInReducedResolutionSeconds();
     if (m_pendingPointerDown && !m_pendingPointerDown->duration)
         m_pendingPointerDown->duration = std::max(renderingTime - m_pendingPointerDown->startTime, Seconds::fromMilliseconds(1));
 

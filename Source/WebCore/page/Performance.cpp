@@ -186,9 +186,14 @@ Seconds Performance::timeResolution()
     return timePrecision;
 }
 
-Seconds Performance::relativeTimeFromTimeOriginInReducedResolutionSeconds(MonotonicTime timestamp) const
+ReducedResolutionSeconds Performance::relativeTimeFromTimeOriginInReducedResolutionSeconds(MonotonicTime timestamp) const
 {
-    return reduceTimeResolution(timestamp - m_timeOrigin);
+    return ReducedResolutionSeconds::fromSeconds(reduceTimeResolution(timestamp - m_timeOrigin));
+}
+
+MonotonicTime Performance::monotonicTimeFromOriginRelative(Seconds offset) const
+{
+    return m_timeOrigin + offset;
 }
 
 DOMHighResTimeStamp Performance::relativeTimeFromTimeOriginInReducedResolution(MonotonicTime timestamp) const

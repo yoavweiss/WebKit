@@ -65,7 +65,7 @@ public:
     void updateStaleScrollTimelines();
     void addPendingAnimation(WebAnimation&);
 
-    std::optional<Seconds> currentTime(UseCachedCurrentTime = UseCachedCurrentTime::Yes);
+    std::optional<ReducedResolutionSeconds> currentTime(UseCachedCurrentTime = UseCachedCurrentTime::Yes);
     std::optional<FramesPerSecond> maximumAnimationFrameRate() const { return m_frameRateAligner.maximumFrameRate(); }
     std::optional<Seconds> timeUntilNextTickForAnimationsWithFrameRate(FramesPerSecond) const;
 
@@ -103,7 +103,7 @@ private:
     TaskCancellationGroup m_pendingAnimationsProcessingTaskCancellationGroup;
     WeakRef<Document, WeakPtrImplWithEventTargetData> m_document;
     FrameRateAligner m_frameRateAligner;
-    Markable<Seconds> m_cachedCurrentTime;
+    Markable<ReducedResolutionSeconds> m_cachedCurrentTime;
     bool m_isSuspended { false };
 };
 

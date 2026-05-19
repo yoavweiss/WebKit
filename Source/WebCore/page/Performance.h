@@ -89,6 +89,7 @@ public:
 
     DOMHighResTimeStamp now() const;
     DOMHighResTimeStamp timeOrigin() const;
+    MonotonicTime monotonicTimeFromOriginRelative(Seconds offset) const;
     ReducedResolutionSeconds nowInReducedResolutionSeconds() const;
 
     PerformanceNavigation& navigation();
@@ -131,7 +132,7 @@ public:
     static Seconds NODELETE timeResolution();
     static Seconds reduceTimeResolution(Seconds);
 
-    Seconds relativeTimeFromTimeOriginInReducedResolutionSeconds(MonotonicTime) const;
+    ReducedResolutionSeconds relativeTimeFromTimeOriginInReducedResolutionSeconds(MonotonicTime) const;
     DOMHighResTimeStamp relativeTimeFromTimeOriginInReducedResolution(MonotonicTime) const;
     MonotonicTime NODELETE monotonicTimeFromRelativeTime(DOMHighResTimeStamp) const;
 

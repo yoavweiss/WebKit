@@ -51,13 +51,6 @@ public:
     double milliseconds() const { return std::round(m_value * 1000000.0) / 1000.0; }
     double microseconds() const { return std::round(m_value * 1000000.0); }
 
-    // Returns the raw value as Seconds without microsecond rounding. Callers should prefer
-    // seconds() / milliseconds() / microseconds(), which preserve the microsecond-rounded
-    // invariant; this accessor exists only for boundaries that need bit-equivalence with a
-    // plain Seconds (e.g. for storage in a Seconds-typed field) and are expected to migrate
-    // to ReducedResolutionSeconds over time.
-    Seconds deprecatedNonRoundedSeconds() const { return Seconds { m_value }; }
-
     void dump(PrintStream& out) const { out.print(milliseconds(), " ms"); }
 
     friend struct MarkableTraits<ReducedResolutionSeconds>;
