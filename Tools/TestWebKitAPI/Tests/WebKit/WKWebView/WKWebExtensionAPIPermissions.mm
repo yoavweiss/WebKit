@@ -1305,6 +1305,44 @@ TEST(WKWebExtensionAPIPermissions, CORSUsingXHRWithoutGrantingPermission)
     EXPECT_EQ(promptCount, 2ul);
 }
 
+// rdar://154866064 — the CORS-failure auto-prompt in `WebExtensionContext::resourceLoadDidCompleteWithError`
+// should only fire when the failed CORS request comes from a page belonging to this extension, not the webpage.
+TEST(WKWebExtensionAPIPermissions, CORSFailureFromPageDoesNotPromptExtension)
+{
+    auto *pageScript = Util::constructScript(@[
+        @"<script>",
+        @"  fetch('http://127.0.0.1:' + location.port + '/subresource')",
+        @"    .then(() => browser.test.notifyFail('Page fetch unexpectedly succeeded; CORS should have blocked it'))",
+        @"    .catch(() => browser.test.notifyPass())",
+        @"</script>"
+    ]);
+
+    TestWebKitAPI::HTTPServer server({
+        { "/"_s, { { { "Content-Type"_s, "text/html"_s } }, pageScript } },
+        { "/subresource"_s, { { { "Content-Type"_s, "application/json"_s } }, "{ \"testKey\": \"testValue\" }"_s } }
+    }, TestWebKitAPI::HTTPServer::Protocol::Http);
+
+    auto *backgroundScript = Util::constructScript(@[
+        @"browser.test.sendMessage('Load Tab')"
+    ]);
+
+    auto manager = Util::loadExtension(corsManifest, @{ @"background.js": backgroundScript });
+
+    __block size_t promptCount = 0;
+    manager.get().internalDelegate.promptForPermissionToAccessURLs = ^(id<WKWebExtensionTab>, NSSet<NSURL *> *requestedURLs, void (^completionHandler)(NSSet<NSURL *> *allowedURLs, NSDate *)) {
+        ++promptCount;
+        completionHandler(NSSet.set, nil);
+    };
+
+    [manager runUntilTestMessage:@"Load Tab"];
+
+    [manager.get().defaultTab.webView loadRequest:server.requestWithLocalhost()];
+
+    [manager run];
+
+    EXPECT_EQ(promptCount, 0ul);
+}
+
 } // namespace TestWebKitAPI
 
 #endif // ENABLE(WK_WEB_EXTENSIONS)
