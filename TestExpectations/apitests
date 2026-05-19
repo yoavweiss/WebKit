@@ -307,3 +307,5 @@ webkit.org/b/314757 [ mac ] TestWebKitAPI.UnifiedPDF.SelectAllTextInEmbedHostedP
 webkit.org/b/314757 [ mac ] TestWebKitAPI.UnifiedPDF.SelectAllTextInObjectHostedPDF [ Skip ]
 webkit.org/b/314846 [ ios ] TestWebKitAPI.WKAttachmentTestsIOS.PasteRichTextCopiedFromNotes [ Skip ]
 webkit.org/b/314846 [ ios ] TestWebKitAPI.WKAttachmentTestsIOS.InsertPastedMapItemAsAttachment [ Skip ]
+webkit.org/b/315119 [ ios ] TestWebKitAPI.WKAttachmentTestsIOS.InsertPastedFilesAsAttachments [ Skip ]
+webkit.org/b/315119 [ ios ] TestWebKitAPI.WKAttachmentTestsIOS.InsertPastedContactAsAttachment [ Skip ]
