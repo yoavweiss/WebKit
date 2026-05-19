@@ -129,8 +129,12 @@ bool CoordinatedPlatformLayerBufferNativeImage::tryEnsureBuffer(UseSkiaForCompos
     if (useSkiaForCompositing == UseSkiaForCompositing::Yes) {
         auto& display = PlatformDisplay::sharedDisplay();
         GLContext::ScopedGLContextCurrent scopedCurrent(*display.skiaGLContext());
-        GrBackendTexture backendTexture = texture->createSkiaBackendTexture();
-        auto surface = SkSurfaces::WrapBackendTexture(display.skiaGrContext(), backendTexture, kTopLeft_GrSurfaceOrigin, 0, kRGBA_8888_SkColorType, SkColorSpace::MakeSRGB(), nullptr);
+        GrGLTextureInfo externalTexture;
+        externalTexture.fTarget = GL_TEXTURE_2D;
+        externalTexture.fID = texture->id();
+        externalTexture.fFormat = image->imageInfo().colorType() == kRGBA_8888_SkColorType ? GL_RGBA8 : GL_BGRA8_EXT;
+        auto backendTexture = GrBackendTextures::MakeGL(texture->size().width(), texture->size().height(), skgpu::Mipmapped::kNo, externalTexture);
+        auto surface = SkSurfaces::WrapBackendTexture(display.skiaGrContext(), backendTexture, kTopLeft_GrSurfaceOrigin, 0, image->imageInfo().colorType(), SkColorSpace::MakeSRGB(), nullptr);
         if (!surface)
             return false;
 

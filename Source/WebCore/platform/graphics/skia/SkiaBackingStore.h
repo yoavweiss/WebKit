@@ -64,7 +64,7 @@ private:
         sk_sp<SkImage> image();
 
     private:
-        bool tryEnsureSurface(const IntSize&, CoordinatedTileBuffer&);
+        bool tryEnsureSurface(const IntSize&, CoordinatedTileBuffer&, SkColorType);
 
         float m_scale { 1. };
         FloatRect m_rect;
