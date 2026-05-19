@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 Apple Inc. All rights reserved.
+ * Copyright (C) 2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -63,13 +64,10 @@ ExceptionOr<Ref<CSSTranslate>> CSSTranslate::create(Ref<const CSSFunctionValue> 
     auto makeTranslate = [&](NOESCAPE const Function<ExceptionOr<Ref<CSSTranslate>>(Vector<Ref<CSSNumericValue>>&&)>& create, size_t minNumberOfComponents, std::optional<size_t> maxNumberOfComponents = std::nullopt) -> ExceptionOr<Ref<CSSTranslate>> {
         Vector<Ref<CSSNumericValue>> components;
         for (Ref componentCSSValue : cssFunctionValue.get()) {
-            auto valueOrException = CSSStyleValueFactory::reifyValue(document, componentCSSValue.get(), std::nullopt);
+            auto valueOrException = CSSNumericValue::reifyValue(document, componentCSSValue.get());
             if (valueOrException.hasException())
                 return valueOrException.releaseException();
-            RefPtr numericValue = dynamicDowncast<CSSNumericValue>(valueOrException.releaseReturnValue());
-            if (!numericValue)
-                return Exception { ExceptionCode::TypeError, "Expected a CSSNumericValue."_s };
-            components.append(numericValue.releaseNonNull());
+            components.append(valueOrException.releaseReturnValue());
         }
         if (!maxNumberOfComponents)
             maxNumberOfComponents = minNumberOfComponents;

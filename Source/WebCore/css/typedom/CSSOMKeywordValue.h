@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 Apple Inc. All rights reserved.
+ * Copyright (C) 2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,14 +32,21 @@
 
 namespace WebCore {
 
-template<typename> class ExceptionOr;
+class CSSKeywordValue;
 class CSSOMKeywordValue;
+class CSSValue;
+
+template<typename> class ExceptionOr;
+
 using CSSOMKeywordish = Variant<String, Ref<CSSOMKeywordValue>>;
 
 class CSSOMKeywordValue final : public CSSStyleValue {
     WTF_MAKE_TZONE_ALLOCATED(CSSOMKeywordValue);
 public:
     static ExceptionOr<Ref<CSSOMKeywordValue>> create(const String&);
+
+    static ExceptionOr<Ref<CSSOMKeywordValue>> reifyValue(Document&, const CSSValue&);
+    static Ref<CSSOMKeywordValue> reifyValue(Document&, const CSSKeywordValue&);
 
     const String& value() const LIFETIME_BOUND { return m_value; }
     ExceptionOr<void> setValue(const String&);

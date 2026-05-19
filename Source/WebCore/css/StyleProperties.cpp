@@ -407,7 +407,7 @@ void StyleProperties::showStyle()
 }
 #endif
 
-String StyleProperties::PropertyReference::cssName() const
+const AtomString& StyleProperties::PropertyReference::cssName() const
 {
     if (id() == CSSPropertyCustom)
         return downcast<CSSCustomPropertyValue>(*value()).name();

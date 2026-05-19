@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Apple Inc. All rights reserved.
+ * Copyright (C) 2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -37,9 +38,11 @@ struct ChildOrNone;
 struct Tree;
 }
 
+class CSSPrimitiveValue;
 class CSSNumericValue;
 class CSSUnitValue;
 class CSSMathSum;
+class CSSValue;
 
 template<typename> class ExceptionOr;
 
@@ -48,7 +51,6 @@ using CSSNumberish = Variant<double, Ref<CSSNumericValue>>;
 class CSSNumericValue : public CSSStyleValue {
     WTF_MAKE_TZONE_ALLOCATED(CSSNumericValue);
 public:
-
     ExceptionOr<Ref<CSSNumericValue>> add(FixedVector<CSSNumberish>&&);
     ExceptionOr<Ref<CSSNumericValue>> sub(FixedVector<CSSNumberish>&&);
     ExceptionOr<Ref<CSSNumericValue>> mul(FixedVector<CSSNumberish>&&);
@@ -66,6 +68,9 @@ public:
     
     static ExceptionOr<Ref<CSSNumericValue>> parse(Document&, String&&);
     static Ref<CSSNumericValue> rectifyNumberish(CSSNumberish&&);
+
+    static ExceptionOr<Ref<CSSNumericValue>> reifyValue(Document&, const CSSValue&);
+    static ExceptionOr<Ref<CSSNumericValue>> reifyValue(Document&, const CSSPrimitiveValue&);
 
     // https://drafts.css-houdini.org/css-typed-om/#sum-value-value
     using UnitMap = HashMap<CSSUnitType, int, WTF::IntHash<CSSUnitType>, WTF::StrongEnumHashTraits<CSSUnitType>>;

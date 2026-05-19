@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2019 Apple Inc. All rights reserved.
- * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2025-2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -341,6 +341,31 @@ Ref<CSSNumericValue> CSSNumericValue::rectifyNumberish(CSSNumberish&& numberish)
         },
         [](double value) {
             return Ref<CSSNumericValue> { CSSNumericFactory::number(value) };
+        }
+    );
+}
+
+ExceptionOr<Ref<CSSNumericValue>> CSSNumericValue::reifyValue(Document& document, const CSSValue& cssValue)
+{
+    auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(cssValue);
+    if (!primitiveValue)
+        return Exception { ExceptionCode::TypeError };
+    return reifyValue(document, *primitiveValue);
+}
+
+ExceptionOr<Ref<CSSNumericValue>> CSSNumericValue::reifyValue(Document&, const CSSPrimitiveValue& primitiveValue)
+{
+    return WTF::switchOn(primitiveValue,
+        [&](const CSSPrimitiveValue::Calc& calc) -> ExceptionOr<Ref<CSSNumericValue>> {
+            return reifyMathExpression(calc.tree());
+        },
+        [&](const CSSPrimitiveValue::Raw& raw) -> ExceptionOr<Ref<CSSNumericValue>> {
+            if (raw.unit == CSSUnitType::CSS_INTEGER) {
+                // Integer is special cased to resolved the same as <number>.
+                return upcast<CSSNumericValue>(CSSUnitValue::create(raw.value, CSSUnitType::CSS_NUMBER));
+            } else {
+                return upcast<CSSNumericValue>(CSSUnitValue::create(raw.value, raw.unit));
+            }
         }
     );
 }
