@@ -219,7 +219,7 @@ Vector<ResourceResponse> MediaResourceLoader::responsesForTesting() const
 
 static bool isManifestMIMEType(const URL& url, const String& mimeType)
 {
-    static constexpr SortedArraySet staticManifestMIMETypesSet { std::to_array<ComparableLettersLiteral>({
+    static constexpr SortedArraySet staticManifestMIMETypesSet { WTF::toArray<ComparableLettersLiteral>({
         "application/json"_s,
         "application/vnd.apple.mpegurl"_s,
         "application/vnd.apple.steering-list"_s,

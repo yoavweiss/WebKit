@@ -75,7 +75,7 @@ static WebGPU::DeviceDescriptor convertToBacking(const std::optional<GPUDeviceDe
 
 static GPUFeatureName convertFeatureNameToEnum(const String& stringValue)
 {
-    static constexpr SortedArrayMap enumerationMapping { std::to_array<std::pair<ComparableASCIILiteral, GPUFeatureName>>({
+    static constexpr SortedArrayMap enumerationMapping { WTF::toArray<std::pair<ComparableASCIILiteral, GPUFeatureName>>({
         { "bgra8unorm-storage"_s, GPUFeatureName::Bgra8unormStorage },
         { "clip-distances"_s, GPUFeatureName::ClipDistances },
         { "core-features-and-limits"_s, GPUFeatureName::CoreFeaturesAndLimits },

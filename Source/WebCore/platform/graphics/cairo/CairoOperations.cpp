@@ -453,8 +453,8 @@ void setStrokeThickness(GraphicsContextCairo& platformContext, float strokeThick
 
 void setStrokeStyle(GraphicsContextCairo& platformContext, StrokeStyle strokeStyle)
 {
-    static constexpr auto dashPattern = std::to_array<double>({ 5.0, 5.0 });
-    static constexpr auto dotPattern = std::to_array<double>({ 1.0, 1.0 });
+    static constexpr auto dashPattern = WTF::toArray<double>({ 5.0, 5.0 });
+    static constexpr auto dotPattern = WTF::toArray<double>({ 1.0, 1.0 });
 
     cairo_t* cr = platformContext.cr();
     switch (strokeStyle) {

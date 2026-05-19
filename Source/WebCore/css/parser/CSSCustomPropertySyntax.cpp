@@ -185,7 +185,7 @@ bool CSSCustomPropertySyntax::containsUnknownType() const
 
 auto CSSCustomPropertySyntax::typeForTypeName(StringView dataTypeName) -> Type
 {
-    static constexpr SortedArrayMap typeMap { std::to_array<std::pair<ComparableASCIILiteral, Type>>({
+    static constexpr SortedArrayMap typeMap { WTF::toArray<std::pair<ComparableASCIILiteral, Type>>({
         { "angle"_s, Type::Angle },
         { "color"_s, Type::Color },
         { "custom-ident"_s, Type::CustomIdent },

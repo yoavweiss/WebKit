@@ -72,7 +72,7 @@ void RealtimeVideoCaptureSource::setSupportedPresets(Vector<VideoPreset>&& prese
 
 SUPPRESS_NODELETE std::span<const IntSize> RealtimeVideoCaptureSource::standardVideoSizes()
 {
-    static constexpr auto sizes = std::to_array<IntSize>({
+    static constexpr auto sizes = WTF::toArray<IntSize>({
         { 112, 112 },
         { 160, 160 },
         { 160, 120 }, // 4:3, QQVGA

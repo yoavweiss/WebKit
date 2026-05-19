@@ -716,7 +716,7 @@ void ViewTransition::setupDynamicStyleSheet(const AtomString& name, const Captur
         return;
 
     // group keyframes
-    static constexpr auto keyframeProperties = std::to_array<CSSPropertyID>({
+    static constexpr auto keyframeProperties = WTF::toArray<CSSPropertyID>({
         CSSPropertyWidth,
         CSSPropertyHeight,
         CSSPropertyTransform,
@@ -911,7 +911,7 @@ void ViewTransition::copyElementBaseProperties(RenderLayerModelObject& renderer,
     ASSERT(styleable);
     Style::Extractor styleExtractor { &styleable->element, false, styleable->pseudoElementIdentifier };
 
-    static constexpr auto transitionProperties = std::to_array<CSSPropertyID>({
+    static constexpr auto transitionProperties = WTF::toArray<CSSPropertyID>({
         CSSPropertyWritingMode,
         CSSPropertyDirection,
         CSSPropertyTextOrientation,

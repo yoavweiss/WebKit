@@ -48,7 +48,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(PerformanceUserTiming);
 
 using NavigationTimingFunction = unsigned long long (PerformanceTiming::*)() const;
 
-static constexpr SortedArrayMap restrictedMarkFunctions { std::to_array<std::pair<ComparableASCIILiteral, NavigationTimingFunction>>({
+static constexpr SortedArrayMap restrictedMarkFunctions { WTF::toArray<std::pair<ComparableASCIILiteral, NavigationTimingFunction>>({
     { "connectEnd"_s, &PerformanceTiming::connectEnd },
     { "connectStart"_s, &PerformanceTiming::connectStart },
     { "domComplete"_s, &PerformanceTiming::domComplete },

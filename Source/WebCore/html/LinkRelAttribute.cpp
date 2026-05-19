@@ -49,7 +49,7 @@ struct LinkTypeDetails {
     void (*updateRel)(LinkRelAttribute&);
 };
 
-static constexpr SortedArrayMap linkTypes { std::to_array<std::pair<ComparableLettersLiteral, LinkTypeDetails>>({
+static constexpr SortedArrayMap linkTypes { WTF::toArray<std::pair<ComparableLettersLiteral, LinkTypeDetails>>({
     { "alternate"_s, { [](auto) { return true; }, [](auto relAttribute) { relAttribute.isAlternate = true; } } },
     { "apple-touch-icon"_s, { [](auto) { return true; }, [](auto relAttribute) { relAttribute.iconType = LinkIconType::TouchIcon; } } },
     { "apple-touch-icon-precomposed"_s, { [](auto) { return true; }, [](auto relAttribute) { relAttribute.iconType = LinkIconType::TouchPrecomposedIcon; } } },

@@ -2277,7 +2277,7 @@ static MemoryCompactLookupOnlyRobinHoodHashMap<String, AttributeHandlerEntry> cr
         AttributeHandlerEntry entry;
     };
 
-    static NeverDestroyed mappings = std::to_array<AttributeMapping>({
+    static NeverDestroyed mappings = WTF::toArray<AttributeMapping>({
         // Simple handlers (no precondition)
         { NSAccessibilityRoleAttribute, { handleRoleAttribute, { } } },
         { NSAccessibilityParentAttribute, { handleParentAttribute, { } } },
@@ -4233,7 +4233,7 @@ static MemoryCompactLookupOnlyRobinHoodHashMap<String, ParameterizedAttributeHan
         ParameterizedAttributeHandlerEntry entry;
     };
 
-    static NeverDestroyed mappings = std::to_array<ParameterizedAttributeMapping>({
+    static NeverDestroyed mappings = WTF::toArray<ParameterizedAttributeMapping>({
         { NSAccessibilityUIElementsForSearchPredicateParameterizedAttribute, { handleUIElementsForSearchPredicateAttribute } },
         { NSAccessibilityUIElementForTextMarkerAttribute, { handleUIElementForTextMarkerAttribute } },
         { NSAccessibilityTextMarkerRangeForUIElementAttribute, { handleTextMarkerRangeForUIElementAttribute } },

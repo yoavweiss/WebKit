@@ -3263,7 +3263,7 @@ static ExceptionOr<FindOptions> parseFindOptions(const Vector<String>& optionLis
         ASCIILiteral name;
         FindOption value;
     };
-    static constexpr auto flagList = std::to_array<FlagListEntry>({
+    static constexpr auto flagList = WTF::toArray<FlagListEntry>({
         { "CaseInsensitive"_s, FindOption::CaseInsensitive },
         { "AtWordStarts"_s, FindOption::AtWordStarts },
         { "TreatMedialCapitalAsWordStart"_s, FindOption::TreatMedialCapitalAsWordStart },

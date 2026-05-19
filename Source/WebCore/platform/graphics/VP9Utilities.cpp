@@ -42,7 +42,7 @@ static bool NODELETE isValidVPProfile(uint8_t profile)
 
 static bool isValidVPLevel(uint8_t level)
 {
-    constexpr auto validLevels = std::to_array<uint8_t>({
+    constexpr auto validLevels = WTF::toArray<uint8_t>({
         VPConfigurationLevel::Level_1,
         VPConfigurationLevel::Level_1_1,
         VPConfigurationLevel::Level_2,
@@ -84,7 +84,7 @@ static bool NODELETE isValidChromaSubsampling(uint8_t subsampling)
 
 static bool isValidVPColorPrimaries(uint8_t colorPrimaries)
 {
-    constexpr auto validColorPrimaries = std::to_array<uint8_t>({
+    constexpr auto validColorPrimaries = WTF::toArray<uint8_t>({
         VPConfigurationColorPrimaries::BT_709_6,
         VPConfigurationColorPrimaries::Unspecified,
         VPConfigurationColorPrimaries::BT_470_6_M,
@@ -105,7 +105,7 @@ static bool isValidVPColorPrimaries(uint8_t colorPrimaries)
 
 static bool isValidVPTransferCharacteristics(uint8_t transferCharacteristics)
 {
-    constexpr auto validTransferCharacteristics = std::to_array<uint8_t>({
+    constexpr auto validTransferCharacteristics = WTF::toArray<uint8_t>({
         VPConfigurationTransferCharacteristics::BT_709_6,
         VPConfigurationTransferCharacteristics::Unspecified,
         VPConfigurationTransferCharacteristics::BT_470_6_M,
@@ -130,7 +130,7 @@ static bool isValidVPTransferCharacteristics(uint8_t transferCharacteristics)
 
 static bool isValidVPMatrixCoefficients(uint8_t matrixCoefficients)
 {
-    constexpr auto validMatrixCoefficients = std::to_array<uint8_t>({
+    constexpr auto validMatrixCoefficients = WTF::toArray<uint8_t>({
         VPConfigurationMatrixCoefficients::Identity,
         VPConfigurationMatrixCoefficients::BT_709_6,
         VPConfigurationMatrixCoefficients::Unspecified,

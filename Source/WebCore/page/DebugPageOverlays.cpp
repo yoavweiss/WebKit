@@ -204,7 +204,7 @@ static void drawRightAlignedText(const String& text, GraphicsContext& context, c
 
 void NonFastScrollableRegionOverlay::drawRect(PageOverlay& pageOverlay, GraphicsContext& context, const IntRect&)
 {
-    constexpr SortedArrayMap colors { std::to_array<std::pair<EventTrackingRegions::EventType, SRGBA<uint8_t>>>({
+    constexpr SortedArrayMap colors { WTF::toArray<std::pair<EventTrackingRegions::EventType, SRGBA<uint8_t>>>({
         { EventTrackingRegions::EventType::Mousedown, { 80, 245, 80, 50 } },
         { EventTrackingRegions::EventType::Mousemove, { 245, 245, 80, 50 } },
         { EventTrackingRegions::EventType::Mouseup, { 80, 245, 176, 50 } },

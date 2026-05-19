@@ -769,7 +769,7 @@ bool WebView::shouldInitializeTrackPointHack()
         return shouldCreateScrollbars;
 
     hasRunTrackPointCheck = true;
-    constexpr auto trackPointKeys = std::to_array<const wchar_t*>({
+    constexpr auto trackPointKeys = WTF::toArray<const wchar_t*>({
         L"Software\\Lenovo\\TrackPoint",
         L"Software\\Lenovo\\UltraNav",
         L"Software\\Alps\\Apoint\\TrackPoint",

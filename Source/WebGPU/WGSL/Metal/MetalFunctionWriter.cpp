@@ -2240,7 +2240,7 @@ void FunctionDefinitionWriter::visit(const Type* type, AST::CallExpression& call
     }
 
     if (auto* target = dynamicDowncast<AST::IdentifierExpression>(call.target())) {
-        static constexpr SortedArrayMap builtins { std::to_array<std::pair<ComparableASCIILiteral, void(*)(FunctionDefinitionWriter*, AST::CallExpression&)>>({
+        static constexpr SortedArrayMap builtins { WTF::toArray<std::pair<ComparableASCIILiteral, void(*)(FunctionDefinitionWriter*, AST::CallExpression&)>>({
             { "__dynamicOffset"_s, emitDynamicOffset },
             { "arrayLength"_s, emitArrayLength },
             { "atomicAdd"_s, emitAtomicAdd },
@@ -2301,7 +2301,7 @@ void FunctionDefinitionWriter::visit(const Type* type, AST::CallExpression& call
 #define NOOP_HELPER(name) \
     [](HelperGenerator&, AST::CallExpression&) { return #name##_s; }
 
-        static constexpr SortedArrayMap mappedNames { std::to_array<std::pair<ComparableASCIILiteral, ASCIILiteral(*)(HelperGenerator&, AST::CallExpression&)>>({
+        static constexpr SortedArrayMap mappedNames { WTF::toArray<std::pair<ComparableASCIILiteral, ASCIILiteral(*)(HelperGenerator&, AST::CallExpression&)>>({
             { "acos"_s, EMIT_HELPER(Acos) },
             { "acosh"_s, EMIT_HELPER(Acosh) },
             { "asin"_s, EMIT_HELPER(Asin) },

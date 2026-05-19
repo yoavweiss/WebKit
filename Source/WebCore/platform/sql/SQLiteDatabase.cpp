@@ -318,7 +318,7 @@ void SQLiteDatabase::close()
 
 void SQLiteDatabase::overrideUnauthorizedFunctions()
 {
-    static constexpr auto functionParameters = std::to_array<std::pair<ASCIILiteral, int>>({
+    static constexpr auto functionParameters = WTF::toArray<std::pair<ASCIILiteral, int>>({
         { "rtreenode"_s, 2 },
         { "rtreedepth"_s, 1 },
         { "eval"_s, 1 },

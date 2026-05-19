@@ -196,7 +196,7 @@ static void dumpSeparatedLayerProperties(TextStream&, CALayer *) { }
 
 static String allowListedClassToString(UIView *view)
 {
-    static constexpr SortedArraySet allowedClasses { std::to_array<ComparableASCIILiteral>({
+    static constexpr SortedArraySet allowedClasses { WTF::toArray<ComparableASCIILiteral>({
         "UIView"_s,
         "WKBackdropView"_s,
         "WKCompositingView"_s,
@@ -222,7 +222,7 @@ static String allowListedClassToString(UIView *view)
 #if HAVE(CORE_ANIMATION_SEPARATED_LAYERS)
 static bool shouldDumpSeparatedDetails(UIView *view)
 {
-    static constexpr SortedArraySet deniedClasses { std::to_array<ComparableASCIILiteral>({
+    static constexpr SortedArraySet deniedClasses { WTF::toArray<ComparableASCIILiteral>({
         "WKCompositingView"_s,
         "WKSeparatedImageView"_s,
     }) };

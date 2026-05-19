@@ -44,7 +44,7 @@ struct AutofillFieldNameMapping {
     AutofillCategory category;
 };
 
-static constexpr SortedArrayMap fieldNameMap { std::to_array<std::pair<ComparableLettersLiteral, AutofillFieldNameMapping>>({
+static constexpr SortedArrayMap fieldNameMap { WTF::toArray<std::pair<ComparableLettersLiteral, AutofillFieldNameMapping>>({
     { "additional-name"_s, { AutofillFieldName::AdditionalName, AutofillCategory::Normal } },
     { "address-level1"_s, { AutofillFieldName::AddressLevel1, AutofillCategory::Normal } },
     { "address-level2"_s, { AutofillFieldName::AddressLevel2, AutofillCategory::Normal } },

@@ -39,7 +39,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(MediaSessionGLib);
 
 static std::optional<PlatformMediaSession::RemoteControlCommandType> getCommand(const char* name)
 {
-    static const SortedArrayMap map { std::to_array<std::pair<ComparableASCIILiteral, PlatformMediaSession::RemoteControlCommandType>>({
+    static const SortedArrayMap map { WTF::toArray<std::pair<ComparableASCIILiteral, PlatformMediaSession::RemoteControlCommandType>>({
         { "Next"_s, PlatformMediaSession::RemoteControlCommandType::NextTrackCommand },
         { "Pause"_s, PlatformMediaSession::RemoteControlCommandType::PauseCommand },
         { "Play"_s, PlatformMediaSession::RemoteControlCommandType::PlayCommand },
@@ -96,7 +96,7 @@ enum class MprisProperty : uint8_t {
 
 static std::optional<MprisProperty> getMprisProperty(const char* propertyName)
 {
-    static constexpr SortedArrayMap map { std::to_array<std::pair<ComparableASCIILiteral, MprisProperty>>({
+    static constexpr SortedArrayMap map { WTF::toArray<std::pair<ComparableASCIILiteral, MprisProperty>>({
         { "CanControl"_s, MprisProperty::CanControl },
         { "CanGoNext"_s, MprisProperty::CanGoNext },
         { "CanGoPrevious"_s, MprisProperty::CanGoPrevious },

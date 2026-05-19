@@ -1489,7 +1489,7 @@ TEST(WebAuthenticationPanel, LAGetAssertionMultipleOrder)
 
 TEST(WebAuthenticationPanel, PublicKeyCredentialCreationOptionsMinimum)
 {
-    auto identifier = std::to_array<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
+    auto identifier = WTF::toArray<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
     RetainPtr nsIdentifier = toNSData(identifier);
     RetainPtr parameters = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@-7]);
 
@@ -1522,7 +1522,7 @@ TEST(WebAuthenticationPanel, PublicKeyCredentialCreationOptionsMinimum)
 
 TEST(WebAuthenticationPanel, PublicKeyCredentialCreationOptionsMaximumDefault)
 {
-    auto identifier = std::to_array<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
+    auto identifier = WTF::toArray<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
     RetainPtr nsIdentifier = toNSData(identifier);
     RetainPtr parameters1 = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@-7]);
     RetainPtr parameters2 = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@-257]);
@@ -1573,7 +1573,7 @@ TEST(WebAuthenticationPanel, PublicKeyCredentialCreationOptionsMaximumDefault)
 
 TEST(WebAuthenticationPanel, PublicKeyCredentialCreationOptionsMaximum1)
 {
-    auto identifier = std::to_array<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
+    auto identifier = WTF::toArray<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
     RetainPtr nsIdentifier = toNSData(identifier);
     RetainPtr parameters1 = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@-7]);
     RetainPtr parameters2 = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@-257]);
@@ -1643,7 +1643,7 @@ TEST(WebAuthenticationPanel, PublicKeyCredentialCreationOptionsMaximum1)
 
 TEST(WebAuthenticationPanel, PublicKeyCredentialCreationOptionsMaximum2)
 {
-    auto identifier = std::to_array<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
+    auto identifier = WTF::toArray<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
     RetainPtr nsIdentifier = toNSData(identifier);
     RetainPtr parameters1 = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@-7]);
     RetainPtr parameters2 = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@-257]);
@@ -1718,7 +1718,7 @@ TEST(WebAuthenticationPanel, MakeCredentialSPITimeout)
 {
     reset();
 
-    auto identifier = std::to_array<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
+    auto identifier = WTF::toArray<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
     uint8_t hash[] = { 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04 };
     RetainPtr nsIdentifier = toNSData(identifier);
     NSData *nsHash = [NSData dataWithBytes:hash length:sizeof(hash)];
@@ -1748,7 +1748,7 @@ TEST(WebAuthenticationPanel, MakeCredentialLA)
 {
     reset();
 
-    auto identifier = std::to_array<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
+    auto identifier = WTF::toArray<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
     uint8_t hash[] = { 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04 };
     RetainPtr nsIdentifier = toNSData(identifier);
     RetainPtr nsHash = adoptNS([[NSData alloc] initWithBytes:hash length:sizeof(hash)]);
@@ -1785,7 +1785,7 @@ TEST(WebAuthenticationPanel, MakeCredentialLAClientDataHashMediation)
 {
     reset();
 
-    auto identifier = std::to_array<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
+    auto identifier = WTF::toArray<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
     uint8_t hash[] = { 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04 };
     RetainPtr nsIdentifier = toNSData(identifier);
     RetainPtr nsHash = adoptNS([[NSData alloc] initWithBytes:hash length:sizeof(hash)]);
@@ -1822,7 +1822,7 @@ TEST(WebAuthenticationPanel, MakeCredentialLAAttestationFalback)
 {
     reset();
 
-    auto identifier = std::to_array<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
+    auto identifier = WTF::toArray<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
     uint8_t hash[] = { 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04 };
     RetainPtr nsIdentifier = toNSData(identifier);
     RetainPtr nsHash = adoptNS([[NSData alloc] initWithBytes:hash length:sizeof(hash)]);
@@ -1866,7 +1866,7 @@ TEST(WebAuthenticationPanel, PublicKeyCredentialRequestOptionsMinimun)
 
 TEST(WebAuthenticationPanel, PublicKeyCredentialRequestOptionsMaximumDefault)
 {
-    auto identifier = std::to_array<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
+    auto identifier = WTF::toArray<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
     RetainPtr nsIdentifier = toNSData(identifier);
     RetainPtr descriptor = adoptNS([[_WKPublicKeyCredentialDescriptor alloc] initWithIdentifier:nsIdentifier.get()]);
     RetainPtr extensions = adoptNS([[_WKAuthenticationExtensionsClientInputs alloc] init]);
@@ -1890,7 +1890,7 @@ TEST(WebAuthenticationPanel, PublicKeyCredentialRequestOptionsMaximumDefault)
 
 TEST(WebAuthenticationPanel, PublicKeyCredentialRequestOptionsMaximum)
 {
-    auto identifier = std::to_array<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
+    auto identifier = WTF::toArray<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
     RetainPtr nsIdentifier = toNSData(identifier);
 
     RetainPtr options = adoptNS([[_WKPublicKeyCredentialRequestOptions alloc] init]);
@@ -2260,7 +2260,7 @@ TEST(WebAuthenticationPanel, EncodeCTAPCreation)
 {
     uint8_t hash[] = { 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04 };
     RetainPtr nsHash = adoptNS([[NSData alloc] initWithBytes:hash length:sizeof(hash)]);
-    auto identifier = std::to_array<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
+    auto identifier = WTF::toArray<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
     RetainPtr nsIdentifier = toNSData(identifier);
     RetainPtr parameters = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@-7]);
 
@@ -2281,7 +2281,7 @@ TEST(WebAuthenticationPanel, EncodeCTAPCreationTrimmedParametersGetInfoNoneES256
 {
     uint8_t hash[] = { 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04 };
     RetainPtr nsHash = adoptNS([[NSData alloc] initWithBytes:hash length:sizeof(hash)]);
-    auto identifier = std::to_array<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
+    auto identifier = WTF::toArray<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
     RetainPtr nsIdentifier = toNSData(identifier);
     RetainPtr es256Parameters = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@-7]);
     RetainPtr rs256Parameters = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@-257]);
@@ -2306,7 +2306,7 @@ TEST(WebAuthenticationPanel, EncodeCTAPCreationTrimmedParametersGetInfoNoneRS256
 {
     uint8_t hash[] = { 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04 };
     RetainPtr nsHash = adoptNS([[NSData alloc] initWithBytes:hash length:sizeof(hash)]);
-    auto identifier = std::to_array<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
+    auto identifier = WTF::toArray<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
     RetainPtr nsIdentifier = toNSData(identifier);
     RetainPtr rs256Parameters = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@-257]);
     RetainPtr ec2Parameters = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@2]);
@@ -2330,7 +2330,7 @@ TEST(WebAuthenticationPanel, EncodeCTAPCreationTrimmedParametersGetInfoSupportsE
 {
     uint8_t hash[] = { 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04 };
     RetainPtr nsHash = adoptNS([[NSData alloc] initWithBytes:hash length:sizeof(hash)]);
-    auto identifier = std::to_array<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
+    auto identifier = WTF::toArray<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
     RetainPtr nsIdentifier = toNSData(identifier);
     RetainPtr es256Parameters = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@-7]);
     RetainPtr rs256Parameters = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@-257]);
@@ -2355,7 +2355,7 @@ TEST(WebAuthenticationPanel, EncodeCTAPCreationTrimmedParametersGetInfoSupportsD
 {
     uint8_t hash[] = { 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x04 };
     RetainPtr nsHash = adoptNS([[NSData alloc] initWithBytes:hash length:sizeof(hash)]);
-    auto identifier = std::to_array<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
+    auto identifier = WTF::toArray<uint8_t>({ 0x01, 0x02, 0x03, 0x04 });
     RetainPtr nsIdentifier = toNSData(identifier);
     RetainPtr rs256Parameters = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@-257]);
     RetainPtr ec2Parameters = adoptNS([[_WKPublicKeyCredentialParameters alloc] initWithAlgorithm:@2]);

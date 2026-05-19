@@ -554,7 +554,7 @@ void MockRealtimeVideoSource::drawBoxes(GraphicsContext& context)
 
     boxTop += boxSize + 2;
     boxLeft = boxSize;
-    constexpr auto boxColors = std::to_array<SRGBA<uint8_t>>({ Color::white, Color::yellow, Color::cyan, Color::darkGreen, Color::magenta, Color::red, Color::blue });
+    constexpr auto boxColors = WTF::toArray<SRGBA<uint8_t>>({ Color::white, Color::yellow, Color::cyan, Color::darkGreen, Color::magenta, Color::red, Color::blue });
     for (auto& boxColor : boxColors) {
         context.fillRect(FloatRect(boxLeft, boxTop, boxSize + 1, boxSize + 1), boxColor);
         boxLeft += boxSize + 1;

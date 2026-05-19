@@ -500,7 +500,7 @@ static MemoryCompactLookupOnlyRobinHoodHashMap<AtomString, QualifiedName> create
 {
     MemoryCompactLookupOnlyRobinHoodHashMap<AtomString, QualifiedName> map;
 
-    const auto svgAttrs = std::to_array<QualifiedName>({
+    const auto svgAttrs = WTF::toArray<QualifiedName>({
         SVGNames::attributeNameAttr,
         SVGNames::attributeTypeAttr,
         SVGNames::baseFrequencyAttr,
@@ -600,7 +600,7 @@ static MemoryCompactLookupOnlyRobinHoodHashMap<AtomString, QualifiedName> create
     };
 
     AtomString xlinkName("xlink"_s);
-    const auto xLinkAttrs = std::to_array<QualifiedName>({
+    const auto xLinkAttrs = WTF::toArray<QualifiedName>({
         XLinkNames::actuateAttr,
         XLinkNames::arcroleAttr,
         XLinkNames::hrefAttr,
@@ -612,7 +612,7 @@ static MemoryCompactLookupOnlyRobinHoodHashMap<AtomString, QualifiedName> create
     for (auto name : xLinkAttrs)
         addNameWithPrefix(map, name, xlinkName);
 
-    const auto xmlAttrs = std::to_array<QualifiedName>({
+    const auto xmlAttrs = WTF::toArray<QualifiedName>({
         XMLNames::langAttr,
         XMLNames::spaceAttr,
     });

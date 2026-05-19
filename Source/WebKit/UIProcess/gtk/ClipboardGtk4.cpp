@@ -131,7 +131,7 @@ public:
     void readBuffer(const char* format, ReadBufferCompletionHandler&& completionHandler)
     {
         m_completionHandler = WTF::move(completionHandler);
-        auto mimeTypes = std::to_array<const char*>({ format, nullptr });
+        auto mimeTypes = WTF::toArray<const char*>({ format, nullptr });
         gdk_clipboard_read_async(m_clipboard, mimeTypes.data(), G_PRIORITY_DEFAULT, m_cancellable.get(), [](GObject* clipboard, GAsyncResult* result, gpointer userData) {
             auto task = adoptRef(static_cast<ClipboardTask*>(userData));
             GUniqueOutPtr<GError> error;

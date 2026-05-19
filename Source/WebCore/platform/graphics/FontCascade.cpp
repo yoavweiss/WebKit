@@ -528,7 +528,7 @@ bool FontCascade::hasValidAverageCharWidth() const
         return false;
 #endif
 
-    static constexpr SortedArraySet set { std::to_array<ComparableASCIILiteral>({
+    static constexpr SortedArraySet set { WTF::toArray<ComparableASCIILiteral>({
         "#GungSeo"_s,
         "#HeadLineA"_s,
         "#PCMyungjo"_s,

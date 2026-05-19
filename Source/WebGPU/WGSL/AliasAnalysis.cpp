@@ -283,7 +283,7 @@ void AliasAnalysis::visit(AST::CallExpression& call)
 
     auto it = m_functions.find(target->identifier().id());
     if (it == m_functions.end()) {
-        static constexpr SortedArraySet atomicWriteFunctions { std::to_array<ComparableASCIILiteral>({
+        static constexpr SortedArraySet atomicWriteFunctions { WTF::toArray<ComparableASCIILiteral>({
             "atomicAdd"_s,
             "atomicAnd"_s,
             "atomicCompareExchangeWeak"_s,

@@ -1820,7 +1820,7 @@ CustomElementRegistry* Document::effectiveGlobalCustomElementRegistry()
 
 static inline bool isPotentialCustomElementNameCharacter(char32_t character)
 {
-    static constexpr auto ranges = std::to_array<UnicodeCodePointRange>({
+    static constexpr auto ranges = WTF::toArray<UnicodeCodePointRange>({
         { '-', '.' },
         { '0', '9' },
         { '_', '_' },

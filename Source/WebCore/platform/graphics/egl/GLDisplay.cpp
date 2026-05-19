@@ -312,7 +312,7 @@ const Vector<GLDisplay::BufferFormat>& GLDisplay::bufferFormats()
 
         // This list includes those formats supported by AHardwareBuffer which are suitable for rendering content, sorted by preference. See:
         // https://android.googlesource.com/platform/frameworks/native/+/4f463a6b1de9198963dc6aff74154a504ba3f8f6/libs/nativewindow/include/android/hardware_buffer.h#66
-        static constexpr auto drmFormats = std::to_array<FourCC>({
+        static constexpr auto drmFormats = WTF::toArray<FourCC>({
             DRM_FORMAT_RGBA8888,
             DRM_FORMAT_RGBX8888,
             DRM_FORMAT_RGB565,

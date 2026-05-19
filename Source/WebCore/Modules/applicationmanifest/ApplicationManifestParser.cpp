@@ -190,7 +190,7 @@ ApplicationManifest::Direction ApplicationManifestParser::parseDir(const JSON::O
         return Auto;
     }
 
-    static constexpr SortedArrayMap directions { std::to_array<std::pair<ComparableLettersLiteral, ApplicationManifest::Direction>>({
+    static constexpr SortedArrayMap directions { WTF::toArray<std::pair<ComparableLettersLiteral, ApplicationManifest::Direction>>({
         { "auto"_s, Auto },
         { "ltr"_s, LTR },
         { "rtl"_s, RTL },
@@ -215,7 +215,7 @@ ApplicationManifest::Display ApplicationManifestParser::parseDisplay(const JSON:
         return ApplicationManifest::Display::Browser;
     }
 
-    static constexpr SortedArrayMap displayValues { std::to_array<std::pair<ComparableLettersLiteral, ApplicationManifest::Display>>({
+    static constexpr SortedArrayMap displayValues { WTF::toArray<std::pair<ComparableLettersLiteral, ApplicationManifest::Display>>({
         { "browser"_s, ApplicationManifest::Display::Browser },
         { "fullscreen"_s, ApplicationManifest::Display::Fullscreen },
         { "minimal-ui"_s, ApplicationManifest::Display::MinimalUI },
@@ -241,7 +241,7 @@ const std::optional<ScreenOrientationLockType> ApplicationManifestParser::parseO
         return std::nullopt;
     }
 
-    static SortedArrayMap orientationValues { std::to_array<std::pair<ComparableLettersLiteral, WebCore::ScreenOrientationLockType>>({
+    static SortedArrayMap orientationValues { WTF::toArray<std::pair<ComparableLettersLiteral, WebCore::ScreenOrientationLockType>>({
         { "any"_s, WebCore::ScreenOrientationLockType::Any },
         { "landscape"_s, WebCore::ScreenOrientationLockType::Landscape },
         { "landscape-primary"_s, WebCore::ScreenOrientationLockType::LandscapePrimary },

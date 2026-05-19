@@ -79,7 +79,7 @@ static String normalizedImageMIMEType(const String&);
 // supported (should be image/tiff). This can be removed when Mail addresses:
 // <rdar://problem/7879510> Mail should use standard image mimetypes
 // and we fix sniffing so that it corrects items such as image/jpg -> image/jpeg.
-constexpr SortedArraySet supportedImageMIMETypeSet { std::to_array<ComparableCaseFoldingASCIILiteral>({
+constexpr SortedArraySet supportedImageMIMETypeSet { WTF::toArray<ComparableCaseFoldingASCIILiteral>({
 #if PLATFORM(IOS_FAMILY)
     "application/bmp"_s,
     "application/jpg"_s,
@@ -197,7 +197,7 @@ HashSet<String, ASCIICaseInsensitiveHash>& MIMETypeRegistry::additionalSupported
 }
 
 // https://html.spec.whatwg.org/multipage/scripting.html#javascript-mime-type
-constexpr SortedArraySet supportedJavaScriptMIMETypes { std::to_array<ComparableLettersLiteral>({
+constexpr SortedArraySet supportedJavaScriptMIMETypes { WTF::toArray<ComparableLettersLiteral>({
     "application/ecmascript"_s,
     "application/javascript"_s,
     "application/x-ecmascript"_s,
@@ -263,7 +263,7 @@ const HashSet<String>& MIMETypeRegistry::supportedMediaMIMETypes()
     return types;
 }
 
-static constexpr SortedArraySet pdfMIMETypeSet { std::to_array<ComparableLettersLiteral>({
+static constexpr SortedArraySet pdfMIMETypeSet { WTF::toArray<ComparableLettersLiteral>({
     "application/pdf"_s,
     "text/pdf"_s,
 }) };
@@ -273,7 +273,7 @@ FixedVector<ASCIILiteral> MIMETypeRegistry::pdfMIMETypes()
     return makeFixedVector(pdfMIMETypeSet.array());
 }
 
-static constexpr SortedArraySet unsupportedTextMIMETypesSet { std::to_array<ComparableLettersLiteral>({
+static constexpr SortedArraySet unsupportedTextMIMETypesSet { WTF::toArray<ComparableLettersLiteral>({
     "text/calendar"_s,
     "text/directory"_s,
     "text/ldif"_s,
@@ -306,7 +306,7 @@ static const HashMap<String, Vector<String>, ASCIICaseInsensitiveHash>& commonMi
         HashMap<String, Vector<String>, ASCIICaseInsensitiveHash> map;
         // A table of common media MIME types and file extensions used when a platform's
         // specific MIME type lookup doesn't have a match for a media file extension.
-        static constexpr auto commonMediaTypes = std::to_array<TypeExtensionPair>({
+        static constexpr auto commonMediaTypes = WTF::toArray<TypeExtensionPair>({
             // Ogg
             { "application/ogg"_s, "ogx"_s },
             { "audio/ogg"_s, "ogg"_s },
@@ -662,14 +662,14 @@ const String& defaultMIMEType()
     return defaultMIMEType;
 }
 
-constexpr SortedArraySet usdMIMETypeSet { std::to_array<ComparableLettersLiteral>({
+constexpr SortedArraySet usdMIMETypeSet { WTF::toArray<ComparableLettersLiteral>({
     "model/usd"_s, // Unofficial, but supported because we documented this.
     "model/vnd.pixar.usd"_s, // Unofficial, but supported because we documented this.
     "model/vnd.reality"_s,
     "model/vnd.usdz+zip"_s, // The official type: https://www.iana.org/assignments/media-types/model/vnd.usdz+zip
 }) };
 
-static constexpr SortedArraySet gltfMIMETypeSet { std::to_array<ComparableLettersLiteral>({
+static constexpr SortedArraySet gltfMIMETypeSet { WTF::toArray<ComparableLettersLiteral>({
     "model/gltf-binary"_s, // The official glTF binary (.glb) format: https://www.iana.org/assignments/media-types/model/gltf-binary
 }) };
 
@@ -703,7 +703,7 @@ static String NODELETE normalizedImageMIMEType(const String& mimeType)
 {
 #if USE(CURL)
     // FIXME: Since this is only used in isSupportedImageMIMEType, we should consider removing the non-image types below.
-    static constexpr SortedArrayMap associationMap { std::to_array<std::pair<ComparableLettersLiteral, ASCIILiteral>>({
+    static constexpr SortedArrayMap associationMap { WTF::toArray<std::pair<ComparableLettersLiteral, ASCIILiteral>>({
         { "application/ico"_s, "image/vnd.microsoft.icon"_s },
         { "application/java"_s, "application/java-archive"_s },
         { "application/x-java-archive"_s, "application/java-archive"_s },

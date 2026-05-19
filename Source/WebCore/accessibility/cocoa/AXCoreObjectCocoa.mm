@@ -509,7 +509,7 @@ PlatformRoleMap createPlatformRoleMap()
         AccessibilityRole value;
         RetainPtr<NSString> string;
     };
-    static const NeverDestroyed roles = std::to_array<RoleEntry>({
+    static const NeverDestroyed roles = WTF::toArray<RoleEntry>({
         { AccessibilityRole::Unknown, NSAccessibilityUnknownRole },
         { AccessibilityRole::Button, NSAccessibilityButtonRole },
         { AccessibilityRole::RadioButton, NSAccessibilityRadioButtonRole },

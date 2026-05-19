@@ -54,7 +54,7 @@ struct MangledName {
 
     String toString() const
     {
-        static const auto prefixes = std::to_array<ASCIILiteral>({
+        static const auto prefixes = WTF::toArray<ASCIILiteral>({
             "type"_s,
             "local"_s,
             "global"_s,

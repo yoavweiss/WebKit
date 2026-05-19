@@ -118,7 +118,7 @@ struct KeyPressEntry {
     const char* name;
 };
 
-static constexpr auto keyDownEntries = std::to_array<KeyDownEntry>({
+static constexpr auto keyDownEntries = WTF::toArray<KeyDownEntry>({
     { VK_LEFT,   0,                  "MoveLeft" },
     { VK_LEFT,   ShiftKey,           "MoveLeftAndModifySelection" },
     { VK_LEFT,   CtrlKey,            "MoveWordLeft" },
@@ -177,7 +177,7 @@ static constexpr auto keyDownEntries = std::to_array<KeyDownEntry>({
     { 'Z',       CtrlKey | ShiftKey, "Redo" },
 });
 
-static constexpr auto keyPressEntries = std::to_array<KeyPressEntry>({
+static constexpr auto keyPressEntries = WTF::toArray<KeyPressEntry>({
     { '\t',   0,                  "InsertTab" },
     { '\t',   ShiftKey,           "InsertBacktab" },
     { '\r',   0,                  "InsertNewline" },

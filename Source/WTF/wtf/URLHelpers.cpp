@@ -376,7 +376,7 @@ void addScriptToIDNAllowedScriptList(const char* scriptName)
 
 void initializeDefaultIDNAllowedScriptList()
 {
-    constexpr auto scripts = std::to_array<UScriptCode>({
+    constexpr auto scripts = WTF::toArray<UScriptCode>({
         USCRIPT_COMMON,
         USCRIPT_INHERITED,
         USCRIPT_ARABIC,

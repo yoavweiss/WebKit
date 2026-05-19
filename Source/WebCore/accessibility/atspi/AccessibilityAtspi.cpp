@@ -638,7 +638,7 @@ struct RoleNameEntry {
     const char* localizedName;
 };
 
-static constexpr SortedArrayMap roleNamesMap { std::to_array<std::pair<AccessibilityRole, RoleNameEntry>>({
+static constexpr SortedArrayMap roleNamesMap { WTF::toArray<std::pair<AccessibilityRole, RoleNameEntry>>({
     { AccessibilityRole::Application, { "application", N_("application") } },
     { AccessibilityRole::ApplicationAlert, { "notification", N_("notification") } },
     { AccessibilityRole::ApplicationAlertDialog, { "alert", N_("alert") } },

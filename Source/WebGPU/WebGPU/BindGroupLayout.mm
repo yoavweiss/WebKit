@@ -175,7 +175,7 @@ Ref<BindGroupLayout> Device::createBindGroupLayout(const WGPUBindGroupLayoutDesc
     BindGroupLayout::ShaderStageArray<uint32_t> texturesPerStage;
     BindGroupLayout::ShaderStageArray<uint32_t> storageTexturesPerStage;
     BindGroupLayout::ShaderStageArray<uint32_t> maxIndices;
-    constexpr auto stages = std::to_array<ShaderStage>({ ShaderStage::Vertex, ShaderStage::Fragment, ShaderStage::Compute });
+    constexpr auto stages = WTF::toArray<ShaderStage>({ ShaderStage::Vertex, ShaderStage::Fragment, ShaderStage::Compute });
     for (uint32_t i = 0; i < stageCount; ++i) {
         ShaderStage shaderStage = stages[i];
         arguments[i] = [NSMutableArray arrayWithCapacity:descriptor.entryCount];

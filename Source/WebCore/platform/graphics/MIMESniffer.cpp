@@ -300,7 +300,7 @@ static String mimeTypeFromSnifferEntries(std::span<const uint8_t> sequence)
         const ASCIILiteral contentType;
     };
 
-    static const auto sSnifferEntries = std::to_array<MIMESniffEntry>({
+    static const auto sSnifferEntries = WTF::toArray<MIMESniffEntry>({
         // The string "FORM" followed by four bytes followed by the string "AIFF", the AIFF signature.
         { span8("\x46\x4F\x52\x4D\x00\x00\x00\x00\x41\x49\x46\x46"), span8("\xFF\xFF\xFF\xFF\x00\x00\x00\x00\xFF\xFF\xFF\xFF"), "audio/aiff"_s },
         // The string "ID3", the ID3v2-tagged MP3 signature.

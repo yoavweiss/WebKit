@@ -124,7 +124,7 @@ static InputTypeFactoryMap createInputTypeFactoryMap()
         InputTypeNameFunction nameFunction;
         InputTypeFactoryFunction factoryFunction;
     };
-    static const auto inputTypes = std::to_array<InputType>({
+    static const auto inputTypes = WTF::toArray<InputType>({
         { nullptr, &InputTypeNames::button, &createInputType<ButtonInputType> },
         { nullptr, &InputTypeNames::checkbox, &createInputType<CheckboxInputType> },
         { &Settings::inputTypeColorEnabled, &InputTypeNames::color, &createInputType<ColorInputType> },

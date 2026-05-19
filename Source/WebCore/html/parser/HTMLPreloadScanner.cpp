@@ -61,7 +61,7 @@ using namespace HTMLNames;
 
 TokenPreloadScanner::TagId TokenPreloadScanner::tagIdFor(const HTMLToken::DataVector& data)
 {
-    static constexpr SortedArrayMap map { std::to_array<std::pair<PackedASCIILiteral<uint64_t>, TokenPreloadScanner::TagId>>({
+    static constexpr SortedArrayMap map { WTF::toArray<std::pair<PackedASCIILiteral<uint64_t>, TokenPreloadScanner::TagId>>({
         { "base"_s, TagId::Base },
         { "image"_s, TagId::Img },
         { "img"_s, TagId::Img },
@@ -503,7 +503,7 @@ void TokenPreloadScanner::scan(const HTMLToken& token, Vector<std::unique_ptr<Pr
         TagId tagId = tagIdFor(token.name());
         if (tagId == TagId::Template) {
             bool isDeclarativeShadowRoot = false;
-            static constexpr auto shadowRootAsUTF16 = std::to_array<char16_t>({ 's', 'h', 'a', 'd', 'o', 'w', 'r', 'o', 'o', 't', 'm', 'o', 'd', 'e' });
+            static constexpr auto shadowRootAsUTF16 = WTF::toArray<char16_t>({ 's', 'h', 'a', 'd', 'o', 'w', 'r', 'o', 'o', 't', 'm', 'o', 'd', 'e' });
             const auto* shadowRootModeAttribute = findAttribute(token.attributes(), shadowRootAsUTF16);
             if (shadowRootModeAttribute)
                 isDeclarativeShadowRoot = !!parseShadowRootMode(StringView(shadowRootModeAttribute->value.span()));
@@ -546,7 +546,7 @@ void TokenPreloadScanner::scan(const HTMLToken& token, Vector<std::unique_ptr<Pr
         // so it must not be preloaded as if it were an HTML <img>. (A literal <img> breaks
         // out of foreign content per HTML parsing rules, so handling it as Img is fine.)
         if (m_foreignContentCount && tagId == TagId::Img) {
-            static constexpr auto imageAsUTF16 = std::to_array<char16_t>({ 'i', 'm', 'a', 'g', 'e' });
+            static constexpr auto imageAsUTF16 = WTF::toArray<char16_t>({ 'i', 'm', 'a', 'g', 'e' });
             if (equalSpans(token.name().span(), std::span { imageAsUTF16 }))
                 return;
         }
@@ -566,7 +566,7 @@ void TokenPreloadScanner::scan(const HTMLToken& token, Vector<std::unique_ptr<Pr
 void TokenPreloadScanner::updatePredictedBaseURL(const HTMLToken& token, bool shouldRestrictBaseURLSchemes)
 {
     ASSERT(m_predictedBaseElementURL.isEmpty());
-    static constexpr auto hrefAsUTF16 = std::to_array<char16_t>({ 'h', 'r', 'e', 'f' });
+    static constexpr auto hrefAsUTF16 = WTF::toArray<char16_t>({ 'h', 'r', 'e', 'f' });
     auto* hrefAttribute = findAttribute(token.attributes(), hrefAsUTF16);
     if (!hrefAttribute)
         return;

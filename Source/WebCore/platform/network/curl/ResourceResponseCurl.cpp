@@ -37,7 +37,7 @@ namespace WebCore {
 
 static bool isAppendableHeader(const String &key)
 {
-    static constexpr auto appendableHeaders = std::to_array<ASCIILiteral>({
+    static constexpr auto appendableHeaders = WTF::toArray<ASCIILiteral>({
         "access-control-allow-headers"_s,
         "access-control-allow-methods"_s,
         "access-control-allow-origin"_s,

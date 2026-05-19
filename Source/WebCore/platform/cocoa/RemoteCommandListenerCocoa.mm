@@ -39,7 +39,7 @@ namespace WebCore {
 
 static std::optional<MRMediaRemoteCommand> mediaRemoteCommandForPlatformCommand(PlatformMediaSession::RemoteControlCommandType command)
 {
-    static constexpr SortedArrayMap map { std::to_array<std::pair<PlatformMediaSession::RemoteControlCommandType, MRMediaRemoteCommand>>({
+    static constexpr SortedArrayMap map { WTF::toArray<std::pair<PlatformMediaSession::RemoteControlCommandType, MRMediaRemoteCommand>>({
         { PlatformMediaSession::RemoteControlCommandType::PlayCommand, MRMediaRemoteCommandPlay },
         { PlatformMediaSession::RemoteControlCommandType::PauseCommand, MRMediaRemoteCommandPause },
         { PlatformMediaSession::RemoteControlCommandType::StopCommand, MRMediaRemoteCommandStop },

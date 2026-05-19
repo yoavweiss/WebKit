@@ -142,7 +142,7 @@ bool AVAssetMIMETypeCache::isUnsupportedContainerType(const String& type)
 
 bool AVAssetMIMETypeCache::isStaticContainerType(StringView type)
 {
-    static constexpr SortedArraySet staticContainerTypesSet { std::to_array<ComparableLettersLiteral>({
+    static constexpr SortedArraySet staticContainerTypesSet { WTF::toArray<ComparableLettersLiteral>({
         "application/vnd.apple.mpegurl"_s,
         "application/x-mpegurl"_s,
         "audio/3gpp"_s,

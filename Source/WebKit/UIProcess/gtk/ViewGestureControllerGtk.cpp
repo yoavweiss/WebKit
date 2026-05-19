@@ -61,7 +61,7 @@ static const float swipeOverlayBorderOpacity = 0.05;
 static const float swipeOverlayOutlineOpacity = 0.05;
 static const float swipeOverlayDimmingOpacity = 0.12;
 static const float swipeOverlayShadowWidth = 57;
-static constexpr auto swipeOverlayShadowStops = std::to_array<GskColorStop>({
+static constexpr auto swipeOverlayShadowStops = WTF::toArray<GskColorStop>({
     { 0,     { 0, 0, 0, 0.08  } },
     { 0.125, { 0, 0, 0, 0.053 } },
     { 0.428, { 0, 0, 0, 0.026 } },

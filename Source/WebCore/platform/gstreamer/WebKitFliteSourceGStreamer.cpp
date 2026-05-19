@@ -87,7 +87,7 @@ WEBKIT_DEFINE_TYPE_WITH_CODE(WebKitFliteSrc, webkit_flite_src, GST_TYPE_BASE_SRC
     GST_DEBUG_CATEGORY_INIT(webkit_flite_src_debug, "webkitflitesrc", 0, "flitesrc element"));
 
 // To add more voices, add voice register functions here.
-static auto voiceRegisterFunctions = std::to_array({
+static auto voiceRegisterFunctions = WTF::toArray({
     register_cmu_us_kal,
     register_cmu_us_slt,
     register_cmu_us_rms,

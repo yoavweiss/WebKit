@@ -69,7 +69,7 @@ namespace JSC { namespace DFG {
 static constexpr bool dumpOSRAvailabilityData = false;
 
 // Creates an array of stringized names.
-static constexpr auto dfgOpNames = std::to_array<ASCIILiteral>({
+static constexpr auto dfgOpNames = WTF::toArray<ASCIILiteral>({
 #define STRINGIZE_DFG_OP_ENUM(opcode, flags) #opcode ## _s ,
     FOR_EACH_DFG_OP(STRINGIZE_DFG_OP_ENUM)
 #undef STRINGIZE_DFG_OP_ENUM

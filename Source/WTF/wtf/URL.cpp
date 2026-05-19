@@ -998,7 +998,7 @@ bool portAllowed(const URL& url)
 
     // This blocked port list is defined by the Fetch spec, with the addition of port 0.
     // See https://fetch.spec.whatwg.org/#port-blocking for more information.
-    static constexpr auto blockedPortList = std::to_array<uint16_t>({
+    static constexpr auto blockedPortList = WTF::toArray<uint16_t>({
         0, // reserved
         1, // tcpmux
         7, // echo

@@ -139,7 +139,7 @@ void RenderCombineText::combineTextIfNeeded()
         m_combineFontStyle->mutableFontCascadeWithoutUpdate().setLetterSpacing(0);
     } else {
         // Need to try compressed glyphs.
-        static constexpr auto widthVariants = std::to_array<FontWidthVariant>({ FontWidthVariant::HalfWidth, FontWidthVariant::ThirdWidth, FontWidthVariant::QuarterWidth });
+        static constexpr auto widthVariants = WTF::toArray<FontWidthVariant>({ FontWidthVariant::HalfWidth, FontWidthVariant::ThirdWidth, FontWidthVariant::QuarterWidth });
         for (auto widthVariant : widthVariants) {
             description.setWidthVariant(widthVariant); // When modifying this, make sure to keep it in sync with FontPlatformData::isForTextCombine()!
 

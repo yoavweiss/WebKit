@@ -52,7 +52,7 @@ static bool isValidMediaMIMEType(const ContentType& contentType)
 {
     // A "bucket" MIME types is one whose container type does not uniquely specify a codec.
     // See: https://tools.ietf.org/html/rfc6381
-    static constexpr SortedArraySet bucketMIMETypes { std::to_array<ComparableASCIILiteral>({
+    static constexpr SortedArraySet bucketMIMETypes { WTF::toArray<ComparableASCIILiteral>({
         "application/mp21"_s,
         "application/mp4"_s,
         "audio/3gpp"_s,

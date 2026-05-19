@@ -1656,7 +1656,7 @@ char32_t RenderText::previousCharacter() const
 static String convertToFullSizeKana(const String& string)
 {
     // https://www.w3.org/TR/css-text-3/#small-kana
-    static constexpr SortedArrayMap sortedMap { std::to_array<std::pair<char32_t, char16_t>>({
+    static constexpr SortedArrayMap sortedMap { WTF::toArray<std::pair<char32_t, char16_t>>({
         { 0x3041, 0x3042 },
         { 0x3043, 0x3044 },
         { 0x3045, 0x3046 },

@@ -38,7 +38,7 @@ ASCIILiteral errorMessage(ErrorCode error)
 {
 #define REGEXP_ERROR_PREFIX "Invalid regular expression: "
     // The order of this array must match the ErrorCode enum.
-    static constexpr auto errorMessages = std::to_array<ASCIILiteral>({
+    static constexpr auto errorMessages = WTF::toArray<ASCIILiteral>({
         { },                                                                          // NoError
 
         // The following are hard errors.

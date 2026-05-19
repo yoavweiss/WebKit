@@ -55,7 +55,7 @@ void adjustMIMETypeIfNecessary(CFURLResponseRef response, IsMainResourceLoad, Is
         // Once UTType matches one of these mappings on all versions of macOS we support, we can remove that pair.
         // Alternatively, we could remove any pairs that we determine we no longer need.
         // And then remove this code entirely once they are all gone.
-        static constexpr SortedArrayMap extensionMap { std::to_array<std::pair<ComparableLettersLiteral, NSString *>>({
+        static constexpr SortedArrayMap extensionMap { WTF::toArray<std::pair<ComparableLettersLiteral, NSString *>>({
             { "ai"_s, @"application/postscript" },
             { "asc"_s, @"text/plain" },
             { "bcpio"_s, @"application/x-bcpio" },

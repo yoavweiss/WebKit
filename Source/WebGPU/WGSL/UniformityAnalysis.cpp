@@ -1237,13 +1237,13 @@ std::pair<Node*, Node*> UniformityGraph::processCall(Node* cf, AST::CallExpressi
             callSiteSeverity = funcInfo->callSiteTag.severity;
             functionTag = funcInfo->functionTag;
         } else {
-            static constexpr SortedArraySet barrierFunctions { std::to_array<ComparableASCIILiteral>({
+            static constexpr SortedArraySet barrierFunctions { WTF::toArray<ComparableASCIILiteral>({
                 "storageBarrier"_s,
                 "textureBarrier"_s,
                 "workgroupBarrier"_s,
             }) };
 
-            static constexpr SortedArraySet derivativeFunctions { std::to_array<ComparableASCIILiteral>({
+            static constexpr SortedArraySet derivativeFunctions { WTF::toArray<ComparableASCIILiteral>({
                 "dpdx"_s,
                 "dpdxCoarse"_s,
                 "dpdxFine"_s,
@@ -1258,7 +1258,7 @@ std::pair<Node*, Node*> UniformityGraph::processCall(Node* cf, AST::CallExpressi
                 "textureSampleCompare"_s,
             }) };
 
-            static constexpr SortedArraySet atomicFunctions { std::to_array<ComparableASCIILiteral>({
+            static constexpr SortedArraySet atomicFunctions { WTF::toArray<ComparableASCIILiteral>({
                 "atomicAdd"_s,
                 "atomicAnd"_s,
                 "atomicCompareExchangeWeak"_s,

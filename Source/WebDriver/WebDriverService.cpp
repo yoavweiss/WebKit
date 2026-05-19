@@ -302,7 +302,7 @@ const WebDriverService::BidiCommand WebDriverService::s_bidiCommands[] = {
 
 std::optional<WebDriverService::HTTPMethod> WebDriverService::toCommandHTTPMethod(const String& method)
 {
-    static constexpr SortedArrayMap httpMethods { std::to_array<std::pair<ComparableLettersLiteral, WebDriverService::HTTPMethod>>({
+    static constexpr SortedArrayMap httpMethods { WTF::toArray<std::pair<ComparableLettersLiteral, WebDriverService::HTTPMethod>>({
         { "delete"_s, WebDriverService::HTTPMethod::Delete },
         { "get"_s, WebDriverService::HTTPMethod::Get },
         { "post"_s, WebDriverService::HTTPMethod::Post },

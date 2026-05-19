@@ -248,7 +248,7 @@ static String commandNameForSelectorName(const String& selectorName)
 {
     // Map selectors into Editor command names.
     // This is not needed for any selectors that have the same name as the Editor command.
-    static constexpr SortedArrayMap map { std::to_array<std::pair<ComparableASCIILiteral, ASCIILiteral>>({
+    static constexpr SortedArrayMap map { WTF::toArray<std::pair<ComparableASCIILiteral, ASCIILiteral>>({
         { "insertNewlineIgnoringFieldEditor:"_s, "InsertNewline"_s },
         { "insertParagraphSeparator:"_s, "InsertNewline"_s },
         { "insertTabIgnoringFieldEditor:"_s, "InsertTab"_s },

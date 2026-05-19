@@ -90,7 +90,7 @@ static QCursor webCursorNameToQCursor(const char* name)
     // no-drop (fallback to forbidden),
     // all single-direction resizes (fallback to double-direction resizes)
     using namespace std::literals;
-    static constexpr SortedArrayMap shapeMap { std::to_array<std::pair<std::string_view, Qt::CursorShape>>({
+    static constexpr SortedArrayMap shapeMap { WTF::toArray<std::pair<std::string_view, Qt::CursorShape>>({
         { "alias"sv, Qt::DragLinkCursor },
         { "col-resize"sv, Qt::SplitHCursor },
         { "copy"sv, Qt::DragCopyCursor },

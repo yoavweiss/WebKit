@@ -780,7 +780,7 @@ Ref<EditingStyle> EditingStyle::copy() const
 
 // This is the list of properties we want to copy in the copyBlockProperties() function.
 // It is the list of CSS properties that apply specially to block-level elements.
-static constexpr auto blockProperties = std::to_array<CSSPropertyID>({
+static constexpr auto blockProperties = WTF::toArray<CSSPropertyID>({
     CSSPropertyOrphans,
     CSSPropertyOverflow, // This can be also be applied to replaced elements
     CSSPropertyColumnCount,
@@ -882,7 +882,7 @@ void EditingStyle::collapseTextDecorationProperties()
 }
 
 // CSS properties that create a visual difference only when applied to text.
-static constexpr auto textOnlyProperties = std::to_array<CSSPropertyID>({
+static constexpr auto textOnlyProperties = WTF::toArray<CSSPropertyID>({
     CSSPropertyTextDecorationLine,
     CSSPropertyWebkitTextDecorationsInEffect,
     CSSPropertyFontStyle,

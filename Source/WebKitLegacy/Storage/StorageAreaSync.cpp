@@ -287,7 +287,7 @@ void StorageAreaSync::migrateItemTableIfNeeded()
     }
 
     // alter table for backward compliance, change the value type from TEXT to BLOB.
-    static constexpr auto commands = std::to_array<ASCIILiteral>({
+    static constexpr auto commands = WTF::toArray<ASCIILiteral>({
         "DROP TABLE IF EXISTS ItemTable2"_s,
         "CREATE TABLE ItemTable2 (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"_s,
         "INSERT INTO ItemTable2 SELECT * from ItemTable"_s,

@@ -191,7 +191,7 @@ void dumpSelectorOperationStats()
 {
     constexpr bool resetStatsOnDump = true;
 
-    static constexpr auto selectorNames = std::to_array<const char*>({
+    static constexpr auto selectorNames = WTF::toArray<const char*>({
 #define SELECTOR_OPERATION_NAME(selector) #selector,
         FOR_EACH_SELECTOR_OPERATION(SELECTOR_OPERATION_NAME)
 #undef SELECTOR_OPERATION_NAME

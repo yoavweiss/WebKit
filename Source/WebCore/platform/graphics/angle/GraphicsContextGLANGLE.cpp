@@ -88,7 +88,7 @@ static std::span<uint8_t> glMapBufferRangeSpan(GLenum target, GLintptr offset, G
     return unsafeMakeSpan(static_cast<uint8_t*>(ptr), length);
 }
 
-static constexpr SortedArrayMap extensionsMapping { std::to_array<std::pair<ComparableASCIILiteral, GCGLExtension>>({
+static constexpr SortedArrayMap extensionsMapping { WTF::toArray<std::pair<ComparableASCIILiteral, GCGLExtension>>({
     { "GL_ANGLE_base_vertex_base_instance"_s, GCGLExtension::ANGLE_base_vertex_base_instance },
     { "GL_ANGLE_clip_cull_distance"_s, GCGLExtension::ANGLE_clip_cull_distance },
     { "GL_ANGLE_compressed_texture_etc"_s, GCGLExtension::ANGLE_compressed_texture_etc },
