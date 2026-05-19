@@ -1367,8 +1367,8 @@ CSSSelectorList CSSSelectorParser::resolveNestingParent(const CSSSelectorList& n
 
     auto canInline = [](const CSSSelector& nestingSelector, const CSSSelectorList& list) {
         auto hasTagInCompound = [](const CSSSelector& simpleSelector) {
-            // A compound is organized so that any tag selector is always last.
-            return simpleSelector.lastInCompound()->match() == CSSSelector::Match::Tag;
+            // A compound is organized so that any tag selector is always leftmost.
+            return simpleSelector.leftmostInCompound()->match() == CSSSelector::Match::Tag;
         };
 
         if (list.size() != 1) {
@@ -1387,7 +1387,7 @@ CSSSelectorList CSSSelectorParser::resolveNestingParent(const CSSSelectorList& n
             // .foo .bar { & .baz {...} } -> .foo .bar .baz {...}
             return true;
         }
-        bool hasSingleCompound = !list.first().firstInCompound()->precedingInComplexSelector();
+        bool hasSingleCompound = !list.first().rightmostInCompound()->precedingInComplexSelector();
         if (hasSingleCompound) {
             // .foo.bar { .baz & {...} } -> .baz .foo.bar {...}
             return true;
@@ -1549,16 +1549,16 @@ struct HasCompoundContext {
 static std::optional<HasCompoundContext> collectHasCompoundContext(const CSSSelector& hasPseudoClass)
 {
     HasCompoundContext context;
-    for (auto* selector = hasPseudoClass.lastInCompound(); selector; selector = selector->precedingInCompound()) {
+    for (auto* selector = hasPseudoClass.leftmostInCompound(); selector; selector = selector->followingInCompound()) {
         if (selector != &hasPseudoClass)
             context.compoundPeers.append(selector);
     }
     if (context.compoundPeers.isEmpty())
         return { };
 
-    auto* firstInCompound = hasPseudoClass.firstInCompound();
-    context.compoundRelation = firstInCompound->relation();
-    context.leftStart = firstInCompound->precedingInComplexSelector();
+    auto* rightmostInCompound = hasPseudoClass.rightmostInCompound();
+    context.compoundRelation = rightmostInCompound->relation();
+    context.leftStart = rightmostInCompound->precedingInComplexSelector();
     return context;
 }
 
@@ -1609,7 +1609,7 @@ CSSSelectorList CSSSelectorParser::makeHasScopeSelector(const Vector<const CSSSe
 {
     ASSERT(!compoundSelectors.isEmpty());
 
-    auto* outermost = compoundSelectors.first()->firstInCompound();
+    auto* outermost = compoundSelectors.first()->rightmostInCompound();
 
     Vector<const CSSSelector*> mergedPeers;
     for (size_t i = 0; i < compoundSelectors.size(); ++i) {

@@ -187,19 +187,10 @@ static bool isSiblingCombinator(CSSSelector::Relation relation)
 
 static bool compoundContainsHostPseudoClass(const CSSSelector& anySimpleInCompound)
 {
-    // Iterate every simple selector in this compound. WebKit stores compound members
-    // contiguously in selector storage; firstInCompound returns the subject (rightmost
-    // in source) and lastInCompound returns the leftmost. Walk from leftmost to subject.
-    auto* leftmost = anySimpleInCompound.lastInCompound();
-    auto* subject = anySimpleInCompound.firstInCompound();
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
-    for (auto* simple = leftmost; ; ++simple) {
+    for (auto* simple = anySimpleInCompound.leftmostInCompound(); simple; simple = simple->followingInCompound()) {
         if (simple->match() == CSSSelector::Match::PseudoClass && simple->isHostPseudoClass())
             return true;
-        if (simple == subject)
-            break;
     }
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
     return false;
 }
 
@@ -336,7 +327,7 @@ void RuleFeatureSet::recursivelyCollectFeaturesFromSelector(SelectorFeatures& se
             auto compoundIsAffectedByChildMutation = [&] {
                 if (isSiblingCombinator(selector->relation()))
                     return true;
-                for (auto* simple = selector; simple; simple = simple->precedingInCompound()) {
+                for (auto* simple = selector; simple; simple = simple->followingInCompound()) {
                     if (simple->match() == CSSSelector::Match::PseudoClass && pseudoClassIsRelativeToSiblings(simple->pseudoClass()))
                         return true;
                 }
@@ -445,7 +436,7 @@ static PseudoClassInvalidationKey makePseudoClassInvalidationKey(CSSSelector::Ps
     AtomString attributeName;
     AtomString className;
     AtomString tagName;
-    for (auto* simpleSelector = selector.lastInCompound(); simpleSelector; simpleSelector = simpleSelector->precedingInComplexSelector()) {
+    for (auto* simpleSelector = selector.leftmostInCompound(); simpleSelector; simpleSelector = simpleSelector->followingInCompound()) {
         if (simpleSelector->match() == CSSSelector::Match::Id)
             return makePseudoClassInvalidationKey(pseudoClass, InvalidationKeyType::Id, simpleSelector->value());
 
@@ -457,9 +448,6 @@ static PseudoClassInvalidationKey makePseudoClassInvalidationKey(CSSSelector::Ps
 
         if (simpleSelector->isAttributeSelector() && !unlikelyToHaveSelectorForAttribute(simpleSelector->attribute().localNameLowercase()))
             attributeName = simpleSelector->attribute().localNameLowercase();
-
-        if (simpleSelector->relation() != CSSSelector::Relation::Subselector)
-            break;
     }
     if (!attributeName.isEmpty())
         return makePseudoClassInvalidationKey(pseudoClass, InvalidationKeyType::Attribute, attributeName);
@@ -607,7 +595,7 @@ void RuleFeatureSet::collectPseudoElementFeatures(const RuleData& ruleData)
     ASSERT(ruleData.canMatchPseudoElement());
 
     auto& selector = ruleData.selector();
-    for (auto* simpleSelector = &selector; simpleSelector; simpleSelector = simpleSelector->precedingInCompound()) {
+    for (auto* simpleSelector = &selector; simpleSelector; simpleSelector = simpleSelector->followingInCompound()) {
         if (simpleSelector->match() != CSSSelector::Match::PseudoElement)
             continue;
         switch (simpleSelector->pseudoElement()) {

@@ -369,21 +369,21 @@ std::optional<CSSSelector::PseudoElement> CSSSelector::parsePseudoElementName(St
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
-const CSSSelector* CSSSelector::firstInCompound() const
+const CSSSelector* CSSSelector::rightmostInCompound() const
 {
     auto* selector = this;
-    while (!selector->isFirstInComplexSelector()) {
+    while (auto* preceding = selector->precedingInComplexSelector()) {
         if (selector->relation() != Relation::Subselector)
             break;
-        ++selector;
+        selector = preceding;
     }
     return selector;
 }
 
-const CSSSelector* CSSSelector::lastInCompound() const
+const CSSSelector* CSSSelector::leftmostInCompound() const
 {
     auto* selector = this;
-    while (!selector->isLastInComplexSelector()) {
+    while (!selector->m_isLastInComplexSelector) {
         auto* next = selector - 1;
         if (next->relation() != Relation::Subselector)
             break;
@@ -393,7 +393,7 @@ const CSSSelector* CSSSelector::lastInCompound() const
 }
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
-const CSSSelector* CSSSelector::precedingInCompound() const
+const CSSSelector* CSSSelector::followingInCompound() const
 {
     if (relation() != Relation::Subselector)
         return nullptr;
@@ -1000,7 +1000,7 @@ bool complexSelectorMatchesElementBackedPseudoElement(const CSSSelector& complex
     };
 
     auto result = false;
-    for (auto* simpleSelector = &complexSelector; simpleSelector; simpleSelector = simpleSelector->precedingInCompound()) {
+    for (auto* simpleSelector = &complexSelector; simpleSelector; simpleSelector = simpleSelector->followingInCompound()) {
         if (simpleSelector->matchesPseudoElement()) {
             if (!isElementBacked(simpleSelector->pseudoElement()))
                 return false;

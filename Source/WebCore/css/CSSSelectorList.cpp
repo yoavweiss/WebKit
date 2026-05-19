@@ -67,7 +67,7 @@ CSSSelectorList::CSSSelectorList(MutableCSSSelectorList&& selectorVector)
                 m_selectorArray[arrayIndex].m_isFirstInComplexSelector = false;
             ++arrayIndex;
         }
-        ASSERT(m_selectorArray[arrayIndex - 1].isFirstInComplexSelector());
+        ASSERT(!m_selectorArray[arrayIndex - 1].precedingInComplexSelector());
     }
     ASSERT(flattenedSize == arrayIndex);
 }
@@ -146,7 +146,9 @@ CSSSelectorList CSSSelectorList::makeJoining(const Vector<const CSSSelectorList*
 
 unsigned CSSSelectorList::size() const
 {
-    return std::ranges::count_if(m_selectorArray, [](auto& selector) { return selector.isFirstInComplexSelector(); });
+    return std::ranges::count_if(m_selectorArray, [](auto& selector) {
+        return !selector.precedingInComplexSelector();
+    });
 }
 
 String CSSSelectorList::selectorsText() const

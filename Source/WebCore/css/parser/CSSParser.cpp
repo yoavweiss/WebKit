@@ -1502,7 +1502,7 @@ static void validateUserAgentSheetSelector(const CSSSelectorList& selectorList)
     auto validateRightmostCompound = [](const CSSSelector& complexSelector) {
         bool hasBucketedSelector = false;
         bool hasLogicalCombination = false;
-        for (auto* simpleSelector = &complexSelector; simpleSelector; simpleSelector = simpleSelector->precedingInCompound()) {
+        for (auto* simpleSelector = &complexSelector; simpleSelector; simpleSelector = simpleSelector->followingInCompound()) {
             if (simpleSelector->match() == CSSSelector::Match::Tag && simpleSelector->tagQName().localName() != starAtom())
                 hasBucketedSelector = true;
             if (simpleSelector->match() == CSSSelector::Match::Id)

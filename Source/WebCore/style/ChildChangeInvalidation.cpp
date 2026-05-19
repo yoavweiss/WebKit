@@ -41,7 +41,7 @@ namespace WebCore::Style {
 
 static bool rightmostCompoundContainsEmpty(const CSSSelector& selector)
 {
-    for (auto* simple = &selector; simple; simple = simple->precedingInCompound()) {
+    for (auto* simple = &selector; simple; simple = simple->followingInCompound()) {
         if (simple->match() == CSSSelector::Match::PseudoClass && simple->pseudoClass() == CSSSelector::PseudoClass::Empty)
             return true;
         if (auto* selectorList = simple->selectorList()) {

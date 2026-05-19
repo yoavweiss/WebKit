@@ -137,15 +137,16 @@ public:
     static const ASCIILiteral selectorTextForPseudoClass(PseudoClass);
     static const ASCIILiteral nameForUserAgentPartLegacyAlias(StringView);
 
-    // Selectors are kept in an array by CSSSelectorList.
-    // The left component of the selector is the next item in the array.
+    // Selectors are kept in an array by CSSSelectorList. Compounds are stored right-to-left
+    // (subject compound first), but simples within a compound are stored left-to-right.
+    // For example, ".a.b > div#id" is stored as [div, #id, .a, .b].
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
     const CSSSelector* precedingInComplexSelector() const { return m_isFirstInComplexSelector ? nullptr : this + 1; }
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
-    const CSSSelector* NODELETE firstInCompound() const;
-    const CSSSelector* NODELETE lastInCompound() const;
-    const CSSSelector* NODELETE precedingInCompound() const;
+    const CSSSelector* NODELETE leftmostInCompound() const;
+    const CSSSelector* NODELETE rightmostInCompound() const;
+    const CSSSelector* NODELETE followingInCompound() const;
 
     const QualifiedName& tagQName() const LIFETIME_BOUND;
     const AtomString& tagLowercaseLocalName() const LIFETIME_BOUND;
@@ -181,8 +182,6 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
     Relation relation() const { return static_cast<Relation>(m_relation); }
     Match match() const { return static_cast<Match>(m_match); }
 
-    bool isFirstInComplexSelector() const { return m_isFirstInComplexSelector; }
-    bool isLastInComplexSelector() const { return m_isLastInComplexSelector; }
     bool isForPage() const { return m_isForPage; }
 
     // Implicit means that this selector is not author/UA written.

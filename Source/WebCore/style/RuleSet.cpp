@@ -201,8 +201,8 @@ void RuleSet::addRuleToBucket(RuleData& ruleData)
     const CSSSelector* cuePseudoElementSelector = nullptr;
 #endif
     Vector<const CSSSelector*, 4> nestedSelectors;
-    const CSSSelector* selector = &ruleData.selector();
-    do {
+    // We only process the subject (rightmost) compound.
+    for (const CSSSelector* selector = &ruleData.selector(); selector; selector = selector->followingInCompound()) {
         nestedSelectors.append(selector);
         while (!nestedSelectors.isEmpty()) {
             const CSSSelector* current = nestedSelectors.takeLast();
@@ -304,11 +304,8 @@ void RuleSet::addRuleToBucket(RuleData& ruleData)
                 case CSSSelector::PseudoClass::Where: {
                     auto* selectorList = current->selectorList();
                     if (selectorList && selectorList->size() == 1) {
-                        for (auto* inner = &selectorList->first(); inner; inner = inner->precedingInComplexSelector()) {
+                        for (auto* inner = &selectorList->first(); inner; inner = inner->followingInCompound())
                             nestedSelectors.append(inner);
-                            if (inner->relation() != CSSSelector::Relation::Subselector)
-                                break;
-                        }
                     }
                     if (hasHostOrScopePseudoClassSubjectInSelectorList(selectorList))
                         m_hasHostOrScopePseudoClassRulesInUniversalBucket = true;
@@ -329,11 +326,7 @@ void RuleSet::addRuleToBucket(RuleData& ruleData)
                 break;
             }
         }
-        // We only process the subject (rightmost compound selector).
-        if (selector->relation() != CSSSelector::Relation::Subselector)
-            break;
-        selector = selector->precedingInComplexSelector();
-    } while (selector);
+    }
 
     if (!m_hasHostPseudoClassRulesMatchingInShadowTree)
         m_hasHostPseudoClassRulesMatchingInShadowTree = isHostSelectorMatchingInShadowTree(ruleData.selector());
@@ -478,18 +471,18 @@ void RuleSet::addRuleToBucket(RuleData& ruleData)
             return false;
 
         bool isHTMLNamespace = false;
-        auto* last = otherPseudoElementSelector->lastInCompound();
-        if (last->precedingInComplexSelector() == otherPseudoElementSelector) {
+        auto* leftmost = otherPseudoElementSelector->leftmostInCompound();
+        if (leftmost->precedingInComplexSelector() == otherPseudoElementSelector) {
             // Check that implicit * is present with the right namespace and nothing else.
-            if (last->match() != CSSSelector::Match::Tag)
+            if (leftmost->match() != CSSSelector::Match::Tag)
                 return false;
 
-            ASSERT(last->tagQName().localName() == starAtom());
-            auto& namespaceURI = last->tagQName().namespaceURI();
+            ASSERT(leftmost->tagQName().localName() == starAtom());
+            auto& namespaceURI = leftmost->tagQName().namespaceURI();
             isHTMLNamespace = namespaceURI == xhtmlNamespaceURI;
             if (!isHTMLNamespace && namespaceURI != starAtom())
                 return false;
-        } else if (last != otherPseudoElementSelector)
+        } else if (leftmost != otherPseudoElementSelector)
             return false;
 
         auto stylePseudoElement = CSSSelector::stylePseudoElementTypeFor(otherPseudoElementSelector->pseudoElement());
