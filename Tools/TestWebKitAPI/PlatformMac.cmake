@@ -3,8 +3,9 @@ find_library(QUARTZCORE_LIBRARY QuartzCore)
 
 set(TESTWEBKITAPI_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
-# Use the generic gtest runner (not App/mac/main.mm which is the Xcode .app entry point).
-set(_test_main_SOURCES generic/main.cpp)
+# Mirrors Runner/TestWebKitAPI.swift (the Xcode @main). Drop and switch to the
+# Swift runner once the CMake port supports Swift + Swift Testing.
+set(_test_main_SOURCES generic/main.mm)
 
 # TestWTF
 list(APPEND TestWTF_SOURCES
