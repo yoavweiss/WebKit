@@ -134,12 +134,20 @@ if (SWIFT_REQUIRED)
     # fact CMake feeds incorrect flags to swiftc.
     set(_swift_wrapper "${CMAKE_SOURCE_DIR}/Tools/Scripts/swift/swiftc-wrapper.sh")
     if (CMAKE_Swift_COMPILER STREQUAL _swift_wrapper)
-        find_program(ORIGINAL_Swift_COMPILER NAMES swiftc REQUIRED)
+        if (NOT ORIGINAL_Swift_COMPILER)
+            find_program(ORIGINAL_Swift_COMPILER NAMES swiftc REQUIRED)
+        endif ()
     else ()
         set(ORIGINAL_Swift_COMPILER "${CMAKE_Swift_COMPILER}" CACHE FILEPATH "Original Swift compiler" FORCE)
     endif ()
     set(CMAKE_Swift_COMPILER "${_swift_wrapper}")
     add_compile_options($<$<COMPILE_LANGUAGE:Swift>:--original-swift-compiler=${ORIGINAL_Swift_COMPILER}>)
+    add_link_options($<$<LINK_LANGUAGE:Swift>:--original-swift-compiler=${ORIGINAL_Swift_COMPILER}>)
+    # The static archive rule (<CMAKE_Swift_CREATE_STATIC_LIBRARY>) uses neither
+    # <FLAGS> nor link options, so inject the flag directly into the template.
+    string(REPLACE "<CMAKE_Swift_COMPILER>"
+        "<CMAKE_Swift_COMPILER> --original-swift-compiler=${ORIGINAL_Swift_COMPILER}"
+        CMAKE_Swift_CREATE_STATIC_LIBRARY "${CMAKE_Swift_CREATE_STATIC_LIBRARY}")
     unset(_swift_wrapper)
 endif ()
 

@@ -150,6 +150,15 @@ if (EXISTS "${_clang}")
     set(CMAKE_OBJCXX_COMPILER "${_clang}++")
 endif ()
 
+# Resolve the real swiftc alongside clang so both are pinned to the same SDK.
+WEBKIT_XCRUN(_swiftc --find swiftc)
+if (_swiftc)
+    set(ORIGINAL_Swift_COMPILER "${_swiftc}" CACHE FILEPATH "Original Swift compiler" FORCE)
+else ()
+    message(FATAL_ERROR "xcrun --sdk ${WEBKIT_SDK} --find swiftc failed")
+endif ()
+unset(_swiftc)
+
 # Deployment target must match SDK version -- PlatformHave.h SPI guards depend on
 # __MAC_OS_X_VERSION_MIN_REQUIRED. Auto-bump if the preset floor is below the SDK.
 string(REGEX MATCH "^[0-9]+\\.[0-9]+" _sdk_major_minor "${_sdk_version}")
