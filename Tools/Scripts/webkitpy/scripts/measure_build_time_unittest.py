@@ -67,8 +67,8 @@ class MeasureBuildTimeTest(unittest.TestCase):
         proc, results = self._run_script('echo ok')
 
         self.assertEqual(proc.returncode, 0)
-        self.assertIn('BuildTime-Unspecified', results)
-        tests = results['BuildTime-Unspecified']['tests']
+        self.assertIn('BuildTime-Debug', results)
+        tests = results['BuildTime-Debug']['tests']
         self.assertIn('clean', tests)
         self.assertIn('null', tests)
         for name in ('clean', 'null'):
@@ -89,7 +89,7 @@ class MeasureBuildTimeTest(unittest.TestCase):
         proc, results = self._run_script(build_command, ['--tests', 'clean'])
 
         self.assertEqual(proc.returncode, 0)
-        clean = results['BuildTime-Unspecified']['tests']['clean']
+        clean = results['BuildTime-Debug']['tests']['clean']
         phases = clean['tests']['Phases']
 
         self.assertIn('CPUTime', phases['metrics'])
@@ -114,7 +114,7 @@ class MeasureBuildTimeTest(unittest.TestCase):
         proc, results = self._run_script('echo ok', ['--tests', 'null'])
 
         self.assertEqual(proc.returncode, 0)
-        tests = results['BuildTime-Unspecified']['tests']
+        tests = results['BuildTime-Debug']['tests']
         self.assertIn('null', tests)
         self.assertNotIn('clean', tests)
 
@@ -123,4 +123,4 @@ class MeasureBuildTimeTest(unittest.TestCase):
 
         self.assertEqual(proc.returncode, 0)
         self.assertIn('BuildTime-Release', results)
-        self.assertNotIn('BuildTime-Unspecified', results)
+        self.assertNotIn('BuildTime-Debug', results)
