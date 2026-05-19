@@ -469,8 +469,10 @@ auto IntersectionObserver::computeIntersectionState(const IntersectionObserverRe
 {
     bool isFirstObservation = !registration.previousThresholdIndex;
 
-    float rootUsedZoom = 1.0;
+    // This is only set for explicit roots.
+    // FIXME: remove one remaining place that needs this to work with implicit root.
     CheckedPtr<RenderBlock> rootRenderer;
+
     CheckedPtr<RenderElement> targetRenderer;
     IntersectionObservationState intersectionState;
 
@@ -507,8 +509,6 @@ auto IntersectionObserver::computeIntersectionState(const IntersectionObserverRe
             else
                 intersectionState.rootBounds = { FloatPoint(), rootRenderer->size() };
 
-            rootUsedZoom = rootRenderer->style().usedZoom();
-
             return;
         }
 
@@ -521,7 +521,6 @@ auto IntersectionObserver::computeIntersectionState(const IntersectionObserverRe
 
         intersectionState.canComputeIntersection = true;
         intersectionState.rootBounds = layoutViewportRectForIntersection();
-        rootUsedZoom = rootRenderer->style().usedZoom();
     };
 
     computeRootBounds();
@@ -531,6 +530,26 @@ auto IntersectionObserver::computeIntersectionState(const IntersectionObserverRe
     }
 
     if (applyRootMargin == ApplyRootMargin::Yes) {
+        auto rootUsedZoom = [&] () -> float {
+            if (rootRenderer)
+                return rootRenderer->style().usedZoom();
+
+            // If applyRootMargin is Yes, the root and target frames are same-origin.
+            // Therefore the root frame should be in the same process as the target frame
+            // (with or without Site Isolation)
+            auto* hostLocalFrameView = dynamicDowncast<LocalFrameView>(hostFrameView);
+            ASSERT(hostLocalFrameView);
+            if (!hostLocalFrameView)
+                return 1;
+
+            CheckedPtr hostRenderView = hostLocalFrameView->renderView();
+            ASSERT(hostRenderView);
+            if (!hostRenderView)
+                return 1;
+
+            return hostRenderView->style().usedZoom();
+        }();
+
         expandRootBoundsWithRootMargin(intersectionState.rootBounds, scrollMarginBox(), rootUsedZoom);
         expandRootBoundsWithRootMargin(intersectionState.rootBounds, rootMarginBox(), rootUsedZoom);
     }
