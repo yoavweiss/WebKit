@@ -126,11 +126,14 @@ def _strip_unix_path_prefix(value):
     if not value:
         return ''
     value = value.strip()
-    prefix = 'unix:path='
-    if value.startswith(prefix):
-        value = value[len(prefix):]
+    # D-Bus address: unix:path=/path,key=val,...
+    if value.startswith('unix:path='):
+        value = value[len('unix:path='):]
+        return value.split(',', 1)[0]
+    # PulseAudio: unix:/path
+    if value.startswith('unix:'):
+        return value[len('unix:'):]
     return value
-
 
 def _translate_host_path_to_container(host_path):
     # The wkdev container bind-mounts the host ${HOME} at /host/home/${USER}.
