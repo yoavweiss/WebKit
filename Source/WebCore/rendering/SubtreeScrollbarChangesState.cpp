@@ -101,7 +101,7 @@ SubtreeScrollbarChangesHandler::~SubtreeScrollbarChangesHandler()
     auto& subtreeRoot = subtreeScrollbarChangesState->subtreeRoot;
     while (!descendantsWithScrollbarChange.isEmpty()) {
         CheckedPtr rendererWithScrollbarChange = descendantsWithScrollbarChange.takeFirst();
-        rendererWithScrollbarChange->setNeedsPreferredWidthsUpdate(MarkingBehavior::MarkContainingBlockChain, subtreeRoot.ptr());
+        rendererWithScrollbarChange->setNeedsPreferredWidthsUpdate(MarkingBehavior::MarkContainingBlockChain, protect(subtreeRoot->containingBlock()));
     }
 
     subtreeRoot->setNeedsLayout(MarkingBehavior::MarkOnlyThis);

@@ -531,8 +531,34 @@ void RenderBlock::relayoutRenderBlockForScrollbarChange(RenderBlock& block)
 
 static bool needsToTrackDescendantScrollbarChanges(const RenderBlock& renderBlock, const LocalFrameViewLayoutContext& layoutContext)
 {
-    auto computedLogicalWidth = renderBlock.style().logicalWidth();
-    return computedLogicalWidth.isIntrinsic() && !layoutContext.subtreeScrollbarChangesState();
+    if (renderBlock.isRenderView())
+        return false;
+
+    // FIXME: This list contains content that should be supported
+    // but need additional invesigation to get working correctly.
+    auto isSupportedForDescendantTracking = [&] {
+        if (renderBlock.writingMode().computedTextDirection() == TextDirection::RTL)
+            return false;
+        return true;
+    };
+    if (!isSupportedForDescendantTracking())
+        return false;
+
+    if (layoutContext.subtreeScrollbarChangesState())
+        return false;
+
+    auto& style = renderBlock.style();
+    auto& computedLogicalWidth = style.logicalWidth();
+    if (computedLogicalWidth.isFixed())
+        return false;
+
+    if (computedLogicalWidth.isIntrinsic() || computedLogicalWidth.isMinIntrinsic())
+        return true;
+
+    if (renderBlock.sizesPreferredLogicalWidthToFitContent())
+        return true;
+
+    return false;
 }
 
 static bool canContainDescendantScrollbarChanges(const RenderBlock& renderBlock, const LocalFrameViewLayoutContext& layoutContext)
