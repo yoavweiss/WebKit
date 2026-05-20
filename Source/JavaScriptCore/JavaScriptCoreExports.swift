@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Apple Inc. All rights reserved.
+// Copyright (C) 2026 Apple Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -21,11 +21,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
 
-import Foundation
+#if JSC_SUPPORTS_SWIFT
 
-typealias String = Swift.String
-typealias URL = Foundation.URL
+// `@_spiOnly` is used instead of `@_exported` because JSC is public and wtf is private.
 
-struct UncheckedSendableKeyPathBox<Root, Value>: @unchecked Sendable {
-    let keyPath: KeyPath<Root, Value>
-}
+@_spiOnly public import wtf
+
+#endif // JSC_SUPPORTS_SWIFT

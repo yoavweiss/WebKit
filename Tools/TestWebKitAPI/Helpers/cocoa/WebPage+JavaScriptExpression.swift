@@ -24,6 +24,7 @@
 #if ENABLE_SWIFTUI
 
 public import WebKit
+public import struct Swift.String
 
 extension WebPage {
     /// A type that can encode itself to a JavaScript JSON value representation.
