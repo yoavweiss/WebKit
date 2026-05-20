@@ -103,10 +103,16 @@ AtomString SVGURIReference::fragmentIdentifierFromIRIString(const Style::SVGMark
 
 auto SVGURIReference::targetElementFromIRIString(const String& iri, const TreeScope& treeScope, RefPtr<Document> externalDocument) -> TargetElementResult
 {
-    // If there's no fragment identifier contained within the IRI string, we can't lookup an element.
+    // SVG 2 allows <use href="file.svg"> (no fragment) to reference the root
+    // element of the external document. This only applies when an external
+    // document is supplied by the caller — today only SVGUseElement does.
+    // https://svgwg.org/svg2-draft/struct.html#UseElementHrefAttribute
     size_t startOfFragmentIdentifier = iri.find('#');
-    if (startOfFragmentIdentifier == notFound)
+    if (startOfFragmentIdentifier == notFound) {
+        if (externalDocument)
+            return { externalDocument->documentElement(), nullAtom() };
         return { };
+    }
 
     // Exclude the '#' character when determining the fragmentIdentifier.
     // Percent-decode the fragment so that url(#%66%6f%6f) resolves to id="foo".
