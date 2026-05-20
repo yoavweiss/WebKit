@@ -404,6 +404,12 @@ bool SubstitutionResolver::substituteAttrFunction(CSSParserTokenRange argumentsR
             auto syntax = CSSCustomPropertySyntax::consumeType(range);
             if (!syntax)
                 return { };
+            // https://drafts.csswg.org/css-values-5/#typedef-attr-type
+            // "For this purpose, <url> is invalid as a <syntax-single-component>."
+            for (auto& component : syntax->definition) {
+                if (component.type == CSSCustomPropertySyntax::Type::URL)
+                    return { };
+            }
             return AttrTypeResult { AttrType::Syntax, { }, WTF::move(*syntax) };
         }
 
@@ -417,9 +423,8 @@ bool SubstitutionResolver::substituteAttrFunction(CSSParserTokenRange argumentsR
                 range.consumeIncludingWhitespace();
                 return AttrTypeResult { AttrType::Number };
             }
+            // <attr-unit> = <custom-ident>. Unknown units are accepted here; substitution triggers fallback.
             auto unit = CSSParserToken::stringToUnitType(value);
-            if (unit == CSSUnitType::CSS_UNKNOWN)
-                return { };
             range.consumeIncludingWhitespace();
             return AttrTypeResult { AttrType::Unit, unit };
         }
@@ -529,6 +534,9 @@ bool SubstitutionResolver::substituteAttrFunction(CSSParserTokenRange argumentsR
     //  or a percentage if % was given."
     case AttrType::Unit:
     case AttrType::Percentage: {
+        // "If the <attr-unit> does not match a known CSS unit, it triggers fallback."
+        if (attrType == AttrType::Unit && parsedAttrType->unitType == CSSUnitType::CSS_UNKNOWN)
+            return substituteFailure();
         CSSTokenizer tokenizer(attributeValue.string().trim(isUnicodeCompatibleASCIIWhitespace<UChar>));
         auto tokenRange = tokenizer.tokenRange();
         tokenRange.consumeWhitespace();

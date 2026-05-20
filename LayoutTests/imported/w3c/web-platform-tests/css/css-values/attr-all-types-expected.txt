@@ -125,8 +125,8 @@ PASS CSS Values and Units Test: attr 121
 PASS CSS Values and Units Test: attr 122
 PASS CSS Values and Units Test: attr 123
 PASS CSS Values and Units Test: attr 124
-FAIL CSS Values and Units Test: attr 125 assert_equals: Value 'attr(data-foo xx, 3px)', where 'data-foo=10' should be valid for the property 'width'. expected "3px" but got "784px"
-FAIL CSS Values and Units Test: attr 126 assert_equals: Value 'attr(data-foo xx, 3px)', where 'data-foo=10px' should be valid for the property 'width'. expected "3px" but got "784px"
+PASS CSS Values and Units Test: attr 125
+PASS CSS Values and Units Test: attr 126
 PASS CSS Values and Units Test: attr 127
 PASS CSS Values and Units Test: attr 128
 PASS CSS Values and Units Test: attr 129
@@ -171,5 +171,5 @@ PASS CSS Values and Units Test: attr 167
 PASS CSS Values and Units Test: attr 168
 PASS CSS Values and Units Test: attr 169
 PASS CSS Values and Units Test: attr 170
-FAIL CSS Values and Units Test: attr 171 assert_equals: Setting property '--x' to the value 'attr(data-foo type(<url>))', where 'data-foo=url("https://does-not-exist.test/404.png")' should not change it's value. expected "" but got "url(\"https://does-not-exist.test/404.png\")"
+PASS CSS Values and Units Test: attr 171
 
