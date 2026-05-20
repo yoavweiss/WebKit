@@ -128,7 +128,6 @@ NSScreen *screen(PlatformDisplayID);
 
 WEBCORE_EXPORT FloatRect screenRectForDisplay(PlatformDisplayID);
 WEBCORE_EXPORT FloatRect screenRectForPrimaryScreen();
-WEBCORE_EXPORT FloatRect availableScreenRect(NSScreen *);
 
 WEBCORE_EXPORT FloatRect toUserSpace(const NSRect&, NSWindow *destination);
 WEBCORE_EXPORT FloatRect toUserSpaceForPrimaryScreen(const NSRect&);
