@@ -898,8 +898,6 @@ webkit.org/b/230485 [ Release ] imported/w3c/web-platform-tests/webrtc/RTCSctpTr
 
 webkit.org/b/214824 [ Debug ] js/throw-large-string-oom.html [ Skip ]
 
-webkit.org/b/215304 fast/forms/auto-fill-button/caps-lock-indicator-should-be-visible-after-hiding-auto-fill-strong-password-button.html [ Pass Failure ]
-
 # Some WPT encoding tests run too slowly under ASan (and too slowly in debug builds).
 # Since there is no convenient way to skip them under ASan only, skip all encoding tests here.
 # The tests will still be run on other platforms and also when testing with Legacy WebKit.

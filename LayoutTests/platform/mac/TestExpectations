@@ -675,9 +675,6 @@ imported/w3c/web-platform-tests/webrtc-encoded-transform/script-metadata-transfo
 imported/w3c/web-platform-tests/webrtc-encoded-transform/script-transform.https.html [ Pass Failure ]
 imported/w3c/web-platform-tests/webrtc-encoded-transform/script-write-twice-transform.https.html [ Pass Failure ]
 
-#rdar://92293472 ([ Ventura ] fast/css/stylesheet-candidate-nodes-crash.xhtml is a constant text failure)
-fast/css/stylesheet-candidate-nodes-crash.xhtml [ Pass Failure ]
-
 #rdar://92491906 (REGRESSION): 2 platform/mac/fast/loader/* tests are constant text failures)
 platform/mac/fast/loader/file-url-mimetypes-3.html [ Failure ]
 platform/mac/fast/loader/file-url-mimetypes.html [ Failure ]
@@ -690,8 +687,8 @@ http/tests/media/hls/hls-hdr-switch.html [ Pass Timeout ]
  
 # rdar://94184618 (REGRESSION): [ Mac Ventura Debug ] 5* editing/secure-input/* (layout-tests) are constant failures)
 editing/secure-input/password-input-changed-type.html [ Pass Failure ]
-editing/secure-input/password-input-focusing-to-different-frame.html [ Pass Failure ]
 editing/secure-input/password-input-focusing.html [ Pass Failure ]
+editing/secure-input/password-input-focusing-to-different-frame.html [ Pass Failure ]
 editing/secure-input/removed-password-input.html [ Pass Failure ]
 editing/secure-input/reset-state-on-navigation.html [ Pass Failure ]
 
@@ -901,9 +898,6 @@ webkit.org/b/150806 imported/w3c/web-platform-tests/xhr/send-timeout-events.htm 
 
 webkit.org/b/140217 http/tests/navigation/forward-and-cancel.html [ Pass Failure ]
 
-webkit.org/b/153809 transitions/clip-path-transitions.html [ Pass Failure ]
-webkit.org/b/153809 transitions/clip-path-path-transitions.html [ Pass Failure ]
-
 webkit.org/b/153871 imported/w3c/web-platform-tests/html/semantics/document-metadata/styling/LinkStyle.html [ Pass Failure ]
 
 webkit.org/b/207146 media/media-source/media-source-seek-redundant-append.html [ Pass Timeout ]
@@ -1038,8 +1032,6 @@ fast/events/context-activated-by-key-event.html [ Skip ]
 webkit.org/b/168136 performance-api/performance-observer-periodic.html [ Pass Failure ]
 
 webkit.org/b/169324 media/track/media-element-enqueue-event-crash.html [ Pass Failure ]
-
-webkit.org/b/169637 imported/w3c/web-platform-tests/xhr/timeout-multiple-fetches.html [ Pass Failure ]
 
 # <rdar://problem/19759913>
 http/tests/media/video-served-as-text-with-type.html [ Skip ]
@@ -1459,8 +1451,6 @@ webkit.org/b/208220 [ Debug ] imported/w3c/web-platform-tests/html/semantics/emb
 
 webkit.org/b/208450 webanimations/accelerated-animation-renderer-change.html [ Pass ImageOnlyFailure ]
 
-webkit.org/b/208467 [ Debug ] imported/w3c/IndexedDB-private-browsing/idbobjectstore_createIndex6-event_order.html [ Pass Failure ]
-
 webkit.org/b/208722 imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/seeking/seek-to-max-value.htm [ Pass Failure ]
 
 webkit.org/b/208592 svg/custom/object-sizing-explicit-height.xhtml [ Pass Failure ]
@@ -1478,8 +1468,6 @@ webkit.org/b/210046 [ Release ] storage/indexeddb/value-cursor-cycle.html [ Pass
 webkit.org/b/207160 css2.1/20110323/replaced-intrinsic-ratio-001.htm [ Pass Failure ]
 
 webkit.org/b/210517 storage/indexeddb/result-request-cycle.html [ Pass Failure ]
-
-webkit.org/b/211856 media/video-poster-set-after-playback.html [ Pass Failure ]
 
 webkit.org/b/212215 media/video-isplayingtoautomotiveheadunit.html [ Pass Failure ]
 
@@ -1522,9 +1510,6 @@ imported/w3c/web-platform-tests/WebCryptoAPI/generateKey/failures_AES-CBC.https.
 
 # In-App Browser Privacy requires functions that are currently in WebKitAdditions.
 http/tests/in-app-browser-privacy/ [ Skip ]
-
-# <rdar://problem/61264058> [ iOS and Mac with Guard-Malloc and wk2 or Stress-GC ] imported/w3c/web-platform-tests/css/css-sizing/percentage-height-in-flexbox.html is flaky failing.
-imported/w3c/web-platform-tests/css/css-sizing/percentage-height-in-flexbox.html [ Pass Failure ]
 
 # <rdar://problem/62848940> [ Mac Debug ] imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/media_fragment_seek.html is flaky failing.
 [ Debug ] imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/media_fragment_seek.html [ Pass Failure ]
@@ -1597,8 +1582,6 @@ imported/w3c/web-platform-tests/css/filter-effects/backdrop-filter-border-radius
 
 webkit.org/b/215506 imported/w3c/web-platform-tests/html/webappapis/scripting/processing-model-2/unhandled-promise-rejections/promise-rejection-events-onerror.html [ Pass Failure ]
 
-webkit.org/b/215515 imported/w3c/web-platform-tests/user-timing/measure_navigation_timing.html [ Pass Failure ]
-
 webkit.org/b/189672 [ Release ] webgl/2.0.y/conformance2/textures/canvas/tex-2d-rg32f-rg-float.html [ Pass Failure ]
 
 webkit.org/b/191627 imported/w3c/web-platform-tests/css/css-grid/alignment/grid-self-baseline-not-applied-if-sizing-cyclic-dependency-001.html [ Pass ]
@@ -1624,8 +1607,6 @@ imported/w3c/web-platform-tests/css/css-lists/list-style-type-string-002.html [ 
 webkit.org/b/217461 imported/w3c/web-platform-tests/css/css-masking/clip-path/svg-clipPath.svg [ Skip ]
 
 webkit.org/b/209073 [ Debug ] inspector/injected-script/avoid-getter-invocation.html [ Pass Timeout ]
-
-webkit.org/b/217641 [ Debug ] imported/w3c/web-platform-tests/xhr/event-timeout.any.worker.html [ Pass Failure ]
 
 webkit.org/b/217620 inspector/audit/basic-async.html [ Pass Timeout ]
 
@@ -1683,8 +1664,6 @@ webkit.org/b/223973 [ Debug ] imported/w3c/web-platform-tests/xhr/xhr-timeout-lo
 
 webkit.org/b/223975 inspector/protocol/condition.html [ Pass Timeout ]
 
-webkit.org/b/223976 [ Debug ] imported/w3c/web-platform-tests/cors/redirect-preflight.htm [ Pass Failure ]
-
 webkit.org/b/224212 [ arm64 ] compositing/background-color/no-composited-background-color-when-perspective.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/215397 media/modern-media-controls/media-controller/media-controller-fullscreen-ltr.html [ Pass Failure ]
@@ -1720,19 +1699,13 @@ webkit.org/b/225882 imported/w3c/web-platform-tests/webaudio/the-audio-api/the-a
 
 webkit.org/b/226050 imported/w3c/web-platform-tests/IndexedDB/blob-valid-before-commit.any.html [ Pass Failure ]
 
-webkit.org/b/231328 http/tests/preload/onload_event.html [ Pass Failure ]
-
 webkit.org/b/271732 http/tests/workers/service/openwindow-from-notification-click.html [ Pass Failure Crash ]
-
-webkit.org/b/215335 [ Release ] webanimations/css-transition-retargeting-during-ready-promise.html [ Pass Failure ]
 
 webkit.org/b/223472 [ Release arm64 ] imported/w3c/web-platform-tests/resource-timing/resource_timing.worker.html [ Pass Failure ]
 
 webkit.org/b/227753 fast/dom/Window/post-message-large-array-buffer-should-not-crash.html [ Pass Failure ]
 
 webkit.org/b/221017 media/modern-media-controls/media-controller/media-controller-click-on-video-background-should-pause-fullscreen.html [ Timeout Pass ]
-
-webkit.org/b/226600 imported/w3c/web-platform-tests/navigation-timing/test_navigate_within_document.html [ Pass Failure ]
 
 webkit.org/b/227877 imported/w3c/web-platform-tests/navigation-timing/test_timing_attributes_order.html [ Pass Failure ]
 
@@ -1799,8 +1772,6 @@ imported/w3c/web-platform-tests/webcodecs/videoFrame-drawImage.any.worker.html [
 [ x86_64 ] imported/w3c/web-platform-tests/webcodecs/audioDecoder-codec-specific.https.any.html?mp3 [ Failure ]
 [ x86_64 ] imported/w3c/web-platform-tests/webcodecs/audioDecoder-codec-specific.https.any.worker.html?mp3 [ Failure ]
 
-webkit.org/b/230327 imported/w3c/web-platform-tests/css/css-transforms/crashtests/transform-marquee-resize-div-image-001.html [ Pass Failure ]
-
 # Tests that use "finger" events
 imported/w3c/web-platform-tests/css/css-scroll-snap/snap-fling-in-large-area.html [ Skip ]
 
@@ -1808,8 +1779,6 @@ imported/w3c/web-platform-tests/css/css-scroll-snap/snap-after-relayout/multiple
 imported/w3c/web-platform-tests/css/css-scroll-snap/snap-after-relayout/multiple-aligned-targets/prefer-focused-nested-containers.html [ Pass Failure ]
 imported/w3c/web-platform-tests/css/css-scroll-snap/snap-after-relayout/resnap-on-reconstructing-frame.html [ Failure ]
 imported/w3c/web-platform-tests/css/css-scroll-snap/snap-after-relayout/multiple-aligned-targets/prefer-targeted-element.html [ Skip ]
-imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-margin-focus.html [ Pass Failure ]
-imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-margin-editable.html [ Pass Failure ]
 
 webkit.org/b/170629  memory/memory-pressure-simulation.html [ Pass Failure Crash ]
 
@@ -1844,8 +1813,6 @@ imported/blink/fast/multicol/vertical-lr/float-content-break.html [ ImageOnlyFai
 editing/execCommand/insert-ordered-list-and-delete.html [ Pass Failure ]
 
 webkit.org/b/244932 webanimations/accelerated-overlapping-transform-animations.html [ Pass ImageOnlyFailure ]
-
-webkit.org/b/239990 css3/calc/transitions-dependent.html [ Pass Failure ]
 
 webkit.org/b/231298 accessibility/mac/selection-sync.html [ Skip ] # Timeout
 
@@ -1894,7 +1861,6 @@ imported/w3c/web-platform-tests/websockets/cookies/007.html?wss&wpt_flags=https 
 animations/stop-animation-on-suspend.html [ Pass Failure ]
 fast/images/animated-avif.html [ ImageOnlyFailure ]
 [ x86_64 ] imported/w3c/web-platform-tests/html/canvas/element/manual/wide-gamut-canvas/canvas-display-p3-drawImage-ImageBitmap-video.html [ Pass Failure Timeout ]
-[ Debug ] imported/w3c/web-platform-tests/html/browsers/browsing-the-web/navigating-across-documents/javascript-url-security-check-failure.sub.html [ Pass Failure ]
 fast/text/synthetic-bold-transformed.html [ Pass ImageOnlyFailure ]
 [ x86_64 Debug ] js/promises-tests/promises-tests-2-3-3.html [ Pass Timeout ]
 [ Debug ] editing/execCommand/delete-non-editable-range-crash.html [ Pass Timeout ]
@@ -2369,7 +2335,6 @@ imported/w3c/web-platform-tests/html/canvas/element/manual/drawing-images-to-the
 imported/w3c/web-platform-tests/fetch/h1-parsing/lone-cr.window.html [ Pass Failure ]
 imported/w3c/web-platform-tests/digital-credentials/allow-attribute-with-get.https.html [ Pass Failure ]
 imported/w3c/web-platform-tests/digital-credentials/get.tentative.https.html [ Pass Failure ]
-imported/w3c/web-platform-tests/digital-credentials/user-activation-get.https.html [ Pass Failure ]
 imported/w3c/web-platform-tests/cookies/name/name-ctl.html [ Pass Failure ]
 imported/w3c/web-platform-tests/cookies/value/value-ctl.html [ Pass Failure ]
 http/tests/inspector/network/xhr-response-body.html [ Pass Failure ]
