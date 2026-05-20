@@ -375,12 +375,6 @@ static inline bool jitCompileAndSetHeuristics(VM& vm, CodeBlock* codeBlock)
 {
     DeferGCForAWhile deferGC(vm); // My callers don't set top callframe, so we don't want to GC here at all.
     ASSERT(Options::useJIT());
-    
-    {
-        ConcurrentJSLocker locker(codeBlock->valueProfileLock());
-        codeBlock->updateAllNonLazyValueProfilePredictions(locker);
-        codeBlock->updateAllLazyValueProfilePredictions(locker);
-    }
 
     if (codeBlock->jitType() != JITType::BaselineJIT) {
         if (RefPtr<BaselineJITCode> baselineRef = codeBlock->unlinkedCodeBlock()->m_unlinkedBaselineCode) {
@@ -396,7 +390,7 @@ static inline bool jitCompileAndSetHeuristics(VM& vm, CodeBlock* codeBlock)
         dataLogLnIf(Options::verboseOSR(), "    JIT threshold should be lifted.");
         return false;
     }
-    
+
     JITWorklist::State worklistState = JITWorklist::ensureGlobalWorklist().completeAllReadyPlansForVM(vm, JITCompilationKey(codeBlock->unlinkedCodeBlock(), JITCompilationMode::Baseline));
 
     if (codeBlock->jitType() == JITType::BaselineJIT) {
