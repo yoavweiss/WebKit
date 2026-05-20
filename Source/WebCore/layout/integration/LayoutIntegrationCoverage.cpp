@@ -352,9 +352,6 @@ bool canUseForPreferredWidthComputation(const RenderBlockFlow& blockContainer)
         if (isFullySupportedInFlowRenderer)
             continue;
 
-        if (CheckedPtr renderBlock = dynamicDowncast<RenderBlock>(renderer.get()); renderBlock && renderBlock->isAtomicInlineLevelBox() && !renderBlock->firstChild())
-            continue;
-
         CheckedRef unsupportedRenderElement = downcast<RenderElement>(renderer.get());
         if (!unsupportedRenderElement->writingMode().isHorizontal() || !unsupportedRenderElement->style().logicalWidth().isFixed())
             return false;
