@@ -7604,7 +7604,12 @@ static OptionSet<WebCore::DataDetectorType> NODELETE coreDataDetectorTypes(_WKTe
     RELEASE_LOG(TextExtraction, "<%@: %p> Starting text extraction", [self class], self);
     auto results = Box<WebCore::TextExtraction::PageResults>::create();
     auto aggregator = MainRunLoopCallbackAggregator::create([results, completion = WTF::move(completion)] mutable {
-        completion(WebCore::TextExtraction::collatePageResults(WTF::move(*results)));
+        auto result = WebCore::TextExtraction::collatePageResults(WTF::move(*results));
+        auto rootData = result.rootItem.dataAs<WebCore::TextExtraction::ScrollableItemData>();
+        if (!rootData || !rootData->isRoot)
+            return completion(std::nullopt);
+
+        completion(WTF::move(result));
     });
 
     mainFrame->requestTextExtraction(makeRequest({ *mainFrame }), [weakSelf, startTime, aggregator, results](auto&& result) {
