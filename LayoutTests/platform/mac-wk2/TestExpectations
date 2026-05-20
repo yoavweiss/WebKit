@@ -2320,3 +2320,5 @@ imported/w3c/web-platform-tests/dom/nodes/moveBefore/throws-exception.html [ Ski
 [ Debug ] http/tests/site-isolation/page-lifecycle/unload.html [ Skip ]
 [ Debug ] http/tests/site-isolation/page-lifecycle/pagehide.html [ Skip ]
 [ Debug ] http/tests/site-isolation/page-lifecycle/pageswap.html [ Skip ]
+
+webkit.org/b/315238 [ Sequoia+ ] imported/w3c/web-platform-tests/webrtc/RTCRtpReceiver-video-jitterBufferTarget-stats.html [ Pass Failure ]
