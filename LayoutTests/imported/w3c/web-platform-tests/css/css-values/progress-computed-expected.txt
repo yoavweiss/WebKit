@@ -21,4 +21,5 @@ PASS calc(progress(sign(1001em - 10lh * progress(100px, 2rex, 10ex)) * 20em, 2re
 PASS calc(progress(sign(1001em - 10lh * progress(100px, 2rex, 10ex)) * 20em, 2rem, 12em) * 4) should be used-value-equivalent to 4
 PASS calc(progress(sign(1001em - 10lh * progress(100px, 2rex, 10ex)) * 20em, 2rem, 12em) * 2) should be used-value-equivalent to 2
 PASS rotate3d(progress(21em, 1rem, 11em), progress(21em, 1rem, 11em), progress(21em, 1rem, 11em), calc(progress(11em, 1rem, 11em) * 2deg)) should be used-value-equivalent to rotate3d(2, 2, 2, 2deg)
+FAIL calc(50% - 0px * clamp(0, progress(0cqw, 0px, 0px), 1)) should be used-value-equivalent to 50px assert_equals: calc(50% - 0px * clamp(0, progress(0cqw, 0px, 0px), 1)) and 50px serialize to the same thing in used values. expected "50px" but got "0px"
 

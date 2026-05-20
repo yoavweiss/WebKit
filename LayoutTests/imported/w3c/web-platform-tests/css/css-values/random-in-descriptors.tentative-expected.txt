@@ -1,6 +1,6 @@
 
-PASS random() should not be allowed in @font-face descriptors
-PASS element-shared random() should not be allowed in @font-face descriptors
-PASS random()
-FAIL element-shared  undefined is not an object (evaluating 'rules[3].swash.values')
+PASS random() should not be allowed in @font-face font-weight descriptor
+PASS element-scoped random() should not be allowed in @font-face font-stretch descriptor
+PASS random() should not be allowed in @font-palette-values base-palette descriptor, check total
+FAIL random() should not be allowed in @font-palette-values base-palette descriptor undefined is not an object (evaluating 'rules[3].swash.values')
 
