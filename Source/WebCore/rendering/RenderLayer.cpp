@@ -3640,7 +3640,7 @@ GraphicsContext* RenderLayer::setupFilters(GraphicsContext& destinationContext, 
         };
     }
 
-    GraphicsContext* filterContext = paintingFilters->beginFilterEffect(renderer(), destinationContext, enclosingIntRect(rootRelativeBounds), enclosingIntRect(paintingInfo.paintDirtyRect), enclosingIntRect(filterRepaintRect),
+    GraphicsContext* filterContext = paintingFilters->beginFilterEffect(renderer(), destinationContext, paintingInfo.paintBehavior, enclosingIntRect(rootRelativeBounds), enclosingIntRect(paintingInfo.paintDirtyRect), enclosingIntRect(filterRepaintRect),
         backgroundRect.rect(), applyAdditionalDestinationClip);
     if (!filterContext)
         return nullptr;
@@ -6769,6 +6769,7 @@ TextStream& operator<<(TextStream& ts, PaintBehavior behavior)
     case PaintBehavior::DrawsHDRContent: ts << "DrawsHDRContent"_s; break;
     case PaintBehavior::DraggableSnapshot: ts << "DraggableSnapshot"_s; break;
     case PaintBehavior::IncludeDocumentMarkers: ts << "IncludeDocumentMarkers"_s; break;
+    case PaintBehavior::FastAndLowQualityFilters: ts << "FastAndLowQualityFilters"_s; break;
     }
 
     return ts;

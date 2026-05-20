@@ -30,6 +30,7 @@
 #if HAVE(ARM_NEON_INTRINSICS)
 #include "FEGaussianBlurNEON.h"
 #endif
+#include "Filter.h"
 #include "GraphicsContext.h"
 #include "ImageBuffer.h"
 #include "PixelBuffer.h"
@@ -439,10 +440,12 @@ bool FEGaussianBlurSoftwareApplier::apply(const Filter& filter, std::span<const 
 
     auto effectDrawingRect = result.absoluteImageRectRelativeTo(input);
     input->copyPixelBuffer(*destinationPixelBuffer, effectDrawingRect);
-    if (!m_effect->stdDeviationX() && !m_effect->stdDeviationY())
+
+    auto stdDeviation = m_effect->effectiveStdDeviation(filter.renderingOptions());
+    if (stdDeviation.isEmpty())
         return true;
 
-    auto kernelSize = m_effect->calculateKernelSize(filter, { m_effect->stdDeviationX(), m_effect->stdDeviationY() });
+    auto kernelSize = m_effect->calculateKernelSize(filter, stdDeviation);
 
     IntSize paintSize = result.absoluteImageRect().size();
     auto tempBuffer = destinationPixelBuffer->createScratchPixelBuffer(paintSize);

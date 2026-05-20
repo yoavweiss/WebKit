@@ -81,6 +81,7 @@ enum class PaintBehavior : uint32_t {
     DrawsHDRContent                             = 1 << 22,
     DraggableSnapshot                           = 1 << 23,
     IncludeDocumentMarkers                      = 1 << 24,
+    FastAndLowQualityFilters                    = 1 << 25,
 };
 
 } // namespace WebCore

@@ -156,7 +156,7 @@ IntOutsets RenderLayerFilters::calculateOutsets(RenderElement& renderer, const F
     return CSSFilterRenderer::calculateOutsets(renderer, filter, targetBoundingBox);
 }
 
-GraphicsContext* RenderLayerFilters::beginFilterEffect(RenderElement& renderer, GraphicsContext& context, const LayoutRect& filterBoxRect, const LayoutRect& dirtyRect, const LayoutRect& layerRepaintRect, const LayoutRect& clipRect, NOESCAPE const Function<void(GraphicsContext&)>& applyAdditionalDestinationClip)
+GraphicsContext* RenderLayerFilters::beginFilterEffect(RenderElement& renderer, GraphicsContext& context, OptionSet<PaintBehavior> paintBehavior, const LayoutRect& filterBoxRect, const LayoutRect& dirtyRect, const LayoutRect& layerRepaintRect, const LayoutRect& clipRect, NOESCAPE const Function<void(GraphicsContext&)>& applyAdditionalDestinationClip)
 {
     auto preferredFilterRenderingModes = renderer.page().preferredFilterRenderingModes(context);
     auto outsets = calculateOutsets(renderer, filterBoxRect);
@@ -197,8 +197,13 @@ GraphicsContext* RenderLayerFilters::beginFilterEffect(RenderElement& renderer, 
 
     bool hasUpdatedBackingStore = false;
     if (!m_filter || geometryReferenceGeometryChanged(m_filter->geometry(), geometry) || m_preferredFilterRenderingModes != preferredFilterRenderingModes) {
+        OptionSet<FilterRenderingOption> renderingOptions;
+        if (renderer.settings().showDebugBorders())
+            renderingOptions.add(FilterRenderingOption::ShowDebugOverlay);
+        if (paintBehavior.contains(PaintBehavior::FastAndLowQualityFilters))
+            renderingOptions.add(FilterRenderingOption::FastAndLowQuality);
+
         // FIXME: This rebuilds the entire effects chain even if the filter style didn't change.
-        auto renderingOptions(renderer.settings().showDebugBorders() ? std::make_optional(FilterRenderingOption::ShowDebugOverlay) : std::nullopt);
         m_filter = CSSFilterRenderer::create(renderer, renderer.style().filter(), geometry, preferredFilterRenderingModes, renderingOptions, context);
         hasUpdatedBackingStore = true;
     } else if (filterRegion != m_filter->filterRegion()) {

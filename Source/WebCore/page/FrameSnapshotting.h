@@ -60,6 +60,7 @@ enum class SnapshotFlags : uint16_t {
     FixedAndStickyLayersOnly                = 1 << 12,
     DraggableElement                        = 1 << 13,
     IncludeDocumentMarkers                  = 1 << 14,
+    FastAndLowQualityFilters                = 1 << 15,
 };
 
 struct SnapshotOptions {

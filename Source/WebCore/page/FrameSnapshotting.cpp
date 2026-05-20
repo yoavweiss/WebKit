@@ -117,6 +117,8 @@ RefPtr<ImageBuffer> snapshotFrameRectWithClip(LocalFrame& frame, const IntRect& 
         paintBehavior.add(PaintBehavior::DraggableSnapshot);
     if (options.flags.contains(SnapshotFlags::IncludeDocumentMarkers))
         paintBehavior.add(PaintBehavior::IncludeDocumentMarkers);
+    if (options.flags.contains(SnapshotFlags::FastAndLowQualityFilters))
+        paintBehavior.add(PaintBehavior::FastAndLowQualityFilters);
 
     // Other paint behaviors are set by paintContentsForSnapshot.
     frame.view()->setPaintBehavior(paintBehavior);
