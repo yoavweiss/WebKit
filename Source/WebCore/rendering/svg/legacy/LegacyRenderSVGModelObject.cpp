@@ -79,6 +79,14 @@ std::optional<FloatRect> LegacyRenderSVGModelObject::computeFloatVisibleRectInCo
     return SVGRenderSupport::computeFloatVisibleRectInContainer(*this, rect, container, context);
 }
 
+auto LegacyRenderSVGModelObject::computeVisibleRectsInContainer(const RepaintRects& rects, const RenderLayerModelObject* container, VisibleRectContext context) const -> std::optional<RepaintRects>
+{
+    auto floatRect = computeFloatVisibleRectInContainer(rects.clippedOverflowRect, container, context);
+    if (!floatRect)
+        return std::nullopt;
+    return RepaintRects { enclosingLayoutRect(*floatRect) };
+}
+
 void LegacyRenderSVGModelObject::mapLocalToContainer(const RenderLayerModelObject* ancestorContainer, TransformState& transformState, OptionSet<MapCoordinatesMode>, bool* wasFixed) const
 {
     SVGRenderSupport::mapLocalToContainer(*this, ancestorContainer, transformState, wasFixed);

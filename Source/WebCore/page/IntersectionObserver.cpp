@@ -44,6 +44,7 @@
 #include "IntersectionObserverCallback.h"
 #include "IntersectionObserverEntry.h"
 #include "JSNodeCustom.h"
+#include "LegacyRenderSVGModelObject.h"
 #include "LocalDOMWindow.h"
 #include "Logging.h"
 #include "Performance.h"
@@ -52,6 +53,7 @@
 #include "RenderInline.h"
 #include "RenderLineBreak.h"
 #include "RenderObjectInlines.h"
+#include "RenderSVGModelObject.h"
 #include "RenderView.h"
 #include "StyleKeyword+Logging.h"
 #include "StylePrimitiveNumericTypes+Conversions.h"
@@ -567,7 +569,12 @@ auto IntersectionObserver::computeIntersectionState(const IntersectionObserverRe
         if (CheckedPtr renderLineBreak = dynamicDowncast<RenderLineBreak>(targetRenderer.get()))
             return renderLineBreak->linesBoundingBox();
 
-        // FIXME: Implement for SVG etc.
+        if (CheckedPtr svgModelObject = dynamicDowncast<RenderSVGModelObject>(*targetRenderer))
+            return svgModelObject->borderBoxRectEquivalent();
+
+        if (CheckedPtr legacySVGModelObject = dynamicDowncast<LegacyRenderSVGModelObject>(*targetRenderer))
+            return enclosingLayoutRect(legacySVGModelObject->strokeBoundingBox());
+
         return { };
     }();
 
