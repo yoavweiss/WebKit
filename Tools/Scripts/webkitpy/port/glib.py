@@ -154,8 +154,9 @@ class GLibPort(Port):
         # actual sound card.
         environment['WEBKIT_GST_MAX_NUMBER_OF_AUDIO_OUTPUT_CHANNELS'] = '2'
 
-        # LibRice logging, example: RICE_LOG=trace.
-        self._copy_values_from_environ_with_prefix(environment, 'RICE_')
+        # LibRice logging, example: RICE_LOG=trace. If unspecified, silence all errors because they might appear in tests output.
+        if 'RICE_LOG' not in os.environ.keys():
+            environment['RICE_LOG'] = 'none'
 
         # For GDB debuginfod support.
         self._copy_values_from_environ_with_prefix(environment, 'DEBUGINFOD_')

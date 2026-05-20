@@ -1351,8 +1351,6 @@ imported/w3c/web-platform-tests/css/css-fonts/generic-family-lang-attr-cascade.h
 
 webkit.org/b/213202 fast/mediastream/getUserMedia-grant-persistency3.html [ Failure Pass ]
 
-webkit.org/b/315149 fast/mediastream/RTCPeerConnection-media-setup-single-dialog.html [ Failure Pass ]
-
 webkit.org/b/305509 fast/css/max-content-img-sizing-1.html [ ImageOnlyFailure Pass ]
 webkit.org/b/305509 fast/css/max-content-img-sizing-2.html [ ImageOnlyFailure Pass ]
 webkit.org/b/305509 fast/events/drag-selects-image.html [ Failure Pass ]
