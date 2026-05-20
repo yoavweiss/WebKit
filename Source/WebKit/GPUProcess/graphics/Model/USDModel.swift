@@ -1860,19 +1860,20 @@ final class USDModelLoader {
         }
     }
 
-    func loadModel(data: Foundation.Data) {
+    func loadModel(data: Foundation.Data) -> Bool {
         do {
-            self.data = data
-            // swift-format-ignore: NeverForceUnwrap
-            self.stage = try UsdStage.open(buffer: self.data!)
+            self.stage = try UsdStage.open(buffer: data)
             guard let stage = self.stage else {
                 logError("model data is corrupted")
-                return
+                return false
             }
+            self.data = data
             self.setupTimes(from: stage)
             self.usdStageSession.loadStage(stage)
+            return true
         } catch {
-            fatalError(error.localizedDescription)
+            logError(error.localizedDescription)
+            return false
         }
     }
 
@@ -1906,7 +1907,8 @@ final class USDModelLoader {
         time = startTime + newTime
     }
 
-    func loadModel(from data: Data) {
+    func loadModel(from data: Data) -> Bool {
+        false
     }
 
     func update(deltaTime: TimeInterval) {
@@ -2038,8 +2040,8 @@ extension WKBridgeModelLoader {
         self.loader?.loadModel(from: url)
     }
 
-    func loadModel(_ data: Foundation.Data) {
-        self.loader?.loadModel(data: data)
+    func loadModel(_ data: Foundation.Data) -> Bool {
+        self.loader?.loadModel(data: data) ?? false
     }
 
     func loadEnvironmentMap(_ data: Foundation.Data) -> WKBridgeUpdateTexture? {
@@ -2259,7 +2261,8 @@ extension WKBridgeModelLoader {
     func loadModel(from url: Foundation.URL) {
     }
 
-    func loadModel(_ data: Foundation.Data) {
+    func loadModel(_ data: Foundation.Data) -> Bool {
+        false
     }
 
     func loadEnvironmentMap(_ data: Foundation.Data) -> WKBridgeUpdateTexture? {

@@ -1359,7 +1359,7 @@ void HTMLModelElement::environmentMapResetAndReject(Exception&& exception)
 void HTMLModelElement::environmentMapResourceFinished()
 {
     int status = m_environmentMapResource->response().httpStatusCode();
-    if (m_environmentMapResource->loadFailedOrCanceled() || !isHttpOkStatus(status)) {
+    if (m_environmentMapResource->loadFailedOrCanceled() || (status && !isHttpOkStatus(status))) {
         environmentMapResetAndReject(Exception { ExceptionCode::NetworkError });
 
         // sending a message with empty data to indicate resource removal
@@ -1401,7 +1401,8 @@ void HTMLModelElement::modelResourceFinished()
     };
 
     RefPtr resource = m_resource;
-    if (resource->loadFailedOrCanceled()) {
+    int status = resource->response().httpStatusCode();
+    if (resource->loadFailedOrCanceled() || (status && !isHttpOkStatus(status))) {
         m_data.reset();
 
         ActiveDOMObject::queueTaskToDispatchEvent(*this, TaskSource::DOMManipulation, Event::create(eventNames().errorEvent, Event::CanBubble::No, Event::IsCancelable::No));

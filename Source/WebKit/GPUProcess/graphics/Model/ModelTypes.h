@@ -509,7 +509,7 @@ NS_SWIFT_SENDABLE
 - (void)setCurrentTime:(double)newTime;
 - (double)duration;
 - (void)loadModelFrom:(NSURL *)url;
-- (void)loadModel:(NSData *)data;
+- (BOOL)loadModel:(NSData *)data;
 - (nullable WKBridgeUpdateTexture *)loadEnvironmentMap:(NSData *)data;
 - (void)update:(double)deltaTime;
 - (void)setLoop:(BOOL)loop;

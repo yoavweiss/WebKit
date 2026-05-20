@@ -267,7 +267,10 @@ void WebModelPlayer::load(WebCore::Model& modelSource, WebCore::LayoutSize size)
     }];
 
     m_retainedData = modelSource.data()->createNSData();
-    [m_modelLoader loadModel:m_retainedData.get()];
+    if (![m_modelLoader loadModel:m_retainedData.get()]) {
+        if (RefPtr client = m_client.get())
+            client->didFailLoading(protectedThis.get(), { });
+    }
 }
 
 void WebModelPlayer::notifyEntityTransformUpdated()
