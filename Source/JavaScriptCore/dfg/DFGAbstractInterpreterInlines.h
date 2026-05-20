@@ -3871,7 +3871,7 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
         break;
 
     case ArraySortCompact:
-        setTypeForNode(node, SpecObjectOther);
+        setTypeForNode(node, SpecCellOther);
         break;
 
     case ArraySortCommit:

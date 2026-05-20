@@ -1366,7 +1366,7 @@ private:
         }
 
         case ArraySortCompact: {
-            setPrediction(SpecObjectOther);
+            setPrediction(SpecCellOther);
             break;
         }
 
