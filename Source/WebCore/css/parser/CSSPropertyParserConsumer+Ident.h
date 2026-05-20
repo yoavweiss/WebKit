@@ -58,6 +58,7 @@ template<CSSValueID head, CSSValueID... tail> bool identMatches(CSSValueID);
 template<CSSValueID... names> std::optional<CSSValueID> consumeIdentRaw(CSSParserTokenRange&);
 template<CSSValueID... names> std::optional<CSS::Keyword> consumeUnresolvedIdent(CSSParserTokenRange&);
 template<CSSValueID... names> RefPtr<CSSKeywordValue> consumeIdent(CSSParserTokenRange&);
+template<typename KeywordOrKeywords> std::optional<KeywordOrKeywords> consumeSpecificUnresolvedIdent(CSSParserTokenRange&);
 
 template<typename Predicate, typename... Args> std::optional<CSSValueID> consumeIdentRaw(CSSParserTokenRange&, Predicate&&, Args&&...);
 template<typename Predicate, typename... Args> std::optional<CSS::Keyword> consumeUnresolvedRaw(CSSParserTokenRange&, Predicate&&, Args&&...);
@@ -123,6 +124,50 @@ template<CSSValueID... names> RefPtr<CSSKeywordValue> consumeIdent(CSSParserToke
     if (range.peek().type() != IdentToken || !identMatches<names...>(range.peek().id()))
         return nullptr;
     return CSSKeywordValue::create(CSS::Keyword { range.consumeIncludingWhitespace().id() });
+}
+
+template<typename> struct KeywordChecker;
+
+template<CSS::SpecificKeyword Keyword> struct KeywordChecker<Keyword> {
+    static std::optional<Keyword> check(CSSParserTokenRange& range)
+    {
+        if (range.peek().type() != IdentToken || !identMatches<Keyword::value>(range.peek().id()))
+            return std::nullopt;
+        range.consumeIncludingWhitespace();
+        return Keyword { };
+    }
+};
+
+template<typename... Ts> struct KeywordChecker<Variant<Ts...>> {
+    template<typename... emptyBaseCase>
+    static std::optional<Variant<Ts...>> checkValues(CSSValueID)
+    {
+        return std::nullopt;
+    }
+
+    template<CSSValueID head, CSSValueID... tail>
+    static std::optional<Variant<Ts...>> checkValues(CSSValueID id)
+    {
+        if (id == head)
+            return Variant<Ts...> { Constant<head> { } };
+        return checkValues<tail...>(id);
+    }
+
+    static std::optional<Variant<Ts...>> check(CSSParserTokenRange& range)
+    {
+        if (range.peek().type() != IdentToken)
+            return std::nullopt;
+        auto result = checkValues<Ts::value...>(range.peek().id());
+        if (!result)
+            return std::nullopt;
+        range.consumeIncludingWhitespace();
+        return result;
+    }
+};
+
+template<typename KeywordOrKeywords> std::optional<KeywordOrKeywords> consumeSpecificUnresolvedIdent(CSSParserTokenRange& range)
+{
+    return KeywordChecker<KeywordOrKeywords>::check(range);
 }
 
 template<typename Predicate, typename... Args> std::optional<CSSValueID> consumeIdentRaw(CSSParserTokenRange& range, Predicate&& predicate, Args&&... args)

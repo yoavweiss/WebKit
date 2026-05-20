@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2025-2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -36,16 +36,70 @@
 #include "StylePrimitiveNumericTypes+Blending.h"
 #include "StylePrimitiveNumericTypes+CSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+CSSValueCreation.h"
+#include "StylePrimitiveNumericTypes+Conversions.h"
 
 namespace WebCore {
 namespace Style {
 
-using namespace CSS::Literals;
-
 // MARK: - Conversion
 
-static BorderImageWidthValue convertBorderImageWidthValue(BuilderState& state, const CSSValue& value)
+template<> struct ToCSS<BorderImageWidth::Value> { auto operator()(const BorderImageWidth::Value&, const RenderStyle&) -> CSS::BorderImageWidth::Value; };
+template<> struct ToStyle<CSS::BorderImageWidth::Value> { auto operator()(const CSS::BorderImageWidth::Value&, const BuilderState&) -> BorderImageWidth::Value; };
+
+auto ToCSS<BorderImageWidth::Value>::operator()(const BorderImageWidth::Value& value, const RenderStyle& style) -> CSS::BorderImageWidth::Value
 {
+    return WTF::switchOn(value,
+        [&](const CSS::Keyword::Auto& keyword) -> CSS::BorderImageWidth::Value {
+            return keyword;
+        },
+        [&](const BorderImageWidth::Value::LengthPercentage& lengthPercentage) -> CSS::BorderImageWidth::Value {
+            // FIXME: Support direct conversion from Style::LengthWrapperBase<LengthPercentage<...>> to CSS::LengthPercentage<...>.
+            return lengthPercentage.switchOnUsingSpecified(
+                [&](const auto& specified) -> CSS::BorderImageWidth::Value {
+                    return toCSS(specified, style);
+                }
+            );
+        },
+        [&](const BorderImageWidth::Value::Number& number) -> CSS::BorderImageWidth::Value {
+            return toCSS(number, style);
+        }
+    );
+}
+
+auto ToStyle<CSS::BorderImageWidth::Value>::operator()(const CSS::BorderImageWidth::Value& value, const BuilderState& state) -> BorderImageWidth::Value
+{
+    return WTF::switchOn(value,
+        [&](const CSS::Keyword::Auto& keyword) -> BorderImageWidth::Value {
+            return keyword;
+        },
+        [&](const CSS::BorderImageWidth::Value::LengthPercentage& lengthPercentage) -> BorderImageWidth::Value {
+            // FIXME: Support direct conversion from CSS::LengthPercentage<...> to Style::LengthWrapperBase<LengthPercentage<...>>.
+            return BorderImageWidthValueLength { toStyle(lengthPercentage, state) };
+        },
+        [&](const CSS::BorderImageWidth::Value::Number& number) -> BorderImageWidth::Value {
+            return toStyle(number, state);
+        }
+    );
+}
+
+auto ToCSS<BorderImageWidth>::operator()(const BorderImageWidth& value, const RenderStyle& style) -> CSS::BorderImageWidth
+{
+    return { toCSS(value.values, style), value.legacyWebkitBorderImage };
+}
+
+auto ToStyle<CSS::BorderImageWidth>::operator()(const CSS::BorderImageWidth& value, const BuilderState& state) -> BorderImageWidth
+{
+    return { toStyle(value.values, state), value.legacyWebkitBorderImage };
+}
+
+auto CSSValueConversion<BorderImageWidth>::operator()(BuilderState& state, const CSSValue& value) -> BorderImageWidth
+{
+    using namespace CSS::Literals;
+
+    if (RefPtr widthValue = dynamicDowncast<CSSBorderImageWidthValue>(value))
+        return toStyle(widthValue->widths(), state);
+
+    // Values coming from CSS Typed OM may not have been converted to a CSSBorderImageWidthValue.
     if (isValueID(value, CSSValueAuto))
         return CSS::Keyword::Auto { };
 
@@ -58,31 +112,9 @@ static BorderImageWidthValue convertBorderImageWidthValue(BuilderState& state, c
     return toStyleFromCSSValue<BorderImageWidthValue::LengthPercentage>(state, *primitiveValue);
 }
 
-auto CSSValueConversion<BorderImageWidth>::operator()(BuilderState& state, const CSSValue& value) -> BorderImageWidth
+auto CSSValueCreation<BorderImageWidth>::operator()(CSSValuePool&, const RenderStyle& style, const BorderImageWidth& value) -> Ref<CSSValue>
 {
-    if (RefPtr widthValue = dynamicDowncast<CSSBorderImageWidthValue>(value)) {
-        auto& widths = widthValue->widths();
-        return BorderImageWidth {
-            convertBorderImageWidthValue(state, widths.top()),
-            convertBorderImageWidthValue(state, widths.right()),
-            convertBorderImageWidthValue(state, widths.bottom()),
-            convertBorderImageWidthValue(state, widths.left()),
-            widthValue->overridesBorderWidths(),
-        };
-    }
-
-    // Values coming from CSS Typed OM may not have been converted to a CSSBorderImageWidthValue.
-    return convertBorderImageWidthValue(state, value);
-}
-
-auto CSSValueCreation<BorderImageWidth>::operator()(CSSValuePool& pool, const RenderStyle& style, const BorderImageWidth& value) -> Ref<CSSValue>
-{
-    return CSSBorderImageWidthValue::create({
-        createCSSValue(pool, style, value.values.top()),
-        createCSSValue(pool, style, value.values.right()),
-        createCSSValue(pool, style, value.values.bottom()),
-        createCSSValue(pool, style, value.values.left()),
-    }, value.legacyWebkitBorderImage);
+    return CSSBorderImageWidthValue::create(toCSS(value, style));
 }
 
 // MARK: - Blending

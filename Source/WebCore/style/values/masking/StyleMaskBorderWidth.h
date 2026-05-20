@@ -28,9 +28,14 @@
 #include <WebCore/StyleLengthWrapper.h>
 
 namespace WebCore {
+
+namespace CSS {
+struct MaskBorderWidth;
+}
+
 namespace Style {
 
-struct MaskBorderWidthValueLength : LengthWrapperBase<LengthPercentage<CSS::Nonnegative>> {
+struct MaskBorderWidthValueLength : LengthWrapperBase<LengthPercentage<CSS::Nonnegative, float>> {
     using Base::Base;
 };
 
@@ -154,6 +159,9 @@ struct MaskBorderWidth {
 DEFINE_TYPE_WRAPPER_GET(MaskBorderWidth, values);
 
 // MARK: - Conversion
+
+template<> struct ToCSS<MaskBorderWidth> { auto operator()(const MaskBorderWidth&, const RenderStyle&) -> CSS::MaskBorderWidth; };
+template<> struct ToStyle<CSS::MaskBorderWidth> { auto operator()(const CSS::MaskBorderWidth&, const BuilderState&) -> MaskBorderWidth; };
 
 template<> struct CSSValueConversion<MaskBorderWidth> { auto operator()(BuilderState&, const CSSValue&) -> MaskBorderWidth; };
 template<> struct CSSValueCreation<MaskBorderWidth> { auto operator()(CSSValuePool&, const RenderStyle&, const MaskBorderWidth&) -> Ref<CSSValue>; };

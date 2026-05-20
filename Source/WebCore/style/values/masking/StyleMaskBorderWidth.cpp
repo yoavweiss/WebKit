@@ -27,25 +27,77 @@
 #include "StyleMaskBorderWidth.h"
 
 #include "AnimationUtilities.h"
-#include "CSSBorderImageWidthValue.h"
+#include "CSSMaskBorderWidthValue.h"
 #include "CSSKeywordValueInlines.h"
 #include "CSSPrimitiveValue.h"
 #include "StyleBuilderChecking.h"
 #include "StyleLengthWrapper+Blending.h"
 #include "StyleLengthWrapper+CSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+Blending.h"
+#include "StylePrimitiveNumericTypes+Conversions.h"
 #include "StylePrimitiveNumericTypes+CSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+CSSValueCreation.h"
 
 namespace WebCore {
 namespace Style {
 
-using namespace CSS::Literals;
-
 // MARK: - Conversion
 
-static MaskBorderWidthValue convertMaskBorderWidthValue(BuilderState& state, const CSSValue& value)
+template<> struct ToCSS<MaskBorderWidth::Value> { auto operator()(const MaskBorderWidth::Value&, const RenderStyle&) -> CSS::MaskBorderWidth::Value; };
+template<> struct ToStyle<CSS::MaskBorderWidth::Value> { auto operator()(const CSS::MaskBorderWidth::Value&, const BuilderState&) -> MaskBorderWidth::Value; };
+
+auto ToCSS<MaskBorderWidth::Value>::operator()(const MaskBorderWidth::Value& value, const RenderStyle& style) -> CSS::MaskBorderWidth::Value
 {
+    return WTF::switchOn(value,
+        [&](const CSS::Keyword::Auto& keyword) -> CSS::MaskBorderWidth::Value {
+            return keyword;
+        },
+        [&](const MaskBorderWidth::Value::LengthPercentage& lengthPercentage) -> CSS::MaskBorderWidth::Value {
+            // FIXME: Support direct conversion from Style::LengthWrapperBase<LengthPercentage<...>> to CSS::LengthPercentage<...>.
+            return lengthPercentage.switchOnUsingSpecified(
+                [&](const auto& specified) -> CSS::MaskBorderWidth::Value {
+                    return toCSS(specified, style);
+                }
+            );
+        },
+        [&](const MaskBorderWidth::Value::Number& number) -> CSS::MaskBorderWidth::Value {
+            return toCSS(number, style);
+        }
+    );
+}
+
+auto ToStyle<CSS::MaskBorderWidth::Value>::operator()(const CSS::MaskBorderWidth::Value& value, const BuilderState& state) -> MaskBorderWidth::Value
+{
+    return WTF::switchOn(value,
+        [&](const CSS::Keyword::Auto& keyword) -> MaskBorderWidth::Value {
+            return keyword;
+        },
+        [&](const CSS::MaskBorderWidth::Value::LengthPercentage& lengthPercentage) -> MaskBorderWidth::Value {
+            // FIXME: Support direct conversion from CSS::LengthPercentage<...> to Style::LengthWrapperBase<LengthPercentage<...>>.
+            return MaskBorderWidthValueLength { toStyle(lengthPercentage, state) };
+        },
+        [&](const CSS::MaskBorderWidth::Value::Number& number) -> MaskBorderWidth::Value {
+            return toStyle(number, state);
+        }
+    );
+}
+
+auto ToCSS<MaskBorderWidth>::operator()(const MaskBorderWidth& value, const RenderStyle& style) -> CSS::MaskBorderWidth
+{
+    return { toCSS(value.values, style) };
+}
+
+auto ToStyle<CSS::MaskBorderWidth>::operator()(const CSS::MaskBorderWidth& value, const BuilderState& state) -> MaskBorderWidth
+{
+    return { toStyle(value.values, state) };
+}
+
+auto CSSValueConversion<MaskBorderWidth>::operator()(BuilderState& state, const CSSValue& value) -> MaskBorderWidth
+{
+    if (RefPtr widthValue = dynamicDowncast<CSSMaskBorderWidthValue>(value))
+        return toStyle(widthValue->widths(), state);
+
+    // Values coming from CSS Typed OM may not have been converted to a CSSMaskBorderWidthValue.
     if (isValueID(value, CSSValueAuto))
         return CSS::Keyword::Auto { };
 
@@ -58,32 +110,9 @@ static MaskBorderWidthValue convertMaskBorderWidthValue(BuilderState& state, con
     return toStyleFromCSSValue<MaskBorderWidthValue::LengthPercentage>(state, *primitiveValue);
 }
 
-auto CSSValueConversion<MaskBorderWidth>::operator()(BuilderState& state, const CSSValue& value) -> MaskBorderWidth
+auto CSSValueCreation<MaskBorderWidth>::operator()(CSSValuePool&, const RenderStyle& style, const MaskBorderWidth& value) -> Ref<CSSValue>
 {
-    if (RefPtr widthValue = dynamicDowncast<CSSBorderImageWidthValue>(value)) {
-        ASSERT(!widthValue->overridesBorderWidths());
-
-        auto& widths = widthValue->widths();
-        return MaskBorderWidth {
-            convertMaskBorderWidthValue(state, widths.top()),
-            convertMaskBorderWidthValue(state, widths.right()),
-            convertMaskBorderWidthValue(state, widths.bottom()),
-            convertMaskBorderWidthValue(state, widths.left()),
-        };
-    }
-
-    // Values coming from CSS Typed OM may not have been converted to a CSSMaskBorderWidthValue.
-    return convertMaskBorderWidthValue(state, value);
-}
-
-auto CSSValueCreation<MaskBorderWidth>::operator()(CSSValuePool& pool, const RenderStyle& style, const MaskBorderWidth& value) -> Ref<CSSValue>
-{
-    return CSSBorderImageWidthValue::create({
-        createCSSValue(pool, style, value.values.top()),
-        createCSSValue(pool, style, value.values.right()),
-        createCSSValue(pool, style, value.values.bottom()),
-        createCSSValue(pool, style, value.values.left()),
-    }, false);
+    return CSSMaskBorderWidthValue::create(toCSS(value, style));
 }
 
 // MARK: - Blending

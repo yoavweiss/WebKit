@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2025-2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,85 +28,42 @@
 
 #include "AnimationUtilities.h"
 #include "CSSBorderImageSliceValue.h"
-#include "CSSPrimitiveValue.h"
 #include "StyleBuilderChecking.h"
 #include "StylePrimitiveNumericTypes+Blending.h"
+#include "StylePrimitiveNumericTypes+Conversions.h"
 #include "StylePrimitiveNumericTypes+CSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+CSSValueCreation.h"
 
 namespace WebCore {
 namespace Style {
 
-using namespace CSS::Literals;
-
 // MARK: - Conversion
 
-static BorderImageSliceValue convertBorderImageSliceValue(BuilderState& state, const CSSValue& value)
+auto ToCSS<BorderImageSlice>::operator()(const BorderImageSlice& value, const RenderStyle& style) -> CSS::BorderImageSlice
 {
-    RefPtr primitiveValue = requiredDowncast<CSSPrimitiveValue>(state, value);
-    if (!primitiveValue)
-        return BorderImageSliceValue { 100_css_percentage };
+    return { toCSS(value.values, style), value.fill };
+}
 
-    if (primitiveValue->isNumber())
-        return toStyleFromCSSValue<BorderImageSliceValue::Number>(state, *primitiveValue);
-    return toStyleFromCSSValue<BorderImageSliceValue::Percentage>(state, *primitiveValue);
+auto ToStyle<CSS::BorderImageSlice>::operator()(const CSS::BorderImageSlice& value, const BuilderState& state) -> BorderImageSlice
+{
+    return { toStyle(value.values, state), value.fill };
 }
 
 auto CSSValueConversion<BorderImageSlice>::operator()(BuilderState& state, const CSSValue& value) -> BorderImageSlice
 {
-    if (RefPtr sliceValue = dynamicDowncast<CSSBorderImageSliceValue>(value)) {
-        auto& slices = sliceValue->slices();
-        return BorderImageSlice {
-            convertBorderImageSliceValue(state, slices.top()),
-            convertBorderImageSliceValue(state, slices.right()),
-            convertBorderImageSliceValue(state, slices.bottom()),
-            convertBorderImageSliceValue(state, slices.left()),
-            sliceValue->fill() ? std::make_optional(CSS::Keyword::Fill { }) : std::nullopt,
-        };
-    }
+    if (RefPtr sliceValue = dynamicDowncast<CSSBorderImageSliceValue>(value))
+        return toStyle(sliceValue->slices(), state);
 
     // Values coming from CSS Typed OM may not have been converted to a CSSBorderImageSliceValue.
-    return convertBorderImageSliceValue(state, value);
+    return toStyleFromCSSValue<BorderImageSlice::Value>(state, value);
 }
 
-auto CSSValueCreation<BorderImageSlice>::operator()(CSSValuePool& pool, const RenderStyle& style, const BorderImageSlice& value) -> Ref<CSSValue>
+auto CSSValueCreation<BorderImageSlice>::operator()(CSSValuePool&, const RenderStyle& style, const BorderImageSlice& value) -> Ref<CSSValue>
 {
-    return CSSBorderImageSliceValue::create({
-        createCSSValue(pool, style, value.values.top()),
-        createCSSValue(pool, style, value.values.right()),
-        createCSSValue(pool, style, value.values.bottom()),
-        createCSSValue(pool, style, value.values.left()),
-    }, value.fill.has_value());
+    return CSSBorderImageSliceValue::create(toCSS(value, style));
 }
 
 // MARK: - Blending
-
-inline auto Blending<BorderImageSliceValue>::canBlend(const BorderImageSliceValue& a, const BorderImageSliceValue& b) -> bool
-{
-    return a.hasSameType(b);
-}
-
-inline auto Blending<BorderImageSliceValue>::requiresInterpolationForAccumulativeIteration(const BorderImageSliceValue& a, const BorderImageSliceValue& b) -> bool
-{
-    return !a.hasSameType(b);
-}
-
-inline auto Blending<BorderImageSliceValue>::blend(const BorderImageSliceValue& a, const BorderImageSliceValue& b, const BlendingContext& context) -> BorderImageSliceValue
-{
-    if (context.isDiscrete) {
-        ASSERT(!context.progress || context.progress == 1);
-        return context.progress ? b : a;
-    }
-
-    return WTF::visit(WTF::makeVisitor(
-        [&]<typename T>(const T& a, const T& b) -> BorderImageSliceValue {
-            return Style::blend(a, b, context);
-        },
-        [&](const auto&, const auto&) -> BorderImageSliceValue {
-            RELEASE_ASSERT_NOT_REACHED();
-        }
-    ), a.m_value, b.m_value);
-}
 
 auto Blending<BorderImageSlice>::canBlend(const BorderImageSlice& a, const BorderImageSlice& b) -> bool
 {

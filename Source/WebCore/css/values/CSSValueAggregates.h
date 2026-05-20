@@ -1235,6 +1235,21 @@ template<typename T, size_t N> struct SpaceSeparatedArray {
 
     constexpr bool operator==(const SpaceSeparatedArray<T, N>&) const = default;
 
+    template<typename F> bool anyOf(F&& functor) const
+    {
+        return std::ranges::any_of(value, std::forward<F>(functor));
+    }
+
+    template<typename F> bool allOf(F&& functor) const
+    {
+        return std::ranges::all_of(value, std::forward<F>(functor));
+    }
+
+    template<typename F> bool noneOf(F&& functor) const
+    {
+        return std::ranges::none_of(value, std::forward<F>(functor));
+    }
+
     std::array<T, N> value;
 };
 
@@ -1286,6 +1301,21 @@ template<typename T> struct MinimallySerializingSpaceSeparatedPair {
     constexpr void transpose() { WebCore::transpose(value); }
     constexpr MinimallySerializingSpaceSeparatedPair<T> transposed() const { return WebCore::transposed(value); }
 
+    template<typename F> bool anyOf(F&& functor) const
+    {
+        return value.allOf(std::forward<F>(functor));
+    }
+
+    template<typename F> bool allOf(F&& functor) const
+    {
+        return value.allOf(std::forward<F>(functor));
+    }
+
+    template<typename F> bool noneOf(F&& functor) const
+    {
+        return value.noneOf(std::forward<F>(functor));
+    }
+
     SpaceSeparatedPair<T> value;
 };
 
@@ -1316,6 +1346,21 @@ template<typename T, size_t N> struct CommaSeparatedArray {
     }
 
     constexpr bool operator==(const CommaSeparatedArray<T, N>&) const = default;
+
+    template<typename F> bool anyOf(F&& functor) const
+    {
+        return std::ranges::any_of(value, std::forward<F>(functor));
+    }
+
+    template<typename F> bool allOf(F&& functor) const
+    {
+        return std::ranges::all_of(value, std::forward<F>(functor));
+    }
+
+    template<typename F> bool noneOf(F&& functor) const
+    {
+        return std::ranges::none_of(value, std::forward<F>(functor));
+    }
 
     std::array<T, N> value;
 };
@@ -1400,6 +1445,38 @@ template<size_t I, typename... Ts> decltype(auto) get(const CommaSeparatedTuple<
 template<typename... Ts> inline constexpr auto TreatAsTupleLike<CommaSeparatedTuple<Ts...>> = true;
 template<typename... Ts> inline constexpr auto SerializationSeparator<CommaSeparatedTuple<Ts...>> = SerializationSeparatorType::Comma;
 
+// Wraps a variadic list of types, semantically marking them as serializing as "slash separated".
+template<typename... Ts> struct SlashSeparatedTuple {
+    using Tuple = std::tuple<Ts...>;
+
+    constexpr SlashSeparatedTuple(Ts&&... values)
+        : value { std::make_tuple(std::forward<Ts>(values)...) }
+    {
+    }
+
+    constexpr SlashSeparatedTuple(const Ts&... values)
+        : value { std::make_tuple(values...) }
+    {
+    }
+
+    constexpr SlashSeparatedTuple(std::tuple<Ts...>&& tuple)
+        : value { WTF::move(tuple) }
+    {
+    }
+
+    constexpr bool operator==(const SlashSeparatedTuple<Ts...>&) const = default;
+
+    std::tuple<Ts...> value;
+};
+
+template<size_t I, typename... Ts> decltype(auto) get(const SlashSeparatedTuple<Ts...>& tuple)
+{
+    return std::get<I>(tuple.value);
+}
+
+template<typename... Ts> inline constexpr auto TreatAsTupleLike<SlashSeparatedTuple<Ts...>> = true;
+template<typename... Ts> inline constexpr auto SerializationSeparator<SlashSeparatedTuple<Ts...>> = SerializationSeparatorType::Slash;
+
 // Wraps a pair of elements of a single type representing a point, semantically marking them as serializing as "space separated".
 template<typename T> struct SpaceSeparatedPoint {
     using Array = SpaceSeparatedPair<T>;
@@ -1422,6 +1499,21 @@ template<typename T> struct SpaceSeparatedPoint {
 
     constexpr void transpose() { WebCore::transpose(value); }
     constexpr SpaceSeparatedPoint<T> transposed() const { return WebCore::transposed(value); }
+
+    template<typename F> bool anyOf(F&& functor) const
+    {
+        return value.allOf(std::forward<F>(functor));
+    }
+
+    template<typename F> bool allOf(F&& functor) const
+    {
+        return value.allOf(std::forward<F>(functor));
+    }
+
+    template<typename F> bool noneOf(F&& functor) const
+    {
+        return value.noneOf(std::forward<F>(functor));
+    }
 
     SpaceSeparatedPair<T> value;
 };
@@ -1456,6 +1548,21 @@ template<typename T> struct SpaceSeparatedSize {
 
     constexpr void transpose() { WebCore::transpose(value); }
     constexpr SpaceSeparatedSize<T> transposed() const { return WebCore::transposed(value); }
+
+    template<typename F> bool anyOf(F&& functor) const
+    {
+        return value.allOf(std::forward<F>(functor));
+    }
+
+    template<typename F> bool allOf(F&& functor) const
+    {
+        return value.allOf(std::forward<F>(functor));
+    }
+
+    template<typename F> bool noneOf(F&& functor) const
+    {
+        return value.noneOf(std::forward<F>(functor));
+    }
 
     SpaceSeparatedPair<T> value;
 };
@@ -1496,6 +1603,21 @@ template<typename T> struct MinimallySerializingSpaceSeparatedPoint {
     constexpr void transpose() { WebCore::transpose(value); }
     constexpr MinimallySerializingSpaceSeparatedPoint<T> transposed() const { return WebCore::transposed(value); }
 
+    template<typename F> bool anyOf(F&& functor) const
+    {
+        return value.allOf(std::forward<F>(functor));
+    }
+
+    template<typename F> bool allOf(F&& functor) const
+    {
+        return value.allOf(std::forward<F>(functor));
+    }
+
+    template<typename F> bool noneOf(F&& functor) const
+    {
+        return value.noneOf(std::forward<F>(functor));
+    }
+
     SpaceSeparatedPair<T> value;
 };
 
@@ -1535,6 +1657,21 @@ template<typename T> struct MinimallySerializingSpaceSeparatedSize {
 
     constexpr void transpose() { WebCore::transpose(value); }
     constexpr MinimallySerializingSpaceSeparatedSize<T> transposed() const { return WebCore::transposed(value); }
+
+    template<typename F> bool anyOf(F&& functor) const
+    {
+        return value.allOf(std::forward<F>(functor));
+    }
+
+    template<typename F> bool allOf(F&& functor) const
+    {
+        return value.allOf(std::forward<F>(functor));
+    }
+
+    template<typename F> bool noneOf(F&& functor) const
+    {
+        return value.noneOf(std::forward<F>(functor));
+    }
 
     SpaceSeparatedPair<T> value;
 };
@@ -1874,6 +2011,12 @@ template<typename... Ts> TextStream& operator<<(TextStream& ts, const CommaSepar
     return ts;
 }
 
+template<typename... Ts> TextStream& operator<<(TextStream& ts, const SlashSeparatedTuple<Ts...>& value)
+{
+    logForCSSOnTupleLike(ts, value, SerializationSeparatorString<SlashSeparatedTuple<Ts...>>);
+    return ts;
+}
+
 template<typename T, size_t N> TextStream& operator<<(TextStream& ts, const SpaceSeparatedArray<T, N>& value)
 {
     logForCSSOnTupleLike(ts, value, SerializationSeparatorString<SpaceSeparatedArray<T, N>>);
@@ -1965,6 +2108,12 @@ public:
 
 template<typename... Ts> class tuple_size<WebCore::CommaSeparatedTuple<Ts...>> : public std::integral_constant<size_t, sizeof...(Ts)> { };
 template<size_t I, typename... Ts> class tuple_element<I, WebCore::CommaSeparatedTuple<Ts...>> {
+public:
+    using type = tuple_element_t<I, tuple<Ts...>>;
+};
+
+template<typename... Ts> class tuple_size<WebCore::SlashSeparatedTuple<Ts...>> : public std::integral_constant<size_t, sizeof...(Ts)> { };
+template<size_t I, typename... Ts> class tuple_element<I, WebCore::SlashSeparatedTuple<Ts...>> {
 public:
     using type = tuple_element_t<I, tuple<Ts...>>;
 };

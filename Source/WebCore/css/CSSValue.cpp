@@ -34,7 +34,10 @@
 #include "CSSAttrValue.h"
 #include "CSSBackgroundRepeatValue.h"
 #include "CSSBasicShapeValue.h"
+#include "CSSBorderImageOutsetValue.h"
+#include "CSSBorderImageRepeatValue.h"
 #include "CSSBorderImageSliceValue.h"
+#include "CSSBorderImageSourceValue.h"
 #include "CSSBorderImageWidthValue.h"
 #include "CSSBoxShadowPropertyValue.h"
 #include "CSSCanvasValue.h"
@@ -67,6 +70,11 @@
 #include "CSSImageSetValue.h"
 #include "CSSImageValue.h"
 #include "CSSKeywordValue.h"
+#include "CSSMaskBorderOutsetValue.h"
+#include "CSSMaskBorderRepeatValue.h"
+#include "CSSMaskBorderSliceValue.h"
+#include "CSSMaskBorderSourceValue.h"
+#include "CSSMaskBorderWidthValue.h"
 #include "CSSNamedImageValue.h"
 #include "CSSOffsetRotateValue.h"
 #include "CSSPaintImageValue.h"
@@ -78,7 +86,6 @@
 #include "CSSRatioValue.h"
 #include "CSSRayValue.h"
 #include "CSSRectValue.h"
-#include "CSSReflectValue.h"
 #include "CSSScrollValue.h"
 #include "CSSSerializationContext.h"
 #include "CSSShorthandSubstitutionValue.h"
@@ -92,6 +99,7 @@
 #include "CSSValueList.h"
 #include "CSSValuePair.h"
 #include "CSSViewValue.h"
+#include "CSSWebkitBoxReflectValue.h"
 #include "ComputedStyleDependencies.h"
 #include "DeprecatedCSSOMPrimitiveValue.h"
 #include "DeprecatedCSSOMValueList.h"
@@ -121,8 +129,14 @@ template<typename Visitor> constexpr decltype(auto) CSSValue::visitDerived(Visit
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSBackgroundRepeatValue>(*this));
     case BasicShape:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSBasicShapeValue>(*this));
+    case BorderImageOutset:
+        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSBorderImageOutsetValue>(*this));
+    case BorderImageRepeat:
+        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSBorderImageRepeatValue>(*this));
     case BorderImageSlice:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSBorderImageSliceValue>(*this));
+    case BorderImageSource:
+        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSBorderImageSourceValue>(*this));
     case BorderImageWidth:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSBorderImageWidthValue>(*this));
     case BoxShadowProperty:
@@ -191,10 +205,22 @@ template<typename Visitor> constexpr decltype(auto) CSSValue::visitDerived(Visit
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSImageSetOptionValue>(*this));
     case ImageSet:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSImageSetValue>(*this));
+    case MaskBorderOutset:
+        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSMaskBorderOutsetValue>(*this));
+    case MaskBorderRepeat:
+        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSMaskBorderRepeatValue>(*this));
+    case MaskBorderSlice:
+        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSMaskBorderSliceValue>(*this));
+    case MaskBorderSource:
+        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSMaskBorderSourceValue>(*this));
+    case MaskBorderWidth:
+        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSMaskBorderWidthValue>(*this));
     case NamedImage:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSNamedImageValue>(*this));
     case OffsetRotate:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSOffsetRotateValue>(*this));
+    case PaintImage:
+        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSPaintImageValue>(*this));
     case Path:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSPathValue>(*this));
     case ShorthandSubstitution:
@@ -215,8 +241,6 @@ template<typename Visitor> constexpr decltype(auto) CSSValue::visitDerived(Visit
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSRayValue>(*this));
     case Rect:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSRectValue>(*this));
-    case Reflect:
-        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSReflectValue>(*this));
     case Scroll:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSScrollValue>(*this));
     case String:
@@ -237,8 +261,8 @@ template<typename Visitor> constexpr decltype(auto) CSSValue::visitDerived(Visit
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSSubstitutionValue>(*this));
     case View:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSViewValue>(*this));
-    case PaintImage:
-        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSPaintImageValue>(*this));
+    case WebkitBoxReflect:
+        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSWebkitBoxReflectValue>(*this));
     }
 
     RELEASE_ASSERT_NOT_REACHED();
@@ -377,6 +401,10 @@ Ref<DeprecatedCSSOMValue> CSSValue::createDeprecatedCSSOMWrapper(CSSStyleDeclara
     switch (m_classType) {
     case Image:
         return uncheckedDowncast<CSSImageValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
+    case BorderImageSource:
+        return uncheckedDowncast<CSSBorderImageSourceValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
+    case MaskBorderSource:
+        return uncheckedDowncast<CSSMaskBorderSourceValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
     case Primitive:
     case Color:
     case Counter:

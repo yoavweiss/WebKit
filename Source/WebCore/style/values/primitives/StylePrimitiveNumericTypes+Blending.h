@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2024-2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -137,6 +137,34 @@ template<auto R, typename V> struct Blending<LengthPercentage<R, V>> {
         if (WTF::holdsAlternative<Length>(to))
             return WebCore::Style::blend(get<Length>(from), get<Length>(to), context);
         return WebCore::Style::blend(get<Percentage>(from), get<Percentage>(to), context);
+    }
+};
+
+template<auto nR, auto pR, typename V> struct Blending<NumberOrPercentage<nR, pR, V>> {
+    using StyleType = NumberOrPercentage<nR, pR, V>;
+
+    auto canBlend(const StyleType& a, const StyleType& b) -> bool
+    {
+        return a.value.index() == b.value.index();
+    }
+    auto blend(const StyleType& a, const StyleType& b, const BlendingContext& context) -> StyleType
+    {
+        if (context.isDiscrete) {
+            ASSERT(!context.progress || context.progress == 1);
+            return context.progress ? b : a;
+        }
+
+        return WTF::visit(WTF::makeVisitor(
+            [&]<typename T>(const T& a, const T& b) -> StyleType {
+                return WebCore::Style::blend(a, b, context);
+            },
+            [&](const CSS::PrimitiveDataEmptyToken&, const CSS::PrimitiveDataEmptyToken&) -> StyleType {
+                RELEASE_ASSERT_NOT_REACHED();
+            },
+            [&](const auto&, const auto&) -> StyleType {
+                RELEASE_ASSERT_NOT_REACHED();
+            }
+        ), a.value, b.value);
     }
 };
 

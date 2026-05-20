@@ -30,20 +30,28 @@
 #include <WebCore/StyleMaskBorder.h>
 
 namespace WebCore {
+
+namespace CSS {
+struct WebkitBoxReflect;
+}
+
 namespace Style {
 
-struct WebkitBoxReflectionOffset : LengthWrapperBase<LengthPercentage<>> {
+struct WebkitBoxReflectionOffset : LengthWrapperBase<LengthPercentage<CSS::All, float>> {
     using Base::Base;
 };
 
 struct WebkitBoxReflection {
-    ReflectionDirection direction { ReflectionDirection::Below };
-    WebkitBoxReflectionOffset offset;
-    MaskBorder mask;
+    using Direction = ReflectionDirection;
+    using Offset = WebkitBoxReflectionOffset;
+    using Mask = MaskBorder;
+
+    Direction direction { Direction::Below };
+    Offset offset;
+    Mask mask;
 
     bool operator==(const WebkitBoxReflection&) const = default;
 };
-
 template<size_t I> const auto& get(const WebkitBoxReflection& value)
 {
     if constexpr (!I)
@@ -54,7 +62,7 @@ template<size_t I> const auto& get(const WebkitBoxReflection& value)
         return value.mask;
 }
 
-// <'-webkit-box-reflect'> = none | [ [ above | below | left | right ] <length-percentage>? <border-image>? ]
+// <'-webkit-box-reflect'> = none | [ [ above | below | left | right ] <length-percentage>? <mask-border>? ]
 // NOTE: There is no standard associated with this property.
 struct WebkitBoxReflect {
     WebkitBoxReflect(CSS::Keyword::None)
@@ -87,8 +95,10 @@ private:
 
 // MARK: - Conversion
 
+DEFINE_TYPE_MAPPING(CSS::WebkitBoxReflect, WebkitBoxReflect);
+
 template<> struct CSSValueConversion<WebkitBoxReflect> { auto operator()(BuilderState&, const CSSValue&) -> WebkitBoxReflect; };
-template<> struct CSSValueCreation<WebkitBoxReflection> { Ref<CSSValue> operator()(CSSValuePool&, const RenderStyle&, const WebkitBoxReflection&); };
+template<> struct CSSValueCreation<WebkitBoxReflect> { Ref<CSSValue> operator()(CSSValuePool&, const RenderStyle&, const WebkitBoxReflect&); };
 
 // MARK: - Serialization
 

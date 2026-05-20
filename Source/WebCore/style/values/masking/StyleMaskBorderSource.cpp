@@ -28,6 +28,7 @@
 
 #include "AnimationUtilities.h"
 #include "CSSKeywordValue.h"
+#include "CSSMaskBorderSourceValue.h"
 #include "StyleBuilderState.h"
 
 namespace WebCore {
@@ -35,8 +36,38 @@ namespace Style {
 
 // MARK: - Conversion
 
+auto ToCSS<MaskBorderSource>::operator()(const MaskBorderSource& value, const RenderStyle& style) -> CSS::MaskBorderSource
+{
+    return WTF::switchOn(value,
+        [&](const CSS::Keyword::None& keyword) -> CSS::MaskBorderSource {
+            return keyword;
+        },
+        [&](const ImageWrapper& imageWrapper) -> CSS::MaskBorderSource {
+            return protect(imageWrapper.value)->computedStyleValue(style);
+        }
+    );
+}
+
+auto ToStyle<CSS::MaskBorderSource>::operator()(const CSS::MaskBorderSource& value, const BuilderState& state) -> MaskBorderSource
+{
+    return WTF::switchOn(value,
+        [&](const CSS::Keyword::None& keyword) -> MaskBorderSource {
+            return keyword;
+        },
+        [&](const Ref<CSSValue>& cssImageValue) -> MaskBorderSource {
+            RefPtr image = state.createStyleImage(cssImageValue);
+            if (!image)
+                return CSS::Keyword::None { };
+            return ImageWrapper { image.releaseNonNull() };
+        }
+    );
+}
+
 auto CSSValueConversion<MaskBorderSource>::operator()(BuilderState& state, const CSSValue& value) -> MaskBorderSource
 {
+    if (auto* sourceValue = dynamicDowncast<CSSMaskBorderSourceValue>(value))
+        return toStyle(sourceValue->source(), state);
+
     if (auto* keywordValue = dynamicDowncast<CSSKeywordValue>(value)) {
         switch (keywordValue->valueID()) {
         case CSSValueNone:
@@ -52,6 +83,11 @@ auto CSSValueConversion<MaskBorderSource>::operator()(BuilderState& state, const
         return CSS::Keyword::None { };
 
     return ImageWrapper { image.releaseNonNull() };
+}
+
+auto CSSValueCreation<MaskBorderSource>::operator()(CSSValuePool&, const RenderStyle& style, const MaskBorderSource& value) -> Ref<CSSValue>
+{
+    return CSSMaskBorderSourceValue::create(toCSS(value, style));
 }
 
 // MARK: - Blending

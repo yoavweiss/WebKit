@@ -29,6 +29,11 @@
 #include <wtf/PointerComparison.h>
 
 namespace WebCore {
+
+namespace CSS {
+struct MaskBorderSource;
+}
+
 namespace Style {
 
 // <'mask-border-source'> = none | <image>
@@ -69,7 +74,11 @@ private:
 
 // MARK: - Conversion
 
+template<> struct ToCSS<MaskBorderSource> { auto operator()(const MaskBorderSource&, const RenderStyle&) -> CSS::MaskBorderSource; };
+template<> struct ToStyle<CSS::MaskBorderSource> { auto operator()(const CSS::MaskBorderSource&, const BuilderState&) -> MaskBorderSource; };
+
 template<> struct CSSValueConversion<MaskBorderSource> { auto operator()(BuilderState&, const CSSValue&) -> MaskBorderSource; };
+template<> struct CSSValueCreation<MaskBorderSource> { auto operator()(CSSValuePool&, const RenderStyle&, const MaskBorderSource&) -> Ref<CSSValue>; };
 
 // MARK: - Blending
 

@@ -59,15 +59,38 @@ BorderImage::BorderImage(BorderImageSource&& source, BorderImageSlice&& slice, B
 
 // MARK: - Conversion
 
+auto ToCSS<BorderImage>::operator()(const BorderImage& value, const RenderStyle& style) -> CSS::BorderImage
+{
+    return {
+        .borderImageSource = toCSS(value.borderImageSource, style),
+        .borderImageSlice = toCSS(value.borderImageSlice, style),
+        .borderImageWidth = toCSS(value.borderImageWidth, style),
+        .borderImageOutset = toCSS(value.borderImageOutset, style),
+        .borderImageRepeat = toCSS(value.borderImageRepeat, style),
+    };
+}
+
+auto ToStyle<CSS::BorderImage>::operator()(const CSS::BorderImage& value, const BuilderState& state) -> BorderImage
+{
+    BorderImage result { };
+
+    if (value.borderImageSource)
+        result.borderImageSource = toStyle(*value.borderImageSource, state);
+    if (value.borderImageSlice)
+        result.borderImageSlice = toStyle(*value.borderImageSlice, state);
+    if (value.borderImageWidth)
+        result.borderImageWidth = toStyle(*value.borderImageWidth, state);
+    if (value.borderImageOutset)
+        result.borderImageOutset = toStyle(*value.borderImageOutset, state);
+    if (value.borderImageRepeat)
+        result.borderImageRepeat = toStyle(*value.borderImageRepeat, state);
+
+    return result;
+}
+
 auto CSSValueCreation<BorderImage>::operator()(CSSValuePool& pool, const RenderStyle& style, const BorderImage& value) -> Ref<CSSValue>
 {
-    return createBorderImageValue({
-        .source = createCSSValue(pool, style, value.borderImageSource),
-        .slice  = createCSSValue(pool, style, value.borderImageSlice),
-        .width  = createCSSValue(pool, style, value.borderImageWidth),
-        .outset = createCSSValue(pool, style, value.borderImageOutset),
-        .repeat = createCSSValue(pool, style, value.borderImageRepeat),
-    });
+    return CSS::createCSSValue(pool, toCSS(value, style));
 }
 
 // MARK: - Serialization
@@ -75,7 +98,7 @@ auto CSSValueCreation<BorderImage>::operator()(CSSValuePool& pool, const RenderS
 void Serialize<BorderImage>::operator()(StringBuilder& builder, const CSS::SerializationContext& context, const RenderStyle& style, const BorderImage& value)
 {
     if (value.borderImageSource.isNone()) {
-        serializationForCSS(builder, context, style, value.source());
+        serializationForCSS(builder, context, style, value.borderImageSource);
         return;
     }
 

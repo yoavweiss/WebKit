@@ -32,6 +32,7 @@
 #include "CSSStyleValueFactory.h"
 
 #include "CSSAppleColorFilterValue.h"
+#include "CSSBorderImageSourceValue.h"
 #include "CSSBoxShadowPropertyValue.h"
 #include "CSSCalcValue.h"
 #include "CSSCustomIdentValue.h"
@@ -41,6 +42,7 @@
 #include "CSSGridLineValue.h"
 #include "CSSGridTemplateListValue.h"
 #include "CSSGridTrackSizesValue.h"
+#include "CSSMaskBorderSourceValue.h"
 #include "CSSNumericFactory.h"
 #include "CSSOMKeywordValue.h"
 #include "CSSParser.h"
@@ -424,6 +426,24 @@ ExceptionOr<Ref<CSSStyleValue>> CSSStyleValueFactory::reifyValue(Document& docum
             );
         }
         return CSSStyleValue::create(Ref(const_cast<CSSValue&>(cssValue)), WTF::move(associatedProperty));
+    } else if (RefPtr property = dynamicDowncast<CSSBorderImageSourceValue>(cssValue)) {
+        return WTF::switchOn(property->source(),
+            [&](CSS::Keyword::None keyword) -> ExceptionOr<Ref<CSSStyleValue>> {
+                return WebCore::reifyValue(keyword);
+            },
+            [&](const Ref<CSSValue>& value) -> ExceptionOr<Ref<CSSStyleValue>> {
+                return reifyValue(document, value, WTF::move(associatedProperty));
+            }
+        );
+    } else if (RefPtr property = dynamicDowncast<CSSMaskBorderSourceValue>(cssValue)) {
+        return WTF::switchOn(property->source(),
+            [&](CSS::Keyword::None keyword) -> ExceptionOr<Ref<CSSStyleValue>> {
+                return WebCore::reifyValue(keyword);
+            },
+            [&](const Ref<CSSValue>& value) -> ExceptionOr<Ref<CSSStyleValue>> {
+                return reifyValue(document, value, WTF::move(associatedProperty));
+            }
+        );
     } else if (auto* valueList = dynamicDowncast<CSSValueList>(cssValue)) {
         // Reifying the first value in value list.
         // FIXME: Verify this is the expected behavior.

@@ -27,7 +27,7 @@
 #include "StyleWebKitBoxReflect.h"
 
 #include "CSSKeywordValue.h"
-#include "CSSReflectValue.h"
+#include "CSSWebkitBoxReflectValue.h"
 #include "StyleBuilderChecking.h"
 #include "StyleCalculationValue.h"
 #include "StyleKeyword+Serialization.h"
@@ -41,49 +41,98 @@ namespace Style {
 
 // MARK: - Conversion
 
-auto CSSValueConversion<WebkitBoxReflect>::operator()(BuilderState& state, const CSSValue& value) -> WebkitBoxReflect
+template<> struct ToCSS<WebkitBoxReflection::Direction> { auto operator()(const WebkitBoxReflection::Direction&, const RenderStyle&) -> CSS::WebkitBoxReflection::Direction; };
+template<> struct ToStyle<CSS::WebkitBoxReflection::Direction> { auto operator()(const CSS::WebkitBoxReflection::Direction&, const BuilderState&) -> WebkitBoxReflection::Direction; };
+
+template<> struct ToCSS<WebkitBoxReflection> { auto operator()(const WebkitBoxReflection&, const RenderStyle&) -> CSS::WebkitBoxReflection; };
+template<> struct ToStyle<CSS::WebkitBoxReflection> { auto operator()(const CSS::WebkitBoxReflection&, const BuilderState&) -> WebkitBoxReflection; };
+
+auto ToCSS<WebkitBoxReflection::Direction>::operator()(const WebkitBoxReflection::Direction& value, const RenderStyle&) -> CSS::WebkitBoxReflection::Direction
 {
-    if (auto* keywordValue = dynamicDowncast<CSSKeywordValue>(value)) {
-        switch (keywordValue->valueID()) {
-        case CSSValueNone:
-            return CSS::Keyword::None { };
-        default:
-            state.setCurrentPropertyInvalidAtComputedValueTime();
-            return CSS::Keyword::None { };
-        }
+    switch (value) {
+    case WebkitBoxReflection::Direction::Above: return CSS::Keyword::Above { };
+    case WebkitBoxReflection::Direction::Below: return CSS::Keyword::Below { };
+    case WebkitBoxReflection::Direction::Left:  return CSS::Keyword::Left { };
+    case WebkitBoxReflection::Direction::Right: return CSS::Keyword::Right { };
     }
+    RELEASE_ASSERT_NOT_REACHED();
+}
 
-    RefPtr reflectValue = requiredDowncast<CSSReflectValue>(state, value);
-    if (!reflectValue)
-        return CSS::Keyword::None { };
+auto ToStyle<CSS::WebkitBoxReflection::Direction>::operator()(const CSS::WebkitBoxReflection::Direction& value, const BuilderState&) -> WebkitBoxReflection::Direction
+{
+    return WTF::switchOn(value,
+        [](CSS::Keyword::Above) { return WebkitBoxReflection::Direction::Above; },
+        [](CSS::Keyword::Below) { return WebkitBoxReflection::Direction::Below; },
+        [](CSS::Keyword::Left)  { return WebkitBoxReflection::Direction::Left; },
+        [](CSS::Keyword::Right) { return WebkitBoxReflection::Direction::Right; }
+    );
+}
 
-    auto convertMask = [&](RefPtr<const CSSValue> maskValue) {
-        if (!maskValue)
-            return MaskBorder { };
-        return toStyleFromCSSValue<Style::MaskBorder>(state, *maskValue, MaskBorderSliceOverride::AlwaysFill);
+auto ToCSS<WebkitBoxReflection>::operator()(const WebkitBoxReflection& value, const RenderStyle& style) -> CSS::WebkitBoxReflection
+{
+    auto convertOffset = [](auto& offset, auto& style) {
+        // FIXME: Support direct conversion from Style::LengthWrapperBase<LengthPercentage<...>> to CSS::LengthPercentage<...>.
+        return offset.switchOnUsingSpecified(
+            [&](const auto& specified) -> CSS::WebkitBoxReflection::Offset {
+                return toCSS(specified, style);
+            }
+        );
     };
 
-    return WebkitBoxReflection {
-        .direction = fromCSSValueID<ReflectionDirection>(reflectValue->direction()),
-        .offset = toStyleFromCSSValue<WebkitBoxReflectionOffset>(state, reflectValue->offset()),
-        .mask = convertMask(reflectValue->mask()),
+    return {
+        .direction = toCSS(value.direction, style),
+        .offset = convertOffset(value.offset, style),
+        .mask = toCSS(value.mask, style),
     };
 }
 
-Ref<CSSValue> CSSValueCreation<WebkitBoxReflection>::operator()(CSSValuePool& pool, const RenderStyle& style, const WebkitBoxReflection& value)
+auto ToStyle<CSS::WebkitBoxReflection>::operator()(const CSS::WebkitBoxReflection& value, const BuilderState& state) -> WebkitBoxReflection
 {
-    auto convertMask = [&](auto& mask) -> RefPtr<CSSValue> {
-        if (mask.maskBorderSource.isNone())
-            return createCSSValue(pool, style, CSS::Keyword::None { });
-        else
-            return createCSSValue(pool, style, mask);
+    auto convertOffset = [](auto& offset, auto& state) {
+        // FIXME: Support direct conversion from CSS::LengthPercentage<...> to Style::LengthWrapperBase<LengthPercentage<...>>.
+        return WebkitBoxReflection::Offset { toStyle(offset, state) };
     };
 
-    return CSSReflectValue::create(
-        toCSSValueID(value.direction),
-        createCSSValue(pool, style, value.offset),
-        convertMask(value.mask)
-    );
+    return {
+        .direction = toStyle(value.direction, state),
+        .offset = convertOffset(value.offset, state),
+        .mask = toStyle(value.mask, state, MaskBorderSliceOverride::AlwaysFill),
+    };
+}
+
+auto CSSValueConversion<WebkitBoxReflect>::operator()(BuilderState& state, const CSSValue& value) -> WebkitBoxReflect
+{
+    using namespace CSS::Literals;
+
+    if (auto* reflectValue = dynamicDowncast<CSSWebkitBoxReflectValue>(value))
+        return toStyle(reflectValue->reflect(), state);
+
+    // Values coming from CSS Typed OM may not have been converted to a CSSWebkitBoxReflectValue.
+
+    RefPtr keywordValue = requiredDowncast<CSSKeywordValue>(state, value);
+    if (!keywordValue)
+        return CSS::Keyword::None { };
+
+    switch (keywordValue->valueID()) {
+    case CSSValueNone:
+        return CSS::Keyword::None { };
+    case CSSValueAbove:
+        return WebkitBoxReflection { .direction = ReflectionDirection::Above, .offset = 0_css_px, .mask = MaskBorder { } };
+    case CSSValueBelow:
+        return WebkitBoxReflection { .direction = ReflectionDirection::Below, .offset = 0_css_px, .mask = MaskBorder { } };
+    case CSSValueLeft:
+        return WebkitBoxReflection { .direction = ReflectionDirection::Left,  .offset = 0_css_px, .mask = MaskBorder { } };
+    case CSSValueRight:
+        return WebkitBoxReflection { .direction = ReflectionDirection::Right, .offset = 0_css_px, .mask = MaskBorder { } };
+    default:
+        state.setCurrentPropertyInvalidAtComputedValueTime();
+        return CSS::Keyword::None { };
+    }
+}
+
+Ref<CSSValue> CSSValueCreation<WebkitBoxReflect>::operator()(CSSValuePool&, const RenderStyle& style, const WebkitBoxReflect& value)
+{
+    return CSSWebkitBoxReflectValue::create(toCSS(value, style));
 }
 
 // MARK: - Serialization

@@ -27,10 +27,18 @@
 #include "CSSPropertyInitialValues.h"
 #include "CSSPropertyInitialValuesGeneratedInlines.h"
 
+#include "CSSBorderImageOutsetValue.h"
+#include "CSSBorderImageRepeatValue.h"
 #include "CSSBorderImageSliceValue.h"
+#include "CSSBorderImageSourceValue.h"
 #include "CSSBorderImageWidthValue.h"
 #include "CSSCalcValue.h"
 #include "CSSKeywordValueInlines.h"
+#include "CSSMaskBorderOutsetValue.h"
+#include "CSSMaskBorderRepeatValue.h"
+#include "CSSMaskBorderSliceValue.h"
+#include "CSSMaskBorderSourceValue.h"
+#include "CSSMaskBorderWidthValue.h"
 #include "CSSOffsetRotateValue.h"
 #include "CSSPrimitiveValue.h"
 #include "CSSPropertyNames.h"
@@ -85,27 +93,6 @@ static bool NODELETE isNumber(const CSSValue& value, auto number)
     return isNumber(dynamicDowncast<CSSPrimitiveValue>(value), number);
 }
 
-static bool NODELETE isNumber(const RectBase& quad, auto number)
-{
-    return isNumber(quad.top(), number)
-        && isNumber(quad.right(), number)
-        && isNumber(quad.bottom(), number)
-        && isNumber(quad.left(), number);
-}
-
-static bool NODELETE isValueID(const RectBase& quad, CSSValueID valueID)
-{
-    return isValueID(quad.top(), valueID)
-        && isValueID(quad.right(), valueID)
-        && isValueID(quad.bottom(), valueID)
-        && isValueID(quad.left(), valueID);
-}
-
-static bool NODELETE isNumericQuad(const CSSValue& value, auto number)
-{
-    return value.isQuad() && isNumber(value.quad(), number);
-}
-
 bool isInitialValueForLonghand(CSSPropertyID longhand, const CSSValue& value)
 {
     using namespace CSS::Literals;
@@ -119,42 +106,68 @@ bool isInitialValueForLonghand(CSSPropertyID longhand, const CSSValue& value)
             return true;
         break;
     case CSSPropertyBorderImageOutset:
-    case CSSPropertyMaskBorderOutset:
-        if (isNumericQuad(value, 0_css_number))
-            return true;
-        break;
-    case CSSPropertyBorderImageRepeat:
-    case CSSPropertyMaskBorderRepeat:
-        if (isValueIDPair(value, CSSValueStretch))
-            return true;
-        break;
-    case CSSPropertyBorderImageSlice:
-        if (auto sliceValue = dynamicDowncast<CSSBorderImageSliceValue>(value)) {
-            if (!sliceValue->fill() && isNumber(sliceValue->slices(), 100_css_percentage))
+        if (auto outsetValue = dynamicDowncast<CSSBorderImageOutsetValue>(value)) {
+            if (outsetValue->outsets().values.allOf([](auto& edge) { return edge == 0_css_number; }))
                 return true;
         }
         break;
+    case CSSPropertyMaskBorderOutset:
+        if (auto outsetValue = dynamicDowncast<CSSMaskBorderOutsetValue>(value)) {
+            if (outsetValue->outsets().values.allOf([](auto& edge) { return edge == 0_css_number; }))
+                return true;
+        }
+        break;
+    case CSSPropertyBorderImageRepeat:
+        if (auto repeatValue = dynamicDowncast<CSSBorderImageRepeatValue>(value)) {
+            if (repeatValue->repeats().values.allOf([](auto& edge) { return WTF::holdsAlternative<CSS::Keyword::Stretch>(edge); }))
+                return true;
+        }
+        break;
+    case CSSPropertyMaskBorderRepeat:
+        if (auto repeatValue = dynamicDowncast<CSSMaskBorderRepeatValue>(value)) {
+            if (repeatValue->repeats().values.allOf([](auto& edge) { return WTF::holdsAlternative<CSS::Keyword::Stretch>(edge); }))
+                return true;
+        }
+        break;
+    case CSSPropertyBorderImageSlice:
+        if (auto sliceValue = dynamicDowncast<CSSBorderImageSliceValue>(value)) {
+            if (!sliceValue->slices().fill.has_value() && sliceValue->slices().values.allOf([](auto& edge) { return edge == 100_css_percentage; }))
+                return true;
+        }
+        break;
+    case CSSPropertyMaskBorderSlice:
+        if (auto sliceValue = dynamicDowncast<CSSMaskBorderSliceValue>(value)) {
+            if (!sliceValue->slices().fill.has_value() && sliceValue->slices().values.allOf([](auto& edge) { return edge == 0_css_number; }))
+                return true;
+        }
+        return false;
     case CSSPropertyBorderImageWidth:
         if (auto widthValue = dynamicDowncast<CSSBorderImageWidthValue>(value)) {
-            if (!widthValue->overridesBorderWidths() && isNumber(widthValue->widths(), 1_css_number))
+            if (!widthValue->widths().legacyWebkitBorderImage && widthValue->widths().values.allOf([](auto& edge) { return edge == 1_css_number; }))
+                return true;
+        }
+        break;
+    case CSSPropertyMaskBorderWidth:
+        if (auto widthValue = dynamicDowncast<CSSMaskBorderWidthValue>(value)) {
+            if (widthValue->widths().values.allOf([](auto& edge) { return edge.isAuto(); }))
+                return true;
+        }
+        break;
+    case CSSPropertyBorderImageSource:
+        if (auto sourceValue = dynamicDowncast<CSSBorderImageSourceValue>(value)) {
+            if (sourceValue->source().isNone())
+                return true;
+        }
+        break;
+    case CSSPropertyMaskBorderSource:
+        if (auto sourceValue = dynamicDowncast<CSSMaskBorderSourceValue>(value)) {
+            if (sourceValue->source().isNone())
                 return true;
         }
         break;
     case CSSPropertyOffsetRotate:
         if (auto rotateValue = dynamicDowncast<CSSOffsetRotateValue>(value)) {
             if (rotateValue->isInitialValue())
-                return true;
-        }
-        break;
-    case CSSPropertyMaskBorderSlice:
-        if (auto sliceValue = dynamicDowncast<CSSBorderImageSliceValue>(value)) {
-            if (!sliceValue->fill() && isNumber(sliceValue->slices(), 0_css_number))
-                return true;
-        }
-        return false;
-    case CSSPropertyMaskBorderWidth:
-        if (auto widthValue = dynamicDowncast<CSSBorderImageWidthValue>(value)) {
-            if (!widthValue->overridesBorderWidths() && isValueID(widthValue->widths(), CSSValueAuto))
                 return true;
         }
         break;

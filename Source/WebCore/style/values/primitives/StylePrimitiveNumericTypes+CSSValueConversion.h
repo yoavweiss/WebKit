@@ -111,16 +111,17 @@ auto convertNumericFromCSSValue(BuilderState& state, const CSSPrimitiveValue& va
     );
 }
 
-// NOTE: This overload that takes a `CSSValue` does not constrain `StyleType` to `Numeric` as it
-// is useful for `NumberOrPercentage` and `NumberOrPercentageResolvedToNumber` which do not conform
-// to the `Numeric` concept. It is useful because all it does is forward to a `CSSValueConversion`
-// for the `StyleType` if the value is a `CSSPrimitiveValue`.
-template<typename StyleType, typename... Rest>
+template<Numeric StyleType, typename... Rest>
 auto convertNumericFromCSSValue(BuilderState& state, const CSSValue& value, Rest&&... rest) -> StyleType
 {
     RefPtr protectedValue = requiredDowncast<CSSPrimitiveValue>(state, value);
-    if (!protectedValue)
-        return StyleType { 0 };
+    if (!protectedValue) {
+        if constexpr (DimensionPercentageNumeric<StyleType>) {
+            return StyleType { typename StyleType::Dimension { 0 } };
+        } else {
+            return StyleType { 0 };
+        }
+    }
     return toStyleFromCSSValue<StyleType>(state, *protectedValue, std::forward<Rest>(rest)...);
 }
 
@@ -153,7 +154,10 @@ template<auto nR, auto pR, typename V> struct CSSValueConversion<NumberOrPercent
     }
     template<typename... Rest> auto operator()(BuilderState& state, const CSSValue& value, Rest&&... rest) -> StyleType
     {
-        return convertNumericFromCSSValue<StyleType>(state, value, std::forward<Rest>(rest)...);
+        RefPtr protectedValue = requiredDowncast<CSSPrimitiveValue>(state, value);
+        if (!protectedValue)
+            return StyleType { typename StyleType::Number { 0 } };
+        return toStyleFromCSSValue<StyleType>(state, *protectedValue, std::forward<Rest>(rest)...);
     }
 };
 
@@ -168,7 +172,10 @@ template<auto nR, auto pR, typename V> struct CSSValueConversion<NumberOrPercent
     }
     template<typename... Rest> auto operator()(BuilderState& state, const CSSValue& value, Rest&&... rest) -> StyleType
     {
-        return convertNumericFromCSSValue<StyleType>(state, value, std::forward<Rest>(rest)...);
+        RefPtr protectedValue = requiredDowncast<CSSPrimitiveValue>(state, value);
+        if (!protectedValue)
+            return StyleType { 0 };
+        return toStyleFromCSSValue<StyleType>(state, *protectedValue, std::forward<Rest>(rest)...);
     }
 };
 

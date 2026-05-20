@@ -31,8 +31,6 @@
 #pragma once
 
 #include "CSSBorderImage.h"
-#include "CSSBorderImageSliceValue.h"
-#include "CSSBorderImageWidthValue.h"
 #include "CSSBorderRadius.h"
 #include "CSSCustomIdentValue.h"
 #include "CSSFontStyleRangeValue.h"
@@ -44,6 +42,7 @@
 #include "CSSGridTemplateAreasValue.h"
 #include "CSSGridTemplateListValue.h"
 #include "CSSKeywordValueInlines.h"
+#include "CSSMaskBorder.h"
 #include "CSSOffsetRotateValue.h"
 #include "CSSParserTokenRangeGuard.h"
 #include "CSSPositionValue.h"
@@ -738,15 +737,15 @@ inline bool PropertyParserCustom::consumeWebkitBorderRadiusShorthand(CSSParserTo
 
 inline bool PropertyParserCustom::consumeBorderImageShorthand(CSSParserTokenRange& range, PropertyParserState& state, const StylePropertyShorthand&, PropertyParserResult& result)
 {
-    auto components = consumeBorderImageComponents(range, state);
+    auto components = consumeUnresolvedBorderImage(range, state);
     if (!components)
         return false;
 
-    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageSource, WTF::move(components->source));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageSlice, WTF::move(components->slice));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageWidth, WTF::move(components->width));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageOutset, WTF::move(components->outset));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageRepeat, WTF::move(components->repeat));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageSource, WebCore::CSS::tryCreateCSSValue(state.pool, components->borderImageSource));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageSlice, WebCore::CSS::tryCreateCSSValue(state.pool, components->borderImageSlice));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageWidth, WebCore::CSS::tryCreateCSSValue(state.pool, components->borderImageWidth));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageOutset, WebCore::CSS::tryCreateCSSValue(state.pool, components->borderImageOutset));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageRepeat, WebCore::CSS::tryCreateCSSValue(state.pool, components->borderImageRepeat));
     return true;
 }
 
@@ -755,29 +754,29 @@ inline bool PropertyParserCustom::consumeWebkitBorderImageShorthand(CSSParserTok
     // NOTE: -webkit-border-image has a legacy behavior that makes border image slices default to `fill`.
     // NOTE: -webkit-border-image has a legacy behavior that makes border image widths with length values also set the border widths.
 
-    auto components = consumeBorderImageComponents(range, state, BorderImageSliceFillDefault::Yes, BorderImageWidthOverridesWidthForLength::Yes);
+    auto components = consumeUnresolvedBorderImage(range, state, BorderImageSliceOverride::AlwaysFill, BorderImageWidthOverridesWidthForLength::Yes);
     if (!components)
         return false;
 
-    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageSource, WTF::move(components->source));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageSlice, WTF::move(components->slice));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageWidth, WTF::move(components->width));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageOutset, WTF::move(components->outset));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageRepeat, WTF::move(components->repeat));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageSource, WebCore::CSS::tryCreateCSSValue(state.pool, components->borderImageSource));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageSlice, WebCore::CSS::tryCreateCSSValue(state.pool, components->borderImageSlice));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageWidth, WebCore::CSS::tryCreateCSSValue(state.pool, components->borderImageWidth));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageOutset, WebCore::CSS::tryCreateCSSValue(state.pool, components->borderImageOutset));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyBorderImageRepeat, WebCore::CSS::tryCreateCSSValue(state.pool, components->borderImageRepeat));
     return true;
 }
 
 inline bool PropertyParserCustom::consumeMaskBorderShorthand(CSSParserTokenRange& range, PropertyParserState& state, const StylePropertyShorthand&, PropertyParserResult& result)
 {
-    auto components = consumeBorderImageComponents(range, state);
+    auto components = consumeUnresolvedMaskBorder(range, state);
     if (!components)
         return false;
 
-    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderSource, WTF::move(components->source));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderSlice, WTF::move(components->slice));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderWidth, WTF::move(components->width));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderOutset, WTF::move(components->outset));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderRepeat, WTF::move(components->repeat));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderSource, WebCore::CSS::tryCreateCSSValue(state.pool, components->maskBorderSource));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderSlice, WebCore::CSS::tryCreateCSSValue(state.pool, components->maskBorderSlice));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderWidth, WebCore::CSS::tryCreateCSSValue(state.pool, components->maskBorderWidth));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderOutset, WebCore::CSS::tryCreateCSSValue(state.pool, components->maskBorderOutset));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderRepeat, WebCore::CSS::tryCreateCSSValue(state.pool, components->maskBorderRepeat));
     return true;
 }
 
@@ -785,18 +784,24 @@ inline bool PropertyParserCustom::consumeWebkitMaskBoxImageShorthand(CSSParserTo
 {
     // NOTE: -webkit-mask-box-image has a legacy behavior that makes border image slices default to `fill`.
 
-    auto components = consumeBorderImageComponents(range, state, BorderImageSliceFillDefault::Yes);
+    using namespace CSS::Literals;
+
+    auto components = consumeUnresolvedMaskBorder(range, state, MaskBorderSliceOverride::AlwaysFill);
     if (!components)
         return false;
 
-    if (!components->slice)
-        components->slice = CSSBorderImageSliceValue::create({ CSSPrimitiveValue::create(0), CSSPrimitiveValue::create(0), CSSPrimitiveValue::create(0), CSSPrimitiveValue::create(0) }, true);
+    auto defaultSlice = [] {
+        return CSS::MaskBorderSlice {
+            .values = { CSS::MaskBorderSlice::Value { 0_css_number } },
+            .fill = CSS::Keyword::Fill { },
+        };
+    };
 
-    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderSource, WTF::move(components->source));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderSlice, WTF::move(components->slice));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderWidth, WTF::move(components->width));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderOutset, WTF::move(components->outset));
-    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderRepeat, WTF::move(components->repeat));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderSource, WebCore::CSS::tryCreateCSSValue(state.pool, components->maskBorderSource));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderSlice, WebCore::CSS::createCSSValue(state.pool, components->maskBorderSlice.value_or(defaultSlice())));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderWidth, WebCore::CSS::tryCreateCSSValue(state.pool, components->maskBorderWidth));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderOutset, WebCore::CSS::tryCreateCSSValue(state.pool, components->maskBorderOutset));
+    result.addPropertyForCurrentShorthand(state, CSSPropertyMaskBorderRepeat, WebCore::CSS::tryCreateCSSValue(state.pool, components->maskBorderRepeat));
     return true;
 }
 

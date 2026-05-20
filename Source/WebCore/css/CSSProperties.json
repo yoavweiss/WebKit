@@ -3066,8 +3066,10 @@
                 "computed-style-storage-container": "struct",
                 "computed-style-storage-kind": "reference",
                 "computed-style-type": "Style::BorderImageOutset",
-                "parser-grammar": "[ <number [0,inf]> | <length [0,inf]> ]{1,4}@(type=CSSQuadValue no-single-item-opt)",
-                "parser-exported": true
+                "parser-function": "consumeBorderImageOutset",
+                "parser-function-allows-number-or-integer-input": true,
+                "parser-grammar-unused": "[ <number [0,inf]> | <length [0,inf]> ]{1,4}",
+                "parser-grammar-unused-reason": "Needs support for the strong value representation."
             },
             "specification": {
                 "category": "css-backgrounds",
@@ -3089,8 +3091,9 @@
                 "computed-style-storage-container": "struct",
                 "computed-style-storage-kind": "reference",
                 "computed-style-type": "Style::BorderImageRepeat",
-                "parser-grammar": "[ stretch | repeat | round | space ]{1,2}@(type=CSSValuePair default=previous)",
-                "parser-exported": true
+                "parser-function": "consumeBorderImageRepeat",
+                "parser-grammar-unused": "[ stretch | repeat | round | space ]{1,2}@(default=previous)",
+                "parser-grammar-unused-reason": "Needs support for the strong value representation."
             },
             "specification": {
                 "category": "css-backgrounds",
@@ -3132,7 +3135,9 @@
                 "computed-style-storage-container": "struct",
                 "computed-style-storage-kind": "reference",
                 "computed-style-type": "Style::BorderImageSource",
-                "parser-grammar": "none | <image>"
+                "parser-function": "consumeBorderImageSource",
+                "parser-grammar-unused": "none | <image>",
+                "parser-grammar-unused-reason": "Needs support for the strong value representation."
             },
             "specification": {
                 "category": "css-backgrounds",
@@ -5905,7 +5910,10 @@
                 "computed-style-storage-container": "struct",
                 "computed-style-storage-kind": "reference",
                 "computed-style-type": "Style::MaskBorderOutset",
-                "parser-grammar": "[ <number [0,inf]> | <length [0,inf]> ]{1,4}@(type=CSSQuadValue no-single-item-opt)"
+                "parser-function": "consumeMaskBorderOutset",
+                "parser-function-allows-number-or-integer-input": true,
+                "parser-grammar-unused": "[ <number [0,inf]> | <length [0,inf]> ]{1,4}",
+                "parser-grammar-unused-reason": "Needs support for the strong value representation."
 
             },
             "specification": {
@@ -5930,7 +5938,9 @@
                 "computed-style-storage-container": "struct",
                 "computed-style-storage-kind": "reference",
                 "computed-style-type": "Style::MaskBorderRepeat",
-                "parser-grammar": "[ stretch | repeat | round | space ]{1,2}@(type=CSSValuePair default=previous)"
+                "parser-function": "consumeMaskBorderRepeat",
+                "parser-grammar-unused": "[ stretch | repeat | round | space ]{1,2}@(default=previous)",
+                "parser-grammar-unused-reason": "Needs support for the strong value representation."
             },
             "specification": {
                 "category": "css-masking",
@@ -5951,7 +5961,8 @@
                 "computed-style-storage-container": "struct",
                 "computed-style-storage-kind": "reference",
                 "computed-style-type": "Style::MaskBorderSlice",
-                "parser-function": "consumeBorderImageSlice",
+                "parser-function": "consumeMaskBorderSlice",
+                "parser-function-allows-number-or-integer-input": true,
                 "parser-grammar-unused": "[ <number [0,inf]> | <percentage [0,inf]> ]{1,4} && fill?",
                 "parser-grammar-unused-reason": "Needs support for different parsing based on the current shorthand."
             },
@@ -5975,7 +5986,9 @@
                 "computed-style-storage-container": "struct",
                 "computed-style-storage-kind": "reference",
                 "computed-style-type": "Style::MaskBorderSource",
-                "parser-grammar": "none | <image>"
+                "parser-function": "consumeMaskBorderSource",
+                "parser-grammar-unused": "none | <image>",
+                "parser-grammar-unused-reason": "Needs support for the strong value representation."
             },
             "specification": {
                 "category": "css-masking",
@@ -5996,7 +6009,8 @@
                 "computed-style-storage-container": "struct",
                 "computed-style-storage-kind": "reference",
                 "computed-style-type": "Style::MaskBorderWidth",
-                "parser-function": "consumeBorderImageWidth",
+                "parser-function": "consumeMaskBorderWidth",
+                "parser-function-allows-number-or-integer-input": true,
                 "parser-grammar-unused": "[ <length-percentage [0,inf]> | <number [0,inf]> | auto ]{1,4}",
                 "parser-grammar-unused-reason": "Needs support for different parsing based on the current shorthand."
             },
@@ -9655,7 +9669,7 @@
                 "computed-style-storage-kind": "reference",
                 "computed-style-type": "Style::WebkitBoxReflect",
                 "parser-function": "consumeWebkitBoxReflect",
-                "parser-grammar-unused": "none | [ [ above | below | left | right ] <length-percentage>? <border-image>? ]",
+                "parser-grammar-unused": "none | [ [ above | below | left | right ] <length-percentage>? <mask-border>? ]",
                 "parser-grammar-unused-reason": "Needs support for default values on optionals and property references."
 
             },

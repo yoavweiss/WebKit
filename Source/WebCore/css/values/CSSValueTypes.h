@@ -416,6 +416,14 @@ struct CSSValueCreationInvoker {
 };
 inline constexpr CSSValueCreationInvoker createCSSValue{};
 
+template<typename CSSType, typename... Rest>
+inline RefPtr<CSSValue> tryCreateCSSValue(CSSValuePool& pool, const CSSType& value, Rest&&... rest)
+{
+    if (value)
+        return WebCore::CSS::createCSSValue(pool, *value, std::forward<Rest>(rest)...);
+    return nullptr;
+}
+
 Ref<CSSValue> NODELETE makePrimitiveCSSValue(CSSValueID);
 Ref<CSSValue> makeFunctionCSSValue(CSSValueID, Ref<CSSValue>&&);
 

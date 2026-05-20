@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2025 Apple Inc. All rights reserved.
+ * Copyright (C) 2011 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,42 +25,32 @@
 
 #pragma once
 
-#include "CSSPrimitiveValue.h"
+#include "CSSMaskBorderSource.h"
 #include "CSSValue.h"
-#include <wtf/Function.h>
 
 namespace WebCore {
 
-class CSSReflectValue final : public CSSValue {
+class CSSMaskBorderSourceValue final : public CSSValue {
 public:
-    static Ref<CSSReflectValue> NODELETE create(CSSValueID direction, Ref<CSSValue>&& offset, RefPtr<CSSValue>&& mask);
+    static Ref<CSSMaskBorderSourceValue> create(CSS::MaskBorderSource&&);
+    ~CSSMaskBorderSourceValue();
 
-    CSSValueID direction() const { return m_direction; }
-    const CSSValue& offset() const { return m_offset.get(); }
-    const CSSValue* mask() const { return m_mask.get(); }
+    const CSS::MaskBorderSource& source() const LIFETIME_BOUND { return m_source; }
 
     String customCSSText(const CSS::SerializationContext&) const;
-    bool equals(const CSSReflectValue&) const;
+    bool equals(const CSSMaskBorderSourceValue&) const;
 
-    IterationStatus customVisitChildren(NOESCAPE const Function<IterationStatus(CSSValue&)>& func) const
-    {
-        if (func(m_offset.get()) == IterationStatus::Done)
-            return IterationStatus::Done;
-        if (m_mask) {
-            if (func(*m_mask) == IterationStatus::Done)
-                return IterationStatus::Done;
-        }
-        return IterationStatus::Continue;
-    }
+    bool customTraverseSubresources(NOESCAPE const Function<bool(const CachedResource&)>&) const;
+    IterationStatus customVisitChildren(NOESCAPE const Function<IterationStatus(CSSValue&)>&) const;
+
+    Ref<DeprecatedCSSOMValue> createDeprecatedCSSOMWrapper(CSSStyleDeclaration&) const;
 
 private:
-    CSSReflectValue(CSSValueID direction, Ref<CSSValue>&& offset, RefPtr<CSSValue>&& mask);
+    CSSMaskBorderSourceValue(CSS::MaskBorderSource&&);
 
-    CSSValueID m_direction;
-    const Ref<CSSValue> m_offset;
-    const RefPtr<CSSValue> m_mask;
+    CSS::MaskBorderSource m_source;
 };
 
 } // namespace WebCore
 
-SPECIALIZE_TYPE_TRAITS_CSS_VALUE(CSSReflectValue, isReflectValue())
+SPECIALIZE_TYPE_TRAITS_CSS_VALUE(CSSMaskBorderSourceValue, isMaskBorderSourceValue())

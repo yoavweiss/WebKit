@@ -74,7 +74,10 @@ public:
     bool isAttrValue() const { return m_classType == ClassType::Attr; }
     bool isBackgroundRepeatValue() const { return m_classType == ClassType::BackgroundRepeat; }
     bool isBasicShape() const { return m_classType == ClassType::BasicShape; }
+    bool isBorderImageOutsetValue() const { return m_classType == ClassType::BorderImageOutset; }
+    bool isBorderImageRepeatValue() const { return m_classType == ClassType::BorderImageRepeat; }
     bool isBorderImageSliceValue() const { return m_classType == ClassType::BorderImageSlice; }
+    bool isBorderImageSourceValue() const { return m_classType == ClassType::BorderImageSource; }
     bool isBorderImageWidthValue() const { return m_classType == ClassType::BorderImageWidth; }
     bool isBoxShadowPropertyValue() const { return m_classType == ClassType::BoxShadowProperty; }
     bool isCanvasValue() const { return m_classType == ClassType::Canvas; }
@@ -110,8 +113,14 @@ public:
     bool isImageSetOptionValue() const { return m_classType == ClassType::ImageSetOption; }
     bool isImageSetValue() const { return m_classType == ClassType::ImageSet; }
     bool isImageValue() const { return m_classType == ClassType::Image; }
+    bool isMaskBorderOutsetValue() const { return m_classType == ClassType::MaskBorderOutset; }
+    bool isMaskBorderRepeatValue() const { return m_classType == ClassType::MaskBorderRepeat; }
+    bool isMaskBorderSliceValue() const { return m_classType == ClassType::MaskBorderSlice; }
+    bool isMaskBorderSourceValue() const { return m_classType == ClassType::MaskBorderSource; }
+    bool isMaskBorderWidthValue() const { return m_classType == ClassType::MaskBorderWidth; }
     bool isNamedImageValue() const { return m_classType == ClassType::NamedImage; }
     bool isOffsetRotateValue() const { return m_classType == ClassType::OffsetRotate; }
+    bool isPaintImageValue() const { return m_classType == ClassType::PaintImage; }
     bool isPair() const { return m_classType == ClassType::ValuePair; }
     bool isPath() const { return m_classType == ClassType::Path; }
     bool isShorthandSubstitutionValue() const { return m_classType == ClassType::ShorthandSubstitution; }
@@ -123,7 +132,6 @@ public:
     bool isRatioValue() const { return m_classType == ClassType::Ratio; }
     bool isRayValue() const { return m_classType == ClassType::Ray; }
     bool isRect() const { return m_classType == ClassType::Rect; }
-    bool isReflectValue() const { return m_classType == ClassType::Reflect; }
     bool isScrollValue() const { return m_classType == ClassType::Scroll; }
     bool isStringValue() const { return m_classType == ClassType::String; }
     bool isTextShadowPropertyValue() const { return m_classType == ClassType::TextShadowProperty; }
@@ -133,7 +141,7 @@ public:
     bool isValueList() const { return m_classType == ClassType::ValueList; }
     bool isSubstitutionValue() const { return m_classType == ClassType::Substitution; }
     bool isViewValue() const { return m_classType == ClassType::View; }
-    bool isPaintImageValue() const { return m_classType == ClassType::PaintImage; }
+    bool isWebkitBoxReflectValue() const { return m_classType == ClassType::WebkitBoxReflect; }
 
     bool hasSubstitutionFunctions() const { return isSubstitutionValue() || isShorthandSubstitutionValue(); }
     bool isImageGeneratorValue() const { return m_classType >= ClassType::Canvas && m_classType <= ClassType::Gradient; }
@@ -208,7 +216,10 @@ protected:
         Attr,
         BackgroundRepeat,
         BasicShape,
+        BorderImageOutset,
+        BorderImageRepeat,
         BorderImageSlice,
+        BorderImageSource,
         BorderImageWidth,
         BoxShadowProperty,
         Color,
@@ -235,6 +246,11 @@ protected:
         GridTemplateList,
         GridTrackSizes,
         Keyword,
+        MaskBorderOutset,
+        MaskBorderRepeat,
+        MaskBorderSlice,
+        MaskBorderSource,
+        MaskBorderWidth,
         OffsetRotate,
         Path,
         ShorthandSubstitution,
@@ -245,7 +261,6 @@ protected:
         Ratio,
         Ray,
         Rect,
-        Reflect,
         Scroll,
         TextShadowProperty,
         URL,
@@ -254,6 +269,7 @@ protected:
         String,
         Substitution,
         View,
+        WebkitBoxReflect,
 
         // Classes that contain vectors, which derive from CSSValueContainingVector.
         ValueList,

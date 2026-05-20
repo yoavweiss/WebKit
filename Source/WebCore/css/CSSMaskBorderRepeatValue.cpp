@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Apple Inc. All rights reserved.
+ * Copyright (C) 2011 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -24,37 +24,33 @@
  */
 
 #include "config.h"
-#include "CSSReflectValue.h"
+#include "CSSMaskBorderRepeatValue.h"
 
-#include <wtf/text/MakeString.h>
+#include "CSSPrimitiveNumericTypes+Serialization.h"
 
 namespace WebCore {
 
-CSSReflectValue::CSSReflectValue(CSSValueID direction, Ref<CSSValue>&& offset, RefPtr<CSSValue>&& mask)
-    : CSSValue(ClassType::Reflect)
-    , m_direction(direction)
-    , m_offset(WTF::move(offset))
-    , m_mask(WTF::move(mask))
+CSSMaskBorderRepeatValue::CSSMaskBorderRepeatValue(CSS::MaskBorderRepeat&& repeats)
+    : CSSValue(ClassType::MaskBorderRepeat)
+    , m_repeats(WTF::move(repeats))
 {
 }
 
-Ref<CSSReflectValue> CSSReflectValue::create(CSSValueID direction, Ref<CSSValue>&& offset, RefPtr<CSSValue>&& mask)
+CSSMaskBorderRepeatValue::~CSSMaskBorderRepeatValue() = default;
+
+Ref<CSSMaskBorderRepeatValue> CSSMaskBorderRepeatValue::create(CSS::MaskBorderRepeat&& repeats)
 {
-    return adoptRef(*new CSSReflectValue(direction, WTF::move(offset), WTF::move(mask)));
+    return adoptRef(*new CSSMaskBorderRepeatValue(WTF::move(repeats)));
 }
 
-String CSSReflectValue::customCSSText(const CSS::SerializationContext& context) const
+String CSSMaskBorderRepeatValue::customCSSText(const CSS::SerializationContext& context) const
 {
-    if (m_mask)
-        return makeString(nameLiteral(m_direction), ' ', m_offset->cssText(context), ' ', m_mask->cssText(context));
-    return makeString(nameLiteral(m_direction), ' ', m_offset->cssText(context));
+    return CSS::serializationForCSS(context, m_repeats);
 }
 
-bool CSSReflectValue::equals(const CSSReflectValue& other) const
+bool CSSMaskBorderRepeatValue::equals(const CSSMaskBorderRepeatValue& other) const
 {
-    return m_direction == other.m_direction
-        && compareCSSValue(m_offset, other.m_offset)
-        && compareCSSValuePtr(m_mask, other.m_mask);
+    return m_repeats == other.m_repeats;
 }
 
 } // namespace WebCore
