@@ -890,9 +890,6 @@ imported/w3c/web-platform-tests/css/css-sizing/aspect-ratio/block-aspect-ratio-0
 # Passing since 313297@main.
 imported/w3c/web-platform-tests/css/css-transforms/ttwf-css-3d-polygon-cycle.html [ Pass ]
 
-# Passing since 313348@main.
-imported/w3c/web-platform-tests/css/cssom/font-family-serialization-001.html [ Failure ]
-
 # Passing since 313350@main.
 imported/w3c/web-platform-tests/css/selectors/featureless-005.html [ Pass ]
 
@@ -1434,6 +1431,7 @@ webkit.org/b/245716 imported/w3c/web-platform-tests/css/css-transforms/transform
 
 webkit.org/b/264579 imported/w3c/web-platform-tests/css/css-transforms/animation/transform-interpolation-perspective.html [ ImageOnlyFailure ]
 
+webkit.org/b/315151 imported/w3c/web-platform-tests/css/css-transforms/huge-length-tiny-scale.html [ Pass Timeout ]
 
 webkit.org/b/215799 imported/w3c/web-platform-tests/css/css-content/quotes-018.html [ ImageOnlyFailure ]
 webkit.org/b/215799 imported/w3c/web-platform-tests/css/css-content/quotes-025.html [ ImageOnlyFailure ]
@@ -1455,7 +1453,6 @@ webkit.org/b/237502 fast/dom/Range/getClientRects.html [ Failure ]
 # Tests that fail on other platforms, but pass on Glib ports. These are probably due to
 # things that work in TextureMapper, but not elsewhere.
 imported/w3c/web-platform-tests/css/css-transforms/3d-rendering-context-and-z-ordering-001.html [ Pass ]
-imported/w3c/web-platform-tests/css/css-transforms/huge-length-tiny-scale.html [ Pass ]
 imported/w3c/web-platform-tests/css/css-transforms/preserve3d-and-filter-no-perspective.html [ Pass ]
 imported/w3c/web-platform-tests/css/css-transforms/transform3d-scale-004.html [ Pass ]
 imported/w3c/web-platform-tests/css/css-transforms/transform3d-sorting-003.html [ Pass ]
@@ -2601,6 +2598,8 @@ fast/text/simple-line-layout-hyphenation-constrains.html [ ImageOnlyFailure ]
 
 webkit.org/b/132995 transitions/cancel-transition.html [ Failure Pass ]
 
+fast/css/view-transitions-webgl.html [ ImageOnlyFailure Pass ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Transitions-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
@@ -3313,6 +3312,8 @@ webkit.org/b/307140 imported/w3c/web-platform-tests/WebCryptoAPI/sign_verify/edd
 webkit.org/b/150806 imported/w3c/web-platform-tests/xhr/send-timeout-events.htm [ Failure Pass ]
 
 webkit.org/b/202736 [ Release ] http/wpt/cache-storage/quota-third-party.https.html [ Failure Pass ]
+
+webkit.org/b/296017 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/shape-image-021.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/203240 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/shape-image-025.html [ ImageOnlyFailure Pass ]
 
@@ -4914,7 +4915,7 @@ webkit.org/b/213783 webanimations/accelerated-animation-with-easing.html [ Pass 
 # Seek on live streams not implemented.
 webkit.org/b/280069 imported/w3c/web-platform-tests/webvtt/api/VTTRegion/non-visible-cue-with-region.html [ Failure Pass ]
 
-webkit.org/b/285921 media/media-source/media-source-seek-past-end.html [ Failure Crash ]
+webkit.org/b/285921 media/media-source/media-source-seek-past-end.html [ Failure Crash Pass ]
 
 imported/w3c/web-platform-tests/mixed-content/gen/top.meta/opt-in/img-tag.https.html [ Failure Pass ]
 imported/w3c/web-platform-tests/mixed-content/gen/top.meta/unset/img-tag.https.html [ Failure Pass ]

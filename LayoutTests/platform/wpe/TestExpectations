@@ -1278,6 +1278,9 @@ webkit.org/b/309863 [ arm64 ] media/video-seek-have-nothing.html [ Pass Failure 
 webkit.org/b/312150 [ arm64 ] imported/w3c/web-platform-tests/encoding/textdecoder-mistakes.any.html [ Failure ]
 webkit.org/b/312150 [ arm64 ] imported/w3c/web-platform-tests/encoding/textdecoder-mistakes.any.worker.html [ Failure ]
 
+webkit.org/b/315145 [ arm64 ] fast/images/animated-avif.html [ ImageOnlyFailure ]
+webkit.org/b/315145 [ arm64 ] imported/w3c/web-platform-tests/css/filter-effects/backdrop-filter-image-size-filter-size-mismatch.html [ ImageOnlyFailure ]
+
 [ arm64 ] imported/w3c/web-platform-tests/content-security-policy/frame-ancestors/frame-ancestors-none-block.html [ Failure Pass ]
 
 webkit.org/b/309575 imported/w3c/web-platform-tests/uievents/textInput/enter-textarea-contenteditable.html [ Pass Failure ]
