@@ -373,7 +373,7 @@ void PageClientImpl::didFailProvisionalLoadForMainFrame()
 
 void PageClientImpl::didCommitLoadForMainFrame(const String& mimeType, bool useCustomContentProvider)
 {
-    auto webView = this->webView();
+    RetainPtr webView = this->webView();
     [webView _hidePasswordView];
     [webView _setHasCustomContentView:useCustomContentProvider loadedMIMEType:mimeType];
     [contentView() _didCommitLoadForMainFrame];
@@ -387,7 +387,7 @@ void PageClientImpl::didCommitLoadForMainFrame(const String& mimeType, bool useC
 #endif
 
 #if ENABLE(SYSTEM_TEXT_EXTRACTION)
-    if (protect(*[webView _page])->preferences().systemTextExtractionEnabled())
+    if (webView && protect(*[webView _page])->preferences().systemTextExtractionEnabled())
         [webView _addTextExtractionAnnotation];
 #endif
 }
