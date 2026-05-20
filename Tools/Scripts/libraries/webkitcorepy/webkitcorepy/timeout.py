@@ -27,7 +27,6 @@ import os
 import signal
 import threading
 import time
-from unittest import mock
 
 from webkitcorepy import log, string_utils
 
@@ -57,6 +56,8 @@ class Timeout(object):
 
     class DisableAlarm(object):
         def __init__(self, patch=True):
+            from unittest import mock
+
             if patch:
                 self._patch = mock.patch('time.sleep', new=ORIGINAL_SLEEP)
             else:
@@ -148,6 +149,8 @@ class Timeout(object):
         return ORIGINAL_SLEEP(seconds)
 
     def __init__(self, seconds=1, handler=None, patch=True):
+        from unittest import mock
+
         if seconds <= 0:
             raise ValueError('Timeouts must be positive')
 
