@@ -58,6 +58,9 @@ WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 #import <pal/cf/CoreMediaSoftLink.h>
 #import <WebCore/CoreVideoSoftLink.h>
 
+#define MESSAGE_CHECK(assertion) MESSAGE_CHECK_BASE(assertion, m_connection)
+#define MESSAGE_CHECK_COMPLETION(assertion, completion) MESSAGE_CHECK_COMPLETION_BASE(assertion, m_connection, completion)
+
 namespace WebKit {
 using namespace WebCore;
 
@@ -198,6 +201,8 @@ void LibWebRTCCodecsProxy::createDecoder(VideoDecoderIdentifier identifier, WebC
 {
     assertIsCurrent(workQueue());
 
+    MESSAGE_CHECK_COMPLETION(!m_decoders.contains(identifier), callback(false));
+
     if (!codecString.isNull() && !validateCodecString(codecType, codecString)) {
         callback(false);
         return;
@@ -328,6 +333,9 @@ static bool validateEncoderConfiguration(WebCore::VideoCodecType codecType, cons
 void LibWebRTCCodecsProxy::createEncoder(VideoEncoderIdentifier identifier, WebCore::VideoCodecType codecType, const String& codecString, const Vector<std::pair<String, String>>& parameters, bool useLowLatency, bool useAnnexB, VideoEncoderScalabilityMode scalabilityMode, CompletionHandler<void(bool)>&& callback)
 {
     assertIsCurrent(workQueue());
+
+    MESSAGE_CHECK_COMPLETION(!m_encoders.contains(identifier), callback(false));
+
     std::map<std::string, std::string> rtcParameters;
     for (auto& parameter : parameters)
         rtcParameters.emplace(parameter.first.utf8().data(), parameter.second.utf8().data());
@@ -582,5 +590,8 @@ void LibWebRTCCodecsProxy::updateSharedPreferencesForWebProcess(SharedPreference
 }
 
 }
+
+#undef MESSAGE_CHECK
+#undef MESSAGE_CHECK_COMPLETION
 
 #endif
