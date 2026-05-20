@@ -2636,6 +2636,13 @@ bool Quirks::shouldPreventKeyframeEffectAcceleration(const KeyframeEffect& effec
     return target && target->element.localName() == "ea-network-nav"_s;
 }
 
+#if ENABLE(THREADED_ANIMATIONS)
+bool Quirks::shouldDisableThreadedAnimationsQuirk() const
+{
+    return needsQuirks() && m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::ShouldDisableThreadedAnimationsQuirk);
+}
+#endif
+
 bool Quirks::shouldEnterNativeFullscreenWhenCallingElementRequestFullscreenQuirk() const
 {
     QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
@@ -2754,6 +2761,10 @@ static void handleCNNQuirks(QuirksData& quirksData, const URL& /* quirksURL */, 
 
     // cnn.com rdar://119640248
     quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::NeedsFullscreenObjectFitQuirk);
+    // cnn.com rdar://176539646
+#if ENABLE(THREADED_ANIMATIONS)
+    quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::ShouldDisableThreadedAnimationsQuirk);
+#endif
 }
 
 #if PLATFORM(IOS_FAMILY)

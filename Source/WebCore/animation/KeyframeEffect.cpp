@@ -3237,7 +3237,7 @@ bool KeyframeEffect::canHaveAcceleratedRepresentation() const
         if (m_isAssociatedWithProgressBasedTimeline && settings.threadedScrollDrivenAnimationsEnabled())
             return true;
         if (!m_isAssociatedWithProgressBasedTimeline && settings.threadedTimeBasedAnimationsEnabled())
-            return true;
+            return !document->quirks().shouldDisableThreadedAnimationsQuirk();
     }
 
     return false;

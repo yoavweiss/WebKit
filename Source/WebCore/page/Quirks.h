@@ -325,6 +325,9 @@ public:
     bool NODELETE ensureCaptionVisibilityInFullscreenAndPictureInPicture() const;
 
     bool shouldPreventKeyframeEffectAcceleration(const KeyframeEffect&) const;
+#if ENABLE(THREADED_ANIMATIONS)
+    bool shouldDisableThreadedAnimationsQuirk() const;
+#endif
 
     bool shouldEnterNativeFullscreenWhenCallingElementRequestFullscreenQuirk() const;
 
