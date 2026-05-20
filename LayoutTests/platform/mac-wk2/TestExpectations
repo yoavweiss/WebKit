@@ -2317,3 +2317,8 @@ webkit.org/b/313764 [ Tahoe+ Debug ] webrtc/ephemeral-certificates-and-cnames.ht
 # webkit.org/b/315048 REGRESSION(313302@main): [macOS]: 2 tests in imported/w3c/web-platform-tests/dom/nodes/moveBefore are flaky crashes
 imported/w3c/web-platform-tests/dom/nodes/moveBefore/style-applies.html [ Skip ]
 imported/w3c/web-platform-tests/dom/nodes/moveBefore/throws-exception.html [ Skip ]
+
+# webkit.org/b/315211 REGRESSION(313507@main): [macOS Debug] ASSERTION FAILED: !activeOrigin->isSameOriginDomain(targetOrigin)
+[ Debug ] http/tests/site-isolation/page-lifecycle/unload.html [ Skip ]
+[ Debug ] http/tests/site-isolation/page-lifecycle/pagehide.html [ Skip ]
+[ Debug ] http/tests/site-isolation/page-lifecycle/pageswap.html [ Skip ]
