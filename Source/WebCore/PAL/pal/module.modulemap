@@ -14,6 +14,16 @@ module pal [system] {
         export *
     }
 
+    explicit module crypto {
+        umbrella "crypto"
+
+        explicit module * {
+            export *
+        }
+
+        export *
+    }
+
     explicit module Core {
         umbrella "."
 
