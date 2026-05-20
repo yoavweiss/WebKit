@@ -7986,6 +7986,12 @@ class ScanBuildWithoutChange(ScanBuild):
                 message = 'Patch {} does not build'.format(patch_id)
             self.build.buildFinished([message], FAILURE)
         elif rc == FAILURE:
+            pr_number = self.getProperty('github.number')
+            if pr_number and self.getProperty('github.base.ref') != 'main':
+                message = 'Unable to build WebKit without PR, please check manually'
+                self.descriptionDone = message
+                self.build.buildFinished([message], FAILURE)
+                return
             message = 'Unable to build WebKit without change, retrying build'
             self.descriptionDone = message
             self.send_email_for_unexpected_build_failure()
