@@ -91,6 +91,7 @@ bool doesGC(Graph& graph, Node* node)
     case ArithPow:
     case ArithSqrt:
     case ArithRandom:
+    case DateNow:
     case ArithRound:
     case ArithFloor:
     case ArithCeil:

@@ -919,6 +919,7 @@ bool LoopUnrollingPhase::LoopData::isNumericComputationNode(Node* node)
     case ArithF16Round:
     case ArithPow:
     case ArithRandom:
+    case DateNow:
     case ArithRound:
     case ArithFloor:
     case ArithCeil:

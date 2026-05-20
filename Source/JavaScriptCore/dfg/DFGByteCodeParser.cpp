@@ -3838,6 +3838,14 @@ auto ByteCodeParser::handleIntrinsicCall(Node* callee, Operand resultOperand, Ca
             setResult(addToGraph(ArithRandom));
             return CallOptimizationResult::Inlined;
         }
+
+        case DateNowIntrinsic: {
+            if (!is64Bit())
+                return CallOptimizationResult::DidNothing;
+            insertChecks();
+            setResult(addToGraph(DateNow));
+            return CallOptimizationResult::Inlined;
+        }
             
         case DFGTrueIntrinsic: {
             insertChecks();

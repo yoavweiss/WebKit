@@ -48,7 +48,7 @@ const ClassInfo DateConstructor::s_info = { "Function"_s, &InternalFunction::s_i
 @begin dateConstructorTable
   parse     dateParse   DontEnum|Function 1
   UTC       dateUTC     DontEnum|Function 7
-  now       dateNow     DontEnum|Function 0
+  now       dateNow     DontEnum|Function 0 DateNowIntrinsic
 @end
 */
 

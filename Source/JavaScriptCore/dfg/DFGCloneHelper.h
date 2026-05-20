@@ -208,6 +208,7 @@ BasicBlock* CloneHelper::cloneBlock(BasicBlock* const block, const CustomizeSucc
     CLONE_STATUS(DataViewGetInt, Common) \
     CLONE_STATUS(DataViewSet, Common) \
     CLONE_STATUS(DateGetTime, Common) \
+    CLONE_STATUS(DateNow, Common) \
     CLONE_STATUS(DateSetTime, Common) \
     CLONE_STATUS(Dec, Common) \
     CLONE_STATUS(DeleteById, Common) \

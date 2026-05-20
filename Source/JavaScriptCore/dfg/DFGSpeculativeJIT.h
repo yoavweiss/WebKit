@@ -1810,6 +1810,7 @@ public:
 #endif
     void compileStringSplit(Node*);
     void compileStringMatch(Node*);
+    void compileDateNow(Node*);
     void compileDateGet(Node*);
     void compileDateSet(Node*);
     void compileGlobalIsNaN(Node*);

@@ -817,6 +817,7 @@ bool safeToExecute(AbstractStateType& state, Graph& graph, Node* node, bool igno
     case StringReplaceAll:
     case StringReplaceRegExp:
     case ArithRandom:
+    case DateNow:
     case ArithIMul:
     case TryGetById:
     case StringLocaleCompare:

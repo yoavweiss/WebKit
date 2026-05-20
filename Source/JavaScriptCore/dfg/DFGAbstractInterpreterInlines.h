@@ -1508,6 +1508,11 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
         break;
     }
 
+    case DateNow: {
+        setNonCellTypeForNode(node, SpecDoubleReal);
+        break;
+    }
+
     case ArithRound:
     case ArithFloor:
     case ArithCeil:

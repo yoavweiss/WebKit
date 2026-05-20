@@ -1268,6 +1268,11 @@ private:
             break;
         }
 
+        case DateNow: {
+            setPrediction(SpecDoubleReal);
+            break;
+        }
+
         case MapOrSetDelete:
         case DeleteByVal:
         case DeleteById:

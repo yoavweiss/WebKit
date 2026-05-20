@@ -888,7 +888,8 @@ private:
             break;
         }
 
-        case ArithRandom: {
+        case ArithRandom:
+        case DateNow: {
             node->setResult(NodeResultDouble);
             break;
         }

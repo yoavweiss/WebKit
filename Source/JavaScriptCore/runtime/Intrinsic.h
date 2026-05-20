@@ -71,6 +71,7 @@ namespace JSC {
     macro(BooleanConstructorIntrinsic) \
     macro(CharCodeAtIntrinsic) \
     macro(CharAtIntrinsic) \
+    macro(DateNowIntrinsic) \
     macro(DatePrototypeGetTimeIntrinsic) \
     macro(DatePrototypeGetFullYearIntrinsic) \
     macro(DatePrototypeGetUTCFullYearIntrinsic) \

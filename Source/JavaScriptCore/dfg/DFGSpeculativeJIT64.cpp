@@ -6391,6 +6391,10 @@ void SpeculativeJIT::compile(Node* node)
         break;
     }
 
+    case DateNow:
+        compileDateNow(node);
+        break;
+
     case DateGetInt32OrNaN:
     case DateGetTime:
         compileDateGet(node);

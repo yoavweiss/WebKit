@@ -393,6 +393,11 @@ void clobberize(Graph& graph, Node* node, const ReadFunctor& read, const WriteFu
         write(MathDotRandomState);
         return;
 
+    case DateNow:
+        read(WallClock);
+        write(WallClock);
+        return;
+
     case EnumeratorNextUpdatePropertyName: {
         def(PureValue(node, node->enumeratorMetadata().toRaw()));
         return;

@@ -1944,6 +1944,9 @@ private:
             compileFilterICStatus();
             codeGenerationResult = CodeGenerationResult::NotGenerated;
             break;
+        case DateNow:
+            compileDateNow();
+            break;
         case DateGetInt32OrNaN:
         case DateGetTime:
             compileDateGet();
@@ -21432,6 +21435,11 @@ IGNORE_CLANG_WARNINGS_END
                 RELEASE_ASSERT_NOT_REACHED();
             }
         }
+    }
+
+    void compileDateNow()
+    {
+        setDouble(vmCall(Double, operationDateNow));
     }
 
     void compileDateGet()
