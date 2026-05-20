@@ -72,8 +72,8 @@ class PatchIncrementalBuild(Task):
     patch: str
 
     def __enter__(self):
-        log.info('Apply patch: git apply -3 --numstat --apply')
-        git = subprocess.run(('git', 'apply', '-3', '--numstat', '--apply'),
+        log.info('Apply patch: git -C %s apply -3 --numstat --apply', str(self.source_dir))
+        git = subprocess.run(('git', '-C', self.source_dir, 'apply', '-3', '--numstat', '--apply'),
                              capture_output=True, input=self.patch, text=True)
         if git.returncode:
             sys.exit(git.stderr)
@@ -81,14 +81,14 @@ class PatchIncrementalBuild(Task):
             # Parse --numstat output lines like:
             # "1D\t1\tSource/WebKit/UIProcess/WebBackForwardList.cpp"
             # to track the lines changed by the patch.
-            Path(line.split('\t', maxsplit=3)[2])
+            self.source_dir / line.split('\t', maxsplit=3)[2]
             for line in git.stdout.splitlines()
         ]
 
     def __exit__(self, *args):
         before_apply = [(path, path.stat()) for path in self.paths_patched]
-        log.info('Reverse patch: git apply -3 --reverse')
-        git = subprocess.run(('git', 'apply', '-3', '--reverse'),
+        log.info('Reverse patch: git -C %s apply -3 --reverse', str(self.source_dir))
+        git = subprocess.run(('git', '-C', self.source_dir, 'apply', '-3', '--reverse'),
                              capture_output=True, input=self.patch, text=True)
         log.info('Reset file modification times for: %s',
                  ', '.join(map(str, self.paths_patched)))
@@ -96,7 +96,7 @@ class PatchIncrementalBuild(Task):
             os.utime(path, ns=(info.st_atime_ns, info.st_mtime_ns))
         if git.returncode:
             sys.exit(git.stderr)
-        subprocess.run(('git', 'update-index', '--remove', *self.paths_patched),
+        subprocess.run(('git', '-C', self.source_dir, 'update-index', '--remove', *self.paths_patched),
                        check=True)
 
 
