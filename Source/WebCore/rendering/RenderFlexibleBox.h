@@ -109,11 +109,13 @@ public:
 
     bool NODELETE isColumnOrRowReverse() const;
     bool NODELETE isWrapReverse() const;
+    bool NODELETE isMultiline() const;
     bool NODELETE mainAxisIsFlexItemInlineAxis(const RenderBox&) const;
     ItemPosition alignmentForFlexItem(const RenderBox&) const;
     Style::FlexBasis flexBasisForFlexItem(const RenderBox&) const;
     bool hasDefiniteCrossSizeForFlexItem(const RenderBox& flexItem) const;
     bool canResolveCrossSizeFromAspectRatioDuringLayout() const;
+    bool hasStretchedFlexItemWithAspectRatio() const;
 
 protected:
     void computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const override;
@@ -159,7 +161,6 @@ private:
 
     bool NODELETE isColumnFlow() const;
     bool NODELETE isLeftToRightFlow() const;
-    bool NODELETE isMultiline() const;
     const Style::PreferredSize& NODELETE preferredMainSizeLengthForFlexItem(const RenderBox&) const LIFETIME_BOUND;
     const Style::MinimumSize& NODELETE minMainSizeLengthForFlexItem(const RenderBox&) const LIFETIME_BOUND;
     const Style::MaximumSize& NODELETE maxMainSizeLengthForFlexItem(const RenderBox&) const LIFETIME_BOUND;

@@ -5002,8 +5002,6 @@ imported/w3c/web-platform-tests/css/css-writing-modes/test-plan/req-tcu-font.htm
 imported/w3c/web-platform-tests/css/cssom-view/smooth-scrollIntoView-with-smooth-fragment-scroll-iframe.html [ Skip ]
 imported/w3c/web-platform-tests/css/cssom-view/smooth-scroll-nonstop.html [ Skip ] # passes few subtests
 
-webkit.org/b/219343 imported/w3c/web-platform-tests/css/css-flexbox/aspect-ratio-intrinsic-size-005.html [ ImageOnlyFailure ]
-
 webkit.org/b/145176 imported/w3c/web-platform-tests/css/css-flexbox/flexbox_align-items-stretch-3.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-flexbox/select-element-multiple.html [ ImageOnlyFailure ]
 webkit.org/b/210093 imported/w3c/web-platform-tests/css/css-flexbox/select-element-zero-height-001.html [ ImageOnlyFailure ]

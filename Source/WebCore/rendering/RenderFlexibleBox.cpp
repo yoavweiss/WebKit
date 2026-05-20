@@ -889,6 +889,21 @@ static bool flexItemHasAspectRatio(const RenderBox& flexItem)
         || isSVGRootWithIntrinsicAspectRatio(flexItem);
 }
 
+bool RenderFlexibleBox::hasStretchedFlexItemWithAspectRatio() const
+{
+    for (auto& flexItem : childrenOfType<RenderBox>(*this)) {
+        if (flexItem.isOutOfFlowPositioned() || flexItem.isExcludedFromNormalLayout())
+            continue;
+        if (!flexItemHasAspectRatio(flexItem))
+            continue;
+        if (alignmentForFlexItem(flexItem) == ItemPosition::Stretch
+            && !hasAutoMarginsInCrossAxis(flexItem)
+            && preferredCrossSizeLengthForFlexItem(flexItem).isAuto())
+            return true;
+    }
+    return false;
+}
+
 template<typename SizeType> std::optional<LayoutUnit> RenderFlexibleBox::computeMainAxisExtentForFlexItem(RenderBox& flexItem, const SizeType& size)
 {
     // If we have a horizontal flow, that means the main size is the width.

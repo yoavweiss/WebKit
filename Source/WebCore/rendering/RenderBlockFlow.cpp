@@ -757,6 +757,28 @@ void RenderBlockFlow::layoutBlock(RelayoutChildren relayoutChildren, LayoutUnit 
     }
 }
 
+static bool formattingContextRootPreferredWidthsDependOnOwnHeight(const RenderBlock& formattingContextRoot)
+{
+    ASSERT(formattingContextRoot.createsNewFormattingContext());
+
+    if (auto* flexBox = dynamicDowncast<RenderFlexibleBox>(formattingContextRoot)) {
+        // The flex cross-size override that drives this dependency is only applied to a flex item
+        // when hasDefiniteCrossSizeForFlexItem(item) is true, which per
+        // https://drafts.csswg.org/css-flexbox/#definite-sizes section 9.8.1 requires a single-line
+        // flex container:
+        //   "If a single-line flex container has a definite cross size, the automatic preferred outer
+        //    cross size of any stretched flex items is the flex container's inner cross size (clamped
+        //    to the flex item's min and max cross size) and is considered definite."
+        // In multi-line containers each line's cross size is driven by its own items, so the
+        // container's preferred widths cannot depend on its own height through this mechanism.
+        if (flexBox->isMultiline())
+            return false;
+        if (flexBox->hasStretchedFlexItemWithAspectRatio())
+            return true;
+    }
+    return false;
+}
+
 void RenderBlockFlow::dirtyForLayoutFromPercentageHeightDescendant(RenderBox& descendant)
 {
     // Let's not dirty the height percentage descendant when it has an absolutely positioned containing block ancestor. We should be able to dirty such boxes through the regular invalidation logic.
@@ -764,6 +786,13 @@ void RenderBlockFlow::dirtyForLayoutFromPercentageHeightDescendant(RenderBox& de
         if (ancestor->isOutOfFlowPositioned())
             return;
     }
+
+    // When the descendant is itself a formatting context root whose preferred widths depend on its own
+    // height (e.g. a flex container with a stretched aspect-ratio item that takes a cross-size override
+    // from the container), our height change can leave its cached preferred widths stale.
+    if (CheckedPtr formattingContextRoot = dynamicDowncast<RenderBlock>(descendant); formattingContextRoot && formattingContextRoot->createsNewFormattingContext()
+        && formattingContextRootPreferredWidthsDependOnOwnHeight(*formattingContextRoot))
+        descendant.setNeedsPreferredWidthsUpdate();
 
     for (CheckedPtr<RenderElement> renderer = &descendant; renderer && renderer != this && !renderer->normalChildNeedsLayout(); renderer = renderer->container()) {
         renderer->setChildNeedsLayout(MarkingBehavior::MarkOnlyThis);
