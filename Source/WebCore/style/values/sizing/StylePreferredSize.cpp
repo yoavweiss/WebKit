@@ -25,6 +25,7 @@
 #include "config.h"
 #include "StylePreferredSize.h"
 
+#include "StyleCalculationValue.h"
 #include "StyleFlexBasis.h"
 #include "StyleMinimumSize.h"
 

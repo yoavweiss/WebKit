@@ -32,6 +32,7 @@
 #include "CSSProperty.h"
 #include "CSSSubstitutionValue.h"
 #include "CSSValue.h"
+#include <wtf/Function.h>
 
 namespace WebCore {
 

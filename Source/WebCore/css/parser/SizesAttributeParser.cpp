@@ -34,6 +34,7 @@
 #include "CSSCalcTree+Evaluation.h"
 #include "CSSCalcTree+Parser.h"
 #include "CSSCalcTree+Simplification.h"
+#include "CSSCalcTree.h"
 #include "CSSParserTokenRange.h"
 #include "CSSPrimitiveNumericCategory.h"
 #include "CSSPrimitiveNumericRange.h"

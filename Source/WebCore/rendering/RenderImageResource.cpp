@@ -31,6 +31,7 @@
 #include "CachedImage.h"
 #include "NullGraphicsContext.h"
 #include "RenderElement.h"
+#include "RenderObjectDocument.h"
 #include "RenderStyle+GettersInlines.h"
 #include "StyleCachedImage.h"
 #include "StyleInvalidImage.h"
