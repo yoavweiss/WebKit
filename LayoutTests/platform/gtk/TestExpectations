@@ -355,7 +355,6 @@ fast/forms/validation-message-on-textarea.html [ Skip ]
 webkit.org/b/301556 transforms/2d/zoom-menulist.html [ Skip ]
 
 webkit.org/b/137096 svg/W3C-SVG-1.1/text-altglyph-01-b.svg [ Failure ]
-webkit.org/b/137096 svg/custom/altglyph.svg [ Failure ]
 webkit.org/b/137096 svg/text/text-altglyph-01-b.svg [ Failure ]
 
 # Since r200320 resource-timing feature is a runtime flag.
@@ -821,6 +820,9 @@ webkit.org/b/211566 http/tests/resourceLoadStatistics/exemptDomains/app-bound-do
 # Test is flaky timing out. Also skipped in Mac and iOS.
 editing/selection/select-bidi-run.html [ Skip ]
 
+# 'beginDragWithFiles' is only implemented in Mac. All other platforms skip this test.
+fast/events/drop-with-file-paths.html [ Skip ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Tests timing out
 #////////////////////////////////////////////////////////////////////////////////////////
@@ -828,9 +830,6 @@ editing/selection/select-bidi-run.html [ Skip ]
 #////////////////////////////////////////////////////////////////////////////////////////
 # 7. TESTS WITH ARCHITECTURE-SPECIFIC RESULTS
 #////////////////////////////////////////////////////////////////////////////////////////
-
-# Fails on 32-bit release and 64-bit debug builders
-webkit.org/b/83560 fast/events/drop-with-file-paths.html [ Failure ]
 
 # Tests passing in GTK3 (begin).
 # This test print console messages in GTK4.
@@ -898,7 +897,6 @@ webkit.org/b/157179 fast/forms/drag-out-of-textarea.html [ Failure ]
 webkit.org/b/157179 fast/forms/file/file-input-reset-validation.html [ Failure ]
 webkit.org/b/157179 fast/forms/file/file-input-empty-validation.html [ Failure ]
 webkit.org/b/157179 fast/forms/range/slider-delete-while-dragging-thumb.html [ Failure ]
-webkit.org/b/157179 fast/lists/drag-into-marker.html [ Failure ]
 webkit.org/b/157179 http/tests/security/resources/drag-drop-allowed.html [ Skip ]
 webkit.org/b/157179 editing/pasteboard/cleanup-on-move.html [ Failure ]
 webkit.org/b/157179 editing/pasteboard/drag-list-item.html [ Failure ]
@@ -1012,9 +1010,6 @@ webkit.org/b/250610 fast/scrolling/rtl-scrollbars-listbox-scroll.html [ Skip ]
 webkit.org/b/250610 scrollbars/scroll-rtl-or-bt-layer.html [ Skip ]
 webkit.org/b/250610 fast/events/wheel/wheel-event-destroys-overflow.html [ Skip ]
 
-# Missing glyph symbol is not rendered properly.
-webkit.org/b/140252 fast/text/emphasis-vertical.html [ Failure ]
-
 webkit.org/b/142479 svg/text/select-textLength-spacingAndGlyphs-squeeze-2.svg [ Failure ]
 webkit.org/b/142479 svg/text/select-textLength-spacingAndGlyphs-squeeze-3.svg [ Failure ]
 webkit.org/b/142479 svg/text/select-textLength-spacingAndGlyphs-squeeze-4.svg [ Failure ]
@@ -1044,10 +1039,6 @@ webkit.org/b/168427 fast/scrolling/rtl-scrollbars-listbox.html [ ImageOnlyFailur
 webkit.org/b/168427 fast/scrolling/rtl-scrollbars-overflow-contents.html [ ImageOnlyFailure ]
 
 webkit.org/b/172270 fast/text/font-interstitial-invisible-width-while-loading.html [ Failure ]
-
-webkit.org/b/172271 fast/text/softbank-emoji.html [ Failure ]
-
-webkit.org/b/172811 fast/forms/number/number-appearance-spinbutton-disabled-readonly.html [ Failure ]
 
 webkit.org/b/174460 fast/canvas/canvas-blend-image.html [ Failure ]
 webkit.org/b/174460 fast/canvas/canvas-blend-solid.html [ Failure ]
@@ -1228,7 +1219,6 @@ webgl/2.0.y/conformance2/textures/misc/tex-image-with-bad-args-from-dom-elements
 
 # Flaky tests on Aug-2023
 webkit.org/b/261024 imported/w3c/web-platform-tests/media-source/mediasource-play.html [ Failure Pass ]
-webkit.org/b/261024 inspector/canvas/recording-webgl-full.html [ Failure ]
 
 imported/w3c/web-platform-tests/css/filter-effects/backdrop-filter-plus-filter.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/filter-effects/filtered-block-is-container.html [ ImageOnlyFailure ]
