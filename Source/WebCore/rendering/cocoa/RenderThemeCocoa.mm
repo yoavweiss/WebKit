@@ -1849,11 +1849,16 @@ static RoundedShape shapeForButton(const RenderElement& box, const FloatRect& re
         controlRadius = minDimension / 2;
 
         // If trying to make the button pill-shaped would make it a circle
-        // or nearly circle, use the non-pill shape instead.
-        const auto sizeRatio = rect.width() / rect.height();
-        const auto limitingRatio = 1.5f;
-        if (limitingRatio > sizeRatio && sizeRatio > 1 / limitingRatio)
-            controlRadius = radiusForLargeButton;
+        // or nearly a circle, use the non-pill shape instead. Compute the
+        // ratio from the unsnapped logical dimensions so identical buttons
+        // at different positions don't fall on different sides of the
+        // threshold due to device pixel snapping.
+        if (CheckedPtr renderBox = dynamicDowncast<RenderBox>(box)) {
+            const auto sizeRatio = (renderBox->width() / renderBox->height()).toFloat();
+            const auto limitingRatio = 1.5f;
+            if (limitingRatio > sizeRatio && sizeRatio > 1 / limitingRatio)
+                controlRadius = radiusForLargeButton;
+        }
     }
 #endif
 
