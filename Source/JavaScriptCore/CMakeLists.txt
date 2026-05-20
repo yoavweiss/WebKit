@@ -423,8 +423,14 @@ set(LLIntSettingsExtractor_PRIVATE_INCLUDE_DIRECTORIES
     $<TARGET_PROPERTY:JavaScriptCore,INCLUDE_DIRECTORIES>
     "${JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS_DIR}/JavaScriptCore"
 )
-set(LLIntSettingsExtractor_FRAMEWORKS ${JavaScriptCore_FRAMEWORKS})
-set(LLIntSettingsExtractor_DEPENDENCIES JavaScriptCore_CopyHeaders JavaScriptCore_CopyPrivateHeaders)
+
+set(LLIntSettingsExtractor_FRAMEWORKS)
+set(LLIntSettingsExtractor_DEPENDENCIES
+    JavaScriptCore_CopyHeaders
+    JavaScriptCore_CopyPrivateHeaders
+    WTF_CopyHeaders
+    bmalloc_CopyHeaders
+)
 WEBKIT_EXECUTABLE(LLIntSettingsExtractor)
 
 # LLIntSettingsExtractor target needs to have a direct or indirect
@@ -443,8 +449,15 @@ set(LLIntOffsetsExtractor_PRIVATE_INCLUDE_DIRECTORIES
     $<TARGET_PROPERTY:JavaScriptCore,INCLUDE_DIRECTORIES>
     "${JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS_DIR}/JavaScriptCore"
 )
-set(LLIntOffsetsExtractor_FRAMEWORKS ${JavaScriptCore_FRAMEWORKS})
-set(LLIntOffsetsExtractor_DEPENDENCIES JavaScriptCore_CopyHeaders JavaScriptCore_CopyPrivateHeaders JSCBuiltins)
+
+set(LLIntOffsetsExtractor_FRAMEWORKS)
+set(LLIntOffsetsExtractor_DEPENDENCIES
+    JSCBuiltins
+    JavaScriptCore_CopyHeaders
+    JavaScriptCore_CopyPrivateHeaders
+    WTF_CopyHeaders
+    bmalloc_CopyHeaders
+)
 WEBKIT_EXECUTABLE(LLIntOffsetsExtractor)
 
 # The build system will execute asm.rb every time LLIntOffsetsExtractor's mtime is newer than
