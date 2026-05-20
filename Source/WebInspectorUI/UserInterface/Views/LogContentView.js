@@ -257,7 +257,7 @@ WI.LogContentView = class LogContentView extends WI.ContentView
 
         if (this._isMessageFilteredOut(messageView.element)) {
             this._immediatelyHiddenMessages.add(messageView);
-            this._showHiddenMessagesBannerIfNeeded();
+            this._updateHiddenMessagesBanner();
         }
 
         this._lastMessageView = messageView;
@@ -531,7 +531,7 @@ WI.LogContentView = class LogContentView extends WI.ContentView
             this._immediatelyHiddenMessages.add(this._lastMessageView);
         }
 
-        this._showHiddenMessagesBannerIfNeeded();
+        this._updateHiddenMessagesBanner();
     }
 
     _handleContextMenuEvent(event)
@@ -887,7 +887,7 @@ WI.LogContentView = class LogContentView extends WI.ContentView
         if (this._currentSearchQuery)
             this.performSearch(this._currentSearchQuery);
 
-        this._showHiddenMessagesBannerIfNeeded();
+        this._updateHiddenMessagesBanner();
 
         this._scopesWithMessages.clear();
         this._showOrHideConditionallyVisibleScopeBarItemsAsNeeded();
@@ -932,15 +932,12 @@ WI.LogContentView = class LogContentView extends WI.ContentView
     _messageSourceBarSelectionDidChange(event)
     {
         this._filterMessageElements(this._allMessageElements());
-
-        this._showHiddenMessagesBannerIfNeeded();
     }
 
     _scopeBarSelectionDidChange(event)
     {
         this._filterMessageElements(this._allMessageElements());
 
-        this._showHiddenMessagesBannerIfNeeded();
         this._showOrHideConditionallyVisibleScopeBarItemsAsNeeded();
     }
 
@@ -956,7 +953,6 @@ WI.LogContentView = class LogContentView extends WI.ContentView
             let classList = messageElement.classList;
             if (visible) {
                 classList.remove(WI.LogContentView.FilteredOutStyleClassName);
-                this._immediatelyHiddenMessages.delete(messageElement.__messageView);
             } else {
                 this._selectedMessages.remove(messageElement);
                 classList.remove(WI.LogContentView.SelectedStyleClassName);
@@ -1198,6 +1194,7 @@ WI.LogContentView = class LogContentView extends WI.ContentView
         if (this._currentSearchQuery === "") {
             this.element.classList.remove(WI.LogContentView.SearchInProgressStyleClassName);
             this.dispatchEventToListeners(WI.ContentView.Event.NumberOfSearchResultsDidChange);
+            this._updateHiddenMessagesBanner();
             return;
         }
 
@@ -1206,6 +1203,7 @@ WI.LogContentView = class LogContentView extends WI.ContentView
             this._findBanner.numberOfResults = 0;
             this.element.classList.remove(WI.LogContentView.SearchInProgressStyleClassName);
             this.dispatchEventToListeners(WI.ContentView.Event.NumberOfSearchResultsDidChange);
+            this._updateHiddenMessagesBanner();
             return;
         }
 
@@ -1239,6 +1237,8 @@ WI.LogContentView = class LogContentView extends WI.ContentView
             this._selectedSearchMatch.highlight.classList.remove(WI.LogContentView.SelectedStyleClassName);
             this._selectedSearchMatch = null;
         }
+
+        this._updateHiddenMessagesBanner();
     }
 
     searchHidden()
@@ -1315,8 +1315,12 @@ WI.LogContentView = class LogContentView extends WI.ContentView
         this._provisionalMessages = [];
     }
 
-    _showHiddenMessagesBannerIfNeeded()
+    _updateHiddenMessagesBanner()
     {
+        for (let messageView of this._immediatelyHiddenMessages)
+            if (!this._isMessageFilteredOut(messageView.element))
+                this._immediatelyHiddenMessages.delete(messageView);
+
         if (!this._immediatelyHiddenMessages.size) {
             if (this._hiddenMessagesBannerElement)
                 this._hiddenMessagesBannerElement.remove();
