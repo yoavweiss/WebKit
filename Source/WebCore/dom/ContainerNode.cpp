@@ -1475,6 +1475,7 @@ ExceptionOr<void> ContainerNode::moveBefore(Node& node, RefPtr<Node>&& refChild)
     {
         WidgetHierarchyUpdatesSuspensionScope suspendWidgetHierarchyUpdates;
         ScriptDisallowedScope::InMainThread scriptDisallowedScope;
+        ChildListMutationScope(*oldParent).willRemoveChild(node);
 
         if (oldNextSibling) {
             oldNextSibling->setPreviousSibling(oldPreviousSibling.get());
@@ -1504,6 +1505,7 @@ ExceptionOr<void> ContainerNode::moveBefore(Node& node, RefPtr<Node>&& refChild)
 
         node.setTreeScopeRecursively(treeScope());
         node.updateAncestorConnectedSubframeCountForInsertion();
+        ChildListMutationScope(*this).childAdded(node);
     }
 
     auto newParentIsConnected = isConnected();
@@ -1524,8 +1526,6 @@ ExceptionOr<void> ContainerNode::moveBefore(Node& node, RefPtr<Node>&& refChild)
 
     oldParent->childrenChanged(removalChildChange);
     childrenChanged(makeChildChangeForInsertion(*this, node, refChild, ChildChange::Source::API, ReplacedAllChildren::No));
-
-    // FIXME(281223): Queue tree mutation records.
 
     return { };
 }

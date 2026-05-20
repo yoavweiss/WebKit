@@ -1,4 +1,4 @@
 
-FAIL [Connected move] MutationObserver removal + insertion is tracked by moveBefore() assert_equals: MutationObserver has emitted a single mutation list expected 1 but got 0
-FAIL [Disconnected move] MutationObserver removal + insertion is tracked by moveBefore() assert_equals: MutationObserver has emitted a single mutation list expected 1 but got 0
+PASS [Connected move] MutationObserver removal + insertion is tracked by moveBefore()
+PASS [Disconnected move] MutationObserver removal + insertion is tracked by moveBefore()
 
