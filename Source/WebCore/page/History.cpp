@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2026 Apple Inc. All rights reserved.
+ * Copyright (C) 2007-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -42,9 +42,11 @@
 #include "Logging.h"
 #include "Navigation.h"
 #include "NavigationScheduler.h"
+#include "OriginAccessPatterns.h"
 #include "Page.h"
 #include "ScriptController.h"
 #include "ScriptWrappableInlines.h"
+#include "SecurityOrigin.h"
 #include "Settings.h"
 #include <wtf/CheckedArithmetic.h>
 #include <wtf/MainThread.h>
@@ -284,18 +286,23 @@ ExceptionOr<void> History::stateObjectAdded(RefPtr<SerializedScriptValue>&& data
         if (!protocolHostAndPortAreEqual(fullURL, documentURL) || fullURL.user() != documentURL.user() || fullURL.password() != documentURL.password())
             return createBlockedURLSecurityErrorWithMessageSuffix("Protocols, domains, ports, usernames, and passwords must match."_s);
 
-        // https://html.spec.whatwg.org/#can-have-its-url-rewritten
-        if (!fullURL.protocolIsInHTTPFamily()) {
-            if (fullURL.protocolIsFile()) {
-                bool hasPathRestriction = !document->quirks().shouldDisablePushStateFilePathRestrictions();
+        if (fullURL.protocolIsFile()
 #if PLATFORM(COCOA)
-                hasPathRestriction = hasPathRestriction && linkedOnOrAfterSDKWithBehavior(SDKAlignedBehavior::PushStateFilePathRestriction);
+            && linkedOnOrAfterSDKWithBehavior(SDKAlignedBehavior::PushStateFilePathRestriction)
 #endif
-                if (hasPathRestriction && fullURL.fileSystemPath() != documentURL.fileSystemPath())
-                    return createBlockedURLSecurityErrorWithMessageSuffix("Only differences in query and fragment are allowed for file: URLs."_s);
-            } else if (fullURL.path() != documentURL.path() || fullURL.query() != documentURL.query())
-                return createBlockedURLSecurityErrorWithMessageSuffix("Only differences in fragment are allowed for this URL scheme."_s);
+            && !document->quirks().shouldDisablePushStateFilePathRestrictions()
+            && fullURL.fileSystemPath() != documentURL.fileSystemPath()) {
+            return createBlockedURLSecurityErrorWithMessageSuffix("Only differences in query and fragment are allowed for file: URLs."_s);
         }
+
+        Ref documentSecurityOrigin = document->securityOrigin();
+        // We allow sandboxed documents, 'data:'/'file:' URLs, etc. to use 'pushState'/'replaceState' to modify the URL query and fragments.
+        // See https://bugs.webkit.org/show_bug.cgi?id=183028 for the compatibility concerns.
+        bool allowSandboxException = (documentSecurityOrigin->isLocal() || documentSecurityOrigin->isOpaque())
+            && documentURL.viewWithoutQueryOrFragmentIdentifier() == fullURL.viewWithoutQueryOrFragmentIdentifier();
+
+        if (!allowSandboxException && !documentSecurityOrigin->canRequest(fullURL, OriginAccessPatternsForWebProcess::singleton()) && (fullURL.path() != documentURL.path() || fullURL.query() != documentURL.query()))
+            return createBlockedURLSecurityErrorWithMessageSuffix("Paths and fragments must match for a sandboxed document."_s);
     }
 
     if (auto result = updateAndCheckStateObjectQuota(fullURL, data.get(), historyBehavior); result.hasException())
