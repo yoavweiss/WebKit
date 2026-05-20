@@ -752,6 +752,54 @@ function(_webkit_setup_swift_header_deps _target _stamp _header)
     endforeach ()
     list(REMOVE_DUPLICATES _deps)
 
+    # Collect all generated (binary-dir) headers/sources that Swift may import.
+    # ${_target}_HEADERS and ${_target}_DERIVED_SOURCES are fully populated by
+    # the time this deferred function runs. We find those that live under
+    # CMAKE_BINARY_DIR (i.e., produced by add_custom_command) and wire them into
+    # the ${_target}_SwiftGeneratedDeps placeholder target created at macro time.
+    # This covers both the header-emission add_custom_command and the main Swift
+    # compilation
+    set(_generated_files "")
+    foreach (_f IN LISTS ${_target}_HEADERS ${_target}_DERIVED_SOURCES)
+        cmake_path(IS_PREFIX CMAKE_BINARY_DIR "${_f}" NORMALIZE _in_build)
+        if (_in_build)
+            list(APPEND _generated_files "${_f}")
+        endif ()
+    endforeach ()
+    if (_generated_files)
+        # File-level DEPENDS must be fixed at target-creation time, so create a
+        # separate inner target and chain it into the placeholder.
+        add_custom_target(${_target}_SwiftGenFileOrderDeps DEPENDS ${_generated_files})
+        add_dependencies(${_target}_SwiftGeneratedDeps ${_target}_SwiftGenFileOrderDeps)
+    endif ()
+    # Ensure the main Swift compilation also waits for all generated files.
+    add_dependencies(${_target} ${_target}_SwiftGeneratedDeps)
+
+    # Make the main Swift compile a true (not order-only) consumer of the
+    # emit-clang-header stamp. The emit-clang-header custom command has a DEPFILE listing
+    # every C++ header the clang importer touched, so Ninja reruns it
+    # whenever any of them changes; that rerun touches ${_stamp}. CMake's
+    # Swift compile rule has no depfile of its own and ignores per-source
+    # OBJECT_DEPENDS (it generates a single build edge for the whole module),
+    # so we cannot wire the stamp directly into the swift compile inputs.
+    #
+    # Instead, generate a tiny empty .swift trigger file whose mtime tracks the
+    # stamp via add_custom_command. Adding the trigger to the target's swift
+    # sources makes the swift compile see it as an explicit input: when the
+    # stamp updates (i.e. a tracked C++ header changed), the trigger is
+    # re-touched, and Ninja re-invokes the swift compile.
+    set(_trigger_path "${CMAKE_CURRENT_BINARY_DIR}/${_target}_SwiftRebuildTrigger.swift")
+    if (NOT EXISTS "${_trigger_path}")
+        file(WRITE "${_trigger_path}" "// Auto-generated; mtime tracks ${_target}'s Swift emit-clang-header stamp.\n")
+    endif ()
+    add_custom_command(
+        OUTPUT "${_trigger_path}"
+        DEPENDS "${_stamp}"
+        COMMAND ${CMAKE_COMMAND} -E touch "${_trigger_path}"
+        COMMENT "Refreshing ${_target} Swift rebuild trigger"
+    )
+    target_sources(${_target} PRIVATE "${_trigger_path}")
+
     if (_deps)
         # Wrap the header-generation command in its own custom target so it
         # does NOT inherit cmake_object_order_depends_target_${_target} (which
@@ -901,6 +949,10 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
         else ()
             set(_swift_sources $<TARGET_PROPERTY:${_target},SOURCES>)
             set(_swift_sources $<FILTER:${_swift_sources},INCLUDE,\\.swift$>)
+            # Exclude the auto-generated rebuild-trigger source from emit-clang-header;
+            # otherwise emit-clang-header → stamp → trigger → emit-clang-header forms a cycle.
+            # The trigger is fed only into the main swift compile.
+            set(_swift_sources $<FILTER:${_swift_sources},EXCLUDE,_SwiftRebuildTrigger\\.swift$>)
         endif ()
 
         cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR include OUTPUT_VARIABLE _header_base_path)
@@ -950,10 +1002,14 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
 
         set(_header_tmp_path "${_header_path}.tmp")
         set(_header_stamp_path "${_header_path}.stamp")
+        # Placeholder ordering target. The deferred _webkit_setup_swift_header_deps
+        # call populates it with all generated (binary-dir) headers for this target
+        # once ${_target}_HEADERS and ${_target}_DERIVED_SOURCES are fully known.
+        add_custom_target(${_target}_SwiftGeneratedDeps)
         add_custom_command(
             OUTPUT ${_header_stamp_path}
             BYPRODUCTS ${_header_path}
-            DEPENDS ${_swift_sources} ${${_target}_SWIFT_TYPECHECK_EXTRA_DEPENDS}
+            DEPENDS ${_swift_sources} ${_target}_SwiftGeneratedDeps
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMAND
                 ${CMAKE_Swift_COMPILER} --original-swift-compiler=${ORIGINAL_Swift_COMPILER} -typecheck
@@ -969,6 +1025,7 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
                 -module-name ${_module_name}
                 -Xfrontend -emit-clang-header-min-access -Xfrontend internal
                 -emit-clang-header-path ${_header_tmp_path}
+                -track-system-dependencies
                 -emit-dependencies
             COMMAND
                 ${CMAKE_COMMAND} -E copy_if_different ${_header_tmp_path} ${_header_path}
