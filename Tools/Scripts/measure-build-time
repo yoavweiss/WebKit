@@ -71,6 +71,11 @@ class PatchIncrementalBuild(Task):
 
     patch: str
 
+    def __init__(self, args):
+        super().__init__(args)
+        self.unapply_patch = args.unapply_patch
+
+
     def __enter__(self):
         log.info('Apply patch: git -C %s apply -3 --numstat --apply', str(self.source_dir))
         git = subprocess.run(('git', '-C', self.source_dir, 'apply', '-3', '--numstat', '--apply'),
@@ -86,6 +91,8 @@ class PatchIncrementalBuild(Task):
         ]
 
     def __exit__(self, *args):
+        if not self.unapply_patch:
+            return
         before_apply = [(path, path.stat()) for path in self.paths_patched]
         log.info('Reverse patch: git -C %s apply -3 --reverse', str(self.source_dir))
         git = subprocess.run(('git', '-C', self.source_dir, 'apply', '-3', '--reverse'),
@@ -388,6 +395,8 @@ def main() -> None:
     parser.add_argument('--tests', nargs='+', default=[t.name for t in AVAILABLE_TESTS],
                         choices=[t.name for t in AVAILABLE_TESTS],
                         help='Which tests to run (default: all). Will skip test dependencies which are not listed.')
+    parser.add_argument('--unapply-patch', action=argparse.BooleanOptionalAction, default=False,
+                        help='Whether to undo changes made to the source directory between tests')
     parser.add_argument('--keep-going', action=argparse.BooleanOptionalAction, default=False,
                         help='Continue benchmarking after a build command has failed')
     parser.add_argument('--metric-key',
