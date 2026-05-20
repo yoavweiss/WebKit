@@ -34,6 +34,7 @@
 #include "StyleScaleTransformFunction.h"
 #include <wtf/MathExtras.h>
 #include <wtf/StdLibExtras.h>
+#include <wtf/TZoneMalloc.h>
 
 namespace WebCore {
 namespace Style {
@@ -46,22 +47,49 @@ struct SameSizeAsBorderValue {
 
 static_assert(sizeof(BorderValue) == sizeof(SameSizeAsBorderValue), "BorderValue should not grow");
 
+IGNORE_CLANG_WARNINGS_BEGIN("unused-private-field")
+
 struct SameSizeAsComputedStyle : CanMakeCheckedPtr<SameSizeAsComputedStyle> {
+    WTF_MAKE_TZONE_ALLOCATED(SameSizeAsComputedStyle);
+    WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(SameSizeAsComputedStyle);
     struct NonInheritedFlags {
-        unsigned m_bitfields[3];
+        unsigned display : 5;
+        unsigned originalDisplay : 5;
+        unsigned overflowX : 3;
+        unsigned overflowY : 3;
+        unsigned clear : 3;
+        unsigned position : 3;
+        unsigned unicodeBidi : 3;
+        unsigned floating : 3;
+        bool usesViewportUnits : 1;
+        bool usesContainerUnits : 1;
+        bool useTreeCountingFunctions : 1;
+        bool hasExplicitlyInheritedProperties : 1;
+        bool disallowsFastPathInheritance : 1;
+        bool emptyState : 1;
+        bool firstChildState : 1;
+        bool lastChildState : 1;
+        bool isLink : 1;
+        unsigned pseudoElementType : 5;
+        unsigned pseudoBits : 19;
+        unsigned textDecorationLine : 5;
     } m_nonInheritedFlags;
     struct InheritedFlags {
         unsigned m_bitfields[2];
     } m_inheritedFlags;
     void* nonInheritedDataRefs[1];
     void* inheritedDataRefs[2];
-    HashMap<PseudoElementIdentifier, std::unique_ptr<RenderStyle>> pseudos;
     void* dataRefSvgStyle;
+    HashMap<PseudoElementIdentifier, std::unique_ptr<RenderStyle>> pseudos;
 
 #if ASSERT_ENABLED || ENABLE(SECURITY_ASSERTIONS)
     bool deletionCheck;
 #endif
 };
+
+WTF_MAKE_TZONE_ALLOCATED_IMPL(SameSizeAsComputedStyle);
+
+IGNORE_CLANG_WARNINGS_END
 
 static_assert(sizeof(ComputedStyle) == sizeof(SameSizeAsComputedStyle), "ComputedStyle should stay small");
 
