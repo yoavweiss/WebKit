@@ -176,6 +176,18 @@ private:
             m_graph.block(i)->ensureTmps(newNumTmps);
     }
 
+    struct PrivateTmpRange {
+        unsigned base { 0 };
+        unsigned count { 0 };
+        Operand operandAt(unsigned i) const
+        {
+            ASSERT_UNUSED(count, i < count);
+            return Operand::tmp(base + i);
+        }
+    };
+
+    static unsigned tmpOffsetForInlineeOf(InlineStackEntry* caller);
+    PrivateTmpRange allocatePrivateTmps(unsigned slotCount);
 
     // Helper for min and max.
     template<typename ChecksFunctor>
@@ -1309,6 +1321,8 @@ private:
         BasicBlock* m_continuationBlock;
         BasicBlock* m_entryBlockForRecursiveTailCall { nullptr };
 
+        unsigned m_numPrivateTmps { 0 };
+
         Operand m_returnValue;
         
         // Speculations about variable types collected from the profiled code block,
@@ -1826,7 +1840,7 @@ void ByteCodeParser::inlineCall(Node* callTargetNode, Operand result, CallVarian
         inlineCallFrameStart.toLocal() + 1 +
         CallFrame::headerSizeInRegisters + codeBlock->numCalleeLocals());
     
-    ensureTmps((m_inlineStackTop->m_inlineCallFrame ? m_inlineStackTop->m_inlineCallFrame->tmpOffset : 0) + m_inlineStackTop->m_codeBlock->numTmps() + codeBlock->numTmps());
+    ensureTmps(tmpOffsetForInlineeOf(m_inlineStackTop) + codeBlock->numTmps());
 
     size_t argumentPositionStart = m_graph.m_argumentPositions.size();
 
@@ -10586,6 +10600,24 @@ void ByteCodeParser::linkBlocks(Vector<BasicBlock*>& unlinkedBlocks, Vector<Basi
     }
 }
 
+unsigned ByteCodeParser::tmpOffsetForInlineeOf(InlineStackEntry* caller)
+{
+    unsigned callerOffset = caller->m_inlineCallFrame ? caller->m_inlineCallFrame->tmpOffset : 0;
+    return callerOffset + caller->m_codeBlock->numTmps() + caller->m_numPrivateTmps;
+}
+
+auto ByteCodeParser::allocatePrivateTmps(unsigned slotCount) -> PrivateTmpRange
+{
+    InlineStackEntry* top = m_inlineStackTop;
+    unsigned currentTmpOffset = top->m_inlineCallFrame ? top->m_inlineCallFrame->tmpOffset : 0;
+    unsigned relativeBase = top->m_codeBlock->numTmps() + top->m_numPrivateTmps;
+
+    ensureTmps(currentTmpOffset + relativeBase + slotCount);
+    top->m_numPrivateTmps += slotCount;
+
+    return { relativeBase, slotCount };
+}
+
 ByteCodeParser::InlineStackEntry::InlineStackEntry(
     ByteCodeParser* byteCodeParser,
     CodeBlock* codeBlock,
@@ -10638,7 +10670,7 @@ ByteCodeParser::InlineStackEntry::InlineStackEntry(
         // The owner is the machine code block, and we already have a barrier on that when the
         // plan finishes.
         m_inlineCallFrame->baselineCodeBlock.setWithoutWriteBarrier(codeBlock->baselineVersion());
-        m_inlineCallFrame->setTmpOffset((m_caller->m_inlineCallFrame ? m_caller->m_inlineCallFrame->tmpOffset : 0) + m_caller->m_codeBlock->numTmps());
+        m_inlineCallFrame->setTmpOffset(tmpOffsetForInlineeOf(m_caller));
         m_inlineCallFrame->setStackOffset(inlineCallFrameStart.offset() - CallFrame::headerSizeInRegisters);
         m_inlineCallFrame->argumentCountIncludingThis = argumentCountIncludingThis;
         RELEASE_ASSERT(m_inlineCallFrame->argumentCountIncludingThis == argumentCountIncludingThis);
@@ -11837,31 +11869,21 @@ auto ByteCodeParser::handleArraySort(Node* callee, Operand resultOperand, CallVa
     // local to the block where the GetArrayLength lives, avoiding a CPS validation
     // failure from cross-block ordering of the inserted Check vs. its producer.
 
-    // Allocate fresh tmps for cross-block flow. `tmpLength` caches the array length once
-    // (fetched just before entering the outer loop) so the sort loop doesn't re-fetch
-    // butterfly+length every iteration, and so Commit can check length stability against
-    // the original pre-sort length.
-    //
-    // tmpBase is *relative* to the current inline frame: set()/get() remap through
-    // tmpOffset, while ensureTmps() is keyed off the absolute m_numTmps. We place our tmps
-    // at `current_frame_numTmps + maxNumCheckpointTmps` in relative coordinates so they
-    // sit above any inlined comparator's checkpoint tmps (whose inline-call-frame claims
-    // the slot range [tmpOffset + caller_numTmps, tmpOffset + caller_numTmps + callee_numTmps),
-    // where callee_numTmps <= maxNumCheckpointTmps). Then we ensureTmps() to the absolute
-    // upper bound so the parser's bounds check (operand.value() >= m_numTmps) accepts the
-    // remapped indices.
-    unsigned tmpBase = m_inlineStackTop->m_codeBlock->numTmps() + maxNumCheckpointTmps;
-    unsigned currentTmpOffset = m_inlineStackTop->m_inlineCallFrame ? m_inlineStackTop->m_inlineCallFrame->tmpOffset : 0;
-    ensureTmps(currentTmpOffset + tmpBase + 9);
-    Operand tmpI = Operand::tmp(tmpBase + 0);
-    Operand tmpJ = Operand::tmp(tmpBase + 1);
-    Operand tmpPivot = Operand::tmp(tmpBase + 2);
-    Operand tmpArray = Operand::tmp(tmpBase + 3);
-    Operand tmpCallee = Operand::tmp(tmpBase + 4);
-    Operand tmpComparator = Operand::tmp(tmpBase + 5);
-    Operand tmpCmpResult = Operand::tmp(tmpBase + 6);
-    Operand tmpScratch = Operand::tmp(tmpBase + 7);
-    Operand tmpLength = Operand::tmp(tmpBase + 8);
+    // Cross-block tmps. tmpLength caches the original length so Commit can detect
+    // mutation. The slots must not alias the inlined comparator's tmps -- if the
+    // comparator itself contains a sort that satisfies ArraySortIntrinsic, its
+    // private range would otherwise overlap ours and corrupt the JSArray cell.
+    constexpr unsigned numArraySortTmps = 9;
+    auto sortTmps = allocatePrivateTmps(numArraySortTmps);
+    Operand tmpI = sortTmps.operandAt(0);
+    Operand tmpJ = sortTmps.operandAt(1);
+    Operand tmpPivot = sortTmps.operandAt(2);
+    Operand tmpArray = sortTmps.operandAt(3);
+    Operand tmpCallee = sortTmps.operandAt(4);
+    Operand tmpComparator = sortTmps.operandAt(5);
+    Operand tmpCmpResult = sortTmps.operandAt(6);
+    Operand tmpScratch = sortTmps.operandAt(7);
+    Operand tmpLength = sortTmps.operandAt(8);
 
     // Stash cross-block values into tmps before the Branch so successor blocks see
     // them via phi merges. Explicitly flush each tmp after the set: Flush changes
