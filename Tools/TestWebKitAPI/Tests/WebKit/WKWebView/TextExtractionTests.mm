@@ -365,6 +365,22 @@ TEST(TextExtractionTests, InteractionDebugDescription)
     }
 }
 
+TEST(TextExtractionTests, InteractionDebugDescriptionWithStaleNodeIdentifier)
+{
+    RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    [[configuration preferences] _setTextExtractionEnabled:YES];
+
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:configuration.get()]);
+    [webView synchronouslyLoadTestPageNamed:@"debug-text-extraction"];
+
+    NSError *error = nil;
+    RetainPtr interaction = adoptNS([[_WKTextExtractionInteraction alloc] initWithAction:_WKTextExtractionActionClick]);
+    [interaction setNodeIdentifier:@"999999999_999999999"];
+    [interaction setText:@"Test"];
+
+    EXPECT_NOT_NULL([interaction debugDescriptionInWebView:webView error:&error]);
+}
+
 TEST(TextExtractionTests, InteractionResultSummary)
 {
     RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);

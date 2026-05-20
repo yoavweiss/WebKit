@@ -2590,6 +2590,9 @@ static String textDescription(LocalFrame& frame, std::optional<NodeIdentifier> i
         return { };
 
     RefPtr target = resolveNodeWithBodyAsFallback(frame, identifier);
+    if (!target)
+        return { };
+
     auto searchTextPrefix = emptyString();
     if (!searchText.isEmpty()) {
         auto range = action == Action::Click ? searchForClickTarget(*target, searchText) : searchForText(*target, searchText);
@@ -2597,14 +2600,13 @@ static String textDescription(LocalFrame& frame, std::optional<NodeIdentifier> i
             return { };
 
         target = commonInclusiveAncestor<ComposedTree>(*range);
+        if (!target)
+            return { };
 
         auto escapedSearchText = normalizeText(searchText);
         stringsToValidate.append(escapedSearchText);
         searchTextPrefix = makeString(wrapWithDoubleQuotes(escapedSearchText), " in "_s);
     }
-
-    if (!target)
-        return { };
 
     return makeString(WTF::move(searchTextPrefix), textDescription(target.get(), stringsToValidate));
 }
