@@ -27,7 +27,6 @@
 #include "SubtreeScrollbarChangesState.h"
 
 #include "HTMLTextAreaElement.h"
-#include "LayoutScope.h"
 #include "LocalFrameViewLayoutContext.h"
 #include "RenderBlock.h"
 #include "RenderElementInlines.h"
@@ -105,7 +104,6 @@ SubtreeScrollbarChangesHandler::~SubtreeScrollbarChangesHandler()
         rendererWithScrollbarChange->setNeedsPreferredWidthsUpdate(MarkingBehavior::MarkContainingBlockChain, subtreeRoot.ptr());
     }
 
-    auto scope = LayoutScope { subtreeRoot };
     subtreeRoot->setNeedsLayout(MarkingBehavior::MarkOnlyThis);
     subtreeRoot->layoutBlock(RelayoutChildren::Yes);
 }
