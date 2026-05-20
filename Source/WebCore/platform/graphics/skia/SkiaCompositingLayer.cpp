@@ -595,8 +595,10 @@ void SkiaCompositingLayer::paintSelf(SkCanvas& canvas, PaintContext& context)
 
 void SkiaCompositingLayer::paintSelfAndChildren(SkCanvas& canvas, PaintContext& context)
 {
-    if (m_backdrop.filter && context.paintingBackdropForLayer == this)
+    if (m_backdrop.filter && context.paintingBackdropForLayer == this) {
+        context.skipAfterBackdrop = true;
         return;
+    }
 
     if (m_backdrop.filter && !context.paintingBackdropForLayer) {
         SkAutoCanvasRestore autoRestore(&canvas, true);
@@ -623,6 +625,7 @@ void SkiaCompositingLayer::paintSelfAndChildren(SkCanvas& canvas, PaintContext& 
             SetForScope scopedOpacity(context.opacity, 1.f);
             SetForScope scopedBlendMode(context.blendMode, std::nullopt);
             SetForScope scopedReplicaTransform(context.accumulatedReplicaTransform, TransformationMatrix());
+            SetForScope scopedSkipAfterBackdrop(context.skipAfterBackdrop, false);
             backdropRoot()->paintSelfAndChildren(canvas, context);
         });
     }
@@ -857,6 +860,8 @@ void SkiaCompositingLayer::paintSelfAndChildrenWithReplicaFilterAndMask(SkCanvas
 
 void SkiaCompositingLayer::recursivePaint(SkCanvas& canvas, PaintContext& context)
 {
+    if (context.skipAfterBackdrop)
+        return;
     if (!isVisible())
         return;
 

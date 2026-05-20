@@ -133,6 +133,7 @@ private:
         sk_sp<SkColorFilter> colorFilter;
         TransformationMatrix accumulatedReplicaTransform;
         RefPtr<SkiaCompositingLayer> paintingBackdropForLayer;
+        bool skipAfterBackdrop { false };
         std::optional<Damage>& frameDamage;
     };
 
