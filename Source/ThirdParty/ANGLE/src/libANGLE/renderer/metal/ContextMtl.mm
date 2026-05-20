@@ -781,6 +781,7 @@ angle::Result ContextMtl::drawElementsImpl(const gl::Context *context,
 
     size_t provokingVertexAdditionalOffset = 0;
 
+    gl::PrimitiveMode originalMode = mode;
     if (requiresIndexRewrite(context->getState(), mode))
     {
         // Line strips and triangle strips are rewritten to flat line arrays and tri arrays.
@@ -799,8 +800,8 @@ angle::Result ContextMtl::drawElementsImpl(const gl::Context *context,
     // It's safe to use idxBuffer in this case, as it will contain the same count and restart ranges
     // as drawIdxBuffer.
     const std::vector<DrawCommandRange> drawCommands =
-        mVertexArray->getDrawIndices(context, type, convertedType, mode, idxBuffer.buffer(),
-                                     convertedCounti32, idxBuffer.offset());
+        mVertexArray->getDrawIndices(context, type, convertedType, originalMode, mode, idxBuffer.buffer(),
+                                     (uint32_t)count, idxBuffer.offset());
     bool isNoOp = false;
     ANGLE_TRY(setupDraw(context, 0, count, instances, type, indices, false, &isNoOp));
     if (!isNoOp)
@@ -1526,7 +1527,7 @@ FenceNVImpl *ContextMtl::createFenceNV()
 {
     return new FenceNVMtl();
 }
-SyncImpl *ContextMtl::createSync()
+SyncImpl *ContextMtl::createSync(const gl::Context *)
 {
     return new SyncMtl();
 }
