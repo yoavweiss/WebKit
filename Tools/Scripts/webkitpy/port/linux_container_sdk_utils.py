@@ -21,6 +21,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 import os
+import stat
+import re
 import shutil
 import socket
 import subprocess
@@ -134,6 +136,42 @@ def _strip_unix_path_prefix(value):
     if value.startswith('unix:'):
         return value[len('unix:'):]
     return value
+
+
+def _get_at_spi_bus_socket_or_dir_and_var(xdg):
+    """Find the AT-SPI bus socket, or the directory containing it."""
+    def _socket_or_none(addr):
+        path = _strip_unix_path_prefix(addr or '')
+        try:
+            return path if path and stat.S_ISSOCK(os.stat(path).st_mode) else None
+        except OSError:
+            return None
+
+    # 1. AT_SPI_BUS_ADDRESS env var has precedence if defined
+    path = _socket_or_none(os.environ.get('AT_SPI_BUS_ADDRESS'))
+    if path:
+        return path, 'AT_SPI_BUS_ADDRESS'
+
+    # 2. Ask the session bus
+    try:
+        out = subprocess.run(
+            ['gdbus', 'call', '--session', '--dest', 'org.a11y.Bus',
+             '--object-path', '/org/a11y/bus', '--method', 'org.a11y.Bus.GetAddress'],
+            capture_output=True, text=True, timeout=5).stdout
+        m = re.match(r"\('(.+)',\)\s*$", out.strip())
+        if m:
+            path = _socket_or_none(m.group(1))
+            if path:
+                return path, None
+    except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
+        pass
+
+    # 3 Fallback to usual directory
+    xdg_dir = os.path.join(xdg, 'at-spi')
+    if os.path.isdir(xdg_dir):
+        return xdg_dir, None
+
+    return None, None
 
 def _translate_host_path_to_container(host_path):
     # The wkdev container bind-mounts the host ${HOME} at /host/home/${USER}.
@@ -317,16 +355,23 @@ def _build_podman_run_args(pinned_version):
     dbus_session = _strip_unix_path_prefix(os.environ.get('DBUS_SESSION_BUS_ADDRESS')) or os.path.join(xdg, 'bus')
     if os.path.exists(dbus_session):
         args += _bind_mount(dbus_session, dbus_session)
-        args += ['--env', 'DBUS_SESSION_BUS_ADDRESS=unix:path={}'.format(dbus_session)]
+        # If defined keep the same value, because it may contain not only the path but also ",guid" values.
+        if os.environ.get('DBUS_SESSION_BUS_ADDRESS'):
+            args += ['--env', '{}={}'.format('DBUS_SESSION_BUS_ADDRESS', os.environ['DBUS_SESSION_BUS_ADDRESS'])]
+        else:
+            args += ['--env', 'DBUS_SESSION_BUS_ADDRESS=unix:path={}'.format(dbus_session)]
 
     # DBus system
     if os.path.exists('/run/dbus/system_bus_socket'):
         args += _bind_mount('/run/dbus/system_bus_socket', '/run/dbus/system_bus_socket')
 
     # Accessibility (at-spi)
-    at_spi = _strip_unix_path_prefix(os.environ.get('AT_SPI_BUS_ADDRESS')) or os.path.join(xdg, 'at-spi')
-    if os.path.isdir(at_spi):
-        args += _bind_mount(at_spi, at_spi)
+    at_spi_path, at_spi_env_var = _get_at_spi_bus_socket_or_dir_and_var(xdg)
+    if at_spi_path:
+        args += _bind_mount(at_spi_path, at_spi_path)
+        if at_spi_env_var:
+            args += ['--env', '{}={}'.format(at_spi_env_var, os.environ[at_spi_env_var])]
+
 
     # dconf
     dconf_dir = os.path.join(_xdg_config_home(), 'dconf')
