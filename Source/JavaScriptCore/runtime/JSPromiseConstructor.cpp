@@ -154,6 +154,20 @@ static bool NODELETE isFastPromiseConstructor(JSGlobalObject* globalObject, JSVa
     return true;
 }
 
+static ALWAYS_INLINE bool canSkipIntermediatePromise(JSGlobalObject* globalObject, JSValue value)
+{
+    if (!globalObject->promiseThenWatchpointSet().isStillValid()) [[unlikely]]
+        return false;
+    if (!value.isCell())
+        return true;
+    JSCell* cell = value.asCell();
+    if (cell->type() == JSPromiseType)
+        return false;
+    if (!cell->isObject())
+        return true;
+    return isDefinitelyNonThenable(uncheckedDowncast<JSObject>(cell), globalObject);
+}
+
 static JSObject* promiseRaceSlow(JSGlobalObject* globalObject, CallFrame* callFrame, JSValue thisValue)
 {
     VM& vm = globalObject->vm();
@@ -266,6 +280,12 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncRace, (JSGlobalObject* globalObje
     JSFunction* reject = nullptr;
     forEachInIterable(globalObject, iterable, [&](VM& vm, JSGlobalObject* globalObject, JSValue value) {
         auto scope = DECLARE_THROW_SCOPE(vm);
+
+        if (canSkipIntermediatePromise(globalObject, value)) {
+            scope.release();
+            globalObject->queueMicrotask(vm, InternalMicrotask::PromiseRaceResolveJob, static_cast<uint8_t>(JSPromise::Status::Fulfilled), promise, value, promise);
+            return;
+        }
 
         JSPromise* nextPromise = JSPromise::resolvedPromise(globalObject, value);
         RETURN_IF_EXCEPTION(scope, void());
@@ -478,6 +498,16 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAll, (JSGlobalObject* globalObjec
 
         values->putDirectIndex(globalObject, index, jsUndefined());
         RETURN_IF_EXCEPTION(scope, void());
+
+        if (canSkipIntermediatePromise(globalObject, value)) {
+            uint64_t count = globalContext->remainingElementsCount().toIndex(globalObject, "count exceeds size"_s);
+            RETURN_IF_EXCEPTION(scope, void());
+            globalContext->setRemainingElementsCount(vm, jsNumber(count + 1));
+            scope.release();
+            globalObject->queueMicrotask(vm, InternalMicrotask::PromiseAllResolveJob, static_cast<uint8_t>(JSPromise::Status::Fulfilled), globalContext, value, jsNumber(index));
+            ++index;
+            return;
+        }
 
         JSPromise* nextPromise = JSPromise::resolvedPromise(globalObject, value);
         RETURN_IF_EXCEPTION(scope, void());
@@ -800,6 +830,16 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAllSettled, (JSGlobalObject* glob
 
         values->putDirectIndex(globalObject, index, jsUndefined());
         RETURN_IF_EXCEPTION(scope, void());
+
+        if (canSkipIntermediatePromise(globalObject, value)) {
+            uint64_t count = globalContext->remainingElementsCount().toIndex(globalObject, "count exceeds size"_s);
+            RETURN_IF_EXCEPTION(scope, void());
+            globalContext->setRemainingElementsCount(vm, jsNumber(count + 1));
+            scope.release();
+            globalObject->queueMicrotask(vm, InternalMicrotask::PromiseAllSettledResolveJob, static_cast<uint8_t>(JSPromise::Status::Fulfilled), globalContext, value, jsNumber(index));
+            ++index;
+            return;
+        }
 
         JSPromise* nextPromise = JSPromise::resolvedPromise(globalObject, value);
         RETURN_IF_EXCEPTION(scope, void());
@@ -1273,6 +1313,16 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAny, (JSGlobalObject* globalObjec
 
         errors->putDirectIndex(globalObject, index, jsUndefined());
         RETURN_IF_EXCEPTION(scope, void());
+
+        if (canSkipIntermediatePromise(globalObject, value)) {
+            uint64_t count = globalContext->remainingElementsCount().toIndex(globalObject, "count exceeds size"_s);
+            RETURN_IF_EXCEPTION(scope, void());
+            globalContext->setRemainingElementsCount(vm, jsNumber(count + 1));
+            scope.release();
+            globalObject->queueMicrotask(vm, InternalMicrotask::PromiseAnyResolveJob, static_cast<uint8_t>(JSPromise::Status::Fulfilled), globalContext, value, jsNumber(index));
+            ++index;
+            return;
+        }
 
         JSPromise* nextPromise = JSPromise::resolvedPromise(globalObject, value);
         RETURN_IF_EXCEPTION(scope, void());
