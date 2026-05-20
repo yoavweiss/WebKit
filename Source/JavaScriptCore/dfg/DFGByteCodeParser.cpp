@@ -12096,8 +12096,8 @@ auto ByteCodeParser::handleArraySort(Node* callee, Operand resultOperand, CallVa
             auto callLinkStatus = comparatorFunction ? CallLinkStatus(CallVariant(comparatorFunction)) : CallLinkStatus(CallVariant(comparatorExecutable));
             auto* callTargetNode = comparatorFunction ? jsConstant(comparatorFunction) : get(tmpComparator);
             handleCall(tmpCmpResult, Call, InlineCallFrame::ArraySortComparatorCall, osrExitIndex, callTargetNode, comparatorArgcIncludingThis, newRegisterOffset, callLinkStatus, SpecBytecodeTop, nullptr);
-            processSetLocalQueue();
             emitExitOK();
+            processSetLocalQueue();
             cmpResult = get(tmpCmpResult);
         } else {
             cmpResult = addCallWithoutSettingResult(Call, OpInfo(), get(tmpComparator), comparatorArgcIncludingThis, newRegisterOffset, OpInfo(SpecBytecodeTop));
