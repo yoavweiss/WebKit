@@ -30,6 +30,7 @@
 #import "UIKitSPIForTesting.h"
 #import <WebKit/WKPreferencesPrivate.h>
 #import <WebKit/WKPreferencesRef.h>
+#import <WebKit/WKWebViewPrivate.h>
 
 #if PLATFORM(IOS_FAMILY)
 
@@ -64,6 +65,53 @@ TEST(TextAutosizingBoost, ChangeAutosizingBoostAtRuntime)
     EXPECT_EQ(30, regularSize.height);
     EXPECT_EQ(159, boostedSize.width);
     EXPECT_EQ(38, boostedSize.height);
+}
+
+// Regression test for rdar://113801810: autosized text must not stay inflated at
+// landscape size after rotation to portrait.
+TEST(TextAutosizingBoost, RotationDoesNotPersistAutosizedFontSize)
+{
+    // Inline body width set from script (cleared in the resize handler) reproduces
+    // the stale-width condition during rotation. Multi-line content is required
+    // because a single-line block does not inflate regardless of block width.
+    static NSString *testMarkup =
+        @"<meta name='viewport' content='width=device-width'>"
+        "<body style='margin: 0'>"
+        "<span id='top'>Hello world</span>"
+        "<br>"
+        "<span>Goodbye world</span>"
+        "<script>"
+        "document.body.style.width='960px';"
+        "window.addEventListener('resize',function(){document.body.style.removeProperty('width');});"
+        "</script>"
+        "</body>";
+
+    InstanceMethodSwizzler screenSizeSwizzler(UIScreen.class, @selector(_referenceBounds), reinterpret_cast<IMP>(mainScreenReferenceBoundsOverride));
+
+    CGSize wideSize { 960, 360 };
+    CGSize narrowSize { 320, 568 };
+
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, wideSize.width, wideSize.height)]);
+    WKPreferencesSetTextAutosizingEnabled((__bridge WKPreferencesRef)[webView configuration].preferences, true);
+    WKPreferencesSetTextAutosizingUsesIdempotentMode((__bridge WKPreferencesRef)[webView configuration].preferences, false);
+    [webView synchronouslyLoadHTMLString:testMarkup];
+    // _beginAnimatedResizeWithUpdates: only takes the animated path once the first
+    // frame has been committed.
+    [webView waitForNextPresentationUpdate];
+
+    float wideFontSize = [[webView objectByEvaluatingJavaScript:@"parseFloat(getComputedStyle(document.getElementById('top')).fontSize)"] floatValue];
+
+    // Animated resize is the only path that exercises the fix.
+    [webView _beginAnimatedResizeWithUpdates:^{
+        [webView setFrame:CGRectMake(0, 0, narrowSize.width, narrowSize.height)];
+    }];
+    [webView _endAnimatedResize];
+    [webView waitForNextPresentationUpdate];
+
+    float narrowFontSize = [[webView objectByEvaluatingJavaScript:@"parseFloat(getComputedStyle(document.getElementById('top')).fontSize)"] floatValue];
+
+    EXPECT_GT(wideFontSize, 16.0);
+    EXPECT_EQ(16.0, narrowFontSize);
 }
 
 #endif // PLATFORM(IOS_FAMILY)

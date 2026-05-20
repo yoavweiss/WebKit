@@ -3288,6 +3288,23 @@ void WebPage::resetTextAutosizing()
 #endif
 }
 
+#if ENABLE(TEXT_AUTOSIZING)
+void WebPage::scheduleTextAutosizingResetAfterLayout()
+{
+    for (RefPtr frame = &m_page->mainFrame(); frame; frame = frame->tree().traverseNext()) {
+        RefPtr localFrame = dynamicDowncast<LocalFrame>(frame.get());
+        if (!localFrame)
+            continue;
+        RefPtr document = localFrame->document();
+        if (!document || !document->renderView())
+            continue;
+        document->renderView()->setTextAutosizingState(RenderView::TextAutosizingState::ResetScheduled);
+    }
+}
+#else
+void WebPage::scheduleTextAutosizingResetAfterLayout() { }
+#endif
+
 #if ENABLE(VIEWPORT_RESIZING)
 
 void WebPage::shrinkToFitContent(ZoomToInitialScale zoomToInitialScale)
@@ -3425,8 +3442,17 @@ void WebPage::viewportConfigurationChanged(ZoomToInitialScale zoomToInitialScale
     resetIdempotentTextAutosizingIfNeeded(previousInitialScaleIgnoringContentSize);
     updateTextAutosizingEnablementFromInitialScale(initialScale);
 #endif
-    if (setFixedLayoutSize(m_viewportConfiguration.layoutSize()))
-        resetTextAutosizing();
+    if (setFixedLayoutSize(m_viewportConfiguration.layoutSize())) {
+        // During a dynamic viewport size update (rotation/resize), the upcoming
+        // layout may still see stale block widths from before the change, so
+        // running autosize against them would cache an inflated value at the
+        // wrong width. Other viewport changes (initial page load, etc.) precede
+        // the first layout, where there are no pre-existing widths to be stale.
+        if (m_inDynamicSizeUpdate)
+            scheduleTextAutosizingResetAfterLayout();
+        else
+            resetTextAutosizing();
+    }
 
     auto minimumScale = m_viewportConfiguration.minimumScale();
     auto previousMinimumScale = m_previousViewportConfigurationMinimumScale.value_or(minimumScale);

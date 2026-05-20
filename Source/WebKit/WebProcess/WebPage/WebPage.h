@@ -2266,6 +2266,7 @@ private:
     void updateTextAutosizingEnablementFromInitialScale(double);
 #endif
     void resetTextAutosizing();
+    void scheduleTextAutosizingResetAfterLayout();
 
 #if ENABLE(VIEWPORT_RESIZING)
     void shrinkToFitContent(ZoomToInitialScale = ZoomToInitialScale::No);

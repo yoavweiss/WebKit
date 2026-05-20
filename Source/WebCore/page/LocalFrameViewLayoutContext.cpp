@@ -271,7 +271,30 @@ void LocalFrameViewLayoutContext::performLayout(bool canDeferUpdateLayerPosition
 #endif
         layoutRoot->layout();
 #if ENABLE(TEXT_AUTOSIZING)
-        applyTextSizingIfNeeded(*layoutRoot.get());
+        {
+            CheckedPtr renderView = this->renderView();
+            auto state = renderView ? renderView->textAutosizingState() : RenderView::TextAutosizingState::Normal;
+            switch (state) {
+            case RenderView::TextAutosizingState::Normal:
+                applyTextSizingIfNeeded(*layoutRoot.get());
+                break;
+            case RenderView::TextAutosizingState::ResetScheduled: {
+                renderView->resetTextAutosizing();
+                // resetTextAutosizing() restores specified font sizes via setStyle. That
+                // dirties the render tree only if autosized nodes existed; a dirty tree
+                // forces a follow-up layout in this same resize transaction against the
+                // still-stale block widths, which must also skip autosize.
+                bool resetTriggeredFollowUpLayout = m_frameView->needsLayout();
+                renderView->setTextAutosizingState(resetTriggeredFollowUpLayout
+                    ? RenderView::TextAutosizingState::SkipAfterReset
+                    : RenderView::TextAutosizingState::Normal);
+                break;
+            }
+            case RenderView::TextAutosizingState::SkipAfterReset:
+                renderView->setTextAutosizingState(RenderView::TextAutosizingState::Normal);
+                break;
+            }
+        }
 #endif
         layoutRoot->absoluteQuads(layoutAreas);
 
