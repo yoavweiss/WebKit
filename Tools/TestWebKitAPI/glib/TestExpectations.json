@@ -235,6 +235,9 @@
             },
             "ComplexTextControllerTest.TotalWidthWithJustification": {
                 "expected": {"gtk": {"status": ["FAIL", "PASS"], "bug":"webkit.org/b/284628"}}
+            },
+            "ImageBufferTests.ImageBufferSubPixelDrawing": {
+                "expected": {"all": {"slow": true}}
             }
         }
     },
