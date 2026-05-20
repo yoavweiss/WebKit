@@ -32,10 +32,17 @@
 
 namespace WebKit {
 
-// Cadence of GPU-side time observer that pushes RemoteAudioVideoRendererState
-// updates to the WebContent process. The client-side TimeProgressEstimator
-// caps its between-update extrapolation to this same interval.
+// Cadence at which the GPU-side proxy throttles outgoing TimeObserverUpdate
+// IPCs to the WebContent process during steady-state playback. The
+// WebContent-side TimeProgressEstimator also caps its between-anchor
+// extrapolation to this interval.
 constexpr Seconds remoteAudioVideoRendererUpdateInterval = 250_ms;
+
+// Underlying GPU-side time observer cadence. Set shorter than the steady-state
+// interval so the first tick after each play() lands quickly to confirm that
+// playback has started; subsequent ticks are throttled by the proxy back to
+// remoteAudioVideoRendererUpdateInterval.
+constexpr Seconds remoteAudioVideoRendererFirstTickInterval = 100_ms;
 
 struct RemoteAudioVideoRendererState {
     WebCore::MediaTimeUpdateData timeUpdateData { };

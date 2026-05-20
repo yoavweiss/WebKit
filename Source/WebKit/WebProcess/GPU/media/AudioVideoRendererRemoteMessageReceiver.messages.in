@@ -42,6 +42,7 @@ messages -> AudioVideoRendererRemoteMessageReceiver {
     TaskTimeReached(MediaTime time, struct WebKit::RemoteAudioVideoRendererState state)
     ErrorOccurred(WebCore::PlatformMediaError error)
     StateUpdate(struct WebKit::RemoteAudioVideoRendererState state)
+    TimeObserverUpdate(struct WebKit::RemoteAudioVideoRendererState state)
     UpdatePlaybackQualityMetrics(struct WebCore::VideoPlaybackQualityMetrics metrics)
 
 #if PLATFORM(COCOA)

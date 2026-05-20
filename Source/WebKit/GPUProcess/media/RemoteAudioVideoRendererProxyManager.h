@@ -174,6 +174,7 @@ private:
         WebCore::VideoRendererPreferences preferences { };
         Seconds videoPlaybackMetricsUpdateInterval { };
         MonotonicTime nextPlaybackQualityMetricsUpdateTime { };
+        bool firstTickAfterPlay { false };
         bool isGatheringVideoFrameMetadata { false };
     };
     RefPtr<WebCore::AudioVideoRenderer> createRenderer();
@@ -183,6 +184,7 @@ private:
     void rendereringModeChanged(RemoteAudioVideoRendererIdentifier);
     void updateCachedVideoMetrics(RemoteAudioVideoRendererIdentifier);
     void maybeUpdateCachedVideoMetrics(RemoteAudioVideoRendererIdentifier);
+    void installTimeObserver(RemoteAudioVideoRendererIdentifier, Seconds interval);
     using LayerHostingContextCallback = CompletionHandler<void(WebCore::HostingContext)>;
     void requestHostingContext(RemoteAudioVideoRendererIdentifier, LayerHostingContextCallback&&);
     WebCore::MediaSampleConverter& converterFor(RendererContext&, TrackIdentifier);

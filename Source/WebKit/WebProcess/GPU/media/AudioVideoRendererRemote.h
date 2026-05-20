@@ -95,6 +95,7 @@ public:
         void errorOccurred(WebCore::PlatformMediaError);
         void readyForMoreMediaData(WebCore::SamplesRendererTrackIdentifier);
         void stateUpdate(RemoteAudioVideoRendererState);
+        void timeObserverUpdate(RemoteAudioVideoRendererState);
         void updatePlaybackQualityMetrics(WebCore::VideoPlaybackQualityMetrics);
 
 #if PLATFORM(COCOA)
@@ -111,16 +112,17 @@ public:
         void setTime(const WebCore::MediaTimeUpdateData&);
         void setRate(double);
         void pause();
+        void resetLastReturnedTime();
         void setStallCap(const MediaTime&);
         void clearStallCap();
 
     private:
         static constexpr Seconds kUpdateInterval = remoteAudioVideoRendererUpdateInterval;
         mutable Lock m_lock;
-        MediaTime m_cachedTime WTF_GUARDED_BY_LOCK(m_lock);
+        MediaTime m_cachedTime WTF_GUARDED_BY_LOCK(m_lock) { MediaTime::zeroTime() };
         MonotonicTime m_wallTime WTF_GUARDED_BY_LOCK(m_lock);
         std::atomic<double> m_effectiveRate { 0 };
-        bool m_forceUseCachedTime WTF_GUARDED_BY_LOCK(m_lock) { false };
+        bool m_forceUseCachedTime WTF_GUARDED_BY_LOCK(m_lock) { true };
         mutable std::optional<MediaTime> m_lastReturnedTime WTF_GUARDED_BY_LOCK(m_lock);
         std::optional<MediaTime> m_stallCap WTF_GUARDED_BY_LOCK(m_lock);
     };

@@ -107,12 +107,19 @@ bool AudioVideoRendererRemote::TimeProgressEstimator::timeIsProgressing() const
 void AudioVideoRendererRemote::TimeProgressEstimator::setTime(const MediaTimeUpdateData& data)
 {
     Locker locker { m_lock };
+    bool currentTimeChanged = data.currentTime != m_cachedTime;
     m_cachedTime = data.currentTime;
     m_wallTime = data.wallTime;
     m_effectiveRate = data.effectiveRate;
-    if (!data.effectiveRate)
-        m_lastReturnedTime.reset();
-    m_forceUseCachedTime = false;
+    // Release the cached-time freeze only when this anchor proves time has
+    // progressed: rate must be non-zero AND currentTime must have changed.
+    // A pause-reply (rate=0, possibly distinct currentTime) re-anchors but
+    // keeps the freeze, so the next play() still waits for forward progress.
+    if (data.effectiveRate && currentTimeChanged) {
+        if (std::exchange(m_forceUseCachedTime, false))
+            RELEASE_LOG(Media, "AudioVideoRendererRemote::TimeProgressEstimator started");
+    } else if (m_forceUseCachedTime)
+        RELEASE_LOG(Media, "AudioVideoRendererRemote::TimeProgressEstimator not starting, held off effectiveRate=%f currentTime=%f", data.effectiveRate, data.currentTime.toDouble());
 }
 
 void AudioVideoRendererRemote::TimeProgressEstimator::setRate(double rate)
@@ -134,6 +141,7 @@ void AudioVideoRendererRemote::TimeProgressEstimator::setRate(double rate)
 void AudioVideoRendererRemote::TimeProgressEstimator::pause()
 {
     Locker locker { m_lock };
+    m_forceUseCachedTime = true;
     auto rate = m_effectiveRate.load();
     if (!rate)
         return;
@@ -142,6 +150,12 @@ void AudioVideoRendererRemote::TimeProgressEstimator::pause()
     m_cachedTime += MediaTime::createWithDouble(rate * elapsed.seconds());
     m_wallTime = now;
     m_effectiveRate = 0;
+}
+
+void AudioVideoRendererRemote::TimeProgressEstimator::resetLastReturnedTime()
+{
+    Locker locker { m_lock };
+    m_lastReturnedTime.reset();
 }
 
 void AudioVideoRendererRemote::TimeProgressEstimator::setStallCap(const MediaTime& time)
@@ -505,7 +519,10 @@ void AudioVideoRendererRemote::play(std::optional<MonotonicTime> hostTime)
         Locker locker { m_lock };
         m_cachedState.paused = false;
     }
-    // The GPU will reply with the current MediaTimeUpdateData so the estimator can resume extrapolation without waiting for the 250ms periodic tick.
+    // The GPU's reply gives the estimator a chance to release the gate at
+    // IPC-round-trip latency if the synchronizer's timebase has already
+    // advanced past the cached anchor; otherwise the freeze stays engaged
+    // until the first periodic time observer tick (~100 ms later).
     ensureOnDispatcherWithConnection([hostTime](auto& renderer, auto& connection) {
         connection.sendWithAsyncReplyOnDispatcher(Messages::RemoteAudioVideoRendererProxyManager::Play(renderer.m_identifier, hostTime), queueSingleton(), [weakThis = ThreadSafeWeakPtr { renderer }](WebCore::MediaTimeUpdateData&& timeUpdateData) {
             if (RefPtr protectedThis = weakThis.get())
@@ -521,9 +538,14 @@ void AudioVideoRendererRemote::pause(std::optional<MonotonicTime> hostTime)
         m_cachedState.paused = true;
     }
     m_timeEstimator.pause();
-    // The GPU will reply with the current MediaTimeUpdateData so the estimator re-anchors against the GPU's view.
+    // The reply re-anchors m_cachedTime to the GPU's authoritative pause
+    // position (which may differ slightly from our local extrapolation due to
+    // IPC latency). The setTime gate keeps m_forceUseCachedTime engaged because
+    // effectiveRate is 0, so the next play() still requires a forward-progress
+    // anchor before interpolation can start.
     ensureOnDispatcherWithConnection([hostTime](auto& renderer, auto& connection) {
         connection.sendWithAsyncReplyOnDispatcher(Messages::RemoteAudioVideoRendererProxyManager::Pause(renderer.m_identifier, hostTime), queueSingleton(), [weakThis = ThreadSafeWeakPtr { renderer }](WebCore::MediaTimeUpdateData&& timeUpdateData) {
+            ASSERT(!timeUpdateData.effectiveRate);
             if (RefPtr protectedThis = weakThis.get())
                 protectedThis->m_timeEstimator.setTime(timeUpdateData);
         });
@@ -539,7 +561,9 @@ bool AudioVideoRendererRemote::paused() const
 void AudioVideoRendererRemote::setRate(double rate)
 {
     m_timeEstimator.setRate(rate);
-    // The GPU will reply with the current MediaTimeUpdateData that unfreezes the estimator (setTime clears m_forceUseCachedTime) with the real effective rate.
+    // The GPU's reply re-anchors m_cachedTime with the real effective rate. The estimator
+    // remains gated until the next TimeObserverUpdate IPC; this anchor only sets what
+    // currentTime() returns while still gated.
     ensureOnDispatcherWithConnection([rate](auto& renderer, auto& connection) {
         connection.sendWithAsyncReplyOnDispatcher(Messages::RemoteAudioVideoRendererProxyManager::SetRate(renderer.m_identifier, rate), queueSingleton(), [weakThis = ThreadSafeWeakPtr { renderer }](WebCore::MediaTimeUpdateData&& timeUpdateData) {
             if (RefPtr protectedThis = weakThis.get())
@@ -578,6 +602,7 @@ void AudioVideoRendererRemote::cancelPendingSeek()
 Ref<MediaTimePromise> AudioVideoRendererRemote::prepareToSeek(const MediaTime& time)
 {
     m_timeEstimator.setTime({ time, 0.0, MonotonicTime::now() });
+    m_timeEstimator.resetLastReturnedTime();
     m_seeking = true;
     m_lastSeekTime = time;
     return invokeAsync(queueSingleton(), [protectedThis = Ref { *this }, this, time] -> Ref<MediaTimePromise> {
@@ -615,6 +640,7 @@ Ref<MediaTimePromise> AudioVideoRendererRemote::prepareToSeek(const MediaTime& t
 Ref<GenericPromise> AudioVideoRendererRemote::finishSeek(const MediaTime& time)
 {
     m_timeEstimator.setTime({ time, 0.0, MonotonicTime::now() });
+    m_timeEstimator.resetLastReturnedTime();
     ASSERT(m_seeking, "Invalid seeking state, bad API usage");
     return invokeAsync(queueSingleton(), [protectedThis = Ref { *this }, this, time] -> Ref<GenericPromise> {
         cancelPendingSeek();
@@ -1249,6 +1275,12 @@ void AudioVideoRendererRemote::MessageReceiver::readyForMoreMediaData(TrackIdent
 }
 
 void AudioVideoRendererRemote::MessageReceiver::stateUpdate(RemoteAudioVideoRendererState state)
+{
+    if (RefPtr parent = m_parent.get())
+        parent->updateCacheState(state);
+}
+
+void AudioVideoRendererRemote::MessageReceiver::timeObserverUpdate(RemoteAudioVideoRendererState state)
 {
     if (RefPtr parent = m_parent.get())
         parent->updateCacheState(state);

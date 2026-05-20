@@ -164,13 +164,6 @@ void RemoteAudioVideoRendererProxyManager::create(RemoteAudioVideoRendererIdenti
             protectedThis->m_gpuConnectionToWebProcess.get()->connection().send(Messages::AudioVideoRendererRemoteMessageReceiver::EffectiveRateChanged(protectedThis->stateFor(identifier)), identifier);
     });
 
-    context.renderer->setTimeObserver(remoteAudioVideoRendererUpdateInterval, [weakThis = WeakPtr { *this }, identifier](const MediaTime&) {
-        if (RefPtr protectedThis = weakThis.get(); protectedThis && protectedThis->m_renderers.contains(identifier)) {
-            protectedThis->maybeUpdateCachedVideoMetrics(identifier);
-            protectedThis->m_gpuConnectionToWebProcess.get()->connection().send(Messages::AudioVideoRendererRemoteMessageReceiver::StateUpdate(protectedThis->stateFor(identifier)), identifier);
-        }
-    });
-
 #if ENABLE(LINEAR_MEDIA_PLAYER)
     RetainPtr videoTarget = m_gpuConnectionToWebProcess.get()->videoReceiverEndpointManager().takeVideoTargetForMediaElementIdentifier(mediaElementIdentifier, playerIdentifier);
     context.renderer->setVideoTarget(videoTarget.get());
@@ -361,11 +354,36 @@ void RemoteAudioVideoRendererProxyManager::notifyWhenErrorOccurs(RemoteAudioVide
     });
 }
 
+void RemoteAudioVideoRendererProxyManager::installTimeObserver(RemoteAudioVideoRendererIdentifier identifier, Seconds interval)
+{
+    auto iterator = m_renderers.find(identifier);
+    if (iterator == m_renderers.end())
+        return;
+    auto& context = iterator->value;
+    context.renderer->setTimeObserver(interval, [weakThis = WeakPtr { *this }, identifier](const MediaTime&) {
+        RefPtr protectedThis = weakThis.get();
+        if (!protectedThis)
+            return;
+        auto iterator = protectedThis->m_renderers.find(identifier);
+        if (iterator == protectedThis->m_renderers.end())
+            return;
+        auto& context = iterator->value;
+        if (context.firstTickAfterPlay) {
+            context.firstTickAfterPlay = false;
+            protectedThis->installTimeObserver(identifier, remoteAudioVideoRendererUpdateInterval);
+        }
+        protectedThis->maybeUpdateCachedVideoMetrics(identifier);
+        protectedThis->m_gpuConnectionToWebProcess.get()->connection().send(Messages::AudioVideoRendererRemoteMessageReceiver::TimeObserverUpdate(protectedThis->stateFor(identifier)), identifier);
+    });
+}
+
 // SynchronizerInterface
 void RemoteAudioVideoRendererProxyManager::play(RemoteAudioVideoRendererIdentifier identifier, std::optional<MonotonicTime> hostTime, CompletionHandler<void(WebCore::MediaTimeUpdateData&&)>&& completionHandler)
 {
     if (RefPtr renderer = rendererFor(identifier)) {
         renderer->play(hostTime);
+        contextFor(identifier).firstTickAfterPlay = true;
+        installTimeObserver(identifier, remoteAudioVideoRendererFirstTickInterval);
         completionHandler(timeUpdateDataFor(*renderer));
         return;
     }
