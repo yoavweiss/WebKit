@@ -95,8 +95,6 @@ auto RenderSVGModelObject::localRectsForRepaint(RepaintOutlineBounds repaintOutl
     if (isInsideEntirelyHiddenLayer())
         return { };
 
-    ASSERT(!view().frameView().layoutContext().isPaintOffsetCacheEnabled());
-
     auto visualOverflowRect = visualOverflowRectEquivalent();
     auto rects = RepaintRects { visualOverflowRect };
     if (repaintOutlineBounds == RepaintOutlineBounds::Yes)
@@ -128,8 +126,6 @@ const RenderElement* RenderSVGModelObject::pushMappingToContainer(const RenderLa
 
 LayoutRect RenderSVGModelObject::outlineBoundsForRepaint(const RenderLayerModelObject* repaintContainer, const RenderGeometryMap* geometryMap) const
 {
-    ASSERT(!view().frameView().layoutContext().isPaintOffsetCacheEnabled());
-
     auto outlineBounds = visualOverflowRectEquivalent();
 
     if (repaintContainer != this) {
