@@ -145,6 +145,13 @@ public:
     void removeLayers();
     void moveLayers(RenderLayer& newParent);
 
+    // Conservative hint used to skip layer-less subtrees in findNextLayer.
+    // True means "this or some descendant may have a RenderLayer". May be a false
+    // positive (never cleared once set); never a false negative — set on every
+    // createLayer and on every attach of a subtree that already has the bit.
+    bool mayHaveLayerInSubtree() const { return m_mayHaveLayerInSubtree; }
+    void setMayHaveLayerInSubtreeIncludingAncestors();
+
     virtual void dirtyLineFromChangedChild() { }
 
     void setChildNeedsLayout(MarkingBehavior = MarkingBehavior::MarkContainingBlockChain);
@@ -465,7 +472,7 @@ private:
     unsigned m_renderBoxHasShapeOutsideInfo : 1 { false };
     unsigned m_hasCachedSVGResource : 1 { false };
     unsigned m_renderBlockFlowLineLayoutPath : 3;
-    // 1 bit free.
+    unsigned m_mayHaveLayerInSubtree : 1 { false };
 
     SingleThreadPackedWeakPtr<RenderObject> m_lastChild;
 

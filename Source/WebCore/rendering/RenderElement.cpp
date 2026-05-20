@@ -725,6 +725,13 @@ RenderPtr<RenderObject> RenderElement::detachRendererInternal(RenderObject& rend
     return RenderPtr<RenderObject>(&renderer);
 }
 
+void RenderElement::setMayHaveLayerInSubtreeIncludingAncestors()
+{
+    m_mayHaveLayerInSubtree = true;
+    for (auto* renderer = parent(); renderer && !renderer->m_mayHaveLayerInSubtree; renderer = renderer->parent())
+        renderer->m_mayHaveLayerInSubtree = true;
+}
+
 static RenderLayer* findNextLayer(const RenderElement& currRenderer, const RenderLayer& parentLayer, const RenderObject* siblingToTraverseFrom, bool checkParent = true)
 {
     // Step 1: If our layer is a child of the desired parent, then return our layer.
@@ -737,7 +744,7 @@ static RenderLayer* findNextLayer(const RenderElement& currRenderer, const Rende
     if (!ourLayer || ourLayer == &parentLayer) {
         for (auto* child = siblingToTraverseFrom ? siblingToTraverseFrom->nextSibling() : currRenderer.firstChild(); child; child = child->nextSibling()) {
             auto* element = dynamicDowncast<RenderElement>(*child);
-            if (!element)
+            if (!element || !element->mayHaveLayerInSubtree())
                 continue;
             if (auto* nextLayer = findNextLayer(*element, parentLayer, nullptr, false))
                 return nextLayer;
@@ -792,8 +799,11 @@ static void addLayers(const RenderElement& insertedRenderer, RenderElement& curr
         return;
     }
 
-    for (CheckedRef child : childrenOfType<RenderElement>(currentRenderer))
+    for (CheckedRef child : childrenOfType<RenderElement>(currentRenderer)) {
+        if (!child->mayHaveLayerInSubtree())
+            continue;
         addLayers(insertedRenderer, child, parentLayer);
+    }
 }
 
 void RenderElement::removeLayers()
@@ -807,8 +817,11 @@ void RenderElement::removeLayers()
         return;
     }
 
-    for (CheckedRef child : childrenOfType<RenderElement>(*this))
+    for (CheckedRef child : childrenOfType<RenderElement>(*this)) {
+        if (!child->mayHaveLayerInSubtree())
+            continue;
         child->removeLayers();
+    }
 }
 
 void RenderElement::moveLayers(RenderLayer& newParent)
@@ -823,8 +836,11 @@ void RenderElement::moveLayers(RenderLayer& newParent)
         return;
     }
 
-    for (CheckedRef child : childrenOfType<RenderElement>(*this))
+    for (CheckedRef child : childrenOfType<RenderElement>(*this)) {
+        if (!child->mayHaveLayerInSubtree())
+            continue;
         child->moveLayers(newParent);
+    }
 }
 
 RenderLayer* RenderElement::layerParent() const
@@ -1206,6 +1222,9 @@ void RenderElement::dirtyEnclosingLayerSVGChildrenIfNeeded()
 
 void RenderElement::insertedIntoTree()
 {
+    if (m_mayHaveLayerInSubtree)
+        setMayHaveLayerInSubtreeIncludingAncestors();
+
     // Keep our layer hierarchy updated. Optimize for the common case where we don't have any children
     // and don't have a layer attached to ourselves.
     if (firstChild() || hasLayer()) {

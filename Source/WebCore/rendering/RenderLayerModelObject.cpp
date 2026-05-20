@@ -113,6 +113,7 @@ void RenderLayerModelObject::createLayer()
     ASSERT(!m_layer);
     m_layer = RenderLayer::create(*this);
     setHasLayer(true);
+    setMayHaveLayerInSubtreeIncludingAncestors();
     m_layer->insertOnlyThisLayer();
 }
 
