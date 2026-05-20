@@ -4040,6 +4040,8 @@ imported/w3c/web-platform-tests/IndexedDB/interleaved-cursors-large.any.servicew
 imported/w3c/web-platform-tests/IndexedDB/interleaved-cursors-large.any.sharedworker.html [ Failure ]
 imported/w3c/web-platform-tests/IndexedDB/interleaved-cursors-large.any.worker.html [ Failure ]
 
+webkit.org/b/315156 imported/w3c/web-platform-tests/IndexedDB/blob-valid-after-abort.any.html [ Pass Failure ]
+
 webkit.org/b/179176 svg/wicd/test-rightsizing-a.xhtml [ Pass Failure ]
 
 webkit.org/b/187183 http/tests/security/pasteboard-file-url.html [ Skip ]
