@@ -9098,4 +9098,28 @@ TEST(SiteIsolation, MultiProcessBFCacheSameSiteNavAfterRestore)
     }
 }
 
+TEST(SiteIsolation, ScriptMessageHandlerDocumentIdentifierOnPageHide)
+{
+    HTTPServer server({
+        { "/main"_s, { "<iframe id='child' src='https://webkit.org/iframe'></iframe><iframe id='keeper' src='https://webkit.org/keeper'></iframe>"_s } },
+        { "/iframe"_s, { "<input type='text'>"_s } },
+        { "/keeper"_s, { "keepalive"_s } },
+        { "/next"_s, { "navigated"_s } },
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    RetainPtr handler = adoptNS([TestScriptMessageHandler new]);
+    RetainPtr configuration = server.httpsProxyConfiguration();
+    [[configuration userContentController] addScriptMessageHandler:handler.get() name:@"testHandler"];
+    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/main"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+    EXPECT_NE([webView mainFrame].info._processIdentifier, [webView firstChildFrame]._processIdentifier);
+
+    [webView evaluateJavaScript:@"window.addEventListener('pagehide', () => { window.webkit.messageHandlers.testHandler.postMessage('pagehide'); })" inFrame:[webView firstChildFrame] completionHandler:nil];
+    [webView evaluateJavaScript:@"document.getElementById('child').src = 'https://example.com/next'" completionHandler:nil];
+    WKScriptMessage *message = [handler waitForMessage];
+    EXPECT_WK_STREQ(@"pagehide", message.body);
+    EXPECT_NOT_NULL(message.frameInfo._documentIdentifier);
+}
+
 }

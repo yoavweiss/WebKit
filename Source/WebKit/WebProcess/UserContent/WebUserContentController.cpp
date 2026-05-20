@@ -47,8 +47,10 @@
 #include <JavaScriptCore/JSLock.h>
 #include <JavaScriptCore/JSRetainPtr.h>
 #include <WebCore/DOMWrapperWorld.h>
+#include <WebCore/Document.h>
 #include <WebCore/FrameDestructionObserverInlines.h>
 #include <WebCore/FrameLoader.h>
+#include <WebCore/JSDOMGlobalObject.h>
 #include <WebCore/LocalFrame.h>
 #include <WebCore/Page.h>
 #include <WebCore/SecurityOriginData.h>
@@ -309,6 +311,18 @@ private:
     {
     }
 
+    static FrameInfoData frameInfoWithDocumentID(WebFrame& webFrame, JSC::JSGlobalObject& globalObject)
+    {
+        auto frameInfo = webFrame.info();
+        if (!frameInfo.documentID) {
+            if (auto* domGlobalObject = dynamicDowncast<JSDOMGlobalObject>(&globalObject)) {
+                if (auto* document = dynamicDowncast<Document>(domGlobalObject->scriptExecutionContext()))
+                    frameInfo.documentID = document->identifier();
+            }
+        }
+        return frameInfo;
+    }
+
     // WebCore::UserMessageHandlerDescriptor
     void didPostMessage(WebCore::UserMessageHandler& handler, JSC::JSGlobalObject& globalObject, JSC::JSValue jsMessage, WTF::Function<void(JSC::JSValue, const String&)>&& completionHandler) const override
     {
@@ -329,7 +343,9 @@ private:
         if (!message)
             return;
 
-        protect(WebProcess::singleton().parentProcessConnection())->sendWithAsyncReply(Messages::WebProcessProxy::DidPostMessage(webPage->webPageProxyIdentifier(), m_controller->identifier(), webFrame->info(), m_identifier, *message), [completionHandler = WTF::move(completionHandler), context](Expected<WebKit::JavaScriptEvaluationResult, String>&& result) {
+        auto frameInfo = frameInfoWithDocumentID(*webFrame, globalObject);
+
+        protect(WebProcess::singleton().parentProcessConnection())->sendWithAsyncReply(Messages::WebProcessProxy::DidPostMessage(webPage->webPageProxyIdentifier(), m_controller->identifier(), WTF::move(frameInfo), m_identifier, *message), [completionHandler = WTF::move(completionHandler), context](Expected<WebKit::JavaScriptEvaluationResult, String>&& result) {
             JSC::JSLockHolder lock(toJS(context.get()));
             if (!result)
                 return completionHandler(JSC::jsUndefined(), result.error());
@@ -356,7 +372,9 @@ private:
         if (!message)
             return JSC::jsUndefined();
 
-        auto sendResult = protect(WebProcess::singleton().parentProcessConnection())->sendSync(Messages::WebProcessProxy::DidPostLegacySynchronousMessage(webPage->webPageProxyIdentifier(), m_controller->identifier(), webFrame->info(), m_identifier, *message), 0);
+        auto frameInfo = frameInfoWithDocumentID(*webFrame, globalObject);
+
+        auto sendResult = protect(WebProcess::singleton().parentProcessConnection())->sendSync(Messages::WebProcessProxy::DidPostLegacySynchronousMessage(webPage->webPageProxyIdentifier(), m_controller->identifier(), WTF::move(frameInfo), m_identifier, *message), 0);
         auto [result] = sendResult.takeReplyOr(makeUnexpected(String()));
         if (!result)
             return JSC::jsUndefined();
