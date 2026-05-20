@@ -151,7 +151,7 @@ auto CSSValueConversion<PositionTryFallback>::operator()(BuilderState& state, co
 
 static Ref<CSSValue> computedPositionAreaValue(const PositionTryFallback::PositionArea& value)
 {
-    RefPtr cssValue = RefPtr { value.properties }->getPropertyCSSValue(CSSPropertyPositionArea);
+    RefPtr cssValue = protect(value.properties)->getPropertyCSSValue(CSSPropertyPositionArea);
     if (auto* pair = dynamicDowncast<CSSValuePair>(*cssValue)) {
         auto dim1 = downcast<CSSKeywordValue>(pair->first()).valueID();
         auto dim2 = downcast<CSSKeywordValue>(pair->second()).valueID();
@@ -176,7 +176,7 @@ void Serialize<PositionTryFallback::PositionArea>::operator()(StringBuilder& bui
 
 TextStream& operator<<(TextStream& ts, const PositionTryFallback::PositionArea& value)
 {
-    return ts << RefPtr { value.properties }->getPropertyValue(CSSPropertyPositionArea);
+    return ts << protect(value.properties)->getPropertyValue(CSSPropertyPositionArea);
 }
 
 } // namespace Style

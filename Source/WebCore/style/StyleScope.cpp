@@ -181,7 +181,7 @@ auto Scope::makeResolverSharingKey() -> ResolverSharingKey
 {
     constexpr bool isNonEmptyHashTableValue = true;
     return {
-        m_activeStyleSheets.map([&](auto& sheet) { return RefPtr { &sheet->contents() }; }),
+        m_activeStyleSheets.map([&](auto& sheet) { return protect(&sheet->contents()); }),
         isForUserAgentShadowTree(),
         isNonEmptyHashTableValue
     };
