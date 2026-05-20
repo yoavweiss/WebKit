@@ -365,8 +365,6 @@ void WebPageProxy::setDeviceOrientation(IntDegrees deviceOrientation)
 
     // Update device orientation for all web processes
     forEachWebContentProcess([deviceOrientation](auto& process, auto pageID) {
-        if (!process.hasConnection())
-            return;
         process.send(Messages::WebPage::SetDeviceOrientation(deviceOrientation), pageID);
     });
 }
