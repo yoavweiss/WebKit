@@ -226,8 +226,8 @@ function flatMap(mapper)
         next: function() { return iteratedNextMethod.@call(iterated); },
         return: function() {
             var iteratedReturnMethod = iterated.return;
-            if (iteratedReturnMethod !== @undefined)
-                return iteratedReturnMethod.@call(iterated, @undefined);
+            if (!@isUndefinedOrNull(iteratedReturnMethod))
+                return iteratedReturnMethod.@call(iterated);
             return { done: true };
         },
     };

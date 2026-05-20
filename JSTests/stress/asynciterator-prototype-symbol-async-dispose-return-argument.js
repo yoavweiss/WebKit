@@ -5,11 +5,10 @@ function shouldBe(a, b) {
         throw new Error(`Expected ${b} but got ${a}`);
 }
 
-// %AsyncIteratorPrototype%[@@asyncDispose] step 6.a:
-//   Let result be Completion(Call(return.[[Value]], O, « undefined »)).
-// The return method must be called with exactly one argument (undefined),
-// matching for-await-of abrupt completion semantics. The sync
-// %IteratorPrototype%[@@dispose] calls return with no arguments (« »).
+// %AsyncIteratorPrototype%[@@asyncDispose] step 6.a (per tc39/proposal-explicit-resource-management#273):
+//   Let result be Completion(Call(return.[[Value]], O)).
+// The return method must be called with no arguments, matching the sync
+// %IteratorPrototype%[@@dispose], which also calls return with no arguments (« »).
 
 async function* ag() {}
 const AsyncIteratorPrototype = Object.getPrototypeOf(Object.getPrototypeOf(Object.getPrototypeOf(ag())));
@@ -24,11 +23,11 @@ const AsyncIteratorPrototype = Object.getPrototypeOf(Object.getPrototypeOf(Objec
     };
     iter[Symbol.asyncDispose]();
     drainMicrotasks();
-    shouldBe(argsLength, 1);
+    shouldBe(argsLength, 0);
     shouldBe(arg0, undefined);
 }
 
-// Sync @@dispose should still call return with no arguments
+// Sync @@dispose should also call return with no arguments
 {
     const IteratorPrototype = Object.getPrototypeOf(Object.getPrototypeOf([][Symbol.iterator]()));
     let argsLength;
@@ -51,5 +50,28 @@ const AsyncIteratorPrototype = Object.getPrototypeOf(Object.getPrototypeOf(Objec
     };
     iter[Symbol.asyncDispose]();
     drainMicrotasks();
-    shouldBe(argsLength, 1);
+    shouldBe(argsLength, 0);
+}
+
+// Async generator's own return is also called with no arguments via @@asyncDispose
+{
+    let argsLength;
+    async function* gen() {
+        try {
+            yield 1;
+        } finally {
+            // for-await-of abrupt completion would pass undefined here, but
+            // @@asyncDispose passes nothing, so the rest binding is empty.
+        }
+    }
+    const it = gen();
+    const origReturn = AsyncIteratorPrototype.return;
+    // Override return on the instance to observe the argument count.
+    it.return = function(...args) {
+        argsLength = args.length;
+        return Promise.resolve({ value: undefined, done: true });
+    };
+    it[Symbol.asyncDispose]();
+    drainMicrotasks();
+    shouldBe(argsLength, 0);
 }
