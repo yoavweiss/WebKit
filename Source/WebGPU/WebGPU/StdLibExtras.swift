@@ -26,8 +26,7 @@
 private import CxxStdlib
 import WebGPU_Private.WebGPU
 
-#if !WTF_SUPPORTS_SWIFT
-
+// FIXME (rdar://162375123): This should be in the standard library.
 extension MutableSpan where Element: BitwiseCopyable {
     @_lifetime(self: copy self)
     mutating func copyMemory(from source: Span<Element>) {
@@ -44,6 +43,12 @@ extension MutableSpan where Element: BitwiseCopyable {
     }
 }
 
+// FIXME(rdar://130765784): We should be able use the built-in ===, but AnyObject currently excludes foreign reference types
+func === (_ lhs: WGPUTexture, _ rhs: WGPUTexture) -> Bool {
+    // Safety: Swift represents all reference types, including foreign reference types, as raw pointers
+    unsafe unsafeBitCast(lhs, to: UnsafeRawPointer.self) == unsafeBitCast(rhs, to: UnsafeRawPointer.self)
+}
+
 extension Comparable {
     /// Returns this comparable value clamped to the given limiting range.
     ///
@@ -52,12 +57,4 @@ extension Comparable {
     func clamped(to limits: ClosedRange<Self>) -> Self {
         min(max(self, limits.lowerBound), limits.upperBound)
     }
-}
-
-#endif // !WTF_SUPPORTS_SWIFT
-
-// FIXME(rdar://130765784): We should be able use the built-in ===, but AnyObject currently excludes foreign reference types
-func === (_ lhs: WGPUTexture, _ rhs: WGPUTexture) -> Bool {
-    // Safety: Swift represents all reference types, including foreign reference types, as raw pointers
-    unsafe unsafeBitCast(lhs, to: UnsafeRawPointer.self) == unsafeBitCast(rhs, to: UnsafeRawPointer.self)
 }
