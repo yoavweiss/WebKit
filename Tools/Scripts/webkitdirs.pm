@@ -1405,6 +1405,10 @@ sub XcodeOptions
     my @options;
     push @options, "-UseSanitizedBuildSystemEnvironment=YES";
     push @options, "-ShowBuildOperationDuration=YES";
+    my $resultBundlePath;
+    if (checkForArgumentAndRemoveFromARGVGettingValue("--result-bundle-path", \$resultBundlePath)) {
+        push @options, ("-resultBundlePath", $resultBundlePath);
+    }
     if (!checkForArgumentAndRemoveFromARGV("--no-use-workspace")) {
         push @options, ("-workspace", $configuredXcodeWorkspace) if $configuredXcodeWorkspace;
     }

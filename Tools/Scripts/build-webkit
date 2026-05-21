@@ -132,6 +132,7 @@ Usage: $programName [options] [options to pass to build system]
   --analyze                         Enable static anaylsis (Apple platforms only)
   --lto-mode=<mode>                 Set Link Time Optimization mode (full, thin, or none) (LLVM only)
   --cross-target=<target_machine>   Use the cross-toolchain-helper to build WebKit for the specified machine (Linux platforms only)
+  --result-bundle-path=<path>       Write an .xcresult bundle of the build to <path> (Apple platforms only)
 
   --gtk                             Build the GTK+ port
   --haiku                           Build the Haiku port
