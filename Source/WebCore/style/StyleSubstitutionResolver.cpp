@@ -454,9 +454,30 @@ bool SubstitutionResolver::substituteAttrFunction(CSSParserTokenRange argumentsR
     if (!range.atEnd())
         return false;
 
-    m_styleBuilder.state().registerSubstitutionAttribute(attributeName);
     protect(m_styleBuilder.state().style())->setHasAttrContent();
 
+    if (!m_styleBuilder.state().element())
+        return false;
+
+    // https://drafts.csswg.org/css-values-5/#funcdef-attr
+    // "If [attr()] is applied to a pseudo-element, the attribute is looked up on the pseudo-element's
+    //  originating element." For rules cascading from outside the styled element's tree scope (::part(),
+    //  document author rules matching UA-shadow pseudos like ::placeholder), the originating element is
+    //  the rule's match target rather than the styled element.
+    auto originatingElement = [&] -> Ref<const Element> {
+        Ref styled = *m_styleBuilder.state().element();
+        auto scopeOrdinal = m_styleBuilder.state().styleScopeOrdinal();
+        if (scopeOrdinal <= ScopeOrdinal::ContainingHost) {
+            if (RefPtr host = hostForScopeOrdinal(styled, scopeOrdinal))
+                return host.releaseNonNull();
+        }
+        return styled;
+    };
+    Ref attributeElement = originatingElement();
+
+    // Register the substitution dependency on the originating element's scope so attribute changes
+    // trigger AttributeChangeInvalidation against the right rule features.
+    m_styleBuilder.state().registerSubstitutionAttribute(attributeName, protect(Scope::forNode(attributeElement)).ptr());
     // Resolve namespace prefix to URI.
     auto namespaceURI = [&] -> AtomString {
         auto& prefix = parsedName->namespacePrefix;
@@ -501,7 +522,7 @@ bool SubstitutionResolver::substituteAttrFunction(CSSParserTokenRange argumentsR
         return substituteFailure();
     }
 
-    auto& attributeValue = element->getAttribute(QualifiedName { nullAtom(), attributeName, namespaceURI });
+    auto& attributeValue = attributeElement->getAttribute(QualifiedName { nullAtom(), attributeName, namespaceURI });
 
     if (attributeValue.isNull())
         return substituteFailure();

@@ -58,8 +58,14 @@ void AttributeChangeInvalidation::invalidateStyle(const QualifiedName& attribute
             mayAffectStyleInShadowTree = true;
         if (features.attributesAffectingHost.contains(attributeNameForLookups))
             shouldInvalidateCurrent = true;
-        else if (features.substitutionAttributeNamesInRules.contains(attributeNameForLookups))
+        else if (auto affectsShadowTree = features.substitutionAttributeNamesInRules.getOptional(attributeNameForLookups)) {
             shouldInvalidateCurrent = true;
+            // Only invalidate the host's shadow subtree if a shadow-piercing rule (::part(),
+            // ::placeholder, etc.) actually uses attr() on this attribute and the element has
+            // a shadow tree to invalidate.
+            if (m_element->shadowRoot() && *affectsShadowTree == RuleFeatureSet::AffectsShadowTree::Yes)
+                mayAffectStyleInShadowTree = true;
+        }
     });
 
     if (mayAffectStyleInShadowTree) {

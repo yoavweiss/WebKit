@@ -56,6 +56,7 @@ class BuilderState;
 class CustomPropertyRegistry;
 class Image;
 class LocalPropertyRegistry;
+class Scope;
 struct Color;
 struct FontFamilies;
 struct FontFeatureSettings;
@@ -83,6 +84,11 @@ enum class ApplyValueType : uint8_t { Value, Initial, Inherit };
 struct BuilderPositionTryFallback {
     RefPtr<const StyleProperties> properties;
     Vector<PositionTryFallbackTactic> tactics;
+};
+
+struct RegisteredSubstitutionAttribute {
+    AtomString name;
+    WeakPtr<const Scope> targetScope;
 };
 
 struct BuilderContext {
@@ -148,12 +154,14 @@ public:
     bool NODELETE useSVGZoomRules() const;
     bool NODELETE useSVGZoomRulesForLength() const;
 
-    ScopeOrdinal styleScopeOrdinal() const { return m_currentProperty->styleScopeOrdinal; }
+    // Defaults to Element when called outside property cascade application (e.g. attr() resolution
+    // during container-query evaluation), where there is no current property in flight.
+    ScopeOrdinal styleScopeOrdinal() const { return m_currentProperty ? m_currentProperty->styleScopeOrdinal : ScopeOrdinal::Element; }
 
     RefPtr<Image> createStyleImage(const CSSValue&) const;
 
-    const Vector<AtomString>& registeredSubstitutionAttributes() const LIFETIME_BOUND { return m_registeredSubstitutionAttributes; }
-    void registerSubstitutionAttribute(const AtomString& attributeLocalName);
+    const Vector<RegisteredSubstitutionAttribute>& registeredSubstitutionAttributes() const LIFETIME_BOUND { return m_registeredSubstitutionAttributes; }
+    void registerSubstitutionAttribute(const AtomString& attributeLocalName, const Scope* targetScope = nullptr);
 
     const CSSToLengthConversionData& cssToLengthConversionData() const LIFETIME_BOUND { return m_cssToLengthConversionData; }
 
@@ -269,7 +277,7 @@ private:
     const PropertyCascade* m_currentRollbackCascade { nullptr };
 
     bool m_fontDirty { false };
-    Vector<AtomString> m_registeredSubstitutionAttributes;
+    Vector<RegisteredSubstitutionAttribute> m_registeredSubstitutionAttributes;
 
     bool m_isBuildingKeyframeStyle { false };
     bool m_hasRevertRuleOrLayerInKeyframeStyle { false };

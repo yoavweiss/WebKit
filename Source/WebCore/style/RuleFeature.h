@@ -132,7 +132,9 @@ struct RuleFeatureSet {
         HashSet<GenericHashKey<SelectorDeduplicationKey>> selectorDeduplicationSet;
     };
     void collectFeatures(CollectionContext&, const RuleData&, const Vector<Ref<const StyleRuleScope>>& scopeRules = { });
-    void registerSubstitutionAttribute(const AtomString&);
+
+    enum class AffectsShadowTree : bool { No, Yes };
+    void registerSubstitutionAttribute(const AtomString&, AffectsShadowTree = AffectsShadowTree::No);
 
     bool usesRelation(MatchElement::Relation relation) const { return usedRelations[std::to_underlying(relation)]; }
     void setUsesRelation(MatchElement::Relation relation) { usedRelations[std::to_underlying(relation)] = true; }
@@ -141,7 +143,9 @@ struct RuleFeatureSet {
     HashSet<AtomString> idsMatchingAncestorsInRules;
     HashSet<AtomString> attributeLowercaseLocalNamesInRules;
     HashSet<AtomString> attributeLocalNamesInRules;
-    HashSet<AtomString> substitutionAttributeNamesInRules;
+    // Maps the attribute name to whether at least one rule referencing it via attr() pierces a
+    // shadow boundary (e.g. ::part(), document author rules matching UA-shadow pseudos).
+    HashMap<AtomString, AffectsShadowTree> substitutionAttributeNamesInRules;
 
     HashMap<AtomString, std::unique_ptr<RuleFeatureVector>> idRules;
     HashMap<AtomString, std::unique_ptr<RuleFeatureVector>> classRules;

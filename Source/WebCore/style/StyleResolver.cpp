@@ -83,6 +83,7 @@
 #include "StylePropertyShorthand.h"
 #include "StyleResolveForDocument.h"
 #include "StyleRule.h"
+#include "StyleScope.h"
 #include "StyleSheetContents.h"
 #include "StyleSingleAnimationRangeName.h"
 #include "TimingFunction.h"
@@ -776,8 +777,18 @@ void Resolver::applyMatchedProperties(State& state, const MatchResult& matchResu
 void Resolver::setGlobalStateAfterApplyingProperties(const BuilderState& builderState)
 {
     // FIXME: This stuff should be somewhere else.
-    for (auto& attribute : builderState.registeredSubstitutionAttributes())
-        ruleSets().mutableFeatures().registerSubstitutionAttribute(attribute);
+    auto* currentScope = builderState.element() ? &Scope::forNode(*builderState.element()) : nullptr;
+    for (auto& entry : builderState.registeredSubstitutionAttributes()) {
+        ruleSets().mutableFeatures().registerSubstitutionAttribute(entry.name);
+        // For attr() applied to a pseudo-element, the originating element's scope may be
+        // different from this resolver's (e.g. ::placeholder styled in a UA shadow scope, with
+        // the originating <input> in the document scope). Register there too so attribute
+        // changes on the originating element trigger AttributeChangeInvalidation; mark the entry
+        // as shadow-tree-affecting on the originating scope so we only invalidate the host's
+        // shadow subtree when a shadow-piercing rule is the source of the dependency.
+        if (CheckedPtr targetScope = entry.targetScope.get(); targetScope && targetScope.get() != currentScope)
+            const_cast<Scope&>(*targetScope).resolver().ruleSets().mutableFeatures().registerSubstitutionAttribute(entry.name, RuleFeatureSet::AffectsShadowTree::Yes);
+    }
     if (builderState.style().usesViewportUnits())
         document().setHasStyleWithViewportUnits();
 }

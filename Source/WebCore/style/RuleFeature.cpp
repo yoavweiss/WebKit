@@ -617,7 +617,12 @@ void RuleFeatureSet::add(const RuleFeatureSet& other)
     idsMatchingAncestorsInRules.addAll(other.idsMatchingAncestorsInRules);
     attributeLowercaseLocalNamesInRules.addAll(other.attributeLowercaseLocalNamesInRules);
     attributeLocalNamesInRules.addAll(other.attributeLocalNamesInRules);
-    substitutionAttributeNamesInRules.addAll(other.substitutionAttributeNamesInRules);
+    for (auto& [name, affectsShadowTree] : other.substitutionAttributeNamesInRules) {
+        if (affectsShadowTree == AffectsShadowTree::Yes)
+            substitutionAttributeNamesInRules.set(name, AffectsShadowTree::Yes);
+        else
+            substitutionAttributeNamesInRules.add(name, AffectsShadowTree::No);
+    }
 
     auto addMap = [&](auto& map, auto& otherMap) {
         for (auto& keyValuePair : otherMap) {
@@ -650,9 +655,13 @@ void RuleFeatureSet::add(const RuleFeatureSet& other)
     usesHasPseudoClass = usesHasPseudoClass || other.usesHasPseudoClass;
 }
 
-void RuleFeatureSet::registerSubstitutionAttribute(const AtomString& attributeName)
+void RuleFeatureSet::registerSubstitutionAttribute(const AtomString& attributeName, AffectsShadowTree affectsShadowTree)
 {
-    substitutionAttributeNamesInRules.add(attributeName.convertToASCIILowercase());
+    auto lowercaseName = attributeName.convertToASCIILowercase();
+    if (affectsShadowTree == AffectsShadowTree::Yes)
+        substitutionAttributeNamesInRules.set(lowercaseName, AffectsShadowTree::Yes);
+    else
+        substitutionAttributeNamesInRules.add(lowercaseName, AffectsShadowTree::No);
     attributeLowercaseLocalNamesInRules.add(attributeName);
     attributeLocalNamesInRules.add(attributeName);
 }
