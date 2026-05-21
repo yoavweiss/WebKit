@@ -1747,6 +1747,7 @@ void WebLocalFrameLoaderClient::didCacheBackForwardItem(BackForwardItemIdentifie
     if (!webPage)
         return;
     webPage->sendWithAsyncReply(Messages::WebPageProxy::DidCacheBackForwardItem(itemID), [itemID, frameItemID](bool success) {
+        UNUSED_PARAM(itemID);
         if (success)
             return;
         // UIProcess rejected the cache: roll back the WebProcess-side entry
