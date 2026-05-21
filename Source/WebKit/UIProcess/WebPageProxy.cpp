@@ -11866,24 +11866,28 @@ void WebPageProxy::didChooseFilesForOpenPanelWithDisplayStringAndIcon(const Vect
     if (!hasRunningProcess())
         return;
 
-    auto completionHandler = [weakThis = WeakPtr { *this }, fileURLs, displayString, iconData = protect(iconData)] () mutable {
+    RefPtr openPanelResultListener = std::exchange(m_openPanelResultListener, nullptr);
+    if (!openPanelResultListener)
+        return;
+    RefPtr process = openPanelResultListener->process();
+    if (!process)
+        return;
+
+    auto completionHandler = [weakThis = WeakPtr { *this }, openPanelResultListener = WTF::move(openPanelResultListener), fileURLs, displayString, iconData = protect(iconData)] () mutable {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)
-            return;
-        RefPtr openPanelResultListener = std::exchange(protectedThis->m_openPanelResultListener, nullptr);
-        if (!openPanelResultListener)
             return;
         if (RefPtr process = openPanelResultListener->process()) {
 #if ENABLE(SANDBOX_EXTENSIONS)
             auto sandboxExtensionHandles = SandboxExtension::createReadOnlyHandlesForFiles("WebPageProxy::didChooseFilesForOpenPanelWithDisplayStringAndIcon"_s, fileURLs);
-            process->send(Messages::WebPage::ExtendSandboxForFilesFromOpenPanel(WTF::move(sandboxExtensionHandles)), protectedThis->webPageIDInMainFrameProcess());
+            process->send(Messages::WebPage::ExtendSandboxForFilesFromOpenPanel(WTF::move(sandboxExtensionHandles)), protectedThis->webPageIDInProcess(*process));
 #endif
-            process->send(Messages::WebPage::DidChooseFilesForOpenPanelWithDisplayStringAndIcon(fileURLs, displayString, iconData ? iconData->span() : std::span<const uint8_t>()), protectedThis->webPageIDInMainFrameProcess());
+            process->send(Messages::WebPage::DidChooseFilesForOpenPanelWithDisplayStringAndIcon(fileURLs, displayString, iconData ? iconData->span() : std::span<const uint8_t>()), protectedThis->webPageIDInProcess(*process));
         }
 
         openPanelResultListener->invalidate();
     };
-    protect(protect(websiteDataStore())->networkProcess())->sendWithAsyncReply(Messages::NetworkProcess::AllowFilesAccessFromWebProcess(m_legacyMainFrameProcess->coreProcessIdentifier(), fileURLs), WTF::move(completionHandler));
+    protect(protect(websiteDataStore())->networkProcess())->sendWithAsyncReply(Messages::NetworkProcess::AllowFilesAccessFromWebProcess(process->coreProcessIdentifier(), fileURLs), WTF::move(completionHandler));
 }
 #endif
 

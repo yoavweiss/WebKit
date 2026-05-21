@@ -39,6 +39,7 @@ fast/events/ios/ipad [ Skip ]
 fast/forms/ios [ Pass ]
 fast/forms/ios/ipad [ Skip ]
 http/tests/site-isolation/select-in-cross-origin-iframe.html [ Pass ]
+http/tests/site-isolation/open-panel-in-cross-origin-iframe.html [ Pass ]
 fast/forms/switch [ Pass ]
 fast/snapshot [ Skip ]
 
