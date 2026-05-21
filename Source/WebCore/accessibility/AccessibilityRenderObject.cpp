@@ -2179,10 +2179,19 @@ IntRect AccessibilityRenderObject::doAXBoundsForRangeUsingCharacterOffset(const 
 {
     if (!allowsTextRanges())
         return { };
-    auto range = rangeForCharacterRange(characterRange);
-    if (!range)
-        return { };
-    return boundsForRange(*range);
+
+    if (std::optional range = rangeForCharacterRange(characterRange))
+        return boundsForRange(*range);
+
+    if (!characterRange.location && !characterRange.length && !getLengthForTextRange()) {
+        // rangeForCharacterRange returns nullopt for the (0, 0) range on an empty text control to
+        // avoid creating an uneditable VisibleSelection in setSelectedRange. For bounds queries we
+        // still want a valid caret rect (e.g. so VoiceOver can position the VO-Shift-M context menu
+        // next to the input rather than in the middle of the page).
+        if (std::optional fallbackRange = makeSimpleRange(visiblePositionForIndex(0)))
+            return boundsForRange(*fallbackRange);
+    }
+    return { };
 }
 
 AccessibilityObject* AccessibilityRenderObject::accessibilityImageMapHitTest(HTMLAreaElement& area, const IntPoint& point) const
