@@ -277,104 +277,23 @@
     },
     "TestWTF": {
         "subtests": {
-            "ThreadMessage.MultipleSenders": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/246472" }}
-            },
-            "WTF_Condition.TenProducersOneConsumerHundredSlotsNotifyOne": {
-                "expected": {"gtk": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/246472" }}
-            },
-            "WTF_Condition.TenProducersOneConsumerHundredSlotsNotifyAll": {
-                "expected": {"gtk": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/246472" }}
+            "WTF_Condition.TenProducersTenConsumersHundredSlotsNotifyAll": {
+                "expected": {"all": {"slow": true}}
             },
             "WTF_Condition.TenProducersTenConsumersHundredSlotsNotifyOne": {
-                "expected": {"gtk": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/246472" }}
-            },
-            "WTF_Condition.TenProducersTenConsumersHundredSlotsNotifyAll": {
-                "expected": {"gtk": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/246472" }}
-            },
-            "WTF_Condition.TenProducersTenConsumersOneSlot": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/246472" }}
-            },
-            "WTF_Condition.TenProducersOneConsumerOneSlot": {
-                "expected": {"gtk": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/246472" }}
-            },
-            "WTF_Condition.OneProducerOneConsumerHundredSlots": {
-                "expected": {"gtk": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/246472" }}
-            },
-            "WTF_Condition.OneProducerOneConsumerOneSlot": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/246472" }}
-            },
-            "WTF_Condition.OneProducerOneConsumerOneSlotTimeout": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/246472" }}
-            },
-            "WTF_Condition.OneProducerTenConsumersOneSlot": {
-                "expected": {"gtk": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/246472" }}
-            },
-            "WTF_Condition.OneProducerTenConsumersHundredSlotsNotifyAll": {
-                "expected": {"gtk": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/246472" }}
-            },
-            "WTF_Condition.OneProducerTenConsumersHundredSlotsNotifyOne": {
-                "expected": {"gtk": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/246472" }}
-            },
-            "WTF_Lock.ContendedShortSection": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/260029" }}
+                "expected": {"all": {"slow": true}}
             },
             "WTF_Lock.ContendedLongSection": {
                 "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/260029" }}
             },
-            "WTF_Lock.ManyContendedLongSections": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/260029" }}
-            },
-            "WTF_Lock.ManyContendedShortSections": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/260029" }}
-            },
             "WTF_Lock.SectionAddressCollision": {
-                "expected": {"gtk": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/260029" }}
-            },
-            "WTF_ParkingLot.HundredUnparkAllOneFast": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/259945" }}
-            },
-            "WTF_ParkingLot.UnparkAllHundred": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/259945" }}
-            },
-            "WTF_ParkingLot.UnparkAllHundredFast": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/259945" }}
-            },
-            "WTF_ParkingLot.UnparkAllOneFast": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/259945" }}
-            },
-            "WTF_ParkingLot.UnparkOneFifty": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/259945" }}
-            },
-            "WTF_ParkingLot.UnparkOneFiftyThenFiftyAll": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/259945" }}
-            },
-            "WTF_ParkingLot.UnparkOneFiftyThenFiftyAllFast": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/259945" }}
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/260029" }}
             },
             "WTF_ParkingLot.UnparkOneHundredFast": {
                 "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/259945" }}
             },
-            "WTF_RunLoop.ManyTimes": {
-                "expected": {"gtk": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/246472" }}
-            },
-            "WTF_WordLock.ContendedShortSection": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/260209" }}
-            },
-            "WTF_WordLock.ContendedLongSection": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/260209" }}
-            },
-            "WTF_WordLock.ManyContendedShortSections": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/260209" }}
-            },
-            "WTF_WordLock.ManyContendedLongSections": {
-                "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/246603"}}
-            },
-            "WTF.WorkerPoolDecrease": {
-                "expected": {"gtk": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/214803"}}
-            },
             "WTF_WorkQueue.DestroyDispatchedOnDispatchQueue": {
-                "expected": {"all": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/260211" }}
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/260211" }}
             },
             "WTF_DateMath.calculateLocalTimeOffset": {
                 "expected": {"wpe": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/297780"}}
@@ -387,12 +306,6 @@
             },
             "WTF.clampSignedToUnsigned": {
                 "expected": {"wpe:arm64": {"status": ["FAIL"], "bug": "webkit.org/b/309746"}}
-            },
-            "CompletionHandlerDeathTest.MainThreadHandlerOnThreadAssertsDeathTest": {
-                "expected": {"gtk": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/299598" }}
-            },
-            "CompletionHandlerDeathTest.ConstructionThreadHandlerOnThreadAssertsDeathTest": {
-                "expected": {"gtk": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/299598" }}
             }
         }
     },
