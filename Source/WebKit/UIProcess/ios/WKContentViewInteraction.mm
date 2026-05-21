@@ -1914,7 +1914,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         }
     }
 
-    LOG_WITH_STREAM(UIHitTesting, stream << "hit-testing WKContentView subviews " << [[self recursiveDescription] UTF8String]);
+    LOG_WITH_STREAM(UIHitTesting, stream << "hit-testing at " << point << " subviews of WKContentView\n" << [[self recursiveDescription] UTF8String]);
     UIView* hitView = [super hitTest:point withEvent:event];
     LOG_WITH_STREAM(UIHitTesting, stream << " found view " << [hitView class] << " " << (void*)hitView);
     return hitView;

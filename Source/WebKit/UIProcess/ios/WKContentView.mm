@@ -267,17 +267,16 @@ typedef NS_ENUM(NSInteger, _WKPrintRenderingCallbackType) {
 
     WebKit::WebProcessPool::statistics().wkViewCount++;
 
-    _rootContentView = adoptNS([[UIView alloc] init]);
-    [_rootContentView layer].name = @"RootContent";
-    [_rootContentView layer].masksToBounds = NO;
-    [_rootContentView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-
     _fixedClippingView = adoptNS([[UIView alloc] init]);
     [_fixedClippingView layer].name = @"FixedClipping";
     [_fixedClippingView layer].masksToBounds = YES;
     [_fixedClippingView layer].anchorPoint = CGPointZero;
-
     [self addSubview:_fixedClippingView.get()];
+
+    _rootContentView = adoptNS([[UIView alloc] init]);
+    [_rootContentView layer].name = @"RootContent";
+    [_rootContentView layer].masksToBounds = NO;
+    [_rootContentView layer].anchorPoint = CGPointZero;
     [_fixedClippingView addSubview:_rootContentView.get()];
 
     if (!linkedOnOrAfterSDKWithBehavior(SDKAlignedBehavior::LazyGestureRecognizerInstallation))
@@ -605,8 +604,11 @@ typedef NS_ENUM(NSInteger, _WKPrintRenderingCallbackType) {
     WebCore::FloatRect clippingBounds = [self bounds];
     clippingBounds.unite(fixedPositionRectForUI);
 
-    [_fixedClippingView setCenter:clippingBounds.location()]; // Not really the center since we set an anchor point.
+    [_fixedClippingView setCenter:clippingBounds.location()];
     [_fixedClippingView setBounds:clippingBounds];
+
+    [_rootContentView setCenter:clippingBounds.location()];
+    [_rootContentView setBounds:clippingBounds];
 }
 
 - (void)_didExitStableState
