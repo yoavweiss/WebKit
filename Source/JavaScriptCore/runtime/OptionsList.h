@@ -299,6 +299,8 @@ bool hasCapacityToUseLargeGigacage();
     v(Int32, priorityDeltaOfDFGCompilerThreads, computePriorityDeltaOfWorkerThreads(-1, 0), Normal, nullptr) \
     v(Int32, priorityDeltaOfFTLCompilerThreads, computePriorityDeltaOfWorkerThreads(-2, 0), Normal, nullptr) \
     v(Int32, priorityDeltaOfWasmCompilerThreads, computePriorityDeltaOfWorkerThreads(-1, 0), Normal, nullptr) \
+    v(Unsigned, smallDeviceMaxPerformanceCores, 2, Normal, nullptr) \
+    v(Unsigned, smallDeviceMaxLogicalCores, 6, Normal, nullptr) \
     \
     v(Bool, useProfiler, false, Normal, nullptr) \
     v(Bool, dumpProfilerDataAtExit, false, Normal, nullptr) \

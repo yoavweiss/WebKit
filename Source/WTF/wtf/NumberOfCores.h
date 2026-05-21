@@ -32,4 +32,10 @@ WTF_EXPORT_PRIVATE int numberOfProcessorCores();
 WTF_EXPORT_PRIVATE int numberOfPhysicalProcessorCores();
 #endif
 
+#if CPU(ARM64) && OS(DARWIN)
+// Returns the number of performance ("P") cores on Apple silicon, queried via
+// the "hw.perflevel0.physicalcpu" sysctl.
+WTF_EXPORT_PRIVATE int numberOfPerformanceProcessorCores();
+#endif
+
 }
