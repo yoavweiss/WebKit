@@ -2,5 +2,5 @@ click me
 
 
 FAIL Click forwarded from label to control preserves pointer metadata assert_equals: forwarded click should preserve pointerType expected "mouse" but got ""
-FAIL Click forwarded from label.click() is not trusted assert_false: forwarded click from label.click() should not be trusted expected false got true
+PASS Click forwarded from label.click() is not trusted
 
