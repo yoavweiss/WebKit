@@ -224,6 +224,8 @@ static std::unique_ptr<Yarr::BytecodePattern> byteCodeCompilePattern(VM* vm, Yar
 
 void RegExp::byteCodeCompileIfNecessary(VM* vm)
 {
+    Locker locker { cellLock() };
+
     if (m_regExpBytecode)
         return;
 
