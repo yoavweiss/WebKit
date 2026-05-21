@@ -466,6 +466,71 @@ struct AppKitGesturesTests {
     }
 
     @Test(
+        .bug("https://webkit.org/b/315155", "Gesture-driven drag-and-drop does not recognize <img> elements")
+    )
+    func pressDragOnImageInitiatesDragAndDrop() async throws {
+        let baseURL = try #require(Bundle.testResources.resourceURL)
+        let html = """
+            <img id="img" src="400x400-green.png" style="display: block; margin: 50px;">
+            """
+        try await page.load(html: html, baseURL: baseURL).wait()
+
+        try await page.callJavaScript(
+            """
+            const img = document.getElementById("img");
+            if (img.complete && img.naturalWidth > 0) {
+                return;
+            }
+            await new Promise(resolve => img.addEventListener("load", resolve, { once: true }));
+            """
+        )
+
+        let imgViewportBounds = try await page.callJavaScript(JavaScriptMessages.BoundingClientRect(elementID: "img"))
+        let imgBounds = convertToCoreGraphicsScreenCoordinates(
+            rectInViewportCoordinates: imgViewportBounds,
+            window: window
+        )
+
+        let dragEnd = CGPoint(x: imgBounds.maxX + 50, y: imgBounds.midY)
+
+        guard NSApp.isActive else { return }
+
+        let dragInitiated = Future()
+
+        let implementation: @convention(block) (NSView, NSArray, NSGestureRecognizer, AnyObject) -> NSDraggingSession? = { _, _, _, _ in
+            dragInitiated.signal()
+            return NSDraggingSession()
+        }
+
+        try await withSwizzledObjectiveCInstanceMethod(
+            replacing: NSView.self,
+            name: #selector(NSView.beginDraggingSession(items:gesture:source:)),
+            with: implementation
+        ) {
+            await recap.play { composer in
+                composer._wk_drag(
+                    withStart: imgBounds.center,
+                    end: dragEnd,
+                    duration: .seconds(1.5),
+                    pressAndWait: .seconds(1.0)
+                )
+            }
+
+            // If a drag cannot happen, the text selection gestures take over and the
+            // gesture falls through to a range selection. Detect that early so the test
+            // fails with a diagnostic instead of timing out on `dragInitiated.wait()`.
+            await page.waitForNextPresentationUpdate()
+            let selection = try await page.callJavaScript(JavaScriptMessages.GetSelection())
+            if case .range = selection {
+                Issue.record("press-drag on <img> produced a range selection (\(selection)) instead of initiating a drag")
+                return
+            }
+
+            await dragInitiated.wait()
+        }
+    }
+
+    @Test(
         .bug("rdar://176317069", "REGRESSION(312023@main): Text cannot be selected with press + drag gesture")
     )
     func pressDragOnExistingSelectionDoesNotExtendSelection() async throws {

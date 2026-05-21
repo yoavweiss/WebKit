@@ -63,6 +63,7 @@
 #import <WebCore/Model.h>
 #import <WebCore/NodeDocument.h>
 #import <WebCore/Page.h>
+#import <WebCore/PlatformScreen.h>
 #import <WebCore/Quirks.h>
 #import <WebCore/RenderBlockFlow.h>
 #import <WebCore/RenderBoxInlines.h>
@@ -201,7 +202,16 @@ static std::optional<std::pair<WebCore::RenderImage&, WebCore::Image&>> imageRen
     return { { *renderImage, *image } };
 }
 
+static WebCore::FloatSize platformBitmapSizeCap(const WebPage& page)
+{
 #if PLATFORM(IOS_FAMILY)
+    return WebCore::screenSize();
+#else
+    RefPtr localMainFrame = page.corePage()->localMainFrame();
+    return WebCore::screenRect(localMainFrame ? protect(localMainFrame->view()) : nullptr).size();
+#endif
+}
+
 static void videoPositionInformation(WebPage& page, WebCore::HTMLVideoElement& element, const InteractionInformationRequest& request, InteractionInformationAtPosition& info)
 {
     info.elementContainsImageOverlay = WebCore::ImageOverlay::hasOverlay(element);
@@ -220,7 +230,6 @@ static void videoPositionInformation(WebPage& page, WebCore::HTMLVideoElement& e
 
     info.hostImageOrVideoElementContext = page.contextForElement(element);
 }
-#endif // PLATFORM(IOS_FAMILY)
 
 static RefPtr<WebCore::HTMLVideoElement> hostVideoElementIgnoringImageOverlay(WebCore::Node& node)
 {
@@ -233,7 +242,6 @@ static RefPtr<WebCore::HTMLVideoElement> hostVideoElementIgnoringImageOverlay(We
     return dynamicDowncast<WebCore::HTMLVideoElement>(node.shadowHost());
 }
 
-#if PLATFORM(IOS_FAMILY)
 static void imagePositionInformation(WebPage& page, WebCore::Element& element, const InteractionInformationRequest& request, InteractionInformationAtPosition& info)
 {
     auto rendererAndImage = imageRendererAndImage(element);
@@ -253,11 +261,10 @@ static void imagePositionInformation(WebPage& page, WebCore::Element& element, c
 #endif
 
     if (request.includeSnapshot || request.includeImageData)
-        info.image = createShareableBitmap(renderImage, { WebCore::screenSize() * page.corePage()->deviceScaleFactor(), AllowAnimatedImages::Yes, UseSnapshotForTransparentImages::Yes });
+        info.image = createShareableBitmap(renderImage, { platformBitmapSizeCap(page) * page.corePage()->deviceScaleFactor(), AllowAnimatedImages::Yes, UseSnapshotForTransparentImages::Yes });
 
     info.hostImageOrVideoElementContext = page.contextForElement(element);
 }
-#endif // PLATFORM(IOS_FAMILY)
 
 static void boundsPositionInformation(WebCore::RenderObject& renderer, InteractionInformationAtPosition& info)
 {
@@ -314,7 +321,6 @@ static void elementPositionInformation(WebPage& page, WebCore::Element& element,
 #endif
 
     if (CheckedPtr renderer = element.renderer()) {
-#if PLATFORM(IOS_FAMILY)
         bool shouldCollectImagePositionInformation = renderer->isRenderImage();
         if (shouldCollectImagePositionInformation && info.isImageOverlayText) {
             shouldCollectImagePositionInformation = false;
@@ -323,7 +329,7 @@ static void elementPositionInformation(WebPage& page, WebCore::Element& element,
                     auto& [renderImage, image] = *rendererAndImage;
                     info.imageURL = page.applyLinkDecorationFiltering(document->encodingParseURL(protect(renderImage.cachedImage())->url().string()), WebCore::LinkDecorationFilteringTrigger::Unspecified);
                     info.imageMIMEType = image.mimeType();
-                    info.image = createShareableBitmap(renderImage, { WebCore::screenSize() * page.corePage()->deviceScaleFactor(), AllowAnimatedImages::Yes, UseSnapshotForTransparentImages::Yes });
+                    info.image = createShareableBitmap(renderImage, { platformBitmapSizeCap(page) * page.corePage()->deviceScaleFactor(), AllowAnimatedImages::Yes, UseSnapshotForTransparentImages::Yes });
                 }
             }
         }
@@ -333,7 +339,6 @@ static void elementPositionInformation(WebPage& page, WebCore::Element& element,
             else
                 imagePositionInformation(page, element, request, info);
         }
-#endif // PLATFORM(IOS_FAMILY)
         boundsPositionInformation(*renderer, info);
     }
 
@@ -668,14 +673,12 @@ InteractionInformationAtPosition positionInformationForWebPage(WebPage& page, co
         dataDetectorImageOverlayPositionInformation(*hitTestedImageOverlayHost, request, info);
 #endif // ENABLE(DATA_DETECTION) && PLATFORM(IOS_FAMILY)
 
-#if PLATFORM(IOS_FAMILY)
     if (!info.isImage && request.includeImageData && hitTestNode) {
         if (auto video = hostVideoElementIgnoringImageOverlay(*hitTestNode))
             videoPositionInformation(page, *video, request, info);
         else if (RefPtr img = dynamicDowncast<WebCore::HTMLImageElement>(hitTestNode))
             imagePositionInformation(page, *img, request, info);
     }
-#endif // PLATFORM(IOS_FAMILY)
 
     animationPositionInformation(page, request, hitTestResult, info);
     selectionPositionInformation(page, request, info);

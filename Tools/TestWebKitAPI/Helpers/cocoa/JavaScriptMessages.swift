@@ -41,6 +41,10 @@ extension JavaScriptMessages {
         // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
         public static var expression: String {
             """
+            if (elementID) {
+                return document.getElementById(elementID).getBoundingClientRect().toJSON();
+            }
+
             const range = document.createRange();
 
             if (selection.kind === "range") {
@@ -58,13 +62,18 @@ extension JavaScriptMessages {
             """
         }
 
-        private let selection: JavaScriptSelection
+        private enum Storage {
+            case selection(JavaScriptSelection)
+            case element(id: String)
+        }
+
+        private let storage: Storage
 
         /// Create a `BoundingClientRect` expression from the given selection.
         ///
         /// - Parameter selection: The selection that will be set.
         public init(_ selection: JavaScriptSelection) {
-            self.selection = selection
+            self.storage = .selection(selection)
         }
 
         /// A convenience initializer for a range selection.
@@ -73,18 +82,36 @@ extension JavaScriptMessages {
         ///   - container: The container the range is relative to.
         ///   - range: The range of the selection within the container.
         public init(in container: String, range: Range<Int>) {
-            self.selection = .range(
-                base: .init(in: container, at: range.lowerBound),
-                extent: .init(in: container, at: range.upperBound),
+            self.storage = .selection(
+                .range(
+                    base: .init(in: container, at: range.lowerBound),
+                    extent: .init(in: container, at: range.upperBound),
+                )
             )
+        }
+
+        /// Create a `BoundingClientRect` expression for the element with the given `id` attribute.
+        ///
+        /// - Parameter elementID: The `id` attribute of the target element.
+        public init(elementID: String) {
+            self.storage = .element(id: elementID)
         }
 
         // Protocol conformance.
         // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
         public func encoded() -> [String: Any?] {
-            [
-                "selection": selection.encoded()
-            ]
+            switch storage {
+            case .selection(let selection):
+                [
+                    "selection": selection.encoded(),
+                    "elementID": NSNull(),
+                ]
+            case .element(let id):
+                [
+                    "selection": NSNull(),
+                    "elementID": id,
+                ]
+            }
         }
     }
 }

@@ -75,7 +75,7 @@ double fontDPI(); // dpi to use for font scaling
 double screenDPI(PlatformDisplayID); // dpi of the display device, corrected for device scaling
 #endif
 
-FloatRect screenRect(Widget*);
+WEBCORE_EXPORT FloatRect screenRect(Widget*);
 FloatRect screenAvailableRect(Widget*);
 
 WEBCORE_EXPORT OptionSet<ContentsFormat> screenContentsFormats(Widget* = nullptr);
