@@ -93,16 +93,6 @@ def _env_var_should_be_forwarded(name):
     return False
 
 
-def _print_prominent_warning(lines):
-    bar = '=' * 78
-    print('', file=sys.stderr)
-    print(bar, file=sys.stderr)
-    for line in lines:
-        print(line, file=sys.stderr)
-    print(bar, file=sys.stderr)
-    print('', file=sys.stderr)
-
-
 def _read_first_line_of(path):
     try:
         with open(path, 'r') as f:
@@ -114,6 +104,21 @@ def _read_first_line_of(path):
 def _read_running_sdk_version():
     # Set by the wkdev-sdk Containerfile (`RUN echo "${WKDEV_SDK_VERSION}" > /etc/wkdev-sdk-version`).
     return _read_first_line_of('/etc/wkdev-sdk-version')
+
+
+def _read_container_name():
+    """Return the podman --name of the current container, or None.
+
+    podman writes /run/.containerenv inside every container it spawns; the
+    `name=` line holds the value passed to `podman run --name`."""
+    try:
+        with open('/run/.containerenv', 'r') as f:
+            for line in f:
+                if line.startswith('name='):
+                    return line.split('=', 1)[1].strip().strip('"') or None
+    except OSError:
+        pass
+    return None
 
 
 def _source_dir():
@@ -465,14 +470,13 @@ def maybe_enter_webkit_container_sdk(argv=None):
     if os.environ.get('WEBKIT_CONTAINER_SDK') == '1':
         running_version = _read_running_sdk_version()
         if running_version and running_version != pinned_version:
-            _print_prominent_warning([
-                'WARNING: WebKit Container SDK version mismatch.',
-                '         Running container SDK version: {}'.format(running_version),
-                '         Pinned by .wkdev-sdk-version:  {}'.format(pinned_version),
-                '         Re-run any wrapper script (build-webkit, run-webkit-tests, ...)',
-                '         from the host to launch a fresh container at the pinned version.',
-                '         Continuing with the current container.',
-            ])
+            container_name = _read_container_name() or 'wkdev'
+            print(
+                'WARNING: WebKit Container SDK version mismatch ({} running, {} pinned). '
+                'Run `wkdev-update {}` on the host and re-enter to update.'.format(
+                    running_version, pinned_version, container_name),
+                file=sys.stderr,
+            )
         return
 
     # Auto-enter is opt-in: bots and users flip it on via the environment.
@@ -486,12 +490,11 @@ def maybe_enter_webkit_container_sdk(argv=None):
 
     # Host side: podman is the only prerequisite.
     if not shutil.which('podman'):
-        _print_prominent_warning([
-            "WARNING: 'podman' was not found on $PATH.",
-            '         WebKit Container SDK auto-launch is disabled; continuing on the host.',
-            '         Builds and tests may not work correctly outside the SDK.',
-            '         See {}'.format(WEBKIT_CONTAINER_SDK_DOCS_URL),
-        ])
+        print(
+            "WARNING: 'podman' not found on $PATH; WebKit Container SDK auto-launch disabled, "
+            "continuing on the host (see {}).".format(WEBKIT_CONTAINER_SDK_DOCS_URL),
+            file=sys.stderr,
+        )
         return
 
     # Container-internal home is bind-mounted from a host directory that must
