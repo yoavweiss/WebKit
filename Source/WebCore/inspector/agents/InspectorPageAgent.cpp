@@ -62,6 +62,7 @@
 #include "MemoryCache.h"
 #include "Page.h"
 #include "PageInspectorController.h"
+#include "RemoteFrame.h"
 #include "RenderObjectInlines.h"
 #include "RenderTheme.h"
 #include "ScriptController.h"
@@ -840,18 +841,43 @@ Ref<Inspector::Protocol::Page::Frame> InspectorPageAgent::buildObjectForFrame(Lo
     return frameObject;
 }
 
-Ref<Inspector::Protocol::Page::FrameResourceTree> InspectorPageAgent::buildObjectForFrameTree(LocalFrame* frame)
+Ref<Inspector::Protocol::Page::FrameResourceTree> InspectorPageAgent::buildObjectForFrameTree(Frame* frame)
 {
     ASSERT_ARG(frame, frame);
 
-    auto frameObject = buildObjectForFrame(frame);
+    // RemoteFrame: build a stub tree with no subresources or children.
+    if (auto* remoteFrame = dynamicDowncast<RemoteFrame>(frame)) {
+        auto& origin = remoteFrame->frameDocumentSecurityOriginOrOpaque();
+        auto frameObject = Inspector::Protocol::Page::Frame::create()
+            .setId(Inspector::IdentifierRegistry::protocolFrameId(remoteFrame->frameID()))
+            .setLoaderId(emptyString())
+            .setUrl(origin.toRawString())
+            .setMimeType("text/html"_s)
+            .setSecurityOrigin(origin.toRawString())
+            .release();
+        if (auto* parent = dynamicDowncast<LocalFrame>(frame->tree().parent()))
+            frameObject->setParentId(frameId(parent));
+        if (RefPtr ownerElement = remoteFrame->ownerElement()) {
+            String name = ownerElement->getNameAttribute();
+            if (name.isEmpty())
+                name = ownerElement->attributeWithoutSynchronization(HTMLNames::idAttr);
+            frameObject->setName(name);
+        }
+        return Inspector::Protocol::Page::FrameResourceTree::create()
+            .setFrame(WTF::move(frameObject))
+            .setResources(JSON::ArrayOf<Inspector::Protocol::Page::FrameResource>::create())
+            .release();
+    }
+
+    auto* localFrame = downcast<LocalFrame>(frame);
+    auto frameObject = buildObjectForFrame(localFrame);
     auto subresources = JSON::ArrayOf<Inspector::Protocol::Page::FrameResource>::create();
     auto result = Inspector::Protocol::Page::FrameResourceTree::create()
         .setFrame(WTF::move(frameObject))
         .setResources(subresources.copyRef())
         .release();
 
-    for (auto* cachedResource : ResourceUtilities::cachedResourcesForFrame(frame)) {
+    for (auto* cachedResource : ResourceUtilities::cachedResourcesForFrame(localFrame)) {
         auto resourceObject = Inspector::Protocol::Page::FrameResource::create()
             .setUrl(cachedResource->url().string())
             .setType(ResourceUtilities::cachedResourceTypeToProtocol(*cachedResource))
@@ -871,15 +897,12 @@ Ref<Inspector::Protocol::Page::FrameResourceTree> InspectorPageAgent::buildObjec
     }
 
     RefPtr<JSON::ArrayOf<Inspector::Protocol::Page::FrameResourceTree>> childrenArray;
-    for (Frame* child = frame->tree().firstChild(); child; child = child->tree().nextSibling()) {
+    for (Frame* child = localFrame->tree().firstChild(); child; child = child->tree().nextSibling()) {
         if (!childrenArray) {
             childrenArray = JSON::ArrayOf<Inspector::Protocol::Page::FrameResourceTree>::create();
             result->setChildFrames(*childrenArray);
         }
-        auto* localChild = dynamicDowncast<LocalFrame>(child);
-        if (!localChild)
-            continue;
-        childrenArray->addItem(buildObjectForFrameTree(localChild));
+        childrenArray->addItem(buildObjectForFrameTree(child));
     }
     return result;
 }

@@ -141,6 +141,7 @@ public:
     WEBCORE_EXPORT InspectorPageAgent& ensurePageAgent();
 
     Inspector::IdentifierRegistry& identifierRegistry() const { return m_identifierRegistry.get(); }
+    WEBCORE_EXPORT void siteIsolationFirstEnabled();
 
     // InspectorEnvironment
     bool developerExtrasEnabled() const override;

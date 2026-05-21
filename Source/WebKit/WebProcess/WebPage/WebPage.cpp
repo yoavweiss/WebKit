@@ -969,6 +969,7 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
 
     updatePreferences(parameters.store);
     if (page->settings().siteIsolationEnabled()) {
+        page->inspectorController().siteIsolationFirstEnabled();
         if (RefPtr frame = page->localMainFrame())
             frame->inspectorController().siteIsolationFirstEnabled();
     }

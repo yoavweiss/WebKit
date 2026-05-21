@@ -44,6 +44,7 @@
 #include <WebCore/InstrumentingAgents.h>
 #include <WebCore/LocalFrameInlines.h>
 #include <WebCore/Page.h>
+#include <WebCore/ProcessQualified.h>
 #include <WebCore/ResourceRequest.h>
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/WallTime.h>
@@ -54,6 +55,11 @@ using namespace Inspector;
 using namespace WebCore;
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(FrameNetworkAgentProxy);
+
+static ScopedResourceLoaderIdentifier qualifyResourceID(ResourceLoaderIdentifier resourceID)
+{
+    return { resourceID, Process::identifier() };
+}
 
 FrameNetworkAgentProxy::FrameNetworkAgentProxy(WebAgentContext& context, WebPage& page)
     : NetworkAgentInstrumentation(context)
@@ -171,7 +177,7 @@ void FrameNetworkAgentProxy::willSendRequest(ResourceLoaderIdentifier resourceID
 
     protect(WebProcess::singleton().parentProcessConnection())->send(
         Messages::ProxyingNetworkAgent::RequestWillBeSent(
-            resourceID, *frameID, contextID, String(), documentURL, request,
+            qualifyResourceID(resourceID), *frameID, contextID, String(), documentURL, request,
             WTF::move(optionalRedirectResponse), resourceType, timestamp, walltime),
         page->identifier());
 }
@@ -197,7 +203,7 @@ void FrameNetworkAgentProxy::willSendRequestOfType(ResourceLoaderIdentifier reso
 
     protect(WebProcess::singleton().parentProcessConnection())->send(
         Messages::ProxyingNetworkAgent::RequestWillBeSent(
-            resourceID, *frameID, *contextID, String(), documentURL, request,
+            qualifyResourceID(resourceID), *frameID, *contextID, String(), documentURL, request,
             std::nullopt, ResourceType::Other, timestamp, walltime),
         page->identifier());
 }
@@ -224,7 +230,7 @@ void FrameNetworkAgentProxy::didReceiveResponse(ResourceLoaderIdentifier resourc
     // in a HashMap<ResourceLoaderIdentifier, ResourceType> and look it up here.
     protect(WebProcess::singleton().parentProcessConnection())->send(
         Messages::ProxyingNetworkAgent::ResponseReceived(
-            resourceID, *frameID, contextID, response, ResourceType::Other, timestamp),
+            qualifyResourceID(resourceID), *frameID, contextID, response, ResourceType::Other, timestamp),
         page->identifier());
 }
 
@@ -237,7 +243,7 @@ void FrameNetworkAgentProxy::didReceiveData(ResourceLoaderIdentifier resourceID,
     auto timestamp = MonotonicTime::now().secondsSinceEpoch().value();
 
     protect(WebProcess::singleton().parentProcessConnection())->send(
-        Messages::ProxyingNetworkAgent::DataReceived(resourceID, dataLength, encodedDataLength, timestamp),
+        Messages::ProxyingNetworkAgent::DataReceived(qualifyResourceID(resourceID), dataLength, encodedDataLength, timestamp),
         page->identifier());
 }
 
@@ -253,7 +259,7 @@ void FrameNetworkAgentProxy::didFinishLoading(ResourceLoaderIdentifier resourceI
     auto timestamp = MonotonicTime::now().secondsSinceEpoch().value();
 
     protect(WebProcess::singleton().parentProcessConnection())->send(
-        Messages::ProxyingNetworkAgent::LoadingFinished(resourceID, timestamp, String()),
+        Messages::ProxyingNetworkAgent::LoadingFinished(qualifyResourceID(resourceID), timestamp, String()),
         page->identifier());
 }
 
@@ -269,7 +275,7 @@ void FrameNetworkAgentProxy::didFailLoading(ResourceLoaderIdentifier resourceID,
     auto timestamp = MonotonicTime::now().secondsSinceEpoch().value();
 
     protect(WebProcess::singleton().parentProcessConnection())->send(
-        Messages::ProxyingNetworkAgent::LoadingFailed(resourceID, timestamp, error.localizedDescription(), error.isCancellation()),
+        Messages::ProxyingNetworkAgent::LoadingFailed(qualifyResourceID(resourceID), timestamp, error.localizedDescription(), error.isCancellation()),
         page->identifier());
 }
 
@@ -295,7 +301,7 @@ void FrameNetworkAgentProxy::didLoadResourceFromMemoryCache(DocumentLoader* load
 
     protect(WebProcess::singleton().parentProcessConnection())->send(
         Messages::ProxyingNetworkAgent::RequestServedFromMemoryCache(
-            resourceID, *frameID, contextID, documentURL, cachedResource.resourceRequest(),
+            qualifyResourceID(resourceID), *frameID, contextID, documentURL, cachedResource.resourceRequest(),
             cachedResource.response(), resourceType, timestamp),
         page->identifier());
 }

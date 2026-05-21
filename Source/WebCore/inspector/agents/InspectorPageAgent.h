@@ -57,6 +57,7 @@ class Frame;
 class InspectorOverlay;
 class LocalFrame;
 class Page;
+class RemoteFrame;
 class RenderObject;
 class FragmentedSharedBuffer;
 
@@ -135,7 +136,7 @@ private:
     void overridePrefersColorScheme(std::optional<Inspector::Protocol::Page::UserPreferenceValue>&&);
 
     Ref<Inspector::Protocol::Page::Frame> buildObjectForFrame(LocalFrame*);
-    Ref<Inspector::Protocol::Page::FrameResourceTree> buildObjectForFrameTree(LocalFrame*);
+    Ref<Inspector::Protocol::Page::FrameResourceTree> buildObjectForFrameTree(Frame*);
 
     const UniqueRef<Inspector::PageFrontendDispatcher> m_frontendDispatcher;
     const Ref<Inspector::PageBackendDispatcher> m_backendDispatcher;

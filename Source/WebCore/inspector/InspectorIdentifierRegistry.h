@@ -25,6 +25,10 @@
 
 #pragma once
 
+#include "FrameIdentifier.h"
+#include "ProcessIdentifier.h"
+#include "ResourceLoaderIdentifier.h"
+#include "ScriptExecutionContextIdentifier.h"
 #include <JavaScriptCore/InspectorProtocolObjects.h>
 #include <wtf/Forward.h>
 #include <wtf/RefCountedAndCanMakeWeakPtr.h>
@@ -32,6 +36,7 @@
 #include <wtf/TZoneMalloc.h>
 #include <wtf/WeakHashMap.h>
 #include <wtf/WeakPtr.h>
+#include <wtf/text/MakeString.h>
 #include <wtf/text/WTFString.h>
 
 namespace WebCore {
@@ -63,6 +68,39 @@ public:
     virtual Protocol::Network::FrameId takeFrame(const WebCore::Frame&) = 0;
     // Called when a document loader is detached; returns the protocol ID that was assigned.
     virtual Protocol::Network::LoaderId takeLoader(WebCore::DocumentLoader&) = 0;
+
+    // Protocol ID helpers for Site Isolation. These produce type-prefixed strings that
+    // encode the ProcessIdentifier, so both UIProcess and WebContent process can
+    // independently compute the same ID from the same typed identifier.
+    // Format: "type-processID.objectID" (e.g., "frame-12345.3", "request-12345.17")
+    //
+    // Prefer the 2-arg protocolFrameId(FrameIdentifier, ProcessIdentifier) which uses
+    // an explicit hosting process. The 1-arg version extracts the process from the
+    // FrameIdentifier's upper bits, which is incorrect for provisional frames where
+    // the identifier is preserved across process swaps. See webkit.org/b/310164.
+    static inline String protocolFrameId(WebCore::FrameIdentifier frameID, WebCore::ProcessIdentifier processID)
+    {
+        return makeString("frame-"_s, processID.toUInt64(), '.', static_cast<uint32_t>(frameID.toRawValue()));
+    }
+
+    // FIXME: <https://webkit.org/b/310164> Callers that receive FrameIdentifier via IPC
+    // without a separate ProcessIdentifier should be updated to pass one explicitly.
+    // This extracts the process from FrameIdentifier upper bits, which is incorrect
+    // for provisional frames.
+    static inline String protocolFrameId(WebCore::FrameIdentifier frameID)
+    {
+        return makeString("frame-"_s, frameID.toRawValue() >> 32, '.', static_cast<uint32_t>(frameID.toRawValue()));
+    }
+
+    static inline String protocolRequestId(WebCore::ProcessIdentifier pid, WebCore::ResourceLoaderIdentifier resourceID)
+    {
+        return makeString("request-"_s, pid.toUInt64(), '.', resourceID.toUInt64());
+    }
+
+    static inline String protocolLoaderId(WebCore::ScriptExecutionContextIdentifier contextID)
+    {
+        return makeString("loader-"_s, contextID.processIdentifier().toUInt64(), '.', contextID.object().toString());
+    }
 };
 
 // Default implementation using IdentifiersFactory sequential counters.

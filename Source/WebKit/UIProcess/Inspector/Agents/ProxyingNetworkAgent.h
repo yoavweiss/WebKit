@@ -50,7 +50,7 @@ class WebProcessProxy;
 
 namespace Inspector {
 
-using ResourceID = WebCore::ResourceLoaderIdentifier;
+using ResourceID = WebCore::ScopedResourceLoaderIdentifier;
 using FrameID = WebCore::FrameIdentifier;
 using ContextID = WebCore::ScriptExecutionContextIdentifier;
 

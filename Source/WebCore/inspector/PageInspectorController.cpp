@@ -196,6 +196,11 @@ void PageInspectorController::createLazyAgents()
     m_agents.append(makeUniqueRef<InspectorAnimationAgent>(pageContext));
 }
 
+void PageInspectorController::siteIsolationFirstEnabled()
+{
+    m_identifierRegistry = Inspector::BackendIdentifierRegistry::create();
+}
+
 void PageInspectorController::inspectedPageDestroyed()
 {
     // Clean up resources and disconnect local and remote frontends.

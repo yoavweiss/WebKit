@@ -38,27 +38,14 @@
 #include "WebPageProxy.h"
 #include "WebProcessProxy.h"
 #include <JavaScriptCore/InspectorProtocolObjects.h>
+#include <WebCore/InspectorIdentifierRegistry.h>
+#include <WebCore/ProcessQualified.h>
 
 namespace Inspector {
 
 using namespace WebCore;
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(ProxyingNetworkAgent);
-
-static String toProtocolRequestId(ResourceID resourceID)
-{
-    return String::number(resourceID.toUInt64());
-}
-
-static String toProtocolFrameId(FrameID frameID)
-{
-    return String::number(frameID.toUInt64());
-}
-
-static String toProtocolLoaderId(ContextID contextID)
-{
-    return contextID.toString();
-}
 
 static Protocol::Page::ResourceType toProtocolResourceType(ResourceType type)
 {
@@ -350,9 +337,9 @@ void ProxyingNetworkAgent::requestWillBeSent(ResourceID resourceID, FrameID fram
     if (!m_enabled)
         return;
 
-    auto requestId = toProtocolRequestId(resourceID);
-    auto frameIdString = toProtocolFrameId(frameID);
-    auto loaderId = toProtocolLoaderId(contextID);
+    auto requestId = IdentifierRegistry::protocolRequestId(resourceID.processIdentifier(), resourceID.object());
+    auto frameIdString = IdentifierRegistry::protocolFrameId(frameID);
+    auto loaderId = IdentifierRegistry::protocolLoaderId(contextID);
     auto requestObject = buildObjectForResourceRequest(request);
 
     // FIXME: Build Initiator object once we have stack trace IPC.
@@ -372,9 +359,9 @@ void ProxyingNetworkAgent::responseReceived(ResourceID resourceID, FrameID frame
     if (!m_enabled)
         return;
 
-    auto requestId = toProtocolRequestId(resourceID);
-    auto frameIdString = toProtocolFrameId(frameID);
-    auto loaderId = toProtocolLoaderId(contextID);
+    auto requestId = IdentifierRegistry::protocolRequestId(resourceID.processIdentifier(), resourceID.object());
+    auto frameIdString = IdentifierRegistry::protocolFrameId(frameID);
+    auto loaderId = IdentifierRegistry::protocolLoaderId(contextID);
     auto responseObject = buildObjectForResourceResponse(response);
 
     if (responseObject)
@@ -386,7 +373,7 @@ void ProxyingNetworkAgent::dataReceived(ResourceID resourceID, int dataLength, i
     if (!m_enabled)
         return;
 
-    auto requestId = toProtocolRequestId(resourceID);
+    auto requestId = IdentifierRegistry::protocolRequestId(resourceID.processIdentifier(), resourceID.object());
     m_frontendDispatcher->dataReceived(requestId, timestamp, dataLength, encodedDataLength);
 }
 
@@ -395,7 +382,7 @@ void ProxyingNetworkAgent::loadingFinished(ResourceID resourceID, double timesta
     if (!m_enabled)
         return;
 
-    auto requestId = toProtocolRequestId(resourceID);
+    auto requestId = IdentifierRegistry::protocolRequestId(resourceID.processIdentifier(), resourceID.object());
     // FIXME: Add metrics parameter once we have NetworkLoadMetrics IPC.
     m_frontendDispatcher->loadingFinished(requestId, timestamp, sourceMapURL, nullptr);
 }
@@ -405,7 +392,7 @@ void ProxyingNetworkAgent::loadingFailed(ResourceID resourceID, double timestamp
     if (!m_enabled)
         return;
 
-    auto requestId = toProtocolRequestId(resourceID);
+    auto requestId = IdentifierRegistry::protocolRequestId(resourceID.processIdentifier(), resourceID.object());
     m_frontendDispatcher->loadingFailed(requestId, timestamp, errorText, canceled);
 }
 
@@ -414,9 +401,9 @@ void ProxyingNetworkAgent::requestServedFromMemoryCache(ResourceID resourceID, F
     if (!m_enabled)
         return;
 
-    auto requestId = toProtocolRequestId(resourceID);
-    auto frameIdString = toProtocolFrameId(frameID);
-    auto loaderId = toProtocolLoaderId(contextID);
+    auto requestId = IdentifierRegistry::protocolRequestId(resourceID.processIdentifier(), resourceID.object());
+    auto frameIdString = IdentifierRegistry::protocolFrameId(frameID);
+    auto loaderId = IdentifierRegistry::protocolLoaderId(contextID);
     auto requestObject = buildObjectForResourceRequest(request);
     auto responseObject = buildObjectForResourceResponse(response);
 

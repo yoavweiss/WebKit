@@ -2251,17 +2251,10 @@ webkit.org/b/314746 [ Release ] fast/images/decode-render-animated-image.html [ 
 
 # Site Isolation Inspector: Network proxying (webkit.org/b/310163)
 # Tests that require the full ProxyingNetworkAgent + event routing stack.
-# Expectations will be narrowed as the stack lands incrementally.
-webkit.org/b/310163 http/tests/site-isolation/inspector/console/message-from-iframe.html [ Pass Failure ]
-webkit.org/b/310163 http/tests/site-isolation/inspector/console/message-from-worker.html [ Pass Failure ]
 webkit.org/b/310163 http/tests/site-isolation/inspector/network/cross-origin-iframe-network-events-have-correct-frame-id.html [ Pass Failure ]
 webkit.org/b/310163 http/tests/site-isolation/inspector/network/cross-origin-iframe-network-loading-finished.html [ Pass Failure ]
 webkit.org/b/310163 http/tests/site-isolation/inspector/network/cross-origin-iframe-resource-appears-in-network-domain.html [ Pass Failure ]
-webkit.org/b/310163 http/tests/site-isolation/inspector/page/override-user-agent-cross-origin-iframe.html [ Pass Failure ]
-webkit.org/b/310163 http/tests/site-isolation/inspector/target/target-cross-origin-page-navigation.html [ Pass Failure ]
-webkit.org/b/310163 http/tests/site-isolation/inspector/target/target.html [ Pass Failure ]
-webkit.org/b/310163 http/tests/site-isolation/inspector/unit-tests/target-manager.html [ Pass Failure ]
-webkit.org/b/310163 http/tests/site-isolation/inspector/worker/worker-in-cross-origin-iframe.html [ Pass Failure ]
+webkit.org/b/315225 http/tests/site-isolation/inspector/network/cross-origin-iframe-request-id-uniqueness.html [ Skip ]
 
 webkit.org/b/308165 [ Debug ] scrollingcoordinator/mac/latching/simple-page-rubberbands.html [ Pass Failure ]
 

@@ -26,9 +26,11 @@
 #include "config.h"
 #include "InspectorIdentifierRegistry.h"
 
+#include "Document.h"
+#include "DocumentLoader.h"
+#include "FrameDestructionObserverInlines.h"
+#include "LocalFrame.h"
 #include <JavaScriptCore/IdentifiersFactory.h>
-#include <WebCore/DocumentLoader.h>
-#include <WebCore/LocalFrame.h>
 #include <wtf/TZoneMallocInlines.h>
 
 namespace Inspector {
@@ -83,6 +85,65 @@ Protocol::Network::FrameId LegacyIdentifierRegistry::takeFrame(const WebCore::Fr
 Protocol::Network::LoaderId LegacyIdentifierRegistry::takeLoader(WebCore::DocumentLoader& loader)
 {
     return m_loaderToIdentifier.take(&loader);
+}
+
+// --- BackendIdentifierRegistry ---
+
+WTF_MAKE_TZONE_ALLOCATED_IMPL(BackendIdentifierRegistry);
+
+BackendIdentifierRegistry::BackendIdentifierRegistry() = default;
+BackendIdentifierRegistry::~BackendIdentifierRegistry() = default;
+
+Protocol::Network::FrameId BackendIdentifierRegistry::frameId(const WebCore::Frame* frame)
+{
+    if (!frame)
+        return emptyString();
+    auto identifier = protocolFrameId(frame->frameID());
+    m_identifierToFrame.set(identifier, frame);
+    return identifier;
+}
+
+WebCore::Frame* BackendIdentifierRegistry::frameForId(const Protocol::Network::FrameId& frameId)
+{
+    return frameId.isEmpty() ? nullptr : m_identifierToFrame.get(frameId);
+}
+
+Protocol::Network::LoaderId BackendIdentifierRegistry::loaderId(WebCore::DocumentLoader* loader)
+{
+    if (!loader)
+        return emptyString();
+    return m_loaderToIdentifier.ensure(loader, [protectedLoader = RefPtr { loader }] {
+        if (RefPtr frame = protectedLoader->frame()) {
+            if (RefPtr document = frame->document())
+                return protocolLoaderId(document->identifier());
+        }
+        // FIXME: Fallback for early instrumentation before document exists.
+        // This produces a legacy-format ID; deterministic ID will be assigned
+        // once the document is available. rdar://170087346
+        return IdentifiersFactory::createIdentifier();
+    }).iterator->value;
+}
+
+WebCore::LocalFrame* BackendIdentifierRegistry::assertFrame(Protocol::ErrorString& errorString, const Protocol::Network::FrameId& frameId)
+{
+    auto* frame = dynamicDowncast<WebCore::LocalFrame>(frameForId(frameId));
+    if (!frame)
+        errorString = "Missing frame for given frameId"_s;
+    return frame;
+}
+
+Protocol::Network::FrameId BackendIdentifierRegistry::takeFrame(const WebCore::Frame& frame)
+{
+    auto identifier = protocolFrameId(frame.frameID());
+    m_identifierToFrame.remove(identifier);
+    return identifier;
+}
+
+Protocol::Network::LoaderId BackendIdentifierRegistry::takeLoader(WebCore::DocumentLoader& loader)
+{
+    auto identifier = loaderId(&loader);
+    m_loaderToIdentifier.remove(&loader);
+    return identifier;
 }
 
 } // namespace Inspector

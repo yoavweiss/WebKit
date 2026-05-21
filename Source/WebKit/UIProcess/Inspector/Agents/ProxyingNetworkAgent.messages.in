@@ -26,15 +26,15 @@
     DispatchedTo=UI
 ]
 messages -> Inspector::ProxyingNetworkAgent {
-    RequestWillBeSent(WebCore::ResourceLoaderIdentifier resourceID, WebCore::FrameIdentifier frameID, WebCore::ScriptExecutionContextIdentifier contextID, String targetID, String documentURL, WebCore::ResourceRequest request, std::optional<WebCore::ResourceResponse> redirectResponse, Inspector::ResourceType resourceType, double timestamp, double walltime)
+    RequestWillBeSent(WebCore::ScopedResourceLoaderIdentifier resourceID, WebCore::FrameIdentifier frameID, WebCore::ScriptExecutionContextIdentifier contextID, String targetID, String documentURL, WebCore::ResourceRequest request, std::optional<WebCore::ResourceResponse> redirectResponse, Inspector::ResourceType resourceType, double timestamp, double walltime)
 
-    ResponseReceived(WebCore::ResourceLoaderIdentifier resourceID, WebCore::FrameIdentifier frameID, WebCore::ScriptExecutionContextIdentifier contextID, WebCore::ResourceResponse response, Inspector::ResourceType resourceType, double timestamp)
+    ResponseReceived(WebCore::ScopedResourceLoaderIdentifier resourceID, WebCore::FrameIdentifier frameID, WebCore::ScriptExecutionContextIdentifier contextID, WebCore::ResourceResponse response, Inspector::ResourceType resourceType, double timestamp)
 
-    DataReceived(WebCore::ResourceLoaderIdentifier resourceID, int dataLength, int encodedDataLength, double timestamp)
+    DataReceived(WebCore::ScopedResourceLoaderIdentifier resourceID, int dataLength, int encodedDataLength, double timestamp)
 
-    LoadingFinished(WebCore::ResourceLoaderIdentifier resourceID, double timestamp, String sourceMapURL)
+    LoadingFinished(WebCore::ScopedResourceLoaderIdentifier resourceID, double timestamp, String sourceMapURL)
 
-    LoadingFailed(WebCore::ResourceLoaderIdentifier resourceID, double timestamp, String errorText, bool canceled)
+    LoadingFailed(WebCore::ScopedResourceLoaderIdentifier resourceID, double timestamp, String errorText, bool canceled)
 
-    RequestServedFromMemoryCache(WebCore::ResourceLoaderIdentifier resourceID, WebCore::FrameIdentifier frameID, WebCore::ScriptExecutionContextIdentifier contextID, String documentURL, WebCore::ResourceRequest request, WebCore::ResourceResponse response, Inspector::ResourceType resourceType, double timestamp)
+    RequestServedFromMemoryCache(WebCore::ScopedResourceLoaderIdentifier resourceID, WebCore::FrameIdentifier frameID, WebCore::ScriptExecutionContextIdentifier contextID, String documentURL, WebCore::ResourceRequest request, WebCore::ResourceResponse response, Inspector::ResourceType resourceType, double timestamp)
 }
