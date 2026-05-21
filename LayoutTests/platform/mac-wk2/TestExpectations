@@ -2316,11 +2316,6 @@ webkit.org/b/313764 [ Tahoe+ Debug ] webrtc/ephemeral-certificates-and-cnames.ht
 imported/w3c/web-platform-tests/dom/nodes/moveBefore/style-applies.html [ Skip ]
 imported/w3c/web-platform-tests/dom/nodes/moveBefore/throws-exception.html [ Skip ]
 
-# webkit.org/b/315211 REGRESSION(313507@main): [macOS Debug] ASSERTION FAILED: !activeOrigin->isSameOriginDomain(targetOrigin)
-[ Debug ] http/tests/site-isolation/page-lifecycle/unload.html [ Skip ]
-[ Debug ] http/tests/site-isolation/page-lifecycle/pagehide.html [ Skip ]
-[ Debug ] http/tests/site-isolation/page-lifecycle/pageswap.html [ Skip ]
-
 webkit.org/b/315238 [ Sequoia+ ] imported/w3c/web-platform-tests/webrtc/RTCRtpReceiver-video-jitterBufferTarget-stats.html [ Pass Failure ]
 
 webkit.org/b/315242 [ Tahoe x86_64 ] fast/forms/select/mac-wk2/inactive-appearance.html [ ImageOnlyFailure ]

@@ -414,7 +414,10 @@ void WebFrame::loadDidCommitInAnotherProcess(std::optional<WebCore::LayerHosting
     RefPtr ownerRenderer = localFrame->ownerRenderer();
 
     auto newFrame = [&]() {
-        Ref frameTreeSyncData = localFrame->frameTreeSyncData();
+        // Don't reuse the dying LocalFrame's sync data — its pre-swap origin would remain visible
+        // until the post-commit FrameTreeSyncDataChangedInAnotherProcess IPC arrives. Opaque is
+        // an honest placeholder that never spuriously matches the active document.
+        Ref frameTreeSyncData = FrameTreeSyncData::create();
 
         auto invalidator = protect(localFrameLoaderClient())->takeFrameInvalidator();
         auto clientCreator = [protectedThis = Ref { *this }, invalidator = WTF::move(invalidator)] (auto&) mutable {
