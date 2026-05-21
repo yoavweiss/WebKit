@@ -2611,7 +2611,7 @@ sub GenerateEnumerationImplementationContent
         my $enumerationValueName = GetEnumerationValueName(shift(@sortedEnumerationValues));
         $result .= "        return ${className}::$enumerationValueName;\n";
     }
-    $result .= "    static constexpr SortedArrayMap enumerationMapping { std::to_array<std::pair<ComparableASCIILiteral, $className>>({\n";
+    $result .= "    static constexpr SortedArrayMap enumerationMapping { WTF::toArray<std::pair<ComparableASCIILiteral, $className>>({\n";
     for my $value (@sortedEnumerationValues) {
         my $enumerationValueName = GetEnumerationValueName($value);
         $result .= "        { \"$value\"_s, ${className}::$enumerationValueName },\n";

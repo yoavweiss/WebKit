@@ -95,7 +95,7 @@ output_file.write("""/*
 #include "config.h"
 #include "HTMLEntityTable.h"
 
-#include <array>
+#include <wtf/StdLibExtras.h>
 #include <wtf/text/ASCIILiteral.h>
 
 namespace WebCore {
@@ -177,13 +177,13 @@ output_file.write("""};
 
 """)
 
-output_file.write("static constexpr auto uppercaseOffset = std::to_array<uint16_t>({\n")
+output_file.write("static constexpr auto uppercaseOffset = WTF::toArray<uint16_t>({\n")
 for letter in string.ascii_uppercase:
     output_file.write("%d,\n" % index[letter])
 output_file.write("%d\n" % index['a'])
 output_file.write("""});
 
-static constexpr auto lowercaseOffset = std::to_array<uint16_t>({\n""")
+static constexpr auto lowercaseOffset = WTF::toArray<uint16_t>({\n""")
 for letter in string.ascii_lowercase:
     output_file.write("%d,\n" % index[letter])
 output_file.write("%d\n" % entity_count)

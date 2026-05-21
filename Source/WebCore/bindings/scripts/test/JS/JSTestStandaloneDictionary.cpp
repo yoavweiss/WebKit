@@ -457,7 +457,7 @@ template<> JSString* convertEnumerationToJS(VM& vm, TestStandaloneDictionary::En
 
 template<> std::optional<TestStandaloneDictionary::EnumInStandaloneDictionaryFile> parseEnumerationFromString<TestStandaloneDictionary::EnumInStandaloneDictionaryFile>(const String& stringValue)
 {
-    static constexpr SortedArrayMap enumerationMapping { std::to_array<std::pair<ComparableASCIILiteral, TestStandaloneDictionary::EnumInStandaloneDictionaryFile>>({
+    static constexpr SortedArrayMap enumerationMapping { WTF::toArray<std::pair<ComparableASCIILiteral, TestStandaloneDictionary::EnumInStandaloneDictionaryFile>>({
         { "enumValue1"_s, TestStandaloneDictionary::EnumInStandaloneDictionaryFile::EnumValue1 },
         { "enumValue2"_s, TestStandaloneDictionary::EnumInStandaloneDictionaryFile::EnumValue2 },
     }) };
