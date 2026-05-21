@@ -644,7 +644,10 @@ void RemoteLayerTreeEventDispatcher::renderingUpdateComplete()
     ASSERT(isMainRunLoop());
 
 #if ENABLE(THREADED_ANIMATIONS)
-    updateAnimations();
+    // We only want to update scroll-driven animations in this situation
+    // as time-based animations will always be udpated from the scrolling
+    // following a call to didRefreshDisplay().
+    updateAnimations(AnimationStacksToUpdate::ProgressBasedOnly);
 #endif
 
     Locker locker { m_scrollingTreeLock };
@@ -712,7 +715,7 @@ RefPtr<const RemoteAnimationTimeline> RemoteLayerTreeEventDispatcher::timeline(c
     return nullptr;
 }
 
-void RemoteLayerTreeEventDispatcher::updateAnimations()
+void RemoteLayerTreeEventDispatcher::updateAnimations(AnimationStacksToUpdate animationStacksToUpdate)
 {
     ASSERT(isMainRunLoop() || ScrollingThread::isCurrentThread());
     Locker lock { m_animationLock };
@@ -720,13 +723,14 @@ void RemoteLayerTreeEventDispatcher::updateAnimations()
     // FIXME: Rather than using 'now' at the point this is called, we
     // should probably be using the timestamp of the (next?) display
     // link update or vblank refresh.
-    if (m_monotonicTimelineRegistry)
+    if (m_monotonicTimelineRegistry && animationStacksToUpdate == AnimationStacksToUpdate::All)
         m_monotonicTimelineRegistry->advanceCurrentTime(MonotonicTime::now());
 
     auto animationStacks = std::exchange(m_animationStacks, { });
     for (auto [layerID, currentAnimationStack] : animationStacks) {
         Ref animationStack = currentAnimationStack;
-        animationStack->applyEffects();
+        if (animationStacksToUpdate == AnimationStacksToUpdate::All || animationStack->hasProgressBasedAnimations())
+            animationStack->applyEffects();
 
         // We can clear the effect stack if it's empty, but the previous
         // call to applyEffects() is important so that the base values

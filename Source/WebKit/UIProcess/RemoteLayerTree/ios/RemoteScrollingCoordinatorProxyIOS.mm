@@ -835,7 +835,7 @@ void RemoteScrollingCoordinatorProxyIOS::updateTimeDependentAnimationStacks()
     m_monotonicTimelineRegistry->advanceCurrentTime(MonotonicTime::now());
 
     updateAnimationStacks([](auto& animationStack) {
-        return animationStack.isTimeDependent();
+        return animationStack.hasTimeBasedAnimations();
     });
 }
 

@@ -114,7 +114,6 @@ public:
     void animationsWereRemovedFromNode(RemoteLayerTreeNode&);
     void updateTimelinesRegistration(WebCore::ProcessIdentifier, const WebCore::AcceleratedTimelinesUpdate&, MonotonicTime);
     RefPtr<const RemoteAnimationTimeline> timeline(const TimelineID&);
-    void updateAnimations();
     RefPtr<const RemoteAnimationStack> animationStackForNodeWithIDForTesting(WebCore::PlatformLayerIdentifier) const;
     HashSet<Ref<RemoteProgressBasedTimeline>> timelinesForScrollingNodeIDForTesting(WebCore::ScrollingNodeID);
 #endif
@@ -161,6 +160,10 @@ private:
     void didStartRubberbanding();
 
     void updateLayerPositionsAndAnimations();
+#if ENABLE(THREADED_ANIMATIONS)
+    enum class AnimationStacksToUpdate : bool { All, ProgressBasedOnly };
+    void updateAnimations(AnimationStacksToUpdate = AnimationStacksToUpdate::All);
+#endif
 
 #if ENABLE(MOMENTUM_EVENT_DISPATCHER)
     void handleSyntheticWheelEvent(WebCore::PageIdentifier, const WebWheelEvent&, WebCore::RectEdges<WebCore::RubberBandingBehavior> rubberBandableEdges);
