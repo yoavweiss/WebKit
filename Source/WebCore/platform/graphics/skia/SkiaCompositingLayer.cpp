@@ -488,7 +488,7 @@ void SkiaCompositingLayer::paintSelf(SkCanvas& canvas, PaintContext& context)
                 TransformationMatrix matrix = canvas.getLocalToDevice();
                 downcast<CoordinatedPlatformLayerBufferHolePunch>(*m_contentsBuffer).setHolePunchVideoRectangle(enclosingIntRect(matrix.mapRect(m_contentsRect)));
 #endif
-                paint.setColor(SK_ColorTRANSPARENT);
+                paint.setBlendMode(SkBlendMode::kClear);
                 canvas.drawRect(SkRect(m_contentsRect), paint);
             } else
                 image = m_contentsBuffer->skiaImage();
