@@ -64,7 +64,7 @@ class MeasureBuildTimeTest(unittest.TestCase):
             return proc, results
 
     def test_clean_and_null_build(self):
-        proc, results = self._run_script('echo ok')
+        proc, results = self._run_script('echo ok', ['--tests', 'clean', 'null'])
 
         self.assertEqual(proc.returncode, 0)
         self.assertIn('BuildTime-Debug', results)
