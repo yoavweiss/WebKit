@@ -57,6 +57,7 @@ Output:
 """
 
 import argparse
+import importlib.machinery
 import importlib.util
 import json
 import sys
