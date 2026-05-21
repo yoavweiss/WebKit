@@ -4549,8 +4549,10 @@ void EventHandler::defaultKeyboardEventHandler(KeyboardEvent& event)
             return;
 
         if (event.key() == "Escape"_s) {
-            if (frame->settings().closeWatcherEnabled())
-                frame->document()->window()->closeWatcherManager().escapeKeyHandler(event);
+            if (frame->settings().closeWatcherEnabled()) {
+                if (event.isTrusted())
+                    frame->document()->window()->closeWatcherManager().processCloseWatchers();
+            }
             if (frame->settings().closedbyAttributeEnabled()) {
                 if (RefPtr activeCloseableDialog = frame->document()->activeCloseableDialog())
                     activeCloseableDialog->requestClose(nullString(), nullptr);
