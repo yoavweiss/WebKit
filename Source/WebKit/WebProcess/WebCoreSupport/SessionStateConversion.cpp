@@ -97,7 +97,6 @@ Ref<FrameState> toFrameState(const HistoryItem& historyItem)
 
     frameState->itemID = historyItem.itemID();
     frameState->frameItemID = historyItem.frameItemID();
-    frameState->hasCachedPage = historyItem.isInBackForwardCache();
     frameState->shouldOpenExternalURLsPolicy = historyItem.shouldOpenExternalURLsPolicy();
     frameState->sessionStateObject = historyItem.stateObject();
     frameState->wasCreatedByJSWithoutUserInteraction = historyItem.wasCreatedByJSWithoutUserInteraction();

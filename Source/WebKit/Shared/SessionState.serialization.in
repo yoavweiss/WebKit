@@ -59,7 +59,6 @@ header: "SessionState.h"
 
     Markable<WebCore::BackForwardItemIdentifier> itemID;
     Markable<WebCore::BackForwardFrameItemIdentifier> frameItemID;
-    bool hasCachedPage;
     String title;
     WebCore::ShouldOpenExternalURLsPolicy shouldOpenExternalURLsPolicy;
     RefPtr<WebCore::SerializedScriptValue> sessionStateObject;
