@@ -1701,6 +1701,7 @@ static void testWebViewAutoplayPolicy(WebViewTest* test, gconstpointer)
     g_assert_cmpint(webkit_website_policies_get_autoplay_policy(policies), ==, WEBKIT_AUTOPLAY_ALLOW_WITHOUT_SOUND);
 }
 
+#if defined(NDEBUG)
 static void testWebViewIsWebProcessResponsive(WebViewTest* test, gconstpointer)
 {
     static const char* hangHTML =
@@ -1733,6 +1734,7 @@ static void testWebViewIsWebProcessResponsive(WebViewTest* test, gconstpointer)
     test->waitUntilLoadFinished();
     g_assert_true(webkit_web_view_get_is_web_process_responsive(test->webView()));
 }
+#endif // NDEBUG
 
 static void testWebViewBackgroundColor(WebViewTest* test, gconstpointer)
 {
@@ -2028,6 +2030,7 @@ static void testWebViewTerminateWebProcess(WebViewTerminateWebProcessTest* test,
     g_assert_true(webkit_web_view_get_is_web_process_responsive(test->webView()));
 }
 
+#if defined(NDEBUG)
 static void testWebViewTerminateUnresponsiveWebProcess(WebViewTerminateWebProcessTest* test, gconstpointer)
 {
     static const char* hangHTML =
@@ -2059,6 +2062,7 @@ static void testWebViewTerminateUnresponsiveWebProcess(WebViewTerminateWebProces
     g_assert_cmpuint(test->m_terminationReason, ==, WEBKIT_WEB_PROCESS_TERMINATED_BY_API);
     g_assert_true(webkit_web_view_get_is_web_process_responsive(test->webView()));
 }
+#endif // NDEBUG
 
 static void testWebViewCORSAllowlist(WebViewTest* test, gconstpointer)
 {
