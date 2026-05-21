@@ -45,6 +45,7 @@
 #include "CustomFunctionRegistry.h"
 #include "Document.h"
 #include "Element.h"
+#include "ElementInlines.h"
 #include "HTMLSelectElement.h"
 #include "MatchResult.h"
 #include "MutableStyleProperties.h"
@@ -387,7 +388,13 @@ bool SubstitutionResolver::substituteAttrFunction(CSSParserTokenRange argumentsR
         return false;
     range.consumeWhitespace();
 
-    auto attributeName = parsedName->name;
+    CheckedPtr element = m_styleBuilder.state().element();
+    if (!element)
+        return false;
+
+    // https://drafts.csswg.org/css-values-5/#typedef-attr-name
+    // "As with attribute selectors, the case-sensitivity of <attr-name> depends on the document language."
+    auto attributeName = shouldIgnoreAttributeCase(*element) ? parsedName->name.convertToASCIILowercase() : parsedName->name;
 
     // Consume optional <attr-type>.
     // https://drafts.csswg.org/css-values-5/#typedef-attr-type
@@ -449,10 +456,6 @@ bool SubstitutionResolver::substituteAttrFunction(CSSParserTokenRange argumentsR
 
     m_styleBuilder.state().registerSubstitutionAttribute(attributeName);
     protect(m_styleBuilder.state().style())->setHasAttrContent();
-
-    CheckedPtr element = m_styleBuilder.state().element();
-    if (!element)
-        return false;
 
     // Resolve namespace prefix to URI.
     auto namespaceURI = [&] -> AtomString {

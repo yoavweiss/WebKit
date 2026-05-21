@@ -9450,6 +9450,7 @@
         "web-platform-tests/css/css-values/calc-width-table-fixed-1-ref.html",
         "web-platform-tests/css/css-values/ex-calc-expression-001-ref.html",
         "web-platform-tests/css/css-values/html-attr-case-insensitivity-ref.html",
+        "web-platform-tests/css/css-values/svg-attr-case-sensitivity-ref.html",
         "web-platform-tests/css/css-values/inline-cache-base-uri-cssom-ref.html",
         "web-platform-tests/css/css-values/inline-cache-base-uri-ref.html",
         "web-platform-tests/css/css-values/inline-cache-base-uri/inner.html",
