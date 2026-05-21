@@ -2324,3 +2324,5 @@ imported/w3c/web-platform-tests/dom/nodes/moveBefore/throws-exception.html [ Ski
 webkit.org/b/315238 [ Sequoia+ ] imported/w3c/web-platform-tests/webrtc/RTCRtpReceiver-video-jitterBufferTarget-stats.html [ Pass Failure ]
 
 webkit.org/b/315242 [ Tahoe x86_64 ] fast/forms/select/mac-wk2/inactive-appearance.html [ ImageOnlyFailure ]
+
+webkit.org/b/315246 [ Tahoe x86_64 ] http/tests/resourceLoadStatistics/website-data-removal-for-site-navigated-to-with-filtered-link-decoration-after-long-deletion.html [ Pass Failure ]
