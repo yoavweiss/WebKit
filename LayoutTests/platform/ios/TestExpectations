@@ -8392,8 +8392,6 @@ imported/w3c/web-platform-tests/html/semantics/popovers/popover-shadowhost-focus
 # rdar://168334716 (MTLCompilerService crashes when Metal Shader Validation is enabled on iOS Simulator)
 webgl/webgl2-provoking-vertex-primitive-restart-uint16-nocrash.html [ Skip ]
 
-webkit.org/b/314216 imported/w3c/web-platform-tests/css/css-position/fixed-z-index-blend.html [ Pass ImageOnlyFailure ]
-
 # iOS UA stylesheet has :checked form-control rules that add self-invalidation, changing
 # traversal counts compared to macOS.
 fast/selectors/has-invalidation-traversal-size.html [ Skip ]
