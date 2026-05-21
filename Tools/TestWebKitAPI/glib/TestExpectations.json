@@ -238,6 +238,9 @@
             },
             "ImageBufferTests.ImageBufferSubPixelDrawing": {
                 "expected": {"all": {"slow": true}}
+            },
+            "RunLoopObserver.CrossThread_MultipleScheduleAttempts": {
+                "expected": {"all": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/315297"}}
             }
         }
     },
