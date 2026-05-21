@@ -27,7 +27,7 @@
 
 #if PLATFORM(COCOA)
 
-#import "IOSMouseEventTestHarness.h"
+#import "Helpers/ios/IOSMouseEventTestHarness.h"
 #import "InstanceMethodSwizzler.h"
 #import "Helpers/PlatformUtilities.h"
 #import "Helpers/Test.h"
