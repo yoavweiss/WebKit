@@ -1049,18 +1049,6 @@ final class WebBackForwardList {
         }
         // We can't use == here due to rdar://162357139
         assert(contentsMatch(webPageProxy.identifier(), item.pageID()) && contentsMatch(itemID, item.identifier()))
-        if let process = WebKit.AuxiliaryProcessProxy.fromConnection(connection) {
-            // The downcast in C++ is really just used to assert that the process is a WebProcessProxy
-            assert(WebKit.downcastToWebProcessProxy(process).__convertToBool())
-            let hasBackForwardCacheEntry = item.backForwardCacheEntry() != nil
-            if hasBackForwardCacheEntry != frameState.ptr().hasCachedPage {
-                if frameState.ptr().hasCachedPage {
-                    webPageProxy.backForwardCache().addEntry(item, process.coreProcessIdentifier())
-                } else if item.suspendedPage() == nil {
-                    webPageProxy.backForwardCache().removeEntry(item)
-                }
-            }
-        }
         let oldFrameID = frameItem.frameID()
         frameItem.setFrameState(consuming: frameState)
         let newFrameID = frameItem.frameID()

@@ -820,14 +820,6 @@ void WebBackForwardList::backForwardUpdateItem(IPC::Connection& connection, Ref<
     if (RefPtr webPageProxy = m_page.get()) {
         ASSERT(webPageProxy->identifier() == item->pageID() && frameState->itemID == item->identifier());
 
-        Ref process = *downcast<WebProcessProxy>(AuxiliaryProcessProxy::fromConnection(connection));
-        if (!!item->backForwardCacheEntry() != frameState->hasCachedPage) {
-            if (frameState->hasCachedPage)
-                protect(webPageProxy->backForwardCache())->addEntry(*item, process->coreProcessIdentifier());
-            else if (!item->suspendedPage())
-                protect(webPageProxy->backForwardCache())->removeEntry(*item);
-        }
-
         auto oldFrameID = frameItem->frameID();
         frameItem->setFrameState(WTF::move(frameState));
         auto newFrameID = frameItem->frameID();

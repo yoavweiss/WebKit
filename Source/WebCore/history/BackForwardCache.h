@@ -57,8 +57,9 @@ public:
 
     WEBCORE_EXPORT std::unique_ptr<CachedPage> suspendPage(Page&);
     WEBCORE_EXPORT bool addIfCacheable(HistoryItem&, Page*); // Prunes if maxSize() is exceeded.
-    WEBCORE_EXPORT bool addIfCacheable(BackForwardFrameItemIdentifier, Page&);
-    WEBCORE_EXPORT void remove(BackForwardFrameItemIdentifier);
+    WEBCORE_EXPORT bool addIfCacheable(BackForwardFrameItemIdentifier, Page&, std::optional<BackForwardItemIdentifier> = std::nullopt);
+    enum class ShouldNotifyClient : bool { No, Yes };
+    WEBCORE_EXPORT void remove(BackForwardFrameItemIdentifier, ShouldNotifyClient = ShouldNotifyClient::Yes);
     WEBCORE_EXPORT void remove(HistoryItem&);
     CachedPage* get(HistoryItem&, Page*);
     std::unique_ptr<CachedPage> take(HistoryItem&, Page*);

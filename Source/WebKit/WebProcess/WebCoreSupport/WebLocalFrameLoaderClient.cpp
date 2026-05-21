@@ -68,6 +68,7 @@
 #include "WebsitePoliciesData.h"
 #include <JavaScriptCore/APICast.h>
 #include <JavaScriptCore/JSObject.h>
+#include <WebCore/BackForwardCache.h>
 #include <WebCore/CachedFrame.h>
 #include <WebCore/CertificateInfo.h>
 #include <WebCore/Chrome.h>
@@ -1737,6 +1738,39 @@ void WebLocalFrameLoaderClient::transitionToCommittedForNewPage(InitializingIfra
 void WebLocalFrameLoaderClient::didRestoreFromBackForwardCache()
 {
     m_frameCameFromBackForwardCache = true;
+}
+
+void WebLocalFrameLoaderClient::didCacheBackForwardItem(BackForwardItemIdentifier itemID, BackForwardFrameItemIdentifier frameItemID)
+{
+    RefPtr webPage = m_frame->page();
+    ASSERT(webPage);
+    if (!webPage)
+        return;
+    webPage->sendWithAsyncReply(Messages::WebPageProxy::DidCacheBackForwardItem(itemID), [itemID, frameItemID](bool success) {
+        if (success)
+            return;
+        // UIProcess rejected the cache: roll back the WebProcess-side entry
+        // we just inserted. Skip the eviction notification because the
+        // UIProcess never registered an entry to remove.
+        RELEASE_LOG_ERROR(ProcessSwapping, "didCacheBackForwardItem: UIProcess rejected itemID %" PUBLIC_LOG_STRING ", evicting frameItemID %" PUBLIC_LOG_STRING, itemID.toString().utf8().data(), frameItemID.toString().utf8().data());
+        BackForwardCache::singleton().remove(frameItemID, BackForwardCache::ShouldNotifyClient::No);
+    });
+}
+
+void WebLocalFrameLoaderClient::didEvictBackForwardItem(BackForwardItemIdentifier itemID)
+{
+    RefPtr webPage = m_frame->page();
+    if (!webPage)
+        return;
+    webPage->send(Messages::WebPageProxy::DidEvictBackForwardItem(itemID));
+}
+
+void WebLocalFrameLoaderClient::didTakeBackForwardItemForRestoration(BackForwardItemIdentifier itemID)
+{
+    RefPtr webPage = m_frame->page();
+    if (!webPage)
+        return;
+    webPage->send(Messages::WebPageProxy::DidTakeBackForwardItemForRestoration(itemID));
 }
 
 bool WebLocalFrameLoaderClient::canCachePage() const

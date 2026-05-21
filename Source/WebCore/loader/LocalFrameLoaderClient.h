@@ -110,6 +110,9 @@ enum class IsSameDocumentNavigation : bool { No, Yes };
 enum class ShouldGoToHistoryItem : uint8_t { No, Yes, ItemUnknown };
 enum class ProcessSwapDisposition : uint8_t;
 
+struct BackForwardFrameItemIdentifierType;
+using BackForwardFrameItemIdentifier = ProcessQualified<ObjectIdentifier<BackForwardFrameItemIdentifierType>>;
+
 struct BackForwardItemIdentifierType;
 struct StringWithDirection;
 
@@ -269,6 +272,10 @@ public:
     virtual void transitionToCommittedForNewPage(InitializingIframe) = 0;
 
     virtual void didRestoreFromBackForwardCache() = 0;
+
+    virtual void didCacheBackForwardItem(BackForwardItemIdentifier, BackForwardFrameItemIdentifier);
+    virtual void didEvictBackForwardItem(BackForwardItemIdentifier);
+    virtual void didTakeBackForwardItemForRestoration(BackForwardItemIdentifier);
 
     virtual bool canCachePage() const = 0;
     virtual void convertMainResourceLoadToDownload(DocumentLoader*, const ResourceRequest&, const ResourceResponse&) = 0;

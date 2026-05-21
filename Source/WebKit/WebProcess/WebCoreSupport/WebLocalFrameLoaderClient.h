@@ -218,6 +218,10 @@ private:
 
     void didRestoreFromBackForwardCache() final;
 
+    void didCacheBackForwardItem(WebCore::BackForwardItemIdentifier, WebCore::BackForwardFrameItemIdentifier) final;
+    void didEvictBackForwardItem(WebCore::BackForwardItemIdentifier) final;
+    void didTakeBackForwardItemForRestoration(WebCore::BackForwardItemIdentifier) final;
+
     bool canCachePage() const final;
     void convertMainResourceLoadToDownload(WebCore::DocumentLoader*, const WebCore::ResourceRequest&, const WebCore::ResourceResponse&) final;
 

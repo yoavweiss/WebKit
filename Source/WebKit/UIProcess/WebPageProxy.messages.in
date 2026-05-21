@@ -694,4 +694,8 @@ messages -> WebPageProxy {
 #endif
 
     UpdateRemoteIntersectionObserversInOtherWebProcesses();
+
+    DidCacheBackForwardItem(WebCore::BackForwardItemIdentifier itemID) -> (bool success)
+    DidEvictBackForwardItem(WebCore::BackForwardItemIdentifier itemID)
+    DidTakeBackForwardItemForRestoration(WebCore::BackForwardItemIdentifier itemID)
 }
