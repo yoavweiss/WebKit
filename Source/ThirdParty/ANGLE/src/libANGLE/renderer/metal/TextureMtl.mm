@@ -1324,6 +1324,7 @@ ImageDefinitionMtl &TextureMtl::getImageDefinition(const gl::ImageIndex &imageIn
 
     return imageDef;
 }
+
 angle::Result TextureMtl::getRenderTarget(ContextMtl *context,
                                           const gl::ImageIndex &imageIndex,
                                           GLsizei implicitSamples,
@@ -2032,6 +2033,9 @@ angle::Result TextureMtl::redefineImage(const gl::Context *context,
         ASSERT(mNativeTextureStorage->textureType() == mtl::GetTextureType(index.getType()));
         if (mNativeTextureStorage->getFormat() == mtlFormat && size == mNativeTextureStorage->size(glLevel))
         {
+            // The view might be from mNativeTextureStorage, but it might also be from previous
+            // storages. Always discard.
+            imageDef = {};
             return angle::Result::Continue;
         }
         // The redefinition makes the mipmap chain incomplete. Move the mipmaps to
@@ -2169,7 +2173,7 @@ angle::Result TextureMtl::setSubImageImpl(const gl::Context *context,
     GLuint sourceSkipBytes  = 0;
     ANGLE_CHECK_GL_MATH(
         contextMtl, formatInfo.computeRowDepthSkipBytes(
-                        type, gl::Extents{area.width, area.height, area.depth}, unpack,
+                        type, area.width, area.height, unpack,
                         index.usesTex3D(), &sourceRowPitch, &sourceDepthPitch, &sourceSkipBytes));
 
     // Get corresponding source data's ANGLE format
