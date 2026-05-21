@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include "FrameIdentifier.h"
-#include "ProcessIdentifier.h"
-#include "ResourceLoaderIdentifier.h"
-#include "ScriptExecutionContextIdentifier.h"
 #include <JavaScriptCore/InspectorProtocolObjects.h>
+#include <WebCore/FrameIdentifier.h>
+#include <WebCore/ProcessIdentifier.h>
+#include <WebCore/ResourceLoaderIdentifier.h>
+#include <WebCore/ScriptExecutionContextIdentifier.h>
 #include <wtf/Forward.h>
 #include <wtf/RefCountedAndCanMakeWeakPtr.h>
 #include <wtf/RobinHoodHashMap.h>
