@@ -822,8 +822,18 @@ namespace mpark {
                              integer_sequence<bool, Bs..., true>>;
 
 #ifdef MPARK_TYPE_PACK_ELEMENT
+#ifdef __clang__
     template <std::size_t I, typename... Ts>
     using type_pack_element_t = __type_pack_element<I, Ts...>;
+#else
+    template <std::size_t I, typename... Ts>
+    struct type_pack_element_impl {
+      using type = __type_pack_element<I, Ts...>;
+    };
+
+    template <std::size_t I, typename... Ts>
+    using type_pack_element_t = typename type_pack_element_impl<I, Ts...>::type;
+#endif
 #else
     template <std::size_t I, typename... Ts>
     struct type_pack_element_impl {
