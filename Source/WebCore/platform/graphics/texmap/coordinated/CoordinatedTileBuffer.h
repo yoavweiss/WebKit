@@ -60,6 +60,7 @@ public:
     WEBCORE_EXPORT virtual ~CoordinatedTileBuffer();
 
     virtual IntSize size() const = 0;
+    virtual PixelFormat pixelFormat() const = 0;
     virtual bool isBackedByOpenGL() const = 0;
 
     bool supportsAlpha() const { return m_flags & SupportsAlpha; }
@@ -112,13 +113,12 @@ public:
     const unsigned char* data() const { return m_data.span().data(); }
     unsigned char* data() { return m_data.mutableSpan().data(); }
 
-    PixelFormat pixelFormat() const { return PixelFormat::BGRA8; }
-
 private:
     CoordinatedUnacceleratedTileBuffer(const IntSize&, Flags);
 
     bool isBackedByOpenGL() const final { return false; }
     IntSize size() const final { return m_size; }
+    PixelFormat pixelFormat() const final { return PixelFormat::BGRA8; }
 
 #if USE(SKIA)
     bool tryEnsureSurface() final;
@@ -153,6 +153,7 @@ private:
 
     bool isBackedByOpenGL() const final { return true; }
     IntSize size() const final;
+    PixelFormat pixelFormat() const final { return PixelFormat::RGBA8; }
 
     bool tryEnsureSurface() final;
     void completePainting() final;

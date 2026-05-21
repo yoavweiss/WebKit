@@ -108,7 +108,7 @@ void CoordinatedBackingStoreTile::processPendingUpdates()
         WTFBeginSignpost(this, CopyTextureCPUToGPU);
         ASSERT(!update.buffer->isBackedByOpenGL());
         auto& buffer = static_cast<CoordinatedUnacceleratedTileBuffer&>(update.buffer.get());
-        m_texture->updateContents(buffer.data(), update.sourceRect, update.bufferOffset, buffer.stride(), buffer.pixelFormat());
+        m_texture->updateContents(buffer.data(), update.sourceRect, update.bufferOffset, buffer.stride(), update.buffer->pixelFormat());
         WTFEndSignpost(this, CopyTextureCPUToGPU);
 
         WTFEndSignpost(this, CoordinatedSwapBuffer);

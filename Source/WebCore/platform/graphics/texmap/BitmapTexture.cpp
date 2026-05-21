@@ -356,6 +356,9 @@ void BitmapTexture::updateContents(const void* srcData, const IntRect& targetRec
         adjustedSourceOffset = IntPoint(0, 0);
     }
 
+    GLint boundTexture = 0;
+    glGetIntegerv(m_binding, &boundTexture);
+
     glBindTexture(m_renderTarget, m_id);
 
     if (supportsUnpackSubimage) {
@@ -372,6 +375,8 @@ void BitmapTexture::updateContents(const void* srcData, const IntRect& targetRec
         glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
         glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
     }
+
+    glBindTexture(m_renderTarget, boundTexture);
 }
 
 void BitmapTexture::updateContents(NativeImage* frameImage, const IntRect& targetRect, const IntPoint& offset)
