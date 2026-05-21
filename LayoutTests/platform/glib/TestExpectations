@@ -1250,6 +1250,8 @@ compositing/repaint/copy-forward-clear-rect.html [ ImageOnlyFailure Pass ]
 compositing/repaint/copy-forward-dirty-region-purged.html [ ImageOnlyFailure Pass ]
 compositing/repaint/not-self-painting-layer-stops-compositing.html [ ImageOnlyFailure Pass ]
 
+webkit.org/b/315259 compositing/debug-borders-dynamic.html [ Pass ImageOnlyFailure ]
+
 webkit.org/b/305740 compositing/backing/solid-color-with-paints-into-ancestor.html [ ImageOnlyFailure Pass ]
 
 imported/w3c/web-platform-tests/css/compositing/mix-blend-mode/mix-blend-mode-plus-lighter-svg.html [ ImageOnlyFailure Pass ]
