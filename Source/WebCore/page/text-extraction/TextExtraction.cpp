@@ -868,16 +868,40 @@ static bool areSameOrigin(Document& document, Document& other)
     return protect(document.securityOrigin())->isSameOriginAs(protect(other.securityOrigin()));
 }
 
-static bool isVisuallyDistinctContainer(const RenderStyle& style, const FloatRect& rect, const FloatRect&)
+static bool hasVisuallyDistinctStyling(const RenderStyle& style)
 {
     bool hasEnclosingBorder = style.border().hasVisibleBorder() && style.usedBorderTopWidth() && style.usedBorderRightWidth() && style.usedBorderBottomWidth() && style.usedBorderLeftWidth();
-    bool hasVisualStyling = style.hasBackground() || style.hasOutline() || !style.boxShadow().isNone() || style.hasExplicitlySetBorderRadius() || hasEnclosingBorder;
-    if (!hasVisualStyling)
+    return style.hasBackground() || style.hasOutline() || !style.boxShadow().isNone() || style.hasExplicitlySetBorderRadius() || hasEnclosingBorder;
+}
+
+static bool isVisuallyDistinctContainer(const RenderStyle& style, const FloatRect& rect)
+{
+    if (!hasVisuallyDistinctStyling(protect(style)))
         return false;
 
     static constexpr auto minimumWidth = 150;
     static constexpr auto minimumHeight = 90;
     return rect.width() >= minimumWidth && rect.height() >= minimumHeight;
+}
+
+static bool looksVisuallyClickable(const RenderObject& renderer)
+{
+    CheckedRef style = renderer.style();
+    if (style->cursorType() != CursorType::Pointer)
+        return false;
+
+    if (style->pointerEvents() == PointerEvents::None)
+        return false;
+
+    if (!hasVisuallyDistinctStyling(protect(style)))
+        return false;
+
+    CheckedPtr parent = renderer.parent();
+    if (!parent)
+        return false;
+
+    CheckedRef parentStyle = parent->style();
+    return parentStyle->cursorType() != CursorType::Pointer || parentStyle->pointerEvents() == PointerEvents::None;
 }
 
 static inline void extractRecursive(Node& node, Item& parentItem, TraversalContext& context)
@@ -909,7 +933,7 @@ static inline void extractRecursive(Node& node, Item& parentItem, TraversalConte
     bool pushedVisualBlockContainer = false;
     if (CheckedPtr renderer = node.renderer()) {
         auto nodeBounds = rootViewBounds(node);
-        if (isBlock && isVisuallyDistinctContainer(protect(renderer->style()).get(), nodeBounds, parentItem.rectInRootView)) {
+        if (isBlock && isVisuallyDistinctContainer(protect(renderer->style()).get(), nodeBounds)) {
             context.visualBlockContainerStack.append(context.nextVisualBlockContainerNumber++);
             pushedVisualBlockContainer = true;
         }
@@ -1027,6 +1051,16 @@ static inline void extractRecursive(Node& node, Item& parentItem, TraversalConte
         }
     }
 
+    bool shouldIdentifyClickableElement = [&] {
+        if (context.nodeIdentifierInclusion != NodeIdentifierInclusion::Interactive)
+            return false;
+
+        if (CheckedPtr renderer = node.renderer())
+            return looksVisuallyClickable(*renderer);
+
+        return false;
+    }();
+
     auto policy = [&] {
         if (eventListeners)
             return FallbackPolicy::Extract;
@@ -1041,6 +1075,9 @@ static inline void extractRecursive(Node& node, Item& parentItem, TraversalConte
             return FallbackPolicy::Extract;
 
         if (!clientAttributes.isEmpty())
+            return FallbackPolicy::Extract;
+
+        if (shouldIdentifyClickableElement)
             return FallbackPolicy::Extract;
 
         return FallbackPolicy::Skip;
@@ -1087,7 +1124,7 @@ static inline void extractRecursive(Node& node, Item& parentItem, TraversalConte
             isScrollable = std::holds_alternative<ScrollableItemData>(result);
 
             std::optional<NodeIdentifier> nodeIdentifier;
-            if (shouldIncludeNodeIdentifier(context.nodeIdentifierInclusion, eventListeners, AccessibilityObject::ariaRoleToWebCoreRole(role), result))
+            if (shouldIdentifyClickableElement || shouldIncludeNodeIdentifier(context.nodeIdentifierInclusion, eventListeners, AccessibilityObject::ariaRoleToWebCoreRole(role), result))
                 nodeIdentifier = node.nodeIdentifier();
 
             item = { {
