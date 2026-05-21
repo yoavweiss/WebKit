@@ -360,13 +360,13 @@ static GstFlowReturn transformInPlace(GstBaseTransform* base, GstBuffer* buffer)
 
     GST_TRACE_OBJECT(self, "decrypting");
 
-    bool didDecryptionSucceed;
+    DecryptionResult result;
 
     // Temporarily release the lock while we don't need to access priv. The lower level API is used
     // in order to avoid creating several scopes with different Locker instances in each one.
     {
         DropLockForScope noLockScope { locker };
-        didDecryptionSucceed = klass->decrypt(self, ivBuffer, keyIDBuffer, buffer, subSampleCount, subSamplesBuffer);
+        result = klass->decrypt(self, ivBuffer, keyIDBuffer, buffer, subSampleCount, subSamplesBuffer);
     }
 
     // Accessing priv members again.
@@ -375,12 +375,20 @@ static GstFlowReturn transformInPlace(GstBaseTransform* base, GstBuffer* buffer)
         return GST_FLOW_FLUSHING;
     }
 
-    if (!didDecryptionSucceed) {
-        GST_ELEMENT_ERROR(self, STREAM, DECRYPT, ("Decryption failed"), (nullptr));
-        return GST_FLOW_NOT_SUPPORTED;
-    }
-
-    return GST_FLOW_OK;
+    GstFlowReturn flowReturn;
+    switch (result) {
+    case DecryptionResult::Success:
+        flowReturn = GST_FLOW_OK;
+        break;
+    case DecryptionResult::Failure:
+        flowReturn = GST_FLOW_NOT_SUPPORTED;
+        break;
+    case DecryptionResult::NoKey:
+        GST_ELEMENT_ERROR(GST_ELEMENT_CAST(self), STREAM, DECRYPT_NOKEY, ("No key found, decryption failed"), (nullptr));
+        flowReturn = GST_FLOW_CUSTOM_ERROR;
+        break;
+    };
+    return flowReturn;
 }
 
 static bool isCDMProxyAvailable(WebKitMediaCommonEncryptionDecrypt* self)

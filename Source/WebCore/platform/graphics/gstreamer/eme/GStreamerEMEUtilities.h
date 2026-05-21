@@ -34,6 +34,12 @@
 
 GST_DEBUG_CATEGORY_EXTERN(webkit_media_common_encryption_decrypt_debug_category);
 
+enum DecryptionResult {
+    Success,
+    Failure,
+    NoKey
+};
+
 namespace WebCore {
 class InitData {
 public:

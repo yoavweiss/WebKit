@@ -21,6 +21,7 @@
 
 #include "config.h"
 #include "WebKitThunderDecryptorGStreamer.h"
+#include "WebKitCommonEncryptionDecryptorGStreamer.h"
 
 #if ENABLE(ENCRYPTED_MEDIA) && ENABLE(THUNDER) && USE(GSTREAMER)
 
@@ -38,7 +39,7 @@ struct WebKitMediaThunderDecryptPrivate {
 
 static ASCIILiteral protectionSystemId(WebKitMediaCommonEncryptionDecrypt*);
 static bool cdmProxyAttached(WebKitMediaCommonEncryptionDecrypt*, const RefPtr<CDMProxy>&);
-static bool decrypt(WebKitMediaCommonEncryptionDecrypt*, GstBuffer* iv, GstBuffer* keyid, GstBuffer* sample, unsigned subSamplesCount,
+static DecryptionResult decrypt(WebKitMediaCommonEncryptionDecrypt*, GstBuffer* iv, GstBuffer* keyid, GstBuffer* sample, unsigned subSamplesCount,
     GstBuffer* subSamples);
 
 GST_DEBUG_CATEGORY(webkitMediaThunderDecryptDebugCategory);
@@ -147,7 +148,7 @@ static bool cdmProxyAttached(WebKitMediaCommonEncryptionDecrypt* decryptor, cons
     return self->priv->cdmProxy;
 }
 
-static bool decrypt(WebKitMediaCommonEncryptionDecrypt* decryptor, GstBuffer* ivBuffer, GstBuffer* keyIDBuffer, GstBuffer* buffer, unsigned subsampleCount,
+static DecryptionResult decrypt(WebKitMediaCommonEncryptionDecrypt* decryptor, GstBuffer* ivBuffer, GstBuffer* keyIDBuffer, GstBuffer* buffer, unsigned subsampleCount,
     GstBuffer* subsamplesBuffer)
 {
     auto* self = WEBKIT_MEDIA_THUNDER_DECRYPT(decryptor);
@@ -156,13 +157,13 @@ static bool decrypt(WebKitMediaCommonEncryptionDecrypt* decryptor, GstBuffer* iv
     if (!ivBuffer || !keyIDBuffer || !buffer) {
         GST_ERROR_OBJECT(self, "invalid decrypt() parameter");
         ASSERT_NOT_REACHED();
-        return false;
+        return DecryptionResult::Failure;
     }
 
     if (subsampleCount && !subsamplesBuffer) {
         GST_ERROR_OBJECT(self, "invalid decrypt() subsamples parameter");
         ASSERT_NOT_REACHED();
-        return false;
+        return DecryptionResult::Failure;
     }
 
     CDMProxyThunder::DecryptionContext context = { };
@@ -172,9 +173,7 @@ static bool decrypt(WebKitMediaCommonEncryptionDecrypt* decryptor, GstBuffer* iv
     context.numSubsamples = subsampleCount;
     context.subsamplesBuffer = subsampleCount ? subsamplesBuffer : nullptr;
     context.cdmProxyDecryptionClient = webKitMediaCommonEncryptionDecryptGetCDMProxyDecryptionClient(decryptor);
-    bool result = priv->cdmProxy->decrypt(context, priv->inputCaps);
-
-    return result;
+    return priv->cdmProxy->decrypt(context, priv->inputCaps);
 }
 
 #undef GST_CAT_DEFAULT
