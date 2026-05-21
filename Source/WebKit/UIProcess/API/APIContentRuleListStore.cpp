@@ -424,7 +424,7 @@ static Expected<MappedData, std::error_code> compiledToFile(WTF::String&& json, 
         bool m_hadFileError { false };
     };
 
-    auto [temporaryFilePath, temporaryFileHandle] = openTemporaryFile("ContentRuleList"_s);
+    auto [temporaryFilePath, temporaryFileHandle] = openTemporaryFile("ContentRuleList"_s, { }, parentPath(finalFilePath));
     if (!temporaryFileHandle) {
         RELEASE_LOG_ERROR(ContentRuleLists, "Content Rule List compiling failed: Opening temporary file failed.");
         return makeUnexpected(ContentRuleListStore::Error::CompileFailed);

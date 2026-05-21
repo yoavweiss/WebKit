@@ -1008,4 +1008,16 @@ TEST_F(FileSystemTest, isAncestor)
     );
 }
 
+#if !OS(WINDOWS)
+// The third parameter to WTF::openTemporaryFile() is ignored on Windows.
+TEST_F(FileSystemTest, createTemporaryFileInDirectory)
+{
+    auto [filePath, fileHandle] = FileSystem::openTemporaryFile("tempTestFile"_s, { }, tempEmptyFolderPath());
+    EXPECT_TRUE(!!fileHandle);
+    EXPECT_TRUE(FileSystem::fileType(filePath) == FileSystem::FileType::Regular);
+    EXPECT_TRUE(FileSystem::isAncestor(tempEmptyFolderPath(), filePath));
+    EXPECT_TRUE(FileSystem::parentPath(filePath) == tempEmptyFolderPath());
+}
+#endif
+
 } // namespace TestWebKitAPI
