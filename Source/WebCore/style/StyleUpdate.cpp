@@ -77,20 +77,14 @@ const RenderStyle* Update::elementStyle(const Element& element) const
 {
     if (auto* update = elementUpdate(element))
         return update->style.get();
-    auto* renderer = element.renderer();
-    if (!renderer)
-        return nullptr;
-    return &renderer->style();
+    return element.renderOrDisplayContentsStyle();
 }
 
 RenderStyle* Update::elementStyle(const Element& element)
 {
     if (auto* update = elementUpdate(element))
         return update->style.get();
-    auto* renderer = element.renderer();
-    if (!renderer)
-        return nullptr;
-    return &renderer->mutableStyle();
+    return const_cast<RenderStyle*>(element.renderOrDisplayContentsStyle());
 }
 
 void Update::addElement(Element& element, Element* parent, ElementUpdate&& elementUpdate)
