@@ -169,6 +169,74 @@ TEST(DragAndDropTests, DragEndEventCoordinatesWithNestedIframes)
     }
 }
 
+TEST(DragAndDropTests, DropFileOnSiteIsolatedIframeRegistersBlobURL)
+{
+    static constexpr auto mainframeHTML =
+        "<iframe id='child' width='400' height='400' "
+        "style='position:absolute;top:0;left:0;border:0;' "
+        "src='https://domain2.com/iframe'></iframe>"_s;
+
+    static constexpr auto iframeHTML =
+        "<body style='margin:0;width:100vw;height:100vh;background:lightblue;'"
+        " ondragenter='event.preventDefault();'"
+        " ondragover='event.preventDefault();'"
+        " ondrop=\"event.preventDefault();"
+        "   const f = event.dataTransfer.files[0];"
+        "   if (!f) { window.webkit.messageHandlers.testHandler.postMessage('nofile'); }"
+        "   else {"
+        "     (async () => {"
+        "       try {"
+        "         const url = window.URL.createObjectURL(f);"
+        "         const r = await fetch(url);"
+        "         const b = await r.arrayBuffer();"
+        "         window.webkit.messageHandlers.testHandler.postMessage('ok:bytes=' + b.byteLength);"
+        "       } catch (e) {"
+        "         window.webkit.messageHandlers.testHandler.postMessage('err:' + e.message);"
+        "       }"
+        "     })();"
+        "   }\"></body>"_s;
+
+    TestWebKitAPI::HTTPServer server({
+        { "/mainframe"_s, { mainframeHTML } },
+        { "/iframe"_s, { iframeHTML } }
+    }, TestWebKitAPI::HTTPServer::Protocol::HttpsProxy);
+
+    RetainPtr navigationDelegate = adoptNS([TestNavigationDelegate new]);
+    [navigationDelegate allowAnyTLSCertificate];
+    RetainPtr configuration = server.httpsProxyConfiguration();
+    [[configuration preferences] _setSiteIsolationEnabled:YES];
+
+    RetainPtr messageHandler = adoptNS([TestMessageHandler new]);
+    __block bool gotMessage = false;
+    __block RetainPtr<NSString> dropResult;
+    [messageHandler setDidReceiveScriptMessage:^(NSString *message) {
+        if (gotMessage)
+            return;
+        dropResult = message;
+        gotMessage = true;
+    }];
+    [[configuration userContentController] addScriptMessageHandler:messageHandler.get() name:@"testHandler"];
+
+    RetainPtr simulator = adoptNS([[DragAndDropSimulator alloc] initWithWebViewFrame:NSMakeRect(0, 0, 400, 400) configuration:configuration.get()]);
+    RetainPtr webView = [simulator webView];
+    [webView setNavigationDelegate:navigationDelegate];
+
+    RetainPtr fileURL = [NSBundle.test_resourcesBundle URLForResource:@"apple" withExtension:@"gif"];
+    [simulator writePromisedFiles:@[ fileURL ]];
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://domain1.com/mainframe"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+    [webView waitForNextPresentationUpdate];
+
+    [simulator runFrom:NSMakePoint(0, 0) to:NSMakePoint(200, 200)];
+
+    TestWebKitAPI::Util::runFor(&gotMessage, 3_s);
+
+    EXPECT_TRUE([dropResult hasPrefix:@"ok:bytes="])
+        << "Expected the iframe to fetch the blob from URL.createObjectURL successfully. Got: "
+        << (dropResult ? [dropResult UTF8String] : "(no message — iframe process likely killed)");
+}
+
 TEST(DragAndDropTests, DraggableElementWithTinyDragImageDoesNotCrash)
 {
     RetainPtr simulator = adoptNS([[DragAndDropSimulator alloc] initWithWebViewFrame:NSMakeRect(0, 0, 400, 400)]);

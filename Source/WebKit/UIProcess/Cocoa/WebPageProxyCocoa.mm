@@ -393,6 +393,18 @@ void WebPageProxy::addPlatformLoadParameters(WebProcessProxy& process, LoadParam
     loadParameters.dataDetectionReferenceDate = m_uiClient->dataDetectionReferenceDate();
 }
 
+static std::optional<SandboxExtension::Handle> createReadOnlySandboxExtensionForProcess(const WebProcessProxy& process, const String& path)
+{
+    auto token = protect(process.connection())->getAuditToken();
+    ASSERT(token);
+
+    return token
+        .and_then([&path](auto token) { return SandboxExtension::createHandleForReadByAuditToken(path, token); })
+        .or_else([&path] {
+            return SandboxExtension::createHandle(path, SandboxExtension::Type::ReadOnly);
+        });
+}
+
 void WebPageProxy::createSandboxExtensionsIfNeeded(const Vector<String>& files, SandboxExtension::Handle& fileReadHandle, Vector<SandboxExtension::Handle>& fileUploadHandles)
 {
     WEBPAGEPROXY_RELEASE_LOG(Loading, "WebPageProxy::createSandboxExtensionsIfNeeded: %zu files", files.size());
@@ -400,32 +412,28 @@ void WebPageProxy::createSandboxExtensionsIfNeeded(const Vector<String>& files, 
     if (!files.size())
         return;
 
-    auto createSandboxExtension = [protectedThis = Ref { *this }] (const String& path) {
-        auto token = protect(protect(protectedThis->legacyMainFrameProcess())->connection())->getAuditToken();
-        ASSERT(token);
-
-        if (token) {
-            if (auto handle = SandboxExtension::createHandleForReadByAuditToken(path, *token))
-                return handle;
-        }
-        return SandboxExtension::createHandle(path, SandboxExtension::Type::ReadOnly);
-    };
+    Ref process = m_legacyMainFrameProcess;
 
     if (files.size() == 1) {
         BOOL isDirectory;
         if ([[NSFileManager defaultManager] fileExistsAtPath:files[0].createNSString().get() isDirectory:&isDirectory] && !isDirectory) {
-            if (auto handle = createSandboxExtension("/"_s))
+            if (auto handle = createReadOnlySandboxExtensionForProcess(process, "/"_s))
                 fileReadHandle = WTF::move(*handle);
-            else if (auto handle = createSandboxExtension(files[0]))
+            else if (auto handle = createReadOnlySandboxExtensionForProcess(process, files[0]))
                 fileReadHandle = WTF::move(*handle);
-            willAcquireUniversalFileReadSandboxExtension(m_legacyMainFrameProcess);
+            willAcquireUniversalFileReadSandboxExtension(process);
         }
     }
 
+    createSandboxExtensionsForUpload(process, files, fileUploadHandles);
+}
+
+void WebPageProxy::createSandboxExtensionsForUpload(const WebProcessProxy& process, const Vector<String>& files, Vector<SandboxExtension::Handle>& fileUploadHandles)
+{
     for (auto& file : files) {
         if (![[NSFileManager defaultManager] fileExistsAtPath:file.createNSString().get()])
             continue;
-        if (auto handle = createSandboxExtension(file))
+        if (auto handle = createReadOnlySandboxExtensionForProcess(process, file))
             fileUploadHandles.append(WTF::move(*handle));
     }
 }
