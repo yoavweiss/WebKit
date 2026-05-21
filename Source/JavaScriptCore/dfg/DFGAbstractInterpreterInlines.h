@@ -3797,10 +3797,25 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
             break;
         default:
             if (!m_graph.canDoFastSpread(node, forNode(node->child1()))) {
-                // SetObjectUse has no side effects since we iterate directly over internal storage.
-                if (node->child1().useKind() == SetObjectUse)
-                    didFoldClobberWorld();
-                else
+                if (node->child1().useKind() == SetObjectUse) {
+                    // The lowering routes Sets that don't carry the original Set structure to operationSpreadSet,
+                    // which falls back to the JS iterator protocol. We can retain structure proofs across this
+                    // node only when the operand is proven to carry the original Set structure (the same condition
+                    // under which the lowering elides its runtime structure check). Such instances have no own
+                    // Symbol.iterator, and any mutation to Set.prototype[Symbol.iterator] invalidates this code
+                    // via the prototype-change watchpoints installed during compilation, so the slow path can
+                    // never reach a user-defined iterator from here.
+                    bool canFold = false;
+                    JSGlobalObject* globalObject = m_graph.globalObjectFor(node->origin.semantic);
+                    if (Structure* originalSetStructure = globalObject->setStructureConcurrently()) {
+                        if (forNode(node->child1()).m_structure.isSubsetOf(RegisteredStructureSet(m_graph.registerStructure(originalSetStructure))))
+                            canFold = true;
+                    }
+                    if (canFold)
+                        didFoldClobberWorld();
+                    else
+                        clobberWorld();
+                } else
                     clobberWorld();
             } else
                 didFoldClobberWorld();
