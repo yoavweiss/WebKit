@@ -26,14 +26,9 @@
 #pragma once
 
 #if USE(VULKAN)
-// The Volk header can leave device functions undefined to prevent accidental
-// usage. Instead, use the per-device functions table to avoid the dispatch
-// overhead (up to 7%), see https://github.com/zeux/volk#optimizing-device-calls
-#define VOLK_NO_DEVICE_PROTOTYPES
-
+#include "VulkanHandle.h"
+#include "VulkanStructure.h"
 #include <expected>
-#include <volk.h>
-#include <wtf/Noncopyable.h>
 #include <wtf/text/WTFString.h>
 
 namespace WebCore {
@@ -44,94 +39,6 @@ namespace Vulkan {
 
 template <typename Type>
 using Result = std::expected<Type, VkResult>;
-
-template <typename VulkanType>
-struct BaseStruct {
-    WTF_MAKE_NONCOPYABLE(BaseStruct)
-
-    using Base = BaseStruct<VulkanType>;
-
-    BaseStruct()
-    {
-        zeroBytes(m_inner);
-    }
-
-    BaseStruct(VulkanType&& inner)
-        : m_inner(WTF::move(inner))
-    {
-    }
-
-    ~BaseStruct() = default;
-
-    BaseStruct(BaseStruct&& other)
-        : BaseStruct()
-    {
-        std::swap(m_inner, other.m_inner);
-    }
-
-    BaseStruct& operator=(BaseStruct&& other)
-    {
-        if (this != &other) [[likely]]
-            std::swap(m_inner, other.m_inner);
-        return *this;
-    }
-
-    const VulkanType* LIFETIME_BOUND ptr() const { return &m_inner; }
-    VulkanType* LIFETIME_BOUND ptr() { return &m_inner; }
-
-protected:
-    VulkanType m_inner;
-};
-
-template <typename VulkanType, VkStructureType vulkanStructureType>
-struct Structure : BaseStruct<VulkanType> {
-    using Type = VulkanType;
-    using Base = BaseStruct<VulkanType>;
-
-    static constexpr VkStructureType typeCode = vulkanStructureType;
-
-    Structure()
-    {
-        this->m_inner.sType = typeCode;
-    }
-
-    Structure(VulkanType&& inner)
-        : Base(WTF::move(inner))
-    {
-        ASSERT(this->m_inner.sType == typeCode);
-    }
-
-    Structure(Structure&& other)
-        : Structure(WTF::move(other.m_inner))
-    {
-    }
-
-    // Create another structure, make it the "next" to this, and return it.
-    // This enables the following handy idiom to create chained Structure
-    // subtype instances:
-    //
-    //   struct A : Structure<...> { };
-    //   struct B : Structure<...> { };
-    //   struct C : Structure<...> { };
-    //
-    //   A first;
-    //   auto second = first.next<B>();
-    //   auto third = second.next<C>();
-    //
-    // Then the resulting chain of structures is: first -> second -> third.
-    //
-    template <typename OtherType, typename... Args>
-    requires std::derived_from<OtherType, Structure<typename OtherType::Type, OtherType::typeCode>>
-    [[nodiscard]] OtherType next(Args&&... params)
-    {
-        OtherType nextStructure { std::forward<Args>(params)... };
-        this->m_inner.pNext = nextStructure.ptr();
-        return nextStructure;
-    }
-
-    const VulkanType* LIFETIME_BOUND operator->() const { return this->ptr(); }
-    VulkanType* LIFETIME_BOUND operator->() { return this->ptr(); }
-};
 
 struct ApplicationInfo : Structure<VkApplicationInfo, VK_STRUCTURE_TYPE_APPLICATION_INFO> {
     ApplicationInfo(const String& applicationName, uint32_t apiVersion = VK_API_VERSION_1_3)
@@ -147,18 +54,15 @@ struct InstanceCreateInfo : Structure<VkInstanceCreateInfo, VK_STRUCTURE_TYPE_IN
     InstanceCreateInfo(const ApplicationInfo& applicationInfo LIFETIME_BOUND, std::span<const char* const> enabledLayers LIFETIME_BOUND = { }, std::span<const char* const> enabledExtensions LIFETIME_BOUND = { });
 };
 
-struct QueueFamilyProperties : BaseStruct<VkQueueFamilyProperties> {
-    const VkQueueFamilyProperties* LIFETIME_BOUND operator->() const { return &m_inner; }
-    VkQueueFamilyProperties* LIFETIME_BOUND operator->() { return &m_inner; }
-};
+using QueueFamilyProperties = VkQueueFamilyProperties;
 
 struct DeviceQueueCreateInfo : Structure<VkDeviceQueueCreateInfo, VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO> {
     DeviceQueueCreateInfo(uint32_t familyIndex, std::span<const float> queuePriorities);
 };
 
 struct PhysicalDeviceProperties : Structure<VkPhysicalDeviceProperties2, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2> {
-    const VkPhysicalDeviceProperties* LIFETIME_BOUND operator->() const { return &m_inner.properties; }
-    VkPhysicalDeviceProperties* LIFETIME_BOUND operator->() { return &m_inner.properties; }
+    const VkPhysicalDeviceProperties* LIFETIME_BOUND operator->() const { return &ptr()->properties; }
+    VkPhysicalDeviceProperties* LIFETIME_BOUND operator->() { return &ptr()->properties; }
 };
 
 struct PhysicalDeviceDRMProperties : Structure<VkPhysicalDeviceDrmPropertiesEXT, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRM_PROPERTIES_EXT> {
@@ -169,40 +73,26 @@ struct PhysicalDeviceIDProperties : Structure<VkPhysicalDeviceIDProperties, VK_S
     std::span<const uint8_t> driverUUID() const;
 };
 
-struct PhysicalDevice : BaseStruct<VkPhysicalDevice> {
+struct PhysicalDevice : BorrowedHandle<VkPhysicalDevice> {
     void fillProperties(PhysicalDeviceProperties&) const;
     Vector<QueueFamilyProperties> queueFamilies() const;
-
-    PhysicalDevice() = default;
-
-    // VkPhysicalDevice instances are owned by the VkInstance and are never destroyed,
-    // which means their handles (and therefore the PhysicalDevice wrapper) can be copied.
-    PhysicalDevice(const PhysicalDevice& other)
-        : BaseStruct(const_cast<VkPhysicalDevice>(other.m_inner))
-    {
-    }
 };
 
 struct DeviceCreateInfo : Structure<VkDeviceCreateInfo, VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO> {
     DeviceCreateInfo(const DeviceQueueCreateInfo&, std::span<const char* const> enabledExtensions = { });
 };
 
-struct Device : BaseStruct<VkDevice> {
+struct Device : Handle<VkDevice> {
     [[nodiscard]] static Result<Device> create(PhysicalDevice&, const DeviceCreateInfo&);
     ~Device();
 
-    Device(Device&& other)
-    {
-        *this = WTF::move(other);
-    }
+    Device(Device&& other) { swap(other); }
+    Device& operator=(Device&& other) { swap(other); return *this; }
 
-    Device& operator=(Device&& other)
+    void swap(Device& other)
     {
-        if (this != &other) {
-            std::swap(m_inner, other.m_inner);
-            std::swap(m_table, other.m_table);
-        }
-        return *this;
+        Base::swap(other);
+        std::swap(m_table, other.m_table);
     }
 
     static void setSharedDevice(Device&&);
@@ -210,21 +100,16 @@ struct Device : BaseStruct<VkDevice> {
     [[nodiscard]] static Device& sharedDevice();
 
 private:
-    Device(VkDevice);
+    using Base::Base;
 
-    // Needed to avoid calling volkLoadDeviceTable() on a null pointer.
-    enum StaticAllocationTag { StaticAllocation };
-    Device(StaticAllocationTag)
-        : Base(nullptr)
-    {
-    }
+    explicit Device(VkDevice);
 
     VolkDeviceTable m_table;
 
     static Device s_sharedDevice;
 };
 
-struct Instance : BaseStruct<VkInstance> {
+struct Instance : Handle<VkInstance> {
     [[nodiscard]] static const Vector<VkLayerProperties>& availableLayers();
     [[nodiscard]] static bool hasLayers(std::span<const char* const> layerNames);
     [[nodiscard]] static bool hasLayer(const char* const layerName);
@@ -242,32 +127,25 @@ struct Instance : BaseStruct<VkInstance> {
     [[nodiscard]] static Result<Instance> create(const InstanceCreateInfo&);
     ~Instance();
 
-    Instance(Instance&& other)
-        : Base()
-    {
-        *this = WTF::move(other);
-    }
+    Instance(Instance&& other) { swap(other); }
+    Instance& operator=(Instance&& other) { swap(other); return *this; }
 
-    Instance& operator=(Instance&& other)
-    {
-        if (this != &other) {
-            std::swap(m_inner, other.m_inner);
 #ifdef VK_EXT_debug_utils
-            std::swap(m_debugMessenger, other.m_debugMessenger);
-#endif
-        }
-        return *this;
+    void swap(Instance& other)
+    {
+        Base::swap(other);
+        std::swap(m_debugMessenger, other.m_debugMessenger);
     }
+#endif // VK_EXT_debug_utils
 
     [[nodiscard]] Result<Vector<PhysicalDevice>> availableDevices() const;
     [[nodiscard]] Result<PhysicalDevice> deviceForDisplay(PlatformDisplay&);
     [[nodiscard]] VkResult installDebugMessenger();
 
 private:
-    Instance(VkInstance inner)
-        : Base(WTF::move(inner))
-    {
-    }
+    using Base::Base;
+
+    explicit Instance(VkInstance);
 
     static Instance s_sharedInstance;
 

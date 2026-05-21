@@ -262,7 +262,7 @@ void initializeIfNeeded()
 
     const auto queueFamilies = deviceInfo->queueFamilies();
     auto queueIndex = queueFamilies.findIf([](const auto& queueProperties) {
-        return queueProperties->queueFlags & VK_QUEUE_GRAPHICS_BIT;
+        return queueProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT;
     });
     if (queueIndex == notFound) {
         RELEASE_LOG_ERROR(Vulkan, "Cannot find graphics queue family");
@@ -282,7 +282,7 @@ void initializeIfNeeded()
         return;
     }
 
-    RELEASE_LOG(Vulkan, "Instantiated device %p", *device->ptr());
+    RELEASE_LOG(Vulkan, "Instantiated device %p", device->ptr());
 
     Instance::setSharedInstance(WTF::move(*instance));
     Device::setSharedDevice(WTF::move(*device));

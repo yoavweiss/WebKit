@@ -26,22 +26,11 @@
 #pragma once
 
 #if USE(VULKAN)
-#include "VulkanTypes.h"
 
-namespace WebCore {
-namespace Vulkan {
-
-[[nodiscard]] const char* resultString(VkResult);
-
-template <typename Type>
-[[nodiscard]] const char* resultString(const Result<Type>& result)
-{
-    return resultString(result.error_or(VK_SUCCESS));
-}
-
-void initializeIfNeeded();
-
-} // namespace Vulkan
-} // namespace WebCore
+// The Volk header can leave device functions undefined to prevent accidental
+// usage. Instead, use the per-device functions table to avoid the dispatch
+// overhead (up to 7%), see https://github.com/zeux/volk#optimizing-device-calls
+#define VOLK_NO_DEVICE_PROTOTYPES
+#include <volk.h>
 
 #endif // USE(VULKAN)

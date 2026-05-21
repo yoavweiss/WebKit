@@ -61,107 +61,106 @@ namespace Vulkan {
 
 ApplicationInfo::ApplicationInfo(const char* applicationName, uint32_t apiVersion)
 {
-    m_inner.pApplicationName = applicationName;
-    m_inner.apiVersion = apiVersion;
+    value().pApplicationName = applicationName;
+    value().apiVersion = apiVersion;
 }
 
 InstanceCreateInfo::InstanceCreateInfo(const ApplicationInfo& applicationInfo, std::span<const char* const> enabledLayers, std::span<const char* const> enabledExtensions)
 {
-    m_inner.pApplicationInfo = applicationInfo.ptr();
+    value().pApplicationInfo = applicationInfo.ptr();
 
-    m_inner.enabledLayerCount = enabledLayers.size();
-    m_inner.ppEnabledLayerNames = enabledLayers.data();
+    value().enabledLayerCount = enabledLayers.size();
+    value().ppEnabledLayerNames = enabledLayers.data();
 
-    m_inner.enabledExtensionCount = enabledExtensions.size();
-    m_inner.ppEnabledExtensionNames = enabledExtensions.data();
+    value().enabledExtensionCount = enabledExtensions.size();
+    value().ppEnabledExtensionNames = enabledExtensions.data();
 }
 
 std::span<const uint8_t> PhysicalDeviceIDProperties::deviceUUID() const
 {
-    return unsafeMakeSpan(m_inner.deviceUUID, VK_UUID_SIZE);
+    return unsafeMakeSpan(value().deviceUUID, VK_UUID_SIZE);
 }
 
 std::span<const uint8_t> PhysicalDeviceIDProperties::driverUUID() const
 {
-    return unsafeMakeSpan(m_inner.driverUUID, VK_UUID_SIZE);
+    return unsafeMakeSpan(value().driverUUID, VK_UUID_SIZE);
 }
 
 void PhysicalDevice::fillProperties(PhysicalDeviceProperties& properties) const
 {
-    vkGetPhysicalDeviceProperties2(m_inner, properties.ptr());
+    vkGetPhysicalDeviceProperties2(ptr(), properties.ptr());
 }
 
 Vector<QueueFamilyProperties> PhysicalDevice::queueFamilies() const
 {
     uint32_t queueFamilyCount;
-    vkGetPhysicalDeviceQueueFamilyProperties(m_inner, &queueFamilyCount, nullptr);
+    vkGetPhysicalDeviceQueueFamilyProperties(ptr(), &queueFamilyCount, nullptr);
 
     Vector<QueueFamilyProperties> queueFamilies(queueFamilyCount);
     static_assert(sizeof(QueueFamilyProperties) == sizeof(VkQueueFamilyProperties));
     auto queueFamiliesSpan = spanReinterpretCast<VkQueueFamilyProperties>(queueFamilies.mutableSpan());
     ASSERT(queueFamiliesSpan.size() == queueFamilyCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(m_inner, &queueFamilyCount, queueFamiliesSpan.data());
+    vkGetPhysicalDeviceQueueFamilyProperties(ptr(), &queueFamilyCount, queueFamiliesSpan.data());
 
     return queueFamilies;
 }
 
 DeviceQueueCreateInfo::DeviceQueueCreateInfo(uint32_t familyIndex, std::span<const float> queuePriorities)
 {
-    m_inner.queueFamilyIndex = familyIndex;
-    m_inner.queueCount = queuePriorities.size();
-    m_inner.pQueuePriorities = queuePriorities.data();
+    value().queueFamilyIndex = familyIndex;
+    value().queueCount = queuePriorities.size();
+    value().pQueuePriorities = queuePriorities.data();
 }
 
 DeviceCreateInfo::DeviceCreateInfo(const DeviceQueueCreateInfo& queueCreateInfo, std::span<const char* const> enabledExtensions)
 {
-    m_inner.queueCreateInfoCount = 1;
-    m_inner.pQueueCreateInfos = queueCreateInfo.ptr();
+    value().queueCreateInfoCount = 1;
+    value().pQueueCreateInfos = queueCreateInfo.ptr();
 
-    m_inner.enabledExtensionCount = enabledExtensions.size();
-    m_inner.ppEnabledExtensionNames = enabledExtensions.data();
+    value().enabledExtensionCount = enabledExtensions.size();
+    value().ppEnabledExtensionNames = enabledExtensions.data();
 }
 
-Device::Device(VkDevice inner)
-    : Base(WTF::move(inner))
+Device::Device(VkDevice device)
+    : Base(device)
 {
-    volkLoadDeviceTable(&m_table, m_inner);
+    if (VkDevice device = ptr())
+        volkLoadDeviceTable(&m_table, device);
 }
 
 Device::~Device()
 {
-    if (m_inner) {
+    if (VkDevice device = ptr()) {
         ASSERT(m_table.vkDestroyDevice);
-        m_table.vkDestroyDevice(m_inner, nullptr);
+        m_table.vkDestroyDevice(device, nullptr);
     }
 }
 
 Result<Device> Device::create(PhysicalDevice& deviceInfo, const DeviceCreateInfo& creationInfo)
 {
     VkDevice device;
-    if (auto result = vkCreateDevice(*deviceInfo.ptr(), creationInfo.ptr(), nullptr, &device); result != VK_SUCCESS)
+    if (auto result = vkCreateDevice(deviceInfo.ptr(), creationInfo.ptr(), nullptr, &device); result != VK_SUCCESS)
         return makeUnexpected(result);
 
     return Device(device);
 }
 
-Device Device::s_sharedDevice { StaticAllocation };
+Device Device::s_sharedDevice { nullptr };
 
 void Device::setSharedDevice(Device&& device)
 {
-    if (s_sharedDevice.m_inner)
-        RELEASE_ASSERT_NOT_REACHED_WITH_MESSAGE("Attempted to reset already initialized Vulkan shared device");
+    RELEASE_ASSERT_WITH_MESSAGE(!s_sharedDevice, "Attempted to reset already initialized Vulkan shared device");
     s_sharedDevice = WTF::move(device);
 }
 
 Device* Device::sharedDeviceIfExists()
 {
-    return s_sharedDevice.m_inner ? &s_sharedDevice : nullptr;
+    return s_sharedDevice ? &s_sharedDevice : nullptr;
 }
 
 Device& Device::sharedDevice()
 {
-    if (!s_sharedDevice.m_inner) [[unlikely]]
-        RELEASE_ASSERT_NOT_REACHED_WITH_MESSAGE("Attempted to use Vulkan shared device before its initialization");
+    RELEASE_ASSERT_WITH_MESSAGE(s_sharedDevice, "Attempted to use Vulkan shared device before its initialization");
     return s_sharedDevice;
 }
 
@@ -254,19 +253,19 @@ Instance Instance::s_sharedInstance { nullptr };
 
 void Instance::setSharedInstance(Instance&& instance)
 {
-    if (s_sharedInstance.m_inner)
+    if (s_sharedInstance)
         RELEASE_ASSERT_NOT_REACHED_WITH_MESSAGE("Attempted to reset already initialized Vulkan shared instance");
     s_sharedInstance = WTF::move(instance);
 }
 
 Instance* Instance::sharedInstanceIfExists()
 {
-    return s_sharedInstance.m_inner ? &s_sharedInstance : nullptr;
+    return s_sharedInstance ? &s_sharedInstance : nullptr;
 }
 
 Instance& Instance::sharedInstance()
 {
-    if (!s_sharedInstance.m_inner) [[unlikely]]
+    if (!s_sharedInstance) [[unlikely]]
         RELEASE_ASSERT_NOT_REACHED_WITH_MESSAGE("Attempted to use Vulkan shared instance before its initialization");
     return s_sharedInstance;
 }
@@ -277,32 +276,39 @@ Result<Instance> Instance::create(const InstanceCreateInfo& creationInfo)
     if (auto result = vkCreateInstance(creationInfo.ptr(), nullptr, &instance); result != VK_SUCCESS)
         return makeUnexpected(result);
 
-    volkLoadInstanceOnly(instance);
     return Instance(instance);
+}
+
+Instance::Instance(VkInstance instance)
+    : Base(instance)
+{
+    if (VkInstance instance = ptr())
+        volkLoadInstanceOnly(instance);
 }
 
 Instance::~Instance()
 {
+    if (VkInstance instance = ptr()) {
 #ifdef VK_EXT_debug_utils
-    if (m_debugMessenger)
-        vkDestroyDebugUtilsMessengerEXT(m_inner, m_debugMessenger, nullptr);
+        if (m_debugMessenger)
+            vkDestroyDebugUtilsMessengerEXT(instance, m_debugMessenger, nullptr);
 #endif // VK_EXT_debug_utils
 
-    if (m_inner)
-        vkDestroyInstance(m_inner, nullptr);
+        vkDestroyInstance(instance, nullptr);
+    }
 }
 
 Result<Vector<PhysicalDevice>> Instance::availableDevices() const
 {
     uint32_t deviceCount;
-    if (auto result = vkEnumeratePhysicalDevices(m_inner, &deviceCount, nullptr); result != VK_SUCCESS)
+    if (auto result = vkEnumeratePhysicalDevices(ptr(), &deviceCount, nullptr); result != VK_SUCCESS)
         return makeUnexpected(result);
 
     Vector<PhysicalDevice> devices(deviceCount);
     static_assert(sizeof(PhysicalDevice) == sizeof(VkPhysicalDevice));
     auto devicesSpan = spanReinterpretCast<VkPhysicalDevice>(devices.mutableSpan());
     ASSERT(devicesSpan.size() == deviceCount);
-    if (auto result = vkEnumeratePhysicalDevices(m_inner, &deviceCount, devicesSpan.data()); result != VK_SUCCESS)
+    if (auto result = vkEnumeratePhysicalDevices(ptr(), &deviceCount, devicesSpan.data()); result != VK_SUCCESS)
         return makeUnexpected(result);
 
     return devices;
@@ -547,7 +553,7 @@ VkResult Instance::installDebugMessenger()
     if (LOG_CHANNEL(Vulkan).level >= WTFLogLevel::Debug)
         createInfo->messageSeverity |= VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
 
-    return vkCreateDebugUtilsMessengerEXT(m_inner, createInfo.ptr(), nullptr, &m_debugMessenger);
+    return vkCreateDebugUtilsMessengerEXT(ptr(), createInfo.ptr(), nullptr, &m_debugMessenger);
 }
 #else
 VkResult Instance::installDebugMessenger() const

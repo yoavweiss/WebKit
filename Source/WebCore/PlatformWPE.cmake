@@ -159,8 +159,11 @@ if (USE_VULKAN)
         "${WEBCORE_DIR}/platform/graphics/vulkan"
     )
     list(APPEND WebCore_PRIVATE_FRAMEWORK_HEADERS
+        platform/graphics/vulkan/VulkanHandle.h
+        platform/graphics/vulkan/VulkanStructure.h
         platform/graphics/vulkan/VulkanTypes.h
         platform/graphics/vulkan/VulkanUtilities.h
+        platform/graphics/vulkan/VulkanVolk.h
     )
 endif ()
 
