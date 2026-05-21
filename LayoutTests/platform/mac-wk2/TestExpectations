@@ -2322,3 +2322,5 @@ imported/w3c/web-platform-tests/dom/nodes/moveBefore/throws-exception.html [ Ski
 [ Debug ] http/tests/site-isolation/page-lifecycle/pageswap.html [ Skip ]
 
 webkit.org/b/315238 [ Sequoia+ ] imported/w3c/web-platform-tests/webrtc/RTCRtpReceiver-video-jitterBufferTarget-stats.html [ Pass Failure ]
+
+webkit.org/b/315242 [ Tahoe x86_64 ] fast/forms/select/mac-wk2/inactive-appearance.html [ ImageOnlyFailure ]
