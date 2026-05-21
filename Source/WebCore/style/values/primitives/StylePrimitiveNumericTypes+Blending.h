@@ -119,7 +119,7 @@ template<auto R, typename V> struct Blending<LengthPercentage<R, V>> {
                 return WebCore::Style::blend(Percentage(0_css_percentage), get<Percentage>(to), context);
             }
 
-            if (!WTF::holdsAlternative<Calc>(from) && !WTF::holdsAlternative<Percentage>(to) && (!context.progress || toIsZero)) {
+            if (!WTF::holdsAlternative<Calc>(from) && !WTF::holdsAlternative<Calc>(to) && !WTF::holdsAlternative<Percentage>(to) && (!context.progress || toIsZero)) {
                 if (WTF::holdsAlternative<Length>(from))
                     return WebCore::Style::blend(get<Length>(from), Length(0_css_px), context);
                 return WebCore::Style::blend(get<Percentage>(from), Percentage(0_css_percentage), context);
