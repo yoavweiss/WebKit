@@ -590,7 +590,7 @@ def main(argument_list):
         if mvtwebdriver_runner:
             mvtwebdriver_runner.stop_driver()
             mvtwebdriver_runner.stop_display_server()
-        return exit_code
+    return exit_code
 
 
 if __name__ == "__main__":

@@ -119,8 +119,18 @@ void MediaSampleGStreamer::updateSampleTimestamps([[maybe_unused]] const String&
     GRefPtr buffer = gst_sample_get_buffer(m_sample.get());
     RELEASE_ASSERT(buffer);
 
-    auto newPts = toGstClockTime(m_pts);
-    auto newDts = toGstClockTime(m_dts);
+    GstClockTime newPts = 0;
+    if (m_pts >= MediaTime::zeroTime())
+        newPts = toGstClockTime(m_pts);
+    else
+        GST_WARNING("New PTS is negative: %s", m_pts.toString().ascii().data());
+
+    GstClockTime newDts = 0;
+    if (m_dts >= MediaTime::zeroTime())
+        newDts = toGstClockTime(m_dts);
+    else
+        GST_WARNING("New DTS is negative: %s", m_dts.toString().ascii().data());
+
     GST_TRACE("%s, new PTS: %" GST_TIME_FORMAT " (prev: %" GST_TIME_FORMAT "), new DTS: %" GST_TIME_FORMAT " (prev: %" GST_TIME_FORMAT ")", debugMessage.ascii().data(),
         GST_TIME_ARGS(newPts), GST_TIME_ARGS(GST_BUFFER_PTS(buffer.get())),
         GST_TIME_ARGS(newDts), GST_TIME_ARGS(GST_BUFFER_DTS(buffer.get())));
@@ -148,22 +158,8 @@ void MediaSampleGStreamer::offsetTimestampsBy(const MediaTime& timestampOffset)
     if (!timestampOffset)
         return;
 
-    [[maybe_unused]] bool newPtsIsZero = false;
-    auto newPts = m_pts + timestampOffset;
-    if (newPts.isInvalid() || newPts < MediaTime::zeroTime()) {
-        newPts = MediaTime::zeroTime();
-        newPtsIsZero = true;
-    }
-
-    [[maybe_unused]] bool newDtsIsZero = false;
-    auto newDts = m_dts + timestampOffset;
-    if (newDts.isInvalid() || newDts < MediaTime::zeroTime()) {
-        newDts = MediaTime::zeroTime();
-        newDtsIsZero = true;
-    }
-
-    m_pts = newPts;
-    m_dts = newDts;
+    m_pts += timestampOffset;
+    m_dts += timestampOffset;
 
     if (!m_sample)
         return;
@@ -171,7 +167,7 @@ void MediaSampleGStreamer::offsetTimestampsBy(const MediaTime& timestampOffset)
     auto debugMessage = emptyString();
 #ifndef GST_DISABLE_GST_DEBUG
     if (gst_debug_category_get_threshold(GST_CAT_DEFAULT) >= GST_LEVEL_TRACE)
-        debugMessage = makeString("Offsetting timestamps by "_s, timestampOffset.toString(), newPtsIsZero ? " negative PTS was reset to 0..."_s : emptyString(), newDtsIsZero ? " negative DTS was reset to 0..."_s : emptyString());
+        debugMessage = makeString("Offsetting timestamps by "_s, timestampOffset.toString());
 #endif
     updateSampleTimestamps(debugMessage);
 }
