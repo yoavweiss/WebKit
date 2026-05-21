@@ -9960,7 +9960,7 @@ WebXRAugmentedRealityModuleEnabled:
   category: dom
   humanReadableName: "WebXR Augmented Reality Module"
   humanReadableDescription: "Adds support for the WebXR Augmented Reality Module"
-  condition: ENABLE(WEBXR)
+  condition: ENABLE(WEBXR_AR)
   defaultValue:
     WebKitLegacy:
       default: false
