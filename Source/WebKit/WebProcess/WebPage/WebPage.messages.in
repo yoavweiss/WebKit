@@ -48,7 +48,7 @@ messages -> WebPage WantsAsyncDispatchMessage {
 
     [DeferSendingIfSuspended] SetShouldSuppressHDR(bool shouldSuppressHDR)
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     SetHasBannerViewOverlay(bool hasBannerViewOverlay)
 #endif
 

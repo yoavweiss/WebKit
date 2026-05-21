@@ -167,7 +167,7 @@ struct WebPageCreationParameters {
 
     WebCore::FloatBoxExtent obscuredContentInsets { };
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     bool hasBannerViewOverlay { false };
 #endif
     float mediaVolume { 0 };

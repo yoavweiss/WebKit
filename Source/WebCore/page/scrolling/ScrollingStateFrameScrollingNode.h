@@ -83,7 +83,7 @@ public:
 
     // The target offset for rubber band animations when a banner view overlay is present.
     // When non-zero, rubber banding will snap to this offset instead of the edge.
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     float bannerViewHeight() const { return m_bannerViewHeight; }
     WEBCORE_EXPORT void setBannerViewHeight(float);
 #endif
@@ -177,7 +177,7 @@ private:
         int footerHeight,
         ScrollBehaviorForFixedElements&&,
         FloatBoxExtent&& obscuredContentInsets,
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
         float bannerViewHeight,
 #endif
         bool visualViewportIsSmallerThanLayoutViewport,
@@ -214,7 +214,7 @@ private:
 
     float m_frameScaleFactor { 1 };
     FloatBoxExtent m_obscuredContentInsets;
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     float m_bannerViewHeight { 0 };
 #endif
     int m_headerHeight { 0 };

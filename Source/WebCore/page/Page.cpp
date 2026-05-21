@@ -1968,7 +1968,7 @@ void Page::setShouldSuppressScrollbarAnimations(bool suppressAnimations)
     m_suppressScrollbarAnimations = suppressAnimations;
 }
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
 void Page::setHasBannerViewOverlay(bool hasBannerViewOverlay)
 {
     if (m_hasBannerViewOverlay == hasBannerViewOverlay)

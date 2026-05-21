@@ -1169,7 +1169,7 @@ enum ContentsFormat {
     float pageMediaVolume();
     undefined setPageMediaVolume(float volume);
 
-    [Conditional=BANNER_VIEW_OVERLAYS] undefined setPageHasBannerViewOverlayForTesting(boolean hasFakeBannerViewOverlay);
+    [Conditional=TOP_BANNER_VIEW_OVERLAYS] undefined setPageHasBannerViewOverlayForTesting(boolean hasFakeBannerViewOverlay);
 
     undefined setShowAllPlugins(boolean showAll);
 

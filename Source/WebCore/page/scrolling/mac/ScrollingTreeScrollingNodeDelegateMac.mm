@@ -358,7 +358,7 @@ void ScrollingTreeScrollingNodeDelegateMac::rubberBandingStateChanged(bool inRub
 
 FloatSize ScrollingTreeScrollingNodeDelegateMac::rubberBandTargetOffset() const
 {
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     // Only the main frame supports banner views.
     if (scrollingNode()->nodeType() == ScrollingNodeType::MainFrame) {
         auto topOffset = scrollingTree()->bannerViewHeight();
@@ -369,7 +369,7 @@ FloatSize ScrollingTreeScrollingNodeDelegateMac::rubberBandTargetOffset() const
     return { };
 }
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
 
 float ScrollingTreeScrollingNodeDelegateMac::bannerViewMaximumHeight() const
 {

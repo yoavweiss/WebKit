@@ -57,7 +57,7 @@ public:
     int headerHeight() const { return m_headerHeight; }
     int footerHeight() const { return m_footerHeight; }
     FloatBoxExtent obscuredContentInsets() const { return m_obscuredContentInsets; }
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     float bannerViewHeight() const { return m_bannerViewHeight; }
 #endif
     virtual void viewWillStartLiveResize() { }
@@ -94,7 +94,7 @@ private:
     
     float m_frameScaleFactor { 1 };
     FloatBoxExtent m_obscuredContentInsets;
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     float m_bannerViewHeight { 0 };
 #endif
 

@@ -298,7 +298,7 @@ private:
     bool m_momentumScrollInProgress { false };
     bool m_ignoreMomentumScrolls { false };
     bool m_isRubberBanding { false };
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     bool m_skipAdditionalDeltaAdjustments { false };
 #endif
 

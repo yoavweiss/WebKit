@@ -1527,7 +1527,7 @@ void WebViewImpl::didRelaunchProcess()
 
 void WebViewImpl::scrollingCoordinatorWasCreated()
 {
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     if (CheckedPtr scrollingCoordinator = m_page->scrollingCoordinatorProxy()) {
         scrollingCoordinator->setHasBannerViewOverlay(!!m_bannerView);
         scrollingCoordinator->setBannerViewMaximumHeight(bannerViewMaximumHeight());
@@ -1840,7 +1840,7 @@ void WebViewImpl::setFrameSize(CGSize)
     [m_layoutStrategy didChangeFrameSize];
     [m_warningView setFrame:[m_view.get() bounds]];
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     updateBannerViewFrame();
 #endif
 }
@@ -2011,7 +2011,7 @@ void WebViewImpl::setObscuredContentInsets(const FloatBoxExtent& insets)
 {
     m_page->setObscuredContentInsetsAsync(insets);
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     updateBannerViewFrame();
 #endif
 }
@@ -5387,7 +5387,7 @@ void WebViewImpl::scrollWheel(NSEvent *event)
     if (event.phase == NSEventPhaseBegan)
         dismissContentRelativeChildWindowsWithAnimation(false);
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     updateBannerViewForWheelEvent(event);
 #endif
 

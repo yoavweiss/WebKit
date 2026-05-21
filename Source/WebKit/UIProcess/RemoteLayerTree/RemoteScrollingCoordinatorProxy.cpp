@@ -408,7 +408,7 @@ WebCore::FloatBoxExtent RemoteScrollingCoordinatorProxy::obscuredContentInsets()
     return m_scrollingTree->mainFrameObscuredContentInsets();
 }
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
 
 void RemoteScrollingCoordinatorProxy::setBannerViewHeight(float offset)
 {

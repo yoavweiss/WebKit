@@ -672,7 +672,7 @@ public:
     const FloatBoxExtent& obscuredContentInsets() const LIFETIME_BOUND { return m_obscuredContentInsets; }
     WEBCORE_EXPORT void setObscuredContentInsets(const FloatBoxExtent&);
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     bool hasBannerViewOverlay() const { return m_hasBannerViewOverlay; }
     WEBCORE_EXPORT void setHasBannerViewOverlay(bool);
 #endif
@@ -1570,7 +1570,7 @@ private:
     
     bool m_suppressScrollbarAnimations { false };
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     bool m_hasBannerViewOverlay { false };
 #endif
     ScrollElasticity m_verticalScrollElasticity { ScrollElasticity::Allowed };

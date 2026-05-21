@@ -1000,7 +1000,7 @@ public:
     float NODELETE pageMediaVolume();
     void setPageMediaVolume(float);
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     void setPageHasBannerViewOverlayForTesting(bool);
 #endif
 

@@ -107,7 +107,7 @@ header: <WebCore/ScrollingStatePositionedNode.h>
     [OptionalTupleBit=WebCore::ScrollingStateNode::Property::FooterHeight] int footerHeight()
     [OptionalTupleBit=WebCore::ScrollingStateNode::Property::BehaviorForFixedElements] WebCore::ScrollBehaviorForFixedElements scrollBehaviorForFixedElements()
     [OptionalTupleBit=WebCore::ScrollingStateNode::Property::ObscuredContentInsets] WebCore::FloatBoxExtent obscuredContentInsets()
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     [OptionalTupleBit=WebCore::ScrollingStateNode::Property::BannerViewHeight] float bannerViewHeight()
 #endif
     [OptionalTupleBit=WebCore::ScrollingStateNode::Property::VisualViewportIsSmallerThanLayoutViewport] bool visualViewportIsSmallerThanLayoutViewport()

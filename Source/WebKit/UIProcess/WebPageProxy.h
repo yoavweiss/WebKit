@@ -1015,7 +1015,7 @@ public:
     const WebCore::FloatBoxExtent& NODELETE obscuredContentInsets() const LIFETIME_BOUND;
     void setObscuredContentInsets(const WebCore::FloatBoxExtent&);
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     void setHasBannerViewOverlay(bool);
 #endif
 

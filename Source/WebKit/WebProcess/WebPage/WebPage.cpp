@@ -1164,7 +1164,7 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
 
     setObscuredContentInsets(parameters.obscuredContentInsets);
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     setHasBannerViewOverlay(parameters.hasBannerViewOverlay);
 #endif
 
@@ -4421,7 +4421,7 @@ void WebPage::setObscuredContentInsets(const FloatBoxExtent& obscuredContentInse
 #endif
 }
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
 void WebPage::setHasBannerViewOverlay(bool hasBannerViewOverlay)
 {
     m_page->setHasBannerViewOverlay(hasBannerViewOverlay);

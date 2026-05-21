@@ -863,7 +863,7 @@ public:
     void setClientImplicitlyRequestedTopScrollPocket();
 #endif
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     void setBannerView(WKBannerView *);
     WKBannerView *bannerView() const LIFETIME_BOUND { return m_bannerView.get(); }
 
@@ -1192,7 +1192,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     bool m_clientImplicitlyRequestedTopScrollPocket { false };
 #endif
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     RetainPtr<WKBannerView> m_bannerView;
     RetainPtr<CAShapeLayer> m_bannerViewMask;
     CGFloat m_bannerViewHeight { 0 };

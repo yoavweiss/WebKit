@@ -397,7 +397,7 @@ static bool representsDraggableElement(const WebKit::InteractionInformationAtPos
     if ([panGesture state] == NSGestureRecognizerStateBegan)
         viewImpl->dismissContentRelativeChildWindowsWithAnimation(false);
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     viewImpl->updateBannerViewForPanGesture([panGesture state]);
 #endif
 

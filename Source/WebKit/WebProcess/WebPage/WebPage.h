@@ -2139,7 +2139,7 @@ public:
 
     void setObscuredContentInsets(const WebCore::FloatBoxExtent&);
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     void setHasBannerViewOverlay(bool);
 #endif
 

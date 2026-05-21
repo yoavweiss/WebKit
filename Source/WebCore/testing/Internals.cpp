@@ -634,7 +634,7 @@ void Internals::resetToConsistentState(Page& page)
         page.setHeaderHeight(0);
         page.setFooterHeight(0);
         page.setObscuredContentInsets({ });
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
         page.setHasBannerViewOverlay(false);
 #endif
         mainFrameView->setUseFixedLayout(false);
@@ -6236,7 +6236,7 @@ float Internals::pageMediaVolume()
     return page->mediaVolume();
 }
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
 void Internals::setPageHasBannerViewOverlayForTesting(bool hasBannerViewOverlay)
 {
     RefPtr document = contextDocument();

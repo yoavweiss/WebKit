@@ -4437,7 +4437,7 @@ LocalFrameView::ExtendedBackgroundMode LocalFrameView::calculateExtendedBackgrou
         mode.add(BoxSide::Bottom);
     }
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     if (mode.contains(BoxSide::Top)) {
         if (RefPtr page = m_frame->page(); page && page->hasBannerViewOverlay())
             mode.remove(BoxSide::Top);

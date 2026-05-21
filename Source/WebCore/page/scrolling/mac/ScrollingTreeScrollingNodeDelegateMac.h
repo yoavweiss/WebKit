@@ -91,7 +91,7 @@ private:
     void didStopRubberBandAnimation() final;
     void rubberBandingStateChanged(bool) final;
     FloatSize rubberBandTargetOffset() const final;
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     bool hasBannerViewOverlay() const final;
     float bannerViewMaximumHeight() const final;
 #endif

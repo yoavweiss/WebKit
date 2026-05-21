@@ -724,7 +724,7 @@ struct PerWebProcessState {
 
 - (void)_setContentOffsetX:(nullable NSNumber *)x y:(nullable NSNumber *)y animated:(BOOL)animated NS_SWIFT_NAME(_setContentOffset(x:y:animated:));
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
 @property (nonatomic, readonly) CGFloat _bannerViewOverlayHeight;
 #endif
 #endif // PLATFORM(MAC)

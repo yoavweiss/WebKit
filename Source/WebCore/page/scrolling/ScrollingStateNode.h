@@ -199,7 +199,7 @@ enum class ScrollingStateNodeProperty : uint64_t {
     FooterHeight                                = HeaderHeight << 1,
     BehaviorForFixedElements                    = FooterHeight << 1,
     ObscuredContentInsets                       = BehaviorForFixedElements << 1,
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     BannerViewHeight                            = ObscuredContentInsets << 1,
     VisualViewportIsSmallerThanLayoutViewport   = BannerViewHeight << 1,
 #else

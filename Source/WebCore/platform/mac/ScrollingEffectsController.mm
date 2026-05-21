@@ -324,7 +324,7 @@ bool ScrollingEffectsController::modifyScrollDeltaForStretching(const PlatformWh
     return false;
 }
 
-#if !ENABLE(BANNER_VIEW_OVERLAYS)
+#if !ENABLE(TOP_BANNER_VIEW_OVERLAYS)
 
 FloatSize ScrollingEffectsController::deltaWithAdditionalAdjustments(const FloatSize& delta, bool)
 {

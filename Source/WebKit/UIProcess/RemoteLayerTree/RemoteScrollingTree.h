@@ -97,7 +97,7 @@ public:
 
     void tryToApplyLayerPositions();
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     float bannerViewHeight() const override { return m_bannerViewHeight; }
     void setBannerViewHeight(float height) { m_bannerViewHeight = height; }
     float bannerViewMaximumHeight() const override { return m_bannerViewMaximumHeight; }
@@ -127,7 +127,7 @@ protected:
     // This gets nulled out via invalidate(), since the scrolling thread can hold a ref to the ScrollingTree after the RemoteScrollingCoordinatorProxy has gone away.
     WeakPtr<RemoteScrollingCoordinatorProxy> m_scrollingCoordinatorProxy;
     bool m_hasNodesWithSynchronousScrollingReasons WTF_GUARDED_BY_LOCK(m_treeLock) { false };
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     float m_bannerViewHeight { 0 };
     float m_bannerViewMaximumHeight { 0 };
     bool m_hasBannerViewOverlay { false };

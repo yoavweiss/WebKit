@@ -3021,7 +3021,7 @@ const WebCore::FloatBoxExtent& WebPageProxy::obscuredContentInsets() const
     return m_internals->obscuredContentInsets;
 }
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
 void WebPageProxy::setHasBannerViewOverlay(bool hasBannerViewOverlay)
 {
     if (m_internals->hasBannerViewOverlay == hasBannerViewOverlay)
@@ -13234,7 +13234,7 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
     parameters.textZoomFactor = m_textZoomFactor;
     parameters.pageZoomFactor = m_pageZoomFactor;
     parameters.obscuredContentInsets = m_internals->obscuredContentInsets;
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     parameters.hasBannerViewOverlay = m_internals->hasBannerViewOverlay;
 #endif
     parameters.mediaVolume = m_mediaVolume;

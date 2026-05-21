@@ -81,7 +81,7 @@ enum class WebCore::UserInterfaceLayoutDirection : bool;
 
     WebCore::FloatBoxExtent obscuredContentInsets;
 
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     bool hasBannerViewOverlay;
 #endif
 

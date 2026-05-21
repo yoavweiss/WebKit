@@ -253,7 +253,7 @@ public:
     WebCore::IntSize sizeToContentAutoSizeMaximumSize;
     WebCore::Color themeColor;
     WebCore::FloatBoxExtent obscuredContentInsets;
-#if ENABLE(BANNER_VIEW_OVERLAYS)
+#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     bool hasBannerViewOverlay { false };
 #endif
 #if PLATFORM(MAC)
