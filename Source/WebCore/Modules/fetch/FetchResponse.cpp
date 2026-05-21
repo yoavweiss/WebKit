@@ -31,7 +31,7 @@
 #include "FetchResponse.h"
 
 #include "ContextDestructionObserverInlines.h"
-#include "Document.h"
+#include "DocumentQuirks.h"
 #include "FetchRequest.h"
 #include "FetchResponseBodyLoader.h"
 #include "HTTPParsers.h"

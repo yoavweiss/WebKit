@@ -27,6 +27,7 @@
 #include "CSSWebkitBoxReflect.h"
 
 #include "CSSKeywordValue.h"
+#include "CSSPrimitiveNumericTypes+Serialization.h"
 #include "CSSWebkitBoxReflectValue.h"
 
 namespace WebCore {

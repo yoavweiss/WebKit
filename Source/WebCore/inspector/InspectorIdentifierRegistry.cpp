@@ -29,7 +29,7 @@
 #include "Document.h"
 #include "DocumentLoader.h"
 #include "FrameDestructionObserverInlines.h"
-#include "LocalFrame.h"
+#include "LocalFrameInlines.h"
 #include <JavaScriptCore/IdentifiersFactory.h>
 #include <wtf/TZoneMallocInlines.h>
 

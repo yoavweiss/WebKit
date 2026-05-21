@@ -34,6 +34,7 @@ WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 #include <wtf/HashMap.h>
 
 namespace WebCore {
+class BitmapTexture;
 class CoordinatedTileBuffer;
 
 class SkiaBackingStore {

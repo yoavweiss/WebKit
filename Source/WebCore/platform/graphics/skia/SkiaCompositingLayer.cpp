@@ -27,6 +27,7 @@
 #include "SkiaCompositingLayer.h"
 
 #if USE(COORDINATED_GRAPHICS) && USE(SKIA)
+#include "BitmapTexture.h"
 #include "CoordinatedAnimatedBackingStoreClient.h"
 #include "CoordinatedImageBackingStore.h"
 #include "CoordinatedPlatformLayerBuffer.h"

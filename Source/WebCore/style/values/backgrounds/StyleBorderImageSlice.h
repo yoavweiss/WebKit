@@ -26,6 +26,7 @@
 #pragma once
 
 #include <WebCore/StylePrimitiveNumeric.h>
+#include <WebCore/StylePrimitiveNumericTypes.h>
 
 namespace WebCore {
 
