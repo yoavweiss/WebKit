@@ -25,8 +25,6 @@
 
 #pragma once
 
-#ifdef __cplusplus
-
 #include <pal/crypto/CryptoTypes.h>
 #include <wtf/Expected.h>
 
@@ -37,5 +35,3 @@ Expected<VectorUInt8, Error> wrapKeyAESKWCryptoKit(const VectorUInt8& key, const
 Expected<VectorUInt8, Error> unwrapKeyAESKWCryptoKit(const VectorUInt8& key, const VectorUInt8& data);
 
 } // namespace PAL::Crypto
-
-#endif // __cplusplus

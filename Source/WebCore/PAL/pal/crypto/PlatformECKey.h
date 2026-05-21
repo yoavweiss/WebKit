@@ -25,8 +25,6 @@
 
 #pragma once
 
-#ifdef __cplusplus
-
 #include <pal/crypto/CryptoTypes.h>
 #include <wtf/UniqueRef.h>
 
@@ -75,5 +73,3 @@ private:
 };
 
 } // namespace PAL::Crypto
-
-#endif // __cplusplus

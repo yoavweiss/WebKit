@@ -25,8 +25,6 @@
 
 #pragma once
 
-#ifdef __cplusplus
-
 #include <pal/crypto/CryptoTypes.h>
 #include <wtf/Expected.h>
 
@@ -35,5 +33,3 @@ namespace PAL::Crypto {
 std::optional<VectorUInt8> deriveBitsX25519CryptoKit(const VectorUInt8& baseKey, const VectorUInt8& publicKey);
 
 } // namespace PAL::Crypto
-
-#endif // __cplusplus
