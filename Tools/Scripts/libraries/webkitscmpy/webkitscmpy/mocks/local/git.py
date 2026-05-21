@@ -640,7 +640,7 @@ nothing to commit, working tree clean
             ), mocks.Subprocess.Route(
                 self.executable, 'fetch', 'origin', re.compile(r'.+:.+'),
                 cwd=self.path,
-                generator=lambda *args, **kwargs: self._fetch_with_refspec(args[3]),
+                generator=lambda *args, **kwargs: self._fetch_with_refspec(args[3:]),
             ), mocks.Subprocess.Route(
                 self.executable, 'rebase', '--onto', re.compile(r'.+'), re.compile(r'.+'), re.compile(r'.+'),
                 cwd=self.path,
@@ -1317,18 +1317,40 @@ nothing to commit, working tree clean
             del self.remotes[remote_branch]
         return mocks.ProcessCompletion(returncode=0)
 
-    def _fetch_with_refspec(self, refspec):
-        """Handle fetch with refspec like 'main:main'.
+    def _fetch_with_refspec(self, refspecs):
+        """Handle fetch with one or more refspecs like 'main:main'.
 
         Simulates git's behavior of refusing to fetch into a branch
-        that is checked out in any worktree.
+        that is checked out in any worktree, and updates local refs
+        from the remote.
         """
-        branch = refspec.split(':')[0]
-        if self.is_worktree:
-            return mocks.ProcessCompletion(
-                returncode=1,
-                stderr="fatal: refusing to fetch into branch 'refs/heads/{}' checked out at '/other/worktree'\n".format(branch),
-            )
+        for refspec in refspecs:
+            if refspec == '--prune':
+                continue
+            if refspec.startswith('-'):
+                raise ValueError('Negative refspecs are not supported by this mock: {}'.format(refspec))
+            src, dst = refspec.lstrip('+').split(':', 1)
+            if dst.startswith('refs/heads/'):
+                branch = dst[len('refs/heads/'):]
+            elif '/' not in dst:
+                branch = dst
+            else:
+                continue
+
+            if self.is_worktree:
+                return mocks.ProcessCompletion(
+                    returncode=1,
+                    stderr="fatal: refusing to fetch into branch 'refs/heads/{}' checked out at '/other/worktree'\n".format(branch),
+                )
+
+            remote_key = 'origin/{}'.format(src if '/' not in src else src.split('/')[-1])
+            if remote_key not in self.remotes:
+                return mocks.ProcessCompletion(
+                    returncode=128,
+                    stderr="fatal: couldn't find remote ref {}\n".format(src),
+                )
+            self.commits[branch] = self.remotes[remote_key][:]
+
         return mocks.ProcessCompletion(returncode=0)
 
     def dcommit(self, remote='origin', branch=None):
