@@ -623,7 +623,7 @@ public:
     void reinitializeWebPage(WebPageCreationParameters&&);
     void platformReinitializeAccessibilityToken();
 
-    void close();
+    void close(CompletionHandler<void()>&&);
 
     static WebPage* fromCorePage(WebCore::Page&);
 

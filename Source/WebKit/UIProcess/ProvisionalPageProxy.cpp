@@ -181,7 +181,7 @@ ProvisionalPageProxy::~ProvisionalPageProxy()
             protect(process->processPool())->pageEndUsingWebsiteDataStore(page, *dataStore);
 
         if (process->hasConnection() && m_shouldClosePage)
-            send(Messages::WebPage::Close());
+            sendWithAsyncReply(Messages::WebPage::Close(), [] { });
         process->removeVisitedLinkStoreUser(page->visitedLinkStore(), page->identifier());
     }
 

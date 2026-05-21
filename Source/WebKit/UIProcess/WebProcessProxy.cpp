@@ -735,6 +735,8 @@ void WebProcessProxy::shutDown()
     RELEASE_ASSERT(isMainThreadOrCheckDisabled());
     WEBPROCESSPROXY_RELEASE_LOG(Process, "shutDown:");
 
+    m_isShuttingDown = true;
+
     if (m_isInProcessCache) {
         processPool().webProcessCache().removeProcess(*this, WebProcessCache::ShouldShutDownProcess::No);
         ASSERT(!m_isInProcessCache);
@@ -1651,7 +1653,9 @@ void WebProcessProxy::maybeShutDown()
         return;
     }
 
-    if (state() == State::Terminated || !canTerminateAuxiliaryProcess())
+    // shutDownProcess() can re-entrantly trigger maybeShutDown() when
+    // cancelAsyncReplyHandlers() releases shutdown-preventing scope tokens.
+    if (state() == State::Terminated || m_isShuttingDown || !canTerminateAuxiliaryProcess())
         return;
 
     if (canBeAddedToWebProcessCache() && protect(processPool().webProcessCache())->addProcessIfPossible(*this))

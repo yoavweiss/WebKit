@@ -306,7 +306,7 @@ messages -> WebPage WantsAsyncDispatchMessage {
     Suspend() -> (bool success)
     Resume() -> (bool success)
 
-    Close()
+    Close() -> ()
     TryClose() -> (bool shouldClose)
     DispatchCrossOriginBeforeUnloadCheckForFrame(WebCore::FrameIdentifier frameID, WebCore::SecurityOriginData navigatingFrameOrigin)
 

@@ -116,7 +116,7 @@ void RemotePageProxy::disconnect()
     if (RefPtr page = m_page.get())
         page->isNoLongerAssociatedWithRemotePage(*this);
     if (m_drawingArea)
-        m_process->send(Messages::WebPage::Close(), m_webPageID);
+        m_process->sendWithAsyncReply(Messages::WebPage::Close(), [] { }, m_webPageID);
     m_process->removeRemotePageProxy(*this);
 
     m_drawingArea = nullptr;

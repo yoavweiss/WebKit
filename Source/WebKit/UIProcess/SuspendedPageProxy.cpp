@@ -295,7 +295,7 @@ void SuspendedPageProxy::close()
 
     RELEASE_LOG(ProcessSwapping, "%p - SuspendedPageProxy::close()", this);
     m_isClosed = true;
-    send(Messages::WebPage::Close());
+    sendWithAsyncReply(Messages::WebPage::Close(), [] { });
 }
 
 void SuspendedPageProxy::pageDidFirstLayerFlush()

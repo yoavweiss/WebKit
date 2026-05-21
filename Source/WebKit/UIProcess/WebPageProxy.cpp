@@ -1954,9 +1954,9 @@ void WebPageProxy::close()
         });
     });
     // Delay sending close message to next runloop cycle to avoid white flash.
-    RunLoop::currentSingleton().dispatch([processesToClose = WTF::move(processesToClose)] {
-        for (auto [process, pageID, scope] : processesToClose)
-            protect(process)->send(Messages::WebPage::Close(), pageID);
+    RunLoop::currentSingleton().dispatch([processesToClose = WTF::move(processesToClose)] mutable {
+        for (auto& [process, pageID, scope] : processesToClose)
+            protect(process)->sendWithAsyncReply(Messages::WebPage::Close(), [scope = WTF::move(scope)] { }, pageID);
     });
 
     process->removeWebPage(*this, WebProcessProxy::EndsUsingDataStore::Yes);
@@ -5765,7 +5765,7 @@ void WebPageProxy::commitProvisionalPage(IPC::Connection& connection, FrameIdent
 
     // There is no way we'll be able to return to the page in the previous page so close it.
     if (!didSuspendPreviousPage && shouldClosePreviousPage(*provisionalPage))
-        send(Messages::WebPage::Close());
+        sendWithAsyncReply(Messages::WebPage::Close(), [] { });
 
 #if ENABLE(MODEL_ELEMENT_IMMERSIVE)
     if (m_immersive)

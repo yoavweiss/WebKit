@@ -2097,10 +2097,12 @@ void WebPage::exitAcceleratedCompositingMode(WebCore::Frame& frame)
     protect(drawingArea())->setRootCompositingLayer(frame, nullptr);
 }
 
-void WebPage::close()
+void WebPage::close(CompletionHandler<void()>&& completionHandler)
 {
-    if (m_isClosed)
+    if (m_isClosed) {
+        completionHandler();
         return;
+    }
 
     flushDeferredDidReceiveMouseEvent();
 
@@ -2214,6 +2216,8 @@ void WebPage::close()
 
     if (isRunningModal)
         RunLoop::mainSingleton().stop();
+
+    completionHandler();
 }
 
 void WebPage::tryClose(CompletionHandler<void(bool)>&& completionHandler)
