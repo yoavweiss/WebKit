@@ -31,12 +31,14 @@
 #include "FetchResponse.h"
 
 #include "ContextDestructionObserverInlines.h"
+#include "Document.h"
 #include "FetchRequest.h"
 #include "FetchResponseBodyLoader.h"
 #include "HTTPParsers.h"
 #include "InspectorInstrumentation.h"
 #include "JSBlob.h"
 #include "MIMETypeRegistry.h"
+#include "Quirks.h"
 #include "ReadableStreamToSharedBufferSink.h"
 #include "ResourceError.h"
 #include "ScriptExecutionContext.h"
@@ -390,6 +392,9 @@ void FetchResponse::Loader::didReceiveResponse(const ResourceResponse& resourceR
     RefPtr response = m_response.get();
     if (!response)
         return;
+
+    if (RefPtr document = dynamicDowncast<Document>(response->scriptExecutionContext()))
+        document->quirks().clearLogoutSurvivingIdentityCookiesIfNeeded(resourceResponse.url(), resourceResponse.httpStatusCode());
 
     response->setReceivedInternalResponse(resourceResponse, m_credentials);
 

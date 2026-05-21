@@ -346,6 +346,8 @@ public:
 
     bool shouldSuppressMediaSessionPauseActionOnInterruption() const;
 
+    void clearLogoutSurvivingIdentityCookiesIfNeeded(const URL& fetchURL, int httpStatusCode);
+
     void determineRelevantQuirks();
 
 #if PLATFORM(IOS_FAMILY)

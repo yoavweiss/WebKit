@@ -30,6 +30,8 @@
 #include "AccessibilityRole.h"
 #include "Attr.h"
 #include "ContainerNodeInlines.h"
+#include "Cookie.h"
+#include "CookieJar.h"
 #include "DatasetDOMStringMap.h"
 #include "DeprecatedGlobalSettings.h"
 #include "DocumentLoader.h"
@@ -2492,6 +2494,45 @@ bool Quirks::needsLimitedMatroskaSupport() const
 #endif
 }
 
+// rdar://174779259.
+// Anthropic's claude.ai SPA, after a logout, leaves some identification cookies behind.
+// On the next /chat boot those non-auth cookies are enough to push the SPA into an
+// authenticated boot path; the bootstrap call 403s with "account_session_invalid", and
+// the SPA reacts with location.href = '/logout?...', producing an indefinite /chat <->
+// /logout loop. The bug seems to be on Anthropic's side; this quirk works around it by
+// performing the cookie cleanup the server forgot, when we observe a successful fetch
+// to claude.ai/api/auth/logout.
+void Quirks::clearLogoutSurvivingIdentityCookiesIfNeeded(const URL& fetchURL, int httpStatusCode)
+{
+    if (!needsQuirks()) [[unlikely]]
+        return;
+
+    if (!m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::NeedsLogoutCookieCleanupQuirk))
+        return;
+
+    if (httpStatusCode < 200 || httpStatusCode >= 300)
+        return;
+
+    if (!equalLettersIgnoringASCIICase(fetchURL.host(), "claude.ai"_s))
+        return;
+
+    if (fetchURL.path() != "/api/auth/logout"_s)
+        return;
+
+    RefPtr document = m_document.get();
+    if (!document)
+        return;
+
+    RefPtr page = document->page();
+    if (!page)
+        return;
+
+    auto& documentURL = document->url();
+    static constexpr std::array cookiesToDelete = { "__ssid"_s, "__cf_bm"_s, "anthropic-device-id"_s, "lastActiveOrg"_s, "activitySessionId"_s };
+    for (auto& cookieName : cookiesToDelete)
+        page->cookieJar().deleteCookie(*document, documentURL, cookieName, [] { });
+}
+
 bool Quirks::needsCustomUserAgentData() const
 {
     QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
@@ -3025,14 +3066,21 @@ static void handleDailyMailCoUkQuirks(QuirksData& quirksData, const URL& /* quir
     quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::ShouldUnloadHeavyFrames);
 }
 
-#if PLATFORM(IOS_FAMILY)
 static void handleClaudeQuirks(QuirksData& quirksData, const URL& /* quirksURL */, const String& quirksDomainString, const URL&  /* documentURL */)
 {
     QUIRKS_EARLY_RETURN_IF_NOT_DOMAIN("claude.ai"_s);
 
+#if PLATFORM(IOS_FAMILY)
     quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::NeedsClaudeSidebarViewportUnitQuirk);
-}
 #endif
+
+    // rdar://174779259.
+    // The Claude SPA's logout flow leaves some identification cookies behind.
+    // On the next /chat boot those cookies cause the SPA to enter an unauthenticated boot path
+    // that 403s and triggers a /chat -> /logout redirect loop. See
+    // Quirks::clearLogoutSurvivingIdentityCookiesIfNeeded() for the cleanup hook.
+    quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::NeedsLogoutCookieCleanupQuirk);
+}
 
 #if ENABLE(TEXT_AUTOSIZING)
 static void handleYCombinatorQuirks(QuirksData& quirksData, const URL& quirksURL, const String& /* quirksDomainString */, const URL& /* documentURL */)
@@ -4026,9 +4074,7 @@ void Quirks::determineRelevantQuirks()
 #endif
         { "zoom"_s, &handleZoomQuirks },
         { "dailymail"_s, &handleDailyMailCoUkQuirks },
-#if PLATFORM(IOS_FAMILY)
         { "claude"_s, &handleClaudeQuirks },
-#endif
     });
 
     auto findResult = dispatchMap->find(quirkDomainWithoutPSL);
