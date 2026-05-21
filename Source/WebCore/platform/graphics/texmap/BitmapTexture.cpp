@@ -161,7 +161,9 @@ void BitmapTexture::createTexture()
 void BitmapTexture::allocateTexture()
 {
     createTexture();
-    glTexImage2D(m_renderTarget, 0, GL_RGBA, m_size.width(), m_size.height(), 0, textureFormat(), s_pixelDataType, nullptr);
+    // EXT_texture_format_BGRA8888 mandates internalFormat == format.
+    // https://registry.khronos.org/OpenGL/extensions/EXT/EXT_texture_format_BGRA8888.txt
+    glTexImage2D(m_renderTarget, 0, textureFormat(), m_size.width(), m_size.height(), 0, textureFormat(), s_pixelDataType, nullptr);
 }
 
 size_t BitmapTexture::sizeInBytes() const
@@ -297,7 +299,7 @@ void BitmapTexture::reset(const IntSize& size, OptionSet<Flags> flags)
 #endif
 
     glBindTexture(m_renderTarget, m_id);
-    glTexImage2D(m_renderTarget, 0, GL_RGBA, m_size.width(), m_size.height(), 0, textureFormat(), s_pixelDataType, nullptr);
+    glTexImage2D(m_renderTarget, 0, textureFormat(), m_size.width(), m_size.height(), 0, textureFormat(), s_pixelDataType, nullptr);
     glBindTexture(m_renderTarget, boundTexture);
 }
 

@@ -33,7 +33,7 @@
 #include "TextureMapper.h"
 
 #if USE(SKIA)
-#include "SkiaUtilities.h"
+#include "ColorSpaceSkia.h"
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
 #include <skia/core/SkColorFilter.h>
 #include <skia/core/SkColorSpace.h>
@@ -95,7 +95,7 @@ sk_sp<SkImage> CoordinatedPlatformLayerBufferRGB::skiaImage()
     externalTexture.fFormat = GL_RGBA8;
     auto backendTexture = GrBackendTextures::MakeGL(m_size.width(), m_size.height(), skgpu::Mipmapped::kNo, externalTexture);
     auto origin = m_flags.contains(TextureMapperFlags::ShouldFlipTexture) ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
-    return SkiaUtilities::borrowBackendTextureAsImage(grContext, backendTexture, origin);
+    return SkImages::BorrowTextureFrom(grContext, backendTexture, origin, kRGBA_8888_SkColorType, kPremul_SkAlphaType, sRGBColorSpaceSingleton());
 }
 #endif
 
