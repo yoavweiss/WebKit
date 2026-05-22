@@ -566,6 +566,7 @@ private:
 #endif
     void allowTLSCertificateChainForLocalPCMTesting(PAL::SessionID, const WebCore::CertificateInfo&);
     void flushCookies(PAL::SessionID, CompletionHandler<void()>&&);
+    void flushNetworkProcessIPC(CompletionHandler<void()>&& completionHandler) { completionHandler(); }
 
     void addWebPageNetworkParameters(PAL::SessionID, WebPageProxyIdentifier, WebPageNetworkParameters&&);
     void removeWebPageNetworkParameters(PAL::SessionID, WebPageProxyIdentifier);

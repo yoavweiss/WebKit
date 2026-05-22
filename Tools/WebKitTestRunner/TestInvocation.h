@@ -69,6 +69,7 @@ public:
 
     static void dumpWebProcessUnresponsiveness(const char* errorMessage);
     void outputText(const String&);
+    void outputResourceLoadCallback(const String&);
 
     void notifyDownloadDone();
 
@@ -164,6 +165,7 @@ private:
 
     StringBuilder m_textOutput;
     String m_savedResourceLoadStatistics;
+    StringBuilder m_savedResourceLoadCallbacks;
     WKRetainPtr<WKDataRef> m_audioResult;
     WKRetainPtr<WKImageRef> m_pixelResult;
     WKRetainPtr<WKArrayRef> m_repaintRects;

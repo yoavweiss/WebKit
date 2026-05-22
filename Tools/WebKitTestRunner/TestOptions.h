@@ -96,6 +96,7 @@ public:
     bool enableMetalShaderValidation() const { return boolTestRunnerFeatureValue("enableMetalShaderValidation"); }
     bool pageTopColorSamplingEnabled() const { return boolTestRunnerFeatureValue("pageTopColorSamplingEnabled"); }
     bool enhancedSecurityEnabled() const { return boolTestRunnerFeatureValue("enhancedSecurityEnabled"); }
+    bool shouldDumpResourceLoadCallbacks() const { return boolTestRunnerFeatureValue("dumpResourceLoadCallbacks"); }
 
     double contentInsetTop() const { return doubleTestRunnerFeatureValue("contentInset.top"); }
     double obscuredInsetTop() const { return doubleTestRunnerFeatureValue("obscuredInset.top"); }

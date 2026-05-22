@@ -889,6 +889,11 @@ framework module WebKit_Private [system] {
     export *
   }
 
+  explicit module WKPageResourceLoadClient {
+    header "WKPageResourceLoadClient.h"
+    export *
+  }
+
   explicit module WKPageUIClient {
     header "WKPageUIClient.h"
     export *

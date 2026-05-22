@@ -822,3 +822,13 @@ void WKWebsiteDataStoreSetStorageAccessForTesting(WKWebsiteDataStoreRef dataStor
         store->clearStorageAccessForTesting([callbackAggregator] { });
     store->setResourceLoadStatisticsShouldBlockThirdPartyCookiesForTesting(blocked, WebCore::ThirdPartyCookieBlockingMode::All, [callbackAggregator] { });
 }
+
+void WKWebsiteDataStoreFlushNetworkProcessIPC(WKWebsiteDataStoreRef dataStore, void* context, WKWebsiteDataStoreFlushNetworkProcessIPCCallback callback)
+{
+    if (RefPtr networkProcess = protect(WebKit::toImpl(dataStore))->networkProcess()) {
+        networkProcess->flushNetworkProcessIPC([callback, context] {
+            callback(context);
+        });
+    } else
+        callback(context);
+}

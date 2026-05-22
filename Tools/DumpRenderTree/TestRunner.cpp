@@ -193,13 +193,6 @@ static JSValueRef dumpUserGestureInFrameLoadCallbacksCallback(JSContextRef conte
     return JSValueMakeUndefined(context);
 }
 
-static JSValueRef dumpResourceLoadCallbacksCallback(JSContextRef context, JSObjectRef function, JSObjectRef thisObject, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception)
-{
-    TestRunner* controller = static_cast<TestRunner*>(JSObjectGetPrivate(thisObject));
-    controller->setDumpResourceLoadCallbacks(true);
-    return JSValueMakeUndefined(context);
-}
-
 static JSValueRef dumpResourceResponseMIMETypesCallback(JSContextRef context, JSObjectRef function, JSObjectRef thisObject, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception)
 {
     TestRunner* controller = static_cast<TestRunner*>(JSObjectGetPrivate(thisObject));
@@ -1993,7 +1986,6 @@ const JSStaticFunction* TestRunner::staticFunctions()
         { "dumpFrameLoadCallbacks", dumpFrameLoadCallbacksCallback, kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete },
         { "dumpProgressFinishedCallback", dumpProgressFinishedCallbackCallback, kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete },
         { "dumpUserGestureInFrameLoadCallbacks", dumpUserGestureInFrameLoadCallbacksCallback, kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete },        
-        { "dumpResourceLoadCallbacks", dumpResourceLoadCallbacksCallback, kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete },
         { "dumpResourceResponseMIMETypes", dumpResourceResponseMIMETypesCallback, kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete },
         { "dumpSelectionRect", dumpSelectionRectCallback, kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete },
         { "dumpSourceAsWebArchive", dumpSourceAsWebArchiveCallback, kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete },
@@ -2173,6 +2165,12 @@ void TestRunner::waitToDumpWatchdogTimerFired()
         fprintf(testResult, "Logs accumulated during test run:\n%s\n", logs.utf8().data());
 
     notifyDone();
+}
+
+void TestRunner::dumpResourceLoadCallbacks()
+{
+    for (auto callback : std::exchange(m_resourceLoadCallbacks, { }))
+        printf("%s\n", callback.c_str()); // NOLINT
 }
 
 void TestRunner::setGeolocationPermissionCommon(bool allow)
@@ -2387,3 +2385,8 @@ bool TestRunner::isSecureEventInputEnabled() const
 }
 
 #endif
+
+void TestRunner::addResourceLoadCallback(std::string callbackString)
+{
+    m_resourceLoadCallbacks.push_back(callbackString);
+}

@@ -47,6 +47,7 @@
 #include "APIOpenPanelParameters.h"
 #include "APIPageConfiguration.h"
 #include "APIPolicyClient.h"
+#include "APIResourceLoadClient.h"
 #include "APISessionState.h"
 #include "APIUIClient.h"
 #include "APIWebAuthenticationPanel.h"
@@ -73,6 +74,7 @@
 #include "PrintInfo.h"
 #include "ProcessTerminationReason.h"
 #include "QueryPermissionResultCallback.h"
+#include "ResourceLoadInfo.h"
 #include "RunJavaScriptParameters.h"
 #include "SpeechRecognitionPermissionRequest.h"
 #include "UserMediaPermissionCheckProxy.h"
@@ -179,7 +181,11 @@ template<> struct ClientTraits<WKPageFindMatchesClientBase> {
 template<> struct ClientTraits<WKPageStateClientBase> {
     typedef std::tuple<WKPageStateClientV0> Versions;
 };
-    
+
+template<> struct ClientTraits<WKPageResourceLoadClientBase> {
+    typedef std::tuple<WKPageResourceLoadClientV0> Versions;
+};
+
 } // namespace API
 
 using namespace WebKit;
@@ -2694,6 +2700,59 @@ void WKPageSetPageStateClient(WKPageRef pageRef, WKPageStateClientBase* client)
         protect(toImpl(pageRef))->setPageLoadStateObserver(StateClient::create(client));
     else
         protect(toImpl(pageRef))->setPageLoadStateObserver(nullptr);
+}
+
+class ResourceLoadClient final : public API::ResourceLoadClient, public API::Client<WKPageResourceLoadClientBase> {
+    WTF_MAKE_TZONE_ALLOCATED(ResourceLoadClient);
+public:
+    ResourceLoadClient(WKPageResourceLoadClientBase* base, WKPageRef page)
+        : m_page(toImpl(page))
+    {
+        initialize(base);
+    }
+private:
+    void didSendRequest(WebKit::ResourceLoadInfo&&, WebCore::ResourceRequest&& request) const final
+    {
+        if (!m_client.didSendRequest)
+            return;
+        m_client.didSendRequest(m_client.base.clientInfo, toAPI(protect(m_page).get()), toAPI(request));
+    }
+
+    void didPerformHTTPRedirection(WebKit::ResourceLoadInfo&&, WebCore::ResourceResponse&& response, WebCore::ResourceRequest&& request) const final
+    {
+        if (!m_client.didPerformRedirect)
+            return;
+        m_client.didPerformRedirect(m_client.base.clientInfo, toAPI(protect(m_page).get()), toAPI(response), toAPI(request));
+    }
+    void didReceiveChallenge(WebKit::ResourceLoadInfo&&, WebCore::AuthenticationChallenge&&) const final { }
+    void didReceiveResponse(WebKit::ResourceLoadInfo&& info, WebCore::ResourceResponse&& response) const final
+    {
+        if (!m_client.didReceiveResponse)
+            return;
+        m_client.didReceiveResponse(m_client.base.clientInfo, toAPI(protect(m_page).get()), toAPI(API::URL::create(info.originalURL.string()).ptr()), toAPI(response));
+    }
+    void didCompleteWithError(WebKit::ResourceLoadInfo&& info, WebCore::ResourceResponse&& response, WebCore::ResourceError&& error) const final
+    {
+        if (!m_client.didCompleteWithError)
+            return;
+        if (error.isNull())
+            m_client.didCompleteWithError(m_client.base.clientInfo, toAPI(protect(m_page).get()), toAPI(API::URL::create(info.originalURL.string()).ptr()), toAPI(response), nullptr);
+        else
+            m_client.didCompleteWithError(m_client.base.clientInfo, toAPI(protect(m_page).get()), toAPI(API::URL::create(info.originalURL.string()).ptr()), toAPI(response), toAPI(error));
+    }
+
+    WeakPtr<WebPageProxy> m_page;
+};
+
+WTF_MAKE_TZONE_ALLOCATED_IMPL(ResourceLoadClient);
+
+void WKPageSetResourceLoadClient(WKPageRef pageRef, WKPageResourceLoadClientBase* client)
+{
+    CRASH_IF_SUSPENDED;
+    if (client)
+        protect(toImpl(pageRef))->setResourceLoadClient(makeUnique<ResourceLoadClient>(client, pageRef));
+    else
+        protect(toImpl(pageRef))->setResourceLoadClient(nullptr);
 }
 
 void WKPageEvaluateJavaScriptInMainFrame(WKPageRef pageRef, WKStringRef scriptRef, void* context, WKPageEvaluateJavaScriptFunction callback)

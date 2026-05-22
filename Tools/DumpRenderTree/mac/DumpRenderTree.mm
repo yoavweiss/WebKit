@@ -1673,6 +1673,9 @@ void dump()
         } else
             printf("ERROR: nil result from %s", methodNameStringForFailedTest());
 
+        if (gTestRunner->shouldDumpResourceLoadCallbacks())
+            gTestRunner->dumpResourceLoadCallbacks();
+
         // Stop the watchdog thread before we leave this test to make sure it doesn't
         // fire in between tests causing the next test to fail.
         // This is a speculative fix for: https://bugs.webkit.org/show_bug.cgi?id=32339
@@ -1942,6 +1945,8 @@ static void runTest(const std::string& inputLine)
     gTestRunner->setLocalhostAliases(localhostAliases);
     gTestRunner->setCustomTimeout(command.timeout.milliseconds());
     gTestRunner->setDumpJSConsoleLogInStdErr(command.dumpJSConsoleLogInStdErr || options.dumpJSConsoleLogInStdErr());
+    if (options.shouldDumpResourceLoadCallbacks())
+        gTestRunner->setDumpResourceLoadCallbacks(true);
 
 #if ENABLE(DNS_SERVER_FOR_TESTING)
     gTestRunner->initializeDNS();

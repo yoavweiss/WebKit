@@ -61,7 +61,6 @@ interface TestRunner {
     undefined dumpTitleChanges();
     undefined dumpFrameLoadCallbacks();
     undefined dumpProgressFinishedCallback();
-    undefined dumpResourceLoadCallbacks();
     undefined dumpResourceResponseMIMETypes();
     undefined dumpWillCacheResponse();
     undefined dumpApplicationCacheDelegateCallbacks();
@@ -117,8 +116,6 @@ interface TestRunner {
 
     // Printing
     boolean isPageBoxVisible(long pageIndex);
-
-    undefined dumpAllHTTPRedirectedResponseHeaders();
 
     undefined setValueForUser(object element, DOMString value);
 

@@ -1,3 +1,4 @@
+<!-- webkit-test-runner [ dumpResourceLoadCallbacks=true ] -->
 <html>
 <head>
 <script>
@@ -14,7 +15,6 @@ function runTest() {
 
     if (window.testRunner) {
         internals.clearMemoryCache();
-        testRunner.dumpResourceLoadCallbacks();
         testRunner.waitUntilDone();
         testRunner.dumpAsText();
     }

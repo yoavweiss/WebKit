@@ -59,36 +59,6 @@
 #include <wtf/text/cf/StringConcatenateCF.h>
 #endif
 
-namespace WTF {
-
-template<> class StringTypeAdapter<WKStringRef> {
-public:
-    StringTypeAdapter(WKStringRef);
-    unsigned length() const { return m_string ? WKStringGetLength(m_string) : 0; }
-    bool is8Bit() const { return !m_string; }
-    template<typename CharacterType> void writeTo(std::span<CharacterType>) const;
-
-private:
-    WKStringRef m_string;
-};
-
-inline StringTypeAdapter<WKStringRef>::StringTypeAdapter(WKStringRef string)
-    : m_string { string }
-{
-}
-
-template<> inline void StringTypeAdapter<WKStringRef>::writeTo<Latin1Character>(std::span<Latin1Character>) const
-{
-}
-
-template<> inline void StringTypeAdapter<WKStringRef>::writeTo<char16_t>(std::span<char16_t> destination) const
-{
-    if (m_string)
-        WKStringGetCharacters(m_string, reinterpret_cast<WKChar*>(destination.data()), WKStringGetLength(m_string));
-}
-
-}
-
 namespace WTR {
 
 static double numericWindowProperty(WKBundleFrameRef frame, const char* name)
@@ -188,20 +158,6 @@ WTF::String pathSuitableForTestResult(WKURLRef fileURL)
     if (!basePath.isEmpty() && pathString.startsWith(basePath))
         return pathString.substring(basePath.length());
     return toWTFString(adoptWK(WKURLCopyLastPathComponent(fileURL))); // We lose some information here, but it's better than exposing a full path, which is always machine specific.
-}
-
-static HashMap<uint64_t, String>& assignedUrlsCache()
-{
-    static NeverDestroyed<HashMap<uint64_t, String>> cache;
-    return cache.get();
-}
-
-static inline void dumpResourceURL(uint64_t identifier, StringBuilder& stringBuilder)
-{
-    if (assignedUrlsCache().contains(identifier))
-        stringBuilder.append(assignedUrlsCache().get(identifier));
-    else
-        stringBuilder.append("<unknown>"_s);
 }
 
 static HashMap<WKBundlePageRef, InjectedBundlePage*>& bundlePageMap()
@@ -310,7 +266,6 @@ void InjectedBundlePage::resetAfterTest()
     WKBundleFrameFocus(frame);
 
     WebCoreTestSupport::resetInternalsObject(WKBundleFrameGetJavaScriptContext(frame));
-    assignedUrlsCache().clear();
 
     // User scripts need to be removed after the test and before loading about:blank, as otherwise they would run in about:blank, and potentially leak results into a subsequest test.
     WKBundlePageRemoveAllUserContent(m_page);
@@ -327,59 +282,6 @@ void InjectedBundlePage::resetAfterTest()
 static void dumpLoadEvent(WKBundleFrameRef frame, ASCIILiteral eventName)
 {
     InjectedBundle::singleton().outputText(makeString(string(frame), " - "_s, eventName, '\n'));
-}
-
-static String string(WKURLRequestRef request)
-{
-    auto url = adoptWK(WKURLRequestCopyURL(request));
-    auto firstParty = adoptWK(WKURLRequestCopyFirstPartyForCookies(request));
-    auto httpMethod = adoptWK(WKURLRequestCopyHTTPMethod(request));
-    return makeString("<NSURLRequest URL "_s, pathSuitableForTestResult(url.get()),
-        ", main document URL "_s, pathSuitableForTestResult(firstParty.get()),
-        ", http method "_s, WKStringIsEmpty(httpMethod.get()) ? "(none)"_s : ""_s, httpMethod.get(), '>');
-}
-
-static String string(WKURLResponseRef response, bool shouldDumpResponseHeaders = false)
-{
-    auto url = adoptWK(WKURLResponseCopyURL(response));
-    if (!url)
-        return "(null)"_s;
-    if (!shouldDumpResponseHeaders) {
-        return makeString("<NSURLResponse "_s, pathSuitableForTestResult(url.get()),
-            ", http status code "_s, WKURLResponseHTTPStatusCode(response), '>');
-    }
-    return makeString("<NSURLResponse "_s, pathSuitableForTestResult(url.get()),
-        ", http status code "_s, WKURLResponseHTTPStatusCode(response),
-        ", "_s, InjectedBundlePage::responseHeaderCount(response), " headers>"_s);
-}
-
-#if !PLATFORM(COCOA)
-
-// FIXME: Implement this for non-Cocoa ports. [GTK][WPE] https://bugs.webkit.org/show_bug.cgi?id=184295
-uint64_t InjectedBundlePage::responseHeaderCount(WKURLResponseRef response)
-{
-    return 0;
-}
-
-#endif
-
-static inline void dumpErrorDescriptionSuitableForTestResult(WKErrorRef error, StringBuilder& stringBuilder)
-{
-    auto errorDomain = toWTFString(adoptWK(WKErrorCopyDomain(error)));
-    auto errorCode = WKErrorGetErrorCode(error);
-
-    // We need to do some error mapping here to match the test expectations (Mac error names are expected).
-    if (errorDomain == "WebKitNetworkError"_s) {
-        errorDomain = "NSURLErrorDomain"_s;
-        errorCode = -999;
-    }
-    if (errorDomain == "WebKitPolicyError"_s)
-        errorDomain = "WebKitErrorDomain"_s;
-
-    stringBuilder.append("<NSError domain "_s, errorDomain, ", code "_s, errorCode);
-    if (auto url = adoptWK(WKErrorCopyFailingURL(error)))
-        stringBuilder.append(", failing URL \""_s, adoptWK(WKURLCopyString(url.get())).get(), '"');
-    stringBuilder.append('>');
 }
 
 void InjectedBundlePage::didStartProvisionalLoadForFrame(WKBundlePageRef page, WKBundleFrameRef frame, WKTypeRef*, const void *clientInfo)
@@ -854,13 +756,8 @@ void InjectedBundlePage::didHandleOnloadEventsForFrame(WKBundleFrameRef frame)
         dumpLoadEvent(frame, "didHandleOnloadEventsForFrame"_s);
 }
 
-void InjectedBundlePage::didInitiateLoadForResource(WKBundlePageRef page, WKBundleFrameRef, uint64_t identifier, WKURLRequestRef request, bool)
+void InjectedBundlePage::didInitiateLoadForResource(WKBundlePageRef, WKBundleFrameRef, uint64_t identifier, WKURLRequestRef, bool)
 {
-    if (!InjectedBundle::singleton().isTestRunning())
-        return;
-
-    auto url = adoptWK(WKURLRequestCopyURL(request));
-    assignedUrlsCache().add(identifier, pathSuitableForTestResult(url.get()));
 }
 
 // Resource Load Client Callbacks
@@ -874,13 +771,6 @@ WKURLRequestRef InjectedBundlePage::willSendRequestForFrame(WKBundlePageRef page
 {
     auto& injectedBundle = InjectedBundle::singleton();
     RefPtr testRunner = injectedBundle.testRunner();
-    if (testRunner && testRunner->shouldDumpResourceLoadCallbacks()) {
-        StringBuilder stringBuilder;
-        dumpResourceURL(identifier, stringBuilder);
-        stringBuilder.append(" - willSendRequest "_s, string(request),
-            " redirectResponse "_s, string(response, testRunner->shouldDumpAllHTTPRedirectedResponseHeaders()), '\n');
-        injectedBundle.outputText(stringBuilder.toString());
-    }
 
     if (testRunner && testRunner->willSendRequestReturnsNull())
         return nullptr;
@@ -941,14 +831,6 @@ void InjectedBundlePage::didReceiveResponseForResource(WKBundlePageRef page, WKB
     if (!testRunner)
         return;
 
-    if (testRunner->shouldDumpResourceLoadCallbacks()) {
-        StringBuilder stringBuilder;
-        dumpResourceURL(identifier, stringBuilder);
-        stringBuilder.append(" - didReceiveResponse "_s, string(response), '\n');
-        injectedBundle.outputText(stringBuilder.toString());
-    }
-
-
     if (!testRunner->shouldDumpResourceResponseMIMETypes())
         return;
 
@@ -973,39 +855,12 @@ void InjectedBundlePage::didReceiveContentLengthForResource(WKBundlePageRef, WKB
 {
 }
 
-void InjectedBundlePage::didFinishLoadForResource(WKBundlePageRef, WKBundleFrameRef, uint64_t identifier)
+void InjectedBundlePage::didFinishLoadForResource(WKBundlePageRef, WKBundleFrameRef, uint64_t)
 {
-    auto& injectedBundle = InjectedBundle::singleton();
-    RefPtr testRunner = injectedBundle.testRunner();
-    if (!testRunner)
-        return;
-
-    if (!testRunner->shouldDumpResourceLoadCallbacks())
-        return;
-
-    StringBuilder stringBuilder;
-    dumpResourceURL(identifier, stringBuilder);
-    stringBuilder.append(" - didFinishLoading\n"_s);
-    injectedBundle.outputText(stringBuilder.toString());
 }
 
-void InjectedBundlePage::didFailLoadForResource(WKBundlePageRef, WKBundleFrameRef, uint64_t identifier, WKErrorRef error)
+void InjectedBundlePage::didFailLoadForResource(WKBundlePageRef, WKBundleFrameRef, uint64_t, WKErrorRef)
 {
-    auto& injectedBundle = InjectedBundle::singleton();
-    RefPtr testRunner = injectedBundle.testRunner();
-    if (!testRunner)
-        return;
-
-    if (!testRunner->shouldDumpResourceLoadCallbacks())
-        return;
-
-    StringBuilder stringBuilder;
-    dumpResourceURL(identifier, stringBuilder);
-    stringBuilder.append(" - didFailLoadingWithError: "_s);
-
-    dumpErrorDescriptionSuitableForTestResult(error, stringBuilder);
-    stringBuilder.append('\n');
-    injectedBundle.outputText(stringBuilder.toString());
 }
 
 bool InjectedBundlePage::shouldCacheResponse(WKBundlePageRef, WKBundleFrameRef, uint64_t identifier)

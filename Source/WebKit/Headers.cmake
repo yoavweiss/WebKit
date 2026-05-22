@@ -90,6 +90,7 @@ set(WebKit_PUBLIC_FRAMEWORK_HEADERS
     UIProcess/API/C/WKPagePolicyClient.h
     UIProcess/API/C/WKPagePrivate.h
     UIProcess/API/C/WKPageRenderingProgressEvents.h
+    UIProcess/API/C/WKPageResourceLoadClient.h
     UIProcess/API/C/WKPageStateClient.h
     UIProcess/API/C/WKPageUIClient.h
     UIProcess/API/C/WKPluginLoadPolicy.h

@@ -75,6 +75,7 @@ messages -> NetworkProcess : AuxiliaryProcess WantsAsyncDispatchMessage {
     ApplicationWillEnterForeground()
 
     FlushCookies(PAL::SessionID sessionID) -> ()
+    FlushNetworkProcessIPC() -> ()
 
 #if PLATFORM(MAC)
     systemDidWake()

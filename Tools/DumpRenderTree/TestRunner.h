@@ -213,8 +213,10 @@ public:
     bool dumpHistoryDelegateCallbacks() const { return m_dumpHistoryDelegateCallbacks; }
     void setDumpHistoryDelegateCallbacks(bool dumpHistoryDelegateCallbacks) { m_dumpHistoryDelegateCallbacks = dumpHistoryDelegateCallbacks; }
     
-    bool dumpResourceLoadCallbacks() const { return m_dumpResourceLoadCallbacks; }
+    bool shouldDumpResourceLoadCallbacks() const { return m_dumpResourceLoadCallbacks; }
     void setDumpResourceLoadCallbacks(bool dumpResourceLoadCallbacks) { m_dumpResourceLoadCallbacks = dumpResourceLoadCallbacks; }
+    void addResourceLoadCallback(std::string);
+    void dumpResourceLoadCallbacks();
     
     bool dumpResourceResponseMIMETypes() const { return m_dumpResourceResponseMIMETypes; }
     void setDumpResourceResponseMIMETypes(bool dumpResourceResponseMIMETypes) { m_dumpResourceResponseMIMETypes = dumpResourceResponseMIMETypes; }
@@ -487,6 +489,7 @@ private:
     std::string m_testURL;
     std::string m_expectedPixelHash; // empty string if no hash
     std::string m_titleTextDirection;
+    std::vector<std::string> m_resourceLoadCallbacks;
 
     std::set<std::string> m_willSendRequestClearHeaders;
     std::set<std::string> m_allowedHosts;

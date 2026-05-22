@@ -46,6 +46,7 @@
 #import <WebKit/WKPreferencesRefPrivate.h>
 #import <WebKit/WKProcessPoolPrivate.h>
 #import <WebKit/WKStringCF.h>
+#import <WebKit/WKURLResponseNS.h>
 #import <WebKit/WKUserContentControllerPrivate.h>
 #import <WebKit/WKUserMediaPermissionCheck.h>
 #import <WebKit/WKWebView.h>
@@ -864,6 +865,16 @@ void TestController::updatePresentation(CompletionHandler<void(WKTypeRef)>&& com
     [m_mainWebView->platformView() _doAfterNextPresentationUpdate:makeBlockPtr([completionHandler = WTF::move(completionHandler)] mutable {
         completionHandler(nullptr);
     }).get()];
+}
+
+uint64_t TestController::responseHeaderCount(WKURLResponseRef response)
+{
+    RetainPtr nsURLResponse = adoptNS(WKURLResponseCopyNSURLResponse(response));
+    if (![nsURLResponse isKindOfClass:[NSHTTPURLResponse class]])
+        return { };
+
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)nsURLResponse.get();
+    return [[httpResponse allHeaderFields] count];
 }
 
 } // namespace WTR

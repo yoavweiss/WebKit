@@ -2117,6 +2117,11 @@ void NetworkProcessProxy::installMockParentalControlsURLFilterForTesting(Vector<
 }
 #endif
 
+void NetworkProcessProxy::flushNetworkProcessIPC(CompletionHandler<void()>&& completionHandler)
+{
+    sendWithAsyncReply(Messages::NetworkProcess::FlushNetworkProcessIPC(), WTF::move(completionHandler));
+}
+
 } // namespace WebKit
 
 #undef MESSAGE_CHECK_COMPLETION

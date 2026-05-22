@@ -367,6 +367,8 @@ public:
     void installMockParentalControlsURLFilterForTesting(Vector<URL>&& blockedURLs, CompletionHandler<void()>&&);
 #endif
 
+    void flushNetworkProcessIPC(CompletionHandler<void()>&&);
+
 private:
     explicit NetworkProcessProxy();
 

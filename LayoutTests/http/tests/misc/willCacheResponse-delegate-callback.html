@@ -1,3 +1,4 @@
+<!-- webkit-test-runner [ dumpResourceLoadCallbacks=true ] -->
 <html>
 <script>
     if (window.testRunner) {
@@ -6,7 +7,6 @@
     }
 
     function runTest() {
-        testRunner.dumpResourceLoadCallbacks();
         testRunner.dumpWillCacheResponse();
 
         var f = document.createElement('iframe');

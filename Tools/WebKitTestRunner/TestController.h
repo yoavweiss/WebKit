@@ -205,6 +205,7 @@ public:
     void setBlockAllPlugins(bool shouldBlock);
     void setPluginSupportedMode(const String&);
 
+    void dumpResourceLoadCallbacks();
     void dumpPolicyDelegateCallbacks() { m_dumpPolicyDelegateCallbacks = true; }
     void dumpFullScreenCallbacks() { m_dumpFullScreenCallbacks = true; }
     void waitBeforeFinishingFullscreenExit() { m_waitBeforeFinishingFullscreenExit = true; }
@@ -489,6 +490,8 @@ public:
     void doAfterProcessingAllPendingMouseEvents(CompletionHandler<void()>&&);
     void doAfterProcessingAllPendingKeyEvents(CompletionHandler<void()>&&);
 #endif
+
+    static uint64_t responseHeaderCount(WKURLResponseRef);
 
 private:
     WKRetainPtr<WKPageConfigurationRef> generatePageConfiguration(const TestOptions&);
@@ -888,6 +891,7 @@ private:
     bool m_shouldDownloadContentDispositionAttachments { true };
     bool m_dumpPolicyDelegateCallbacks { false };
     bool m_dumpFullScreenCallbacks { false };
+    bool m_dumpAllHTTPRedirectedResponseHeaders { false };
     bool m_waitBeforeFinishingFullscreenExit { false };
     bool m_scrollDuringEnterFullscreen { false };
     bool m_useWorkQueue { false };
