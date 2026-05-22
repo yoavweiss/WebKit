@@ -2897,11 +2897,6 @@ imported/w3c/web-platform-tests/css/css-masking/clip-path/clip-path-inline-009.h
 imported/w3c/web-platform-tests/css/css-masking/clip-path/clip-path-inline-010.html [ ImageOnlyFailure ]
 
 imported/w3c/web-platform-tests/css/css-masking/clip-path/clip-path-svg-text-css.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-masking/clip-path-svg-content/clip-path-shape-circle-001.svg [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-masking/clip-path-svg-content/clip-path-shape-circle-002.svg [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-masking/clip-path-svg-content/clip-path-shape-circle-003.svg [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-masking/clip-path-svg-content/clip-path-shape-circle-004.svg [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-masking/clip-path-svg-content/clip-path-shape-circle-005.svg [ ImageOnlyFailure ]
 
 webkit.org/b/229370 imported/w3c/web-platform-tests/css/css-masking/clip/clip-filter-order.html [ ImageOnlyFailure ]
 
