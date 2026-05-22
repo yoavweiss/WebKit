@@ -296,6 +296,7 @@ bool safeToExecute(AbstractStateType& state, Graph& graph, Node* node, bool igno
     case GetFromArguments:
     case GetArgument:
     case StringFromCharCode:
+    case StringFromCodePoint:
     case ExtractOSREntryLocal:
     case ExtractCatchLocal:
     case AssertInBounds:

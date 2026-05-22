@@ -343,6 +343,7 @@ BasicBlock* CloneHelper::cloneBlock(BasicBlock* const block, const CustomizeSucc
     CLONE_STATUS(StringCharCodeAt, Common) \
     CLONE_STATUS(StringCodePointAt, Common) \
     CLONE_STATUS(StringFromCharCode, Common) \
+    CLONE_STATUS(StringFromCodePoint, Common) \
     CLONE_STATUS(StringIndexOf, Common) \
     CLONE_STATUS(StringLastIndexOf, Common) \
     CLONE_STATUS(StringStartsWith, Common) \

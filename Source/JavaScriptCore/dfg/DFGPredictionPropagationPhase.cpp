@@ -1465,7 +1465,8 @@ private:
             break;
         }
         
-        case StringFromCharCode: {
+        case StringFromCharCode:
+        case StringFromCodePoint: {
             setPrediction(SpecString);
             m_currentNode->child1()->mergeFlags(NodeBytecodeUsesAsNumber | NodeBytecodeUsesAsInt);
             break;

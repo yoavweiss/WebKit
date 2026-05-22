@@ -493,6 +493,23 @@ void clobberize(Graph& graph, Node* node, const ReadFunctor& read, const WriteFu
         }
         return;
 
+    case StringFromCodePoint:
+        switch (node->child1().useKind()) {
+        case Int32Use:
+        case KnownInt32Use:
+            // Can throw a RangeError for an out-of-range code point, so this is not pure.
+            read(World);
+            write(SideState);
+            def(PureValue(node));
+            return;
+        case UntypedUse:
+            clobberTop();
+            return;
+        default:
+            DFG_CRASH(graph, node, "Bad use kind");
+        }
+        return;
+
     case ArithAdd:
     case DoubleAsInt32:
     case UInt32ToNumber:

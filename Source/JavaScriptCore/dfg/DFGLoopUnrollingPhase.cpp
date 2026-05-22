@@ -517,7 +517,7 @@ public:
                     return false;
                 }
 
-                if (node->op() == StringFromCharCode) {
+                if (node->op() == StringFromCharCode || node->op() == StringFromCodePoint) {
                     // Not supported due to performance regression rdar://150526635
                     dataLogLnIf(Options::verboseLoopUnrolling(), "Skipping loop with header ", *data.header(), " since ", node, "<", node->op(), "> is not supported");
                     return false;

@@ -716,6 +716,18 @@ MacroAssemblerCodeRef<JITThunkPtrTag> fromCharCodeThunkGenerator(VM& vm)
     return jit.finalize(vm.jitStubs->ctiNativeTailCall(vm), "fromCharCode");
 }
 
+MacroAssemblerCodeRef<JITThunkPtrTag> fromCodePointThunkGenerator(VM& vm)
+{
+    SpecializedThunkJIT jit(vm, 1);
+    // For an Int32 code point in the small-string range, fromCodePoint produces the same result
+    // as fromCharCode. charToString already bails for code points > maxSingleCharacterString, so
+    // surrogate pairs and out-of-range RangeError cases all fall back to the slow path.
+    jit.loadInt32Argument(0, SpecializedThunkJIT::regT0);
+    charToString(jit, vm, SpecializedThunkJIT::regT0, SpecializedThunkJIT::regT0, SpecializedThunkJIT::regT1);
+    jit.returnJSCell(SpecializedThunkJIT::regT0);
+    return jit.finalize(vm.jitStubs->ctiNativeTailCall(vm), "fromCodePoint");
+}
+
 MacroAssemblerCodeRef<JITThunkPtrTag> stringAtThunkGenerator(VM& vm)
 {
     SpecializedThunkJIT jit(vm, 1);

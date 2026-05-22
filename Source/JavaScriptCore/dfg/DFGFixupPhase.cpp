@@ -1121,6 +1121,15 @@ private:
                 fixEdge<UntypedUse>(node->child1());
             break;
 
+        case StringFromCodePoint:
+            // Unlike StringFromCharCode, this can throw a RangeError even for an Int32 argument,
+            // so NodeMustGenerate is never cleared.
+            if (node->child1()->shouldSpeculateInt32())
+                fixEdge<Int32Use>(node->child1());
+            else
+                fixEdge<UntypedUse>(node->child1());
+            break;
+
         case StringAt:
         case StringCharAt:
         case StringCharCodeAt:

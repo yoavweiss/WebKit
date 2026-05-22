@@ -744,6 +744,8 @@ static ThunkGenerator NODELETE thunkGeneratorForIntrinsic(Intrinsic intrinsic)
         return clz32ThunkGenerator;
     case FromCharCodeIntrinsic:
         return fromCharCodeThunkGenerator;
+    case FromCodePointIntrinsic:
+        return fromCodePointThunkGenerator;
     case GlobalIsNaNIntrinsic:
         return globalIsNaNThunkGenerator;
     case NumberIsNaNIntrinsic:

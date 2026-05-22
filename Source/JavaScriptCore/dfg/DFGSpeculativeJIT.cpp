@@ -2884,8 +2884,12 @@ void SpeculativeJIT::compileGetByValOnString(Node* node, const ScopedLambda<std:
     }
 }
 
-void SpeculativeJIT::compileFromCharCode(Node* node)
+void SpeculativeJIT::compileStringFromCharCodeOrCodePoint(Node* node)
 {
+    ASSERT(node->op() == StringFromCharCode || node->op() == StringFromCodePoint);
+
+    bool isCodePoint = node->op() == StringFromCodePoint;
+
     Edge& child = node->child1();
     if (child.useKind() == UntypedUse) {
         JSValueOperand opr(this, child);
@@ -2894,8 +2898,8 @@ void SpeculativeJIT::compileFromCharCode(Node* node)
         flushRegisters();
         JSValueRegsFlushedCallResult result(this);
         JSValueRegs resultRegs = result.regs();
-        callOperation(operationStringFromCharCodeUntyped, resultRegs, LinkableConstant::globalObject(*this, node), oprRegs);
-        
+        callOperation(isCodePoint ? operationStringFromCodePointUntyped : operationStringFromCharCodeUntyped, resultRegs, LinkableConstant::globalObject(*this, node), oprRegs);
+
         jsValueResult(resultRegs, node);
         return;
     }
@@ -2913,7 +2917,7 @@ void SpeculativeJIT::compileFromCharCode(Node* node)
     loadPtr(BaseIndex(smallStringsReg, propertyReg, ScalePtr, 0), scratchReg);
 
     slowCases.append(branchTest32(Zero, scratchReg));
-    addSlowPathGenerator(slowPathCall(slowCases, this, operationStringFromCharCode, scratchReg, LinkableConstant::globalObject(*this, node), propertyReg));
+    addSlowPathGenerator(slowPathCall(slowCases, this, isCodePoint ? operationStringFromCodePoint : operationStringFromCharCode, scratchReg, LinkableConstant::globalObject(*this, node), propertyReg));
     cellResult(scratchReg, m_currentNode);
 }
 

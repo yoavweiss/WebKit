@@ -1534,7 +1534,7 @@ public:
 
     void compileGetCharCodeAt(Node*);
     void compileGetByValOnString(Node*, const ScopedLambda<std::tuple<JSValueRegs, DataFormat>(DataFormat preferredFormat, bool needsFlush)>& prefix);
-    void compileFromCharCode(Node*); 
+    void compileStringFromCharCodeOrCodePoint(Node*);
     void compileGetByValMegamorphic(Node*);
 
     void compileGetByValOnDirectArguments(Node*, const ScopedLambda<std::tuple<JSValueRegs, DataFormat>(DataFormat preferredFormat, bool needsFlush)>& prefix);

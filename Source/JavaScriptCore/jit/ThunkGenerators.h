@@ -78,6 +78,7 @@ MacroAssemblerCodeRef<JITThunkPtrTag> stringAtThunkGenerator(VM&);
 MacroAssemblerCodeRef<JITThunkPtrTag> stringPrototypeCodePointAtThunkGenerator(VM&);
 MacroAssemblerCodeRef<JITThunkPtrTag> clz32ThunkGenerator(VM&);
 MacroAssemblerCodeRef<JITThunkPtrTag> fromCharCodeThunkGenerator(VM&);
+MacroAssemblerCodeRef<JITThunkPtrTag> fromCodePointThunkGenerator(VM&);
 MacroAssemblerCodeRef<JITThunkPtrTag> globalIsNaNThunkGenerator(VM&);
 MacroAssemblerCodeRef<JITThunkPtrTag> numberIsNaNThunkGenerator(VM&);
 MacroAssemblerCodeRef<JITThunkPtrTag> globalIsFiniteThunkGenerator(VM&);

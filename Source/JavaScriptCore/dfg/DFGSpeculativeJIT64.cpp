@@ -3820,8 +3820,9 @@ void SpeculativeJIT::compile(Node* node)
         break;
     }
 
-    case StringFromCharCode: {
-        compileFromCharCode(node);
+    case StringFromCharCode:
+    case StringFromCodePoint: {
+        compileStringFromCharCodeOrCodePoint(node);
         break;
     }
 

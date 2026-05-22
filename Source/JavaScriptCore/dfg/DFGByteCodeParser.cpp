@@ -3452,6 +3452,19 @@ auto ByteCodeParser::handleIntrinsicCall(Node* callee, Operand resultOperand, Ca
             return CallOptimizationResult::Inlined;
         }
 
+        case FromCodePointIntrinsic: {
+            if (argumentCountIncludingThis != 2)
+                return CallOptimizationResult::DidNothing;
+
+            insertChecks();
+            VirtualRegister indexOperand = virtualRegisterForArgumentIncludingThis(1, registerOffset);
+            Node* result = addToGraph(StringFromCodePoint, get(indexOperand));
+
+            setResult(result);
+
+            return CallOptimizationResult::Inlined;
+        }
+
         case GlobalIsNaNIntrinsic: {
             if (argumentCountIncludingThis < 2)
                 return CallOptimizationResult::DidNothing;

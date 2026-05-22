@@ -41,7 +41,7 @@ const ClassInfo StringConstructor::s_info = { "Function"_s, &Base::s_info, &stri
 /* Source for StringConstructor.lut.h
 @begin stringConstructorTable
   fromCharCode          stringFromCharCode         DontEnum|Function 1 FromCharCodeIntrinsic
-  fromCodePoint         stringFromCodePoint        DontEnum|Function 1
+  fromCodePoint         stringFromCodePoint        DontEnum|Function 1 FromCodePointIntrinsic
   raw                   JSBuiltin                  DontEnum|Function 1
 @end
 */
@@ -143,6 +143,25 @@ JSC_DEFINE_HOST_FUNCTION(stringFromCodePoint, (JSGlobalObject* globalObject, Cal
     }
 
     RELEASE_AND_RETURN(scope, JSValue::encode(jsString(vm, builder.toString())));
+}
+
+JSString* stringFromCodePoint(JSGlobalObject* globalObject, int32_t arg)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    uint32_t codePoint = static_cast<uint32_t>(arg);
+    if (arg < 0 || codePoint > UCHAR_MAX_VALUE) [[unlikely]] {
+        throwRangeError(globalObject, scope, "Arguments contain a value that is out of range of code points"_s);
+        return nullptr;
+    }
+    scope.release();
+
+    if (U_IS_BMP(codePoint))
+        return jsSingleCharacterString(vm, static_cast<char16_t>(codePoint));
+
+    char16_t buffer[2] = { U16_LEAD(codePoint), U16_TRAIL(codePoint) };
+    return jsNontrivialString(vm, String({ buffer, 2 }));
 }
 
 JSC_DEFINE_HOST_FUNCTION(constructWithStringConstructor, (JSGlobalObject* globalObject, CallFrame* callFrame))

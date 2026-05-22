@@ -5249,6 +5249,38 @@ JSC_DEFINE_JIT_OPERATION(operationStringFromCharCodeUntyped, EncodedJSValue, (JS
     OPERATION_RETURN(scope, JSValue::encode(JSC::stringFromCharCode(globalObject, chInt)));
 }
 
+JSC_DEFINE_JIT_OPERATION(operationStringFromCodePoint, JSCell*, (JSGlobalObject* globalObject, int32_t op1))
+{
+    VM& vm = globalObject->vm();
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    auto scope = DECLARE_THROW_SCOPE(vm);
+    OPERATION_RETURN(scope, JSC::stringFromCodePoint(globalObject, op1));
+}
+
+JSC_DEFINE_JIT_OPERATION(operationStringFromCodePointUntyped, EncodedJSValue, (JSGlobalObject* globalObject, EncodedJSValue encodedValue))
+{
+    VM& vm = globalObject->vm();
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    auto scope = DECLARE_THROW_SCOPE(vm);
+    JSValue value = JSValue::decode(encodedValue);
+    double codePointAsDouble = value.toNumber(globalObject);
+    OPERATION_RETURN_IF_EXCEPTION(scope, encodedJSValue());
+
+    uint32_t codePoint = static_cast<uint32_t>(codePointAsDouble);
+    if (codePoint != codePointAsDouble || codePoint > UCHAR_MAX_VALUE) [[unlikely]] {
+        throwRangeError(globalObject, scope, "Arguments contain a value that is out of range of code points"_s);
+        OPERATION_RETURN(scope, encodedJSValue());
+    }
+
+    if (U_IS_BMP(codePoint))
+        OPERATION_RETURN(scope, JSValue::encode(jsSingleCharacterString(vm, static_cast<char16_t>(codePoint))));
+
+    char16_t buffer[2] = { U16_LEAD(codePoint), U16_TRAIL(codePoint) };
+    OPERATION_RETURN(scope, JSValue::encode(jsNontrivialString(vm, String({ buffer, 2 }))));
+}
+
 JSC_DEFINE_JIT_OPERATION(operationNewRawObject, char*, (VM* vmPointer, Structure* structure, int32_t length, Butterfly* butterfly))
 {
     VM& vm = *vmPointer;

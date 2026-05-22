@@ -669,6 +669,7 @@ bool doesGC(Graph& graph, Node* node)
         return true;
 
     case StringFromCharCode:
+    case StringFromCodePoint:
         if (node->child1()->isInt32Constant() && (node->child1()->asUInt32() <= maxSingleCharacterString))
             return false;
         return true;

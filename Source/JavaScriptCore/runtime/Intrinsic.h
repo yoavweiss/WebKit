@@ -94,6 +94,7 @@ namespace JSC {
     macro(DatePrototypeSetTimeIntrinsic) \
     macro(ErrorIsErrorIntrinsic) \
     macro(FromCharCodeIntrinsic) \
+    macro(FromCodePointIntrinsic) \
     macro(GlobalIsFiniteIntrinsic) \
     macro(GlobalIsNaNIntrinsic) \
     macro(PowIntrinsic) \

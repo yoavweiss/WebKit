@@ -58,6 +58,8 @@ struct OSRExitBase;
 
 JSC_DECLARE_JIT_OPERATION(operationStringFromCharCode, JSCell*, (JSGlobalObject*, int32_t));
 JSC_DECLARE_JIT_OPERATION(operationStringFromCharCodeUntyped, EncodedJSValue, (JSGlobalObject*, EncodedJSValue));
+JSC_DECLARE_JIT_OPERATION(operationStringFromCodePoint, JSCell*, (JSGlobalObject*, int32_t));
+JSC_DECLARE_JIT_OPERATION(operationStringFromCodePointUntyped, EncodedJSValue, (JSGlobalObject*, EncodedJSValue));
 
 // These routines provide callbacks out to C++ implementations of operations too complex to JIT.
 JSC_DECLARE_JIT_OPERATION(operationCallObjectConstructor, JSCell*, (JSGlobalObject*, EncodedJSValue encodedTarget));

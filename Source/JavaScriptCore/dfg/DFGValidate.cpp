@@ -333,6 +333,7 @@ public:
                     break;
                 case CheckStructure:
                 case StringFromCharCode:
+                case StringFromCodePoint:
                     VALIDATE((node), !!node->child1());
                     break;
                 case PutStructure:

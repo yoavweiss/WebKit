@@ -174,6 +174,7 @@ inline CapabilityLevel canCompile(Node* node)
     case StringCharCodeAt:
     case StringCodePointAt:
     case StringFromCharCode:
+    case StringFromCodePoint:
     case StringIndexOf:
     case StringLastIndexOf:
     case StringStartsWith:

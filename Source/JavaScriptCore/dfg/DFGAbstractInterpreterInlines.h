@@ -2730,6 +2730,21 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
         break;
     }
 
+    case StringFromCodePoint: {
+        if (node->child1().useKind() == Int32Use || node->child1().useKind() == KnownInt32Use) {
+            if (node->child1()->isInt32Constant() && node->child1()->asUInt32() <= maxSingleCharacterString) {
+                JSString* string = m_vm.smallStrings.singleCharacterString(static_cast<unsigned char>(node->child1()->asUInt32()));
+                setConstant(node, *m_graph.freeze(string));
+                break;
+            }
+        } else if (node->child1().useKind() == UntypedUse)
+            clobberWorld();
+        else
+            DFG_CRASH(m_graph, node, "Bad use kind");
+        setTypeForNode(node, SpecStringResolved);
+        break;
+    }
+
     case StringCharAt: {
         auto& value = forNode(node->child1());
         JSValue constant = value.value();

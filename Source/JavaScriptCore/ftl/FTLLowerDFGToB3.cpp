@@ -1393,7 +1393,8 @@ private:
             compileStringCodePointAt();
             break;
         case StringFromCharCode:
-            compileStringFromCharCode();
+        case StringFromCodePoint:
+            compileStringFromCharCodeOrCodePoint();
             break;
         case StringLocaleCompare:
             compileStringLocaleCompare();
@@ -12107,14 +12108,18 @@ IGNORE_CLANG_WARNINGS_END
         setInt32(m_out.phi(Int32, char8Bit, char16Bit, charSurrogatePair));
     }
 
-    void compileStringFromCharCode()
+    void compileStringFromCharCodeOrCodePoint()
     {
+        ASSERT(m_node->op() == StringFromCharCode || m_node->op() == StringFromCodePoint);
+
+        bool isCodePoint = m_node->op() == StringFromCodePoint;
+
         JSGlobalObject* globalObject = m_graph.globalObjectFor(m_origin.semantic);
         Edge childEdge = m_node->child1();
 
         if (childEdge.useKind() == UntypedUse) {
             LValue result = vmCall(
-                Int64, operationStringFromCharCodeUntyped, weakPointer(globalObject),
+                Int64, isCodePoint ? operationStringFromCodePointUntyped : operationStringFromCharCodeUntyped, weakPointer(globalObject),
                 lowJSValue(childEdge));
             setJSValue(result);
             return;
@@ -12143,7 +12148,7 @@ IGNORE_CLANG_WARNINGS_END
         m_out.appendTo(slowCase, continuation);
 
         LValue slowResultValue = vmCall(
-            pointerType(), operationStringFromCharCode, weakPointer(globalObject), value);
+            pointerType(), isCodePoint ? operationStringFromCodePoint : operationStringFromCharCode, weakPointer(globalObject), value);
         ValueFromBlock slowResult = m_out.anchor(slowResultValue);
         m_out.jump(continuation);
 
