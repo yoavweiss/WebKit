@@ -573,22 +573,18 @@ void AudioVideoRendererAVFObjC::performTaskAtTime(const MediaTime& time, Functio
 
 void AudioVideoRendererAVFObjC::setTimeObserver(Seconds interval, Function<void(const MediaTime&)>&& callback)
 {
-    m_currentTimeDidChangeCallback = WTF::move(callback);
-
     cancelTimeObserver();
 
-    if (m_currentTimeDidChangeCallback) {
-        __block ThreadSafeWeakPtr weakThis = *this;
-        m_timeChangedObserver = [m_synchronizer addPeriodicTimeObserverForInterval:PAL::toCMTime(MediaTime::createWithSeconds(interval)) queue:mainDispatchQueueSingleton() usingBlock:^(CMTime time) {
-            if (RefPtr protectedThis = weakThis.get()) {
-                if (!protectedThis->m_currentTimeDidChangeCallback)
-                    return;
+    if (!callback)
+        return;
 
-                auto clampedTime = CMTIME_IS_NUMERIC(time) ? protectedThis->clampTimeToLastSeekTime(PAL::toMediaTime(time)) : MediaTime::zeroTime();
-                protectedThis->m_currentTimeDidChangeCallback(clampedTime);
-            }
-        }];
-    }
+    m_timeChangedObserver = [m_synchronizer addPeriodicTimeObserverForInterval:PAL::toCMTime(MediaTime::createWithSeconds(interval)) queue:mainDispatchQueueSingleton() usingBlock:makeBlockPtr([weakThis = ThreadSafeWeakPtr { *this }, callback = WTF::move(callback)](CMTime time) mutable {
+        RefPtr protectedThis = weakThis.get();
+        if (!protectedThis)
+            return;
+        auto clampedTime = CMTIME_IS_NUMERIC(time) ? protectedThis->clampTimeToLastSeekTime(PAL::toMediaTime(time)) : MediaTime::zeroTime();
+        callback(clampedTime);
+    }).get()];
 }
 
 void AudioVideoRendererAVFObjC::cancelTimeObserver()

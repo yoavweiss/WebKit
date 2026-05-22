@@ -288,7 +288,6 @@ private:
     RetainPtr<id> m_currentTimeObserver;
     RetainPtr<id> m_performTaskObserver;
     RetainPtr<id> m_timeChangedObserver;
-    Function<void(const MediaTime&)> m_currentTimeDidChangeCallback;
 
     bool m_isPlaying { false };
     double m_rate { 1 };
