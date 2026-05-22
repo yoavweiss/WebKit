@@ -211,6 +211,7 @@ private:
     void modelDidChange();
     void createModelPlayer();
     void deleteModelPlayer();
+    void deletePendingModelPlayer();
     void unloadModelPlayer(bool onSuspend);
     void reloadModelPlayer();
     void startLoadModelTimer();
@@ -344,6 +345,7 @@ private:
 #endif
 
     RefPtr<ModelPlayer> m_modelPlayer;
+    RefPtr<ModelPlayer> m_pendingModelPlayer;
     EventLoopTimerHandle m_loadModelTimer;
 
 #if ENABLE(MODEL_ELEMENT_ENTITY_TRANSFORM)

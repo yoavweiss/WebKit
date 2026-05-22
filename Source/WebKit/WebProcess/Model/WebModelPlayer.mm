@@ -141,6 +141,19 @@ WebModelPlayer::WebModelPlayer(WebCore::Page& page, WebCore::ModelPlayerClient& 
 , m_id { WebCore::ModelPlayerIdentifier::generate() }
 , m_page(page)
 {
+#if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
+    if (RefPtr document = page.localTopDocument()) {
+        m_screenPropertiesChangedObserver = ScreenPropertiesChangedObserver::create([weakThis = ThreadSafeWeakPtr { *this }](WebCore::PlatformDisplayID displayID) {
+            RefPtr protectedThis = weakThis.get();
+            if (!protectedThis)
+                return;
+            if (auto* screenData = WebCore::screenData(displayID))
+                protectedThis->updateScreenHeadroom(screenData->currentEDRHeadroom, screenData->suppressEDR);
+        });
+
+        document->addScreenPropertiesChangedObserver(*m_screenPropertiesChangedObserver);
+    }
+#endif
 }
 
 WebModelPlayer::~WebModelPlayer() = default;
@@ -196,8 +209,10 @@ void WebModelPlayer::load(WebCore::Model& modelSource, WebCore::LayoutSize size)
     WEBMODEL_WEB_MODEL_PLAYER_DECLARE_DIFFUSE_AND_SPECULAR_TEXTURES
 
     m_currentModel = static_cast<RemoteGPUProxy&>(gpu->backing()).createModelBacking(m_currentPixelSize.width(), m_currentPixelSize.height(), diffuseTexture, specularTexture, [protectedThis = protect(*this)] (Vector<MachSendRight>&& surfaceHandles) {
-        if (surfaceHandles.size())
+        if (surfaceHandles.size()) {
             protectedThis->m_displayBuffers = WTF::move(surfaceHandles);
+            protectedThis->updateContentsHeadroom();
+        }
     });
     if (!m_currentModel)
         return;
@@ -267,10 +282,10 @@ void WebModelPlayer::load(WebCore::Model& modelSource, WebCore::LayoutSize size)
     }];
 
     m_retainedData = modelSource.data()->createNSData();
-    if (![m_modelLoader loadModel:m_retainedData.get()]) {
-        if (RefPtr client = m_client.get())
-            client->didFailLoading(protectedThis.get(), { });
-    }
+    if ([m_modelLoader loadModel:m_retainedData.get()])
+        startUpdateLoopIfNeeded();
+    else if (RefPtr client = m_client.get())
+        client->didFailLoading(protectedThis.get(), { });
 }
 
 void WebModelPlayer::notifyEntityTransformUpdated()
@@ -699,12 +714,18 @@ void WebModelPlayer::setEnvironmentMap(Ref<WebCore::SharedBuffer>&& data)
         client->didFinishEnvironmentMapLoading(*this, success);
 }
 
+static bool disableReloading()
+{
+    static bool disableReloading = [[NSUserDefaults standardUserDefaults] boolForKey:@"WebKitDisableModelPlayerReloading"];
+    return disableReloading;
+}
+
 void WebModelPlayer::visibilityStateDidChange()
 {
     // When the model becomes invisible, release memory-intensive resources.
     // When it becomes visible again, HTMLModelElement will trigger a reload through startLoadModelTimer().
     RefPtr client = m_client.get();
-    if (!client)
+    if (!client || disableReloading())
         return;
 
     if (!client->isVisible()) {
@@ -722,11 +743,15 @@ void WebModelPlayer::visibilityStateDidChange()
         m_isUpdateLoopRunning = false;
         m_isUpdateScheduled = false;
         m_isUpdating = false;
+        m_displayTextureIndex = 0;
     }
 }
 
 void WebModelPlayer::reload(WebCore::Model& modelSource, WebCore::LayoutSize size, WebCore::ModelPlayerAnimationState& animationState, std::unique_ptr<WebCore::ModelPlayerTransformState>&& transformState)
 {
+    if (disableReloading())
+        return;
+
     load(modelSource, size);
     if (transformState) {
         if (auto entityTransform = transformState->entityTransform())
@@ -811,9 +836,20 @@ float WebModelPlayer::computeContentsHeadroom()
 
 void WebModelPlayer::updateContentsHeadroom()
 {
+    constexpr auto visionProHeadroom = 2.f;
     auto headroom = computeContentsHeadroom();
     if (RefPtr model = m_currentModel)
-        model->updateContentsHeadroom(headroom);
+        model->updateContentsHeadroom(std::min(visionProHeadroom, headroom));
+}
+
+void WebModelPlayer::updateScreenHeadroom(float currentEDRHeadroom, bool suppressEDR)
+{
+    if (m_suppressEDR == suppressEDR && m_currentEDRHeadroom == currentEDRHeadroom)
+        return;
+
+    m_currentEDRHeadroom = currentEDRHeadroom;
+    m_suppressEDR = suppressEDR;
+    updateContentsHeadroom();
 }
 
 void WebModelPlayer::setDynamicRangeLimit(WebCore::PlatformDynamicRangeLimit dynamicRangeLimit, float currentEDRHeadroom, bool suppressEDR)

@@ -174,6 +174,7 @@ HTMLModelElement::~HTMLModelElement()
 
     m_loadModelTimer = nullptr;
 
+    deletePendingModelPlayer();
     deleteModelPlayer();
 }
 
@@ -274,7 +275,13 @@ void HTMLModelElement::setSourceURL(const URL& url)
     if (RefPtr resource = std::exchange(m_resource, nullptr))
         resource->removeClient(*this);
 
+#if ENABLE(GPU_PROCESS_MODEL)
+    deletePendingModelPlayer();
+    if (url.isEmpty())
+        deleteModelPlayer();
+#else
     deleteModelPlayer();
+#endif
 
 #if ENABLE(MODEL_ELEMENT_ENTITY_TRANSFORM)
     m_entityTransform = DOMMatrixReadOnly::create(TransformationMatrix::identity, DOMMatrixReadOnly::Is2D::No);
@@ -397,7 +404,32 @@ void HTMLModelElement::notifyFinished(CachedResource& resource, const NetworkLoa
 
 void HTMLModelElement::didFinishLoading(ModelPlayer& modelPlayer)
 {
+#if ENABLE(GPU_PROCESS_MODEL)
+    if (&modelPlayer == m_pendingModelPlayer) {
+        // The pending player has finished loading. Promote it to live and
+        // tear down the previous one. Re-run configureGraphicsLayer with the
+        // new player BEFORE destroying the old one so the layer's contents
+        // are atomically re-pointed to the new model surface.
+        RefPtr oldPlayer = m_modelPlayer;
+        m_modelPlayer = std::exchange(m_pendingModelPlayer, nullptr);
+
+        if (CheckedPtr renderer = this->renderer())
+            renderer->updateFromElement();
+
+        if (oldPlayer) {
+            if (RefPtr provider = m_modelPlayerProvider.get())
+                provider->deleteModelPlayer(*oldPlayer);
+        }
+
+        reportExtraMemoryCost();
+        if (!m_readyPromise->isFulfilled())
+            m_readyPromise->resolve(*this);
+        triggerModelPlayerCreationCallbacksIfNeeded(RefPtr<ModelPlayer> { m_modelPlayer });
+        return;
+    }
+#else
     ASSERT_UNUSED(modelPlayer, &modelPlayer == m_modelPlayer);
+#endif
 
     reportExtraMemoryCost();
 
@@ -409,7 +441,20 @@ void HTMLModelElement::didFinishLoading(ModelPlayer& modelPlayer)
 
 void HTMLModelElement::didFailLoading(ModelPlayer& modelPlayer, const ResourceError&)
 {
+#if ENABLE(GPU_PROCESS_MODEL)
+    if (&modelPlayer == m_pendingModelPlayer) {
+        // The pending reload failed. Tear down only the pending player and
+        // keep the existing live player on screen.
+        deletePendingModelPlayer();
+        if (!m_readyPromise->isFulfilled())
+            m_readyPromise->reject(Exception { ExceptionCode::AbortError });
+        reportExtraMemoryCost();
+        return;
+    }
+#else
     ASSERT_UNUSED(modelPlayer, &modelPlayer == m_modelPlayer);
+#endif
+
     if (!m_readyPromise->isFulfilled())
         m_readyPromise->reject(Exception { ExceptionCode::AbortError });
 
@@ -423,7 +468,12 @@ void HTMLModelElement::didFailLoading(ModelPlayer& modelPlayer, const ResourceEr
 
 void HTMLModelElement::didConvertModelData(ModelPlayer& modelPlayer, Ref<SharedBuffer>&& convertedData, const String& convertedMIMEType)
 {
+#if ENABLE(GPU_PROCESS_MODEL)
+    if (&modelPlayer != m_modelPlayer && &modelPlayer != m_pendingModelPlayer)
+        return;
+#else
     ASSERT_UNUSED(modelPlayer, &modelPlayer == m_modelPlayer);
+#endif
     ASSERT(m_dataComplete);
 
     RELEASE_LOG(ModelElement, "%p - HTMLModelElement::didConvertModelData: Received converted model data, size=%zu mimeType=%s", this, convertedData->size(), convertedMIMEType.utf8().data());
@@ -468,7 +518,14 @@ void HTMLModelElement::didUnload(ModelPlayer& modelPlayer)
 
 void HTMLModelElement::didUpdate(ModelPlayer& modelPlayer)
 {
+#if ENABLE(GPU_PROCESS_MODEL)
+    // Pending-player updates do not yet contribute to the rendered layer;
+    // ignore them until the swap in didFinishLoading().
+    if (&modelPlayer != m_modelPlayer)
+        return;
+#else
     ASSERT_UNUSED(modelPlayer, &modelPlayer == m_modelPlayer);
+#endif
 
     if (CheckedPtr renderer = this->renderer())
         renderer->updateFromElement();
@@ -521,7 +578,12 @@ bool HTMLModelElement::isVisible() const
 
 void HTMLModelElement::logWarning(ModelPlayer& modelPlayer, const String& warningMessage)
 {
+#if ENABLE(GPU_PROCESS_MODEL)
+    if (&modelPlayer != m_modelPlayer && &modelPlayer != m_pendingModelPlayer)
+        return;
+#else
     ASSERT_UNUSED(modelPlayer, &modelPlayer == m_modelPlayer);
+#endif
 
     protect(document())->addConsoleMessage(MessageSource::Other, MessageLevel::Warning, warningMessage);
 }
@@ -561,9 +623,19 @@ void HTMLModelElement::createModelPlayer()
     if (modelContainerSizeIsEmpty())
         return triggerModelPlayerCreationCallbacksIfNeeded(Exception { ExceptionCode::AbortError, "Model container size is empty"_s });
 
+#if ENABLE(GPU_PROCESS_MODEL)
+    // If a live player is already showing content, route the new player into
+    // m_pendingModelPlayer so the existing compositing layer keeps rendering
+    // until the new player has finished loading. The swap happens in
+    // didFinishLoading().
+    bool routingToPending = !!m_modelPlayer;
+    if (routingToPending)
+        deletePendingModelPlayer();
+#else
     RefPtr modelPlayer = m_modelPlayer;
     if (modelPlayer)
         deleteModelPlayer();
+#endif
 
     ASSERT(document().page());
 
@@ -578,9 +650,20 @@ void HTMLModelElement::createModelPlayer()
 
     if (!m_modelPlayerProvider)
         m_modelPlayerProvider = document().page()->modelPlayerProvider();
+
+#if ENABLE(GPU_PROCESS_MODEL)
+    RefPtr<ModelPlayer> modelPlayer;
+#endif
     if (RefPtr modelPlayerProvider = m_modelPlayerProvider.get()) {
         modelPlayer = modelPlayerProvider->createModelPlayer(*this);
+#if ENABLE(GPU_PROCESS_MODEL)
+        if (routingToPending)
+            m_pendingModelPlayer = modelPlayer.copyRef();
+        else
+            m_modelPlayer = modelPlayer.copyRef();
+#else
         m_modelPlayer = modelPlayer.copyRef();
+#endif
     }
     if (!modelPlayer) {
         if (!m_readyPromise->isFulfilled())
@@ -618,7 +701,12 @@ void HTMLModelElement::createModelPlayer()
         environmentMapRequestResource();
 #endif
 
+#if ENABLE(GPU_PROCESS_MODEL)
+    if (!routingToPending)
+        triggerModelPlayerCreationCallbacksIfNeeded(WTF::move(modelPlayer));
+#else
     triggerModelPlayerCreationCallbacksIfNeeded(WTF::move(modelPlayer));
+#endif
 }
 
 void HTMLModelElement::deleteModelPlayer()
@@ -638,6 +726,17 @@ void HTMLModelElement::deleteModelPlayer()
         return documentImmersive->exitRemovedImmersiveElementIfNeeded(this, WTF::move(deleteModelPlayerBlock));
 #endif
     deleteModelPlayerBlock();
+}
+
+void HTMLModelElement::deletePendingModelPlayer()
+{
+#if ENABLE(GPU_PROCESS_MODEL)
+    RefPtr pendingPlayer = std::exchange(m_pendingModelPlayer, nullptr);
+    if (!pendingPlayer)
+        return;
+    if (RefPtr provider = m_modelPlayerProvider.get())
+        provider->deleteModelPlayer(*pendingPlayer);
+#endif
 }
 
 void HTMLModelElement::unloadModelPlayer(bool onSuspend)
@@ -1675,7 +1774,13 @@ bool HTMLModelElement::virtualHasPendingActivity() const
 {
     // We need to ensure the JS wrapper is kept alive if a load is in progress and we may yet dispatch
     // "load" or "error" events, ie. as long as we have a resource, meaning we are in the process of loading.
+#if ENABLE(GPU_PROCESS_MODEL)
+    // Also keep alive while a pending model player is loading: the network resource may have completed
+    // but the player can still resolve or reject the ready promise / fire its first frame.
+    return m_resource || m_pendingModelPlayer;
+#else
     return m_resource;
+#endif
 }
 
 void HTMLModelElement::stop()
@@ -1688,6 +1793,7 @@ void HTMLModelElement::stop()
 
     // Once an active DOM object has been stopped it cannot be restarted,
     // so we can delete the model player now.
+    deletePendingModelPlayer();
     deleteModelPlayer();
 }
 
@@ -1773,6 +1879,7 @@ void HTMLModelElement::removingSteps(RemovalType removalType, ContainerNode& old
 
         m_loadModelTimer = nullptr;
 
+        deletePendingModelPlayer();
         deleteModelPlayer();
     }
 }

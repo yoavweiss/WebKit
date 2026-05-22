@@ -159,12 +159,6 @@ video {
     content: normal !important;
 }
 
-#if defined(ENABLE_GPU_PROCESS_MODEL) && ENABLE_GPU_PROCESS_MODEL
-model {
-    background-color: black;
-}
-#endif
-
 audio {
     width: 200px;
     height: 25px;

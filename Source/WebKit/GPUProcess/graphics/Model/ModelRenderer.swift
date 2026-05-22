@@ -71,7 +71,7 @@ class Renderer {
             configuration: .init(
                 output: .init(colorPixelFormat: colorPixelFormat),
                 rasterSampleCount: rasterSampleCount,
-                enableTonemap: true,
+                enableTonemap: false,
                 enableColorMatch: colorSpace != nil,
                 alphaPremultiply: false
             ),
@@ -145,7 +145,7 @@ class Renderer {
     }
 
     func setBackgroundColor(_ color: simd_float3) {
-        clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
+        clearColor = MTLClearColor(red: Double(color.x), green: Double(color.y), blue: Double(color.z), alpha: 1.0)
     }
 
     func setCameraTransformForModelTransform(_ modelTransform: simd_float4x4) {

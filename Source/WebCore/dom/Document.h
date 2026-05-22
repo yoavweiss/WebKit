@@ -1456,7 +1456,7 @@ public:
     void addDisplayChangedObserver(const DisplayChangedObserver&);
 
     using ScreenPropertiesChangedObserver = WTF::Observer<void(PlatformDisplayID)>;
-    void addScreenPropertiesChangedObserver(const ScreenPropertiesChangedObserver&);
+    WEBCORE_EXPORT void addScreenPropertiesChangedObserver(const ScreenPropertiesChangedObserver&);
 
 #if HAVE(SPATIAL_TRACKING_LABEL)
     String defaultSpatialTrackingLabel() const;

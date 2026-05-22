@@ -915,7 +915,7 @@ extension WKBridgeReceiver {
                 let (mtlTextureEquirectangular, _) = makeMTLTextureFromImageAsset(
                     imageAsset,
                     device: device,
-                    generateMips: false,
+                    generateMips: true,
                     memoryOwner: self.memoryOwner,
                     layout: textureData.layout
                 )

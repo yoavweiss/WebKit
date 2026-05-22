@@ -35,8 +35,10 @@
 #include <WebCore/ModelPlayerAnimationState.h>
 #include <WebCore/ModelPlayerClient.h>
 #include <WebCore/PlatformDynamicRangeLimit.h>
+#include <WebCore/PlatformScreen.h>
 #include <WebCore/StageModeOperations.h>
 #include <wtf/Forward.h>
+#include <wtf/Observer.h>
 #include <wtf/RetainPtr.h>
 #include <wtf/URL.h>
 
@@ -132,6 +134,7 @@ private:
     std::optional<double> getEffectiveDynamicRangeLimitValue() const final;
     float computeContentsHeadroom();
     void updateContentsHeadroom();
+    void updateScreenHeadroom(float currentEDRHeadroom, bool suppressEDR);
 #endif
 
     WeakPtr<WebCore::ModelPlayerClient> m_client;
@@ -171,6 +174,8 @@ private:
     bool m_needsEntityTransformNotification { false };
 
 #if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
+    using ScreenPropertiesChangedObserver = Observer<void(WebCore::PlatformDisplayID)>;
+    RefPtr<ScreenPropertiesChangedObserver> m_screenPropertiesChangedObserver;
     float m_currentEDRHeadroom { 1.f };
     bool m_suppressEDR { false };
     WebCore::PlatformDynamicRangeLimit m_dynamicRangeLimit { WebCore::PlatformDynamicRangeLimit::initialValue() };
