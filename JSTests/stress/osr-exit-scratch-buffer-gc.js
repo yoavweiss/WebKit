@@ -1,4 +1,4 @@
-//@ skip if $architecture == "arm"
+//@ memoryHog!
 // @requireOptions("--useConcurrentJIT=0", "--useZombieMode=1", "--slowPathAllocsBetweenGCs=16")
 
 function opt(s) {
