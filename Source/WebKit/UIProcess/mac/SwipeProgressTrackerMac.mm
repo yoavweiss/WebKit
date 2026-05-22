@@ -59,6 +59,7 @@ SwipeProgressTracker::SwipeProgressTracker(WebPageProxy& webPageProxy, ViewGestu
     : m_viewGestureController(viewGestureController)
     , m_webPageProxy(webPageProxy)
     , m_pageIdentifier(webPageProxy.identifier())
+    , m_processPool(webPageProxy.configuration().processPool())
 {
 }
 
@@ -251,14 +252,9 @@ void SwipeProgressTracker::stopDisplayLinkObserver()
     if (!m_displayLinkObserverID)
         return;
 
-    RefPtr page = m_webPageProxy.get();
-    if (!page) {
-        m_displayLinkObserverID = std::nullopt;
-        return;
-    }
+    if (RefPtr processPool = m_processPool.get())
+        processPool->displayLinks().stopDisplayLinks(*this);
 
-    auto displayID = page->displayID().value_or(0);
-    page->configuration().processPool().displayLinks().stopDisplayLink(*this, *m_displayLinkObserverID, displayID);
     m_displayLinkObserverID = std::nullopt;
 }
 

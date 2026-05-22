@@ -35,6 +35,7 @@
 namespace WebKit {
 
 class WebBackForwardListItem;
+class WebProcessPool;
 
 class SwipeProgressTracker final : public DisplayLink::Client {
     WTF_MAKE_TZONE_ALLOCATED(SwipeProgressTracker);
@@ -88,6 +89,7 @@ private:
     WeakRef<ViewGestureController> m_viewGestureController;
     WeakRef<WebPageProxy> m_webPageProxy;
     WebPageProxyIdentifier m_pageIdentifier;
+    WeakPtr<WebProcessPool> m_processPool;
 };
 
 } // namespace WebKit
