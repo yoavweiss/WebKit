@@ -222,8 +222,10 @@ JSArray* createRegExpMatchesArrayWithGroupsOrIndices(VM& vm, JSGlobalObject* glo
                     value = jsUndefined();
                 groups->putDirect(vm, Identifier::fromString(vm, groupName), value);
 
-                if (createIndices && captureIndex > 0)
-                    indicesGroups->putDirect(vm, Identifier::fromString(vm, groupName), indicesArray->getIndexQuickly(captureIndex));
+                if (createIndices) {
+                    JSValue indicesValue = captureIndex > 0 ? indicesArray->getIndexQuickly(captureIndex) : jsUndefined();
+                    indicesGroups->putDirect(vm, Identifier::fromString(vm, groupName), indicesValue);
+                }
             }
         }
     }
