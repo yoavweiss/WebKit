@@ -393,17 +393,6 @@ void Thread::setCurrentThreadIsUserInitiated(int relativePriority)
 #endif
 }
 
-void Thread::setCurrentThreadIsUtility(int relativePriority)
-{
-#if HAVE(QOS_CLASSES)
-    ASSERT(relativePriority <= 0);
-    ASSERT(relativePriority >= QOS_MIN_RELATIVE_PRIORITY);
-    pthread_set_qos_class_self_np(adjustedQOSClass(QOS_CLASS_UTILITY), relativePriority);
-#else
-    UNUSED_PARAM(relativePriority);
-#endif
-}
-
 #if HAVE(QOS_CLASSES)
 static Thread::QOS NODELETE toQOS(qos_class_t qosClass)
 {

@@ -104,20 +104,4 @@ int numberOfPhysicalProcessorCores()
 }
 #endif
 
-#if CPU(ARM64) && OS(DARWIN)
-int numberOfPerformanceProcessorCores()
-{
-    static int s_pcores = 0;
-    if (s_pcores > 0)
-        return s_pcores;
-
-    int32_t count = 0;
-    size_t valueSize = sizeof(count);
-    int result = sysctlbyname("hw.perflevel0.physicalcpu", &count, &valueSize, nullptr, 0);
-    RELEASE_ASSERT(result >= 0 && count > 0);
-    s_pcores = count;
-    return s_pcores;
-}
-#endif
-
 }

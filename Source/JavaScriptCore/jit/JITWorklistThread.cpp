@@ -33,11 +33,6 @@
 #include "VM.h"
 #include <wtf/TZoneMallocInlines.h>
 
-#if HAVE(QOS_CLASSES)
-#include <wtf/NumberOfCores.h>
-#include <wtf/Threading.h>
-#endif
-
 namespace JSC {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(JITWorklistThread);
@@ -179,15 +174,6 @@ void JITWorklistThread::threadDidStart()
 {
     dataLogLnIf(Options::verboseCompilationQueue(), m_worklist, ": Thread started");
 
-#if HAVE(QOS_CLASSES)
-#if CPU(ARM64)
-    bool isSmall = WTF::numberOfPerformanceProcessorCores() <= static_cast<int>(Options::smallDeviceMaxPerformanceCores());
-#else
-    bool isSmall = WTF::numberOfProcessorCores() <= static_cast<int>(Options::smallDeviceMaxLogicalCores());
-#endif
-    if (isSmall)
-        Thread::setCurrentThreadIsUtility();
-#endif
 }
 
 void JITWorklistThread::threadIsStopping(const AbstractLocker&)
