@@ -431,6 +431,15 @@ auto TreeResolver::resolveElement(Element& element, const RenderStyle* existingS
         }
     }
 
+    // Highlight pseudo-elements are resolved lazily and have no other resolution trigger.
+    // Re-resolve any that were previously cached.
+    if (existingStyle) {
+        for (auto& [identifier, _] : existingStyle->cachedPseudoStyles()) {
+            if (isHighlightPseudoElement(identifier.type))
+                resolveAndAddPseudoElementStyle(identifier);
+        }
+    }
+
 #if ENABLE(TOUCH_ACTION_REGIONS)
     // FIXME: Track this exactly.
     if (!update.style->touchAction().isAuto() && !m_document->quirks().shouldDisablePointerEventsQuirk())
