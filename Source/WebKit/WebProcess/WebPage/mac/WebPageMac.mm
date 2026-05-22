@@ -477,7 +477,17 @@ void WebPage::registerRemoteFrameAccessibilityTokens(pid_t pid, WebCore::Accessi
     RetainPtr elementTokenData = toNSData(elementToken.bytes);
     auto remoteElement = [elementTokenData length] ? adoptNS([[NSAccessibilityRemoteUIElement alloc] initWithRemoteToken:elementTokenData.get()]) : nil;
 
-    createMockAccessibilityElement(pid);
+    // Don't replace m_mockAccessibilityElement here. The AXIsolatedTree's ScrollArea caches a strong
+    // reference to the current mock element as its RemoteParent property at construction time, so
+    // recreating the mock would leave the isolated tree pointing at a stale instance with no remote
+    // parent set, breaking cross-process accessibility-parent traversal from inside this iframe.
+    // Reuse the existing mock element and only update what changed: the presenter PID, the remote
+    // parent, and the frame identifier.
+    if (!m_mockAccessibilityElement)
+        createMockAccessibilityElement(pid);
+    else if ([m_mockAccessibilityElement respondsToSelector:@selector(accessibilitySetPresenterProcessIdentifier:)])
+        [(id)m_mockAccessibilityElement.get() accessibilitySetPresenterProcessIdentifier:pid];
+
     RetainPtr accessibilityRemoteObject = this->accessibilityRemoteObject();
     [accessibilityRemoteObject setRemoteParent:remoteElement.get() token:elementTokenData.get()];
     [accessibilityRemoteObject setFrameIdentifier:frameID];
