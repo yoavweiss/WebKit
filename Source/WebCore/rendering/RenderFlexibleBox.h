@@ -210,7 +210,7 @@ private:
     template<typename SizeType> LayoutUnit computeMainSizeFromAspectRatioUsing(const RenderBox& flexItem, const SizeType& crossSizeLength) const;
     void NODELETE setFlowAwareLocationForFlexItem(RenderBox& flexItem, const LayoutPoint&);
     LayoutUnit computeFlexBaseSizeForFlexItem(RenderBox& flexItem, RelayoutChildren);
-    void maybeCacheFlexItemMainIntrinsicSize(RenderBox& flexItem, RelayoutChildren);
+    std::optional<LayoutUnit> flexItemIntrinsicMainSize(RenderBox& flexItem, RelayoutChildren);
     void NODELETE adjustAlignmentForFlexItem(RenderBox& flexItem, LayoutUnit);
     inline OverflowAlignment overflowAlignmentForFlexItem(const RenderBox& flexItem) const;
     template<typename SizeType> bool canComputePercentageFlexBasis(const RenderBox& flexItem, const SizeType&, UpdatePercentageHeightDescendants);
@@ -220,7 +220,6 @@ private:
     bool flexItemHasIntrinsicMainAxisSize(const RenderBox& flexItem);
     Overflow NODELETE mainAxisOverflowForFlexItem(const RenderBox& flexItem) const;
     Overflow NODELETE crossAxisOverflowForFlexItem(const RenderBox& flexItem) const;
-    void cacheFlexItemMainSize(const RenderBox& flexItem);
 
     void performFlexLayout(RelayoutChildren);
 

@@ -1499,22 +1499,6 @@ template<typename SizeType> bool RenderFlexibleBox::flexItemCrossSizeIsDefinite(
     return size.isFixed();
 }
 
-void RenderFlexibleBox::cacheFlexItemMainSize(const RenderBox& flexItem)
-{
-    ASSERT(!flexItem.needsLayout());
-    ASSERT(!mainAxisIsFlexItemInlineAxis(flexItem));
-
-    auto mainSize = [&] {
-        auto flexBasis = flexBasisForFlexItem(flexItem);
-        if (flexBasis.isPercentOrCalculated() && !flexItemMainSizeIsDefinite(flexItem, flexBasis))
-            return cachedFlexItemIntrinsicContentLogicalHeight(flexItem) + flexItem.borderAndPaddingLogicalHeight() + flexItem.scrollbarLogicalHeight();
-        return flexItem.logicalHeight();
-    };
-
-    m_intrinsicSizeAlongMainAxis.set(flexItem, mainSize());
-    m_relaidOutFlexItems.add(flexItem);
-}
-
 void RenderFlexibleBox::clearCachedMainSizeForFlexItem(const RenderBox& flexItem)
 {
     m_intrinsicSizeAlongMainAxis.remove(flexItem);
@@ -1559,10 +1543,10 @@ LayoutUnit RenderFlexibleBox::computeFlexBaseSizeForFlexItem(RenderBox& flexItem
 {
     auto flexBasis = flexBasisForFlexItem(flexItem);
     ScopedFlexBasisAsFlexItemMainSize scoped(flexItem, flexBasis.tryPreferredSize().value_or(Style::PreferredSize { CSS::Keyword::MaxContent { } }), mainAxisIsFlexItemInlineAxis(flexItem));
-    // FIXME: While we are supposed to ignore min/max here, clients of maybeCacheFlexItemMainIntrinsicSize may expect min/max constrained size.
+    // FIXME: While we are supposed to ignore min/max here, flexItemIntrinsicMainSize may return a min/max-constrained size.
     SetForScope<bool> computingBaseSizesScope(m_isComputingFlexBaseSizes, true);
 
-    maybeCacheFlexItemMainIntrinsicSize(flexItem, relayoutChildren);
+    auto intrinsicMainSize = flexItemIntrinsicMainSize(flexItem, relayoutChildren);
 
     // 9.2.3 A.
     if (flexItemMainSizeIsDefinite(flexItem, flexBasis))
@@ -1581,8 +1565,8 @@ LayoutUnit RenderFlexibleBox::computeFlexBaseSizeForFlexItem(RenderBox& flexItem
     LayoutUnit mainAxisExtent;
     if (!mainAxisIsFlexItemInlineAxis(flexItem)) {
         ASSERT(!flexItem.needsLayout());
-        ASSERT(m_intrinsicSizeAlongMainAxis.contains(flexItem));
-        mainAxisExtent = m_intrinsicSizeAlongMainAxis.get(flexItem);
+        ASSERT(intrinsicMainSize);
+        mainAxisExtent = *intrinsicMainSize;
     } else {
         // We don't need to add scrollbarLogicalWidth here because the preferred
         // width includes the scrollbar, even for overflow: auto.
@@ -2070,25 +2054,39 @@ LayoutUnit RenderFlexibleBox::adjustFlexItemSizeForAspectRatioCrossAxisMinAndMax
     return flexItemSize;
 }
 
-void RenderFlexibleBox::maybeCacheFlexItemMainIntrinsicSize(RenderBox& flexItem, RelayoutChildren relayoutChildren)
+std::optional<LayoutUnit> RenderFlexibleBox::flexItemIntrinsicMainSize(RenderBox& flexItem, RelayoutChildren relayoutChildren)
 {
     if (!flexItemHasIntrinsicMainAxisSize(flexItem))
-        return;
+        return { };
 
     // If this condition is true, then computeMainAxisExtentForFlexItem will call
     // flexItem.intrinsicContentLogicalHeight() and flexItem.scrollbarLogicalHeight(),
     // so if the child has intrinsic min/max/preferred size, run layout on it now to make sure
     // its logical height and scroll bars are up to date.
     updateBlockChildDirtyBitsBeforeLayout(relayoutChildren, flexItem);
+
+    if (!flexItem.needsLayout()) {
+        if (auto mainSize = m_intrinsicSizeAlongMainAxis.getOptional(flexItem))
+            return mainSize;
+    }
+
     // Don't resolve percentages in children. This is especially important for the min-height calculation,
     // where we want percentages to be treated as auto. For flex-basis itself, this is not a problem because
     // by definition we have an indefinite flex basis here and thus percentages should not resolve.
-    if (flexItem.needsLayout() || !m_intrinsicSizeAlongMainAxis.contains(flexItem)) {
-        auto percentResolveDisableScope = FlexPercentResolveDisabler { view().frameView().layoutContext(), flexItem };
-        flexItem.setChildNeedsLayout(MarkingBehavior::MarkOnlyThis);
-        flexItem.layoutIfNeeded();
-        cacheFlexItemMainSize(flexItem);
-    }
+    auto percentResolveDisableScope = FlexPercentResolveDisabler { view().frameView().layoutContext(), flexItem };
+    flexItem.setChildNeedsLayout(MarkingBehavior::MarkOnlyThis);
+    flexItem.layoutIfNeeded();
+
+    auto mainSize = [&] {
+        auto flexBasis = flexBasisForFlexItem(flexItem);
+        if (flexBasis.isPercentOrCalculated() && !flexItemMainSizeIsDefinite(flexItem, flexBasis))
+            return cachedFlexItemIntrinsicContentLogicalHeight(flexItem) + flexItem.borderAndPaddingLogicalHeight() + flexItem.scrollbarLogicalHeight();
+        return flexItem.logicalHeight();
+    }();
+
+    m_intrinsicSizeAlongMainAxis.set(flexItem, mainSize);
+    m_relaidOutFlexItems.add(flexItem);
+    return mainSize;
 }
 
 RenderFlexibleBox::FlexLayoutItem RenderFlexibleBox::constructFlexLayoutItem(RenderBox& flexItem, RelayoutChildren relayoutChildren)
