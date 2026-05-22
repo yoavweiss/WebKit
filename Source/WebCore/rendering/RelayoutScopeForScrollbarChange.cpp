@@ -68,7 +68,7 @@ RelayoutScopeForScrollbarChange::~RelayoutScopeForScrollbarChange()
     // FIXME: This does not belong here.
     CheckedPtr parent = m_renderBlock->parent();
     if (CheckedPtr parentFlexibleBox = dynamicDowncast<RenderFlexibleBox>(parent); parentFlexibleBox)
-        parentFlexibleBox->clearCachedMainSizeForFlexItem(m_renderBlock.get());
+        parentFlexibleBox->clearCachedBlockAxisSizeForFlexItem(m_renderBlock.get());
 }
 
 } // namespace WebCore

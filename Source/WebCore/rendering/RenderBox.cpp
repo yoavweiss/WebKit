@@ -279,7 +279,7 @@ void RenderBox::styleWillChange(Style::Difference diff, const RenderStyle& newSt
                 setNeedsLayoutAndPreferredWidthsUpdate();
                 if (CheckedPtr flexContainer = dynamicDowncast<RenderFlexibleBox>(parent())) {
                     flexContainer->clearCachedFlexItemIntrinsicContentLogicalHeight(*this);
-                    flexContainer->clearCachedMainSizeForFlexItem(*this);
+                    flexContainer->clearCachedBlockAxisSizeForFlexItem(*this);
                 }
                 if (isInTopLayerOrBackdrop(style(), element())) {
                     // Since top layer's containing block is driven by the associated element's state (see Element::isInTopLayerOrBackdrop)

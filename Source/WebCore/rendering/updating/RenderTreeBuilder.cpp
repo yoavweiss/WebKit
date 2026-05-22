@@ -1014,7 +1014,7 @@ static void resetRendererStateOnDetach(RenderElement& parent, RenderObject& chil
     else if (CheckedPtr parentFlexibleBox = dynamicDowncast<RenderFlexibleBox>(parent)) {
         if (CheckedPtr childBox = dynamicDowncast<RenderBox>(child)) {
             parentFlexibleBox->clearCachedFlexItemIntrinsicContentLogicalHeight(*childBox);
-            parentFlexibleBox->clearCachedMainSizeForFlexItem(*childBox);
+            parentFlexibleBox->clearCachedBlockAxisSizeForFlexItem(*childBox);
         }
     }
 

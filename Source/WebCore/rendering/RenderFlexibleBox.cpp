@@ -918,7 +918,7 @@ template<typename SizeType> std::optional<LayoutUnit> RenderFlexibleBox::compute
         // scrollbarLogicalHeight here because ComputeNextFlexLine will have
         // already forced layout on the child. We previously did a layout out the child
         // if necessary (see ComputeNextFlexLine and the call to
-        // flexItemHasIntrinsicMainAxisSize) so we can be sure that the two height
+        // flexItemNeedsBlockAxisSize) so we can be sure that the two height
         // calls here will return up-to-date data.
         auto height = flexItem.computeContentLogicalHeight(size, cachedFlexItemIntrinsicContentLogicalHeight(flexItem));
         if (!height)
@@ -1499,9 +1499,9 @@ template<typename SizeType> bool RenderFlexibleBox::flexItemCrossSizeIsDefinite(
     return size.isFixed();
 }
 
-void RenderFlexibleBox::clearCachedMainSizeForFlexItem(const RenderBox& flexItem)
+void RenderFlexibleBox::clearCachedBlockAxisSizeForFlexItem(const RenderBox& flexItem)
 {
-    m_intrinsicSizeAlongMainAxis.remove(flexItem);
+    m_blockAxisSize.remove(flexItem);
 }
 
 // This is a RAII class that is used to temporarily set the flex basis as the child size in the main axis.
@@ -1539,14 +1539,17 @@ private:
 };
 
 // https://drafts.csswg.org/css-flexbox/#algo-main-item
-LayoutUnit RenderFlexibleBox::computeFlexBaseSizeForFlexItem(RenderBox& flexItem, RelayoutChildren relayoutChildren)
+LayoutUnit RenderFlexibleBox::flexBaseSizeForFlexItem(RenderBox& flexItem, RelayoutChildren relayoutChildren)
 {
     auto flexBasis = flexBasisForFlexItem(flexItem);
     ScopedFlexBasisAsFlexItemMainSize scoped(flexItem, flexBasis.tryPreferredSize().value_or(Style::PreferredSize { CSS::Keyword::MaxContent { } }), mainAxisIsFlexItemInlineAxis(flexItem));
-    // FIXME: While we are supposed to ignore min/max here, flexItemIntrinsicMainSize may return a min/max-constrained size.
+    // FIXME: While we are supposed to ignore min/max here,
+    // blockAxisSizeForFlexItem may return a min/max-constrained size.
     SetForScope<bool> computingBaseSizesScope(m_isComputingFlexBaseSizes, true);
 
-    auto intrinsicMainSize = flexItemIntrinsicMainSize(flexItem, relayoutChildren);
+    auto blockAxisSize = std::optional<LayoutUnit> { };
+    if (flexItemNeedsBlockAxisSize(flexItem))
+        blockAxisSize = blockAxisSizeForFlexItem(flexItem, relayoutChildren);
 
     // 9.2.3 A.
     if (flexItemMainSizeIsDefinite(flexItem, flexBasis))
@@ -1565,8 +1568,8 @@ LayoutUnit RenderFlexibleBox::computeFlexBaseSizeForFlexItem(RenderBox& flexItem
     LayoutUnit mainAxisExtent;
     if (!mainAxisIsFlexItemInlineAxis(flexItem)) {
         ASSERT(!flexItem.needsLayout());
-        ASSERT(intrinsicMainSize);
-        mainAxisExtent = *intrinsicMainSize;
+        ASSERT(blockAxisSize);
+        mainAxisExtent = *blockAxisSize;
     } else {
         // We don't need to add scrollbarLogicalWidth here because the preferred
         // width includes the scrollbar, even for overflow: auto.
@@ -2054,10 +2057,9 @@ LayoutUnit RenderFlexibleBox::adjustFlexItemSizeForAspectRatioCrossAxisMinAndMax
     return flexItemSize;
 }
 
-std::optional<LayoutUnit> RenderFlexibleBox::flexItemIntrinsicMainSize(RenderBox& flexItem, RelayoutChildren relayoutChildren)
+LayoutUnit RenderFlexibleBox::blockAxisSizeForFlexItem(RenderBox& flexItem, RelayoutChildren relayoutChildren)
 {
-    if (!flexItemHasIntrinsicMainAxisSize(flexItem))
-        return { };
+    ASSERT(flexItemNeedsBlockAxisSize(flexItem));
 
     // If this condition is true, then computeMainAxisExtentForFlexItem will call
     // flexItem.intrinsicContentLogicalHeight() and flexItem.scrollbarLogicalHeight(),
@@ -2066,8 +2068,8 @@ std::optional<LayoutUnit> RenderFlexibleBox::flexItemIntrinsicMainSize(RenderBox
     updateBlockChildDirtyBitsBeforeLayout(relayoutChildren, flexItem);
 
     if (!flexItem.needsLayout()) {
-        if (auto mainSize = m_intrinsicSizeAlongMainAxis.getOptional(flexItem))
-            return mainSize;
+        if (auto cached = m_blockAxisSize.getOptional(flexItem))
+            return *cached;
     }
 
     // Don't resolve percentages in children. This is especially important for the min-height calculation,
@@ -2084,7 +2086,7 @@ std::optional<LayoutUnit> RenderFlexibleBox::flexItemIntrinsicMainSize(RenderBox
         return flexItem.logicalHeight();
     }();
 
-    m_intrinsicSizeAlongMainAxis.set(flexItem, mainSize);
+    m_blockAxisSize.set(flexItem, mainSize);
     m_relaidOutFlexItems.add(flexItem);
     return mainSize;
 }
@@ -2101,7 +2103,7 @@ RenderFlexibleBox::FlexLayoutItem RenderFlexibleBox::constructFlexLayoutItem(Ren
     if (flexItem.shouldInvalidatePreferredWidths())
         flexItem.setNeedsPreferredWidthsUpdate(MarkingBehavior::MarkOnlyThis);
 
-    LayoutUnit innerFlexBaseSize = computeFlexBaseSizeForFlexItem(flexItem, relayoutChildren);
+    LayoutUnit innerFlexBaseSize = flexBaseSizeForFlexItem(flexItem, relayoutChildren);
     LayoutUnit borderAndPadding = isHorizontalFlow() ? flexItem.horizontalBorderAndPaddingExtent() : flexItem.verticalBorderAndPaddingExtent();
     LayoutUnit margin = isHorizontalFlow() ? flexItem.horizontalMarginExtent() : flexItem.verticalMarginExtent();
     return FlexLayoutItem(flexItem, innerFlexBaseSize, borderAndPadding, margin, computeFlexItemMinMaxSizes(flexItem), everHadLayout);
@@ -2521,7 +2523,7 @@ bool RenderFlexibleBox::needToStretchFlexItemLogicalHeight(const RenderBox& flex
         && flexItem.style().logicalHeight().isAuto();
 }
 
-bool RenderFlexibleBox::flexItemHasIntrinsicMainAxisSize(const RenderBox& flexItem)
+bool RenderFlexibleBox::flexItemNeedsBlockAxisSize(const RenderBox& flexItem)
 {
     if (mainAxisIsFlexItemInlineAxis(flexItem))
         return false;

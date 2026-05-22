@@ -77,7 +77,7 @@ public:
     std::optional<LayoutUnit> usedFlexItemOverridingLogicalHeightForPercentageResolution(const RenderBox&);
     bool canUseFlexItemForPercentageResolution(const RenderBox&);
 
-    void clearCachedMainSizeForFlexItem(const RenderBox& flexItem);
+    void clearCachedBlockAxisSizeForFlexItem(const RenderBox& flexItem);
     
     LayoutUnit cachedFlexItemIntrinsicContentLogicalHeight(const RenderBox& flexItem) const;
     void setCachedFlexItemIntrinsicContentLogicalHeight(const RenderBox& flexItem, LayoutUnit);
@@ -209,15 +209,15 @@ private:
     void computeChildIntrinsicLogicalWidths(RenderBox&, LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const override;
     template<typename SizeType> LayoutUnit computeMainSizeFromAspectRatioUsing(const RenderBox& flexItem, const SizeType& crossSizeLength) const;
     void NODELETE setFlowAwareLocationForFlexItem(RenderBox& flexItem, const LayoutPoint&);
-    LayoutUnit computeFlexBaseSizeForFlexItem(RenderBox& flexItem, RelayoutChildren);
-    std::optional<LayoutUnit> flexItemIntrinsicMainSize(RenderBox& flexItem, RelayoutChildren);
+    LayoutUnit flexBaseSizeForFlexItem(RenderBox& flexItem, RelayoutChildren);
+    LayoutUnit blockAxisSizeForFlexItem(RenderBox& flexItem, RelayoutChildren);
     void NODELETE adjustAlignmentForFlexItem(RenderBox& flexItem, LayoutUnit);
     inline OverflowAlignment overflowAlignmentForFlexItem(const RenderBox& flexItem) const;
     template<typename SizeType> bool canComputePercentageFlexBasis(const RenderBox& flexItem, const SizeType&, UpdatePercentageHeightDescendants);
     template<typename SizeType> bool flexItemMainSizeIsDefinite(const RenderBox&, const SizeType&);
     template<typename SizeType> bool flexItemCrossSizeIsDefinite(const RenderBox&, const SizeType&);
     bool needToStretchFlexItemLogicalHeight(const RenderBox& flexItem) const;
-    bool flexItemHasIntrinsicMainAxisSize(const RenderBox& flexItem);
+    bool flexItemNeedsBlockAxisSize(const RenderBox& flexItem);
     Overflow NODELETE mainAxisOverflowForFlexItem(const RenderBox& flexItem) const;
     Overflow NODELETE crossAxisOverflowForFlexItem(const RenderBox& flexItem) const;
 
@@ -304,9 +304,8 @@ private:
 
     bool layoutUsingFlexFormattingContext();
 
-    // This is used to cache the preferred size for orthogonal flow children so we
-    // don't have to relayout to get it
-    HashMap<SingleThreadWeakRef<const RenderBox>, LayoutUnit> m_intrinsicSizeAlongMainAxis;
+    // Inner main size for flex items where main axis is the item's block axis (column flex or orthogonal).
+    HashMap<SingleThreadWeakRef<const RenderBox>, LayoutUnit> m_blockAxisSize;
     
     // This is used to cache the intrinsic size on the cross axis to avoid
     // relayouts when stretching.
