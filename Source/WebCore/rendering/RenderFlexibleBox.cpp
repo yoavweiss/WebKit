@@ -1565,17 +1565,16 @@ LayoutUnit RenderFlexibleBox::flexBaseSizeForFlexItem(RenderBox& flexItem, Relay
     // FIXME: 9.2.3 D.
 
     // 9.2.3 E.
-    LayoutUnit mainAxisExtent;
     if (!mainAxisIsFlexItemInlineAxis(flexItem)) {
         ASSERT(!flexItem.needsLayout());
         ASSERT(blockAxisSize);
-        mainAxisExtent = *blockAxisSize;
-    } else {
-        // We don't need to add scrollbarLogicalWidth here because the preferred
-        // width includes the scrollbar, even for overflow: auto.
-        ScopedCrossAxisOverrideForFlexItem crossSizeScope(*this, flexItem, InvalidatePreferredWidths::Yes);
-        mainAxisExtent = flexItem.maxPreferredLogicalWidth();
+        return *blockAxisSize;
     }
+
+    // We don't need to add scrollbarLogicalWidth here because the preferred
+    // width includes the scrollbar, even for overflow: auto.
+    ScopedCrossAxisOverrideForFlexItem crossSizeScope(*this, flexItem, InvalidatePreferredWidths::Yes);
+    auto mainAxisExtent = flexItem.maxPreferredLogicalWidth();
     auto mainAxisBorderAndPadding = isHorizontalFlow() ? flexItem.horizontalBorderAndPaddingExtent() : flexItem.verticalBorderAndPaddingExtent();
     return mainAxisExtent - mainAxisBorderAndPadding;
 }
@@ -2079,16 +2078,16 @@ LayoutUnit RenderFlexibleBox::blockAxisSizeForFlexItem(RenderBox& flexItem, Rela
     flexItem.setChildNeedsLayout(MarkingBehavior::MarkOnlyThis);
     flexItem.layoutIfNeeded();
 
-    auto mainSize = [&] {
+    auto innerSize = [&] {
         auto flexBasis = flexBasisForFlexItem(flexItem);
         if (flexBasis.isPercentOrCalculated() && !flexItemMainSizeIsDefinite(flexItem, flexBasis))
-            return cachedFlexItemIntrinsicContentLogicalHeight(flexItem) + flexItem.borderAndPaddingLogicalHeight() + flexItem.scrollbarLogicalHeight();
-        return flexItem.logicalHeight();
+            return cachedFlexItemIntrinsicContentLogicalHeight(flexItem) + flexItem.scrollbarLogicalHeight();
+        return flexItem.logicalHeight() - flexItem.borderAndPaddingLogicalHeight();
     }();
 
-    m_blockAxisSize.set(flexItem, mainSize);
+    m_blockAxisSize.set(flexItem, innerSize);
     m_relaidOutFlexItems.add(flexItem);
-    return mainSize;
+    return innerSize;
 }
 
 RenderFlexibleBox::FlexLayoutItem RenderFlexibleBox::constructFlexLayoutItem(RenderBox& flexItem, RelayoutChildren relayoutChildren)
