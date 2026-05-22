@@ -34,7 +34,7 @@
 #include <WebCore/Timer.h>
 #include <wtf/Function.h>
 #include <wtf/HashSet.h>
-#include <wtf/ListHashSet.h>
+#include <wtf/OrderedHashSet.h>
 #include <wtf/ThreadSafeWeakHashSet.h>
 #include <wtf/WeakHashSet.h>
 #include <wtf/text/WTFString.h>
@@ -454,7 +454,7 @@ private:
     int m_timerNestingLevel { 0 };
 
     Vector<CompletionHandler<void()>> m_processMessageWithMessagePortsSoonHandlers;
-    ListHashSet<MessagePortIdentifier> m_portsWithAvailableMessages;
+    OrderedHashSet<MessagePortIdentifier> m_portsWithAvailableMessages;
     bool m_dispatchAllPorts { false };
 
 #if ASSERT_ENABLED
