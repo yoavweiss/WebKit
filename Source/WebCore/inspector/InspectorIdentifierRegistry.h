@@ -37,6 +37,7 @@
 #include <wtf/WeakHashMap.h>
 #include <wtf/WeakPtr.h>
 #include <wtf/text/MakeString.h>
+#include <wtf/text/StringToIntegerConversion.h>
 #include <wtf/text/WTFString.h>
 
 namespace WebCore {
@@ -95,6 +96,36 @@ public:
     static inline String protocolRequestId(WebCore::ProcessIdentifier pid, WebCore::ResourceLoaderIdentifier resourceID)
     {
         return makeString("request-"_s, pid.toUInt64(), '.', resourceID.toUInt64());
+    }
+
+    // Reverse-parse a protocol requestId string back into its components.
+    // Returns nullopt if the string doesn't match the expected "request-processID.resourceID" format.
+    static inline std::optional<std::pair<WebCore::ProcessIdentifier, WebCore::ResourceLoaderIdentifier>> parseProtocolRequestId(const String& requestId)
+    {
+        // Format: "request-processID.resourceID"
+        if (!requestId.startsWith("request-"_s))
+            return std::nullopt;
+
+        auto rest = StringView(requestId).substring(8); // skip "request-"
+        auto dotIndex = rest.find('.');
+        if (dotIndex == notFound)
+            return std::nullopt;
+
+        auto pidPart = rest.left(dotIndex);
+        auto resourcePart = rest.substring(dotIndex + 1);
+
+        auto pidValue = parseInteger<uint64_t>(pidPart);
+        if (!pidValue)
+            return std::nullopt;
+
+        auto resourceValue = parseInteger<uint64_t>(resourcePart);
+        if (!resourceValue)
+            return std::nullopt;
+
+        return std::pair {
+            ObjectIdentifier<WebCore::ProcessIdentifierType>(*pidValue),
+            WebCore::ResourceLoaderIdentifier(*resourceValue)
+        };
     }
 
     static inline String protocolLoaderId(WebCore::ScriptExecutionContextIdentifier contextID)

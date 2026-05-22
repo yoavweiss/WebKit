@@ -748,6 +748,7 @@ WebProcess/Inspector/UIProcessForwardingFrontendChannel.cpp
 WebProcess/Inspector/FrameInspectorTarget.cpp
 WebProcess/Inspector/WebInspectorBackend.cpp
 WebProcess/Inspector/WebInspectorBackendClient.cpp
+WebProcess/Inspector/BackendResourceDataStore.cpp
 WebProcess/Inspector/FrameNetworkAgentProxy.cpp
 WebProcess/Inspector/WebInspectorInterruptDispatcher.cpp
 WebProcess/Inspector/WebInspectorUI.cpp

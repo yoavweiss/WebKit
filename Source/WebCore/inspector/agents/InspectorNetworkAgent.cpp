@@ -914,32 +914,42 @@ Inspector::Protocol::ErrorStringOr<void> InspectorNetworkAgent::setExtraHTTPHead
     return { };
 }
 
-Inspector::Protocol::ErrorStringOr<std::tuple<String, bool /* base64Encoded */>> InspectorNetworkAgent::getResponseBody(const Inspector::Protocol::Network::RequestId& requestId)
+void InspectorNetworkAgent::getResponseBody(const Inspector::Protocol::Network::RequestId& requestId, Ref<GetResponseBodyCallback>&& callback)
 {
     NetworkResourcesData::ResourceData const* resourceData = m_resourcesData->data(requestId);
-    if (!resourceData)
-        return makeUnexpected("Missing resource for given requestId"_s);
+    if (!resourceData) {
+        callback->sendFailure("Missing resource for given requestId"_s);
+        return;
+    }
 
-    if (resourceData->hasContent())
-        return { { resourceData->content(), resourceData->base64Encoded() } };
+    if (resourceData->hasContent()) {
+        callback->sendSuccess(resourceData->content(), resourceData->base64Encoded());
+        return;
+    }
 
-    if (resourceData->isContentEvicted())
-        return makeUnexpected("Resource content was evicted from inspector cache"_s);
+    if (resourceData->isContentEvicted()) {
+        callback->sendFailure("Resource content was evicted from inspector cache"_s);
+        return;
+    }
 
     if (resourceData->buffer() && !resourceData->textEncodingName().isNull()) {
         String body;
-        if (ResourceUtilities::sharedBufferContent(resourceData->buffer(), resourceData->textEncodingName(), false, &body))
-            return { { body, false } };
+        if (ResourceUtilities::sharedBufferContent(resourceData->buffer(), resourceData->textEncodingName(), false, &body)) {
+            callback->sendSuccess(body, false);
+            return;
+        }
     }
 
     if (resourceData->cachedResource()) {
         String body;
         bool base64Encoded;
-        if (ResourceUtilities::cachedResourceContent(*resourceData->cachedResource(), &body, &base64Encoded))
-            return { { body, base64Encoded } };
+        if (ResourceUtilities::cachedResourceContent(*resourceData->cachedResource(), &body, &base64Encoded)) {
+            callback->sendSuccess(body, base64Encoded);
+            return;
+        }
     }
 
-    return makeUnexpected("Missing content of resource for given requestId"_s);
+    callback->sendFailure("Missing content of resource for given requestId"_s);
 }
 
 Inspector::Protocol::ErrorStringOr<void> InspectorNetworkAgent::setResourceCachingDisabled(bool disabled)

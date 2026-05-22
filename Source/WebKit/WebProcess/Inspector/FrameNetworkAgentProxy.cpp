@@ -37,8 +37,10 @@
 #include "WebProcess.h"
 #include <WebCore/CachedResource.h>
 #include <WebCore/Document.h>
+#include <WebCore/DocumentInlines.h>
 #include <WebCore/DocumentLoader.h>
 #include <WebCore/FrameDestructionObserverInlines.h>
+#include <WebCore/FrameLoader.h>
 #include <WebCore/InspectorResourceType.h>
 #include <WebCore/InspectorResourceUtilities.h>
 #include <WebCore/InstrumentingAgents.h>
@@ -61,9 +63,10 @@ static ScopedResourceLoaderIdentifier qualifyResourceID(ResourceLoaderIdentifier
     return { resourceID, Process::identifier() };
 }
 
-FrameNetworkAgentProxy::FrameNetworkAgentProxy(WebAgentContext& context, WebPage& page)
+FrameNetworkAgentProxy::FrameNetworkAgentProxy(WebAgentContext& context, WebPage& page, BackendResourceDataStore& store)
     : NetworkAgentInstrumentation(context)
     , m_page(page)
+    , m_resourcesData(store)
 {
 }
 
@@ -154,6 +157,9 @@ static ResourceType resourceTypeForRequest(const ResourceRequest& request, Docum
 
 void FrameNetworkAgentProxy::willSendRequest(ResourceLoaderIdentifier resourceID, DocumentLoader* loader, ResourceRequest& request, const ResourceResponse& redirectResponse, const CachedResource* cachedResource, ResourceLoader*)
 {
+    if (request.hiddenFromInspector())
+        return;
+
     if (!loader || !loader->frame() || !loader->frame()->document())
         return;
 
@@ -167,6 +173,8 @@ void FrameNetworkAgentProxy::willSendRequest(ResourceLoaderIdentifier resourceID
     auto resourceType = resourceTypeForRequest(request, protectedLoader.get(), cachedResource);
     if (!frameID)
         return;
+
+    m_resourcesData->resourceCreated(resourceID, resourceType);
 
     auto timestamp = MonotonicTime::now().secondsSinceEpoch().value();
     auto walltime = WallTime::now().secondsSinceEpoch().value();
@@ -197,6 +205,8 @@ void FrameNetworkAgentProxy::willSendRequestOfType(ResourceLoaderIdentifier reso
     if (!contextID || !frameID)
         return;
 
+    m_resourcesData->resourceCreated(resourceID, ResourceType::Other);
+
     auto timestamp = MonotonicTime::now().secondsSinceEpoch().value();
     auto walltime = WallTime::now().secondsSinceEpoch().value();
     auto documentURL = protectedLoader->url().string();
@@ -225,17 +235,22 @@ void FrameNetworkAgentProxy::didReceiveResponse(ResourceLoaderIdentifier resourc
 
     auto timestamp = MonotonicTime::now().secondsSinceEpoch().value();
 
-    // FIXME: ResourceType is hardcoded to Other here because the actual type computed in
-    // willSendRequest is not available at response time. Cache the type from willSendRequest
-    // in a HashMap<ResourceLoaderIdentifier, ResourceType> and look it up here.
+    // Look up the ResourceType cached from willSendRequest, falling back to Other.
+    auto* resourceData = m_resourcesData->data(resourceID);
+    auto resourceType = resourceData ? resourceData->type() : ResourceType::Other;
+    m_resourcesData->responseReceived(resourceID, response, resourceType);
+
     protect(WebProcess::singleton().parentProcessConnection())->send(
         Messages::ProxyingNetworkAgent::ResponseReceived(
-            qualifyResourceID(resourceID), *frameID, contextID, response, ResourceType::Other, timestamp),
+            qualifyResourceID(resourceID), *frameID, contextID, response, resourceType, timestamp),
         page->identifier());
 }
 
-void FrameNetworkAgentProxy::didReceiveData(ResourceLoaderIdentifier resourceID, const SharedBuffer*, int dataLength, int encodedDataLength)
+void FrameNetworkAgentProxy::didReceiveData(ResourceLoaderIdentifier resourceID, const SharedBuffer* data, int dataLength, int encodedDataLength)
 {
+    if (data)
+        m_resourcesData->maybeAddResourceData(resourceID, *data);
+
     RefPtr page = m_page.get();
     if (!page)
         return;
@@ -251,6 +266,19 @@ void FrameNetworkAgentProxy::didFinishLoading(ResourceLoaderIdentifier resourceI
 {
     if (!loader || !loader->frame() || !loader->frame()->document())
         return;
+
+    RefPtr protectedLoader = loader;
+    RefPtr frame = protectedLoader->frame();
+    RefPtr document = frame->document();
+    if (RefPtr frameLoader = protectedLoader->frameLoader()) {
+        auto* resourceData = m_resourcesData->data(resourceID);
+        if (resourceData && resourceData->type() == ResourceType::Document) {
+            if (RefPtr documentLoader = frameLoader->documentLoader())
+                m_resourcesData->addResourceSharedBuffer(resourceID, documentLoader->mainResourceData(), document->encoding());
+        }
+    }
+
+    m_resourcesData->maybeDecodeDataToContent(resourceID);
 
     RefPtr page = m_page.get();
     if (!page)
@@ -296,6 +324,16 @@ void FrameNetworkAgentProxy::didLoadResourceFromMemoryCache(DocumentLoader* load
     if (!frameID)
         return;
 
+    m_resourcesData->resourceCreated(resourceID, resourceType);
+
+    // Copy content from the CachedResource now, since the store does not hold
+    // CachedResource references. This is the only chance to capture the content
+    // for memory-cached resources (they don't go through didReceiveData).
+    String content;
+    bool base64Encoded;
+    if (ResourceUtilities::cachedResourceContent(cachedResource, &content, &base64Encoded))
+        m_resourcesData->setResourceContent(resourceID, content, base64Encoded);
+
     auto timestamp = MonotonicTime::now().secondsSinceEpoch().value();
     auto documentURL = protectedLoader->url().string();
 
@@ -306,8 +344,9 @@ void FrameNetworkAgentProxy::didLoadResourceFromMemoryCache(DocumentLoader* load
         page->identifier());
 }
 
-void FrameNetworkAgentProxy::didReceiveScriptResponse(ResourceLoaderIdentifier)
+void FrameNetworkAgentProxy::didReceiveScriptResponse(ResourceLoaderIdentifier resourceID)
 {
+    m_resourcesData->setResourceType(resourceID, ResourceType::Script);
 }
 
 void FrameNetworkAgentProxy::didReceiveThreadableLoaderResponse(ResourceLoaderIdentifier, DocumentThreadableLoader&)
@@ -318,12 +357,14 @@ void FrameNetworkAgentProxy::willDestroyCachedResource(CachedResource&)
 {
 }
 
-void FrameNetworkAgentProxy::setInitialScriptContent(ResourceLoaderIdentifier, const String&)
+void FrameNetworkAgentProxy::setInitialScriptContent(ResourceLoaderIdentifier resourceID, const String& sourceString)
 {
+    m_resourcesData->setResourceContent(resourceID, sourceString);
 }
 
 void FrameNetworkAgentProxy::mainFrameNavigated(DocumentLoader&)
 {
+    m_resourcesData->clear();
 }
 
 } // namespace WebKit

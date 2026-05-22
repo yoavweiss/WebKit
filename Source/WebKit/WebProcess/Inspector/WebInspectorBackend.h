@@ -25,10 +25,12 @@
 
 #pragma once
 
+#include "BackendResourceDataStore.h"
 #include "Connection.h"
 #include "MessageReceiver.h"
 #include <WebCore/FrameIdentifier.h>
 #include <WebCore/InspectorBackendClient.h>
+#include <WebCore/ResourceLoaderIdentifier.h>
 #include <wtf/HashMap.h>
 #include <wtf/Noncopyable.h>
 #include <wtf/ThreadSafeRefCounted.h>
@@ -89,6 +91,7 @@ public:
 
     void enableNetworkInstrumentation();
     void disableNetworkInstrumentation();
+    void getResponseBody(WebCore::ResourceLoaderIdentifier, CompletionHandler<void(String content, bool base64Encoded, String errorString)>&&);
     void ensureInstrumentationForFrame(WebCore::LocalFrame&);
     void removeInstrumentationForFrame(WebCore::FrameIdentifier);
 
@@ -120,6 +123,7 @@ private:
     bool m_previousCanAttach { false };
 
     HashMap<WebCore::FrameIdentifier, std::unique_ptr<FrameNetworkAgentProxy>> m_frameNetworkAgentProxies;
+    UniqueRef<BackendResourceDataStore> m_resourceDataStore;
     bool m_networkInstrumentationEnabled { false };
 };
 

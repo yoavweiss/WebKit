@@ -2254,6 +2254,16 @@ webkit.org/b/310163 http/tests/site-isolation/inspector/network/cross-origin-ifr
 webkit.org/b/310163 http/tests/site-isolation/inspector/network/cross-origin-iframe-resource-appears-in-network-domain.html [ Pass Failure ]
 webkit.org/b/315225 http/tests/site-isolation/inspector/network/cross-origin-iframe-request-id-uniqueness.html [ Skip ]
 
+# Skipped on mac-wk2-stress in site-isolation mode: stress parallelism races with
+# BackendResourceDataStore lifecycle / event ordering. Tests pass cleanly on the
+# mac-site-isolation queue. Re-enable when b/315308 is fixed.
+webkit.org/b/315308 http/tests/inspector/network/cross-origin-iframe-get-response-body.html [ Skip ]
+webkit.org/b/315308 http/tests/inspector/network/cross-origin-iframe-get-response-body-after-navigation.html [ Skip ]
+webkit.org/b/315308 http/tests/inspector/network/cross-origin-iframe-get-response-body-binary.html [ Skip ]
+webkit.org/b/315308 http/tests/inspector/network/cross-origin-iframe-get-response-body-document.html [ Skip ]
+webkit.org/b/315308 http/tests/inspector/network/cross-origin-iframe-get-response-body-error-cases.html [ Skip ]
+webkit.org/b/315308 http/tests/inspector/network/cross-origin-iframe-get-response-body-subresources.html [ Skip ]
+
 webkit.org/b/308165 [ Debug ] scrollingcoordinator/mac/latching/simple-page-rubberbands.html [ Pass Failure ]
 
 webkit.org/b/311759 [ Release arm64 ] imported/w3c/web-platform-tests/event-timing/keydown.html [ Pass Failure ]

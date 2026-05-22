@@ -267,10 +267,46 @@ CommandResult<void> ProxyingNetworkAgent::setExtraHTTPHeaders(Ref<JSON::Object>&
     return { };
 }
 
-CommandResult<std::tuple<String, bool>> ProxyingNetworkAgent::getResponseBody(const Protocol::Network::RequestId&)
+void ProxyingNetworkAgent::getResponseBody(const Protocol::Network::RequestId& requestId, Ref<GetResponseBodyCallback>&& callback)
 {
-    // FIXME: Implement response body retrieval (P2 -- BackendResourceDataStore).
-    return makeUnexpected("Not yet implemented"_s);
+    auto parsed = IdentifierRegistry::parseProtocolRequestId(requestId);
+    if (!parsed) {
+        callback->sendFailure("Invalid requestId format"_s);
+        return;
+    }
+
+    auto [processIdentifier, resourceID] = *parsed;
+
+    RefPtr inspectedPage = m_inspectedPage.get();
+    if (!inspectedPage) {
+        callback->sendFailure("Inspected page is gone"_s);
+        return;
+    }
+
+    RefPtr<WebKit::WebProcessProxy> targetProcess;
+    std::optional<PageIdentifier> targetPageID;
+
+    inspectedPage->forEachWebContentProcess([&](auto& webProcess, auto pageID) {
+        if (webProcess.coreProcessIdentifier() == processIdentifier) {
+            targetProcess = &webProcess;
+            targetPageID = pageID;
+        }
+    });
+
+    if (!targetProcess || !targetPageID) {
+        callback->sendFailure("WebProcess not found for requestId"_s);
+        return;
+    }
+
+    targetProcess->sendWithAsyncReply(
+        Messages::WebInspectorBackend::GetResponseBody { resourceID },
+        [callback = WTF::move(callback)](String content, bool base64Encoded, String errorString) mutable {
+            if (!errorString.isEmpty())
+                callback->sendFailure(errorString);
+            else
+                callback->sendSuccess(content, base64Encoded);
+        },
+        *targetPageID);
 }
 
 CommandResult<void> ProxyingNetworkAgent::setResourceCachingDisabled(bool)

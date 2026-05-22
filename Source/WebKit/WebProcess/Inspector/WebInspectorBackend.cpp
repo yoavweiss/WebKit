@@ -67,6 +67,7 @@ Ref<WebInspectorBackend> WebInspectorBackend::create(WebPage& page)
 
 WebInspectorBackend::WebInspectorBackend(WebPage& page)
     : m_page(page)
+    , m_resourceDataStore(makeUniqueRef<BackendResourceDataStore>(BackendResourceDataStore::Settings { }))
 {
 }
 
@@ -340,7 +341,8 @@ void WebInspectorBackend::ensureInstrumentationForFrame(LocalFrame& frame)
         instrumentingAgents.get()
     };
 
-    auto proxy = makeUnique<FrameNetworkAgentProxy>(webContext, *page);
+    CheckedRef resourceDataStore = m_resourceDataStore.get();
+    auto proxy = makeUnique<FrameNetworkAgentProxy>(webContext, *page, resourceDataStore.get());
     proxy->enable();
     m_frameNetworkAgentProxies.add(frameID, WTF::move(proxy));
 }
@@ -383,6 +385,17 @@ void WebInspectorBackend::disableNetworkInstrumentation()
 void WebInspectorBackend::removeInstrumentationForFrame(FrameIdentifier frameID)
 {
     m_frameNetworkAgentProxies.remove(frameID);
+}
+
+void WebInspectorBackend::getResponseBody(ResourceLoaderIdentifier resourceID, CompletionHandler<void(String content, bool base64Encoded, String errorString)>&& completionHandler)
+{
+    CheckedRef resourceDataStore = m_resourceDataStore.get();
+    auto result = resourceDataStore->getResponseBody(resourceID);
+    if (result.has_value()) {
+        auto& [content, base64Encoded] = result.value();
+        completionHandler(content, base64Encoded, String());
+    } else
+        completionHandler(String(), false, result.error());
 }
 
 } // namespace WebKit

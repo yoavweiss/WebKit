@@ -50,7 +50,7 @@ enum class ResourceType : uint8_t;
 
 namespace ResourceUtilities {
 
-bool sharedBufferContent(RefPtr<WebCore::FragmentedSharedBuffer>&&, const String& textEncodingName, bool withBase64Encode, String* result);
+WEBCORE_EXPORT bool sharedBufferContent(RefPtr<WebCore::FragmentedSharedBuffer>&&, const String& textEncodingName, bool withBase64Encode, String* result);
 Vector<WebCore::CachedResource*> cachedResourcesForFrame(WebCore::LocalFrame*);
 void resourceContent(Inspector::Protocol::ErrorString&, WebCore::LocalFrame*, const URL&, String* result, bool* base64Encoded);
 bool mainResourceContent(WebCore::LocalFrame*, bool withBase64Encode, String* result);
@@ -65,10 +65,10 @@ Inspector::Protocol::Page::ResourceType cachedResourceTypeToProtocol(const WebCo
 WebCore::LocalFrame* findFrameWithSecurityOrigin(WebCore::Page&, const String& originRawString);
 WebCore::DocumentLoader* assertDocumentLoader(Inspector::Protocol::ErrorString&, WebCore::LocalFrame*);
 
-bool shouldTreatAsText(const String& mimeType);
-Ref<WebCore::TextResourceDecoder> createTextDecoder(const String& mimeType, const String& textEncodingName);
+WEBCORE_EXPORT bool shouldTreatAsText(const String& mimeType);
+WEBCORE_EXPORT Ref<WebCore::TextResourceDecoder> createTextDecoder(const String& mimeType, const String& textEncodingName);
 std::optional<String> textContentForCachedResource(WebCore::CachedResource&);
-bool cachedResourceContent(WebCore::CachedResource&, String* result, bool* base64Encoded);
+WEBCORE_EXPORT bool cachedResourceContent(WebCore::CachedResource&, String* result, bool* base64Encoded);
 
 } // namespace ResourceUtilities
 

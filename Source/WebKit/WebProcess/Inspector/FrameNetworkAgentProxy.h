@@ -31,6 +31,7 @@
 
 #pragma once
 
+#include "BackendResourceDataStore.h"
 #include <WebCore/NetworkAgentInstrumentation.h>
 #include <wtf/CheckedRef.h>
 #include <wtf/Forward.h>
@@ -64,7 +65,7 @@ class FrameNetworkAgentProxy : public Inspector::NetworkAgentInstrumentation, pu
     WTF_MAKE_NONCOPYABLE(FrameNetworkAgentProxy);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(FrameNetworkAgentProxy);
 public:
-    FrameNetworkAgentProxy(WebCore::WebAgentContext&, WebPage&);
+    FrameNetworkAgentProxy(WebCore::WebAgentContext&, WebPage&, BackendResourceDataStore&);
     ~FrameNetworkAgentProxy() override;
 
     // AbstractCanMakeCheckedPtr overrides
@@ -98,6 +99,7 @@ public:
 
 private:
     WeakRef<WebPage> m_page;
+    CheckedRef<BackendResourceDataStore> const m_resourcesData;
 
     bool m_enabled { false };
 };
