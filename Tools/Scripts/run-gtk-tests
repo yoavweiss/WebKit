@@ -20,6 +20,7 @@
 import logging
 import optparse
 import os
+import subprocess
 import sys
 
 from webkitpy.port.linux_container_sdk_utils import maybe_enter_webkit_container_sdk, maybe_use_container_sdk_root_dir
@@ -109,4 +110,20 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(message)s")
 
     runner = GtkTestRunner(options, args)
-    sys.exit(runner.run_tests())
+    api_test_rc = runner.run_tests()
+
+    # Non-gtest companion tests for the GLib ports. Each must exit 0 on
+    # success. Always run after the api-test suite so a failure here surfaces
+    # in the same CI step.
+    e2e_rc = 0
+    if not options.list_tests:
+        testwtf = os.path.join(runner._programs_path, "TestWebKitAPI", "TestWTF")
+        glib_e2e_scripts = [
+            os.path.join(top_level_directory, "Tools", "Scripts", "run-timezone-glib-e2e-test"),
+        ]
+        for script in glib_e2e_scripts:
+            rc = subprocess.call([sys.executable, script, "--testwtf", testwtf])
+            if rc != 0 and e2e_rc == 0:
+                e2e_rc = rc
+
+    sys.exit(api_test_rc or e2e_rc)

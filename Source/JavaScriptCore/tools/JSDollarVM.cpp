@@ -48,6 +48,7 @@
 #include "JITSizeStatistics.h"
 #include "JSArray.h"
 #include "JSCInlines.h"
+#include "JSDateMath.h"
 #include "JSGlobalProxyInlines.h"
 #include "JSONObject.h"
 #include "JSPromise.h"
@@ -74,6 +75,7 @@
 #include <wtf/ApproximateTime.h>
 #include <wtf/CPUTime.h>
 #include <wtf/DataLog.h>
+#include <wtf/DateMath.h>
 #include <wtf/Language.h>
 #include <wtf/MemoryPressureHandler.h>
 #include <wtf/ProcessID.h>
@@ -2221,6 +2223,9 @@ static JSC_DECLARE_HOST_FUNCTION(functionSetUserPreferredLanguages);
 static JSC_DECLARE_HOST_FUNCTION(functionICUVersion);
 static JSC_DECLARE_HOST_FUNCTION(functionICUMinorVersion);
 static JSC_DECLARE_HOST_FUNCTION(functionICUHeaderVersion);
+static JSC_DECLARE_HOST_FUNCTION(functionSetTimeZoneOverride);
+static JSC_DECLARE_HOST_FUNCTION(functionTimeZoneDidChange);
+static JSC_DECLARE_HOST_FUNCTION(functionSetHostTimeZoneForTesting);
 static JSC_DECLARE_HOST_FUNCTION(functionAssertEnabled);
 static JSC_DECLARE_HOST_FUNCTION(functionSecurityAssertEnabled);
 static JSC_DECLARE_HOST_FUNCTION(functionAsanEnabled);
@@ -4042,6 +4047,41 @@ JSC_DEFINE_HOST_FUNCTION(functionICUHeaderVersion, (JSGlobalObject*, CallFrame*)
     return JSValue::encode(jsNumber(U_ICU_VERSION_MAJOR_NUM));
 }
 
+// Usage: $vm.setTimeZoneOverride("Asia/Tokyo"), or "" to clear.
+JSC_DEFINE_HOST_FUNCTION(functionSetTimeZoneOverride, (JSGlobalObject* globalObject, CallFrame* callFrame))
+{
+    DollarVMAssertScope assertScope;
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    String tz { callFrame->argument(0).toWTFString(globalObject) };
+    RETURN_IF_EXCEPTION(scope, { });
+
+    if (!WTF::setTimeZoneOverride(tz))
+        return throwVMTypeError(globalObject, scope, "Invalid time zone identifier"_s);
+    WTF::timeZoneDidChange();
+    return JSValue::encode(jsUndefined());
+}
+
+JSC_DEFINE_HOST_FUNCTION(functionTimeZoneDidChange, (JSGlobalObject*, CallFrame*))
+{
+    DollarVMAssertScope assertScope;
+    WTF::timeZoneDidChange();
+    return JSValue::encode(jsUndefined());
+}
+
+JSC_DEFINE_HOST_FUNCTION(functionSetHostTimeZoneForTesting, (JSGlobalObject* globalObject, CallFrame* callFrame))
+{
+    DollarVMAssertScope assertScope;
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    String tz { callFrame->argument(0).toWTFString(globalObject) };
+    RETURN_IF_EXCEPTION(scope, { });
+
+    return JSValue::encode(jsBoolean(WTF::setHostTimeZoneForTesting(tz)));
+}
+
 // Returns true if Debug ASSERTs are enabled.
 // Usage: $vm.assertEnabled()
 JSC_DEFINE_HOST_FUNCTION(functionAssertEnabled, (JSGlobalObject*, CallFrame*))
@@ -4564,6 +4604,9 @@ void JSDollarVM::finishCreation(VM& vm)
     addFunction(vm, allowIfNotFuzz, "icuVersion"_s, functionICUVersion, 0);
     addFunction(vm, allowIfNotFuzz, "icuMinorVersion"_s, functionICUMinorVersion, 0);
     addFunction(vm, allowIfNotFuzz, "icuHeaderVersion"_s, functionICUHeaderVersion, 0);
+    addFunction(vm, alwaysAllow, "setTimeZoneOverride"_s, functionSetTimeZoneOverride, 1);
+    addFunction(vm, alwaysAllow, "setHostTimeZoneForTesting"_s, functionSetHostTimeZoneForTesting, 1);
+    addFunction(vm, allowIfNotFuzz, "timeZoneDidChange"_s, functionTimeZoneDidChange, 0);
 
     addFunction(vm, alwaysAllow, "assertEnabled"_s, functionAssertEnabled, 0);
     addFunction(vm, alwaysAllow, "securityAssertEnabled"_s, functionSecurityAssertEnabled, 0);
