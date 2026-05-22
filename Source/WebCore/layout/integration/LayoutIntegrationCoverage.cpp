@@ -352,6 +352,15 @@ bool canUseForPreferredWidthComputation(const RenderBlockFlow& blockContainer)
         if (isFullySupportedInFlowRenderer)
             continue;
 
+        if (CheckedPtr renderBlock = dynamicDowncast<RenderBlock>(renderer.get()); renderBlock && renderBlock->isAtomicInlineLevelBox() && !renderBlock->firstChild()) {
+            if (renderBlock->style().usedAppearance() != StyleAppearance::None || (renderBlock->element() && renderBlock->element()->firstChild())) {
+                // FIXME: Various widgets with or without appearance.
+                // Dynamic content change (e.g. adding/removing select options) needs to dirty inlineContentCache.
+                return false;
+            }
+            continue;
+        }
+
         CheckedRef unsupportedRenderElement = downcast<RenderElement>(renderer.get());
         if (!unsupportedRenderElement->writingMode().isHorizontal() || !unsupportedRenderElement->style().logicalWidth().isFixed())
             return false;
