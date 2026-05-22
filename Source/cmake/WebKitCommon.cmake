@@ -80,7 +80,7 @@ if (NOT HAS_RUN_WEBKIT_COMMON)
 
     list(FIND ALL_PORTS ${PORT} RET)
     if (${RET} EQUAL -1)
-        if (APPLE)
+        if (APPLE AND PORT STREQUAL "NOPORT")
             set(PORT "Mac" CACHE STRING "choose which WebKit port to build (one of ${ALL_PORTS})" FORCE)
         else ()
             message(FATAL_ERROR "Please choose which WebKit port to build (one of ${ALL_PORTS})")

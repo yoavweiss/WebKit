@@ -48,7 +48,6 @@ list(APPEND JavaScriptCore_PUBLIC_FRAMEWORK_HEADERS
 )
 
 list(APPEND JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
-    API/JSCallbackFunction.h
     API/JSContextPrivate.h
     API/JSContextRefPrivate.h
     API/JSValuePrivate.h
@@ -170,9 +169,7 @@ if (NOT EXISTS "${_jsc_fw}/Modules")
     file(CREATE_LINK "${CMAKE_BINARY_DIR}/JavaScriptCore/Modules"
                      "${_jsc_fw}/Modules" SYMBOLIC)
 endif ()
-# Empty private modulemap prevents stale SDK JSC_Private module resolution.
-file(WRITE "${CMAKE_BINARY_DIR}/JavaScriptCore/Modules/module.private.modulemap"
-"framework module JavaScriptCore_Private [system] {
-}
-")
+
+configure_file("${JAVASCRIPTCORE_DIR}/JavaScriptCore_Private.modulemap"
+               "${CMAKE_BINARY_DIR}/JavaScriptCore/Modules/module.private.modulemap" COPYONLY)
 unset(_jsc_fw)

@@ -117,6 +117,12 @@ if (SWIFT_REQUIRED AND NOT (PORT STREQUAL GTK OR PORT STREQUAL WPE))
     if (NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
         list(APPEND PAL_SWIFT_EXTRA_OPTIONS "-Xcc" "-I${CMAKE_BINARY_DIR}/ICU/Headers")
     endif ()
+    if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
+        # iOS Swift compiles transitively load UIKit→UIKitCore→WebKit_Private,
+        # whose PCM build needs our project -Xcc flags. Explicit modules let
+        # libSwiftScan pre-build PCMs with the right context.
+        set(PAL_SWIFT_EXPLICIT_MODULE_BUILD TRUE)
+    endif ()
 
     WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER(PAL pal
         "${PAL_FRAMEWORK_HEADERS_DIR}/pal"

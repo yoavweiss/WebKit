@@ -6,6 +6,9 @@ list(APPEND WebKitLegacy_PRIVATE_LIBRARIES
     ${UIKIT_LIBRARY}
 )
 
+target_compile_options(WebKitLegacy PRIVATE
+    "$<$<COMPILE_LANGUAGE:OBJC>:-std=gnu99>")
+
 set(BUNDLE_VERSION "${MACOSX_FRAMEWORK_BUNDLE_VERSION}")
 set(SHORT_VERSION_STRING "${WEBKIT_MAC_VERSION}")
 set(PRODUCT_NAME "WebKitLegacy")
@@ -28,12 +31,22 @@ target_link_options(WebKitLegacy PRIVATE
 )
 
 target_link_options(WebKitLegacy PRIVATE
-    -unexported_symbols_list ${WEBKITLEGACY_DIR}/WebKitLegacy-iOS-unexported.exp
+    -exported_symbols_list ${WEBKITLEGACY_DIR}/WebKitLegacy-iOS.exp
 )
 
-# FIXME: Generate exported symbols list. https://bugs.webkit.org/show_bug.cgi?id=312083
+# FIXME: Generate this list dynamically (from `tapi reexport` against the
+# migrated WebCore headers + ios/WebKit.iOS.exp + mac/WebKit.exp) instead of
+# relying on a static snapshot. https://bugs.webkit.org/show_bug.cgi?id=312083
+# WebKitLegacy-iOS-unexported.exp is no longer applied: -exported_symbols_list
+# is a whitelist, so any symbol not in WebKitLegacy-iOS.exp is implicitly
+# unexported. ld errors if both lists are passed. Note: `-undefined
+# dynamic_lookup` is rejected by ld for shared-cache-eligible dylibs, so
+# stale entries in the snapshot must be removed by hand until the dynamic
+# generation lands.
 
 list(APPEND WebKitLegacy_PRIVATE_INCLUDE_DIRECTORIES
+    "${WEBKITLEGACY_DIR}/Modules"
+
     "${WEBKITLEGACY_DIR}/ios"
 
     "${WEBKITLEGACY_DIR}/ios/DefaultDelegates"
@@ -44,6 +57,7 @@ list(APPEND WebKitLegacy_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBKITLEGACY_DIR}/mac/DOM"
     "${WEBKITLEGACY_DIR}/mac/DefaultDelegates"
     "${WEBKITLEGACY_DIR}/mac/History"
+    "${WEBKITLEGACY_DIR}/mac/Panels"
     "${WEBKITLEGACY_DIR}/mac/Plugins"
     "${WEBKITLEGACY_DIR}/mac/Storage"
     "${WEBKITLEGACY_DIR}/mac/WebInspector"
@@ -185,6 +199,15 @@ set(WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES
     ${WEBCORE_DIR}/platform/ios/wak/WKContentObservation.h
     ${WEBCORE_DIR}/platform/ios/wak/WKGraphics.h
     ${WEBCORE_DIR}/platform/ios/wak/WKTypes.h
+
+    ${WEBCORE_DIR}/platform/ios/AbstractPasteboard.h
+    ${WEBCORE_DIR}/platform/ios/KeyEventCodesIOS.h
+    ${WEBCORE_DIR}/platform/ios/WebEvent.h
+    ${WEBCORE_DIR}/page/ios/WebEventRegion.h
+    ${WEBCORE_DIR}/platform/ios/WebItemProviderPasteboard.h
+    ${WEBCORE_DIR}/platform/ios/wak/WebCoreThread.h
+    ${WEBCORE_DIR}/platform/ios/wak/WebCoreThreadMessage.h
+    ${WEBCORE_DIR}/platform/ios/wak/WebCoreThreadRun.h
 
     mac/DOM/DOM.h
     mac/DOM/DOMAbstractView.h
@@ -596,6 +619,7 @@ list(APPEND WebKitLegacy_PUBLIC_FRAMEWORK_HEADERS
     ${WEBCORE_DIR}/platform/ios/AbstractPasteboard.h
     ${WEBCORE_DIR}/platform/ios/KeyEventCodesIOS.h
     ${WEBCORE_DIR}/platform/ios/WebEvent.h
+    ${WEBCORE_DIR}/page/ios/WebEventRegion.h
     ${WEBCORE_DIR}/platform/ios/WebItemProviderPasteboard.h
     ${WEBCORE_DIR}/platform/ios/wak/WAKAppKitStubs.h
     ${WEBCORE_DIR}/platform/ios/wak/WAKResponder.h
@@ -608,13 +632,23 @@ list(APPEND WebKitLegacy_PUBLIC_FRAMEWORK_HEADERS
     ${WEBCORE_DIR}/platform/ios/wak/WebCoreThreadMessage.h
     ${WEBCORE_DIR}/platform/ios/wak/WebCoreThreadRun.h
 
+    ios/Misc/WebGeolocationCoreLocationProvider.h
+    ios/Misc/WebGeolocationProviderIOS.h
+    ios/Misc/WebNSStringExtrasIOS.h
+    ios/Misc/WebNSStringExtrasIPhone.h
     ios/Misc/WebUIKitSupport.h
 
+    ios/WebCoreSupport/WebCaretChangeListener.h
     ios/WebCoreSupport/WebFixedPositionContent.h
     ios/WebCoreSupport/WebFrameIOS.h
+    ios/WebCoreSupport/WebFrameIPhone.h
+    ios/WebCoreSupport/WebGeolocationPrivate.h
+    ios/WebCoreSupport/WebMIMETypeRegistry.h
     ios/WebCoreSupport/WebSelectionRect.h
     ios/WebCoreSupport/WebVisiblePosition.h
 
+    ios/WebView/WebPDFViewIOS.h
+    ios/WebView/WebPDFViewIPhone.h
     ios/WebView/WebPDFViewPlaceholder.h
     ios/WebView/WebUIKitDelegate.h
 
@@ -760,61 +794,291 @@ list(APPEND WebKitLegacy_PUBLIC_FRAMEWORK_HEADERS
     mac/WebView/WebViewPrivate.h
 )
 
-set(C99_FILES
-    ios/DefaultDelegates/WebDefaultFormDelegate.m
-    ios/DefaultDelegates/WebDefaultFrameLoadDelegate.m
-    ios/DefaultDelegates/WebDefaultResourceLoadDelegate.m
-    ios/DefaultDelegates/WebDefaultUIKitDelegate.m
-
-    ios/Misc/WebNSStringExtrasIOS.m
-
-    ios/WebCoreSupport/WebSelectionRect.m
-
-    ios/WebView/WebFrameViewWAKCompatibility.m
-
-    mac/DefaultDelegates/WebDefaultEditingDelegate.m
-
-    mac/Misc/WebKitErrors.m
-    mac/Misc/WebKitLogging.m
-    mac/Misc/WebKitStatistics.m
-    mac/Misc/WebNSDictionaryExtras.m
-    mac/Misc/WebNSURLRequestExtras.m
-
-    mac/WebView/WebFeature.m
-    mac/WebView/WebFormDelegate.m
+# Headers in WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES that are not part of
+# the iOS WebKitLegacy.framework Copy Headers phase in pbxproj. Mac-only files
+# (WebClipView, WebDynamicScrollBarsView, NSWindow extras, plugin packages,
+# AppKit panels, ...) and project-internal types (DOM*Internal.h, Web*Client.h,
+# Web*Internal.h pairs) come along for the ride in the cmake list because the
+# upstream forwarding-header recipe is shared with Mac. Restoring upstream
+# WebKitLegacy.private.modulemap (umbrella "PrivateHeaders" + module *) requires
+# this set to match Xcode's iOS WebKitLegacy.framework/PrivateHeaders/ exactly --
+# otherwise the umbrella's auto-discovered submodules try to compile Mac-only
+# headers and cycle through WebKit. https://bugs.webkit.org/show_bug.cgi?id=312083
+set(_wkl_excluded_for_ios
+    BackForwardList.h
+    BinaryPropertyList.h
+    CorrectionPanel.h
+    DOMAbstractViewFrame.h
+    DOMAbstractViewInternal.h
+    DOMAttrInternal.h
+    DOMBlobInternal.h
+    DOMCDATASectionInternal.h
+    DOMCSSPrimitiveValueInternal.h
+    DOMCSSRuleInternal.h
+    DOMCSSRuleListInternal.h
+    DOMCSSStyleDeclarationInternal.h
+    DOMCSSStyleSheetInternal.h
+    DOMCSSValueInternal.h
+    DOMCommentInternal.h
+    DOMCounterInternal.h
+    DOMCustomXPathNSResolver.h
+    DOMDocumentFragmentInternal.h
+    DOMDocumentInternal.h
+    DOMDocumentTypeInternal.h
+    DOMElementInternal.h
+    DOMEventInternal.h
+    DOMFileInternal.h
+    DOMFileListInternal.h
+    DOMHTMLAreaElementInternal.h
+    DOMHTMLCollectionInternal.h
+    DOMHTMLDocumentInternal.h
+    DOMHTMLElementInternal.h
+    DOMHTMLFormElementInternal.h
+    DOMHTMLHeadElementInternal.h
+    DOMHTMLImageElementInternal.h
+    DOMHTMLInputElementInternal.h
+    DOMHTMLLinkElementInternal.h
+    DOMHTMLOptionElementInternal.h
+    DOMHTMLOptionsCollectionInternal.h
+    DOMHTMLScriptElementInternal.h
+    DOMHTMLSelectElementInternal.h
+    DOMHTMLStyleElementInternal.h
+    DOMHTMLTableCaptionElementInternal.h
+    DOMHTMLTableCellElementInternal.h
+    DOMHTMLTableColElementInternal.h
+    DOMHTMLTableSectionElementInternal.h
+    DOMHTMLTextAreaElementInternal.h
+    DOMImplementationInternal.h
+    DOMInternal.h
+    DOMMediaErrorInternal.h
+    DOMMediaListInternal.h
+    DOMNamedNodeMapInternal.h
+    DOMNodeInternal.h
+    DOMNodeIteratorInternal.h
+    DOMNodeListInternal.h
+    DOMProcessingInstructionInternal.h
+    DOMRGBColorInternal.h
+    DOMRangeInternal.h
+    DOMRectInternal.h
+    DOMStyleSheetInternal.h
+    DOMStyleSheetListInternal.h
+    DOMTextInternal.h
+    DOMTimeRangesInternal.h
+    DOMTokenList.h
+    DOMTokenListInternal.h
+    DOMTreeWalkerInternal.h
+    DOMWheelEventInternal.h
+    DOMXPathExpressionInternal.h
+    DOMXPathResultInternal.h
+    ExceptionHandlers.h
+    HistoryPropertyList.h
+    ObjCEventListener.h
+    ObjCNodeFilterCondition.h
+    PopupMenuMac.h
+    SearchPopupMenuMac.h
+    WebAlternativeTextClient.h
+    WebApplicationCache.h
+    WebApplicationCacheInternal.h
+    WebApplicationCacheQuotaManager.h
+    WebArchiveInternal.h
+    WebAuthenticationPanel.h
+    WebBackForwardListInternal.h
+    WebBasePluginPackage.h
+    WebChromeClient.h
+    WebClipView.h
+    WebContextMenuClient.h
+    WebDOMOperationsInternal.h
+    WebDataSourceInternal.h
+    WebDatabaseManagerClient.h
+    WebDatabaseManagerInternal.h
+    WebDefaultContextMenuDelegate.h
+    WebDefaultEditingDelegate.h
+    WebDefaultUIDelegate.h
+    WebDelegateImplementationCaching.h
+    WebDeviceOrientationInternal.h
+    WebDeviceOrientationProviderMockInternal.h
+    WebDocumentInternal.h
+    WebDocumentLoaderMac.h
+    WebDragClient.h
+    WebDynamicScrollBarsView.h
+    WebDynamicScrollBarsViewInternal.h
+    WebEditorClient.h
+    WebElementDictionary.h
+    WebFrameInternal.h
+    WebFrameLoaderClient.h
+    WebFrameNetworkingContext.h
+    WebFrameViewInternal.h
+    WebFullScreenController.h
+    WebGeolocationClient.h
+    WebGeolocationPositionInternal.h
+    WebHTMLViewInternal.h
+    WebHistoryDelegate.h
+    WebHistoryInternal.h
+    WebHistoryItemInternal.h
+    WebIconDatabase.h
+    WebImmediateActionController.h
+    WebIndicateLayer.h
+    WebInspectorClient.h
+    WebInspectorFrontend.h
+    WebJSPDFDoc.h
+    WebJavaScriptTextInputPanel.h
+    WebKitFullScreenListener.h
+    WebKitLogging.h
+    WebKitStatisticsPrivate.h
+    WebKitVersionChecks.h
+    WebLocalizableStringsInternal.h
+    WebMediaPlaybackTargetPicker.h
+    WebNSControlExtras.h
+    WebNSDataExtras.h
+    WebNSDictionaryExtras.h
+    WebNSEventExtras.h
+    WebNSImageExtras.h
+    WebNSObjectExtras.h
+    WebNSPasteboardExtras.h
+    WebNSPrintOperationExtras.h
+    WebNSURLRequestExtras.h
+    WebNSWindowExtras.h
+    WebNodeHighlight.h
+    WebNodeHighlightView.h
+    WebNodeHighlighter.h
+    WebNotificationClient.h
+    WebNotificationInternal.h
+    WebOpenPanelResultListener.h
+    WebPDFDocumentExtras.h
+    WebPDFRepresentation.h
+    WebPDFView.h
+    WebPanelAuthenticationHandler.h
+    WebPaymentCoordinatorClient.h
+    WebPlatformStrategies.h
+    WebPluginContainerCheck.h
+    WebPluginController.h
+    WebPluginInfoProvider.h
+    WebPluginPackage.h
+    WebProgressTrackerClient.h
+    WebResourceInternal.h
+    WebScriptDebugger.h
+    WebScriptWorldInternal.h
+    WebSecurityOriginInternal.h
+    WebSelectionServiceController.h
+    WebSharingServicePickerController.h
+    WebStorageManagerInternal.h
+    WebStorageTrackerClient.h
+    WebStringTruncator.h
+    WebTextCompletionController.h
+    WebValidationMessageClient.h
+    WebVideoFullscreenController.h
+    WebViewData.h
+    WebViewInternal.h
+    WebVisitedLinkStore.h
+    WebWindowAnimation.h
 )
 
-set(CPP_FILES
-    Storage/StorageThread.cpp
+# Apply the same exclusion to WebKitLegacy_PUBLIC_FRAMEWORK_HEADERS, which is
+# what WEBKIT_COPY_FILES(WebKitLegacy_CopyHeaders) in CMakeLists.txt actually
+# stages. (The foreach below adds forwarding stubs in addition to the copies.)
+set(_wkl_filtered "")
+foreach (_path IN LISTS WebKitLegacy_PUBLIC_FRAMEWORK_HEADERS)
+    get_filename_component(_pathname "${_path}" NAME)
+    if (NOT _pathname IN_LIST _wkl_excluded_for_ios)
+        list(APPEND _wkl_filtered "${_path}")
+    endif ()
+endforeach ()
+set(WebKitLegacy_PUBLIC_FRAMEWORK_HEADERS ${_wkl_filtered})
+unset(_wkl_filtered)
+unset(_pathname)
 
-    cf/WebCoreSupport/WebInspectorClientCF.cpp
+# Source/ThirdParty/unifdef/CMakeLists.txt seeds UNIFDEF_EXECUTABLE to a
+# build-tree path that doesn't exist yet on first configure; find_program
+# short-circuits on a set cache var, so re-find from /usr/bin if stale.
+if (UNIFDEF_EXECUTABLE AND NOT EXISTS "${UNIFDEF_EXECUTABLE}")
+    unset(UNIFDEF_EXECUTABLE CACHE)
+endif ()
+find_program(UNIFDEF_EXECUTABLE unifdef
+    HINTS /usr/bin
+    DOC "unifdef tool used by postprocess-header-rule"
+    REQUIRED)
+# Configure-time scratch dir for the migrate+postprocess pipeline. Must
+# exist before the foreach below writes its temporary input/output files.
+set(_wkl_migrate_tmp_dir "${CMAKE_BINARY_DIR}/WebKitLegacy/_migrate_tmp")
+file(MAKE_DIRECTORY "${_wkl_migrate_tmp_dir}")
 
-    ios/WebCoreSupport/SearchPopupMenuIOS.cpp
-
-    mac/History/BinaryPropertyList.cpp
-)
-
-foreach (_file ${WebKitLegacy_SOURCES})
-    list(FIND C99_FILES ${_file} _c99_index)
-    list(FIND CPP_FILES ${_file} _cpp_index)
-    if (NOT ${_c99_index} EQUAL -1)
-        set_source_files_properties(${_file} PROPERTIES COMPILE_FLAGS -std=c99)
-    elseif (NOT ${_cpp_index} EQUAL -1)
-        set_source_files_properties(${_file} PROPERTIES COMPILE_FLAGS -std=c++2b)
+# unifdef flags mirror Source/WebKitLegacy/scripts/postprocess-header-rule.
+# WK_PLATFORM_NAME = iphonesimulator | iphoneos. CMAKE_OSX_SYSROOT distinguishes.
+if (CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator")
+    set(_wkl_unifdef_args -B -DTARGET_OS_IPHONE=1 -DTARGET_OS_SIMULATOR=1 -DUSE_APPLE_INTERNAL_SDK=1)
+else ()
+    set(_wkl_unifdef_args -B -DTARGET_OS_IPHONE=1 -DTARGET_OS_SIMULATOR=0 -DUSE_APPLE_INTERNAL_SDK=1)
+endif ()
+# ENABLE_TOUCH_EVENTS / ENABLE_IOS_GESTURE_EVENTS: postprocess uses 0 / 1
+# depending on the env value being non-empty. Mirror via cmake variable check.
+foreach (_feat ENABLE_TOUCH_EVENTS ENABLE_IOS_GESTURE_EVENTS)
+    if (${_feat})
+        list(APPEND _wkl_unifdef_args "-D${_feat}=1")
     else ()
-        set_source_files_properties(${_file} PROPERTIES COMPILE_FLAGS "-ObjC++ -std=c++2b")
+        list(APPEND _wkl_unifdef_args "-D${_feat}=0")
     endif ()
 endforeach ()
 
 foreach (_file ${WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES})
     get_filename_component(_name "${_file}" NAME)
+    if (_name IN_LIST _wkl_excluded_for_ios)
+        continue ()
+    endif ()
     set(_target_filename "${WebKitLegacy_FRAMEWORK_HEADERS_DIR}/WebKitLegacy/${_name}")
-    if (NOT EXISTS ${_target_filename})
-        if (IS_ABSOLUTE "${_file}")
-            file(WRITE ${_target_filename} "#import \"${_file}\"")
-        else ()
-            file(WRITE ${_target_filename} "#import \"${CMAKE_CURRENT_SOURCE_DIR}/${_file}\"")
-        endif ()
+    if (IS_ABSOLUTE "${_file}")
+        set(_src_path "${_file}")
+    else ()
+        set(_src_path "${CMAKE_CURRENT_SOURCE_DIR}/${_file}")
+    endif ()
+    # Stage 1 -- migrate-header-rule:
+    #   sed -E -e 's/<WebCore\//<WebKitLegacy\//' -e 's/(^ *)WEBCORE_EXPORT /\1/'
+    # Mac-only `<WebCore/...>` imports become `<WebKitLegacy/...>` because Xcode
+    # also re-stages those WebCore headers under the WebKitLegacy framework.
+    # Stripping WEBCORE_EXPORT avoids the macro being undefined in the consumer's
+    # parse context. The prior `#import "/abs/path/source.h"` stub form pulled
+    # the original Mac source straight in and exposed Mac-only macros to iOS.
+    file(READ "${_src_path}" _migrated)
+    string(REPLACE "<WebCore/" "<WebKitLegacy/" _migrated "${_migrated}")
+    # `(^ *)WEBCORE_EXPORT ` from the sed rule -- multi-line, line-anchored.
+    # CMake's REGEX REPLACE treats the input as a single string with `^` matching
+    # only the very start, so use explicit `\n` plus a separate pass for the first line.
+    string(REGEX REPLACE "(\n[ \t]*)WEBCORE_EXPORT " "\\1" _migrated "${_migrated}")
+    string(REGEX REPLACE "^([ \t]*)WEBCORE_EXPORT " "\\1" _migrated "${_migrated}")
+    # Stage 2 -- postprocess-header-rule:
+    # 2a. Strip `WEBKIT_*_MAC(...)` annotations (non-mac, non-WebKitAvailability.h).
+    #     The macros aren't defined on iOS, so leaving them in source-style headers
+    #     produces ObjC `@property has a previous declaration` errors when the
+    #     migrated copy and the original are both reachable in a unified build TU
+    #     (mac/DOM/X.mm `#import "X.h"` -> source; chain via DOMPrivate.h ->
+    #     `<WebKitLegacy/X.h>` -> migrated; both parse).
+    if (NOT _name STREQUAL "WebKitAvailability.h")
+        string(REGEX REPLACE " *WEBKIT_(CLASS_|ENUM_)?(AVAILABLE|DEPRECATED)_MAC\\([^)]+\\)" "" _migrated "${_migrated}")
+    endif ()
+    # 2b. unifdef: strip `#if TARGET_OS_IPHONE` / etc branches. Run via
+    # stdin/stdout to avoid an intermediate file. Exit codes 0 and 1 are
+    # success (1 = file was modified); 2+ are errors.
+    set(_unifdef_input "${_wkl_migrate_tmp_dir}/in_${_name}")
+    set(_unifdef_output "${_wkl_migrate_tmp_dir}/out_${_name}")
+    file(WRITE "${_unifdef_input}" "${_migrated}")
+    execute_process(
+        COMMAND "${UNIFDEF_EXECUTABLE}" ${_wkl_unifdef_args} -o "${_unifdef_output}" "${_unifdef_input}"
+        RESULT_VARIABLE _unifdef_rc
+        OUTPUT_VARIABLE _unifdef_stdout
+        ERROR_VARIABLE _unifdef_stderr
+    )
+    if (_unifdef_rc GREATER 1)
+        message(FATAL_ERROR "unifdef rc=${_unifdef_rc} for ${_src_path}\nstdout: ${_unifdef_stdout}\nstderr: ${_unifdef_stderr}")
+    endif ()
+    file(READ "${_unifdef_output}" _migrated)
+    file(REMOVE "${_unifdef_input}" "${_unifdef_output}")
+
+    set(_existing "")
+    if (EXISTS "${_target_filename}")
+        file(READ "${_target_filename}" _existing)
+    endif ()
+    if (NOT _existing STREQUAL _migrated)
+        file(REMOVE "${_target_filename}")
+        file(WRITE "${_target_filename}" "${_migrated}")
     endif ()
 endforeach ()
 
@@ -835,8 +1099,69 @@ endif ()
 
 configure_file(${WEBKITLEGACY_DIR}/Modules/WebKitLegacy.modulemap
                ${_wkl_fw}/Modules/module.modulemap COPYONLY)
-# Empty private modulemap — PrivateHeaders include macOS-only headers.
-file(WRITE "${_wkl_fw}/Modules/module.private.modulemap"
+set(_wkl_modulemap_body "")
+foreach (_file ${WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES})
+    get_filename_component(_name "${_file}" NAME)
+    if (_name IN_LIST _wkl_excluded_for_ios)
+        continue ()
+    endif ()
+    string(APPEND _wkl_modulemap_body "    header \"${_name}\"\n")
+endforeach ()
+string(APPEND _wkl_modulemap_body "    header \"WorkAround173516139.h\"\n")
+file(WRITE ${_wkl_fw}/Modules/module.private.modulemap
 "framework module WebKitLegacy [system] {
+${_wkl_modulemap_body}    export *
 }
 ")
+unset(_wkl_modulemap_body)
+configure_file(${WEBKITLEGACY_DIR}/Modules/WorkAround173516139.h
+               ${WebKitLegacy_FRAMEWORK_HEADERS_DIR}/WebKitLegacy/WorkAround173516139.h
+               COPYONLY)
+
+# Generate a clang VFS overlay for WebKitLegacy's own ObjC++ build, mirroring
+# what Xcode emits at WebKitLegacy.build/.../*-VFS-iphonesimulator/all-product-headers.yaml.
+# When WebKitLegacy.mm files compile, both the local `#import "X.h"` (resolved
+# to Source/WebKitLegacy/mac/.../X.h) and `#import <WebKitLegacy/X.h>` (resolved
+# via -F to WebKitLegacy.framework/PrivateHeaders/X.h, the migrated copy) end up
+# parsing two paths whose @property declarations clang treats as a redeclaration
+# (`property has previous declaration`) -- even when content is byte-identical
+# after preprocessing. The overlay redirects PrivateHeaders/X.h *at compile
+# time* to the source path, so both routes point to the same inode and clang's
+# `#import` dedupes. The on-disk migrated copy is kept for installhdrs / clients
+# that import the SDK directly.
+set(_wkl_vfs "${CMAKE_BINARY_DIR}/WebKitLegacy-vfs-overlay.yaml")
+set(_wkl_vfs_modules_entries "")
+list(APPEND _wkl_vfs_modules_entries
+    "{\"type\":\"file\",\"name\":\"module.modulemap\",\"external-contents\":\"${_wkl_fw}/Modules/module.modulemap\"}"
+    "{\"type\":\"file\",\"name\":\"module.private.modulemap\",\"external-contents\":\"${_wkl_fw}/Modules/module.private.modulemap\"}"
+)
+set(_wkl_vfs_headers_entries "")
+foreach (_file ${WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES})
+    get_filename_component(_name "${_file}" NAME)
+    if (_name IN_LIST _wkl_excluded_for_ios)
+        continue ()
+    endif ()
+    if (IS_ABSOLUTE "${_file}")
+        set(_src "${_file}")
+    else ()
+        set(_src "${CMAKE_CURRENT_SOURCE_DIR}/${_file}")
+    endif ()
+    list(APPEND _wkl_vfs_headers_entries
+        "{\"type\":\"file\",\"name\":\"${_name}\",\"external-contents\":\"${_src}\"}"
+    )
+endforeach ()
+list(JOIN _wkl_vfs_modules_entries "," _wkl_vfs_modules_str)
+list(JOIN _wkl_vfs_headers_entries "," _wkl_vfs_headers_str)
+file(WRITE "${_wkl_vfs}"
+"{\"case-sensitive\":\"false\",\"version\":0,\"roots\":[\
+{\"type\":\"directory\",\"name\":\"${_wkl_fw}/Modules\",\"contents\":[${_wkl_vfs_modules_str}]},\
+{\"type\":\"directory\",\"name\":\"${_wkl_fw}/PrivateHeaders\",\"contents\":[${_wkl_vfs_headers_str}]},\
+{\"type\":\"directory\",\"name\":\"${WebKitLegacy_FRAMEWORK_HEADERS_DIR}/WebKitLegacy\",\"contents\":[${_wkl_vfs_headers_str}]}\
+]}\n")
+target_compile_options(WebKitLegacy PRIVATE
+    "$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:SHELL:-ivfsoverlay ${_wkl_vfs}>")
+unset(_wkl_vfs)
+unset(_wkl_vfs_modules_entries)
+unset(_wkl_vfs_modules_str)
+unset(_wkl_vfs_headers_entries)
+unset(_wkl_vfs_headers_str)

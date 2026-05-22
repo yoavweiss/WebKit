@@ -61,6 +61,13 @@ find_package(LibXml2 2.8.0 REQUIRED)
 find_package(LibXslt 1.1.13 REQUIRED)
 find_package(Threads REQUIRED)
 
+# Strip ${SDK}/usr/include from these imported targets; reachable via -isysroot.
+foreach (_t SQLite::SQLite3 LibXml2::LibXml2 LibXslt::LibXslt LibXslt::LibExslt)
+    if (TARGET ${_t})
+        set_target_properties(${_t} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "")
+    endif ()
+endforeach ()
+
 string(REGEX MATCH "^[0-9]+" _sdk_major "${_sdk_version}")
 set(_additions_candidates
     "${CMAKE_SOURCE_DIR}/WebKitLibraries/SDKs/${_sdk_prefix}${_sdk_major}.0-additions.sdk/usr/local/include"

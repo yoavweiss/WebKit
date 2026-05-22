@@ -29,6 +29,11 @@
 
 #include <wtf/Forward.h>
 
+#if PLATFORM(COCOA)
+#include <CoreFoundation/CFString.h>
+#include <wtf/RetainPtr.h>
+#endif
+
 #ifdef __OBJC__
 #include <wtf/Platform.h>
 #include <wtf/cocoa/TypeCastsCocoa.h>

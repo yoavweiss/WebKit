@@ -49,9 +49,6 @@
 #include <wtf/text/StringBuilder.h>
 #include <wtf/text/TextStream.h>
 
-#include <pal/cf/CoreMediaSoftLink.h>
-#include <pal/cocoa/AVFoundationSoftLink.h>
-
 #import <AVFoundation/AVFoundation.h>
 #import <QuartzCore/QuartzCore.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>

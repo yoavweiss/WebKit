@@ -102,7 +102,7 @@ WEBKIT_OPTION_END()
 SET_AND_EXPOSE_TO_BUILD(ENABLE_BACK_FORWARD_LIST_SWIFT OFF)
 
 include(WebKitXcrun)
-if (CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator")
+if (CMAKE_IOS_SIMULATOR OR CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator")
     WEBKIT_RESOLVE_SDK(iphonesimulator.internal iphonesimulator)
     set(WEBKIT_PLATFORM_NAME "iPhoneSimulator")
     set(_sdk_prefix "iphonesimulator")
@@ -123,6 +123,11 @@ enable_language(OBJC OBJCXX)
 
 find_package(ZLIB REQUIRED)
 
+# Strip ${SDK}/usr/include from ZLIB::ZLIB; reachable via -isysroot.
+if (TARGET ZLIB::ZLIB)
+    set_target_properties(ZLIB::ZLIB PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "")
+endif ()
+
 set(WebKit_LIBRARY_TYPE SHARED)
 
 set(bmalloc_LIBRARY_TYPE OBJECT)
@@ -134,30 +139,20 @@ set(_wka_compile_paths
     "${CMAKE_SOURCE_DIR}/WebKitBuild/Debug/usr/local/include"
     "${CMAKE_SOURCE_DIR}/WebKitBuild/Release/usr/local/include"
 )
-set(_wka_found FALSE)
 foreach (_wka_path IN LISTS _wka_compile_paths)
-    if (EXISTS "${_wka_path}/WebKitAdditions" AND NOT _wka_found)
+    if (EXISTS "${_wka_path}/WebKitAdditions" AND NOT WEBKIT_ADDITIONS_COMPILE_PATH)
         add_compile_options("$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-isystem${_wka_path}>")
         set(WEBKIT_ADDITIONS_COMPILE_PATH "${_wka_path}" CACHE PATH "WebKitAdditions compile include path" FORCE)
         message(STATUS "WebKitAdditions (compile): ${_wka_path}")
-        set(_wka_found TRUE)
     endif ()
 endforeach ()
-if (NOT _wka_found)
-    message(WARNING "WebKitAdditions not found -- SPI headers referencing Additions will fail")
-endif ()
 unset(_wka_compile_paths)
-unset(_wka_found)
 
 if (CMAKE_OSX_SYSROOT)
     add_link_options("-F${CMAKE_OSX_SYSROOT}/System/Library/Frameworks")
     add_link_options("-F${CMAKE_OSX_SYSROOT}/System/Library/PrivateFrameworks")
     add_compile_options("$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Fsystem ${CMAKE_OSX_SYSROOT}/System/Library/PrivateFrameworks>")
     set(WEBKIT_PRIVATE_FRAMEWORKS_COMPILE_FLAG "$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-iframework${CMAKE_OSX_SYSROOT}/System/Library/PrivateFrameworks>")
-    if (EXISTS "${CMAKE_OSX_SYSROOT}/usr/local/include")
-        add_compile_options("$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-isystem${CMAKE_OSX_SYSROOT}/usr/local/include>")
-        add_compile_options("$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -isystem${CMAKE_OSX_SYSROOT}/usr/local/include>")
-    endif ()
 endif ()
 
 # Export macros must be predefined for Swift explicit-module builds (no prefix headers).
@@ -219,18 +214,11 @@ if (ENABLE_SANITIZERS)
 endif ()
 
 set(IOS_DEPLOYMENT_TARGET "${CMAKE_OSX_DEPLOYMENT_TARGET}" CACHE STRING "" FORCE)
-if (CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator")
+if (CMAKE_IOS_SIMULATOR OR CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator")
     set(PLATFORM_NAME "iPhoneSimulator" CACHE STRING "" FORCE)
-    set(_swift_os_suffix "-simulator")
 else ()
     set(PLATFORM_NAME "iPhoneOS" CACHE STRING "" FORCE)
-    set(_swift_os_suffix "")
 endif ()
-
-if (CMAKE_OSX_DEPLOYMENT_TARGET AND NOT CMAKE_Swift_COMPILER_TARGET)
-    set(CMAKE_Swift_COMPILER_TARGET "${CMAKE_SYSTEM_PROCESSOR}-apple-ios${CMAKE_OSX_DEPLOYMENT_TARGET}${_swift_os_suffix}" CACHE STRING "Swift target triple" FORCE)
-endif ()
-unset(_swift_os_suffix)
 
 set(CMAKE_BUILD_WITH_INSTALL_NAME_DIR ON)
 set(JavaScriptCore_INSTALL_NAME_DIR "/System/Library/Frameworks" CACHE STRING "" FORCE)
@@ -242,4 +230,17 @@ set(WebKitLegacy_INSTALL_NAME_DIR "/System/Library/PrivateFrameworks" CACHE STRI
 if (WEBKIT_ADDITIONS_INCLUDE_PATH AND EXISTS "${WEBKIT_ADDITIONS_INCLUDE_PATH}/WebKitAdditions/CMake/OptionsIOS.cmake")
     message(STATUS "WebKitAdditions CMake: ${WEBKIT_ADDITIONS_INCLUDE_PATH}/WebKitAdditions/CMake/OptionsIOS.cmake")
     include("${WEBKIT_ADDITIONS_INCLUDE_PATH}/WebKitAdditions/CMake/OptionsIOS.cmake")
+endif ()
+
+if (WEBKIT_ADDITIONS_COMPILE_PATH)
+    add_compile_options("$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -isystem${WEBKIT_ADDITIONS_COMPILE_PATH}>")
+endif ()
+
+if (CMAKE_OSX_SYSROOT AND EXISTS "${CMAKE_OSX_SYSROOT}/usr/local/include")
+    add_compile_options("$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-isystem${CMAKE_OSX_SYSROOT}/usr/local/include>")
+    add_compile_options("$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -isystem${CMAKE_OSX_SYSROOT}/usr/local/include>")
+endif ()
+
+if (NOT WEBKIT_ADDITIONS_COMPILE_PATH)
+    message(WARNING "WebKitAdditions not found -- SPI headers referencing Additions will fail")
 endif ()

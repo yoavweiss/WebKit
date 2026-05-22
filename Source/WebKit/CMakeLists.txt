@@ -830,8 +830,12 @@ endif ()
 
 set(WebKit_GENERATED_SERIALIZERS_SUFFIX cpp)
 
-# Default Swift interop module path; platform files may override this.
+# Default Swift interop module path; matches Xcode's WebKit.xcconfig:
+# SWIFT_INCLUDE_PATHS = $(SRCROOT)/Modules/Internal. Must remain Swift-only —
+# loading WebKit_Internal in a Clang context creates a second parse of the
+# WK*Private headers that conflicts with the WebKit_Private framework module.
 set(WebKit_SWIFT_INTEROP_MODULE_PATH "${WEBKIT_DIR}/Modules/Internal")
+set(WebKit_SWIFT_INTEROP_MODULE_PATH_SWIFT_ONLY TRUE)
 
 WEBKIT_FRAMEWORK_DECLARE(WebKit)
 WEBKIT_INCLUDE_CONFIG_FILES_IF_EXISTS()
@@ -853,7 +857,6 @@ set(WebKit_SWIFT_CLANG_INCLUDE_DIRS
     ${bmalloc_FRAMEWORK_HEADERS_DIR}
     ${PAL_FRAMEWORK_HEADERS_DIR}
     ${ICU_INCLUDE_DIRS}
-    ${WebKit_CMAKE_MODULEMAP_DIR}
     ${WebKit_PRIVATE_INCLUDE_DIRECTORIES}
 )
 

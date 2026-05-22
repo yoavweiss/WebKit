@@ -37,6 +37,8 @@
 
 namespace WebCore {
 
+WTF_MAKE_TZONE_ALLOCATED_IMPL(WebRTCVideoDecoderVTBVP9);
+
 static RetainPtr<CMVideoFormatDescriptionRef> createVP9FormatDescriptionFromData(std::span<const uint8_t> data, int32_t width, int32_t height)
 {
     auto parsedRecord = vPCodecConfigurationRecordFromVPXByteStream(VPXCodec::Vp9, data);

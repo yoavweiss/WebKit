@@ -77,7 +77,20 @@ for arg in "$@"; do
             REAL_SWIFTC="${arg#--original-swift-compiler=}"
             ;;
         "-D"*)
-            args+=("$arg" "-Xcc" "$arg")
+            # Propagate -D to both swiftc (Swift conditionals) and -Xcc -D
+            # (Clang importer). EXCEPT for cmake-build-mode defines that signal
+            # to our own headers we're building under cmake — propagating those
+            # to the Clang importer makes SDK framework PCMs (e.g. JSC's
+            # config.h) take their cmake-only branches and look for headers
+            # like cmakeconfig.h that don't exist in the SDK build context.
+            case "$arg" in
+                "-DBUILDING_WITH_CMAKE"*|"-DHAVE_CONFIG_H"*)
+                    args+=("$arg")
+                    ;;
+                *)
+                    args+=("$arg" "-Xcc" "$arg")
+                    ;;
+            esac
             ;;
         *)
             if [[ -n "$skip_next" ]]; then

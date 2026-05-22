@@ -11,10 +11,17 @@ function(WEBKIT_MAKE_HEADER_MAP _target _source_root _dirs_var)
     set(_result)
     set(_placeholder "@HMAP@")
     cmake_path(SET _root NORMALIZE "${_source_root}")
+    cmake_path(SET _build_root NORMALIZE "${CMAKE_BINARY_DIR}")
     foreach (_dir IN LISTS ${_dirs_var})
         cmake_path(SET _dir_n NORMALIZE "${_dir}")
-        cmake_path(IS_PREFIX _root "${_dir_n}" _under_root)
-        if (_under_root AND NOT "${_dir_n}" STREQUAL "${_root}")
+        cmake_path(IS_PREFIX _root "${_dir_n}" _under_source)
+        cmake_path(IS_PREFIX _build_root "${_dir_n}" _under_build)
+        # Source-tree dirs collapse fully into the hmap so basename + framework-style
+        # lookups short-circuit -I scans. Build-tree dirs (e.g. DerivedSources) must
+        # stay on -I because unified sources do `#include "inspector/Foo.cpp"` style
+        # subpath references that the basename hmap cannot resolve. Headers in those
+        # build-tree dirs still get scanned into the hmap so `<Framework/X.h>` works.
+        if (_under_source AND NOT "${_dir_n}" STREQUAL "${_root}")
             if (IS_DIRECTORY "${_dir}")
                 if (NOT _hmap_dirs)
                     list(APPEND _result "${_placeholder}")
@@ -23,6 +30,12 @@ function(WEBKIT_MAKE_HEADER_MAP _target _source_root _dirs_var)
             endif ()
         else ()
             list(APPEND _result "${_dir}")
+            if (_under_build AND IS_DIRECTORY "${_dir}")
+                if (NOT _hmap_dirs)
+                    list(APPEND _result "${_placeholder}")
+                endif ()
+                list(APPEND _hmap_dirs "${_dir}")
+            endif ()
         endif ()
     endforeach ()
 
@@ -37,7 +50,7 @@ function(WEBKIT_MAKE_HEADER_MAP _target _source_root _dirs_var)
 
     execute_process(
         COMMAND "${PYTHON_EXECUTABLE}" "${TOOLS_DIR}/Scripts/generate-header-map"
-                --dirs-file "${_dirs_file}" -o "${_hmap_file}"
+                --dirs-file "${_dirs_file}" --framework "${_target}" -o "${_hmap_file}"
         RESULT_VARIABLE _hmap_result
     )
     if (NOT _hmap_result EQUAL 0)

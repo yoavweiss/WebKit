@@ -29,11 +29,12 @@
 
 #include "VideoDecoderVTB.h"
 #include "WebRTCVideoDecoderVTB.h"
+#include <wtf/TZoneMalloc.h>
 
 namespace WebCore {
 
 class WebRTCVideoDecoderVTBAV1 final : public WebRTCVideoDecoderVTB {
-    WTF_MAKE_TZONE_ALLOCATED_INLINE(WebRTCVideoDecoderVTBAV1);
+    WTF_MAKE_TZONE_ALLOCATED(WebRTCVideoDecoderVTBAV1);
 public:
     explicit WebRTCVideoDecoderVTBAV1(WebRTCVideoDecoderCallback);
     ~WebRTCVideoDecoderVTBAV1() = default;

@@ -10,33 +10,38 @@ cmake_minimum_required(VERSION 3.20)
 
 if (PORT STREQUAL "IOS")
     set(CMAKE_SYSTEM_NAME iOS)
-    if (NOT CMAKE_OSX_SYSROOT)
-        if (DEFINED ENV{SDKROOT} AND EXISTS "$ENV{SDKROOT}")
-            set(CMAKE_OSX_SYSROOT "$ENV{SDKROOT}" CACHE PATH "iOS SDK path" FORCE)
+    if (CMAKE_IOS_SIMULATOR)
+        set(_sdk_name "iphonesimulator.internal")
+        set(_sdk_name_fallback "iphonesimulator")
+    else ()
+        set(_sdk_name "iphoneos.internal")
+        set(_sdk_name_fallback "iphoneos")
+    endif ()
+    execute_process(COMMAND xcrun --sdk ${_sdk_name} --show-sdk-path
+        OUTPUT_VARIABLE _ios_sysroot
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        RESULT_VARIABLE _internal_sdk_result
+        ERROR_QUIET)
+    if (NOT _internal_sdk_result EQUAL 0 OR NOT _ios_sysroot)
+        set(_ios_sysroot "")
+        if (CMAKE_OSX_SYSROOT AND EXISTS "${CMAKE_OSX_SYSROOT}")
+            set(_ios_sysroot "${CMAKE_OSX_SYSROOT}")
+        elseif (DEFINED ENV{SDKROOT} AND EXISTS "$ENV{SDKROOT}" AND "$ENV{SDKROOT}" MATCHES "iPhone")
+            set(_ios_sysroot "$ENV{SDKROOT}")
         else ()
-            if (CMAKE_IOS_SIMULATOR)
-                set(_sdk_name "iphonesimulator.internal")
-                set(_sdk_name_fallback "iphonesimulator")
-            else ()
-                set(_sdk_name "iphoneos.internal")
-                set(_sdk_name_fallback "iphoneos")
-            endif ()
-            execute_process(COMMAND xcrun --sdk ${_sdk_name} --show-sdk-path
+            execute_process(COMMAND xcrun --sdk ${_sdk_name_fallback} --show-sdk-path
                 OUTPUT_VARIABLE _ios_sysroot
                 OUTPUT_STRIP_TRAILING_WHITESPACE
-                RESULT_VARIABLE _internal_sdk_result
                 ERROR_QUIET)
-            if (NOT _internal_sdk_result EQUAL 0 OR NOT _ios_sysroot)
-                execute_process(COMMAND xcrun --sdk ${_sdk_name_fallback} --show-sdk-path
-                    OUTPUT_VARIABLE _ios_sysroot
-                    OUTPUT_STRIP_TRAILING_WHITESPACE
-                    ERROR_QUIET)
-            endif ()
-            if (_ios_sysroot)
-                set(CMAKE_OSX_SYSROOT "${_ios_sysroot}" CACHE PATH "iOS SDK path" FORCE)
-            endif ()
         endif ()
     endif ()
+    if (_ios_sysroot)
+        set(CMAKE_OSX_SYSROOT "${_ios_sysroot}" CACHE PATH "iOS SDK path" FORCE)
+    endif ()
+    unset(_sdk_name)
+    unset(_sdk_name_fallback)
+    unset(_internal_sdk_result)
+    unset(_ios_sysroot)
 
     if (NOT CMAKE_OSX_ARCHITECTURES)
         if (CMAKE_OSX_SYSROOT MATCHES "\\.Internal\\.sdk$" AND NOT CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator")
@@ -98,8 +103,8 @@ if (SWIFT_REQUIRED)
     cmake_policy(SET CMP0157 NEW)
 
     # CMake omits -target for swiftc during iOS cross-compilation.
-    if (PORT STREQUAL "IOS" AND NOT CMAKE_Swift_COMPILER_TARGET)
-        if (CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator")
+    if (PORT STREQUAL "IOS")
+        if (CMAKE_IOS_SIMULATOR OR CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator")
             set(CMAKE_Swift_COMPILER_TARGET "${CMAKE_OSX_ARCHITECTURES}-apple-ios${CMAKE_OSX_DEPLOYMENT_TARGET}-simulator" CACHE STRING "Swift target triple" FORCE)
         else ()
             set(CMAKE_Swift_COMPILER_TARGET "${CMAKE_OSX_ARCHITECTURES}-apple-ios${CMAKE_OSX_DEPLOYMENT_TARGET}" CACHE STRING "Swift target triple" FORCE)

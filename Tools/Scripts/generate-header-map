@@ -38,10 +38,27 @@ HEADER_EXTENSIONS = ('.h', '.hh', '.hpp', '.hxx', '.inc', '.def')
 HMAPTOOL = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'hmaptool')
 
 
-def collect_mappings(directories):
+def collect_mappings(directories, framework=None):
     mappings = {}
     lowercase_owners = {}
-    for directory in directories:
+    # When --framework NAME is set, also scan a `<dir>/<NAME>/` subdirectory if
+    # present. This catches the framework-staging convention where headers live
+    # at `<some-include-root>/<Framework>/<Header>.h` (e.g. cmake's
+    # `WebCore.framework/PrivateHeaders/WebCore/StyleTextEdge.h` symlink tree).
+    # Scanning these *first* makes the curated framework-staged path win over
+    # raw source-tree dirs on basename collisions.
+    scan_order = []
+    if framework:
+        for d in directories:
+            d_abs = os.path.abspath(d)
+            if framework not in d_abs.split(os.sep):
+                continue
+            sub = os.path.join(d_abs, framework)
+            if os.path.isdir(sub):
+                scan_order.append(sub)
+    scan_order.extend(directories)
+
+    for directory in scan_order:
         directory = os.path.abspath(directory)
         if not os.path.isdir(directory):
             continue
@@ -59,6 +76,12 @@ def collect_mappings(directories):
                         mappings[owner], entry.path))
             lowercase_owners.setdefault(key, entry.name)
             mappings[entry.name] = entry.path
+            if framework:
+                # Also emit a framework-style key so `<Framework/Header.h>`
+                # resolves to the source/derived path even when the header is
+                # not staged into the framework's PrivateHeaders/. This matches
+                # Xcode's hmap (HEADERMAP_INCLUDES_FRAMEWORK_ENTRIES_FOR_TARGET_BEING_BUILT=YES).
+                mappings[f'{framework}/{entry.name}'] = entry.path
     return mappings
 
 
@@ -67,6 +90,10 @@ def main():
     parser.add_argument('-o', '--output', required=True, help='output .hmap path')
     parser.add_argument('--dirs-file', required=True,
                         help='file containing one include directory per line')
+    parser.add_argument('--framework',
+                        help='if set, also emit FRAMEWORK/Header.h entries so '
+                             '<FRAMEWORK/Header.h> resolves to the source/derived path '
+                             'without requiring a physical PrivateHeaders/ copy')
     args = parser.parse_args()
 
     with open(args.dirs_file) as f:
@@ -74,7 +101,7 @@ def main():
 
     manifest = args.output + '.json'
     with open(manifest, 'w') as f:
-        json.dump({'mappings': collect_mappings(directories)}, f, indent=2, sort_keys=True)
+        json.dump({'mappings': collect_mappings(directories, args.framework)}, f, indent=2, sort_keys=True)
 
     return subprocess.call([sys.executable, HMAPTOOL, 'write', manifest, args.output])
 

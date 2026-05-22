@@ -239,9 +239,11 @@ set(WebCore_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBCORE_DIR}/style/values/line-grid"
     "${WEBCORE_DIR}/style/values/lists"
     "${WEBCORE_DIR}/style/values/masking"
+    "${WEBCORE_DIR}/style/values/math"
     "${WEBCORE_DIR}/style/values/motion"
     "${WEBCORE_DIR}/style/values/multicol"
     "${WEBCORE_DIR}/style/values/non-standard"
+    "${WEBCORE_DIR}/style/values/outline"
     "${WEBCORE_DIR}/style/values/overflow"
     "${WEBCORE_DIR}/style/values/page"
     "${WEBCORE_DIR}/style/values/pointerevents"
@@ -354,12 +356,10 @@ set(WebCore_NON_SVG_IDL_FILES
 
     Modules/audiosession/DOMAudioSession.idl
 
-
-
     Modules/cache/CacheQueryOptions.idl
     Modules/cache/DOMCache.idl
-    Modules/cache/MultiCacheQueryOptions.idl
     Modules/cache/DOMCacheStorage.idl
+    Modules/cache/MultiCacheQueryOptions.idl
 
     Modules/compression/CompressionStream.idl
     Modules/compression/CompressionStreamEncoder.idl
@@ -393,8 +393,8 @@ set(WebCore_NON_SVG_IDL_FILES
     Modules/credentialmanagement/OTPCredentialRequestOptions.idl
 
     Modules/encryptedmedia/MediaKeyEncryptionScheme.idl
-    Modules/encryptedmedia/MediaKeyMessageEventInit.idl
     Modules/encryptedmedia/MediaKeyMessageEvent.idl
+    Modules/encryptedmedia/MediaKeyMessageEventInit.idl
     Modules/encryptedmedia/MediaKeyMessageType.idl
     Modules/encryptedmedia/MediaKeySession.idl
     Modules/encryptedmedia/MediaKeySessionType.idl
@@ -2470,7 +2470,7 @@ if (ENABLE_WEBGL)
         platform/graphics/angle/GraphicsContextGLANGLE.cpp
     )
 
-    list(APPEND WebCore_LIBRARIES ANGLE::GLES)
+    list(APPEND WebCore_PRIVATE_LIBRARIES ANGLE::GLES)
 elseif (USE_ANGLE_EGL)
     list(APPEND WebCore_PRIVATE_INCLUDE_DIRECTORIES
         ${WEBCORE_DIR}/platform/graphics/angle
@@ -3176,7 +3176,9 @@ list(APPEND WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/ScrollTypes.serialization.in
 
     platform/audio/PlatformMediaSession.serialization.in
+
     platform/graphics/InbandTextTrackPrivate.serialization.in
+
     platform/mediastream/MDNSRegisterError.serialization.in
     platform/network/ProtectionSpaceBase.serialization.in
 )
@@ -3214,6 +3216,7 @@ if (APPLE)
         "LINKER:-allowable_client,WebKitLegacy"
         "LINKER:-allowable_client,WebKitTestRunner"
         "LINKER:-allowable_client,WebKitTestRunnerInjectedBundle"
+        "LINKER:-allowable_client,DumpRenderTree"
         "LINKER:-allowable_client,InjectedBundleTestWebKitAPI"
         "LINKER:-allowable_client,TestWebCore"
         "LINKER:-allowable_client,TestWebKitAPI"
@@ -3237,7 +3240,7 @@ if (WTF_CPU_ARM AND NOT CMAKE_CROSSCOMPILING)
 endif ()
 
 if (ENABLE_WEBCORE_TEST_SUPPORT)
-    WEBKIT_ADD_PREFIX_HEADER(WebCoreTestSupport testing/js/WebCoreTestSupportPrefix.h PREFIX_LANGUAGES CXX)
+    WEBKIT_ADD_PREFIX_HEADER(WebCoreTestSupport WebCorePrefix.h PREFIX_LANGUAGES CXX OBJCXX)
 
     WEBKIT_COPY_FILES(Copy_WebCoreTestSupportPrivateHeaders
         DESTINATION ${WebCore_PRIVATE_FRAMEWORK_HEADERS_DIR}/WebCoreTestSupport
@@ -3251,6 +3254,7 @@ if (ENABLE_WEBCORE_TEST_SUPPORT)
     list(APPEND WebCoreTestSupport_SYSTEM_INCLUDE_DIRECTORIES ${WebCore_SYSTEM_INCLUDE_DIRECTORIES})
 
     WEBKIT_LIBRARY(WebCoreTestSupport)
+    set_target_properties(WebCoreTestSupport PROPERTIES LINKER_LANGUAGE CXX)
 endif ()
 
 if (${WebCore_LIBRARY_TYPE} MATCHES "SHARED")

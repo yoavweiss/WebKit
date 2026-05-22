@@ -174,7 +174,7 @@ include(OptionsCocoa)
 
 # Swiftc falls back to its built-in deployment target while clang honors
 # CMAKE_OSX_DEPLOYMENT_TARGET; the mismatch produces an ld warning per object.
-if (CMAKE_OSX_DEPLOYMENT_TARGET AND NOT CMAKE_Swift_COMPILER_TARGET)
+if (CMAKE_OSX_DEPLOYMENT_TARGET)
     list(LENGTH CMAKE_OSX_ARCHITECTURES _arch_count)
     if (_arch_count EQUAL 1)
         set(_swift_arch "${CMAKE_OSX_ARCHITECTURES}")
