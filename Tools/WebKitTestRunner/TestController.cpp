@@ -77,7 +77,6 @@
 #include <WebKit/WKURL.h>
 #include <WebKit/WKUserContentControllerRef.h>
 #include <WebKit/WKUserContentExtensionStoreRef.h>
-#include <WebKit/WKUserMediaPermissionCheck.h>
 #include <WebKit/WKUserScriptInjectionTime.h>
 #include <WebKit/WKUserScriptRef.h>
 #include <WebKit/WKWebsiteDataStoreConfigurationRef.h>

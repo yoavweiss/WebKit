@@ -1796,11 +1796,6 @@ framework module WebKit_Private [system] {
     export *
   }
 
-  explicit module WKUserMediaPermissionCheck {
-    header "WKUserMediaPermissionCheck.h"
-    export *
-  }
-
   explicit module WKUserMediaPermissionRequest {
     header "WKUserMediaPermissionRequest.h"
     export *

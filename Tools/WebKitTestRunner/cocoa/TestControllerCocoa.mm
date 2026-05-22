@@ -48,7 +48,6 @@
 #import <WebKit/WKStringCF.h>
 #import <WebKit/WKURLResponseNS.h>
 #import <WebKit/WKUserContentControllerPrivate.h>
-#import <WebKit/WKUserMediaPermissionCheck.h>
 #import <WebKit/WKWebView.h>
 #import <WebKit/WKWebViewConfiguration.h>
 #import <WebKit/WKWebViewConfigurationPrivate.h>

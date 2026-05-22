@@ -107,7 +107,6 @@ set(WebKit_PUBLIC_FRAMEWORK_HEADERS
     UIProcess/API/C/WKTextChecker.h
     UIProcess/API/C/WKUserContentControllerRef.h
     UIProcess/API/C/WKUserContentExtensionStoreRef.h
-    UIProcess/API/C/WKUserMediaPermissionCheck.h
     UIProcess/API/C/WKUserMediaPermissionRequest.h
     UIProcess/API/C/WKUserScriptRef.h
     UIProcess/API/C/WKViewportAttributes.h

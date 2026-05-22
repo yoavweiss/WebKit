@@ -29,7 +29,6 @@
 #include <WebKit/WKPreferencesRef.h>
 #include <WebKit/WKPreferencesRefPrivate.h>
 #include <WebKit/WKRetainPtr.h>
-#include <WebKit/WKUserMediaPermissionCheck.h>
 #include <string.h>
 #include <vector>
 
