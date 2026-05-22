@@ -408,11 +408,6 @@ WKGeolocationManagerRef WKContextGetGeolocationManager(WKContextRef contextRef)
     return WebKit::toAPI(protect(protect(WebKit::toImpl(contextRef))->supplement<WebKit::WebGeolocationManagerProxy>()).get());
 }
 
-WKIconDatabaseRef WKContextGetIconDatabase(WKContextRef)
-{
-    return nullptr;
-}
-
 WKKeyValueStorageManagerRef WKContextGetKeyValueStorageManager(WKContextRef context)
 {
     return reinterpret_cast<WKKeyValueStorageManagerRef>(WKWebsiteDataStoreGetDefaultDataStore());
@@ -436,10 +431,6 @@ void WKContextStartMemorySampler(WKContextRef contextRef, WKDoubleRef interval)
 void WKContextStopMemorySampler(WKContextRef contextRef)
 {
     protect(WebKit::toImpl(contextRef))->stopMemorySampler();
-}
-
-void WKContextSetIconDatabasePath(WKContextRef, WKStringRef)
-{
 }
 
 void WKContextAllowSpecificHTTPSCertificateForHost(WKContextRef, WKCertificateInfoRef, WKStringRef)

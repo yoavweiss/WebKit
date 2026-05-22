@@ -51,7 +51,6 @@
 #include <WebKit/WKFrameHandleRef.h>
 #include <WebKit/WKFrameInfoRef.h>
 #include <WebKit/WKHTTPCookieStoreRef.h>
-#include <WebKit/WKIconDatabase.h>
 #include <WebKit/WKJSHandleRef.h>
 #include <WebKit/WKMediaKeySystemPermissionCallback.h>
 #include <WebKit/WKMessageListener.h>
@@ -242,10 +241,6 @@ TestController::TestController(int argc, const char* argv[])
 
 TestController::~TestController()
 {
-    // The context will be null if WebKitTestRunner was in server mode, but ran no tests.
-    if (m_context)
-        WKIconDatabaseClose(WKContextGetIconDatabase(m_context.get()));
-
     platformDestroy();
 }
 
@@ -1029,15 +1024,6 @@ WKRetainPtr<WKPageConfigurationRef> TestController::generatePageConfiguration(co
         WKContextSetLocalhostAliases(m_context.get(), localhostAliases.get());
 
         m_geolocationProvider = makeUnique<GeolocationProviderMock>(m_context.get());
-
-        if (const char* dumpRenderTreeTemp = libraryPathForTesting()) {
-            String temporaryFolder = String::fromUTF8(dumpRenderTreeTemp);
-
-            // FIXME: This should be migrated to WKContextConfigurationRef.
-            // Disable icon database to avoid fetching <http://127.0.0.1:8000/favicon.ico> and making tests flaky.
-            // Invividual tests can enable it using testRunner.setIconDatabaseEnabled, although it's not currently supported in WebKitTestRunner.
-            WKContextSetIconDatabasePath(m_context.get(), toWK(emptyString()).get());
-        }
 
         WKContextSetCacheModel(m_context.get(), kWKCacheModelDocumentBrowser);
         WKContextSetDisableFontSubpixelAntialiasingForTesting(TestController::singleton().context(), true);

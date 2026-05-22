@@ -268,8 +268,6 @@ UIProcess/API/APIWebsiteDataRecord.cpp
 UIProcess/API/C/WKContextMenuListener.cpp
 UIProcess/API/C/WKTestingSupport.cpp
 
-UIProcess/API/C/cg/WKIconDatabaseCG.cpp
-
 UIProcess/API/C/mac/WKContextPrivateMac.mm @nonARC
 UIProcess/API/C/mac/WKFrameMac.cpp
 UIProcess/API/C/mac/WKNotificationPrivateMac.mm @nonARC

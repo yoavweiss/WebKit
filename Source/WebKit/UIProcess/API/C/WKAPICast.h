@@ -100,7 +100,6 @@ class WebFramePolicyListenerProxy;
 class WebFrameProxy;
 class WebGeolocationManagerProxy;
 class WebGeolocationPosition;
-class WebIconDatabase;
 class WebInspectorUIProxy;
 class WebNotification;
 class WebNotificationManagerProxy;
@@ -141,7 +140,6 @@ WK_ADD_API_MAPPING(WKGeolocationPermissionRequestRef, GeolocationPermissionReque
 WK_ADD_API_MAPPING(WKGeolocationPositionRef, WebGeolocationPosition)
 WK_ADD_API_MAPPING(WKHTTPCookieStoreRef, API::HTTPCookieStore)
 WK_ADD_API_MAPPING(WKHitTestResultRef, API::HitTestResult)
-WK_ADD_API_MAPPING(WKIconDatabaseRef, WebIconDatabase)
 WK_ADD_API_MAPPING(WKInspectorRef, WebInspectorUIProxy)
 WK_ADD_API_MAPPING(WKJSHandleRef, API::JSHandle);
 WK_ADD_API_MAPPING(WKMediaKeySystemPermissionCallbackRef, MediaKeySystemPermissionCallback)
