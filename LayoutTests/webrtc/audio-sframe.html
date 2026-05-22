@@ -12,6 +12,7 @@
 promise_test(async (test) => {
     let sender, receiver;
     const localStream = await navigator.mediaDevices.getUserMedia({audio: true});
+    test.add_cleanup(() => localStream.getTracks().forEach(track => track.stop()));
     const key = await crypto.subtle.importKey("raw", new Uint8Array([143, 77, 43, 10, 72, 19, 37, 67, 236, 219, 24, 93, 26, 165, 91, 178]), "HKDF", false, ["deriveBits", "deriveKey"]);
     const stream = await new Promise((resolve, reject) => {
         createConnections((firstConnection) => {

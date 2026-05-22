@@ -2281,8 +2281,6 @@ webkit.org/b/308856 [ Debug ] http/tests/websocket/tests/hybi/handshake-ok-with-
 
 webkit.org/b/309850 [ Debug ] imported/w3c/web-platform-tests/uievents/mouse/mouse_boundary_events_after_removing_last_over_element.html [ Pass Failure ]
 
-webkit.org/b/314668 webrtc/getUserMedia-webaudio-autoplay.html [ Pass Failure ]
-
 webkit.org/b/314136 accessibility/mac/client/div-bounds.html [ Pass Failure ]
 
 webkit.org/b/314851 http/tests/site-isolation/inspector/debugger/provisional-frame-target-pausing.html [ Failure ]

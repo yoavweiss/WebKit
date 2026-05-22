@@ -162,11 +162,12 @@ function checkOutboundFramesNumberIncreased(firstConnection, statsFirstConnectio
 }
 
 var firstConnection, secondConnection;
+var localStream;
 promise_test(async (test) => {
     if (window.testRunner)
         testRunner.setUserMediaPermission(true);
 
-    const localStream = await navigator.mediaDevices.getUserMedia({ audio : true, video: true});
+    localStream = await navigator.mediaDevices.getUserMedia({ audio : true, video: true});
     const remoteStream = await new Promise((resolve, reject) => {
         createConnections((connection) => {
             firstConnection = connection;
@@ -333,6 +334,7 @@ promise_test(async (test) => {
 }, "Inbound rtp stats - rtx");
 
 promise_test(async (test) => {
+    test.add_cleanup(() => localStream.getTracks().forEach(track => track.stop()));
     const pc = new RTCPeerConnection();
     pc.close();
     return pc.getStats();

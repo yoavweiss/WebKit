@@ -58,6 +58,7 @@ async function doSFrameTest(codec, shouldClose)
         pc1.close();
         pc2.close();
     }
+    localStream.getTracks().forEach(t => t.stop());
 }
 
 promise_test((test) => {

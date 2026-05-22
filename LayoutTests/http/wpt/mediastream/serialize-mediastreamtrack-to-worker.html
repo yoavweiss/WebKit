@@ -39,6 +39,7 @@ promise_test(async test => {
     window.internals.setTopDocumentURLForQuirks("https://zoom.us");
 
     const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
+    test.add_cleanup(() => stream.getTracks().forEach(track => track.stop()));
 
     const worker = await createWorker(`
         self.onmessage = async (event) => {

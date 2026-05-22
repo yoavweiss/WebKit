@@ -141,6 +141,7 @@ promise_test((test) => {
 }, "Verify video element size changes");
 
 promise_test((test) => {
+    test.add_cleanup(() => track.stop());
     return testFrameDecodedIncreased(receivingConnection);
 }, "Verfiy video decoding continues");
         </script>
