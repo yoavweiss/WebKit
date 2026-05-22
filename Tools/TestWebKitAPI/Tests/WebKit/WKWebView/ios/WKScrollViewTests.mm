@@ -1307,6 +1307,45 @@ TEST(WKScrollViewTests, FixedLayerPositionDoesNotFreezeDuringInteractiveObscured
     EXPECT_LE(maxDeviation, 2);
 }
 
+TEST(WKScrollViewTests, FixedClippingViewTracksRubberBandDuringInteractiveObscuredInsetsChange)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 800)]);
+
+    auto insets = UIEdgeInsetsMake(50, 0, 0, 0);
+    [webView _setObscuredInsets:insets];
+    RetainPtr scrollView = [webView scrollView];
+    [scrollView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
+    [scrollView setContentInset:insets];
+
+    [webView synchronouslyLoadTestPageNamed:@"simple-tall"];
+    [webView waitForNextPresentationUpdate];
+
+    // Park past home so the upcoming scroll is itself a rubber-band frame, not a mode transition.
+    [scrollView setContentOffset:CGPointMake(0, -100)];
+    [webView waitForNextVisibleContentRectUpdate];
+
+    [webView _beginInteractiveObscuredInsetsChange];
+
+    // Drive a deeper rubber-band scroll.
+    [scrollView setContentOffset:CGPointMake(0, -150)];
+    [webView waitForNextPresentationUpdate];
+
+    // The clip view's bounds origin should track the current unobscured content rect's Y
+    // (= scrollOffset.y + topInset = -100), even while updates to WebContent are throttled.
+    CGRect clipBounds = [webView _fixedClippingViewBoundsForTesting];
+    EXPECT_NEAR(clipBounds.origin.y, -100.0, 1.0);
+
+    // Drive another rubber-band step within the visible content rect throttle window to confirm we keep
+    // updating the clip rect frame-to-frame, not only on the first throttled frame.
+    [scrollView setContentOffset:CGPointMake(0, -200)];
+    [webView waitForNextPresentationUpdate];
+
+    clipBounds = [webView _fixedClippingViewBoundsForTesting];
+    EXPECT_NEAR(clipBounds.origin.y, -150.0, 1.0);
+
+    [webView _endInteractiveObscuredInsetsChange];
+}
+
 } // namespace TestWebKitAPI
 
 #endif // PLATFORM(IOS_FAMILY)

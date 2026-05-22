@@ -611,6 +611,11 @@ typedef NS_ENUM(NSInteger, _WKPrintRenderingCallbackType) {
     [_rootContentView setBounds:clippingBounds];
 }
 
+- (CGRect)_fixedClippingViewBoundsForTesting
+{
+    return [_fixedClippingView bounds];
+}
+
 - (void)_didExitStableState
 {
     _needsDeferredEndScrollingSelectionUpdate = self.shouldHideSelectionInFixedPositionWhenScrolling;

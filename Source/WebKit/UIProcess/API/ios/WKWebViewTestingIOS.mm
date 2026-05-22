@@ -553,6 +553,11 @@ static void dumpUIView(TextStream& ts, UIView *view, bool traverse)
     return _pendingInteractiveObscuredInsetsChangeTimer && _pendingInteractiveObscuredInsetsChangeTimer->isActive();
 }
 
+- (CGRect)_fixedClippingViewBoundsForTesting
+{
+    return [_contentView _fixedClippingViewBoundsForTesting];
+}
+
 @end
 
 #endif // PLATFORM(IOS_FAMILY)

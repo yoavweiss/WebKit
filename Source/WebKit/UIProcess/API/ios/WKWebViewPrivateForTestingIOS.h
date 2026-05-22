@@ -104,6 +104,7 @@
 - (UIView *)_colorExtensionViewForTesting:(UIRectEdge)edge;
 
 @property (nonatomic, readonly) BOOL _hasPendingVisibleContentRectUpdateTimerForTesting;
+@property (nonatomic, readonly) CGRect _fixedClippingViewBoundsForTesting;
 
 @end
 

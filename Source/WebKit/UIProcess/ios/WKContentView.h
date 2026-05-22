@@ -78,6 +78,9 @@ using LayerHostingContextID = uint32_t;
 
 - (void)didUpdateVisibleRect:(const WebKit::VisibleContentRectUpdateInfo &)visibleContentRectUpdateInfo sendEvenIfUnchanged:(BOOL)sendEvenIfUnchanged;
 
+- (void)updateFixedClippingView:(WebCore::FloatRect)fixedPositionRectForUI;
+- (CGRect)_fixedClippingViewBoundsForTesting;
+
 - (void)didFinishScrolling;
 - (void)didZoomToScale:(CGFloat)scale;
 - (void)willStartZoomOrScroll;
