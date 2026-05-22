@@ -1901,25 +1901,13 @@ bool Quirks::needsIPadMiniUserAgent(const URL& url)
     return false;
 }
 
-bool Quirks::needsIPhoneUserAgent(const URL& url, UseDesktopClassBrowsing useDesktopClassBrowsing)
+bool Quirks::needsIPhoneUserAgent(const URL& url)
 {
 #if PLATFORM(IOS_FAMILY)
-    switch (useDesktopClassBrowsing) {
-    case UseDesktopClassBrowsing::Unspecified:
-        if (url.host() == "shopee.sg"_s && url.path() == "/payment/account-linking/landing"_s)
-            return true;
-        break;
-    case UseDesktopClassBrowsing::No:
-        // rdar://175017084
-        if (url.host() == "spotify.com"_s || url.host().endsWith(".spotify.com"_s) || url.host().endsWith(".spotifycdn.com"_s))
-            return true;
-        break;
-    case UseDesktopClassBrowsing::Yes:
-        break;
-    }
+    if (url.host() == "shopee.sg"_s && url.path() == "/payment/account-linking/landing"_s)
+        return true;
 #else
     UNUSED_PARAM(url);
-    UNUSED_PARAM(useDesktopClassBrowsing);
 #endif
     return false;
 }

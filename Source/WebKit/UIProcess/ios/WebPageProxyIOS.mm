@@ -1588,12 +1588,6 @@ WebContentMode WebPageProxy::effectiveContentModeAfterAdjustingPolicies(API::Web
 
     bool useDesktopBrowsingMode = useDesktopClassBrowsing(policies, request);
 
-    // rdar://175017084
-    if (needsSiteSpecificQuirks && Quirks::needsIPhoneUserAgent(request.url(), useDesktopBrowsingMode ? UseDesktopClassBrowsing::Yes : UseDesktopClassBrowsing::No)) {
-        applyIPhoneUserAgent();
-        return WebContentMode::Mobile;
-    }
-
     m_preferFasterClickOverDoubleTap = false;
 
     if (!useDesktopBrowsingMode) {
