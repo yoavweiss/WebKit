@@ -280,14 +280,29 @@
     },
     "TestWTF": {
         "subtests": {
+            "ThreadMessage.MultipleSenders": {
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/246472" }}
+            },
+            "WTF_Condition.TenProducersTenConsumersOneSlot": {
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/246472" }}
+            },
             "WTF_Condition.TenProducersTenConsumersHundredSlotsNotifyAll": {
                 "expected": {"all": {"slow": true}}
             },
             "WTF_Condition.TenProducersTenConsumersHundredSlotsNotifyOne": {
                 "expected": {"all": {"slow": true}}
             },
+            "WTF_Lock.ContendedShortSection": {
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/260029" }}
+            },
             "WTF_Lock.ContendedLongSection": {
                 "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/260029" }}
+            },
+            "WTF_Lock.ManyContendedShortSections": {
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/260029" }}
+            },
+            "WTF_Lock.ManyContendedLongSections": {
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/260029" }}
             },
             "WTF_Lock.SectionAddressCollision": {
                 "expected": {"all": {"slow": true, "bug": "webkit.org/b/260029" }}
@@ -309,6 +324,18 @@
             },
             "WTF_ParkingLot.UnparkOneHundredFast": {
                 "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/259945" }}
+            },
+            "WTF_WordLock.ContendedShortSection": {
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/260209" }}
+            },
+            "WTF_WordLock.ContendedLongSection": {
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/260209" }}
+            },
+            "WTF_WordLock.ManyContendedShortSections": {
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/260209" }}
+            },
+            "WTF_WordLock.ManyContendedLongSections": {
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/246603" }}
             },
             "WTF_WorkQueue.DestroyDispatchedOnDispatchQueue": {
                 "expected": {"all": {"slow": true, "bug": "webkit.org/b/260211" }}
