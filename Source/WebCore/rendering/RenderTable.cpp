@@ -48,6 +48,7 @@
 #include "RenderDescendantIterator.h"
 #include "RenderElementInlines.h"
 #include "RenderElementStyleInlines.h"
+#include "RenderFlexibleBox.h"
 #include "RenderIterator.h"
 #include "RenderLayer.h"
 #include "RenderLayoutState.h"
@@ -550,7 +551,7 @@ void RenderTable::layout()
     bool sectionMoved = false;
     LayoutUnit movedSectionLogicalTop;
     unsigned sectionCount = 0;
-    bool shouldCacheIntrinsicContentLogicalHeightForFlexItem = true;
+    bool shouldCacheContentLogicalHeightForFlexItem = true;
 
     LayoutRepainter repainter(*this);
     {
@@ -651,7 +652,7 @@ void RenderTable::layout()
         if (!topSection() && computedLogicalHeight > totalSectionLogicalHeight && !document().inQuirksMode()) {
             // Completely empty tables (with no sections or anything) should at least honor their
             // overriding or specified height in strict mode, but this value will not be cached.
-            shouldCacheIntrinsicContentLogicalHeightForFlexItem = false;
+            shouldCacheContentLogicalHeightForFlexItem = false;
             auto tableLogicalHeight = [&] {
                 if (auto overridingLogicalHeight = this->overridingBorderBoxLogicalHeight())
                     return *overridingLogicalHeight - borderAndPaddingAfter;
@@ -729,8 +730,10 @@ void RenderTable::layout()
     
     // FIXME: This value isn't the intrinsic content logical height, but we need
     // to update the value as its used by flexbox layout. crbug.com/367324
-    if (shouldCacheIntrinsicContentLogicalHeightForFlexItem)
-        cacheIntrinsicContentLogicalHeightForFlexItem(contentBoxLogicalHeight());
+    if (shouldCacheContentLogicalHeightForFlexItem) {
+        if (CheckedPtr flexContainer = dynamicDowncast<RenderFlexibleBox>(parent()))
+            flexContainer->setFlexItemContentLogicalHeightIfNeeded(*this, contentBoxLogicalHeight());
+    }
 
     m_columnLogicalWidthChanged = false;
     clearNeedsLayout();

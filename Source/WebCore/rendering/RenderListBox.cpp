@@ -53,6 +53,7 @@
 #include "RenderBoxInlines.h"
 #include "RenderBoxModelObjectInlines.h"
 #include "RenderElementStyleInlines.h"
+#include "RenderFlexibleBox.h"
 #include "RenderLayer.h"
 #include "RenderLayerScrollableArea.h"
 #include "RenderLayoutState.h"
@@ -302,7 +303,8 @@ RenderBox::LogicalExtentComputedValues RenderListBox::computeLogicalHeight(Layou
             logicalHeight = explicitIntrinsicHeight.value();
     }
 
-    cacheIntrinsicContentLogicalHeightForFlexItem(logicalHeight);
+    if (CheckedPtr flexContainer = dynamicDowncast<RenderFlexibleBox>(parent()))
+        flexContainer->setFlexItemContentLogicalHeightIfNeeded(*this, logicalHeight);
     logicalHeight += writingMode().isHorizontal() ? verticalBorderAndPaddingExtent() : horizontalBorderAndPaddingExtent();
     return RenderBox::computeLogicalHeight(logicalHeight, logicalTop);
 }

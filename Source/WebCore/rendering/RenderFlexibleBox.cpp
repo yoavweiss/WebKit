@@ -758,29 +758,39 @@ LayoutUnit RenderFlexibleBox::crossAxisExtentForFlexItem(const RenderBox& flexIt
     return isHorizontalFlow() ? flexItem.height() : flexItem.width();
 }
 
-LayoutUnit RenderFlexibleBox::cachedFlexItemIntrinsicContentLogicalHeight(const RenderBox& flexItem) const
+LayoutUnit RenderFlexibleBox::flexItemContentLogicalHeight(const RenderBox& flexItem) const
 {
-    if (auto* renderReplaced = dynamicDowncast<RenderReplaced>(flexItem))
+    if (CheckedPtr renderReplaced = dynamicDowncast<RenderReplaced>(flexItem))
         return renderReplaced->intrinsicLogicalHeight();
     
-    if (auto it = m_intrinsicContentLogicalHeights.find(flexItem); it != m_intrinsicContentLogicalHeights.end())
-        return it->value;
-    
+    if (auto logicalHeight = m_contentLogicalHeights.getOptional(flexItem))
+        return *logicalHeight;
+
     return flexItem.contentBoxLogicalHeight();
 }
 
-void RenderFlexibleBox::setCachedFlexItemIntrinsicContentLogicalHeight(const RenderBox& flexItem, LayoutUnit height)
+void RenderFlexibleBox::clearFlexItemContentLogicalHeight(const RenderBox& flexItem)
 {
-    if (flexItem.isRenderReplaced())
-        return; // Replaced elements know their intrinsic height already, so save space by not caching.
-    m_intrinsicContentLogicalHeights.set(flexItem, height);
+    m_contentLogicalHeights.remove(flexItem);
 }
 
-void RenderFlexibleBox::clearCachedFlexItemIntrinsicContentLogicalHeight(const RenderBox& flexItem)
+static bool canSetFlexItemContentLogicalHeight(const RenderBox& flexItem)
 {
-    if (flexItem.isRenderReplaced())
-        return; // Replaced elements know their intrinsic height already, so nothing to do.
-    m_intrinsicContentLogicalHeights.remove(flexItem);
+    return !flexItem.isFloatingOrOutOfFlowPositioned() && !flexItem.shouldComputeLogicalHeightFromAspectRatio() && !is<RenderReplaced>(flexItem);
+}
+
+void RenderFlexibleBox::setFlexItemContentLogicalHeightIfNeeded(const RenderBox& flexItem, LayoutUnit height)
+{
+    // Captures a flex item's content logical height mid-layout, before computeLogicalHeight
+    // applies fixed/min/max or any overridingBorderBoxLogicalHeight set by the flex
+    // container for stretch alignment.
+    // Reading logicalHeight() at the end of the flex item's layout would give the constrained/overridden value,
+    // not the content height the flex algorithm needs.
+    if (!canSetFlexItemContentLogicalHeight(flexItem))
+        return;
+    if (flexItem.overridingBorderBoxLogicalHeight())
+        return;
+    m_contentLogicalHeights.set(flexItem, height);
 }
 
 LayoutUnit RenderFlexibleBox::flexItemIntrinsicLogicalHeight(RenderBox& flexItem) const
@@ -788,7 +798,7 @@ LayoutUnit RenderFlexibleBox::flexItemIntrinsicLogicalHeight(RenderBox& flexItem
     // This should only be called if the logical height is the cross size
     ASSERT(mainAxisIsFlexItemInlineAxis(flexItem));
     if (needToStretchFlexItemLogicalHeight(flexItem)) {
-        LayoutUnit flexItemContentHeight = cachedFlexItemIntrinsicContentLogicalHeight(flexItem);
+        LayoutUnit flexItemContentHeight = flexItemContentLogicalHeight(flexItem);
         LayoutUnit flexItemLogicalHeight = flexItemContentHeight + flexItem.scrollbarLogicalHeight() + flexItem.borderAndPaddingLogicalHeight();
         return flexItem.constrainLogicalHeightByMinMax(flexItemLogicalHeight, flexItemContentHeight);
     }
@@ -920,7 +930,7 @@ template<typename SizeType> std::optional<LayoutUnit> RenderFlexibleBox::compute
         // if necessary (see ComputeNextFlexLine and the call to
         // flexItemNeedsBlockAxisSize) so we can be sure that the two height
         // calls here will return up-to-date data.
-        auto height = flexItem.computeContentLogicalHeight(size, cachedFlexItemIntrinsicContentLogicalHeight(flexItem));
+        auto height = flexItem.computeContentLogicalHeight(size, flexItemContentLogicalHeight(flexItem));
         if (!height)
             return height;
         // Tables interpret overriding sizes as the size of captions + rows. However the specified height of a table
@@ -2081,7 +2091,7 @@ LayoutUnit RenderFlexibleBox::blockAxisSizeForFlexItem(RenderBox& flexItem, Rela
     auto innerSize = [&] {
         auto flexBasis = flexBasisForFlexItem(flexItem);
         if (flexBasis.isPercentOrCalculated() && !flexItemMainSizeIsDefinite(flexItem, flexBasis))
-            return cachedFlexItemIntrinsicContentLogicalHeight(flexItem) + flexItem.scrollbarLogicalHeight();
+            return flexItemContentLogicalHeight(flexItem) + flexItem.scrollbarLogicalHeight();
         return flexItem.logicalHeight() - flexItem.borderAndPaddingLogicalHeight();
     }();
 
@@ -3038,7 +3048,7 @@ void RenderFlexibleBox::applyStretchAlignmentToFlexItem(RenderBox& flexItem, Lay
         auto stretchedLogicalHeight = std::max(flexItem.borderAndPaddingLogicalHeight(),
             lineCrossAxisExtent - crossAxisMarginExtentForFlexItem(flexItem));
         ASSERT(!flexItem.needsLayout());
-        LayoutUnit desiredLogicalHeight = flexItem.constrainLogicalHeightByMinMax(stretchedLogicalHeight, cachedFlexItemIntrinsicContentLogicalHeight(flexItem));
+        LayoutUnit desiredLogicalHeight = flexItem.constrainLogicalHeightByMinMax(stretchedLogicalHeight, flexItemContentLogicalHeight(flexItem));
 
         // FIXME: Can avoid laying out here in some cases. See https://webkit.org/b/87905.
         bool flexItemNeedsRelayout = desiredLogicalHeight != flexItem.logicalHeight();
@@ -3053,20 +3063,20 @@ void RenderFlexibleBox::applyStretchAlignmentToFlexItem(RenderBox& flexItem, Lay
             flexItem.setOverridingBorderBoxLogicalHeight(desiredLogicalHeight);
         if (flexItemNeedsRelayout) {
             SetForScope resetFlexItemLogicalHeight(m_shouldResetFlexItemLogicalHeightBeforeLayout, true);
-            // We cache the child's intrinsic content logical height to avoid it being
+            // We cache the child's content logical height to avoid it being
             // reset to the stretched height.
             // FIXME: This is fragile. RenderBoxes should be smart enough to
-            // determine their intrinsic content logical height correctly even when
+            // determine their content logical height correctly even when
             // there's an overrideHeight.
-            LayoutUnit flexItemIntrinsicContentLogicalHeight = cachedFlexItemIntrinsicContentLogicalHeight(flexItem);
+            LayoutUnit contentLogicalHeight = flexItemContentLogicalHeight(flexItem);
             flexItem.setChildNeedsLayout(MarkingBehavior::MarkOnlyThis);
             dirtyPercentHeightDescendantsWithinFlexItem(flexItem);
 
             // Don't use layoutChildIfNeeded to avoid setting cross axis cached size twice.
             flexItem.layoutIfNeeded();
 
-            if (flexItem.shouldCacheIntrinsicContentLogicalHeightForFlexItem())
-                setCachedFlexItemIntrinsicContentLogicalHeight(flexItem, flexItemIntrinsicContentLogicalHeight);
+            if (canSetFlexItemContentLogicalHeight(flexItem))
+                m_contentLogicalHeights.set(flexItem, contentLogicalHeight);
         }
         return;
     }

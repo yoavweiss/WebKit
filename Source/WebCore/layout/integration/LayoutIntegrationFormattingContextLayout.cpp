@@ -246,7 +246,7 @@ LayoutUnit formattingContextRootLogicalHeightForType(const Layout::ElementBox& b
         // where the legacy flex layout "fixed" this by caching the content height in RenderBox::updateLogicalHeight
         // before additional height constraints applied.
         if (CheckedPtr flexContainer = dynamicDowncast<RenderFlexibleBox>(renderer->parent()))
-            return flexContainer->cachedFlexItemIntrinsicContentLogicalHeight(renderer.get());
+            return flexContainer->flexItemContentLogicalHeight(renderer.get());
         ASSERT_NOT_IMPLEMENTED_YET();
         return { };
     }

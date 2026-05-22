@@ -79,9 +79,9 @@ public:
 
     void clearCachedBlockAxisSizeForFlexItem(const RenderBox& flexItem);
     
-    LayoutUnit cachedFlexItemIntrinsicContentLogicalHeight(const RenderBox& flexItem) const;
-    void setCachedFlexItemIntrinsicContentLogicalHeight(const RenderBox& flexItem, LayoutUnit);
-    void clearCachedFlexItemIntrinsicContentLogicalHeight(const RenderBox& flexItem);
+    LayoutUnit flexItemContentLogicalHeight(const RenderBox& flexItem) const;
+    void clearFlexItemContentLogicalHeight(const RenderBox& flexItem);
+    void setFlexItemContentLogicalHeightIfNeeded(const RenderBox& flexItem, LayoutUnit height);
 
     LayoutUnit staticMainAxisPositionForPositionedFlexItem(const RenderBox&);
     LayoutUnit staticCrossAxisPositionForPositionedFlexItem(const RenderBox&);
@@ -309,7 +309,7 @@ private:
     
     // This is used to cache the intrinsic size on the cross axis to avoid
     // relayouts when stretching.
-    HashMap<SingleThreadWeakRef<const RenderBox>, LayoutUnit> m_intrinsicContentLogicalHeights;
+    HashMap<SingleThreadWeakRef<const RenderBox>, LayoutUnit> m_contentLogicalHeights;
 
     // This set is used to keep track of which children we laid out in this
     // current layout iteration. We need it because the ones in this set may

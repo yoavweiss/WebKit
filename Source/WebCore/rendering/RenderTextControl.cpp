@@ -31,6 +31,7 @@
 #include "RenderBoxModelObjectInlines.h"
 #include "RenderElementStyleInlines.h"
 #include "RenderElementInlines.h"
+#include "RenderFlexibleBox.h"
 #include "RenderText.h"
 #include "RenderTextControlSingleLine.h"
 #include "RenderTheme.h"
@@ -131,7 +132,8 @@ RenderBox::LogicalExtentComputedValues RenderTextControl::computeLogicalHeight(L
         
         // FIXME: The logical height of the inner text box should have been added
         // before calling computeLogicalHeight to avoid this hack.
-        cacheIntrinsicContentLogicalHeightForFlexItem(logicalHeight);
+        if (CheckedPtr flexContainer = dynamicDowncast<RenderFlexibleBox>(parent()))
+            flexContainer->setFlexItemContentLogicalHeightIfNeeded(*this, logicalHeight);
         
         logicalHeight += borderAndPaddingLogicalHeight();
     }

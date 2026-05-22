@@ -278,7 +278,7 @@ void RenderBox::styleWillChange(Style::Difference diff, const RenderStyle& newSt
                 // current containing block chain for preferred widths recalculation.
                 setNeedsLayoutAndPreferredWidthsUpdate();
                 if (CheckedPtr flexContainer = dynamicDowncast<RenderFlexibleBox>(parent())) {
-                    flexContainer->clearCachedFlexItemIntrinsicContentLogicalHeight(*this);
+                    flexContainer->clearFlexItemContentLogicalHeight(*this);
                     flexContainer->clearCachedBlockAxisSizeForFlexItem(*this);
                 }
                 if (isInTopLayerOrBackdrop(style(), element())) {
@@ -3354,29 +3354,6 @@ static bool NODELETE shouldFlipBeforeAfterMargins(WritingMode containingBlockWri
     return shouldFlip;
 }
 
-bool RenderBox::shouldCacheIntrinsicContentLogicalHeightForFlexItem() const
-{
-    // The flex stretch algorithm needs to know the item's intrinsic content height
-    // before stretch was applied. We cache it so the stretch phase can read back
-    // the pre-stretch value after relayout. Items with aspect-ratio don't need
-    // caching because their content height is always derivable from the current width.
-    return isFlexItem() && !isFloatingOrOutOfFlowPositioned() && !shouldComputeLogicalHeightFromAspectRatio();
-}
-
-void RenderBox::cacheIntrinsicContentLogicalHeightForFlexItem(LayoutUnit height) const
-{
-    // FIXME: it should be enough with checking hasOverridingLogicalHeight() as this logic could be shared
-    // by any layout system using overrides like grid or flex. However this causes a never ending sequence of calls
-    // between layoutBlock() <-> relayoutToAvoidWidows().
-    if (!shouldCacheIntrinsicContentLogicalHeightForFlexItem())
-        return;
-    ASSERT(is<RenderFlexibleBox>(parent()));
-    if (overridingBorderBoxLogicalHeight())
-        return;
-    if (CheckedPtr flexibleBox = dynamicDowncast<RenderFlexibleBox>(parent()))
-        flexibleBox->setCachedFlexItemIntrinsicContentLogicalHeight(*this, height);
-}
-
 void RenderBox::overrideLogicalHeightForSizeContainment()
 {
     LayoutUnit intrinsicHeight;
@@ -3401,7 +3378,8 @@ void RenderBox::updateLogicalHeight()
     if (shouldApplySizeContainment() && !isRenderGrid())
         overrideLogicalHeightForSizeContainment();
 
-    cacheIntrinsicContentLogicalHeightForFlexItem(contentBoxLogicalHeight());
+    if (CheckedPtr flexContainer = dynamicDowncast<RenderFlexibleBox>(parent()))
+        flexContainer->setFlexItemContentLogicalHeightIfNeeded(*this, contentBoxLogicalHeight());
     auto computedValues = computeLogicalHeight(logicalHeight(), logicalTop());
     setLogicalHeight(computedValues.extent);
     setLogicalTop(computedValues.position);
