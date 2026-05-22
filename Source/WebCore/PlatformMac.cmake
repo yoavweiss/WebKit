@@ -6,6 +6,14 @@ set(MACOSX_FRAMEWORK_IDENTIFIER com.apple.WebCore)
 file(COPY "${WEBCORE_DIR}/en.lproj"
      DESTINATION "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/WebCore.framework/Versions/A/Resources")
 
+# Copy the proper resources over, mirroring Xcode.
+file(GLOB WebCore_BUNDLE_RESOURCES CONFIGURE_DEPENDS "${WEBCORE_DIR}/Resources/*")
+WEBKIT_COPY_FILES(WebCore_CopyBundleResources
+    DESTINATION "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/WebCore.framework/Versions/A/Resources"
+    FILES ${WebCore_BUNDLE_RESOURCES}
+    FLATTENED NO_SYMLINK)
+add_dependencies(WebCore WebCore_CopyBundleResources)
+
 find_library(ACCELERATE_LIBRARY Accelerate)
 find_library(APPLICATIONSERVICES_LIBRARY ApplicationServices)
 find_library(AUDIOTOOLBOX_LIBRARY AudioToolbox)
