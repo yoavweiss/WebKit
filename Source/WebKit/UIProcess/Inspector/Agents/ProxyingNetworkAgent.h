@@ -108,6 +108,8 @@ private:
     void loadingFailed(ResourceID, double timestamp, const String& errorText, bool canceled);
     void requestServedFromMemoryCache(ResourceID, FrameID, ContextID, const String& documentURL, const WebCore::ResourceRequest&, const WebCore::ResourceResponse&, ResourceType, double timestamp);
 
+    void removeAllRegisteredReceivers();
+
     const UniqueRef<NetworkFrontendDispatcher> m_frontendDispatcher;
     const Ref<NetworkBackendDispatcher> m_backendDispatcher;
     WeakRef<WebKit::WebPageProxy> m_inspectedPage;
