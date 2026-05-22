@@ -180,6 +180,15 @@ void WebBackForwardCache::removeEntriesForProcess(WebProcessProxy& process)
                 return true;
             }
         }
+
+        // Check iframe processes referenced by cached WebFrameProxys (UI-driven
+        // same-site BFCache with cross-site iframes).
+        if (RefPtr cacheEntry = entry.backForwardCacheEntry()) {
+            if (cacheEntry->referencesIframeProcess(processIdentifier)) {
+                RELEASE_LOG(ProcessSwapping, "WebBackForwardCache::removeEntriesForProcess: iframe process terminated while in BFCache, invalidating cache entry");
+                return true;
+            }
+        }
         return false;
     });
 }

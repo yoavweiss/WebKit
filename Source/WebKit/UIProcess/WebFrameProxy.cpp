@@ -715,6 +715,26 @@ void WebFrameProxy::removeChildFrames()
     m_childFrames.clear();
 }
 
+Vector<Ref<WebFrameProxy>> WebFrameProxy::takeChildFrames()
+{
+    Vector<Ref<WebFrameProxy>> frames;
+    frames.reserveInitialCapacity(m_childFrames.size());
+    for (auto& child : m_childFrames)
+        frames.append(child.copyRef());
+    m_childFrames.clear();
+    for (auto& frame : frames)
+        frame->m_parentFrame = nullptr;
+    return frames;
+}
+
+void WebFrameProxy::adoptChildFrames(Vector<Ref<WebFrameProxy>>&& frames)
+{
+    for (auto& frame : frames) {
+        frame->m_parentFrame = *this;
+        m_childFrames.add(WTF::move(frame));
+    }
+}
+
 bool WebFrameProxy::isFocused() const
 {
     auto* webPage = page();

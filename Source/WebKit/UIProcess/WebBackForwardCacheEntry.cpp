@@ -31,6 +31,7 @@
 #include "WebBackForwardCache.h"
 #include "WebBackForwardListFrameItem.h"
 #include "WebBackForwardListItem.h"
+#include "WebFrameProxy.h"
 #include "WebProcessMessages.h"
 #include "WebProcessProxy.h"
 #include <wtf/TZoneMallocInlines.h>
@@ -100,6 +101,30 @@ RefPtr<WebProcessProxy> WebBackForwardCacheEntry::process() const
     ASSERT(process);
     ASSERT(!m_suspendedPage || process == &m_suspendedPage->process());
     return process;
+}
+
+void WebBackForwardCacheEntry::setCachedChildren(Vector<Ref<WebFrameProxy>>&& children)
+{
+    ASSERT(m_cachedChildren.isEmpty());
+    m_cachedChildren = WTF::move(children);
+}
+
+Vector<Ref<WebFrameProxy>> WebBackForwardCacheEntry::takeCachedChildren()
+{
+    return std::exchange(m_cachedChildren, { });
+}
+
+bool WebBackForwardCacheEntry::referencesIframeProcess(WebCore::ProcessIdentifier processIdentifier) const
+{
+    for (Ref<WebFrameProxy> root : m_cachedChildren) {
+        if (root->process().coreProcessIdentifier() == processIdentifier)
+            return true;
+        for (RefPtr frame = root->traverseNext().frame; frame; frame = frame->traverseNext().frame) {
+            if (frame->process().coreProcessIdentifier() == processIdentifier)
+                return true;
+        }
+    }
+    return false;
 }
 
 void WebBackForwardCacheEntry::expirationTimerFired()

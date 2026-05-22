@@ -32,6 +32,7 @@
 #include "LocalFrameView.h"
 #include "Page.h"
 #include "PageGroup.h"
+#include "RemoteFrame.h"
 #include <stdarg.h>
 #include <wtf/Vector.h>
 #include <wtf/text/CString.h>
@@ -568,6 +569,15 @@ unsigned FrameTree::depth() const
     for (auto* parent = m_thisFrame.ptr(); parent; parent = parent->tree().parent())
         depth++;
     return depth;
+}
+
+bool FrameTree::hasRemoteFrameDescendant() const
+{
+    for (RefPtr frame = firstChild(); frame; frame = frame->tree().traverseNext(m_thisFrame.ptr())) {
+        if (is<RemoteFrame>(*frame))
+            return true;
+    }
+    return false;
 }
 
 AtomString FrameTree::uniqueName() const

@@ -35,11 +35,13 @@
 #include <wtf/RunLoop.h>
 #include <wtf/SwiftBridging.h>
 #include <wtf/TZoneMalloc.h>
+#include <wtf/Vector.h>
 
 namespace WebKit {
 
 class SuspendedPageProxy;
 class WebBackForwardCache;
+class WebFrameProxy;
 class WebProcessProxy;
 
 class WebBackForwardCacheEntry : public RefCountedAndCanMakeWeakPtr<WebBackForwardCacheEntry> {
@@ -57,6 +59,16 @@ public:
     WebCore::ProcessIdentifier processIdentifier() const { return m_processIdentifier; }
     RefPtr<WebProcessProxy> process() const;
 
+    // Subframes of the cached main frame that were detached from
+    // m_mainFrame->m_childFrames on suspension. These are reattached on
+    // restore so walkers of the live frame tree never observe cached-page
+    // state while this entry is alive.
+    bool hasCachedChildren() const { return !m_cachedChildren.isEmpty(); }
+    void setCachedChildren(Vector<Ref<WebFrameProxy>>&&);
+    Vector<Ref<WebFrameProxy>> takeCachedChildren();
+
+    bool referencesIframeProcess(WebCore::ProcessIdentifier) const;
+
 private:
     WebBackForwardCacheEntry(WebBackForwardCache&, WebCore::BackForwardItemIdentifier, WebCore::BackForwardFrameItemIdentifier, WebCore::ProcessIdentifier, RefPtr<SuspendedPageProxy>&&);
 
@@ -67,6 +79,7 @@ private:
     Markable<WebCore::BackForwardItemIdentifier> m_backForwardItemID;
     Markable<WebCore::BackForwardFrameItemIdentifier> m_backForwardFrameItemID;
     RefPtr<SuspendedPageProxy> m_suspendedPage;
+    Vector<Ref<WebFrameProxy>> m_cachedChildren;
     RunLoop::Timer m_expirationTimer;
 } SWIFT_SHARED_REFERENCE(refWebBackForwardCacheEntry, derefWebBackForwardCacheEntry);
 

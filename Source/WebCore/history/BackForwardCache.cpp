@@ -41,6 +41,7 @@
 #include "FocusController.h"
 #include "FrameDestructionObserverInlines.h"
 #include "FrameLoader.h"
+#include "FrameTree.h"
 #include "HTTPParsers.h"
 #include "HistoryController.h"
 #include "LocalDOMWindow.h"
@@ -50,7 +51,6 @@
 #include "LocalFrameView.h"
 #include "Logging.h"
 #include "Page.h"
-#include "RemoteFrame.h"
 #include "ScriptDisallowedScope.h"
 #include "SecurityOriginHash.h"
 #include "Settings.h"
@@ -555,17 +555,6 @@ bool BackForwardCache::addIfCacheable(BackForwardFrameItemIdentifier identifier,
     return isInBackForwardCache(identifier);
 }
 
-static bool hasRemoteFrameDescendant(const Frame& frame)
-{
-    for (auto* child = frame.tree().firstChild(); child; child = child->tree().nextSibling()) {
-        if (is<RemoteFrame>(*child))
-            return true;
-        if (hasRemoteFrameDescendant(*child))
-            return true;
-    }
-    return false;
-}
-
 bool BackForwardCache::addIfCacheable(HistoryItem& item, Page* page)
 {
     if (!page)
@@ -574,10 +563,8 @@ bool BackForwardCache::addIfCacheable(HistoryItem& item, Page* page)
     // Same-site BFCache is supported when the page has no cross-site
     // iframes. Cross-site iframes require UIProcess coordination for
     // suspension which is not yet implemented for the in-process path.
-    if (page->settings().siteIsolationEnabled()) {
-        if (RefPtr mainFrame = page->mainFrame(); mainFrame && hasRemoteFrameDescendant(*mainFrame))
-            return false;
-    }
+    if (page->settings().siteIsolationEnabled() && page->mainFrame().tree().hasRemoteFrameDescendant())
+        return false;
 
     if (!addIfCacheable(item.frameItemID(), *page, item.itemID()))
         return false;
