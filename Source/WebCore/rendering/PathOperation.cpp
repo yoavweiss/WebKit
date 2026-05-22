@@ -97,13 +97,13 @@ Ref<PathOperation> ShapePathOperation::clone() const
 bool ShapePathOperation::canBlend(const PathOperation& to) const
 {
     RefPtr toOperation = dynamicDowncast<ShapePathOperation>(to);
-    return toOperation && WebCore::Style::canBlend(m_shape, toOperation->m_shape);
+    return toOperation && WebCore::Style::canBlend(m_shape, toOperation->m_shape) && m_referenceBox == toOperation->referenceBox();
 }
 
 RefPtr<PathOperation> ShapePathOperation::blend(const PathOperation* to, const BlendingContext& context) const
 {
     Ref toShapePathOperation = downcast<ShapePathOperation>(*to);
-    return ShapePathOperation::create(WebCore::Style::blend(m_shape, toShapePathOperation->m_shape, context));
+    return ShapePathOperation::create(WebCore::Style::blend(m_shape, toShapePathOperation->m_shape, context), m_referenceBox);
 }
 
 std::optional<Path> ShapePathOperation::getPath(const TransformOperationData& data, Style::ZoomFactor zoom) const
