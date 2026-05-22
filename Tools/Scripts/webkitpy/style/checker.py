@@ -463,7 +463,8 @@ _PATH_RULES_SPECIFIER = [
      ['-wpt/lint']),
 
     ([  # WebKit's expectations.
-      '-expected.txt'],
+      '-expected.',
+      '-expected-mismatch.'],
      ['-wpt/lint']),
 
     ([  # Dummy .html files generated from .any.js templates by
