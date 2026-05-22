@@ -483,6 +483,9 @@ Expected<void, MediaPlaybackDenialExplanation> MediaElementSession::playbackStat
         && mainFrameDocument->quirks().needsPerDocumentAutoplayBehavior())
         return { };
 
+    if (document->quirks().needsYouTubeEmbedAutoplayQuirk())
+        return { };
+
     if (m_restrictions & RequireUserGestureForVideoRateChange && element->isVideo() && !document->processingUserGestureForMedia())
         return makeUnexpectedDenial(MediaPlaybackDenialReason::UserGestureRequired, "User gesture required for video rate change"_s);
 

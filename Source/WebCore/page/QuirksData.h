@@ -128,6 +128,9 @@ struct QuirksData {
 #if PLATFORM(COCOA)
         NeedsYouTubeCaptionQuirk,
 #endif
+#if PLATFORM(IOS_FAMILY)
+        NeedsYouTubeEmbedAutoplayQuirk,
+#endif
 #if ENABLE(TWO_PHASE_CLICKS)
         NeedsYouTubeMouseOutQuirk,
 #endif

@@ -115,6 +115,7 @@ public:
     WEBCORE_EXPORT static bool shouldAllowNavigationToCustomProtocolWithoutUserGesture(StringView protocol, const SecurityOriginData& requesterOrigin);
 
     WEBCORE_EXPORT bool needsYouTubeCaptionsQuirk() const;
+    bool needsYouTubeEmbedAutoplayQuirk() const;
     WEBCORE_EXPORT bool NODELETE needsYouTubeMouseOutQuirk() const;
 
     WEBCORE_EXPORT bool shouldDisableWritingSuggestionsByDefault() const;

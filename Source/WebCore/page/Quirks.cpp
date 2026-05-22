@@ -413,6 +413,18 @@ bool Quirks::needsYouTubeCaptionsQuirk() const
 #endif
 }
 
+// theguardian.com rdar://166727225
+bool Quirks::needsYouTubeEmbedAutoplayQuirk() const
+{
+#if PLATFORM(IOS_FAMILY)
+    QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
+
+    return m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::NeedsYouTubeEmbedAutoplayQuirk);
+#else
+    return false;
+#endif
+}
+
 // safe.menlosecurity.com rdar://135114489
 // FIXME (rdar://138585709): Remove this quirk for safe.menlosecurity.com once investigation into text corruption on the site is completed and the issue is resolved.
 bool Quirks::shouldDisableWritingSuggestionsByDefault() const
@@ -3040,9 +3052,14 @@ static void handleDisneyPlusQuirks(QuirksData& quirksData, const URL& /* quirksU
     });
 }
 
-static void handleGuardianQuirks(QuirksData& quirksData, const URL& /* quirksURL */, const String& /* quirksDomainString */, const URL&  /* documentURL */)
+static void handleGuardianQuirks(QuirksData& quirksData, const URL& /* quirksURL */, const String& /* quirksDomainString */, const URL& documentURL)
 {
     quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::ShouldHideSoftTopScrollEdgeEffectDuringFocusQuirk);
+
+    // theguardian.com rdar://166727225
+    auto documentDomain = RegistrableDomain(documentURL).string();
+    if (documentDomain == "youtube.com"_s || documentDomain == "youtube-nocookie.com"_s)
+        quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::NeedsYouTubeEmbedAutoplayQuirk);
 }
 #endif // PLATFORM(IOS_FAMILY)
 
