@@ -292,6 +292,21 @@
             "WTF_Lock.SectionAddressCollision": {
                 "expected": {"all": {"slow": true, "bug": "webkit.org/b/260029" }}
             },
+            "WTF_ParkingLot.HundredUnparkAllOneFast": {
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/259945" }}
+            },
+            "WTF_ParkingLot.UnparkAllHundred": {
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/259945" }}
+            },
+            "WTF_ParkingLot.UnparkAllHundredFast": {
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/259945" }}
+            },
+            "WTF_ParkingLot.UnparkAllOneFast": {
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/259945" }}
+            },
+            "WTF_ParkingLot.UnparkOneFiftyThenFiftyAllFast": {
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/259945" }}
+            },
             "WTF_ParkingLot.UnparkOneHundredFast": {
                 "expected": {"all": {"slow": true, "status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/259945" }}
             },
