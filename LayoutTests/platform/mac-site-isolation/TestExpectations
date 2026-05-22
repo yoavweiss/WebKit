@@ -448,3 +448,7 @@ http/tests/security/frameNavigation/not-opener.html [ Failure ]
 # This test has different output with site isolation enabled. A copy with site isolation enabled is
 # stored and run separately at http/tests/site-isolation/inspector/unit-tests/target-manager.html.
 inspector/unit-tests/target-manager.html [ Skip ]
+
+# Inspector protocol commands (e.g. CSS.getMatchedStylesForNode) return
+# "Not yet implemented for frame targets" under site isolation.
+inspector/css/getMatchedStylesForNodeAdoptedStyleSheet.html [ Skip ]

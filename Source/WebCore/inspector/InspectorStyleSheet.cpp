@@ -1679,14 +1679,18 @@ bool InspectorStyleSheet::ensureText()
         return true;
 
     String text;
-    if (m_pageStyleSheet->wasMutated()) {
-        // This style sheet in memory no longer matches its original text from static source.
-        // Reconstruct its current text by serializing the contained CSSRules.
+    bool wasMutated = m_pageStyleSheet->wasMutated();
+    if (wasMutated || m_pageStyleSheet->wasConstructedByJS()) {
+        // A mutated stylesheet's in-memory rules no longer match its original source text.
+        // A constructable stylesheet (e.g. `new CSSStyleSheet()` populated by `replaceSync()`)
+        // has no underlying source at all. In both cases, reconstruct text by serializing
+        // the contained CSSRules so the inspector has source ranges to work with.
         if (!styleSheetTextFromCSSRuleSerialization(&text))
             return false;
 
         m_parsedStyleSheet->setText(text);
-        fireStyleSheetChanged();
+        if (wasMutated)
+            fireStyleSheetChanged();
         return true;
     }
 
