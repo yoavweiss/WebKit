@@ -21861,6 +21861,12 @@ IGNORE_CLANG_WARNINGS_END
     LValue stringsEqual(LValue leftJSString, LValue rightJSString, Edge leftJSStringEdge = Edge(), Edge rightJSStringEdge = Edge())
     {
         JSGlobalObject* globalObject = m_graph.globalObjectFor(m_origin.semantic);
+
+        String leftConst = leftJSStringEdge ? leftJSStringEdge->tryGetString(m_graph) : String();
+        String rightConst = rightJSStringEdge ? rightJSStringEdge->tryGetString(m_graph) : String();
+        bool leftAtom = !leftConst.isNull() && leftConst.impl()->isAtom();
+        bool rightAtom = !rightConst.isNull() && rightConst.impl()->isAtom();
+
         LBasicBlock notTriviallyUnequalCase = m_out.newBlock();
         LBasicBlock notEmptyCase = m_out.newBlock();
         LBasicBlock leftReadyCase = m_out.newBlock();
@@ -21880,30 +21886,46 @@ IGNORE_CLANG_WARNINGS_END
         LBasicBlock slowCase = m_out.newBlock();
         LBasicBlock continuation = m_out.newBlock();
 
-        m_out.branch(isRopeString(leftJSString, leftJSStringEdge), rarely(slowCase), usually(leftReadyCase));
+        if (leftAtom)
+            m_out.jump(leftReadyCase);
+        else
+            m_out.branch(isRopeString(leftJSString, leftJSStringEdge), rarely(slowCase), usually(leftReadyCase));
 
         LBasicBlock lastNext = m_out.appendTo(leftReadyCase, rightReadyCase);
-        m_out.branch(isRopeString(rightJSString, rightJSStringEdge), rarely(slowCase), usually(rightReadyCase));
+        if (rightAtom)
+            m_out.jump(rightReadyCase);
+        else
+            m_out.branch(isRopeString(rightJSString, rightJSStringEdge), rarely(slowCase), usually(rightReadyCase));
 
         m_out.appendTo(rightReadyCase, notTriviallyUnequalCase);
-        LValue left = m_out.loadPtr(leftJSString, m_heaps.JSString_value);
-        LValue right = m_out.loadPtr(rightJSString, m_heaps.JSString_value);
-        LValue length = m_out.load32(left, m_heaps.StringImpl_length);
+        LValue left = leftAtom ? nullptr : m_out.loadPtr(leftJSString, m_heaps.JSString_value);
+        LValue right = rightAtom ? nullptr : m_out.loadPtr(rightJSString, m_heaps.JSString_value);
+        LValue leftLength = leftAtom
+            ? m_out.constInt32(leftConst.length())
+            : m_out.load32(left, m_heaps.StringImpl_length);
+        LValue rightLength = rightAtom
+            ? m_out.constInt32(rightConst.length())
+            : m_out.load32(right, m_heaps.StringImpl_length);
         m_out.branch(
-            m_out.notEqual(length, m_out.load32(right, m_heaps.StringImpl_length)),
+            m_out.notEqual(leftLength, rightLength),
             unsure(falseCase), unsure(notTriviallyUnequalCase));
 
         m_out.appendTo(notTriviallyUnequalCase, notEmptyCase);
+        LValue length = leftLength;
         m_out.branch(m_out.isZero32(length), unsure(trueCase), unsure(notEmptyCase));
 
         // Mixed-width pairs bail to the slow path; the runtime helper handles cross-width equality.
         m_out.appendTo(notEmptyCase, widthMatchedCase);
-        LValue leftIs8Bit = m_out.bitAnd(
-            m_out.load32(left, m_heaps.StringImpl_hashAndFlags),
-            m_out.constInt32(StringImpl::flagIs8Bit()));
-        LValue rightIs8Bit = m_out.bitAnd(
-            m_out.load32(right, m_heaps.StringImpl_hashAndFlags),
-            m_out.constInt32(StringImpl::flagIs8Bit()));
+        LValue leftIs8Bit = leftAtom
+            ? m_out.constInt32(leftConst.is8Bit() ? StringImpl::flagIs8Bit() : 0)
+            : m_out.bitAnd(
+                m_out.load32(left, m_heaps.StringImpl_hashAndFlags),
+                m_out.constInt32(StringImpl::flagIs8Bit()));
+        LValue rightIs8Bit = rightAtom
+            ? m_out.constInt32(rightConst.is8Bit() ? StringImpl::flagIs8Bit() : 0)
+            : m_out.bitAnd(
+                m_out.load32(right, m_heaps.StringImpl_hashAndFlags),
+                m_out.constInt32(StringImpl::flagIs8Bit()));
         m_out.branch(m_out.notEqual(leftIs8Bit, rightIs8Bit), rarely(slowCase), usually(widthMatchedCase));
 
         // 8-bit is the common case: fall through with byteLength == length. 16-bit converts char-count
@@ -21919,8 +21941,18 @@ IGNORE_CLANG_WARNINGS_END
         m_out.appendTo(byteLengthReady, byteLoop);
         LValue byteLength = m_out.phi(Int32, byteLengthIf8Bit, byteLengthIf16Bit);
 
-        LValue leftData = m_out.loadPtr(left, m_heaps.StringImpl_data);
-        LValue rightData = m_out.loadPtr(right, m_heaps.StringImpl_data);
+        auto materializeAtomDataPtr = [&](const String& s) {
+            const void* data = s.is8Bit()
+                ? static_cast<const void*>(s.span8().data())
+                : static_cast<const void*>(s.span16().data());
+            return m_out.constIntPtr(data);
+        };
+        LValue leftData = leftAtom
+            ? materializeAtomDataPtr(leftConst)
+            : m_out.loadPtr(left, m_heaps.StringImpl_data);
+        LValue rightData = rightAtom
+            ? materializeAtomDataPtr(rightConst)
+            : m_out.loadPtr(right, m_heaps.StringImpl_data);
 
         constexpr unsigned wordSize = 8;
         ValueFromBlock byteIndexAtStart = m_out.anchor(byteLength);
@@ -21981,10 +22013,26 @@ IGNORE_CLANG_WARNINGS_END
 
         m_out.appendTo(slowCase, continuation);
 
-        LValue slowResultValue = vmCall(
-            Int64, operationCompareStringEq, weakPointer(globalObject),
-            leftJSString, rightJSString);
-        ValueFromBlock slowResult = m_out.anchor(unboxBoolean(slowResultValue));
+        VM* vmPtr = &vm();
+        callPreflight();
+        auto global = weakPointer(globalObject);
+        PatchpointValue* thunkCall = m_out.patchpoint(toOperationType(Int64));
+        thunkCall->append(global, ValueRep::reg(GPRInfo::argumentGPR0));
+        thunkCall->append(leftJSString, ValueRep::reg(GPRInfo::argumentGPR1));
+        thunkCall->append(rightJSString, ValueRep::reg(GPRInfo::argumentGPR2));
+        thunkCall->resultConstraints = {
+            ValueRep::reg(GPRInfo::returnValueGPR),
+            ValueRep::reg(GPRInfo::returnValueGPR2),
+        };
+        thunkCall->clobber(RegisterSet::registersToSaveForCCall(RegisterSet::allScalarRegisters()));
+        thunkCall->effects = Effects::forCall();
+        thunkCall->setGenerator(
+            [=] (CCallHelpers& jit, const StackmapGenerationParams&) {
+                AllowMacroScratchRegisterUsage allowScratch(jit);
+                jit.nearCallThunk(CodeLocationLabel<JITThunkPtrTag>(vmPtr->getCTIStub(stringEqualThunkGenerator).code()));
+            });
+        LValue result = operationExceptionCheckAndExtractResultIfNeeded<ExceptionOperationResult<EncodedJSValue>>(thunkCall);
+        ValueFromBlock slowResult = m_out.anchor(unboxBoolean(result));
         m_out.jump(continuation);
 
         m_out.appendTo(continuation, lastNext);

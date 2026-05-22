@@ -71,6 +71,9 @@ MacroAssemblerCodeRef<JITThunkPtrTag> internalFunctionConstructGenerator(VM&);
 MacroAssemblerCodeRef<JITThunkPtrTag> arityFixupGenerator(VM&);
 MacroAssemblerCodeRef<JITThunkPtrTag> unreachableGenerator(VM&);
 MacroAssemblerCodeRef<JITThunkPtrTag> stringGetByValGenerator(VM&);
+#if USE(JSVALUE64)
+MacroAssemblerCodeRef<JITThunkPtrTag> stringEqualThunkGenerator(VM&);
+#endif
 
 MacroAssemblerCodeRef<JITThunkPtrTag> charCodeAtThunkGenerator(VM&);
 MacroAssemblerCodeRef<JITThunkPtrTag> charAtThunkGenerator(VM&);

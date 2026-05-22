@@ -1389,7 +1389,8 @@ public:
         Node*, GPRReg leftGPR, GPRReg rightGPR, GPRReg lengthGPR,
         GPRReg leftTempGPR, GPRReg rightTempGPR, GPRReg leftTemp2GPR,
         GPRReg rightTemp2GPR, const JITCompiler::JumpList& fastTrue,
-        const JITCompiler::JumpList& fastSlow);
+        const JITCompiler::JumpList& fastFalse,
+        Edge leftEdge, Edge rightEdge);
     void compileStringEquality(Node*);
     void compileStringIdentEquality(Node*);
     void compileStringToUntypedEquality(Node*, Edge stringEdge, Edge untypedEdge);
