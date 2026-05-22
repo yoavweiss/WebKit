@@ -1734,6 +1734,7 @@ target_compile_options(_WebKit_SwiftUI PRIVATE
     "$<$<COMPILE_LANGUAGE:Swift>:-enable-library-evolution>"
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-library-level api>"
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-enable-upcoming-feature InternalImportsByDefault>"
+    "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xfrontend -experimental-spi-only-imports>"
     "$<$<COMPILE_LANGUAGE:Swift>:-DENABLE_SWIFTUI>"
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:@${_swiftui_resp}>"
     "$<$<COMPILE_LANGUAGE:Swift>:-cxx-interoperability-mode=default>"
