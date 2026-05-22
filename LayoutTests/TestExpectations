@@ -682,6 +682,7 @@ imported/w3c/web-platform-tests/html/semantics/forms/the-select-element/select-m
 imported/w3c/web-platform-tests/html/semantics/forms/the-select-element/select-popover-position-with-zoom.tentative.html [ Skip ]
 imported/w3c/web-platform-tests/html/rendering/replaced-elements/the-select-element/select-empty.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/rendering/replaced-elements/the-select-element/select-button-min-height-001.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/html/rendering/replaced-elements/the-select-element/select-adopted.html [ ImageOnlyFailure ]
 
 ## -- CSS Forms -- ##
 imported/w3c/web-platform-tests/css/css-forms/input-text-base-appearance-rendering.html [ ImageOnlyFailure ]
@@ -908,15 +909,12 @@ imported/w3c/web-platform-tests/html/rendering/widgets/the-select-element/option
 imported/w3c/web-platform-tests/html/rendering/widgets/input-checkbox-zero-size.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/rendering/widgets/input-number-text-size.tentative.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/rendering/the-details-element/details-content-pseudo-attr.html [ ImageOnlyFailure ]
-
-#[ iOS MacOS ] imported/w3c/web-platform-tests/html/rendering/widgets/the-select-element/option-add-label-quirks.html(layout-tests) is a constant IMAGE failure
-imported/w3c/web-platform-tests/html/rendering/widgets/the-select-element/option-add-label-quirks.html [ Failure ImageOnlyFailure ]
-
+imported/w3c/web-platform-tests/html/rendering/widgets/the-select-element/select-label-appearance.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/html/rendering/widgets/the-select-element/option-add-label-quirks.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/rendering/non-replaced-elements/the-fieldset-and-legend-elements/legend-painting-order.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/rendering/replaced-elements/attributes-for-embedded-content-and-images/input-image-inline-alt.html [ ImageOnlyFailure ]
 webkit.org/b/252594 imported/w3c/web-platform-tests/html/rendering/replaced-elements/attributes-for-embedded-content-and-images/video-inline-size-containment-no-crash.html [ Skip ]
 imported/w3c/web-platform-tests/html/rendering/replaced-elements/embedded-content/cross-domain-iframe.sub.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/html/rendering/replaced-elements/embedded-content/tall-cross-domain-iframe-in-scrolled.sub.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/adopt-from-image-document.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/image-loading-lazy-slow-aspect-ratio.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/semantics/forms/the-input-element/range-tick-marks-02.html [ ImageOnlyFailure ]
@@ -925,7 +923,6 @@ imported/w3c/web-platform-tests/html/rendering/non-replaced-elements/phrasing-co
 imported/w3c/web-platform-tests/html/rendering/non-replaced-elements/phrasing-content-0/font-element-text-decoration-color/001-a.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/rendering/non-replaced-elements/phrasing-content-0/font-element-text-decoration-color/001-s.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/rendering/non-replaced-elements/phrasing-content-0/font-element-text-decoration-color/001-q.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/html/rendering/replaced-elements/embedded-content/cross-domain-iframe-in-multicol.sub.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/semantics/grouping-content/the-li-element/grouping-li-reftest-007.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/canvas/element/manual/context-attributes/clearRect_alpha_false.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/canvas/element/manual/context-attributes/drawImage_alpha_false.html [ ImageOnlyFailure ]
