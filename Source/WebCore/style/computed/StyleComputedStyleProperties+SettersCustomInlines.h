@@ -69,11 +69,7 @@ inline bool ComputedStyleProperties::setWritingMode(StyleWritingMode mode)
 
 inline bool ComputedStyleProperties::setZoom(Zoom zoom)
 {
-    // Clamp the effective zoom value to avoid overflow in derived computations.
-    // This matches other engines values for compatibility.
-    constexpr float minEffectiveZoom = 1e-6f;
-    constexpr float maxEffectiveZoom = 1e6f;
-    setUsedZoom(clampTo<float>(usedZoom() * evaluate<float>(zoom), minEffectiveZoom, maxEffectiveZoom));
+    setUsedZoom(clampTo<float>(usedZoom() * evaluate<float>(zoom), Zoom::minEffective, Zoom::maxEffective));
 
     if (compareEqual(m_nonInheritedData->rareData->zoom, zoom))
         return false;

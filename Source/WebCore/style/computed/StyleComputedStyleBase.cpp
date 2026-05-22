@@ -38,6 +38,7 @@
 #include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StyleTextDecorationLine.h"
 #include "StyleTextTransform.h"
+#include "StyleZoom.h"
 #include <algorithm>
 #include <wtf/MathExtras.h>
 #include <wtf/StdLibExtras.h>
@@ -292,6 +293,21 @@ void ComputedStyleBase::setWordSpacingFromAnimation(WordSpacing&& value)
 
         synchronizeWordSpacingWithFontCascade();
     }
+}
+
+void ComputedStyleBase::setZoomFromAnimation(Zoom value)
+{
+    // Match StyleBuilderCustom::applyValueZoom: treat zoom: 0 as 1.
+    if (evaluate<float>(value) < Zoom::minEffective)
+        value = Zoom { 1.0f };
+
+    // Replay StyleBuilderCustom::resetUsedZoom: recover parent.usedZoom from (zoom, usedZoom) so setUsedZoom below ends at parent.usedZoom * specifiedZoom.
+    auto currentSpecified = evaluate<float>(m_nonInheritedData->rareData->zoom);
+    auto parentUsedZoom = currentSpecified < Zoom::minEffective ? 1.0f : usedZoom() / currentSpecified;
+    setUsedZoom(clampTo<float>(parentUsedZoom * evaluate<float>(value), Zoom::minEffective, Zoom::maxEffective));
+
+    if (value != m_nonInheritedData->rareData->zoom)
+        m_nonInheritedData.access().rareData.access().zoom = value;
 }
 
 void ComputedStyleBase::synchronizeLetterSpacingWithFontCascade()

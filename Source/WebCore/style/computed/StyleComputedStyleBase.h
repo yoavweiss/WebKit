@@ -618,6 +618,8 @@ public:
     inline float usedZoom() const;
     inline bool setUsedZoom(float);
 
+    void setZoomFromAnimation(Zoom);
+
     inline ZoomFactor usedZoomForLength() const;
 
     // MARK: - Fonts

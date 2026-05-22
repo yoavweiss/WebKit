@@ -1667,7 +1667,7 @@
             }
         },
         "zoom": {
-            "animation-type": "not animatable",
+            "animation-type": "by computed value",
             "initial": "1",
             "values": [
                 {
@@ -1676,6 +1676,7 @@
                 }
             ],
             "codegen-properties": {
+                "animation-wrapper-requires-setter": "setZoomFromAnimation",
                 "style-builder-custom": "All",
                 "high-priority": true,
                 "computed-style-initial-constexpr": true,
