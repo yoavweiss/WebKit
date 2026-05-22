@@ -1514,12 +1514,17 @@ bool SelectorChecker::matchHasPseudoClass(CheckingContext& checkingContext, cons
         auto& map = compiledHasArgumentSelectorsMap();
         if (map.size() >= maximumCompiledHasArgumentSelectorsSize)
             map.remove(map.random());
-        auto& compiledSelectors = map.ensure(selectorList, [&] {
+        auto result = map.ensure(selectorList, [&] {
             return FixedVector<CompiledSelector>(selectorList.size());
-        }).iterator->value;
+        });
+
+        auto& [hashKey, compiledSelectors] = *result.iterator;
+        // Iterate the cached copy: the JIT bakes pointers to selector data into compiled
+        // code, and the cache outlives the originating CSSSelectorList.
+        auto& cachedSelectorList = hashKey.key();
 
         unsigned argIndex = 0;
-        for (auto& hasSelector : selectorList) {
+        for (auto& hasSelector : cachedSelectorList) {
             if (matchHasArgumentSelector(checkingContext, element, hasSelector, &compiledSelectors[argIndex++], matchingHost))
                 return true;
         }
