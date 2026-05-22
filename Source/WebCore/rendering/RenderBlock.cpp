@@ -3028,8 +3028,10 @@ std::optional<LayoutUnit> RenderBlock::availableLogicalHeightForPercentageComput
         }
 
         if (shouldComputeLogicalHeightFromAspectRatio()) {
-            // Only grid is expected to be in a state where it is calculating pref width and having unknown logical width.
-            if (isRenderGrid() && needsPreferredLogicalWidthsUpdate() && !style.logicalWidth().isSpecified())
+            // Grid and flex containers may be in a state where they are calculating pref width
+            // with logical width not yet specified; in that case logicalWidth() carries the previous
+            // layout's value and would feed a stale aspect-ratio derivation here.
+            if ((isRenderGrid() || is<RenderFlexibleBox>(*this)) && needsPreferredLogicalWidthsUpdate() && !style.logicalWidth().isSpecified())
                 return { };
             return blockSizeFromAspectRatio(
                 horizontalBorderAndPaddingExtent(),
