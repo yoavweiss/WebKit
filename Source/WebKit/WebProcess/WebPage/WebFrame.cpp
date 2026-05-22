@@ -142,7 +142,6 @@
 #endif
 
 namespace WebKit {
-using namespace JSC;
 using namespace WebCore;
 
 static uint64_t NODELETE generateListenerID()
@@ -1164,7 +1163,7 @@ JSValueRef WebFrame::jsWrapperForWorld(InjectedBundleCSSStyleDeclarationHandle* 
 
     auto* globalObject = protect(localFrame->script())->globalObject(protect(world->coreWorld()));
 
-    JSLockHolder lock(globalObject);
+    JSC::JSLockHolder lock(globalObject);
     return toRef(globalObject, toJS(globalObject, globalObject, cssStyleDeclarationHandle->coreCSSStyleDeclaration()));
 }
 
@@ -1176,7 +1175,7 @@ JSValueRef WebFrame::jsWrapperForWorld(InjectedBundleNodeHandle* nodeHandle, Inj
 
     auto* globalObject = protect(localFrame->script())->globalObject(protect(world->coreWorld()));
 
-    JSLockHolder lock(globalObject);
+    JSC::JSLockHolder lock(globalObject);
     RefPtr coreNode = nodeHandle->coreNode();
     return toRef(globalObject, coreNode ? toJS(globalObject, globalObject, coreNode.releaseNonNull()) : JSC::jsNull());
 }
@@ -1189,7 +1188,7 @@ JSValueRef WebFrame::jsWrapperForWorld(InjectedBundleRangeHandle* rangeHandle, I
 
     auto* globalObject = protect(localFrame->script())->globalObject(protect(world->coreWorld()));
 
-    JSLockHolder lock(globalObject);
+    JSC::JSLockHolder lock(globalObject);
     return toRef(globalObject, toJS(globalObject, globalObject, Ref { rangeHandle->coreRange() }.get()));
 }
 
@@ -1587,7 +1586,7 @@ static Ref<WebKitJSHandle> createJSHandle(Node& node)
     auto* lexicalGlobalObject = document->globalObject();
     RELEASE_ASSERT(lexicalGlobalObject->template inherits<JSDOMGlobalObject>());
     auto* domGlobalObject = downcast<JSDOMGlobalObject>(lexicalGlobalObject);
-    JSLockHolder locker { lexicalGlobalObject };
+    JSC::JSLockHolder locker { lexicalGlobalObject };
     return WebKitJSHandle::create(toJS(lexicalGlobalObject, domGlobalObject, node).toObject(lexicalGlobalObject));
 }
 

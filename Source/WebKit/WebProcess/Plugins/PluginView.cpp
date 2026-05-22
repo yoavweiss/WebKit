@@ -89,7 +89,6 @@
 #include <wtf/text/StringBuilder.h>
 
 namespace WebKit {
-using namespace JSC;
 using namespace WebCore;
 
 class PluginView::Stream : public RefCounted<PluginView::Stream>, NetscapePlugInStreamLoaderClient {

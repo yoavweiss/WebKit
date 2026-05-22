@@ -29,6 +29,7 @@
 
 #import "config.h"
 #import "WebExtensionAPIScripting.h"
+#import "WebExtensionAPIKeys.h"
 
 #if ENABLE(WK_WEB_EXTENSIONS)
 
@@ -50,38 +51,6 @@
 #import "WebProcess.h"
 #import <WebCore/UserGestureIndicator.h>
 #import <wtf/cocoa/VectorCocoa.h>
-
-static NSString * const allFramesKey = @"allFrames";
-static NSString * const argsKey = @"args";
-static NSString * const argumentsKey = @"arguments";
-static NSString * const cssKey = @"css";
-static NSString * const cssOriginKey = @"cssOrigin";
-static NSString * const documentIDsKey = @"documentIds";
-static NSString * const filesKey = @"files";
-static NSString * const frameIDsKey = @"frameIds";
-static NSString * const funcKey = @"func";
-static NSString * const functionKey = @"function";
-static NSString * const tabIDKey = @"tabId";
-static NSString * const targetKey = @"target";
-static NSString * const worldKey = @"world";
-
-static NSString * const excludeMatchesKey = @"excludeMatches";
-static NSString * const idsKey = @"ids";
-static NSString * const jsKey = @"js";
-static NSString * const matchOriginAsFallbackKey = @"matchOriginAsFallback";
-static NSString * const matchesKey = @"matches";
-static NSString * const persistAcrossSessionsKey = @"persistAcrossSessions";
-static NSString * const runAtKey = @"runAt";
-
-static NSString * const mainWorld = @"main";
-static NSString * const isolatedWorld = @"isolated";
-
-static NSString * const authorValue = @"author";
-static NSString * const userValue = @"user";
-
-static NSString * const documentEnd = @"document_end";
-static NSString * const documentIdle = @"document_idle";
-static NSString * const documentStart = @"document_start";
 
 // FIXME: <https://webkit.org/b/261765> Consider adding support for injectImmediately.
 // FIXME: <https://webkit.org/b/264829> Add support for matchOriginAsFallback.

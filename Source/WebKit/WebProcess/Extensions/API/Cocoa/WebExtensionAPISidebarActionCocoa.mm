@@ -29,6 +29,7 @@
 
 #include "config.h"
 #import "WebExtensionAPISidebarAction.h"
+#import "WebExtensionAPIKeys.h"
 
 #if ENABLE(WK_WEB_EXTENSIONS_SIDEBAR)
 
@@ -41,10 +42,6 @@
 
 namespace WebKit {
 
-static NSString * const tabIdKey = @"tabId";
-static NSString * const windowIdKey = @"windowId";
-static NSString * const panelKey = @"panel";
-static NSString * const titleKey = @"title";
 
 static ParseResult parseSidebarActionDetails(NSDictionary *details)
 {

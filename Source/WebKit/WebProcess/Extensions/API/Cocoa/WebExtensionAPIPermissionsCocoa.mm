@@ -29,6 +29,7 @@
 
 #import "config.h"
 #import "WebExtensionAPIPermissions.h"
+#import "WebExtensionAPIKeys.h"
 
 #if ENABLE(WK_WEB_EXTENSIONS)
 
@@ -44,8 +45,6 @@
 
 namespace WebKit {
 
-static NSString * const permissionsKey = @"permissions";
-static NSString * const originsKey = @"origins";
 
 void WebExtensionAPIPermissions::getAll(Ref<WebExtensionCallbackHandler>&& callback)
 {

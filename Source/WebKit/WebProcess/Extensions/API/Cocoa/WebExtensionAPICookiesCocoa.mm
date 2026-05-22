@@ -29,6 +29,7 @@
 
 #import "config.h"
 #import "WebExtensionAPICookies.h"
+#import "WebExtensionAPIKeys.h"
 
 #if ENABLE(WK_WEB_EXTENSIONS)
 
@@ -44,28 +45,6 @@
 #import <wtf/cocoa/VectorCocoa.h>
 
 namespace WebKit {
-
-static NSString * const domainKey = @"domain";
-static NSString * const expirationDateKey = @"expirationDate";
-static NSString * const hostOnlyKey = @"hostOnly";
-static NSString * const httpOnlyKey = @"httpOnly";
-static NSString * const idKey = @"id";
-static NSString * const incognitoKey = @"incognito";
-static NSString * const pathKey = @"path";
-static NSString * const sameSiteKey = @"sameSite";
-static NSString * const secureKey = @"secure";
-static NSString * const sessionKey = @"session";
-static NSString * const storeIdKey = @"storeId";
-static NSString * const tabIdsKey = @"tabIds";
-static NSString * const urlKey = @"url";
-static NSString * const valueKey = @"value";
-
-static NSString * const noRestrictionKey = @"no_restriction";
-static NSString * const laxKey = @"lax";
-static NSString * const strictKey = @"strict";
-
-static NSString * const ephemeralPrefix = @"ephemeral-";
-static NSString * const persistentPrefix = @"persistent-";
 
 static inline std::optional<PAL::SessionID> toImpl(NSString *storeID)
 {

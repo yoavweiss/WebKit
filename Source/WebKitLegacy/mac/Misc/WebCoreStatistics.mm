@@ -46,7 +46,6 @@
 #import <WebCore/RenderTreeAsText.h>
 #import <WebCore/RenderView.h>
 
-using namespace JSC;
 using namespace WebCore;
 
 @implementation WebCoreStatistics
@@ -58,25 +57,25 @@ using namespace WebCore;
 
 + (size_t)javaScriptObjectsCount
 {
-    JSLockHolder lock(commonVM());
+    JSC::JSLockHolder lock(commonVM());
     return commonVM().heap.objectCount();
 }
 
 + (size_t)javaScriptGlobalObjectsCount
 {
-    JSLockHolder lock(commonVM());
+    JSC::JSLockHolder lock(commonVM());
     return commonVM().heap.globalObjectCount();
 }
 
 + (size_t)javaScriptProtectedObjectsCount
 {
-    JSLockHolder lock(commonVM());
+    JSC::JSLockHolder lock(commonVM());
     return commonVM().heap.protectedObjectCount();
 }
 
 + (size_t)javaScriptProtectedGlobalObjectsCount
 {
-    JSLockHolder lock(commonVM());
+    JSC::JSLockHolder lock(commonVM());
     return commonVM().heap.protectedGlobalObjectCount();
 }
 
@@ -93,13 +92,13 @@ static RetainPtr<NSCountedSet> createNSCountedSet(const HashCountedSet<ASCIILite
 
 + (NSCountedSet *)javaScriptProtectedObjectTypeCounts
 {
-    JSLockHolder lock(commonVM());
+    JSC::JSLockHolder lock(commonVM());
     return createNSCountedSet(commonVM().heap.protectedObjectTypeCounts()).autorelease();
 }
 
 + (NSCountedSet *)javaScriptObjectTypeCounts
 {
-    JSLockHolder lock(commonVM());
+    JSC::JSLockHolder lock(commonVM());
     return createNSCountedSet(commonVM().heap.objectTypeCounts()).autorelease();
 }
 
@@ -160,13 +159,13 @@ static RetainPtr<NSCountedSet> createNSCountedSet(const HashCountedSet<ASCIILite
 
 + (BOOL)shouldPrintExceptions
 {
-    JSLockHolder lock(commonVM());
+    JSC::JSLockHolder lock(commonVM());
     return FrameConsoleClient::shouldPrintExceptions();
 }
 
 + (void)setShouldPrintExceptions:(BOOL)print
 {
-    JSLockHolder lock(commonVM());
+    JSC::JSLockHolder lock(commonVM());
     FrameConsoleClient::setShouldPrintExceptions(print);
 }
 
@@ -183,10 +182,10 @@ static RetainPtr<NSCountedSet> createNSCountedSet(const HashCountedSet<ASCIILite
 + (NSDictionary *)memoryStatistics
 {
     auto fastMallocStatistics = WTF::fastMallocStatistics();
-    JSLockHolder lock(commonVM());
+    JSC::JSLockHolder lock(commonVM());
     size_t heapSize = commonVM().heap.size();
     size_t heapFree = commonVM().heap.capacity() - heapSize;
-    auto globalMemoryStats = globalMemoryStatistics();
+    auto globalMemoryStats = JSC::globalMemoryStatistics();
     return @{
         @"FastMallocReservedVMBytes": @(fastMallocStatistics.reservedVMBytes),
         @"FastMallocCommittedVMBytes": @(fastMallocStatistics.committedVMBytes),
@@ -227,7 +226,7 @@ static RetainPtr<NSCountedSet> createNSCountedSet(const HashCountedSet<ASCIILite
 
 + (size_t)javaScriptReferencedObjectsCount
 {
-    JSLockHolder lock(commonVM());
+    JSC::JSLockHolder lock(commonVM());
     return commonVM().heap.protectedObjectCount();
 }
 

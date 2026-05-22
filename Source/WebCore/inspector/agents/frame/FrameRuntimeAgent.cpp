@@ -40,6 +40,7 @@
 #include "LocalFrame.h"
 #include "LocalFrameInlines.h"
 #include "Page.h"
+#include "RuntimeAgentUtilities.h"
 #include "ScriptController.h"
 #include "SecurityOrigin.h"
 #include "UserGestureEmulationScope.h"
@@ -166,21 +167,6 @@ void FrameRuntimeAgent::unmuteConsole()
 String FrameRuntimeAgent::frameIdForProtocol() const
 {
     return makeString("frame-"_s, m_frameIdentifier.toUInt64());
-}
-
-static Inspector::Protocol::Runtime::ExecutionContextType NODELETE toProtocol(DOMWrapperWorld::Type type)
-{
-    switch (type) {
-    case DOMWrapperWorld::Type::Normal:
-        return Inspector::Protocol::Runtime::ExecutionContextType::Normal;
-    case DOMWrapperWorld::Type::User:
-        return Inspector::Protocol::Runtime::ExecutionContextType::User;
-    case DOMWrapperWorld::Type::Internal:
-        return Inspector::Protocol::Runtime::ExecutionContextType::Internal;
-    }
-
-    ASSERT_NOT_REACHED();
-    return Inspector::Protocol::Runtime::ExecutionContextType::Internal;
 }
 
 void FrameRuntimeAgent::reportExecutionContextCreation()

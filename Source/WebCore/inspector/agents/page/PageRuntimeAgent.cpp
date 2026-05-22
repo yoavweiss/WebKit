@@ -42,6 +42,7 @@
 #include "LocalFrame.h"
 #include "Page.h"
 #include "PageInspectorController.h"
+#include "RuntimeAgentUtilities.h"
 #include "ScriptController.h"
 #include "SecurityOrigin.h"
 #include "UserGestureEmulationScope.h"
@@ -160,21 +161,6 @@ void PageRuntimeAgent::reportExecutionContextCreation()
             notifyContextCreated(frameId, globalObject, jsWindowProxy->world(), securityOrigin.ptr());
         }
     });
-}
-
-static Inspector::Protocol::Runtime::ExecutionContextType NODELETE toProtocol(DOMWrapperWorld::Type type)
-{
-    switch (type) {
-    case DOMWrapperWorld::Type::Normal:
-        return Inspector::Protocol::Runtime::ExecutionContextType::Normal;
-    case DOMWrapperWorld::Type::User:
-        return Inspector::Protocol::Runtime::ExecutionContextType::User;
-    case DOMWrapperWorld::Type::Internal:
-        return Inspector::Protocol::Runtime::ExecutionContextType::Internal;
-    }
-
-    ASSERT_NOT_REACHED();
-    return Inspector::Protocol::Runtime::ExecutionContextType::Internal;
 }
 
 void PageRuntimeAgent::notifyContextCreated(const Inspector::Protocol::Network::FrameId& frameId, JSC::JSGlobalObject* globalObject, const DOMWrapperWorld& world, SecurityOrigin* securityOrigin)

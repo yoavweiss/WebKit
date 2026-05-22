@@ -122,7 +122,6 @@ set(WebKit_PUBLIC_FRAMEWORK_HEADERS
     UIProcess/API/cpp/WKRetainPtr.h
 
     WebProcess/InjectedBundle/API/c/WKBundle.h
-    WebProcess/InjectedBundle/API/c/WKBundleAPICast.h
     WebProcess/InjectedBundle/API/c/WKBundleBackForwardList.h
     WebProcess/InjectedBundle/API/c/WKBundleBackForwardListItem.h
     WebProcess/InjectedBundle/API/c/WKBundleDOMWindowExtension.h

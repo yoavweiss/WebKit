@@ -765,7 +765,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
 
 - (void)showWritingTools:(id)sender
 {
-    WTRequestedTool tool = (WTRequestedTool)[sender tag];
+    WTRequestedTool tool = (WTRequestedTool)[(id<NSValidatedUserInterfaceItem>)sender tag];
     if (tool == -1)
         tool = WTRequestedToolIndex;
 

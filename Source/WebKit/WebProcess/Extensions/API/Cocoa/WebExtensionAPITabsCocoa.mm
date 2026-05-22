@@ -29,6 +29,7 @@
 
 #import "config.h"
 #import "WebExtensionAPITabs.h"
+#import "WebExtensionAPIKeys.h"
 
 #if ENABLE(WK_WEB_EXTENSIONS)
 
@@ -55,81 +56,6 @@
 #import <WebCore/UserGestureIndicator.h>
 #import <wtf/cocoa/VectorCocoa.h>
 #import <wtf/text/Base64.h>
-
-static NSString * const idKey = @"id";
-static NSString * const urlKey = @"url";
-static NSString * const titleKey = @"title";
-
-static NSString * const windowIdKey = @"windowId";
-static NSString * const indexKey = @"index";
-static NSString * const openerTabIdKey = @"openerTabId";
-
-static NSString * const widthKey = @"width";
-static NSString * const heightKey = @"height";
-
-static NSString * const activeKey = @"active";
-static NSString * const highlightedKey = @"highlighted";
-static NSString * const selectedKey = @"selected";
-static NSString * const incognitoKey = @"incognito";
-static NSString * const pinnedKey = @"pinned";
-static NSString * const audibleKey = @"audible";
-
-static NSString * const mutedInfoKey = @"mutedInfo";
-static NSString * const mutedKey = @"muted";
-
-static NSString * const statusKey = @"status";
-static NSString * const loadingKey = @"loading";
-static NSString * const completeKey = @"complete";
-
-static NSString * const isArticleKey = @"isArticle";
-static NSString * const isInReaderModeKey = @"isInReaderMode";
-static NSString * const openInReaderModeKey = @"openInReaderMode";
-
-static NSString * const currentWindowKey = @"currentWindow";
-static NSString * const hiddenKey = @"hidden";
-static NSString * const lastFocusedWindowKey = @"lastFocusedWindow";
-static NSString * const windowTypeKey = @"windowType";
-
-static NSString * const bypassCacheKey = @"bypassCache";
-
-static NSString * const oldWindowIdKey = @"oldWindowId";
-static NSString * const oldPositionKey = @"oldPosition";
-
-static NSString * const newWindowIdKey = @"newWindowId";
-static NSString * const newPositionKey = @"newPosition";
-
-static NSString * const previousTabIdKey = @"previousTabId";
-static NSString * const tabIdKey = @"tabId";
-
-static NSString * const fromIndexKey = @"fromIndex";
-static NSString * const toIndexKey = @"toIndex";
-
-static NSString * const isWindowClosingKey = @"isWindowClosing";
-
-static NSString * const tabIdsKey = @"tabIds";
-
-static NSString * const formatKey = @"format";
-static NSString * const pngValue = @"png";
-static NSString * const jpegValue = @"jpeg";
-
-static NSString * const qualityKey = @"quality";
-
-static NSString * const frameIdKey = @"frameId";
-static NSString * const documentIdKey = @"documentId";
-static NSString * const nameKey = @"name";
-
-static NSString * const allFramesKey = @"allFrames";
-static NSString * const codeKey = @"code";
-static NSString * const fileKey = @"file";
-static NSString * const cssOriginKey = @"cssOrigin";
-
-static NSString * const authorValue = @"author";
-static NSString * const userValue = @"user";
-
-static NSString * const emptyURLValue = @"";
-static NSString * const emptyTitleValue = @"";
-static NSString * const emptyDataURLValue = @"data:,";
-static NSString * const unknownLanguageValue = @"und";
 
 namespace WebKit {
 

@@ -29,6 +29,7 @@
 
 #import "config.h"
 #import "WebExtensionAPIAlarms.h"
+#import "WebExtensionAPIKeys.h"
 
 #if ENABLE(WK_WEB_EXTENSIONS)
 
@@ -44,15 +45,6 @@
 #import <wtf/DateMath.h>
 
 namespace WebKit {
-
-static NSString * const whenKey = @"when";
-static NSString * const delayInMinutesKey = @"delayInMinutes";
-static NSString * const periodInMinutesKey = @"periodInMinutes";
-
-static NSString * const nameKey = @"name";
-static NSString * const scheduledTimeKey = @"scheduledTime";
-
-static NSString * const emptyAlarmName = @"";
 
 static inline NSDictionary *toWebAPI(const WebExtensionAlarmParameters& alarm)
 {

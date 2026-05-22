@@ -114,7 +114,7 @@ JSValueRef callWithArguments(JSObjectRef callbackFunction, JSRetainPtr<JSGlobalC
         return nil;
 
     auto* globalObject = toJS(globalContext.get());
-    RefPtr context = globalObject ? downcast<JSDOMGlobalObject>(globalObject)->scriptExecutionContext() : nullptr;
+    RefPtr context = globalObject ? downcast<WebCore::JSDOMGlobalObject>(globalObject)->scriptExecutionContext() : nullptr;
     if (!context || context->activeDOMObjectsAreStopped())
         return nil;
 

@@ -29,6 +29,7 @@
 
 #import "config.h"
 #import "WebExtensionAPIDeclarativeNetRequest.h"
+#import "WebExtensionAPIKeys.h"
 
 #import "CocoaHelpers.h"
 #import "JSWebExtensionWrapper.h"
@@ -51,45 +52,7 @@
 
 namespace WebKit {
 
-static NSString * const disableRulesetsKey = @"disableRulesetIds";
-static NSString * const enableRulesetsKey = @"enableRulesetIds";
-
-static NSString * const regexKey = @"regex";
-static NSString * const regexIsCaseSensitiveKey = @"isCaseSensitive";
-static NSString * const regexRequireCapturingKey = @"requireCapturing";
-
-static NSString * const actionCountDisplayActionCountAsBadgeTextKey = @"displayActionCountAsBadgeText";
-static NSString * const actionCountTabUpdateKey = @"tabUpdate";
-static NSString * const actionCountTabIDKey = @"tabId";
-static NSString * const actionCountIncrementKey = @"increment";
-
-static NSString * const getMatchedRulesTabIDKey = @"tabId";
-static NSString * const getMatchedRulesMinTimeStampKey = @"minTimeStamp";
-
-static NSString * const getDynamicOrSessionRulesRuleIDsKey = @"ruleIds";
-
-static NSString * const addRulesKey = @"addRules";
-static NSString * const removeRulesKey = @"removeRuleIds";
-
 #if ENABLE(DNR_ON_RULE_MATCHED_DEBUG)
-static NSString * const requestKey = @"request";
-static NSString * const documentIdKey = @"documentId";
-static NSString * const documentLifecycleKey = @"documentLifecycle";
-static NSString * const frameIdKey = @"frameId";
-static NSString * const frameTypeKey = @"frameType";
-static NSString * const initiatorKey = @"initiator";
-static NSString * const methodKey = @"method";
-static NSString * const parentDocumentIdKey = @"parentDocumentId";
-static NSString * const parentFrameIdKey = @"parentFrameId";
-static NSString * const requestIdKey = @"requestId";
-static NSString * const tabIdKey = @"tabId";
-static NSString * const typeKey = @"type";
-static NSString * const urlKey = @"url";
-
-static NSString * const ruleKey = @"rule";
-static NSString * const extensionIdKey = @"extensionId";
-static NSString * const ruleIdKey = @"ruleId";
-static NSString * const rulesetIdKey = @"rulesetId";
 
 static inline NSDictionary *toWebAPI(const WebCore::ContentRuleListMatchedRule& matchedRuleInfo)
 {

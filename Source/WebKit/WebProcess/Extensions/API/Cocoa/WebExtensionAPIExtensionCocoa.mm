@@ -29,6 +29,7 @@
 
 #import "config.h"
 #import "WebExtensionAPIExtension.h"
+#import "WebExtensionAPIKeys.h"
 
 #if ENABLE(WK_WEB_EXTENSIONS)
 
@@ -39,13 +40,6 @@
 #import "WebExtensionUtilities.h"
 #import "WebPage.h"
 #import "WebProcess.h"
-
-static NSString * const typeKey = @"type";
-static NSString * const tabIdKey = @"tabId";
-static NSString * const windowIdKey = @"windowId";
-
-static NSString * const popupKey = @"popup";
-static NSString * const tabKey = @"tab";
 
 namespace WebKit {
 

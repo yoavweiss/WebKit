@@ -29,6 +29,7 @@
 
 #import "config.h"
 #import "WebExtensionAPIWindows.h"
+#import "WebExtensionAPIKeys.h"
 
 #if ENABLE(WK_WEB_EXTENSIONS)
 
@@ -43,34 +44,6 @@
 #import "WebExtensionUtilities.h"
 #import "WebExtensionWindowIdentifier.h"
 #import "WebProcess.h"
-
-static NSString * const populateKey = @"populate";
-
-static NSString * const windowTypesKey = @"windowTypes";
-static NSString * const normalKey = @"normal";
-static NSString * const popupKey = @"popup";
-
-static NSString * const minimizedKey = @"minimized";
-static NSString * const maximizedKey = @"maximized";
-static NSString * const fullscreenKey = @"fullscreen";
-
-static NSString * const focusedKey = @"focused";
-static NSString * const incognitoKey = @"incognito";
-static NSString * const stateKey = @"state";
-static NSString * const typeKey = @"type";
-
-static NSString * const topKey = @"top";
-static NSString * const leftKey = @"left";
-static NSString * const widthKey = @"width";
-static NSString * const heightKey = @"height";
-
-static NSString * const tabsKey = @"tabs";
-
-static NSString * const idKey = @"id";
-static NSString * const alwaysOnTopKey = @"alwaysOnTop";
-
-static NSString * const urlKey = @"url";
-static NSString * const tabIdKey = @"tabId";
 
 namespace WebKit {
 

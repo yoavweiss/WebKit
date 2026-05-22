@@ -36,6 +36,7 @@
 #import <WebKit/WebNSURLExtras.h>
 #import <wtf/RetainPtr.h>
 #import <wtf/cocoa/TypeCastsCocoa.h>
+#import <wtf/text/MakeString.h>
 
 using namespace WebKit;
 

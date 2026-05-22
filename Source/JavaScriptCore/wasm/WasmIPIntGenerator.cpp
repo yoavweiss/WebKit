@@ -113,7 +113,7 @@ namespace JSC { namespace Wasm {
 using ErrorType = String;
 using PartialResult = Expected<void, ErrorType>;
 using UnexpectedResult = std::unexpected<ErrorType>;
-struct Value { };
+struct IPIntValue { };
 
 // ControlBlock
 
@@ -208,11 +208,11 @@ public:
     static constexpr bool shouldFuseBranchCompare = false;
 
     using ControlType = IPIntControlType;
-    using ExpressionType = Value;
+    using ExpressionType = IPIntValue;
     using CallType = CallLinkInfo::CallType;
-    using ResultList = Vector<Value, 8>;
+    using ResultList = Vector<IPIntValue, 8>;
 
-    using ExpressionList = Vector<Value, 1>;
+    using ExpressionList = Vector<IPIntValue, 1>;
     using ControlEntry = FunctionParser<IPIntGenerator>::ControlEntry;
     using ControlStack = FunctionParser<IPIntGenerator>::ControlStack;
     using Stack = FunctionParser<IPIntGenerator>::Stack;
@@ -238,7 +238,7 @@ public:
 
     [[nodiscard]] PartialResult addArguments(const RTT&);
     [[nodiscard]] PartialResult addLocal(Type, uint32_t);
-    Value addConstant(Type, uint64_t);
+    IPIntValue addConstant(Type, uint64_t);
 
     // SIMD
 
@@ -696,7 +696,7 @@ IPIntGenerator::IPIntGenerator(ModuleInformation& info, FunctionCodeIndex functi
     return { };
 }
 
-Value IPIntGenerator::addConstant(Type, uint64_t)
+IPIntValue IPIntGenerator::addConstant(Type, uint64_t)
 {
     changeStackSize(1);
     return { };
@@ -2421,7 +2421,7 @@ void IPIntGenerator::convertTryToCatch(ControlType& tryBlock, CatchKind catchKin
         convertTryToCatch(block, CatchKind::Catch);
 
     for (unsigned i = 0; i < signature.argumentCount(); i++)
-        results.append(Value { });
+        results.append(IPIntValue { });
 
     ASSERT(block.stackSize() == m_parser->getControlEntryStackHeightInValues());
     m_stackSize = block.stackSize();
@@ -2721,7 +2721,7 @@ void IPIntGenerator::endTryTable(const ControlType& data)
 {
     const auto& block = entry.controlData;
     for (unsigned i = 0; i < block.signature().returnCount(); i ++)
-        entry.enclosedExpressionStack.constructAndAppend(block.signature().returnType(i), Value { });
+        entry.enclosedExpressionStack.constructAndAppend(block.signature().returnType(i), IPIntValue { });
     m_stackSize = block.stackSize();
     changeStackSize(block.signature().returnCount());
 
@@ -2822,7 +2822,9 @@ void IPIntGenerator::addTailCallCommonData(const RTT&, const CallInformation& ca
         return { };
     }
 
-    results.appendUsingFunctor(signature.returnCount(), [](unsigned) { return Value { }; });
+    results.appendUsingFunctor(signature.returnCount(), [](unsigned) {
+        return IPIntValue { };
+    });
     changeStackSize(signature.returnCount() - signature.argumentCount());
 
     Checked<uint32_t> frameSize = WTF::roundUpToMultipleOf<stackAlignmentBytes()>(callConvention.headerAndArgumentStackSizeInBytes);
@@ -2870,7 +2872,9 @@ void IPIntGenerator::addTailCallCommonData(const RTT&, const CallInformation& ca
         return { };
     }
 
-    results.appendUsingFunctor(signature.returnCount(), [](unsigned) { return Value { }; });
+    results.appendUsingFunctor(signature.returnCount(), [](unsigned) {
+        return IPIntValue { };
+    });
     const unsigned callIndex = 1;
     changeStackSize(signature.returnCount() - signature.argumentCount() - callIndex);
 
@@ -2919,7 +2923,9 @@ void IPIntGenerator::addTailCallCommonData(const RTT&, const CallInformation& ca
         return { };
     }
 
-    results.appendUsingFunctor(signature.returnCount(), [](unsigned) { return Value { }; });
+    results.appendUsingFunctor(signature.returnCount(), [](unsigned) {
+        return IPIntValue { };
+    });
     const unsigned callRef = 1;
     changeStackSize(signature.returnCount() - signature.argumentCount() - callRef);
 

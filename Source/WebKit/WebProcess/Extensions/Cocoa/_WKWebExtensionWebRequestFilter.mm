@@ -38,14 +38,14 @@
 #import "WebExtensionTabIdentifier.h"
 #import "WebExtensionUtilities.h"
 #import "WebExtensionWindowIdentifier.h"
+#import "WebProcess/Extensions/API/Cocoa/WebExtensionAPIKeys.h"
 #import "_WKResourceLoadInfo.h"
+#import <wtf/text/MakeString.h>
 
 using namespace WebKit;
 
-static NSString *urlsKey = @"urls";
-static NSString *typesKey = @"types";
-
-static NSString *windowIdKey = @"windowId";
+static NSString * const urlsKey = @"urls";
+static NSString * const typesKey = @"types";
 
 _WKWebExtensionWebRequestResourceType NODELETE toWebExtensionWebRequestResourceType(const ResourceLoadInfo& resourceLoadInfo)
 {

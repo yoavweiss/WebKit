@@ -36,6 +36,8 @@
 #import <wtf/RuntimeApplicationChecks.h>
 #endif
 
+#import <wtf/SetForScope.h>
+
 WTF_MAKE_TZONE_ALLOCATED_IMPL(WebViewRenderingUpdateScheduler);
 
 WebViewRenderingUpdateScheduler::WebViewRenderingUpdateScheduler(WebView* webView)

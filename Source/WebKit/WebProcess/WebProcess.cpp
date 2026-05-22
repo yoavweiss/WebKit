@@ -294,7 +294,6 @@ static const Seconds nonVisibleProcessMemoryCleanupDelay { 120_s };
 #endif
 
 namespace WebKit {
-using namespace JSC;
 using namespace WebCore;
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(WebProcess);
@@ -512,7 +511,7 @@ void WebProcess::initializeWebProcess(WebProcessCreationParameters&& parameters,
             if (m_pagesInWindows.isEmpty() && critical == Critical::No)
                 critical = Critical::Yes;
 
-            if (Options::dumpHeapOnLowMemory()) [[unlikely]]
+            if (JSC::Options::dumpHeapOnLowMemory()) [[unlikely]]
                 GarbageCollectionController::singleton().dumpHeap();
 
 #if PLATFORM(COCOA)

@@ -29,6 +29,7 @@
 
 #import "config.h"
 #import "WebExtensionAPIRuntime.h"
+#import "WebExtensionAPIKeys.h"
 
 #if ENABLE(WK_WEB_EXTENSIONS)
 
@@ -54,16 +55,6 @@
 #import <wtf/CallbackAggregator.h>
 #import <wtf/text/MakeString.h>
 
-static NSString * const idKey = @"id";
-static NSString * const frameIdKey = @"frameId";
-static NSString * const tabKey = @"tab";
-static NSString * const urlKey = @"url";
-static NSString * const originKey = @"origin";
-static NSString * const nameKey = @"name";
-static NSString * const reasonKey = @"reason";
-static NSString * const previousVersionKey = @"previousVersion";
-static NSString * const documentIdKey = @"documentId";
-static NSString * const versionKey = @"version";
 
 namespace WebKit {
 
