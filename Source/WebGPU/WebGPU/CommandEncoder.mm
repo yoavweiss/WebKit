@@ -2337,11 +2337,6 @@ size_t CommandEncoder::computeSize(TrackedResourceContainer& container, const De
     return container.size();
 }
 
-void CommandEncoder::trackEncoder(TrackedResourceContainer& encoderContainer)
-{
-    encoderContainer.add(uniqueId());
-}
-
 void CommandEncoder::clearTracking()
 {
     auto identifier = uniqueId();
@@ -2363,30 +2358,32 @@ void CommandEncoder::clearTracking()
     m_trackedQuerySets.clear();
 }
 
-void CommandEncoder::trackEncoderForBuffer(const Buffer& buffer, TrackedResourceContainer& encoderContainer)
+bool CommandEncoder::trackEncoderForBuffer(const Buffer& buffer, TrackedResourceContainer& encoderContainer)
 {
-    trackEncoder(encoderContainer);
-    m_trackedBuffers.append(buffer);
+    auto addResult = encoderContainer.add(uniqueId());
+    if (addResult.isNewEntry)
+        m_trackedBuffers.append(buffer);
+    return addResult.isNewEntry;
 }
 void CommandEncoder::trackEncoderForTexture(const Texture& texture, TrackedResourceContainer& encoderContainer)
 {
-    trackEncoder(encoderContainer);
-    m_trackedTextures.append(texture);
+    if (encoderContainer.add(uniqueId()).isNewEntry)
+        m_trackedTextures.append(texture);
 }
 void CommandEncoder::trackEncoderForTextureView(const TextureView& textureView, TrackedResourceContainer& encoderContainer)
 {
-    trackEncoder(encoderContainer);
-    m_trackedTextureViews.append(textureView);
+    if (encoderContainer.add(uniqueId()).isNewEntry)
+        m_trackedTextureViews.append(textureView);
 }
 void CommandEncoder::trackEncoderForExternalTexture(const ExternalTexture& externalTexture, TrackedResourceContainer& encoderContainer)
 {
-    trackEncoder(encoderContainer);
-    m_trackedExternalTextures.append(externalTexture);
+    if (encoderContainer.add(uniqueId()).isNewEntry)
+        m_trackedExternalTextures.append(externalTexture);
 }
 void CommandEncoder::trackEncoderForQuerySet(const QuerySet& querySet, TrackedResourceContainer& encoderContainer)
 {
-    trackEncoder(encoderContainer);
-    m_trackedQuerySets.append(querySet);
+    if (encoderContainer.add(uniqueId()).isNewEntry)
+        m_trackedQuerySets.append(querySet);
 }
 
 void CommandEncoder::trackEncoder(CommandEncoder& commandEncoder, HashSet<uint64_t, DefaultHash<uint64_t>, WTF::UnsignedWithZeroKeyHashTraits<uint64_t>>& encoderContainer)

@@ -231,13 +231,13 @@ void Buffer::decrementBufferMapCount()
 void Buffer::setCommandEncoder(CommandEncoder& commandEncoder, bool mayModifyBuffer) const
 {
     UNUSED_PARAM(mayModifyBuffer);
-    commandEncoder.trackEncoderForBuffer(*this, m_commandEncoders);
+    bool isNewEntry = commandEncoder.trackEncoderForBuffer(*this, m_commandEncoders);
 #if !CPU(X86_64)
     if (m_device->isShaderValidationEnabled())
 #endif
         commandEncoder.addBuffer(m_buffer);
 
-    if (m_state != State::Unmapped)
+    if (m_state != State::Unmapped && isNewEntry)
         commandEncoder.incrementBufferMapCount();
     if (isDestroyed())
         commandEncoder.makeSubmitInvalid();
