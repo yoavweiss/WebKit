@@ -355,6 +355,9 @@ void WebPage::getPlatformEditorState(LocalFrame& frame, EditorState& result) con
     auto& postLayoutData = *result.postLayoutData;
     auto& visualData = *result.visualData;
 
+    if (RefPtr document = frame.document())
+        visualData.needsHideSelectionDuringOverflowScrollQuirk = document->quirks().needsHideSelectionDuringOverflowScrollQuirk();
+
     Ref view = *frame.view();
 
     if (frame.editor().hasComposition()) {

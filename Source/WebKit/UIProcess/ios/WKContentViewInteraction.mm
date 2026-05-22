@@ -14528,6 +14528,9 @@ static inline WKTextAnimationType toWKTextAnimationType(WebCore::TextAnimationTy
     if (!state.hasVisualData())
         return NO;
 
+    if (state.visualData->needsHideSelectionDuringOverflowScrollQuirk)
+        return YES;
+
     auto enclosingScrollingNodeID = state.visualData->enclosingScrollingNodeID;
     RetainPtr enclosingScroller = [self _scrollViewForScrollingNodeID:enclosingScrollingNodeID] ?: self._scroller;
     if (!enclosingScroller || ![enclosingScroller _wk_isAncestorOf:scrollView])

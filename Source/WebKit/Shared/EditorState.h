@@ -164,6 +164,7 @@ struct EditorState {
         std::optional<WebCore::ScrollingNodeID> scrollingNodeIDAtEnd;
         WebCore::ScrollOffset enclosingScrollOffset;
         bool enclosingLayerUsesContentsLayer { false };
+        bool needsHideSelectionDuringOverflowScrollQuirk { false };
 #endif // PLATFORM(IOS_FAMILY)
     };
 

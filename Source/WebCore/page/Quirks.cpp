@@ -2483,6 +2483,12 @@ bool Quirks::needsClaudeSidebarViewportUnitQuirk(Element& element, const RenderS
 
     return false;
 }
+
+bool Quirks::needsHideSelectionDuringOverflowScrollQuirk() const
+{
+    QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
+    return m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::NeedsHideSelectionDuringOverflowScrollQuirk);
+}
 #endif
 
 bool Quirks::needsLimitedMatroskaSupport() const
@@ -3068,18 +3074,23 @@ static void handleDailyMailCoUkQuirks(QuirksData& quirksData, const URL& /* quir
 
 static void handleClaudeQuirks(QuirksData& quirksData, const URL& /* quirksURL */, const String& quirksDomainString, const URL&  /* documentURL */)
 {
-    QUIRKS_EARLY_RETURN_IF_NOT_DOMAIN("claude.ai"_s);
-
+    if (quirksDomainString == "claude.ai"_s) {
 #if PLATFORM(IOS_FAMILY)
-    quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::NeedsClaudeSidebarViewportUnitQuirk);
+        quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::NeedsClaudeSidebarViewportUnitQuirk);
 #endif
 
-    // rdar://174779259.
-    // The Claude SPA's logout flow leaves some identification cookies behind.
-    // On the next /chat boot those cookies cause the SPA to enter an unauthenticated boot path
-    // that 403s and triggers a /chat -> /logout redirect loop. See
-    // Quirks::clearLogoutSurvivingIdentityCookiesIfNeeded() for the cleanup hook.
-    quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::NeedsLogoutCookieCleanupQuirk);
+        // rdar://174779259.
+        // The Claude SPA's logout flow leaves some identification cookies behind.
+        // On the next /chat boot those cookies cause the SPA to enter an unauthenticated boot path
+        // that 403s and triggers a /chat -> /logout redirect loop. See
+        // Quirks::clearLogoutSurvivingIdentityCookiesIfNeeded() for the cleanup hook.
+        quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::NeedsLogoutCookieCleanupQuirk);
+    }
+
+#if PLATFORM(IOS_FAMILY)
+    if (quirksDomainString == "claude.ai"_s || quirksDomainString == "claude.com"_s)
+        quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::NeedsHideSelectionDuringOverflowScrollQuirk);
+#endif
 }
 
 #if ENABLE(TEXT_AUTOSIZING)

@@ -84,6 +84,7 @@ struct QuirksData {
         NeedsLogoutCookieCleanupQuirk,
 #if PLATFORM(IOS_FAMILY)
         NeedsClaudeSidebarViewportUnitQuirk,
+        NeedsHideSelectionDuringOverflowScrollQuirk,
 #endif
         NeedsCustomUserAgentData,
 #if PLATFORM(IOS_FAMILY)
