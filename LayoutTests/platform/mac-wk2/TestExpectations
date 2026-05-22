@@ -2204,8 +2204,6 @@ webkit.org/b/307377 [ Tahoe Release arm64 ] compositing/webgl/update-composited-
 
 webkit.org/b/309833 fast/scrolling/mac/scrollend-event-user-scroll-basic.html [ Failure Pass ]
 
-webkit.org/b/314348 inspector/timeline/line-column.html [ Failure ]
-
 webkit.org/b/307691 [ Tahoe Release arm64 ] svg/gradients/spreadMethod.svg [ ImageOnlyFailure Pass ]
 
 webkit.org/b/309370 fast/css/vertical-text-overflow-ellipsis-text-align-center.html [ Failure Pass ]
