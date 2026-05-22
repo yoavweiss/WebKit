@@ -74,6 +74,7 @@
 #include "StylePaintImage.h"
 #include "StylePrimitiveNumericTypes+Conversions.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
+#include "StyleScope.h"
 
 namespace WebCore {
 namespace Style {
