@@ -114,7 +114,7 @@ public:
     ItemPosition alignmentForFlexItem(const RenderBox&) const;
     Style::FlexBasis flexBasisForFlexItem(const RenderBox&) const;
     bool hasDefiniteCrossSizeForFlexItem(const RenderBox& flexItem) const;
-    bool canResolveCrossSizeFromAspectRatioDuringLayout() const;
+    bool hasDefiniteLogicalWidthForAspectRatioCrossSize() const;
     bool hasStretchedFlexItemWithAspectRatio() const;
 
 protected:

@@ -1449,19 +1449,23 @@ bool RenderFlexibleBox::hasDefiniteCrossSizeForFlexItem(const RenderBox& flexIte
             return true;
         if (canResolveFullyConstrainedLogicalHeight(*this))
             return true;
-        if (canResolveCrossSizeFromAspectRatioDuringLayout())
+        if (hasDefiniteLogicalWidthForAspectRatioCrossSize())
             return true;
     }
     return false;
 }
 
-bool RenderFlexibleBox::canResolveCrossSizeFromAspectRatioDuringLayout() const
+bool RenderFlexibleBox::hasDefiniteLogicalWidthForAspectRatioCrossSize() const
 {
-    // CSS Sizing 4 section 5.1: "When a box has a preferred aspect ratio and an automatic
-    // size in one axis, the automatic size is resolved from the definite size in the other axis."
-    // During layout the container's width is set, so aspect-ratio can resolve the height.
+    // A style-fixed logical width combined with aspect-ratio yields a definite
+    // cross size derivable from style alone, with no layout-state dependency.
+    // CSS Sizing 4 section 5.1.4: an aspect-ratio transferred size is definite
+    // when its input axis is definite, and CSS Sizing 3 section 5.1 makes a
+    // style-fixed width definite. The cross axis must be auto so the ratio is
+    // actually consulted; min-content/max-content/fit-content ignore the ratio
+    // per CSS Sizing 4 section 5.4.
     auto& crossSize = isHorizontalFlow() ? style().height() : style().width();
-    return m_inLayout && crossSize.isAuto() && style().aspectRatio().hasRatio();
+    return crossSize.isAuto() && style().logicalWidth().isFixed() && style().aspectRatio().hasRatio();
 }
 
 template<typename SizeType> bool RenderFlexibleBox::flexItemCrossSizeIsDefinite(const RenderBox& flexItem, const SizeType& size)
@@ -2376,7 +2380,7 @@ LayoutUnit RenderFlexibleBox::innerCrossSizeForFlexItem(const RenderBox& flexIte
             innerCrossSize = adjustContentBoxLogicalHeightForBoxSizing(LayoutUnit { fixedSize->resolveZoom(style().usedZoomForLength()) });
         else if (size.isPercent())
             innerCrossSize = availableLogicalHeightForPercentageComputation().value_or(0_lu);
-        else if (canResolveFullyConstrainedLogicalHeight(*this) || canResolveCrossSizeFromAspectRatioDuringLayout())
+        else if (canResolveFullyConstrainedLogicalHeight(*this) || hasDefiniteLogicalWidthForAspectRatioCrossSize())
             innerCrossSize = std::max(0_lu, computeLogicalHeight(logicalHeight(), 0_lu).extent - borderAndPaddingLogicalHeight() - scrollbarLogicalHeight());
         else
             ASSERT_NOT_REACHED();
