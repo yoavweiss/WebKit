@@ -626,8 +626,7 @@ void testAllocationChaos(unsigned numThreads, unsigned numIsolatedHeaps,
             addPageRange(
                 pas_range_create(
                     pas_compact_heap_reservation_base + pas_compact_heap_reservation_guard_size,
-                    pas_compact_heap_reservation_base + pas_compact_heap_reservation_guard_size
-                    + pas_compact_heap_reservation_size));
+                    pas_compact_heap_reservation_base + pas_compact_heap_reservation_size));
 
             bool enumerateResult = pas_enumerable_range_list_iterate(
                 &pas_enumerable_page_malloc_page_list, addPageRangeCallback, nullptr);

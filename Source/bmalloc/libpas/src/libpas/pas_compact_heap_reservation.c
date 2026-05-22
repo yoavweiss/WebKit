@@ -38,9 +38,8 @@
 
 size_t pas_compact_heap_reservation_size =
     (size_t)1 << PAS_COMPACT_PTR_BITS << PAS_INTERNAL_MIN_ALIGN_SHIFT;
-size_t pas_compact_heap_reservation_guard_size = 16;
+size_t pas_compact_heap_reservation_guard_size = 0;
 uintptr_t pas_compact_heap_reservation_base = 0;
-size_t pas_compact_heap_reservation_available_size = 0;
 size_t pas_compact_heap_reservation_bump = 0;
 
 #if PAS_PLATFORM(PLAYSTATION)
@@ -64,28 +63,32 @@ pas_aligned_allocation_result pas_compact_heap_reservation_try_allocate(size_t s
     if (!pas_compact_heap_reservation_base) {
         pas_aligned_allocation_result page_result;
 
+        pas_compact_heap_reservation_guard_size = pas_page_malloc_alignment();
+
 #if PAS_PLATFORM(PLAYSTATION)
         pas_zero_memory(&page_result, sizeof(pas_aligned_allocation_result));
 
         page_result.result = memory_extra_vss_reserve(pas_compact_heap_reservation_size, pas_page_malloc_alignment());
         PAS_ASSERT(page_result.result);
 #else
-        page_result = pas_page_malloc_try_allocate_without_deallocating_padding(
-            pas_compact_heap_reservation_size, pas_alignment_create_trivial(), false);
+        /* Make the first page of the reservation a real guard. A zero-valued
+           compact pointer dereferenced via _load_non_null decodes to base + 0;
+           with the guard in place that lands on PROT_NONE memory and faults
+           deterministically rather than wandering into a neighboring VM region. */
+        page_result = pas_page_malloc_try_allocate_with_guard_pages_without_deallocating_padding(
+            pas_compact_heap_reservation_size, pas_alignment_create_trivial(), false,
+            pas_compact_heap_reservation_guard_size);
         PAS_ASSERT(!page_result.left_padding_size);
         PAS_ASSERT(!page_result.right_padding_size);
         PAS_ASSERT(page_result.result);
         PAS_ASSERT(page_result.result_size == pas_compact_heap_reservation_size);
 #endif
 
-        pas_compact_heap_reservation_base =
-            (uintptr_t)page_result.result - pas_compact_heap_reservation_guard_size;
-        pas_compact_heap_reservation_available_size =
-            pas_compact_heap_reservation_size - pas_compact_heap_reservation_guard_size;
+        pas_compact_heap_reservation_base = (uintptr_t)page_result.result;
         pas_compact_heap_reservation_bump = pas_compact_heap_reservation_guard_size;
     }
 
-    reservation_end = pas_compact_heap_reservation_base + pas_compact_heap_reservation_available_size;
+    reservation_end = pas_compact_heap_reservation_base + pas_compact_heap_reservation_size;
     padding_start = pas_compact_heap_reservation_base + pas_compact_heap_reservation_bump;
     allocation_start = pas_round_up_to_power_of_2(padding_start, alignment);
 

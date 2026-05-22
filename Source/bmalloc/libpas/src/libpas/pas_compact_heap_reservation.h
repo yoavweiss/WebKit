@@ -34,7 +34,6 @@ PAS_BEGIN_EXTERN_C;
 PAS_API extern size_t pas_compact_heap_reservation_size;
 PAS_API extern size_t pas_compact_heap_reservation_guard_size;
 PAS_API extern uintptr_t pas_compact_heap_reservation_base;
-PAS_API extern size_t pas_compact_heap_reservation_available_size;
 PAS_API extern size_t pas_compact_heap_reservation_bump;
 
 /* FIXME: This should support pas_alignment at some point. */
