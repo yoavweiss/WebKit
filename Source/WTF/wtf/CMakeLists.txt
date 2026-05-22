@@ -376,7 +376,6 @@ set(WTF_PUBLIC_HEADERS
     ThreadingEnums.h
     ThreadingPrimitives.h
     TimeWithDynamicClockType.h
-    TimeZone.h
     TimingScope.h
     TinyLRUCache.h
     TinyPtrSet.h
@@ -633,7 +632,6 @@ set(WTF_SOURCES
     ThreadMessage.cpp
     Threading.cpp
     TimeWithDynamicClockType.cpp
-    TimeZone.cpp
     TimingScope.cpp
     URL.cpp
     URLHelpers.cpp

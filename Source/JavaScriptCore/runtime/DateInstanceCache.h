@@ -60,16 +60,8 @@ public:
 
     void reset()
     {
-        for (size_t i = 0; i < cacheSize; ++i) {
+        for (size_t i = 0; i < cacheSize; ++i)
             m_cache[i].key = PNaN;
-            // Also invalidate the cached GregorianDateTime so any DateInstance
-            // still holding a reference (via DateInstance::m_data) recomputes
-            // through the slow path
-            if (auto* value = m_cache[i].value.get()) {
-                value->m_gregorianDateTimeCachedForMS = PNaN;
-                value->m_gregorianDateTimeUTCCachedForMS = PNaN;
-            }
-        }
     }
 
     DateInstanceData* add(double d)

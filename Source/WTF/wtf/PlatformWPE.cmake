@@ -7,7 +7,6 @@ list(APPEND WTF_SOURCES
 
     glib/Application.cpp
     glib/ChassisType.cpp
-    glib/FilePathWatcher.cpp
     glib/FileSystemGlib.cpp
     glib/GMallocString.cpp
     glib/GRefPtr.cpp
@@ -17,7 +16,6 @@ list(APPEND WTF_SOURCES
     glib/RunLoopGLib.cpp
     glib/Sandbox.cpp
     glib/SocketConnection.cpp
-    glib/TimeZoneGLib.cpp
     glib/URLGLib.cpp
 
     linux/CurrentProcessMemoryStatus.cpp
@@ -58,7 +56,6 @@ list(APPEND WTF_PUBLIC_HEADERS
     glib/ActivityObserver.h
     glib/Application.h
     glib/ChassisType.h
-    glib/FilePathWatcher.h
     glib/GMallocString.h
     glib/GRefPtr.h
     glib/GResources.h

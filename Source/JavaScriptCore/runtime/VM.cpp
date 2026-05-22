@@ -1730,8 +1730,9 @@ void VM::executeEntryScopeServicesOnEntry()
         clearEntryScopeService(EntryScopeService::FirePrimitiveGigacageEnabled);
     }
 
-    if (dateCache.hasTimeZoneChange()) [[unlikely]]
-        dateCache.clearForTimeZoneChange();
+    // Reset the date cache between JS invocations to force the VM to
+    // observe time zone changes.
+    dateCache.resetIfNecessary();
 
     RefPtr watchdog = this->watchdog();
     if (watchdog) [[unlikely]]

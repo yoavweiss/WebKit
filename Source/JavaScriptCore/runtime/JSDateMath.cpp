@@ -80,7 +80,6 @@
 #include <wtf/DateMath.h>
 #include <wtf/Language.h>
 #include <wtf/TZoneMallocInlines.h>
-#include <wtf/TimeZone.h>
 #include <wtf/unicode/CharacterNames.h>
 #include <wtf/unicode/icu/ICUHelpers.h>
 
@@ -94,6 +93,10 @@ namespace JSC {
 namespace JSDateMathInternal {
 static constexpr bool verbose = false;
 }
+
+#if PLATFORM(COCOA)
+std::atomic<uint64_t> lastTimeZoneID { 1 };
+#endif
 
 class OpaqueICUTimeZone {
     WTF_MAKE_TZONE_ALLOCATED(OpaqueICUTimeZone);
@@ -454,10 +457,24 @@ String DateCache::timeZoneDisplayName(bool isDST)
 
 static Lock timeZoneCacheLock;
 
+#if PLATFORM(COCOA)
+static void timeZoneChangeNotification(CFNotificationCenterRef, void*, CFStringRef, const void*, CFDictionaryRef)
+{
+    Locker locker { timeZoneCacheLock };
+    ASSERT(isMainThread());
+    ++lastTimeZoneID;
+}
+#endif
+
 // To confine icu::TimeZone destructor invocation in this file.
 DateCache::DateCache()
 {
-    WTF::listenForTimeZoneChangeNotifications();
+#if PLATFORM(COCOA)
+    static std::once_flag onceKey;
+    std::call_once(onceKey, [&] {
+        CFNotificationCenterAddObserver(CFNotificationCenterGetLocalCenter(), nullptr, timeZoneChangeNotification, kCFTimeZoneSystemTimeZoneDidChangeNotification, nullptr, CFNotificationSuspensionBehaviorDeliverImmediately);
+    });
+#endif
 }
 
 static TimeZone retrieveTimeZoneInformation()
@@ -465,8 +482,12 @@ static TimeZone retrieveTimeZoneInformation()
     Locker locker { timeZoneCacheLock };
     static NeverDestroyed<std::tuple<TimeZone, uint64_t>> globalCache;
 
-    uint64_t currentID = WTF::lastTimeZoneID();
-    bool isCacheStale = std::get<1>(globalCache.get()) != currentID;
+    bool isCacheStale = true;
+    uint64_t currentID = 0;
+#if PLATFORM(COCOA)
+    currentID = lastTimeZoneID.load();
+    isCacheStale = std::get<1>(globalCache.get()) != currentID;
+#endif
     if (isCacheStale) {
         Vector<char16_t, 32> timeZoneID;
         getTimeZoneOverride(timeZoneID);
@@ -513,8 +534,10 @@ void DateCache::timeZoneCacheSlow()
     m_timeZoneCache = std::unique_ptr<OpaqueICUTimeZone, OpaqueICUTimeZoneDeleter>(cache);
 }
 
-void DateCache::clearForTimeZoneChange()
+void DateCache::resetIfNecessarySlow()
 {
+    // FIXME: We should clear it only when we know the timezone has been changed on Non-Cocoa platforms.
+    // https://bugs.webkit.org/show_bug.cgi?id=218365
     m_timeZoneCache.reset();
     for (auto& cache : m_caches)
         cache.reset();
@@ -524,7 +547,6 @@ void DateCache::clearForTimeZoneChange()
     m_dateInstanceCache.reset();
     m_timeZoneStandardDisplayNameCache = String();
     m_timeZoneDSTDisplayNameCache = String();
-    m_cachedTimeZoneID = WTF::lastTimeZoneID();
 }
 
 } // namespace JSC
