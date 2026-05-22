@@ -1056,31 +1056,42 @@ else ()
     set(_webkit_swift_triple "${_webkit_swift_arch}-apple-ios")
 endif ()
 set(_webkit_fw_swiftmodule_dir "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/WebKit.framework/Modules/WebKit.swiftmodule")
-set(WebKit_POST_BUILD_COMMAND
-    ${CMAKE_COMMAND} -E make_directory "${_webkit_fw_swiftmodule_dir}"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${_webkit_swift_output}/WebKit.swiftmodule"
-        "${_webkit_swiftmodule_dir}/${_webkit_swift_triple}.swiftmodule"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${_webkit_swift_output}/WebKit.swiftmodule"
-        "${_webkit_fw_swiftmodule_dir}/${_webkit_swift_triple}.swiftmodule"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${_webkit_swift_output}/WebKit.swiftdoc"
-        "${_webkit_swiftmodule_dir}/${_webkit_swift_triple}.swiftdoc"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${_webkit_swift_output}/WebKit.swiftdoc"
-        "${_webkit_fw_swiftmodule_dir}/${_webkit_swift_triple}.swiftdoc"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${_webkit_swift_output}/WebKit.abi.json"
-        "${_webkit_swiftmodule_dir}/${_webkit_swift_triple}.abi.json"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${_webkit_swift_output}/WebKit.abi.json"
-        "${_webkit_fw_swiftmodule_dir}/${_webkit_swift_triple}.abi.json"
-    COMMAND sh -c "[ -f '${_webkit_swift_output}/WebKit.swiftinterface' ] && ${CMAKE_COMMAND} -E copy_if_different '${_webkit_swift_output}/WebKit.swiftinterface' '${_webkit_swiftmodule_dir}/${_webkit_swift_triple}.swiftinterface' || true"
-    COMMAND sh -c "[ -f '${_webkit_swift_output}/WebKit.swiftinterface' ] && ${CMAKE_COMMAND} -E copy_if_different '${_webkit_swift_output}/WebKit.swiftinterface' '${_webkit_fw_swiftmodule_dir}/${_webkit_swift_triple}.swiftinterface' || true"
-    COMMAND sh -c "[ -f '${_webkit_swift_output}/WebKit.private.swiftinterface' ] && ${CMAKE_COMMAND} -E copy_if_different '${_webkit_swift_output}/WebKit.private.swiftinterface' '${_webkit_swiftmodule_dir}/${_webkit_swift_triple}.private.swiftinterface' || true"
-    COMMAND sh -c "[ -f '${_webkit_swift_output}/WebKit.private.swiftinterface' ] && ${CMAKE_COMMAND} -E copy_if_different '${_webkit_swift_output}/WebKit.private.swiftinterface' '${_webkit_fw_swiftmodule_dir}/${_webkit_swift_triple}.private.swiftinterface' || true"
+
+# Stage WebKit's Swift module via a tracked add_custom_command so ninja replays
+# the copies whenever the staged files go missing. POST_BUILD on the dylib link
+# rule only fires on relink, leaving incremental builds with an empty Modules/.
+set(_webkit_swiftmodule_required_exts swiftmodule swiftdoc abi.json)
+set(_webkit_swiftmodule_optional_exts swiftinterface private.swiftinterface)
+set(_webkit_swiftmodule_dests "${_webkit_swiftmodule_dir}" "${_webkit_fw_swiftmodule_dir}")
+
+set(_webkit_staged_swiftmodule_artifacts "")
+set(_webkit_stage_swiftmodule_commands "")
+foreach (_dest IN LISTS _webkit_swiftmodule_dests)
+    foreach (_ext IN LISTS _webkit_swiftmodule_required_exts)
+        list(APPEND _webkit_staged_swiftmodule_artifacts
+            "${_dest}/${_webkit_swift_triple}.${_ext}"
+        )
+        list(APPEND _webkit_stage_swiftmodule_commands
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${_webkit_swift_output}/WebKit.${_ext}"
+                "${_dest}/${_webkit_swift_triple}.${_ext}"
+        )
+    endforeach ()
+    foreach (_ext IN LISTS _webkit_swiftmodule_optional_exts)
+        list(APPEND _webkit_stage_swiftmodule_commands
+            COMMAND sh -c "[ -f '${_webkit_swift_output}/WebKit.${_ext}' ] && ${CMAKE_COMMAND} -E copy_if_different '${_webkit_swift_output}/WebKit.${_ext}' '${_dest}/${_webkit_swift_triple}.${_ext}' || true"
+        )
+    endforeach ()
+endforeach ()
+add_custom_command(
+    OUTPUT ${_webkit_staged_swiftmodule_artifacts}
+    DEPENDS WebKit
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${_webkit_fw_swiftmodule_dir}"
+    ${_webkit_stage_swiftmodule_commands}
+    COMMENT "Staging WebKit.swiftmodule into WebKit.framework/Modules/"
+    VERBATIM
 )
+add_custom_target(WebKit_StageSwiftModule DEPENDS ${_webkit_staged_swiftmodule_artifacts})
 
 make_directory("${CMAKE_BINARY_DIR}/WebKit/Modules/WebKit.swiftcrossimport")
 file(WRITE "${CMAKE_BINARY_DIR}/WebKit/Modules/WebKit.swiftcrossimport/SwiftUI.swiftoverlay"
@@ -1735,10 +1746,8 @@ target_compile_options(_WebKit_SwiftUI PRIVATE
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xfrontend -experimental-spi-only-imports>"
     "$<$<COMPILE_LANGUAGE:Swift>:-DENABLE_SWIFTUI>"
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:@${_swiftui_resp}>"
-    "$<$<COMPILE_LANGUAGE:Swift>:-cxx-interoperability-mode=default>"
     "$<$<COMPILE_LANGUAGE:Swift>:-F${CMAKE_LIBRARY_OUTPUT_DIRECTORY}>"
     "$<$<COMPILE_LANGUAGE:Swift>:-F${CMAKE_OSX_SYSROOT}/System/Cryptexes/OS/System/Library/Frameworks>"
-    "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -std=c++2b>"
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -DHAVE_CONFIG_H=1>"
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -DJS_EXPORT_PRIVATE=>"
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -DPAL_EXPORT=>"
@@ -1793,7 +1802,7 @@ target_link_options(_WebKit_SwiftUI PRIVATE
     "-framework" "WebKit"
 )
 
-add_dependencies(_WebKit_SwiftUI WebKit)
+add_dependencies(_WebKit_SwiftUI WebKit WebKit_StageSwiftModule)
 
 set(_swiftui_module_output "${CMAKE_BINARY_DIR}/Source/WebKit")
 set(_swiftui_arch "${CMAKE_OSX_ARCHITECTURES}")
