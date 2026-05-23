@@ -2332,3 +2332,5 @@ webkit.org/b/315337 [ Sequoia x86_64 ] imported/w3c/web-platform-tests/css/filte
 webkit.org/b/315354 media/video-concurrent-visible-playback.html [ Pass Failure ]
 
 webkit.org/b/315398 [ Release ] http/tests/site-isolation/accessibility/client/simple-iframe.html [ Timeout ]
+
+webkit.org/b/314902 [ Debug ] http/tests/site-isolation/inspector/target/target.html [ Skip ]
