@@ -48,7 +48,7 @@ struct SetTraits {
 };
 
 template<typename Traits>
-class OrderedHashTable;
+class JSOrderedHashTable;
 
 // ################ NonObsolete Table ################
 //
@@ -106,11 +106,11 @@ class OrderedHashTable;
 // Note that all elements in the JSCellButterfly are in JSValue type. However, only the key and value in the DataTable are real JSValues.
 // The others are used as unsigned integers wrapped by JSValue.
 template<typename Traits>
-class OrderedHashTableHelper {
+class JSOrderedHashTableHelper {
 public:
     using Storage = JSCellButterfly;
-    using Helper = OrderedHashTableHelper<Traits>;
-    using HashTable = OrderedHashTable<Traits>;
+    using Helper = JSOrderedHashTableHelper<Traits>;
+    using HashTable = JSOrderedHashTable<Traits>;
     using TableSize = uint32_t;
     using Entry = TableSize;
     using TableIndex = TableSize;
@@ -125,14 +125,14 @@ public:
 
     static_assert(EntrySize == MapTraits::EntrySize || EntrySize == SetTraits::EntrySize);
 
-    OrderedHashTableHelper() = delete;
+    JSOrderedHashTableHelper() = delete;
 
     ALWAYS_INLINE static TableSize toNumber(JSValue number) { return static_cast<TableSize>(number.asInt32()); }
     ALWAYS_INLINE static constexpr TableSize asNumber(Storage& storage, TableIndex index) { return toNumber(get(storage, index)); }
     ALWAYS_INLINE static JSValue toJSValue(Entry entry)
     {
         JSValue value = JSValue();
-        OrderedHashTableTraits::set(&value, entry);
+        JSOrderedHashTableTraits::set(&value, entry);
         return value;
     }
 
@@ -144,7 +144,7 @@ public:
     ALWAYS_INLINE static JSValue* slot(Storage& storage, TableIndex index) { return storage.toButterfly()->contiguous().atUnsafe(index).slot(); }
 
     ALWAYS_INLINE static void set(Storage& storage, TableIndex index, JSValue value) { return storage.toButterfly()->contiguous().atUnsafe(index).setWithoutWriteBarrier(value); }
-    ALWAYS_INLINE static void set(Storage& storage, TableIndex index, TableSize number) { OrderedHashTableTraits::set(slot(storage, index), number); }
+    ALWAYS_INLINE static void set(Storage& storage, TableIndex index, TableSize number) { JSOrderedHashTableTraits::set(slot(storage, index), number); }
     ALWAYS_INLINE static void setWithWriteBarrier(VM& vm, Storage& storage, TableIndex index, JSValue value) { storage.toButterfly()->contiguous().atUnsafe(index).set(vm, &storage, value); }
 
     /* -------------------------------- AliveEntryCount, DeletedEntryCount, Capacity, and IterationEntry -------------------------------- */
@@ -162,9 +162,9 @@ public:
     ALWAYS_INLINE static constexpr TableSize capacity(Storage& storage) { return asNumber(storage, capacityIndex()); }
     ALWAYS_INLINE static constexpr TableSize iterationEntry(Storage& storage) { return asNumber(storage, iterationEntryIndex()); }
 
-    ALWAYS_INLINE static constexpr void incrementAliveEntryCount(Storage& storage) { OrderedHashTableTraits::increment(slot(storage, aliveEntryCountIndex())); }
-    ALWAYS_INLINE static constexpr void decrementAliveEntryCount(Storage& storage) { OrderedHashTableTraits::decrement(slot(storage, aliveEntryCountIndex())); }
-    ALWAYS_INLINE static constexpr void incrementDeletedEntryCount(Storage& storage) { OrderedHashTableTraits::increment(slot(storage, deletedEntryCountIndex())); }
+    ALWAYS_INLINE static constexpr void incrementAliveEntryCount(Storage& storage) { JSOrderedHashTableTraits::increment(slot(storage, aliveEntryCountIndex())); }
+    ALWAYS_INLINE static constexpr void decrementAliveEntryCount(Storage& storage) { JSOrderedHashTableTraits::decrement(slot(storage, aliveEntryCountIndex())); }
+    ALWAYS_INLINE static constexpr void incrementDeletedEntryCount(Storage& storage) { JSOrderedHashTableTraits::increment(slot(storage, deletedEntryCountIndex())); }
 
     /* -------------------------------- Hash table -------------------------------- */
     ALWAYS_INLINE static constexpr TableSize bucketCount(TableSize capacity) { return capacity; }
@@ -192,7 +192,7 @@ public:
         set(storage, newChainStartKeyIndex + ChainOffset, prevChainStartKeyIndex);
     }
 
-    /* -------------------------------- OrderedHashTable -------------------------------- */
+    /* -------------------------------- JSOrderedHashTable -------------------------------- */
     ALWAYS_INLINE static constexpr TableSize tableSize(TableSize capacity)
     {
         TableSize result = 4 /* AliveEntryCount, DeletedEntryCount, Capacity, and IterationEntry */

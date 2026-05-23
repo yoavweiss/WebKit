@@ -1308,7 +1308,7 @@ static void dynamicImportLoadSettled(JSGlobalObject* globalObject, VM& vm, Throw
     // all settle, hand back the deferred namespace.
     //
     // Let evaluationList be GatherAsynchronousTransitiveDependencies(module).
-    WTF::OrderedHashSet<AbstractModuleRecord*> evaluationList;
+    OrderedHashSet<AbstractModuleRecord*> evaluationList;
     UncheckedKeyHashSet<AbstractModuleRecord*> seen;
     module->gatherAsynchronousTransitiveDependencies(evaluationList, seen);
 

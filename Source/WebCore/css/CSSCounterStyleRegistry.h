@@ -69,7 +69,7 @@ private:
     // If no map is passed on, user-agent counter styles map will be used
     static void resolveFallbackReference(CSSRegisteredCounterStyle&, CounterStyleMap* = nullptr);
     static void resolveExtendsReference(CSSRegisteredCounterStyle&, CounterStyleMap* = nullptr);
-    static void resolveExtendsReference(CSSRegisteredCounterStyle&, WTF::OrderedHashSet<CSSRegisteredCounterStyle*>&, CounterStyleMap* = nullptr);
+    static void resolveExtendsReference(CSSRegisteredCounterStyle&, OrderedHashSet<CSSRegisteredCounterStyle*>&, CounterStyleMap* = nullptr);
 
     static Ref<CSSRegisteredCounterStyle> counterStyle(const AtomString&, CounterStyleMap* = nullptr);
 

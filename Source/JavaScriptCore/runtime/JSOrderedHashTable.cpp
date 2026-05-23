@@ -24,7 +24,7 @@
  */
 
 #include "config.h"
-#include "OrderedHashTable.h"
+#include "JSOrderedHashTable.h"
 
 #include "ButterflyInlinesLight.h"
 
@@ -32,18 +32,18 @@ namespace JSC {
 
 template<typename Traits>
 template<typename Visitor>
-void OrderedHashTable<Traits>::visitChildrenImpl(JSCell* cell, Visitor& visitor)
+void JSOrderedHashTable<Traits>::visitChildrenImpl(JSCell* cell, Visitor& visitor)
 {
-    OrderedHashTable<Traits>* thisObject = uncheckedDowncast<OrderedHashTable<Traits>>(cell);
+    JSOrderedHashTable<Traits>* thisObject = uncheckedDowncast<JSOrderedHashTable<Traits>>(cell);
     ASSERT_GC_OBJECT_INHERITS(thisObject, info());
     Base::visitChildren(thisObject, visitor);
 
     visitor.append(thisObject->m_storage);
 }
 
-DEFINE_VISIT_CHILDREN_WITH_MODIFIER(template<typename Traits>, OrderedHashTable<Traits>);
+DEFINE_VISIT_CHILDREN_WITH_MODIFIER(template<typename Traits>, JSOrderedHashTable<Traits>);
 
-template class OrderedHashTable<MapTraits>;
-template class OrderedHashTable<SetTraits>;
+template class JSOrderedHashTable<MapTraits>;
+template class JSOrderedHashTable<SetTraits>;
 
 } // namespace JSC

@@ -527,3 +527,5 @@ bool equalIgnoringOrder(const OrderedHashMap<T, U, V, W, X, M>& a, const Ordered
 }
 
 } // namespace WTF
+
+using WTF::OrderedHashMap;

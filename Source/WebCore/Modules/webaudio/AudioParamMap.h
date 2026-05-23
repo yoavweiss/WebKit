@@ -48,12 +48,12 @@ public:
     void initializeMapLike(DOMMapAdapter&);
     void add(const String&, Ref<AudioParam>&&);
 
-    const WTF::OrderedHashMap<String, Ref<AudioParam>>& map() const LIFETIME_BOUND { return m_map; }
+    const OrderedHashMap<String, Ref<AudioParam>>& map() const LIFETIME_BOUND { return m_map; }
 
 private:
     AudioParamMap();
 
-    WTF::OrderedHashMap<String, Ref<AudioParam>> m_map;
+    OrderedHashMap<String, Ref<AudioParam>> m_map;
 };
 
 } // namespace WebCore

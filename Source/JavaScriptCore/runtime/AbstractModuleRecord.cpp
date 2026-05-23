@@ -942,7 +942,7 @@ JSModuleNamespaceObject* AbstractModuleRecord::getModuleNamespace(JSGlobalObject
 }
 
 // https://tc39.es/proposal-defer-import-eval/#sec-GatherAsynchronousTransitiveDependencies
-void AbstractModuleRecord::gatherAsynchronousTransitiveDependencies(WTF::OrderedHashSet<AbstractModuleRecord*>& result, UncheckedKeyHashSet<AbstractModuleRecord*>& seen)
+void AbstractModuleRecord::gatherAsynchronousTransitiveDependencies(OrderedHashSet<AbstractModuleRecord*>& result, UncheckedKeyHashSet<AbstractModuleRecord*>& seen)
 {
     // The spec text is recursive; we use an explicit work list to avoid native stack overflow on
     // deep graphs. Children are pushed in reverse to preserve the spec's pre-order discovery order.
@@ -1197,7 +1197,7 @@ unsigned AbstractModuleRecord::innerModuleEvaluation(JSGlobalObject* globalObjec
     stack.append(module);
     // https://tc39.es/proposal-defer-import-eval/#sec-innermoduleevaluation
     // 10. Let evaluationList be a new empty List.
-    WTF::OrderedHashSet<AbstractModuleRecord*> evaluationList;
+    OrderedHashSet<AbstractModuleRecord*> evaluationList;
     // 11. For each ModuleRequest Record request of module.[[RequestedModules]], do
     for (const ModuleRequest& request : module->requestedModules()) {
         // 11.a. Let requiredModule be GetImportedModule(module, request).

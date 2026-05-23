@@ -63,11 +63,11 @@ void CSSCounterStyleRegistry::resolveReferencesIfNeeded()
 
 void CSSCounterStyleRegistry::resolveExtendsReference(CSSRegisteredCounterStyle& counterStyle, CounterStyleMap* map)
 {
-    WTF::OrderedHashSet<CSSRegisteredCounterStyle*> countersInChain;
+    OrderedHashSet<CSSRegisteredCounterStyle*> countersInChain;
     resolveExtendsReference(counterStyle, countersInChain, map);
 }
 
-void CSSCounterStyleRegistry::resolveExtendsReference(CSSRegisteredCounterStyle& counter, WTF::OrderedHashSet<CSSRegisteredCounterStyle*>& countersInChain, CounterStyleMap* map)
+void CSSCounterStyleRegistry::resolveExtendsReference(CSSRegisteredCounterStyle& counter, OrderedHashSet<CSSRegisteredCounterStyle*>& countersInChain, CounterStyleMap* map)
 {
     ASSERT(counter.isExtendsSystem() && counter.isExtendsUnresolved());
     if (!(counter.isExtendsSystem() && counter.isExtendsUnresolved()))

@@ -25,28 +25,28 @@
 
 #pragma once
 
-#include <JavaScriptCore/OrderedHashTableHelper.h>
+#include <JavaScriptCore/JSOrderedHashTableHelper.h>
 
 namespace JSC {
 
 template<typename Traits>
-class OrderedHashTable : public JSNonFinalObject {
+class JSOrderedHashTable : public JSNonFinalObject {
     using Base = JSNonFinalObject;
 
 public:
-    using HashTable = OrderedHashTable<Traits>;
-    using Helper = OrderedHashTableHelper<Traits>;
+    using HashTable = JSOrderedHashTable<Traits>;
+    using Helper = JSOrderedHashTableHelper<Traits>;
     using Storage = JSCellButterfly;
     using TableIndex = typename Helper::TableIndex;
 
     DECLARE_VISIT_CHILDREN;
 
-    OrderedHashTable(VM& vm, Structure* structure)
+    JSOrderedHashTable(VM& vm, Structure* structure)
         : Base(vm, structure)
     {
     }
 
-    static ptrdiff_t offsetOfStorage() { return OBJECT_OFFSETOF(OrderedHashTable, m_storage); }
+    static ptrdiff_t offsetOfStorage() { return OBJECT_OFFSETOF(JSOrderedHashTable, m_storage); }
 
     void finishCreation(VM& vm) { Base::finishCreation(vm); }
     void finishCreation(JSGlobalObject* globalObject, VM& vm, HashTable* base)
@@ -164,11 +164,11 @@ public:
     WriteBarrier<Storage> m_storage;
 };
 
-class OrderedHashMap : public OrderedHashTable<MapTraits> {
-    using Base = OrderedHashTable<MapTraits>;
+class JSOrderedHashMap : public JSOrderedHashTable<MapTraits> {
+    using Base = JSOrderedHashTable<MapTraits>;
 
 public:
-    OrderedHashMap(VM& vm, Structure* structure)
+    JSOrderedHashMap(VM& vm, Structure* structure)
         : Base(vm, structure)
     {
     }
@@ -245,11 +245,11 @@ public:
     static Symbol* createDeletedValue(VM& vm) { return Symbol::create(vm); }
 };
 
-class OrderedHashSet : public OrderedHashTable<SetTraits> {
-    using Base = OrderedHashTable<SetTraits>;
+class JSOrderedHashSet : public JSOrderedHashTable<SetTraits> {
+    using Base = JSOrderedHashTable<SetTraits>;
 
 public:
-    OrderedHashSet(VM& vm, Structure* structure)
+    JSOrderedHashSet(VM& vm, Structure* structure)
         : Base(vm, structure)
     {
     }

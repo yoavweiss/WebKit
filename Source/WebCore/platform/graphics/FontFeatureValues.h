@@ -47,7 +47,7 @@ class FontFeatureValues : public RefCounted<FontFeatureValues> {
 public:
     // Insertion-ordered per CSS OM spec: serialization must reproduce the
     // order in which `@<variant>` tags were declared in the stylesheet.
-    using Tags = WTF::OrderedHashMap<String, Vector<unsigned>>;
+    using Tags = OrderedHashMap<String, Vector<unsigned>>;
     static Ref<FontFeatureValues> create() { return adoptRef(*new FontFeatureValues()); }
     virtual ~FontFeatureValues() = default;
 

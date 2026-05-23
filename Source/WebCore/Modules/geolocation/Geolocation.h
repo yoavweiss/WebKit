@@ -115,7 +115,7 @@ private:
         bool NODELETE isEmpty() const;
         void getNotifiersVector(GeoNotifierVector&) const;
     private:
-        typedef WTF::OrderedHashMap<int, Ref<GeoNotifier>> IdToNotifierMap;
+        typedef OrderedHashMap<int, Ref<GeoNotifier>> IdToNotifierMap;
         typedef HashMap<Ref<GeoNotifier>, int> NotifierToIdMap;
         IdToNotifierMap m_idToNotifierMap;
         NotifierToIdMap m_notifierToIdMap;

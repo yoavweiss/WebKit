@@ -109,7 +109,7 @@ extern JS_EXPORT_PRIVATE const ASCIILiteral SymbolCoercionError;
 extern JS_EXPORT_PRIVATE std::atomic<unsigned> activeJSGlobalObjectSignpostIntervalCount;
 
 class JSValue {
-    friend struct OrderedHashTableTraits;
+    friend struct JSOrderedHashTableTraits;
     friend struct EncodedJSValueHashTraits;
     friend struct EncodedJSValueWithRepresentationHashTraits;
     friend class AssemblyHelpers;
@@ -525,7 +525,7 @@ private:
 };
 
 #if USE(JSVALUE32_64)
-struct OrderedHashTableTraits {
+struct JSOrderedHashTableTraits {
     ALWAYS_INLINE static void set(JSValue* value, uint32_t number)
     {
         value->u.asBits.tag = JSValue::Int32Tag;
@@ -543,7 +543,7 @@ struct OrderedHashTableTraits {
     }
 };
 #else
-struct OrderedHashTableTraits {
+struct JSOrderedHashTableTraits {
     ALWAYS_INLINE static void set(JSValue* value, uint32_t number)
     {
         value->u.asInt64 = JSValue::NumberTag | number;

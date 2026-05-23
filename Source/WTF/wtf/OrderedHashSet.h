@@ -201,3 +201,6 @@ bool equalIgnoringOrder(const OrderedHashSet<T, U, V, M>& a, const OrderedHashSe
 }
 
 } // namespace WTF
+
+
+using WTF::OrderedHashSet;

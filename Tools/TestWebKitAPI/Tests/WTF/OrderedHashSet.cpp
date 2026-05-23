@@ -35,7 +35,7 @@ namespace TestWebKitAPI {
 
 TEST(WTF_OrderedHashSet, EmptySet)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     EXPECT_TRUE(set.isEmpty());
     EXPECT_EQ(0u, set.size());
     EXPECT_TRUE(set.begin() == set.end());
@@ -43,7 +43,7 @@ TEST(WTF_OrderedHashSet, EmptySet)
 
 TEST(WTF_OrderedHashSet, BasicAddAndContains)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     auto result = set.add(1);
     EXPECT_TRUE(result.isNewEntry);
     EXPECT_EQ(1u, set.size());
@@ -58,7 +58,7 @@ TEST(WTF_OrderedHashSet, BasicAddAndContains)
 
 TEST(WTF_OrderedHashSet, InsertionOrderPreserved)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     set.add(5);
     set.add(3);
     set.add(1);
@@ -79,7 +79,7 @@ TEST(WTF_OrderedHashSet, InsertionOrderPreserved)
 
 TEST(WTF_OrderedHashSet, InsertionOrderPreservedAfterDeletion)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     set.add(1);
     set.add(2);
     set.add(3);
@@ -101,7 +101,7 @@ TEST(WTF_OrderedHashSet, InsertionOrderPreservedAfterDeletion)
 
 TEST(WTF_OrderedHashSet, Remove)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     set.add(1);
     set.add(2);
     set.add(3);
@@ -114,7 +114,7 @@ TEST(WTF_OrderedHashSet, Remove)
 
 TEST(WTF_OrderedHashSet, RemoveByIterator)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     set.add(1);
     set.add(2);
     set.add(3);
@@ -127,7 +127,7 @@ TEST(WTF_OrderedHashSet, RemoveByIterator)
 
 TEST(WTF_OrderedHashSet, Take)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     set.add(1);
     set.add(2);
     set.add(3);
@@ -143,7 +143,7 @@ TEST(WTF_OrderedHashSet, Take)
 
 TEST(WTF_OrderedHashSet, TakeAny)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     set.add(5);
     set.add(3);
     set.add(1);
@@ -155,7 +155,7 @@ TEST(WTF_OrderedHashSet, TakeAny)
 
 TEST(WTF_OrderedHashSet, Clear)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     set.add(1);
     set.add(2);
     set.clear();
@@ -167,11 +167,11 @@ TEST(WTF_OrderedHashSet, Clear)
 
 TEST(WTF_OrderedHashSet, Swap)
 {
-    WTF::OrderedHashSet<int> set1;
+    OrderedHashSet<int> set1;
     set1.add(1);
     set1.add(2);
 
-    WTF::OrderedHashSet<int> set2;
+    OrderedHashSet<int> set2;
     set2.add(3);
 
     set1.swap(set2);
@@ -185,12 +185,12 @@ TEST(WTF_OrderedHashSet, Swap)
 
 TEST(WTF_OrderedHashSet, CopyConstruction)
 {
-    WTF::OrderedHashSet<int> set1;
+    OrderedHashSet<int> set1;
     set1.add(3);
     set1.add(1);
     set1.add(2);
 
-    WTF::OrderedHashSet<int> set2(set1);
+    OrderedHashSet<int> set2(set1);
 
     EXPECT_EQ(3u, set2.size());
 
@@ -205,11 +205,11 @@ TEST(WTF_OrderedHashSet, CopyConstruction)
 
 TEST(WTF_OrderedHashSet, MoveConstruction)
 {
-    WTF::OrderedHashSet<int> set1;
+    OrderedHashSet<int> set1;
     set1.add(1);
     set1.add(2);
 
-    WTF::OrderedHashSet<int> set2(WTF::move(set1));
+    OrderedHashSet<int> set2(WTF::move(set1));
 
     EXPECT_EQ(2u, set2.size());
     EXPECT_TRUE(set2.contains(1));
@@ -219,11 +219,11 @@ TEST(WTF_OrderedHashSet, MoveConstruction)
 
 TEST(WTF_OrderedHashSet, CopyAssignment)
 {
-    WTF::OrderedHashSet<int> set1;
+    OrderedHashSet<int> set1;
     set1.add(1);
     set1.add(2);
 
-    WTF::OrderedHashSet<int> set2;
+    OrderedHashSet<int> set2;
     set2.add(9);
     set2 = set1;
 
@@ -235,10 +235,10 @@ TEST(WTF_OrderedHashSet, CopyAssignment)
 
 TEST(WTF_OrderedHashSet, MoveAssignment)
 {
-    WTF::OrderedHashSet<int> set1;
+    OrderedHashSet<int> set1;
     set1.add(1);
 
-    WTF::OrderedHashSet<int> set2;
+    OrderedHashSet<int> set2;
     set2.add(9);
     set2 = WTF::move(set1);
 
@@ -249,7 +249,7 @@ TEST(WTF_OrderedHashSet, MoveAssignment)
 
 TEST(WTF_OrderedHashSet, RehashPreservesOrder)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     Vector<int> expectedOrder;
     for (int i = 0; i < 100; ++i) {
         set.add(i);
@@ -265,7 +265,7 @@ TEST(WTF_OrderedHashSet, RehashPreservesOrder)
 
 TEST(WTF_OrderedHashSet, DeleteAndReinsert)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     set.add(1);
     set.add(2);
     set.add(3);
@@ -285,7 +285,7 @@ TEST(WTF_OrderedHashSet, DeleteAndReinsert)
 
 TEST(WTF_OrderedHashSet, ManyDeletesAndInserts)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     for (int i = 0; i < 50; ++i)
         set.add(i);
 
@@ -304,7 +304,7 @@ TEST(WTF_OrderedHashSet, ManyDeletesAndInserts)
 
 TEST(WTF_OrderedHashSet, StringValues)
 {
-    WTF::OrderedHashSet<String> set;
+    OrderedHashSet<String> set;
     set.add("banana"_s);
     set.add("apple"_s);
     set.add("cherry"_s);
@@ -321,7 +321,7 @@ TEST(WTF_OrderedHashSet, StringValues)
 
 TEST(WTF_OrderedHashSet, InitializerList)
 {
-    WTF::OrderedHashSet<int> set { 5, 3, 1, 4, 2 };
+    OrderedHashSet<int> set { 5, 3, 1, 4, 2 };
 
     EXPECT_EQ(5u, set.size());
 
@@ -338,7 +338,7 @@ TEST(WTF_OrderedHashSet, InitializerList)
 
 TEST(WTF_OrderedHashSet, AddAll)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     set.add(1);
 
     Vector<int> toAdd { 2, 3, 4 };
@@ -358,7 +358,7 @@ TEST(WTF_OrderedHashSet, AddAll)
 
 TEST(WTF_OrderedHashSet, Find)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     set.add(1);
     set.add(2);
     set.add(3);
@@ -373,7 +373,7 @@ TEST(WTF_OrderedHashSet, Find)
 
 TEST(WTF_OrderedHashSet, ReserveCapacity)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     set.reserveInitialCapacity(100);
 
     for (int i = 0; i < 100; ++i)
@@ -391,7 +391,7 @@ TEST(WTF_OrderedHashSet, ReserveCapacity)
 
 TEST(WTF_OrderedHashSet, StressTest)
 {
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     // Insert 1000 elements
     for (int i = 0; i < 1000; ++i)
         set.add(i);
@@ -423,7 +423,7 @@ TEST(WTF_OrderedHashSet, CompactInPlacePreservesOrderAndCapacity)
     // With initialBucketCount=8, entriesCapacity starts at 6 and the table
     // does not shrink below initialBucketCount, so compactInPlace is the only
     // rehash path triggered here.
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     for (int i = 0; i < 6; ++i)
         set.add(i);
     unsigned initialCapacity = set.capacity();
@@ -460,7 +460,7 @@ TEST(WTF_OrderedHashSet, CompactInPlaceOnLargerTable)
 {
     // Force a larger table so we can verify compactInPlace works beyond the
     // initial capacity without triggering a grow or shrink rehash.
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     set.reserveInitialCapacity(12);
     unsigned reservedCapacity = set.capacity();
     EXPECT_GE(reservedCapacity, 12u);
@@ -494,7 +494,7 @@ TEST(WTF_OrderedHashSet, CompactInPlaceOnLargerTable)
 TEST(WTF_OrderedHashSet, CompactInPlaceWithStrings)
 {
     // Non-trivial value type exercises move/destroy paths inside compactInPlace.
-    WTF::OrderedHashSet<String> set;
+    OrderedHashSet<String> set;
     set.add("zero"_s);
     set.add("one"_s);
     set.add("two"_s);
@@ -531,7 +531,7 @@ TEST(WTF_OrderedHashSet, CompactInPlaceRepeatedCycles)
 {
     // Many cycles of "delete most, refill to capacity" keep hitting the compactInPlace
     // branch. Verify the table remains consistent across all of them.
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     set.reserveInitialCapacity(12);
     unsigned capacity = set.capacity();
 
@@ -568,7 +568,7 @@ TEST(WTF_OrderedHashSet, RemoveIfAcrossShrinkThreshold)
     // Fill past initialBucketCount so shrinkIfNeeded() can actually rehash, then
     // removeIf enough entries to cross the 1/4 shrink threshold. Prior to the fix
     // that deferred shrink, this would rehash mid-iteration and skip entries.
-    WTF::OrderedHashSet<int> set;
+    OrderedHashSet<int> set;
     for (int i = 0; i < 64; ++i)
         set.add(i);
     EXPECT_EQ(64u, set.size());
@@ -594,7 +594,7 @@ TEST(WTF_OrderedHashSet, RemoveIfAcrossShrinkThreshold)
 
 TEST(WTF_OrderedHashSet, MoveOnlyValue)
 {
-    WTF::OrderedHashSet<MoveOnly> set;
+    OrderedHashSet<MoveOnly> set;
     auto addResult = set.add(MoveOnly(1));
     EXPECT_TRUE(addResult.isNewEntry);
     EXPECT_EQ(1u, addResult.iterator->value());
@@ -624,7 +624,7 @@ TEST(WTF_OrderedHashSet, MoveOnlyValue)
 
 TEST(WTF_OrderedHashSet, MoveOnlyValueRehash)
 {
-    WTF::OrderedHashSet<MoveOnly> set;
+    OrderedHashSet<MoveOnly> set;
     for (unsigned i = 0; i < 64; ++i)
         set.add(MoveOnly(i));
     EXPECT_EQ(64u, set.size());
@@ -634,7 +634,7 @@ TEST(WTF_OrderedHashSet, MoveOnlyValueRehash)
 
 TEST(WTF_OrderedHashSet, HashTranslatorFindContains)
 {
-    WTF::OrderedHashSet<String> set;
+    OrderedHashSet<String> set;
     set.add("alpha"_s);
     set.add("beta"_s);
     set.add("gamma"_s);
@@ -849,16 +849,16 @@ TEST(WTF_OrderedHashSet, HashTranslatorAddTriggersRehashAndCompact)
 
 TEST(WTF_OrderedHashSet, EqualIgnoringOrder)
 {
-    // WTF::OrderedHashSet intentionally does not define operator==, so that the
+    // OrderedHashSet intentionally does not define operator==, so that the
     // order-sensitive vs order-insensitive choice is explicit at the call
     // site. equalIgnoringOrder compares contents, matching HashSet::operator==
     // semantics.
-    WTF::OrderedHashSet<String> a;
+    OrderedHashSet<String> a;
     a.add("alpha"_s);
     a.add("beta"_s);
     a.add("gamma"_s);
 
-    WTF::OrderedHashSet<String> b;
+    OrderedHashSet<String> b;
     b.add("gamma"_s);
     b.add("alpha"_s);
     b.add("beta"_s);
@@ -873,11 +873,11 @@ TEST(WTF_OrderedHashSet, EqualIgnoringOrder)
 
 TEST(WTF_OrderedHashSet, EqualIgnoringOrderDifferentSize)
 {
-    WTF::OrderedHashSet<String> a;
+    OrderedHashSet<String> a;
     a.add("alpha"_s);
     a.add("beta"_s);
 
-    WTF::OrderedHashSet<String> b;
+    OrderedHashSet<String> b;
     b.add("alpha"_s);
 
     EXPECT_FALSE(equalIgnoringOrder(a, b));
@@ -886,11 +886,11 @@ TEST(WTF_OrderedHashSet, EqualIgnoringOrderDifferentSize)
 
 TEST(WTF_OrderedHashSet, EqualIgnoringOrderDifferentElements)
 {
-    WTF::OrderedHashSet<String> a;
+    OrderedHashSet<String> a;
     a.add("alpha"_s);
     a.add("beta"_s);
 
-    WTF::OrderedHashSet<String> b;
+    OrderedHashSet<String> b;
     b.add("alpha"_s);
     b.add("delta"_s);
 
@@ -900,8 +900,8 @@ TEST(WTF_OrderedHashSet, EqualIgnoringOrderDifferentElements)
 
 TEST(WTF_OrderedHashSet, EqualIgnoringOrderEmpty)
 {
-    WTF::OrderedHashSet<String> a;
-    WTF::OrderedHashSet<String> b;
+    OrderedHashSet<String> a;
+    OrderedHashSet<String> b;
     EXPECT_TRUE(equalIgnoringOrder(a, b));
 
     a.add("key"_s);

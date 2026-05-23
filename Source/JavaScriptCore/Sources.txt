@@ -956,6 +956,7 @@ runtime/JSModuleRecord.cpp
 runtime/JSNativeStdFunction.cpp
 runtime/JSONObject.cpp
 runtime/JSObject.cpp
+runtime/JSOrderedHashTable.cpp
 runtime/JSPIContext.cpp
 runtime/JSPromise.cpp
 runtime/JSPromiseCombinatorsContext.cpp
@@ -1031,7 +1032,6 @@ runtime/ObjectInitializationScope.cpp
 runtime/ObjectPrototype.cpp
 runtime/Operations.cpp
 runtime/Options.cpp
-runtime/OrderedHashTable.cpp
 runtime/PageCount.cpp
 runtime/PinballCompletion.cpp
 runtime/PinballHandlerContext.cpp

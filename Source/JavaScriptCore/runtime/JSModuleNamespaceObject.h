@@ -82,7 +82,7 @@ private:
         WriteBarrier<AbstractModuleRecord> moduleRecord;
     };
 
-    using ExportMap = WTF::OrderedHashMap<RefPtr<UniquedStringImpl>, ExportEntry, IdentifierRepHash, HashTraits<RefPtr<UniquedStringImpl>>>;
+    using ExportMap = OrderedHashMap<RefPtr<UniquedStringImpl>, ExportEntry, IdentifierRepHash, HashTraits<RefPtr<UniquedStringImpl>>>;
 
     ExportMap m_exports;
     WriteBarrier<AbstractModuleRecord> m_moduleRecord;

@@ -1265,6 +1265,8 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     runtime/JSObject.h
     runtime/JSObjectInlines.h
     runtime/JSONObject.h
+    runtime/JSOrderedHashTable.h
+    runtime/JSOrderedHashTableHelper.h
     runtime/JSPromise.h
     runtime/JSPromiseConstructor.h
     runtime/JSPropertyNameEnumerator.h
@@ -1339,8 +1341,6 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     runtime/OperationsInlines.h
     runtime/Options.h
     runtime/OptionsList.h
-    runtime/OrderedHashTable.h
-    runtime/OrderedHashTableHelper.h
     runtime/PageCount.h
     runtime/ParseInt.h
     runtime/PinballCompletion.h
