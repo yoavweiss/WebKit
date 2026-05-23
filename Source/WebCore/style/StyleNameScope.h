@@ -52,7 +52,7 @@ struct NameScope {
     {
     }
 
-    NameScope(CommaSeparatedListHashSet<CustomIdent>&& names, ScopeOrdinal scopeOrdinal)
+    NameScope(CommaSeparatedOrderedHashSet<CustomIdent>&& names, ScopeOrdinal scopeOrdinal)
         : type { Type::Ident }
         , names { WTF::move(names) }
         , scopeOrdinal { scopeOrdinal }
@@ -60,7 +60,7 @@ struct NameScope {
     }
 
     Type type { Type::None };
-    CommaSeparatedListHashSet<CustomIdent> names;
+    CommaSeparatedOrderedHashSet<CustomIdent> names;
     ScopeOrdinal scopeOrdinal { ScopeOrdinal::Element };
 
     template<typename... F> constexpr decltype(auto) switchOn(F&&...) const;

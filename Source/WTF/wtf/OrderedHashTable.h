@@ -630,13 +630,13 @@ private:
 
 template<typename TableType, typename ValueType>
 class OrderedHashTableIterator {
+public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = ValueType;
     using difference_type = ptrdiff_t;
     using pointer = ValueType*;
     using reference = ValueType&;
 
-public:
     OrderedHashTableIterator() = default;
 
     ValueType* get() const
@@ -656,6 +656,13 @@ public:
         ++m_index;
         skipDeleted();
         return *this;
+    }
+
+    OrderedHashTableIterator operator++(int)
+    {
+        auto result = *this;
+        ++*this;
+        return result;
     }
 
     friend bool operator==(const OrderedHashTableIterator& a, const OrderedHashTableIterator& b)
@@ -688,13 +695,13 @@ private:
 
 template<typename TableType, typename ValueType>
 class OrderedHashTableConstIterator {
+public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = ValueType;
     using difference_type = ptrdiff_t;
     using pointer = const ValueType*;
     using reference = const ValueType&;
 
-public:
     OrderedHashTableConstIterator() = default;
 
     OrderedHashTableConstIterator(const OrderedHashTableIterator<std::remove_const_t<TableType>, ValueType>& other)
@@ -720,6 +727,13 @@ public:
         ++m_index;
         skipDeleted();
         return *this;
+    }
+
+    OrderedHashTableConstIterator operator++(int)
+    {
+        auto result = *this;
+        ++*this;
+        return result;
     }
 
     friend bool operator==(const OrderedHashTableConstIterator& a, const OrderedHashTableConstIterator& b)
@@ -750,13 +764,13 @@ private:
 
 template<typename TableType, typename ValueType>
 class OrderedHashTableReverseIterator {
+public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = ValueType;
     using difference_type = ptrdiff_t;
     using pointer = ValueType*;
     using reference = ValueType&;
 
-public:
     OrderedHashTableReverseIterator() = default;
 
     ValueType* get() const
@@ -777,6 +791,13 @@ public:
         --m_index;
         skipDeleted();
         return *this;
+    }
+
+    OrderedHashTableReverseIterator operator++(int)
+    {
+        auto result = *this;
+        ++*this;
+        return result;
     }
 
     friend bool operator==(const OrderedHashTableReverseIterator& a, const OrderedHashTableReverseIterator& b)
@@ -807,13 +828,13 @@ private:
 
 template<typename TableType, typename ValueType>
 class OrderedHashTableConstReverseIterator {
+public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = ValueType;
     using difference_type = ptrdiff_t;
     using pointer = const ValueType*;
     using reference = const ValueType&;
 
-public:
     OrderedHashTableConstReverseIterator() = default;
 
     OrderedHashTableConstReverseIterator(const OrderedHashTableReverseIterator<std::remove_const_t<TableType>, ValueType>& other)
@@ -840,6 +861,13 @@ public:
         --m_index;
         skipDeleted();
         return *this;
+    }
+
+    OrderedHashTableConstReverseIterator operator++(int)
+    {
+        auto result = *this;
+        ++*this;
+        return result;
     }
 
     friend bool operator==(const OrderedHashTableConstReverseIterator& a, const OrderedHashTableConstReverseIterator& b)

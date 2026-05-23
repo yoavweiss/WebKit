@@ -49,14 +49,14 @@ auto CSSValueConversion<NameScope>::operator()(BuilderState& state, const CSSVal
     }
 
     if (RefPtr customIdentValue = dynamicDowncast<CSSCustomIdentValue>(value))
-        return { CommaSeparatedListHashSet<CustomIdent> { toStyleFromCSSValue<CustomIdent>(state, *customIdentValue) }, state.styleScopeOrdinal() };
+        return { CommaSeparatedOrderedHashSet<CustomIdent> { toStyleFromCSSValue<CustomIdent>(state, *customIdentValue) }, state.styleScopeOrdinal() };
 
     auto list = requiredListDowncast<CSSValueList, CSSCustomIdentValue>(state, value);
     if (!list)
         return CSS::Keyword::None { };
 
     return {
-        CommaSeparatedListHashSet<CustomIdent>::map(*list, [&](auto& item) {
+        CommaSeparatedOrderedHashSet<CustomIdent>::map(*list, [&](auto& item) {
             return toStyleFromCSSValue<CustomIdent>(state, item);
         }),
         state.styleScopeOrdinal()

@@ -68,12 +68,12 @@ template<typename T> struct CSSValueConversion<CommaSeparatedEnumSet<T>> {
     }
 };
 
-// Specialization for `SpaceSeparatedListHashSet`.
-template<typename T> struct CSSValueConversion<SpaceSeparatedListHashSet<T>> {
-    template<typename... Rest> SpaceSeparatedListHashSet<T> operator()(BuilderState& state, const CSSValue& value, Rest&&... rest)
+// Specialization for `SpaceSeparatedOrderedHashSet`.
+template<typename T> struct CSSValueConversion<SpaceSeparatedOrderedHashSet<T>> {
+    template<typename... Rest> SpaceSeparatedOrderedHashSet<T> operator()(BuilderState& state, const CSSValue& value, Rest&&... rest)
     {
         if (auto list = dynamicDowncast<CSSValueList>(value)) {
-            return SpaceSeparatedListHashSet<T>::map(*list, [&](const CSSValue& element) {
+            return SpaceSeparatedOrderedHashSet<T>::map(*list, [&](const CSSValue& element) {
                 return toStyleFromCSSValue<T>(state, element, rest...);
             });
         }
@@ -81,12 +81,12 @@ template<typename T> struct CSSValueConversion<SpaceSeparatedListHashSet<T>> {
     }
 };
 
-// Specialization for `CommaSeparatedListHashSet`.
-template<typename T> struct CSSValueConversion<CommaSeparatedListHashSet<T>> {
-    template<typename... Rest> CommaSeparatedListHashSet<T> operator()(BuilderState& state, const CSSValue& value, Rest&&... rest)
+// Specialization for `CommaSeparatedOrderedHashSet`.
+template<typename T> struct CSSValueConversion<CommaSeparatedOrderedHashSet<T>> {
+    template<typename... Rest> CommaSeparatedOrderedHashSet<T> operator()(BuilderState& state, const CSSValue& value, Rest&&... rest)
     {
         if (auto list = dynamicDowncast<CSSValueList>(value)) {
-            return CommaSeparatedListHashSet<T>::map(*list, [&](const CSSValue& element) {
+            return CommaSeparatedOrderedHashSet<T>::map(*list, [&](const CSSValue& element) {
                 return toStyleFromCSSValue<T>(state, element, rest...);
             });
         }
