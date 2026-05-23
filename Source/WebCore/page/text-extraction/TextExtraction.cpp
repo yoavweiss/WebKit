@@ -1423,7 +1423,7 @@ Result extractItem(Request&& request, LocalFrame& frame)
         WeakHashSet<Node, WeakPtrImplWithEventTargetData> additionalContainersToCollect;
         RefPtr extractionRoot = dynamicDowncast<ContainerNode>(*extractionRootNode);
         if (extractionRoot && request.includeOffscreenPasswordFields && request.collectionRectInRootView) {
-            ListHashSet<Ref<HTMLElement>> targetedElements;
+            OrderedHashSet<Ref<HTMLElement>> targetedElements;
             for (Ref input : descendantsOfType<HTMLInputElement>(*extractionRoot)) {
                 if (!input->isPasswordField())
                     continue;
@@ -1653,7 +1653,7 @@ static Vector<std::pair<String, FloatRect>> extractAllTextAndRectsRecursive(Docu
     if (!view)
         return { };
 
-    ListHashSet<Ref<HTMLFrameOwnerElement>> frameOwners;
+    OrderedHashSet<Ref<HTMLFrameOwnerElement>> frameOwners;
     Vector<std::pair<String, FloatRect>> result;
     auto fullRange = makeRangeSelectingNodeContents(*bodyElement);
     for (TextIterator iterator { fullRange, behaviorsForTextExtraction }; !iterator.atEnd(); iterator.advance()) {
