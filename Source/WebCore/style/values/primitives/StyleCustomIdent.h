@@ -53,9 +53,14 @@ template<> struct ToStyle<CSS::CustomIdent> { auto operator()(const CSS::CustomI
 template<> struct CSSValueCreation<CustomIdent> {
     Ref<CSSValue> operator()(CSSValuePool&, const RenderStyle&, const CustomIdent&);
 };
+
 template<> struct CSSValueConversion<CustomIdent> {
     auto operator()(BuilderState&, const CSSCustomIdentValue&) -> CustomIdent;
     auto operator()(BuilderState&, const CSSValue&) -> CustomIdent;
+};
+
+template<> struct DeprecatedCSSOMValueCreation<CustomIdent> {
+    Ref<DeprecatedCSSOMValue> operator()(CSSValuePool&, const RenderStyle&, CSSStyleDeclaration&, const CustomIdent&);
 };
 
 // MARK: - Serialization

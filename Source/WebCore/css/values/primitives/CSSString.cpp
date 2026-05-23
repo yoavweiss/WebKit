@@ -28,20 +28,30 @@
 
 #include "CSSMarkup.h"
 #include "CSSStringValue.h"
+#include "DeprecatedCSSOMPrimitiveValue.h"
 #include <wtf/Hasher.h>
 #include <wtf/text/TextStream.h>
 
 namespace WebCore {
 namespace CSS {
 
+// MARK: - Serialize
+
 void Serialize<String>::operator()(StringBuilder& builder, const SerializationContext&, const String& value)
 {
     WebCore::serializeString(builder, value.value);
 }
 
+// MARK: - Conversion
+
 Ref<CSSValue> CSSValueCreation<String>::operator()(CSSValuePool&, const String& value)
 {
     return CSSStringValue::create(value);
+}
+
+Ref<DeprecatedCSSOMValue> DeprecatedCSSOMValueCreation<String>::operator()(CSSValuePool& pool, CSSStyleDeclaration& owner, const String& value)
+{
+    return DeprecatedCSSOMPrimitiveValue::create(createCSSValue(pool, value), owner);
 }
 
 // MARK: - Logging

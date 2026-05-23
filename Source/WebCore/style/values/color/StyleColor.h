@@ -201,8 +201,13 @@ template<> struct CSSValueConversion<Color> {
     auto operator()(BuilderState&, const CSSValue&, ForVisitedLink) -> Color;
     auto operator()(BuilderState&, const CSSValue&) -> Color;
 };
+
 template<> struct CSSValueCreation<Color> {
     auto operator()(CSSValuePool&, const RenderStyle&, const Color&) -> Ref<CSSValue>;
+};
+
+template<> struct DeprecatedCSSOMValueCreation<Color> {
+    Ref<DeprecatedCSSOMValue> operator()(CSSValuePool&, const RenderStyle&, CSSStyleDeclaration&, const Color&);
 };
 
 // MARK: - Blending

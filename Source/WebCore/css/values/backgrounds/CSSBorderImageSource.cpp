@@ -31,39 +31,11 @@
 namespace WebCore {
 namespace CSS {
 
-// MARK: - CSSValue Visitation
-
-auto CSSValueChildrenVisitor<BorderImageSource>::operator()(NOESCAPE const Function<IterationStatus(CSSValue&)>& function, const BorderImageSource& value) -> IterationStatus
-{
-    return WTF::switchOn(value,
-        [&](CSS::Keyword::None) {
-            return IterationStatus::Continue;
-        },
-        [&](Ref<CSSValue> cssValue) {
-            return function(cssValue);
-        }
-    );
-}
-
 // MARK: - Conversion
 
 auto CSSValueCreation<BorderImageSource>::operator()(CSSValuePool&, const BorderImageSource& value) -> Ref<CSSValue>
 {
     return CSSBorderImageSourceValue::create(BorderImageSource { value });
-}
-
-// MARK: - Serialization
-
-void Serialize<BorderImageSource>::operator()(StringBuilder& builder, const SerializationContext& context, const BorderImageSource& value)
-{
-    WTF::switchOn(value,
-        [&](CSS::Keyword::None keyword) {
-            CSS::serializationForCSS(builder, context, keyword);
-        },
-        [&](Ref<CSSValue> cssValue) {
-            builder.append(cssValue->cssText(context));
-        }
-    );
 }
 
 } // namespace CSS

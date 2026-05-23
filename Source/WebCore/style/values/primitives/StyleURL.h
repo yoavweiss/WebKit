@@ -57,10 +57,17 @@ URL toStyleWithScriptExecutionContext(const CSS::URL&, const ScriptExecutionCont
 template<> struct ToCSS<URL> { CSS::URL NODELETE operator()(const URL&, const RenderStyle&); };
 template<> struct ToStyle<CSS::URL> { auto operator()(const CSS::URL&, const BuilderState&) -> URL; };
 
-template<> struct CSSValueCreation<URL> { Ref<CSSValue> operator()(CSSValuePool&, const RenderStyle&, const URL&); };
+template<> struct CSSValueCreation<URL> {
+    Ref<CSSValue> operator()(CSSValuePool&, const RenderStyle&, const URL&);
+};
+
 template<> struct CSSValueConversion<URL> {
     auto operator()(BuilderState&, const CSSURLValue&) -> URL;
     auto operator()(BuilderState&, const CSSValue&) -> URL;
+};
+
+template<> struct DeprecatedCSSOMValueCreation<URL> {
+    Ref<DeprecatedCSSOMValue> operator()(CSSValuePool&, const RenderStyle&, CSSStyleDeclaration&, const URL&);
 };
 
 // MARK: Serialization

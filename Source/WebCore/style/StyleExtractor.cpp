@@ -32,6 +32,7 @@
 #include "CSSValuePool.h"
 #include "ComposedTreeAncestorIterator.h"
 #include "ContainerNodeInlines.h"
+#include "DeprecatedCSSOMValue.h"
 #include "FontCascade.h"
 #include "HTMLFrameOwnerElement.h"
 #include "KeyframeEffectStack.h"
@@ -256,6 +257,20 @@ RefPtr<CSSValue> Extractor::customPropertyValue(const AtomString& propertyName) 
     return value->propertyValue(CSSValuePool::singleton(), *style);
 }
 
+RefPtr<DeprecatedCSSOMValue> Extractor::customPropertyValueDeprecatedCSSOMValue(const AtomString& propertyName, CSSStyleDeclaration& owner) const
+{
+    std::unique_ptr<RenderStyle> ownedStyle;
+    auto* style = computeStyleForCustomProperty(ownedStyle);
+    if (!style)
+        return nullptr;
+
+    RefPtr value = style->customPropertyValue(propertyName);
+    if (!value)
+        return nullptr;
+
+    return value->propertyValueDeprecatedCSSOMWrapper(CSSValuePool::singleton(), owner, *style);
+}
+
 WTF::String Extractor::customPropertyValueSerialization(const AtomString& propertyName, const CSS::SerializationContext& serializationContext) const
 {
     std::unique_ptr<RenderStyle> ownedStyle;
@@ -454,6 +469,14 @@ RefPtr<CSSValue> Extractor::propertyValue(CSSPropertyID propertyID, UpdateLayout
         valueType == ExtractorState::PropertyValueType::Resolved ? computeRenderer() : nullptr,
         valueType
     );
+}
+
+RefPtr<DeprecatedCSSOMValue> Extractor::propertyValueDeprecatedCSSOMValue(CSSPropertyID propertyID, CSSStyleDeclaration& owner, UpdateLayout updateLayout, ExtractorState::PropertyValueType valueType) const
+{
+    auto value = propertyValue(propertyID, updateLayout, valueType);
+    if (!value)
+        return nullptr;
+    return value->createDeprecatedCSSOMWrapper(owner);
 }
 
 WTF::String Extractor::propertyValueSerialization(CSSPropertyID propertyID, const CSS::SerializationContext& serializationContext, UpdateLayout updateLayout, ExtractorState::PropertyValueType valueType) const

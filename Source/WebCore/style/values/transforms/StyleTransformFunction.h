@@ -49,6 +49,7 @@ struct TransformFunction : TransformFunctionWrapper<TransformFunctionBase> {
 template<> struct CSSValueConversion<TransformFunction> { auto operator()(BuilderState&, const CSSValue&) -> TransformFunction; };
 template<> struct CSSValueCreation<TransformFunction> { auto operator()(CSSValuePool&, const RenderStyle&, const TransformFunction&) -> Ref<CSSValue>; };
 template<> struct CSSValueCreation<TransformationMatrix> { auto operator()(CSSValuePool&, const RenderStyle&, const TransformationMatrix&) -> Ref<CSSValue>; };
+template<> struct DeprecatedCSSOMValueCreation<TransformFunction> { Ref<DeprecatedCSSOMValue> operator()(CSSValuePool&, const RenderStyle&, CSSStyleDeclaration&, const TransformFunction&); };
 
 // MARK: - Serialization
 

@@ -33,8 +33,10 @@
 namespace WebCore {
 
 class CSSPrimitiveValue;
+class CSSStyleDeclaration;
 class CSSValue;
 class CSSValuePool;
+class DeprecatedCSSOMValue;
 class Element;
 class MutableStyleProperties;
 class Node;
@@ -65,6 +67,9 @@ public:
     // Extract a CSSValue for the specified property.
     RefPtr<CSSValue> propertyValue(CSSPropertyID, UpdateLayout = UpdateLayout::Yes, ExtractorState::PropertyValueType = ExtractorState::PropertyValueType::Resolved) const;
 
+    // Extract a DeprecatedCSSOMValue for the specified property.
+    RefPtr<DeprecatedCSSOMValue> propertyValueDeprecatedCSSOMValue(CSSPropertyID, CSSStyleDeclaration&, UpdateLayout = UpdateLayout::Yes, ExtractorState::PropertyValueType = ExtractorState::PropertyValueType::Resolved) const;
+
     // Extract a serialized value for the specified property.
     WTF::String propertyValueSerialization(CSSPropertyID, const CSS::SerializationContext&, UpdateLayout = UpdateLayout::Yes, ExtractorState::PropertyValueType = ExtractorState::PropertyValueType::Resolved) const;
 
@@ -76,6 +81,9 @@ public:
 
     // Extract a CSSValue for the specified custom property.
     RefPtr<CSSValue> customPropertyValue(const AtomString& propertyName) const;
+
+    // Extract a DeprecatedCSSOMValue for the specified custom property.
+    RefPtr<DeprecatedCSSOMValue> customPropertyValueDeprecatedCSSOMValue(const AtomString& propertyName, CSSStyleDeclaration&) const;
 
     // Extract a serialized value for the specified custom property.
     WTF::String customPropertyValueSerialization(const AtomString& propertyName, const CSS::SerializationContext&) const;

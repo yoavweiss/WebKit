@@ -43,7 +43,7 @@ auto ToCSS<MaskBorderSource>::operator()(const MaskBorderSource& value, const Re
             return keyword;
         },
         [&](const ImageWrapper& imageWrapper) -> CSS::MaskBorderSource {
-            return protect(imageWrapper.value)->computedStyleValue(style);
+            return CSS::ImageWrapper { protect(imageWrapper.value)->computedStyleValue(style) };
         }
     );
 }
@@ -54,8 +54,8 @@ auto ToStyle<CSS::MaskBorderSource>::operator()(const CSS::MaskBorderSource& val
         [&](const CSS::Keyword::None& keyword) -> MaskBorderSource {
             return keyword;
         },
-        [&](const Ref<CSSValue>& cssImageValue) -> MaskBorderSource {
-            RefPtr image = state.createStyleImage(cssImageValue);
+        [&](const CSS::ImageWrapper& imageWrapper) -> MaskBorderSource {
+            RefPtr image = state.createStyleImage(protect(imageWrapper.value));
             if (!image)
                 return CSS::Keyword::None { };
             return ImageWrapper { image.releaseNonNull() };

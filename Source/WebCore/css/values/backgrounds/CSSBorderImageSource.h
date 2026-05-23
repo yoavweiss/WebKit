@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "CSSValue.h"
+#include "CSSImageWrapper.h"
 #include "CSSValueTypes.h"
 #include <wtf/PointerComparison.h>
 
@@ -36,6 +36,7 @@ namespace CSS {
 // https://drafts.csswg.org/css-backgrounds/#propdef-border-image-source
 struct BorderImageSource {
     BorderImageSource(Keyword::None) { }
+    BorderImageSource(ImageWrapper&& image) : m_image { WTF::move(image.value) } { }
     BorderImageSource(Ref<CSSValue>&& image) : m_image { WTF::move(image) } { }
 
     bool isNone() const { return !m_image; }
@@ -46,7 +47,7 @@ struct BorderImageSource {
 
         if (!m_image)
             return visitor(Keyword::None { });
-        return visitor(protect(*m_image));
+        return visitor(ImageWrapper { *m_image });
     }
 
     bool operator==(const BorderImageSource& other) const
@@ -58,17 +59,9 @@ private:
     RefPtr<CSSValue> m_image;
 };
 
-// MARK: - CSSValue Visitation
-
-template<> struct CSSValueChildrenVisitor<BorderImageSource> { auto operator()(NOESCAPE const Function<IterationStatus(CSSValue&)>&, const BorderImageSource&) -> IterationStatus; };
-
 // MARK: - Conversion
 
 template<> struct CSSValueCreation<BorderImageSource> { auto operator()(CSSValuePool&, const BorderImageSource&) -> Ref<CSSValue>; };
-
-// MARK: - Serialization
-
-template<> struct Serialize<BorderImageSource> { void operator()(StringBuilder&, const SerializationContext&, const BorderImageSource&); };
 
 } // namespace CSS
 } // namespace WebCore

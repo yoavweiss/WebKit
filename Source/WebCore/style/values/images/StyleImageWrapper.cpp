@@ -29,6 +29,7 @@
 
 #include "AnimationUtilities.h"
 #include "CSSValue.h"
+#include "DeprecatedCSSOMValue.h"
 #include "StyleCachedImage.h"
 #include "StyleCrossfadeImage.h"
 #include "StyleFilterImage.h"
@@ -41,16 +42,19 @@ namespace Style {
 
 Ref<CSSValue> CSSValueCreation<ImageWrapper>::operator()(CSSValuePool&, const RenderStyle& style, const ImageWrapper& value)
 {
-    Ref image = value.value;
-    return image->computedStyleValue(style);
+    return protect(value.value)->computedStyleValue(style);
+}
+
+Ref<DeprecatedCSSOMValue> DeprecatedCSSOMValueCreation<ImageWrapper>::operator()(CSSValuePool& pool, const RenderStyle& style, CSSStyleDeclaration& owner, const ImageWrapper& value)
+{
+    return protect(value.value)->computedStyleDeprecatedCSSOMValue(pool, style, owner);
 }
 
 // MARK: - Serialization
 
 void Serialize<ImageWrapper>::operator()(StringBuilder& builder, const CSS::SerializationContext& context, const RenderStyle& style, const ImageWrapper& value)
 {
-    Ref image = value.value;
-    builder.append(image->computedStyleValue(style)->cssText(context));
+    builder.append(protect(value.value)->computedStyleValue(style)->cssText(context));
 }
 
 // MARK: - Blending

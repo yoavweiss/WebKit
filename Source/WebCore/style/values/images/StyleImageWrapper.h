@@ -43,6 +43,7 @@ struct ImageWrapper {
 // MARK: - Conversion
 
 template<> struct CSSValueCreation<ImageWrapper> { Ref<CSSValue> operator()(CSSValuePool&, const RenderStyle&, const ImageWrapper&); };
+template<> struct DeprecatedCSSOMValueCreation<ImageWrapper> { Ref<DeprecatedCSSOMValue> operator()(CSSValuePool&, const RenderStyle&, CSSStyleDeclaration&, const ImageWrapper&); };
 
 // MARK: - Serialization
 

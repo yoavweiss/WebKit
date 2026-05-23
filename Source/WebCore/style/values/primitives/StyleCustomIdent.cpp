@@ -29,6 +29,7 @@
 
 #include "CSSCustomIdentValue.h"
 #include "CSSMarkup.h"
+#include "DeprecatedCSSOMValue.h"
 #include "StyleBuilderChecking.h"
 #include <wtf/text/TextStream.h>
 
@@ -62,6 +63,11 @@ auto CSSValueConversion<CustomIdent>::operator()(BuilderState& state, const CSSV
     if (RefPtr customIdentValue = requiredDowncast<CSSCustomIdentValue>(state, value))
         return toStyle(customIdentValue->customIdent(), state);
     return { .value = nullAtom() };
+}
+
+Ref<DeprecatedCSSOMValue> DeprecatedCSSOMValueCreation<CustomIdent>::operator()(CSSValuePool& pool, const RenderStyle& style, CSSStyleDeclaration& owner, const CustomIdent& value)
+{
+    return CSS::createDeprecatedCSSOMValue(pool, owner, toCSS(value, style));
 }
 
 // MARK: - Serialization

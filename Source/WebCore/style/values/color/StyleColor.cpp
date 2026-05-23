@@ -39,6 +39,7 @@
 #include "CSSKeywordColor.h"
 #include "CSSValuePool.h"
 #include "ColorBlending.h"
+#include "DeprecatedCSSOMValue.h"
 #include "Document.h"
 #include "RenderStyle.h"
 #include "RenderTheme.h"
@@ -420,6 +421,11 @@ Ref<CSSValue> CSSValueCreation<Color>::operator()(CSSValuePool& pool, const Rend
 {
     ColorResolver colorResolver { style };
     return pool.createColorValue(colorResolver.colorResolvingCurrentColor(value));
+}
+
+Ref<DeprecatedCSSOMValue> DeprecatedCSSOMValueCreation<Color>::operator()(CSSValuePool& pool, const RenderStyle& style, CSSStyleDeclaration& owner, const Color& value)
+{
+    return CSS::createDeprecatedCSSOMValue(pool, owner, toCSS(value, style));
 }
 
 // MARK: - Blending

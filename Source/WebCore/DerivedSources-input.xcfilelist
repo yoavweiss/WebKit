@@ -1340,12 +1340,6 @@ $(PROJECT_DIR)/css/DOMMatrix.idl
 $(PROJECT_DIR)/css/DOMMatrix2DInit.idl
 $(PROJECT_DIR)/css/DOMMatrixInit.idl
 $(PROJECT_DIR)/css/DOMMatrixReadOnly.idl
-$(PROJECT_DIR)/css/DeprecatedCSSOMCounter.idl
-$(PROJECT_DIR)/css/DeprecatedCSSOMPrimitiveValue.idl
-$(PROJECT_DIR)/css/DeprecatedCSSOMRGBColor.idl
-$(PROJECT_DIR)/css/DeprecatedCSSOMRect.idl
-$(PROJECT_DIR)/css/DeprecatedCSSOMValue.idl
-$(PROJECT_DIR)/css/DeprecatedCSSOMValueList.idl
 $(PROJECT_DIR)/css/ElementCSSInlineStyle+Typedom.idl
 $(PROJECT_DIR)/css/ElementCSSInlineStyle.idl
 $(PROJECT_DIR)/css/FontFace.idl
@@ -1363,6 +1357,12 @@ $(PROJECT_DIR)/css/StyleSheet.idl
 $(PROJECT_DIR)/css/StyleSheetList.idl
 $(PROJECT_DIR)/css/WebKitFontFamilyNames.in
 $(PROJECT_DIR)/css/counterStyles.css
+$(PROJECT_DIR)/css/deprecated-cssom/DeprecatedCSSOMCounter.idl
+$(PROJECT_DIR)/css/deprecated-cssom/DeprecatedCSSOMPrimitiveValue.idl
+$(PROJECT_DIR)/css/deprecated-cssom/DeprecatedCSSOMRGBColor.idl
+$(PROJECT_DIR)/css/deprecated-cssom/DeprecatedCSSOMRect.idl
+$(PROJECT_DIR)/css/deprecated-cssom/DeprecatedCSSOMValue.idl
+$(PROJECT_DIR)/css/deprecated-cssom/DeprecatedCSSOMValueList.idl
 $(PROJECT_DIR)/css/fullscreen.css
 $(PROJECT_DIR)/css/horizontalFormControls.css
 $(PROJECT_DIR)/css/html.css

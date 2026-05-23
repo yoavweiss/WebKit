@@ -39,7 +39,9 @@ namespace WebCore {
 
 class CachedImage;
 class CachedResourceLoader;
+class CSSStyleDeclaration;
 class CSSValue;
+class CSSValuePool;
 class Document;
 class RenderElement;
 class RenderObject;
@@ -56,6 +58,7 @@ public:
 
     // Computed Style representation.
     virtual Ref<CSSValue> computedStyleValue(const RenderStyle&) const = 0;
+    virtual Ref<DeprecatedCSSOMValue> computedStyleDeprecatedCSSOMValue(CSSValuePool&, const RenderStyle&, CSSStyleDeclaration&) const = 0;
 
     // Opaque representation.
     virtual WrappedImagePtr data() const = 0;

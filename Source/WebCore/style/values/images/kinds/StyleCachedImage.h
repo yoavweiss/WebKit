@@ -59,6 +59,7 @@ public:
     WrappedImagePtr data() const final { return m_cachedImage.get(); }
 
     Ref<CSSValue> computedStyleValue(const RenderStyle&) const final;
+    Ref<DeprecatedCSSOMValue> computedStyleDeprecatedCSSOMValue(CSSValuePool&, const RenderStyle&, CSSStyleDeclaration&) const final;
 
     bool canRender(const RenderElement*, float multiplier) const final;
     bool isPending() const final;

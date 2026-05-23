@@ -33,9 +33,12 @@
 #include "CSSTokenizer.h"
 #include "CSSValueList.h"
 #include "CSSValuePool.h"
+#include "DeprecatedCSSOMPrimitiveValue.h"
+#include "DeprecatedCSSOMValueList.h"
 #include "RenderStyle.h"
 #include "StyleCalculationValue.h"
 #include "StylePrimitiveNumericTypes+CSSValueCreation.h"
+#include "StylePrimitiveNumericTypes+DeprecatedCSSOMValueCreation.h"
 #include "StylePrimitiveNumericTypes+Serialization.h"
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/NeverDestroyed.h>
@@ -104,6 +107,35 @@ Ref<CSSValue> CustomProperty::propertyValue(CSSValuePool& pool, const RenderStyl
                 return CSSValueList::createSlashSeparated(WTF::move(builder));
             }
             RELEASE_ASSERT_NOT_REACHED();
+        }
+    );
+}
+
+Ref<DeprecatedCSSOMValue> CustomProperty::propertyValueDeprecatedCSSOMWrapper(CSSValuePool& pool, CSSStyleDeclaration& owner, const RenderStyle& style) const
+{
+    auto convertValue = [&](const Value& value) {
+        return WTF::switchOn(value,
+            [&](const auto& value) -> Ref<DeprecatedCSSOMValue> {
+                return createDeprecatedCSSOMValue(pool, style, owner, value);
+            }
+        );
+    };
+
+    return WTF::switchOn(m_value,
+        [&](const GuaranteedInvalid&) -> Ref<DeprecatedCSSOMValue> {
+            return CSS::createDeprecatedCSSOMValue(pool, owner, CSS::String { emptyString() });
+        },
+        [&](const Ref<CSSVariableData>& variableData) -> Ref<DeprecatedCSSOMValue> {
+            return DeprecatedCSSOMComplexValue::create(CSSSubstitutionValue::create(variableData.copyRef()), owner);
+        },
+        [&](const Value& value) -> Ref<DeprecatedCSSOMValue> {
+            return convertValue(value);
+        },
+        [&](const ValueList& valueList) -> Ref<DeprecatedCSSOMValue> {
+            DeprecatedCSSOMValueListBuilder builder;
+            for (auto& value : valueList.values)
+                builder.append(convertValue(value));
+            return DeprecatedCSSOMValueList::create(WTF::move(builder), valueList.separator, owner);
         }
     );
 }

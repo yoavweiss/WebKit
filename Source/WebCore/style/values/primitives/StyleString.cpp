@@ -27,6 +27,7 @@
 #include "StyleString.h"
 
 #include "CSSStringValue.h"
+#include "DeprecatedCSSOMValue.h"
 #include "StyleBuilderChecking.h"
 #include <wtf/text/TextStream.h>
 
@@ -61,6 +62,11 @@ auto CSSValueConversion<String>::operator()(BuilderState& state, const CSSValue&
     if (!stringValue) [[unlikely]]
         return { .value = nullString() };
     return toStyle(stringValue->string(), state);
+}
+
+Ref<DeprecatedCSSOMValue> DeprecatedCSSOMValueCreation<String>::operator()(CSSValuePool& pool, const RenderStyle& style, CSSStyleDeclaration& owner, const String& value)
+{
+    return CSS::createDeprecatedCSSOMValue(pool, owner, toCSS(value, style));
 }
 
 // MARK: - Serialization

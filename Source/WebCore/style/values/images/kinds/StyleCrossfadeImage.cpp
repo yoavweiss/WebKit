@@ -34,6 +34,7 @@
 #include "CachedImage.h"
 #include "CachedResourceLoader.h"
 #include "CrossfadeGeneratedImage.h"
+#include "DeprecatedCSSOMValue.h"
 #include "RenderElement.h"
 #include "SVGImageForContainer.h"
 #include "StylePrimitiveNumericTypes+Blending.h"
@@ -101,6 +102,11 @@ Ref<CSSValue> CrossfadeImage::computedStyleValue(const RenderStyle& style) const
         toCSS(m_progress, style),
         m_isPrefixed
     );
+}
+
+Ref<DeprecatedCSSOMValue> CrossfadeImage::computedStyleDeprecatedCSSOMValue(CSSValuePool&, const RenderStyle& style, CSSStyleDeclaration& owner) const
+{
+    return computedStyleValue(style)->createDeprecatedCSSOMWrapper(owner);
 }
 
 bool CrossfadeImage::isPending() const

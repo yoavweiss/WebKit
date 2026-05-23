@@ -28,6 +28,7 @@
 #include "CSSImageValue.h"
 #include "CachedImage.h"
 #include "ContainerNodeInlines.h"
+#include "DeprecatedCSSOMPrimitiveValue.h"
 #include "ReferencedSVGResources.h"
 #include "RenderElement.h"
 #include "RenderImage.h"
@@ -199,6 +200,12 @@ WebCore::CachedImage* CachedImage::cachedImage() const
 Ref<CSSValue> CachedImage::computedStyleValue(const RenderStyle& style) const
 {
     return m_cssValue->copyForComputedStyle(toCSS(m_url, style));
+}
+
+Ref<DeprecatedCSSOMValue> CachedImage::computedStyleDeprecatedCSSOMValue(CSSValuePool& pool, const RenderStyle& style, CSSStyleDeclaration& owner) const
+{
+    // We expose CachedImage as just the URI primitive values in the DeprecatedCSSOM to maintain existing behavior.
+    return createDeprecatedCSSOMValue(pool, style, owner, m_url);
 }
 
 bool CachedImage::canRender(const RenderElement* renderer, float multiplier) const

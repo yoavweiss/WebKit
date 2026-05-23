@@ -49,6 +49,7 @@ template<> struct Serialize<CustomIdent> { void operator()(StringBuilder&, const
 template<> struct ComputedStyleDependenciesCollector<CustomIdent> { constexpr void operator()(ComputedStyleDependencies&, const CustomIdent&) { } };
 template<> struct CSSValueChildrenVisitor<CustomIdent> { constexpr IterationStatus operator()(NOESCAPE const Function<IterationStatus(CSSValue&)>&, const CustomIdent&) { return IterationStatus::Continue; } };
 template<> struct CSSValueCreation<CustomIdent> { Ref<CSSValue> operator()(CSSValuePool&, const CustomIdent&); };
+template<> struct DeprecatedCSSOMValueCreation<CustomIdent> { Ref<DeprecatedCSSOMValue> operator()(CSSValuePool&, CSSStyleDeclaration&, const CustomIdent&); };
 
 // MARK: - Logging
 

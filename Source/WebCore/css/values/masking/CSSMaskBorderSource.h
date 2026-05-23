@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "CSSValue.h"
+#include "CSSImageWrapper.h"
 #include "CSSValueTypes.h"
 #include <wtf/PointerComparison.h>
 
@@ -36,6 +36,7 @@ namespace CSS {
 // https://drafts.csswg.org/css-backgrounds/#propdef-mask-border-source
 struct MaskBorderSource {
     MaskBorderSource(CSS::Keyword::None) { }
+    MaskBorderSource(ImageWrapper&& image) : m_image { WTF::move(image.value) } { }
     MaskBorderSource(Ref<CSSValue>&& image) : m_image { WTF::move(image) } { }
 
     bool isNone() const { return !m_image; }
@@ -46,7 +47,7 @@ struct MaskBorderSource {
 
         if (!m_image)
             return visitor(CSS::Keyword::None { });
-        return visitor(protect(*m_image));
+        return visitor(ImageWrapper { *m_image });
     }
 
     bool operator==(const MaskBorderSource& other) const
@@ -58,17 +59,9 @@ private:
     RefPtr<CSSValue> m_image;
 };
 
-// MARK: - CSSValue Visitation
-
-template<> struct CSSValueChildrenVisitor<MaskBorderSource> { auto operator()(NOESCAPE const Function<IterationStatus(CSSValue&)>&, const MaskBorderSource&) -> IterationStatus; };
-
 // MARK: - Conversion
 
 template<> struct CSSValueCreation<MaskBorderSource> { auto operator()(CSSValuePool&, const MaskBorderSource&) -> Ref<CSSValue>; };
-
-// MARK: - Serialization
-
-template<> struct Serialize<MaskBorderSource> { void operator()(StringBuilder&, const SerializationContext&, const MaskBorderSource&); };
 
 } // namespace CSS
 } // namespace WebCore

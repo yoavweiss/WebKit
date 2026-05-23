@@ -106,6 +106,7 @@ public:
     bool valueEquals(const CustomProperty&) const;
 
     Ref<CSSValue> propertyValue(CSSValuePool&, const RenderStyle&) const;
+    Ref<DeprecatedCSSOMValue> propertyValueDeprecatedCSSOMWrapper(CSSValuePool&, CSSStyleDeclaration&, const RenderStyle&) const;
     WTF::String propertyValueSerialization(const CSS::SerializationContext&, const RenderStyle&) const;
     void propertyValueSerialization(StringBuilder&, const CSS::SerializationContext&, const RenderStyle&) const;
 

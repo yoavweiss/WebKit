@@ -28,6 +28,7 @@
 #include "StyleInvalidImage.h"
 
 #include "CSSImageValue.h"
+#include "DeprecatedCSSOMValue.h"
 
 namespace WebCore {
 namespace Style {
@@ -56,6 +57,11 @@ RefPtr<WebCore::Image> InvalidImage::image(const RenderElement*, const FloatSize
 Ref<CSSValue> InvalidImage::computedStyleValue(const RenderStyle&) const
 {
     return CSSImageValue::create();
+}
+
+Ref<DeprecatedCSSOMValue> InvalidImage::computedStyleDeprecatedCSSOMValue(CSSValuePool&, const RenderStyle& style, CSSStyleDeclaration& owner) const
+{
+    return computedStyleValue(style)->createDeprecatedCSSOMWrapper(owner);
 }
 
 } // namespace Style

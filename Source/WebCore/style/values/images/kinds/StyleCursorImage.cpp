@@ -30,6 +30,7 @@
 #include "CSSImageValue.h"
 #include "CSSValuePair.h"
 #include "CachedImage.h"
+#include "DeprecatedCSSOMValue.h"
 #include "FloatSize.h"
 #include "RenderElement.h"
 #include "StyleBuilderState.h"
@@ -94,6 +95,11 @@ Ref<CSSValue> CursorImage::computedStyleValue(const RenderStyle& style) const
         toCSS(m_hotSpot, style),
         toCSS(m_originalURL, style)
     );
+}
+
+Ref<DeprecatedCSSOMValue> CursorImage::computedStyleDeprecatedCSSOMValue(CSSValuePool&, const RenderStyle& style, CSSStyleDeclaration& owner) const
+{
+    return computedStyleValue(style)->createDeprecatedCSSOMWrapper(owner);
 }
 
 ImageWithScale CursorImage::selectBestFitImage(const Document& document)

@@ -31,6 +31,7 @@
 #include "CSSPaintImageValue.h"
 #include "CSSVariableData.h"
 #include "CustomPaintImage.h"
+#include "DeprecatedCSSOMValue.h"
 #include "PaintWorkletGlobalScope.h"
 #include "RenderElement.h"
 #include "RenderObjectInlines.h"
@@ -58,6 +59,11 @@ bool PaintImage::operator==(const Image& other) const
 Ref<CSSValue> PaintImage::computedStyleValue(const RenderStyle& style) const
 {
     return CSSPaintImageValue::create(toCSS(m_name, style), m_arguments);
+}
+
+Ref<DeprecatedCSSOMValue> PaintImage::computedStyleDeprecatedCSSOMValue(CSSValuePool&, const RenderStyle& style, CSSStyleDeclaration& owner) const
+{
+    return computedStyleValue(style)->createDeprecatedCSSOMWrapper(owner);
 }
 
 bool PaintImage::isPending() const

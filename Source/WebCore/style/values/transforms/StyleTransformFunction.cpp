@@ -37,6 +37,7 @@
 #include "CSSKeywordValue.h"
 #include "CSSTransformListValue.h"
 #include "CSSValueList.h"
+#include "DeprecatedCSSOMValue.h"
 #include "StylePrimitiveNumericTypes+CSSValueConversion.h"
 #include "RenderStyle+GettersInlines.h"
 #include "StyleBuilderChecking.h"
@@ -647,6 +648,11 @@ auto CSSValueCreation<TransformationMatrix>::operator()(CSSValuePool&, const Ren
     for (auto value : values)
         arguments.append(CSSPrimitiveValue::create(value));
     return CSSFunctionValue::create(CSSValueMatrix3d, WTF::move(arguments));
+}
+
+Ref<DeprecatedCSSOMValue> DeprecatedCSSOMValueCreation<TransformFunction>::operator()(CSSValuePool& pool, const RenderStyle& style, CSSStyleDeclaration& owner, const TransformFunction& value)
+{
+    return createCSSValue(pool, style, value)->createDeprecatedCSSOMWrapper(owner);
 }
 
 // MARK: - Serialization

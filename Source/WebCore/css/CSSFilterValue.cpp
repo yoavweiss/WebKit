@@ -29,9 +29,7 @@
 #include "CSSPrimitiveNumericTypes+Serialization.h"
 #include "CSSURLValue.h"
 #include "CSSValuePool.h"
-#include "DeprecatedCSSOMFilterFunctionValue.h"
-#include "DeprecatedCSSOMPrimitiveValue.h"
-#include "DeprecatedCSSOMValueList.h"
+#include "DeprecatedCSSOMValue.h"
 
 namespace WebCore {
 
@@ -63,25 +61,7 @@ IterationStatus CSSFilterValue::customVisitChildren(NOESCAPE const Function<Iter
 
 Ref<DeprecatedCSSOMValue> CSSFilterValue::createDeprecatedCSSOMWrapper(CSSStyleDeclaration& owner) const
 {
-    return WTF::switchOn(m_filter,
-        [&](CSS::Keyword::None) -> Ref<DeprecatedCSSOMValue> {
-            return DeprecatedCSSOMPrimitiveValue::create(CSSKeywordValue::create(CSSValueNone), owner);
-        },
-        [&](const auto& list) -> Ref<DeprecatedCSSOMValue> {
-            auto values = list.value.template map<Vector<Ref<DeprecatedCSSOMValue>, 4>>([&](const auto& value) {
-                return WTF::switchOn(value,
-                    [&](const CSS::FilterReference& reference) -> Ref<DeprecatedCSSOMValue> {
-                        return DeprecatedCSSOMPrimitiveValue::create(CSSURLValue::create(reference.url), owner);
-                    },
-                    [&](const auto& function) -> Ref<DeprecatedCSSOMValue> {
-                        return DeprecatedCSSOMFilterFunctionValue::create(CSS::FilterFunction { function }, owner);
-                    }
-                );
-            });
-
-            return DeprecatedCSSOMValueList::create(WTF::move(values), CSSValue::SpaceSeparator, owner);
-        }
-    );
+    return CSS::createDeprecatedCSSOMValue(CSSValuePool::singleton(), owner, m_filter);
 }
 
 } // namespace WebCore

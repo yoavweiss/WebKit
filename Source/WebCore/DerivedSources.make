@@ -1050,12 +1050,6 @@ JS_BINDING_IDLS := \
     $(WebCore)/css/DOMMatrix2DInit.idl \
     $(WebCore)/css/DOMMatrixInit.idl \
     $(WebCore)/css/DOMMatrixReadOnly.idl \
-    $(WebCore)/css/DeprecatedCSSOMCounter.idl \
-    $(WebCore)/css/DeprecatedCSSOMPrimitiveValue.idl \
-    $(WebCore)/css/DeprecatedCSSOMRGBColor.idl \
-    $(WebCore)/css/DeprecatedCSSOMRect.idl \
-    $(WebCore)/css/DeprecatedCSSOMValue.idl \
-    $(WebCore)/css/DeprecatedCSSOMValueList.idl \
     $(WebCore)/css/ElementCSSInlineStyle.idl \
     $(WebCore)/css/ElementCSSInlineStyle+Typedom.idl \
     $(WebCore)/css/FontFace.idl \
@@ -1068,6 +1062,12 @@ JS_BINDING_IDLS := \
     $(WebCore)/css/StyleMedia.idl \
     $(WebCore)/css/StyleSheet.idl \
     $(WebCore)/css/StyleSheetList.idl \
+    $(WebCore)/css/deprecated-cssom/DeprecatedCSSOMCounter.idl \
+    $(WebCore)/css/deprecated-cssom/DeprecatedCSSOMPrimitiveValue.idl \
+    $(WebCore)/css/deprecated-cssom/DeprecatedCSSOMRGBColor.idl \
+    $(WebCore)/css/deprecated-cssom/DeprecatedCSSOMRect.idl \
+    $(WebCore)/css/deprecated-cssom/DeprecatedCSSOMValue.idl \
+    $(WebCore)/css/deprecated-cssom/DeprecatedCSSOMValueList.idl \
     $(WebCore)/css/typedom/StylePropertyMap.idl \
     $(WebCore)/css/typedom/StylePropertyMapReadOnly.idl \
 	$(WebCore)/css/typedom/CSSOMKeywordValue.idl \

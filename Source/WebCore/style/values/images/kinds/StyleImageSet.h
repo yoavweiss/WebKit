@@ -46,6 +46,7 @@ private:
     explicit ImageSet(Vector<ImageWithScale>&&, Vector<size_t>&&);
 
     Ref<CSSValue> computedStyleValue(const RenderStyle&) const final;
+    Ref<DeprecatedCSSOMValue> computedStyleDeprecatedCSSOMValue(CSSValuePool&, const RenderStyle&, CSSStyleDeclaration&) const final;
 
     ImageWithScale bestImageForScaleFactor();
     void NODELETE updateDeviceScaleFactor(const Document&);

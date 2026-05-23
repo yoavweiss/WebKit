@@ -61,6 +61,7 @@ template<> struct CSSValueChildrenVisitor<URL> { constexpr IterationStatus opera
 
 template<> struct Serialize<URL> { void operator()(StringBuilder&, const SerializationContext&, const URL&); };
 template<> struct CSSValueCreation<URL> { Ref<CSSValue> operator()(CSSValuePool&, const URL&); };
+template<> struct DeprecatedCSSOMValueCreation<URL> { Ref<DeprecatedCSSOMValue> operator()(CSSValuePool&, CSSStyleDeclaration&, const URL&); };
 
 std::optional<URL> completeURL(const WTF::String&, const CSSParserContext&);
 std::optional<URL> completeURL(const WTF::String&, const Document&);

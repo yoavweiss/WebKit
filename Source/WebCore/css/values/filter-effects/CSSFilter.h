@@ -80,6 +80,11 @@ struct Filter : ListOrNone<FilterValueList> {
     using ListOrNone<FilterValueList>::ListOrNone;
 };
 
+// MARK: - DeprecatedCSSOMValue Creation
+
+// Specialized to return a `DeprecatedCSSOMLazySerializingCustomValue` or `DeprecatedCSSOMPrimitiveValue` (for `FilterReference`).
+template<> struct DeprecatedCSSOMValueCreation<FilterValue> { Ref<DeprecatedCSSOMValue> operator()(CSSValuePool&, CSSStyleDeclaration&, const FilterValue&); };
+
 } // namespace CSS
 } // namespace WebCore
 

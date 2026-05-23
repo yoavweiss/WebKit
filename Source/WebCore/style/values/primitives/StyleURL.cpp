@@ -26,6 +26,7 @@
 #include "StyleURL.h"
 
 #include "CSSURLValue.h"
+#include "DeprecatedCSSOMValue.h"
 #include "Document.h"
 #include "StyleBuilderChecking.h"
 #include "StyleBuilderState.h"
@@ -96,6 +97,11 @@ auto CSSValueConversion<URL>::operator()(BuilderState& state, const CSSValue& va
     if (RefPtr url = requiredDowncast<CSSURLValue>(state, value))
         return toStyle(url->url(), state);
     return { .resolved = WTF::URL { emptyString() }, .modifiers = { } };
+}
+
+Ref<DeprecatedCSSOMValue> DeprecatedCSSOMValueCreation<URL>::operator()(CSSValuePool& pool, const RenderStyle& style, CSSStyleDeclaration& owner, const URL& value)
+{
+    return CSS::createDeprecatedCSSOMValue(pool, owner, toCSS(value, style));
 }
 
 // MARK: - Serialization

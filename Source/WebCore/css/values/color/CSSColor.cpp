@@ -31,12 +31,14 @@
 #include "CSSAbsoluteColor.h"
 #include "CSSColorLayers.h"
 #include "CSSColorMix.h"
+#include "CSSColorValue.h"
 #include "CSSContrastColor.h"
 #include "CSSLightDarkColor.h"
 #include "CSSPrimitiveNumericTypes+CSSValueVisitation.h"
 #include "CSSPrimitiveNumericTypes+ComputedStyleDependencies.h"
 #include "CSSPrimitiveNumericTypes+Serialization.h"
 #include "CSSRelativeColor.h"
+#include "DeprecatedCSSOMPrimitiveValue.h"
 #include "StyleColorResolutionState.h"
 
 namespace WebCore {
@@ -396,6 +398,11 @@ void ComputedStyleDependenciesCollector<Color>::operator()(ComputedStyleDependen
 IterationStatus CSSValueChildrenVisitor<Color>::operator()(NOESCAPE const Function<IterationStatus(CSSValue&)>& func, const Color& value)
 {
     return WTF::switchOn(value, [&](const auto& color) { return visitCSSValueChildren(func, color); });
+}
+
+Ref<DeprecatedCSSOMValue> DeprecatedCSSOMValueCreation<Color>::operator()(CSSValuePool&, CSSStyleDeclaration& owner, const Color& value)
+{
+    return DeprecatedCSSOMPrimitiveValue::create(CSSColorValue::create(value), owner);
 }
 
 } // namespace CSS

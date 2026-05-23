@@ -1113,12 +1113,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     css/CSSWideKeyword.h
     css/ComputedStyleDependencies.h
     css/DOMCSSPaintWorklet.h
-    css/DeprecatedCSSOMCounter.h
-    css/DeprecatedCSSOMPrimitiveValue.h
-    css/DeprecatedCSSOMRGBColor.h
-    css/DeprecatedCSSOMRect.h
-    css/DeprecatedCSSOMValue.h
-    css/DeprecatedCSSOMValueList.h
     css/FontLoadTimingOverride.h
     css/ImmutableStyleProperties.h
     css/IsImportant.h
@@ -1146,6 +1140,13 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     css/calc/CSSCalcTree.h
     css/calc/CSSCalcType.h
     css/calc/CSSCalcValue.h
+
+    css/deprecated-cssom/DeprecatedCSSOMCounter.h
+    css/deprecated-cssom/DeprecatedCSSOMPrimitiveValue.h
+    css/deprecated-cssom/DeprecatedCSSOMRGBColor.h
+    css/deprecated-cssom/DeprecatedCSSOMRect.h
+    css/deprecated-cssom/DeprecatedCSSOMValue.h
+    css/deprecated-cssom/DeprecatedCSSOMValueList.h
 
     css/parser/CSSParser.h
     css/parser/CSSParserContext.h

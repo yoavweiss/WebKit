@@ -29,6 +29,7 @@
 #include "CSSParserContext.h"
 #include "CSSSerializationContext.h"
 #include "CSSURLValue.h"
+#include "DeprecatedCSSOMPrimitiveValue.h"
 #include "Document.h"
 
 namespace WebCore {
@@ -68,11 +69,16 @@ void Serialize<URL>::operator()(StringBuilder& builder, const SerializationConte
     builder.append(')');
 }
 
-// MARK: - CSSValueCreation
+// MARK: - Conversion
 
 Ref<CSSValue> CSSValueCreation<URL>::operator()(CSSValuePool&, const URL& value)
 {
     return CSSURLValue::create(value);
+}
+
+Ref<DeprecatedCSSOMValue> DeprecatedCSSOMValueCreation<URL>::operator()(CSSValuePool& pool, CSSStyleDeclaration& owner, const URL& value)
+{
+    return DeprecatedCSSOMPrimitiveValue::create(createCSSValue(pool, value), owner);
 }
 
 // MARK: Operations

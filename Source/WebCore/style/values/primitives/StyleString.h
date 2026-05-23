@@ -52,9 +52,14 @@ template<> struct ToStyle<CSS::String> { auto operator()(const CSS::String&, con
 template<> struct CSSValueCreation<String> {
     Ref<CSSValue> operator()(CSSValuePool&, const RenderStyle&, const String&);
 };
+
 template<> struct CSSValueConversion<String> {
     auto operator()(BuilderState&, const CSSStringValue&) -> String;
     auto operator()(BuilderState&, const CSSValue&) -> String;
+};
+
+template<> struct DeprecatedCSSOMValueCreation<String> {
+    Ref<DeprecatedCSSOMValue> operator()(CSSValuePool&, const RenderStyle&, CSSStyleDeclaration&, const String&);
 };
 
 // MARK: - Serialization

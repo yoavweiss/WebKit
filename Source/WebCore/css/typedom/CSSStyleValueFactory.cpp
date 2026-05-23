@@ -431,8 +431,8 @@ ExceptionOr<Ref<CSSStyleValue>> CSSStyleValueFactory::reifyValue(Document& docum
             [&](CSS::Keyword::None keyword) -> ExceptionOr<Ref<CSSStyleValue>> {
                 return WebCore::reifyValue(keyword);
             },
-            [&](const Ref<CSSValue>& value) -> ExceptionOr<Ref<CSSStyleValue>> {
-                return reifyValue(document, value, WTF::move(associatedProperty));
+            [&](const CSS::ImageWrapper& imageWrapper) -> ExceptionOr<Ref<CSSStyleValue>> {
+                return reifyValue(document, imageWrapper.value, WTF::move(associatedProperty));
             }
         );
     } else if (RefPtr property = dynamicDowncast<CSSMaskBorderSourceValue>(cssValue)) {
@@ -440,8 +440,8 @@ ExceptionOr<Ref<CSSStyleValue>> CSSStyleValueFactory::reifyValue(Document& docum
             [&](CSS::Keyword::None keyword) -> ExceptionOr<Ref<CSSStyleValue>> {
                 return WebCore::reifyValue(keyword);
             },
-            [&](const Ref<CSSValue>& value) -> ExceptionOr<Ref<CSSStyleValue>> {
-                return reifyValue(document, value, WTF::move(associatedProperty));
+            [&](const CSS::ImageWrapper& imageWrapper) -> ExceptionOr<Ref<CSSStyleValue>> {
+                return reifyValue(document, imageWrapper.value, WTF::move(associatedProperty));
             }
         );
     } else if (auto* valueList = dynamicDowncast<CSSValueList>(cssValue)) {

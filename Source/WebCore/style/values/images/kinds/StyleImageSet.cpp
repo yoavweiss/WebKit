@@ -29,6 +29,7 @@
 #include "CSSImageSetOptionValue.h"
 #include "CSSImageSetValue.h"
 #include "CSSPrimitiveValue.h"
+#include "DeprecatedCSSOMValue.h"
 #include "DocumentPage.h"
 #include "MIMETypeRegistry.h"
 #include "Page.h"
@@ -77,6 +78,11 @@ Ref<CSSValue> ImageSet::computedStyleValue(const RenderStyle& style) const
         );
     });
     return CSSImageSetValue::create(WTF::move(builder));
+}
+
+Ref<DeprecatedCSSOMValue> ImageSet::computedStyleDeprecatedCSSOMValue(CSSValuePool&, const RenderStyle& style, CSSStyleDeclaration& owner) const
+{
+    return computedStyleValue(style)->createDeprecatedCSSOMWrapper(owner);
 }
 
 ImageWithScale ImageSet::selectBestFitImage(const Document& document)

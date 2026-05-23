@@ -34,6 +34,7 @@
 #include "CSSValuePool.h"
 #include "CachedImage.h"
 #include "CachedResourceLoader.h"
+#include "DeprecatedCSSOMValue.h"
 #include "HostWindow.h"
 #include "ImageBuffer.h"
 #include "NullGraphicsContext.h"
@@ -83,6 +84,11 @@ Ref<CSSValue> FilterImage::computedStyleValue(const RenderStyle& style) const
         image ? image->computedStyleValue(style) : upcast<CSSValue>(CSSKeywordValue::create(CSSValueNone)),
         toCSS(m_filter, style)
     );
+}
+
+Ref<DeprecatedCSSOMValue> FilterImage::computedStyleDeprecatedCSSOMValue(CSSValuePool&, const RenderStyle& style, CSSStyleDeclaration& owner) const
+{
+    return computedStyleValue(style)->createDeprecatedCSSOMWrapper(owner);
 }
 
 bool FilterImage::isPending() const

@@ -43,6 +43,7 @@ template<> struct Serialize<String> { void operator()(StringBuilder&, const Seri
 template<> struct ComputedStyleDependenciesCollector<String> { constexpr void operator()(ComputedStyleDependencies&, const String&) { } };
 template<> struct CSSValueChildrenVisitor<String> { constexpr IterationStatus operator()(NOESCAPE const Function<IterationStatus(CSSValue&)>&, const String&) { return IterationStatus::Continue; } };
 template<> struct CSSValueCreation<String> { Ref<CSSValue> operator()(CSSValuePool&, const String&); };
+template<> struct DeprecatedCSSOMValueCreation<String> { Ref<DeprecatedCSSOMValue> operator()(CSSValuePool&, CSSStyleDeclaration&, const String&); };
 
 // MARK: - Logging
 

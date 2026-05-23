@@ -29,6 +29,7 @@
 #include "StyleCanvasImage.h"
 
 #include "CSSCanvasValue.h"
+#include "DeprecatedCSSOMValue.h"
 #include "HTMLCanvasElement.h"
 #include "InspectorInstrumentation.h"
 #include "RenderElement.h"
@@ -65,6 +66,11 @@ bool CanvasImage::equals(const CanvasImage& other) const
 Ref<CSSValue> CanvasImage::computedStyleValue(const RenderStyle& style) const
 {
     return CSSCanvasValue::create(toCSS(m_name, style));
+}
+
+Ref<DeprecatedCSSOMValue> CanvasImage::computedStyleDeprecatedCSSOMValue(CSSValuePool&, const RenderStyle& style, CSSStyleDeclaration& owner) const
+{
+    return computedStyleValue(style)->createDeprecatedCSSOMWrapper(owner);
 }
 
 bool CanvasImage::isPending() const

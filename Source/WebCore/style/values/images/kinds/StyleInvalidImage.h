@@ -61,6 +61,7 @@ private:
 
     RefPtr<WebCore::Image> image(const RenderElement*, const FloatSize&, const GraphicsContext& destinationContext, bool isForFirstLine) const final;
     Ref<CSSValue> computedStyleValue(const RenderStyle&) const;
+    Ref<DeprecatedCSSOMValue> computedStyleDeprecatedCSSOMValue(CSSValuePool&, const RenderStyle&, CSSStyleDeclaration&) const final;
 };
 
 } // namespace Style

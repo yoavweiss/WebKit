@@ -26,9 +26,8 @@
 #include "config.h"
 #include "CSSMaskBorderSourceValue.h"
 
-#include "CSSPrimitiveNumericTypes+Serialization.h"
 #include "CSSValuePool.h"
-#include "DeprecatedCSSOMPrimitiveValue.h"
+#include "DeprecatedCSSOMValue.h"
 
 namespace WebCore {
 
@@ -61,8 +60,8 @@ bool CSSMaskBorderSourceValue::customTraverseSubresources(NOESCAPE const Functio
         [&](CSS::Keyword::None) {
             return false;
         },
-        [&](const Ref<CSSValue>& cssImageValue) {
-            return protect(cssImageValue)->traverseSubresources(handler);
+        [&](const CSS::ImageWrapper& imageWrapper) {
+            return protect(imageWrapper.value)->traverseSubresources(handler);
         }
     );
 }
@@ -74,14 +73,7 @@ IterationStatus CSSMaskBorderSourceValue::customVisitChildren(NOESCAPE const Fun
 
 Ref<DeprecatedCSSOMValue> CSSMaskBorderSourceValue::createDeprecatedCSSOMWrapper(CSSStyleDeclaration& owner) const
 {
-    return WTF::switchOn(m_source,
-        [&](CSS::Keyword::None) -> Ref<DeprecatedCSSOMValue> {
-            return DeprecatedCSSOMPrimitiveValue::create(CSSKeywordValue::create(CSSValueNone), owner);
-        },
-        [&](const Ref<CSSValue>& cssImageValue) -> Ref<DeprecatedCSSOMValue> {
-            return protect(cssImageValue)->createDeprecatedCSSOMWrapper(owner);
-        }
-    );
+    return CSS::createDeprecatedCSSOMValue(CSSValuePool::singleton(), owner, m_source);
 }
 
 } // namespace WebCore

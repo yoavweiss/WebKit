@@ -29,6 +29,7 @@
 #include "StyleNamedImage.h"
 
 #include "CSSNamedImageValue.h"
+#include "DeprecatedCSSOMValue.h"
 #include "NamedImageGeneratedImage.h"
 
 namespace WebCore {
@@ -56,6 +57,11 @@ bool NamedImage::equals(const NamedImage& other) const
 Ref<CSSValue> NamedImage::computedStyleValue(const RenderStyle& style) const
 {
     return CSSNamedImageValue::create(toCSS(m_name, style));
+}
+
+Ref<DeprecatedCSSOMValue> NamedImage::computedStyleDeprecatedCSSOMValue(CSSValuePool&, const RenderStyle& style, CSSStyleDeclaration& owner) const
+{
+    return computedStyleValue(style)->createDeprecatedCSSOMWrapper(owner);
 }
 
 bool NamedImage::isPending() const

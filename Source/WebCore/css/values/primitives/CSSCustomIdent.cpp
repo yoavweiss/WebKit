@@ -29,6 +29,7 @@
 
 #include "CSSCustomIdentValue.h"
 #include "CSSMarkup.h"
+#include "DeprecatedCSSOMPrimitiveValue.h"
 #include <wtf/Hasher.h>
 #include <wtf/text/TextStream.h>
 
@@ -43,6 +44,11 @@ void Serialize<CustomIdent>::operator()(StringBuilder& builder, const Serializat
 Ref<CSSValue> CSSValueCreation<CustomIdent>::operator()(CSSValuePool&, const CustomIdent& value)
 {
     return CSSCustomIdentValue::create(value);
+}
+
+Ref<DeprecatedCSSOMValue> DeprecatedCSSOMValueCreation<CustomIdent>::operator()(CSSValuePool& pool, CSSStyleDeclaration& owner, const CustomIdent& value)
+{
+    return DeprecatedCSSOMPrimitiveValue::create(createCSSValue(pool, value), owner);
 }
 
 // MARK: - Logging

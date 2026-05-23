@@ -43,7 +43,7 @@ auto ToCSS<BorderImageSource>::operator()(const BorderImageSource& value, const 
             return keyword;
         },
         [&](const ImageWrapper& imageWrapper) -> CSS::BorderImageSource {
-            return protect(imageWrapper.value)->computedStyleValue(style);
+            return CSS::ImageWrapper { protect(imageWrapper.value)->computedStyleValue(style) };
         }
     );
 }
@@ -54,8 +54,8 @@ auto ToStyle<CSS::BorderImageSource>::operator()(const CSS::BorderImageSource& v
         [&](const CSS::Keyword::None& keyword) -> BorderImageSource {
             return keyword;
         },
-        [&](const Ref<CSSValue>& cssImageValue) -> BorderImageSource {
-            RefPtr image = state.createStyleImage(cssImageValue);
+        [&](const CSS::ImageWrapper& imageWrapper) -> BorderImageSource {
+            RefPtr image = state.createStyleImage(protect(imageWrapper.value));
             if (!image)
                 return CSS::Keyword::None { };
             return ImageWrapper { image.releaseNonNull() };
