@@ -374,3 +374,6 @@ http/tests/security/block-top-level-navigations-by-sandboxed-iframe-with-propaga
 http/tests/security/block-top-level-navigations-by-third-party-iframes.html [ Failure ]
 http/tests/security/block-top-level-navigations-by-third-party-sandboxed-iframe.html [ Failure ]
 http/tests/security/frameNavigation/not-opener.html [ Failure ]
+
+# Intersection Observer x Site Isolation is not fully implemented.
+http/tests/intersection-observer/zoomed-page-iframe-cross-origin.html [ Failure ]
