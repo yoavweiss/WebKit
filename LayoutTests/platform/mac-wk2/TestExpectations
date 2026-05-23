@@ -2330,3 +2330,5 @@ webkit.org/b/315337 [ Sequoia x86_64 ] imported/w3c/web-platform-tests/css/css-v
 webkit.org/b/315337 [ Sequoia x86_64 ] imported/w3c/web-platform-tests/css/filter-effects/root-element-with-opacity-filter-001.html [ ImageOnlyFailure ]
 
 webkit.org/b/315354 media/video-concurrent-visible-playback.html [ Pass Failure ]
+
+webkit.org/b/315398 [ Release ] http/tests/site-isolation/accessibility/client/simple-iframe.html [ Timeout ]
