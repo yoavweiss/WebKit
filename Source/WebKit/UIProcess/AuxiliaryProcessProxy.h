@@ -122,6 +122,12 @@ public:
         return sendWithAsyncReply(std::forward<T>(message), std::forward<C>(completionHandler), destinationID.toUInt64(), sendOptions, shouldStartProcessThrottlerActivity);
     }
 
+    // Like sendWithAsyncReply(), but the reply is dispatched on the provided dispatcher (e.g. a WorkQueue) instead of the
+    // Connection's main-run-loop dispatcher. Like sendWithAsyncReply(), this takes a ProcessThrottler activity by default
+    // to keep the process alive while the IPC is in flight; the activity is released on the main thread after the reply
+    // has been dispatched onto the provided dispatcher.
+    template<typename T, typename C> std::optional<AsyncReplyID> sendWithAsyncReplyOnDispatcher(T&&, GuaranteedSerialFunctionDispatcher&, C&&, uint64_t destinationID = 0, OptionSet<IPC::SendOption> = { }, ShouldStartProcessThrottlerActivity = ShouldStartProcessThrottlerActivity::Yes);
+
     template<typename T, typename RawValue>
     bool send(T&& message, const ObjectIdentifierGenericBase<RawValue>& destinationID, OptionSet<IPC::SendOption> sendOptions = { })
     {
@@ -184,6 +190,7 @@ public:
 
     bool canSendMessage() const { return state() != State::Terminated;}
     bool sendMessage(UniqueRef<IPC::Encoder>&&, OptionSet<IPC::SendOption>, std::optional<IPC::Connection::AsyncReplyHandler> = std::nullopt, ShouldStartProcessThrottlerActivity = ShouldStartProcessThrottlerActivity::Yes);
+    bool sendMessageWithDispatcher(UniqueRef<IPC::Encoder>&&, OptionSet<IPC::SendOption>, IPC::Connection::AsyncReplyHandlerWithDispatcher&&, ShouldStartProcessThrottlerActivity = ShouldStartProcessThrottlerActivity::Yes);
     bool sendMessageAfterResuming(Vector<uint8_t>&& coalescingKey, UniqueRef<IPC::Encoder>&&);
 
     void replyToPendingMessages();
@@ -266,13 +273,14 @@ protected:
     virtual void getLaunchOptions(ProcessLauncher::LaunchOptions&);
     virtual void platformGetLaunchOptions(ProcessLauncher::LaunchOptions&) { }
 
+    using ReplyHandler = Variant<std::monostate, IPC::Connection::AsyncReplyHandler, IPC::Connection::AsyncReplyHandlerWithDispatcher>;
     struct PendingMessage {
         UniqueRef<IPC::Encoder> encoder;
         OptionSet<IPC::SendOption> sendOptions;
-        std::optional<IPC::Connection::AsyncReplyHandler> asyncReplyHandler;
+        ReplyHandler asyncReplyHandler;
     };
 
-    virtual bool shouldSendPendingMessage(const PendingMessage&) { return true; }
+    virtual bool shouldSendPendingMessage(const IPC::Encoder&) { return true; }
 
     void beginResponsivenessChecks();
 
@@ -307,6 +315,10 @@ private:
 
     // Connection::Client
     void requestRemoteProcessTermination() final;
+
+    bool sendMessageImpl(UniqueRef<IPC::Encoder>&&, OptionSet<IPC::SendOption>, ReplyHandler&&, ShouldStartProcessThrottlerActivity);
+    static IPC::Error sendOverConnection(IPC::Connection&, UniqueRef<IPC::Encoder>&&, ReplyHandler&, OptionSet<IPC::SendOption>);
+    void drainPendingMessages(IPC::Connection&);
 
     const Ref<ResponsivenessTimer> m_responsivenessTimer;
     Vector<PendingMessage> m_pendingMessages;
@@ -385,6 +397,20 @@ std::optional<AuxiliaryProcessProxy::AsyncReplyID> AuxiliaryProcessProxy::sendWi
     auto handler = IPC::Connection::makeAsyncReplyHandler<T>(std::forward<C>(completionHandler));
     auto replyID = handler.replyID;
     if (sendMessage(WTF::move(encoder), sendOptions, WTF::move(handler), shouldStartProcessThrottlerActivity))
+        return replyID;
+    return std::nullopt;
+}
+
+template<typename T, typename C>
+std::optional<AuxiliaryProcessProxy::AsyncReplyID> AuxiliaryProcessProxy::sendWithAsyncReplyOnDispatcher(T&& message, GuaranteedSerialFunctionDispatcher& dispatcher, C&& completionHandler, uint64_t destinationID, OptionSet<IPC::SendOption> sendOptions, ShouldStartProcessThrottlerActivity shouldStartProcessThrottlerActivity)
+{
+    static_assert(!T::isSync, "Async message expected");
+
+    auto encoder = makeUniqueRef<IPC::Encoder>(T::name(), destinationID);
+    message.encode(encoder.get());
+    auto handler = IPC::Connection::makeAsyncReplyHandlerWithDispatcher<T>(std::forward<C>(completionHandler), dispatcher);
+    auto replyID = handler.replyID;
+    if (sendMessageWithDispatcher(WTF::move(encoder), sendOptions, WTF::move(handler), shouldStartProcessThrottlerActivity))
         return replyID;
     return std::nullopt;
 }

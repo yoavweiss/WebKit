@@ -33,6 +33,7 @@
 #include <wtf/RefCountedAndCanMakeWeakPtr.h>
 #include <wtf/WeakHashSet.h>
 #include <wtf/WeakPtr.h>
+#include <wtf/WorkQueue.h>
 
 #if USE(SOUP)
 #include "SoupCookiePersistentStorageType.h"
@@ -67,8 +68,8 @@ public:
 
     virtual ~HTTPCookieStore();
 
-    void cookies(CompletionHandler<void(Vector<WebCore::Cookie>&&)>&&);
-    void cookiesForURL(WTF::URL&&, CompletionHandler<void(Vector<WebCore::Cookie>&&)>&&);
+    void cookies(CompletionHandler<void(Vector<WebCore::Cookie>&&)>&&, RefPtr<WTF::WorkQueue> replyQueue = nullptr);
+    void cookiesForURL(WTF::URL&&, CompletionHandler<void(Vector<WebCore::Cookie>&&)>&&, RefPtr<WTF::WorkQueue> replyQueue = nullptr);
     void setCookies(Vector<WebCore::Cookie>&&, CompletionHandler<void()>&&);
     void deleteCookie(const WebCore::Cookie&, CompletionHandler<void()>&&);
     void deleteCookiesForHostnames(const Vector<WTF::String>&, CompletionHandler<void()>&&);
@@ -98,6 +99,9 @@ private:
     HTTPCookieStore(WebKit::WebsiteDataStore&);
     WebKit::NetworkProcessProxy* networkProcessIfExists();
     WebKit::NetworkProcessProxy* networkProcessLaunchingIfNecessary();
+
+    template<typename Message>
+    void fetchCookies(Message&&, CompletionHandler<void(Vector<WebCore::Cookie>&&)>&&, RefPtr<WTF::WorkQueue> replyQueue);
 
     PAL::SessionID m_sessionID;
     WeakPtr<WebKit::WebsiteDataStore> m_owningDataStore;

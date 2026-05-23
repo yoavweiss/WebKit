@@ -635,7 +635,7 @@ private:
     void platformGetLaunchOptions(ProcessLauncher::LaunchOptions&) override;
     void connectionWillOpen(IPC::Connection&) override;
     void processWillShutDown(IPC::Connection&) override;
-    bool shouldSendPendingMessage(const PendingMessage&) final;
+    bool shouldSendPendingMessage(const IPC::Encoder&) final;
     
 #if PLATFORM(COCOA)
     void cacheMediaMIMETypesInternal(const Vector<String>&);
