@@ -27,7 +27,6 @@
 #include <WebCore/RenderWidget.h>
 #include <memory>
 #include <wtf/HashSet.h>
-#include <wtf/ListHashSet.h>
 #include <wtf/WeakHashSet.h>
 
 namespace WebCore {

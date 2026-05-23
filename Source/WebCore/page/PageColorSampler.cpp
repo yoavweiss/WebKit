@@ -58,7 +58,6 @@
 #include "WebAnimation.h"
 #include <ranges>
 #include <wtf/HashCountedSet.h>
-#include <wtf/ListHashSet.h>
 #include <wtf/OptionSet.h>
 #include <wtf/Ref.h>
 #include <wtf/RefPtr.h>

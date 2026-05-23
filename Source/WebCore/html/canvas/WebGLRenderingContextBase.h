@@ -55,7 +55,6 @@
 #include <limits>
 #include <memory>
 #include <wtf/CheckedArithmetic.h>
-#include <wtf/ListHashSet.h>
 #include <wtf/Lock.h>
 #include <wtf/TZoneMalloc.h>
 

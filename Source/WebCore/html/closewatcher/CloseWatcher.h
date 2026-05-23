@@ -29,7 +29,6 @@
 #include <WebCore/ActiveDOMObject.h>
 #include <WebCore/EventTarget.h>
 #include <WebCore/EventTargetInterfaces.h>
-#include <wtf/ListHashSet.h>
 #include <wtf/RefCounted.h>
 #include <wtf/WeakPtr.h>
 
