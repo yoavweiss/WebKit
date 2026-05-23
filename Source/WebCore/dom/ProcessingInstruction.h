@@ -77,7 +77,7 @@ private:
     bool isLoading() const;
     bool sheetLoaded() override;
 
-    void addSubresourceAttributeURLs(ListHashSet<URL>&) const override;
+    void addSubresourceAttributeURLs(OrderedHashSet<URL>&) const override;
 
     void parseStyleSheet(const String& sheet);
 

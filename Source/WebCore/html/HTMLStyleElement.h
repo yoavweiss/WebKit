@@ -68,7 +68,7 @@ private:
     void notifyLoadedSheetAndAllCriticalSubresources(bool errorOccurred) final;
     void startLoadingDynamicSheet() final { m_styleSheetOwner.startLoadingDynamicSheet(*this); }
 
-    void addSubresourceAttributeURLs(ListHashSet<URL>&) const final;
+    void addSubresourceAttributeURLs(OrderedHashSet<URL>&) const final;
 
     InlineStyleSheetOwner m_styleSheetOwner;
     const std::unique_ptr<DOMTokenList> m_blockingList;

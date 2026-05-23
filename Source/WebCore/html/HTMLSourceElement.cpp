@@ -222,7 +222,7 @@ Attribute HTMLSourceElement::replaceURLsInAttributeValue(const Attribute& attrib
     return Attribute { srcsetAttr, AtomString { replaceURLsInSrcsetAttribute(*this, StringView(attribute.value()), serializationContext) } };
 }
 
-void HTMLSourceElement::addCandidateSubresourceURLs(ListHashSet<URL>& urls) const
+void HTMLSourceElement::addCandidateSubresourceURLs(OrderedHashSet<URL>& urls) const
 {
     getURLsFromSrcsetAttribute(*this, attributeWithoutSynchronization(srcsetAttr), urls);
 }

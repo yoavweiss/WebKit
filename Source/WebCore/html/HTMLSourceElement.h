@@ -65,7 +65,7 @@ private:
     bool NODELETE isURLAttribute(const Attribute&) const final;
     bool NODELETE attributeContainsURL(const Attribute&) const final;
     Attribute replaceURLsInAttributeValue(const Attribute&, const CSS::SerializationContext&) const override;
-    void addCandidateSubresourceURLs(ListHashSet<URL>&) const override;
+    void addCandidateSubresourceURLs(OrderedHashSet<URL>&) const override;
 
     // ActiveDOMObject.
     void stop() final;

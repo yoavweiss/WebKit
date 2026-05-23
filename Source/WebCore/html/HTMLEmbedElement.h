@@ -52,7 +52,7 @@ private:
 
     void updateWidget(CreatePlugins) final;
 
-    void addSubresourceAttributeURLs(ListHashSet<URL>&) const final;
+    void addSubresourceAttributeURLs(OrderedHashSet<URL>&) const final;
 
     void parametersForPlugin(Vector<AtomString>& paramNames, Vector<AtomString>& paramValues);
 };

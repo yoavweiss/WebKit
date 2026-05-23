@@ -2116,12 +2116,12 @@ void NodeListsNodeData::invalidateCachesForAttribute(const QualifiedName& attrNa
         collection.value->invalidateCacheForAttribute(attrName);
 }
 
-void Node::getSubresourceURLs(ListHashSet<URL>& urls) const
+void Node::getSubresourceURLs(OrderedHashSet<URL>& urls) const
 {
     addSubresourceAttributeURLs(urls);
 }
 
-void Node::getCandidateSubresourceURLs(ListHashSet<URL>& urls) const
+void Node::getCandidateSubresourceURLs(OrderedHashSet<URL>& urls) const
 {
     addCandidateSubresourceURLs(urls);
 }

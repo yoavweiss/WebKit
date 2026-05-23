@@ -34,8 +34,8 @@
 #include <wtf/CompactUniquePtrTuple.h>
 #include <wtf/FixedVector.h>
 #include <wtf/Forward.h>
-#include <wtf/ListHashSet.h>
 #include <wtf/OptionSet.h>
+#include <wtf/OrderedHashSet.h>
 #include <wtf/RobinHoodHashSet.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/TypeCasts.h>
@@ -162,8 +162,8 @@ public:
 
     WEBCORE_EXPORT const URL& baseURI() const;
     
-    void getSubresourceURLs(ListHashSet<URL>&) const;
-    void getCandidateSubresourceURLs(ListHashSet<URL>&) const;
+    void getSubresourceURLs(OrderedHashSet<URL>&) const;
+    void getCandidateSubresourceURLs(OrderedHashSet<URL>&) const;
 
     WEBCORE_EXPORT ExceptionOr<void> insertBefore(Node& newChild, RefPtr<Node>&& refChild);
     WEBCORE_EXPORT ExceptionOr<void> replaceChild(Node& newChild, Node& oldChild);
@@ -751,8 +751,8 @@ protected:
     ALWAYS_INLINE void setStyleFlag(NodeStyleFlag);
     ALWAYS_INLINE void clearStyleFlags(OptionSet<NodeStyleFlag>);
 
-    virtual void addSubresourceAttributeURLs(ListHashSet<URL>&) const { }
-    virtual void addCandidateSubresourceURLs(ListHashSet<URL>&) const { }
+    virtual void addSubresourceAttributeURLs(OrderedHashSet<URL>&) const { }
+    virtual void addCandidateSubresourceURLs(OrderedHashSet<URL>&) const { }
 
     bool hasRareData() const { return !!m_rareDataWithBitfields.pointer(); }
     NodeRareData* rareData() const LIFETIME_BOUND { return m_rareDataWithBitfields.pointer(); }

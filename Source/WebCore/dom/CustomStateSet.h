@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <wtf/ListHashSet.h>
 #include "Element.h"
 #include "JSDOMSetLike.h"
 #include "ScriptWrappable.h"

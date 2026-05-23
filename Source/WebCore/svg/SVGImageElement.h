@@ -67,7 +67,7 @@ private:
     NeedsPostConnectionSteps insertionSteps(InsertionType, ContainerNode&) final;
     RenderPtr<RenderElement> createElementRenderer(RenderStyle&&, const RenderTreePosition&) final;
 
-    void addSubresourceAttributeURLs(ListHashSet<URL>&) const final;
+    void addSubresourceAttributeURLs(OrderedHashSet<URL>&) const final;
     bool haveLoadedRequiredResources() final;
 
     bool isValid() const final { return SVGTests::isValid(); }

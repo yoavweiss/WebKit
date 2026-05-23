@@ -51,7 +51,7 @@ private:
     
     bool supportsFocus() const final;
 
-    void addSubresourceAttributeURLs(ListHashSet<URL>&) const final;
+    void addSubresourceAttributeURLs(OrderedHashSet<URL>&) const final;
 };
 
 } //namespace

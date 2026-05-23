@@ -261,7 +261,7 @@ void ProcessingInstruction::parseStyleSheet(const String& sheet)
 #endif
 }
 
-void ProcessingInstruction::addSubresourceAttributeURLs(ListHashSet<URL>& urls) const
+void ProcessingInstruction::addSubresourceAttributeURLs(OrderedHashSet<URL>& urls) const
 {
     if (!sheet())
         return;

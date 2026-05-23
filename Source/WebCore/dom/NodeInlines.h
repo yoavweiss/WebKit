@@ -253,7 +253,7 @@ inline IntRect Node::pixelSnappedAbsoluteBoundingRect(bool* isReplaced)
 }
 
 // Used in Node::addSubresourceAttributeURLs() and in addSubresourceStyleURLs()
-inline void addSubresourceURL(ListHashSet<URL>& urls, const URL& url)
+inline void addSubresourceURL(OrderedHashSet<URL>& urls, const URL& url)
 {
     if (!url.isNull())
         urls.add(url);

@@ -837,7 +837,7 @@ void HTMLImageElement::decode(Ref<DeferredPromise>&& promise)
     return m_imageLoader->decode(WTF::move(promise));
 }
 
-void HTMLImageElement::addSubresourceAttributeURLs(ListHashSet<URL>& urls) const
+void HTMLImageElement::addSubresourceAttributeURLs(OrderedHashSet<URL>& urls) const
 {
     HTMLElement::addSubresourceAttributeURLs(urls);
 
@@ -847,7 +847,7 @@ void HTMLImageElement::addSubresourceAttributeURLs(ListHashSet<URL>& urls) const
     addSubresourceURL(urls, document->encodingParseURL(attributeWithoutSynchronization(usemapAttr)));
 }
 
-void HTMLImageElement::addCandidateSubresourceURLs(ListHashSet<URL>& urls) const
+void HTMLImageElement::addCandidateSubresourceURLs(OrderedHashSet<URL>& urls) const
 {
     auto src = attributeWithoutSynchronization(srcAttr);
     if (!src.isEmpty()) {

@@ -238,7 +238,7 @@ RefPtr<FilterEffect> SVGFEImageElement::createFilterEffect(const FilterEffectVec
     return FEImage::create({ imageBuffer.releaseNonNull() }, imageRect, preserveAspectRatio());
 }
 
-void SVGFEImageElement::addSubresourceAttributeURLs(ListHashSet<URL>& urls) const
+void SVGFEImageElement::addSubresourceAttributeURLs(OrderedHashSet<URL>& urls) const
 {
     SVGFilterPrimitiveStandardAttributes::addSubresourceAttributeURLs(urls);
 

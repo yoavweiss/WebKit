@@ -74,7 +74,7 @@ private:
     bool NODELETE isURLAttribute(const Attribute&) const final;
     String imageSourceURL() const final;
 
-    void addSubresourceAttributeURLs(ListHashSet<URL>&) const final;
+    void addSubresourceAttributeURLs(OrderedHashSet<URL>&) const final;
 
     void updateWidget(CreatePlugins) final;
 

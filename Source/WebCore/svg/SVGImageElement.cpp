@@ -211,7 +211,7 @@ String SVGImageElement::crossOrigin() const
     return parseCORSSettingsAttribute(attributeWithoutSynchronization(HTMLNames::crossoriginAttr));
 }
 
-void SVGImageElement::addSubresourceAttributeURLs(ListHashSet<URL>& urls) const
+void SVGImageElement::addSubresourceAttributeURLs(OrderedHashSet<URL>& urls) const
 {
     SVGGraphicsElement::addSubresourceAttributeURLs(urls);
 

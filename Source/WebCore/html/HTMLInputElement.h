@@ -424,7 +424,7 @@ private:
     void resumeFromDocumentSuspension() final;
     void prepareForDocumentSuspension() final;
 
-    void addSubresourceAttributeURLs(ListHashSet<URL>&) const final;
+    void addSubresourceAttributeURLs(OrderedHashSet<URL>&) const final;
 
     bool NODELETE needsSuspensionCallback();
     void registerForSuspensionCallbackIfNeeded();

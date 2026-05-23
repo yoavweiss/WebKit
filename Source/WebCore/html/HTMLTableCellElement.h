@@ -70,7 +70,7 @@ private:
 
     bool NODELETE isURLAttribute(const Attribute&) const override;
 
-    void addSubresourceAttributeURLs(ListHashSet<URL>&) const override;
+    void addSubresourceAttributeURLs(OrderedHashSet<URL>&) const override;
 };
 
 } // namespace WebCore

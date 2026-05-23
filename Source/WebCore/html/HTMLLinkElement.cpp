@@ -801,7 +801,7 @@ static bool NODELETE mayFetchResource(LinkRelAttribute relAttribute)
         || !!relAttribute.iconType;
 }
 
-void HTMLLinkElement::addSubresourceAttributeURLs(ListHashSet<URL>& urls) const
+void HTMLLinkElement::addSubresourceAttributeURLs(OrderedHashSet<URL>& urls) const
 {
     HTMLElement::addSubresourceAttributeURLs(urls);
 

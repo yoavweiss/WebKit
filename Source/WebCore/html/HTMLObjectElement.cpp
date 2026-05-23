@@ -322,7 +322,7 @@ void HTMLObjectElement::renderFallbackContent()
     m_useFallbackContent = true;
 }
 
-void HTMLObjectElement::addSubresourceAttributeURLs(ListHashSet<URL>& urls) const
+void HTMLObjectElement::addSubresourceAttributeURLs(OrderedHashSet<URL>& urls) const
 {
     HTMLPlugInElement::addSubresourceAttributeURLs(urls);
 

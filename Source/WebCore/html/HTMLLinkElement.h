@@ -143,7 +143,7 @@ private:
 
     HTMLLinkElement(const QualifiedName&, Document&, bool createdByParser);
 
-    void addSubresourceAttributeURLs(ListHashSet<URL>&) const final;
+    void addSubresourceAttributeURLs(OrderedHashSet<URL>&) const final;
 
     void finishParsingChildren() final;
 

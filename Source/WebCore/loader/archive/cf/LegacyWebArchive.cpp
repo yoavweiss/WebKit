@@ -61,7 +61,7 @@
 #include "StyleSheetList.h"
 #include "markup.h"
 #include <algorithm>
-#include <wtf/ListHashSet.h>
+#include <wtf/OrderedHashSet.h>
 #include <wtf/RetainPtr.h>
 #include <wtf/URLHash.h>
 #include <wtf/URLParser.h>
@@ -745,7 +745,7 @@ RefPtr<LegacyWebArchive> LegacyWebArchive::createInternal(const String& markupSt
                 LOG_ERROR("Unabled to archive subframe %s", childFrame->tree().uniqueName().string().utf8().data());
 
         } else {
-            ListHashSet<URL> subresourceURLs;
+            OrderedHashSet<URL> subresourceURLs;
             node->getSubresourceURLs(subresourceURLs);
             node->getCandidateSubresourceURLs(subresourceURLs);
 

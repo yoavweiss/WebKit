@@ -213,8 +213,8 @@ private:
 
     bool isDraggableIgnoringAttributes() const final { return true; }
 
-    void addSubresourceAttributeURLs(ListHashSet<URL>&) const override;
-    void addCandidateSubresourceURLs(ListHashSet<URL>&) const override;
+    void addSubresourceAttributeURLs(OrderedHashSet<URL>&) const override;
+    void addCandidateSubresourceURLs(OrderedHashSet<URL>&) const override;
 
     NeedsPostConnectionSteps insertionSteps(InsertionType, ContainerNode&) override;
     void removingSteps(RemovalType, ContainerNode&) override;

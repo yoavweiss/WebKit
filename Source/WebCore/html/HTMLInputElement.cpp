@@ -1829,7 +1829,7 @@ void HTMLInputElement::didMoveToNewDocument(Document& oldDocument, Document& new
     HTMLTextFormControlElement::didMoveToNewDocument(oldDocument, newDocument);
 }
 
-void HTMLInputElement::addSubresourceAttributeURLs(ListHashSet<URL>& urls) const
+void HTMLInputElement::addSubresourceAttributeURLs(OrderedHashSet<URL>& urls) const
 {
     HTMLTextFormControlElement::addSubresourceAttributeURLs(urls);
 

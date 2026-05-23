@@ -216,7 +216,7 @@ ExceptionOr<void> HTMLScriptElement::setSrc(Variant<Ref<TrustedScriptURL>, Strin
     return { };
 }
 
-void HTMLScriptElement::addSubresourceAttributeURLs(ListHashSet<URL>& urls) const
+void HTMLScriptElement::addSubresourceAttributeURLs(OrderedHashSet<URL>& urls) const
 {
     HTMLElement::addSubresourceAttributeURLs(urls);
 

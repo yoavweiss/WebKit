@@ -91,7 +91,7 @@ private:
 
     bool NODELETE isURLAttribute(const Attribute&) const final;
 
-    void addSubresourceAttributeURLs(ListHashSet<URL>&) const final;
+    void addSubresourceAttributeURLs(OrderedHashSet<URL>&) const final;
 
     String sourceAttributeValue() const final;
     AtomString charsetAttributeValue() const final;

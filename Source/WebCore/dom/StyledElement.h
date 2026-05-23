@@ -91,7 +91,7 @@ protected:
 
     void mapLanguageAttributeToLocale(const AtomString& value, MutableStyleProperties&);
 
-    void addSubresourceAttributeURLs(ListHashSet<URL>&) const override;
+    void addSubresourceAttributeURLs(OrderedHashSet<URL>&) const override;
     Attribute replaceURLsInAttributeValue(const Attribute&, const CSS::SerializationContext&) const override;
 
 private:

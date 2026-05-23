@@ -36,7 +36,7 @@
 #include "Element.h"
 #include "HTMLParserIdioms.h"
 #include <ranges>
-#include <wtf/ListHashSet.h>
+#include <wtf/OrderedHashSet.h>
 #include <wtf/URL.h>
 #include <wtf/text/ParsingUtilities.h>
 #include <wtf/text/StringBuilder.h>
@@ -217,7 +217,7 @@ Vector<ImageCandidate> parseImageCandidatesFromSrcsetAttribute(StringView attrib
         return parseImageCandidatesFromSrcsetAttribute<char16_t>(attribute.span16());
 }
 
-void getURLsFromSrcsetAttribute(const Element& element, StringView attribute, ListHashSet<URL>& urls)
+void getURLsFromSrcsetAttribute(const Element& element, StringView attribute, OrderedHashSet<URL>& urls)
 {
     if (attribute.isEmpty())
         return;

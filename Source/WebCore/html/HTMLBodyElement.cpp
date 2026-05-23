@@ -217,7 +217,7 @@ bool HTMLBodyElement::supportsFocus() const
     return hasEditableStyle() || HTMLElement::supportsFocus();
 }
 
-void HTMLBodyElement::addSubresourceAttributeURLs(ListHashSet<URL>& urls) const
+void HTMLBodyElement::addSubresourceAttributeURLs(OrderedHashSet<URL>& urls) const
 {
     HTMLElement::addSubresourceAttributeURLs(urls);
 

@@ -81,7 +81,7 @@ private:
     // Used to obtain either a solid or outset border decl and to deal with the frame and rules attributes.
     const MutableStyleProperties* additionalPresentationalHintStyle() const final;
 
-    void addSubresourceAttributeURLs(ListHashSet<URL>&) const final;
+    void addSubresourceAttributeURLs(OrderedHashSet<URL>&) const final;
 
     enum class TableRules : uint8_t { Unset, None, Groups, Rows, Cols, All };
     enum class CellBorders : uint8_t { None, Solid, Inset, SolidColsOnly, SolidRowsOnly };

@@ -224,7 +224,7 @@ String HTMLEmbedElement::imageSourceURL() const
     return attributeWithoutSynchronization(srcAttr);
 }
 
-void HTMLEmbedElement::addSubresourceAttributeURLs(ListHashSet<URL>& urls) const
+void HTMLEmbedElement::addSubresourceAttributeURLs(OrderedHashSet<URL>& urls) const
 {
     HTMLPlugInElement::addSubresourceAttributeURLs(urls);
 

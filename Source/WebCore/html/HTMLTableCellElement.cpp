@@ -178,7 +178,7 @@ const AtomString& HTMLTableCellElement::scope() const
     return emptyAtom();
 }
 
-void HTMLTableCellElement::addSubresourceAttributeURLs(ListHashSet<URL>& urls) const
+void HTMLTableCellElement::addSubresourceAttributeURLs(OrderedHashSet<URL>& urls) const
 {
     HTMLTablePartElement::addSubresourceAttributeURLs(urls);
 

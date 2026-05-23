@@ -291,7 +291,7 @@ void StyledElement::removeAllInlineStyleProperties()
     inlineStyleChanged();
 }
 
-void StyledElement::addSubresourceAttributeURLs(ListHashSet<URL>& urls) const
+void StyledElement::addSubresourceAttributeURLs(OrderedHashSet<URL>& urls) const
 {
     RefPtr inlineStyle = this->inlineStyle();
     if (!inlineStyle)

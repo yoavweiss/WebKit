@@ -601,7 +601,7 @@ const AtomString& HTMLTableElement::summary() const
     return attributeWithoutSynchronization(summaryAttr);
 }
 
-void HTMLTableElement::addSubresourceAttributeURLs(ListHashSet<URL>& urls) const
+void HTMLTableElement::addSubresourceAttributeURLs(OrderedHashSet<URL>& urls) const
 {
     HTMLElement::addSubresourceAttributeURLs(urls);
 
