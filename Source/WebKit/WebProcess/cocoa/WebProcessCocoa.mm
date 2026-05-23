@@ -422,6 +422,8 @@ void WebProcess::platformInitializeWebProcess(WebProcessCreationParameters& para
     _UIApplicationCatalystRequestViewServiceIdiomAndScaleFactor(static_cast<UIUserInterfaceIdiom>(overrideUserInterfaceIdiom), overrideScaleFactor);
 #endif
 
+    populateMobileGestaltCache(WTF::move(parameters.mobileGestaltExtensionHandle));
+
     m_uiProcessBundleIdentifier = parameters.uiProcessBundleIdentifier;
 
 #if ENABLE(SANDBOX_EXTENSIONS)
