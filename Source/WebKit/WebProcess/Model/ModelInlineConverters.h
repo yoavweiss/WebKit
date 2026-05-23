@@ -531,7 +531,8 @@ static std::optional<WebModel::SkinningData> convert(WKBridgeSkinningData* data)
         .inverseBindPoses = convert<WebModel::Float4x4>(data.inverseBindPosesData),
         .influenceJointIndices = convert<uint32_t>(data.influenceJointIndicesData),
         .influenceWeights = convert<float>(data.influenceWeightsData),
-        .geometryBindTransform = data.geometryBindTransform
+        .geometryBindTransform = data.geometryBindTransform,
+        .rootJointIndices = convert<uint32_t>(data.rootJointIndicesData)
     };
 }
 

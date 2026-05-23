@@ -134,6 +134,7 @@ extension WKBridgeSkinningData {
     let influenceJointIndicesData: Data?
     let influenceWeightsData: Data?
     let geometryBindTransform: simd_float4x4
+    let rootJointIndicesData: Data?
 
     init(
         influencePerVertexCount: UInt8,
@@ -141,7 +142,8 @@ extension WKBridgeSkinningData {
         inverseBindPoses: Data?,
         influenceJointIndices: Data?,
         influenceWeights: Data?,
-        geometryBindTransform: simd_float4x4
+        geometryBindTransform: simd_float4x4,
+        rootJointIndices: Data?
     ) {
         self.influencePerVertexCount = influencePerVertexCount
         self.jointTransformsData = jointTransforms
@@ -149,6 +151,7 @@ extension WKBridgeSkinningData {
         self.influenceJointIndicesData = influenceJointIndices
         self.influenceWeightsData = influenceWeights
         self.geometryBindTransform = geometryBindTransform
+        self.rootJointIndicesData = rootJointIndices
     }
 }
 
@@ -684,9 +687,10 @@ extension WKBridgeSkinningData {
     var inverseBindPoses: [simd_float4x4] { inverseBindPosesData.map { decodeValues(from: $0) } ?? [] }
     var influenceJointIndices: [UInt32] { influenceJointIndicesData.map { decodeValues(from: $0) } ?? [] }
     var influenceWeights: [Float] { influenceWeightsData.map { decodeValues(from: $0) } ?? [] }
+    var rootJointIndices: [UInt32] { rootJointIndicesData.map { decodeValues(from: $0) } ?? [] }
 
     @nonobjc
-    convenience init?(_ request: _Proto_DeformationData_v1.SkinningData?) {
+    convenience init?(_ request: _Proto_DeformationData_v1.SkinningData?, rootJointIndices: [UInt32] = []) {
         guard let request else {
             return nil
         }
@@ -697,7 +701,8 @@ extension WKBridgeSkinningData {
             inverseBindPoses: toData(request.inverseBindPosesCompat()),
             influenceJointIndices: toData(request.influenceJointIndices),
             influenceWeights: toData(request.influenceWeights),
-            geometryBindTransform: request.geometryBindTransformCompat()
+            geometryBindTransform: request.geometryBindTransformCompat(),
+            rootJointIndices: rootJointIndices.isEmpty ? nil : toData(rootJointIndices)
         )
     }
 }
@@ -731,13 +736,13 @@ extension WKBridgeRenormalizationData {
 }
 extension WKBridgeDeformationData {
     @nonobjc
-    convenience init?(_ request: _Proto_DeformationData_v1?) {
+    convenience init?(_ request: _Proto_DeformationData_v1?, rootJointIndices: [UInt32] = []) {
         guard let request else {
             return nil
         }
 
         self.init(
-            skinningData: .init(request.skinningData),
+            skinningData: .init(request.skinningData, rootJointIndices: rootJointIndices),
             blendShapeData: .init(request.blendShapeData),
             renormalizationData: .init(request.renormalizationData)
         )

@@ -354,6 +354,100 @@ internal func logInfo(_ info: String) {
     Logger.modelGPU.info("\(info)")
 }
 
+// Mirrors RemoteMeshProxy.cpp::computeMinAndMaxCorners: for each root joint, computes
+// the skin matrix that places the mesh in world space for AABB purposes, returning
+// one matrix per root joint. Using only root joints avoids wildly over-inflating the
+// bounds — child joints move sub-regions that stay within the local AABB extent.
+private func rootSkinMatrices(_ skinningData: WKBridgeSkinningData) -> [simd_float4x4] {
+    let jointTransforms = skinningData.jointTransforms
+    guard !jointTransforms.isEmpty else { return [] }
+    let inverseBindPoses = skinningData.inverseBindPoses
+    let geomBind = skinningData.geometryBindTransform
+    // Fall back to index 0 when rootJointIndices is empty (single-root or unknown).
+    let indices = skinningData.rootJointIndices.isEmpty ? [UInt32(0)] : skinningData.rootJointIndices
+    return indices.compactMap { idx -> simd_float4x4? in
+        let i = Int(idx)
+        guard i < jointTransforms.count else { return nil }
+        let invBind = i < inverseBindPoses.count ? inverseBindPoses[i] : matrix_identity_float4x4
+        return simd_mul(simd_mul(jointTransforms[i], invBind), geomBind)
+    }
+}
+
+// Computes root joint indices for the mesh at meshPath by reading the skeleton's
+// joint token paths from the UsdStage. A root joint is one whose parent token path
+// is not present in the skeleton's joint list.
+private func rootJointIndices(forMeshAt meshPath: String, in stage: UsdStage) -> [UInt32] {
+    let meshPrim = stage.prim(at: SdfPath(meshPath))
+    guard meshPrim.isValid else { return [] }
+
+    // Walk up the prim hierarchy to find a skel:skeleton relationship.
+    var skelPrimPath: SdfPath? = nil
+    var current: UsdPrim? = meshPrim
+    while let prim = current {
+        if let rel = prim.relationship(named: "skel:skeleton"),
+            let targets = rel.forwardedTargets, let target = targets.first
+        {
+            skelPrimPath = target
+            break
+        }
+        current = prim.parent
+    }
+
+    guard let skelPath = skelPrimPath else { return [] }
+    let skelPrim = stage.prim(at: skelPath)
+    guard skelPrim.isValid,
+        let jointsAttr = skelPrim.attribute("joints"),
+        let jointTokens: TokenArray = jointsAttr.get()
+    else { return [] }
+
+    return rootJointIndices(from: jointTokens.map(\.string))
+}
+
+// Pure string computation: returns the indices of joints whose parent path does
+// not appear in the joints array. USD requires parents before children, so root
+// joints always appear before their descendants but there can be multiple roots
+// (e.g. ["A", "A/B", "C", "C/D/E"] has roots at indices 0 and 2).
+private func rootJointIndices(from joints: [String]) -> [UInt32] {
+    let jointSet = Set(joints)
+    return joints.enumerated()
+        .compactMap { index, joint -> UInt32? in
+            var path = joint
+            while let slash = path.lastIndex(of: "/") {
+                path = String(path[..<slash])
+                if jointSet.contains(path) { return nil }
+            }
+            return UInt32(index)
+        }
+}
+
+// Transforms a local-space AABB by one or more skin matrices and returns the
+// union of the resulting world-space AABBs. Passing multiple matrices handles
+// multi-root skeletons correctly.
+private func computeSkinningAABB(
+    _ skinMatrices: [simd_float4x4],
+    _ localMin: SIMD3<Float>,
+    _ localMax: SIMD3<Float>
+) -> (SIMD3<Float>, SIMD3<Float>) {
+    let matrices = skinMatrices.isEmpty ? [matrix_identity_float4x4] : skinMatrices
+    var effectiveMin = SIMD3<Float>(repeating: .greatestFiniteMagnitude)
+    var effectiveMax = SIMD3<Float>(repeating: -.greatestFiniteMagnitude)
+    for skinMatrix in matrices {
+        for i in 0..<8 {
+            let corner = SIMD4<Float>(
+                (i & 1) != 0 ? localMax.x : localMin.x,
+                (i & 2) != 0 ? localMax.y : localMin.y,
+                (i & 4) != 0 ? localMax.z : localMin.z,
+                1
+            )
+            let transformed = simd_mul(skinMatrix, corner)
+            let p = SIMD3<Float>(transformed.x, transformed.y, transformed.z)
+            effectiveMin = simd_min(effectiveMin, p)
+            effectiveMax = simd_max(effectiveMax, p)
+        }
+    }
+    return (effectiveMin, effectiveMax)
+}
+
 @objc
 @implementation
 extension WKBridgeUSDConfiguration {
@@ -791,6 +885,7 @@ extension WKBridgeReceiver {
 
                         var deferredMeshUpdate = DeferredMeshUpdate(identifier: identifier, type: .newMesh, updatedInstances: [])
 
+                        let skinMatrices = meshData.deformationData?.skinningData.map { rootSkinMatrices($0) } ?? []
                         for (partIndex, part) in meshData.parts.enumerated() {
                             if part.materialIndex >= meshData.assignedMaterials.count {
                                 fatalError(
@@ -811,15 +906,21 @@ extension WKBridgeReceiver {
                                 )
                             )
 
+                            let (effectiveMin, effectiveMax) = computeSkinningAABB(
+                                skinMatrices,
+                                part.boundsMin,
+                                part.boundsMax
+                            )
+
                             let meshPart = try renderContext.makeMeshPart(
                                 resource: meshResource,
-                                indexOffset: meshData.parts[partIndex].indexOffset,
-                                indexCount: meshData.parts[partIndex].indexCount,
-                                primitive: meshData.parts[partIndex].topology,
+                                indexOffset: part.indexOffset,
+                                indexCount: part.indexCount,
+                                primitive: part.topology,
                                 windingOrder: .counterClockwise,
                                 bounds: .init(
-                                    boxMin: meshData.parts[partIndex].boundsMin,
-                                    boxMax: meshData.parts[partIndex].boundsMax
+                                    boxMin: effectiveMin,
+                                    boxMax: effectiveMax
                                 )
                             )
 
@@ -1028,7 +1129,8 @@ private func webUpdateTextureRequestFromUpdateTextureRequest(_ request: _Proto_T
 }
 
 private func webUpdateMeshRequestFromUpdateMeshRequest(
-    _ request: _Proto_MeshDataUpdate_v1
+    _ request: _Proto_MeshDataUpdate_v1,
+    rootJointIndices: [UInt32]
 ) -> WKBridgeUpdateMesh {
     var descriptor: WKBridgeMeshDescriptor?
     if let requestDescriptor = request.descriptor {
@@ -1045,7 +1147,7 @@ private func webUpdateMeshRequestFromUpdateMeshRequest(
         instanceTransforms: toData(request.instanceTransformsCompat()),
         instanceTransformsCount: request.instanceTransformsCompat().count,
         assignedMaterials: convert(request.assignedMaterials),
-        deformationData: .init(request.deformationData)
+        deformationData: .init(request.deformationData, rootJointIndices: rootJointIndices)
     )
 }
 
@@ -1832,6 +1934,7 @@ final class USDModelLoader {
     fileprivate var stage: UsdStage?
     fileprivate var data: Data?
     private let objcLoader: WKBridgeModelLoader
+    private var rootJointIndicesCache: [String: [UInt32]] = [:]
 
     @nonobjc
     fileprivate var time: TimeInterval = 0
@@ -1851,6 +1954,7 @@ final class USDModelLoader {
     }
 
     func loadModel(from url: Foundation.URL) {
+        rootJointIndicesCache.removeAll()
         do {
             let stage = try UsdStage.open(url)
             self.setupTimes(from: stage)
@@ -1861,6 +1965,7 @@ final class USDModelLoader {
     }
 
     func loadModel(data: Foundation.Data) -> Bool {
+        rootJointIndicesCache.removeAll()
         do {
             self.stage = try UsdStage.open(buffer: data)
             guard let stage = self.stage else {
@@ -1990,7 +2095,25 @@ final class USDModelLoader {
     }
 
     private func processMeshUpdates(_ updates: [_Proto_MeshDataUpdate_v1]) {
-        self.objcLoader.updateMesh(webRequest: updates.map { webUpdateMeshRequestFromUpdateMeshRequest($0) })
+        let stage = self.stage
+        self.objcLoader.updateMesh(
+            webRequest: updates.map { update in
+                let rootIndices: [UInt32]
+                if let stage, update.deformationData?.skinningData != nil {
+                    let path = update.id.path
+                    if let cached = rootJointIndicesCache[path] {
+                        rootIndices = cached
+                    } else {
+                        let computed = rootJointIndices(forMeshAt: path, in: stage)
+                        rootJointIndicesCache[path] = computed
+                        rootIndices = computed
+                    }
+                } else {
+                    rootIndices = []
+                }
+                return webUpdateMeshRequestFromUpdateMeshRequest(update, rootJointIndices: rootIndices)
+            }
+        )
     }
 }
 

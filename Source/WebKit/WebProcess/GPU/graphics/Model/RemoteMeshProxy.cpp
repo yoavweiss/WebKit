@@ -70,7 +70,7 @@ static WebModel::Float4x4 makeTransformMatrix(
     return result;
 }
 
-static std::pair<simd_float4, simd_float4> computeMinAndMaxCorners(const Vector<WebModel::MeshPart>& parts, const Vector<WebModel::Float4x4>& instanceTransforms)
+static std::pair<simd_float4, simd_float4> computeMinAndMaxCorners(const Vector<WebModel::MeshPart>& parts, const Vector<WebModel::Float4x4>& instanceTransforms, const std::optional<WebModel::DeformationData>& deformationData)
 {
     simd_float4 minCorner4 = simd_make_float4(FLT_MAX, FLT_MAX, FLT_MAX, 1.f);
     simd_float4 maxCorner4 = simd_make_float4(-FLT_MAX, -FLT_MAX, -FLT_MAX, 1.f);
@@ -87,13 +87,35 @@ static std::pair<simd_float4, simd_float4> computeMinAndMaxCorners(const Vector<
         corners[6] = simd_make_float3(part.boundsMin.x, part.boundsMax.y, part.boundsMax.z);
         corners[7] = simd_make_float3(part.boundsMax.x, part.boundsMax.y, part.boundsMax.z);
 
-        for (auto& transform : instanceTransforms) {
-            for (int j = 0; j < 8; ++j) {
-                simd_float4 corner4 = simd_make_float4(corners[j].x, corners[j].y, corners[j].z, 1.f);
-                simd_float4 transformedCorner = simd_mul(transform, corner4);
+        Vector<simd_float4x4> rootSkinMatrices;
+        if (deformationData && deformationData->skinningData && !deformationData->skinningData->jointTransforms.isEmpty()) {
+            const auto& skinning = *deformationData->skinningData;
+            const simd_float4x4 geomBind = skinning.geometryBindTransform;
+            const auto& rootIndices = skinning.rootJointIndices;
+            const bool hasRootIndices = !rootIndices.isEmpty();
+            const size_t iterCount = hasRootIndices ? rootIndices.size() : 1;
+            rootSkinMatrices.reserveInitialCapacity(iterCount);
+            for (size_t r = 0; r < iterCount; ++r) {
+                uint32_t rootIdx = hasRootIndices ? rootIndices[r] : 0;
+                if (rootIdx >= skinning.jointTransforms.size())
+                    continue;
+                const simd_float4x4 invBind = (rootIdx < skinning.inverseBindPoses.size())
+                    ? static_cast<simd_float4x4>(skinning.inverseBindPoses[rootIdx])
+                    : matrix_identity_float4x4;
+                rootSkinMatrices.append(simd_mul(simd_mul(skinning.jointTransforms[rootIdx], invBind), geomBind));
+            }
+        } else
+            rootSkinMatrices.append(matrix_identity_float4x4);
 
-                minCorner4 = simd_min(transformedCorner, minCorner4);
-                maxCorner4 = simd_max(transformedCorner, maxCorner4);
+        for (auto& transform : instanceTransforms) {
+            for (const auto& skinMatrix : rootSkinMatrices) {
+                const simd_float4x4 worldTransform = simd_mul(transform, skinMatrix);
+                for (int j = 0; j < 8; ++j) {
+                    simd_float4 corner4 = simd_make_float4(corners[j].x, corners[j].y, corners[j].z, 1.f);
+                    simd_float4 transformedCorner = simd_mul(worldTransform, corner4);
+                    minCorner4 = simd_min(transformedCorner, minCorner4);
+                    maxCorner4 = simd_max(transformedCorner, maxCorner4);
+                }
             }
         }
     }
@@ -124,24 +146,21 @@ RemoteMeshProxy::~RemoteMeshProxy()
 void RemoteMeshProxy::update(Vector<WebModel::UpdateMeshDescriptor>&& descriptorArray)
 {
 #if ENABLE(GPU_PROCESS_MODEL)
-    bool anyBoundingBoxChanged = false;
-    for (auto& descriptor : descriptorArray) {
-        auto [minCorner, maxCorner] = computeMinAndMaxCorners(descriptor.parts, descriptor.instanceTransforms);
-        auto boundingBoxChanged = minCorner.x <= maxCorner.x && minCorner.y <= maxCorner.y && minCorner.z <= maxCorner.z;
-        boundingBoxChanged = boundingBoxChanged && (!simd_equal(m_minCorner, minCorner) || !simd_equal(m_maxCorner, maxCorner));
-        if (boundingBoxChanged) {
+    bool needBoundingBoxUpdate = m_minCorner.x > m_maxCorner.x;
+    if (needBoundingBoxUpdate) {
+        for (auto& descriptor : descriptorArray) {
+            auto [minCorner, maxCorner] = computeMinAndMaxCorners(descriptor.parts, descriptor.instanceTransforms, descriptor.deformationData);
             m_minCorner = simd_min(m_minCorner, minCorner);
             m_maxCorner = simd_max(m_maxCorner, maxCorner);
         }
-        anyBoundingBoxChanged = anyBoundingBoxChanged || boundingBoxChanged;
     }
 
     auto sendResult = sendWithAsyncReply(Messages::RemoteMesh::Update(WTF::move(descriptorArray)), [](auto) mutable {
     });
     UNUSED_VARIABLE(sendResult);
-    if (anyBoundingBoxChanged)
-        computeTransform();
 
+    if (needBoundingBoxUpdate)
+        computeTransform();
 #else
     UNUSED_PARAM(descriptorArray);
 #endif

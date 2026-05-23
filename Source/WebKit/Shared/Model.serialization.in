@@ -104,6 +104,7 @@ header: <WebKit/ModelTypes.h>
     Vector<uint32_t> influenceJointIndices;
     Vector<float> influenceWeights;
     WebModel::Float4x4 geometryBindTransform;
+    Vector<uint32_t> rootJointIndices;
 };
 
 header: <WebKit/ModelTypes.h>

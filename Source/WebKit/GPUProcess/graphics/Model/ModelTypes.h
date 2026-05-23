@@ -137,9 +137,10 @@ typedef NS_ENUM(uint8_t, WKBridgeVertexSemantic) {
 @property (nonatomic, readonly, nullable) NSData *influenceJointIndicesData; // [UInt32]
 @property (nonatomic, readonly, nullable) NSData *influenceWeightsData; // [Float]
 @property (nonatomic, readonly) simd_float4x4 geometryBindTransform;
+@property (nonatomic, readonly, nullable) NSData *rootJointIndicesData; // [UInt32] indices of joints with no parent in the skeleton
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithInfluencePerVertexCount:(uint8_t)influencePerVertexCount jointTransforms:(nullable NSData *)jointTransforms inverseBindPoses:(nullable NSData *)inverseBindPoses influenceJointIndices:(nullable NSData *)influenceJointIndices influenceWeights:(nullable NSData *)influenceWeights geometryBindTransform:(simd_float4x4)geometryBindTransform NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithInfluencePerVertexCount:(uint8_t)influencePerVertexCount jointTransforms:(nullable NSData *)jointTransforms inverseBindPoses:(nullable NSData *)inverseBindPoses influenceJointIndices:(nullable NSData *)influenceJointIndices influenceWeights:(nullable NSData *)influenceWeights geometryBindTransform:(simd_float4x4)geometryBindTransform rootJointIndices:(nullable NSData *)rootJointIndices NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -770,6 +771,10 @@ struct SkinningData {
     Vector<uint32_t> influenceJointIndices;
     Vector<float> influenceWeights;
     Float4x4 geometryBindTransform;
+    // Indices into jointTransforms/inverseBindPoses for joints with no parent in the
+    // skeleton hierarchy. Computed from the USD joint token paths at load time.
+    // Empty means the caller should fall back to index 0 (single-root assumption).
+    Vector<uint32_t> rootJointIndices;
 };
 
 struct BlendShapeData {
