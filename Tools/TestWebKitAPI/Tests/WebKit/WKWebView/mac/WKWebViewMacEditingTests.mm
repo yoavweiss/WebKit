@@ -104,6 +104,14 @@
 @property (nonatomic, assign) NSString *insertedText;
 @property (nonatomic) NSRange selectedRange;
 @property (nonatomic) NSRange replacementRange;
+// If pollSelectedRangeAfterAction is YES, the mock asks the input client for selectedRange
+// after performing this action but before returning from handleEventByInputMethod's completion.
+// The result is appended to MockTextInputContext.polledSelectedRanges. This exercises the
+// selectedRange staging in WebViewImpl while the queued insertText: is still in the queue.
+@property (nonatomic) BOOL pollSelectedRangeAfterAction;
+// Same idea for attributedSubstring. attributedSubstringPollRange.location == NSNotFound
+// disables the poll. The returned plain text is appended to polledAttributedSubstrings.
+@property (nonatomic) NSRange attributedSubstringPollRange;
 @end
 
 @implementation MockTextInputContextAction
@@ -114,6 +122,7 @@
         _markedText = markedText;
         _selectedRange = selectedRange;
         _replacementRange = replacementRange;
+        _attributedSubstringPollRange = NSMakeRange(NSNotFound, 0);
     }
     return self;
 }
@@ -123,6 +132,7 @@
     if (self = [super init]) {
         _insertedText = insertedText;
         _replacementRange = replacementRange;
+        _attributedSubstringPollRange = NSMakeRange(NSNotFound, 0);
     }
     return self;
 }
@@ -131,7 +141,10 @@
 
 @interface MockTextInputContext : NSTextInputContext
 @property (nonatomic, assign) NSMutableArray<MockTextInputContextAction *> *actions;
+@property (nonatomic, assign) NSMutableArray<MockTextInputContextAction *> *layoutActions;
 @property (nonatomic, assign) NSMutableArray<NSString *> *eventLog;
+@property (nonatomic, assign) NSMutableArray<NSValue *> *polledSelectedRanges;
+@property (nonatomic, assign) NSMutableArray<NSString *> *polledAttributedSubstrings;
 @end
 
 @implementation MockTextInputContext
@@ -154,9 +167,37 @@
                 [self.client setMarkedText:lastItem.markedText selectedRange:lastItem.selectedRange replacementRange:lastItem.replacementRange];
             else
                 [self.client insertText:lastItem.insertedText replacementRange:lastItem.replacementRange];
+            // Polls run while the IM is still inside its callback — the queued setMarkedText:/insertText:
+            // hasn't reached the web process yet, so they exercise the staging paths in
+            // selectedRangeWithCompletionHandler / attributedSubstringForProposedRange.
+            if (lastItem.pollSelectedRangeAfterAction) {
+                [(id<NSTextInputClient_Async>)self.client selectedRangeWithCompletionHandler:^(NSRange selectedRange) {
+                    [_polledSelectedRanges addObject:[NSValue valueWithRange:selectedRange]];
+                }];
+            }
+            if (lastItem.attributedSubstringPollRange.location != NSNotFound) {
+                [(id<NSTextInputClient_Async>)self.client attributedSubstringForProposedRange:lastItem.attributedSubstringPollRange completionHandler:^(NSAttributedString *string, NSRange) {
+                    [_polledAttributedSubstrings addObject:string.string ?: @""];
+                }];
+            }
             completionHandler(!!lastItem);
         });
     }];
+}
+
+- (BOOL)handleEventByKeyboardLayout:(NSEvent *)event
+{
+    // Tests that exercise the keyboard-layout pass (e.g. the Hindi InScript suffix case)
+    // queue layout actions here. Tests that don't set layoutActions fall through to super,
+    // preserving the existing behavior where the layout pass produces commands that get
+    // discarded by interpretKeyEvent's append gate.
+    if (!_layoutActions.count)
+        return [super handleEventByKeyboardLayout:event];
+    MockTextInputContextAction *layoutItem = _layoutActions.firstObject;
+    [_layoutActions removeObjectAtIndex:0];
+    if (layoutItem.insertedText)
+        [self.client insertText:layoutItem.insertedText replacementRange:layoutItem.replacementRange];
+    return YES;
 }
 
 @end
@@ -476,6 +517,143 @@ TEST(WKWebViewMacEditingTests, ModelessInputMethodEventOrderingMatchesNormalTypi
     // Per keystroke: keydown -> keypress -> input -> keyup. No composition events for modeless.
     EXPECT_STREQ("keydown,keypress,input,keyup,keydown,keypress,input,keyup",
         [webView stringByEvaluatingJavaScript:@"window.events.join(',')"].UTF8String);
+}
+
+TEST(WKWebViewMacEditingTests, HindiInScriptViramaConjunctEmitsSuffixFromKeyboardLayoutPass)
+{
+    RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    for (_WKFeature *feature in WKPreferences._features) {
+        NSString *key = feature.key;
+        if ([key isEqualToString:@"InputMethodUsesCorrectKeyEventOrder"])
+            [[configuration preferences] _setEnabled:YES forFeature:feature];
+    }
+
+    RetainPtr webView = adoptNS([[TestWebViewWithMockTextInputContext alloc] initWithFrame:NSMakeRect(0, 0, 400, 400) configuration:configuration.get()]);
+
+    // Hindi InScript "kd/e" types DEVANAGARI KA + VIRAMA + YA + VOWEL SIGN AA — the
+    // syllable "kya" — as U+0915 U+094D U+092F U+093E. Each keystroke maps as:
+    //   k → U+0915 (KA)        — modeless commit
+    //   d → U+094D (VIRAMA)    — IM marks for composition
+    //   / → U+092F (YA) layout output, but the IM uses this keystroke to commit the
+    //         marked virama via insertText:U+094D — the NSEvent's characters string
+    //         is U+094D U+092F (the marked prefix + the new layout char), so the IM
+    //         has covered only a 1-char prefix of a 2-char keystroke. The trailing
+    //         U+092F must come from the keyboard-layout pass appended after the
+    //         partial-prefix commit.
+    //   e → U+093E (VOWEL SIGN AA) — modeless commit
+    //
+    // Without the partial-prefix detection in interpretKeyEvent the layout pass is
+    // dropped (because the IM did insertText:), so U+092F is lost and the body ends
+    // up as U+0915 U+094D U+093E instead of U+0915 U+094D U+092F U+093E.
+    [webView _web_superInputContext].actions = [@[
+        [[[MockTextInputContextAction alloc] initWithInsertText:@"\u0915" replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+        [[[MockTextInputContextAction alloc] initWithMarkedText:@"\u094D" selectedRange:NSMakeRange(0, 1) replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+        [[[MockTextInputContextAction alloc] initWithInsertText:@"\u094D" replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+        [[[MockTextInputContextAction alloc] initWithInsertText:@"\u093E" replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+    ].mutableCopy autorelease];
+    // collectKeyboardLayoutCommandsForEvent runs whenever the IM completion ends with
+    // handled=NO — that's the modeless 'k' and 'e' commits and the partial-prefix '/'.
+    // The 'd' marked-text keystroke early-returns with handled=YES and never asks the
+    // mock for a layout action.
+    [webView _web_superInputContext].layoutActions = [@[
+        [[[MockTextInputContextAction alloc] initWithInsertText:@"\u0915" replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+        [[[MockTextInputContextAction alloc] initWithInsertText:@"\u092F" replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+        [[[MockTextInputContextAction alloc] initWithInsertText:@"\u093E" replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+    ].mutableCopy autorelease];
+
+    [webView synchronouslyLoadHTMLString:@"<body contenteditable></body>"];
+    [webView stringByEvaluatingJavaScript:@"document.body.focus()"];
+    [webView waitForNextPresentationUpdate];
+    [webView removeFromSuperview];
+
+    [webView sendKey:@"\u0915" code:0x28 isDown:YES modifiers:0];
+    [webView sendKey:@"\u0915" code:0x28 isDown:NO modifiers:0];
+    Util::runFor(1_s);
+    [webView sendKey:@"\u094D" code:0x02 isDown:YES modifiers:0];
+    [webView sendKey:@"\u094D" code:0x02 isDown:NO modifiers:0];
+    Util::runFor(1_s);
+    [webView sendKey:@"\u094D\u092F" code:0x2C isDown:YES modifiers:0];
+    [webView sendKey:@"\u094D\u092F" code:0x2C isDown:NO modifiers:0];
+    Util::runFor(1_s);
+    [webView sendKey:@"\u093E" code:0x0E isDown:YES modifiers:0];
+    [webView sendKey:@"\u093E" code:0x0E isDown:NO modifiers:0];
+    Util::runFor(1_s);
+
+    EXPECT_STREQ(@"\u0915\u094D\u092F\u093E".UTF8String, [webView stringByEvaluatingJavaScript:@"document.body.textContent"].UTF8String);
+}
+
+TEST(WKWebViewMacEditingTests, ModelessInputMethodStagingReportsPostKeystrokeCursorAndContent)
+{
+    RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    for (_WKFeature *feature in WKPreferences._features) {
+        NSString *key = feature.key;
+        if ([key isEqualToString:@"InputMethodUsesCorrectKeyEventOrder"])
+            [[configuration preferences] _setEnabled:YES forFeature:feature];
+    }
+
+    RetainPtr webView = adoptNS([[TestWebViewWithMockTextInputContext alloc] initWithFrame:NSMakeRect(0, 0, 400, 400) configuration:configuration.get()]);
+
+    // Vietnamese Simple Telex modeless extension: the IM commits 'v' first, then on the
+    // 'i' keystroke commits "vi" via insertText:"vi" replacementRange:(0,1) \u2014 replacing
+    // the prior 'v' with the syllable "vi". The IM polls selectedRange and
+    // attributedSubstring during its handleEventByInputMethod: callback to verify the
+    // commit landed; both polls happen while the queued command is still in
+    // m_collectedKeypressCommands and exercise the staging paths in WebViewImpl.
+    //
+    // Cursor staging: text.length() alone is wrong for replacementRange:(0,1) \u2014 the net
+    // advance from the pre-keystroke cursor (1) is text.length() \u2212 replacementRange.length
+    // = 1, so the IM-visible cursor must be 2, not 3. Without the subtraction, the IM
+    // caches an inflated cursor, the next keystroke's setMarkedText: addresses past the
+    // document end, and the IM abandons modeless mode for the rest of the session.
+    //
+    // Content staging: the IM's attributedSubstring poll must reflect the document
+    // post-execution ("v" then "vi"), not the stale pre-keystroke content the web
+    // process still has at poll time. Without staging, the second poll returns "v"
+    // (length 1) instead of "vi" (length 2) \u2014 the IM concludes its commit didn't take
+    // effect and falls back to setMarkedText: for the rest of the session.
+    RetainPtr action1 = adoptNS([[MockTextInputContextAction alloc] initWithInsertText:@"v" replacementRange:NSMakeRange(NSNotFound, 0)]);
+    [action1 setPollSelectedRangeAfterAction:YES];
+    [action1 setAttributedSubstringPollRange:NSMakeRange(0, 1)];
+    RetainPtr action2 = adoptNS([[MockTextInputContextAction alloc] initWithInsertText:@"vi" replacementRange:NSMakeRange(0, 1)]);
+    [action2 setPollSelectedRangeAfterAction:YES];
+    [action2 setAttributedSubstringPollRange:NSMakeRange(0, 2)];
+    [webView _web_superInputContext].actions = [@[action1.get(), action2.get()].mutableCopy autorelease];
+    [webView _web_superInputContext].polledSelectedRanges = [NSMutableArray array];
+    [webView _web_superInputContext].polledAttributedSubstrings = [NSMutableArray array];
+
+    [webView synchronouslyLoadHTMLString:@"<input type='text' id='q'>"];
+    [webView stringByEvaluatingJavaScript:@"document.getElementById('q').focus();"];
+    [webView waitForNextPresentationUpdate];
+    [webView removeFromSuperview];
+    [webView typeCharacter:'v'];
+    Util::runFor(1_s);
+    [webView typeCharacter:'i'];
+    Util::runFor(1_s);
+
+    EXPECT_STREQ("vi", [webView stringByEvaluatingJavaScript:@"document.getElementById('q').value"].UTF8String);
+
+    NSArray<NSValue *> *ranges = [webView _web_superInputContext].polledSelectedRanges;
+    EXPECT_EQ(2u, ranges.count);
+    if (ranges.count >= 1) {
+        EXPECT_EQ(1u, [ranges[0] rangeValue].location);
+        EXPECT_EQ(0u, [ranges[0] rangeValue].length);
+    }
+    if (ranges.count >= 2) {
+        // Without the replacementRange.length subtraction, this would be 3 \u2014 the bug
+        // that drove Vietnamese out of modeless mode on the third keystroke.
+        EXPECT_EQ(2u, [ranges[1] rangeValue].location);
+        EXPECT_EQ(0u, [ranges[1] rangeValue].length);
+    }
+
+    NSArray<NSString *> *substrings = [webView _web_superInputContext].polledAttributedSubstrings;
+    EXPECT_EQ(2u, substrings.count);
+    if (substrings.count >= 1)
+        EXPECT_TRUE([substrings[0] isEqualToString:@"v"]);
+    if (substrings.count >= 2) {
+        // Without attributedSubstring staging, this would be "v" \u2014 the second cause of
+        // Vietnamese falling out of modeless mode (IM concludes its insert didn't land).
+        EXPECT_TRUE([substrings[1] isEqualToString:@"vi"]);
+    }
 }
 
 TEST(WKWebViewMacEditingTests, ConcurrentInputMethodKeyDownsScopeQueueingPerKey)

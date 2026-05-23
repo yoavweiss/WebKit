@@ -5638,11 +5638,27 @@ void WebViewImpl::interpretKeyEvent(NSEvent *event, void(^completionHandler)(BOO
 
         bool hasInsertText = false;
         bool hasOnlyInsertText = !commands.isEmpty();
+        size_t insertTextLengthFromInputMethod = 0;
         for (auto& command : commands) {
-            if (command.commandName == "insertText:"_s)
+            if (command.commandName == "insertText:"_s) {
                 hasInsertText = true;
-            else
+                insertTextLengthFromInputMethod += command.text.length();
+            } else
                 hasOnlyInsertText = false;
+        }
+
+        // The Hindi InScript IM (and other Indic IMs) sometimes commit a marked-text composition
+        // via insertText: with only a prefix of the keystroke's characters and rely on the
+        // keyboard-layout pass to provide the suffix. Concretely, after the virama is marked via
+        // setMarkedText:"्", pressing the next consonant ('/' → "य") fires an IM insertText:"्"
+        // that commits the marked virama, while the NSEvent's characters string is "्य" — the
+        // trailing 'य' must come from collectKeyboardLayoutCommandsForEvent.
+        // -[NSEvent characters] is only valid for key-typed events and raises on FlagsChanged
+        // (e.g. caps lock), so gate on hasInsertText since that's a precondition anyway.
+        bool inputMethodCommittedPartialInsertText = false;
+        if (hasInsertText) {
+            NSUInteger eventCharactersLength = [[capturedEvent characters] length];
+            inputMethodCommittedPartialInsertText = insertTextLengthFromInputMethod < eventCharactersLength;
         }
 
         // If the input method only produced insertText: commands (no setMarkedText:, no other
@@ -5657,6 +5673,15 @@ void WebViewImpl::interpretKeyEvent(NSEvent *event, void(^completionHandler)(BOO
         if (handled && hasOnlyInsertText && !checkedThis->m_page->editorState().hasComposition)
             handled = NO;
 
+        // Hindi InScript suffix case: the IM committed only a prefix of the event's characters
+        // via insertText: (e.g. insertText:"्" for an event whose chars="्य"). We need the
+        // keyboard-layout pass to insert the suffix character ('य'), and that suffix insertText:
+        // must execute during the Char (keypress) phase — otherwise Editor::insertText runs with
+        // underlyingEvent=keydown and trips the assertion in EventHandler::handleTextInputEvent.
+        // Force handled=NO so the suffix flows through the keypress path naturally.
+        if (handled && inputMethodCommittedPartialInsertText)
+            handled = NO;
+
         LOG(TextInput, "... handleEventByInputMethod%s handled", handled ? "" : " not");
         if (handled) {
             capturedBlock(YES, WTF::move(commands));
@@ -5668,7 +5693,10 @@ void WebViewImpl::interpretKeyEvent(NSEvent *event, void(^completionHandler)(BOO
         }
 
         auto additionalCommands = checkedThis->collectKeyboardLayoutCommandsForEvent(capturedEvent);
-        if (!hasInsertText)
+        // Append the layout pass except in the dead-key 'é' dedup case (IM did insertText: that
+        // covers the keystroke). The InScript partial-prefix case also needs the layout's suffix
+        // appended, even though the IM did insertText:.
+        if (!hasInsertText || inputMethodCommittedPartialInsertText)
             commands.appendVector(additionalCommands);
         capturedBlock(NO, commands);
         if ([capturedEvent type] == NSEventTypeKeyDown && !checkedThis->m_interpretKeyEventHoldingTank.isEmpty())
@@ -5787,7 +5815,17 @@ void WebViewImpl::selectedRangeWithCompletionHandler(void(^completionHandlerPtr)
                 onlyInsertText = false;
                 break;
             }
-            total += command.text.length();
+            // A modeless commit like Vietnamese Simple Telex's "vi" arrives as
+            // insertText:"vi" replacementRange:(0,1) — net cursor advance is
+            // text.length() - replacementRange.length, not text.length() alone.
+            // Without this, the second keystroke over-reports the cursor by the
+            // replaced length, the IM caches the inflated position, and the next
+            // keystroke's setMarkedText: addresses past the document end (kicks
+            // the IM out of modeless mode).
+            size_t delta = command.text.length();
+            if (command.replacementRange.location != notFound)
+                delta -= std::min<size_t>(command.replacementRange.length, delta);
+            total += delta;
         }
         if (onlyInsertText)
             stagedInsertLength = total;
@@ -5839,13 +5877,58 @@ void WebViewImpl::hasMarkedTextWithCompletionHandler(void(^completionHandler)(BO
     });
 }
 
-void WebViewImpl::attributedSubstringForProposedRange(NSRange proposedRange, void(^completionHandler)(NSAttributedString *attrString, NSRange actualRange))
+void WebViewImpl::attributedSubstringForProposedRange(NSRange proposedRange, void(^completionHandlerPtr)(NSAttributedString *attrString, NSRange actualRange))
 {
     LOG(TextInput, "attributedSubstringFromRange:(%zu, %zu)", proposedRange.location, proposedRange.length);
-    m_page->attributedSubstringForCharacterRangeAsync(proposedRange, [completionHandler = makeBlockPtr(completionHandler)](const WebCore::AttributedString& string, const EditingRange& actualRange) {
-        auto attributedString = string.nsAttributedString();
-        LOG(TextInput, "    -> attributedSubstringFromRange returned %@", attributedString.get());
-        completionHandler(attributedString.get(), actualRange);
+
+    // The IME polls attributedSubstring during its handleEventByInputMethod: callback to verify
+    // a just-issued insertText: took effect. The queued command hasn't reached the web process
+    // yet, so we apply it locally to the IPC response. Same gate as selectedRange staging: only
+    // when every queued command is insertText: (modeless commit); if setMarkedText: is in the
+    // mix the IME is composing and the unstaged response is correct.
+    Vector<WebCore::KeypressCommand> queuedInsertions;
+    if (!m_collectedKeypressCommands.isEmpty() && !m_collectedKeypressCommands.first().isEmpty()) {
+        bool onlyInsertText = true;
+        for (auto& command : m_collectedKeypressCommands.first()) {
+            if (command.commandName != "insertText:"_s) {
+                onlyInsertText = false;
+                break;
+            }
+        }
+        if (onlyInsertText)
+            queuedInsertions = m_collectedKeypressCommands.first();
+    }
+
+    m_page->attributedSubstringForCharacterRangeAsync(proposedRange, [completionHandler = makeBlockPtr(completionHandlerPtr), queuedInsertions = WTF::move(queuedInsertions)](const WebCore::AttributedString& string, const EditingRange& actualRange) {
+        RetainPtr attributedString = string.nsAttributedString();
+        if (queuedInsertions.isEmpty()) {
+            LOG(TextInput, "    -> attributedSubstringFromRange returned %@", attributedString.get());
+            completionHandler(attributedString.get(), actualRange);
+            return;
+        }
+
+        NSUInteger origin = actualRange.location == notFound ? 0u : (NSUInteger)actualRange.location;
+        RetainPtr stagedString = adoptNS([attributedString mutableCopy]);
+        if (!stagedString)
+            stagedString = adoptNS([[NSMutableAttributedString alloc] init]);
+        for (auto& command : queuedInsertions) {
+            NSUInteger location, length;
+            if (command.replacementRange.location != notFound) {
+                if (command.replacementRange.location < origin)
+                    continue;
+                location = (NSUInteger)command.replacementRange.location - origin;
+                length = (NSUInteger)command.replacementRange.length;
+            } else {
+                location = [stagedString length];
+                length = 0;
+            }
+            if (location > [stagedString length])
+                continue;
+            length = std::min<NSUInteger>(length, [stagedString length] - location);
+            [stagedString replaceCharactersInRange:NSMakeRange(location, length) withString:command.text.createNSString().get()];
+        }
+        LOG(TextInput, "    -> attributedSubstringFromRange (staged) returned %@", stagedString.get());
+        completionHandler(stagedString.get(), NSMakeRange(origin, [stagedString length]));
     });
 }
 
