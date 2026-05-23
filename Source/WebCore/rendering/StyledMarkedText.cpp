@@ -226,7 +226,7 @@ static Vector<StyledMarkedText> coalesceAdjacentWithSameRanges(Vector<StyledMark
     return frontmostMarkedTexts;
 }
 
-static void orderHighlights(const ListHashSet<AtomString>& markedTextsNames, Vector<MarkedText>& markedTexts)
+static void orderHighlights(const OrderedHashSet<AtomString>& markedTextsNames, Vector<MarkedText>& markedTexts)
 {
     if (markedTexts.isEmpty())
         return;
@@ -258,7 +258,7 @@ Vector<StyledMarkedText> StyledMarkedText::subdivideAndResolve(const Vector<Mark
         return { };
 
     // Keep track of original order of highlights.
-    ListHashSet<AtomString> markedTextsNames;
+    OrderedHashSet<AtomString> markedTextsNames;
     for (auto& markedText : textsToSubdivide) {
         if (!markedText.highlightName.isNull())
             markedTextsNames.add(markedText.highlightName);
