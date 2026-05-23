@@ -66,6 +66,7 @@ final class BrowserViewModel {
         configuration.deviceSensorAuthorization = WebPage.DeviceSensorAuthorization(decisionHandler: Self.decideSensorAuthorization(permission:frame:origin:))
 
         self.page = WebPage(configuration: configuration, navigationDecider: self.navigationDecider, dialogPresenter: self.dialogPresenter)
+        self.page.isInspectable = true
 
         self.navigationDecider.owner = self
         self.dialogPresenter.owner = self
