@@ -28,7 +28,6 @@
 
 #if ENABLE(WEBASSEMBLY_DEBUGGER) && ENABLE(REMOTE_INSPECTOR)
 
-#include "WebPageProxy.h"
 #include "WebProcessProxy.h"
 #include "WebProcessProxyMessages.h"
 #include <JavaScriptCore/InspectorFrontendChannel.h>

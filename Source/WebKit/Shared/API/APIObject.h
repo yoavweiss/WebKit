@@ -142,6 +142,7 @@ public:
         JSHandle,
         GeolocationPosition,
         GrammarDetail,
+        IconDatabase,
         Inspector,
         InspectorConfiguration,
 #if ENABLE(INSPECTOR_EXTENSIONS)

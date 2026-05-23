@@ -57,6 +57,7 @@ set(WebKit_PUBLIC_FRAMEWORK_HEADERS
     UIProcess/API/C/WKGeolocationPosition.h
     UIProcess/API/C/WKHTTPCookieStoreRef.h
     UIProcess/API/C/WKHitTestResult.h
+    UIProcess/API/C/WKIconDatabase.h
     UIProcess/API/C/WKInspector.h
     UIProcess/API/C/WKJSHandleRef.h
     UIProcess/API/C/WKLayoutMode.h
