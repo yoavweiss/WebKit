@@ -97,6 +97,17 @@ WebSocketChannel::WebSocketChannel(WebPageProxyIdentifier webPageProxyID, Docume
 
 WebSocketChannel::~WebSocketChannel()
 {
+    // Ensure the network process tears down its NetworkSocketChannel even when
+    // none of the explicit close/disconnect paths ran. This happens for worker
+    // WebSockets on a peer-initiated close: WorkerThreadableWebSocketChannel::Peer::didClose
+    // nulls its RefPtr<WebSocketChannel> before the worker can call disconnect(),
+    // so without this the Close IPC would never be sent and the network-side
+    // channel would leak. m_needsToCallClose is only true once connect()
+    // successfully sent a CreateSocketChannel IPC and Close hasn't been sent
+    // since, so the destructor doesn't send a stray Close for channels the
+    // network process never knew about.
+    if (m_needsToCallClose)
+        MessageSender::send(Messages::NetworkSocketChannel::Close { WebCore::ThreadableWebSocketChannel::CloseEventCodeGoingAway, { } });
     WebProcess::singleton().webSocketChannelManager().removeChannel(*this);
 }
 
@@ -162,6 +173,7 @@ WebSocketChannel::ConnectStatus WebSocketChannel::connect(const URL& url, const 
     }();
 
     MessageSender::send(Messages::NetworkConnectionToWebProcess::CreateSocketChannel { *request, protocol, identifier(), m_webPageProxyID, std::optional(frame->frameID()), frame->pageID(), document->clientOrigin(), WebProcess::singleton().hadMainFrameMainResourcePrivateRelayed(), policySourceFrame->allowPrivacyProxy(), policySourceFrame->advancedPrivacyProtections(), storedCredentialsPolicy });
+    m_needsToCallClose = true;
     return ConnectStatus::OK;
 }
 
@@ -245,6 +257,7 @@ void WebSocketChannel::close(int code, const String& reason)
     m_inspector.didSendWebSocketFrame(closingFrame);
 
     MessageSender::send(Messages::NetworkSocketChannel::Close { code, reason });
+    m_needsToCallClose = false;
 }
 
 void WebSocketChannel::fail(String&& reason)
@@ -260,6 +273,7 @@ void WebSocketChannel::fail(String&& reason)
         return;
 
     MessageSender::send(Messages::NetworkSocketChannel::Close { WebCore::ThreadableWebSocketChannel::CloseEventCodeGoingAway, reason });
+    m_needsToCallClose = false;
     didClose(WebCore::ThreadableWebSocketChannel::CloseEventCodeAbnormalClosure, { });
 }
 
@@ -271,7 +285,10 @@ void WebSocketChannel::disconnect()
 
     m_inspector.didCloseWebSocket();
 
-    MessageSender::send(Messages::NetworkSocketChannel::Close { WebCore::ThreadableWebSocketChannel::CloseEventCodeGoingAway, { } });
+    if (m_needsToCallClose) {
+        MessageSender::send(Messages::NetworkSocketChannel::Close { WebCore::ThreadableWebSocketChannel::CloseEventCodeGoingAway, { } });
+        m_needsToCallClose = false;
+    }
 }
 
 void WebSocketChannel::didConnect(String&& subprotocol, String&& extensions)
