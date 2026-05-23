@@ -88,7 +88,6 @@
 				7B7A089228B738D800FF1239 /* Copy Profiling Data */,
 				DD6BF6292D2F4DC200B9A084 /* Unifdef module.private.modulemap */,
 				DDDEC1E52DFA354000EC45B7 /* Generate Swift TBA availability macros */,
-				DDFE17020000000000000001 /* Generate Header Postprocess Config */,
 			);
 			dependencies = (
 			);
@@ -2803,7 +2802,6 @@
 				"$(SRCROOT)/mac/replace-webkit-additions-includes.py",
 				"$(WK_WEBKITADDITIONS_POSTPROCESS_SCRIPTS_INPUT)",
 				"$(WK_WEBKITADDITIONS_BRANCH_CONFIG_INPUT)",
-				"$(SHARED_DERIVED_FILE_DIR)/WebKit-header-postprocess-config.sh",
 			);
 			isEditable = 1;
 			outputFiles = (
@@ -3223,14 +3221,7 @@
 			remoteGlobalIDString = C0CE72851247E66800BC0EC4;
 			remoteInfo = "Derived Sources";
 		};
-		DDFE17050000000000000001 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = C0CE72851247E66800BC0EC4;
-			remoteInfo = "Derived Sources";
-		};
-	/* End PBXContainerItemProxy section */
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		07275C652D00E284002315A5 /* Install SwiftUI Cross Import Overlay */ = {
@@ -20155,8 +20146,7 @@
 				E1AC2E3E20F7B9C000B0897D /* PBXTargetDependency */,
 				37F7407912721F740093869B /* PBXTargetDependency */,
 				2D11BA052126A5AE006F8878 /* PBXTargetDependency */,
-				7B9FC5BD28A5233B007570E7 /* PBXTargetDependency */,				DDFE17060000000000000001 /* PBXTargetDependency */,
-
+				7B9FC5BD28A5233B007570E7 /* PBXTargetDependency */,
 			);
 			name = WebKit;
 			productInstallPath = "$(HOME)/Library/Frameworks";
@@ -20458,30 +20448,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		DDFE17020000000000000001 /* Generate Header Postprocess Config */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/Scripts/generate-header-postprocess-config.sh",
-				"$(BUILT_PRODUCTS_DIR)$(WK_LIBRARY_HEADERS_FOLDER_PATH)/WebKitAdditions/Scripts/postprocess-framework-headers-definitions",
-				"$(SDKROOT)$(WK_LIBRARY_HEADERS_FOLDER_PATH)/WebKitAdditions/Scripts/postprocess-framework-headers-definitions",
-				"$(BUILT_PRODUCTS_DIR)$(WK_LIBRARY_HEADERS_FOLDER_PATH)/WebKitAdditions/Scripts/branch_config.json",
-				"$(SDKROOT)$(WK_LIBRARY_HEADERS_FOLDER_PATH)/WebKitAdditions/Scripts/branch_config.json",
-			);
-			name = "Generate Header Postprocess Config";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(SHARED_DERIVED_FILE_DIR)/WebKit-header-postprocess-config.sh",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/bash;
-			shellScript = "exec \"${SCRIPT_INPUT_FILE_0}\"\n";
-		};
 		07275CBE2D014A44002315A5 /* Create Symlink to Cryptex Path */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 8;
@@ -22835,12 +22801,7 @@
 			target = C0CE72851247E66800BC0EC4 /* Derived Sources */;
 			targetProxy = EB4E56612B16547200CDB9C6 /* PBXContainerItemProxy */;
 		};
-		DDFE17060000000000000001 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = C0CE72851247E66800BC0EC4 /* Derived Sources */;
-			targetProxy = DDFE17050000000000000001 /* PBXContainerItemProxy */;
-		};
-	/* End PBXTargetDependency section */
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		089C1666FE841158C02AAC07 /* InfoPlist.strings */ = {
