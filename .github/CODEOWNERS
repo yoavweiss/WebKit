@@ -101,8 +101,6 @@ AllowedSPI*.toml @emw-apple
 /Source/WebCore/editing @rniwa
 /LayoutTests/editing @rniwa
 
-/Source/WebCore/Modules/applepay @aprotyas
-/Source/WebCore/Modules/applepay-ams-ui @aprotyas
 /Source/WebCore/Modules/applicationmanifest/ @marcoscaceres
 /Source/WebCore/Modules/beacon @cdumez
 /Source/WebCore/Modules/contact-picker @marcoscaceres
@@ -110,7 +108,7 @@ AllowedSPI*.toml @emw-apple
 /Source/WebCore/Modules/geolocation @cdumez @marcoscaceres
 /Source/WebCore/Modules/model-element @mwyrzykowski @etiennesegonzac
 /Source/WebCore/Modules/notifications @cdumez
-/Source/WebCore/Modules/paymentrequest @aprotyas @marcoscaceres
+/Source/WebCore/Modules/paymentrequest @marcoscaceres
 /Source/WebCore/Modules/permissions @marcoscaceres
 /Source/WebCore/Modules/credentialmanagement @marcoscaceres
 /Source/WebCore/Modules/gamepad @marcoscaceres
@@ -133,17 +131,15 @@ AllowedSPI*.toml @emw-apple
 
 /Source/WebCore/animation @graouts
 
-/LayoutTests/http/tests/paymentrequest @aprotyas @marcoscaceres
+/LayoutTests/http/tests/paymentrequest @marcoscaceres
 /LayoutTests/imported/w3c/web-platform-tests/badging @marcoscaceres
 /LayoutTests/imported/w3c/web-platform-tests/contenteditable @marcoscaceres
 /LayoutTests/imported/w3c/web-platform-tests/digital-credentials @marcoscaceres
 /LayoutTests/imported/w3c/web-platform-tests/gamepad @marcoscaceres
-/LayoutTests/http/tests/ssl/applepay @aprotyas
-/LayoutTests/http/tests/ssl/applepay-ams-ui @aprotyas
 /LayoutTests/imported/w3c/web-platform-tests/geolocation @marcoscaceres
 /LayoutTests/imported/w3c/web-platform-tests/html/user-activation @marcoscaceres
 /LayoutTests/imported/w3c/web-platform-tests/merchant-validation @marcoscaceres
-/LayoutTests/imported/w3c/web-platform-tests/payment-request @aprotyas @marcoscaceres
+/LayoutTests/imported/w3c/web-platform-tests/payment-request @marcoscaceres
 /LayoutTests/imported/w3c/web-platform-tests/permissions @marcoscaceres
 /LayoutTests/imported/w3c/web-platform-tests/resources @gsnedders
 /LayoutTests/imported/w3c/web-platform-tests/screen-orientation @marcoscaceres
@@ -163,9 +159,7 @@ AllowedSPI*.toml @emw-apple
 /Source/WebKit/NetworkProcess @cdumez
 /Source/WebKit/NetworkProcess/mac/com.apple.WebKit.NetworkProcess.sb.in @brentfulgham @pvollan
 /Source/WebKit/Platform @cdumez
-/Source/WebKit/Platform/*/Payment* @aprotyas
 /Source/WebKit/Resources/SandboxProfiles @brentfulgham @pvollan
-/Source/WebKit/Shared/ApplePay @aprotyas
 /Source/WebKit/Shared/Sandbox @brentfulgham @pvollan
 /Source/WebKit/UIProcess @cdumez
 /Source/WebKit/UIProcess/Extensions @b-weinstein @xeenon
@@ -175,7 +169,6 @@ AllowedSPI*.toml @emw-apple
 /Source/WebKit/WebProcess @cdumez
 /Source/WebKit/WebProcess/DigitalCredentials @marcoscaceres
 /Source/WebKit/WebKitSwift/IdentityDocumentServices @marcoscaceres
-/Source/WebKit/WebProcess/ApplePay @aprotyas
 /Source/WebKit/WebProcess/Extensions @b-weinstein @xeenon
 /Source/WebKit/WebProcess/Inspector @dcrousso @patrickangle @burg
 /Source/WebKit/WebProcess/com.apple.WebProcess.sb.in  @brentfulgham @pvollan
