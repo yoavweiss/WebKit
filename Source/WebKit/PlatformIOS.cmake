@@ -950,6 +950,8 @@ list(APPEND WebKit_PRIVATE_FRAMEWORK_HEADERS
     UIProcess/API/C/WKContextMenuListener.h
     UIProcess/API/C/WKKeyValueStorageManager.h
 
+    UIProcess/API/C/cg/WKIconDatabaseCG.h
+
     UIProcess/API/C/mac/WKFrameMac.h
 
     UIProcess/API/mac/WKWebViewPrivateForTestingMac.h
