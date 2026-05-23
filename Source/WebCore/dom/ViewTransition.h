@@ -36,6 +36,7 @@
 #include "ViewTransitionUpdateCallback.h"
 #include "VisibilityChangeClient.h"
 #include <wtf/CheckedRef.h>
+#include <wtf/OrderedHashSet.h>
 #include <wtf/Ref.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/text/AtomString.h>
@@ -156,7 +157,7 @@ public:
     }
 
 private:
-    ListHashSet<AtomString> m_keys;
+    OrderedHashSet<AtomString> m_keys;
     HashMap<AtomString, UniqueRef<CapturedElement>> m_map;
 };
 
