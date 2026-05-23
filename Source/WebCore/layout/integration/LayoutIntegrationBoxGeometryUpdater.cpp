@@ -577,7 +577,7 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
         }
 
         if (auto* inlineLayout = blockFlow->inlineLayout())
-            return inlineLayout->lastLineBaseline().value_or(0_lu);
+            return inlineLayout->lastLineBaseline();
 
         if (blockFlow->svgTextLayout()) {
             auto& style = blockFlow->firstLineStyle();
