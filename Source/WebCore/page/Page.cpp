@@ -1529,7 +1529,7 @@ Vector<Ref<Element>> Page::editableElementsInRect(const FloatRect& searchRectInR
         return nullptr;
     };
 
-    ListHashSet<Ref<Element>> rootEditableElements;
+    OrderedHashSet<Ref<Element>> rootEditableElements;
     auto& nodeSet = hitTestResult.listBasedTestResult();
     for (auto& node : nodeSet) {
         if (RefPtr editableElement = rootEditableElement(node)) {
