@@ -19,4 +19,5 @@ List of files:
 /LayoutTests/imported/w3c/web-platform-tests/css/selectors/media/media-loading-state.sub.html
 /LayoutTests/imported/w3c/web-platform-tests/css/selectors/media/media-playback-state-timing.html
 /LayoutTests/imported/w3c/web-platform-tests/css/selectors/media/media-playback-state.html
+/LayoutTests/imported/w3c/web-platform-tests/css/selectors/media/media-playing-paused-style-invalidation.html
 /LayoutTests/imported/w3c/web-platform-tests/css/selectors/media/sound-state.html
