@@ -914,6 +914,41 @@ TEST(WKBackForwardList, BackForwardNavigationSkipsClientSideRedirectWithCOOP)
     EXPECT_STREQ([webView URL].absoluteString.UTF8String, server.request("/source.html"_s).URL.absoluteString.UTF8String);
 }
 
+TEST(WKBackForwardList, BackForwardNavigationLandsOnInitialItemPastJSChain)
+{
+    RetainPtr webView = adoptNS([[WKWebView alloc] init]);
+
+    RetainPtr navigationDelegate = adoptNS([WKBackForwardNavigationDelegate new]);
+    webView.get().navigationDelegate = navigationDelegate.get();
+
+    RetainPtr url1 = [NSBundle.test_resourcesBundle URLForResource:@"simple" withExtension:@"html"];
+
+    [webView loadRequest:[NSURLRequest requestWithURL:url1.get()]];
+    [navigationDelegate waitForDidFinishNavigationOrDidSameDocumentNavigation];
+
+    // url1 is the only user-gesture entry in history. Push two JS-without-gesture entries on top
+    // so the back chain extends all the way to the start of history. The filter must land on
+    // url1 rather than falling back to the first item in the chain.
+    [webView _evaluateJavaScriptWithoutUserGesture:@"history.pushState(null, document.title, location.pathname + '#a');" completionHandler:nil];
+    [navigationDelegate waitForDidFinishNavigationOrDidSameDocumentNavigation];
+
+    [webView _evaluateJavaScriptWithoutUserGesture:@"history.pushState(null, document.title, location.pathname + '#b');" completionHandler:nil];
+    [navigationDelegate waitForDidFinishNavigationOrDidSameDocumentNavigation];
+
+    EXPECT_TRUE(webView.get().backForwardList.currentItem._wasCreatedByJSWithoutUserInteraction);
+
+    // Raw bf list: url1 - url1#a (no user gesture) - url1#b (no user gesture)*
+    // Filtered back list should contain only url1.
+    EXPECT_EQ([webView backForwardList].backList.count, 1U);
+    EXPECT_EQ([webView backForwardList].forwardList.count, 0U);
+    EXPECT_STREQ([webView backForwardList].backItem.URL.absoluteString.UTF8String, [url1 absoluteString].UTF8String);
+
+    [webView goBack];
+    [navigationDelegate waitForDidFinishNavigationOrDidSameDocumentNavigation];
+    EXPECT_STREQ([webView URL].absoluteString.UTF8String, [url1 absoluteString].UTF8String);
+    EXPECT_EQ([webView backForwardList].backList.count, 0U);
+}
+
 static void runBackForwardNavigationDoesNotSkipItemsWithUserGestureTest(Function<void(WKWebView *, ASCIILiteral fragment)>&& navigate)
 {
     RetainPtr webView = adoptNS([[WKWebView alloc] init]);
@@ -1531,7 +1566,9 @@ TEST(WKBackForwardList, ForwardSkipIteratesThroughLeadingConsecutiveJSItems)
     [navigationDelegate waitForDidFinishNavigationOrDidSameDocumentNavigation];
 
     EXPECT_STREQ([webView URL].absoluteString.UTF8String, [url2 absoluteString].UTF8String);
-    EXPECT_EQ([webView backForwardList].backList.count, 3U);
+    // The back list collapses past the JS chain to the user-gesture lifeline at idx 0:
+    // [url1, url1#b]. url1#a is skipped because it's part of the JS chain anchored on url1.
+    EXPECT_EQ([webView backForwardList].backList.count, 2U);
     EXPECT_EQ([webView backForwardList].forwardList.count, 0U);
 }
 

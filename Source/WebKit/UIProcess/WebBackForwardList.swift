@@ -810,7 +810,11 @@ final class WebBackForwardList {
 
         if direction == Direction.backward {
             // If going backwards, skip over next item with user iteraction since this is the one the user
-            // thinks they're on.
+            // thinks they're on. But if the user-gesture item is at the start of history, there is nothing
+            // to skip to — the item itself must be the destination.
+            if itemIndex == 0 {
+                return item
+            }
             itemIndex -= 1
             let (thisItem, thisItemIndex) = itemAtIndexWithoutSkipping(index: itemIndex)
             guard let thisItem else {

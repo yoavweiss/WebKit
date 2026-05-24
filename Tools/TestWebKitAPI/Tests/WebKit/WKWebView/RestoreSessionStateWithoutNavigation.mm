@@ -132,9 +132,11 @@ TEST(WebKit, RestoreSessionStateWithoutNavigationPreservesWasCreatedByJSWithoutU
     [view _evaluateJavaScriptWithoutUserGesture:@"history.pushState(null, document.title, location.pathname + '#b');" completionHandler:nil];
     Util::run(&didNavigate);
 
-    EXPECT_EQ([view backForwardList].backList.count, 2U);
+    // The back-list filter collapses the JS-without-user-gesture chain past the user-gesture
+    // lifeline at idx 0, so backList only exposes the lifeline. currentItem retains its flag
+    // and is the observable witness that the flag is preserved.
+    EXPECT_EQ([view backForwardList].backList.count, 1U);
     EXPECT_FALSE([view backForwardList].backList[0]._wasCreatedByJSWithoutUserInteraction);
-    EXPECT_TRUE([view backForwardList].backList[1]._wasCreatedByJSWithoutUserInteraction);
     EXPECT_TRUE([view backForwardList].currentItem._wasCreatedByJSWithoutUserInteraction);
 
     // Restore session state into a new web view.
@@ -142,9 +144,8 @@ TEST(WebKit, RestoreSessionStateWithoutNavigationPreservesWasCreatedByJSWithoutU
     RetainPtr sessionState = adoptNS([[_WKSessionState alloc] initWithData:[view _sessionStateData]]);
     [restoredView _restoreSessionState:sessionState.get() andNavigate:NO];
 
-    EXPECT_EQ([restoredView backForwardList].backList.count, 2U);
+    EXPECT_EQ([restoredView backForwardList].backList.count, 1U);
     EXPECT_FALSE([restoredView backForwardList].backList[0]._wasCreatedByJSWithoutUserInteraction);
-    EXPECT_TRUE([restoredView backForwardList].backList[1]._wasCreatedByJSWithoutUserInteraction);
     EXPECT_TRUE([restoredView backForwardList].currentItem._wasCreatedByJSWithoutUserInteraction);
 }
 

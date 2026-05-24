@@ -681,7 +681,10 @@ std::pair<RefPtr<WebBackForwardListItem>, size_t> WebBackForwardList::itemStarti
 
     if (direction == NavigationDirection::Backward) {
         // If going backwards, skip over next item with user iteraction since this is the one the user
-        // thinks they're on.
+        // thinks they're on. But if the user-gesture item is at the start of history, there is nothing
+        // to skip to — the item itself must be the destination.
+        if (!itemIndex)
+            return item;
         --itemIndex;
         item = itemAtIndexWithoutSkipping(itemIndex);
         if (!item.first)
