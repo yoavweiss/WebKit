@@ -471,8 +471,10 @@ void RenderGrid::layoutGrid(RelayoutChildren relayoutChildren)
 
         resetLogicalHeightBeforeLayoutIfNeeded();
 
-        if (layoutUsingGridFormattingContext())
+        if (layoutUsingGridFormattingContext()) {
+            endAndCommitUpdateScrollInfoAfterLayoutTransaction();
             return;
+        }
 
         // Fieldsets need to find their legend and position it inside the border of the object.
         // The legend then gets skipped during normal layout. The same is true for ruby text.
