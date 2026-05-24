@@ -40,6 +40,7 @@
 #include "DocumentResourceLoader.h"
 #include "DocumentSecurityOrigin.h"
 #include "DocumentType.h"
+#include "ElementInlines.h"
 #include "EventLoop.h"
 #include "FrameConsoleClient.h"
 #include "FrameDestructionObserverInlines.h"
@@ -54,18 +55,19 @@
 #include "MIMETypeRegistry.h"
 #include "NameValidation.h"
 #include "NodeDocument.h"
+#include "NodeInlines.h"
 #include "OriginAccessPatterns.h"
 #include "Page.h"
 #include "PendingScript.h"
 #include "ProcessingInstruction.h"
 #include "ResourceError.h"
 #include "ResourceResponse.h"
-#include "SVGElement.h"
 #include "ScriptElement.h"
 #include "ScriptSourceCode.h"
 #include "Settings.h"
 #include "SharedBuffer.h"
 #include "StyleScope.h"
+#include "TemplateContentDocumentFragment.h"
 #include "TextResourceDecoder.h"
 #include "ThrowOnDynamicMarkupInsertionCountIncrementer.h"
 #include "TransformSource.h"
@@ -759,9 +761,8 @@ struct _xmlSAX2Namespace {
 };
 typedef struct _xmlSAX2Namespace xmlSAX2Namespace;
 
-static inline bool handleNamespaceAttributes(Vector<Attribute>& prefixedAttributes, const xmlChar** libxmlNamespaces, int numNamespaces, bool& shouldUseNullCustomElementRegistry)
+static inline bool handleNamespaceAttributes(Vector<Attribute>& prefixedAttributes, std::span<xmlSAX2Namespace> namespaces, bool& shouldUseNullCustomElementRegistry)
 {
-    auto namespaces = unsafeMakeSpan(reinterpret_cast<xmlSAX2Namespace*>(libxmlNamespaces), numNamespaces);
     for (auto& xmlNamespace : namespaces) {
         AtomString namespaceQName = xmlnsAtom();
         AtomString namespaceURI = toAtomString(xmlNamespace.uri);
@@ -833,14 +834,35 @@ void XMLDocumentParser::startElementNs(const xmlChar* xmlLocalName, const xmlCha
     AtomString prefix = toAtomString(xmlPrefix);
     RefPtr currentNode = *m_currentNode;
     RefPtr document = currentNode->document();
+    auto namespaces = unsafeMakeSpan(reinterpret_cast<xmlSAX2Namespace*>(libxmlNamespaces), numNamespaces);
 
     if (m_parsingFragment && uri.isNull()) {
-        if (!prefix.isNull())
-            uri = m_prefixToNamespaceMap.get(prefix);
-        else if (is<SVGElement>(currentNode.get()) || localName == SVGNames::svgTag->localName())
-            uri = SVGNames::svgNamespaceURI;
-        else
-            uri = m_defaultNamespaceURI;
+        uri = [&] -> AtomString {
+            if (!prefix.isNull())
+                return m_prefixToNamespaceMap.get(prefix);
+
+            // libxml2 reports null URI both for "no namespace" and explicit xmlns=""; preserve the latter.
+            for (auto& xmlNamespace : namespaces) {
+                if (!xmlNamespace.prefix)
+                    return nullAtom();
+            }
+
+            RefPtr<const Node> ancestorNode = currentNode;
+            while (ancestorNode) {
+                if (RefPtr ancestor = dynamicDowncast<Element>(ancestorNode)) {
+                    if (!ancestor->namespaceURI().isNull() && ancestor->prefix().isNull())
+                        return ancestor->namespaceURI();
+                    auto& xmlnsValue = ancestor->attributeWithoutSynchronization(XMLNSNames::xmlnsAttr);
+                    if (!xmlnsValue.isNull())
+                        return xmlnsValue.isEmpty() ? nullAtom() : xmlnsValue;
+                    ancestorNode = ancestor->parentNode();
+                } else if (RefPtr templateContent = dynamicDowncast<TemplateContentDocumentFragment>(ancestorNode))
+                    ancestorNode = templateContent->host();
+                else
+                    break;
+            }
+            return m_defaultNamespaceURI;
+        }();
     }
 
     bool isFirstElement = !m_sawFirstElement;
@@ -867,7 +889,7 @@ void XMLDocumentParser::startElementNs(const xmlChar* xmlLocalName, const xmlCha
 
     Vector<Attribute> prefixedAttributes;
     bool shouldUseNullCustomElementRegistry = false;
-    bool handledAttributes = handleNamespaceAttributes(prefixedAttributes, libxmlNamespaces, numNamespaces, shouldUseNullCustomElementRegistry);
+    bool handledAttributes = handleNamespaceAttributes(prefixedAttributes, namespaces, shouldUseNullCustomElementRegistry);
     bool success = handledAttributes ? handleElementAttributes(prefixedAttributes, libxmlAttributes, numAttributes, shouldUseNullCustomElementRegistry) : false;
 
     RefPtr registry = shouldUseNullCustomElementRegistry ? nullptr : CustomElementRegistry::registryForNodeOrTreeScope(*currentNode, protect(currentNode->treeScope()));

@@ -356,7 +356,7 @@ inline RefPtr<match_constness_t<Source, Target>> downcast(RefPtr<Source, PtrTrai
     return unsafeRefPtrDowncast<match_constness_t<Source, Target>>(WTF::move(source));
 }
 
-template<typename Target, typename Source, typename TargetPtrTraits = RawPtrTraits<Target>, typename TargetRefDerefTraits = DefaultRefDerefTraits<Target>,
+template<typename Target, typename Source, typename TargetPtrTraits = RawPtrTraits<match_constness_t<Source, Target>>, typename TargetRefDerefTraits = DefaultRefDerefTraits<match_constness_t<Source, Target>>,
     typename SourcePtrTraits, typename SourceRefDerefTraits>
 inline RefPtr<match_constness_t<Source, Target>, TargetPtrTraits, TargetRefDerefTraits> dynamicDowncast(RefPtr<Source, SourcePtrTraits, SourceRefDerefTraits> source)
 {
