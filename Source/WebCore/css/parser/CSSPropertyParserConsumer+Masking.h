@@ -46,9 +46,9 @@ namespace CSSPropertyParserHelpers {
 
 enum class MaskBorderSliceOverride : bool { None, AlwaysFill };
 
-// rect() = rect( [ <length> | auto ]#{4} | [ <length> | auto ]{4} )
-// https://drafts.csswg.org/css-masking/#funcdef-clip-rect
-RefPtr<CSSValue> consumeClipRectFunction(CSSParserTokenRange&, CSS::PropertyParserState&);
+// <'clip'> = <rect()> | auto
+// https://drafts.csswg.org/css-masking/#propdef-clip
+RefPtr<CSSValue> consumeClip(CSSParserTokenRange&, CSS::PropertyParserState&);
 
 // <'clip-path'> = none | <clip-source> | [ <basic-shape> || <geometry-box> ]
 // https://drafts.csswg.org/css-masking/#propdef-clip-path

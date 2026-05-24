@@ -24,22 +24,13 @@
 
 #pragma once
 
-#include <WebCore/StylePrimitiveNumeric.h>
-#include <WebCore/StyleValueTypes.h>
-#include <wtf/Markable.h>
+#include "CSSPrimitiveNumeric.h"
 
 namespace WebCore {
-
 namespace CSS {
-struct Clip;
-struct ClipEdge;
-struct ClipRect;
-}
-
-namespace Style {
 
 // <clip-edge> = <length> | auto
-struct ClipEdge : ValueOrKeyword<Length<>, CSS::Keyword::Auto> {
+struct ClipEdge : ValueOrKeyword<Length<>, Keyword::Auto> {
     using Base::Base;
     using Length = typename Base::Value;
 
@@ -57,7 +48,7 @@ struct ClipRect {
     {
     }
 
-    ClipRect(CSS::Keyword::Auto keyword)
+    ClipRect(Keyword::Auto keyword)
         : value { CommaSeparatedRectEdges<ClipEdge> { keyword } }
     {
     }
@@ -77,7 +68,7 @@ DEFINE_TYPE_WRAPPER_GET(ClipRect, value);
 // <'clip'> = <rect()> | auto
 // https://drafts.csswg.org/css-masking/#propdef-clip
 struct Clip {
-    Clip(CSS::Keyword::Auto)
+    Clip(Keyword::Auto)
         : value { }
     {
     }
@@ -99,41 +90,25 @@ struct Clip {
     {
         auto visitor = WTF::makeVisitor(std::forward<F>(f)...);
 
-        if (isAuto() || value->isAllAuto())
-            return visitor(CSS::Keyword::Auto { });
+        if (isAuto())
+            return visitor(Keyword::Auto { });
         return visitor(*value);
     }
 
     bool operator==(const Clip&) const = default;
 
 private:
-    friend struct Blending<Clip>;
-
     std::optional<ClipRect> value;
 };
 
-// MARK: Conversion
+// MARK: - DeprecatedCSSOMValue Creation
 
-DEFINE_TYPE_MAPPING(CSS::ClipEdge, ClipEdge);
-DEFINE_TYPE_MAPPING(CSS::ClipRect, ClipRect);
-DEFINE_TYPE_MAPPING(CSS::Clip, Clip);
+// Specialized to return a `DeprecatedCSSOMPrimitiveValue`.
+template<> struct DeprecatedCSSOMValueCreation<ClipRect> { Ref<DeprecatedCSSOMValue> operator()(CSSValuePool&, CSSStyleDeclaration&, const ClipRect&); };
 
-template<> struct CSSValueConversion<Clip> { auto operator()(BuilderState&, const CSSValue&) -> Clip; };
-
-// `Clip` is special-cased to return a `CSSClipValue`.
-template<> struct CSSValueCreation<Clip> { Ref<CSSValue> operator()(CSSValuePool&, const RenderStyle&, const Clip&); };
-
-// MARK: - Blending
-
-template<> struct Blending<Clip> {
-    bool NODELETE canBlend(const Clip&, const Clip&);
-    bool NODELETE requiresInterpolationForAccumulativeIteration(const Clip&, const Clip&);
-    auto blend(const Clip&, const Clip&, const BlendingContext&) -> Clip;
-};
-
-} // namespace Style
+} // namespace CSS
 } // namespace WebCore
 
-DEFINE_TUPLE_LIKE_CONFORMANCE_FOR_TYPE_WRAPPER(WebCore::Style::ClipRect);
-DEFINE_VARIANT_LIKE_CONFORMANCE(WebCore::Style::ClipEdge);
-DEFINE_VARIANT_LIKE_CONFORMANCE(WebCore::Style::Clip);
+DEFINE_TUPLE_LIKE_CONFORMANCE_FOR_TYPE_WRAPPER(WebCore::CSS::ClipRect);
+DEFINE_VARIANT_LIKE_CONFORMANCE(WebCore::CSS::ClipEdge);
+DEFINE_VARIANT_LIKE_CONFORMANCE(WebCore::CSS::Clip);

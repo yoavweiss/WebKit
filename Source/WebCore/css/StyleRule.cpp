@@ -45,6 +45,7 @@
 #include "CSSSerializationContext.h"
 #include "CSSStartingStyleRule.h"
 #include "CSSStyleRule.h"
+#include "CSSStyleSheet.h"
 #include "CSSSupportsRule.h"
 #include "CSSViewTransitionRule.h"
 #include "MediaList.h"

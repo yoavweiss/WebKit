@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -16,6 +16,7 @@
  * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE INC. OR
  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
@@ -24,29 +25,29 @@
 
 #pragma once
 
-#include "CSSPrimitiveNumericTypes.h"
-#include "CSSPrimitiveValue.h"
-#include "CSSValuePool.h"
-#include "CSSValueTypes.h"
+#include "CSSClip.h"
+#include "CSSValue.h"
 
 namespace WebCore {
-namespace CSS {
 
-// MARK: - Conversion from strongly typed `CSS::` value types to `WebCore::CSSValue` types.
+class CSSClipValue final : public CSSValue {
+public:
+    static Ref<CSSClipValue> create(CSS::Clip&&);
+    ~CSSClipValue();
 
-template<NumericRaw CSSType> struct CSSValueCreation<CSSType> {
-    Ref<CSSValue> operator()(CSSValuePool&, const CSSType& raw)
-    {
-        return CSSPrimitiveValue::create(raw.value, toCSSUnitType(raw.unit));
-    }
+    const CSS::Clip& clip() const LIFETIME_BOUND { return m_clip; }
+
+    String customCSSText(const CSS::SerializationContext&) const;
+    bool equals(const CSSClipValue&) const;
+
+    Ref<DeprecatedCSSOMValue> createDeprecatedCSSOMWrapper(CSSStyleDeclaration&) const;
+
+private:
+    CSSClipValue(CSS::Clip&&);
+
+    CSS::Clip m_clip;
 };
 
-template<Calc CSSType> struct CSSValueCreation<CSSType> {
-    Ref<CSSValue> operator()(CSSValuePool&, const CSSType& calc)
-    {
-        return CSSPrimitiveValue::create(calc);
-    }
-};
-
-} // namespace CSS
 } // namespace WebCore
+
+SPECIALIZE_TYPE_TRAITS_CSS_VALUE(CSSClipValue, isClipValue())

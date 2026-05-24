@@ -41,6 +41,7 @@
 #include "CSSBorderImageWidthValue.h"
 #include "CSSBoxShadowPropertyValue.h"
 #include "CSSCanvasValue.h"
+#include "CSSClipValue.h"
 #include "CSSColorSchemeValue.h"
 #include "CSSColorValue.h"
 #include "CSSCounterValue.h"
@@ -143,6 +144,8 @@ template<typename Visitor> constexpr decltype(auto) CSSValue::visitDerived(Visit
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSBoxShadowPropertyValue>(*this));
     case Canvas:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSCanvasValue>(*this));
+    case Clip:
+        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSClipValue>(*this));
     case Color:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSColorValue>(*this));
 #if ENABLE(DARK_MODE_CSS)
@@ -399,12 +402,6 @@ Ref<DeprecatedCSSOMValue> CSSValue::createDeprecatedCSSOMWrapper(CSSStyleDeclara
 {
     using enum CSSValue::ClassType;
     switch (m_classType) {
-    case Image:
-        return uncheckedDowncast<CSSImageValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
-    case BorderImageSource:
-        return uncheckedDowncast<CSSBorderImageSourceValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
-    case MaskBorderSource:
-        return uncheckedDowncast<CSSMaskBorderSourceValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
     case Primitive:
     case Color:
     case Counter:
@@ -417,13 +414,21 @@ Ref<DeprecatedCSSOMValue> CSSValue::createDeprecatedCSSOMWrapper(CSSStyleDeclara
     case String:
     case ValuePair:
         return DeprecatedCSSOMPrimitiveValue::create(*this, styleDeclaration);
+
     case ValueList:
     case ImageSet: // FIXME: Likely this class should not be exposed and serialized as a CSSValueList. Confirm and remove this case.
     case TransformList:
         return DeprecatedCSSOMValueList::create(downcast<CSSValueContainingVector>(*this), styleDeclaration);
 
-    // To maintain existing behavior, properties that used to be CSSValueLists that now have strong value representations
-    // need custom wrapper code to create a `DeprecatedCSSOMValueList`.
+    // To maintain existing behavior, some values require custom `createDeprecatedCSSOMWrapper` to build the needed `DeprecatedCSSOMValue` type tree.
+    case Clip:
+        return uncheckedDowncast<CSSClipValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
+    case Image:
+        return uncheckedDowncast<CSSImageValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
+    case BorderImageSource:
+        return uncheckedDowncast<CSSBorderImageSourceValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
+    case MaskBorderSource:
+        return uncheckedDowncast<CSSMaskBorderSourceValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
     case AppleColorFilter:
         return uncheckedDowncast<CSSAppleColorFilterValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
     case BoxShadowProperty:

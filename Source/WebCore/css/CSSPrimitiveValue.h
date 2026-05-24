@@ -37,6 +37,10 @@ class FontCascade;
 class RenderStyle;
 class RenderView;
 
+namespace CSS {
+class UnevaluatedCalcBase;
+}
+
 namespace CSSCalc {
 class Value;
 Ref<const Value> CLANG_POINTER_CONVERSION protect(const Value&);
@@ -68,7 +72,7 @@ public:
     static Ref<CSSPrimitiveValue> create(double);
     static Ref<CSSPrimitiveValue> create(double, CSSUnitType);
     static Ref<CSSPrimitiveValue> NODELETE createInteger(double);
-    static Ref<CSSPrimitiveValue> create(Ref<CSSCalc::Value>);
+    static Ref<CSSPrimitiveValue> create(CSS::UnevaluatedCalcBase);
 
     ~CSSPrimitiveValue();
 
@@ -110,7 +114,7 @@ private:
 
     CSSPrimitiveValue(const String&, CSSUnitType);
     CSSPrimitiveValue(double, CSSUnitType);
-    explicit CSSPrimitiveValue(Ref<CSSCalc::Value>);
+    CSSPrimitiveValue(CSS::UnevaluatedCalcBase&&);
 
     CSSPrimitiveValue(StaticCSSValueTag, double, CSSUnitType);
 

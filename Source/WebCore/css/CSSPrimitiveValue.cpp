@@ -31,6 +31,7 @@
 #include "CSSPrimitiveNumericTypes+Serialization.h"
 #include "CSSSerializationContext.h"
 #include "CSSToLengthConversionData.h"
+#include "CSSUnevaluatedCalc.h"
 #include "CSSValueKeywords.h"
 #include "CSSValuePool.h"
 #include "ComputedStyleDependencies.h"
@@ -40,7 +41,6 @@
 #include "RenderBoxInlines.h"
 #include "RenderStyle.h"
 #include "RenderView.h"
-#include "StyleCalculationValue.h"
 #include "StyleLengthResolution.h"
 #include "StylePrimitiveNumericTypes+Rounding.h"
 #include <wtf/Hasher.h>
@@ -77,7 +77,7 @@ CSSPrimitiveValue::CSSPrimitiveValue(StaticCSSValueTag, double number, CSSUnitTy
     makeStatic();
 }
 
-CSSPrimitiveValue::CSSPrimitiveValue(Ref<CSSCalc::Value> value)
+CSSPrimitiveValue::CSSPrimitiveValue(CSS::UnevaluatedCalcBase&& value)
     : CSSValue(ClassType::Primitive)
 {
     setPrimitiveUnitType(CSSUnitType::CSS_CALC);
@@ -219,7 +219,7 @@ Ref<CSSPrimitiveValue> CSSPrimitiveValue::create(double value, CSSUnitType type)
     return adoptRef(*new CSSPrimitiveValue(value, type));
 }
 
-Ref<CSSPrimitiveValue> CSSPrimitiveValue::create(Ref<CSSCalc::Value> value)
+Ref<CSSPrimitiveValue> CSSPrimitiveValue::create(CSS::UnevaluatedCalcBase value)
 {
     return adoptRef(*new CSSPrimitiveValue(WTF::move(value)));
 }

@@ -26,6 +26,7 @@
 #include "config.h"
 #include "CSSPropertyParserConsumer+Masking.h"
 
+#include "CSSClipValue.h"
 #include "CSSKeywordValueInlines.h"
 #include "CSSMaskBorder.h"
 #include "CSSMaskBorderOutsetValue.h"
@@ -35,9 +36,9 @@
 #include "CSSMaskBorderWidthValue.h"
 #include "CSSParserContext.h"
 #include "CSSParserTokenRange.h"
+#include "CSSParserTokenRangeGuard.h"
 #include "CSSPrimitiveValue.h"
 #include "CSSPropertyParserConsumer+Background.h"
-#include "CSSPropertyParserConsumer+CSSPrimitiveValueResolver.h"
 #include "CSSPropertyParserConsumer+Ident.h"
 #include "CSSPropertyParserConsumer+Image.h"
 #include "CSSPropertyParserConsumer+LengthDefinitions.h"
@@ -51,28 +52,29 @@
 #include "CSSPropertyParserConsumer+URL.h"
 #include "CSSPropertyParserState.h"
 #include "CSSPropertyParsing.h"
-#include "CSSRectValue.h"
 #include "CSSValueKeywords.h"
 #include "CSSValueList.h"
 
 namespace WebCore {
 namespace CSSPropertyParserHelpers {
 
-RefPtr<CSSValue> consumeClipRectFunction(CSSParserTokenRange& range, CSS::PropertyParserState& state)
+static std::optional<CSS::ClipRect> consumeUnresolvedClipRectFunction(CSSParserTokenRange& range, CSS::PropertyParserState& state)
 {
     // rect() = rect( <top>, <right>, <bottom>, <left> )
     // "<top>, <right>, <bottom>, and <left> may either have a <length> value or auto."
     // https://drafts.fxtf.org/css-masking/#funcdef-clip-rect
 
     if (range.peek().functionId() != CSSValueRect)
-        return nullptr;
+        return std::nullopt;
 
-    CSSParserTokenRange args = consumeFunction(range);
+    CSSParserTokenRangeGuard guard { range };
 
-    auto consumeClipComponent = [&] -> RefPtr<CSSValue> {
-        if (args.peek().id() == CSSValueAuto)
-            return consumeIdent(args);
-        return CSSPrimitiveValueResolver<CSS::Length<>>::consumeAndResolve(args, state);
+    auto args = consumeFunction(range);
+
+    auto consumeClipEdge = [&] -> std::optional<CSS::ClipEdge> {
+        if (auto autoKeyword = consumeSpecificUnresolvedIdent<CSS::Keyword::Auto>(args))
+            return CSS::ClipEdge { *autoKeyword };
+        return MetaConsumer<CSS::ClipEdge::Length>::consume(args, state);
     };
 
     // Support both rect(t, r, b, l) and rect(t r b l).
@@ -80,32 +82,55 @@ RefPtr<CSSValue> consumeClipRectFunction(CSSParserTokenRange& range, CSS::Proper
     // "User agents must support separation with commas, but may also support
     //  separation without commas (but not a combination), because a previous
     //  revision of this specification was ambiguous in this respect"
-    auto top = consumeClipComponent();
+    auto top = consumeClipEdge();
     if (!top)
-        return nullptr;
+        return std::nullopt;
 
     bool needsComma = consumeCommaIncludingWhitespace(args);
 
-    auto right = consumeClipComponent();
+    auto right = consumeClipEdge();
     if (!right || (needsComma && !consumeCommaIncludingWhitespace(args)))
-        return nullptr;
+        return std::nullopt;
 
-    auto bottom = consumeClipComponent();
+    auto bottom = consumeClipEdge();
     if (!bottom || (needsComma && !consumeCommaIncludingWhitespace(args)))
-        return nullptr;
+        return std::nullopt;
 
-    auto left = consumeClipComponent();
+    auto left = consumeClipEdge();
     if (!left || !args.atEnd())
-        return nullptr;
+        return std::nullopt;
 
-    return CSSRectValue::create(
-        Rect {
-            top.releaseNonNull(),
-            right.releaseNonNull(),
-            bottom.releaseNonNull(),
-            left.releaseNonNull()
-        }
-    );
+    guard.commit();
+    return CSS::ClipRect {
+        WTF::move(*top),
+        WTF::move(*right),
+        WTF::move(*bottom),
+        WTF::move(*left),
+    };
+}
+
+static std::optional<CSS::Clip> consumeUnresolvedClip(CSSParserTokenRange& range, CSS::PropertyParserState& state)
+{
+    // <'clip'> = <rect()> | auto
+    // https://drafts.csswg.org/css-masking/#propdef-clip
+
+    if (auto keyword = consumeSpecificUnresolvedIdent<CSS::Keyword::Auto>(range))
+        return CSS::Clip { *keyword };
+
+    if (auto clipRectFunction = consumeUnresolvedClipRectFunction(range, state))
+        return CSS::Clip { WTF::move(*clipRectFunction) };
+
+    return std::nullopt;
+}
+
+RefPtr<CSSValue> consumeClip(CSSParserTokenRange& range, CSS::PropertyParserState& state)
+{
+    // <'clip'> = <rect()> | auto
+    // https://drafts.csswg.org/css-masking/#propdef-clip
+
+    if (auto unresolved = consumeUnresolvedClip(range, state))
+        return CSSClipValue::create(WTF::move(*unresolved));
+    return nullptr;
 }
 
 RefPtr<CSSValue> consumeClipPath(CSSParserTokenRange& range, CSS::PropertyParserState& state)

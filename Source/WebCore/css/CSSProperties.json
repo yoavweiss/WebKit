@@ -4145,7 +4145,9 @@
                 "computed-style-storage-path": ["m_nonInheritedData", "rareData"],
                 "computed-style-storage-kind": "reference",
                 "computed-style-type": "Style::Clip",
-                "parser-grammar": "<rect()> | auto"
+                "parser-function": "consumeClip",
+                "parser-grammar-unused": "<rect()> | auto",
+                "parser-grammar-unused-reason": "Needs support for the strong value representation."
             },
             "specification": {
                 "category": "css-masking",
@@ -14408,9 +14410,7 @@
             }
         },
         "<rect()>": {
-            "grammar-unused": "rect( [ <length> | auto ]#{4} | [ <length> | auto ]{4} )",
-            "grammar-unused-reason": "Needs support for custom types for functional notation.",
-            "grammar-function": "consumeClipRectFunction",
+            "grammar": "rect( [ <length> | auto ]#{4} | [ <length> | auto ]{4} )",
             "specification": {
                 "category": "css-masking",
                 "url": "https://drafts.fxtf.org/css-masking-1/#funcdef-clip-rect"

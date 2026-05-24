@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -16,37 +16,46 @@
  * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE INC. OR
  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "config.h"
+#include "CSSClipValue.h"
 
-#include "CSSPrimitiveNumericTypes.h"
-#include "CSSPrimitiveValue.h"
-#include "CSSValuePool.h"
-#include "CSSValueTypes.h"
+#include "CSSPrimitiveNumericTypes+Serialization.h"
 
 namespace WebCore {
-namespace CSS {
 
-// MARK: - Conversion from strongly typed `CSS::` value types to `WebCore::CSSValue` types.
+CSSClipValue::CSSClipValue(CSS::Clip&& clip)
+    : CSSValue(ClassType::Clip)
+    , m_clip(WTF::move(clip))
+{
+}
 
-template<NumericRaw CSSType> struct CSSValueCreation<CSSType> {
-    Ref<CSSValue> operator()(CSSValuePool&, const CSSType& raw)
-    {
-        return CSSPrimitiveValue::create(raw.value, toCSSUnitType(raw.unit));
-    }
-};
+CSSClipValue::~CSSClipValue() = default;
 
-template<Calc CSSType> struct CSSValueCreation<CSSType> {
-    Ref<CSSValue> operator()(CSSValuePool&, const CSSType& calc)
-    {
-        return CSSPrimitiveValue::create(calc);
-    }
-};
+Ref<CSSClipValue> CSSClipValue::create(CSS::Clip&& clip)
+{
+    return adoptRef(*new CSSClipValue(WTF::move(clip)));
+}
 
-} // namespace CSS
+String CSSClipValue::customCSSText(const CSS::SerializationContext& context) const
+{
+    return CSS::serializationForCSS(context, m_clip);
+}
+
+bool CSSClipValue::equals(const CSSClipValue& other) const
+{
+    return m_clip == other.m_clip;
+}
+
+Ref<DeprecatedCSSOMValue> CSSClipValue::createDeprecatedCSSOMWrapper(CSSStyleDeclaration& owner) const
+{
+    return CSS::createDeprecatedCSSOMValue(CSSValuePool::singleton(), owner, m_clip);
+}
+
 } // namespace WebCore

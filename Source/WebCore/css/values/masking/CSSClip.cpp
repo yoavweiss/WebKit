@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -22,31 +22,25 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "config.h"
+#include "CSSClip.h"
 
-#include "CSSPrimitiveNumericTypes.h"
-#include "CSSPrimitiveValue.h"
-#include "CSSValuePool.h"
-#include "CSSValueTypes.h"
+#include "CSSPrimitiveNumericTypes+CSSValueCreation.h"
+#include "CSSRectValue.h"
+#include "DeprecatedCSSOMPrimitiveValue.h"
 
 namespace WebCore {
 namespace CSS {
 
-// MARK: - Conversion from strongly typed `CSS::` value types to `WebCore::CSSValue` types.
+Ref<DeprecatedCSSOMValue> DeprecatedCSSOMValueCreation<ClipRect>::operator()(CSSValuePool& pool, CSSStyleDeclaration& owner, const ClipRect& value)
+{
+    return DeprecatedCSSOMPrimitiveValue::create(CSSRectValue::create({
+        createCSSValue(pool, value.value->top()),
+        createCSSValue(pool, value.value->right()),
+        createCSSValue(pool, value.value->bottom()),
+        createCSSValue(pool, value.value->left()),
+    }), owner);
+}
 
-template<NumericRaw CSSType> struct CSSValueCreation<CSSType> {
-    Ref<CSSValue> operator()(CSSValuePool&, const CSSType& raw)
-    {
-        return CSSPrimitiveValue::create(raw.value, toCSSUnitType(raw.unit));
-    }
-};
-
-template<Calc CSSType> struct CSSValueCreation<CSSType> {
-    Ref<CSSValue> operator()(CSSValuePool&, const CSSType& calc)
-    {
-        return CSSPrimitiveValue::create(calc);
-    }
-};
-
-} // namespace CSS
+} // namespace Style
 } // namespace WebCore

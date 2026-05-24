@@ -26,8 +26,8 @@
 #include "StyleClip.h"
 
 #include "AnimationUtilities.h"
+#include "CSSClipValue.h"
 #include "CSSKeywordValueInlines.h"
-#include "CSSRectValue.h"
 #include "StyleBuilderChecking.h"
 #include "StylePrimitiveNumericTypes+Blending.h"
 #include "StylePrimitiveNumericTypes+CSSValueConversion.h"
@@ -43,32 +43,16 @@ auto CSSValueConversion<Clip>::operator()(BuilderState& state, const CSSValue& v
     if (isValueID(value, CSSValueAuto))
         return CSS::Keyword::Auto { };
 
-    RefPtr rectValue = requiredDowncast<CSSRectValue>(state, value);
-    if (!rectValue)
+    RefPtr clipValue = requiredDowncast<CSSClipValue>(state, value);
+    if (!clipValue)
         return CSS::Keyword::Auto { };
 
-    auto convertEdge = [&](Ref<const CSSValue>&& value) -> ClipEdge {
-        if (isValueID(value.get(), CSSValueAuto))
-            return CSS::Keyword::Auto { };
-        return toStyleFromCSSValue<Length<>>(state, value);
-    };
-
-    return ClipRect {
-        convertEdge(rectValue->rect().top()),
-        convertEdge(rectValue->rect().right()),
-        convertEdge(rectValue->rect().bottom()),
-        convertEdge(rectValue->rect().left()),
-    };
+    return toStyle(clipValue->clip(), state);
 }
 
-Ref<CSSValue> CSSValueCreation<ClipRect>::operator()(CSSValuePool& pool, const RenderStyle& style, const ClipRect& clipRect)
+Ref<CSSValue> CSSValueCreation<Clip>::operator()(CSSValuePool&, const RenderStyle& style, const Clip& clip)
 {
-    return CSSRectValue::create({
-        createCSSValue(pool, style, clipRect.value->top()),
-        createCSSValue(pool, style, clipRect.value->right()),
-        createCSSValue(pool, style, clipRect.value->bottom()),
-        createCSSValue(pool, style, clipRect.value->left()),
-    });
+    return CSSClipValue::create(toCSS(clip, style));
 }
 
 // MARK: - Blending

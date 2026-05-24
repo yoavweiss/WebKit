@@ -35,6 +35,7 @@
 #include "CSSBorderImageSourceValue.h"
 #include "CSSBoxShadowPropertyValue.h"
 #include "CSSCalcValue.h"
+#include "CSSClipValue.h"
 #include "CSSCustomIdentValue.h"
 #include "CSSCustomPropertyValue.h"
 #include "CSSEasingFunctionValue.h"
@@ -442,6 +443,15 @@ ExceptionOr<Ref<CSSStyleValue>> CSSStyleValueFactory::reifyValue(Document& docum
             },
             [&](const CSS::ImageWrapper& imageWrapper) -> ExceptionOr<Ref<CSSStyleValue>> {
                 return reifyValue(document, imageWrapper.value, WTF::move(associatedProperty));
+            }
+        );
+    } else if (RefPtr property = dynamicDowncast<CSSClipValue>(cssValue)) {
+        return WTF::switchOn(property->clip(),
+            [&](CSS::Keyword::Auto keyword) -> ExceptionOr<Ref<CSSStyleValue>> {
+                return WebCore::reifyValue(keyword);
+            },
+            [&](const CSS::ClipRect&) -> ExceptionOr<Ref<CSSStyleValue>> {
+                return CSSStyleValue::create(Ref(const_cast<CSSValue&>(cssValue)), WTF::move(associatedProperty));
             }
         );
     } else if (auto* valueList = dynamicDowncast<CSSValueList>(cssValue)) {

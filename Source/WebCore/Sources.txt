@@ -895,6 +895,7 @@ css/CSSBorderImageSourceValue.cpp
 css/CSSBorderImageWidthValue.cpp
 css/CSSBoxShadowPropertyValue.cpp
 css/CSSCanvasValue.cpp
+css/CSSClipValue.cpp
 css/CSSColorSchemeValue.cpp
 css/CSSColorValue.cpp
 css/CSSComputedStyleDeclaration.cpp @header:RenderStyleGetters
@@ -1204,6 +1205,7 @@ css/values/grid/CSSGridTemplateList.cpp
 css/values/grid/CSSGridTrackSizes.cpp
 css/values/images/CSSGradient.cpp
 css/values/images/CSSImageWrapper.cpp
+css/values/masking/CSSClip.cpp
 css/values/masking/CSSMaskBorderOutset.cpp
 css/values/masking/CSSMaskBorderRepeat.cpp
 css/values/masking/CSSMaskBorderSlice.cpp
