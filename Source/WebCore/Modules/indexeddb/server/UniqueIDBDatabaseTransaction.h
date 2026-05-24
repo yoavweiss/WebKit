@@ -62,7 +62,7 @@ public:
 
     WEBCORE_EXPORT ~UniqueIDBDatabaseTransaction();
 
-    UniqueIDBDatabaseConnection* NODELETE databaseConnection() const;
+    WEBCORE_EXPORT UniqueIDBDatabaseConnection* NODELETE databaseConnection() const;
     UniqueIDBDatabase* NODELETE database() const;
     const IDBTransactionInfo& info() const LIFETIME_BOUND { return m_transactionInfo; }
     WEBCORE_EXPORT bool NODELETE isVersionChange() const;
