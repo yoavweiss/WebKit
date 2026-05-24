@@ -1348,15 +1348,14 @@ void FrameLoader::loadInSameDocument(URL url, RefPtr<SerializedScriptValue> stat
         // we have already saved away the scroll and doc state for the long slow load,
         // but it's not an obvious case.
 
-        if (historyHandling == NavigationHistoryBehavior::Replace)
-            history().updateBackForwardListForReplaceState(nullptr, url.string());
-        else
-            history().updateBackForwardListForFragmentScroll();
+        auto wasCreatedByJSWithoutUserInteraction = HistoryController::WasCreatedByJSWithoutUserInteraction::No;
+        if (!document->hasRecentUserInteractionForNavigationFromJS() && !documentLoader()->triggeringAction().isRequestFromClientOrUserInput())
+            wasCreatedByJSWithoutUserInteraction = HistoryController::WasCreatedByJSWithoutUserInteraction::Yes;
 
-        if (!document->hasRecentUserInteractionForNavigationFromJS() && !documentLoader()->triggeringAction().isRequestFromClientOrUserInput()) {
-            if (RefPtr currentItem = history().currentItem())
-                currentItem->setWasCreatedByJSWithoutUserInteraction(true);
-        }
+        if (historyHandling == NavigationHistoryBehavior::Replace)
+            history().updateBackForwardListForReplaceState(nullptr, url.string(), wasCreatedByJSWithoutUserInteraction);
+        else
+            history().updateBackForwardListForFragmentScroll(wasCreatedByJSWithoutUserInteraction);
     }
 
     bool hashChange = equalIgnoringFragmentIdentifier(url, oldURL) && !equalRespectingNullity(url.fragmentIdentifier(), oldURL.fragmentIdentifier());

@@ -1941,3 +1941,60 @@ TEST(WKBackForwardList, BackButtonWorksAfterUserClickFromJSCreatedPage)
 
     EXPECT_STREQ([popupWebView URL].absoluteString.UTF8String, server.request("/pageA"_s).URL.absoluteString.UTF8String);
 }
+
+@interface ItemAddedRecordingDelegate : NSObject <WKNavigationDelegatePrivate>
+@end
+
+@implementation ItemAddedRecordingDelegate {
+@public
+    NSUInteger _itemAddedCount;
+    BOOL _lastAddedItemFlag;
+    BOOL _didNavigate;
+}
+
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
+{
+    _didNavigate = YES;
+}
+
+- (void)_webView:(WKWebView *)webView navigation:(WKNavigation *)navigation didSameDocumentNavigation:(_WKSameDocumentNavigationType)navigationType
+{
+    if (navigationType == _WKSameDocumentNavigationTypeSessionStatePush || navigationType == _WKSameDocumentNavigationTypeSessionStatePop)
+        _didNavigate = YES;
+}
+
+- (void)_webView:(WKWebView *)webView backForwardListItemAdded:(WKBackForwardListItem *)itemAdded removed:(NSArray<WKBackForwardListItem *> *)itemsRemoved
+{
+    ++_itemAddedCount;
+    _lastAddedItemFlag = itemAdded._wasCreatedByJSWithoutUserInteraction;
+}
+
+@end
+
+TEST(WKBackForwardList, ItemAddedDelegateObservesUserGestureFlagAtCallbackTime)
+{
+    // Before this change, we first added a HistoryItem to the session history and then updated it
+    // as being "made by JS without user gesture" as a separate step.
+    // After this change, items with that flag should be created with that flag and not updated later.
+    //
+    // The separate update was visible to API clients which was unintended, so this test makes sure
+    // the updating doesn't happen.
+    RetainPtr delegate = adoptNS([ItemAddedRecordingDelegate new]);
+    RetainPtr webView = adoptNS([WKWebView new]);
+    [webView setNavigationDelegate:delegate.get()];
+
+    RetainPtr url = [NSBundle.test_resourcesBundle URLForResource:@"simple" withExtension:@"html"];
+    [webView loadRequest:[NSURLRequest requestWithURL:url.get()]];
+    TestWebKitAPI::Util::run(&delegate.get()->_didNavigate);
+
+    // The initial load fired one callback for the first item (flag=NO). Reset to track the next.
+    delegate.get()->_itemAddedCount = 0;
+    delegate.get()->_lastAddedItemFlag = NO;
+    delegate.get()->_didNavigate = NO;
+
+    [webView _evaluateJavaScriptWithoutUserGesture:@"location.hash = '#a';" completionHandler:nil];
+    TestWebKitAPI::Util::run(&delegate.get()->_didNavigate);
+
+    EXPECT_EQ(delegate.get()->_itemAddedCount, 1U);
+    EXPECT_TRUE(delegate.get()->_lastAddedItemFlag);
+}

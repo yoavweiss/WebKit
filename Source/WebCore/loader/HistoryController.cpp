@@ -205,10 +205,10 @@ void HistoryController::restoreScrollPositionAndViewState()
 #endif
 }
 
-void HistoryController::updateBackForwardListForFragmentScroll()
+void HistoryController::updateBackForwardListForFragmentScroll(WasCreatedByJSWithoutUserInteraction wasCreatedByJSWithoutUserInteraction)
 {
     m_frame->navigationScheduler().adjustPendingHistoryNavigationForNewBackForwardEntry();
-    updateBackForwardListClippedAtTarget(false);
+    updateBackForwardListClippedAtTarget(false, wasCreatedByJSWithoutUserInteraction);
 }
 
 void HistoryController::saveDocumentState()
@@ -568,17 +568,18 @@ void HistoryController::updateForStandardLoad(HistoryUpdateType updateType)
     RefPtr documentLoader = frameLoader->documentLoader();
     if (!frameLoader->documentLoader()->isClientRedirect()) {
         if (!historyURL.isEmpty()) {
-            if (updateType != UpdateAllExceptBackForwardList)
-                updateBackForwardListClippedAtTarget(true);
-
+            auto wasCreatedByJSWithoutUserInteraction = WasCreatedByJSWithoutUserInteraction::No;
 #if PLATFORM(COCOA)
-            if (linkedOnOrAfterSDKWithBehavior(SDKAlignedBehavior::AllBackForwardItemsWithoutUserGestureInvisibleToUI)) {
-                if (m_currentItem && m_frame->isMainFrame() && !documentLoader->triggeringAction().processingUserGesture() && !documentLoader->isRequestFromClientOrUserInput()) {
-                    if (RefPtr document = m_frame->document(); document && !document->hasRecentUserInteractionForNavigationFromJS())
-                        m_currentItem->setWasCreatedByJSWithoutUserInteraction(true);
-                }
+            if (linkedOnOrAfterSDKWithBehavior(SDKAlignedBehavior::AllBackForwardItemsWithoutUserGestureInvisibleToUI)
+                && m_frame->isMainFrame()
+                && !documentLoader->triggeringAction().processingUserGesture()
+                && !documentLoader->isRequestFromClientOrUserInput()) {
+                if (RefPtr document = m_frame->document(); document && !document->hasRecentUserInteractionForNavigationFromJS())
+                    wasCreatedByJSWithoutUserInteraction = WasCreatedByJSWithoutUserInteraction::Yes;
             }
 #endif
+            if (updateType != UpdateAllExceptBackForwardList)
+                updateBackForwardListClippedAtTarget(true, wasCreatedByJSWithoutUserInteraction);
 
             if (canRecordHistory) {
                 protect(frameLoader->client())->updateGlobalHistory();
@@ -1010,11 +1011,11 @@ bool HistoryController::itemsAreClones(HistoryItem& item1, HistoryItem* item2)
         && item1.itemSequenceNumber() == item2->itemSequenceNumber();
 }
 
-void HistoryController::updateBackForwardListClippedAtTarget(bool doClip)
+void HistoryController::updateBackForwardListClippedAtTarget(bool doClip, WasCreatedByJSWithoutUserInteraction wasCreatedByJSWithoutUserInteraction)
 {
-    // In the case of saving state about a page with frames, we store a tree of items that mirrors the frame tree.  
-    // The item that was the target of the user's navigation is designated as the "targetItem".  
-    // When this function is called with doClip=true we're able to create the whole tree except for the target's children, 
+    // In the case of saving state about a page with frames, we store a tree of items that mirrors the frame tree.
+    // The item that was the target of the user's navigation is designated as the "targetItem".
+    // When this function is called with doClip=true we're able to create the whole tree except for the target's children,
     // which will be loaded in the future. That part of the tree will be filled out as the child loads are committed.
     Ref frame = m_frame.get();
     RefPtr page = frame->page();
@@ -1027,6 +1028,9 @@ void HistoryController::updateBackForwardListClippedAtTarget(bool doClip)
     RefPtr item = protect(frame->loader().client())->createHistoryItemTree(doClip, BackForwardItemIdentifier::generate());
     if (!item)
         return;
+
+    if (wasCreatedByJSWithoutUserInteraction)
+        item->setWasCreatedByJSWithoutUserInteraction(true);
     LOG(History, "HistoryController %p updateBackForwardListClippedAtTarget: Adding backforward item %p in frame %p (main frame %d) %s", this, item.get(), m_frame.ptr(), m_frame->isMainFrame(), m_frame->loader().documentLoader()->url().string().utf8().data());
     protect(page->backForward())->addItem(item.releaseNonNull());
 }
@@ -1104,7 +1108,7 @@ void HistoryController::pushState(RefPtr<SerializedScriptValue>&& stateObject, c
     protect(frame->loader().client())->updateGlobalHistory();
 }
 
-void HistoryController::updateBackForwardListForReplaceState(RefPtr<SerializedScriptValue>&& stateObject, const String& urlString)
+void HistoryController::updateBackForwardListForReplaceState(RefPtr<SerializedScriptValue>&& stateObject, const String& urlString, WasCreatedByJSWithoutUserInteraction wasCreatedByJSWithoutUserInteraction)
 {
     RefPtr currentItem = m_currentItem;
     if (!currentItem)
@@ -1117,6 +1121,8 @@ void HistoryController::updateBackForwardListForReplaceState(RefPtr<SerializedSc
     currentItem->setStateObject(WTF::move(stateObject));
     currentItem->setFormData(nullptr);
     currentItem->setFormContentType(String());
+    if (wasCreatedByJSWithoutUserInteraction)
+        currentItem->setWasCreatedByJSWithoutUserInteraction(true);
     currentItem->notifyChanged();
 }
 

@@ -51,6 +51,7 @@ class HistoryController final : public CanMakeWeakPtr<HistoryController>  {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(HistoryController, Loader);
 public:
     enum HistoryUpdateType { UpdateAll, UpdateAllExceptBackForwardList };
+    enum WasCreatedByJSWithoutUserInteraction : bool { No, Yes };
 
     explicit HistoryController(LocalFrame&);
     ~HistoryController();
@@ -61,8 +62,8 @@ public:
     WEBCORE_EXPORT void saveScrollPositionAndViewStateToItem(HistoryItem*);
     WEBCORE_EXPORT void restoreScrollPositionAndViewState();
 
-    void updateBackForwardListForFragmentScroll();
-    void updateBackForwardListForReplaceState(RefPtr<SerializedScriptValue>&&, const String&);
+    void updateBackForwardListForFragmentScroll(WasCreatedByJSWithoutUserInteraction = WasCreatedByJSWithoutUserInteraction::No);
+    void updateBackForwardListForReplaceState(RefPtr<SerializedScriptValue>&&, const String&, WasCreatedByJSWithoutUserInteraction = WasCreatedByJSWithoutUserInteraction::No);
 
     void saveDocumentState();
     WEBCORE_EXPORT void saveDocumentAndScrollState();
@@ -121,7 +122,7 @@ private:
     void recursiveUpdateForCommit();
     void recursiveUpdateForSameDocumentNavigation();
     static bool NODELETE itemsAreClones(HistoryItem&, HistoryItem*);
-    void updateBackForwardListClippedAtTarget(bool doClip);
+    void updateBackForwardListClippedAtTarget(bool doClip, WasCreatedByJSWithoutUserInteraction = WasCreatedByJSWithoutUserInteraction::No);
     void updateCurrentItem();
     bool isFrameLoadComplete() const { return m_frameLoadComplete; }
 
