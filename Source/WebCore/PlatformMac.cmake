@@ -5,8 +5,30 @@ include(PlatformCocoa.cmake)
 file(COPY "${WEBCORE_DIR}/en.lproj"
      DESTINATION "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/WebCore.framework/Versions/A/Resources")
 
-# Copy the proper resources over, mirroring Xcode.
-file(GLOB WebCore_BUNDLE_RESOURCES CONFIGURE_DEPENDS "${WEBCORE_DIR}/Resources/*")
+# Copy the proper resources over, mirroring Xcode's Resources build phase.
+# Listed explicitly (rather than globbed) so null builds stay clean.
+set(WebCore_BUNDLE_RESOURCES
+    ${WEBCORE_DIR}/Resources/ContentFilterBlockedPage.html
+    ${WEBCORE_DIR}/Resources/ListButtonArrow.png
+    ${WEBCORE_DIR}/Resources/ListButtonArrow@2x.png
+    ${WEBCORE_DIR}/Resources/copyCursor.png
+    ${WEBCORE_DIR}/Resources/deleteButtonPressed.tiff
+    ${WEBCORE_DIR}/Resources/linearSRGB.icc
+    ${WEBCORE_DIR}/Resources/missingImage.png
+    ${WEBCORE_DIR}/Resources/missingImage@2x.png
+    ${WEBCORE_DIR}/Resources/missingImage@3x.png
+    ${WEBCORE_DIR}/Resources/modelDefaultDiffuseData
+    ${WEBCORE_DIR}/Resources/modelDefaultSpecularData
+    ${WEBCORE_DIR}/Resources/moveCursor.png
+    ${WEBCORE_DIR}/Resources/northEastSouthWestResizeCursor.png
+    ${WEBCORE_DIR}/Resources/northSouthResizeCursor.png
+    ${WEBCORE_DIR}/Resources/northWestSouthEastResizeCursor.png
+    ${WEBCORE_DIR}/Resources/nullPlugin.png
+    ${WEBCORE_DIR}/Resources/nullPlugin@2x.png
+    ${WEBCORE_DIR}/Resources/panIcon.png
+    ${WEBCORE_DIR}/Resources/textAreaResizeCorner.png
+    ${WEBCORE_DIR}/Resources/textAreaResizeCorner@2x.png
+)
 WEBKIT_COPY_FILES(WebCore_CopyBundleResources
     DESTINATION "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/WebCore.framework/Versions/A/Resources"
     FILES ${WebCore_BUNDLE_RESOURCES}
