@@ -4394,7 +4394,7 @@ bool EventHandler::internalKeyEvent(const PlatformKeyboardEvent& initialKeyEvent
     keypress->setTarget(element.copyRef());
     if (keypress->isComposing() || shouldAvoidDispatchingKeyPressEvent()) {
         frame->editor().handleKeyboardEvent(keypress);
-        return keydownResult;
+        return keydownResult || keypress->defaultPrevented() || keypress->defaultHandled();
     }
     if (keydownResult)
         keypress->preventDefault();

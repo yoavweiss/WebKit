@@ -230,6 +230,40 @@
 
 @end
 
+// Borderless windows return canBecomeKeyWindow=NO by default, which makes
+// [NSApp sendEvent:] silently drop the keydown re-send that
+// WebViewImpl::doneWithKeyEvent issues on eventWasHandled=false. This subclass
+// (a) forces canBecomeKeyWindow=YES so re-sent keydowns reach the firstResponder,
+// and (b) counts -noResponderFor:keyDown:: when an unhandled keydown propagates
+// up the responder chain past the webView and bottoms out at the window, AppKit's
+// default -noResponderFor: would call NSBeep — our override suppresses the beep
+// and counts so tests can assert the IPC reply correctly reports handled.
+@interface KeyableBorderlessWindow : NSWindow
+@property (nonatomic, readonly) NSUInteger unhandledKeyDownCount;
+@end
+
+@implementation KeyableBorderlessWindow {
+    NSUInteger _unhandledKeyDownCount;
+}
+
+- (BOOL)canBecomeKeyWindow
+{
+    return YES;
+}
+
+- (NSUInteger)unhandledKeyDownCount
+{
+    return _unhandledKeyDownCount;
+}
+
+- (void)noResponderFor:(SEL)selector
+{
+    if (selector == @selector(keyDown:))
+        ++_unhandledKeyDownCount;
+}
+
+@end
+
 @interface WKWebView (MacEditingTests)
 - (std::pair<NSRect, NSRange>)_firstRectForCharacterRange:(NSRange)characterRange;
 @end
@@ -580,6 +614,58 @@ TEST(WKWebViewMacEditingTests, HindiInScriptViramaConjunctEmitsSuffixFromKeyboar
     Util::runFor(1_s);
 
     EXPECT_STREQ(@"\u0915\u094D\u092F\u093E".UTF8String, [webView stringByEvaluatingJavaScript:@"document.body.textContent"].UTF8String);
+}
+
+TEST(WKWebViewMacEditingTests, HindiInScriptViramaConjunctReportsKeystrokeHandled)
+{
+    RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    for (_WKFeature *feature in WKPreferences._features) {
+        NSString *key = feature.key;
+        if ([key isEqualToString:@"InputMethodUsesCorrectKeyEventOrder"])
+            [[configuration preferences] _setEnabled:YES forFeature:feature];
+    }
+
+    RetainPtr webView = adoptNS([[TestWebViewWithMockTextInputContext alloc] initWithFrame:NSMakeRect(0, 0, 400, 400) configuration:configuration.get()]);
+    [webView removeFromSuperview];
+    RetainPtr window = adoptNS([[KeyableBorderlessWindow alloc] initWithContentRect:NSMakeRect(100, 100, 800, 600) styleMask:NSWindowStyleMaskBorderless backing:NSBackingStoreBuffered defer:YES]);
+    [[window contentView] addSubview:webView.get()];
+    [window makeKeyAndOrderFront:nil];
+    [window makeFirstResponder:webView.get()];
+
+    // The Hindi InScript "/" keystroke goes through the partial-prefix path: the input method commits
+    // the marked virama via insertText:"\u094D" and the layout pass appends insertText:"\u092F".
+    // We need to prevent NSEvent from bubbling up to [NSApp sendEvent:] which beeps.
+    [webView _web_superInputContext].actions = [@[
+        [[[MockTextInputContextAction alloc] initWithInsertText:@"\u0915" replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+        [[[MockTextInputContextAction alloc] initWithMarkedText:@"\u094D" selectedRange:NSMakeRange(0, 1) replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+        [[[MockTextInputContextAction alloc] initWithInsertText:@"\u094D" replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+        [[[MockTextInputContextAction alloc] initWithInsertText:@"\u093E" replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+    ].mutableCopy autorelease];
+    [webView _web_superInputContext].layoutActions = [@[
+        [[[MockTextInputContextAction alloc] initWithInsertText:@"\u0915" replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+        [[[MockTextInputContextAction alloc] initWithInsertText:@"\u092F" replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+        [[[MockTextInputContextAction alloc] initWithInsertText:@"\u093E" replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+    ].mutableCopy autorelease];
+
+    [webView synchronouslyLoadHTMLString:@"<body contenteditable></body>"];
+    [webView stringByEvaluatingJavaScript:@"document.body.focus()"];
+    [webView waitForNextPresentationUpdate];
+
+    [webView sendKey:@"\u0915" code:0x28 isDown:YES modifiers:0];
+    [webView sendKey:@"\u0915" code:0x28 isDown:NO modifiers:0];
+    Util::runFor(1_s);
+    [webView sendKey:@"\u094D" code:0x02 isDown:YES modifiers:0];
+    [webView sendKey:@"\u094D" code:0x02 isDown:NO modifiers:0];
+    Util::runFor(1_s);
+    [webView sendKey:@"\u094D\u092F" code:0x2C isDown:YES modifiers:0];
+    [webView sendKey:@"\u094D\u092F" code:0x2C isDown:NO modifiers:0];
+    Util::runFor(1_s);
+    [webView sendKey:@"\u093E" code:0x0E isDown:YES modifiers:0];
+    [webView sendKey:@"\u093E" code:0x0E isDown:NO modifiers:0];
+    Util::runFor(1_s);
+
+    EXPECT_STREQ(@"\u0915\u094D\u092F\u093E".UTF8String, [webView stringByEvaluatingJavaScript:@"document.body.textContent"].UTF8String);
+    EXPECT_EQ(0u, [window unhandledKeyDownCount]);
 }
 
 TEST(WKWebViewMacEditingTests, ModelessInputMethodStagingReportsPostKeystrokeCursorAndContent)
