@@ -1031,6 +1031,54 @@ TEST(WKWebViewMacEditingTests, FirstRectForCharacterRangeForPartialLineWithNewli
     EXPECT_TRUE(NSEqualRanges(characterRange, actualRange));
 }
 
+// Mimics the prosemirror.net Japanese-IME bug: when an IME auto-commits a portion of a
+// marked composition and immediately starts a new composition, ProseMirror's
+// compositionstart handler rebuilds the affected DOM (wrapping the just-confirmed text
+// in a span descriptor) and then sets the DOM Selection to a parent-anchored offset
+// (e.g. <P>:1) via setBaseAndExtent. TypingCommand::insertText then runs to install the
+// new marked text. Without flushing layout in Editor::setComposition between the
+// JS-driven mutation and TypingCommand::insertText, Position::upstream() can fail to
+// find a text-node candidate in the freshly-mutated tree and the marked text gets
+// inserted at offset 0 of the wrong sibling text node - landing BEFORE the auto-
+// confirmed text instead of after it.
+TEST(WKWebViewMacEditingTests, JapaneseAutoCommitWithDOMRebuildInCompositionStartLandsTextAtCursor)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView<NSTextInputClient> alloc] initWithFrame:NSMakeRect(0, 0, 400, 200)]);
+    [webView synchronouslyLoadHTMLString:@"<div id='editor' contenteditable style='min-height: 50px'><p id='p'><br></p></div>"];
+    [webView stringByEvaluatingJavaScript:@""
+        "const editor = document.getElementById('editor');"
+        "const p = document.getElementById('p');"
+        "editor.focus();"
+        "const selection = window.getSelection();"
+        "const range = document.createRange();"
+        "range.setStart(p, 0); range.setEnd(p, 0);"
+        "selection.removeAllRanges(); selection.addRange(range);"];
+    [webView waitForNextPresentationUpdate];
+
+    [webView setMarkedText:@"abc" selectedRange:NSMakeRange(3, 0) replacementRange:NSMakeRange(NSNotFound, 0)];
+    [webView insertText:@"abc" replacementRange:NSMakeRange(NSNotFound, 0)];
+
+    [webView stringByEvaluatingJavaScript:@""
+        "window.compositionLog = [];"
+        "editor.addEventListener('compositionstart', () => {"
+        "    const firstChild = p.firstChild;"
+        "    if (firstChild && firstChild.nodeType === Node.TEXT_NODE && firstChild.nodeValue.length) {"
+        "        const newText = document.createTextNode(firstChild.nodeValue);"
+        "        p.insertBefore(newText, firstChild);"
+        "        p.removeChild(firstChild);"
+        "        window.compositionLog.push('mutated');"
+        "    } else {"
+        "        window.compositionLog.push('skipped:firstChild=' + (firstChild && firstChild.nodeType));"
+        "    }"
+        "}, { once: true });"];
+
+    [webView setMarkedText:@"X" selectedRange:NSMakeRange(1, 0) replacementRange:NSMakeRange(NSNotFound, 0)];
+    [webView waitForNextPresentationUpdate];
+
+    EXPECT_STREQ("mutated", [webView stringByEvaluatingJavaScript:@"window.compositionLog.join('|')"].UTF8String);
+    EXPECT_STREQ("abcX", [webView stringByEvaluatingJavaScript:@"document.getElementById('p').textContent"].UTF8String);
+}
+
 } // namespace TestWebKitAPI
 
 #endif // PLATFORM(MAC)
