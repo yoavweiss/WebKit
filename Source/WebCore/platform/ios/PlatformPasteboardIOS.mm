@@ -43,7 +43,7 @@
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <WebCore/AttributedString.h>
 #import <pal/spi/ios/UIKitSPI.h>
-#import <wtf/ListHashSet.h>
+#import <wtf/OrderedHashSet.h>
 #import <wtf/URL.h>
 #import <wtf/cocoa/NSURLExtras.h>
 #import <wtf/cocoa/RuntimeApplicationChecksCocoa.h>
@@ -181,7 +181,7 @@ static const char *safeTypeForDOMToReadAndWriteForPlatformType(NSString *platfor
 
 static Vector<String> webSafeTypes(NSArray<NSString *> *platformTypes, PlatformPasteboard::IncludeImageTypes includeImageTypes, Function<bool()>&& shouldAvoidExposingURLType)
 {
-    ListHashSet<String> domPasteboardTypes;
+    OrderedHashSet<String> domPasteboardTypes;
     for (NSString *type in platformTypes) {
         if ([type isEqualToString:@(PasteboardCustomData::cocoaType().characters())])
             continue;
@@ -584,7 +584,7 @@ static const char customTypesKeyForTeamData[] = "com.apple.WebKit.drag-and-drop-
 
 Vector<String> PlatformPasteboard::typesSafeForDOMToReadAndWrite(const String& origin) const
 {
-    ListHashSet<String> domPasteboardTypes;
+    OrderedHashSet<String> domPasteboardTypes;
 #if PASTEBOARD_SUPPORTS_PRESENTATION_STYLE_AND_TEAM_DATA
     for (NSItemProvider *provider in [m_pasteboard itemProviders]) {
         if (!provider.teamData.length)

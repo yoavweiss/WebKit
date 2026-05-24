@@ -32,7 +32,7 @@
 #import "SharedBuffer.h"
 #import <ImageIO/ImageIO.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
-#import <wtf/ListHashSet.h>
+#import <wtf/OrderedHashSet.h>
 #import <wtf/text/StringHash.h>
 
 #if PLATFORM(IOS_FAMILY)
@@ -197,7 +197,7 @@ Vector<String> Pasteboard::typesForLegacyUnsafeBindings()
     if (cocoaTypes.isEmpty())
         return cocoaTypes;
 
-    ListHashSet<String> result;
+    OrderedHashSet<String> result;
     for (auto& cocoaType : cocoaTypes)
         addHTMLClipboardTypesForCocoaType(result, cocoaType);
 

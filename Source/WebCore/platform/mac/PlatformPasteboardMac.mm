@@ -38,7 +38,7 @@
 #import <pal/spi/cocoa/FoundationSPI.h>
 #import <pal/spi/mac/NSPasteboardSPI.h>
 #import <wtf/HashCountedSet.h>
-#import <wtf/ListHashSet.h>
+#import <wtf/OrderedHashSet.h>
 #import <wtf/URL.h>
 #import <wtf/cocoa/TypeCastsCocoa.h>
 #import <wtf/cocoa/VectorCocoa.h>
@@ -266,7 +266,7 @@ static ASCIILiteral safeTypeForDOMToReadAndWriteForPlatformType(NSString *platfo
 
 Vector<String> PlatformPasteboard::typesSafeForDOMToReadAndWrite(const String& origin) const
 {
-    ListHashSet<String> domPasteboardTypes;
+    OrderedHashSet<String> domPasteboardTypes;
     if (RetainPtr serializedCustomData = [m_pasteboard dataForType:RetainPtr { @(PasteboardCustomData::cocoaType().characters()) }.get()]) {
         auto data = PasteboardCustomData::fromSharedBuffer(SharedBuffer::create(serializedCustomData.get()).get());
         if (data.origin() == origin) {
@@ -598,7 +598,7 @@ std::optional<PasteboardItemInfo> PlatformPasteboard::informationForItemAtIndex(
     PasteboardItemInfo info;
     RetainPtr<NSArray<NSPasteboardType>> platformTypes = [item types];
     auto containsFileURL = [platformTypes containsObject:NSPasteboardTypeFileURL] ? ContainsFileURL::Yes : ContainsFileURL::No;
-    ListHashSet<String> webSafeTypes;
+    OrderedHashSet<String> webSafeTypes;
     info.platformTypesByFidelity.reserveInitialCapacity(platformTypes.get().count);
     for (NSPasteboardType type in platformTypes.get()) {
         info.platformTypesByFidelity.append(type);

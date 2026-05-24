@@ -32,8 +32,8 @@
 #include <WebCore/PasteboardItemInfo.h>
 #include <WebCore/SharedBuffer.h>
 #include <wtf/HashMap.h>
-#include <wtf/ListHashSet.h>
 #include <wtf/Noncopyable.h>
+#include <wtf/OrderedHashSet.h>
 #include <wtf/Platform.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/URL.h>
@@ -360,7 +360,7 @@ private:
 #if PLATFORM(COCOA)
     Vector<String> readFilePaths();
     Vector<String> readPlatformValuesAsStrings(const String& domType, int64_t changeCount, const String& pasteboardName);
-    static void addHTMLClipboardTypesForCocoaType(ListHashSet<String>& resultTypes, const String& cocoaType);
+    static void addHTMLClipboardTypesForCocoaType(OrderedHashSet<String>& resultTypes, const String& cocoaType);
     String readStringForPlatformType(const String&);
     Vector<String> readTypesWithSecurityCheck();
     RefPtr<SharedBuffer> readBufferForTypeWithSecurityCheck(const String&);
