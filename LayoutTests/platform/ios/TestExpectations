@@ -4803,7 +4803,9 @@ imported/w3c/web-platform-tests/dom/events/handler-count.html?window [ Skip ]
 imported/w3c/web-platform-tests/html/semantics/popovers/popover-light-dismiss-scroll-within.html [ Skip ]
 imported/w3c/web-platform-tests/uievents/order-of-events/mouse-events/wheel-scrolling.html [ Skip ]
 
-webkit.org/b/267688 imported/w3c/web-platform-tests/html/semantics/popovers/popover-light-dismiss.html [ Failure ]
+webkit.org/b/310625 imported/w3c/web-platform-tests/html/semantics/popovers/popover-light-dismiss.html [ Failure ]
+webkit.org/b/310625 imported/w3c/web-platform-tests/html/semantics/popovers/popover-light-dismiss-input-button.html [ Failure ]
+webkit.org/b/310625 imported/w3c/web-platform-tests/html/semantics/popovers/popover-light-dismiss-input-text.html [ Failure ]
 
 # Failing word-break: auto-phrase tests.
 webkit.org/b/257698 imported/w3c/web-platform-tests/css/css-text/word-break/auto-phrase/word-break-auto-phrase-004.html [ ImageOnlyFailure ]
