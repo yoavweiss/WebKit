@@ -681,6 +681,19 @@ auto IntersectionObserver::updateObservations(const Frame& hostFrame) -> NeedNot
     auto needNotify = NeedNotify::No;
 
     for (auto& target : observationTargets()) {
+        // For implicit-root observers, a target whose owning Document is not fully
+        // active (e.g. created via document.implementation.createHTMLDocument) cannot
+        // produce an intersection. Skip without advancing the registration state, so a
+        // later adopt into a fully-active document is treated as the first observation.
+        // Drop the first-observation keep-alive so a permanently detached target/document
+        // can be collected (intersection-observer/no-document-leak.html).
+        if (!root() && !target.document().isFullyActive()) {
+            m_targetsWaitingForFirstObservation.removeFirstMatching([&](auto& pendingTarget) {
+                return pendingTarget.ptr() == &target;
+            });
+            continue;
+        }
+
         auto& targetRegistrations = target.intersectionObserverDataIfExists()->registrations;
         auto index = targetRegistrations.findIf([&](auto& registration) {
             return registration.observer.get() == this;
