@@ -924,12 +924,13 @@ template<typename SizeType> std::optional<LayoutUnit> RenderFlexibleBox::compute
     // writing mode. Otherwise we need the logical height.
     if (!mainAxisIsFlexItemInlineAxis(flexItem)) {
         // We don't have to check for "auto" here - computeContentLogicalHeight
-        // will just return a null Optional for that case anyway. It's safe to access
-        // scrollbarLogicalHeight here because ComputeNextFlexLine will have
-        // already forced layout on the child. We previously did a layout out the child
-        // if necessary (see ComputeNextFlexLine and the call to
-        // flexItemNeedsBlockAxisSize) so we can be sure that the two height
-        // calls here will return up-to-date data.
+        // will just return a null Optional for that case anyway. flexBaseSizeForFlexItem
+        // calls blockAxisSizeForFlexItem (which forces layout via layoutIfNeeded) when
+        // flexItemNeedsBlockAxisSize is true; on the path where it returns false (e.g.
+        // definite flex-basis with non-auto min-size and non-visible/clip overflow),
+        // the child may not yet have been laid out, so scrollbarLogicalHeight() can
+        // return 0 here. That happens to coincide with the spec, which doesn't
+        // attribute a scrollbar contribution to the flex base size on this path.
         auto height = flexItem.computeContentLogicalHeight(size, flexItemContentLogicalHeight(flexItem));
         if (!height)
             return height;
@@ -1909,77 +1910,100 @@ void RenderFlexibleBox::prepareOrderIteratorAndMargins()
     }
 }
 
-std::pair<LayoutUnit, LayoutUnit> RenderFlexibleBox::computeFlexItemMinMaxSizes(RenderBox& flexItem)
+std::optional<LayoutUnit> RenderFlexibleBox::computeUsedMaxMainSize(RenderBox& flexItem)
 {
     auto max = maxMainSizeLengthForFlexItem(flexItem);
-    std::optional<LayoutUnit> maxExtent = std::nullopt;
-    if (max.isSpecified()) {
-        maxExtent = computeMainAxisExtentForFlexItem(flexItem, max);
-    } else if (max.isIntrinsicOrStretch()) {
+    if (max.isSpecified())
+        return computeMainAxisExtentForFlexItem(flexItem, max);
+    if (max.isIntrinsicOrStretch()) {
         ScopedCrossAxisOverrideForFlexItem scopedCrossAxisOverride(*this, flexItem, InvalidatePreferredWidths::No);
-        maxExtent = computeMainAxisExtentForFlexItem(flexItem, max);
+        return computeMainAxisExtentForFlexItem(flexItem, max);
     }
+    return { };
+}
+
+LayoutUnit RenderFlexibleBox::computeUsedNonAutoMinMainSize(RenderBox& flexItem, const Style::MinimumSize& min)
+{
+    // https://drafts.csswg.org/css-flexbox/#main-size-property
+    // Resolves the used min main size for every case except min:auto. Three values
+    // route here: a specified length/percentage, the stretch keyword, and intrinsic
+    // keywords (min-content/max-content/fit-content) on the inline axis. Per CSS
+    // Sizing 3 § 5.2, intrinsic keywords on the block axis behave like auto, so
+    // those go through computeContentBasedMinMainSize instead.
+    auto minExtent = [&] {
+        if (min.isIntrinsicOrStretch()) {
+            ScopedCrossAxisOverrideForFlexItem scopedCrossAxisOverride(*this, flexItem, InvalidatePreferredWidths::No);
+            return computeMainAxisExtentForFlexItem(flexItem, min).value_or(0_lu);
+        }
+        return computeMainAxisExtentForFlexItem(flexItem, min).value_or(0_lu);
+    }();
+
+    // We must never return a min size smaller than the min preferred size for tables.
+    if (flexItem.isRenderTable() && mainAxisIsFlexItemInlineAxis(flexItem)) {
+        ScopedCrossAxisOverrideForFlexItem scopedCrossAxisOverride(*this, flexItem, InvalidatePreferredWidths::Yes);
+        minExtent = std::max(minExtent, flexItem.minPreferredLogicalWidth());
+    }
+    return minExtent;
+}
+
+LayoutUnit RenderFlexibleBox::computeContentBasedMinMainSize(RenderBox& flexItem, std::optional<LayoutUnit> maxExtent)
+{
+    // FIXME: If the min value is expected to be valid here, we need to come up with a non optional version of computeMainAxisExtentForFlexItem and
+    // ensure it's valid through the virtual calls of computeSizingKeywordLogicalContentHeightUsing.
+    LayoutUnit contentSize;
+    auto& flexItemCrossSizeLength = preferredCrossSizeLengthForFlexItem(flexItem);
+
+    bool canComputeSizeThroughAspectRatio = flexItemHasComputableAspectRatio(flexItem) && flexItemCrossSizeIsDefinite(flexItem, flexItemCrossSizeLength);
+    if (canComputeSizeThroughAspectRatio)
+        contentSize = computeMainSizeFromAspectRatioUsing(flexItem, flexItemCrossSizeLength);
+
+    if (!canComputeSizeThroughAspectRatio || !flexItem.isRenderReplaced()) {
+        ScopedCrossAxisOverrideForFlexItem scopedCrossAxisOverride(*this, flexItem, InvalidatePreferredWidths::No);
+        auto minContentSize = computeMainAxisExtentForFlexItem(flexItem, Style::MinimumSize { CSS::Keyword::MinContent { } }).value_or(0_lu);
+        contentSize = std::max(contentSize, minContentSize);
+    }
+
+    if (flexItemHasAspectRatio(flexItem))
+        contentSize = adjustFlexItemSizeForAspectRatioCrossAxisMinAndMax(flexItem, contentSize);
+
+    contentSize = std::max(0_lu, contentSize);
+    ASSERT(contentSize >= 0);
+    contentSize = std::min(contentSize, maxExtent.value_or(contentSize));
+
+    auto mainSize = preferredMainSizeLengthForFlexItem(flexItem);
+    if (flexItemMainSizeIsDefinite(flexItem, mainSize)) {
+        auto resolvedMainSize = computeMainAxisExtentForFlexItem(flexItem, mainSize).value_or(0);
+        ASSERT(resolvedMainSize >= 0);
+        auto specifiedSize = std::min(resolvedMainSize, maxExtent.value_or(resolvedMainSize));
+        return std::min(specifiedSize, contentSize);
+    }
+
+    if (flexItem.isRenderReplaced() && flexItemHasComputableAspectRatioAndCrossSizeIsConsideredDefinite(flexItem)) {
+        auto transferredSize = computeMainSizeFromAspectRatioUsing(flexItem, flexItemCrossSizeLength);
+        transferredSize = adjustFlexItemSizeForAspectRatioCrossAxisMinAndMax(flexItem, transferredSize);
+        return std::min(transferredSize, contentSize);
+    }
+
+    return contentSize;
+}
+
+std::pair<LayoutUnit, LayoutUnit> RenderFlexibleBox::computeFlexItemMinMaxMainSizes(RenderBox& flexItem)
+{
+    auto maxExtent = computeUsedMaxMainSize(flexItem);
+    auto resolvedMax = maxExtent.value_or(LayoutUnit::max());
+
+    // useContentBasedMinimumSize covers both auto-equivalent cases: min:auto with
+    // non-scrollable overflow (§ 4.5) and block-axis intrinsic keywords (CSS Sizing
+    // 3 § 5.2 makes those behave like auto, regardless of overflow).
+    if (useContentBasedMinimumSize(flexItem))
+        return { computeContentBasedMinMainSize(flexItem, maxExtent), resolvedMax };
 
     auto min = minMainSizeLengthForFlexItem(flexItem);
-    // Intrinsic sizes in child's block axis are handled by the min-size:auto code path,
-    // but stretch always resolves to a definite value and should be computed directly.
-    if (min.isSpecified() || min.isStretch() || (min.isIntrinsic() && mainAxisIsFlexItemInlineAxis(flexItem))) {
-        auto computeMinExtent = [&] {
-            if (min.isIntrinsicOrStretch()) {
-                ScopedCrossAxisOverrideForFlexItem scopedCrossAxisOverride(*this, flexItem, InvalidatePreferredWidths::No);
-                return computeMainAxisExtentForFlexItem(flexItem, min).value_or(0_lu);
-            }
-            return computeMainAxisExtentForFlexItem(flexItem, min).value_or(0_lu);
-        };
-        auto minExtent = computeMinExtent();
-        // We must never return a min size smaller than the min preferred size for tables.
-        if (flexItem.isRenderTable() && mainAxisIsFlexItemInlineAxis(flexItem)) {
-            ScopedCrossAxisOverrideForFlexItem scopedCrossAxisOverride(*this, flexItem, InvalidatePreferredWidths::Yes);
-            minExtent = std::max(minExtent, flexItem.minPreferredLogicalWidth());
-        }
-        return { minExtent, maxExtent.value_or(LayoutUnit::max()) };
-    }
+    if (!min.isAuto())
+        return { computeUsedNonAutoMinMainSize(flexItem, min), resolvedMax };
 
-    if (useContentBasedMinimumSize(flexItem)) {
-        // FIXME: If the min value is expected to be valid here, we need to come up with a non optional version of computeMainAxisExtentForFlexItem and
-        // ensure it's valid through the virtual calls of computeSizingKeywordLogicalContentHeightUsing.
-        LayoutUnit contentSize;
-        auto& flexItemCrossSizeLength = preferredCrossSizeLengthForFlexItem(flexItem);
-
-        bool canComputeSizeThroughAspectRatio = flexItemHasComputableAspectRatio(flexItem) && flexItemCrossSizeIsDefinite(flexItem, flexItemCrossSizeLength);
-
-        if (canComputeSizeThroughAspectRatio)
-            contentSize = computeMainSizeFromAspectRatioUsing(flexItem, flexItemCrossSizeLength);
-        if (!canComputeSizeThroughAspectRatio || !flexItem.isRenderReplaced()) {
-            ScopedCrossAxisOverrideForFlexItem scopedCrossAxisOverride(*this, flexItem, InvalidatePreferredWidths::No);
-            auto minContentSize = computeMainAxisExtentForFlexItem(flexItem, Style::MinimumSize { CSS::Keyword::MinContent { } }).value_or(0_lu);
-            contentSize = std::max(contentSize, minContentSize);
-        }
-
-        if (flexItemHasAspectRatio(flexItem))
-            contentSize = adjustFlexItemSizeForAspectRatioCrossAxisMinAndMax(flexItem, contentSize);
-        contentSize = std::max(0_lu, contentSize);
-        ASSERT(contentSize >= 0);
-        contentSize = std::min(contentSize, maxExtent.value_or(contentSize));
-        
-        auto mainSize = preferredMainSizeLengthForFlexItem(flexItem);
-        if (flexItemMainSizeIsDefinite(flexItem, mainSize)) {
-            LayoutUnit resolvedMainSize = computeMainAxisExtentForFlexItem(flexItem, mainSize).value_or(0);
-            ASSERT(resolvedMainSize >= 0);
-            LayoutUnit specifiedSize = std::min(resolvedMainSize, maxExtent.value_or(resolvedMainSize));
-            return { std::min(specifiedSize, contentSize), maxExtent.value_or(LayoutUnit::max()) };
-        }
-
-        if (flexItem.isRenderReplaced() && flexItemHasComputableAspectRatioAndCrossSizeIsConsideredDefinite(flexItem)) {
-            LayoutUnit transferredSize = computeMainSizeFromAspectRatioUsing(flexItem, flexItemCrossSizeLength);
-            transferredSize = adjustFlexItemSizeForAspectRatioCrossAxisMinAndMax(flexItem, transferredSize);
-            return { std::min(transferredSize, contentSize), maxExtent.value_or(LayoutUnit::max()) };
-        }
-
-        return { contentSize, maxExtent.value_or(LayoutUnit::max()) };
-    }
-
-    return { 0_lu, maxExtent.value_or(LayoutUnit::max()) };
+    // min:auto on a scroll container — spec says the automatic minimum size is zero.
+    return { 0_lu, resolvedMax };
 }
 
 bool RenderFlexibleBox::canUseFlexItemForPercentageResolution(const RenderBox& flexItem)
@@ -2115,7 +2139,7 @@ RenderFlexibleBox::FlexLayoutItem RenderFlexibleBox::constructFlexLayoutItem(Ren
     LayoutUnit innerFlexBaseSize = flexBaseSizeForFlexItem(flexItem, relayoutChildren);
     LayoutUnit borderAndPadding = isHorizontalFlow() ? flexItem.horizontalBorderAndPaddingExtent() : flexItem.verticalBorderAndPaddingExtent();
     LayoutUnit margin = isHorizontalFlow() ? flexItem.horizontalMarginExtent() : flexItem.verticalMarginExtent();
-    return FlexLayoutItem(flexItem, innerFlexBaseSize, borderAndPadding, margin, computeFlexItemMinMaxSizes(flexItem), everHadLayout);
+    return FlexLayoutItem(flexItem, innerFlexBaseSize, borderAndPadding, margin, computeFlexItemMinMaxMainSizes(flexItem), everHadLayout);
 }
     
 void RenderFlexibleBox::freezeViolations(Vector<FlexLayoutItem*, 4>& violations, LayoutUnit& availableFreeSpace, double& totalFlexGrow, double& totalFlexShrink, double& totalWeightedFlexShrink)
