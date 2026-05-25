@@ -957,6 +957,16 @@ static WebKit::UnifiedOriginStorageLevel NODELETE toUnifiedOriginStorageLevel(_W
     protect(_configuration.get())->setAdditionalDomainsWithUserInteractionForTesting(domains);
 }
 
+- (NSUInteger)overridePersistentNotificationMinimumLifetimeForTesting
+{
+    return _configuration->overridePersistentNotificationMinimumLifetimeForTesting().value_or(0);
+}
+
+- (void)setOverridePersistentNotificationMinimumLifetimeForTesting:(NSUInteger)lifetime
+{
+    _configuration->setOverridePersistentNotificationMinimumLifetimeForTesting(lifetime);
+}
+
 - (NSUUID *)identifier
 {
     auto currentIdentifier = _configuration->identifier();

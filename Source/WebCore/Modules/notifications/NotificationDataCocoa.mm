@@ -45,6 +45,7 @@ static NSString * const WebNotificationServiceWorkerRegistrationURLKey = @"WebNo
 static NSString * const WebNotificationUUIDStringKey = @"WebNotificationUUIDStringKey";
 static NSString * const WebNotificationContextUUIDStringKey = @"WebNotificationContextUUIDStringKey";
 static NSString * const WebNotificationSessionIDKey = @"WebNotificationSessionIDKey";
+static NSString * const WebNotificationCreationTimeKey = @"WebNotificationCreationTimeKey";
 static NSString * const WebNotificationDataKey = @"WebNotificationDataKey";
 static NSString * const WebNotificationSilentKey = @"WebNotificationSilentKey";
 
@@ -71,6 +72,7 @@ std::optional<NotificationData> NotificationData::fromDictionary(NSDictionary *d
     RetainPtr<NSString> originString = dictionary[WebNotificationOriginKey];
     RetainPtr<NSString> serviceWorkerRegistrationURL = dictionary[WebNotificationServiceWorkerRegistrationURLKey];
     RetainPtr<NSNumber> sessionID = dictionary[WebNotificationSessionIDKey];
+    RetainPtr<NSNumber> creationTime = dictionary[WebNotificationCreationTimeKey];
     RetainPtr<NSData> notificationData = dictionary[WebNotificationDataKey];
 
     String uuidString = dictionary[WebNotificationUUIDStringKey];
@@ -100,7 +102,7 @@ std::optional<NotificationData> NotificationData::fromDictionary(NSDictionary *d
         return std::nullopt;
     }
 
-    NotificationData data { URL { String { defaultActionURL.get() } }, title.get(), body.get(), iconURL.get(), tag.get(), language.get(), direction, originString.get(), URL { String { serviceWorkerRegistrationURL.get() } }, *uuid, contextIdentifier, PAL::SessionID { sessionID.get().unsignedLongLongValue }, { }, makeVector(notificationData.get()), nsValueToOptionalBool(dictionary[WebNotificationSilentKey]) };
+    NotificationData data { URL { String { defaultActionURL.get() } }, title.get(), body.get(), iconURL.get(), tag.get(), language.get(), direction, originString.get(), URL { String { serviceWorkerRegistrationURL.get() } }, *uuid, contextIdentifier, PAL::SessionID { sessionID.get().unsignedLongLongValue }, WallTime::fromSecondsSinceEpoch(Seconds { creationTime.get().doubleValue }), makeVector(notificationData.get()), nsValueToOptionalBool(dictionary[WebNotificationSilentKey]) };
     return WTF::move(data);
 }
 
@@ -120,6 +122,7 @@ NSDictionary *NotificationData::dictionaryRepresentation() const
         WebNotificationServiceWorkerRegistrationURLKey : serviceWorkerRegistrationURL.string().createNSString().get(),
         WebNotificationUUIDStringKey : notificationID.toString().createNSString().get(),
         WebNotificationSessionIDKey : @(sourceSession.toUInt64()),
+        WebNotificationCreationTimeKey : @(creationTime.secondsSinceEpoch().value()),
         WebNotificationDataKey: toNSData(data).autorelease(),
     }.mutableCopy);
 

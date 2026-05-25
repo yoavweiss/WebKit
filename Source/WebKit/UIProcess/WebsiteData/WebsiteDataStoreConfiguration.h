@@ -274,6 +274,9 @@ public:
     const String& enhancedSecurityDirectory() const LIFETIME_BOUND { return m_directories.enhancedSecurityDirectory; }
     void setEnhancedSecurityDirectory(String&& directory) { m_directories.enhancedSecurityDirectory = WTF::move(directory); }
 
+    std::optional<unsigned> overridePersistentNotificationMinimumLifetimeForTesting() const { return m_overrideServiceWorkerRegistrationCountTestingValue; }
+    void setOverridePersistentNotificationMinimumLifetimeForTesting(unsigned count) { m_overrideServiceWorkerRegistrationCountTestingValue = count; }
+
     struct Directories {
         String alternativeServicesDirectory;
         String cacheStorageDirectory;
@@ -374,6 +377,7 @@ private:
     String m_webContentRestrictionsConfigurationFile;
 #endif
     String m_additionalDomainsWithUserInteractionForTesting;
+    std::optional<unsigned> m_overridePersistentNotificationMinimumLifetimeForTesting;
 };
 
 }

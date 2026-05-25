@@ -2861,7 +2861,7 @@ bool ResourceLoadStatisticsStore::shouldEnforceSameSiteStrictFor(DomainData& res
     return false;
 }
 
-std::optional<WallTime> ResourceLoadStatisticsStore::mostRecentUserInteractionTime(const DomainData& statistic)
+SUPPRESS_NODELETE std::optional<WallTime> ResourceLoadStatisticsStore::mostRecentUserInteractionTime(const DomainData& statistic)
 {
     if (statistic.mostRecentUserInteractionTime.secondsSinceEpoch().value() <= 0)
         return std::nullopt;
@@ -3142,7 +3142,7 @@ void ResourceLoadStatisticsStore::appendSubStatisticList(StringBuilder& builder,
     }
 }
 
-static bool NODELETE hasHadRecentUserInteraction(WTF::Seconds interactionTimeSeconds, WallTime now)
+SUPPRESS_NODELETE static bool NODELETE hasHadRecentUserInteraction(WTF::Seconds interactionTimeSeconds, WallTime now)
 {
     return interactionTimeSeconds > Seconds(0) && now.secondsSinceEpoch() - interactionTimeSeconds < 24_h;
 }

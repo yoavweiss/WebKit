@@ -47,7 +47,10 @@ public:
     constexpr WallTime() = default;
 
     WTF_EXPORT_PRIVATE static WallTime now();
-    
+
+    WTF_EXPORT_PRIVATE static WallTime fromSecondsSinceEpoch(Seconds);
+    WTF_EXPORT_PRIVATE Seconds secondsSinceEpoch() const;
+
     WTF_EXPORT_PRIVATE void dump(PrintStream&) const;
 
 private:
