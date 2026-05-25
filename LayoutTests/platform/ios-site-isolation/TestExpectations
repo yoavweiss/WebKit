@@ -348,7 +348,6 @@ imported/w3c/web-platform-tests/css/css-writing-modes/text-orientation-mixed-srl
 imported/w3c/web-platform-tests/css/filter-effects/backdrop-filter-clip-rect-zoom.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/browsers/windows/iframe-cross-origin-scaled-print.sub.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/adopt-from-image-document.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/intersection-observer/cross-origin-tall-iframe-rendering.sub.html [ ImageOnlyFailure ]
 media/media-vp8-hiddenframes.html [ ImageOnlyFailure ]
 svg/animations/mozilla/animateMotion-mpath-pathLength-1.svg [ ImageOnlyFailure ]
 svg/custom/svg-image-dark-mode-initial.html [ ImageOnlyFailure ]
@@ -377,3 +376,4 @@ http/tests/security/frameNavigation/not-opener.html [ Failure ]
 
 # Intersection Observer x Site Isolation is not fully implemented.
 http/tests/intersection-observer/zoomed-page-iframe-cross-origin.html [ Failure ]
+imported/w3c/web-platform-tests/intersection-observer/cross-origin-tall-iframe.sub.html [ Failure ]

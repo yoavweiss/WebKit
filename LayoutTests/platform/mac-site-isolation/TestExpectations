@@ -416,7 +416,6 @@ imported/w3c/web-platform-tests/css/css-writing-modes/bidi-unset-009.html [ Imag
 imported/w3c/web-platform-tests/html/browsers/windows/iframe-cross-origin-scaled-print.sub.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/canvas/element/manual/unclosed-canvas-2.htm [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/adopt-from-image-document.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/intersection-observer/cross-origin-tall-iframe-rendering.sub.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/path/closepath/segment-completing.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/shapes/rect-01.svg [ ImageOnlyFailure ]
 svg/compositing/hidpi-legacy-svg-compositing-sibling-no-shift.html [ ImageOnlyFailure ]
@@ -451,6 +450,7 @@ inspector/unit-tests/target-manager.html [ Skip ]
 
 # Intersection Observer x Site Isolation is not fully implemented.
 http/tests/intersection-observer/zoomed-page-iframe-cross-origin.html [ Failure ]
+imported/w3c/web-platform-tests/intersection-observer/cross-origin-tall-iframe.sub.html [ Failure ]
 
 # Inspector protocol commands (e.g. CSS.getMatchedStylesForNode) return
 # "Not yet implemented for frame targets" under site isolation.
