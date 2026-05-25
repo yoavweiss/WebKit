@@ -210,14 +210,14 @@ private:
     template<typename SizeType> LayoutUnit computeMainSizeFromAspectRatioUsing(const RenderBox& flexItem, const SizeType& crossSizeLength) const;
     void NODELETE setFlowAwareLocationForFlexItem(RenderBox& flexItem, const LayoutPoint&);
     LayoutUnit flexBaseSizeForFlexItem(RenderBox& flexItem, RelayoutChildren);
-    LayoutUnit blockAxisSizeForFlexItem(RenderBox& flexItem, RelayoutChildren);
+    void ensureBlockAxisContentSizeForFlexItemIfNeeded(RenderBox& flexItem, RelayoutChildren);
     void NODELETE adjustAlignmentForFlexItem(RenderBox& flexItem, LayoutUnit);
     inline OverflowAlignment overflowAlignmentForFlexItem(const RenderBox& flexItem) const;
     template<typename SizeType> bool canComputePercentageFlexBasis(const RenderBox& flexItem, const SizeType&, UpdatePercentageHeightDescendants);
     template<typename SizeType> bool flexItemMainSizeIsDefinite(const RenderBox&, const SizeType&);
     template<typename SizeType> bool flexItemCrossSizeIsDefinite(const RenderBox&, const SizeType&);
     bool needToStretchFlexItemLogicalHeight(const RenderBox& flexItem) const;
-    bool flexItemNeedsBlockAxisSize(const RenderBox& flexItem);
+    bool flexBaseSizeNeedsBlockAxisContentSize(const RenderBox& flexItem);
     Overflow NODELETE mainAxisOverflowForFlexItem(const RenderBox& flexItem) const;
     Overflow NODELETE crossAxisOverflowForFlexItem(const RenderBox& flexItem) const;
 

@@ -923,23 +923,26 @@ template<typename SizeType> std::optional<LayoutUnit> RenderFlexibleBox::compute
     // horizontal flow and horizontal writing mode, or vertical flow and vertical
     // writing mode. Otherwise we need the logical height.
     if (!mainAxisIsFlexItemInlineAxis(flexItem)) {
-        // We don't have to check for "auto" here - computeContentLogicalHeight
-        // will just return a null Optional for that case anyway. flexBaseSizeForFlexItem
-        // calls blockAxisSizeForFlexItem (which forces layout via layoutIfNeeded) when
-        // flexItemNeedsBlockAxisSize is true; on the path where it returns false (e.g.
-        // definite flex-basis with non-auto min-size and non-visible/clip overflow),
-        // the child may not yet have been laid out, so scrollbarLogicalHeight() can
-        // return 0 here. That happens to coincide with the spec, which doesn't
-        // attribute a scrollbar contribution to the flex base size on this path.
+        // No "auto" check needed: computeContentLogicalHeight returns nullopt for
+        // auto and we propagate that below.
         auto height = flexItem.computeContentLogicalHeight(size, flexItemContentLogicalHeight(flexItem));
         if (!height)
             return height;
+
         // Tables interpret overriding sizes as the size of captions + rows. However the specified height of a table
         // only includes the size of the rows. That's why we need to add the size of the captions here so that the table
         // layout algorithm behaves appropriately.
         LayoutUnit captionsHeight;
         if (CheckedPtr table = dynamicDowncast<RenderTable>(flexItem); table && flexItemMainSizeIsDefinite(flexItem, size))
             captionsHeight = table->sumCaptionsLogicalHeight();
+
+        // scrollbarLogicalHeight depends on layout having run. flexBaseSizeForFlexItem
+        // calls ensureBlockAxisContentSizeForFlexItemIfNeeded before reaching here,
+        // which forces layout when flexBaseSizeNeedsBlockAxisContentSize is true. On
+        // the false path (definite flex-basis + non-auto min-size + non-visible/clip
+        // overflow) layout has not run and this returns 0; that coincides with the
+        // spec, which does not attribute a scrollbar contribution to the flex base
+        // size on that path.
         return *height + flexItem.scrollbarLogicalHeight() + captionsHeight;
     }
 
@@ -1554,13 +1557,10 @@ LayoutUnit RenderFlexibleBox::flexBaseSizeForFlexItem(RenderBox& flexItem, Relay
 {
     auto flexBasis = flexBasisForFlexItem(flexItem);
     ScopedFlexBasisAsFlexItemMainSize scoped(flexItem, flexBasis.tryPreferredSize().value_or(Style::PreferredSize { CSS::Keyword::MaxContent { } }), mainAxisIsFlexItemInlineAxis(flexItem));
-    // FIXME: While we are supposed to ignore min/max here,
-    // blockAxisSizeForFlexItem may return a min/max-constrained size.
+    // FIXME: While we are supposed to ignore min/max here, the cached
+    // m_blockAxisSize entry may hold a min/max-constrained size.
     SetForScope<bool> computingBaseSizesScope(m_isComputingFlexBaseSizes, true);
-
-    auto blockAxisSize = std::optional<LayoutUnit> { };
-    if (flexItemNeedsBlockAxisSize(flexItem))
-        blockAxisSize = blockAxisSizeForFlexItem(flexItem, relayoutChildren);
+    ensureBlockAxisContentSizeForFlexItemIfNeeded(flexItem, relayoutChildren);
 
     // 9.2.3 A.
     if (flexItemMainSizeIsDefinite(flexItem, flexBasis))
@@ -1578,8 +1578,8 @@ LayoutUnit RenderFlexibleBox::flexBaseSizeForFlexItem(RenderBox& flexItem, Relay
     // 9.2.3 E.
     if (!mainAxisIsFlexItemInlineAxis(flexItem)) {
         ASSERT(!flexItem.needsLayout());
-        ASSERT(blockAxisSize);
-        return *blockAxisSize;
+        ASSERT(m_blockAxisSize.contains(flexItem));
+        return m_blockAxisSize.getOptional(flexItem).value_or(0_lu);
     }
 
     // We don't need to add scrollbarLogicalWidth here because the preferred
@@ -2090,9 +2090,10 @@ LayoutUnit RenderFlexibleBox::adjustFlexItemSizeForAspectRatioCrossAxisMinAndMax
     return flexItemSize;
 }
 
-LayoutUnit RenderFlexibleBox::blockAxisSizeForFlexItem(RenderBox& flexItem, RelayoutChildren relayoutChildren)
+void RenderFlexibleBox::ensureBlockAxisContentSizeForFlexItemIfNeeded(RenderBox& flexItem, RelayoutChildren relayoutChildren)
 {
-    ASSERT(flexItemNeedsBlockAxisSize(flexItem));
+    if (!flexBaseSizeNeedsBlockAxisContentSize(flexItem))
+        return;
 
     // If this condition is true, then computeMainAxisExtentForFlexItem will call
     // flexItem.intrinsicContentLogicalHeight() and flexItem.scrollbarLogicalHeight(),
@@ -2100,10 +2101,8 @@ LayoutUnit RenderFlexibleBox::blockAxisSizeForFlexItem(RenderBox& flexItem, Rela
     // its logical height and scroll bars are up to date.
     updateBlockChildDirtyBitsBeforeLayout(relayoutChildren, flexItem);
 
-    if (!flexItem.needsLayout()) {
-        if (auto cached = m_blockAxisSize.getOptional(flexItem))
-            return *cached;
-    }
+    if (!flexItem.needsLayout() && m_blockAxisSize.contains(flexItem))
+        return;
 
     // Don't resolve percentages in children. This is especially important for the min-height calculation,
     // where we want percentages to be treated as auto. For flex-basis itself, this is not a problem because
@@ -2121,7 +2120,6 @@ LayoutUnit RenderFlexibleBox::blockAxisSizeForFlexItem(RenderBox& flexItem, Rela
 
     m_blockAxisSize.set(flexItem, innerSize);
     m_relaidOutFlexItems.add(flexItem);
-    return innerSize;
 }
 
 RenderFlexibleBox::FlexLayoutItem RenderFlexibleBox::constructFlexLayoutItem(RenderBox& flexItem, RelayoutChildren relayoutChildren)
@@ -2556,7 +2554,7 @@ bool RenderFlexibleBox::needToStretchFlexItemLogicalHeight(const RenderBox& flex
         && flexItem.style().logicalHeight().isAuto();
 }
 
-bool RenderFlexibleBox::flexItemNeedsBlockAxisSize(const RenderBox& flexItem)
+bool RenderFlexibleBox::flexBaseSizeNeedsBlockAxisContentSize(const RenderBox& flexItem)
 {
     if (mainAxisIsFlexItemInlineAxis(flexItem))
         return false;
