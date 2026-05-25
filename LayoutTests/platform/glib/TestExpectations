@@ -5619,6 +5619,8 @@ webkit.org/b/314809 fast/repaint/table-row-move-after-content-change.html [ Pass
 
 webkit.org/b/315294 imported/w3c/web-platform-tests/preload/prefetch-cache.html [ Pass Failure ]
 
+webkit.org/b/315517 imported/w3c/web-platform-tests/css/css-values/attr-pseudo-elem-invalidation-2.html [ Failure ]
+
 # End: Common failures between GTK and WPE.
 
 #////////////////////////////////////////////////////////////////////////////////////////
