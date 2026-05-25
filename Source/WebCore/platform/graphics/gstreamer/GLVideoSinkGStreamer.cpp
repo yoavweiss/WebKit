@@ -56,7 +56,12 @@ GST_DEBUG_CATEGORY_STATIC(webkit_gl_video_sink_debug);
 struct _WebKitGLVideoSinkPrivate {
     ~_WebKitGLVideoSinkPrivate()
     {
-        ASSERT(isMainThread());
+        // Here we are either in the main thread or in a thread created by the gst_async_call_pool.
+        // The latter case happens when the player has been destructed while the sink was in an
+        // ASYNC state change. The last reference of the sink would then be held by the
+        // gst_object_call_async() call made from gstbin's bin_push_state_continue. After the async task
+        // completed there would be no reference left and the sink would be finalized, from a thread
+        // managed by the thread pool.
         webKitVideoSinkDisconnectSignalHandlers(appSink.get(), signalIdentifiers);
         GST_DEBUG_OBJECT(appSink.get(), "WebKitGLVideoSink finalized.");
     }
