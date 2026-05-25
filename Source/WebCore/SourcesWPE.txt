@@ -106,6 +106,8 @@ platform/libwpe/PlatformPasteboardLibWPE.cpp
 platform/text/Hyphenation.cpp
 platform/text/LocaleICU.cpp
 
+platform/text/enchant/TextCheckerEnchant.cpp
+
 platform/text/hyphen/HyphenationLibHyphen.cpp
 
 platform/android/SharedMemoryAndroid.cpp

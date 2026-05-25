@@ -306,21 +306,6 @@ webkit.org/b/141467 fast/multicol/pagination/LeftToRight-tb-hittest.html [ Failu
 # Path::addPath needs to be implemented
 webkit.org/b/130464 fast/canvas/canvas-path-addPath.html
 
-# Needs grammar checking implementation.
-Bug(GTK) editing/spelling/grammar.html [ Skip ]
-Bug(GTK) editing/spelling/grammar-and-spelling-error-styling.html [ Skip ]
-Bug(GTK) editing/spelling/grammar-correction-shown-clicking-middle-of-word.html [ Skip ]
-Bug(GTK) editing/spelling/grammar-correction-shown-clicking-multiword-phrase.html [ Skip ]
-Bug(GTK) editing/spelling/grammar-arrow-upstream-into-multiword-phrase.html [ Skip ]
-Bug(GTK) editing/spelling/grammar-arrow-downstream-into-multiword-phrase.html [ Skip ]
-Bug(GTK) editing/spelling/grammar-edit-word.html [ Skip ]
-Bug(GTK) editing/spelling/grammar-markers.html [ Skip ]
-Bug(GTK) editing/spelling/grammar-markers-hidpi.html [ Skip ]
-Bug(GTK) editing/spelling/grammar-paste.html [ Skip ]
-Bug(GTK) editing/spelling/inline-spelling-markers.html [ Skip ]
-Bug(GTK) editing/spelling/inline-spelling-markers-hidpi.html [ Skip ]
-Bug(GTK) editing/spelling/markers.html [ Skip ]
-
 # Requires ENABLE(MEDIA_CAPTURE)
 webkit.org/b/85958 fast/forms/file/file-input-capture.html [ Failure ]
 
@@ -382,10 +367,6 @@ http/tests/ssl/applepay [ Skip ]
 
 # Test does not make sense for our platform
 webkit.org/b/181659 fast/canvas/webgl/simulated-vertexAttrib0-invalid-indicies.html [ Skip ]
-
-# Requires support for testing text replacement
-editing/spelling/text-replacement-after-typing-to-word.html [ Skip ]
-editing/spelling/text-replacement-first-word-second-line.html [ Skip ]
 
 http/tests/navigation/keyboard-events-during-provisional-navigation.html [ Skip ]
 http/tests/navigation/keyboard-events-during-provisional-subframe-navigation.html [ Skip ]
@@ -799,13 +780,6 @@ webkit.org/b/147229 inspector/css/modify-rule-selector.html [ Skip ] # Timeout
 
 webkit.org/b/240349 inspector/timeline/timeline-event-screenshots.html [ Skip ]
 
-webkit.org/b/144690 editing/spelling/context-menu-suggestions-multiword-selection.html [ Timeout ]
-webkit.org/b/144690 editing/spelling/context-menu-suggestions-subword-selection.html [ Timeout ]
-webkit.org/b/144690 editing/spelling/spelling-exactly-selected-word.html [ Timeout ]
-webkit.org/b/144690 editing/spelling/spelling-with-punctuation-selection.html [ Timeout ]
-webkit.org/b/144690 editing/spelling/delete-into-misspelled-word.html [ Timeout ]
-
-
 webkit.org/b/156077 inspector/heap/getRemoteObject.html [ Skip ]
 
 webkit.org/b/99036 pointer-lock/pointerlockchange-event-on-lock-lost.html [ Timeout ]
@@ -1045,11 +1019,7 @@ webkit.org/b/175421 printing/width-overflow.html [ Failure ]
 webkit.org/b/285785 printing/background-clip-text.html [ ImageOnlyFailure ]
 webkit.org/b/285785 printing/light-text-dark-background-economy.html [ ImageOnlyFailure ]
 
-webkit.org/b/176648 fast/repaint/inline-outline-repaint.html [ ImageOnlyFailure ]
-
 webkit.org/b/177294 platform/gtk/fonts/fontconfig-aliasing-settings.html [ Failure ]
-
-webkit.org/b/144690 fast/writing-mode/english-bt-text-with-spelling-marker.html [ ImageOnlyFailure ]
 
 webkit.org/b/314266 webkit.org/b/182763 accessibility/gtk/aria-activedescendant-changed-notification.html [ Failure Crash ]
 
@@ -1083,8 +1053,6 @@ webkit.org/b/208052 imported/w3c/web-platform-tests/intersection-observer/callba
 webkit.org/b/191882 fast/forms/auto-fill-button/input-credit-card-auto-fill-button.html [ Failure ]
 
 webkit.org/b/192434 fast/inline/inline-content-with-float-and-margin.html [ Failure ]
-
-webkit.org/b/193627 editing/spelling/spelling-dots-position.html [ ImageOnlyFailure ]
 
 webkit.org/b/196061 editing/pasteboard/smart-paste-paragraph-001.html [ Failure ]
 webkit.org/b/196061 editing/pasteboard/smart-paste-paragraph-002.html [ Failure ]

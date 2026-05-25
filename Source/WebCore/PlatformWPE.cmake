@@ -63,6 +63,8 @@ list(APPEND WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/graphics/gbm/PlatformDisplayGBM.h
 
     platform/graphics/libwpe/PlatformDisplayLibWPE.h
+
+    platform/text/enchant/TextCheckerEnchant.h
 )
 
 set(WebCore_USER_AGENT_SCRIPTS_DEPENDENCIES ${WEBCORE_DIR}/platform/wpe/RenderThemeWPE.cpp)
@@ -93,6 +95,10 @@ if (ENABLE_DRAG_SUPPORT)
     list(APPEND WebCore_SOURCES
         platform/skia/DragImageSkia.cpp
     )
+endif ()
+
+if (ENABLE_SPELLCHECK)
+    list(APPEND WebCore_LIBRARIES Enchant::Enchant)
 endif ()
 
 if (USE_ATSPI)

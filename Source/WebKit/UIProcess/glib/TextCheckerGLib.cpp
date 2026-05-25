@@ -49,9 +49,9 @@ OptionSet<TextCheckerState> TextChecker::state()
 {
     return checkerState();
 }
-    
+
 static bool testingModeEnabled = false;
-    
+
 void TextChecker::setTestingMode(bool enabled)
 {
     testingModeEnabled = enabled;

@@ -251,9 +251,12 @@ UIProcess/glib/DisplayVBlankMonitorTimer.cpp
 UIProcess/glib/FenceMonitor.cpp
 UIProcess/glib/ScreenManager.cpp
 UIProcess/glib/SystemSettingsManagerProxy.cpp
+UIProcess/glib/TextCheckerGLib.cpp
 UIProcess/glib/WebPageProxyGLib.cpp
 UIProcess/glib/WebProcessPoolGLib.cpp
 UIProcess/glib/WebProcessProxyGLib.cpp
+UIProcess/glib/WebTextCheckerClient.cpp
+UIProcess/glib/WebTextChecker.cpp
 
 UIProcess/gstreamer/WebPageProxyGStreamer.cpp
 

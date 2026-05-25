@@ -1563,6 +1563,37 @@ webkit.org/b/179261 editing/selection/drag-to-contenteditable-iframe.html [ Time
 
 webkit.org/b/312533 editing/selection/first-letter-selection-painting.html [ ImageOnlyFailure Pass ]
 
+# Requires support for testing text replacement
+webkit.org/b/144690 editing/spelling/text-replacement-after-typing-to-word.html [ Skip ]
+webkit.org/b/144690 editing/spelling/text-replacement-first-word-second-line.html [ Skip ]
+
+webkit.org/b/144690 editing/spelling/grammar-and-spelling-error-styling.html [ ImageOnlyFailure ]
+webkit.org/b/144690 editing/spelling/spelling-marker-includes-hyphen.html [ ImageOnlyFailure ]
+
+webkit.org/b/144690 fast/writing-mode/english-bt-text-with-spelling-marker.html [ ImageOnlyFailure ]
+
+webkit.org/b/193627 editing/spelling/spelling-dots-position.html [ ImageOnlyFailure ]
+
+webkit.org/b/144690 editing/spelling/context-menu-suggestions-multiword-selection.html [ Skip ]
+webkit.org/b/144690 editing/spelling/context-menu-suggestions-subword-selection.html [ Skip ]
+webkit.org/b/144690 editing/spelling/delete-into-misspelled-word.html [ Skip ]
+webkit.org/b/144690 editing/spelling/grammar-arrow-downstream-into-multiword-phrase.html [ Skip ]
+webkit.org/b/144690 editing/spelling/grammar-arrow-upstream-into-multiword-phrase.html [ Skip ]
+webkit.org/b/144690 editing/spelling/grammar-correction-shown-clicking-middle-of-word.html [ Skip ]
+webkit.org/b/144690 editing/spelling/grammar-correction-shown-clicking-multiword-phrase.html [ Skip ]
+webkit.org/b/144690 editing/spelling/grammar-edit-word.html [ Skip ]
+webkit.org/b/144690 editing/spelling/grammar.html [ Skip ]
+webkit.org/b/144690 editing/spelling/grammar-markers-hidpi.html [ Skip ]
+webkit.org/b/144690 editing/spelling/grammar-markers.html [ Skip ]
+webkit.org/b/144690 editing/spelling/grammar-paste.html [ Skip ]
+webkit.org/b/144690 editing/spelling/grammar-text-effect-not-reapplied.html [ Skip ]
+webkit.org/b/144690 editing/spelling/inline-spelling-markers-hidpi.html [ Skip ]
+webkit.org/b/144690 editing/spelling/inline-spelling-markers.html [ Skip ]
+webkit.org/b/144690 editing/spelling/markers.html [ Skip ]
+webkit.org/b/144690 editing/spelling/spellcheck-async-mutation.html [ Skip ]
+webkit.org/b/144690 editing/spelling/spelling-exactly-selected-word.html [ Skip ]
+webkit.org/b/144690 editing/spelling/spelling-with-punctuation-selection.html [ Skip ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Editing-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
@@ -2495,6 +2526,8 @@ webkit.org/b/283410 media/media-vp8-webm-with-poster.html [ Pass ImageOnlyFailur
 webkit.org/b/188218 fast/repaint/canvas-object-fit.html [ Failure ]
 
 webkit.org/b/170337 fast/repaint/obscured-background-no-repaint.html [ Failure ]
+
+webkit.org/b/176648 fast/repaint/inline-outline-repaint.html [ ImageOnlyFailure ]
 
 webkit.org/b/308103 fast/repaint/svg-image-object-fit-animation-repaint.html [ ImageOnlyFailure Pass ]
 

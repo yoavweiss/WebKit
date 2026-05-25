@@ -272,9 +272,12 @@ UIProcess/glib/DisplayVBlankMonitorTimer.cpp
 UIProcess/glib/FenceMonitor.cpp
 UIProcess/glib/ScreenManager.cpp
 UIProcess/glib/SystemSettingsManagerProxy.cpp
+UIProcess/glib/TextCheckerGLib.cpp @no-unify
 UIProcess/glib/WebPageProxyGLib.cpp
 UIProcess/glib/WebProcessPoolGLib.cpp
 UIProcess/glib/WebProcessProxyGLib.cpp
+UIProcess/glib/WebTextCheckerClient.cpp
+UIProcess/glib/WebTextChecker.cpp
 
 UIProcess/gstreamer/WebPageProxyGStreamer.cpp
 
@@ -295,7 +298,6 @@ UIProcess/gtk/PointerLockManagerWayland.cpp @no-unify
 UIProcess/gtk/PointerLockManagerX11.cpp @no-unify
 UIProcess/gtk/ScreenManagerGtk.cpp @no-unify
 UIProcess/gtk/SystemSettingsManagerProxyGtk.cpp
-UIProcess/gtk/TextCheckerGtk.cpp @no-unify
 UIProcess/gtk/ValidationBubbleGtk.cpp
 UIProcess/gtk/ViewSnapshotStoreGtk3.cpp @no-unify
 UIProcess/gtk/ViewSnapshotStoreGtk4.cpp @no-unify
@@ -307,8 +309,6 @@ UIProcess/gtk/WebPageProxyGtk.cpp @no-unify
 UIProcess/gtk/WebPasteboardProxyGtk.cpp
 UIProcess/gtk/WebPopupMenuProxyGtk.cpp
 UIProcess/gtk/WebPreferencesGtk.cpp
-UIProcess/gtk/WebTextChecker.cpp
-UIProcess/gtk/WebTextCheckerClient.cpp
 
 UIProcess/soup/WebProcessPoolSoup.cpp
 
