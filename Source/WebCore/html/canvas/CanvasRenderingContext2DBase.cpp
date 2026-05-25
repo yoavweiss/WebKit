@@ -353,6 +353,7 @@ void CanvasRenderingContext2DBase::didUpdateCanvasSizeProperties(bool sizeChange
         context.save();
         context.clearRect(FloatRect { { }, canvasBase().size() });
     }
+    canvasBase().setOriginClean();
 }
 
 CanvasRenderingContext2DBase::State::State()
