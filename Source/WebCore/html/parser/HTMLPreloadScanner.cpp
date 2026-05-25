@@ -121,7 +121,7 @@ public:
     {
     }
 
-    void processAttributes(const HTMLToken::AttributeList& attributes, Vector<bool>& pictureState)
+    void processAttributes(const HTMLToken::AttributeList& attributes, Vector<PreloadScannerPictureState>& pictureState)
     {
         ASSERT(isMainThread());
         if (m_tagId >= TagId::Unknown)
@@ -132,11 +132,11 @@ public:
             processAttribute(knownAttributeName, attribute.value.span(), pictureState);
         }
 
-        if (m_tagId == TagId::Source && !pictureState.isEmpty() && !pictureState.last() && m_mediaMatched && m_typeMatched && !m_srcSetAttribute.isEmpty()) {
+        if (m_tagId == TagId::Source && !pictureState.isEmpty() && !pictureState.last().sourceMatched && m_mediaMatched && m_typeMatched && !m_srcSetAttribute.isEmpty()) {
             auto sourceSize = SizesAttributeParser(m_sizesAttribute, m_document).effectiveSize();
             ImageCandidate imageCandidate = bestFitSourceForImageAttributes(m_deviceScaleFactor, m_urlToLoad, m_srcSetAttribute, sourceSize);
             if (!imageCandidate.isEmpty()) {
-                pictureState.last() = true;
+                pictureState.last().sourceMatched = true;
                 setURLToLoadAllowingReplacement(imageCandidate.string.view);
             }
         }
@@ -193,6 +193,11 @@ public:
         return request;
     }
 
+    bool isLazyloadingImage() const
+    {
+        return m_tagId == TagId::Img && HTMLImageElement::hasLazyLoadableAttributeValue(m_lazyloadAttribute);
+    }
+
     static bool NODELETE match(const AtomString& name, const QualifiedName& qName)
     {
         ASSERT(isMainThread());
@@ -218,12 +223,20 @@ private:
             m_crossOriginMode = attributeValue.trim(isASCIIWhitespace<char16_t>).toString();
     }
 
-    void processAttribute(const AtomString& attributeName, StringView attributeValue, const Vector<bool>& pictureState)
+    void processAttribute(const AtomString& attributeName, StringView attributeValue, const Vector<PreloadScannerPictureState>& pictureState)
     {
         bool inPicture = !pictureState.isEmpty();
-        bool alreadyMatchedSource = inPicture && pictureState.last();
+        bool alreadyMatchedSource = inPicture && pictureState.last().sourceMatched;
         switch (m_tagId) {
         case TagId::Img:
+            // Even when a sibling <source> already matched, the <img>'s loading attribute
+            // still governs whether the matched source's preload should fire — read it first.
+            if (m_document->settings().lazyImageLoadingEnabled()) {
+                if (match(attributeName, loadingAttr) && m_lazyloadAttribute.isNull()) {
+                    m_lazyloadAttribute = attributeValue.toString();
+                    break;
+                }
+            }
             if (inPicture && alreadyMatchedSource)
                 break;
             if (match(attributeName, srcsetAttr) && m_srcSetAttribute.isNull()) {
@@ -241,12 +254,6 @@ private:
             if (match(attributeName, referrerpolicyAttr)) {
                 m_referrerPolicy = parseReferrerPolicy(attributeValue, ReferrerPolicySource::ReferrerPolicyAttribute).value_or(ReferrerPolicy::EmptyString);
                 break;
-            }
-            if (m_document->settings().lazyImageLoadingEnabled()) {
-                if (match(attributeName, loadingAttr) && m_lazyloadAttribute.isNull()) {
-                    m_lazyloadAttribute = attributeValue.toString();
-                    break;
-                }
             }
             processImageAndScriptAttribute(attributeName, attributeValue);
             break;
@@ -491,9 +498,14 @@ void TokenPreloadScanner::scan(const HTMLToken& token, Vector<std::unique_ptr<Pr
             if (m_inStyle)
                 m_cssScanner.reset();
             m_inStyle = false;
-        } else if (tagId == TagId::Picture && !m_pictureSourceState.isEmpty())
+        } else if (tagId == TagId::Picture && !m_pictureSourceState.isEmpty()) {
+            // If the <picture> closes without an <img> the buffered <source>
+            // preload is orphaned and we drop it. A picture with no <img> has
+            // no rendering, so the speculative fetch is wasted and would also
+            // diverge from the non-speculative case (matches WPT
+            // html/syntax/speculative-parsing/.../picture-source-no-img).
             m_pictureSourceState.removeLast();
-        else if (tagId == TagId::Svg && m_foreignContentCount)
+        } else if (tagId == TagId::Svg && m_foreignContentCount)
             --m_foreignContentCount;
 
         return;
@@ -528,7 +540,7 @@ void TokenPreloadScanner::scan(const HTMLToken& token, Vector<std::unique_ptr<Pr
             return;
         }
         if (tagId == TagId::Picture) {
-            m_pictureSourceState.append(false);
+            m_pictureSourceState.append({ });
             return;
         }
         if (tagId == TagId::Svg) {
@@ -553,7 +565,27 @@ void TokenPreloadScanner::scan(const HTMLToken& token, Vector<std::unique_ptr<Pr
 
         StartTagScanner scanner(document, tagId, m_deviceScaleFactor);
         scanner.processAttributes(token.attributes(), m_pictureSourceState);
-        if (auto request = scanner.createPreloadRequest(m_predictedBaseElementURL))
+        auto request = scanner.createPreloadRequest(m_predictedBaseElementURL);
+
+        // Inside a <picture>, defer matched-source preloads until the inner <img>
+        // is seen. If the <img> has loading=lazy we discard the buffered request;
+        // otherwise we flush it. This prevents speculatively fetching alternative
+        // <source> candidates (JXL/WebP/AVIF/srcset) for off-screen lazy images.
+        if (tagId == TagId::Source && !m_pictureSourceState.isEmpty()) {
+            if (request)
+                m_pictureSourceState.last().bufferedSourceRequest = WTF::move(request);
+            return;
+        }
+
+        if (tagId == TagId::Img && !m_pictureSourceState.isEmpty()) {
+            auto& pictureState = m_pictureSourceState.last();
+            if (scanner.isLazyloadingImage())
+                pictureState.bufferedSourceRequest.reset();
+            else if (auto buffered = WTF::move(pictureState.bufferedSourceRequest))
+                requests.append(WTF::move(buffered));
+        }
+
+        if (request)
             requests.append(WTF::move(request));
         return;
     }
