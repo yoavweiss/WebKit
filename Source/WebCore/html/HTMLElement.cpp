@@ -27,6 +27,7 @@
 #include "HTMLElement.h"
 
 #include "AXObjectCache.h"
+#include "AddEventListenerOptions.h"
 #include "CSSMarkup.h"
 #include "CSSParserFastPaths.h"
 #include "CSSPropertyNames.h"
@@ -36,6 +37,7 @@
 #include "CSSValuePool.h"
 #include "Chrome.h"
 #include "ChromeClient.h"
+#include "CloseWatcher.h"
 #include "CommonAtomStrings.h"
 #include "CustomElementReactionQueue.h"
 #include "DOMTokenList.h"
@@ -111,6 +113,22 @@ namespace WebCore {
 WTF_MAKE_TZONE_ALLOCATED_IMPL(HTMLElement);
 
 using namespace HTMLNames;
+
+PopoverData::PopoverCloseWatcherEventListener::PopoverCloseWatcherEventListener(HTMLElement& popover)
+    : EventListener(EventListener::CPPEventListenerType)
+    , m_popover(popover)
+{
+}
+
+void PopoverData::PopoverCloseWatcherEventListener::handleEvent(ScriptExecutionContext&, Event& event)
+{
+    if (RefPtr popover = m_popover) {
+        if (event.type() == eventNames().cancelEvent)
+            return;
+        if (event.type() == eventNames().closeEvent)
+            popover->hidePopover();
+    }
+}
 
 Ref<HTMLElement> HTMLElement::create(const QualifiedName& tagName, Document& document)
 {
@@ -1193,6 +1211,15 @@ ExceptionOr<void> HTMLElement::showPopoverInternal(HTMLElement* source)
             return { };
 
         shouldRestoreFocus = !document->topmostAutoPopover();
+
+        if (document->settings().closeWatcherEnabled()) {
+            if (RefPtr closeWatcher = CloseWatcher::create(document)) {
+                Ref listener = PopoverData::PopoverCloseWatcherEventListener::create(*this);
+                closeWatcher->addEventListener(eventNames().cancelEvent, listener, { });
+                closeWatcher->addEventListener(eventNames().closeEvent, listener, { });
+                popoverData()->setCloseWatcher(WTF::move(closeWatcher));
+            }
+        }
     }
 
     RefPtr previouslyFocusedElement = document->focusedElement();
@@ -1299,6 +1326,11 @@ ExceptionOr<void> HTMLElement::hidePopoverInternal(FocusPreviousElement focusPre
 
     if (CheckedPtr cache = document->existingAXObjectCache())
         cache->onPopoverToggle(*this);
+
+    if (RefPtr closeWatcher = popoverData()->closeWatcher()) {
+        closeWatcher->destroy();
+        popoverData()->setCloseWatcher(nullptr);
+    }
 
     return { };
 }

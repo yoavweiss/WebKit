@@ -34,6 +34,7 @@
 
 namespace WebCore {
 
+class Document;
 class KeyboardEvent;
 
 enum class RequireHistoryActionActivation : bool { No, Yes };
@@ -45,6 +46,7 @@ public:
         RefPtr<AbortSignal> signal;
     };
 
+    static RefPtr<CloseWatcher> create(Document&);
     static ExceptionOr<Ref<CloseWatcher>> create(ScriptExecutionContext&, const Options&);
 
     explicit CloseWatcher(Document&);
