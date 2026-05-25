@@ -62,7 +62,7 @@ namespace WebCore {
 class ScriptExecutionContext;
 class SocketProvider;
 
-class RiceBackendClient : public RefCounted<RiceBackendClient> {
+class RiceBackendClient : public ThreadSafeRefCounted<RiceBackendClient> {
     WTF_MAKE_NONCOPYABLE(RiceBackendClient);
 public:
     static Ref<RiceBackendClient> create() { return adoptRef(*new RiceBackendClient); }
