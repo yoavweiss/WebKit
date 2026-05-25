@@ -12549,6 +12549,7 @@
         "web-platform-tests/html/editing/the-hidden-attribute/hidden-until-found-005-ref.html",
         "web-platform-tests/html/editing/the-hidden-attribute/hidden-until-found-006-ref.html",
         "web-platform-tests/html/infrastructure/common-microsyntaxes/colours/parsing-legacy-colour-value-ascii-case-insensitive-ref.html",
+        "web-platform-tests/html/interaction/focus/anchor-element-focus-ring-ref.html",
         "web-platform-tests/html/interaction/focus/document-level-focus-apis/support/popup.html",
         "web-platform-tests/html/interaction/focus/document-level-focus-apis/support/test.html",
         "web-platform-tests/html/interaction/focus/processing-model/support/preventScroll-helper.html",

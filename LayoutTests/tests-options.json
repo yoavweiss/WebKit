@@ -3791,6 +3791,9 @@
     "imported/w3c/web-platform-tests/html/interaction/focus/focus-02.html": [
         "slow"
     ],
+    "imported/w3c/web-platform-tests/html/interaction/focus/focusgroup/tentative/grid-navigation/empty-spaces.html": [
+        "slow"
+    ],
     "imported/w3c/web-platform-tests/html/interaction/focus/sequential-focus-navigation-and-the-tabindex-attribute/focus-tabindex-negative.html": [
         "slow"
     ],
