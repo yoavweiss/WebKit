@@ -203,8 +203,14 @@ bool RenderSVGResourceClipper::hitTestClipContent(const FloatRect& objectBoundin
     SVGVisitedRendererTracking::Scope recursionScope(recursionTracking, *this);
 
     auto point = nodeAtPoint;
-    if (!pointInSVGClippingArea(point))
-        return false;
+
+    // If this <clipPath> has its own clip-path, the original target must also fall inside the
+    // nested clip region. objectBoundingBox units inside the nested clipPath resolve against
+    // the original referencing element's bounding box (passed in here), not this clipper's OBB.
+    if (CheckedPtr nestedClipper = svgClipperResourceFromStyle()) {
+        if (!nestedClipper->hitTestClipContent(objectBoundingBox, nodeAtPoint))
+            return false;
+    }
 
     if (clipPathUnits() == SVGUnitTypes::SVG_UNIT_TYPE_OBJECTBOUNDINGBOX) {
         AffineTransform applyTransform;

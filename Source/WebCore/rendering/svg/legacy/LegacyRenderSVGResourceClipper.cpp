@@ -335,8 +335,14 @@ bool LegacyRenderSVGResourceClipper::hitTestClipContent(const FloatRect& objectB
     SVGVisitedRendererTracking::Scope recursionScope(recursionTracking, *this);
 
     FloatPoint point = nodeAtPoint;
-    if (!SVGRenderSupport::pointInClippingArea(*this, point))
-        return false;
+
+    // Apply a nested clip-path on this <clipPath> using the original target's bounding box,
+    // not this clipper's OBB. SVGRenderSupport::pointInClippingArea() would incorrectly
+    // resolve objectBoundingBox units against *this->objectBoundingBox().
+    if (auto* resources = SVGResourcesCache::cachedResourcesForRenderer(*this)) {
+        if (auto* nestedClipper = resources->clipper(); nestedClipper && !nestedClipper->hitTestClipContent(objectBoundingBox, point))
+            return false;
+    }
 
     // The forward transform order is: OBB first, then local transform.
     // So the inverse order is: inverse local first, then inverse OBB.
