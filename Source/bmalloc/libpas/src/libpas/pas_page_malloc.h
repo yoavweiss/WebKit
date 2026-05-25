@@ -62,15 +62,6 @@ PAS_API pas_aligned_allocation_result
 pas_page_malloc_try_allocate_without_deallocating_padding(
     size_t size, pas_alignment alignment, bool may_contain_small_or_medium);
 
-/* Same as pas_page_malloc_try_allocate_without_deallocating_padding, but the first
-   guard_size bytes of the returned region are made inaccessible (PROT_NONE / PAGE_NOACCESS)
-   to catch wild accesses through pointers that decode to the base of the allocation.
-   guard_size must be a multiple of pas_page_malloc_alignment() and not exceed size. */
-PAS_API pas_aligned_allocation_result
-pas_page_malloc_try_allocate_with_guard_pages_without_deallocating_padding(
-    size_t size, pas_alignment alignment, bool may_contain_small_or_medium,
-    size_t guard_size);
-
 PAS_API void pas_page_malloc_deallocate(void* base, size_t size);
 
 PAS_API void pas_page_malloc_zero_fill(void* base, size_t size);

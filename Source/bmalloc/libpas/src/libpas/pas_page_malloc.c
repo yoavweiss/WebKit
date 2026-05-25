@@ -284,33 +284,6 @@ pas_page_malloc_try_allocate_without_deallocating_padding(
     return result;
 }
 
-pas_aligned_allocation_result
-pas_page_malloc_try_allocate_with_guard_pages_without_deallocating_padding(
-    size_t size, pas_alignment alignment, bool may_contain_small_or_medium,
-    size_t guard_size)
-{
-    pas_aligned_allocation_result result;
-
-    PAS_ASSERT(pas_is_aligned(guard_size, pas_page_malloc_alignment()));
-    PAS_ASSERT(guard_size <= size);
-
-    result = pas_page_malloc_try_allocate_without_deallocating_padding(
-        size, alignment, may_contain_small_or_medium);
-    if (!result.result || !guard_size)
-        return result;
-
-#if PAS_OS(WINDOWS)
-    {
-        DWORD old_protect;
-        PAS_ASSERT(VirtualProtect(result.result, guard_size, PAGE_NOACCESS, &old_protect));
-    }
-#else
-    PAS_SYSCALL(mprotect(result.result, guard_size, PROT_NONE));
-#endif
-
-    return result;
-}
-
 #if PAS_USE_MADV_ZERO
 static void pas_page_malloc_zero_fill_latch_if_madv_zero_is_supported(void)
 {

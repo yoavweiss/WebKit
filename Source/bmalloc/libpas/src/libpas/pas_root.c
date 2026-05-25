@@ -90,6 +90,7 @@ void pas_root_construct(pas_root* root)
     root->compact_heap_reservation_base = &pas_compact_heap_reservation_base;
     root->compact_heap_reservation_size = &pas_compact_heap_reservation_size;
     root->compact_heap_reservation_guard_size = &pas_compact_heap_reservation_guard_size;
+    root->compact_heap_reservation_available_size = &pas_compact_heap_reservation_available_size;
     root->compact_heap_reservation_bump = &pas_compact_heap_reservation_bump;
     root->enumerable_page_malloc_page_list = &pas_enumerable_page_malloc_page_list;
     root->large_heap_physical_page_sharing_cache_page_list =
