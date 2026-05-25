@@ -439,6 +439,14 @@ fast/text/user-installed-fonts/shadow-postscript-family.html [ Skip ]
 fast/text/user-installed-fonts/shadow-postscript.html [ Skip ]
 fast/text/user-installed-fonts/shadow.html [ Skip ]
 
+# Relies on local(Helvetica) / local(Helvetica Bold) / local(Helvetica Italic) resolving synchronously
+# to drive a re-entrant CSSFontFace status transition. Helvetica is not installed on Windows by default,
+# so the synchronous local() resolution path that exercises the UAF regression doesn't execute as
+# intended; the test is unreliable on the Windows port (see also fast/css/font-face-multiple-faces.html
+# which is flaky on Windows for the same Helvetica-availability reason). Skip rather than mark as
+# Failure so a potential crash on the Windows font path cannot take down the whole test run.
+fast/text/fontface-setstatus-crash.html [ Skip ]
+
 # testRunner.dumpPolicyDelegateCallbacks is not a function
 loader/navigation-policy/should-open-external-urls [ Skip ]
 
@@ -760,6 +768,12 @@ http/tests/inspector/network/xhr-response-body.html [ Failure ]
 
 http/tests/inspector/network/intercept-request-main-resource.html [ Skip ] # Timeout
 
+# Cross-origin iframe response-body retrieval relies on Site Isolation (separate
+# WebProcess per origin) and the BackendResourceDataStore IPC path added in
+# 313753@main. The Windows port does not yet support Site Isolation
+# (see http/tests/site-isolation skip below), so these tests cannot pass.
+http/tests/inspector/network/cross-origin-iframe-get-response-body-subresources.html [ Skip ]
+
 http/tests/loading/hidpi-preload-picture-sizes.html [ Failure ]
 http/tests/loading/oauth.html [ Failure ]
 http/tests/loading/post-in-iframe-with-back-navigation.html [ Failure ]
@@ -987,6 +1001,10 @@ webkit.org/b/185254 http/tests/xmlhttprequest/onloadend-event-after-error.html [
 webkit.org/b/185254 http/tests/xmlhttprequest/onloadend-event-after-sync-requests.html [ DumpJSConsoleLogInStdErr ]
 webkit.org/b/185254 http/tests/xmlhttprequest/response-access-on-error.html [ DumpJSConsoleLogInStdErr ]
 webkit.org/b/185254 http/tests/xmlhttprequest/state-after-network-error.html [ DumpJSConsoleLogInStdErr ]
+
+# Authorization header is not preserved on same-origin redirects on the Windows curl/Apache port.
+# Same underlying issue as the xmlhttprequest auth tests below (basic-auth-*, cross-origin-authorization, re-login, logout, ...).
+http/tests/fetch/fetch-redirect-same-origin-authorization.html [ Skip ]
 
 http/tests/xmlhttprequest/abort-should-cancel-load.html [ Failure ]
 http/tests/xmlhttprequest/access-control-basic-allow-list-request-headers.html [ Failure ]
@@ -1340,6 +1358,11 @@ webkit.org/b/227753 fast/dom/Window/post-message-large-array-buffer-should-not-c
 fast/editing/recursive-reapply-edit-command-crash.html [ Pass Failure ]
 
 fast/dom/HTMLLinkElement/link-stylesheet-load-once.html [ Failure ]
+# Same root cause as link-stylesheet-load-once above: introduced by 313704@main, which
+# replaced testRunner.dumpResourceLoadCallbacks with a UI-process WKPageResourceLoadClient.
+# The Windows curl-based network stack produces different resource-load callback output
+# (URL formatting / event ordering) than the expected mac-style NSURLRequest output.
+fast/dom/HTMLLinkElement/link-preload-load-once.html [ Failure ]
 fast/dom/Window/window-focus-self.html [ Failure ]
 fast/dom/Window/window-resize-and-move-arguments.html [ Failure ]
 fast/dom/Window/window-resize.html [ Failure ]
@@ -4340,6 +4363,10 @@ css3/blending/blend-mode-parent-of-composited-blended-has-layer.html [ Skip ]
 css3/blending/blend-mode-with-accelerated-sibling.html [ Skip ]
 css3/blending/blend-mode-with-composited-descendant-should-have-layer.html [ Skip ]
 css3/filters/backdrop/resource-use-change-size-from-zero.html [ Skip ]
+# Backdrop Root subtree painting fix at 313560@main was only landed in SkiaCompositingLayer
+# (USE(COORDINATED_GRAPHICS) && USE(SKIA)); the Windows WC compositor (USE_GRAPHICS_LAYER_WC)
+# still paints subsequent elements into the Backdrop Root Image, so this ref test fails.
+css3/filters/backdrop/backdrop-blur-and-subsequent-elements.html [ Skip ]
 css3/filters/filtered-compositing-descendant.html [ Skip ]
 
 
@@ -4691,3 +4718,10 @@ webkit.org/b/312135 fast/animation/request-video-frame-callback-in-isolated-worl
 webkit.org/b/312924 fast/webcodecs/resetting-audio-decoder-with-zero-size-crash.html [ Skip ]
 
 fast/message-channel/transfer-mediastreamtrack.html [ Skip ]
+
+# Cross-origin isolation (COOP/COEP) is not fully implemented on the Windows port,
+# so SharedArrayBuffer / WebAssembly.Memory{shared:true} is not exposed in
+# cross-origin-isolated contexts. The glib ports skip the same wasm/serialization/memory
+# tests for the same reason (see webkit.org/b/268068).
+imported/w3c/web-platform-tests/wasm/serialization/memory/messageport-via-sharedworker-success.tentative.https.html [ Skip ]
+imported/w3c/web-platform-tests/wasm/serialization/memory/window-success.tentative.https.html [ Skip ]
