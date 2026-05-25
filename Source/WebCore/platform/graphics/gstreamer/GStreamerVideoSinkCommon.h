@@ -30,6 +30,7 @@ struct WebKitVideoSinkSignalIdentifiers {
     unsigned long newSample { 0 };
     unsigned long newPreroll { 0 };
     unsigned long notifyCaps { 0 };
+    unsigned long padProbeId { 0 };
 };
 
 } // namespace WebCore

@@ -209,7 +209,7 @@ WebKitVideoSinkSignalIdentifiers webKitVideoSinkSetMediaPlayerPrivate(GstElement
 
     GRefPtr<GstPad> pad = adoptGRef(gst_element_get_static_pad(appSink, "sink"));
 
-    gst_pad_add_probe(pad.get(), static_cast<GstPadProbeType>(GST_PAD_PROBE_TYPE_PUSH | GST_PAD_PROBE_TYPE_QUERY_DOWNSTREAM
+    identifiers.padProbeId = gst_pad_add_probe(pad.get(), static_cast<GstPadProbeType>(GST_PAD_PROBE_TYPE_PUSH | GST_PAD_PROBE_TYPE_QUERY_DOWNSTREAM
         | GST_PAD_PROBE_TYPE_EVENT_FLUSH | GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM),
         WebKitVideoSinkProbe::doProbe, new WebKitVideoSinkProbe(player), WebKitVideoSinkProbe::deleteUserData);
 
@@ -234,11 +234,12 @@ void webKitVideoSinkDisconnectSignalHandlers(GstElement* appSink, const WebKitVi
     g_signal_handler_disconnect(appSink, identifiers.newPreroll);
     g_signal_handler_disconnect(appSink, identifiers.newSample);
 
-    if (!identifiers.notifyCaps)
-        return;
-
     auto pad = adoptGRef(gst_element_get_static_pad(appSink, "sink"));
-    g_signal_handler_disconnect(pad.get(), identifiers.notifyCaps);
+    if (identifiers.notifyCaps)
+        g_signal_handler_disconnect(pad.get(), identifiers.notifyCaps);
+
+    if (identifiers.padProbeId)
+        gst_pad_remove_probe(pad.get(), identifiers.padProbeId);
 }
 
 #undef GST_CAT_DEFAULT
