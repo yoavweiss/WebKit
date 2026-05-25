@@ -44,6 +44,7 @@
 #include "CSSClipValue.h"
 #include "CSSColorSchemeValue.h"
 #include "CSSColorValue.h"
+#include "CSSContentValue.h"
 #include "CSSCounterValue.h"
 #include "CSSCrossfadeValue.h"
 #include "CSSCursorImageValue.h"
@@ -84,6 +85,7 @@
 #include "CSSPrimitiveValue.h"
 #include "CSSProperty.h"
 #include "CSSQuadValue.h"
+#include "CSSQuotesValue.h"
 #include "CSSRatioValue.h"
 #include "CSSRayValue.h"
 #include "CSSRectValue.h"
@@ -152,6 +154,8 @@ template<typename Visitor> constexpr decltype(auto) CSSValue::visitDerived(Visit
     case ColorScheme:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSColorSchemeValue>(*this));
 #endif
+    case Content:
+        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSContentValue>(*this));
     case Counter:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSCounterValue>(*this));
     case Crossfade:
@@ -238,6 +242,8 @@ template<typename Visitor> constexpr decltype(auto) CSSValue::visitDerived(Visit
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSPrimitiveValue>(*this));
     case Quad:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSQuadValue>(*this));
+    case Quotes:
+        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSQuotesValue>(*this));
     case Ratio:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSRatioValue>(*this));
     case Ray:
@@ -437,6 +443,11 @@ Ref<DeprecatedCSSOMValue> CSSValue::createDeprecatedCSSOMWrapper(CSSStyleDeclara
         return uncheckedDowncast<CSSFilterValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
     case TextShadowProperty:
         return uncheckedDowncast<CSSTextShadowPropertyValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
+
+    case Content:
+        return uncheckedDowncast<CSSContentValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
+    case Quotes:
+        return uncheckedDowncast<CSSQuotesValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
 
     default:
         return DeprecatedCSSOMComplexValue::create(*this, styleDeclaration);

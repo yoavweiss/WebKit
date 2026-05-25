@@ -64,5 +64,6 @@ rendering/svg/SVGRenderingContext.h
 style/StyleBuilderState.h
 style/StyleExtractorState.h
 style/StyleScope.h
+style/calc/StyleCalculationTree+Conversion.h
 style/values/images/kinds/StyleCachedImage.cpp
 testing/Internals.cpp

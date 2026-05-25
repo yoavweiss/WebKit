@@ -901,6 +901,7 @@ css/CSSColorValue.cpp
 css/CSSComputedStyleDeclaration.cpp @header:RenderStyleGetters
 css/CSSConditionRule.cpp
 css/CSSContainerRule.cpp
+css/CSSContentValue.cpp
 css/CSSCounterStyleDescriptors.cpp
 css/CSSCounterStyleRegistry.cpp
 css/CSSCounterStyleRule.cpp
@@ -973,6 +974,7 @@ css/CSSPropertyInitialValues.cpp
 css/CSSPropertyRule.cpp
 css/CSSPropertySourceData.cpp
 css/CSSQuadValue.cpp
+css/CSSQuotesValue.cpp
 css/CSSRatioValue.cpp
 css/CSSRayValue.cpp
 css/CSSRectValue.cpp
@@ -1065,7 +1067,6 @@ css/parser/CSSPropertyParser.cpp
 css/parser/CSSPropertyParserConsumer+Align.cpp
 css/parser/CSSPropertyParserConsumer+Anchor.cpp
 css/parser/CSSPropertyParserConsumer+Animations.cpp
-css/parser/CSSPropertyParserConsumer+Attr.cpp
 css/parser/CSSPropertyParserConsumer+Background.cpp
 css/parser/CSSPropertyParserConsumer+Box.cpp
 css/parser/CSSPropertyParserConsumer+Color.cpp
@@ -1192,6 +1193,8 @@ css/values/color/CSSKeywordColor.cpp @header:RenderStyleGetters
 css/values/color/CSSLightDarkColor.cpp
 css/values/color/CSSPlatformColorResolutionState.cpp
 css/values/color/CSSResolvedColor.cpp
+css/values/content/CSSContent.cpp
+css/values/content/CSSQuotes.cpp
 css/values/filter-effects/CSSAppleColorFilter.cpp
 css/values/filter-effects/CSSFilter.cpp
 css/values/fonts/CSSFontFamilyName.cpp

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2011 Nokia Inc. All rights reserved.
  * Copyright (C) 2012 Google Inc. All rights reserved.
- * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2025-2026 Samuel Weinig <sam@webkit.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -24,7 +24,7 @@
 #include "StyleQuotes.h"
 
 #include "CSSKeywordValue.h"
-#include "CSSStringValue.h"
+#include "CSSQuotesValue.h"
 #include "StyleBuilderChecking.h"
 
 namespace WebCore {
@@ -64,6 +64,40 @@ const WTF::String& Quotes::closeQuote(unsigned index) const
 
 // MARK: - Conversion
 
+auto ToCSS<Quotes>::operator()(const Quotes& value, const RenderStyle& style) -> CSS::Quotes
+{
+    return WTF::switchOn(value,
+        [&](CSS::SpecificKeyword auto const& keyword) -> CSS::Quotes {
+            return toCSS(keyword, style);
+        },
+        [&](const Quotes::Data& data) -> CSS::Quotes {
+            return CSS::Quotes::Data::map(data, [&](const String& item) {
+                return toCSS(item, style);
+            });
+        }
+    );
+}
+
+auto ToStyle<CSS::Quotes>::operator()(const CSS::Quotes& value, const BuilderState& state) -> Quotes
+{
+    return WTF::switchOn(value,
+        [&](CSS::SpecificKeyword auto const& keyword) -> Quotes {
+            return toStyle(keyword, state);
+        },
+        [&](const CSS::Quotes::Data& data) -> Quotes {
+            if (data.size() % 2 != 0) {
+                // FIXME: Update ToStyle to pass BuilderState as non-const.
+                const_cast<BuilderState&>(state).setCurrentPropertyInvalidAtComputedValueTime();
+                return CSS::Keyword::Auto { };
+            }
+
+            return Quotes::Data::map(data, [&](const CSS::String& item) {
+                return toStyle(item, state);
+            });
+        }
+    );
+}
+
 auto CSSValueConversion<Quotes>::operator()(BuilderState& state, const CSSValue& value) -> Quotes
 {
     if (RefPtr keywordValue = dynamicDowncast<CSSKeywordValue>(value)) {
@@ -80,18 +114,16 @@ auto CSSValueConversion<Quotes>::operator()(BuilderState& state, const CSSValue&
         return CSS::Keyword::Auto { };
     }
 
-    auto list = requiredListDowncast<CSSValueList, CSSStringValue, 2>(state, value);
-    if (!list)
+    RefPtr quotesValue = requiredDowncast<CSSQuotesValue>(state, value);
+    if (!quotesValue)
         return CSS::Keyword::Auto { };
 
-    if (list->size() % 2 != 0) {
-        state.setCurrentPropertyInvalidAtComputedValueTime();
-        return CSS::Keyword::Auto { };
-    }
+    return toStyle(quotesValue->quotes(), state);
+}
 
-    return Quotes::Data::map(*list, [&](const CSSStringValue& item) {
-        return toStyle(item.string(), state);
-    });
+Ref<CSSValue> CSSValueCreation<Quotes>::operator()(CSSValuePool&, const RenderStyle& style, const Quotes& value)
+{
+    return CSSQuotesValue::create(toCSS(value, style));
 }
 
 } // namespace Style

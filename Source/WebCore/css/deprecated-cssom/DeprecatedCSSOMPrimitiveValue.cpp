@@ -232,8 +232,8 @@ ExceptionOr<Ref<DeprecatedCSSOMCounter>> DeprecatedCSSOMPrimitiveValue::getCount
 {
     if (RefPtr value = dynamicDowncast<CSSCounterValue>(m_value.get())) {
         auto counterStyle = WTF::switchOn(value->counterStyle().identifier,
-            [](CSSValueID predefinedKeyword) -> String {
-                return nameLiteralForSerialization(predefinedKeyword);
+            [](const CSS::Keyword& predefinedKeyword) -> String {
+                return nameLiteralForSerialization(predefinedKeyword.value);
             },
             [](const CSS::CustomIdent& customIdent) -> String {
                 return customIdent.value.string();

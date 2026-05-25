@@ -45,8 +45,8 @@ auto ToCSS<CounterStyle>::operator()(const CounterStyle& value, const RenderStyl
 auto ToStyle<CSS::CounterStyle>::operator()(const CSS::CounterStyle& value, const BuilderState& state) -> CounterStyle
 {
     return WTF::switchOn(value.identifier,
-        [&](CSSValueID predefinedKeyword) -> CounterStyle {
-            return { CustomIdent { nameStringForSerialization(predefinedKeyword) } };
+        [&](const CSS::Keyword& predefinedKeyword) -> CounterStyle {
+            return { CustomIdent { nameStringForSerialization(predefinedKeyword.value) } };
         },
         [&](const CSS::CustomIdent& customIdent) -> CounterStyle {
             return { toStyle(customIdent, state) };

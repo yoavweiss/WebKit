@@ -26,15 +26,12 @@
 #include "config.h"
 #include "StyleContent.h"
 
-#include "CSSAttrValue.h"
-#include "CSSCounterValue.h"
+#include "CSSContentValue.h"
 #include "CSSKeywordValue.h"
-#include "CSSPrimitiveValue.h"
-#include "CSSStringValue.h"
-#include "CSSValueList.h"
 #include "RenderStyle+GettersInlines.h"
 #include "RenderStyle+SettersInlines.h"
 #include "StyleBuilderChecking.h"
+#include "StyleInvalidImage.h"
 #include "StyleValueTypes+CSSValueConversion.h"
 
 namespace WebCore {
@@ -43,11 +40,171 @@ namespace Style {
 WTF::String Content::altText() const
 {
     if (auto* contentData = tryData())
-        return contentData->altText.value_or(String { nullString() }).value;
+        return contentData->alt.value_or(String { nullString() }).value;
     return { };
 }
 
 // MARK: - Conversion
+
+template<> struct ToCSS<Content::Data> { auto operator()(const Content::Data&, const RenderStyle&) -> CSS::Content::Data; };
+template<> struct ToStyle<CSS::Content::Data> { auto operator()(const CSS::Content::Data&, const BuilderState&) -> Content::Data; };
+
+auto ToCSS<Content::Data>::operator()(const Content::Data& value, const RenderStyle& style) -> CSS::Content::Data
+{
+    auto computeVisibleContentList = [&] -> CSS::Content::VisibleContentList {
+        return CSS::Content::VisibleContentList::map(value.visible, [&](const auto& item) -> CSS::Content::VisibleContentListItem {
+            return WTF::switchOn(item,
+                [&](const Content::Text& text) -> CSS::Content::VisibleContentListItem {
+                    return CSS::Content::Text { toCSS(text.text, style) };
+                },
+                [&](const Content::Image& image) -> CSS::Content::VisibleContentListItem {
+                    return CSS::Content::Image { toCSS(image.image, style) };
+                },
+                [&](const Content::Counter& counter) -> CSS::Content::VisibleContentListItem {
+                    if (counter.separator.value.isEmpty()) {
+                        return CSS::Content::CounterFunction {
+                            .parameters = {
+                                toCSS(counter.identifier, style),
+                                toCSS(counter.style, style),
+                            }
+                        };
+                    } else {
+                        return CSS::Content::CountersFunction {
+                            .parameters = {
+                                toCSS(counter.identifier, style),
+                                toCSS(counter.separator, style),
+                                toCSS(counter.style, style),
+                            }
+                        };
+                    }
+                },
+                [&](const Content::Quote& quote) -> CSS::Content::VisibleContentListItem {
+                    switch (quote.quote) {
+                    case QuoteType::OpenQuote:
+                        return CSS::Content::Quote { CSS::Keyword::OpenQuote { } };
+                    case QuoteType::CloseQuote:
+                        return CSS::Content::Quote { CSS::Keyword::CloseQuote { } };
+                    case QuoteType::NoOpenQuote:
+                        return CSS::Content::Quote { CSS::Keyword::NoOpenQuote { } };
+                    case QuoteType::NoCloseQuote:
+                        return CSS::Content::Quote { CSS::Keyword::NoCloseQuote { } };
+                    }
+                    RELEASE_ASSERT_NOT_REACHED();
+                }
+            );
+        });
+    };
+
+    auto computeAltContentList = [&] -> std::optional<CSS::Content::AltContentList> {
+        if (!value.alt)
+            return { };
+
+        return CSS::Content::AltContentList {
+            CSS::Content::Text { toCSS(*value.alt, style) }
+        };
+    };
+
+    return {
+        .visible = computeVisibleContentList(),
+        .alt = computeAltContentList(),
+    };
+}
+
+auto ToStyle<CSS::Content::Data>::operator()(const CSS::Content::Data& value, const BuilderState& state) -> Content::Data
+{
+    auto processAttrContent = [&](const CSS::Content::LegacyAttrFunction& value) -> String {
+        if (!state.style().pseudoElementType())
+            const_cast<BuilderState&>(state).style().setHasAttrContent();
+        else
+            const_cast<ComputedStyle&>(state.parentStyle()).setHasAttrContent();
+
+        auto attrName = toStyle(value->name, state);
+        QualifiedName attr(nullAtom(), attrName.value.impl(), nullAtom());
+        RefPtr element = state.element();
+        const AtomString& attributeValue = element ? element->getAttribute(attr) : nullAtom();
+
+        // Register the fact that the attribute value affects the style.
+        const_cast<BuilderState&>(state).registerSubstitutionAttribute(attr.localName());
+
+        if (attributeValue.isNull()) {
+            if (auto fallback = value->fallback)
+                return toStyle(*fallback, state);
+            return String { emptyString() };
+        }
+        return String { attributeValue.string() };
+    };
+
+    auto computeVisibleContentList = [&] -> Content::VisibleContentList {
+        return Content::VisibleContentList::map(value.visible, [&](const auto& item) -> Content::VisibleContentListItem {
+            return WTF::switchOn(item,
+                [&](const CSS::Content::Text& text) -> Content::VisibleContentListItem {
+                    return Content::Text { toStyle(text.text, state) };
+                },
+                [&](const CSS::Content::LegacyAttrFunction& attr) -> Content::VisibleContentListItem {
+                    return Content::Text { processAttrContent(attr) };
+                },
+                [&](const CSS::Content::Image& image) -> Content::VisibleContentListItem {
+                    return Content::Image { toStyle(image.image, state) };
+                },
+                [&](const CSS::Content::CounterFunction& counterFunction) -> Content::VisibleContentListItem {
+                    return Content::Counter {
+                        toStyle(counterFunction->identifier, state),
+                        String { nullString() },
+                        toStyle(counterFunction->style, state),
+                    };
+                },
+                [&](const CSS::Content::CountersFunction& countersFunction) -> Content::VisibleContentListItem {
+                    return Content::Counter {
+                        toStyle(countersFunction->identifier, state),
+                        toStyle(countersFunction->separator, state),
+                        toStyle(countersFunction->style, state),
+                    };
+                },
+                [&](const CSS::Content::Quote& quote) -> Content::VisibleContentListItem {
+                    return WTF::switchOn(quote,
+                        [](CSS::Keyword::OpenQuote) -> Content::Quote { return { QuoteType::OpenQuote }; },
+                        [](CSS::Keyword::CloseQuote) -> Content::Quote { return { QuoteType::CloseQuote }; },
+                        [](CSS::Keyword::NoOpenQuote) -> Content::Quote { return { QuoteType::NoOpenQuote }; },
+                        [](CSS::Keyword::NoCloseQuote) -> Content::Quote { return { QuoteType::NoCloseQuote }; }
+                    );
+                }
+            );
+        });
+    };
+
+    auto computeAltText = [&] -> std::optional<String> {
+        if (!value.alt)
+            return { };
+
+        StringBuilder altTextBuilder;
+        for (auto& item : *value.alt) {
+            WTF::switchOn(item,
+                [&](const CSS::Content::Text& text) {
+                    altTextBuilder.append(toStyle(text.text, state).value);
+                },
+                [&](const CSS::Content::LegacyAttrFunction& attr) {
+                    altTextBuilder.append(processAttrContent(attr).value);
+                }
+            );
+        }
+        return String { altTextBuilder.toString() };
+    };
+
+    return {
+        .visible = computeVisibleContentList(),
+        .alt = computeAltText(),
+    };
+}
+
+auto ToCSS<Content>::operator()(const Content& value, const RenderStyle& style) -> CSS::Content
+{
+    return WTF::switchOn(value, [&](const auto& alternative) -> CSS::Content { return toCSS(alternative, style); });
+}
+
+auto ToStyle<CSS::Content>::operator()(const CSS::Content& value, const BuilderState& state) -> Content
+{
+    return WTF::switchOn(value, [&](const auto& alternative) -> Content { return toStyle(alternative, state); });
+}
 
 auto CSSValueConversion<Content>::operator()(BuilderState& state, const CSSValue& value) -> Content
 {
@@ -65,110 +222,16 @@ auto CSSValueConversion<Content>::operator()(BuilderState& state, const CSSValue
         return CSS::Keyword::Normal { };
     }
 
-    RefPtr contentListAltTextPair = dynamicDowncast<CSSValuePair>(value);
-    RefPtr contentList = requiredDowncast<CSSValueList>(state, contentListAltTextPair ? contentListAltTextPair->first() : value);
-    if (!contentList)
+    RefPtr contentValue = requiredDowncast<CSSContentValue>(state, value);
+    if (!contentValue)
         return CSS::Keyword::Normal { };
 
-    // FIXME: Replace with support for CSS Values 5 attr() substitution function.
-    auto processAttrContent = [&](const CSSAttrValue& value) -> AtomString {
-        if (!state.style().pseudoElementType())
-            state.style().setHasAttrContent();
-        else
-            const_cast<ComputedStyle&>(state.parentStyle()).setHasAttrContent();
-
-        QualifiedName attr(nullAtom(), value.attributeName().impl(), nullAtom());
-        RefPtr element = state.element();
-        const AtomString& attributeValue = element ? element->getAttribute(attr) : nullAtom();
-
-        // Register the fact that the attribute value affects the style.
-        state.registerSubstitutionAttribute(attr.localName());
-
-        if (attributeValue.isNull()) {
-            if (auto fallback = value.fallback())
-                return AtomString { fallback->value };
-            return emptyAtom();
-        }
-        return attributeValue.impl();
-    };
-
-    auto computeContentList = [&] -> Content::List {
-        return Content::List::map(*contentList, [&](const CSSValue& item) -> Content::ListItem {
-            if (item.isImage()) {
-                if (RefPtr image = state.createStyleImage(item))
-                    return Content::Image { ImageWrapper { image.releaseNonNull() } };
-
-                state.setCurrentPropertyInvalidAtComputedValueTime();
-                return Content::Text { String { emptyString() } };
-            }
-
-            if (RefPtr keywordValue = dynamicDowncast<CSSKeywordValue>(item)) {
-                switch (keywordValue->valueID()) {
-                case CSSValueOpenQuote:
-                    return Content::Quote { QuoteType::OpenQuote };
-                case CSSValueCloseQuote:
-                    return Content::Quote { QuoteType::CloseQuote };
-                case CSSValueNoOpenQuote:
-                    return Content::Quote { QuoteType::NoOpenQuote };
-                case CSSValueNoCloseQuote:
-                    return Content::Quote { QuoteType::NoCloseQuote };
-                default:
-                    break;
-                }
-                state.setCurrentPropertyInvalidAtComputedValueTime();
-                return Content::Text { String { emptyString() } };
-            }
-
-            if (RefPtr stringValue = dynamicDowncast<CSSStringValue>(item))
-                return Content::Text { toStyleFromCSSValue<String>(state, *stringValue) };
-
-            if (RefPtr attrValue = dynamicDowncast<CSSAttrValue>(item))
-                return Content::Text { String { processAttrContent(*attrValue) } };
-
-            if (RefPtr counter = dynamicDowncast<CSSCounterValue>(item)) {
-                return Content::Counter {
-                    toStyle(counter->identifier(), state),
-                    toStyle(counter->separator(), state),
-                    toStyle(counter->counterStyle(), state),
-                };
-            }
-
-            state.setCurrentPropertyInvalidAtComputedValueTime();
-            return Content::Text { String { emptyString() } };
-        });
-    };
-
-    auto computeAltText = [&] -> std::optional<String> {
-        if (!contentListAltTextPair)
-            return { };
-
-        auto altTextList = requiredListDowncast<CSSValueList, CSSValue>(state, contentListAltTextPair->second());
-        if (!altTextList)
-            return { };
-
-        StringBuilder altTextBuilder;
-        for (Ref item : *altTextList) {
-            if (RefPtr stringValue = dynamicDowncast<CSSStringValue>(item))
-                altTextBuilder.append(toStyleFromCSSValue<String>(state, *stringValue).value);
-            else if (RefPtr attrValue = dynamicDowncast<CSSAttrValue>(item))
-                altTextBuilder.append(processAttrContent(*attrValue));
-            else {
-                state.setCurrentPropertyInvalidAtComputedValueTime();
-                return { };
-            }
-        }
-        return String { altTextBuilder.toString() };
-    };
-
-    return Content::Data { computeContentList(), computeAltText() };
+    return toStyle(contentValue->content(), state);
 }
 
-Ref<CSSValue> CSSValueCreation<Content::Counter>::operator()(CSSValuePool&, const RenderStyle& style, const Content::Counter& value)
+Ref<CSSValue> CSSValueCreation<Content>::operator()(CSSValuePool&, const RenderStyle& style, const Content& value)
 {
-    return CSSCounterValue::create(
-        toCSS(value.identifier, style),
-        toCSS(value.separator, style),
-        toCSS(value.style, style));
+    return CSSContentValue::create(toCSS(value, style));
 }
 
 } // namespace Style

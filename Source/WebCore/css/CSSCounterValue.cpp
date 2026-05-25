@@ -54,7 +54,7 @@ bool CSSCounterValue::equals(const CSSCounterValue& other) const
 String CSSCounterValue::customCSSText(const CSS::SerializationContext& context) const
 {
     bool hasDefaultCounterStyle = WTF::switchOn(m_counterStyle.identifier,
-        [](CSSValueID predefinedKeyword) {
+        [](const CSS::Keyword& predefinedKeyword) {
             return predefinedKeyword == CSSValueDecimal;
         },
         [](const CSS::CustomIdent& ident) {
@@ -68,14 +68,7 @@ String CSSCounterValue::customCSSText(const CSS::SerializationContext& context) 
         CSS::serializationForCSS(builder, context, m_identifier);
         if (!hasDefaultCounterStyle) {
             builder.append(", "_s);
-            WTF::switchOn(m_counterStyle.identifier,
-                [&](CSSValueID predefinedKeyword) {
-                    builder.append(nameLiteralForSerialization(predefinedKeyword));
-                },
-                [&](const CSS::CustomIdent& customIdent) {
-                    CSS::serializationForCSS(builder, context, customIdent);
-                 }
-            );
+            CSS::serializationForCSS(builder, context, m_counterStyle);
         }
         builder.append(')');
         return builder.toString();
@@ -88,14 +81,7 @@ String CSSCounterValue::customCSSText(const CSS::SerializationContext& context) 
     CSS::serializationForCSS(builder, context, m_separator);
     if (!hasDefaultCounterStyle) {
         builder.append(", "_s);
-        WTF::switchOn(m_counterStyle.identifier,
-            [&](CSSValueID predefinedKeyword) {
-                builder.append(nameLiteralForSerialization(predefinedKeyword));
-            },
-            [&](const CSS::CustomIdent& customIdent) {
-                CSS::serializationForCSS(builder, context, customIdent);
-             }
-        );
+        CSS::serializationForCSS(builder, context, m_counterStyle);
     }
     builder.append(')');
     return builder.toString();

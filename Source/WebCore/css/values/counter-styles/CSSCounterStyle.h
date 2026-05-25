@@ -26,6 +26,7 @@
 #pragma once
 
 #include <WebCore/CSSCustomIdent.h>
+#include <WebCore/CSSKeyword.h>
 #include <WebCore/CSSValueTypes.h>
 
 namespace WebCore {
@@ -34,8 +35,8 @@ namespace CSS {
 // <counter-style> = <custom-ident excluding=none>
 // https://drafts.csswg.org/css-counter-styles-3/#typedef-counter-style
 struct CounterStyle {
-    // Stores predefined style types using their CSSValueID representation.
-    Variant<CSSValueID, CustomIdent> identifier;
+    // Stores predefined style types using their Keyword representation.
+    Variant<Keyword, CustomIdent> identifier;
 
     bool operator==(const CounterStyle&) const = default;
 };

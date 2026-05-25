@@ -36,6 +36,7 @@
 #include "CSSBoxShadowPropertyValue.h"
 #include "CSSCalcValue.h"
 #include "CSSClipValue.h"
+#include "CSSContentValue.h"
 #include "CSSCustomIdentValue.h"
 #include "CSSCustomPropertyValue.h"
 #include "CSSEasingFunctionValue.h"
@@ -48,6 +49,7 @@
 #include "CSSOMKeywordValue.h"
 #include "CSSParser.h"
 #include "CSSPropertyParser.h"
+#include "CSSQuotesValue.h"
 #include "CSSSerializationContext.h"
 #include "CSSShorthandSubstitutionValue.h"
 #include "CSSStyleImageValue.h"
@@ -312,6 +314,24 @@ ExceptionOr<Ref<CSSStyleValue>> CSSStyleValueFactory::reifyValue(Document& docum
         if (transformValue.hasException())
             return transformValue.releaseException();
         return Ref<CSSStyleValue> { transformValue.releaseReturnValue() };
+    } else if (RefPtr property = dynamicDowncast<CSSContentValue>(cssValue)) {
+        return WTF::switchOn(property->content(),
+            [&](CSS::SpecificKeyword auto const& keyword) -> ExceptionOr<Ref<CSSStyleValue>> {
+                return WebCore::reifyValue(keyword);
+            },
+            [&](const auto&) -> ExceptionOr<Ref<CSSStyleValue>> {
+                return CSSStyleValue::create(Ref(const_cast<CSSValue&>(cssValue)), WTF::move(associatedProperty));
+            }
+        );
+    } else if (RefPtr property = dynamicDowncast<CSSQuotesValue>(cssValue)) {
+        return WTF::switchOn(property->quotes(),
+            [&](CSS::SpecificKeyword auto const& keyword) -> ExceptionOr<Ref<CSSStyleValue>> {
+                return WebCore::reifyValue(keyword);
+            },
+            [&](const auto&) -> ExceptionOr<Ref<CSSStyleValue>> {
+                return CSSStyleValue::create(Ref(const_cast<CSSValue&>(cssValue)), WTF::move(associatedProperty));
+            }
+        );
     } else if (RefPtr property = dynamicDowncast<CSSFilterValue>(cssValue)) {
         return WTF::switchOn(property->filter(),
             [&](CSS::Keyword::None keyword) -> ExceptionOr<Ref<CSSStyleValue>> {

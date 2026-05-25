@@ -75,7 +75,7 @@ void loadPendingResources(RenderStyle& style, Document& document, const Element*
         loadPendingImage(document, backgroundLayer.image().tryStyleImage().get(), element);
 
     if (auto* contentData = style.content().tryData()) {
-        for (auto& contentItem : contentData->list) {
+        for (auto& contentItem : contentData->visible) {
             WTF::switchOn(contentItem,
                 [&](const Style::Content::Image& image) {
                     loadPendingImage(document, image.image.value.ptr(), element);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2025-2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,6 +28,11 @@
 #include <WebCore/StyleValueTypes.h>
 
 namespace WebCore {
+
+namespace CSS {
+struct ImageWrapper;
+}
+
 namespace Style {
 
 // Utility type that wraps an Image for use with the strong style type system.
@@ -41,6 +46,9 @@ struct ImageWrapper {
 };
 
 // MARK: - Conversion
+
+template<> struct ToCSS<ImageWrapper> { auto operator()(const ImageWrapper&, const RenderStyle&) -> CSS::ImageWrapper; };
+template<> struct ToStyle<CSS::ImageWrapper> { auto operator()(const CSS::ImageWrapper&, const BuilderState&) -> ImageWrapper; };
 
 template<> struct CSSValueCreation<ImageWrapper> { Ref<CSSValue> operator()(CSSValuePool&, const RenderStyle&, const ImageWrapper&); };
 template<> struct DeprecatedCSSOMValueCreation<ImageWrapper> { Ref<DeprecatedCSSOMValue> operator()(CSSValuePool&, const RenderStyle&, CSSStyleDeclaration&, const ImageWrapper&); };

@@ -64,7 +64,7 @@ std::optional<CSS::CounterStyle> consumeUnresolvedCounterStyle(CSSParserTokenRan
     // FIXME: Implement support for `symbols()`.
 
     if (isPredefinedCounterStyle(range.peek().id()))
-        return CSS::CounterStyle { range.consumeIncludingWhitespace().id() };
+        return CSS::CounterStyle { CSS::Keyword { range.consumeIncludingWhitespace().id() } };
 
     auto customIdent = consumeUnresolvedCustomIdentExcluding(range, state, { CSSValueNone });
     if (!customIdent)
