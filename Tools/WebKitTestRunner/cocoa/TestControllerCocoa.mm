@@ -248,7 +248,9 @@ void TestController::platformInitializeDataStore(WKPageConfigurationRef, const T
         // Including any non-trivial value of "persistent notifications have a minimum timeout before being closeable"
         // is counterproductive for layout tests - especially WPT tests. We cover the behavior in API tests.
         // So let's just set it to a tiny value for no behavior change in layout tests.
+#if ENABLE(NOTIFICATIONS) && ENABLE(NOTIFICATION_EVENT)
         websiteDataStoreConfig.get().overridePersistentNotificationMinimumLifetimeForTesting = std::numeric_limits<float>::min();
+#endif
         if (!useEphemeralSession)
             configureWebsiteDataStoreTemporaryDirectories((WKWebsiteDataStoreConfigurationRef)websiteDataStoreConfig.get());
         if (standaloneWebApplicationURL.length())
