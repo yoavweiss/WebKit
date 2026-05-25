@@ -90,7 +90,8 @@ typedef struct _WebKitGstIceAgentPrivate {
     RefPtr<SocketProvider> socketProvider;
     GRefPtr<RiceAgent> agent;
 
-    StreamHashMap streams;
+    Lock streamsLock;
+    StreamHashMap streams WTF_GUARDED_BY_LOCK(streamsLock);
 
     RefPtr<RunLoop> runLoop;
 
@@ -379,6 +380,7 @@ static GstWebRTCICEStream* webkitGstWebRTCIceAgentAddStream(GstWebRTCICE* ice, g
     if (!backend->priv->iceBackend)
         return nullptr;
 
+    Locker locker { backend->priv->streamsLock };
     if (backend->priv->streams.contains(sessionId)) {
         GST_ERROR_OBJECT(ice, "Stream already added for session %u", sessionId);
         return nullptr;
@@ -551,6 +553,7 @@ static void webkitGstWebRTCIceAgentSetTos(GstWebRTCICE* ice, GstWebRTCICEStream*
     if (!backend) [[unlikely]]
         return;
 
+    Locker locker { self->priv->streamsLock };
     for (auto& riceStream : self->priv->streams.values()) {
         if (riceStream->stream->stream_id != stream->stream_id)
             continue;
@@ -639,7 +642,10 @@ void webkitGstWebRTCIceAgentClosed(WebKitGstIceAgent* agent)
     Locker locker { priv->stateLock };
     priv->state = AgentState::Closed;
 
-    priv->streams.clear();
+    {
+        Locker locker { priv->streamsLock };
+        priv->streams.clear();
+    }
 
     if (!priv->closePromise)
         return;
@@ -720,13 +726,16 @@ static void webkitGstWebRTCIceAgentConstructed(GObject* object)
     priv->agent = adoptGRef(rice_agent_new(true, true));
 }
 
-static void findStreamAndApply(const StreamHashMap& streams, unsigned streamId, Function<void(const WebKitGstIceStream*)> callback)
+static void findStreamAndApply(WebKitGstIceAgent* agent, unsigned streamId, Function<void(const WebKitGstIceStream*)> callback)
 {
-    for (auto& riceStream : streams.values()) {
+    Locker locker { agent->priv->streamsLock };
+    for (auto& riceStream : agent->priv->streams.values()) {
         if (riceStream->riceStreamId != streamId)
             continue;
 
-        callback(WEBKIT_GST_WEBRTC_ICE_STREAM(riceStream->stream.get()));
+        GRefPtr stream = riceStream->stream;
+        locker.unlockEarly();
+        callback(WEBKIT_GST_WEBRTC_ICE_STREAM(stream.get()));
         return;
     }
 }
@@ -745,7 +754,7 @@ static bool webkitGstWebRTCIceAgentConfigure(WebKitGstIceAgent* backend, RefPtr<
         auto self = weakThis.get();
         if (!self)
             return;
-        findStreamAndApply(self->priv->streams, streamId, [protocol, from = WTF::move(from), to = WTF::move(to), data = WTF::move(data)](const auto* stream) mutable {
+        findStreamAndApply(self.get(), streamId, [protocol, from = WTF::move(from), to = WTF::move(to), data = WTF::move(data)](const auto* stream) mutable {
             webkitGstWebRTCIceStreamHandleIncomingData(stream, protocol, WTF::move(from), WTF::move(to), WTF::move(data));
         });
     });
@@ -754,7 +763,7 @@ static bool webkitGstWebRTCIceAgentConfigure(WebKitGstIceAgent* backend, RefPtr<
         auto self = weakThis.get();
         if (!self)
             return;
-        findStreamAndApply(self->priv->streams, streamId, [componentId, protocol, from = WTF::move(from), to = WTF::move(to), socket = WTF::move(socket)](const auto* stream) mutable {
+        findStreamAndApply(self.get(), streamId, [componentId, protocol, from = WTF::move(from), to = WTF::move(to), socket = WTF::move(socket)](const auto* stream) mutable {
             webkitGstWebRTCIceStreamHandleAllocatedSocket(stream, componentId, protocol, WTF::move(from), WTF::move(to), WTF::move(socket));
         });
         webkitGstWebRTCIceAgentWakeup(self.get());
@@ -874,7 +883,7 @@ void webkitGstWebRTCIceAgentWakeup(WebKitGstIceAgent* agent)
 
 void webkitGstWebRTCIceAgentGatheringDoneForStream(WebKitGstIceAgent* agent, unsigned streamId)
 {
-    findStreamAndApply(agent->priv->streams, streamId, [](const auto* stream) {
+    findStreamAndApply(agent, streamId, [](const auto* stream) {
         webkitGstWebRTCIceStreamGatheringDone(stream);
     });
 }
@@ -891,7 +900,7 @@ void webkitGstWebRTCIceAgentLocalCandidateGatheredForStream(WebKitGstIceAgent* a
         }
     }
 
-    findStreamAndApply(agent->priv->streams, streamId, [&](const auto* stream) {
+    findStreamAndApply(agent, streamId, [&](const auto* stream) {
         Locker locker { priv->stateLock };
         if (priv->state >= AgentState::Closing) {
             GST_DEBUG_OBJECT(agent, "Agent %s, no need to notify gathered candidate anymore", priv->state == AgentState::Closed ? "was closed" : "is closing");
@@ -915,14 +924,14 @@ void webkitGstWebRTCIceAgentLocalCandidateGatheredForStream(WebKitGstIceAgent* a
 
 void webkitGstWebRTCIceAgentNewSelectedPairForStream(WebKitGstIceAgent* agent, unsigned streamId, RiceAgentSelectedPair& selectedPair)
 {
-    findStreamAndApply(agent->priv->streams, streamId, [&](const auto* stream) {
+    findStreamAndApply(agent, streamId, [&](const auto* stream) {
         webkitGstWebRTCIceStreamNewSelectedPair(stream, selectedPair);
     });
 }
 
 void webkitGstWebRTCIceAgentComponentStateChangedForStream(WebKitGstIceAgent* agent, unsigned streamId, RiceAgentComponentStateChange& change)
 {
-    findStreamAndApply(agent->priv->streams, streamId, [&](const auto* stream) {
+    findStreamAndApply(agent, streamId, [&](const auto* stream) {
         webkitGstWebRTCIceStreamComponentStateChanged(stream, change);
     });
 }
