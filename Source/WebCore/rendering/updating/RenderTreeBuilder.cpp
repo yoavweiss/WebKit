@@ -1012,10 +1012,8 @@ static void resetRendererStateOnDetach(RenderElement& parent, RenderObject& chil
     if (child.isFloatingOrOutOfFlowPositioned())
         downcast<RenderBox>(child).removeFloatingOrOutOfFlowChildFromBlockLists();
     else if (CheckedPtr parentFlexibleBox = dynamicDowncast<RenderFlexibleBox>(parent)) {
-        if (CheckedPtr childBox = dynamicDowncast<RenderBox>(child)) {
-            parentFlexibleBox->clearFlexItemContentLogicalHeight(*childBox);
-            parentFlexibleBox->clearCachedBlockAxisSizeForFlexItem(*childBox);
-        }
+        if (CheckedPtr childBox = dynamicDowncast<RenderBox>(child))
+            parentFlexibleBox->flexItemWillBeRemoved(*childBox);
     }
 
     if (willBeDestroyed == RenderTreeBuilder::WillBeDestroyed::No)

@@ -77,10 +77,10 @@ public:
     std::optional<LayoutUnit> usedFlexItemOverridingLogicalHeightForPercentageResolution(const RenderBox&);
     bool canUseFlexItemForPercentageResolution(const RenderBox&);
 
-    void clearCachedBlockAxisSizeForFlexItem(const RenderBox& flexItem);
-    
+    void invalidateBlockAxisSizeForFlexItem(const RenderBox& flexItem);
+    void flexItemWillBeRemoved(const RenderBox& flexItem);
+
     LayoutUnit flexItemContentLogicalHeight(const RenderBox& flexItem) const;
-    void clearFlexItemContentLogicalHeight(const RenderBox& flexItem);
     void setFlexItemContentLogicalHeightIfNeeded(const RenderBox& flexItem, LayoutUnit height);
 
     LayoutUnit staticMainAxisPositionForPositionedFlexItem(const RenderBox&);

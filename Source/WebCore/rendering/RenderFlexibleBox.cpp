@@ -769,9 +769,10 @@ LayoutUnit RenderFlexibleBox::flexItemContentLogicalHeight(const RenderBox& flex
     return flexItem.contentBoxLogicalHeight();
 }
 
-void RenderFlexibleBox::clearFlexItemContentLogicalHeight(const RenderBox& flexItem)
+void RenderFlexibleBox::flexItemWillBeRemoved(const RenderBox& flexItem)
 {
     m_contentLogicalHeights.remove(flexItem);
+    m_blockAxisSize.remove(flexItem);
 }
 
 static bool canSetFlexItemContentLogicalHeight(const RenderBox& flexItem)
@@ -1513,7 +1514,7 @@ template<typename SizeType> bool RenderFlexibleBox::flexItemCrossSizeIsDefinite(
     return size.isFixed();
 }
 
-void RenderFlexibleBox::clearCachedBlockAxisSizeForFlexItem(const RenderBox& flexItem)
+void RenderFlexibleBox::invalidateBlockAxisSizeForFlexItem(const RenderBox& flexItem)
 {
     m_blockAxisSize.remove(flexItem);
 }

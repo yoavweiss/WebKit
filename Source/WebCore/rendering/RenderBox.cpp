@@ -277,10 +277,8 @@ void RenderBox::styleWillChange(Style::Difference diff, const RenderStyle& newSt
                 // We are about to go out of flow. Before that takes place, we need to mark the
                 // current containing block chain for preferred widths recalculation.
                 setNeedsLayoutAndPreferredWidthsUpdate();
-                if (CheckedPtr flexContainer = dynamicDowncast<RenderFlexibleBox>(parent())) {
-                    flexContainer->clearFlexItemContentLogicalHeight(*this);
-                    flexContainer->clearCachedBlockAxisSizeForFlexItem(*this);
-                }
+                if (CheckedPtr flexContainer = dynamicDowncast<RenderFlexibleBox>(parent()))
+                    flexContainer->flexItemWillBeRemoved(*this);
                 if (isInTopLayerOrBackdrop(style(), element())) {
                     // Since top layer's containing block is driven by the associated element's state (see Element::isInTopLayerOrBackdrop)
                     // and this state is set before styleWillChange call, dirtying ancestors starting from _this_ fails to mark the current ancestor chain properly.
