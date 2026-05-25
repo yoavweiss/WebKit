@@ -43,6 +43,7 @@
 #include <wtf/Borrow.h>
 #include <wtf/DebugUtilities.h>
 #include <wtf/HexNumber.h>
+#include <wtf/SetForScope.h>
 #include <wtf/text/StringBuilder.h>
 
 #if PLATFORM(COCOA)
@@ -753,12 +754,10 @@ void WebBackForwardList::backForwardAddItem(IPC::Connection& connection, Ref<Fra
         backForwardAddItemShared(connection, WTF::move(navigatedFrameState), webPageProxy->didLoadWebArchive() ? LoadedWebArchive::Yes : LoadedWebArchive::No);
 }
 
-void WebBackForwardList::backForwardAddItemShared(IPC::Connection& connection, Ref<FrameState>&& navigatedFrameState, LoadedWebArchive loadedWebArchive)
+static void messageCheckItemURLs(Ref<FrameState>& frameState, Ref<WebProcessProxy>& process)
 {
-    Ref process = WebProcessProxy::fromConnection(connection);
-
-    URL itemURL { navigatedFrameState->urlString };
-    URL itemOriginalURL { navigatedFrameState->originalURLString };
+    URL itemURL { frameState->urlString };
+    URL itemOriginalURL { frameState->originalURLString };
 #if PLATFORM(COCOA)
     if (linkedOnOrAfterSDKWithBehavior(SDKAlignedBehavior::PushStateFilePathRestriction)
 #if PLATFORM(MAC)
@@ -766,12 +765,17 @@ void WebBackForwardList::backForwardAddItemShared(IPC::Connection& connection, R
 #endif // PLATFORM(MAC)
     ) {
 #endif // PLATFORM(COCOA)
-        ASSERT(!itemURL.protocolIsFile() || process->wasPreviouslyApprovedFileURL(itemURL));
         MESSAGE_CHECK(process, !itemURL.protocolIsFile() || process->wasPreviouslyApprovedFileURL(itemURL));
         MESSAGE_CHECK(process, !itemOriginalURL.protocolIsFile() || process->wasPreviouslyApprovedFileURL(itemOriginalURL));
 #if PLATFORM(COCOA)
     }
 #endif
+}
+
+void WebBackForwardList::backForwardAddItemShared(IPC::Connection& connection, Ref<FrameState>&& navigatedFrameState, LoadedWebArchive loadedWebArchive)
+{
+    Ref process = WebProcessProxy::fromConnection(connection);
+    messageCheckItemURLs(navigatedFrameState, process);
 
     if (RefPtr targetFrame = WebFrameProxy::webFrame(navigatedFrameState->frameID)) {
         if (targetFrame->isPendingInitialHistoryItem()) {
@@ -794,8 +798,11 @@ void WebBackForwardList::backForwardAddItemShared(IPC::Connection& connection, R
     }
 }
 
-void WebBackForwardList::backForwardSetChildItem(BackForwardFrameItemIdentifier frameItemID, Ref<FrameState>&& frameState)
+void WebBackForwardList::backForwardSetChildItem(IPC::Connection& connection, BackForwardFrameItemIdentifier frameItemID, Ref<FrameState>&& frameState)
 {
+    Ref process = WebProcessProxy::fromConnection(connection);
+    messageCheckItemURLs(frameState, process);
+
     RefPtr item = currentItem();
     if (!item)
         return;
@@ -812,6 +819,14 @@ void WebBackForwardList::backForwardClearChildren(BackForwardItemIdentifier item
 
 void WebBackForwardList::backForwardUpdateItem(IPC::Connection& connection, Ref<FrameState>&& frameState)
 {
+    Ref process = WebProcessProxy::fromConnection(connection);
+
+    // In the case of a process swap, the `backForwardUpdateItem` message can be received from the old process,
+    // and therefore present an unexpected file: URL.
+    // We can safely skip the message check in these cases.
+    if (!m_handlingProvisionalMessage)
+        messageCheckItemURLs(frameState, process);
+
     RefPtr frameItem = frameState->itemID && frameState->frameItemID ? WebBackForwardListFrameItem::itemForID(*frameState->itemID, *frameState->frameItemID) : nullptr;
     if (!frameItem)
         return;
@@ -936,6 +951,12 @@ String WebBackForwardList::loggingString() const
     }
 
     return builder.toString();
+}
+
+void WebBackForwardList::didReceiveProvisionalMessage(IPC::Connection& connection, IPC::Decoder& decoder)
+{
+    SetForScope scope(m_handlingProvisionalMessage, true);
+    didReceiveMessage(connection, decoder);
 }
 
 #else // ENABLE(BACK_FORWARD_LIST_SWIFT)

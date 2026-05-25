@@ -735,8 +735,13 @@ void ProvisionalPageProxy::didReceiveMessage(IPC::Connection& connection, IPC::D
     }
 
     if (decoder.messageName() == Messages::WebBackForwardList::BackForwardUpdateItem::name()) {
-        if (RefPtr page = m_page.get())
+        if (RefPtr page = m_page.get()) {
+#if ENABLE(BACK_FORWARD_LIST_SWIFT)
             page->backForwardListMessageReceiver().didReceiveMessage(connection, decoder);
+#else
+            page->backForwardList().didReceiveProvisionalMessage(connection, decoder);
+#endif
+        }
         return;
     }
 
