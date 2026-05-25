@@ -486,7 +486,7 @@ void RenderFlexibleBox::layoutBlock(RelayoutChildren relayoutChildren, LayoutUni
     LayoutRepainter repainter(*this);
 
     resetLogicalHeightBeforeLayoutIfNeeded();
-    m_relaidOutFlexItems.clear();
+    m_flexItemsWithCompletedLayout.clear();
     
     bool oldInLayout = m_inLayout;
     m_inLayout = true;
@@ -1558,14 +1558,14 @@ private:
 };
 
 // https://drafts.csswg.org/css-flexbox/#algo-main-item
-LayoutUnit RenderFlexibleBox::flexBaseSizeForFlexItem(RenderBox& flexItem, RelayoutChildren relayoutChildren)
+LayoutUnit RenderFlexibleBox::flexBaseSizeForFlexItem(RenderBox& flexItem)
 {
     auto flexBasis = flexBasisForFlexItem(flexItem);
     ScopedFlexBasisAsFlexItemMainSize scoped(flexItem, flexBasis.tryPreferredSize().value_or(Style::PreferredSize { CSS::Keyword::MaxContent { } }), mainAxisIsFlexItemInlineAxis(flexItem));
     // FIXME: While we are supposed to ignore min/max here, the cached
     // m_blockAxisSize entry may hold a min/max-constrained size.
     SetForScope<bool> computingBaseSizesScope(m_isComputingFlexBaseSizes, true);
-    ensureBlockAxisContentSizeForFlexItemIfNeeded(flexItem, relayoutChildren);
+    ensureBlockAxisContentSizeForFlexItemIfNeeded(flexItem);
 
     // 9.2.3 A.
     if (flexItemMainSizeIsDefinite(flexItem, flexBasis))
@@ -1619,10 +1619,11 @@ void RenderFlexibleBox::performFlexLayout(RelayoutChildren relayoutChildren)
                 flexItem->clearTrimmedMarginsMarkings();
             if (flexItem->shouldInvalidatePreferredWidths())
                 flexItem->setNeedsPreferredWidthsUpdate(MarkingBehavior::MarkOnlyThis);
+            updateBlockChildDirtyBitsBeforeLayout(relayoutChildren, *flexItem);
             return everHadLayout;
         };
         auto everHadLayout = prepareFlexItem();
-        allItems.append({ *flexItem, flexBaseAndHypotheticalMainSize(*flexItem, relayoutChildren), everHadLayout });
+        allItems.append({ *flexItem, flexBaseAndHypotheticalMainSize(*flexItem), everHadLayout });
         // flexBaseAndHypotheticalMainSize might set the override containing block height so any value cached for definiteness might be incorrect.
         resetHasDefiniteHeight();
     }
@@ -2106,16 +2107,10 @@ LayoutUnit RenderFlexibleBox::adjustFlexItemSizeForAspectRatioCrossAxisMinAndMax
     return flexItemSize;
 }
 
-void RenderFlexibleBox::ensureBlockAxisContentSizeForFlexItemIfNeeded(RenderBox& flexItem, RelayoutChildren relayoutChildren)
+void RenderFlexibleBox::ensureBlockAxisContentSizeForFlexItemIfNeeded(RenderBox& flexItem)
 {
     if (!flexBaseSizeNeedsBlockAxisContentSize(flexItem))
         return;
-
-    // If this condition is true, then computeMainAxisExtentForFlexItem will call
-    // flexItem.intrinsicContentLogicalHeight() and flexItem.scrollbarLogicalHeight(),
-    // so if the child has intrinsic min/max/preferred size, run layout on it now to make sure
-    // its logical height and scroll bars are up to date.
-    updateBlockChildDirtyBitsBeforeLayout(relayoutChildren, flexItem);
 
     if (!flexItem.needsLayout() && m_blockAxisSize.contains(flexItem))
         return;
@@ -2135,12 +2130,12 @@ void RenderFlexibleBox::ensureBlockAxisContentSizeForFlexItemIfNeeded(RenderBox&
     }();
 
     m_blockAxisSize.set(flexItem, innerSize);
-    m_relaidOutFlexItems.add(flexItem);
+    m_flexItemsWithCompletedLayout.add(flexItem);
 }
 
-RenderFlexibleBox::FlexBaseAndHypotheticalMainSize RenderFlexibleBox::flexBaseAndHypotheticalMainSize(RenderBox& flexItem, RelayoutChildren relayoutChildren)
+RenderFlexibleBox::FlexBaseAndHypotheticalMainSize RenderFlexibleBox::flexBaseAndHypotheticalMainSize(RenderBox& flexItem)
 {
-    auto flexBaseContentSize = flexBaseSizeForFlexItem(flexItem, relayoutChildren);
+    auto flexBaseContentSize = flexBaseSizeForFlexItem(flexItem);
     auto minMaxMainSizes = computeFlexItemMinMaxMainSizes(flexItem);
     return { flexBaseContentSize, std::max(minMaxMainSizes.first, std::min(flexBaseContentSize, minMaxMainSizes.second)), minMaxMainSizes };
 }
@@ -2730,7 +2725,7 @@ RenderFlexibleBox::FlexLineResult RenderFlexibleBox::layoutAndPlaceFlexItems(Lay
         }
         // We may have already forced relayout for orthogonal flowing children in
         // computeInnerFlexBaseSizeForFlexItem.
-        bool forceFlexItemRelayout = relayoutChildren == RelayoutChildren::Yes && !m_relaidOutFlexItems.contains(flexItem);
+        bool forceFlexItemRelayout = relayoutChildren == RelayoutChildren::Yes && !m_flexItemsWithCompletedLayout.contains(flexItem);
         if (!forceFlexItemRelayout && flexItemHasPercentHeightDescendants(flexItem)) {
             // Have to force another relayout even though the child is sized
             // correctly, because its descendants are not sized correctly yet. Our
@@ -2742,7 +2737,7 @@ RenderFlexibleBox::FlexLineResult RenderFlexibleBox::layoutAndPlaceFlexItems(Lay
         if (!flexItem.needsLayout())
             flexItem.markForPaginationRelayoutIfNeeded();
         if (flexItem.needsLayout())
-            m_relaidOutFlexItems.add(flexItem);
+            m_flexItemsWithCompletedLayout.add(flexItem);
         {
             auto flexLayoutScope = SetForScope(m_afterMainAxisItemSizing, true);
             flexItem.layoutIfNeeded();
@@ -3079,7 +3074,7 @@ void RenderFlexibleBox::applyStretchAlignmentToFlexItem(RenderBox& flexItem, Lay
 
         // FIXME: Can avoid laying out here in some cases. See https://webkit.org/b/87905.
         bool flexItemNeedsRelayout = desiredLogicalHeight != flexItem.logicalHeight();
-        if (!flexItemNeedsRelayout && m_relaidOutFlexItems.contains(flexItem) && flexItemHasPercentHeightDescendants(flexItem)) {
+        if (!flexItemNeedsRelayout && m_flexItemsWithCompletedLayout.contains(flexItem) && flexItemHasPercentHeightDescendants(flexItem)) {
             // Have to force another relayout even though the child is sized
             // correctly, because its descendants are not sized correctly yet. Our
             // previous layout of the child was done without an override height set.

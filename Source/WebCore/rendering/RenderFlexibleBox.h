@@ -215,8 +215,8 @@ private:
     void computeChildIntrinsicLogicalWidths(RenderBox&, LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const override;
     template<typename SizeType> LayoutUnit computeMainSizeFromAspectRatioUsing(const RenderBox& flexItem, const SizeType& crossSizeLength) const;
     void NODELETE setFlowAwareLocationForFlexItem(RenderBox& flexItem, const LayoutPoint&);
-    LayoutUnit flexBaseSizeForFlexItem(RenderBox& flexItem, RelayoutChildren);
-    void ensureBlockAxisContentSizeForFlexItemIfNeeded(RenderBox& flexItem, RelayoutChildren);
+    LayoutUnit flexBaseSizeForFlexItem(RenderBox& flexItem);
+    void ensureBlockAxisContentSizeForFlexItemIfNeeded(RenderBox& flexItem);
     void NODELETE adjustAlignmentForFlexItem(RenderBox& flexItem, LayoutUnit);
     inline OverflowAlignment overflowAlignmentForFlexItem(const RenderBox& flexItem) const;
     template<typename SizeType> bool canComputePercentageFlexBasis(const RenderBox& flexItem, const SizeType&, UpdatePercentageHeightDescendants);
@@ -274,7 +274,7 @@ private:
     LayoutUnit computeUsedNonAutoMinMainSize(RenderBox& flexItem, const Style::MinimumSize&);
     LayoutUnit computeContentBasedMinMainSize(RenderBox& flexItem, std::optional<LayoutUnit> maxExtent);
     LayoutUnit adjustFlexItemSizeForAspectRatioCrossAxisMinAndMax(const RenderBox& flexItem, LayoutUnit flexItemSize);
-    FlexBaseAndHypotheticalMainSize flexBaseAndHypotheticalMainSize(RenderBox&, RelayoutChildren);
+    FlexBaseAndHypotheticalMainSize flexBaseAndHypotheticalMainSize(RenderBox&);
     
     void freezeInflexibleItems(FlexSign, FlexLayoutItems&, LayoutUnit& remainingFreeSpace, double& totalFlexGrow, double& totalFlexShrink, double& totalWeightedFlexShrink);
     bool resolveFlexibleLengths(FlexSign, FlexLayoutItems&, LayoutUnit initialFreeSpace, LayoutUnit& remainingFreeSpace, double& totalFlexGrow, double& totalFlexShrink, double& totalWeightedFlexShrink);
@@ -325,7 +325,7 @@ private:
     // need an additional layout pass for correct stretch alignment handling, as
     // the first layout likely did not use the correct value for percentage
     // sizing of children.
-    SingleThreadWeakHashSet<const RenderBox> m_relaidOutFlexItems;
+    SingleThreadWeakHashSet<const RenderBox> m_flexItemsWithCompletedLayout;
 
     mutable OrderIterator m_orderIterator { *this };
     size_t m_numberOfFlexItemsOnFirstLine { 0 };
