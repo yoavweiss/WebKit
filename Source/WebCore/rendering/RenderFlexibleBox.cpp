@@ -67,14 +67,18 @@ namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RenderFlexibleBox);
 
-RenderFlexibleBox::FlexLayoutItem::FlexLayoutItem(RenderBox& flexItem, LayoutUnit flexBaseContentSize, LayoutUnit mainAxisBorderAndPadding, LayoutUnit mainAxisMargin, std::pair<LayoutUnit, LayoutUnit> minMaxSizes, bool everHadLayout)
+static bool flexContainerIsHorizontalFlow(const RenderBox& flexItem)
+{
+    return downcast<RenderFlexibleBox>(*flexItem.parent()).isHorizontalFlow();
+}
+
+RenderFlexibleBox::FlexLayoutItem::FlexLayoutItem(RenderBox& flexItem, const FlexBaseAndHypotheticalMainSize& sizing, bool everHadLayout)
     : renderer(flexItem)
-    , flexBaseContentSize(flexBaseContentSize)
-    , mainAxisBorderAndPadding(mainAxisBorderAndPadding)
-    , mainAxisMargin(mainAxisMargin)
-    , minMaxSizes(minMaxSizes)
-    , hypotheticalMainContentSize(constrainSizeByMinMax(flexBaseContentSize))
-    , frozen(false)
+    , flexBaseContentSize(sizing.flexBaseContentSize)
+    , mainAxisBorderAndPadding(flexContainerIsHorizontalFlow(flexItem) ? flexItem.horizontalBorderAndPaddingExtent() : flexItem.verticalBorderAndPaddingExtent())
+    , mainAxisMargin(flexContainerIsHorizontalFlow(flexItem) ? flexItem.horizontalMarginExtent() : flexItem.verticalMarginExtent())
+    , minMaxSizes(sizing.minMaxMainSizes)
+    , hypotheticalMainContentSize(sizing.hypotheticalMainContentSize)
     , everHadLayout(everHadLayout)
 {
     ASSERT(!flexItem.isOutOfFlowPositioned());
@@ -1600,15 +1604,26 @@ void RenderFlexibleBox::performFlexLayout(RelayoutChildren relayoutChildren)
     // should work off this list of a subset.
     // FIXME: That second part is not yet true.
     FlexLayoutItems allItems;
-    for (auto* flexItem = m_orderIterator.first(); flexItem; flexItem = m_orderIterator.next()) {
+    for (CheckedPtr flexItem = m_orderIterator.first(); flexItem; flexItem = m_orderIterator.next()) {
         if (m_orderIterator.shouldSkipChild(*flexItem)) {
             // Out-of-flow children are not flex items, so we skip them here.
             if (flexItem->isOutOfFlowPositioned())
                 prepareFlexItemForPositionedLayout(*flexItem);
             continue;
         }
-        allItems.append(constructFlexLayoutItem(*flexItem, relayoutChildren));
-        // constructFlexItem() might set the override containing block height so any value cached for definiteness might be incorrect.
+        auto prepareFlexItem = [&] {
+            auto everHadLayout = flexItem->everHadLayout();
+            if (CheckedPtr flexibleBox = dynamicDowncast<RenderFlexibleBox>(flexItem.get()))
+                flexibleBox->resetHasDefiniteHeight();
+            if (everHadLayout && flexItem->hasTrimmedMargin(std::optional<Style::MarginTrimSide> { }))
+                flexItem->clearTrimmedMarginsMarkings();
+            if (flexItem->shouldInvalidatePreferredWidths())
+                flexItem->setNeedsPreferredWidthsUpdate(MarkingBehavior::MarkOnlyThis);
+            return everHadLayout;
+        };
+        auto everHadLayout = prepareFlexItem();
+        allItems.append({ *flexItem, flexBaseAndHypotheticalMainSize(*flexItem, relayoutChildren), everHadLayout });
+        // flexBaseAndHypotheticalMainSize might set the override containing block height so any value cached for definiteness might be incorrect.
         resetHasDefiniteHeight();
     }
 
@@ -2123,22 +2138,11 @@ void RenderFlexibleBox::ensureBlockAxisContentSizeForFlexItemIfNeeded(RenderBox&
     m_relaidOutFlexItems.add(flexItem);
 }
 
-RenderFlexibleBox::FlexLayoutItem RenderFlexibleBox::constructFlexLayoutItem(RenderBox& flexItem, RelayoutChildren relayoutChildren)
+RenderFlexibleBox::FlexBaseAndHypotheticalMainSize RenderFlexibleBox::flexBaseAndHypotheticalMainSize(RenderBox& flexItem, RelayoutChildren relayoutChildren)
 {
-    auto everHadLayout = flexItem.everHadLayout();
-    if (auto* flexibleBox = dynamicDowncast<RenderFlexibleBox>(flexItem))
-        flexibleBox->resetHasDefiniteHeight();
-
-    if (everHadLayout && flexItem.hasTrimmedMargin(std::optional<Style::MarginTrimSide> { }))
-        flexItem.clearTrimmedMarginsMarkings();
-
-    if (flexItem.shouldInvalidatePreferredWidths())
-        flexItem.setNeedsPreferredWidthsUpdate(MarkingBehavior::MarkOnlyThis);
-
-    LayoutUnit innerFlexBaseSize = flexBaseSizeForFlexItem(flexItem, relayoutChildren);
-    LayoutUnit borderAndPadding = isHorizontalFlow() ? flexItem.horizontalBorderAndPaddingExtent() : flexItem.verticalBorderAndPaddingExtent();
-    LayoutUnit margin = isHorizontalFlow() ? flexItem.horizontalMarginExtent() : flexItem.verticalMarginExtent();
-    return FlexLayoutItem(flexItem, innerFlexBaseSize, borderAndPadding, margin, computeFlexItemMinMaxMainSizes(flexItem), everHadLayout);
+    auto flexBaseContentSize = flexBaseSizeForFlexItem(flexItem, relayoutChildren);
+    auto minMaxMainSizes = computeFlexItemMinMaxMainSizes(flexItem);
+    return { flexBaseContentSize, std::max(minMaxMainSizes.first, std::min(flexBaseContentSize, minMaxMainSizes.second)), minMaxMainSizes };
 }
     
 void RenderFlexibleBox::freezeViolations(Vector<FlexLayoutItem*, 4>& violations, LayoutUnit& availableFreeSpace, double& totalFlexGrow, double& totalFlexShrink, double& totalWeightedFlexShrink)

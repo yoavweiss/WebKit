@@ -123,9 +123,15 @@ protected:
 private:
     friend class ScopedCrossAxisOverrideForFlexItem;
 
+    struct FlexBaseAndHypotheticalMainSize {
+        LayoutUnit flexBaseContentSize;
+        LayoutUnit hypotheticalMainContentSize;
+        std::pair<LayoutUnit, LayoutUnit> minMaxMainSizes;
+    };
+
     class FlexLayoutItem {
     public:
-        FlexLayoutItem(RenderBox&, LayoutUnit, LayoutUnit, LayoutUnit, std::pair<LayoutUnit, LayoutUnit>, bool);
+        FlexLayoutItem(RenderBox&, const FlexBaseAndHypotheticalMainSize&, bool everHadLayout);
 
         LayoutUnit NODELETE hypotheticalMainAxisMarginBoxSize() const;
         LayoutUnit NODELETE flexBaseMarginBoxSize() const;
@@ -268,7 +274,7 @@ private:
     LayoutUnit computeUsedNonAutoMinMainSize(RenderBox& flexItem, const Style::MinimumSize&);
     LayoutUnit computeContentBasedMinMainSize(RenderBox& flexItem, std::optional<LayoutUnit> maxExtent);
     LayoutUnit adjustFlexItemSizeForAspectRatioCrossAxisMinAndMax(const RenderBox& flexItem, LayoutUnit flexItemSize);
-    FlexLayoutItem constructFlexLayoutItem(RenderBox&, RelayoutChildren);
+    FlexBaseAndHypotheticalMainSize flexBaseAndHypotheticalMainSize(RenderBox&, RelayoutChildren);
     
     void freezeInflexibleItems(FlexSign, FlexLayoutItems&, LayoutUnit& remainingFreeSpace, double& totalFlexGrow, double& totalFlexShrink, double& totalWeightedFlexShrink);
     bool resolveFlexibleLengths(FlexSign, FlexLayoutItems&, LayoutUnit initialFreeSpace, LayoutUnit& remainingFreeSpace, double& totalFlexGrow, double& totalFlexShrink, double& totalWeightedFlexShrink);
