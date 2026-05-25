@@ -124,7 +124,7 @@ void XRCylinderLayer::startFrame(PlatformXR::FrameData& frameData)
 void XRCylinderLayer::recomputePose()
 {
     auto scopeExit = makeScopeExit([&]() {
-        RELEASE_LOG_ERROR(XR, "Failed to invert space transform, using identity transform for layer pose");
+        RELEASE_LOG_ERROR(XR, "Failed to decompose space transform, using identity transform for layer pose");
         m_poseInLocalSpace = PlatformXR::FrameData::Pose { .position = { 0, 0, 0 }, .orientation = { 0, 0, 0, 1 } };
     });
 
@@ -133,10 +133,8 @@ void XRCylinderLayer::recomputePose()
         spaceTransform = m_space->nativeOrigin();
     if (!spaceTransform)
         spaceTransform = TransformationMatrix();
-    else if (!spaceTransform->isInvertible())
-        return;
 
-    auto transformInLocalSpace = m_transform ? *spaceTransform->inverse() * m_transform->rawTransform() : *spaceTransform->inverse();
+    auto transformInLocalSpace = m_transform ? *spaceTransform * m_transform->rawTransform() : *spaceTransform;
     TransformationMatrix::Decomposed4Type decomposed;
     if (!transformInLocalSpace.decompose4(decomposed))
         return;
