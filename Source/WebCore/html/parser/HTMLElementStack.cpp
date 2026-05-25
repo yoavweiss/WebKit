@@ -29,6 +29,7 @@
 
 #include "Document.h"
 #include "DocumentFragment.h"
+#include "ElementInlines.h"
 #include "HTMLOptGroupElement.h"
 #include "HTMLOptionElement.h"
 #include "HTMLTableElement.h"

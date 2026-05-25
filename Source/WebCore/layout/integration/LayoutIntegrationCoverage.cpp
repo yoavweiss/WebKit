@@ -30,6 +30,7 @@
 #include "InlineWalker.h"
 #include "RenderBlockFlow.h"
 #include "RenderDeprecatedFlexibleBox.h"
+#include "RenderElementInlines.h"
 #include "RenderFlexibleBox.h"
 #include "RenderImage.h"
 #include "RenderInline.h"
