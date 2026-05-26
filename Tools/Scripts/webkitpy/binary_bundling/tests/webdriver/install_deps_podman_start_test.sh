@@ -15,6 +15,12 @@ fi
 
 export PYTHONUNBUFFERED=1
 
+HEADLESS=""
+if [ "${1}" = "--headless" ]; then
+    HEADLESS="--headless"
+    shift 1
+fi
+
 # Install needed packages
 case "${CURRENT_DISTRO}" in
     alpine)
@@ -80,8 +86,9 @@ tar xfav /testbundle.tar.xz -C /testbundle
 echo "Starting tests on distro: ${CURRENT_DISTRO}"
 [ -f /etc/os-release ] && cat /etc/os-release
 # run the tests
+CMD="/testdata/test_webdriver_bundle.py ${HEADLESS} --platform=$1 /testbundle"
 if [ "${CURRENT_DISTRO}" = "nixos" ]; then
-    nix-shell -p python3 python3Packages.pip python3Packages.pillow python3Packages.numpy --run "/testdata/test_webdriver_bundle.py --platform=$1 /testbundle"
+    exec nix-shell -p python3 python3Packages.pip python3Packages.pillow python3Packages.numpy --run "${CMD}"
 else
-    /testdata/test_webdriver_bundle.py "--platform=$1" /testbundle
+    exec ${CMD}
 fi

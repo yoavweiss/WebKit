@@ -472,7 +472,7 @@ class BundleCreator(object):
         gtk_binary_version = self._get_pkg_config_var('gtk4', 'gtk_binary_version')
         gtk_module_dir = os.path.join(gtk_lib_dir, 'gtk-4.0', gtk_binary_version, subdir)
         if not os.path.isdir(gtk_module_dir):
-            raise RuntimeError('Can not find the the gtk module dir %s' % gtk_module_dir)
+            return []  # gtk4 ships now the modules statically linked in the lib: https://gitlab.gnome.org/GNOME/gtk/-/merge_requests/8522
         return self._list_files_directory(gtk_module_dir, filter_suffix='.so')
 
     def _get_gstreamer_modules(self):
