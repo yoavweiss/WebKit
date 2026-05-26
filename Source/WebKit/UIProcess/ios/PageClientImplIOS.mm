@@ -850,14 +850,14 @@ void PageClientImpl::showContactPicker(WebCore::ContactsRequestData&& requestDat
 }
 
 #if ENABLE(WEB_AUTHN)
-void PageClientImpl::showDigitalCredentialsPicker(const WebCore::DigitalCredentialsRequestData& requestData, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&& completionHandler)
+void PageClientImpl::showDigitalCredentialsChooser(const WebCore::DigitalCredentialsRequestData& requestData, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&& completionHandler)
 {
-    [contentView() _showDigitalCredentialsPicker:requestData completionHandler:WTF::move(completionHandler)];
+    [contentView() _showDigitalCredentialsChooser:requestData completionHandler:WTF::move(completionHandler)];
 }
 
-void PageClientImpl::dismissDigitalCredentialsPicker(CompletionHandler<void(bool)>&& completionHandler)
+void PageClientImpl::dismissDigitalCredentialsChooser(CompletionHandler<void(bool)>&& completionHandler)
 {
-    [contentView() _dismissDigitalCredentialsPicker:WTF::move(completionHandler)];
+    [contentView() _dismissDigitalCredentialsChooser:WTF::move(completionHandler)];
 }
 #endif
 

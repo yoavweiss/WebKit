@@ -645,8 +645,8 @@ struct PerWebProcessState {
 - (void)_didAccessBackForwardList NS_DIRECT;
 
 #if ENABLE(WEB_AUTHN)
-- (void)_showDigitalCredentialsPicker:(const WebCore::DigitalCredentialsRequestData&)requestData completionHandler:(WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&&)completionHandler;
-- (void)_dismissDigitalCredentialsPicker:(WTF::CompletionHandler<void(bool)>&&)completionHandler;
+- (void)_showDigitalCredentialsChooser:(const WebCore::DigitalCredentialsRequestData&)requestData completionHandler:(WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&&)completionHandler;
+- (void)_dismissDigitalCredentialsChooser:(WTF::CompletionHandler<void(bool)>&&)completionHandler;
 #endif
 
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)

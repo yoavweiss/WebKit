@@ -349,15 +349,15 @@ RetainPtr<NSError> nsErrorFromExceptionDetails(const std::optional<WebCore::Exce
 WK_OBJECT_DISABLE_DISABLE_KVC_IVAR_ACCESS;
 
 #if ENABLE(WEB_AUTHN)
-- (void)_showDigitalCredentialsPicker:(const WebCore::DigitalCredentialsRequestData&)requestData completionHandler:(WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&&)completionHandler
+- (void)_showDigitalCredentialsChooser:(const WebCore::DigitalCredentialsRequestData&)requestData completionHandler:(WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&&)completionHandler
 {
-    LOG(DigitalCredentials, "Did not show digital credentials picker because it is not implemented.");
-    completionHandler(makeUnexpected(WebCore::ExceptionData { WebCore::ExceptionCode::NotSupportedError, "Digital credentials picker not implemented."_s }));
+    LOG(DigitalCredentials, "Did not show digital credentials chooser because it is not implemented.");
+    completionHandler(makeUnexpected(WebCore::ExceptionData { WebCore::ExceptionCode::NotSupportedError, "Digital credentials chooser not implemented."_s }));
 }
 
-- (void)_dismissDigitalCredentialsPicker:(WTF::CompletionHandler<void(bool)>&&)completionHandler
+- (void)_dismissDigitalCredentialsChooser:(WTF::CompletionHandler<void(bool)>&&)completionHandler
 {
-    LOG(DigitalCredentials, "Did not dismiss digital credentials picker because it is not implemented.");
+    LOG(DigitalCredentials, "Did not dismiss digital credentials chooser because it is not implemented.");
     completionHandler(false);
 }
 #endif // ENABLE(WEB_AUTHN)

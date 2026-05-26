@@ -126,8 +126,8 @@ private:
     bool showShareSheet(WebCore::ShareDataWithParsedURL&&, WTF::CompletionHandler<void(bool)>&&) override;
 
 #if ENABLE(WEB_AUTHN)
-    void showDigitalCredentialsPicker(const WebCore::DigitalCredentialsRequestData&, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&&) override;
-    void dismissDigitalCredentialsPicker(WTF::CompletionHandler<void(bool)>&&) override;
+    void showDigitalCredentialsChooser(const WebCore::DigitalCredentialsRequestData&, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&&) override;
+    void dismissDigitalCredentialsChooser(WTF::CompletionHandler<void(bool)>&&) override;
 #endif
 
     WebCore::FloatRect convertToDeviceSpace(const WebCore::FloatRect&) override;

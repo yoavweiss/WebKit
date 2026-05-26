@@ -458,14 +458,14 @@ void Chrome::showContactPicker(ContactsRequestData&& requestData, CompletionHand
 }
 
 #if ENABLE(WEB_AUTHN)
-void Chrome::showDigitalCredentialsPicker(const DigitalCredentialsRequestData& requestData, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&& callback)
+void Chrome::showDigitalCredentialsChooser(const DigitalCredentialsRequestData& requestData, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&& callback)
 {
-    m_client->showDigitalCredentialsPicker(requestData, WTF::move(callback));
+    m_client->showDigitalCredentialsChooser(requestData, WTF::move(callback));
 }
 
-void Chrome::dismissDigitalCredentialsPicker(CompletionHandler<void(bool)>&& callback)
+void Chrome::dismissDigitalCredentialsChooser(CompletionHandler<void(bool)>&& callback)
 {
-    m_client->dismissDigitalCredentialsPicker(WTF::move(callback));
+    m_client->dismissDigitalCredentialsChooser(WTF::move(callback));
 }
 #endif
 

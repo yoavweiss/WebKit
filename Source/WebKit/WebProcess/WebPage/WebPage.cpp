@@ -8904,14 +8904,14 @@ void WebPage::showContactPicker(WebCore::ContactsRequestData&& requestData, Comp
 }
 
 #if ENABLE(WEB_AUTHN)
-void WebPage::showDigitalCredentialsPicker(const WebCore::DigitalCredentialsRequestData& requestData, CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&& completionHandler)
+void WebPage::showDigitalCredentialsChooser(const WebCore::DigitalCredentialsRequestData& requestData, CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&& completionHandler)
 {
-    sendWithAsyncReply(Messages::WebPageProxy::ShowDigitalCredentialsPicker(requestData), WTF::move(completionHandler));
+    sendWithAsyncReply(Messages::WebPageProxy::ShowDigitalCredentialsChooser(requestData), WTF::move(completionHandler));
 }
 
-void WebPage::dismissDigitalCredentialsPicker(CompletionHandler<void(bool)>&& completionHandler)
+void WebPage::dismissDigitalCredentialsChooser(CompletionHandler<void(bool)>&& completionHandler)
 {
-    sendWithAsyncReply(Messages::WebPageProxy::DismissDigitalCredentialsPicker(), WTF::move(completionHandler));
+    sendWithAsyncReply(Messages::WebPageProxy::DismissDigitalCredentialsChooser(), WTF::move(completionHandler));
 }
 #endif
 

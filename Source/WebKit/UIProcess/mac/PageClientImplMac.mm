@@ -703,14 +703,14 @@ bool PageClientImpl::showShareSheet(ShareDataWithParsedURL&& shareData, WTF::Com
 }
 
 #if ENABLE(WEB_AUTHN)
-void PageClientImpl::showDigitalCredentialsPicker(const WebCore::DigitalCredentialsRequestData& requestData, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&& completionHandler)
+void PageClientImpl::showDigitalCredentialsChooser(const WebCore::DigitalCredentialsRequestData& requestData, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&& completionHandler)
 {
-    protect(m_impl)->showDigitalCredentialsPicker(requestData, WTF::move(completionHandler), webView().get());
+    protect(m_impl)->showDigitalCredentialsChooser(requestData, WTF::move(completionHandler), webView().get());
 }
 
-void PageClientImpl::dismissDigitalCredentialsPicker(WTF::CompletionHandler<void(bool)>&& completionHandler)
+void PageClientImpl::dismissDigitalCredentialsChooser(WTF::CompletionHandler<void(bool)>&& completionHandler)
 {
-    protect(m_impl)->dismissDigitalCredentialsPicker(WTF::move(completionHandler), webView().get());
+    protect(m_impl)->dismissDigitalCredentialsChooser(WTF::move(completionHandler), webView().get());
 }
 #endif
 

@@ -582,8 +582,8 @@ public:
     void shareSheetDidDismiss(WKShareSheet *);
 
 #if ENABLE(WEB_AUTHN)
-    void showDigitalCredentialsPicker(const WebCore::DigitalCredentialsRequestData&, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&&, WKWebView*);
-    void dismissDigitalCredentialsPicker(WTF::CompletionHandler<void(bool)>&&, WKWebView*);
+    void showDigitalCredentialsChooser(const WebCore::DigitalCredentialsRequestData&, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&&, WKWebView*);
+    void dismissDigitalCredentialsChooser(WTF::CompletionHandler<void(bool)>&&, WKWebView*);
 #endif
 
     _WKRemoteObjectRegistry *remoteObjectRegistry();

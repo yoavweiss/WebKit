@@ -476,8 +476,8 @@ private:
     void setUserIsInteracting(bool) final;
 
 #if ENABLE(WEB_AUTHN)
-    void showDigitalCredentialsPicker(const WebCore::DigitalCredentialsRequestData&, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&&) final;
-    void dismissDigitalCredentialsPicker(WTF::CompletionHandler<void(bool)>&&) final;
+    void showDigitalCredentialsChooser(const WebCore::DigitalCredentialsRequestData&, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&&) final;
+    void dismissDigitalCredentialsChooser(WTF::CompletionHandler<void(bool)>&&) final;
     void setMockWebAuthenticationConfiguration(const WebCore::MockWebAuthenticationConfiguration&) final;
 #endif
 

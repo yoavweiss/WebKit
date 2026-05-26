@@ -180,7 +180,7 @@ void DigitalCredential::discoverFromExternalSource(const Document& document, Cre
     }
 
     Ref coordinator = page->credentialRequestCoordinator();
-    coordinator->prepareCredentialRequest(document, WTF::move(promise), presentationRequestsOrException.releaseReturnValue(), options.signal);
+    coordinator->prepareCredentialRequests(document, WTF::move(promise), presentationRequestsOrException.releaseReturnValue(), options.signal);
 }
 
 } // namespace WebCore

@@ -84,12 +84,12 @@ messages -> WebPageProxy {
 
 #if ENABLE(WEB_AUTHN)
 #if ENABLE(ISO18013_DOCUMENT_REQUEST_INFO)
-    [EnabledBy=DigitalCredentialsEnabled] ShowDigitalCredentialsPicker(Variant<WebCore::DigitalCredentialsMobileDocumentRequestData, WebCore::DigitalCredentialsMobileDocumentRequestDataWithRequestInfo> requestData) -> (Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData> response)
+    [EnabledBy=DigitalCredentialsEnabled] ShowDigitalCredentialsChooser(Variant<WebCore::DigitalCredentialsMobileDocumentRequestData, WebCore::DigitalCredentialsMobileDocumentRequestDataWithRequestInfo> requestData) -> (Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData> response)
 #endif
 #if !ENABLE(ISO18013_DOCUMENT_REQUEST_INFO)
-    [EnabledBy=DigitalCredentialsEnabled] ShowDigitalCredentialsPicker(Variant<WebCore::DigitalCredentialsMobileDocumentRequestData> requestData) -> (Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData> response)
+    [EnabledBy=DigitalCredentialsEnabled] ShowDigitalCredentialsChooser(Variant<WebCore::DigitalCredentialsMobileDocumentRequestData> requestData) -> (Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData> response)
 #endif
-    [EnabledBy=DigitalCredentialsEnabled] DismissDigitalCredentialsPicker() -> (bool didDismiss)
+    [EnabledBy=DigitalCredentialsEnabled] DismissDigitalCredentialsChooser() -> (bool didDismiss)
 #endif
 
     PrintFrame(WebCore::FrameIdentifier frameID, String title, WebCore::FloatSize pdfFirstPageSize) -> () Synchronous

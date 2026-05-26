@@ -1048,16 +1048,16 @@ void WebChromeClient::showContactPicker(WebCore::ContactsRequestData&& requestDa
 }
 
 #if ENABLE(WEB_AUTHN)
-void WebChromeClient::showDigitalCredentialsPicker(const WebCore::DigitalCredentialsRequestData& requestData, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&& callback)
+void WebChromeClient::showDigitalCredentialsChooser(const WebCore::DigitalCredentialsRequestData& requestData, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&& callback)
 {
     if (RefPtr page = m_page.get())
-        page->showDigitalCredentialsPicker(requestData, WTF::move(callback));
+        page->showDigitalCredentialsChooser(requestData, WTF::move(callback));
 }
 
-void WebChromeClient::dismissDigitalCredentialsPicker(WTF::CompletionHandler<void(bool)>&& completionHandler)
+void WebChromeClient::dismissDigitalCredentialsChooser(WTF::CompletionHandler<void(bool)>&& completionHandler)
 {
     if (RefPtr page = m_page.get())
-        page->dismissDigitalCredentialsPicker(WTF::move(completionHandler));
+        page->dismissDigitalCredentialsChooser(WTF::move(completionHandler));
 }
 #endif
 

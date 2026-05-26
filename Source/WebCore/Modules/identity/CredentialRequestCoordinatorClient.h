@@ -52,8 +52,8 @@ class CredentialRequestCoordinatorClient : public RefCounted<CredentialRequestCo
 public:
     CredentialRequestCoordinatorClient() = default;
     virtual ~CredentialRequestCoordinatorClient() = default;
-    virtual void showDigitalCredentialsPicker(DigitalCredentialsRawRequests&&, const DigitalCredentialsRequestData&, CompletionHandler<void(Expected<DigitalCredentialsResponseData, ExceptionData>&&)>&&) = 0;
-    virtual void dismissDigitalCredentialsPicker(CompletionHandler<void(bool)>&&) = 0;
+    virtual void showDigitalCredentialsChooser(DigitalCredentialsRawRequests&&, const DigitalCredentialsRequestData&, CompletionHandler<void(Expected<DigitalCredentialsResponseData, ExceptionData>&&)>&&) = 0;
+    virtual void dismissDigitalCredentialsChooser(CompletionHandler<void(bool)>&&) = 0;
     virtual ExceptionOr<Vector<ValidatedDigitalCredentialRequest>> validateAndParseDigitalCredentialRequests(const SecurityOrigin&, const Document&, const Vector<UnvalidatedDigitalCredentialRequest>&) = 0;
 
     void ref() const { RefCounted::ref(); }

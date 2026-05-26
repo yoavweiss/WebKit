@@ -3067,7 +3067,7 @@ void WebViewImpl::shareSheetDidDismiss(WKShareSheet *shareSheet)
 }
 
 #if ENABLE(WEB_AUTHN)
-void WebViewImpl::showDigitalCredentialsPicker(const WebCore::DigitalCredentialsRequestData& requestData, CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&& completionHandler, WKWebView* webView)
+void WebViewImpl::showDigitalCredentialsChooser(const WebCore::DigitalCredentialsRequestData& requestData, CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&& completionHandler, WKWebView* webView)
 {
     if (!_digitalCredentialsPicker)
         _digitalCredentialsPicker = adoptNS([[WKDigitalCredentialsPicker alloc] initWithView:webView page:m_page.ptr()]);
@@ -3075,10 +3075,10 @@ void WebViewImpl::showDigitalCredentialsPicker(const WebCore::DigitalCredentials
     [_digitalCredentialsPicker presentWithRequestData:requestData completionHandler:WTF::move(completionHandler)];
 }
 
-void WebViewImpl::dismissDigitalCredentialsPicker(CompletionHandler<void(bool)>&& completionHandler, WKWebView* webView)
+void WebViewImpl::dismissDigitalCredentialsChooser(CompletionHandler<void(bool)>&& completionHandler, WKWebView* webView)
 {
     if (!_digitalCredentialsPicker) {
-        LOG(DigitalCredentials, "Digital credentials picker is not being presented.");
+        LOG(DigitalCredentials, "Digital credentials chooser is not being presented.");
         completionHandler(false);
         return;
     }

@@ -497,14 +497,14 @@ public:
         return adoptRef(*new EmptyCredentialRequestCoordinatorClient);
     }
 
-    void showDigitalCredentialsPicker(DigitalCredentialsRawRequests&&, const DigitalCredentialsRequestData&, CompletionHandler<void(Expected<DigitalCredentialsResponseData, ExceptionData>&&)>&& completionHandler)
+    void showDigitalCredentialsChooser(DigitalCredentialsRawRequests&&, const DigitalCredentialsRequestData&, CompletionHandler<void(Expected<DigitalCredentialsResponseData, ExceptionData>&&)>&& completionHandler)
     {
         callOnMainThread([completionHandler = WTF::move(completionHandler)]() mutable {
             completionHandler(makeUnexpected(ExceptionData { ExceptionCode::NotSupportedError, "Empty client."_s }));
         });
     }
 
-    void dismissDigitalCredentialsPicker(CompletionHandler<void(bool)>&& completionHandler) final
+    void dismissDigitalCredentialsChooser(CompletionHandler<void(bool)>&& completionHandler) final
     {
         callOnMainThread([completionHandler = WTF::move(completionHandler)]() mutable {
             completionHandler(false);

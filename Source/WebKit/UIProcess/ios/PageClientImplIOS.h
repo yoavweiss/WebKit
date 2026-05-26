@@ -223,8 +223,8 @@ private:
     void showContactPicker(WebCore::ContactsRequestData&&, WTF::CompletionHandler<void(std::optional<Vector<WebCore::ContactInfo>>&&)>&&) override;
 
 #if ENABLE(WEB_AUTHN)
-    void showDigitalCredentialsPicker(const WebCore::DigitalCredentialsRequestData&, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&&) override;
-    void dismissDigitalCredentialsPicker(WTF::CompletionHandler<void(bool)>&&) override;
+    void showDigitalCredentialsChooser(const WebCore::DigitalCredentialsRequestData&, WTF::CompletionHandler<void(Expected<WebCore::DigitalCredentialsResponseData, WebCore::ExceptionData>&&)>&&) override;
+    void dismissDigitalCredentialsChooser(WTF::CompletionHandler<void(bool)>&&) override;
 #endif
 
     void dismissAnyOpenPicker() override;
