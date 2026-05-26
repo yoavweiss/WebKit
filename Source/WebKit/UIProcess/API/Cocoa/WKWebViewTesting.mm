@@ -361,8 +361,7 @@ static void dumpCALayer(TextStream& ts, CALayer *layer, bool traverse)
 - (pid_t)_networkProcessIdentifier
 {
     RefPtr networkProcess = _page->websiteDataStore().networkProcessIfExists();
-    RELEASE_ASSERT(networkProcess);
-    return networkProcess->processID();
+    return networkProcess ? networkProcess->processID() : 0;
 }
 
 - (void)_setScrollingUpdatesDisabledForTesting:(BOOL)disabled
