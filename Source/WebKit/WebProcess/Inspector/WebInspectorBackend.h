@@ -39,6 +39,7 @@
 namespace WebKit {
 
 class FrameNetworkAgentProxy;
+class PageAgentProxy;
 class WebPage;
 
 class WebInspectorBackend : public ThreadSafeRefCounted<WebInspectorBackend>, private IPC::Connection::Client {
@@ -95,6 +96,9 @@ public:
     void ensureInstrumentationForFrame(WebCore::LocalFrame&);
     void removeInstrumentationForFrame(WebCore::FrameIdentifier);
 
+    void enablePageInstrumentation();
+    void disablePageInstrumentation();
+
     void setFrontendConnection(IPC::Connection::Handle&&);
 
     void disconnectFromPage() { close(); }
@@ -125,6 +129,9 @@ private:
     HashMap<WebCore::FrameIdentifier, std::unique_ptr<FrameNetworkAgentProxy>> m_frameNetworkAgentProxies;
     UniqueRef<BackendResourceDataStore> m_resourceDataStore;
     bool m_networkInstrumentationEnabled { false };
+
+    std::unique_ptr<PageAgentProxy> m_pageAgentProxy;
+    bool m_pageInstrumentationEnabled { false };
 };
 
 } // namespace WebKit

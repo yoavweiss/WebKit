@@ -323,6 +323,7 @@ set(WebKit_MESSAGES_IN_FILES
     UIProcess/GPU/GPUProcessProxy
 
     UIProcess/Inspector/Agents/ProxyingNetworkAgent
+    UIProcess/Inspector/Agents/ProxyingPageAgent
 
     UIProcess/Inspector/RemoteWebInspectorUIProxy
     UIProcess/Inspector/WebInspectorBackendProxy

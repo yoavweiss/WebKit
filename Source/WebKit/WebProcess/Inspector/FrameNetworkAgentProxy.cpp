@@ -205,6 +205,8 @@ void FrameNetworkAgentProxy::willSendRequestOfType(ResourceLoaderIdentifier reso
     if (!contextID || !frameID)
         return;
 
+    // FIXME: Map from UncachedLoadType to a more specific ResourceType.
+    // https://webkit.org/b/312828
     m_resourcesData->resourceCreated(resourceID, ResourceType::Other);
 
     auto timestamp = MonotonicTime::now().secondsSinceEpoch().value();

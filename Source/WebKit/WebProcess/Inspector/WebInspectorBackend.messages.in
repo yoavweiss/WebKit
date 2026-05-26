@@ -46,5 +46,8 @@ messages -> WebInspectorBackend {
     EnableNetworkInstrumentation()
     DisableNetworkInstrumentation()
 
+    EnablePageInstrumentation()
+    DisablePageInstrumentation()
+
     GetResponseBody(WebCore::ResourceLoaderIdentifier resourceID) -> (String content, bool base64Encoded, String errorString) Async
 }

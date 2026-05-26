@@ -1728,6 +1728,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     inspector/WebInjectedScriptManager.h
 
     inspector/hooks/NetworkAgentInstrumentation.h
+    inspector/hooks/PageAgentInstrumentation.h
 
     inspector/agents/InspectorPageAgent.h
 

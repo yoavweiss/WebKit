@@ -149,7 +149,7 @@ public:
     Inspector::InspectorFunctionCallHandler functionCallHandler() const override;
     Inspector::InspectorEvaluateHandler evaluateHandler() const override;
     void frontendInitialized() override;
-    WTF::Stopwatch& NODELETE executionStopwatch() const final;
+    WEBCORE_EXPORT WTF::Stopwatch& NODELETE executionStopwatch() const final;
     JSC::Debugger* debugger() override;
     JSC::VM& vm() override;
 

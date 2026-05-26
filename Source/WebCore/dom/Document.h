@@ -608,7 +608,7 @@ public:
 
     WEBCORE_EXPORT void setCharset(const String&); // Used by ObjC / GOBject bindings only.
 
-    String suggestedMIMEType() const;
+    WEBCORE_EXPORT String suggestedMIMEType() const;
 
     void overrideMIMEType(const String&);
     WEBCORE_EXPORT String contentType() const;

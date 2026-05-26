@@ -44,6 +44,7 @@ class BackendDispatcher;
 class FrontendChannel;
 class FrontendRouter;
 class ProxyingNetworkAgent;
+class ProxyingPageAgent;
 }
 
 namespace WebKit {
@@ -118,6 +119,7 @@ private:
 
     CheckedPtr<InspectorBrowserAgent> m_enabledBrowserAgent;
     RefPtr<Inspector::ProxyingNetworkAgent> m_networkAgent;
+    RefPtr<Inspector::ProxyingPageAgent> m_pageAgent;
 
     bool m_didCreateLazyAgents { false };
 };

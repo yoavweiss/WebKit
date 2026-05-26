@@ -35,6 +35,7 @@
 #include "ProvisionalFrameProxy.h"
 #include "ProvisionalPageProxy.h"
 #include "ProxyingNetworkAgent.h"
+#include "ProxyingPageAgent.h"
 #include "WebFrameProxy.h"
 #include "WebPageInspectorAgentBase.h"
 #include "WebPageProxy.h"
@@ -118,6 +119,8 @@ void WebPageInspectorController::connectFrontend(Inspector::FrontendChannel& fro
         m_agents.didCreateFrontendAndBackend();
         if (RefPtr networkAgent = m_networkAgent)
             networkAgent->didCreateFrontendAndBackend();
+        if (RefPtr pageAgent = m_pageAgent)
+            pageAgent->didCreateFrontendAndBackend();
     }
 
     Ref inspectedPage = m_inspectedPage.get();
@@ -138,6 +141,8 @@ void WebPageInspectorController::disconnectFrontend(FrontendChannel& frontendCha
         m_agents.willDestroyFrontendAndBackend(DisconnectReason::InspectorDestroyed);
         if (RefPtr networkAgent = m_networkAgent)
             networkAgent->willDestroyFrontendAndBackend(DisconnectReason::InspectorDestroyed);
+        if (RefPtr pageAgent = m_pageAgent)
+            pageAgent->willDestroyFrontendAndBackend(DisconnectReason::InspectorDestroyed);
     }
 
     Ref inspectedPage = m_inspectedPage.get();
@@ -160,6 +165,8 @@ void WebPageInspectorController::disconnectAllFrontends()
     m_agents.willDestroyFrontendAndBackend(DisconnectReason::InspectedTargetDestroyed);
     if (RefPtr networkAgent = m_networkAgent)
         networkAgent->willDestroyFrontendAndBackend(DisconnectReason::InspectedTargetDestroyed);
+    if (RefPtr pageAgent = m_pageAgent)
+        pageAgent->willDestroyFrontendAndBackend(DisconnectReason::InspectedTargetDestroyed);
 
     // Disconnect any remaining remote frontends.
     m_frontendRouter->disconnectAllFrontends();
@@ -321,6 +328,20 @@ void WebPageInspectorController::didCommitProvisionalPage(std::optional<WebCore:
 
     for (auto& targetID : targetIDsToRemove)
         m_targets.remove(targetID);
+
+    // Migrate per-process inspector instrumentation: the old process no
+    // longer hosts the page, so unregister there to keep our message-receiver
+    // count balanced, and register on the new process. Mirrors
+    // didCommitProvisionalFrame.
+    RefPtr oldProcess = WebProcessProxy::processForIdentifier(oldProcessID);
+    Ref newProcess = protect(m_inspectedPage)->mainFrame()->process();
+
+    RefPtr pageAgent = m_pageAgent;
+    if (pageAgent && pageAgent->isEnabled()) {
+        if (oldProcess)
+            pageAgent->disableInstrumentationForProcess(*oldProcess, oldWebPageID);
+        pageAgent->enableInstrumentationForProcess(newProcess, newWebPageID);
+    }
 }
 
 void WebPageInspectorController::didCreateFrame(WebFrameProxy& frame)
@@ -337,6 +358,12 @@ void WebPageInspectorController::didCreateFrame(WebFrameProxy& frame)
         if (auto pageID = frame.webPageIDInCurrentProcess())
             networkAgent->enableInstrumentationForProcess(process, *pageID);
     }
+
+    RefPtr pageAgent = m_pageAgent;
+    if (pageAgent && pageAgent->isEnabled()) {
+        if (auto pageID = frame.webPageIDInCurrentProcess())
+            pageAgent->enableInstrumentationForProcess(process, *pageID);
+    }
 }
 
 void WebPageInspectorController::willDestroyFrame(const WebFrameProxy& frame)
@@ -350,6 +377,12 @@ void WebPageInspectorController::willDestroyFrame(const WebFrameProxy& frame)
     if (networkAgent && networkAgent->isEnabled()) {
         if (auto pageID = frame.webPageIDInCurrentProcess())
             networkAgent->disableInstrumentationForProcess(process, *pageID);
+    }
+
+    RefPtr pageAgent = m_pageAgent;
+    if (pageAgent && pageAgent->isEnabled()) {
+        if (auto pageID = frame.webPageIDInCurrentProcess())
+            pageAgent->disableInstrumentationForProcess(process, *pageID);
     }
 
     removeTarget(getTargetID(frame));
@@ -410,6 +443,14 @@ void WebPageInspectorController::didCommitProvisionalFrame(WebFrameProxy& frame,
         if (auto pageID = frame.webPageIDInCurrentProcess())
             networkAgent->enableInstrumentationForProcess(process, *pageID);
     }
+
+    RefPtr pageAgent = m_pageAgent;
+    if (pageAgent && pageAgent->isEnabled()) {
+        if (oldProcess && oldPageID)
+            pageAgent->disableInstrumentationForProcess(*oldProcess, *oldPageID);
+        if (auto pageID = frame.webPageIDInCurrentProcess())
+            pageAgent->enableInstrumentationForProcess(process, *pageID);
+    }
 }
 
 InspectorBrowserAgent* WebPageInspectorController::enabledBrowserAgent() const
@@ -438,11 +479,12 @@ void WebPageInspectorController::createLazyAgents()
     m_agents.append(makeUniqueRef<InspectorBrowserAgent>(webPageContext));
 
     if (protect(protect(m_inspectedPage)->preferences())->siteIsolationEnabled()) {
-        // ProxyingNetworkAgent is RefCounted (for IPC MessageReceiver) so it can't be
-        // stored in AgentRegistry which expects UniqueRef ownership. Its lifecycle
-        // (didCreateFrontendAndBackend / willDestroyFrontendAndBackend) is managed
-        // explicitly in connectFrontend / disconnectFrontend / disconnectAllFrontends.
+        // ProxyingNetworkAgent and ProxyingPageAgent are RefCounted (for IPC MessageReceiver)
+        // so they can't be stored in AgentRegistry which expects UniqueRef ownership.
+        // Their lifecycle (didCreateFrontendAndBackend / willDestroyFrontendAndBackend) is
+        // managed explicitly in connectFrontend / disconnectFrontend / disconnectAllFrontends.
         m_networkAgent = adoptRef(*new Inspector::ProxyingNetworkAgent(webPageContext));
+        m_pageAgent = adoptRef(*new Inspector::ProxyingPageAgent(webPageContext));
     }
 }
 

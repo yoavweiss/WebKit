@@ -41,6 +41,7 @@ namespace Inspector {
 class InspectorAgent;
 class InspectorScriptProfilerAgent;
 class NetworkAgentInstrumentation;
+class PageAgentInstrumentation;
 }
 
 namespace WebCore {
@@ -92,6 +93,7 @@ class WebHeapAgent;
 #define DEFINE_INSPECTOR_AGENT_NetworkProxy(macro, Getter, Setter) DEFINE_INSPECTOR_AGENT(macro, Inspector::NetworkAgentInstrumentation, NetworkProxy, Getter, Setter)
 #define DEFINE_INSPECTOR_AGENT_Page(macro, Getter, Setter) DEFINE_INSPECTOR_AGENT(macro, InspectorPageAgent, PageAgent, Getter, Setter)
 #define DEFINE_INSPECTOR_AGENT_DOM_Frame(macro, Getter, Setter) DEFINE_INSPECTOR_AGENT(macro, FrameDOMAgent, FrameDOMAgent, Getter, Setter)
+#define DEFINE_INSPECTOR_AGENT_PageProxy(macro, Getter, Setter) DEFINE_INSPECTOR_AGENT(macro, Inspector::PageAgentInstrumentation, PageProxy, Getter, Setter)
 #define DEFINE_INSPECTOR_AGENT_Runtime_Frame(macro, Getter, Setter) DEFINE_INSPECTOR_AGENT(macro, FrameRuntimeAgent, FrameRuntimeAgent, Getter, Setter)
 #define DEFINE_INSPECTOR_AGENT_Runtime_Page(macro, Getter, Setter) DEFINE_INSPECTOR_AGENT(macro, PageRuntimeAgent, PageRuntimeAgent, Getter, Setter)
 #define DEFINE_INSPECTOR_AGENT_ScriptProfiler(macro, Getter, Setter) DEFINE_INSPECTOR_AGENT(macro, Inspector::InspectorScriptProfilerAgent, ScriptProfilerAgent, Getter, Setter)
@@ -143,6 +145,7 @@ class WebHeapAgent;
     DEFINE_ENABLED_INSPECTOR_AGENT(macro, Network) \
     DEFINE_ENABLED_INSPECTOR_AGENT(macro, NetworkProxy) \
     DEFINE_ENABLED_INSPECTOR_AGENT(macro, Page) \
+    DEFINE_ENABLED_INSPECTOR_AGENT(macro, PageProxy) \
     DEFINE_ENABLED_INSPECTOR_AGENT(macro, Runtime_Frame) \
     DEFINE_ENABLED_INSPECTOR_AGENT(macro, Runtime_Page) \
     DEFINE_ENABLED_INSPECTOR_AGENT(macro, Timeline) \

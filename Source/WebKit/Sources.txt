@@ -642,6 +642,7 @@ UIProcess/Inspector/WebPageInspectorController.cpp
 
 UIProcess/Inspector/Agents/InspectorBrowserAgent.cpp
 UIProcess/Inspector/Agents/ProxyingNetworkAgent.cpp
+UIProcess/Inspector/Agents/ProxyingPageAgent.cpp
 
 UIProcess/Media/AudioSessionRoutingArbitratorProxy.cpp
 UIProcess/Media/MediaUsageManager.cpp
@@ -750,6 +751,7 @@ WebProcess/Inspector/WebInspectorBackend.cpp
 WebProcess/Inspector/WebInspectorBackendClient.cpp
 WebProcess/Inspector/BackendResourceDataStore.cpp
 WebProcess/Inspector/FrameNetworkAgentProxy.cpp
+WebProcess/Inspector/PageAgentProxy.cpp
 WebProcess/Inspector/WebInspectorInterruptDispatcher.cpp
 WebProcess/Inspector/WebInspectorUI.cpp
 

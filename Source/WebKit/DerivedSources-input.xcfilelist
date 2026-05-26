@@ -566,6 +566,7 @@ $(PROJECT_DIR)/UIProcess/Extensions/WebExtensionController.messages.in
 $(PROJECT_DIR)/UIProcess/GPU/GPUProcessProxy.messages.in
 $(PROJECT_DIR)/UIProcess/Inspector/RemoteWebInspectorUIProxy.messages.in
 $(PROJECT_DIR)/UIProcess/Inspector/Agents/ProxyingNetworkAgent.messages.in
+$(PROJECT_DIR)/UIProcess/Inspector/Agents/ProxyingPageAgent.messages.in
 $(PROJECT_DIR)/UIProcess/Inspector/WebInspectorBackendProxy.messages.in
 $(PROJECT_DIR)/UIProcess/Inspector/WebInspectorUIExtensionControllerProxy.messages.in
 $(PROJECT_DIR)/UIProcess/Inspector/WebInspectorUIProxy.messages.in
