@@ -29,6 +29,7 @@
 #include "RenderObjectDocument.h"
 #include "RenderSVGModelObjectInlines.h"
 #include "RenderSVGRoot.h"
+#include "RenderStyle+GettersInlines.h"
 #include "SVGContainerLayout.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGSVGElement.h"

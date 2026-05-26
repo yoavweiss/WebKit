@@ -27,6 +27,7 @@
 #include "SkiaSerializedImageBuffer.h"
 
 #if USE(SKIA)
+#include "GLContext.h"
 #include "GraphicsContext.h"
 #include "NativeImage.h"
 #include "PlatformDisplay.h"

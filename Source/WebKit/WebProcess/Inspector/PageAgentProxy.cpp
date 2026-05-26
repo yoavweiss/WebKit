@@ -42,7 +42,7 @@
 #include <WebCore/FrameTree.h>
 #include <WebCore/HTMLFrameOwnerElement.h>
 #include <WebCore/HTMLNames.h>
-#include <WebCore/LocalFrame.h>
+#include <WebCore/LocalFrameInlines.h>
 #include <WebCore/Page.h>
 #include <WebCore/PageInspectorController.h>
 #include <WebCore/SecurityOrigin.h>
