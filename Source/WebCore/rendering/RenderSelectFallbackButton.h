@@ -57,7 +57,7 @@ private:
     void insertedIntoTree() final;
     void updateFromElement() final;
 
-    ASCIILiteral renderName() const final { return "RenderSelectFallbackButton"_s; }
+    ASCIILiteral renderName() const final { return "RenderBlock"_s; }
 
     SingleThreadWeakPtr<RenderText> m_buttonText;
 };
