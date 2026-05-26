@@ -101,7 +101,9 @@ private:
     std::unique_ptr<WebXRWebGLSwapchain> m_colorSwapchain;
     std::unique_ptr<WebXRWebGLSwapchain> m_depthSwapchain;
     uint32_t m_colorTextureArrayLength { 1 };
+#if !PLATFORM(COCOA)
     bool m_shouldSkipFrame { true };
+#endif
 };
 
 } // namespace WebCore
