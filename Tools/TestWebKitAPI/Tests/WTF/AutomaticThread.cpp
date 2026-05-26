@@ -255,10 +255,10 @@ TEST(WTF, AutomaticThreadTemporaryStop)
     }
     thread->waitUntilHasStarted(2);
 
-    // Shut it down.
-    thread->appendWorkItem(Exit { });
     {
         Locker locker { *lock };
+        // Shut it down.
+        thread->appendWorkItem(Exit { });
         condition->notifyOne(locker);
     }
     thread->waitUntilHasStopped(2);
@@ -310,10 +310,10 @@ TEST(WTF, AutomaticThreadTemporaryStopWhileRunning)
     thread->waitUntilHasStopped(1);
     CachedData::waitUntil(0);
 
-    // Shut it down.
-    thread->appendWorkItem(Exit { });
     {
         Locker locker { *lock };
+        // Shut it down.
+        thread->appendWorkItem(Exit { });
         condition->notifyOne(locker);
     }
     thread->waitUntilHasStopped(2);
