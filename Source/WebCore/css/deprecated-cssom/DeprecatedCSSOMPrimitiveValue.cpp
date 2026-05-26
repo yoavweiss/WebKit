@@ -28,7 +28,6 @@
 #include "DeprecatedCSSOMPrimitiveValue.h"
 
 #include "CSSAttrValue.h"
-#include "CSSCalcValue.h"
 #include "CSSColorValue.h"
 #include "CSSCounterValue.h"
 #include "CSSCustomIdentValue.h"
@@ -38,6 +37,7 @@
 #include "CSSSerializationContext.h"
 #include "CSSStringValue.h"
 #include "CSSURLValue.h"
+#include "CSSUnevaluatedCalc.h"
 #include "DeprecatedCSSOMCounter.h"
 #include "DeprecatedCSSOMRGBColor.h"
 #include "DeprecatedCSSOMRect.h"
@@ -104,7 +104,7 @@ ExceptionOr<float> DeprecatedCSSOMPrimitiveValue::getFloatValue(unsigned short u
     auto doubleValueDeprecated = [&] {
         return WTF::switchOn(*primitiveValue,
             [](const CSSPrimitiveValue::Calc& calc) {
-                return calc.doubleValueDeprecated();
+                return calc.evaluateDeprecated();
             },
             [](const CSSPrimitiveValue::Raw& raw) {
                 return raw.value;

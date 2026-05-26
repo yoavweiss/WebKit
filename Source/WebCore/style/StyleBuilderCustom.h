@@ -787,7 +787,7 @@ inline void BuilderCustom::applyValueFontSize(BuilderState& builderState, CSSVal
             [&](const CSSPrimitiveValue::Calc& calc) -> float {
                 using CSSRaw = typename StyleType::CSS::Raw;
 
-                auto resolved = toStyle(CSS::UnevaluatedCalc<CSSRaw>(const_cast<CSSPrimitiveValue::Calc&>(calc)), conversionData);
+                auto resolved = toStyle(CSS::UnevaluatedCalc<CSSRaw> { calc }, conversionData);
                 return WTF::switchOn(resolved,
                     [&](const typename StyleType::Dimension& length) {
                         return handleLength(length);

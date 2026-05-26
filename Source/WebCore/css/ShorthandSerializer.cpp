@@ -27,7 +27,6 @@
 #include "ShorthandSerializer.h"
 
 #include "CSSBorderImageWidthValue.h"
-#include "CSSCalcValue.h"
 #include "CSSCustomIdentValue.h"
 #include "CSSGridAutoFlowValue.h"
 #include "CSSGridLineValue.h"
@@ -46,6 +45,7 @@
 #include "CSSSerializationContext.h"
 #include "CSSShorthandSubstitutionValue.h"
 #include "CSSSubstitutionValue.h"
+#include "CSSUnevaluatedCalc.h"
 #include "CSSValueKeywords.h"
 #include "CSSValueList.h"
 #include "CSSValuePair.h"

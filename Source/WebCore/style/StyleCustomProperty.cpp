@@ -25,7 +25,6 @@
 #include "config.h"
 #include "StyleCustomProperty.h"
 
-#include "CSSCalcValue.h"
 #include "CSSPrimitiveValue.h"
 #include "CSSSerializationContext.h"
 #include "CSSStringValue.h"
@@ -36,7 +35,6 @@
 #include "DeprecatedCSSOMPrimitiveValue.h"
 #include "DeprecatedCSSOMValueList.h"
 #include "RenderStyle.h"
-#include "StyleCalculationValue.h"
 #include "StylePrimitiveNumericTypes+CSSValueCreation.h"
 #include "StylePrimitiveNumericTypes+DeprecatedCSSOMValueCreation.h"
 #include "StylePrimitiveNumericTypes+Serialization.h"

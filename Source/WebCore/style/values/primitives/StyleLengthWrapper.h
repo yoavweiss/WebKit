@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2025-2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -61,10 +61,8 @@ template<typename Numeric, CSS::SpecificKeyword... Ks> struct LengthWrapperBase 
     LengthWrapperBase(Fixed fixed) : m_value(indexForFixed, fixed.unresolvedValue()) { }
     LengthWrapperBase(Fixed fixed, bool hasQuirk) : m_value(indexForFixed, fixed.unresolvedValue(), hasQuirk) { }
     LengthWrapperBase(Percentage percent) : m_value(indexForPercentage, percent.value) { }
-    LengthWrapperBase(Calc&& calc)
-        : m_value(indexForCalc, protect(calc.calculation()))
-    {
-    }
+    LengthWrapperBase(Calc&& calc) : m_value(indexForCalc, calc) { }
+
     LengthWrapperBase(Specified&& specified) : m_value(toData(specified)) { }
     LengthWrapperBase(const Specified& specified) : m_value(toData(specified)) { }
 
@@ -175,7 +173,7 @@ private:
                 return LengthWrapperData { indexForPercentage, percentage.value };
             },
             [](const Calc& calc) {
-                return LengthWrapperData { indexForCalc, protect(calc.calculation()) };
+                return LengthWrapperData { indexForCalc, calc };
             }
         );
     }
@@ -209,23 +207,23 @@ template<LengthWrapperBaseDerived T, typename Result> struct Evaluation<T, Resul
     auto operator()(const T& value, NOESCAPE const Invocable<Result()> auto& lazyMaximumValueFunctor, ZoomNeeded token) -> Result
         requires (T::Fixed::range.zoomOptions == CSS::RangeZoomOptions::Default)
     {
-        return value.m_value.template valueForLengthWrapperDataWithLazyMaximum<Result, Result>(value.evaluationKind(), lazyMaximumValueFunctor, token);
+        return value.m_value.template valueForLengthWrapperDataWithLazyMaximum<T::Fixed::range, Result, Result>(value.evaluationKind(), lazyMaximumValueFunctor, token);
     }
     auto operator()(const T& value, Result maximumValue, ZoomNeeded token) -> Result
         requires (T::Fixed::range.zoomOptions == CSS::RangeZoomOptions::Default)
     {
-        return value.m_value.template valueForLengthWrapperDataWithLazyMaximum<Result, Result>(value.evaluationKind(), [&] ALWAYS_INLINE_LAMBDA { return maximumValue; }, token);
+        return value.m_value.template valueForLengthWrapperDataWithLazyMaximum<T::Fixed::range, Result, Result>(value.evaluationKind(), [&] ALWAYS_INLINE_LAMBDA { return maximumValue; }, token);
     }
 
     auto operator()(const T& value, NOESCAPE const Invocable<Result()> auto& lazyMaximumValueFunctor, ZoomFactor zoom) -> Result
         requires (T::Fixed::range.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
-        return value.m_value.template valueForLengthWrapperDataWithLazyMaximum<Result, Result>(value.evaluationKind(), lazyMaximumValueFunctor, zoom);
+        return value.m_value.template valueForLengthWrapperDataWithLazyMaximum<T::Fixed::range, Result, Result>(value.evaluationKind(), lazyMaximumValueFunctor, zoom);
     }
     auto operator()(const T& value, Result maximumValue, ZoomFactor zoom) -> Result
         requires (T::Fixed::range.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
-        return value.m_value.template valueForLengthWrapperDataWithLazyMaximum<Result, Result>(value.evaluationKind(), [&] ALWAYS_INLINE_LAMBDA { return maximumValue; }, zoom);
+        return value.m_value.template valueForLengthWrapperDataWithLazyMaximum<T::Fixed::range, Result, Result>(value.evaluationKind(), [&] ALWAYS_INLINE_LAMBDA { return maximumValue; }, zoom);
     }
 };
 
@@ -241,23 +239,23 @@ template<LengthWrapperBaseDerived T, typename Result> struct MinimumEvaluation<T
     auto operator()(const T& value, NOESCAPE const Invocable<Result()> auto& lazyMaximumValueFunctor, ZoomNeeded token) -> Result
         requires (T::Fixed::range.zoomOptions == CSS::RangeZoomOptions::Default)
     {
-        return value.m_value.template minimumValueForLengthWrapperDataWithLazyMaximum<LayoutUnit, LayoutUnit>(value.evaluationKind(), lazyMaximumValueFunctor, token);
+        return value.m_value.template minimumValueForLengthWrapperDataWithLazyMaximum<T::Fixed::range, LayoutUnit, LayoutUnit>(value.evaluationKind(), lazyMaximumValueFunctor, token);
     }
     auto operator()(const T& value, Result maximumValue, ZoomNeeded token) -> Result
         requires (T::Fixed::range.zoomOptions == CSS::RangeZoomOptions::Default)
     {
-        return value.m_value.template minimumValueForLengthWrapperDataWithLazyMaximum<LayoutUnit, LayoutUnit>(value.evaluationKind(), [&] ALWAYS_INLINE_LAMBDA { return LayoutUnit(maximumValue); }, token);
+        return value.m_value.template minimumValueForLengthWrapperDataWithLazyMaximum<T::Fixed::range, LayoutUnit, LayoutUnit>(value.evaluationKind(), [&] ALWAYS_INLINE_LAMBDA { return LayoutUnit(maximumValue); }, token);
     }
 
     auto operator()(const T& value, NOESCAPE const Invocable<Result()> auto& lazyMaximumValueFunctor, ZoomFactor zoom) -> Result
         requires (T::Fixed::range.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
-        return value.m_value.template minimumValueForLengthWrapperDataWithLazyMaximum<LayoutUnit, LayoutUnit>(value.evaluationKind(), lazyMaximumValueFunctor, zoom);
+        return value.m_value.template minimumValueForLengthWrapperDataWithLazyMaximum<T::Fixed::range, LayoutUnit, LayoutUnit>(value.evaluationKind(), lazyMaximumValueFunctor, zoom);
     }
     auto operator()(const T& value, Result maximumValue, ZoomFactor zoom) -> Result
         requires (T::Fixed::range.zoomOptions == CSS::RangeZoomOptions::Unzoomed)
     {
-        return value.m_value.template minimumValueForLengthWrapperDataWithLazyMaximum<LayoutUnit, LayoutUnit>(value.evaluationKind(), [&] ALWAYS_INLINE_LAMBDA { return LayoutUnit(maximumValue); }, zoom);
+        return value.m_value.template minimumValueForLengthWrapperDataWithLazyMaximum<T::Fixed::range, LayoutUnit, LayoutUnit>(value.evaluationKind(), [&] ALWAYS_INLINE_LAMBDA { return LayoutUnit(maximumValue); }, zoom);
     }
 };
 

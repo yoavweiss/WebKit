@@ -55,9 +55,9 @@ template<CSS::NumericRaw RawType> struct DeprecatedToStyle<CSS::UnevaluatedCalc<
     using From = CSS::UnevaluatedCalc<RawType>;
     using To = typename ToStyleMapping<typename RawToCSSMapping<RawType>::type>::type;
 
-    template<typename... Rest> auto operator()(const From& value, Rest&&... rest) -> To
+    template<typename... Rest> auto operator()(const From& value, Rest&&...) -> To
     {
-        return { Style::canonicalize(RawType { To::unit, value.evaluateDeprecated(From::category, rest...) }, NoConversionDataRequiredToken { }) };
+        return { Style::canonicalize(RawType { To::unit, value.evaluateDeprecated() }, NoConversionDataRequiredToken { }) };
     }
 };
 

@@ -35,7 +35,6 @@
 #include "NodeRenderStyle.h"
 #include "RenderElement.h"
 #include "RenderStyle+GettersInlines.h"
-#include "StyleCalculationValue.h"
 #include "StylePrimitiveNumericTypes+Conversions.h"
 
 namespace WebCore {

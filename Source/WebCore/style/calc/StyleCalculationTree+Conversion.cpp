@@ -255,7 +255,7 @@ auto toStyle(const CSSCalc::Random::Sharing& randomSharing, const ToStyleConvers
                     return Random::Fixed { raw.value };
                 },
                 [&](const CSS::Number<CSS::ClosedUnitRange>::Calc& calc) -> Random::Fixed {
-                    return Random::Fixed { calc.evaluate(CSS::Category::Number, *protect(options.evaluation.conversionData->styleBuilderState())) };
+                    return Random::Fixed { calc.evaluate(*protect(options.evaluation.conversionData->styleBuilderState())) };
                 }
             );
         }

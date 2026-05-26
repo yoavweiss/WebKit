@@ -93,40 +93,23 @@ template<NonCompositeNumeric StyleType, typename Result> struct Evaluation<Style
 
 // MARK: - Calculation
 
-template<typename Result> struct Evaluation<Ref<Calculation::Value>, Result> {
-    auto operator()(Ref<Calculation::Value> calculation, Result referenceLength, ZoomFactor usedZoom) -> Result
-    {
-        return Result(calculation->evaluate(referenceLength, usedZoom));
-    }
-
-    auto operator()(Ref<Calculation::Value> calculation, Result referenceLength, ZoomNeeded token) -> Result
-    {
-        return Result(calculation->evaluate(referenceLength, token));
-    }
-
-    auto operator()(Ref<Calculation::Value> calculation, Result referenceLength) -> Result
-    {
-        return Result(calculation->evaluate(referenceLength));
-    }
-};
-
 template<Calc Calculation, typename Result> struct Evaluation<Calculation, Result> {
-    template<typename... Rest> auto operator()(const Calculation& calculation, Result referenceLength, ZoomNeeded token, Rest&&... rest) -> Result
+    template<typename... Rest> auto operator()(const Calculation& calculation, Result percentageBasis, ZoomNeeded token, Rest&&... rest) -> Result
         requires (Calculation::range.zoomOptions == CSS::RangeZoomOptions::Default && (Calculation::category == CSS::Category::Length || Calculation::category == CSS::Category::LengthPercentage))
     {
-        return evaluate<Result>(protect(calculation.calculation()), referenceLength, token, std::forward<Rest>(rest)...);
+        return Result(calculation.evaluate(percentageBasis, token, std::forward<Rest>(rest)...));
     }
 
-    template<typename... Rest> auto operator()(const Calculation& calculation, Result referenceLength, ZoomFactor usedZoom, Rest&&... rest) -> Result
+    template<typename... Rest> auto operator()(const Calculation& calculation, Result percentageBasis, ZoomFactor usedZoom, Rest&&... rest) -> Result
         requires (Calculation::range.zoomOptions == CSS::RangeZoomOptions::Unzoomed && (Calculation::category == CSS::Category::Length || Calculation::category == CSS::Category::LengthPercentage))
     {
-        return evaluate<Result>(protect(calculation.calculation()), referenceLength, usedZoom, std::forward<Rest>(rest)...);
+        return Result(calculation.evaluate(percentageBasis, usedZoom, std::forward<Rest>(rest)...));
     }
 
-    template<typename... Rest> auto operator()(const Calculation& calculation, Result referenceLength, Rest&&... rest) -> Result
+    template<typename... Rest> auto operator()(const Calculation& calculation, Result percentageBasis, Rest&&... rest) -> Result
         requires (Calculation::category != CSS::Category::Length && Calculation::category != CSS::Category::LengthPercentage)
     {
-        return evaluate<Result>(protect(calculation.calculation()), referenceLength, ZoomNeeded { }, std::forward<Rest>(rest)...);
+        return Result(calculation.evaluate(percentageBasis, ZoomNeeded { }, std::forward<Rest>(rest)...));
     }
 };
 

@@ -101,7 +101,7 @@ auto CSSValueConversion<LineHeight>::operator()(BuilderState& state, const CSSVa
     };
 
     auto handleCalc = [&](const StyleSpecified::Calc& calc) {
-        return LineHeight::Fixed { CSS::clampToRangeOf<LineHeight::Fixed>(protect(calc.calculation())->evaluate(percentageBasis(), zoomFactor()) * multiplier) };
+        return LineHeight::Fixed { CSS::clampToRangeOf<LineHeight::Fixed>(calc.evaluate(percentageBasis(), zoomFactor()) * multiplier) };
     };
 
     auto handleNumber = [&](const StyleNumber& number) {
@@ -110,15 +110,15 @@ auto CSSValueConversion<LineHeight>::operator()(BuilderState& state, const CSSVa
 
     return WTF::switchOn(*primitiveValue,
         [&](const CSSPrimitiveValue::Calc& calc) -> LineHeight {
-            if (calc.category() == CSS::Category::Number || calc.category() == CSS::Category::Integer)
-                return handleNumber(toStyle(CSS::UnevaluatedCalc<CSSNumberRaw>( const_cast<CSSPrimitiveValue::Calc&>(calc)), conversionData));
+            if (calc.runtimeCategory() == CSS::Category::Number || calc.runtimeCategory() == CSS::Category::Integer)
+                return handleNumber(toStyle(CSS::UnevaluatedCalc<CSSNumberRaw> { calc }, conversionData));
 
-            ASSERT(calc.category() == CSS::Category::Length || calc.category() == CSS::Category::Percentage || calc.category() == CSS::Category::LengthPercentage);
+            ASSERT(calc.runtimeCategory() == CSS::Category::Length || calc.runtimeCategory() == CSS::Category::Percentage || calc.runtimeCategory() == CSS::Category::LengthPercentage);
 
             // <length-percentage> calc() can become a raw <length> or <percentage>, or can stay a calc() when converting,
             // so we have to handle all those cases here.
 
-            auto convertedCalc = toStyle(CSS::UnevaluatedCalc<CSSRaw>(const_cast<CSSPrimitiveValue::Calc&>(calc)), conversionData);
+            auto convertedCalc = toStyle(CSS::UnevaluatedCalc<CSSRaw> { calc }, conversionData);
             return WTF::switchOn(convertedCalc,
                 [&](const StyleSpecified::Dimension& fixed) {
                     return handleFixed(fixed);

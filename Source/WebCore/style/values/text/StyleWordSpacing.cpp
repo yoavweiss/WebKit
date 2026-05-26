@@ -25,7 +25,6 @@
 #include "config.h"
 #include "StyleWordSpacing.h"
 
-#include "StyleCalculationValue.h"
 #include "StyleLengthWrapper+CSSValueConversion.h"
 
 namespace WebCore {

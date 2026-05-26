@@ -29,7 +29,6 @@
 #include "CSSKeywordValue.h"
 #include "CSSWebkitBoxReflectValue.h"
 #include "StyleBuilderChecking.h"
-#include "StyleCalculationValue.h"
 #include "StyleKeyword+Serialization.h"
 #include "StyleLengthWrapper+CSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+CSSValueConversion.h"

@@ -170,16 +170,6 @@ CSSPrimitiveValue::~CSSPrimitiveValue()
     }
 }
 
-Ref<const CSSCalc::Value> CLANG_POINTER_CONVERSION CSSCalc::protect(const CSSCalc::Value& value)
-{
-    return value;
-}
-
-RefPtr<const CSSCalc::Value> CLANG_POINTER_CONVERSION CSSCalc::protect(const CSSCalc::Value* value)
-{
-    return value;
-}
-
 static CSSPrimitiveValue* valueFromPool(std::span<AlignedStorage<CSSPrimitiveValue>> pool, double value)
 {
     // Casting to a signed integer first since casting a negative floating point value to an unsigned
@@ -228,8 +218,6 @@ Ref<CSSPrimitiveValue> CSSPrimitiveValue::createInteger(double value)
 {
     return adoptRef(*new CSSPrimitiveValue(value, CSSUnitType::CSS_INTEGER));
 }
-
-// MARK: Non-converting
 
 std::optional<bool> CSSPrimitiveValue::isZero() const
 {

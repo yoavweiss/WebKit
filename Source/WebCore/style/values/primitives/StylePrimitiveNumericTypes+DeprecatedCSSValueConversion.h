@@ -37,7 +37,7 @@ auto deprecatedConvertNumericFromCSSValue(const CSSPrimitiveValue& value, Rest&&
 
     return WTF::switchOn(value,
         [&](const CSSPrimitiveValue::Calc& calc) -> std::optional<StyleType> {
-            return deprecatedToStyle(CSS::UnevaluatedCalc<CSSRaw>(const_cast<CSSPrimitiveValue::Calc&>(calc)), std::forward<Rest>(rest)...);
+            return deprecatedToStyle(CSS::UnevaluatedCalc<CSSRaw> { calc }, std::forward<Rest>(rest)...);
         },
         [&](const CSSPrimitiveValue::Raw& raw) -> std::optional<StyleType> {
             if constexpr (DimensionPercentageNumeric<StyleType>) {

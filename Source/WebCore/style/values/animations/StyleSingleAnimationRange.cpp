@@ -29,7 +29,6 @@
 #include "CSSKeywordValue.h"
 #include "CSSNumericFactory.h"
 #include "StyleBuilderChecking.h"
-#include "StyleCalculationValue.h"
 #include "StyleLengthWrapper+CSSValueConversion.h"
 #include "StyleLengthWrapper+DeprecatedCSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+DeprecatedCSSValueConversion.h"

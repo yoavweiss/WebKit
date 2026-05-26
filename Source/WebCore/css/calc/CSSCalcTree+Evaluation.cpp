@@ -279,7 +279,7 @@ std::optional<double> evaluate(const IndirectNode<Random>& root, const Evaluatio
                     return raw.value;
                 },
                 [&](const CSS::Number<CSS::ClosedUnitRange>::Calc& calc) -> std::optional<double> {
-                    return calc.evaluate(CSS::Category::Number, *protect(options.conversionData->styleBuilderState()));
+                    return calc.evaluate(*protect(options.conversionData->styleBuilderState()));
                 }
             );
         }

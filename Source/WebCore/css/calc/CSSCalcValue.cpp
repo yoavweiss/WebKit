@@ -82,11 +82,8 @@ RefPtr<Value> Value::parse(CSSParserTokenRange& tokens, CSS::PropertyParserState
     return result;
 }
 
-Ref<Value> Value::create(const Style::Calculation::Value& value, const RenderStyle& style)
+Ref<Value> Value::create(CSS::Category category, CSS::Range range, const Style::Calculation::Value& value, const RenderStyle& style)
 {
-    auto category = value.category();
-    auto range = value.range();
-
     auto toCSSOptions = Style::Calculation::ToCSSOptions {
         .category = category,
         .range = range,
@@ -190,6 +187,11 @@ CSSUnitType Value::primitiveType() const
 
     ASSERT_NOT_REACHED();
     return CSSUnitType::CSS_NUMBER;
+}
+
+bool Value::rootNodeIsPercentage() const
+{
+    return WTF::holdsAlternative<Percentage>(m_tree.root);
 }
 
 void Value::collectComputedStyleDependencies(ComputedStyleDependencies& dependencies) const
@@ -298,7 +300,7 @@ Ref<Style::Calculation::Value> Value::createCalculationValue(const CSSToLengthCo
         .symbolTable = symbolTable
     };
 
-    return Style::Calculation::Value::create(m_category, m_range, Style::Calculation::toStyle(m_tree, toStyleOptions));
+    return Style::Calculation::Value::create(Style::Calculation::toStyle(m_tree, toStyleOptions));
 }
 
 Ref<Style::Calculation::Value> Value::createCalculationValue(NoConversionDataRequiredToken token) const
@@ -316,7 +318,7 @@ Ref<Style::Calculation::Value> Value::createCalculationValue(NoConversionDataReq
         .conversionData = std::nullopt,
         .symbolTable = symbolTable
     };
-    return Style::Calculation::Value::create(m_category, m_range, Style::Calculation::toStyle(m_tree, toStyleOptions));
+    return Style::Calculation::Value::create(Style::Calculation::toStyle(m_tree, toStyleOptions));
 }
 
 void Value::dump(TextStream& ts) const

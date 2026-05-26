@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2025-2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,16 +27,24 @@
 
 #include "StyleCalculationValue.h"
 #include "StyleCalculationValueMap.h"
+#include "StyleUnevaluatedCalculation.h"
 #include <cmath>
 
 namespace WebCore {
 namespace Style {
 
-LengthWrapperData::LengthWrapperData(uint8_t opaqueType, Ref<Calculation::Value>&& value)
+LengthWrapperData::LengthWrapperData(uint8_t opaqueType, UnevaluatedCalculationBase&& value)
     : m_opaqueType { opaqueType }
     , m_kind { LengthWrapperDataKind::Calculation }
 {
-    m_calculationValueHandle = Calculation::ValueMap::calculationValues().insert(WTF::move(value));
+    m_calculationValueHandle = Calculation::ValueMap::calculationValues().insert(value.leakRef());
+}
+
+LengthWrapperData::LengthWrapperData(uint8_t opaqueType, const UnevaluatedCalculationBase& value)
+    : m_opaqueType { opaqueType }
+    , m_kind { LengthWrapperDataKind::Calculation }
+{
+    m_calculationValueHandle = Calculation::ValueMap::calculationValues().insert(value.calculation());
 }
 
 Calculation::Value& LengthWrapperData::calculationValue() const
@@ -57,19 +65,19 @@ void LengthWrapperData::deref() const
     Calculation::ValueMap::calculationValues().deref(m_calculationValueHandle);
 }
 
-float LengthWrapperData::nonNanCalculatedValue(float maxValue, const ZoomFactor& usedZoom) const
+float LengthWrapperData::nonNanCalculatedValue(CSS::Range range, float maxValue, const ZoomFactor& usedZoom) const
 {
     ASSERT(m_kind == LengthWrapperDataKind::Calculation);
-    float result = protect(calculationValue())->evaluate(maxValue, usedZoom);
+    float result = protect(calculationValue())->evaluate(range, maxValue, usedZoom);
     if (std::isnan(result))
         return 0;
     return result;
 }
 
-float LengthWrapperData::nonNanCalculatedValue(float maxValue, const ZoomNeeded& token) const
+float LengthWrapperData::nonNanCalculatedValue(CSS::Range range, float maxValue, const ZoomNeeded& token) const
 {
     ASSERT(m_kind == LengthWrapperDataKind::Calculation);
-    float result = protect(calculationValue())->evaluate(maxValue, token);
+    float result = protect(calculationValue())->evaluate(range, maxValue, token);
     if (std::isnan(result))
         return 0;
     return result;

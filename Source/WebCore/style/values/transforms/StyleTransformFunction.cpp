@@ -41,7 +41,6 @@
 #include "StylePrimitiveNumericTypes+CSSValueConversion.h"
 #include "RenderStyle+GettersInlines.h"
 #include "StyleBuilderChecking.h"
-#include "StyleCalculationValue.h"
 #include "StyleInterpolationContext.h"
 #include "StyleKeyword+CSSValueConversion.h"
 #include "StyleLengthWrapper+Blending.h"

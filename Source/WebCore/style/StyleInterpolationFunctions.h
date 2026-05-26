@@ -47,7 +47,6 @@
 #include "RenderStyle+SettersInlines.h"
 #include "ScopedName.h"
 #include "Settings.h"
-#include "StyleCalculationValue.h"
 #include "StyleDynamicRangeLimit.h"
 #include "StyleImageWrapper.h"
 #include "StyleInterpolationClient.h"

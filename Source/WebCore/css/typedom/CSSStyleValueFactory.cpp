@@ -34,7 +34,6 @@
 #include "CSSAppleColorFilterValue.h"
 #include "CSSBorderImageSourceValue.h"
 #include "CSSBoxShadowPropertyValue.h"
-#include "CSSCalcValue.h"
 #include "CSSClipValue.h"
 #include "CSSContentValue.h"
 #include "CSSCustomIdentValue.h"
@@ -60,6 +59,7 @@
 #include "CSSTransformListValue.h"
 #include "CSSTransformValue.h"
 #include "CSSURLValue.h"
+#include "CSSUnevaluatedCalc.h"
 #include "CSSUnitValue.h"
 #include "CSSUnparsedValue.h"
 #include "CSSValueList.h"
@@ -223,7 +223,7 @@ static ExceptionOr<Ref<CSSStyleValue>> reifyValue(const T& numeric)
 {
     return WTF::switchOn(numeric,
         [&](const typename T::Calc& calc) -> ExceptionOr<Ref<CSSStyleValue>> {
-            auto result = CSSNumericValue::reifyMathExpression(calc.calcValue().tree());
+            auto result = CSSNumericValue::reifyMathExpression(calc);
             if (result.hasException())
                 return result.releaseException();
             return upcast<CSSStyleValue>(result.releaseReturnValue());
@@ -243,7 +243,7 @@ static ExceptionOr<Ref<CSSStyleValue>> reifyValue(const CSSPrimitiveValue& primi
 {
     return WTF::switchOn(primitiveValue,
         [&](const CSSPrimitiveValue::Calc& calc) -> ExceptionOr<Ref<CSSStyleValue>> {
-            auto result = CSSNumericValue::reifyMathExpression(calc.tree());
+            auto result = CSSNumericValue::reifyMathExpression(calc);
             if (result.hasException())
                 return result.releaseException();
             return upcast<CSSStyleValue>(result.releaseReturnValue());
