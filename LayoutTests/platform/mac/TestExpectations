@@ -965,10 +965,6 @@ compositing/video/poster.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/161883 imported/w3c/web-platform-tests/dom/nodes/ProcessingInstruction-escapes-1.xhtml [ Pass Failure ]
 
-
-
-webkit.org/b/162647 http/tests/xmlhttprequest/onabort-response-getters.html [ Pass Failure ]
-
 [ Debug ] fast/selectors/slow-style-sharing-with-long-cousin-list.html [ Skip ]
 
 
