@@ -56,7 +56,10 @@
 #include "RenderElementStyleInlines.h"
 #include "RenderGrid.h"
 #include "RenderInline.h"
+#include "RenderSVGModelObject.h"
 #include "RenderStyle+GettersInlines.h"
+#include "SVGElement.h"
+#include "SVGLengthContext.h"
 #include "StyleComputedStyle+InitialInlines.h"
 #include "StyleExtractorState.h"
 #include "StyleInterpolation.h"
@@ -522,24 +525,54 @@ template<CSSPropertyID propertyID> struct PreferredSizeSharedAdaptor {
     template<typename F> decltype(auto) computedValue(ExtractorState& state, const PreferredSize& value, F&& functor) const
     {
         auto sizingBox = [](auto& renderer) -> LayoutRect {
+            if (auto* svgModelObject = dynamicDowncast<RenderSVGModelObject>(renderer))
+                return svgModelObject->borderBoxRectEquivalent();
             auto* box = dynamicDowncast<RenderBox>(renderer);
-            if (!box)
-                return LayoutRect();
-            return box->style().boxSizing() == BoxSizing::BorderBox ? box->borderBoxRect() : box->computedCSSContentBoxRect();
+            if (box)
+                return box->style().boxSizing() == BoxSizing::BorderBox ? box->borderBoxRect() : box->computedCSSContentBoxRect();
+            return LayoutRect();
         };
 
         auto isNonReplacedInline = [](auto& renderer) {
             return renderer.isInline() && !renderer.isBlockLevelReplacedOrAtomicInline();
         };
 
-        if (state.renderer && !state.renderer->isRenderOrLegacyRenderSVGModelObject()) {
-            // According to http://www.w3.org/TR/CSS2/visudet.html#the-height-property,
-            // the "height" property does not apply for non-replaced inline elements.
-            if (!isNonReplacedInline(*state.renderer)) {
-                if constexpr (propertyID == CSSPropertyHeight)
-                    return functor(Length<> { sizingBox(*state.renderer).height() });
-                else if constexpr (propertyID == CSSPropertyWidth)
-                    return functor(Length<> { sizingBox(*state.renderer).width() });
+        // In SVG, width/height are geometry properties that only apply to specific elements
+        // (svg, rect, image, foreignObject, inner svg). For those, the resolved value is the
+        // used value. For other SVG elements (text, g, etc.), the resolved value is the computed value.
+        // SVG shapes and inner svg elements that are not RenderBox subclasses need their CSS
+        // values resolved directly via SVGLengthContext rather than from the bounding box.
+        auto isSVGNonBoxGeometryElement = [](auto& renderer) {
+            return renderer.isRenderOrLegacyRenderSVGImage()
+                || renderer.isRenderOrLegacyRenderSVGRect();
+        };
+
+        if (state.renderer) {
+            if (state.renderer->isSVGRenderer() && isSVGNonBoxGeometryElement(*state.renderer)) {
+                // For SVG geometry elements that are not RenderBox subclasses, resolve the CSS
+                // value directly using SVGLengthContext rather than reading from the bounding box,
+                // because the bounding box may be empty when only one dimension is set. Per the
+                // SVG2 sizing spec, keywords like 'auto' resolve to 0 for these elements; that
+                // happens via SVGLengthContext's non-numeric fallback path. The Length<> wrapper
+                // divides by usedZoom on serialization, so pre-multiply to round-trip the value.
+                if (RefPtr svgElement = dynamicDowncast<SVGElement>(state.element.get())) {
+                    SVGLengthContext lengthContext(svgElement.get());
+                    auto usedZoom = state.style.usedZoom();
+                    if constexpr (propertyID == CSSPropertyWidth)
+                        return functor(Length<> { lengthContext.valueForLength(state.style.width(), Style::ZoomFactor::none(), SVGLengthMode::Width) * usedZoom });
+                    else if constexpr (propertyID == CSSPropertyHeight)
+                        return functor(Length<> { lengthContext.valueForLength(state.style.height(), Style::ZoomFactor::none(), SVGLengthMode::Height) * usedZoom });
+                }
+            } else if (!state.renderer->isSVGRenderer() || state.renderer->isRenderOrLegacyRenderSVGRoot() || state.renderer->isRenderOrLegacyRenderSVGForeignObject()) {
+                // For non-SVG elements (and SVG root / foreignObject which are proper RenderBox
+                // subclasses), use the sizing box. Per CSS2 the "height"/"width" property does
+                // not apply for non-replaced inline elements.
+                if (!isNonReplacedInline(*state.renderer)) {
+                    if constexpr (propertyID == CSSPropertyHeight)
+                        return functor(Length<> { sizingBox(*state.renderer).height() });
+                    else if constexpr (propertyID == CSSPropertyWidth)
+                        return functor(Length<> { sizingBox(*state.renderer).width() });
+                }
             }
         }
         return functor(value);

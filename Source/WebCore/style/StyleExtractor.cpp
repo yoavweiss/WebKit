@@ -333,7 +333,16 @@ static bool isLayoutDependent(CSSPropertyID propertyID, const RenderStyle* style
     case CSSPropertyHeight:
     case CSSPropertyInlineSize:
     case CSSPropertyBlockSize:
-        return renderer && !renderer->isRenderOrLegacyRenderSVGModelObject() && !isNonReplacedInline(*renderer);
+        if (!renderer)
+            return false;
+        if (renderer->isSVGRenderer()) {
+            // In SVG, width/height are geometry properties that only apply to specific elements.
+            return renderer->isRenderOrLegacyRenderSVGRoot()
+                || renderer->isRenderOrLegacyRenderSVGImage()
+                || renderer->isRenderOrLegacyRenderSVGForeignObject()
+                || renderer->isRenderOrLegacyRenderSVGRect();
+        }
+        return !isNonReplacedInline(*renderer);
     case CSSPropertyMargin:
     case CSSPropertyMarginBlock:
     case CSSPropertyMarginBlockStart:

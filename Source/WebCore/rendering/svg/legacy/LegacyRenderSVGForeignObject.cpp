@@ -29,6 +29,7 @@
 #include "RenderBoxInlines.h"
 #include "RenderBoxModelObjectInlines.h"
 #include "RenderSVGBlockInlines.h"
+#include "RenderStyle+GettersInlines.h"
 #include "RenderView.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGForeignObjectElement.h"
@@ -137,8 +138,10 @@ void LegacyRenderSVGForeignObject::layout()
     // Cache viewport boundaries
     Ref foreignObjectElement = this->foreignObjectElement();
     SVGLengthContext lengthContext(foreignObjectElement.ptr());
-    FloatPoint viewportLocation(foreignObjectElement->x().value(lengthContext), foreignObjectElement->y().value(lengthContext));
-    m_viewport = FloatRect(viewportLocation, FloatSize(foreignObjectElement->width().value(lengthContext), foreignObjectElement->height().value(lengthContext)));
+    CheckedRef usedStyle = style();
+    auto usedZoom = usedStyle->usedZoomForLength();
+    FloatPoint viewportLocation(lengthContext.valueForLength(usedStyle->x(), Style::ZoomNeeded { }, SVGLengthMode::Width), lengthContext.valueForLength(usedStyle->y(), Style::ZoomNeeded { }, SVGLengthMode::Height));
+    m_viewport = FloatRect(viewportLocation, FloatSize(std::max(0.0f, lengthContext.valueForLength(usedStyle->width(), usedZoom, SVGLengthMode::Width)), std::max(0.0f, lengthContext.valueForLength(usedStyle->height(), usedZoom, SVGLengthMode::Height))));
     if (!updateCachedBoundariesInParents)
         updateCachedBoundariesInParents = oldViewport != m_viewport;
 

@@ -31,6 +31,7 @@
 #include "RenderLayer.h"
 #include "RenderObject.h"
 #include "RenderSVGBlockInlines.h"
+#include "RenderStyle+GettersInlines.h"
 #include "RenderView.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGForeignObjectElement.h"
@@ -96,12 +97,14 @@ void RenderSVGForeignObject::layout()
 
     Ref useForeignObjectElement = foreignObjectElement();
     SVGLengthContext lengthContext(useForeignObjectElement.ptr());
+    CheckedRef usedStyle = style();
+    auto usedZoom = usedStyle->usedZoomForLength();
 
     // Cache viewport boundaries
-    auto x = useForeignObjectElement->x().value(lengthContext);
-    auto y = useForeignObjectElement->y().value(lengthContext);
-    auto width = std::max(0.0f, useForeignObjectElement->width().value(lengthContext));
-    auto height = std::max(0.0f, useForeignObjectElement->height().value(lengthContext));
+    auto x = lengthContext.valueForLength(usedStyle->x(), Style::ZoomNeeded { }, SVGLengthMode::Width);
+    auto y = lengthContext.valueForLength(usedStyle->y(), Style::ZoomNeeded { }, SVGLengthMode::Height);
+    auto width = std::max(0.0f, lengthContext.valueForLength(usedStyle->width(), usedZoom, SVGLengthMode::Width));
+    auto height = std::max(0.0f, lengthContext.valueForLength(usedStyle->height(), usedZoom, SVGLengthMode::Height));
     m_viewport = { x, y, width, height };
 
     RenderSVGBlock::layout();
