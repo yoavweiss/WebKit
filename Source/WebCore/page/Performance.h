@@ -44,8 +44,8 @@
 #include <memory>
 #include <wtf/ContinuousTime.h>
 #include <wtf/Forward.h>
-#include <wtf/ListHashSet.h>
 #include <wtf/MonotonicTime.h>
+#include <wtf/OrderedHashSet.h>
 
 namespace JSC {
 class JSGlobalObject;
@@ -194,7 +194,7 @@ private:
     std::unique_ptr<PerformanceUserTiming> m_userTiming;
 
     std::array<PerformanceEntryBuffer, PerformanceEntry::performanceEntryTypeCount> m_entryBufferMap;
-    ListHashSet<Ref<PerformanceObserver>> m_observers;
+    OrderedHashSet<Ref<PerformanceObserver>> m_observers;
 };
 
 } // namespace WebCore
