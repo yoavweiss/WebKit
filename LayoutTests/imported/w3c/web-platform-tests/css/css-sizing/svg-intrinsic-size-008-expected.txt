@@ -1,6 +1,6 @@
 No intrinsic attributes:
-viewBox and height:
 viewBox and width:
+viewBox and height:
 viewBox, width, height:
 Just viewBox:
 

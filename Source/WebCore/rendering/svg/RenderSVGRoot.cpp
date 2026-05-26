@@ -164,6 +164,21 @@ LayoutUnit RenderSVGRoot::computeReplacedLogicalWidth(ShouldComputePreferred sho
     if (isEmbeddedThroughFrameContainingSVGDocument())
         return containingBlock()->contentBoxLogicalWidth();
 
+    // For intrinsic sizing keywords (e.g. max-content), when the SVG has no intrinsic width
+    // but has an intrinsic ratio (from viewBox), compute the width using the default height
+    // and the aspect ratio.
+    if (style().logicalWidth().isIntrinsic()) {
+        Ref element = svgSVGElement();
+        if (!element->hasIntrinsicWidth()) {
+            FloatSize viewBoxSize = element->currentViewBoxRect().size();
+            if (!viewBoxSize.isEmpty()) {
+                float height = element->hasIntrinsicHeight() ? element->intrinsicHeight() : defaultHeight;
+                double ratio = viewBoxSize.width() / viewBoxSize.height();
+                return computeReplacedLogicalWidthRespectingMinMaxWidth(LayoutUnit(height * ratio), shouldComputePreferred);
+            }
+        }
+    }
+
     // Standalone SVG / SVG embedded via SVGImage (background-image/border-image/etc) / Inline SVG.
     auto result = RenderReplaced::computeReplacedLogicalWidth(shouldComputePreferred);
     if (svgSVGElement().hasIntrinsicWidth())
@@ -184,6 +199,21 @@ LayoutUnit RenderSVGRoot::computeReplacedLogicalHeight(std::optional<LayoutUnit>
 
     if (isEmbeddedThroughFrameContainingSVGDocument())
         return containingBlock()->availableLogicalHeight(AvailableLogicalHeightType::IncludeMarginBorderPadding);
+
+    // For intrinsic sizing keywords (e.g. max-content), when the SVG has no intrinsic height
+    // but has an intrinsic ratio (from viewBox), compute the height using the width and the
+    // aspect ratio.
+    if (style().logicalHeight().isIntrinsic()) {
+        Ref element = svgSVGElement();
+        if (!element->hasIntrinsicHeight()) {
+            FloatSize viewBoxSize = element->currentViewBoxRect().size();
+            if (!viewBoxSize.isEmpty()) {
+                float width = element->hasIntrinsicWidth() ? element->intrinsicWidth() : defaultWidth;
+                double ratio = viewBoxSize.height() / viewBoxSize.width();
+                return computeReplacedLogicalHeightRespectingMinMaxHeight(LayoutUnit(width * ratio));
+            }
+        }
+    }
 
     // Standalone SVG / SVG embedded via SVGImage (background-image/border-image/etc) / Inline SVG.
     auto result = RenderReplaced::computeReplacedLogicalHeight(estimatedUsedWidth);
