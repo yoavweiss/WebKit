@@ -57,10 +57,10 @@ public:
 
     const DestinationColorSpace& colorSpace() const final;
 
-    void beginRecording();
+    enum class RecordingMode : bool { Tile, Canvas };
+    void beginRecording(RecordingMode);
     SkiaRecordingData endRecording();
 
-    void enableStateReplayTracking();
     void replayStateOnCanvas(SkCanvas&) const;
 
     void didUpdateState(GraphicsContextState&) final;
@@ -124,9 +124,10 @@ public:
     void drawSkiaText(const sk_sp<SkTextBlob>&, SkScalar, SkScalar, bool, bool);
 
 private:
-    enum class ContextMode : bool {
+    enum class ContextMode : uint8_t {
         PaintingMode,
-        RecordingMode
+        TileRecordingMode,
+        CanvasRecordingMode
     };
 
     bool makeGLContextCurrentIfNeeded() const;

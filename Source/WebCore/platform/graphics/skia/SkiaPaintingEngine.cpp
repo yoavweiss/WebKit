@@ -225,7 +225,7 @@ Ref<SkiaRecordingResult> SkiaPaintingEngine::record(const GraphicsLayerCoordinat
     SkPictureRecorder pictureRecorder;
     auto* recordingCanvas = pictureRecorder.beginRecording(recordRect.width(), recordRect.height());
     GraphicsContextSkia recordingContext(*recordingCanvas, renderingMode, RenderingPurpose::LayerBacking);
-    recordingContext.beginRecording();
+    recordingContext.beginRecording(GraphicsContextSkia::RecordingMode::Tile);
     paintIntoGraphicsContext(layer, recordingContext, recordRect, contentsOpaque, contentsScale);
     auto recordingData = recordingContext.endRecording();
 

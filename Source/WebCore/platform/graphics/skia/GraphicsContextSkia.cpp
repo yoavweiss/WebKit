@@ -110,6 +110,9 @@ bool GraphicsContextSkia::makeGLContextCurrentIfNeeded() const
     if (m_renderingMode == RenderingMode::Unaccelerated)
         return true;
 
+    if (m_contextMode != ContextMode::PaintingMode)
+        return true;
+
     if (m_renderingPurpose != RenderingPurpose::Canvas && m_renderingPurpose != RenderingPurpose::DOM)
         return true;
 
@@ -206,7 +209,7 @@ void GraphicsContextSkia::drawNativeImage(const NativeImage& nativeImage, const 
         return;
 
     // Collect raster images for atlas batching during recording.
-    if (m_contextMode == ContextMode::RecordingMode && m_renderingMode == RenderingMode::Accelerated && !image->isTextureBacked()) {
+    if (m_contextMode == ContextMode::TileRecordingMode && m_renderingMode == RenderingMode::Accelerated && !image->isTextureBacked()) {
         ASSERT(m_atlasLayoutBuilder);
         m_atlasLayoutBuilder->collectRasterImage(image);
     }
@@ -1153,39 +1156,50 @@ void GraphicsContextSkia::drawPattern(const NativeImage& nativeImage, const Floa
     m_canvas.drawRect(destRect, paint);
 }
 
-void GraphicsContextSkia::beginRecording()
+void GraphicsContextSkia::beginRecording(RecordingMode recordingMode)
 {
     ASSERT(m_contextMode == ContextMode::PaintingMode);
-    m_contextMode = ContextMode::RecordingMode;
+    switch (recordingMode) {
+    case RecordingMode::Tile:
+        m_contextMode = ContextMode::TileRecordingMode;
+        if (m_renderingMode == RenderingMode::Accelerated)
+            m_atlasLayoutBuilder = makeUnique<SkiaImageAtlasLayoutBuilder>();
+        else
+            ASSERT(!m_atlasLayoutBuilder);
+        break;
+    case RecordingMode::Canvas:
+        m_contextMode = ContextMode::CanvasRecordingMode;
+        if (!m_enableStateReplayTracking) {
+            m_enableStateReplayTracking = true;
 
-    if (m_renderingMode == RenderingMode::Accelerated)
-        m_atlasLayoutBuilder = makeUnique<SkiaImageAtlasLayoutBuilder>();
-    else
-        ASSERT(!m_atlasLayoutBuilder);
+            // Seed a base entry so clips issued before the first save() are tracked.
+            pushSkiaState();
+        }
+        break;
+    }
 }
 
 SkiaRecordingData GraphicsContextSkia::endRecording()
 {
-    ASSERT(m_contextMode == ContextMode::RecordingMode);
-    m_contextMode = ContextMode::PaintingMode;
-
-    Vector<Ref<SkiaImageAtlasLayout>> atlasLayouts;
-    unsigned imageSetFingerprint = 0;
-    if (m_atlasLayoutBuilder) {
-        atlasLayouts = m_atlasLayoutBuilder->finalize();
-        imageSetFingerprint = m_atlasLayoutBuilder->imageSetFingerprint();
-        m_atlasLayoutBuilder = nullptr;
+    auto contextMode = std::exchange(m_contextMode, ContextMode::PaintingMode);
+    switch (contextMode) {
+    case ContextMode::TileRecordingMode: {
+        Vector<Ref<SkiaImageAtlasLayout>> atlasLayouts;
+        unsigned imageSetFingerprint = 0;
+        if (m_atlasLayoutBuilder) {
+            atlasLayouts = m_atlasLayoutBuilder->finalize();
+            imageSetFingerprint = m_atlasLayoutBuilder->imageSetFingerprint();
+            m_atlasLayoutBuilder = nullptr;
+        }
+        return { WTF::move(m_imageToFenceMap), WTF::move(atlasLayouts), imageSetFingerprint };
+    }
+    case ContextMode::CanvasRecordingMode:
+        return { };
+    case ContextMode::PaintingMode:
+        RELEASE_ASSERT_NOT_REACHED();
     }
 
-    return { WTF::move(m_imageToFenceMap), WTF::move(atlasLayouts), imageSetFingerprint };
-}
-
-void GraphicsContextSkia::enableStateReplayTracking()
-{
-    m_enableStateReplayTracking = true;
-
-    // Seed a base entry so clips issued before the first save() are tracked.
-    pushSkiaState();
+    return { };
 }
 
 void GraphicsContextSkia::replayStateOnCanvas(SkCanvas& canvas) const
@@ -1218,7 +1232,7 @@ void GraphicsContextSkia::replayStateOnCanvas(SkCanvas& canvas) const
 
 void GraphicsContextSkia::trackAcceleratedRenderingFenceIfNeeded(const sk_sp<SkImage>& image, GrDirectContext* grContext)
 {
-    if (m_contextMode != ContextMode::RecordingMode)
+    if (m_contextMode != ContextMode::TileRecordingMode)
         return;
 
     if (!image || !image->isTextureBacked())
@@ -1230,7 +1244,7 @@ void GraphicsContextSkia::trackAcceleratedRenderingFenceIfNeeded(const sk_sp<SkI
 
 void GraphicsContextSkia::trackAcceleratedRenderingFenceIfNeeded(Pattern& pattern)
 {
-    if (m_contextMode != ContextMode::RecordingMode)
+    if (m_contextMode != ContextMode::TileRecordingMode)
         return;
 
     auto nativeImage = pattern.tileNativeImage();
