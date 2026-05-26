@@ -3204,11 +3204,24 @@ LayoutRect RenderBlock::paintRectToClipOutFromBorder(const LayoutRect& paintRect
         clipRect.setY(writingMode().isBlockTopToBottom() ? paintRect.y() : paintRect.y() + paintRect.height() - borderExtent);
         clipRect.setWidth(legend->width());
         clipRect.setHeight(borderExtent);
+        // When the legend overlaps a non-block-start border (e.g. via negative
+        // margin), extend the clip in the block direction to cover the legend's
+        // layout box so that border behind it is not painted.
+        if (!borderExtent) {
+            LayoutUnit adjustment = intrinsicBorderForFieldset() ? std::max(0_lu, (legend->height() - borderExtent) / 2) : 0_lu;
+            clipRect.setY(paintRect.y() + legend->y() - adjustment);
+            clipRect.setHeight(legend->height());
+        }
     } else {
         clipRect.setX(writingMode().isBlockLeftToRight() ? paintRect.x() : paintRect.x() + paintRect.width() - borderExtent);
         clipRect.setY(paintRect.y() + legend->y());
         clipRect.setWidth(borderExtent);
         clipRect.setHeight(legend->height());
+        if (!borderExtent) {
+            LayoutUnit adjustment = intrinsicBorderForFieldset() ? std::max(0_lu, (legend->width() - borderExtent) / 2) : 0_lu;
+            clipRect.setX(paintRect.x() + legend->x() - adjustment);
+            clipRect.setWidth(legend->width());
+        }
     }
     return clipRect;
 }
