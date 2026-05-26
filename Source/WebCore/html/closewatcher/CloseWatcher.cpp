@@ -107,7 +107,7 @@ void CloseWatcher::requestClose()
 bool CloseWatcher::requestToClose(RequireHistoryActionActivation requireHistoryActionActivation)
 {
     RefPtr document = downcast<Document>(scriptExecutionContext());
-    if (!isActive() || m_isRunningCancelAction || !document || !document->isFullyActive())
+    if (!isActive() || !enabled() || m_isRunningCancelAction || !document || !document->isFullyActive())
         return true;
 
     Ref manager = protect(document->window())->closeWatcherManager();
@@ -128,7 +128,7 @@ bool CloseWatcher::requestToClose(RequireHistoryActionActivation requireHistoryA
 void CloseWatcher::close()
 {
     RefPtr document = downcast<Document>(scriptExecutionContext());
-    if (!isActive() || !document || !document->isFullyActive())
+    if (!isActive() || !enabled() || !document || !document->isFullyActive())
         return;
 
     destroy();

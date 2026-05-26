@@ -4552,13 +4552,15 @@ void EventHandler::defaultKeyboardEventHandler(KeyboardEvent& event)
             if (frame->settings().closeWatcherEnabled()) {
                 if (event.isTrusted())
                     frame->document()->window()->closeWatcherManager().processCloseWatchers();
-            } else if (RefPtr topmostAutoPopover = frame->document()->topmostAutoPopover())
-                topmostAutoPopover->hidePopover();
-            if (frame->settings().closedbyAttributeEnabled()) {
-                if (RefPtr activeCloseableDialog = frame->document()->activeCloseableDialog())
-                    activeCloseableDialog->requestClose(nullString(), nullptr);
-            } else if (RefPtr activeModalDialog = frame->document()->activeModalDialog())
-                activeModalDialog->queueCancelTask();
+            } else {
+                if (frame->settings().closedbyAttributeEnabled()) {
+                    if (RefPtr activeCloseableDialog = frame->document()->activeCloseableDialog())
+                        activeCloseableDialog->requestClose(nullString(), nullptr);
+                } else if (RefPtr activeModalDialog = frame->document()->activeModalDialog())
+                    activeModalDialog->queueCancelTask();
+                if (RefPtr topmostAutoPopover = frame->document()->topmostAutoPopover())
+                    topmostAutoPopover->hidePopover();
+            }
         } else if (event.keyIdentifier() == "U+0009"_s)
             defaultTabEventHandler(event);
         else if (event.keyIdentifier() == "U+0008"_s)

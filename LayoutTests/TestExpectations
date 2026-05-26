@@ -5955,35 +5955,10 @@ imported/w3c/web-platform-tests/trusted-types/trusted-types-reporting-for-Shared
 imported/w3c/web-platform-tests/trusted-types/should-sink-type-mismatch-violation-be-blocked-by-csp-002-worker.html [ Skip ]
 imported/w3c/web-platform-tests/trusted-types/should-trusted-type-policy-creation-be-blocked-by-csp-004-worker.html [ Skip ]
 
-# Close watchers aren't implemented yet
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/n-activate-preventDefault.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/n-activate.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/n-closerequest-n.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/n-destroy-n.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/n.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/nn-activate-dialog.html [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/nn-dialog.html [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/nnn-CloseWatcher-dialog-popover.html [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/nnn-dialog.html [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/ny-activate-preventDefault.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/ny.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/nyn.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/nynn-destroy.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/nynn.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/nyyn-dialog.html [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/nyyyn-dialog.html [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/y.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/yn-activate.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/yn.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/ynn-dialog.html [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/yy.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/yyn.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/yyy-activate-CloseWatcher-dialog-popover.html [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/yyy-CloseWatcher-dialog-popover.html [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/user-activation/yyy.html?dialog [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/iframes/dialog-same-origin-nn.html [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/iframes/dialog-same-origin-ynn.html [ Skip ]
-webkit.org/b/263305 imported/w3c/web-platform-tests/close-watcher/iframes/dialog-same-origin-ynyn.html [ Skip ]
+# Close watchers aren't finished yet
+webkit.org/b/315510 imported/w3c/web-platform-tests/close-watcher/iframes/dialog-same-origin-nn.html [ Skip ]
+webkit.org/b/315510 imported/w3c/web-platform-tests/close-watcher/iframes/dialog-same-origin-ynn.html [ Skip ]
+webkit.org/b/315510 imported/w3c/web-platform-tests/close-watcher/iframes/dialog-same-origin-ynyn.html [ Skip ]
 
 # Needs moveBefore support
 webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/focus-preserve-render.html [ Skip ]
@@ -6903,11 +6878,6 @@ imported/w3c/web-platform-tests/scroll-animations/css/view-timeline-range-update
 imported/w3c/web-platform-tests/scroll-animations/css/view-timeline-subject-bounds-update.html [ Skip ]
 
 webkit.org/b/263923 animations/transition-and-animation-2.html [ Failure Pass ]
-
-# CloseWatcher related timeouts
-imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element/dialog-cancel-events.html [ Skip ]
-imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element/dialog-cancel-preventDefault.html [ Skip ]
-imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element/dialog-canceling.html [ Skip ]
 
 # -- Navigation API -- #
 
