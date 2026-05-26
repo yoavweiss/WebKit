@@ -93,7 +93,7 @@ public:
         Unified = 1 << 0,
         UseForCompositing = 1 << 1
     };
-    void setDamagePropagationFlags(std::optional<OptionSet<DamagePropagationFlags>>);
+    void setDamagePropagationSettings(std::optional<OptionSet<DamagePropagationFlags>>, unsigned rectangleThreshold);
     void enableFrameDamageNotificationForTesting();
 #endif
 
@@ -183,6 +183,7 @@ private:
 #if ENABLE(DAMAGE_TRACKING)
     struct {
         std::optional<OptionSet<DamagePropagationFlags>> flags;
+        unsigned rectangleThreshold { 4 };
         std::unique_ptr<WebCore::TextureMapperDamageVisualizer> visualizer;
 
         bool showSkiaDamage { false };

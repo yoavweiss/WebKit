@@ -1088,7 +1088,8 @@ void AcceleratedSurface::didRenderFrame()
     // For GL targets we use bounding box damage for render target damage, as its only 2 consumers so far
     // (CoordinatedBackingStore & ThreadedCompositor) only fetch bounds. Thus having damage with
     // better resolution is pointless as the bounds are the same in such case.
-    m_target->setDamage(Damage(m_swapChain.size(), usesGL() ? Damage::Mode::BoundingBox : Damage::Mode::Rectangles, 4));
+    // FIXME: If we start to consume fine-grained damage in the Skia compositor, we will need to relax the usesGL condition.
+    m_target->setDamage(Damage(m_swapChain.size(), usesGL() ? Damage::Mode::BoundingBox : Damage::Mode::Rectangles, m_frameDamageRectangleThreshold));
     if (m_frameDamage) {
         damageRects = m_frameDamage->rects();
         m_frameDamage = std::nullopt;

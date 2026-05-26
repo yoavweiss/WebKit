@@ -2215,6 +2215,21 @@ DOMTimersThrottlingEnabled:
     WebCore:
       default: true
 
+DamageRectangleThreshold:
+  type: uint32_t
+  status: unstable
+  category: dom
+  humanReadableName: "Damage Rectangle Threshold"
+  humanReadableDescription: "Maximum number of damage rectangles to track before damaged regions are unified into their bounding box"
+  condition: ENABLE(DAMAGE_TRACKING)
+  defaultValue:
+    WebKitLegacy:
+      default: 4
+    WebKit:
+      default: 4
+    WebCore:
+      default: 4
+
 DataDetectorTypes:
   type: uint32_t
   refinedType: WebCore::DataDetectorType

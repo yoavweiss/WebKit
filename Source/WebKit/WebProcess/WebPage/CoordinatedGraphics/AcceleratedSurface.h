@@ -133,6 +133,7 @@ public:
 
 #if ENABLE(DAMAGE_TRACKING)
     void setFrameDamage(WebCore::Damage&&);
+    void setFrameDamageRectangleThreshold(unsigned threshold) { m_frameDamageRectangleThreshold = threshold; }
     const std::optional<WebCore::Damage>& frameDamage() const LIFETIME_BOUND { return m_frameDamage; }
     const std::optional<WebCore::Damage>& renderTargetDamage();
 #endif
@@ -418,6 +419,7 @@ private:
     std::unique_ptr<RunLoop::Timer> m_releaseUnusedBuffersTimer;
 #if ENABLE(DAMAGE_TRACKING)
     std::optional<WebCore::Damage> m_frameDamage;
+    unsigned m_frameDamageRectangleThreshold { 4 };
 #endif
 };
 

@@ -81,6 +81,16 @@ public:
 
     static constexpr uint32_t NoMaxRectangles = 0;
 
+    // Clamp a preference-supplied rectangle threshold to a usable Damage limit.
+    // The constructor treats 0 as NoMaxRectangles (the default 256px-cell grid),
+    // which is the opposite of what a public threshold of 0 would suggest. Force
+    // the value to at least 1 so the preference behaves monotonically: 1 means
+    // "always unify into the bounding box".
+    static constexpr uint32_t clampRectangleThreshold(uint32_t threshold)
+    {
+        return std::max<uint32_t>(1, threshold);
+    }
+
     explicit Damage(const IntRect& rect, Mode mode = Mode::Rectangles, uint32_t maxRectangles = NoMaxRectangles)
         : m_mode(mode)
         , m_rect(rect)

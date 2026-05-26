@@ -209,7 +209,7 @@ void ThreadedCompositor::setSize(const IntSize& size, float deviceScaleFactor)
 }
 
 #if ENABLE(DAMAGE_TRACKING)
-void ThreadedCompositor::setDamagePropagationFlags(std::optional<OptionSet<DamagePropagationFlags>> flags)
+void ThreadedCompositor::setDamagePropagationSettings(std::optional<OptionSet<DamagePropagationFlags>> flags, unsigned /* rectangleThreshold */)
 {
     m_damage.flags = flags;
     if (m_damage.visualizer && m_damage.flags) {

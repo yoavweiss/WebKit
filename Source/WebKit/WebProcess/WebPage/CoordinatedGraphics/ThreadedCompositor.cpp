@@ -260,7 +260,7 @@ void ThreadedCompositor::setSize(const IntSize& size, float deviceScaleFactor)
 }
 
 #if ENABLE(DAMAGE_TRACKING)
-void ThreadedCompositor::setDamagePropagationFlags(std::optional<OptionSet<DamagePropagationFlags>> flags)
+void ThreadedCompositor::setDamagePropagationSettings(std::optional<OptionSet<DamagePropagationFlags>> flags, unsigned rectangleThreshold)
 {
     m_damage.flags = flags;
     if ((m_damage.visualizer || m_damage.showSkiaDamage) && m_damage.flags) {
@@ -268,6 +268,11 @@ void ThreadedCompositor::setDamagePropagationFlags(std::optional<OptionSet<Damag
         // frame is invalidated in the next paint so that previous damage rects are cleared.
         m_damage.flags->remove(DamagePropagationFlags::UseForCompositing);
     }
+
+    rectangleThreshold = Damage::clampRectangleThreshold(rectangleThreshold);
+    m_damage.rectangleThreshold = rectangleThreshold;
+    if (m_surface)
+        m_surface->setFrameDamageRectangleThreshold(rectangleThreshold);
 }
 
 void ThreadedCompositor::enableFrameDamageNotificationForTesting()
