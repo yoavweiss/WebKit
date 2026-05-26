@@ -1157,6 +1157,9 @@ webkit.org/b/220719 accessibility/braille-label-role.html [ Failure ]
 # Key events for AX actions seems to not be not being emitted
 webkit.org/b/221022 accessibility/keyevents-for-actions-mimic-real-key-events.html [ Timeout ]
 
+# Test requires WebKitTestRunner property 'standaloneWebApplicationURL', which is only implemented for Cocoa platforms.
+http/tests/resourceLoadStatistics/standalone-web-application-exempt-from-website-data-deletion.html [ Skip ]
+
 webkit.org/b/221447 accessibility/aria-current-state-changed-notification.html [ Failure ]
 
 webkit.org/b/221645 accessibility/aria-sort.html [ Failure ]
@@ -2214,8 +2217,6 @@ perf [ Skip ]
 #////////////////////////////////////////////////////////////////////////////////////////
 
 webkit.org/b/210487 http/tests/resourceLoadStatistics/switch-session-on-navigation-to-prevalent-with-interaction.py [ Failure ]
-
-webkit.org/b/210796 http/tests/resourceLoadStatistics/standalone-web-application-exempt-from-website-data-deletion.html [ Failure ]
 
 http/tests/resourceLoadStatistics/omit-document-referrer-nested-third-party-iframe-ephemeral.html [ Skip ]
 http/tests/resourceLoadStatistics/omit-document-referrer-third-party-iframe-ephemeral.html [ Skip ]
