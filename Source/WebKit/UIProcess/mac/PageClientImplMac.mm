@@ -371,6 +371,15 @@ void PageClientImpl::setCursor(const WebCore::Cursor& cursor)
     if (window.get().windowNumber != [NSWindow windowNumberAtPoint:mouseLocationInScreen belowWindowWithWindowNumber:0])
         return;
 
+    // The web process may have decided this cursor before the mouse moved off the web view onto
+    // a sibling view in the same window. Without this guard, the late-arriving IPC would
+    // override the sibling's cursor.
+    auto mouseLocationInWindow = [window convertPointFromScreen:mouseLocationInScreen];
+    RetainPtr contentView = [window contentView];
+    RetainPtr hitView = [contentView hitTest:[[contentView superview] convertPoint:mouseLocationInWindow fromView:nil]];
+    if (![hitView isDescendantOf:view])
+        return;
+
     RetainPtr platformCursor = cursor.platformCursor();
     if ([NSCursor currentCursor] == platformCursor.get())
         return;
