@@ -59,9 +59,6 @@
 OBJC_CLASS NSMutableDictionary;
 OBJC_CLASS NSObject;
 OBJC_CLASS WKProcessPoolWeakObserver;
-#if PLATFORM(MAC)
-OBJC_CLASS WKWebInspectorPreferenceObserver;
-#endif
 #endif
 
 #if PLATFORM(MAC)
@@ -847,7 +844,6 @@ private:
     RetainPtr<NSObject> m_didBeginSuppressingHighDynamicRange;
     RetainPtr<NSObject> m_didEndSuppressingHighDynamicRange;
 #endif
-    RetainPtr<WKWebInspectorPreferenceObserver> m_webInspectorPreferenceObserver;
 
     const UniqueRef<PerActivityStateCPUUsageSampler> m_perActivityStateCPUUsageSampler;
 #endif
