@@ -109,7 +109,7 @@ ExceptionOr<XRLayerLayout> XRWebGLBinding::determineLayout(XRTextureType texture
             if (textureType == XRTextureType::TextureArray)
                 return layout;
         }
-        if (layout == XRLayerLayout::Default || layout == XRLayerLayout::Stereo)
+        if ((layout == XRLayerLayout::Default || layout == XRLayerLayout::Stereo) && textureType == XRTextureType::Texture)
             return XRLayerLayout::StereoLeftRight;
         return layout;
     };
@@ -249,32 +249,21 @@ ExceptionOr<Ref<XRProjectionLayer>> XRWebGLBinding::createProjectionLayer(Script
     );
 }
 
-ExceptionOr<Vector<RefPtr<WebGLOpaqueTexture>>> XRWebGLBinding::allocateColorTexturesForLayer(XRCompositionLayer& layer, XRTextureType textureType, const XRLayerInit& /*init*/)
+ExceptionOr<Vector<RefPtr<WebGLOpaqueTexture>>> XRWebGLBinding::allocateColorTexturesForLayer(XRCompositionLayer& layer)
 {
     return WTF::switchOn(m_context,
         [&](const Ref<WebGLRenderingContextBase>& baseContext) -> ExceptionOr<Vector<RefPtr<WebGLOpaqueTexture>>> {
             if (baseContext->isContextLost())
                 return Exception { ExceptionCode::InvalidStateError, "Cannot create a layer with a lost WebGL context"_s };
 
-            Vector<RefPtr<WebGLOpaqueTexture>> textures;
-            switch (layer.layout()) {
-            case XRLayerLayout::Mono:
-            case XRLayerLayout::Stereo:
-            case XRLayerLayout::StereoLeftRight:
-            case XRLayerLayout::StereoTopBottom: {
-                if (textureType == XRTextureType::TextureArray)
-                    return Exception { ExceptionCode::NotSupportedError, "Texture arrays not implemented."_s };
-                RefPtr currentColorTexture = static_cast<XRWebGLLayerBacking&>(layer.backing()).currentColorTexture();
-                if (!currentColorTexture)
-                    return Exception { ExceptionCode::InvalidStateError, "Failed to get the current color texture."_s };
-                textures.append(currentColorTexture);
-                break;
-            }
-            case XRLayerLayout::Default:
-                ASSERT_NOT_REACHED_WITH_MESSAGE("Default layout is not supported for non projection Layers");
-                return Exception { ExceptionCode::NotSupportedError, "Default layout is not supported for non projection Layers."_s };
-            };
+            ASSERT(layer.layout() != XRLayerLayout::Default);
 
+            // Layout / textureType differences (size, array length, texture target) are baked into the swapchain at construction time.
+            Vector<RefPtr<WebGLOpaqueTexture>> textures;
+            RefPtr currentColorTexture = static_cast<XRWebGLLayerBacking&>(layer.backing()).currentColorTexture();
+            if (!currentColorTexture)
+                return Exception { ExceptionCode::InvalidStateError, "Failed to get the current color texture."_s };
+            textures.append(currentColorTexture);
             return textures;
         },
         [](std::monostate) {
@@ -284,7 +273,7 @@ ExceptionOr<Vector<RefPtr<WebGLOpaqueTexture>>> XRWebGLBinding::allocateColorTex
 }
 
 // https://immersive-web.github.io/layers/#allocate-depth-textures
-ExceptionOr<Vector<RefPtr<WebGLOpaqueTexture>>> XRWebGLBinding::allocateDepthTexturesForLayer(XRCompositionLayer& layer, XRTextureType textureType, const XRLayerInit& init)
+ExceptionOr<Vector<RefPtr<WebGLOpaqueTexture>>> XRWebGLBinding::allocateDepthTexturesForLayer(XRCompositionLayer& layer, const XRLayerInit& init)
 {
     return WTF::switchOn(m_context,
         [&](const Ref<WebGLRenderingContextBase>& baseContext) -> ExceptionOr<Vector<RefPtr<WebGLOpaqueTexture>>> {
@@ -292,38 +281,16 @@ ExceptionOr<Vector<RefPtr<WebGLOpaqueTexture>>> XRWebGLBinding::allocateDepthTex
                 return Exception { ExceptionCode::InvalidStateError, "Cannot create depth textures with a lost WebGL context"_s };
 
             Vector<RefPtr<WebGLOpaqueTexture>> textures;
-            if (!init.depthFormat)
+            if (!init.depthFormat || !*init.depthFormat)
                 return textures;
 
             ASSERT(depthFormatIsSupportedForNonProjectionLayer(*init.depthFormat));
+            ASSERT(layer.layout() != XRLayerLayout::Default);
 
-            switch (layer.layout()) {
-            case XRLayerLayout::Mono: {
-                if (textureType == XRTextureType::TextureArray)
-                    return Exception { ExceptionCode::NotSupportedError, "Texture arrays not implemented."_s };
-                RefPtr currentDepthTexture = static_cast<XRWebGLLayerBacking&>(layer.backing()).currentDepthTexture();
-                if (!currentDepthTexture)
-                    return Exception { ExceptionCode::InvalidStateError, "Failed to get the current depth texture."_s };
-                textures.append(currentDepthTexture);
-                break;
-            }
-            case XRLayerLayout::Stereo: {
-                if (textureType == XRTextureType::TextureArray)
-                    return Exception { ExceptionCode::NotSupportedError, "Texture arrays not implemented."_s };
-                return Exception { ExceptionCode::NotSupportedError, "Stereo depth textures not implemented."_s };
-            }
-            case XRLayerLayout::StereoLeftRight:
-            case XRLayerLayout::StereoTopBottom: {
-                if (textureType == XRTextureType::TextureArray)
-                    return Exception { ExceptionCode::NotSupportedError, "Texture arrays not implemented."_s };
-                textures.append(static_cast<XRWebGLLayerBacking&>(layer.backing()).currentDepthTexture());
-                break;
-            }
-            case XRLayerLayout::Default:
-                ASSERT_NOT_REACHED_WITH_MESSAGE("Default layout is not supported for non projection Layers");
-                return Exception { ExceptionCode::NotSupportedError, "Default layout is not supported for non projection Layers."_s };
-            };
-
+            RefPtr currentDepthTexture = static_cast<XRWebGLLayerBacking&>(layer.backing()).currentDepthTexture();
+            if (!currentDepthTexture)
+                return Exception { ExceptionCode::InvalidStateError, "Failed to get the current depth texture."_s };
+            textures.append(currentDepthTexture);
             return textures;
         },
         [](std::monostate) {
@@ -372,7 +339,7 @@ ExceptionOr<void> XRWebGLBinding::validateCompositionLayerInitParameters(const X
     if (!colorFormatIsSupportedForNonProjectionLayer(init.colorFormat))
         return Exception { ExceptionCode::NotSupportedError, "Unsupported texture format."_s };
 
-    if (init.depthFormat && !depthFormatIsSupportedForNonProjectionLayer(*init.depthFormat))
+    if (init.depthFormat && *init.depthFormat && !depthFormatIsSupportedForNonProjectionLayer(*init.depthFormat))
         return Exception { ExceptionCode::NotSupportedError, "Unsupported texture depth format."_s };
 
     return { };
@@ -653,19 +620,22 @@ ExceptionOr<Ref<XRCylinderLayer>> XRWebGLBinding::createCylinderLayer(ScriptExec
 }
 
 // https://immersive-web.github.io/layers/#initialize-the-viewport
-Ref<WebXRViewport> XRWebGLBinding::initializeViewport(IntSize textureSize, XRLayerLayout layout, int offset, int num)
+Ref<WebXRViewport> XRWebGLBinding::initializeViewport(IntSize textureSize, XRLayerLayout layout, XRTextureType textureType, int offset, int num)
 {
     int x = 0;
     int y = 0;
     int width = textureSize.width();
     int height = textureSize.height();
 
-    if (layout == XRLayerLayout::StereoLeftRight) {
-        x = width * offset / num;
-        width /= num;
-    } else if (layout == XRLayerLayout::StereoTopBottom) {
-        y = height * offset / num;
-        height /= num;
+    // For texture arrays each array slice is a full per-view texture so the viewport covers it all.
+    if (textureType == XRTextureType::Texture) {
+        if (layout == XRLayerLayout::StereoLeftRight) {
+            x = width * offset / num;
+            width /= num;
+        } else if (layout == XRLayerLayout::StereoTopBottom) {
+            y = height * offset / num;
+            height /= num;
+        }
     }
     return WebXRViewport::create(IntRect(x, y, width, height));
 }
@@ -690,12 +660,12 @@ ExceptionOr<Ref<XRWebGLSubImage>> XRWebGLBinding::getSubImage(XRCompositionLayer
                     index = layer.isXRCubeLayer() ? 6 : 1;
             }
 
-            auto colorTexturesResult = allocateColorTexturesForLayer(layer, init.textureType, init);
+            auto colorTexturesResult = allocateColorTexturesForLayer(layer);
             if (colorTexturesResult.hasException())
                 return colorTexturesResult.releaseException();
             layer.setColorTextures(colorTexturesResult.releaseReturnValue());
 
-            auto depthTexturesResult = allocateDepthTexturesForLayer(layer, init.textureType, init);
+            auto depthTexturesResult = allocateDepthTexturesForLayer(layer, init);
             if (depthTexturesResult.hasException())
                 return depthTexturesResult.releaseException();
             layer.setDepthStencilTextures(depthTexturesResult.releaseReturnValue());
@@ -704,7 +674,7 @@ ExceptionOr<Ref<XRWebGLSubImage>> XRWebGLBinding::getSubImage(XRCompositionLayer
                 return Exception { ExceptionCode::InvalidStateError, "Validation does not PASS."_s };
 
             int viewsPerTexture = layout == XRLayerLayout::StereoLeftRight || layout == XRLayerLayout::StereoTopBottom ? 2 : 1;
-            Ref viewport = initializeViewport(IntSize(init.viewPixelWidth, init.viewPixelHeight), layout, index, viewsPerTexture);
+            Ref viewport = initializeViewport(IntSize(init.viewPixelWidth, init.viewPixelHeight), layout, init.textureType, index, viewsPerTexture);
 
             auto createSubImageResult = XRWebGLSubImage::create(WTF::move(viewport), layer);
             if (createSubImageResult.hasException())

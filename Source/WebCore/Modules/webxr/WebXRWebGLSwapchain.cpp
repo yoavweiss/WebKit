@@ -552,9 +552,8 @@ void WebXRWebGLTextureArraySwapchain::bindCompositorTexturesForDisplay(GraphicsC
             return;
     }
 
-    // Create the GL_TEXTURE_2D_ARRAY that the WebXR app will render into.
+    // Create the GL_TEXTURE_2D_ARRAY that the WebXR app will render into. Each array layer has the per-eye width.
     if (!currentSet.arrayTexture) {
-        // Each array layer has the per-eye width; the shared texture holds all layers side-by-side.
         auto sliceWidth = m_texSize.width() / static_cast<int>(m_arrayLength);
         currentSet.arrayTexture = gl.createTexture();
         gl.bindTexture(GL::TEXTURE_2D_ARRAY, currentSet.arrayTexture);
@@ -574,7 +573,7 @@ void WebXRWebGLTextureArraySwapchain::blitTextureArrayToSharedImage(GraphicsCont
         m_blitDrawFBO = gl.createFramebuffer();
 
     auto sliceWidth = m_texSize.width() / static_cast<int>(m_arrayLength);
-    auto height = m_texSize.height();
+    auto sliceHeight = m_texSize.height();
 
     gl.bindFramebuffer(GL::READ_FRAMEBUFFER, m_blitReadFBO);
     gl.bindFramebuffer(GL::DRAW_FRAMEBUFFER, m_blitDrawFBO);
@@ -583,7 +582,7 @@ void WebXRWebGLTextureArraySwapchain::blitTextureArrayToSharedImage(GraphicsCont
     for (uint32_t layer = 0; layer < m_arrayLength; ++layer) {
         gl.framebufferTextureLayer(GL::READ_FRAMEBUFFER, GL::COLOR_ATTACHMENT0, currentSet.arrayTexture, 0, static_cast<GCGLint>(layer));
         auto dstX = static_cast<GCGLint>(layer) * sliceWidth;
-        gl.blitFramebuffer(0, 0, sliceWidth, height, dstX, 0, dstX + sliceWidth, height, GL::COLOR_BUFFER_BIT, GL::NEAREST);
+        gl.blitFramebuffer(0, 0, sliceWidth, sliceHeight, dstX, 0, dstX + sliceWidth, sliceHeight, GL::COLOR_BUFFER_BIT, GL::NEAREST);
     }
 
     gl.bindFramebuffer(GL::FRAMEBUFFER, 0);

@@ -97,20 +97,26 @@ void XRWebGLLayerBacking::startFrame(PlatformXR::FrameData& data)
     ASSERT(m_colorSwapchain);
 
     auto it = data.layers.find(handle());
-    if (it == data.layers.end())
+    if (it == data.layers.end()) {
+        m_shouldSkipFrame = true;
         return;
+    }
 
     m_colorSwapchain->startFrame(it->value);
     if (m_depthSwapchain)
         m_depthSwapchain->startFrame(it->value);
+    m_shouldSkipFrame = false;
 }
 
 void XRWebGLLayerBacking::endFrame(PlatformXR::DeviceLayer& layerData)
 {
     ASSERT(m_colorSwapchain);
+    if (m_shouldSkipFrame)
+        return;
     m_colorSwapchain->endFrame(layerData);
     if (m_depthSwapchain)
         m_depthSwapchain->endFrame(layerData);
+    m_shouldSkipFrame = true;
 }
 #endif
 
@@ -164,7 +170,8 @@ ExceptionOr<XRWebGLLayerBacking::XRLayerSwapchains> XRWebGLLayerBacking::createC
 
     bool useTextureArray = init.textureType == XRTextureType::TextureArray;
     GCGLenum colorTextureType = useTextureArray ? GL::TEXTURE_2D_ARRAY : GL::TEXTURE_2D;
-    uint32_t arrayLength = computeArrayLength(useTextureArray, static_cast<uint32_t>(session.views().size()));
+    uint32_t slicesPerLayer = layerLayout == PlatformXR::LayerLayout::Mono ? 1 : 2;
+    uint32_t arrayLength = computeArrayLength(useTextureArray, slicesPerLayer);
 
     return XRWebGLLayerBacking::createColorAndDepthSwapchains(context, layerInfo->handle, init.colorFormat, init.depthFormat, layerSize, init.clearOnAccess, layerInfo->numImages, arrayLength, colorTextureType);
 }
