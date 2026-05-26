@@ -320,9 +320,6 @@ public:
     static Statistics& statistics();    
 
     void terminateAllWebContentProcesses(ProcessTerminationReason);
-    void sendNetworkProcessPrepareToSuspendForTesting(CompletionHandler<void()>&&);
-    void sendNetworkProcessWillSuspendImminentlyForTesting();
-    void sendNetworkProcessDidResume();
     void terminateServiceWorkersForSession(PAL::SessionID);
     void terminateServiceWorkers();
 
