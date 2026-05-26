@@ -72,6 +72,7 @@ platform/graphics/skia/SkiaPaintingEngine.cpp
 platform/graphics/skia/SkiaRecordingResult.cpp
 platform/graphics/skia/SkiaReplayAtlas.cpp
 platform/graphics/skia/SkiaReplayCanvas.cpp
+platform/graphics/skia/SkiaSerializedImageBuffer.cpp
 platform/graphics/skia/SkiaSystemFallbackFontCache.cpp
 platform/graphics/skia/SkiaTextureAtlasPacker.cpp
 platform/graphics/skia/SkiaUtilities.cpp
