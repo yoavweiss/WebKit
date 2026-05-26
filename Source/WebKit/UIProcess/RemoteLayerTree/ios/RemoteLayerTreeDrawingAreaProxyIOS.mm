@@ -288,14 +288,15 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
     _screenForDisplayLink = [self _screenForDisplayLink];
 
+ALLOW_DEPRECATED_DECLARATIONS_BEGIN
+    // FIXME: UIScreen version deprecated rdar://177874054
     if (_screenForDisplayLink)
         _displayLink = [protect(_screenForDisplayLink) displayLinkWithTarget:self selector:@selector(displayLinkFired:)];
     else {
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
         // FIXME: CoreAnimation version deprecated rdar://164090713
         _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkFired:)];
-ALLOW_DEPRECATED_DECLARATIONS_END
     }
+ALLOW_DEPRECATED_DECLARATIONS_END
 
     [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
     [_displayLink addObserver:self forKeyPath:@"display.refreshRate" options:NSKeyValueObservingOptionNew context:displayRefreshRateObservationContext];
