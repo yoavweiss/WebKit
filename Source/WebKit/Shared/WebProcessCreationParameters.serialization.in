@@ -142,7 +142,6 @@ using WebCore::SystemSettings::State = WebCore::SystemSettingsState;
 
     std::optional<WebKit::WebProcessDataStoreParameters> websiteDataStoreParameters;
 
-    std::optional<WebKit::SandboxExtensionHandle> mobileGestaltExtensionHandle;
     std::optional<WebKit::SandboxExtensionHandle> launchServicesExtensionHandle;
 #if (PLATFORM(MAC) || PLATFORM(MACCATALYST)) && HAVE(VIDEO_RESTRICTED_DECODING)
     WebKit::SandboxExtensionHandle trustdExtensionHandle;
