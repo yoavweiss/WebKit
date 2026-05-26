@@ -206,6 +206,9 @@ public:
 
     TakeType takeAny() { return take(begin()); }
 
+    const ValueType& first() const { ASSERT(!isEmpty()); return *begin(); }
+    const ValueType& last() const { ASSERT(!isEmpty()); return *rbegin(); }
+
     static bool isValidValue(const ValueType& value)
     {
         if (ValueTraits::isDeletedValue(value))

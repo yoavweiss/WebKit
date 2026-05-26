@@ -64,6 +64,7 @@
 #include <wtf/HashSet.h>
 #include <wtf/Logger.h>
 #include <wtf/Observer.h>
+#include <wtf/OrderedHashSet.h>
 #include <wtf/RobinHoodHashMap.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/UniqueRef.h>
@@ -1871,12 +1872,12 @@ public:
 
     void addTopLayerElement(Element&);
     void removeTopLayerElement(Element&);
-    const ListHashSet<Ref<Element>>& topLayerElements() const LIFETIME_BOUND { return m_topLayerElements; }
+    const OrderedHashSet<Ref<Element>>& topLayerElements() const LIFETIME_BOUND { return m_topLayerElements; }
     bool hasTopLayerElement() const { return !m_topLayerElements.isEmpty(); }
 
-    const ListHashSet<Ref<HTMLElement>>& autoPopoverList() const LIFETIME_BOUND { return m_autoPopoverList; }
+    const OrderedHashSet<Ref<HTMLElement>>& autoPopoverList() const LIFETIME_BOUND { return m_autoPopoverList; }
 
-    ListHashSet<Ref<HTMLDialogElement>>& openDialogsList() { return m_openDialogsList; }
+    OrderedHashSet<Ref<HTMLDialogElement>>& openDialogsList() { return m_openDialogsList; }
 
     HTMLDialogElement* activeModalDialog() const;
     HTMLDialogElement* activeCloseableDialog() const;
@@ -2608,9 +2609,9 @@ private:
 
     const Ref<FragmentDirective> m_fragmentDirectiveForBindings;
 
-    ListHashSet<Ref<Element>> m_topLayerElements;
-    ListHashSet<Ref<HTMLElement>> m_autoPopoverList;
-    ListHashSet<Ref<HTMLDialogElement>> m_openDialogsList;
+    OrderedHashSet<Ref<Element>> m_topLayerElements;
+    OrderedHashSet<Ref<HTMLElement>> m_autoPopoverList;
+    OrderedHashSet<Ref<HTMLDialogElement>> m_openDialogsList;
 
     WeakPtr<HTMLElement, WeakPtrImplWithEventTargetData> m_popoverPointerDownTarget;
     WeakPtr<HTMLDialogElement, WeakPtrImplWithEventTargetData> m_dialogPointerDownTarget;
