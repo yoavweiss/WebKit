@@ -1330,16 +1330,30 @@ private func constantValues(_ constant: _Proto_ShaderGraphValue) -> ([WKBridgeVa
     }
 }
 
+private func colorSpaceName(for value: _Proto_ShaderGraphValue) -> String? {
+    switch value {
+    case .cgColor3(let color): color.colorSpace?.name as String?
+    case .cgColor4(let color): color.colorSpace?.name as String?
+    default: nil
+    }
+}
+
 private func toWKBridgeConstantContainer(
-    _ node: _Proto_ShaderNodeGraph.Node
+    _ node: _Proto_ShaderNodeGraph.Node,
+    colorOverride: WKBridgeConstant? = nil
 ) -> WKBridgeConstantContainer {
     // Extract constant value if this is a constant node
     switch node.data {
     case .constant(let value):
         let (values, defaultType) = constantValues(value)
-        return WKBridgeConstantContainer(constant: defaultType, constantValues: values, name: node.name)
+        return WKBridgeConstantContainer(
+            constant: colorOverride ?? defaultType,
+            constantValues: values,
+            name: node.name,
+            colorSpaceName: colorSpaceName(for: value)
+        )
     case .definition, .graph:
-        return WKBridgeConstantContainer(constant: .asset, constantValues: [], name: node.name)
+        return WKBridgeConstantContainer(constant: .asset, constantValues: [], name: node.name, colorSpaceName: nil)
     default: fatalError("toWKBridgeConstantContainer - unknown _Proto_ShaderNodeGraph.Node.data type")
     }
 }
@@ -1388,7 +1402,7 @@ private func createInputOutput(
 ) -> WKBridgeInputOutput {
     let defaultValueContainer: WKBridgeConstantContainer? = defaultValue.map {
         let (values, constantType) = constantValues($0)
-        return WKBridgeConstantContainer(constant: constantType, constantValues: values, name: "")
+        return WKBridgeConstantContainer(constant: constantType, constantValues: values, name: "", colorSpaceName: colorSpaceName(for: $0))
     }
 
     let actualType = toWKBridgeDataType(type)
@@ -1422,11 +1436,11 @@ private func toWebOutputs(_ outputs: [_Proto_ShaderGraphNodeDefinition.Output]) 
     }
 }
 
-private func toWebNode(_ e: _Proto_ShaderNodeGraph.Node) -> WKBridgeNode {
+private func toWebNode(_ e: _Proto_ShaderNodeGraph.Node, colorOverride: WKBridgeConstant? = nil) -> WKBridgeNode {
     WKBridgeNode(
         bridgeNodeType: toWKBridgeNodeType(e),
         builtin: toWKBridgeBuiltin(e),
-        constant: toWKBridgeConstantContainer(e)
+        constant: toWKBridgeConstantContainer(e, colorOverride: colorOverride)
     )
 }
 
@@ -1479,12 +1493,12 @@ private func toWebMaterialGraph(_ material: _Proto_ShaderNodeGraph?) -> WKBridge
             arguments: WKBridgeNode(
                 bridgeNodeType: .arguments,
                 builtin: WKBridgeBuiltin(definition: "", name: "arguments"),
-                constant: WKBridgeConstantContainer(constant: .asset, constantValues: [], name: "")
+                constant: WKBridgeConstantContainer(constant: .asset, constantValues: [], name: "", colorSpaceName: nil)
             ),
             results: WKBridgeNode(
                 bridgeNodeType: .results,
                 builtin: WKBridgeBuiltin(definition: "", name: "results"),
-                constant: WKBridgeConstantContainer(constant: .asset, constantValues: [], name: "")
+                constant: WKBridgeConstantContainer(constant: .asset, constantValues: [], name: "", colorSpaceName: nil)
             ),
             inputs: [],
             outputs: [],
@@ -1494,8 +1508,33 @@ private func toWebMaterialGraph(_ material: _Proto_ShaderNodeGraph?) -> WKBridge
         )
     }
 
+    // Detect color3f/color4f constants by checking the input port types they connect to.
+    // The proto layer collapses color3f/color3h → float3 and color4f/color4h → float4, losing
+    // the color type. Recover it by inspecting the destination port's declared _Proto_ShaderDataType.
+    var colorTypeOverrides: [String: WKBridgeConstant] = [:]
+    let library = _Proto_ShaderNodeGraphLibrary.shared
+    let outgoingEdges = Dictionary(grouping: material.edges, by: \.outputNode)
+    for (nodeName, node) in material.nodes {
+        guard case .constant(let value) = node.data else { continue }
+        guard let edges = outgoingEdges[nodeName] else { continue }
+        for edge in edges {
+            guard let destNode = material.nodes[edge.inputNode],
+                case .definition(let def) = destNode.data,
+                let definition = library.definition(named: def.name),
+                let input = definition.inputs.first(where: { $0.name == edge.inputPort })
+            else { continue }
+            switch input.type {
+            case .cgColor3:
+                if case .float3 = value { colorTypeOverrides[nodeName] = .color3f }
+            case .cgColor4:
+                if case .float4 = value { colorTypeOverrides[nodeName] = .color4f }
+            default: break
+            }
+        }
+    }
+
     // Convert nodes dictionary to array
-    let nodes = material.nodes.values.map { toWebNode($0) }
+    let nodes = material.nodes.values.map { toWebNode($0, colorOverride: colorTypeOverrides[$0.name]) }
 
     // Convert edges
     let edges = toWebEdges(material.edges)
@@ -1659,8 +1698,34 @@ private func fromWKBridgeDataType(_ dataType: WKBridgeDataType) -> ShaderGraph.D
     }
 }
 
+private func makeCGColor3(colorSpace: CGColorSpace, _ a: CGFloat, _ b: CGFloat, _ c: CGFloat) -> CGColor {
+    // rdar://177971578 - CG should provide an API for not requiring unsafe
+    guard let cs = unsafe CGColor(colorSpace: colorSpace, components: [a, b, c, 1.0]) else {
+        fatalError("\(a) \(b) \(c) could not form a CGColor with colorSpace \(colorSpace)")
+    }
+    return cs
+}
+
+private func makeCGColor4(colorSpace: CGColorSpace, _ a: CGFloat, _ b: CGFloat, _ c: CGFloat, _ d: CGFloat) -> CGColor {
+    // rdar://177971578 - CG should provide an API for not requiring unsafe
+    guard let cs = unsafe CGColor(colorSpace: colorSpace, components: [a, b, c, d]) else {
+        fatalError("\(a) \(b) \(c) \(d) could not form a CGColor with colorSpace \(colorSpace)")
+    }
+    return cs
+}
+
 private func fromWKBridgeConstant(_ constant: WKBridgeConstantContainer) -> ShaderGraph.Value {
     let values = constant.constantValues
+    // Resolve the color space from the transmitted name, falling back to extendedLinearSRGB.
+    // USD color3f/color4f values are in linear sRGB, so extendedLinearSRGB is the correct fallback.
+    // swift-format-ignore: NeverForceUnwrap
+    guard
+        let colorSpace =
+            (constant.colorSpaceName.flatMap { CGColorSpace(name: $0 as CFString) }
+                ?? CGColorSpace(name: CGColorSpace.extendedLinearSRGB))
+    else {
+        fatalError("extendedLinearSRGB could not be constructed, should never occur")
+    }
 
     switch constant.constant {
     case .bool:
@@ -1851,64 +1916,65 @@ private func fromWKBridgeConstant(_ constant: WKBridgeConstantContainer) -> Shad
         guard values.count >= 3 else {
             fatalError("fromWKBridgeConstant: expected 3 values for color3 constant '\(constant.name)', got \(values.count)")
         }
-        // Use extendedLinearSRGB to preserve values outside [0,1] (e.g. negative bias, scale > 1).
-        // CGColor(red:green:blue:alpha:) clamps to device RGB [0,1] which corrupts shader constants.
-        let components3: [CGFloat] = [
-            CGFloat(values[0].number.floatValue),
-            CGFloat(values[1].number.floatValue),
-            CGFloat(values[2].number.floatValue),
-            1.0,
-        ]
-        return .cgColor3(CGColor(red: components3[0], green: components3[1], blue: components3[2], alpha: 1.0))
+        return .cgColor3(
+            makeCGColor3(
+                colorSpace: colorSpace,
+                CGFloat(values[0].number.floatValue),
+                CGFloat(values[1].number.floatValue),
+                CGFloat(values[2].number.floatValue)
+            )
+        )
     case .cgColor4:
         guard values.count >= 4 else {
             fatalError("fromWKBridgeConstant: expected 4 values for color4 constant '\(constant.name)', got \(values.count)")
         }
-        // Use extendedLinearSRGB to preserve values outside [0,1] (e.g. negative bias, scale > 1).
-        // CGColor(red:green:blue:alpha:) clamps to device RGB [0,1] which corrupts shader constants.
-        let components4: [CGFloat] = [
-            CGFloat(values[0].number.floatValue),
-            CGFloat(values[1].number.floatValue),
-            CGFloat(values[2].number.floatValue),
-            CGFloat(values[3].number.floatValue),
-        ]
-        return .cgColor4(CGColor(red: components4[0], green: components4[1], blue: components4[2], alpha: components4[3]))
+        return .cgColor4(
+            makeCGColor4(
+                colorSpace: colorSpace,
+                CGFloat(values[0].number.floatValue),
+                CGFloat(values[1].number.floatValue),
+                CGFloat(values[2].number.floatValue),
+                CGFloat(values[3].number.floatValue)
+            )
+        )
     case .color4f:
-        // USD/MaterialX color4f or color4h — encoded as 4 raw floats without CGColor clamping.
-        // Decoded as cgColor4 via extendedLinearSRGB to preserve color semantics for MaterialX.
+        // USD/MaterialX color4f — encoded as 4 raw floats without CGColor clamping.
         guard values.count >= 4 else {
             fatalError("fromWKBridgeConstant: expected 4 values for color4f constant '\(constant.name)', got \(values.count)")
         }
-        let components4f: [CGFloat] = [
-            CGFloat(values[0].number.floatValue),
-            CGFloat(values[1].number.floatValue),
-            CGFloat(values[2].number.floatValue),
-            CGFloat(values[3].number.floatValue),
-        ]
-        return .cgColor4(CGColor(red: components4f[0], green: components4f[1], blue: components4f[2], alpha: components4f[3]))
+        return .cgColor4(
+            makeCGColor4(
+                colorSpace: colorSpace,
+                CGFloat(values[0].number.floatValue),
+                CGFloat(values[1].number.floatValue),
+                CGFloat(values[2].number.floatValue),
+                CGFloat(values[3].number.floatValue)
+            )
+        )
     case .color3f:
         // USD/MaterialX color3f — encoded as 3 raw floats without CGColor clamping.
         guard values.count >= 3 else {
             fatalError("fromWKBridgeConstant: expected 3 values for color3f constant '\(constant.name)', got \(values.count)")
         }
-        let components3f: [CGFloat] = [
-            CGFloat(values[0].number.floatValue),
-            CGFloat(values[1].number.floatValue),
-            CGFloat(values[2].number.floatValue),
-            1.0,
-        ]
-        return .cgColor3(CGColor(red: components3f[0], green: components3f[1], blue: components3f[2], alpha: 1.0))
+        return .cgColor3(
+            makeCGColor3(
+                colorSpace: colorSpace,
+                CGFloat(values[0].number.floatValue),
+                CGFloat(values[1].number.floatValue),
+                CGFloat(values[2].number.floatValue)
+            )
+        )
     case .color3h:
         // USD/MaterialX color3h — half-precision; represented as cgColor3 in ShaderGraph.Value.
         guard values.count >= 3 else {
             fatalError("fromWKBridgeConstant: expected 3 values for color3h constant '\(constant.name)', got \(values.count)")
         }
         return .cgColor3(
-            CGColor(
-                red: CGFloat(values[0].number.floatValue),
-                green: CGFloat(values[1].number.floatValue),
-                blue: CGFloat(values[2].number.floatValue),
-                alpha: 1.0
+            makeCGColor3(
+                colorSpace: colorSpace,
+                CGFloat(values[0].number.floatValue),
+                CGFloat(values[1].number.floatValue),
+                CGFloat(values[2].number.floatValue)
             )
         )
     case .color4h:
@@ -1917,11 +1983,12 @@ private func fromWKBridgeConstant(_ constant: WKBridgeConstantContainer) -> Shad
             fatalError("fromWKBridgeConstant: expected 4 values for color4h constant '\(constant.name)', got \(values.count)")
         }
         return .cgColor4(
-            CGColor(
-                red: CGFloat(values[0].number.floatValue),
-                green: CGFloat(values[1].number.floatValue),
-                blue: CGFloat(values[2].number.floatValue),
-                alpha: CGFloat(values[3].number.floatValue)
+            makeCGColor4(
+                colorSpace: colorSpace,
+                CGFloat(values[0].number.floatValue),
+                CGFloat(values[1].number.floatValue),
+                CGFloat(values[2].number.floatValue),
+                CGFloat(values[3].number.floatValue)
             )
         )
     @unknown default:

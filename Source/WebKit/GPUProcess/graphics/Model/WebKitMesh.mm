@@ -758,7 +758,8 @@ static NSArray<WKBridgeValueString *> *convert(const Vector<Variant<String, doub
 
 static WKBridgeConstantContainer *convert(const ConstantContainer& constant)
 {
-    return [WebKit::allocWKBridgeConstantContainerInstance() initWithConstant:convert(constant.constant) constantValues:convert(constant.constantValues) name:constant.name.createNSString().get()];
+    NSString *colorSpaceName = constant.colorSpaceName ? constant.colorSpaceName->createNSString().get() : nil;
+    return [WebKit::allocWKBridgeConstantContainerInstance() initWithConstant:convert(constant.constant) constantValues:convert(constant.constantValues) name:constant.name.createNSString().get() colorSpaceName:colorSpaceName];
 }
 
 static NSArray<WKBridgeInputOutput *> *convert(const Vector<InputOutput>& inputOutputs)

@@ -490,15 +490,18 @@ extension WKBridgeConstantContainer {
     let constant: WKBridgeConstant
     let constantValues: [WKBridgeValueString]
     let name: String
+    let colorSpaceName: String?
 
     init(
         constant: WKBridgeConstant,
         constantValues: [WKBridgeValueString],
-        name: String
+        name: String,
+        colorSpaceName: String?
     ) {
         self.constant = constant
         self.constantValues = constantValues
         self.name = name
+        self.colorSpaceName = colorSpaceName
     }
 }
 

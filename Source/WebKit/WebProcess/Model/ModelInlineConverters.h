@@ -712,7 +712,8 @@ static WebModel::ConstantContainer convert(WKBridgeConstantContainer *container)
     return WebModel::ConstantContainer {
         .constant = convert(container.constant),
         .constantValues = convert(container.constantValues),
-        .name = String(container.name)
+        .name = String(container.name),
+        .colorSpaceName = container.colorSpaceName ? std::optional<String>(String(container.colorSpaceName)) : std::nullopt
     };
 }
 

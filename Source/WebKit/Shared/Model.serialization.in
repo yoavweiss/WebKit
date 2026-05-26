@@ -313,6 +313,7 @@ header: <WebKit/ModelTypes.h>
     WebModel::Constant constant;
     Vector<Variant<String, double>> constantValues;
     String name;
+    std::optional<String> colorSpaceName;
 };
 
 header: <WebKit/ModelTypes.h>

@@ -321,9 +321,10 @@ typedef NS_ENUM(NSInteger, WKBridgeNodeType) {
 @property (nonatomic, readonly) WKBridgeConstant constant;
 @property (nonatomic, readonly, strong) NSArray<WKBridgeValueString *> *constantValues;
 @property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly, nullable) NSString *colorSpaceName;
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithConstant:(WKBridgeConstant)constant constantValues:(NSArray<WKBridgeValueString *> *)constantValues name:(NSString *)name NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithConstant:(WKBridgeConstant)constant constantValues:(NSArray<WKBridgeValueString *> *)constantValues name:(NSString *)name colorSpaceName:(nullable NSString *)colorSpaceName NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -707,6 +708,7 @@ struct ConstantContainer {
     Constant constant;
     Vector<Variant<String, double>> constantValues;
     String name;
+    std::optional<String> colorSpaceName;
 };
 
 struct InputOutput {
