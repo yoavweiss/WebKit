@@ -100,9 +100,9 @@
                   {
                     "name": "bot10000",
                     "platform": "mac-tahoe",
-                    "os": "macOS Tahoe 26.0-25A354",
+                    "os": "macOS Tahoe 26.5-25F71",
                     "device": "Mac16,11",
-                    "xcode": "Xcode 26.0.1-17A400"
+                    "xcode": "Xcode 26.5-17F42"
                   },
                   {
                     "name": "bot10001",
