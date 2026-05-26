@@ -172,6 +172,12 @@ static inline NSInteger gmtToLocalTimeOffset(DateComponentsType type)
 
 @implementation WebAccessibilityObjectWrapper
 
+- (void)dealloc
+{
+    AX_ASSERT(!self.axBackingObject);
+    [super dealloc];
+}
+
 - (void)detach
 {
     AX_ASSERT(isMainThread());

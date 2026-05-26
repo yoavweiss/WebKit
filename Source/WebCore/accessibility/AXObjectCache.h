@@ -381,7 +381,8 @@ public:
 #endif
 private:
     using DOMObjectVariant = Variant<std::nullptr_t, RenderObject*, Node*, Widget*>;
-    void cacheAndInitializeWrapper(AccessibilityObject&, DOMObjectVariant = nullptr);
+    enum class ShouldAttachWrapper : bool { No, Yes };
+    void cacheAndInitializeWrapper(AccessibilityObject&, DOMObjectVariant = nullptr, ShouldAttachWrapper = ShouldAttachWrapper::Yes);
     void attachWrapper(AccessibilityObject&);
 
     AccessibilityObject* getOrCreateSlow(Node&, IsPartOfRelation);

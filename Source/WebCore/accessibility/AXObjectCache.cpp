@@ -946,7 +946,7 @@ Ref<AccessibilityNodeObject> AXObjectCache::createFromNode(Node& node)
     return AccessibilityRenderObject::create(AXID::generate(), node, *this);
 }
 
-void AXObjectCache::cacheAndInitializeWrapper(AccessibilityObject& newObject, DOMObjectVariant domObject)
+void AXObjectCache::cacheAndInitializeWrapper(AccessibilityObject& newObject, DOMObjectVariant domObject, ShouldAttachWrapper shouldAttach)
 {
     AXID axID = newObject.objectID();
 
@@ -970,7 +970,8 @@ void AXObjectCache::cacheAndInitializeWrapper(AccessibilityObject& newObject, DO
 
     m_objects.set(axID, newObject);
     newObject.init();
-    attachWrapper(newObject);
+    if (shouldAttach == ShouldAttachWrapper::Yes)
+        attachWrapper(newObject);
 }
 
 AccessibilityObject* AXObjectCache::exportedGetOrCreate(Node* node)
@@ -1319,7 +1320,11 @@ AccessibilityObject* AXObjectCache::create(AccessibilityRole role)
     if (!object)
         return nullptr;
 
-    cacheAndInitializeWrapper(*object);
+    // AccessibilityRole::LocalFrame proxies a child frame's root web area in its parent's
+    // accessibility tree. AccessibilityScrollView::addLocalFrameChild() installs that child
+    // root's wrapper on the AXLocalFrame via setWrapperFrom(); attaching one here would
+    // immediately be discarded.
+    cacheAndInitializeWrapper(*object, /* DOMObjectVariant */ nullptr, role == AccessibilityRole::LocalFrame ? ShouldAttachWrapper::No : ShouldAttachWrapper::Yes);
     return object.unsafeGet();
 }
 
