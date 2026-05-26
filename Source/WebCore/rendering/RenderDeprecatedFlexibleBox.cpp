@@ -693,52 +693,57 @@ void RenderDeprecatedFlexibleBox::layoutHorizontalBox(RelayoutChildren relayoutC
 
     endAndCommitUpdateScrollInfoAfterLayoutTransaction();
 
-    if (remainingSpace > 0 && ((style().writingMode().deprecatedIsLeftToRightDirection() && style().boxPack() != BoxPack::Start)
-        || (!style().writingMode().deprecatedIsLeftToRightDirection() && style().boxPack() != BoxPack::End))) {
-        // Children must be repositioned.
-        LayoutUnit offset;
-        if (style().boxPack() == BoxPack::Justify) {
-            // Determine the total number of children.
-            int totalChildren = 0;
-            for (RenderBox* child = iterator.first(); child; child = iterator.next()) {
-                if (childDoesNotAffectWidthOrFlexing(child))
-                    continue;
-                ++totalChildren;
-            }
+    // Account for box-direction: reverse flipping the effective main-axis direction.
+    bool isEffectiveLTR = style().writingMode().deprecatedIsLeftToRightDirection();
+    if (style().boxOrient() == BoxOrient::Horizontal && style().boxDirection() == BoxDirection::Reverse)
+        isEffectiveLTR = !isEffectiveLTR;
 
-            // Iterate over the children and space them out according to the
-            // justification level.
-            if (totalChildren > 1) {
-                --totalChildren;
-                bool firstChild = true;
-                for (RenderBox* child = iterator.first(); child; child = iterator.next()) {
-                    if (childDoesNotAffectWidthOrFlexing(child))
-                        continue;
-
-                    if (firstChild) {
-                        firstChild = false;
-                        continue;
-                    }
-
-                    offset += remainingSpace/totalChildren;
-                    remainingSpace -= (remainingSpace/totalChildren);
-                    --totalChildren;
-
-                    placeChild(child, child->location() + LayoutSize(offset, 0_lu));
-                }
-            }
-        } else {
-            if (style().boxPack() == BoxPack::Center)
-                offset += remainingSpace / 2;
-            else // BoxPack::End for LTR, BoxPack::Start for RTL
-                offset += remainingSpace;
-            for (RenderBox* child = iterator.first(); child; child = iterator.next()) {
-                if (childDoesNotAffectWidthOrFlexing(child))
-                    continue;
-
-                placeChild(child, child->location() + LayoutSize(offset, 0_lu));
-            }
+    auto forEachFlexChild = [&](auto callback) {
+        for (auto* child = iterator.first(); child; child = iterator.next()) {
+            if (!childDoesNotAffectWidthOrFlexing(child))
+                callback(*child);
         }
+    };
+
+    auto offsetChildren = [&](LayoutUnit offset) {
+        if (!offset)
+            return;
+        forEachFlexChild([&](RenderBox& child) {
+            placeChild(&child, child.location() + LayoutSize(offset, 0_lu));
+        });
+    };
+
+    if (style().boxPack() == BoxPack::Justify && remainingSpace > 0) {
+        // Children must be repositioned.
+        // Determine the total number of children.
+        int totalChildren = 0;
+        forEachFlexChild([&](auto&) { ++totalChildren; });
+
+        // Iterate over the children and space them out according to the
+        // justification level.
+        if (totalChildren > 1) {
+            --totalChildren;
+            LayoutUnit offset;
+            bool firstChild = true;
+            forEachFlexChild([&](RenderBox& child) {
+                if (firstChild) {
+                    firstChild = false;
+                    return;
+                }
+                offset += remainingSpace / totalChildren;
+                remainingSpace -= (remainingSpace / totalChildren);
+                --totalChildren;
+                placeChild(&child, child.location() + LayoutSize(offset, 0_lu));
+            });
+        }
+    } else {
+        LayoutUnit offset;
+        if (style().boxPack() == BoxPack::Center)
+            offset += remainingSpace / 2;
+        else if ((isEffectiveLTR && style().boxPack() == BoxPack::End)
+            || (!isEffectiveLTR && style().boxPack() != BoxPack::End))
+            offset += remainingSpace;
+        offsetChildren(offset);
     }
 
     // So that the computeLogicalHeight in layoutBlock() knows to relayout positioned objects because of
