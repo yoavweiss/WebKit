@@ -273,16 +273,10 @@ Style::Contain RenderStyle::usedContain() const
 {
     auto result = contain();
 
-    switch (containerType()) {
-    case ContainerType::Normal:
-        break;
-    case ContainerType::Size:
+    if (containerType().hasSize())
         result.add({ Style::ContainValue::Style, Style::ContainValue::Size });
-        break;
-    case ContainerType::InlineSize:
+    else if (containerType().hasInlineSize())
         result.add({ Style::ContainValue::Style, Style::ContainValue::InlineSize });
-        break;
-    };
 
     return result;
 }

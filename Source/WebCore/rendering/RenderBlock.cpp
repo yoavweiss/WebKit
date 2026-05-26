@@ -1340,7 +1340,7 @@ bool RenderBlock::establishesIndependentFormattingContextIgnoringDisplayType(con
         || style.hasOutOfFlowPosition()
         || isBlockBoxWithPotentiallyScrollableOverflow()
         || style.usedContain().contains(Style::ContainValue::Layout)
-        || style.containerType() != ContainerType::Normal
+        || !style.containerType().isNormal()
         || Style::ContainmentChecker { style, *element }.shouldApplyPaintContainment()
         || (style.display().isBlockType() && !style.blockStepSize().isNone());
 }

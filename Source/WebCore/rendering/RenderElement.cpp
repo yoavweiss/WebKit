@@ -2824,14 +2824,13 @@ void RenderElement::markRendererDirtyAfterTopLayerChange(RenderElement* renderer
 
 bool RenderElement::hasEligibleContainmentForSizeQuery() const
 {
-    switch (style().containerType()) {
-    case ContainerType::InlineSize:
-        return shouldApplyInlineSizeContainment();
-    case ContainerType::Size:
+    auto& type = style().containerType();
+    if (type.hasSize())
         return shouldApplySizeContainment();
-    case ContainerType::Normal:
+    if (type.hasInlineSize())
+        return shouldApplyInlineSizeContainment();
+    if (type.isNormal())
         return true;
-    }
     ASSERT_NOT_REACHED();
     return false;
 }

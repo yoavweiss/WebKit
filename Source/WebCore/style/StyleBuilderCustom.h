@@ -166,6 +166,7 @@ inline ScrollSnapAlign forwardInheritedValue(const ScrollSnapAlign& value) { aut
 inline ScrollSnapType forwardInheritedValue(const ScrollSnapType& value) { auto copy = value; return copy; }
 inline ScrollbarColor forwardInheritedValue(const ScrollbarColor& value) { auto copy = value; return copy; }
 inline ScrollbarGutter forwardInheritedValue(const ScrollbarGutter& value) { auto copy = value; return copy; }
+inline ContainerType forwardInheritedValue(const ContainerType& value) { auto copy = value; return copy; }
 inline ShapeMargin forwardInheritedValue(const ShapeMargin& value) { auto copy = value; return copy; }
 inline ShapeOutside forwardInheritedValue(const ShapeOutside& value) { auto copy = value; return copy; }
 inline SingleAnimationName forwardInheritedValue(const SingleAnimationName& value) { auto copy = value; return copy; }

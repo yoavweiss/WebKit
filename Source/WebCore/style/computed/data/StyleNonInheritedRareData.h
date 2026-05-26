@@ -35,6 +35,7 @@
 #include <WebCore/StyleContain.h>
 #include <WebCore/StyleContainIntrinsicSize.h>
 #include <WebCore/StyleContainerName.h>
+#include <WebCore/StyleContainerType.h>
 #include <WebCore/StyleCounterIncrement.h>
 #include <WebCore/StyleCounterReset.h>
 #include <WebCore/StyleCounterSet.h>
@@ -188,6 +189,7 @@ public:
     NameScope timelineScope;
 
     ScrollbarGutter scrollbarGutter;
+    Style::ContainerType containerType;
 
     ScrollSnapType scrollSnapType;
     ScrollSnapAlign scrollSnapAlign;
@@ -229,7 +231,6 @@ public:
     PREFERRED_TYPE(BreakBetween) unsigned breakBefore : 4;
     PREFERRED_TYPE(BreakBetween) unsigned breakAfter : 4;
     PREFERRED_TYPE(BreakInside) unsigned breakInside : 3;
-    PREFERRED_TYPE(ContainerType) unsigned containerType : 2;
     PREFERRED_TYPE(TextBoxTrim) unsigned textBoxTrim : 2;
     PREFERRED_TYPE(OverflowAnchor) unsigned overflowAnchor : 1;
     PREFERRED_TYPE(PositionTryOrder) unsigned positionTryOrder : 3;

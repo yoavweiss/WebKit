@@ -171,7 +171,7 @@ void RenderBox::willBeDestroyed()
     if (hasInitializedStyle()) {
         if (!style().scrollSnapAlign().isNone())
             view().unregisterBoxWithScrollSnapPositions(*this);
-        if (style().containerType() != ContainerType::Normal)
+        if (!style().containerType().isNormal())
             view().unregisterContainerQueryBox(*this);
         if (!style().anchorNames().isNone())
             view().unregisterAnchor(*this);
@@ -303,9 +303,9 @@ void RenderBox::styleWillChange(Style::Difference diff, const RenderStyle& newSt
             view().unregisterBoxWithScrollSnapPositions(*this);
     }
 
-    if (newStyle.containerType() != ContainerType::Normal)
+    if (!newStyle.containerType().isNormal())
         view().registerContainerQueryBox(*this);
-    else if (oldStyle && oldStyle->containerType() != ContainerType::Normal)
+    else if (oldStyle && !oldStyle->containerType().isNormal())
         view().unregisterContainerQueryBox(*this);
 
     if (!newStyle.positionTryFallbacks().isNone() && newStyle.hasOutOfFlowPosition())

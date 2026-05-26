@@ -2279,12 +2279,6 @@ DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
 #undef TYPE
 #undef FOR_EACH
 
-#define TYPE ContainerType
-#define FOR_EACH(CASE) CASE(Normal) CASE(Size) CASE(InlineSize)
-DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
-#undef TYPE
-#undef FOR_EACH
-
 #define TYPE ContentVisibility
 #define FOR_EACH(CASE) CASE(Visible) CASE(Hidden) CASE(Auto)
 DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS

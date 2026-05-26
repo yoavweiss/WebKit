@@ -3330,6 +3330,7 @@ style/values/color/StyleLightDarkColor.cpp
 style/values/color/StyleOpacity.cpp
 style/values/color/StyleResolvedColor.cpp
 style/values/contain/StyleContain.cpp
+style/values/contain/StyleContainerType.cpp
 style/values/content/StyleContent.cpp @header:RenderStyleGetters
 style/values/content/StyleQuotes.cpp
 style/values/counter-styles/StyleCounterStyle.cpp

@@ -2872,7 +2872,7 @@ inline RefPtr<CSSValue> ExtractorCustom::extractContainerShorthand(ExtractorStat
         return ExtractorGenerated::extractValue(state, CSSPropertyContainerName).releaseNonNull();
     }();
 
-    if (state.style.containerType() == ContainerType::Normal)
+    if (state.style.containerType().isNormal())
         return CSSValueList::createSlashSeparated(WTF::move(name));
 
     return CSSValueList::createSlashSeparated(
@@ -2888,7 +2888,7 @@ inline void ExtractorCustom::extractContainerShorthandSerialization(ExtractorSta
     else
         ExtractorGenerated::extractValueSerialization(state, builder, context, CSSPropertyContainerName);
 
-    if (state.style.containerType() == ContainerType::Normal)
+    if (state.style.containerType().isNormal())
         return;
 
     builder.append(" / "_s);
