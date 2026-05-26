@@ -327,10 +327,10 @@ void LegacyRenderSVGRoot::paintReplaced(PaintInfo& paintInfo, const LayoutPoint&
 
     // Apply initial viewport clip
     if (clipViewport) {
-        auto clipRect = snappedIntRect(overflowClipRect(paintOffset));
+        auto clipRect = snapRectToDevicePixels(overflowClipRect(paintOffset), document().deviceScaleFactor());
         childPaintInfo.context().clip(clipRect);
         if (paintInfo.phase == PaintPhase::EventRegion && childPaintInfo.eventRegionContext())
-            childPaintInfo.eventRegionContext()->pushClip(clipRect);
+            childPaintInfo.eventRegionContext()->pushClip(enclosingIntRect(clipRect));
     }
 
     // Convert from container offsets (html renderers) to a relative transform (svg renderers).
