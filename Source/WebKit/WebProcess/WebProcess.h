@@ -497,6 +497,7 @@ public:
 
     bool isLockdownModeEnabled() const { return m_isLockdownModeEnabled.value(); }
     bool imageAnimationEnabled() const { return m_imageAnimationEnabled; }
+    bool videoAutoplayPreviewsEnabled() const { return m_videoAutoplayPreviewsEnabled; }
 #if ENABLE(ACCESSIBILITY_NON_BLINKING_CURSOR)
     bool prefersNonBlinkingCursor() const { return m_prefersNonBlinkingCursor; }
 #endif
@@ -958,6 +959,7 @@ private:
 #endif
     bool m_hadMainFrameMainResourcePrivateRelayed { false };
     bool m_imageAnimationEnabled { true };
+    bool m_videoAutoplayPreviewsEnabled { true };
     bool m_hasEverHadAnyWebPages { false };
     bool m_hasPendingAccessibilityUnsuspension { false };
     bool m_isBroadcastChannelEnabled { false };

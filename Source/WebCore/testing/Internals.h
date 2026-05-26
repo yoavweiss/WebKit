@@ -278,6 +278,7 @@ public:
     void setImageAnimationEnabled(bool);
     void resumeImageAnimation(HTMLImageElement&);
     void pauseImageAnimation(HTMLImageElement&);
+    void NODELETE setVideoAutoplayPreviewsEnabled(bool);
     unsigned NODELETE imagePendingDecodePromisesCountForTesting(HTMLImageElement&);
     void setClearDecoderAfterAsyncFrameRequestForTesting(HTMLImageElement&, bool enabled);
     unsigned imageDecodeCount(HTMLImageElement&);

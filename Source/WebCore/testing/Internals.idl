@@ -766,6 +766,7 @@ enum ContentsFormat {
     [Conditional=ACCESSIBILITY_ANIMATION_CONTROL] undefined setImageAnimationEnabled(boolean enabled);
     [Conditional=ACCESSIBILITY_ANIMATION_CONTROL] undefined resumeImageAnimation(HTMLImageElement element);
     [Conditional=ACCESSIBILITY_ANIMATION_CONTROL] undefined pauseImageAnimation(HTMLImageElement element);
+    [Conditional=ACCESSIBILITY_VIDEO_AUTOPLAY_CONTROL] undefined setVideoAutoplayPreviewsEnabled(boolean enabled);
     unsigned long imagePendingDecodePromisesCountForTesting(HTMLImageElement element);
     undefined setClearDecoderAfterAsyncFrameRequestForTesting(HTMLImageElement element, boolean enabled);
     unsigned long imageDecodeCount(HTMLImageElement element);

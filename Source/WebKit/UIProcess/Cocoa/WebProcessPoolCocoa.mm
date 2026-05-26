@@ -282,6 +282,9 @@ static AccessibilityPreferences accessibilityPreferences()
 #if ENABLE(ACCESSIBILITY_ANIMATION_CONTROL)
     preferences.imageAnimationEnabled = AXPreferenceHelpers::imageAnimationEnabled();
 #endif
+#if ENABLE(ACCESSIBILITY_VIDEO_AUTOPLAY_CONTROL)
+    preferences.videoAutoplayPreviewsEnabled = AXPreferenceHelpers::videoAutoplayPreviewsEnabled();
+#endif
 #if ENABLE(ACCESSIBILITY_NON_BLINKING_CURSOR)
     preferences.prefersNonBlinkingCursor = AXPreferenceHelpers::prefersNonBlinkingCursor();
 #endif
@@ -990,6 +993,9 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 #if ENABLE(ACCESSIBILITY_ANIMATION_CONTROL)
     if (canLoadkAXSReduceMotionAutoplayAnimatedImagesChangedNotification())
         addCFNotificationObserver(accessibilityPreferencesChangedCallback, getkAXSReduceMotionAutoplayAnimatedImagesChangedNotificationSingleton());
+#endif
+#if ENABLE(ACCESSIBILITY_VIDEO_AUTOPLAY_CONTROL)
+    addCFNotificationObserver(accessibilityPreferencesChangedCallback, (__bridge CFStringRef)UIAccessibilityVideoAutoplayStatusDidChangeNotification, CFNotificationCenterGetLocalCenterSingleton());
 #endif
 #if ENABLE(ACCESSIBILITY_NON_BLINKING_CURSOR)
     addCFNotificationObserver(accessibilityPreferencesChangedCallback, kAXSPrefersNonBlinkingCursorIndicatorDidChangeNotification);

@@ -675,7 +675,12 @@ HTMLMediaElement::HTMLMediaElement(const QualifiedName& tagName, Document& docum
 {
     RefPtr page = document.page();
     m_shouldAudioPlaybackRequireUserGesture = page && page->requiresUserGestureForAudioPlayback() && !processingUserGestureForMedia();
-    m_shouldVideoPlaybackRequireUserGesture = page && page->requiresUserGestureForVideoPlayback() && !processingUserGestureForMedia();
+    bool videoNeedsUserGesturePerPage = page && page->requiresUserGestureForVideoPlayback();
+#if ENABLE(ACCESSIBILITY_VIDEO_AUTOPLAY_CONTROL)
+    if (page && !page->videoAutoplayPreviewsEnabled())
+        videoNeedsUserGesturePerPage = true;
+#endif
+    m_shouldVideoPlaybackRequireUserGesture = videoNeedsUserGesturePerPage && !processingUserGestureForMedia();
 
 #if PLATFORM(MAC)
     if (auto data = screenData(primaryScreenDisplayID()))
@@ -8843,7 +8848,12 @@ void HTMLMediaElement::updateRateChangeRestrictions()
         return;
 
     Ref mediaSession = this->mediaSession();
-    if (page->requiresUserGestureForVideoPlayback())
+    bool videoNeedsUserGesturePerPage = page->requiresUserGestureForVideoPlayback();
+#if ENABLE(ACCESSIBILITY_VIDEO_AUTOPLAY_CONTROL)
+    if (!page->videoAutoplayPreviewsEnabled())
+        videoNeedsUserGesturePerPage = true;
+#endif
+    if (videoNeedsUserGesturePerPage)
         mediaSession->addBehaviorRestriction(MediaElementSession::RequireUserGestureForVideoRateChange);
     else
         mediaSession->removeBehaviorRestriction(MediaElementSession::RequireUserGestureForVideoRateChange);

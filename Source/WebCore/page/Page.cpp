@@ -2700,6 +2700,13 @@ void Page::setImageAnimationEnabled(bool enabled)
 }
 #endif // ENABLE(ACCESSIBILITY_ANIMATION_CONTROL)
 
+#if ENABLE(ACCESSIBILITY_VIDEO_AUTOPLAY_CONTROL)
+void Page::setVideoAutoplayPreviewsEnabled(bool enabled)
+{
+    m_videoAutoplayPreviewsEnabled = enabled;
+}
+#endif // ENABLE(ACCESSIBILITY_VIDEO_AUTOPLAY_CONTROL)
+
 #if ENABLE(ACCESSIBILITY_NON_BLINKING_CURSOR)
 void Page::setPrefersNonBlinkingCursor(bool enabled)
 {

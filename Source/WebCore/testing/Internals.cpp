@@ -1252,6 +1252,14 @@ void Internals::pauseImageAnimation(HTMLImageElement& element)
 }
 #endif // ENABLE(ACCESSIBILITY_ANIMATION_CONTROL)
 
+#if ENABLE(ACCESSIBILITY_VIDEO_AUTOPLAY_CONTROL)
+void Internals::setVideoAutoplayPreviewsEnabled(bool enabled)
+{
+    if (auto* page = contextDocument() ? contextDocument()->page() : nullptr)
+        page->setVideoAutoplayPreviewsEnabled(enabled);
+}
+#endif
+
 #if ENABLE(ACCESSIBILITY_NON_BLINKING_CURSOR)
 void Internals::setPrefersNonBlinkingCursor(bool enabled)
 {

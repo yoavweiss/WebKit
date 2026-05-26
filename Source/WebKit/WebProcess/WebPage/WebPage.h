@@ -2064,6 +2064,10 @@ public:
     void isAnyAnimationAllowedToPlayDidChange(bool /* anyAnimationCanPlay */);
 #endif
 
+#if ENABLE(ACCESSIBILITY_VIDEO_AUTOPLAY_CONTROL)
+    void updateVideoAutoplayPreviewsEnabled();
+#endif
+
 #if ENABLE(ACCESSIBILITY_NON_BLINKING_CURSOR)
     void updatePrefersNonBlinkingCursor();
 #endif
