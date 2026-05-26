@@ -19,6 +19,7 @@ root
 		link url=example.com/2 'Plain link (2)'
 		link url=example.com/3 'Plain link (3)'
 		link url=/test/cat.png 'Local file'
+		link 'Self link'
 	section
 		image src=image alt='SVG data URL'
 		image src=image2 alt='PNG data URL'
@@ -50,6 +51,7 @@ root
 [Plain link \(2\)](example.com/2)
 [Plain link \(3\)](example.com/3)
 [Local file](/test/cat.png)
+[Self link](/text-extraction/debug-text-extraction-shorten-urls.html)
 
 ![SVG data URL](image)
 ![PNG data URL](image2)

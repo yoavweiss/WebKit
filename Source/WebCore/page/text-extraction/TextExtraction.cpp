@@ -604,6 +604,14 @@ static inline Variant<SkipExtraction, ItemData, URL, Editable> extractItemData(N
                     return { WTF::move(url) };
 
                 auto shortenedString = shortenedURLString(url);
+                bool linksToCurrentURL = [&] {
+                    auto urlAsView = [](const URL& url) -> StringView {
+                        if (url.hasFragmentIdentifier() && url.fragmentIdentifier().isEmpty())
+                            return url.viewWithoutFragmentIdentifier();
+                        return url.string();
+                    };
+                    return urlAsView(url) == urlAsView(protect(element->document())->url());
+                }();
 
                 String target;
                 if (RefPtr anchor = dynamicDowncast<HTMLAnchorElement>(*element))
@@ -612,7 +620,8 @@ static inline Variant<SkipExtraction, ItemData, URL, Editable> extractItemData(N
                 return { LinkItemData {
                     WTF::move(target),
                     WTF::move(url),
-                    WTF::move(shortenedString)
+                    WTF::move(shortenedString),
+                    linksToCurrentURL,
                 } };
             }
         }

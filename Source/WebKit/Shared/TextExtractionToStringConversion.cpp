@@ -1544,7 +1544,8 @@ static void addPartsForItem(const TextExtraction::Item& item, std::optional<Node
                 parts.append("link"_s);
                 parts.appendVector(partsForItem(item, aggregator, includeRectForParentItem));
 
-                if (!linkData.completedURL.isEmpty() && aggregator.includeURLs())
+                bool omitSelfLinkURL = aggregator.useTextTreeOutput() && aggregator.shortenURLs() && linkData.linksToCurrentURL;
+                if (!linkData.completedURL.isEmpty() && aggregator.includeURLs() && !omitSelfLinkURL)
                     parts.append(makeString("url="_s, quoteValue(aggregator.stringForURL(linkData), streamlined)));
             }
 

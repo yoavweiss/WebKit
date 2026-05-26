@@ -6830,6 +6830,7 @@ header: <WebCore/TextExtractionTypes.h>
     String target;
     URL completedURL;
     String shortenedURLString;
+    bool linksToCurrentURL;
 };
 
 header: <WebCore/TextExtractionTypes.h>

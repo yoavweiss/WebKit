@@ -142,6 +142,7 @@ struct LinkItemData {
     String target;
     URL completedURL;
     String shortenedURLString;
+    bool linksToCurrentURL { false };
 };
 
 struct IFrameData {
