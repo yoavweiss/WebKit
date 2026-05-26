@@ -38,6 +38,7 @@ public:
     String customCSSText(const CSS::SerializationContext&) const;
     bool equals(const CSSCustomIdentValue&) const;
     IterationStatus customVisitChildren(const Function<IterationStatus(CSSValue&)>&) const;
+    bool NODELETE addDerivedHash(Hasher&) const;
 
     String stringValue() const;
 

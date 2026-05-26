@@ -25,6 +25,8 @@
 #include "config.h"
 #include "CSSFontFamilyNameValue.h"
 
+#include <wtf/Hasher.h>
+
 namespace WebCore {
 
 Ref<CSSFontFamilyNameValue> CSSFontFamilyNameValue::create(CSS::FontFamilyName fontFamilyName)
@@ -51,6 +53,12 @@ bool CSSFontFamilyNameValue::equals(const CSSFontFamilyNameValue& other) const
 IterationStatus CSSFontFamilyNameValue::customVisitChildren(const Function<IterationStatus(CSSValue&)>& func) const
 {
     return CSS::visitCSSValueChildren(func, m_fontFamilyName);
+}
+
+bool CSSFontFamilyNameValue::addDerivedHash(Hasher& hasher) const
+{
+    add(hasher, m_fontFamilyName);
+    return true;
 }
 
 String CSSFontFamilyNameValue::stringValue() const

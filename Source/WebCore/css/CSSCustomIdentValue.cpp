@@ -28,6 +28,7 @@
 #include "CSSPrimitiveNumericTypes+CSSValueVisitation.h"
 #include "CSSPrimitiveNumericTypes+ComputedStyleDependencies.h"
 #include "CSSPrimitiveNumericTypes+Serialization.h"
+#include <wtf/Hasher.h>
 
 namespace WebCore {
 
@@ -55,6 +56,12 @@ bool CSSCustomIdentValue::equals(const CSSCustomIdentValue& other) const
 IterationStatus CSSCustomIdentValue::customVisitChildren(const Function<IterationStatus(CSSValue&)>& func) const
 {
     return CSS::visitCSSValueChildren(func, m_customIdent);
+}
+
+bool CSSCustomIdentValue::addDerivedHash(Hasher& hasher) const
+{
+    add(hasher, m_customIdent);
+    return true;
 }
 
 String CSSCustomIdentValue::stringValue() const

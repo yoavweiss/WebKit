@@ -25,7 +25,7 @@
 #include "config.h"
 #include "CSSKeywordValue.h"
 
-#include "CSSValueKeywords.h"
+#include <wtf/Hasher.h>
 
 namespace WebCore {
 
@@ -55,6 +55,12 @@ bool CSSKeywordValue::equals(const CSSKeywordValue& other) const
 IterationStatus CSSKeywordValue::customVisitChildren(NOESCAPE const Function<IterationStatus(CSSValue&)>& func) const
 {
     return CSS::visitCSSValueChildren(func, m_keyword);
+}
+
+bool CSSKeywordValue::addDerivedHash(Hasher& hasher) const
+{
+    add(hasher, m_keyword);
+    return true;
 }
 
 String CSSKeywordValue::stringValue() const

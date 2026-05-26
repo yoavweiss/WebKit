@@ -25,6 +25,8 @@
 #include "config.h"
 #include "CSSStringValue.h"
 
+#include <wtf/Hasher.h>
+
 namespace WebCore {
 
 Ref<CSSStringValue> CSSStringValue::create(CSS::String string)
@@ -51,6 +53,12 @@ bool CSSStringValue::equals(const CSSStringValue& other) const
 IterationStatus CSSStringValue::customVisitChildren(const Function<IterationStatus(CSSValue&)>& func) const
 {
     return CSS::visitCSSValueChildren(func, m_string);
+}
+
+bool CSSStringValue::addDerivedHash(Hasher& hasher) const
+{
+    add(hasher, m_string);
+    return true;
 }
 
 String CSSStringValue::stringValue() const
