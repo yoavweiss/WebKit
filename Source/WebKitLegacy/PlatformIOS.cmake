@@ -973,13 +973,14 @@ set(_wkl_excluded_for_ios
     WebWindowAnimation.h
 )
 
-# Apply the same exclusion to WebKitLegacy_PUBLIC_FRAMEWORK_HEADERS, which is
-# what WEBKIT_COPY_FILES(WebKitLegacy_CopyHeaders) in CMakeLists.txt actually
-# stages. (The foreach below adds forwarding stubs in addition to the copies.)
+# Apply the same exclusion to WebKitLegacy_PUBLIC_FRAMEWORK_HEADERS so
+# WEBKIT_COPY_FILES doesn't stage them. Also drop ${WEBCORE_DIR} entries: the
+# foreach below stages forwarding stubs instead.
 set(_wkl_filtered "")
 foreach (_path IN LISTS WebKitLegacy_PUBLIC_FRAMEWORK_HEADERS)
     get_filename_component(_pathname "${_path}" NAME)
-    if (NOT _pathname IN_LIST _wkl_excluded_for_ios)
+    cmake_path(IS_PREFIX WEBCORE_DIR "${_path}" NORMALIZE _is_from_webcore)
+    if (NOT _pathname IN_LIST _wkl_excluded_for_ios AND NOT _is_from_webcore)
         list(APPEND _wkl_filtered "${_path}")
     endif ()
 endforeach ()
@@ -1030,6 +1031,12 @@ foreach (_file ${WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES})
     else ()
         set(_src_path "${CMAKE_CURRENT_SOURCE_DIR}/${_file}")
     endif ()
+    # WebCore-sourced headers (WAKView.h etc.) are owned by WebCore_Private.Core.*.
+    # Stage a forwarding stub so WebKitLegacy re-exports that submodule.
+    cmake_path(IS_PREFIX WEBCORE_DIR "${_src_path}" NORMALIZE _is_from_webcore)
+    if (_is_from_webcore)
+        set(_migrated "#import <WebCore/${_name}>\n")
+    else ()
     # Stage 1 -- migrate-header-rule:
     #   sed -E -e 's/<WebCore\//<WebKitLegacy\//' -e 's/(^ *)WEBCORE_EXPORT /\1/'
     # Mac-only `<WebCore/...>` imports become `<WebKitLegacy/...>` because Xcode
@@ -1071,6 +1078,7 @@ foreach (_file ${WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES})
     endif ()
     file(READ "${_unifdef_output}" _migrated)
     file(REMOVE "${_unifdef_input}" "${_unifdef_output}")
+    endif ()
 
     set(_existing "")
     if (EXISTS "${_target_filename}")
