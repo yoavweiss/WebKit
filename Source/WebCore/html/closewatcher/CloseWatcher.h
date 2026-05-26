@@ -76,8 +76,6 @@ private:
     void derefEventTarget() final { deref(); }
     void eventListenersDidChange() final;
 
-    bool canBeClosed() const;
-
     bool m_active { true };
     bool m_isRunningCancelAction { false };
     bool m_hasCancelEventListener { false };
