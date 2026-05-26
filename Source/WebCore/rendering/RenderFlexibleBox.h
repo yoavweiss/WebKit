@@ -290,6 +290,7 @@ private:
         std::optional<BaselineAlignmentState> baselineAlignmentState;
     };
     FlexLineResult layoutAndPlaceFlexItems(LayoutUnit crossAxisOffset, FlexLayoutItems&, LayoutUnit availableFreeSpace, RelayoutChildren, LayoutUnit gapBetweenItems);
+    void layoutFlexItemAfterMainSizing(FlexLayoutItem&, RelayoutChildren);
     void layoutColumnReverse(const FlexLayoutItems&, LayoutUnit crossAxisOffset, LayoutUnit availableFreeSpace, LayoutUnit gapBetweenItems);
     void alignFlexLines(FlexLineStates&, LayoutUnit gapBetweenLines);
     void alignFlexItems(FlexLineStates&);

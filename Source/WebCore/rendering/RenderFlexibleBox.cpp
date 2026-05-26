@@ -2707,45 +2707,11 @@ RenderFlexibleBox::FlexLineResult RenderFlexibleBox::layoutAndPlaceFlexItems(Lay
     auto distribution = resolvedJustifyContent.distribution();
     bool shouldFlipMainAxis = !isColumnFlow() && !isLeftToRightFlow();
     for (size_t i = 0; i < flexLayoutItems.size(); ++i) {
-        auto& flexLayoutItem = flexLayoutItems[i];
-        auto& flexItem = flexLayoutItem.renderer.get();
+        auto& flexItem = flexLayoutItems[i].renderer.get();
 
-        ASSERT(!flexLayoutItem.renderer->isOutOfFlowPositioned());
+        ASSERT(!flexItem.isOutOfFlowPositioned());
 
-        setOverridingMainSizeForFlexItem(flexItem, flexLayoutItem.flexedContentSize);
-        // The flexed content size and the override size include the scrollbar
-        // width, so we need to compare to the size including the scrollbar.
-        // FIXME: Should it include the scrollbar?
-        if (flexLayoutItem.flexedContentSize != mainAxisContentExtentForFlexItemIncludingScrollbar(flexItem))
-            flexItem.setChildNeedsLayout(MarkingBehavior::MarkOnlyThis);
-        else {
-            // To avoid double applying margin changes in
-            // updateAutoMarginsInCrossAxis, we reset the margins here.
-            resetAutoMarginsAndLogicalTopInCrossAxis(flexItem);
-        }
-        // We may have already forced relayout for orthogonal flowing children in
-        // computeInnerFlexBaseSizeForFlexItem.
-        bool forceFlexItemRelayout = relayoutChildren == RelayoutChildren::Yes && !m_flexItemsWithCompletedLayout.contains(flexItem);
-        if (!forceFlexItemRelayout && flexItemHasPercentHeightDescendants(flexItem)) {
-            // Have to force another relayout even though the child is sized
-            // correctly, because its descendants are not sized correctly yet. Our
-            // previous layout of the child was done without an override height set.
-            // So, redo it here.
-            forceFlexItemRelayout = true;
-        }
-        updateFlexItemDirtyBitsBeforeLayout(forceFlexItemRelayout, flexItem);
-        if (!flexItem.needsLayout())
-            flexItem.markForPaginationRelayoutIfNeeded();
-        if (flexItem.needsLayout())
-            m_flexItemsWithCompletedLayout.add(flexItem);
-        {
-            auto flexLayoutScope = SetForScope(m_afterMainAxisItemSizing, true);
-            flexItem.layoutIfNeeded();
-        }
-        if (!flexLayoutItem.everHadLayout && flexItem.checkForRepaintDuringLayout()) {
-            flexItem.repaint();
-            flexItem.repaintOverhangingFloats(true);
-        }
+        layoutFlexItemAfterMainSizing(flexLayoutItems[i], relayoutChildren);
 
         updateAutoMarginsInMainAxis(flexItem, autoMarginOffset);
 
@@ -2808,6 +2774,48 @@ RenderFlexibleBox::FlexLineResult RenderFlexibleBox::layoutAndPlaceFlexItems(Lay
     }
 
     return { crossAxisOffset + maxFlexItemCrossAxisExtent, maxFlexItemCrossAxisExtent, baselineAlignmentState };
+}
+
+void RenderFlexibleBox::layoutFlexItemAfterMainSizing(FlexLayoutItem& flexLayoutItem, RelayoutChildren relayoutChildren)
+{
+    auto& flexItem = flexLayoutItem.renderer.get();
+
+    setOverridingMainSizeForFlexItem(flexItem, flexLayoutItem.flexedContentSize);
+    // The flexed content size and the override size include the scrollbar
+    // width, so we need to compare to the size including the scrollbar.
+    // FIXME: Should it include the scrollbar?
+    if (flexLayoutItem.flexedContentSize != mainAxisContentExtentForFlexItemIncludingScrollbar(flexItem))
+        flexItem.setChildNeedsLayout(MarkingBehavior::MarkOnlyThis);
+    else {
+        // To avoid double applying margin changes in
+        // updateAutoMarginsInCrossAxis, we reset the margins here.
+        resetAutoMarginsAndLogicalTopInCrossAxis(flexItem);
+    }
+    // We may have already forced relayout for orthogonal flowing children in
+    // computeInnerFlexBaseSizeForFlexItem.
+    bool forceFlexItemRelayout = relayoutChildren == RelayoutChildren::Yes && !m_flexItemsWithCompletedLayout.contains(flexItem);
+    if (!forceFlexItemRelayout && flexItemHasPercentHeightDescendants(flexItem)) {
+        // Have to force another relayout even though the child is sized
+        // correctly, because its descendants are not sized correctly yet. Our
+        // previous layout of the child was done without an override height set.
+        // So, redo it here.
+        forceFlexItemRelayout = true;
+    }
+    updateFlexItemDirtyBitsBeforeLayout(forceFlexItemRelayout, flexItem);
+    if (!flexItem.needsLayout())
+        flexItem.markForPaginationRelayoutIfNeeded();
+    if (flexItem.needsLayout())
+        m_flexItemsWithCompletedLayout.add(flexItem);
+
+    {
+        auto flexLayoutScope = SetForScope(m_afterMainAxisItemSizing, true);
+        flexItem.layoutIfNeeded();
+    }
+
+    if (!flexLayoutItem.everHadLayout && flexItem.checkForRepaintDuringLayout()) {
+        flexItem.repaint();
+        flexItem.repaintOverhangingFloats(true);
+    }
 }
 
 void RenderFlexibleBox::layoutColumnReverse(const FlexLayoutItems& flexLayoutItems, LayoutUnit crossAxisOffset, LayoutUnit availableFreeSpace, LayoutUnit gapBetweenItems)
