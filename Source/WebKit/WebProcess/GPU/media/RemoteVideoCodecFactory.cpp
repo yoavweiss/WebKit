@@ -275,7 +275,9 @@ Ref<RemoteVideoEncoder::EncodePromise> RemoteVideoEncoder::encode(RawFrame&& raw
 Ref<GenericPromise> RemoteVideoEncoder::setRates(uint64_t bitRate, double frameRate)
 {
     auto bitRateInKbps = bitRate / 1000;
-    return protect(WebProcess::singleton().libWebRTCCodecs())->setEncodeRates(m_internalEncoder, bitRateInKbps, frameRate);
+    RefPtr promise = protect(WebProcess::singleton().libWebRTCCodecs())->setEncodeRates(m_internalEncoder, bitRateInKbps, frameRate);
+    ASSERT(promise);
+    return promise ? promise.releaseNonNull() : GenericPromise::createAndResolve();
 }
 
 Ref<GenericPromise> RemoteVideoEncoder::flush()
