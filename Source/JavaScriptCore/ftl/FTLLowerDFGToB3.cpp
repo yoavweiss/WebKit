@@ -1207,6 +1207,9 @@ private:
         case ArrayIndexOf:
             compileArrayIndexOfOrArrayIncludes();
             break;
+        case ArrayJoin:
+            compileArrayJoin();
+            break;
         case CreateActivation:
             compileCreateActivation();
             break;
@@ -8529,6 +8532,23 @@ IGNORE_CLANG_WARNINGS_END
         LValue firstArray = lowCell(m_node->child1());
         LValue second = lowJSValue(m_node->child2());
         LValue result = vmCall(pointerType(), operationArrayConcatAppendOne, weakPointer(globalObject), firstArray, second);
+        speculate(ExoticObjectMode, noValue(), nullptr, m_out.isNull(result));
+        setJSValue(result);
+    }
+
+    void compileArrayJoin()
+    {
+        JSGlobalObject* globalObject = m_graph.globalObjectFor(m_origin.semantic);
+        LValue array = lowCell(m_graph.varArgChild(m_node, 0));
+        Edge separatorEdge = m_graph.varArgChild(m_node, 1);
+        LValue result;
+        if (separatorEdge.useKind() == StringUse) {
+            LValue separator = lowString(separatorEdge);
+            result = vmCall(pointerType(), operationArrayJoin, weakPointer(globalObject), array, separator);
+        } else {
+            LValue separator = lowJSValue(separatorEdge);
+            result = vmCall(pointerType(), operationArrayJoinGeneric, weakPointer(globalObject), array, separator);
+        }
         speculate(ExoticObjectMode, noValue(), nullptr, m_out.isNull(result));
         setJSValue(result);
     }

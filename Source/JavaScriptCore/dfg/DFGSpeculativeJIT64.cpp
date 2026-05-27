@@ -4279,6 +4279,11 @@ void SpeculativeJIT::compile(Node* node)
         compileArrayIndexOfOrArrayIncludes(node);
         break;
     }
+
+    case ArrayJoin: {
+        compileArrayJoin(node);
+        break;
+    }
         
     case ArrayPop: {
         ASSERT(node->arrayMode().isJSArray());

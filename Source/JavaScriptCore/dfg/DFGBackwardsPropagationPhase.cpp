@@ -414,6 +414,12 @@ private:
             break;
         }
 
+        case ArrayJoin: {
+            m_graph.varArgChild(node, 0)->mergeFlags(NodeBytecodeUsesAsValue);
+            m_graph.varArgChild(node, 1)->mergeFlags(NodeBytecodeUsesAsValue);
+            break;
+        }
+
         case UInt32ToNumber: {
             node->child1()->mergeFlags(flags);
             break;

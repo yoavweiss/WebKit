@@ -455,6 +455,7 @@ inline CapabilityLevel canCompile(Node* node)
     case ArraySplice:
     case ArrayIncludes:
     case ArrayIndexOf:
+    case ArrayJoin:
     case ArrayPop:
     case ArrayPush:
     case ArrayShift:

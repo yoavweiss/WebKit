@@ -1239,6 +1239,7 @@ private:
         case StringSubstr:
         case ToUpperCase:
         case ToLowerCase:
+        case ArrayJoin:
             setPrediction(SpecString);
             break;
 

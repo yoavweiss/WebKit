@@ -1417,6 +1417,17 @@ private:
             break;
         }
 
+        case ArrayJoin: {
+            Edge& separatorEdge = m_graph.varArgChild(m_node, 1);
+            Node* separator = separatorEdge.node();
+            if (separatorEdge.useKind() == UntypedUse && separator->op() == JSConstant && separator->asJSValue().isUndefined()) {
+                Node* commaNode = m_insertionSet.insertConstant(m_nodeIndex, m_node->origin, vm().smallStrings.singleCharacterString(','));
+                separatorEdge = Edge(commaNode, StringUse);
+                m_changed = true;
+            }
+            break;
+        }
+
         case StringIndexOf: {
             Node* stringNode = m_node->child1().node();
             String string = stringNode->tryGetString(m_graph);

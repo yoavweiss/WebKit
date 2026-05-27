@@ -2995,6 +2995,65 @@ auto ByteCodeParser::handleIntrinsicCall(Node* callee, Operand resultOperand, Ca
         case ArraySortIntrinsic:
             return handleArraySort(callee, resultOperand, variant, registerOffset, argumentCountIncludingThis, osrExitIndex, prediction, insertChecks, setResult);
 
+        case ArrayJoinIntrinsic: {
+            if (m_inlineStackTop->m_exitProfile.hasExitSite(m_currentIndex, BadIndexingType)
+                || m_inlineStackTop->m_exitProfile.hasExitSite(m_currentIndex, BadConstantCache)
+                || m_inlineStackTop->m_exitProfile.hasExitSite(m_currentIndex, BadCache)
+                || m_inlineStackTop->m_exitProfile.hasExitSite(m_currentIndex, BadType)
+                || m_inlineStackTop->m_exitProfile.hasExitSite(m_currentIndex, ExoticObjectMode))
+                return CallOptimizationResult::DidNothing;
+
+            ArrayMode arrayMode = getArrayMode(Array::Read);
+            if (!arrayMode.isJSArray())
+                return CallOptimizationResult::DidNothing;
+
+            if (!arrayMode.isJSArrayWithOriginalStructure())
+                return CallOptimizationResult::DidNothing;
+
+            if (arrayMode.doesConversion())
+                return CallOptimizationResult::DidNothing;
+
+            switch (arrayMode.type()) {
+            case Array::Double:
+            case Array::Int32:
+            case Array::Contiguous: {
+                JSGlobalObject* globalObject = m_graph.globalObjectFor(currentNodeOrigin().semantic);
+                if (globalObject->arrayPrototypeChainIsSaneWatchpointSet().state() != IsWatched)
+                    return CallOptimizationResult::DidNothing;
+
+                Node* separator = nullptr;
+                if (argumentCountIncludingThis >= 2) {
+                    Node* separatorArg = get(virtualRegisterForArgumentIncludingThis(1, registerOffset));
+                    if (separatorArg->op() == JSConstant && separatorArg->asJSValue().isUndefined())
+                        separator = nullptr;
+                    else
+                        separator = separatorArg;
+                }
+
+                m_graph.watchpoints().addLazily(globalObject->arrayPrototypeChainIsSaneWatchpointSet());
+
+                insertChecks();
+
+                if (!separator)
+                    separator = jsConstant(m_vm->smallStrings.singleCharacterString(','));
+
+                Node* array = get(virtualRegisterForArgumentIncludingThis(0, registerOffset));
+                addVarArgChild(array);
+                addVarArgChild(separator);
+                addVarArgChild(nullptr); // Filled in by fixup phase as the storage edge.
+
+                Node* join = addToGraph(Node::VarArg, ArrayJoin, OpInfo(arrayMode.asWord()), OpInfo(prediction));
+                setResult(join);
+                return CallOptimizationResult::Inlined;
+            }
+            default:
+                return CallOptimizationResult::DidNothing;
+            }
+
+            RELEASE_ASSERT_NOT_REACHED();
+            return CallOptimizationResult::DidNothing;
+        }
+
         case ArrayPopIntrinsic: {
             ArrayMode arrayMode = getArrayMode(Array::Write);
             if (!arrayMode.isJSArray())

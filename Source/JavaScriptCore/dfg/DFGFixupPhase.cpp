@@ -1834,6 +1834,20 @@ private:
             break;
         }
 
+        case ArrayJoin: {
+            Edge& array = m_graph.varArgChild(node, 0);
+            Edge& storage = m_graph.varArgChild(node, 2);
+            blessArrayOperation(array, Edge(), storage);
+            ASSERT_WITH_MESSAGE(storage.node(), "blessArrayOperation for ArrayJoin must set Butterfly for storage edge.");
+            fixEdge<KnownCellUse>(array);
+            Edge& separator = m_graph.varArgChild(node, 1);
+            if (separator->shouldSpeculateString())
+                fixEdge<StringUse>(separator);
+            else
+                fixEdge<UntypedUse>(separator);
+            break;
+        }
+
         case ArrayIncludes:
         case ArrayIndexOf:
             fixupArrayIndexOfOrArrayIncludes(node);

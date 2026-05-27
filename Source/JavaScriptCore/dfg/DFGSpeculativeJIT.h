@@ -1688,6 +1688,7 @@ public:
     void compileArrayConcatAppendOne(Node*);
     void compileArraySplice(Node*);
     void compileArrayIndexOfOrArrayIncludes(Node*);
+    void compileArrayJoin(Node*);
     void compileArrayPush(Node*);
     void compileArrayUnshift(Node*);
     void compileNotifyWrite(Node*);

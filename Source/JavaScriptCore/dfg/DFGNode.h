@@ -2330,6 +2330,7 @@ public:
         case EnumeratorNextUpdateIndexAndMode:
         case ArrayIncludes:
         case ArrayIndexOf:
+        case ArrayJoin:
             return true;
         default:
             break;
@@ -2743,6 +2744,7 @@ public:
         case ArrayUnshift:
         case ArrayIncludes:
         case ArrayIndexOf:
+        case ArrayJoin:
         case HasIndexedProperty:
         case AtomicsAdd:
         case AtomicsAnd:

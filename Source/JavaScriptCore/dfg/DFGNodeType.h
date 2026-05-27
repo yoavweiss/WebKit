@@ -351,6 +351,7 @@ namespace JSC { namespace DFG {
     macro(ArrayConcatAppendOne, NodeResultJS | NodeMustGenerate) \
     macro(ArrayIncludes, NodeResultBoolean | NodeHasVarArgs) \
     macro(ArrayIndexOf, NodeResultInt32 | NodeHasVarArgs) \
+    macro(ArrayJoin, NodeResultJS | NodeMustGenerate | NodeHasVarArgs) \
     macro(ArraySplice, NodeResultJS | NodeMustGenerate | NodeHasVarArgs) \
     \
     /* Optimizations for regular expression matching. */\

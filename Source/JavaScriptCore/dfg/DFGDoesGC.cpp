@@ -476,6 +476,7 @@ bool doesGC(Graph& graph, Node* node)
     case ArrayConcatAppendOne:
     case ArrayIncludes:
     case ArrayIndexOf:
+    case ArrayJoin:
     case ParseInt: // We might resolve a rope even though we don't clobber anything.
     case SetAdd:
     case MapSet:

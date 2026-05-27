@@ -61,6 +61,7 @@ namespace JSC {
     macro(ArraySpliceIntrinsic) \
     macro(ArrayIncludesIntrinsic) \
     macro(ArrayIndexOfIntrinsic) \
+    macro(ArrayJoinIntrinsic) \
     macro(ArraySortIntrinsic) \
     macro(ArrayValuesIntrinsic) \
     macro(ArrayKeysIntrinsic) \

@@ -1567,6 +1567,54 @@ JSC_DEFINE_JIT_OPERATION(operationArrayConcatAppendOne, JSArray*, (JSGlobalObjec
     OPERATION_RETURN(scope, tryConcatOneArgFast(globalObject, vm, firstArray, JSValue::decode(encodedSecond)));
 }
 
+static ALWAYS_INLINE JSString* arrayJoinWithStringSeparator(JSGlobalObject* globalObject, JSArray* array, JSString* separator, ThrowScope& scope)
+{
+    unsigned length = array->length();
+    if (!separator->length() && (array->indexingType() == ArrayWithContiguous || array->indexingType() == ArrayWithInt32)) {
+        auto* butterfly = array->butterfly();
+        JSOnlyStringsAndInt32sJoiner joiner(StringView { });
+        auto* joined = joiner.tryJoin(globalObject, butterfly->contiguous().data(), length);
+        RETURN_IF_EXCEPTION(scope, { });
+        if (joined)
+            return joined;
+    }
+
+    auto view = separator->view(globalObject);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    bool sawHoles = false;
+    bool genericCase = false;
+    return fastArrayJoin(globalObject, array, view, length, sawHoles, genericCase);
+}
+
+JSC_DEFINE_JIT_OPERATION(operationArrayJoin, JSString*, (JSGlobalObject* globalObject, JSArray* array, JSString* separator))
+{
+    VM& vm = globalObject->vm();
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    auto scope = DECLARE_THROW_SCOPE(vm);
+    OPERATION_RETURN(scope, arrayJoinWithStringSeparator(globalObject, array, separator, scope));
+}
+
+JSC_DEFINE_JIT_OPERATION(operationArrayJoinGeneric, JSString*, (JSGlobalObject* globalObject, JSArray* array, EncodedJSValue encodedSeparator))
+{
+    VM& vm = globalObject->vm();
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    JSValue separatorValue = JSValue::decode(encodedSeparator);
+    JSString* separator;
+    if (separatorValue.isUndefined())
+        separator = vm.smallStrings.singleCharacterString(',');
+    else if (!separatorValue.isObject()) {
+        separator = separatorValue.toString(globalObject);
+        OPERATION_RETURN_IF_EXCEPTION(scope, nullptr);
+    } else
+        OPERATION_RETURN(scope, nullptr);
+    OPERATION_RETURN(scope, arrayJoinWithStringSeparator(globalObject, array, separator, scope));
+}
+
 JSC_DEFINE_JIT_OPERATION(operationRegExpExecString, EncodedJSValue, (JSGlobalObject* globalObject, RegExpObject* regExpObject, JSString* argument))
 {
     SuperSamplerScope superSamplerScope(false);

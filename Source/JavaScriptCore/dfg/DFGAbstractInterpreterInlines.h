@@ -3360,6 +3360,11 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
         setNonCellTypeForNode(node, SpecInt32Only);
         break;
     }
+
+    case ArrayJoin:
+        clobberWorld();
+        setTypeForNode(node, SpecString);
+        break;
             
     case ArrayPop:
         clobberWorld();
