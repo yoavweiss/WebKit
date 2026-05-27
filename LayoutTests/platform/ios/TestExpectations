@@ -6392,9 +6392,6 @@ webkit.org/b/215476 [ Release ] imported/w3c/web-platform-tests/css/css-grid/abs
 
 webkit.org/b/215476 [ Release ] imported/w3c/web-platform-tests/css/css-text/overflow-wrap/overflow-wrap-break-word-long-crash.html [ Pass Timeout ]
 
-webkit.org/b/227283 imported/w3c/web-platform-tests/css/css-grid/grid-items/grid-item-inline-contribution-001.html [ ImageOnlyFailure ]
-webkit.org/b/227283 imported/w3c/web-platform-tests/css/css-grid/grid-items/grid-item-inline-contribution-002.html [ ImageOnlyFailure ]
-
 webkit.org/b/215929 compositing/video/poster.html [ Pass Timeout ]
 
 webkit.org/b/223900 compositing/video/video-update-rendering.html [ Pass Failure ]
