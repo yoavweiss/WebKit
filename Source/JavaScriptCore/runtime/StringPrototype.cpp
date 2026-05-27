@@ -1643,8 +1643,13 @@ static EncodedJSValue toLocaleCase(JSGlobalObject* globalObject, CallFrame* call
     });
 
     // 12. If locale is undefined, let locale be "und".
-    if (locale.isNull())
-        locale = "und"_s;
+    if (locale.isNull()) {
+        // Case mapping is locale-independent here, so skip ICU and use the root conversion.
+        String converted = mode == CaseConversionMode::Lower ? s->convertToLowercaseWithoutLocale() : s->convertToUppercaseWithoutLocale();
+        if (converted.impl() == s->impl())
+            return JSValue::encode(sVal);
+        RELEASE_AND_RETURN(scope, JSValue::encode(jsString(vm, WTF::move(converted))));
+    }
 
     // Delegate the following steps to icu u_strToLower or u_strToUpper.
     // 13. Let cpList be a List containing in order the code points of S as defined in ES2015, 6.1.4, starting at the first element of S.
