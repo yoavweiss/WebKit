@@ -29,11 +29,13 @@
 #include "AXUtilities.h"
 #include "AccessibilityNodeObject.h"
 #include "Element.h"
+#include "EventNames.h"
 #include "HTMLLabelElement.h"
 #include "HTMLTableCellElement.h"
 #include "RenderElementInlines.h"
 #include "RenderObjectStyle.h"
 #include "RenderStyle.h"
+#include "RenderStyle+GettersInlines.h"
 #include <wtf/Scope.h>
 
 namespace WebCore {
@@ -68,13 +70,47 @@ static bool NODELETE hasStitchBreakingTag(Element& element)
     }
 }
 
+static bool isClickTarget(Element& element)
+{
+    auto elementName = element.elementName();
+    if (elementName == ElementName::HTML_body || elementName == ElementName::HTML_main) {
+        // Mirror the criteria in AXCoreObject::supportsPressAction, which does not
+        // currently expose clickability for main / body to avoid considering everything
+        // clickable in event-delegate patterns.
+        return false;
+    }
+
+    if (element.hasAnyEventListeners(std::array { eventNames().clickEvent, eventNames().mousedownEvent, eventNames().mouseupEvent }))
+        return true;
+
+    // cursor:pointer is a good signal that this element is a click target.
+    CheckedPtr renderer = element.renderer();
+    if (!renderer)
+        return false;
+
+    CheckedRef style = renderer->style();
+    if (style->cursorType() != CursorType::Pointer || style->pointerEvents() == PointerEvents::None)
+        return false;
+
+    // CSS `cursor` inherits, so an interactive ancestor's pointer cursor appears on every
+    // descendant's computed style. Treat the element as a boundary only when it *introduces*
+    // the pointer cursor. Otherwise every descendant of an interactive ancestor would falsely
+    // register as its own boundary, fragmenting text that should stitch as one unit.
+    if (CheckedPtr parentRenderer = renderer->parent()) {
+        if (parentRenderer->style().cursorType() == CursorType::Pointer)
+            return false;
+    }
+    return true;
+}
+
 static bool isStitchBreakingElement(Element& element)
 {
     return is<HTMLTableCellElement>(element)
     || is<HTMLLabelElement>(element)
     || element.isLink()
     || hasStitchBreakingRole(element)
-    || hasStitchBreakingTag(element);
+    || hasStitchBreakingTag(element)
+    || isClickTarget(element);
 }
 
 StitchAction stitchActionFor(const RenderObject& renderer, const AccessibilityObject& object, StitchingContext& context)
@@ -147,8 +183,8 @@ StitchAction stitchActionFor(const RenderObject& renderer, const AccessibilityOb
         }
     });
 
-    if (node && context.lastStitchBreakingAncestor && context.lastStitchBreakingAncestor != stitchBreakingAncestor) {
-        // Breaking stitching across semantic boundaries, like cells, controls, etc.
+    if (node && context.lastStitchBreakingAncestor != stitchBreakingAncestor) {
+        // Breaking stitching across semantic boundaries, like cells, controls, click handlers, etc.
         // The current text is on the other side of the boundary and can start a new group.
         return StitchAction::BreakAndAdd;
     }
