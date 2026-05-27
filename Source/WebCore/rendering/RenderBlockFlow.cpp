@@ -365,7 +365,7 @@ void RenderBlockFlow::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth,
     } else if (childrenInline())
         computeInlinePreferredLogicalWidths(minLogicalWidth, maxLogicalWidth);
     else
-        computeBlockPreferredLogicalWidths(minLogicalWidth, maxLogicalWidth);
+        std::tie(minLogicalWidth, maxLogicalWidth) = computeBlockIntrinsicLogicalWidths();
 
     maxLogicalWidth = std::max(minLogicalWidth, maxLogicalWidth);
 

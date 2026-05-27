@@ -2254,7 +2254,7 @@ void RenderBlock::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, Lay
             maxLogicalWidth = width.value();
         }
     } else if (!shouldApplyInlineSizeContainment())
-        computeBlockPreferredLogicalWidths(minLogicalWidth, maxLogicalWidth);
+        std::tie(minLogicalWidth, maxLogicalWidth) = computeBlockIntrinsicLogicalWidths();
 
     maxLogicalWidth = std::max(minLogicalWidth, maxLogicalWidth);
 
@@ -2292,18 +2292,18 @@ void RenderBlock::computePreferredLogicalWidths()
     clearNeedsPreferredWidthsUpdate();
 }
 
-void RenderBlock::computeBlockPreferredLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const
+std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeBlockIntrinsicLogicalWidths() const
 {
     ASSERT(!shouldApplyInlineSizeContainment());
     auto* containingBlock = this->containingBlock();
     if (!containingBlock) {
         ASSERT_NOT_REACHED();
-        return;
+        return { };
     }
 
     auto [legendMinWidth, legendMaxWidth] = computeIntrinsicLogicalWidthsForFieldsetLegend();
-    minLogicalWidth = std::max(legendMinWidth, minLogicalWidth);
-    maxLogicalWidth = std::max(legendMaxWidth, maxLogicalWidth);
+    auto minLogicalWidth = legendMinWidth;
+    auto maxLogicalWidth = legendMaxWidth;
 
     LayoutUnit floatLeftWidth;
     LayoutUnit floatRightWidth;
@@ -2378,6 +2378,8 @@ void RenderBlock::computeBlockPreferredLogicalWidths(LayoutUnit& minLogicalWidth
     maxLogicalWidth = std::max(0_lu, maxLogicalWidth);
 
     maxLogicalWidth = std::max(floatLeftWidth + floatRightWidth, maxLogicalWidth);
+
+    return { minLogicalWidth, maxLogicalWidth };
 }
 
 void RenderBlock::computeChildIntrinsicLogicalWidths(RenderBox& child, LayoutUnit& minPreferredLogicalWidth, LayoutUnit& maxPreferredLogicalWidth) const
