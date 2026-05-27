@@ -1313,3 +1313,5 @@ webkit.org/b/314218 imported/w3c/web-platform-tests/html/semantics/embedded-cont
 webkit.org/b/314811 imported/w3c/web-platform-tests/css/mediaqueries/test_media_queries.html [ Failure ]
 
 webkit.org/b/315515 [ arm64 ] imported/w3c/web-platform-tests/gpc/sec-gpc.https.html [ Failure Pass ]
+
+webkit.org/b/315615 media/media-vp8-hiddenframes.html [ ImageOnlyFailure Pass ]
