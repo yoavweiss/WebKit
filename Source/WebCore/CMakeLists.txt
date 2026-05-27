@@ -3198,6 +3198,22 @@ endif ()
 
 WEBKIT_FRAMEWORK(WebCore)
 
+# Specify dependencies explicitly so we can generate derived sources before our
+# upstream targets finish linking.
+set(_WebCore_generated_sources ${WebCore_SOURCES})
+string(REPLACE "." "\\." _WebCore_derived_re "${WebCore_DERIVED_SOURCES_DIR}")
+list(FILTER _WebCore_generated_sources INCLUDE REGEX "^${_WebCore_derived_re}/")
+add_custom_target(WebCoreGeneratedSources DEPENDS
+    ${_WebCore_generated_sources}
+    ${WebCore_DERIVED_BUILTIN_HEADERS}
+    ${WebCore_DERIVED_SOURCES_DIR}/ModernMediaControls.css
+    ${WebCore_DERIVED_SOURCES_DIR}/ModernMediaControls.js
+)
+unset(_WebCore_generated_sources)
+unset(_WebCore_derived_re)
+add_dependencies(WebCoreGeneratedSources JavaScriptCoreSharedScripts WTF_CopyPreferences)
+add_dependencies(WebCore WebCoreGeneratedSources)
+
 if (DEFINED WebCore_EXTRA_LINK_OPTIONS)
     target_link_options(WebCore PRIVATE ${WebCore_EXTRA_LINK_OPTIONS})
 endif ()

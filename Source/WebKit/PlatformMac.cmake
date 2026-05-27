@@ -682,9 +682,11 @@ add_dependencies(WebKit WebInspectorUIFramework)
 # WebKitLegacy is intentionally absent from WebKit_PRIVATE_LIBRARIES above: ld64
 # resolves a dylib's load-command type by its last reference on the link line,
 # and a plain target_link_libraries entry would override this LC_REEXPORT_DYLIB
-# with LC_LOAD_DYLIB. Link it solely via -reexport_library here; the explicit
-# add_dependencies preserves build ordering.
-add_dependencies(WebKit WebKitLegacy)
+# with LC_LOAD_DYLIB. Link it solely via -reexport_library here. LINK_DEPENDS
+# orders WebKit's link behind the WebKitLegacy binary without the target-level
+# add_dependencies that would also serialize WebKit's PCH/object compiles.
+add_dependencies(WebKit WebKitLegacy_CopyHeaders)
+set_property(TARGET WebKit APPEND PROPERTY LINK_DEPENDS $<TARGET_LINKER_FILE:WebKitLegacy>)
 target_link_options(WebKit PRIVATE
     "-Wl,-reexport_library,$<TARGET_LINKER_FILE:WebKitLegacy>"
     "-Wl,-reexport-lobjc"

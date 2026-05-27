@@ -124,6 +124,27 @@ if (SWIFT_REQUIRED AND NOT (PORT STREQUAL GTK OR PORT STREQUAL WPE))
         set(PAL_SWIFT_EXPLICIT_MODULE_BUILD TRUE)
     endif ()
 
+    # Create a separate sub-module for Swift interop so the rest of compilation
+    # doesn't have to wait on generating the Swift interop header.
+    set(PAL_SWIFT_INTEROP_SOURCES
+        crypto/CryptoAlgorithmAESGCMCocoa.cpp
+        crypto/CryptoAlgorithmAESKWCocoaBridging.cpp
+        crypto/CryptoAlgorithmEd25519CocoaBridging.cpp
+        crypto/CryptoAlgorithmHKDFCocoaBridging.cpp
+        crypto/CryptoAlgorithmHMACCocoaBridging.cpp
+        crypto/CryptoAlgorithmX25519CocoaBridging.cpp
+        crypto/CryptoEDKeyBridging.cpp
+        crypto/PlatformECKey.cpp
+
+        crypto/commoncrypto/CryptoDigestCommonCrypto.cpp
+    )
+    list(REMOVE_ITEM PAL_SOURCES ${PAL_SWIFT_INTEROP_SOURCES})
+    list(APPEND PAL_INTERFACE_LIBRARIES "$<TARGET_OBJECTS:PAL_SwiftInterop>")
+
+    # FIXME(rdar://177840132): swiftc -emit-dependencies records imported
+    # clang modulemaps, but sometimes skips individual C++ headers.
+    set(PAL_SWIFT_INTEROP_HEADERS ${PAL_PUBLIC_HEADERS})
+
     WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER(PAL pal
         "${PAL_FRAMEWORK_HEADERS_DIR}/pal"
         "PALSwift-Generated.h")
@@ -148,6 +169,12 @@ endif ()
 
 WEBKIT_FRAMEWORK(PAL)
 WEBKIT_ADD_PREFIX_HEADER(PAL PALPrefix.h PREFIX_LANGUAGES CXX OBJCXX)
+
+if (DEFINED PAL_SWIFT_INTEROP_SOURCES)
+    WEBKIT_DEFINE_SUBTARGET(PAL_SwiftInterop PAL ${PAL_SWIFT_INTEROP_SOURCES})
+    target_precompile_headers(PAL_SwiftInterop REUSE_FROM PAL)
+    add_dependencies(PAL_SwiftInterop PAL_CopyHeaders)
+endif ()
 
 # Must come after WEBKIT_FRAMEWORK() which adds -warnings-as-errors.
 target_compile_options(PAL PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xfrontend -no-warnings-as-errors>")

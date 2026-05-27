@@ -829,24 +829,30 @@ function(_webkit_setup_swift_header_deps _target _stamp _header)
     if (NOT EXISTS "${_trigger_path}")
         file(WRITE "${_trigger_path}" "// Auto-generated; mtime tracks ${_target}'s Swift emit-clang-header stamp.\n")
     endif ()
+    if (DEFINED ${_target}_SWIFT_INTEROP_SOURCES)
+        set(_trigger_deps ${${_target}_SWIFT_INTEROP_HEADERS})
+    else ()
+        set(_trigger_deps "${_stamp}")
+    endif ()
     add_custom_command(
         OUTPUT "${_trigger_path}"
-        DEPENDS "${_stamp}"
+        DEPENDS ${_trigger_deps}
         COMMAND ${CMAKE_COMMAND} -E touch "${_trigger_path}"
         COMMENT "Refreshing ${_target} Swift rebuild trigger"
     )
     target_sources(${_target} PRIVATE "${_trigger_path}")
+    add_custom_target(${_target}_SwiftRebuildTrigger DEPENDS "${_trigger_path}")
 
+    add_custom_target(${_target}_SwiftCxxHeaderStamp DEPENDS ${_stamp})
+    add_dependencies(${_target}_SwiftCxxHeader ${_target}_SwiftCxxHeaderStamp)
     if (_deps)
-        # Wrap the header-generation command in its own custom target so it
-        # does NOT inherit cmake_object_order_depends_target_${_target} (which
-        # would gate it on every link dependency). It can start as soon as the
-        # relevant headers are staged. The ${_target}_SwiftCxxHeader placeholder
-        # is created at macro time; chain a stamp-bearing inner target into it.
-        add_custom_target(${_target}_SwiftCxxHeaderStamp DEPENDS ${_stamp})
-        add_dependencies(${_target}_SwiftCxxHeader ${_target}_SwiftCxxHeaderStamp ${_deps})
-        add_dependencies(${_target} ${_target}_SwiftCxxHeader)
+        add_dependencies(${_target}_SwiftCxxHeader ${_deps})
         add_dependencies(${_target}_SwiftGeneratedDeps ${_deps})
+    endif ()
+    if (DEFINED ${_target}_SWIFT_INTEROP_SOURCES)
+        add_dependencies(${_target}_SwiftInterop ${_target}_SwiftCxxHeader)
+    elseif (_deps)
+        add_dependencies(${_target} ${_target}_SwiftCxxHeader)
     else ()
         target_sources(${_target} PRIVATE ${_header})
     endif ()
@@ -1175,7 +1181,7 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
             add_custom_command(
                 OUTPUT ${_header_stamp_path}
                 BYPRODUCTS ${_header_path}
-                DEPENDS ${_swift_sources} ${_target}_SwiftGeneratedDeps
+                DEPENDS ${_swift_sources} ${_target}_SwiftGeneratedDeps ${${_target}_SWIFT_INTEROP_HEADERS}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                 COMMAND
                     ${CMAKE_Swift_COMPILER} --original-swift-compiler=${ORIGINAL_Swift_COMPILER} -typecheck

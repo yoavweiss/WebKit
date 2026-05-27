@@ -71,6 +71,11 @@
 #include "WebDeviceOrientationUpdateProviderProxy.h"
 #endif
 
+#if PLATFORM(IOS_FAMILY) || (PLATFORM(MAC) && ENABLE(VIDEO_PRESENTATION_MODE))
+#include "PlaybackSessionManagerProxy.h"
+#include "RemotePagePlaybackSessionManagerProxy.h"
+#endif
+
 // FIXME: https://bugs.webkit.org/show_bug.cgi?id=306415
 #include "WebKit-Swift.h"
 

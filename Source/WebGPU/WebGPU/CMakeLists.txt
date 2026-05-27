@@ -71,6 +71,15 @@ set(WebGPU_WGSL_SOURCES
     ${WGSL_DIR}/Metal/MetalFunctionWriter.cpp
 )
 
+if (SWIFT_REQUIRED)
+    set(WebGPU_SWIFT_INTEROP_SOURCES
+        Buffer.mm
+        CommandEncoder.mm
+        Queue.mm
+    )
+    list(REMOVE_ITEM WebGPU_SOURCES ${WebGPU_SWIFT_INTEROP_SOURCES})
+endif ()
+
 add_library(WebGPU SHARED ${WebGPU_SOURCES} ${WebGPU_WGSL_SOURCES})
 
 # WGSL .cpp sources compile as ObjC++ via LANGUAGE OBJCXX so they share the
@@ -347,9 +356,27 @@ if (SWIFT_REQUIRED)
 
     set(WebGPU_SWIFT_EMIT_CLANG_HEADER_MIN_ACCESS public)
 
+    # FIXME(rdar://177840132): swiftc -emit-dependencies records imported
+    # clang modulemaps, but sometimes skips individual C++ headers.
+    file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/Internal/module.modulemap" _mm_lines REGEX "header \"")
+    foreach (_l IN LISTS _mm_lines)
+        string(REGEX REPLACE ".*header \"(.*)\".*" "\\1" _h "${_l}")
+        cmake_path(ABSOLUTE_PATH _h BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Internal" NORMALIZE)
+        list(APPEND WebGPU_SWIFT_INTEROP_HEADERS "${_h}")
+    endforeach ()
+
     WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER(WebGPU WebGPU
         "${WebGPU_FRAMEWORK_HEADERS_DIR}/WebGPU"
         "WebGPUSwift-Generated.h")
+
+    WEBKIT_DEFINE_SUBTARGET(WebGPU_SwiftInterop WebGPU ${WebGPU_SWIFT_INTEROP_SOURCES})
+    target_precompile_headers(WebGPU_SwiftInterop REUSE_FROM WebGPU)
+    add_dependencies(WebGPU_SwiftInterop WTF_CopyHeaders bmalloc_CopyHeaders wgsl-types)
+    set(_interop_objs "$<FILTER:$<TARGET_OBJECTS:WebGPU_SwiftInterop>,EXCLUDE,\\.(g|p)ch$>")
+    set(_interop_rsp "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/WebGPU_SwiftInterop.dir/objects.rsp")
+    file(GENERATE OUTPUT "${_interop_rsp}" CONTENT "$<JOIN:${_interop_objs},\n>")
+    target_link_options(WebGPU PRIVATE "@${_interop_rsp}")
+    set_property(TARGET WebGPU APPEND PROPERTY LINK_DEPENDS "${_interop_objs};${_interop_rsp}")
 endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "iOS")

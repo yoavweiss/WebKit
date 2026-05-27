@@ -932,6 +932,41 @@ if (NOT APPLE AND SWIFT_REQUIRED)
     endforeach ()
 endif ()
 
+if (SWIFT_REQUIRED)
+    set(WebKit_SWIFT_INTEROP_SOURCES
+        UIProcess/ProvisionalPageProxy.cpp
+        UIProcess/RemotePageProxy.cpp
+        UIProcess/ViewGestureController.cpp
+        UIProcess/WebBackForwardList.cpp
+        UIProcess/WebPageProxy.cpp
+        UIProcess/Automation/WebAutomationSession.cpp
+        WebProcess/WebPage/IPCTestingAPI.cpp
+        ${WebKit_DERIVED_SOURCES_DIR}/WebBackForwardListMessageReceiver.cpp
+    )
+    if (APPLE)
+        list(APPEND WebKit_SWIFT_INTEROP_SOURCES
+            UIProcess/API/ios/WKWebViewIOS.mm
+            UIProcess/API/mac/WKWebViewMac.mm
+            UIProcess/ios/ViewGestureControllerIOS.mm
+            UIProcess/mac/ViewGestureControllerMac.mm
+            UIProcess/mac/WebViewImpl.mm
+        )
+    endif ()
+    foreach (_f IN LISTS WebKit_SWIFT_INTEROP_SOURCES)
+        cmake_path(GET _f FILENAME _fn)
+        list(APPEND WebKit_UNIFIED_SOURCE_EXCLUDES "(^|/)${_fn}( |$)")
+    endforeach ()
+
+    # FIXME(rdar://177840132): swiftc -emit-dependencies records imported
+    # clang modulemaps, but sometimes skips individual C++ headers.
+    file(STRINGS "${WebKit_SWIFT_INTEROP_MODULE_PATH}/module.modulemap" _mm_lines REGEX "header \"")
+    foreach (_l IN LISTS _mm_lines)
+        string(REGEX REPLACE ".*header \"(.*)\".*" "\\1" _h "${_l}")
+        cmake_path(ABSOLUTE_PATH _h BASE_DIRECTORY "${WebKit_SWIFT_INTEROP_MODULE_PATH}" NORMALIZE)
+        list(APPEND WebKit_SWIFT_INTEROP_HEADERS "${_h}")
+    endforeach ()
+endif ()
+
 WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER(WebKit WebKit
     "${WebKit_SWIFT_INTEROP_MODULE_PATH}"
     "${WebKit_DERIVED_SOURCES_DIR}/WebKit-Swift-CPP.h")
@@ -1274,6 +1309,9 @@ if (SWIFT_REQUIRED)
 endif ()
 
 WEBKIT_COMPUTE_SOURCES(WebKit)
+if (DEFINED WebKit_SWIFT_INTEROP_SOURCES)
+    list(REMOVE_ITEM WebKit_SOURCES ${WebKit_SWIFT_INTEROP_SOURCES})
+endif ()
 
 WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebKit WebKitUIProcess
     PREFIX WebKitUIProcessPrefix.h
@@ -1290,6 +1328,20 @@ WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebKit WebKitMessageReceivers
 
 WEBKIT_FRAMEWORK(WebKit)
 WEBKIT_ADD_PREFIX_HEADER(WebKit WebKitPrefix.h PREFIX_LANGUAGES CXX OBJCXX)
+
+if (DEFINED WebKit_SWIFT_INTEROP_SOURCES)
+    WEBKIT_DEFINE_SUBTARGET(WebKit_SwiftInterop WebKit ${WebKit_SWIFT_INTEROP_SOURCES})
+    WEBKIT_REUSE_PREFIX_HEADER(WebKit_SwiftInterop WebKit WebKitPrefix.h PREFIX_LANGUAGES CXX OBJCXX)
+    target_compile_definitions(WebKit_SwiftInterop PRIVATE WK_COMPILING_SWIFT_INTEROP_SUBTARGET)
+    # Feed objects into the WebKit link via a response file + LINK_DEPENDS so
+    # cmake_object_order_depends_target_WebKit doesn't pick up this sub-target
+    # (and through it, WebKit_SwiftCxxHeader).
+    set(_interop_objs "$<FILTER:$<TARGET_OBJECTS:WebKit_SwiftInterop>,EXCLUDE,\\.(g|p)ch$>")
+    set(_interop_rsp "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/WebKit_SwiftInterop.dir/$<CONFIG>/objects.rsp")
+    file(GENERATE OUTPUT "${_interop_rsp}" CONTENT "$<JOIN:${_interop_objs},\n>")
+    target_link_options(WebKit PRIVATE "@${_interop_rsp}")
+    set_property(TARGET WebKit APPEND PROPERTY LINK_DEPENDS "${_interop_objs};${_interop_rsp}")
+endif ()
 
 if (WebKit_ARC_SOURCES)
     WEBKIT_DEFINE_SUBTARGET(WebKitARC WebKit ${WebKit_ARC_SOURCES})
