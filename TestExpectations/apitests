@@ -309,3 +309,5 @@ webkit.org/b/314846 [ ios ] TestWebKitAPI.WKAttachmentTestsIOS.PasteRichTextCopi
 webkit.org/b/314846 [ ios ] TestWebKitAPI.WKAttachmentTestsIOS.InsertPastedMapItemAsAttachment [ Skip ]
 webkit.org/b/315119 [ ios ] TestWebKitAPI.WKAttachmentTestsIOS.InsertPastedFilesAsAttachments [ Skip ]
 webkit.org/b/315119 [ ios ] TestWebKitAPI.WKAttachmentTestsIOS.InsertPastedContactAsAttachment [ Skip ]
+
+webkit.org/b/315673 [ mac release ] TestWebKitAPI.WritingTools.ProofreadingWithUntitledImageAttachment [ Pass Failure ]
