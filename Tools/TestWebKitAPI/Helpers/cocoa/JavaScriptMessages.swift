@@ -104,11 +104,11 @@ extension JavaScriptMessages {
             case .selection(let selection):
                 [
                     "selection": selection.encoded(),
-                    "elementID": NSNull(),
+                    "elementID": nil,
                 ]
             case .element(let id):
                 [
-                    "selection": NSNull(),
+                    "selection": nil,
                     "elementID": id,
                 ]
             }

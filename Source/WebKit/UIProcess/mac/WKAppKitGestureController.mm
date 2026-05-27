@@ -166,6 +166,11 @@ static bool representsDraggableElement(const WebKit::InteractionInformationAtPos
     return info.isLink || info.isImage || info.isAttachment || info.isDHTMLDraggable || info.isColorInput || info.prefersDraggingOverTextSelection;
 }
 
+static bool representsSelectableElement(const WebKit::InteractionInformationAtPosition& info)
+{
+    return info.selectability == WebKit::InteractionInformationAtPosition::Selectability::Selectable;
+}
+
 @interface WKAppKitGestureController () <NSGestureRecognizerDelegatePrivate, WKDeferringGestureRecognizerDelegate>
 @end
 
@@ -177,7 +182,10 @@ static bool representsDraggableElement(const WebKit::InteractionInformationAtPos
     RetainPtr<NSPressGestureRecognizer> _mouseTrackingGestureRecognizer;
     RetainPtr<NSPressGestureRecognizer> _singleClickGestureRecognizer;
     RetainPtr<NSClickGestureRecognizer> _doubleClickGestureRecognizer;
+
+    //  Auxiliary gesture recognizers to support context menus.
     RetainPtr<NSPressGestureRecognizer> _secondaryClickGestureRecognizer;
+    RetainPtr<WKDeferringGestureRecognizer> _secondaryClickDeferringGestureRecognizer;
 
     // Auxiliary gesture recognizers to support drag-and-drop.
     RetainPtr<NSGestureRecognizer> _textSelectionDragGesture;
@@ -238,7 +246,10 @@ static bool representsDraggableElement(const WebKit::InteractionInformationAtPos
     [self setUpMouseTrackingGestureRecognizer];
     [self setUpSingleClickGestureRecognizer];
     [self setUpDoubleClickGestureRecognizer];
+
     [self setUpSecondaryClickGestureRecognizer];
+    [self setUpSecondaryClickDeferringGestureRecognizer];
+
     [self setUpDragPressGestureRecognizer];
     [self setUpDragDeferringGestureRecognizer];
 }
@@ -283,8 +294,17 @@ static bool representsDraggableElement(const WebKit::InteractionInformationAtPos
 {
     _secondaryClickGestureRecognizer = adoptNS([[NSPressGestureRecognizer alloc] initWithTarget:self action:@selector(secondaryClickGestureRecognized:)]);
     [self configureForSecondaryClick:_secondaryClickGestureRecognizer.get()];
+    [_secondaryClickGestureRecognizer setCancelPastAllowableMovement:YES];
     [_secondaryClickGestureRecognizer setDelegate:self];
     [_secondaryClickGestureRecognizer setName:@"WKSecondaryClickGesture"];
+}
+
+- (void)setUpSecondaryClickDeferringGestureRecognizer
+{
+    _secondaryClickDeferringGestureRecognizer = adoptNS([[WKDeferringGestureRecognizer alloc] initWithDeferringGestureDelegate:self]);
+    [self configureForSecondaryClickDeferral:_secondaryClickDeferringGestureRecognizer];
+    [_secondaryClickDeferringGestureRecognizer setDelegate:self];
+    [_secondaryClickDeferringGestureRecognizer setName:@"WKSecondaryClickDeferringGesture"];
 }
 
 - (void)setUpDragPressGestureRecognizer
@@ -317,7 +337,10 @@ static bool representsDraggableElement(const WebKit::InteractionInformationAtPos
     [webView addGestureRecognizer:_mouseTrackingGestureRecognizer.get()];
     [webView addGestureRecognizer:_singleClickGestureRecognizer.get()];
     [webView addGestureRecognizer:_doubleClickGestureRecognizer.get()];
+
     [webView addGestureRecognizer:_secondaryClickGestureRecognizer.get()];
+    [webView addGestureRecognizer:_secondaryClickDeferringGestureRecognizer.get()];
+
     [webView addGestureRecognizer:_dragPressGestureRecognizer.get()];
     [webView addGestureRecognizer:_dragDeferringGestureRecognizer.get()];
 }
@@ -330,6 +353,8 @@ static bool representsDraggableElement(const WebKit::InteractionInformationAtPos
     [self enableGestureIfNeeded:_doubleClickGestureRecognizer.get()];
     [self enableGestureIfNeeded:_secondaryClickGestureRecognizer.get()];
     [self enableGestureIfNeeded:_dragPressGestureRecognizer.get()];
+
+    // The deferring gesture recognizers are intentionally not enabled.
 }
 
 - (void)enableGestureIfNeeded:(NSGestureRecognizer *)gesture
@@ -385,24 +410,22 @@ static bool representsDraggableElement(const WebKit::InteractionInformationAtPos
 
     WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "%@", gesture);
 
-    RetainPtr panGesture = dynamic_objc_cast<NSPanGestureRecognizer>(gesture);
-    if (!panGesture || _panGestureRecognizer != panGesture)
-        return;
+    RELEASE_ASSERT(_panGestureRecognizer == gesture);
 
     if (viewImpl->ignoresAllEvents()) {
         WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "Ignored gesture");
         return;
     }
 
-    if ([panGesture state] == NSGestureRecognizerStateBegan)
+    if ([gesture state] == NSGestureRecognizerStateBegan)
         viewImpl->dismissContentRelativeChildWindowsWithAnimation(false);
 
 #if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-    viewImpl->updateBannerViewForPanGesture([panGesture state]);
+    viewImpl->updateBannerViewForPanGesture([gesture state]);
 #endif
 
-    [self sendWheelEventForGesture:panGesture.get()];
-    [self startMomentumIfNeededForGesture:panGesture.get()];
+    [self sendWheelEventForGesture:_panGestureRecognizer];
+    [self startMomentumIfNeededForGesture:_panGestureRecognizer];
 }
 
 - (void)singleClickGestureRecognized:(NSGestureRecognizer *)gesture
@@ -421,8 +444,7 @@ static bool representsDraggableElement(const WebKit::InteractionInformationAtPos
 
     WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "%@", gesture);
 
-    if (_singleClickGestureRecognizer != gesture)
-        return;
+    RELEASE_ASSERT(_singleClickGestureRecognizer == gesture);
 
     // Clicks aren't delivered to NSButton's built-in click gesture
     // recognizer when a parent view's GR recognizes first, so we
@@ -469,9 +491,7 @@ static bool representsDraggableElement(const WebKit::InteractionInformationAtPos
 
     WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "%@", gesture);
 
-    RetainPtr clickGesture = dynamic_objc_cast<NSClickGestureRecognizer>(gesture);
-    if (!clickGesture || _doubleClickGestureRecognizer != clickGesture)
-        return;
+    RELEASE_ASSERT(_doubleClickGestureRecognizer == gesture);
 
     viewImpl->dismissContentRelativeChildWindowsWithAnimation(false);
 
@@ -495,7 +515,14 @@ static bool representsDraggableElement(const WebKit::InteractionInformationAtPos
 
     WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "%@", gesture);
 
-    if (_secondaryClickGestureRecognizer != gesture)
+    RELEASE_ASSERT(_secondaryClickGestureRecognizer == gesture);
+
+    if (gesture.state == NSGestureRecognizerStateBegan) {
+        [self _handleClickCancelled];
+        return;
+    }
+
+    if (gesture.state != NSGestureRecognizerStateEnded)
         return;
 
 ALLOW_NEW_API_WITHOUT_GUARDS_BEGIN
@@ -543,8 +570,7 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
         return;
     }
 
-    if (_mouseTrackingGestureRecognizer != gesture)
-        return;
+    RELEASE_ASSERT(_mouseTrackingGestureRecognizer == gesture);
 
     if (viewImpl->ignoresAllEvents())
         return;
@@ -630,7 +656,7 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
 
     for (NSGestureRecognizer *textSelectionGesture in [[webView textSelectionManager] gesturesForFailureRequirements]) {
         if (gestureRecognizer == textSelectionGesture)
-            return deferringGestureRecognizer == _dragDeferringGestureRecognizer;
+            return YES;
     }
 
     return NO;
@@ -646,39 +672,48 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     if (!webView)
         return NO;
 
-    if (deferringGestureRecognizer == _dragDeferringGestureRecognizer) {
-        NSPoint locationInView = [webView convertPoint:[event locationInWindow] fromView:nil];
-        if (viewImpl->isTextSelectedAtPoint(locationInView)) {
-            WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Drag deferral: not deferring; text already selected at %@", NSStringFromPoint(locationInView));
-            return NO;
-        }
-
-        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Drag deferral: deferring; awaiting position info at %@", NSStringFromPoint(locationInView));
-
-        WebKit::InteractionInformationRequest request { WebCore::IntPoint { locationInView } };
-        [self doAfterPositionInformationUpdate:[weakSelf = WeakObjCPtr<WKAppKitGestureController>(self), weakDeferring = WeakObjCPtr<WKDeferringGestureRecognizer>(deferringGestureRecognizer)](const auto& info) {
-            RetainPtr strongSelf = weakSelf.get();
-            RetainPtr strongDeferring = weakDeferring.get();
-            if (!strongSelf || !strongDeferring)
-                return;
-
-            auto deferralState = [strongDeferring state];
-            if (deferralState != NSGestureRecognizerStatePossible) {
-                WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { strongSelf->_page.get() }->logIdentifier(),
-                    "Drag deferral: position info arrived after deferring gesture exited Possible (state=%ld); skipping resolution", static_cast<long>(deferralState));
-                return;
-            }
-            bool isDraggable = representsDraggableElement(info);
-            WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { strongSelf->_page.get() }->logIdentifier(),
-                "Drag deferral resolved: isDraggable=%d (link=%d image=%d attachment=%d dhtml=%d color=%d prefersDrag=%d)",
-                isDraggable, info.isLink, info.isImage, info.isAttachment, info.isDHTMLDraggable, info.isColorInput, info.prefersDraggingOverTextSelection);
-            [strongDeferring endDeferralShouldPreventGestures:isDraggable];
-        } forRequest:request];
-
-        return YES;
+    NSPoint locationInView = [webView convertPoint:[event locationInWindow] fromView:nil];
+    if (viewImpl->isTextSelectedAtPoint(locationInView)) {
+        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "deferral: not deferring; text already selected at %@", NSStringFromPoint(locationInView));
+        return NO;
     }
 
-    return NO;
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "deferral: deferring; awaiting position info at %@", NSStringFromPoint(locationInView));
+
+    WebKit::InteractionInformationRequest request { WebCore::IntPoint { locationInView } };
+    [self doAfterPositionInformationUpdate:[weakSelf = WeakObjCPtr<WKAppKitGestureController>(self), weakDeferring = WeakObjCPtr<WKDeferringGestureRecognizer>(deferringGestureRecognizer)](const auto &info) {
+        RetainPtr strongSelf = weakSelf.get();
+        RetainPtr strongDeferring = weakDeferring.get();
+        if (!strongSelf || !strongDeferring)
+            return;
+
+        auto deferralState = [strongDeferring state];
+        if (deferralState != NSGestureRecognizerStatePossible) {
+            WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { strongSelf->_page.get() }->logIdentifier(),
+                "deferral: position info arrived after deferring gesture exited Possible (state=%ld); skipping resolution", static_cast<long>(deferralState));
+            return;
+        }
+
+        auto shouldPreventGestures = [&] {
+            if (strongDeferring == strongSelf->_dragDeferringGestureRecognizer) {
+                auto isDraggable = representsDraggableElement(info);
+                WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { strongSelf->_page.get() }->logIdentifier(), "deferral resolved: isDraggable=%d (link=%d image=%d attachment=%d dhtml=%d color=%d prefersDrag=%d)", isDraggable, info.isLink, info.isImage, info.isAttachment, info.isDHTMLDraggable, info.isColorInput, info.prefersDraggingOverTextSelection);
+                return isDraggable;
+            }
+
+            if (strongDeferring == strongSelf->_secondaryClickDeferringGestureRecognizer) {
+                bool isSelectable = representsSelectableElement(info);
+                WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { strongSelf->_page.get() }->logIdentifier(), "Resolved deferral: isSelectable=%d", isSelectable);
+                return !isSelectable;
+            }
+
+            RELEASE_ASSERT_NOT_REACHED();
+        }();
+
+        [strongDeferring endDeferralShouldPreventGestures:shouldPreventGestures];
+    } forRequest:request];
+
+    return YES;
 }
 
 - (void)deferringGestureRecognizer:(WKDeferringGestureRecognizer *)deferringGestureRecognizer didEndActionWithEvent:(NSEvent *)event
@@ -686,13 +721,11 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     if (deferringGestureRecognizer.state != NSGestureRecognizerStatePossible)
         return;
 
-    if (deferringGestureRecognizer == _dragDeferringGestureRecognizer) {
-        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Drag deferral: press ended before position info arrived; unblocking text selection");
-        if (auto abandonedRequest = std::exchange(_lastOutstandingPositionInformationRequest, std::nullopt)) {
-            for (auto& slot : _pendingPositionInformationHandlers) {
-                if (slot && slot->request.isValidForRequest(*abandonedRequest))
-                    slot.reset();
-            }
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "deferral: press ended before position info arrived; unblocking text selection");
+    if (auto abandonedRequest = std::exchange(_lastOutstandingPositionInformationRequest, std::nullopt)) {
+        for (auto& slot : _pendingPositionInformationHandlers) {
+            if (slot && slot->request.isValidForRequest(*abandonedRequest))
+                slot.reset();
         }
     }
 
@@ -799,6 +832,20 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     _hasValidPositionInformation = _positionInformation.canBeValid;
 
     [self _invokeAndRemovePendingHandlersValidForCurrentPositionInformation];
+}
+
+- (BOOL)_secondaryClickShouldBeginAtLocation:(NSPoint)locationInViewCoordinates
+{
+    WebKit::InteractionInformationRequest request { WebCore::IntPoint { locationInViewCoordinates } };
+
+    bool requestIsValid = _hasValidPositionInformation && _positionInformation.request.isValidForRequest(request);
+    bool isSelectable = representsSelectableElement(_positionInformation);
+    bool shouldBegin = requestIsValid && isSelectable;
+
+    if (!requestIsValid)
+        [self _invalidateCurrentPositionInformation];
+
+    return shouldBegin;
 }
 
 - (BOOL)_dragPressShouldBeginAtLocation:(NSPoint)locationInViewCoordinates
@@ -1319,8 +1366,8 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
     if (!webView)
         return NO;
 
-    if (gestureRecognizer == _dragDeferringGestureRecognizer)
-        return [_dragDeferringGestureRecognizer shouldDeferGestureRecognizer:otherGestureRecognizer];
+    if ([gestureRecognizer isKindOfClass:WKDeferringGestureRecognizer.class])
+        return [(WKDeferringGestureRecognizer *)gestureRecognizer shouldDeferGestureRecognizer:otherGestureRecognizer];
 
     // Fail any gestures from the text selection manager if the secondary click GR handles them.
     for (NSGestureRecognizer *gestureForFailureRequirements in [[webView textSelectionManager] gesturesForFailureRequirements]) {
@@ -1353,24 +1400,22 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
     if (!webView)
         return NO;
 
-    if (gestureRecognizer == _doubleClickGestureRecognizer) {
-        if (!viewImpl->allowsMagnification())
-            return NO;
-    }
+    NSPoint locationInViewCoordinates = [gestureRecognizer locationInView:webView];
 
-    if (gestureRecognizer == _secondaryClickGestureRecognizer) {
-        // FIXME: Implement logic for determining if the clicked node is not text.
-        return NO;
-    }
+    if (gestureRecognizer == _doubleClickGestureRecognizer)
+        return viewImpl->allowsMagnification();
 
-    if (gestureRecognizer == _singleClickGestureRecognizer || gestureRecognizer == _mouseTrackingGestureRecognizer || gestureRecognizer == _dragPressGestureRecognizer) {
-        NSPoint locationInViewCoordinates = [gestureRecognizer locationInView:webView];
+    if (gestureRecognizer == _secondaryClickGestureRecognizer)
+        return [self _secondaryClickShouldBeginAtLocation:locationInViewCoordinates];
 
-        if (gestureRecognizer == _dragPressGestureRecognizer)
-            return [self _dragPressShouldBeginAtLocation:locationInViewCoordinates];
+    if (gestureRecognizer == _dragPressGestureRecognizer)
+        return [self _dragPressShouldBeginAtLocation:locationInViewCoordinates];
 
+    if (gestureRecognizer == _singleClickGestureRecognizer)
         return !viewImpl->isTextSelectedAtPoint(locationInViewCoordinates);
-    }
+
+    if (gestureRecognizer == _mouseTrackingGestureRecognizer)
+        return !viewImpl->isTextSelectedAtPoint(locationInViewCoordinates);
 
     return YES;
 }
@@ -1401,6 +1446,12 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
         return YES;
 
     if ([self _isScrollOrZoomGestureRecognizer:preventedGestureRecognizer])
+        return NO;
+
+    // Don't let other click gestures prevent the secondary click GR; it must be allowed to fire its
+    // press timer (0.72s) without being short-circuited by gestures that recognize earlier
+    // (e.g. single click and mouse-tracking, which both transition to Began at mouse-down).
+    if (preventedGestureRecognizer == _secondaryClickGestureRecognizer)
         return NO;
 
     // Don't let our click gestures prevent text selection manager gestures;

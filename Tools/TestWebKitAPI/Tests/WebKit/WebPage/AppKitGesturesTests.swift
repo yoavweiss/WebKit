@@ -179,27 +179,10 @@ struct AppKitGesturesTests {
             return
         }
 
-        let future = Future()
-
-        let implementation: @convention(block) (NSMenu.Type, NSMenu, _NSViewMenuContext, NSView, (@convention(block) () -> Void)?) -> Void =
-            { _, menu, context, view, completion in
-                completion?()
-
-                #expect(view is WKWebView)
-
-                future.signal()
-            }
-
-        await withSwizzledObjectiveCClassMethod(
-            class: NSMenu.self,
-            replacing: #selector(NSMenu._popUpContextMenu(_:with:for:) as (NSMenu, _NSViewMenuContext, NSView) async -> Void),
-            with: implementation
-        ) {
+        await withSwizzledContextMenu {
             await recap.play { composer in
                 composer._wk_click(at: crazyBoundsInScreenCoordinates.center, for: .seconds(0.1))
             }
-
-            await future.wait()
         }
 
         await page.waitForNextPresentationUpdate()
@@ -207,6 +190,34 @@ struct AppKitGesturesTests {
         let newSelection = try await page.callJavaScript(JavaScriptMessages.GetSelection())
 
         #expect(newSelection == crazySelection)
+    }
+
+    @Test(arguments: [true, false])
+    func clickingAndHoldingOnEmptyContentOpensContextMenu(contentEditable: Bool) async throws {
+        try await loadHTML(contentEditable: contentEditable)
+
+        let middleOfWindow = convertToCoreGraphicsScreenCoordinates(pointInWindowCoordinates: window.frame.center, window: window)
+
+        // Recap requires this test to be ran within an app host.
+        guard NSApp.isActive else {
+            return
+        }
+
+        await withSwizzledContextMenu {
+            await recap.play { composer in
+                composer._wk_click(at: middleOfWindow, for: .seconds(1))
+            }
+        }
+
+        await page.waitForNextPresentationUpdate()
+
+        let newSelection = try await page.callJavaScript(JavaScriptMessages.GetSelection())
+
+        if contentEditable {
+            #expect(newSelection == .none)
+        } else {
+            #expect(newSelection == .collapsed(.init(in: "div", at: Self.text.count)))
+        }
     }
 
     @Test(arguments: [true, false], [true, false])
@@ -248,7 +259,7 @@ struct AppKitGesturesTests {
     )
     func tripleClickingInPDFSelectsLine() async throws {
         let pdfURL = try #require(Bundle.testResources.url(forResource: "test", withExtension: "pdf"))
-        try await page.load(URLRequest(url: pdfURL)).wait()
+        try await page.load(pdfURL).wait()
         await page.waitForNextPresentationUpdate()
 
         // Recap requires this test to be ran within an app host.
@@ -256,19 +267,10 @@ struct AppKitGesturesTests {
             return
         }
 
-        let pointInDOMCoords = try #require(
-            DOMRect(decodedRepresentation: [
-                "x": 100.0,
-                "y": 100.0,
-                "width": 0.0,
-                "height": 0.0,
-            ])
-        )
         let clickPoint = convertToCoreGraphicsScreenCoordinates(
-            rectInViewportCoordinates: pointInDOMCoords,
+            pointInWindowCoordinates: .init(x: 100, y: 350),
             window: window
         )
-        .origin
 
         await recap.play { composer in
             composer._wk_click(at: clickPoint, for: .seconds(0.1))
@@ -442,7 +444,7 @@ struct AppKitGesturesTests {
             return NSDraggingSession()
         }
 
-        try await withSwizzledObjectiveCInstanceMethod(
+        await withSwizzledObjectiveCInstanceMethod(
             replacing: NSView.self,
             name: #selector(NSView.beginDraggingSession(items:gesture:source:)),
             with: implementation
@@ -462,7 +464,7 @@ struct AppKitGesturesTests {
         await page.waitForNextPresentationUpdate()
 
         let selection = try await page.callJavaScript(JavaScriptMessages.GetSelection())
-        #expect(selection == JavaScriptSelection.none)
+        #expect(selection == .none)
     }
 
     @Test(
@@ -557,7 +559,7 @@ struct AppKitGesturesTests {
             return NSDraggingSession()
         }
 
-        try await withSwizzledObjectiveCInstanceMethod(
+        await withSwizzledObjectiveCInstanceMethod(
             replacing: NSView.self,
             name: #selector(NSView.beginDraggingSession(items:gesture:source:)),
             with: implementation
@@ -591,6 +593,22 @@ struct AppKitGesturesTests {
 // MARK: Helpers
 
 @MainActor
+private func convertToCoreGraphicsScreenCoordinates(pointInWindowCoordinates: CGPoint, window: NSWindow) -> CGPoint {
+    guard let screen = window.screen else {
+        preconditionFailure()
+    }
+
+    let inAppKitScreenCoordinates = window.convertPoint(toScreen: pointInWindowCoordinates)
+
+    let inCoreGraphicsScreenCoordinates = CGPoint(
+        x: inAppKitScreenCoordinates.x,
+        y: screen.frame.maxY - inAppKitScreenCoordinates.y
+    )
+
+    return inCoreGraphicsScreenCoordinates
+}
+
+@MainActor
 private func convertToCoreGraphicsScreenCoordinates(rectInViewportCoordinates: DOMRect, window: NSWindow) -> CGRect {
     guard let contentViewController = window.contentViewController else {
         preconditionFailure()
@@ -619,6 +637,29 @@ private func convertToCoreGraphicsScreenCoordinates(rectInViewportCoordinates: D
     )
 
     return inCoreGraphicsScreenCoordinates
+}
+
+nonisolated(nonsending) private func withSwizzledContextMenu(perform body: () async -> Void) async {
+    typealias CompletionHandler = @convention(block) () -> Void
+    typealias ObjCImplementation = @convention(block) (NSMenu.Type, NSMenu, _NSViewMenuContext, NSView, CompletionHandler?) -> Void
+
+    let future = Future()
+
+    let implementation: ObjCImplementation = { _, _, _, _, completion in
+        completion?()
+
+        future.signal()
+    }
+
+    await withSwizzledObjectiveCClassMethod(
+        class: NSMenu.self,
+        replacing: #selector(NSMenu._popUpContextMenu(_:with:for:) as (NSMenu, _NSViewMenuContext, NSView) async -> Void),
+        with: implementation
+    ) {
+        await body()
+
+        await future.wait()
+    }
 }
 
 extension AppKitGesturesTests {
