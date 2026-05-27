@@ -352,10 +352,11 @@ void WebProcessPool::platformInitialize(NeedsGlobalStaticInitialization needsGlo
         installMemoryPressureHandler();
 
 #if PLATFORM(IOS_FAMILY) && !PLATFORM(MACCATALYST)
-    dispatch_async(globalDispatchQueueSingleton(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        if (!_MGCacheValid())
+    if (!_MGCacheValid()) {
+        dispatch_async(globalDispatchQueueSingleton(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [adoptNS([[objc_getClass("MobileGestaltHelperProxy") alloc] init]) proxyRebuildCache];
-    });
+        });
+    }
 #endif
 
 #if PLATFORM(MAC)
@@ -481,6 +482,8 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     parameters.contentSizeCategory = contentSizeCategory();
     parameters.containerTemporaryDirectory = WebsiteDataStore::defaultResolvedContainerTemporaryDirectory();
 #endif
+
+    parameters.mobileGestaltExtensionHandle = process.createMobileGestaltSandboxExtensionIfNeeded();
 
 #if (PLATFORM(MAC) || PLATFORM(MACCATALYST)) && !ENABLE(LAUNCHSERVICES_SANDBOX_EXTENSION_BLOCKING)
     if (auto launchServicesExtensionHandle = SandboxExtension::createHandleForMachLookup("com.apple.coreservices.launchservicesd"_s, std::nullopt))
