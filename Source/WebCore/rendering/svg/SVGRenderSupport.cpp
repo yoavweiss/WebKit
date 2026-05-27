@@ -536,12 +536,18 @@ void SVGRenderSupport::applyStrokeStyleToContext(GraphicsContext& context, const
 
         if (auto geometryElement = dynamicDowncast<SVGGeometryElement>(*element)) {
             ASSERT(renderer.isRenderOrLegacyRenderSVGShape());
-            // FIXME: A value of zero is valid. Need to differentiate this case from being unspecified.
-            if (float pathLength = geometryElement->pathLength()) {
-                if (CheckedPtr shape = dynamicDowncast<LegacyRenderSVGShape>(renderer))
-                    scaleFactor = shape->getTotalLength() / pathLength;
-                else if (CheckedPtr shape = dynamicDowncast<RenderSVGShape>(renderer))
-                    scaleFactor = shape->getTotalLength() / pathLength;
+            if (geometryElement->hasAttribute(SVGNames::pathLengthAttr)) {
+                float pathLength = geometryElement->pathLength();
+                if (!pathLength) {
+                    context.setStrokeStyle(StrokeStyle::SolidStroke);
+                    return;
+                }
+                if (pathLength > 0) {
+                    if (CheckedPtr shape = dynamicDowncast<LegacyRenderSVGShape>(renderer))
+                        scaleFactor = shape->getTotalLength() / pathLength;
+                    else if (CheckedPtr shape = dynamicDowncast<RenderSVGShape>(renderer))
+                        scaleFactor = shape->getTotalLength() / pathLength;
+                }
             }
         }
         

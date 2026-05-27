@@ -172,9 +172,13 @@ void SVGTextLayoutEngine::beginTextPathLayout(const RenderSVGTextPath& textPath,
     else {
         m_textPathStartOffset = startOffset.valueInSpecifiedUnits();
         if (RefPtr targetElement = textPath.targetElement()) {
-            // FIXME: A value of zero is valid. Need to differentiate this case from being unspecified.
-            if (float pathLength = targetElement->pathLength())
-                m_textPathStartOffset *= m_textPathLength / pathLength;
+            if (targetElement->hasAttribute(SVGNames::pathLengthAttr)) {
+                float pathLength = targetElement->pathLength();
+                if (pathLength > 0)
+                    m_textPathStartOffset *= m_textPathLength / pathLength;
+                else if (!pathLength && m_textPathStartOffset)
+                    m_textPathStartOffset *= std::numeric_limits<float>::infinity();
+            }
         }
     }
 
