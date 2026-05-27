@@ -601,36 +601,6 @@ void SkiaCompositingLayer::paintSelfAndChildren(SkCanvas& canvas, PaintContext& 
         return;
     }
 
-    if (m_backdrop.filter && !context.paintingBackdropForLayer) {
-        SkAutoCanvasRestore autoRestore(&canvas, true);
-        SkPathBuilder builder;
-        builder.addRRect(SkRRect(m_backdrop.clipRect));
-        TransformationMatrix clipTransform(context.accumulatedReplicaTransform);
-        clipTransform.multiply(m_transforms.combined);
-        canvas.clipPath(builder.detach().makeTransform(SkM44(clipTransform).asM33()), true);
-
-        // Paint the backdrop root's subtree into a fresh surface (spec step 1),
-        // apply the backdrop filter (step 2), and composite via SrcOver so the
-        // filtered result blends onto the canvas without destroying ancestor
-        // backgrounds that aren't part of the backdrop root's subtree.
-        //
-        // Use paintSelfAndChildren (not recursivePaint) on the backdrop root to
-        // exclude the root's own effects (replica, filter, mask) per the CSS spec.
-        SkPaint paint;
-        paint.setImageFilter(m_backdrop.filter);
-        paint.setAlphaf(context.opacity);
-        if (context.blendMode)
-            paint.setBlendMode(*context.blendMode);
-        paintWithIntermediateSurface(canvas, context, enclosingIntRect(clipTransform.mapRect(m_backdrop.clipRect.rect())), &paint, [&](SkCanvas& canvas, PaintContext& context) {
-            SetForScope scopedPaintBackdropForLayer(context.paintingBackdropForLayer, this);
-            SetForScope scopedOpacity(context.opacity, 1.f);
-            SetForScope scopedBlendMode(context.blendMode, std::nullopt);
-            SetForScope scopedReplicaTransform(context.accumulatedReplicaTransform, TransformationMatrix());
-            SetForScope scopedSkipAfterBackdrop(context.skipAfterBackdrop, false);
-            backdropRoot()->paintSelfAndChildren(canvas, context);
-        });
-    }
-
     paintSelf(canvas, context);
 
     if (m_children.isEmpty())
@@ -749,7 +719,38 @@ void SkiaCompositingLayer::paintWithIntermediateSurface(SkCanvas& canvas, PaintC
     canvas.drawImageRect(surface->makeImageSnapshot(), SkRect::MakeWH(surfaceRect.width(), surfaceRect.height()), SkRect::Make(surfaceRect), SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone), paint, SkCanvas::kFast_SrcRectConstraint);
 }
 
-void SkiaCompositingLayer::paintSelfAndChildrenWithFilterAndMask(SkCanvas& canvas, PaintContext& context)
+void SkiaCompositingLayer::paintBackdrop(SkCanvas& canvas, PaintContext& context)
+{
+    SkAutoCanvasRestore autoRestore(&canvas, true);
+    SkPathBuilder builder;
+    builder.addRRect(SkRRect(m_backdrop.clipRect));
+    TransformationMatrix clipTransform(context.accumulatedReplicaTransform);
+    clipTransform.multiply(m_transforms.combined);
+    canvas.clipPath(builder.detach().makeTransform(SkM44(clipTransform).asM33()), true);
+
+    // Paint the backdrop root's subtree into a fresh surface (spec step 1),
+    // apply the backdrop filter (step 2), and composite via SrcOver so the
+    // filtered result blends onto the canvas without destroying ancestor
+    // backgrounds that aren't part of the backdrop root's subtree.
+    //
+    // Use paintSelfAndChildren (not recursivePaint) on the backdrop root to
+    // exclude the root's own effects (replica, filter, mask) per the CSS spec.
+    SkPaint paint;
+    paint.setImageFilter(m_backdrop.filter);
+    paint.setAlphaf(context.opacity);
+    if (context.blendMode)
+        paint.setBlendMode(*context.blendMode);
+    paintWithIntermediateSurface(canvas, context, enclosingIntRect(clipTransform.mapRect(m_backdrop.clipRect.rect())), &paint, [&](SkCanvas& canvas, PaintContext& context) {
+        SetForScope scopedPaintBackdropForLayer(context.paintingBackdropForLayer, this);
+        SetForScope scopedOpacity(context.opacity, 1.f);
+        SetForScope scopedBlendMode(context.blendMode, std::nullopt);
+        SetForScope scopedReplicaTransform(context.accumulatedReplicaTransform, TransformationMatrix());
+        SetForScope scopedSkipAfterBackdrop(context.skipAfterBackdrop, false);
+        backdropRoot()->paintSelfAndChildren(canvas, context);
+    });
+}
+
+void SkiaCompositingLayer::paintWithMaskAndBackdrop(SkCanvas& canvas, PaintContext& context)
 {
     const bool shouldClipPath = m_mask && m_mask->m_clipPath.has_value();
     if (shouldClipPath && m_mask->m_clipPath->isEmpty())
@@ -770,6 +771,14 @@ void SkiaCompositingLayer::paintSelfAndChildrenWithFilterAndMask(SkCanvas& canva
             canvas.clipShader(maskShader);
     }
 
+    if (m_backdrop.filter && !context.paintingBackdropForLayer)
+        paintBackdrop(canvas, context);
+
+    paintWithBlendMode(canvas, context);
+}
+
+void SkiaCompositingLayer::paintWithFilterAndMask(SkCanvas& canvas, PaintContext& context)
+{
     auto filter = this->filter();
     if (!filter) {
         paintSelfAndChildren(canvas, context);
@@ -848,15 +857,15 @@ Vector<IntRect, 1> SkiaCompositingLayer::computeConsolidatedOverlapRegionRects(c
     return rects;
 }
 
-void SkiaCompositingLayer::paintSelfAndChildrenWithReplicaFilterAndMask(SkCanvas& canvas, PaintContext& context)
+void SkiaCompositingLayer::paintWithReplica(SkCanvas& canvas, PaintContext& context)
 {
     if (m_replica) {
         auto newAccumulatedReplicaTransform = TransformationMatrix(context.accumulatedReplicaTransform).multiply(replicaTransform());
         SetForScope scopedReplicaTransform(context.accumulatedReplicaTransform, newAccumulatedReplicaTransform);
-        paintSelfAndChildrenWithFilterAndMask(canvas, context);
+        paintWithMaskAndBackdrop(canvas, context);
     }
 
-    paintSelfAndChildrenWithFilterAndMask(canvas, context);
+    paintWithMaskAndBackdrop(canvas, context);
 }
 
 void SkiaCompositingLayer::recursivePaint(SkCanvas& canvas, PaintContext& context)
@@ -866,21 +875,14 @@ void SkiaCompositingLayer::recursivePaint(SkCanvas& canvas, PaintContext& contex
     if (!isVisible())
         return;
 
-    auto blendMode = m_blendMode;
-    if (!blendMode && m_shouldBlend)
-        blendMode = SkBlendMode::kSrcOver;
     SetForScope scopedOpacity(context.opacity, context.opacity * opacity());
-    SetForScope scopedBlendMode(context.blendMode, context.blendMode ? context.blendMode : blendMode);
 
     if (m_preserves3D) {
-        paintUsing3DRenderingContext(canvas, context);
+        paintWith3DRenderingContext(canvas, context);
         return;
     }
 
-    if (opacity() < 1 || m_shouldBlend)
-        paintUsingOverlapRegions(canvas, context);
-    else
-        paintSelfAndChildrenWithReplicaFilterAndMask(canvas, context);
+    paintWithOpacity(canvas, context);
 }
 
 void SkiaCompositingLayer::computeOverlapRegions(ComputeOverlapRegionData& data, const TransformationMatrix& accumulatedReplicaTransform, IncludesReplica includesReplica)
@@ -928,8 +930,13 @@ void SkiaCompositingLayer::computeOverlapRegions(ComputeOverlapRegionData& data,
     }
 }
 
-void SkiaCompositingLayer::paintUsingOverlapRegions(SkCanvas& canvas, PaintContext& context)
+void SkiaCompositingLayer::paintWithOpacity(SkCanvas& canvas, PaintContext& context)
 {
+    if (opacity() == 1) {
+        paintWithReplica(canvas, context);
+        return;
+    }
+
     ComputeOverlapRegionData data {
         .mode = ComputeOverlapRegionMode::Intersection,
         .clipBounds = clipBounds(canvas, context),
@@ -939,7 +946,7 @@ void SkiaCompositingLayer::paintUsingOverlapRegions(SkCanvas& canvas, PaintConte
     computeOverlapRegions(data, context.accumulatedReplicaTransform);
 
     if (data.overlapRegion.isEmpty()) {
-        paintSelfAndChildrenWithReplicaFilterAndMask(canvas, context);
+        paintWithReplica(canvas, context);
         return;
     }
 
@@ -953,7 +960,7 @@ void SkiaCompositingLayer::paintUsingOverlapRegions(SkCanvas& canvas, PaintConte
     for (const auto& rect : data.nonOverlapRegion.rects()) {
         SkAutoCanvasRestore autoRestore(&canvas, true);
         canvas.clipIRect(SkIRect::MakeLTRB(rect.x(), rect.y(), rect.maxX(), rect.maxY()));
-        paintSelfAndChildrenWithReplicaFilterAndMask(canvas, context);
+        paintWithReplica(canvas, context);
     }
 
     auto overlapRects = data.overlapRegion.rects();
@@ -964,14 +971,67 @@ void SkiaCompositingLayer::paintUsingOverlapRegions(SkCanvas& canvas, PaintConte
 
     SkPaint layerPaint;
     layerPaint.setAlphaf(context.opacity);
+    for (const auto& rect : overlapRects) {
+        SkAutoCanvasRestore autoRestore(&canvas, true);
+        paintWithIntermediateSurface(canvas, context, rect, &layerPaint, [&](SkCanvas& canvas, PaintContext& context) {
+            SetForScope scopedOpacity(context.opacity, 1);
+            paintWithReplica(canvas, context);
+        });
+    }
+}
+
+void SkiaCompositingLayer::paintWithBlendMode(SkCanvas& canvas, PaintContext& context)
+{
+    if (!m_shouldBlend) {
+        paintWithFilterAndMask(canvas, context);
+        return;
+    }
+
+    auto blendMode = m_blendMode;
+    if (!blendMode && m_shouldBlend)
+        blendMode = SkBlendMode::kSrcOver;
+    SetForScope scopedBlendMode(context.blendMode, context.blendMode ? context.blendMode : blendMode);
+
+    ComputeOverlapRegionData data {
+        .mode = ComputeOverlapRegionMode::Intersection,
+        .clipBounds = clipBounds(canvas, context),
+        .overlapRegion = { },
+        .nonOverlapRegion = { }
+    };
+    computeOverlapRegions(data, context.accumulatedReplicaTransform);
+
+    if (data.overlapRegion.isEmpty()) {
+        paintWithFilterAndMask(canvas, context);
+        return;
+    }
+
+    // Having both overlap and non-overlap regions carries some overhead.
+    // Avoid it if the overlap area is big anyway.
+    if (data.overlapRegion.totalArea() > data.nonOverlapRegion.totalArea()) {
+        data.overlapRegion.unite(data.nonOverlapRegion);
+        data.nonOverlapRegion = Region();
+    }
+
+    for (const auto& rect : data.nonOverlapRegion.rects()) {
+        SkAutoCanvasRestore autoRestore(&canvas, true);
+        canvas.clipIRect(SkIRect::MakeLTRB(rect.x(), rect.y(), rect.maxX(), rect.maxY()));
+        paintWithFilterAndMask(canvas, context);
+    }
+
+    auto overlapRects = data.overlapRegion.rects();
+    if (data.nonOverlapRegion.isEmpty() && overlapRects.size() > cOverlapRegionConsolidationThreshold) {
+        overlapRects.clear();
+        overlapRects.append(data.overlapRegion.bounds());
+    }
+
+    SkPaint layerPaint;
     if (context.blendMode)
         layerPaint.setBlendMode(*context.blendMode);
     for (const auto& rect : overlapRects) {
         SkAutoCanvasRestore autoRestore(&canvas, true);
         paintWithIntermediateSurface(canvas, context, rect, &layerPaint, [&](SkCanvas& canvas, PaintContext& context) {
-            SetForScope scopedOpacity(context.opacity, 1);
             SetForScope scopedBlendMode(context.blendMode, std::nullopt);
-            paintSelfAndChildrenWithReplicaFilterAndMask(canvas, context);
+            paintWithFilterAndMask(canvas, context);
         });
     }
 }
@@ -999,7 +1059,7 @@ void SkiaCompositingLayer::collect3DRenderingContextLayers(Vector<Ref<SkiaCompos
         child->collect3DRenderingContextLayers(layers);
 }
 
-void SkiaCompositingLayer::paintUsing3DRenderingContext(SkCanvas& canvas, PaintContext& context)
+void SkiaCompositingLayer::paintWith3DRenderingContext(SkCanvas& canvas, PaintContext& context)
 {
     Vector<Ref<SkiaCompositingLayer>> layers;
     collect3DRenderingContextLayers(layers);

@@ -1265,7 +1265,6 @@ imported/w3c/web-platform-tests/css/compositing/mix-blend-mode/mix-blend-mode-pl
 
 webkit.org/b/310417 compositing/masks/become-tiled-mask.html [ ImageOnlyFailure Pass ]
 
-webkit.org/b/314308 css3/filters/backdrop/backdrop-filter-with-composited-blend-mode.html [ ImageOnlyFailure ]
 webkit.org/b/314309 imported/w3c/web-platform-tests/css/filter-effects/backdrop-filter-edge-behavior.html [ ImageOnlyFailure ]
 webkit.org/b/314310 imported/w3c/web-platform-tests/css/filter-effects/drop-shadow-currentcolor-dynamic-003.html [ ImageOnlyFailure ]
 webkit.org/b/314312 media/media-sources-selection.html [ ImageOnlyFailure ]

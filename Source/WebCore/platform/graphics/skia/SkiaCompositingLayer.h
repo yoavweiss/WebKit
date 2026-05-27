@@ -144,13 +144,16 @@ private:
     using PaintFunction = Function<void(SkCanvas&, PaintContext&)>;
 
     void recursivePaint(SkCanvas&, PaintContext&);
+    void paintWithOpacity(SkCanvas&, PaintContext&);
+    void paintWithReplica(SkCanvas&, PaintContext&);
+    void paintWithMaskAndBackdrop(SkCanvas&, PaintContext&);
+    void paintWithBlendMode(SkCanvas&, PaintContext&);
+    void paintWithFilterAndMask(SkCanvas&, PaintContext&);
     void paintSelf(SkCanvas&, PaintContext&);
     void paintSelfAndChildren(SkCanvas&, PaintContext&);
-    void paintSelfAndChildrenWithReplicaFilterAndMask(SkCanvas&, PaintContext&);
-    void paintSelfAndChildrenWithFilterAndMask(SkCanvas&, PaintContext&);
     void paintWithIntermediateSurface(SkCanvas&, PaintContext&, const IntRect&, SkPaint*, PaintFunction&&);
-    void paintUsingOverlapRegions(SkCanvas&, PaintContext&);
-    void paintUsing3DRenderingContext(SkCanvas&, PaintContext&);
+    void paintWith3DRenderingContext(SkCanvas&, PaintContext&);
+    void paintBackdrop(SkCanvas&, PaintContext&);
     Vector<IntRect, 1> computeConsolidatedOverlapRegionRects(const SkCanvas&, const PaintContext&, ComputeOverlapRegionMode);
     TransformationMatrix replicaTransform() const;
     IntRect clipBounds(const SkCanvas&, const PaintContext&) const;
