@@ -346,12 +346,8 @@ void HTMLModelElement::didMoveToNewDocument(Document& oldDocument, Document& new
 
 // MARK: - Rendering overrides.
 
-RenderPtr<RenderElement> HTMLModelElement::createElementRenderer(RenderStyle&& style, const RenderTreePosition& position)
+RenderPtr<RenderElement> HTMLModelElement::createElementRenderer(RenderStyle&& style, const RenderTreePosition&)
 {
-    if (RefPtr page = document().page()) {
-        if (RefPtr provider = page->modelPlayerProvider(); provider && !provider->isAvailable())
-            return HTMLElement::createElementRenderer(WTF::move(style), position);
-    }
     return createRenderer<RenderModel>(*this, WTF::move(style));
 }
 
@@ -1815,8 +1811,8 @@ ModelPlayerAccessibilityChildren HTMLModelElement::accessibilityChildren()
 
 LayoutSize HTMLModelElement::contentSize() const
 {
-    if (CheckedPtr model = dynamicDowncast<RenderModel>(renderer()))
-        return model->replacedContentRect().size();
+    if (CheckedPtr renderer = this->renderer())
+        return downcast<RenderReplaced>(*renderer).replacedContentRect().size();
 
     return LayoutSize();
 }

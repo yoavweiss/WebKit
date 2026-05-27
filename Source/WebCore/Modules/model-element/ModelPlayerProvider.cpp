@@ -33,9 +33,4 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(ModelPlayerProvider);
 
 ModelPlayerProvider::~ModelPlayerProvider() = default;
 
-bool ModelPlayerProvider::isAvailable() const
-{
-    return true;
-}
-
 }

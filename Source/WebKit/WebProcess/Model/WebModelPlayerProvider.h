@@ -44,7 +44,6 @@ private:
     WebModelPlayerProvider(WebPage&);
 
     // WebCore::ModelPlayerProvider overrides.
-    bool isAvailable() const final;
     RefPtr<WebCore::ModelPlayer> createModelPlayer(WebCore::ModelPlayerClient&) final;
     void deleteModelPlayer(WebCore::ModelPlayer&) final;
 
