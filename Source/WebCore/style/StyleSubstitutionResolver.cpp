@@ -95,6 +95,7 @@ auto SubstitutionResolver::substituteVariableFallback(const AtomString& variable
         return { FallbackResult::None, { } };
 
     range.consumeIncludingWhitespace();
+    range.trimTrailingWhitespace();
 
     auto tokens = substituteTokenRange(range, context);
 
