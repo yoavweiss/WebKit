@@ -31,6 +31,7 @@
 #include "CSSValueList.h"
 #include "CSSValuePair.h"
 #include "CSSValuePool.h"
+#include "DeprecatedCSSOMCustomValue.h"
 #include "DeprecatedCSSOMPrimitiveValue.h"
 #include "DeprecatedCSSOMValueList.h"
 
@@ -83,7 +84,7 @@ Ref<DeprecatedCSSOMValue> makePrimitiveDeprecatedCSSOMValue(CSSStyleDeclaration&
 
 Ref<DeprecatedCSSOMValue> makeFunctionDeprecatedCSSOMValue(CSSStyleDeclaration& owner, CSSValueID name, Ref<CSSValue>&& value)
 {
-    return DeprecatedCSSOMComplexValue::create(makeFunctionCSSValue(name, WTF::move(value)), owner);
+    return DeprecatedCSSOMCustomValue::create(makeFunctionCSSValue(name, WTF::move(value)), owner);
 }
 
 template<> Ref<DeprecatedCSSOMValue> makeCoalescingPairDeprecatedCSSOMValue<SerializationSeparatorType::Space>(CSSStyleDeclaration& owner, Ref<CSSValue>&& first, Ref<CSSValue>&& second)

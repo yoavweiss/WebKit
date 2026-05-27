@@ -33,6 +33,8 @@
 #include "CSSCustomIdentValue.h"
 #include "CSSFontFamilyNameValue.h"
 #include "CSSKeywordValue.h"
+#include "CSSParserIdioms.h"
+#include "CSSPrimitiveValue.h"
 #include "CSSRectValue.h"
 #include "CSSSerializationContext.h"
 #include "CSSStringValue.h"
@@ -44,9 +46,45 @@
 
 namespace WebCore {
 
+Ref<DeprecatedCSSOMPrimitiveValue> DeprecatedCSSOMPrimitiveValue::create(Ref<const CSSValue> value, CSSStyleDeclaration& owner)
+{
+    return adoptRef(*new DeprecatedCSSOMPrimitiveValue(WTF::move(value), owner));
+}
+
+DeprecatedCSSOMPrimitiveValue::DeprecatedCSSOMPrimitiveValue(Ref<const CSSValue> value, CSSStyleDeclaration& owner)
+    : DeprecatedCSSOMValue(owner)
+    , m_value(value)
+{
+}
+
 String DeprecatedCSSOMPrimitiveValue::cssText() const
 {
-    return protect(value())->cssText(CSS::defaultSerializationContext());
+    return protect(m_value)->cssText(CSS::defaultSerializationContext());
+}
+
+unsigned short DeprecatedCSSOMPrimitiveValue::cssValueType() const
+{
+    // These values are exposed in the DOM, but constants for them are not.
+    constexpr unsigned short CSS_INITIAL = 4;
+    constexpr unsigned short CSS_UNSET = 5;
+    constexpr unsigned short CSS_REVERT = 6;
+
+    RefPtr keywordValue = dynamicDowncast<CSSKeywordValue>(m_value);
+    if (!keywordValue)
+        return CSS_PRIMITIVE_VALUE;
+
+    switch (keywordValue->valueID()) {
+    case CSSValueInherit:
+        return CSS_INHERIT;
+    case CSSValueInitial:
+        return CSS_INITIAL;
+    case CSSValueUnset:
+        return CSS_UNSET;
+    case CSSValueRevert:
+        return CSS_REVERT;
+    default:
+        return CSS_PRIMITIVE_VALUE;
+    }
 }
 
 unsigned short DeprecatedCSSOMPrimitiveValue::primitiveType() const
@@ -255,7 +293,7 @@ ExceptionOr<Ref<DeprecatedCSSOMRGBColor>> DeprecatedCSSOMPrimitiveValue::getRGBC
 {
     if (primitiveType() != CSS_RGBCOLOR)
         return Exception { ExceptionCode::InvalidAccessError };
-    return DeprecatedCSSOMRGBColor::create(m_owner, downcast<CSSColorValue>(m_value.get()).color().absoluteColor());
+    return DeprecatedCSSOMRGBColor::create(downcast<CSSColorValue>(m_value.get()).color().absoluteColor(), m_owner);
 }
 
 bool DeprecatedCSSOMPrimitiveValue::isCSSWideKeyword() const

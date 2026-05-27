@@ -24,14 +24,17 @@
 
 #pragma once
 
-#include "CSSValueTypes.h"
 #include "DeprecatedCSSOMValue.h"
 #include <wtf/Function.h>
 #include <wtf/text/WTFString.h>
 
 namespace WebCore {
 
-// This type is equivalent to `DeprecatedCSSOMComplexValue`, but is used for values that have no `CSSValue` wrapper.
+namespace CSS {
+struct SerializationContext;
+}
+
+// This type is equivalent to `DeprecatedCSSOMCustomValue`, but is used for values that have no `CSSValue` wrapper.
 // Lazy serialization is used to guard against the case of a user accessing a `DeprecatedCSSOMValue` just to check
 // what its type is. If that is deemed to niche, we can simplify this type by eagerly serializing, avoiding the need
 // to hold onto the serialization functor.
@@ -41,8 +44,9 @@ public:
 
     static Ref<DeprecatedCSSOMLazySerializingCustomValue> create(SerializationFunctor&&, CSSStyleDeclaration&);
 
-    String cssText() const;
-    unsigned short cssValueType() const { return CSS_CUSTOM; }
+    String cssText() const override;
+    unsigned short NODELETE cssValueType() const override;
+    bool isLazySerializingCustomValue() const override { return true; }
 
 private:
     DeprecatedCSSOMLazySerializingCustomValue(SerializationFunctor&&, CSSStyleDeclaration&);

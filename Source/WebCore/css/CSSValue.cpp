@@ -104,6 +104,7 @@
 #include "CSSViewValue.h"
 #include "CSSWebkitBoxReflectValue.h"
 #include "ComputedStyleDependencies.h"
+#include "DeprecatedCSSOMCustomValue.h"
 #include "DeprecatedCSSOMPrimitiveValue.h"
 #include "DeprecatedCSSOMValueList.h"
 #include "EventTarget.h"
@@ -450,7 +451,7 @@ Ref<DeprecatedCSSOMValue> CSSValue::createDeprecatedCSSOMWrapper(CSSStyleDeclara
         return uncheckedDowncast<CSSQuotesValue>(*this).createDeprecatedCSSOMWrapper(styleDeclaration);
 
     default:
-        return DeprecatedCSSOMComplexValue::create(*this, styleDeclaration);
+        return DeprecatedCSSOMCustomValue::create(*this, styleDeclaration);
     }
 }
 

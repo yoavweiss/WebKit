@@ -1051,8 +1051,11 @@ css/calc/CSSCalcTree+Simplification.cpp @header:RenderStyleGetters
 css/calc/CSSCalcTree.cpp
 css/calc/CSSCalcType.cpp
 css/calc/CSSCalcValue.cpp
+css/deprecated-cssom/DeprecatedCSSOMCustomValue.cpp
 css/deprecated-cssom/DeprecatedCSSOMLazySerializingCustomValue.cpp
 css/deprecated-cssom/DeprecatedCSSOMPrimitiveValue.cpp
+css/deprecated-cssom/DeprecatedCSSOMRGBColor.cpp
+css/deprecated-cssom/DeprecatedCSSOMRect.cpp
 css/deprecated-cssom/DeprecatedCSSOMValue.cpp
 css/deprecated-cssom/DeprecatedCSSOMValueList.cpp
 css/parser/CSSAtRuleID.cpp

@@ -178,8 +178,6 @@ css/StyleRule.cpp
 css/StyleRuleImport.cpp
 css/StyleRuleImport.h
 css/StyleSheetContents.cpp
-css/deprecated-cssom/DeprecatedCSSOMPrimitiveValue.h
-css/deprecated-cssom/DeprecatedCSSOMRGBColor.h
 css/typedom/DeclaredStylePropertyMap.cpp
 css/typedom/InlineStylePropertyMap.cpp
 css/typedom/numeric/CSSMathMax.cpp
@@ -191,7 +189,6 @@ css/typedom/transform/CSSSkew.cpp
 css/typedom/transform/CSSSkewX.cpp
 css/typedom/transform/CSSSkewY.cpp
 css/typedom/transform/CSSTranslate.cpp
-css/values/primitives/CSSPrimitiveNumericTypes+DeprecatedCSSOMValueCreation.h
 dom/Attr.cpp
 dom/BoundaryPoint.cpp
 dom/BroadcastChannel.cpp

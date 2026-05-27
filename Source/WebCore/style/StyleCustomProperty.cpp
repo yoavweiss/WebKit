@@ -32,6 +32,7 @@
 #include "CSSTokenizer.h"
 #include "CSSValueList.h"
 #include "CSSValuePool.h"
+#include "DeprecatedCSSOMCustomValue.h"
 #include "DeprecatedCSSOMPrimitiveValue.h"
 #include "DeprecatedCSSOMValueList.h"
 #include "RenderStyle.h"
@@ -124,7 +125,7 @@ Ref<DeprecatedCSSOMValue> CustomProperty::propertyValueDeprecatedCSSOMWrapper(CS
             return CSS::createDeprecatedCSSOMValue(pool, owner, CSS::String { emptyString() });
         },
         [&](const Ref<CSSVariableData>& variableData) -> Ref<DeprecatedCSSOMValue> {
-            return DeprecatedCSSOMComplexValue::create(CSSSubstitutionValue::create(variableData.copyRef()), owner);
+            return DeprecatedCSSOMCustomValue::create(CSSSubstitutionValue::create(variableData.copyRef()), owner);
         },
         [&](const Value& value) -> Ref<DeprecatedCSSOMValue> {
             return convertValue(value);

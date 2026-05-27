@@ -35,7 +35,7 @@ Ref<DeprecatedCSSOMLazySerializingCustomValue> DeprecatedCSSOMLazySerializingCus
 }
 
 DeprecatedCSSOMLazySerializingCustomValue::DeprecatedCSSOMLazySerializingCustomValue(SerializationFunctor&& functor, CSSStyleDeclaration& owner)
-    : DeprecatedCSSOMValue(ClassType::LazySerializingCustom, owner)
+    : DeprecatedCSSOMValue(owner)
     , m_serializationFunctor(WTF::move(functor))
 {
 }
@@ -45,6 +45,11 @@ String DeprecatedCSSOMLazySerializingCustomValue::cssText() const
     if (m_cachedSerialization.isNull())
         m_cachedSerialization = m_serializationFunctor(CSS::defaultSerializationContext());
     return m_cachedSerialization;
+}
+
+unsigned short DeprecatedCSSOMLazySerializingCustomValue::cssValueType() const
+{
+    return CSS_CUSTOM;
 }
 
 } // namespace WebCore
