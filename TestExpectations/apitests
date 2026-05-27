@@ -311,3 +311,8 @@ webkit.org/b/315119 [ ios ] TestWebKitAPI.WKAttachmentTestsIOS.InsertPastedFiles
 webkit.org/b/315119 [ ios ] TestWebKitAPI.WKAttachmentTestsIOS.InsertPastedContactAsAttachment [ Skip ]
 
 webkit.org/b/315673 [ mac release ] TestWebKitAPI.WritingTools.ProofreadingWithUntitledImageAttachment [ Pass Failure ]
+
+webkit.org/b/315685 [ Debug ] TestWebKitAPI.PrivateClickMeasurement.Basic [ Pass Timeout ]
+webkit.org/b/315685 [ Debug ] TestWebKitAPI.PrivateClickMeasurement.DestinationClickFraudPrevention [ Pass Timeout ]
+webkit.org/b/315685 [ Debug ] TestWebKitAPI.PrivateClickMeasurement.EphemeralWithAttributedBundleIdentifier [ Pass Timeout ]
+webkit.org/b/315685 [ Debug ] TestWebKitAPI.PrivateClickMeasurement.ManualAttributionAndConversion [ Pass Timeout ]
