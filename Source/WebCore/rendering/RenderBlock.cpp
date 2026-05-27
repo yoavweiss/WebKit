@@ -2301,12 +2301,9 @@ void RenderBlock::computeBlockPreferredLogicalWidths(LayoutUnit& minLogicalWidth
         return;
     }
 
-    LayoutUnit childMinWidth;
-    LayoutUnit childMaxWidth;
-    if (computePreferredWidthsForExcludedChildren(childMinWidth, childMaxWidth)) {
-        minLogicalWidth = std::max(childMinWidth, minLogicalWidth);
-        maxLogicalWidth = std::max(childMaxWidth, maxLogicalWidth);
-    }
+    auto [legendMinWidth, legendMaxWidth] = computeIntrinsicLogicalWidthsForFieldsetLegend();
+    minLogicalWidth = std::max(legendMinWidth, minLogicalWidth);
+    maxLogicalWidth = std::max(legendMaxWidth, maxLogicalWidth);
 
     LayoutUnit floatLeftWidth;
     LayoutUnit floatRightWidth;
@@ -3289,31 +3286,33 @@ LayoutUnit RenderBlock::borderBefore() const
     return RenderBox::borderBefore() + intrinsicBorderForFieldset();
 }
 
-bool RenderBlock::computePreferredWidthsForExcludedChildren(LayoutUnit& minWidth, LayoutUnit& maxWidth) const
+std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeIntrinsicLogicalWidthsForFieldsetLegend() const
 {
     if (!isFieldset())
-        return false;
-    
+        return { };
+
     auto* legend = findFieldsetLegend();
     if (!legend)
-        return false;
-    
+        return { };
+
     legend->setIsExcludedFromNormalLayout(true);
 
-    computeChildPreferredLogicalWidths(*legend, minWidth, maxWidth);
-    
+    LayoutUnit minLogicalWidth;
+    LayoutUnit maxLogicalWidth;
+    computeChildPreferredLogicalWidths(*legend, minLogicalWidth, maxLogicalWidth);
+
     // These are going to be added in later, so we subtract them out to reflect the
     // fact that the legend is outside the scrollable area.
     auto scrollbarWidth = intrinsicScrollbarLogicalWidthIncludingGutter();
-    minWidth -= scrollbarWidth;
-    maxWidth -= scrollbarWidth;
-    
+    minLogicalWidth -= scrollbarWidth;
+    maxLogicalWidth -= scrollbarWidth;
+
     auto margin = marginIntrinsicLogicalWidthForChild(*legend);
 
-    minWidth += margin;
-    maxWidth += margin;
+    minLogicalWidth += margin;
+    maxLogicalWidth += margin;
 
-    return true;
+    return { minLogicalWidth, maxLogicalWidth };
 }
 
 LayoutUnit RenderBlock::adjustBorderBoxLogicalHeightForBoxSizing(LayoutUnit height) const

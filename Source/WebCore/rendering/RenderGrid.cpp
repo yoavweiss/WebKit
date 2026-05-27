@@ -827,9 +827,7 @@ void RenderGrid::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, Layo
 
     RenderGridLayoutState gridLayoutState;
 
-    LayoutUnit gridItemMinWidth;
-    LayoutUnit gridItemMaxWidth;
-    bool hadExcludedChildren = computePreferredWidthsForExcludedChildren(gridItemMinWidth, gridItemMaxWidth);
+    auto [legendMinWidth, legendMaxWidth] = computeIntrinsicLogicalWidthsForFieldsetLegend();
 
     Grid grid(const_cast<RenderGrid&>(*this));
     m_grid.m_currentGrid = std::ref(grid);
@@ -862,10 +860,8 @@ void RenderGrid::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, Layo
 
     m_grid.resetCurrentGrid();
 
-    if (hadExcludedChildren) {
-        minLogicalWidth = std::max(minLogicalWidth, gridItemMinWidth);
-        maxLogicalWidth = std::max(maxLogicalWidth, gridItemMaxWidth);
-    }
+    minLogicalWidth = std::max(minLogicalWidth, legendMinWidth);
+    maxLogicalWidth = std::max(maxLogicalWidth, legendMaxWidth);
 
     LayoutUnit scrollbarWidth = intrinsicScrollbarLogicalWidthIncludingGutter();
     minLogicalWidth += scrollbarWidth;
