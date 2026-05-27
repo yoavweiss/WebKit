@@ -33,6 +33,7 @@
 #include "FunctionPrototype.h"
 #include "GlobalObjectMethodTable.h"
 #include "ISO8601.h"
+#include "IntlCache.h"
 #include "IntlCollator.h"
 #include "IntlCollatorConstructor.h"
 #include "IntlCollatorPrototype.h"
@@ -803,7 +804,7 @@ Vector<String> canonicalizeLocaleList(JSGlobalObject* globalObject, JSValue loca
 
             if (isStructurallyValidLanguageTag(tag)) {
                 ASSERT(tag.containsOnlyASCII());
-                String canonicalizedTag = canonicalizeUnicodeLocaleID(tag.ascii());
+                String canonicalizedTag = vm.intlCache().canonicalizeUnicodeLocaleID(tag);
                 if (!canonicalizedTag.isNull()) {
                     if (seenSet.add(canonicalizedTag).isNewEntry)
                         seen.append(canonicalizedTag);
@@ -839,15 +840,16 @@ String defaultLocale(JSGlobalObject* globalObject)
     // WebCore's global objects will have their own ideas of how to determine the language. It may
     // be determined by WebCore-specific logic like some WK settings. Usually this will return the
     // same thing as userPreferredLanguages()[0].
+    VM& vm = globalObject->vm();
     if (auto defaultLanguage = globalObject->globalObjectMethodTable()->defaultLanguage) {
-        String locale = canonicalizeUnicodeLocaleID(defaultLanguage().utf8());
+        String locale = vm.intlCache().canonicalizeUnicodeLocaleID(defaultLanguage());
         if (!locale.isEmpty())
             return locale;
     }
 
     Vector<String> languages = userPreferredLanguages();
     for (const auto& language : languages) {
-        String locale = canonicalizeUnicodeLocaleID(language.utf8());
+        String locale = vm.intlCache().canonicalizeUnicodeLocaleID(language);
         if (!locale.isEmpty())
             return locale;
     }
