@@ -2302,6 +2302,7 @@ if (window.testRunner) {
         await post(['SetStorageAccess', blocked]);
         callback?.();
     };
+    testRunner.setStorageAccessAPIPerPageScopeEnabled = (enabled) => post(['SetStorageAccessAPIPerPageScopeEnabled', enabled]);
     testRunner.loadedSubresourceDomains = async (callback) => { // NOLINT
         const arrays = await post(['LoadedSubresourceDomains']);
         callback?.(arrays);
@@ -2555,7 +2556,10 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
     if (WKStringIsEqualToUTF8CString(command, "SetStorageAccess"))
         return WKWebsiteDataStoreSetStorageAccessForTesting(websiteDataStore(), booleanValue(argument), completionHandler.leak(), adoptAndCallCompletionHandler);
 
-
+    if (WKStringIsEqualToUTF8CString(command, "SetStorageAccessAPIPerPageScopeEnabled")) {
+        setStorageAccessAPIPerPageScopeEnabled(booleanValue(argument));
+        return completionHandler(nullptr);
+    }
 
     if (WKStringIsEqualToUTF8CString(command, "GetAllStorageAccessEntries"))
         return getAllStorageAccessEntries(WTF::move(completionHandler));
@@ -5619,6 +5623,13 @@ void TestController::setRequestStorageAccessThrowsExceptionUntilReload(bool enab
     auto configuration = adoptWK(WKPageCopyPageConfiguration(m_mainWebView->page()));
     auto preferences = WKPageConfigurationGetPreferences(configuration.get());
     WKPreferencesSetBoolValueForKeyForTesting(preferences, enabled, toWK("RequestStorageAccessThrowsExceptionUntilReload").get());
+}
+
+void TestController::setStorageAccessAPIPerPageScopeEnabled(bool enabled)
+{
+    auto configuration = adoptWK(WKPageCopyPageConfiguration(m_mainWebView->page()));
+    auto preferences = WKPageConfigurationGetPreferences(configuration.get());
+    WKPreferencesSetBoolValueForKeyForTesting(preferences, enabled, toWK("StorageAccessAPIPerPageScopeEnabled").get());
 }
 
 void TestController::setResourceMonitorList(WKStringRef rulesText, CompletionHandler<void(WKTypeRef)>&& completionHandler)

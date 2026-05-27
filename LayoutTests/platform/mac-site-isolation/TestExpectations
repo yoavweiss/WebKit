@@ -224,7 +224,6 @@ http/tests/storageAccess/grant-storage-access-under-opener-at-popup-user-gesture
 http/tests/storageAccess/grant-storage-access-under-opener-at-popup-user-gesture.https.html [ Failure ]
 http/tests/storageAccess/request-and-grant-access-cross-origin-sandboxed-iframe-from-prevalent-domain-with-user-interaction-and-access-from-right-frame.https.html [ Failure ]
 http/tests/storageAccess/request-and-grant-access-then-navigate-cross-site-should-not-have-access.https.html [ Failure ]
-http/tests/storageAccess/request-and-grant-access-with-per-page-scope-access-from-another-frame.https.html [ Failure ]
 http/tests/websocket/tests/hybi/contentextensions/upgrade.html [ Failure ]
 http/tests/workers/service/client-added-to-clients-when-restored-from-page-cache.html [ Failure ]
 http/tests/workers/service/client-removed-from-clients-while-in-page-cache.html [ Failure ]

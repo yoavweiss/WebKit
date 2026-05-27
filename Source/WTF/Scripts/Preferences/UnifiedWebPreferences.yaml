@@ -7989,6 +7989,21 @@ StorageAccessAPIEnabled:
       default: true
   sharedPreferenceForWebProcess: true
 
+StorageAccessAPIPerPageScopeEnabled:
+  type: bool
+  status: unstable
+  category: dom
+  humanReadableName: "Storage Access API Per-Page Scope"
+  humanReadableDescription: "When enabled, storage access granted to one frame is shared with all same-origin frames on the page"
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+  sharedPreferenceForWebProcess: true
+
 StorageBlockingPolicy:
   type: uint32_t
   humanReadableName: "Storage Blocking Policy"
