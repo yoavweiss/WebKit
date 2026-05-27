@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <JavaScriptCore/GCMemoryOperations.h>
 #include <JavaScriptCore/HashMapHelper.h>
 #include <JavaScriptCore/JSCellButterfly.h>
 #include <JavaScriptCore/JSObject.h>
@@ -122,6 +123,7 @@ public:
 
     static constexpr uint8_t InitialCapacity = 8;
     static constexpr TableSize LargeCapacity = 2 << 15;
+    static constexpr TableSize MemcpyCopyMinimumCapacity = 1024;
 
     static_assert(EntrySize == MapTraits::EntrySize || EntrySize == SetTraits::EntrySize);
 
@@ -312,7 +314,21 @@ public:
     }
     ALWAYS_INLINE static Storage* copy(JSGlobalObject* globalObject, Storage& base)
     {
-        return copyImpl<>(globalObject, base, capacity(base));
+        VM& vm = getVM(globalObject);
+        auto scope = DECLARE_THROW_SCOPE(vm);
+        ASSERT(!isObsolete(base));
+
+        TableSize capacity = Helper::capacity(base);
+        if (!deletedEntryCount(base) && capacity >= MemcpyCopyMinimumCapacity) {
+            Storage* result = tryCreate(globalObject, 0, 0, capacity);
+            RETURN_IF_EXCEPTION(scope, nullptr);
+            TableSize usedLength = dataTableStartIndex(capacity) + aliveEntryCount(base) * EntrySize;
+            gcSafeMemcpy(slot(*result, 0), slot(base, 0), usedLength * sizeof(JSValue));
+            vm.writeBarrier(result);
+            return result;
+        }
+
+        RELEASE_AND_RETURN(scope, copyImpl<>(globalObject, base, capacity));
     }
 
     ALWAYS_INLINE static Storage* rehash(JSGlobalObject* globalObject, Storage& base, TableSize newCapacity)
