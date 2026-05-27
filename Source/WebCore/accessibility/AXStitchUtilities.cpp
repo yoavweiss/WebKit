@@ -28,6 +28,7 @@
 
 #include "AXUtilities.h"
 #include "AccessibilityNodeObject.h"
+#include "ContainerNodeInlines.h"
 #include "Element.h"
 #include "EventNames.h"
 #include "HTMLLabelElement.h"
