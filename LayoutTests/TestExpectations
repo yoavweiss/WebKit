@@ -3469,6 +3469,27 @@ imported/w3c/web-platform-tests/css/css-text/white-space/text-wrap-balance-line-
 imported/w3c/web-platform-tests/css/css-text/white-space/text-wrap-balance-line-clamp-007.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-text/white-space/textarea-always-preserves-spaces-001.tentative.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-text/word-break/word-break-keep-all-u002d.html [ ImageOnlyFailure ]
+
+# webkit.org/b/315647 text-fit property not implemented
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/background-image.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/columns-consistent.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/consistent-blank-line.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/grow-consistent.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/grow-per-line-all-line-height.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/grow-per-line-all.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/grow-per-line.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/selection-highlight-painting.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/shrink-consistent.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/shrink-per-line-all.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/spacing.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/text-align.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/text-box.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/text-decoration-skip-ink.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/text-decoration-thickness.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/text-emphasis.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/text-underline-offset.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/vertical-align.html [ ImageOnlyFailure ]
+webkit.org/b/315647 imported/w3c/web-platform-tests/css/css-text/text-fit/writing-mode.html [ ImageOnlyFailure ]
 # css-text end
 
 webkit.org/b/186045 imported/w3c/web-platform-tests/css/css-animations/animation-delay-008.html [ ImageOnlyFailure Pass ]
