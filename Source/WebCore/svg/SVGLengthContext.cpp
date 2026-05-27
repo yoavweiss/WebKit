@@ -65,10 +65,10 @@ FloatRect SVGLengthContext::resolveRectangle(const SVGElement* context, SVGUnitT
     if (type != SVGUnitTypes::SVG_UNIT_TYPE_USERSPACEONUSE) {
         auto viewportSize = viewport.size();
         return FloatRect(
-            convertValueFromPercentageToUserUnits(x.valueAsPercentage(), x.lengthMode(), viewportSize) + viewport.x(),
-            convertValueFromPercentageToUserUnits(y.valueAsPercentage(), y.lengthMode(), viewportSize) + viewport.y(),
-            convertValueFromPercentageToUserUnits(width.valueAsPercentage(), width.lengthMode(), viewportSize),
-            convertValueFromPercentageToUserUnits(height.valueAsPercentage(), height.lengthMode(), viewportSize));
+            clampTo<float>(convertValueFromPercentageToUserUnits(x.valueAsPercentage(), x.lengthMode(), viewportSize) + viewport.x()),
+            clampTo<float>(convertValueFromPercentageToUserUnits(y.valueAsPercentage(), y.lengthMode(), viewportSize) + viewport.y()),
+            clampTo<float>(convertValueFromPercentageToUserUnits(width.valueAsPercentage(), width.lengthMode(), viewportSize)),
+            clampTo<float>(convertValueFromPercentageToUserUnits(height.valueAsPercentage(), height.lengthMode(), viewportSize)));
     }
 
     SVGLengthContext lengthContext(context, viewport.size());
@@ -124,7 +124,7 @@ template<typename SizeType> float SVGLengthContext::valueForSizeType(const SizeT
             auto result = convertValueFromPercentageToUserUnits(percentage.value / 100, lengthMode);
             if (result.hasException())
                 return 0;
-            return result.releaseReturnValue();
+            return clampTo<float>(result.releaseReturnValue());
         },
         [&](const typename SizeType::Calc& calc) -> float {
             auto viewportSize = this->viewportSize().value_or(FloatSize { });
@@ -147,7 +147,7 @@ template<typename SizeType> float SVGLengthContext::valueForSizeType(const SizeT
             auto result = convertValueFromPercentageToUserUnits(percentage.value / 100, lengthMode);
             if (result.hasException())
                 return 0;
-            return result.releaseReturnValue();
+            return clampTo<float>(result.releaseReturnValue());
         },
         [&](const typename SizeType::Calc& calc) -> float {
             auto viewportSize = this->viewportSize().value_or(FloatSize { });
@@ -247,8 +247,12 @@ float SVGLengthContext::removeZoomFromFontOrRootFontRelativeLength(float value, 
 ExceptionOr<float> SVGLengthContext::resolveValueToUserUnits(float value, const CSS::LengthPercentageUnit& targetUnit, SVGLengthMode lengthMode) const
 {
     switch (targetUnit) {
-    case CSS::LengthPercentageUnit::Percentage:
-        return convertValueFromPercentageToUserUnits(value / 100.0, lengthMode);
+    case CSS::LengthPercentageUnit::Percentage: {
+        auto result = convertValueFromPercentageToUserUnits(value / 100.0, lengthMode);
+        if (result.hasException())
+            return result.releaseException();
+        return clampTo<float>(result.releaseReturnValue());
+    }
 
     case CSS::LengthPercentageUnit::Ex:
         // FIXME: Legacy quirk. Using the computeNonCalcLengthDouble conversion here causes test failures
@@ -307,12 +311,12 @@ ExceptionOr<float> SVGLengthContext::convertValueFromUserUnitsToPercentage(float
         return Exception { ExceptionCode::NotSupportedError };
 
     if (auto divisor = dimensionForLengthMode(lengthMode, *viewportSize))
-        return value / divisor * 100;
+        return clampTo<float>(static_cast<double>(value) / divisor * 100);
 
     return value;
 }
 
-ExceptionOr<float> SVGLengthContext::convertValueFromPercentageToUserUnits(float value, SVGLengthMode lengthMode) const
+ExceptionOr<double> SVGLengthContext::convertValueFromPercentageToUserUnits(double value, SVGLengthMode lengthMode) const
 {
     auto viewportSize = this->viewportSize();
     if (!viewportSize)
@@ -321,7 +325,7 @@ ExceptionOr<float> SVGLengthContext::convertValueFromPercentageToUserUnits(float
     return convertValueFromPercentageToUserUnits(value, lengthMode, *viewportSize);
 }
 
-float SVGLengthContext::convertValueFromPercentageToUserUnits(float value, SVGLengthMode lengthMode, FloatSize viewportSize)
+double SVGLengthContext::convertValueFromPercentageToUserUnits(double value, SVGLengthMode lengthMode, FloatSize viewportSize)
 {
     return value * dimensionForLengthMode(lengthMode, viewportSize);
 }

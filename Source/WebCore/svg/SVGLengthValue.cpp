@@ -231,6 +231,9 @@ static float convertToPixels(float value, CSS::LengthPercentageUnit unit)
     }
 }
 
+// FIXME: Returning float loses precision for callers that multiply by a viewport dimension
+// (e.g. resolveRectangle with objectBoundingBox units). Consider returning double to keep
+// the division by 100 in double precision. See https://bugs.webkit.org/show_bug.cgi?id=309035
 float SVGLengthValue::valueAsPercentage() const
 {
     return WTF::switchOn(m_value,
