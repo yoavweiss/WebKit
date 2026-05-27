@@ -31,13 +31,10 @@
 #include "MessageSender.h"
 #include "RemoteMediaSessionState.h"
 #include "SharedPreferencesForWebProcess.h"
-#include "WebPageProxyIdentifier.h"
 #include <WebCore/MediaSessionIdentifier.h>
 #include <WebCore/PageIdentifier.h>
 #include <wtf/HashMap.h>
 #include <wtf/TZoneMalloc.h>
-#include <wtf/Vector.h>
-#include <wtf/WeakListHashSet.h>
 
 #if PLATFORM(IOS_FAMILY)
 #include <WebCore/MediaSessionManagerIOS.h>

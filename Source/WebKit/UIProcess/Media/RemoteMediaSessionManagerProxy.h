@@ -35,7 +35,9 @@
 #include <WebCore/AudioSession.h>
 #include <WebCore/MediaSessionIdentifier.h>
 #include <WebCore/PageIdentifier.h>
-#include <wtf/RefCounted.h>
+#include <wtf/HashMap.h>
+#include <wtf/Ref.h>
+#include <wtf/RefPtr.h>
 #include <wtf/TZoneMalloc.h>
 
 #if PLATFORM(IOS_FAMILY)
@@ -57,7 +59,6 @@ namespace WebKit {
 
 class RemoteMediaSessionManagerAudioHardwareListener;
 class RemoteMediaSessionProxy;
-class WebProcessProxy;
 struct RemoteMediaSessionState;
 
 class RemoteMediaSessionManagerProxy

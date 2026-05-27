@@ -29,16 +29,12 @@
 #if ENABLE(VIDEO) || ENABLE(WEB_AUDIO)
 
 #include "MessageSenderInlines.h"
-#include "RemoteMediaSessionClientProxy.h"
 #include "RemoteMediaSessionManagerMessages.h"
 #include "RemoteMediaSessionManagerProxyMessages.h"
 #include "RemoteMediaSessionProxy.h"
 #include "RemoteMediaSessionState.h"
-#include "WebPage.h"
-#include <WebCore/NotImplemented.h>
 #include <WebCore/PlatformMediaSessionInterface.h>
 #include <WebCore/PlatformMediaSessionManager.h>
-#include <algorithm>
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebKit {

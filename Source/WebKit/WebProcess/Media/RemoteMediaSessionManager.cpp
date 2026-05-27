@@ -39,8 +39,6 @@
 #include "WebProcess.h"
 #include <WebCore/AudioSession.h>
 #include <WebCore/PlatformMediaSession.h>
-#include <algorithm>
-#include <ranges>
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebKit {
