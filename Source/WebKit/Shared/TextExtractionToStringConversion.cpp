@@ -67,6 +67,11 @@ static String removeZeroWidthCharacters(const String& string)
     });
 }
 
+static String trimAndSimplifyWhitespace(const String& string)
+{
+    return string.trim(isASCIIWhitespace).simplifyWhiteSpace(isASCIIWhitespace);
+}
+
 static constexpr uint64_t linkContextWords = 5;
 
 static Vector<CharacterRange> characterRangesFromLinks(const Vector<std::pair<URL, CharacterRange>>& links)
@@ -917,7 +922,13 @@ static bool shouldIncludeFormControlValue(const TextExtraction::TextFormControlD
     if (equalLettersIgnoringASCIICase(controlData.value, "on"_s))
         return false;
 
-    if (!equalLettersIgnoringASCIICase(controlData.controlType, "radio"_s) && !equalLettersIgnoringASCIICase(controlData.controlType, "checkbox"_s))
+    bool shouldIncludeControlType = [&] {
+        return std::ranges::any_of(std::array { "radio"_s, "checkbox"_s, "submit"_s, "button"_s, "range"_s, "reset"_s }, [&](const auto& typeToInclude) {
+            return equalLettersIgnoringASCIICase(controlData.controlType, typeToInclude);
+        });
+    }();
+
+    if (!shouldIncludeControlType)
         return false;
 
     return !item.children.containsIf([](auto& child) {
@@ -992,7 +1003,7 @@ static void addJSONTextContent(Ref<JSON::Object>&& jsonObject, const TextExtract
         if (filteredText.isEmpty())
             return;
 
-        auto content = removeZeroWidthCharacters(filteredText.trim(isASCIIWhitespace).simplifyWhiteSpace(isASCIIWhitespace));
+        auto content = removeZeroWidthCharacters(trimAndSimplifyWhitespace(filteredText));
         aggregator->applyReplacements(content);
         aggregator->truncateTextByWordLimitIfNeeded(content, linkRanges);
 
@@ -1241,7 +1252,7 @@ static void addPartsForText(const TextExtraction::TextItemData& textItem, Vector
             aggregator->truncateTextByWordLimitIfNeeded(filteredText, linkRanges, hasAdjacentLinkAfter);
 
             if (aggregator->usePlainTextOutput()) {
-                aggregator->addResult(currentLine, { escapeString(removeZeroWidthCharacters(filteredText.trim(isASCIIWhitespace).simplifyWhiteSpace(isASCIIWhitespace))) });
+                aggregator->addResult(currentLine, { escapeString(removeZeroWidthCharacters(trimAndSimplifyWhitespace(filteredText))) });
                 return;
             }
 
@@ -1506,7 +1517,7 @@ static void addPartsForItem(const TextExtraction::Item& item, std::optional<Node
                     parts.append(makeString("name="_s, quoteValue(escapeString(controlData.name), streamlined)));
 
                 if (shouldIncludeFormControlValue(controlData, item))
-                    parts.append(makeString("value="_s, quoteValue(escapeString(controlData.value), streamlined)));
+                    parts.append(makeString("value="_s, quoteValue(escapeString(trimAndSimplifyWhitespace(controlData.value)), streamlined)));
 
                 if (auto minLength = controlData.minLength)
                     parts.append(makeString("minlength="_s, *minLength));

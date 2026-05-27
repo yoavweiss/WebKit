@@ -2521,6 +2521,20 @@ static String textDescription(const Element& element, Vector<String>& stringsToV
         needsParentContext = false;
     }
 
+    if (RefPtr input = dynamicDowncast<HTMLInputElement>(element)) {
+        bool includeValue = std::ranges::any_of(std::array { "submit"_s, "button"_s, "reset"_s }, [&](const auto& typeToInclude) {
+            return equalLettersIgnoringASCIICase(input->type(), typeToInclude);
+        });
+
+        if (includeValue) {
+            if (auto text = normalizeText(input->value()); !text.isEmpty()) {
+                description.append(makeString(" with value "_s, wrapWithDoubleQuotes(WTF::move(text))));
+                stringsToValidate.append(WTF::move(text));
+                needsParentContext = false;
+            }
+        }
+    }
+
     static constexpr auto maximumNumberOfClasses = 3;
     static constexpr auto minimumClassOrIdLength = 6;
     static constexpr auto maximumClassOrIdLength = 20;
