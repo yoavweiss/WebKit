@@ -315,7 +315,7 @@ add_custom_target(WebKit_MigrateHeaders
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/Source/cmake/MigrateHeaders.cmake "${_migrate_pairs_file}"
     COMMENT "Migrating WebCore/WebKitLegacy headers into WebKit.framework/{Headers,PrivateHeaders}/"
 )
-add_dependencies(WebKit_MigrateHeaders WebCore_CopyPrivateHeaders WebKitLegacy_CopyHeaders)
+add_dependencies(WebKit_MigrateHeaders WebKit_StageFrameworkHeaders WebCore_CopyPrivateHeaders WebKitLegacy_CopyHeaders)
 add_dependencies(WebKit WebKit_MigrateHeaders)
 unset(_migrate_pairs_file)
 unset(_migrate_pairs_content)

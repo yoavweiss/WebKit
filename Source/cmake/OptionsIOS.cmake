@@ -120,6 +120,17 @@ if (_sdk_major_minor AND (NOT CMAKE_OSX_DEPLOYMENT_TARGET OR CMAKE_OSX_DEPLOYMEN
     message(WARNING "Deployment target auto-set to SDK version: ${CMAKE_OSX_DEPLOYMENT_TARGET} (SPI header guards require this)")
 endif ()
 
+# Resolve the real clang once and pin it for the lifetime of this build tree.
+# This is a build speed optimization, and also a defense against tearing between
+# resolved toolchain and resolved SDK path / version.
+WEBKIT_XCRUN(_clang -f clang)
+if (EXISTS "${_clang}")
+    set(CMAKE_C_COMPILER "${_clang}")
+    set(CMAKE_CXX_COMPILER "${_clang}++")
+    set(CMAKE_OBJC_COMPILER "${_clang}")
+    set(CMAKE_OBJCXX_COMPILER "${_clang}++")
+endif ()
+
 include(OptionsCocoa)
 
 enable_language(OBJC OBJCXX)

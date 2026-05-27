@@ -1031,12 +1031,6 @@ foreach (_file ${WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES})
     else ()
         set(_src_path "${CMAKE_CURRENT_SOURCE_DIR}/${_file}")
     endif ()
-    # WebCore-sourced headers (WAKView.h etc.) are owned by WebCore_Private.Core.*.
-    # Stage a forwarding stub so WebKitLegacy re-exports that submodule.
-    cmake_path(IS_PREFIX WEBCORE_DIR "${_src_path}" NORMALIZE _is_from_webcore)
-    if (_is_from_webcore)
-        set(_migrated "#import <WebCore/${_name}>\n")
-    else ()
     # Stage 1 -- migrate-header-rule:
     #   sed -E -e 's/<WebCore\//<WebKitLegacy\//' -e 's/(^ *)WEBCORE_EXPORT /\1/'
     # Mac-only `<WebCore/...>` imports become `<WebKitLegacy/...>` because Xcode
@@ -1078,7 +1072,6 @@ foreach (_file ${WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES})
     endif ()
     file(READ "${_unifdef_output}" _migrated)
     file(REMOVE "${_unifdef_input}" "${_unifdef_output}")
-    endif ()
 
     set(_existing "")
     if (EXISTS "${_target_filename}")

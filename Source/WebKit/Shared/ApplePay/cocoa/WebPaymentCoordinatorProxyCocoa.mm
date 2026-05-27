@@ -398,7 +398,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         [result setMerchantCategoryCode:toPKMerchantCategoryCode(merchantCategoryCode)];
 #endif
 
-#if HAVE(PASSKIT_DELEGATED_REQUEST)
+#if ENABLE(APPLE_PAY_DELEGATED_REQUEST)
     if (auto isDelegatedRequest = paymentRequest.isDelegatedRequest()) {
         // FIXME: <rdar://165836164> (Remove bincompat staging code from WebKit)
         if ([result respondsToSelector:@selector(setIsDelegatedRequest:)])

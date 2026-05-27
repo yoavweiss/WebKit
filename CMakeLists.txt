@@ -113,23 +113,6 @@ if (SWIFT_REQUIRED)
         endif ()
     endif ()
 
-    if (PORT STREQUAL "IOS")
-        execute_process(COMMAND xcrun --show-sdk-platform-path
-            OUTPUT_VARIABLE _ios_platform_path
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            ERROR_QUIET)
-        if (_ios_platform_path)
-            execute_process(COMMAND find "${_ios_platform_path}" -name swiftc -path "*/xctoolchain/*" -type f -print -quit
-                OUTPUT_VARIABLE _ios_swiftc
-                OUTPUT_STRIP_TRAILING_WHITESPACE
-                ERROR_QUIET)
-            if (_ios_swiftc AND NOT _ios_swiftc STREQUAL CMAKE_Swift_COMPILER)
-                set(CMAKE_Swift_COMPILER "${_ios_swiftc}" CACHE FILEPATH "Swift compiler" FORCE)
-                message(STATUS "iOS: using platform-specific Swift compiler: ${_ios_swiftc}")
-            endif ()
-        endif ()
-    endif ()
-
     enable_language(Swift)
 
     # -F causes Swift to find C++23 framework headers in implicit module builds.
@@ -137,17 +120,12 @@ if (SWIFT_REQUIRED)
         set(CMAKE_Swift_FRAMEWORK_SEARCH_FLAG "-Xcc -iquote")
     endif ()
 
-    # Override Swift compiler to a wrapper script to work around the
-    # fact CMake feeds incorrect flags to swiftc.
-    set(_swift_wrapper "${CMAKE_SOURCE_DIR}/Tools/Scripts/swift/swiftc-wrapper.sh")
-    if (CMAKE_Swift_COMPILER STREQUAL _swift_wrapper)
-        if (NOT ORIGINAL_Swift_COMPILER)
-            find_program(ORIGINAL_Swift_COMPILER NAMES swiftc REQUIRED)
-        endif ()
+    if (APPLE)
+        WEBKIT_XCRUN(ORIGINAL_Swift_COMPILER --find swiftc)
     else ()
-        set(ORIGINAL_Swift_COMPILER "${CMAKE_Swift_COMPILER}" CACHE FILEPATH "Original Swift compiler" FORCE)
+        set(ORIGINAL_Swift_COMPILER "${CMAKE_Swift_COMPILER}")
     endif ()
-    set(CMAKE_Swift_COMPILER "${_swift_wrapper}")
+    set(CMAKE_Swift_COMPILER "${CMAKE_SOURCE_DIR}/Tools/Scripts/swift/swiftc-wrapper.sh")
     add_compile_options($<$<COMPILE_LANGUAGE:Swift>:--original-swift-compiler=${ORIGINAL_Swift_COMPILER}>)
     add_link_options($<$<LINK_LANGUAGE:Swift>:--original-swift-compiler=${ORIGINAL_Swift_COMPILER}>)
     # The static archive rule (<CMAKE_Swift_CREATE_STATIC_LIBRARY>) uses neither
@@ -155,7 +133,6 @@ if (SWIFT_REQUIRED)
     string(REPLACE "<CMAKE_Swift_COMPILER>"
         "<CMAKE_Swift_COMPILER> --original-swift-compiler=${ORIGINAL_Swift_COMPILER}"
         CMAKE_Swift_CREATE_STATIC_LIBRARY "${CMAKE_Swift_CREATE_STATIC_LIBRARY}")
-    unset(_swift_wrapper)
 endif ()
 
 # -----------------------------------------------------------------------------

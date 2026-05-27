@@ -9,7 +9,7 @@ if (NOT HAS_RUN_WEBKIT_COMMON)
     # Preset values are not replayed on auto-reconfigure; if CMake's "compiler
     # changed" path wipes the cache, these silently revert. Stamp them outside
     # the cache and refuse to proceed if any go missing.
-    set(WEBKIT_IDENTITY_VARS CMAKE_BUILD_TYPE PORT DEVELOPER_MODE ENABLE_SANITIZERS CMAKE_IOS_SIMULATOR)
+    set(WEBKIT_IDENTITY_VARS CMAKE_BUILD_TYPE PORT DEVELOPER_MODE ENABLE_SANITIZERS CMAKE_IOS_SIMULATOR CMAKE_OSX_SYSROOT)
     set(_config_stamp "${CMAKE_BINARY_DIR}/.webkit-config-stamp")
     if (EXISTS "${_config_stamp}")
         file(STRINGS "${_config_stamp}" _stamp_lines)
@@ -25,6 +25,11 @@ if (NOT HAS_RUN_WEBKIT_COMMON)
                         "variables that require your cache to be deleted\"). Re-run "
                         "'cmake --preset <name>' to restore your configuration, or "
                         "delete the build directory.")
+                elseif (NOT "$CACHE{${_var}}" STREQUAL "${_prev}")
+                    message(FATAL_ERROR
+                        "${_var} changed from '${_prev}' to '$CACHE{${_var}}'. This build "
+                        "directory's identity variables must not change after the first "
+                        "configure. Delete the build directory and reconfigure.")
                 endif ()
             endif ()
         endforeach ()
