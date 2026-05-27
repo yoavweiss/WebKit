@@ -3,7 +3,6 @@
         "subtests": {
             "/webkit/Authentication/authentication-success": {
                 "expected": {
-                    "gtk@Release": {"status": ["PASS", "TIMEOUT"], "bug": "webkit.org/b/233509"},
                     "wpe": {"status": ["PASS", "TIMEOUT", "FAIL"], "bug": "webkit.org/b/281822"}
                 }
             }
@@ -19,16 +18,6 @@
             "/webkit/BackForwardList/navigation": {
                 "expected": {
                     "all": {"status": ["PASS", "TIMEOUT"], "bug": "webkit.org/b/224175"}
-                }
-            },
-            "/webkit/WebKitWebView/session-state": {
-                "expected": {
-                    "wpe": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/264508"}
-                }
-            },
-            "/webkit/WebKitWebView/navigation-after-session-restore": {
-                "expected": {
-                    "gtk": {"status": ["PASS", "TIMEOUT"], "bug": "webkit.org/b/284812"}
                 }
             }
         }
@@ -155,14 +144,8 @@
     },
     "TestWebKitWebContext": {
         "subtests": {
-            "/webkit/WebKitWebContext/uri-scheme": {
-                "expected": {"gtk": {"status": ["PASS", "TIMEOUT"], "bug": "webkit.org/b/279204"}}
-            },
             "/webkit/WebKitWebContext/languages": {
                 "expected": {"all": {"status": ["PASS", "FAIL"], "bug": "webkit.org/b/281942"}}
-            },
-            "/webkit/WebKitWebContext/no-web-process-leak": {
-                "expected": {"all": {"status": ["TIMEOUT", "PASS", "CRASH"], "bug": "webkit.org/b/299598"}}
             }
         }
     },
@@ -180,17 +163,8 @@
             "/webkit/WebKitWebView/cut-copy-paste/editable": {
                 "expected": {"gtk": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/263417"}}
             },
-            "/webkit/WebKitWebView/notification": {
-                "expected": {"all": {"status": ["CRASH", "PASS"], "bug": "webkit.org/b/265886"}}
-            },
             "/webkit/WebKitWebView/is-playing-audio": {
                 "expected": {"all": {"status": ["FAIL", "TIMEOUT"], "bug": "webkit.org/b/274344"}}
-            },
-            "/webkit/WebKitWebView/run-async-js-functions": {
-                "expected": {"gtk": {"status": ["PASS", "TIMEOUT"], "bug": "webkit.org/b/284812"}}
-            },
-            "/webkit/WebKitWebView/title-change": {
-                "expected": {"all": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/304368"}}
             }
         }
     },
@@ -219,23 +193,11 @@
         "subtests": {
             "/webkit/WebKitWebPage/get-uri": {
                 "expected": {"all": {"status": ["FAIL", "PASS", "TIMEOUT"], "bug": "webkit.org/b/206728"}}
-            },
-            "/webkit/WebKitWebView/load-twice-and-reload": {
-                "expected": {"gtk": {"status": ["PASS", "TIMEOUT"], "bug": "webkit.org/b/281979"}}
-            },
-            "/webkit/WebKitWebView/stop-loading": {
-                "expected": {"gtk": {"status": ["PASS", "TIMEOUT"], "bug": "webkit.org/b/284812"}}
             }
         }
     },
     "TestWebCore": {
         "subtests": {
-            "ComplexTextControllerTest.InitialAdvanceInRTLNoOrigins": {
-                "expected": {"gtk": {"status": ["FAIL", "PASS"], "bug":"webkit.org/b/284628"}}
-            },
-            "ComplexTextControllerTest.TotalWidthWithJustification": {
-                "expected": {"gtk": {"status": ["FAIL", "PASS"], "bug":"webkit.org/b/284628"}}
-            },
             "ImageBufferTests.ImageBufferSubPixelDrawing": {
                 "expected": {"all": {"slow": true}}
             },
@@ -260,21 +222,6 @@
             },
             "WebKit.TerminateTwice": {
                 "expected": {"gtk": {"status": ["SKIP"], "bug": "webkit.org/b/121970"}}
-            },
-            "WebKit.FocusedFrameAfterCrash": {
-                "expected": {"gtk": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/205336"}}
-            },
-            "WebKit.GeolocationWatchMultiprocess": {
-                "expected": {"gtk": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/254002"}}
-            },
-            "WebKit.GeolocationTransitionToLowAccuracy": {
-                "expected": {"gtk": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/254002"}}
-            },
-            "WebKit.PendingAPIRequestURL": {
-                "expected": {"gtk": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/254002"}}
-            },
-            "WebKit.DOMWindowExtensionCrashOnReload": {
-                "expected": {"gtk": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/254002"}}
             }
         }
     },
@@ -340,9 +287,6 @@
             "WTF_WorkQueue.DestroyDispatchedOnDispatchQueue": {
                 "expected": {"all": {"slow": true, "bug": "webkit.org/b/260211" }}
             },
-            "WTF_DateMath.calculateLocalTimeOffset": {
-                "expected": {"wpe": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/297780"}}
-            },
             "WTF.clampSameSignIntegers": {
                 "expected": {"wpe:arm64": {"status": ["FAIL"], "bug": "webkit.org/b/309746"}}
             },
@@ -385,9 +329,6 @@
             "/webkit/WebKitPolicyClient/autoplay-policy": {
                 "expected": {"gtk": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/222091"},
                              "wpe": {"status": ["PASS", "FAIL", "TIMEOUT"], "bug": "webkit.org/b/281986"}}
-            },
-            "/webkit/WebKitPolicyClient/new-window-policy": {
-                "expected": {"all": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/281812"}}
             }
         }
     },
@@ -402,25 +343,10 @@
 
         }
     },
-    "TestMultiprocess": {
-        "subtests": {
-            "/webkit/WebKitWebContext/process-per-web-view": {
-                "expected": {"gtk": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/254002"}}
-            }
-        }
-
-    },
     "TestWebKitNetworkSession": {
         "subtests": {
             "/webkit/WebKitNetworkSession/proxy": {
                 "expected": {"all": {"status": ["FAIL", "PASS", "TIMEOUT"], "bug": "webkit.org/b/264485"}}
-            }
-        }
-    },
-    "TestWebKitWebXR": {
-        "subtests": {
-            "/webkit/WebKitWebXR/leave-immersive-mode": {
-                "expected": {"wpe": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/308258"}}
             }
         }
     },
@@ -430,7 +356,7 @@
                 "expected": {"all": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/264505"}}
             },
             "/webkit/WebKitWebProcessExtension/user-messages": {
-                "expected": {"all": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/284812"}}
+                "expected": {"all": {"slow": true, "bug": "webkit.org/b/284812"}}
             },
             "/webkit/WebKitWebView/web-process-crashed": {
                 "expected": {"all": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/297780"}}
@@ -439,9 +365,6 @@
     },
     "TestSSL": {
         "subtests": {
-            "/webkit/WebKitWebView/client-side-certificate": {
-                "expected": {"all": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/264507"}}
-            },
             "/webkit/WebKitWebView/web-socket-client-side-certificate": {
                 "expected": {"all": {"status": ["CRASH", "TIMEOUT", "FAIL"], "bug": "webkit.org/b/307757"}}
             }
@@ -476,34 +399,8 @@
     },
     "TestWebsiteData": {
         "subtests": {
-            "/webkit/WebKitWebsiteData/storage": {
-                "expected": {"gtk": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/284812"}}
-            },
             "/webkit/WebKitWebsiteData/configuration": {
                 "expected": {"all" : { "status": ["PASS", "FAIL", "TIMEOUT"], "bug": "webkit.org/b/301570"}}
-            },
-            "/webkit/WebKitWebsiteData/cache": {
-                "expected": {"all" : { "status": ["PASS", "TIMEOUT"], "bug": "webkit.org/b/301570"}}
-            },
-            "/webkit/WebKitWebsiteData/dom-cache": {
-                "expected": {"all" : { "status": ["PASS", "TIMEOUT"], "bug": "webkit.org/b/301570"}}
-            }
-        }
-    },
-    "TestConsoleMessage": {
-        "subtests": {
-            "/webkit/WebKitConsoleMessage/security-error": {
-                "expected": {"gtk": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/284812"}}
-            }
-        }
-    },
-    "TestFrame": {
-        "subtests": {
-            "/webkit/WebKitFrame/uri": {
-                "expected": {"gtk": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/284812"}}
-            },
-           "/webkit/WebKitFrame/javascript-values": {
-                "expected": {"gtk": {"status": ["TIMEOUT", "PASS"], "bug": "webkit.org/b/284812"}}
             }
         }
     }
