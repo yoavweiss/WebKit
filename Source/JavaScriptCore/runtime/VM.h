@@ -621,6 +621,7 @@ public:
     WTF::SymbolRegistry& privateSymbolRegistry() { return m_privateSymbolRegistry.get(); }
 
     WriteBarrier<JSBigInt> heapBigIntConstantOne;
+    WriteBarrier<JSBigInt> heapBigIntConstantZero;
 
     // Cached multiplicative inverse for BigInt modulo optimization.
     WriteBarrier<JSBigInt> m_cachedBigIntDivisor;

@@ -76,7 +76,6 @@ public:
     void initialize(InitializationType);
 
     static Structure* createStructure(VM&, JSGlobalObject*, JSValue prototype);
-    JS_EXPORT_PRIVATE static JSBigInt* createZero(JSGlobalObject*);
     JS_EXPORT_PRIVATE static JSBigInt* tryCreateZero(VM&);
     JS_EXPORT_PRIVATE static JSBigInt* tryCreateWithLength(VM&, unsigned length);
     JS_EXPORT_PRIVATE static JSBigInt* createWithLength(JSGlobalObject*, unsigned length);
@@ -192,6 +191,7 @@ public:
 
 private:
     static JSBigInt* tryCreateFromImpl(JSGlobalObject*, VM&, bool sign, std::span<const Digit>);
+    static JSBigInt* createZero(VM&);
 
     ALWAYS_INLINE static ComparisonResult flip(ComparisonResult result)
     {
@@ -223,7 +223,6 @@ public:
     };
 private:
     static JSBigInt* createWithLength(JSGlobalObject*, VM&, unsigned length);
-    static JSBigInt* createZero(JSGlobalObject*, VM&);
 
     template <typename BigIntImpl1, typename BigIntImpl2>
     static ImplResult exponentiateImpl(JSGlobalObject*, BigIntImpl1 base, BigIntImpl2 exponent);
@@ -577,6 +576,9 @@ private:
     static Digit NODELETE inplaceSub(std::span<Digit> z, std::span<const Digit> x);
 
     static constexpr unsigned maxCachedModDivisorSize = 32; // 2048-bit divisors on 64-bit
+    static constexpr unsigned maxInPlaceSubSize = 16;
+    static constexpr unsigned maxInPlaceCachedModSize = 8;
+    static_assert(maxInPlaceCachedModSize <= maxCachedModDivisorSize);
     static void cachedModMakeInverse(VM&, std::span<const Digit> b);
     static std::span<const Digit> cachedMod(VM&, std::span<Digit> r, std::span<const Digit>, std::span<const Digit>);
     static bool NODELETE greaterThanOrEqual(std::span<const Digit>, std::span<const Digit>);
@@ -599,6 +601,7 @@ private:
     void inplaceMultiplyAdd(Digit multiplier, Digit part);
     template <typename BigIntImpl1, typename BigIntImpl2>
     static ImplResult absoluteAdd(JSGlobalObject*, BigIntImpl1 x, BigIntImpl2 y, bool resultSign);
+
     template <typename BigIntImpl1, typename BigIntImpl2>
     static ImplResult absoluteSub(JSGlobalObject*, BigIntImpl1 x, BigIntImpl2 y, bool resultSign);
 

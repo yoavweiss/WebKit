@@ -1390,6 +1390,9 @@ public:
 
     JSBigInt* decode(Decoder& decoder) const
     {
+        if (!m_length)
+            return decoder.vm().heapBigIntConstantZero.get();
+
         JSBigInt* bigInt = JSBigInt::tryCreateWithLength(decoder.vm(), m_length);
         RELEASE_ASSERT(bigInt);
         bigInt->setSign(m_sign);

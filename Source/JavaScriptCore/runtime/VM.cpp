@@ -400,6 +400,17 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
                 RELEASE_ASSERT_RESOURCE_AVAILABLE(bigInt, MemoryExhaustion, "Crash intentionally because memory is exhausted.");
         }
     }
+    {
+        auto* bigInt = JSBigInt::tryCreateWithLength(*this, 0);
+        if (bigInt)
+            heapBigIntConstantZero.setWithoutWriteBarrier(bigInt);
+        else {
+            if (success)
+                *success = false;
+            else
+                RELEASE_ASSERT_RESOURCE_AVAILABLE(bigInt, MemoryExhaustion, "Crash intentionally because memory is exhausted.");
+        }
+    }
 
     Thread::currentSingleton().setCurrentAtomStringTable(existingEntryAtomStringTable);
     
@@ -1913,6 +1924,7 @@ void VM::visitAggregateImpl(Visitor& visitor)
     visitor.append(m_slowCanConstructBoundExecutable);
     visitor.append(lastCachedString);
     visitor.append(heapBigIntConstantOne);
+    visitor.append(heapBigIntConstantZero);
     visitor.append(m_cachedBigIntDivisor);
     visitor.append(m_nextCachedBigIntDivisor);
 
