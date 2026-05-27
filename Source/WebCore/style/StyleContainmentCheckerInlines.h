@@ -26,8 +26,8 @@
 #pragma once
 
 #include <WebCore/Element.h>
+#include <WebCore/NodeName.h>
 #include <WebCore/RenderStyle+GettersInlines.h>
-#include <WebCore/SVGNames.h>
 #include <WebCore/StyleContainmentChecker.h>
 
 namespace WebCore {
@@ -94,7 +94,7 @@ inline bool ContainmentChecker::shouldApplySizeContainment() const
 
     // https://drafts.csswg.org/css-conditional-5/#size-container
     // SVG foreignObject elements are not eligible to be size query containers.
-    if (m_element->hasTagName(static_cast<const QualifiedName&>(SVGNames::foreignObjectTag)))
+    if (m_element->elementName() == ElementNames::SVG::foreignObject)
         return false;
 
     return true;
@@ -124,7 +124,7 @@ inline bool ContainmentChecker::shouldApplyInlineSizeContainment() const
 
     // https://drafts.csswg.org/css-conditional-5/#size-container
     // SVG foreignObject elements are not eligible to be size query containers.
-    if (m_element->hasTagName(static_cast<const QualifiedName&>(SVGNames::foreignObjectTag)))
+    if (m_element->elementName() == ElementNames::SVG::foreignObject)
         return false;
 
     return true;
