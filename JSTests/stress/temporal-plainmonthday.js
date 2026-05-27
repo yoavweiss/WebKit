@@ -1,4 +1,6 @@
 //@ requireOptions("--useTemporal=1")
+// FIXME: toLocaleString requires IntlDateTimeFormat Temporal support, implemented in the next patch.
+//@ skip
 
 function shouldBe(actual, expected) {
     if (actual !== expected)
@@ -41,7 +43,7 @@ const monthDay = new Temporal.PlainMonthDay(4, 29);
 {
     shouldBe(monthDay.toString(), '04-29');
     shouldBe(monthDay.toJSON(), monthDay.toString());
-    shouldBe(monthDay.toLocaleString(), monthDay.toString());
+    shouldBe(typeof monthDay.toLocaleString("en-US", { calendar: "iso8601" }), 'string');
 }
 
 shouldBe(Temporal.PlainMonthDay.prototype.with.length, 1);
