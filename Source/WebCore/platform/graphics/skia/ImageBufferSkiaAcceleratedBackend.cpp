@@ -302,8 +302,10 @@ RefPtr<NativeImage> ImageBufferSkiaAcceleratedBackend::createNativeImageReferenc
     // because that call doesn't force the MSAA resolution, which can produce outdated results
     // in the resulting SkImage.
     auto& display = PlatformDisplay::sharedDisplay();
-    if (grContext && grContext == display.skiaGrContext() && display.msaaSampleCount() > 0 && display.skiaGLContext()->makeContextCurrent())
+    if (grContext && display.msaaSampleCount() > 0 && display.skiaGLContext()->makeContextCurrent()) {
+        ASSERT(grContext == display.skiaGrContext());
         grContext->flush(m_surface.get());
+    }
 
     return NativeImage::create(m_surface->makeImageSnapshot(), grContext);
 }
