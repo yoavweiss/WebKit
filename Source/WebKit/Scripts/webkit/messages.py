@@ -1371,6 +1371,7 @@ def headers_for_type(type, for_implementation_file=False):
         'WebCore::RecentSearch': ['<WebCore/SearchPopupMenu.h>'],
         'WebCore::RedEyeReduction': ['<WebCore/RedEyeReduction.h>'],
         'WebCore::ResourceResponseSource': ['<WebCore/ResourceResponseBase.h>'],
+        'WebCore::RestoredFromBackForwardCache': ['<WebCore/FrameLoaderTypes.h>'],
         'WebCore::ReloadOption': ['<WebCore/FrameLoaderTypes.h>'],
         'WebCore::RenderAsTextFlag': ['<WebCore/RenderTreeAsText.h>'],
         'WebCore::RenderingPurpose': ['<WebCore/RenderingMode.h>'],

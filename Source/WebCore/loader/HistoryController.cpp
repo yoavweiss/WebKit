@@ -331,7 +331,7 @@ bool HistoryController::shouldStopLoadingForHistoryItem(HistoryItem& targetItem)
 
 // Main funnel for navigating to a previous location (back/forward, non-search snap-back)
 // This includes recursion to handle loading into framesets properly
-void HistoryController::goToItem(HistoryItem& targetItem, FrameLoadType frameLoadType, ShouldTreatAsContinuingLoad shouldTreatAsContinuingLoad)
+void HistoryController::goToItem(HistoryItem& targetItem, FrameLoadType frameLoadType, ShouldTreatAsContinuingLoad shouldTreatAsContinuingLoad, ShouldRestoreFromBackForwardCache shouldRestoreFromBackForwardCache)
 {
     RELEASE_LOG(History, "%p - HistoryController::goToItem: item %p, type=%d", this, &targetItem, static_cast<int>(frameLoadType));
 
@@ -339,7 +339,7 @@ void HistoryController::goToItem(HistoryItem& targetItem, FrameLoadType frameLoa
     if (!page)
         return;
 
-    auto finishGoToItem = [weakThis = WeakPtr { this }, frameLoadType, shouldTreatAsContinuingLoad, page, isInSwipeAnimation = page->isInSwipeAnimation(), targetItem = Ref { targetItem }] (ShouldGoToHistoryItem result) {
+    auto finishGoToItem = [weakThis = WeakPtr { this }, frameLoadType, shouldTreatAsContinuingLoad, shouldRestoreFromBackForwardCache, page, isInSwipeAnimation = page->isInSwipeAnimation(), targetItem = Ref { targetItem }] (ShouldGoToHistoryItem result) {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)
             return;
@@ -374,7 +374,7 @@ void HistoryController::goToItem(HistoryItem& targetItem, FrameLoadType frameLoa
         protectedThis->recursiveSetProvisionalItem(targetItem, currentItem.get(), ForNavigationAPI::No);
 
         // Now that all other frames have provisional items, do the actual navigation.
-        protectedThis->recursiveGoToItem(targetItem, currentItem.get(), frameLoadType, shouldTreatAsContinuingLoad);
+        protectedThis->recursiveGoToItem(targetItem, currentItem.get(), frameLoadType, shouldTreatAsContinuingLoad, shouldRestoreFromBackForwardCache);
     };
 
     goToItemShared(targetItem, WTF::move(finishGoToItem), shouldTreatAsContinuingLoad);
@@ -976,10 +976,10 @@ void HistoryController::recursiveSetProvisionalItem(HistoryItem& item, HistoryIt
 
 // We now traverse the frame tree and item tree a second time, loading frames that
 // do have the content the item requests.
-void HistoryController::recursiveGoToItem(HistoryItem& item, HistoryItem* fromItem, FrameLoadType type, ShouldTreatAsContinuingLoad shouldTreatAsContinuingLoad)
+void HistoryController::recursiveGoToItem(HistoryItem& item, HistoryItem* fromItem, FrameLoadType type, ShouldTreatAsContinuingLoad shouldTreatAsContinuingLoad, ShouldRestoreFromBackForwardCache shouldRestoreFromBackForwardCache)
 {
     if (!itemsAreClones(item, fromItem))
-        return m_frame->loader().loadItem(item, fromItem, type, shouldTreatAsContinuingLoad);
+        return m_frame->loader().loadItem(item, fromItem, type, shouldTreatAsContinuingLoad, shouldRestoreFromBackForwardCache);
 
     // Just iterate over the rest, looking for frames to navigate.
     for (Ref childItem : item.children()) {
@@ -992,7 +992,7 @@ void HistoryController::recursiveGoToItem(HistoryItem& item, HistoryItem* fromIt
             continue;
 
         if (RefPtr childFrame = dynamicDowncast<LocalFrame>(m_frame->tree().descendantByFrameID(*frameID)))
-            childFrame->loader().history().recursiveGoToItem(childItem, fromChildItem.get(), type, shouldTreatAsContinuingLoad);
+            childFrame->loader().history().recursiveGoToItem(childItem, fromChildItem.get(), type, shouldTreatAsContinuingLoad, shouldRestoreFromBackForwardCache);
     }
 }
 

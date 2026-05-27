@@ -8886,6 +8886,8 @@ using WebCore::CSSValueToSystemColorMap = HashMap<WebCore::CSSValueKey, WebCore:
 
 enum class WebCore::WorkerThreadMode : bool
 enum class WebCore::WillContinueLoading : bool
+enum class WebCore::ShouldRestoreFromBackForwardCache : bool
+enum class WebCore::RestoredFromBackForwardCache : bool
 
 #if ENABLE(GPU_PROCESS) && ENABLE(ENCRYPTED_MEDIA)
 header: <WebCore/CDMPrivate.h>
