@@ -398,6 +398,7 @@ Tests/WebKit/WKWebView/WKWebViewPrintFormatter.mm @nonARC
 Tests/WebKit/WKWebView/WKWebViewResize.mm @nonARC
 Tests/WebKit/WKWebView/WKWebViewServerTrustKVC.mm @nonARC
 Tests/WebKit/WKWebView/WKWebViewSnapshot.mm @nonARC
+Tests/WebKit/WKWebView/WKWebViewSubclassedSetFrame.mm @nonARC
 Tests/WebKit/WKWebView/WKWebViewSuspendAllMediaPlayback.mm @nonARC
 Tests/WebKit/WKWebView/WKWebViewTextInput.mm @nonARC
 Tests/WebKit/WKWebView/WKWebViewThemeColor.mm @nonARC

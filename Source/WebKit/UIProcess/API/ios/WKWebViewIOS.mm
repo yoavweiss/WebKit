@@ -2468,6 +2468,9 @@ static WebCore::FloatPoint constrainContentOffset(WebCore::FloatPoint contentOff
 
 - (void)_dispatchSetViewLayoutSize:(WebCore::FloatSize)viewLayoutSize
 {
+    if (!_page)
+        return;
+
     auto newMinimumEffectiveDeviceWidth = _page->minimumEffectiveDeviceWidth();
     if (_perProcessState.lastSentViewLayoutSize && CGSizeEqualToSize(_perProcessState.lastSentViewLayoutSize.value(), viewLayoutSize) && _perProcessState.lastSentMinimumEffectiveDeviceWidth && _perProcessState.lastSentMinimumEffectiveDeviceWidth == newMinimumEffectiveDeviceWidth)
         return;
@@ -2656,6 +2659,9 @@ static CGFloat liveResizeMinimumWidthDifference()
 
 - (void)_frameOrBoundsWillChange
 {
+    if (!_page)
+        return;
+
 #if HAVE(UI_WINDOW_SCENE_LIVE_RESIZE)
     auto [sizeBeforeUpdate, orientationBeforeUpdate] = _lastKnownWindowSizeAndOrientation;
     [self _updateLastKnownWindowSizeAndOrientation];
@@ -2690,6 +2696,9 @@ static CGFloat liveResizeMinimumWidthDifference()
 
 - (void)_frameOrBoundsMayHaveChanged
 {
+    if (!_page)
+        return;
+
     CGRect bounds = self.bounds;
     [_scrollView setFrame:bounds];
 
