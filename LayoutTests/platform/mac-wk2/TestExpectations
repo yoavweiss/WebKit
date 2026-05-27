@@ -2342,3 +2342,5 @@ webkit.org/b/315398 [ Release ] http/tests/site-isolation/accessibility/client/s
 # webkit.org/b/315593 [macOS Release] imported/w3c/web-platform-tests/fetch/api/crashtests/huge-fetch.any.sharedworker.html  is a flaky crash
 [ Release ] imported/w3c/web-platform-tests/fetch/api/crashtests/huge-fetch.any.serviceworker.html [ Skip ]
 [ Release ] imported/w3c/web-platform-tests/fetch/api/crashtests/huge-fetch.any.sharedworker.html [ Skip ]
+
+webkit.org/b/315668 [ Release x86_64 ] imported/w3c/web-platform-tests/css/selectors/invalidation/has-complexity.html [ Timeout ]
