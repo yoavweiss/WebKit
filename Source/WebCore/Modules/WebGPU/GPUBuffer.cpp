@@ -195,7 +195,7 @@ ExceptionOr<Ref<JSC::ArrayBuffer>> GPUBuffer::getMappedRange(GPUSize64 offset, s
 void GPUBuffer::unmap(ScriptExecutionContext& scriptExecutionContext)
 {
     internalUnmap(scriptExecutionContext);
-    if (RefPtr device = m_device.get())
+    if (RefPtr device = m_device)
         device->removeBufferToUnmap(*this);
 }
 

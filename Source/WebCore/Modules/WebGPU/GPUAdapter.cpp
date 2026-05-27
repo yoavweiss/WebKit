@@ -126,7 +126,7 @@ void GPUAdapter::requestDevice(ScriptExecutionContext& scriptExecutionContext, c
     }
 
     m_backing->requestDevice(convertToBacking(deviceDescriptor), [protectedThis = protect(*this), deviceDescriptor, promise = WTF::move(promise), scriptExecutionContextRef = protect(scriptExecutionContext)](RefPtr<WebGPU::Device>&& device) mutable {
-        if (!device.get())
+        if (!device)
             promise.reject(Exception(ExceptionCode::OperationError));
         else {
             auto queueLabel = deviceDescriptor->defaultQueue.label;

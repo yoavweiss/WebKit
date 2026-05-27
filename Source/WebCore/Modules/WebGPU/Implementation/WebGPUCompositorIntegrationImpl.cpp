@@ -119,7 +119,7 @@ Vector<MachSendRight> CompositorIntegrationImpl::recreateRenderBuffers(int width
 
 void CompositorIntegrationImpl::withDisplayBufferAsNativeImage(uint32_t bufferIndex, Function<void(WebCore::NativeImage*)> completion)
 {
-    if (!m_renderBuffers.size() || bufferIndex >= m_renderBuffers.size() || !m_device.get())
+    if (!m_renderBuffers.size() || bufferIndex >= m_renderBuffers.size() || !m_device)
         return completion(nullptr);
 
     RefPtr<NativeImage> displayImage;
