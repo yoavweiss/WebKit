@@ -1886,7 +1886,7 @@ webkit.org/b/295743 [ Debug ] media/video-display-aspect-ratio.html [ Pass Failu
 
 # Digital Credentials tests timeout.
 [ Sequoia ] imported/w3c/web-platform-tests/digital-credentials/allow-attribute-with-get.https.html [ Skip ]
-[ Sequoia ] imported/w3c/web-platform-tests/digital-credentials/get.tentative.https.html [ Skip ]
+[ Sequoia ] imported/w3c/web-platform-tests/digital-credentials/get.https.html [ Skip ]
 [ Sequoia ] imported/w3c/web-platform-tests/digital-credentials/user-activation-get.https.html [ Skip ]
 
 # FIXME: Needs bug.
