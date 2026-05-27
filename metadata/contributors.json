@@ -583,6 +583,17 @@
    },
    {
       "emails" : [
+         "alice_tang2@apple.com",
+         "tang.alice.000@gmail.com"
+      ],
+      "github" : "tangalice",
+      "name" : "Alice Tang",
+      "nicks" : [
+         "tangalice"
+      ]
+   },
+   {
+      "emails" : [
          "aboya@igalia.com",
          "ntrrgc@gmail.com"
       ],
