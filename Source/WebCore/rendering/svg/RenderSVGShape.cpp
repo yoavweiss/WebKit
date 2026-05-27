@@ -276,6 +276,14 @@ bool RenderSVGShape::isPointInStroke(const FloatPoint& point)
     if (style().stroke().isNone())
         return false;
 
+    if (hasNonScalingStroke() && hasPath()) {
+        AffineTransform nonScalingTransform = nonScalingStrokeTransform();
+        auto& usePath = *nonScalingStrokePath(m_path.get(), nonScalingTransform);
+        return usePath.strokeContains(nonScalingTransform.mapPoint(point), [checkedThis = CheckedRef { *this }](GraphicsContext& context) {
+            SVGRenderSupport::applyStrokeStyleToContext(context, checkedThis->style(), checkedThis.get());
+        });
+    }
+
     return shapeDependentStrokeContains(point, LocalCoordinateSpace);
 }
 
