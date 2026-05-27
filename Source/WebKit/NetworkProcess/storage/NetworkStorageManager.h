@@ -217,7 +217,7 @@ private:
     void getHandleNames(WebCore::FileSystemHandleIdentifier, CompletionHandler<void(Expected<Vector<String>, FileSystemStorageError>)>&&);
     void getHandle(IPC::Connection&, WebCore::FileSystemHandleIdentifier, String&& name, CompletionHandler<void(Expected<std::optional<WebCore::FileSystemHandleInfo>, FileSystemStorageError>)>&&);
     void addGlobalIdentifierReference(IPC::Connection&, WebCore::ClientOrigin&&, WebCore::FileSystemHandleGlobalIdentifier);
-    void removeGlobalIdentifierReference(IPC::Connection&, WebCore::ClientOrigin&&, WebCore::FileSystemHandleGlobalIdentifier);
+    void removeGlobalIdentifierReferences(IPC::Connection&, WebCore::ClientOrigin&&, Vector<WebCore::FileSystemHandleGlobalIdentifier>&&);
     void resolveGlobalIdentifier(IPC::Connection&, WebCore::ClientOrigin&&, WebCore::FileSystemHandleGlobalIdentifier, CompletionHandler<void(Expected<WebCore::FileSystemHandleIdentifier, FileSystemStorageError>)>&&);
 
     // Message handlers for WebStorage.

@@ -221,10 +221,10 @@ void WebFileSystemStorageConnection::addGlobalIdentifierReference(WebCore::Clien
         connection->send(Messages::NetworkStorageManager::AddGlobalIdentifierReference(origin, globalIdentifier), 0);
 }
 
-void WebFileSystemStorageConnection::removeGlobalIdentifierReference(WebCore::ClientOrigin&& origin, WebCore::FileSystemHandleGlobalIdentifier globalIdentifier)
+void WebFileSystemStorageConnection::removeGlobalIdentifierReferences(WebCore::ClientOrigin&& origin, Vector<WebCore::FileSystemHandleGlobalIdentifier>&& globalIdentifiers)
 {
     if (RefPtr connection = m_connection)
-        connection->send(Messages::NetworkStorageManager::RemoveGlobalIdentifierReference(origin, globalIdentifier), 0);
+        connection->send(Messages::NetworkStorageManager::RemoveGlobalIdentifierReferences(WTF::move(origin), WTF::move(globalIdentifiers)), 0);
 }
 
 void WebFileSystemStorageConnection::resolveGlobalIdentifier(WebCore::ClientOrigin&& origin, WebCore::FileSystemHandleGlobalIdentifier globalIdentifier, ResolveGlobalIdentifierCallback&& completionHandler)

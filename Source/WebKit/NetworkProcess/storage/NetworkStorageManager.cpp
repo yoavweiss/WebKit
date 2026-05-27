@@ -1267,13 +1267,13 @@ void NetworkStorageManager::addGlobalIdentifierReference(IPC::Connection& connec
     fileSystemStorageManager->addGlobalIdentifierReference(globalIdentifier);
 }
 
-void NetworkStorageManager::removeGlobalIdentifierReference(IPC::Connection& connection, WebCore::ClientOrigin&& origin, WebCore::FileSystemHandleGlobalIdentifier globalIdentifier)
+void NetworkStorageManager::removeGlobalIdentifierReferences(IPC::Connection& connection, WebCore::ClientOrigin&& origin, Vector<WebCore::FileSystemHandleGlobalIdentifier>&& globalIdentifiers)
 {
     assertIsCurrent(workQueue());
     MESSAGE_CHECK(isSiteAllowedForConnection(connection.uniqueID(), WebCore::RegistrableDomain { origin.topOrigin }), connection);
 
     Ref fileSystemStorageManager = originStorageManager(origin)->fileSystemStorageManager(*protect(m_fileSystemStorageHandleRegistry));
-    fileSystemStorageManager->removeGlobalIdentifierReference(globalIdentifier);
+    fileSystemStorageManager->removeGlobalIdentifierReferences(globalIdentifiers.span());
 }
 
 void NetworkStorageManager::resolveGlobalIdentifier(IPC::Connection& connection, WebCore::ClientOrigin&& origin, WebCore::FileSystemHandleGlobalIdentifier globalIdentifier, CompletionHandler<void(Expected<WebCore::FileSystemHandleIdentifier, FileSystemStorageError>)>&& completionHandler)

@@ -63,7 +63,7 @@ public:
     };
 
     void addGlobalIdentifierReference(WebCore::FileSystemHandleGlobalIdentifier);
-    void removeGlobalIdentifierReference(WebCore::FileSystemHandleGlobalIdentifier);
+    void removeGlobalIdentifierReferences(std::span<const WebCore::FileSystemHandleGlobalIdentifier>);
     Expected<WebCore::FileSystemHandleIdentifier, FileSystemStorageError> resolveGlobalIdentifier(IPC::Connection::UniqueID, WebCore::FileSystemHandleGlobalIdentifier);
 
     enum class LockType : bool { Exclusive, Shared };
@@ -76,6 +76,7 @@ private:
     FileSystemStorageManager(String&& path, FileSystemStorageHandleRegistry&, QuotaCheckFunction&&);
 
     void close();
+    void removeGlobalIdentifierReference(WebCore::FileSystemHandleGlobalIdentifier);
 
     using Lock = FileSystemStorageManagerLock;
 

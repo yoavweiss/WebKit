@@ -280,6 +280,14 @@ void FileSystemStorageManager::removeGlobalIdentifierReference(WebCore::FileSyst
         m_globalIdentifierRegistry.remove(it);
 }
 
+void FileSystemStorageManager::removeGlobalIdentifierReferences(std::span<const WebCore::FileSystemHandleGlobalIdentifier> identifiers)
+{
+    ASSERT(!RunLoop::isMain());
+
+    for (auto& identifier : identifiers)
+        removeGlobalIdentifierReference(identifier);
+}
+
 Expected<WebCore::FileSystemHandleIdentifier, FileSystemStorageError> FileSystemStorageManager::resolveGlobalIdentifier(IPC::Connection::UniqueID connection, WebCore::FileSystemHandleGlobalIdentifier globalIdentifier)
 {
     ASSERT(!RunLoop::isMain());

@@ -67,14 +67,14 @@ FileSystemHandleKeepAlive::FileSystemHandleKeepAlive(ClientOrigin&& origin, File
 FileSystemHandleKeepAlive::~FileSystemHandleKeepAlive()
 {
     if (RefPtr connection = m_connection; connection && m_globalIdentifier)
-        connection->removeGlobalIdentifierReference(ClientOrigin { m_origin }, *m_globalIdentifier);
+        connection->removeGlobalIdentifierReferences(ClientOrigin { m_origin }, { *m_globalIdentifier });
 }
 
 FileSystemHandleKeepAlive& FileSystemHandleKeepAlive::operator=(FileSystemHandleKeepAlive&& other)
 {
     if (this != &other) {
         if (RefPtr connection = m_connection; connection && m_globalIdentifier)
-            connection->removeGlobalIdentifierReference(ClientOrigin { m_origin }, *m_globalIdentifier);
+            connection->removeGlobalIdentifierReferences(ClientOrigin { m_origin }, { *m_globalIdentifier });
         m_globalIdentifier = std::exchange(other.m_globalIdentifier, Markable<FileSystemHandleGlobalIdentifier> { });
         m_origin = WTF::move(other.m_origin);
         m_connection = WTF::move(other.m_connection);

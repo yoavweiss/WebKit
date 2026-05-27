@@ -74,7 +74,7 @@ private:
     void getHandleNames(FileSystemHandleIdentifier, GetHandleNamesCallback&&) final;
     void getHandle(FileSystemHandleIdentifier, const String& name, GetHandleCallback&&) final;
     void addGlobalIdentifierReference(ClientOrigin&&, FileSystemHandleGlobalIdentifier) final;
-    void removeGlobalIdentifierReference(ClientOrigin&&, FileSystemHandleGlobalIdentifier) final;
+    void removeGlobalIdentifierReferences(ClientOrigin&&, Vector<FileSystemHandleGlobalIdentifier>&&) final;
     void resolveGlobalIdentifier(ClientOrigin&&, FileSystemHandleGlobalIdentifier, ResolveGlobalIdentifierCallback&&) final;
     void getFile(FileSystemHandleIdentifier, StringCallback&&) final;
     void createSyncAccessHandle(FileSystemHandleIdentifier, FileSystemStorageConnection::GetAccessHandleCallback&&) final;
