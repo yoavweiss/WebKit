@@ -398,6 +398,34 @@ macro(WEBKIT_OPTION_END)
         endif ()
     endforeach ()
 
+    # Swift/C++ interop on the GLib ports is only supported with Clang.
+    # GCC builds compile but produce a binary that crashes at runtime
+    # (the Swift-emitted C++ thunks rely on clang ABI/codegen details
+    # that GCC does not implement compatibly), so refuse to configure
+    # when a Swift-using feature is enabled with a non-Clang compiler.
+    if (NOT COMPILER_IS_CLANG)
+        if (ENABLE_SWIFT_DEMO_URI_SCHEME OR ENABLE_BACK_FORWARD_LIST_SWIFT)
+            message(FATAL_ERROR
+                "Swift/C++ interop on the GLib ports requires Clang, but the "
+                "configured C++ compiler is ${CMAKE_CXX_COMPILER_ID}. Re-run "
+                "the configure step with CC=clang CXX=clang++, or pass "
+                "-DENABLE_SWIFT_DEMO_URI_SCHEME=OFF "
+                "-DENABLE_BACK_FORWARD_LIST_SWIFT=OFF.")
+        endif ()
+    elseif (PORT STREQUAL "GTK" OR PORT STREQUAL "WPE")
+        # HACK: bump ENABLE_SWIFT_DEMO_URI_SCHEME default from OFF to ON for
+        # the GTK and WPE ports (which is where Swift/C++ interop is being
+        # brought up). Leave every other port at OFF — they have no Swift
+        # toolchain plumbing and would fail to configure. option() is a
+        # no-op when the cache already holds the old default, so existing
+        # GTK/WPE build trees would silently keep OFF; force the new value
+        # exactly once per build directory using a sentinel cache variable.
+        if (NOT DEFINED _ENABLE_SWIFT_DEMO_URI_SCHEME_DEFAULT_BUMPED)
+            set(ENABLE_SWIFT_DEMO_URI_SCHEME ON CACHE BOOL "Toggle Swift demo URI feature" FORCE)
+            set(_ENABLE_SWIFT_DEMO_URI_SCHEME_DEFAULT_BUMPED YES CACHE INTERNAL "")
+        endif ()
+    endif ()
+
     if (ENABLE_SWIFT_DEMO_URI_SCHEME OR ENABLE_BACK_FORWARD_LIST_SWIFT)
         set(SWIFT_REQUIRED ON)
     else ()

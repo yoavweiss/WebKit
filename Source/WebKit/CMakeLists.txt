@@ -907,10 +907,12 @@ if (NOT APPLE AND SWIFT_REQUIRED)
     endforeach ()
     # VFS overlay: inject module.modulemap files for Linux system libraries
     # (glib, libsoup, etc.) that do not ship their own modulemaps.  The overlay
-    # makes them appear inside /usr/include/glib-2.0/ etc. without modifying
-    # the real filesystem.  Both the -typecheck/-emit-clang-header custom command
-    # and the per-file Swift compilation receive the flag via SWIFT_EXTRA_OPTIONS
-    # and target_compile_options respectively.
+    # makes them appear inside the detected ${GLib_INCLUDE_DIR} /
+    # ${Soup3_INCLUDE_DIR} (which may live under /usr or a jhbuild prefix)
+    # without modifying the real filesystem.  Both the
+    # -typecheck/-emit-clang-header custom command and the per-file Swift
+    # compilation receive the flag via SWIFT_EXTRA_OPTIONS and
+    # target_compile_options respectively.
     set(_linux_mm_src "${CMAKE_SOURCE_DIR}/Source/cmake/linux-modulemaps")
     set(_linux_mm_dir "${CMAKE_BINARY_DIR}/linux-modulemaps")
     file(MAKE_DIRECTORY "${_linux_mm_dir}")

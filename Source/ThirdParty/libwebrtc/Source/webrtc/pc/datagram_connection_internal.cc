@@ -142,7 +142,9 @@ DatagramConnectionInternal::DatagramConnectionInternal(
 
   internal_transport_->ice_transport()->SubscribeCandidateGathered(
       this,
-      std::bind_front(&DatagramConnectionInternal::OnCandidateGathered, this));
+      [this](IceTransportInternal* ice_transport, const Candidate& candidate) {
+        OnCandidateGathered(ice_transport, candidate);
+      });
 
   if (wire_protocol_ == WireProtocol::kDtls) {
     internal_transport_->SubscribeWritableState(this, [this](bool is_writable) {
