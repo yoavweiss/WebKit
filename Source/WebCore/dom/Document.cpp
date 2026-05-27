@@ -3,7 +3,7 @@
  *           (C) 1999 Antti Koivisto (koivisto@kde.org)
  *           (C) 2001 Dirk Mueller (mueller@kde.org)
  *           (C) 2006 Alexey Proskuryakov (ap@webkit.org)
- * Copyright (C) 2004-2025 Apple Inc. All rights reserved.
+ * Copyright (C) 2004-2026 Apple Inc. All rights reserved.
  * Copyright (C) 2008, 2009 Torch Mobile Inc. All rights reserved. (http://www.torchmobile.com/)
  * Copyright (C) 2008-2014 Google Inc. All rights reserved.
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies)
@@ -6325,7 +6325,7 @@ void Document::flushAutofocusCandidates()
     if (m_autofocusCandidates.isEmpty())
         return;
 
-    if (cssTarget()) {
+    if (focusedElement() || page->focusController().focusedFrame() != frame() || cssTarget()) {
         m_autofocusCandidates.clear();
         page->setAutofocusProcessed();
         return;
