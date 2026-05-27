@@ -446,7 +446,7 @@ constexpr auto TextDecorationLineBits = 5;
 constexpr auto TextTransformBits = 6;
 constexpr auto PseudoElementTypeBits = 5;
 
-using PseudoStyleCache = HashMap<PseudoElementIdentifier, std::unique_ptr<RenderStyle>>;
+using PseudoElementStyles = HashMap<PseudoElementIdentifier, std::unique_ptr<RenderStyle>>;
 
 DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(ComputedStyleBase);
 class ComputedStyleBase : public CanMakeCheckedPtr<ComputedStyleBase, WTF::DefaultedOperatorEqual::No, WTF::CheckedPtrDeleteCheckException::Yes> {
@@ -587,11 +587,11 @@ public:
     inline bool hasPseudoStyle(PseudoElementType) const;
     inline void setHasPseudoStyles(EnumSet<PseudoElementType>);
 
-    RenderStyle* NODELETE getCachedPseudoStyle(const PseudoElementIdentifier&) const;
-    RenderStyle* addCachedPseudoStyle(std::unique_ptr<RenderStyle>);
+    RenderStyle* NODELETE pseudoElementStyle(const PseudoElementIdentifier&) const;
+    RenderStyle* addPseudoElementStyle(std::unique_ptr<RenderStyle>);
 
-    bool hasCachedPseudoStyles() const { return !m_cachedPseudoStyles.isEmpty(); }
-    const PseudoStyleCache& cachedPseudoStyles() const LIFETIME_BOUND { return m_cachedPseudoStyles; }
+    bool hasPseudoElementStyles() const { return !m_pseudoElementStyles.isEmpty(); }
+    const PseudoElementStyles& pseudoElementStyles() const LIFETIME_BOUND { return m_pseudoElementStyles; }
 
     // MARK: - Custom properties
 
@@ -855,7 +855,7 @@ protected:
     DataRef<SVGData> m_svgData;
 
     // Associated pseudo styles
-    PseudoStyleCache m_cachedPseudoStyles;
+    PseudoElementStyles m_pseudoElementStyles;
 
 #if ASSERT_ENABLED || ENABLE(SECURITY_ASSERTIONS)
     bool m_deletionHasBegun { false };

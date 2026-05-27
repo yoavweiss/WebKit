@@ -228,7 +228,7 @@ void RenderTreeUpdater::GeneratedContent::updateBeforeOrAfterPseudoElement(Eleme
     if (auto* renderer = pseudoElement ? pseudoElement->renderer() : nullptr)
         m_updater.renderTreePosition().invalidateNextSibling(*renderer);
 
-    auto* updateStyle = (elementUpdate.style && elementUpdate.style->hasCachedPseudoStyles()) ? elementUpdate.style->getCachedPseudoStyle({ pseudoElementType }) : nullptr;
+    auto* updateStyle = (elementUpdate.style && elementUpdate.style->hasPseudoElementStyles()) ? elementUpdate.style->pseudoElementStyle({ pseudoElementType }) : nullptr;
 
     // If we end up losing a previous pseudo because the style got removed we need to
     // cancel any animations that were on it so we do not end up thinking we need to keep
@@ -307,7 +307,7 @@ void RenderTreeUpdater::GeneratedContent::updateBackdropRenderer(RenderElement& 
         return;
     }
 
-    auto style = renderer.getCachedPseudoStyle({ PseudoElementType::Backdrop }, &renderer.style());
+    auto style = renderer.style().pseudoElementStyle({ PseudoElementType::Backdrop });
     if (!style || style->display() == Style::DisplayType::None) {
         destroyBackdropIfNeeded();
         return;
@@ -385,7 +385,7 @@ void RenderTreeUpdater::GeneratedContent::updateWritingSuggestionsRenderer(Rende
         return;
     }
 
-    auto style = renderer.getCachedPseudoStyle({ PseudoElementType::InternalWritingSuggestions }, &renderer.style());
+    auto style = renderer.lazyPseudoElementStyle({ PseudoElementType::InternalWritingSuggestions });
     if (!style || style->display() == Style::DisplayType::None) {
         destroyWritingSuggestionsIfNeeded();
         return;

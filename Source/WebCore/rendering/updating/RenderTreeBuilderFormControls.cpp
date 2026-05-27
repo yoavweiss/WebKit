@@ -115,7 +115,7 @@ void RenderTreeBuilder::FormControls::updatePseudoElement(PseudoElementType type
     if (usedAppearance != StyleAppearance::Base && !existingPseudoElement)
         return;
 
-    auto pseudoStyle = renderer.getCachedPseudoStyle({ type });
+    auto pseudoStyle = renderer.style().pseudoElementStyle({ type });
     if (!pseudoStyle)
         return;
 

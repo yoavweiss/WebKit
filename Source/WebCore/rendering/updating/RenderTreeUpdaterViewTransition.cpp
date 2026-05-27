@@ -72,7 +72,7 @@ void RenderTreeUpdater::ViewTransition::updatePseudoElementTree(RenderElement* d
     }
 
     // Destroy pseudo element tree ::view-transition has display: none or no style.
-    auto rootStyle = documentElementRenderer->getCachedPseudoStyle({ PseudoElementType::ViewTransition }, &documentElementRenderer->style());
+    auto rootStyle = documentElementRenderer->style().pseudoElementStyle({ PseudoElementType::ViewTransition });
     if (!rootStyle || rootStyle->display() == Style::DisplayType::None) {
         destroyPseudoElementTreeIfNeeded();
         return;
@@ -123,7 +123,7 @@ void RenderTreeUpdater::ViewTransition::updatePseudoElementTree(RenderElement* d
     for (auto& name : activeViewTransition->namedElements().keys()) {
         ASSERT(!currentGroup || currentGroup->style().pseudoElementType() == PseudoElementType::ViewTransitionGroup);
         if (currentGroup && name == currentGroup->style().pseudoElementNameArgument()) {
-            auto style = documentElementRenderer->getCachedPseudoStyle({ PseudoElementType::ViewTransitionGroup, name }, &documentElementRenderer->style());
+            auto style = documentElementRenderer->style().pseudoElementStyle({ PseudoElementType::ViewTransitionGroup, name });
             if (!style || style->display() == Style::DisplayType::None) {
                 documentElementRenderer->view().removeViewTransitionGroup(name);
                 descendantsToDelete.append(currentGroup);
@@ -143,7 +143,7 @@ void RenderTreeUpdater::ViewTransition::updatePseudoElementTree(RenderElement* d
 static RenderPtr<RenderBox> createRendererIfNeeded(RenderElement& documentElementRenderer, const AtomString& name, PseudoElementType pseudoElementType)
 {
     auto& documentElementStyle = documentElementRenderer.style();
-    auto style = documentElementRenderer.getCachedPseudoStyle({ pseudoElementType, name }, &documentElementStyle);
+    auto style = documentElementStyle.pseudoElementStyle({ pseudoElementType, name });
     if (!style || style->display() == Style::DisplayType::None)
         return nullptr;
 
@@ -204,7 +204,7 @@ void RenderTreeUpdater::ViewTransition::updatePseudoElementGroup(const RenderSty
 
     enum class ShouldDeleteRenderer : bool { No, Yes };
     auto updateRenderer = [&](auto& renderer) -> ShouldDeleteRenderer {
-        auto style = documentElementRenderer.getCachedPseudoStyle({ *renderer.style().pseudoElementType(), name }, &documentElementStyle);
+        auto style = documentElementStyle.pseudoElementStyle({ *renderer.style().pseudoElementType(), name });
         if (!style || style->display() == Style::DisplayType::None)
             return ShouldDeleteRenderer::Yes;
 

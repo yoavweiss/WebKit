@@ -4755,7 +4755,7 @@ const RenderStyle* Element::renderOrDisplayContentsStyle(const std::optional<Sty
 {
     if (pseudoElementIdentifier) {
         if (CheckedPtr style = renderOrDisplayContentsStyle()) {
-            if (auto* cachedPseudoStyle = style->getCachedPseudoStyle(*pseudoElementIdentifier))
+            if (auto* cachedPseudoStyle = style->pseudoElementStyle(*pseudoElementIdentifier))
                 return cachedPseudoStyle;
         }
 
@@ -4865,7 +4865,7 @@ const RenderStyle& Element::resolvePseudoElementStyle(const Style::PseudoElement
 
     CheckedPtr parentStyle = existingComputedStyle();
     ASSERT(parentStyle);
-    ASSERT(!parentStyle->getCachedPseudoStyle(pseudoElementIdentifier));
+    ASSERT(!parentStyle->pseudoElementStyle(pseudoElementIdentifier));
 
     Ref document = this->document();
     Style::PostResolutionCallbackDisabler disabler(document, Style::PostResolutionCallbackDisabler::DrainCallbacks::No);
@@ -4878,8 +4878,8 @@ const RenderStyle& Element::resolvePseudoElementStyle(const Style::PseudoElement
     }
 
     CheckedPtr computedStyle = style.get();
-    const_cast<RenderStyle*>(parentStyle.get())->addCachedPseudoStyle(WTF::move(style));
-    ASSERT(parentStyle->getCachedPseudoStyle(pseudoElementIdentifier));
+    const_cast<RenderStyle*>(parentStyle.get())->addPseudoElementStyle(WTF::move(style));
+    ASSERT(parentStyle->pseudoElementStyle(pseudoElementIdentifier));
     return *computedStyle.unsafeGet();
 }
 
@@ -4899,7 +4899,7 @@ const RenderStyle* Element::computedStyle(const std::optional<Style::PseudoEleme
         style = resolveComputedStyle();
 
     if (pseudoElementIdentifier) {
-        if (auto* cachedPseudoStyle = style->getCachedPseudoStyle(*pseudoElementIdentifier))
+        if (auto* cachedPseudoStyle = style->pseudoElementStyle(*pseudoElementIdentifier))
             return cachedPseudoStyle;
         return &resolvePseudoElementStyle(*pseudoElementIdentifier);
     }

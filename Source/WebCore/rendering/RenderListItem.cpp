@@ -66,7 +66,7 @@ RenderListItem::~RenderListItem()
 RenderStyle RenderListItem::computeMarkerStyle() const
 {
     if (!is<PseudoElement>(element())) {
-        if (auto markerStyle = getCachedPseudoStyle({ PseudoElementType::Marker }, &style()))
+        if (auto markerStyle = style().pseudoElementStyle({ PseudoElementType::Marker }))
             return RenderStyle::clone(*markerStyle);
     }
 

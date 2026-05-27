@@ -1701,7 +1701,7 @@ bool AnchorPositionEvaluator::isImplicitAnchor(const RenderStyle& style)
     // "The implicit anchor element of a pseudo-element is its originating element, unless otherwise specified."
     // https://drafts.csswg.org/css-anchor-position-1/#implicit
     auto isImplicitAnchorForPseudoElement = [&](PseudoElementType pseudoElementType) {
-        const RenderStyle* pseudoElementStyle = style.getCachedPseudoStyle({ pseudoElementType });
+        const RenderStyle* pseudoElementStyle = style.pseudoElementStyle({ pseudoElementType });
         if (!pseudoElementStyle)
             return false;
         // If we have an explicit anchor name then there is no need for an implicit anchor.

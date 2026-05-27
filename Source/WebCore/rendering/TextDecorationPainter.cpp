@@ -348,8 +348,8 @@ static void collectStylesForRenderer(TextDecorationPainter::Styles& result, cons
     auto styleForRenderer = [&] (const RenderObject& renderer) -> CheckedRef<const RenderStyle> {
         if (pseudoElementType && renderer.style().hasPseudoStyle(*pseudoElementType)) {
             if (auto textRenderer = dynamicDowncast<RenderText>(renderer))
-                return *textRenderer->getCachedPseudoStyle({ *pseudoElementType });
-            return *downcast<RenderElement>(renderer).getCachedPseudoStyle({ *pseudoElementType });
+                return *textRenderer->lazyPseudoElementStyle({ *pseudoElementType });
+            return *downcast<RenderElement>(renderer).lazyPseudoElementStyle({ *pseudoElementType });
         }
         return firstLineStyle ? renderer.firstLineStyle() : CheckedRef { renderer.style() };
     };

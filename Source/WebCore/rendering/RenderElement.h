@@ -89,11 +89,9 @@ public:
     // continue even if the style isn't different from the current style.
     void setStyle(RenderStyle&&, Style::DifferenceResult minimalStyleDifference = Style::DifferenceResult::Equal);
 
-    // The pseudo element style can be cached or uncached. Use the uncached method if the pseudo element
-    // has the concept of changing state (like ::-webkit-scrollbar-thumb:hover), or if it takes additional
-    // parameters (like ::highlight(name)).
-    const RenderStyle* getCachedPseudoStyle(const Style::PseudoElementIdentifier&, const RenderStyle* parentStyle = nullptr) const LIFETIME_BOUND;
-    std::unique_ptr<RenderStyle> getUncachedPseudoStyle(const Style::PseudoElementRequest&, const RenderStyle* parentStyle = nullptr, const RenderStyle* ownStyle = nullptr) const;
+    // Resolves and caches the style for a lazily-resolved pseudo-element.
+    const RenderStyle* lazyPseudoElementStyle(const Style::PseudoElementIdentifier&, const RenderStyle* parentStyle = nullptr) const LIFETIME_BOUND;
+    std::unique_ptr<RenderStyle> resolvePseudoElementStyle(const Style::PseudoElementRequest&, const RenderStyle* parentStyle = nullptr, const RenderStyle* ownStyle = nullptr) const;
 
     // This is null for anonymous renderers.
     inline Element* element() const; // Defined in RenderElementInlines.h

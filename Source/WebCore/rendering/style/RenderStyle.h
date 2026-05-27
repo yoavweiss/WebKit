@@ -209,11 +209,11 @@ public:
     inline bool hasPseudoStyle(PseudoElementType) const;
     inline void setHasPseudoStyles(EnumSet<PseudoElementType>);
 
-    RenderStyle* getCachedPseudoStyle(const Style::PseudoElementIdentifier&) const LIFETIME_BOUND;
-    RenderStyle* addCachedPseudoStyle(std::unique_ptr<RenderStyle>) LIFETIME_BOUND;
+    RenderStyle* pseudoElementStyle(const Style::PseudoElementIdentifier&) const LIFETIME_BOUND;
+    RenderStyle* addPseudoElementStyle(std::unique_ptr<RenderStyle>) LIFETIME_BOUND;
 
-    bool hasCachedPseudoStyles() const { return m_computedStyle.hasCachedPseudoStyles(); }
-    const Style::PseudoStyleCache& cachedPseudoStyles() const LIFETIME_BOUND { return m_computedStyle.cachedPseudoStyles(); }
+    bool hasPseudoElementStyles() const { return m_computedStyle.hasPseudoElementStyles(); }
+    const Style::PseudoElementStyles& pseudoElementStyles() const LIFETIME_BOUND { return m_computedStyle.pseudoElementStyles(); }
 
     // MARK: - Custom properties
 

@@ -114,7 +114,7 @@ Vector<MarkedText> MarkedText::collectForHighlights(const RenderText& renderer, 
     auto& parentStyle = parentRenderer.style();
     if (auto highlightRegistry = renderer.document().highlightRegistryIfExists()) {
         for (auto& highlightName : highlightRegistry->highlightNames()) {
-            auto renderStyle = parentRenderer.getUncachedPseudoStyle({ PseudoElementType::Highlight, highlightName }, &parentStyle);
+            auto renderStyle = parentRenderer.resolvePseudoElementStyle({ PseudoElementType::Highlight, highlightName }, &parentStyle);
             if (!renderStyle)
                 continue;
             if (renderStyle->textDecorationLineInEffect().isNone() && phase == PaintPhase::Decoration)

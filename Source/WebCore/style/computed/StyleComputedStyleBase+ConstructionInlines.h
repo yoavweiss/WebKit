@@ -109,7 +109,7 @@ inline ComputedStyleBase::ComputedStyleBase(ComputedStyleBase& a, ComputedStyleB
     , m_inheritedRareData(a.m_inheritedRareData.replace(WTF::move(b.m_inheritedRareData)))
     , m_inheritedData(a.m_inheritedData.replace(WTF::move(b.m_inheritedData)))
     , m_svgData(a.m_svgData.replace(WTF::move(b.m_svgData)))
-    , m_cachedPseudoStyles(std::exchange(a.m_cachedPseudoStyles, WTF::move(b.m_cachedPseudoStyles)))
+    , m_pseudoElementStyles(std::exchange(a.m_pseudoElementStyles, WTF::move(b.m_pseudoElementStyles)))
 {
 }
 

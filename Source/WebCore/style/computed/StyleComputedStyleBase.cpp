@@ -98,12 +98,12 @@ std::optional<PseudoElementIdentifier> ComputedStyleBase::pseudoElementIdentifie
     return PseudoElementIdentifier { *pseudoElementType(), pseudoElementNameArgument() };
 }
 
-RenderStyle* ComputedStyleBase::getCachedPseudoStyle(const PseudoElementIdentifier& pseudoElementIdentifier) const
+RenderStyle* ComputedStyleBase::pseudoElementStyle(const PseudoElementIdentifier& pseudoElementIdentifier) const
 {
-    return m_cachedPseudoStyles.get(pseudoElementIdentifier);
+    return m_pseudoElementStyles.get(pseudoElementIdentifier);
 }
 
-RenderStyle* ComputedStyleBase::addCachedPseudoStyle(std::unique_ptr<RenderStyle> pseudo)
+RenderStyle* ComputedStyleBase::addPseudoElementStyle(std::unique_ptr<RenderStyle> pseudo)
 {
     if (!pseudo)
         return nullptr;
@@ -111,7 +111,7 @@ RenderStyle* ComputedStyleBase::addCachedPseudoStyle(std::unique_ptr<RenderStyle
     ASSERT(pseudo->pseudoElementType());
 
     auto* result = pseudo.get();
-    m_cachedPseudoStyles.add(*result->pseudoElementIdentifier(), WTF::move(pseudo));
+    m_pseudoElementStyles.add(*result->pseudoElementIdentifier(), WTF::move(pseudo));
     return result;
 }
 

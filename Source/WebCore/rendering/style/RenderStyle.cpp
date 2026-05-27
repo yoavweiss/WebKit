@@ -135,12 +135,12 @@ RenderStyle RenderStyle::replace(RenderStyle&& newStyle)
 
 void RenderStyle::copyPseudoElementsFrom(const RenderStyle& other)
 {
-    for (auto& [key, pseudoElementStyle] : other.m_computedStyle.cachedPseudoStyles()) {
+    for (auto& [key, pseudoElementStyle] : other.m_computedStyle.pseudoElementStyles()) {
         if (!pseudoElementStyle) {
             ASSERT_NOT_REACHED();
             continue;
         }
-        addCachedPseudoStyle(makeUnique<RenderStyle>(cloneIncludingPseudoElements(*pseudoElementStyle)));
+        addPseudoElementStyle(makeUnique<RenderStyle>(cloneIncludingPseudoElements(*pseudoElementStyle)));
     }
 }
 

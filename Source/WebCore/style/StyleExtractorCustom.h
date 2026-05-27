@@ -1888,7 +1888,7 @@ template<CSSPropertyID property> inline Ref<CSSValue> extractFillLayerPropertySh
             ownedStyle = renderer->animatedStyle();
             if (state.pseudoElementIdentifier) {
                 // FIXME: This cached pseudo style will only exist if the animation has been run at least once.
-                return ownedStyle->getCachedPseudoStyle(*state.pseudoElementIdentifier);
+                return ownedStyle->pseudoElementStyle(*state.pseudoElementIdentifier);
             }
             return ownedStyle.get();
         }

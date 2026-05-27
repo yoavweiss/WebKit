@@ -65,7 +65,7 @@ public:
     const RenderStyle& style() const LIFETIME_BOUND;
 
     const RenderStyle& firstLineStyle() const LIFETIME_BOUND;
-    const RenderStyle* getCachedPseudoStyle(const Style::PseudoElementIdentifier&, const RenderStyle* parentStyle = nullptr) const LIFETIME_BOUND;
+    const RenderStyle* lazyPseudoElementStyle(const Style::PseudoElementIdentifier&, const RenderStyle* parentStyle = nullptr) const LIFETIME_BOUND;
 
     Color selectionBackgroundColor() const;
     Color selectionForegroundColor() const;
@@ -289,11 +289,11 @@ inline const RenderStyle& RenderText::firstLineStyle() const
     return parent()->firstLineStyle();
 }
 
-inline const RenderStyle* RenderText::getCachedPseudoStyle(const Style::PseudoElementIdentifier& pseudoElementIdentifier, const RenderStyle* parentStyle) const
+inline const RenderStyle* RenderText::lazyPseudoElementStyle(const Style::PseudoElementIdentifier& pseudoElementIdentifier, const RenderStyle* parentStyle) const
 {
     // Pseudostyle is associated with an element, so ascend the tree until we find a non-anonymous ancestor.
     if (auto* ancestor = firstNonAnonymousAncestor())
-        return ancestor->getCachedPseudoStyle(pseudoElementIdentifier, parentStyle);
+        return ancestor->lazyPseudoElementStyle(pseudoElementIdentifier, parentStyle);
     return nullptr;
 }
 
