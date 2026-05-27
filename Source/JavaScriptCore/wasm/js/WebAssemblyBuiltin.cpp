@@ -565,6 +565,7 @@ DEFINE_BUILTIN_IMPLEMENTATION_I32(jsstring, intoCharCodeArray, JSGlobalObject* g
     auto data = array->span<char16_t>();
     auto dest = data.subspan(start, stringLength);
     auto stringValue = string->value(globalObject);
+    RETURN_IF_EXCEPTION(scope, { });
 
     if (stringValue.data.is8Bit()) {
         for (size_t i = 0; i < stringLength; ++i)
