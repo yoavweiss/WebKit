@@ -617,6 +617,11 @@ void MediaPlayerPrivateMediaSourceAVFObjC::reenqueueMediaForTimeAndFinishSeek(co
     assertIsMainThread();
     ALWAYS_LOG(LOGIDENTIFIER, seekTime);
 
+    // Refresh the renderer's stall cap before finishSeek, since finishSeek
+    // may resume playback on the GPU side. The cap programmed for the
+    // pre-seek playhead may be stale.
+    resetStallForTime(seekTime);
+
     GenericPromise::all({
         protect(m_mediaSourcePrivate)->reenqueueMediaForTime(seekTime),
         invokeAsync(MediaSourcePrivateAVFObjC::queueSingleton(), [renderer = m_renderer, seekTime] -> Ref<GenericPromise> {
@@ -745,23 +750,27 @@ const PlatformTimeRanges& MediaPlayerPrivateMediaSourceAVFObjC::buffered() const
 
 void MediaPlayerPrivateMediaSourceAVFObjC::bufferedChanged()
 {
+    resetStallForTime(currentTime());
+}
+
+void MediaPlayerPrivateMediaSourceAVFObjC::resetStallForTime(const MediaTime& time)
+{
     assertIsMainThread();
     m_renderer->cancelTimeReachedAction();
 
     auto ranges = protect(m_mediaSourcePrivate)->buffered();
-    auto currentTime = this->currentTime();
-    if (!protect(m_mediaSourcePrivate)->hasFutureTime(currentTime) && shouldBePlaying()) {
-        ALWAYS_LOG(LOGIDENTIFIER, "Not having data to play at currentTime: ", currentTime, " stalling");
+    if (!protect(m_mediaSourcePrivate)->hasFutureTime(time) && shouldBePlaying()) {
+        ALWAYS_LOG(LOGIDENTIFIER, "Not having data to play at time: ", time, " stalling");
         stall();
     }
 
     auto stallAtTime = duration();
-    size_t index = ranges.find(currentTime);
+    size_t index = ranges.find(time);
     if (index != notFound) {
         // Find the next gap (or end of media)
         for (; index < ranges.length(); index++) {
             if ((index < ranges.length() - 1 && ranges.start(index + 1) - ranges.end(index) > m_mediaSourcePrivate->timeFudgeFactor())
-                || (index == ranges.length() - 1 && ranges.end(index) > currentTime)) {
+                || (index == ranges.length() - 1 && ranges.end(index) > time)) {
                 stallAtTime = ranges.end(index);
                 break;
             }
@@ -1037,7 +1046,7 @@ void MediaPlayerPrivateMediaSourceAVFObjC::durationChanged()
             player->durationChanged();
     }
     m_duration = duration;
-    bufferedChanged();
+    resetStallForTime(currentTime());
 }
 
 void MediaPlayerPrivateMediaSourceAVFObjC::effectiveRateChanged()
@@ -1054,7 +1063,7 @@ void MediaPlayerPrivateMediaSourceAVFObjC::notifyEndOfMediaIfNeeded()
     assertIsMainThread();
     // Observed: in some runs, playback drains at end of media (the renderer
     // stops producing frames) without the boundary observer programmed in
-    // bufferedChanged() firing. The effective rate still transitions to 0
+    // resetStallForTime() firing. The effective rate still transitions to 0
     // in that case, which gives us a reliable signal: if MediaSource has
     // transitioned to 'ended' and there is no future data past the current
     // time, route a timeChanged() through so HTMLMediaElement's

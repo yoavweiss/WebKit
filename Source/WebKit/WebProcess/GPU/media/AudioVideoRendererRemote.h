@@ -115,6 +115,7 @@ public:
         void resetLastReturnedTime();
         void setStallCap(const MediaTime&);
         void clearStallCap();
+        void clearStallCapIfBefore(const MediaTime&);
 
     private:
         static constexpr Seconds kUpdateInterval = remoteAudioVideoRendererUpdateInterval;

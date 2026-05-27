@@ -317,6 +317,7 @@ private:
 
     friend class MediaSourcePrivateAVFObjC;
     void bufferedChanged();
+    void resetStallForTime(const MediaTime&);
     void stall();
     void timeChanged();
 

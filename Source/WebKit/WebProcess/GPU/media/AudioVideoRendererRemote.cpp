@@ -170,6 +170,13 @@ void AudioVideoRendererRemote::TimeProgressEstimator::clearStallCap()
     m_stallCap.reset();
 }
 
+void AudioVideoRendererRemote::TimeProgressEstimator::clearStallCapIfBefore(const MediaTime& time)
+{
+    Locker locker { m_lock };
+    if (m_stallCap && *m_stallCap < time)
+        m_stallCap.reset();
+}
+
 Ref<AudioVideoRendererRemote> AudioVideoRendererRemote::create(LoggerHelper* loggerHelper, HTMLMediaElementIdentifier mediaElementIdentifier, MediaPlayerIdentifier playerIdentifier, GPUProcessConnection& connection)
 {
     assertIsMainThread();
@@ -603,6 +610,11 @@ Ref<MediaTimePromise> AudioVideoRendererRemote::prepareToSeek(const MediaTime& t
 {
     m_timeEstimator.setTime({ time, 0.0, MonotonicTime::now() });
     m_timeEstimator.resetLastReturnedTime();
+    // A forward seek past a previously-installed stall cap leaves the cap
+    // describing a position now behind the playhead. The estimator would
+    // otherwise clamp currentTime() back to that stale boundary. The player
+    // computes a new cap via resetStallForTime() if needed.
+    m_timeEstimator.clearStallCapIfBefore(time);
     m_seeking = true;
     m_lastSeekTime = time;
     return invokeAsync(queueSingleton(), [protectedThis = Ref { *this }, this, time] -> Ref<MediaTimePromise> {
