@@ -274,7 +274,11 @@ AccessibilityObject* AccessibilityNodeObject::parentObject() const
 
     if (RefPtr areaElement = dynamicDowncast<HTMLAreaElement>(*node)) {
         RefPtr map = ancestorsOfType<HTMLMapElement>(*areaElement).first();
-        return map ? cache->getOrCreate(map->imageElement().get()) : nullptr;
+        if (RefPtr imageElement = map ? map->imageElement() : nullptr)
+            return cache->getOrCreate(imageElement.get());
+        // The usemap-associated image was removed from the DOM. Fall through and use
+        // the area's DOM parent (the <map>) as the AX parent so the area stays
+        // connected to the AX tree instead of being orphaned.
     }
 
     if (RefPtr ownerParent = ownerParentObject()) [[unlikely]]
