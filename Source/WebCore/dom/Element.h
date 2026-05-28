@@ -150,8 +150,8 @@ struct ShadowRootInit;
 
 using AnimatableCSSProperty = Variant<CSSPropertyID, AtomString>;
 using AnimatableCSSPropertyToTransitionMap = HashMap<AnimatableCSSProperty, Ref<CSSTransition>>;
-using AnimationCollection = ListHashSet<Ref<WebAnimation>>;
-using CSSAnimationCollection = ListHashSet<Ref<CSSAnimation>>;
+using AnimationCollection = OrderedHashSet<Ref<WebAnimation>>;
+using CSSAnimationCollection = OrderedHashSet<Ref<CSSAnimation>>;
 using ElementName = NodeName;
 using ExplicitlySetAttrElementsMap = HashMap<QualifiedName, Vector<WeakPtr<Element, WeakPtrImplWithEventTargetData>>>;
 using TrustedTypeOrString = Variant<Ref<TrustedHTML>, Ref<TrustedScript>, Ref<TrustedScriptURL>, AtomString>;

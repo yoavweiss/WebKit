@@ -32,20 +32,12 @@
 #include <wtf/Vector.h>
 #include <wtf/WeakPtr.h>
 
-#if ENABLE(THREADED_ANIMATIONS)
-#include <wtf/WeakListHashSet.h>
-#endif
-
 namespace WebCore {
 
 class Document;
 class KeyframeEffect;
 class RenderStyle;
 class Settings;
-
-#if ENABLE(THREADED_ANIMATIONS)
-class AcceleratedEffect;
-#endif
 
 namespace Style {
 struct ResolutionContext;
