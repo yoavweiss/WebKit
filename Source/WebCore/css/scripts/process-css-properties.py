@@ -1335,6 +1335,11 @@ class StyleProperties:
             self._all_computed = sorted([property for property in self.all if not property.is_skipped_from_computed_style], key=functools.cmp_to_key(StyleProperties._sort_with_prefixed_properties_last))
         return self._all_computed
 
+    # Returns a generator for the subset of `self.all` that are NOT marked internal.
+    @property
+    def all_non_internal_only(self):
+        return (property for property in self.all if not property.codegen_properties.internal_only)
+
     # Returns a generator for the set of properties that have an associate longhand, the so-called shorthands. Default decreasing priority and name sorting.
     @property
     def all_shorthands(self):
@@ -1844,16 +1849,6 @@ class PropertiesAndDescriptors:
     @property
     def all_unique_with_settings_flag(self):
         return (property_set[0] for property_set in self.all_grouped_by_name if all(property.codegen_properties.settings_flag for property in property_set))
-
-    # Returns a generator for the subset of `self.all_unique` that are marked internal-only.
-    @property
-    def all_unique_internal_only(self):
-        return (property for property in self.all_unique if property.codegen_properties.internal_only)
-
-    # Returns a generator for the subset of `self.all_unique` that are NOT marked internal.
-    @property
-    def all_unique_non_internal_only(self):
-        return (property for property in self.all_unique if not property.codegen_properties.internal_only)
 
     @property
     def all_descriptor_only(self):
@@ -4495,8 +4490,8 @@ class GenerateCSSStylePropertiesPropertyNames:
         self.generation_context = generation_context
 
     @property
-    def properties_and_descriptors(self):
-        return self.generation_context.properties_and_descriptors
+    def style_properties(self):
+        return self.generation_context.properties_and_descriptors.style_properties
 
     def generate(self):
         self.generate_css_style_declaration_property_names_idl()
@@ -4557,7 +4552,7 @@ class GenerateCSSStylePropertiesPropertyNames:
             )
 
             name_or_alias_to_property = {}
-            for property in self.properties_and_descriptors.all_unique_non_internal_only:
+            for property in self.style_properties.all_non_internal_only:
                 name_or_alias_to_property[property.name] = property
                 for alias in property.aliases:
                     name_or_alias_to_property[alias] = property
