@@ -25,20 +25,32 @@
 #include "config.h"
 #include "DeprecatedCSSOMRect.h"
 
-#include "Rect.h"
+#include "CSSPrimitiveNumericTypes+DeprecatedCSSOMValueCreation.h"
 
 namespace WebCore {
 
-Ref<DeprecatedCSSOMRect> DeprecatedCSSOMRect::create(const Rect& rect, CSSStyleDeclaration& owner)
+static Ref<DeprecatedCSSOMPrimitiveValue> makeDeprecatedCSSOMPrimitiveValueForClipEdge(const CSS::ClipEdge& edge, CSSStyleDeclaration& owner)
+{
+    return WTF::switchOn(edge,
+        [&](CSS::Keyword::Auto keyword) {
+            return DeprecatedCSSOMPrimitiveValue::create(CSS::Keyword { keyword.value }, owner);
+        },
+        [&](const CSS::Length<>& length) {
+            return CSS::makeDeprecatedCSSOMPrimitiveValueForNumeric(length, owner);
+        }
+    );
+}
+
+Ref<DeprecatedCSSOMRect> DeprecatedCSSOMRect::create(const CSS::ClipRect& rect, CSSStyleDeclaration& owner)
 {
     return adoptRef(*new DeprecatedCSSOMRect(rect, owner));
 }
 
-DeprecatedCSSOMRect::DeprecatedCSSOMRect(const Rect& rect, CSSStyleDeclaration& owner)
-    : m_top(DeprecatedCSSOMPrimitiveValue::create(rect.top(), owner))
-    , m_right(DeprecatedCSSOMPrimitiveValue::create(rect.right(), owner))
-    , m_bottom(DeprecatedCSSOMPrimitiveValue::create(rect.bottom(), owner))
-    , m_left(DeprecatedCSSOMPrimitiveValue::create(rect.left(), owner))
+DeprecatedCSSOMRect::DeprecatedCSSOMRect(const CSS::ClipRect& rect, CSSStyleDeclaration& owner)
+    : m_top(makeDeprecatedCSSOMPrimitiveValueForClipEdge(rect.value->top(), owner))
+    , m_right(makeDeprecatedCSSOMPrimitiveValueForClipEdge(rect.value->right(), owner))
+    , m_bottom(makeDeprecatedCSSOMPrimitiveValueForClipEdge(rect.value->bottom(), owner))
+    , m_left(makeDeprecatedCSSOMPrimitiveValueForClipEdge(rect.value->left(), owner))
 {
 }
 

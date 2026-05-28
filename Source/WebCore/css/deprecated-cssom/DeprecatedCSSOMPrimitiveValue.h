@@ -27,13 +27,31 @@
 #pragma once
 
 #include <WebCore/DeprecatedCSSOMValue.h>
+#include <wtf/Function.h>
 
 namespace WebCore {
+
+namespace CSS {
+class UnevaluatedCalcBase;
+struct ClipRect;
+struct Color;
+struct ContentCounterFunctionWrapper;
+struct ContentCountersFunctionWrapper;
+struct ContentLegacyAttrFunctionWrapper;
+struct CustomIdent;
+struct FontFamilyName;
+struct Keyword;
+struct SerializationContext;
+struct String;
+struct URL;
+struct UnconstrainedPrimitiveNumericRaw;
+}
 
 class DeprecatedCSSOMCounter;
 class DeprecatedCSSOMRGBColor;
 class DeprecatedCSSOMRect;
-    
+struct DeprecatedCSSOMPrimitiveValueData;
+
 class DeprecatedCSSOMPrimitiveValue final : public DeprecatedCSSOMValue {
 public:
     // Only expose what's in the IDL file.
@@ -67,7 +85,20 @@ public:
         // Do not add new units here; this is deprecated and we shouldn't expose anything not in DOM Level 2 Style.
     };
 
-    static Ref<DeprecatedCSSOMPrimitiveValue> create(Ref<const CSSValue>, CSSStyleDeclaration&);
+    static Ref<DeprecatedCSSOMPrimitiveValue> create(Function<String(const CSS::SerializationContext&)>&&, CSSStyleDeclaration&);
+    static Ref<DeprecatedCSSOMPrimitiveValue> create(const CSS::UnconstrainedPrimitiveNumericRaw&, CSSStyleDeclaration&);
+    static Ref<DeprecatedCSSOMPrimitiveValue> create(const CSS::UnevaluatedCalcBase&, CSSStyleDeclaration&);
+    static Ref<DeprecatedCSSOMPrimitiveValue> create(const CSS::ClipRect&, CSSStyleDeclaration&);
+    static Ref<DeprecatedCSSOMPrimitiveValue> create(const CSS::Color&, CSSStyleDeclaration&);
+    static Ref<DeprecatedCSSOMPrimitiveValue> create(const CSS::ContentCounterFunctionWrapper&, CSSStyleDeclaration&);
+    static Ref<DeprecatedCSSOMPrimitiveValue> create(const CSS::ContentCountersFunctionWrapper&, CSSStyleDeclaration&);
+    static Ref<DeprecatedCSSOMPrimitiveValue> create(const CSS::ContentLegacyAttrFunctionWrapper&, CSSStyleDeclaration&);
+    static Ref<DeprecatedCSSOMPrimitiveValue> create(const CSS::CustomIdent&, CSSStyleDeclaration&);
+    static Ref<DeprecatedCSSOMPrimitiveValue> create(const CSS::FontFamilyName&, CSSStyleDeclaration&);
+    static Ref<DeprecatedCSSOMPrimitiveValue> create(const CSS::Keyword&, CSSStyleDeclaration&);
+    static Ref<DeprecatedCSSOMPrimitiveValue> create(const CSS::String&, CSSStyleDeclaration&);
+    static Ref<DeprecatedCSSOMPrimitiveValue> create(const CSS::URL&, CSSStyleDeclaration&);
+    ~DeprecatedCSSOMPrimitiveValue();
 
     String cssText() const override;
     unsigned short NODELETE cssValueType() const override;
@@ -86,9 +117,10 @@ public:
     bool isCSSWideKeyword() const;
 
 private:
-    DeprecatedCSSOMPrimitiveValue(Ref<const CSSValue>, CSSStyleDeclaration&);
+    static Ref<DeprecatedCSSOMPrimitiveValue> create(DeprecatedCSSOMPrimitiveValueData&&, CSSStyleDeclaration&);
+    DeprecatedCSSOMPrimitiveValue(DeprecatedCSSOMPrimitiveValueData&&, CSSStyleDeclaration&);
 
-    Ref<const CSSValue> m_value;
+    UniqueRef<DeprecatedCSSOMPrimitiveValueData> m_data;
 };
 
 } // namespace WebCore

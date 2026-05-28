@@ -29,7 +29,6 @@
 #include "AnimationUtilities.h"
 #include "CSSBorderImageOutsetValue.h"
 #include "CSSPrimitiveValue.h"
-#include "CSSQuadValue.h"
 #include "StyleBuilderChecking.h"
 #include "StylePrimitiveNumericTypes+Blending.h"
 #include "StylePrimitiveNumericTypes+Conversions.h"

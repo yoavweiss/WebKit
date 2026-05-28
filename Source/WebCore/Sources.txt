@@ -905,7 +905,6 @@ css/CSSContentValue.cpp
 css/CSSCounterStyleDescriptors.cpp
 css/CSSCounterStyleRegistry.cpp
 css/CSSCounterStyleRule.cpp
-css/CSSCounterValue.cpp
 css/CSSCrossfadeValue.cpp
 css/CSSCursorImageValue.cpp
 css/CSSCustomIdentValue.cpp
@@ -973,11 +972,9 @@ css/CSSProperty.cpp
 css/CSSPropertyInitialValues.cpp
 css/CSSPropertyRule.cpp
 css/CSSPropertySourceData.cpp
-css/CSSQuadValue.cpp
 css/CSSQuotesValue.cpp
 css/CSSRatioValue.cpp
 css/CSSRayValue.cpp
-css/CSSRectValue.cpp
 css/CSSRegisteredCounterStyle.cpp
 css/CSSRegisteredCustomProperty.cpp
 css/CSSRule.cpp
@@ -1052,8 +1049,8 @@ css/calc/CSSCalcTree.cpp
 css/calc/CSSCalcType.cpp
 css/calc/CSSCalcValue.cpp
 css/deprecated-cssom/DeprecatedCSSOMCustomValue.cpp
-css/deprecated-cssom/DeprecatedCSSOMLazySerializingCustomValue.cpp
 css/deprecated-cssom/DeprecatedCSSOMPrimitiveValue.cpp
+css/deprecated-cssom/DeprecatedCSSOMPrimitiveValueData.cpp
 css/deprecated-cssom/DeprecatedCSSOMRGBColor.cpp
 css/deprecated-cssom/DeprecatedCSSOMRect.cpp
 css/deprecated-cssom/DeprecatedCSSOMValue.cpp
@@ -1174,6 +1171,7 @@ css/typedom/transform/CSSTransformValue.cpp
 css/typedom/transform/CSSTranslate.cpp
 css/values/CSSSerializationContext.cpp
 css/values/CSSValueTypes.cpp
+css/values/CSSValueTypes+DeprecatedCSSOMValueCreation.cpp
 css/values/backgrounds/CSSBorderImageOutset.cpp
 css/values/backgrounds/CSSBorderImageRepeat.cpp
 css/values/backgrounds/CSSBorderImageSlice.cpp
@@ -1181,7 +1179,6 @@ css/values/backgrounds/CSSBorderImageSource.cpp
 css/values/backgrounds/CSSBorderImageWidth.cpp
 css/values/backgrounds/CSSBorderImage.cpp
 css/values/borders/CSSBorderRadius.cpp
-css/values/borders/CSSBoxShadow.cpp
 css/values/color-adjust/CSSColorScheme.cpp
 css/values/color/CSSColor.cpp
 css/values/color/CSSColorLayers.cpp
@@ -1198,8 +1195,6 @@ css/values/color/CSSPlatformColorResolutionState.cpp
 css/values/color/CSSResolvedColor.cpp
 css/values/content/CSSContent.cpp
 css/values/content/CSSQuotes.cpp
-css/values/filter-effects/CSSAppleColorFilter.cpp
-css/values/filter-effects/CSSFilter.cpp
 css/values/fonts/CSSFontFamilyName.cpp
 css/values/fonts/CSSFontStyleRange.cpp
 css/values/grid/CSSGridAutoFlow.cpp
@@ -1243,7 +1238,6 @@ css/values/shapes/CSSPolygonFunction.cpp
 css/values/shapes/CSSRectFunction.cpp
 css/values/shapes/CSSShapeFunction.cpp
 css/values/shapes/CSSXywhFunction.cpp
-css/values/text-decoration/CSSTextShadow.cpp
 cssjit/SelectorCompiler.cpp
 dom/AbortController.cpp
 dom/AbortSignal.cpp

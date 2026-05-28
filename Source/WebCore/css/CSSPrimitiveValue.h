@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <WebCore/CSSPrimitiveNumericUnits.h>
+#include <WebCore/CSSPrimitiveNumericRaw.h>
 #include <WebCore/CSSUnevaluatedCalc.h>
 #include <WebCore/CSSValue.h>
 #include <utility>
@@ -31,13 +31,10 @@
 namespace WebCore {
 
 class CSSToLengthConversionData;
+class DeprecatedCSSOMPrimitiveValue;
 class FontCascade;
 class RenderStyle;
 class RenderView;
-
-namespace CSSCalc {
-class Value;
-}
 
 template<typename> class ExceptionOr;
 
@@ -71,12 +68,8 @@ public:
     CSSUnitType primitiveType() const;
 
     using Calc = CSS::UnevaluatedCalcBase;
-    struct Raw {
-        CSSUnitType unit;
-        double value;
+    using Raw = CSS::UnconstrainedPrimitiveNumericRaw;
 
-        constexpr bool operator==(const Raw&) const = default;
-    };
     template<typename... F> decltype(auto) switchOn(F&&... f) const
     {
         auto visitor = WTF::makeVisitor(std::forward<F>(f)...);
@@ -96,6 +89,8 @@ public:
     String customCSSText(const CSS::SerializationContext&) const;
     bool equals(const CSSPrimitiveValue&) const;
     void collectComputedStyleDependencies(ComputedStyleDependencies&) const;
+
+    Ref<DeprecatedCSSOMValue> customCreateDeprecatedCSSOMWrapper(CSSStyleDeclaration&) const;
 
 private:
     friend class CSSValuePool;

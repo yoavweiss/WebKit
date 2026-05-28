@@ -402,7 +402,7 @@ IterationStatus CSSValueChildrenVisitor<Color>::operator()(NOESCAPE const Functi
 
 Ref<DeprecatedCSSOMValue> DeprecatedCSSOMValueCreation<Color>::operator()(CSSValuePool&, CSSStyleDeclaration& owner, const Color& value)
 {
-    return DeprecatedCSSOMPrimitiveValue::create(CSSColorValue::create(value), owner);
+    return DeprecatedCSSOMPrimitiveValue::create(value, owner);
 }
 
 } // namespace CSS

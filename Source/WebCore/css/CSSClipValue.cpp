@@ -55,7 +55,7 @@ bool CSSClipValue::equals(const CSSClipValue& other) const
     return m_clip == other.m_clip;
 }
 
-Ref<DeprecatedCSSOMValue> CSSClipValue::createDeprecatedCSSOMWrapper(CSSStyleDeclaration& owner) const
+Ref<DeprecatedCSSOMValue> CSSClipValue::customCreateDeprecatedCSSOMWrapper(CSSStyleDeclaration& owner) const
 {
     return CSS::createDeprecatedCSSOMValue(CSSValuePool::singleton(), owner, m_clip);
 }

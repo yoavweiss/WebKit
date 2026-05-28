@@ -41,12 +41,10 @@
 #include "CSSOffsetRotateValue.h"
 #include "CSSPrimitiveValue.h"
 #include "CSSPropertyNames.h"
-#include "CSSQuadValue.h"
 #include "CSSUnevaluatedCalc.h"
 #include "CSSUnits.h"
 #include "CSSValueKeywords.h"
 #include "CSSValuePair.h"
-#include "RectBase.h"
 #include <wtf/Variant.h>
 #include <wtf/text/ASCIILiteral.h>
 

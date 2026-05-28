@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2025-2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,6 +25,7 @@
 #include "config.h"
 #include "StyleCustomProperty.h"
 
+#include "CSSPrimitiveNumericTypes+DeprecatedCSSOMValueCreation.h"
 #include "CSSPrimitiveValue.h"
 #include "CSSSerializationContext.h"
 #include "CSSStringValue.h"
@@ -32,8 +33,6 @@
 #include "CSSTokenizer.h"
 #include "CSSValueList.h"
 #include "CSSValuePool.h"
-#include "DeprecatedCSSOMCustomValue.h"
-#include "DeprecatedCSSOMPrimitiveValue.h"
 #include "DeprecatedCSSOMValueList.h"
 #include "RenderStyle.h"
 #include "StylePrimitiveNumericTypes+CSSValueCreation.h"
@@ -125,7 +124,9 @@ Ref<DeprecatedCSSOMValue> CustomProperty::propertyValueDeprecatedCSSOMWrapper(CS
             return CSS::createDeprecatedCSSOMValue(pool, owner, CSS::String { emptyString() });
         },
         [&](const Ref<CSSVariableData>& variableData) -> Ref<DeprecatedCSSOMValue> {
-            return DeprecatedCSSOMCustomValue::create(CSSSubstitutionValue::create(variableData.copyRef()), owner);
+            return CSS::makeCustomDeprecatedCSSOMValue([copy = variableData.copyRef()](const CSS::SerializationContext&) {
+                return copy->serialize();
+            }, owner);
         },
         [&](const Value& value) -> Ref<DeprecatedCSSOMValue> {
             return convertValue(value);

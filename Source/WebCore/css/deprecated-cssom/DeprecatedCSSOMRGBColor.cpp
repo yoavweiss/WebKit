@@ -25,13 +25,13 @@
 #include "config.h"
 #include "DeprecatedCSSOMRGBColor.h"
 
-#include "CSSPrimitiveValue.h"
+#include "CSSPrimitiveNumericTypes+DeprecatedCSSOMValueCreation.h"
 
 namespace WebCore {
 
 static Ref<DeprecatedCSSOMPrimitiveValue> createWrapperForColorComponent(double number, CSSStyleDeclaration& owner)
 {
-    return DeprecatedCSSOMPrimitiveValue::create(CSSPrimitiveValue::create(number), owner);
+    return CSS::makeDeprecatedCSSOMPrimitiveValueForNumericRaw(CSS::NumberRaw<> { number }, owner);
 }
 
 Ref<DeprecatedCSSOMRGBColor> DeprecatedCSSOMRGBColor::create(const WebCore::Color& color, CSSStyleDeclaration& owner)

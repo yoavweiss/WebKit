@@ -24,23 +24,30 @@
 
 #pragma once
 
-#include "CSSValue.h"
 #include "DeprecatedCSSOMValue.h"
+#include <wtf/Function.h>
+#include <wtf/text/WTFString.h>
 
 namespace WebCore {
 
+namespace CSS {
+struct SerializationContext;
+}
+
 class DeprecatedCSSOMCustomValue final : public DeprecatedCSSOMValue {
 public:
-    static Ref<DeprecatedCSSOMCustomValue> create(Ref<const CSSValue>, CSSStyleDeclaration&);
+    using SerializationFunctor = Function<String(const CSS::SerializationContext&)>;
+
+    static Ref<DeprecatedCSSOMCustomValue> create(SerializationFunctor&&, CSSStyleDeclaration&);
 
     String cssText() const override;
     unsigned short NODELETE cssValueType() const override;
     bool isCustomValue() const override { return true; }
 
 private:
-    DeprecatedCSSOMCustomValue(Ref<const CSSValue>, CSSStyleDeclaration&);
+    DeprecatedCSSOMCustomValue(SerializationFunctor&&, CSSStyleDeclaration&);
 
-    const Ref<const CSSValue> m_value;
+    SerializationFunctor m_serializationFunctor;
 };
 
 } // namespace WebCore

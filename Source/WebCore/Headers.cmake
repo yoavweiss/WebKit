@@ -1074,7 +1074,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     css/CSSComputedStyleDeclaration.h
     css/CSSConditionRule.h
     css/CSSCounterStyleDescriptors.h
-    css/CSSCounterValue.h
     css/CSSCustomPropertyValue.h
     css/CSSFontFaceDescriptors.h
     css/CSSFontFaceRule.h
@@ -1091,8 +1090,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     css/CSSPrimitiveValue.h
     css/CSSProperty.h
     css/CSSPropertyInitialValues.h
-    css/CSSQuadValue.h
-    css/CSSRectValue.h
     css/CSSRegisteredCustomProperty.h
     css/CSSRule.h
     css/CSSRuleList.h
@@ -1120,9 +1117,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     css/MediaQueryParserContext.h
     css/MutableStyleProperties.h
     css/PropertySetCSSDescriptors.h
-    css/Quad.h
-    css/Rect.h
-    css/RectBase.h
     css/ShorthandSerializer.h
     css/StyleProperties.h
     css/StylePropertiesInlines.h

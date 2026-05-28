@@ -25,25 +25,24 @@
 #include "config.h"
 #include "DeprecatedCSSOMCustomValue.h"
 
-#include "CSSKeywordValue.h"
 #include "CSSSerializationContext.h"
 
 namespace WebCore {
 
-Ref<DeprecatedCSSOMCustomValue> DeprecatedCSSOMCustomValue::create(Ref<const CSSValue> value, CSSStyleDeclaration& owner)
+Ref<DeprecatedCSSOMCustomValue> DeprecatedCSSOMCustomValue::create(SerializationFunctor&& functor, CSSStyleDeclaration& owner)
 {
-    return adoptRef(*new DeprecatedCSSOMCustomValue(WTF::move(value), owner));
+    return adoptRef(*new DeprecatedCSSOMCustomValue(WTF::move(functor), owner));
 }
 
-DeprecatedCSSOMCustomValue::DeprecatedCSSOMCustomValue(Ref<const CSSValue> value, CSSStyleDeclaration& owner)
+DeprecatedCSSOMCustomValue::DeprecatedCSSOMCustomValue(SerializationFunctor&& functor, CSSStyleDeclaration& owner)
     : DeprecatedCSSOMValue(owner)
-    , m_value(WTF::move(value))
+    , m_serializationFunctor(WTF::move(functor))
 {
 }
 
 String DeprecatedCSSOMCustomValue::cssText() const
 {
-    return m_value->cssText(CSS::defaultSerializationContext());
+    return m_serializationFunctor(CSS::defaultSerializationContext());
 }
 
 unsigned short DeprecatedCSSOMCustomValue::cssValueType() const

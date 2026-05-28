@@ -22,6 +22,7 @@
 #include "CSSValueList.h"
 
 #include "CSSKeywordValueInlines.h"
+#include "DeprecatedCSSOMValueList.h"
 #include <wtf/Hasher.h>
 #include <wtf/text/StringBuilder.h>
 
@@ -231,6 +232,11 @@ String CSSValueContainingVector::serializeItems(const CSS::SerializationContext&
 String CSSValueList::customCSSText(const CSS::SerializationContext& context) const
 {
     return serializeItems(context);
+}
+
+Ref<DeprecatedCSSOMValue> CSSValueList::customCreateDeprecatedCSSOMWrapper(CSSStyleDeclaration& owner) const
+{
+    return DeprecatedCSSOMValueList::create(*this, owner);
 }
 
 bool CSSValueContainingVector::itemsEqual(const CSSValueContainingVector& other) const

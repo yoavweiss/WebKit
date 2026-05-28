@@ -420,9 +420,9 @@ template<TupleLike StyleType> struct CSSValueCreation<StyleType> {
             return createCSSValue(pool, style, get<0>(value), std::forward<Rest>(rest)...);
         } else if constexpr (std::tuple_size_v<StyleType> == 2 && SerializationCoalescing<StyleType> == SerializationCoalescingType::Minimal) {
             return CSS::makeCoalescingPairCSSValue<SerializationSeparator<StyleType>>(createCSSValue(pool, style, get<0>(value), rest...), createCSSValue(pool, style, get<1>(value), rest...));
-        } else if constexpr (std::tuple_size_v<StyleType> == 4 && SerializationCoalescing<StyleType> == SerializationCoalescingType::Minimal) {
-            return CSS::makeCoalescingQuadCSSValue<SerializationSeparator<StyleType>>(createCSSValue(pool, style, get<0>(value), rest...), createCSSValue(pool, style, get<1>(value), rest...), createCSSValue(pool, style, get<2>(value), rest...), createCSSValue(pool, style, get<3>(value), rest...));
         } else {
+            static_assert(SerializationCoalescing<StyleType> == SerializationCoalescingType::None);
+
             CSSValueListBuilder list;
 
             auto caller = WTF::makeVisitor(
@@ -488,72 +488,6 @@ struct DeprecatedCSSOMValueCreationInvoker {
 };
 
 inline constexpr DeprecatedCSSOMValueCreationInvoker createDeprecatedCSSOMValue{};
-
-// Constrained for `TreatAsVariantLike`.
-template<VariantLike StyleType> struct DeprecatedCSSOMValueCreation<StyleType> {
-    template<typename... Rest> Ref<DeprecatedCSSOMValue> operator()(CSSValuePool& pool, const RenderStyle& style, CSSStyleDeclaration& owner, const StyleType& value, Rest&&... rest)
-    {
-        return WTF::switchOn(value, [&](const auto& alternative) -> Ref<DeprecatedCSSOMValue> { return createDeprecatedCSSOMValue(pool, style, owner,alternative, std::forward<Rest>(rest)...); });
-    }
-};
-
-// Constrained for `TreatAsTupleLike`
-template<TupleLike StyleType> struct DeprecatedCSSOMValueCreation<StyleType> {
-    template<typename... Rest> Ref<DeprecatedCSSOMValue> operator()(CSSValuePool& pool, const RenderStyle& style, CSSStyleDeclaration& owner, const StyleType& value, Rest&&... rest)
-    {
-        if constexpr (std::tuple_size_v<StyleType> == 1 && SerializationSeparator<StyleType> == SerializationSeparatorType::None) {
-            return createDeprecatedCSSOMValue(pool, style, get<0>(value), std::forward<Rest>(rest)...);
-        } else if constexpr (std::tuple_size_v<StyleType> == 2 && SerializationCoalescing<StyleType> == SerializationCoalescingType::Minimal) {
-            return CSS::makeCoalescingPairDeprecatedCSSOMValue<SerializationSeparator<StyleType>>(owner, createCSSValue(pool, style, get<0>(value), rest...), createCSSValue(pool, style, get<1>(value), rest...));
-        } else if constexpr (std::tuple_size_v<StyleType> == 4 && SerializationCoalescing<StyleType> == SerializationCoalescingType::Minimal) {
-            return CSS::makeCoalescingQuadDeprecatedCSSOMValue<SerializationSeparator<StyleType>>(owner, createCSSValue(pool, style, get<0>(value), rest...), createCSSValue(pool, style, get<1>(value), rest...), createCSSValue(pool, style, get<2>(value), rest...), createCSSValue(pool, style, get<3>(value), rest...));
-        } else {
-            DeprecatedCSSOMValueListBuilder list;
-
-            auto caller = WTF::makeVisitor(
-                [&]<OptionalLike T>(const T& element) {
-                    if (!element)
-                        return;
-                    list.append(createDeprecatedCSSOMValue(pool, style, owner, *element, rest...));
-                },
-                [&](const auto& element) {
-                    list.append(createDeprecatedCSSOMValue(pool, style, owner, element, rest...));
-                }
-            );
-            WTF::apply([&](const auto& ...x) { (..., caller(x)); }, value);
-
-            return CSS::makeListDeprecatedCSSOMValue<SerializationSeparator<StyleType>>(owner, WTF::move(list));
-        }
-    }
-};
-
-// Constrained for `TreatAsRangeLike`
-template<RangeLike StyleType> struct DeprecatedCSSOMValueCreation<StyleType> {
-    template<typename... Rest> Ref<DeprecatedCSSOMValue> operator()(CSSValuePool& pool, const RenderStyle& style, CSSStyleDeclaration& owner, const StyleType& value, Rest&&... rest)
-    {
-        DeprecatedCSSOMValueListBuilder list;
-        for (const auto& element : value)
-            list.append(createDeprecatedCSSOMValue(pool, owner, style, element, rest...));
-
-        return CSS::makeListDeprecatedCSSOMValue<SerializationSeparator<StyleType>>(owner, WTF::move(list));
-    }
-};
-
-// Constrained for `TreatAsNonConverting`.
-template<NonConverting StyleType> struct DeprecatedCSSOMValueCreation<StyleType> {
-    template<typename... Rest> Ref<DeprecatedCSSOMValue> operator()(CSSValuePool&, const RenderStyle&, CSSStyleDeclaration& owner, const StyleType& value, Rest&&... rest)
-    {
-        return CSS::createDeprecatedCSSOMValue(owner, value, std::forward<Rest>(rest)...);
-    }
-};
-
-// Specialization for `FunctionNotation`.
-template<CSSValueID Name, typename StyleType> struct DeprecatedCSSOMValueCreation<FunctionNotation<Name, StyleType>> {
-    template<typename... Rest> Ref<DeprecatedCSSOMValue> operator()(CSSValuePool& pool, const RenderStyle& style, CSSStyleDeclaration& owner, const FunctionNotation<Name, StyleType>& value, Rest&&... rest)
-    {
-        return CSS::makeFunctionDeprecatedCSSOMValue(owner, value.name, createCSSValue(pool, style, value.parameters, std::forward<Rest>(rest)...));
-    }
-};
 
 // MARK: - Conversion directly from "Ref<CSSValue>" to "Style"
 

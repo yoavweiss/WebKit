@@ -58,7 +58,7 @@ IterationStatus CSSAppleColorFilterValue::customVisitChildren(NOESCAPE const Fun
     return CSS::visitCSSValueChildren(func, m_filter);
 }
 
-Ref<DeprecatedCSSOMValue> CSSAppleColorFilterValue::createDeprecatedCSSOMWrapper(CSSStyleDeclaration& owner) const
+Ref<DeprecatedCSSOMValue> CSSAppleColorFilterValue::customCreateDeprecatedCSSOMWrapper(CSSStyleDeclaration& owner) const
 {
     return CSS::createDeprecatedCSSOMValue(CSSValuePool::singleton(), owner, m_filter);
 }

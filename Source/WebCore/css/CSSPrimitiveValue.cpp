@@ -36,6 +36,7 @@
 #include "CSSValuePool.h"
 #include "ComputedStyleDependencies.h"
 #include "ContainerQueryEvaluator.h"
+#include "DeprecatedCSSOMPrimitiveValue.h"
 #include "FontCascade.h"
 #include "NodeRenderStyle.h"
 #include "RenderBoxInlines.h"
@@ -542,6 +543,11 @@ void CSSPrimitiveValue::collectComputedStyleDependencies(ComputedStyleDependenci
 
     if (auto lengthUnit = CSS::toLengthUnit(primitiveUnitType()))
         CSS::collectComputedStyleDependencies(dependencies, *lengthUnit);
+}
+
+Ref<DeprecatedCSSOMValue> CSSPrimitiveValue::customCreateDeprecatedCSSOMWrapper(CSSStyleDeclaration& owner) const
+{
+    return switchOn([&](const auto& value) { return DeprecatedCSSOMPrimitiveValue::create(value, owner); });
 }
 
 } // namespace WebCore

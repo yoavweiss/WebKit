@@ -17,8 +17,10 @@ Modules/webdatabase/DatabaseThread.cpp
 animation/KeyframeEffect.cpp
 contentextensions/ContentExtensionsBackend.cpp
 crypto/SubtleCrypto.cpp
+css/CSSPrimitiveValue.cpp
 css/CSSValue.cpp
 css/StyleRule.cpp
+css/values/CSSValueTypes+DeprecatedCSSOMValueCreation.h
 dom/CustomElementDefaultARIA.cpp
 dom/RejectedPromiseTracker.cpp
 inspector/agents/page/PageDOMDebuggerAgent.cpp

@@ -49,7 +49,6 @@ public:
     WEBCORE_EXPORT virtual String cssText() const = 0;
     ExceptionOr<void> setCssText(const String&) { return { }; } // Will never implement.
 
-    virtual bool isLazySerializingCustomValue() const { return false; }
     virtual bool isCustomValue() const { return false; }
     virtual bool isPrimitiveValue() const { return false; }
     virtual bool isValueList() const { return false; }

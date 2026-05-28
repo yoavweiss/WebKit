@@ -240,6 +240,13 @@ template<typename T> decltype(auto) simplifyUnevaluatedCalc(const std::optional<
 
 // MARK: - Serialization
 
+template<> struct Serialize<UnevaluatedCalcBase> {
+    inline void operator()(StringBuilder& builder, const SerializationContext& context, const UnevaluatedCalcBase& value)
+    {
+        value.serializationForCSS(builder, context);
+    }
+};
+
 template<Calc T> struct Serialize<T> {
     inline void operator()(StringBuilder& builder, const SerializationContext& context, const T& value)
     {

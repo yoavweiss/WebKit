@@ -30,11 +30,13 @@
 
 namespace WebCore {
 
-class Rect;
+namespace CSS {
+struct ClipRect;
+}
 
 class DeprecatedCSSOMRect final : public RefCounted<DeprecatedCSSOMRect> {
 public:
-    static Ref<DeprecatedCSSOMRect> create(const Rect&, CSSStyleDeclaration&);
+    static Ref<DeprecatedCSSOMRect> create(const CSS::ClipRect&, CSSStyleDeclaration&);
 
     DeprecatedCSSOMPrimitiveValue& top() const { return m_top; }
     DeprecatedCSSOMPrimitiveValue& right() const { return m_right; }
@@ -42,7 +44,7 @@ public:
     DeprecatedCSSOMPrimitiveValue& left() const { return m_left; }
 
 private:
-    DeprecatedCSSOMRect(const Rect&, CSSStyleDeclaration&);
+    DeprecatedCSSOMRect(const CSS::ClipRect&, CSSStyleDeclaration&);
 
     const Ref<DeprecatedCSSOMPrimitiveValue> m_top;
     const Ref<DeprecatedCSSOMPrimitiveValue> m_right;
