@@ -28,7 +28,6 @@ import simd
 
 #if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreTextureProcessing, _version: 24) && canImport(_USDKit_RealityKit, _version: 42) && canImport(RealityCoreRenderer, _version: 22) && canImport(ShaderGraph, _version: 156) && arch(arm64)
 @_spi(UsdLoaderAPI) import _USDKit_RealityKit
-@_spi(RealityCoreRendererAPI) import RealityKit
 import USDKit
 @_spi(SwiftAPI) import DirectResource
 import RealityKit
@@ -490,10 +489,48 @@ extension WKBridgeUSDConfiguration {
         }
     }
 
-    @objc(createMaterialCompiler:)
-    func createMaterialCompiler() async {
+    func makeStandaloneResources() async {
         do {
-            try await self.appRenderer.createMaterialCompiler(colorPixelFormat: .rgba16Float, rasterSampleCount: 4)
+            appRenderer.pendingStandaloneResources = try await LowLevelRenderContextStandalone.Resources(device: self.device)
+        } catch {
+            fatalError("Exception creating standalone resources \(error)")
+        }
+    }
+
+    func createMaterialCompiler() {
+        do {
+            // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
+            // swift-format-ignore: NeverForceUnwrap
+            try appRenderer.createMaterialCompiler(resources: appRenderer.pendingStandaloneResources!)
+            appRenderer.pendingStandaloneResources = nil
+        } catch {
+            fatalError("Exception creating material compiler \(error)")
+        }
+    }
+
+    func makeRendererResources() async {
+        do {
+            appRenderer.pendingRendererResources = try await LowLevelRenderer.Resources(
+                configuration: .init(
+                    output: .init(colorPixelFormat: .rgba16Float),
+                    rasterSampleCount: 4,
+                    enableTonemap: false,
+                    enableColorMatch: false,
+                    alphaPremultiply: false
+                ),
+                renderContext: self.renderContext
+            )
+        } catch {
+            fatalError("Exception creating renderer resources \(error)")
+        }
+    }
+
+    func createRenderer() {
+        do {
+            // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
+            // swift-format-ignore: NeverForceUnwrap
+            try appRenderer.createRenderer(resources: appRenderer.pendingRendererResources!)
+            appRenderer.pendingRendererResources = nil
         } catch {
             fatalError("Exception creating renderer \(error)")
         }
@@ -606,8 +643,11 @@ extension WKBridgeReceiver {
         self.imageBasedLightTextureGenerator = ImageBasedLightTextureGenerator(device: configuration.device)
         self.commandQueue = configuration.commandQueue
         self.deformationSystem = try _Proto_LowLevelDeformationSystem_v1.make(configuration.device, configuration.commandQueue).get()
-        let meshInstances = try configuration.renderContext.makeMeshInstanceArray(renderTargets: [configuration.renderTarget], count: 16)
-        self.meshInstancePool = MeshInstancePool(renderContext: configuration.renderContext, meshInstances: meshInstances)
+        self.meshInstancePool = try MeshInstancePool(
+            renderContext: configuration.renderContext,
+            renderTargets: [configuration.renderTarget],
+            initialCapacity: 16
+        )
         let lightingFunction = configuration.renderContext.lighting.makeImageBasedLightingFunction()
         guard
             let diffuseTexture = makeTextureFromImageAsset(
@@ -737,8 +777,8 @@ extension WKBridgeReceiver {
         }
     }
 
-    @objc(updateMaterial:completionHandler:)
-    func updateMaterial(_ updates: [WKBridgeUpdateMaterial]) async {
+    @objc(updateMaterial:)
+    func updateMaterial(_ updates: [WKBridgeUpdateMaterial]) {
         do {
             for data in updates {
                 logInfo("updateMaterial (pre-dispatch) \(data.identifier)")
@@ -750,7 +790,7 @@ extension WKBridgeReceiver {
                     fatalError("No materialGraph data provided for material \(identifier)")
                 }
 
-                let shaderGraphOutput = try await renderContext.shaderGraph.makeShaderGraphFunctions(
+                let shaderGraphOutput = try renderContext.shaderGraph.makeShaderGraphFunctions(
                     shaderGraph: shaderGraph,
                     constantValues: .init()
                 )
@@ -770,7 +810,7 @@ extension WKBridgeReceiver {
 
                 let geometryModifier = shaderGraphOutput.geometryModifier ?? renderContext.makeDefaultGeometryModifier()
                 let surfaceShader = shaderGraphOutput.surfaceShader
-                let materialResource = try await renderContext.makeMaterialResource(
+                let materialResource = try renderContext.makeMaterialResource(
                     descriptor: .init(
                         geometry: geometryModifier,
                         surface: surfaceShader,
@@ -825,8 +865,8 @@ extension WKBridgeReceiver {
         return true
     }
 
-    @objc(updateMesh:completionHandler:)
-    func updateMesh(_ updates: [WKBridgeUpdateMesh]) async {
+    @objc(updateMesh:)
+    func updateMesh(_ updates: [WKBridgeUpdateMesh]) {
         do {
             var deferredMeshUpdates: [DeferredMeshUpdate] = []
 
@@ -897,7 +937,7 @@ extension WKBridgeReceiver {
                                 fatalError("Failed to get material instance \(materialIdentifier)")
                             }
 
-                            let pipeline = try await renderContext.makeRenderPipelineState(
+                            let pipeline = try renderContext.makeRenderPipelineState(
                                 descriptor: .init(
                                     mesh: meshResource.descriptor,
                                     material: material.resource,
@@ -2365,8 +2405,16 @@ extension WKBridgeUSDConfiguration {
     init(device: any MTLDevice, memoryOwner: task_id_token_t) {
     }
 
-    @objc(createMaterialCompiler:)
-    func createMaterialCompiler() async {
+    func makeStandaloneResources() async {
+    }
+
+    func createMaterialCompiler() {
+    }
+
+    func makeRendererResources() async {
+    }
+
+    func createRenderer() {
     }
 }
 
@@ -2392,12 +2440,12 @@ extension WKBridgeReceiver {
     func updateTexture(_ data: [WKBridgeUpdateTexture]) {
     }
 
-    @objc(updateMaterial:completionHandler:)
-    func updateMaterial(_ data: [WKBridgeUpdateMaterial]) async {
+    @objc(updateMaterial:)
+    func updateMaterial(_ data: [WKBridgeUpdateMaterial]) {
     }
 
-    @objc(updateMesh:completionHandler:)
-    func updateMesh(_ data: [WKBridgeUpdateMesh]) async {
+    @objc(updateMesh:)
+    func updateMesh(_ data: [WKBridgeUpdateMesh]) {
     }
 
     @objc

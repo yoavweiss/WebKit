@@ -26,7 +26,7 @@
 import Metal
 import USDKit
 @_spi(UsdLoaderAPI) import _USDKit_RealityKit
-@_spi(RealityCoreRendererAPI) import RealityKit
+import RealityKit
 
 class IBLTextures {
     static func loadIBLTextures(

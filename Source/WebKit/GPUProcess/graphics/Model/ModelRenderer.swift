@@ -29,23 +29,25 @@ import USDKit
 @_spi(Private) import RealityKit
 import simd
 
-class Renderer {
-    let device: any MTLDevice
+final class Renderer {
+    private let device: any MTLDevice
     let commandQueue: any MTLCommandQueue
     var renderContext: (any LowLevelRenderContext)?
     var renderer: LowLevelRenderer?
+    var pendingStandaloneResources: LowLevelRenderContextStandalone.Resources?
+    var pendingRendererResources: LowLevelRenderer.Resources?
     var renderTargetDescriptor: LowLevelRenderTarget.Descriptor {
         // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
         // swift-format-ignore: NeverForceUnwrap
         renderer!.renderTargetDescriptor
     }
 
-    var cameraPosition: SIMD3<Float>
-    var cameraRotation: simd_quatf
-    static let cameraDistance: Float = 0.5
-    var effectiveCameraDistance: Float = Renderer.cameraDistance
-    var fovY: Float = 60 * .pi / 180
-    var clearColor: MTLClearColor = .init(red: 1, green: 1, blue: 1, alpha: 1)
+    private var cameraPosition: SIMD3<Float>
+    private var cameraRotation: simd_quatf
+    private static let cameraDistance: Float = 0.5
+    private var effectiveCameraDistance: Float = Renderer.cameraDistance
+    private var fovY: Float = 60 * .pi / 180
+    private var clearColor: MTLClearColor = .init(red: 1, green: 1, blue: 1, alpha: 1)
     let memoryOwner: task_id_token_t
 
     init(device: any MTLDevice, memoryOwner: task_id_token_t) throws {
@@ -61,28 +63,21 @@ class Renderer {
         self.memoryOwner = memoryOwner
     }
 
-    func createMaterialCompiler(colorPixelFormat: MTLPixelFormat, rasterSampleCount: Int, colorSpace: CGColorSpace? = nil) async throws {
+    func createMaterialCompiler(resources: LowLevelRenderContextStandalone.Resources) throws {
         var configuration = LowLevelRenderContextStandalone.Configuration(device: device)
         configuration.memoryOwner = self.memoryOwner
         configuration.residencySetBehavior = LowLevelRenderContextStandalone.Configuration.ResidencySetBehavior.disable
-        let renderContext = try await LowLevelRenderContextStandalone(configuration: configuration)
-
-        let renderer = try await LowLevelRenderer(
-            configuration: .init(
-                output: .init(colorPixelFormat: colorPixelFormat),
-                rasterSampleCount: rasterSampleCount,
-                enableTonemap: false,
-                enableColorMatch: colorSpace != nil,
-                alphaPremultiply: false
-            ),
-            renderContext: renderContext
-        )
-        renderer.meshInstancesArrayCount = 1
+        let renderContext = try LowLevelRenderContextStandalone(configuration: configuration, resources: resources)
         self.renderContext = renderContext
-        self.renderer = renderer
     }
 
-    func newCommandBuffer() -> any MTLCommandBuffer {
+    func createRenderer(resources: LowLevelRenderer.Resources) throws {
+        let renderer = try LowLevelRenderer(resources: resources)
+        self.renderer = renderer
+        renderer.meshInstancesArrayCount = 1
+    }
+
+    private func newCommandBuffer() -> any MTLCommandBuffer {
         guard let renderCommandBuffer = commandQueue.makeCommandBuffer() else {
             fatalError("Failed to make command buffer")
         }

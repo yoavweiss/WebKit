@@ -479,7 +479,10 @@ NS_SWIFT_SENDABLE
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithDevice:(id<MTLDevice>)device memoryOwner:(task_id_token_t)memoryOwner NS_DESIGNATED_INITIALIZER;
 
-- (void)createMaterialCompiler:(void (^)(void))completionHandler;
+- (void)makeStandaloneResourcesWithCompletionHandler:(void (^)(void))completionHandler;
+- (void)createMaterialCompiler;
+- (void)makeRendererResourcesWithCompletionHandler:(void (^)(void))completionHandler;
+- (void)createRenderer;
 
 @end
 
@@ -487,9 +490,9 @@ NS_SWIFT_SENDABLE
 
 - (nullable id<MTLCommandBuffer>)commandBuffer;
 - (void)renderWithTexture:(id<MTLTexture>)texture commandBuffer:(id<MTLCommandBuffer>)commandBuffer;
-- (void)updateMesh:(NSArray<WKBridgeUpdateMesh *> *)descriptor completionHandler:(void (^)(void))completionHandler;
+- (void)updateMesh:(NSArray<WKBridgeUpdateMesh *> *)descriptor;
 - (void)updateTexture:(NSArray<WKBridgeUpdateTexture *> *)descriptor;
-- (void)updateMaterial:(NSArray<WKBridgeUpdateMaterial *> *)descriptor completionHandler:(void (^)(void))completionHandler;
+- (void)updateMaterial:(NSArray<WKBridgeUpdateMaterial *> *)descriptor;
 - (BOOL)processRemovals:(NSArray<WKBridgeTypedResourceId *> *)meshRemovals materialRemovals:(NSArray<WKBridgeTypedResourceId *> *)materialRemovals  textureRemovals:(NSArray<WKBridgeTypedResourceId *> *)textureRemovals;
 - (void)setTransform:(simd_float4x4)transform;
 - (void)setFOV:(float)fovY;
