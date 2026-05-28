@@ -650,8 +650,13 @@ bool Quirks::shouldPreventDispatchOfTouchEvent(const AtomString& touchEventType,
     if (!m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::ShouldPreventDispatchOfTouchEventQuirk))
         return false;
 
-    if (RefPtr element = dynamicDowncast<Element>(target); element && touchEventType == eventNames().touchendEvent)
-        return element->hasClassName("DPvwYc"_s) && element->hasClassName("sm8sCf"_s);
+    // yahoo.com : rdar://142894603
+    if (RefPtr element = dynamicDowncast<Element>(target); element && touchEventType == eventNames().touchendEvent) {
+        if (element->hasClassName("DPvwYc"_s) && element->hasClassName("sm8sCf"_s))
+            return true;
+        if (element->hasClassName("vjs-subs-cap-button"_s) && element->hasClassName("vjs-menu-button"_s))
+            return true;
+    }
 
     return false;
 }
@@ -3117,6 +3122,10 @@ static void handleYahooQuirks(QuirksData& quirksData, const URL& /* quirksURL */
         QuirksData::SiteSpecificQuirk::NeedsYahooVolumeSliderQuirk,
         // yahoo.com: rdar://136767005
         QuirksData::SiteSpecificQuirk::ShouldAvoidStartingSelectionOnMouseDownOverPointerCursor,
+#if ENABLE(TOUCH_EVENTS)
+        // yahoo.com : rdar://142894603
+        QuirksData::SiteSpecificQuirk::ShouldPreventDispatchOfTouchEventQuirk,
+#endif
     });
 }
 
