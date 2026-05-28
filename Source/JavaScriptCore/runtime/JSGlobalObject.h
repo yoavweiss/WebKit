@@ -234,7 +234,13 @@ private:
     Debugger* m_debugger { nullptr };
     QueuedTaskResult m_microtaskRunnability { QueuedTaskResult::Executed };
     bool m_associatedContextIsFullyActive { true };
+    bool m_canFastQueueMicrotask { true };
     Ref<MicrotaskQueue> m_microtaskQueue;
+
+    ALWAYS_INLINE void updateCanFastQueueMicrotask()
+    {
+        m_canFastQueueMicrotask = m_associatedContextIsFullyActive && !m_debugger;
+    }
 
 // Our hashtable code-generator tries to access these properties, so we make them public.
 // However, we'd like it better if they could be protected.
@@ -1204,6 +1210,7 @@ public:
 
     void queueMicrotask(VM&, QueuedTask&&);
     void queueMicrotask(VM&, InternalMicrotask, uint8_t, JSValue, JSValue, JSValue);
+    void queueMicrotaskSlow(VM&, QueuedTask&&);
 
 #if ASSERT_ENABLED
     const JSGlobalObject* globalObjectAtDebuggerEntry() const { return m_globalObjectAtDebuggerEntry; }
@@ -1262,7 +1269,11 @@ public:
     QueuedTaskResult microtaskRunnability() const { return m_microtaskRunnability; }
     void setMicrotaskRunnability(QueuedTaskResult runnability) { m_microtaskRunnability = runnability; }
 
-    void setAssociatedContextIsFullyActive(bool value) { m_associatedContextIsFullyActive = value; }
+    void setAssociatedContextIsFullyActive(bool value)
+    {
+        m_associatedContextIsFullyActive = value;
+        updateCanFastQueueMicrotask();
+    }
 
     MicrotaskQueue& microtaskQueue() const;
     JS_EXPORT_PRIVATE void setMicrotaskQueue(Ref<MicrotaskQueue>&&);
