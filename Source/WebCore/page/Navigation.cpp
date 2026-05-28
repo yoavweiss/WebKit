@@ -401,7 +401,7 @@ Navigation::Result Navigation::reload(JSC::JSGlobalObject& globalObject, ReloadO
         state = currentEntry()->associatedHistoryItem().navigationAPIStateObject();
 
     RefPtr window = this->window();
-    if (!protect(window->document())->isFullyActive() || window->document()->unloadCounter())
+    if (RefPtr document = window->document(); !document->isFullyActive() || frame()->loader().isDispatchingPageSwapEvent() || document->unloadCounter())
         return createErrorResult(WTF::move(committed), WTF::move(finished), ExceptionCode::InvalidStateError, "Invalid state"_s);
 
     RefPtr apiMethodTracker = maybeSetUpcomingNonTraversalTracker(globalObject, WTF::move(committed), WTF::move(finished), WTF::move(options.info), WTF::move(state));
