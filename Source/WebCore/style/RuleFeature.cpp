@@ -344,7 +344,7 @@ void RuleFeatureSet::recursivelyCollectFeaturesFromSelector(SelectorFeatures& se
             idsInRules.add(selector->value());
             if (matchElement.relation == MatchElement::Relation::Parent || matchElement.relation == MatchElement::Relation::Ancestor)
                 idsMatchingAncestorsInRules.add(selector->value());
-            else if (matchElement.hasRelation || matchElement.relation == MatchElement::Relation::AnySibling || matchElement.relation == MatchElement::Relation::Host || matchElement.relation == MatchElement::Relation::HostChild)
+            else if (matchElement.hasRelation || matchElement.relation != MatchElement::Relation::Subject)
                 selectorFeatures.ids.append({ selector, matchElement, context.isNegation, scopeSourcesForFeature() });
         } else if (selector->match() == CSSSelector::Match::Class)
             selectorFeatures.classes.append({ selector, matchElement, context.isNegation, scopeSourcesForFeature() });
