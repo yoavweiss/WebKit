@@ -456,8 +456,6 @@ set(WTF_PUBLIC_HEADERS
 
     fast_float/fast_float.h
 
-    ios/WebCoreThread.h
-
     persistence/PersistentCoders.h
     persistence/PersistentDecoder.h
     persistence/PersistentEncoder.h
