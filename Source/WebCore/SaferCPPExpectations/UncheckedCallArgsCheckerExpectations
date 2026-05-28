@@ -590,8 +590,6 @@ svg/SVGClipPathElement.cpp
 svg/SVGElement.cpp
 svg/SVGElement.h
 svg/SVGFEImageElement.cpp
-svg/SVGFontFaceElement.cpp
-svg/SVGFontFaceUriElement.cpp
 svg/SVGImageElement.cpp
 svg/SVGLengthContext.cpp
 svg/SVGMaskElement.cpp

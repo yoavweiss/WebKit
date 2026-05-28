@@ -296,7 +296,7 @@ Node::NeedsPostConnectionSteps SVGFontFaceElement::insertionSteps(InsertionType 
         ASSERT(!m_fontElement);
         return NeedsPostConnectionSteps::No;
     }
-    protect(document())->svgExtensions().registerSVGFontFaceElement(*this);
+    protect(protect(document())->svgExtensions())->registerSVGFontFaceElement(*this);
 
     rebuildFontFace();
     return result;

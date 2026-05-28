@@ -685,7 +685,6 @@ svg/SVGFEComponentTransferElement.cpp
 svg/SVGFEConvolveMatrixElement.cpp
 svg/SVGFEImageElement.cpp
 svg/SVGFontFaceElement.cpp
-svg/SVGFontFaceUriElement.cpp
 svg/SVGGlyphRefElement.cpp
 svg/SVGGradientElement.cpp
 svg/SVGGraphicsElement.cpp
