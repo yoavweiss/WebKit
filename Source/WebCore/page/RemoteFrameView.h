@@ -53,6 +53,7 @@ public:
     WEBCORE_EXPORT void setFrameRectWithoutSync(const IntRect&);
 
     OptionSet<FrameOwnerElementAppearance> appearanceOfOwnerElementOfChildFrame(const Frame&) const final;
+    LayoutPoint childFrameOwnerContentBoxLocation(const Frame&) const final;
 
 private:
     WEBCORE_EXPORT RemoteFrameView(RemoteFrame&);

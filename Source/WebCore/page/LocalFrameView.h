@@ -322,6 +322,7 @@ public:
 
     std::optional<LayoutRect> visibleRectOfChild(const Frame&) const final;
     OptionSet<FrameOwnerElementAppearance> appearanceOfOwnerElementOfChildFrame(const Frame&) const final;
+    LayoutPoint childFrameOwnerContentBoxLocation(const Frame&) const final;
     
     static LayoutRect visibleDocumentRect(const FloatRect& visibleContentRect, float headerHeight, float footerHeight, const FloatSize& totalContentsSize, float pageScaleFactor);
 

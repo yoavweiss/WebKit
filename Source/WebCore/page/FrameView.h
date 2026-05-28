@@ -132,6 +132,10 @@ public:
     // uses dark appearance, but the child frame's document is light).
     virtual OptionSet<FrameOwnerElementAppearance> appearanceOfOwnerElementOfChildFrame(const Frame&) const = 0;
 
+    // Returns the offset of the content box of the child's frame owner content box
+    // from its border box. This can be non-zero due to padding or border.
+    virtual LayoutPoint childFrameOwnerContentBoxLocation(const Frame&) const = 0;
+
 private:
     ScrollableArea* enclosingScrollableArea() const final;
 

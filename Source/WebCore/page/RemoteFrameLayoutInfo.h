@@ -49,6 +49,10 @@ struct RemoteFrameLayoutInfo {
     // RenderStyle::usedZoom of the owner renderer of the frame.
     float usedZoom;
 
+    // The offset of the content box of the frame's owner element
+    // from its border box.
+    LayoutPoint contentBoxLocation;
+
     OptionSet<FrameOwnerElementAppearance> ownerElementAppearance;
 };
 

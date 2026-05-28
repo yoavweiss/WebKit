@@ -2196,10 +2196,12 @@ void Page::syncLocalFrameInfoToRemote()
                 auto visibleRect = frameView->visibleRectOfChild(*child.get());
                 float usedZoom = frame.usedZoomForChild(*child);
                 auto frameOwnerElementAppearance = frameView->appearanceOfOwnerElementOfChildFrame(*child);
+                auto contentBoxLocation = frameView->childFrameOwnerContentBoxLocation(*child);
 
                 childrenFrameLayoutInfo.add(child->frameID(), RemoteFrameLayoutInfo {
                     .visibleRectInParent = visibleRect,
                     .usedZoom = usedZoom,
+                    .contentBoxLocation = contentBoxLocation,
                     .ownerElementAppearance = frameOwnerElementAppearance
                 });
             }

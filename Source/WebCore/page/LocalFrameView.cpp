@@ -2162,6 +2162,19 @@ OptionSet<FrameOwnerElementAppearance> LocalFrameView::appearanceOfOwnerElementO
     return result;
 }
 
+LayoutPoint LocalFrameView::childFrameOwnerContentBoxLocation(const Frame& child) const
+{
+    CheckedPtr childOwnerRenderer = child.ownerRenderer();
+    if (!childOwnerRenderer)
+        return { };
+
+    // Ensure |child| is a child of this frame.
+    ASSERT(child.tree().parent()->frameID() == m_frame->frameID());
+    ASSERT(childOwnerRenderer->frame().frameID() == m_frame->frameID());
+
+    return childOwnerRenderer->contentBoxLocation();
+}
+
 LayoutRect LocalFrameView::rectForFixedPositionLayout() const
 {
     if (m_frame->settings().visualViewportEnabled())

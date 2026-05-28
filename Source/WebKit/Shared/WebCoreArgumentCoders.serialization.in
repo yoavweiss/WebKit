@@ -2205,6 +2205,7 @@ class WebCore::LayoutRect {
 struct WebCore::RemoteFrameLayoutInfo {
     std::optional<WebCore::LayoutRect> visibleRectInParent;
     float usedZoom;
+    WebCore::LayoutPoint contentBoxLocation;
     OptionSet<WebCore::FrameOwnerElementAppearance> ownerElementAppearance;
 };
 

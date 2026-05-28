@@ -434,8 +434,7 @@ static std::optional<LayoutRect> computeClippedRectInRootContentsSpace(const Lay
     if (enclosingFrame->isMainFrame())
         return absoluteClippedRect;
 
-    // The computed visible rect is in the coordinate space of the document content box,
-    // and is what's visible in the iframe's content area (aka the iframe document content box)
+    // The computed visible rect is in the coordinate space of enclosingFrame.
     // But only the iframe's viewport is visible, so clip by the iframe's viewport.
 
     // Compute the frame's viewport (this is in the coordinate space of the document content box)
@@ -456,14 +455,22 @@ static std::optional<LayoutRect> computeClippedRectInRootContentsSpace(const Lay
     if (!absoluteClippedRect->edgeInclusiveIntersect(frameRect))
         return std::nullopt;
 
+    // Then convert it to the view coordinate space of enclosingFrame.
+    // This is now the visible portion in enclosingFrame's owner renderer's content box.
     absoluteClippedRect = LayoutRect { enclosingFrameView->contentsToView(*absoluteClippedRect) };
 
     if (RefPtr ownerRenderer = enclosingFrame->ownerRenderer()) {
+        // Adjust for borders and/or padding of the owner renderer box.
         absoluteClippedRect->moveBy(ownerRenderer->contentBoxLocation());
         return computeClippedRectInRootContentsSpace(*absoluteClippedRect, targetSecurityOrigin, ownerRenderer.get(), scrollMargin);
     }
 
-    absoluteClippedRect->moveBy(enclosingFrameView->location());
+    // We already checked above that enclosingFrame is not a main frame,
+    // so it MUST have a parent.
+    RefPtr enclosingFrameParent = enclosingFrame->parent();
+    ASSERT(enclosingFrameParent);
+
+    absoluteClippedRect->moveBy(enclosingFrameParent->virtualView()->childFrameOwnerContentBoxLocation(*enclosingFrame));
     return computeClippedRectInRootContentsSpace(*absoluteClippedRect, targetSecurityOrigin, enclosingFrame.get(), WTF::move(scrollMargin));
 }
 

@@ -87,6 +87,14 @@ OptionSet<FrameOwnerElementAppearance> RemoteFrameView::appearanceOfOwnerElement
     return { };
 }
 
+LayoutPoint RemoteFrameView::childFrameOwnerContentBoxLocation(const Frame& child) const
+{
+    if (auto info = m_frame->frameTreeSyncData().childrenFrameLayoutInfo.getOptional(child.frameID()))
+        return info->contentBoxLocation;
+
+    return { };
+}
+
 // FIXME: Implement all the stubs below.
 
 bool RemoteFrameView::isScrollableOrRubberbandable()
