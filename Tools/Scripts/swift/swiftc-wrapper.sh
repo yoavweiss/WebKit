@@ -57,6 +57,9 @@ for arg in "$@"; do
             fi
             ;;
         "-include") skip_next=1 ;;
+        "-fuse-ld="*)
+            args+=("-Xcc" "$arg")
+            ;;
         # CMake leaks clang linker flags into swiftc; translate them.
         "-compatibility_version"|"-current_version")
             args+=("-Xlinker" "$arg")
