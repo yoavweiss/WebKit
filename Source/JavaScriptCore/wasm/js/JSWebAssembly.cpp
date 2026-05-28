@@ -140,6 +140,11 @@ JSC_DEFINE_HOST_FUNCTION(webAssemblyCompileFunc, (JSGlobalObject* globalObject, 
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    if (!globalObject->webAssemblyEnabled()) [[unlikely]] {
+        auto error = createJSWebAssemblyCompileError(globalObject, vm, globalObject->webAssemblyDisabledErrorMessage());
+        RELEASE_AND_RETURN(scope, JSValue::encode(JSPromise::rejectedPromise(globalObject, error)));
+    }
+
     auto* promise = JSPromise::create(vm, globalObject->promiseStructure());
     RETURN_IF_EXCEPTION(scope, { });
 
@@ -334,6 +339,11 @@ JSC_DEFINE_HOST_FUNCTION(webAssemblyInstantiateFunc, (JSGlobalObject* globalObje
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    if (!globalObject->webAssemblyEnabled()) [[unlikely]] {
+        auto error = createJSWebAssemblyCompileError(globalObject, vm, globalObject->webAssemblyDisabledErrorMessage());
+        RELEASE_AND_RETURN(scope, JSValue::encode(JSPromise::rejectedPromise(globalObject, error)));
+    }
+
     auto [taintedness, url] = sourceTaintedOriginFromStack(vm, callFrame);
     RefPtr<SourceProvider> provider = StringSourceProvider::create("[wasm code]"_s, SourceOrigin(url), String(), taintedness, TextPosition(), SourceProviderSourceType::Program);
 
@@ -433,6 +443,11 @@ JSC_DEFINE_HOST_FUNCTION(webAssemblyCompileStreamingFunc, (JSGlobalObject* globa
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    if (!globalObject->webAssemblyEnabled()) [[unlikely]] {
+        auto error = createJSWebAssemblyCompileError(globalObject, vm, globalObject->webAssemblyDisabledErrorMessage());
+        RELEASE_AND_RETURN(scope, JSValue::encode(JSPromise::rejectedPromise(globalObject, error)));
+    }
+
     auto* promise = JSPromise::create(vm, globalObject->promiseStructure());
 
     std::optional<WebAssemblyCompileOptions> compileOptions;
@@ -469,6 +484,11 @@ JSC_DEFINE_HOST_FUNCTION(webAssemblyInstantiateStreamingFunc, (JSGlobalObject* g
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
+
+    if (!globalObject->webAssemblyEnabled()) [[unlikely]] {
+        auto error = createJSWebAssemblyCompileError(globalObject, vm, globalObject->webAssemblyDisabledErrorMessage());
+        RELEASE_AND_RETURN(scope, JSValue::encode(JSPromise::rejectedPromise(globalObject, error)));
+    }
 
     auto* promise = JSPromise::create(vm, globalObject->promiseStructure());
 
