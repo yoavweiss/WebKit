@@ -883,6 +883,9 @@
 
 #if HAVE(WEBCONTENTRESTRICTIONS) && PLATFORM(MAC)
 (allow mach-lookup
+#if HAVE(WEBCONTENTRESTRICTIONS_ASK_TO)
+    (global-name "com.apple.DeviceConfigurationAgent.consumer")
+#endif
     (global-name "com.apple.familycontrols"))
 #endif
 

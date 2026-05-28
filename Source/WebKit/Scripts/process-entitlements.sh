@@ -118,6 +118,12 @@ function mac_process_network_entitlements()
         plistbuddy Add :com.apple.private.assets.accessible-asset-types array
         plistbuddy Add :com.apple.private.assets.accessible-asset-types:0 string com.apple.MobileAsset.WebContentRestrictions
 
+        if (( "${TARGET_MAC_OS_X_VERSION_MAJOR}" >= 260000 ))
+        then
+            plistbuddy Add :com.apple.private.device-configuration.effective-configuration-ids.read array
+            plistbuddy Add :com.apple.private.device-configuration.effective-configuration-ids.read:0 string com.apple.WebContentRestrictions
+        fi
+
         plistbuddy Add :com.apple.private.ciphermld.allow bool YES
 
         plistbuddy Add :com.apple.private.launchservices.allowedtochangethesekeysinotherapplications array
