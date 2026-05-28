@@ -2885,7 +2885,7 @@ fast/mediastream/video-rotation2.html [ Failure ]
 
 http/wpt/mediastream/webrtc-vp9-colorspace.html [ Failure ]
 
-webkit.org/b/314659 webrtc/getDisplayMedia-pc-resolution.html [ Failure Timeout ]
+webkit.org/b/314659 webkit.org/b/315759 webrtc/getDisplayMedia-pc-resolution.html [ Crash Failure Timeout ]
 
 # Regressions introduced by https://commits.webkit.org/263750@main
 fast/mediastream/apply-constraints-advanced.html [ Failure ]
@@ -3215,7 +3215,7 @@ imported/w3c/web-platform-tests/webrtc/simulcast [ Pass ]
 imported/w3c/web-platform-tests/webrtc/simulcast/h264.https.html [ Pass Failure ]
 imported/w3c/web-platform-tests/webrtc/simulcast/negotiation-encodings.https.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/simulcast/setParameters-encodings.https.html [ Failure ]
-imported/w3c/web-platform-tests/webrtc/simulcast/setParameters-maxFramerate.https.html [ Pass Failure ]
+webkit.org/b/315758 imported/w3c/web-platform-tests/webrtc/simulcast/setParameters-maxFramerate.https.html [ Crash Pass Failure ]
 imported/w3c/web-platform-tests/webrtc/simulcast/vp9-scalability-mode.https.html [ Skip ]
 webkit.org/b/235885 imported/w3c/web-platform-tests/webrtc/protocol/simulcast-answer.html [ Skip ]
 webkit.org/b/235885 imported/w3c/web-platform-tests/webrtc/protocol/simulcast-offer.html [ Skip ]
@@ -5625,6 +5625,10 @@ webkit.org/b/314809 fast/repaint/table-row-move-after-content-change.html [ Pass
 webkit.org/b/315294 imported/w3c/web-platform-tests/preload/prefetch-cache.html [ Pass Failure ]
 
 webkit.org/b/315517 imported/w3c/web-platform-tests/css/css-values/attr-pseudo-elem-invalidation-2.html [ Failure ]
+
+webkit.org/b/315756 fast/css/container-query-orientation-modal-dialog-crash.html [ Crash Pass ]
+
+webkit.org/b/315757 http/wpt/service-workers/service-worker-iframe-preload-after-response.https.html [ Crash Failure Pass ]
 
 # End: Common failures between GTK and WPE.
 
