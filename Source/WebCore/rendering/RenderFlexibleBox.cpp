@@ -40,6 +40,7 @@
 #include "LayoutIntegrationFlexLayout.h"
 #include "LayoutRepainter.h"
 #include "LayoutUnit.h"
+#include "LineClampUpdater.h"
 #include "RenderBlockInlines.h"
 #include "RenderBoxInlines.h"
 #include "RenderBoxModelObjectInlines.h"
@@ -459,6 +460,7 @@ void RenderFlexibleBox::layoutBlock(RelayoutChildren relayoutChildren, LayoutUni
     LayoutUnit previousHeight = logicalHeight();
     setLogicalHeight(borderAndPaddingLogicalHeight() + scrollbarLogicalHeight());
     {
+        auto lineClampUpdater = LineClampUpdater { *this };
         LayoutStateMaintainer statePusher(*this, locationOffset(), isTransformed() || hasReflection() || writingMode().isBlockFlipped());
 
         preparePaginationBeforeBlockLayout(relayoutChildren);
