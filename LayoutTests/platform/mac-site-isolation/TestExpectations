@@ -448,3 +448,6 @@ imported/w3c/web-platform-tests/intersection-observer/cross-origin-tall-iframe.s
 # Inspector protocol commands (e.g. CSS.getMatchedStylesForNode) return
 # "Not yet implemented for frame targets" under site isolation.
 inspector/css/getMatchedStylesForNodeAdoptedStyleSheet.html [ Skip ]
+
+# rdar://178066625
+imported/w3c/web-platform-tests/html/user-activation/propagation-crossorigin.sub.html [ Failure ]
