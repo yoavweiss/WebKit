@@ -115,7 +115,6 @@ BEGIN {
        &getJhbuildPath
        &getJhbuildModulesetName
        &inCrossTargetEnvironment
-       &inFlatpakSandbox
        &iosVersion
        &isARM64
        &isAnyWindows
@@ -167,7 +166,6 @@ BEGIN {
        &runGitUpdate
        &runIOSWebKitApp
        &runInCrossTargetEnvironment
-       &runInFlatpak
        &runMacWebKitApp
        &runMiniBrowser
        &runSwiftBrowser
@@ -189,7 +187,6 @@ BEGIN {
        &sharedCommandLineOptionsUsage
        &shouldBuild32Bit
        &shouldBuildForCrossTarget
-       &shouldUseFlatpak
        &shouldUseVcpkg
        &isWinCrossCompileFromLinux
        &winCrossCompileVcpkgRoot
@@ -1192,7 +1189,7 @@ sub determineConfigurationProductDir
         if (usesPerConfigurationBuildDirectory()) {
             $configurationProductDir = "$baseProductDir";
         } else {
-            if (isGtk() or isWPE() or isJSCOnly() or shouldUseFlatpak() or shouldBuildForCrossTarget() or inCrossTargetEnvironment()) {
+            if (isGtk() or isWPE() or isJSCOnly() or shouldBuildForCrossTarget() or inCrossTargetEnvironment()) {
                 $configurationProductDir = "$baseProductDir/$portName/$configuration";
             } elsif (isAppleCocoaWebKit() && isCMakeBuild()) {
                 $configurationProductDir = "$baseProductDir/cmake-mac/$configuration";
@@ -2289,7 +2286,7 @@ sub relativeScriptsDir()
 sub scriptPathForName($)
 {
     my $scriptName = shift;
-    if ((isGtk() || isWPE()) && inFlatpakSandbox()) {
+    if (isGtk() || isWPE()) {
         return "Tools/Scripts/$scriptName";
     } else {
         return relativeScriptsDir() . "/$scriptName";
@@ -2499,22 +2496,6 @@ sub getJhbuildModulesetName()
 }
 
 
-sub getUserFlatpakPath()
-{
-    if (defined($ENV{'WEBKIT_FLATPAK_USER_DIR'})) {
-       return $ENV{'WEBKIT_FLATPAK_USER_DIR'};
-    }
-
-    my $productDir = baseProductDir();
-    if (isGit() && isGitBranchBuild() && gitBranch()) {
-        my $branch = gitBranch();
-        $productDir =~ s/$branch//;
-    }
-    my @flatpakPath = File::Spec->splitdir($productDir);
-    push(@flatpakPath, "UserFlatpak");
-    return File::Spec->catdir(@flatpakPath);
-}
-
 sub isCachedArgumentfileOutOfDate($@)
 {
     my ($filename, $currentContents) = @_;
@@ -2543,12 +2524,6 @@ sub isCachedArgumentfileOutOfDate($@)
 
     return 0;
 }
-
-sub inFlatpakSandbox()
-{
-    return (-f "/.flatpak-info");
-}
-
 
 sub runInCrossTargetEnvironment(@)
 {
@@ -2596,9 +2571,8 @@ sub maybeEnterWebKitContainerSDK()
 sub maybeUseContainerSDKRootDir()
 {
     return if not isLinux();
-    return if (shouldUseFlatpak() or shouldBuildForCrossTarget() or inCrossTargetEnvironment());
+    return if (shouldBuildForCrossTarget() or inCrossTargetEnvironment());
     return if ($ENV{'WEBKIT_CONTAINER_SDK_INSIDE_MOUNT_NAMESPACE'} // '') eq '1';
-    return if ($ENV{'WEBKIT_FLATPAK'} // '') eq '1';
     return if ($ENV{'WEBKIT_JHBUILD'} // '') eq '1';
     if (($ENV{'WEBKIT_CONTAINER_SDK'} // '') ne '1') {
         print STDERR "WARNING: Running outside wkdev-sdk container. For proper testing, use https://github.com/Igalia/webkit-container-sdk\n";
@@ -2628,37 +2602,6 @@ sub maybeUseContainerSDKRootDir()
         $ENV{"CFLAGS"} = "-ffile-prefix-map=$sourceDir=/sdk/webkit" . ($ENV{"CFLAGS"} || "");
         $ENV{"CXXFLAGS"} = "-ffile-prefix-map=$sourceDir=/sdk/webkit" . ($ENV{"CXXFLAGS"} || "");
     }
-}
-
-
-sub runInFlatpak(@)
-{
-    if (isGtk() && checkForArgumentAndRemoveFromARGV("--update-gtk")) {
-        system("perl", File::Spec->catfile(sourceDir(), "Tools", "Scripts", "update-webkitgtk-libs"), argumentsForConfiguration()) == 0 or die $!;
-    }
-
-    if (isWPE() && checkForArgumentAndRemoveFromARGV("--update-wpe")) {
-        system("perl", File::Spec->catfile(sourceDir(), "Tools", "Scripts", "update-webkitwpe-libs"), argumentsForConfiguration()) == 0 or die $!;
-    }
-
-    my @arg = @_;
-    my @command = (File::Spec->catfile(sourceDir(), "Tools", "Scripts", "webkit-flatpak"));
-
-    my @flatpakArgs;
-    my @filteredArgv;
-
-    # Filter-out Flatpak SDK-specific arguments to a separate array, passed to webkit-flatpak.
-    my $prefix = "--flatpak-";
-    foreach my $opt (@ARGV) {
-        if (substr($opt, 0, length($prefix)) eq $prefix) {
-            my ($name, $value) = split("--flatpak-", $opt);
-            push(@flatpakArgs, "--$value");
-        } else {
-            push(@filteredArgv, $opt);
-        }
-    }
-
-    exec @command, argumentsForConfiguration(), @flatpakArgs, "--command", @_, argumentsForConfiguration(), @filteredArgv or die;
 }
 
 sub jhbuildWrapperPrefix()
@@ -2711,26 +2654,6 @@ sub wrapperPrefixIfNeeded()
     return ();
 }
 
-sub shouldUseFlatpak()
-{
-    if (!isGtk() and !isWPE()) {
-        return 0;
-    }
-
-    if (defined $ENV{'WEBKIT_JHBUILD'} and $ENV{'WEBKIT_JHBUILD'}) {
-        return 0;
-    }
-
-    if (shouldBuildForCrossTarget() or inCrossTargetEnvironment()) {
-        return 0;
-    }
-
-    return 0 unless (defined $ENV{'WEBKIT_FLATPAK'} and $ENV{'WEBKIT_FLATPAK'});
-
-    my @prefix = wrapperPrefixIfNeeded();
-    return ((! inFlatpakSandbox()) and (@prefix == 0) and -e getUserFlatpakPath());
-}
-
 sub shouldUseVcpkg()
 {
     return isWin() || (isJSCOnly() && isAnyWindows());
@@ -2764,7 +2687,7 @@ sub shouldRemoveCMakeCache(@)
                              "CPATH", "LIBRARY_PATH", # GCC/Clang include/lib helpers
                              "CMAKE_MODULE_PATH", "CMAKE_PREFIX_PATH", # CMake-specific
                              # WebKit-tooling build modifiers
-                             "WEBKIT_CONTAINER_SDK", "WEBKIT_FLATPAK", "WEBKIT_JHBUILD", "WEBKIT_USE_SCCACHE");
+                             "WEBKIT_CONTAINER_SDK", "WEBKIT_JHBUILD", "WEBKIT_USE_SCCACHE");
     for my $envFlag (@relevantEnvFlags) {
         my $flagValue = $ENV{$envFlag} || "";
             $buildArgsEnv .= "\n" . $envFlag . "=" . $flagValue;
@@ -2820,7 +2743,7 @@ sub shouldRemoveCMakeCache(@)
     }
 
     # If a change on the JHBuild moduleset has been done, we need to clean the cache as well.
-    if (! shouldUseFlatpak() and (isGtk() || isWPE())) {
+    if (isGtk() || isWPE()) {
         my $jhbuildRootDirectory = File::Spec->catdir(getJhbuildPath(), "Root");
         # The script update-webkit-libs-jhbuild shall re-generate $jhbuildRootDirectory if the moduleset changed.
         if (-d $jhbuildRootDirectory && $cacheFileModifiedTime < stat($jhbuildRootDirectory)->mtime) {
@@ -3864,9 +3787,6 @@ sub updateGtkOrWpeLibs
     } elsif (defined $ENV{'WEBKIT_CROSS_TARGET'} or grep(/^--cross-target/, @ARGV)) {
         exec("$scriptsDir/cross-toolchain-helper", "--build-toolchain", @ARGV)
             or die "Failed to exec cross-toolchain-helper: $!";
-    } elsif (defined $ENV{'WEBKIT_FLATPAK'} and $ENV{'WEBKIT_FLATPAK'}) {
-        exec("$scriptsDir/update-webkit-flatpak", @ARGV)
-            or die "Failed to exec update-webkit-flatpak: $!";
     }
     if (defined $ENV{'WEBKIT_CONTAINER_SDK'} and $ENV{'WEBKIT_CONTAINER_SDK'}) {
         # FIXME: implement a way to check if the update is needed by calling some script at /wkdev-sdk and then print a different message.
