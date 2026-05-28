@@ -12055,6 +12055,28 @@ void SpeculativeJIT::compileNewSet(Node* node)
     cellResult(resultGPR, node);
 }
 
+void SpeculativeJIT::compileNewWeakMap(Node* node)
+{
+    // FIXME: Inline-allocate the cell like NewMap once WeakMapImpl supports a lazily-allocated buffer.
+    flushRegisters();
+    GPRFlushedCallResult result(this);
+    GPRReg resultGPR = result.gpr();
+    FrozenValue* structure = m_graph.freezeStrong(node->structure().get());
+    callOperation(operationNewWeakMap, resultGPR, TrustedImmPtr(&vm()), TrustedImmPtr(structure));
+    cellResult(resultGPR, node);
+}
+
+void SpeculativeJIT::compileNewWeakSet(Node* node)
+{
+    // FIXME: Inline-allocate the cell like NewSet once WeakMapImpl supports a lazily-allocated buffer.
+    flushRegisters();
+    GPRFlushedCallResult result(this);
+    GPRReg resultGPR = result.gpr();
+    FrozenValue* structure = m_graph.freezeStrong(node->structure().get());
+    callOperation(operationNewWeakSet, resultGPR, TrustedImmPtr(&vm()), TrustedImmPtr(structure));
+    cellResult(resultGPR, node);
+}
+
 void SpeculativeJIT::compileNewRegExpUntyped(Node* node)
 {
     if (node->child1().useKind() == StringUse && node->child2().useKind() == StringUse) {

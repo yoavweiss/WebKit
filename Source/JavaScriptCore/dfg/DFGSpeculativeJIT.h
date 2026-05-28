@@ -1456,6 +1456,8 @@ public:
     void compileNewSymbol(Node*);
     void compileNewMap(Node*);
     void compileNewSet(Node*);
+    void compileNewWeakMap(Node*);
+    void compileNewWeakSet(Node*);
     void compileNewRegExpUntyped(Node*);
 
     void emitNewTypedArrayWithSizeInRegister(Node*, TypedArrayType, RegisteredStructure, GPRReg sizeGPR);

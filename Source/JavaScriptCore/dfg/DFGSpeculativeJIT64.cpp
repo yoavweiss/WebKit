@@ -4730,6 +4730,16 @@ void SpeculativeJIT::compile(Node* node)
         break;
     }
 
+    case NewWeakMap: {
+        compileNewWeakMap(node);
+        break;
+    }
+
+    case NewWeakSet: {
+        compileNewWeakSet(node);
+        break;
+    }
+
     case ToObject:
     case CallObjectConstructor: {
         compileToObjectOrCallObjectConstructor(node);

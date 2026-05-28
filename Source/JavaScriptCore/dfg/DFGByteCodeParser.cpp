@@ -98,6 +98,8 @@
 #include "StringConstructor.h"
 #include "StructureID.h"
 #include "SymbolConstructor.h"
+#include "WeakMapConstructor.h"
+#include "WeakSetConstructor.h"
 #include <wtf/CommaPrinter.h>
 #include <wtf/HashMap.h>
 #include <wtf/SetForScope.h>
@@ -5988,6 +5990,40 @@ bool ByteCodeParser::handleConstantFunction(
         if (argumentCountIncludingThis <= 1 && structure) {
             insertChecks();
             Node* resultNode = addToGraph(NewSet, OpInfo(m_graph.registerStructure(structure)));
+            set(result, resultNode);
+            return true;
+        }
+    }
+
+    if (function->classInfo() == WeakMapConstructor::info() && kind == CodeSpecializationKind::CodeForConstruct) {
+        Node* newTargetNode = get(virtualRegisterForArgumentIncludingThis(0, registerOffset));
+        // We cannot handle the case where new.target != callee (i.e. a construct from a super call) because we
+        // don't know what the prototype of the constructed object will be.
+        // FIXME: If we have inlined super calls up to the call site, however, we should be able to figure out the structure. https://bugs.webkit.org/show_bug.cgi?id=152700
+        if (newTargetNode != callTargetNode)
+            return false;
+
+        auto* structure = function->realm()->weakMapStructureConcurrently();
+        if (argumentCountIncludingThis <= 1 && structure) {
+            insertChecks();
+            Node* resultNode = addToGraph(NewWeakMap, OpInfo(m_graph.registerStructure(structure)));
+            set(result, resultNode);
+            return true;
+        }
+    }
+
+    if (function->classInfo() == WeakSetConstructor::info() && kind == CodeSpecializationKind::CodeForConstruct) {
+        Node* newTargetNode = get(virtualRegisterForArgumentIncludingThis(0, registerOffset));
+        // We cannot handle the case where new.target != callee (i.e. a construct from a super call) because we
+        // don't know what the prototype of the constructed object will be.
+        // FIXME: If we have inlined super calls up to the call site, however, we should be able to figure out the structure. https://bugs.webkit.org/show_bug.cgi?id=152700
+        if (newTargetNode != callTargetNode)
+            return false;
+
+        auto* structure = function->realm()->weakSetStructureConcurrently();
+        if (argumentCountIncludingThis <= 1 && structure) {
+            insertChecks();
+            Node* resultNode = addToGraph(NewWeakSet, OpInfo(m_graph.registerStructure(structure)));
             set(result, resultNode);
             return true;
         }

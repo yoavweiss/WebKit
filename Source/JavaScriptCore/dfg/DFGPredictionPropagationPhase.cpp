@@ -1460,6 +1460,16 @@ private:
             break;
         }
 
+        case NewWeakMap: {
+            setPrediction(SpecWeakMapObject);
+            break;
+        }
+
+        case NewWeakSet: {
+            setPrediction(SpecWeakSetObject);
+            break;
+        }
+
         case PushWithScope:
         case CreateActivation: {
             setPrediction(SpecObjectOther);

@@ -5912,6 +5912,22 @@ JSC_DEFINE_JIT_OPERATION(operationNewSet, JSSet*, (VM* vmPointer, Structure* str
     OPERATION_RETURN(scope, JSSet::create(vm, structure));
 }
 
+JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationNewWeakMap, JSWeakMap*, (VM* vmPointer, Structure* structure))
+{
+    VM& vm = *vmPointer;
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    return JSWeakMap::create(vm, structure);
+}
+
+JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationNewWeakSet, JSWeakSet*, (VM* vmPointer, Structure* structure))
+{
+    VM& vm = *vmPointer;
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    return JSWeakSet::create(vm, structure);
+}
+
 JSC_DEFINE_JIT_OPERATION(operationWeakSetAdd, void, (JSGlobalObject* globalObject, JSCell* set, JSCell* key, int32_t hash))
 {
     VM& vm = globalObject->vm();

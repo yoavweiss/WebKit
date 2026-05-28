@@ -2264,6 +2264,8 @@ void clobberize(Graph& graph, Node* node, const ReadFunctor& read, const WriteFu
     case NewStringObject:
     case NewMap:
     case NewSet:
+    case NewWeakMap:
+    case NewWeakSet:
     case PhantomNewObject:
     case MaterializeNewObject:
     case PhantomNewFunction:

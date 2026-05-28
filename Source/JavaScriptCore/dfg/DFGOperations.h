@@ -364,6 +364,8 @@ JSC_DECLARE_NOEXCEPT_JIT_OPERATION(operationSetIteratorNext, EncodedJSValue, (VM
 
 JSC_DECLARE_JIT_OPERATION(operationNewMap, JSMap*, (VM*, Structure*));
 JSC_DECLARE_JIT_OPERATION(operationNewSet, JSSet*, (VM*, Structure*));
+JSC_DECLARE_NOEXCEPT_JIT_OPERATION(operationNewWeakMap, JSWeakMap*, (VM*, Structure*));
+JSC_DECLARE_NOEXCEPT_JIT_OPERATION(operationNewWeakSet, JSWeakSet*, (VM*, Structure*));
 
 JSC_DECLARE_JIT_OPERATION(operationParseIntDoubleNoRadix, EncodedJSValue, (JSGlobalObject*, double));
 JSC_DECLARE_JIT_OPERATION(operationParseIntStringNoRadix, EncodedJSValue, (JSGlobalObject*, JSString*));

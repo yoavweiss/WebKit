@@ -685,6 +685,8 @@ bool safeToExecute(AbstractStateType& state, Graph& graph, Node* node, bool igno
     case NewRegExp:
     case NewMap:
     case NewSet:
+    case NewWeakMap:
+    case NewWeakSet:
     case NewSymbol:
     case ProfileType:
     case ProfileControlFlow:

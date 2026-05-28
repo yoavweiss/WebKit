@@ -2456,6 +2456,8 @@ public:
         case NewRegExpUntyped:
         case NewMap:
         case NewSet:
+        case NewWeakMap:
+        case NewWeakSet:
         case NewArrayWithSizeAndStructure:
         case NewTypedArrayBuffer:
             return true;

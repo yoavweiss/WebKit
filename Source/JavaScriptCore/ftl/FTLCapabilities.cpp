@@ -409,6 +409,8 @@ inline CapabilityLevel canCompile(Node* node)
     case NewRegExp:
     case NewMap:
     case NewSet:
+    case NewWeakMap:
+    case NewWeakSet:
     case StringReplace:
     case StringReplaceAll:
     case StringReplaceRegExp:

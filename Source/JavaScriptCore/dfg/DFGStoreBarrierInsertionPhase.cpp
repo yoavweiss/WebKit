@@ -422,6 +422,8 @@ private:
             case NewStringObject:
             case NewMap:
             case NewSet:
+            case NewWeakMap:
+            case NewWeakSet:
             case NewSymbol:
             case MaterializeNewObject:
             case MaterializeNewArrayWithButterfly:

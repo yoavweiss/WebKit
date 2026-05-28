@@ -3984,6 +3984,14 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
         setForNode(node, node->structure());
         break;
 
+    case NewWeakMap:
+        setForNode(node, node->structure());
+        break;
+
+    case NewWeakSet:
+        setForNode(node, node->structure());
+        break;
+
     case ToThis: {
         AbstractValue& source = forNode(node->child1());
         AbstractValue& destination = forNode(node);

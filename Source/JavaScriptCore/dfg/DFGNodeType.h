@@ -443,6 +443,8 @@ namespace JSC { namespace DFG {
     macro(NewStringObject, NodeResultJS) \
     macro(NewMap, NodeResultJS) \
     macro(NewSet, NodeResultJS) \
+    macro(NewWeakMap, NodeResultJS) \
+    macro(NewWeakSet, NodeResultJS) \
     /* Rest Parameter */\
     macro(CreateRest, NodeResultJS | NodeMustGenerate) \
     \

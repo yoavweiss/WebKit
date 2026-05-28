@@ -1866,6 +1866,12 @@ private:
         case NewSet:
             compileNewSet();
             break;
+        case NewWeakMap:
+            compileNewWeakMap();
+            break;
+        case NewWeakSet:
+            compileNewWeakSet();
+            break;
         case SetFunctionName:
             compileSetFunctionName();
             break;
@@ -19536,6 +19542,18 @@ IGNORE_CLANG_WARNINGS_END
 
         m_out.appendTo(continuation, lastNext);
         setJSValue(m_out.phi(pointerType(), fastResult, slowResult));
+    }
+
+    void compileNewWeakMap()
+    {
+        // FIXME: Inline-allocate the cell like NewMap once WeakMapImpl supports a lazily-allocated buffer.
+        setJSValue(vmCall(pointerType(), operationNewWeakMap, m_vmValue, frozenPointer(m_graph.freezeStrong(m_node->structure().get()))));
+    }
+
+    void compileNewWeakSet()
+    {
+        // FIXME: Inline-allocate the cell like NewSet once WeakMapImpl supports a lazily-allocated buffer.
+        setJSValue(vmCall(pointerType(), operationNewWeakSet, m_vmValue, frozenPointer(m_graph.freezeStrong(m_node->structure().get()))));
     }
 
     void compileSetFunctionName()
