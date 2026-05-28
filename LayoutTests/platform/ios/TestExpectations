@@ -8401,3 +8401,8 @@ webgl/webgl2-provoking-vertex-primitive-restart-uint16-nocrash.html [ Skip ]
 # iOS UA stylesheet has :checked form-control rules that add self-invalidation, changing
 # traversal counts compared to macOS.
 fast/selectors/has-invalidation-traversal-size.html [ Skip ]
+
+# webkit.org/b/315796 [iOS Release] 3 tests in imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element are constant failure
+[ Release ] imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element/dialog-cancel-events.html [ Failure ]
+[ Release ] imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element/dialog-cancel-preventDefault.html [ Failure ]
+[ Release ] imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element/dialog-canceling.html [ Failure ]
