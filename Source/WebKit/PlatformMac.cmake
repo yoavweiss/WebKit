@@ -158,18 +158,10 @@ foreach (_dir IN LISTS WebKit_SWIFT_CLANG_INCLUDE_DIRS)
     list(APPEND WebKit_SWIFT_CLANG_FLAG_PAIRS "-Xcc -I${_dir}")
 endforeach ()
 
-# HAVE_MATERIAL_HOSTING is a PlatformHave.h preprocessor flag (macOS 16+),
-# not a CMake define. SWIFT_EXTRA_OPTIONS and SWIFT_INCLUDE_DIRECTORIES only
-# affect the typecheck custom command. Mirror everything to target_compile_options
-# so the actual Swift compilation sees the same flags.
-set(WebKit_SWIFT_EXTRA_OPTIONS -DHAVE_MATERIAL_HOSTING)
 target_compile_options(WebKit PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:-DHAVE_MATERIAL_HOSTING>")
 foreach (_pair IN LISTS WebKit_SWIFT_CLANG_FLAG_PAIRS)
     target_compile_options(WebKit PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:SHELL:${_pair}>")
-    string(REPLACE " " ";" _split "${_pair}")
-    list(APPEND WebKit_SWIFT_EXTRA_OPTIONS ${_split})
 endforeach ()
-list(APPEND WebKit_SWIFT_EXTRA_OPTIONS -Xfrontend -emit-clang-header-min-access -Xfrontend internal)
 foreach (_dir IN LISTS WebKit_SWIFT_INCLUDE_DIRECTORIES)
     target_compile_options(WebKit PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:-I${_dir}>")
 endforeach ()

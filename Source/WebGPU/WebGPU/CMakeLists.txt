@@ -310,43 +310,6 @@ if (SWIFT_REQUIRED)
         "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -fvisibility=hidden>"
     )
 
-    set(WebGPU_SWIFT_INCLUDE_DIRECTORIES "")
-
-    # FIXME: Disable access control until CMake replicates Xcode's DEFINES_MODULE.
-    # https://bugs.webkit.org/show_bug.cgi?id=312083
-    set(WebGPU_SWIFT_EXTRA_OPTIONS
-        "-Xcc" "-DENABLE_WEBGPU_SWIFT=1"
-        "-Xcc" "-DUCHAR_TYPE=char16_t"
-        "-Xcc" "-D__WEBGPU__"
-        "-Xcc" "-fvisibility=hidden"
-        "-Xfrontend" "-disable-access-control"
-        "-Xfrontend" "-emit-clang-header-min-access" "-Xfrontend" "public"
-        "-enable-experimental-feature" "LifetimeDependence"
-        "-enable-experimental-feature" "Lifetimes"
-        "-enable-experimental-feature" "SafeInteropWrappers"
-        "-import-underlying-module"
-        "-library-level" "spi"
-        "-no-verify-emitted-module-interface"
-        "-strict-memory-safety"
-        "-swift-version" "6"
-        "-F" "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
-        "-Xcc" "-I${WebGPU_FRAMEWORK_HEADERS_DIR}"
-        "-Xcc" "-I${WebGPU_PRIVATE_FRAMEWORK_HEADERS_DIR}"
-        "-Xcc" "-I${CMAKE_CURRENT_SOURCE_DIR}/Internal"
-        "-Xcc" "-I${CMAKE_CURRENT_SOURCE_DIR}"
-        "-Xcc" "-I${CMAKE_CURRENT_SOURCE_DIR}/.."
-        "-Xcc" "-I${WGSL_DIR}"
-        "-Xcc" "-I${WGSL_DIR}/AST"
-        "-Xcc" "-I${WGSL_DIR}/Metal"
-        "-Xcc" "-I${CMAKE_CURRENT_BINARY_DIR}/../WGSL"
-        "-Xcc" "-I${CMAKE_BINARY_DIR}/WTF/Headers"
-        "-Xcc" "-I${CMAKE_BINARY_DIR}/bmalloc/Headers"
-        "-Xcc" "-I${CMAKE_BINARY_DIR}"
-        "-Xcc" "-I${CMAKE_CURRENT_BINARY_DIR}"
-    )
-    if (NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
-        list(APPEND WebGPU_SWIFT_EXTRA_OPTIONS "-Xcc" "-I${CMAKE_BINARY_DIR}/ICU/Headers")
-    endif ()
     if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
         # iOS Swift compiles transitively load UIKit→UIKitCore→WebKit_Private,
         # whose PCM build needs our project -Xcc flags. Explicit modules let

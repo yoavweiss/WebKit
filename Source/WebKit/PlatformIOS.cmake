@@ -565,10 +565,6 @@ target_compile_options(WebKit PRIVATE
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-emit-private-module-interface-path ${CMAKE_BINARY_DIR}/Source/WebKit/WebKit.private.swiftinterface>"
 )
 
-set(WebKit_SWIFT_EXTRA_OPTIONS
-    -DHAVE_MATERIAL_HOSTING
-)
-
 # FIXME: Re-enable Swift C++ interop header generation once WebKit_Internal
 # umbrella module compiles cleanly on iOS. https://bugs.webkit.org/show_bug.cgi?id=312083
 set(WebKit_SWIFT_TYPECHECK_SOURCES "")

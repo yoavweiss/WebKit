@@ -99,24 +99,6 @@ if (SWIFT_REQUIRED AND NOT (PORT STREQUAL GTK OR PORT STREQUAL WPE))
         ${PAL_DIR}/pal/crypto/CryptoKitShim.swift
     )
 
-    # Use -Xcc -I for ALL include paths (like Xcode does). Plain -I triggers
-    # Swift's own module discovery which causes C++ stdlib module conflicts.
-    set(PAL_SWIFT_INCLUDE_DIRECTORIES "")
-
-    set(PAL_SWIFT_EXTRA_OPTIONS
-        "-import-underlying-module"
-        "-strict-memory-safety"
-        "-swift-version" "6"
-        "-Xcc" "-I${PAL_FRAMEWORK_HEADERS_DIR}"
-        "-Xcc" "-I${CMAKE_BINARY_DIR}/WTF/Headers"
-        "-Xcc" "-I${CMAKE_BINARY_DIR}/bmalloc/Headers"
-        "-Xcc" "-I${CMAKE_BINARY_DIR}"
-        "-Xcc" "-I${PAL_DERIVED_SOURCES_DIR}"
-    )
-    # Bundled ICU shadows SDK ICU in explicit module builds on iOS.
-    if (NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
-        list(APPEND PAL_SWIFT_EXTRA_OPTIONS "-Xcc" "-I${CMAKE_BINARY_DIR}/ICU/Headers")
-    endif ()
     if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
         # iOS Swift compiles transitively load UIKit→UIKitCore→WebKit_Private,
         # whose PCM build needs our project -Xcc flags. Explicit modules let
@@ -149,10 +131,8 @@ if (SWIFT_REQUIRED AND NOT (PORT STREQUAL GTK OR PORT STREQUAL WPE))
         "${PAL_FRAMEWORK_HEADERS_DIR}/pal"
         "PALSwift-Generated.h")
 
-    # Also pass these options to CMake's native Swift compilation (the macro
-    # only adds them to the custom typecheck command). SHELL: keeps multi-token
-    # groups (-swift-version 6, -Xcc -I<path>) together; without it CMake
-    # deduplicates repeated -Xcc tokens, leaving -I paths unguarded.
+    # SHELL: keeps multi-token groups (-swift-version 6, -Xcc -I<path>) together;
+    # without it CMake deduplicates repeated -Xcc tokens, leaving -I paths unguarded.
     # https://bugs.webkit.org/show_bug.cgi?id=312105
     target_compile_options(PAL PRIVATE
         "$<$<COMPILE_LANGUAGE:Swift>:-import-underlying-module>"

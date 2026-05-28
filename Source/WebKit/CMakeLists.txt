@@ -925,8 +925,6 @@ if (NOT APPLE AND SWIFT_REQUIRED)
 
     foreach (_pair IN LISTS WebKit_SWIFT_CLANG_FLAG_PAIRS)
         target_compile_options(WebKit PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:SHELL:${_pair}>")
-        string(REPLACE " " ";" _split "${_pair}")
-        list(APPEND WebKit_SWIFT_EXTRA_OPTIONS ${_split})
     endforeach ()
 endif ()
 
