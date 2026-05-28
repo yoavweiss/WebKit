@@ -127,6 +127,8 @@ AllowedSPI*.toml @emw-apple
 /Source/WebCore/worklets @cdumez
 /Source/WebCore/xml @cdumez
 /Source/WebCore/page @cdumez
+/Source/WebCore/page/PointerCaptureController.cpp @lilyspiniolas
+/Source/WebCore/page/PointerCaptureController.h @lilyspiniolas
 ./Source/WebCore/page/Navigator.* @marcoscaceres
 
 /Source/WebCore/animation @graouts
