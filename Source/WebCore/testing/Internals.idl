@@ -1531,7 +1531,6 @@ enum ContentsFormat {
     undefined setTopDocumentURLForQuirks(DOMString urlString);
 
 #if defined(ENABLE_CONTENT_EXTENSIONS) && ENABLE_CONTENT_EXTENSIONS
-    undefined setResourceMonitorNetworkUsageThreshold(unsigned long threshold, double randomness);
     attribute boolean shouldSkipResourceMonitorThrottling;
 #endif
 

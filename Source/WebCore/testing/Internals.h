@@ -1664,7 +1664,6 @@ public:
     ExceptionOr<void> lowerAllFrameMemoryMonitorLimits();
 
 #if ENABLE(CONTENT_EXTENSIONS)
-    void setResourceMonitorNetworkUsageThreshold(size_t threshold, double randomness = ResourceMonitorChecker::defaultNetworkUsageThresholdRandomness);
     bool NODELETE shouldSkipResourceMonitorThrottling() const;
     void NODELETE setShouldSkipResourceMonitorThrottling(bool);
 #endif

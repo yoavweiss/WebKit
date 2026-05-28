@@ -3686,6 +3686,37 @@ ICECandidateFilteringEnabled:
     WebCore:
       default: true
 
+IFrameResourceMonitorNetworkUsageThresholdForTesting:
+  type: uint32_t
+  status: internal
+  category: networking
+  condition: ENABLE(CONTENT_EXTENSIONS)
+  defaultsOverridable: true
+  humanReadableName: "Frame Resource Monitor Network Usage Threshold For Testing"
+  humanReadableDescription: "Test override for the iframe resource monitor network usage threshold in bytes (0 means use production default)"
+  defaultValue:
+    WebKitLegacy:
+      default: 0
+    WebKit:
+      default: 0
+    WebCore:
+      default: 0
+
+IFrameResourceMonitorNetworkUsageThresholdRandomnessForTesting:
+  type: double
+  status: internal
+  category: networking
+  condition: ENABLE(CONTENT_EXTENSIONS)
+  humanReadableName: "Frame Resource Monitor Network Usage Threshold Randomness For Testing"
+  humanReadableDescription: "Test override for the iframe resource monitor network usage threshold randomness factor (only applied when the threshold-for-testing preference is set)"
+  defaultValue:
+    WebKitLegacy:
+      default: 0
+    WebKit:
+      default: 0
+    WebCore:
+      default: 0
+
 IFrameResourceMonitoringEnabled:
   type: bool
   status: internal

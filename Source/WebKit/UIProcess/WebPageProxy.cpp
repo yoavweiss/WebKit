@@ -5953,10 +5953,19 @@ void WebPageProxy::continueNavigationInNewProcess(API::Navigation& navigation, W
         frame.prepareForProvisionalLoadInProcess(newProcess, navigation, browsingContextGroup, originator, [
             loadParameters = WTF::move(loadParameters),
             newProcess = newProcess.copyRef(),
+#if ENABLE(CONTENT_EXTENSIONS)
+            iFrameResourceMonitoringEnabled = preferences->iFrameResourceMonitoringEnabled(),
+            iFrameResourceMonitoringTestingSettingsEnabled = preferences->iFrameResourceMonitoringTestingSettingsEnabled(),
+#endif
             preventProcessShutdownScope = newProcess->shutdownPreventingScope()
         ](std::optional<PageIdentifier> pageID) mutable {
-            if (pageID)
-                newProcess->send(Messages::WebPage::LoadRequest(WTF::move(loadParameters)), *pageID);
+            if (!pageID)
+                return;
+#if ENABLE(CONTENT_EXTENSIONS)
+            if (iFrameResourceMonitoringEnabled)
+                newProcess->requestResourceMonitorRuleLists(iFrameResourceMonitoringTestingSettingsEnabled);
+#endif
+            newProcess->send(Messages::WebPage::LoadRequest(WTF::move(loadParameters)), *pageID);
         });
         return;
     }
@@ -9790,6 +9799,17 @@ void WebPageProxy::contentRuleListNotification(URL&& url, ContentRuleListResults
 void WebPageProxy::contentRuleListMatchedRule(WebCore::ContentRuleListMatchedRule&& matchedRule)
 {
     m_navigationClient->contentRuleListMatchedRule(*this, WTF::move(matchedRule));
+}
+
+void WebPageProxy::applyResourceMonitorUnloadToFrameOwner(WebCore::FrameIdentifier frameID)
+{
+    RefPtr frame = WebFrameProxy::webFrame(frameID);
+    if (!frame)
+        return;
+    RefPtr parent = frame->parentFrame();
+    if (!parent)
+        return;
+    sendToProcessContainingFrame(parent->frameID(), Messages::WebPage::ApplyResourceMonitorUnloadToIFrameElement(frameID));
 }
 #endif
 

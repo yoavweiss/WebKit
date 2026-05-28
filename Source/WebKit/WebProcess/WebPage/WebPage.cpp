@@ -247,6 +247,8 @@
 #include <WebCore/HTMLAttachmentElement.h>
 #include <WebCore/HTMLBodyElement.h>
 #include <WebCore/HTMLFormElement.h>
+#include <WebCore/HTMLFrameOwnerElement.h>
+#include <WebCore/HTMLIFrameElement.h>
 #include <WebCore/HTMLImageElement.h>
 #include <WebCore/HTMLInputElement.h>
 #include <WebCore/HTMLModelElement.h>
@@ -316,6 +318,7 @@
 #include <WebCore/Report.h>
 #include <WebCore/ReportingScope.h>
 #include <WebCore/ResourceLoadStatistics.h>
+#include <WebCore/ResourceMonitorChecker.h>
 #include <WebCore/ResourceRequest.h>
 #include <WebCore/ResourceResponse.h>
 #include <WebCore/ResourceTiming.h>
@@ -2306,6 +2309,30 @@ void WebPage::loadDataInFrame(std::span<const uint8_t> data, String&& type, Stri
     SubstituteData substituteData(WTF::move(sharedBuffer), URL { baseURL }, WTF::move(response), SubstituteData::SessionHistoryVisibility::Hidden);
     frame->coreLocalFrame()->loader().load(FrameLoadRequest(*frame->coreLocalFrame(), ResourceRequest(WTF::move(baseURL)), WTF::move(substituteData)));
 }
+
+#if ENABLE(CONTENT_EXTENSIONS)
+void WebPage::applyResourceMonitorUnloadToIFrameElement(FrameIdentifier frameID)
+{
+    RefPtr frame = WebProcess::singleton().webFrame(frameID);
+    if (!frame)
+        return;
+
+    RefPtr<HTMLFrameOwnerElement> ownerElement;
+    // The child frame is remote here because its content runs in another process.
+    // WebPageProxy routed this message to this process because it hosts the parent
+    // frame, so the <iframe> ownerElement lives in our parent document and is non-null.
+    if (RefPtr remoteFrame = frame->coreRemoteFrame())
+        ownerElement = remoteFrame->ownerElement();
+    else if (RefPtr localFrame = frame->coreLocalFrame())
+        ownerElement = localFrame->ownerElement();
+
+    RefPtr iframeElement = dynamicDowncast<HTMLIFrameElement>(ownerElement.get());
+    if (!iframeElement)
+        return;
+
+    LocalFrame::applyResourceMonitorErrorToIFrameElement(*iframeElement);
+}
+#endif
 
 #if !PLATFORM(COCOA)
 void WebPage::platformDidReceiveLoadParameters(const LoadParameters& loadParameters)
@@ -5187,6 +5214,11 @@ void WebPage::updatePreferences(const WebPreferencesStore& store)
         drawingArea->updatePreferences(store);
 
     WebProcess::singleton().setChildProcessDebuggabilityEnabled(store.getBoolValueForKey(WebPreferencesKey::childProcessDebuggabilityEnabledKey()));
+
+#if ENABLE(CONTENT_EXTENSIONS)
+    if (auto threshold = store.getUInt32ValueForKey(WebPreferencesKey::iFrameResourceMonitorNetworkUsageThresholdForTestingKey()))
+        WebCore::ResourceMonitorChecker::singleton().setNetworkUsageThreshold(threshold, store.getDoubleValueForKey(WebPreferencesKey::iFrameResourceMonitorNetworkUsageThresholdRandomnessForTestingKey()));
+#endif
 
 #if ENABLE(GPU_PROCESS)
     downcast<WebMediaStrategy>(platformStrategies()->mediaStrategy()).setUseGPUProcess(m_shouldPlayMediaInGPUProcess);

@@ -510,6 +510,7 @@ messages -> WebPageProxy {
 #if ENABLE(CONTENT_EXTENSIONS)
     ContentRuleListNotification(URL url, struct WebCore::ContentRuleListResults results)
     ContentRuleListMatchedRule(struct WebCore::ContentRuleListMatchedRule matchedRule)
+    ApplyResourceMonitorUnloadToFrameOwner(WebCore::FrameIdentifier frameID)
 #endif
 
 #if ENABLE(WIRELESS_PLAYBACK_TARGET) && !PLATFORM(IOS_FAMILY)

@@ -1513,17 +1513,26 @@ static DiagnosticLoggingClient::ValueDictionary valueDictionaryForResult(bool un
     return dictionary;
 }
 
+void LocalFrame::applyResourceMonitorErrorToIFrameElement(HTMLIFrameElement& iframeElement)
+{
+    OptionSet<ColorScheme> colorScheme { ColorScheme::Light };
+
+#if ENABLE(DARK_MODE_CSS)
+    if (CheckedPtr style = iframeElement.existingComputedStyle())
+        colorScheme = iframeElement.document().resolvedColorScheme(&style->computedStyle());
+#endif
+
+    iframeElement.setSrcdoc(generateResourceMonitorErrorHTML(colorScheme), SubstituteData::SessionHistoryVisibility::Hidden);
+}
+
 void LocalFrame::showResourceMonitoringError()
 {
-    RefPtr iframeElement = dynamicDowncast<HTMLIFrameElement>(ownerElement());
     RefPtr document = this->document();
-    if (!iframeElement || !document)
+    if (!document)
         return;
 
-    URL url;
+    URL url = document->url();
     URL mainFrameURL;
-    if (document)
-        url = document->url();
     if (RefPtr page = this->page()) {
         mainFrameURL = page->mainFrameURL();
         page->diagnosticLoggingClient().logDiagnosticMessageWithValueDictionary(DiagnosticLoggingKeys::iframeResourceMonitoringKey(), "IFrame ResourceMonitoring Unloaded"_s, valueDictionaryForResult(true), ShouldSample::No);
@@ -1540,14 +1549,13 @@ void LocalFrame::showResourceMonitoringError()
         }
     }
 
-    OptionSet<ColorScheme> colorScheme { ColorScheme::Light };
+    if (RefPtr iframeElement = dynamicDowncast<HTMLIFrameElement>(ownerElement())) {
+        applyResourceMonitorErrorToIFrameElement(*iframeElement);
+        return;
+    }
 
-#if ENABLE(DARK_MODE_CSS)
-    if (CheckedPtr style = iframeElement->existingComputedStyle())
-        colorScheme = document->resolvedColorScheme(&style->computedStyle());
-#endif
-
-    iframeElement->setSrcdoc(generateResourceMonitorErrorHTML(colorScheme), SubstituteData::SessionHistoryVisibility::Hidden);
+    // Owner element lives in another process under site isolation; route the unload via the loader client.
+    loader().client().applyResourceMonitorUnloadToOwnerFrame();
 }
 
 void LocalFrame::reportResourceMonitoringWarning()

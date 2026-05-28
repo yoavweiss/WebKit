@@ -76,6 +76,7 @@ class FrameInspectorController;
 class FrameLoader;
 class FrameSelection;
 class HTMLFrameOwnerElement;
+class HTMLIFrameElement;
 class HTMLTableCellElement;
 class HitTestResult;
 class ImageBuffer;
@@ -354,6 +355,7 @@ public:
 #if ENABLE(CONTENT_EXTENSIONS)
     WEBCORE_EXPORT void showResourceMonitoringError();
     WEBCORE_EXPORT void reportResourceMonitoringWarning();
+    WEBCORE_EXPORT static void applyResourceMonitorErrorToIFrameElement(HTMLIFrameElement&);
 #endif
 
     bool frameCanCreatePaymentSession() const final;

@@ -3108,6 +3108,7 @@ private:
 #if ENABLE(CONTENT_EXTENSIONS)
     void contentRuleListNotification(URL&&, WebCore::ContentRuleListResults&&);
     void contentRuleListMatchedRule(WebCore::ContentRuleListMatchedRule&&);
+    void applyResourceMonitorUnloadToFrameOwner(WebCore::FrameIdentifier);
 #endif
 
     // History client

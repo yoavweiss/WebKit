@@ -54,6 +54,10 @@ void LocalFrameLoaderClient::deref() const
 void LocalFrameLoaderClient::didExceedNetworkUsageThreshold()
 {
 }
+
+void LocalFrameLoaderClient::applyResourceMonitorUnloadToOwnerFrame()
+{
+}
 #endif
 
 // The three notifications below are entry points for the multi-process BFCache

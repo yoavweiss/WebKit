@@ -8516,11 +8516,6 @@ void Internals::setTopDocumentURLForQuirks(const String& urlString)
 }
 
 #if ENABLE(CONTENT_EXTENSIONS)
-void Internals::setResourceMonitorNetworkUsageThreshold(size_t threshold, double randomness)
-{
-    ResourceMonitorChecker::singleton().setNetworkUsageThreshold(threshold, randomness);
-}
-
 bool Internals::shouldSkipResourceMonitorThrottling() const
 {
     if (auto* document = contextDocument())

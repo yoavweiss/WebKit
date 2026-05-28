@@ -298,6 +298,7 @@ private:
 
 #if ENABLE(CONTENT_EXTENSIONS)
     void didExceedNetworkUsageThreshold();
+    void applyResourceMonitorUnloadToOwnerFrame() final;
 #endif
 
 #if ENABLE(PDF_PLUGIN)

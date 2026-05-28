@@ -2157,13 +2157,17 @@ void WebLocalFrameLoaderClient::didExceedNetworkUsageThreshold()
     ASSERT(!m_frame->isMainFrame());
 
     RefPtr webPage = m_frame->page();
-    RefPtr localMainFrame = webPage ? dynamicDowncast<LocalFrame>(webPage->mainFrame()) : nullptr;
-    RefPtr document = localMainFrame ? localMainFrame->document() : nullptr;
-    if (!document)
+    RefPtr coreFrame = m_frame->coreLocalFrame();
+    RefPtr corePage = coreFrame ? coreFrame->page() : nullptr;
+    if (!webPage || !corePage)
         return;
 
-    auto url = document->url();
+    URL url = corePage->mainFrameURL();
     if (url.isEmpty())
+        return;
+
+    RefPtr frameDocument = coreFrame->document();
+    if (!frameDocument)
         return;
 
     WebLocalFrameLoaderClient_RELEASE_LOG(ResourceMonitoring, "didExceedNetworkUsageThreshold host=%" SENSITIVE_LOG_STRING, url.host().utf8().data());
@@ -2178,10 +2182,18 @@ void WebLocalFrameLoaderClient::didExceedNetworkUsageThreshold()
             frame->reportResourceMonitoringWarning();
     };
 
-    if (document->shouldSkipResourceMonitorThrottling())
+    if (frameDocument->shouldSkipResourceMonitorThrottling())
         action(true);
     else
         WebProcess::singleton().ensureNetworkProcessConnection().connection().sendWithAsyncReply(Messages::NetworkConnectionToWebProcess::ShouldOffloadIFrameForHost(url.host().toStringWithoutCopying()), WTF::move(action), 0);
+}
+
+void WebLocalFrameLoaderClient::applyResourceMonitorUnloadToOwnerFrame()
+{
+    RefPtr webPage = m_frame->page();
+    if (!webPage)
+        return;
+    webPage->send(Messages::WebPageProxy::ApplyResourceMonitorUnloadToFrameOwner(m_frame->frameID()));
 }
 
 #endif

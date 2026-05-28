@@ -386,6 +386,7 @@ public:
 
 #if ENABLE(CONTENT_EXTENSIONS)
     virtual void didExceedNetworkUsageThreshold();
+    virtual void applyResourceMonitorUnloadToOwnerFrame();
 #endif
 
     virtual bool shouldSuppressLayoutMilestones() const { return false; }

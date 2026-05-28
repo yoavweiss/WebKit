@@ -2383,6 +2383,10 @@ private:
     void loadURLInFrame(URL&&, const String& referrer, WebCore::FrameIdentifier);
     void loadDataInFrame(std::span<const uint8_t>, String&& MIMEType, String&& encodingName, URL&& baseURL, WebCore::FrameIdentifier);
 
+#if ENABLE(CONTENT_EXTENSIONS)
+    void applyResourceMonitorUnloadToIFrameElement(WebCore::FrameIdentifier);
+#endif
+
     void didRemoveBackForwardItem(WebCore::BackForwardFrameItemIdentifier);
     void invalidateBackForwardListCache();
     void setCurrentHistoryItemForReattach(Ref<FrameState>&&);
