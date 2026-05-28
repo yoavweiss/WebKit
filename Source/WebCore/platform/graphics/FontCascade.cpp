@@ -471,7 +471,7 @@ GlyphData FontCascade::glyphDataForCharacter(char32_t c, bool mirror, FontVarian
     }
 
     if (mirror)
-        c = mirrorCharacterIfNeeded(c);
+        c = u_charMirror(c);
 
     auto emojiPolicy = resolvedEmojiPolicy.value_or(resolveEmojiPolicy(m_fontDescription.variantEmoji(), c));
 
