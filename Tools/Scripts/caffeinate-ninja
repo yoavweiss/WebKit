@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /usr/bin/caffeinate -i ninja "$@"
+exec /usr/bin/caffeinate -i xcrun ninja "$@"
