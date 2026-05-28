@@ -1,4 +1,16 @@
 ================
+WebKitGTK 2.53.3
+================
+
+What's new in WebKitGTK 2.53.3?
+
+  - Switch web process compositor to use Skia instead of TextureMapper.
+  - Fix missing glyph before ZWJ/ZWNJ if no font is found for the cluster.
+  - Add support for half width fonts.
+  - Support time zone change notifications on linux.
+  - Fix several crashes and rendering issues.
+
+================
 WebKitGTK 2.53.2
 ================
 
