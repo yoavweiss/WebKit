@@ -1150,6 +1150,13 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
         if (NOT DEFINED ${_target}_SWIFT_EMIT_CLANG_HEADER_MIN_ACCESS)
             set(${_target}_SWIFT_EMIT_CLANG_HEADER_MIN_ACCESS internal)
         endif ()
+        # -emit-clang-header-min-access was added in Swift 6.3. Please simplify
+        # this once that becomes mandatory.
+        include(CheckCompilerFlag)
+        check_compiler_flag(Swift -emit-clang-header-min-access CAN_USE_EMIT_CLANG_HEADER_MIN_ACCESS)
+        if (CAN_USE_EMIT_CLANG_HEADER_MIN_ACCESS)
+            set(${_target}_SWIFT_EMIT_CLANG_HEADER_MIN_ACCESS_FLAGS -Xfrontend -emit-clang-header-min-access -Xfrontend ${${_target}_SWIFT_EMIT_CLANG_HEADER_MIN_ACCESS})
+        endif ()
         # Always create the SwiftCxxHeader placeholder so external callers
         # (e.g. Source/WebKit/CMakeLists.txt's deferred add_dependencies) can
         # reference it even when ${_target}_SWIFT_TYPECHECK_SOURCES is empty
@@ -1178,7 +1185,7 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
                     ${_swift_xcc_options}
                     ${_swift_sources}
                     -module-name ${_module_name}
-                    -Xfrontend -emit-clang-header-min-access -Xfrontend ${${_target}_SWIFT_EMIT_CLANG_HEADER_MIN_ACCESS}
+                    ${${_target}_SWIFT_EMIT_CLANG_HEADER_MIN_ACCESS_FLAGS}
                     -emit-clang-header-path ${_header_tmp_path}
                     -emit-dependencies
                 COMMAND
