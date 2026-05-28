@@ -2346,3 +2346,5 @@ webkit.org/b/315398 [ Release ] http/tests/site-isolation/accessibility/client/s
 webkit.org/b/315668 [ Release x86_64 ] imported/w3c/web-platform-tests/css/selectors/invalidation/has-complexity.html [ Timeout ]
 
 webkit.org/b/315710 [ Sequoia ] imported/w3c/web-platform-tests/css/css-backgrounds/box-shadow/box-shadow-table-row-display.html [ ImageOnlyFailure ]
+
+webkit.org/b/315734 [ Sequoia Release x86_64 ] fast/webgpu/image-data-8-bytes-per-pixel.html [ Timeout ]
