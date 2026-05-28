@@ -782,7 +782,7 @@ Ref<DOMPromise> ReadableStream::Iterator::next(JSDOMGlobalObject& globalObject)
     return promise;
 }
 
-bool ReadableStream::Iterator::isFinished() const
+SUPPRESS_NODELETE bool ReadableStream::Iterator::isFinished() const
 {
     return !m_reader->stream();
 }
