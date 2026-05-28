@@ -862,24 +862,11 @@ set(WebKit_SWIFT_CLANG_INCLUDE_DIRS
 )
 
 if (NOT APPLE AND SWIFT_REQUIRED)
-    # Export macro stubs – on Linux these expand to __attribute__((visibility))
-    # but per-module PCM compiles don't pull in the config headers that define them.
-    # Define as empty so C++ headers compile cleanly in isolation.
+    # Export-macro stubs, NODELETE=, WK_SUPPORTS_SWIFT_OBJCXX_INTEROP and the
+    # full ENABLE/HAVE/USE config-var set now come from
+    # _WEBKIT_COMPUTE_SWIFT_SHARED_CLANG_FLAGS in WebKitMacros.cmake. Only
+    # Linux-specific importer flags remain here.
     set(WebKit_SWIFT_CLANG_FLAG_PAIRS
-        "-Xcc -DJS_EXPORT_PRIVATE="
-        "-Xcc -DPAL_EXPORT="
-        "-Xcc -DWEBCORE_EXPORT="
-        "-Xcc -DWEBCORE_TESTSUPPORT_EXPORT="
-        "-Xcc -DWK_EXPORT="
-        "-Xcc -DWK_SUPPORTS_SWIFT_OBJCXX_INTEROP=1"
-        "-Xcc -DWTF_EXPORT_PRIVATE="
-
-        # NODELETE expands to [[clang::annotate_type(...)]], a type attribute.
-        # Clang 21 (Swift 6.3 embedded clang) rejects it on function declarations;
-        # nullify it for the Swift module importer since the annotation is only
-        # meaningful to Apple's static analyser.
-        "-Xcc -DNODELETE="
-
         # libstdc++ gates coroutine support in <bits/version.h> behind
         # __glibcxx_want_coroutine.  Swift's Clang 21 compiles <bits/version.h>
         # as a PCM before that flag is set, so __cpp_lib_coroutine stays
@@ -889,19 +876,6 @@ if (NOT APPLE AND SWIFT_REQUIRED)
         "-Xcc -D__glibcxx_want_coroutine=1"
         "-Xcc -fmodule-map-file=${WTF_FRAMEWORK_HEADERS_DIR}/wtf/module.modulemap"
     )
-    # Mirror cmake config variables as -Xcc -D so ENABLE()/HAVE() macros in
-    # C++ headers agree with the regular C++ compilation when the Clang importer
-    # compiles them as part of Swift's C++ interop modules.
-    GET_WEBKIT_CONFIG_VARIABLES(_swift_clang_config_vars)
-    list(REMOVE_DUPLICATES _swift_clang_config_vars)
-    foreach (_var IN LISTS _swift_clang_config_vars)
-        if (${${_var}})
-            list(APPEND WebKit_SWIFT_CLANG_FLAG_PAIRS "-Xcc -D${_var}=1")
-        else ()
-            list(APPEND WebKit_SWIFT_CLANG_FLAG_PAIRS "-Xcc -D${_var}=0")
-        endif ()
-    endforeach ()
-    unset(_swift_clang_config_vars)
     foreach (_dir IN LISTS WebKit_SWIFT_CLANG_INCLUDE_DIRS)
         list(APPEND WebKit_SWIFT_CLANG_FLAG_PAIRS "-Xcc -I${_dir}")
     endforeach ()

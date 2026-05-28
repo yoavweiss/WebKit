@@ -770,6 +770,59 @@ macro(WEBKIT_CREATE_SYMLINK target src dest)
         COMMENT "Create symlink from ${src} to ${dest}")
 endmacro()
 
+function(_WEBKIT_COMPUTE_SWIFT_SHARED_CLANG_FLAGS _outvar)
+    # All Swift C++-interop targets pass the same -Xcc -D set so the clang
+    # importer's module-cache hash matches and bmalloc/wtf/SDK PCMs build once.
+    # -I/-isystem/-fmodule-map-file/-fvisibility are not in the hash and stay
+    # per-target. Per-target target_compile_definitions are intentionally NOT
+    # forwarded here; the wrapper no longer mirrors plain -D to -Xcc.
+    set(_flags
+        -DENABLE_WEBGPU_SWIFT=1
+        -DJS_EXPORT_PRIVATE=
+        -DNODELETE=
+        -DPAL_EXPORT=
+        -DUCHAR_TYPE=char16_t
+        -DWEBCORE_EXPORT=
+        -DWEBCORE_TESTSUPPORT_EXPORT=
+        -DWK_EXPORT=
+        -DWTF_EXPORT_PRIVATE=
+        -D__WEBGPU__
+    )
+    # iOS WebKit_Internal headers gate textual #imports behind this macro that
+    # trip strict cross-module-import-visibility checks (bug 312083).
+    if (NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+        list(APPEND _flags -DWK_SUPPORTS_SWIFT_OBJCXX_INTEROP=1)
+    endif ()
+    if (APPLE)
+        # Normalize the LangOpt that WebGPU's SafeInteropWrappers enables
+        # implicitly so PAL/WebKit hash to the same module-cache dir.
+        list(APPEND _flags -fexperimental-bounds-safety-attributes)
+    endif ()
+    string(TOUPPER "${CMAKE_BUILD_TYPE}" _bt)
+    if (CMAKE_CXX_FLAGS_${_bt} MATCHES "NDEBUG" OR CMAKE_CXX_FLAGS MATCHES "NDEBUG")
+        list(APPEND _flags -DNDEBUG -DRELEASE_WITHOUT_OPTIMIZATIONS)
+    endif ()
+    # Globals from add_definitions() (BUILDING_WEBKIT=1, PAS_BMALLOC=1,
+    # _LIBCPP_HARDENING_MODE=...). Read from a fixed directory so every caller
+    # sees the same set regardless of its own add_definitions().
+    get_directory_property(_dir_defs DIRECTORY "${CMAKE_SOURCE_DIR}/Source" COMPILE_DEFINITIONS)
+    foreach (_d IN LISTS _dir_defs)
+        if (NOT _d MATCHES "^(BUILDING_WITH_CMAKE|HAVE_CONFIG_H)($|=)")
+            list(APPEND _flags "-D${_d}")
+        endif ()
+    endforeach ()
+    set(_vars ${_WEBKIT_CONFIG_FILE_VARIABLES})
+    list(REMOVE_DUPLICATES _vars)
+    foreach (_v IN LISTS _vars)
+        if (${${_v}})
+            list(APPEND _flags "-D${_v}=1")
+        else ()
+            list(APPEND _flags "-D${_v}=0")
+        endif ()
+    endforeach ()
+    set(${_outvar} ${_flags} PARENT_SCOPE)
+endfunction()
+
 function(_webkit_setup_swift_header_deps _target _stamp _header)
     # Discover _CopyHeaders/_CopyPrivateHeaders targets for this target and its
     # direct framework dependencies. Called via cmake_language(DEFER CALL ...)
@@ -905,6 +958,14 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
         # which is also Swift-only) can set
         # ${_target}_SWIFT_INTEROP_MODULE_PATH_SWIFT_ONLY to TRUE.
         list(APPEND _swift_options "-cxx-interoperability-mode=default" "-Xcc" "-std=c++2b")
+        _WEBKIT_COMPUTE_SWIFT_SHARED_CLANG_FLAGS(_shared_cc_flags)
+        foreach (_f IN LISTS _shared_cc_flags)
+            list(APPEND _swift_options "-Xcc" "${_f}")
+        endforeach ()
+        # Match Xcode's CommonBase.xcconfig SWIFT_VERSION = 6.0. The importer's
+        # apinotes version is keyed off the effective Swift language mode, so
+        # this also keeps PAL/WebGPU/WebKit on the same module-cache hash.
+        list(APPEND _swift_options "-swift-version" "6")
         if (${_target}_SWIFT_INTEROP_MODULE_PATH_SWIFT_ONLY)
             list(APPEND _swift_options "-I${_interop_module_path}")
         else ()

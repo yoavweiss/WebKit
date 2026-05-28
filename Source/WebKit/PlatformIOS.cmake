@@ -497,31 +497,12 @@ target_compile_options(WebKit PRIVATE
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-no-verify-emitted-module-interface>"
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-library-level api>"
     "$<$<COMPILE_LANGUAGE:Swift>:-strict-memory-safety>"
-    "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -std=c++2b>"
+    # -Xcc -D/-f flags shared with PAL/WebGPU come from
+    # _WEBKIT_COMPUTE_SWIFT_SHARED_CLANG_FLAGS in WebKitMacros.cmake (which also
+    # omits WK_SUPPORTS_SWIFT_OBJCXX_INTEROP on iOS — see bug 312083). Only
+    # -I/-isystem/-ivfsoverlay/-fmodule-map-file (not in the module-cache hash)
+    # remain per-target here.
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -DHAVE_CONFIG_H=1>"
-    # Intentionally do NOT define WK_SUPPORTS_SWIFT_OBJCXX_INTEROP for the Swift
-    # compile's clang importer. WebKit_Internal headers (WKWebViewIOS.h,
-    # WKWebViewInternal.h, _WKTextExtractionInternal.h, ...) gate their C++
-    # / Obj-C++ surface behind this macro; with it set, headers do textual
-    # `#import "_WKTapHandlingResult.h"` and similar that trip clang's strict
-    # cross-module-import-visibility check during the WebKit_Internal PCM
-    # compile (bug 312083). With the macro undefined, the gated sections are
-    # skipped and only the `WKViewInternalIOS_SwiftNonObjCxxSupport` Swift-
-    # friendly category (declaring `_allowsMagnification` etc.) is exposed —
-    # exactly what the iOS Swift sources need. The non-Swift C++/Obj-C++
-    # TUs still see WK_SUPPORTS_SWIFT_OBJCXX_INTEROP=1 via xcconfig-mirroring
-    # in WebKitMacros.cmake (only the Swift→Clang side is gated here).
-    # Export-macro stubs. CMakeLists.txt:866-901 sets these only for non-Apple;
-    # but Swift's clang importer on iOS hits the same problem — when WebKit_Internal
-    # or wtf submodules compile in isolation, headers using WTF_EXPORT_PRIVATE,
-    # JS_EXPORT_PRIVATE, etc. don't see those macros via the usual prefix-header /
-    # transitive ExportMacros.h chain. Stub them empty for the Swift clang importer
-    # (no effect on the regular ObjC++ compile, which has them defined normally).
-    "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -DJS_EXPORT_PRIVATE=>"
-    "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -DPAL_EXPORT=>"
-    "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -DWK_EXPORT=>"
-    "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -DWTF_EXPORT_PRIVATE=>"
-    "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -DNODELETE=>"
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -I${CMAKE_BINARY_DIR}>"
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xfrontend -disable-cross-import-overlays>"
     # Auto-import the WebKit framework's clang module (matched by -module-name
@@ -560,7 +541,6 @@ target_compile_options(WebKit PRIVATE
 
 target_compile_options(WebKit PRIVATE
     "$<$<COMPILE_LANGUAGE:Swift>:-enable-library-evolution>"
-    "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-swift-version 6>"
     "$<$<COMPILE_LANGUAGE:Swift>:-emit-module-interface>"
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-emit-private-module-interface-path ${CMAKE_BINARY_DIR}/Source/WebKit/WebKit.private.swiftinterface>"
 )

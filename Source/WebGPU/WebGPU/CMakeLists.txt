@@ -304,10 +304,6 @@ if (SWIFT_REQUIRED)
         "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-library-level spi>"
         "$<$<COMPILE_LANGUAGE:Swift>:-no-verify-emitted-module-interface>"
         "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xfrontend -disable-access-control>"
-        "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -D__WEBGPU__>"
-        "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -DENABLE_WEBGPU_SWIFT=1>"
-        "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -DUCHAR_TYPE=char16_t>"
-        "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -fvisibility=hidden>"
     )
 
     if (CMAKE_SYSTEM_NAME STREQUAL "iOS")

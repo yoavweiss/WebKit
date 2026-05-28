@@ -117,51 +117,13 @@ set(WebKit_SWIFT_CLANG_INCLUDE_DIRS
     ${WebKit_PRIVATE_INCLUDE_DIRECTORIES}
 )
 
-# Module PCMs compile with a clean preprocessor (no -include), so feed
-# cmakeconfig.h's content and the export-macro stubs as -Xcc -D instead. The
-# Clang importer applies -D to every module build. Each pair is kept as a single
-# list element so target_compile_options can wrap it in SHELL: -- otherwise CMake
-# deduplicates the repeated -Xcc and only the first flag reaches the importer.
-set(WebKit_SWIFT_CLANG_FLAG_PAIRS
-    "-Xcc -DBUILDING_WEBKIT"
-    "-Xcc -DJS_EXPORT_PRIVATE="
-    "-Xcc -DPAL_EXPORT="
-    "-Xcc -DWEBCORE_EXPORT="
-    "-Xcc -DWEBCORE_TESTSUPPORT_EXPORT="
-    "-Xcc -DWK_SUPPORTS_SWIFT_OBJCXX_INTEROP=1"
-    "-Xcc -fmodule-map-file=${WTF_FRAMEWORK_HEADERS_DIR}/wtf/module.modulemap"
-    "-Xcc -fmodule-map-file=${PAL_FRAMEWORK_HEADERS_DIR}/pal/module.modulemap"
-)
-# ASSERT_ENABLED (and therefore the layout of RefCountedBase, IPC::MessageReceiver,
-# and many others) is keyed off NDEBUG. CMake adds -DNDEBUG to CXX flags in Release
-# but not to swiftc, so the Clang importer would otherwise see a Debug layout and
-# inline ref()/adoptRef() against the wrong member offsets.
-string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type_upper)
-if (CMAKE_CXX_FLAGS_${_build_type_upper} MATCHES "NDEBUG" OR CMAKE_CXX_FLAGS MATCHES "NDEBUG")
-    list(APPEND WebKit_SWIFT_CLANG_FLAG_PAIRS "-Xcc -DNDEBUG" "-Xcc -DRELEASE_WITHOUT_OPTIMIZATIONS")
-endif ()
-unset(_build_type_upper)
-# GET_WEBKIT_CONFIG_VARIABLES filters out falsy entries, so the importer would
-# miss every =0 and fall back to PlatformEnableCocoa.h defaults — which diverges
-# from cmakeconfig.h and shifts member offsets in headers Swift inlines.
-set(_swift_clang_config_vars ${_WEBKIT_CONFIG_FILE_VARIABLES})
-list(REMOVE_DUPLICATES _swift_clang_config_vars)
-foreach (_var IN LISTS _swift_clang_config_vars)
-    if (${${_var}})
-        list(APPEND WebKit_SWIFT_CLANG_FLAG_PAIRS "-Xcc -D${_var}=1")
-    else ()
-        list(APPEND WebKit_SWIFT_CLANG_FLAG_PAIRS "-Xcc -D${_var}=0")
-    endif ()
-endforeach ()
-unset(_swift_clang_config_vars)
+# -Xcc -D/-f flags shared with PAL/WebGPU come from
+# _WEBKIT_COMPUTE_SWIFT_SHARED_CLANG_FLAGS so all three targets land in the
+# same SwiftModuleCache hash dir. Only -I (not hashed) remains per-target.
 foreach (_dir IN LISTS WebKit_SWIFT_CLANG_INCLUDE_DIRS)
-    list(APPEND WebKit_SWIFT_CLANG_FLAG_PAIRS "-Xcc -I${_dir}")
+    target_compile_options(WebKit PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -I${_dir}>")
 endforeach ()
-
 target_compile_options(WebKit PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:-DHAVE_MATERIAL_HOSTING>")
-foreach (_pair IN LISTS WebKit_SWIFT_CLANG_FLAG_PAIRS)
-    target_compile_options(WebKit PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:SHELL:${_pair}>")
-endforeach ()
 foreach (_dir IN LISTS WebKit_SWIFT_INCLUDE_DIRECTORIES)
     target_compile_options(WebKit PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:-I${_dir}>")
 endforeach ()

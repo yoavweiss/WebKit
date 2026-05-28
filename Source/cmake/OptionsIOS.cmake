@@ -169,12 +169,6 @@ if (CMAKE_OSX_SYSROOT)
     set(WEBKIT_PRIVATE_FRAMEWORKS_COMPILE_FLAG "$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-iframework${CMAKE_OSX_SYSROOT}/System/Library/PrivateFrameworks>")
 endif ()
 
-# Export macros must be predefined for Swift explicit-module builds (no prefix headers).
-add_compile_options(
-    "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -DWEBCORE_EXPORT=>"
-    "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -DWEBCORE_TESTSUPPORT_EXPORT=>"
-)
-
 if (CMAKE_OSX_SYSROOT MATCHES "\\.Internal\\.sdk$")
     add_compile_options("$<$<COMPILE_LANGUAGE:Swift>:-DUSE_APPLE_INTERNAL_SDK>")
 endif ()
