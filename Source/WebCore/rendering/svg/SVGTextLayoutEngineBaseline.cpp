@@ -166,13 +166,8 @@ float SVGTextLayoutEngineBaseline::calculateGlyphOrientationAngle(bool isVertica
                 return Style::evaluate<float>(angle);
             }
         );
-    } else {
-        return Style::valueRepresentation(style.glyphOrientationHorizontal(),
-            [](const Style::Angle<>& angle) {
-                return Style::evaluate<float>(angle);
-            }
-        );
-    }
+    } else
+        return 0.0f;
 }
 
 static inline bool glyphOrientationIsMultiplyOf180Degrees(float orientationAngle)
@@ -185,9 +180,6 @@ float SVGTextLayoutEngineBaseline::calculateGlyphAdvanceAndOrientation(bool isVe
     bool orientationIsMultiplyOf180Degrees = glyphOrientationIsMultiplyOf180Degrees(angle);
 
     // The function is based on spec requirements:
-    //
-    // Spec: If the 'glyph-orientation-horizontal' results in an orientation angle that is not a multiple of
-    // of 180 degrees, then the current text position is incremented according to the vertical metrics of the glyph.
     //
     // Spec: If if the 'glyph-orientation-vertical' results in an orientation angle that is not a multiple of
     // 180 degrees, then the current text position is incremented according to the horizontal metrics of the glyph.

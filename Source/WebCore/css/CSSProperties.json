@@ -187,8 +187,7 @@
         "",
         "* accepts-quirky-angle:",
         "Indicates the property requires support for unitless angles. Only used for",
-        "two properties, glyph-orientation-horizontal and glyph-orientation-vertical,",
-        "though nothing in any standard requires this.",
+        "glyph-orientation-vertical, though nothing in any standard requires this.",
         "",
         "2. Lesser known capabilities of this file format",
         "",
@@ -4853,24 +4852,6 @@
             "specification": {
                 "category": "css-filters",
                 "url": "https://www.w3.org/TR/filter-effects/#FloodOpacityProperty"
-            }
-        },
-        "glyph-orientation-horizontal": {
-            "animation-type": "not animatable",
-            "inherited": true,
-            "initial": "0deg",
-            "codegen-properties": {
-                "accepts-quirky-angle": true,
-                "computed-style-initial-custom": true,
-                "computed-style-storage-path": ["m_svgData", "inheritedFlags"],
-                "computed-style-storage-container": "struct",
-                "computed-style-storage-kind": "enum",
-                "computed-style-type": "Style::SVGGlyphOrientationHorizontal",
-                "parser-grammar": "<angle unitless-zero=allowed>"
-            },
-            "specification": {
-                "category": "svg",
-                "url": "https://www.w3.org/TR/SVG11/text.html#GlyphOrientationHorizontalProperty"
             }
         },
         "glyph-orientation-vertical": {

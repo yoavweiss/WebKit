@@ -396,7 +396,6 @@ enum class GridTrackSizingDirection : bool;
 enum class ImageOrientation : bool;
 enum class PositionTryOrder : uint8_t;
 enum class Resize : uint8_t;
-enum class SVGGlyphOrientationHorizontal : uint8_t;
 enum class SVGGlyphOrientationVertical : uint8_t;
 enum class ScrollBehavior : bool;
 enum class ScrollbarWidth : uint8_t;

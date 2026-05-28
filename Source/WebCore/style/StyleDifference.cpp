@@ -141,7 +141,6 @@ public:
 
         // All text related properties influence layout.
         if (a.inheritedFlags.textAnchor != b.inheritedFlags.textAnchor
-            || a.inheritedFlags.glyphOrientationHorizontal != b.inheritedFlags.glyphOrientationHorizontal
             || a.inheritedFlags.glyphOrientationVertical != b.inheritedFlags.glyphOrientationVertical
             || a.nonInheritedFlags.alignmentBaseline != b.nonInheritedFlags.alignmentBaseline
             || a.nonInheritedFlags.dominantBaseline != b.nonInheritedFlags.dominantBaseline)

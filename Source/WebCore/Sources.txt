@@ -3472,7 +3472,6 @@ style/values/sizing/StyleContainIntrinsicSize.cpp
 style/values/sizing/StylePreferredSize.cpp
 style/values/speech/StyleSpeakAs.cpp
 style/values/svg/StyleSVGBaselineShift.cpp
-style/values/svg/StyleSVGGlyphOrientationHorizontal.cpp
 style/values/svg/StyleSVGGlyphOrientationVertical.cpp
 style/values/svg/StyleSVGPaint.cpp @header:RenderStyleGetters
 style/values/svg/StyleSVGPaintOrder.cpp

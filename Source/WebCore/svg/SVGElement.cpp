@@ -923,8 +923,6 @@ CSSPropertyID SVGElement::cssPropertyIdForSVGAttributeName(const QualifiedName& 
         return CSSPropertyFontVariant;
     case AttributeNames::font_weightAttr:
         return CSSPropertyFontWeight;
-    case AttributeNames::glyph_orientation_horizontalAttr:
-        return CSSPropertyGlyphOrientationHorizontal;
     case AttributeNames::glyph_orientation_verticalAttr:
         return CSSPropertyGlyphOrientationVertical;
     case AttributeNames::image_renderingAttr:
