@@ -4490,6 +4490,12 @@ static void performDragWithLegacyFiles(WebPageProxy& page, Box<Vector<String>>&&
     if (!networkProcess)
         return;
     networkProcess->sendWithAsyncReply(Messages::NetworkProcess::AllowFilesAccessFromWebProcess(page.legacyMainFrameProcess().coreProcessIdentifier(), *fileNames), [page = protect(page), fileNames, dragData, pasteboardName]() mutable {
+        if (!page->hasRunningProcess()) {
+            if (RefPtr pageClient = page->pageClient())
+                pageClient->didPerformDragOperation(false);
+            return;
+        }
+
         SandboxExtension::Handle sandboxExtensionHandle;
         Vector<SandboxExtension::Handle> sandboxExtensionForUpload;
 

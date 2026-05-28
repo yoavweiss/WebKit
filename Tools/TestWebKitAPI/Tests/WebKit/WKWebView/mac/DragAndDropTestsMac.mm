@@ -35,6 +35,7 @@
 #import <WebCore/PasteboardCustomData.h>
 #import <WebKit/WKPreferencesPrivate.h>
 #import <WebKit/WKWebViewPrivate.h>
+#import <wtf/FileSystem.h>
 
 #if ENABLE(DRAG_SUPPORT) && PLATFORM(MAC)
 
@@ -60,6 +61,45 @@ TEST(DragAndDropTests, NumberOfValidItemsForDrop)
     EXPECT_TRUE([webView stringByEvaluatingJavaScript:@"observedDragOver"].boolValue);
     EXPECT_TRUE([webView stringByEvaluatingJavaScript:@"observedDrop"].boolValue);
     EXPECT_EQ(1U, numberOfValidItemsForDrop);
+}
+
+TEST(DragAndDropTests, PerformDragWithLegacyFilesAfterWebProcessTermination)
+{
+    // Regression test: dropping files (legacy NSFilenamesPboardType) sends an async
+    // AllowFilesAccessFromWebProcess IPC to the NetworkProcess, and the reply lambda
+    // calls WebPageProxy::createSandboxExtensionsIfNeeded, which dereferences the
+    // legacyMainFrameProcess connection. If the WebProcess is gone by then, this
+    // used to RELEASE_ASSERT in AuxiliaryProcessProxy::connection().
+
+    RetainPtr tempDirectory = FileSystem::createTemporaryDirectory(@"WebKitDragAndDropTest");
+    RetainPtr tempFilePath = [tempDirectory stringByAppendingPathComponent:@"dropped-file.txt"];
+    [@"hello" writeToFile:tempFilePath.get() atomically:YES encoding:NSUTF8StringEncoding error:nil];
+
+    NSPasteboard *pasteboard = [NSPasteboard pasteboardWithUniqueName];
+    [pasteboard declareTypes:@[NSFilenamesPboardType] owner:nil];
+    [pasteboard setPropertyList:@[tempFilePath.get()] forType:NSFilenamesPboardType];
+
+    RetainPtr simulator = adoptNS([[DragAndDropSimulator alloc] initWithWebViewFrame:NSMakeRect(0, 0, 400, 400)]);
+    TestWKWebView *webView = [simulator webView];
+    [simulator setExternalDragPasteboard:pasteboard];
+    [webView synchronouslyLoadTestPageNamed:@"full-page-dropzone"];
+
+    // Tear down the WebProcess connection synchronously right before the drop
+    // is performed. _killWebContentProcessAndResetState routes through
+    // requestTermination -> processDidTerminateOrFailedToLaunch -> shutDownProcess,
+    // which sets m_connection to nullptr immediately.
+    [simulator setWillEndDraggingHandler:[webView] {
+        [webView _killWebContentProcessAndResetState];
+    }];
+
+    [simulator runFrom:NSMakePoint(0, 0) to:NSMakePoint(200, 200)];
+
+    // Pump the runloop long enough for the AllowFilesAccessFromWebProcess reply
+    // to be delivered. Prior to fix, this would RELEASE_ASSERT in
+    // AuxiliaryProcessProxy::connection() inside the reply lambda.
+    TestWebKitAPI::Util::runFor(0.5_s);
+
+    [[NSFileManager defaultManager] removeItemAtPath:tempDirectory.get() error:nil];
 }
 
 TEST(DragAndDropTests, DragEndEventCoordinatesWithNestedIframes)
