@@ -399,6 +399,35 @@ void OpenTypeMathData::getMathVariants(Glyph, bool, Vector<Glyph>&, Vector<Assem
 #endif
 }
 
+#if !ENABLE(OPENTYPE_MATH) && USE(HARFBUZZ)
+Glyph OpenTypeMathData::getMirroredGlyph(char32_t codePoint) const
+{
+    if (!codePoint)
+        return 0;
+
+    HbUniquePtr<hb_buffer_t> buffer(hb_buffer_create());
+    hb_buffer_set_direction(buffer.get(), HB_DIRECTION_RTL);
+    hb_buffer_set_content_type(buffer.get(), HB_BUFFER_CONTENT_TYPE_UNICODE);
+    hb_buffer_add(buffer.get(), codePoint, 0 /* cluster */);
+
+    hb_feature_t rtlmFeature = { HB_TAG('r', 't', 'l', 'm'), 1 /* enabled value */, HB_FEATURE_GLOBAL_START /* start cluster */, HB_FEATURE_GLOBAL_END /* end cluster */ };
+    hb_shape(m_mathFont.get(), buffer.get(), &rtlmFeature, 1 /* number of features */);
+
+    unsigned glyphCount = 0;
+    hb_glyph_info_t* glyphInfos = hb_buffer_get_glyph_infos(buffer.get(), &glyphCount);
+    // We don't support mirroring text with more than one glyph
+    if (glyphCount == 1)
+        return glyphInfos[0].codepoint;
+
+    return 0;
+}
+#else
+Glyph OpenTypeMathData::getMirroredGlyph(char32_t) const
+{
+    return 0;
+}
+#endif
+
 } // namespace WebCore
 
 #endif // ENABLE(MATHML)

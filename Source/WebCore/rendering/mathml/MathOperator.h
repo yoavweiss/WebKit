@@ -83,7 +83,7 @@ private:
 
     LayoutUnit NODELETE stretchSize() const;
     bool getGlyph(const RenderStyle&, char32_t character, GlyphData&) const;
-    bool getBaseGlyph(const RenderStyle& style, GlyphData& baseGlyph) const { return getGlyph(style, m_baseCharacter, baseGlyph); }
+    bool getBaseGlyph(const RenderStyle&, GlyphData&);
     void setSizeVariant(const GlyphData&);
     void setGlyphAssembly(const RenderStyle&, const GlyphAssemblyData&);
     void getMathVariantsWithFallback(const RenderStyle&, bool isVertical, Vector<Glyph>&, Vector<OpenTypeMathData::AssemblyPart>&);
@@ -111,6 +111,7 @@ private:
     LayoutUnit m_italicCorrection { 0 };
     LayoutUnit m_unstretchedSize { 0 };
     float m_radicalVerticalScale { 1 };
+    bool m_baseGlyphMirroredByRTLM { false };
 };
 
 }

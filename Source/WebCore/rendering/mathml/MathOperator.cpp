@@ -108,6 +108,7 @@ void MathOperator::reset(const RenderStyle& style)
     m_descent = 0;
     m_italicCorrection = 0;
     m_radicalVerticalScale = 1;
+    m_baseGlyphMirroredByRTLM = false;
     m_unstretchedSize = 0;
 
     // We use the base size for the calculation of the preferred width.
@@ -138,6 +139,19 @@ bool MathOperator::getGlyph(const RenderStyle& style, char32_t character, GlyphD
 {
     glyph = style.fontCascade().glyphDataForCharacter(character, style.writingMode().isBidiRTL());
     return glyph.font && glyph.font == &style.fontCascade().primaryFont();
+}
+
+bool MathOperator::getBaseGlyph(const RenderStyle& style, GlyphData& glyph)
+{
+    bool isPrimary = getGlyph(style, m_baseCharacter, glyph);
+    if (isPrimary && style.writingMode().isBidiRTL() && glyph.font->mathData()) {
+        Glyph mirroredGlyph = glyph.font->mathData()->getMirroredGlyph(m_baseCharacter);
+        if (mirroredGlyph && mirroredGlyph != glyph.glyph) {
+            glyph.glyph = mirroredGlyph;
+            this->m_baseGlyphMirroredByRTLM = true;
+        }
+    }
+    return isPrimary;
 }
 
 void MathOperator::setSizeVariant(const GlyphData& sizeVariant)
@@ -704,7 +718,9 @@ void MathOperator::paint(const RenderStyle& style, PaintInfo& info, const Layout
 
     // For a radical character, we may need some scale transform to stretch it vertically or mirror it.
     if (m_baseCharacter == kRadicalOperator) {
-        float radicalHorizontalScale = style.writingMode().isBidiLTR() ? 1 : -1;
+        float radicalHorizontalScale = 1;
+        if (style.writingMode().isBidiRTL())
+            radicalHorizontalScale = m_baseGlyphMirroredByRTLM ? 1 : -1;
         if (radicalHorizontalScale == -1 || m_radicalVerticalScale > 1) {
             LayoutPoint scaleOrigin = paintOffset;
             scaleOrigin.move(m_width / 2, 0_lu);
