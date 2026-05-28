@@ -503,7 +503,6 @@ rendering/svg/RenderSVGViewportContainer.cpp
 rendering/svg/SVGBoundingBoxComputation.cpp
 rendering/svg/SVGContainerLayout.cpp
 rendering/svg/SVGInlineTextBox.cpp
-rendering/svg/SVGLayerTransformComputation.h
 rendering/svg/SVGLayerTransformUpdater.h
 rendering/svg/SVGRenderSupport.cpp
 rendering/svg/SVGRenderTreeAsText.cpp
@@ -514,6 +513,7 @@ rendering/svg/SVGTextLayoutEngineBaseline.cpp
 rendering/svg/SVGTextMetrics.cpp
 rendering/svg/SVGTextMetricsBuilder.cpp
 rendering/svg/SVGTextQuery.cpp
+rendering/svg/SVGTransformComputation.h
 rendering/svg/SVGVisitedRendererTracking.h
 rendering/svg/legacy/LegacyRenderSVGContainer.cpp
 rendering/svg/legacy/LegacyRenderSVGForeignObject.cpp

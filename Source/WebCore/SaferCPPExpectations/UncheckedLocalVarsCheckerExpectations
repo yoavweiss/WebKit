@@ -128,7 +128,6 @@ rendering/svg/RenderSVGResourceClipper.cpp
 rendering/svg/RenderSVGRoot.cpp
 rendering/svg/RenderSVGText.cpp
 rendering/svg/SVGContainerLayout.cpp
-rendering/svg/SVGLayerTransformComputation.h
 rendering/svg/SVGPaintServerHandlingInlines.h
 rendering/svg/SVGPathData.cpp
 rendering/svg/SVGRenderSupport.cpp
@@ -139,6 +138,7 @@ rendering/svg/SVGTextLayoutAttributesBuilder.cpp
 rendering/svg/SVGTextLayoutEngine.cpp
 rendering/svg/SVGTextMetrics.cpp
 rendering/svg/SVGTextMetricsBuilder.cpp
+rendering/svg/SVGTransformComputation.h
 rendering/svg/legacy/LegacyRenderSVGContainer.cpp
 rendering/svg/legacy/LegacyRenderSVGPath.cpp
 rendering/svg/legacy/LegacyRenderSVGResource.cpp

@@ -41,6 +41,7 @@
 #include "RenderObjectInlines.h"
 #include "RenderSVGShape.h"
 #include "RenderStyle+GettersInlines.h"
+#include "SVGTransformComputation.h"
 #include <wtf/NeverDestroyed.h>
 #include <wtf/TZoneMallocInlines.h>
 
@@ -189,10 +190,14 @@ GraphicsContext* RenderLayerFilters::beginFilterEffect(RenderElement& renderer, 
         return existingGeometry.referenceBox != newGeometry.referenceBox || existingGeometry.scale != newGeometry.scale;
     };
 
+    auto filterScale = m_filterScale;
+    if (renderer.isSVGLayerAwareRenderer())
+        filterScale = m_filterScale * SVGTransformComputation(downcast<RenderLayerModelObject>(renderer)).calculateAccumulatedSVGAncestorTransformScale();
+
     auto geometry = FilterGeometry {
         .referenceBox = filterBoxRect,
         .filterRegion = filterRegion,
-        .scale = m_filterScale,
+        .scale = filterScale,
     };
 
     bool hasUpdatedBackingStore = false;

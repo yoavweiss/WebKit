@@ -38,7 +38,7 @@
 #include "RenderSVGShape.h"
 #include "RenderSVGText.h"
 #include "SVGClipPathElement.h"
-#include "SVGLayerTransformComputation.h"
+#include "SVGTransformComputation.h"
 
 namespace WebCore {
 
@@ -141,7 +141,7 @@ FloatRect SVGBoundingBoxComputation::handleRootOrContainer(const SVGBoundingBoxC
         ASSERT(child.isSVGLayerAwareRenderer());
         ASSERT(!child.isRenderSVGRoot());
 
-        auto transform = SVGLayerTransformComputation(child).computeAccumulatedTransform(m_renderer.ptr(), TransformState::TrackSVGCTMMatrix);
+        auto transform = SVGTransformComputation(child).computeAccumulatedTransform(m_renderer.ptr(), TransformState::TrackSVGCTMMatrix);
         return transform.isIdentity() ? std::nullopt : std::make_optional(WTF::move(transform));
     };
 

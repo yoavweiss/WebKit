@@ -29,15 +29,15 @@
 
 namespace WebCore {
 
-class SVGLayerTransformComputation {
-    WTF_MAKE_NONCOPYABLE(SVGLayerTransformComputation);
+class SVGTransformComputation {
+    WTF_MAKE_NONCOPYABLE(SVGTransformComputation);
 public:
-    SVGLayerTransformComputation(const RenderLayerModelObject& renderer)
+    SVGTransformComputation(const RenderLayerModelObject& renderer)
         : m_renderer(renderer)
     {
     }
 
-    ~SVGLayerTransformComputation() = default;
+    ~SVGTransformComputation() = default;
 
     AffineTransform computeAccumulatedTransform(const RenderLayerModelObject* stopAtRenderer, TransformState::TransformMatrixTracking trackingMode) const
     {
@@ -100,6 +100,15 @@ public:
 
         ctm.translate(-toFloatSize(m_renderer->nominalSVGLayoutLocation()));
         return ctm;
+    }
+
+    FloatSize calculateAccumulatedSVGAncestorTransformScale()
+    {
+        AffineTransform accumulatedTransform = computeAccumulatedTransform(nullptr, TransformState::TrackSVGScreenCTMMatrix);
+        return {
+            narrowPrecisionToFloat(accumulatedTransform.xScale()),
+            narrowPrecisionToFloat(accumulatedTransform.yScale())
+        };
     }
 
     float calculateScreenFontSizeScalingFactor() const

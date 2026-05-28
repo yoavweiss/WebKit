@@ -39,10 +39,10 @@
 #include "RenderSVGText.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGInlineTextBoxInlines.h"
-#include "SVGLayerTransformComputation.h"
 #include "SVGRenderingContext.h"
 #include "SVGRootInlineBox.h"
 #include "SVGTextBoxPainter.h"
+#include "SVGTransformComputation.h"
 #include "StyleFontSizeFunctions.h"
 #include "StyleResolver.h"
 #include "VisiblePosition.h"
@@ -248,7 +248,7 @@ float RenderSVGInlineText::computeScalingFactorForRenderer(const RenderObject& r
 {
     if (renderer.document().settings().layerBasedSVGEngineEnabled()) {
         if (const auto* layerRenderer = lineageOfType<RenderLayerModelObject>(renderer).first())
-            return SVGLayerTransformComputation(*layerRenderer).calculateScreenFontSizeScalingFactor();
+            return SVGTransformComputation(*layerRenderer).calculateScreenFontSizeScalingFactor();
     }
     return SVGRenderingContext::calculateScreenFontSizeScalingFactor(renderer);
 }

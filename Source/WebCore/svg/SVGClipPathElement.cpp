@@ -34,8 +34,8 @@
 #include "RenderStyle+GettersInlines.h"
 #include "SVGElementInlines.h"
 #include "SVGElementTypeHelpers.h"
-#include "SVGLayerTransformComputation.h"
 #include "SVGNames.h"
+#include "SVGTransformComputation.h"
 #include "SVGUseElement.h"
 #include "Settings.h"
 #include "StyleResolver.h"
@@ -183,7 +183,7 @@ FloatRect SVGClipPathElement::calculateClipContentRepaintRect(RepaintRectCalcula
         ASSERT(child.isSVGLayerAwareRenderer());
         ASSERT(!child.isRenderSVGRoot());
 
-        auto transform = SVGLayerTransformComputation(child).computeAccumulatedTransform(downcast<RenderLayerModelObject>(renderer()), TransformState::TrackSVGCTMMatrix);
+        auto transform = SVGTransformComputation(child).computeAccumulatedTransform(downcast<RenderLayerModelObject>(renderer()), TransformState::TrackSVGCTMMatrix);
         return transform.isIdentity() ? std::nullopt : std::make_optional(WTF::move(transform));
     };
 
