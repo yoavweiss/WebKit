@@ -55,7 +55,7 @@ class TextLayout {
 public:
     static bool isNeeded(RenderText& text, const FontCascade& fontCascade)
     {
-        TextRun run = RenderBlock::constructTextRun(text, text.style());
+        TextRun run = RenderBlock::constructTextRun(text, protect(text.style()));
         return fontCascade.codePath(run) == FontCascade::CodePath::Complex;
     }
 
@@ -80,7 +80,7 @@ public:
 private:
     static TextRun constructTextRun(RenderText& text, float xPos)
     {
-        TextRun run = RenderBlock::constructTextRun(text, text.style());
+        TextRun run = RenderBlock::constructTextRun(text, protect(text.style()));
         run.setXPos(xPos);
         return run;
     }
