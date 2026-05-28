@@ -4816,6 +4816,13 @@
    },
    {
       "emails" : [
+         "jhernandez89@apple.com"
+      ],
+      "github" : "Joshua-XIV",
+      "name" : "Josh Hernandez"
+   },
+   {
+      "emails" : [
          "jsbell@chromium.org",
          "jsbell@google.com"
       ],
