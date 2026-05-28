@@ -560,10 +560,9 @@ bool BackForwardCache::addIfCacheable(HistoryItem& item, Page* page)
     if (!page)
         return false;
 
-    // Same-site BFCache is supported when the page has no cross-site
-    // iframes. Cross-site iframes require UIProcess coordination for
-    // suspension which is not yet implemented for the in-process path.
-    if (page->settings().siteIsolationEnabled() && page->mainFrame().tree().hasRemoteFrameDescendant())
+    // Under Site Isolation, BFCache requires MultiProcessBackForwardCacheEnabled
+    // to keep iframe state consistent with the cached main frame.
+    if (page->settings().siteIsolationEnabled() && !page->settings().multiProcessBackForwardCacheEnabled())
         return false;
 
     if (!addIfCacheable(item.frameItemID(), *page, item.itemID()))

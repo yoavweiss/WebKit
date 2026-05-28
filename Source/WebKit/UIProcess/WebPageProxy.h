@@ -3613,6 +3613,9 @@ private:
     void didEvictBackForwardItem(WebCore::BackForwardItemIdentifier);
     void didTakeBackForwardItemForRestoration(WebCore::BackForwardItemIdentifier);
 
+    Vector<Ref<WebProcessProxy>> activeRemoteFrameProcesses() const;
+    void discardBackForwardCacheEntry(WebCore::BackForwardItemIdentifier);
+
     void setTextIndicatorFromFrame(WebCore::FrameIdentifier, RefPtr<WebCore::TextIndicator>&&, WebCore::TextIndicatorLifetime);
     void updateTextIndicatorFromFrame(WebCore::FrameIdentifier, RefPtr<WebCore::TextIndicator>&&);
 

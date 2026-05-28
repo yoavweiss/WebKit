@@ -8894,7 +8894,7 @@ TEST(SiteIsolation, MultiProcessBFCacheSameSiteCaching)
     EXPECT_TRUE([[webView objectByEvaluatingJavaScript:@"window.__bfcacheMarker ? true : false"] boolValue]);
 }
 
-TEST(SiteIsolation, MultiProcessBFCacheSameSiteWithCrossSiteIframeBlocked)
+TEST(SiteIsolation, MultiProcessBFCacheSameSiteWithCrossSiteIframe)
 {
     HTTPServer server({
         { "/a1"_s, { "<iframe src='https://b.com/frame'></iframe>"_s } },
@@ -8909,6 +8909,10 @@ TEST(SiteIsolation, MultiProcessBFCacheSameSiteWithCrossSiteIframeBlocked)
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a1"]]];
     [navigationDelegate waitForDidFinishNavigationAndLoadInSubframe];
     [webView objectByEvaluatingJavaScript:@"window.__bfcacheMarker = true"];
+    [webView objectByEvaluatingJavaScript:@"window.__iframeBfcacheMarker = true" inFrame:[webView firstChildFrame]];
+
+    pid_t iframePID = findFramePID(frameTrees(webView.get()).get(), FrameType::Remote);
+    EXPECT_NE(iframePID, 0);
 
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a2"]]];
     [navigationDelegate waitForDidFinishNavigation];
@@ -8916,8 +8920,126 @@ TEST(SiteIsolation, MultiProcessBFCacheSameSiteWithCrossSiteIframeBlocked)
     [webView goBack];
     [navigationDelegate waitForDidFinishNavigation];
     EXPECT_WK_STREQ(@"https://a.com/a1", [webView URL].absoluteString);
-    // BFCache marker should be gone — page was NOT cached due to cross-site iframe
-    EXPECT_FALSE([[webView objectByEvaluatingJavaScript:@"window.__bfcacheMarker ? true : false"] boolValue]);
+    // BFCache marker IS preserved — page was cached with iframe coordination
+    EXPECT_TRUE([[webView objectByEvaluatingJavaScript:@"window.__bfcacheMarker ? true : false"] boolValue]);
+    // Iframe process was suspended, not killed
+    EXPECT_TRUE(processStillRunning(iframePID));
+
+    // Wait for the cross-process iframe's frame tree to be fully reconstructed
+    // before asserting on iframe state. waitForDidFinishNavigation only waits
+    // for the main frame, and waitForDidFinishLoadInSubframe does not fire
+    // during BFCache restore.
+    Vector<ExpectedFrameTree> expectedAfterGoBack = {
+        { "https://a.com"_s, { { RemoteFrame } } },
+        { RemoteFrame, { { "https://b.com"_s } } },
+    };
+    while (!frameTreesMatch(frameTrees(webView.get()).get(), Vector<ExpectedFrameTree> { expectedAfterGoBack }))
+        TestWebKitAPI::Util::spinRunLoop();
+
+    // Iframe-scope BFCache marker survives — proves iframe WebPage was actually
+    // suspended and restored via UIProcess coordination, not reloaded.
+    EXPECT_TRUE([[webView objectByEvaluatingJavaScript:@"window.__iframeBfcacheMarker ? true : false" inFrame:[webView firstChildFrame]] boolValue]);
+
+    checkFrameTreesInProcesses(webView.get(), WTF::move(expectedAfterGoBack));
+}
+
+TEST(SiteIsolation, MultiProcessBFCacheSameSiteWithCrossSiteIframeMultipleCycles)
+{
+    HTTPServer server({
+        { "/a1"_s, { "<iframe src='https://b.com/frame'></iframe>"_s } },
+        { "/frame"_s, { "iframe content"_s } },
+        { "/a2"_s, { "page a2"_s } }
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    auto *configuration = server.httpsProxyConfiguration();
+    enableFeature(configuration, @"MultiProcessBackForwardCacheEnabled");
+    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a1"]]];
+    [navigationDelegate waitForDidFinishNavigationAndLoadInSubframe];
+    [webView objectByEvaluatingJavaScript:@"window.__bfcacheMarker = true"];
+    [webView objectByEvaluatingJavaScript:@"window.__iframeBfcacheMarker = true" inFrame:[webView firstChildFrame]];
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a2"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+    [webView objectByEvaluatingJavaScript:@"window.__bfcacheMarker = true"];
+
+    Vector<ExpectedFrameTree> expectedOnA1 = {
+        { "https://a.com"_s, { { RemoteFrame } } },
+        { RemoteFrame, { { "https://b.com"_s } } },
+    };
+
+    for (int i = 0; i < 3; i++) {
+        [webView goBack];
+        [navigationDelegate waitForDidFinishNavigation];
+        EXPECT_WK_STREQ(@"https://a.com/a1", [webView URL].absoluteString);
+        EXPECT_TRUE([[webView objectByEvaluatingJavaScript:@"window.__bfcacheMarker ? true : false"] boolValue]);
+
+        while (!frameTreesMatch(frameTrees(webView.get()).get(), Vector<ExpectedFrameTree> { expectedOnA1 }))
+            TestWebKitAPI::Util::spinRunLoop();
+        // Iframe-scope marker must survive every suspend/restore cycle.
+        EXPECT_TRUE([[webView objectByEvaluatingJavaScript:@"window.__iframeBfcacheMarker ? true : false" inFrame:[webView firstChildFrame]] boolValue]);
+
+        [webView goForward];
+        [navigationDelegate waitForDidFinishNavigation];
+        EXPECT_WK_STREQ(@"https://a.com/a2", [webView URL].absoluteString);
+        EXPECT_TRUE([[webView objectByEvaluatingJavaScript:@"window.__bfcacheMarker ? true : false"] boolValue]);
+    }
+}
+
+TEST(SiteIsolation, MultiProcessBFCacheSameSiteWithDifferentCrossSiteIframes)
+{
+    // m_childFrames pollution under same-site BFCache: when a1 (a.com with
+    // b.com iframe) is cached and replaced by a2 (a.com with c.com iframe),
+    // BFCache does NOT destroy the cached frames, so no DidDestroyFrame IPC
+    // fires for b.com. Its stale WebFrameProxy stays in
+    // m_mainFrame->m_childFrames alongside the live c.com WebFrameProxy
+    // from a2.
+    //
+    // After a2 is fully loaded, the live frame tree under m_mainFrame must
+    // only reflect a2 (a.com + c.com remote). The cached b.com WebFrameProxy
+    // must hang off the WebBackForwardCacheEntry and not pollute the live
+    // tree. The b.com process itself remains in the BrowsingContextGroup
+    // while suspended (UI-driven flow does not pull RemotePageProxies out
+    // of the BCG), so getAllFrameTrees still surfaces a third tree from
+    // the suspended b.com process; that tree shows the b.com main as
+    // (remote) and its child as (remote) because the suspended WebPage's
+    // live document is empty (the cached document lives inside CachedPage).
+    HTTPServer server({
+        { "/a1"_s, { "<iframe src='https://b.com/bframe'></iframe>"_s } },
+        { "/bframe"_s, { "b iframe content"_s } },
+        { "/a2"_s, { "<iframe src='https://c.com/cframe'></iframe>"_s } },
+        { "/cframe"_s, { "c iframe content"_s } }
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    auto *configuration = server.httpsProxyConfiguration();
+    enableFeature(configuration, @"MultiProcessBackForwardCacheEnabled");
+    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a1"]]];
+    [navigationDelegate waitForDidFinishNavigationAndLoadInSubframe];
+
+    checkFrameTreesInProcesses(webView.get(), {
+        { "https://a.com"_s, { { RemoteFrame } } },
+        { RemoteFrame, { { "https://b.com"_s } } },
+    });
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a2"]]];
+    [navigationDelegate waitForDidFinishNavigationAndLoadInSubframe];
+
+    // After a2 loads:
+    //  - a.com (main proc): a.com main with c.com remote child  → live tree, 1 tree
+    //  - b.com (cached proc, suspended): remote main with remote child → cached tree, 1 tree
+    //  - c.com (live iframe proc): remote main with c.com local child → live tree, 1 tree
+    // The stale b.com WebFrameProxy from a1 must be owned by the same-site
+    // BFCache entry, not by m_mainFrame->m_childFrames. The b.com process
+    // tree is still surfaced via the BCG because UI-driven BFCache leaves
+    // RemotePageProxies in place during suspension.
+    checkFrameTreesInProcesses(webView.get(), {
+        { "https://a.com"_s, { { RemoteFrame } } },
+        { RemoteFrame, { { RemoteFrame } } },
+        { RemoteFrame, { { "https://c.com"_s } } },
+    });
 }
 
 TEST(SiteIsolation, ClearSiteDataClearsRemoteProcessMemoryCache)

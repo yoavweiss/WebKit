@@ -47,6 +47,7 @@
 #include "WebPopupMenuProxy.h"
 #include "WebURLSchemeHandlerIdentifier.h"
 #include "WindowKind.h"
+#include <WebCore/BackForwardItemIdentifier.h>
 #include <WebCore/CornerRadii.h>
 #include <WebCore/FrameLoaderTypes.h>
 #include <WebCore/PrivateClickMeasurement.h>
@@ -279,6 +280,8 @@ public:
 
     WeakHashSet<WebPageProxy> m_openedPages;
     HashMap<WebCore::SleepDisablerIdentifier, std::unique_ptr<WebCore::SleepDisabler>> sleepDisablers;
+
+    HashMap<WebCore::BackForwardItemIdentifier, Vector<Ref<WebFrameProxy>>> pendingBackForwardCachedChildren;
 
 #if ENABLE(APPLE_PAY)
     RefPtr<WebPaymentCoordinatorProxy> paymentCoordinator;

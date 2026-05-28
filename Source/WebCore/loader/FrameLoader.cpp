@@ -4132,7 +4132,7 @@ void FrameLoader::executeJavaScriptURL(const URL& url, const NavigationAction& a
     m_quickRedirectComing = false;
 }
 
-void FrameLoader::continueLoadAfterNavigationPolicy(const ResourceRequest& request, const FormSubmission* formSubmission, NavigationPolicyDecision navigationPolicyDecision, AllowNavigationToInvalidURL allowNavigationToInvalidURL, ShouldRestoreFromBackForwardCache)
+void FrameLoader::continueLoadAfterNavigationPolicy(const ResourceRequest& request, const FormSubmission* formSubmission, NavigationPolicyDecision navigationPolicyDecision, AllowNavigationToInvalidURL allowNavigationToInvalidURL, ShouldRestoreFromBackForwardCache shouldRestoreFromBackForwardCache)
 {
     // If we loaded an alternate page to replace an unreachableURL, we'll get in here with a
     // nil policyDataSource because loading the alternate page will have passed
@@ -4253,12 +4253,19 @@ void FrameLoader::continueLoadAfterNavigationPolicy(const ResourceRequest& reque
 
     if (isBackForwardLoadType(type)) {
         CheckedRef diagnosticLoggingClient = protect(frame->page())->diagnosticLoggingClient();
-        if (RefPtr provisionalItem = history().provisionalItem(); provisionalItem && BackForwardCache::singleton().get(*provisionalItem, protect(frame->page()).get())) {
+        RefPtr provisionalItem = history().provisionalItem();
+        bool hasCachedPage = provisionalItem && BackForwardCache::singleton().get(*provisionalItem, protect(frame->page()).get());
+        if (hasCachedPage && shouldRestoreFromBackForwardCache != ShouldRestoreFromBackForwardCache::No) {
             diagnosticLoggingClient->logDiagnosticMessageWithResult(DiagnosticLoggingKeys::backForwardCacheKey(), DiagnosticLoggingKeys::retrievalKey(), DiagnosticLoggingResultPass, ShouldSample::Yes);
             loadProvisionalItemFromCachedPage();
             FRAMELOADER_RELEASE_LOG(ResourceLoading, "continueLoadAfterNavigationPolicy: can't continue loading frame because it will be loaded from cache");
             return;
         }
+        if (hasCachedPage) {
+            FRAMELOADER_RELEASE_LOG_ERROR(ResourceLoading, "continueLoadAfterNavigationPolicy: evicting orphan cached page (UIProcess said No)");
+            BackForwardCache::singleton().remove(*provisionalItem);
+        } else if (shouldRestoreFromBackForwardCache == ShouldRestoreFromBackForwardCache::Yes)
+            FRAMELOADER_RELEASE_LOG_ERROR(ResourceLoading, "continueLoadAfterNavigationPolicy: expected to restore from back/forward cache but no cached page");
         diagnosticLoggingClient->logDiagnosticMessageWithResult(DiagnosticLoggingKeys::backForwardCacheKey(), DiagnosticLoggingKeys::retrievalKey(), DiagnosticLoggingResultFail, ShouldSample::Yes);
     }
 
