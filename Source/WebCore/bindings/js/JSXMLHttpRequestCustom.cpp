@@ -45,11 +45,7 @@ using namespace JSC;
 template<typename Visitor>
 void JSXMLHttpRequest::visitAdditionalChildrenInGCThread(Visitor& visitor)
 {
-    if (auto* upload = wrapped().optionalUpload())
-        addWebCoreOpaqueRoot(visitor, *upload);
-
-    if (SUPPRESS_UNCHECKED_LOCAL auto* responseDocument = wrapped().optionalResponseXML())
-        addWebCoreOpaqueRoot(visitor, *responseDocument);
+    wrapped().visitAdditionalChildrenInGCThread(visitor);
 }
 
 DEFINE_VISIT_ADDITIONAL_CHILDREN_IN_GC_THREAD(JSXMLHttpRequest);
