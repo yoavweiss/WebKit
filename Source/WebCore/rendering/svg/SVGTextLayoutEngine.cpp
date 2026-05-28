@@ -526,8 +526,14 @@ void SVGTextLayoutEngine::layoutTextOnLineOrPath(InlineIterator::SVGTextBoxItera
         float angle = SVGTextLayoutAttributes::isEmptyValue(data.rotate) ? 0 : data.rotate;
 
         // Calculate glyph orientation angle.
-        const char16_t* currentCharacter = characters.subspan(m_visualCharacterOffset).data();
-        float orientationAngle = baselineLayout.calculateGlyphOrientationAngle(m_isVerticalText, style, *currentCharacter);
+        auto remainingCharacters = characters.subspan(m_visualCharacterOffset);
+        char32_t currentCodePoint = remainingCharacters[0];
+        if (U16_IS_LEAD(currentCodePoint) && remainingCharacters.size() > 1) {
+            auto trail = remainingCharacters[1];
+            if (U16_IS_TRAIL(trail))
+                currentCodePoint = U16_GET_SUPPLEMENTARY(currentCodePoint, trail);
+        }
+        float orientationAngle = baselineLayout.calculateGlyphOrientationAngle(m_isVerticalText, style, currentCodePoint);
 
         // Calculate glyph advance & x/y orientation shifts.
         float xOrientationShift = 0;
@@ -541,7 +547,7 @@ void SVGTextLayoutEngine::layoutTextOnLineOrPath(InlineIterator::SVGTextBoxItera
         updateRelativePositionAdjustmentsIfNeeded(data.dx, data.dy);
 
         // Calculate CSS 'letter-spacing' and 'word-spacing' for next character, if needed.
-        float spacing = spacingLayout.calculateCSSSpacing(currentCharacter ? *currentCharacter : '\0');
+        float spacing = spacingLayout.calculateCSSSpacing(currentCodePoint);
 
         float textPathOffset = 0;
         if (m_inPathLayout) {

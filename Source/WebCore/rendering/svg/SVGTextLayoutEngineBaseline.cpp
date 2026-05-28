@@ -146,7 +146,7 @@ float SVGTextLayoutEngineBaseline::calculateAlignmentBaselineShift(bool isVertic
     return 0;
 }
 
-float SVGTextLayoutEngineBaseline::calculateGlyphOrientationAngle(bool isVerticalText, const RenderStyle& style, const char16_t& character) const
+float SVGTextLayoutEngineBaseline::calculateGlyphOrientationAngle(bool isVerticalText, const RenderStyle& style, const char32_t& character) const
 {
     if (isVerticalText) {
         return Style::valueRepresentation(style.glyphOrientationVertical(),

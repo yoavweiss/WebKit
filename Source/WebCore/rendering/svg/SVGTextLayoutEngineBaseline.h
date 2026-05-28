@@ -39,7 +39,7 @@ public:
 
     float calculateBaselineShift(const RenderStyle&) const;
     float calculateAlignmentBaselineShift(bool isVerticalText, const RenderSVGInlineText& textRenderer) const;
-    float calculateGlyphOrientationAngle(bool isVerticalText, const RenderStyle&, const char16_t& character) const;
+    float calculateGlyphOrientationAngle(bool isVerticalText, const RenderStyle&, const char32_t& character) const;
     float calculateGlyphAdvanceAndOrientation(bool isVerticalText, const SVGTextMetrics&, float angle, float& xOrientationShift, float& yOrientationShift) const;
 
 private:
