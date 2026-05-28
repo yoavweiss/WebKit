@@ -1321,13 +1321,9 @@ ALWAYS_INLINE JSValue fastIndexOf(JSGlobalObject* globalObject, VM& vm, JSArray*
                     return jsNumber(index);
             }
         } else {
-            do {
-                ASSERT(index < length);
-                // Array#lastIndexOf uses `===` semantics (not UncheckedKeyHashMap isEqual semantics).
-                // And the hole never matches since it is NaN.
-                if (data[index] == searchNumber)
-                    return jsNumber(index);
-            } while (index--);
+            auto* result = WTF::reverseFindDouble(data, searchNumber, static_cast<uint64_t>(index) + 1);
+            if (result)
+                return jsNumber(result - data);
         }
         return jsNumber(-1);
     }
