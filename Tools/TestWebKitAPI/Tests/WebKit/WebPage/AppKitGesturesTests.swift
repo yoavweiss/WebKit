@@ -365,7 +365,74 @@ struct AppKitGesturesTests {
         #expect(selection == expected)
     }
 
+    @Test
+    func scrollingChangesScrollPosition() async throws {
+        let html = """
+            <body style="width: 100%; height: 2000px; background: repeating-linear-gradient(to bottom, blue 0 50px, white 50px 100px);"></body>
+            """
+
+        try await page.load(html: html).wait()
+
+        await page.waitForNextPresentationUpdate()
+
+        guard NSApp.isActive else {
+            return
+        }
+
+        let initialScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
+        #expect(CGPoint(initialScrollPosition) == .zero)
+
+        let start = convertToCoreGraphicsScreenCoordinates(pointInWindowCoordinates: window.frame.center, window: window)
+        let end = CGPoint(x: start.x, y: start.y - 200)
+
+        await recap.play { composer in
+            composer._wk_scroll(withStart: start, end: end, duration: .seconds(0.5))
+        }
+
+        try await Task.sleep(for: .seconds(1))
+
+        let finalScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
+        #expect(finalScrollPosition.x == 0)
+        #expect(finalScrollPosition.y > 0)
+    }
+
     // MARK: - Drag Press Disambiguation Tests
+
+    @Test
+    func pressDragOverRangeInputChangesInputValue() async throws {
+        let maximumValue = 10.0
+
+        let html = """
+            <input type="range" id="range" min="0" max="\(maximumValue)" style="width: 400px; height: 200px" />
+            """
+
+        try await page.load(html: html).wait()
+
+        await page.waitForNextPresentationUpdate()
+
+        guard NSApp.isActive else {
+            return
+        }
+
+        let sliderBounds = try await page.callJavaScript(JavaScriptMessages.BoundingClientRect(elementID: "range"))
+        let convertedSliderBounds = convertToCoreGraphicsScreenCoordinates(rectInViewportCoordinates: sliderBounds, window: window)
+
+        let start = convertedSliderBounds.center
+        let end = CGPoint(x: convertedSliderBounds.maxX, y: convertedSliderBounds.center.y)
+
+        await recap.play { composer in
+            composer._wk_drag(withStart: start, end: end, duration: .seconds(1.5), pressAndWait: .seconds(0.5))
+        }
+
+        await page.waitForNextPresentationUpdate()
+
+        let sliderValueScript = """
+            return Number(document.getElementById("range").value);
+            """
+
+        let finalSliderValue = try await page.callJavaScript(sliderValueScript) as? Double
+        #expect(finalSliderValue == maximumValue)
+    }
 
     @Test(
         .bug("rdar://176317069", "REGRESSION(312023@main): Text cannot be selected with press + drag gesture"),
