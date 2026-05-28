@@ -7186,6 +7186,7 @@ ScrollendEventEnabled:
 ScrollingPerformanceTestingEnabled:
   type: bool
   status: internal
+  defaultsOverridable: true
   humanReadableName: "Scroll Performance Testing Enabled"
   humanReadableDescription: "Enable behaviors used by scrolling performance tests"
   webcoreOnChange: scrollingPerformanceTestingEnabledChanged

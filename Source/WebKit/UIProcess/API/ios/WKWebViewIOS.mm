@@ -83,6 +83,7 @@
 #import <WebCore/MIMETypeRegistry.h>
 #import <WebCore/UserInterfaceLayoutDirection.h>
 #import <WebCore/VelocityData.h>
+#import <notify.h>
 #import <pal/spi/cocoa/QuartzCoreSPI.h>
 #import <pal/spi/ios/GraphicsServicesSPI.h>
 #import <ranges>
@@ -2052,6 +2053,12 @@ static WebCore::FloatPoint constrainContentOffset(WebCore::FloatPoint contentOff
     if (CheckedPtr coordinator = downcast<WebKit::RemoteScrollingCoordinatorProxyIOS>(_page->scrollingCoordinatorProxy())) {
         [_scrollView _setDecelerationRateInternal:(coordinator->shouldSetScrollViewDecelerationRateFast()) ? UIScrollViewDecelerationRateFast : UIScrollViewDecelerationRateNormal];
         coordinator->setRootNodeIsInUserScroll(true);
+
+        if (coordinator->scrollingPerformanceTestingEnabled() && _scrollPerfIntervalState == ScrollPerfIntervalState::Inactive) {
+            WTFBeginSignpostAlways(nullptr, ScrollingPerformanceTestFingerDownInterval, "isAnimation=YES; currentURL=%s", _page->currentURL().utf8().data());
+            _scrollPerfIntervalState = ScrollPerfIntervalState::FingerDown;
+            _scrollPerfRubberbandingNotified = NO;
+        }
     }
 }
 
@@ -2124,6 +2131,19 @@ static WebCore::FloatPoint constrainContentOffset(WebCore::FloatPoint contentOff
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
+    if (CheckedPtr coordinator = downcast<WebKit::RemoteScrollingCoordinatorProxyIOS>(_page->scrollingCoordinatorProxy())) {
+        if (coordinator->scrollingPerformanceTestingEnabled()) {
+            if (_scrollPerfIntervalState == ScrollPerfIntervalState::FingerDown) {
+                WTFEndSignpostAlways(nullptr, ScrollingPerformanceTestFingerDownInterval, "isAnimation=YES;");
+                _scrollPerfIntervalState = ScrollPerfIntervalState::Inactive;
+            }
+            if (decelerate && _scrollPerfIntervalState == ScrollPerfIntervalState::Inactive) {
+                WTFBeginSignpostAlways(nullptr, ScrollingPerformanceTestMomentumInterval, "isAnimation=YES; currentURL=%s", _page->currentURL().utf8().data());
+                _scrollPerfIntervalState = ScrollPerfIntervalState::Momentum;
+            }
+        }
+    }
+
     // If we're decelerating, scroll offset will be updated when scrollViewDidFinishDecelerating: is called.
     if (!decelerate)
         [self _didFinishScrolling:scrollView];
@@ -2131,6 +2151,15 @@ static WebCore::FloatPoint constrainContentOffset(WebCore::FloatPoint contentOff
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
+    if (CheckedPtr coordinator = downcast<WebKit::RemoteScrollingCoordinatorProxyIOS>(_page->scrollingCoordinatorProxy())) {
+        if (coordinator->scrollingPerformanceTestingEnabled()) {
+            if (_scrollPerfIntervalState == ScrollPerfIntervalState::Momentum) {
+                WTFEndSignpostAlways(nullptr, ScrollingPerformanceTestMomentumInterval, "isAnimation=YES;");
+                _scrollPerfIntervalState = ScrollPerfIntervalState::Inactive;
+            }
+        }
+    }
+
     [self _didFinishScrolling:scrollView];
 }
 
@@ -2346,6 +2375,20 @@ static WebCore::FloatPoint constrainContentOffset(WebCore::FloatPoint contentOff
     if (WebKit::RemoteLayerTreeScrollingPerformanceData* scrollPerfData = _page->scrollingPerformanceData())
         scrollPerfData->didScroll([self visibleRectInViewCoordinates]);
 
+    if (_scrollPerfIntervalState != ScrollPerfIntervalState::Inactive) {
+        if ([scrollView _wk_isScrolledBeyondExtents]) {
+            if (_scrollPerfIntervalState == ScrollPerfIntervalState::FingerDown)
+                WTFEndSignpostAlways(nullptr, ScrollingPerformanceTestFingerDownInterval, "isAnimation=YES;");
+            else
+                WTFEndSignpostAlways(nullptr, ScrollingPerformanceTestMomentumInterval, "isAnimation=YES;");
+            _scrollPerfIntervalState = ScrollPerfIntervalState::Inactive;
+            if (!_scrollPerfRubberbandingNotified) {
+                notify_post("com.apple.safari.scrollingperformancetest.rubberbanding");
+                _scrollPerfRubberbandingNotified = YES;
+            }
+        }
+    }
+
     [_contentView updateSelection];
 
 #if ENABLE(PDF_PAGE_NUMBER_INDICATOR)
@@ -2385,6 +2428,11 @@ static WebCore::FloatPoint constrainContentOffset(WebCore::FloatPoint contentOff
 
 - (void)_scrollViewDidInterruptDecelerating:(UIScrollView *)scrollView
 {
+    if (_scrollPerfIntervalState == ScrollPerfIntervalState::Momentum) {
+        WTFEndSignpostAlways(nullptr, ScrollingPerformanceTestMomentumInterval, "isAnimation=YES;");
+        _scrollPerfIntervalState = ScrollPerfIntervalState::Inactive;
+    }
+
     if (![self usesStandardContentView])
         return;
 

@@ -77,6 +77,8 @@
 
 #endif // !__has_feature(modules) || (defined(WK_SUPPORTS_SWIFT_OBJCXX_INTEROP) && WK_SUPPORTS_SWIFT_OBJCXX_INTEROP)
 
+#import "ScrollPerfIntervalState.h"
+
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 #if PLATFORM(IOS_FAMILY)
@@ -539,6 +541,9 @@ struct PerWebProcessState {
 #if ENABLE(OVERLAY_REGIONS_IN_EVENT_REGION)
     BOOL _isScrollingWithOverlayRegion;
 #endif
+
+    ScrollPerfIntervalState _scrollPerfIntervalState;
+    BOOL _scrollPerfRubberbandingNotified;
 
     WebCore::FixedContainerEdges _fixedContainerEdges;
 

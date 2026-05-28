@@ -2699,6 +2699,7 @@
 		F4EE79492D9D92AD00628E3B /* WKIdentityDocumentPresentmentError.h in Headers */ = {isa = PBXBuildFile; fileRef = F4EE79472D9D92A500628E3B /* WKIdentityDocumentPresentmentError.h */; };
 		F4EFF36D2AF0267300479AB8 /* CoreIPCNumber.h in Headers */ = {isa = PBXBuildFile; fileRef = F4EFF36B2AF0267200479AB8 /* CoreIPCNumber.h */; };
 		F4F0C48B2B2E541B006F226C /* WKBrowserEngineDefinitions.h in Headers */ = {isa = PBXBuildFile; fileRef = F4F0C48A2B2E5405006F226C /* WKBrowserEngineDefinitions.h */; };
+		0EBD18373218B9B6D3181E75 /* ScrollPerfIntervalState.h in Headers */ = {isa = PBXBuildFile; fileRef = E356F167BD56265F1999866F /* ScrollPerfIntervalState.h */; };
 		F4F12C932C41CED500BC1254 /* CoreIPCNSURLRequest.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4EE98302C41C0FB00989568 /* CoreIPCNSURLRequest.mm */; };
 		F4F12C942C41CEE700BC1254 /* CoreIPCNSURLRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = F4EE982F2C41C0FB00989568 /* CoreIPCNSURLRequest.h */; };
 		F4F12CAD2C485BE200BC1254 /* CoreIPCPlistObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4F12CAC2C4831F100BC1254 /* CoreIPCPlistObject.mm */; };
@@ -9083,6 +9084,7 @@
 		F4EFF36A2AF0267200479AB8 /* CoreIPCNumber.serialization.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CoreIPCNumber.serialization.in; sourceTree = "<group>"; };
 		F4EFF36B2AF0267200479AB8 /* CoreIPCNumber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreIPCNumber.h; sourceTree = "<group>"; };
 		F4F0C48A2B2E5405006F226C /* WKBrowserEngineDefinitions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WKBrowserEngineDefinitions.h; sourceTree = "<group>"; };
+		E356F167BD56265F1999866F /* ScrollPerfIntervalState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScrollPerfIntervalState.h; sourceTree = "<group>"; };
 		F4F12CAB2C48168500BC1254 /* CoreIPCPlistObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoreIPCPlistObject.h; sourceTree = "<group>"; };
 		F4F12CAC2C4831F100BC1254 /* CoreIPCPlistObject.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CoreIPCPlistObject.mm; sourceTree = "<group>"; };
 		F4F12CAE2C48AEA400BC1254 /* CoreIPCPlistDictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoreIPCPlistDictionary.h; sourceTree = "<group>"; };
@@ -12551,6 +12553,7 @@
 				F4DF72102B0C324F009A4522 /* WKBaseScrollView.h */,
 				F4DF72112B0C324F009A4522 /* WKBaseScrollView.mm */,
 				F4F0C48A2B2E5405006F226C /* WKBrowserEngineDefinitions.h */,
+				E356F167BD56265F1999866F /* ScrollPerfIntervalState.h */,
 				0FCB4E3C18BBE044000FCFC9 /* WKContentView.h */,
 				0FCB4E3D18BBE044000FCFC9 /* WKContentView.mm */,
 				0FCB4E6A18BBF26A000FCFC9 /* WKContentViewInteraction.h */,
@@ -19268,6 +19271,7 @@
 				7CD5EBBB1746A83E000C1C45 /* WKBaseMac.h in Headers */,
 				F4DF72122B0C3A8C009A4522 /* WKBaseScrollView.h in Headers */,
 				F4F0C48B2B2E541B006F226C /* WKBrowserEngineDefinitions.h in Headers */,
+				0EBD18373218B9B6D3181E75 /* ScrollPerfIntervalState.h in Headers */,
 				BCBAAC73144E619E0053F82F /* WKBrowsingContextController.h in Headers */,
 				3788A05C14743C90006319E5 /* WKBrowsingContextControllerPrivate.h in Headers */,
 				BCBAACF41452324F0053F82F /* WKBrowsingContextGroup.h in Headers */,
