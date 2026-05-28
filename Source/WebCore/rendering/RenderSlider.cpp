@@ -85,7 +85,7 @@ void RenderSlider::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, La
         minLogicalWidth = maxLogicalWidth;
 }
 
-void RenderSlider::computePreferredLogicalWidths()
+void RenderSlider::computeIntrinsicLogicalWidthContributions()
 {
     m_minPreferredLogicalWidth = 0;
     m_maxPreferredLogicalWidth = 0;

@@ -436,7 +436,7 @@ void RenderListMarker::updateContent()
     );
 }
 
-void RenderListMarker::computePreferredLogicalWidths()
+void RenderListMarker::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
     updateContent();

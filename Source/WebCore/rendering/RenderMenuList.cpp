@@ -168,10 +168,10 @@ void RenderMenuList::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, 
         minLogicalWidth = maxLogicalWidth;
 }
 
-void RenderMenuList::computePreferredLogicalWidths()
+void RenderMenuList::computeIntrinsicLogicalWidthContributions()
 {
     if (style().fieldSizing() == FieldSizing::Content) {
-        RenderFlexibleBox::computePreferredLogicalWidths();
+        RenderFlexibleBox::computeIntrinsicLogicalWidthContributions();
         return;
     }
 

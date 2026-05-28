@@ -228,11 +228,11 @@ Style::PreferredSize RenderTableCell::logicalWidthFromColumns(RenderTableCol* fi
     return Style::PreferredSize::Fixed { colWidthSum };
 }
 
-void RenderTableCell::computePreferredLogicalWidths()
+void RenderTableCell::computeIntrinsicLogicalWidthContributions()
 {
-    // The child cells rely on the grids up in the sections to do their computePreferredLogicalWidths work.  Normally the sections are set up early, as table
-    // cells are added, but relayout can cause the cells to be freed, leaving stale pointers in the sections'
-    // grids.  We must refresh those grids before the child cells try to use them.
+    // The child cells rely on the grids up in the sections to do their computeIntrinsicLogicalWidthContributions work.
+    // Normally the sections are set up early, as table cells are added, but relayout can cause the cells to be freed, leaving stale pointers in the sections' grids.
+    // We must refresh those grids before the child cells try to use them.
     table()->recalcSectionsIfNeeded();
 
     // We don't want the preferred width from children to be affected by any
@@ -242,7 +242,7 @@ void RenderTableCell::computePreferredLogicalWidths()
     auto overridingLogicalHeight = this->overridingBorderBoxLogicalHeight();
     if (overridingLogicalHeight)
         setOverridingBorderBoxLogicalHeight({ });
-    RenderBlockFlow::computePreferredLogicalWidths();
+    RenderBlockFlow::computeIntrinsicLogicalWidthContributions();
     if (overridingLogicalHeight)
         setOverridingBorderBoxLogicalHeight(*overridingLogicalHeight);
 

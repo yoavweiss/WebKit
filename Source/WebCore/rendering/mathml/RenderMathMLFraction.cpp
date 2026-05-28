@@ -186,12 +186,12 @@ MathMLFractionElement& RenderMathMLFraction::element() const
     return static_cast<MathMLFractionElement&>(nodeForNonAnonymous());
 }
 
-void RenderMathMLFraction::computePreferredLogicalWidths()
+void RenderMathMLFraction::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 
     if (!isValid()) {
-        RenderMathMLRow::computePreferredLogicalWidths();
+        RenderMathMLRow::computeIntrinsicLogicalWidthContributions();
         return;
     }
 

@@ -69,7 +69,7 @@ private:
 
     ASCIILiteral renderName() const override { return "RenderTextControl"_s; }
     void computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const override;
-    void computePreferredLogicalWidths() override;
+    void computeIntrinsicLogicalWidthContributions() override;
     bool canHaveGeneratedChildren() const override { return false; }
     bool canBeProgramaticallyScrolled() const override { return true; }
 };

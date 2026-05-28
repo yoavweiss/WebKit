@@ -1364,7 +1364,7 @@ LayoutUnit RenderBox::minPreferredLogicalWidth() const
 {
     if (needsPreferredLogicalWidthsUpdate()) {
         SetLayoutNeededForbiddenScope layoutForbiddenScope(*this);
-        const_cast<RenderBox&>(*this).computePreferredLogicalWidths();
+        const_cast<RenderBox&>(*this).computeIntrinsicLogicalWidthContributions();
     }
     return m_minPreferredLogicalWidth;
 }
@@ -1373,7 +1373,7 @@ LayoutUnit RenderBox::maxPreferredLogicalWidth() const
 {
     if (needsPreferredLogicalWidthsUpdate()) {
         SetLayoutNeededForbiddenScope layoutForbiddenScope(*this);
-        const_cast<RenderBox&>(*this).computePreferredLogicalWidths();
+        const_cast<RenderBox&>(*this).computeIntrinsicLogicalWidthContributions();
     }
     return m_maxPreferredLogicalWidth;
 }
@@ -4017,7 +4017,7 @@ bool RenderBox::shouldComputePreferredLogicalWidthsFromStyle() const
     return fixedLogicalWidth && fixedLogicalWidth->isPositiveOrZero() && !(isDeprecatedFlexItem() && !static_cast<int>(fixedLogicalWidth->resolveZoom(style().usedZoomForLength())));
 }
 
-void RenderBox::computePreferredLogicalWidths()
+void RenderBox::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 

@@ -130,7 +130,7 @@ LayoutUnit RenderMathMLRow::preferredLogicalWidthOfRowItems()
     return preferredWidth;
 }
 
-void RenderMathMLRow::computePreferredLogicalWidths()
+void RenderMathMLRow::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 

@@ -266,7 +266,7 @@ void RenderDeprecatedFlexibleBox::computeIntrinsicLogicalWidths(LayoutUnit& minL
     addScrollbarWidth();
 }
 
-void RenderDeprecatedFlexibleBox::computePreferredLogicalWidths()
+void RenderDeprecatedFlexibleBox::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 

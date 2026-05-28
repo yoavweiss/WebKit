@@ -159,7 +159,7 @@ RenderMathMLMenclose::SpaceAroundContent RenderMathMLMenclose::spaceAroundConten
     return space;
 }
 
-void RenderMathMLMenclose::computePreferredLogicalWidths()
+void RenderMathMLMenclose::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 

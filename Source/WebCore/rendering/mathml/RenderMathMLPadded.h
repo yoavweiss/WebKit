@@ -42,7 +42,7 @@ public:
 private:
     ASCIILiteral renderName() const final { return "RenderMathMLPadded"_s; }
 
-    void computePreferredLogicalWidths() final;
+    void computeIntrinsicLogicalWidthContributions() final;
     void layoutBlock(RelayoutChildren, LayoutUnit pageLogicalHeight = 0_lu) final;
     std::optional<LayoutUnit> firstLineBaseline() const final;
 

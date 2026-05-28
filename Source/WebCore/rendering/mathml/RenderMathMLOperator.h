@@ -73,7 +73,7 @@ protected:
 
 private:
     void styleDidChange(Style::Difference, const RenderStyle* oldStyle) final;
-    void computePreferredLogicalWidths() final;
+    void computeIntrinsicLogicalWidthContributions() final;
     void layoutBlock(RelayoutChildren, LayoutUnit pageLogicalHeight = 0_lu) final;
     void paint(PaintInfo&, const LayoutPoint&) final;
 

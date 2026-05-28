@@ -62,7 +62,7 @@ private:
 
     void styleDidChange(Style::Difference, const RenderStyle* oldStyle) final;
 
-    void computePreferredLogicalWidths() final;
+    void computeIntrinsicLogicalWidthContributions() final;
 
     void updateValueNow() const;
     void usedCounterDirectivesChanged();

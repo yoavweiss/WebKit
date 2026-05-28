@@ -51,7 +51,7 @@ MathMLSpaceElement& RenderMathMLSpace::element() const
     return static_cast<MathMLSpaceElement&>(nodeForNonAnonymous());
 }
 
-void RenderMathMLSpace::computePreferredLogicalWidths()
+void RenderMathMLSpace::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 

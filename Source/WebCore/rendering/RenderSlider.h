@@ -48,7 +48,7 @@ private:
     ASCIILiteral renderName() const override { return "RenderSlider"_s; }
 
     void computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const override;
-    void computePreferredLogicalWidths() override;
+    void computeIntrinsicLogicalWidthContributions() override;
 
     bool isFlexibleBoxImpl() const override { return true; }
 };

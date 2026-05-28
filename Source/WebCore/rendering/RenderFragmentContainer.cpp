@@ -386,12 +386,12 @@ void RenderFragmentContainer::computeIntrinsicLogicalWidths(LayoutUnit& minLogic
     minLogicalWidth = { };
 }
 
-void RenderFragmentContainer::computePreferredLogicalWidths()
+void RenderFragmentContainer::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 
     if (!isValid()) {
-        RenderBlockFlow::computePreferredLogicalWidths();
+        RenderBlockFlow::computeIntrinsicLogicalWidthContributions();
         return;
     }
 

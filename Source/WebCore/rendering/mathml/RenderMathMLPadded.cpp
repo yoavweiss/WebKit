@@ -88,7 +88,7 @@ LayoutUnit RenderMathMLPadded::mpaddedDepth(LayoutUnit contentDepth) const
     return std::max(0_lu, toUserUnits(depthAttr, style(), 0));
 }
 
-void RenderMathMLPadded::computePreferredLogicalWidths()
+void RenderMathMLPadded::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 

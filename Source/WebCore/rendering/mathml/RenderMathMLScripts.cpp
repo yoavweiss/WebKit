@@ -183,7 +183,7 @@ LayoutUnit RenderMathMLScripts::italicCorrection(const ReferenceChildren& refere
     return 0;
 }
 
-void RenderMathMLScripts::computePreferredLogicalWidths()
+void RenderMathMLScripts::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 
@@ -192,7 +192,7 @@ void RenderMathMLScripts::computePreferredLogicalWidths()
 
     auto possibleReference = validateAndGetReferenceChildren();
     if (!possibleReference) {
-        RenderMathMLRow::computePreferredLogicalWidths();
+        RenderMathMLRow::computeIntrinsicLogicalWidthContributions();
         return;
     }
     auto& reference = possibleReference.value();

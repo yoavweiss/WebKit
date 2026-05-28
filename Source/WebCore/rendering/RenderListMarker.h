@@ -90,7 +90,7 @@ public:
 private:
     void willBeDestroyed() final;
     ASCIILiteral renderName() const final { return "RenderListMarker"_s; }
-    void computePreferredLogicalWidths() final;
+    void computeIntrinsicLogicalWidthContributions() final;
     bool canHaveChildren() const final { return false; }
     void paint(PaintInfo&, const LayoutPoint&) final;
     void layout() final;

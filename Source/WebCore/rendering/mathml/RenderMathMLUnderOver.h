@@ -47,7 +47,7 @@ private:
     ASCIILiteral renderName() const final { return "RenderMathMLUnderOver"_s; }
     MathMLUnderOverElement& NODELETE element() const;
 
-    void computePreferredLogicalWidths() final;
+    void computeIntrinsicLogicalWidthContributions() final;
     void layoutBlock(RelayoutChildren, LayoutUnit pageLogicalHeight = 0_lu) final;
 
     void stretchHorizontalOperatorsAndLayoutChildren();

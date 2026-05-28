@@ -197,15 +197,15 @@ void RenderMathMLOperator::resetStretchSize()
         m_stretchWidth = 0;
 }
 
-void RenderMathMLOperator::computePreferredLogicalWidths()
+void RenderMathMLOperator::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 
     LayoutUnit preferredWidth;
 
     if (!useMathOperator()) {
-        // No need to include padding/border/margin here, RenderMathMLToken::computePreferredLogicalWidths takes care of them.
-        RenderMathMLToken::computePreferredLogicalWidths();
+        // No need to include padding/border/margin here, RenderMathMLToken::computeIntrinsicLogicalWidthContributions takes care of them.
+        RenderMathMLToken::computeIntrinsicLogicalWidthContributions();
         preferredWidth = m_maxPreferredLogicalWidth;
         if (isInvisibleOperator()) {
             // In some fonts, glyphs for invisible operators have nonzero width. Consequently, we subtract that width here to avoid wide gaps.

@@ -295,13 +295,13 @@ void RenderListItem::styleDidChange(Style::Difference diff, const RenderStyle* o
         usedCounterDirectivesChanged();
 }
 
-void RenderListItem::computePreferredLogicalWidths()
+void RenderListItem::computeIntrinsicLogicalWidthContributions()
 {
     // FIXME: RenderListMarker::updateInlineMargins() mutates margin style which affects preferred widths.
     if (m_marker && m_marker->needsPreferredLogicalWidthsUpdate())
         m_marker->updateInlineMarginsAndContent();
 
-    RenderBlockFlow::computePreferredLogicalWidths();
+    RenderBlockFlow::computeIntrinsicLogicalWidthContributions();
 }
 
 void RenderListItem::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffset)

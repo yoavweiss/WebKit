@@ -863,7 +863,7 @@ static bool canDerivePreferredWidthFromAspectRatio(const RenderReplaced& replace
     return false;
 }
 
-void RenderReplaced::computePreferredLogicalWidths()
+void RenderReplaced::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 

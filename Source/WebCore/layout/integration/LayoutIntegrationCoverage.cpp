@@ -371,7 +371,7 @@ bool canUseForPreferredWidthComputation(const RenderBlockFlow& blockContainer)
             auto allowImagesToBreak = !blockContainer.document().inQuirksMode() || !blockContainer.isRenderTableCell();
             if (!allowImagesToBreak)
                 return true;
-            // FIXME: See RenderReplaced::computePreferredLogicalWidths where m_minPreferredLogicalWidth is set to 0.
+            // FIXME: See RenderReplaced::computeIntrinsicLogicalWidthContributions where m_minPreferredLogicalWidth is set to 0.
             auto isReplacedWithSpecialIntrinsicWidth = [&] {
                 if (auto* renderReplaced = dynamicDowncast<RenderReplaced>(unsupportedRenderElement.get()))
                     return renderReplaced->style().logicalMaxWidth().isPercentOrCalculated();

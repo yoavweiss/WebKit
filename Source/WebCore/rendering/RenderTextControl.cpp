@@ -206,11 +206,11 @@ void RenderTextControl::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidt
         minLogicalWidth = maxLogicalWidth;
 }
 
-void RenderTextControl::computePreferredLogicalWidths()
+void RenderTextControl::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
     if (style().fieldSizing() == FieldSizing::Content) {
-        RenderBlockFlow::computePreferredLogicalWidths();
+        RenderBlockFlow::computeIntrinsicLogicalWidthContributions();
         return;
     }
 

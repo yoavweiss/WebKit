@@ -159,12 +159,12 @@ RenderMathMLRoot::VerticalParameters RenderMathMLRoot::verticalParameters() cons
     return parameters;
 }
 
-void RenderMathMLRoot::computePreferredLogicalWidths()
+void RenderMathMLRoot::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 
     if (!isValid()) {
-        RenderMathMLRow::computePreferredLogicalWidths();
+        RenderMathMLRow::computeIntrinsicLogicalWidthContributions();
         return;
     }
 

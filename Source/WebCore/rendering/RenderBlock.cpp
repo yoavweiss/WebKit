@@ -2266,7 +2266,7 @@ void RenderBlock::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, Lay
     minLogicalWidth += scrollbarWidth;
 }
 
-void RenderBlock::computePreferredLogicalWidths()
+void RenderBlock::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 

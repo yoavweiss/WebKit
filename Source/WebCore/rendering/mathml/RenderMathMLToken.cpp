@@ -76,12 +76,12 @@ void RenderMathMLToken::updateTokenContent()
     setMathVariantGlyphDirty();
 }
 
-void RenderMathMLToken::computePreferredLogicalWidths()
+void RenderMathMLToken::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 
     if (document().settings().coreMathMLDeprecateLegacyMathvariant())
-        return RenderMathMLBlock::computePreferredLogicalWidths();
+        return RenderMathMLBlock::computeIntrinsicLogicalWidthContributions();
 
     if (m_mathVariantGlyphDirty)
         updateMathVariantGlyph();
@@ -97,7 +97,7 @@ void RenderMathMLToken::computePreferredLogicalWidths()
         }
     }
 
-    RenderMathMLBlock::computePreferredLogicalWidths();
+    RenderMathMLBlock::computeIntrinsicLogicalWidthContributions();
 }
 
 void RenderMathMLToken::updateMathVariantGlyph()

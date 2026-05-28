@@ -144,7 +144,7 @@ protected:
 
 private:
     void styleDidChange(Style::Difference, const RenderStyle* oldStyle) override;
-    void computePreferredLogicalWidths() override;
+    void computeIntrinsicLogicalWidthContributions() override;
 
     LayoutUnit containingBlockLogicalWidthForContent() const override;
 

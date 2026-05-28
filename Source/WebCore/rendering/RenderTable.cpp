@@ -1018,7 +1018,7 @@ void RenderTable::computeIntrinsicLogicalWidths(LayoutUnit& minWidth, LayoutUnit
     // FIXME: Restructure the table layout code so that we can make this method const.
     const_cast<RenderTable*>(this)->m_tableLayout->computeIntrinsicLogicalWidths(minWidth, maxWidth, intrinsics);
 
-    // FIXME: We should include captions widths here like we do in computePreferredLogicalWidths.
+    // FIXME: We should include captions widths here like we do in computeIntrinsicLogicalWidthContributions.
 }
 
 void RenderTable::computeIntrinsicLogicalWidths(LayoutUnit& minWidth, LayoutUnit& maxWidth) const
@@ -1031,7 +1031,7 @@ void RenderTable::computeIntrinsicKeywordLogicalWidths(LayoutUnit& minWidth, Lay
     computeIntrinsicLogicalWidths(minWidth, maxWidth, TableIntrinsics::ForKeyword);
 }
 
-void RenderTable::computePreferredLogicalWidths()
+void RenderTable::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 
@@ -1064,7 +1064,7 @@ void RenderTable::computePreferredLogicalWidths()
         m_maxPreferredLogicalWidth = std::max(m_maxPreferredLogicalWidth, m_minPreferredLogicalWidth);
     }
 
-    // FIXME: We should be adding borderAndPaddingLogicalWidth here, but m_tableLayout->computePreferredLogicalWidths already does,
+    // FIXME: We should be adding borderAndPaddingLogicalWidth here, but m_tableLayout->computeIntrinsicLogicalWidthContributions already does,
     // so a bunch of tests break doing this naively.
     clearNeedsPreferredWidthsUpdate();
 

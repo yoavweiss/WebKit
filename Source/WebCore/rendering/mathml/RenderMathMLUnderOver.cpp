@@ -185,17 +185,17 @@ RenderBox& RenderMathMLUnderOver::over() const
 }
 
 
-void RenderMathMLUnderOver::computePreferredLogicalWidths()
+void RenderMathMLUnderOver::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 
     if (!isValid()) {
-        RenderMathMLRow::computePreferredLogicalWidths();
+        RenderMathMLRow::computeIntrinsicLogicalWidthContributions();
         return;
     }
 
     if (shouldMoveLimits()) {
-        RenderMathMLScripts::computePreferredLogicalWidths();
+        RenderMathMLScripts::computeIntrinsicLogicalWidthContributions();
         return;
     }
 

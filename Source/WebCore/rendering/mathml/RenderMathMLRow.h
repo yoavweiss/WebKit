@@ -50,7 +50,7 @@ protected:
     void getContentBoundingBox(LayoutUnit& width, LayoutUnit& ascent, LayoutUnit& descent) const;
     void layoutRowItems(LayoutUnit width, LayoutUnit ascent);
     LayoutUnit preferredLogicalWidthOfRowItems();
-    void computePreferredLogicalWidths() override;
+    void computeIntrinsicLogicalWidthContributions() override;
 
 private:
     ASCIILiteral renderName() const override { return "RenderMathMLRow"_s; }

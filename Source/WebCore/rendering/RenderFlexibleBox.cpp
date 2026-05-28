@@ -910,7 +910,7 @@ template<typename SizeType> std::optional<LayoutUnit> RenderFlexibleBox::compute
 
     // computeLogicalWidth always re-computes the intrinsic widths. However, when
     // our logical width is auto, we can just use our cached value. So let's do
-    // that here. (Compare code in RenderBlock::computePreferredLogicalWidths)
+    // that here. (Compare code in RenderBlock::computeIntrinsicLogicalWidthContributions)
     if (flexItem.style().logicalWidth().isAuto() && !flexItemHasAspectRatio(flexItem)) {
         if (size.isMinContent()) {
             if (flexItem.shouldInvalidatePreferredWidths())
