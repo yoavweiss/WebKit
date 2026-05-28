@@ -83,11 +83,6 @@ inline void ComputedStyleBase::setIsLink(bool isLink)
     m_nonInheritedFlags.isLink = isLink;
 }
 
-inline void ComputedStyleBase::setEmptyState(bool emptyState)
-{
-    m_nonInheritedFlags.emptyState = emptyState;
-}
-
 inline void ComputedStyleBase::setFirstChildState()
 {
     m_nonInheritedFlags.firstChildState = true;

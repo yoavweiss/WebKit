@@ -103,9 +103,6 @@ public:
     inline bool isLink() const;
     inline void setIsLink(bool);
 
-    inline bool emptyState() const;
-    inline void setEmptyState(bool);
-
     inline bool firstChildState() const;
     inline void setFirstChildState();
 

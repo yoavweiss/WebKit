@@ -124,11 +124,6 @@ inline bool ComputedStyleBase::isLink() const
     return m_nonInheritedFlags.isLink;
 }
 
-inline bool ComputedStyleBase::emptyState() const
-{
-    return m_nonInheritedFlags.emptyState;
-}
-
 inline bool ComputedStyleBase::firstChildState() const
 {
     return m_nonInheritedFlags.firstChildState;

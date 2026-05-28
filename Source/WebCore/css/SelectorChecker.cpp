@@ -1777,6 +1777,7 @@ bool SelectorChecker::matchHasArgumentSelector(CheckingContext& checkingContext,
             checkingContext.styleRelations.append(relation);
             return;
         case Style::Relation::AffectedByEmpty:
+            checkingContext.styleRelations.append(relation);
             return;
         case Style::Relation::AffectedByPreviousSibling:
         case Style::Relation::AffectsNextSibling:

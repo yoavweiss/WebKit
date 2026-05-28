@@ -477,9 +477,6 @@ public:
     inline bool isLink() const;
     inline void setIsLink(bool);
 
-    inline bool emptyState() const;
-    inline void setEmptyState(bool);
-
     inline bool firstChildState() const;
     inline void setFirstChildState();
 
@@ -755,7 +752,6 @@ public:
         PREFERRED_TYPE(bool) unsigned disallowsFastPathInheritance : 1;
 
         // Non-property related state bits.
-        PREFERRED_TYPE(bool) unsigned emptyState : 1;
         PREFERRED_TYPE(bool) unsigned firstChildState : 1;
         PREFERRED_TYPE(bool) unsigned lastChildState : 1;
         PREFERRED_TYPE(bool) unsigned isLink : 1;

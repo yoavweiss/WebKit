@@ -122,11 +122,6 @@ inline bool RenderStyle::isLink() const
     return m_computedStyle.isLink();
 }
 
-inline bool RenderStyle::emptyState() const
-{
-    return m_computedStyle.emptyState();
-}
-
 inline bool RenderStyle::firstChildState() const
 {
     return m_computedStyle.firstChildState();

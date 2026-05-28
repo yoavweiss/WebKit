@@ -39,19 +39,27 @@
 
 namespace WebCore::Style {
 
-static bool rightmostCompoundContainsEmpty(const CSSSelector& selector)
+static bool elementIsEmptyForCSS(const Element& element)
 {
-    for (auto* simple = &selector; simple; simple = simple->followingInCompound()) {
-        if (simple->match() == CSSSelector::Match::PseudoClass && simple->pseudoClass() == CSSSelector::PseudoClass::Empty)
-            return true;
-        if (auto* selectorList = simple->selectorList()) {
-            for (auto& inner : *selectorList) {
-                if (rightmostCompoundContainsEmpty(inner))
-                    return true;
-            }
+    for (auto* node = element.firstChild(); node; node = node->nextSibling()) {
+        if (is<Element>(*node))
+            return false;
+        if (auto* textNode = dynamicDowncast<Text>(*node)) {
+            if (!textNode->data().isEmpty())
+                return false;
         }
     }
-    return false;
+    return true;
+}
+
+bool ChildChangeInvalidation::emptyStateMayChange() const
+{
+    // CharacterData::makeChildChange uses TextChanged only when both the old and new data are non-empty,
+    // so the parent's :empty state can't flip and we can skip the traversal below.
+    if (m_childChange.type == ContainerNode::ChildChange::Type::TextChanged)
+        return false;
+    bool wasEmpty = elementIsEmptyForCSS(*m_parentElement);
+    return m_childChange.isInsertion() == wasEmpty;
 }
 
 static bool isSiblingHasRelation(const MatchElement& matchElement)
@@ -73,7 +81,7 @@ static bool isSiblingHasRelation(const MatchElement& matchElement)
     return false;
 }
 
-void ChildChangeInvalidation::invalidateForChangedElement(Element& changedElement, MatchingHasSelectors& matchingHasSelectors, ChangedElementRelation changedElementRelation, EmptyInvalidation emptyInvalidation)
+void ChildChangeInvalidation::invalidateForChangedElement(Element& changedElement, MatchingHasSelectors& matchingHasSelectors, ChangedElementRelation changedElementRelation)
 {
     auto& ruleSets = parentElement().styleResolver().ruleSets();
 
@@ -120,10 +128,6 @@ void ChildChangeInvalidation::invalidateForChangedElement(Element& changedElemen
         checkingContext.matchesAllHasScopes = true;
 
         for (auto& selector : invalidationRuleSet.invalidationSelectors) {
-            // For :empty invalidation only look for :empty selectors to avoid invalidating unnecessarily.
-            if (emptyInvalidation == EmptyInvalidation::Yes && !rightmostCompoundContainsEmpty(selector))
-                continue;
-
             if (hasAlreadyMatchedAndMutationIsIrrelevant(invalidationRuleSet)) {
                 // FIXME: We could cache this state across invalidations instead of just testing a single sibling.
                 RefPtr sibling = m_childChange.previousSiblingElement ? m_childChange.previousSiblingElement : m_childChange.nextSiblingElement;
@@ -209,15 +213,6 @@ void ChildChangeInvalidation::invalidateForHasBeforeMutation()
         invalidateForChangedElement(changedElement, matchingHasSelectors, ChangedElementRelation::SelfOrDescendant);
     });
 
-    auto emptyStateWillChange = [&] {
-        bool isEmpty = !parentElement().hasChildNodes();
-        return m_childChange.isInsertion() == isEmpty;
-    };
-
-    // :empty is special because insertions and removals can affect the matching state of the parent element.
-    if (emptyStateWillChange())
-        invalidateForChangedElement(parentElement(), matchingHasSelectors, ChangedElementRelation::SelfOrDescendant, EmptyInvalidation::Yes);
-
     invalidateForHasSiblings(matchingHasSelectors, MutationPhase::Before);
 }
 
@@ -230,15 +225,6 @@ void ChildChangeInvalidation::invalidateForHasAfterMutation()
     traverseAddedElements([&](auto& changedElement) {
         invalidateForChangedElement(changedElement, matchingHasSelectors, ChangedElementRelation::SelfOrDescendant);
     });
-
-    auto emptyStateDidChange = [&] {
-        bool isEmpty = !parentElement().hasChildNodes();
-        return m_childChange.isInsertion() != isEmpty;
-    };
-
-    // :empty is special because insertions and removals can affect the matching state of the parent element.
-    if (emptyStateDidChange())
-        invalidateForChangedElement(parentElement(), matchingHasSelectors, ChangedElementRelation::SelfOrDescendant, EmptyInvalidation::Yes);
 
     invalidateForHasSiblings(matchingHasSelectors, MutationPhase::After);
 }
@@ -300,16 +286,6 @@ void ChildChangeInvalidation::traverseAddedElements(Function&& function)
     }
 }
 
-static void checkForEmptyStyleChange(Element& element)
-{
-    if (!element.styleAffectedByEmpty())
-        return;
-
-    auto* style = element.renderStyle();
-    if (!style || (!style->emptyState() || element.hasChildNodes()))
-        element.invalidateStyleForSubtree();
-}
-
 static void invalidateForForwardPositionalRules(Element& parent, Element* elementAfterChange)
 {
     bool childrenAffected = parent.childrenAffectedByForwardPositionalRules();
@@ -362,8 +338,6 @@ static void invalidateForLastChildState(Element& child, bool state)
 
 void ChildChangeInvalidation::invalidateAfterChange()
 {
-    checkForEmptyStyleChange(parentElement());
-
     if (m_childChange.source == ContainerNode::ChildChange::Source::Parser)
         return;
 
@@ -374,8 +348,6 @@ void ChildChangeInvalidation::invalidateAfterFinishedParsingChildren(Element& pa
 {
     if (!parent.needsStyleInvalidation())
         return;
-
-    checkForEmptyStyleChange(parent);
 
     RefPtr lastChildElement = ElementTraversal::lastChild(parent);
     if (!lastChildElement)

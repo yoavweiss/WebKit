@@ -102,11 +102,6 @@ inline void RenderStyle::setIsLink(bool isLink)
     m_computedStyle.setIsLink(isLink);
 }
 
-inline void RenderStyle::setEmptyState(bool emptyState)
-{
-    m_computedStyle.setEmptyState(emptyState);
-}
-
 inline void RenderStyle::setFirstChildState()
 {
     m_computedStyle.setFirstChildState();

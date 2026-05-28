@@ -53,7 +53,6 @@ std::unique_ptr<Relations> commitRelationsToRenderStyle(RenderStyle& style, cons
         }
         switch (relation.type) {
         case Relation::AffectedByEmpty:
-            style.setEmptyState(relation.value);
             appendStyleRelation(relation);
             break;
         case Relation::FirstChild:
@@ -148,8 +147,6 @@ void commitRelations(std::unique_ptr<Relations> relations, Update& update)
 
 void copyRelations(RenderStyle& to, const RenderStyle& from)
 {
-    if (from.emptyState())
-        to.setEmptyState(true);
     if (from.firstChildState())
         to.setFirstChildState();
     if (from.lastChildState())

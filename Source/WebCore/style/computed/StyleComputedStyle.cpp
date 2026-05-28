@@ -66,7 +66,6 @@ struct SameSizeAsComputedStyle : CanMakeCheckedPtr<SameSizeAsComputedStyle> {
         bool useTreeCountingFunctions : 1;
         bool hasExplicitlyInheritedProperties : 1;
         bool disallowsFastPathInheritance : 1;
-        bool emptyState : 1;
         bool firstChildState : 1;
         bool lastChildState : 1;
         bool isLink : 1;
