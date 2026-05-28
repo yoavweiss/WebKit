@@ -5006,9 +5006,7 @@ void RenderBlockFlow::computeInlinePreferredLogicalWidths(LayoutUnit& minLogical
             return false;
         };
         if (isInterlinearTypeAnnotation()) {
-            auto annotationMinimumIntrinsicWidth = LayoutUnit { };
-            auto annotationMaximumIntrinsicWidth = LayoutUnit { };
-            computeChildPreferredLogicalWidths(downcast<RenderBlock>(*child), annotationMinimumIntrinsicWidth, annotationMaximumIntrinsicWidth);
+            auto [annotationMinimumIntrinsicWidth, annotationMaximumIntrinsicWidth] = computeChildIntrinsicLogicalWidths(downcast<RenderBlock>(*child));
 
             if (!rubyBaseContentStack.isEmpty()) {
                 // Annotation box is always preceded by the associated ruby base.
@@ -5052,9 +5050,7 @@ void RenderBlockFlow::computeInlinePreferredLogicalWidths(LayoutUnit& minLogical
 
             resetLineForForcedLineBreak();
 
-            auto blockMinWidth = LayoutUnit { };
-            auto blocMaxWidth = LayoutUnit { };
-            computeChildPreferredLogicalWidths(downcast<RenderBox>(*child), blockMinWidth, blocMaxWidth);
+            auto [blockMinWidth, blocMaxWidth] = computeChildIntrinsicLogicalWidths(downcast<RenderBox>(*child));
 
             auto marginsInInlineDirection = marginIntrinsicLogicalWidthForChild(downcast<RenderBox>(*child));
 
@@ -5163,7 +5159,7 @@ void RenderBlockFlow::computeInlinePreferredLogicalWidths(LayoutUnit& minLogical
                 childMinPreferredLogicalWidth = extent;
                 childMaxPreferredLogicalWidth = extent;
             } else
-                computeChildPreferredLogicalWidths(*box, childMinPreferredLogicalWidth, childMaxPreferredLogicalWidth);
+                std::tie(childMinPreferredLogicalWidth, childMaxPreferredLogicalWidth) = computeChildIntrinsicLogicalWidths(*box);
             childMin += childMinPreferredLogicalWidth.ceilToFloat();
             childMax += childMaxPreferredLogicalWidth.ceilToFloat();
 

@@ -2336,9 +2336,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeBlockIntrinsicLogicalWidth
         auto [marginStart, marginEnd] = intrinsicLogicalMarginStartAndEnd(childBox);
         auto margin = marginStart + marginEnd;
 
-        LayoutUnit childMinPreferredLogicalWidth;
-        LayoutUnit childMaxPreferredLogicalWidth;
-        computeChildPreferredLogicalWidths(const_cast<RenderBox&>(childBox), childMinPreferredLogicalWidth, childMaxPreferredLogicalWidth);
+        auto [childMinPreferredLogicalWidth, childMaxPreferredLogicalWidth] = computeChildIntrinsicLogicalWidths(const_cast<RenderBox&>(childBox));
 
         auto logicalWidth = childMinPreferredLogicalWidth + margin;
         minLogicalWidth = std::max(logicalWidth, minLogicalWidth);
@@ -2385,23 +2383,14 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeBlockIntrinsicLogicalWidth
     return { minLogicalWidth, maxLogicalWidth };
 }
 
-void RenderBlock::computeChildIntrinsicLogicalWidths(RenderBox& child, LayoutUnit& minPreferredLogicalWidth, LayoutUnit& maxPreferredLogicalWidth) const
-{
-    minPreferredLogicalWidth = child.minPreferredLogicalWidth();
-    maxPreferredLogicalWidth = child.maxPreferredLogicalWidth();
-}
-
-void RenderBlock::computeChildPreferredLogicalWidths(RenderBox& childBox, LayoutUnit& minPreferredLogicalWidth, LayoutUnit& maxPreferredLogicalWidth) const
+std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeChildIntrinsicLogicalWidths(RenderBox& childBox) const
 {
     if (childBox.isHorizontalWritingMode() != isHorizontalWritingMode()) {
         // If the child is an orthogonal flow, child's height determines the width,
         // but the height is not available until layout.
         // http://dev.w3.org/csswg/css-writing-modes-3/#orthogonal-shrink-to-fit
-        if (!childBox.needsLayout()) {
-            minPreferredLogicalWidth = childBox.logicalHeight();
-            maxPreferredLogicalWidth = childBox.logicalHeight();
-            return;
-        }
+        if (!childBox.needsLayout())
+            return { childBox.logicalHeight(), childBox.logicalHeight() };
         auto& childBoxStyle = childBox.style();
         if (auto fixedChildBoxStyleLogicalWidth = childBoxStyle.logicalWidth().tryFixed(); childBox.shouldComputeLogicalHeightFromAspectRatio() && fixedChildBoxStyleLogicalWidth) {
             auto aspectRatioSize = blockSizeFromAspectRatio(
@@ -2413,28 +2402,45 @@ void RenderBlock::computeChildPreferredLogicalWidths(RenderBox& childBox, Layout
                 style().aspectRatio(),
                 isRenderReplaced()
             );
-            minPreferredLogicalWidth = aspectRatioSize;
-            maxPreferredLogicalWidth = aspectRatioSize;
-            return;
+            return { aspectRatioSize, aspectRatioSize };
         }
         auto logicalHeightWithoutLayout = childBox.computeLogicalHeightForIntrinsicWidthContribution();
-        minPreferredLogicalWidth = logicalHeightWithoutLayout;
-        maxPreferredLogicalWidth = logicalHeightWithoutLayout;
-        return;
+        return { logicalHeightWithoutLayout, logicalHeightWithoutLayout };
     }
-    
-    computeChildIntrinsicLogicalWidths(childBox, minPreferredLogicalWidth, maxPreferredLogicalWidth);
 
-    // For non-replaced blocks if the inline size is min|max-content or a definite
-    // size the min|max-content contribution is that size plus border, padding and
-    // margin https://drafts.csswg.org/css-sizing/#block-intrinsic
-    if (!is<RenderBlock>(childBox))
-        return;
-    auto& computedInlineSize = childBox.style().logicalWidth();
-    if (computedInlineSize.isMaxContent())
-        minPreferredLogicalWidth = maxPreferredLogicalWidth;
-    else if (computedInlineSize.isMinContent())
-        maxPreferredLogicalWidth = minPreferredLogicalWidth;
+    auto minLogicalWidth = LayoutUnit { };
+    auto maxLogicalWidth = LayoutUnit { };
+
+    auto childIntrinsicLogicalWidths = [&] {
+        return std::pair<LayoutUnit, LayoutUnit> { childBox.minPreferredLogicalWidth(), childBox.maxPreferredLogicalWidth() };
+    };
+    // When this is a flex container, set up the cross-axis size override on the
+    // child so that its preferred-widths computation sees the flex line's cross
+    // size in scope. Previously this was a virtual hook the flex container
+    // overrode; folded inline since flex is the only container that needs it.
+    if (CheckedPtr flexBox = dynamicDowncast<RenderFlexibleBox>(this)) {
+        auto flexScope = RenderFlexibleBox::ScopedCrossAxisOverrideForFlexItem { *flexBox, childBox, RenderFlexibleBox::ScopedCrossAxisOverrideForFlexItem::InvalidatePreferredWidths::Yes };
+        std::tie(minLogicalWidth, maxLogicalWidth) = childIntrinsicLogicalWidths();
+    } else
+        std::tie(minLogicalWidth, maxLogicalWidth) = childIntrinsicLogicalWidths();
+
+    auto applyBlockIntrinsicKeyword = [&] {
+        // For non-replaced blocks if the inline size is min|max-content or a definite
+        // size the min|max-content contribution is that size plus border, padding and
+        // margin https://drafts.csswg.org/css-sizing/#block-intrinsic
+        if (!is<RenderBlock>(childBox))
+            return;
+        auto& computedInlineSize = childBox.style().logicalWidth();
+        if (computedInlineSize.isMaxContent()) {
+            minLogicalWidth = maxLogicalWidth;
+            return;
+        }
+        if (computedInlineSize.isMinContent())
+            maxLogicalWidth = minLogicalWidth;
+    };
+    applyBlockIntrinsicKeyword();
+
+    return { minLogicalWidth, maxLogicalWidth };
 }
 
 bool RenderBlock::hasLineIfEmpty() const
@@ -3304,7 +3310,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeIntrinsicLogicalWidthsForF
 
     LayoutUnit minLogicalWidth;
     LayoutUnit maxLogicalWidth;
-    computeChildPreferredLogicalWidths(*legend, minLogicalWidth, maxLogicalWidth);
+    std::tie(minLogicalWidth, maxLogicalWidth) = computeChildIntrinsicLogicalWidths(*legend);
 
     // These are going to be added in later, so we subtract them out to reflect the
     // fact that the legend is outside the scrollable area.

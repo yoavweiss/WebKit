@@ -33,6 +33,7 @@
 #include <WebCore/BaselineAlignment.h>
 #include <WebCore/OrderIterator.h>
 #include <WebCore/RenderBlock.h>
+#include <wtf/SetForScope.h>
 #include <wtf/WeakHashSet.h>
 
 namespace WebCore {
@@ -117,12 +118,39 @@ public:
     bool hasDefiniteLogicalWidthForAspectRatioCrossSize() const;
     bool hasStretchedFlexItemWithAspectRatio() const;
 
+    class OverridingSizesScope {
+    public:
+        enum class Axis { Inline, Block, Both };
+
+        OverridingSizesScope(RenderBox&, Axis, std::optional<LayoutUnit> size = std::nullopt);
+        ~OverridingSizesScope();
+
+    private:
+        RenderBox& m_box;
+        Axis m_axis;
+        std::optional<LayoutUnit> m_previousOverridingBorderBoxLogicalWidth;
+        std::optional<LayoutUnit> m_previousOverridingBorderBoxLogicalHeight;
+    };
+
+    class ScopedCrossAxisOverrideForFlexItem {
+    public:
+        enum class InvalidatePreferredWidths : bool { No, Yes };
+        ScopedCrossAxisOverrideForFlexItem(const RenderFlexibleBox&, RenderBox& flexItem, InvalidatePreferredWidths);
+        ~ScopedCrossAxisOverrideForFlexItem();
+
+    private:
+        SetForScope<bool> m_intrinsicWidthComputation;
+        std::optional<OverridingSizesScope> m_overridingScope;
+#if ASSERT_ENABLED
+        RenderBox& m_flexItem;
+        bool m_didDirtyPreferredWidths { false };
+#endif
+    };
+
 protected:
     void computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const override;
 
 private:
-    friend class ScopedCrossAxisOverrideForFlexItem;
-
     struct FlexBaseAndHypotheticalMainSize {
         LayoutUnit flexBaseContentSize;
         LayoutUnit hypotheticalMainContentSize;
@@ -212,7 +240,6 @@ private:
     bool crossAxisIsLogicalWidth() const;
     void clearFlexItemOverridingSizes();
     LayoutUnit innerCrossSizeForFlexItem(const RenderBox& flexItem) const;
-    void computeChildIntrinsicLogicalWidths(RenderBox&, LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const override;
     template<typename SizeType> LayoutUnit computeMainSizeFromAspectRatioUsing(const RenderBox& flexItem, const SizeType& crossSizeLength) const;
     void NODELETE setFlowAwareLocationForFlexItem(RenderBox& flexItem, const LayoutPoint&);
     LayoutUnit flexBaseSizeForFlexItem(RenderBox& flexItem);
