@@ -1798,6 +1798,7 @@ layout
 // normal
 // size
 inline-size
+scroll-state
 
 // offset-path
 // https://drafts.fxtf.org/motion-1/#offset-path-property
