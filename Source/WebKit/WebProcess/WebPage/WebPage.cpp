@@ -967,6 +967,7 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
         WebPreferences::forceSiteIsolationAlwaysOnForTesting();
 
     updatePreferences(parameters.store);
+    RELEASE_ASSERT(page->settings().siteIsolationSharedProcessEnabled() ? page->settings().siteIsolationEnabled() : true);
     if (page->settings().siteIsolationEnabled()) {
         page->inspectorController().siteIsolationFirstEnabled();
         if (RefPtr frame = page->localMainFrame())
