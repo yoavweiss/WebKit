@@ -818,14 +818,6 @@ const AtomString& Node::prefix() const
     return nullAtom();
 }
 
-ExceptionOr<void> Node::setPrefix(const AtomString&)
-{
-    // The spec says that for nodes other than elements and attributes, prefix is always null.
-    // It does not say what to do when the user tries to set the prefix on another type of
-    // node, however Mozilla throws a NamespaceError exception.
-    return Exception { ExceptionCode::NamespaceError };
-}
-
 const AtomString& Node::localName() const
 {
     return nullAtom();
@@ -1151,8 +1143,7 @@ void Node::clearNodeLists()
 
 ExceptionOr<void> Node::checkSetPrefix(const AtomString& prefix)
 {
-    // Perform error checking as required by spec for setting Node.prefix. Used by
-    // Element::setPrefix() and Attr::setPrefix()
+    // Perform error checking as required by spec for setting Node.prefix. Used by Element::setPrefix().
 
     if (!prefix.isEmpty() && !NameValidation::isValidNamespacePrefix(prefix))
         return Exception { ExceptionCode::InvalidCharacterError };
@@ -1164,8 +1155,6 @@ ExceptionOr<void> Node::checkSetPrefix(const AtomString& prefix)
         return Exception { ExceptionCode::NamespaceError };
     if (prefix == xmlAtom() && namespaceURI != XMLNames::xmlNamespaceURI)
         return Exception { ExceptionCode::NamespaceError };
-
-    // Attribute-specific checks are in Attr::setPrefix().
 
     return { };
 }

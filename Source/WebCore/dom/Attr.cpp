@@ -38,7 +38,6 @@
 #include "TextNodeTraversal.h"
 #include "TreeScopeInlines.h"
 #include "TrustedType.h"
-#include "XMLNSNames.h"
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/text/AtomString.h>
 
@@ -79,24 +78,6 @@ Attr::~Attr()
 
     // Unable to protect the document here as it may have started destruction.
     willBeDeletedFrom(document());
-}
-
-ExceptionOr<void> Attr::setPrefix(const AtomString& prefix)
-{
-    auto result = checkSetPrefix(prefix);
-    if (result.hasException())
-        return result.releaseException();
-
-    if ((prefix == xmlnsAtom() && namespaceURI() != XMLNSNames::xmlnsNamespaceURI) || qualifiedName() == xmlnsAtom())
-        return Exception { ExceptionCode::NamespaceError };
-
-    const AtomString& newPrefix = prefix.isEmpty() ? nullAtom() : prefix;
-    if (RefPtr element = m_element.get())
-        element->ensureUniqueElementData().findAttributeByName(qualifiedName())->setPrefix(newPrefix);
-
-    m_name.setPrefix(newPrefix);
-
-    return { };
 }
 
 ExceptionOr<void> Attr::setValue(const AtomString& value)

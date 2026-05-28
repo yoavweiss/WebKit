@@ -185,7 +185,6 @@ public:
     virtual const AtomString& NODELETE localName() const;
     virtual const AtomString& NODELETE namespaceURI() const;
     virtual const AtomString& NODELETE prefix() const;
-    virtual ExceptionOr<void> setPrefix(const AtomString&);
     WEBCORE_EXPORT ExceptionOr<void> normalize();
 
     bool isSameNode(Node* other) const { return this == other; }

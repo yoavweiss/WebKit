@@ -396,7 +396,7 @@ public:
     ElementName elementName() const { return m_tagName.nodeName(); }
     Namespace nodeNamespace() const { return m_tagName.nodeNamespace(); }
 
-    ExceptionOr<void> setPrefix(const AtomString&) final;
+    ExceptionOr<void> setPrefix(const AtomString&);
 
     String nodeName() const override;
 

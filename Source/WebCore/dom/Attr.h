@@ -68,8 +68,6 @@ private:
     String nodeValue() const final { return value(); }
     ExceptionOr<void> setNodeValue(const String&) final;
 
-    ExceptionOr<void> setPrefix(const AtomString&) final;
-
     Ref<Node> cloneNodeInternal(Document&, CloningOperation, CustomElementRegistry*) const final;
     SerializedNode serializeNode(CloningOperation) const final;
 
