@@ -63,11 +63,6 @@ static auto processKeywordForCSSValueConversion(const K& keyword, CSSValueID val
             result = StyleType { keyword };
             return true;
         }
-    } else if constexpr (std::same_as<K, CSS::Keyword::Stretch>) {
-        if (valueID == CSSValueWebkitFillAvailable) {
-            result = StyleType { keyword };
-            return true;
-        }
     }
 
     return false;

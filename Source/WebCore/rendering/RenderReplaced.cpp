@@ -1187,7 +1187,8 @@ LayoutUnit RenderReplaced::computeReplacedLogicalWidthUsing(const SizeType& logi
             auto logicalWidthResult = fillAvailableMeasure(availableWidth, marginStart, marginEnd);
             // Block-level replaced elements need to shrink their stretch size to account for float
             // intrusion. Inline replaced elements don't avoid floats this way — they flow alongside
-            // them.
+            // them. The legacy -webkit-fill-available branch below intentionally skips this shrink
+            // to preserve its pre-stretch-keyword behavior.
             if (!isInline()) {
                 ASSERT(containingBlock());
                 if (CheckedRef containingBlock = *this->containingBlock(); containingBlock->containsFloats()) {
@@ -1198,6 +1199,12 @@ LayoutUnit RenderReplaced::computeReplacedLogicalWidthUsing(const SizeType& logi
                 }
             }
             return std::max(borderAndPadding, logicalWidthResult) - borderAndPadding;
+        },
+        [&](const CSS::Keyword::WebkitFillAvailable&) -> LayoutUnit {
+            // Legacy -webkit-fill-available preserves pre-stretch-keyword behavior:
+            // simple fill of available measure, no float-intrusion shrink.
+            auto borderAndPadding = borderAndPaddingLogicalWidth();
+            return std::max(borderAndPadding, fillAvailableMeasure(calculateContainerWidth())) - borderAndPadding;
         },
         [&](const CSS::Keyword::MinContent& keyword) -> LayoutUnit {
             // min-content/max-content don't need the availableLogicalWidth argument.
@@ -1385,6 +1392,12 @@ LayoutUnit RenderReplaced::computeReplacedLogicalHeightUsingGeneric(const SizeTy
             if (auto result = computeSizingKeywordLogicalContentHeightUsing(logicalHeight, intrinsicLogicalHeight(), borderAndPaddingLogicalHeight()))
                 return *result;
             return intrinsicLogicalHeight();
+        },
+        [&](const CSS::Keyword::WebkitFillAvailable&) -> LayoutUnit {
+            // Legacy -webkit-fill-available preserves pre-stretch-keyword behavior:
+            // resolve as content via the underlying availableLogicalHeight walk-up; no
+            // intrinsic-height fallback when the containing block is indefinite.
+            return content();
         },
         [&](const CSS::Keyword::MinContent&) -> LayoutUnit {
             return content();

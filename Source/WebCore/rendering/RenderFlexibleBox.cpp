@@ -1340,6 +1340,9 @@ template<typename SizeType> LayoutUnit RenderFlexibleBox::computeMainSizeFromAsp
             // Resolve stretch against the flex container's cross-axis definite size.
             return innerCrossSizeForFlexItem(flexItem);
         },
+        [&](const CSS::Keyword::WebkitFillAvailable&) -> std::optional<LayoutUnit> {
+            return innerCrossSizeForFlexItem(flexItem);
+        },
         [&](const auto&) -> std::optional<LayoutUnit> {
             ASSERT_NOT_REACHED();
             return { };

@@ -3727,6 +3727,12 @@ template<typename SizeType> std::optional<LayoutUnit> RenderBox::computeSizingKe
                 return { };
             return std::max(0_lu, *availableSpace - borderAndPadding - blockAxisMarginForStretch());
         },
+        [&](const CSS::Keyword::WebkitFillAvailable&) -> std::optional<LayoutUnit> {
+            // Legacy -webkit-fill-available preserves pre-stretch-keyword behavior:
+            // resolve through the containing block chain unconditionally, without the
+            // stretch keyword's "indefinite containing block falls back to initial value" rule.
+            return containingBlock()->availableLogicalHeight(AvailableLogicalHeightType::ExcludeMarginBorderPadding) - borderAndPadding;
+        },
         [&](const auto&) -> std::optional<LayoutUnit>  {
             ASSERT_NOT_REACHED();
             return 0_lu;
@@ -3782,6 +3788,12 @@ template<typename SizeType> std::optional<LayoutUnit> RenderBox::computeContentA
             return keywordSize();
         },
         [&](const CSS::Keyword::Stretch&) -> std::optional<LayoutUnit> {
+            auto result = keywordSize();
+            if (result)
+                return adjustIntrinsicLogicalHeightForBoxSizing(*result);
+            return result;
+        },
+        [&](const CSS::Keyword::WebkitFillAvailable&) -> std::optional<LayoutUnit> {
             auto result = keywordSize();
             if (result)
                 return adjustIntrinsicLogicalHeightForBoxSizing(*result);
@@ -4343,6 +4355,9 @@ template<typename SizeType> LayoutUnit RenderBox::computeOutOfFlowPositionedLogi
         [&](const CSS::Keyword::Stretch&) -> LayoutUnit {
             return inlineConstraints.availableContentSpace();
         },
+        [&](const CSS::Keyword::WebkitFillAvailable&) -> LayoutUnit {
+            return inlineConstraints.availableContentSpace();
+        },
         [&](const CSS::Keyword::MinContent& keyword) -> LayoutUnit {
             return intrinsic(keyword);
         },
@@ -4457,6 +4472,8 @@ LayoutUnit RenderBox::computeOutOfFlowPositionedLogicalHeightUsing(const Style::
     bool logicalHeightIsAuto = logicalHeight.isAuto() && !fromAspectRatio;
 
     if (!logicalHeightIsAuto) {
+        if (logicalHeight.isFillAvailable())
+            return adjustContentBoxLogicalHeightForBoxSizing(computeSizingKeywordLogicalContentHeightUsing(logicalHeight, contentLogicalHeight, blockConstraints.bordersPlusPadding()).value_or(0_lu));
         if (logicalHeight.isStretch())
             return blockConstraints.availableContentSpace();
         if (logicalHeight.isIntrinsic())
@@ -4488,6 +4505,8 @@ LayoutUnit RenderBox::computeOutOfFlowPositionedLogicalHeightUsing(const Style::
             logicalHeight = 0_css_px;
     }
 
+    if (logicalHeight.isFillAvailable())
+        return adjustContentBoxLogicalHeightForBoxSizing(computeSizingKeywordLogicalContentHeightUsing(logicalHeight, contentLogicalHeight, blockConstraints.bordersPlusPadding()).value_or(0_lu));
     if (logicalHeight.isStretch())
         return blockConstraints.availableContentSpace();
     if (logicalHeight.isIntrinsic())
@@ -4499,6 +4518,8 @@ LayoutUnit RenderBox::computeOutOfFlowPositionedLogicalHeightUsing(const Style::
 {
     auto contentLogicalHeight = computedHeight - blockConstraints.bordersPlusPadding();
 
+    if (logicalHeight.isFillAvailable())
+        return adjustContentBoxLogicalHeightForBoxSizing(computeSizingKeywordLogicalContentHeightUsing(logicalHeight, contentLogicalHeight, blockConstraints.bordersPlusPadding()).value_or(0_lu));
     if (logicalHeight.isStretch())
         return blockConstraints.availableContentSpace();
     if (logicalHeight.isIntrinsic())

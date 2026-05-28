@@ -694,8 +694,11 @@ protected:
 
     void incrementVisuallyNonEmptyPixelCountIfNeeded(const IntSize&);
     bool NODELETE shouldIgnoreAspectRatio() const;
-    bool isResolveableStretchSize(const auto& size) const { return size.isStretch() && isBlockSizeResolvableForStretch(); }
-    bool isUnresolveableStretchSize(const auto& size) const { return size.isStretch() && !isBlockSizeResolvableForStretch(); }
+    // -webkit-fill-available always resolves through the containing-block chain (walking up to the
+    // viewport if needed), so it is considered resolvable regardless of whether the immediate CB has
+    // a definite block size. Only the spec stretch keyword is gated on `isBlockSizeResolvableForStretch`.
+    bool isResolveableStretchSize(const auto& size) const { return size.isStretch() && (size.isFillAvailable() || isBlockSizeResolvableForStretch()); }
+    bool isUnresolveableStretchSize(const auto& size) const { return size.isStretch() && !size.isFillAvailable() && !isBlockSizeResolvableForStretch(); }
     LayoutUnit computeLogicalWidthFromAspectRatio() const;
     void applyAutomaticContentBasedMinimumSize(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const;
     void applyTransferredMinMaxSizesFromAspectRatio(LayoutUnit& minPreferredLogicalWidth, LayoutUnit& maxPreferredLogicalWidth) const;

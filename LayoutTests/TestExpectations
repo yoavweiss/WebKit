@@ -4526,6 +4526,7 @@ imported/w3c/web-platform-tests/css/css-sizing/responsive-iframe/responsive-ifra
 imported/w3c/web-platform-tests/css/css-sizing/aspect-ratio/replaced-element-047.tentative.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-sizing/aspect-ratio/replaced-element-048.tentative.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-sizing/intrinsic-percent-non-replaced-001.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-sizing/stretch/cache-miss-001.html [ ImageOnlyFailure ]
 
 # wpt css-text-decor failures
 webkit.org/b/230041 imported/w3c/web-platform-tests/css/css-text-decor/text-decoration-color-selection-pseudo-01.html [ ImageOnlyFailure ]
@@ -6033,6 +6034,11 @@ webkit.org/b/243313 [ Debug ] imported/w3c/web-platform-tests/html/semantics/emb
 fast/text/accessibility-bold-system-font [ Pass Failure ImageOnlyFailure ]
 
 imported/w3c/web-platform-tests/streams/transferable/gc-crash.html [ Skip ]
+
+# height: fill-available failures
+webkit.org/b/241104 fast/block/fill-available-with-no-specified-containing-block-height.html [ ImageOnlyFailure ]
+webkit.org/b/241104 fast/block/fill-available-with-absolute-position.html [ ImageOnlyFailure ]
+webkit.org/b/241104 fast/css/fill-available-with-percent-height-no-quirk.html [ ImageOnlyFailure ]
 
 # scroll anchoring failures
 imported/w3c/web-platform-tests/css/css-scroll-anchoring/anchor-inside-textarea.tentative.html [ Failure ]

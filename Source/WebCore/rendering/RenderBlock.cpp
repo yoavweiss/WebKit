@@ -395,6 +395,9 @@ bool RenderBlock::isSelfCollapsingBlock() const
             [](const CSS::Keyword::Stretch&) {
                 return true;
             },
+            [](const CSS::Keyword::WebkitFillAvailable&) {
+                return true;
+            },
             [](const auto&) {
                 return false;
             }
