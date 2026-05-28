@@ -4021,11 +4021,11 @@ void RenderBox::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 
-    constrainPreferredLogicalWidthsByMinMax(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
+    constrainIntrinsicLogicalWidthContributionsByMinMax(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
     clearNeedsPreferredWidthsUpdate();
 }
 
-void RenderBox::constrainPreferredLogicalWidthsByMinMax(LayoutUnit& minPreferredLogicalWidth, LayoutUnit& maxPreferredLogicalWidth) const
+void RenderBox::constrainIntrinsicLogicalWidthContributionsByMinMax(LayoutUnit& minIntrinsicLogicalWidth, LayoutUnit& maxIntrinsicLogicalWidth) const
 {
     auto& minLogicalWidth = style().logicalMinWidth();
     auto& maxLogicalWidth = style().logicalMaxWidth();
@@ -4037,7 +4037,7 @@ void RenderBox::constrainPreferredLogicalWidthsByMinMax(LayoutUnit& minPreferred
 
         if (maxLogicalWidth.isMinContent()) {
             if (!shouldComputePreferredLogicalWidthsFromStyle())
-                return minPreferredLogicalWidth;
+                return minIntrinsicLogicalWidth;
 
             return computeSizingKeywordLogicalWidthUsing(maxLogicalWidth, contentBoxLogicalWidth(), { });
         }
@@ -4051,23 +4051,23 @@ void RenderBox::constrainPreferredLogicalWidthsByMinMax(LayoutUnit& minPreferred
             return adjustContentBoxLogicalWidthForBoxSizing(*fixedMinLogicalWidth);
 
         if (minLogicalWidth.isMaxContent())
-            return maxPreferredLogicalWidth;
+            return maxIntrinsicLogicalWidth;
 
         return { };
     }();
 
     if (!style().logicalWidth().isFixed() && shouldComputeLogicalHeightFromAspectRatio())
-        applyTransferredMinMaxSizesFromAspectRatio(minPreferredLogicalWidth, maxPreferredLogicalWidth);
+        applyTransferredMinMaxSizesFromAspectRatio(minIntrinsicLogicalWidth, maxIntrinsicLogicalWidth);
 
-    maxPreferredLogicalWidth = std::min(maxPreferredLogicalWidth, usedMaxLogicalWidth);
-    minPreferredLogicalWidth = std::min(minPreferredLogicalWidth, usedMaxLogicalWidth);
+    maxIntrinsicLogicalWidth = std::min(maxIntrinsicLogicalWidth, usedMaxLogicalWidth);
+    minIntrinsicLogicalWidth = std::min(minIntrinsicLogicalWidth, usedMaxLogicalWidth);
 
-    maxPreferredLogicalWidth = std::max(maxPreferredLogicalWidth, usedMinLogicalWidth);
-    minPreferredLogicalWidth = std::max(minPreferredLogicalWidth, usedMinLogicalWidth);
+    maxIntrinsicLogicalWidth = std::max(maxIntrinsicLogicalWidth, usedMinLogicalWidth);
+    minIntrinsicLogicalWidth = std::max(minIntrinsicLogicalWidth, usedMinLogicalWidth);
 
     auto borderAndPadding = borderAndPaddingLogicalWidth();
-    minPreferredLogicalWidth += borderAndPadding;
-    maxPreferredLogicalWidth += borderAndPadding;
+    minIntrinsicLogicalWidth += borderAndPadding;
+    maxIntrinsicLogicalWidth += borderAndPadding;
 }
 
 LayoutUnit RenderBox::availableLogicalHeight(AvailableLogicalHeightType heightType) const

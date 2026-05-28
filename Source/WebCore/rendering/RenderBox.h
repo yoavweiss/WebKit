@@ -710,7 +710,7 @@ protected:
 
     static LayoutUnit blockSizeFromAspectRatio(LayoutUnit borderPaddingInlineSum, LayoutUnit borderPaddingBlockSum, double aspectRatioValue, BoxSizing, LayoutUnit inlineSize, const Style::AspectRatio&, bool isRenderReplaced);
 
-    void constrainPreferredLogicalWidthsByMinMax(LayoutUnit& minPreferredLogicalWidth, LayoutUnit& maxPreferredLogicalWidth) const;
+    void constrainIntrinsicLogicalWidthContributionsByMinMax(LayoutUnit& minIntrinsicLogicalWidth, LayoutUnit& maxIntrinsicLogicalWidth) const;
 
     bool isAspectRatioDegenerate(double aspectRatio) const { return !aspectRatio || isnan(aspectRatio); }
 

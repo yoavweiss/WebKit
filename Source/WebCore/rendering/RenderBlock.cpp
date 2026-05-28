@@ -2290,7 +2290,7 @@ void RenderBlock::computeIntrinsicLogicalWidthContributions()
     } else
         computeIntrinsicLogicalWidths(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
 
-    constrainPreferredLogicalWidthsByMinMax(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
+    constrainIntrinsicLogicalWidthContributionsByMinMax(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
 
     clearNeedsPreferredWidthsUpdate();
 }
