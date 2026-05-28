@@ -102,9 +102,16 @@ static Expected<URL, String> resolveModuleSpecifier(ScriptExecutionContext& cont
 {
     // https://html.spec.whatwg.org/multipage/webappapis.html#resolve-a-module-specifier
 
-    URL result = importMap.resolve(specifier, ownerType == ScriptModuleLoader::OwnerType::Document ? downcast<Document>(context).baseURLForComplete(originalBaseURL) : originalBaseURL);
-    if (result.isNull())
+    auto* document = ownerType == ScriptModuleLoader::OwnerType::Document ? &downcast<Document>(context) : nullptr;
+    URL result = importMap.resolve(specifier, document ? document->baseURLForComplete(originalBaseURL) : originalBaseURL);
+    if (result.isNull()) {
+        if (document && originalBaseURL.isAboutSrcDoc()) {
+            result = importMap.resolve(specifier, document->fallbackBaseURL());
+            if (!result.isNull())
+                return result;
+        }
         return makeUnexpected(makeString("Module name, '"_s, specifier, "' does not resolve to a valid URL."_s));
+    }
     return result;
 }
 
