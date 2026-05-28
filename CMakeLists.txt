@@ -100,9 +100,7 @@ include(WebKitCommon)
 # "project()" line
 #------------------------------------------------------------------------------
 if (SWIFT_REQUIRED)
-    if (POLICY CMP0157)
-        cmake_policy(SET CMP0157 NEW)
-    endif ()
+    cmake_policy(SET CMP0157 NEW)
 
     # CMake omits -target for swiftc during iOS cross-compilation.
     if (PORT STREQUAL "IOS")
