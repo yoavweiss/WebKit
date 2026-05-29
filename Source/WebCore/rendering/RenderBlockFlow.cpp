@@ -5151,17 +5151,17 @@ void RenderBlockFlow::computeInlinePreferredLogicalWidths(LayoutUnit& minLogical
         if (!is<RenderInline>(*child) && !is<RenderText>(*child)) {
             // Case (2). Inline replaced boxes and floats.
             // Terminate the current line as far as minwidth is concerned.
-            LayoutUnit childMinPreferredLogicalWidth;
-            LayoutUnit childMaxPreferredLogicalWidth;
+            LayoutUnit childMinContentLogicalWidth;
+            LayoutUnit childMaxContentLogicalWidth;
             CheckedPtr box = dynamicDowncast<RenderBox>(*child);
             if (box->isHorizontalWritingMode() != isHorizontalWritingMode()) {
                 auto extent = box->computeLogicalHeight(box->borderAndPaddingLogicalHeight(), 0).extent;
-                childMinPreferredLogicalWidth = extent;
-                childMaxPreferredLogicalWidth = extent;
+                childMinContentLogicalWidth = extent;
+                childMaxContentLogicalWidth = extent;
             } else
-                std::tie(childMinPreferredLogicalWidth, childMaxPreferredLogicalWidth) = computeChildIntrinsicLogicalWidths(*box);
-            childMin += childMinPreferredLogicalWidth.ceilToFloat();
-            childMax += childMaxPreferredLogicalWidth.ceilToFloat();
+                std::tie(childMinContentLogicalWidth, childMaxContentLogicalWidth) = computeChildIntrinsicLogicalWidths(*box);
+            childMin += childMinContentLogicalWidth.ceilToFloat();
+            childMax += childMaxContentLogicalWidth.ceilToFloat();
 
             bool clearPreviousFloat = false;
             if (box->isFloating()) {

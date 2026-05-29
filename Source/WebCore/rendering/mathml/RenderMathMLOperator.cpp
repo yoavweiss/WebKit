@@ -206,7 +206,7 @@ void RenderMathMLOperator::computeIntrinsicLogicalWidthContributions()
     if (!useMathOperator()) {
         // No need to include padding/border/margin here, RenderMathMLToken::computeIntrinsicLogicalWidthContributions takes care of them.
         RenderMathMLToken::computeIntrinsicLogicalWidthContributions();
-        preferredWidth = m_maxPreferredLogicalWidth;
+        preferredWidth = m_maxContentLogicalWidth;
         if (isInvisibleOperator()) {
             // In some fonts, glyphs for invisible operators have nonzero width. Consequently, we subtract that width here to avoid wide gaps.
             GlyphData data = style().fontCascade().glyphDataForCharacter(singleCharCodePoint(), false);
@@ -220,8 +220,8 @@ void RenderMathMLOperator::computeIntrinsicLogicalWidthContributions()
     // FIXME: The spacing should only be added inside (perhaps inferred) mrow (http://www.w3.org/TR/MathML/chapter3.html#presm.opspacing).
     preferredWidth = leadingSpace() + preferredWidth + trailingSpace();
 
-    m_minPreferredLogicalWidth = preferredWidth;
-    m_maxPreferredLogicalWidth = preferredWidth;
+    m_minContentLogicalWidth = preferredWidth;
+    m_maxContentLogicalWidth = preferredWidth;
 
     clearNeedsPreferredWidthsUpdate();
 }

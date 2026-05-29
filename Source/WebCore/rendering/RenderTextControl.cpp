@@ -182,8 +182,8 @@ void RenderTextControl::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidt
         CheckedPtr placeholderBox = placeholder ? placeholder->renderBox() : nullptr;
         if (RefPtr input = placeholderBox ? dynamicDowncast<HTMLInputElement>(textFormControlElement()) : nullptr) {
             auto decoration = LayoutUnit::fromFloatCeil(input->decorationWidth(maxLogicalWidth));
-            minLogicalWidth = std::max(minLogicalWidth, placeholderBox->minPreferredLogicalWidth() + decoration);
-            maxLogicalWidth = std::max(maxLogicalWidth, placeholderBox->maxPreferredLogicalWidth() + decoration);
+            minLogicalWidth = std::max(minLogicalWidth, placeholderBox->minContentLogicalWidth() + decoration);
+            maxLogicalWidth = std::max(maxLogicalWidth, placeholderBox->maxContentLogicalWidth() + decoration);
         }
         return;
     }
@@ -214,16 +214,16 @@ void RenderTextControl::computeIntrinsicLogicalWidthContributions()
         return;
     }
 
-    m_minPreferredLogicalWidth = 0;
-    m_maxPreferredLogicalWidth = 0;
+    m_minContentLogicalWidth = 0;
+    m_maxContentLogicalWidth = 0;
 
     if (auto fixedLogicalWidth = style().logicalWidth().tryFixed(); fixedLogicalWidth && fixedLogicalWidth->isPositiveOrZero()) {
-        m_maxPreferredLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
-        m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth;
+        m_maxContentLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
+        m_minContentLogicalWidth = m_maxContentLogicalWidth;
     } else
-        computeIntrinsicLogicalWidths(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
+        computeIntrinsicLogicalWidths(m_minContentLogicalWidth, m_maxContentLogicalWidth);
 
-    constrainIntrinsicLogicalWidthContributionsByMinMax(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
+    constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
 
     clearNeedsPreferredWidthsUpdate();
 }

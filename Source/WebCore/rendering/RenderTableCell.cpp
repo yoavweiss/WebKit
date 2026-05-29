@@ -254,7 +254,7 @@ void RenderTableCell::computeIntrinsicLogicalWidthContributions()
         // In quirks mode, when nowrap is set on a cell that also has an explicit fixed width,
         // WinIE/Moz treat the fixed width as the minimum width of the cell. Affected the top
         // of hiptop.com.
-        m_minPreferredLogicalWidth = std::max(adjustBorderBoxLogicalWidthForBoxSizing(LayoutUnit(fixedLogicalWidth->resolveZoom(usedZoom))), m_minPreferredLogicalWidth);
+        m_minContentLogicalWidth = std::max(adjustBorderBoxLogicalWidthForBoxSizing(LayoutUnit(fixedLogicalWidth->resolveZoom(usedZoom))), m_minContentLogicalWidth);
     }
 }
 
@@ -514,7 +514,7 @@ void RenderTableCell::setOverridingLogicalHeightFromRowHeight(LayoutUnit rowHeig
 LayoutUnit RenderTableCell::minLogicalWidthForColumnSizing()
 {
     if (!isOrthogonal())
-        return RenderBlockFlow::minPreferredLogicalWidth();
+        return RenderBlockFlow::minContentLogicalWidth();
 
     auto computingPreferredSize = SetForScope<bool> { m_isComputingPreferredSize, true };
     setNeedsLayout(MarkingBehavior::MarkOnlyThis);
@@ -526,7 +526,7 @@ LayoutUnit RenderTableCell::minLogicalWidthForColumnSizing()
 LayoutUnit RenderTableCell::maxLogicalWidthForColumnSizing()
 {
     if (!isOrthogonal())
-        return RenderBlockFlow::maxPreferredLogicalWidth();
+        return RenderBlockFlow::maxContentLogicalWidth();
 
     auto computingPreferredSize = SetForScope<bool> { m_isComputingPreferredSize, true };
     setNeedsLayout(MarkingBehavior::MarkOnlyThis);

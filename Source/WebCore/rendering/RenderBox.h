@@ -293,8 +293,8 @@ public:
     bool hitTestClipPath(const HitTestLocation&, const LayoutPoint& accumulatedOffset) const;
     bool hitTestBorderRadius(const HitTestLocation&, const LayoutPoint& accumulatedOffset) const;
 
-    virtual LayoutUnit minPreferredLogicalWidth() const;
-    virtual LayoutUnit maxPreferredLogicalWidth() const;
+    virtual LayoutUnit minContentLogicalWidth() const;
+    virtual LayoutUnit maxContentLogicalWidth() const;
     virtual void computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const = 0;
 
     std::optional<LayoutUnit> NODELETE overridingBorderBoxLogicalWidth() const;
@@ -701,7 +701,7 @@ protected:
     bool isUnresolveableStretchSize(const auto& size) const { return size.isStretch() && !size.isFillAvailable() && !isBlockSizeResolvableForStretch(); }
     LayoutUnit computeLogicalWidthFromAspectRatio() const;
     void applyAutomaticContentBasedMinimumSize(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const;
-    void applyTransferredMinMaxSizesFromAspectRatio(LayoutUnit& minPreferredLogicalWidth, LayoutUnit& maxPreferredLogicalWidth) const;
+    void applyTransferredMinMaxSizesFromAspectRatio(LayoutUnit& minContentLogicalWidth, LayoutUnit& maxContentLogicalWidth) const;
     std::pair<LayoutUnit, LayoutUnit> computeMinMaxLogicalWidthFromAspectRatio() const;
     std::pair<LayoutUnit, LayoutUnit> computeMinMaxLogicalHeightFromAspectRatio() const;
     enum class ConstrainDimension { Width, Height };
@@ -787,11 +787,11 @@ private:
 protected:
     LayoutBoxExtent m_marginBox;
 
-    // The preferred logical width of the element if it were to break its lines at every possible opportunity.
-    LayoutUnit m_minPreferredLogicalWidth;
-    
-    // The preferred logical width of the element if it never breaks any lines at all.
-    LayoutUnit m_maxPreferredLogicalWidth;
+    // The min-content logical width: the smallest size the box can take without overflowing its content.
+    LayoutUnit m_minContentLogicalWidth;
+
+    // The max-content logical width: the size the box would take if it never wrapped.
+    LayoutUnit m_maxContentLogicalWidth;
 
     // Our overflow information.
     std::unique_ptr<RenderOverflow> m_overflow;

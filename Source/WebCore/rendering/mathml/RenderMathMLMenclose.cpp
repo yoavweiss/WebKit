@@ -166,8 +166,8 @@ void RenderMathMLMenclose::computeIntrinsicLogicalWidthContributions()
     LayoutUnit preferredWidth = preferredLogicalWidthOfRowItems();
     SpaceAroundContent space = spaceAroundContent(preferredWidth, 0);
     preferredWidth += space.left + space.right;
-    m_minPreferredLogicalWidth = preferredWidth;
-    m_maxPreferredLogicalWidth = preferredWidth;
+    m_minContentLogicalWidth = preferredWidth;
+    m_maxContentLogicalWidth = preferredWidth;
 
     auto sizes = sizeAppliedToMathContent(LayoutPhase::CalculatePreferredLogicalWidth);
     applySizeToMathContent(LayoutPhase::CalculatePreferredLogicalWidth, sizes);

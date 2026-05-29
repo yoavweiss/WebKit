@@ -94,8 +94,8 @@ RenderView::RenderView(Document& document, RenderStyle&& style)
     // init RenderObject attributes
     setInline(false);
     
-    m_minPreferredLogicalWidth = 0;
-    m_maxPreferredLogicalWidth = 0;
+    m_minContentLogicalWidth = 0;
+    m_maxContentLogicalWidth = 0;
 
     setNeedsPreferredWidthsUpdate(MarkingBehavior::MarkOnlyThis);
     
@@ -180,8 +180,8 @@ void RenderView::layout()
     if (shouldUsePrintingLayout()) {
         if (!m_pageLogicalSize)
             m_pageLogicalSize = LayoutSize(logicalWidth(), 0_lu);
-        m_minPreferredLogicalWidth = m_pageLogicalSize->width();
-        m_maxPreferredLogicalWidth = m_minPreferredLogicalWidth;
+        m_minContentLogicalWidth = m_pageLogicalSize->width();
+        m_maxContentLogicalWidth = m_minContentLogicalWidth;
     }
 
     // Use calcWidth/Height to get the new width/height, since this will take the full page zoom factor into account.

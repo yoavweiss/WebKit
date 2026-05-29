@@ -96,8 +96,8 @@ void RenderMathMLPadded::computeIntrinsicLogicalWidthContributions()
     // We parse it using the preferred width of the content as its default value.
     LayoutUnit preferredWidth = preferredLogicalWidthOfRowItems();
     preferredWidth = mpaddedWidth(preferredWidth);
-    m_minPreferredLogicalWidth = preferredWidth;
-    m_maxPreferredLogicalWidth = preferredWidth;
+    m_minContentLogicalWidth = preferredWidth;
+    m_maxContentLogicalWidth = preferredWidth;
 
     auto sizes = sizeAppliedToMathContent(LayoutPhase::CalculatePreferredLogicalWidth);
     applySizeToMathContent(LayoutPhase::CalculatePreferredLogicalWidth, sizes);

@@ -171,7 +171,7 @@ float FixedTableLayout::calcWidthArray()
             ++currentColumn;
         }
 
-        // FixedTableLayout doesn't use min/maxPreferredLogicalWidths, but we need to clear the
+        // FixedTableLayout doesn't use min/maxContentLogicalWidths, but we need to clear the
         // dirty bit on the cell so that we'll correctly mark its ancestors dirty
         // in case we later call setNeedsPreferredWidthsUpdate() on it later.
         if (cell->needsPreferredLogicalWidthsUpdate())

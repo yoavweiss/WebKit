@@ -2270,27 +2270,27 @@ void RenderBlock::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 
-    m_minPreferredLogicalWidth = 0;
-    m_maxPreferredLogicalWidth = 0;
+    m_minContentLogicalWidth = 0;
+    m_maxContentLogicalWidth = 0;
 
     auto& styleToUse = style();
     auto logicalWidth = overridingLogicalWidthForFlexBasisComputation().value_or(styleToUse.logicalWidth());
     if (auto fixedLogicalWidth = logicalWidth.tryFixed(); !isRenderTableCell() && fixedLogicalWidth && fixedLogicalWidth->isPositiveOrZero() && !(isDeprecatedFlexItem() && !static_cast<int>(fixedLogicalWidth->resolveZoom(style().usedZoomForLength())))) {
-        m_minPreferredLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
-        m_maxPreferredLogicalWidth = m_minPreferredLogicalWidth;
+        m_minContentLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
+        m_maxContentLogicalWidth = m_minContentLogicalWidth;
     } else if (logicalWidth.isMaxContent()) {
-        computeIntrinsicLogicalWidths(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
-        m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth;
+        computeIntrinsicLogicalWidths(m_minContentLogicalWidth, m_maxContentLogicalWidth);
+        m_minContentLogicalWidth = m_maxContentLogicalWidth;
     } else if (shouldComputeLogicalWidthFromAspectRatio()) {
-        m_maxPreferredLogicalWidth = computeLogicalWidthFromAspectRatio() - borderAndPaddingLogicalWidth();
-        m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth;
-        m_minPreferredLogicalWidth = std::max(0_lu, m_minPreferredLogicalWidth);
-        m_maxPreferredLogicalWidth = std::max(0_lu, m_maxPreferredLogicalWidth);
-        applyAutomaticContentBasedMinimumSize(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
+        m_maxContentLogicalWidth = computeLogicalWidthFromAspectRatio() - borderAndPaddingLogicalWidth();
+        m_minContentLogicalWidth = m_maxContentLogicalWidth;
+        m_minContentLogicalWidth = std::max(0_lu, m_minContentLogicalWidth);
+        m_maxContentLogicalWidth = std::max(0_lu, m_maxContentLogicalWidth);
+        applyAutomaticContentBasedMinimumSize(m_minContentLogicalWidth, m_maxContentLogicalWidth);
     } else
-        computeIntrinsicLogicalWidths(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
+        computeIntrinsicLogicalWidths(m_minContentLogicalWidth, m_maxContentLogicalWidth);
 
-    constrainIntrinsicLogicalWidthContributionsByMinMax(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
+    constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
 
     clearNeedsPreferredWidthsUpdate();
 }
@@ -2336,16 +2336,16 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeBlockIntrinsicLogicalWidth
         auto [marginStart, marginEnd] = intrinsicLogicalMarginStartAndEnd(childBox);
         auto margin = marginStart + marginEnd;
 
-        auto [childMinPreferredLogicalWidth, childMaxPreferredLogicalWidth] = computeChildIntrinsicLogicalWidths(const_cast<RenderBox&>(childBox));
+        auto [childMinContentLogicalWidth, childMaxContentLogicalWidth] = computeChildIntrinsicLogicalWidths(const_cast<RenderBox&>(childBox));
 
-        auto logicalWidth = childMinPreferredLogicalWidth + margin;
+        auto logicalWidth = childMinContentLogicalWidth + margin;
         minLogicalWidth = std::max(logicalWidth, minLogicalWidth);
 
         // IE ignores tables for calculation of nowrap. Makes some sense.
         if (nowrap && !childBox.isRenderTable())
             maxLogicalWidth = std::max(logicalWidth, maxLogicalWidth);
 
-        logicalWidth = childMaxPreferredLogicalWidth + margin;
+        logicalWidth = childMaxContentLogicalWidth + margin;
 
         if (!childBox.isFloating()) {
             if (childAvoidsFloats) {
@@ -2357,7 +2357,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeBlockIntrinsicLogicalWidth
                 LayoutUnit marginLogicalRight = ltr ? marginEnd : marginStart;
                 LayoutUnit maxLeft = marginLogicalLeft > 0 ? std::max(floatLeftWidth, marginLogicalLeft) : floatLeftWidth + marginLogicalLeft;
                 LayoutUnit maxRight = marginLogicalRight > 0 ? std::max(floatRightWidth, marginLogicalRight) : floatRightWidth + marginLogicalRight;
-                logicalWidth = childMaxPreferredLogicalWidth + maxLeft + maxRight;
+                logicalWidth = childMaxContentLogicalWidth + maxLeft + maxRight;
                 logicalWidth = std::max(logicalWidth, floatLeftWidth + floatRightWidth);
             } else
                 maxLogicalWidth = std::max(floatLeftWidth + floatRightWidth, maxLogicalWidth);
@@ -2412,7 +2412,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeChildIntrinsicLogicalWidth
     auto maxLogicalWidth = LayoutUnit { };
 
     auto childIntrinsicLogicalWidths = [&] {
-        return std::pair<LayoutUnit, LayoutUnit> { childBox.minPreferredLogicalWidth(), childBox.maxPreferredLogicalWidth() };
+        return std::pair<LayoutUnit, LayoutUnit> { childBox.minContentLogicalWidth(), childBox.maxContentLogicalWidth() };
     };
     // When this is a flex container, set up the cross-axis size override on the
     // child so that its preferred-widths computation sees the flex line's cross

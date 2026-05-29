@@ -1360,22 +1360,22 @@ bool RenderBox::applyCachedClipAndScrollPosition(RepaintRects& rects, const Rend
     return intersects;
 }
 
-LayoutUnit RenderBox::minPreferredLogicalWidth() const
+LayoutUnit RenderBox::minContentLogicalWidth() const
 {
     if (needsPreferredLogicalWidthsUpdate()) {
         SetLayoutNeededForbiddenScope layoutForbiddenScope(*this);
         const_cast<RenderBox&>(*this).computeIntrinsicLogicalWidthContributions();
     }
-    return m_minPreferredLogicalWidth;
+    return m_minContentLogicalWidth;
 }
 
-LayoutUnit RenderBox::maxPreferredLogicalWidth() const
+LayoutUnit RenderBox::maxContentLogicalWidth() const
 {
     if (needsPreferredLogicalWidthsUpdate()) {
         SetLayoutNeededForbiddenScope layoutForbiddenScope(*this);
         const_cast<RenderBox&>(*this).computeIntrinsicLogicalWidthContributions();
     }
-    return m_maxPreferredLogicalWidth;
+    return m_maxContentLogicalWidth;
 }
 
 void RenderBox::setOverridingBorderBoxLogicalHeight(LayoutUnit height)
@@ -2827,7 +2827,7 @@ void RenderBox::computeLogicalWidth(LogicalExtentComputedValues& computedValues)
         if (treatAsReplaced) {
             auto evaluatedWidth = downcast<RenderReplaced>(*this).computeReplacedLogicalWidth();
             auto totalWidth = evaluatedWidth + borderAndPaddingLogicalWidth();
-            computedValues.extent = std::max(totalWidth, minPreferredLogicalWidth());
+            computedValues.extent = std::max(totalWidth, minContentLogicalWidth());
         }
         return;
     }
@@ -3095,7 +3095,7 @@ template<typename SizeType> LayoutUnit RenderBox::computeLogicalWidthUsingGeneri
 
     if constexpr (std::same_as<SizeType, Style::PreferredSize> || std::same_as<SizeType, Style::FlexBasis>) {
         if (sizesPreferredLogicalWidthToFitContent())
-            return std::max(minPreferredLogicalWidth(), std::min(maxPreferredLogicalWidth(), logicalWidthResult));
+            return std::max(minContentLogicalWidth(), std::min(maxContentLogicalWidth(), logicalWidthResult));
     }
     return logicalWidthResult;
 }
@@ -4021,7 +4021,7 @@ void RenderBox::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 
-    constrainIntrinsicLogicalWidthContributionsByMinMax(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
+    constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
     clearNeedsPreferredWidthsUpdate();
 }
 
@@ -4284,7 +4284,7 @@ void RenderBox::computeOutOfFlowPositionedLogicalWidth(LogicalExtentComputedValu
 
     if (is<RenderTable>(*this)) {
         // The used width of a table is the greater of the resolved table width, and the used min-width of the table.
-        usedMinWidth = std::max(usedMinWidth, minPreferredLogicalWidth() - inlineConstraints.bordersPlusPadding());
+        usedMinWidth = std::max(usedMinWidth, minContentLogicalWidth() - inlineConstraints.bordersPlusPadding());
     }
 
     if (usedWidth < usedMinWidth)
@@ -4325,8 +4325,8 @@ template<typename SizeType> LayoutUnit RenderBox::computeOutOfFlowPositionedLogi
     auto fallback = [&] -> LayoutUnit {
         bool shrinkToFit = inlineConstraints.insetFitsContent() || !inlineConstraints.alignmentAppliesStretch(ItemPosition::Stretch);
         if (shrinkToFit) {
-            auto preferredWidth = maxPreferredLogicalWidth() - inlineConstraints.bordersPlusPadding();
-            auto preferredMinWidth = minPreferredLogicalWidth() - inlineConstraints.bordersPlusPadding();
+            auto preferredWidth = maxContentLogicalWidth() - inlineConstraints.bordersPlusPadding();
+            auto preferredMinWidth = minContentLogicalWidth() - inlineConstraints.bordersPlusPadding();
             return std::min(std::max(preferredMinWidth, inlineConstraints.availableContentSpace()), preferredWidth);
         }
         return inlineConstraints.availableContentSpace();
@@ -5370,15 +5370,15 @@ FloatSize RenderBox::preferredAspectRatioAsSize() const
     return { };
 }
 
-void RenderBox::applyTransferredMinMaxSizesFromAspectRatio(LayoutUnit& minPreferredLogicalWidth, LayoutUnit& maxPreferredLogicalWidth) const
+void RenderBox::applyTransferredMinMaxSizesFromAspectRatio(LayoutUnit& minContentLogicalWidth, LayoutUnit& maxContentLogicalWidth) const
 {
     ASSERT(preferredAspectRatio());
 
     auto [transferredMin, transferredMax] = computeMinMaxLogicalWidthFromAspectRatio();
     transferredMin = std::max(transferredMin - borderAndPaddingLogicalWidth(), 0_lu);
     transferredMax = std::max(transferredMax - borderAndPaddingLogicalWidth(), 0_lu);
-    minPreferredLogicalWidth = std::clamp(minPreferredLogicalWidth, transferredMin, transferredMax);
-    maxPreferredLogicalWidth = std::clamp(maxPreferredLogicalWidth, transferredMin, transferredMax);
+    minContentLogicalWidth = std::clamp(minContentLogicalWidth, transferredMin, transferredMax);
+    maxContentLogicalWidth = std::clamp(maxContentLogicalWidth, transferredMin, transferredMax);
 }
 
 std::pair<LayoutUnit, LayoutUnit> RenderBox::computeMinMaxLogicalWidthFromAspectRatio() const

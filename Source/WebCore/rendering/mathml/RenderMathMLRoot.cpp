@@ -174,16 +174,16 @@ void RenderMathMLRoot::computeIntrinsicLogicalWidthContributions()
         preferredWidth += preferredLogicalWidthOfRowItems();
     } else {
         ASSERT(rootType() == RootType::RootWithIndex);
-        LayoutUnit indexPreferredWidth = getIndex().maxPreferredLogicalWidth() + marginIntrinsicLogicalWidthForChild(getIndex());
+        LayoutUnit indexPreferredWidth = getIndex().maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(getIndex());
         auto horizontal = horizontalParameters(indexPreferredWidth);
         preferredWidth += horizontal.kernBeforeDegree;
         preferredWidth += indexPreferredWidth;
         preferredWidth += horizontal.kernAfterDegree;
         preferredWidth += m_radicalOperator.maxPreferredWidth();
-        preferredWidth += getBase().maxPreferredLogicalWidth() + marginIntrinsicLogicalWidthForChild(getBase());
+        preferredWidth += getBase().maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(getBase());
     }
-    m_maxPreferredLogicalWidth = preferredWidth;
-    m_minPreferredLogicalWidth = preferredWidth;
+    m_maxContentLogicalWidth = preferredWidth;
+    m_minContentLogicalWidth = preferredWidth;
 
     auto sizes = sizeAppliedToMathContent(LayoutPhase::CalculatePreferredLogicalWidth);
     applySizeToMathContent(LayoutPhase::CalculatePreferredLogicalWidth, sizes);

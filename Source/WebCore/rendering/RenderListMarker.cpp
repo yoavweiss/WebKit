@@ -342,7 +342,7 @@ void RenderListMarker::layout()
         setHeight(m_image->imageSize(this, style().usedZoom()).height());
         m_layoutBounds = { height(), 0 };
     } else {
-        setLogicalWidth(minPreferredLogicalWidth());
+        setLogicalWidth(minContentLogicalWidth());
         setLogicalHeight(style().metricsOfPrimaryFont().intHeight());
         m_layoutBounds = layoutBoundForTextContent(textWithSuffix());
     }
@@ -443,8 +443,8 @@ void RenderListMarker::computeIntrinsicLogicalWidthContributions()
 
     if (isImage()) {
         LayoutSize imageSize = LayoutSize(m_image->imageSize(this, style().usedZoom()));
-        m_maxPreferredLogicalWidth = writingMode().isHorizontal() ? imageSize.width() : imageSize.height();
-        m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth;
+        m_maxContentLogicalWidth = writingMode().isHorizontal() ? imageSize.width() : imageSize.height();
+        m_minContentLogicalWidth = m_maxContentLogicalWidth;
         clearNeedsPreferredWidthsUpdate();
         updateInlineMargins();
         return;
@@ -463,8 +463,8 @@ void RenderListMarker::computeIntrinsicLogicalWidthContributions()
     else if (!m_textContent.isEmpty())
         logicalWidth = font.width(textRunForContent(m_textContent, style()));
 
-    m_minPreferredLogicalWidth = logicalWidth;
-    m_maxPreferredLogicalWidth = logicalWidth;
+    m_minContentLogicalWidth = logicalWidth;
+    m_maxContentLogicalWidth = logicalWidth;
 
     clearNeedsPreferredWidthsUpdate();
 
@@ -481,23 +481,23 @@ void RenderListMarker::updateInlineMargins()
             return { 0, markerPadding };
 
         if (widthUsesMetricsOfPrimaryFont())
-            return { -1, fontMetrics.intAscent() - minPreferredLogicalWidth() + 1 };
+            return { -1, fontMetrics.intAscent() - minContentLogicalWidth() + 1 };
 
         return { };
     };
 
     auto marginsForOutsideMarker = [&]() -> std::pair<LayoutUnit, LayoutUnit> {
         if (isImage())
-            return { -minPreferredLogicalWidth() - markerPadding, markerPadding };
+            return { -minContentLogicalWidth() - markerPadding, markerPadding };
 
         int offset = fontMetrics.intAscent() * 2 / 3;
         if (widthUsesMetricsOfPrimaryFont())
-            return { -offset - markerPadding - 1, offset + markerPadding + 1 - minPreferredLogicalWidth() };
+            return { -offset - markerPadding - 1, offset + markerPadding + 1 - minContentLogicalWidth() };
 
         if (m_textContent.isEmpty())
             return { };
 
-        return { -minPreferredLogicalWidth(), 0 };
+        return { -minContentLogicalWidth(), 0 };
     };
 
     auto [marginStart, marginEnd] = isInside() ? marginsForInsideMarker() : marginsForOutsideMarker();

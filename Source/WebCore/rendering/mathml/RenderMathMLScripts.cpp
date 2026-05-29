@@ -187,8 +187,8 @@ void RenderMathMLScripts::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 
-    m_minPreferredLogicalWidth = 0;
-    m_maxPreferredLogicalWidth = 0;
+    m_minContentLogicalWidth = 0;
+    m_maxContentLogicalWidth = 0;
 
     auto possibleReference = validateAndGetReferenceChildren();
     if (!possibleReference) {
@@ -197,19 +197,19 @@ void RenderMathMLScripts::computeIntrinsicLogicalWidthContributions()
     }
     auto& reference = possibleReference.value();
 
-    LayoutUnit baseItalicCorrection = std::min(reference.base->maxPreferredLogicalWidth() + marginIntrinsicLogicalWidthForChild(*reference.base), italicCorrection(reference));
+    LayoutUnit baseItalicCorrection = std::min(reference.base->maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(*reference.base), italicCorrection(reference));
     LayoutUnit space = spaceAfterScript();
 
     switch (scriptType()) {
     case MathMLScriptsElement::ScriptType::Sub:
     case MathMLScriptsElement::ScriptType::Under:
-        m_maxPreferredLogicalWidth += reference.base->maxPreferredLogicalWidth() + marginIntrinsicLogicalWidthForChild(*reference.base);
-        m_maxPreferredLogicalWidth += std::max(0_lu, reference.firstPostScript->maxPreferredLogicalWidth() + marginIntrinsicLogicalWidthForChild(*reference.firstPostScript) - baseItalicCorrection + space);
+        m_maxContentLogicalWidth += reference.base->maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(*reference.base);
+        m_maxContentLogicalWidth += std::max(0_lu, reference.firstPostScript->maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(*reference.firstPostScript) - baseItalicCorrection + space);
         break;
     case MathMLScriptsElement::ScriptType::Super:
     case MathMLScriptsElement::ScriptType::Over:
-        m_maxPreferredLogicalWidth += reference.base->maxPreferredLogicalWidth() + marginIntrinsicLogicalWidthForChild(*reference.base);
-        m_maxPreferredLogicalWidth += std::max(0_lu, reference.firstPostScript->maxPreferredLogicalWidth() + marginIntrinsicLogicalWidthForChild(*reference.firstPostScript) + space);
+        m_maxContentLogicalWidth += reference.base->maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(*reference.base);
+        m_maxContentLogicalWidth += std::max(0_lu, reference.firstPostScript->maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(*reference.firstPostScript) + space);
         break;
     case MathMLScriptsElement::ScriptType::SubSup:
     case MathMLScriptsElement::ScriptType::UnderOver:
@@ -218,23 +218,23 @@ void RenderMathMLScripts::computeIntrinsicLogicalWidthContributions()
         while (subScript) {
             auto supScript = subScript->nextInFlowSiblingBox();
             ASSERT(supScript);
-            LayoutUnit subSupPairWidth = std::max(subScript->maxPreferredLogicalWidth() + marginIntrinsicLogicalWidthForChild(*subScript), supScript->maxPreferredLogicalWidth() + marginIntrinsicLogicalWidthForChild(*supScript));
-            m_maxPreferredLogicalWidth += subSupPairWidth + space;
+            LayoutUnit subSupPairWidth = std::max(subScript->maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(*subScript), supScript->maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(*supScript));
+            m_maxContentLogicalWidth += subSupPairWidth + space;
             subScript = supScript->nextInFlowSiblingBox();
         }
-        m_maxPreferredLogicalWidth += reference.base->maxPreferredLogicalWidth() + marginIntrinsicLogicalWidthForChild(*reference.base);
+        m_maxContentLogicalWidth += reference.base->maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(*reference.base);
         subScript = reference.firstPostScript;
         while (subScript && subScript != reference.prescriptDelimiter) {
             auto supScript = subScript->nextInFlowSiblingBox();
             ASSERT(supScript);
-            LayoutUnit subSupPairWidth = std::max(std::max(0_lu, subScript->maxPreferredLogicalWidth() + marginIntrinsicLogicalWidthForChild(*subScript) - baseItalicCorrection), supScript->maxPreferredLogicalWidth() + marginIntrinsicLogicalWidthForChild(*supScript));
-            m_maxPreferredLogicalWidth += subSupPairWidth + space;
+            LayoutUnit subSupPairWidth = std::max(std::max(0_lu, subScript->maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(*subScript) - baseItalicCorrection), supScript->maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(*supScript));
+            m_maxContentLogicalWidth += subSupPairWidth + space;
             subScript = supScript->nextInFlowSiblingBox();
         }
     }
     }
 
-    m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth;
+    m_minContentLogicalWidth = m_maxContentLogicalWidth;
 
     auto sizes = sizeAppliedToMathContent(LayoutPhase::CalculatePreferredLogicalWidth);
     applySizeToMathContent(LayoutPhase::CalculatePreferredLogicalWidth, sizes);

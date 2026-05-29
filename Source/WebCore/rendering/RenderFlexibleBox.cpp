@@ -181,22 +181,22 @@ void RenderFlexibleBox::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidt
 
         LayoutUnit margin = marginIntrinsicLogicalWidthForChild(*flexItem);
 
-        auto [minPreferredLogicalWidth, maxPreferredLogicalWidth] = computeChildIntrinsicLogicalWidths(*flexItem);
+        auto [minContentLogicalWidth, maxContentLogicalWidth] = computeChildIntrinsicLogicalWidths(*flexItem);
 
-        minPreferredLogicalWidth += margin;
-        maxPreferredLogicalWidth += margin;
+        minContentLogicalWidth += margin;
+        maxContentLogicalWidth += margin;
 
         if (!isColumnFlow()) {
-            maxLogicalWidth += maxPreferredLogicalWidth;
+            maxLogicalWidth += maxContentLogicalWidth;
             if (isMultiline()) {
                 // For multiline, the min preferred width is if you put a break between
                 // each item.
-                minLogicalWidth = std::max(minLogicalWidth, minPreferredLogicalWidth);
+                minLogicalWidth = std::max(minLogicalWidth, minContentLogicalWidth);
             } else
-                minLogicalWidth += minPreferredLogicalWidth;
+                minLogicalWidth += minContentLogicalWidth;
         } else {
-            minLogicalWidth = std::max(minPreferredLogicalWidth, minLogicalWidth);
-            maxLogicalWidth = std::max(maxPreferredLogicalWidth, maxLogicalWidth);
+            minLogicalWidth = std::max(minContentLogicalWidth, minLogicalWidth);
+            maxLogicalWidth = std::max(maxContentLogicalWidth, maxLogicalWidth);
         }
     }
 
@@ -263,7 +263,7 @@ RenderFlexibleBox::OverridingSizesScope::~OverridingSizesScope()
 // overrides otherwise.
 //
 // When setNeedsPreferredWidthsUpdate is true, the flex item's preferred widths are
-// invalidated so that min/maxPreferredLogicalWidth() will recompute them with the
+// invalidated so that min/maxContentLogicalWidth() will recompute them with the
 // cross-axis override in place. The destructor ASSERTs the dirty flag was consumed.
 RenderFlexibleBox::ScopedCrossAxisOverrideForFlexItem::ScopedCrossAxisOverrideForFlexItem(const RenderFlexibleBox& flexBox, RenderBox& flexItem, InvalidatePreferredWidths invalidatePreferredWidths)
     : m_intrinsicWidthComputation(flexBox.m_inFlexItemIntrinsicWidthComputation, true)
@@ -917,12 +917,12 @@ template<typename SizeType> std::optional<LayoutUnit> RenderFlexibleBox::compute
         if (size.isMinContent()) {
             if (flexItem.shouldInvalidatePreferredWidths())
                 flexItem.setNeedsPreferredWidthsUpdate(MarkingBehavior::MarkOnlyThis);
-            return flexItem.minPreferredLogicalWidth() - flexItem.borderAndPaddingLogicalWidth();
+            return flexItem.minContentLogicalWidth() - flexItem.borderAndPaddingLogicalWidth();
         }
         if (size.isMaxContent()) {
             if (flexItem.shouldInvalidatePreferredWidths())
                 flexItem.setNeedsPreferredWidthsUpdate(MarkingBehavior::MarkOnlyThis);
-            return flexItem.maxPreferredLogicalWidth() - flexItem.borderAndPaddingLogicalWidth();
+            return flexItem.maxContentLogicalWidth() - flexItem.borderAndPaddingLogicalWidth();
         }
     }
 
@@ -1552,7 +1552,7 @@ LayoutUnit RenderFlexibleBox::flexBaseSizeForFlexItem(RenderBox& flexItem)
     // We don't need to add scrollbarLogicalWidth here because the preferred
     // width includes the scrollbar, even for overflow: auto.
     ScopedCrossAxisOverrideForFlexItem crossSizeScope(*this, flexItem, ScopedCrossAxisOverrideForFlexItem::InvalidatePreferredWidths::Yes);
-    auto mainAxisExtent = flexItem.maxPreferredLogicalWidth();
+    auto mainAxisExtent = flexItem.maxContentLogicalWidth();
     auto mainAxisBorderAndPadding = isHorizontalFlow() ? flexItem.horizontalBorderAndPaddingExtent() : flexItem.verticalBorderAndPaddingExtent();
     return mainAxisExtent - mainAxisBorderAndPadding;
 }
@@ -1920,7 +1920,7 @@ LayoutUnit RenderFlexibleBox::computeUsedNonAutoMinMainSize(RenderBox& flexItem,
     // We must never return a min size smaller than the min preferred size for tables.
     if (flexItem.isRenderTable() && mainAxisIsFlexItemInlineAxis(flexItem)) {
         ScopedCrossAxisOverrideForFlexItem scopedCrossAxisOverride(*this, flexItem, ScopedCrossAxisOverrideForFlexItem::InvalidatePreferredWidths::Yes);
-        minExtent = std::max(minExtent, flexItem.minPreferredLogicalWidth());
+        minExtent = std::max(minExtent, flexItem.minContentLogicalWidth());
     }
     return minExtent;
 }

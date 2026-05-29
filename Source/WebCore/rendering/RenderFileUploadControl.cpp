@@ -291,7 +291,7 @@ void RenderFileUploadControl::computeIntrinsicLogicalWidths(LayoutUnit& minLogic
     float defaultLabelWidth = font.width(constructTextRun(label, style(), ExpansionBehavior::allowRightOnly()));
     if (RefPtr button = uploadButton()) {
         if (CheckedPtr buttonRenderer = dynamicDowncast<RenderBox>(button->renderer()))
-            defaultLabelWidth += buttonRenderer->maxPreferredLogicalWidth() + afterButtonSpacing;
+            defaultLabelWidth += buttonRenderer->maxContentLogicalWidth() + afterButtonSpacing;
     }
     maxLogicalWidth = static_cast<int>(ceilf(std::max(minDefaultLabelWidth, defaultLabelWidth)));
 
@@ -306,16 +306,16 @@ void RenderFileUploadControl::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(needsPreferredLogicalWidthsUpdate());
 
-    m_minPreferredLogicalWidth = 0;
-    m_maxPreferredLogicalWidth = 0;
+    m_minContentLogicalWidth = 0;
+    m_maxContentLogicalWidth = 0;
 
     if (auto fixedLogicalWidth = style().logicalWidth().tryFixed(); fixedLogicalWidth && fixedLogicalWidth->isPositive()) {
-        m_maxPreferredLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
-        m_minPreferredLogicalWidth = m_maxPreferredLogicalWidth;
+        m_maxContentLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
+        m_minContentLogicalWidth = m_maxContentLogicalWidth;
     } else
-        computeIntrinsicLogicalWidths(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
+        computeIntrinsicLogicalWidths(m_minContentLogicalWidth, m_maxContentLogicalWidth);
 
-    constrainIntrinsicLogicalWidthContributionsByMinMax(m_minPreferredLogicalWidth, m_maxPreferredLogicalWidth);
+    constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
 
     clearNeedsPreferredWidthsUpdate();
 }
