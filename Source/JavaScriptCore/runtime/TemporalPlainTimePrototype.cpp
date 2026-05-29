@@ -280,9 +280,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainTimePrototypeFuncToLocaleString, (JSGlobal
     formatter->initializeDateTimeFormat(globalObject, callFrame->argument(0), callFrame->argument(1), IntlDateTimeFormat::RequiredComponent::Time, IntlDateTimeFormat::Defaults::Time);
     RETURN_IF_EXCEPTION(scope, { });
 
-    // FormatDateTime via HandleDateTimeTemporalTime: use 1970-01-01 as the reference ISO date.
-    // FIXME: Implement using IntlDateTimeFormat Temporal support.
-    return throwVMTypeError(globalObject, scope, "toLocaleString not yet implemented with full Temporal support"_s);
+    RELEASE_AND_RETURN(scope, JSValue::encode(formatter->format(globalObject, callFrame->thisValue())));
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal.plaintime.prototype.valueof

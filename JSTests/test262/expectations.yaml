@@ -130,24 +130,12 @@ test/built-ins/Temporal/Duration/prototype/total/throws-if-target-nanoseconds-ou
 test/built-ins/Temporal/Duration/prototype/total/zero-duration.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, 'UTC')')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, 'UTC')')"
-test/built-ins/Temporal/Instant/prototype/toLocaleString/return-string.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
 test/built-ins/Temporal/PlainDate/from/order-of-operations.js:
   default: 'Test262Error: Actual [get options.overflow, get options.overflow.toString, call options.overflow.toString, get fields.calendar, get fields.day, get fields.day.valueOf, call fields.day.valueOf, get fields.month, get fields.month.valueOf, call fields.month.valueOf, get fields.monthCode, get fields.monthCode.toString, call fields.monthCode.toString, get fields.year, get fields.year.valueOf, call fields.year.valueOf] and expected [get fields.calendar, get fields.day, get fields.day.valueOf, call fields.day.valueOf, get fields.month, get fields.month.valueOf, call fields.month.valueOf, get fields.monthCode, get fields.monthCode.toString, call fields.monthCode.toString, get fields.year, get fields.year.valueOf, call fields.year.valueOf, get options.overflow, get options.overflow.toString, call options.overflow.toString] should have the same contents. order of operations'
   strict mode: 'Test262Error: Actual [get options.overflow, get options.overflow.toString, call options.overflow.toString, get fields.calendar, get fields.day, get fields.day.valueOf, call fields.day.valueOf, get fields.month, get fields.month.valueOf, call fields.month.valueOf, get fields.monthCode, get fields.monthCode.toString, call fields.monthCode.toString, get fields.year, get fields.year.valueOf, call fields.year.valueOf] and expected [get fields.calendar, get fields.day, get fields.day.valueOf, call fields.day.valueOf, get fields.month, get fields.month.valueOf, call fields.month.valueOf, get fields.monthCode, get fields.monthCode.toString, call fields.monthCode.toString, get fields.year, get fields.year.valueOf, call fields.year.valueOf, get options.overflow, get options.overflow.toString, call options.overflow.toString] should have the same contents. order of operations'
-test/built-ins/Temporal/PlainDate/prototype/toLocaleString/return-string.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
 test/built-ins/Temporal/PlainDateTime/from/order-of-operations.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-test/built-ins/Temporal/PlainDateTime/prototype/toLocaleString/return-string.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-test/built-ins/Temporal/PlainMonthDay/prototype/toLocaleString/return-string.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
 test/built-ins/Temporal/PlainTime/from/observable-get-overflow-argument-string-invalid.js:
   default: 'Test262Error: Actual [get overflow, get overflow.toString, call overflow.toString] and expected [] should have the same contents. options read after ISO string parsing'
   strict mode: 'Test262Error: Actual [get overflow, get overflow.toString, call overflow.toString] and expected [] should have the same contents. options read after ISO string parsing'
@@ -157,12 +145,6 @@ test/built-ins/Temporal/PlainTime/from/options-wrong-type.js:
 test/built-ins/Temporal/PlainTime/from/order-of-operations.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-test/built-ins/Temporal/PlainTime/prototype/toLocaleString/return-string.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-test/built-ins/Temporal/PlainYearMonth/prototype/toLocaleString/return-string.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
 test/built-ins/Temporal/getOwnPropertyNames.js:
   default: 'Test262Error: ZonedDateTime'
   strict mode: 'Test262Error: ZonedDateTime'
@@ -181,90 +163,12 @@ test/built-ins/Uint8Array/prototype/setFromBase64/trailing-garbage-empty.js:
 test/built-ins/Uint8Array/prototype/setFromBase64/trailing-garbage.js:
   default: 'SyntaxError: Uint8Array.prototype.setFromBase64 requires a valid base64 string'
   strict mode: 'SyntaxError: Uint8Array.prototype.setFromBase64 requires a valid base64 string'
-test/intl402/DateTimeFormat/prototype/format/temporal-objects-format-weekday-long.js:
-  default: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-  strict mode: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-test/intl402/DateTimeFormat/prototype/format/temporal-objects-format-with-era.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/format/temporal-objects-ignore-timezone.js:
-  default: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-  strict mode: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-test/intl402/DateTimeFormat/prototype/format/temporal-objects-no-time-clip-non-latin-numerals.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/format/temporal-objects-no-time-clip-weekday.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/format/temporal-objects-no-time-clip.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/format/temporal-objects-not-overlapping-options.js:
-  default: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-  strict mode: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-test/intl402/DateTimeFormat/prototype/format/temporal-plaindate-formatting-datetime-style.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/format/temporal-plaindate-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/format/temporal-plaindatetime-formatting-datetime-style.js:
-  default: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-  strict mode: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-test/intl402/DateTimeFormat/prototype/format/temporal-plaindatetime-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-  strict mode: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-test/intl402/DateTimeFormat/prototype/format/temporal-plainmonthday-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainMonthDay.prototype.valueOf must not be called. To compare PlainMonthDay values, use Temporal.PlainDate.compare on the corresponding PlainDate objects.'
-  strict mode: 'TypeError: Temporal.PlainMonthDay.prototype.valueOf must not be called. To compare PlainMonthDay values, use Temporal.PlainDate.compare on the corresponding PlainDate objects.'
-test/intl402/DateTimeFormat/prototype/format/temporal-plaintime-formatting-datetime-style.js:
-  default: 'TypeError: Temporal.PlainTime.prototype.valueOf must not be called. To compare PlainTime values, use Temporal.PlainTime.compare'
-  strict mode: 'TypeError: Temporal.PlainTime.prototype.valueOf must not be called. To compare PlainTime values, use Temporal.PlainTime.compare'
-test/intl402/DateTimeFormat/prototype/format/temporal-plaintime-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainTime.prototype.valueOf must not be called. To compare PlainTime values, use Temporal.PlainTime.compare'
-  strict mode: 'TypeError: Temporal.PlainTime.prototype.valueOf must not be called. To compare PlainTime values, use Temporal.PlainTime.compare'
-test/intl402/DateTimeFormat/prototype/format/temporal-plainyearmonth-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainYearMonth.prototype.valueOf must not be called. To compare PlainYearMonth values, use Temporal.PlainYearMonth.compare'
-  strict mode: 'TypeError: Temporal.PlainYearMonth.prototype.valueOf must not be called. To compare PlainYearMonth values, use Temporal.PlainYearMonth.compare'
 test/intl402/DateTimeFormat/prototype/format/temporal-zoneddatetime-not-supported.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
 test/intl402/DateTimeFormat/prototype/formatRange/fails-on-distinct-temporal-types.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, 'America/Kentucky/Louisville')')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, 'America/Kentucky/Louisville')')"
-test/intl402/DateTimeFormat/prototype/formatRange/temporal-objects-format-with-era.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/formatRange/temporal-objects-ignore-timezone.js:
-  default: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-  strict mode: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-test/intl402/DateTimeFormat/prototype/formatRange/temporal-objects-no-time-clip-weekday.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/formatRange/temporal-objects-no-time-clip.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/formatRange/temporal-objects-not-overlapping-options.js:
-  default: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-  strict mode: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-test/intl402/DateTimeFormat/prototype/formatRange/temporal-objects-throws-with-different-calendars.js:
-  default: 'Test262Error: Expected a RangeError but got a TypeError'
-  strict mode: 'Test262Error: Expected a RangeError but got a TypeError'
-test/intl402/DateTimeFormat/prototype/formatRange/temporal-plaindate-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/formatRange/temporal-plaindatetime-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-  strict mode: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-test/intl402/DateTimeFormat/prototype/formatRange/temporal-plainmonthday-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainMonthDay.prototype.valueOf must not be called. To compare PlainMonthDay values, use Temporal.PlainDate.compare on the corresponding PlainDate objects.'
-  strict mode: 'TypeError: Temporal.PlainMonthDay.prototype.valueOf must not be called. To compare PlainMonthDay values, use Temporal.PlainDate.compare on the corresponding PlainDate objects.'
-test/intl402/DateTimeFormat/prototype/formatRange/temporal-plaintime-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainTime.prototype.valueOf must not be called. To compare PlainTime values, use Temporal.PlainTime.compare'
-  strict mode: 'TypeError: Temporal.PlainTime.prototype.valueOf must not be called. To compare PlainTime values, use Temporal.PlainTime.compare'
-test/intl402/DateTimeFormat/prototype/formatRange/temporal-plainyearmonth-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainYearMonth.prototype.valueOf must not be called. To compare PlainYearMonth values, use Temporal.PlainYearMonth.compare'
-  strict mode: 'TypeError: Temporal.PlainYearMonth.prototype.valueOf must not be called. To compare PlainYearMonth values, use Temporal.PlainYearMonth.compare'
 test/intl402/DateTimeFormat/prototype/formatRange/temporal-zoneddatetime-not-supported.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
@@ -274,75 +178,12 @@ test/intl402/DateTimeFormat/prototype/formatRange/to-datetime-formattable-with-d
 test/intl402/DateTimeFormat/prototype/formatRangeToParts/fails-on-distinct-temporal-types.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, 'America/Kentucky/Louisville')')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, 'America/Kentucky/Louisville')')"
-test/intl402/DateTimeFormat/prototype/formatRangeToParts/temporal-objects-format-with-era.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/formatRangeToParts/temporal-objects-ignore-timezone.js:
-  default: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-  strict mode: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-test/intl402/DateTimeFormat/prototype/formatRangeToParts/temporal-objects-no-time-clip-weekday.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/formatRangeToParts/temporal-objects-no-time-clip.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/formatRangeToParts/temporal-objects-not-overlapping-options.js:
-  default: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-  strict mode: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-test/intl402/DateTimeFormat/prototype/formatRangeToParts/temporal-objects-throws-with-different-calendars.js:
-  default: 'Test262Error: Expected a RangeError but got a TypeError'
-  strict mode: 'Test262Error: Expected a RangeError but got a TypeError'
-test/intl402/DateTimeFormat/prototype/formatRangeToParts/temporal-plaindate-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/formatRangeToParts/temporal-plaindatetime-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-  strict mode: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-test/intl402/DateTimeFormat/prototype/formatRangeToParts/temporal-plainmonthday-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainMonthDay.prototype.valueOf must not be called. To compare PlainMonthDay values, use Temporal.PlainDate.compare on the corresponding PlainDate objects.'
-  strict mode: 'TypeError: Temporal.PlainMonthDay.prototype.valueOf must not be called. To compare PlainMonthDay values, use Temporal.PlainDate.compare on the corresponding PlainDate objects.'
-test/intl402/DateTimeFormat/prototype/formatRangeToParts/temporal-plaintime-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainTime.prototype.valueOf must not be called. To compare PlainTime values, use Temporal.PlainTime.compare'
-  strict mode: 'TypeError: Temporal.PlainTime.prototype.valueOf must not be called. To compare PlainTime values, use Temporal.PlainTime.compare'
-test/intl402/DateTimeFormat/prototype/formatRangeToParts/temporal-plainyearmonth-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainYearMonth.prototype.valueOf must not be called. To compare PlainYearMonth values, use Temporal.PlainYearMonth.compare'
-  strict mode: 'TypeError: Temporal.PlainYearMonth.prototype.valueOf must not be called. To compare PlainYearMonth values, use Temporal.PlainYearMonth.compare'
 test/intl402/DateTimeFormat/prototype/formatRangeToParts/temporal-zoneddatetime-not-supported.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
 test/intl402/DateTimeFormat/prototype/formatRangeToParts/to-datetime-formattable-with-different-arg-kinds.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-test/intl402/DateTimeFormat/prototype/formatToParts/temporal-objects-format-with-era.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/formatToParts/temporal-objects-ignore-timezone.js:
-  default: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-  strict mode: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-test/intl402/DateTimeFormat/prototype/formatToParts/temporal-objects-no-time-clip-weekday.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/formatToParts/temporal-objects-no-time-clip.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/formatToParts/temporal-objects-not-overlapping-options.js:
-  default: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-  strict mode: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-test/intl402/DateTimeFormat/prototype/formatToParts/temporal-plaindate-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-  strict mode: 'TypeError: Temporal.PlainDate.prototype.valueOf must not be called. To compare PlainDate values, use Temporal.PlainDate.compare'
-test/intl402/DateTimeFormat/prototype/formatToParts/temporal-plaindatetime-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-  strict mode: 'TypeError: Temporal.PlainDateTime.prototype.valueOf must not be called. To compare PlainDateTime values, use Temporal.PlainDateTime.compare'
-test/intl402/DateTimeFormat/prototype/formatToParts/temporal-plainmonthday-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainMonthDay.prototype.valueOf must not be called. To compare PlainMonthDay values, use Temporal.PlainDate.compare on the corresponding PlainDate objects.'
-  strict mode: 'TypeError: Temporal.PlainMonthDay.prototype.valueOf must not be called. To compare PlainMonthDay values, use Temporal.PlainDate.compare on the corresponding PlainDate objects.'
-test/intl402/DateTimeFormat/prototype/formatToParts/temporal-plaintime-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainTime.prototype.valueOf must not be called. To compare PlainTime values, use Temporal.PlainTime.compare'
-  strict mode: 'TypeError: Temporal.PlainTime.prototype.valueOf must not be called. To compare PlainTime values, use Temporal.PlainTime.compare'
-test/intl402/DateTimeFormat/prototype/formatToParts/temporal-plainyearmonth-formatting-timezonename.js:
-  default: 'TypeError: Temporal.PlainYearMonth.prototype.valueOf must not be called. To compare PlainYearMonth values, use Temporal.PlainYearMonth.compare'
-  strict mode: 'TypeError: Temporal.PlainYearMonth.prototype.valueOf must not be called. To compare PlainYearMonth values, use Temporal.PlainYearMonth.compare'
 test/intl402/DateTimeFormat/prototype/formatToParts/temporal-zoneddatetime-not-supported.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
@@ -400,48 +241,6 @@ test/intl402/Temporal/Duration/prototype/total/relativeto-dst-back-transition.js
 test/intl402/Temporal/Duration/prototype/total/relativeto-sub-minute-offset.js:
   default: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
   strict mode: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-test/intl402/Temporal/Instant/prototype/toLocaleString/basic.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-test/intl402/Temporal/Instant/prototype/toLocaleString/dateStyle-timeStyle-undefined.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-test/intl402/Temporal/Instant/prototype/toLocaleString/dateStyle.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-test/intl402/Temporal/Instant/prototype/toLocaleString/datestyle-and-timestyle.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-test/intl402/Temporal/Instant/prototype/toLocaleString/datestyle-not-adjusted-when-no-conflicting-options.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-test/intl402/Temporal/Instant/prototype/toLocaleString/default-includes-time-not-time-zone-name.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-test/intl402/Temporal/Instant/prototype/toLocaleString/era.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-test/intl402/Temporal/Instant/prototype/toLocaleString/hourcycle.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-test/intl402/Temporal/Instant/prototype/toLocaleString/locales-undefined.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-test/intl402/Temporal/Instant/prototype/toLocaleString/lone-options-accepted.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-test/intl402/Temporal/Instant/prototype/toLocaleString/option-timezonename-short.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-test/intl402/Temporal/Instant/prototype/toLocaleString/options-conflict.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-test/intl402/Temporal/Instant/prototype/toLocaleString/options-undefined.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-test/intl402/Temporal/Instant/prototype/toLocaleString/respect-timezone-after-formatting-plaindatetime.js:
-  default: 'TypeError: toLocaleString not yet implemented with full Temporal support'
-  strict mode: 'TypeError: toLocaleString not yet implemented with full Temporal support'
 test/language/destructuring/binding/keyed-destructuring-property-reference-target-evaluation-order-with-bindings.js:
   default: 'Test262Error: Actual [binding::source, binding::sourceKey, sourceKey, get source, binding::defaultValue, binding::varTarget] and expected [binding::source, binding::sourceKey, sourceKey, binding::varTarget, get source, binding::defaultValue] should have the same contents. '
 test/language/eval-code/direct/arrow-fn-body-cntns-arguments-func-decl-arrow-func-declare-arguments-assign-incl-def-param-arrow-arguments.js:

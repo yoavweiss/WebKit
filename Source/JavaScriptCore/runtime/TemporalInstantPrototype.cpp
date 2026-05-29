@@ -294,8 +294,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalInstantPrototypeFuncToLocaleString, (JSGlobalOb
     formatter->initializeDateTimeFormat(globalObject, callFrame->argument(0), callFrame->argument(1), IntlDateTimeFormat::RequiredComponent::Any, IntlDateTimeFormat::Defaults::All);
     RETURN_IF_EXCEPTION(scope, { });
 
-    // FIXME: Implement using IntlDateTimeFormat Temporal support.
-    return throwVMTypeError(globalObject, scope, "toLocaleString not yet implemented with full Temporal support"_s);
+    RELEASE_AND_RETURN(scope, JSValue::encode(formatter->format(globalObject, callFrame->thisValue())));
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal.instant.prototype.valueof
