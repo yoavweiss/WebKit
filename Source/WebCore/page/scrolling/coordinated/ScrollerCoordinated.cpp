@@ -131,7 +131,15 @@ void ScrollerCoordinated::updateValues()
     RELEASE_ASSERT(grContext);
     GLContext::ScopedGLContextCurrent scopedCurrent(*glContext);
 
-    Ref texture = BitmapTexturePool::singleton().acquireTexture(state.frameRect.size(), { BitmapTexture::Flags::SupportsAlpha });
+    float contentsScale;
+    {
+        Locker layerLocker { hostLayer->lock() };
+        contentsScale = hostLayer->contentsScale();
+    }
+
+    auto frameRect = enclosingIntRect(FloatRect(state.frameRect.x() * contentsScale, state.frameRect.y() * contentsScale,
+        state.frameRect.width() * contentsScale, state.frameRect.height() * contentsScale));
+    Ref texture = BitmapTexturePool::singleton().acquireTexture(frameRect.size(), { BitmapTexture::Flags::SupportsAlpha });
     auto surface = texture->createSkiaSurface(grContext);
     if (!surface)
         return;
@@ -143,6 +151,7 @@ void ScrollerCoordinated::updateValues()
     canvas->clear(SK_ColorTRANSPARENT);
 
     GraphicsContextSkia context(*canvas, RenderingMode::Accelerated, RenderingPurpose::DOM);
+    context.scale(contentsScale);
     scrollerImp->paint(context, state.frameRect, state);
 
     grContext->flushAndSubmit(surface.get(), GLFence::isSupported(display.glDisplay()) ? GrSyncCpu::kNo : GrSyncCpu::kYes);

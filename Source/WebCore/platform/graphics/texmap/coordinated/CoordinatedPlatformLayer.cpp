@@ -508,6 +508,12 @@ void CoordinatedPlatformLayer::setContentsScale(float contentsScale)
     notifyCompositionRequired();
 }
 
+float CoordinatedPlatformLayer::contentsScale() const
+{
+    ASSERT(m_lock.isHeld());
+    return m_contentsScale;
+}
+
 bool CoordinatedPlatformLayer::hasCommittedContentsBuffer() const
 {
     ASSERT(m_lock.isHeld());

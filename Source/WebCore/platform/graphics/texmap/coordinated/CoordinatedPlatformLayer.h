@@ -152,6 +152,7 @@ public:
     void setContentsRectClipsDescendants(bool);
     void setContentsClippingRect(const FloatRoundedRect&);
     void setContentsScale(float);
+    float contentsScale() const;
     enum class RequireComposition : bool { No, Yes };
     void setContentsBuffer(std::unique_ptr<CoordinatedPlatformLayerBuffer>&&, std::optional<Damage>&& = std::nullopt, RequireComposition = RequireComposition::Yes);
 #if ENABLE(VIDEO) && USE(GSTREAMER)
