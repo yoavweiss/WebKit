@@ -899,6 +899,15 @@ imported/w3c/web-platform-tests/css/selectors/featureless-005.html [ Pass ]
 # Passing since 313390@main.
 imported/w3c/web-platform-tests/css/css-position/position-absolute-dynamic-auto-overflow.html [ Pass ]
 
+# Passing since 313706@main.
+imported/w3c/web-platform-tests/html/rendering/replaced-elements/the-select-element/select-adopted.html [ Pass ]
+
+# Passing since 313857@main.
+imported/w3c/web-platform-tests/css/css-text-decor/text-decoration-inset-025.html [ Pass ]
+
+# Passing since 314012@main.
+imported/w3c/web-platform-tests/html/interaction/focus/anchor-element-focus-ring.html [ Pass ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of PASSING tests.
 #////////////////////////////////////////////////////////////////////////////////////////
@@ -1568,7 +1577,6 @@ webkit.org/b/144690 editing/spelling/text-replacement-after-typing-to-word.html 
 webkit.org/b/144690 editing/spelling/text-replacement-first-word-second-line.html [ Skip ]
 
 webkit.org/b/144690 editing/spelling/grammar-and-spelling-error-styling.html [ ImageOnlyFailure ]
-webkit.org/b/144690 editing/spelling/spelling-marker-includes-hyphen.html [ ImageOnlyFailure ]
 
 webkit.org/b/144690 fast/writing-mode/english-bt-text-with-spelling-marker.html [ ImageOnlyFailure ]
 
@@ -3382,8 +3390,6 @@ webkit.org/b/214155 imported/w3c/web-platform-tests/html/cross-origin-embedder-p
 webkit.org/b/211692 imported/w3c/web-platform-tests/xhr/event-timeout-order.any.worker.html [ Failure Pass ]
 webkit.org/b/212217 imported/w3c/web-platform-tests/fetch/api/redirect/redirect-location-escape.tentative.any.html [ Failure ]
 webkit.org/b/212217 imported/w3c/web-platform-tests/fetch/api/redirect/redirect-location-escape.tentative.any.worker.html [ Failure ]
-webkit.org/b/212807 imported/w3c/web-platform-tests/fetch/api/basic/error-after-response.any.html [ Failure Pass ]
-# As of r263626, the imported baseline based on Mojave fails for glib. Added custom baseline for it.
 
 webkit.org/b/214029 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-video-element/resize-during-playback.html [ Failure Crash ]
 

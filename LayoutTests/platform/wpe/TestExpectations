@@ -1086,6 +1086,7 @@ webkit.org/b/287572 imported/w3c/web-platform-tests/webvtt/rendering/cues-with-v
 webkit.org/b/287572 imported/w3c/web-platform-tests/webvtt/rendering/cues-with-video/processing-model/selectors/cue_function/white-space_normal_wrapped.html [ ImageOnlyFailure ]
 webkit.org/b/287572 imported/w3c/web-platform-tests/webvtt/rendering/cues-with-video/processing-model/selectors/cue_function/white-space_nowrap_wrapped.html [ ImageOnlyFailure ]
 webkit.org/b/287572 imported/w3c/web-platform-tests/webvtt/rendering/cues-with-video/processing-model/selectors/cue_function/white-space_pre-line_wrapped.html [ ImageOnlyFailure ]
+webkit.org/b/287572 imported/w3c/web-platform-tests/webvtt/rendering/cues-with-video/processing-model/selectors/cue_function/white-space_pre.html [ ImageOnlyFailure ]
 webkit.org/b/287572 imported/w3c/web-platform-tests/webvtt/rendering/cues-with-video/processing-model/selectors/cue/text-decoration_line-through.html [ ImageOnlyFailure ]
 webkit.org/b/287572 imported/w3c/web-platform-tests/webvtt/rendering/cues-with-video/processing-model/selectors/cue/text-decoration_overline.html [ ImageOnlyFailure ]
 webkit.org/b/287572 imported/w3c/web-platform-tests/webvtt/rendering/cues-with-video/processing-model/selectors/cue/text-decoration_overline_underline_line-through.html [ ImageOnlyFailure ]
@@ -1315,3 +1316,5 @@ webkit.org/b/314811 imported/w3c/web-platform-tests/css/mediaqueries/test_media_
 webkit.org/b/315515 [ arm64 ] imported/w3c/web-platform-tests/gpc/sec-gpc.https.html [ Failure Pass ]
 
 webkit.org/b/315615 media/media-vp8-hiddenframes.html [ ImageOnlyFailure Pass ]
+
+webkit.org/b/315825 [ Release arm64 ] editing/spelling/spelling-marker-includes-hyphen.html [ ImageOnlyFailure ]
