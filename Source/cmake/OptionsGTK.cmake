@@ -162,10 +162,6 @@ WEBKIT_OPTION_DEPEND(ENABLE_WEBXR ENABLE_GAMEPAD)
 # this point, and do not attempt to change any option after this point.
 WEBKIT_OPTION_END()
 
-if (ENABLE_BACK_FORWARD_LIST_SWIFT)
-    SET_AND_EXPOSE_TO_BUILD(ENABLE_BACK_FORWARD_LIST_SWIFT ON)
-endif ()
-
 if (USE_GTK4)
     set(GTK_MINIMUM_VERSION 4.6.0)
     set(GTK_PC_NAME gtk4)
