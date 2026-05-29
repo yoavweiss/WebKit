@@ -532,10 +532,10 @@ void RenderBlock::relayoutRenderBlockForScrollbarChange(RenderBlock& block)
     block.layoutBlock(RelayoutChildren::Yes);
 }
 
-static bool needsToTrackDescendantScrollbarChanges(const RenderBlock& renderBlock, const LocalFrameViewLayoutContext& layoutContext)
+static EnumSet<LogicalBoxAxis> sizesAffectedByScrollbarsForSubtreeRoot(const RenderBlock& renderBlock, const LocalFrameViewLayoutContext& layoutContext)
 {
     if (renderBlock.isRenderView())
-        return false;
+        return { };
 
     // FIXME: This list contains content that should be supported
     // but need additional invesigation to get working correctly.
@@ -545,23 +545,23 @@ static bool needsToTrackDescendantScrollbarChanges(const RenderBlock& renderBloc
         return true;
     };
     if (!isSupportedForDescendantTracking())
-        return false;
+        return { };
 
     if (layoutContext.subtreeScrollbarChangesState())
-        return false;
+        return { };
 
     auto& style = renderBlock.style();
     auto& computedLogicalWidth = style.logicalWidth();
     if (computedLogicalWidth.isFixed())
-        return false;
+        return { };
 
     if (computedLogicalWidth.isIntrinsic() || computedLogicalWidth.isMinIntrinsic())
-        return true;
+        return LogicalBoxAxis::Inline;
 
     if (renderBlock.sizesPreferredLogicalWidthToFitContent())
-        return true;
+        return LogicalBoxAxis::Inline;
 
-    return false;
+    return { };
 }
 
 static bool canContainDescendantScrollbarChanges(const RenderBlock& renderBlock, const LocalFrameViewLayoutContext& layoutContext)
@@ -578,8 +578,8 @@ void RenderBlock::layout()
     // Table cells call layoutBlock directly, so don't add any logic here. Put code into layoutBlock().
     {
         auto scope = LayoutScope { *this };
-        if (needsToTrackDescendantScrollbarChanges(*this, layoutContext)) {
-            SubtreeScrollbarChangesStateScope subtreeScrollbarChangesStateScope(layoutContext, *this);
+        if (auto sizesAffectedForSubtreeRoot = sizesAffectedByScrollbarsForSubtreeRoot(*this, layoutContext)) {
+            SubtreeScrollbarChangesStateScope subtreeScrollbarChangesStateScope(layoutContext, *this, sizesAffectedForSubtreeRoot);
             SubtreeScrollbarChangesHandler descendantScrollbarChangesHandler(*this);
             layoutBlock(RelayoutChildren::No);
         } else if (canContainDescendantScrollbarChanges(*this, layoutContext)) {
