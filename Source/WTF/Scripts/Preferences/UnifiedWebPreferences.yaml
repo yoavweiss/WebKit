@@ -1138,7 +1138,7 @@ CSSFontSynthesisStyleObliqueOnlyEnabled:
 
 CSSFontVariantEmojiEnabled:
   type: bool
-  status: testable
+  status: preview
   category: css
   humanReadableName: "CSS font-variant-emoji property"
   humanReadableDescription: "Enable the font-variant-emoji CSS property"
