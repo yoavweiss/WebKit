@@ -294,6 +294,30 @@ TEST(URLExtras, URLExtras_Space)
     EXPECT_WK_STREQ("site.com\xE3\x80\x80othersite.org", [@"site.com\xE3\x80\x80othersite.org" _wk_decodeHostName]);
 }
 
+TEST(URLExtras, URLExtras_PercentEncodedIDN)
+{
+    // Percent-encoded IDN hostnames should be decoded before UIDNA processing.
+    // m%C3%BCnchen.de should decode to münchen.de, then encode to xn--mnchen-3ya.de.
+    EXPECT_STREQ("xn--mnchen-3ya.de", [WTF::encodeHostName(@"m%C3%BCnchen.de") UTF8String]);
+    EXPECT_STREQ("http://xn--mnchen-3ya.de/", originalDataAsString(WTF::URLWithUserTypedString(@"http://m%C3%BCnchen.de/", nil)));
+}
+
+TEST(URLExtras, URLExtras_IPv6)
+{
+    // IPv6 hosts pass through unchanged.
+    EXPECT_STREQ("http://[::1]/", originalDataAsString(WTF::URLWithUserTypedString(@"http://[::1]/", nil)));
+    EXPECT_STREQ("http://[::1]:8080/", originalDataAsString(WTF::URLWithUserTypedString(@"http://[::1]:8080/", nil)));
+
+    // IPv6 hosts in URLs containing '%' must skip IDN processing rather than be
+    // mistaken for a hostname starting with '['.
+    EXPECT_STREQ("http://[::1]/path%20x", originalDataAsString(WTF::URLWithUserTypedString(@"http://[::1]/path%20x", nil)));
+    EXPECT_STREQ("http://[::1]:8080/?q=%20", originalDataAsString(WTF::URLWithUserTypedString(@"http://[::1]:8080/?q=%20", nil)));
+    EXPECT_STREQ("http://user@[::1]/path%20x", originalDataAsString(WTF::URLWithUserTypedString(@"http://user@[::1]/path%20x", nil)));
+
+    // Same for mailto: URLs whose address is an IPv6 literal.
+    EXPECT_STREQ("mailto:user@[::1]?subject=hi%20there", originalDataAsString(WTF::URLWithUserTypedString(@"mailto:user@[::1]?subject=hi%20there", nil)));
+}
+
 TEST(URLExtras, URLExtras_File)
 {
     EXPECT_STREQ("file:///%E2%98%83", [[WTF::URLWithUserTypedString(@"file:///☃", nil) absoluteString] UTF8String]);

@@ -350,7 +350,7 @@ ALWAYS_INLINE bool URLParser::isForbiddenDomainCodePoint(CharacterType character
     return character <= 0x7F && characterClassTable[character] & ForbiddenDomain;
 }
 
-ALWAYS_INLINE static bool shouldPercentEncodeQueryByte(uint8_t byte, const bool& urlIsSpecial)
+ALWAYS_INLINE static bool shouldPercentEncodeQueryByte(uint8_t byte, bool urlIsSpecial)
 {
     if (characterClassTable[byte] & QueryEncode)
         return true;
