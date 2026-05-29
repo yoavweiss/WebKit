@@ -61,7 +61,7 @@ public:
     bool dirAutoUsesValue() const final { return true; }
 
 private:
-    HTMLTextAreaElement(Document&, HTMLFormElement*);
+    HTMLTextAreaElement(const QualifiedName&, Document&, HTMLFormElement*);
 
     void didAddUserAgentShadowRoot(ShadowRoot&) final;
 
