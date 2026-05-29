@@ -1004,6 +1004,9 @@ void LocalDOMWindow::processPostMessage(JSC::JSGlobalObject& lexicalGlobalObject
         if (userGestureToForward && userGestureToForward->hasExpired(UserGestureToken::maximumIntervalForUserGestureForwarding))
             userGestureToForward = nullptr;
 
+        if (userGestureToForward && userGestureToForward->hasExpired(UserGestureToken::maximumIntervalForUserGestureForwarding))
+            userGestureToForward = nullptr;
+
         UserGestureIndicator userGestureIndicator(userGestureToForward);
         InspectorInstrumentation::willDispatchPostMessage(frame, postMessageIdentifier);
 
