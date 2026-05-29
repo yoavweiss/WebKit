@@ -1426,7 +1426,9 @@ details[open] > summary:first-of-type {
 /* other elements */
 
 frameset, frame {
-    display: block;
+    position: static !important;
+    display: block !important;
+    float: none !important;
 }
 
 frameset {

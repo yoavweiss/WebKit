@@ -441,15 +441,7 @@ void Adjuster::adjust(RenderStyle& style) const
 {
     if (style.display() == DisplayType::Contents)
         adjustDisplayContentsStyle(style);
-
-    if (m_element && (m_element->hasTagName(frameTag) || m_element->hasTagName(framesetTag))) {
-        // Framesets ignore display, position and float properties.
-        style.setPosition(PositionType::Static);
-        style.setDisplayMaintainingOriginalDisplay(DisplayType::BlockFlow);
-        style.setFloating(Float::None);
-    }
-
-    if (style.display() != DisplayType::None && style.display() != DisplayType::Contents) {
+    else if (style.display() != DisplayType::None) {
         if (RefPtr element = m_element) {
             // Tables never support the -webkit-* values for text-align and will reset back to the default.
             if (is<HTMLTableElement>(*element) && (style.textAlign() == TextAlign::WebKitLeft || style.textAlign() == TextAlign::WebKitCenter || style.textAlign() == TextAlign::WebKitRight))
