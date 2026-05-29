@@ -491,19 +491,20 @@ def main():
     args = get_args()
 
     # Read each test's `depends` lists to compute a topological order to run
-    # all the tests. Does NOT perform cycle detection.
+    # all the tests. Ties are broken by AVAILABLE_TESTS order, so the plan is
+    # deterministic. Does NOT perform cycle detection.
     plan: list[type[Task]] = []
-    roots = {T for T in AVAILABLE_TESTS if not T.depends}
+    roots = [T for T in AVAILABLE_TESTS if not T.depends]
     edges = {T: set(T.depends) for T in AVAILABLE_TESTS}
 
     while roots:
-        T = roots.pop()
+        T = roots.pop(0)
         plan.append(T)
         for T2 in AVAILABLE_TESTS:
             if T in edges[T2]:
                 edges[T2].remove(T)
                 if not edges[T2]:
-                    roots.add(T2)
+                    roots.append(T2)
 
     tests: dict[str, TestResult] = {}
     for T in plan:
