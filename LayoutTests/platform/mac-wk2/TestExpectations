@@ -2354,3 +2354,4 @@ webkit.org/b/315710 [ Sequoia ] imported/w3c/web-platform-tests/css/css-backgrou
 webkit.org/b/315734 [ Sequoia Release x86_64 ] fast/webgpu/image-data-8-bytes-per-pixel.html [ Timeout ]
 
 webkit.org/b/315764 [ Sequoia Release x86_64 ] http/wpt/cross-origin-opener-policy/header-parsing-with-report-to.https.html [ Pass Failure ]
+webkit.org/b/315862 [ Sequoia Release x86_64 ] imported/blink/fast/transforms/mirror-transform-tiled-scaled-background.html [ Pass ImageOnlyFailure ]
