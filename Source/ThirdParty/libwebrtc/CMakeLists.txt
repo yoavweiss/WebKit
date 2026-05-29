@@ -2303,6 +2303,15 @@ target_compile_options(webrtc PRIVATE
     "-UHAVE_CONFIG_H"
 )
 
+# The Swift-enabled clang shipped in the wkdev-sdk picks up libstdc++'s
+# std::bind_front, whose result is not convertible to
+# std::function<void(std::vector<std::unique_ptr<T>>)> and breaks call.cc et al.
+# Pre-define __cpp_lib_bind_front=0 so libstdc++ never advertises the feature
+# and Abseil falls back to its in-tree absl::bind_front. Must be a -D rather
+# than a force-included #undef: libstdc++'s feature-test header is
+# re-includable and would re-define the macro before Abseil reaches it.
+target_compile_definitions(webrtc PRIVATE __cpp_lib_bind_front=0)
+
 set_target_properties(webrtc PROPERTIES CXX_VISIBILITY_PRESET hidden)
 set_target_properties(webrtc PROPERTIES C_VISIBILITY_PRESET hidden)
 

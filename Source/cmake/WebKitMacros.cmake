@@ -985,11 +985,29 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
         # it contains GCC-specific intrinsic headers (arm_neon.h, etc.) that use GCC builtins
         # unknown to Swift's embedded Clang. Clang provides its own compatible versions in its
         # resource directory and will find them automatically without an explicit -I path.
+        # Also exclude libstdc++ version-specific dirs (/usr/include/c++/N,
+        # /usr/include/<arch>/c++/N, /usr/include/c++/N/backward) when those come from
+        # CMAKE_CXX (which may be GCC of a different version than Swift's embedded clang
+        # uses). Pinning the cmake-detected libstdc++ version forces both copies into
+        # Swift's clang importer and triggers "different definitions in different modules"
+        # errors for std::* types. Swift's clang finds its own libstdc++ on Linux.
+        # Likewise exclude the host clang's resource directory (e.g.
+        # /usr/lib/llvm-18/lib/clang/18/include): it ships its own builtin
+        # module.modulemap, and Swift's embedded clang already loads the one from
+        # /opt/swift/usr/lib/swift/clang/include. Forwarding both makes every
+        # _Builtin_* / opencl_c module get defined twice and aborts -emit-module.
         if (NOT APPLE)
             foreach (_dir IN LISTS CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES)
-                if (NOT _dir MATCHES "^/usr/lib/gcc/")
-                    list(APPEND _swift_options "-Xcc" "-I${_dir}")
+                if (_dir MATCHES "^/usr/lib/gcc/")
+                    continue ()
                 endif ()
+                if (_dir MATCHES "/c\\+\\+/[0-9]+(/|$)")
+                    continue ()
+                endif ()
+                if (_dir MATCHES "/clang/[0-9]+/include(/|$)")
+                    continue ()
+                endif ()
+                list(APPEND _swift_options "-Xcc" "-I${_dir}")
             endforeach ()
         endif ()
         # The clang importer must agree with C++ TUs on every layout-affecting

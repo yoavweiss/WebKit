@@ -145,6 +145,17 @@ macro(WEBKIT_OPTION_BEGIN)
         set(ENABLE_UNIFIED_BUILDS_DEFAULT ON)
     endif ()
 
+    # Default the Swift demo URI scheme on for GTK/WPE, but only when the toolchain
+    # can build it: Clang (not GCC) with a new-enough Swift. Otherwise it stays off;
+    # an explicit -D against such a toolchain is rejected in WEBKIT_OPTION_END.
+    set(ENABLE_SWIFT_DEMO_URI_SCHEME_DEFAULT OFF)
+    if ((PORT STREQUAL "GTK" OR PORT STREQUAL "WPE") AND COMPILER_IS_CLANG)
+        _WEBKIT_DETECT_SWIFT_CXX_INTEROP_SUPPORT(_swift_interop_ok)
+        if (_swift_interop_ok)
+            set(ENABLE_SWIFT_DEMO_URI_SCHEME_DEFAULT ON)
+        endif ()
+    endif ()
+
     WEBKIT_OPTION_DEFINE(ENABLE_ACCESSIBILITY_ISOLATED_TREE "Toggle accessibility isolated tree support" PRIVATE OFF)
     WEBKIT_OPTION_DEFINE(ENABLE_API_TESTS "Enable public API unit tests" PRIVATE OFF)
     WEBKIT_OPTION_DEFINE(ENABLE_APPLE_PAY "Toggle Apple Pay support" PRIVATE OFF)
@@ -250,7 +261,7 @@ macro(WEBKIT_OPTION_BEGIN)
     WEBKIT_OPTION_DEFINE(ENABLE_SMOOTH_SCROLLING "Toggle smooth scrolling" PRIVATE ON)
     WEBKIT_OPTION_DEFINE(ENABLE_SPEECH_SYNTHESIS "Toggle Speech Synthesis API support" PRIVATE OFF)
     WEBKIT_OPTION_DEFINE(ENABLE_SPELLCHECK "Toggle Spellchecking support (requires Enchant)" PRIVATE OFF)
-    WEBKIT_OPTION_DEFINE(ENABLE_SWIFT_DEMO_URI_SCHEME "Toggle Swift demo URI feature" PRIVATE OFF)
+    WEBKIT_OPTION_DEFINE(ENABLE_SWIFT_DEMO_URI_SCHEME "Toggle Swift demo URI feature" PRIVATE ${ENABLE_SWIFT_DEMO_URI_SCHEME_DEFAULT})
     WEBKIT_OPTION_DEFINE(ENABLE_TELEPHONE_NUMBER_DETECTION "Toggle telephone number detection support" PRIVATE OFF)
     WEBKIT_OPTION_DEFINE(ENABLE_TEXT_AUTOSIZING "Toggle automatic text size adjustment support" PRIVATE OFF)
     WEBKIT_OPTION_DEFINE(ENABLE_THUNDER "Toggle EME V3 Thunder support" PRIVATE OFF)
@@ -364,6 +375,54 @@ macro(_WEBKIT_OPTION_ENFORCE_ALL_CONFLICTS)
     endforeach ()
 endmacro()
 
+# Probe whether the Swift toolchain is new enough for WebKit's Swift/C++ reverse
+# interop, which needs the -emit-clang-header-min-access frontend flag (first
+# shipped in Swift 6.3; 6.2 and earlier reject it with "unknown argument"). Tests
+# the flag directly instead of parsing version strings, and is biased toward
+# "supported": only that exact diagnostic counts as too-old, so an unrelated
+# probe failure or a future flag rename just lets the build proceed.
+function(_WEBKIT_DETECT_SWIFT_CXX_INTEROP_SUPPORT _result_var)
+    if (DEFINED SWIFT_CXX_INTEROP_SUPPORTED)
+        set(${_result_var} ${SWIFT_CXX_INTEROP_SUPPORTED} PARENT_SCOPE)
+        return()
+    endif ()
+
+    # enable_language(Swift) hasn't run yet and gets replaced by swiftc-wrapper
+    # anyway, so resolve swiftc from PATH like the wrapper does on non-Apple hosts.
+    set(_swiftc "${CMAKE_Swift_COMPILER}")
+    if (NOT _swiftc OR _swiftc MATCHES "swiftc-wrapper")
+        find_program(_WEBKIT_PROBE_SWIFTC NAMES swiftc)
+        set(_swiftc "${_WEBKIT_PROBE_SWIFTC}")
+    endif ()
+
+    set(_supported FALSE)
+    set(_version "not found")
+    if (_swiftc)
+        execute_process(COMMAND "${_swiftc}" --version
+            OUTPUT_VARIABLE _version OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+        string(REGEX REPLACE "\n.*" "" _version "${_version}")
+
+        set(_probe_src "${CMAKE_BINARY_DIR}/CMakeFiles/swift-interop-probe.swift")
+        set(_probe_hdr "${CMAKE_BINARY_DIR}/CMakeFiles/swift-interop-probe.h")
+        file(WRITE "${_probe_src}" "public func __webkitSwiftInteropProbe() {}\n")
+        execute_process(
+            COMMAND "${_swiftc}" -typecheck
+                -emit-clang-header-path "${_probe_hdr}"
+                -Xfrontend -emit-clang-header-min-access -Xfrontend internal
+                "${_probe_src}"
+            RESULT_VARIABLE _probe_result OUTPUT_QUIET ERROR_VARIABLE _probe_stderr)
+        if (NOT _probe_stderr MATCHES "unknown argument: '-emit-clang-header-min-access'")
+            set(_supported TRUE)
+        endif ()
+        file(REMOVE "${_probe_src}" "${_probe_hdr}")
+    endif ()
+
+    set(SWIFT_CXX_INTEROP_SUPPORTED ${_supported} CACHE INTERNAL
+        "Whether the Swift toolchain supports the C++-interop reverse-header flags WebKit needs")
+    set(SWIFT_DETECTED_VERSION "${_version}" CACHE INTERNAL "Detected Swift toolchain version string")
+    set(${_result_var} ${_supported} PARENT_SCOPE)
+endfunction()
+
 macro(WEBKIT_OPTION_END)
     set(_SETTING_WEBKIT_OPTIONS FALSE)
 
@@ -397,6 +456,38 @@ macro(WEBKIT_OPTION_END)
             set(FEATURE_DEFINES_WITH_SPACE_SEPARATOR "${FEATURE_DEFINES_WITH_SPACE_SEPARATOR} ${_name}")
         endif ()
     endforeach ()
+
+    # Swift/C++ interop is Clang-only: GCC builds link but crash at runtime (the
+    # Swift-emitted C++ thunks rely on Clang ABI details), so refuse to configure
+    # a Swift feature under a non-Clang compiler.
+    if (NOT COMPILER_IS_CLANG)
+        if (ENABLE_SWIFT_DEMO_URI_SCHEME OR ENABLE_BACK_FORWARD_LIST_SWIFT)
+            message(FATAL_ERROR
+                "Swift/C++ interop on the GLib ports requires Clang, but the "
+                "configured C++ compiler is ${CMAKE_CXX_COMPILER_ID}. Re-run "
+                "the configure step with CC=clang CXX=clang++, or pass "
+                "-DENABLE_SWIFT_DEMO_URI_SCHEME=OFF "
+                "-DENABLE_BACK_FORWARD_LIST_SWIFT=OFF.")
+        endif ()
+    endif ()
+
+    # A Swift feature still on with a too-old toolchain was requested explicitly
+    # (the default declines to auto-enable it), so fail loudly rather than drop it
+    # silently. Apple is gated elsewhere; non-Clang is already rejected above.
+    if (NOT APPLE AND COMPILER_IS_CLANG AND (ENABLE_SWIFT_DEMO_URI_SCHEME OR ENABLE_BACK_FORWARD_LIST_SWIFT))
+        _WEBKIT_DETECT_SWIFT_CXX_INTEROP_SUPPORT(_swift_interop_ok)
+        if (NOT _swift_interop_ok)
+            message(FATAL_ERROR
+                "ENABLE_SWIFT_DEMO_URI_SCHEME / ENABLE_BACK_FORWARD_LIST_SWIFT "
+                "were requested, but the Swift toolchain is too old for WebKit's "
+                "Swift/C++ interop: it lacks the -emit-clang-header-min-access "
+                "frontend flag, first shipped in Swift 6.3 (6.2 and earlier do "
+                "not have it). Detected: ${SWIFT_DETECTED_VERSION}. Install Swift "
+                "6.3 or newer from swift.org and reconfigure, or pass "
+                "-DENABLE_SWIFT_DEMO_URI_SCHEME=OFF "
+                "-DENABLE_BACK_FORWARD_LIST_SWIFT=OFF.")
+        endif ()
+    endif ()
 
     if (ENABLE_SWIFT_DEMO_URI_SCHEME OR ENABLE_BACK_FORWARD_LIST_SWIFT)
         set(SWIFT_REQUIRED ON)

@@ -59,6 +59,13 @@ for arg in "$@"; do
         "-include") skip_next=1 ;;
         "-fuse-ld="*)
             args+=("-Xcc" "$arg")
+        # swiftc does not understand clang-specific include flags like
+        # -isystem / -iquote / -idirafter; wrap them (and their following
+        # path argument) as -Xcc so they reach the Clang importer instead
+        # of being rejected at parse time.
+        "-isystem"|"-iquote"|"-idirafter"|"-isysroot")
+            args+=("-Xcc" "$arg" "-Xcc")
+            pass_next_verbatim=1
             ;;
         # CMake leaks clang linker flags into swiftc; translate them.
         "-compatibility_version"|"-current_version")
