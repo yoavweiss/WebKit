@@ -268,7 +268,7 @@ void RenderMathMLBlock::shiftInFlowChildren(LayoutUnit left, LayoutUnit top)
         child->setLocation(child->location() + shift);
 }
 
-void RenderMathMLBlock::adjustPreferredLogicalWidthsForBorderAndPadding()
+void RenderMathMLBlock::adjustContentLogicalWidthsForBorderAndPadding()
 {
     ASSERT(hasInvalidContentLogicalWidths());
     m_minContentLogicalWidth += borderAndPaddingLogicalWidth();

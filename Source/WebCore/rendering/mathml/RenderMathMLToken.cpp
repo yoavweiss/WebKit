@@ -91,7 +91,7 @@ void RenderMathMLToken::computeIntrinsicLogicalWidthContributions()
         if (mathVariantGlyph.font) {
             m_maxContentLogicalWidth = mathVariantGlyph.font->widthForGlyph(mathVariantGlyph.glyph);
             m_minContentLogicalWidth = m_maxContentLogicalWidth;
-            adjustPreferredLogicalWidthsForBorderAndPadding();
+            adjustContentLogicalWidthsForBorderAndPadding();
             clearContentLogicalWidthsInvalidation();
             return;
         }

@@ -188,7 +188,7 @@ void RenderMathMLRoot::computeIntrinsicLogicalWidthContributions()
     auto sizes = sizeAppliedToMathContent(LayoutPhase::CalculatePreferredLogicalWidth);
     applySizeToMathContent(LayoutPhase::CalculatePreferredLogicalWidth, sizes);
 
-    adjustPreferredLogicalWidthsForBorderAndPadding();
+    adjustContentLogicalWidthsForBorderAndPadding();
 
     clearContentLogicalWidthsInvalidation();
 }

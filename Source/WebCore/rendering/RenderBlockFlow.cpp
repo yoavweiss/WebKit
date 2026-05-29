@@ -363,7 +363,7 @@ void RenderBlockFlow::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth,
             needAdjustIntrinsicLogicalWidthsForColumns = false;
         }
     } else if (childrenInline())
-        computeInlinePreferredLogicalWidths(minLogicalWidth, maxLogicalWidth);
+        std::tie(minLogicalWidth, maxLogicalWidth) = computeInlineIntrinsicLogicalWidths();
     else
         std::tie(minLogicalWidth, maxLogicalWidth) = computeBlockIntrinsicLogicalWidths();
 
@@ -4952,12 +4952,14 @@ static inline std::optional<LayoutUnit> textIndentForBlockContainer(const Render
     return indentValue ? std::make_optional(indentValue) : std::nullopt;
 }
 
-void RenderBlockFlow::computeInlinePreferredLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const
+std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogicalWidths() const
 {
     ASSERT(!shouldApplyInlineSizeContainment());
 
+    auto minLogicalWidth = LayoutUnit { };
+    auto maxLogicalWidth = LayoutUnit { };
     if (const_cast<RenderBlockFlow&>(*this).tryComputePreferredWidthsUsingInlinePath(minLogicalWidth, maxLogicalWidth))
-        return;
+        return { minLogicalWidth, maxLogicalWidth };
 
     float inlineMax = 0.f;
     float inlineMin = 0.f;
@@ -5366,6 +5368,7 @@ void RenderBlockFlow::computeInlinePreferredLogicalWidths(LayoutUnit& minLogical
 
     minLogicalWidth = preferredWidth(minLogicalWidth, inlineMin);
     maxLogicalWidth = preferredWidth(maxLogicalWidth, inlineMax);
+    return { minLogicalWidth, maxLogicalWidth };
 }
 
 bool RenderBlockFlow::tryComputePreferredWidthsUsingInlinePath(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth)

@@ -76,7 +76,7 @@ protected:
     void layoutFloatingChildren();
 
     void shiftInFlowChildren(LayoutUnit left, LayoutUnit top);
-    void adjustPreferredLogicalWidthsForBorderAndPadding();
+    void adjustContentLogicalWidthsForBorderAndPadding();
     void adjustLayoutForBorderAndPadding();
 
     enum class LayoutPhase : uint8_t {
