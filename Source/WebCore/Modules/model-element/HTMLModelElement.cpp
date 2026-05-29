@@ -680,7 +680,7 @@ void HTMLModelElement::createModelPlayer()
 #if ENABLE(MODEL_ELEMENT_ANIMATIONS_CONTROL)
     modelPlayer->setAutoplay(autoplay());
     modelPlayer->setLoop(loop());
-    modelPlayer->setPlaybackRate(m_playbackRate, [&](double) { });
+    modelPlayer->setPlaybackRate(m_playbackRate, [](double) { });
 #endif
 
 #if ENABLE(MODEL_ELEMENT_PORTAL)
@@ -1250,7 +1250,7 @@ void HTMLModelElement::setPlaybackRate(double playbackRate)
     m_playbackRate = playbackRate;
 
     if (m_modelPlayer)
-        m_modelPlayer->setPlaybackRate(playbackRate, [&](double) { });
+        m_modelPlayer->setPlaybackRate(playbackRate, [](double) { });
 }
 
 double HTMLModelElement::duration() const
@@ -1318,7 +1318,7 @@ double HTMLModelElement::currentTime() const
 void HTMLModelElement::setCurrentTime(double currentTime)
 {
     if (m_modelPlayer)
-        m_modelPlayer->setCurrentTime(Seconds(currentTime), [&] { });
+        m_modelPlayer->setCurrentTime(Seconds(currentTime), [] { });
 }
 
 #endif
