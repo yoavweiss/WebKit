@@ -109,7 +109,7 @@ bool isValidAttributeName(StringView name)
 }
 
 // https://dom.spec.whatwg.org/#valid-namespace-prefix
-bool isValidNamespacePrefix(StringView prefix)
+static bool isValidNamespacePrefix(StringView prefix)
 {
     if (prefix.isEmpty())
         return false;

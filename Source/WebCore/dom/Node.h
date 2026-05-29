@@ -438,8 +438,6 @@ public:
     inline unsigned NODELETE length() const;
     inline Node* traverseToChildAt(unsigned) const;
 
-    ExceptionOr<void> checkSetPrefix(const AtomString& prefix);
-
     // https://dom.spec.whatwg.org/#concept-tree-descendant
     WEBCORE_EXPORT bool NODELETE isDescendantOf(const Node&) const;
     bool isDescendantOf(const Node* other) const { return other && isDescendantOf(*other); }

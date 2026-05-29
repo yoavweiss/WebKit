@@ -3068,14 +3068,11 @@ String Element::nodeName() const
     return m_tagName.toString();
 }
 
-ExceptionOr<void> Element::setPrefix(const AtomString& prefix)
+void Element::setPrefixForCustomElementUpgrade(const AtomString& prefix)
 {
-    auto result = checkSetPrefix(prefix);
-    if (result.hasException())
-        return result.releaseException();
-
-    m_tagName.setPrefix(prefix.isEmpty() ? nullAtom() : prefix);
-    return { };
+    ASSERT(!prefix.isEmpty());
+    ASSERT(m_tagName.prefix().isNull());
+    m_tagName.setPrefix(prefix);
 }
 
 String Element::imageSourceURL() const

@@ -62,7 +62,6 @@
 #include "Logging.h"
 #include "MouseEventTypes.h"
 #include "MutationEvent.h"
-#include "NameValidation.h"
 #include "NodeName.h"
 #include "NodeRareDataInlines.h"
 #include "NodeRenderStyle.h"
@@ -1139,24 +1138,6 @@ NodeListsNodeData* Node::nodeLists()
 void Node::clearNodeLists()
 {
     rareData()->clearNodeLists();
-}
-
-ExceptionOr<void> Node::checkSetPrefix(const AtomString& prefix)
-{
-    // Perform error checking as required by spec for setting Node.prefix. Used by Element::setPrefix().
-
-    if (!prefix.isEmpty() && !NameValidation::isValidNamespacePrefix(prefix))
-        return Exception { ExceptionCode::InvalidCharacterError };
-
-    // FIXME: Raise NamespaceError if prefix is malformed per the Namespaces in XML specification.
-
-    auto& namespaceURI = this->namespaceURI();
-    if (namespaceURI.isEmpty() && !prefix.isEmpty())
-        return Exception { ExceptionCode::NamespaceError };
-    if (prefix == xmlAtom() && namespaceURI != XMLNames::xmlNamespaceURI)
-        return Exception { ExceptionCode::NamespaceError };
-
-    return { };
 }
 
 // https://dom.spec.whatwg.org/#concept-tree-descendant
