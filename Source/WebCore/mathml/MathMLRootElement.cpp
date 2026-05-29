@@ -72,7 +72,7 @@ void MathMLRootElement::childrenChanged(const ChildChange& change)
 
     if (CheckedPtr rootRenderer = dynamicDowncast<RenderMathMLRoot>(this->renderer())) {
         rootRenderer->resetRadicalOperator();
-        rootRenderer->setNeedsLayoutAndPreferredWidthsUpdate();
+        rootRenderer->setNeedsLayoutAndInvalidateContentLogicalWidths();
     }
 }
 

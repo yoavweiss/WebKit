@@ -792,7 +792,7 @@ void RenderBlockFlow::dirtyForLayoutFromPercentageHeightDescendant(RenderBox& de
     // from the container), our height change can leave its cached preferred widths stale.
     if (CheckedPtr formattingContextRoot = dynamicDowncast<RenderBlock>(descendant); formattingContextRoot && formattingContextRoot->createsNewFormattingContext()
         && formattingContextRootPreferredWidthsDependOnOwnHeight(*formattingContextRoot))
-        descendant.setNeedsPreferredWidthsUpdate();
+        descendant.invalidateContentLogicalWidths();
 
     for (CheckedPtr<RenderElement> renderer = &descendant; renderer && renderer != this && !renderer->normalChildNeedsLayout(); renderer = renderer->container()) {
         renderer->setChildNeedsLayout(MarkingBehavior::MarkOnlyThis);
@@ -801,7 +801,7 @@ void RenderBlockFlow::dirtyForLayoutFromPercentageHeightDescendant(RenderBox& de
             // then we have to dirty preferred widths, since even enclosing blocks can become dirty as a result.
             // (A horizontal flexbox that contains an inline image wrapped in an anonymous block for example.)
             if (renderBox->hasIntrinsicAspectRatio() || renderBox->style().aspectRatio().hasRatio())
-                renderBox->setNeedsPreferredWidthsUpdate();
+                renderBox->invalidateContentLogicalWidths();
             // Also propagate into nested percent-height descendants: a block whose percent-height
             // children themselves have percent-height replaced elements with aspect ratios (e.g.
             // #target -> div[height:100%] -> canvas[height:100%]) needs its own descendants dirtied
@@ -2548,7 +2548,7 @@ void RenderBlockFlow::styleDidChange(Style::Difference diff, const RenderStyle* 
 
     if (diff == Style::DifferenceResult::Layout && selfNeedsLayout() && childrenInline()) {
         for (auto walker = InlineWalker(*this); !walker.atEnd(); walker.advance())
-            walker.current()->setNeedsPreferredWidthsUpdate();
+            walker.current()->invalidateContentLogicalWidths();
     }
 
     if (multiColumnFlow())
@@ -2561,7 +2561,7 @@ void RenderBlockFlow::updateStylesForColumnChildren(const RenderStyle* oldStyle)
     for (auto* child = firstChildBox(); child && (child->isRenderFragmentedFlow() || child->isRenderMultiColumnSet()); child = child->nextSiblingBox()) {
         child->setStyle(RenderStyle::createAnonymousStyleWithDisplay(style(), Style::DisplayType::BlockFlow));
         if (columnsNeedLayout)
-            child->setNeedsLayoutAndPreferredWidthsUpdate();
+            child->setNeedsLayoutAndInvalidateContentLogicalWidths();
     }
 }
 
@@ -4071,7 +4071,7 @@ void RenderBlockFlow::invalidateLineLayout(InvalidationReason invalidationReason
                 continue;
             if (!renderer.isInFlow() && inlineLayout()->contains(downcast<RenderElement>(renderer)))
                 renderer.repaint();
-            renderer.setNeedsPreferredWidthsUpdate();
+            renderer.invalidateContentLogicalWidths();
         }
         issueNeedsLayoutIfApplicable();
         break;
@@ -4226,11 +4226,11 @@ RenderBlockFlow::InlineContentStatus RenderBlockFlow::markInlineContentDirtyForL
         hasInFlowBlockLevelElement |= isInFlowBlockLevelElement;
         hasDirtyInFlowBlockLevelElement |= (isInFlowBlockLevelElement && box->needsLayout());
         auto childNeedsLayout = relayoutChildren == RelayoutChildren::Yes || (box && box->hasRelativeDimensions() && !box->isBlockLevelBox());
-        auto childNeedsPreferredWidthComputation = relayoutChildren == RelayoutChildren::Yes && box && box->shouldInvalidatePreferredWidths();
+        auto childNeedsPreferredWidthComputation = relayoutChildren == RelayoutChildren::Yes && box && box->shouldInvalidateContentWidths();
         if (childNeedsLayout)
             renderer.setNeedsLayout(MarkingBehavior::MarkOnlyThis);
         if (childNeedsPreferredWidthComputation)
-            renderer.setNeedsPreferredWidthsUpdate(MarkingBehavior::MarkOnlyThis);
+            renderer.invalidateContentLogicalWidths(MarkingBehavior::MarkOnlyThis);
 
         if (renderer.isOutOfFlowPositioned()) {
             renderer.containingBlock()->addOutOfFlowBox(*box);
@@ -4251,7 +4251,7 @@ RenderBlockFlow::InlineContentStatus RenderBlockFlow::markInlineContentDirtyForL
         } else
             hasSimpleOutOfFlowContentOnly = false;
 
-        if (!renderer.needsLayout() && !renderer.needsPreferredLogicalWidthsUpdate())
+        if (!renderer.needsLayout() && !renderer.hasInvalidContentLogicalWidths())
             continue;
 
         if (auto* renderText = dynamicDowncast<RenderText>(renderer))
@@ -4708,7 +4708,7 @@ void RenderBlockFlow::updateColumnProgressionFromStyle(const RenderStyle& style)
     }
 
     if (needsLayout)
-        setNeedsLayoutAndPreferredWidthsUpdate();
+        setNeedsLayoutAndInvalidateContentLogicalWidths();
 }
 
 LayoutUnit RenderBlockFlow::computedColumnWidth() const
@@ -5131,7 +5131,7 @@ void RenderBlockFlow::computeInlinePreferredLogicalWidths(LayoutUnit& minLogical
                         ASSERT_NOT_REACHED();
                 }
 
-                child->clearNeedsPreferredWidthsUpdate();
+                child->clearContentLogicalWidthsInvalidation();
             } else {
                 const auto& childZoomFactor = childStyle.usedZoomForLength();
 
@@ -5387,7 +5387,7 @@ bool RenderBlockFlow::tryComputePreferredWidthsUsingInlinePath(LayoutUnit& minLo
     std::tie(minLogicalWidth, maxLogicalWidth) = inlineLayout()->computeIntrinsicWidthConstraints();
     for (auto walker = InlineWalker(*this); !walker.atEnd(); walker.advance()) {
         auto* renderer = walker.current();
-        renderer->clearNeedsPreferredWidthsUpdate();
+        renderer->clearContentLogicalWidthsInvalidation();
         if (auto* renderText = dynamicDowncast<RenderText>(renderer))
             renderText->resetMinMaxWidth();
     }

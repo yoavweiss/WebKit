@@ -267,7 +267,7 @@ void MathMLOperatorElement::setOperatorFormDirty()
     m_properties.dirtyFlags = MathMLOperatorDictionary::allFlags;
     if (CheckedPtr renderOperator = dynamicDowncast<RenderMathMLOperator>(renderer())) {
         renderOperator->updateFromElement();
-        renderOperator->setNeedsLayoutAndPreferredWidthsUpdate();
+        renderOperator->setNeedsLayoutAndInvalidateContentLogicalWidths();
     }
 }
 
@@ -329,7 +329,7 @@ void MathMLOperatorElement::attributeChanged(const QualifiedName& name, const At
     if (affectsLayout) {
         if (CheckedPtr renderOperator = dynamicDowncast<RenderMathMLOperator>(renderer())) {
             renderOperator->updateFromElement();
-            renderOperator->setNeedsLayoutAndPreferredWidthsUpdate();
+            renderOperator->setNeedsLayoutAndInvalidateContentLogicalWidths();
         }
     }
 

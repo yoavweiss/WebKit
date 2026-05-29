@@ -363,7 +363,7 @@ void RenderListMarker::imageChanged(WrappedImagePtr o, const IntRect* rect)
     if (parent()) {
         if (m_image && o == m_image->data()) {
             if (width() != m_image->imageSize(this, style().usedZoom()).width() || height() != m_image->imageSize(this, style().usedZoom()).height() || m_image->errorOccurred())
-                setNeedsLayoutAndPreferredWidthsUpdate();
+                setNeedsLayoutAndInvalidateContentLogicalWidths();
             else
                 repaint();
         }
@@ -374,7 +374,7 @@ void RenderListMarker::imageChanged(WrappedImagePtr o, const IntRect* rect)
 void RenderListMarker::updateInlineMarginsAndContent()
 {
     // FIXME: It's messy to use the preferredLogicalWidths dirty bit for this optimization, also unclear if this is premature optimization.
-    if (needsPreferredLogicalWidthsUpdate())
+    if (hasInvalidContentLogicalWidths())
         updateContent();
     updateInlineMargins();
 }
@@ -438,14 +438,14 @@ void RenderListMarker::updateContent()
 
 void RenderListMarker::computeIntrinsicLogicalWidthContributions()
 {
-    ASSERT(needsPreferredLogicalWidthsUpdate());
+    ASSERT(hasInvalidContentLogicalWidths());
     updateContent();
 
     if (isImage()) {
         LayoutSize imageSize = LayoutSize(m_image->imageSize(this, style().usedZoom()));
         m_maxContentLogicalWidth = writingMode().isHorizontal() ? imageSize.width() : imageSize.height();
         m_minContentLogicalWidth = m_maxContentLogicalWidth;
-        clearNeedsPreferredWidthsUpdate();
+        clearContentLogicalWidthsInvalidation();
         updateInlineMargins();
         return;
     }
@@ -466,7 +466,7 @@ void RenderListMarker::computeIntrinsicLogicalWidthContributions()
     m_minContentLogicalWidth = logicalWidth;
     m_maxContentLogicalWidth = logicalWidth;
 
-    clearNeedsPreferredWidthsUpdate();
+    clearContentLogicalWidthsInvalidation();
 
     updateInlineMargins();
 }

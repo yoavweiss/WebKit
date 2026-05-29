@@ -248,7 +248,7 @@ void SVGSVGElement::svgAttributeChanged(const QualifiedName& attrName)
                     protect(renderer->view())->setNeedsLayout(MarkingBehavior::MarkOnlyThis);
                     if (RefPtr frame = document().frame()) {
                         if (CheckedPtr ownerRenderer = frame->ownerRenderer())
-                            ownerRenderer->setNeedsLayoutAndPreferredWidthsUpdate();
+                            ownerRenderer->setNeedsLayoutAndInvalidateContentLogicalWidths();
                     }
                 }
             }
@@ -285,7 +285,7 @@ void SVGSVGElement::svgAttributeChanged(const QualifiedName& attrName)
             if (isEmbeddedThroughFrameContainingSVGDocument(*renderer)) {
                 if (RefPtr frame = document().frame()) {
                     if (CheckedPtr ownerRenderer = frame->ownerRenderer())
-                        ownerRenderer->setNeedsLayoutAndPreferredWidthsUpdate();
+                        ownerRenderer->setNeedsLayoutAndInvalidateContentLogicalWidths();
                 }
             }
         }

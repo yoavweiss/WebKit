@@ -236,7 +236,7 @@ void RenderMathMLBlock::styleDidChange(Style::Difference diff, const RenderStyle
 
     // MathML displaystyle changes can affect layout.
     if (oldStyle && style().mathStyle() != oldStyle->mathStyle())
-        setNeedsLayoutAndPreferredWidthsUpdate();
+        setNeedsLayoutAndInvalidateContentLogicalWidths();
 }
 
 void RenderMathMLBlock::insertPositionedChildrenIntoContainingBlock()
@@ -270,7 +270,7 @@ void RenderMathMLBlock::shiftInFlowChildren(LayoutUnit left, LayoutUnit top)
 
 void RenderMathMLBlock::adjustPreferredLogicalWidthsForBorderAndPadding()
 {
-    ASSERT(needsPreferredLogicalWidthsUpdate());
+    ASSERT(hasInvalidContentLogicalWidths());
     m_minContentLogicalWidth += borderAndPaddingLogicalWidth();
     m_maxContentLogicalWidth += borderAndPaddingLogicalWidth();
 }
@@ -317,7 +317,7 @@ RenderMathMLBlock::SizeAppliedToMathContent RenderMathMLBlock::sizeAppliedToMath
 LayoutUnit RenderMathMLBlock::applySizeToMathContent(LayoutPhase phase, const SizeAppliedToMathContent& sizes)
 {
     if (phase == LayoutPhase::CalculatePreferredLogicalWidth) {
-        ASSERT(needsPreferredLogicalWidthsUpdate());
+        ASSERT(hasInvalidContentLogicalWidths());
         if (sizes.logicalWidth) {
             m_minContentLogicalWidth = *sizes.logicalWidth;
             m_maxContentLogicalWidth = *sizes.logicalWidth;

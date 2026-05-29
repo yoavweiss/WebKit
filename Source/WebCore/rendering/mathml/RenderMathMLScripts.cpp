@@ -185,7 +185,7 @@ LayoutUnit RenderMathMLScripts::italicCorrection(const ReferenceChildren& refere
 
 void RenderMathMLScripts::computeIntrinsicLogicalWidthContributions()
 {
-    ASSERT(needsPreferredLogicalWidthsUpdate());
+    ASSERT(hasInvalidContentLogicalWidths());
 
     m_minContentLogicalWidth = 0;
     m_maxContentLogicalWidth = 0;
@@ -241,7 +241,7 @@ void RenderMathMLScripts::computeIntrinsicLogicalWidthContributions()
 
     adjustPreferredLogicalWidthsForBorderAndPadding();
 
-    clearNeedsPreferredWidthsUpdate();
+    clearContentLogicalWidthsInvalidation();
 }
 
 auto RenderMathMLScripts::verticalParameters() const -> VerticalParameters

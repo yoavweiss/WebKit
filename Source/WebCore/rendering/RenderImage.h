@@ -90,7 +90,7 @@ protected:
     RenderImage(Type, Element&, RenderStyle&&, OptionSet<ReplacedFlag>, Style::Image* = nullptr, const float imageDevicePixelRatio = 1.0f);
     void willBeDestroyed() override;
 
-    bool shouldInvalidatePreferredWidths() const final;
+    bool shouldInvalidateContentWidths() const final;
     RenderReplaced* embeddedSVGRoot() const final;
     bool foregroundIsKnownToBeOpaqueInRect(const LayoutRect& localRect, unsigned maxDepthToTest) const override;
 

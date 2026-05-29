@@ -132,7 +132,7 @@ LayoutUnit RenderMathMLRow::preferredLogicalWidthOfRowItems()
 
 void RenderMathMLRow::computeIntrinsicLogicalWidthContributions()
 {
-    ASSERT(needsPreferredLogicalWidthsUpdate());
+    ASSERT(hasInvalidContentLogicalWidths());
 
     m_maxContentLogicalWidth = preferredLogicalWidthOfRowItems();
     m_minContentLogicalWidth = m_maxContentLogicalWidth;
@@ -142,7 +142,7 @@ void RenderMathMLRow::computeIntrinsicLogicalWidthContributions()
 
     adjustPreferredLogicalWidthsForBorderAndPadding();
 
-    clearNeedsPreferredWidthsUpdate();
+    clearContentLogicalWidthsInvalidation();
 }
 
 void RenderMathMLRow::layoutRowItems(LayoutUnit width, LayoutUnit ascent)

@@ -107,7 +107,7 @@ void MathMLPaddedElement::attributeChanged(const QualifiedName& name, const Atom
 
     if (affectsLayout) {
         if (CheckedPtr renderer = this->renderer())
-            renderer->setNeedsLayoutAndPreferredWidthsUpdate();
+            renderer->setNeedsLayoutAndInvalidateContentLogicalWidths();
     }
 
     MathMLElement::attributeChanged(name, oldValue, newValue, attributeModificationReason);

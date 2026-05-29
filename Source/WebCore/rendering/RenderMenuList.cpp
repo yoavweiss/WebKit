@@ -102,7 +102,7 @@ void RenderMenuList::updateOptionsWidth()
 
     m_optionsWidth = width;
     if (parent())
-        setNeedsLayoutAndPreferredWidthsUpdate();
+        setNeedsLayoutAndInvalidateContentLogicalWidths();
 }
 
 void RenderMenuList::updateFromElement()
@@ -186,7 +186,7 @@ void RenderMenuList::computeIntrinsicLogicalWidthContributions()
 
     constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
 
-    clearNeedsPreferredWidthsUpdate();
+    clearContentLogicalWidthsInvalidation();
 }
 
 void RenderMenuList::getItemBackgroundColor(unsigned listIndex, Color& itemBackgroundColor, bool& itemHasCustomBackgroundColor) const

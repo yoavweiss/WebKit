@@ -97,7 +97,7 @@ RenderView::RenderView(Document& document, RenderStyle&& style)
     m_minContentLogicalWidth = 0;
     m_maxContentLogicalWidth = 0;
 
-    setNeedsPreferredWidthsUpdate(MarkingBehavior::MarkOnlyThis);
+    invalidateContentLogicalWidths(MarkingBehavior::MarkOnlyThis);
     
     setPositionState(PositionType::Absolute); // to 0,0 :)
 

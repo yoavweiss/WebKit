@@ -1091,8 +1091,8 @@ LayoutUnit GridTrackSizingAlgorithmStrategy::minContentContributionForGridItem(R
 
         // FIXME: It's unclear if we should return the intrinsic width or the preferred width.
         // See http://lists.w3.org/Archives/Public/www-style/2013Jan/0245.html
-        if (gridItem.shouldInvalidatePreferredWidths() || needsGridItemMinContentContributionForSecondColumnPass || isComputingColumnIntrinsicWidthForNonOrthogonalItem)
-            gridItem.setNeedsPreferredWidthsUpdate();
+        if (gridItem.shouldInvalidateContentWidths() || needsGridItemMinContentContributionForSecondColumnPass || isComputingColumnIntrinsicWidthForNonOrthogonalItem)
+            gridItem.invalidateContentLogicalWidths();
 
         // Row-axis override for preferred-width computation:
         // - intrinsic column sizing: gridAreaContentLogicalHeight = sum of definite max
@@ -1139,7 +1139,7 @@ LayoutUnit GridTrackSizingAlgorithmStrategy::minContentContributionForGridItem(R
         // be able to do it during the RenderGrid::layoutGridItems() function as the grid area does't change there any more. Also, as we are doing a layout inside GridTrackSizingAlgorithmStrategy::logicalHeightForGridItem()
         // function, let's take the advantage and set it here.
         if (shouldClearOverridingContainingBlockContentSizeForGridItem(gridItem, gridItemInlineDirection))
-            gridItem.setNeedsPreferredWidthsUpdate();
+            gridItem.invalidateContentLogicalWidths();
     }
     return logicalHeightForGridItem(gridItem, gridLayoutState);
 }
@@ -1155,8 +1155,8 @@ LayoutUnit GridTrackSizingAlgorithmStrategy::maxContentContributionForGridItem(R
 
         // FIXME: It's unclear if we should return the intrinsic width or the preferred width.
         // See http://lists.w3.org/Archives/Public/www-style/2013Jan/0245.html
-        if (gridItem.shouldInvalidatePreferredWidths() || isComputingColumnIntrinsicWidthForNonOrthogonalItem)
-            gridItem.setNeedsPreferredWidthsUpdate();
+        if (gridItem.shouldInvalidateContentWidths() || isComputingColumnIntrinsicWidthForNonOrthogonalItem)
+            gridItem.invalidateContentLogicalWidths();
 
         // Row-axis override for preferred-width computation: gridAreaContentLogicalHeight =
         // sum of definite max row tracks (https://drafts.csswg.org/css-grid-2/#algo-track-sizing).

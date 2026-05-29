@@ -134,8 +134,8 @@ public:
 
     class ScopedCrossAxisOverrideForFlexItem {
     public:
-        enum class InvalidatePreferredWidths : bool { No, Yes };
-        ScopedCrossAxisOverrideForFlexItem(const RenderFlexibleBox&, RenderBox& flexItem, InvalidatePreferredWidths);
+        enum class InvalidateContentWidths : bool { No, Yes };
+        ScopedCrossAxisOverrideForFlexItem(const RenderFlexibleBox&, RenderBox& flexItem, InvalidateContentWidths);
         ~ScopedCrossAxisOverrideForFlexItem();
 
     private:
@@ -143,7 +143,7 @@ public:
         std::optional<OverridingSizesScope> m_overridingScope;
 #if ASSERT_ENABLED
         RenderBox& m_flexItem;
-        bool m_didDirtyPreferredWidths { false };
+        bool m_didInvalidateContentLogicalWidths { false };
 #endif
     };
 

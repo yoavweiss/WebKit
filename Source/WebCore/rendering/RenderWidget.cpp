@@ -493,9 +493,9 @@ RemoteFrame* NODELETE RenderWidget::remoteFrame() const
     return dynamicDowncast<RemoteFrame>(frameOwnerElement().contentFrame());
 }
 
-bool RenderWidget::shouldInvalidatePreferredWidths() const
+bool RenderWidget::shouldInvalidateContentWidths() const
 {
-    if (RenderReplaced::shouldInvalidatePreferredWidths())
+    if (RenderReplaced::shouldInvalidateContentWidths())
         return true;
     return embeddedSVGRoot();
 }

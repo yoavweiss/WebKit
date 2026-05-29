@@ -86,7 +86,7 @@ void RenderTableCol::styleDidChange(Style::Difference diff, const RenderStyle* o
                     CheckedPtr cell = section->primaryCellAt(i, j);
                     if (!cell)
                         continue;
-                    cell->setNeedsPreferredWidthsUpdate();
+                    cell->invalidateContentLogicalWidths();
                 }
             }
         }
@@ -104,7 +104,7 @@ void RenderTableCol::updateFromElement()
         m_span = 1;
     if (m_span != oldSpan && parent()) {
         if (hasInitializedStyle())
-            setNeedsLayoutAndPreferredWidthsUpdate();
+            setNeedsLayoutAndInvalidateContentLogicalWidths();
         if (CheckedPtr table = this->table())
             table->invalidateColumns();
     }
@@ -166,12 +166,12 @@ void RenderTableCol::imageChanged(WrappedImagePtr, const IntRect*)
     repaint();
 }
 
-void RenderTableCol::clearNeedsPreferredLogicalWidthsUpdate()
+void RenderTableCol::clearContentLogicalWidthsInvalidation()
 {
-    clearNeedsPreferredWidthsUpdate();
+    RenderObject::clearContentLogicalWidthsInvalidation();
 
     for (CheckedRef child : childrenOfType<RenderObject>(*this))
-        child->clearNeedsPreferredWidthsUpdate();
+        child->clearContentLogicalWidthsInvalidation();
 }
 
 RenderTable* RenderTableCol::table() const

@@ -284,7 +284,7 @@ void RenderListItem::updateValue()
 {
     m_value = std::nullopt;
     if (m_marker)
-        m_marker->setNeedsLayoutAndPreferredWidthsUpdate();
+        m_marker->setNeedsLayoutAndInvalidateContentLogicalWidths();
 }
 
 void RenderListItem::styleDidChange(Style::Difference diff, const RenderStyle* oldStyle)
@@ -298,7 +298,7 @@ void RenderListItem::styleDidChange(Style::Difference diff, const RenderStyle* o
 void RenderListItem::computeIntrinsicLogicalWidthContributions()
 {
     // FIXME: RenderListMarker::updateInlineMargins() mutates margin style which affects preferred widths.
-    if (m_marker && m_marker->needsPreferredLogicalWidthsUpdate())
+    if (m_marker && m_marker->hasInvalidContentLogicalWidths())
         m_marker->updateInlineMarginsAndContent();
 
     RenderBlockFlow::computeIntrinsicLogicalWidthContributions();
@@ -332,7 +332,7 @@ String RenderListItem::markerTextWithSuffix() const
 void RenderListItem::usedCounterDirectivesChanged()
 {
     if (m_marker)
-        m_marker->setNeedsLayoutAndPreferredWidthsUpdate();
+        m_marker->setNeedsLayoutAndInvalidateContentLogicalWidths();
 
     updateValue();
     RefPtr list = enclosingList(*this);

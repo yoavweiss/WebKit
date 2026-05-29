@@ -182,7 +182,7 @@ void RenderLayerModelObject::styleDidChange(Style::Difference diff, const Render
         if (s_wasFloating && isFloating())
             setChildNeedsLayout();
         if (s_wasTransformed)
-            setNeedsLayoutAndPreferredWidthsUpdate();
+            setNeedsLayoutAndInvalidateContentLogicalWidths();
     }
 
     if (gainedOrLostLayer)

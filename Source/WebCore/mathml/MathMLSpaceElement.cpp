@@ -89,7 +89,7 @@ void MathMLSpaceElement::attributeChanged(const QualifiedName& name, const AtomS
 
     if (affectsLayout) {
         if (CheckedPtr renderer = this->renderer())
-            renderer->setNeedsLayoutAndPreferredWidthsUpdate();
+            renderer->setNeedsLayoutAndInvalidateContentLogicalWidths();
     }
 
     MathMLPresentationElement::attributeChanged(name, oldValue, newValue, attributeModificationReason);

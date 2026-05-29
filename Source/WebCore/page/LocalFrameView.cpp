@@ -1230,7 +1230,7 @@ void LocalFrameView::forceLayoutParentViewIfNeeded()
     // correct size, which LegacyRenderSVGRoot::computeReplacedLogicalWidth/Height rely on, when laying
     // out for the first time, or when the LegacyRenderSVGRoot size has changed dynamically (eg. via <script>).
 
-    ownerRenderer->setNeedsLayoutAndPreferredWidthsUpdate();
+    ownerRenderer->setNeedsLayoutAndInvalidateContentLogicalWidths();
     ownerRenderer->view().frameView().layoutContext().scheduleLayout();
 }
 
@@ -6186,7 +6186,7 @@ void LocalFrameView::forceLayoutForPagination(const FloatSize& pageSize, const F
     float pageLogicalHeight = isHorizontalWritingMode ? pageSize.height() : pageSize.width();
 
     renderView->setPageLogicalSize({ floor(pageLogicalWidth), floor(pageLogicalHeight) });
-    renderView->setNeedsLayoutAndPreferredWidthsUpdate();
+    renderView->setNeedsLayoutAndInvalidateContentLogicalWidths();
     forceLayout();
     if (hasOneRef())
         return;
@@ -6205,7 +6205,7 @@ void LocalFrameView::forceLayoutForPagination(const FloatSize& pageSize, const F
         pageLogicalHeight = isHorizontalWritingMode ? maxPageSize.height() : maxPageSize.width();
 
         renderView->setPageLogicalSize({ floor(pageLogicalWidth), floor(pageLogicalHeight) });
-        renderView->setNeedsLayoutAndPreferredWidthsUpdate();
+        renderView->setNeedsLayoutAndInvalidateContentLogicalWidths();
         forceLayout();
         if (hasOneRef())
             return;

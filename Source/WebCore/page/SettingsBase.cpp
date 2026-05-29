@@ -331,7 +331,7 @@ void SettingsBase::setNeedsRelayoutAllFrames()
             continue;
         if (!localFrame->ownerRenderer())
             continue;
-        localFrame->ownerRenderer()->setNeedsLayoutAndPreferredWidthsUpdate();
+        localFrame->ownerRenderer()->setNeedsLayoutAndInvalidateContentLogicalWidths();
     }
 }
 

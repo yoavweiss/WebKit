@@ -53,7 +53,7 @@ MathMLSpaceElement& RenderMathMLSpace::element() const
 
 void RenderMathMLSpace::computeIntrinsicLogicalWidthContributions()
 {
-    ASSERT(needsPreferredLogicalWidthsUpdate());
+    ASSERT(hasInvalidContentLogicalWidths());
 
     m_maxContentLogicalWidth = spaceWidth();
     m_minContentLogicalWidth = m_maxContentLogicalWidth;
@@ -63,7 +63,7 @@ void RenderMathMLSpace::computeIntrinsicLogicalWidthContributions()
 
     adjustPreferredLogicalWidthsForBorderAndPadding();
 
-    clearNeedsPreferredWidthsUpdate();
+    clearContentLogicalWidthsInvalidation();
 }
 
 LayoutUnit RenderMathMLSpace::spaceWidth() const

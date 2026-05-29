@@ -187,7 +187,7 @@ RenderBox& RenderMathMLUnderOver::over() const
 
 void RenderMathMLUnderOver::computeIntrinsicLogicalWidthContributions()
 {
-    ASSERT(needsPreferredLogicalWidthsUpdate());
+    ASSERT(hasInvalidContentLogicalWidths());
 
     if (!isValid()) {
         RenderMathMLRow::computeIntrinsicLogicalWidthContributions();
@@ -215,7 +215,7 @@ void RenderMathMLUnderOver::computeIntrinsicLogicalWidthContributions()
 
     adjustPreferredLogicalWidthsForBorderAndPadding();
 
-    clearNeedsPreferredWidthsUpdate();
+    clearContentLogicalWidthsInvalidation();
 }
 
 LayoutUnit RenderMathMLUnderOver::horizontalOffset(const RenderBox& child) const

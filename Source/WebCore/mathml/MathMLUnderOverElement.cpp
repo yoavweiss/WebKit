@@ -81,7 +81,7 @@ void MathMLUnderOverElement::attributeChanged(const QualifiedName& name, const A
 
     if (affectsLayout) {
         if (CheckedPtr renderer = this->renderer())
-            renderer->setNeedsLayoutAndPreferredWidthsUpdate();
+            renderer->setNeedsLayoutAndInvalidateContentLogicalWidths();
     }
 
     MathMLElement::attributeChanged(name, oldValue, newValue, attributeModificationReason);

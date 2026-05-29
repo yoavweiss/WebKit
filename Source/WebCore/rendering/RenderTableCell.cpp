@@ -189,7 +189,7 @@ void RenderTableCell::colSpanOrRowSpanChanged()
 
     // FIXME: I suspect that we could return early here if !m_hasColSpan && !m_hasRowSpan.
 
-    setNeedsLayoutAndPreferredWidthsUpdate();
+    setNeedsLayoutAndInvalidateContentLogicalWidths();
     if (parent() && section())
         section()->setNeedsCellRecalc();
 }
@@ -643,7 +643,7 @@ static inline void markCellDirtyWhenCollapsedBorderChanges(RenderTableCell* cell
 {
     if (!cell)
         return;
-    cell->setNeedsLayoutAndPreferredWidthsUpdate();
+    cell->setNeedsLayoutAndInvalidateContentLogicalWidths();
 }
 
 void RenderTableCell::styleDidChange(Style::Difference diff, const RenderStyle* oldStyle)

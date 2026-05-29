@@ -555,7 +555,7 @@ public:
     bool hasRenderOverflow() const { return !!m_overflow; }
     bool hasVisualOverflow() const { return m_overflow && !borderBoxRect().contains(m_overflow->visualOverflowRect()); }
 
-    virtual bool shouldInvalidatePreferredWidths() const;
+    virtual bool shouldInvalidateContentWidths() const;
 
     ScrollPosition scrollPosition() const;
     ScrollPosition constrainedScrollPosition() const;

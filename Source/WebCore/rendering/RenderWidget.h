@@ -90,7 +90,7 @@ protected:
 private:
     void element() const = delete;
 
-    bool shouldInvalidatePreferredWidths() const final;
+    bool shouldInvalidateContentWidths() const final;
     RenderReplaced* embeddedSVGRoot() const final;
     FloatSize preferredAspectRatioAsSize() const final;
 

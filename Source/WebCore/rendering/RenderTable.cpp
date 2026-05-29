@@ -177,7 +177,7 @@ void RenderTable::styleDidChange(Style::Difference diff, const RenderStyle* oldS
                 for (auto& section : childrenOfType<RenderTableSection>(*this)) {
                     for (CheckedPtr row = section.firstRow(); row; row = row->nextRow()) {
                         for (CheckedPtr cell = row->firstCell(); cell; cell = cell->nextCell())
-                            cell->setNeedsPreferredWidthsUpdate();
+                            cell->invalidateContentLogicalWidths();
                     }
                 }
             };
@@ -1033,7 +1033,7 @@ void RenderTable::computeIntrinsicKeywordLogicalWidths(LayoutUnit& minWidth, Lay
 
 void RenderTable::computeIntrinsicLogicalWidthContributions()
 {
-    ASSERT(needsPreferredLogicalWidthsUpdate());
+    ASSERT(hasInvalidContentLogicalWidths());
 
     computeIntrinsicLogicalWidths(m_minContentLogicalWidth, m_maxContentLogicalWidth);
 
@@ -1066,16 +1066,16 @@ void RenderTable::computeIntrinsicLogicalWidthContributions()
 
     // FIXME: We should be adding borderAndPaddingLogicalWidth here, but m_tableLayout->computeIntrinsicLogicalWidthContributions already does,
     // so a bunch of tests break doing this naively.
-    clearNeedsPreferredWidthsUpdate();
+    clearContentLogicalWidthsInvalidation();
 
     // Row widths are set by the section, not computed from preferred widths,
     // so their dirty bit is never cleared by the normal preferred width
     // computation. Clear it here so it doesn't block subsequent invalidation
     // from propagating through the row to the table.
     for (CheckedPtr section = topSection(); section; section = sectionBelow(section)) {
-        section->clearNeedsPreferredWidthsUpdate();
+        section->clearContentLogicalWidthsInvalidation();
         for (CheckedPtr row = section->firstRow(); row; row = row->nextRow())
-            row->clearNeedsPreferredWidthsUpdate();
+            row->clearContentLogicalWidthsInvalidation();
     }
 }
 

@@ -66,9 +66,9 @@ void AutoTableLayout::recalcColumn(unsigned effCol)
     for (auto& child : childrenOfType<RenderObject>(*m_table)) {
         if (CheckedPtr column = dynamicDowncast<RenderTableCol>(child)) {
             // RenderTableCols don't have the concept of preferred logical width, but we need to clear their dirty bits
-            // so that if we call setPreferredWidthsDirty(true) on a col or one of its descendants, we'll mark its
+            // so that if we call setContentWidthsDirty(true) on a col or one of its descendants, we'll mark its
             // ancestors as dirty.
-            column->clearNeedsPreferredLogicalWidthsUpdate();
+            column->clearContentLogicalWidthsInvalidation();
         } else if (CheckedPtr section = dynamicDowncast<RenderTableSection>(child)) {
             unsigned numRows = section->numRows();
             for (unsigned i = 0; i < numRows; ++i) {
@@ -211,9 +211,9 @@ void AutoTableLayout::fullRecalc()
         recalcColumn(i);
 
     for (auto& section : childrenOfType<RenderTableSection>(*m_table)) {
-        section.clearNeedsPreferredWidthsUpdate();
+        section.clearContentLogicalWidthsInvalidation();
         for (auto* row = section.firstRow(); row; row = row->nextRow())
-            row->clearNeedsPreferredWidthsUpdate();
+            row->clearContentLogicalWidthsInvalidation();
     }
 }
 

@@ -208,7 +208,7 @@ void RenderTextControl::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidt
 
 void RenderTextControl::computeIntrinsicLogicalWidthContributions()
 {
-    ASSERT(needsPreferredLogicalWidthsUpdate());
+    ASSERT(hasInvalidContentLogicalWidths());
     if (style().fieldSizing() == FieldSizing::Content) {
         RenderBlockFlow::computeIntrinsicLogicalWidthContributions();
         return;
@@ -225,7 +225,7 @@ void RenderTextControl::computeIntrinsicLogicalWidthContributions()
 
     constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
 
-    clearNeedsPreferredWidthsUpdate();
+    clearContentLogicalWidthsInvalidation();
 }
 
 void RenderTextControl::layoutExcludedChildren(RelayoutChildren relayoutChildren)

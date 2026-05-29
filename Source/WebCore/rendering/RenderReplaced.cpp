@@ -170,7 +170,7 @@ void RenderReplaced::layout()
     clearNeedsLayout();
 
     if (replacedContentRect() != oldContentRect) {
-        setNeedsPreferredWidthsUpdate();
+        invalidateContentLogicalWidths();
         if (shouldRepaintOnSizeChange(*this))
             repaint();
     }
@@ -181,7 +181,7 @@ void RenderReplaced::intrinsicSizeChanged()
     int scaledWidth = static_cast<int>(cDefaultWidth * style().usedZoom());
     int scaledHeight = static_cast<int>(cDefaultHeight * style().usedZoom());
     m_intrinsicSize = IntSize(scaledWidth, scaledHeight);
-    setNeedsLayoutAndPreferredWidthsUpdate();
+    setNeedsLayoutAndInvalidateContentLogicalWidths();
 }
 
 bool RenderReplaced::shouldDrawSelectionTint() const
@@ -436,7 +436,7 @@ bool RenderReplaced::hasReplacedLogicalHeight() const
 
 bool RenderReplaced::setNeedsLayoutIfNeededAfterIntrinsicSizeChange()
 {
-    setNeedsPreferredWidthsUpdate();
+    invalidateContentLogicalWidths();
 
     // If the actual area occupied by the image has changed and it is not constrained by style then a layout is required.
     bool imageSizeIsConstrained = style().logicalWidth().isSpecified() && style().logicalHeight().isSpecified()
@@ -865,7 +865,7 @@ static bool canDerivePreferredWidthFromAspectRatio(const RenderReplaced& replace
 
 void RenderReplaced::computeIntrinsicLogicalWidthContributions()
 {
-    ASSERT(needsPreferredLogicalWidthsUpdate());
+    ASSERT(hasInvalidContentLogicalWidths());
 
     // We cannot resolve any percent logical width here as the available logical
     // width may not be set on our containing block.
@@ -911,7 +911,7 @@ void RenderReplaced::computeIntrinsicLogicalWidthContributions()
     m_minContentLogicalWidth += borderAndPadding;
     m_maxContentLogicalWidth += borderAndPadding;
 
-    clearNeedsPreferredWidthsUpdate();
+    clearContentLogicalWidthsInvalidation();
 }
 
 PositionWithAffinity RenderReplaced::positionForPoint(const LayoutPoint& point, HitTestSource source, const RenderFragmentContainer* fragment)
@@ -1026,7 +1026,7 @@ bool RenderReplaced::isContentLikelyVisibleInViewport()
     return visibleRect.intersects(contentRect);
 }
 
-bool RenderReplaced::shouldInvalidatePreferredWidths() const
+bool RenderReplaced::shouldInvalidateContentWidths() const
 {
     // If the height is a percentage and the width is auto, then the containingBlocks's height changing can cause this node to change it's preferred width because it maintains aspect ratio.
     return (hasRelativeLogicalHeight() || (isGridItem() && hasStretchedLogicalHeight())) && style().logicalWidth().isAuto();

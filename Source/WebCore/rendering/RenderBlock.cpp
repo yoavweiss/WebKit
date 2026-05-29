@@ -526,7 +526,7 @@ std::optional<ScrollbarUpdateScope> RenderBlock::updateScrollInfoAfterLayout()
 void RenderBlock::relayoutRenderBlockForScrollbarChange(RenderBlock& block)
 {
     if (block.sizesPreferredLogicalWidthToFitContent())
-        block.setNeedsPreferredWidthsUpdate();
+        block.invalidateContentLogicalWidths();
     block.setNeedsLayout(MarkingBehavior::MarkOnlyThis);
     auto scope = LayoutScope { block, InOverflowRelayout::Yes };
     block.layoutBlock(RelayoutChildren::Yes);
@@ -745,8 +745,8 @@ void RenderBlock::updateBlockChildDirtyBitsBeforeLayout(RelayoutChildren relayou
         child.setChildNeedsLayout(MarkingBehavior::MarkOnlyThis);
 
     // If relayoutChildren is set and the child has percentage padding or an embedded content box, we also need to invalidate the childs pref widths.
-    if (relayoutChildren == RelayoutChildren::Yes && child.shouldInvalidatePreferredWidths())
-        child.setNeedsPreferredWidthsUpdate(MarkingBehavior::MarkOnlyThis);
+    if (relayoutChildren == RelayoutChildren::Yes && child.shouldInvalidateContentWidths())
+        child.invalidateContentLogicalWidths(MarkingBehavior::MarkOnlyThis);
 }
 
 void RenderBlock::simplifiedNormalFlowLayout()
@@ -903,8 +903,8 @@ void RenderBlock::layoutOutOfFlowBox(RenderBox& outOfFlowBox, RelayoutChildren r
         outOfFlowBox.setChildNeedsLayout(MarkingBehavior::MarkOnlyThis);
 
     // If relayoutChildren is set and the child has percentage padding or an embedded content box, we also need to invalidate the childs pref widths.
-    if (relayoutChildren == RelayoutChildren::Yes && outOfFlowBox.shouldInvalidatePreferredWidths())
-        outOfFlowBox.setNeedsPreferredWidthsUpdate(MarkingBehavior::MarkOnlyThis);
+    if (relayoutChildren == RelayoutChildren::Yes && outOfFlowBox.shouldInvalidateContentWidths())
+        outOfFlowBox.invalidateContentLogicalWidths(MarkingBehavior::MarkOnlyThis);
     
     outOfFlowBox.markForPaginationRelayoutIfNeeded();
     
@@ -1785,8 +1785,8 @@ void RenderBlock::removeOutOfFlowBox(const RenderBox& rendererToRemove)
 static inline void markRendererAndParentForLayout(RenderBox& renderer)
 {
     renderer.setChildNeedsLayout(MarkingBehavior::MarkOnlyThis);
-    if (renderer.shouldInvalidatePreferredWidths())
-        renderer.setNeedsPreferredWidthsUpdate(MarkingBehavior::MarkOnlyThis);
+    if (renderer.shouldInvalidateContentWidths())
+        renderer.invalidateContentLogicalWidths(MarkingBehavior::MarkOnlyThis);
     auto* parentBlock = RenderObject::containingBlockForPositionType(PositionType::Static, renderer);
     if (!parentBlock) {
         ASSERT_NOT_REACHED();
@@ -2268,7 +2268,7 @@ void RenderBlock::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, Lay
 
 void RenderBlock::computeIntrinsicLogicalWidthContributions()
 {
-    ASSERT(needsPreferredLogicalWidthsUpdate());
+    ASSERT(hasInvalidContentLogicalWidths());
 
     m_minContentLogicalWidth = 0;
     m_maxContentLogicalWidth = 0;
@@ -2292,7 +2292,7 @@ void RenderBlock::computeIntrinsicLogicalWidthContributions()
 
     constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
 
-    clearNeedsPreferredWidthsUpdate();
+    clearContentLogicalWidthsInvalidation();
 }
 
 std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeBlockIntrinsicLogicalWidths() const
@@ -2419,7 +2419,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeChildIntrinsicLogicalWidth
     // size in scope. Previously this was a virtual hook the flex container
     // overrode; folded inline since flex is the only container that needs it.
     if (CheckedPtr flexBox = dynamicDowncast<RenderFlexibleBox>(this)) {
-        auto flexScope = RenderFlexibleBox::ScopedCrossAxisOverrideForFlexItem { *flexBox, childBox, RenderFlexibleBox::ScopedCrossAxisOverrideForFlexItem::InvalidatePreferredWidths::Yes };
+        auto flexScope = RenderFlexibleBox::ScopedCrossAxisOverrideForFlexItem { *flexBox, childBox, RenderFlexibleBox::ScopedCrossAxisOverrideForFlexItem::InvalidateContentWidths::Yes };
         std::tie(minLogicalWidth, maxLogicalWidth) = childIntrinsicLogicalWidths();
     } else
         std::tie(minLogicalWidth, maxLogicalWidth) = childIntrinsicLogicalWidths();
@@ -3039,7 +3039,7 @@ std::optional<LayoutUnit> RenderBlock::availableLogicalHeightForPercentageComput
             // Grid and flex containers may be in a state where they are calculating pref width
             // with logical width not yet specified; in that case logicalWidth() carries the previous
             // layout's value and would feed a stale aspect-ratio derivation here.
-            if ((isRenderGrid() || is<RenderFlexibleBox>(*this)) && needsPreferredLogicalWidthsUpdate() && !style.logicalWidth().isSpecified())
+            if ((isRenderGrid() || is<RenderFlexibleBox>(*this)) && hasInvalidContentLogicalWidths() && !style.logicalWidth().isSpecified())
                 return { };
             return blockSizeFromAspectRatio(
                 horizontalBorderAndPaddingExtent(),

@@ -188,7 +188,7 @@ MathMLFractionElement& RenderMathMLFraction::element() const
 
 void RenderMathMLFraction::computeIntrinsicLogicalWidthContributions()
 {
-    ASSERT(needsPreferredLogicalWidthsUpdate());
+    ASSERT(hasInvalidContentLogicalWidths());
 
     if (!isValid()) {
         RenderMathMLRow::computeIntrinsicLogicalWidthContributions();
@@ -205,7 +205,7 @@ void RenderMathMLFraction::computeIntrinsicLogicalWidthContributions()
 
     adjustPreferredLogicalWidthsForBorderAndPadding();
 
-    clearNeedsPreferredWidthsUpdate();
+    clearContentLogicalWidthsInvalidation();
 }
 
 LayoutUnit RenderMathMLFraction::horizontalOffset(RenderBox& child, MathMLFractionElement::FractionAlignment align) const

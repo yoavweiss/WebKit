@@ -276,7 +276,7 @@ void RenderBox::styleWillChange(Style::Difference diff, const RenderStyle& newSt
             if (!oldStyle->hasOutOfFlowPosition() && newStyle.hasOutOfFlowPosition()) {
                 // We are about to go out of flow. Before that takes place, we need to mark the
                 // current containing block chain for preferred widths recalculation.
-                setNeedsLayoutAndPreferredWidthsUpdate();
+                setNeedsLayoutAndInvalidateContentLogicalWidths();
                 if (CheckedPtr flexContainer = dynamicDowncast<RenderFlexibleBox>(parent()))
                     flexContainer->flexItemWillBeRemoved(*this);
                 if (isInTopLayerOrBackdrop(style(), element())) {
@@ -429,7 +429,7 @@ void RenderBox::styleDidChange(Style::Difference diff, const RenderStyle* oldSty
         clearGridAreaContentSize();
         if (auto* containingBlock = this->containingBlock(); containingBlock && oldStyle->hasOutOfFlowPosition()) {
             // When going from out-of-flow to inflow, the containing block gains new descendant content and its preferred width becomes invalid.
-            containingBlock->setNeedsLayoutAndPreferredWidthsUpdate();
+            containingBlock->setNeedsLayoutAndInvalidateContentLogicalWidths();
         }
     }
     if (oldStyle && Style::AnchorPositionEvaluator::isAnchorPositioned(*oldStyle)
@@ -1274,7 +1274,7 @@ bool RenderBox::hasAlwaysPresentScrollbar(ScrollbarOrientation orientation) cons
     return false;
 }
 
-bool RenderBox::shouldInvalidatePreferredWidths() const
+bool RenderBox::shouldInvalidateContentWidths() const
 {
     return style().paddingStart().isPercentOrCalculated()
         || style().paddingEnd().isPercentOrCalculated()
@@ -1362,7 +1362,7 @@ bool RenderBox::applyCachedClipAndScrollPosition(RepaintRects& rects, const Rend
 
 LayoutUnit RenderBox::minContentLogicalWidth() const
 {
-    if (needsPreferredLogicalWidthsUpdate()) {
+    if (hasInvalidContentLogicalWidths()) {
         SetLayoutNeededForbiddenScope layoutForbiddenScope(*this);
         const_cast<RenderBox&>(*this).computeIntrinsicLogicalWidthContributions();
     }
@@ -1371,7 +1371,7 @@ LayoutUnit RenderBox::minContentLogicalWidth() const
 
 LayoutUnit RenderBox::maxContentLogicalWidth() const
 {
-    if (needsPreferredLogicalWidthsUpdate()) {
+    if (hasInvalidContentLogicalWidths()) {
         SetLayoutNeededForbiddenScope layoutForbiddenScope(*this);
         const_cast<RenderBox&>(*this).computeIntrinsicLogicalWidthContributions();
     }
@@ -4019,10 +4019,10 @@ bool RenderBox::shouldComputePreferredLogicalWidthsFromStyle() const
 
 void RenderBox::computeIntrinsicLogicalWidthContributions()
 {
-    ASSERT(needsPreferredLogicalWidthsUpdate());
+    ASSERT(hasInvalidContentLogicalWidths());
 
     constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
-    clearNeedsPreferredWidthsUpdate();
+    clearContentLogicalWidthsInvalidation();
 }
 
 void RenderBox::constrainIntrinsicLogicalWidthContributionsByMinMax(LayoutUnit& minIntrinsicLogicalWidth, LayoutUnit& maxIntrinsicLogicalWidth) const

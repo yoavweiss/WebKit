@@ -110,7 +110,7 @@ void RenderTableRow::styleDidChange(Style::Difference diff, const RenderStyle* o
             // itself.
             auto propagageNeedsLayoutOnBorderSizeChange = [&] (auto& row) {
                 for (auto* cell = row.firstCell(); cell; cell = cell->nextCell())
-                    cell->setNeedsLayoutAndPreferredWidthsUpdate();
+                    cell->setNeedsLayoutAndInvalidateContentLogicalWidths();
             };
             propagageNeedsLayoutOnBorderSizeChange(*this);
             if (auto* previousRow = this->previousRow())

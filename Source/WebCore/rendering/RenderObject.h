@@ -704,7 +704,7 @@ public:
     bool hasVisibleBoxDecorations() const { return boxDecorationState() != BoxDecorationState::None; }
 
     bool needsLayout() const;
-    bool needsPreferredLogicalWidthsUpdate() const { return m_stateBitfields.hasFlag(StateFlag::PreferredLogicalWidthsNeedUpdate); }
+    bool hasInvalidContentLogicalWidths() const { return m_stateBitfields.hasFlag(StateFlag::ContentLogicalWidthsInvalidated); }
 
     bool selfNeedsLayout() const { return m_stateBitfields.hasFlag(StateFlag::NeedsLayout); }
     bool needsOutOfFlowMovementLayout() const { return m_stateBitfields.hasFlag(StateFlag::NeedsOutOfFlowMovementLayout); }
@@ -761,10 +761,10 @@ public:
     inline void setNeedsLayout(MarkingBehavior = MarkingBehavior::MarkContainingBlockChain);
     enum class HadSkippedLayout { No, Yes };
     void clearNeedsLayout(HadSkippedLayout = HadSkippedLayout::No);
-    void setNeedsPreferredWidthsUpdate(MarkingBehavior = MarkingBehavior::MarkContainingBlockChain, const RenderBlock* ancestorUpdateBoundary = nullptr);
-    void clearNeedsPreferredWidthsUpdate() { m_stateBitfields.setFlag(StateFlag::PreferredLogicalWidthsNeedUpdate, { }); }
+    void invalidateContentLogicalWidths(MarkingBehavior = MarkingBehavior::MarkContainingBlockChain, const RenderBlock* ancestorUpdateBoundary = nullptr);
+    void clearContentLogicalWidthsInvalidation() { m_stateBitfields.setFlag(StateFlag::ContentLogicalWidthsInvalidated, { }); }
     
-    inline void setNeedsLayoutAndPreferredWidthsUpdate();
+    inline void setNeedsLayoutAndInvalidateContentLogicalWidths();
 
     void setPositionState(PositionType);
     void clearPositionedState() { m_stateBitfields.clearPositionedState(); }
@@ -1166,7 +1166,7 @@ private:
     void NODELETE setLayerNeedsFullRepaint();
     void NODELETE setLayerNeedsFullRepaintForOutOfFlowMovementLayout();
 
-    void invalidateContainerPreferredLogicalWidths(const RenderBlock* ancestorUpdateBoundary = nullptr);
+    void invalidateContainerContentLogicalWidths(const RenderBlock* ancestorUpdateBoundary = nullptr);
 
     struct SelectionGeometriesInternal {
         Vector<SelectionGeometry> geometries;
@@ -1202,7 +1202,7 @@ private:
         IsExcludedFromNormalLayout                          = 1 << 10,
         Floating                                            = 1 << 11,
         VerticalWritingMode                                 = 1 << 12,
-        PreferredLogicalWidthsNeedUpdate                    = 1 << 13,
+        ContentLogicalWidthsInvalidated                    = 1 << 13,
         HasRareData                                         = 1 << 14,
         HasLayer                                            = 1 << 15,
         HasNonVisibleOverflow                               = 1 << 16,
@@ -1288,7 +1288,7 @@ private:
         bool hasReflection { false };
         bool hasOutlineAutoAncestor { false };
         // Dirty bit was set with MarkingBehavior::MarkOnlyThis
-        bool preferredLogicalWidthsNeedUpdateIsMarkOnlyThis { false };
+        bool contentLogicalWidthsInvalidationIsMarkOnlyThis { false };
         bool isYouTubeReplacement { false };
         EnumSet<Style::MarginTrimSide> trimmedMargins;
 

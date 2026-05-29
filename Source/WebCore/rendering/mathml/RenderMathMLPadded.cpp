@@ -90,7 +90,7 @@ LayoutUnit RenderMathMLPadded::mpaddedDepth(LayoutUnit contentDepth) const
 
 void RenderMathMLPadded::computeIntrinsicLogicalWidthContributions()
 {
-    ASSERT(needsPreferredLogicalWidthsUpdate());
+    ASSERT(hasInvalidContentLogicalWidths());
 
     // Only the width attribute should modify the width.
     // We parse it using the preferred width of the content as its default value.
@@ -104,7 +104,7 @@ void RenderMathMLPadded::computeIntrinsicLogicalWidthContributions()
 
     adjustPreferredLogicalWidthsForBorderAndPadding();
 
-    clearNeedsPreferredWidthsUpdate();
+    clearContentLogicalWidthsInvalidation();
 }
 
 void RenderMathMLPadded::layoutBlock(RelayoutChildren relayoutChildren, LayoutUnit)

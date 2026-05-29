@@ -101,10 +101,10 @@ inline void RenderObject::setNeedsLayout(MarkingBehavior markParents)
         setLayerNeedsFullRepaint();
 }
 
-inline void RenderObject::setNeedsLayoutAndPreferredWidthsUpdate()
+inline void RenderObject::setNeedsLayoutAndInvalidateContentLogicalWidths()
 {
     setNeedsLayout();
-    setNeedsPreferredWidthsUpdate();
+    invalidateContentLogicalWidths();
 }
 
 inline bool RenderObject::isNonReplacedAtomicInlineLevelBox() const

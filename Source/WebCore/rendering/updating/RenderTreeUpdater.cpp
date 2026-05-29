@@ -765,7 +765,7 @@ static std::optional<DidRepaintAndMarkContainingBlock> repaintAndMarkContainingB
         }
         if (!renderer.isOutOfFlowPositioned()) {
             container->setChildNeedsLayout();
-            container->setNeedsPreferredWidthsUpdate();
+            container->invalidateContentLogicalWidths();
             return;
         }
         container->setNeedsLayoutForOverflowChange();
@@ -909,7 +909,7 @@ void RenderTreeUpdater::tearDownRenderersInternal(Element& root, TeardownType te
                     renderer->repaint();
                     if (auto* parent = renderer->parent()) {
                         parent->setChildNeedsLayout();
-                        parent->setNeedsPreferredWidthsUpdate();
+                        parent->invalidateContentLogicalWidths();
                     }
                 }
                 if (auto backdropRenderer = renderer->pseudoElementRenderer(PseudoElementType::Backdrop))
@@ -964,7 +964,7 @@ void RenderTreeUpdater::tearDownTextRenderer(Text& text, const ContainerNode* ro
         renderer->repaint();
         if (auto* parent = renderer->parent()) {
             parent->setChildNeedsLayout();
-            parent->setNeedsPreferredWidthsUpdate();
+            parent->invalidateContentLogicalWidths();
         }
     }
     builder.destroyAndCleanUpAnonymousWrappers(*renderer, root ? root->renderer() : nullptr);

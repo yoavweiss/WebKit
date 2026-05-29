@@ -161,7 +161,7 @@ RenderMathMLRoot::VerticalParameters RenderMathMLRoot::verticalParameters() cons
 
 void RenderMathMLRoot::computeIntrinsicLogicalWidthContributions()
 {
-    ASSERT(needsPreferredLogicalWidthsUpdate());
+    ASSERT(hasInvalidContentLogicalWidths());
 
     if (!isValid()) {
         RenderMathMLRow::computeIntrinsicLogicalWidthContributions();
@@ -190,7 +190,7 @@ void RenderMathMLRoot::computeIntrinsicLogicalWidthContributions()
 
     adjustPreferredLogicalWidthsForBorderAndPadding();
 
-    clearNeedsPreferredWidthsUpdate();
+    clearContentLogicalWidthsInvalidation();
 }
 
 void RenderMathMLRoot::layoutBlock(RelayoutChildren relayoutChildren, LayoutUnit)

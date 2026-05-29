@@ -64,7 +64,7 @@ void RenderReplica::computeIntrinsicLogicalWidthContributions()
 {
     m_minContentLogicalWidth = parentBox()->width();
     m_maxContentLogicalWidth = m_minContentLogicalWidth;
-    clearNeedsPreferredWidthsUpdate();
+    clearContentLogicalWidthsInvalidation();
 }
 
 void RenderReplica::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffset)

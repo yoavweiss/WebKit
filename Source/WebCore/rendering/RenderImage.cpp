@@ -968,9 +968,9 @@ FloatSize RenderImage::preferredAspectRatioAsSize() const
     return RenderReplaced::preferredAspectRatioAsSize();
 }
 
-bool RenderImage::shouldInvalidatePreferredWidths() const
+bool RenderImage::shouldInvalidateContentWidths() const
 {
-    if (RenderReplaced::shouldInvalidatePreferredWidths())
+    if (RenderReplaced::shouldInvalidateContentWidths())
         return true;
     return embeddedSVGRoot();
 }
