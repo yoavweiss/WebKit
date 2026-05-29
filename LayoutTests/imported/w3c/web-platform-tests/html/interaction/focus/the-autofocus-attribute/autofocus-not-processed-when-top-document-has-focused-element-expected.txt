@@ -1,4 +1,0 @@
-
-
-PASS If topDocument's focused area is topDocument but has a focused element, autofocus is not processed.
-
