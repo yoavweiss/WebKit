@@ -376,14 +376,11 @@ void RenderFragmentContainer::willBeRemovedFromTree()
     detachFragment();
 }
 
-void RenderFragmentContainer::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const
+std::pair<LayoutUnit, LayoutUnit> RenderFragmentContainer::computeIntrinsicLogicalWidths() const
 {
-    if (!isValid()) {
-        RenderBlockFlow::computeIntrinsicLogicalWidths(minLogicalWidth, maxLogicalWidth);
-        return;
-    }
-    maxLogicalWidth = { };
-    minLogicalWidth = { };
+    if (isValid())
+        return { };
+    return RenderBlockFlow::computeIntrinsicLogicalWidths();
 }
 
 void RenderFragmentContainer::computeIntrinsicLogicalWidthContributions()
@@ -405,7 +402,7 @@ void RenderFragmentContainer::computeIntrinsicLogicalWidthContributions()
         m_maxContentLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
         m_minContentLogicalWidth = m_maxContentLogicalWidth;
     } else
-        computeIntrinsicLogicalWidths(m_minContentLogicalWidth, m_maxContentLogicalWidth);
+        std::tie(m_minContentLogicalWidth, m_maxContentLogicalWidth) = computeIntrinsicLogicalWidths();
 
     constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
 

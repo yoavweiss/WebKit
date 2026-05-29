@@ -70,7 +70,7 @@ private:
 
     ASCIILiteral renderName() const override { return "RenderMenuList"_s; }
 
-    void computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const override;
+    std::pair<LayoutUnit, LayoutUnit> computeIntrinsicLogicalWidths() const override;
     void computeIntrinsicLogicalWidthContributions() override;
 
     void styleDidChange(Style::Difference, const RenderStyle* oldStyle) override;

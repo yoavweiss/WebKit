@@ -174,10 +174,10 @@ float RenderTextControl::scaleEmToUnits(int x) const
     return roundf(style().fontCascade().size() * x / unitsPerEm);
 }
 
-void RenderTextControl::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const
+std::pair<LayoutUnit, LayoutUnit> RenderTextControl::computeIntrinsicLogicalWidths() const
 {
     if (style().fieldSizing() == FieldSizing::Content) {
-        RenderBlockFlow::computeIntrinsicLogicalWidths(minLogicalWidth, maxLogicalWidth);
+        auto [minLogicalWidth, maxLogicalWidth] = RenderBlockFlow::computeIntrinsicLogicalWidths();
         RefPtr placeholder = textFormControlElement().placeholderElement();
         CheckedPtr placeholderBox = placeholder ? placeholder->renderBox() : nullptr;
         if (RefPtr input = placeholderBox ? dynamicDowncast<HTMLInputElement>(textFormControlElement()) : nullptr) {
@@ -185,18 +185,17 @@ void RenderTextControl::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidt
             minLogicalWidth = std::max(minLogicalWidth, placeholderBox->minContentLogicalWidth() + decoration);
             maxLogicalWidth = std::max(maxLogicalWidth, placeholderBox->maxContentLogicalWidth() + decoration);
         }
-        return;
+        return { minLogicalWidth, maxLogicalWidth };
     }
 
     if (shouldApplySizeOrInlineSizeContainment()) {
-        if (auto width = explicitIntrinsicInnerLogicalWidth()) {
-            minLogicalWidth = width.value();
-            maxLogicalWidth = width.value();
-        }
-        return;
+        if (auto width = explicitIntrinsicInnerLogicalWidth())
+            return { width.value(), width.value() };
+        return { };
     }
     // Use average character width. Matches IE.
-    maxLogicalWidth = preferredContentLogicalWidth(const_cast<RenderTextControl*>(this)->getAverageCharWidth());
+    auto minLogicalWidth = LayoutUnit { };
+    auto maxLogicalWidth = preferredContentLogicalWidth(const_cast<RenderTextControl*>(this)->getAverageCharWidth());
     maxLogicalWidth = RenderTheme::singleton().adjustedMaximumLogicalWidthForControl(style(), textFormControlElement(), maxLogicalWidth);
 
     auto& logicalWidth = style().logicalWidth();
@@ -204,6 +203,8 @@ void RenderTextControl::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidt
         minLogicalWidth = std::max(0_lu, Style::evaluate<LayoutUnit>(logicalWidth, 0_lu, style().usedZoomForLength()));
     else if (!logicalWidth.isPercent())
         minLogicalWidth = maxLogicalWidth;
+
+    return { minLogicalWidth, maxLogicalWidth };
 }
 
 void RenderTextControl::computeIntrinsicLogicalWidthContributions()
@@ -221,7 +222,7 @@ void RenderTextControl::computeIntrinsicLogicalWidthContributions()
         m_maxContentLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
         m_minContentLogicalWidth = m_maxContentLogicalWidth;
     } else
-        computeIntrinsicLogicalWidths(m_minContentLogicalWidth, m_maxContentLogicalWidth);
+        std::tie(m_minContentLogicalWidth, m_maxContentLogicalWidth) = computeIntrinsicLogicalWidths();
 
     constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
 

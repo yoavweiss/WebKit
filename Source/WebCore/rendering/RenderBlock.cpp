@@ -2248,9 +2248,13 @@ bool RenderBlock::willStretchItem(const RenderBox& item, LogicalBoxAxis containi
     return false;
 }
 
-void RenderBlock::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const
+std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeIntrinsicLogicalWidths() const
 {
     ASSERT(!childrenInline());
+
+    auto minLogicalWidth = LayoutUnit { };
+    auto maxLogicalWidth = LayoutUnit { };
+
     if (shouldApplySizeOrInlineSizeContainment()) {
         if (auto width = explicitIntrinsicInnerLogicalWidth()) {
             minLogicalWidth = width.value();
@@ -2261,17 +2265,16 @@ void RenderBlock::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, Lay
 
     maxLogicalWidth = std::max(minLogicalWidth, maxLogicalWidth);
 
-    int scrollbarWidth = intrinsicScrollbarLogicalWidthIncludingGutter();
-    maxLogicalWidth += scrollbarWidth;
-    minLogicalWidth += scrollbarWidth;
+    auto scrollbarWidth = intrinsicScrollbarLogicalWidthIncludingGutter();
+    return { minLogicalWidth + scrollbarWidth, maxLogicalWidth + scrollbarWidth };
 }
 
 void RenderBlock::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(hasInvalidContentLogicalWidths());
 
-    m_minContentLogicalWidth = 0;
-    m_maxContentLogicalWidth = 0;
+    m_minContentLogicalWidth = 0_lu;
+    m_maxContentLogicalWidth = 0_lu;
 
     auto& styleToUse = style();
     auto logicalWidth = overridingLogicalWidthForFlexBasisComputation().value_or(styleToUse.logicalWidth());
@@ -2279,16 +2282,14 @@ void RenderBlock::computeIntrinsicLogicalWidthContributions()
         m_minContentLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
         m_maxContentLogicalWidth = m_minContentLogicalWidth;
     } else if (logicalWidth.isMaxContent()) {
-        computeIntrinsicLogicalWidths(m_minContentLogicalWidth, m_maxContentLogicalWidth);
+        std::tie(m_minContentLogicalWidth, m_maxContentLogicalWidth) = computeIntrinsicLogicalWidths();
         m_minContentLogicalWidth = m_maxContentLogicalWidth;
     } else if (shouldComputeLogicalWidthFromAspectRatio()) {
-        m_maxContentLogicalWidth = computeLogicalWidthFromAspectRatio() - borderAndPaddingLogicalWidth();
+        m_maxContentLogicalWidth = std::max(0_lu, computeLogicalWidthFromAspectRatio() - borderAndPaddingLogicalWidth());
         m_minContentLogicalWidth = m_maxContentLogicalWidth;
-        m_minContentLogicalWidth = std::max(0_lu, m_minContentLogicalWidth);
-        m_maxContentLogicalWidth = std::max(0_lu, m_maxContentLogicalWidth);
         applyAutomaticContentBasedMinimumSize(m_minContentLogicalWidth, m_maxContentLogicalWidth);
     } else
-        computeIntrinsicLogicalWidths(m_minContentLogicalWidth, m_maxContentLogicalWidth);
+        std::tie(m_minContentLogicalWidth, m_maxContentLogicalWidth) = computeIntrinsicLogicalWidths();
 
     constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
 
@@ -2304,9 +2305,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeBlockIntrinsicLogicalWidth
         return { };
     }
 
-    auto [legendMinWidth, legendMaxWidth] = computeIntrinsicLogicalWidthsForFieldsetLegend();
-    auto minLogicalWidth = legendMinWidth;
-    auto maxLogicalWidth = legendMaxWidth;
+    auto [minLogicalWidth, maxLogicalWidth] = computeIntrinsicLogicalWidthsForFieldsetLegend();
 
     LayoutUnit floatLeftWidth;
     LayoutUnit floatRightWidth;
@@ -3308,22 +3307,12 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeIntrinsicLogicalWidthsForF
 
     legend->setIsExcludedFromNormalLayout(true);
 
-    LayoutUnit minLogicalWidth;
-    LayoutUnit maxLogicalWidth;
-    std::tie(minLogicalWidth, maxLogicalWidth) = computeChildIntrinsicLogicalWidths(*legend);
-
+    auto [minLogicalWidth, maxLogicalWidth] = computeChildIntrinsicLogicalWidths(*legend);
     // These are going to be added in later, so we subtract them out to reflect the
     // fact that the legend is outside the scrollable area.
     auto scrollbarWidth = intrinsicScrollbarLogicalWidthIncludingGutter();
-    minLogicalWidth -= scrollbarWidth;
-    maxLogicalWidth -= scrollbarWidth;
-
     auto margin = marginIntrinsicLogicalWidthForChild(*legend);
-
-    minLogicalWidth += margin;
-    maxLogicalWidth += margin;
-
-    return { minLogicalWidth, maxLogicalWidth };
+    return { minLogicalWidth - scrollbarWidth + margin, maxLogicalWidth - scrollbarWidth + margin };
 }
 
 LayoutUnit RenderBlock::adjustBorderBoxLogicalHeightForBoxSizing(LayoutUnit height) const

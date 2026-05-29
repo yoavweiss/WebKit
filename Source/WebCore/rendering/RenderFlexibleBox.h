@@ -148,7 +148,7 @@ public:
     };
 
 protected:
-    void computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const override;
+    std::pair<LayoutUnit, LayoutUnit> computeIntrinsicLogicalWidths() const override;
 
 private:
     struct FlexBaseAndHypotheticalMainSize {

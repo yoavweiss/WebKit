@@ -1008,34 +1008,33 @@ void RenderTable::paintMask(PaintInfo& paintInfo, const LayoutPoint& paintOffset
     paintMaskImages(paintInfo, rect);
 }
 
-void RenderTable::computeIntrinsicLogicalWidths(LayoutUnit& minWidth, LayoutUnit& maxWidth, TableIntrinsics intrinsics) const
+std::pair<LayoutUnit, LayoutUnit> RenderTable::computeIntrinsicLogicalWidths(TableIntrinsics intrinsics) const
 {
     recalcSectionsIfNeeded();
     // FIXME: Do the recalc in borderStart/borderEnd and make those const_cast this call.
     // Then m_borderStart/m_borderEnd will be transparent a cache and it removes the possibility
     // of reading out stale values.
-    const_cast<RenderTable*>(this)->recalcBordersInRowDirection();
     // FIXME: Restructure the table layout code so that we can make this method const.
-    const_cast<RenderTable*>(this)->m_tableLayout->computeIntrinsicLogicalWidths(minWidth, maxWidth, intrinsics);
-
     // FIXME: We should include captions widths here like we do in computeIntrinsicLogicalWidthContributions.
+    const_cast<RenderTable*>(this)->recalcBordersInRowDirection();
+    return const_cast<RenderTable*>(this)->m_tableLayout->computeIntrinsicLogicalWidths(intrinsics);
 }
 
-void RenderTable::computeIntrinsicLogicalWidths(LayoutUnit& minWidth, LayoutUnit& maxWidth) const
+std::pair<LayoutUnit, LayoutUnit> RenderTable::computeIntrinsicLogicalWidths() const
 {
-    computeIntrinsicLogicalWidths(minWidth, maxWidth, TableIntrinsics::ForLayout);
+    return computeIntrinsicLogicalWidths(TableIntrinsics::ForLayout);
 }
 
-void RenderTable::computeIntrinsicKeywordLogicalWidths(LayoutUnit& minWidth, LayoutUnit& maxWidth) const
+std::pair<LayoutUnit, LayoutUnit> RenderTable::computeIntrinsicKeywordLogicalWidths() const
 {
-    computeIntrinsicLogicalWidths(minWidth, maxWidth, TableIntrinsics::ForKeyword);
+    return computeIntrinsicLogicalWidths(TableIntrinsics::ForKeyword);
 }
 
 void RenderTable::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(hasInvalidContentLogicalWidths());
 
-    computeIntrinsicLogicalWidths(m_minContentLogicalWidth, m_maxContentLogicalWidth);
+    std::tie(m_minContentLogicalWidth, m_maxContentLogicalWidth) = computeIntrinsicLogicalWidths();
 
     LayoutUnit bordersPaddingAndSpacing = bordersPaddingAndSpacingInRowDirection();
     m_minContentLogicalWidth += bordersPaddingAndSpacing;

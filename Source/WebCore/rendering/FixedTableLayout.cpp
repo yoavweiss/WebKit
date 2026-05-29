@@ -181,9 +181,10 @@ float FixedTableLayout::calcWidthArray()
     return usedWidth;
 }
 
-void FixedTableLayout::computeIntrinsicLogicalWidths(LayoutUnit& minWidth, LayoutUnit& maxWidth, TableIntrinsics)
+std::pair<LayoutUnit, LayoutUnit> FixedTableLayout::computeIntrinsicLogicalWidths(TableIntrinsics)
 {
-    minWidth = maxWidth = calcWidthArray();
+    auto logicalWidth = LayoutUnit { calcWidthArray() };
+    return { logicalWidth, logicalWidth };
 }
 
 void FixedTableLayout::applyContentLogicalWidthQuirks(LayoutUnit& minWidth, LayoutUnit& maxWidth) const

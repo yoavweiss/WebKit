@@ -70,8 +70,8 @@ protected:
 
     void layout() override;
 
-    void computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const final;
-    void computeIntrinsicKeywordLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const final;
+    std::pair<LayoutUnit, LayoutUnit> computeIntrinsicLogicalWidths() const final;
+    std::pair<LayoutUnit, LayoutUnit> computeIntrinsicKeywordLogicalWidths() const final;
 
     virtual LayoutUnit minimumReplacedHeight() const { return 0_lu; }
 

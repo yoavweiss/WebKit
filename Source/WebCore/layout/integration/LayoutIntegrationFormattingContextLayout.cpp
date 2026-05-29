@@ -224,9 +224,7 @@ LayoutUnit formattingContextRootLogicalWidthForType(const Layout::ElementBox& bo
         return renderer->minContentLogicalWidth();
     case LogicalWidthType::MaxContent:
     case LogicalWidthType::MinContent: {
-        auto minimunLogicalWidth = LayoutUnit { };
-        auto maximumLogicalWidth = LayoutUnit { };
-        renderer->computeIntrinsicLogicalWidths(minimunLogicalWidth, maximumLogicalWidth);
+        auto [minimunLogicalWidth, maximumLogicalWidth] = renderer->computeIntrinsicLogicalWidths();
         return logicalWidthType == LogicalWidthType::MaxContent ? maximumLogicalWidth : minimunLogicalWidth;
     }
     default:

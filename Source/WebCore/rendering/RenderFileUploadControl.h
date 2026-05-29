@@ -48,7 +48,7 @@ private:
     ASCIILiteral renderName() const override { return "RenderFileUploadControl"_s; }
 
     void updateFromElement() override;
-    void computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const override;
+    std::pair<LayoutUnit, LayoutUnit> computeIntrinsicLogicalWidths() const override;
     void computeIntrinsicLogicalWidthContributions() override;
     void paintObject(PaintInfo&, const LayoutPoint&) override;
     void paintControl(PaintInfo&, const LayoutPoint&);

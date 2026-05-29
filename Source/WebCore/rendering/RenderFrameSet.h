@@ -74,7 +74,7 @@ public:
 
 private:
     void element() const = delete;
-    void computeIntrinsicLogicalWidths(LayoutUnit&, LayoutUnit&) const override { }
+    std::pair<LayoutUnit, LayoutUnit> computeIntrinsicLogicalWidths() const override { return { }; }
 
     static const int noSplit = -1;
 

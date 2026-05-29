@@ -295,7 +295,7 @@ public:
 
     virtual LayoutUnit minContentLogicalWidth() const;
     virtual LayoutUnit maxContentLogicalWidth() const;
-    virtual void computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const = 0;
+    virtual std::pair<LayoutUnit, LayoutUnit> computeIntrinsicLogicalWidths() const = 0;
 
     std::optional<LayoutUnit> NODELETE overridingBorderBoxLogicalWidth() const;
     std::optional<LayoutUnit> NODELETE overridingBorderBoxLogicalHeight() const;
@@ -718,10 +718,7 @@ protected:
     LayoutUnit fillAvailableMeasure(LayoutUnit availableLogicalWidth, LayoutUnit& marginStart, LayoutUnit& marginEnd) const;
 
     bool overflowChangesMayAffectLayout() const final;
-    virtual void computeIntrinsicKeywordLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const
-    {
-        computeIntrinsicLogicalWidths(minLogicalWidth, maxLogicalWidth);
-    }
+    virtual std::pair<LayoutUnit, LayoutUnit> computeIntrinsicKeywordLogicalWidths() const { return computeIntrinsicLogicalWidths(); }
 
 private:
     bool isBlockSizeResolvableForStretch() const;
@@ -752,7 +749,7 @@ private:
     LayoutUnit computeOutOfFlowPositionedLogicalHeightUsing(const Style::MinimumSize& logicalHeight, LayoutUnit computedHeight, const PositionedLayoutConstraints& blockConstraints) const;
     LayoutUnit computeOutOfFlowPositionedLogicalHeightUsing(const Style::MaximumSize& logicalHeight, LayoutUnit computedHeight, const PositionedLayoutConstraints& blockConstraints) const;
 
-    template<typename Keyword> void computeIntrinsicKeywordLogicalWidths(Keyword, LayoutUnit borderAndPadding, LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const;
+    template<typename Keyword> std::pair<LayoutUnit, LayoutUnit> computeIntrinsicKeywordLogicalWidths(Keyword, LayoutUnit borderAndPadding) const;
 
     template<typename SizeType> LayoutUnit computeLogicalWidthUsingGeneric(const SizeType& logicalWidth, LayoutUnit availableLogicalWidth, const RenderBlock& containingBlock) const;
     template<typename SizeType> LayoutUnit computeSizingKeywordLogicalWidthUsingGeneric(const SizeType& logicalWidth, LayoutUnit availableLogicalWidth, LayoutUnit borderAndPadding) const;

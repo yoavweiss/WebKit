@@ -809,26 +809,22 @@ LayoutUnit RenderGrid::guttersSize(Style::GridTrackSizingDirection direction, un
     return gapAccumulator;
 }
 
-void RenderGrid::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const
+std::pair<LayoutUnit, LayoutUnit> RenderGrid::computeIntrinsicLogicalWidths() const
 {
     if (LayoutIntegration::canUseForGridLayout(*this)) {
         // const_cast is safe here: computeIntrinsicWidths() only reads grid properties
         // and does not mutate RenderGrid state, matching the legacy path pattern below.
         auto gridLayout = LayoutIntegration::GridLayout { const_cast<RenderGrid&>(*this) };
         gridLayout.updateFormattingContextGeometries();
-        std::tie(minLogicalWidth, maxLogicalWidth) = gridLayout.computeIntrinsicWidths();
+        auto [minLogicalWidth, maxLogicalWidth] = gridLayout.computeIntrinsicWidths();
 
-        // Add scrollbar width
-        LayoutUnit scrollbarWidth = intrinsicScrollbarLogicalWidthIncludingGutter();
-        minLogicalWidth += scrollbarWidth;
-        maxLogicalWidth += scrollbarWidth;
-        return;
+        auto scrollbarWidth = intrinsicScrollbarLogicalWidthIncludingGutter();
+        return { minLogicalWidth + scrollbarWidth, maxLogicalWidth + scrollbarWidth };
     }
-
-    RenderGridLayoutState gridLayoutState;
 
     auto [legendMinWidth, legendMaxWidth] = computeIntrinsicLogicalWidthsForFieldsetLegend();
 
+    RenderGridLayoutState gridLayoutState;
     Grid grid(const_cast<RenderGrid&>(*this));
     m_grid.m_currentGrid = std::ref(grid);
     GridTrackSizingAlgorithm algorithm(this, grid);
@@ -841,11 +837,11 @@ void RenderGrid::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, Layo
     auto emptyCallback = [](RenderBox*) { };
     cacheBaselineAlignedGridItems(*this, algorithm, { AlignmentContextTypes::Columns }, emptyCallback, !isSubgridRows());
 
-    computeTrackSizesForIndefiniteSize(algorithm, Style::GridTrackSizingDirection::Columns, gridLayoutState, &minLogicalWidth, &maxLogicalWidth);
+    auto [minLogicalWidth, maxLogicalWidth] = computeTrackSizesForIndefiniteSize(algorithm, Style::GridTrackSizingDirection::Columns, gridLayoutState);
 
     if (isMasonry(Style::GridTrackSizingDirection::Columns)) {
         // The track sizing algorithm will only be run once in this case, since track sizing will not run in the masonry direction.
-        computeTrackSizesForIndefiniteSize(algorithm, Style::GridTrackSizingDirection::Rows, gridLayoutState, &minLogicalWidth, &maxLogicalWidth);
+        std::tie(minLogicalWidth, maxLogicalWidth) = computeTrackSizesForIndefiniteSize(algorithm, Style::GridTrackSizingDirection::Rows, gridLayoutState);
 
         auto gridAxisTracksCountBeforeAutoPlacement = currentGrid().numTracks(Style::GridTrackSizingDirection::Rows);
 
@@ -863,25 +859,20 @@ void RenderGrid::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, Layo
     minLogicalWidth = std::max(minLogicalWidth, legendMinWidth);
     maxLogicalWidth = std::max(maxLogicalWidth, legendMaxWidth);
 
-    LayoutUnit scrollbarWidth = intrinsicScrollbarLogicalWidthIncludingGutter();
-    minLogicalWidth += scrollbarWidth;
-    maxLogicalWidth += scrollbarWidth;
+    auto scrollbarWidth = intrinsicScrollbarLogicalWidthIncludingGutter();
+    return { minLogicalWidth + scrollbarWidth, maxLogicalWidth + scrollbarWidth };
 }
 
-void RenderGrid::computeTrackSizesForIndefiniteSize(GridTrackSizingAlgorithm& algorithm, Style::GridTrackSizingDirection direction, RenderGridLayoutState& gridLayoutState, LayoutUnit* minIntrinsicSize, LayoutUnit* maxIntrinsicSize) const
+std::pair<LayoutUnit, LayoutUnit> RenderGrid::computeTrackSizesForIndefiniteSize(GridTrackSizingAlgorithm& algorithm, Style::GridTrackSizingDirection direction, RenderGridLayoutState& gridLayoutState) const
 {
     auto autoMarginResolutionScope = SetForScope(m_isComputingTrackSizes, true);
     algorithm.run(direction, numTracks(direction), SizingOperation::IntrinsicSizeComputation, std::nullopt, gridLayoutState);
 
     size_t numberOfTracks = algorithm.tracks(direction).size();
-    LayoutUnit totalGuttersSize = direction == Style::GridTrackSizingDirection::Columns && explicitIntrinsicInnerLogicalSize(direction).has_value() ? 0_lu : guttersSize(direction, 0, numberOfTracks, std::nullopt);
-
-    if (minIntrinsicSize)
-        *minIntrinsicSize = algorithm.minContentSize() + totalGuttersSize;
-    if (maxIntrinsicSize)
-        *maxIntrinsicSize = algorithm.maxContentSize() + totalGuttersSize;
+    auto totalGuttersSize = direction == Style::GridTrackSizingDirection::Columns && explicitIntrinsicInnerLogicalSize(direction).has_value() ? 0_lu : guttersSize(direction, 0, numberOfTracks, std::nullopt);
 
     ASSERT(algorithm.tracksAreWiderThanMinTrackBreadth());
+    return { algorithm.minContentSize() + totalGuttersSize, algorithm.maxContentSize() + totalGuttersSize };
 }
 
 bool RenderGrid::shouldCheckExplicitIntrinsicInnerLogicalSize(Style::GridTrackSizingDirection direction) const

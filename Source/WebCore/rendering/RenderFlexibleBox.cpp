@@ -146,29 +146,25 @@ ASCIILiteral RenderFlexibleBox::renderName() const
     return "RenderFlexibleBox"_s;
 }
 
-void RenderFlexibleBox::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const
+std::pair<LayoutUnit, LayoutUnit> RenderFlexibleBox::computeIntrinsicLogicalWidths() const
 {
-    auto addScrollbarWidth = [&]() {
-        LayoutUnit scrollbarWidth(scrollbarLogicalWidth());
-        maxLogicalWidth += scrollbarWidth;
-        minLogicalWidth += scrollbarWidth;
-    };
+    auto scrollbarWidth = scrollbarLogicalWidth();
 
     if (shouldApplySizeOrInlineSizeContainment()) {
-        if (auto width = explicitIntrinsicInnerLogicalWidth()) {
-            minLogicalWidth = width.value();
-            maxLogicalWidth = width.value();
-        }
-        addScrollbarWidth();
-        return;
+        if (auto width = explicitIntrinsicInnerLogicalWidth())
+            return { width.value() + scrollbarWidth, width.value() + scrollbarWidth };
+        return { scrollbarWidth, scrollbarWidth };
     }
-
-    auto [legendMinWidth, legendMaxWidth] = computeIntrinsicLogicalWidthsForFieldsetLegend();
 
     // FIXME: We're ignoring flex-basis here and we shouldn't. We can't start
     // honoring it though until the flex shorthand stops setting it to 0. See
     // https://bugs.webkit.org/show_bug.cgi?id=116117 and
     // https://crbug.com/240765.
+    auto [legendMinWidth, legendMaxWidth] = computeIntrinsicLogicalWidthsForFieldsetLegend();
+
+    auto minLogicalWidth = LayoutUnit { };
+    auto maxLogicalWidth = LayoutUnit { };
+
     size_t numItemsWithNormalLayout = 0;
     for (RenderBox* flexItem = firstChildBox(); flexItem; flexItem = flexItem->nextSiblingBox()) {
         if (flexItem->isOutOfFlowPositioned() || flexItem->isExcludedFromNormalLayout())
@@ -208,7 +204,7 @@ void RenderFlexibleBox::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidt
     }
 
     maxLogicalWidth = std::max(minLogicalWidth, maxLogicalWidth);
-    
+
     // Due to negative margins, it is possible that we calculated a negative
     // intrinsic width. Make sure that we never return a negative width.
     minLogicalWidth = std::max(0_lu, minLogicalWidth);
@@ -217,7 +213,7 @@ void RenderFlexibleBox::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidt
     minLogicalWidth = std::max(minLogicalWidth, legendMinWidth);
     maxLogicalWidth = std::max(maxLogicalWidth, legendMaxWidth);
 
-    addScrollbarWidth();
+    return { minLogicalWidth + scrollbarWidth, maxLogicalWidth + scrollbarWidth };
 }
 
 #define SET_OR_CLEAR_OVERRIDING_SIZE(box, SizeType, size)       \

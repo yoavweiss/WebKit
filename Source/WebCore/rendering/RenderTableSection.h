@@ -182,7 +182,7 @@ private:
     LayoutUnit NODELETE verticalRowGroupBorderHeight(RenderTableCell*, const LayoutRect& rowGroupRect, unsigned row);
     LayoutUnit NODELETE horizontalRowGroupBorderWidth(RenderTableCell*, const LayoutRect& rowGroupRect, unsigned row, unsigned column);
 
-    void computeIntrinsicLogicalWidths(LayoutUnit&, LayoutUnit&) const override { }
+    std::pair<LayoutUnit, LayoutUnit> computeIntrinsicLogicalWidths() const override { return { }; }
 
     void imageChanged(WrappedImagePtr, const IntRect* = 0) override;
 

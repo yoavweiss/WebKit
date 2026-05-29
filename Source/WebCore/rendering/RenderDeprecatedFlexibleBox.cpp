@@ -222,21 +222,18 @@ void RenderDeprecatedFlexibleBox::styleWillChange(Style::Difference diff, const 
     RenderBlock::styleWillChange(diff, newStyle);
 }
 
-void RenderDeprecatedFlexibleBox::computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const
+std::pair<LayoutUnit, LayoutUnit> RenderDeprecatedFlexibleBox::computeIntrinsicLogicalWidths() const
 {
-    auto addScrollbarWidth = [&]() {
-        LayoutUnit scrollbarWidth = intrinsicScrollbarLogicalWidthIncludingGutter();
-        maxLogicalWidth += scrollbarWidth;
-        minLogicalWidth += scrollbarWidth;
-    };
+    auto minLogicalWidth = LayoutUnit { };
+    auto maxLogicalWidth = LayoutUnit { };
 
+    auto scrollbarWidth = intrinsicScrollbarLogicalWidthIncludingGutter();
     if (shouldApplySizeOrInlineSizeContainment()) {
         if (auto width = explicitIntrinsicInnerLogicalWidth()) {
             minLogicalWidth = width.value();
             maxLogicalWidth = width.value();
         }
-        addScrollbarWidth();
-        return;
+        return { minLogicalWidth + scrollbarWidth, maxLogicalWidth + scrollbarWidth };
     }
 
     if (hasMultipleLines() || isVertical()) {
@@ -263,7 +260,7 @@ void RenderDeprecatedFlexibleBox::computeIntrinsicLogicalWidths(LayoutUnit& minL
     }
 
     maxLogicalWidth = std::max(minLogicalWidth, maxLogicalWidth);
-    addScrollbarWidth();
+    return { minLogicalWidth + scrollbarWidth, maxLogicalWidth + scrollbarWidth };
 }
 
 void RenderDeprecatedFlexibleBox::computeIntrinsicLogicalWidthContributions()
@@ -276,7 +273,7 @@ void RenderDeprecatedFlexibleBox::computeIntrinsicLogicalWidthContributions()
         m_maxContentLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedWidth);
         m_minContentLogicalWidth = m_maxContentLogicalWidth;
     } else
-        computeIntrinsicLogicalWidths(m_minContentLogicalWidth, m_maxContentLogicalWidth);
+        std::tie(m_minContentLogicalWidth, m_maxContentLogicalWidth) = computeIntrinsicLogicalWidths();
 
     constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
 

@@ -36,7 +36,7 @@ class FixedTableLayout final : public TableLayout {
 public:
     explicit FixedTableLayout(RenderTable*);
 
-    void computeIntrinsicLogicalWidths(LayoutUnit& minWidth, LayoutUnit& maxWidth, TableIntrinsics) override;
+    std::pair<LayoutUnit, LayoutUnit> computeIntrinsicLogicalWidths(TableIntrinsics) override;
     void applyContentLogicalWidthQuirks(LayoutUnit& minWidth, LayoutUnit& maxWidth) const override;
     void layout() override;
 
