@@ -1875,7 +1875,9 @@ struct ResolvedMouseTarget {
     IntPoint centerInRootView;
 };
 
-static Expected<ResolvedMouseTarget, String> resolveMouseTarget(Node& targetNode, const String& searchText, ASCIILiteral boxShadowColor)
+enum class ScrollTargetIntoView : bool { No, Yes };
+
+static Expected<ResolvedMouseTarget, String> resolveMouseTarget(Node& targetNode, const String& searchText, ASCIILiteral boxShadowColor, ScrollTargetIntoView scrollTargetIntoView = ScrollTargetIntoView::No)
 {
     RefPtr element = dynamicDowncast<Element>(targetNode);
     if (!element)
@@ -1904,12 +1906,27 @@ static Expected<ResolvedMouseTarget, String> resolveMouseTarget(Node& targetNode
 
     addBoxShadowIfNeeded(targetNode, boxShadowColor);
 
-    std::optional<FloatRect> targetRectInRootView;
+    std::optional<SimpleRange> foundRange;
     if (!searchText.isEmpty()) {
-        auto foundRange = searchForClickTarget(*element, searchText);
+        foundRange = searchForClickTarget(*element, searchText);
         if (!foundRange)
             return makeUnexpected(searchTextNotFoundDescription(searchText));
+    }
 
+    if (scrollTargetIntoView == ScrollTargetIntoView::Yes) {
+        RefPtr scrollTarget = element;
+        if (foundRange) {
+            if (RefPtr ancestor = commonInclusiveAncestor<ComposedTree>(*foundRange)) {
+                if (RefPtr deeperElement = lineageOfType<Element>(*ancestor).first())
+                    scrollTarget = WTF::move(deeperElement);
+            }
+        }
+        scrollTarget->scrollIntoViewIfNeeded(false);
+        document->updateLayoutIgnorePendingStylesheets();
+    }
+
+    std::optional<FloatRect> targetRectInRootView;
+    if (foundRange) {
         if (auto absoluteQuads = RenderObject::absoluteTextQuads(*foundRange); !absoluteQuads.isEmpty())
             targetRectInRootView = view->contentsToRootView(absoluteQuads.first().boundingBox());
     }
@@ -1922,7 +1939,7 @@ static Expected<ResolvedMouseTarget, String> resolveMouseTarget(Node& targetNode
 
 static void dispatchSimulatedClick(Node& targetNode, const String& searchText, CompletionHandler<void(bool, String&&)>&& completion)
 {
-    auto resolved = resolveMouseTarget(targetNode, searchText, "#34c759"_s);
+    auto resolved = resolveMouseTarget(targetNode, searchText, "#34c759"_s, ScrollTargetIntoView::Yes);
     if (!resolved)
         return completion(false, WTF::move(resolved.error()));
 
