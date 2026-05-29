@@ -159,7 +159,6 @@ public:
         Replica,
         ScrollbarPart,
         SearchField,
-        SelectFallbackButton,
         Slider,
         SliderContainer,
         Table,
@@ -478,7 +477,6 @@ public:
     bool isRenderTextControlMultiLine() const { return type() == Type::TextControlMultiLine; }
     bool isRenderTextControlSingleLine() const { return isRenderTextControl() && !isRenderTextControlMultiLine(); }
     bool isRenderSearchField() const { return type() == Type::SearchField; }
-    bool isRenderSelectFallbackButton() const { return type() == Type::SelectFallbackButton; }
     bool isRenderTextControlInnerBlock() const { return type() == Type::TextControlInnerBlock; }
     bool isRenderTextControlInnerContainer() const { return type() == Type::TextControlInnerContainer; }
     bool isRenderVideo() const { return type() == Type::Video; }

@@ -26,13 +26,11 @@
 #pragma once
 
 #include "HTMLDivElement.h"
-#include "RenderPtr.h"
 
 namespace WebCore {
 
 class HTMLOptionElement;
 class HTMLSelectElement;
-class RenderSelectFallbackButton;
 
 class SelectFallbackButtonElement final : public HTMLDivElement {
     WTF_MAKE_TZONE_ALLOCATED(SelectFallbackButtonElement);
@@ -48,8 +46,9 @@ private:
 
     bool isSelectFallbackButtonElement() const final { return true; }
 
+    void setText(const String&);
+
     std::optional<Style::UnadjustedStyle> resolveCustomStyle(const Style::ResolutionContext&, const RenderStyle* hostStyle) final;
-    RenderPtr<RenderElement> createElementRenderer(RenderStyle&&, const RenderTreePosition&) final;
 };
 
 } // namespace WebCore

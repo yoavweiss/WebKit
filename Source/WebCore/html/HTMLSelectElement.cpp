@@ -568,6 +568,7 @@ void HTMLSelectElement::attributeChanged(const QualifiedName& name, const AtomSt
             invalidateStyleAndRenderersForSubtree();
             setRecalcListItems();
             updateValidity();
+            invalidateButtonText();
         }
         break;
     }
@@ -739,6 +740,8 @@ void HTMLSelectElement::childrenChanged(const ChildChange& change)
     m_lastOnChangeSelection.clear();
 
     HTMLFormControlElement::childrenChanged(change);
+
+    invalidateButtonText();
 }
 
 // Select the given option as the default if no option is explicitly selected.
@@ -772,17 +775,58 @@ void HTMLSelectElement::selectDefaultOptionIfNeeded(HTMLOptionElement& candidate
     }
 }
 
+auto HTMLSelectElement::insertionSteps(InsertionType insertionType, ContainerNode& parentOfInsertedTree) -> NeedsPostConnectionSteps
+{
+    auto result = HTMLFormControlElement::insertionSteps(insertionType, parentOfInsertedTree);
+
+    if (insertionType.connectedToDocument) {
+        if (m_buttonTextNeedsUpdate)
+            protect(document())->addElementWithPendingUserAgentShadowTreeUpdate(*this);
+        else
+            invalidateButtonText();
+    }
+
+    return result;
+}
+
+void HTMLSelectElement::removingSteps(RemovalType removalType, ContainerNode& oldParentOfRemovedTree)
+{
+    HTMLFormControlElement::removingSteps(removalType, oldParentOfRemovedTree);
+
+    if (removalType.disconnectedFromDocument && m_buttonTextNeedsUpdate)
+        protect(document())->removeElementWithPendingUserAgentShadowTreeUpdate(*this);
+}
+
 void HTMLSelectElement::optionElementChildrenChanged()
 {
     setOptionsChangedOnRenderer();
     invalidateStyleForSubtree();
     updateValidity();
-    updateButtonText();
+    invalidateButtonText();
 }
 
 void HTMLSelectElement::updateButtonText(HTMLOptionElement* selectedOption, int optionIndex)
 {
+    if (m_buttonTextNeedsUpdate) {
+        m_buttonTextNeedsUpdate = false;
+        protect(document())->removeElementWithPendingUserAgentShadowTreeUpdate(*this);
+    }
     protect(downcast<SelectFallbackButtonElement>(*m_buttonSlot->firstChild()))->updateText(selectedOption, optionIndex);
+}
+
+void HTMLSelectElement::invalidateButtonText()
+{
+    if (m_buttonTextNeedsUpdate)
+        return;
+    m_buttonTextNeedsUpdate = true;
+    if (isConnected())
+        protect(document())->addElementWithPendingUserAgentShadowTreeUpdate(*this);
+}
+
+void HTMLSelectElement::updateUserAgentShadowTree()
+{
+    ASSERT(m_buttonTextNeedsUpdate);
+    updateButtonText();
 }
 
 void HTMLSelectElement::setSize(unsigned size)
@@ -1577,7 +1621,7 @@ void HTMLSelectElement::reset()
     setOptionsChangedOnRenderer();
     invalidateStyleForSubtree();
     updateValidity();
-    updateButtonText();
+    invalidateButtonText();
 }
 
 #if !PLATFORM(WIN)
@@ -2527,7 +2571,7 @@ bool HTMLSelectElement::itemIsSelected(unsigned listIndex) const
 #if !PLATFORM(COCOA)
 void HTMLSelectElement::setTextFromItem(unsigned listIndex)
 {
-    downcast<SelectFallbackButtonElement>(*protect(m_buttonSlot)->firstChild()).updateText(nullptr, listToOptionIndex(listIndex));
+    updateButtonText(nullptr, listToOptionIndex(listIndex));
 }
 #endif
 

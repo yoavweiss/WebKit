@@ -102,6 +102,8 @@ public:
     Ref<HTMLCollection> selectedOptions();
 
     void optionElementChildrenChanged();
+    void updateButtonText(HTMLOptionElement* = nullptr, int optionIndex = -1);
+    void invalidateButtonText();
 
     void setRecalcListItems();
     void updateListItemSelectedStates(AllowStyleInvalidation = AllowStyleInvalidation::Yes);
@@ -275,7 +277,6 @@ private:
     bool platformHandleKeydownEvent(KeyboardEvent*);
     void listBoxDefaultEventHandler(Event&);
     void setOptionsChangedOnRenderer();
-    void updateButtonText(HTMLOptionElement* = nullptr, int optionIndex = -1);
     size_t searchOptionsForValue(const String&, size_t listIndexStart, size_t listIndexEnd) const;
 
     enum class SkipDirection : bool { Backwards, Forwards };
@@ -288,6 +289,9 @@ private:
     int nextSelectableListIndexForPickerPageMove(int startIndex, SkipDirection, WritingMode) const;
 
     void childrenChanged(const ChildChange&) final;
+    NeedsPostConnectionSteps insertionSteps(InsertionType, ContainerNode&) final;
+    void removingSteps(RemovalType, ContainerNode&) final;
+    void updateUserAgentShadowTree() final;
 
     void didDetachRenderers() final;
 
@@ -328,6 +332,7 @@ private:
     std::optional<FloatPoint> m_lastPopupLocationForTesting;
     bool m_popupIsVisible { false };
     bool m_wasBaseAppearance { false };
+    bool m_buttonTextNeedsUpdate { false };
 };
 
 } // namespace

@@ -104,7 +104,6 @@ rendering/RenderCounter.cpp
 [ iOS ] rendering/RenderImage.cpp
 rendering/RenderLayer.cpp
 [ iOS ] rendering/RenderLayerCompositor.cpp
-[ iOS ] rendering/RenderSelectFallbackButton.cpp
 rendering/RenderTreeAsText.cpp
 rendering/cocoa/RenderThemeCocoa.mm
 [ iOS ] rendering/ios/RenderThemeIOS.mm

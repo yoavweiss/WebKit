@@ -31,23 +31,43 @@
 #include "HTMLOptionElement.h"
 #include "HTMLSelectElement.h"
 #include "PlatformRenderTheme.h"
-#include "RenderSelectFallbackButton.h"
 #include "RenderStyle+SettersInlines.h"
 #include "RenderTheme.h"
 #include "ResolvedStyle.h"
+#include "ScriptDisallowedScope.h"
 #include "ShadowRoot.h"
 #include "StyleKeyword+Mappings.h"
 #include "StyleResolver.h"
 #include "StyleTextAlign.h"
+#include "Text.h"
 #include <wtf/TZoneMallocInlines.h>
+
+#if PLATFORM(IOS_FAMILY)
+#include "LocalizedStrings.h"
+#endif
 
 namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(SelectFallbackButtonElement);
 
+#if PLATFORM(IOS_FAMILY)
+static size_t selectedOptionCount(const HTMLSelectElement& selectElement)
+{
+    size_t count = 0;
+    for (auto& item : selectElement.listItems()) {
+        if (RefPtr option = dynamicDowncast<HTMLOptionElement>(item.get()); option && option->selected())
+            ++count;
+    }
+    return count;
+}
+#endif
+
 Ref<SelectFallbackButtonElement> SelectFallbackButtonElement::create(Document& document)
 {
-    return adoptRef(*new SelectFallbackButtonElement(document));
+    Ref element = adoptRef(*new SelectFallbackButtonElement(document));
+    ScriptDisallowedScope::EventAllowedScope scope { element };
+    element->appendChild(Text::create(document, "\n"_s));
+    return element;
 }
 
 SelectFallbackButtonElement::SelectFallbackButtonElement(Document& document)
@@ -62,9 +82,44 @@ HTMLSelectElement& SelectFallbackButtonElement::selectElement() const
 
 void SelectFallbackButtonElement::updateText(HTMLOptionElement* selectedOption, int optionIndex)
 {
-    invalidateStyle();
-    if (CheckedPtr buttonTextRenderer = dynamicDowncast<RenderSelectFallbackButton>(renderer()))
-        buttonTextRenderer->setTextFromOption(selectedOption, optionIndex);
+    Ref selectElement = this->selectElement();
+
+    if (optionIndex < 0)
+        optionIndex = selectElement->selectedIndex();
+
+    auto applyText = [&](const String& text) {
+        setText(text);
+        invalidateStyle();
+        selectElement->didUpdateActiveOption(optionIndex);
+    };
+
+#if PLATFORM(IOS_FAMILY)
+    if (selectElement->multiple()) {
+        size_t count = selectedOptionCount(selectElement);
+        if (count != 1) {
+            applyText(htmlSelectMultipleItems(count));
+            return;
+        }
+    }
+#endif
+
+    RefPtr option = selectedOption;
+    if (!option) {
+        auto& listItems = selectElement->listItems();
+        int i = selectElement->optionToListIndex(optionIndex);
+        if (i >= 0 && static_cast<unsigned>(i) < listItems.size())
+            option = dynamicDowncast<HTMLOptionElement>(*listItems[i]);
+    }
+
+    applyText(option ? option->textIndentedToRespectGroupLabel().trim(deprecatedIsSpaceOrNewline) : emptyString());
+}
+
+void SelectFallbackButtonElement::setText(const String& text)
+{
+    String textToUse = text.isEmpty() ? "\n"_s : text;
+    Ref textNode = downcast<Text>(*firstChild());
+    if (textNode->data() != textToUse)
+        textNode->setData(textToUse);
 }
 
 std::optional<Style::UnadjustedStyle> SelectFallbackButtonElement::resolveCustomStyle(const Style::ResolutionContext& resolutionContext, const RenderStyle* hostStyle)
@@ -118,11 +173,6 @@ std::optional<Style::UnadjustedStyle> SelectFallbackButtonElement::resolveCustom
     }
 
     return elementStyle;
-}
-
-RenderPtr<RenderElement> SelectFallbackButtonElement::createElementRenderer(RenderStyle&& style, const RenderTreePosition&)
-{
-    return createRenderer<RenderSelectFallbackButton>(*this, WTF::move(style));
 }
 
 } // namespace WebCore

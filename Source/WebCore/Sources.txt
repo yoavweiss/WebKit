@@ -3014,7 +3014,6 @@ rendering/RenderScrollbar.cpp @header:RenderStyleGetters
 rendering/RenderScrollbarPart.cpp @header:RenderStyleGetters
 rendering/RenderScrollbarTheme.cpp
 rendering/RenderSearchField.cpp @header:RenderStyleGetters
-rendering/RenderSelectFallbackButton.cpp @header:RenderStyleGetters
 rendering/RenderSelection.cpp @header:RenderStyleGetters
 rendering/RenderSelectionGeometry.cpp
 rendering/RenderSlider.cpp @header:RenderStyleGetters

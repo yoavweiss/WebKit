@@ -213,9 +213,7 @@ void RenderTreeAsText::writeRenderObject(TextStream& ts, const RenderObject& o, 
             if (isEmptyOrUnstyledAppleStyleSpan(o.node()))
                 ts << " *empty or unstyled AppleStyleSpan*"_s;
         }
-    // FIXME: Remove with RenderSelectFallbackButton. webkit.org/b/311248
-    } else if (is<RenderText>(o) && o.parent() && o.parent()->isRenderSelectFallbackButton())
-        ts << " {#text}"_s;
+    }
     
     bool enableSubpixelPrecisionForTextDump = shouldEnableSubpixelPrecisionForTextDump(o.document());
     LayoutRect r;

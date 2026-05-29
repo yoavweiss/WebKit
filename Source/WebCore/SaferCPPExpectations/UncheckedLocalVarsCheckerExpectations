@@ -93,7 +93,6 @@ rendering/RenderMultiColumnFlow.cpp
 rendering/RenderMultiColumnSet.cpp
 rendering/RenderObject.cpp
 rendering/RenderReplaced.cpp
-[ iOS ] rendering/RenderSelectFallbackButton.cpp
 rendering/RenderTable.cpp
 rendering/RenderTableCell.cpp
 rendering/RenderTableCellInlines.h
