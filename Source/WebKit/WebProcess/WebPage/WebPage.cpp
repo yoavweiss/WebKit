@@ -4206,25 +4206,7 @@ static Expected<bool, WebCore::RemoteFrameGeometryTransformer> handleTouchEvent(
     if (!localFrame || !localFrame->view())
         return false;
 
-    WeakPtr weakPage = page;
-    if (weakPage)
-        weakPage->pointerCaptureController().resetPointerDownDefaultPrevention();
-
-    auto result = localFrame->eventHandler().handleTouchEvent(platform(touchEvent));
-
-#if ENABLE(IOS_TOUCH_EVENTS)
-    bool canPreventNativeGestures = touchEvent.canPreventNativeGestures();
-#else
-    bool canPreventNativeGestures = false;
-#endif
-
-    // If a page has active (non-passive) touch listeners and calls pointerdown.preventDefault()
-    // but not touchstart.preventDefault(), scrolling will no longer be suppressed on the
-    // preventable path.
-    if (!canPreventNativeGestures && weakPage && !result.value_or(false) && weakPage->pointerCaptureController().wasPointerDownDefaultPrevented())
-        return true;
-
-    return result;
+    return localFrame->eventHandler().handleTouchEvent(platform(touchEvent));
 }
 #endif
 
