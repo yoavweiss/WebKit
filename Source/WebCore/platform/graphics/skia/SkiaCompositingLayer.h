@@ -109,6 +109,8 @@ public:
 
     bool paint(SkCanvas&, std::optional<Damage>&);
 
+    bool hasDebugIndicators() const { return m_debugBorder.has_value() || m_repaintCount.has_value(); }
+
 private:
     SkiaCompositingLayer() = default;
 
@@ -121,12 +123,18 @@ private:
 
     bool computeTransformsAndAnimations(const TransformationMatrix& parentTransform, const TransformationMatrix& futureParentTransform, MonotonicTime);
 
+    enum class PaintMode : uint8_t {
+        Paint,
+        DebugIndicators,
+    };
+
     struct PaintContext {
         explicit PaintContext(std::optional<Damage>& damage)
             : frameDamage(damage)
         {
         }
 
+        PaintMode mode { PaintMode::Paint };
         float opacity { 1 };
         std::optional<SkBlendMode> blendMode;
         IntSize offset;
@@ -150,6 +158,11 @@ private:
     void paintWithBlendMode(SkCanvas&, PaintContext&);
     void paintWithFilterAndMask(SkCanvas&, PaintContext&);
     void paintSelf(SkCanvas&, PaintContext&);
+    void paintContents(SkCanvas&, PaintContext&);
+    void paintDebugIndicators(SkCanvas&, PaintContext&);
+#if ENABLE(DAMAGE_TRACKING)
+    void collectFrameDamage(SkCanvas&, PaintContext&, const TransformationMatrix&);
+#endif
     void paintSelfAndChildren(SkCanvas&, PaintContext&);
     void paintWithIntermediateSurface(SkCanvas&, PaintContext&, const IntRect&, SkPaint*, PaintFunction&&);
     void paintWith3DRenderingContext(SkCanvas&, PaintContext&);
