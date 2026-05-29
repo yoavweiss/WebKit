@@ -141,8 +141,8 @@ static std::optional<SimpleRange> contextRangeForSession(Document& document, con
         return selection.firstRange();
     }
 
-    if (!session || session->compositionType != WritingTools::Session::CompositionType::Compose) {
-        // If the session is a Compose session, the range should be the range of the entire editable content.
+    if (!session || (session->compositionType != WritingTools::Session::CompositionType::Compose && session->isForProofreadingReview != WritingTools::IsForProofreadingReview::Yes)) {
+        // If the session is a Compose session or a proofreading review session, the range should be the range of the entire editable content.
 
         if (selection.isRange()) {
             auto startOfFirstParagraph = startOfParagraph(selection.start());

@@ -3809,6 +3809,41 @@ TEST(WritingTools, ContextRangeFromRangeSelection)
     TestWebKitAPI::Util::run(&finished);
 }
 
+TEST(WritingTools, ProofreadingReviewContextRangeFromRangeSelection)
+{
+    RetainPtr session = adoptNS([[WTSession alloc] initWithType:WTSessionTypeProofreading textViewDelegate:nil]);
+
+    RetainPtr webView = adoptNS([[WritingToolsWKWebView alloc] initWithHTMLString:@"<body contenteditable id='p'><p>AAAA BBBB CCCC</p><p>XXXX YYYY ZZZZ</p></body>"]);
+    [webView focusDocumentBodyAndSelectAll];
+
+    RetainPtr<NSString> setSelectionJavaScript = @""
+        "(() => {"
+        "  const first = document.getElementById('p').childNodes[0].firstChild;"
+        "  const range = document.createRange();"
+        "  range.setStart(first, 5);"
+        "  range.setEnd(first, 9);"
+        "  "
+        "  var selection = window.getSelection();"
+        "  selection.removeAllRanges();"
+        "  selection.addRange(range);"
+        "})();";
+
+    [webView stringByEvaluatingJavaScript:setSelectionJavaScript];
+
+    __block bool finished = false;
+    [(id)[webView writingToolsDelegate] willBeginWritingToolsSession:session forProofreadingReview:YES requestContexts:^(NSArray<WTContext *> *contexts) {
+        EXPECT_EQ(1UL, contexts.count);
+
+        // A proofreading review session must return the entire editable content as context,
+        // not just the paragraph surrounding the selection — even when a word is selected.
+        EXPECT_WK_STREQ(@"AAAA BBBB CCCC\n\nXXXX YYYY ZZZZ", contexts.firstObject.attributedText.string);
+
+        finished = true;
+    }];
+
+    TestWebKitAPI::Util::run(&finished);
+}
+
 TEST(WritingTools, SuggestedTextIsSelectedAfterSmartReply)
 {
     RetainPtr session = adoptNS([[WTSession alloc] initWithType:WTSessionTypeComposition textViewDelegate:nil]);
