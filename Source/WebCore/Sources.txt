@@ -2450,6 +2450,7 @@ platform/SharedBuffer.cpp
 platform/SharedBufferChunkReader.cpp
 platform/SharedMemory.cpp
 platform/SharedStringHash.cpp
+platform/SharedTimebase.cpp
 platform/SimpleCaretAnimator.cpp @header:RenderStyleGetters
 platform/Site.cpp
 platform/SleepDisabler.cpp

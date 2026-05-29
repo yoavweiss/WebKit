@@ -987,6 +987,7 @@ WEBCORE_SERIALIZATION_DESCRIPTION_FILES = \
 	PlaybackSessionModel.serialization.in \
 	ProtectionSpaceBase.serialization.in \
 	ScrollTypes.serialization.in \
+	SharedTimebase.serialization.in \
 	WebGPU.serialization.in \
 #
 

@@ -127,6 +127,7 @@ AudioVideoRendererAVFObjC::~AudioVideoRendererAVFObjC()
 {
     if (RefPtr rateChangeListener = std::exchange(m_effectiveRateChangedListener, { }))
         rateChangeListener->stop();
+    cancelStartupGateObserver();
     cancelSeekingPromiseIfNeeded();
     cancelTimeReachedAction();
     cancelTimeObserver();
@@ -506,6 +507,8 @@ void AudioVideoRendererAVFObjC::setRate(double rate)
 
 double AudioVideoRendererAVFObjC::effectiveRate() const
 {
+    if (m_startupGateObserver)
+        return 0;
     // False positive see webkit.org/b/298024
     SUPPRESS_UNRETAINED_ARG return PAL::CMTimebaseGetRate([m_synchronizer timebase]);
 }
@@ -655,12 +658,61 @@ Ref<GenericPromise> AudioVideoRendererAVFObjC::finishSeek(const MediaTime& seekT
 
 void AudioVideoRendererAVFObjC::notifyEffectiveRateChanged(Function<void(double)>&& callback)
 {
+    m_effectiveRateChangedCallback = WTF::move(callback);
     // False positive see webkit.org/b/298024
-    SUPPRESS_UNRETAINED_ARG m_effectiveRateChangedListener = EffectiveRateChangedListener::create([callback = makeBlockPtr(WTF::move(callback))](double rate) mutable {
-        callOnMainThread([callback, rate] {
-            callback.get()(rate);
+    SUPPRESS_UNRETAINED_ARG m_effectiveRateChangedListener = EffectiveRateChangedListener::create([weakThis = ThreadSafeWeakPtr { *this }](double rate) mutable {
+        callOnMainThread([weakThis, rate] {
+            if (RefPtr protectedThis = weakThis.get())
+                protectedThis->handleEffectiveRateChanged(rate);
         });
     }, [m_synchronizer timebase]);
+}
+
+void AudioVideoRendererAVFObjC::handleEffectiveRateChanged(double rate)
+{
+    ASSERT(isMainThread());
+
+    // -> 0, or non-zero -> non-zero (already moving): forward immediately.
+    // The 0 -> non-zero edge is the only one that lies, so it's gated below.
+    if (!rate || m_lastForwardedEffectiveRate) {
+        cancelStartupGateObserver();
+        m_lastForwardedEffectiveRate = rate;
+        if (m_effectiveRateChangedCallback)
+            m_effectiveRateChangedCallback(rate);
+        return;
+    }
+
+    // 0 -> non-zero with a gate already pending: leave it.
+    if (m_startupGateObserver)
+        return;
+
+    // 0 -> non-zero. Hold the rate change until the timebase actually
+    // moves (in either direction).
+    SUPPRESS_UNRETAINED_ARG MediaTime baseTime = PAL::toMediaTime(PAL::CMTimebaseGetTime([m_synchronizer timebase]));
+    m_startupGateObserver = [m_synchronizer addPeriodicTimeObserverForInterval:PAL::CMTimeMake(1, 100) queue:mainDispatchQueueSingleton() usingBlock:makeBlockPtr([weakThis = ThreadSafeWeakPtr { *this }, baseTime](CMTime) mutable {
+        RefPtr protectedThis = weakThis.get();
+        if (!protectedThis || !protectedThis->m_startupGateObserver)
+            return;
+        SUPPRESS_UNRETAINED_ARG MediaTime now = PAL::toMediaTime(PAL::CMTimebaseGetTime([protectedThis->m_synchronizer timebase]));
+        if (now != baseTime)
+            protectedThis->releaseStartupGateAndForwardRate();
+    }).get()];
+}
+
+void AudioVideoRendererAVFObjC::releaseStartupGateAndForwardRate()
+{
+    ASSERT(isMainThread());
+    cancelStartupGateObserver();
+    SUPPRESS_UNRETAINED_ARG double liveRate = PAL::CMTimebaseGetRate([m_synchronizer timebase]);
+    m_lastForwardedEffectiveRate = liveRate;
+    if (m_effectiveRateChangedCallback)
+        m_effectiveRateChangedCallback(liveRate);
+}
+
+void AudioVideoRendererAVFObjC::cancelStartupGateObserver()
+{
+    if (RetainPtr observer = std::exchange(m_startupGateObserver, nullptr))
+        [m_synchronizer removeTimeObserver:observer.get()];
 }
 
 void AudioVideoRendererAVFObjC::setVolume(float volume)

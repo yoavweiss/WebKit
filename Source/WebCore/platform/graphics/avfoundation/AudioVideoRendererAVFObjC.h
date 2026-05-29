@@ -223,6 +223,9 @@ private:
     // changes. The cached value reflects the rate we set, not the actual
     // timebase rate.
     float synchronizerRate() const { return m_lastSetSyncRate; }
+    void handleEffectiveRateChanged(double);
+    void releaseStartupGateAndForwardRate();
+    void cancelStartupGateObserver();
     bool updateLastPixelBuffer();
     void maybePurgeLastPixelBuffer();
     void setNeedsPlaceholderImage(bool);
@@ -355,6 +358,13 @@ private:
     MonotonicTime m_startupTime;
 
     RefPtr<EffectiveRateChangedListener> m_effectiveRateChangedListener;
+    Function<void(double)> m_effectiveRateChangedCallback;
+    double m_lastForwardedEffectiveRate { 0 };
+    // Set between a 0 → non-zero rate notification and the moment the
+    // synchronizer's timebase is observed to actually move. While set,
+    // effectiveRate() returns 0 — masking AVSampleBufferRenderSynchronizer's
+    // habit of publishing a non-zero rate before its timebase starts moving.
+    RetainPtr<id> m_startupGateObserver;
 
     mutable std::unique_ptr<PixelBufferConformerCV> m_rgbConformer;
 

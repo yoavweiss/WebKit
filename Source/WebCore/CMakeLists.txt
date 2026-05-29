@@ -3177,6 +3177,7 @@ list(APPEND WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/PlatformScreen.serialization.in
     platform/PlatformWheelEvent.serialization.in
     platform/ScrollTypes.serialization.in
+    platform/SharedTimebase.serialization.in
 
     platform/audio/PlatformMediaSession.serialization.in
 

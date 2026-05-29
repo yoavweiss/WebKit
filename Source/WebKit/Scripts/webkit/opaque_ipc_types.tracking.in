@@ -389,6 +389,7 @@
 # Shared Memory
 [SafeWrapper] StructureParam WebCore::ShareableCVPixelBufferBytesHandle.m_handle WebCore::SharedMemoryHandle
 [SafeWrapper] StructureParam WebCore::ShareableBitmapHandle.m_handle WebCore::SharedMemoryHandle
+[NotSentFromWebContent] StructureParam WebCore::SharedTimebaseHandle.memory WebCore::SharedMemoryHandle
 [SafeWrapper] StructureParam IPC::StreamServerConnectionHandle.buffer WebCore::SharedMemoryHandle
 
 [UnsafeWrapper] std::optional<IPC::SharedBufferReference> {
@@ -442,6 +443,8 @@
     [Legacy] StructureParam WebKit::FullScreenMediaDetails.imageHandle
 
     [DebugOnly] MessageParamReply IPCStreamTester.SyncMessageReturningSharedMemory1 handle
+
+    [NotSentFromWebContent] MessageParamReply RemoteAudioVideoRendererProxyManager.Create handle SharedTimebaseHandle
 }
 
 [UnsafeWrapper] WebCore::SharedMemoryHandle {

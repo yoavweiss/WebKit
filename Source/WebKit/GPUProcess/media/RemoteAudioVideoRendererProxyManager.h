@@ -43,6 +43,7 @@
 #include <WebCore/MediaPromiseTypes.h>
 #include <WebCore/MediaSampleConverter.h>
 #include <WebCore/ShareableBitmapHandle.h>
+#include <WebCore/SharedTimebase.h>
 #include <wtf/Forward.h>
 #include <wtf/Logger.h>
 #include <wtf/MediaTime.h>
@@ -85,7 +86,7 @@ public:
 
 private:
     // Messages
-    void create(RemoteAudioVideoRendererIdentifier, WebCore::HTMLMediaElementIdentifier, WebCore::MediaPlayerIdentifier);
+    void create(RemoteAudioVideoRendererIdentifier, WebCore::HTMLMediaElementIdentifier, WebCore::MediaPlayerIdentifier, CompletionHandler<void(std::optional<WebCore::SharedTimebaseHandle>)>&&);
     void shutdown(RemoteAudioVideoRendererIdentifier);
 
     void setPreferences(RemoteAudioVideoRendererIdentifier, WebCore::VideoRendererPreferences);
@@ -114,9 +115,9 @@ private:
     void notifyWhenErrorOccurs(RemoteAudioVideoRendererIdentifier, CompletionHandler<void(WebCore::PlatformMediaError)>&&);
 
     // SynchronizerInterface
-    void play(RemoteAudioVideoRendererIdentifier, std::optional<MonotonicTime>, CompletionHandler<void(WebCore::MediaTimeUpdateData&&)>&&);
-    void pause(RemoteAudioVideoRendererIdentifier, std::optional<MonotonicTime>, CompletionHandler<void(WebCore::MediaTimeUpdateData&&)>&&);
-    void setRate(RemoteAudioVideoRendererIdentifier, double, CompletionHandler<void(WebCore::MediaTimeUpdateData&&)>&&);
+    void play(RemoteAudioVideoRendererIdentifier, std::optional<MonotonicTime>);
+    void pause(RemoteAudioVideoRendererIdentifier, std::optional<MonotonicTime>);
+    void setRate(RemoteAudioVideoRendererIdentifier, double);
     void stall(RemoteAudioVideoRendererIdentifier);
     void prepareToSeek(RemoteAudioVideoRendererIdentifier, const MediaTime&, CompletionHandler<void(WebCore::MediaTimePromise::Result&&)>&&);
     void finishSeek(RemoteAudioVideoRendererIdentifier, const MediaTime&, CompletionHandler<void(GenericPromise::Result&&)>&&);
@@ -167,6 +168,7 @@ private:
         RefPtr<WebCore::AudioVideoRenderer> renderer;
         Markable<WebCore::HTMLMediaElementIdentifier> mediaElementIdentifier;
         Markable<WebCore::MediaPlayerIdentifier> playerIdentifier;
+        std::unique_ptr<WebCore::SharedTimebase> sharedTimebase;
 #if PLATFORM(COCOA)
         LayerHostingContextManager layerHostingContextManager;
 #endif
@@ -174,7 +176,6 @@ private:
         WebCore::VideoRendererPreferences preferences { };
         Seconds videoPlaybackMetricsUpdateInterval { };
         MonotonicTime nextPlaybackQualityMetricsUpdateTime { };
-        bool firstTickAfterPlay { false };
         bool isGatheringVideoFrameMetadata { false };
     };
     RefPtr<WebCore::AudioVideoRenderer> createRenderer();
@@ -188,6 +189,8 @@ private:
     using LayerHostingContextCallback = CompletionHandler<void(WebCore::HostingContext)>;
     void requestHostingContext(RemoteAudioVideoRendererIdentifier, LayerHostingContextCallback&&);
     WebCore::MediaSampleConverter& converterFor(RendererContext&, TrackIdentifier);
+    static void updateContextSharedTimebase(const RendererContext&);
+    template<typename Message> void publishAndSend(RemoteAudioVideoRendererIdentifier, Message&&);
 
 #if PLATFORM(COCOA)
     void setVideoLayerSize(RemoteAudioVideoRendererIdentifier, const WebCore::FloatSize&);

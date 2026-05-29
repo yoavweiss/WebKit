@@ -31,7 +31,7 @@
     DispatchedTo=GPU
 ]
 messages -> RemoteAudioVideoRendererProxyManager {
-    Create(WebKit::RemoteAudioVideoRendererIdentifier identifier, WebCore::MediaPlayerClientIdentifier mediaElementIdentifier, WebCore::MediaPlayerIdentifier playerIdentifier)
+    Create(WebKit::RemoteAudioVideoRendererIdentifier identifier, WebCore::MediaPlayerClientIdentifier mediaElementIdentifier, WebCore::MediaPlayerIdentifier playerIdentifier) -> (std::optional<WebCore::SharedTimebaseHandle> handle)
     Shutdown(WebKit::RemoteAudioVideoRendererIdentifier identifier)
 
     SetPreferences(WebKit::RemoteAudioVideoRendererIdentifier identifier, OptionSet<WebCore::VideoRendererPreference> preferences)
@@ -54,9 +54,9 @@ messages -> RemoteAudioVideoRendererProxyManager {
     ApplicationWillResignActive(WebKit::RemoteAudioVideoRendererIdentifier identifier)
     SetSpatialTrackingInfo(WebKit::RemoteAudioVideoRendererIdentifier identifier, bool prefersSpatialAudioExperience, enum:uint8_t WebCore::MediaPlayerSoundStageSize soundStageSize, String sceneIdentifier, String defaultLabel, String label)
 
-    Play(WebKit::RemoteAudioVideoRendererIdentifier identifier, std::optional<MonotonicTime> hostTime) -> (struct WebCore::MediaTimeUpdateData timeUpdateData)
-    Pause(WebKit::RemoteAudioVideoRendererIdentifier identifier, std::optional<MonotonicTime> hostTime) -> (struct WebCore::MediaTimeUpdateData timeUpdateData)
-    SetRate(WebKit::RemoteAudioVideoRendererIdentifier identifier, double rate) -> (struct WebCore::MediaTimeUpdateData timeUpdateData)
+    Play(WebKit::RemoteAudioVideoRendererIdentifier identifier, std::optional<MonotonicTime> hostTime)
+    Pause(WebKit::RemoteAudioVideoRendererIdentifier identifier, std::optional<MonotonicTime> hostTime)
+    SetRate(WebKit::RemoteAudioVideoRendererIdentifier identifier, double rate)
     Stall(WebKit::RemoteAudioVideoRendererIdentifier identifier)
     PrepareToSeek(WebKit::RemoteAudioVideoRendererIdentifier identifier, MediaTime seekTime) -> (Expected<MediaTime, WebCore::PlatformMediaError> result)
     FinishSeek(WebKit::RemoteAudioVideoRendererIdentifier identifier, MediaTime seekTime) -> (GenericPromise::Result result)

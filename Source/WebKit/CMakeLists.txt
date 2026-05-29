@@ -754,6 +754,7 @@ set(WebCore_SERIALIZATION_IN_FILES
     PlatformWheelEvent.serialization.in
     ProtectionSpaceBase.serialization.in
     ScrollTypes.serialization.in
+    SharedTimebase.serialization.in
     WebGPU.serialization.in
 )
 

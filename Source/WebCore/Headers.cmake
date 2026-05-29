@@ -2312,6 +2312,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/SharedBufferChunkReader.h
     platform/SharedMemory.h
     platform/SharedStringHash.h
+    platform/SharedTimebase.h
+    platform/SharedTimebaseHandle.h
     platform/SharedTimer.h
     platform/Site.h
     platform/SleepDisabler.h

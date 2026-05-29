@@ -758,6 +758,7 @@
 				WebCore/RenderStyleChange.cpp,
 				WebCore/RTCRtpSFrameTransformerTests.cpp,
 				WebCore/SampleMap.cpp,
+				WebCore/SharedTimebaseTests.cpp,
 				WebCore/SecurityOrigin.cpp,
 				WebCore/SerializedScriptValue.cpp,
 				WebCore/ServiceWorkerRoutines.cpp,

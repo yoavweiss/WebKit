@@ -37,7 +37,7 @@
 #include <WebCore/HTMLMediaElementIdentifier.h>
 #include <WebCore/MediaPlayerIdentifier.h>
 #include <WebCore/MediaSampleConverter.h>
-#include <WebCore/MediaTimeUpdateData.h>
+#include <WebCore/SharedTimebase.h>
 #include <WebCore/VideoPlaybackQualityMetrics.h>
 #include <wtf/Forward.h>
 #include <wtf/LoggerHelper.h>
@@ -95,37 +95,12 @@ public:
         void errorOccurred(WebCore::PlatformMediaError);
         void readyForMoreMediaData(WebCore::SamplesRendererTrackIdentifier);
         void stateUpdate(RemoteAudioVideoRendererState);
-        void timeObserverUpdate(RemoteAudioVideoRendererState);
         void updatePlaybackQualityMetrics(WebCore::VideoPlaybackQualityMetrics);
 
 #if PLATFORM(COCOA)
         void layerHostingContextChanged(RemoteAudioVideoRendererState, WebCore::HostingContext&&, const WebCore::FloatSize&);
 #endif
         ThreadSafeWeakPtr<AudioVideoRendererRemote> m_parent;
-    };
-
-    class TimeProgressEstimator final {
-    public:
-        MediaTime currentTime() const;
-        bool timeIsProgressing() const;
-        double effectiveRate() const { return m_effectiveRate.load(); }
-        void setTime(const WebCore::MediaTimeUpdateData&);
-        void setRate(double);
-        void pause();
-        void resetLastReturnedTime();
-        void setStallCap(const MediaTime&);
-        void clearStallCap();
-        void clearStallCapIfBefore(const MediaTime&);
-
-    private:
-        static constexpr Seconds kUpdateInterval = remoteAudioVideoRendererUpdateInterval;
-        mutable Lock m_lock;
-        MediaTime m_cachedTime WTF_GUARDED_BY_LOCK(m_lock) { MediaTime::zeroTime() };
-        MonotonicTime m_wallTime WTF_GUARDED_BY_LOCK(m_lock);
-        std::atomic<double> m_effectiveRate { 0 };
-        bool m_forceUseCachedTime WTF_GUARDED_BY_LOCK(m_lock) { true };
-        mutable std::optional<MediaTime> m_lastReturnedTime WTF_GUARDED_BY_LOCK(m_lock);
-        std::optional<MediaTime> m_stallCap WTF_GUARDED_BY_LOCK(m_lock);
     };
 
 private:
@@ -281,7 +256,12 @@ private:
     CachedState m_cachedState WTF_GUARDED_BY_LOCK(m_lock);
     MonotonicTime m_lastPlaybackQualityMetricsQueryTime WTF_GUARDED_BY_LOCK(m_lock);
     Seconds m_videoPlaybackMetricsUpdateInterval WTF_GUARDED_BY_LOCK(m_lock);
-    TimeProgressEstimator m_timeEstimator;
+    std::unique_ptr<WebCore::SharedTimebaseReader> m_sharedTimebaseReader WTF_GUARDED_BY_LOCK(m_lock);
+    // Upper bound on currentTime() so the SharedTimebaseReader's wall-clock
+    // extrapolation can't overshoot a stall boundary (e.g. the start of a
+    // buffered gap). Set by notifyTimeReachedAndStall, cleared by
+    // cancelTimeReachedAction or a seek that crosses it.
+    std::optional<MediaTime> m_stallCap WTF_GUARDED_BY_LOCK(m_lock);
 
     Function<void(WebCore::PlatformMediaError)> m_errorCallback WTF_GUARDED_BY_CAPABILITY(queueSingleton());
     Function<void()> m_firstFrameAvailableCallback WTF_GUARDED_BY_CAPABILITY(queueSingleton());
