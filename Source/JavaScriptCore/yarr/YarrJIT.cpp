@@ -1328,6 +1328,126 @@ class YarrGenerator final : public YarrJITInfo {
         m_jit.getEffectiveAddress(address, m_regs.regUnicodeInputAndTrail);
         tryReadUnicodeCharImpl<TryReadUnicodeCharGenFirstNonBMPOptimization::DontUseOptimization>(*m_vm, m_jit, resultReg);
     }
+
+    // Specialized read+match for character classes whose codepoints all share a single UTF-16
+    // lead surrogate. Loads the (lead, trail) pair as a single 32-bit value, branches to
+    // |failures| if the lead doesn't match |sharedLead|, otherwise leaves the trail surrogate
+    // in |character| and matches it against |trailsOnlyClass| (a transient class containing
+    // only the trail surrogate values from the source class). Skips the full surrogate-pair
+    // decode that tryReadUnicodeCharImpl would emit (~16 instructions).
+    void readSurrogatePairAndMatchTrailForSharedLead(Checked<unsigned> negativeCharacterOffset,
+        MacroAssembler::RegisterID character,
+        MacroAssembler::RegisterID scratch,
+        MacroAssembler::RegisterID indexReg,
+        char16_t sharedLead,
+        const CharacterClass* trailsOnlyClass,
+        MacroAssembler::JumpList& failures)
+    {
+        ASSERT(m_charSize == CharSize::Char16);
+        ASSERT(trailsOnlyClass->m_matches.isEmpty());
+        ASSERT(trailsOnlyClass->m_ranges.isEmpty());
+
+        MacroAssembler::BaseIndex address = negativeOffsetIndexedAddress(negativeCharacterOffset, character, indexReg);
+        m_jit.getEffectiveAddress(address, m_regs.regUnicodeInputAndTrail);
+        m_jit.load32(MacroAssembler::Address(m_regs.regUnicodeInputAndTrail), character);
+
+        // Fast path for a small matches-only trail set (e.g., OfAKindRegExp's
+        // {0xa1,0xb1,0xc1,0xd1}): compare the loaded 32-bit pair directly against
+        // ((trail << 16) | sharedLead) for each match. This folds the lead check
+        // into each cmp — no separate and+cmp+lsr needed. ARM64's cached-temp
+        // tracker emits movk-only updates between consecutive compares since only
+        // the upper 16 bits change.
+        if (trailsOnlyClass->m_rangesUnicode.isEmpty() && !trailsOnlyClass->m_matchesUnicode.isEmpty()) {
+            const auto& matches = trailsOnlyClass->m_matchesUnicode;
+#if CPU(ARM64)
+            // For 2+ matches, fold the chain into cmp + ccmp(NE, Z=1) ... + b.ne.
+            // ccmp keeps the EQ flag sticky once any compare matches, so the
+            // entire alternation collapses to a single conditional branch. Saves
+            // (matches.size() - 1) branches and avoids creating a matchDest label
+            // (which would invalidate the cached temp register holding sharedLead).
+            if (matches.size() >= 2) {
+                constexpr int32_t nzcvEqual = 0x4; // Z=1 → flag is Equal.
+                unsigned expected0 = (static_cast<unsigned>(matches[0]) << 16) | static_cast<unsigned>(sharedLead);
+                m_jit.compareOnFlags32(character, MacroAssembler::TrustedImm32(expected0));
+                for (size_t i = 1; i < matches.size(); ++i) {
+                    unsigned expected = (static_cast<unsigned>(matches[i]) << 16) | static_cast<unsigned>(sharedLead);
+                    m_jit.compareConditionallyOnFlags32(character, MacroAssembler::TrustedImm32(expected), MacroAssembler::TrustedImm32(nzcvEqual), MacroAssembler::NotEqual);
+                }
+                failures.append(m_jit.branchOnFlags(MacroAssembler::NotEqual));
+                return;
+            }
+#endif
+            MacroAssembler::JumpList matchDest;
+            for (size_t i = 0; i + 1 < matches.size(); ++i) {
+                unsigned expected = (static_cast<unsigned>(matches[i]) << 16) | static_cast<unsigned>(sharedLead);
+                matchDest.append(m_jit.branch32(MacroAssembler::Equal, character, MacroAssembler::Imm32(expected)));
+            }
+            unsigned expected = (static_cast<unsigned>(matches[matches.size() - 1]) << 16) | static_cast<unsigned>(sharedLead);
+            failures.append(m_jit.branch32(MacroAssembler::NotEqual, character, MacroAssembler::Imm32(expected)));
+            matchDest.link(&m_jit);
+            return;
+        }
+
+        // Fast path for a single trail-only range (e.g., FlushRegExp's [0xa1-0xae]):
+        // emit a single sub+cmp+b.hi straight to outer failures with no trampolines.
+        if (trailsOnlyClass->m_matchesUnicode.isEmpty() && trailsOnlyClass->m_rangesUnicode.size() == 1) {
+            const auto& range = trailsOnlyClass->m_rangesUnicode[0];
+#if CPU(ARM64)
+            // Fold the lead-check and range-check into a single conditional branch
+            // via ccmp. Saves one instruction and one branch per inner iteration.
+            //   uxth   scratch, character           ; scratch = lead (low 16, zero-extended)
+            //   cmp    scratch, sharedLead          ; Z=1 iff lead matches
+            //   lsr    character, character, 16     ; trail (no flags)
+            //   sub    scratch, character, begin    ; biased trail (no flags)
+            //   ccmp   scratch, biasedEnd, #2, eq   ; if lead matched: real cmp; else NZCV→hi
+            //   b.hi   failures
+            unsigned biasedEnd = range.end - range.begin;
+            constexpr int32_t nzcvHi = 0x2; // C=1, Z=0 → b.hi takes when lead mismatched
+            m_jit.zeroExtend16To32(character, scratch);
+            m_jit.compareOnFlags32(scratch, MacroAssembler::TrustedImm32(sharedLead));
+            m_jit.urshift32(character, MacroAssembler::TrustedImm32(16), character);
+            m_jit.sub32(character, MacroAssembler::Imm32(static_cast<unsigned>(range.begin)), scratch);
+            m_jit.compareConditionallyOnFlags32(scratch, MacroAssembler::TrustedImm32(biasedEnd), MacroAssembler::TrustedImm32(nzcvHi), MacroAssembler::Equal);
+            failures.append(m_jit.branchOnFlags(MacroAssembler::Above));
+            return;
+#else
+            m_jit.zeroExtend16To32(character, scratch);
+            failures.append(m_jit.branch32(MacroAssembler::NotEqual, scratch, MacroAssembler::TrustedImm32(sharedLead)));
+            m_jit.urshift32(character, MacroAssembler::TrustedImm32(16), character);
+            matchCharacterClassOnlyOneRange(character, scratch, failures, range);
+            return;
+#endif
+        }
+
+        m_jit.zeroExtend16To32(character, scratch);
+        failures.append(m_jit.branch32(MacroAssembler::NotEqual, scratch, MacroAssembler::TrustedImm32(sharedLead)));
+
+        m_jit.urshift32(character, MacroAssembler::TrustedImm32(16), character);
+
+        MacroAssembler::JumpList matchDest;
+        matchCharacterClass(character, scratch, MatchTargets(matchDest, failures, MatchTargets::PreferredTarget::MatchSuccessFallThrough), trailsOnlyClass);
+        if (!matchDest.empty())
+            failures.append(m_jit.jump());
+        matchDest.link(&m_jit);
+    }
+
+    static void buildTrailsOnlyClass(const CharacterClass& source, CharacterClass& dest)
+    {
+        for (auto cp : source.m_matchesUnicode) {
+            ASSERT(!U_IS_BMP(cp));
+            dest.m_matchesUnicode.append(U16_TRAIL(cp));
+        }
+
+        for (auto& range : source.m_rangesUnicode) {
+            ASSERT(!U_IS_BMP(range.begin));
+            ASSERT(!U_IS_BMP(range.end));
+            char32_t trailBegin = U16_TRAIL(range.begin);
+            char32_t trailEnd = U16_TRAIL(range.end);
+            dest.m_rangesUnicode.append(CharacterRange(trailBegin, trailEnd));
+        }
+        std::ranges::sort(dest.m_matchesUnicode);
+        std::ranges::sort(dest.m_rangesUnicode, [](auto& a, auto& b) { return a.begin < b.begin; });
+    }
 #endif
 
     void readCharacter(Checked<unsigned> negativeCharacterOffset, MacroAssembler::RegisterID resultReg)
@@ -1676,6 +1796,9 @@ class YarrGenerator final : public YarrJITInfo {
 
         BoyerMooreInfo* m_bmInfo { nullptr };
         MaskedAlternativeInfo* m_maskedAltInfo { nullptr };
+
+        // Shared UTF-16 lead surrogate across all repeated alternatives' first character.
+        std::optional<char16_t> m_bodyAltSharedLead;
 
         // For single-alt FixedCount with backtrackable content: label for content's backtrack entry.
         // BEGIN.bt jumps here for within-iteration backtracking.
@@ -2924,6 +3047,17 @@ class YarrGenerator final : public YarrJITInfo {
             storeToFrame(m_regs.index, term->frameLocation + BackTrackInfoCharacterClass::beginIndex());
         }
 
+#if ENABLE(YARR_JIT_UNICODE_EXPRESSIONS)
+        if (m_decodeSurrogatePairs && !term->invert()) {
+            if (auto sharedLead = term->characterClass->hasSharedLeadSurrogate()) {
+                CharacterClass trailsOnlyClass;
+                buildTrailsOnlyClass(*term->characterClass, trailsOnlyClass);
+                readSurrogatePairAndMatchTrailForSharedLead(op.m_checkedOffset - term->inputPosition, character, scratch, m_regs.index, sharedLead.value(), &trailsOnlyClass, op.m_jumps);
+                return;
+            }
+        }
+#endif
+
         readCharacter(op.m_checkedOffset - term->inputPosition, character);
 
         matchCharacterClassTermInner(term, op.m_jumps, character, scratch);
@@ -2975,13 +3109,31 @@ class YarrGenerator final : public YarrJITInfo {
         }
 
         Checked<unsigned> scaledMaxCount = term->quantityMaxCount;
+
 #if ENABLE(YARR_JIT_UNICODE_EXPRESSIONS)
         bool nonBMPOnly = false;
-        if (m_decodeSurrogatePairs && term->characterClass->hasOnlyNonBMPCharacters() && !term->invert()) {
+        if (m_decodeSurrogatePairs && !term->invert() && term->characterClass->hasOnlyNonBMPCharacters()) {
             scaledMaxCount *= 2;
             nonBMPOnly = true;
+
+            if (auto sharedLead = term->characterClass->hasSharedLeadSurrogate()) {
+                // Replace tryReadUnicodeCharImpl + full-codepoint class match
+                // with a single 32-bit pair load + lead check + trail-only class match.
+                ASSERT(term->isFixedWidthCharacterClass());
+                CharacterClass trailsOnlyClass;
+                buildTrailsOnlyClass(*term->characterClass, trailsOnlyClass);
+
+                m_jit.sub32(m_regs.index, MacroAssembler::Imm32(scaledMaxCount), countRegister);
+
+                MacroAssembler::Label sharedLoop(&m_jit);
+                readSurrogatePairAndMatchTrailForSharedLead(op.m_checkedOffset - term->inputPosition - scaledMaxCount, character, scratch, countRegister, sharedLead.value(), &trailsOnlyClass, op.m_jumps);
+                m_jit.add32(MacroAssembler::TrustedImm32(2), countRegister);
+                m_jit.branch32(MacroAssembler::NotEqual, countRegister, m_regs.index).linkTo(sharedLoop, &m_jit);
+                return;
+            }
         }
 #endif
+
         m_jit.sub32(m_regs.index, MacroAssembler::Imm32(scaledMaxCount), countRegister);
 
         MacroAssembler::Label loop(&m_jit);
@@ -3050,6 +3202,38 @@ class YarrGenerator final : public YarrJITInfo {
         if (m_decodeSurrogatePairs && (!term->characterClass->hasOneCharacterSize() || term->invert()))
             storeToFrame(m_regs.index, term->frameLocation + BackTrackInfoCharacterClass::beginIndex());
         m_jit.move(MacroAssembler::TrustedImm32(0), countRegister);
+
+#if ENABLE(YARR_JIT_UNICODE_EXPRESSIONS)
+        if (m_decodeSurrogatePairs && !term->invert()) {
+            if (auto sharedLead = term->characterClass->hasSharedLeadSurrogate()) {
+                ASSERT(term->isFixedWidthCharacterClass());
+                CharacterClass trailsOnlyClass;
+                buildTrailsOnlyClass(*term->characterClass, trailsOnlyClass);
+
+                MacroAssembler::JumpList sharedFailures;
+                MacroAssembler::Label sharedLoop(&m_jit);
+
+                // Need at least 2 code units remaining: index + 2 <= length.
+                m_jit.add32(MacroAssembler::TrustedImm32(2), m_regs.index, scratch);
+                sharedFailures.append(m_jit.branch32(MacroAssembler::Above, scratch, m_regs.length));
+
+                readSurrogatePairAndMatchTrailForSharedLead(op.m_checkedOffset - term->inputPosition, character, scratch, m_regs.index, sharedLead.value(), &trailsOnlyClass, sharedFailures);
+
+                m_jit.add32(MacroAssembler::TrustedImm32(2), m_regs.index);
+                m_jit.add32(MacroAssembler::TrustedImm32(1), countRegister);
+
+                if (term->quantityMaxCount == quantifyInfinite)
+                    m_jit.jump(sharedLoop);
+                else
+                    m_jit.branch32(MacroAssembler::NotEqual, countRegister, MacroAssembler::Imm32(term->quantityMaxCount)).linkTo(sharedLoop, &m_jit);
+
+                sharedFailures.link(&m_jit);
+                defineReentryLabel(op);
+                storeToFrame(countRegister, term->frameLocation + BackTrackInfoCharacterClass::matchAmountIndex());
+                return;
+            }
+        }
+#endif
 
         MacroAssembler::JumpList failures;
         MacroAssembler::JumpList failuresDecrementIndex;
@@ -3607,9 +3791,8 @@ class YarrGenerator final : public YarrJITInfo {
                                 setMatchStart(m_regs.regT0);
                             } else
                                 setMatchStart(m_regs.index);
-                            op.m_jumps.append(m_jit.jump());
-                        } else
-                            op.m_jumps.append(m_jit.jump());
+                        }
+                        op.m_jumps.append(m_jit.jump());
 
                         matched.link(&m_jit);
                         // If the pattern size is not fixed, then store the start index for use if we match.
@@ -3625,6 +3808,43 @@ class YarrGenerator final : public YarrJITInfo {
                     } else
                         dataLogLnIf(Options::verboseRegExpCompilation(), "BM search candidates were not efficient enough. Not using BM search");
                     break;
+                }
+
+                if (op.m_bodyAltSharedLead) {
+                    // Shared-lead per-position prefilter for /u patterns whose alternatives all
+                    // start with non-BMP character classes sharing the same UTF-16 lead surrogate.
+                    // We scan input one UTF-16 unit at a time, falling through to per-alt dispatch
+                    // only when the lead matches. Mismatch advances index by 1 and retries.
+                    ASSERT(m_decodeSurrogatePairs);
+                    char16_t sharedLeadSurrogate = op.m_bodyAltSharedLead.value();
+
+                    // We are intentionally not using tryReadUnicodeChar here as we decomposed a non-BMP character into lead and trail surrogates
+                    // and searching for a shared lead surrogate.
+                    JIT_COMMENT(m_jit, "Shared-lead-surrogate body-alt filter");
+                    auto loopHead = m_jit.label();
+                    MacroAssembler::BaseIndex address = negativeOffsetIndexedAddress(op.m_checkedOffset, m_regs.regT0);
+                    m_jit.load16Unaligned(address, m_regs.regT0);
+                    auto matched = m_jit.branch32(MacroAssembler::Equal, m_regs.regT0, MacroAssembler::TrustedImm32(sharedLeadSurrogate));
+                    jumpIfAvailableInput(1).linkTo(loopHead, &m_jit);
+
+                    // Out of input: hand off to alt failure path.
+                    if (!m_pattern.m_body->m_hasFixedSize) {
+                        if (alternative->m_minimumSize) {
+                            m_jit.sub32(m_regs.index, MacroAssembler::Imm32(alternative->m_minimumSize), m_regs.regT0);
+                            setMatchStart(m_regs.regT0);
+                        } else
+                            setMatchStart(m_regs.index);
+                    }
+                    op.m_jumps.append(m_jit.jump());
+
+                    matched.link(&m_jit);
+                    if (!m_pattern.m_body->m_hasFixedSize) {
+                        if (alternative->m_minimumSize) {
+                            m_jit.sub32(m_regs.index, MacroAssembler::Imm32(alternative->m_minimumSize), m_regs.regT0);
+                            setMatchStart(m_regs.regT0);
+                        } else
+                            setMatchStart(m_regs.index);
+                    }
                 }
                 break;
             }
@@ -5600,36 +5820,65 @@ class YarrGenerator final : public YarrJITInfo {
         size_t repeatLoop = m_ops.size();
         appendOp(YarrOp(YarrOpCode::BodyAlternativeBegin));
         m_ops.last().m_previousOp = notFound;
-        // Collect BoyerMooreInfo if it is possible and profitable. BoyerMooreInfo will be used to emit fast skip path with large stride
-        // at the beginning of the body alternatives.
-        // We do not emit these fast path when RegExp has sticky or unicode flag. Sticky case does not need this since
-        // it fails when the body alternatives fail to match with the current offset.
-        // FIXME: Support unicode flag.
-        // https://bugs.webkit.org/show_bug.cgi?id=228611
-        if (disjunction->m_minimumSize && !m_pattern.sticky() && !m_pattern.eitherUnicode()) {
-            auto bmInfo = BoyerMooreInfo::create(m_charSize, std::min<unsigned>(disjunction->m_minimumSize, BoyerMooreInfo::maxLength));
-            if (collectBoyerMooreInfo(disjunction, currentAlternativeIndex, bmInfo.get())) {
-                dataLogLnIf(YarrJITInternal::verbose, bmInfo.get());
-                m_ops.last().m_bmInfo = bmInfo.ptr();
-                m_bmInfos.append(WTF::move(bmInfo));
-                m_usesT2 = true;
-                if (m_sampleString)
-                    m_sampler.sample(m_sampleString.value());
-            } else
-                dataLogLnIf(YarrJITInternal::verbose, "BM collection failed");
+
+        if (disjunction->m_minimumSize && !m_pattern.sticky()) {
+            if (!m_pattern.eitherUnicode()) {
+                // Collect BoyerMooreInfo if it is possible and profitable. BoyerMooreInfo will be used to emit fast skip path with large stride
+                // at the beginning of the body alternatives.
+                // We do not emit these fast path when RegExp has sticky or unicode flag. Sticky case does not need this since
+                // it fails when the body alternatives fail to match with the current offset.
+                // FIXME: Support unicode flag.
+                // https://bugs.webkit.org/show_bug.cgi?id=228611
+                auto bmInfo = BoyerMooreInfo::create(m_charSize, std::min<unsigned>(disjunction->m_minimumSize, BoyerMooreInfo::maxLength));
+                if (collectBoyerMooreInfo(disjunction, currentAlternativeIndex, bmInfo.get())) {
+                    dataLogLnIf(YarrJITInternal::verbose, bmInfo.get());
+                    m_ops.last().m_bmInfo = bmInfo.ptr();
+                    m_bmInfos.append(WTF::move(bmInfo));
+                    m_usesT2 = true;
+                    if (m_sampleString)
+                        m_sampler.sample(m_sampleString.value());
+                } else
+                    dataLogLnIf(YarrJITInternal::verbose, "BM collection failed");
 
 #if CPU(ARM64) || CPU(X86_64)
-            // Try multi-pattern SIMD search for alternations with 2 fixed alternatives
-            // This is more effective than bitmap lookahead for patterns like /agggtaaa|tttaccct/i
-            if (m_charSize == CharSize::Char8 && alternatives.size() >= 2) {
-                if (auto maskedInfo = MaskedAlternativeInfo::create(*disjunction, m_pattern.ignoreCase(), m_charSize)) {
-                    dataLogLnIf(Options::verboseRegExpCompilation(), "Found multi-pattern SIMD candidate: ", alternatives.size(), " alternatives, minLen=", maskedInfo->minPatternLength);
-                    auto info = makeUniqueRef<MaskedAlternativeInfo>(*maskedInfo);
-                    m_ops.last().m_maskedAltInfo = info.ptr();
-                    m_maskedAltInfos.append(WTF::move(info));
+                // Try multi-pattern SIMD search for alternations with 2 fixed alternatives
+                // This is more effective than bitmap lookahead for patterns like /agggtaaa|tttaccct/i
+                if (m_charSize == CharSize::Char8 && alternatives.size() >= 2) {
+                    if (auto maskedInfo = MaskedAlternativeInfo::create(*disjunction, m_pattern.ignoreCase(), m_charSize)) {
+                        dataLogLnIf(Options::verboseRegExpCompilation(), "Found multi-pattern SIMD candidate: ", alternatives.size(), " alternatives, minLen=", maskedInfo->minPatternLength);
+                        auto info = makeUniqueRef<MaskedAlternativeInfo>(*maskedInfo);
+                        m_ops.last().m_maskedAltInfo = info.ptr();
+                        m_maskedAltInfos.append(WTF::move(info));
+                    }
+                }
+#endif
+            }
+
+            // If every repeated alternative starts with a non-BMP character class whose members
+            // all share the same UTF-16 lead surrogate, then any candidate match position must
+            // have that lead at the first character. We hoist a single load+compare above the
+            // per-alt dispatch and skip positions that cannot match any alternative.
+            if (m_decodeSurrogatePairs && !m_ops.last().m_maskedAltInfo) {
+                std::optional<char16_t> sharedLead;
+                for (size_t i = currentAlternativeIndex; i < alternatives.size(); ++i) {
+                    auto lead = findFirstTermSharedLead(alternatives[i].get());
+                    if (!lead) {
+                        sharedLead = std::nullopt;
+                        break;
+                    }
+
+                    if (!sharedLead)
+                        sharedLead = lead;
+                    else if (sharedLead.value() != lead.value()) {
+                        sharedLead = std::nullopt;
+                        break;
+                    }
+                }
+                if (sharedLead) {
+                    dataLogLnIf(Options::verboseRegExpCompilation(), "Found shared-lead body-alt prefilter: U+", hex(sharedLead.value()));
+                    m_ops.last().m_bodyAltSharedLead = sharedLead;
                 }
             }
-#endif
         }
 
         do {
@@ -5658,6 +5907,52 @@ class YarrGenerator final : public YarrJITInfo {
         lastOp.m_alternative = nullptr;
         lastOp.m_nextOp = repeatLoop;
         lastOp.m_checkedOffset = 0;
+    }
+
+    // Walk an alternative's first significant term and report the shared UTF-16 lead surrogate
+    // of its character class, if every codepoint that could match at position 0 shares the same
+    // UTF-16 lead surrogate. Recurses through single-alternative groups so that capture groups
+    // and non-capturing groups are transparent.
+    std::optional<char16_t> findFirstTermSharedLead(PatternAlternative* alt)
+    {
+        if (alt->m_terms.isEmpty())
+            return std::nullopt;
+
+        PatternTerm& firstTerm = alt->m_terms[0];
+        switch (firstTerm.type) {
+        case PatternTerm::Type::PatternCharacter: {
+            if (!firstTerm.quantityMinCount)
+                return std::nullopt;
+            char32_t cp = firstTerm.patternCharacter;
+            if (U_IS_BMP(cp))
+                return std::nullopt;
+            return static_cast<char16_t>(U16_LEAD(cp));
+        }
+
+        case PatternTerm::Type::CharacterClass: {
+            if (firstTerm.invert())
+                return std::nullopt;
+            if (!firstTerm.quantityMinCount)
+                return std::nullopt;
+            return firstTerm.characterClass->hasSharedLeadSurrogate();
+        }
+
+        case PatternTerm::Type::ParenthesesSubpattern: {
+            if (!firstTerm.quantityMinCount)
+                return std::nullopt;
+            if (firstTerm.m_matchDirection != MatchDirection::Forward)
+                return std::nullopt;
+            if (firstTerm.m_invert)
+                return std::nullopt;
+            PatternDisjunction* sub = firstTerm.parentheses.disjunction;
+            if (sub->m_alternatives.size() != 1)
+                return std::nullopt;
+            return findFirstTermSharedLead(sub->m_alternatives[0].get());
+        }
+
+        default:
+            return std::nullopt;
+        }
     }
 
     std::optional<unsigned> collectBoyerMooreInfoFromTerm(PatternTerm& term, unsigned cursor, BoyerMooreInfo& bmInfo)

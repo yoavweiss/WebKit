@@ -140,7 +140,9 @@ public:
     bool hasOnlyNonBMPCharacters() const { return m_characterWidths == CharacterClassWidths::HasNonBMPChars; }
     bool hasStrings() const { return !m_strings.isEmpty(); }
     bool hasSingleCharacters() const { return !m_matches.isEmpty() || !m_ranges.isEmpty() || !m_matchesUnicode.isEmpty() || !m_rangesUnicode.isEmpty(); }
-    
+
+    std::optional<char16_t> hasSharedLeadSurrogate() const;
+
     Vector<Vector<char32_t>> m_strings;
     Vector<char32_t> m_matches;
     Vector<CharacterRange> m_ranges;

@@ -3086,6 +3086,43 @@ void CharacterClass::copyOnly8BitCharacterData(const CharacterClass& other)
         m_anyCharacter = true;
 }
 
+std::optional<char16_t> CharacterClass::hasSharedLeadSurrogate() const
+{
+    if (!hasOnlyNonBMPCharacters())
+        return std::nullopt;
+    if (!m_strings.isEmpty())
+        return std::nullopt;
+
+    ASSERT(m_matches.isEmpty());
+    ASSERT(m_ranges.isEmpty());
+
+    std::optional<char16_t> commonLeadSurrogate;
+    for (auto cp : m_matchesUnicode) {
+        ASSERT(!U_IS_BMP(cp));
+        char16_t leadSurrogate = U16_LEAD(cp);
+        if (!commonLeadSurrogate)
+            commonLeadSurrogate = leadSurrogate;
+        else if (leadSurrogate != commonLeadSurrogate.value())
+            return std::nullopt;
+    }
+
+    for (auto& range : m_rangesUnicode) {
+        ASSERT(!U_IS_BMP(range.begin));
+        ASSERT(!U_IS_BMP(range.end));
+        char16_t leadSurrogateBegin = U16_LEAD(range.begin);
+        char16_t leadSurrogateEnd = U16_LEAD(range.end);
+        if (leadSurrogateBegin != leadSurrogateEnd)
+            return std::nullopt;
+
+        if (!commonLeadSurrogate)
+            commonLeadSurrogate = leadSurrogateBegin;
+        else if (leadSurrogateBegin != commonLeadSurrogate.value())
+            return std::nullopt;
+    }
+
+    return commonLeadSurrogate;
+}
+
 } } // namespace JSC::Yarr
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
