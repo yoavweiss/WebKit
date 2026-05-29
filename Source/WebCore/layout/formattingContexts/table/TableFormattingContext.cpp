@@ -297,12 +297,12 @@ IntrinsicWidthConstraints TableFormattingContext::computedIntrinsicWidthConstrai
         return *computedWidthConstraints;
 
     // Compute the minimum/maximum width of each column.
-    auto computedWidthConstraints = computedPreferredWidthForColumns();
+    auto computedWidthConstraints = computedIntrinsicWidthForColumns();
     grid.setWidthConstraints(computedWidthConstraints);
     return computedWidthConstraints;
 }
 
-IntrinsicWidthConstraints TableFormattingContext::computedPreferredWidthForColumns()
+IntrinsicWidthConstraints TableFormattingContext::computedIntrinsicWidthForColumns()
 {
     auto& formattingState = this->formattingState();
     auto& grid = formattingState.tableGrid();

@@ -759,7 +759,7 @@ void RenderBlockFlow::layoutBlock(RelayoutChildren relayoutChildren, LayoutUnit 
     }
 }
 
-static bool formattingContextRootPreferredWidthsDependOnOwnHeight(const RenderBlock& formattingContextRoot)
+static bool formattingContextRootIntrinsicLogicalWidthsDependOnOwnHeight(const RenderBlock& formattingContextRoot)
 {
     ASSERT(formattingContextRoot.createsNewFormattingContext());
 
@@ -793,7 +793,7 @@ void RenderBlockFlow::dirtyForLayoutFromPercentageHeightDescendant(RenderBox& de
     // height (e.g. a flex container with a stretched aspect-ratio item that takes a cross-size override
     // from the container), our height change can leave its cached preferred widths stale.
     if (CheckedPtr formattingContextRoot = dynamicDowncast<RenderBlock>(descendant); formattingContextRoot && formattingContextRoot->createsNewFormattingContext()
-        && formattingContextRootPreferredWidthsDependOnOwnHeight(*formattingContextRoot))
+        && formattingContextRootIntrinsicLogicalWidthsDependOnOwnHeight(*formattingContextRoot))
         descendant.invalidateContentLogicalWidths();
 
     for (CheckedPtr<RenderElement> renderer = &descendant; renderer && renderer != this && !renderer->normalChildNeedsLayout(); renderer = renderer->container()) {
@@ -4228,10 +4228,10 @@ RenderBlockFlow::InlineContentStatus RenderBlockFlow::markInlineContentDirtyForL
         hasInFlowBlockLevelElement |= isInFlowBlockLevelElement;
         hasDirtyInFlowBlockLevelElement |= (isInFlowBlockLevelElement && box->needsLayout());
         auto childNeedsLayout = relayoutChildren == RelayoutChildren::Yes || (box && box->hasRelativeDimensions() && !box->isBlockLevelBox());
-        auto childNeedsPreferredWidthComputation = relayoutChildren == RelayoutChildren::Yes && box && box->shouldInvalidateContentWidths();
+        auto childNeedsIntrinsicWidthComputation = relayoutChildren == RelayoutChildren::Yes && box && box->shouldInvalidateContentWidths();
         if (childNeedsLayout)
             renderer.setNeedsLayout(MarkingBehavior::MarkOnlyThis);
-        if (childNeedsPreferredWidthComputation)
+        if (childNeedsIntrinsicWidthComputation)
             renderer.invalidateContentLogicalWidths(MarkingBehavior::MarkOnlyThis);
 
         if (renderer.isOutOfFlowPositioned()) {
@@ -4960,7 +4960,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogical
 
     auto minLogicalWidth = LayoutUnit { };
     auto maxLogicalWidth = LayoutUnit { };
-    if (const_cast<RenderBlockFlow&>(*this).tryComputePreferredWidthsUsingInlinePath(minLogicalWidth, maxLogicalWidth))
+    if (const_cast<RenderBlockFlow&>(*this).tryComputeIntrinsicLogicalWidthsUsingInlinePath(minLogicalWidth, maxLogicalWidth))
         return { minLogicalWidth, maxLogicalWidth };
 
     float inlineMax = 0.f;
@@ -5373,7 +5373,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogical
     return { minLogicalWidth, maxLogicalWidth };
 }
 
-bool RenderBlockFlow::tryComputePreferredWidthsUsingInlinePath(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth)
+bool RenderBlockFlow::tryComputeIntrinsicLogicalWidthsUsingInlinePath(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth)
 {
     if (!firstInFlowChild())
         return false;
@@ -5383,7 +5383,7 @@ bool RenderBlockFlow::tryComputePreferredWidthsUsingInlinePath(LayoutUnit& minLo
     if (lineLayoutPath() != InlinePath)
         return false;
 
-    if (!LayoutIntegration::LineLayout::canUseForPreferredWidthComputation(*this))
+    if (!LayoutIntegration::LineLayout::canUseForIntrinsicWidthComputation(*this))
         return false;
 
     if (!inlineLayout())

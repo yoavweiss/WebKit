@@ -342,7 +342,7 @@ bool canUseForLineLayout(const RenderBlockFlow& rootContainer)
     return true;
 }
 
-bool canUseForPreferredWidthComputation(const RenderBlockFlow& blockContainer)
+bool canUseForIntrinsicWidthComputation(const RenderBlockFlow& blockContainer)
 {
     for (auto walker = InlineWalker(blockContainer); !walker.atEnd(); walker.advance()) {
         CheckedRef renderer = *walker.current();

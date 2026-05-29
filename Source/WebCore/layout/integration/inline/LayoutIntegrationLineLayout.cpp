@@ -329,9 +329,9 @@ bool LineLayout::canUseFor(const RenderBlockFlow& flow)
     return canUseForLineLayout(flow);
 }
 
-bool LineLayout::canUseForPreferredWidthComputation(const RenderBlockFlow& flow)
+bool LineLayout::canUseForIntrinsicWidthComputation(const RenderBlockFlow& flow)
 {
-    return LayoutIntegration::canUseForPreferredWidthComputation(flow);
+    return LayoutIntegration::canUseForIntrinsicWidthComputation(flow);
 }
 
 bool LineLayout::shouldInvalidateLineLayoutAfterContentChange(const RenderBlockFlow& parent, const RenderObject& rendererWithNewContent, const LineLayout& lineLayout)
