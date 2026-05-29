@@ -4929,9 +4929,9 @@ static inline bool hasTrailingSoftWrapOpportunity(const RenderInline& rubyBase, 
     return false;
 }
 
-static inline LayoutUnit preferredWidth(LayoutUnit preferredWidth, float result)
+static inline LayoutUnit maximumWidth(LayoutUnit a, float b)
 {
-    return std::max(preferredWidth, LayoutUnit::fromFloatCeil(result));
+    return std::max(a, LayoutUnit::fromFloatCeil(b));
 }
 
 static inline std::optional<LayoutUnit> textIndentForBlockContainer(const RenderBlockFlow& renderer)
@@ -4991,7 +4991,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogical
     RenderText* lastText = nullptr;
     struct RubyBaseContent {
         float minimumWidth { 0.f };
-        float maxiumumWidth { 0.f };
+        float maximumWidth { 0.f };
         bool hasBreakingPositionAfter { false };
     };
     Vector<RubyBaseContent> rubyBaseContentStack;
@@ -5014,7 +5014,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogical
                 // Annotation box is always preceded by the associated ruby base.
                 // inlineMin/max only gets expanded if the annotation is wider than the base content is.
                 auto baseContent = rubyBaseContentStack.takeLast();
-                inlineMax += std::max(0.f, annotationMaximumIntrinsicWidth.ceilToFloat() - baseContent.maxiumumWidth);
+                inlineMax += std::max(0.f, annotationMaximumIntrinsicWidth.ceilToFloat() - baseContent.maximumWidth);
                 if (baseContent.hasBreakingPositionAfter) {
                     // When base end has breaking position, the inlineMin value is already reset as we are not tracking the inline content for this "line" anymore.
                     // However the annotation still belows to the current "line" so we have to update the minLogicalWidth in case annotation is wider than the base content.
@@ -5029,8 +5029,8 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogical
         auto resetLineForForcedLineBreak = [&] {
             if (styleToUse.collapseWhiteSpace())
                 stripTrailingSpace(inlineMax, inlineMin, trailingSpaceChild);
-            minLogicalWidth = preferredWidth(minLogicalWidth, inlineMin);
-            maxLogicalWidth = preferredWidth(maxLogicalWidth, inlineMax);
+            minLogicalWidth = maximumWidth(minLogicalWidth, inlineMin);
+            maxLogicalWidth = maximumWidth(maxLogicalWidth, inlineMax);
             inlineMin = 0;
             inlineMax = 0;
             stripFrontSpaces = true;
@@ -5100,7 +5100,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogical
 
         if (!child->isRenderText()) {
             if (child->isLineBreakOpportunity()) {
-                minLogicalWidth = preferredWidth(minLogicalWidth, inlineMin);
+                minLogicalWidth = maximumWidth(minLogicalWidth, inlineMin);
                 inlineMin = 0;
                 continue;
             }
@@ -5123,10 +5123,10 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogical
                     if (!rubyBaseContentStack.isEmpty()) {
                         auto rubyBaseStart = rubyBaseContentStack.last();
                         auto baseHasBreakingPositionAfter = hasTrailingSoftWrapOpportunity(*renderInline, *this);
-                        rubyBaseContentStack.last() = RubyBaseContent { inlineMin - rubyBaseStart.minimumWidth, inlineMax - rubyBaseStart.maxiumumWidth, baseHasBreakingPositionAfter };
+                        rubyBaseContentStack.last() = RubyBaseContent { inlineMin - rubyBaseStart.minimumWidth, inlineMax - rubyBaseStart.maximumWidth, baseHasBreakingPositionAfter };
                         if (baseHasBreakingPositionAfter) {
                             // Let's mark based end as a breaking opportunity. Note that annotation may chage the final value of minLogicalWidth.
-                            minLogicalWidth = preferredWidth(minLogicalWidth, inlineMin);
+                            minLogicalWidth = maximumWidth(minLogicalWidth, inlineMin);
                             inlineMin = 0;
                         }
                     } else
@@ -5179,13 +5179,13 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogical
 
             bool canBreakReplacedElement = !box->isImage() || allowImagesToBreak;
             if (((canBreakReplacedElement && (autoWrap || oldAutoWrap) && (!isPrevChildInlineFlow || shouldBreakLineAfterText)) || clearPreviousFloat)) {
-                minLogicalWidth = preferredWidth(minLogicalWidth, inlineMin);
+                minLogicalWidth = maximumWidth(minLogicalWidth, inlineMin);
                 inlineMin = 0;
             }
 
             // If we're supposed to clear the previous float, then terminate maxwidth as well.
             if (clearPreviousFloat) {
-                maxLogicalWidth = preferredWidth(maxLogicalWidth, inlineMax);
+                maxLogicalWidth = maximumWidth(maxLogicalWidth, inlineMax);
                 inlineMax = 0;
             }
 
@@ -5210,19 +5210,19 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogical
 
             if ((!autoWrap || !canBreakReplacedElement || (isPrevChildInlineFlow && !shouldBreakLineAfterText))) {
                 if (box->isFloating())
-                    minLogicalWidth = preferredWidth(minLogicalWidth, childMin);
+                    minLogicalWidth = maximumWidth(minLogicalWidth, childMin);
                 else
                     inlineMin += childMin;
             } else {
                 // Now check our line.
-                minLogicalWidth = preferredWidth(minLogicalWidth, childMin);
+                minLogicalWidth = maximumWidth(minLogicalWidth, childMin);
 
                 // Now start a new line.
                 inlineMin = 0;
             }
 
             if (autoWrap && canBreakReplacedElement && isPrevChildInlineFlow) {
-                minLogicalWidth = preferredWidth(minLogicalWidth, inlineMin);
+                minLogicalWidth = maximumWidth(minLogicalWidth, inlineMin);
                 inlineMin = 0;
             }
 
@@ -5244,7 +5244,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogical
             // then they shouldn't be considered in the breakable char
             // check.
             bool strippingBeginWS = stripFrontSpaces;
-            auto widths = renderText->trimmedPreferredWidths(inlineMax, stripFrontSpaces);
+            auto widths = renderText->trimmedIntrinsicLogicalWidths(inlineMax, stripFrontSpaces);
 
             childMin = widths.min;
             childMax = widths.max;
@@ -5252,7 +5252,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogical
             // This text object will not be rendered, but it may still provide a breaking opportunity.
             if (!widths.hasBreak && !childMax) {
                 if (autoWrap && (widths.beginWS || widths.endWS || widths.endZeroSpace)) {
-                    minLogicalWidth = preferredWidth(minLogicalWidth, inlineMin);
+                    minLogicalWidth = maximumWidth(minLogicalWidth, inlineMin);
                     inlineMin = 0;
                 }
                 continue;
@@ -5311,10 +5311,10 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogical
                 // we start and end with whitespace.
                 if (widths.beginWS) {
                     // End the current line.
-                    minLogicalWidth = preferredWidth(minLogicalWidth, inlineMin);
+                    minLogicalWidth = maximumWidth(minLogicalWidth, inlineMin);
                 } else {
                     inlineMin += widths.beginMin;
-                    minLogicalWidth = preferredWidth(minLogicalWidth, inlineMin);
+                    minLogicalWidth = maximumWidth(minLogicalWidth, inlineMin);
                     childMin -= ti;
                 }
 
@@ -5322,11 +5322,11 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogical
 
                 if (widths.endWS || widths.endZeroSpace) {
                     // We end in breakable space, which means we can end our current line.
-                    minLogicalWidth = preferredWidth(minLogicalWidth, inlineMin);
+                    minLogicalWidth = maximumWidth(minLogicalWidth, inlineMin);
                     inlineMin = 0;
                     shouldBreakLineAfterText = false;
                 } else {
-                    minLogicalWidth = preferredWidth(minLogicalWidth, inlineMin);
+                    minLogicalWidth = maximumWidth(minLogicalWidth, inlineMin);
                     inlineMin = widths.endMin;
                     shouldBreakLineAfterText = true;
                 }
@@ -5334,8 +5334,8 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogical
 
             if (widths.hasBreak) {
                 inlineMax += widths.beginMax;
-                maxLogicalWidth = preferredWidth(maxLogicalWidth, inlineMax);
-                maxLogicalWidth = preferredWidth(maxLogicalWidth, childMax);
+                maxLogicalWidth = maximumWidth(maxLogicalWidth, inlineMax);
+                maxLogicalWidth = maximumWidth(maxLogicalWidth, childMax);
                 inlineMax = widths.endMax;
                 textIndentForMinimum = { };
                 textIndentForMaximum = { };
@@ -5366,8 +5366,8 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlockFlow::computeInlineIntrinsicLogical
         inlineMax -= endHangWidth;
     }
 
-    minLogicalWidth = preferredWidth(minLogicalWidth, inlineMin);
-    maxLogicalWidth = preferredWidth(maxLogicalWidth, inlineMax);
+    minLogicalWidth = maximumWidth(minLogicalWidth, inlineMin);
+    maxLogicalWidth = maximumWidth(maxLogicalWidth, inlineMax);
     return { minLogicalWidth, maxLogicalWidth };
 }
 
