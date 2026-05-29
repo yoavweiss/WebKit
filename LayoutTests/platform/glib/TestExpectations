@@ -1125,6 +1125,9 @@ accessibility/contenteditable-values.html [ Skip ]
 # Exposing aria-{row,col}indextext needs to be implemented on glib platforms.
 accessibility/aria-table-indextext.html [ Failure ]
 
+# Started failing on [313982@main..313983@main].
+webkit.org/b/315858 [ Release ] accessibility/aria-owns-deep-chain-no-timeout.html [ Timeout Pass ]
+
 # Added in r263823. Both tests are timing out.
 webkit.org/b/213874 accessibility/keyevents-for-increment-actions-with-node-removal.html [ Skip ]
 webkit.org/b/213874 accessibility/keyevents-posted-for-increment-actions.html [ Skip ]
