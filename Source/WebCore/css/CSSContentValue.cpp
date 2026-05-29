@@ -28,6 +28,7 @@
 
 #include "CSSPrimitiveNumericTypes+Serialization.h"
 #include "CSSValuePool.h"
+#include "CSSValueTypes+DeprecatedCSSOMValueCreation.h"
 #include "DeprecatedCSSOMValue.h"
 
 namespace WebCore {

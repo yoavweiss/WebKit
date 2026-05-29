@@ -25,6 +25,7 @@
 #include "config.h"
 #include "DeprecatedCSSOMRect.h"
 
+#include "CSSClip.h"
 #include "CSSPrimitiveNumericTypes+DeprecatedCSSOMValueCreation.h"
 
 namespace WebCore {

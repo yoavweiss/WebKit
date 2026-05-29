@@ -26,7 +26,9 @@
 #pragma once
 
 #include "RenderLayoutState.h"
+#include <WebCore/LocalFrameView.h>
 #include <WebCore/RenderView.h>
+#include <WebCore/StyleMaximumLines.h>
 #include <wtf/CheckedPtr.h>
 
 namespace WebCore {
