@@ -126,6 +126,7 @@
 #include "RenderVideo.h"
 #include "RenderView.h"
 #include "ResourceLoadInfo.h"
+#include "PlatformScreen.h"
 #include "ScreenProperties.h"
 #include "ScriptController.h"
 #include "ScriptDisallowedScope.h"
@@ -683,7 +684,8 @@ HTMLMediaElement::HTMLMediaElement(const QualifiedName& tagName, Document& docum
     m_shouldVideoPlaybackRequireUserGesture = videoNeedsUserGesturePerPage && !processingUserGestureForMedia();
 
 #if PLATFORM(MAC)
-    if (auto data = screenData(primaryScreenDisplayID()))
+    auto platformScreen = PlatformScreen::singleton();
+    if (auto data = platformScreen->screenData(platformScreen->primaryScreenDisplayID()))
         m_screenReserved = data->reserved;
 #endif
 
@@ -10474,7 +10476,8 @@ void HTMLMediaElement::screenPropertiesChanged(PlatformDisplayID displayID)
 {
     setPreferredDynamicRangeMode(preferredDynamicRangeMode(protect(document().view()).get()));
 #if PLATFORM(MAC)
-    if (auto data = screenData(displayID))
+    auto platformScreen = PlatformScreen::singleton();
+    if (auto data = platformScreen->screenData(displayID))
         setScreenReserved(data->reserved);
 #else
     UNUSED_PARAM(displayID);

@@ -1403,7 +1403,8 @@ void WebProcessPool::registerHighDynamicRangeChangeCallback()
 void WebProcessPool::didRefreshDisplay()
 {
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    float headroom = currentEDRHeadroomForDisplay(primaryScreenDisplayID());
+    Ref screen = PlatformScreen::singleton();
+    float headroom = currentEDRHeadroomForDisplay(screen->primaryScreenDisplayID());
     if (m_currentEDRHeadroom != headroom) {
         m_currentEDRHeadroom = headroom;
         screenPropertiesChanged();

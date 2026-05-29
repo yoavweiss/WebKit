@@ -147,8 +147,9 @@ WebModelPlayer::WebModelPlayer(WebCore::Page& page, WebCore::ModelPlayerClient& 
             RefPtr protectedThis = weakThis.get();
             if (!protectedThis)
                 return;
-            if (auto* screenData = WebCore::screenData(displayID))
-                protectedThis->updateScreenHeadroom(screenData->currentEDRHeadroom, screenData->suppressEDR);
+            auto platformScreen = WebCore::PlatformScreen::singleton();
+            if (auto* data = platformScreen->screenData(displayID))
+                protectedThis->updateScreenHeadroom(data->currentEDRHeadroom, data->suppressEDR);
         });
 
         document->addScreenPropertiesChangedObserver(*m_screenPropertiesChangedObserver);
