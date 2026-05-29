@@ -200,10 +200,12 @@ struct WebProcessCreationParameters {
 
     std::optional<WebProcessDataStoreParameters> websiteDataStoreParameters;
 
-    std::optional<SandboxExtension::Handle> mobileGestaltExtensionHandle;
+#if (PLATFORM(MAC) || PLATFORM(MACCATALYST)) && !ENABLE(LAUNCHSERVICES_SANDBOX_EXTENSION_BLOCKING)
     std::optional<SandboxExtension::Handle> launchServicesExtensionHandle;
+#endif
+
 #if HAVE(VIDEO_RESTRICTED_DECODING)
-#if PLATFORM(MAC) || PLATFORM(MACCATALYST)
+#if (PLATFORM(MAC) || PLATFORM(MACCATALYST)) && !ENABLE(TRUSTD_BLOCKING_IN_WEBCONTENT)
     SandboxExtension::Handle trustdExtensionHandle;
 #endif
     bool enableDecodingHEIC { false };
