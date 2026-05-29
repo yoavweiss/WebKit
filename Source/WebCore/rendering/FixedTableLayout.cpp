@@ -186,7 +186,7 @@ void FixedTableLayout::computeIntrinsicLogicalWidths(LayoutUnit& minWidth, Layou
     minWidth = maxWidth = calcWidthArray();
 }
 
-void FixedTableLayout::applyPreferredLogicalWidthQuirks(LayoutUnit& minWidth, LayoutUnit& maxWidth) const
+void FixedTableLayout::applyContentLogicalWidthQuirks(LayoutUnit& minWidth, LayoutUnit& maxWidth) const
 {
     auto& tableLogicalWidth = m_table->style().logicalWidth();
     if (auto fixedTableLogicalWidth = tableLogicalWidth.tryFixed(); fixedTableLogicalWidth && fixedTableLogicalWidth->isPositive())

@@ -192,7 +192,7 @@ public:
     std::optional<bool> hasStrongDirectionalityContent() const { return m_hasStrongDirectionalityContent; }
 
 protected:
-    virtual void computePreferredLogicalWidths(float leadWidth, bool forcedMinMaxWidthComputation = false);
+    virtual void computeMinMaxIntrinsicLogicalWidths(float leadWidth, bool forcedMinMaxWidthComputation = false);
     void willBeDestroyed() override;
 
     virtual void setRenderedText(const String&);
@@ -216,7 +216,7 @@ private:
     LayoutRect selectionRectForRepaint(const RenderLayerModelObject* repaintContainer, bool clipToVisibleContent = true) final;
     RepaintRects localRectsForRepaint(RepaintOutlineBounds) const final;
 
-    void computePreferredLogicalWidths(float leadWidth, SingleThreadWeakHashSet<const Font>& fallbackFonts, GlyphOverflow&, bool forcedMinMaxWidthComputation = false);
+    void computeMinMaxIntrinsicLogicalWidths(float leadWidth, SingleThreadWeakHashSet<const Font>& fallbackFonts, GlyphOverflow&, bool forcedMinMaxWidthComputation = false);
 
     bool nodeAtPoint(const HitTestRequest&, HitTestResult&, const HitTestLocation&, const LayoutPoint&, HitTestAction) final { ASSERT_NOT_REACHED(); return false; }
 

@@ -170,7 +170,7 @@ void RenderTable::styleDidChange(Style::Difference diff, const RenderStyle* oldS
         if (style().isFixedTableLayout())
             m_tableLayout = makeUnique<FixedTableLayout>(this);
         else {
-            auto resetTableCellPreferredLogicalWidths = [&] {
+            auto invalidateAllTableCellsContentLogicalWidths = [&] {
                 if (!m_tableLayout)
                     return;
                 // Fixed table layout sets min/max preferred widths to clean without actually computing them (see FixedTableLayout::calcWidthArray).
@@ -181,7 +181,7 @@ void RenderTable::styleDidChange(Style::Difference diff, const RenderStyle* oldS
                     }
                 }
             };
-            resetTableCellPreferredLogicalWidths();
+            invalidateAllTableCellsContentLogicalWidths();
             m_tableLayout = makeUnique<AutoTableLayout>(this);
         }
     }
@@ -1041,7 +1041,7 @@ void RenderTable::computeIntrinsicLogicalWidthContributions()
     m_minContentLogicalWidth += bordersPaddingAndSpacing;
     m_maxContentLogicalWidth += bordersPaddingAndSpacing;
 
-    m_tableLayout->applyPreferredLogicalWidthQuirks(m_minContentLogicalWidth, m_maxContentLogicalWidth);
+    m_tableLayout->applyContentLogicalWidthQuirks(m_minContentLogicalWidth, m_maxContentLogicalWidth);
 
     for (unsigned i = 0; i < m_captions.size(); i++) {
         LayoutUnit captionMinWidth = m_captions[i]->minContentLogicalWidth();
