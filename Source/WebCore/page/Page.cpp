@@ -4281,6 +4281,7 @@ void Page::appearanceDidChange()
         document.updateElementsAffectedByMediaQueries();
         document.scheduleRenderingUpdate(RenderingUpdateStep::MediaQueryEvaluation);
         document.invalidateScrollbars();
+        document.appearanceDidChange();
     });
 }
 

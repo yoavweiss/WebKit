@@ -1308,7 +1308,9 @@ struct WebCore::ApplicationManifest {
     URL startURL
     URL id
     WebCore::Color backgroundColor
+    WebCore::Color backgroundColorDark
     WebCore::Color themeColor
+    WebCore::Color themeColorDark
     Vector<String> categories
     Vector<WebCore::ApplicationManifest::Icon> icons
     Vector<WebCore::ApplicationManifest::Shortcut> shortcuts

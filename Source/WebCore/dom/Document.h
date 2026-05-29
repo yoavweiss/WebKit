@@ -756,6 +756,7 @@ public:
     WEBCORE_EXPORT bool NODELETE useElevatedUserInterfaceLevel() const;
     WEBCORE_EXPORT bool useDarkAppearance(const RenderStyle*) const;
     WEBCORE_EXPORT bool useDarkAppearance(const Style::ComputedStyle*) const;
+    void appearanceDidChange();
 #if ENABLE(DARK_MODE_CSS)
     OptionSet<ColorScheme> resolvedColorScheme(const Style::ComputedStyle*) const;
 #endif
@@ -2335,6 +2336,7 @@ private:
     std::optional<Vector<WeakPtr<HTMLMetaElement, WeakPtrImplWithEventTargetData>>> m_metaThemeColorElements;
     WeakPtr<HTMLMetaElement, WeakPtrImplWithEventTargetData> m_activeThemeColorMetaElement;
     Color m_applicationManifestThemeColor;
+    Color m_applicationManifestThemeColorDark;
 
 #if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
     std::optional<SpatialBackdropSource> m_cachedSpatialBackdropSource;

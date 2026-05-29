@@ -1392,8 +1392,13 @@ const Color& Document::themeColor()
         if (m_activeThemeColorMetaElement)
             m_cachedThemeColor = m_activeThemeColorMetaElement->contentColor();
 
-        if (!m_cachedThemeColor.isValid())
-            m_cachedThemeColor = m_applicationManifestThemeColor;
+        if (!m_cachedThemeColor.isValid()) {
+            if (RefPtr page = this->page(); page && page->useDarkAppearance())
+                m_cachedThemeColor = m_applicationManifestThemeColorDark;
+
+            if (!m_cachedThemeColor.isValid())
+                m_cachedThemeColor = m_applicationManifestThemeColor;
+        }
     }
     return m_cachedThemeColor;
 }
@@ -5529,6 +5534,7 @@ void Document::processApplicationManifest(const ApplicationManifest& application
 {
     auto oldThemeColor = std::exchange(m_cachedThemeColor, Color());
     m_applicationManifestThemeColor = applicationManifest.themeColor;
+    m_applicationManifestThemeColorDark = applicationManifest.themeColorDark;
     if (themeColor() == oldThemeColor)
         return;
 
@@ -9882,6 +9888,12 @@ bool Document::useDarkAppearance([[maybe_unused]] const Style::ComputedStyle* st
 #endif
 
     return false;
+}
+
+void Document::appearanceDidChange()
+{
+    if (std::exchange(m_cachedThemeColor, Color()) != themeColor())
+        themeColorChanged();
 }
 
 bool Document::useElevatedUserInterfaceLevel() const
