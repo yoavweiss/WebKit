@@ -53,14 +53,15 @@ class JSOrderedHashTable;
 
 // ################ NonObsolete Table ################
 //
-//                      Count                                    Value(s)                           ValueType                  WriteBarrier
-//               -------------------------------------------------------------------------------------------------------------------------------------
-// TableStart ->           1          | AliveEntryCount                                            | TableSize                | NO
-//                         1          | DeletedEntryCount                                          | TableSize                | NO
-//                         1          | Capacity                                                   | TableSize                | NO
-//                         1          | IterationEntry                                             | Entry                    | NO
-//                    BucketCount     | HashTable:  { <BucketIndex, ChainStartKeyIndex>, ... }     | <TableIndex, TableIndex> | NO
-//  TableEnd  -> Capacity * EntrySize | DataTable:  { <Entry_0, Data_0>, <Entry_1, Data_1>, ... }  | <TableIndex, JSValue>    | Yes (Key or Value)
+//                          Count                                      Value(s)                           ValueType                  WriteBarrier
+//               -----------------------------------------------------------------------------------------------------------------------------------------
+// TableStart ->             1            | AliveEntryCount                                            | TableSize                | NO
+//                           1            | DeletedEntryCount                                          | TableSize                | NO
+//                           1            | Capacity                                                   | TableSize                | NO
+//                           1            | IterationEntry                                             | Entry                    | NO
+//                       BucketCount      | HashTable:  { <BucketIndex, ChainStartKeyIndex>, ... }     | <TableIndex, TableIndex> | NO
+//                      DataTableSize     | DataTable:  { <Entry_0, Data_0>, <Entry_1, Data_1>, ... }  | <TableIndex, JSValue>    | Yes (Key or Value)
+//  TableEnd  ->   IterationSentinelSlots | IterationSentinel                                          | JSValue                  | NO
 //
 // ################ Obsolete Table from Rehash ################
 //
@@ -178,9 +179,22 @@ public:
     ALWAYS_INLINE static constexpr TableIndex bucketIndex(TableSize capacity, uint32_t hash) { return bucketIndex(hashTableStartIndex(), bucketCount(capacity), hash); }
 
     /* -------------------------------- Data table -------------------------------- */
-    ALWAYS_INLINE static constexpr TableSize dataTableSize(TableSize capacity) { return capacity * EntrySize; }
+    // The DataTable is packed and only holds up to dataCapacity entries before a rehash is forced.
+    // dataCapacity matches the rehash threshold in expandIfNeeded: 50% of capacity for small tables,
+    // 75% for large. Sizing the DataTable this way avoids the dead tail that would otherwise sit
+    // between the rehash threshold and the end of the buffer.
+    ALWAYS_INLINE static constexpr TableSize dataCapacity(TableSize capacity)
+    {
+        if (capacity < LargeCapacity)
+            return capacity / 2;
+        return (capacity / 4) * 3;
+    }
+    ALWAYS_INLINE static constexpr TableSize dataTableSize(TableSize capacity) { return dataCapacity(capacity) * EntrySize; }
 
     ALWAYS_INLINE static constexpr TableIndex dataTableStartIndex(TableSize capacity) { return hashTableStartIndex() + bucketCount(capacity); }
+    // Index of the last DataTable slot proper. The allocated storage extends one further
+    // slot — the IterationSentinel — so use tableSize() / tableSizeSlow() when reasoning
+    // about total length, not dataTableEndIndex().
     ALWAYS_INLINE static constexpr TableIndex dataTableEndIndex(TableSize capacity) { return dataTableStartIndex(capacity) + dataTableSize(capacity) - 1; }
     ALWAYS_INLINE static constexpr TableIndex entryDataStartIndex(TableIndex dataTableStartIndex, Entry entry) { return dataTableStartIndex + entry * EntrySize; }
 
@@ -195,15 +209,20 @@ public:
     }
 
     /* -------------------------------- JSOrderedHashTable -------------------------------- */
+    // One trailing zero-initialized JSValue is allocated past the DataTable so the iterator
+    // can safely read one slot past the last entry when the table is fully packed.
+    static constexpr TableSize iterationSentinelSlots = 1;
+
     ALWAYS_INLINE static constexpr TableSize tableSize(TableSize capacity)
     {
         TableSize result = 4 /* AliveEntryCount, DeletedEntryCount, Capacity, and IterationEntry */
-            + capacity /* BucketCount */
-            + capacity * EntrySize; /* DataTableSize */
+            + bucketCount(capacity) /* BucketCount */
+            + dataTableSize(capacity) /* DataTableSize */
+            + iterationSentinelSlots;
         ASSERT(result == tableSizeSlow(capacity));
         return result;
     }
-    ALWAYS_INLINE static constexpr TableSize tableSizeSlow(TableSize capacity) { return dataTableEndIndex(capacity) + 1; }
+    ALWAYS_INLINE static constexpr TableSize tableSizeSlow(TableSize capacity) { return dataTableEndIndex(capacity) + 1 + iterationSentinelSlots; }
 
     /* -------------------------------- Obsolete table -------------------------------- */
     ALWAYS_INLINE static constexpr bool isObsolete(Storage& storage) { return !!nextTable(storage); }
@@ -397,18 +416,13 @@ public:
         TableSize deletedEntryCount = Helper::deletedEntryCount(base);
         TableSize usedCapacity = Helper::aliveEntryCount(base) + deletedEntryCount;
 
-        bool isSmallCapacity = capacity < LargeCapacity;
-        if (isSmallCapacity) {
-            if (usedCapacity < (capacity / 2))
-                return nullptr;
-        } else {
-            if (usedCapacity < ((capacity / 4) * 3))
-                return nullptr;
-        }
+        if (usedCapacity < dataCapacity(capacity))
+            return nullptr;
 
+        bool isSmallCapacity = capacity < LargeCapacity;
         TableSize expansionFactor = isSmallCapacity ? 4 : 2;
         TableSize newCapacity = Checked<TableSize>(capacity) * expansionFactor;
-        if (deletedEntryCount >= (capacity  / 2)) {
+        if (deletedEntryCount >= (capacity / 2)) {
             // No need to expand. Just clear the deleted entries.
             // FIXME: Can we do this in place?
             newCapacity = capacity;
@@ -594,8 +608,7 @@ public:
         ASSERT(!isObsolete(candidate));
         TableSize capacity = Helper::capacity(candidate);
         TableIndex entryKeyIndex = entryDataStartIndex(dataTableStartIndex(capacity), from);
-        if (from >= capacity) [[unlikely]]
-            return { };
+        ASSERT_UNUSED(capacity, from <= dataCapacity(capacity));
         for (Entry entry = from;; ++entry, entryKeyIndex += EntrySize) {
             JSValue key = get(candidate, entryKeyIndex);
             if (!key)
