@@ -842,6 +842,13 @@ if (NOT APPLE AND SWIFT_REQUIRED)
     # Provide a stub header so the directory has at least one entry.
     file(MAKE_DIRECTORY "${WTF_FRAMEWORK_HEADERS_DIR}/wtf/spi")
     file(WRITE "${WTF_FRAMEWORK_HEADERS_DIR}/wtf/spi/wtf_spi_stub.h" "")
+
+    # module.modulemap declares an explicit `WebCoreThread` submodule referencing
+    # ios/WebCoreThread.h, which is Cocoa-only. Clang validates header existence
+    # when parsing the modulemap even for unused explicit submodules, so provide
+    # an empty stub.
+    file(MAKE_DIRECTORY "${WTF_FRAMEWORK_HEADERS_DIR}/wtf/ios")
+    file(WRITE "${WTF_FRAMEWORK_HEADERS_DIR}/wtf/ios/WebCoreThread.h" "")
 endif ()
 
 WEBKIT_FRAMEWORK(WTF)
