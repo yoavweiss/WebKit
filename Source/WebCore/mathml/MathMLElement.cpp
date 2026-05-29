@@ -350,12 +350,14 @@ bool MathMLElement::isURLAttribute(const Attribute& attribute) const
 {
     if (!allowsHref())
         return false;
-    return attribute.name().localName() == hrefAttr || StyledElement::isURLAttribute(attribute);
+    // FIXME: Should this be attribute.name().matches(hrefAttr) to also enforce the namespace?
+    return hrefAttr->hasLocalName(attribute.name().localName()) || StyledElement::isURLAttribute(attribute);
 }
 
 bool MathMLElement::allowsHref() const
 {
-    return !document().settings().mathMLDisableHrefOnNonAnchorElement() || localName() == HTMLNames::aTag;
+    // FIXME: Should this be hasTagName(HTMLNames::aTag) to also enforce the namespace?
+    return !document().settings().mathMLDisableHrefOnNonAnchorElement() || HTMLNames::aTag->hasLocalName(localName());
 }
 
 bool MathMLElement::supportsFocus() const
@@ -368,7 +370,8 @@ bool MathMLElement::supportsFocus() const
 
 int MathMLElement::defaultTabIndex() const
 {
-    return localName() == HTMLNames::aTag ? 0 : -1;
+    // FIXME: Should this be hasTagName(HTMLNames::aTag) to also enforce the namespace?
+    return HTMLNames::aTag->hasLocalName(localName()) ? 0 : -1;
 }
 
 Node::NeedsPostConnectionSteps MathMLElement::insertionSteps(InsertionType insertionType, ContainerNode& parentOfInsertedTree)

@@ -750,9 +750,10 @@ void HTMLLinkElement::startLoadingDynamicSheet()
 
 bool HTMLLinkElement::isURLAttribute(const Attribute& attribute) const
 {
-    return attribute.name().localName() == hrefAttr
+    // FIXME: Should these be attribute.name().matches(...) to also enforce the namespace?
+    return hrefAttr->hasLocalName(attribute.name().localName())
 #if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-    || attribute.name().localName() == environmentmapAttr
+    || environmentmapAttr->hasLocalName(attribute.name().localName())
 #endif
     || HTMLElement::isURLAttribute(attribute);
 }

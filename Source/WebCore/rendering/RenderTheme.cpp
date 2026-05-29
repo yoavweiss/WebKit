@@ -261,13 +261,14 @@ bool RenderTheme::hasAppearanceForElementTypeFromUAStyle(const Element& element)
 {
     // NOTE: This is just a legacy hard-coded list of elements that have some appearance value in html.css
     // FIXME: Remove when devolvable widgets are universally enabled.
+    // FIXME: Should these be hasTagName() checks to also enforce the namespace?
     const auto& localName = element.localName();
-    return localName == HTMLNames::inputTag
-        || localName == HTMLNames::textareaTag
-        || localName == HTMLNames::buttonTag
-        || localName == HTMLNames::progressTag
-        || localName == HTMLNames::selectTag
-        || localName == HTMLNames::meterTag
+    return HTMLNames::inputTag->hasLocalName(localName)
+        || HTMLNames::textareaTag->hasLocalName(localName)
+        || HTMLNames::buttonTag->hasLocalName(localName)
+        || HTMLNames::progressTag->hasLocalName(localName)
+        || HTMLNames::selectTag->hasLocalName(localName)
+        || HTMLNames::meterTag->hasLocalName(localName)
         || (element.isInUserAgentShadowTree() && element.userAgentPart() == UserAgentParts::webkitListButton());
 }
 

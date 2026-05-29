@@ -2486,7 +2486,8 @@ void AXObjectCache::onPostRenderingUpdate()
     // entire subtree of each becomes permanently visible.
     for (RefPtr ancestor = focusTarget.get(); ancestor; ancestor = ancestor->parentElementInComposedTree()) {
         auto tag = ancestor->localName();
-        if (tag == bodyTag || tag == htmlTag)
+        // FIXME: Should these be hasTagName() checks to also enforce the namespace?
+        if (bodyTag->hasLocalName(tag) || htmlTag->hasLocalName(tag))
             break;
 
         if (!equalLettersIgnoringASCIICase(ancestor->attributeWithDefaultARIA(aria_hiddenAttr), "true"_s))

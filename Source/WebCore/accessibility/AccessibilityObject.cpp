@@ -4107,7 +4107,8 @@ bool AccessibilityObject::isARIAHidden() const
     // https://github.com/w3c/aria/pull/1880
     // To prevent authors from hiding all content from assistive technology users, do not respect
     // aria-hidden on html, body, or document-root svg elements.
-    if (tag == bodyTag || tag == htmlTag || (tag == SVGNames::svgTag && !element->parentNode()))
+    // FIXME: Should these be hasTagName() checks to also enforce the namespace?
+    if (bodyTag->hasLocalName(tag) || htmlTag->hasLocalName(tag) || (SVGNames::svgTag->hasLocalName(tag) && !element->parentNode()))
         return false;
 
     if (RefPtr assignedSlot = node ? node->assignedSlot() : nullptr) {

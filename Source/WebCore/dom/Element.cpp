@@ -4072,7 +4072,8 @@ bool Element::removeAttribute(const AtomString& qualifiedName)
     AtomString caseAdjustedQualifiedName = shouldIgnoreAttributeCase(*this) ? qualifiedName.convertToASCIILowercase() : qualifiedName;
     unsigned index = elementData()->findAttributeIndexByName(caseAdjustedQualifiedName, false);
     if (index == ElementData::attributeNotFound) {
-        if (caseAdjustedQualifiedName == styleAttr) [[unlikely]] {
+        // FIXME: Should this be a hasTagName(styleAttr) check to also enforce the namespace?
+        if (styleAttr->hasLocalName(caseAdjustedQualifiedName)) [[unlikely]] {
             if (elementData()->styleAttributeIsDirty()) {
                 if (auto* styledElement = dynamicDowncast<StyledElement>(*this))
                     styledElement->removeAllInlineStyleProperties();

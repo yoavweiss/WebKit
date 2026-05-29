@@ -1072,16 +1072,16 @@ static bool NODELETE isFlowContent(Node& node)
         // https://html.spec.whatwg.org/#flow-content
         // Below represents a non-comprehensive list of common flow content elements.
         const AtomString& tag = element->localName();
-        if (tag == blockquoteTag
-        || tag == canvasTag
-        || tag == codeTag
-        || tag == divTag
-        || tag == olTag
-        || tag == pictureTag
-        || tag == preTag
-        || tag == pTag
-        || tag == spanTag
-        || tag == ulTag)
+        if (blockquoteTag->hasLocalName(tag)
+        || canvasTag->hasLocalName(tag)
+        || codeTag->hasLocalName(tag)
+        || divTag->hasLocalName(tag)
+        || olTag->hasLocalName(tag)
+        || pictureTag->hasLocalName(tag)
+        || preTag->hasLocalName(tag)
+        || pTag->hasLocalName(tag)
+        || spanTag->hasLocalName(tag)
+        || ulTag->hasLocalName(tag))
             return true;
     }
 
