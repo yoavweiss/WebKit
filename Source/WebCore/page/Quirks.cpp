@@ -642,7 +642,6 @@ bool Quirks::shouldComputeSimulatedMouseEventMovementDelta() const
     return m_quirksData.isTikTok || m_quirksData.isFacebook;
 }
 
-// sites.google.com rdar://58653069
 bool Quirks::shouldPreventDispatchOfTouchEvent(const AtomString& touchEventType, EventTarget* target) const
 {
     QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
@@ -656,6 +655,22 @@ bool Quirks::shouldPreventDispatchOfTouchEvent(const AtomString& touchEventType,
             return true;
         if (element->hasClassName("vjs-subs-cap-button"_s) && element->hasClassName("vjs-menu-button"_s))
             return true;
+    }
+
+    // sites.google.com rdar://58653069
+    if (RefPtr element = dynamicDowncast<Element>(target); element && touchEventType == eventNames().touchendEvent)
+        return element->hasClassName("DPvwYc"_s) && element->hasClassName("sm8sCf"_s);
+
+    // outlook.live.com rdar://48008837
+    if (RefPtr element = dynamicDowncast<Element>(target); element && touchEventType == eventNames().touchmoveEvent) {
+        static constexpr unsigned max_depth = 15;
+        unsigned depth = 0;
+        for (Ref ancestor : lineageOfType<HTMLElement>(*element)) {
+            if (ancestor->hasClassName("ms-Suggestions"_s))
+                return true;
+            if (++depth > max_depth)
+                break;
+        }
     }
 
     return false;
@@ -3494,6 +3509,10 @@ static void handleLiveQuirks(QuirksData& quirksData, const URL& quirksURL, const
 #endif
     // live.com rdar://52116170
     quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::ShouldAvoidResizingWhenInputViewBoundsChangeQuirk);
+#if ENABLE(TOUCH_EVENTS)
+    // outlook.live.com rdar://48008837
+    quirksData.setQuirkState(QuirksData::SiteSpecificQuirk::ShouldPreventDispatchOfTouchEventQuirk, quirksData.isOutlook);
+#endif
     // Microsoft office online generates data URLs with incorrect padding on Safari only (rdar://114573089).
     bool shouldDisableDataURLPaddingValidation = topDocumentHost.endsWith("officeapps.live.com"_s) || topDocumentHost.endsWith("onedrive.live.com"_s);
     quirksData.setQuirkState(QuirksData::SiteSpecificQuirk::ShouldDisableDataURLPaddingValidation, shouldDisableDataURLPaddingValidation);
