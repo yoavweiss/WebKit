@@ -383,4 +383,4 @@ MemoryPressureHandlerConfiguration::MemoryPressureHandlerConfiguration(uint64_t 
 {
 }
 
-} // namespace WebCore
+} // namespace WTF
