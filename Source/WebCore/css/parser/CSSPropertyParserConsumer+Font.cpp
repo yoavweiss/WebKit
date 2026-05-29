@@ -778,6 +778,8 @@ std::optional<CSS::FontStyleRange> consumeUnresolvedFontFaceFontStyle(CSSParserT
 
         if (rangeCopy.atEnd()) {
             range = rangeCopy;
+            if (firstAngle->isKnownZero())
+                return CSS::FontStyleRange { CSS::Keyword::Normal { } };
             return CSS::FontStyleRange { CSS::FontStyleRange::Oblique { WTF::move(firstAngle), std::nullopt } };
         }
 
@@ -786,6 +788,8 @@ std::optional<CSS::FontStyleRange> consumeUnresolvedFontFaceFontStyle(CSSParserT
             return std::nullopt;
 
         range = rangeCopy;
+        if (firstAngle->isKnownZero() && secondAngle->isKnownZero())
+            return CSS::FontStyleRange { CSS::Keyword::Normal { } };
         return CSS::FontStyleRange { CSS::FontStyleRange::Oblique { WTF::move(firstAngle), WTF::move(secondAngle) } };
     }
 
