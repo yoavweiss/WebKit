@@ -134,31 +134,31 @@
                   },
                   {
                     "name": "bot10005",
-                    "platform": "mac-tahoe",
-                    "os": "macOS Tahoe 26.5-25F71",
+                    "platform": "mac-sequoia",
+                    "os": "macOS Sequoia 15.7.3-24G419",
                     "device": "Mac16,11",
-                    "xcode": "Xcode 26.5-17F42"
+                    "xcode": "Xcode 26.2-17C52"
                   },
                   {
                     "name": "bot10006",
-                    "platform": "mac-tahoe",
-                    "os": "macOS Tahoe 26.5-25F71",
+                    "platform": "mac-sequoia",
+                    "os": "macOS Sequoia 15.7.3-24G419",
                     "device": "Mac16,11",
-                    "xcode": "Xcode 26.5-17F42"
+                    "xcode": "Xcode 26.2-17C52"
                   },
                   {
                     "name": "bot10007",
-                    "platform": "mac-tahoe",
-                    "os": "macOS Tahoe 26.5-25F71",
+                    "platform": "mac-sequoia",
+                    "os": "macOS Sequoia 15.7.3-24G419",
                     "device": "Mac16,11",
-                    "xcode": "Xcode 26.5-17F42"
+                    "xcode": "Xcode 26.2-17C52"
                   },
                   {
                     "name": "bot10008",
-                    "platform": "mac-tahoe",
-                    "os": "macOS Tahoe 26.5-25F71",
+                    "platform": "mac-sequoia",
+                    "os": "macOS Sequoia 15.7.3-24G419",
                     "device": "Mac16,11",
-                    "xcode": "Xcode 26.5-17F42"
+                    "xcode": "Xcode 26.2-17C52"
                   },
                   {
                     "name": "bot10009",
@@ -272,7 +272,7 @@
                       "tahoe-release-tests-wk1", "tahoe-release-tests-wk2", "tahoe-release-perf-tests",
                       "tahoe-release-applesilicon-tests-wk1", "tahoe-release-applesilicon-tests-wk2",
                       "tahoe-applesilicon-release-tests-test262", "tahoe-release-tests-wk2-accessibility-isolated-tree", 
-                      "tahoe-release-tests-wk2-site-isolation-tree", "tahoe-release-world-leaks-tests"
+                      "tahoe-release-world-leaks-tests"
                   ],
                   "workernames": ["bot678", "bot10004"]
                   },
@@ -313,11 +313,6 @@
                     "platform": "mac-tahoe", "configuration": "release", "architectures": ["x86_64", "arm64"],
                     "additionalArguments": ["--no-retry-failures", "--accessibility-isolated-tree", "accessibility/"],
                     "workernames": ["bot179"]
-                  },
-                  { "name": "Apple-Tahoe-Release-WK2-Site-Isolation-Tree-Tests", "factory": "TestLayoutAndAPIOnlyFactory",
-                  "platform": "mac-tahoe", "configuration": "release", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures", "--site-isolation"],
-                  "workernames": ["bot10005", "bot10006", "bot10007", "bot10008"]
                   },
                   { "name": "Apple-Tahoe-Debug-Build", "factory": "BuildFactory",
                   "platform": "mac-tahoe", "configuration": "debug", "architectures": ["x86_64", "arm64"],
@@ -363,9 +358,14 @@
                       "sequoia-release-tests-wk1", "sequoia-release-tests-wk2",
                       "sequoia-release-applesilicon-tests-wk2",
                       "sequoia-release-tests-test262", "sequoia-applesilicon-release-tests-jsc", 
-                      "sequoia-intel-release-tests-jsc"
+                      "sequoia-intel-release-tests-jsc", "sequoia-release-tests-wk2-site-isolation-tree"
                   ],
                   "workernames": ["bot279", "bot198"]
+                  },
+                  { "name": "Apple-Sequoia-Release-WK2-Site-Isolation-Tree-Tests", "factory": "TestLayoutAndAPIOnlyFactory",
+                  "platform": "mac-sequoia", "configuration": "release", "architectures": ["x86_64", "arm64"],
+                  "additionalArguments": ["--no-retry-failures", "--additional-header=SiteIsolationEnabled=true", "--additional-expectations=LayoutTests/platform/mac-site-isolation/TestExpectations"],
+                  "workernames": ["bot10005", "bot10006", "bot10007", "bot10008"]
                   },
                   { "name": "Apple-Sequoia-Release-WK1-Tests", "factory": "TestWebKit1AllButJSCFactory",
                   "platform": "mac-sequoia", "configuration": "release", "architectures": ["x86_64", "arm64"],
@@ -867,14 +867,14 @@
                   { "type": "Triggerable", "name": "tahoe-applesilicon-release-tests-test262",
                   "builderNames": ["Apple-Tahoe-Release-AppleSilicon-Test262-Tests"]
                   },
-                  { "type": "Triggerable", "name": "tahoe-release-tests-wk2-site-isolation-tree",
-                  "builderNames": ["Apple-Tahoe-Release-WK2-Site-Isolation-Tree-Tests"]
-                  },
                   { "type": "Triggerable", "name": "tahoe-release-world-leaks-tests",
                     "builderNames": ["Apple-Tahoe-Release-World-Leaks-Tests"]
                   },
                   { "type": "PlatformSpecificScheduler", "platform": "mac-sequoia", "branch": "main", "treeStableTimer": 45.0,
                   "builderNames": ["Apple-Sequoia-Release-Build", "Apple-Sequoia-Debug-Build", "Apple-Sequoia-AppleSilicon-O3-Debug-JSC-BuildAndTest"]
+                  },
+                  { "type": "Triggerable", "name": "sequoia-release-tests-wk2-site-isolation-tree",
+                  "builderNames": ["Apple-Sequoia-Release-WK2-Site-Isolation-Tree-Tests"]
                   },
                   { "type": "Triggerable", "name": "sequoia-release-tests-wk1",
                   "builderNames": ["Apple-Sequoia-Release-WK1-Tests"]

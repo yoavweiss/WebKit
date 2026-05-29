@@ -330,26 +330,6 @@ class TestExpectedBuildSteps(unittest.TestCase):
             'extract-test-results',
             'set-permissions'
         ],
-        'Apple-Tahoe-Release-WK2-Site-Isolation-Tree-Tests': [
-            'configure-build',
-            'configuration',
-            'clean-and-update-working-directory',
-            'checkout-specific-revision',
-            'show-identifier',
-            'kill-old-processes',
-            'delete-WebKitBuild-directory',
-            'delete-stale-build-files',
-            'prune-coresymbolicationd-cache-if-too-large',
-            'download-built-product',
-            'extract-built-product',
-            'layout-test',
-            'dashboard-tests',
-            'archive-test-results',
-            'upload',
-            'extract-test-results',
-            'set-permissions',
-            'run-api-tests'
-        ],
         'Apple-Tahoe-Release-World-Leaks-Tests': [
             'configure-build',
             'configuration',
@@ -411,6 +391,26 @@ class TestExpectedBuildSteps(unittest.TestCase):
             'prune-coresymbolicationd-cache-if-too-large',
             'compile-webkit',
             'trigger'
+        ],
+        'Apple-Sequoia-Release-WK2-Site-Isolation-Tree-Tests': [
+            'configure-build',
+            'configuration',
+            'clean-and-update-working-directory',
+            'checkout-specific-revision',
+            'show-identifier',
+            'kill-old-processes',
+            'delete-WebKitBuild-directory',
+            'delete-stale-build-files',
+            'prune-coresymbolicationd-cache-if-too-large',
+            'download-built-product',
+            'extract-built-product',
+            'layout-test',
+            'dashboard-tests',
+            'archive-test-results',
+            'upload',
+            'extract-test-results',
+            'set-permissions',
+            'run-api-tests'
         ],
         'Apple-Sequoia-Release-WK1-Tests': [
             'configure-build',
