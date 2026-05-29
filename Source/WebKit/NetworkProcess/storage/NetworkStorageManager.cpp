@@ -66,6 +66,7 @@
 #include <algorithm>
 #include <pal/crypto/CryptoDigest.h>
 #include <ranges>
+#include <wtf/CallbackAggregator.h>
 #include <wtf/FileSystem.h>
 #include <wtf/SuspendableWorkQueue.h>
 #include <wtf/TZoneMallocInlines.h>
@@ -645,25 +646,28 @@ void NetworkStorageManager::prepareForTimeBasedEviction(TimeBasedEvictionMode mo
         if (!process)
             return;
 
-        process->diskCacheOriginAccessTimes(protectedThis->m_sessionID, [weakThis = WTF::move(weakThis), mode, threshold](auto result) mutable {
+        struct EvictionOrigins : public RefCounted<EvictionOrigins> {
+            HashMap<WebCore::RegistrableDomain, WallTime> diskCacheAccessTimes;
+            Vector<WebCore::SecurityOriginData> pushSubscriptionOrigins;
+        };
+        Ref evictionOrigins = adoptRef(*new EvictionOrigins);
+        Ref aggregator = MainRunLoopCallbackAggregator::create([weakThis = WTF::move(weakThis), mode, threshold, evictionOrigins]() mutable {
             RefPtr protectedThis = weakThis;
             if (!protectedThis || protectedThis->m_closed)
                 return;
 
-            RefPtr process = protectedThis->m_process;
-            if (!process)
-                return;
-
-            process->getAllPushSubscriptionOrigins(protectedThis->m_sessionID, [weakThis = WTF::move(weakThis), mode, threshold, result = WTF::move(result)](Vector<WebCore::SecurityOriginData>&& pushSubscriptionOrigins) mutable {
-                RefPtr protectedThis = weakThis;
-                if (!protectedThis || protectedThis->m_closed)
-                    return;
-
-                protectedThis->workQueue().dispatch([weakThis = WTF::move(weakThis), mode, threshold, result = crossThreadCopy(WTF::move(result)), pushSubscriptionOrigins = crossThreadCopy(WTF::move(pushSubscriptionOrigins))]() mutable {
-                    if (RefPtr protectedThis = weakThis)
-                        protectedThis->donePrepareForTimeBasedEviction(mode, threshold, WTF::move(result), WTF::move(pushSubscriptionOrigins));
-                });
+            protectedThis->workQueue().dispatch([weakThis = WTF::move(weakThis), mode, threshold, diskCacheAccessTimes = crossThreadCopy(WTF::move(evictionOrigins->diskCacheAccessTimes)), pushSubscriptionOrigins = crossThreadCopy(WTF::move(evictionOrigins->pushSubscriptionOrigins))]() mutable {
+                if (RefPtr protectedThis = weakThis)
+                    protectedThis->donePrepareForTimeBasedEviction(mode, threshold, WTF::move(diskCacheAccessTimes), WTF::move(pushSubscriptionOrigins));
             });
+        });
+
+        process->diskCacheOriginAccessTimes(protectedThis->m_sessionID, [evictionOrigins, aggregator](auto result) mutable {
+            evictionOrigins->diskCacheAccessTimes = WTF::move(result);
+        });
+
+        process->getAllPushSubscriptionOrigins(protectedThis->m_sessionID, [evictionOrigins, aggregator](auto&& origins) mutable {
+            evictionOrigins->pushSubscriptionOrigins = WTF::move(origins);
         });
     });
 }
