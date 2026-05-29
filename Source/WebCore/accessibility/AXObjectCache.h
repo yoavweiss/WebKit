@@ -933,7 +933,6 @@ private:
     bool isModalElement(Element&) const;
     void findModalNodes();
     void updateCurrentModalNode();
-    bool isNodeVisible(const Node*) const;
     bool modalElementHasAccessibleContent(Element&);
 
     void setDirtyStitchGroups(const RenderBlock&);

@@ -546,6 +546,39 @@ void AXObjectCache::findModalNodes()
     m_modalNodesInitialized = true;
 }
 
+static bool isNodeAccessible(const Node* node)
+{
+    RefPtr element = dynamicDowncast<Element>(node);
+    if (!element)
+        return false;
+
+    CheckedPtr renderer = element->renderer();
+    if (!renderer)
+        return false;
+
+    CheckedRef style = renderer->style();
+    if (style->display() == Style::DisplayType::None)
+        return false;
+
+    if (style->effectiveInert())
+        return false;
+
+    CheckedPtr renderLayer = renderer->enclosingLayer();
+    if (isVisibilityHidden(style) && renderLayer && !renderLayer->hasVisibleContent())
+        return false;
+
+    // Check whether this object or any of its ancestors has opacity 0.
+    // The resulting opacity of a RenderObject is computed as the multiplication
+    // of its opacity times the opacities of its ancestors.
+    for (auto* ancestor = renderer.get(); ancestor; ancestor = ancestor->parent()) {
+        if (ancestor->style().opacity().isTransparent())
+            return false;
+    }
+
+    // We also need to consider aria hidden status.
+    return !equalLettersIgnoringASCIICase(element->attributeWithDefaultARIA(aria_hiddenAttr), "true"_s) || element->focused();
+}
+
 bool AXObjectCache::modalElementHasAccessibleContent(Element& element)
 {
     // Unless you're trying to compute the new modal node, determining whether an element
@@ -572,8 +605,9 @@ bool AXObjectCache::modalElementHasAccessibleContent(Element& element)
 #endif
             }
 
-            // Don't descend into subtrees for non-visible nodes.
-            if (isNodeVisible(node.get()))
+            // Don't descend into subtrees for non-accessible nodes — isNodeAccessible
+            // also skips aria-hidden and inert subtrees, so nothing inside can be accessible content.
+            if (isNodeAccessible(node.get()))
                 nodeStack.append(node->firstChild());
         }
     }
@@ -599,38 +633,36 @@ void AXObjectCache::updateCurrentModalNode()
         }
 
         SetForScope retrievingCurrentModalNode(m_isRetrievingCurrentModalNode, true);
-        // If any of the modal nodes contains the keyboard focus, we want to pick that one.
-        // If multiple contain the keyboard focus, we want the deepest.
-        // If no modal contains focus, we want to pick the last visible dialog in the DOM.
+        // We only ever return a modal that contains the keyboard focus, so
+        // walk up from the focused element to find the deepest focus-containing
+        // modal that's also visible and has accessible content.
         RefPtr<Element> focusedElement = document->focusedElement();
+        if (!focusedElement)
+            return nullptr;
         RefPtr<Element> modalElementToReturn;
-        bool foundModalWithFocusInside = false;
-        for (auto& element : m_modalElements) {
-            // Elements in m_modalElementsSet may have become un-modal since we added them, but not yet removed
-            // as part of the asynchronous m_deferredModalChangedList handling. Skip these.
-            if (!element || !isModalElement(*element))
+        for (RefPtr ancestor = focusedElement; ancestor; ancestor = ancestor->parentOrShadowHostElement()) {
+
+            if (!m_modalElements.containsIf([&ancestor] (auto& modal) {
+                return modal.get() == ancestor.get();
+            }))
                 continue;
 
-            // To avoid trapping users in an empty modal, skip any non-visible element, or any element without accessible content.
-            if (!isNodeVisible(element.get()) || !modalElementHasAccessibleContent(*element))
+            // Elements in m_modalElementsSet may have become un-modal since we added them,
+            // but not yet removed as part of the asynchronous m_deferredModalChangedList
+            // handling. Skip these.
+            if (!isModalElement(*ancestor))
                 continue;
 
-            bool focusIsInsideElement = focusedElement && focusedElement->isInclusiveDescendantOf(*element);
-
-            // If the modal we found previously is a descendant of this one, prefer the descendant and skip this one.
-            if (modalElementToReturn && foundModalWithFocusInside && modalElementToReturn->isDescendantOf(*element))
+            // To avoid trapping users in an empty modal, skip any non-visible
+            // element, or any element without accessible content. Continue
+            // walking the ancestry in case a containing modal is visible and contentful.
+            if (!isNodeAccessible(ancestor.get()) || !modalElementHasAccessibleContent(*ancestor))
                 continue;
-
-            // If we already found a modal that focus is inside, and this one doesn't have focus inside, skip in favor of the one with focus inside.
-            if (modalElementToReturn && foundModalWithFocusInside && !focusIsInsideElement)
-                continue;
-
-            modalElementToReturn = element.get();
-            if (focusIsInsideElement)
-                foundModalWithFocusInside = true;
+            modalElementToReturn = ancestor;
+            break;
         }
 
-        if (!focusedElement || !foundModalWithFocusInside)
+        if (!modalElementToReturn)
             return nullptr;
 
         RefPtr object = getOrCreate(modalElementToReturn.get());
@@ -651,36 +683,6 @@ void AXObjectCache::updateCurrentModalNode()
     }
 }
 
-bool AXObjectCache::isNodeVisible(const Node* node) const
-{
-    RefPtr element = dynamicDowncast<Element>(node);
-    if (!element)
-        return false;
-
-    CheckedPtr renderer = element->renderer();
-    if (!renderer)
-        return false;
-
-    CheckedRef style = renderer->style();
-    if (style->display() == Style::DisplayType::None)
-        return false;
-
-    CheckedPtr renderLayer = renderer->enclosingLayer();
-    if (isVisibilityHidden(style) && renderLayer && !renderLayer->hasVisibleContent())
-        return false;
-
-    // Check whether this object or any of its ancestors has opacity 0.
-    // The resulting opacity of a RenderObject is computed as the multiplication
-    // of its opacity times the opacities of its ancestors.
-    for (auto* ancestor = renderer.get(); ancestor; ancestor = ancestor->parent()) {
-        if (ancestor->style().opacity().isTransparent())
-            return false;
-    }
-
-    // We also need to consider aria hidden status.
-    return !equalLettersIgnoringASCIICase(element->attributeWithDefaultARIA(aria_hiddenAttr), "true"_s) || element->focused();
-}
-
 // This function returns the valid aria modal node.
 Node* AXObjectCache::modalNode()
 {
@@ -692,7 +694,7 @@ Node* AXObjectCache::modalNode()
 
     // Check the cached current valid aria modal node first.
     // Usually when one dialog sets aria-modal=true, that dialog is the one we want.
-    if (isNodeVisible(m_currentModalElement))
+    if (isNodeAccessible(m_currentModalElement))
         return m_currentModalElement;
 
     // Recompute the valid aria modal node when m_currentModalElement is null or hidden.
