@@ -342,6 +342,13 @@ void WebPageInspectorController::didCommitProvisionalPage(std::optional<WebCore:
             pageAgent->disableInstrumentationForProcess(*oldProcess, oldWebPageID);
         pageAgent->enableInstrumentationForProcess(newProcess, newWebPageID);
     }
+
+    RefPtr networkAgent = m_networkAgent;
+    if (networkAgent && networkAgent->isEnabled()) {
+        if (oldProcess)
+            networkAgent->disableInstrumentationForProcess(*oldProcess, oldWebPageID);
+        networkAgent->enableInstrumentationForProcess(newProcess, newWebPageID);
+    }
 }
 
 void WebPageInspectorController::didCreateFrame(WebFrameProxy& frame)

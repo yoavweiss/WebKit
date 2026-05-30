@@ -2338,10 +2338,6 @@ webkit.org/b/315354 media/video-concurrent-visible-playback.html [ Pass Failure 
 
 webkit.org/b/315398 [ Release ] http/tests/site-isolation/accessibility/client/simple-iframe.html [ Timeout ]
 
-# webkit.org/b/314902 REGRESSION(313207@main): [macOS Debug] ASSERTION FAILED: !m_messageReceiverMapCount
-[ Debug ] http/tests/site-isolation/inspector/target/target.html [ Skip ]
-[ Debug ] http/tests/site-isolation/inspector/target/target-cross-origin-page-navigation.html [ Skip ]
-
 # webkit.org/b/315593 [macOS Release] imported/w3c/web-platform-tests/fetch/api/crashtests/huge-fetch.any.sharedworker.html  is a flaky crash
 [ Release ] imported/w3c/web-platform-tests/fetch/api/crashtests/huge-fetch.any.serviceworker.html [ Skip ]
 [ Release ] imported/w3c/web-platform-tests/fetch/api/crashtests/huge-fetch.any.sharedworker.html [ Skip ]
