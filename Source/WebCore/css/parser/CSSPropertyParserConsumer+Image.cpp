@@ -28,6 +28,7 @@
 #include "CSSCalcSymbolTable.h"
 #include "CSSCanvasValue.h"
 #include "CSSColor.h"
+#include "CSSColorImageValue.h"
 #include "CSSCrossfadeValue.h"
 #include "CSSCursorImageValue.h"
 #include "CSSFilterImageValue.h"
@@ -1020,6 +1021,17 @@ static RefPtr<CSSValue> consumeWebkitNamedImage(CSSParserTokenRange& args)
     return CSSNamedImageValue::create(CSS::CustomIdent { args.consumeIncludingWhitespace().value().toAtomString() });
 }
 
+// MARK: <image()>
+// https://drafts.csswg.org/css-images-4/#funcdef-image
+
+static RefPtr<CSSValue> consumeColorImage(CSSParserTokenRange& args, CSS::PropertyParserState& state)
+{
+    auto color = consumeUnresolvedColor(args, state);
+    if (!color)
+        return nullptr;
+    return CSSColorImageValue::create(WTF::move(*color));
+}
+
 // MARK: <filter()>
 
 static RefPtr<CSSValue> consumeFilterImage(CSSParserTokenRange& args, CSS::PropertyParserState& state)
@@ -1225,6 +1237,8 @@ RefPtr<CSSValue> consumeImage(CSSParserTokenRange& range, CSS::PropertyParserSta
             return consumeGeneratedImage([&](auto& args) { return consumeWebkitCanvas(args); });
         case CSSValueWebkitNamedImage:
             return consumeGeneratedImage([&](auto& args) { return consumeWebkitNamedImage(args); });
+        case CSSValueImage:
+            return consumeGeneratedImage([&](auto& args) { return consumeColorImage(args, state); });
         case CSSValueWebkitFilter:
         case CSSValueFilter:
             return consumeGeneratedImage([&](auto& args) { return consumeFilterImage(args, state); });

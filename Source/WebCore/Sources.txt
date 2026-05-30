@@ -896,6 +896,7 @@ css/CSSBorderImageWidthValue.cpp
 css/CSSBoxShadowPropertyValue.cpp
 css/CSSCanvasValue.cpp
 css/CSSClipValue.cpp
+css/CSSColorImageValue.cpp
 css/CSSColorSchemeValue.cpp
 css/CSSColorValue.cpp
 css/CSSComputedStyleDeclaration.cpp @header:RenderStyleGetters
@@ -2666,6 +2667,7 @@ platform/graphics/MediaSampleConverter.cpp
 platform/graphics/MediaSourcePrivate.cpp
 platform/graphics/Model.cpp
 platform/graphics/ModelContext.cpp
+platform/graphics/ColorImageGeneratedImage.cpp
 platform/graphics/NamedImageGeneratedImage.cpp
 platform/graphics/NativeImage.cpp
 platform/graphics/NativeImageSource.cpp
@@ -3388,6 +3390,7 @@ style/values/images/kinds/StyleGradientImage.cpp @header:RenderStyleGetters
 style/values/images/kinds/StyleImageSet.cpp
 style/values/images/kinds/StyleInvalidImage.cpp
 style/values/images/kinds/StyleMultiImage.cpp
+style/values/images/kinds/StyleColorImage.cpp
 style/values/images/kinds/StyleNamedImage.cpp
 style/values/images/kinds/StylePaintImage.cpp @header:RenderStyleGetters
 style/values/images/StyleGradient.cpp @header:RenderStyleGetters

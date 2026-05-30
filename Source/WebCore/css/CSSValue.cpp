@@ -42,6 +42,7 @@
 #include "CSSBoxShadowPropertyValue.h"
 #include "CSSCanvasValue.h"
 #include "CSSClipValue.h"
+#include "CSSColorImageValue.h"
 #include "CSSColorSchemeValue.h"
 #include "CSSColorValue.h"
 #include "CSSContentValue.h"
@@ -216,6 +217,8 @@ template<typename Visitor> constexpr decltype(auto) CSSValue::visitDerived(Visit
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSMaskBorderSourceValue>(*this));
     case MaskBorderWidth:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSMaskBorderWidthValue>(*this));
+    case ColorImage:
+        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSColorImageValue>(*this));
     case NamedImage:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSNamedImageValue>(*this));
     case OffsetRotate:

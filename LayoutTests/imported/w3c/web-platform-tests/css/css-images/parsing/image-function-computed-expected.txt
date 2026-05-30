@@ -1,5 +1,5 @@
 
-FAIL Property background-image value 'image(red)' assert_true: 'image(red)' is a supported value for background-image. expected true got false
-FAIL Property background-image value 'image(rgba(0, 128, 255, 0.5))' assert_true: 'image(rgba(0, 128, 255, 0.5))' is a supported value for background-image. expected true got false
-FAIL Property background-image value 'image(transparent)' assert_true: 'image(transparent)' is a supported value for background-image. expected true got false
+PASS Property background-image value 'image(red)'
+PASS Property background-image value 'image(rgba(0, 128, 255, 0.5))'
+PASS Property background-image value 'image(transparent)'
 

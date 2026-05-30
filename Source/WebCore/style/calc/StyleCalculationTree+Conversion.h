@@ -27,10 +27,9 @@
 #include "CSSCalcSymbolTable.h"
 #include "CSSPrimitiveNumericRange.h"
 #include "CSSToLengthConversionData.h"
+#include "RenderStyle.h"
 
 namespace WebCore {
-
-class RenderStyle;
 
 namespace CSS {
 enum class Category : uint8_t;
