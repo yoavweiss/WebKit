@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "BoxSides.h"
-#include "ScrollTypes.h"
+#include <WebCore/BoxSides.h>
+#include <WebCore/ScrollTypes.h>
 #include <wtf/CheckedRef.h>
 #include <wtf/Vector.h>
 
