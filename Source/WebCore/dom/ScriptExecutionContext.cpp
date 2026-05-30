@@ -1021,26 +1021,23 @@ public:
 private:
     explicit ScriptExecutionContextDispatcher(ScriptExecutionContext& context)
         : m_identifier(context.identifier())
-        , m_workerThreadId(context.isWorkerGlobalScope() ? std::optional { Thread::currentSingleton().uid() } : std::nullopt)
+        , m_threadId(context.isWorkerGlobalScope() ? Thread::currentSingleton().uid() : 1)
     {
     }
 
     // GuaranteedSerialFunctionDispatcher
     void dispatch(Function<void()>&& callback) final
     {
-        if (!m_workerThreadId) {
+        if (m_threadId == 1) {
             callOnMainThread(WTF::move(callback));
             return;
         }
         ScriptExecutionContext::postTaskTo(m_identifier, WTF::move(callback));
     }
-    bool isCurrent() const final
-    {
-        return m_workerThreadId ? *m_workerThreadId == Thread::currentSingleton().uid() : isMainThread();
-    }
+    bool isCurrent() const final { return m_threadId == Thread::currentSingleton().uid(); }
 
     ScriptExecutionContextIdentifier m_identifier;
-    const std::optional<uint32_t> m_workerThreadId;
+    const uint32_t m_threadId { 1 };
 };
 
 GuaranteedSerialFunctionDispatcher& ScriptExecutionContext::nativePromiseDispatcher()

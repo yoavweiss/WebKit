@@ -93,6 +93,7 @@
 #include <windows.h>
 #include <wtf/HashMap.h>
 #include <wtf/Lock.h>
+#include <wtf/MainThread.h>
 #include <wtf/MathExtras.h>
 #include <wtf/NeverDestroyed.h>
 #include <wtf/ThreadingPrimitives.h>

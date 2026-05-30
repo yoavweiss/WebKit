@@ -294,11 +294,8 @@ public:
 #endif
 
 protected:
-    enum class IsMain : uint8_t { No, Yes, Unknown };
-
-    explicit Thread(SchedulingPolicy schedulingPolicy, IsMain isMain = IsMain::Unknown)
+    explicit Thread(SchedulingPolicy schedulingPolicy)
         : m_isRealtime(schedulingPolicy == SchedulingPolicy::Realtime)
-        , m_uid(isMain == IsMain::Yes ? 1 : ++s_uid)
     {
     }
 
@@ -382,7 +379,7 @@ protected:
     StackBounds m_stack { StackBounds::emptyBounds() };
     ThreadSafeWeakHashSet<ThreadGroup> m_threadGroups;
     PlatformThreadHandle m_handle;
-    const uint32_t m_uid;
+    uint32_t m_uid { ++s_uid };
 #if OS(WINDOWS)
     ThreadIdentifier m_id { 0 };
 #elif OS(DARWIN)
