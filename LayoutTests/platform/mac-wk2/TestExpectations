@@ -1224,7 +1224,6 @@ webkit.org/b/256217 [ Debug ] imported/w3c/web-platform-tests/background-fetch/p
 # webkit.org/b/258328 Umbrella Bug: Batch mark expectations slowing down EWS (258328)
 [ Debug ] imported/w3c/web-platform-tests/webcodecs/videoFrame-construction.crossOriginSource.sub.html [ Pass Failure ]
 imported/w3c/web-platform-tests/css/css-sizing/aspect-ratio/replaced-element-035.html [ Pass ImageOnlyFailure ]
-fast/forms/file/entries-api/image-no-transcode-open-panel.html [ Pass Crash ]
 media/track/video-track-addition-and-frame-removal.html [ Pass Crash ]
 media/track/track-cue-left-align.html [ Pass Crash ]
 http/tests/media/modern-media-controls/skip-back-support/skip-back-support-live-broadcast.html [ Pass Crash ]
@@ -2394,3 +2393,9 @@ webkit.org/b/315881 [ Sequoia Release x86_64 ] fast/attachment/cocoa/wide-attach
 webkit.org/b/315881 [ Sequoia Release x86_64 ] fast/attachment/mac/wide-attachment-image-controls-basic.html [ Pass Failure ]
 webkit.org/b/315881 [ Sequoia Release x86_64 ] fast/attachment/mac/wide-attachment-title-with-rtl.html [ Pass ImageOnlyFailure ]
 webkit.org/b/315881 [ Sequoia Release x86_64 ] fast/attachment/mac/wide-attachment-type-attribute.html [ Pass ImageOnlyFailure ]
+
+webkit.org/b/315889 [ Sequoia Release x86_64 ] compositing/overflow/image-load-overflow-scrollbars.html [ Pass Timeout ]
+webkit.org/b/315889 [ Sequoia Release x86_64 ] editing/async-clipboard/clipboard-read-write-images.html [ Pass Failure ]
+webkit.org/b/315889 [ Sequoia Release x86_64 ] fast/forms/file/entries-api/image-no-transcode-open-panel.html [ Pass Crash Failure ]
+webkit.org/b/315889 [ Sequoia Release x86_64 ] fast/images/protected-image-queue.html [ Pass Timeout ]
+
