@@ -96,7 +96,6 @@ void WebParentalControlsURLFilter::isURLAllowedImpl(WebCore::IsMainFrameLoad isM
 #if __has_include(<WebKitAdditions/BEKAdditions.h>)
     if (WebCore::DeprecatedGlobalSettings::webContentRestrictionsTransitiveTrustEnabled()) {
         MAYBE_EVALUATE_URL_WITH_TRANSITIVE_TRUST
-        return;
     }
 #endif
 #endif
