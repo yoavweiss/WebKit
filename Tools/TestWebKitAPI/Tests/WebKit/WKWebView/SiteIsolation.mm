@@ -4174,6 +4174,61 @@ TEST(SiteIsolation, GoBackToPageWithIframe)
     });
 }
 
+TEST(SiteIsolation, GoBackToPageWithIframeBFCache)
+{
+    // Same scenario as GoBackToPageWithIframe but with BFCache active. The
+    // goBack should restore a.com from BFCache (verified via __bfcacheMarker)
+    // rather than reload it. The cross-site frame.com iframe process is
+    // suspended across the cross-site navigation and restored alongside a.com,
+    // so the post-restore tree matches the pre-BFCache shape (a.com tree +
+    // frame.com tree). The cross-site navigation broadcasts b.com's top document
+    // sync data to the suspended frame.com iframe process; without re-establishing
+    // the authoritative main-frame URL/origin on restore, the iframe's first
+    // party for cookies resolves to b.com, the NetworkProcess denies cookie
+    // access, and the iframe process is terminated. The test reads the iframe's
+    // marker and document.cookie after restore to confirm the iframe document
+    // survived and its first-party-for-cookies access still works.
+    HTTPServer server({
+        { "/a"_s, { "<iframe src='https://frame.com/frame'></iframe>"_s } },
+        { "/b"_s, { ""_s } },
+        { "/frame"_s, { ""_s } }
+    }, HTTPServer::Protocol::HttpsProxy);
+    auto *configuration = server.httpsProxyConfiguration();
+    enableFeature(configuration, @"MultiProcessBackForwardCacheEnabled");
+    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a"]]];
+    [navigationDelegate waitForDidFinishNavigationAndLoadInSubframe];
+    [webView objectByEvaluatingJavaScript:@"window.__bfcacheMarker = true"];
+    // Mark the cross-site frame.com iframe document before navigating away. After restore we read
+    // it back from the iframe scope: the marker proves the iframe document survived in BFCache
+    // (rather than being reloaded), which requires the iframe process to still be alive.
+    [webView objectByEvaluatingJavaScript:@"window.__iframeBfcacheMarker = true" inFrame:[webView firstChildFrame]];
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://b.com/b"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+
+    [webView goBack];
+    [navigationDelegate waitForDidFinishNavigation];
+
+    Vector<ExpectedFrameTree> expectedAfterGoBack = {
+        { "https://a.com"_s, { { RemoteFrame } } },
+        { RemoteFrame, { { "https://frame.com"_s } } },
+    };
+    while (!frameTreesMatch(frameTrees(webView.get()).get(), Vector<ExpectedFrameTree> { expectedAfterGoBack }))
+        TestWebKitAPI::Util::spinRunLoop();
+
+    EXPECT_TRUE([[webView objectByEvaluatingJavaScript:@"window.__bfcacheMarker ? true : false"] boolValue]);
+    // The iframe document was restored from BFCache (not reloaded), so its marker is still set.
+    EXPECT_TRUE([[webView objectByEvaluatingJavaScript:@"window.__iframeBfcacheMarker ? true : false" inFrame:[webView firstChildFrame]] boolValue]);
+    // Reading document.cookie from the iframe scope exercises the first-party-for-cookies path that
+    // previously terminated the restored iframe process. With the fix the iframe's first party
+    // resolves to the a.com main frame, so the NetworkProcess allows the access and the read
+    // returns a (non-nil) value instead of terminating the process.
+    EXPECT_NOT_NULL([webView objectByEvaluatingJavaScript:@"String(document.cookie)" inFrame:[webView firstChildFrame]]);
+    checkFrameTreesInProcesses(webView.get(), WTF::move(expectedAfterGoBack));
+}
+
 TEST(SiteIsolation, NavigateNestedIframeSameOriginBackForward)
 {
     HTTPServer server({

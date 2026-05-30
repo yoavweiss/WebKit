@@ -8767,7 +8767,7 @@ void WebPage::suspendWithFrameItem(BackForwardFrameItemIdentifier identifier, Co
     completionHandler(true);
 }
 
-void WebPage::restoreWithFrameItem(BackForwardFrameItemIdentifier identifier, CompletionHandler<void(bool)>&& completionHandler)
+void WebPage::restoreWithFrameItem(BackForwardFrameItemIdentifier identifier, std::optional<std::pair<URL, SecurityOriginData>>&& mainFrameURLAndOrigin, CompletionHandler<void(bool)>&& completionHandler)
 {
     if (!m_isSuspended)
         return completionHandler(true);
@@ -8783,6 +8783,12 @@ void WebPage::restoreWithFrameItem(BackForwardFrameItemIdentifier identifier, Co
         WEBPAGE_RELEASE_LOG_ERROR(ProcessSwapping, "restoreWithFrameItem: take failed, cache entry missing or expired");
         return completionHandler(false);
     }
+
+    // Re-establish the authoritative main-frame URL/origin before restoring. It must come from the
+    // UIProcess, not a local read here: the cross-site top-document broadcast races ahead of this
+    // restore, so this process's top URL is still the stale cross-site value.
+    if (mainFrameURLAndOrigin)
+        page->setMainFrameURLAndOrigin(mainFrameURLAndOrigin->first, mainFrameURLAndOrigin->second.securityOrigin());
 
     m_isSuspended = false;
     unfreezeLayerTree(LayerTreeFreezeReason::PageSuspended);
