@@ -52,6 +52,10 @@ maybeEnterWebKitContainerSDK();
 setConfiguration();
 my $configuration = configuration();
 
+if (defined $ENV{'WEBKIT_CONTAINER_SDK_INSIDE_MOUNT_NAMESPACE'}) {
+    portName();
+}
+
 maybeUseContainerSDKRootDir();
 
 # These variables are intentionally left undefined.
