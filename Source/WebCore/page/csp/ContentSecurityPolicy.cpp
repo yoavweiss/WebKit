@@ -43,11 +43,13 @@
 #include "EventNames.h"
 #include "FormData.h"
 #include "FrameDestructionObserverInlines.h"
+#include "FrameLoader.h"
 #include "InspectorInstrumentation.h"
 #include "JSExecState.h"
 #include "JSWindowProxy.h"
 #include "LegacySchemeRegistry.h"
 #include "LocalFrame.h"
+#include "LocalFrameLoaderClient.h"
 #include "OriginAccessPatterns.h"
 #include "PingLoader.h"
 #include "Report.h"
@@ -1219,11 +1221,13 @@ void ContentSecurityPolicy::setUpgradeInsecureRequests(bool upgradeInsecureReque
         upgradeURL.setProtocol("ws"_s);
     
     m_insecureNavigationRequestsToUpgrade.add(SecurityOriginData::fromURL(upgradeURL));
+    notifyInsecureNavigationRequestsToUpgradeChanged();
 }
 
 void ContentSecurityPolicy::inheritInsecureNavigationRequestsToUpgradeFromOpener(const ContentSecurityPolicy& other)
 {
     m_insecureNavigationRequestsToUpgrade.addAll(other.m_insecureNavigationRequestsToUpgrade);
+    notifyInsecureNavigationRequestsToUpgradeChanged();
 }
 
 HashSet<SecurityOriginData> ContentSecurityPolicy::takeNavigationRequestsToUpgrade()
@@ -1234,6 +1238,20 @@ HashSet<SecurityOriginData> ContentSecurityPolicy::takeNavigationRequestsToUpgra
 void ContentSecurityPolicy::setInsecureNavigationRequestsToUpgrade(HashSet<SecurityOriginData>&& insecureNavigationRequests)
 {
     m_insecureNavigationRequestsToUpgrade = WTF::move(insecureNavigationRequests);
+    notifyInsecureNavigationRequestsToUpgradeChanged();
+}
+
+void ContentSecurityPolicy::notifyInsecureNavigationRequestsToUpgradeChanged() const
+{
+    RefPtr document = dynamicDowncast<Document>(m_scriptExecutionContext.get());
+    if (!document)
+        return;
+    if (!document->settings().siteIsolationEnabled())
+        return;
+    RefPtr frame = document->frame();
+    if (!frame)
+        return;
+    frame->loader().client().dispatchDidChangeCSPOriginsThatUpgradeInsecureNavigations(m_insecureNavigationRequestsToUpgrade);
 }
 
 const HashAlgorithmSetCollection& ContentSecurityPolicy::hashesToReport()

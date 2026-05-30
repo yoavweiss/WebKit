@@ -242,6 +242,7 @@ public:
     HashSet<SecurityOriginData> NODELETE takeNavigationRequestsToUpgrade();
     void inheritInsecureNavigationRequestsToUpgradeFromOpener(const ContentSecurityPolicy&);
     void setInsecureNavigationRequestsToUpgrade(HashSet<SecurityOriginData>&&);
+    const HashSet<SecurityOriginData>& insecureNavigationRequestsToUpgrade() const { return m_insecureNavigationRequestsToUpgrade; }
 
     void setClient(ContentSecurityPolicyClient* client) { m_client = client; }
     void updateSourceSelf(const SecurityOrigin&);
@@ -267,6 +268,7 @@ public:
 private:
     void logToConsole(const String& message, const String& contextURL = String(), const OrdinalNumber& contextLine = OrdinalNumber::beforeFirst(), const OrdinalNumber& contextColumn = OrdinalNumber::beforeFirst(), JSC::JSGlobalObject* = nullptr) const;
     void applyPolicyToScriptExecutionContext();
+    void notifyInsecureNavigationRequestsToUpgradeChanged() const;
 
     String createURLForReporting(const URL&, const String&, bool usesReportingAPI) const;
 

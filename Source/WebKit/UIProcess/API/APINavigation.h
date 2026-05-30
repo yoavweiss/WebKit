@@ -114,6 +114,7 @@ public:
 
     const WebCore::ResourceRequest& originalRequest() const LIFETIME_BOUND { return m_originalRequest; }
     void setCurrentRequest(WebCore::ResourceRequest&&, std::optional<WebCore::ProcessIdentifier>);
+    void upgradeCurrentInsecureRequest();
     const WebCore::ResourceRequest& currentRequest() const LIFETIME_BOUND { return m_currentRequest; }
     std::optional<WebCore::ProcessIdentifier> currentRequestProcessIdentifier() const { return m_currentRequestProcessIdentifier; }
 

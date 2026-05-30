@@ -175,6 +175,7 @@ public:
     virtual void dispatchWillPerformClientRedirect(const URL&, double interval, WallTime fireDate, LockBackForwardList) = 0;
     virtual void dispatchDidChangeMainDocument() { }
     virtual void dispatchWillChangeDocument(const URL&, const URL&) { }
+    virtual void dispatchDidChangeCSPOriginsThatUpgradeInsecureNavigations(const HashSet<SecurityOriginData>&) { }
     virtual void dispatchDidNavigateWithinPage() { }
     virtual void dispatchDidChangeLocationWithinPage() = 0;
     virtual void dispatchDidPushStateWithinPage() = 0;

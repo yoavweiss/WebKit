@@ -111,6 +111,13 @@ void Navigation::setCurrentRequest(ResourceRequest&& request, std::optional<Proc
     m_isEnhancedSecurityLinkForCurrentSite = false;
 }
 
+void Navigation::upgradeCurrentInsecureRequest()
+{
+    auto url = m_currentRequest.url();
+    ResourceRequestBase::upgradeInsecureRequest(url);
+    m_currentRequest.setURL(WTF::move(url));
+}
+
 void Navigation::appendRedirectionURL(const WTF::URL& url)
 {
     if (m_redirectChain.isEmpty() || m_redirectChain.last() != url)
