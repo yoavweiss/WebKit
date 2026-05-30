@@ -88,7 +88,7 @@ for (const test of tests) {
 
 // Ensure that `calc` values work with dynamically changing relative units (slighly different alpha values to make test harness not complain about duplicate tests).
 document.getElementById("container").style.width = "1000px";
-test_computed_value("color", "hwb(calc(110deg + (sign(2cqw - 10px) * 10deg)) 30 50 / 51%)", "rgba(77, 128, 77, 0.51)"); 
+test_computed_value("color", "hwb(calc(110deg + (sign(2cqw - 10px) * 10deg)) 30 50 / 51%)", "rgba(77, 128, 77, 0.51)");
 document.getElementById("container").style.width = "100px";
 test_computed_value("color", "hwb(calc(110deg + (sign(2cqw - 10px) * 10deg)) 30 50 / 52%)", "rgba(94, 128, 77, 0.52)");
 

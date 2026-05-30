@@ -5199,6 +5199,9 @@ webkit.org/b/245347 imported/w3c/web-platform-tests/css/css-color/lch-010.html [
 webkit.org/b/245347 imported/w3c/web-platform-tests/css/css-color/oklch-009.html [ ImageOnlyFailure ]
 webkit.org/b/245347 imported/w3c/web-platform-tests/css/css-color/oklch-010.html [ ImageOnlyFailure ]
 
+imported/w3c/web-platform-tests/css/css-color/light-dark-image-none-interpolation.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-color/light-dark-image-none.html [ ImageOnlyFailure ]
+
 webkit.org/b/214456 imported/w3c/web-platform-tests/css/css-images/conic-gradient-angle.html [ ImageOnlyFailure ]
 webkit.org/b/214456 imported/w3c/web-platform-tests/css/css-images/conic-gradient-angle-negative.html [ ImageOnlyFailure ]
 webkit.org/b/214456 imported/w3c/web-platform-tests/css/css-images/conic-gradient-center.html [ ImageOnlyFailure ]

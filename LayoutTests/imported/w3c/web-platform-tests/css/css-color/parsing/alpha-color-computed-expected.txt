@@ -1,0 +1,21 @@
+
+FAIL Property color value 'alpha(from red / 0.5)' assert_true: 'alpha(from red / 0.5)' is a supported value for color. expected true got false
+FAIL Property color value 'alpha(from blue / 0)' assert_true: 'alpha(from blue / 0)' is a supported value for color. expected true got false
+FAIL Property color value 'alpha(from green / 1)' assert_true: 'alpha(from green / 1)' is a supported value for color. expected true got false
+FAIL Property color value 'alpha(from red / 50%)' assert_true: 'alpha(from red / 50%)' is a supported value for color. expected true got false
+FAIL Property color value 'alpha(from red / 0%)' assert_true: 'alpha(from red / 0%)' is a supported value for color. expected true got false
+FAIL Property color value 'alpha(from red)' assert_true: 'alpha(from red)' is a supported value for color. expected true got false
+FAIL Property color value 'alpha(from rgba(255, 0, 0, 0.3))' assert_true: 'alpha(from rgba(255, 0, 0, 0.3))' is a supported value for color. expected true got false
+FAIL Property color value 'alpha(from red / none)' assert_true: 'alpha(from red / none)' is a supported value for color. expected true got false
+FAIL Property color value 'alpha(from red / 2)' assert_true: 'alpha(from red / 2)' is a supported value for color. expected true got false
+FAIL Property color value 'alpha(from red / -1)' assert_true: 'alpha(from red / -1)' is a supported value for color. expected true got false
+FAIL Property color value 'alpha(from rgba(255, 0, 0, 0.3) / 0.8)' assert_true: 'alpha(from rgba(255, 0, 0, 0.3) / 0.8)' is a supported value for color. expected true got false
+FAIL Property color value 'alpha(from color(display-p3 1 0 0) / 0.5)' assert_true: 'alpha(from color(display-p3 1 0 0) / 0.5)' is a supported value for color. expected true got false
+FAIL Property color value 'alpha(from color(srgb 1 0 0) / 0.5)' assert_true: 'alpha(from color(srgb 1 0 0) / 0.5)' is a supported value for color. expected true got false
+FAIL Property background-color value 'alpha(from currentcolor / 0.5)' assert_true: 'alpha(from currentcolor / 0.5)' is a supported value for background-color. expected true got false
+FAIL Property background-color value 'alpha(from currentcolor)' assert_true: 'alpha(from currentcolor)' is a supported value for background-color. expected true got false
+FAIL Property background-color value 'alpha(from currentcolor / alpha)' assert_true: 'alpha(from currentcolor / alpha)' is a supported value for background-color. expected true got false
+FAIL Property background-color value 'alpha(from currentcolor / none)' assert_true: 'alpha(from currentcolor / none)' is a supported value for background-color. expected true got false
+FAIL Property background-color value 'alpha(from currentcolor / 50%)' assert_true: 'alpha(from currentcolor / 50%)' is a supported value for background-color. expected true got false
+FAIL Property background-color value 'alpha(from currentcolor / calc(alpha * 0.5))' assert_true: 'alpha(from currentcolor / calc(alpha * 0.5))' is a supported value for background-color. expected true got false
+

@@ -1826,12 +1826,6 @@
     "imported/w3c/web-platform-tests/css/css-animations/idlharness.html": [
         "slow"
     ],
-    "imported/w3c/web-platform-tests/css/css-color/color-resolving-hsl.html": [
-        "slow"
-    ],
-    "imported/w3c/web-platform-tests/css/css-color/color-resolving-hwb.html": [
-        "slow"
-    ],
     "imported/w3c/web-platform-tests/css/css-contain/content-visibility/content-visibility-048.html": [
         "slow"
     ],
