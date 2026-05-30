@@ -231,27 +231,16 @@ static EncodedJSValue fastSetIntersection(JSGlobalObject* globalObject, JSSet* t
     if (sourceStorageCell == vm.orderedHashTableSentinel())
         return JSValue::encode(result);
 
-    auto* sourceStorage = uncheckedDowncast<JSSet::Storage>(sourceStorageCell);
-    JSSet::Helper::Entry entry = 0;
-
-    while (true) {
-        sourceStorageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, *sourceStorage, entry);
-        if (sourceStorageCell == vm.orderedHashTableSentinel())
-            break;
-
-        auto* currentStorage = uncheckedDowncast<JSSet::Storage>(sourceStorageCell);
-        entry = JSSet::Helper::iterationEntry(*currentStorage) + 1;
-        JSValue entryKey = JSSet::Helper::getIterationEntryKey(*currentStorage);
-
+    forEachInSetStorage(vm, globalObject, sourceStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) {
         bool targetHasEntry = targetSet->has(globalObject, entryKey);
-        RETURN_IF_EXCEPTION(scope, { });
+        RETURN_IF_EXCEPTION(scope, void());
         if (targetHasEntry) {
             result->add(globalObject, entryKey);
-            RETURN_IF_EXCEPTION(scope, { });
+            RETURN_IF_EXCEPTION(scope, void());
         }
+    });
+    RETURN_IF_EXCEPTION(scope, { });
 
-        sourceStorage = currentStorage;
-    }
     return JSValue::encode(result);
 }
 
@@ -296,60 +285,52 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIntersection, (JSGlobalObject* globalObject
         if (storageCell == vm.orderedHashTableSentinel())
             return JSValue::encode(result);
 
-        auto* storage = uncheckedDowncast<JSSet::Storage>(storageCell);
-        JSSet::Helper::Entry entry = 0;
         CallData hasCallData = JSC::getCallDataInline(has);
-
         std::optional<CachedCall> cachedHasCall;
         if (hasCallData.type == CallData::Type::JS) [[likely]] {
             cachedHasCall.emplace(globalObject, uncheckedDowncast<JSFunction>(has), 1);
             RETURN_IF_EXCEPTION(scope, { });
         }
 
-        while (true) {
-            storageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, *storage, entry);
-            if (storageCell == vm.orderedHashTableSentinel())
-                break;
-
-            storage = uncheckedDowncast<JSSet::Storage>(storageCell);
-            entry = JSSet::Helper::iterationEntry(*storage) + 1;
-            JSValue entryKey = JSSet::Helper::getIterationEntryKey(*storage);
-
+        forEachInSetStorage(vm, globalObject, storageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) {
             JSValue hasResult;
             if (cachedHasCall) [[likely]] {
                 hasResult = cachedHasCall->callWithArguments(globalObject, otherValue, entryKey);
-                RETURN_IF_EXCEPTION(scope, { });
+                RETURN_IF_EXCEPTION(scope, void());
             } else {
                 MarkedArgumentBuffer args;
                 args.append(entryKey);
                 ASSERT(!args.hasOverflowed());
                 hasResult = call(globalObject, has, hasCallData, otherValue, args);
-                RETURN_IF_EXCEPTION(scope, { });
+                RETURN_IF_EXCEPTION(scope, void());
             }
 
             bool hasResultBool = hasResult.toBoolean(globalObject);
-            RETURN_IF_EXCEPTION(scope, { });
+            RETURN_IF_EXCEPTION(scope, void());
             if (hasResultBool) {
                 result->add(globalObject, entryKey);
-                RETURN_IF_EXCEPTION(scope, { });
-            }
-        }
-    } else {
-        CallData keysCallData = JSC::getCallDataInline(keys);
-        MarkedArgumentBuffer args;
-        ASSERT(!args.hasOverflowed());
-        JSValue iterator = call(globalObject, keys, keysCallData, otherValue, args);
-        RETURN_IF_EXCEPTION(scope, { });
-        scope.release();
-        forEachInIteratorProtocol(globalObject, iterator, [&](VM&, JSGlobalObject* globalObject, JSValue key) -> void {
-            bool thisSetHasKey = thisSet->has(globalObject, key);
-            RETURN_IF_EXCEPTION(scope, void());
-            if (thisSetHasKey) {
-                result->add(globalObject, key);
                 RETURN_IF_EXCEPTION(scope, void());
             }
         });
+        RETURN_IF_EXCEPTION(scope, { });
+
+        return JSValue::encode(result);
     }
+
+    CallData keysCallData = JSC::getCallDataInline(keys);
+    MarkedArgumentBuffer args;
+    ASSERT(!args.hasOverflowed());
+    JSValue iterator = call(globalObject, keys, keysCallData, otherValue, args);
+    RETURN_IF_EXCEPTION(scope, { });
+    scope.release();
+    forEachInIteratorProtocol(globalObject, iterator, [&](VM&, JSGlobalObject* globalObject, JSValue key) -> void {
+        bool thisSetHasKey = thisSet->has(globalObject, key);
+        RETURN_IF_EXCEPTION(scope, void());
+        if (thisSetHasKey) {
+            result->add(globalObject, key);
+            RETURN_IF_EXCEPTION(scope, void());
+        }
+    });
 
     return JSValue::encode(result);
 }
@@ -364,23 +345,11 @@ static EncodedJSValue fastSetUnion(JSGlobalObject* globalObject, JSSet* thisSet,
 
     JSCell* otherStorageCell = otherSet->storageOrSentinel(vm);
     if (otherStorageCell != vm.orderedHashTableSentinel()) {
-        auto* otherStorage = uncheckedDowncast<JSSet::Storage>(otherStorageCell);
-        JSSet::Helper::Entry entry = 0;
-
-        while (true) {
-            otherStorageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, *otherStorage, entry);
-            if (otherStorageCell == vm.orderedHashTableSentinel())
-                break;
-
-            auto* currentStorage = uncheckedDowncast<JSSet::Storage>(otherStorageCell);
-            entry = JSSet::Helper::iterationEntry(*currentStorage) + 1;
-            JSValue entryKey = JSSet::Helper::getIterationEntryKey(*currentStorage);
-
+        forEachInSetStorage(vm, globalObject, otherStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) {
             result->add(globalObject, entryKey);
-            RETURN_IF_EXCEPTION(scope, { });
-
-            otherStorage = currentStorage;
-        }
+            RETURN_IF_EXCEPTION(scope, void());
+        });
+        RETURN_IF_EXCEPTION(scope, { });
     }
 
     return JSValue::encode(result);
@@ -455,27 +424,19 @@ static EncodedJSValue fastSetIsSubsetOf(JSGlobalObject* globalObject, JSSet* thi
     if (thisStorageCell == vm.orderedHashTableSentinel())
         return JSValue::encode(jsBoolean(true));
 
-    auto* thisStorage = uncheckedDowncast<JSSet::Storage>(thisStorageCell);
-    JSSet::Helper::Entry entry = 0;
-
-    while (true) {
-        thisStorageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, *thisStorage, entry);
-        if (thisStorageCell == vm.orderedHashTableSentinel())
-            break;
-
-        auto* currentStorage = uncheckedDowncast<JSSet::Storage>(thisStorageCell);
-        entry = JSSet::Helper::iterationEntry(*currentStorage) + 1;
-        JSValue entryKey = JSSet::Helper::getIterationEntryKey(*currentStorage);
-
+    bool isSubset = true;
+    forEachInSetStorage(vm, globalObject, thisStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) -> IterationStatus {
         bool otherHasEntry = otherSet->has(globalObject, entryKey);
-        RETURN_IF_EXCEPTION(scope, { });
-        if (!otherHasEntry)
-            return JSValue::encode(jsBoolean(false));
+        RETURN_IF_EXCEPTION(scope, IterationStatus::Done);
+        if (!otherHasEntry) {
+            isSubset = false;
+            return IterationStatus::Done;
+        }
+        return IterationStatus::Continue;
+    });
+    RETURN_IF_EXCEPTION(scope, { });
 
-        thisStorage = currentStorage;
-    }
-
-    return JSValue::encode(jsBoolean(true));
+    return JSValue::encode(jsBoolean(isSubset));
 }
 
 static EncodedJSValue fastSetDifference(JSGlobalObject* globalObject, JSSet* thisSet, JSSet* otherSet)
@@ -489,27 +450,15 @@ static EncodedJSValue fastSetDifference(JSGlobalObject* globalObject, JSSet* thi
     if (thisStorageCell == vm.orderedHashTableSentinel())
         return JSValue::encode(result);
 
-    auto* thisStorage = uncheckedDowncast<JSSet::Storage>(thisStorageCell);
-    JSSet::Helper::Entry entry = 0;
-
-    while (true) {
-        thisStorageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, *thisStorage, entry);
-        if (thisStorageCell == vm.orderedHashTableSentinel())
-            break;
-
-        auto* currentStorage = uncheckedDowncast<JSSet::Storage>(thisStorageCell);
-        entry = JSSet::Helper::iterationEntry(*currentStorage) + 1;
-        JSValue entryKey = JSSet::Helper::getIterationEntryKey(*currentStorage);
-
+    forEachInSetStorage(vm, globalObject, thisStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) {
         bool otherHasEntry = otherSet->has(globalObject, entryKey);
-        RETURN_IF_EXCEPTION(scope, { });
+        RETURN_IF_EXCEPTION(scope, void());
         if (!otherHasEntry) {
             result->add(globalObject, entryKey);
-            RETURN_IF_EXCEPTION(scope, { });
+            RETURN_IF_EXCEPTION(scope, void());
         }
-
-        thisStorage = currentStorage;
-    }
+    });
+    RETURN_IF_EXCEPTION(scope, { });
 
     return JSValue::encode(result);
 }
@@ -564,91 +513,81 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncDifference, (JSGlobalObject* globalObject, 
             RETURN_IF_EXCEPTION(scope, { });
         }
 
-        auto* resultStorage = uncheckedDowncast<JSSet::Storage>(resultStorageCell);
-        JSSet::Helper::Entry entry = 0;
-
-        while (true) {
-            resultStorageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, *resultStorage, entry);
-            if (resultStorageCell == vm.orderedHashTableSentinel())
-                break;
-
-            auto* currentStorage = uncheckedDowncast<JSSet::Storage>(resultStorageCell);
-            entry = JSSet::Helper::iterationEntry(*currentStorage) + 1;
-            JSValue entryKey = JSSet::Helper::getIterationEntryKey(*currentStorage);
-
+        forEachInSetStorage(vm, globalObject, resultStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) {
             JSValue hasResult;
             if (cachedHasCall) [[likely]] {
                 hasResult = cachedHasCall->callWithArguments(globalObject, otherValue, entryKey);
-                RETURN_IF_EXCEPTION(scope, { });
+                RETURN_IF_EXCEPTION(scope, void());
             } else {
                 MarkedArgumentBuffer hasArgs;
                 hasArgs.append(entryKey);
                 ASSERT(!hasArgs.hasOverflowed());
                 hasResult = call(globalObject, has, hasCallData, otherValue, hasArgs);
-                RETURN_IF_EXCEPTION(scope, { });
+                RETURN_IF_EXCEPTION(scope, void());
             }
 
             bool otherHasValue = hasResult.toBoolean(globalObject);
-            RETURN_IF_EXCEPTION(scope, { });
+            RETURN_IF_EXCEPTION(scope, void());
             if (otherHasValue) {
                 result->remove(globalObject, entryKey);
-                RETURN_IF_EXCEPTION(scope, { });
+                RETURN_IF_EXCEPTION(scope, void());
             }
-
-            resultStorage = currentStorage;
-        }
-    } else {
-        CallData keysCallData = JSC::getCallDataInline(keys);
-        MarkedArgumentBuffer keysArgs;
-        ASSERT(!keysArgs.hasOverflowed());
-        JSValue keysResult = call(globalObject, keys, keysCallData, otherValue, keysArgs);
+        });
         RETURN_IF_EXCEPTION(scope, { });
 
-        JSValue nextMethod = keysResult.get(globalObject, vm.propertyNames->next);
+        return JSValue::encode(result);
+    }
+
+    CallData keysCallData = JSC::getCallDataInline(keys);
+    MarkedArgumentBuffer keysArgs;
+    ASSERT(!keysArgs.hasOverflowed());
+    JSValue keysResult = call(globalObject, keys, keysCallData, otherValue, keysArgs);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    JSValue nextMethod = keysResult.get(globalObject, vm.propertyNames->next);
+    RETURN_IF_EXCEPTION(scope, { });
+    if (!nextMethod.isCallable()) [[unlikely]]
+        return throwVMTypeError(globalObject, scope, "Set.prototype.difference expects other.keys().next to be callable"_s);
+
+    CallData nextCallData = JSC::getCallDataInline(nextMethod);
+
+    std::optional<CachedCall> cachedNextCall;
+    if (nextCallData.type == CallData::Type::JS) [[likely]] {
+        cachedNextCall.emplace(globalObject, uncheckedDowncast<JSFunction>(nextMethod), 0);
         RETURN_IF_EXCEPTION(scope, { });
-        if (!nextMethod.isCallable()) [[unlikely]]
-            return throwVMTypeError(globalObject, scope, "Set.prototype.difference expects other.keys().next to be callable"_s);
+    }
 
-        CallData nextCallData = JSC::getCallDataInline(nextMethod);
-
-        std::optional<CachedCall> cachedNextCall;
-        if (nextCallData.type == CallData::Type::JS) [[likely]] {
-            cachedNextCall.emplace(globalObject, uncheckedDowncast<JSFunction>(nextMethod), 0);
+    while (true) {
+        JSValue nextResult;
+        if (cachedNextCall) [[likely]] {
+            nextResult = cachedNextCall->callWithArguments(globalObject, keysResult);
+            RETURN_IF_EXCEPTION(scope, { });
+        } else {
+            MarkedArgumentBuffer nextArgs;
+            ASSERT(!nextArgs.hasOverflowed());
+            nextResult = call(globalObject, nextMethod, nextCallData, keysResult, nextArgs);
             RETURN_IF_EXCEPTION(scope, { });
         }
 
-        while (true) {
-            JSValue nextResult;
-            if (cachedNextCall) [[likely]] {
-                nextResult = cachedNextCall->callWithArguments(globalObject, keysResult);
-                RETURN_IF_EXCEPTION(scope, { });
-            } else {
-                MarkedArgumentBuffer nextArgs;
-                ASSERT(!nextArgs.hasOverflowed());
-                nextResult = call(globalObject, nextMethod, nextCallData, keysResult, nextArgs);
-                RETURN_IF_EXCEPTION(scope, { });
-            }
+        if (!nextResult.isObject()) [[unlikely]]
+            return throwVMTypeError(globalObject, scope, "Iterator result interface is not an object."_s);
 
-            if (!nextResult.isObject()) [[unlikely]]
-                return throwVMTypeError(globalObject, scope, "Iterator result interface is not an object."_s);
+        JSValue doneValue = nextResult.get(globalObject, vm.propertyNames->done);
+        RETURN_IF_EXCEPTION(scope, { });
 
-            JSValue doneValue = nextResult.get(globalObject, vm.propertyNames->done);
+        bool done = doneValue.toBoolean(globalObject);
+        RETURN_IF_EXCEPTION(scope, { });
+        if (done)
+            break;
+
+        JSValue value = nextResult.get(globalObject, vm.propertyNames->value);
+        RETURN_IF_EXCEPTION(scope, { });
+
+        bool resultHasValue = result->has(globalObject, value);
+        RETURN_IF_EXCEPTION(scope, { });
+        if (resultHasValue) {
+            result->remove(globalObject, value);
             RETURN_IF_EXCEPTION(scope, { });
-
-            bool done = doneValue.toBoolean(globalObject);
-            RETURN_IF_EXCEPTION(scope, { });
-            if (done)
-                break;
-
-            JSValue value = nextResult.get(globalObject, vm.propertyNames->value);
-            RETURN_IF_EXCEPTION(scope, { });
-
-            bool resultHasValue = result->has(globalObject, value);
-            RETURN_IF_EXCEPTION(scope, { });
-            if (resultHasValue) {
-                result->remove(globalObject, value);
-                RETURN_IF_EXCEPTION(scope, { });
-            }
         }
     }
 
@@ -665,31 +604,19 @@ static EncodedJSValue fastSetSymmetricDifference(JSGlobalObject* globalObject, J
 
     JSCell* otherStorageCell = otherSet->storageOrSentinel(vm);
     if (otherStorageCell != vm.orderedHashTableSentinel()) {
-        auto* otherStorage = uncheckedDowncast<JSSet::Storage>(otherStorageCell);
-        JSSet::Helper::Entry entry = 0;
-
-        while (true) {
-            otherStorageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, *otherStorage, entry);
-            if (otherStorageCell == vm.orderedHashTableSentinel())
-                break;
-
-            auto* currentStorage = uncheckedDowncast<JSSet::Storage>(otherStorageCell);
-            entry = JSSet::Helper::iterationEntry(*currentStorage) + 1;
-            JSValue entryKey = JSSet::Helper::getIterationEntryKey(*currentStorage);
-
+        forEachInSetStorage(vm, globalObject, otherStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) {
             bool thisHasEntry = thisSet->has(globalObject, entryKey);
-            RETURN_IF_EXCEPTION(scope, { });
+            RETURN_IF_EXCEPTION(scope, void());
 
             if (thisHasEntry) {
                 result->remove(globalObject, entryKey);
-                RETURN_IF_EXCEPTION(scope, { });
+                RETURN_IF_EXCEPTION(scope, void());
             } else {
                 result->add(globalObject, entryKey);
-                RETURN_IF_EXCEPTION(scope, { });
+                RETURN_IF_EXCEPTION(scope, void());
             }
-
-            otherStorage = currentStorage;
-        }
+        });
+        RETURN_IF_EXCEPTION(scope, { });
     }
 
     return JSValue::encode(result);
@@ -836,45 +763,37 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIsSubsetOf, (JSGlobalObject* globalObject, 
     if (thisStorageCell == vm.orderedHashTableSentinel())
         return JSValue::encode(jsBoolean(true));
 
-    auto* thisStorage = uncheckedDowncast<JSSet::Storage>(thisStorageCell);
-    JSSet::Helper::Entry entry = 0;
-
     std::optional<CachedCall> cachedHasCall;
     if (hasCallData.type == CallData::Type::JS) [[likely]] {
         cachedHasCall.emplace(globalObject, uncheckedDowncast<JSFunction>(has), 1);
         RETURN_IF_EXCEPTION(scope, { });
     }
 
-    while (true) {
-        thisStorageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, *thisStorage, entry);
-        if (thisStorageCell == vm.orderedHashTableSentinel())
-            break;
-
-        auto* currentStorage = uncheckedDowncast<JSSet::Storage>(thisStorageCell);
-        entry = JSSet::Helper::iterationEntry(*currentStorage) + 1;
-        JSValue entryKey = JSSet::Helper::getIterationEntryKey(*currentStorage);
-
+    bool isSubset = true;
+    forEachInSetStorage(vm, globalObject, thisStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) -> IterationStatus {
         JSValue hasResult;
         if (cachedHasCall) [[likely]] {
             hasResult = cachedHasCall->callWithArguments(globalObject, otherValue, entryKey);
-            RETURN_IF_EXCEPTION(scope, { });
+            RETURN_IF_EXCEPTION(scope, IterationStatus::Done);
         } else {
             MarkedArgumentBuffer args;
             args.append(entryKey);
             ASSERT(!args.hasOverflowed());
             hasResult = call(globalObject, has, hasCallData, otherValue, args);
-            RETURN_IF_EXCEPTION(scope, { });
+            RETURN_IF_EXCEPTION(scope, IterationStatus::Done);
         }
 
         bool hasResultBool = hasResult.toBoolean(globalObject);
-        RETURN_IF_EXCEPTION(scope, { });
-        if (!hasResultBool)
-            return JSValue::encode(jsBoolean(false));
+        RETURN_IF_EXCEPTION(scope, IterationStatus::Done);
+        if (!hasResultBool) {
+            isSubset = false;
+            return IterationStatus::Done;
+        }
+        return IterationStatus::Continue;
+    });
+    RETURN_IF_EXCEPTION(scope, { });
 
-        thisStorage = currentStorage;
-    }
-
-    return JSValue::encode(jsBoolean(true));
+    return JSValue::encode(jsBoolean(isSubset));
 }
 
 static EncodedJSValue fastSetIsSupersetOf(JSGlobalObject* globalObject, JSSet* thisSet, JSSet* otherSet)
@@ -889,27 +808,19 @@ static EncodedJSValue fastSetIsSupersetOf(JSGlobalObject* globalObject, JSSet* t
     if (otherStorageCell == vm.orderedHashTableSentinel())
         return JSValue::encode(jsBoolean(true));
 
-    auto* otherStorage = uncheckedDowncast<JSSet::Storage>(otherStorageCell);
-    JSSet::Helper::Entry entry = 0;
-
-    while (true) {
-        otherStorageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, *otherStorage, entry);
-        if (otherStorageCell == vm.orderedHashTableSentinel())
-            break;
-
-        auto* currentStorage = uncheckedDowncast<JSSet::Storage>(otherStorageCell);
-        entry = JSSet::Helper::iterationEntry(*currentStorage) + 1;
-        JSValue entryKey = JSSet::Helper::getIterationEntryKey(*currentStorage);
-
+    bool isSuperset = true;
+    forEachInSetStorage(vm, globalObject, otherStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) -> IterationStatus {
         bool thisHasEntry = thisSet->has(globalObject, entryKey);
-        RETURN_IF_EXCEPTION(scope, { });
-        if (!thisHasEntry)
-            return JSValue::encode(jsBoolean(false));
+        RETURN_IF_EXCEPTION(scope, IterationStatus::Done);
+        if (!thisHasEntry) {
+            isSuperset = false;
+            return IterationStatus::Done;
+        }
+        return IterationStatus::Continue;
+    });
+    RETURN_IF_EXCEPTION(scope, { });
 
-        otherStorage = currentStorage;
-    }
-
-    return JSValue::encode(jsBoolean(true));
+    return JSValue::encode(jsBoolean(isSuperset));
 }
 
 JSC_DEFINE_HOST_FUNCTION(setProtoFuncIsSupersetOf, (JSGlobalObject* globalObject, CallFrame* callFrame))
@@ -1023,27 +934,19 @@ static EncodedJSValue fastSetIsDisjointFrom(JSGlobalObject* globalObject, JSSet*
     if (smallerStorageCell == vm.orderedHashTableSentinel())
         return JSValue::encode(jsBoolean(true));
 
-    auto* smallerStorage = uncheckedDowncast<JSSet::Storage>(smallerStorageCell);
-    JSSet::Helper::Entry entry = 0;
-
-    while (true) {
-        smallerStorageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, *smallerStorage, entry);
-        if (smallerStorageCell == vm.orderedHashTableSentinel())
-            break;
-
-        auto* currentStorage = uncheckedDowncast<JSSet::Storage>(smallerStorageCell);
-        entry = JSSet::Helper::iterationEntry(*currentStorage) + 1;
-        JSValue entryKey = JSSet::Helper::getIterationEntryKey(*currentStorage);
-
+    bool isDisjoint = true;
+    forEachInSetStorage(vm, globalObject, smallerStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) -> IterationStatus {
         bool largerHasEntry = largerSet->has(globalObject, entryKey);
-        RETURN_IF_EXCEPTION(scope, { });
-        if (largerHasEntry)
-            return JSValue::encode(jsBoolean(false));
+        RETURN_IF_EXCEPTION(scope, IterationStatus::Done);
+        if (largerHasEntry) {
+            isDisjoint = false;
+            return IterationStatus::Done;
+        }
+        return IterationStatus::Continue;
+    });
+    RETURN_IF_EXCEPTION(scope, { });
 
-        smallerStorage = currentStorage;
-    }
-
-    return JSValue::encode(jsBoolean(true));
+    return JSValue::encode(jsBoolean(isDisjoint));
 }
 
 JSC_DEFINE_HOST_FUNCTION(setProtoFuncIsDisjointFrom, (JSGlobalObject* globalObject, CallFrame* callFrame))
@@ -1086,9 +989,6 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIsDisjointFrom, (JSGlobalObject* globalObje
         if (thisStorageCell == vm.orderedHashTableSentinel())
             return JSValue::encode(jsBoolean(true));
 
-        auto* thisStorage = uncheckedDowncast<JSSet::Storage>(thisStorageCell);
-        JSSet::Helper::Entry entry = 0;
-
         CallData hasCallData = JSC::getCallDataInline(has);
         std::optional<CachedCall> cachedHasCall;
         if (hasCallData.type == CallData::Type::JS) [[likely]] {
@@ -1096,87 +996,84 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIsDisjointFrom, (JSGlobalObject* globalObje
             RETURN_IF_EXCEPTION(scope, { });
         }
 
-        while (true) {
-            thisStorageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, *thisStorage, entry);
-            if (thisStorageCell == vm.orderedHashTableSentinel())
-                break;
-
-            auto* currentStorage = uncheckedDowncast<JSSet::Storage>(thisStorageCell);
-            entry = JSSet::Helper::iterationEntry(*currentStorage) + 1;
-            JSValue entryKey = JSSet::Helper::getIterationEntryKey(*currentStorage);
-
+        bool isDisjoint = true;
+        forEachInSetStorage(vm, globalObject, thisStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) -> IterationStatus {
             JSValue hasResult;
             if (cachedHasCall) [[likely]] {
                 hasResult = cachedHasCall->callWithArguments(globalObject, otherValue, entryKey);
-                RETURN_IF_EXCEPTION(scope, { });
+                RETURN_IF_EXCEPTION(scope, IterationStatus::Done);
             } else {
                 MarkedArgumentBuffer hasArgs;
                 hasArgs.append(entryKey);
                 ASSERT(!hasArgs.hasOverflowed());
                 hasResult = call(globalObject, has, hasCallData, otherValue, hasArgs);
-                RETURN_IF_EXCEPTION(scope, { });
+                RETURN_IF_EXCEPTION(scope, IterationStatus::Done);
             }
 
             bool otherHasValue = hasResult.toBoolean(globalObject);
-            RETURN_IF_EXCEPTION(scope, { });
-            if (otherHasValue)
-                return JSValue::encode(jsBoolean(false));
-
-            thisStorage = currentStorage;
-        }
-    } else {
-        CallData keysCallData = JSC::getCallDataInline(keys);
-        MarkedArgumentBuffer keysArgs;
-        ASSERT(!keysArgs.hasOverflowed());
-        JSValue keysResult = call(globalObject, keys, keysCallData, otherValue, keysArgs);
+            RETURN_IF_EXCEPTION(scope, IterationStatus::Done);
+            if (otherHasValue) {
+                isDisjoint = false;
+                return IterationStatus::Done;
+            }
+            return IterationStatus::Continue;
+        });
         RETURN_IF_EXCEPTION(scope, { });
 
-        JSValue nextMethod = keysResult.get(globalObject, vm.propertyNames->next);
+        return JSValue::encode(jsBoolean(isDisjoint));
+    }
+
+    CallData keysCallData = JSC::getCallDataInline(keys);
+    MarkedArgumentBuffer keysArgs;
+    ASSERT(!keysArgs.hasOverflowed());
+    JSValue keysResult = call(globalObject, keys, keysCallData, otherValue, keysArgs);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    JSValue nextMethod = keysResult.get(globalObject, vm.propertyNames->next);
+    RETURN_IF_EXCEPTION(scope, { });
+    if (!nextMethod.isCallable()) [[unlikely]]
+        return throwVMTypeError(globalObject, scope, "Set.prototype.isDisjointFrom expects other.keys().next to be callable"_s);
+
+    CallData nextCallData = JSC::getCallDataInline(nextMethod);
+
+    std::optional<CachedCall> cachedNextCall;
+    if (nextCallData.type == CallData::Type::JS) [[likely]] {
+        cachedNextCall.emplace(globalObject, uncheckedDowncast<JSFunction>(nextMethod), 0);
         RETURN_IF_EXCEPTION(scope, { });
-        if (!nextMethod.isCallable()) [[unlikely]]
-            return throwVMTypeError(globalObject, scope, "Set.prototype.isDisjointFrom expects other.keys().next to be callable"_s);
+    }
 
-        CallData nextCallData = JSC::getCallDataInline(nextMethod);
-
-        std::optional<CachedCall> cachedNextCall;
-        if (nextCallData.type == CallData::Type::JS) [[likely]] {
-            cachedNextCall.emplace(globalObject, uncheckedDowncast<JSFunction>(nextMethod), 0);
+    while (true) {
+        JSValue nextResult;
+        if (cachedNextCall) [[likely]] {
+            nextResult = cachedNextCall->callWithArguments(globalObject, keysResult);
+            RETURN_IF_EXCEPTION(scope, { });
+        } else {
+            MarkedArgumentBuffer nextArgs;
+            ASSERT(!nextArgs.hasOverflowed());
+            nextResult = call(globalObject, nextMethod, nextCallData, keysResult, nextArgs);
             RETURN_IF_EXCEPTION(scope, { });
         }
 
-        while (true) {
-            JSValue nextResult;
-            if (cachedNextCall) [[likely]] {
-                nextResult = cachedNextCall->callWithArguments(globalObject, keysResult);
-                RETURN_IF_EXCEPTION(scope, { });
-            } else {
-                MarkedArgumentBuffer nextArgs;
-                ASSERT(!nextArgs.hasOverflowed());
-                nextResult = call(globalObject, nextMethod, nextCallData, keysResult, nextArgs);
-                RETURN_IF_EXCEPTION(scope, { });
-            }
+        if (!nextResult.isObject()) [[unlikely]]
+            return throwVMTypeError(globalObject, scope, "Iterator result interface is not an object."_s);
 
-            if (!nextResult.isObject()) [[unlikely]]
-                return throwVMTypeError(globalObject, scope, "Iterator result interface is not an object."_s);
+        JSValue doneValue = nextResult.get(globalObject, vm.propertyNames->done);
+        RETURN_IF_EXCEPTION(scope, { });
 
-            JSValue doneValue = nextResult.get(globalObject, vm.propertyNames->done);
-            RETURN_IF_EXCEPTION(scope, { });
+        bool done = doneValue.toBoolean(globalObject);
+        RETURN_IF_EXCEPTION(scope, { });
+        if (done)
+            break;
 
-            bool done = doneValue.toBoolean(globalObject);
-            RETURN_IF_EXCEPTION(scope, { });
-            if (done)
-                break;
+        JSValue value = nextResult.get(globalObject, vm.propertyNames->value);
+        RETURN_IF_EXCEPTION(scope, { });
 
-            JSValue value = nextResult.get(globalObject, vm.propertyNames->value);
-            RETURN_IF_EXCEPTION(scope, { });
-
-            bool thisHasValue = thisSet->has(globalObject, value);
-            RETURN_IF_EXCEPTION(scope, { });
-            if (thisHasValue) {
-                scope.release();
-                iteratorClose(globalObject, keysResult);
-                return JSValue::encode(jsBoolean(false));
-            }
+        bool thisHasValue = thisSet->has(globalObject, value);
+        RETURN_IF_EXCEPTION(scope, { });
+        if (thisHasValue) {
+            scope.release();
+            iteratorClose(globalObject, keysResult);
+            return JSValue::encode(jsBoolean(false));
         }
     }
 

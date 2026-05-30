@@ -88,7 +88,7 @@ JS_EXPORT_PRIVATE IterationMode NODELETE getIterationMode(VM&, JSGlobalObject*, 
 JS_EXPORT_PRIVATE IterationMode getIterationMode(VM&, JSGlobalObject*, JSValue iterable, JSValue symbolIterator);
 
 
-static ALWAYS_INLINE void forEachInMapStorage(VM& vm, JSGlobalObject* globalObject, JSCell* storageCell, JSMap::Helper::Entry startEntry, IterationKind iterationKind, NOESCAPE const Invocable<void(VM&, JSGlobalObject*, JSValue)> auto& callback)
+static ALWAYS_INLINE void forEachInMapStorage(VM& vm, JSGlobalObject* globalObject, JSCell* storageCell, JSMap::Helper::Entry startEntry, IterationKind iterationKind, NOESCAPE const auto& callback)
 {
     auto scope = DECLARE_THROW_SCOPE(vm);
 
@@ -121,12 +121,19 @@ static ALWAYS_INLINE void forEachInMapStorage(VM& vm, JSGlobalObject* globalObje
         }
         }
 
-        callback(vm, globalObject, value);
-        RETURN_IF_EXCEPTION(scope, void());
+        if constexpr (std::same_as<IterationStatus, std::invoke_result_t<decltype(callback), VM&, JSGlobalObject*, JSValue>>) {
+            auto result = callback(vm, globalObject, value);
+            RETURN_IF_EXCEPTION(scope, void());
+            if (result == IterationStatus::Done)
+                break;
+        } else {
+            callback(vm, globalObject, value);
+            RETURN_IF_EXCEPTION(scope, void());
+        }
     }
 }
 
-static ALWAYS_INLINE void forEachInSetStorage(VM& vm, JSGlobalObject* globalObject, JSCell* storageCell, JSSet::Helper::Entry startEntry, NOESCAPE const Invocable<void(VM&, JSGlobalObject*, JSValue)> auto& callback)
+static ALWAYS_INLINE void forEachInSetStorage(VM& vm, JSGlobalObject* globalObject, JSCell* storageCell, JSSet::Helper::Entry startEntry, NOESCAPE const auto& callback)
 {
     auto scope = DECLARE_THROW_SCOPE(vm);
 
@@ -142,8 +149,15 @@ static ALWAYS_INLINE void forEachInSetStorage(VM& vm, JSGlobalObject* globalObje
         entry = JSSet::Helper::iterationEntry(*storage) + 1;
         JSValue entryKey = JSSet::Helper::getIterationEntryKey(*storage);
 
-        callback(vm, globalObject, entryKey);
-        RETURN_IF_EXCEPTION(scope, void());
+        if constexpr (std::same_as<IterationStatus, std::invoke_result_t<decltype(callback), VM&, JSGlobalObject*, JSValue>>) {
+            auto result = callback(vm, globalObject, entryKey);
+            RETURN_IF_EXCEPTION(scope, void());
+            if (result == IterationStatus::Done)
+                break;
+        } else {
+            callback(vm, globalObject, entryKey);
+            RETURN_IF_EXCEPTION(scope, void());
+        }
     }
 }
 
