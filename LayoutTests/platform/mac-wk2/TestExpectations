@@ -2399,3 +2399,8 @@ webkit.org/b/315889 [ Sequoia Release x86_64 ] editing/async-clipboard/clipboard
 webkit.org/b/315889 [ Sequoia Release x86_64 ] fast/forms/file/entries-api/image-no-transcode-open-panel.html [ Pass Crash Failure ]
 webkit.org/b/315889 [ Sequoia Release x86_64 ] fast/images/protected-image-queue.html [ Pass Timeout ]
 
+webkit.org/b/315886 [ Sequoia Release x86_64 ] http/tests/cache/link-prefetch-main-resource.html [ Pass Failure ]
+webkit.org/b/315886 [ Sequoia Release x86_64 ] http/tests/canvas/canvas-tainted-after-draw-image.html [ Pass Timeout ]
+webkit.org/b/315886 [ Sequoia Release x86_64 ] http/tests/security/allow-top-level-navigations-by-third-party-iframes-with-previous-user-activation.html [ Pass Failure ]
+webkit.org/b/315886 [ Sequoia Release x86_64 ] http/tests/security/allow-top-level-navigations-by-third-party-iframes-with-user-activation.html [ Pass Failure ]
+
