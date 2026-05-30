@@ -139,12 +139,14 @@ public:
     JS_EXPORT_PRIVATE ~FuncRefTable();
 
     struct Function {
-        WasmOrJSImportableFunction m_function;
-        WriteBarrier<Unknown> m_value { NullWriteBarrierTag };
-        void* m_padding { nullptr };
+        void setFunction(VM&, JSCell* owner, WebAssemblyFunctionBase*);
         bool isEmpty() const { return !m_function.rtt; }
         static constexpr ptrdiff_t offsetOfFunction() { return OBJECT_OFFSETOF(Function, m_function); }
         static constexpr ptrdiff_t offsetOfValue() { return OBJECT_OFFSETOF(Function, m_value); }
+
+        WasmOrJSImportableFunction m_function;
+        WriteBarrier<Unknown> m_value { NullWriteBarrierTag };
+        void* m_padding { nullptr };
     };
 
     void setFunction(uint32_t, WebAssemblyFunctionBase*);

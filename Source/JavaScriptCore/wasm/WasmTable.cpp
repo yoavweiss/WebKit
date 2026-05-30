@@ -160,13 +160,18 @@ std::optional<uint32_t> Table::grow(uint32_t delta, JSValue defaultValue)
         break;
     }
     case TableElementType::Funcref: {
-        bool success = checkedGrow(static_cast<FuncRefTable*>(this)->m_importableFunctions, [&](auto& slot) {
-            slot.m_value.set(vm, m_owner, defaultValue);
+        auto* funcTable = static_cast<FuncRefTable*>(this);
+        auto* defaultFunction = dynamicDowncast<WebAssemblyFunctionBase>(defaultValue);
+        ASSERT(defaultFunction || defaultValue.isNull());
+        bool success = checkedGrow(funcTable->m_importableFunctions, [&](auto& slot) {
+            ASSERT(slot.m_value.isNull());
+            if (defaultFunction)
+                slot.setFunction(vm, m_owner, defaultFunction);
         });
         if (!success) [[unlikely]]
             return std::nullopt;
         setLength(newLength);
-        for (auto& instance : static_cast<FuncRefTable*>(this)->m_instances) {
+        for (auto& instance : funcTable->m_instances) {
             if (auto* strongReference = instance.get())
                 strongReference->updateCachedTable0();
         }
@@ -228,8 +233,6 @@ void Table::visitAggregateImpl(Visitor& visitor)
         auto* table = static_cast<FuncRefTable*>(this);
         for (unsigned i = 0; i < m_length; ++i) {
             auto& slot = table->m_importableFunctions.get()[i];
-            if (slot.isEmpty())
-                continue;
             visitor.append(slot.m_value);
             visitor.append(slot.m_function.targetInstance);
             visitor.append(slot.m_function.importFunction);
@@ -307,8 +310,13 @@ void FuncRefTable::setFunction(uint32_t index, WebAssemblyFunctionBase* function
     ASSERT(index < length());
     ASSERT_WITH_SECURITY_IMPLICATION(isSubtype(function->type(), wasmType()));
     auto& slot = m_importableFunctions.get()[index];
-    slot.m_function = function->importableFunction();
-    slot.m_value.set(function->instance()->vm(), m_owner, function);
+    slot.setFunction(function->instance()->vm(), m_owner, function);
+}
+
+void FuncRefTable::Function::setFunction(VM& vm, JSCell* owner, WebAssemblyFunctionBase* function)
+{
+    m_function = function->importableFunction();
+    m_value.set(vm, owner, function);
 }
 
 void FuncRefTable::setLazy(uint32_t index, JSWebAssemblyInstance* targetInstance, FunctionSpaceIndex functionIndex)
