@@ -91,8 +91,10 @@ public:
 
     explicit operator ScrollingPlatformLayer*() const
     {
-        ASSERT(std::holds_alternative<PlatformLayerHolder>(m_data));
-        return std::get<PlatformLayerHolder>(m_data).get();
+        ASSERT(std::holds_alternative<PlatformLayerHolder>(m_data)); // Somehow we can get here without a platform layer: rdar://178173007.
+        if (auto* holder = std::get_if<PlatformLayerHolder>(&m_data))
+            return holder->get();
+        return nullptr;
     }
 
     std::optional<PlatformLayerIdentifier> layerID() const
