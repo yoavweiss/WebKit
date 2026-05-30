@@ -120,8 +120,6 @@ class VideoTrackList;
 class VideoTrackPrivate;
 class WebKitMediaKeys;
 
-struct MachSendRightAnnotated;
-
 enum class AudioSessionCategory : uint8_t;
 enum class AudioSessionMode : uint8_t;
 enum class DynamicRangeMode : uint8_t;

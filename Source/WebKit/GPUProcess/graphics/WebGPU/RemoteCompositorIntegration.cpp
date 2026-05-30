@@ -99,6 +99,6 @@ void RemoteCompositorIntegration::updateContentsHeadroom(float headroom)
 
 } // namespace WebKit
 
-#undef MESSAGE_CHECK
+#undef MESSAGE_CHECK_COMPLETION
 
 #endif // ENABLE(GPU_PROCESS)

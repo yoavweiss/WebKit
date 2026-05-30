@@ -57,8 +57,8 @@ namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(LegacyRenderSVGRoot);
 
-const int defaultWidth = 300;
-const int defaultHeight = 150;
+const int legacySVGRootDefaultWidth = 300;
+const int legacySVGRootDefaultHeight = 150;
 
 LegacyRenderSVGRoot::LegacyRenderSVGRoot(SVGSVGElement& element, RenderStyle&& style)
     : RenderReplaced(Type::LegacySVGRoot, element, WTF::move(style), ReplacedFlag::UsesBoundaryCaching)
@@ -66,9 +66,9 @@ LegacyRenderSVGRoot::LegacyRenderSVGRoot(SVGSVGElement& element, RenderStyle&& s
     ASSERT(isLegacyRenderSVGRoot());
     LayoutSize intrinsicSize(computeIntrinsicSize());
     if (!svgSVGElement().hasIntrinsicWidth())
-        intrinsicSize.setWidth(defaultWidth);
+        intrinsicSize.setWidth(legacySVGRootDefaultWidth);
     if (!svgSVGElement().hasIntrinsicHeight())
-        intrinsicSize.setHeight(defaultHeight);
+        intrinsicSize.setHeight(legacySVGRootDefaultHeight);
     setIntrinsicSize(intrinsicSize);
 }
 
@@ -162,7 +162,7 @@ LayoutUnit LegacyRenderSVGRoot::computeReplacedLogicalWidth(ShouldComputePreferr
         if (!element->hasIntrinsicWidth()) {
             FloatSize viewBoxSize = element->currentViewBoxRect().size();
             if (!viewBoxSize.isEmpty()) {
-                float height = element->hasIntrinsicHeight() ? element->intrinsicHeight() : defaultHeight;
+                float height = element->hasIntrinsicHeight() ? element->intrinsicHeight() : legacySVGRootDefaultHeight;
                 double ratio = viewBoxSize.width() / viewBoxSize.height();
                 return computeReplacedLogicalWidthRespectingMinMaxWidth(LayoutUnit(height * ratio), shouldComputePreferred);
             }
@@ -190,7 +190,7 @@ LayoutUnit LegacyRenderSVGRoot::computeReplacedLogicalHeight(std::optional<Layou
         if (!element->hasIntrinsicHeight()) {
             FloatSize viewBoxSize = element->currentViewBoxRect().size();
             if (!viewBoxSize.isEmpty()) {
-                float width = element->hasIntrinsicWidth() ? element->intrinsicWidth() : defaultWidth;
+                float width = element->hasIntrinsicWidth() ? element->intrinsicWidth() : legacySVGRootDefaultWidth;
                 double ratio = viewBoxSize.height() / viewBoxSize.width();
                 return computeReplacedLogicalHeightRespectingMinMaxHeight(LayoutUnit(width * ratio));
             }

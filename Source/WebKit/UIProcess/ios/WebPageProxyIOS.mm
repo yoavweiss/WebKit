@@ -1860,17 +1860,17 @@ void WebPageProxy::updatePDFPageNumberIndicatorCurrentPage(PDFPluginIdentifier i
 
 #if ENABLE(UNIFIED_PDF)
 
-PDFDisplayMode WebPageProxy::pdfDisplayMode() const
+PDFPluginDisplayMode WebPageProxy::pdfDisplayMode() const
 {
     return internals().pdfDisplayMode;
 }
 
-void WebPageProxy::setPDFDisplayMode(PDFDisplayMode mode)
+void WebPageProxy::setPDFDisplayMode(PDFPluginDisplayMode mode)
 {
     internals().pdfDisplayMode = mode;
 }
 
-void WebPageProxy::requestPDFDisplayMode(PDFDisplayMode mode)
+void WebPageProxy::requestPDFDisplayMode(PDFPluginDisplayMode mode)
 {
     if (!hasRunningProcess())
         return;

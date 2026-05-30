@@ -1965,6 +1965,7 @@ void NetworkConnectionToWebProcess::takeInvalidMessageStringForTesting(Completio
 } // namespace WebKit
 
 #undef CONNECTION_RELEASE_LOG
+#undef CONNECTION_RELEASE_LOG_ERROR
 #undef MESSAGE_CHECK_COMPLETION
 #undef MESSAGE_CHECK
 #undef MESSAGE_CHECK_WITH_RETURN_VALUE

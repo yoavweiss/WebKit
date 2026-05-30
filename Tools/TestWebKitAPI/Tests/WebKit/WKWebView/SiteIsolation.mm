@@ -2324,7 +2324,7 @@ TEST(SiteIsolation, FrameMetrics)
     EXPECT_TRUE(info._visibleContentSizeExcludingScrollbars.width < info._visibleContentSize.width);
 }
 
-void writeImageDataToPasteboard(NSString *type, NSData *data)
+void siteIsolationWriteImageDataToPasteboard(NSString *type, NSData *data)
 {
     [NSPasteboard.generalPasteboard declareTypes:@[type] owner:nil];
     [NSPasteboard.generalPasteboard setData:data forType:type];
@@ -2366,7 +2366,7 @@ TEST(SiteIsolation, PasteGIF)
     [webView waitForPendingMouseEvents];
 
     auto *data = [NSData dataWithContentsOfFile:[NSBundle.test_resourcesBundle pathForResource:@"sunset-in-cupertino-400px" ofType:@"gif"]];
-    writeImageDataToPasteboard(UTTypeGIF.identifier, data);
+    siteIsolationWriteImageDataToPasteboard(UTTypeGIF.identifier, data);
     [webView paste:nil];
 
     [webView mouseEnterAtPoint:eventLocationInWindow];

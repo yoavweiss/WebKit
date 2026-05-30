@@ -823,4 +823,7 @@ WTFLogChannel& RemoteAudioVideoRendererProxyManager::logChannel() const
 
 } // namespace WebKit
 
+#undef MESSAGE_CHECK
+#undef MESSAGE_CHECK_COMPLETION
+
 #endif

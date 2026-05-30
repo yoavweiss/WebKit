@@ -1156,7 +1156,7 @@ PDFPluginIdentifier PluginView::pdfPluginIdentifier() const
     return m_plugin->identifier();
 }
 
-void PluginView::setPDFDisplayMode(PDFDisplayMode mode)
+void PluginView::setPDFDisplayMode(PDFPluginDisplayMode mode)
 {
     m_plugin->setDisplayModeAndUpdateLayout(mode);
 }

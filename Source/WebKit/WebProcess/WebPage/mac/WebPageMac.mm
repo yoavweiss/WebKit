@@ -50,6 +50,7 @@
 #import "WebInspectorBackend.h"
 #import "WebKeyboardEvent.h"
 #import "WebMouseEvent.h"
+#import "MessageSenderInlines.h"
 #import "WebPageOverlay.h"
 #import "WebPageProxyMessages.h"
 #import "WebPasteboardOverrides.h"
@@ -57,6 +58,7 @@
 #import "WebProcess.h"
 #import <Quartz/Quartz.h>
 #import <QuartzCore/QuartzCore.h>
+#import <WebCore/AXIsolatedTree.h>
 #import <WebCore/AXObjectCache.h>
 #import <WebCore/BackForwardController.h>
 #import <WebCore/BoundaryPointInlines.h>

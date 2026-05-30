@@ -454,7 +454,7 @@ static void drawPatternCallback(void* info, CGContextRef context)
     CGContextDrawImage(context, rect, image);
 }
 
-static void patternReleaseCallback(void* info)
+static void drawPatternReleaseCallback(void* info)
 {
     callOnMainThread([image = adoptCF(static_cast<CGImageRef>(info))] { });
 }
@@ -505,7 +505,7 @@ void GraphicsContextCG::drawPattern(const NativeImage& nativeImage, const FloatR
         // we should tile all but the last, and stretch the last image to fit.
         CGContextDrawTiledImage(context, FloatRect(adjustedX, adjustedY, scaledTileWidth, scaledTileHeight), subImage.get());
     } else {
-        static const CGPatternCallbacks patternCallbacks = { 0, drawPatternCallback, patternReleaseCallback };
+        static const CGPatternCallbacks patternCallbacks = { 0, drawPatternCallback, drawPatternReleaseCallback };
         CGAffineTransform matrix = CGAffineTransformMake(narrowPrecisionToCGFloat(patternTransform.a()), 0, 0, narrowPrecisionToCGFloat(patternTransform.d()), adjustedX, adjustedY);
         matrix = CGAffineTransformConcat(matrix, CGContextGetCTM(context));
         // The top of a partially-decoded image is drawn at the bottom of the tile. Map it to the top.

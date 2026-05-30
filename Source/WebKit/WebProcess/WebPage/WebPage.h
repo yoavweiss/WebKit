@@ -499,7 +499,7 @@ enum class ImageOption : uint8_t;
 enum class NavigatingToAppBoundDomain : bool;
 enum class MediaPlaybackState : uint8_t;
 #if ENABLE(UNIFIED_PDF)
-enum class PDFDisplayMode : uint8_t;
+enum class PDFPluginDisplayMode : uint8_t;
 #endif
 enum class SnapshotOption : uint16_t;
 enum class SyntheticEditingCommandType : uint8_t;
@@ -668,8 +668,8 @@ public:
 #endif
 
 #if PLATFORM(IOS_FAMILY) && ENABLE(UNIFIED_PDF)
-    void setPDFDisplayMode(PDFDisplayMode);
-    void requestPDFDisplayMode(PDFDisplayMode);
+    void setPDFDisplayMode(PDFPluginDisplayMode);
+    void requestPDFDisplayMode(PDFPluginDisplayMode);
 #endif
 
 #if ENABLE(PDF_PLUGIN) && PLATFORM(MAC)

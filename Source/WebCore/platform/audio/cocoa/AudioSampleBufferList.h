@@ -91,7 +91,7 @@ protected:
 
 inline size_t AudioSampleBufferList::audioBufferListSizeForStream(const CAAudioStreamDescription& description)
 {
-    return offsetof(AudioBufferList, mBuffers) + (sizeof(AudioBuffer) * std::max<uint32_t>(1, description.numberOfChannelStreams()));
+    return offsetof(AudioBufferList, mBuffers) + (sizeof(::AudioBuffer) * std::max<uint32_t>(1, description.numberOfChannelStreams()));
 }
 
 } // namespace WebCore

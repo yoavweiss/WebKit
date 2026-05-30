@@ -2790,10 +2790,6 @@ def check_using_namespace(clean_lines, line_number, file_extension, error):
       error: The function to call with any errors found.
     """
 
-    # This check applies only to headers.
-    if file_extension != 'h':
-        return
-
     line = clean_lines.elided[line_number]  # Get rid of comments and strings.
 
     using_namespace_match = match(r'\s*using\s+namespace\s+(?P<method_name>\S+)\s*;\s*$', line)
@@ -2801,8 +2797,25 @@ def check_using_namespace(clean_lines, line_number, file_extension, error):
         return
 
     method_name = using_namespace_match.group('method_name')
-    error(line_number, 'build/using_namespace', 4,
-          "Do not use 'using namespace %s;'." % method_name)
+
+    if file_extension == 'h':
+        error(line_number, 'build/using_namespace', 4,
+              "Do not use 'using namespace %s;'." % method_name)
+        return
+
+    # In implementation files, only flag true file scope: a using-directive that
+    # appears before any 'namespace X {' opener. Inside a namespace body the
+    # directive is contained, which is the recommended fix; inside a function
+    # (indented) it is scoped.
+    if file_extension in ('cpp', 'cc', 'mm', 'm') and not line.startswith((' ', '\t')):
+        if method_name.startswith('std::literals'):
+            return
+        for preceding in clean_lines.elided[:line_number]:
+            if match(r'\s*namespace\s+[\w:]*\s*{', preceding):
+                return
+        error(line_number, 'build/using_namespace', 4,
+              "Do not use 'using namespace %s;' at file or namespace scope; "
+              "global using namespace is likely to cause name collisions in the unified build." % method_name)
 
 
 def check_max_min_macros(clean_lines, line_number, file_state, error):

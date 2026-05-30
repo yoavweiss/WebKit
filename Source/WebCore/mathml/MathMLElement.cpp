@@ -80,7 +80,7 @@ unsigned MathMLElement::rowSpan() const
 {
     if (!hasTagName(mtdTag))
         return 1u;
-    auto& rowSpanValue = attributeWithoutSynchronization(rowspanAttr);
+    auto& rowSpanValue = attributeWithoutSynchronization(MathMLNames::rowspanAttr);
     return std::max(1u, std::min(limitToOnlyHTMLNonNegative(rowSpanValue, 1u), HTMLTableCellElement::maxRowspan));
 }
 
@@ -304,7 +304,7 @@ void MathMLElement::defaultEventHandler(Event& event)
             return;
         }
         if (MouseEvent::canTriggerActivationBehavior(event)) {
-            const auto& href = attributeWithoutSynchronization(hrefAttr);
+            const auto& href = attributeWithoutSynchronization(MathMLNames::hrefAttr);
             event.setDefaultHandled();
             if (RefPtr frame = document().frame())
                 frame->loader().changeLocation(document().encodingParseURL(href), selfTargetFrameName(), &event, ReferrerPolicy::EmptyString, document().shouldOpenExternalURLsPolicyToPropagate());
@@ -351,7 +351,7 @@ bool MathMLElement::isURLAttribute(const Attribute& attribute) const
     if (!allowsHref())
         return false;
     // FIXME: Should this be attribute.name().matches(hrefAttr) to also enforce the namespace?
-    return hrefAttr->hasLocalName(attribute.name().localName()) || StyledElement::isURLAttribute(attribute);
+    return MathMLNames::hrefAttr->hasLocalName(attribute.name().localName()) || StyledElement::isURLAttribute(attribute);
 }
 
 bool MathMLElement::allowsHref() const

@@ -403,7 +403,7 @@ public:
     EnhancedSecurityTracking enhancedSecurityTracker;
 
 #if PLATFORM(IOS_FAMILY) && ENABLE(UNIFIED_PDF)
-    PDFDisplayMode pdfDisplayMode { PDFDisplayMode::SinglePageContinuous };
+    PDFPluginDisplayMode pdfDisplayMode { PDFPluginDisplayMode::SinglePageContinuous };
 #endif
 
 #if HAVE(NSVIEW_CORNER_CONFIGURATION)

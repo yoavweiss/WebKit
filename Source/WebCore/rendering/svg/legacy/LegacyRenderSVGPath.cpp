@@ -103,7 +103,7 @@ FloatRect LegacyRenderSVGPath::adjustStrokeBoundingBoxForMarkersAndZeroLengthLin
     return strokeBoundingBox;
 }
 
-static void useStrokeStyleToFill(GraphicsContext& context)
+static void legacyUseStrokeStyleToFill(GraphicsContext& context)
 {
     if (RefPtr gradient = context.strokeGradient())
         context.setFillGradient(*gradient, context.strokeGradientSpaceTransform());
@@ -196,7 +196,7 @@ void LegacyRenderSVGPath::strokeZeroLengthSubpaths(GraphicsContext& context) con
         nonScalingTransform = nonScalingStrokeTransform();
 
     GraphicsContextStateSaver stateSaver(context, true);
-    useStrokeStyleToFill(context);
+    legacyUseStrokeStyleToFill(context);
     for (size_t i = 0; i < m_zeroLengthLinecapLocations.size(); ++i) {
         auto usePath = zeroLengthLinecapPath(m_zeroLengthLinecapLocations[i]);
         if (hasNonScalingStroke())

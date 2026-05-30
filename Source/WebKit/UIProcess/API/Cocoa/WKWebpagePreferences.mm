@@ -43,6 +43,8 @@
 #import <wtf/cocoa/Entitlements.h>
 #endif
 
+#import <wtf/cocoa/VectorCocoa.h>
+
 namespace WebKit {
 
 #if PLATFORM(IOS_FAMILY)
@@ -390,7 +392,7 @@ static _WKWebsiteDeviceOrientationAndMotionAccessPolicy NODELETE toWKWebsiteDevi
 
 - (NSArray<_WKCustomHeaderFields *> *)_customHeaderFields
 {
-    return createNSArray(_websitePolicies->customHeaderFields(), [] (auto& field) {
+    return WTF::createNSArray(_websitePolicies->customHeaderFields(), [] (auto& field) {
         return wrapper(API::CustomHeaderFields::create(field));
     }).autorelease();
 }

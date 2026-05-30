@@ -57,11 +57,6 @@ namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RenderGrid);
 
-enum class TrackSizeRestriction : uint8_t {
-    AllowInfinity,
-    ForbidInfinity,
-};
-
 RenderGrid::RenderGrid(Element& element, RenderStyle&& style)
     : RenderBlock(Type::Grid, element, WTF::move(style), { })
     , m_grid(*this)

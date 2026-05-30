@@ -42,15 +42,16 @@
 #import <pal/cf/CoreMediaSoftLink.h>
 #import <pal/cocoa/AVFoundationSoftLink.h>
 
+#if !defined(WebCore_AVKitLibrary_SoftLinked)
+#define WebCore_AVKitLibrary_SoftLinked
 SOFTLINK_AVKIT_FRAMEWORK()
+#endif
 SOFT_LINK_CLASS_OPTIONAL(AVKit, AVPlayerController)
 SOFT_LINK_CLASS_OPTIONAL(AVKit, AVTimeRange)
 SOFT_LINK_CLASS_OPTIONAL(AVKit, AVValueTiming)
 
 OBJC_CLASS AVAssetTrack;
 OBJC_CLASS AVMetadataItem;
-
-using namespace WebCore;
 
 static void * WebAVPlayerControllerSeekableTimeRangesObserverContext = &WebAVPlayerControllerSeekableTimeRangesObserverContext;
 static void * WebAVPlayerControllerHasLiveStreamingContentObserverContext = &WebAVPlayerControllerHasLiveStreamingContentObserverContext;
@@ -891,7 +892,7 @@ Class webAVPlayerControllerClassSingleton()
     }
 
     if (WebAVPlayerControllerIsPlayingOnSecondScreenObserverContext == context) {
-        if (CheckedPtr<PlaybackSessionModel> delegate = self.delegate)
+        if (CheckedPtr<WebCore::PlaybackSessionModel> delegate = self.delegate)
             delegate->setPlayingOnSecondScreen(_playingOnSecondScreen);
         return;
     }

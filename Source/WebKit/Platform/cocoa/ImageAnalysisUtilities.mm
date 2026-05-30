@@ -34,11 +34,15 @@
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <WebCore/AttributedString.h>
 #import <WebCore/TextRecognitionResult.h>
-#import <pal/cocoa/VisionKitCoreSoftLink.h>
-#import <pal/cocoa/VisionSoftLink.h>
 #import <pal/spi/cocoa/FeatureFlagsSPI.h>
+#import <wtf/BlockPtr.h>
 #import <wtf/RobinHoodHashSet.h>
 #import <wtf/WorkQueue.h>
+#import <wtf/cf/TypeCastsCF.h>
+#import <wtf/cocoa/TypeCastsCocoa.h>
+
+#import <pal/cocoa/VisionKitCoreSoftLink.h>
+#import <pal/cocoa/VisionSoftLink.h>
 
 #define CRLayoutDirectionTopToBottom 3
 

@@ -119,7 +119,7 @@ Property MathMLOperatorElement::computeDictionaryProperty()
     Property dictionaryProperty;
 
     // We first determine the form attribute and use the default spacing and properties.
-    const auto& value = attributeWithoutSynchronization(formAttr);
+    const auto& value = attributeWithoutSynchronization(MathMLNames::formAttr);
     bool explicitForm = true;
     if (value == "prefix"_s)
         dictionaryProperty.form = Form::Prefix;

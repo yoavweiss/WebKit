@@ -3620,4 +3620,6 @@ void WebGL2RenderingContext::updateBuffersToAutoClear(ClearBufferCaller caller, 
 
 } // namespace WebCore
 
+#undef ENABLE_IF_REQUESTED
+
 #endif // ENABLE(WEBGL)

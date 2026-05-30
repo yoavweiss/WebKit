@@ -67,7 +67,7 @@ void WebPaymentCoordinatorProxy::platformShowPaymentUI(WebPageProxyIdentifier we
 
     RetainPtr<PKPaymentRequest> paymentRequest;
 #if HAVE(PASSKIT_DISBURSEMENTS)
-    std::optional<ApplePayDisbursementRequest> webDisbursementRequest = request.disbursementRequest();
+    std::optional<WebCore::ApplePayDisbursementRequest> webDisbursementRequest = request.disbursementRequest();
     if (webDisbursementRequest) {
         auto disbursementRequest = platformDisbursementRequest(request, originatingURL, webDisbursementRequest->requiredRecipientContactFields);
         paymentRequest = RetainPtr<PKPaymentRequest>((PKPaymentRequest *)disbursementRequest.get());

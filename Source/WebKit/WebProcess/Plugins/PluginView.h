@@ -59,7 +59,7 @@ namespace WebKit {
 class PDFPluginBase;
 class WebFrame;
 class WebPage;
-enum class PDFDisplayMode : uint8_t;
+enum class PDFPluginDisplayMode : uint8_t;
 enum class SelectionEndpoint : bool;
 enum class SelectionWasFlipped : bool;
 struct DocumentEditingContextRequest;
@@ -159,7 +159,7 @@ public:
 
     PDFPluginIdentifier NODELETE pdfPluginIdentifier() const;
 
-    void setPDFDisplayMode(PDFDisplayMode);
+    void setPDFDisplayMode(PDFPluginDisplayMode);
 
     void openWithPreview(CompletionHandler<void(const String&, std::optional<FrameInfoData>&&, std::span<const uint8_t>)>&&);
 

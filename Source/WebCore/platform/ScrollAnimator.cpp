@@ -35,6 +35,7 @@
 #include "FloatPoint.h"
 #include "KeyboardScrollingAnimator.h"
 #include "LayoutSize.h"
+#include "Logging.h"
 #include "PlatformWheelEvent.h"
 #include "ScrollExtents.h"
 #include "ScrollableArea.h"

@@ -1002,21 +1002,21 @@ static CornerRadii NODELETE trimRadii(const CornerRadii& radii, TrimSide trimSid
     }
 }
 
-enum class SnapDirection : uint8_t {
+enum class TextBoxSnapDirection : uint8_t {
     Left,
     Right,
     Both,
 };
 
-static FloatRect snapRectToDevicePixelsInDirection(const FloatRect& rect, float deviceScaleFactor, SnapDirection snapDirection)
+static FloatRect snapRectToDevicePixelsInDirection(const FloatRect& rect, float deviceScaleFactor, TextBoxSnapDirection snapDirection)
 {
     const auto layoutRect = LayoutRect { rect };
     switch (snapDirection) {
-    case SnapDirection::Left:
+    case TextBoxSnapDirection::Left:
         return snapRectToDevicePixelsWithWritingDirection(layoutRect, deviceScaleFactor, true);
-    case SnapDirection::Right:
+    case TextBoxSnapDirection::Right:
         return snapRectToDevicePixelsWithWritingDirection(layoutRect, deviceScaleFactor, false);
-    case SnapDirection::Both:
+    case TextBoxSnapDirection::Both:
         auto snappedRectLeft = snapRectToDevicePixelsWithWritingDirection(layoutRect, deviceScaleFactor, true);
         return snapRectToDevicePixelsWithWritingDirection(LayoutRect { snappedRectLeft }, deviceScaleFactor, false);
     }
@@ -1110,13 +1110,13 @@ void TextBoxPainter::fillCompositionUnderline(float start, float width, const Co
     if (fragmentLocation.containsAll({ TextBoxFragmentLocationWithinLayoutBox::First, TextBoxFragmentLocationWithinLayoutBox::Last }))
         context.fillRoundedRect(FloatRoundedRect { rect, radii }, underlineColor);
     else if (fragmentLocation == TextBoxFragmentLocationWithinLayoutBox::First)
-        context.fillRoundedRect(FloatRoundedRect { snapRectToDevicePixelsInDirection(rect, deviceScaleFactor, SnapDirection::Right), trimRadii(radii, TrimSide::Right) }, underlineColor);
+        context.fillRoundedRect(FloatRoundedRect { snapRectToDevicePixelsInDirection(rect, deviceScaleFactor, TextBoxSnapDirection::Right), trimRadii(radii, TrimSide::Right) }, underlineColor);
     else if (fragmentLocation == TextBoxFragmentLocationWithinLayoutBox::Last)
-        context.fillRoundedRect(FloatRoundedRect { snapRectToDevicePixelsInDirection(rect, deviceScaleFactor, SnapDirection::Left), trimRadii(radii, TrimSide::Left) }, underlineColor);
+        context.fillRoundedRect(FloatRoundedRect { snapRectToDevicePixelsInDirection(rect, deviceScaleFactor, TextBoxSnapDirection::Left), trimRadii(radii, TrimSide::Left) }, underlineColor);
     else {
         ASSERT(fragmentLocation.isEmpty());
         // This text fragment is right in the middle of the box content.
-        context.fillRect(snapRectToDevicePixelsInDirection(rect, deviceScaleFactor, SnapDirection::Both), underlineColor);
+        context.fillRect(snapRectToDevicePixelsInDirection(rect, deviceScaleFactor, TextBoxSnapDirection::Both), underlineColor);
     }
 #else
     UNUSED_PARAM(radii);

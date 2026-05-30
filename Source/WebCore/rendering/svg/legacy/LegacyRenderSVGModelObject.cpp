@@ -188,20 +188,20 @@ static void getElementCTM(SVGElement* element, AffineTransform& transform)
 
 // FloatRect::intersects does not consider horizontal or vertical lines (because of isEmpty()).
 // So special-case handling of such lines.
-static bool NODELETE intersectsAllowingEmpty(const FloatRect& r, const FloatRect& other)
+static bool NODELETE legacyIntersectsAllowingEmpty(const FloatRect& r, const FloatRect& other)
 {
     if (r.isEmpty() && other.isEmpty())
         return false;
     if (r.isEmpty() && !other.isEmpty())
         return (other.contains(r.x(), r.y()) && !other.contains(r.maxX(), r.maxY())) || (!other.contains(r.x(), r.y()) && other.contains(r.maxX(), r.maxY()));
     if (other.isEmpty() && !r.isEmpty())
-        return intersectsAllowingEmpty(other, r);
+        return legacyIntersectsAllowingEmpty(other, r);
     return r.intersects(other);
 }
 
 // One of the element types that can cause graphics to be drawn onto the target canvas. Specifically: circle, ellipse,
 // image, line, path, polygon, polyline, rect, text and use.
-static bool NODELETE isGraphicsElement(const RenderElement& renderer)
+static bool NODELETE legacyIsGraphicsElement(const RenderElement& renderer)
 {
     return renderer.isLegacyRenderSVGShape() || renderer.isRenderSVGText() || renderer.isLegacyRenderSVGImage() || renderer.element()->hasTagName(SVGNames::useTag);
 }
@@ -217,7 +217,7 @@ bool LegacyRenderSVGModelObject::checkIntersection(RenderElement* renderer, cons
 {
     if (!renderer || renderer->usedPointerEvents() == PointerEvents::None)
         return false;
-    if (!isGraphicsElement(*renderer))
+    if (!legacyIsGraphicsElement(*renderer))
         return false;
     AffineTransform ctm;
     RefPtr svgElement = downcast<SVGElement>(renderer->element());
@@ -225,14 +225,14 @@ bool LegacyRenderSVGModelObject::checkIntersection(RenderElement* renderer, cons
     ASSERT(svgElement->renderer());
     // FIXME: [SVG] checkEnclosure implementation is inconsistent
     // https://bugs.webkit.org/show_bug.cgi?id=262709
-    return intersectsAllowingEmpty(rect, ctm.mapRect(protect(svgElement->renderer())->repaintRectInLocalCoordinates(RepaintRectCalculation::Accurate)));
+    return legacyIntersectsAllowingEmpty(rect, ctm.mapRect(protect(svgElement->renderer())->repaintRectInLocalCoordinates(RepaintRectCalculation::Accurate)));
 }
 
 bool LegacyRenderSVGModelObject::checkEnclosure(RenderElement* renderer, const FloatRect& rect)
 {
     if (!renderer || renderer->usedPointerEvents() == PointerEvents::None)
         return false;
-    if (!isGraphicsElement(*renderer))
+    if (!legacyIsGraphicsElement(*renderer))
         return false;
     AffineTransform ctm;
     RefPtr svgElement = downcast<SVGElement>(renderer->element());

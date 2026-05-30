@@ -51,8 +51,11 @@
 #import <wtf/URL.h>
 #import <wtf/Vector.h>
 
+#if !defined(TestWebKitAPI_SSBLookupContext_SoftLinked)
+#define TestWebKitAPI_SSBLookupContext_SoftLinked
 SOFT_LINK_PRIVATE_FRAMEWORK(SafariSafeBrowsing);
 SOFT_LINK_CLASS(SafariSafeBrowsing, SSBLookupContext);
+#endif
 SOFT_LINK_CLASS(SafariSafeBrowsing, SSBLookupResult);
 SOFT_LINK_CLASS(SafariSafeBrowsing, SSBServiceLookupResult);
 
@@ -186,13 +189,13 @@ static RetainPtr<WKWebView> safeBrowsingView()
 }
 
 #if PLATFORM(MAC)
-static void checkTitleAndClick(NSButton *button, const char* expectedTitle)
+static void safeBrowsingCheckTitleAndClick(NSButton *button, const char* expectedTitle)
 {
     EXPECT_STREQ(button.title.UTF8String, expectedTitle);
     [button performClick:nil];
 }
 #else
-static void checkTitleAndClick(UIButton *button, const char* expectedTitle)
+static void safeBrowsingCheckTitleAndClick(UIButton *button, const char* expectedTitle)
 {
     EXPECT_STREQ([button attributedTitleForState:UIControlStateNormal].string.UTF8String, expectedTitle);
     UIView *target = button.superview.superview;
@@ -205,7 +208,7 @@ template<typename ViewType> void goBack(ViewType *view, bool mainFrame = true)
 {
     WKWebView *webView = (WKWebView *)view.superview;
     auto box = view.subviews.firstObject;
-    checkTitleAndClick(box.subviews[3], "Go Back");
+    safeBrowsingCheckTitleAndClick(box.subviews[3], "Go Back");
     if (mainFrame)
         EXPECT_EQ([webView _safeBrowsingWarning], nil);
     else
@@ -260,7 +263,7 @@ TEST(SafeBrowsing, VisitUnsafeWebsite)
     EXPECT_GT(warning.subviews.firstObject.subviews[2].frame.size.height, 0);
 #endif
     EXPECT_WK_STREQ([webView title], "Deceptive Website Warning");
-    checkTitleAndClick(warning.subviews.firstObject.subviews[4], "Show Details");
+    safeBrowsingCheckTitleAndClick(warning.subviews.firstObject.subviews[4], "Show Details");
     EXPECT_EQ(warning.subviews.count, 2ull);
     EXPECT_FALSE(committedNavigation);
     [webView visitUnsafeSite];
@@ -294,7 +297,7 @@ TEST(SafeBrowsing, ShowWarningSPI)
     };
 
     showWarning();
-    checkTitleAndClick([webView _safeBrowsingWarning].subviews.firstObject.subviews[3], "Go Back");
+    safeBrowsingCheckTitleAndClick([webView _safeBrowsingWarning].subviews.firstObject.subviews[3], "Go Back");
     TestWebKitAPI::Util::run(&completionHandlerCalled);
     EXPECT_FALSE(shouldContinueValue);
 

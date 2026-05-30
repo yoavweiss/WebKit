@@ -1106,7 +1106,7 @@ static void storeAccessibilityRemoteConnectionInformation(id element, pid_t pid,
     if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular)
         return;
 
-    page->requestPDFDisplayMode(WebKit::PDFDisplayMode::SinglePageContinuous);
+    page->requestPDFDisplayMode(WebKit::PDFPluginDisplayMode::SinglePageContinuous);
 }
 #endif
 

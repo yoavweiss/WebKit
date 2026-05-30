@@ -841,7 +841,7 @@ TEST(WKNavigation, NavigationActionSPI)
     EXPECT_TRUE([delegate spiCalled]);
 }
 
-static bool navigationComplete;
+static bool navigationTestComplete;
 
 @interface BackForwardDelegate : NSObject<WKNavigationDelegatePrivate>
 @end
@@ -858,7 +858,7 @@ static bool navigationComplete;
 }
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
-    navigationComplete = true;
+    navigationTestComplete = true;
 }
 @end
 
@@ -868,10 +868,10 @@ TEST(WKNavigation, WillGoToBackForwardListItem)
     RetainPtr delegate = adoptNS([[BackForwardDelegate alloc] init]);
     [webView setNavigationDelegate:delegate.get()];
     [webView loadRequest:[NSURLRequest requestWithURL:[NSBundle.test_resourcesBundle URLForResource:@"simple" withExtension:@"html"]]];
-    TestWebKitAPI::Util::run(&navigationComplete);
-    navigationComplete = false;
+    TestWebKitAPI::Util::run(&navigationTestComplete);
+    navigationTestComplete = false;
     [webView loadRequest:[NSURLRequest requestWithURL:[NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"]]];
-    TestWebKitAPI::Util::run(&navigationComplete);
+    TestWebKitAPI::Util::run(&navigationTestComplete);
     [webView goBack];
     TestWebKitAPI::Util::run(&isDone);
 }
@@ -908,7 +908,7 @@ static bool didRejectNavigation = false;
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
-    navigationComplete = true;
+    navigationTestComplete = true;
 }
 @end
 
@@ -936,26 +936,26 @@ static bool didRejectNavigation = false;
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
-    navigationComplete = true;
+    navigationTestComplete = true;
 }
 @end
 
 TEST(WKNavigation, ShouldGoToBackForwardListItem)
 {
     RetainPtr webView = adoptNS([[WKWebView alloc] init]);
-    navigationComplete = false;
+    navigationTestComplete = false;
     RetainPtr delegate = adoptNS([[BackForwardDelegateWithShouldGo alloc] init]);
     [webView setNavigationDelegate:delegate.get()];
     [webView loadRequest:[NSURLRequest requestWithURL:[NSBundle.test_resourcesBundle URLForResource:@"simple" withExtension:@"html"]]];
-    TestWebKitAPI::Util::run(&navigationComplete);
-    navigationComplete = false;
+    TestWebKitAPI::Util::run(&navigationTestComplete);
+    navigationTestComplete = false;
     [webView loadRequest:[NSURLRequest requestWithURL:[NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"]]];
-    TestWebKitAPI::Util::run(&navigationComplete);
-    navigationComplete = false;
+    TestWebKitAPI::Util::run(&navigationTestComplete);
+    navigationTestComplete = false;
     delegate.get().targetItem = webView.get().backForwardList.backItem;
     delegate.get().allowNavigation = YES;
     [webView goBack];
-    TestWebKitAPI::Util::run(&navigationComplete);
+    TestWebKitAPI::Util::run(&navigationTestComplete);
 
     EXPECT_FALSE(didRejectNavigation);
 
@@ -964,12 +964,12 @@ TEST(WKNavigation, ShouldGoToBackForwardListItem)
     [webView goForward];
     TestWebKitAPI::Util::run(&didRejectNavigation);
 
-    navigationComplete = false;
+    navigationTestComplete = false;
     delegate.get().allowNavigation = YES;
     [webView goForward];
-    TestWebKitAPI::Util::run(&navigationComplete);
+    TestWebKitAPI::Util::run(&navigationTestComplete);
 
-    navigationComplete = false;
+    navigationTestComplete = false;
     didRejectNavigation = false;
 
     RetainPtr delegate2 = adoptNS([[BackForwardDelegateWithShouldGoSPI alloc] init]);
@@ -978,7 +978,7 @@ TEST(WKNavigation, ShouldGoToBackForwardListItem)
     delegate2.get().allowNavigation = YES;
 
     [webView goBack];
-    TestWebKitAPI::Util::run(&navigationComplete);
+    TestWebKitAPI::Util::run(&navigationTestComplete);
 
     EXPECT_FALSE(didRejectNavigation);
 
@@ -1028,7 +1028,7 @@ RetainPtr<WKBackForwardListItem> secondItem;
 }
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
-    navigationComplete = true;
+    navigationTestComplete = true;
 }
 @end
 
@@ -1038,10 +1038,10 @@ TEST(WKNavigation, ListItemAddedRemoved)
     RetainPtr delegate = adoptNS([[ListItemDelegate alloc] init]);
     [webView setNavigationDelegate:delegate.get()];
     [webView loadRequest:[NSURLRequest requestWithURL:[NSBundle.test_resourcesBundle URLForResource:@"simple" withExtension:@"html"]]];
-    TestWebKitAPI::Util::run(&navigationComplete);
-    navigationComplete = false;
+    TestWebKitAPI::Util::run(&navigationTestComplete);
+    navigationTestComplete = false;
     [webView loadRequest:[NSURLRequest requestWithURL:[NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"]]];
-    TestWebKitAPI::Util::run(&navigationComplete);
+    TestWebKitAPI::Util::run(&navigationTestComplete);
     [[webView backForwardList] _removeAllItems];
     TestWebKitAPI::Util::run(&isDone);
 }

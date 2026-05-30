@@ -27,6 +27,8 @@
 
 #import "DOMElementInternal.h"
 #import "DOMHTMLCollectionInternal.h"
+#import "DOMNodeInternal.h"
+#import "DOMNodeListInternal.h"
 #import "ExceptionHandlers.h"
 #import <WebCore/DocumentFragment.h>
 #import <WebCore/JSExecState.h>

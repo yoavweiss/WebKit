@@ -15543,7 +15543,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
             if (isSinglePage == isSinglePageAction)
                 return;
 
-            page->requestPDFDisplayMode(isSinglePageAction ? WebKit::PDFDisplayMode::SinglePageContinuous : WebKit::PDFDisplayMode::TwoUpContinuous);
+            page->requestPDFDisplayMode(isSinglePageAction ? WebKit::PDFPluginDisplayMode::SinglePageContinuous : WebKit::PDFPluginDisplayMode::TwoUpContinuous);
         };
 
         RetainPtr singlePageAction = [UIAction actionWithTitle:WebCore::contextMenuItemPDFSinglePage().createNSString().get() image:nil identifier:WKPDFActionSinglePageIdentifier handler:actionHandler];

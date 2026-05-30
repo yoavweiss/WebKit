@@ -703,7 +703,7 @@ TEST(WKUserContentController, UserStyleSheetAffectingOnlySpecificWebViewRemovalA
     expectScriptEvaluatesToColor(webView.get(), backgroundColorScript, blueInRGB);
 }
 
-static RetainPtr<_WKProcessPoolConfiguration> psonProcessPoolConfiguration()
+static RetainPtr<_WKProcessPoolConfiguration> userContentControllerPSONProcessPoolConfiguration()
 {
     RetainPtr processPoolConfiguration = adoptNS([[_WKProcessPoolConfiguration alloc] init]);
     processPoolConfiguration.get().processSwapsOnNavigation = YES;
@@ -714,7 +714,7 @@ static RetainPtr<_WKProcessPoolConfiguration> psonProcessPoolConfiguration()
 
 TEST(WKUserContentController, UserStyleSheetAffectingOnlySpecificWebViewRemovalAfterNavigationPSON)
 {
-    auto processPoolConfiguration = psonProcessPoolConfiguration();
+    auto processPoolConfiguration = userContentControllerPSONProcessPoolConfiguration();
     RetainPtr processPool = adoptNS([[WKProcessPool alloc] _initWithConfiguration:processPoolConfiguration.get()]);
 
     RetainPtr webViewConfiguration = adoptNS([[WKWebViewConfiguration alloc] init]);

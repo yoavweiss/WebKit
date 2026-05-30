@@ -215,7 +215,7 @@ void LegacyRenderSVGResourcePattern::postApplyResource(RenderElement&, GraphicsC
     context->restore();
 }
 
-static inline FloatRect calculatePatternBoundaries(const PatternAttributes& attributes,
+static inline FloatRect legacyCalculatePatternBoundaries(const PatternAttributes& attributes,
                                                    const FloatRect& objectBoundingBox,
                                                    const SVGPatternElement& patternElement)
 {
@@ -229,7 +229,7 @@ bool LegacyRenderSVGResourcePattern::buildTileImageTransform(RenderElement& rend
                                                        AffineTransform& tileImageTransform) const
 {
     FloatRect objectBoundingBox = renderer.objectBoundingBox();
-    patternBoundaries = calculatePatternBoundaries(attributes, objectBoundingBox, patternElement); 
+    patternBoundaries = legacyCalculatePatternBoundaries(attributes, objectBoundingBox, patternElement);
     if (patternBoundaries.width() <= 0 || patternBoundaries.height() <= 0)
         return false;
 
