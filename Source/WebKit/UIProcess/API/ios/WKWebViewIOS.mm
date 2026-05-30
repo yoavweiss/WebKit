@@ -387,9 +387,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     return deviceOrientationForUIInterfaceOrientation([&] {
         if (auto windowScene = self.window.windowScene)
             return windowScene.effectiveGeometry.interfaceOrientation;
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-        return UIApplication.sharedApplication.statusBarOrientation;
-ALLOW_DEPRECATED_DECLARATIONS_END
+        return UIInterfaceOrientationUnknown;
     }());
 }
 
