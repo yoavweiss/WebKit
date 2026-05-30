@@ -201,6 +201,8 @@ namespace JSC::B3 {
     macro(WasmTable_length, Wasm::Table::offsetOfLength(), Mutability::Mutable) \
     macro(WeakMapImpl_capacity, WeakMapImpl<WeakMapBucket<WeakMapBucketDataKey>>::offsetOfCapacity(), Mutability::Mutable) \
     macro(WeakMapImpl_buffer,  WeakMapImpl<WeakMapBucket<WeakMapBucketDataKey>>::offsetOfBuffer(), Mutability::Mutable) \
+    macro(WeakMapImpl_keyCount, WeakMapImpl<WeakMapBucket<WeakMapBucketDataKey>>::offsetOfKeyCount(), Mutability::Mutable) \
+    macro(WeakMapImpl_deleteCount, WeakMapImpl<WeakMapBucket<WeakMapBucketDataKey>>::offsetOfDeleteCount(), Mutability::Mutable) \
     macro(WeakMapBucket_value, WeakMapBucket<WeakMapBucketDataKeyValue>::offsetOfValue(), Mutability::Mutable) \
     macro(WeakMapBucket_key, WeakMapBucket<WeakMapBucketDataKeyValue>::offsetOfKey(), Mutability::Mutable) \
     macro(WebAssemblyFunctionBase_boxedCallee, WebAssemblyFunctionBase::offsetOfBoxedCallee(), Mutability::Immutable) \

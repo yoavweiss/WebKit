@@ -99,6 +99,7 @@
 #include "JSSetIterator.h"
 #include "JSStringIterator.h"
 #include "JSWeakMap.h"
+#include "JSWeakSet.h"
 #include "JSWebAssemblyInstance.h"
 #include "JSWrapForValidIterator.h"
 #include "LLIntThunks.h"
@@ -19539,14 +19540,50 @@ IGNORE_CLANG_WARNINGS_END
 
     void compileNewWeakMap()
     {
-        // FIXME: Inline-allocate the cell like NewMap once WeakMapImpl supports a lazily-allocated buffer.
-        setJSValue(vmCall(pointerType(), operationNewWeakMap, m_vmValue, frozenPointer(m_graph.freezeStrong(m_node->structure().get()))));
+        LBasicBlock slowCase = m_out.newBlock();
+        LBasicBlock continuation = m_out.newBlock();
+
+        LBasicBlock lastNext = m_out.insertNewBlocksBefore(slowCase);
+
+        LValue object = allocateObject<JSWeakMap>(m_node->structure(), m_out.intPtrZero, slowCase);
+        m_out.storePtr(m_out.constIntPtr(JSWeakMap::emptyBuffer()), object, m_heaps.WeakMapImpl_buffer);
+        m_out.store32(m_out.constInt32(JSWeakMap::emptyCapacity), object, m_heaps.WeakMapImpl_capacity);
+        m_out.store32(m_out.int32Zero, object, m_heaps.WeakMapImpl_keyCount);
+        m_out.store32(m_out.int32Zero, object, m_heaps.WeakMapImpl_deleteCount);
+        mutatorFence();
+        ValueFromBlock fastResult = m_out.anchor(object);
+        m_out.jump(continuation);
+
+        m_out.appendTo(slowCase, continuation);
+        ValueFromBlock slowResult = m_out.anchor(vmCall(pointerType(), operationNewWeakMap, m_vmValue, frozenPointer(m_graph.freezeStrong(m_node->structure().get()))));
+        m_out.jump(continuation);
+
+        m_out.appendTo(continuation, lastNext);
+        setJSValue(m_out.phi(pointerType(), fastResult, slowResult));
     }
 
     void compileNewWeakSet()
     {
-        // FIXME: Inline-allocate the cell like NewSet once WeakMapImpl supports a lazily-allocated buffer.
-        setJSValue(vmCall(pointerType(), operationNewWeakSet, m_vmValue, frozenPointer(m_graph.freezeStrong(m_node->structure().get()))));
+        LBasicBlock slowCase = m_out.newBlock();
+        LBasicBlock continuation = m_out.newBlock();
+
+        LBasicBlock lastNext = m_out.insertNewBlocksBefore(slowCase);
+
+        LValue object = allocateObject<JSWeakSet>(m_node->structure(), m_out.intPtrZero, slowCase);
+        m_out.storePtr(m_out.constIntPtr(JSWeakSet::emptyBuffer()), object, m_heaps.WeakMapImpl_buffer);
+        m_out.store32(m_out.constInt32(JSWeakSet::emptyCapacity), object, m_heaps.WeakMapImpl_capacity);
+        m_out.store32(m_out.int32Zero, object, m_heaps.WeakMapImpl_keyCount);
+        m_out.store32(m_out.int32Zero, object, m_heaps.WeakMapImpl_deleteCount);
+        mutatorFence();
+        ValueFromBlock fastResult = m_out.anchor(object);
+        m_out.jump(continuation);
+
+        m_out.appendTo(slowCase, continuation);
+        ValueFromBlock slowResult = m_out.anchor(vmCall(pointerType(), operationNewWeakSet, m_vmValue, frozenPointer(m_graph.freezeStrong(m_node->structure().get()))));
+        m_out.jump(continuation);
+
+        m_out.appendTo(continuation, lastNext);
+        setJSValue(m_out.phi(pointerType(), fastResult, slowResult));
     }
 
     void compileSetFunctionName()

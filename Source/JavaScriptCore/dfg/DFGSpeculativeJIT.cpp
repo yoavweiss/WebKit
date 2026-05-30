@@ -72,6 +72,8 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 #include "JSRegExpStringIterator.h"
 #include "JSSetIterator.h"
 #include "JSStringIterator.h"
+#include "JSWeakMap.h"
+#include "JSWeakSet.h"
 #include "JSWebAssemblyInstance.h"
 #include "JSWrapForValidIterator.h"
 #include "JumpTable.h"
@@ -12057,23 +12059,53 @@ void SpeculativeJIT::compileNewSet(Node* node)
 
 void SpeculativeJIT::compileNewWeakMap(Node* node)
 {
-    // FIXME: Inline-allocate the cell like NewMap once WeakMapImpl supports a lazily-allocated buffer.
-    flushRegisters();
-    GPRFlushedCallResult result(this);
+    GPRTemporary result(this);
+    GPRTemporary scratch1(this);
+    GPRTemporary scratch2(this);
+
     GPRReg resultGPR = result.gpr();
+    GPRReg scratch1GPR = scratch1.gpr();
+    GPRReg scratch2GPR = scratch2.gpr();
+
+    JumpList slowCases;
+
     FrozenValue* structure = m_graph.freezeStrong(node->structure().get());
-    callOperation(operationNewWeakMap, resultGPR, TrustedImmPtr(&vm()), TrustedImmPtr(structure));
+    auto butterfly = TrustedImmPtr(nullptr);
+    emitAllocateJSObjectWithKnownSize<JSWeakMap>(resultGPR, TrustedImmPtr(structure), butterfly, scratch1GPR, scratch2GPR, slowCases, sizeof(JSWeakMap), SlowAllocationResult::UndefinedBehavior);
+    storePtr(TrustedImmPtr(JSWeakMap::emptyBuffer()), Address(resultGPR, JSWeakMap::offsetOfBuffer()));
+    store32(TrustedImm32(JSWeakMap::emptyCapacity), Address(resultGPR, JSWeakMap::offsetOfCapacity()));
+    store32(TrustedImm32(0), Address(resultGPR, JSWeakMap::offsetOfKeyCount()));
+    store32(TrustedImm32(0), Address(resultGPR, JSWeakMap::offsetOfDeleteCount()));
+    mutatorFence(vm());
+
+    addSlowPathGenerator(slowPathCall(slowCases, this, operationNewWeakMap, resultGPR, TrustedImmPtr(&vm()), TrustedImmPtr(structure)));
+
     cellResult(resultGPR, node);
 }
 
 void SpeculativeJIT::compileNewWeakSet(Node* node)
 {
-    // FIXME: Inline-allocate the cell like NewSet once WeakMapImpl supports a lazily-allocated buffer.
-    flushRegisters();
-    GPRFlushedCallResult result(this);
+    GPRTemporary result(this);
+    GPRTemporary scratch1(this);
+    GPRTemporary scratch2(this);
+
     GPRReg resultGPR = result.gpr();
+    GPRReg scratch1GPR = scratch1.gpr();
+    GPRReg scratch2GPR = scratch2.gpr();
+
+    JumpList slowCases;
+
     FrozenValue* structure = m_graph.freezeStrong(node->structure().get());
-    callOperation(operationNewWeakSet, resultGPR, TrustedImmPtr(&vm()), TrustedImmPtr(structure));
+    auto butterfly = TrustedImmPtr(nullptr);
+    emitAllocateJSObjectWithKnownSize<JSWeakSet>(resultGPR, TrustedImmPtr(structure), butterfly, scratch1GPR, scratch2GPR, slowCases, sizeof(JSWeakSet), SlowAllocationResult::UndefinedBehavior);
+    storePtr(TrustedImmPtr(JSWeakSet::emptyBuffer()), Address(resultGPR, JSWeakSet::offsetOfBuffer()));
+    store32(TrustedImm32(JSWeakSet::emptyCapacity), Address(resultGPR, JSWeakSet::offsetOfCapacity()));
+    store32(TrustedImm32(0), Address(resultGPR, JSWeakSet::offsetOfKeyCount()));
+    store32(TrustedImm32(0), Address(resultGPR, JSWeakSet::offsetOfDeleteCount()));
+    mutatorFence(vm());
+
+    addSlowPathGenerator(slowPathCall(slowCases, this, operationNewWeakSet, resultGPR, TrustedImmPtr(&vm()), TrustedImmPtr(structure)));
+
     cellResult(resultGPR, node);
 }
 
