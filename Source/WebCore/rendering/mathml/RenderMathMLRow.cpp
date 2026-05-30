@@ -125,7 +125,7 @@ LayoutUnit RenderMathMLRow::preferredLogicalWidthOfRowItems()
 {
     LayoutUnit preferredWidth = 0;
     for (auto* child = firstInFlowChildBox(); child; child = child->nextInFlowSiblingBox()) {
-        preferredWidth += child->maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(*child);
+        preferredWidth += child->maxContentLogicalWidthContribution() + marginIntrinsicLogicalWidthForChild(*child);
     }
     return preferredWidth;
 }
@@ -134,8 +134,8 @@ void RenderMathMLRow::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(hasInvalidContentLogicalWidths());
 
-    m_maxContentLogicalWidth = preferredLogicalWidthOfRowItems();
-    m_minContentLogicalWidth = m_maxContentLogicalWidth;
+    m_maxContentLogicalWidthContribution = preferredLogicalWidthOfRowItems();
+    m_minContentLogicalWidthContribution = m_maxContentLogicalWidthContribution;
 
     auto sizes = sizeAppliedToMathContent(LayoutPhase::CalculatePreferredLogicalWidth);
     applySizeToMathContent(LayoutPhase::CalculatePreferredLogicalWidth, sizes);

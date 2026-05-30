@@ -182,8 +182,8 @@ std::pair<LayoutUnit, LayoutUnit> RenderTextControl::computeIntrinsicLogicalWidt
         CheckedPtr placeholderBox = placeholder ? placeholder->renderBox() : nullptr;
         if (RefPtr input = placeholderBox ? dynamicDowncast<HTMLInputElement>(textFormControlElement()) : nullptr) {
             auto decoration = LayoutUnit::fromFloatCeil(input->decorationWidth(maxLogicalWidth));
-            minLogicalWidth = std::max(minLogicalWidth, placeholderBox->minContentLogicalWidth() + decoration);
-            maxLogicalWidth = std::max(maxLogicalWidth, placeholderBox->maxContentLogicalWidth() + decoration);
+            minLogicalWidth = std::max(minLogicalWidth, placeholderBox->minContentLogicalWidthContribution() + decoration);
+            maxLogicalWidth = std::max(maxLogicalWidth, placeholderBox->maxContentLogicalWidthContribution() + decoration);
         }
         return { minLogicalWidth, maxLogicalWidth };
     }
@@ -215,16 +215,16 @@ void RenderTextControl::computeIntrinsicLogicalWidthContributions()
         return;
     }
 
-    m_minContentLogicalWidth = 0;
-    m_maxContentLogicalWidth = 0;
+    m_minContentLogicalWidthContribution = 0_lu;
+    m_maxContentLogicalWidthContribution = 0_lu;
 
     if (auto fixedLogicalWidth = style().logicalWidth().tryFixed(); fixedLogicalWidth && fixedLogicalWidth->isPositiveOrZero()) {
-        m_maxContentLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
-        m_minContentLogicalWidth = m_maxContentLogicalWidth;
+        m_maxContentLogicalWidthContribution = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
+        m_minContentLogicalWidthContribution = m_maxContentLogicalWidthContribution;
     } else
-        std::tie(m_minContentLogicalWidth, m_maxContentLogicalWidth) = computeIntrinsicLogicalWidths();
+        std::tie(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution) = computeIntrinsicLogicalWidths();
 
-    constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
+    constrainIntrinsicLogicalWidthsByMinMax(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution);
 
     clearContentLogicalWidthsInvalidation();
 }

@@ -155,7 +155,7 @@ void RenderMathMLBlock::layoutItems(RelayoutChildren relayoutChildren)
 
     LayoutUnit preferredHorizontalExtent;
     for (auto* child = firstInFlowChildBox(); child; child = child->nextInFlowSiblingBox()) {
-        LayoutUnit childHorizontalExtent = child->maxContentLogicalWidth() - child->horizontalBorderAndPaddingExtent();
+        LayoutUnit childHorizontalExtent = child->maxContentLogicalWidthContribution() - child->horizontalBorderAndPaddingExtent();
         LayoutUnit childHorizontalMarginBoxExtent = child->horizontalBorderAndPaddingExtent() + childHorizontalExtent;
         childHorizontalMarginBoxExtent += child->horizontalMarginExtent();
 
@@ -165,7 +165,7 @@ void RenderMathMLBlock::layoutItems(RelayoutChildren relayoutChildren)
     LayoutUnit currentHorizontalExtent = contentBoxLogicalWidth();
     for (auto* child = firstInFlowChildBox(); child; child = child->nextInFlowSiblingBox()) {
         auto everHadLayout = child->everHadLayout();
-        LayoutUnit childSize = child->maxContentLogicalWidth() - child->horizontalBorderAndPaddingExtent();
+        LayoutUnit childSize = child->maxContentLogicalWidthContribution() - child->horizontalBorderAndPaddingExtent();
 
         if (preferredHorizontalExtent > currentHorizontalExtent)
             childSize = currentHorizontalExtent;
@@ -271,8 +271,8 @@ void RenderMathMLBlock::shiftInFlowChildren(LayoutUnit left, LayoutUnit top)
 void RenderMathMLBlock::adjustContentLogicalWidthsForBorderAndPadding()
 {
     ASSERT(hasInvalidContentLogicalWidths());
-    m_minContentLogicalWidth += borderAndPaddingLogicalWidth();
-    m_maxContentLogicalWidth += borderAndPaddingLogicalWidth();
+    m_minContentLogicalWidthContribution += borderAndPaddingLogicalWidth();
+    m_maxContentLogicalWidthContribution += borderAndPaddingLogicalWidth();
 }
 
 void RenderMathMLBlock::adjustLayoutForBorderAndPadding()
@@ -319,8 +319,8 @@ LayoutUnit RenderMathMLBlock::applySizeToMathContent(LayoutPhase phase, const Si
     if (phase == LayoutPhase::CalculatePreferredLogicalWidth) {
         ASSERT(hasInvalidContentLogicalWidths());
         if (sizes.logicalWidth) {
-            m_minContentLogicalWidth = *sizes.logicalWidth;
-            m_maxContentLogicalWidth = *sizes.logicalWidth;
+            m_minContentLogicalWidthContribution = *sizes.logicalWidth;
+            m_maxContentLogicalWidthContribution = *sizes.logicalWidth;
         }
         return LayoutUnit();
     }

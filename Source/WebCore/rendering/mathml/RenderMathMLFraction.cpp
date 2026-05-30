@@ -195,10 +195,10 @@ void RenderMathMLFraction::computeIntrinsicLogicalWidthContributions()
         return;
     }
 
-    LayoutUnit numeratorWidth = numerator().maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(numerator());
-    LayoutUnit denominatorWidth = denominator().maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(denominator());
-    m_maxContentLogicalWidth = std::max(numeratorWidth, denominatorWidth);
-    m_minContentLogicalWidth = m_maxContentLogicalWidth;
+    LayoutUnit numeratorWidth = numerator().maxContentLogicalWidthContribution() + marginIntrinsicLogicalWidthForChild(numerator());
+    LayoutUnit denominatorWidth = denominator().maxContentLogicalWidthContribution() + marginIntrinsicLogicalWidthForChild(denominator());
+    m_maxContentLogicalWidthContribution = std::max(numeratorWidth, denominatorWidth);
+    m_minContentLogicalWidthContribution = m_maxContentLogicalWidthContribution;
 
     auto sizes = sizeAppliedToMathContent(LayoutPhase::CalculatePreferredLogicalWidth);
     applySizeToMathContent(LayoutPhase::CalculatePreferredLogicalWidth, sizes);

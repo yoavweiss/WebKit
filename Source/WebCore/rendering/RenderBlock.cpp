@@ -2273,25 +2273,25 @@ void RenderBlock::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(hasInvalidContentLogicalWidths());
 
-    m_minContentLogicalWidth = 0_lu;
-    m_maxContentLogicalWidth = 0_lu;
+    m_minContentLogicalWidthContribution = 0_lu;
+    m_maxContentLogicalWidthContribution = 0_lu;
 
     auto& styleToUse = style();
     auto logicalWidth = overridingLogicalWidthForFlexBasisComputation().value_or(styleToUse.logicalWidth());
     if (auto fixedLogicalWidth = logicalWidth.tryFixed(); !isRenderTableCell() && fixedLogicalWidth && fixedLogicalWidth->isPositiveOrZero() && !(isDeprecatedFlexItem() && !static_cast<int>(fixedLogicalWidth->resolveZoom(style().usedZoomForLength())))) {
-        m_minContentLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
-        m_maxContentLogicalWidth = m_minContentLogicalWidth;
+        m_minContentLogicalWidthContribution = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
+        m_maxContentLogicalWidthContribution = m_minContentLogicalWidthContribution;
     } else if (logicalWidth.isMaxContent()) {
-        std::tie(m_minContentLogicalWidth, m_maxContentLogicalWidth) = computeIntrinsicLogicalWidths();
-        m_minContentLogicalWidth = m_maxContentLogicalWidth;
+        std::tie(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution) = computeIntrinsicLogicalWidths();
+        m_minContentLogicalWidthContribution = m_maxContentLogicalWidthContribution;
     } else if (shouldComputeLogicalWidthFromAspectRatio()) {
-        m_maxContentLogicalWidth = std::max(0_lu, computeLogicalWidthFromAspectRatio() - borderAndPaddingLogicalWidth());
-        m_minContentLogicalWidth = m_maxContentLogicalWidth;
-        applyAutomaticContentBasedMinimumSize(m_minContentLogicalWidth, m_maxContentLogicalWidth);
+        m_maxContentLogicalWidthContribution = std::max(0_lu, computeLogicalWidthFromAspectRatio() - borderAndPaddingLogicalWidth());
+        m_minContentLogicalWidthContribution = m_maxContentLogicalWidthContribution;
+        applyAutomaticContentBasedMinimumSize(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution);
     } else
-        std::tie(m_minContentLogicalWidth, m_maxContentLogicalWidth) = computeIntrinsicLogicalWidths();
+        std::tie(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution) = computeIntrinsicLogicalWidths();
 
-    constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
+    constrainIntrinsicLogicalWidthsByMinMax(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution);
 
     clearContentLogicalWidthsInvalidation();
 }
@@ -2411,7 +2411,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeChildIntrinsicLogicalWidth
     auto maxLogicalWidth = LayoutUnit { };
 
     auto childIntrinsicLogicalWidths = [&] {
-        return std::pair<LayoutUnit, LayoutUnit> { childBox.minContentLogicalWidth(), childBox.maxContentLogicalWidth() };
+        return std::pair<LayoutUnit, LayoutUnit> { childBox.minContentLogicalWidthContribution(), childBox.maxContentLogicalWidthContribution() };
     };
     // When this is a flex container, set up the cross-axis size override on the
     // child so that its preferred-widths computation sees the flex line's cross

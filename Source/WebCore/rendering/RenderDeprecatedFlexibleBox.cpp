@@ -242,10 +242,10 @@ std::pair<LayoutUnit, LayoutUnit> RenderDeprecatedFlexibleBox::computeIntrinsicL
                 continue;
 
             LayoutUnit margin = marginWidthForChild(child);
-            LayoutUnit width = child->minContentLogicalWidth() + margin;
+            LayoutUnit width = child->minContentLogicalWidthContribution() + margin;
             minLogicalWidth = std::max(width, minLogicalWidth);
 
-            width = child->maxContentLogicalWidth() + margin;
+            width = child->maxContentLogicalWidthContribution() + margin;
             maxLogicalWidth = std::max(width, maxLogicalWidth);
         }
     } else {
@@ -254,8 +254,8 @@ std::pair<LayoutUnit, LayoutUnit> RenderDeprecatedFlexibleBox::computeIntrinsicL
                 continue;
 
             LayoutUnit margin = marginWidthForChild(child);
-            minLogicalWidth += child->minContentLogicalWidth() + margin;
-            maxLogicalWidth += child->maxContentLogicalWidth() + margin;
+            minLogicalWidth += child->minContentLogicalWidthContribution() + margin;
+            maxLogicalWidth += child->maxContentLogicalWidthContribution() + margin;
         }
     }
 
@@ -267,15 +267,15 @@ void RenderDeprecatedFlexibleBox::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(hasInvalidContentLogicalWidths());
 
-    m_minContentLogicalWidth = 0;
-    m_maxContentLogicalWidth = 0;
+    m_minContentLogicalWidthContribution = 0_lu;
+    m_maxContentLogicalWidthContribution = 0_lu;
     if (auto fixedWidth = style().width().tryFixed(); fixedWidth && fixedWidth->isPositive()) {
-        m_maxContentLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedWidth);
-        m_minContentLogicalWidth = m_maxContentLogicalWidth;
+        m_maxContentLogicalWidthContribution = adjustContentBoxLogicalWidthForBoxSizing(*fixedWidth);
+        m_minContentLogicalWidthContribution = m_maxContentLogicalWidthContribution;
     } else
-        std::tie(m_minContentLogicalWidth, m_maxContentLogicalWidth) = computeIntrinsicLogicalWidths();
+        std::tie(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution) = computeIntrinsicLogicalWidths();
 
-    constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
+    constrainIntrinsicLogicalWidthsByMinMax(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution);
 
     clearContentLogicalWidthsInvalidation();
 }
@@ -1195,9 +1195,9 @@ LayoutUnit RenderDeprecatedFlexibleBox::allowedChildFlex(RenderBox* child, bool 
             if (auto fixedMaxWidth = child->style().maxWidth().tryFixed())
                 maxWidth = fixedMaxWidth->resolveZoom(child->style().usedZoomForLength());
             else if (child->style().maxWidth().isIntrinsicKeyword())
-                maxWidth = child->maxContentLogicalWidth();
+                maxWidth = child->maxContentLogicalWidthContribution();
             else if (child->style().maxWidth().isMinIntrinsic())
-                maxWidth = child->minContentLogicalWidth();
+                maxWidth = child->minContentLogicalWidthContribution();
             if (maxWidth == LayoutUnit::max())
                 return maxWidth;
             return std::max<LayoutUnit>(0, maxWidth - width);
@@ -1215,14 +1215,14 @@ LayoutUnit RenderDeprecatedFlexibleBox::allowedChildFlex(RenderBox* child, bool 
 
     // FIXME: For now just handle fixed values.
     if (isHorizontal()) {
-        LayoutUnit minWidth = child->minContentLogicalWidth();
+        LayoutUnit minWidth = child->minContentLogicalWidthContribution();
         LayoutUnit width = mainAxisContentExtentForChild(child, false);
         if (auto fixedMinWidth = child->style().minWidth().tryFixed())
             minWidth = fixedMinWidth->resolveZoom(child->style().usedZoomForLength());
         else if (child->style().minWidth().isIntrinsicKeyword())
-            minWidth = child->maxContentLogicalWidth();
+            minWidth = child->maxContentLogicalWidthContribution();
         else if (child->style().minWidth().isMinIntrinsic())
-            minWidth = child->minContentLogicalWidth();
+            minWidth = child->minContentLogicalWidthContribution();
         else if (child->style().minWidth().isAuto())
             minWidth = 0;
 

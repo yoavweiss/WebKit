@@ -253,16 +253,16 @@ void RenderListBox::computeIntrinsicLogicalWidthContributions()
     // Nested style recal do not fire post recal callbacks. see webkit.org/b/153767
     ASSERT(!m_optionsChanged || Style::postResolutionCallbacksAreSuspended());
 
-    m_minContentLogicalWidth = 0;
-    m_maxContentLogicalWidth = 0;
+    m_minContentLogicalWidthContribution = 0_lu;
+    m_maxContentLogicalWidthContribution = 0_lu;
 
     if (auto fixedLogicalWidth = style().logicalWidth().tryFixed(); fixedLogicalWidth && fixedLogicalWidth->isPositive()) {
-        m_maxContentLogicalWidth = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
-        m_minContentLogicalWidth = m_maxContentLogicalWidth;
+        m_maxContentLogicalWidthContribution = adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalWidth);
+        m_minContentLogicalWidthContribution = m_maxContentLogicalWidthContribution;
     } else
-        std::tie(m_minContentLogicalWidth, m_maxContentLogicalWidth) = computeIntrinsicLogicalWidths();
+        std::tie(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution) = computeIntrinsicLogicalWidths();
 
-    constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
+    constrainIntrinsicLogicalWidthsByMinMax(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution);
 
     clearContentLogicalWidthsInvalidation();
 }

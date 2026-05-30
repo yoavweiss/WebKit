@@ -141,7 +141,7 @@ int RenderMarquee::computePosition(MarqueeDirection dir, bool stopAtContentEdge)
     if (isHorizontal()) {
         bool ltr = boxStyle->writingMode().deprecatedIsLeftToRightDirection();
         LayoutUnit clientWidth = box->clientWidth();
-        LayoutUnit contentWidth = ltr ? box->maxContentLogicalWidth() : box->minContentLogicalWidth();
+        LayoutUnit contentWidth = ltr ? box->maxContentLogicalWidthContribution() : box->minContentLogicalWidthContribution();
         if (ltr)
             contentWidth += (box->paddingRight() - box->borderLeft());
         else {

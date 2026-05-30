@@ -834,7 +834,7 @@ std::optional<LayoutUnit> GridTrackSizingAlgorithm::estimatedGridAreaBreadthForG
 
     auto gridItemInlineDirection = GridLayoutFunctions::flowAwareDirectionForGridItem(*m_renderGrid, gridItem, Style::GridTrackSizingDirection::Columns);
     if (gridAreaIsIndefinite)
-        return direction == gridItemInlineDirection ? std::make_optional(std::max(gridItem.maxContentLogicalWidth(), gridAreaSize)) : std::nullopt;
+        return direction == gridItemInlineDirection ? std::make_optional(std::max(gridItem.maxContentLogicalWidthContribution(), gridAreaSize)) : std::nullopt;
     return gridAreaSize;
 }
 
@@ -1102,15 +1102,15 @@ LayoutUnit GridTrackSizingAlgorithmStrategy::minContentContributionForGridItem(R
             if (isComputingColumnIntrinsicWidthForNonOrthogonalItem) {
                 if (auto rowsEstimate = m_algorithm.estimatedGridAreaBreadthForGridItem(gridItem, Style::GridTrackSizingDirection::Rows)) {
                     ScopedGridAreaContentLogicalHeight scope(gridItem, rowsEstimate);
-                    return gridItem.minContentLogicalWidth();
+                    return gridItem.minContentLogicalWidthContribution();
                 }
             } else if (needsGridItemMinContentContributionForSecondColumnPass) {
                 auto rowSize = renderGrid()->gridAreaBreadthForGridItemIncludingAlignmentOffsets(gridItem, Style::GridTrackSizingDirection::Rows);
                 auto stretchedSize = !GridLayoutFunctions::isOrthogonalGridItem(*renderGrid(), gridItem) ? gridItem.constrainLogicalHeightByMinMax(rowSize, { }) : gridItem.constrainLogicalWidthByMinMax(rowSize, renderGrid()->contentBoxWidth(), *renderGrid());
                 ScopedOverridingContentSizeForGridItem scope(*renderGrid(), gridItem, stretchedSize, Style::GridTrackSizingDirection::Rows);
-                return gridItem.minContentLogicalWidth();
+                return gridItem.minContentLogicalWidthContribution();
             }
-            return gridItem.minContentLogicalWidth();
+            return gridItem.minContentLogicalWidthContribution();
         }();
 
         auto minLogicalWidth = [&] {
@@ -1119,7 +1119,7 @@ LayoutUnit GridTrackSizingAlgorithmStrategy::minContentContributionForGridItem(R
             if (auto fixedFridItemLogicalMinWidth = gridItemLogicalMinWidth.tryFixed())
                 return LayoutUnit { fixedFridItemLogicalMinWidth->resolveZoom(gridItem.style().usedZoomForLength()) };
             if (gridItemLogicalMinWidth.isMaxContent())
-                return gridItem.maxContentLogicalWidth();
+                return gridItem.maxContentLogicalWidthContribution();
 
             // FIXME: We should be able to handle other values for the logical min width.
             return 0_lu;
@@ -1164,10 +1164,10 @@ LayoutUnit GridTrackSizingAlgorithmStrategy::maxContentContributionForGridItem(R
             if (isComputingColumnIntrinsicWidthForNonOrthogonalItem) {
                 if (auto rowsEstimate = m_algorithm.estimatedGridAreaBreadthForGridItem(gridItem, Style::GridTrackSizingDirection::Rows)) {
                     ScopedGridAreaContentLogicalHeight scope(gridItem, rowsEstimate);
-                    return gridItem.maxContentLogicalWidth();
+                    return gridItem.maxContentLogicalWidthContribution();
                 }
             }
-            return gridItem.maxContentLogicalWidth();
+            return gridItem.maxContentLogicalWidthContribution();
         }();
 
         return maxContentLogicalWidth + GridLayoutFunctions::marginLogicalSizeForGridItem(*renderGrid(), gridItemInlineDirection, gridItem) + m_algorithm.baselineOffsetForGridItem(gridItem, direction());

@@ -5070,7 +5070,7 @@ void LocalFrameView::performSizeToContentAutoSize()
     for (int i = 0; i < 2; i++) {
         layoutWithAdjustedStyleIfNeeded();
         // Update various sizes including contentsSize, scrollHeight, etc.
-        auto newSize = IntSize { documentRenderer->minContentLogicalWidth(), renderView->documentRect().height() };
+        auto newSize = IntSize { documentRenderer->minContentLogicalWidthContribution(), renderView->documentRect().height() };
 
         // Check to see if a scrollbar is needed for a given dimension and
         // if so, increase the other dimension to account for the scrollbar.

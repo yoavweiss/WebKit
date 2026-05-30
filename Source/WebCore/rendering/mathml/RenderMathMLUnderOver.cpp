@@ -199,16 +199,16 @@ void RenderMathMLUnderOver::computeIntrinsicLogicalWidthContributions()
         return;
     }
 
-    LayoutUnit preferredWidth = base().maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(base());
+    LayoutUnit preferredWidth = base().maxContentLogicalWidthContribution() + marginIntrinsicLogicalWidthForChild(base());
 
     if (scriptType() == MathMLScriptsElement::ScriptType::Under || scriptType() == MathMLScriptsElement::ScriptType::UnderOver)
-        preferredWidth = std::max(preferredWidth, under().maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(under()));
+        preferredWidth = std::max(preferredWidth, under().maxContentLogicalWidthContribution() + marginIntrinsicLogicalWidthForChild(under()));
 
     if (scriptType() == MathMLScriptsElement::ScriptType::Over || scriptType() == MathMLScriptsElement::ScriptType::UnderOver)
-        preferredWidth = std::max(preferredWidth, over().maxContentLogicalWidth() + marginIntrinsicLogicalWidthForChild(over()));
+        preferredWidth = std::max(preferredWidth, over().maxContentLogicalWidthContribution() + marginIntrinsicLogicalWidthForChild(over()));
 
-    m_maxContentLogicalWidth = preferredWidth;
-    m_minContentLogicalWidth = preferredWidth;
+    m_maxContentLogicalWidthContribution = preferredWidth;
+    m_minContentLogicalWidthContribution = preferredWidth;
 
     auto sizes = sizeAppliedToMathContent(LayoutPhase::CalculatePreferredLogicalWidth);
     applySizeToMathContent(LayoutPhase::CalculatePreferredLogicalWidth, sizes);

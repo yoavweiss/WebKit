@@ -322,7 +322,7 @@ void RenderTable::updateLogicalWidth()
         }
 
         // Ensure we aren't bigger than our available width.
-        LayoutUnit maxWidth = maxContentLogicalWidth();
+        LayoutUnit maxWidth = maxContentLogicalWidthContribution();
         // scaledWidthFromPercentColumns depends on m_layoutStruct in TableLayoutAlgorithmAuto, which
         // maxContentLogicalWidth fills in. So scaledWidthFromPercentColumns has to be called after
         // maxContentLogicalWidth.
@@ -339,7 +339,7 @@ void RenderTable::updateLogicalWidth()
     }
 
     // Ensure we aren't smaller than our min preferred width.
-    setLogicalWidth(std::max(logicalWidth(), minContentLogicalWidth()));
+    setLogicalWidth(std::max(logicalWidth(), minContentLogicalWidthContribution()));
 
     // Ensure we aren't smaller than our min-width style.
     auto& styleMinLogicalWidth = style().logicalMinWidth();
@@ -1034,33 +1034,33 @@ void RenderTable::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(hasInvalidContentLogicalWidths());
 
-    std::tie(m_minContentLogicalWidth, m_maxContentLogicalWidth) = computeIntrinsicLogicalWidths();
+    std::tie(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution) = computeIntrinsicLogicalWidths();
 
     LayoutUnit bordersPaddingAndSpacing = bordersPaddingAndSpacingInRowDirection();
-    m_minContentLogicalWidth += bordersPaddingAndSpacing;
-    m_maxContentLogicalWidth += bordersPaddingAndSpacing;
+    m_minContentLogicalWidthContribution += bordersPaddingAndSpacing;
+    m_maxContentLogicalWidthContribution += bordersPaddingAndSpacing;
 
-    m_tableLayout->applyContentLogicalWidthQuirks(m_minContentLogicalWidth, m_maxContentLogicalWidth);
+    m_tableLayout->applyContentLogicalWidthQuirks(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution);
 
     for (unsigned i = 0; i < m_captions.size(); i++) {
-        LayoutUnit captionMinWidth = m_captions[i]->minContentLogicalWidth();
+        LayoutUnit captionMinWidth = m_captions[i]->minContentLogicalWidthContribution();
         captionMinWidth += marginIntrinsicLogicalWidthForChild(*m_captions[i]);
 
-        m_minContentLogicalWidth = std::max(m_minContentLogicalWidth, captionMinWidth);
+        m_minContentLogicalWidthContribution = std::max(m_minContentLogicalWidthContribution, captionMinWidth);
     }
-    m_maxContentLogicalWidth = std::max(m_maxContentLogicalWidth, m_minContentLogicalWidth);
+    m_maxContentLogicalWidthContribution = std::max(m_maxContentLogicalWidthContribution, m_minContentLogicalWidthContribution);
 
     auto& styleToUse = style();
     // FIXME: This should probably be checking for isSpecified since you should be able to use percentage or calc values for min-width.
     if (auto fixedLogicalMinWidth = styleToUse.logicalMinWidth().tryFixed(); fixedLogicalMinWidth && fixedLogicalMinWidth->isPositive()) {
-        m_maxContentLogicalWidth = std::max(m_maxContentLogicalWidth, adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalMinWidth));
-        m_minContentLogicalWidth = std::max(m_minContentLogicalWidth, adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalMinWidth));
+        m_maxContentLogicalWidthContribution = std::max(m_maxContentLogicalWidthContribution, adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalMinWidth));
+        m_minContentLogicalWidthContribution = std::max(m_minContentLogicalWidthContribution, adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalMinWidth));
     }
 
     // FIXME: This should probably be checking for isSpecified since you should be able to use percentage or calc values for maxWidth.
     if (auto fixedLogicalMaxWidth = styleToUse.logicalMaxWidth().tryFixed()) {
-        m_maxContentLogicalWidth = std::min(m_maxContentLogicalWidth, adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalMaxWidth));
-        m_maxContentLogicalWidth = std::max(m_maxContentLogicalWidth, m_minContentLogicalWidth);
+        m_maxContentLogicalWidthContribution = std::min(m_maxContentLogicalWidthContribution, adjustContentBoxLogicalWidthForBoxSizing(*fixedLogicalMaxWidth));
+        m_maxContentLogicalWidthContribution = std::max(m_maxContentLogicalWidthContribution, m_minContentLogicalWidthContribution);
     }
 
     // FIXME: We should be adding borderAndPaddingLogicalWidth here, but m_tableLayout->computeIntrinsicLogicalWidthContributions already does,

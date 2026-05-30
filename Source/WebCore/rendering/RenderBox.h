@@ -293,8 +293,8 @@ public:
     bool hitTestClipPath(const HitTestLocation&, const LayoutPoint& accumulatedOffset) const;
     bool hitTestBorderRadius(const HitTestLocation&, const LayoutPoint& accumulatedOffset) const;
 
-    virtual LayoutUnit minContentLogicalWidth() const;
-    virtual LayoutUnit maxContentLogicalWidth() const;
+    virtual LayoutUnit minContentLogicalWidthContribution() const;
+    virtual LayoutUnit maxContentLogicalWidthContribution() const;
     virtual std::pair<LayoutUnit, LayoutUnit> computeIntrinsicLogicalWidths() const = 0;
 
     std::optional<LayoutUnit> NODELETE overridingBorderBoxLogicalWidth() const;
@@ -710,7 +710,7 @@ protected:
 
     static LayoutUnit blockSizeFromAspectRatio(LayoutUnit borderPaddingInlineSum, LayoutUnit borderPaddingBlockSum, double aspectRatioValue, BoxSizing, LayoutUnit inlineSize, const Style::AspectRatio&, bool isRenderReplaced);
 
-    void constrainIntrinsicLogicalWidthContributionsByMinMax(LayoutUnit& minIntrinsicLogicalWidth, LayoutUnit& maxIntrinsicLogicalWidth) const;
+    void constrainIntrinsicLogicalWidthsByMinMax(LayoutUnit& minIntrinsicLogicalWidth, LayoutUnit& maxIntrinsicLogicalWidth) const;
 
     bool isAspectRatioDegenerate(double aspectRatio) const { return !aspectRatio || isnan(aspectRatio); }
 
@@ -784,11 +784,11 @@ private:
 protected:
     LayoutBoxExtent m_marginBox;
 
-    // The min-content logical width: the smallest size the box can take without overflowing its content.
-    LayoutUnit m_minContentLogicalWidth;
+    // The min-content contribution: the box's min-content size after its CSS width and min/max-width have been applied.
+    LayoutUnit m_minContentLogicalWidthContribution;
 
-    // The max-content logical width: the size the box would take if it never wrapped.
-    LayoutUnit m_maxContentLogicalWidth;
+    // The max-content contribution: the box's max-content size after its CSS width and min/max-width have been applied.
+    LayoutUnit m_maxContentLogicalWidthContribution;
 
     // Our overflow information.
     std::unique_ptr<RenderOverflow> m_overflow;

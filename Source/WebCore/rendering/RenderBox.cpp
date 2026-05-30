@@ -1360,22 +1360,22 @@ bool RenderBox::applyCachedClipAndScrollPosition(RepaintRects& rects, const Rend
     return intersects;
 }
 
-LayoutUnit RenderBox::minContentLogicalWidth() const
+LayoutUnit RenderBox::minContentLogicalWidthContribution() const
 {
     if (hasInvalidContentLogicalWidths()) {
         SetLayoutNeededForbiddenScope layoutForbiddenScope(*this);
         const_cast<RenderBox&>(*this).computeIntrinsicLogicalWidthContributions();
     }
-    return m_minContentLogicalWidth;
+    return m_minContentLogicalWidthContribution;
 }
 
-LayoutUnit RenderBox::maxContentLogicalWidth() const
+LayoutUnit RenderBox::maxContentLogicalWidthContribution() const
 {
     if (hasInvalidContentLogicalWidths()) {
         SetLayoutNeededForbiddenScope layoutForbiddenScope(*this);
         const_cast<RenderBox&>(*this).computeIntrinsicLogicalWidthContributions();
     }
-    return m_maxContentLogicalWidth;
+    return m_maxContentLogicalWidthContribution;
 }
 
 void RenderBox::setOverridingBorderBoxLogicalHeight(LayoutUnit height)
@@ -2827,7 +2827,7 @@ void RenderBox::computeLogicalWidth(LogicalExtentComputedValues& computedValues)
         if (treatAsReplaced) {
             auto evaluatedWidth = downcast<RenderReplaced>(*this).computeReplacedLogicalWidth();
             auto totalWidth = evaluatedWidth + borderAndPaddingLogicalWidth();
-            computedValues.extent = std::max(totalWidth, minContentLogicalWidth());
+            computedValues.extent = std::max(totalWidth, minContentLogicalWidthContribution());
         }
         return;
     }
@@ -3084,7 +3084,7 @@ template<typename SizeType> LayoutUnit RenderBox::computeLogicalWidthUsingGeneri
 
     if constexpr (std::same_as<SizeType, Style::PreferredSize> || std::same_as<SizeType, Style::FlexBasis>) {
         if (sizesPreferredLogicalWidthToFitContent())
-            return std::max(minContentLogicalWidth(), std::min(maxContentLogicalWidth(), logicalWidthResult));
+            return std::max(minContentLogicalWidthContribution(), std::min(maxContentLogicalWidthContribution(), logicalWidthResult));
     }
     return logicalWidthResult;
 }
@@ -4010,11 +4010,11 @@ void RenderBox::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(hasInvalidContentLogicalWidths());
 
-    constrainIntrinsicLogicalWidthContributionsByMinMax(m_minContentLogicalWidth, m_maxContentLogicalWidth);
+    constrainIntrinsicLogicalWidthsByMinMax(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution);
     clearContentLogicalWidthsInvalidation();
 }
 
-void RenderBox::constrainIntrinsicLogicalWidthContributionsByMinMax(LayoutUnit& minIntrinsicLogicalWidth, LayoutUnit& maxIntrinsicLogicalWidth) const
+void RenderBox::constrainIntrinsicLogicalWidthsByMinMax(LayoutUnit& minIntrinsicLogicalWidth, LayoutUnit& maxIntrinsicLogicalWidth) const
 {
     auto& minLogicalWidth = style().logicalMinWidth();
     auto& maxLogicalWidth = style().logicalMaxWidth();
@@ -4273,7 +4273,7 @@ void RenderBox::computeOutOfFlowPositionedLogicalWidth(LogicalExtentComputedValu
 
     if (is<RenderTable>(*this)) {
         // The used width of a table is the greater of the resolved table width, and the used min-width of the table.
-        usedMinWidth = std::max(usedMinWidth, minContentLogicalWidth() - inlineConstraints.bordersPlusPadding());
+        usedMinWidth = std::max(usedMinWidth, minContentLogicalWidthContribution() - inlineConstraints.bordersPlusPadding());
     }
 
     if (usedWidth < usedMinWidth)
@@ -4314,8 +4314,8 @@ template<typename SizeType> LayoutUnit RenderBox::computeOutOfFlowPositionedLogi
     auto fallback = [&] -> LayoutUnit {
         bool shrinkToFit = inlineConstraints.insetFitsContent() || !inlineConstraints.alignmentAppliesStretch(ItemPosition::Stretch);
         if (shrinkToFit) {
-            auto preferredWidth = maxContentLogicalWidth() - inlineConstraints.bordersPlusPadding();
-            auto preferredMinWidth = minContentLogicalWidth() - inlineConstraints.bordersPlusPadding();
+            auto preferredWidth = maxContentLogicalWidthContribution() - inlineConstraints.bordersPlusPadding();
+            auto preferredMinWidth = minContentLogicalWidthContribution() - inlineConstraints.bordersPlusPadding();
             return std::min(std::max(preferredMinWidth, inlineConstraints.availableContentSpace()), preferredWidth);
         }
         return inlineConstraints.availableContentSpace();
