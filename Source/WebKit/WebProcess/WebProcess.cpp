@@ -604,6 +604,8 @@ void WebProcess::initializeWebProcess(WebProcessCreationParameters&& parameters,
     if (!parameters.injectedBundlePath.isEmpty()) {
         if (RefPtr injectedBundle = InjectedBundle::create(parameters, transformHandlesToObjects(protect(parameters.initializationUserData.object()).get())))
             lazyInitialize(m_injectedBundle, injectedBundle.releaseNonNull());
+        else
+            WEBPROCESS_RELEASE_LOG_ERROR(Process, "Failed to create injected bundle for path [%" PUBLIC_LOG_STRING "]; bundle plug-in callbacks will not fire for any WebPage in this process", parameters.injectedBundlePath.utf8().data());
     }
 
     for (auto& supplement : m_supplements.values())
