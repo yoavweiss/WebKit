@@ -25,7 +25,10 @@
 
 #pragma once
 
+#include "BoxSides.h"
+#include "ScrollTypes.h"
 #include <wtf/CheckedRef.h>
+#include <wtf/Vector.h>
 
 namespace WebCore {
 
