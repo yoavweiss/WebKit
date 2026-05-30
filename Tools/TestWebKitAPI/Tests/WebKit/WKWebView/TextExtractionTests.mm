@@ -536,6 +536,38 @@ TEST(TextExtractionTests, VisibleTextOnly)
 #endif // ENABLE(TEXT_EXTRACTION_FILTER)
 }
 
+TEST(TextExtractionTests, SkipNearlyTransparentContentByDefault)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:^{
+        RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+        [[configuration preferences] _setTextExtractionEnabled:YES];
+        return configuration.autorelease();
+    }()]);
+    [webView synchronouslyLoadHTMLString:@R"HTML(
+        <!DOCTYPE html>
+        <html>
+        <body>
+            <div>visible container text</div>
+            <div style="opacity: 0">transparent container text</div>
+            <label for="labeled-field">Visible label</label>
+            <input id="labeled-field" style="opacity: 0" placeholder="labeled transparent field">
+            <input style="opacity: 0" placeholder="unlabeled transparent field">
+        </body>
+        </html>
+    )HTML"];
+
+    RetainPtr defaultText = [webView synchronouslyGetDebugText:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setFilterOptions:_WKTextExtractionFilterNone];
+        return configuration.autorelease();
+    }()];
+
+    EXPECT_TRUE([defaultText containsString:@"visible container text"]);
+    EXPECT_FALSE([defaultText containsString:@"transparent container text"]);
+    EXPECT_TRUE([defaultText containsString:@"labeled transparent field"]);
+    EXPECT_FALSE([defaultText containsString:@"unlabeled transparent field"]);
+}
+
 TEST(TextExtractionTests, MinimalHTMLOutput)
 {
     RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:^{
