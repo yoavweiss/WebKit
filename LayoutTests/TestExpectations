@@ -7018,6 +7018,9 @@ imported/w3c/web-platform-tests/css/css-view-transitions/nested/ [ Skip ]
 # View transitions Level ? - scoped view-transitions
 imported/w3c/web-platform-tests/css/css-view-transitions/scoped/ [ Skip ]
 
+# waitUntil() method.
+imported/w3c/web-platform-tests/css/css-view-transitions/view-transition-waituntil-animation-manipulation.html [ ImageOnlyFailure ]
+
 # Depends on object-view-box (unimplemented).
 imported/w3c/web-platform-tests/css/css-view-transitions/old-content-with-object-view-box.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-view-transitions/object-view-box-new-image.html [ ImageOnlyFailure ]

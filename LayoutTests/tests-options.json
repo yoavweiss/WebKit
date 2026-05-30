@@ -1919,6 +1919,15 @@
     "imported/w3c/web-platform-tests/css/css-view-transitions/navigation/skip-outbound-vt-before-reveal.html": [
         "slow"
     ],
+    "imported/w3c/web-platform-tests/css/css-view-transitions/navigation/two-phase/preview-finished-before-swap.tentative.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/css/css-view-transitions/navigation/two-phase/preview-navigation-query.tentative.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/css/css-view-transitions/navigation/two-phase/swap-continues-when-skipping-preview.tentative.https.html": [
+        "slow"
+    ],
     "imported/w3c/web-platform-tests/css/css-view-transitions/nested-elements-in-overflow.html": [
         "slow"
     ],
