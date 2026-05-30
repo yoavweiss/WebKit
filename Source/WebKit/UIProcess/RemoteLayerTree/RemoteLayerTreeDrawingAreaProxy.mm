@@ -482,9 +482,8 @@ void RemoteLayerTreeDrawingAreaProxy::commitLayerTreeTransaction(IPC::Connection
     if (!page)
         return;
 
-    {
+    if (CheckedPtr scrollingCoordinatorProxy = page->scrollingCoordinatorProxy()) {
         ScrollRequestData requestedScroll;
-        CheckedRef scrollingCoordinatorProxy = *page->scrollingCoordinatorProxy();
 
         auto commitLayerAndScrollingTrees = [&] {
             if (layerTreeTransaction.hasAnyLayerChanges())
