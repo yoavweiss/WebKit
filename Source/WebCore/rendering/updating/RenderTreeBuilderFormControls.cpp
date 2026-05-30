@@ -137,6 +137,8 @@ void RenderTreeBuilder::FormControls::updatePseudoElement(PseudoElementType type
     }
 
     if (existingPseudoElement) {
+        if (beforeChild == existingPseudoElement)
+            beforeChild = existingPseudoElement->nextSibling();
         m_builder.destroy(*existingPseudoElement);
         existingPseudoElement = nullptr;
     }
