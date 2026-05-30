@@ -89,6 +89,7 @@ webxr [ Pass ]
 http/tests/iframe-monitor [ Pass ]
 
 media/modern-media-controls/visionos-inline-media-controls [ Pass ]
+media/modern-media-controls/icon-service/icon-service-bundle-load.html [ Pass ]
 
 http/tests/pdf [ Pass ]
 pdf [ Pass ]
