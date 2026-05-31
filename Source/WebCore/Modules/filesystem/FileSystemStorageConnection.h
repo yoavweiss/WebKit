@@ -118,6 +118,8 @@ public:
     FileSystemHandleKeepAlive(const FileSystemHandleKeepAlive&) = delete;
     FileSystemHandleKeepAlive& operator=(const FileSystemHandleKeepAlive&) = delete;
 
+    Markable<FileSystemHandleGlobalIdentifier> globalIdentifier() const { return m_globalIdentifier; }
+
 private:
     Markable<FileSystemHandleGlobalIdentifier> m_globalIdentifier;
     ClientOrigin m_origin;

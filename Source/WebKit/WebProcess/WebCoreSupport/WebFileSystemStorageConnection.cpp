@@ -223,6 +223,8 @@ void WebFileSystemStorageConnection::addGlobalIdentifierReference(WebCore::Clien
 
 void WebFileSystemStorageConnection::removeGlobalIdentifierReferences(WebCore::ClientOrigin&& origin, Vector<WebCore::FileSystemHandleGlobalIdentifier>&& globalIdentifiers)
 {
+    if (globalIdentifiers.isEmpty())
+        return;
     if (RefPtr connection = m_connection)
         connection->send(Messages::NetworkStorageManager::RemoveGlobalIdentifierReferences(WTF::move(origin), WTF::move(globalIdentifiers)), 0);
 }

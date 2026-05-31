@@ -30,6 +30,7 @@
 #include <WebCore/FileSystemHandleGlobalIdentifier.h>
 #include <WebCore/FileSystemHandleIdentifier.h>
 #include <WebCore/FileSystemHandleKind.h>
+#include <WebCore/FileSystemHandleRecord.h>
 #include <wtf/RefCountedAndCanMakeWeakPtr.h>
 #include <wtf/TZoneMalloc.h>
 
@@ -65,6 +66,11 @@ public:
     void addGlobalIdentifierReference(WebCore::FileSystemHandleGlobalIdentifier);
     void removeGlobalIdentifierReferences(std::span<const WebCore::FileSystemHandleGlobalIdentifier>);
     Expected<WebCore::FileSystemHandleIdentifier, FileSystemStorageError> resolveGlobalIdentifier(IPC::Connection::UniqueID, WebCore::FileSystemHandleGlobalIdentifier);
+
+    std::optional<WebCore::FileSystemHandleRecord> lookupHandle(WebCore::FileSystemHandleGlobalIdentifier);
+    std::optional<Vector<WebCore::FileSystemHandleRecord>> lookupHandles(std::span<const WebCore::FileSystemHandleGlobalIdentifier>);
+    void registerPersistedHandle(WebCore::FileSystemHandleGlobalIdentifier, WebCore::FileSystemHandleKind, String&& path, String&& name);
+    void registerPersistedHandlesAndAddReferences(const Vector<WebCore::FileSystemHandleRecord>&);
 
     enum class LockType : bool { Exclusive, Shared };
     bool acquireLockForFile(const String& path, LockType);

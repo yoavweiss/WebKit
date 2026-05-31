@@ -140,6 +140,7 @@ Modules/fetch/WindowOrWorkerGlobalScopeFetch.cpp
 Modules/filesystem/FileSystemDirectoryHandle.cpp
 Modules/filesystem/FileSystemFileHandle.cpp
 Modules/filesystem/FileSystemHandle.cpp
+Modules/filesystem/FileSystemHandleStorageKeepAlive.cpp
 Modules/filesystem/FileSystemStorageConnection.cpp
 Modules/filesystem/FileSystemSyncAccessHandle.cpp
 Modules/filesystem/FileSystemWritableFileStream.cpp

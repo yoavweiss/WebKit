@@ -2422,8 +2422,7 @@ private:
 #endif
 
             auto serializeFileSystemHandle = [&](FileSystemHandle& handle) {
-                // FIXME: Add support for storage.
-                if (m_forStorage == SerializationForStorage::Yes || handle.isClosed()) {
+                if (handle.isClosed()) {
                     code = SerializationReturnCode::DataCloneError;
                     return true;
                 }
@@ -7103,6 +7102,17 @@ Vector<String> SerializedScriptValue::blobURLs() const
     return m_internals->blobHandles.map([](auto& handle) {
         return handle.url().string().isolatedCopy();
     });
+}
+
+Vector<FileSystemHandleGlobalIdentifier> SerializedScriptValue::fileSystemHandleGlobalIdentifiers() const
+{
+    Vector<FileSystemHandleGlobalIdentifier> result;
+    result.reserveInitialCapacity(m_internals->fileSystemHandleKeepAlives.size());
+    for (auto& keepAlive : m_internals->fileSystemHandleKeepAlives) {
+        if (auto identifier = keepAlive.globalIdentifier())
+            result.append(*identifier);
+    }
+    return result;
 }
 
 void SerializedScriptValue::writeBlobsToDiskForIndexedDB(bool isEphemeral, CompletionHandler<void(IDBValue&&)>&& completionHandler)

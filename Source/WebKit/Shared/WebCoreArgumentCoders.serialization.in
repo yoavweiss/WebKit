@@ -559,6 +559,7 @@ class WebCore::IDBValue {
     WebCore::ThreadSafeDataBuffer data()
     Vector<String> blobURLs()
     Vector<String> blobFilePaths()
+    Vector<WebCore::FileSystemHandleGlobalIdentifier> fileSystemHandleGlobalIdentifiers()
 };
 
 class WebCore::IDBOpenRequestData {
@@ -604,6 +605,7 @@ struct WebCore::IDBDatabaseNameAndVersion {
     std::unique_ptr<WebCore::IDBGetResult> m_getResult;
     std::unique_ptr<WebCore::IDBGetAllResult> m_getAllResult;
     uint64_t m_resultInteger;
+    [NotSerialized] std::unique_ptr<WebCore::ClientOrigin> m_clientOrigin;
 }
 
 class WebCore::IDBKeyData {

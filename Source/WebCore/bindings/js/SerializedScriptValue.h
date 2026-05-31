@@ -28,6 +28,7 @@
 
 #include <JavaScriptCore/Forward.h>
 #include <JavaScriptCore/JSCJSValue.h>
+#include <WebCore/FileSystemHandleGlobalIdentifier.h>
 #include <wtf/ThreadSafeRefCounted.h>
 #include <wtf/text/WTFString.h>
 
@@ -114,6 +115,7 @@ public:
 
     Vector<String> blobURLs() const;
     WEBCORE_EXPORT Vector<URLKeepingBlobAlive> blobHandles() const;
+    Vector<FileSystemHandleGlobalIdentifier> fileSystemHandleGlobalIdentifiers() const;
     void writeBlobsToDiskForIndexedDB(bool isEphemeral, CompletionHandler<void(IDBValue&&)>&&);
     IDBValue writeBlobsToDiskForIndexedDBSynchronously(bool isEphemeral, JSC::VM&);
     WEBCORE_EXPORT static Ref<SerializedScriptValue> createFromWireBytes(Vector<uint8_t>&&);

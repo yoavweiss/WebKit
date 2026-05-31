@@ -42,13 +42,13 @@ IDBStorageRegistry::~IDBStorageRegistry() = default;
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(IDBStorageRegistry);
 
-WebCore::IDBServer::IDBConnectionToClient* IDBStorageRegistry::ensureConnectionToClient(IPC::Connection& ipcConnection, const WebCore::IDBResourceIdentifier& requestIdentifier)
+WebCore::IDBServer::IDBConnectionToClient* IDBStorageRegistry::ensureConnectionToClient(IPC::Connection& ipcConnection, const WebCore::IDBResourceIdentifier& requestIdentifier, NetworkStorageManager& networkStorageManager)
 {
     MESSAGE_CHECK_WITH_RETURN_VALUE(requestIdentifier.connectionIdentifier(), ipcConnection, nullptr);
     auto identifier = *requestIdentifier.connectionIdentifier();
     auto addResult = m_connectionsToClient.add(identifier, nullptr);
     if (addResult.isNewEntry)
-        addResult.iterator->value = makeUnique<IDBStorageConnectionToClient>(ipcConnection.uniqueID(), identifier);
+        addResult.iterator->value = makeUnique<IDBStorageConnectionToClient>(ipcConnection.uniqueID(), identifier, networkStorageManager);
 
     MESSAGE_CHECK_WITH_RETURN_VALUE(addResult.iterator->value->ipcConnection() == ipcConnection.uniqueID(), ipcConnection, nullptr);
     return &addResult.iterator->value->connectionToClient();

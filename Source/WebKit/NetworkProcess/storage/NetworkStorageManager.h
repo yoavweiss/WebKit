@@ -83,6 +83,7 @@ class IDBTransactionInfo;
 class IDBValue;
 class ServiceWorkerRegistrationKey;
 struct ClientOrigin;
+struct FileSystemHandleRecord;
 struct IDBGetAllRecordsData;
 struct IDBGetRecordData;
 struct IDBGetAllRecordsData;
@@ -164,6 +165,8 @@ public:
     const String& customIDBStoragePath() const LIFETIME_BOUND { return m_customIDBStoragePathNormalizedMainThread; }
 
     void queryCacheStorage(WebCore::ClientOrigin&&, WebCore::RetrieveRecordsOptions&&, String&&, CompletionHandler<void(std::optional<WebCore::DOMCacheEngine::Record>&&)>&&);
+
+    void registerFileSystemHandleRecordsForOrigin(const WebCore::ClientOrigin&, const Vector<WebCore::FileSystemHandleRecord>&);
 
 private:
     NetworkStorageManager(NetworkProcess&, PAL::SessionID, Markable<WTF::UUID>, std::optional<IPC::Connection::UniqueID>, const String& path, const String& customLocalStoragePath, const String& customIDBStoragePath, const String& customCacheStoragePath, const String& customServiceWorkerStoragePath, uint64_t defaultOriginQuota, std::optional<double> originQuotaRatio, std::optional<double> totalQuotaRatio, std::optional<uint64_t> standardVolumeCapacity, std::optional<uint64_t> volumeCapacityOverride, UnifiedOriginStorageLevel, bool storageSiteValidationEnabled, TimeBasedEvictionMode, Seconds timeBasedEvictionThreshold, std::optional<Seconds> lastModificationTimeUpdateIntervalOverride, std::optional<Seconds> timeBasedEvictionIntervalOverride);
@@ -257,6 +260,8 @@ private:
     void openCursor(IPC::Connection&, const WebCore::IDBRequestData&, const WebCore::IDBCursorInfo&);
     void iterateCursor(IPC::Connection&, const WebCore::IDBRequestData&, const WebCore::IDBIterateCursorData&);
     void getAllDatabaseNamesAndVersions(IPC::Connection&, const WebCore::IDBResourceIdentifier&, const WebCore::ClientOrigin&);
+
+    IDBStorageManager& idbStorageManagerForOrigin(const WebCore::ClientOrigin&, ShouldWriteOriginFile = ShouldWriteOriginFile::Yes, ShouldUpdateOriginAccessTime = ShouldUpdateOriginAccessTime::No);
 
     // Message handlers for CacheStorage.
     void cacheStorageOpenCache(IPC::Connection&, const WebCore::ClientOrigin&, const String& cacheName, WebCore::DOMCacheEngine::CacheIdentifierCallback&&);
