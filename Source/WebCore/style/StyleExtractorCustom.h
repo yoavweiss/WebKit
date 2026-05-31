@@ -1339,7 +1339,6 @@ template<> struct PropertyExtractorAdaptor<CSSPropertyCaretColor> {
     }
 };
 
-
 // MARK: - Adaptor Invokers
 
 template<CSSPropertyID propertyID> Ref<CSSValue> extractCSSValue(ExtractorState& state)
@@ -1364,18 +1363,11 @@ template<CSSPropertyID propertyID, typename List, typename Mapper> Ref<CSSValue>
 
     CSSValueListBuilder resultListBuilder;
 
-    if constexpr (List::value_type::computedValueUsesUsedValues) {
-        for (auto& value : list.usedValues())
+    if (!list.isInitial()) {
+        for (auto& value : list.template computedValuesForProperty<propertyID>())
             resultListBuilder.append(mapper(state, PropertyAccessor { value }.get(), value, list));
-    } else {
-        if (!list.isInitial()) {
-            for (auto& value : list.computedValues()) {
-                if (!PropertyAccessor { value }.isFilled())
-                    resultListBuilder.append(mapper(state, PropertyAccessor { value }.get(), value, list));
-            }
-        } else
-            resultListBuilder.append(mapper(state, PropertyAccessor::initial(), std::nullopt, list));
-    }
+    } else
+        resultListBuilder.append(mapper(state, PropertyAccessor::initial(), std::nullopt, list));
 
     return CSSValueList::createCommaSeparated(WTF::move(resultListBuilder));
 }
@@ -1386,26 +1378,15 @@ template<CSSPropertyID propertyID, typename List, typename Mapper> void extractC
 
     bool includeComma = false;
 
-    if constexpr (List::value_type::computedValueUsesUsedValues) {
-        for (auto& value : list.usedValues()) {
+    if (!list.isInitial()) {
+        for (auto& value : list.template computedValuesForProperty<propertyID>()) {
             if (includeComma)
                 builder.append(", "_s);
             mapper(state, builder, context, PropertyAccessor { value }.get(), value, list);
             includeComma = true;
         }
-    } else {
-        if (!list.isInitial()) {
-            for (auto& value : list.computedValues()) {
-                if (!PropertyAccessor { value }.isFilled()) {
-                    if (includeComma)
-                        builder.append(", "_s);
-                    mapper(state, builder, context, PropertyAccessor { value }.get(), value, list);
-                    includeComma = true;
-                }
-            }
-        } else
-            mapper(state, builder, context, PropertyAccessor::initial(), std::nullopt, list);
-    }
+    } else
+        mapper(state, builder, context, PropertyAccessor::initial(), std::nullopt, list);
 }
 
 template<GridTrackSizingDirection direction> Ref<CSSValue> extractGridTemplateValue(ExtractorState& state)

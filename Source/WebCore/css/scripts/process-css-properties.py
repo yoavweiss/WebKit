@@ -5824,8 +5824,8 @@ class GenerateStyleInterpolationWrapperMap:
             setter = property.codegen_properties.computed_style_setter
 
             if property.codegen_properties.coordinated_value_list_property and property_wrapper_type is not None:
-                property_wrapper_parameters += [f"&{style_type}::{property.method_name_for_get_coordinated_value_list}", f"&{style_type}::{property.method_name_for_ensure_coordinated_value_list}", f"&{style_type}::{property.method_name_for_set_coordinated_value_list}", f"{property_wrapper_type}({property.id}, &{property.type_name_for_coordinated_value_list}::value_type::{property.codegen_properties.coordinated_value_list_property_getter}, &{property.type_name_for_coordinated_value_list}::value_type::{property.codegen_properties.coordinated_value_list_property_setter})"]
-                property_wrapper_type = "CoordinatedValueListPropertyWrapper"
+                property_wrapper_parameters = [f"PropertyNameConstant<{property.id}> {{ }}", f"&{style_type}::{property.method_name_for_get_coordinated_value_list}", f"&{style_type}::{property.method_name_for_ensure_coordinated_value_list}", f"&{style_type}::{property.method_name_for_set_coordinated_value_list}", f"{property_wrapper_type}({property.id}, &{property.type_name_for_coordinated_value_list}::value_type::{property.codegen_properties.coordinated_value_list_property_getter}, &{property.type_name_for_coordinated_value_list}::value_type::{property.codegen_properties.coordinated_value_list_property_setter})"]
+                property_wrapper_type = f"CoordinatedValueListPropertyWrapper"
             else:
                 # Add getter
                 if property.codegen_properties.animation_wrapper_requires_getter is not None:

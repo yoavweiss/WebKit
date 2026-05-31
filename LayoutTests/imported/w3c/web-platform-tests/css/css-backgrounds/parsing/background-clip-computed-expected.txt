@@ -4,4 +4,7 @@ PASS Property background-clip value 'padding-box'
 PASS Property background-clip value 'content-box'
 PASS Property background-clip value 'border-area'
 PASS Property background-clip value 'border-box, padding-box, content-box, border-area'
+PASS Property background-clip value 'border-box' multiple base values
+PASS Property background-clip value 'border-box, padding-box' multiple base values
+PASS Property background-clip value 'border-box, padding-box, content-box' multiple base values
 
