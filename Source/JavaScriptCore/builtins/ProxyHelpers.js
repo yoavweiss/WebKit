@@ -23,7 +23,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function performProxyObjectHas(propertyName)
 {
     "use strict";
@@ -50,7 +50,7 @@ function performProxyObjectHas(propertyName)
     return false;
 }
 
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function performProxyObjectHasByVal(propertyName)
 {
     "use strict";
@@ -78,7 +78,7 @@ function performProxyObjectHasByVal(propertyName)
     return false;
 }
 
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function performProxyObjectGet(propertyName, receiver)
 {
     "use strict";
@@ -104,7 +104,7 @@ function performProxyObjectGet(propertyName, receiver)
     return trapResult;
 }
 
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function performProxyObjectGetByVal(propertyName, receiver)
 {
     "use strict";
@@ -131,7 +131,7 @@ function performProxyObjectGetByVal(propertyName, receiver)
     return trapResult;
 }
 
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function performProxyObjectSetSloppy(propertyName, receiver, value)
 {
     "use strict";
@@ -158,7 +158,7 @@ function performProxyObjectSetSloppy(propertyName, receiver, value)
         @handlePositiveProxySetTrapResult(target, propertyName, value);
 }
 
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function performProxyObjectSetStrict(propertyName, receiver, value)
 {
     "use strict";
@@ -185,7 +185,7 @@ function performProxyObjectSetStrict(propertyName, receiver, value)
         @handlePositiveProxySetTrapResult(target, propertyName, value);
 }
 
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function performProxyObjectSetByValSloppy(propertyName, receiver, value)
 {
     "use strict";
@@ -213,7 +213,7 @@ function performProxyObjectSetByValSloppy(propertyName, receiver, value)
         @handlePositiveProxySetTrapResult(target, propertyName, value);
 }
 
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function performProxyObjectSetByValStrict(propertyName, receiver, value)
 {
     "use strict";

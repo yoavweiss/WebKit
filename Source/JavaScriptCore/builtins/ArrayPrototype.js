@@ -130,7 +130,7 @@ function forEach(callback /*, thisArg */)
     }
 }
 
-@alwaysInline
+JSC_BUILTIN_INLINE
 function filter(callback /*, thisArg */)
 {
     "use strict";
@@ -273,7 +273,7 @@ function findLastIndex(callback /*, thisArg */)
     return -1;
 }
 
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function flatIntoArray(target, source, sourceLength, targetIndex, depth)
 {
     "use strict";
@@ -294,7 +294,7 @@ function flatIntoArray(target, source, sourceLength, targetIndex, depth)
     return targetIndex;
 }
 
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function flatIntoArrayWithCallback(target, source, sourceLength, targetIndex, callback, thisArg)
 {
     "use strict";

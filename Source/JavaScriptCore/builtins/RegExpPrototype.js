@@ -23,7 +23,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function advanceStringIndex(string, index, unicode)
 {
     // This function implements AdvanceStringIndex described in ES6 21.2.5.2.3.
@@ -46,7 +46,7 @@ function advanceStringIndex(string, index, unicode)
     return index + 2;
 }
 
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function regExpExec(regexp, str)
 {
     "use strict";
@@ -62,7 +62,7 @@ function regExpExec(regexp, str)
     return builtinExec.@call(regexp, str);
 }
 
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function hasObservableSideEffectsForRegExpMatch(regexp)
 {
     "use strict";
@@ -108,7 +108,7 @@ function hasObservableSideEffectsForRegExpMatch(regexp)
     return typeof regexp.lastIndex !== "number";
 }
 
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function matchSlow(regexp, str)
 {
     "use strict";
@@ -165,7 +165,7 @@ function match(strArg)
     return @matchSlow(this, str);
 }
 
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function hasObservableSideEffectsForRegExpSplit(regexp)
 {
     "use strict";

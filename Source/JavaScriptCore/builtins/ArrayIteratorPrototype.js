@@ -45,7 +45,7 @@ function next()
 
 // FIXME: We have to have this because we can't implement this all as one function and meet our inlining heuristics.
 // Collectively, next and this have ~130 bytes of bytecodes but our limit is 120.
-@linkTimeConstant
+JSC_BUILTIN_LINK_TIME_CONSTANT
 function arrayIteratorNextHelper(array, kind, index)
 {
     "use strict";

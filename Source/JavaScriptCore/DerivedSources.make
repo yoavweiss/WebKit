@@ -98,7 +98,9 @@ BUILTINS_GENERATOR_SCRIPTS = \
     ${JavaScriptCore_SCRIPTS_DIR}/wkbuiltins/builtins_generate_internals_wrapper_header.py \
     ${JavaScriptCore_SCRIPTS_DIR}/wkbuiltins/builtins_generate_internals_wrapper_implementation.py \
     $(JavaScriptCore_SCRIPTS_DIR)/generate-js-builtins.py \
+    $(JavaScriptCore_SCRIPTS_DIR)/preprocess-builtin-js.py \
     $(JavaScriptCore_SCRIPTS_DIR)/lazywriter.py \
+    $(JavaScriptCore)/builtins/BuiltinsMacros.h \
 #
 
 JavaScriptCore_BUILTINS_SOURCES = \
@@ -145,10 +147,59 @@ JavaScriptCore_BUILTINS_SOURCES = \
 JavaScriptCore_BUILTINS_DEPENDENCIES_LIST : $(JavaScriptCore_SCRIPTS_DIR)/UpdateContents.py DerivedSources.make
 	$(PYTHON) $(JavaScriptCore_SCRIPTS_DIR)/UpdateContents.py '$(JavaScriptCore_BUILTINS_SOURCES) $(BUILTINS_GENERATOR_SCRIPTS)' $@
 
+# Every builtin .js is first preprocessed by the C preprocessor (via the driver
+# script) before generate-js-builtins.py consumes it. This lets builtin sources
+# use #include-accessible feature macros (ENABLE, USE, HAVE), #if gating, and
+# shared JSC_BUILTIN_* macros defined in builtins/BuiltinsMacros.h.
+#
+# The preprocessor invocation uses the exact same flag bundle as normal
+# JavaScriptCore C++ compilation (mirrors platform_h_compiler_command above),
+# so #include resolution is identical to the main framework build.
+
+BUILTINS_PREPROCESSOR_HEADER = $(JavaScriptCore)/builtins/BuiltinsMacros.h
+BUILTINS_PREPROCESSOR_SCRIPT = $(JavaScriptCore_SCRIPTS_DIR)/preprocess-builtin-js.py
+PREPROCESSED_BUILTINS_DIR    = preprocessed-builtins
+
+# Preserve each source's parent directory in the output path so that two .js
+# files with the same basename in different source dirs (e.g. builtins/Foo.js
+# and inspector/Foo.js) cannot collide.
+JavaScriptCore_PREPROCESSED_BUILTINS_SOURCES = \
+    $(patsubst $(JavaScriptCore)/%.js,$(PREPROCESSED_BUILTINS_DIR)/%.js,$(JavaScriptCore_BUILTINS_SOURCES))
+
+BUILTINS_PREPROCESSOR_CFLAGS = \
+    $(SDK_FLAGS) \
+    $(TARGET_TRIPLE_FLAGS) \
+    $(FRAMEWORK_FLAGS) \
+    $(HEADER_FLAGS) \
+    $(EXTERNAL_FLAGS) \
+    $(OTHER_CFLAGS) \
+    $(OTHER_CPLUSPLUSFLAGS) \
+    $(addprefix -D,$(FEATURE_AND_PLATFORM_DEFINES)) \
+    -imacros wtf/Platform.h
+
+# The pattern's stem (`%`) is e.g. `builtins/ArrayConstructor` so the source
+# side resolves to `$(JavaScriptCore)/builtins/ArrayConstructor.js` via the
+# top-level `$(JavaScriptCore)` VPATH entry.
+$(PREPROCESSED_BUILTINS_DIR)/%.js : %.js $(BUILTINS_PREPROCESSOR_HEADER) $(BUILTINS_PREPROCESSOR_SCRIPT) $(FEATURE_AND_PLATFORM_FLAGS_RESPONSE_FILE)
+	@mkdir -p $(dir $@)
+	$(PYTHON) $(BUILTINS_PREPROCESSOR_SCRIPT) \
+	    --compiler "$(CC)" \
+	    --driver clang \
+	    --header "$(BUILTINS_PREPROCESSOR_HEADER)" \
+	    --depfile "$@.d" \
+	    --input $< \
+	    --output $@ \
+	    -- $(BUILTINS_PREPROCESSOR_CFLAGS)
+
+# Re-preprocess whenever any header pulled in by BuiltinsMacros.h (or via
+# -imacros wtf/Platform.h) changes. The leading `-` suppresses the "no such
+# file" noise before the first build produces .d files.
+-include $(JavaScriptCore_PREPROCESSED_BUILTINS_SOURCES:%.js=%.js.d)
+
 JSC_BUILTINS_FILES_PATTERNS = $(call to-pattern, $(JSC_BUILTINS_FILES))
 
-$(JSC_BUILTINS_FILES_PATTERNS) : $(BUILTINS_GENERATOR_SCRIPTS) $(JavaScriptCore_BUILTINS_SOURCES) JavaScriptCore_BUILTINS_DEPENDENCIES_LIST
-	$(PYTHON) $(JavaScriptCore_SCRIPTS_DIR)/generate-js-builtins.py --combined --output-directory . --framework JavaScriptCore $(JavaScriptCore_BUILTINS_SOURCES)
+$(JSC_BUILTINS_FILES_PATTERNS) : $(BUILTINS_GENERATOR_SCRIPTS) $(JavaScriptCore_PREPROCESSED_BUILTINS_SOURCES) JavaScriptCore_BUILTINS_DEPENDENCIES_LIST
+	$(PYTHON) $(JavaScriptCore_SCRIPTS_DIR)/generate-js-builtins.py --combined --output-directory . --framework JavaScriptCore $(JavaScriptCore_PREPROCESSED_BUILTINS_SOURCES)
 
 # Perfect hash lookup tables for JavaScript classes.
 

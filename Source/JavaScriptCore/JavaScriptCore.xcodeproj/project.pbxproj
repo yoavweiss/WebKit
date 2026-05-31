@@ -1551,6 +1551,7 @@
 		99DA00AF1BD5994E00F4575C /* generate-js-builtins.py in Headers */ = {isa = PBXBuildFile; fileRef = 99DA00AC1BD5993E00F4575C /* generate-js-builtins.py */; settings = {ATTRIBUTES = (Private, ); }; };
 		99DA00B01BD5994E00F4575C /* lazywriter.py in Headers */ = {isa = PBXBuildFile; fileRef = 99DA00AD1BD5993E00F4575C /* lazywriter.py */; settings = {ATTRIBUTES = (Private, ); }; };
 		99DA00B11BD5994E00F4575C /* UpdateContents.py in Headers */ = {isa = PBXBuildFile; fileRef = 99DA00AE1BD5993E00F4575C /* UpdateContents.py */; settings = {ATTRIBUTES = (Private, ); }; };
+		37CF8634AFF74DDFB0841265 /* preprocess-builtin-js.py in Headers */ = {isa = PBXBuildFile; fileRef = 7C227E65BEB8459EB1846179 /* preprocess-builtin-js.py */; settings = {ATTRIBUTES = (Private, ); }; };
 		99F1A7011B98FBEC00463B26 /* InspectorFrontendRouter.h in Headers */ = {isa = PBXBuildFile; fileRef = 99F1A7001B98FBEC00463B26 /* InspectorFrontendRouter.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9B4694391F97439E00CCB3F9 /* BooleanPrototype.h in Headers */ = {isa = PBXBuildFile; fileRef = BC7952350E15EB5600A898AB /* BooleanPrototype.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9E72940B190F0514001A91B5 /* BundlePath.h in Headers */ = {isa = PBXBuildFile; fileRef = 9E72940A190F0514001A91B5 /* BundlePath.h */; };
@@ -5239,6 +5240,8 @@
 		99DA00AC1BD5993E00F4575C /* generate-js-builtins.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = "generate-js-builtins.py"; sourceTree = "<group>"; };
 		99DA00AD1BD5993E00F4575C /* lazywriter.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = lazywriter.py; sourceTree = "<group>"; };
 		99DA00AE1BD5993E00F4575C /* UpdateContents.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = UpdateContents.py; sourceTree = "<group>"; };
+		7C227E65BEB8459EB1846179 /* preprocess-builtin-js.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = "preprocess-builtin-js.py"; sourceTree = "<group>"; };
+		59C44B4461BC485D8ACD85D7 /* BuiltinsMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuiltinsMacros.h; sourceTree = "<group>"; };
 		99F1A6FC1B8E6D9400463B26 /* InspectorFrontendRouter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InspectorFrontendRouter.cpp; sourceTree = "<group>"; };
 		99F1A7001B98FBEC00463B26 /* InspectorFrontendRouter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectorFrontendRouter.h; sourceTree = "<group>"; };
 		9B4954E81A6640DB002815A6 /* ParserFunctionInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParserFunctionInfo.h; sourceTree = "<group>"; };
@@ -10452,6 +10455,7 @@
 				9959E9291BD17FA0001AA413 /* jsmin.py */,
 				99DA00AD1BD5993E00F4575C /* lazywriter.py */,
 				A5EF13F71F0731B4000F0442 /* make-js-file-arrays.py */,
+				7C227E65BEB8459EB1846179 /* preprocess-builtin-js.py */,
 				E3E9F8D525D7582F00F9F84B /* process-entitlements.sh */,
 				99DA00AE1BD5993E00F4575C /* UpdateContents.py */,
 				9959E92A1BD17FA0001AA413 /* xxd.pl */,
@@ -10634,6 +10638,7 @@
 				A7D801A21880D66E0026C39B /* BuiltinExecutables.h */,
 				E380D66B1F19249D00A59095 /* BuiltinNames.cpp */,
 				A75EE9B018AAB7E200AAD043 /* BuiltinNames.h */,
+				59C44B4461BC485D8ACD85D7 /* BuiltinsMacros.h */,
 				41DEA1311B9F3154006D65DD /* BuiltinUtils.h */,
 				A7A979C418BE8D9E002C3733 /* FunctionPrototype.js */,
 				70B7918F1C0244EC002481E2 /* GeneratorPrototype.js */,
@@ -12471,6 +12476,7 @@
 				E3A421431D6F58930007C617 /* PreciseJumpTargetsInlines.h in Headers */,
 				53532B7F2D63C65A00B79585 /* PreciseSubspace.h in Headers */,
 				CE20BD07237D3E480046E520 /* PredictionFileCreatingFuzzerAgent.h in Headers */,
+				37CF8634AFF74DDFB0841265 /* preprocess-builtin-js.py in Headers */,
 				0FBB73B81DEF3AAE002C009E /* PreventCollectionScope.h in Headers */,
 				FE63DD541EA9B61E00103A69 /* Printer.h in Headers */,
 				86B8690124B89EA400487C95 /* PrivateFieldPutKind.h in Headers */,
