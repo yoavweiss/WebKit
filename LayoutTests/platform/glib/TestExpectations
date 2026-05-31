@@ -5548,7 +5548,7 @@ webkit.org/b/315921 gamepad/gamepad-non-fully-active.html [ Failure Pass ]
 
 webkit.org/b/315925 inspector/heap/getRemoteObject.html [ Failure Pass ]
 
-webkir.org/b/315934 fast/dom/lazy-image-loading-document-leak.html [ Crash Pass ]
+webkit.org/b/315934 fast/dom/lazy-image-loading-document-leak.html [ Crash Pass ]
 
 # End: Common failures between GTK and WPE.
 
