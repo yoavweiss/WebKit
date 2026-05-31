@@ -189,8 +189,6 @@ overlay-region/sticky.html [ Failure ]
 
 webkit.org/b/313782 interaction-region/paused-video-regions.html [ Failure ]
 
-webkit.org/b/315675 pdf/pdf-plugin-hang-during-destruction.html [ Skip ]
-
 ### END OF Triaged failures
 ###################################################################################################
 
