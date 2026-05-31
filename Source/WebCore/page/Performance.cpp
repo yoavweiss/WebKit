@@ -168,12 +168,12 @@ DOMHighResTimeStamp Performance::timeOrigin() const
 
 ReducedResolutionSeconds Performance::nowInReducedResolutionSeconds() const
 {
-    return ReducedResolutionSeconds::fromSeconds((MonotonicTime::now() - m_timeOrigin).reduceTimeResolution(timePrecision));
+    return reduceTimeResolution(MonotonicTime::now() - m_timeOrigin);
 }
 
-Seconds Performance::reduceTimeResolution(Seconds seconds)
+ReducedResolutionSeconds Performance::reduceTimeResolution(Seconds seconds)
 {
-    return seconds.reduceTimeResolution(timePrecision);
+    return ReducedResolutionSeconds::reduce(seconds, timePrecision);
 }
 
 void Performance::allowHighPrecisionTime()
@@ -188,7 +188,7 @@ Seconds Performance::timeResolution()
 
 ReducedResolutionSeconds Performance::relativeTimeFromTimeOriginInReducedResolutionSeconds(MonotonicTime timestamp) const
 {
-    return ReducedResolutionSeconds::fromSeconds(reduceTimeResolution(timestamp - m_timeOrigin));
+    return reduceTimeResolution(timestamp - m_timeOrigin);
 }
 
 MonotonicTime Performance::monotonicTimeFromOriginRelative(Seconds offset) const

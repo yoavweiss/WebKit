@@ -2290,8 +2290,6 @@ webkit.org/b/308856 [ Debug ] http/tests/websocket/tests/hybi/handshake-ok-with-
 
 webkit.org/b/309850 [ Debug ] imported/w3c/web-platform-tests/uievents/mouse/mouse_boundary_events_after_removing_last_over_element.html [ Pass Failure ]
 
-webkit.org/b/315780 imported/w3c/web-platform-tests/hr-time/timeOrigin.html [ Pass Failure ]
-
 webkit.org/b/314136 accessibility/mac/client/div-bounds.html [ Pass Failure ]
 
 webkit.org/b/315776 [ arm64 ] inspector/timeline/timeline-recording.html [ Pass Failure ]

@@ -130,7 +130,7 @@ public:
 
     static void NODELETE allowHighPrecisionTime();
     static Seconds NODELETE timeResolution();
-    static Seconds reduceTimeResolution(Seconds);
+    static ReducedResolutionSeconds reduceTimeResolution(Seconds);
 
     ReducedResolutionSeconds relativeTimeFromTimeOriginInReducedResolutionSeconds(MonotonicTime) const;
     DOMHighResTimeStamp relativeTimeFromTimeOriginInReducedResolution(MonotonicTime) const;

@@ -100,6 +100,7 @@
 #include <wtf/MainThread.h>
 #include <wtf/MemoryPressureHandler.h>
 #include <wtf/MonotonicTime.h>
+#include <wtf/ReducedResolutionSeconds.h>
 #include <wtf/SafeStrerror.h>
 #include <wtf/Scope.h>
 #include <wtf/StringPrintStream.h>
@@ -3382,7 +3383,7 @@ JSC_DEFINE_HOST_FUNCTION(functionDropAllLocks, (JSGlobalObject* globalObject, Ca
 JSC_DEFINE_HOST_FUNCTION(functionPerformanceNow, (JSGlobalObject*, CallFrame*))
 {
     static const MonotonicTime timeOrigin = MonotonicTime::now();
-    return JSValue::encode(jsNumber((MonotonicTime::now() - timeOrigin).reduceTimeResolution(Seconds::highTimePrecision()).milliseconds()));
+    return JSValue::encode(jsNumber(ReducedResolutionSeconds::reduce(MonotonicTime::now() - timeOrigin, Seconds::highTimePrecision()).milliseconds()));
 }
 
 static String asSignpostString(JSGlobalObject* globalObject, JSValue v)

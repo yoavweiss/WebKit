@@ -59,6 +59,7 @@
 #include <gst/sdp/sdp.h>
 #include <wtf/MainThread.h>
 #include <wtf/ObjectIdentifier.h>
+#include <wtf/ReducedResolutionSeconds.h>
 #include <wtf/Scope.h>
 #include <wtf/SetForScope.h>
 #include <wtf/UniqueRef.h>
