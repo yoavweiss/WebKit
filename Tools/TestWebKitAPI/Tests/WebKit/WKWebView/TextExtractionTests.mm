@@ -478,6 +478,34 @@ TEST(TextExtractionTests, TargetNodeAndClientAttributes)
     EXPECT_FALSE([debugText containsString:@"Recipient address"]);
 }
 
+TEST(TextExtractionTests, TargetNodeWithSameOriginSubframe)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:^{
+        RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+        [[configuration preferences] _setTextExtractionEnabled:YES];
+        return configuration.autorelease();
+    }()]);
+
+    [webView synchronouslyLoadHTMLString:@"<div id='target'><p>main content</p><iframe srcdoc='<p>subframe content</p>'></iframe></div>"];
+
+    RetainPtr world = [WKContentWorld _worldWithConfiguration:^{
+        RetainPtr configuration = adoptNS([_WKContentWorldConfiguration new]);
+        [configuration setAllowJSHandleCreation:YES];
+        return configuration.autorelease();
+    }()];
+
+    RetainPtr targetHandle = [webView querySelector:@"#target" frame:nil world:world];
+
+    RetainPtr debugText = [webView synchronouslyGetDebugText:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setTargetNode:targetHandle];
+        return configuration.autorelease();
+    }()];
+
+    EXPECT_TRUE([debugText containsString:@"main content"]);
+    EXPECT_TRUE([debugText containsString:@"subframe content"]);
+}
+
 TEST(TextExtractionTests, ReplacementStrings)
 {
     RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:^{

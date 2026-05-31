@@ -1194,7 +1194,11 @@ static inline void extractRecursive(Node& node, Item& parentItem, TraversalConte
         if (RefPtr iframe = dynamicDowncast<HTMLIFrameElement>(node); iframe && item) {
             if (RefPtr frame = dynamicDowncast<LocalFrame>(iframe->contentFrame())) {
                 if (RefPtr document = frame->document(); document && areSameOrigin(*document, protect(node.document()))) {
-                    auto [rootItem, textLength] = extractItem(Request { context.originalRequest }, *frame);
+                    auto [rootItem, textLength] = extractItem([&] {
+                        auto request = context.originalRequest;
+                        request.targetNodeHandleIdentifier = { };
+                        return request;
+                    }(), *frame);
                     context.visibleTextLength += textLength;
                     item->children.appendVector(WTF::move(rootItem.children));
                 }
