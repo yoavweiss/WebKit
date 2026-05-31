@@ -354,9 +354,11 @@ void forEachInIteratorProtocol(JSGlobalObject* globalObject, JSValue iterable, N
             if (setIterator->iteratedObject()) {
                 JSValue value;
                 while (setIterator->next(globalObject, value)) {
+                    RETURN_IF_EXCEPTION(scope, void());
                     callback(vm, globalObject, value);
                     RETURN_IF_EXCEPTION(scope, void());
                 }
+                RETURN_IF_EXCEPTION(scope, void());
                 return;
             }
         }
