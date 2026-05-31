@@ -79,6 +79,7 @@ public:
     bool isBorderImageWidthValue() const { return m_classType == ClassType::BorderImageWidth; }
     bool isBoxShadowPropertyValue() const { return m_classType == ClassType::BoxShadowProperty; }
     bool isColorImageValue() const { return m_classType == ClassType::ColorImage; }
+    bool isLightDarkImageValue() const { return m_classType == ClassType::LightDarkImage; }
     bool isCanvasValue() const { return m_classType == ClassType::Canvas; }
     bool isClipValue() const { return m_classType == ClassType::Clip; }
     bool isColor() const { return m_classType == ClassType::Color; }
@@ -206,6 +207,7 @@ protected:
         PaintImage,
         NamedImage,
         ColorImage,
+        LightDarkImage,
         Crossfade,
         FilterImage,
         Gradient,

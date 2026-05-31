@@ -72,6 +72,7 @@
 #include "CSSImageSetValue.h"
 #include "CSSImageValue.h"
 #include "CSSKeywordValue.h"
+#include "CSSLightDarkImageValue.h"
 #include "CSSMaskBorderOutsetValue.h"
 #include "CSSMaskBorderRepeatValue.h"
 #include "CSSMaskBorderSliceValue.h"
@@ -219,6 +220,8 @@ template<typename Visitor> constexpr decltype(auto) CSSValue::visitDerived(Visit
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSMaskBorderWidthValue>(*this));
     case ColorImage:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSColorImageValue>(*this));
+    case LightDarkImage:
+        return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSLightDarkImageValue>(*this));
     case NamedImage:
         return std::invoke(std::forward<Visitor>(visitor), uncheckedDowncast<CSSNamedImageValue>(*this));
     case OffsetRotate:

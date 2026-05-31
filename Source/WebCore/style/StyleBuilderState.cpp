@@ -43,6 +43,7 @@
 #include "CSSGradientValue.h"
 #include "CSSImageSetValue.h"
 #include "CSSImageValue.h"
+#include "CSSLightDarkImageValue.h"
 #include "CSSNamedImageValue.h"
 #include "CSSPaintImageValue.h"
 #include "DocumentInlines.h"
@@ -149,6 +150,8 @@ RefPtr<Image> BuilderState::createStyleImage(const CSSValue& value) const
         return gradientValue->createStyleImage(*this);
     if (auto* colorImageValue = dynamicDowncast<CSSColorImageValue>(value))
         return colorImageValue->createStyleImage(*this);
+    if (auto* lightDarkImageValue = dynamicDowncast<CSSLightDarkImageValue>(value))
+        return lightDarkImageValue->createStyleImage(*this);
     if (auto* paintImageValue = dynamicDowncast<CSSPaintImageValue>(value))
         return paintImageValue->createStyleImage(*this);
     return nullptr;

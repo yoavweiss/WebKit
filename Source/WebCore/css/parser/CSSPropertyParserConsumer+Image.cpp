@@ -36,6 +36,7 @@
 #include "CSSImageSetOptionValue.h"
 #include "CSSImageSetValue.h"
 #include "CSSImageValue.h"
+#include "CSSLightDarkImageValue.h"
 #include "CSSNamedImageValue.h"
 #include "CSSPaintImageValue.h"
 #include "CSSParserContext.h"
@@ -1032,6 +1033,20 @@ static RefPtr<CSSValue> consumeColorImage(CSSParserTokenRange& args, CSS::Proper
     return CSSColorImageValue::create(WTF::move(*color));
 }
 
+// MARK: light-dark() for images
+// https://drafts.csswg.org/css-color-5/#light-dark
+
+static RefPtr<CSSValue> consumeLightDarkImage(CSSParserTokenRange& args, CSS::PropertyParserState& state, OptionSet<AllowedImageType> allowedImageTypes)
+{
+    auto lightValueOrNone = consumeImageOrNone(args, state, allowedImageTypes);
+    if (!lightValueOrNone || !consumeCommaIncludingWhitespace(args))
+        return nullptr;
+    auto darkValueOrNone = consumeImageOrNone(args, state, allowedImageTypes);
+    if (!darkValueOrNone)
+        return nullptr;
+    return CSSLightDarkImageValue::create(lightValueOrNone.releaseNonNull(), darkValueOrNone.releaseNonNull());
+}
+
 // MARK: <filter()>
 
 static RefPtr<CSSValue> consumeFilterImage(CSSParserTokenRange& args, CSS::PropertyParserState& state)
@@ -1181,11 +1196,9 @@ RefPtr<CSSValue> consumeImage(CSSParserTokenRange& range, CSS::PropertyParserSta
     }
 
     if (range.peek().type() == FunctionToken) {
-        auto consumeGeneratedImage = [&](auto consumer) -> RefPtr<CSSValue> {
-            if (!allowedImageTypes.contains(AllowedImageType::GeneratedImage))
-                return nullptr;
-            CSSParserTokenRange rangeCopy = range;
-            CSSParserTokenRange args = consumeFunction(rangeCopy);
+        auto consumeImageFunction = [&](auto consumer) -> RefPtr<CSSValue> {
+            auto rangeCopy = range;
+            auto args = consumeFunction(rangeCopy);
             RefPtr result = consumer(args);
             if (!result || !args.atEnd())
                 return nullptr;
@@ -1193,16 +1206,16 @@ RefPtr<CSSValue> consumeImage(CSSParserTokenRange& range, CSS::PropertyParserSta
             return result;
         };
 
+        auto consumeGeneratedImage = [&](auto consumer) -> RefPtr<CSSValue> {
+            if (!allowedImageTypes.contains(AllowedImageType::GeneratedImage))
+                return nullptr;
+            return consumeImageFunction(consumer);
+        };
+
         auto consumeImageSetImage = [&](auto consumer) -> RefPtr<CSSValue> {
             if (!allowedImageTypes.contains(AllowedImageType::ImageSet))
                 return nullptr;
-            CSSParserTokenRange rangeCopy = range;
-            CSSParserTokenRange args = consumeFunction(rangeCopy);
-            RefPtr result = consumer(args);
-            if (!result || !args.atEnd())
-                return nullptr;
-            range = rangeCopy;
-            return result;
+            return consumeImageFunction(consumer);
         };
 
         auto functionId = range.peek().functionId();
@@ -1239,6 +1252,8 @@ RefPtr<CSSValue> consumeImage(CSSParserTokenRange& range, CSS::PropertyParserSta
             return consumeGeneratedImage([&](auto& args) { return consumeWebkitNamedImage(args); });
         case CSSValueImage:
             return consumeGeneratedImage([&](auto& args) { return consumeColorImage(args, state); });
+        case CSSValueLightDark:
+            return consumeImageFunction([&](auto& args) { return consumeLightDarkImage(args, state, allowedImageTypes); });
         case CSSValueWebkitFilter:
         case CSSValueFilter:
             return consumeGeneratedImage([&](auto& args) { return consumeFilterImage(args, state); });
@@ -1264,7 +1279,7 @@ RefPtr<CSSValue> consumeImage(CSSParserTokenRange& range, CSS::PropertyParserSta
 
 RefPtr<CSSValue> consumeImageOrNone(CSSParserTokenRange& range, CSS::PropertyParserState& state, OptionSet<AllowedImageType> allowedImageTypes)
 {
-    if (range.peek().id() == CSSValueNone)
+    if (range.peek().id() == CSSValueNone && allowedImageTypes.contains(AllowedImageType::GeneratedImage))
         return consumeIdent(range);
     return consumeImage(range, state, allowedImageTypes);
 }
