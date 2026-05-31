@@ -179,6 +179,8 @@ webkit.org/b/298588 fast/media/mq-pointer.html [ Skip ]
 # Pending to create bug.
 svg/hixie/viewbox/002.xml [ Failure ]
 
+webkit.org/b/254519 media/media-continues-playing-after-replace-source.html [ Failure Pass ]
+
 webkit.org/b/264680 media/video-background-tab-playback.html [ Failure ]
 webkit.org/b/264680 media/no-fullscreen-when-hidden.html [ Pass Failure ]
 webkit.org/b/264680 webgl/webgl-visible-after-context-restore.html [ ImageOnlyFailure Pass ]
