@@ -431,6 +431,9 @@ List of files:
 /LayoutTests/imported/w3c/web-platform-tests/css/css-grid/abspos/positioned-grid-items-025-expected.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-grid/abspos/positioned-grid-items-025-ref.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-grid/abspos/positioned-grid-items-025.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-grid/abspos/positioned-grid-items-026-expected.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-grid/abspos/positioned-grid-items-026-ref.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-grid/abspos/positioned-grid-items-026.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-grid/abspos/positioned-grid-items-crash.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-grid/abspos/positioned-grid-items-negative-indices-001-expected.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-grid/abspos/positioned-grid-items-negative-indices-001-ref.html
