@@ -2398,3 +2398,7 @@ webkit.org/b/315886 [ Sequoia Release x86_64 ] http/tests/canvas/canvas-tainted-
 webkit.org/b/315886 [ Sequoia Release x86_64 ] http/tests/security/allow-top-level-navigations-by-third-party-iframes-with-previous-user-activation.html [ Pass Failure ]
 webkit.org/b/315886 [ Sequoia Release x86_64 ] http/tests/security/allow-top-level-navigations-by-third-party-iframes-with-user-activation.html [ Pass Failure ]
 
+webkit.org/b/315960 [ Sequoia Release x86_64 ] fast/canvas/canvas-blending-color-over-image.html [ Pass Timeout ]
+webkit.org/b/315960 [ Sequoia Release x86_64 ] fast/canvas/toDataURL-not-empty.html [ Pass Failure ]
+webkit.org/b/315960 [ Sequoia Release x86_64 ] fast/canvas/toDataURL-supportedTypes.html [ Pass Failure ]
+
