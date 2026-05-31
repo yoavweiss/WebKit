@@ -114,16 +114,25 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationPopulateObjectInOSR, void, (JSGlobalO
             // butterfly to preserve the indexing type.
             //
             // If the VM had a bad time between FTL compilation and this OSR exit, the Array was
-            // switched to SlowPutArrayStorage in operationMaterializeObjectInOSR. A hole (empty
-            // JSValue) must then be cleared in the ArrayStorage vector rather than the contiguous
-            // butterfly to match the rematerialized layout.
-            if (hasDouble(array->indexingType()) && value.isNumber() && std::isnan(value.asNumber())) [[unlikely]]
+            // switched to SlowPutArrayStorage in operationMaterializeObjectInOSR. A hole must then
+            // be cleared in the ArrayStorage vector rather than the contiguous butterfly to match
+            // the rematerialized layout. Note that the hole arrives as the hole sentinel of the
+            // indexing type the Array was sunk with, not of the Array's current indexing type:
+            // boxed NaN if the Array was sunk as Double, the empty JSValue otherwise.
+            // m_numValuesInVector is also decremented because the cleared slot was counted when
+            // the sentinel-filled butterfly was converted to ArrayStorage.
+            bool valueIsHole = hasDouble(materialization->indexingType()) ? value.isNumber() && isHole(value.asNumber()) : !value;
+            if (hasDouble(array->indexingType()) && valueIsHole) [[unlikely]]
                 array->butterfly()->contiguousDouble().atUnsafe(index) = PNaN;
-            else if ((hasInt32(array->indexingType()) || hasContiguous(array->indexingType())) && !value) [[unlikely]]
+            else if ((hasInt32(array->indexingType()) || hasContiguous(array->indexingType())) && valueIsHole) [[unlikely]]
                 array->butterfly()->contiguous().atUnsafe(index).setStartingValue(JSValue());
-            else if (hasAnyArrayStorage(array->indexingType()) && !value) [[unlikely]]
-                array->butterfly()->arrayStorage()->m_vector[index].clear();
-            else
+            else if (hasAnyArrayStorage(array->indexingType()) && valueIsHole) [[unlikely]] {
+                ArrayStorage* storage = array->butterfly()->arrayStorage();
+                ASSERT(storage->m_vector[index]);
+                ASSERT(storage->m_numValuesInVector);
+                storage->m_vector[index].clear();
+                storage->m_numValuesInVector--;
+            } else
                 array->putDirectIndex(globalObject, index, value);
 
             scope.assertNoExceptionExceptTermination();
