@@ -171,6 +171,7 @@ endif ()
 
 if (CMAKE_OSX_SYSROOT MATCHES "\\.Internal\\.sdk$")
     add_compile_options("$<$<COMPILE_LANGUAGE:Swift>:-DUSE_APPLE_INTERNAL_SDK>")
+    add_compile_options("$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -DUSE_APPLE_INTERNAL_SDK>")
 endif ()
 
 # VFS overlay: suppress TextInput_Private which uses ICU types without a
