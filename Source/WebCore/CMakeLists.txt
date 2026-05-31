@@ -3143,6 +3143,11 @@ WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebCore WebCoreJSBindings
     PREFIX WebCoreJSBindingsPrefix.h
     PREFIX_LANGUAGES CXX
     DIRS JSBindings bindings)
+WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebCore WebCoreRenderStyleInlines
+    PREFIX WebCoreRenderStyleInlinesPrefix.h
+    PREFIX_LANGUAGES CXX
+    HEADER_GROUPS RenderStyleGetters
+    CHAIN_PARENT WebCoreDOMAndRendering)
 WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebCore WebCoreDOMAndRendering
     PREFIX WebCoreDOMAndRenderingPrefix.h
     PREFIX_LANGUAGES CXX OBJCXX

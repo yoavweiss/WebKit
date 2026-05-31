@@ -119,18 +119,6 @@ template<typename... F> decltype(auto) DynamicRangeLimit::switchOn(F&&... f) con
     );
 }
 
-inline DynamicRangeLimit::Kind DynamicRangeLimit::copyKind(const Kind& other)
-{
-    return WTF::switchOn(other,
-        []<CSSValueID Id>(const Constant<Id>& keyword) {
-            return Kind { keyword };
-        },
-        [](const UniqueRef<DynamicRangeLimitMixFunction>& mix) {
-            return Kind { WTF::makeUniqueRef<DynamicRangeLimitMixFunction>(mix) };
-        }
-    );
-}
-
 // MARK: Conversion
 
 template<> struct ToCSS<DynamicRangeLimit> { auto operator()(const DynamicRangeLimit&, const RenderStyle&) -> CSS::DynamicRangeLimit; };

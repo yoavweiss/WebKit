@@ -39,6 +39,19 @@
 namespace WebCore {
 namespace Style {
 
+// Keep these out of line to work around a clang crash (rdar://178383013).
+DynamicRangeLimit::Kind DynamicRangeLimit::copyKind(const Kind& other)
+{
+    return WTF::switchOn(other,
+        []<CSSValueID Id>(const Constant<Id>& keyword) {
+            return Kind { keyword };
+        },
+        [](const UniqueRef<DynamicRangeLimitMixFunction>& mix) {
+            return Kind { WTF::makeUniqueRef<DynamicRangeLimitMixFunction>(mix) };
+        }
+    );
+}
+
 using namespace CSS::Literals;
 
 // Resolves a `dynamic-range-limit-mix` function value for the `dynamic-range-limit` property.
