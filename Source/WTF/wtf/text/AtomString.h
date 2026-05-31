@@ -80,22 +80,22 @@ public:
 
     bool contains(char16_t character) const { return m_string.contains(character); }
     bool contains(ASCIILiteral literal) const { return m_string.contains(literal); }
-    bool contains(StringView) const;
-    bool containsIgnoringASCIICase(StringView) const;
+    bool NODELETE contains(StringView) const;
+    bool NODELETE containsIgnoringASCIICase(StringView) const;
 
     size_t find(char16_t character, size_t start = 0) const { return m_string.find(character, start); }
     size_t find(ASCIILiteral literal, size_t start = 0) const { return m_string.find(literal, start); }
-    size_t find(StringView, size_t start = 0) const;
-    size_t findIgnoringASCIICase(StringView) const;
-    size_t findIgnoringASCIICase(StringView, size_t start) const;
+    size_t NODELETE find(StringView, size_t start = 0) const;
+    size_t NODELETE findIgnoringASCIICase(StringView) const;
+    size_t NODELETE findIgnoringASCIICase(StringView, size_t start) const;
     size_t find(CodeUnitMatchFunction matchFunction, size_t start = 0) const { return m_string.find(matchFunction, start); }
 
-    bool startsWith(StringView) const;
-    bool startsWithIgnoringASCIICase(StringView) const;
+    bool NODELETE startsWith(StringView) const;
+    bool NODELETE startsWithIgnoringASCIICase(StringView) const;
     bool startsWith(char16_t character) const { return m_string.startsWith(character); }
 
-    bool endsWith(StringView) const;
-    bool endsWithIgnoringASCIICase(StringView) const;
+    bool NODELETE endsWith(StringView) const;
+    bool NODELETE endsWithIgnoringASCIICase(StringView) const;
     bool endsWith(char16_t character) const { return m_string.endsWith(character); }
 
     WTF_EXPORT_PRIVATE AtomString convertToASCIILowercase() const;

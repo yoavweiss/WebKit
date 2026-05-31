@@ -53,7 +53,7 @@ WTF_EXPORT_PRIVATE float charactersToFloat(std::span<const char16_t>, bool* ok =
 WTF_EXPORT_PRIVATE float charactersToFloat(std::span<const Latin1Character>, size_t& parsedLength);
 WTF_EXPORT_PRIVATE float charactersToFloat(std::span<const char16_t>, size_t& parsedLength);
 
-template<bool isSpecialCharacter(char16_t), typename CharacterType, std::size_t Extent> bool containsOnly(std::span<const CharacterType, Extent>);
+template<bool isSpecialCharacter(char16_t), typename CharacterType, std::size_t Extent> bool NODELETE containsOnly(std::span<const CharacterType, Extent>);
 
 enum class TrailingZerosPolicy : bool { Keep, Truncate };
 
@@ -153,10 +153,10 @@ public:
     size_t find(Latin1Character character, unsigned start = 0) const { return m_impl ? m_impl->find(character, start) : notFound; }
     size_t find(char character, unsigned start = 0) const { return m_impl ? m_impl->find(character, start) : notFound; }
 
-    size_t find(StringView) const;
-    size_t find(StringView, unsigned start) const;
-    size_t findIgnoringASCIICase(StringView) const;
-    size_t findIgnoringASCIICase(StringView, unsigned start) const;
+    size_t NODELETE find(StringView) const;
+    size_t NODELETE find(StringView, unsigned start) const;
+    size_t NODELETE findIgnoringASCIICase(StringView) const;
+    size_t NODELETE findIgnoringASCIICase(StringView, unsigned start) const;
 
     template<typename CodeUnitMatchFunction>
         requires (std::is_invocable_r_v<bool, CodeUnitMatchFunction, char16_t>)
@@ -175,23 +175,23 @@ public:
 
     bool contains(char16_t character) const { return find(character) != notFound; }
     bool contains(ASCIILiteral literal) const { return find(literal) != notFound; }
-    bool contains(StringView) const;
+    bool NODELETE contains(StringView) const;
     template<typename CodeUnitMatchFunction>
         requires (std::is_invocable_r_v<bool, CodeUnitMatchFunction, char16_t>)
     bool contains(CodeUnitMatchFunction matchFunction) const { return find(matchFunction, 0) != notFound; }
-    bool containsIgnoringASCIICase(StringView) const;
-    bool containsIgnoringASCIICase(StringView, unsigned start) const;
+    bool NODELETE containsIgnoringASCIICase(StringView) const;
+    bool NODELETE containsIgnoringASCIICase(StringView, unsigned start) const;
 
-    bool startsWith(StringView) const;
-    bool startsWithIgnoringASCIICase(StringView) const;
+    bool NODELETE startsWith(StringView) const;
+    bool NODELETE startsWithIgnoringASCIICase(StringView) const;
     bool startsWith(char16_t character) const { return m_impl && m_impl->startsWith(character); }
-    bool hasInfixStartingAt(StringView prefix, unsigned start) const;
+    bool NODELETE hasInfixStartingAt(StringView prefix, unsigned start) const;
 
-    bool endsWith(StringView) const;
-    bool endsWithIgnoringASCIICase(StringView) const;
+    bool NODELETE endsWith(StringView) const;
+    bool NODELETE endsWithIgnoringASCIICase(StringView) const;
     bool endsWith(char16_t character) const { return m_impl && m_impl->endsWith(character); }
     bool endsWith(char character) const { return endsWith(static_cast<char16_t>(character)); }
-    bool hasInfixEndingAt(StringView suffix, unsigned end) const;
+    bool NODELETE hasInfixEndingAt(StringView suffix, unsigned end) const;
 
     [[nodiscard]] String substring(unsigned position, unsigned length = MaxLength) const;
     [[nodiscard]] WTF_EXPORT_PRIVATE String substringSharingImpl(unsigned position, unsigned length = MaxLength) const;
