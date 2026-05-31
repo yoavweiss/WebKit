@@ -3758,12 +3758,18 @@ void WebPageProxy::setMaintainsInactiveSelection(bool newValue)
     m_maintainsInactiveSelection = newValue;
 }
 
+// FIXME: (rdar://178266745) It is unclear if this function is needed.
+// EWS testing shows that removing it doesn't break any tests but more
+// thorough manual testing should be done before removing.
 void WebPageProxy::scheduleFullEditorStateUpdate()
 {
     if (!hasRunningProcess())
         return;
 
-    send(Messages::WebPage::ScheduleFullEditorStateUpdate());
+    if (RefPtr frame = focusedFrame())
+        sendToProcessContainingFrame(frame->frameID(), Messages::WebPage::ScheduleFullEditorStateUpdate());
+    else
+        send(Messages::WebPage::ScheduleFullEditorStateUpdate());
 }
 
 void WebPageProxy::selectAll()
