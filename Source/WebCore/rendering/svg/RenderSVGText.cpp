@@ -237,8 +237,6 @@ void RenderSVGText::subtreeChildWillBeRemoved(RenderObject* child, Vector<SVGTex
     if (!shouldHandleSubtreeMutations())
         return;
 
-    checkLayoutAttributesConsistency(this, m_layoutAttributes);
-
     // The positioning elements cache depends on the size of each text renderer in the
     // subtree. If this changes, clear the cache. It's going to be rebuilt below.
     m_layoutAttributesBuilder.clearTextPositioningElements();
