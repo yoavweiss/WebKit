@@ -179,8 +179,6 @@ webkit.org/b/298588 fast/media/mq-pointer.html [ Skip ]
 # Pending to create bug.
 svg/hixie/viewbox/002.xml [ Failure ]
 
-webkit.org/b/254519 media/media-continues-playing-after-replace-source.html [ Failure Pass ]
-
 webkit.org/b/264680 media/video-background-tab-playback.html [ Failure ]
 webkit.org/b/264680 media/no-fullscreen-when-hidden.html [ Pass Failure ]
 webkit.org/b/264680 webgl/webgl-visible-after-context-restore.html [ ImageOnlyFailure Pass ]
@@ -404,7 +402,6 @@ webkit.org/b/298634 fast/repaint/horizontal-bt-overflow-child.html [ Skip ]
 webkit.org/b/298634 fast/repaint/horizontal-bt-overflow-parent.html [ Skip ]
 webkit.org/b/298634 fast/repaint/horizontal-bt-overflow-same.html [ Skip ]
 
-
 webkit.org/b/252954 imported/w3c/web-platform-tests/html/rendering/replaced-elements/attributes-for-embedded-content-and-images/video-default-object-height-constrained-by-max-width.html [ ImageOnlyFailure ]
 webkit.org/b/252954 imported/w3c/web-platform-tests/html/rendering/replaced-elements/attributes-for-embedded-content-and-images/video-default-object-width-constrained-by-max-height.html [ ImageOnlyFailure ]
 
@@ -480,7 +477,6 @@ webkit.org/b/314537 imported/w3c/web-platform-tests/css/filter-effects/css-filte
 # 4. TESTS CRASHING
 #////////////////////////////////////////////////////////////////////////////////////////
 
-webkit.org/b/177633 editing/async-clipboard/clipboard-change-data-while-writing.html [ Failure Pass ]
 webkit.org/b/177633 editing/async-clipboard/clipboard-read-text-from-platform.html [ Failure ]
 
 webkit.org/b/204112 editing/async-clipboard/clipboard-change-data-while-getting-type.html [ Timeout Pass ]
@@ -703,7 +699,6 @@ webkit.org/b/212202 fast/scrolling/sync-scroll-overscroll-behavior-unscrollable-
 
 Bug(WPE) fast/dom/HTMLDocument/hasFocus.html [ Failure ]
 Bug(WPE) fast/dom/Range/getClientRects.html [ Failure ]
-webkit.org/b/189664 fast/events/dblclick-event-getModifierState.html [ Failure Pass ]
 
 Bug(WPE) storage/storageinfo-missing-arguments.html [ Failure ]
 Bug(WPE) storage/storageinfo-no-callbacks.html [ Failure ]
@@ -769,8 +764,6 @@ webkit.org/b/188660 fast/loader/local-JavaScript-from-local.html [ Failure ]
 webkit.org/b/188660 fast/loader/local-image-from-local.html [ Failure ]
 
 webkit.org/b/131347 fast/inline-block/hidpi-margin-top-with-subpixel-value-and-overflow-hidden.html [ ImageOnlyFailure ]
-
-webkit.org/b/131934 fast/dom/Window/mozilla-focus-blur.html [ Failure Pass ]
 
 webkit.org/b/188966 fast/images/image-map-outline-in-positioned-container.html [ ImageOnlyFailure ]
 webkit.org/b/188966 fast/images/image-map-outline-with-scale-transform.html [ ImageOnlyFailure ]
@@ -970,7 +963,7 @@ webkit.org/b/278719 fast/events/touch/touch-event-pageXY.html [ Failure ]
 webkit.org/b/278719 fast/events/touch/touch-target.html [ Timeout ]
 webkit.org/b/278719 fast/events/touch/touch-target-limited.html [ Failure ]
 
-webkit.org/b/278719 fast/events/touch/input-touch-target.html [ Failure Pass ]
+webkit.org/b/278719 fast/events/touch/input-touch-target.html [ Failure ]
 webkit.org/b/278719 fast/events/touch/zoomed-touch-event-pageXY.html [ Failure ]
 
 # The assertion failure occurs to WPE only.
@@ -1138,8 +1131,6 @@ webkit.org/b/303866 imported/w3c/web-platform-tests/css/css-anchor-position/scro
 # webkit.org/b/304535 ui-serif, ui-sans-serif, ui-monospace, ui-rounded generic families not implemented on WPE
 imported/w3c/web-platform-tests/css/css-fonts/generic-family-lang-attr-cascade.html [ ImageOnlyFailure ]
 
-webkit.org/b/308294 imported/w3c/web-platform-tests/css/css-scroll-anchoring/zero-scroll-offset-002.html [ Pass Failure ]
-
 # UIScriptController::isShowingDataListSuggestions is not implemented yet
 webkit.org/b/305201 fast/forms/datalist/data-list-search-input-with-appearance-none.html [ Skip ]
 
@@ -1207,8 +1198,6 @@ webkit.org/b/307098 imported/w3c/web-platform-tests/html/canvas/offscreen/text/c
 webkit.org/b/307098 imported/w3c/web-platform-tests/html/canvas/offscreen/text/canvas.2d.fontStretch.ultra-condensed.html [ ImageOnlyFailure Pass ]
 webkit.org/b/307098 imported/w3c/web-platform-tests/html/canvas/offscreen/text/canvas.2d.fontStretch.ultra-expanded.html [ ImageOnlyFailure Pass ]
 
-webkit.org/b/308140 fast/dom/webtiming.html [ Pass Failure ]
-
 webkit.org/b/308145 imported/w3c/web-platform-tests/css/css-position/sticky/position-sticky-writing-modes.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/308148 imported/w3c/web-platform-tests/css/css-conditional/container-queries/crashtests/chrome-bug-439886903-crash.html [ Pass Timeout ]
@@ -1268,8 +1257,6 @@ imported/w3c/web-platform-tests/screen-wake-lock/chrome-bug-1348019.https.html [
 imported/w3c/web-platform-tests/screen-wake-lock/wakelock-document-hidden.https.html [ Skip ]
 
 webkit.org/b/310273 imported/w3c/web-platform-tests/uievents/textInput/basic.html [ Pass Failure ]
-
-webkit.org/b/310279 imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element/dialog-popover-closedby-simple.html [ Pass Failure ]
 
 webkit.org/b/310741 imported/w3c/web-platform-tests/navigation-api/navigate-event/defer/tentative/defer-restore-callback-abort.html [ Pass Timeout ]
 webkit.org/b/310743 imported/w3c/web-platform-tests/css/css-position/sticky/position-sticky-table-td-right.html [ Pass ImageOnlyFailure ]
