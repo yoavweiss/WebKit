@@ -220,7 +220,6 @@ static uint32_t getSetSizeAsInt(JSGlobalObject* globalObject, JSValue value)
 static EncodedJSValue fastSetIntersection(JSGlobalObject* globalObject, JSSet* thisSet, JSSet* otherSet)
 {
     VM& vm = globalObject->vm();
-    auto scope = DECLARE_THROW_SCOPE(vm);
 
     JSSet* result = JSSet::create(vm, globalObject->setStructure());
 
@@ -232,6 +231,8 @@ static EncodedJSValue fastSetIntersection(JSGlobalObject* globalObject, JSSet* t
         return JSValue::encode(result);
 
     forEachInSetStorage(vm, globalObject, sourceStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) {
+        auto scope = DECLARE_THROW_SCOPE(vm);
+
         bool targetHasEntry = targetSet->has(globalObject, entryKey);
         RETURN_IF_EXCEPTION(scope, void());
         if (targetHasEntry) {
@@ -239,7 +240,6 @@ static EncodedJSValue fastSetIntersection(JSGlobalObject* globalObject, JSSet* t
             RETURN_IF_EXCEPTION(scope, void());
         }
     });
-    RETURN_IF_EXCEPTION(scope, { });
 
     return JSValue::encode(result);
 }
@@ -256,10 +256,8 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIntersection, (JSGlobalObject* globalObject
 
     if (otherValue.isCell()) [[likely]] {
         if (auto* otherSet = dynamicDowncast<JSSet>(otherValue.asCell())) [[likely]] {
-            if (setPrimordialWatchpointIsValid(vm, otherSet)) [[likely]] {
-                scope.release();
-                return fastSetIntersection(globalObject, thisSet, otherSet);
-            }
+            if (setPrimordialWatchpointIsValid(vm, otherSet)) [[likely]]
+                RELEASE_AND_RETURN(scope, fastSetIntersection(globalObject, thisSet, otherSet));
         }
     }
 
@@ -292,7 +290,10 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIntersection, (JSGlobalObject* globalObject
             RETURN_IF_EXCEPTION(scope, { });
         }
 
+        scope.release();
         forEachInSetStorage(vm, globalObject, storageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) {
+            auto scope = DECLARE_THROW_SCOPE(vm);
+
             JSValue hasResult;
             if (cachedHasCall) [[likely]] {
                 hasResult = cachedHasCall->callWithArguments(globalObject, otherValue, entryKey);
@@ -312,8 +313,6 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIntersection, (JSGlobalObject* globalObject
                 RETURN_IF_EXCEPTION(scope, void());
             }
         });
-        RETURN_IF_EXCEPTION(scope, { });
-
         return JSValue::encode(result);
     }
 
@@ -322,8 +321,11 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIntersection, (JSGlobalObject* globalObject
     ASSERT(!args.hasOverflowed());
     JSValue iterator = call(globalObject, keys, keysCallData, otherValue, args);
     RETURN_IF_EXCEPTION(scope, { });
+
     scope.release();
     forEachInIteratorProtocol(globalObject, iterator, [&](VM&, JSGlobalObject* globalObject, JSValue key) -> void {
+        auto scope = DECLARE_THROW_SCOPE(vm);
+
         bool thisSetHasKey = thisSet->has(globalObject, key);
         RETURN_IF_EXCEPTION(scope, void());
         if (thisSetHasKey) {
@@ -331,7 +333,6 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIntersection, (JSGlobalObject* globalObject
             RETURN_IF_EXCEPTION(scope, void());
         }
     });
-
     return JSValue::encode(result);
 }
 
@@ -344,14 +345,13 @@ static EncodedJSValue fastSetUnion(JSGlobalObject* globalObject, JSSet* thisSet,
     RETURN_IF_EXCEPTION(scope, { });
 
     JSCell* otherStorageCell = otherSet->storageOrSentinel(vm);
-    if (otherStorageCell != vm.orderedHashTableSentinel()) {
-        forEachInSetStorage(vm, globalObject, otherStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) {
-            result->add(globalObject, entryKey);
-            RETURN_IF_EXCEPTION(scope, void());
-        });
-        RETURN_IF_EXCEPTION(scope, { });
-    }
+    if (otherStorageCell == vm.orderedHashTableSentinel())
+        return JSValue::encode(result);
 
+    scope.release();
+    forEachInSetStorage(vm, globalObject, otherStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) {
+        result->add(globalObject, entryKey);
+    });
     return JSValue::encode(result);
 }
 
@@ -367,10 +367,8 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncUnion, (JSGlobalObject* globalObject, CallF
 
     if (otherValue.isCell()) [[likely]] {
         if (auto* otherSet = dynamicDowncast<JSSet>(otherValue.asCell())) [[likely]] {
-            if (setPrimordialWatchpointIsValid(vm, otherSet)) [[likely]] {
-                scope.release();
-                return fastSetUnion(globalObject, thisSet, otherSet);
-            }
+            if (setPrimordialWatchpointIsValid(vm, otherSet)) [[likely]]
+                RELEASE_AND_RETURN(scope, fastSetUnion(globalObject, thisSet, otherSet));
         }
     }
 
@@ -406,16 +404,13 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncUnion, (JSGlobalObject* globalObject, CallF
     scope.release();
     forEachInIterationRecord(globalObject, iterationRecord, [&](VM&, JSGlobalObject* globalObject, JSValue key) -> void {
         result->add(globalObject, key);
-        RETURN_IF_EXCEPTION(scope, void());
     });
-
     return JSValue::encode(result);
 }
 
 static EncodedJSValue fastSetIsSubsetOf(JSGlobalObject* globalObject, JSSet* thisSet, JSSet* otherSet)
 {
     VM& vm = globalObject->vm();
-    auto scope = DECLARE_THROW_SCOPE(vm);
 
     if (thisSet->size() > otherSet->size())
         return JSValue::encode(jsBoolean(false));
@@ -426,23 +421,23 @@ static EncodedJSValue fastSetIsSubsetOf(JSGlobalObject* globalObject, JSSet* thi
 
     bool isSubset = true;
     forEachInSetStorage(vm, globalObject, thisStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) -> IterationStatus {
+        auto scope = DECLARE_THROW_SCOPE(vm);
+
         bool otherHasEntry = otherSet->has(globalObject, entryKey);
         RETURN_IF_EXCEPTION(scope, IterationStatus::Done);
+
         if (!otherHasEntry) {
             isSubset = false;
             return IterationStatus::Done;
         }
         return IterationStatus::Continue;
     });
-    RETURN_IF_EXCEPTION(scope, { });
-
     return JSValue::encode(jsBoolean(isSubset));
 }
 
 static EncodedJSValue fastSetDifference(JSGlobalObject* globalObject, JSSet* thisSet, JSSet* otherSet)
 {
     VM& vm = globalObject->vm();
-    auto scope = DECLARE_THROW_SCOPE(vm);
 
     JSSet* result = JSSet::create(vm, globalObject->setStructure());
 
@@ -451,6 +446,8 @@ static EncodedJSValue fastSetDifference(JSGlobalObject* globalObject, JSSet* thi
         return JSValue::encode(result);
 
     forEachInSetStorage(vm, globalObject, thisStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) {
+        auto scope = DECLARE_THROW_SCOPE(vm);
+
         bool otherHasEntry = otherSet->has(globalObject, entryKey);
         RETURN_IF_EXCEPTION(scope, void());
         if (!otherHasEntry) {
@@ -458,8 +455,6 @@ static EncodedJSValue fastSetDifference(JSGlobalObject* globalObject, JSSet* thi
             RETURN_IF_EXCEPTION(scope, void());
         }
     });
-    RETURN_IF_EXCEPTION(scope, { });
-
     return JSValue::encode(result);
 }
 
@@ -475,10 +470,8 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncDifference, (JSGlobalObject* globalObject, 
 
     if (otherValue.isCell()) [[likely]] {
         if (auto* otherSet = dynamicDowncast<JSSet>(otherValue.asCell())) [[likely]] {
-            if (setPrimordialWatchpointIsValid(vm, otherSet)) [[likely]] {
-                scope.release();
-                return fastSetDifference(globalObject, thisSet, otherSet);
-            }
+            if (setPrimordialWatchpointIsValid(vm, otherSet)) [[likely]]
+                RELEASE_AND_RETURN(scope, fastSetDifference(globalObject, thisSet, otherSet));
         }
     }
 
@@ -513,7 +506,10 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncDifference, (JSGlobalObject* globalObject, 
             RETURN_IF_EXCEPTION(scope, { });
         }
 
+        scope.release();
         forEachInSetStorage(vm, globalObject, resultStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) {
+            auto scope = DECLARE_THROW_SCOPE(vm);
+
             JSValue hasResult;
             if (cachedHasCall) [[likely]] {
                 hasResult = cachedHasCall->callWithArguments(globalObject, otherValue, entryKey);
@@ -533,8 +529,6 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncDifference, (JSGlobalObject* globalObject, 
                 RETURN_IF_EXCEPTION(scope, void());
             }
         });
-        RETURN_IF_EXCEPTION(scope, { });
-
         return JSValue::encode(result);
     }
 
@@ -603,22 +597,24 @@ static EncodedJSValue fastSetSymmetricDifference(JSGlobalObject* globalObject, J
     RETURN_IF_EXCEPTION(scope, { });
 
     JSCell* otherStorageCell = otherSet->storageOrSentinel(vm);
-    if (otherStorageCell != vm.orderedHashTableSentinel()) {
-        forEachInSetStorage(vm, globalObject, otherStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) {
-            bool thisHasEntry = thisSet->has(globalObject, entryKey);
+    if (otherStorageCell == vm.orderedHashTableSentinel())
+        return JSValue::encode(result);
+
+    scope.release();
+    forEachInSetStorage(vm, globalObject, otherStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) {
+        auto scope = DECLARE_THROW_SCOPE(vm);
+
+        bool thisHasEntry = thisSet->has(globalObject, entryKey);
+        RETURN_IF_EXCEPTION(scope, void());
+
+        if (thisHasEntry) {
+            result->remove(globalObject, entryKey);
             RETURN_IF_EXCEPTION(scope, void());
-
-            if (thisHasEntry) {
-                result->remove(globalObject, entryKey);
-                RETURN_IF_EXCEPTION(scope, void());
-            } else {
-                result->add(globalObject, entryKey);
-                RETURN_IF_EXCEPTION(scope, void());
-            }
-        });
-        RETURN_IF_EXCEPTION(scope, { });
-    }
-
+        } else {
+            result->add(globalObject, entryKey);
+            RETURN_IF_EXCEPTION(scope, void());
+        }
+    });
     return JSValue::encode(result);
 }
 
@@ -634,10 +630,8 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncSymmetricDifference, (JSGlobalObject* globa
 
     if (otherValue.isCell()) [[likely]] {
         if (auto* otherSet = dynamicDowncast<JSSet>(otherValue.asCell())) [[likely]] {
-            if (setPrimordialWatchpointIsValid(vm, otherSet)) [[likely]] {
-                scope.release();
-                return fastSetSymmetricDifference(globalObject, thisSet, otherSet);
-            }
+            if (setPrimordialWatchpointIsValid(vm, otherSet)) [[likely]]
+                RELEASE_AND_RETURN(scope, fastSetSymmetricDifference(globalObject, thisSet, otherSet));
         }
     }
 
@@ -732,10 +726,8 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIsSubsetOf, (JSGlobalObject* globalObject, 
 
     if (otherValue.isCell()) [[likely]] {
         if (auto* otherSet = dynamicDowncast<JSSet>(otherValue.asCell())) [[likely]] {
-            if (setPrimordialWatchpointIsValid(vm, otherSet)) [[likely]] {
-                scope.release();
-                return fastSetIsSubsetOf(globalObject, thisSet, otherSet);
-            }
+            if (setPrimordialWatchpointIsValid(vm, otherSet)) [[likely]]
+                RELEASE_AND_RETURN(scope, fastSetIsSubsetOf(globalObject, thisSet, otherSet));
         }
     }
 
@@ -769,8 +761,11 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIsSubsetOf, (JSGlobalObject* globalObject, 
         RETURN_IF_EXCEPTION(scope, { });
     }
 
+    scope.release();
     bool isSubset = true;
     forEachInSetStorage(vm, globalObject, thisStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) -> IterationStatus {
+        auto scope = DECLARE_THROW_SCOPE(vm);
+
         JSValue hasResult;
         if (cachedHasCall) [[likely]] {
             hasResult = cachedHasCall->callWithArguments(globalObject, otherValue, entryKey);
@@ -791,15 +786,12 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIsSubsetOf, (JSGlobalObject* globalObject, 
         }
         return IterationStatus::Continue;
     });
-    RETURN_IF_EXCEPTION(scope, { });
-
     return JSValue::encode(jsBoolean(isSubset));
 }
 
 static EncodedJSValue fastSetIsSupersetOf(JSGlobalObject* globalObject, JSSet* thisSet, JSSet* otherSet)
 {
     VM& vm = globalObject->vm();
-    auto scope = DECLARE_THROW_SCOPE(vm);
 
     if (thisSet->size() < otherSet->size())
         return JSValue::encode(jsBoolean(false));
@@ -810,6 +802,8 @@ static EncodedJSValue fastSetIsSupersetOf(JSGlobalObject* globalObject, JSSet* t
 
     bool isSuperset = true;
     forEachInSetStorage(vm, globalObject, otherStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) -> IterationStatus {
+        auto scope = DECLARE_THROW_SCOPE(vm);
+
         bool thisHasEntry = thisSet->has(globalObject, entryKey);
         RETURN_IF_EXCEPTION(scope, IterationStatus::Done);
         if (!thisHasEntry) {
@@ -818,8 +812,6 @@ static EncodedJSValue fastSetIsSupersetOf(JSGlobalObject* globalObject, JSSet* t
         }
         return IterationStatus::Continue;
     });
-    RETURN_IF_EXCEPTION(scope, { });
-
     return JSValue::encode(jsBoolean(isSuperset));
 }
 
@@ -835,10 +827,8 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIsSupersetOf, (JSGlobalObject* globalObject
 
     if (otherValue.isCell()) [[likely]] {
         if (auto* otherSet = dynamicDowncast<JSSet>(otherValue.asCell())) [[likely]] {
-            if (setPrimordialWatchpointIsValid(vm, otherSet)) [[likely]] {
-                scope.release();
-                return fastSetIsSupersetOf(globalObject, thisSet, otherSet);
-            }
+            if (setPrimordialWatchpointIsValid(vm, otherSet)) [[likely]]
+                RELEASE_AND_RETURN(scope, fastSetIsSupersetOf(globalObject, thisSet, otherSet));
         }
     }
 
@@ -921,7 +911,6 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIsSupersetOf, (JSGlobalObject* globalObject
 static EncodedJSValue fastSetIsDisjointFrom(JSGlobalObject* globalObject, JSSet* thisSet, JSSet* otherSet)
 {
     VM& vm = globalObject->vm();
-    auto scope = DECLARE_THROW_SCOPE(vm);
 
     JSSet* smallerSet = otherSet;
     JSSet* largerSet = thisSet;
@@ -936,6 +925,8 @@ static EncodedJSValue fastSetIsDisjointFrom(JSGlobalObject* globalObject, JSSet*
 
     bool isDisjoint = true;
     forEachInSetStorage(vm, globalObject, smallerStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) -> IterationStatus {
+        auto scope = DECLARE_THROW_SCOPE(vm);
+
         bool largerHasEntry = largerSet->has(globalObject, entryKey);
         RETURN_IF_EXCEPTION(scope, IterationStatus::Done);
         if (largerHasEntry) {
@@ -944,8 +935,6 @@ static EncodedJSValue fastSetIsDisjointFrom(JSGlobalObject* globalObject, JSSet*
         }
         return IterationStatus::Continue;
     });
-    RETURN_IF_EXCEPTION(scope, { });
-
     return JSValue::encode(jsBoolean(isDisjoint));
 }
 
@@ -961,10 +950,8 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIsDisjointFrom, (JSGlobalObject* globalObje
 
     if (otherValue.isCell()) [[likely]] {
         if (auto* otherSet = dynamicDowncast<JSSet>(otherValue.asCell())) [[likely]] {
-            if (setPrimordialWatchpointIsValid(vm, otherSet)) [[likely]] {
-                scope.release();
-                return fastSetIsDisjointFrom(globalObject, thisSet, otherSet);
-            }
+            if (setPrimordialWatchpointIsValid(vm, otherSet)) [[likely]]
+                RELEASE_AND_RETURN(scope, fastSetIsDisjointFrom(globalObject, thisSet, otherSet));
         }
     }
 
@@ -996,8 +983,11 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIsDisjointFrom, (JSGlobalObject* globalObje
             RETURN_IF_EXCEPTION(scope, { });
         }
 
+        scope.release();
         bool isDisjoint = true;
         forEachInSetStorage(vm, globalObject, thisStorageCell, 0, [&](VM&, JSGlobalObject* globalObject, JSValue entryKey) -> IterationStatus {
+            auto scope = DECLARE_THROW_SCOPE(vm);
+
             JSValue hasResult;
             if (cachedHasCall) [[likely]] {
                 hasResult = cachedHasCall->callWithArguments(globalObject, otherValue, entryKey);
@@ -1018,8 +1008,6 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIsDisjointFrom, (JSGlobalObject* globalObje
             }
             return IterationStatus::Continue;
         });
-        RETURN_IF_EXCEPTION(scope, { });
-
         return JSValue::encode(jsBoolean(isDisjoint));
     }
 

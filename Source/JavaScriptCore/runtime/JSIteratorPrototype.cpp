@@ -168,10 +168,7 @@ JSC_DEFINE_HOST_FUNCTION(iteratorProtoFuncToArray, (JSGlobalObject* globalObject
     });
     RETURN_IF_EXCEPTION(scope, { });
 
-    auto* array = constructArray(globalObject, static_cast<ArrayAllocationProfile*>(nullptr), value);
-    RETURN_IF_EXCEPTION(scope, { });
-
-    return JSValue::encode(array);
+    RELEASE_AND_RETURN(scope, JSValue::encode(constructArray(globalObject, static_cast<ArrayAllocationProfile*>(nullptr), value)));
 }
 
 // https://tc39.es/proposal-iterator-helpers/#sec-iteratorprototype.foreach
@@ -200,21 +197,23 @@ JSC_DEFINE_HOST_FUNCTION(iteratorProtoFuncForEach, (JSGlobalObject* globalObject
         CachedCall cachedCall(globalObject, uncheckedDowncast<JSFunction>(callbackArg), 2);
         RETURN_IF_EXCEPTION(scope, { });
 
+        scope.release();
         forEachInIteratorProtocol(globalObject, thisValue, [&](VM&, JSGlobalObject*, JSValue nextItem) ALWAYS_INLINE_LAMBDA {
             cachedCall.callWithArguments(globalObject, jsUndefined(), nextItem, jsNumber(counter++));
         });
-    } else {
-        forEachInIteratorProtocol(globalObject, thisValue, [&](VM&, JSGlobalObject*, JSValue nextItem) ALWAYS_INLINE_LAMBDA {
-            MarkedArgumentBuffer args;
-            args.append(nextItem);
-            args.append(jsNumber(counter++));
-            ASSERT(!args.hasOverflowed());
-
-            call(globalObject, callbackArg, callData, jsUndefined(), args);
-        });
+        return JSValue::encode(jsUndefined());
     }
 
-    RETURN_IF_EXCEPTION(scope, { });
+    scope.release();
+    forEachInIteratorProtocol(globalObject, thisValue, [&](VM&, JSGlobalObject*, JSValue nextItem) ALWAYS_INLINE_LAMBDA {
+        MarkedArgumentBuffer args;
+        args.append(nextItem);
+        args.append(jsNumber(counter++));
+        ASSERT(!args.hasOverflowed());
+
+        call(globalObject, callbackArg, callData, jsUndefined(), args);
+    });
+
     return JSValue::encode(jsUndefined());
 }
 
