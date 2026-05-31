@@ -1439,7 +1439,7 @@ public:
         m_pattern.m_userCharacterClasses.append(WTF::move(newCharacterClass));
     }
 
-    void atomParenthesesSubpatternBegin(bool capture = true, std::optional<String> optGroupName = std::nullopt)
+    void atomParenthesesSubpatternBegin(bool capture, std::optional<String> optGroupName = std::nullopt)
     {
         unsigned subpatternId = m_pattern.m_numSubpatterns + 1;
         if (capture) {
@@ -1774,7 +1774,7 @@ public:
         return m_error;
     }
 
-    [[nodiscard]] ErrorCode setupAlternativeOffsets(PatternAlternative* alternative, unsigned currentCallFrameSize, unsigned initialInputPosition, unsigned& newCallFrameSize)
+    [[nodiscard]] ErrorCode setupAlternativeOffsets(PatternAlternative* alternative, CheckedUint32 currentCallFrameSize, unsigned initialInputPosition, CheckedUint32& newCallFrameSize)
     {
         if (!isSafeToRecurse()) [[unlikely]]
             return ErrorCode::TooManyDisjunctions;
@@ -1798,6 +1798,8 @@ public:
                 term.inputPosition = currentInputPosition;
                 term.frameLocation = currentCallFrameSize;
                 currentCallFrameSize += YarrStackSpaceForBackTrackInfoBackReference;
+                if (currentCallFrameSize.hasOverflowed())
+                    return ErrorCode::FrameTooLarge;
                 alternative->m_hasFixedSize = false;
                 break;
 
@@ -1810,6 +1812,8 @@ public:
                 if (term.quantityType != QuantifierType::FixedCount) {
                     term.frameLocation = currentCallFrameSize;
                     currentCallFrameSize += YarrStackSpaceForBackTrackInfoPatternCharacter;
+                    if (currentCallFrameSize.hasOverflowed())
+                        return ErrorCode::FrameTooLarge;
                     alternative->m_hasFixedSize = false;
                 } else if (m_pattern.eitherUnicode()) {
                     CheckedUint32 tempCount = term.quantityMaxCount;
@@ -1826,10 +1830,14 @@ public:
                 if (term.quantityType != QuantifierType::FixedCount) {
                     term.frameLocation = currentCallFrameSize;
                     currentCallFrameSize += YarrStackSpaceForBackTrackInfoCharacterClass;
+                    if (currentCallFrameSize.hasOverflowed())
+                        return ErrorCode::FrameTooLarge;
                     alternative->m_hasFixedSize = false;
                 } else if (m_pattern.eitherUnicode()) {
                     term.frameLocation = currentCallFrameSize;
                     currentCallFrameSize += YarrStackSpaceForBackTrackInfoCharacterClass;
+                    if (currentCallFrameSize.hasOverflowed())
+                        return ErrorCode::FrameTooLarge;
                     if (term.characterClass->hasOneCharacterSize() && !term.invert()) {
                         CheckedUint32 tempCount = term.quantityMaxCount;
                         tempCount *= term.characterClass->hasNonBMPCharacters() ? 2 : 1;
@@ -1849,6 +1857,8 @@ public:
                 term.frameLocation = currentCallFrameSize;
                 if (term.quantityMaxCount == 1 && !term.parentheses.isCopy) {
                     currentCallFrameSize += YarrStackSpaceForBackTrackInfoParenthesesOnce;
+                    if (currentCallFrameSize.hasOverflowed())
+                        return ErrorCode::FrameTooLarge;
                     error = setupDisjunctionOffsets(term.parentheses.disjunction, currentCallFrameSize, currentInputPosition, currentCallFrameSize);
                     if (hasError(error))
                         return error;
@@ -1858,6 +1868,8 @@ public:
                     term.inputPosition = currentInputPosition;
                 } else if (term.parentheses.isTerminal) {
                     currentCallFrameSize += YarrStackSpaceForBackTrackInfoParenthesesTerminal;
+                    if (currentCallFrameSize.hasOverflowed())
+                        return ErrorCode::FrameTooLarge;
                     error = setupDisjunctionOffsets(term.parentheses.disjunction, currentCallFrameSize, currentInputPosition, currentCallFrameSize);
                     if (hasError(error))
                         return error;
@@ -1865,6 +1877,8 @@ public:
                 } else {
                     term.inputPosition = currentInputPosition;
                     currentCallFrameSize += YarrStackSpaceForBackTrackInfoParentheses;
+                    if (currentCallFrameSize.hasOverflowed())
+                        return ErrorCode::FrameTooLarge;
                     error = setupDisjunctionOffsets(term.parentheses.disjunction, currentCallFrameSize, currentInputPosition, currentCallFrameSize);
                     if (hasError(error))
                         return error;
@@ -1877,7 +1891,10 @@ public:
                 unsigned disjunctionInitialInputPosition = (term.matchDirection() == Forward) ? currentInputPosition.value() : 0;
                 term.inputPosition = currentInputPosition;
                 term.frameLocation = currentCallFrameSize;
-                error = setupDisjunctionOffsets(term.parentheses.disjunction, currentCallFrameSize + YarrStackSpaceForBackTrackInfoParentheticalAssertion, disjunctionInitialInputPosition, currentCallFrameSize);
+                currentCallFrameSize += YarrStackSpaceForBackTrackInfoParentheticalAssertion;
+                if (currentCallFrameSize.hasOverflowed())
+                    return ErrorCode::FrameTooLarge;
+                error = setupDisjunctionOffsets(term.parentheses.disjunction, currentCallFrameSize, disjunctionInitialInputPosition, currentCallFrameSize);
                 if (hasError(error))
                     return error;
                 break;
@@ -1889,6 +1906,8 @@ public:
                 term.inputPosition = initialInputPosition;
                 m_pattern.m_initialStartValueFrameLocation = currentCallFrameSize;
                 currentCallFrameSize += YarrStackSpaceForDotStarEnclosure;
+                if (currentCallFrameSize.hasOverflowed())
+                    return ErrorCode::FrameTooLarge;
                 m_pattern.m_saveInitialStartValue = true;
                 break;
             }
@@ -1897,17 +1916,20 @@ public:
         }
 
         alternative->m_minimumSize = currentInputPosition - initialInputPosition;
-        newCallFrameSize = currentCallFrameSize;
+        newCallFrameSize = currentCallFrameSize.value();
         return error;
     }
 
-    ErrorCode setupDisjunctionOffsets(PatternDisjunction* disjunction, unsigned initialCallFrameSize, unsigned initialInputPosition, unsigned& callFrameSize)
+    ErrorCode setupDisjunctionOffsets(PatternDisjunction* disjunction, CheckedUint32 initialCallFrameSize, unsigned initialInputPosition, CheckedUint32& callFrameSize)
     {
         if (!isSafeToRecurse()) [[unlikely]]
             return ErrorCode::TooManyDisjunctions;
 
-        if ((disjunction != m_pattern.m_body) && (disjunction->m_alternatives.size() > 1))
+        if ((disjunction != m_pattern.m_body) && (disjunction->m_alternatives.size() > 1)) {
             initialCallFrameSize += YarrStackSpaceForBackTrackInfoAlternative;
+            if (initialCallFrameSize.hasOverflowed())
+                return ErrorCode::FrameTooLarge;
+        }
 
         bool shareOffsets = (disjunction == m_pattern.m_body);
 
@@ -1916,15 +1938,15 @@ public:
         bool hasFixedSize = true;
         ErrorCode error = ErrorCode::NoError;
 
-        unsigned perAlternativeInitial = initialCallFrameSize;
+        CheckedUint32 perAlternativeInitial = initialCallFrameSize;
         for (unsigned alt = 0; alt < disjunction->m_alternatives.size(); ++alt) {
             PatternAlternative* alternative = disjunction->m_alternatives[alt].get();
-            unsigned currentAlternativeCallFrameSize;
+            CheckedUint32 currentAlternativeCallFrameSize;
             error = setupAlternativeOffsets(alternative, perAlternativeInitial, initialInputPosition, currentAlternativeCallFrameSize);
             if (hasError(error))
                 return error;
             minimumInputSize = std::min(minimumInputSize, alternative->m_minimumSize);
-            maximumCallFrameSize = std::max(maximumCallFrameSize, currentAlternativeCallFrameSize);
+            maximumCallFrameSize = std::max(maximumCallFrameSize, currentAlternativeCallFrameSize.value());
             hasFixedSize &= alternative->m_hasFixedSize;
             if (alternative->m_minimumSize > INT_MAX)
                 m_pattern.m_containsUnsignedLengthPattern = true;
@@ -1944,7 +1966,7 @@ public:
     ErrorCode setupOffsets()
     {
         // FIXME: Yarr should not use the stack to handle subpatterns (rdar://problem/26436314).
-        unsigned ignoredCallFrameSize;
+        CheckedUint32 ignoredCallFrameSize;
         return setupDisjunctionOffsets(m_pattern.m_body, 0, 0, ignoredCallFrameSize);
     }
 
