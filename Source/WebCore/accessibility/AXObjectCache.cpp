@@ -1010,19 +1010,16 @@ void AXObjectCache::onLaidOutInlineContent(const RenderBlockFlow& renderBlock)
     setDirtyStitchGroups(renderBlock);
 }
 
-AccessibilityObject* AXObjectCache::getOrCreate(Widget& widget)
+AccessibilityObject* AXObjectCache::getOrCreateSlow(Widget& widget)
 {
-    if (RefPtr object = get(widget))
-        return object.unsafeGet();
+    // `get` for this Widget should've been attempted before calling this method.
+    AX_ASSERT(!get(widget));
 
     RefPtr<AccessibilityObject> newObject;
     if (auto* scrollView = dynamicDowncast<ScrollView>(widget))
         newObject = AccessibilityScrollView::create(AXID::generate(), *scrollView, *this);
     else if (auto* scrollbar = dynamicDowncast<Scrollbar>(widget))
         newObject = AccessibilityScrollbar::create(AXID::generate(), *scrollbar, *this);
-
-    // Will crash later if we have two objects for the same widget.
-    AX_ASSERT(!get(widget));
 
     // Ensure we weren't given an unsupported widget type.
     AX_ASSERT(newObject);

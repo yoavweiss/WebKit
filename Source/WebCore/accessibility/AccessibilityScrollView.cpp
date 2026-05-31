@@ -68,23 +68,36 @@ AccessibilityScrollView::~AccessibilityScrollView()
 
 bool AccessibilityScrollView::isRoot() const
 {
+    if (m_isRoot)
+        return *m_isRoot;
+
     RefPtr frameView = dynamicDowncast<FrameView>(m_scrollView.get());
+    if (!frameView) {
+        // m_scrollView may be transiently unavailable (e.g. during teardown), so don't memoize a result
+        // we couldn't determine. Once we have a valid frame view, root-ness is invariant for our lifetime.
+        return false;
+    }
 
 #if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
-    // A remote frame is not a root.
-    if (frameView && frameView->isRemoteFrameView())
-        return false;
+    if (frameView->isRemoteFrameView()) {
+        // A remote frame is not a root.
+        m_isRoot = false;
+        return *m_isRoot;
+    }
 
-    // Interpret this as "is this the root of the local frame"
+    // Interpret this as "is this the root of the local frame".
     WeakPtr cache = axObjectCache();
     if (!cache)
         return false;
 
-    return document() == cache->document();
+    // AXObjectCache::m_document is const, so we can safely cache m_isRoot here.
+    m_isRoot = document() == cache->document();
 #else
-    // Interpret this as "is this the root of the whole page"
-    return frameView && frameView->frame().isMainFrame();
-#endif
+    // Interpret this as "is this the root of the whole page".
+    // A frame's main-frame-ness never changes.
+    m_isRoot = frameView->frame().isMainFrame();
+#endif // ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+    return *m_isRoot;
 }
 
 String AccessibilityScrollView::ownerDebugDescription() const

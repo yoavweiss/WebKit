@@ -44,8 +44,8 @@ class RenderObject;
 class StyleProperties;
 
 bool hasRole(Element&, StringView role);
-bool hasAnyRole(Element&, Vector<StringView>&& roles);
-bool hasAnyRole(Element*, Vector<StringView>&& roles);
+bool hasAnyRole(Element&, std::initializer_list<StringView> roles);
+bool hasAnyRole(Element*, std::initializer_list<StringView> roles);
 bool hasCellARIARole(Element&);
 bool hasPresentationRole(Element&);
 bool hasTableRole(Element&);

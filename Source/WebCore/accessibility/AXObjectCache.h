@@ -386,6 +386,7 @@ private:
     void attachWrapper(AccessibilityObject&);
 
     AccessibilityObject* getOrCreateSlow(Node&, IsPartOfRelation);
+    AccessibilityObject* getOrCreateSlow(Widget&);
 
 #if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
     RefPtr<AccessibilityScrollView> scrollViewForFrame(LocalFrame&);
