@@ -130,6 +130,7 @@ NSString * const NSInspectorBarTextAlignmentItemIdentifier = @"NSInspectorBarTex
 + (_NSCornerRadius *)fixedRadius:(CGFloat)radius;
 @end
 
+#if !defined(__has_include) || !__has_include(<AppKit/NSViewCornerRadii.h>)
 @interface NSViewCornerRadii : NSObject
 @property CGFloat topLeft;
 @property CGFloat topRight;
@@ -137,11 +138,14 @@ NSString * const NSInspectorBarTextAlignmentItemIdentifier = @"NSInspectorBarTex
 @property CGFloat bottomRight;
 @property (copy) CALayerCornerCurve cornerCurve;
 @end
+#endif
 
+#if !defined(__has_include) || !__has_include(<AppKit/NSViewCornerConfiguration.h>)
 @interface NSViewCornerConfiguration : NSObject
 + (NSViewCornerConfiguration *)configurationWithRadius:(_NSCornerRadius *)radius;
 + (instancetype)configurationWithTopLeftRadius:(nullable _NSCornerRadius *)topLeftRadius topRightRadius:(nullable _NSCornerRadius *)topRightRadius bottomLeftRadius:(nullable _NSCornerRadius *)bottomLeftRadius bottomRightRadius:(nullable _NSCornerRadius *)bottomRightRadius;
 @end
+#endif
 
 @interface NSView (NSViewCornerConfiguration)
 @property (nullable, readonly) NSViewCornerRadii *_effectiveCornerRadii;

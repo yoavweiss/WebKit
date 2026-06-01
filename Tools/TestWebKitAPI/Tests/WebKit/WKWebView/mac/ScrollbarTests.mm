@@ -60,11 +60,19 @@
 
 - (NSViewCornerConfiguration *)_cornerConfiguration
 {
+#if defined(__has_include) && __has_include(<AppKit/NSViewCornerRadius.h>)
+    return [NSViewCornerConfiguration
+        configurationWithTopLeftRadius:[NSViewCornerRadius fixedRadius:self.topLeftRadius]
+        topRightRadius:[NSViewCornerRadius fixedRadius:self.topRightRadius]
+        bottomLeftRadius:[NSViewCornerRadius fixedRadius:self.bottomLeftRadius]
+        bottomRightRadius:[NSViewCornerRadius fixedRadius:self.bottomRightRadius]];
+#else
     return [NSViewCornerConfiguration
         configurationWithTopLeftRadius:[_NSCornerRadius fixedRadius:self.topLeftRadius]
         topRightRadius:[_NSCornerRadius fixedRadius:self.topRightRadius]
         bottomLeftRadius:[_NSCornerRadius fixedRadius:self.bottomLeftRadius]
         bottomRightRadius:[_NSCornerRadius fixedRadius:self.bottomRightRadius]];
+#endif
 }
 
 @end
