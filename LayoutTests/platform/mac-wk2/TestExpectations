@@ -2402,3 +2402,6 @@ webkit.org/b/315960 [ Sequoia Release x86_64 ] fast/canvas/canvas-blending-color
 webkit.org/b/315960 [ Sequoia Release x86_64 ] fast/canvas/toDataURL-not-empty.html [ Pass Failure ]
 webkit.org/b/315960 [ Sequoia Release x86_64 ] fast/canvas/toDataURL-supportedTypes.html [ Pass Failure ]
 
+webkit.org/b/315963 [ Sequoia Release x86_64 ] fast/webgpu/copy-image-mismatched-dimensions.html [ Pass Timeout ]
+webkit.org/b/315963 [ Sequoia Release x86_64 ] fast/webgpu/nocrash/fuzz-274271.html [ Pass Timeout ]
+
