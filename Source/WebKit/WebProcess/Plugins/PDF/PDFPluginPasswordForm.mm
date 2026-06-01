@@ -80,7 +80,7 @@ Ref<Element> PDFPluginPasswordForm::createAnnotationElement()
 
 void PDFPluginPasswordForm::unlockFailed()
 {
-    RefPtr { m_subtitleElement }->setTextContent(pdfPasswordFormInvalidPasswordSubtitle());
+    protect(m_subtitleElement)->setTextContent(pdfPasswordFormInvalidPasswordSubtitle());
 }
 
 void PDFPluginPasswordForm::updateGeometry()
