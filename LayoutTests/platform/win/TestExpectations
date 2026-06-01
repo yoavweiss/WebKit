@@ -2488,6 +2488,7 @@ fast/events/keydown-numpad-keys.html [ Failure ]
 fast/events/mouseover-button.html [ Failure ]
 fast/events/mouseup-from-button2.html [ Failure ]
 fast/events/option-tab.html [ Failure ]
+fast/events/popup-blocking-timers3.html [ Skip ] # Crash
 fast/events/popup-blocking-timers5.html [ Pass Failure ]
 fast/events/scroll-in-scaled-page-with-overflow-hidden.html [ Skip ] # Timeout
 fast/events/shadow-event-path-2.html [ Failure ]
@@ -4704,6 +4705,10 @@ fast/text/vertical-quotation-marks.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-fonts/generic-family-lang-attr-cascade.html [ ImageOnlyFailure ]
 
 http/tests/security/offscreen-canvas-remote-read-remote-image.html [ Skip ]
+
+http/tests/security/no-javascript-location-percent-escaped.html [ Skip ] # Crash
+http/tests/security/no-javascript-location.html [ Skip ] # Crash
+http/tests/security/no-javascript-refresh-percent-escaped.py [ Skip ] # Crash
 
 imported/w3c/web-platform-tests/largest-contentful-paint/broken-image-icon.html [ Skip ] # Flake
 imported/w3c/web-platform-tests/largest-contentful-paint/transparent-text.html [ Skip ] # Flake or perhaps always fails
