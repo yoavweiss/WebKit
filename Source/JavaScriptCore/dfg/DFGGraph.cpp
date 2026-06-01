@@ -1562,6 +1562,8 @@ ObjectPropertyConditionSet Graph::tryEnsureAbsence(JSGlobalObject* globalObject,
             return false;
         if (!structure->propertyAccessesAreCacheableForAbsence())
             return false;
+        if (structure->isDictionary())
+            return false;
         unsigned attributes;
         if (isValidOffset(structure->getConcurrently(identifier.uid(), attributes)))
             return false;
