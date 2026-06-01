@@ -920,6 +920,7 @@
 				WebKit/WKWebView/ios/GestureRecognizerTests.mm,
 				WebKit/WKWebView/ios/GrantAccessToMobileAssets.mm,
 				WebKit/WKWebView/ios/KeyboardInputTestsIOS.mm,
+				WebKit/WKWebView/ios/ModalDialogDuringOverlappingFocus.mm,
 				WebKit/WKWebView/ios/OverflowScrollViewTests.mm,
 				WebKit/WKWebView/ios/RenderingProgressTests.mm,
 				WebKit/WKWebView/ios/ScrollViewBouncesTests.mm,

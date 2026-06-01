@@ -603,6 +603,7 @@ struct ImageAnalysisContextMenuActionData {
     BOOL _needsDeferredEndScrollingSelectionUpdate;
     BOOL _isChangingFocus;
     BOOL _isFocusingElementWithKeyboard;
+    unsigned _focusGeneration;
     BOOL _isBlurringFocusedElement;
     BOOL _isRelinquishingFirstResponderToFocusedElement;
     BOOL _unsuppressSoftwareKeyboardAfterNextAutocorrectionContextUpdate;
