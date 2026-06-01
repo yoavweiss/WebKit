@@ -338,16 +338,16 @@ public:
     {
         // Don't handle inverted classes or classes with ranges for now
         // Only handle simple character sets like [acg] or [cgt]
-        if (charClass.m_matches.isEmpty())
+        if (charClass.m_matches8.isEmpty())
             return false;
-        if (!charClass.m_ranges.isEmpty())
+        if (!charClass.m_ranges8.isEmpty())
             return false;
-        if (!charClass.m_matchesUnicode.isEmpty() || !charClass.m_rangesUnicode.isEmpty())
+        if (!charClass.m_matches32.isEmpty() || !charClass.m_ranges32.isEmpty())
             return false;
 
         // Collect all characters (and their case variants if ignoreCase)
         Vector<uint8_t, 32> chars;
-        for (char32_t ch : charClass.m_matches) {
+        for (char32_t ch : charClass.m_matches8) {
             if (!isASCII(ch))
                 return false; // ASCII only
 
@@ -1141,10 +1141,15 @@ class YarrGenerator final : public YarrJITInfo {
 
         Vector<char32_t, 32> unifiedMatches;
         Vector<CharacterRange, 32> unifiedRanges;
-        unifiedMatches.appendVector(charClass->m_matches);
-        unifiedMatches.appendVector(charClass->m_matchesUnicode);
-        unifiedRanges.appendVector(charClass->m_ranges);
-        unifiedRanges.appendVector(charClass->m_rangesUnicode);
+        unifiedMatches.appendVector(charClass->m_matches8);
+        unifiedRanges.appendVector(charClass->m_ranges8);
+        // m_matches32 / m_ranges32 hold non-Latin-1 entries (>= 0x100). For Char8
+        // input the character register can only ever hold a value <= 0xff, so those entries
+        // are unreachable — skip them to avoid emitting dead compares.
+        if (m_charSize != CharSize::Char8) {
+            unifiedMatches.appendVector(charClass->m_matches32);
+            unifiedRanges.appendVector(charClass->m_ranges32);
+        }
 
         ASSERT(std::is_sorted(unifiedMatches.begin(), unifiedMatches.end(), [](auto& lhs, auto& rhs) {
             return lhs < rhs;
@@ -1185,9 +1190,13 @@ class YarrGenerator final : public YarrJITInfo {
 #endif
             if (term->invert())
                 matchCharacterClass(character, scratch, failures, characterClassToProcess);
-            else if (characterClassToProcess->m_matches.isEmpty() && characterClassToProcess->m_matchesUnicode.isEmpty()
-                && (characterClassToProcess->m_ranges.size() + characterClassToProcess->m_rangesUnicode.size()) == 1) {
-                matchCharacterClassOnlyOneRange(character, scratch, failures, characterClassToProcess->m_ranges.size() ? characterClassToProcess->m_ranges : characterClassToProcess->m_rangesUnicode);
+            else if (characterClassToProcess->m_matches8.isEmpty() && characterClassToProcess->m_matches32.isEmpty()
+                && (characterClassToProcess->m_ranges8.size() + characterClassToProcess->m_ranges32.size()) == 1) {
+                if (m_charSize == CharSize::Char8 && characterClassToProcess->m_ranges8.isEmpty()) {
+                    // The sole range is in m_ranges32 (>= 0x100), unreachable for Char8 input.
+                    failures.append(m_jit.jump());
+                } else
+                    matchCharacterClassOnlyOneRange(character, scratch, failures, characterClassToProcess->m_ranges8.size() ? characterClassToProcess->m_ranges8 : characterClassToProcess->m_ranges32);
             } else {
                 MacroAssembler::JumpList matchDest;
                 // If we are matching the "any character" builtin class for non-unicode patterns,
@@ -1201,13 +1210,7 @@ class YarrGenerator final : public YarrJITInfo {
             }
         };
 
-        if (m_charSize == CharSize::Char8) {
-            CharacterClass characterClass8Bit;
-
-            characterClass8Bit.copyOnly8BitCharacterData(*term->characterClass);
-            processCharacterClass(&characterClass8Bit);
-        } else
-            processCharacterClass(term->characterClass);
+        processCharacterClass(term->characterClass);
 
         // Note that this falls through on a successful characterClass match.
     }
@@ -1344,8 +1347,8 @@ class YarrGenerator final : public YarrJITInfo {
         MacroAssembler::JumpList& failures)
     {
         ASSERT(m_charSize == CharSize::Char16);
-        ASSERT(trailsOnlyClass->m_matches.isEmpty());
-        ASSERT(trailsOnlyClass->m_ranges.isEmpty());
+        ASSERT(trailsOnlyClass->m_matches8.isEmpty());
+        ASSERT(trailsOnlyClass->m_ranges8.isEmpty());
 
         MacroAssembler::BaseIndex address = negativeOffsetIndexedAddress(negativeCharacterOffset, character, indexReg);
         m_jit.getEffectiveAddress(address, m_regs.regUnicodeInputAndTrail);
@@ -1357,8 +1360,8 @@ class YarrGenerator final : public YarrJITInfo {
         // into each cmp — no separate and+cmp+lsr needed. ARM64's cached-temp
         // tracker emits movk-only updates between consecutive compares since only
         // the upper 16 bits change.
-        if (trailsOnlyClass->m_rangesUnicode.isEmpty() && !trailsOnlyClass->m_matchesUnicode.isEmpty()) {
-            const auto& matches = trailsOnlyClass->m_matchesUnicode;
+        if (trailsOnlyClass->m_ranges32.isEmpty() && !trailsOnlyClass->m_matches32.isEmpty()) {
+            const auto& matches = trailsOnlyClass->m_matches32;
 #if CPU(ARM64)
             // For 2+ matches, fold the chain into cmp + ccmp(NE, Z=1) ... + b.ne.
             // ccmp keeps the EQ flag sticky once any compare matches, so the
@@ -1390,8 +1393,8 @@ class YarrGenerator final : public YarrJITInfo {
 
         // Fast path for a single trail-only range (e.g., FlushRegExp's [0xa1-0xae]):
         // emit a single sub+cmp+b.hi straight to outer failures with no trampolines.
-        if (trailsOnlyClass->m_matchesUnicode.isEmpty() && trailsOnlyClass->m_rangesUnicode.size() == 1) {
-            const auto& range = trailsOnlyClass->m_rangesUnicode[0];
+        if (trailsOnlyClass->m_matches32.isEmpty() && trailsOnlyClass->m_ranges32.size() == 1) {
+            const auto& range = trailsOnlyClass->m_ranges32[0];
 #if CPU(ARM64)
             // Fold the lead-check and range-check into a single conditional branch
             // via ccmp. Saves one instruction and one branch per inner iteration.
@@ -1433,20 +1436,20 @@ class YarrGenerator final : public YarrJITInfo {
 
     static void buildTrailsOnlyClass(const CharacterClass& source, CharacterClass& dest)
     {
-        for (auto cp : source.m_matchesUnicode) {
+        for (auto cp : source.m_matches32) {
             ASSERT(!U_IS_BMP(cp));
-            dest.m_matchesUnicode.append(U16_TRAIL(cp));
+            dest.m_matches32.append(U16_TRAIL(cp));
         }
 
-        for (auto& range : source.m_rangesUnicode) {
+        for (auto& range : source.m_ranges32) {
             ASSERT(!U_IS_BMP(range.begin));
             ASSERT(!U_IS_BMP(range.end));
             char32_t trailBegin = U16_TRAIL(range.begin);
             char32_t trailEnd = U16_TRAIL(range.end);
-            dest.m_rangesUnicode.append(CharacterRange(trailBegin, trailEnd));
+            dest.m_ranges32.append(CharacterRange(trailBegin, trailEnd));
         }
-        std::ranges::sort(dest.m_matchesUnicode);
-        std::ranges::sort(dest.m_rangesUnicode, [](auto& a, auto& b) { return a.begin < b.begin; });
+        std::ranges::sort(dest.m_matches32);
+        std::ranges::sort(dest.m_ranges32, [](auto& a, auto& b) { return a.begin < b.begin; });
     }
 #endif
 
@@ -6054,14 +6057,14 @@ class YarrGenerator final : public YarrJITInfo {
                     bmInfo.shortenLength(cursor + 1);
                 return cursor;
             }
-            if (!characterClass.m_rangesUnicode.isEmpty())
-                bmInfo.addRanges(cursor, characterClass.m_rangesUnicode);
-            if (!characterClass.m_matchesUnicode.isEmpty())
-                bmInfo.addCharacters(cursor, characterClass.m_matchesUnicode);
-            if (!characterClass.m_ranges.isEmpty())
-                bmInfo.addRanges(cursor, characterClass.m_ranges);
-            if (!characterClass.m_matches.isEmpty())
-                bmInfo.addCharacters(cursor, characterClass.m_matches);
+            if (!characterClass.m_ranges32.isEmpty())
+                bmInfo.addRanges(cursor, characterClass.m_ranges32);
+            if (!characterClass.m_matches32.isEmpty())
+                bmInfo.addCharacters(cursor, characterClass.m_matches32);
+            if (!characterClass.m_ranges8.isEmpty())
+                bmInfo.addRanges(cursor, characterClass.m_ranges8);
+            if (!characterClass.m_matches8.isEmpty())
+                bmInfo.addCharacters(cursor, characterClass.m_matches8);
 
             // If this is greedy one-character pattern "a?", we should not increase cursor.
             // If we see greedy pattern, then we cut bmInfo here to avoid possibility explosion.

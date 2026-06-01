@@ -550,36 +550,36 @@ public:
 
         const size_t thresholdForBinarySearch = 6;
 
-        if (!isASCII(ch)) {
-            if (characterClass->m_matchesUnicode.size()) {
-                if (characterClass->m_matchesUnicode.size() > thresholdForBinarySearch) {
-                    if (binarySearchMatches(characterClass->m_matchesUnicode))
+        if (!isLatin1(ch)) {
+            if (characterClass->m_matches32.size()) {
+                if (characterClass->m_matches32.size() > thresholdForBinarySearch) {
+                    if (binarySearchMatches(characterClass->m_matches32))
                         return true;
-                } else if (linearSearchMatches(characterClass->m_matchesUnicode))
+                } else if (linearSearchMatches(characterClass->m_matches32))
                     return true;
             }
 
-            if (characterClass->m_rangesUnicode.size()) {
-                if (characterClass->m_rangesUnicode.size() > thresholdForBinarySearch) {
-                    if (binarySearchRanges(characterClass->m_rangesUnicode))
+            if (characterClass->m_ranges32.size()) {
+                if (characterClass->m_ranges32.size() > thresholdForBinarySearch) {
+                    if (binarySearchRanges(characterClass->m_ranges32))
                         return true;
-                } else if (linearSearchRanges(characterClass->m_rangesUnicode))
+                } else if (linearSearchRanges(characterClass->m_ranges32))
                     return true;
             }
         } else {
-            if (characterClass->m_matches.size()) {
-                if (characterClass->m_matches.size() > thresholdForBinarySearch) {
-                    if (binarySearchMatches(characterClass->m_matches))
+            if (characterClass->m_matches8.size()) {
+                if (characterClass->m_matches8.size() > thresholdForBinarySearch) {
+                    if (binarySearchMatches(characterClass->m_matches8))
                         return true;
-                } else if (linearSearchMatches(characterClass->m_matches))
+                } else if (linearSearchMatches(characterClass->m_matches8))
                     return true;
             }
 
-            if (characterClass->m_ranges.size()) {
-                if (characterClass->m_ranges.size() > thresholdForBinarySearch) {
-                    if (binarySearchRanges(characterClass->m_ranges))
+            if (characterClass->m_ranges8.size()) {
+                if (characterClass->m_ranges8.size() > thresholdForBinarySearch) {
+                    if (binarySearchRanges(characterClass->m_ranges8))
                         return true;
-                } else if (linearSearchRanges(characterClass->m_ranges))
+                } else if (linearSearchRanges(characterClass->m_ranges8))
                     return true;
             }
         }
