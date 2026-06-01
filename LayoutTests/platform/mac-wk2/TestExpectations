@@ -2422,3 +2422,5 @@ webkit.org/b/315972 [ Sequoia Debug x86_64 ] webrtc/multi-audio.html [ Pass Fail
 
 webkit.org/b/315973 [ Sequoia Release x86_64 ] imported/w3c/web-platform-tests/webrtc-encoded-transform/script-transform-generateKeyFrame.https.html [ Pass Failure ]
 
+webkit.org/b/315975 [ Sequoia Debug x86_64 ] compositing/repaint/become-overlay-composited-layer.html [ Pass Failure ]
+
