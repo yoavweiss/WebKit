@@ -687,21 +687,23 @@ auto IntersectionObserver::updateObservations(const Frame& hostFrame) -> NeedNot
 
     auto needNotify = NeedNotify::No;
 
-    for (auto& target : observationTargets()) {
+    // Iterate on a copy of m_observationTargets, in case something in the loop mutates it.
+    auto observationTargets = m_observationTargets;
+    for (Ref target : observationTargets) {
         // For implicit-root observers, a target whose owning Document is not fully
         // active (e.g. created via document.implementation.createHTMLDocument) cannot
         // produce an intersection. Skip without advancing the registration state, so a
         // later adopt into a fully-active document is treated as the first observation.
         // Drop the first-observation keep-alive so a permanently detached target/document
         // can be collected (intersection-observer/no-document-leak.html).
-        if (!root() && !target.document().isFullyActive()) {
+        if (!root() && !target->document().isFullyActive()) {
             m_targetsWaitingForFirstObservation.removeFirstMatching([&](auto& pendingTarget) {
-                return pendingTarget.ptr() == &target;
+                return pendingTarget.ptr() == target.ptr();
             });
             continue;
         }
 
-        auto& targetRegistrations = target.intersectionObserverDataIfExists()->registrations;
+        auto& targetRegistrations = target->intersectionObserverDataIfExists()->registrations;
         auto index = targetRegistrations.findIf([&](auto& registration) {
             return registration.observer.get() == this;
         });
@@ -710,7 +712,7 @@ auto IntersectionObserver::updateObservations(const Frame& hostFrame) -> NeedNot
 
         bool isSameOriginObservation = [&] () {
             if (RefPtr hostFrameSecurityOrigin = hostFrame.frameDocumentSecurityOrigin())
-                return protect(target.document().securityOrigin())->isSameOriginDomain(*hostFrameSecurityOrigin);
+                return protect(target->document().securityOrigin())->isSameOriginDomain(*hostFrameSecurityOrigin);
 
             return false;
         }();
@@ -735,8 +737,8 @@ auto IntersectionObserver::updateObservations(const Frame& hostFrame) -> NeedNot
                 ASSERT(intersectionState.absoluteTargetRect);
                 ASSERT(intersectionState.absoluteRootBounds);
 
-                RefPtr targetFrameView = target.document().view();
-                auto targetZoomForClient = target.document().zoomForClient(target.renderer()->style());
+                RefPtr targetFrameView = target->document().view();
+                auto targetZoomForClient = target->document().zoomForClient(target->renderer()->style());
                 targetBoundingClientRect = targetFrameView->absoluteToClientRect(*intersectionState.absoluteTargetRect, targetZoomForClient);
                 clientRootBounds = hostFrameView->absoluteToLayoutViewportRect(*intersectionState.absoluteRootBounds);
 
