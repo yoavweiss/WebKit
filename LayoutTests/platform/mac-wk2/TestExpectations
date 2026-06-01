@@ -1189,7 +1189,6 @@ webkit.org/b/245010 imported/w3c/web-platform-tests/html/browsers/browsing-the-w
 
 #webkit.org/b/248537 Batch mark expectations for Ventura test failures
 webrtc/canvas-to-peer-connection-2d.html [ Pass Failure ]
-webrtc/canvas-to-peer-connection.html [ Pass Failure ]
 [ x86_64 ] scrollbars/scrolling-by-page-accounting-oversized-fixed-elements-on-keyboard-spacebar.html [ Pass Failure ]
 [ x86_64 ] imported/mozilla/svg/blend-color.svg [ ImageOnlyFailure ]
 [ x86_64 ] imported/w3c/web-platform-tests/css/css-grid/alignment/grid-item-aspect-ratio-stretch-2.html [ Pass ImageOnlyFailure ]
@@ -2417,4 +2416,7 @@ webkit.org/b/315968 [ Sequoia Release x86_64 ] fast/scrolling/scroll-anchoring/h
 
 webkit.org/b/315971 [ Sequoia Release x86_64 ] ietestcenter/css3/bordersbackgrounds/background-attachment-local-scrolling.htm [ Pass Timeout ]
 webkit.org/b/315971 [ Sequoia Release x86_64 ] ietestcenter/css3/multicolumn/column-block-formatting-context-001.htm [ Pass Timeout ]
+
+webkit.org/b/315972 [ Sequoia Debug x86_64 ] webrtc/canvas-to-peer-connection.html [ Pass Failure Timeout ]
+webkit.org/b/315972 [ Sequoia Debug x86_64 ] webrtc/multi-audio.html [ Pass Failure ]
 
