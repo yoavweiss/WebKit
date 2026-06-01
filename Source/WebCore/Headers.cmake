@@ -1350,6 +1350,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     dom/LoadableScript.h
     dom/LoadableScriptClient.h
     dom/LoadableScriptError.h
+    dom/LocalNameWithNamespace.h
     dom/MessagePort.h
     dom/MessagePortIdentifier.h
     dom/ModuleFetchParameters.h

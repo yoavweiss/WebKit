@@ -54,6 +54,7 @@
 #include "HitTestResult.h"
 #include "LocalFrameInlines.h"
 #include "LocalFrameView.h"
+#include "LocalNameWithNamespace.h"
 #include "NamedNodeMap.h"
 #include "NodeList.h"
 #include "NodeRenderStyle.h"
@@ -251,7 +252,7 @@ static inline String computeTagAndAttributeSelector(const Element& element, cons
     if (!element.hasAttributes())
         return emptyString();
 
-    static NeverDestroyed<MemoryCompactLookupOnlyRobinHoodHashSet<QualifiedName>> attributesToExclude { std::initializer_list<QualifiedName> {
+    static NeverDestroyed<MemoryCompactLookupOnlyRobinHoodHashSet<LocalNameWithNamespace>> attributesToExclude { std::initializer_list<LocalNameWithNamespace> {
         HTMLNames::classAttr,
         HTMLNames::idAttr,
         HTMLNames::styleAttr,
@@ -427,7 +428,7 @@ static String parentRelativeSelectorRecursive(Element& element, ElementSelectorC
 
 static String computeHasChildSelector(Element& element)
 {
-    static NeverDestroyed<MemoryCompactLookupOnlyRobinHoodHashSet<QualifiedName>> tagsToCheckForUniqueAttributes { std::initializer_list<QualifiedName> {
+    static NeverDestroyed<MemoryCompactLookupOnlyRobinHoodHashSet<LocalNameWithNamespace>> tagsToCheckForUniqueAttributes { std::initializer_list<LocalNameWithNamespace> {
         HTMLNames::aTag,
         HTMLNames::imgTag,
         HTMLNames::timeTag,

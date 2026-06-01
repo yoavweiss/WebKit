@@ -776,7 +776,7 @@ AccessibilityRole AccessibilityNodeObject::roleFromInputElement(const HTMLInputE
     return AccessibilityRole::TextField;
 }
 
-bool AccessibilityNodeObject::isDescendantOfElementType(const HashSet<QualifiedName>& tagNames) const
+bool AccessibilityNodeObject::isDescendantOfElementType(const HashSet<LocalNameWithNamespace>& tagNames) const
 {
     if (!m_node)
         return false;
