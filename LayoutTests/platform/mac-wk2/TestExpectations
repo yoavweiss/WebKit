@@ -2412,3 +2412,6 @@ webkit.org/b/315966 [ Sequoia Release x86_64 ] http/wpt/service-workers/fetch-se
 webkit.org/b/315967 [ Sequoia Release x86_64 ] fast/dom/HTMLAnchorElement/anchor-file-blob-convert-to-download-async-delegate.html [ Pass Failure ]
 webkit.org/b/315967 [ Sequoia Release x86_64 ] fast/dom/HTMLAnchorElement/anchor-file-blob-convert-to-download.html [ Pass Failure ]
 
+webkit.org/b/315968 [ Sequoia Release x86_64 ] fast/scrolling/mac/rubberband-overflow-in-wheel-region.html [ Pass Timeout ]
+webkit.org/b/315968 [ Sequoia Release x86_64 ] fast/scrolling/scroll-anchoring/heuristic-disabled-above-threshold.html [ Pass Failure ]
+
