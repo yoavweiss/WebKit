@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2024 Apple Inc. All rights reserved.
- * Copyright (C) 2024-2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2024-2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -575,7 +575,7 @@ static bool NODELETE hasNonCalculatedZeroPercentage(const CSS::ColorMix::Compone
 
 static std::optional<CSS::Color> consumeColorMixFunction(CSSParserTokenRange& range, ColorParserState& state)
 {
-    // color-mix() = color-mix( <color-interpolation-method> , [ <color> && <percentage [0,100]>? ]#{2})
+    // color-mix() = color-mix( <color-interpolation-method>? , [ <color> && <percentage [0,100]>? ]# )
     // https://drafts.csswg.org/css-color-5/#color-mix
 
     ASSERT(range.peek().functionId() == CSSValueColorMix);
@@ -592,39 +592,28 @@ static std::optional<CSS::Color> consumeColorMixFunction(CSSParserTokenRange& ra
             return std::nullopt;
     }
 
-    auto mixComponent1 = consumeColorMixComponent(args, state);
-    if (!mixComponent1)
-        return std::nullopt;
-
-    if (!consumeCommaIncludingWhitespace(args))
-        return std::nullopt;
-
-    auto mixComponent2 = consumeColorMixComponent(args, state);
-    if (!mixComponent2)
-        return std::nullopt;
+    CommaSeparatedVector<CSS::ColorMix::Component> components;
+    do {
+        auto mixComponent = consumeColorMixComponent(args, state);
+        if (!mixComponent)
+            return std::nullopt;
+        components.value.append(WTF::move(*mixComponent));
+    } while (consumeCommaIncludingWhitespace(args));
 
     if (!args.atEnd())
         return std::nullopt;
 
-    if (hasNonCalculatedZeroPercentage(*mixComponent1) && hasNonCalculatedZeroPercentage(*mixComponent2)) {
-        // This eagerly marks the parse as invalid if both percentage components are non-calc
-        // and equal to 0. This satisfies step 5 of section 2.1. Percentage Normalization in
-        // https://w3c.github.io/csswg-drafts/css-color-5/#color-mix which states:
-        //    "If the percentages sum to zero, the function is invalid."
-        //
-        // The only way the percentages can sum to zero is both are zero, since we reject any
-        // percentages less than zero, and missing percentages are treated as "100% - p(other)".
-        //
-        // FIXME: Should we also do this for calculated values? Or should we let the parse be
-        // valid and fail to produce a valid color at style building time.
+    if (std::ranges::all_of(components, hasNonCalculatedZeroPercentage)) {
+        // This eagerly marks the parse as invalid if all percentage components are non-calc
+        // and equal to 0. This doesn't seem to be required by the spec, but is currently
+        // required by WPT. See https://github.com/w3c/csswg-drafts/issues/13996.
         return std::nullopt;
     }
 
     return CSS::Color {
         CSS::ColorMix {
             .colorInterpolationMethod = WTF::move(*colorInterpolationMethod),
-            .mixComponents1 = WTF::move(*mixComponent1),
-            .mixComponents2 = WTF::move(*mixComponent2)
+            .components = WTF::move(components),
         }
     };
 }
