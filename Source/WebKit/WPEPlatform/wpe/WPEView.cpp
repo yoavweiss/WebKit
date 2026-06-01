@@ -951,7 +951,7 @@ gboolean wpe_view_render_buffer(WPEView* view, WPEBuffer* buffer, const WPERecta
  *
  * Notify that the set of graphics buffers used to render the view have changed.
  *
- * The [signal@View::buffers_changed] signal will be emitted.
+ * The [signal@View::buffers-changed] signal will be emitted.
  */
 void wpe_view_buffers_changed(WPEView* view, WPEBuffer** buffers, guint nBuffers)
 {

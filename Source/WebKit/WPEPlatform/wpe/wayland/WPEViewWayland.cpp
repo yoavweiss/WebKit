@@ -735,7 +735,7 @@ static void wpe_view_wayland_class_init(WPEViewWaylandClass* viewWaylandClass)
  * wpe_view_wayland_get_wl_surface: (skip)
  * @view: a #WPEViewWayland
  *
- * Get the native Wayland view of @view
+ * Get the native Wayland surface of @view
  *
  * Returns: (transfer none) (nullable): a Wayland `wl_surface`
  */

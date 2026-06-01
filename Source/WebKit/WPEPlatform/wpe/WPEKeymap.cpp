@@ -42,7 +42,7 @@ static void wpe_keymap_class_init(WPEKeymapClass*)
 }
 
 /**
- * wpe_keymap_get_entries_for_keycode:
+ * wpe_keymap_get_entries_for_keyval:
  * @keymap: a #WPEKeymap
  * @keyval: a keyval
  * @entries: (out): return location for array of #WPEKeymapEntry
