@@ -1345,6 +1345,24 @@ void GraphicsContextCG::strokeArc(const PathArc& arc)
     GraphicsContext::strokeArc(arc);
 }
 
+void GraphicsContextCG::strokeLine(const PathDataLine& line)
+{
+    // Gradient stroking requires building a stroked path and clipping to it,
+    // which CGContextStrokeLineSegments cannot do. Defer to strokePath() via
+    // the base class for that case. Patterns can be inlined as long as we set
+    // them up first, matching the fast path inside strokePath().
+    if (strokeGradient()) {
+        GraphicsContext::strokeLine(line);
+        return;
+    }
+    if (strokePattern())
+        applyStrokePattern();
+
+    CGContextRef context = platformContext();
+    CGPoint pts[2] = { line.start(), line.end() };
+    CGContextStrokeLineSegments(context, pts, 2);
+}
+
 void GraphicsContextCG::setLineCap(LineCap cap)
 {
     switch (cap) {

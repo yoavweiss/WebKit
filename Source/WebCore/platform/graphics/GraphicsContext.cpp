@@ -548,6 +548,17 @@ void GraphicsContext::strokeArc(const PathArc& arc)
     strokePath(Path({ PathSegment { arc } }));
 }
 
+void GraphicsContext::strokeLine(const PathDataLine& line)
+{
+#if ENABLE(INLINE_PATH_DATA)
+    auto path = Path({ PathSegment { PathDataLine { { line.start() }, { line.end() } } } });
+#else
+    Path path;
+    path.moveTo(line.start());
+    path.addLineTo(line.end());
+#endif
+}
+
 void GraphicsContext::fillEllipseAsPath(const FloatRect& ellipse)
 {
     Path path;

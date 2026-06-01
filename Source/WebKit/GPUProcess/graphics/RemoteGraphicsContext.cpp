@@ -645,14 +645,7 @@ void RemoteGraphicsContext::strokeRect(const FloatRect& rect, float lineWidth)
 
 void RemoteGraphicsContext::strokeLine(const PathDataLine& line)
 {
-#if ENABLE(INLINE_PATH_DATA)
-    auto path = Path({ PathSegment { PathDataLine { { line.start() }, { line.end() } } } });
-#else
-    Path path;
-    path.moveTo(line.start);
-    path.addLineTo(line.end);
-#endif
-    context().strokePath(path);
+    context().strokeLine(line);
 }
 
 void RemoteGraphicsContext::strokeLineWithColorAndThickness(const PathDataLine& line, std::optional<PackedColor::RGBA> strokeColor, std::optional<float> strokeThickness)
