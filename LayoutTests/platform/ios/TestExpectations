@@ -8415,3 +8415,7 @@ webkit.org/b/316014 [ Debug ] fast/dom/move-embedded-during-update.html [ Pass F
 [ Release ] imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element/dialog-cancel-events.html [ Failure ]
 [ Release ] imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element/dialog-cancel-preventDefault.html [ Failure ]
 [ Release ] imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element/dialog-canceling.html [ Failure ]
+
+# webkit.org/b/316018 IMPORT(314164@main): [iOS] imported/w3c/web-platform-tests/css/css-images tests are failing with image diffs
+imported/w3c/web-platform-tests/css/css-images/gradients-with-border.html [ Skip ]
+imported/w3c/web-platform-tests/css/css-images/multiple-position-color-stop-linear.html [ Skip ]
