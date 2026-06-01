@@ -52,6 +52,7 @@
 #include "JSPropertyNameEnumerator.h"
 #include "JSSet.h"
 #include "JSSetIterator.h"
+#include "JSStringIteratorInlines.h"
 #include "JSWithScope.h"
 #include "LLIntCommon.h"
 #include "LLIntExceptions.h"
@@ -812,6 +813,8 @@ ALWAYS_INLINE UGPRPair iteratorOpenTryFastImpl(VM& vm, JSGlobalObject* globalObj
     auto& iterator = GET(bytecode.m_iterator);
 
     auto iterationMode = getIterationMode(vm, globalObject, iterable, symbolIterator);
+    if (iterationMode != IterationMode::Generic && !canUseFastIterationMode(metadata.m_iterationMetadata.seenModes, iterationMode)) [[unlikely]]
+        iterationMode = IterationMode::Generic;
     if (iterationMode == IterationMode::FastArray) {
         // We should be good to go.
         metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::FastArray;
@@ -838,6 +841,15 @@ ALWAYS_INLINE UGPRPair iteratorOpenTryFastImpl(VM& vm, JSGlobalObject* globalObj
         iterator = JSSetIterator::create(vm, globalObject->setIteratorStructure(), set, IterationKind::Values);
         PROFILE_VALUE_IN(iterator.jsValue(), m_iteratorValueProfile);
         return encodeResult(pc, reinterpret_cast<void*>(static_cast<uintptr_t>(IterationMode::FastSet)));
+    }
+
+    if (iterationMode == IterationMode::FastString) {
+        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::FastString;
+        GET(bytecode.m_next) = JSValue();
+        auto* string = asString(iterable);
+        iterator = JSStringIterator::create(vm, globalObject->stringIteratorStructure(), string);
+        PROFILE_VALUE_IN(iterator.jsValue(), m_iteratorValueProfile);
+        return encodeResult(pc, reinterpret_cast<void*>(static_cast<uintptr_t>(IterationMode::FastString)));
     }
 
     auto validationResult = validateIterable(vm, iterable, symbolIterator);
@@ -933,6 +945,20 @@ ALWAYS_INLINE UGPRPair iteratorNextTryFastImpl(VM& vm, JSGlobalObject* globalObj
         } else
             GET(bytecode.m_value) = JSValue();
         return encodeResult(pc, reinterpret_cast<void*>(IterationMode::FastSet));
+    }
+
+    if (auto stringIterator = dynamicDowncast<JSStringIterator>(iterator)) {
+        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::FastString;
+        JSString* value = stringIterator->nextWithAdvance(globalObject, vm);
+        CHECK_EXCEPTION();
+        bool done = !value;
+        GET(bytecode.m_done) = jsBoolean(done);
+        if (!done) {
+            PROFILE_VALUE_IN(value, m_valueValueProfile);
+            GET(bytecode.m_value) = value;
+        } else
+            GET(bytecode.m_value) = JSValue();
+        return encodeResult(pc, reinterpret_cast<void*>(IterationMode::FastString));
     }
 
     RELEASE_ASSERT_NOT_REACHED();

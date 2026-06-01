@@ -6133,6 +6133,11 @@ void SpeculativeJIT::compile(Node* node)
         break;
     }
 
+    case StringIteratorNext: {
+        compileStringIteratorNext(node);
+        break;
+    }
+
     case EnumeratorNextUpdatePropertyName: {
         compileEnumeratorNextUpdatePropertyName(node);
         break;

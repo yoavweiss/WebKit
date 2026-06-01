@@ -77,6 +77,7 @@
 #include "JSSet.h"
 #include "JSSetIterator.h"
 #include "JSStringIterator.h"
+#include "JSStringIteratorInlines.h"
 #include "JSWeakMapInlines.h"
 #include "JSWeakSet.h"
 #include "JSWrapForValidIterator.h"
@@ -5877,6 +5878,23 @@ JSC_DEFINE_JIT_OPERATION(operationSetIterationEntryKey, EncodedJSValue, (JSGloba
     ASSERT(cell != vm.orderedHashTableSentinel());
     JSSet::Storage& storage = *uncheckedDowncast<JSSet::Storage>(cell);
     OPERATION_RETURN(scope, JSValue::encode(JSSet::Helper::getIterationEntryKey(storage)));
+}
+
+JSC_DEFINE_JIT_OPERATION(operationStringIteratorNext, UGPRPair, (JSGlobalObject* globalObject, JSString* string, int32_t position))
+{
+    VM& vm = globalObject->vm();
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    auto [value, nextPosition] = JSStringIterator::advance(globalObject, vm, string, position);
+    OPERATION_RETURN_IF_EXCEPTION(scope, UGPRPair { });
+
+    // The tuple's first element is typed SpecString, so represent "done" with the empty string
+    // rather than a null cell. It is never observed (consumers check done first).
+    if (!value)
+        value = vm.smallStrings.emptyString();
+    OPERATION_RETURN(scope, makeUGPRPair(std::bit_cast<UCPURegister>(value), static_cast<uint32_t>(nextPosition)));
 }
 
 JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationMapIteratorNext, EncodedJSValue, (VM* vmPointer, JSCell* cell))

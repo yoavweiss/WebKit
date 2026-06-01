@@ -3012,6 +3012,14 @@ private:
             break;
         }
 
+        case StringIteratorNext: {
+            fixEdge<StringUse>(node->child1());
+            fixEdge<Int32Use>(node->child2());
+            m_graph.m_tupleData.at(node->tupleOffset()).resultFlags = NodeResultJS;
+            m_graph.m_tupleData.at(node->tupleOffset() + 1).resultFlags = NodeResultInt32;
+            break;
+        }
+
         case ExtractFromTuple: {
             node->setResult(m_graph.m_tupleData.at(node->tupleIndex()).resultFlags);
             ASSERT(node->hasResult());

@@ -1797,6 +1797,9 @@ private:
         case EnumeratorNextUpdateIndexAndMode:
             compileEnumeratorNextUpdateIndexAndMode();
             break;
+        case StringIteratorNext:
+            compileStringIteratorNext();
+            break;
         case EnumeratorNextUpdatePropertyName:
             compileEnumeratorNextUpdatePropertyName();
             break;
@@ -18154,6 +18157,60 @@ IGNORE_CLANG_WARNINGS_END
             return;
         }
         setJSValue(vmCall(Int64, operationGetPropertyEnumerator, weakPointer(globalObject), lowJSValue(m_node->child1())));
+    }
+
+    void compileStringIteratorNext()
+    {
+        JSGlobalObject* globalObject = m_graph.globalObjectFor(m_origin.semantic);
+        LValue string = lowString(m_node->child1());
+        LValue position = lowInt32(m_node->child2());
+
+        LBasicBlock notRope = m_out.newBlock();
+        LBasicBlock is8BitCheck = m_out.newBlock();
+        LBasicBlock fastChar = m_out.newBlock();
+        LBasicBlock doneBlock = m_out.newBlock();
+        LBasicBlock slowPath = m_out.newBlock();
+        LBasicBlock continuation = m_out.newBlock();
+
+        // Inline only the resolved 8-bit single-character fast path. 8-bit characters are never
+        // surrogates, so the result is always a cached single-character string with no allocation.
+        // Ropes, 16-bit strings, and surrogate pairs fall back to operationStringIteratorNext.
+        m_out.branch(isRopeString(string, m_node->child1()), rarely(slowPath), usually(notRope));
+
+        LBasicBlock lastNext = m_out.appendTo(notRope, is8BitCheck);
+        LValue stringImpl = m_out.loadPtr(string, m_heaps.JSString_value);
+        LValue length = m_out.load32NonNegative(stringImpl, m_heaps.StringImpl_length);
+        // position >= length is an unsigned compare, which also catches position == doneIndex (-1).
+        m_out.branch(m_out.aboveOrEqual(position, length), unsure(doneBlock), unsure(is8BitCheck));
+
+        m_out.appendTo(is8BitCheck, fastChar);
+        m_out.branch(
+            m_out.testIsZero32(m_out.load32(stringImpl, m_heaps.StringImpl_hashAndFlags), m_out.constInt32(StringImpl::flagIs8Bit())),
+            rarely(slowPath), usually(fastChar));
+
+        m_out.appendTo(fastChar, doneBlock);
+        LValue character = m_out.load8ZeroExt32(m_out.baseIndex(m_heaps.characters8, m_out.loadPtr(stringImpl, m_heaps.StringImpl_data), m_out.zeroExtPtr(position)));
+        LValue smallStrings = m_out.constIntPtr(vm().smallStrings.singleCharacterStrings());
+        ValueFromBlock fastValue = m_out.anchor(m_out.loadPtr(m_out.baseIndex(m_heaps.singleCharacterStrings, smallStrings, m_out.zeroExtPtr(character))));
+        ValueFromBlock fastPosition = m_out.anchor(m_out.add(position, m_out.int32One));
+        m_out.jump(continuation);
+
+        m_out.appendTo(doneBlock, slowPath);
+        ValueFromBlock doneValue = m_out.anchor(weakPointer(jsEmptyString(vm())));
+        ValueFromBlock donePosition = m_out.anchor(m_out.constInt32(JSStringIterator::doneIndex));
+        m_out.jump(continuation);
+
+        m_out.appendTo(slowPath, continuation);
+        LValue tuple = vmCall(toOperationType(pointerType()), operationStringIteratorNext, weakPointer(globalObject), string, position);
+        ValueFromBlock slowValue = m_out.anchor(m_out.extract(tuple, 0));
+        ValueFromBlock slowPosition = m_out.anchor(m_out.castToInt32(m_out.extract(tuple, 1)));
+        m_out.jump(continuation);
+
+        m_out.appendTo(continuation, lastNext);
+        // We have to keep string alive since that keeps the StringImpl we read characters from alive.
+        ensureStillAliveHere(string);
+        setTuple(0, m_out.phi(Int64, fastValue, doneValue, slowValue));
+        setTuple(1, m_out.phi(Int32, fastPosition, donePosition, slowPosition));
     }
 
     void compileEnumeratorNextUpdateIndexAndMode()

@@ -81,7 +81,6 @@ static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncStartsWith);
 static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncEndsWith);
 static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncIncludes);
 static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncNormalize);
-static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncIterator);
 static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncIsWellFormed);
 static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncToWellFormed);
 static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncAt);
@@ -180,7 +179,7 @@ void StringPrototype::finishCreation(VM& vm, JSGlobalObject* globalObject)
     putDirectWithoutTransition(vm, Identifier::fromString(vm, "trimEnd"_s), trimEndFunction, static_cast<unsigned>(PropertyAttribute::DontEnum));
     putDirectWithoutTransition(vm, Identifier::fromString(vm, "trimRight"_s), trimEndFunction, static_cast<unsigned>(PropertyAttribute::DontEnum));
 
-    JSFunction* iteratorFunction = JSFunction::create(vm, globalObject, 0, "[Symbol.iterator]"_s, stringProtoFuncIterator, ImplementationVisibility::Public, JSStringIteratorIntrinsic);
+    JSFunction* iteratorFunction = globalObject->stringProtoSymbolIteratorFunction();
     putDirectWithoutTransition(vm, vm.propertyNames->iteratorSymbol, iteratorFunction, static_cast<unsigned>(PropertyAttribute::DontEnum));
 
     JSC_NATIVE_INTRINSIC_FUNCTION_WITHOUT_TRANSITION(vm.propertyNames->builtinNames().substrPrivateName(), stringProtoFuncSubstr, static_cast<unsigned>(PropertyAttribute::DontEnum), 2, ImplementationVisibility::Public, StringPrototypeSubstrIntrinsic);

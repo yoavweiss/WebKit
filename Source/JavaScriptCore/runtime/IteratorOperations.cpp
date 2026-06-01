@@ -468,6 +468,16 @@ IterationMode getIterationMode(VM&, JSGlobalObject* globalObject, JSValue iterab
         return IterationMode::FastSet;
     }
 
+    if (iterable.isString()) {
+        if (!globalObject->stringIteratorProtocolWatchpointSet().isStillValid())
+            return IterationMode::Generic;
+
+        if (globalObject->stringProtoSymbolIteratorFunctionConcurrently() != symbolIteratorFunction)
+            return IterationMode::Generic;
+
+        return IterationMode::FastString;
+    }
+
     return IterationMode::Generic;
 }
 

@@ -15106,6 +15106,71 @@ void SpeculativeJIT::compileThrowStaticError(Node* node)
     noResult(node);
 }
 
+void SpeculativeJIT::compileStringIteratorNext(Node* node)
+{
+    SpeculateCellOperand string(this, node->child1());
+    SpeculateStrictInt32Operand position(this, node->child2());
+    GPRTemporary resultValue(this);
+    GPRTemporary resultPosition(this);
+
+    GPRReg stringGPR = string.gpr();
+    GPRReg positionGPR = position.gpr();
+    GPRReg resultValueGPR = resultValue.gpr();
+    GPRReg resultPositionGPR = resultPosition.gpr();
+
+    speculateString(node->child1(), stringGPR);
+
+    VM& vm = this->vm();
+    JumpList slowCases;
+    JumpList doneCases;
+
+    // Inline only the resolved 8-bit single-character fast path. 8-bit characters are never
+    // surrogates, so the result is always a cached single-character string with no allocation.
+    // Ropes, 16-bit strings, and surrogate pairs fall back to operationStringIteratorNext.
+    loadPtr(Address(stringGPR, JSString::offsetOfValue()), resultValueGPR);
+    slowCases.append(branchIfRopeStringImpl(resultValueGPR));
+    load32(Address(resultValueGPR, StringImpl::lengthMemoryOffset()), resultPositionGPR);
+
+    // position >= length is an unsigned compare, which also catches position == doneIndex (-1).
+    Jump isDone = branch32(AboveOrEqual, positionGPR, resultPositionGPR);
+
+    slowCases.append(branchTest32(Zero, Address(resultValueGPR, StringImpl::flagsOffset()), TrustedImm32(StringImpl::flagIs8Bit())));
+
+    loadPtr(Address(resultValueGPR, StringImpl::dataOffset()), resultValueGPR);
+    load8(BaseIndex(resultValueGPR, positionGPR, TimesOne, 0), resultValueGPR);
+    lshift32(TrustedImm32(sizeof(void*) == 4 ? 2 : 3), resultValueGPR);
+    addPtr(TrustedImmPtr(vm.smallStrings.singleCharacterStrings()), resultValueGPR);
+    loadPtr(Address(resultValueGPR), resultValueGPR);
+    add32(TrustedImm32(1), positionGPR, resultPositionGPR);
+    doneCases.append(jump());
+
+    isDone.link(this);
+    loadLinkableConstant(LinkableConstant(*this, jsEmptyString(vm)), resultValueGPR);
+    move(TrustedImm32(JSStringIterator::doneIndex), resultPositionGPR);
+
+    doneCases.link(this);
+
+    Vector<SilentRegisterSavePlan> savePlans;
+    silentSpillAllRegistersImpl(false, savePlans, resultValueGPR, resultPositionGPR);
+    Label doneOperationCall = label();
+    addSlowPathGeneratorLambda([=, this, savePlans = WTF::move(savePlans), slowCases = WTF::move(slowCases)]() mutable {
+        slowCases.link(this);
+        silentSpill(savePlans);
+        setupArguments<decltype(operationStringIteratorNext)>(LinkableConstant::globalObject(*this, node), stringGPR, positionGPR);
+        appendCall(operationStringIteratorNext);
+        std::optional<GPRReg> exceptionReg = tryHandleOrGetExceptionUnderSilentSpill<decltype(operationStringIteratorNext)>(savePlans, resultValueGPR, resultPositionGPR);
+        setupResults(resultValueGPR, resultPositionGPR);
+        silentFill(savePlans);
+        if (exceptionReg)
+            exceptionCheck(*exceptionReg);
+        jump().linkTo(doneOperationCall, this);
+    });
+
+    useChildren(node);
+    cellTupleResultWithoutUsingChildren(resultValueGPR, node, 0);
+    strictInt32TupleResultWithoutUsingChildren(resultPositionGPR, node, 1);
+}
+
 void SpeculativeJIT::compileEnumeratorNextUpdateIndexAndMode(Node* node)
 {
     Edge baseEdge = m_graph.varArgChild(node, 0);
@@ -17093,7 +17158,7 @@ void SpeculativeJIT::compileExtractFromTuple(Node* node)
     switch (node->result()) {
     case NodeResultJS:
     case NodeResultNumber:
-        ASSERT(info.isFormat(DataFormatJS));
+        ASSERT(info.isFormat(DataFormatJS) || info.isFormat(DataFormatJSCell) || info.isFormat(DataFormatCell));
         break;
     case NodeResultDouble:
         ASSERT(info.isFormat(DataFormatDouble) || info.isFormat(DataFormatJSDouble));

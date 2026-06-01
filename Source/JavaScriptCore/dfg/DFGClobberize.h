@@ -2356,6 +2356,14 @@ void clobberize(Graph& graph, Node* node, const ReadFunctor& read, const WriteFu
         def(PureValue(node));
         return;
 
+    case StringIteratorNext:
+        // Reads only immutable string contents and allocates the result string, so it is pure
+        // with respect to the heap. It never touches the iterator object, so the
+        // GetInternalField/PutInternalField pair around it stays visible to
+        // ObjectAllocationSinking. Unlike other pure nodes we do not def(PureValue) here: this is
+        // a tuple node and CSE's value-replacement would corrupt ExtractFromTuple references.
+        return;
+
     case CompareBelow:
     case CompareBelowEq:
         def(PureValue(node));

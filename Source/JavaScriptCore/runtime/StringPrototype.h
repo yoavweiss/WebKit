@@ -67,6 +67,7 @@ JSValue stringSearchSlow(JSGlobalObject*, JSString* thisString, JSValue regexpVa
 JSC_DECLARE_HOST_FUNCTION(stringProtoFuncSplit);
 JSCell* stringSplitFast(JSGlobalObject*, JSString* thisString, JSString* separatorString, unsigned limit);
 JSC_DECLARE_HOST_FUNCTION(stringProtoFuncSubstring);
+JSC_DECLARE_HOST_FUNCTION(stringProtoFuncIterator);
 
 JSC_DECLARE_HOST_FUNCTION(builtinStringIncludesInternal);
 JSC_DECLARE_HOST_FUNCTION(builtinStringIndexOfInternal);

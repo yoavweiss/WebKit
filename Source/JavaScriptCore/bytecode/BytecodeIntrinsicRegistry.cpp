@@ -104,8 +104,6 @@ BytecodeIntrinsicRegistry::BytecodeIntrinsicRegistry(VM& vm)
     m_setIteratorFieldIteratedObject.set(m_vm, jsNumber(static_cast<int32_t>(JSSetIterator::Field::IteratedObject)));
     m_setIteratorFieldStorage.set(m_vm, jsNumber(static_cast<int32_t>(JSSetIterator::Field::Storage)));
     m_setIteratorFieldKind.set(m_vm, jsNumber(static_cast<int32_t>(JSSetIterator::Field::Kind)));
-    m_stringIteratorFieldIndex.set(m_vm, jsNumber(static_cast<int32_t>(JSStringIterator::Field::Index)));
-    m_stringIteratorFieldIteratedString.set(m_vm, jsNumber(static_cast<int32_t>(JSStringIterator::Field::IteratedString)));
     m_asyncGeneratorFieldQueue.set(m_vm, jsNumber(static_cast<unsigned>(JSAsyncGenerator::Field::Queue)));
     m_asyncGeneratorFieldResumeValue.set(m_vm, jsNumber(static_cast<unsigned>(JSAsyncGenerator::Field::ResumeValue)));
     m_asyncGeneratorFieldResumeMode.set(m_vm, jsNumber(static_cast<unsigned>(JSAsyncGenerator::Field::ResumeMode)));

@@ -36,11 +36,26 @@ enum class IterationMode : uint8_t {
     FastArray = 1 << 1,
     FastMap = 1 << 2,
     FastSet = 1 << 3,
+    FastString = 1 << 4,
 };
 
-constexpr uint8_t numberOfIterationModes = 4;
+constexpr uint8_t numberOfIterationModes = 5;
+
+// To keep the amount of code emitted for one iteration site reasonable, we only allow this many
+// distinct fast iteration modes per site. Once the limit is reached, newly observed iterable
+// types are recorded and handled as Generic instead.
+constexpr unsigned maxNumberOfFastIterationModes = 2;
 
 OVERLOAD_BITWISE_OPERATORS_FOR_ENUM_CLASS_WITH_INTERGRALS(IterationMode);
+
+inline bool canUseFastIterationMode(uint8_t seenModes, IterationMode mode)
+{
+    ASSERT(mode != IterationMode::Generic);
+    uint8_t seenFastModes = seenModes & ~static_cast<uint8_t>(IterationMode::Generic);
+    if (seenFastModes & static_cast<uint8_t>(mode))
+        return true;
+    return static_cast<unsigned>(std::popcount(seenFastModes)) < maxNumberOfFastIterationModes;
+}
 
 struct IterationModeMetadata {
     uint8_t seenModes { 0 };

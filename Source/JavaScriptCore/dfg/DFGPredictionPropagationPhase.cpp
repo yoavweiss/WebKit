@@ -1576,6 +1576,11 @@ private:
             break;
         }
 
+        case StringIteratorNext: {
+            setTuplePredictions(SpecString, SpecInt32Only);
+            break;
+        }
+
         case EnumeratorNextUpdatePropertyName: {
             setPrediction(SpecStringIdent);
             break;

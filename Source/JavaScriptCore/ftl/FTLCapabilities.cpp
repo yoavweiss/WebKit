@@ -352,6 +352,7 @@ inline CapabilityLevel canCompile(DFG::Node* node)
     case ResolveRope:
     case GetPropertyEnumerator:
     case EnumeratorNextUpdateIndexAndMode:
+    case StringIteratorNext:
     case EnumeratorNextUpdatePropertyName:
     case EnumeratorGetByVal:
     case EnumeratorInByVal:

@@ -956,6 +956,19 @@ public:
         }
     }
 
+    void cellTupleResultWithoutUsingChildren(GPRReg reg, Node* node, unsigned index)
+    {
+        ASSERT(index < node->tupleSize());
+        unsigned refCount = m_graph.m_tupleData.at(node->tupleOffset() + index).refCount;
+        if (!refCount)
+            return;
+        ASSERT(refCount == 1);
+        VirtualRegister virtualRegister = m_graph.m_tupleData.at(node->tupleOffset() + index).virtualRegister;
+        GenerationInfo& info = generationInfoFromVirtualRegister(virtualRegister);
+        m_gprs.retain(reg, virtualRegister, SpillOrderCell);
+        info.initCell(node, refCount, reg);
+    }
+
     template<typename OperationType>
     void operationExceptionCheck()
     {
@@ -1746,6 +1759,7 @@ public:
     void compileThrowStaticError(Node*);
 
     void NODELETE compileExtractFromTuple(Node*);
+    void compileStringIteratorNext(Node*);
     void compileEnumeratorNextUpdateIndexAndMode(Node*);
     void compileEnumeratorNextUpdatePropertyName(Node*);
     void compileEnumeratorGetByVal(Node*);

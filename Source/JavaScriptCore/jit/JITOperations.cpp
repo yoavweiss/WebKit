@@ -66,6 +66,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 #include "JSPromise.h"
 #include "JSRemoteFunction.h"
 #include "JSSetIterator.h"
+#include "JSStringIteratorInlines.h"
 #include "JSWithScope.h"
 #include "JumpTable.h"
 #include "LLIntEntrypoint.h"
@@ -3469,6 +3470,15 @@ JSC_DEFINE_JIT_OPERATION(operationIteratorNextTryFast, UGPRPair, (JSGlobalObject
         JSValue nextKey = setIterator->nextWithAdvance(vm);
         bool done = nextKey.isEmpty();
         JSValue value = done ? JSValue() : nextKey;
+        OPERATION_RETURN(scope, makeUGPRPair(JSValue::encode(jsBoolean(done)), JSValue::encode(value)));
+    }
+
+    if (auto* stringIterator = dynamicDowncast<JSStringIterator>(iterator)) {
+        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::FastString;
+        JSString* nextValue = stringIterator->nextWithAdvance(globalObject, vm);
+        OPERATION_RETURN_IF_EXCEPTION(scope, makeUGPRPair(0, 0));
+        bool done = !nextValue;
+        JSValue value = done ? JSValue() : JSValue(nextValue);
         OPERATION_RETURN(scope, makeUGPRPair(JSValue::encode(jsBoolean(done)), JSValue::encode(value)));
     }
 

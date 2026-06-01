@@ -380,6 +380,7 @@ namespace JSC { namespace DFG {
     macro(StringCharCodeAt, NodeResultInt32) \
     macro(StringCodePointAt, NodeResultInt32) \
     macro(StringCharAt, NodeResultJS) \
+    macro(StringIteratorNext, 0) \
     macro(StringFromCharCode, NodeResultJS | NodeMustGenerate) \
     macro(StringFromCodePoint, NodeResultJS | NodeMustGenerate) \
     \
