@@ -20,12 +20,9 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import importlib
+from unittest import mock
 
 from webkitcorepy import mocks
-from webkitcorepy.call_by_need import CallByNeed
-
-mock = CallByNeed(lambda: importlib.import_module('unittest.mock'))
 
 
 class PartialProxy(mocks.ContextStack):
