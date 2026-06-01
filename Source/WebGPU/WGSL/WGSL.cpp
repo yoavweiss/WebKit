@@ -83,6 +83,8 @@ static ASCIILiteral wgslExtensionToWebGPUFeatureName(Extension extension)
         return "clip-distances"_s;
     case Extension::F16:
         return "shader-f16"_s;
+    case Extension::PrimitiveIndex:
+        return "primitive-index"_s;
     }
 }
 

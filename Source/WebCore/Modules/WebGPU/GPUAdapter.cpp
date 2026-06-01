@@ -87,6 +87,7 @@ static GPUFeatureName convertFeatureNameToEnum(const String& stringValue)
         { "float32-filterable"_s, GPUFeatureName::Float32Filterable },
         { "float32-renderable"_s, GPUFeatureName::Float32Renderable },
         { "indirect-first-instance"_s, GPUFeatureName::IndirectFirstInstance },
+        { "primitive-index"_s, GPUFeatureName::PrimitiveIndex },
         { "rg11b10ufloat-renderable"_s, GPUFeatureName::Rg11b10ufloatRenderable },
         { "shader-f16"_s, GPUFeatureName::ShaderF16 },
         { "texture-compression-astc"_s, GPUFeatureName::TextureCompressionAstc },

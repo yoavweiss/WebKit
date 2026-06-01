@@ -1134,6 +1134,9 @@ void FunctionDefinitionWriter::visit(AST::BuiltinAttribute& builtin)
     case Builtin::Position:
         m_body.append("[[position]]"_s);
         break;
+    case Builtin::PrimitiveIndex:
+        m_body.append("[[primitive_id]]"_s);
+        break;
     case Builtin::SampleIndex:
         m_body.append("[[sample_id]]"_s);
         break;
