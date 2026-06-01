@@ -57,6 +57,7 @@
 				DDE99311278D088800F60D26 /* Product Dependencies */,
 				DD190BB72E1C480200BE3ECA /* Generate <wtf/Platform.h> args */,
 				65FB3F6509D11E9100F49DEB /* Generate Derived Sources */,
+				DDFE17010000000000000001 /* Generate Header Postprocess Config */,
 			);
 			dependencies = (
 			);
@@ -2495,6 +2496,7 @@
 				"$(SRCROOT)/Scripts/postprocess-header-rule",
 				"$(WK_WEBKITADDITIONS_POSTPROCESS_SCRIPTS_INPUT)",
 				"$(WK_WEBKITADDITIONS_BRANCH_CONFIG_INPUT)",
+				"$(SHARED_DERIVED_FILE_DIR)/JavaScriptCore-header-postprocess-config.sh",
 			);
 			isEditable = 1;
 			outputFiles = (
@@ -2519,6 +2521,13 @@
 /* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
+		DDFE17030000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 65FB3F6609D11E9100F49DEB;
+			remoteInfo = "Derived Sources";
+		};
 		074D7E092E3D3B6800CD38C6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
@@ -13218,6 +13227,7 @@
 				DD559E612BE5BD4700C2D03E /* PBXBuildRule */,
 			);
 			dependencies = (
+				DDFE17040000000000000001 /* PBXTargetDependency */,
 				44F93E112AE7200100FFA37C /* PBXTargetDependency */,
 			);
 			name = JavaScriptCore;
@@ -13352,6 +13362,30 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		DDFE17010000000000000001 /* Generate Header Postprocess Config */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Scripts/generate-header-postprocess-config.sh",
+				"$(BUILT_PRODUCTS_DIR)$(WK_LIBRARY_HEADERS_FOLDER_PATH)/WebKitAdditions/Scripts/postprocess-framework-headers-definitions",
+				"$(SDKROOT)$(WK_LIBRARY_HEADERS_FOLDER_PATH)/WebKitAdditions/Scripts/postprocess-framework-headers-definitions",
+				"$(BUILT_PRODUCTS_DIR)$(WK_LIBRARY_HEADERS_FOLDER_PATH)/WebKitAdditions/Scripts/branch_config.json",
+				"$(SDKROOT)$(WK_LIBRARY_HEADERS_FOLDER_PATH)/WebKitAdditions/Scripts/branch_config.json",
+			);
+			name = "Generate Header Postprocess Config";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SHARED_DERIVED_FILE_DIR)/JavaScriptCore-header-postprocess-config.sh",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "exec \"${SCRIPT_INPUT_FILE_0}\"\n";
+		};
 		1A02D9A81B34A882000D1522 /* Add Symlink in /System/Library/PrivateFrameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 8;
@@ -14326,6 +14360,11 @@
 			isa = PBXTargetDependency;
 			target = 65FB3F6609D11E9100F49DEB /* Derived Sources */;
 			targetProxy = 074D7E092E3D3B6800CD38C6 /* PBXContainerItemProxy */;
+		};
+		DDFE17040000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 65FB3F6609D11E9100F49DEB /* Derived Sources */;
+			targetProxy = DDFE17030000000000000001 /* PBXContainerItemProxy */;
 		};
 		0F6183471C45F67A0072450B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

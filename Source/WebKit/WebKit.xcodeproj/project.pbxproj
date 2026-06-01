@@ -88,6 +88,7 @@
 				7B7A089228B738D800FF1239 /* Copy Profiling Data */,
 				DD6BF6292D2F4DC200B9A084 /* Unifdef module.private.modulemap */,
 				DDDEC1E52DFA354000EC45B7 /* Generate Swift TBA availability macros */,
+				DDFE17020000000000000001 /* Generate Header Postprocess Config */,
 			);
 			dependencies = (
 			);
@@ -2805,6 +2806,7 @@
 				"$(SRCROOT)/mac/replace-webkit-additions-includes.py",
 				"$(WK_WEBKITADDITIONS_POSTPROCESS_SCRIPTS_INPUT)",
 				"$(WK_WEBKITADDITIONS_BRANCH_CONFIG_INPUT)",
+				"$(SHARED_DERIVED_FILE_DIR)/WebKit-header-postprocess-config.sh",
 			);
 			isEditable = 1;
 			outputFiles = (
@@ -3224,7 +3226,14 @@
 			remoteGlobalIDString = C0CE72851247E66800BC0EC4;
 			remoteInfo = "Derived Sources";
 		};
-/* End PBXContainerItemProxy section */
+		DDFE17050000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C0CE72851247E66800BC0EC4;
+			remoteInfo = "Derived Sources";
+		};
+	/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		07275C652D00E284002315A5 /* Install SwiftUI Cross Import Overlay */ = {
@@ -12529,6 +12538,7 @@
 				93E05E3F282CD55F000B69EB /* ProcessStateMonitor.mm */,
 				F499BAA12947C1A4001241D6 /* RevealFocusedElementDeferrer.h */,
 				F499BAA22947C1A4001241D6 /* RevealFocusedElementDeferrer.mm */,
+				E356F167BD56265F1999866F /* ScrollPerfIntervalState.h */,
 				2DAF06D418BD1A470081CEB1 /* SmartMagnificationController.h */,
 				2DAF06D818BD23BA0081CEB1 /* SmartMagnificationController.messages.in */,
 				2DAF06D518BD1A470081CEB1 /* SmartMagnificationController.mm */,
@@ -12553,7 +12563,6 @@
 				F4DF72102B0C324F009A4522 /* WKBaseScrollView.h */,
 				F4DF72112B0C324F009A4522 /* WKBaseScrollView.mm */,
 				F4F0C48A2B2E5405006F226C /* WKBrowserEngineDefinitions.h */,
-				E356F167BD56265F1999866F /* ScrollPerfIntervalState.h */,
 				0FCB4E3C18BBE044000FCFC9 /* WKContentView.h */,
 				0FCB4E3D18BBE044000FCFC9 /* WKContentView.mm */,
 				0FCB4E6A18BBF26A000FCFC9 /* WKContentViewInteraction.h */,
@@ -18751,6 +18760,7 @@
 				E4D54D0421F1D72D007E3C36 /* ScrollingTreeFrameScrollingNodeRemoteIOS.h in Headers */,
 				0F931C1C18C5711900DBA7C3 /* ScrollingTreeOverflowScrollingNodeIOS.h in Headers */,
 				0F931C1C18C5711900DBB8D4 /* ScrollingTreeScrollingNodeDelegateIOS.h in Headers */,
+				0EBD18373218B9B6D3181E75 /* ScrollPerfIntervalState.h in Headers */,
 				51D130541382EAC000351EDD /* SecItemRequestData.h in Headers */,
 				51D130561382EAC000351EDD /* SecItemResponseData.h in Headers */,
 				86EB7204298D310A00C1DC77 /* SecItemShim.h in Headers */,
@@ -19271,7 +19281,6 @@
 				7CD5EBBB1746A83E000C1C45 /* WKBaseMac.h in Headers */,
 				F4DF72122B0C3A8C009A4522 /* WKBaseScrollView.h in Headers */,
 				F4F0C48B2B2E541B006F226C /* WKBrowserEngineDefinitions.h in Headers */,
-				0EBD18373218B9B6D3181E75 /* ScrollPerfIntervalState.h in Headers */,
 				BCBAAC73144E619E0053F82F /* WKBrowsingContextController.h in Headers */,
 				3788A05C14743C90006319E5 /* WKBrowsingContextControllerPrivate.h in Headers */,
 				BCBAACF41452324F0053F82F /* WKBrowsingContextGroup.h in Headers */,
@@ -20168,7 +20177,8 @@
 				E1AC2E3E20F7B9C000B0897D /* PBXTargetDependency */,
 				37F7407912721F740093869B /* PBXTargetDependency */,
 				2D11BA052126A5AE006F8878 /* PBXTargetDependency */,
-				7B9FC5BD28A5233B007570E7 /* PBXTargetDependency */,
+				7B9FC5BD28A5233B007570E7 /* PBXTargetDependency */,				DDFE17060000000000000001 /* PBXTargetDependency */,
+
 			);
 			name = WebKit;
 			productInstallPath = "$(HOME)/Library/Frameworks";
@@ -20470,6 +20480,30 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		DDFE17020000000000000001 /* Generate Header Postprocess Config */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Scripts/generate-header-postprocess-config.sh",
+				"$(BUILT_PRODUCTS_DIR)$(WK_LIBRARY_HEADERS_FOLDER_PATH)/WebKitAdditions/Scripts/postprocess-framework-headers-definitions",
+				"$(SDKROOT)$(WK_LIBRARY_HEADERS_FOLDER_PATH)/WebKitAdditions/Scripts/postprocess-framework-headers-definitions",
+				"$(BUILT_PRODUCTS_DIR)$(WK_LIBRARY_HEADERS_FOLDER_PATH)/WebKitAdditions/Scripts/branch_config.json",
+				"$(SDKROOT)$(WK_LIBRARY_HEADERS_FOLDER_PATH)/WebKitAdditions/Scripts/branch_config.json",
+			);
+			name = "Generate Header Postprocess Config";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SHARED_DERIVED_FILE_DIR)/WebKit-header-postprocess-config.sh",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "exec \"${SCRIPT_INPUT_FILE_0}\"\n";
+		};
 		07275CBE2D014A44002315A5 /* Create Symlink to Cryptex Path */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 8;
@@ -22823,7 +22857,12 @@
 			target = C0CE72851247E66800BC0EC4 /* Derived Sources */;
 			targetProxy = EB4E56612B16547200CDB9C6 /* PBXContainerItemProxy */;
 		};
-/* End PBXTargetDependency section */
+		DDFE17060000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C0CE72851247E66800BC0EC4 /* Derived Sources */;
+			targetProxy = DDFE17050000000000000001 /* PBXContainerItemProxy */;
+		};
+	/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		089C1666FE841158C02AAC07 /* InfoPlist.strings */ = {
