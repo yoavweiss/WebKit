@@ -464,6 +464,63 @@ JSC_DEFINE_HOST_FUNCTION(regExpProtoGetterSource, (JSGlobalObject* globalObject,
     return JSValue::encode(jsString(vm, regexp->regExp()->escapedPattern()));
 }
 
+JSValue regExpSearchFast(JSGlobalObject* globalObject, RegExpObject* regExpObject, JSString* string)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    auto strView = string->view(globalObject);
+    RETURN_IF_EXCEPTION(scope, { });
+    scope.release();
+    MatchResult result = globalObject->regExpGlobalData().performMatch(globalObject, regExpObject->regExp(), string, strView, 0);
+    return result ? jsNumber(result.start) : jsNumber(-1);
+}
+
+JSValue regExpSearchGeneric(JSGlobalObject* globalObject, JSObject* thisObject, JSString* str)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    if (regExpExecWatchpointIsValid(vm, thisObject)) [[likely]] {
+        auto* regExp = dynamicDowncast<RegExpObject>(thisObject);
+        if (!regExp) [[unlikely]] {
+            throwTypeError(globalObject, scope, "Builtin RegExp exec can only be called on a RegExp object"_s);
+            return { };
+        }
+        if (regExp->lastIndexIsWritable() && regExp->getLastIndex().isNumber()) [[likely]]
+            RELEASE_AND_RETURN(scope, regExpSearchFast(globalObject, regExp, str));
+    }
+
+    auto previousLastIndex = thisObject->get(globalObject, vm.propertyNames->lastIndex);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    bool isPreviousLastIndexZero = sameValue(globalObject, previousLastIndex, jsNumber(0));
+    RETURN_IF_EXCEPTION(scope, { });
+    if (!isPreviousLastIndexZero) {
+        PutPropertySlot slot(thisObject, true);
+        thisObject->methodTable()->put(thisObject, globalObject, vm.propertyNames->lastIndex, jsNumber(0), slot);
+        RETURN_IF_EXCEPTION(scope, { });
+    }
+
+    JSValue match = regExpExec(globalObject, thisObject, str);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    auto currentLastIndex = thisObject->get(globalObject, vm.propertyNames->lastIndex);
+    RETURN_IF_EXCEPTION(scope, { });
+    bool isCurrentAndPreviousLastIndexSame = sameValue(globalObject, currentLastIndex, previousLastIndex);
+    RETURN_IF_EXCEPTION(scope, { });
+    if (!isCurrentAndPreviousLastIndexSame) {
+        PutPropertySlot slot(thisObject, true);
+        thisObject->methodTable()->put(thisObject, globalObject, vm.propertyNames->lastIndex, previousLastIndex, slot);
+        RETURN_IF_EXCEPTION(scope, { });
+    }
+
+    if (match.isNull())
+        return jsNumber(-1);
+
+    RELEASE_AND_RETURN(scope, match.get(globalObject, vm.propertyNames->index));
+}
+
 JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncSearch, (JSGlobalObject* globalObject, CallFrame* callFrame))
 {
     VM& vm = globalObject->vm();
@@ -477,47 +534,7 @@ JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncSearch, (JSGlobalObject* globalObject, C
     JSString* str = callFrame->argument(0).toString(globalObject);
     RETURN_IF_EXCEPTION(scope, { });
 
-    if (regExpExecWatchpointIsValid(vm, thisObject)) [[likely]] {
-        auto* regExp = dynamicDowncast<RegExpObject>(thisValue);
-        if (!regExp) [[unlikely]]
-            return throwVMTypeError(globalObject, scope, "Builtin RegExp exec can only be called on a RegExp object"_s);
-        if (regExp->lastIndexIsWritable() && regExp->getLastIndex().isNumber()) [[likely]] {
-            auto strView = str->view(globalObject);
-            RETURN_IF_EXCEPTION(scope, { });
-            scope.release();
-            MatchResult result = globalObject->regExpGlobalData().performMatch(globalObject, regExp->regExp(), str, strView, 0);
-            return JSValue::encode(result ? jsNumber(result.start) : jsNumber(-1));
-        }
-    }
-
-    auto previsouLastIndex = thisObject->get(globalObject, vm.propertyNames->lastIndex);
-    RETURN_IF_EXCEPTION(scope, { });
-
-    bool isPreviousLastIndexZero = sameValue(globalObject, previsouLastIndex, jsNumber(0));
-    RETURN_IF_EXCEPTION(scope, { });
-    if (!isPreviousLastIndexZero) {
-        PutPropertySlot slot(thisObject, true);
-        thisObject->methodTable()->put(thisObject, globalObject, vm.propertyNames->lastIndex, jsNumber(0), slot);
-        RETURN_IF_EXCEPTION(scope, { });
-    }
-
-    JSValue match = regExpExec(globalObject, thisValue, str);
-    RETURN_IF_EXCEPTION(scope, { });
-
-    auto currentLastIndex = thisObject->get(globalObject, vm.propertyNames->lastIndex);
-    RETURN_IF_EXCEPTION(scope, { });
-    bool isCurrentAndPreviousLastIndexSame = sameValue(globalObject, currentLastIndex, previsouLastIndex);
-    RETURN_IF_EXCEPTION(scope, { });
-    if (!isCurrentAndPreviousLastIndexSame) {
-        PutPropertySlot slot(thisObject, true);
-        thisObject->methodTable()->put(thisObject, globalObject, vm.propertyNames->lastIndex, previsouLastIndex, slot);
-        RETURN_IF_EXCEPTION(scope, { });
-    }
-
-    if (match.isNull())
-        return JSValue::encode(jsNumber(-1));
-
-    RELEASE_AND_RETURN(scope, JSValue::encode(match.get(globalObject, vm.propertyNames->index)));
+    RELEASE_AND_RETURN(scope, JSValue::encode(regExpSearchGeneric(globalObject, thisObject, str)));
 }
 
 static inline uint64_t NODELETE advanceStringIndex(StringView str, unsigned strSize, uint64_t index, bool isUnicode)

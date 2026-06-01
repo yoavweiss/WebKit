@@ -181,6 +181,7 @@ inline CapabilityLevel canCompile(DFG::Node* node)
     case StringEndsWith:
     case StringSplit:
     case StringMatch:
+    case StringSearch:
     case AllocatePropertyStorage:
     case ReallocatePropertyStorage:
     case NukeStructureAndSetButterfly:

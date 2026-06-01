@@ -114,7 +114,6 @@ const ClassInfo StringPrototype::s_info = { "String"_s, &StringObject::s_info, &
 /* Source for StringConstructor.lut.h
 @begin stringPrototypeTable
     matchAll      JSBuiltin                      DontEnum|Function 1
-    search        JSBuiltin                      DontEnum|Function 1
     anchor        stringProtoFuncAnchor          DontEnum|Function 1
     big           stringProtoFuncBig             DontEnum|Function 0
     bold          stringProtoFuncBold            DontEnum|Function 0
@@ -169,6 +168,7 @@ void StringPrototype::finishCreation(VM& vm, JSGlobalObject* globalObject)
     JSC_NATIVE_INTRINSIC_FUNCTION_WITHOUT_TRANSITION("endsWith"_s, stringProtoFuncEndsWith, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public, StringPrototypeEndsWithIntrinsic);
     JSC_NATIVE_INTRINSIC_FUNCTION_WITHOUT_TRANSITION("includes"_s, stringProtoFuncIncludes, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public, StringPrototypeIncludesIntrinsic);
     JSC_NATIVE_INTRINSIC_FUNCTION_WITHOUT_TRANSITION("match"_s, stringProtoFuncMatch, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public, StringPrototypeMatchIntrinsic);
+    JSC_NATIVE_INTRINSIC_FUNCTION_WITHOUT_TRANSITION("search"_s, stringProtoFuncSearch, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public, StringPrototypeSearchIntrinsic);
     JSC_NATIVE_INTRINSIC_FUNCTION_WITHOUT_TRANSITION("split"_s, stringProtoFuncSplit, static_cast<unsigned>(PropertyAttribute::DontEnum), 2, ImplementationVisibility::Public, StringPrototypeSplitIntrinsic);
     JSC_NATIVE_FUNCTION_WITHOUT_TRANSITION("normalize"_s, stringProtoFuncNormalize, static_cast<unsigned>(PropertyAttribute::DontEnum), 0, ImplementationVisibility::Public);
     JSC_NATIVE_INTRINSIC_FUNCTION_WITHOUT_TRANSITION(vm.propertyNames->builtinNames().charCodeAtPrivateName(), stringProtoFuncCharCodeAt, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public, CharCodeAtIntrinsic);
@@ -1380,6 +1380,78 @@ JSC_DEFINE_HOST_FUNCTION(stringProtoFuncMatch, (JSGlobalObject* globalObject, Ca
     RETURN_IF_EXCEPTION(scope, { });
 
     RELEASE_AND_RETURN(scope, JSValue::encode(stringMatchSlow(globalObject, thisString, regexpValue)));
+}
+
+JSValue stringSearchSlow(JSGlobalObject* globalObject, JSString* thisString, JSValue regexpValue)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    JSObject* createdRegExp = regExpCreate(globalObject, JSValue(), regexpValue, jsUndefined());
+    RETURN_IF_EXCEPTION(scope, { });
+
+    if (auto* regExpObject = dynamicDowncast<RegExpObject>(createdRegExp); regExpObject && regExpObject->isSymbolSearchFastAndNonObservable()) [[likely]]
+        RELEASE_AND_RETURN(scope, regExpSearchFast(globalObject, regExpObject, thisString));
+
+    JSValue searcher = createdRegExp->get(globalObject, vm.propertyNames->searchSymbol);
+    RETURN_IF_EXCEPTION(scope, { });
+    auto callData = JSC::getCallData(searcher);
+    if (callData.type == CallData::Type::None) [[unlikely]] {
+        auto description = errorDescriptionForValue(globalObject, searcher);
+        RETURN_IF_EXCEPTION(scope, { });
+        throwTypeError(globalObject, scope, makeString(description, " is not a function"_s));
+        return { };
+    }
+    std::array<EncodedJSValue, 1> args { {
+        JSValue::encode(thisString),
+    } };
+    RELEASE_AND_RETURN(scope, call(globalObject, searcher, callData, createdRegExp, ArgList { args.data(), args.size() }));
+}
+
+JSC_DEFINE_HOST_FUNCTION(stringProtoFuncSearch, (JSGlobalObject* globalObject, CallFrame* callFrame))
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    JSValue thisValue = callFrame->thisValue();
+    if (!checkObjectCoercible(thisValue)) [[unlikely]]
+        return throwVMTypeError(globalObject, scope, "String.prototype.search requires that |this| not be null or undefined"_s);
+
+    JSValue regexpValue = callFrame->argument(0);
+
+    if (regexpValue.isObject()) {
+        if (auto* regExpObject = dynamicDowncast<RegExpObject>(regexpValue); regExpObject && regExpObject->isSymbolSearchFastAndNonObservable()) [[likely]] {
+            JSString* thisString = thisValue.toString(globalObject);
+            RETURN_IF_EXCEPTION(scope, { });
+            if (regExpObject->isSymbolSearchFastAndNonObservable()) [[likely]]
+                RELEASE_AND_RETURN(scope, JSValue::encode(regExpSearchFast(globalObject, regExpObject, thisString)));
+            // ToString(this) may have run user code that invalidated the fast path. The searcher
+            // observed by GetMethod was still the primordial RegExp.prototype[@@search], so
+            // continue with its generic implementation.
+            RELEASE_AND_RETURN(scope, JSValue::encode(regExpSearchGeneric(globalObject, regExpObject, thisString)));
+        }
+
+        JSValue searcher = asObject(regexpValue)->get(globalObject, vm.propertyNames->searchSymbol);
+        RETURN_IF_EXCEPTION(scope, { });
+
+        if (!searcher.isUndefinedOrNull()) {
+            auto callData = JSC::getCallData(searcher);
+            if (callData.type == CallData::Type::None) [[unlikely]] {
+                auto description = errorDescriptionForValue(globalObject, searcher);
+                RETURN_IF_EXCEPTION(scope, { });
+                return throwVMTypeError(globalObject, scope, makeString(description, " is not a function"_s));
+            }
+            std::array<EncodedJSValue, 1> args { {
+                JSValue::encode(thisValue),
+            } };
+            RELEASE_AND_RETURN(scope, JSValue::encode(call(globalObject, searcher, callData, regexpValue, ArgList { args.data(), args.size() })));
+        }
+    }
+
+    JSString* thisString = thisValue.toString(globalObject);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    RELEASE_AND_RETURN(scope, JSValue::encode(stringSearchSlow(globalObject, thisString, regexpValue)));
 }
 
 JSC_DEFINE_HOST_FUNCTION(stringProtoFuncSubstr, (JSGlobalObject* globalObject, CallFrame* callFrame))

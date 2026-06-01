@@ -1412,6 +1412,9 @@ private:
         case StringMatch:
             compileStringMatch();
             break;
+        case StringSearch:
+            compileStringSearch();
+            break;
         case GetByOffset:
         case GetGetterSetterByOffset:
             compileGetByOffset();
@@ -12403,6 +12406,19 @@ IGNORE_CLANG_WARNINGS_END
         }
         LValue regexp = lowString(m_node->child2());
         setJSValue(vmCall(Int64, operationStringMatch, weakPointer(globalObject), base, regexp));
+    }
+
+    void compileStringSearch()
+    {
+        LValue base = lowString(m_node->child1());
+        auto* globalObject = m_graph.globalObjectFor(m_origin.semantic);
+        if (m_node->child2().useKind() == RegExpObjectUse) {
+            LValue regexp = lowRegExpObject(m_node->child2());
+            setJSValue(vmCall(Int64, operationStringSearchRegExp, weakPointer(globalObject), base, regexp));
+            return;
+        }
+        LValue argument = lowString(m_node->child2());
+        setJSValue(vmCall(Int64, operationStringSearch, weakPointer(globalObject), base, argument));
     }
 
     void compileStringLastIndexOf()

@@ -2336,6 +2336,7 @@ void clobberize(Graph& graph, Node* node, const ReadFunctor& read, const WriteFu
 
     case StringSplit:
     case StringMatch:
+    case StringSearch:
         clobberTop();
         return;
 

@@ -4154,6 +4154,44 @@ JSC_DEFINE_JIT_OPERATION(operationStringMatchRegExp, EncodedJSValue, (JSGlobalOb
     OPERATION_RETURN(scope, JSValue::encode(stringMatchSlow(globalObject, thisString, regexp)));
 }
 
+JSC_DEFINE_JIT_OPERATION(operationStringSearch, EncodedJSValue, (JSGlobalObject* globalObject, JSString* thisString, JSString* regexpString))
+{
+    VM& vm = globalObject->vm();
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    OPERATION_RETURN(scope, JSValue::encode(stringSearchSlow(globalObject, thisString, regexpString)));
+}
+
+JSC_DEFINE_JIT_OPERATION(operationStringSearchRegExp, EncodedJSValue, (JSGlobalObject* globalObject, JSString* thisString, RegExpObject* regexp))
+{
+    VM& vm = globalObject->vm();
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    if (regexp->isSymbolSearchFastAndNonObservable()) [[likely]]
+        OPERATION_RETURN(scope, JSValue::encode(regExpSearchFast(globalObject, regexp, thisString)));
+
+    JSValue searcher = regexp->get(globalObject, vm.propertyNames->searchSymbol);
+    OPERATION_RETURN_IF_EXCEPTION(scope, encodedJSValue());
+    if (!searcher.isUndefinedOrNull()) {
+        auto callData = JSC::getCallData(searcher);
+        if (callData.type == CallData::Type::None) [[unlikely]] {
+            throwTypeError(globalObject, scope, "@@search method is not callable"_s);
+            OPERATION_RETURN(scope, encodedJSValue());
+        }
+        std::array<EncodedJSValue, 1> args { {
+            JSValue::encode(thisString),
+        } };
+        JSValue result = call(globalObject, searcher, callData, regexp, ArgList { args.data(), args.size() });
+        OPERATION_RETURN_IF_EXCEPTION(scope, encodedJSValue());
+        OPERATION_RETURN(scope, JSValue::encode(result));
+    }
+    OPERATION_RETURN(scope, JSValue::encode(stringSearchSlow(globalObject, thisString, regexp)));
+}
+
 JSC_DEFINE_JIT_OPERATION(operationStringProtoFuncReplaceGeneric, JSCell*, (JSGlobalObject* globalObject, EncodedJSValue thisValue, EncodedJSValue searchValue, EncodedJSValue replaceValue))
 {
     VM& vm = globalObject->vm();

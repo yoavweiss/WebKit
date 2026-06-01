@@ -46,21 +46,4 @@ function matchAll(arg)
     return regExp.@@matchAll(string);
 }
 
-function search(regexp)
-{
-    "use strict";
-
-    if (@isUndefinedOrNull(this))
-        @throwTypeError("String.prototype.search requires that |this| not be null or undefined");
-
-    if (@isObject(regexp)) {
-        var searcher = regexp.@@search;
-        if (!@isUndefinedOrNull(searcher))
-            return searcher.@call(regexp, this);
-    }
-
-    var thisString = @toString(this);
-    var createdRegExp = @regExpCreate(regexp, @undefined);
-    return createdRegExp.@@search(thisString);
-}
 

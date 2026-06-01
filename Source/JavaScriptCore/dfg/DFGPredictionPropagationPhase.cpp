@@ -1228,6 +1228,11 @@ private:
             break;
         }
 
+        case StringSearch: {
+            setPrediction(SpecInt32Only);
+            break;
+        }
+
         case StringLocaleCompare: {
             setPrediction(SpecInt32Only);
             break;

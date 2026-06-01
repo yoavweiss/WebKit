@@ -1814,6 +1814,7 @@ public:
 #endif
     void compileStringSplit(Node*);
     void compileStringMatch(Node*);
+    void compileStringSearch(Node*);
     void compileDateNow(Node*);
     void compileDateGet(Node*);
     void compileDateSet(Node*);

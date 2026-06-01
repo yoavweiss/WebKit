@@ -375,7 +375,8 @@ private:
             break;
         }
 
-        case StringMatch: {
+        case StringMatch:
+        case StringSearch: {
             node->child1()->mergeFlags(NodeBytecodeUsesAsValue);
             node->child2()->mergeFlags(NodeBytecodeUsesAsValue);
             break;

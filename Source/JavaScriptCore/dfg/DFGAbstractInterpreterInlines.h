@@ -2711,6 +2711,7 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
         break;
 
     case StringMatch:
+    case StringSearch:
         clobberWorld();
         makeHeapTopForNode(node);
         break;

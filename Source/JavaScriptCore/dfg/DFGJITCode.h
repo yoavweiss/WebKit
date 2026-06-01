@@ -102,6 +102,7 @@ public:
         StringToStringWatchpointSet,
         StringValueOfWatchpointSet,
         StringSymbolMatchWatchpointSet,
+        StringSymbolSearchWatchpointSet,
         StringSymbolReplaceWatchpointSet,
         StringSymbolSplitWatchpointSet,
         StringSymbolToPrimitiveWatchpointSet,

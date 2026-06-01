@@ -62,6 +62,40 @@ ALWAYS_INLINE bool RegExpObject::isSymbolMatchFastAndNonObservable()
     return true;
 }
 
+ALWAYS_INLINE bool RegExpObject::isSymbolSearchFastAndNonObservable()
+{
+    JSGlobalObject* globalObject = this->realm();
+    if (!globalObject->regExpPrimordialPropertiesWatchpointSet().isStillValid())
+        return false;
+
+    if (!globalObject->stringSymbolSearchWatchpointSet().isStillValid())
+        return false;
+
+    // RegExp.prototype[@@search] sets lastIndex to 0 and restores it afterwards. The fast
+    // path skips both writes, which is only unobservable when lastIndex is a plain writable
+    // number; a non-writable lastIndex must throw in the generic path.
+    if (!lastIndexIsWritable())
+        return false;
+
+    if (!getLastIndex().isNumber())
+        return false;
+
+    Structure* structure = this->structure();
+    if (structure == globalObject->regExpStructure()) [[likely]]
+        return true;
+
+    if (structure->hasPolyProto())
+        return false;
+
+    if (structure->storedPrototype() != globalObject->regExpPrototype())
+        return false;
+
+    if (hasCustomProperties())
+        return false;
+
+    return true;
+}
+
 ALWAYS_INLINE bool RegExpObject::isSymbolReplaceFastAndNonObservable()
 {
     JSGlobalObject* globalObject = this->realm();
