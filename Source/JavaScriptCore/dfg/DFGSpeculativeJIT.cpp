@@ -12213,8 +12213,22 @@ void SpeculativeJIT::emitNewTypedArrayWithSizeInRegister(Node* node, TypedArrayT
     constexpr unsigned zeroFillUnrollWordLimit = 16;
     if (constantByteSize && *constantByteSize / sizeof(UCPURegister) <= zeroFillUnrollWordLimit)
         emitFillStorageWithJSEmpty(storageGPR, 0, *constantByteSize / sizeof(UCPURegister), scratchGPR);
-    else
-#endif
+    else {
+        Jump done = branchTest32(Zero, sizeGPR);
+        move(sizeGPR, scratchGPR);
+        if (elementSize(typedArrayType) != 8) {
+            if (elementSize(typedArrayType) > 1)
+                lshift32(TrustedImm32(logElementSize(typedArrayType)), scratchGPR);
+            add32(TrustedImm32(7), scratchGPR);
+            urshift32(TrustedImm32(3), scratchGPR);
+        }
+        Label loop = label();
+        sub32(TrustedImm32(1), scratchGPR);
+        store64(TrustedImm32(0), BaseIndex(storageGPR, scratchGPR, TimesEight));
+        branchTest32(NonZero, scratchGPR).linkTo(loop, this);
+        done.link(this);
+    }
+#else
     {
         Jump done = branchTest32(Zero, sizeGPR);
         move(sizeGPR, scratchGPR);
@@ -12236,6 +12250,7 @@ void SpeculativeJIT::emitNewTypedArrayWithSizeInRegister(Node* node, TypedArrayT
         branchTest32(NonZero, scratchGPR).linkTo(loop, this);
         done.link(this);
     }
+#endif
 
     auto butterfly = TrustedImmPtr(nullptr);
     switch (typedArrayType) {
