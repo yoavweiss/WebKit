@@ -49,7 +49,7 @@ messages -> RemoteAudioVideoRendererProxyManager {
     PerformTaskAtTime(WebKit::RemoteAudioVideoRendererIdentifier identifier, MediaTime time)
 
     Flush(WebKit::RemoteAudioVideoRendererIdentifier identifier)
-    FlushTrack(WebKit::RemoteAudioVideoRendererIdentifier identifier, WebCore::SamplesRendererTrackIdentifier trackIdentifier)
+    FlushTrack(WebKit::RemoteAudioVideoRendererIdentifier identifier, WebCore::SamplesRendererTrackIdentifier trackIdentifier) -> (bool isReadyForMoreMediaData)
 
     ApplicationWillResignActive(WebKit::RemoteAudioVideoRendererIdentifier identifier)
     SetSpatialTrackingInfo(WebKit::RemoteAudioVideoRendererIdentifier identifier, bool prefersSpatialAudioExperience, enum:uint8_t WebCore::MediaPlayerSoundStageSize soundStageSize, String sceneIdentifier, String defaultLabel, String label)

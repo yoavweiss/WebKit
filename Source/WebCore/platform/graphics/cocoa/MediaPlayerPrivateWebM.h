@@ -233,7 +233,6 @@ private:
     void didProvideMediaDataForTrackId(Ref<MediaSampleAVFObjC>&&, TrackID, const String& mediaType);
     void didUpdateFormatDescriptionForTrackId(Ref<TrackInfo>&&, TrackID);
 
-    void flush();
     void flushTrack(TrackID);
     void flushVideoIfNeeded();
 

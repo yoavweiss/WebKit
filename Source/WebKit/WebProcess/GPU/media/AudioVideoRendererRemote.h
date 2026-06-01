@@ -291,7 +291,7 @@ private:
     Ref<NativePromiseRequest> m_finishSeekRequest WTF_GUARDED_BY_CAPABILITY(queueSingleton());
     std::optional<GenericPromise::Producer> m_finishSeekPromise WTF_GUARDED_BY_CAPABILITY(queueSingleton());
     std::atomic<bool> m_seeking { false };
-    MediaTime m_lastSeekTime; // Always called on the renderer's client thread.
+    MediaTime m_lastSeekTime WTF_GUARDED_BY_LOCK(m_lock);
 
 #if PLATFORM(COCOA)
     const UniqueRef<WebCore::VideoLayerManager> m_videoLayerManager WTF_GUARDED_BY_LOCK(m_lock);

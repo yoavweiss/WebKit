@@ -1545,17 +1545,6 @@ void MediaPlayerPrivateWebM::didProvideMediaDataForTrackId(Ref<MediaSampleAVFObj
     notifyClientWhenReadyForMoreSamples(trackId);
 }
 
-void MediaPlayerPrivateWebM::flush()
-{
-    assertIsCurrent(runningQueue());
-    m_renderer->flush();
-    ensureOnMainThread([weakThis = ThreadSafeWeakPtr { *this }] {
-        if (RefPtr protectedThis = weakThis.get())
-            protectedThis->setHasAvailableVideoFrame(false);
-    });
-    setAllTracksForReenqueuing();
-}
-
 void MediaPlayerPrivateWebM::setAllTracksForReenqueuing()
 {
     assertIsCurrent(runningQueue());

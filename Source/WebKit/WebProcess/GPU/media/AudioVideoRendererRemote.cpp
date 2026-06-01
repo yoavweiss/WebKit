@@ -517,9 +517,9 @@ Ref<MediaTimePromise> AudioVideoRendererRemote::prepareToSeek(const MediaTime& t
             if (rate >= 0 ? *m_stallCap < time : *m_stallCap > time)
                 m_stallCap.reset();
         }
+        m_lastSeekTime = time;
     }
     m_seeking = true;
-    m_lastSeekTime = time;
     return invokeAsync(queueSingleton(), [protectedThis = Ref { *this }, this, time] -> Ref<MediaTimePromise> {
         cancelPendingSeek();
 
@@ -734,8 +734,10 @@ void AudioVideoRendererRemote::notifyEffectiveRateChanged(Function<void(double)>
 
 MediaTime AudioVideoRendererRemote::currentTime() const
 {
-    if (m_seeking)
+    if (m_seeking) {
+        Locker locker { m_lock };
         return m_lastSeekTime;
+    }
     Locker locker { m_lock };
     if (!m_sharedTimebaseReader)
         return MediaTime::zeroTime();
@@ -783,23 +785,33 @@ void AudioVideoRendererRemote::performTaskAtTime(const MediaTime& time, Function
 
 void AudioVideoRendererRemote::flush()
 {
-    ALWAYS_LOG(LOGIDENTIFIER, "seeking:", m_seeking.load());
-    m_seeking = false;
-    {
-        Locker locker { m_lock };
-        if (m_sharedTimebaseReader)
-            m_sharedTimebaseReader->resetForTimeDiscontinuity();
-    }
-    ensureOnDispatcherWithConnection([](auto& renderer, auto& connection) {
-        renderer.m_keyframeNeeded = true;
-        connection.send(Messages::RemoteAudioVideoRendererProxyManager::Flush(renderer.m_identifier), 0);
-    });
+    ASSERT_NOT_REACHED();
 }
 
 void AudioVideoRendererRemote::flushTrack(TrackIdentifier identifier)
 {
     ensureOnDispatcherWithConnection([identifier](auto& renderer, auto& connection) {
-        connection.send(Messages::RemoteAudioVideoRendererProxyManager::FlushTrack(renderer.m_identifier, identifier), 0);
+        // Wait on the GPU's reply (its post-flush isReadyForMoreSamples) before updating
+        // readiness. IPC ordering guarantees this lands after any in-flight EnqueueSample
+        // replies, so a stale reply can't clobber it. If the GPU is not ready it has armed
+        // its ready-for-more callback, so a ReadyForMoreMediaData will follow.
+        connection.sendWithAsyncReplyOnDispatcher(Messages::RemoteAudioVideoRendererProxyManager::FlushTrack(renderer.m_identifier, identifier), queueSingleton(), [weakThis = ThreadSafeWeakPtr { renderer }, identifier](bool isReadyForMoreMediaData) {
+            RefPtr protectedThis = weakThis.get();
+            if (!protectedThis)
+                return;
+            {
+                Locker locker { protectedThis->m_lock };
+                protectedThis->readyForMoreDataState(identifier).setRemoteReadyForMoreData(isReadyForMoreMediaData);
+            }
+            if (!isReadyForMoreMediaData) {
+                RefPtr gpuProcessConnection = protectedThis->m_gpuProcessConnection.get();
+                if (!protectedThis->isGPURunning() || !gpuProcessConnection)
+                    return;
+                gpuProcessConnection->connection().send(Messages::RemoteAudioVideoRendererProxyManager::RequestMediaDataWhenReady(protectedThis->m_identifier, identifier), 0);
+                return;
+            }
+            protectedThis->resolveRequestMediaDataWhenReadyIfNeeded(identifier);
+        }, 0);
     });
 }
 

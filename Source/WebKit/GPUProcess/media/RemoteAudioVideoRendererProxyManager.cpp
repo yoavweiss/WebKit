@@ -350,10 +350,15 @@ void RemoteAudioVideoRendererProxyManager::flush(RemoteAudioVideoRendererIdentif
         renderer->flush();
 }
 
-void RemoteAudioVideoRendererProxyManager::flushTrack(RemoteAudioVideoRendererIdentifier identifier, TrackIdentifier trackIdentifier)
+void RemoteAudioVideoRendererProxyManager::flushTrack(RemoteAudioVideoRendererIdentifier identifier, TrackIdentifier trackIdentifier, CompletionHandler<void(bool)>&& completionHandler)
 {
-    if (RefPtr renderer = rendererFor(identifier))
-        renderer->flushTrack(trackIdentifier);
+    RefPtr renderer = rendererFor(identifier);
+    if (!renderer) {
+        completionHandler(false);
+        return;
+    }
+    renderer->flushTrack(trackIdentifier);
+    completionHandler(renderer->isReadyForMoreSamples(trackIdentifier));
 }
 
 void RemoteAudioVideoRendererProxyManager::applicationWillResignActive(RemoteAudioVideoRendererIdentifier identifier)

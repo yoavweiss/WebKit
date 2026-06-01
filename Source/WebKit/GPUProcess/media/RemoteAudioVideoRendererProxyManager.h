@@ -107,7 +107,7 @@ private:
     void performTaskAtTime(RemoteAudioVideoRendererIdentifier, const MediaTime&);
 
     void flush(RemoteAudioVideoRendererIdentifier);
-    void flushTrack(RemoteAudioVideoRendererIdentifier, TrackIdentifier);
+    void flushTrack(RemoteAudioVideoRendererIdentifier, TrackIdentifier, CompletionHandler<void(bool)>&&);
 
     void applicationWillResignActive(RemoteAudioVideoRendererIdentifier);
     void setSpatialTrackingInfo(RemoteAudioVideoRendererIdentifier, bool, WebCore::MediaPlayerSoundStageSize, const String&, const String&, const String&);
