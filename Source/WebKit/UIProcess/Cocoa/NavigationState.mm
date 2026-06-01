@@ -64,6 +64,7 @@
 #import "WebFrameProxy.h"
 #import "WebNavigationState.h"
 #import "WebPageProxy.h"
+#import "WebPreferences.h"
 #import "WebProcessProxy.h"
 #import "WebProtectionSpace.h"
 #import "WebsiteDataStore.h"
@@ -431,7 +432,7 @@ void NavigationState::NavigationClient::shouldGoToBackForwardListItem(WebPagePro
 static void trySOAuthorization(Ref<API::NavigationAction>&& navigationAction, WebPageProxy& page, Function<void(bool)>&& completionHandler)
 {
 #if HAVE(APP_SSO)
-    if (!navigationAction->shouldPerformSOAuthorization()) {
+    if (!navigationAction->shouldPerformSOAuthorization() || !protect(page.preferences())->isExtensibleSSOEnabled()) {
         callOnMainRunLoop([completionHandler = WTF::move(completionHandler)] mutable {
             completionHandler(false);
         });
