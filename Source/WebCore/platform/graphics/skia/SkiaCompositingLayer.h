@@ -173,6 +173,8 @@ private:
     sk_sp<SkImage> maskImage();
     void collect3DRenderingContextLayers(Vector<Ref<SkiaCompositingLayer>>&);
 
+    void clipRect(SkCanvas&, const FloatRoundedRect&, const TransformationMatrix& = { });
+
     enum class IncludesReplica : bool { No, Yes };
     void computeOverlapRegions(ComputeOverlapRegionData&, const TransformationMatrix& accumulatedReplicaTransform, IncludesReplica = IncludesReplica::Yes);
 

@@ -445,6 +445,25 @@ bool SkiaCompositingLayer::paint(SkCanvas& canvas, std::optional<Damage>& damage
     return hasRunningAnimations;
 }
 
+void SkiaCompositingLayer::clipRect(SkCanvas& canvas, const FloatRoundedRect& rect, const TransformationMatrix& transform)
+{
+    if (transform.isIdentity()) {
+        if (rect.isRounded())
+            canvas.clipRRect(SkRRect(rect), true);
+        else
+            canvas.clipRect(SkRect(rect.rect()));
+        return;
+    }
+
+    auto matrix = SkM44(transform).asM33();
+    if (rect.isRounded())
+        canvas.clipPath(SkPath::RRect(SkRRect(rect)).makeTransform(matrix), true);
+    else if (matrix.rectStaysRect())
+        canvas.clipRect(matrix.mapRect(SkRect(rect.rect())));
+    else
+        canvas.clipPath(SkPath::Rect(SkRect(rect.rect())).makeTransform(matrix));
+}
+
 void SkiaCompositingLayer::paintSelf(SkCanvas& canvas, PaintContext& context)
 {
 #if ENABLE(DAMAGE_TRACKING)
@@ -496,12 +515,8 @@ void SkiaCompositingLayer::paintContents(SkCanvas& canvas, PaintContext& context
     } else if (m_contentsBuffer || m_imageBackingStore) {
         bool shouldClipContents = m_contentsClippingRect.isRounded() || !m_contentsClippingRect.rect().contains(m_contentsRect);
         SkAutoCanvasRestore autoRestore(&canvas, shouldClipContents);
-        if (shouldClipContents) {
-            if (m_contentsClippingRect.isRounded())
-                canvas.clipRRect(SkRRect(m_contentsClippingRect), true);
-            else
-                canvas.clipRect(SkRect(m_contentsClippingRect.rect()));
-        }
+        if (shouldClipContents)
+            clipRect(canvas, m_contentsClippingRect);
 
         sk_sp<SkImage> image;
 
@@ -635,21 +650,12 @@ void SkiaCompositingLayer::paintSelfAndChildren(SkCanvas& canvas, PaintContext& 
     bool shouldClip = (m_masksToBounds || m_contentsRectClipsDescendants) && !m_preserves3D;
     SkAutoCanvasRestore autoRestore(&canvas, shouldClip);
     if (shouldClip) {
+        FloatRoundedRect rect = m_contentsRectClipsDescendants ? m_contentsClippingRect : FloatRoundedRect(effectiveLayerRect());
         TransformationMatrix clipTransform(context.accumulatedReplicaTransform);
         clipTransform.multiply(m_transforms.combined);
-        if (m_contentsRectClipsDescendants) {
-            SkPathBuilder builder;
-            if (m_contentsClippingRect.isRounded())
-                builder.addRRect(SkRRect(m_contentsClippingRect));
-            else
-                builder.addRect(SkRect(m_contentsClippingRect.rect()));
-            canvas.clipPath(builder.detach().makeTransform(SkM44(clipTransform).asM33()), true);
-        } else {
+        if (!m_contentsRectClipsDescendants)
             clipTransform.translate(m_boundsOrigin.x(), m_boundsOrigin.y());
-            SkPathBuilder builder;
-            builder.addRect(SkRect(effectiveLayerRect()));
-            canvas.clipPath(builder.detach().makeTransform(SkM44(clipTransform).asM33()));
-        }
+        clipRect(canvas, rect, clipTransform);
     }
 
     for (auto& child : m_children)
@@ -753,11 +759,9 @@ void SkiaCompositingLayer::paintWithIntermediateSurface(SkCanvas& canvas, PaintC
 void SkiaCompositingLayer::paintBackdrop(SkCanvas& canvas, PaintContext& context)
 {
     SkAutoCanvasRestore autoRestore(&canvas, true);
-    SkPathBuilder builder;
-    builder.addRRect(SkRRect(m_backdrop.clipRect));
     TransformationMatrix clipTransform(context.accumulatedReplicaTransform);
     clipTransform.multiply(m_transforms.combined);
-    canvas.clipPath(builder.detach().makeTransform(SkM44(clipTransform).asM33()), true);
+    clipRect(canvas, m_backdrop.clipRect, clipTransform);
 
     // Paint the backdrop root's subtree into a fresh surface (spec step 1),
     // apply the backdrop filter (step 2), and composite via SrcOver so the
