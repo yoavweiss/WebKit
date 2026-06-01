@@ -1244,7 +1244,7 @@ JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncMatchAll, (JSGlobalObject* globalObject,
     RETURN_IF_EXCEPTION(scope, { });
 
     auto* regExpObject = dynamicDowncast<RegExpObject>(thisObject);
-    if (regExpObject && regExpMatchAllWathpointIsValid(regExpObject)) [[likely]] {
+    if (regExpObject && regExpObject->isSymbolMatchAllFastAndNonObservable()) [[likely]] {
         RegExp* regExp = regExpObject->regExp();
 
         bool global = regExp->global();

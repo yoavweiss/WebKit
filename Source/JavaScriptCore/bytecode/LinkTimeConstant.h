@@ -121,6 +121,7 @@ class JSGlobalObject;
     v(regExpSearchFast, nullptr) \
     v(regExpSplitFast, nullptr) \
     v(regExpPrototypeSymbolMatch, nullptr) \
+    v(regExpPrototypeSymbolMatchAll, nullptr) \
     v(regExpPrototypeSymbolReplace, nullptr) \
     v(stringIncludesInternal, nullptr) \
     v(stringIndexOfInternal, nullptr) \

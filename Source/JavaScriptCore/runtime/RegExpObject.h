@@ -113,6 +113,7 @@ public:
 
     bool isSymbolMatchFastAndNonObservable();
     bool isSymbolSearchFastAndNonObservable();
+    bool isSymbolMatchAllFastAndNonObservable();
     bool isSymbolReplaceFastAndNonObservable();
     bool isSymbolSplitFastAndNonObservable();
 

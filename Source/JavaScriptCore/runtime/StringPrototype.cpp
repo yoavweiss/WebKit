@@ -33,6 +33,7 @@
 #include "IntlObjectInlines.h"
 #include "JSArray.h"
 #include "JSCInlines.h"
+#include "JSRegExpStringIterator.h"
 #include "JSStringIterator.h"
 #include "ObjectConstructor.h"
 #include "ParseInt.h"
@@ -65,6 +66,7 @@ static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncCharCodeAt);
 static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncCodePointAt);
 static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncIndexOf);
 static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncLastIndexOf);
+static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncMatchAll);
 static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncReplace);
 static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncReplaceAll);
 static JSC_DECLARE_HOST_FUNCTION(stringProtoFuncSlice);
@@ -112,7 +114,6 @@ const ClassInfo StringPrototype::s_info = { "String"_s, &StringObject::s_info, &
 
 /* Source for StringConstructor.lut.h
 @begin stringPrototypeTable
-    matchAll      JSBuiltin                      DontEnum|Function 1
     anchor        stringProtoFuncAnchor          DontEnum|Function 1
     big           stringProtoFuncBig             DontEnum|Function 0
     bold          stringProtoFuncBold            DontEnum|Function 0
@@ -168,6 +169,7 @@ void StringPrototype::finishCreation(VM& vm, JSGlobalObject* globalObject)
     JSC_NATIVE_INTRINSIC_FUNCTION_WITHOUT_TRANSITION("includes"_s, stringProtoFuncIncludes, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public, StringPrototypeIncludesIntrinsic);
     JSC_NATIVE_INTRINSIC_FUNCTION_WITHOUT_TRANSITION("match"_s, stringProtoFuncMatch, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public, StringPrototypeMatchIntrinsic);
     JSC_NATIVE_INTRINSIC_FUNCTION_WITHOUT_TRANSITION("search"_s, stringProtoFuncSearch, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public, StringPrototypeSearchIntrinsic);
+    JSC_NATIVE_FUNCTION_WITHOUT_TRANSITION("matchAll"_s, stringProtoFuncMatchAll, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public);
     JSC_NATIVE_INTRINSIC_FUNCTION_WITHOUT_TRANSITION("split"_s, stringProtoFuncSplit, static_cast<unsigned>(PropertyAttribute::DontEnum), 2, ImplementationVisibility::Public, StringPrototypeSplitIntrinsic);
     JSC_NATIVE_FUNCTION_WITHOUT_TRANSITION("normalize"_s, stringProtoFuncNormalize, static_cast<unsigned>(PropertyAttribute::DontEnum), 0, ImplementationVisibility::Public);
     JSC_NATIVE_INTRINSIC_FUNCTION_WITHOUT_TRANSITION(vm.propertyNames->builtinNames().charCodeAtPrivateName(), stringProtoFuncCharCodeAt, static_cast<unsigned>(PropertyAttribute::DontEnum), 1, ImplementationVisibility::Public, CharCodeAtIntrinsic);
@@ -1311,13 +1313,13 @@ JSValue stringMatchSlow(JSGlobalObject* globalObject, JSString* thisString, JSVa
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    JSObject* createdRegExp = regExpCreate(globalObject, JSValue(), regexpValue, jsUndefined());
+    auto* regExpObject = regExpCreate(globalObject, JSValue(), regexpValue, jsUndefined());
     RETURN_IF_EXCEPTION(scope, { });
 
-    if (auto* regExpObject = dynamicDowncast<RegExpObject>(createdRegExp); regExpObject && regExpObject->isSymbolMatchFastAndNonObservable()) [[likely]]
+    if (regExpObject->isSymbolMatchFastAndNonObservable()) [[likely]]
         RELEASE_AND_RETURN(scope, regExpMatchFast(globalObject, regExpObject, thisString));
 
-    JSValue matcher = createdRegExp->get(globalObject, vm.propertyNames->matchSymbol);
+    JSValue matcher = regExpObject->get(globalObject, vm.propertyNames->matchSymbol);
     RETURN_IF_EXCEPTION(scope, { });
     auto callData = JSC::getCallData(matcher);
     if (callData.type == CallData::Type::None) [[unlikely]] {
@@ -1329,7 +1331,7 @@ JSValue stringMatchSlow(JSGlobalObject* globalObject, JSString* thisString, JSVa
     std::array<EncodedJSValue, 1> args { {
         JSValue::encode(thisString),
     } };
-    RELEASE_AND_RETURN(scope, call(globalObject, matcher, callData, createdRegExp, ArgList { args.data(), args.size() }));
+    RELEASE_AND_RETURN(scope, call(globalObject, matcher, callData, regExpObject, ArgList { args.data(), args.size() }));
 }
 
 JSC_DEFINE_HOST_FUNCTION(stringProtoFuncMatch, (JSGlobalObject* globalObject, CallFrame* callFrame))
@@ -1407,6 +1409,56 @@ JSValue stringSearchSlow(JSGlobalObject* globalObject, JSString* thisString, JSV
     RELEASE_AND_RETURN(scope, call(globalObject, searcher, callData, createdRegExp, ArgList { args.data(), args.size() }));
 }
 
+// https://tc39.es/ecma262/#sec-string.prototype.matchall
+// Spec steps 3-5: ToString(O) has already been performed; coerce regexpValue to a pattern,
+// RegExpCreate it with the "g" flag, and invoke @@matchAll on the result.
+JSValue stringMatchAllSlow(JSGlobalObject* globalObject, JSString* thisString, JSValue regexpValue)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    String pattern;
+    if (!regexpValue.isUndefined()) {
+        pattern = regexpValue.toWTFString(globalObject);
+        RETURN_IF_EXCEPTION(scope, { });
+    } else
+        pattern = emptyString();
+
+    auto* regExpObject = regExpCreate(globalObject, JSValue(), pattern, OptionSet<Yarr::Flags> { Yarr::Flags::Global });
+    RETURN_IF_EXCEPTION(scope, { });
+
+    if (regExpObject->isSymbolMatchAllFastAndNonObservable()) [[likely]] {
+        RegExp* regExp = regExpObject->regExp();
+        ASSERT(regExp->global());
+        bool fullUnicode = regExp->eitherUnicode();
+
+        Structure* structure = globalObject->regExpStructure();
+        RegExpObject* matcher = RegExpObject::create(vm, structure, regExp);
+        matcher->setLastIndex(globalObject, 0);
+        RETURN_IF_EXCEPTION(scope, { });
+
+        auto* iterator = JSRegExpStringIterator::createWithInitialValues(vm, globalObject->regExpStringIteratorStructure());
+        iterator->setRegExp(vm, matcher);
+        iterator->setString(vm, thisString);
+        iterator->setFlags(true, fullUnicode);
+        return iterator;
+    }
+
+    JSValue matchAllMethod = regExpObject->get(globalObject, vm.propertyNames->matchAllSymbol);
+    RETURN_IF_EXCEPTION(scope, { });
+    auto callData = JSC::getCallData(matchAllMethod);
+    if (callData.type == CallData::Type::None) [[unlikely]] {
+        auto description = errorDescriptionForValue(globalObject, matchAllMethod);
+        RETURN_IF_EXCEPTION(scope, { });
+        throwTypeError(globalObject, scope, makeString(description, " is not a function"_s));
+        return { };
+    }
+    std::array<EncodedJSValue, 1> args { {
+        JSValue::encode(thisString),
+    } };
+    RELEASE_AND_RETURN(scope, call(globalObject, matchAllMethod, callData, regExpObject, ArgList { args.data(), args.size() }));
+}
+
 JSC_DEFINE_HOST_FUNCTION(stringProtoFuncSearch, (JSGlobalObject* globalObject, CallFrame* callFrame))
 {
     VM& vm = globalObject->vm();
@@ -1451,6 +1503,87 @@ JSC_DEFINE_HOST_FUNCTION(stringProtoFuncSearch, (JSGlobalObject* globalObject, C
     RETURN_IF_EXCEPTION(scope, { });
 
     RELEASE_AND_RETURN(scope, JSValue::encode(stringSearchSlow(globalObject, thisString, regexpValue)));
+}
+
+JSC_DEFINE_HOST_FUNCTION(stringProtoFuncMatchAll, (JSGlobalObject* globalObject, CallFrame* callFrame))
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    JSValue thisValue = callFrame->thisValue();
+    if (!checkObjectCoercible(thisValue)) [[unlikely]]
+        return throwVMTypeError(globalObject, scope, "String.prototype.matchAll requires |this| not to be null nor undefined"_s);
+
+    JSValue regexpValue = callFrame->argument(0);
+
+    if (regexpValue.isObject()) {
+        if (auto* regExpObject = dynamicDowncast<RegExpObject>(regexpValue); regExpObject && regExpObject->isSymbolMatchAllFastAndNonObservable()) [[likely]] {
+            if (!regExpObject->regExp()->global()) [[unlikely]]
+                return throwVMTypeError(globalObject, scope, "String.prototype.matchAll argument must not be a non-global regular expression"_s);
+
+            JSString* thisString = thisValue.toString(globalObject);
+            RETURN_IF_EXCEPTION(scope, { });
+            if (regExpObject->isSymbolMatchAllFastAndNonObservable()) [[likely]] {
+                RegExp* regExp = regExpObject->regExp();
+                bool global = regExp->global(); // This means that we may end up having a case that global = false if toString user function recompiles RegExp without "g" flag.
+                bool fullUnicode = regExp->eitherUnicode();
+
+                double lastIndexDouble = regExpObject->getLastIndex().asNumber();
+                size_t lastIndex = lastIndexDouble > 0 ? static_cast<size_t>(std::min(lastIndexDouble, maxSafeInteger())) : 0;
+
+                Structure* structure = globalObject->regExpStructure();
+                RegExpObject* matcher = RegExpObject::create(vm, structure, regExp);
+                matcher->setLastIndex(globalObject, lastIndex);
+                RETURN_IF_EXCEPTION(scope, { });
+
+                auto* iterator = JSRegExpStringIterator::createWithInitialValues(vm, globalObject->regExpStringIteratorStructure());
+                iterator->setRegExp(vm, matcher);
+                iterator->setString(vm, thisString);
+                iterator->setFlags(global, fullUnicode);
+                return JSValue::encode(iterator);
+            }
+
+            JSValue matcher = globalObject->linkTimeConstant(LinkTimeConstant::regExpPrototypeSymbolMatchAll);
+            auto callData = JSC::getCallData(matcher);
+            ASSERT(callData.type != CallData::Type::None);
+            std::array<EncodedJSValue, 1> args { {
+                JSValue::encode(thisString),
+            } };
+            RELEASE_AND_RETURN(scope, JSValue::encode(call(globalObject, matcher, callData, regExpObject, ArgList { args.data(), args.size() })));
+        }
+
+        bool isArgRegExp = isRegExp(vm, globalObject, regexpValue);
+        RETURN_IF_EXCEPTION(scope, { });
+        if (isArgRegExp) {
+            JSValue flagsValue = asObject(regexpValue)->get(globalObject, vm.propertyNames->flags);
+            RETURN_IF_EXCEPTION(scope, { });
+            String flags = flagsValue.toWTFString(globalObject);
+            RETURN_IF_EXCEPTION(scope, { });
+            if (!flags.contains('g')) [[unlikely]]
+                return throwVMTypeError(globalObject, scope, "String.prototype.matchAll argument must not be a non-global regular expression"_s);
+        }
+
+        JSValue matcher = asObject(regexpValue)->get(globalObject, vm.propertyNames->matchAllSymbol);
+        RETURN_IF_EXCEPTION(scope, { });
+
+        if (!matcher.isUndefinedOrNull()) {
+            auto callData = JSC::getCallData(matcher);
+            if (callData.type == CallData::Type::None) [[unlikely]] {
+                auto description = errorDescriptionForValue(globalObject, matcher);
+                RETURN_IF_EXCEPTION(scope, { });
+                return throwVMTypeError(globalObject, scope, makeString(description, " is not a function"_s));
+            }
+            std::array<EncodedJSValue, 1> args { {
+                JSValue::encode(thisValue),
+            } };
+            RELEASE_AND_RETURN(scope, JSValue::encode(call(globalObject, matcher, callData, regexpValue, ArgList { args.data(), args.size() })));
+        }
+    }
+
+    JSString* thisString = thisValue.toString(globalObject);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    RELEASE_AND_RETURN(scope, JSValue::encode(stringMatchAllSlow(globalObject, thisString, regexpValue)));
 }
 
 JSC_DEFINE_HOST_FUNCTION(stringProtoFuncSubstr, (JSGlobalObject* globalObject, CallFrame* callFrame))

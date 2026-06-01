@@ -521,6 +521,7 @@ public:
     InlineWatchpointSet m_stringIteratorProtocolWatchpointSet { IsWatched };
     InlineWatchpointSet m_stringSymbolMatchWatchpointSet { IsWatched };
     InlineWatchpointSet m_stringSymbolSearchWatchpointSet { IsWatched };
+    InlineWatchpointSet m_stringSymbolMatchAllWatchpointSet { IsWatched };
     InlineWatchpointSet m_stringSymbolReplaceWatchpointSet { IsWatched };
     InlineWatchpointSet m_stringSymbolSplitWatchpointSet { IsWatched };
     InlineWatchpointSet m_stringSymbolToPrimitiveWatchpointSet { IsWatched };
@@ -600,6 +601,7 @@ public:
     InlineWatchpointSet& stringIteratorProtocolWatchpointSet() LIFETIME_BOUND { return m_stringIteratorProtocolWatchpointSet; }
     InlineWatchpointSet& stringSymbolMatchWatchpointSet() LIFETIME_BOUND { return m_stringSymbolMatchWatchpointSet; }
     InlineWatchpointSet& stringSymbolSearchWatchpointSet() LIFETIME_BOUND { return m_stringSymbolSearchWatchpointSet; }
+    InlineWatchpointSet& stringSymbolMatchAllWatchpointSet() LIFETIME_BOUND { return m_stringSymbolMatchAllWatchpointSet; }
     InlineWatchpointSet& stringSymbolReplaceWatchpointSet() LIFETIME_BOUND { return m_stringSymbolReplaceWatchpointSet; }
     InlineWatchpointSet& stringSymbolSplitWatchpointSet() LIFETIME_BOUND { return m_stringSymbolSplitWatchpointSet; }
     InlineWatchpointSet& stringSymbolToPrimitiveWatchpointSet() LIFETIME_BOUND { return m_stringSymbolToPrimitiveWatchpointSet; }
