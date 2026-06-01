@@ -2424,3 +2424,5 @@ webkit.org/b/315973 [ Sequoia Release x86_64 ] imported/w3c/web-platform-tests/w
 
 webkit.org/b/315975 [ Sequoia Debug x86_64 ] compositing/repaint/become-overlay-composited-layer.html [ Pass Failure ]
 
+webkit.org/b/315976 [ Sequoia Release x86_64 ] editing/pasteboard/data-transfer-get-data-on-paste-as-plain-text-when-custom-pasteboard-data-disabled.html [ Pass Failure ]
+
