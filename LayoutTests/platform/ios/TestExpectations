@@ -8401,6 +8401,7 @@ imported/w3c/web-platform-tests/html/semantics/popovers/popover-light-dismiss-co
 imported/w3c/web-platform-tests/html/semantics/popovers/popover-light-dismiss-touch-scroll.html [ Skip ]
 imported/w3c/web-platform-tests/html/semantics/popovers/popover-self-invoke.html [ Skip ]
 imported/w3c/web-platform-tests/html/semantics/popovers/popover-shadowhost-focus-navigation.html [ Skip ]
+imported/w3c/web-platform-tests/css/css-scoping/hover-invalidates-slotted-descendant.html [ Skip ]
 
 # rdar://168334716 (MTLCompilerService crashes when Metal Shader Validation is enabled on iOS Simulator)
 webgl/webgl2-provoking-vertex-primitive-restart-uint16-nocrash.html [ Skip ]

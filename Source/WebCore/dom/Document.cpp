@@ -9770,11 +9770,14 @@ void Document::updateHoverActiveState(const HitTestRequest& request, Element* in
 
         Style::PseudoClassChangeInvalidation styleInvalidation { elements.last(), pseudoClass, value, Style::InvalidationScope::Descendants };
 
-        // We need to do descendant invalidation for each shadow tree separately as the style is per-scope.
-        Vector<Style::PseudoClassChangeInvalidation> shadowDescendantStyleInvalidations;
+        // Style is resolved per tree scope, and the composed chain can cross scopes where a host's
+        // children are slotted into its shadow tree. styleInvalidation covers the chain's topmost scope;
+        // root one more at the top of each lower scope it crosses so a slotted subtree is invalidated in
+        // the scope whose stylesheet has the rule.
+        Vector<Style::PseudoClassChangeInvalidation> descendantStyleInvalidations;
         for (auto& element : elements) {
-            if (hasShadowRootParent(element))
-                shadowDescendantStyleInvalidations.append({ element, pseudoClass, value, Style::InvalidationScope::Descendants });
+            if (hasShadowRootParent(element) || element->assignedSlot())
+                descendantStyleInvalidations.append({ element, pseudoClass, value, Style::InvalidationScope::Descendants });
         }
 
         for (auto& element : elements)
