@@ -128,10 +128,10 @@ static void checkFrameworkVersion(xpc_object_t message)
 
 static bool s_isWebProcess = false;
 
-static void setUserDirSuffix(ASCIILiteral suffix)
+static void setUserDirSuffix(String&& suffix)
 {
 #if PLATFORM(IOS_FAMILY)
-    if (_set_user_dir_suffix(suffix)) {
+    if (_set_user_dir_suffix(suffix.utf8().data())) {
         RELEASE_LOG(IPC, "Successfully set temp dir");
         confstr(_CS_DARWIN_USER_TEMP_DIR, nullptr, 0);
         return;
@@ -209,10 +209,14 @@ void XPCServiceEventHandler(xpc_connection_t peer)
                 return;
             }
 
+            String uiProcessName = xpcDictionaryGetString(event, "ui-process-name"_s);
+
             CFStringRef entryPointFunctionName = nullptr;
             if (serviceName.startsWith(webContentServiceName)) {
                 s_isWebProcess = true;
-#if !USE(EXTENSIONKIT)
+#if USE(EXTENSIONKIT)
+                setUserDirSuffix(WTF::move(uiProcessName));
+#else
                 setUserDirSuffix(webContentServiceName);
 #endif
                 entryPointFunctionName = CFSTR(STRINGIZE_VALUE_OF(WEBCONTENT_SERVICE_INITIALIZER));
@@ -220,7 +224,9 @@ void XPCServiceEventHandler(xpc_connection_t peer)
                 setUserDirSuffix(networkingServiceName);
                 entryPointFunctionName = CFSTR(STRINGIZE_VALUE_OF(NETWORK_SERVICE_INITIALIZER));
             } else if (serviceName == gpuServiceName) {
-#if !USE(EXTENSIONKIT)
+#if USE(EXTENSIONKIT)
+                setUserDirSuffix(WTF::move(uiProcessName));
+#else
                 setUserDirSuffix(gpuServiceName);
 #endif
                 entryPointFunctionName = CFSTR(STRINGIZE_VALUE_OF(GPU_SERVICE_INITIALIZER));
