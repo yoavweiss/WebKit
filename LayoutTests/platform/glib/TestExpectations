@@ -5541,6 +5541,9 @@ webkit.org/b/315925 inspector/heap/getRemoteObject.html [ Failure Pass ]
 
 webkit.org/b/315934 fast/dom/lazy-image-loading-document-leak.html [ Crash Pass ]
 
+# Needs picture-in-picture support
+media/media-visible-in-viewport-in-fullscreen.html
+
 # End: Common failures between GTK and WPE.
 
 #////////////////////////////////////////////////////////////////////////////////////////

@@ -1321,6 +1321,7 @@ public:
     size_t mediaElementCount() const;
 
     void setMediaElementVolumeLocked(HTMLMediaElement&, bool);
+    String mediaElementViewportVisibility(HTMLMediaElement&);
 
 #if ENABLE(SPEECH_SYNTHESIS)
     SpeechSynthesisUtterance* NODELETE speechSynthesisUtteranceForCue(const VTTCue&);

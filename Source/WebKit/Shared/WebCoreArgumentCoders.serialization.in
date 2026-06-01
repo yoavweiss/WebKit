@@ -4299,6 +4299,8 @@ enum class WebCore::MediaPlayerViewportVisibility : uint8_t {
     NotVisible,
     IntersectingViewport,
     VisibleInViewport,
+    VisibleInFullscreen,
+    VisibleInPictureInPicture,
 };
 
 class WebCore::GeolocationPositionData {

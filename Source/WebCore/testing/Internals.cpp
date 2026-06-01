@@ -5806,6 +5806,11 @@ void Internals::setMediaElementVolumeLocked(HTMLMediaElement& element, bool volu
     element.setVolumeLocked(volumeLocked);
 }
 
+String Internals::mediaElementViewportVisibility(HTMLMediaElement& element)
+{
+    return convertEnumerationToString(element.viewportVisibility());
+}
+
 #if ENABLE(SPEECH_SYNTHESIS)
 SpeechSynthesisUtterance* Internals::speechSynthesisUtteranceForCue(const VTTCue& cue)
 {

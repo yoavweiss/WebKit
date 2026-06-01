@@ -9770,6 +9770,10 @@ bool HTMLMediaElement::isVisibleInViewport() const
 
 WEBCORE_EXPORT auto HTMLMediaElement::viewportVisibility() const -> ViewportVisibility
 {
+    if (fullscreenMode() & VideoFullscreenModePictureInPicture)
+        return ViewportVisibility::VisibleInPictureInPicture;
+    if (fullscreenMode() & VideoFullscreenModeStandard)
+        return ViewportVisibility::VisibleInFullscreen;
     if (isVisibleInViewport())
         return ViewportVisibility::VisibleInViewport;
     if (isIntersectingViewport())
