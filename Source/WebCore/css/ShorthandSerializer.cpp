@@ -1115,18 +1115,35 @@ String ShorthandSerializer::serializeFontSynthesis() const
 
 String ShorthandSerializer::serializeFontVariant() const
 {
-    for (auto& value : longhandValues()) {
-        if (CSSPropertyParserHelpers::isSystemFontShorthand(valueID(&value)))
-            return String();
-    }
+    auto wasSetBySystemFontShorthand = [&](const Longhand& longhand) {
+        return CSSPropertyParserHelpers::isSystemFontShorthand(valueID(longhand.value));
+    };
+
+    // font-variant cannot represent "font-variant-ligatures: none" alongside any other non-normal longhand.
     if (isLonghandValueNone(longhandIndex(0, CSSPropertyFontVariantLigatures))) {
         for (auto longhand : longhands()) {
-            // font-variant cannot represent "font-variant-ligatures: none" along with any other non-normal longhands.
-            if (longhand.property != CSSPropertyFontVariantLigatures && !isInitialValue(longhand))
+            if (longhand.property != CSSPropertyFontVariantLigatures && !isInitialValue(longhand) && !wasSetBySystemFontShorthand(longhand))
                 return String();
         }
     }
-    return serializeLonghandsOmittingInitialValues();
+
+    // Per CSSOM §6.7.2, a shorthand serializes its longhand declarations. Longhands implicitly set
+    // by a system font shorthand (e.g. `font: menu`) are not font-variant declarations, so skip their
+    // sentinel values so explicitly-set ones surface
+    // (e.g. `font: menu; font-variant-numeric: tabular-nums` serializes as `tabular-nums`).
+    StringBuilder result;
+    auto prefix = ""_s;
+    bool allSystemFont = true;
+    for (auto longhand : longhands()) {
+        if (wasSetBySystemFontShorthand(longhand))
+            continue;
+        allSystemFont = false;
+        if (!isInitialValue(longhand))
+            result.append(std::exchange(prefix, " "_s), serializeValue(longhand));
+    }
+    if (allSystemFont)
+        return String();
+    return result.isEmpty() ? nameString(CSSValueNormal) : result.toString();
 }
 
 static bool NODELETE gridTemplateListIsNone(const CSSValue& value)
