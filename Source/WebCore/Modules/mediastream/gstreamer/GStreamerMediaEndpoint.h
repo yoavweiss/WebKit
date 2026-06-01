@@ -126,6 +126,8 @@ public:
 
     void onNegotiationNeeded();
 
+    void trackWasReplaced(const String& previousId, const String& newId);
+
 protected:
 #if !RELEASE_LOG_DISABLED
     void onStatsDelivered(const GstStructure*);
