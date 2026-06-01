@@ -2420,3 +2420,5 @@ webkit.org/b/315971 [ Sequoia Release x86_64 ] ietestcenter/css3/multicolumn/col
 webkit.org/b/315972 [ Sequoia Debug x86_64 ] webrtc/canvas-to-peer-connection.html [ Pass Failure Timeout ]
 webkit.org/b/315972 [ Sequoia Debug x86_64 ] webrtc/multi-audio.html [ Pass Failure ]
 
+webkit.org/b/315973 [ Sequoia Release x86_64 ] imported/w3c/web-platform-tests/webrtc-encoded-transform/script-transform-generateKeyFrame.https.html [ Pass Failure ]
+
