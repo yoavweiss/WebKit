@@ -286,6 +286,20 @@ void ChildChangeInvalidation::traverseAddedElements(Function&& function)
     }
 }
 
+static void invalidateForSiblingCombinators(Element* sibling)
+{
+    for (RefPtr element = sibling; element; element = element->nextElementSibling()) {
+        if (element->styleIsAffectedByPreviousSibling())
+            element->invalidateStyle();
+        if (element->descendantsAffectedByPreviousSibling()) {
+            for (RefPtr siblingChild = element->firstElementChild(); siblingChild; siblingChild = siblingChild->nextElementSibling())
+                siblingChild->invalidateStyleForSubtree();
+        }
+        if (!element->affectsNextSiblingElementStyle())
+            return;
+    }
+}
+
 static void invalidateForForwardPositionalRules(Element& parent, Element* elementAfterChange)
 {
     bool childrenAffected = parent.childrenAffectedByForwardPositionalRules();
@@ -296,10 +310,10 @@ static void invalidateForForwardPositionalRules(Element& parent, Element* elemen
 
     for (RefPtr sibling = elementAfterChange; sibling; sibling = sibling->nextElementSibling()) {
         if (childrenAffected)
-            sibling->invalidateStyleInternal();
+            sibling->invalidateStyle();
         if (descendantsAffected) {
             for (RefPtr siblingChild = sibling->firstElementChild(); siblingChild; siblingChild = siblingChild->nextElementSibling())
-                siblingChild->invalidateStyleForSubtreeInternal();
+                siblingChild->invalidateStyleForSubtree();
         }
     }
 }
@@ -314,10 +328,10 @@ static void invalidateForBackwardPositionalRules(Element& parent, Element* eleme
 
     for (RefPtr sibling = elementBeforeChange; sibling; sibling = sibling->previousElementSibling()) {
         if (childrenAffected)
-            sibling->invalidateStyleInternal();
+            sibling->invalidateStyle();
         if (descendantsAffected) {
             for (RefPtr siblingChild = sibling->firstElementChild(); siblingChild; siblingChild = siblingChild->nextElementSibling())
-                siblingChild->invalidateStyleForSubtreeInternal();
+                siblingChild->invalidateStyleForSubtree();
         }
     }
 }
@@ -326,14 +340,14 @@ static void invalidateForFirstChildState(Element& child, bool state)
 {
     auto* style = child.renderStyle();
     if (!style || style->firstChildState() == state)
-        child.invalidateStyleForSubtreeInternal();
+        child.invalidateStyleForSubtree();
 }
 
 static void invalidateForLastChildState(Element& child, bool state)
 {
     auto* style = child.renderStyle();
     if (!style || style->lastChildState() == state)
-        child.invalidateStyleForSubtreeInternal();
+        child.invalidateStyleForSubtree();
 }
 
 void ChildChangeInvalidation::invalidateAfterChange()

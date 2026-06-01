@@ -396,7 +396,7 @@ void SearchInputType::setValue(const String& sanitizedValue, bool valueChanged, 
         return;
 
     if (RefPtr cancelButton = m_cancelButton)
-        cancelButton->invalidateStyleInternal();
+        cancelButton->invalidateStyle();
 }
 
 } // namespace WebCore

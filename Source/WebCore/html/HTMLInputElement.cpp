@@ -529,6 +529,14 @@ void HTMLInputElement::updateType(const AtomString& typeAttributeValue)
         CSSSelector::PseudoClass::Optional,
         CSSSelector::PseudoClass::ReadWrite,
         CSSSelector::PseudoClass::ReadOnly,
+        CSSSelector::PseudoClass::Checked,
+        CSSSelector::PseudoClass::Indeterminate,
+        CSSSelector::PseudoClass::InRange,
+        CSSSelector::PseudoClass::OutOfRange,
+        CSSSelector::PseudoClass::Valid,
+        CSSSelector::PseudoClass::Invalid,
+        CSSSelector::PseudoClass::UserValid,
+        CSSSelector::PseudoClass::UserInvalid,
     }, Style::PseudoClassChangeInvalidation::AnyValue);
 
     removeFromRadioButtonGroup();
@@ -1086,7 +1094,7 @@ void HTMLInputElement::setChecked(bool isChecked, WasSetByJavaScript wasCheckedB
             cache->checkedStateChanged(*this);
     }
 
-    invalidateStyleInternal();
+    invalidateStyle();
 }
 
 void HTMLInputElement::setIndeterminate(bool newValue)
@@ -2262,7 +2270,7 @@ void HTMLInputElement::invalidateStyleOnFocusChangeIfNeeded()
         return;
     // Focus change may affect the result of shouldTruncateText().
     if (CheckedPtr style = renderStyle(); style && style->textOverflow() == TextOverflow::Ellipsis)
-        invalidateStyleForSubtreeInternal();
+        invalidateStyleForSubtree();
 }
 
 std::optional<unsigned> HTMLInputElement::selectionStartForBindings() const

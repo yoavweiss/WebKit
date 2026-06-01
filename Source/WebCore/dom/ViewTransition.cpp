@@ -785,7 +785,7 @@ void ViewTransition::activateViewTransition()
     }
 
     if (RefPtr documentElement = document()->documentElement())
-        documentElement->invalidateStyleInternal();
+        documentElement->invalidateStyle();
 
     m_phase = ViewTransitionPhase::Animating;
 
@@ -875,7 +875,7 @@ void ViewTransition::clearViewTransition()
     document->setActiveViewTransition(nullptr);
 
     if (RefPtr documentElement = document->documentElement())
-        documentElement->invalidateStyleInternal();
+        documentElement->invalidateStyle();
 }
 
 // https://drafts.csswg.org/css-view-transitions-1/#snapshot-containing-block
@@ -1015,7 +1015,7 @@ void ViewTransition::updatePseudoElementStylesWrite()
 
     if (changed) {
         if (RefPtr documentElement = document->documentElement())
-            documentElement->invalidateStyleInternal();
+            documentElement->invalidateStyle();
     }
 }
 

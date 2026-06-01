@@ -140,7 +140,7 @@ void HTMLProgressElement::didChangeElementValue()
 
     if (RefPtr fillElement = m_fillElement) {
         fillElement->setInlineStyleProperty(CSSPropertyTransform, makeString("translate(-"_s, 100 - percentageValue, "%, 0)"_s));
-        fillElement->invalidateStyleInternal();
+        fillElement->invalidateStyle();
     }
 
     if (CheckedPtr renderer = renderProgress())

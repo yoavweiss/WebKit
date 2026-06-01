@@ -1099,7 +1099,7 @@ ExceptionOr<void> KeyframeEffect::setKeyframes(JSGlobalObject& lexicalGlobalObje
 
         // Need a full style invalidation since the new keyframes may interact differently with the base style.
         if (auto target = targetStyleable())
-            target->element.invalidateStyleInternal();
+            target->element.invalidateStyle();
     }
 
     return processKeyframesResult;

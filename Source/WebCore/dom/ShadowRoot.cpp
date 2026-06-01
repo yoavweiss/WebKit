@@ -169,7 +169,7 @@ void ShadowRoot::childrenChanged(const ChildChange& childChange)
     case ChildChange::Type::ElementInserted:
     case ChildChange::Type::ElementAndTextInserted:
     case ChildChange::Type::ElementRemoved:
-        m_host->invalidateStyleForSubtreeInternal();
+        m_host->invalidateStyleForSubtree();
         break;
     case ChildChange::Type::TextInserted:
     case ChildChange::Type::TextRemoved:

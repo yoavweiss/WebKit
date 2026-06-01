@@ -811,7 +811,7 @@ void InputType::setValue(const String& sanitizedValue, bool valueChanged, TextFi
     element->setValueInternal(sanitizedValue, eventBehavior);
 
     if (oldDirection.value_or(TextDirection::LTR) != computeTextDirectionIfDirIsAuto(*element).value_or(TextDirection::LTR))
-        element->invalidateStyleInternal();
+        element->invalidateStyle();
 
     switch (eventBehavior) {
     case DispatchChangeEvent:

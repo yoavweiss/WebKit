@@ -844,9 +844,7 @@ public:
     void invalidateStyleAndRenderersForSubtree();
     void invalidateRenderer();
 
-    void invalidateStyleInternal();
     void invalidateStyleForAnimation();
-    void invalidateStyleForSubtreeInternal();
     void invalidateForQueryContainerSizeChange();
     void invalidateForAnchorRectChange();
     void invalidateForResumingQueryContainerResolution();
@@ -1118,7 +1116,6 @@ inline void Element::disconnectFromResizeObservers()
     disconnectFromResizeObserversSlow(*observerData);
 }
 
-void invalidateForSiblingCombinators(Element* sibling);
 inline bool isInTopLayerOrBackdrop(const RenderStyle&, const Element*);
 
 WEBCORE_EXPORT WTF::TextStream& operator<<(WTF::TextStream&, ContentRelevancy);

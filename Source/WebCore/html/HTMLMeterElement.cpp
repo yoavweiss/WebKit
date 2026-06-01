@@ -197,7 +197,7 @@ void HTMLMeterElement::didChangeElementValue()
 
     if (RefPtr fillElement = m_fillElement) {
         fillElement->setInlineStyleProperty(CSSPropertyTransform, makeString("translate(-"_s, (1 - valueRatio()) * 100, "%, 0)"_s));
-        fillElement->invalidateStyleInternal();
+        fillElement->invalidateStyle();
     }
 }
 
