@@ -30,6 +30,7 @@
 
 #include "DefaultWebBrowserChecks.h"
 #include "FrameInfoData.h"
+#include "MessageSenderInlines.h"
 #include "WebAuthenticatorCoordinatorProxyMessages.h"
 #include "WebFrame.h"
 #include "WebPage.h"
@@ -60,13 +61,6 @@ namespace WebKit {
 using namespace WebCore;
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(WebAuthenticatorCoordinator);
-
-namespace {
-inline bool isWebBrowser()
-{
-    return isParentProcessAFullWebBrowser(WebProcess::singleton());
-}
-}
 
 WebAuthenticatorCoordinator::WebAuthenticatorCoordinator(WebPage& webPage)
     : m_webPage(webPage)

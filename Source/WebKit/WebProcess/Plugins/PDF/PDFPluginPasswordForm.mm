@@ -28,6 +28,7 @@
 
 #if ENABLE(PDF_PLUGIN)
 
+#import "PDFPluginBase.h"
 #import <WebCore/ElementInlines.h>
 #import <WebCore/HTMLElement.h>
 #import <WebCore/LocalizedStrings.h>

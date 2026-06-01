@@ -248,18 +248,6 @@ self.addEventListener("message", (event) => {
 
 )SWRESOURCE"_s;
 
-static constexpr auto scriptWithEvalBytes = R"SWRESOURCE(
-
-self.addEventListener("message", (event) => {
-    if (event.data == "Hello from the web page") {
-        event.source.postMessage("ServiceWorker received: " + event.data);
-        return;
-    }
-    event.source.postMessage("Evaluation result: " + eval(event.data));
-});
-
-)SWRESOURCE"_s;
-
 static constexpr auto mainForFetchTestBytes = R"SWRESOURCE(
 <html>
 <body>

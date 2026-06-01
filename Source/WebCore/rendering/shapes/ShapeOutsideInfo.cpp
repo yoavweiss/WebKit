@@ -158,20 +158,6 @@ static LayoutUnit logicalTopOffset(const RenderBox& renderer)
     return 0_lu;
 }
 
-static inline LayoutUnit borderStartWithStyleForWritingMode(const RenderBox& renderer, const WritingMode writingMode)
-{
-    if (writingMode.isHorizontal()) {
-        if (writingMode.isInlineLeftToRight())
-            return renderer.borderLeft();
-        
-        return renderer.borderRight();
-    }
-    if (writingMode.isInlineTopToBottom())
-        return renderer.borderTop();
-    
-    return renderer.borderBottom();
-}
-
 static inline LayoutUnit borderAndPaddingStartWithStyleForWritingMode(const RenderBox& renderer, const WritingMode writingMode)
 {
     if (writingMode.isHorizontal()) {

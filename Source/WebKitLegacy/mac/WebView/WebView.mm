@@ -569,10 +569,6 @@ static Class s_pdfRepresentationClass;
 static Class s_pdfViewClass;
 #endif
 
-#ifndef NDEBUG
-static const char webViewIsOpen[] = "At least one WebView is still open.";
-#endif
-
 #if PLATFORM(IOS_FAMILY)
 @interface WebView(WebViewPrivate)
 - (void)_preferencesChanged:(WebPreferences *)preferences;

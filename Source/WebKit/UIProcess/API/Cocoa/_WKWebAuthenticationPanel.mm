@@ -106,17 +106,6 @@ static inline void updateCredentialIfNecessary(NSMutableDictionary *credential, 
 #endif // ENABLE(ONGOING_CREDENTIAL_SHARING_WEBKIT_SPI)
 }
 
-static inline String groupForAttributes(NSDictionary *attributes)
-{
-#if ENABLE(ONGOING_CREDENTIAL_SHARING_WEBKIT_SPI)
-    if ([[attributes allKeys] containsObject:kSecAttrSharingGroup]) {
-        if (auto *nsString = dynamic_objc_cast<NSString>(attributes[kSecAttrSharingGroup]))
-            return nsString;
-    }
-#endif // ENABLE(ONGOING_CREDENTIAL_SHARING_WEBKIT_SPI)
-    return nullString();
-}
-
 static inline void updateQueryForGroupIfNecessary(NSMutableDictionary *dictionary, NSString *group)
 {
 #if ENABLE(ONGOING_CREDENTIAL_SHARING_WEBKIT_SPI)

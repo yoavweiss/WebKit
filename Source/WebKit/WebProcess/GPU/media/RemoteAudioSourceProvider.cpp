@@ -31,6 +31,9 @@
 #include "GPUProcessConnection.h"
 #include "Logging.h"
 #include "RemoteAudioSourceProviderManager.h"
+#include <WebCore/MediaPlayer.h>
+
+// Include after MediaPlayer.h: the generated header uses WebCore::MediaPlayer.
 #include "RemoteMediaPlayerProxyMessages.h"
 
 namespace WebCore {

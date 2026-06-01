@@ -31,6 +31,8 @@
 #include "DaemonDecoder.h"
 #include "DaemonEncoder.h"
 #include "Logging.h"
+#include "MessageSenderInlines.h"
+#include "NetworkConnectionToWebProcess.h"
 #include "NetworkProcess.h"
 #include "NetworkSession.h"
 #include "PushClientConnectionMessages.h"

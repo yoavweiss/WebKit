@@ -159,8 +159,6 @@
 #import <WebKitAdditions/WebProcessPoolAdditions.h>
 #endif
 
-static NSString * const WebServiceWorkerRegistrationDirectoryDefaultsKey = @"WebServiceWorkerRegistrationDirectory";
-static NSString * const WebKitLocalCacheDefaultsKey = @"WebKitLocalCache";
 static NSString * const WebKitJSCJITEnabledDefaultsKey = @"WebKitJSCJITEnabledDefaultsKey";
 static NSString * const WebKitJSCFTLJITEnabledDefaultsKey = @"WebKitJSCFTLJITEnabledDefaultsKey";
 
@@ -170,8 +168,6 @@ static CFStringRef AppleColorPreferencesChangedNotification = CFSTR("AppleColorP
 #endif
 
 static NSString * const WebKitSuppressMemoryPressureHandlerDefaultsKey = @"WebKitSuppressMemoryPressureHandler";
-
-static NSString * const WebKitMediaStreamingActivity = @"WebKitMediaStreamingActivity";
 
 #if !RELEASE_LOG_DISABLED
 static NSString * const WebKitLogCookieInformationDefaultsKey = @"WebKitLogCookieInformation";

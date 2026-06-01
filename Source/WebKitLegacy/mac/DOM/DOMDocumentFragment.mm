@@ -31,7 +31,9 @@
 #import "DOMNodeListInternal.h"
 #import "ExceptionHandlers.h"
 #import <WebCore/DocumentFragment.h>
+#import <WebCore/HTMLCollection.h>
 #import <WebCore/JSExecState.h>
+#import <WebCore/NodeList.h>
 #import <WebCore/ThreadCheck.h>
 
 #define IMPL static_cast<WebCore::DocumentFragment*>(reinterpret_cast<WebCore::Node*>(_internal))

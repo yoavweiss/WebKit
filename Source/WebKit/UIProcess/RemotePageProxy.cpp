@@ -67,6 +67,11 @@
 #include "VideoPresentationManagerProxy.h"
 #endif
 
+#if PLATFORM(IOS_FAMILY) || (PLATFORM(MAC) && ENABLE(VIDEO_PRESENTATION_MODE))
+#include "PlaybackSessionManagerProxy.h"
+#include "RemotePagePlaybackSessionManagerProxy.h"
+#endif
+
 #if PLATFORM(IOS_FAMILY) && ENABLE(DEVICE_ORIENTATION)
 #include "WebDeviceOrientationUpdateProviderProxy.h"
 #endif

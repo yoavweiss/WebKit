@@ -36,6 +36,7 @@
 #import "Helpers/Test.h"
 #import "Helpers/cocoa/TestCocoa.h"
 #import "Helpers/cocoa/TestNavigationDelegate.h"
+#import "Helpers/cocoa/TestUIDelegate.h"
 #import "Helpers/Utilities.h"
 
 #import <WebCore/Color.h>

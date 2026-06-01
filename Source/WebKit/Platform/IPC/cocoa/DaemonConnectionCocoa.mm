@@ -27,6 +27,7 @@
 #import "DaemonConnection.h"
 
 #import "DaemonEncoder.h"
+#import "Logging.h"
 #import "PrivateClickMeasurementConnection.h"
 #import "WebPushDaemonConnection.h"
 #import <wtf/BlockPtr.h>

@@ -38,6 +38,7 @@
 #import <WebCore/ElementTargetingTypes.h>
 #import <WebCore/WebCoreObjCExtras.h>
 #import <wtf/RetainPtr.h>
+#import <wtf/cocoa/VectorCocoa.h>
 
 #if PLATFORM(IOS_FAMILY)
 #import <wtf/cocoa/Entitlements.h>

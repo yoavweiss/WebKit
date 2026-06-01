@@ -36,6 +36,7 @@
 #import "InjectedBundlePageContextMenuClient.h"
 #import "LaunchServicesDatabaseManager.h"
 #import "Logging.h"
+#import "MessageSenderInlines.h"
 #import "PDFPluginBase.h"
 #import "PageBanner.h"
 #import "PlatformFontInfo.h"

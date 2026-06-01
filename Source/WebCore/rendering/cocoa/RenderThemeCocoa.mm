@@ -1350,25 +1350,6 @@ String RenderThemeCocoa::youTubeQuirkScript()
 
 #endif // ENABLE(VIDEO)
 
-static inline FontSelectionValue cssWeightOfSystemFont(CTFontRef font)
-{
-    auto resultRef = adoptCF(static_cast<CFNumberRef>(CTFontCopyAttribute(font, kCTFontCSSWeightAttribute)));
-    float result = 0;
-    if (resultRef && CFNumberGetValue(resultRef.get(), kCFNumberFloatType, &result))
-        return FontSelectionValue(result);
-
-    auto traits = adoptCF(CTFontCopyTraits(font));
-    resultRef = static_cast<CFNumberRef>(CFDictionaryGetValue(traits.get(), kCTFontWeightTrait));
-    CFNumberGetValue(resultRef.get(), kCFNumberFloatType, &result);
-    // These numbers were experimentally gathered from weights of the system font.
-    static constexpr std::array weightThresholds { -0.6f, -0.365f, -0.115f, 0.130f, 0.235f, 0.350f, 0.5f, 0.7f };
-    for (unsigned i = 0; i < weightThresholds.size(); ++i) {
-        if (result < weightThresholds[i])
-            return FontSelectionValue((static_cast<int>(i) + 1) * 100);
-    }
-    return FontSelectionValue(900);
-}
-
 #if ENABLE(ATTACHMENT_ELEMENT)
 
 int RenderThemeCocoa::attachmentBaseline(const RenderAttachment& attachment) const
@@ -3878,9 +3859,7 @@ constexpr auto trackThicknessForVectorBasedControls = 8.0;
 #else
 constexpr auto trackThicknessForVectorBasedControls = 4.0;
 #endif
-constexpr auto trackRadiusForVectorBasedControls = trackThicknessForVectorBasedControls / 2.0;
 constexpr auto tickLengthForVectorBasedControls = trackThicknessForVectorBasedControls / 4.0;
-constexpr auto defaultSliderTickRadius = trackThicknessForVectorBasedControls / 8.0;
 constexpr FloatSize sliderThumbSize = { 24.f, 16.f };
 
 static void paintSliderTicksForVectorBasedControls(const RenderElement& box, const PaintInfo& paintInfo, const FloatRect& rect, bool isThumbVisible, const Color& tickColorOn, const Color& tickColorOff)

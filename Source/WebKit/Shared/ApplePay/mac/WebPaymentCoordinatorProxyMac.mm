@@ -29,12 +29,16 @@
 #if PLATFORM(MAC) && ENABLE(APPLE_PAY)
 
 #import "AppKitSPI.h"
+#import "DisbursementRequest.h"
 #import "PaymentAuthorizationViewController.h"
 #import "WebPageProxy.h"
+#import <WebCore/ApplePayDisbursementRequest.h>
 #import <pal/cocoa/PassKitSoftLink.h>
 #import <wtf/BlockPtr.h>
 
 namespace WebKit {
+
+using namespace WebCore;
 
 void WebPaymentCoordinatorProxy::platformCanMakePayments(CompletionHandler<void(bool)>&& completionHandler)
 {

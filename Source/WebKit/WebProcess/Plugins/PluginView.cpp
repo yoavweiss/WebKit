@@ -31,6 +31,7 @@
 #include "DocumentEditingContext.h"
 #include "FrameInfoData.h"
 #include "Logging.h"
+#include "MessageSenderInlines.h"
 #include "PDFPlugin.h"
 #include "UnifiedPDFPlugin.h"
 #include "WebFrame.h"

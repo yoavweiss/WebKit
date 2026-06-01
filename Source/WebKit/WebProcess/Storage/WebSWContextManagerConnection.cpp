@@ -28,6 +28,7 @@
 
 #include "FormDataReference.h"
 #include "Logging.h"
+#include "MessageSenderInlines.h"
 #include "NetworkConnectionToWebProcessMessages.h"
 #include "NetworkProcessMessages.h"
 #include "RemoteWebLockRegistry.h"
