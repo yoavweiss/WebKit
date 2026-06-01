@@ -1545,7 +1545,6 @@ webkit.org/b/266490 [ Sonoma+ ] fast/scrolling/overlay-scrollbars-scroll-corner.
 # rdar://119828743 (REGRESSION (263917@main?): [ Sonoma Debug wk2 x86_64 ] 3 tests in inspector/timeline are flaky crash with ASSERTION FAILED in void WebCore::InspectorTimelineAgent::didCompleteCurrentRecord(TimelineRecordType)
 [ Sonoma+ Debug x86_64 ] inspector/timeline/timeline-event-TimerInstall.html [ Pass Crash ]
 [ Sonoma+ Debug x86_64 ] inspector/timeline/timeline-event-TimerRemove.html [ Pass Crash ]
-[ Sonoma+ Debug x86_64 ] inspector/timeline/timeline-event-TimerFire.html [ Pass Crash ]
 
 webkit.org/b/267384 [ Sonoma+ ] fast/selectors/text-field-selection-window-inactive-stroke-color.html [ Pass ImageOnlyFailure ]
 
@@ -2439,6 +2438,8 @@ webkit.org/b/316020 [ Tahoe+ ] media/modern-media-controls/icon-service/icon-ser
 webkit.org/b/316012 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/sizes/sizes-auto-resize-observer-removes-auto.html [ Pass Failure ]
 
 webkit.org/b/316006 [ Tahoe+ Release arm64 ] imported/w3c/web-platform-tests/svg/animations/svgpointlist-animation-invalid-value-1.html [ Pass Failure ]
+
+webkit.org/b/316036 [ Debug ] inspector/timeline/timeline-event-TimerFire.html [ Skip ]
 
 webkit.org/b/315982 [ Sequoia Release x86_64 ] webgl/pending/conformance/glsl/misc/swizzle-as-lvalue.html [ Pass Timeout ]
 
