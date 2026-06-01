@@ -52,6 +52,11 @@ TemporalTimeZone::TemporalTimeZone(VM& vm, Structure* structure, TimeZone timeZo
 {
 }
 
+void TemporalTimeZone::destroy(JSCell* cell)
+{
+    SUPPRESS_MEMORY_UNSAFE_CAST static_cast<TemporalTimeZone*>(cell)->TemporalTimeZone::~TemporalTimeZone();
+}
+
 // https://tc39.es/proposal-temporal/#sec-temporal.timezone.from
 // https://tc39.es/proposal-temporal/#sec-temporal-totemporaltimezone
 JSObject* TemporalTimeZone::from(JSGlobalObject* globalObject, JSValue timeZoneLike)
