@@ -1088,14 +1088,12 @@ public:
     IsoHeapCellType intlSegmentsHeapCellType;
     IsoHeapCellType temporalTimeZoneHeapCellType;
 #if ENABLE(WEBASSEMBLY)
-    IsoHeapCellType webAssemblyArrayHeapCellType;
     IsoHeapCellType webAssemblyExceptionHeapCellType;
     IsoHeapCellType webAssemblyFunctionHeapCellType;
     IsoHeapCellType webAssemblyGlobalHeapCellType;
     // We can use IsoHeapCellType for instances because it's allocated out of a PreciseSubspace reserved for just instances.
     IsoHeapCellType webAssemblyInstanceHeapCellType;
     IsoHeapCellType webAssemblyMemoryHeapCellType;
-    IsoHeapCellType webAssemblyStructHeapCellType;
     IsoHeapCellType webAssemblyModuleHeapCellType;
     IsoHeapCellType webAssemblyModuleRecordHeapCellType;
     IsoHeapCellType webAssemblyTableHeapCellType;
