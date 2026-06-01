@@ -249,6 +249,11 @@ SharedStringHash SVGAElement::visitedLinkHash() const
     return *m_storedVisitedLinkHash;
 }
 
+URL SVGAElement::hrefURL() const
+{
+    return protect(document())->encodingParseURL(href());
+}
+
 DOMTokenList& SVGAElement::relList()
 {
     if (!m_relList) {
