@@ -64,6 +64,12 @@ test/built-ins/Temporal/Duration/prototype/round/blank-duration.js:
 test/built-ins/Temporal/Duration/prototype/round/case-where-relativeto-affects-rounding-mode-half-even.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
+test/built-ins/Temporal/Duration/prototype/round/exact-multiple-of-larger-unit-plaindate.js:
+  default: 'Test262Error: P31D weeks..months ceil: weeks result: Expected SameValue(«1», «0») to be true'
+  strict mode: 'Test262Error: P31D weeks..months ceil: weeks result: Expected SameValue(«1», «0») to be true'
+test/built-ins/Temporal/Duration/prototype/round/exact-multiple-of-larger-unit-zoned.js:
+  default: "TypeError: undefined is not an object (evaluating 'Temporal.ZonedDateTime.from')"
+  strict mode: "TypeError: undefined is not an object (evaluating 'Temporal.ZonedDateTime.from')"
 test/built-ins/Temporal/Duration/prototype/round/next-day-out-of-range.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(86400_0000_0000_000_000_000n, \"UTC\")')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(86400_0000_0000_000_000_000n, \"UTC\")')"
@@ -85,6 +91,9 @@ test/built-ins/Temporal/Duration/prototype/round/relativeto-string-limits.js:
 test/built-ins/Temporal/Duration/prototype/round/relativeto-string.js:
   default: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
   strict mode: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
+test/built-ins/Temporal/Duration/prototype/round/relativeto-zoneddatetime-large-time-component-out-of-range.js:
+  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
+  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
 test/built-ins/Temporal/Duration/prototype/round/rounding-increment-relativeto.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
@@ -121,6 +130,9 @@ test/built-ins/Temporal/Duration/prototype/total/relativeto-string.js:
 test/built-ins/Temporal/Duration/prototype/total/relativeto-total-of-each-unit.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(63072000_000_000_000n /* = 1972-01-01T00Z */, \"UTC\")')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(63072000_000_000_000n /* = 1972-01-01T00Z */, \"UTC\")')"
+test/built-ins/Temporal/Duration/prototype/total/relativeto-zoneddatetime-large-time-component-out-of-range.js:
+  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
+  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
 test/built-ins/Temporal/Duration/prototype/total/throws-if-date-time-invalid-with-zoneddatetime-relative.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(864n * 10n**19n - 1n, \"UTC\")')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(864n * 10n**19n - 1n, \"UTC\")')"
@@ -133,6 +145,12 @@ test/built-ins/Temporal/Duration/prototype/total/zero-duration.js:
 test/built-ins/Temporal/PlainDate/from/order-of-operations.js:
   default: 'Test262Error: Actual [get options.overflow, get options.overflow.toString, call options.overflow.toString, get fields.calendar, get fields.day, get fields.day.valueOf, call fields.day.valueOf, get fields.month, get fields.month.valueOf, call fields.month.valueOf, get fields.monthCode, get fields.monthCode.toString, call fields.monthCode.toString, get fields.year, get fields.year.valueOf, call fields.year.valueOf] and expected [get fields.calendar, get fields.day, get fields.day.valueOf, call fields.day.valueOf, get fields.month, get fields.month.valueOf, call fields.month.valueOf, get fields.monthCode, get fields.monthCode.toString, call fields.monthCode.toString, get fields.year, get fields.year.valueOf, call fields.year.valueOf, get options.overflow, get options.overflow.toString, call options.overflow.toString] should have the same contents. order of operations'
   strict mode: 'Test262Error: Actual [get options.overflow, get options.overflow.toString, call options.overflow.toString, get fields.calendar, get fields.day, get fields.day.valueOf, call fields.day.valueOf, get fields.month, get fields.month.valueOf, call fields.month.valueOf, get fields.monthCode, get fields.monthCode.toString, call fields.monthCode.toString, get fields.year, get fields.year.valueOf, call fields.year.valueOf] and expected [get fields.calendar, get fields.day, get fields.day.valueOf, call fields.day.valueOf, get fields.month, get fields.month.valueOf, call fields.month.valueOf, get fields.monthCode, get fields.monthCode.toString, call fields.monthCode.toString, get fields.year, get fields.year.valueOf, call fields.year.valueOf, get options.overflow, get options.overflow.toString, call options.overflow.toString] should have the same contents. order of operations'
+test/built-ins/Temporal/PlainDate/prototype/since/exact-multiple-of-larger-unit.js:
+  default: 'Test262Error: P1M weeks..months ceil: weeks result: Expected SameValue(«1», «0») to be true'
+  strict mode: 'Test262Error: P1M weeks..months ceil: weeks result: Expected SameValue(«1», «0») to be true'
+test/built-ins/Temporal/PlainDate/prototype/until/exact-multiple-of-larger-unit.js:
+  default: 'Test262Error: P1M weeks..months ceil: weeks result: Expected SameValue(«1», «0») to be true'
+  strict mode: 'Test262Error: P1M weeks..months ceil: weeks result: Expected SameValue(«1», «0») to be true'
 test/built-ins/Temporal/PlainDateTime/from/order-of-operations.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
@@ -145,6 +163,12 @@ test/built-ins/Temporal/PlainTime/from/options-wrong-type.js:
 test/built-ins/Temporal/PlainTime/from/order-of-operations.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
+test/built-ins/Temporal/PlainYearMonth/prototype/since/exact-multiple-of-larger-unit.js:
+  default: 'Test262Error: P1Y months..years ceil: months result: Expected SameValue(«2», «0») to be true'
+  strict mode: 'Test262Error: P1Y months..years ceil: months result: Expected SameValue(«2», «0») to be true'
+test/built-ins/Temporal/PlainYearMonth/prototype/until/exact-multiple-of-larger-unit.js:
+  default: 'Test262Error: P1Y months..years ceil: months result: Expected SameValue(«2», «0») to be true'
+  strict mode: 'Test262Error: P1Y months..years ceil: months result: Expected SameValue(«2», «0») to be true'
 test/built-ins/Temporal/getOwnPropertyNames.js:
   default: 'Test262Error: ZonedDateTime'
   strict mode: 'Test262Error: ZonedDateTime'
@@ -163,6 +187,12 @@ test/built-ins/Uint8Array/prototype/setFromBase64/trailing-garbage-empty.js:
 test/built-ins/Uint8Array/prototype/setFromBase64/trailing-garbage.js:
   default: 'SyntaxError: Uint8Array.prototype.setFromBase64 requires a valid base64 string'
   strict mode: 'SyntaxError: Uint8Array.prototype.setFromBase64 requires a valid base64 string'
+test/intl402/DateTimeFormat/prototype/format/temporal-objects-format-with-era.js:
+  default: 'Test262Error: toLocaleString on an Instant with era option should return the same results as toLocaleString on the same Date with the same options Expected SameValue(«"12/31/1969 A, 4:00:00 PM PST"», «"12/31/1969 A, 4:00:00 PM"») to be true'
+  strict mode: 'Test262Error: toLocaleString on an Instant with era option should return the same results as toLocaleString on the same Date with the same options Expected SameValue(«"12/31/1969 A, 4:00:00 PM PST"», «"12/31/1969 A, 4:00:00 PM"») to be true'
+test/intl402/DateTimeFormat/prototype/format/temporal-plaintime-formatting-datetime-style.js:
+  default: 'Test262Error: dateStyle = full, timeStyle = full Expected SameValue(«"12:34:56 AM"», «"12:34:56 AM Greenwich Mean Time"») to be true'
+  strict mode: 'Test262Error: dateStyle = full, timeStyle = full Expected SameValue(«"12:34:56 AM"», «"12:34:56 AM Greenwich Mean Time"») to be true'
 test/intl402/DateTimeFormat/prototype/format/temporal-zoneddatetime-not-supported.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
@@ -187,6 +217,12 @@ test/intl402/DateTimeFormat/prototype/formatRangeToParts/to-datetime-formattable
 test/intl402/DateTimeFormat/prototype/formatToParts/temporal-zoneddatetime-not-supported.js:
   default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
   strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
+test/intl402/FallbackSymbol/per-realm.js:
+  default: 'Test262Error: %Intl%.[[FallbackSymbol]] should be different per-realm Expected SameValue(«Symbol(IntlLegacyConstructedSymbol)», «Symbol(IntlLegacyConstructedSymbol)») to be false'
+  strict mode: 'Test262Error: %Intl%.[[FallbackSymbol]] should be different per-realm Expected SameValue(«Symbol(IntlLegacyConstructedSymbol)», «Symbol(IntlLegacyConstructedSymbol)») to be false'
+test/intl402/Locale/extensions-grandfathered.js:
+  default: 'Test262Error: Expected SameValue(«"fr-Cyrl-FR-gaulish-u-nu-latn"», «"fr-Cyrl-FR-u-nu-latn"») to be true'
+  strict mode: 'Test262Error: Expected SameValue(«"fr-Cyrl-FR-gaulish-u-nu-latn"», «"fr-Cyrl-FR-u-nu-latn"») to be true'
 test/intl402/NumberFormat/prototype/format/unit-ja-JP.js:
   default: 'Test262Error: Expected SameValue(«"時速-987キロメートル"», «"時速 -987 キロメートル"») to be true'
   strict mode: 'Test262Error: Expected SameValue(«"時速-987キロメートル"», «"時速 -987 キロメートル"») to be true'
@@ -199,6 +235,15 @@ test/intl402/NumberFormat/prototype/formatToParts/unit-ja-JP.js:
 test/intl402/NumberFormat/prototype/formatToParts/unit-zh-TW.js:
   default: 'Test262Error: undefined: length Expected SameValue(«3», «4») to be true'
   strict mode: 'Test262Error: undefined: length Expected SameValue(«3», «4») to be true'
+test/intl402/PluralRules/compactDisplay-undefined-unless-notation-compact.js:
+  default: 'Test262Error: compactDisplay (compact, long) Expected SameValue(«undefined», «"long"») to be true'
+  strict mode: 'Test262Error: compactDisplay (compact, long) Expected SameValue(«undefined», «"long"») to be true'
+test/intl402/PluralRules/constructor-option-read-order.js:
+  default: 'Test262Error: Actual [get options.localeMatcher, get options.type, get options.notation, get options.minimumIntegerDigits, get options.minimumFractionDigits, get options.maximumFractionDigits, get options.minimumSignificantDigits, get options.maximumSignificantDigits, get options.roundingIncrement, get options.roundingMode, get options.roundingPriority, get options.trailingZeroDisplay] and expected [get options.localeMatcher, get options.type, get options.notation, get options.compactDisplay, get options.minimumIntegerDigits, get options.minimumFractionDigits, get options.maximumFractionDigits, get options.minimumSignificantDigits, get options.maximumSignificantDigits, get options.roundingIncrement, get options.roundingMode, get options.roundingPriority, get options.trailingZeroDisplay] should have the same contents. Intl.PluralRules options read order'
+  strict mode: 'Test262Error: Actual [get options.localeMatcher, get options.type, get options.notation, get options.minimumIntegerDigits, get options.minimumFractionDigits, get options.maximumFractionDigits, get options.minimumSignificantDigits, get options.maximumSignificantDigits, get options.roundingIncrement, get options.roundingMode, get options.roundingPriority, get options.trailingZeroDisplay] and expected [get options.localeMatcher, get options.type, get options.notation, get options.compactDisplay, get options.minimumIntegerDigits, get options.minimumFractionDigits, get options.maximumFractionDigits, get options.minimumSignificantDigits, get options.maximumSignificantDigits, get options.roundingIncrement, get options.roundingMode, get options.roundingPriority, get options.trailingZeroDisplay] should have the same contents. Intl.PluralRules options read order'
+test/intl402/PluralRules/constructor-options-throwing-getters.js:
+  default: 'Test262Error: Exception from compactDisplay getter should be propagated Expected a CustomError to be thrown but no exception was thrown at all'
+  strict mode: 'Test262Error: Exception from compactDisplay getter should be propagated Expected a CustomError to be thrown but no exception was thrown at all'
 test/intl402/Temporal/Duration/compare/relativeto-sub-minute-offset.js:
   default: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
   strict mode: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
@@ -241,6 +286,18 @@ test/intl402/Temporal/Duration/prototype/total/relativeto-dst-back-transition.js
 test/intl402/Temporal/Duration/prototype/total/relativeto-sub-minute-offset.js:
   default: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
   strict mode: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
+test/intl402/Temporal/Instant/prototype/toLocaleString/default-includes-time-not-time-zone-name.js:
+  default: 'Test262Error: Instant formatted with no options 12/26/2024, 11:46:40 AM UTC should not include time zone name'
+  strict mode: 'Test262Error: Instant formatted with no options 12/26/2024, 11:46:40 AM UTC should not include time zone name'
+test/intl402/Temporal/Instant/prototype/toLocaleString/era.js:
+  default: 'Test262Error: toLocaleString on an Instant with era option should return the same results as toLocaleString on the same Date with the same options Expected SameValue(«"12/31/1969 A, 4:00:00 PM PST"», «"12/31/1969 A, 4:00:00 PM"») to be true'
+  strict mode: 'Test262Error: toLocaleString on an Instant with era option should return the same results as toLocaleString on the same Date with the same options Expected SameValue(«"12/31/1969 A, 4:00:00 PM PST"», «"12/31/1969 A, 4:00:00 PM"») to be true'
+test/intl402/Temporal/Instant/prototype/toLocaleString/option-timezonename-short.js:
+  default: 'Test262Error: expected "11/18/1976, 9:23:30 AM EST" to be shorter than "11/18/1976, 9:23:30 AM EST".'
+  strict mode: 'Test262Error: expected "11/18/1976, 9:23:30 AM EST" to be shorter than "11/18/1976, 9:23:30 AM EST".'
+test/intl402/Temporal/Instant/prototype/toLocaleString/respect-timezone-after-formatting-plaindatetime.js:
+  default: 'Test262Error: Expected SameValue(«"12/31/1969 A, 4:00:00 PM PST"», «"12/31/1969 A, 4:00:00 PM"») to be true'
+  strict mode: 'Test262Error: Expected SameValue(«"12/31/1969 A, 4:00:00 PM PST"», «"12/31/1969 A, 4:00:00 PM"») to be true'
 test/language/destructuring/binding/keyed-destructuring-property-reference-target-evaluation-order-with-bindings.js:
   default: 'Test262Error: Actual [binding::source, binding::sourceKey, sourceKey, get source, binding::defaultValue, binding::varTarget] and expected [binding::source, binding::sourceKey, sourceKey, binding::varTarget, get source, binding::defaultValue] should have the same contents. '
 test/language/eval-code/direct/arrow-fn-body-cntns-arguments-func-decl-arrow-func-declare-arguments-assign-incl-def-param-arrow-arguments.js:
@@ -260,8 +317,8 @@ test/language/eval-code/direct/arrow-fn-no-pre-existing-arguments-bindings-are-p
 test/language/eval-code/direct/arrow-fn-no-pre-existing-arguments-bindings-are-present-arrow-func-declare-arguments-assign.js:
   default: 'Test262Error: globalThis.arguments unchanged Expected SameValue(«"param"», «undefined») to be true'
 test/language/expressions/assignment/fn-name-lhs-cover.js:
-  default: "Test262Error: obj['name'] descriptor value should be ; obj['name'] value should be "
-  strict mode: "Test262Error: obj['name'] descriptor value should be ; obj['name'] value should be "
+  default: 'Test262Error: name descriptor value should be ; name value should be '
+  strict mode: 'Test262Error: name descriptor value should be ; name value should be '
 test/language/expressions/call/tco-non-eval-function-dynamic.js:
   default: 'RangeError: Maximum call stack size exceeded.'
 test/language/expressions/call/tco-non-eval-function.js:
@@ -351,6 +408,15 @@ test/staging/sm/Date/to-temporal-instant.js:
 test/staging/sm/Date/two-digit-years.js:
   default: 'Test262Error: Expected SameValue(«NaN», «957164400000») to be true'
   strict mode: 'Test262Error: Expected SameValue(«NaN», «957164400000») to be true'
+test/staging/sm/Error/constructor-proto.js:
+  default: 'Test262Error: Expected SameValue(«function () {'
+  strict mode: 'Test262Error: Expected SameValue(«function () {'
+test/staging/sm/Error/prototype-properties.js:
+  default: 'Test262Error: Expected SameValue(«"constructor,message,name,toString"», «"constructor,message,name"») to be true'
+  strict mode: 'Test262Error: Expected SameValue(«"constructor,message,name,toString"», «"constructor,message,name"») to be true'
+test/staging/sm/Error/prototype.js:
+  default: 'Test262Error: Expected SameValue(«[object Object]», «Error») to be true'
+  strict mode: 'Test262Error: Expected SameValue(«[object Object]», «Error») to be true'
 test/staging/sm/Function/arguments-parameter-shadowing.js:
   default: 'Test262Error: Expected SameValue(«true», «false») to be true'
 test/staging/sm/Function/function-name-assignment.js:

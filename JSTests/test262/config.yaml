@@ -19,6 +19,8 @@ skip:
     - Intl.Era-monthcode
     - await-dictionary
     - import-bytes
+    - immutable-arraybuffer
+    - error-stack-accessor
   paths:
     # Depends on the nonextensible-applies-to-private proposal which JSC has not implemented yet.
     - test/language/import/import-defer/evaluation-triggers/ignore-private-name-access.js
@@ -455,23 +457,6 @@ skip:
     - test/intl402/Intl/DateTimeFormat/prototype/formatRangeToParts/fails-on-distinct-temporal-types.js
     - test/intl402/Temporal/Instant/prototype/toString/timezone-offset.js
     - test/intl402/Temporal/Instant/prototype/toString/timezone-string-datetime.js
-
-
-    # transferToImmutable() is not implemented yet
-    - test/built-ins/ArrayBuffer/prototype/resize/this-is-immutable-arraybuffer-object.js
-    - test/built-ins/ArrayBuffer/prototype/transfer/this-is-immutable-arraybuffer.js
-    - test/built-ins/ArrayBuffer/prototype/transferToFixedLength/this-is-immutable-arraybuffer.js
-    - test/built-ins/DataView/prototype/setBigInt64/immutable-buffer.js
-    - test/built-ins/DataView/prototype/setBigUint64/immutable-buffer.js
-    - test/built-ins/DataView/prototype/setFloat16/immutable-buffer.js
-    - test/built-ins/DataView/prototype/setFloat32/immutable-buffer.js
-    - test/built-ins/DataView/prototype/setFloat64/immutable-buffer.js
-    - test/built-ins/DataView/prototype/setInt16/immutable-buffer.js
-    - test/built-ins/DataView/prototype/setInt32/immutable-buffer.js
-    - test/built-ins/DataView/prototype/setInt8/immutable-buffer.js
-    - test/built-ins/DataView/prototype/setUint16/immutable-buffer.js
-    - test/built-ins/DataView/prototype/setUint32/immutable-buffer.js
-    - test/built-ins/DataView/prototype/setUint8/immutable-buffer.js
  
     # Depends on Temporal support in IntlDateTimeFormat::handleDateTimeValue()
     - test/intl402/DateTimeFormat/prototype/format/temporal-objects-resolved-time-zone.js
