@@ -347,9 +347,8 @@ void WebPageProxy::didPerformDictionaryLookup(const DictionaryPopupInfo& diction
         DictionaryLookup::showPopup(dictionaryPopupInfo, protect(pageClient->viewForPresentingRevealPopover()).get(), [this](TextIndicator& textIndicator) {
             setTextIndicator(textIndicator, WebCore::TextIndicatorLifetime::Permanent);
         }, nullptr, [weakThis = WeakPtr { *this }] {
-            if (!weakThis)
-                return;
-            weakThis->clearTextIndicatorWithAnimation(WebCore::TextIndicatorDismissalAnimation::None);
+            if (RefPtr protectedThis = weakThis.get())
+                protectedThis->clearTextIndicatorWithAnimation(WebCore::TextIndicatorDismissalAnimation::None);
         });
     }
 }
@@ -495,9 +494,8 @@ void WebPageProxy::scheduleSetObscuredContentInsetsDispatch()
     m_didScheduleSetObscuredContentInsetsDispatch = true;
 
     callOnMainRunLoop([weakThis = WeakPtr { *this }] {
-        if (!weakThis)
-            return;
-        weakThis->dispatchSetObscuredContentInsets();
+        if (RefPtr protectedThis = weakThis.get())
+            protectedThis->dispatchSetObscuredContentInsets();
     });
 }
 
