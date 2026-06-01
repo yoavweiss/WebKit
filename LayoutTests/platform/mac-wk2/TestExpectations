@@ -2415,3 +2415,6 @@ webkit.org/b/315967 [ Sequoia Release x86_64 ] fast/dom/HTMLAnchorElement/anchor
 webkit.org/b/315968 [ Sequoia Release x86_64 ] fast/scrolling/mac/rubberband-overflow-in-wheel-region.html [ Pass Timeout ]
 webkit.org/b/315968 [ Sequoia Release x86_64 ] fast/scrolling/scroll-anchoring/heuristic-disabled-above-threshold.html [ Pass Failure ]
 
+webkit.org/b/315971 [ Sequoia Release x86_64 ] ietestcenter/css3/bordersbackgrounds/background-attachment-local-scrolling.htm [ Pass Timeout ]
+webkit.org/b/315971 [ Sequoia Release x86_64 ] ietestcenter/css3/multicolumn/column-block-formatting-context-001.htm [ Pass Timeout ]
+
