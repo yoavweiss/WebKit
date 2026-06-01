@@ -26,7 +26,7 @@
 
 // @internal
 
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function newPromiseCapabilitySlow(constructor)
 {
     "use strict";
@@ -58,7 +58,7 @@ function newPromiseCapabilitySlow(constructor)
     return promiseCapability;
 }
 
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function newPromiseCapability(constructor)
 {
     "use strict";

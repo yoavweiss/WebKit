@@ -142,12 +142,7 @@
 #endif
 
 /* FIXME: This does not belong in Platform.h and should instead be included in another mechanism (compiler option, prefix header, config.h, etc) */
-/* The WTF_PREPROCESSING_FOR_TEXT_REPLACEMENT_ONLY guard lets consumers that
- * scan this header only for ENABLE()/USE()/HAVE() macros (e.g. the JS builtin
- * preprocessor in Source/JavaScriptCore/Scripts/preprocess-builtin-js.py) opt
- * out of emission-only constructs. Any future code-generation directive added
- * to Platform.h must be guarded the same way. */
-#if COMPILER(MSVC) && !defined(WTF_PREPROCESSING_FOR_TEXT_REPLACEMENT_ONLY)
+#if COMPILER(MSVC)
 /* Enable strict runtime stack buffer checks. */
 #pragma strict_gs_check(on)
 #endif

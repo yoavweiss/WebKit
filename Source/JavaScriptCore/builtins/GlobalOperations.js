@@ -26,7 +26,7 @@
 
 // @internal
 
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function speciesConstructor(obj, defaultConstructor)
 {
     "use strict";

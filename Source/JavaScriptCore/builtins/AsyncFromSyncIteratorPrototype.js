@@ -155,7 +155,7 @@ function throw(exception)
     return promise;
 }
 
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function createAsyncFromSyncIterator(syncIterator, nextMethod)
 {
     "use strict";

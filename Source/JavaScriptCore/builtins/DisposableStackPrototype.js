@@ -24,7 +24,7 @@
  */
 
 // https://tc39.es/proposal-explicit-resource-management/#sec-createdisposableresource
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function createDisposableResource(value, isAsync /* , method */)
 {
     'use strict';
@@ -51,7 +51,7 @@ function createDisposableResource(value, isAsync /* , method */)
 }
 
 // https://tc39.es/proposal-explicit-resource-management/#sec-getdisposemethod
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function getDisposeMethod(value)
 {
     'use strict';
@@ -69,7 +69,7 @@ function getDisposeMethod(value)
 }
 
 // https://tc39.es/proposal-explicit-resource-management/#sec-getdisposemethod (async-dispose hint)
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function getAsyncDisposeMethod(value)
 {
     'use strict';
@@ -103,7 +103,7 @@ function getAsyncDisposeMethod(value)
 }
 
 // https://tc39.es/proposal-explicit-resource-management/#sec-adddisposableresource
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function addDisposableResource(disposeCapability, value, isAsync /* , method */)
 {
     'use strict';

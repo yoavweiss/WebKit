@@ -24,7 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function asyncGeneratorResumeNext(generator, resumeMode)
 {
     "use strict";

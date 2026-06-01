@@ -25,7 +25,7 @@
  */
 
 // https://tc39.es/proposal-iterator-helpers/#sec-getiteratorflattenable
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function getIteratorFlattenable(obj, rejectStrings)
 {
     "use strict";

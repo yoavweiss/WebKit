@@ -26,7 +26,7 @@
 
 // This implements https://tc39.es/ecma262/#sec-generatorresume and https://tc39.es/ecma262/#sec-generatorresumeabrupt
 // with exception of [[GeneratorBrand]] check and handling of [[GeneratorState]] equal to *completed*.
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function generatorResume(generator, state, value, resumeMode)
 {
     "use strict";

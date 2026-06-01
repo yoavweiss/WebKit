@@ -25,7 +25,6 @@ $(PROJECT_DIR)/Scripts/generate-combined-inspector-json.py
 $(PROJECT_DIR)/Scripts/generate-js-builtins.py
 $(PROJECT_DIR)/Scripts/jsmin.py
 $(PROJECT_DIR)/Scripts/lazywriter.py
-$(PROJECT_DIR)/Scripts/preprocess-builtin-js.py
 $(PROJECT_DIR)/Scripts/wkbuiltins/__init__.py
 $(PROJECT_DIR)/Scripts/wkbuiltins/builtins_generate_combined_header.py
 $(PROJECT_DIR)/Scripts/wkbuiltins/builtins_generate_combined_implementation.py
@@ -49,7 +48,6 @@ $(PROJECT_DIR)/builtins/AsyncDisposableStackPrototype.js
 $(PROJECT_DIR)/builtins/AsyncFromSyncIteratorPrototype.js
 $(PROJECT_DIR)/builtins/AsyncGeneratorPrototype.js
 $(PROJECT_DIR)/builtins/AsyncIteratorPrototype.js
-$(PROJECT_DIR)/builtins/BuiltinsMacros.h
 $(PROJECT_DIR)/builtins/DisposableStackPrototype.js
 $(PROJECT_DIR)/builtins/FunctionPrototype.js
 $(PROJECT_DIR)/builtins/GeneratorPrototype.js

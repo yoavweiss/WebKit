@@ -95,8 +95,8 @@ function from(items /*, mapFn, thisArg */)
     return result;
 }
 
-JSC_BUILTIN_LINK_TIME_CONSTANT
-JSC_BUILTIN_VISIBILITY_PRIVATE_RECURSIVE
+@linkTimeConstant
+@visibility=PrivateRecursive
 async function defaultAsyncFromAsyncIterator(iterator, mapFn, thisArg)
 {
     "use strict";
@@ -126,8 +126,8 @@ async function defaultAsyncFromAsyncIterator(iterator, mapFn, thisArg)
     return result;
 }
 
-JSC_BUILTIN_LINK_TIME_CONSTANT
-JSC_BUILTIN_VISIBILITY_PRIVATE_RECURSIVE
+@linkTimeConstant
+@visibility=PrivateRecursive
 async function defaultAsyncFromAsyncArrayLike(asyncItems, mapFn, thisArg)
 {
     "use strict";

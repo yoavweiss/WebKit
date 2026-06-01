@@ -26,7 +26,7 @@
 // Wrap a value at the boundary between the incubating realm and `shadowRealm`:
 // if `fromShadowRealm` is false, we are wrapping an object from the incubating
 // realm; if true, we are wrapping an object from the shadow realm
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function wrapRemoteValue(fromShadowRealm, shadowRealm, target)
 {
     "use strict";
@@ -53,7 +53,7 @@ function evaluate(sourceText)
     return @wrapRemoteValue(true, this, @evalInRealm(this, sourceText));
 }
 
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function crossRealmThrow(error)
 {
     "use strict";

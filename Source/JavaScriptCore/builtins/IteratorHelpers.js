@@ -23,7 +23,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function performIteration(iterable)
 {
     "use strict";
@@ -53,7 +53,7 @@ function performIteration(iterable)
     }
 }
 
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function wrappedIterator(iterator)
 {
     var wrapper = @Object.@create(null);
@@ -61,7 +61,7 @@ function wrappedIterator(iterator)
     return wrapper;
 }
 
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function builtinSetIterable(set)
 {
     "use strict";
@@ -77,7 +77,7 @@ function builtinSetIterable(set)
     return @wrappedIterator(iteratorFunction.@call(set));
 }
 
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function builtinMapIterable(map)
 {
     "use strict";

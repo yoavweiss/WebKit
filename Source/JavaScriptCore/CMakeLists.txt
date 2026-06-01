@@ -354,7 +354,6 @@ set(BUILTINS_GENERATOR_SCRIPTS
     ${JavaScriptCore_SCRIPTS_DIR}/builtins_generate_internals_wrapper_header.py
     ${JavaScriptCore_SCRIPTS_DIR}/builtins_generate_internals_wrapper_implementation.py
     ${JavaScriptCore_SCRIPTS_DIR}/generate-js-builtins.py
-    ${JavaScriptCore_SCRIPTS_DIR}/preprocess-builtin-js.py
     ${JavaScriptCore_SCRIPTS_DIR}/lazywriter.py
 )
 
@@ -396,107 +395,11 @@ set(JavaScriptCore_BUILTINS_SOURCES
     ${JAVASCRIPTCORE_DIR}/inspector/InjectedScriptSource.js
 )
 
-# Every builtin .js is first preprocessed by the C preprocessor (via
-# preprocess-builtin-js.py) before generate-js-builtins.py consumes it.
-# The invocation inherits the exact same flag bundle as normal JavaScriptCore
-# C++ compilation — include/system-include/framework directories, compile
-# definitions, and target-level compile options — via generator expressions on
-# the JavaScriptCore target. WEBKIT_FRAMEWORK_DECLARE(JavaScriptCore) declares
-# the target later in this file, but generator expressions are resolved at
-# generate time (after every CMakeLists.txt has been parsed), so referencing
-# its properties before its declaration is safe.
-set(BUILTINS_PREPROCESSOR_HEADER ${JAVASCRIPTCORE_DIR}/builtins/BuiltinsMacros.h)
-set(BUILTINS_PREPROCESSOR_SCRIPT ${JavaScriptCore_SCRIPTS_DIR}/preprocess-builtin-js.py)
-
-# Name the actual compiler so preprocess-builtin-js.py can emit the
-# matching flag syntax. clang-cl reports CMAKE_CXX_COMPILER_ID="Clang"
-# with CMAKE_CXX_SIMULATE_ID="MSVC", so check the simulate-id first.
-if (CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
-    set(BUILTINS_PREPROCESSOR_DRIVER "clang-cl")
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(BUILTINS_PREPROCESSOR_DRIVER "gcc")
-else ()
-    set(BUILTINS_PREPROCESSOR_DRIVER "clang")
-endif ()
-
-set(_builtins_target_prop_include_flags
-    "$<$<BOOL:$<TARGET_PROPERTY:JavaScriptCore,INCLUDE_DIRECTORIES>>:-I$<JOIN:$<TARGET_PROPERTY:JavaScriptCore,INCLUDE_DIRECTORIES>,;-I>>")
-set(_builtins_target_prop_system_include_flags
-    "$<$<BOOL:$<TARGET_PROPERTY:JavaScriptCore,INTERFACE_SYSTEM_INCLUDE_DIRECTORIES>>:-isystem;$<JOIN:$<TARGET_PROPERTY:JavaScriptCore,INTERFACE_SYSTEM_INCLUDE_DIRECTORIES>,;-isystem;>>")
-set(_builtins_target_prop_define_flags
-    "$<$<BOOL:$<TARGET_PROPERTY:JavaScriptCore,COMPILE_DEFINITIONS>>:-D$<JOIN:$<TARGET_PROPERTY:JavaScriptCore,COMPILE_DEFINITIONS>,;-D>>")
-set(_builtins_target_prop_compile_options
-    "$<TARGET_PROPERTY:JavaScriptCore,COMPILE_OPTIONS>")
-
-# Global CLI-supplied flags: -DCMAKE_CXX_FLAGS="..." and per-config variants
-# such as CMAKE_CXX_FLAGS_RELEASE. CMAKE_CXX_FLAGS is a string, not a list —
-# split on whitespace so each entry becomes its own argv via COMMAND_EXPAND_LISTS.
-separate_arguments(_builtins_global_cxx_flags NATIVE_COMMAND "${CMAKE_CXX_FLAGS}")
-if (CMAKE_BUILD_TYPE)
-    string(TOUPPER "${CMAKE_BUILD_TYPE}" _builtins_upper_build_type)
-    separate_arguments(_builtins_config_cxx_flags NATIVE_COMMAND "${CMAKE_CXX_FLAGS_${_builtins_upper_build_type}}")
-else ()
-    set(_builtins_config_cxx_flags "")
-endif ()
-
-if (APPLE)
-    set(_builtins_sysroot_flags -isysroot "${CMAKE_OSX_SYSROOT}")
-    if (CMAKE_OSX_DEPLOYMENT_TARGET)
-        list(APPEND _builtins_sysroot_flags "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
-    endif ()
-else ()
-    set(_builtins_sysroot_flags "")
-endif ()
-
-# Inject the macros from wtf/Platform.h (ENABLE()/USE()/HAVE()) without
-# expanding its body into the preprocessed output. -imacros is documented
-# by clang/gcc/clang-cl: "like -include, but discard any output produced."
-set(_builtins_imacros_flags -imacros wtf/Platform.h)
-
-set(JavaScriptCore_PREPROCESSED_BUILTINS_SOURCES "")
-foreach (_builtin IN LISTS JavaScriptCore_BUILTINS_SOURCES)
-    # Preserve the source's parent directory in the output path so that two
-    # .js files with the same basename in different source dirs (e.g.
-    # builtins/Foo.js and inspector/Foo.js) cannot collide.
-    file(RELATIVE_PATH _builtin_rel ${JAVASCRIPTCORE_DIR} ${_builtin})
-    set(_builtin_preprocessed ${JavaScriptCore_DERIVED_SOURCES_DIR}/preprocessed-builtins/${_builtin_rel})
-    set(_builtin_depfile ${_builtin_preprocessed}.d)
-    get_filename_component(_builtin_preprocessed_dir ${_builtin_preprocessed} DIRECTORY)
-    add_custom_command(
-        OUTPUT ${_builtin_preprocessed}
-        MAIN_DEPENDENCY ${_builtin}
-        DEPENDS
-            ${BUILTINS_PREPROCESSOR_HEADER}
-            ${BUILTINS_PREPROCESSOR_SCRIPT}
-            WTF_CopyHeaders
-        DEPFILE ${_builtin_depfile}
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${_builtin_preprocessed_dir}
-        COMMAND ${PYTHON_EXECUTABLE} ${BUILTINS_PREPROCESSOR_SCRIPT}
-            --compiler "${CMAKE_CXX_COMPILER}"
-            --driver "${BUILTINS_PREPROCESSOR_DRIVER}"
-            --header "${BUILTINS_PREPROCESSOR_HEADER}"
-            --depfile "${_builtin_depfile}"
-            --input "${_builtin}"
-            --output "${_builtin_preprocessed}"
-            --
-            ${_builtins_sysroot_flags}
-            ${_builtins_global_cxx_flags}
-            ${_builtins_config_cxx_flags}
-            "${_builtins_target_prop_include_flags}"
-            "${_builtins_target_prop_system_include_flags}"
-            "${_builtins_target_prop_define_flags}"
-            "${_builtins_target_prop_compile_options}"
-            ${_builtins_imacros_flags}
-        COMMAND_EXPAND_LISTS
-        VERBATIM)
-    list(APPEND JavaScriptCore_PREPROCESSED_BUILTINS_SOURCES ${_builtin_preprocessed})
-endforeach ()
-
 add_custom_command(
     OUTPUT ${JavaScriptCore_DERIVED_SOURCES_DIR}/JSCBuiltins.cpp ${JavaScriptCore_DERIVED_SOURCES_DIR}/JSCBuiltins.h
     MAIN_DEPENDENCY ${JavaScriptCore_SCRIPTS_DIR}/generate-js-builtins.py
-    DEPENDS ${JavaScriptCore_PREPROCESSED_BUILTINS_SOURCES} ${BUILTINS_GENERATOR_SCRIPTS}
-    COMMAND ${PYTHON_EXECUTABLE} ${JavaScriptCore_SCRIPTS_DIR}/generate-js-builtins.py --framework JavaScriptCore --output-directory ${JavaScriptCore_DERIVED_SOURCES_DIR} --combined ${JavaScriptCore_PREPROCESSED_BUILTINS_SOURCES}
+    DEPENDS ${JavaScriptCore_BUILTINS_SOURCES} ${BUILTINS_GENERATOR_SCRIPTS}
+    COMMAND ${PYTHON_EXECUTABLE} ${JavaScriptCore_SCRIPTS_DIR}/generate-js-builtins.py --framework JavaScriptCore --output-directory ${JavaScriptCore_DERIVED_SOURCES_DIR} --combined ${JavaScriptCore_BUILTINS_SOURCES}
     VERBATIM)
 add_custom_target(JSCBuiltins DEPENDS "${JavaScriptCore_DERIVED_SOURCES_DIR}/JSCBuiltins.h")
 

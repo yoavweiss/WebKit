@@ -27,7 +27,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function createObjectWithoutPrototype(/* key1, value1, key2, value2, ... */)
 {
     if (arguments.length % 2 !== 0)
@@ -40,7 +40,7 @@ function createObjectWithoutPrototype(/* key1, value1, key2, value2, ... */)
     return object;
 }
 
-JSC_BUILTIN_LINK_TIME_CONSTANT
+@linkTimeConstant
 function createArrayWithoutPrototype(/* value1, value2, ... */)
 {
     let array = new @Array(arguments.length);
@@ -52,8 +52,8 @@ function createArrayWithoutPrototype(/* value1, value2, ... */)
     return array;
 }
 
-JSC_BUILTIN_LINK_TIME_CONSTANT
-JSC_BUILTIN_VISIBILITY_PRIVATE_RECURSIVE
+@linkTimeConstant
+@visibility=PrivateRecursive
 function createInspectorInjectedScript(InjectedScriptHost, inspectedGlobalObject, injectedScriptId)
 {
 
