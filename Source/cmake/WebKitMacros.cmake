@@ -923,6 +923,13 @@ function(_webkit_setup_swift_header_deps _target _stamp _header)
             target_compile_options(${_target}_SwiftCompile PRIVATE $<TARGET_PROPERTY:${_target},COMPILE_OPTIONS>)
             target_compile_definitions(${_target}_SwiftCompile PRIVATE $<TARGET_PROPERTY:${_target},COMPILE_DEFINITIONS>)
             target_include_directories(${_target}_SwiftCompile PRIVATE $<TARGET_PROPERTY:${_target},INCLUDE_DIRECTORIES>)
+            # Emit the interop header from the helper only: it is the sole writer
+            # of WebKit-Swift-CPP.h.tmp in the legacy path and produces the
+            # swiftmodule the copy depends on, so the copy is ordered after the
+            # single write. ${_target} deliberately does not emit it here.
+            if (DEFINED ${_target}_SWIFT_EMIT_HEADER_FLAGS)
+                target_compile_options(${_target}_SwiftCompile PRIVATE ${${_target}_SWIFT_EMIT_HEADER_FLAGS})
+            endif ()
             add_dependencies(${_target}_SwiftCompile ${_target}_SwiftGeneratedDeps)
             file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/swift-link)
             set_target_properties(${_target} PROPERTIES Swift_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/swift-link)
@@ -1157,11 +1164,27 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
             # call populates it with all generated (binary-dir) headers for this target
             # once ${_target}_HEADERS and ${_target}_DERIVED_SOURCES are fully known.
             add_custom_target(${_target}_SwiftGeneratedDeps)
-            target_compile_options(${_target} PRIVATE
+            # WebKit-Swift-CPP.h.tmp must be written by exactly one target: the one
+            # whose ${_module_name}.swiftmodule the copy command below depends on. A
+            # second writer races the copy and fails it sporadically.
+            # https://bugs.webkit.org/show_bug.cgi?id=316000
+            set(_swift_emit_header_flags
                 "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-emit-clang-header-path ${_header_tmp_path}>")
             if (CAN_USE_EMIT_CLANG_HEADER_MIN_ACCESS)
-                target_compile_options(${_target} PRIVATE
+                list(APPEND _swift_emit_header_flags
                     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xfrontend -emit-clang-header-min-access -Xfrontend ${${_target}_SWIFT_EMIT_CLANG_HEADER_MIN_ACCESS}>")
+            endif ()
+            if (POLICY CMP0157)
+                # New Swift support: ${_target} is the only Swift compile, so emit here.
+                target_compile_options(${_target} PRIVATE ${_swift_emit_header_flags})
+            else ()
+                # Legacy support compiles the Swift sources twice: in the throw-away
+                # ${_target}_SwiftCompile helper (which produces the swiftmodule the
+                # copy depends on) and again in ${_target}'s link rule. Emit only from
+                # the helper; emitting from ${_target} too would make its link rule
+                # write the same temp unordered against the copy and race it. Stashed
+                # here, applied to the helper by _webkit_setup_swift_header_deps.
+                set(${_target}_SWIFT_EMIT_HEADER_FLAGS "${_swift_emit_header_flags}")
             endif ()
             add_custom_command(
                 OUTPUT ${_header_stamp_path}
