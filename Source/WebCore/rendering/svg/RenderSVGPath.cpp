@@ -140,19 +140,6 @@ bool RenderSVGPath::shouldStrokeZeroLengthSubpath() const
     return !style().stroke().isNone() && style().capStyle() != LineCap::Butt;
 }
 
-Path* RenderSVGPath::zeroLengthLinecapPath(const FloatPoint& linecapPosition) const
-{
-    static NeverDestroyed<Path> tempPath;
-
-    tempPath.get().clear();
-    if (style().capStyle() == LineCap::Square)
-        tempPath.get().addRect(zeroLengthSubpathRect(linecapPosition, this->strokeWidth()));
-    else
-        tempPath.get().addEllipseInRect(zeroLengthSubpathRect(linecapPosition, this->strokeWidth()));
-
-    return &tempPath.get();
-}
-
 FloatRect RenderSVGPath::zeroLengthSubpathRect(const FloatPoint& linecapPosition, float strokeWidth) const
 {
     return FloatRect(linecapPosition.x() - strokeWidth / 2, linecapPosition.y() - strokeWidth / 2, strokeWidth, strokeWidth);
@@ -183,11 +170,20 @@ void RenderSVGPath::strokeZeroLengthSubpaths(GraphicsContext& context) const
 
     GraphicsContextStateSaver stateSaver(context, true);
     useStrokeStyleToFill(context);
-    for (size_t i = 0; i < m_zeroLengthLinecapLocations.size(); ++i) {
-        auto usePath = zeroLengthLinecapPath(m_zeroLengthLinecapLocations[i]);
-        if (hasNonScalingStroke())
-            usePath = nonScalingStrokePath(usePath, nonScalingTransform);
-        context.fillPath(*usePath);
+
+    float strokeWidth = this->strokeWidth();
+    bool isSquareCap = style().capStyle() == LineCap::Square;
+    for (auto& linecapLocation : m_zeroLengthLinecapLocations) {
+        // The linecap location is path geometry, not stroke geometry. So when
+        // vector-effect: non-scaling-stroke is in effect, the transform must be
+        // applied to the position where the cap is drawn -- not to the generated
+        // cap shape, which would otherwise be distorted by the transform.
+        auto position = hasNonScalingStroke() ? nonScalingTransform.mapPoint(linecapLocation) : linecapLocation;
+        auto subpathRect = zeroLengthSubpathRect(position, strokeWidth);
+        if (isSquareCap)
+            context.fillRect(subpathRect);
+        else
+            context.fillEllipse(subpathRect);
     }
 }
 

@@ -53,7 +53,6 @@ private:
     void styleDidChange(Style::Difference, const RenderStyle*) final;
 
     bool NODELETE shouldStrokeZeroLengthSubpath() const;
-    Path* zeroLengthLinecapPath(const FloatPoint&) const;
     FloatRect NODELETE zeroLengthSubpathRect(const FloatPoint&, float) const;
     void updateZeroLengthSubpaths();
     void strokeZeroLengthSubpaths(GraphicsContext&) const;
