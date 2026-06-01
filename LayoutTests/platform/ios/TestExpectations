@@ -8409,6 +8409,8 @@ webgl/webgl2-provoking-vertex-primitive-restart-uint16-nocrash.html [ Skip ]
 # traversal counts compared to macOS.
 fast/selectors/has-invalidation-traversal-size.html [ Skip ]
 
+webkit.org/b/316014 [ Debug ] fast/dom/move-embedded-during-update.html [ Pass Failure ]
+
 # webkit.org/b/315796 [iOS Release] 3 tests in imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element are constant failure
 [ Release ] imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element/dialog-cancel-events.html [ Failure ]
 [ Release ] imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element/dialog-cancel-preventDefault.html [ Failure ]
