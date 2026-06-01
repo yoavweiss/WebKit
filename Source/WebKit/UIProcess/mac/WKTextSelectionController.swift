@@ -166,12 +166,15 @@ extension WKTextSelectionController {
         let newState = page.editorState
         let newVisualData = Optional(fromCxx: newState.visualData)
 
-        guard let previousVisualData, let newVisualData else {
-            return false
+        return switch (previousVisualData, newVisualData) {
+        case (let previousVisualData?, let newVisualData?):
+            // FIXME: (rdar://170847912) Use the `!=` operator instead when possible.
+            !(previousVisualData.caretRectAtStart == newVisualData.caretRectAtStart)
+        case (nil, nil):
+            false
+        default:
+            true
         }
-
-        // FIXME: (rdar://170847912) Use the `!=` operator instead when possible.
-        return !(previousVisualData.caretRectAtStart == newVisualData.caretRectAtStart)
     }
 
     @objc(showContextMenuAtPoint:)

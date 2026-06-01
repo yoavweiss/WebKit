@@ -70,6 +70,7 @@ struct InteractionInformationAtPosition {
         bool prefersDraggingOverTextSelection,
         bool isDHTMLDraggable,
         bool isColorInput,
+        bool isRangeInput,
         bool isNearMarkedText,
 #if PLATFORM(IOS_FAMILY)
         bool touchCalloutEnabled,
@@ -138,6 +139,8 @@ struct InteractionInformationAtPosition {
     bool prefersDraggingOverTextSelection { false };
     bool isDHTMLDraggable { false };
     bool isColorInput { false };
+    bool isRangeInput { false };
+
     bool isNearMarkedText { false };
 #if PLATFORM(IOS_FAMILY)
     bool touchCalloutEnabled { true };

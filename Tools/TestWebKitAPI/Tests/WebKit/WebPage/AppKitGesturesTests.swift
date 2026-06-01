@@ -86,16 +86,15 @@ struct AppKitGesturesTests {
 
         let expectedEvents = ["pointerdown", "mousedown", "pointerup", "mouseup", "click"]
 
-        try await page.callJavaScript(
+        try await page.callJavaScript(arguments: ["events": expectedEvents]) {
             """
             window.eventLog = [];
             const target = document.getElementById("div");
             for (const eventType of events) {
                 target.addEventListener(eventType, e => window.eventLog.push(e.type));
             }
-            """,
-            arguments: ["events": expectedEvents]
-        )
+            """
+        }
 
         if contentEditable {
             // FIXME: <rdar://177201499> This workaround establishes a selection first so that the synthetic click does not change insertion point.
@@ -114,7 +113,11 @@ struct AppKitGesturesTests {
         await page.waitForPendingMouseEvents()
         await page.waitForNextPresentationUpdate()
 
-        let eventLog = try await #require(page.callJavaScript("return window.eventLog;") as? [String])
+        let eventLog = try await page.callJavaScript(returning: [String].self) {
+            """
+            return window.eventLog;
+            """
+        }
 
         for eventType in expectedEvents {
             #expect(eventLog.contains(eventType))
@@ -218,6 +221,45 @@ struct AppKitGesturesTests {
         } else {
             #expect(newSelection == .collapsed(.init(in: "div", at: Self.text.count)))
         }
+    }
+
+    @Test
+    func scrollingDoesNotRemoveTextSelection() async throws {
+        try await loadHTML()
+
+        let crazyRange = try #require(Self.text.utf16Range(of: "crazy"))
+        let crazySelection = JavaScriptSelection.range(
+            base: .init(in: "div", at: crazyRange.lowerBound),
+            extent: .init(in: "div", at: crazyRange.upperBound)
+        )
+
+        let crazyBoundsInScreenCoordinates = try await screenBoundsOfText("crazy")
+
+        await page.waitForNextPresentationUpdate()
+
+        // Recap requires this test to be ran within an app host.
+        guard NSApp.isActive else {
+            return
+        }
+
+        await recap.play { composer in
+            composer._wk_click(at: crazyBoundsInScreenCoordinates.center, for: .seconds(0.1))
+            composer.advanceTime(0.1)
+            composer._wk_click(at: crazyBoundsInScreenCoordinates.center, for: .seconds(0.1))
+        }
+
+        await page.waitForNextPresentationUpdate()
+
+        let start = convertToCoreGraphicsScreenCoordinates(pointInWindowCoordinates: window.frame.center, window: window)
+        let end = CGPoint(x: start.x, y: start.y + 200)
+
+        await recap.play { composer in
+            composer._wk_scroll(withStart: start, end: end, duration: .seconds(1))
+        }
+
+        let newSelection = try await page.callJavaScript(JavaScriptMessages.GetSelection())
+
+        #expect(newSelection == crazySelection)
     }
 
     @Test(arguments: [true, false], [true, false])
@@ -398,23 +440,26 @@ struct AppKitGesturesTests {
 
     // MARK: - Drag Press Disambiguation Tests
 
-    @Test
-    func pressDragOverRangeInputChangesInputValue() async throws {
-        let maximumValue = 10.0
+    @Test(arguments: [true, false])
+    func pressDragOverRangeInputChangesInputValue(useNativeWidget: Bool) async throws {
+        let maximumValue = 10
+        let initialValue = maximumValue / 2
 
-        let html = """
-            <input type="range" id="range" min="0" max="\(maximumValue)" style="width: 400px; height: 200px" />
-            """
+        let elementID = useNativeWidget ? "native-slider" : "custom-slider"
 
-        try await page.load(html: html).wait()
+        let customHTML = try #require(Bundle.testResources.url(forResource: "custom-slider", withExtension: "html"))
+        try await page.load(customHTML).wait()
 
+        await page.waitForNextPresentationUpdate()
+
+        try await page.callJavaScript(arguments: ["elementID": "custom-slider"], script: styleAdjustmentForCustomWidgetScript)
         await page.waitForNextPresentationUpdate()
 
         guard NSApp.isActive else {
             return
         }
 
-        let sliderBounds = try await page.callJavaScript(JavaScriptMessages.BoundingClientRect(elementID: "range"))
+        let sliderBounds = try await page.callJavaScript(JavaScriptMessages.BoundingClientRect(elementID: elementID))
         let convertedSliderBounds = convertToCoreGraphicsScreenCoordinates(rectInViewportCoordinates: sliderBounds, window: window)
 
         let start = convertedSliderBounds.center
@@ -426,12 +471,28 @@ struct AppKitGesturesTests {
 
         await page.waitForNextPresentationUpdate()
 
-        let sliderValueScript = """
-            return Number(document.getElementById("range").value);
+        let finalSliderValue = try await page.callJavaScript(
+            returning: Double.self,
+            arguments: ["elementID": elementID, "useNativeWidget": useNativeWidget]
+        ) {
             """
+            if (useNativeWidget) {
+                return Number(document.getElementById(elementID).value);
+            } else {
+                return Number(document.getElementById(elementID).getAttribute("aria-valuenow"));
+            }
+            """
+        }
 
-        let finalSliderValue = try await page.callJavaScript(sliderValueScript) as? Double
-        #expect(finalSliderValue == maximumValue)
+        #expect(finalSliderValue == Double(maximumValue))
+
+        let eventLog = try await page.callJavaScript(returning: [Double].self, arguments: ["elementID": elementID]) {
+            """
+            return [...window.eventLog[elementID]];
+            """
+        }
+
+        #expect(eventLog == (initialValue...maximumValue).map(Double.init))
     }
 
     @Test(
@@ -544,7 +605,7 @@ struct AppKitGesturesTests {
             """
         try await page.load(html: html, baseURL: baseURL).wait()
 
-        try await page.callJavaScript(
+        try await page.callJavaScript {
             """
             const img = document.getElementById("img");
             if (img.complete && img.naturalWidth > 0) {
@@ -552,7 +613,7 @@ struct AppKitGesturesTests {
             }
             await new Promise(resolve => img.addEventListener("load", resolve, { once: true }));
             """
-        )
+        }
 
         let imgViewportBounds = try await page.callJavaScript(JavaScriptMessages.BoundingClientRect(elementID: "img"))
         let imgBounds = convertToCoreGraphicsScreenCoordinates(

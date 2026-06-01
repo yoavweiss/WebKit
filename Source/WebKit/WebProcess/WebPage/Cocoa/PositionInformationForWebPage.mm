@@ -416,7 +416,12 @@ static void selectionPositionInformation(WebPage& page, const InteractionInforma
                 info.isColorInput = true;
         }
 
-        if (info.prefersDraggingOverTextSelection || info.isDHTMLDraggable || info.isColorInput)
+        if (!info.isRangeInput) {
+            if (RefPtr input = dynamicDowncast<WebCore::HTMLInputElement>(currentNode); input && input->isRangeControl() && !input->isDisabledFormControl())
+                info.isRangeInput = true;
+        }
+
+        if (info.prefersDraggingOverTextSelection || info.isDHTMLDraggable || info.isColorInput || info.isRangeInput)
             break;
     }
 #if PLATFORM(MACCATALYST)

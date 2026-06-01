@@ -848,23 +848,62 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     return shouldBegin;
 }
 
-- (BOOL)_dragPressShouldBeginAtLocation:(NSPoint)locationInViewCoordinates
+- (BOOL)_positionInformationRequestIsValidAtLocation:(NSPoint)locationInViewCoordinates withRadius:(NSInteger)radius
 {
     WebKit::InteractionInformationRequest request { WebCore::IntPoint { locationInViewCoordinates } };
+    return _hasValidPositionInformation && _positionInformation.request.isApproximatelyValidForRequest(request, radius);
+}
+
+- (BOOL)_dragPressShouldBeginAtLocation:(NSPoint)locationInViewCoordinates
+{
     int radius = static_cast<int>(std::ceil([_dragPressGestureRecognizer allowableMovement]));
+
     // FIXME: Migrate to requestDragStart: IPC for an authoritative decision.
     // The heuristic below approximates DragController::draggableElement() by consulting the same element-type and style signals.
     bool isDraggable = representsDraggableElement(_positionInformation);
-    bool requestIsValid = _hasValidPositionInformation && _positionInformation.request.isApproximatelyValidForRequest(request, radius);
+    bool requestIsValid = [self _positionInformationRequestIsValidAtLocation:locationInViewCoordinates withRadius:radius];
     bool shouldDrag = requestIsValid && isDraggable;
-    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(),
+
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(
+        RefPtr { _page.get() }->logIdentifier(),
         "Drag-press shouldBegin → %d (hasInfo=%d link=%d image=%d attachment=%d dhtml=%d color=%d prefersDrag=%d radius=%d)",
-        shouldDrag, _hasValidPositionInformation,
-        _positionInformation.isLink, _positionInformation.isImage, _positionInformation.isAttachment,
-        _positionInformation.isDHTMLDraggable, _positionInformation.isColorInput, _positionInformation.prefersDraggingOverTextSelection, radius);
+        shouldDrag,
+        _hasValidPositionInformation,
+        _positionInformation.isLink,
+        _positionInformation.isImage,
+        _positionInformation.isAttachment,
+        _positionInformation.isDHTMLDraggable,
+        _positionInformation.isColorInput,
+        _positionInformation.prefersDraggingOverTextSelection,
+        radius
+    );
+
     if (!requestIsValid)
         [self _invalidateCurrentPositionInformation];
+
     return shouldDrag;
+}
+
+- (BOOL)_panShouldBeginAtLocation:(NSPoint)locationInViewCoordinates
+{
+    static constexpr int panPositionInformationToleranceRadius = 15;
+    bool requestIsValid = [self _positionInformationRequestIsValidAtLocation:locationInViewCoordinates withRadius:panPositionInformationToleranceRadius];
+
+    bool isDraggable = representsDraggableElement(_positionInformation);
+    bool prefersInteraction = _positionInformation.isRangeInput;
+    bool yieldToContent = requestIsValid && (isDraggable || prefersInteraction);
+
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(
+        RefPtr { _page.get() }->logIdentifier(),
+        "Pan shouldBegin → %d (hasInfo=%d valid=%d draggable=%d prefersInteraction=%d)",
+        !yieldToContent,
+        _hasValidPositionInformation,
+        requestIsValid,
+        isDraggable,
+        prefersInteraction
+    );
+
+    return !yieldToContent;
 }
 
 #pragma mark - Drag Handling
@@ -1320,9 +1359,6 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
     if (isSamePair(gestureRecognizer, otherGestureRecognizer, _mouseTrackingGestureRecognizer.get(), _singleClickGestureRecognizer.get()))
         return YES;
 
-    if (isSamePair(gestureRecognizer, otherGestureRecognizer, _mouseTrackingGestureRecognizer.get(), _panGestureRecognizer.get()))
-        return YES;
-
     if (isSamePair(gestureRecognizer, otherGestureRecognizer, _dragPressGestureRecognizer.get(), _singleClickGestureRecognizer.get()))
         return YES;
 
@@ -1382,8 +1418,22 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
 {
     WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Gesture: %@, Other gesture: %@", gestureRecognizer, otherGestureRecognizer);
 
+    CheckedPtr viewImpl = _viewImpl.get();
+    if (!viewImpl)
+        return NO;
+
+    RetainPtr webView = viewImpl->view();
+    if (!webView)
+        return NO;
+
     if (gestureRecognizer == _singleClickGestureRecognizer && otherGestureRecognizer == _doubleClickGestureRecognizer)
         return YES;
+
+    if (gestureRecognizer == _mouseTrackingGestureRecognizer && otherGestureRecognizer == _panGestureRecognizer) {
+        bool panCanScroll = [self panGestureRecognizerCanScroll];
+        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Mouse tracking requires pan to fail: %d", panCanScroll);
+        return panCanScroll;
+    }
 
     return NO;
 }
@@ -1410,6 +1460,9 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
 
     if (gestureRecognizer == _dragPressGestureRecognizer)
         return [self _dragPressShouldBeginAtLocation:locationInViewCoordinates];
+
+    if (gestureRecognizer == _panGestureRecognizer)
+        return [self _panShouldBeginAtLocation:locationInViewCoordinates];
 
     if (gestureRecognizer == _singleClickGestureRecognizer)
         return !viewImpl->isTextSelectedAtPoint(locationInViewCoordinates);
