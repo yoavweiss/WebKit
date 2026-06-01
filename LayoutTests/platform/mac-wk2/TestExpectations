@@ -2430,5 +2430,7 @@ webkit.org/b/315980 [ Sequoia Release x86_64 ] fast/css/video-poster-zoom.html [
 
 webkit.org/b/315981 [ Sequoia Release x86_64 ] imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/media_fragment_seek.html [ Pass Failure ]
 
+webkit.org/b/316006 [ Tahoe+ Release arm64 ] imported/w3c/web-platform-tests/svg/animations/svgpointlist-animation-invalid-value-1.html [ Pass Failure ]
+
 webkit.org/b/315982 [ Sequoia Release x86_64 ] webgl/pending/conformance/glsl/misc/swizzle-as-lvalue.html [ Pass Timeout ]
 
