@@ -4454,7 +4454,7 @@ bool MediaPlayerPrivateGStreamer::updateVideoSinkStatistics()
 
 std::optional<VideoPlaybackQualityMetrics> MediaPlayerPrivateGStreamer::videoPlaybackQualityMetrics()
 {
-    if (!updateVideoSinkStatistics())
+    if (!m_isEndReached && !updateVideoSinkStatistics())
         return std::nullopt;
 
     uint32_t corruptedVideoFrames = 0;
