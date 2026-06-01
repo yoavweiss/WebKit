@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2023-2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -291,7 +291,7 @@ void UnrealizedCoreTextFont::modifyFromContext(const FontDescription& fontDescri
             m_weight = std::max(std::min(m_weight, static_cast<float>(weightValue->maximum)), static_cast<float>(weightValue->minimum));
         if (auto widthValue = fontCreationContext.fontFaceCapabilities().width)
             m_width = std::max(std::min(m_width, static_cast<float>(widthValue->maximum)), static_cast<float>(widthValue->minimum));
-        if (auto slopeValue = fontCreationContext.fontFaceCapabilities().weight)
+        if (auto slopeValue = fontCreationContext.fontFaceCapabilities().slope)
             m_slope = std::max(std::min(m_slope, static_cast<float>(slopeValue->maximum)), static_cast<float>(slopeValue->minimum));
         if (shouldEnhanceTextLegibility && fontTypeForPreparation == FontTypeForPreparation::SystemFont) {
             auto ctWeight = denormalizeCTWeight(m_weight);
