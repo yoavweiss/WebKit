@@ -374,7 +374,7 @@ static void wpe_screen_class_init(WPEScreenClass* screenClass)
  * @screen: a #WPEScreen
  *
  * Get the @screen identifier.
- * The idenifier is a non-zero value to uniquely identify a #WPEScreen.
+ * The identifier is a non-zero value to uniquely identify a #WPEScreen.
  *
  * Returns: the screen identifier
  */

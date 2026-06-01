@@ -371,7 +371,7 @@ guint32 wpe_buffer_dma_buf_get_n_planes(WPEBufferDMABuf* buffer)
  *
  * Get the @buffer file descriptor of @plane
  *
- * Return: a file descriptor, or -1
+ * Returns: a file descriptor, or -1
  */
 int wpe_buffer_dma_buf_get_fd(WPEBufferDMABuf* buffer, guint32 plane)
 {
@@ -388,7 +388,7 @@ int wpe_buffer_dma_buf_get_fd(WPEBufferDMABuf* buffer, guint32 plane)
  *
  * Get the @buffer offset of @plane
  *
- * Return: the buffer offset
+ * Returns: the buffer offset
  */
 guint32 wpe_buffer_dma_buf_get_offset(WPEBufferDMABuf* buffer, guint32 plane)
 {
@@ -405,7 +405,7 @@ guint32 wpe_buffer_dma_buf_get_offset(WPEBufferDMABuf* buffer, guint32 plane)
  *
  * Get the @buffer stride of @plane
  *
- * Return: the buffer stride
+ * Returns: the buffer stride
  */
 guint32 wpe_buffer_dma_buf_get_stride(WPEBufferDMABuf* buffer, guint32 plane)
 {
@@ -421,7 +421,7 @@ guint32 wpe_buffer_dma_buf_get_stride(WPEBufferDMABuf* buffer, guint32 plane)
  *
  * Get the @buffer modifier
  *
- * Return: the buffer modifier
+ * Returns: the buffer modifier
  */
 guint64 wpe_buffer_dma_buf_get_modifier(WPEBufferDMABuf* buffer)
 {

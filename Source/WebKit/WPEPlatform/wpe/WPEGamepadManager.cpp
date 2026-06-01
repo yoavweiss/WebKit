@@ -72,7 +72,7 @@ static void wpe_gamepad_manager_class_init(WPEGamepadManagerClass* gamepadManage
      * @manager: a #WPEGamepadManager
      * @gamepad: the #WPEGamepad removed
      *
-     * Emitted after a gaempad device is removed.
+     * Emitted after a gamepad device is removed.
      */
     signals[DEVICE_REMOVED] = g_signal_new(
         "device-removed",

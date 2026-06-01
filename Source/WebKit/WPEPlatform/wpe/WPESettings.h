@@ -248,7 +248,7 @@ typedef enum {
  *
  * By default, when a #WPEView is created, a #WPEToplevel is also created and set
  * as the toplevel of the newly created view. This setting allows to create
- * views wihtout a toplevel set, for applications that want to handle the toplevels
+ * views without a toplevel set, for applications that want to handle the toplevels
  * themselves, for example to create a multiview toplevel.
  *
  * VariantType: boolean

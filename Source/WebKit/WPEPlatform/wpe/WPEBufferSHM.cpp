@@ -154,7 +154,7 @@ static void wpe_buffer_shm_class_init(WPEBufferSHMClass* bufferSHMClass)
  * @data: the buffer data
  * @stride: the buffer stride
  *
- * Crerate a new #WPEBufferSHM for the given parameters.
+ * Create a new #WPEBufferSHM for the given parameters.
  *
  * Returns: (transfer full): a #WPEBufferSHM
  */

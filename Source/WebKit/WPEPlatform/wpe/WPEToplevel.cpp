@@ -345,7 +345,7 @@ void wpe_toplevel_closed(WPEToplevel* toplevel)
  * @width: (out) (nullable): return location for width, or %NULL
  * @height: (out) (nullable): return location for width, or %NULL
  *
- * Get the @vtoplevel size in logical coordinates
+ * Get the @toplevel size in logical coordinates
  */
 void wpe_toplevel_get_size(WPEToplevel* toplevel, int* width, int* height)
 {

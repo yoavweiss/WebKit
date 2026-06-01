@@ -329,7 +329,7 @@ void wpe_display_set_primary(WPEDisplay* display)
 }
 
 /**
- * wpe_display_connect
+ * wpe_display_connect:
  * @display: a #WPEDisplay
  * @error: return location for error or %NULL to ignore
  *
@@ -369,7 +369,7 @@ void wpe_display_disconnected(WPEDisplay* display, GError* error)
  *
  * Get the `EGLDisplay` of @display
  *
- * Retrurns: (transfer none) (nullable): a `EGLDisplay` or %NULL
+ * Returns: (transfer none) (nullable): a `EGLDisplay` or %NULL
  */
 gpointer wpe_display_get_egl_display(WPEDisplay* display, GError** error)
 {

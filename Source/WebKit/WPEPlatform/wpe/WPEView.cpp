@@ -303,7 +303,7 @@ static void wpe_view_class_init(WPEViewClass* viewClass)
      * Whether the view should be visible or not. This property
      * can be used to show or hide a view, but setting to %TRUE (which
      * is the default) doesn't mean it will always be shown, because
-     * the visbility also depends on the status of its toplevel (for
+     * the visibility also depends on the status of its toplevel (for
      * example if the toplevel is minimized the view will be hidden).
      * To know whether the view is actually visible, you can check
      * #WPEView:mapped property.
@@ -439,7 +439,7 @@ static void wpe_view_class_init(WPEViewClass* viewClass)
         WPE_TYPE_BUFFER);
 
     /**
-     * WPEView::event
+     * WPEView::event:
      * @view: a #WPEView
      * @event: a #WPEEvent
      *
@@ -748,7 +748,7 @@ void wpe_view_set_visible(WPEView* view, gboolean visible)
  * wpe_view_get_mapped:
  * @view: a #WPEView
  *
- * Get whether @view is mapped. A #WPEView isa mapped if
+ * Get whether @view is mapped. A #WPEView is mapped if
  * #WPEView:visible is %TRUE and it's not hidden for other
  * reasons, like for example when its toplevel is minimized.
  * You can connect to notify::mapped signal of @view to
