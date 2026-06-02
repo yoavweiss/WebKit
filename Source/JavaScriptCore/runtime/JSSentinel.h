@@ -26,6 +26,7 @@
 #pragma once
 
 #include <JavaScriptCore/JSCell.h>
+#include <JavaScriptCore/VM.h>
 
 namespace JSC {
 
