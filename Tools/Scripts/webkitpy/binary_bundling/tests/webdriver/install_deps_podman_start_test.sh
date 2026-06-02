@@ -69,9 +69,9 @@ case "${CURRENT_DISTRO}" in
         pip3 install --break-system-packages selenium==4.24.0
     ;;
     gentoo)
-        emaint --auto sync
-        emerge dev-python/pip
-        python3 -m pip config set global.break-system-packages true
+        # Bypass emerge for installing pip, it has been causing issues when there are python migrations on Gentoo.
+        rm -f /usr/lib/python*/EXTERNALLY-MANAGED
+        python3 -m ensurepip --upgrade
         pip3 install selenium==4.24.0 pillow numpy
     ;;
     *)
