@@ -197,6 +197,7 @@ void RuleSet::addRuleToBucket(RuleData& ruleData)
     const CSSSelector* pickerPseudoElementSelector = nullptr;
     const CSSSelector* namedPseudoElementSelector = nullptr;
     const CSSSelector* otherPseudoElementSelector = nullptr;
+    const CSSSelector* headingPseudoClassSelector = nullptr;
 #if ENABLE(VIDEO)
     const CSSSelector* cuePseudoElementSelector = nullptr;
 #endif
@@ -299,6 +300,9 @@ void RuleSet::addRuleToBucket(RuleData& ruleData)
 #endif
                 case CSSSelector::PseudoClass::Scope:
                     m_hasHostOrScopePseudoClassRulesInUniversalBucket = true;
+                    break;
+                case CSSSelector::PseudoClass::Heading:
+                    headingPseudoClassSelector = current;
                     break;
                 case CSSSelector::PseudoClass::Is:
                 case CSSSelector::PseudoClass::Where: {
@@ -460,6 +464,39 @@ void RuleSet::addRuleToBucket(RuleData& ruleData)
         addToRuleSet(tagSelector->tagQName().localName(), m_tagLocalNameRules, ruleData);
         addToRuleSet(tagSelector->tagLowercaseLocalName(), m_tagLowercaseLocalNameRules, ruleData);
         return;
+    }
+
+    if (headingPseudoClassSelector) {
+        std::array<bool, 7> wantedLevel { };
+        if (auto* integerList = headingPseudoClassSelector->integerList()) {
+            for (int level : *integerList) {
+                if (level >= 1 && level <= 6)
+                    wantedLevel[level] = true;
+            }
+        } else {
+            for (unsigned level = 1; level <= 6; ++level)
+                wantedLevel[level] = true;
+        }
+        bool addedToAnyBucket = false;
+        for (unsigned level = 1; level <= 6; ++level) {
+            if (!wantedLevel[level])
+                continue;
+            auto& tag = [&] -> const HTMLQualifiedName& {
+                switch (level) {
+                case 1: return HTMLNames::h1Tag;
+                case 2: return HTMLNames::h2Tag;
+                case 3: return HTMLNames::h3Tag;
+                case 4: return HTMLNames::h4Tag;
+                case 5: return HTMLNames::h5Tag;
+                default: return HTMLNames::h6Tag;
+                }
+            }();
+            addToRuleSet(tag.localName(), m_tagLocalNameRules, ruleData);
+            addToRuleSet(tag.localName(), m_tagLowercaseLocalNameRules, ruleData);
+            addedToAnyBucket = true;
+        }
+        if (addedToAnyBucket)
+            return;
     }
 
     auto addUniversalPseudoElement = [&] {
