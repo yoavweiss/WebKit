@@ -118,7 +118,7 @@ END_OF_NINJA
 
 writeFileIfChanged("$membersFolder/build.ninja", $buildNinja);
 
-exec('ninja', '--quiet', '-f', "$membersFolder/build.ninja");
+exec($ENV{WEBKIT_NINJA_PATH}, '--quiet', '-f', "$membersFolder/build.ninja");
 die("exec ninja: $!\n");
 
 sub shellQuote {

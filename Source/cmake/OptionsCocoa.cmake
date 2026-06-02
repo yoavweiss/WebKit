@@ -198,6 +198,12 @@ if (CMAKE_GENERATOR STREQUAL "Ninja")
     set(CMAKE_C_ARCHIVE_FINISH true)
 endif ()
 
+WEBKIT_XCRUN(_ninja_path -f ninja)
+if (NOT EXISTS "${_ninja_path}")
+    message(FATAL_ERROR "xcrun could not resolve ninja")
+endif ()
+file(WRITE "${CMAKE_BINARY_DIR}/.webkit-ninja-path" "${_ninja_path}\n")
+
 set(CMAKE_STATIC_LINKER_FLAGS "-no_warning_for_no_symbols")
 
 if (CMAKE_EXPORT_COMPILE_COMMANDS AND NOT EXISTS ${CMAKE_SOURCE_DIR}/compile_commands.json)
