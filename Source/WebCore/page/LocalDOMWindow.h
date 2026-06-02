@@ -265,6 +265,7 @@ public:
     bool isSecureContext() const;
 
     bool NODELETE crossOriginIsolated() const;
+    bool NODELETE originAgentCluster() const;
 
     // Events
     // EventTarget API

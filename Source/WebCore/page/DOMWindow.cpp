@@ -520,6 +520,14 @@ ExceptionOr<bool> DOMWindow::crossOriginIsolated() const
     return localThis->crossOriginIsolated();
 }
 
+ExceptionOr<bool> DOMWindow::originAgentCluster() const
+{
+    auto* localThis = dynamicDowncast<LocalDOMWindow>(*this);
+    if (!localThis)
+        return Exception { ExceptionCode::SecurityError };
+    return localThis->originAgentCluster();
+}
+
 void DOMWindow::focus(LocalDOMWindow& incumbentWindow)
 {
     switch (m_type) {

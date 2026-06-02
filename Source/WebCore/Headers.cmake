@@ -1374,6 +1374,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     dom/NodeRenderStyle.h
     dom/NodeTraversal.h
     dom/NodeType.h
+    dom/OriginKeyed.h
     dom/ParserContentPolicy.h
     dom/PointerEvent.h
     dom/PointerEventTypeNames.h
@@ -1892,6 +1893,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     loader/NavigationRequester.h
     loader/NavigationScheduler.h
     loader/NetscapePlugInStreamLoader.h
+    loader/OriginAgentClusterPolicy.h
     loader/PCMSites.h
     loader/PCMTokens.h
     loader/PingLoader.h

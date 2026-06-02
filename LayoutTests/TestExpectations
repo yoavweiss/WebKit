@@ -799,7 +799,7 @@ imported/w3c/web-platform-tests/html/browsers/browsing-the-web/history-traversal
 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/history-traversal/pageswap/pageswap-traverse-navigation-cross-origin-redirect-no-bfcache.https.sub.html [ Skip ]
 imported/w3c/web-platform-tests/html/browsers/history/the-history-interface/history_pushstate_url.html [ Skip ]
 imported/w3c/web-platform-tests/html/browsers/history/the-history-interface/traverse_the_history_3.html [ Skip ]
-imported/w3c/web-platform-tests/html/browsers/origin/origin-keyed-agent-clusters/ [ Skip ]
+imported/w3c/web-platform-tests/html/browsers/origin/origin-keyed-agent-clusters/going-back.sub.https.html [ Skip ]
 imported/w3c/web-platform-tests/html/browsers/origin/relaxing-the-same-origin-restriction/document_domain_feature_policy.tentative.sub.html [ Skip ]
 imported/w3c/web-platform-tests/html/browsers/sandboxing/sandbox-document-open.html [ Skip ]
 imported/w3c/web-platform-tests/html/browsers/sandboxing/sandbox-inherited-from-required-csp.html [ Skip ]

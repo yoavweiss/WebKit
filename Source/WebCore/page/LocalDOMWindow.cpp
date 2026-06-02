@@ -2022,6 +2022,13 @@ bool LocalDOMWindow::crossOriginIsolated() const
     return document && document->crossOriginIsolated();
 }
 
+// https://html.spec.whatwg.org/multipage/origin.html#dom-originagentcluster
+bool LocalDOMWindow::originAgentCluster() const
+{
+    auto* document = this->document();
+    return document && document->originAgentCluster();
+}
+
 static void didAddStorageEventListener(LocalDOMWindow& window)
 {
     // Creating these WebCore::Storage objects informs the system that we'd like to receive

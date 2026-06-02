@@ -2110,6 +2110,7 @@ loader/NavigationAction.cpp
 loader/NavigationRequester.cpp
 loader/NavigationScheduler.cpp
 loader/NetscapePlugInStreamLoader.cpp
+loader/OriginAgentClusterPolicy.cpp
 loader/PingLoader.cpp
 loader/PolicyChecker.cpp
 loader/PolicyContainer.cpp

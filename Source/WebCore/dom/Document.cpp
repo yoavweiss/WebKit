@@ -7325,6 +7325,7 @@ String Document::referrerForBindings()
     return shouldHideFromBindings ? emptyString() : referrer();
 }
 
+// https://html.spec.whatwg.org/multipage/origin.html#dom-document-domain
 String Document::domain() const
 {
     return securityOrigin().domain();
@@ -7349,6 +7350,9 @@ ExceptionOr<void> Document::setDomain(const String& newDomain)
 
     if (!securityOrigin().isMatchingRegistrableDomainSuffix(newDomain, settings().treatIPAddressAsDomain()))
         return Exception { ExceptionCode::SecurityError, "Attempted to use a non-registrable domain."_s };
+
+    if (originAgentCluster())
+        return { };
 
     securityOrigin().setDomainFromDOM(newDomain);
     return { };
@@ -8334,6 +8338,7 @@ void Document::initSecurityContext()
     contentSecurityPolicy->updateSourceSelf(protect(ownerFrame->document()->securityOrigin()));
 
     setCrossOriginEmbedderPolicy(ownerFrame->document()->crossOriginEmbedderPolicy());
+    setIsOriginKeyed(ownerFrame->document()->isOriginKeyed());
 
     // https://html.spec.whatwg.org/multipage/browsers.html#creating-a-new-browsing-context (Step 12)
     // If creator is non-null and creator's origin is same origin with creator's relevant settings object's top-level origin, then set coop
@@ -8478,9 +8483,25 @@ String Document::agentClusterID() const
     Ref origin = securityOrigin();
     auto& data = origin->data();
     auto browsingContextGroupIdentifier = page() && page()->browsingContextGroupIdentifier() ? page()->browsingContextGroupIdentifier()->toUInt64() : 0;
+    if (origin->isOpaque()) {
+        auto opaqueID = data.opaqueOriginIdentifier();
+        return makeString(browsingContextGroupIdentifier, "-opaque-"_s, opaqueID ? opaqueID->toString() : String { });
+    }
     if (crossOriginIsolated())
         return makeString(browsingContextGroupIdentifier, "-coi-"_s, data.toString());
+    if (m_isOriginKeyed == OriginKeyed::Yes)
+        return makeString(browsingContextGroupIdentifier, "-oac-"_s, data.toString());
     return makeString(browsingContextGroupIdentifier, '-', Site(data).toString());
+}
+
+// https://html.spec.whatwg.org/multipage/origin.html#dom-originagentcluster
+bool Document::originAgentCluster() const
+{
+    if (securityOrigin().isOpaque())
+        return true;
+    if (crossOriginIsolated())
+        return true;
+    return m_isOriginKeyed == OriginKeyed::Yes;
 }
 
 void Document::updateURLForPushOrReplaceState(const URL& url)

@@ -66,6 +66,7 @@
     // the current browsing context
     // FIXME: `document` should not be nullable.
     [LegacyUnforgeable] readonly attribute Document? document;
+    [EnabledBySetting=OriginAgentClusterEnabled] readonly attribute boolean originAgentCluster;
     attribute [AtomString] DOMString name;
     readonly attribute History history;
     [EnabledBySetting=NavigationAPIEnabled, Replaceable] readonly attribute Navigation navigation;

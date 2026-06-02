@@ -638,10 +638,14 @@ void WebFrame::didReceivePolicyDecision(uint64_t listenerID, PolicyDecision&& po
     }
 
     m_policyDownloadID = policyDecision.downloadID;
-    if (policyDecision.navigationID) {
-        auto* localFrame = dynamicDowncast<LocalFrame>(m_coreFrame.get());
-        if (auto* documentLoader = localFrame ? localFrame->loader().policyDocumentLoader() : nullptr)
-            documentLoader->setNavigationID(*policyDecision.navigationID);
+    if (RefPtr localFrame = dynamicDowncast<LocalFrame>(m_coreFrame.get())) {
+        auto& loader = localFrame->loader();
+        if (RefPtr policyDocumentLoader = loader.policyDocumentLoader()) {
+            if (policyDecision.navigationID)
+                policyDocumentLoader->setNavigationID(*policyDecision.navigationID);
+            policyDocumentLoader->setIsOriginKeyedFromUIProcess(policyDecision.isOriginKeyed);
+        } else if (RefPtr provisionalDocumentLoader = loader.provisionalDocumentLoader())
+            provisionalDocumentLoader->setIsOriginKeyedFromUIProcess(policyDecision.isOriginKeyed);
     }
 
     if (policyDecision.backForwardFrameState) {

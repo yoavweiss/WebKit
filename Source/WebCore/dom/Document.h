@@ -42,6 +42,7 @@
 #include <WebCore/FrameIdentifier.h>
 #include <WebCore/HitTestSource.h>
 #include <WebCore/MutationObserverOptions.h>
+#include <WebCore/OriginKeyed.h>
 #include <WebCore/PageIdentifier.h>
 #include <WebCore/PlaybackTargetClientContextIdentifier.h>
 #include <WebCore/PseudoElementIdentifier.h>
@@ -1435,6 +1436,7 @@ public:
     bool isContextThread() const final;
     bool isSecureContext() const final;
     bool NODELETE crossOriginIsolated() const final;
+    bool NODELETE originAgentCluster() const;
     String agentClusterID() const final;
     bool isJSExecutionForbidden() const final { return false; }
 
@@ -1665,6 +1667,10 @@ public:
     bool shouldForceNoOpenerBasedOnCOOP() const;
 
     WEBCORE_EXPORT CrossOriginOpenerPolicy crossOriginOpenerPolicy() const final;
+
+    // https://html.spec.whatwg.org/multipage/origin.html#origin-keyed-agent-clusters
+    OriginKeyed isOriginKeyed() const { return m_isOriginKeyed; }
+    void setIsOriginKeyed(OriginKeyed value) { m_isOriginKeyed = value; }
 
     void willLoadScriptElement(const URL&);
     void willLoadFrameElement(const URL&);
@@ -2769,6 +2775,8 @@ private:
     bool m_areDeviceMotionAndOrientationUpdatesSuspended { false };
 
     bool m_didEnqueueFirstContentfulPaint { false };
+
+    OriginKeyed m_isOriginKeyed { OriginKeyed::No };
 
     bool m_mayHaveRenderedSVGForeignObjects { false };
     bool m_mayHaveRenderedSVGRootElements { false };

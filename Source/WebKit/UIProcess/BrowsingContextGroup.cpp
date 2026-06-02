@@ -334,4 +334,18 @@ bool BrowsingContextGroup::hasRemotePages(const WebPageProxy& page)
     return it != m_remotePages.end() && !it->value.isEmpty();
 }
 
+// https://html.spec.whatwg.org/multipage/origin.html#historical-agent-cluster-key-map
+WebCore::OriginKeyed BrowsingContextGroup::resolveAgentClusterKeying(const WebCore::SecurityOriginData& origin, WebCore::OriginKeyed requested)
+{
+    return m_historicalAgentClusterKeyMap.ensure(origin, [requested] {
+        return requested;
+    }).iterator->value;
+}
+
+void BrowsingContextGroup::clearBrowsingContextGroupForTesting()
+{
+    m_identifier = WebCore::BrowsingContextGroupIdentifier::generate();
+    m_historicalAgentClusterKeyMap.clear();
+}
+
 } // namespace WebKit

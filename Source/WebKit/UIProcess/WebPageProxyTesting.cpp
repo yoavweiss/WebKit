@@ -26,6 +26,7 @@
 #include "config.h"
 #include "WebPageProxyTesting.h"
 
+#include "BrowsingContextGroup.h"
 #include "Connection.h"
 #include "MessageSenderInlines.h"
 #include "NetworkProcessMessages.h"
@@ -222,14 +223,17 @@ void WebPageProxyTesting::setObscuredContentInsets(float top, float right, float
 
 void WebPageProxyTesting::resetStateBetweenTests()
 {
-    page().legacyMainFrameProcess().resetState();
+    Ref page = m_page;
+    page->legacyMainFrameProcess().resetState();
 
-    if (auto* mainFrame = m_page->mainFrame())
+    if (auto* mainFrame = page->mainFrame())
         mainFrame->disownOpener();
 
-    protect(page())->forEachWebContentProcess([&](auto& webProcess, auto pageID) {
+    page->forEachWebContentProcess([&](auto& webProcess, auto pageID) {
         webProcess.send(Messages::WebPageTesting::ResetStateBetweenTests(), pageID);
     });
+
+    protect(page->browsingContextGroup())->clearBrowsingContextGroupForTesting();
 }
 
 void WebPageProxyTesting::clearBackForwardList(CompletionHandler<void()>&& completionHandler)
