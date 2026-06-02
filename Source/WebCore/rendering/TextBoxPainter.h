@@ -98,6 +98,7 @@ protected:
     };
     using DecoratingBoxList = Vector<DecoratingBox>;
     void collectDecoratingBoxesForBackgroundPainting(DecoratingBoxList&, const InlineIterator::TextBoxIterator&, const FloatRect& textBoxRect, const TextDecorationPainter::Styles&);
+    void collectDecoratingBoxesForForegroundPainting(DecoratingBoxList&, const InlineIterator::TextBoxIterator&, const FloatRect& textBoxRect, const TextDecorationPainter::Styles&);
 
     // FIXME: We could just talk to the display box directly.
     const InlineIterator::BoxModernPath m_textBox;

@@ -808,6 +808,14 @@ static inline bool isDecoratingBoxForBackground(const InlineIterator::InlineBox&
         || (inlineBox.isRootInlineBox() && styleToUse.textDecorationLineInEffect().containsAny({ Style::TextDecorationLine::Flag::Underline, Style::TextDecorationLine::Flag::Overline }));
 }
 
+static inline bool isDecoratingBoxForForeground(const InlineIterator::InlineBox& inlineBox, const RenderStyle& styleToUse)
+{
+    // Line-through has no <a>/<font> always-decorating quirk (that is an under/overline behavior). A box
+    // establishes line-through when its own style sets it, or - for the root inline box - when it is in effect.
+    return styleToUse.textDecorationLine().containsAny({ Style::TextDecorationLine::Flag::LineThrough })
+        || (inlineBox.isRootInlineBox() && styleToUse.textDecorationLineInEffect().containsAny({ Style::TextDecorationLine::Flag::LineThrough }));
+}
+
 void TextBoxPainter::collectDecoratingBoxesForBackgroundPainting(DecoratingBoxList& decoratingBoxList, const InlineIterator::TextBoxIterator& textBox, const FloatRect& textBoxRect, const TextDecorationPainter::Styles& overrideDecorationStyle)
 {
     auto parentInlineBox = textBox->parentInlineBox();
@@ -923,38 +931,77 @@ void TextBoxPainter::paintBackgroundDecorations(TextDecorationPainter& decoratio
         m_paintInfo.context().concatCTM(rotation(m_paintRect, RotationDirection::Counterclockwise));
 }
 
-static CheckedRef<const RenderStyle> decoratingBoxStyle(const InlineIterator::TextBoxIterator& textBox)
+void TextBoxPainter::collectDecoratingBoxesForForegroundPainting(DecoratingBoxList& decoratingBoxList, const InlineIterator::TextBoxIterator& textBox, const FloatRect& textBoxRect, const TextDecorationPainter::Styles& overrideDecorationStyle)
 {
-    if (auto parentInlineBox = textBox->parentInlineBox())
-        return parentInlineBox->style();
-    ASSERT_NOT_REACHED();
-    return textBox->style();
+    auto parentInlineBox = textBox->parentInlineBox();
+    if (!parentInlineBox) {
+        ASSERT_NOT_REACHED();
+        return;
+    }
+
+    auto textBoxLocation = textBoxRect.location();
+    auto decorationWidth = textBoxRect.width();
+    if (parentInlineBox->isRootInlineBox()) {
+        decoratingBoxList.append({ parentInlineBox, decoratingBoxStyleForInlineBox(*parentInlineBox, m_isFirstLine), overrideDecorationStyle, textBoxLocation, decorationWidth });
+        return;
+    }
+
+    auto appendIfIsDecoratingBoxForForeground = [&] (auto& inlineBox) {
+        CheckedRef style = decoratingBoxStyleForInlineBox(*inlineBox, m_isFirstLine);
+        auto computedDecorationStyle = TextDecorationPainter::stylesForRenderer(inlineBox->renderer(), style->textDecorationLineInEffect(), m_isFirstLine);
+        auto isParentInlineBox = &inlineBox == &parentInlineBox;
+
+        if (!isDecoratingBoxForForeground(*inlineBox, style) && (!isParentInlineBox || overrideDecorationStyle == computedDecorationStyle))
+            return;
+
+        // Unlike under/overline, line-through is positioned by linethroughCenter (from the decorating box's
+        // font metrics), so we only carry the inter-box vertical offset, not textBoxEdgeAdjustmentForUnderline.
+        auto decoratingBoxLocation = textBoxLocation;
+        if (&inlineBox->renderer() != &parentInlineBox->renderer()) {
+            auto decoratingBoxContentBoxTop = inlineBox->logicalTop() + (!inlineBox->isRootInlineBox() ? inlineBox->renderer().borderAndPaddingBefore() : 0_lu);
+            auto parentInlineBoxContentBoxTop = parentInlineBox->logicalTop() + (!parentInlineBox->isRootInlineBox() ? parentInlineBox->renderer().borderAndPaddingBefore() : 0_lu);
+            decoratingBoxLocation.moveBy(FloatPoint { 0.f, decoratingBoxContentBoxTop - parentInlineBoxContentBoxTop });
+        }
+
+        decoratingBoxList.append({
+            inlineBox,
+            style,
+            isParentInlineBox ? overrideDecorationStyle : computedDecorationStyle,
+            decoratingBoxLocation,
+            decorationWidth
+        });
+    };
+
+    appendIfIsDecoratingBoxForForeground(parentInlineBox);
+    for (auto ancestorInlineBox = parentInlineBox->parentInlineBox(); ancestorInlineBox; ancestorInlineBox = ancestorInlineBox->parentInlineBox()) {
+        appendIfIsDecoratingBoxForForeground(ancestorInlineBox);
+        if (ancestorInlineBox->isRootInlineBox())
+            break;
+    }
 }
 
 void TextBoxPainter::paintForegroundDecorations(TextDecorationPainter& decorationPainter, const StyledMarkedText& markedText, const FloatRect& textBoxPaintRect)
 {
     auto textBox = makeIterator();
-    CheckedRef styleForDecoration = decoratingBoxStyle(textBox);
-    auto computedTextDecorationType = [&] {
-        auto textDecorations = styleForDecoration->textDecorationLineInEffect();
-        textDecorations.addOrReplaceIfNotNone(TextDecorationPainter::textDecorationsInEffectForStyle(markedText.style.textDecorationStyles));
-        return textDecorations;
-    }();
-
-    if (!computedTextDecorationType.hasLineThrough())
-        return;
+    auto decoratingBoxList = DecoratingBoxList { };
+    collectDecoratingBoxesForForegroundPainting(decoratingBoxList, textBox, textBoxPaintRect, markedText.style.textDecorationStyles);
 
     if (m_isCombinedText)
         m_paintInfo.context().concatCTM(rotation(m_paintRect, RotationDirection::Clockwise));
 
     auto deviceScaleFactor = m_document->deviceScaleFactor();
-    auto textDecorationThickness = computedTextDecorationThickness(styleForDecoration, deviceScaleFactor);
-    auto linethroughCenter = computedLinethroughCenter(styleForDecoration, textDecorationThickness, computedAutoTextDecorationThickness(styleForDecoration, deviceScaleFactor));
-    decorationPainter.paintForegroundDecorations({ textBoxPaintRect.location()
-        , textBoxPaintRect.width()
-        , textDecorationThickness
-        , linethroughCenter
-        , wavyStrokeParameters(styleForDecoration->computedFontSize()) }, markedText.style.textDecorationStyles);
+    for (auto& decoratingBox : decoratingBoxList | std::views::reverse) {
+        if (!WebCore::computedTextDecorationType(decoratingBox.style.get(), decoratingBox.textDecorationStyles).hasLineThrough())
+            continue;
+
+        auto textDecorationThickness = computedTextDecorationThickness(decoratingBox.style.get(), deviceScaleFactor);
+        auto linethroughCenter = computedLinethroughCenter(decoratingBox.style.get(), textDecorationThickness, computedAutoTextDecorationThickness(decoratingBox.style.get(), deviceScaleFactor));
+        decorationPainter.paintForegroundDecorations({ decoratingBox.location
+            , decoratingBox.contentWidth
+            , textDecorationThickness
+            , linethroughCenter
+            , wavyStrokeParameters(decoratingBox.style->computedFontSize()) }, decoratingBox.textDecorationStyles);
+    }
 
     if (m_isCombinedText)
         m_paintInfo.context().concatCTM(rotation(m_paintRect, RotationDirection::Counterclockwise));
