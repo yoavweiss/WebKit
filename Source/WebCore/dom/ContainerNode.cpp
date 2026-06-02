@@ -1469,14 +1469,14 @@ ExceptionOr<void> ContainerNode::moveBefore(Node& node, RefPtr<Node>&& refChild)
     RefPtr oldPreviousSibling = node.previousSibling();
     RefPtr oldNextSibling = node.nextSibling();
 
-    // FIXME(281223): Run NodeIterator and live range pre-remove steps.
-
     auto removalChildChange = makeChildChangeForRemoval(node, ChildChange::Source::API);
 
     {
+        Ref nodeDocument = node.document();
         WidgetHierarchyUpdatesSuspensionScope suspendWidgetHierarchyUpdates;
         ScriptDisallowedScope::InMainThread scriptDisallowedScope;
         ChildListMutationScope(*oldParent).willRemoveChild(node);
+        nodeDocument->nodeWillBeMoved(node);
 
         if (oldNextSibling) {
             oldNextSibling->setPreviousSibling(oldPreviousSibling.get());

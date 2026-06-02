@@ -1065,6 +1065,7 @@ public:
     void nodeChildrenWillBeRemoved(ContainerNode&);
     // nodeWillBeRemoved is only safe when removing one node at a time.
     void nodeWillBeRemoved(Node&);
+    void nodeWillBeMoved(Node&);
     void parentlessNodeMovedToNewDocument(Node&);
 
     enum class AcceptChildOperation : bool { Replace, InsertOrAdd };
