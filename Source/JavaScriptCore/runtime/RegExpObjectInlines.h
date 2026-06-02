@@ -105,6 +105,9 @@ ALWAYS_INLINE bool RegExpObject::isSymbolMatchAllFastAndNonObservable()
     if (!globalObject->stringSymbolMatchAllWatchpointSet().isStillValid())
         return false;
 
+    if (!globalObject->regExpSpeciesWatchpointSet().isStillValid())
+        return false;
+
     if (!getLastIndex().isNumber())
         return false;
 
