@@ -328,9 +328,7 @@ std::optional<SkiaCompositingLayer::AnimationsState> SkiaCompositingLayer::syncA
     }
     state.opacity = applicationResults.opacity;
 #if ENABLE(DAMAGE_TRACKING)
-    const bool currentOpacity = opacity();
-    const bool newOpacity = state.opacity.value_or(m_opacity);
-    if (frameDamagePropagationEnabled() && currentOpacity != newOpacity) {
+    if (frameDamagePropagationEnabled() && opacity() != state.opacity.value_or(m_opacity)) {
         damageWholeLayer();
         // FIXME: add collectFrameDamageDespiteBeingInvisible?
     }
