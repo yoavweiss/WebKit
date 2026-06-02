@@ -1145,7 +1145,8 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
         cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR include OUTPUT_VARIABLE _header_base_path)
         cmake_path(APPEND _header_base_path ${_output_header} OUTPUT_VARIABLE _header_path)
 
-        set(_header_tmp_path "${_header_path}.tmp")
+        cmake_path(GET _header_path FILENAME _header_filename)
+        cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR "${_header_filename}.tmp" OUTPUT_VARIABLE _header_tmp_path)
         set(_header_stamp_path "${_header_path}.stamp")
         if (NOT DEFINED ${_target}_SWIFT_EMIT_CLANG_HEADER_MIN_ACCESS)
             set(${_target}_SWIFT_EMIT_CLANG_HEADER_MIN_ACCESS internal)
