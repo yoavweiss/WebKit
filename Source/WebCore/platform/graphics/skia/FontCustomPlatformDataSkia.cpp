@@ -75,7 +75,8 @@ FontPlatformData FontCustomPlatformData::fontPlatformData(const FontDescription&
             float slope = description.fontStyleSlope().value_or(normalItalicValue());
             if (auto slopeValue = fontCreationContext.fontFaceCapabilities().slope)
                 slope = std::max(std::min(slope, static_cast<float>(slopeValue->maximum)), static_cast<float>(slopeValue->minimum));
-            applyVariation({ { 's', 'l', 'n', 't' } }, slope);
+            // The 'slnt' axis is positive counter-clockwise; a CSS oblique angle is positive clockwise.
+            applyVariation({ { 's', 'l', 'n', 't' } }, -slope);
         }
 
         // FIXME: optical sizing.

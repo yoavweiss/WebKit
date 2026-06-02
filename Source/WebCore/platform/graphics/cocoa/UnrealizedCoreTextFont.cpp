@@ -231,7 +231,7 @@ void UnrealizedCoreTextFont::modifyFromContext(CFMutableDictionaryRef attributes
         if (fontStyleAxis == FontStyleAxis::ital)
             variationsToBeApplied.set({ { 'i', 't', 'a', 'l' } }, 1);
         else
-            variationsToBeApplied.set({ { 's', 'l', 'n', 't' } }, slope);
+            variationsToBeApplied.set({ { 's', 'l', 'n', 't' } }, -slope);
     }
 
     // FIXME: Implement font-named-instance
@@ -366,7 +366,7 @@ RetainPtr<CTFontRef> UnrealizedCoreTextFont::realize() const
             if (m_fontStyleAxis == FontStyleAxis::ital)
                 variationsToBeApplied.set({ { 'i', 't', 'a', 'l' } }, 1);
             else
-                variationsToBeApplied.set({ { 's', 'l', 'n', 't' } }, slope);
+                variationsToBeApplied.set({ { 's', 'l', 'n', 't' } }, -slope);
 
             RetainPtr attributes = adoptCF(CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
 

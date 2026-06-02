@@ -4849,8 +4849,6 @@ imported/w3c/web-platform-tests/css/css-fonts/variation-sequences.html [ ImageOn
 imported/w3c/web-platform-tests/css/css-fonts/downloadable-font-scoped-to-document.html
 
 # Untriaged font-style/font-face @font-face descriptor bugs
-webkit.org/b/206881 imported/w3c/web-platform-tests/css/css-fonts/font-face-style-auto-variable.html [ ImageOnlyFailure ]
-webkit.org/b/206881 imported/w3c/web-platform-tests/css/css-fonts/font-face-style-default-variable.html [ ImageOnlyFailure ]
 webkit.org/b/206881 imported/w3c/web-platform-tests/css/css-fonts/font-face-weight-auto-variable.html [ ImageOnlyFailure ]
 webkit.org/b/206881 imported/w3c/web-platform-tests/css/css-fonts/font-face-weight-default-variable.html [ ImageOnlyFailure ]
 
