@@ -1338,22 +1338,6 @@ MTLClearColor EmulatedAlphaClearColor(MTLClearColor color, MTLColorWriteMask col
     return re;
 }
 
-NSUInteger GetMaxRenderTargetSizeForDeviceInBytes(const mtl::ContextDevice &device)
-{
-    if (SupportsAppleGPUFamily(device, 4))
-    {
-        return 64;
-    }
-    else if (SupportsAppleGPUFamily(device, 2))
-    {
-        return 32;
-    }
-    else
-    {
-        return 16;
-    }
-}
-
 NSUInteger GetMaxNumberOfRenderTargetsForDevice(const mtl::ContextDevice &device)
 {
     if (SupportsAppleGPUFamily(device, 2) || SupportsMacGPUFamily(device, 1))
@@ -1364,11 +1348,6 @@ NSUInteger GetMaxNumberOfRenderTargetsForDevice(const mtl::ContextDevice &device
     {
         return 4;
     }
-}
-
-bool DeviceHasMaximumRenderTargetSize(id<MTLDevice> device)
-{
-    return !SupportsMacGPUFamily(device, 1);
 }
 
 bool SupportsAppleGPUFamily(id<MTLDevice> device, uint8_t appleFamily)
@@ -1471,7 +1450,7 @@ static NSUInteger getNextLocationForAttachment(const mtl::RenderPassAttachmentDe
     if (texture)
     {
         MTLPixelFormat pixelFormat = texture->pixelFormat();
-        bool isMsaa                = texture->samples();
+        bool isMsaa                = texture->samples() > 1;
         const FormatCaps &caps     = context->getDisplay()->getNativeFormatCaps(pixelFormat);
         currentRenderTargetSize = getNextLocationForFormat(caps, isMsaa, currentRenderTargetSize);
     }
@@ -1489,19 +1468,6 @@ NSUInteger ComputeTotalSizeUsedForMTLRenderPassDescriptor(const mtl::RenderPassD
         currentRenderTargetSize = getNextLocationForAttachment(descriptor.colorAttachments[i],
                                                                context, currentRenderTargetSize);
     }
-    if (descriptor.depthAttachment.texture == descriptor.stencilAttachment.texture)
-    {
-        currentRenderTargetSize = getNextLocationForAttachment(descriptor.depthAttachment, context,
-                                                               currentRenderTargetSize);
-    }
-    else
-    {
-        currentRenderTargetSize = getNextLocationForAttachment(descriptor.depthAttachment, context,
-                                                               currentRenderTargetSize);
-        currentRenderTargetSize = getNextLocationForAttachment(descriptor.stencilAttachment,
-                                                               context, currentRenderTargetSize);
-    }
-
     return currentRenderTargetSize;
 }
 
@@ -1522,34 +1488,33 @@ NSUInteger ComputeTotalSizeUsedForMTLRenderPipelineDescriptor(
                 getNextLocationForFormat(caps, isMsaa, currentRenderTargetSize);
         }
     }
-    if (descriptor.depthAttachmentPixelFormat == descriptor.stencilAttachmentPixelFormat)
-    {
-        if (descriptor.depthAttachmentPixelFormat != MTLPixelFormatInvalid)
-        {
-            const FormatCaps &caps =
-                context->getDisplay()->getNativeFormatCaps(descriptor.depthAttachmentPixelFormat);
-            currentRenderTargetSize =
-                getNextLocationForFormat(caps, isMsaa, currentRenderTargetSize);
-        }
-    }
-    else
-    {
-        if (descriptor.depthAttachmentPixelFormat != MTLPixelFormatInvalid)
-        {
-            const FormatCaps &caps =
-                context->getDisplay()->getNativeFormatCaps(descriptor.depthAttachmentPixelFormat);
-            currentRenderTargetSize =
-                getNextLocationForFormat(caps, isMsaa, currentRenderTargetSize);
-        }
-        if (descriptor.stencilAttachmentPixelFormat != MTLPixelFormatInvalid)
-        {
-            const FormatCaps &caps =
-                context->getDisplay()->getNativeFormatCaps(descriptor.stencilAttachmentPixelFormat);
-            currentRenderTargetSize =
-                getNextLocationForFormat(caps, isMsaa, currentRenderTargetSize);
-        }
-    }
     return currentRenderTargetSize;
+}
+
+std::optional<NSUInteger> GetMaxRenderPassColorSizeBytes(const angle::FeaturesMtl &features,
+                                                         const mtl::ContextDevice &device)
+{
+    if (features.limitMaxColorTargetBitsForTesting.enabled)
+    {
+        return 32;
+    }
+    if (SupportsMacGPUFamily(device, 1))
+    {
+        return std::nullopt;
+    }
+    if (SupportsAppleGPUFamily(device, 7))
+    {
+        return 128;
+    }
+    if (SupportsAppleGPUFamily(device, 4))
+    {
+        return 64;
+    }
+    if (SupportsAppleGPUFamily(device, 2))
+    {
+        return 32;
+    }
+    return 16;
 }
 
 gl::Rectangle MTLRegionToGLRect(const MTLRegion &mtlRegion)
