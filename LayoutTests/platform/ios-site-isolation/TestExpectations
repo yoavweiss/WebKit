@@ -5,7 +5,6 @@
 ####################
 http/tests/security/top-level-unique-origin2.https.html [ Crash ]
 imported/w3c/web-platform-tests/content-security-policy/inheritance/history.sub.html [ Crash ]
-imported/w3c/web-platform-tests/content-security-policy/inheritance/window-open-local-after-network-scheme.sub.html [ Crash ]
 imported/w3c/web-platform-tests/speculation-rules/prefetch/redirect-url.https.html?origin=cross-site-redirect [ Crash ]
 imported/w3c/web-platform-tests/speculation-rules/speculation-tags/same-site-to-cross-site-redirection-prefetch.https.html [ Crash ]
 swipe/basic-cached-back-swipe.html [ Crash ]

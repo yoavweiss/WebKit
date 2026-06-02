@@ -294,9 +294,9 @@ void ProvisionalPageProxy::initializeWebPage(RefPtr<API::WebsitePolicies>&& webs
             websitePolicies ? std::optional(websitePolicies->dataForProcess(process)) : std::nullopt
         };
         creationParameters.provisionalFrameCreationParameters = mainFrame->provisionalFrameCreationParameters(
-            page->mainFrame() && !m_shouldReuseMainFrame ? std::optional(page->mainFrame()->frameID()) : std::nullopt,
+            page->mainFrame() ? std::optional(page->mainFrame()->frameID()) : std::nullopt,
             std::nullopt,
-            CommitTiming::WaitForLoad
+            m_request.url().isAboutBlank() ? CommitTiming::Immediately : CommitTiming::WaitForLoad
         );
     }
     process->send(Messages::WebProcess::CreateWebPage(m_webPageID, WTF::move(creationParameters)), 0);

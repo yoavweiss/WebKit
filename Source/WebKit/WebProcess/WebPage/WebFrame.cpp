@@ -530,8 +530,8 @@ void WebFrame::commitProvisionalFrame()
     }
 
     if (RefPtr frame = WebProcess::singleton().webFrame(std::exchange(m_frameIDBeforeProvisionalNavigation, { }))) {
-        if (RefPtr coreFrame = frame->coreFrame())
-            remoteFrame->takeWindowProxyAndOpenerFrom(*coreFrame);
+        if (RefPtr coreLocalFrame = frame->coreLocalFrame())
+            remoteFrame->takeWindowProxyAndOpenerFrom(*coreLocalFrame);
     }
 
     RefPtr parent = remoteFrame->tree().parent();
