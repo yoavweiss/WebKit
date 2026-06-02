@@ -252,6 +252,7 @@ if (ENABLE_WEBCORE)
         Tests/WebCore/TransformationMatrix.cpp
         Tests/WebCore/URLParserTextEncoding.cpp
         Tests/WebCore/WritingModeTests.cpp
+        Tests/WebCore/XRCompositionLayer.cpp
     )
 
     if (USE_SKIA)

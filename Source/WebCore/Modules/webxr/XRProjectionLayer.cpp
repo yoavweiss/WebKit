@@ -167,12 +167,12 @@ void XRProjectionLayer::setFixedFoveation(std::optional<float>)
 
 WebXRRigidTransform* XRProjectionLayer::deltaPose() const
 {
-    return m_transform.get();
+    return m_deltaPose.get();
 }
 
 void XRProjectionLayer::setDeltaPose(WebXRRigidTransform* deltaPose)
 {
-    m_transform = deltaPose;
+    m_deltaPose = deltaPose;
 }
 
 } // namespace WebCore

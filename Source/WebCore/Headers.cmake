@@ -815,6 +815,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     Modules/webtransport/WorkerWebTransportSession.h
 
     Modules/webxr/XRCanvasConfiguration.h
+    Modules/webxr/XRCompositionLayerPose.h
     Modules/webxr/XRGPUProjectionLayerInit.h
     Modules/webxr/XRHitTestTrackableType.h
     Modules/webxr/XRLayerBacking.h

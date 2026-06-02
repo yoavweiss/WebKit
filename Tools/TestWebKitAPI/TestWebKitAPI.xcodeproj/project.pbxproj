@@ -779,6 +779,7 @@
 				WebCore/U2fCommandConstructorTest.cpp,
 				WebCore/URLParserTextEncoding.cpp,
 				WebCore/WritingModeTests.cpp,
+				WebCore/XRCompositionLayer.cpp,
 				WebCore/YouTubePluginReplacement.cpp,
 				WebKit/WKPage/AboutBlankLoad.cpp,
 				WebKit/WKPage/CanHandleRequest.cpp,
