@@ -3484,22 +3484,70 @@ JSC_DEFINE_JIT_OPERATION(operationIteratorNextTryFast, UGPRPair, (JSGlobalObject
     }
 
     if (auto* mapIterator = dynamicDowncast<JSMapIterator>(iterator)) {
-        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::FastMap;
+        IterationKind kind = mapIterator->kind();
+        IterationMode mode = IterationMode::FastMapEntries;
+        switch (kind) {
+        case IterationKind::Keys:
+            mode = IterationMode::FastMapKeys;
+            break;
+        case IterationKind::Values:
+            mode = IterationMode::FastMapValues;
+            break;
+        case IterationKind::Entries:
+            mode = IterationMode::FastMapEntries;
+            break;
+        }
+        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | mode;
+
         auto result = mapIterator->nextWithAdvance(vm);
         bool done = result.key.isEmpty();
         JSValue value;
         if (!done) {
-            value = constructArrayPair(globalObject, result.key, result.value);
-            OPERATION_RETURN_IF_EXCEPTION(scope, makeUGPRPair(0, 0));
+            switch (kind) {
+            case IterationKind::Keys:
+                value = result.key;
+                break;
+            case IterationKind::Values:
+                value = result.value;
+                break;
+            case IterationKind::Entries:
+                value = constructArrayPair(globalObject, result.key, result.value);
+                OPERATION_RETURN_IF_EXCEPTION(scope, makeUGPRPair(0, 0));
+                break;
+            }
         }
         OPERATION_RETURN(scope, makeUGPRPair(JSValue::encode(jsBoolean(done)), JSValue::encode(value)));
     }
 
     if (auto* setIterator = dynamicDowncast<JSSetIterator>(iterator)) {
-        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::FastSet;
+        IterationKind kind = setIterator->kind();
+        IterationMode mode = IterationMode::FastSetValues;
+        switch (kind) {
+        case IterationKind::Keys:
+        case IterationKind::Values:
+            mode = IterationMode::FastSetValues;
+            break;
+        case IterationKind::Entries:
+            mode = IterationMode::FastSetEntries;
+            break;
+        }
+        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | mode;
+
         JSValue nextKey = setIterator->nextWithAdvance(vm);
         bool done = nextKey.isEmpty();
-        JSValue value = done ? JSValue() : nextKey;
+        JSValue value;
+        if (!done) {
+            switch (kind) {
+            case IterationKind::Keys:
+            case IterationKind::Values:
+                value = nextKey;
+                break;
+            case IterationKind::Entries:
+                value = constructArrayPair(globalObject, nextKey, nextKey);
+                OPERATION_RETURN_IF_EXCEPTION(scope, makeUGPRPair(0, 0));
+                break;
+            }
+        }
         OPERATION_RETURN(scope, makeUGPRPair(JSValue::encode(jsBoolean(done)), JSValue::encode(value)));
     }
 

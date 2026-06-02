@@ -96,14 +96,6 @@ BytecodeIntrinsicRegistry::BytecodeIntrinsicRegistry(VM& vm)
     m_arrayIteratorFieldIndex.set(m_vm, jsNumber(static_cast<int32_t>(JSArrayIterator::Field::Index)));
     m_arrayIteratorFieldKind.set(m_vm, jsNumber(static_cast<int32_t>(JSArrayIterator::Field::Kind)));
 
-    m_mapIteratorFieldEntry.set(m_vm, jsNumber(static_cast<int32_t>(JSMapIterator::Field::Entry)));
-    m_mapIteratorFieldIteratedObject.set(m_vm, jsNumber(static_cast<int32_t>(JSMapIterator::Field::IteratedObject)));
-    m_mapIteratorFieldStorage.set(m_vm, jsNumber(static_cast<int32_t>(JSMapIterator::Field::Storage)));
-    m_mapIteratorFieldKind.set(m_vm, jsNumber(static_cast<int32_t>(JSMapIterator::Field::Kind)));
-    m_setIteratorFieldEntry.set(m_vm, jsNumber(static_cast<int32_t>(JSSetIterator::Field::Entry)));
-    m_setIteratorFieldIteratedObject.set(m_vm, jsNumber(static_cast<int32_t>(JSSetIterator::Field::IteratedObject)));
-    m_setIteratorFieldStorage.set(m_vm, jsNumber(static_cast<int32_t>(JSSetIterator::Field::Storage)));
-    m_setIteratorFieldKind.set(m_vm, jsNumber(static_cast<int32_t>(JSSetIterator::Field::Kind)));
     m_asyncGeneratorFieldQueue.set(m_vm, jsNumber(static_cast<unsigned>(JSAsyncGenerator::Field::Queue)));
     m_asyncGeneratorFieldResumeValue.set(m_vm, jsNumber(static_cast<unsigned>(JSAsyncGenerator::Field::ResumeValue)));
     m_asyncGeneratorFieldResumeMode.set(m_vm, jsNumber(static_cast<unsigned>(JSAsyncGenerator::Field::ResumeMode)));

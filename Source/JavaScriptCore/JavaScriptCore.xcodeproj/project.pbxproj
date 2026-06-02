@@ -4455,9 +4455,7 @@
 		534C457A1BC703DC007476A7 /* TypedArrayConstructor.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = TypedArrayConstructor.js; sourceTree = "<group>"; };
 		534C457B1BC72411007476A7 /* JSTypedArrayViewConstructor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSTypedArrayViewConstructor.h; sourceTree = "<group>"; };
 		534C457D1BC72549007476A7 /* JSTypedArrayViewConstructor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSTypedArrayViewConstructor.cpp; sourceTree = "<group>"; };
-		534D9BF82363C55D0054524D /* SetIteratorPrototype.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = SetIteratorPrototype.js; sourceTree = "<group>"; };
 		534D9BF92363C55D0054524D /* IteratorHelpers.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = IteratorHelpers.js; sourceTree = "<group>"; };
-		534D9BFA2363C55D0054524D /* MapIteratorPrototype.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = MapIteratorPrototype.js; sourceTree = "<group>"; };
 		534E034D1E4D4B1600213F64 /* AccessCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccessCase.h; sourceTree = "<group>"; };
 		534E034F1E4D95ED00213F64 /* AccessCase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccessCase.cpp; sourceTree = "<group>"; };
 		534E03531E53BD2900213F64 /* IntrinsicGetterAccessCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntrinsicGetterAccessCase.h; sourceTree = "<group>"; };
@@ -10658,7 +10656,6 @@
 				8AA92D3D2CACA137002D872B /* JSIteratorHelperPrototype.js */,
 				8CB955D82C943B9800282DA2 /* JSIteratorPrototype.js */,
 				91F548A52A4CF448007292DE /* MapConstructor.js */,
-				534D9BFA2363C55D0054524D /* MapIteratorPrototype.js */,
 				7035587C1C418419004BD7BF /* MapPrototype.js */,
 				E30677971B8BC6F5003F87F0 /* ModuleLoader.js */,
 				7CF9BC5C1B65D9B1009DB1EF /* ObjectConstructor.js */,
@@ -10668,7 +10665,6 @@
 				7CF9BC5F1B65D9B1009DB1EF /* ReflectObject.js */,
 				654788421C937D2C000781A0 /* RegExpPrototype.js */,
 				84925A9C22B30CC800D1DFFF /* RegExpStringIteratorPrototype.js */,
-				534D9BF82363C55D0054524D /* SetIteratorPrototype.js */,
 				7035587D1C418419004BD7BF /* SetPrototype.js */,
 				2E3AF00D28171AC000371A25 /* ShadowRealmPrototype.js */,
 				7CF9BC601B65D9B1009DB1EF /* StringConstructor.js */,

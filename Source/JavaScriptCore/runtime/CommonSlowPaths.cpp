@@ -857,6 +857,24 @@ ALWAYS_INLINE UGPRPair iteratorOpenTryFastImpl(VM& vm, JSGlobalObject* globalObj
         return encodeResult(pc, reinterpret_cast<void*>(static_cast<uintptr_t>(IterationMode::FastMap)));
     }
 
+    case IterationMode::FastMapKeys:
+    case IterationMode::FastMapValues:
+    case IterationMode::FastMapEntries: {
+        ASSERT_UNUSED(iterable, dynamicDowncast<JSMapIterator>(iterable.asCell()));
+        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | iterationMode;
+        JSSentinel* sentinel = nullptr;
+        switch (iterationMode) {
+        case IterationMode::FastMapKeys: sentinel = vm.fastMapKeysSentinel(); break;
+        case IterationMode::FastMapValues: sentinel = vm.fastMapValuesSentinel(); break;
+        case IterationMode::FastMapEntries: sentinel = vm.fastMapEntriesSentinel(); break;
+        default: RELEASE_ASSERT_NOT_REACHED();
+        }
+        GET(bytecode.m_next) = sentinel;
+        iterator = iterable;
+        PROFILE_VALUE_IN(iterator.jsValue(), m_iteratorValueProfile);
+        return encodeResult(pc, reinterpret_cast<void*>(static_cast<uintptr_t>(iterationMode)));
+    }
+
     case IterationMode::FastSet: {
         metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::FastSet;
         GET(bytecode.m_next) = vm.fastSetValuesSentinel();
@@ -864,6 +882,22 @@ ALWAYS_INLINE UGPRPair iteratorOpenTryFastImpl(VM& vm, JSGlobalObject* globalObj
         iterator = JSSetIterator::create(vm, globalObject->setIteratorStructure(), set, IterationKind::Values);
         PROFILE_VALUE_IN(iterator.jsValue(), m_iteratorValueProfile);
         return encodeResult(pc, reinterpret_cast<void*>(static_cast<uintptr_t>(IterationMode::FastSet)));
+    }
+
+    case IterationMode::FastSetValues:
+    case IterationMode::FastSetEntries: {
+        ASSERT_UNUSED(iterable, dynamicDowncast<JSSetIterator>(iterable.asCell()));
+        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | iterationMode;
+        JSSentinel* sentinel = nullptr;
+        switch (iterationMode) {
+        case IterationMode::FastSetValues: sentinel = vm.fastSetValuesSentinel(); break;
+        case IterationMode::FastSetEntries: sentinel = vm.fastSetEntriesSentinel(); break;
+        default: RELEASE_ASSERT_NOT_REACHED();
+        }
+        GET(bytecode.m_next) = sentinel;
+        iterator = iterable;
+        PROFILE_VALUE_IN(iterator.jsValue(), m_iteratorValueProfile);
+        return encodeResult(pc, reinterpret_cast<void*>(static_cast<uintptr_t>(iterationMode)));
     }
 
     case IterationMode::FastString: {
@@ -976,31 +1010,77 @@ ALWAYS_INLINE UGPRPair iteratorNextTryFastImpl(VM& vm, JSGlobalObject* globalObj
     }
 
     if (auto mapIterator = dynamicDowncast<JSMapIterator>(iterator)) {
-        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::FastMap;
+        IterationKind kind = mapIterator->kind();
+        IterationMode mode = IterationMode::FastMapEntries;
+        switch (kind) {
+        case IterationKind::Keys:
+            mode = IterationMode::FastMapKeys;
+            break;
+        case IterationKind::Values:
+            mode = IterationMode::FastMapValues;
+            break;
+        case IterationKind::Entries:
+            mode = IterationMode::FastMapEntries;
+            break;
+        }
+        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | mode;
+
         auto result = mapIterator->nextWithAdvance(vm);
         bool done = result.key.isEmpty();
         GET(bytecode.m_done) = jsBoolean(done);
+        JSValue value;
         if (!done) {
-            JSValue value = constructArrayPair(globalObject, result.key, result.value);
-            CHECK_EXCEPTION();
+            switch (kind) {
+            case IterationKind::Keys:
+                value = result.key;
+                break;
+            case IterationKind::Values:
+                value = result.value;
+                break;
+            case IterationKind::Entries:
+                value = constructArrayPair(globalObject, result.key, result.value);
+                CHECK_EXCEPTION();
+                break;
+            }
             PROFILE_VALUE_IN(value, m_valueValueProfile);
-            GET(bytecode.m_value) = value;
-        } else
-            GET(bytecode.m_value) = JSValue();
-        return encodeResult(pc, reinterpret_cast<void*>(IterationMode::FastMap));
+        }
+        GET(bytecode.m_value) = value;
+        return encodeResult(pc, reinterpret_cast<void*>(mode));
     }
 
     if (auto setIterator = dynamicDowncast<JSSetIterator>(iterator)) {
-        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::FastSet;
+        IterationKind kind = setIterator->kind();
+        IterationMode mode = IterationMode::FastSetValues;
+        switch (kind) {
+        case IterationKind::Keys:
+        case IterationKind::Values:
+            mode = IterationMode::FastSetValues;
+            break;
+        case IterationKind::Entries:
+            mode = IterationMode::FastSetEntries;
+            break;
+        }
+        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | mode;
+
         JSValue nextKey = setIterator->nextWithAdvance(vm);
         bool done = nextKey.isEmpty();
         GET(bytecode.m_done) = jsBoolean(done);
+        JSValue value;
         if (!done) {
-            PROFILE_VALUE_IN(nextKey, m_valueValueProfile);
-            GET(bytecode.m_value) = nextKey;
-        } else
-            GET(bytecode.m_value) = JSValue();
-        return encodeResult(pc, reinterpret_cast<void*>(IterationMode::FastSet));
+            switch (kind) {
+            case IterationKind::Keys:
+            case IterationKind::Values:
+                value = nextKey;
+                break;
+            case IterationKind::Entries:
+                value = constructArrayPair(globalObject, nextKey, nextKey);
+                CHECK_EXCEPTION();
+                break;
+            }
+            PROFILE_VALUE_IN(value, m_valueValueProfile);
+        }
+        GET(bytecode.m_value) = value;
+        return encodeResult(pc, reinterpret_cast<void*>(mode));
     }
 
     if (auto stringIterator = dynamicDowncast<JSStringIterator>(iterator)) {

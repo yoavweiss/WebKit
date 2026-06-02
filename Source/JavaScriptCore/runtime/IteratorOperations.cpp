@@ -33,7 +33,9 @@
 #include "JSAsyncFromSyncIterator.h"
 #include "JSCInlines.h"
 #include "JSMap.h"
+#include "JSMapIterator.h"
 #include "JSSet.h"
+#include "JSSetIterator.h"
 #include "ObjectConstructor.h"
 #include "VMEntryScopeInlines.h"
 
@@ -492,6 +494,32 @@ IterationMode getIterationMode(VM&, JSGlobalObject* globalObject, JSValue iterab
         return IterationMode::FastMap;
     }
 
+    if (auto* mapIterator = dynamicDowncast<JSMapIterator>(iterable.asCell())) {
+        if (!globalObject->mapIteratorProtocolWatchpointSet().isStillValid())
+            return IterationMode::Generic;
+
+        // mapIter[Symbol.iterator] is inherited from %IteratorPrototype% and just returns this; identity-check it
+        // so we can skip the call entirely and use the iterator as-is.
+        if (globalObject->iteratorProtoSymbolIteratorFunction() != symbolIteratorFunction)
+            return IterationMode::Generic;
+
+        // Structure check ensures the prototype chain is the original mapIteratorPrototype -> iteratorPrototype.
+        // Also, DFG fast path needs to ensure that the incoming map iterator meets the same realm's one. To ensure that DFG is using
+        // MatchStructure. Thus we should gate the fast path for the map iterator with specific structure here.
+        if (mapIterator->structure() != globalObject->mapIteratorStructure())
+            return IterationMode::Generic;
+
+        switch (mapIterator->kind()) {
+        case IterationKind::Keys:
+            return IterationMode::FastMapKeys;
+        case IterationKind::Values:
+            return IterationMode::FastMapValues;
+        case IterationKind::Entries:
+            return IterationMode::FastMapEntries;
+        }
+        RELEASE_ASSERT_NOT_REACHED();
+    }
+
     if (dynamicDowncast<JSSet>(iterable.asCell())) {
         if (!globalObject->setIteratorProtocolWatchpointSet().isStillValid())
             return IterationMode::Generic;
@@ -500,6 +528,26 @@ IterationMode getIterationMode(VM&, JSGlobalObject* globalObject, JSValue iterab
             return IterationMode::Generic;
 
         return IterationMode::FastSet;
+    }
+
+    if (auto* setIterator = dynamicDowncast<JSSetIterator>(iterable.asCell())) {
+        if (!globalObject->setIteratorProtocolWatchpointSet().isStillValid())
+            return IterationMode::Generic;
+
+        if (globalObject->iteratorProtoSymbolIteratorFunction() != symbolIteratorFunction)
+            return IterationMode::Generic;
+
+        if (setIterator->structure() != globalObject->setIteratorStructure())
+            return IterationMode::Generic;
+
+        switch (setIterator->kind()) {
+        case IterationKind::Values:
+        case IterationKind::Keys:
+            return IterationMode::FastSetValues;
+        case IterationKind::Entries:
+            return IterationMode::FastSetEntries;
+        }
+        RELEASE_ASSERT_NOT_REACHED();
     }
 
     if (iterable.isString()) {

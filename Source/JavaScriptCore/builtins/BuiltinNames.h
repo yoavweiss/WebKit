@@ -156,15 +156,10 @@ namespace JSC {
     macro(mapIterationEntry) \
     macro(mapIterationEntryKey) \
     macro(mapIterationEntryValue) \
-    macro(mapIteratorNext) \
-    macro(mapIteratorKey) \
-    macro(mapIteratorValue) \
     macro(setStorage) \
     macro(setIterationNext) \
     macro(setIterationEntry) \
     macro(setIterationEntryKey) \
-    macro(setIteratorNext) \
-    macro(setIteratorKey) \
     macro(setPrototypeDirect) \
     macro(setPrototypeDirectOrThrow) \
     macro(regExpBuiltinExec) \

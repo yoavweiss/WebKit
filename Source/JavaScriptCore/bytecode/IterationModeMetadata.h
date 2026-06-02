@@ -40,9 +40,14 @@ enum class IterationMode : uint16_t {
     FastArrayValues = 1 << 5,
     FastArrayKeys = 1 << 6,
     FastArrayEntries = 1 << 7,
+    FastMapKeys = 1 << 8,
+    FastMapValues = 1 << 9,
+    FastMapEntries = 1 << 10,
+    FastSetValues = 1 << 11,
+    FastSetEntries = 1 << 12,
 };
 
-constexpr unsigned numberOfIterationModes = 8;
+constexpr unsigned numberOfIterationModes = 13;
 
 // To keep the amount of code emitted for one iteration site reasonable, we only allow this many
 // distinct fast iteration modes per site. Once the limit is reached, newly observed iterable

@@ -955,8 +955,6 @@ namespace JSC {
         RegisterID* emitIsSet(RegisterID* dst, RegisterID* src) { return emitIsCellWithType(dst, src, JSSetType); }
         RegisterID* emitIsShadowRealm(RegisterID* dst, RegisterID* src) { return emitIsCellWithType(dst, src, ShadowRealmType); }
         RegisterID* emitIsArrayIterator(RegisterID* dst, RegisterID* src) { return emitIsCellWithType(dst, src, JSArrayIteratorType); }
-        RegisterID* emitIsMapIterator(RegisterID* dst, RegisterID* src) { return emitIsCellWithType(dst, src, JSMapIteratorType); }
-        RegisterID* emitIsSetIterator(RegisterID* dst, RegisterID* src) { return emitIsCellWithType(dst, src, JSSetIteratorType); }
         RegisterID* emitIsWrapForValidIterator(RegisterID* dst, RegisterID* src) { return emitIsCellWithType(dst, src, JSWrapForValidIteratorType); }
         RegisterID* emitIsRegExpStringIterator(RegisterID* dst, RegisterID* src) { return emitIsCellWithType(dst, src, JSRegExpStringIteratorType); }
         RegisterID* emitIsObject(RegisterID* dst, RegisterID* src);
