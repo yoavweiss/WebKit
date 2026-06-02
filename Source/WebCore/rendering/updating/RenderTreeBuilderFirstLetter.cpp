@@ -149,13 +149,50 @@ static inline bool shouldSkipBeforeFirstLetter(char32_t c)
         || isPrecedingTypographicSpaceForFirstLetter(c);
 }
 
-static bool isDutchIJDigraph(const String& text, unsigned offset)
+static bool isDutchIJDigraph(StringView text, unsigned offset)
 {
     if (offset + 1 >= text.length())
         return false;
     auto first = text[offset];
     auto second = text[offset + 1];
     return (first == 'i' && second == 'j') || (first == 'I' && second == 'J');
+}
+
+static unsigned firstLetterLength(StringView text, const AtomString& specifiedLocale)
+{
+    if (text.isEmpty())
+        return 0;
+
+    unsigned length = 0;
+
+    // Account for leading spaces and punctuation.
+    while (length < text.length() && shouldSkipBeforeFirstLetter(text.codePointAt(length)))
+        length += numCodeUnitsInGraphemeClusters(text.substring(length), 1);
+
+    // Account for first grapheme cluster.
+    length += numCodeUnitsInGraphemeClusters(text.substring(length), 1);
+
+    // In Dutch, "ij" is a digraph treated as a single letter for ::first-letter.
+    if (length < text.length() && isDutchLocale(specifiedLocale) && isDutchIJDigraph(text, length - 1))
+        length += numCodeUnitsInGraphemeClusters(text.substring(length), 1);
+
+    // Keep looking for following punctuation and intervening typographic space,
+    // but avoid accumulating just whitespace into the :first-letter.
+    unsigned numCodeUnits = 0;
+    for (unsigned scanLength = length; scanLength < text.length(); scanLength += numCodeUnits) {
+        char32_t c = text.codePointAt(scanLength);
+
+        bool isFollowingPunctuation = isFollowingPunctuationForFirstLetter(c);
+        if (!isFollowingPunctuation && !isFollowingTypographicSpaceForFirstLetter(c))
+            break;
+
+        numCodeUnits = numCodeUnitsInGraphemeClusters(text.substring(scanLength), 1);
+
+        if (isFollowingPunctuation)
+            length = scanLength + numCodeUnits;
+    }
+
+    return length;
 }
 
 static bool supportsFirstLetter(RenderBlock& block)
@@ -211,7 +248,10 @@ void RenderTreeBuilder::FirstLetter::updateAfterDescendants(RenderBlock& block)
                 return false;
             // If a new text node was inserted before the first-letter's text node,
             // the first letter of the block has changed and the split must be rebuilt.
-            return is<Text>(textNode->previousSibling());
+            if (is<Text>(textNode->previousSibling()))
+                return true;
+            // Length can change due to a locale change.
+            return firstLetterLength(textNode->data(), remainingText->style().fontDescription().specifiedLocale()) != remainingText->start();
         };
         if (isFirstLetterStale()) {
             ASSERT(remainingText.get());
@@ -322,34 +362,7 @@ void RenderTreeBuilder::FirstLetter::createRenderers(RenderText& currentTextChil
     ASSERT(!oldText.isNull());
 
     if (!oldText.isEmpty()) {
-        unsigned length = 0;
-
-        // Account for leading spaces and punctuation.
-        while (length < oldText.length() && shouldSkipBeforeFirstLetter(oldText.codePointAt(length)))
-            length += numCodeUnitsInGraphemeClusters(StringView(oldText).substring(length), 1);
-
-        // Account for first grapheme cluster.
-        length += numCodeUnitsInGraphemeClusters(StringView(oldText).substring(length), 1);
-
-        // In Dutch, "ij" is a digraph treated as a single letter for ::first-letter.
-        if (length < oldText.length() && isDutchLocale(currentTextChild.style().fontDescription().specifiedLocale()) && isDutchIJDigraph(oldText, length - 1))
-            length += numCodeUnitsInGraphemeClusters(StringView(oldText).substring(length), 1);
-
-        // Keep looking for following punctuation and intervening typographic space,
-        // but avoid accumulating just whitespace into the :first-letter.
-        unsigned numCodeUnits = 0;
-        for (unsigned scanLength = length; scanLength < oldText.length(); scanLength += numCodeUnits) {
-            char32_t c = oldText.codePointAt(scanLength);
-
-            bool isFollowingPunctuation = isFollowingPunctuationForFirstLetter(c);
-            if (!isFollowingPunctuation && !isFollowingTypographicSpaceForFirstLetter(c))
-                break;
-
-            numCodeUnits = numCodeUnitsInGraphemeClusters(StringView(oldText).substring(scanLength), 1);
-
-            if (isFollowingPunctuation)
-                length = scanLength + numCodeUnits;
-        }
+        unsigned length = firstLetterLength(oldText, currentTextChild.style().fontDescription().specifiedLocale());
 
         RefPtr textNode = currentTextChild.textNode();
         WeakPtr beforeChild = currentTextChild.nextSibling();

@@ -176,7 +176,7 @@ static constexpr char16_t NODELETE convertNoBreakSpaceToSpace(char16_t character
     return character == noBreakSpace ? ' ' : character;
 }
 
-static inline size_t capitalizeCharacter(String textContent, unsigned startCharacterOffset, StringBuilder& output)
+static inline size_t capitalizeCharacter(StringView textContent, unsigned startCharacterOffset, StringBuilder& output)
 {
     if (startCharacterOffset >= textContent.length()) {
         ASSERT_NOT_REACHED();
@@ -234,7 +234,7 @@ static inline size_t capitalizeCharacter(String textContent, unsigned startChara
 // Titlecase the first letter of a word using ICU's locale-aware u_strToTitle.
 // CSS capitalize only uppercases the first letter; u_strToTitle also lowercases
 // the rest. We determine the titlecased prefix and return only that.
-static size_t capitalizeWordWithLocale(const String& textContent, unsigned startOffset, unsigned endOffset, const AtomString& locale, StringBuilder& output)
+static size_t capitalizeWordWithLocale(StringView textContent, unsigned startOffset, unsigned endOffset, const AtomString& locale, StringBuilder& output)
 {
     auto localeUTF8 = locale.string().utf8();
     unsigned wordLength = std::min(endOffset, textContent.length()) - startOffset;
@@ -548,7 +548,9 @@ void RenderText::styleDidChange(Style::Difference diff, const RenderStyle* oldSt
             return true;
         if (oldStyle->textTransform() != newStyle.textTransform())
             return true;
-        return oldStyle->textSecurity() != newStyle.textSecurity();
+        if (oldStyle->textSecurity() != newStyle.textSecurity())
+            return true;
+        return !newStyle.textTransform().isNone() && oldStyle->computedLocale() != newStyle.computedLocale();
     };
     if (needsRenderedTextUpdateOnly())
         updateRenderedText();
