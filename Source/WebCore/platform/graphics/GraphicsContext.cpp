@@ -557,6 +557,7 @@ void GraphicsContext::strokeLine(const PathDataLine& line)
     path.moveTo(line.start());
     path.addLineTo(line.end());
 #endif
+    strokePath(path);
 }
 
 void GraphicsContext::fillEllipseAsPath(const FloatRect& ellipse)
