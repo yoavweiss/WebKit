@@ -7652,6 +7652,29 @@ void WebViewImpl::fulfillDeferredImageAnalysisOverlayViewHierarchyTask()
 
 #endif // ENABLE(IMAGE_ANALYSIS_ENHANCEMENTS)
 
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+
+void WebViewImpl::didUpdateTransientZoomStateForScrollPocket(std::optional<TransientZoomState> state)
+{
+    auto wasTransient = m_transientZoomStateForScrollPocket.has_value();
+    auto isTransient = state.has_value();
+
+    if (isTransient && !wasTransient) {
+        m_scrollOffsetBeforeTransientZoom = m_lastPageScrollOffset;
+        m_pageScaleBeforeTransientZoom = m_page->pageScaleFactor();
+    } else if (!isTransient && wasTransient) {
+        m_scrollOffsetBeforeTransientZoom = std::nullopt;
+        m_pageScaleBeforeTransientZoom = std::nullopt;
+    }
+
+    m_transientZoomStateForScrollPocket = state;
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+    updateWebContentDistancesFromEdges();
+#endif
+}
+
+#endif
+
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
 
 void WebViewImpl::setClientImplicitlyRequestedTopScrollPocket()
@@ -7685,23 +7708,6 @@ void WebViewImpl::updatePrefersSolidColorHardPocket()
 
         return NO;
     }()];
-}
-
-void WebViewImpl::didUpdateTransientZoomStateForScrollPocket(std::optional<TransientZoomState> state)
-{
-    auto wasTransient = m_transientZoomStateForScrollPocket.has_value();
-    auto isTransient = state.has_value();
-
-    if (isTransient && !wasTransient) {
-        m_scrollOffsetBeforeTransientZoom = m_lastPageScrollOffset;
-        m_pageScaleBeforeTransientZoom = m_page->pageScaleFactor();
-    } else if (!isTransient && wasTransient) {
-        m_scrollOffsetBeforeTransientZoom = std::nullopt;
-        m_pageScaleBeforeTransientZoom = std::nullopt;
-    }
-
-    m_transientZoomStateForScrollPocket = state;
-    updateWebContentDistancesFromEdges();
 }
 
 void WebViewImpl::updateWebContentDistancesFromEdges()

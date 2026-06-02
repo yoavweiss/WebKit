@@ -307,7 +307,7 @@ void RemoteLayerTreeDrawingAreaProxyMac::applyTransientZoomToLayer()
     [scrolledContentsLayer addAnimation:transientPositionAnimation(transientScrolledContentsPosition).get() forKey:transientScrolledContentsPositionAnimationKey];
     END_BLOCK_OBJC_EXCEPTIONS
 
-#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
     if (RefPtr page = this->page()) {
         if (RefPtr pageClient = page->pageClient())
             pageClient->didUpdateTransientZoomStateForScrollPocket({ { *m_transientZoomScale, *m_transientZoomOriginInVisibleRect } });
@@ -331,7 +331,7 @@ void RemoteLayerTreeDrawingAreaProxyMac::removeTransientZoomFromLayer()
     [scrolledContentsLayer removeAnimationForKey:transientScrolledContentsPositionAnimationKey];
     END_BLOCK_OBJC_EXCEPTIONS
 
-#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
     if (RefPtr page = this->page()) {
         if (RefPtr pageClient = page->pageClient())
             pageClient->didUpdateTransientZoomStateForScrollPocket(std::nullopt);
