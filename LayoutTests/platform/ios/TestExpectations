@@ -1491,6 +1491,8 @@ imported/w3c/web-platform-tests/css/css-view-transitions/old-content-inline-with
 
 # Site isolation testing infrastructure for accessibility doesn't exist on iOS.
 http/tests/site-isolation/accessibility/ [ Skip ]
+# ...except this test, which verifies the in-process rotor search returns a remote-frame placeholder for an out-of-process iframe.
+http/tests/site-isolation/accessibility/heading-search-returns-remote-frame.html [ Pass ]
 
 ###
 # Known failures

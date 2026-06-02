@@ -29,9 +29,11 @@
 #include "AXLogger.h"
 #include "AXLoggerBase.h"
 #include "AXObjectCacheInlines.h"
+#include "AXRemoteFrame.h"
 #include "AXTreeStoreInlines.h"
 #include "AXUtilities.h"
 #include "AccessibilityObject.h"
+#include "AccessibilityScrollView.h"
 #include "FrameDestructionObserverInlines.h"
 #include "LocalFrameInlines.h"
 #include "LocalFrameView.h"
@@ -199,6 +201,24 @@ static void appendAccessibilityObject(Ref<AXCoreObject> object, AccessibilityObj
     else if (RefPtr axObject = dynamicDowncast<AccessibilityObject>(object)) {
         // Find the next descendant of this attachment object so search can continue through frames.
         RefPtr widget = axObject->widgetForAttachmentView();
+
+#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+        if (widget && widget->isRemoteFrameView()) {
+            // For an out-of-process (site-isolated) iframe, the content lives in another process, so we can't
+            // descend into it. Append the AXRemoteFrame placeholder instead so the search records the iframe in
+            // tree order; the client descends into it via the placeholder's platform element (AXRemoteElement).
+            CheckedPtr cache = axObject->axObjectCache();
+            if (RefPtr remoteFrameHost = cache ? cache->getOrCreate(*widget) : nullptr) {
+                remoteFrameHost->updateChildrenIfNecessary();
+                if (RefPtr scrollView = dynamicDowncast<AccessibilityScrollView>(*remoteFrameHost)) {
+                    if (RefPtr remoteFrame = scrollView->remoteFrame())
+                        results.append(remoteFrame.releaseNonNull());
+                }
+            }
+            return;
+        }
+#endif // ENABLE(ACCESSIBILITY_LOCAL_FRAME)
+
         RefPtr frameView = dynamicDowncast<LocalFrameView>(widget);
         if (!frameView)
             return;
@@ -396,18 +416,23 @@ AccessibilitySearchResultStream AXSearchManager::findMatchingObjectsInternalAsSt
 
     bool isForward = criteria.searchDirection == AccessibilitySearchDirection::Next;
 
-#if PLATFORM(MAC)
-    // For backward search starting from a remote frame, we need to dispatch to that frame first
-    // so it can search backward from its current focus position. Without this, the backward search
-    // would skip the remote frame entirely and only search elements before it in the parent.
+#if PLATFORM(COCOA)
+    // For backward search starting from a remote frame, we need to handle that frame first so its
+    // content isn't skipped (otherwise the backward search would only see elements before it in the parent).
     if (!isForward && startObject != anchorObject && startObject->isRemoteFrame()) {
-        if (auto frameID = startObject->remoteFrameID(); frameID && startObject->remoteFramePID()) {
+        if (std::optional frameID = startObject->remoteFrameID(); frameID && startObject->remoteFramePID()) {
+#if PLATFORM(IOS_FAMILY)
+            // iOS returns the remote frame's AXRemoteElement placeholder inline; VoiceOver descends into it.
+            stream.appendRemoteFrame(*frameID, startObject);
+#else
+            // macOS forwards the search into the remote frame via IPC.
             stream.appendRemoteFrame(*frameID);
             if (remoteFrameCallback)
                 remoteFrameCallback(*frameID, stream.entryCount(), localResultCount);
+#endif
         }
     }
-#endif // PLATFORM(MAC)
+#endif // PLATFORM(COCOA)
 
     // The first iteration of the outer loop will examine the children of the start object for matches. However, when
     // iterating backwards, the start object children should not be considered, so the loop is skipped ahead. We make an
@@ -434,25 +459,32 @@ AccessibilitySearchResultStream AXSearchManager::findMatchingObjectsInternalAsSt
         while (!searchStack.isEmpty()) {
             Ref searchObject = searchStack.takeLast();
 
-#if PLATFORM(MAC)
-            // Check if this is a remote frame - if so, record it in the stream for cross-process search.
+#if PLATFORM(COCOA)
+            // Check if this is a remote frame - if so, record it in the stream to maintain tree order.
             if (searchObject->isRemoteFrame()) {
-                auto frameID = searchObject->remoteFrameID();
-                auto pid = searchObject->remoteFramePID();
-                if (frameID && pid) {
-                    // Always record remote frames in the stream to maintain tree order.
+                std::optional frameID = searchObject->remoteFrameID();
+#if PLATFORM(IOS_FAMILY)
+                // iOS returns the remote frame's AXRemoteElement placeholder inline and lets VoiceOver
+                // descend into it; there's no in-WebProcess cross-process coordination like on macOS.
+                if (frameID && searchObject->remoteFramePID())
+                    stream.appendRemoteFrame(*frameID, RefPtr { searchObject.ptr() });
+                UNUSED_PARAM(remoteFrameCallback);
+#else // !PLATFORM(IOS_FAMILY)
+                // macOS forwards the search into the remote frame via IPC.
+                if (frameID && searchObject->remoteFramePID()) {
                     stream.appendRemoteFrame(*frameID);
                     // Invoke callback to allow eager IPC dispatch while search continues.
                     if (remoteFrameCallback)
                         remoteFrameCallback(*frameID, stream.entryCount(), localResultCount);
                 }
+#endif // PLATFORM(IOS_FAMILY)
                 // Don't descend into remote frames - we'll forward the search to them
                 // via IPC in |remoteFrameCallback|.
                 continue;
             }
-#else
+#else // !PLATFORM(COCOA)
             UNUSED_PARAM(remoteFrameCallback);
-#endif // PLATFORM(MAC)
+#endif // PLATFORM(COCOA)
 
             if (addMatchToStream(searchObject))
                 break;

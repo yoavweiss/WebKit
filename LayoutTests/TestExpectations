@@ -17,6 +17,8 @@ accessibility/gtk [ Skip ]
 accessibility/mac [ Skip ]
 accessibility/win [ Skip ]
 http/tests/site-isolation/accessibility/client [ Skip ]
+# Exercises iOS-specific remote-frame accessibility search behavior; enabled only on iOS (see platform/ios/TestExpectations).
+http/tests/site-isolation/accessibility/heading-search-returns-remote-frame.html [ Skip ]
 displaylists [ Skip ]
 editing/mac [ Skip ]
 editing/caret/ios [ Skip ]

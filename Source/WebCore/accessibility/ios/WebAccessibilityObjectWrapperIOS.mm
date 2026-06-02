@@ -2318,19 +2318,6 @@ static RenderObject* rendererForView(WAKView* view)
     return nil;
 }
 
-- (BOOL)_accessibilityShouldUseCustomRotor
-{
-    if (![self _prepareAccessibilityCall])
-        return YES;
-
-    RefPtr<AXCoreObject> backingObject = self.axBackingObject;
-    RefPtr page = backingObject ? backingObject->page() : nullptr;
-    // WebKit's custom rotor implementation can't search across processes, so we shouldn't
-    // use it if it site isolation is enabled. Once site isolation is enabled by default,
-    // this should be removed entirely.
-    return !page || !page->settings().siteIsolationEnabled();
-}
-
 - (NSArray<WebAccessibilityObjectWrapper *> *)accessibilityFindMatchingObjects:(NSDictionary *)parameters
 {
     RefPtr<AXCoreObject> backingObject = self.axBackingObject;

@@ -2191,12 +2191,21 @@ AXCoreObject::AccessibilityChildrenVector AXCoreObject::findMatchingObjectsWithi
     criteria.anchorObject = this;
     auto stream = AXSearchManager().findMatchingObjectsAsStream(WTF::move(criteria));
 
-    // Extract local objects from the stream. Remote frame entries are ignored since
-    // callers of this function expect AccessibilityChildrenVector.
     AccessibilityChildrenVector results;
     for (const auto& entry : stream.entries()) {
-        if (RefPtr object = entry.objectIfLocalResult())
+        if (RefPtr object = entry.objectIfLocalResult()) {
             results.append(object.releaseNonNull());
+            continue;
+        }
+#if PLATFORM(IOS_FAMILY)
+        // iOS surfaces the remote frame placeholder inline so makeNSArray() emits its AXRemoteElement and
+        // ATs can descend into the out-of-process iframe. Skip it if there's no platform element.
+        // On other platforms, remote frame entries are ignored since callers expect only local objects.
+        if (RefPtr remoteFrameObject = entry.remoteFrameObject()) {
+            if (remoteFrameObject->remoteFramePlatformElement())
+                results.append(remoteFrameObject.releaseNonNull());
+        }
+#endif
     }
     return results;
 }
