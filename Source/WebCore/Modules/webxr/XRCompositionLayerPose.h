@@ -27,7 +27,7 @@
 
 #if ENABLE(WEBXR_LAYERS)
 
-#include "PlatformXR.h"
+#include <WebCore/PlatformXR.h>
 #include <optional>
 
 namespace WebCore {
