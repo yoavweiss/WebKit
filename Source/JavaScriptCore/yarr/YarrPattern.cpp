@@ -1741,9 +1741,19 @@ public:
 
         if (min == max)
             term.quantify(min, max, QuantifierType::FixedCount);
-        else if (!min || (term.type == PatternTerm::Type::ParenthesesSubpattern && m_pattern.m_hasCopiedParenSubexpressions))
+        else if (!min
+            || (term.type == PatternTerm::Type::ParenthesesSubpattern
+                && (m_pattern.m_hasCopiedParenSubexpressions || term.matchDirection() == Forward))) {
+            // Forward-direction parenthesized subpatterns with non-zero minimum are kept
+            // as a single PatternTerm with quantityMinCount > 0; YarrJIT compiles these
+            // natively (see opCompileParenthesesSubpattern) without splitting into
+            // FixedCount{min} + Greedy/NonGreedy{0,max-min}. The split would deep-copy
+            // the disjunction subtree, which can hit OffsetTooLarge / pattern-size limits
+            // for very large bounds (e.g. (?:x){2147483648,...}). Backward parens
+            // (lookbehinds) still use the expansion path; the JIT's right-to-left
+            // backtracking machinery hasn't been generalized for single-term VariableMin.
             term.quantify(min, max, greedy ? QuantifierType::Greedy : QuantifierType::NonGreedy);
-        else {
+        } else {
             if (term.matchDirection() == Forward) {
                 term.quantify(min, min, QuantifierType::FixedCount);
                 auto copied = copyTerm(term, /* filterStartsWithBOL */ false);

@@ -1583,20 +1583,43 @@ public:
                 popParenthesesDisjunctionContext(backTrack);
                 freeParenthesesDisjunctionContext(context);
 
-                if (backTrack->matchAmount < term.atom.quantityMinCount) {
-                    while (backTrack->matchAmount) {
-                        context = backTrack->lastContext;
-                        resetMatches(term, context);
-                        popParenthesesDisjunctionContext(backTrack);
-                        freeParenthesesDisjunctionContext(context);
-                    }
-
-                    input.setPos(backTrack->begin);
-                    return result;
-                }
-
                 if (result != JSRegExpResult::NoMatch)
                     return result;
+
+                // When matchAmount falls below the minimum, do not give up immediately:
+                // try parenthesesDoBacktrack on the remaining contexts to find an
+                // alternative match distribution that allows us to reach min, then
+                // refill back up to min.
+                //
+                // For example, /((a+){2,3}){2,3}$/  matched against  "aaaaaa",
+                // `a+` will drain all input and this makes {2,3}'s `2` count failed.
+                // But instead of immediately saying "this is failed", we should backtrack `a+`,
+                // reducing drained count of `a`, and then the parentheses succeeds.
+                if (backTrack->matchAmount < term.atom.quantityMinCount) {
+                    result = parenthesesDoBacktrack(term, backTrack);
+                    if (result != JSRegExpResult::Match)
+                        return result;
+
+                    // Now content-backtracking succeeded. We will try to match up to min-count.
+                    while (backTrack->matchAmount < term.atom.quantityMinCount) {
+                        context = allocParenthesesDisjunctionContext(disjunctionBody, output, term);
+                        if (!context) [[unlikely]]
+                            return JSRegExpResult::ErrorNoMemory;
+                        result = matchDisjunction(disjunctionBody, context->getDisjunctionContext());
+                        if (result == JSRegExpResult::Match)
+                            appendParenthesesDisjunctionContext(backTrack, context);
+                        else {
+                            resetMatches(term, context);
+                            freeParenthesesDisjunctionContext(context);
+
+                            if (result != JSRegExpResult::NoMatch)
+                                return result;
+                            result = parenthesesDoBacktrack(term, backTrack);
+                            if (result != JSRegExpResult::Match)
+                                return result;
+                        }
+                    }
+                }
             }
 
             if (backTrack->matchAmount) {
