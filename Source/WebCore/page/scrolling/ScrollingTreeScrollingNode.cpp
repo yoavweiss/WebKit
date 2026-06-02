@@ -76,8 +76,19 @@ bool ScrollingTreeScrollingNode::commitStateBeforeChildren(const ScrollingStateN
 
     if (state->hasChangedProperty(ScrollingStateNode::Property::ScrollPosition)) {
         m_lastCommittedScrollPosition = state->scrollPosition();
-        if (m_isFirstCommit && !state->hasScrollPositionRequest())
-            m_currentScrollPosition = m_lastCommittedScrollPosition;
+        if (m_isFirstCommit) {
+            // If the first commit contains a scroll delta, prime m_currentScrollPosition so we apply
+            // the delta relative to it later (otherwise we'll apply the delta relative to (0,0) and
+            // end up with the wrong scroll position).
+            FloatSize deltaForFirstCommit;
+            for (auto& request : state->requestedScrollData()) {
+                if (auto* delta = std::get_if<FloatSize>(&request.scrollPositionOrDelta)) {
+                    deltaForFirstCommit = *delta;
+                    break;
+                }
+            }
+            m_currentScrollPosition = m_lastCommittedScrollPosition - deltaForFirstCommit;
+        }
     }
 
     if (state->hasChangedProperty(ScrollingStateNode::Property::ScrollOrigin))

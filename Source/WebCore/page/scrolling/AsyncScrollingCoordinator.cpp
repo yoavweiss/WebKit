@@ -454,6 +454,7 @@ bool AsyncScrollingCoordinator::requestScrollToPosition(ScrollableArea& scrollab
 
     willSendScrollPositionRequest(*scrollingNodeID, requestedScrollData);
     stateNode->setRequestedScrollData(WTF::move(requestedScrollData));
+    stateNode->setScrollPosition(scrollableArea.scrollPosition()); // applyScrollUpdate() above may have modified the scroll position after the call to setScrollingNodeScrollableAreaGeometry().
 
     LOG_WITH_STREAM(Scrolling, stream << "AsyncScrollingCoordinator::requestScrollToPosition " << scrollPosition << " for nodeID " << scrollingNodeID << " requestedScrollData " << stateNode->requestedScrollData());
 
