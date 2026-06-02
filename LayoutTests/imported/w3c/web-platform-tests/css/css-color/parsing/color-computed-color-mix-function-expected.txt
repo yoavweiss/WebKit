@@ -46,18 +46,9 @@ PASS Property color value 'color-mix(in hsl longer hue, hsl(330deg 50% 50%), hsl
 PASS Property color value 'color-mix(in hsl longer hue, hsl(20deg 50% 50%), hsl(320deg 50% 50%))'
 PASS Property color value 'color-mix(in hsl longer hue, hsl(320deg 50% 50%), hsl(20deg 50% 50%))'
 PASS Property color value 'color-mix(in hsl longer hue, hsl(60deg 50% 50%), hsl(60deg 50% 50%))'
-FAIL Property color value 'color-mix(in hsl longer hue, red, white)' Colors do not match.
-Actual:   color(srgb 0.875 0.625 0.625)
-Expected: color(srgb 0.625 0.875 0.875).
-Error: assert_array_approx_equals: Numeric parameters are approximately equal. property 0, expected 0.625 +/- 0.01, expected 0.625 but got 0.875
-FAIL Property color value 'color-mix(in hsl longer hue, red, black)' Colors do not match.
-Actual:   color(srgb 0.375 0.125 0.125)
-Expected: color(srgb 0.125 0.375 0.375).
-Error: assert_array_approx_equals: Numeric parameters are approximately equal. property 0, expected 0.125 +/- 0.01, expected 0.125 but got 0.375
-FAIL Property color value 'color-mix(in hsl longer hue, red, transparent)' Colors do not match.
-Actual:   color(srgb 1 0 0 / 0.5)
-Expected: color(srgb 0 1 1 / 0.5).
-Error: assert_array_approx_equals: Numeric parameters are approximately equal. property 0, expected 0 +/- 0.01, expected 0 but got 1
+PASS Property color value 'color-mix(in hsl longer hue, red, white)'
+PASS Property color value 'color-mix(in hsl longer hue, red, black)'
+PASS Property color value 'color-mix(in hsl longer hue, red, transparent)'
 PASS Property color value 'color-mix(in hsl increasing hue, hsl(40deg 50% 50%), hsl(60deg 50% 50%))'
 PASS Property color value 'color-mix(in hsl increasing hue, hsl(60deg 50% 50%), hsl(40deg 50% 50%))'
 PASS Property color value 'color-mix(in hsl increasing hue, hsl(50deg 50% 50%), hsl(330deg 50% 50%))'
@@ -138,18 +129,9 @@ PASS Property color value 'color-mix(in hwb longer hue, hwb(50deg 30% 40%), hwb(
 PASS Property color value 'color-mix(in hwb longer hue, hwb(330deg 30% 40%), hwb(50deg 30% 40%))'
 PASS Property color value 'color-mix(in hwb longer hue, hwb(20deg 30% 40%), hwb(320deg 30% 40%))'
 PASS Property color value 'color-mix(in hwb longer hue, hwb(320deg 30% 40%), hwb(20deg 30% 40%))'
-FAIL Property color value 'color-mix(in hwb longer hue, red, white)' Colors do not match.
-Actual:   color(srgb 1 0.5 0.5)
-Expected: color(srgb 0.5 1 1).
-Error: assert_array_approx_equals: Numeric parameters are approximately equal. property 0, expected 0.5 +/- 0.01, expected 0.5 but got 1
-FAIL Property color value 'color-mix(in hwb longer hue, red, black)' Colors do not match.
-Actual:   color(srgb 0.5 0 0)
-Expected: color(srgb 0 0.5 0.5).
-Error: assert_array_approx_equals: Numeric parameters are approximately equal. property 0, expected 0 +/- 0.01, expected 0 but got 0.5
-FAIL Property color value 'color-mix(in hwb longer hue, red, transparent)' Colors do not match.
-Actual:   color(srgb 1 0 0 / 0.5)
-Expected: color(srgb 0 1 1 / 0.5).
-Error: assert_array_approx_equals: Numeric parameters are approximately equal. property 0, expected 0 +/- 0.01, expected 0 but got 1
+PASS Property color value 'color-mix(in hwb longer hue, red, white)'
+PASS Property color value 'color-mix(in hwb longer hue, red, black)'
+PASS Property color value 'color-mix(in hwb longer hue, red, transparent)'
 PASS Property color value 'color-mix(in hwb increasing hue, hwb(40deg 30% 40%), hwb(60deg 30% 40%))'
 PASS Property color value 'color-mix(in hwb increasing hue, hwb(60deg 30% 40%), hwb(40deg 30% 40%))'
 PASS Property color value 'color-mix(in hwb increasing hue, hwb(50deg 30% 40%), hwb(330deg 30% 40%))'
@@ -228,18 +210,9 @@ PASS Property color value 'color-mix(in lch longer hue, lch(100 0 50deg), lch(10
 PASS Property color value 'color-mix(in lch longer hue, lch(100 0 330deg), lch(100 0 50deg))'
 PASS Property color value 'color-mix(in lch longer hue, lch(100 0 20deg), lch(100 0 320deg))'
 PASS Property color value 'color-mix(in lch longer hue, lch(100 0 320deg), lch(100 0 20deg))'
-FAIL Property color value 'color-mix(in lch longer hue, red, white)' Colors do not match.
-Actual:   lch(77.145271 53.418598 40.857647)
-Expected: lch(77.145 53.4271 220.856).
-Error: assert_array_approx_equals: Numeric parameters are approximately equal. property 2, expected 220.856 +/- 0.01, expected 220.856 but got 40.857647
-FAIL Property color value 'color-mix(in lch longer hue, red, black)' Colors do not match.
-Actual:   lch(27.145269 53.418598 40.857647)
-Expected: lch(27.145 53.4271 220.856).
-Error: assert_array_approx_equals: Numeric parameters are approximately equal. property 2, expected 220.856 +/- 0.01, expected 220.856 but got 40.857647
-FAIL Property color value 'color-mix(in lch longer hue, red, transparent)' Colors do not match.
-Actual:   lch(54.290539 106.837196 40.857647 / 0.5)
-Expected: lch(54.29 106.847 220.856 / 0.5).
-Error: assert_array_approx_equals: Numeric parameters are approximately equal. property 2, expected 220.856 +/- 0.01, expected 220.856 but got 40.857647
+PASS Property color value 'color-mix(in lch longer hue, red, white)'
+PASS Property color value 'color-mix(in lch longer hue, red, black)'
+PASS Property color value 'color-mix(in lch longer hue, red, transparent)'
 PASS Property color value 'color-mix(in lch increasing hue, lch(100 0 40deg), lch(100 0 60deg))'
 PASS Property color value 'color-mix(in lch increasing hue, lch(100 0 60deg), lch(100 0 40deg))'
 PASS Property color value 'color-mix(in lch increasing hue, lch(100 0 50deg), lch(100 0 330deg))'
@@ -319,18 +292,9 @@ PASS Property color value 'color-mix(in oklch longer hue, oklch(1 0 50deg), oklc
 PASS Property color value 'color-mix(in oklch longer hue, oklch(1 0 330deg), oklch(1 0 50deg))'
 PASS Property color value 'color-mix(in oklch longer hue, oklch(1 0 20deg), oklch(1 0 320deg))'
 PASS Property color value 'color-mix(in oklch longer hue, oklch(1 0 320deg), oklch(1 0 20deg))'
-FAIL Property color value 'color-mix(in oklch longer hue, red, white)' Colors do not match.
-Actual:   oklch(0.813978 0.128842 29.233894)
-Expected: oklch(0.81398 0.128877 209.235).
-Error: assert_array_approx_equals: Numeric parameters are approximately equal. property 2, expected 209.235 +/- 0.01, expected 209.235 but got 29.233894
-FAIL Property color value 'color-mix(in oklch longer hue, red, black)' Colors do not match.
-Actual:   oklch(0.313978 0.128842 29.233894)
-Expected: oklch(0.313983 0.128852 209.2346).
-Error: assert_array_approx_equals: Numeric parameters are approximately equal. property 2, expected 209.2346 +/- 0.01, expected 209.2346 but got 29.233894
-FAIL Property color value 'color-mix(in oklch longer hue, red, transparent)' Colors do not match.
-Actual:   oklch(0.627955 0.257683 29.233894 / 0.5)
-Expected: oklch(0.627966 0.257704 209.2346 / 0.5).
-Error: assert_array_approx_equals: Numeric parameters are approximately equal. property 2, expected 209.2346 +/- 0.01, expected 209.2346 but got 29.233894
+PASS Property color value 'color-mix(in oklch longer hue, red, white)'
+PASS Property color value 'color-mix(in oklch longer hue, red, black)'
+PASS Property color value 'color-mix(in oklch longer hue, red, transparent)'
 PASS Property color value 'color-mix(in oklch increasing hue, oklch(1 0 40deg), oklch(1 0 60deg))'
 PASS Property color value 'color-mix(in oklch increasing hue, oklch(1 0 60deg), oklch(1 0 40deg))'
 PASS Property color value 'color-mix(in oklch increasing hue, oklch(1 0 50deg), oklch(1 0 330deg))'
