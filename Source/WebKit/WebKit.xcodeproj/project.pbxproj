@@ -7302,7 +7302,7 @@
 		84120B2928258B82002988E2 /* iOS.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = iOS.modulemap; sourceTree = "<group>"; };
 		84120B2A28258B82002988E2 /* OSX.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = OSX.modulemap; sourceTree = "<group>"; };
 		84120B2B28258BB5002988E2 /* MacCatalyst.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = MacCatalyst.modulemap; sourceTree = "<group>"; };
-		843FD167295234DC00476A01 /* module.private.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; name = module.private.modulemap; path = DerivedSources/WebKit/ModuleMapIntermediate/module.private.modulemap; sourceTree = BUILT_PRODUCTS_DIR; };
+		843FD167295234DC00476A01 /* module.private.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.private.modulemap; sourceTree = "<group>"; };
 		84477851176FCAC100CDC7BB /* InjectedBundleHitTestResultMediaType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InjectedBundleHitTestResultMediaType.h; sourceTree = "<group>"; };
 		848A33AE294AA847002DD640 /* OSX_Private.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = OSX_Private.modulemap; sourceTree = "<group>"; };
 		849944302943E2550086CDBB /* iOS_Private.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = iOS_Private.modulemap; sourceTree = "<group>"; };
@@ -21503,7 +21503,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/ModuleMapIntermediate/module.private.modulemap",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/module.private.modulemap",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

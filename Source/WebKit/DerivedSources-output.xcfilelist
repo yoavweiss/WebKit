@@ -524,7 +524,6 @@ $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/WebTransportSessionMessageReceiv
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/WebTransportSessionMessages.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/WebUserContentControllerMessageReceiver.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/WebUserContentControllerMessages.h
-$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/module.private.modulemap
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/ISO18013MobileDocumentRequest+Extras.swift
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/JSWebExtensionAPIAction.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/JSWebExtensionAPIAction.mm

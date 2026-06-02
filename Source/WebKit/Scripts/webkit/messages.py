@@ -2432,22 +2432,3 @@ def generate_message_argument_description_implementation(receivers, receiver_hea
     result.append('#endif // ENABLE(IPC_TESTING_API) || !LOG_DISABLED')
     result.append('')
     return '\n'.join(result)
-
-
-def generate_modulemap(receiver_headers: list[str]) -> str:
-    result = []
-
-    result.append('module WebKit_DerivedSources_IPC {')
-
-    all_headers = receiver_headers + ['MessageNames.h', 'GeneratedSerializers.h', 'GeneratedWebKitSecureCoding.h']
-    for header in all_headers:
-        module_name = header[:-2] if header.endswith('.h') else header
-        result.append('  explicit module %s {' % module_name)
-        result.append('    header "%s"' % header)
-        result.append('    export *')
-        result.append('  }')
-
-    result.append('}')
-    result.append('')
-
-    return '\n'.join(result)
