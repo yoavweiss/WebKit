@@ -462,21 +462,20 @@ struct AccessibilityElementsResult {
         if (is<SelectPopoverElement>(child->node()))
             continue;
 
-        if (shouldCollectElements) {
-            auto* wrapper = child->wrapper();
-            if (child->isRemoteFrame()) {
-                if (id platformRemoteFrame = child->remoteFramePlatformElement().unsafeGet())
-                    [result.elements addObject:platformRemoteFrame];
-                else
-                    [result.elements addObject:wrapper];
-            } else if (child->isAttachment()) {
-                if (id attachmentView = [wrapper attachmentView])
-                    [result.elements addObject:attachmentView];
-                else
-                    [result.elements addObject:wrapper];
-            } else
-                [result.elements addObject:wrapper];
+        id element = child->wrapper();
+        if (child->isRemoteFrame()) {
+            if (RetainPtr platformRemoteFrame = child->remoteFramePlatformElement())
+                element = platformRemoteFrame.get();
+        } else if (child->isAttachment()) {
+            if (id attachmentView = [element attachmentView])
+                element = attachmentView;
         }
+
+        if (!element)
+            continue;
+
+        if (shouldCollectElements)
+            [result.elements addObject:element];
         result.count++;
 
         // After adding a base-select to its parent's children, inject the popover as
