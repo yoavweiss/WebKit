@@ -25,6 +25,7 @@
 #include "config.h"
 #include "RenderSVGRoot.h"
 
+#include "BorderShape.h"
 #include "GraphicsContext.h"
 #include "HitTestResult.h"
 #include "LayoutRepainter.h"
@@ -311,8 +312,9 @@ bool RenderSVGRoot::shouldApplyViewportClip() const
 // on LFC/SVG integration once the LBSE is upstreamed.
 void RenderSVGRoot::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
 {
-    // Don't paint, if the context explicitly disabled it.
-    if (paintInfo.context().paintingDisabled() && !paintInfo.context().detectingContentfulPaint())
+    // Don't paint, if the context explicitly disabled it. The event region phase still needs to
+    // run so the SVG root contributes its bounds even when descendants don't cover the area.
+    if (paintInfo.phase != PaintPhase::EventRegion && paintInfo.context().paintingDisabled() && !paintInfo.context().detectingContentfulPaint())
         return;
 
     // An empty viewport disables rendering.
@@ -361,6 +363,17 @@ void RenderSVGRoot::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOf
     if (paintInfo.phase == PaintPhase::ClippingMask && style().usedVisibility() == Visibility::Visible) {
         paintSVGClippingMask(paintInfo, objectBoundingBox());
         return;
+    }
+
+    if (paintInfo.phase == PaintPhase::EventRegion && visibleToHitTesting() && !isSkippedContentRoot(*this)) {
+        // Add the SVG root's own border rect so events targeting the <svg> element dispatch
+        // even where descendants don't cover its area. Children still register their precise
+        // bounds via paintContents below. Skip the interaction-region contribution so the
+        // SVG root's border rect doesn't change the interaction-region shape — only the
+        // children should contribute to interaction regions.
+        auto borderRect = LayoutRect(adjustedPaintOffset, size());
+        auto borderShape = BorderShape::shapeForBorderRect(style(), borderRect);
+        paintInfo.eventRegionContext()->unite(borderShape.deprecatedPixelSnappedRoundedRect(document().deviceScaleFactor()), *this, style(), false, EventRegionContext::ContributeToInteractionRegions::No);
     }
 
     if (paintInfo.paintRootBackgroundOnly())
