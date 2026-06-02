@@ -537,6 +537,11 @@ public:
     WEBCORE_EXPORT void applyPendingChanges();
     void applyPendingChangesUnlessQueuedForDestruction();
 
+#if ENABLE(ACCESSIBILITY_THREAD_DISPATCHING)
+    enum class AXThreadDispatchResult : bool { Succeeded, Failed };
+    static AXThreadDispatchResult callOnAXThread(Function<void()>&&);
+#endif
+
     // Returns DidTearDown::Yes if this tree was queued for destruction and tree teardown was performed.
     // "Tear down" is very intentionally chosen wording, as it means we've cleared all internal
     // member variables that could hold a strong-ref to the tree, but we can't actually force
@@ -600,6 +605,10 @@ private:
     void deleteSubtree(Ref<AXCoreObject>&&, const HashSet<AXID>& protectedFromDeletionIDs);
     void clearTreeContentsLocked() WTF_REQUIRES_LOCK(m_changeLogLock);
     bool hasPendingChanges() const { return m_hasPendingChanges.load(); }
+
+#if ENABLE(ACCESSIBILITY_THREAD_DISPATCHING)
+    static AXThreadDispatchResult platformCallOnAXThread(Function<void()>&&);
+#endif
 
     static std::atomic<bool> s_anyTreeNeedsTearDown;
 
@@ -756,6 +765,9 @@ private:
     std::atomic<double> m_loadingProgress { 0 };
     std::atomic<double> m_processingProgress { 1 };
     std::atomic<bool> m_hasPendingChanges { false };
+#if ENABLE(ACCESSIBILITY_THREAD_DISPATCHING)
+    std::atomic<bool> m_appliedOrApplyingMainThreadSnapshot { true };
+#endif
 
     // Only accessed on the accessibility thread.
     Vector<AXID> m_sortedLiveRegionIDs;

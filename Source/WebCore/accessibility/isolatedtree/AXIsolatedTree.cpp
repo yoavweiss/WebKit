@@ -1597,6 +1597,9 @@ AXIsolatedTree::PendingChanges AXIsolatedTree::takePendingChangesLocked()
     // the focused node on the next apply cycle.
     m_pendingChanges.focusedNodeID = snapshot.focusedNodeID;
     m_hasPendingChanges.store(false);
+#if ENABLE(ACCESSIBILITY_THREAD_DISPATCHING)
+    m_appliedOrApplyingMainThreadSnapshot.store(true, std::memory_order_relaxed);
+#endif
     return snapshot;
 }
 
@@ -1924,6 +1927,17 @@ void AXIsolatedTree::processQueuedNodeUpdates()
     }
 
     queueRemovalsAndUnresolvedChanges();
+
+#if ENABLE(ACCESSIBILITY_THREAD_DISPATCHING)
+    if (hasPendingChanges() && m_appliedOrApplyingMainThreadSnapshot.exchange(false, std::memory_order_relaxed)) {
+        // Eagerly try to applyPendingChanges so we don't have to do it prior to
+        // serving a client request, providing improved responsiveness.
+        // Only queue this up if one isn't already queued up.
+        std::ignore = callOnAXThread([protectedThis = Ref { *this }] {
+            protectedThis->applyPendingChanges();
+        });
+    }
+#endif // ENABLE(ACCESSIBILITY_THREAD_DISPATCHING)
 
     if (AXObjectCache::isAppleInternalInstall()) [[unlikely]]
         WTFEndSignpostAlways(this, UpdateAccessibilityIsolatedTree);
@@ -2531,6 +2545,22 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
         getsGeometryFromChildren
     };
 }
+
+#if ENABLE(ACCESSIBILITY_THREAD_DISPATCHING)
+AXIsolatedTree::AXThreadDispatchResult AXIsolatedTree::callOnAXThread(Function<void()>&& function)
+{
+    AX_ASSERT(isMainThread());
+    return platformCallOnAXThread(WTF::move(function));
+}
+
+#if !PLATFORM(MAC)
+AXIsolatedTree::AXThreadDispatchResult AXIsolatedTree::platformCallOnAXThread(Function<void()>&&)
+{
+    AX_ASSERT_NOT_REACHED();
+    return AXThreadDispatchResult::Failed;
+}
+#endif
+#endif // ENABLE(ACCESSIBILITY_THREAD_DISPATCHING)
 
 } // namespace WebCore
 #endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)

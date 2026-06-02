@@ -142,6 +142,7 @@ accessibility/ios/AXRemoteTokenIOS.mm @nonARC
 accessibility/ios/AccessibilityObjectIOS.mm @nonARC
 accessibility/ios/WebAccessibilityObjectWrapperIOS.mm @nonARC
 accessibility/isolatedtree/mac/AXIsolatedObjectMac.mm @nonARC
+accessibility/isolatedtree/mac/AXIsolatedTreeMac.mm @nonARC
 accessibility/mac/AXObjectCacheMac.mm @nonARC
 accessibility/mac/AccessibilityObjectMac.mm @nonARC
 accessibility/mac/WebAccessibilityObjectWrapperMac.mm @nonARC @no-unify
