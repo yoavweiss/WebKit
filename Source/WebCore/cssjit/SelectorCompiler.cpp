@@ -59,6 +59,7 @@
 #include <JavaScriptCore/Options.h>
 #include <JavaScriptCore/VM.h>
 #include <array>
+#include <bit>
 #include <limits>
 #include <wtf/Deque.h>
 #include <wtf/HashSet.h>
@@ -459,6 +460,7 @@ struct SelectorFragment {
     const CSSSelector* tagNameSelector = nullptr;
     const AtomString* id = nullptr;
     Vector<TextDirection> dirList;
+    Vector<const FixedVector<int>*> headingArgumentsList;
     Vector<const FixedVector<PossiblyQuotedIdentifier>*> languageArgumentsList;
     Vector<const AtomStringImpl*, 8> classNames;
     PseudoClassesSet pseudoClasses;
@@ -562,6 +564,8 @@ private:
     void generateElementIsFirstChild(Assembler::JumpList& failureCases);
     void generateElementIsHovered(Assembler::JumpList& failureCases, const SelectorFragment&);
     void generateElementMatchesDir(Assembler::JumpList& failureCases, const SelectorFragment&);
+    void generateElementMatchesHeading(Assembler::JumpList& failureCases, const SelectorFragment&);
+    void generateElementMatchesHeading(Assembler::JumpList& failureCases, const FixedVector<int>*);
     void generateElementIsInLanguage(Assembler::JumpList& failureCases, const SelectorFragment&);
     void generateElementIsInLanguage(Assembler::JumpList& failureCases, const FixedVector<PossiblyQuotedIdentifier>*);
     void generateElementIsLastChild(Assembler::JumpList& failureCases);
@@ -1311,7 +1315,6 @@ static inline FunctionType addPseudoClassType(const CSSSelector& selector, Selec
     case CSSSelector::PseudoClass::NthLastOfType:
     case CSSSelector::PseudoClass::WebKitDrag:
     case CSSSelector::PseudoClass::Has:
-    case CSSSelector::PseudoClass::Heading:
     case CSSSelector::PseudoClass::State:
     // FIXME: <webkit.org/b/278189> CSS JIT: add support for :active-view-transition-type pseudo class
     case CSSSelector::PseudoClass::ActiveViewTransitionType:
@@ -1421,6 +1424,10 @@ static inline FunctionType addPseudoClassType(const CSSSelector& selector, Selec
                 return FunctionType::CannotMatchAnything;
             return FunctionType::SimpleSelectorChecker;
         }
+
+    case CSSSelector::PseudoClass::Heading:
+        fragment.headingArgumentsList.append(selector.integerList());
+        return FunctionType::SimpleSelectorChecker;
 
     case CSSSelector::PseudoClass::Lang:
         ASSERT(selector.langList() && !selector.langList()->isEmpty());
@@ -3254,6 +3261,8 @@ void SelectorCodeGenerator::generateElementMatching(Assembler::JumpList& matchin
         generateElementMatchesMatchesPseudoClass(matchingPostTagNameFailureCases, fragment);
     if (!fragment.dirList.isEmpty())
         generateElementMatchesDir(matchingPostTagNameFailureCases, fragment);
+    if (!fragment.headingArgumentsList.isEmpty())
+        generateElementMatchesHeading(matchingPostTagNameFailureCases, fragment);
     if (!fragment.languageArgumentsList.isEmpty())
         generateElementIsInLanguage(matchingPostTagNameFailureCases, fragment);
     if (!fragment.nthChildOfFilters.isEmpty())
@@ -3928,6 +3937,51 @@ void SelectorCodeGenerator::generateElementIsInLanguage(Assembler::JumpList& fai
     functionCall.setFunctionAddress(operationMatchesLangPseudoClass);
     functionCall.setTwoArguments(elementAddress, langRangeRegister);
     failureCases.append(functionCall.callAndBranchOnBooleanReturnValue(Assembler::Zero));
+}
+
+void SelectorCodeGenerator::generateElementMatchesHeading(Assembler::JumpList& failureCases, const SelectorFragment& fragment)
+{
+    for (auto* integerList : fragment.headingArgumentsList)
+        generateElementMatchesHeading(failureCases, integerList);
+}
+
+void SelectorCodeGenerator::generateElementMatchesHeading(Assembler::JumpList& failureCases, const FixedVector<int>* integerList)
+{
+    // FIXME: When HTMLHeadingElement caches an effective offset (headingoffset/headingreset),
+    // load that byte here, add it to the base, and saturate at 9.
+    LocalRegister nodeName(m_registerAllocator);
+    {
+        LocalRegister qualifiedNameImpl(m_registerAllocator);
+        m_assembler.loadPtr(Assembler::Address(elementAddressRegister, Element::tagQNameMemoryOffset() + QualifiedName::implMemoryOffset()), qualifiedNameImpl);
+        m_assembler.load16(Assembler::Address(qualifiedNameImpl, QualifiedName::QualifiedNameImpl::nodeNameMemoryOffset()), nodeName);
+    }
+
+    constexpr auto h1 = static_cast<uint16_t>(NodeName::HTML_h1);
+    constexpr auto h6 = static_cast<uint16_t>(NodeName::HTML_h6);
+    m_assembler.sub32(Assembler::TrustedImm32(h1), nodeName);
+    failureCases.append(m_assembler.branch32(Assembler::Above, nodeName, Assembler::TrustedImm32(h6 - h1)));
+
+    if (!integerList)
+        return;
+
+    uint8_t levelMask = 0;
+    for (int level : *integerList) {
+        if (level >= 1 && level <= 6)
+            levelMask |= 1u << (level - 1);
+    }
+    if (!levelMask) {
+        failureCases.append(m_assembler.jump());
+        return;
+    }
+    if (std::has_single_bit(levelMask)) {
+        failureCases.append(m_assembler.branch32(Assembler::NotEqual, nodeName, Assembler::TrustedImm32(std::countr_zero(levelMask))));
+        return;
+    }
+
+    LocalRegister maskRegister(m_registerAllocator);
+    m_assembler.move(Assembler::TrustedImm32(levelMask), maskRegister);
+    m_assembler.urshift32(nodeName, maskRegister);
+    failureCases.append(m_assembler.branchTest32(Assembler::Zero, maskRegister, Assembler::TrustedImm32(1)));
 }
 
 void SelectorCodeGenerator::generateElementIsLastChild(Assembler::JumpList& failureCases)

@@ -1042,16 +1042,8 @@ bool SelectorChecker::checkOne(CheckingContext& checkingContext, LocalContext& c
                 return true;
             break;
         }
-        case CSSSelector::PseudoClass::Heading: {
-            CheckedPtr headingElement = dynamicDowncast<HTMLHeadingElement>(element.get());
-            if (!headingElement)
-                return false;
-
-            if (auto* integerList = selector.integerList())
-                return integerList->contains(static_cast<int>(headingElement->level()));
-
-            return true;
-        }
+        case CSSSelector::PseudoClass::Heading:
+            return matchesHeadingPseudoClass(element, selector.integerList());
         case CSSSelector::PseudoClass::NthOfType: {
             if (CheckedPtr parentElement = dynamicDowncast<Element>(element->parentNode())) {
                 auto relation = context.isSubjectOrAdjacentElement ? Style::Relation::ChildrenAffectedByForwardPositionalRules : Style::Relation::DescendantsAffectedByForwardPositionalRules;
