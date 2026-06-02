@@ -2692,14 +2692,20 @@ window.UIHelper = class UIHelper {
 
     static async performTextExtractionInteraction(action, options)
     {
+        const result = await UIHelper.performTextExtractionInteractionResult(action, options);
+        return result.error;
+    }
+
+    static async performTextExtractionInteractionResult(action, options)
+    {
         if (!this.isWebKit2())
-            return Promise.resolve(false);
+            return Promise.resolve({ error: "", summary: "" });
 
         return new Promise(resolve => {
             const scriptToRun = `uiController.performTextExtractionInteraction("${action}", ${JSON.stringify(options)}, result => {
                 uiController.uiScriptComplete(result)
             })`;
-            testRunner.runUIScript(scriptToRun, resolve);
+            testRunner.runUIScript(scriptToRun, raw => resolve(JSON.parse(raw)));
         });
     }
 }

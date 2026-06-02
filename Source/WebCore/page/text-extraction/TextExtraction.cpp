@@ -2266,9 +2266,10 @@ static void scrollToNextPage(LocalFrame& frame, std::optional<NodeIdentifier>&& 
         auto visibleSize = scroller->visibleSize();
         auto delta = scrollsHorizontally ? FloatSize { static_cast<float>(visibleSize.width()), 0 } : FloatSize { 0, static_cast<float>(visibleSize.height()) };
         scroller->scrollToOffsetWithoutAnimation(FloatPoint { currentOffset } + delta);
-        auto newOffset = scroller->scrollOffset();
         auto direction = scrollsHorizontally ? (isRTL ? "left"_s : "right"_s) : "down"_s;
-        auto distance = scrollsHorizontally ? roundToInt(newOffset.x() - currentOffset.x()) : roundToInt(newOffset.y() - currentOffset.y());
+        auto distance = scrollsHorizontally
+            ? std::min(roundToInt(visibleSize.width()), roundToInt(maxOffset.x() - currentOffset.x()))
+            : std::min(roundToInt(visibleSize.height()), roundToInt(maxOffset.y() - currentOffset.y()));
         completion(true, buildSummary(distance, direction, ASCIILiteral { }));
     }
 }
