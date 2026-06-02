@@ -407,13 +407,18 @@ struct AppKitGesturesTests {
         #expect(selection == expected)
     }
 
-    @Test
-    func scrollingChangesScrollPosition() async throws {
+    @Test(arguments: [true, false])
+    func scrollingChangesScrollPosition(scrollOnImage: Bool) async throws {
+        let image = scrollOnImage ? #"<img id="img" src="400x400-green.png" style="display: block; margin: 50px;">"# : ""
+
         let html = """
-            <body style="width: 100%; height: 2000px; background: repeating-linear-gradient(to bottom, blue 0 50px, white 50px 100px);"></body>
+            <body style="width: 100%; height: 2000px; background: repeating-linear-gradient(to bottom, blue 0 50px, white 50px 100px);">
+                \(image)
+            </body>
             """
 
-        try await page.load(html: html).wait()
+        let baseURL = try #require(Bundle.testResources.resourceURL)
+        try await page.load(html: html, baseURL: baseURL).wait()
 
         await page.waitForNextPresentationUpdate()
 

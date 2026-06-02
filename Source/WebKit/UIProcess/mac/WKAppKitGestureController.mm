@@ -889,17 +889,15 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     static constexpr int panPositionInformationToleranceRadius = 15;
     bool requestIsValid = [self _positionInformationRequestIsValidAtLocation:locationInViewCoordinates withRadius:panPositionInformationToleranceRadius];
 
-    bool isDraggable = representsDraggableElement(_positionInformation);
     bool prefersInteraction = _positionInformation.isRangeInput;
-    bool yieldToContent = requestIsValid && (isDraggable || prefersInteraction);
+    bool yieldToContent = requestIsValid && prefersInteraction;
 
     WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(
         RefPtr { _page.get() }->logIdentifier(),
-        "Pan shouldBegin → %d (hasInfo=%d valid=%d draggable=%d prefersInteraction=%d)",
+        "Pan shouldBegin → %d (hasInfo=%d valid=%d prefersInteraction=%d)",
         !yieldToContent,
         _hasValidPositionInformation,
         requestIsValid,
-        isDraggable,
         prefersInteraction
     );
 
