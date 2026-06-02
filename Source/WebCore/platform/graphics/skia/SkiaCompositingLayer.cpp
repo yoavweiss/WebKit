@@ -645,15 +645,53 @@ void SkiaCompositingLayer::paintSelfAndChildren(SkCanvas& canvas, PaintContext& 
     if (m_children.isEmpty())
         return;
 
-    bool shouldClip = (m_masksToBounds || m_contentsRectClipsDescendants) && !m_preserves3D;
+    auto canSkipClip = [&](const FloatRoundedRect& rect, const TransformationMatrix& transform) {
+        if (rect.isRounded())
+            return false;
+
+        // We can only skip clipping for layers having one child that is a leaf.
+        if (m_children.size() != 1 || !m_children[0]->m_children.isEmpty())
+            return false;
+
+        // We don't need to clip if the child is not visible.
+        if (!m_children[0]->isVisible())
+            return true;
+
+        // If the child has a replica, the local bounds don't include the replicated content.
+        if (m_children[0]->m_replica)
+            return false;
+
+        // Do not skip the clip if the child has a backdrop filter.
+        if (m_children[0]->m_backdrop.filter)
+            return false;
+
+        auto matrix = canvas.getLocalToDeviceAs3x3() * SkM44(transform).asM33();
+        if (!matrix.rectStaysRect())
+            return false;
+
+        // We don't need to clip if the clipped area is bigger or equal than the child bounds.
+        auto childMatrix = canvas.getLocalToDeviceAs3x3() * SkM44(m_children[0]->m_transforms.combined).asM33();
+        FloatRect childBounds;
+        if (m_children[0]->m_backingStore)
+            childBounds = m_children[0]->effectiveLayerRect();
+        if (m_children[0]->m_contentsBuffer || m_children[0]->m_imageBackingStore || (m_children[0]->m_contentsSolidColor.isValid() && m_children[0]->m_contentsSolidColor.isVisible()))
+            childBounds.unite(m_children[0]->m_contentsRect);
+        return matrix.mapRect(SkRect(rect.rect())).contains(childMatrix.mapRect(SkRect(childBounds)));
+    };
+
+    const bool contentsRectClipsDescendants = !m_preserves3D && m_contentsRectClipsDescendants && (m_contentsClippingRect.isRounded() || !m_contentsClippingRect.rect().contains(m_contentsRect));
+    const bool masksToBounds = !m_preserves3D && m_masksToBounds;
+    const bool shouldClip = masksToBounds || contentsRectClipsDescendants;
     SkAutoCanvasRestore autoRestore(&canvas, shouldClip);
     if (shouldClip) {
-        FloatRoundedRect rect = m_contentsRectClipsDescendants ? m_contentsClippingRect : FloatRoundedRect(effectiveLayerRect());
+        FloatRoundedRect rect = contentsRectClipsDescendants ? m_contentsClippingRect : FloatRoundedRect(effectiveLayerRect());
         TransformationMatrix clipTransform(context.accumulatedReplicaTransform);
         clipTransform.multiply(m_transforms.combined);
-        if (!m_contentsRectClipsDescendants)
+        if (!contentsRectClipsDescendants)
             clipTransform.translate(m_boundsOrigin.x(), m_boundsOrigin.y());
-        clipRect(canvas, rect, clipTransform);
+
+        if (!canSkipClip(rect, clipTransform))
+            clipRect(canvas, rect, clipTransform);
     }
 
     for (auto& child : m_children)
