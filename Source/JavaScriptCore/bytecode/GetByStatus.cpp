@@ -495,6 +495,9 @@ GetByStatus GetByStatus::computeFor(JSGlobalObject* globalObject, const Structur
         if (!structure)
             return std::nullopt;
 
+        if (structure->isDictionary())
+            return std::nullopt;
+
         JSObject* prototype = nullptr;
         auto* currentStructure = structure;
         constexpr unsigned maxPrototypeWalkDepth = 8;
