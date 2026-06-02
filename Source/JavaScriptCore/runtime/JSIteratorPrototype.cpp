@@ -231,7 +231,7 @@ JSC_DEFINE_HOST_FUNCTION(iteratorProtoFuncIncludes, (JSGlobalObject* globalObjec
     JSValue skippedElementsArg = callFrame->argument(1);
     uint64_t toSkip = 0;
     if (!skippedElementsArg.isUndefined()) {
-        constexpr ASCIILiteral errorMessage = "Iterator.prototype.includes requires that the second argument is a non-negative integral Number or Infinity."_s;
+        constexpr ASCIILiteral errorMessage = "Iterator.prototype.includes requires that the second argument is a non-negative safe integral Number or Infinity."_s;
 
         if (skippedElementsArg.isInt32()) [[likely]] {
             int32_t skippedAsInt32 = skippedElementsArg.asInt32();
@@ -243,14 +243,17 @@ JSC_DEFINE_HOST_FUNCTION(iteratorProtoFuncIncludes, (JSGlobalObject* globalObjec
             toSkip = skippedAsInt32;
         } else if (skippedElementsArg.isDouble()) {
             double skippedAsDouble = skippedElementsArg.asDouble();
-            uint64_t skippedAsUInt = truncateDoubleToUint64(skippedAsDouble);
-            if (skippedAsUInt == skippedAsDouble && skippedAsUInt < maxSafeIntegerAsUInt64())
-                toSkip = skippedAsUInt;
-            else if (!isInteger(skippedAsDouble) && !std::isinf(skippedAsDouble)) {
+            bool isInfinity = std::isinf(skippedAsDouble);
+            if (!isInteger(skippedAsDouble) && !isInfinity) {
                 iteratorClose(globalObject, thisValue);
                 TRY_CLEAR_EXCEPTION(scope, { });
-                return throwVMTypeError(globalObject, scope, errorMessage);                
-            } else if (skippedAsDouble > 0) {
+                return throwVMTypeError(globalObject, scope, errorMessage);
+            }
+
+            uint64_t skippedAsUInt = truncateDoubleToUint64(skippedAsDouble);
+            if (skippedAsUInt == skippedAsDouble && skippedAsUInt <= maxSafeIntegerAsUInt64())
+                toSkip = skippedAsUInt;
+            else if (isInfinity && skippedAsDouble > 0) {
                 // if the 2nd argument is +Infinity or too big, we should consume the iterator to the end.
                 toSkip = std::numeric_limits<uint64_t>::max();
             } else {
