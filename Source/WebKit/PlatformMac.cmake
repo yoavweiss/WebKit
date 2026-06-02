@@ -41,7 +41,6 @@ list(APPEND WebKit_SOURCES
 
     UIProcess/PDF/WKPDFHUDView.mm
     ${WEBKIT_DIR}/Platform/cocoa/WKMaterialHostingSupport.swift
-    ${WEBKIT_DIR}/UIProcess/Cocoa/Foundation+Extras.swift
     ${WEBKIT_DIR}/UIProcess/PDF/WKPDFHUDView.swift
 
     WebProcess/InjectedBundle/API/c/mac/WKBundlePageMac.mm

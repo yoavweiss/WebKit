@@ -1273,6 +1273,12 @@ if (ENABLE_BACK_FORWARD_LIST_SWIFT)
     )
 endif ()
 
+if (SWIFT_REQUIRED)
+    list(APPEND WebKit_SOURCES
+        ${WEBKIT_DIR}/Shared/Foundation+Extras.swift
+    )
+endif ()
+
 list(APPEND WebKit_SOURCES ${WebKit_DERIVED_SOURCES})
 
 if (SWIFT_REQUIRED)

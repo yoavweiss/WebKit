@@ -580,7 +580,6 @@ list(APPEND WebKit_SOURCES
     ${WEBKIT_DIR}/UIProcess/API/Swift/WebPage+NavigationDeciding.swift
     ${WEBKIT_DIR}/UIProcess/API/Swift/WebPage+NavigationPreferences.swift
     ${WEBKIT_DIR}/UIProcess/API/Swift/WebPage+Transferable.swift
-    ${WEBKIT_DIR}/UIProcess/Cocoa/Foundation+Extras.swift
     ${WEBKIT_DIR}/UIProcess/Cocoa/Separated/CALayer+CoreRE.swift
     ${WEBKIT_DIR}/UIProcess/Cocoa/Separated/WKSeparatedImageView.swift
     ${WEBKIT_DIR}/UIProcess/Cocoa/Separated/WKSeparatedImageView+Analysis.swift
