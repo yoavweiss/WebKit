@@ -145,15 +145,20 @@ if (CMAKE_OSX_SYSROOT MATCHES "\\.Internal\\.sdk$")
 endif ()
 
 if (CMAKE_CXX_COMPILER_LAUNCHER OR CMAKE_C_COMPILER_LAUNCHER)
+    string(APPEND CMAKE_C_FLAGS " -fno-record-command-line")
+    string(APPEND CMAKE_CXX_FLAGS " -fno-record-command-line")
+    string(APPEND CMAKE_OBJC_FLAGS " -fno-record-command-line")
+    string(APPEND CMAKE_OBJCXX_FLAGS " -fno-record-command-line")
+endif ()
+
+option(RELATIVE_DEBUG_INFO "Write relative paths into DWARF debug info for portable build artifacts." OFF)
+
+if (RELATIVE_DEBUG_INFO)
     add_compile_options(
         "$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-fdebug-prefix-map=${CMAKE_SOURCE_DIR}=.>"
         "$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-fdebug-prefix-map=${CMAKE_BINARY_DIR}=build>"
         "$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-ffile-prefix-map=${CMAKE_SOURCE_DIR}=.>"
     )
-    string(APPEND CMAKE_C_FLAGS " -fno-record-command-line")
-    string(APPEND CMAKE_CXX_FLAGS " -fno-record-command-line")
-    string(APPEND CMAKE_OBJC_FLAGS " -fno-record-command-line")
-    string(APPEND CMAKE_OBJCXX_FLAGS " -fno-record-command-line")
 endif ()
 
 if (ENABLE_SANITIZERS)
