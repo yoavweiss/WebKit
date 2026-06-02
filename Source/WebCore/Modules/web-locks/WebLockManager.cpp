@@ -33,6 +33,7 @@
 #include "JSDOMConvertDictionary.h"
 #include "JSDOMPromise.h"
 #include "JSDOMPromiseDeferred.h"
+#include "JSValueInWrappedObjectInlines.h"
 #include "JSWebLockManagerSnapshot.h"
 #include "NavigatorBase.h"
 #include "Page.h"
@@ -226,7 +227,7 @@ void WebLockManager::request(const String& name, Options&& options, Ref<WebLockG
     }
 
     if (options.signal && options.signal->aborted()) {
-        releasePromise->reject(ExceptionCode::AbortError, "WebLockOptions's signal is aborted"_s);
+        releasePromise->reject<IDLAny>(options.signal->reason().getValue());
         return;
     }
 
