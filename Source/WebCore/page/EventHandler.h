@@ -428,7 +428,6 @@ public:
 
     WEBCORE_EXPORT void updateMouseEventTargetAfterLayoutIfNeeded();
     WEBCORE_EXPORT void scheduleMouseEventTargetUpdateAfterLayout();
-    WEBCORE_EXPORT void dispatchMouseBoundaryEventsAfterFullscreenChange();
 
     ScrollableArea* enclosingScrollableArea(Node*) const;
 
