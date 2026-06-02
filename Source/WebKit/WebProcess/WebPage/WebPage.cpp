@@ -3642,7 +3642,7 @@ void WebPage::pageDidScroll()
     m_pageScrolledHysteresis.impulse();
 
     if (RefPtr view = protect(protect(corePage())->mainFrame())->virtualView())
-        send(Messages::WebPageProxy::PageDidScroll(view->scrollPosition()));
+        send(Messages::WebPageProxy::PageDidScroll(view->scrollOffset()));
 }
 
 void WebPage::pageStoppedScrolling()

@@ -62,6 +62,7 @@
 
 #if PLATFORM(COCOA)
 #include "CocoaWindow.h"
+#include "TransientZoomState.h"
 #include "WKBrowserEngineDefinitions.h"
 #include "WKFoundation.h"
 
@@ -558,6 +559,10 @@ public:
     virtual void setEditableElementIsFocused(bool) = 0;
 #endif // PLATFORM(MAC)
 
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+    virtual void didUpdateTransientZoomStateForScrollPocket(std::optional<TransientZoomState>) { }
+#endif
+
 #if PLATFORM(COCOA)
     virtual void didCommitLayerTree(const RemoteLayerTreeTransaction&, const std::optional<MainFrameData>&, const PageData&, const TransactionID&) = 0;
     virtual void didCommitMainFrameData(const MainFrameData&) = 0;
@@ -738,7 +743,7 @@ public:
     virtual void refView() = 0;
     virtual void derefView() = 0;
 
-    virtual void pageDidScroll(const WebCore::IntPoint&) { }
+    virtual void pageDidScroll(const WebCore::IntPoint& scrollOffset) { }
 
     virtual void didRestoreScrollPosition() = 0;
 

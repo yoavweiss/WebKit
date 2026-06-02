@@ -646,6 +646,10 @@ static void addBrowsingContextControllerMethodStubsIfNeeded()
 
     _usePlatformFindUI = YES;
 
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+    _adjustedColorExtensionsForBannerViewOverlaysEnablement = WebKit::AdjustedColorExtensionsForBannerViewOverlaysEnablement::EnabledIfHorizontalBannerViewPresent;
+#endif
+
 #if PLATFORM(IOS_FAMILY)
     _obscuredInsetEdgesAffectedBySafeArea = UIRectEdgeTop | UIRectEdgeLeft | UIRectEdgeRight;
     _allowsViewportShrinkToFit = defaultAllowsViewportShrinkToFit;
@@ -3471,21 +3475,7 @@ WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::FixedContai
 #if PLATFORM(MAC)
             [extensionView setWantsLayer:YES];
 #endif
-            [extensionView layer].name = adoptNS([[NSString alloc] initWithFormat:@"Fixed color extension fill (%s)", [side] {
-                switch (side) {
-                case WebCore::BoxSide::Top:
-                    return "Top";
-                case WebCore::BoxSide::Right:
-                    return "Right";
-                case WebCore::BoxSide::Bottom:
-                    return "Bottom";
-                case WebCore::BoxSide::Left:
-                    return "Left";
-                default:
-                    ASSERT_NOT_REACHED();
-                    return "";
-                }
-            }()]).get();
+            [extensionView layer].name = [NSString stringWithFormat:@"Fixed color extension fill (%s)", WebCore::nameForBoxSide(side).characters()];
             addColorExtensionView(extensionView.get());
             _fixedColorExtensionViews.setAt(side, extensionView);
         }
@@ -3497,6 +3487,24 @@ WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::FixedContai
     for (auto side : WebCore::allBoxSides)
         updateExtensionView(side);
 
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+    auto createSystemBackgroundExtensionViewIfNeeded = [&](WebCore::BoxSide side) {
+        if (_systemBackgroundColorExtensionViews.at(side))
+            return;
+
+        RetainPtr view = adoptNS([[WKColorExtensionView alloc] initWithFrame:CGRectZero delegate:self]);
+        [view setWantsLayer:YES];
+        [view layer].name = [NSString stringWithFormat:@"%s system background color extension", WebCore::nameForBoxSide(side).characters()];
+        addColorExtensionView(view.get());
+        _systemBackgroundColorExtensionViews.setAt(side, view);
+    };
+
+    if ([self _shouldAdjustColorExtensionsForHorizontalBannerViewOverlays]) {
+        createSystemBackgroundExtensionViewIfNeeded(WebCore::BoxSide::Left);
+        createSystemBackgroundExtensionViewIfNeeded(WebCore::BoxSide::Right);
+        [self _updateAppearanceForSystemBackgroundColorExtensionViews];
+    }
+#endif
     [self _updateFixedColorExtensionViewFrames];
 }
 
@@ -3524,11 +3532,35 @@ WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::FixedContai
         [view setFrame:[parentView convertRect:targetRect fromView:self]];
     }
 
+    auto leftExtensionFrame = [&] {
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+        if ([self _shouldAdjustColorExtensionsForHorizontalBannerViewOverlays]) {
+            auto distanceFromLeftEdge = _impl->webContentDistanceFromLeftEdge();
+            auto colorExtensionWidth = std::clamp<CGFloat>(insets.left() - distanceFromLeftEdge, 0, insets.left());
+            auto xPosition = insets.left() - colorExtensionWidth;
+            return [parentView convertRect:CGRectMake(xPosition, 0, colorExtensionWidth, bounds.height()) fromView:self];
+        }
+#endif
+        return [parentView convertRect:CGRectMake(0, 0, insets.left(), bounds.height()) fromView:self];
+    };
+
+    auto rightExtensionFrame = [&] {
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+        if ([self _shouldAdjustColorExtensionsForHorizontalBannerViewOverlays]) {
+            auto distanceFromRightEdge = _impl->webContentDistanceFromRightEdge();
+            auto colorExtensionWidth = std::clamp<CGFloat>(insets.right() - distanceFromRightEdge, 0, insets.right());
+            auto xPosition = bounds.width() - insets.right();
+            return [parentView convertRect:CGRectMake(xPosition, 0, colorExtensionWidth, bounds.height()) fromView:self];
+        }
+#endif
+        return [parentView convertRect:CGRectMake(bounds.width() - insets.right(), 0, insets.right(), bounds.height()) fromView:self];
+    };
+
     if (RetainPtr view = _fixedColorExtensionViews.left(); view && ![view isHidden])
-        [view setFrame:[parentView convertRect:CGRectMake(0, 0, insets.left(), bounds.height()) fromView:self]];
+        [view setFrame:leftExtensionFrame()];
 
     if (RetainPtr view = _fixedColorExtensionViews.right(); view && ![view isHidden])
-        [view setFrame:[parentView convertRect:CGRectMake(bounds.width() - insets.right(), 0, insets.right(), bounds.height()) fromView:self]];
+        [view setFrame:rightExtensionFrame()];
 
     if (RetainPtr view = _fixedColorExtensionViews.bottom(); view && ![view isHidden]) {
 #if PLATFORM(IOS_FAMILY)
@@ -3538,6 +3570,25 @@ WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::FixedContai
 #endif
         [view setFrame:[parentView convertRect:targetRect fromView:self]];
     }
+
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+    if (![self _shouldAdjustColorExtensionsForHorizontalBannerViewOverlays])
+        return;
+
+    if (RetainPtr view = _systemBackgroundColorExtensionViews.left(); view && ![view isHidden]) {
+        auto distanceFromLeftEdge = _impl->webContentDistanceFromLeftEdge();
+        auto xPosition = std::min<CGFloat>(distanceFromLeftEdge - insets.left(), 0);
+        auto rect = CGRectMake(xPosition, 0, insets.left(), bounds.height());
+        [view setFrame:[parentView convertRect:rect fromView:self]];
+    }
+
+    if (RetainPtr view = _systemBackgroundColorExtensionViews.right(); view && ![view isHidden]) {
+        auto distanceFromRightEdge = _impl->webContentDistanceFromRightEdge();
+        auto xPosition = bounds.width() - insets.right() + std::max<CGFloat>(insets.right() - distanceFromRightEdge, 0);
+        auto rect = CGRectMake(xPosition, 0, insets.right(), bounds.height());
+        [view setFrame:[parentView convertRect:rect fromView:self]];
+    }
+#endif
 }
 
 - (void)_updatePrefersSolidColorHardPocket
@@ -3625,6 +3676,50 @@ WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::FixedContai
         _impl->updatePrefersSolidColorHardPocket();
 }
 
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS) && !USE(APPLE_INTERNAL_SDK)
+- (BOOL)_hasDetectedHorizontalBannerViewOverlays
+{
+    return NO;
+}
+#endif
+
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+
+- (void)_updateAppearanceForSystemBackgroundColorExtensionViews
+{
+    if (![self _shouldAdjustColorExtensionsForHorizontalBannerViewOverlays])
+        return;
+
+    RetainPtr<NSColor> systemBackgroundColor;
+    auto fadeOrSetColorIfNeeded = [&](WebCore::BoxSide side, CGFloat inset) {
+        RetainPtr view = _systemBackgroundColorExtensionViews.at(side);
+        if (!view)
+            return;
+
+        if (inset <= 0) {
+            [view fadeOut];
+            return;
+        }
+
+        if (!systemBackgroundColor) {
+            __block RetainPtr<NSColor> resolvedColor;
+            [self.effectiveAppearance performAsCurrentDrawingAppearance:^{
+                RetainPtr<CGColorRef> windowBackgroundCGColor = [NSColor windowBackgroundColor].CGColor;
+                resolvedColor = [NSColor colorWithCGColor:windowBackgroundCGColor];
+            }];
+            systemBackgroundColor = WTF::move(resolvedColor);
+        }
+        [view updateColor:systemBackgroundColor];
+    };
+
+
+    auto insets = [self _obscuredInsetsForFixedColorExtension];
+    fadeOrSetColorIfNeeded(WebCore::BoxSide::Left, insets.left());
+    fadeOrSetColorIfNeeded(WebCore::BoxSide::Right, insets.right());
+}
+
+#endif // ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+
 #endif // PLATFORM(MAC)
 
 - (BOOL)_hasVisibleColorExtensionView:(WebCore::BoxSide)side
@@ -3692,6 +3787,27 @@ static ASCIILiteral descriptionForReason(WebKit::HideScrollPocketReason reason)
 }
 
 #endif // ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+
+- (BOOL)_shouldAdjustColorExtensionsForHorizontalBannerViewOverlays
+{
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+    switch (_adjustedColorExtensionsForBannerViewOverlaysEnablement) {
+    case WebKit::AdjustedColorExtensionsForBannerViewOverlaysEnablement::ForcedOnForTesting:
+        return YES;
+    case WebKit::AdjustedColorExtensionsForBannerViewOverlaysEnablement::ForcedOffForTesting:
+        return NO;
+    case WebKit::AdjustedColorExtensionsForBannerViewOverlaysEnablement::EnabledIfHorizontalBannerViewPresent:
+        break;
+    }
+
+    if (_page
+        && linkedOnOrAfterSDKWithBehavior(SDKAlignedBehavior::AdjustColorExtensionsForHorizontalBannerViewOverlays)
+        && protect(_page->preferences())->horizontalBannerViewOverlaysEnabled()
+        && protect(_page->preferences())->contentInsetBackgroundFillEnabled())
+        return [self _hasDetectedHorizontalBannerViewOverlays];
+#endif
+    return NO;
+}
 
 - (CocoaEdgeInsets)obscuredContentInsets
 {

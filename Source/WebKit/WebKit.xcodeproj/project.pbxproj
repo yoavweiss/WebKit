@@ -1528,6 +1528,7 @@
 		5C1579EE27172A8B00ED5280 /* DaemonEncoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C1579EA27172A8B00ED5280 /* DaemonEncoder.h */; };
 		5C1579EF27172A8B00ED5280 /* DaemonDecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C1579EB27172A8B00ED5280 /* DaemonDecoder.h */; };
 		5C19A5201FD0B29500EEA323 /* URLSchemeTaskParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C19A51F1FD0B14700EEA323 /* URLSchemeTaskParameters.h */; };
+		5C1A7E512FA0000000000001 /* TransientZoomState.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C1A7E502FA0000000000001 /* TransientZoomState.h */; };
 		5C20CBA01BB1ECD800895BB1 /* NetworkSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C20CB9E1BB0DD1800895BB1 /* NetworkSession.h */; };
 		5C2397D52949235800BB4E10 /* WebRemoteFrameClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C2397D32949235700BB4E10 /* WebRemoteFrameClient.h */; };
 		5C26958520043212005C439B /* WKOpenPanelParametersPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C26958420042F12005C439B /* WKOpenPanelParametersPrivate.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -6641,6 +6642,7 @@
 		5C157A0B2717CA1C00ED5280 /* WebPushDaemonMain.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebPushDaemonMain.mm; sourceTree = "<group>"; };
 		5C19A51F1FD0B14700EEA323 /* URLSchemeTaskParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = URLSchemeTaskParameters.h; sourceTree = "<group>"; };
 		5C19EF1A2A6657DA0022B4B3 /* LayerProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayerProperties.h; sourceTree = "<group>"; };
+		5C1A7E502FA0000000000001 /* TransientZoomState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransientZoomState.h; sourceTree = "<group>"; };
 		5C1B38DF2667140700B1545B /* WebPageNetworkParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebPageNetworkParameters.h; sourceTree = "<group>"; };
 		5C20CB9B1BB0DCD200895BB1 /* NetworkSessionCocoa.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NetworkSessionCocoa.mm; sourceTree = "<group>"; };
 		5C20CB9E1BB0DD1800895BB1 /* NetworkSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkSession.h; sourceTree = "<group>"; };
@@ -10857,6 +10859,7 @@
 				3157135C2040A9B20084F9CF /* SystemPreviewControllerCocoa.mm */,
 				2D0CF64C21F2A80300787566 /* TextCheckingController.h */,
 				2D0CF64B21F2A80300787566 /* TextCheckingController.mm */,
+				5C1A7E502FA0000000000001 /* TransientZoomState.h */,
 				1AFE436418B6C081009C7A48 /* UIDelegate.h */,
 				1AFE436318B6C081009C7A48 /* UIDelegate.mm */,
 				CD9A64A127C89742003827C0 /* UIProcessLogInitializationCocoa.mm */,
@@ -18842,6 +18845,7 @@
 				3A8801412FB2C9D600DBBD50 /* TimeBasedEvictionMode.h in Headers */,
 				F48570A32644BEC500C05F71 /* Timeout.h in Headers */,
 				7B8486842ED9C1FC00E34DC1 /* TransferString.h in Headers */,
+				5C1A7E512FA0000000000001 /* TransientZoomState.h in Headers */,
 				57EB2E3A21E1983E00B89CDF /* U2fAuthenticator.h in Headers */,
 				1AFE436618B6C081009C7A48 /* UIDelegate.h in Headers */,
 				515BE1B51D5917FF00DD7C68 /* UIGamepad.h in Headers */,

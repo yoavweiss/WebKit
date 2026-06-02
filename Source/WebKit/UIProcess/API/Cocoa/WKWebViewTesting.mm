@@ -1122,11 +1122,32 @@ static void dumpCALayer(TextStream& ts, CALayer *layer, bool traverse)
     });
 }
 
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+- (void)_enableColorExtensionBehaviorForHorizontalBannerViewOverlaysForTesting
+{
+    _adjustedColorExtensionsForBannerViewOverlaysEnablement = WebKit::AdjustedColorExtensionsForBannerViewOverlaysEnablement::ForcedOnForTesting;
+}
+
+- (void)_disableColorExtensionBehaviorForHorizontalBannerViewOverlaysForTesting
+{
+    _adjustedColorExtensionsForBannerViewOverlaysEnablement = WebKit::AdjustedColorExtensionsForBannerViewOverlaysEnablement::ForcedOffForTesting;
+}
+
+- (void)_clearColorExtensionBehaviorOverridesForHorizontalBannerViewOverlaysForTesting
+{
+    _adjustedColorExtensionsForBannerViewOverlaysEnablement = WebKit::AdjustedColorExtensionsForBannerViewOverlaysEnablement::EnabledIfHorizontalBannerViewPresent;
+}
+#endif
+
 - (void)_cancelFixedColorExtensionFadeAnimationsForTesting
 {
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
     for (auto side : WebCore::allBoxSides)
         [_fixedColorExtensionViews.at(side) cancelFadeAnimation];
+#endif
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+    [_systemBackgroundColorExtensionViews.left() cancelFadeAnimation];
+    [_systemBackgroundColorExtensionViews.right() cancelFadeAnimation];
 #endif
 }
 

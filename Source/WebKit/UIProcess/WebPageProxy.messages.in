@@ -70,7 +70,7 @@ messages -> WebPageProxy {
 #endif
 
     RunBeforeUnloadConfirmPanel(WebCore::FrameIdentifier frameID, struct WebKit::FrameInfoData frameInfo, String message) -> (bool shouldClose) Synchronous
-    PageDidScroll(WebCore::IntPoint scrollPosition)
+    PageDidScroll(WebCore::IntPoint scrollOffset)
     SetHasActiveAnimatedScrolls(bool hasActiveAnimatedScrolls)
 #if USE(COORDINATED_GRAPHICS) && HAVE(DISPLAY_LINK)
     SetHasActiveAnimatedScrollsForAsyncScrolling(WebKit::DisplayLinkObserverID observerID, bool hasActiveAnimatedScrolls)

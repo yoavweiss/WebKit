@@ -35,6 +35,7 @@
 #import "RemoteLayerTreeCommitBundle.h"
 #import "RemoteLayerTreeScrollingPerformanceData.h"
 #import "RemoteScrollingCoordinatorProxyMac.h"
+#import "TransientZoomState.h"
 #import "WebPageProxy.h"
 #import "WebProcessPool.h"
 #import "WebProcessProxy.h"
@@ -305,6 +306,13 @@ void RemoteLayerTreeDrawingAreaProxyMac::applyTransientZoomToLayer()
     [scrolledContentsLayer removeAnimationForKey:transientScrolledContentsPositionAnimationKey];
     [scrolledContentsLayer addAnimation:transientPositionAnimation(transientScrolledContentsPosition).get() forKey:transientScrolledContentsPositionAnimationKey];
     END_BLOCK_OBJC_EXCEPTIONS
+
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+    if (RefPtr page = this->page()) {
+        if (RefPtr pageClient = page->pageClient())
+            pageClient->didUpdateTransientZoomStateForScrollPocket({ { *m_transientZoomScale, *m_transientZoomOriginInVisibleRect } });
+    }
+#endif
 }
 
 void RemoteLayerTreeDrawingAreaProxyMac::removeTransientZoomFromLayer()
@@ -322,6 +330,13 @@ void RemoteLayerTreeDrawingAreaProxyMac::removeTransientZoomFromLayer()
     [clipLayer removeAnimationForKey:transientClipSizeAnimationKey];
     [scrolledContentsLayer removeAnimationForKey:transientScrolledContentsPositionAnimationKey];
     END_BLOCK_OBJC_EXCEPTIONS
+
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+    if (RefPtr page = this->page()) {
+        if (RefPtr pageClient = page->pageClient())
+            pageClient->didUpdateTransientZoomStateForScrollPocket(std::nullopt);
+    }
+#endif
 }
 
 void RemoteLayerTreeDrawingAreaProxyMac::adjustTransientZoom(double scale, FloatPoint originInLayerForPageScale, WebCore::FloatPoint originInVisibleRect)

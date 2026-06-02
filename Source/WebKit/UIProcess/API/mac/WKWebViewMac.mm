@@ -1239,6 +1239,10 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
         return;
 
     _impl->effectiveAppearanceDidChange();
+
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+    [self _updateAppearanceForSystemBackgroundColorExtensionViews];
+#endif
 }
 
 @end

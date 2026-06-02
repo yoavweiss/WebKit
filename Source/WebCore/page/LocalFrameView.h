@@ -786,6 +786,7 @@ public:
     };
 #endif
     void scrollDidEnd() final;
+    void scrollOriginDidChange() final;
 
 private:
     explicit LocalFrameView(LocalFrame&);

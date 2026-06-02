@@ -599,6 +599,12 @@ void LocalFrameView::adjustViewSize()
     setContentsSize(size);
 }
 
+void LocalFrameView::scrollOriginDidChange()
+{
+    if (RefPtr page = m_frame->page())
+        page->chrome().scrollOriginDidChange(m_frame.get());
+}
+
 void LocalFrameView::applyOverflowToViewport(const RenderElement& renderer, ScrollbarMode& hMode, ScrollbarMode& vMode)
 {
     // Handle the overflow:hidden/scroll case for the body/html elements.  WinIE treats

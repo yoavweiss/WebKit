@@ -3656,6 +3656,20 @@ HiddenUntilFoundEnabled:
      WebCore:
        default: true
 
+HorizontalBannerViewOverlaysEnabled:
+  type: bool
+  status: internal
+  condition: ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+  humanReadableName: "Horizontal Banner View Overlays"
+  humanReadableDescription: "Horizontal Banner View Overlays"
+  defaultValue:
+    WebKit:
+      default: WebKit::defaultHorizontalBannerViewOverlaysEnabled()
+    WebKitLegacy:
+      default: false
+    WebCore:
+      default: false
+
 HostedBlurMaterialInMediaControlsEnabled:
   type: bool
   status: internal

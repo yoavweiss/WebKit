@@ -911,6 +911,15 @@ void WebChromeClient::scrollMainFrameToRevealRect(const IntRect& rect) const
         page->send(Messages::WebPageProxy::RequestScrollToRect(rect, rect.center()));
 }
 
+void WebChromeClient::scrollOriginDidChange(const LocalFrame& frame) const
+{
+    if (&frame.page()->mainFrame() != &frame)
+        return;
+
+    if (RefPtr page = m_page.get())
+        page->pageDidScroll();
+}
+
 void WebChromeClient::scrollContainingScrollViewsToRevealRect(const IntRect&) const
 {
     notImplemented();

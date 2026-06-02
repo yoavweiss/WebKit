@@ -62,6 +62,7 @@
 #import "TextChecker.h"
 #import "TextCheckerState.h"
 #import "TiledCoreAnimationDrawingAreaProxy.h"
+#import "TransientZoomState.h"
 #import "UIGamepadProvider.h"
 #import "UndoOrRedo.h"
 #import "ViewGestureController.h"
@@ -1847,6 +1848,9 @@ void WebViewImpl::setFrameSize(CGSize)
 #if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     updateBannerViewFrame();
 #endif
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+    updateWebContentDistancesFromEdges();
+#endif
 }
 
 void WebViewImpl::disableFrameSizeUpdates()
@@ -2017,6 +2021,10 @@ void WebViewImpl::setObscuredContentInsets(const FloatBoxExtent& insets)
 
 #if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     updateBannerViewFrame();
+#endif
+
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+    updateWebContentDistancesFromEdges();
 #endif
 }
 
@@ -2498,17 +2506,21 @@ void WebViewImpl::activeSpaceDidChange()
     m_page->activityStateDidChange(WebCore::ActivityState::IsVisible);
 }
 
-void WebViewImpl::pageDidScroll(const IntPoint& scrollPosition)
+void WebViewImpl::pageDidScroll(const IntPoint& scrollOffset)
 {
-    if (scrollPosition == m_lastPageScrollPosition)
+    if (scrollOffset == m_lastPageScrollOffset)
         return;
 
-    bool pageIsScrolledToTopDidChange = (scrollPosition.y() <= 0) != pageIsScrolledToTop();
+    bool pageIsScrolledToTopDidChange = (scrollOffset.y() <= 0) != pageIsScrolledToTop();
     if (pageIsScrolledToTopDidChange)
         [protect(view()) willChangeValueForKey:@"hasScrolledContentsUnderTitlebar"];
 
-    m_lastPageScrollPosition = scrollPosition;
+    m_lastPageScrollOffset = scrollOffset;
     m_pageScrollingHysteresis->impulse();
+
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+    updateWebContentDistancesFromEdges();
+#endif
 
     if (pageIsScrolledToTopDidChange) {
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
@@ -3903,6 +3915,12 @@ void WebViewImpl::completeImmediateActionAnimation()
 
 void WebViewImpl::didChangeContentSize(CGSize newSize)
 {
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+    if (!CGSizeEqualToSize(m_lastPageContentsSize, newSize)) {
+        m_lastPageContentsSize = newSize;
+        updateWebContentDistancesFromEdges();
+    }
+#endif
     [m_view.get() _web_didChangeContentSize:NSSizeFromCGSize(newSize)];
 }
 
@@ -7669,6 +7687,63 @@ void WebViewImpl::updatePrefersSolidColorHardPocket()
     }()];
 }
 
+void WebViewImpl::didUpdateTransientZoomStateForScrollPocket(std::optional<TransientZoomState> state)
+{
+    auto wasTransient = m_transientZoomStateForScrollPocket.has_value();
+    auto isTransient = state.has_value();
+
+    if (isTransient && !wasTransient) {
+        m_scrollOffsetBeforeTransientZoom = m_lastPageScrollOffset;
+        m_pageScaleBeforeTransientZoom = m_page->pageScaleFactor();
+    } else if (!isTransient && wasTransient) {
+        m_scrollOffsetBeforeTransientZoom = std::nullopt;
+        m_pageScaleBeforeTransientZoom = std::nullopt;
+    }
+
+    m_transientZoomStateForScrollPocket = state;
+    updateWebContentDistancesFromEdges();
+}
+
+void WebViewImpl::updateWebContentDistancesFromEdges()
+{
+    RetainPtr view = m_view.get();
+    if (!view)
+        return;
+
+    if (![view _shouldAdjustColorExtensionsForHorizontalBannerViewOverlays])
+        return;
+
+    auto leftInset = obscuredContentInsets().left();
+    auto viewWidth = [view bounds].size.width;
+    auto contentsWidth = m_lastPageContentsSize.width;
+    auto effectiveScrollOffsetX = m_scrollOffsetBeforeTransientZoom
+        ? m_scrollOffsetBeforeTransientZoom->x()
+        : m_lastPageScrollOffset.x();
+
+    auto leftDistance = leftInset - effectiveScrollOffsetX;
+    auto rightDistance = viewWidth - leftInset - contentsWidth + effectiveScrollOffsetX;
+
+    if (m_transientZoomStateForScrollPocket && m_pageScaleBeforeTransientZoom) {
+        auto [transientScale, origin] = *m_transientZoomStateForScrollPocket;
+        auto baselineScale = *m_pageScaleBeforeTransientZoom;
+        if (baselineScale > 0) {
+            auto relativeScale = transientScale / baselineScale;
+            auto leftPivot = origin.x() + leftInset;
+            auto rightPivot = viewWidth - leftPivot;
+            leftDistance = leftPivot + (leftDistance - leftPivot) * relativeScale;
+            rightDistance = rightPivot + (rightDistance - rightPivot) * relativeScale;
+        }
+    }
+
+    if (m_webContentDistanceFromLeftEdge == leftDistance && m_webContentDistanceFromRightEdge == rightDistance)
+        return;
+
+    m_webContentDistanceFromLeftEdge = leftDistance;
+    m_webContentDistanceFromRightEdge = rightDistance;
+    updateScrollPocket();
+    [view _updateFixedColorExtensionViewFrames];
+}
+
 void WebViewImpl::updateScrollPocket()
 {
     if (m_windowIsEnteringOrExitingFullScreen)
@@ -7720,6 +7795,15 @@ void WebViewImpl::updateScrollPocket()
         bounds = NSUnionRect(bounds, [attachedInspectorView convertRect:[attachedInspectorView bounds] toView:view.get()]);
 
     auto topInsetFrame = NSMakeRect(NSMinX(bounds), NSMinY(bounds) - additionalHeight, NSWidth(bounds), additionalHeight + std::min<CGFloat>(topContentInset, NSHeight(bounds)));
+
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+    if ([view _shouldAdjustColorExtensionsForHorizontalBannerViewOverlays]) {
+        auto distanceFromLeftEdge = std::clamp<CGFloat>(m_webContentDistanceFromLeftEdge, 0, obscuredContentInsets().left());
+        auto distanceFromRightEdge = std::clamp<CGFloat>(m_webContentDistanceFromRightEdge, 0, obscuredContentInsets().right());
+        topInsetFrame.origin.x += distanceFromLeftEdge;
+        topInsetFrame.size.width -= (distanceFromLeftEdge + distanceFromRightEdge);
+    }
+#endif
 
     if ([protect(m_view) _usesAutomaticContentInsetBackgroundFill]) {
         for (NSView *pocketContainer in m_viewsAboveScrollPocket.get())

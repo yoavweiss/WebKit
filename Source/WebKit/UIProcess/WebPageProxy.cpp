@@ -10574,12 +10574,12 @@ void WebPageProxy::runBeforeUnloadConfirmPanel(IPC::Connection& connection, Fram
     });
 }
 
-void WebPageProxy::pageDidScroll(const WebCore::IntPoint& scrollPosition)
+void WebPageProxy::pageDidScroll(const WebCore::IntPoint& scrollOffset)
 {
     m_uiClient->pageDidScroll(this);
 
     if (RefPtr pageClient = this->pageClient())
-        pageClient->pageDidScroll(scrollPosition);
+        pageClient->pageDidScroll(scrollOffset);
 
 #if PLATFORM(IOS_FAMILY)
     // Do not hide the validation message if the scrolling was caused by the keyboard showing up.

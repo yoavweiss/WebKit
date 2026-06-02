@@ -42,6 +42,7 @@
 #import "RemoteLayerTreeCommitBundle.h"
 #import "RemoteLayerTreeNode.h"
 #import "TextExtractionFilter.h"
+#import "TransientZoomState.h"
 #import "UndoOrRedo.h"
 #import "ViewGestureController.h"
 #import "ViewSnapshotStore.h"
@@ -1073,10 +1074,17 @@ _WKRemoteObjectRegistry *PageClientImpl::remoteObjectRegistry()
     return protect(m_impl)->remoteObjectRegistry();
 }
 
-void PageClientImpl::pageDidScroll(const WebCore::IntPoint& scrollPosition)
+void PageClientImpl::pageDidScroll(const WebCore::IntPoint& scrollOffset)
 {
-    protect(m_impl)->pageDidScroll(scrollPosition);
+    protect(m_impl)->pageDidScroll(scrollOffset);
 }
+
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+void PageClientImpl::didUpdateTransientZoomStateForScrollPocket(std::optional<TransientZoomState> state)
+{
+    protect(m_impl)->didUpdateTransientZoomStateForScrollPocket(state);
+}
+#endif
 
 void PageClientImpl::didRestoreScrollPosition()
 {

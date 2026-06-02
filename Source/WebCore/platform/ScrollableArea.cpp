@@ -118,6 +118,7 @@ void ScrollableArea::setScrollOrigin(const IntPoint& origin)
     if (m_scrollOrigin != origin) {
         m_scrollOrigin = origin;
         m_scrollOriginChanged = true;
+        scrollOriginDidChange();
     }
 }
 

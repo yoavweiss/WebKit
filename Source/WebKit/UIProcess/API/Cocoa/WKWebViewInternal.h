@@ -180,6 +180,12 @@ enum class PreferSolidColorHardPocketReason : uint8_t {
     AttachedInspector   = 1 << 0,
     RequestedByClient   = 1 << 1,
 };
+
+enum class AdjustedColorExtensionsForBannerViewOverlaysEnablement : uint8_t {
+    EnabledIfHorizontalBannerViewPresent      = 1 << 0,
+    ForcedOnForTesting                        = 1 << 1,
+    ForcedOffForTesting                       = 1 << 2,
+};
 }
 
 @class NSScrollPocket;
@@ -564,6 +570,11 @@ struct PerWebProcessState {
     BOOL _shouldUpdateNeedsTopScrollPocketDueToVisibleContentInset;
 #endif
 
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+    WebCore::RectEdges<RetainPtr<WKColorExtensionView>> _systemBackgroundColorExtensionViews;
+    WebKit::AdjustedColorExtensionsForBannerViewOverlaysEnablement _adjustedColorExtensionsForBannerViewOverlaysEnablement;
+#endif
+
 #if ENABLE(TEXT_EXTRACTION_FILTER)
     HashMap<unsigned /* string hash */, TextValidationMapValue> _textValidationCache;
     std::optional<HashSet<String>> _textExtractionRecognizedWords;
@@ -672,6 +683,13 @@ struct PerWebProcessState {
 - (void)_addReasonToPreferSolidColorHardPocket:(WebKit::PreferSolidColorHardPocketReason)reason;
 - (void)_removeReasonToPreferSolidColorHardPocket:(WebKit::PreferSolidColorHardPocketReason)reason;
 #endif
+
+#if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
+- (BOOL)_hasDetectedHorizontalBannerViewOverlays;
+- (void)_updateAppearanceForSystemBackgroundColorExtensionViews;
+#endif
+
+- (BOOL)_shouldAdjustColorExtensionsForHorizontalBannerViewOverlays;
 
 #if ENABLE(GAMEPAD)
 - (void)_setGamepadsRecentlyAccessed:(BOOL)gamepadsRecentlyAccessed;
