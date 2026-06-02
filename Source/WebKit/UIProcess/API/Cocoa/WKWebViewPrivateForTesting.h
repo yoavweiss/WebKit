@@ -206,6 +206,10 @@ typedef NSVisualEffectView _WKPlatformVisualEffectView;
 
 - (void)_lastPageLoadNetworkActivityCompletionCodeForTesting:(void(^)(NSNumber * _Nullable completionCode))completionHandler;
 
+#if TARGET_OS_IPHONE
++ (void)_setVisibilityEndowmentForTesting:(BOOL)isVisible;
+#endif
+
 @end
 
 typedef NS_ENUM(NSInteger, _WKMediaSessionReadyState) {

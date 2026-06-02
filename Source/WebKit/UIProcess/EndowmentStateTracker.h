@@ -59,6 +59,10 @@ public:
 
     static bool isApplicationForeground(pid_t);
 
+#if ENABLE(ENDOWMENT_BASED_APPLICATION_STATE_TRACKING)
+    void setStateForTesting(bool isUserFacing, bool isVisible);
+#endif
+
 private:
     friend class NeverDestroyed<EndowmentStateTracker>;
     EndowmentStateTracker() = default;

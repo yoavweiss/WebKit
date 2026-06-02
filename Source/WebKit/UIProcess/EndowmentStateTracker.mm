@@ -152,6 +152,13 @@ void EndowmentStateTracker::setState(State&& state)
     });
 }
 
+#if ENABLE(ENDOWMENT_BASED_APPLICATION_STATE_TRACKING)
+void EndowmentStateTracker::setStateForTesting(bool isUserFacing, bool isVisible)
+{
+    setState(State { isUserFacing, isVisible });
+}
+#endif
+
 }
 
 #endif // PLATFORM(IOS_FAMILY)

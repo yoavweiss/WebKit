@@ -28,6 +28,7 @@
 
 #import "AudioSessionRoutingArbitratorProxy.h"
 #import "EditingRange.h"
+#import "EndowmentStateTracker.h"
 #import "GPUProcessProxy.h"
 #import "LogStream.h"
 #import "MediaSessionCoordinatorProxyPrivate.h"
@@ -1333,6 +1334,15 @@ static void dumpCALayer(TextStream& ts, CALayer *layer, bool traverse)
     return nil;
 #endif
 }
+
+#if PLATFORM(IOS_FAMILY)
++ (void)_setVisibilityEndowmentForTesting:(BOOL)isVisible
+{
+#if ENABLE(ENDOWMENT_BASED_APPLICATION_STATE_TRACKING)
+    WebKit::EndowmentStateTracker::singleton().setStateForTesting(isVisible, isVisible);
+#endif
+}
+#endif
 
 @end
 
