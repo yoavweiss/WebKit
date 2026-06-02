@@ -125,3 +125,5 @@ std::optional<SharedPreferencesForWebProcess> WebPermissionControllerProxy::shar
 }
 
 } // namespace WebKit
+
+#undef MESSAGE_CHECK_COMPLETION
