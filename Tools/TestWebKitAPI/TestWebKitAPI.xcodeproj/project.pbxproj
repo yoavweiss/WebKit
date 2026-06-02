@@ -172,6 +172,7 @@
 				"\"${SCRIPT_INPUT_FILE_0}\"",
 				"",
 				"",
+				"",
 			);
 		};
 /* End PBXBuildRule section */
@@ -309,13 +310,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = BC57597F126E74AF006F0F12;
 			remoteInfo = InjectedBundle;
-		};
-		DDF3A83428930475005920CF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DDF3A82928930475005920CF /* gtest.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 4539C8FF0EC27F6400A70F4C;
-			remoteInfo = "gtest-framework";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -758,7 +752,6 @@
 				WebCore/RenderStyleChange.cpp,
 				WebCore/RTCRtpSFrameTransformerTests.cpp,
 				WebCore/SampleMap.cpp,
-				WebCore/SharedTimebaseTests.cpp,
 				WebCore/SecurityOrigin.cpp,
 				WebCore/SerializedScriptValue.cpp,
 				WebCore/ServiceWorkerRoutines.cpp,
@@ -766,6 +759,7 @@
 				WebCore/SharedBuffer.cpp,
 				WebCore/SharedBufferTest.cpp,
 				WebCore/SharedMemoryTests.cpp,
+				WebCore/SharedTimebaseTests.cpp,
 				WebCore/StaticRangeValidity.cpp,
 				WebCore/StringUtilities.mm,
 				WebCore/StringWithDirection.cpp,
@@ -944,11 +938,11 @@
 				WebKit/WKWebView/ios/UserInterfaceIdiomUpdate.mm,
 				WebKit/WKWebView/ios/Viewport.mm,
 				WebKit/WKWebView/ios/VisualViewport.mm,
+				WebKit/WKWebView/ios/WindowOrientation.mm,
 				WebKit/WKWebView/ios/WKScrollViewTests.mm,
 				WebKit/WKWebView/ios/WKWebViewAutofillTests.mm,
 				WebKit/WKWebView/ios/WKWebViewOpaque.mm,
 				WebKit/WKWebView/ios/WKWebViewPausePlayingAudioTests.mm,
-				WebKit/WKWebView/ios/WindowOrientation.mm,
 				WebKit/WKWebView/mac/AcceptsFirstMouse.mm,
 				WebKit/WKWebView/mac/AttributedString.mm,
 				WebKit/WKWebView/mac/AttributedSubstringForProposedRange.mm,
@@ -1197,6 +1191,7 @@
 				WTF/ParkingLot.cpp,
 				WTF/PreciseSum.cpp,
 				WTF/PriorityQueue.cpp,
+				WTF/RapidHash.cpp,
 				WTF/RedBlackTree.cpp,
 				WTF/Ref.cpp,
 				WTF/RefCountedFixedVector.cpp,
@@ -1252,7 +1247,6 @@
 				WTF/WorkerPool.cpp,
 				WTF/WorkQueue.cpp,
 				WTF/WTFString.cpp,
-				WTF/RapidHash.cpp,
 			);
 			target = 7C83DE951D0A590C00FEBCF3 /* TestWTFLibrary */;
 		};
@@ -1874,7 +1868,6 @@
 		DDF3A82A28930475005920CF /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DDF3A83528930475005920CF /* gtest.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2021,8 +2014,6 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-			);
 			name = WebProcessPlugIn;
 			productName = WebProcessPlugIn;
 			productReference = A13EBB491B87339E00097110 /* TestWebKitAPI.wkbundle */;
@@ -2096,8 +2087,6 @@
 				BC57597E126E74AF006F0F12 /* Frameworks */,
 			);
 			buildRules = (
-			);
-			dependencies = (
 			);
 			name = InjectedBundleTestWebKitAPI;
 			productName = InjectedBundle;
@@ -2189,16 +2178,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		DDF3A83528930475005920CF /* gtest.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = gtest.framework;
-			remoteRef = DDF3A83428930475005920CF /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		A17C582C2C9B3EAD009DD0B5 /* Resources */ = {
