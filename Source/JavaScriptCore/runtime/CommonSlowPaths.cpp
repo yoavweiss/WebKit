@@ -50,6 +50,7 @@
 #include "JSPromise.h"
 #include "JSPromiseConstructor.h"
 #include "JSPropertyNameEnumerator.h"
+#include "JSSentinel.h"
 #include "JSSet.h"
 #include "JSSetIterator.h"
 #include "JSStringIteratorInlines.h"
@@ -815,52 +816,80 @@ ALWAYS_INLINE UGPRPair iteratorOpenTryFastImpl(VM& vm, JSGlobalObject* globalObj
     auto iterationMode = getIterationMode(vm, globalObject, iterable, symbolIterator);
     if (iterationMode != IterationMode::Generic && !canUseFastIterationMode(metadata.m_iterationMetadata.seenModes, iterationMode)) [[unlikely]]
         iterationMode = IterationMode::Generic;
-    if (iterationMode == IterationMode::FastArray) {
+
+    switch (iterationMode) {
+    case IterationMode::FastArray: {
         // We should be good to go.
         metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::FastArray;
-        GET(bytecode.m_next) = JSValue();
+        GET(bytecode.m_next) = vm.fastArrayValuesSentinel();
         auto* iteratedObject = uncheckedDowncast<JSObject>(iterable);
         iterator = JSArrayIterator::create(vm, globalObject->arrayIteratorStructure(), iteratedObject, IterationKind::Values);
         PROFILE_VALUE_IN(iterator.jsValue(), m_iteratorValueProfile);
         return encodeResult(pc, reinterpret_cast<void*>(static_cast<uintptr_t>(IterationMode::FastArray)));
     }
 
-    if (iterationMode == IterationMode::FastMap) {
+    case IterationMode::FastArrayValues:
+    case IterationMode::FastArrayKeys:
+    case IterationMode::FastArrayEntries: {
+        auto* arrayIterator = uncheckedDowncast<JSArrayIterator>(iterable.asCell());
+        auto* array = downcast<JSArray>(arrayIterator->iteratedObject());
+        ASSERT_UNUSED(array, isJSArray(array));
+        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | iterationMode;
+        JSSentinel* sentinel = nullptr;
+        switch (iterationMode) {
+        case IterationMode::FastArrayValues: sentinel = vm.fastArrayValuesSentinel(); break;
+        case IterationMode::FastArrayKeys: sentinel = vm.fastArrayKeysSentinel(); break;
+        case IterationMode::FastArrayEntries: sentinel = vm.fastArrayEntriesSentinel(); break;
+        default: RELEASE_ASSERT_NOT_REACHED();
+        }
+        GET(bytecode.m_next) = sentinel;
+        iterator = iterable;
+        PROFILE_VALUE_IN(iterator.jsValue(), m_iteratorValueProfile);
+        return encodeResult(pc, reinterpret_cast<void*>(static_cast<uintptr_t>(iterationMode)));
+    }
+
+    case IterationMode::FastMap: {
         metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::FastMap;
-        GET(bytecode.m_next) = JSValue();
+        GET(bytecode.m_next) = vm.fastMapEntriesSentinel();
         auto* map = uncheckedDowncast<JSMap>(iterable);
         iterator = JSMapIterator::create(vm, globalObject->mapIteratorStructure(), map, IterationKind::Entries);
         PROFILE_VALUE_IN(iterator.jsValue(), m_iteratorValueProfile);
         return encodeResult(pc, reinterpret_cast<void*>(static_cast<uintptr_t>(IterationMode::FastMap)));
     }
 
-    if (iterationMode == IterationMode::FastSet) {
+    case IterationMode::FastSet: {
         metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::FastSet;
-        GET(bytecode.m_next) = JSValue();
+        GET(bytecode.m_next) = vm.fastSetValuesSentinel();
         auto* set = uncheckedDowncast<JSSet>(iterable);
         iterator = JSSetIterator::create(vm, globalObject->setIteratorStructure(), set, IterationKind::Values);
         PROFILE_VALUE_IN(iterator.jsValue(), m_iteratorValueProfile);
         return encodeResult(pc, reinterpret_cast<void*>(static_cast<uintptr_t>(IterationMode::FastSet)));
     }
 
-    if (iterationMode == IterationMode::FastString) {
+    case IterationMode::FastString: {
         metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::FastString;
-        GET(bytecode.m_next) = JSValue();
+        GET(bytecode.m_next) = vm.fastStringValuesSentinel();
         auto* string = asString(iterable);
         iterator = JSStringIterator::create(vm, globalObject->stringIteratorStructure(), string);
         PROFILE_VALUE_IN(iterator.jsValue(), m_iteratorValueProfile);
         return encodeResult(pc, reinterpret_cast<void*>(static_cast<uintptr_t>(IterationMode::FastString)));
     }
 
-    auto validationResult = validateIterable(vm, iterable, symbolIterator);
-    if (validationResult != IterableValidationResult::Valid) [[unlikely]] {
-        throwTypeError(globalObject, throwScope, getIteratorErrorMessage(validationResult, iterable));
-        return encodeResult(nullptr, reinterpret_cast<void*>(static_cast<uintptr_t>(IterationMode::Generic)));
+    case IterationMode::Generic: {
+        auto validationResult = validateIterable(vm, iterable, symbolIterator);
+        if (validationResult != IterableValidationResult::Valid) [[unlikely]] {
+            throwTypeError(globalObject, throwScope, getIteratorErrorMessage(validationResult, iterable));
+            return encodeResult(nullptr, reinterpret_cast<void*>(static_cast<uintptr_t>(IterationMode::Generic)));
+        }
+
+        // Return to the bytecode to try in generic mode.
+        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::Generic;
+        return encodeResult(pc, reinterpret_cast<void*>(static_cast<uintptr_t>(IterationMode::Generic)));
+    }
     }
 
-    // Return to the bytecode to try in generic mode.
-    metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::Generic;
-    return encodeResult(pc, reinterpret_cast<void*>(static_cast<uintptr_t>(IterationMode::Generic)));
+    RELEASE_ASSERT_NOT_REACHED();
+    return { };
 }
 
 JSC_DEFINE_COMMON_SLOW_PATH(iterator_open_try_fast_narrow)
@@ -887,36 +916,63 @@ ALWAYS_INLINE UGPRPair iteratorNextTryFastImpl(VM& vm, JSGlobalObject* globalObj
     auto bytecode = pc->asKnownWidth<OpIteratorNext, width>();
     auto& metadata = bytecode.metadata(codeBlock);
 
-    ASSERT(!GET(bytecode.m_next).jsValue());
+    ASSERT(GET(bytecode.m_next).jsValue().isCell() && GET(bytecode.m_next).jsValue().asCell()->type() == SentinelType);
     JSObject* iterator = uncheckedDowncast<JSObject>(GET(bytecode.m_iterator).jsValue());;
-    JSCell* iterable = GET(bytecode.m_iterable).jsValue().asCell();
     if (auto arrayIterator = dynamicDowncast<JSArrayIterator>(iterator)) {
-        if (auto array = dynamicDowncast<JSArray>(iterable); array && isJSArray(array)) {
-            metadata.m_iterableProfile.observeStructureID(array->structureID());
+        auto* array = downcast<JSArray>(arrayIterator->iteratedObject());
+        ASSERT(isJSArray(array));
+        metadata.m_iterableProfile.observeStructureID(array->structureID());
 
-            metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | IterationMode::FastArray;
-            auto& indexSlot = arrayIterator->internalField(JSArrayIterator::Field::Index);
-            int64_t index = indexSlot.get().asAnyInt();
-            ASSERT(0 <= index && index <= maxSafeInteger());
+        IterationKind kind = arrayIterator->kind();
+        IterationMode mode = IterationMode::FastArrayValues;
+        switch (kind) {
+        case IterationKind::Values:
+            mode = IterationMode::FastArrayValues;
+            break;
+        case IterationKind::Keys:
+            mode = IterationMode::FastArrayKeys;
+            break;
+        case IterationKind::Entries:
+            mode = IterationMode::FastArrayEntries;
+            break;
+        }
 
-            JSValue value;
-            bool done = index == JSArrayIterator::doneIndex || index >= array->length();
-            GET(bytecode.m_done) = jsBoolean(done);
-            if (!done) {
-                // No need for a barrier here because we know this is a primitive.
-                indexSlot.setWithoutWriteBarrier(jsNumber(index + 1));
-                ASSERT(index == static_cast<unsigned>(index));
+        metadata.m_iterationMetadata.seenModes = metadata.m_iterationMetadata.seenModes | mode;
+        auto& indexSlot = arrayIterator->internalField(JSArrayIterator::Field::Index);
+        int64_t index = indexSlot.get().asAnyInt();
+        ASSERT(index == JSArrayIterator::doneIndex || (0 <= index && index <= maxSafeInteger()));
+
+        JSValue value;
+        bool done = index == JSArrayIterator::doneIndex || index >= array->length();
+        GET(bytecode.m_done) = jsBoolean(done);
+        if (!done) {
+            // No need for a barrier here because we know this is a primitive.
+            indexSlot.setWithoutWriteBarrier(jsNumber(index + 1));
+            ASSERT(index == static_cast<unsigned>(index));
+            switch (kind) {
+            case IterationKind::Values:
                 value = array->getIndex(globalObject, static_cast<unsigned>(index));
                 CHECK_EXCEPTION();
-                PROFILE_VALUE_IN(value, m_valueValueProfile);
-            } else {
-                // No need for a barrier here because we know this is a primitive.
-                indexSlot.setWithoutWriteBarrier(jsNumber(-1));
+                break;
+            case IterationKind::Keys:
+                value = jsNumber(static_cast<unsigned>(index));
+                break;
+            case IterationKind::Entries: {
+                JSValue element = array->getIndex(globalObject, static_cast<unsigned>(index));
+                CHECK_EXCEPTION();
+                value = constructArrayPair(globalObject, jsNumber(static_cast<unsigned>(index)), element);
+                CHECK_EXCEPTION();
+                break;
             }
-
-            GET(bytecode.m_value) = value;
-            return encodeResult(pc, reinterpret_cast<void*>(IterationMode::FastArray));
+            }
+            PROFILE_VALUE_IN(value, m_valueValueProfile);
+        } else {
+            // No need for a barrier here because we know this is a primitive.
+            indexSlot.setWithoutWriteBarrier(jsNumber(-1));
         }
+
+        GET(bytecode.m_value) = value;
+        return encodeResult(pc, reinterpret_cast<void*>(static_cast<uintptr_t>(mode)));
     }
 
     if (auto mapIterator = dynamicDowncast<JSMapIterator>(iterator)) {

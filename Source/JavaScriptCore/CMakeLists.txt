@@ -1270,6 +1270,8 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     runtime/JSRunLoopTimer.h
     runtime/JSScope.h
     runtime/JSSegmentedVariableObject.h
+    runtime/JSSentinel.h
+    runtime/JSSentinelInlines.h
     runtime/JSSet.h
     runtime/JSSetInlines.h
     runtime/JSSetIterator.h

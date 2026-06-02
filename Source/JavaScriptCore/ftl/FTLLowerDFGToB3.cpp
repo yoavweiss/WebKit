@@ -2509,7 +2509,8 @@ private:
     void compileBooleanToNumber()
     {
         switch (m_node->child1().useKind()) {
-        case BooleanUse: {
+        case BooleanUse:
+        case KnownBooleanUse: {
             setInt32(m_out.zeroExt(lowBoolean(m_node->child1()), Int32));
             return;
         }

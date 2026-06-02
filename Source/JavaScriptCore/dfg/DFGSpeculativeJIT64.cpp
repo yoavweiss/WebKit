@@ -4493,13 +4493,14 @@ void SpeculativeJIT::compile(Node* node)
         
     case BooleanToNumber: {
         switch (node->child1().useKind()) {
-        case BooleanUse: {
+        case BooleanUse:
+        case KnownBooleanUse: {
             JSValueOperand value(this, node->child1(), ManualOperandSpeculation);
             GPRTemporary result(this); // FIXME: We could reuse, but on speculation fail would need recovery to restore tag (akin to add).
 
             GPRReg valueGPR = value.gpr();
             GPRReg resultGPR = result.gpr();
-            
+
             xor64(TrustedImm32(JSValue::ValueFalse), valueGPR, resultGPR);
             DFG_TYPE_CHECK(
                 JSValueRegs(valueGPR), node->child1(), SpecBoolean, branchTest64(

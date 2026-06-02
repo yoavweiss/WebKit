@@ -322,6 +322,7 @@ public:
     LazyProperty<JSGlobalObject, JSFunction> m_setProtoValuesFunction;
     LazyProperty<JSGlobalObject, JSFunction> m_stringProtoSymbolIteratorFunction;
     LazyProperty<JSGlobalObject, JSFunction> m_numberProtoToStringFunction;
+    LazyProperty<JSGlobalObject, JSFunction> m_iteratorProtoSymbolIteratorFunction;
     WriteBarrier<JSFunction> m_objectProtoValueOfFunction;
     WriteBarrier<JSFunction> m_functionProtoHasInstanceSymbolFunction;
     WriteBarrier<JSFunction> m_performProxyObjectHasFunction;
@@ -807,6 +808,8 @@ public:
     JSFunction* setProtoValuesFunctionConcurrently() const LIFETIME_BOUND { return m_setProtoValuesFunction.getConcurrently(); }
     JSFunction* stringProtoSymbolIteratorFunction() const LIFETIME_BOUND { return m_stringProtoSymbolIteratorFunction.get(this); }
     JSFunction* stringProtoSymbolIteratorFunctionConcurrently() const LIFETIME_BOUND { return m_stringProtoSymbolIteratorFunction.getConcurrently(); }
+    JSFunction* iteratorProtoSymbolIteratorFunction() const LIFETIME_BOUND { return m_iteratorProtoSymbolIteratorFunction.get(this); }
+    JSFunction* iteratorProtoSymbolIteratorFunctionConcurrently() const LIFETIME_BOUND { return m_iteratorProtoSymbolIteratorFunction.getConcurrently(); }
     JSFunction* iteratorProtocolFunction() const;
     JSFunction* promiseProtoThenFunction() const;
     JSFunction* objectProtoValueOfFunction() const LIFETIME_BOUND { return m_objectProtoValueOfFunction.get(); }

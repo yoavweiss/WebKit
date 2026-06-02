@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015 Yusuke Suzuki <utatane.tea@gmail.com>.
- * Copyright (C) 2019-2022 Apple Inc. All rights reserved.
+ * Copyright (C) 2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,41 +25,42 @@
 
 #pragma once
 
-#include <JavaScriptCore/JSObject.h>
+#include <JavaScriptCore/JSCell.h>
 
 namespace JSC {
 
-JSC_DECLARE_HOST_FUNCTION(iteratorProtoFuncIterator);
-
-class JSIteratorPrototype final : public JSNonFinalObject {
+// Identity-only marker cell used by the fast-iteration protocol. VM holds named
+// instances and consumers compare by pointer (or check JSType == SentinelType
+// for a coarse fast/slow gate).
+class JSSentinel final : public JSCell {
 public:
-    using Base = JSNonFinalObject;
-    static constexpr unsigned StructureFlags = Base::StructureFlags;
+    using Base = JSCell;
 
-    template<typename CellType, SubspaceAccess>
+    static constexpr unsigned StructureFlags = Base::StructureFlags | StructureIsImmortal;
+    static constexpr uint8_t numberOfLowerTierPreciseCells = 0;
+
+    DECLARE_EXPORT_INFO;
+
+    template<typename CellType, SubspaceAccess mode>
     static GCClient::IsoSubspace* subspaceFor(VM& vm)
     {
-        STATIC_ASSERT_ISO_SUBSPACE_SHARABLE(JSIteratorPrototype, Base);
-        return &vm.plainObjectSpace();
+        return vm.sentinelSpace<mode>();
     }
-
-    static JSIteratorPrototype* create(VM& vm, JSGlobalObject* globalObject, Structure* structure)
-    {
-        JSIteratorPrototype* prototype = new (NotNull, allocateCell<JSIteratorPrototype>(vm)) JSIteratorPrototype(vm, structure);
-        prototype->finishCreation(vm, globalObject);
-        return prototype;
-    }
-
-    DECLARE_INFO;
 
     inline static Structure* createStructure(VM&, JSGlobalObject*, JSValue);
 
+    static JSSentinel* create(VM& vm, Structure* structure)
+    {
+        auto* result = new (NotNull, allocateCell<JSSentinel>(vm)) JSSentinel(vm, structure);
+        result->finishCreation(vm);
+        return result;
+    }
+
 private:
-    JSIteratorPrototype(VM& vm, Structure* structure)
+    JSSentinel(VM& vm, Structure* structure)
         : Base(vm, structure)
     {
     }
-    void finishCreation(VM&, JSGlobalObject*);
 };
 
 } // namespace JSC

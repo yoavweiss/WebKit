@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015 Yusuke Suzuki <utatane.tea@gmail.com>.
- * Copyright (C) 2019-2022 Apple Inc. All rights reserved.
+ * Copyright (C) 2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,41 +25,14 @@
 
 #pragma once
 
-#include <JavaScriptCore/JSObject.h>
+#include "JSSentinel.h"
+#include "StructureCreateInlines.h"
 
 namespace JSC {
 
-JSC_DECLARE_HOST_FUNCTION(iteratorProtoFuncIterator);
-
-class JSIteratorPrototype final : public JSNonFinalObject {
-public:
-    using Base = JSNonFinalObject;
-    static constexpr unsigned StructureFlags = Base::StructureFlags;
-
-    template<typename CellType, SubspaceAccess>
-    static GCClient::IsoSubspace* subspaceFor(VM& vm)
-    {
-        STATIC_ASSERT_ISO_SUBSPACE_SHARABLE(JSIteratorPrototype, Base);
-        return &vm.plainObjectSpace();
-    }
-
-    static JSIteratorPrototype* create(VM& vm, JSGlobalObject* globalObject, Structure* structure)
-    {
-        JSIteratorPrototype* prototype = new (NotNull, allocateCell<JSIteratorPrototype>(vm)) JSIteratorPrototype(vm, structure);
-        prototype->finishCreation(vm, globalObject);
-        return prototype;
-    }
-
-    DECLARE_INFO;
-
-    inline static Structure* createStructure(VM&, JSGlobalObject*, JSValue);
-
-private:
-    JSIteratorPrototype(VM& vm, Structure* structure)
-        : Base(vm, structure)
-    {
-    }
-    void finishCreation(VM&, JSGlobalObject*);
-};
+inline Structure* JSSentinel::createStructure(VM& vm, JSGlobalObject* globalObject, JSValue prototype)
+{
+    return Structure::create(vm, globalObject, prototype, TypeInfo(SentinelType, StructureFlags), info());
+}
 
 } // namespace JSC

@@ -86,6 +86,7 @@
 #include "JSPromiseConstructor.h"
 #include "JSPromiseReaction.h"
 #include "JSPropertyNameEnumeratorInlines.h"
+#include "JSSentinelInlines.h"
 #include "JSSet.h"
 #include "JSSourceCodeInlines.h"
 #include "JSTemplateObjectDescriptorInlines.h"
@@ -383,6 +384,17 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
     m_orderedHashTableDeletedValue.setWithoutWriteBarrier(JSOrderedHashMap::createDeletedValue(*this));
     m_orderedHashTableSentinel.setWithoutWriteBarrier(JSOrderedHashMap::createSentinel(*this));
     m_sortScratchSentinel.setWithoutWriteBarrier(JSCellButterfly::create(*this, CopyOnWriteArrayWithContiguous, 0));
+
+    {
+        Structure* sentinelStructure = JSSentinel::createStructure(*this, nullptr, jsNull());
+        m_sentinelStructure.setWithoutWriteBarrier(sentinelStructure);
+        m_fastArrayValuesSentinel.setWithoutWriteBarrier(JSSentinel::create(*this, sentinelStructure));
+        m_fastArrayKeysSentinel.setWithoutWriteBarrier(JSSentinel::create(*this, sentinelStructure));
+        m_fastArrayEntriesSentinel.setWithoutWriteBarrier(JSSentinel::create(*this, sentinelStructure));
+        m_fastMapEntriesSentinel.setWithoutWriteBarrier(JSSentinel::create(*this, sentinelStructure));
+        m_fastSetValuesSentinel.setWithoutWriteBarrier(JSSentinel::create(*this, sentinelStructure));
+        m_fastStringValuesSentinel.setWithoutWriteBarrier(JSSentinel::create(*this, sentinelStructure));
+    }
 
     // Eagerly initialize constant cells since the concurrent compiler can access them.
     if (Options::useJIT()) {
@@ -1918,6 +1930,13 @@ void VM::visitAggregateImpl(Visitor& visitor)
     visitor.append(m_emptyPropertyNameEnumerator);
     visitor.append(m_orderedHashTableDeletedValue);
     visitor.append(m_orderedHashTableSentinel);
+    visitor.append(m_sentinelStructure);
+    visitor.append(m_fastArrayValuesSentinel);
+    visitor.append(m_fastArrayKeysSentinel);
+    visitor.append(m_fastArrayEntriesSentinel);
+    visitor.append(m_fastMapEntriesSentinel);
+    visitor.append(m_fastSetValuesSentinel);
+    visitor.append(m_fastStringValuesSentinel);
     visitor.append(m_cachedSortScratch);
     visitor.append(m_sortScratchSentinel);
     visitor.append(m_fastCanConstructBoundExecutable);

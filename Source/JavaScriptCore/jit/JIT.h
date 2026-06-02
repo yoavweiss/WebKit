@@ -221,10 +221,16 @@ namespace JSC {
         void load32FromMetadata(const Bytecode&, size_t offset, GPRReg);
 
         template <typename Bytecode>
+        void load16FromMetadata(const Bytecode&, size_t offset, GPRReg);
+
+        template <typename Bytecode>
         void load8FromMetadata(const Bytecode&, size_t offset, GPRReg);
 
         template <typename ValueType, typename Bytecode>
         void store8ToMetadata(ValueType, const Bytecode&, size_t offset);
+
+        template <typename ValueType, typename Bytecode>
+        void store16ToMetadata(ValueType, const Bytecode&, size_t offset);
 
         template <typename Bytecode>
         void store32ToMetadata(GPRReg, const Bytecode&, size_t offset);

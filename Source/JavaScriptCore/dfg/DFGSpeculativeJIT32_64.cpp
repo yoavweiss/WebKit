@@ -3034,10 +3034,11 @@ void SpeculativeJIT::compile(Node* node)
 
     case BooleanToNumber: {
         switch (node->child1().useKind()) {
-        case BooleanUse: {
+        case BooleanUse:
+        case KnownBooleanUse: {
             SpeculateBooleanOperand value(this, node->child1());
             GPRTemporary result(this); // FIXME: We could reuse, but on speculation fail would need recovery to restore tag (akin to add).
-            
+
             move(value.gpr(), result.gpr());
 
             strictInt32Result(result.gpr(), node);

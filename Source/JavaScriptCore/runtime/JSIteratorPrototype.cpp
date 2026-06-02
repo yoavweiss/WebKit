@@ -51,7 +51,6 @@ namespace JSC {
 
 const ClassInfo JSIteratorPrototype::s_info = { "Iterator"_s, &Base::s_info, nullptr, nullptr, CREATE_METHOD_TABLE(JSIteratorPrototype) };
 
-static JSC_DECLARE_HOST_FUNCTION(iteratorProtoFuncIterator);
 static JSC_DECLARE_CUSTOM_GETTER(iteratorProtoConstructorGetter);
 static JSC_DECLARE_CUSTOM_SETTER(iteratorProtoConstructorSetter);
 static JSC_DECLARE_CUSTOM_GETTER(iteratorProtoToStringTagGetter);
@@ -65,8 +64,7 @@ void JSIteratorPrototype::finishCreation(VM& vm, JSGlobalObject* globalObject)
 {
     Base::finishCreation(vm);
     ASSERT(inherits(info()));
-    JSFunction* iteratorFunction = JSFunction::create(vm, globalObject, 0, "[Symbol.iterator]"_s, iteratorProtoFuncIterator, ImplementationVisibility::Public, IteratorIntrinsic);
-    putDirectWithoutTransition(vm, vm.propertyNames->iteratorSymbol, iteratorFunction, static_cast<unsigned>(PropertyAttribute::DontEnum));
+    putDirectWithoutTransition(vm, vm.propertyNames->iteratorSymbol, globalObject->iteratorProtoSymbolIteratorFunction(), static_cast<unsigned>(PropertyAttribute::DontEnum));
 
     // https://tc39.es/proposal-iterator-helpers/#sec-iteratorprototype.constructor
     putDirectCustomGetterSetterWithoutTransition(vm, vm.propertyNames->constructor, CustomGetterSetter::create(vm, iteratorProtoConstructorGetter, iteratorProtoConstructorSetter), static_cast<unsigned>(PropertyAttribute::DontEnum | PropertyAttribute::CustomAccessor));

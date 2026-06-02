@@ -971,6 +971,7 @@ runtime/JSRemoteFunction.cpp
 runtime/JSRunLoopTimer.cpp
 runtime/JSScope.cpp
 runtime/JSSegmentedVariableObject.cpp
+runtime/JSSentinel.cpp
 runtime/JSSet.cpp
 runtime/JSSetIterator.cpp
 runtime/JSSourceCode.cpp

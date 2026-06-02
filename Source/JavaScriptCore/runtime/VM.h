@@ -122,6 +122,7 @@ class IntlCache;
 enum Intrinsic : uint8_t;
 class JSDestructibleObjectHeapCellType;
 class JSGlobalObject;
+class JSSentinel;
 class JSLock;
 class JSObject;
 struct JSPIContext;
@@ -581,6 +582,14 @@ public:
     WriteBarrier<JSCell> m_orderedHashTableDeletedValue;
     WriteBarrier<JSCell> m_orderedHashTableSentinel;
 
+    WriteBarrier<Structure> m_sentinelStructure;
+    WriteBarrier<JSSentinel> m_fastArrayValuesSentinel;
+    WriteBarrier<JSSentinel> m_fastArrayKeysSentinel;
+    WriteBarrier<JSSentinel> m_fastArrayEntriesSentinel;
+    WriteBarrier<JSSentinel> m_fastMapEntriesSentinel;
+    WriteBarrier<JSSentinel> m_fastSetValuesSentinel;
+    WriteBarrier<JSSentinel> m_fastStringValuesSentinel;
+
     WriteBarrier<JSCell> m_cachedSortScratch;
     WriteBarrier<JSCell> m_sortScratchSentinel;
 
@@ -638,6 +647,14 @@ public:
     {
         return m_orderedHashTableSentinel.get();
     }
+
+    Structure* sentinelStructure() { return m_sentinelStructure.get(); }
+    JSSentinel* fastArrayValuesSentinel() { return m_fastArrayValuesSentinel.get(); }
+    JSSentinel* fastArrayKeysSentinel() { return m_fastArrayKeysSentinel.get(); }
+    JSSentinel* fastArrayEntriesSentinel() { return m_fastArrayEntriesSentinel.get(); }
+    JSSentinel* fastMapEntriesSentinel() { return m_fastMapEntriesSentinel.get(); }
+    JSSentinel* fastSetValuesSentinel() { return m_fastSetValuesSentinel.get(); }
+    JSSentinel* fastStringValuesSentinel() { return m_fastStringValuesSentinel.get(); }
 
     JSPropertyNameEnumerator* emptyPropertyNameEnumerator()
     {

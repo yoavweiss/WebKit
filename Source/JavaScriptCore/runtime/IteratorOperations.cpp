@@ -29,6 +29,7 @@
 
 #include "CachedCall.h"
 #include "InterpreterInlines.h"
+#include "JSArrayIterator.h"
 #include "JSAsyncFromSyncIterator.h"
 #include "JSCInlines.h"
 #include "JSMap.h"
@@ -446,6 +447,39 @@ IterationMode getIterationMode(VM&, JSGlobalObject* globalObject, JSValue iterab
             return IterationMode::Generic;
 
         return IterationMode::FastArray;
+    }
+
+    if (auto* arrayIterator = dynamicDowncast<JSArrayIterator>(iterable.asCell())) {
+        if (!globalObject->arrayIteratorProtocolWatchpointSet().isStillValid())
+            return IterationMode::Generic;
+
+        // arrIter[Symbol.iterator] is inherited from %IteratorPrototype% and just returns this; identity-check it
+        // so we can skip the call entirely and use the iterator as-is.
+        if (globalObject->iteratorProtoSymbolIteratorFunction() != symbolIteratorFunction)
+            return IterationMode::Generic;
+
+        // Structure check ensures the prototype chain is the original arrayIteratorPrototype -> iteratorPrototype.
+        // Also, DFG fast path needs to ensure that incoming array iterator meets the same realm's one. To ensure that DFG is using
+        // MatchStructure. Thus we should gate the fast path for the array iterator with specific structure here.
+        if (arrayIterator->structure() != globalObject->arrayIteratorStructure())
+            return IterationMode::Generic;
+
+        // Our fast paths require the underlying iterated object to be a plain JSArray (TypedArrays,
+        // arguments objects, etc. take a different code path).
+        JSObject* iteratedObject = arrayIterator->iteratedObject();
+        auto* array = dynamicDowncast<JSArray>(iteratedObject);
+        if (!array || !isJSArray(array))
+            return IterationMode::Generic;
+
+        switch (arrayIterator->kind()) {
+        case IterationKind::Values:
+            return IterationMode::FastArrayValues;
+        case IterationKind::Keys:
+            return IterationMode::FastArrayKeys;
+        case IterationKind::Entries:
+            return IterationMode::FastArrayEntries;
+        }
+        RELEASE_ASSERT_NOT_REACHED();
     }
 
     if (dynamicDowncast<JSMap>(iterable.asCell())) {
