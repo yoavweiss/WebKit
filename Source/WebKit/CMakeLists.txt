@@ -839,6 +839,25 @@ set(WebKit_GENERATED_SERIALIZERS_SUFFIX cpp)
 set(WebKit_SWIFT_INTEROP_MODULE_PATH "${WEBKIT_DIR}/Modules/Internal")
 set(WebKit_SWIFT_INTEROP_MODULE_PATH_SWIFT_ONLY TRUE)
 
+# WebCore_Private.modulemap in-tree is a `framework module` that umbrellas the
+# Xcode framework's PrivateHeaders/. CMake stages those headers as a flat
+# directory instead, and umbrellaing it pulls in headers (ANGLEHeaders.h etc.)
+# whose own dependencies aren't on the Swift Clang importer's search path.
+# Expose only what WebBackForwardList.swift names directly; the rest of the
+# WebCore:: types it uses are reachable transitively via WebKit_Internal headers.
+if (ENABLE_BACK_FORWARD_LIST_SWIFT)
+    set(WebCore_Private_SWIFT_MODULEMAP_DIR "${CMAKE_BINARY_DIR}/WebKit/SwiftModules/WebCorePrivate")
+    file(MAKE_DIRECTORY "${WebCore_Private_SWIFT_MODULEMAP_DIR}")
+    file(CONFIGURE OUTPUT "${WebCore_Private_SWIFT_MODULEMAP_DIR}/module.modulemap" CONTENT
+"module WebCore_Private [system] {
+    requires cplusplus
+    header \"${WebCore_PRIVATE_FRAMEWORK_HEADERS_DIR}/WebCore/DiagnosticLoggingKeys.h\"
+    header \"${WebCore_PRIVATE_FRAMEWORK_HEADERS_DIR}/WebCore/DiagnosticLoggingClient.h\"
+    export *
+}
+")
+endif ()
+
 WEBKIT_FRAMEWORK_DECLARE(WebKit)
 WEBKIT_INCLUDE_CONFIG_FILES_IF_EXISTS()
 WEBKIT_ADD_TARGET_UNSAFE_BUFFER_WARNINGS(WebKit)
@@ -859,6 +878,7 @@ set(WebKit_SWIFT_CLANG_INCLUDE_DIRS
     ${bmalloc_FRAMEWORK_HEADERS_DIR}
     ${PAL_FRAMEWORK_HEADERS_DIR}
     ${ICU_INCLUDE_DIRS}
+    ${WebCore_Private_SWIFT_MODULEMAP_DIR}
     ${WebKit_PRIVATE_INCLUDE_DIRECTORIES}
 )
 

@@ -75,23 +75,6 @@ set(NetworkProcess_INCLUDE_DIRECTORIES ${CMAKE_BINARY_DIR})
 # once ENABLE_BACK_FORWARD_LIST_SWIFT pulls in C++ interop.
 set(WebKit_SWIFT_INTEROP_MODULE_PATH "${WEBKIT_DIR}/Modules/Internal")
 
-# WebCore_Private.modulemap in-tree is a `framework module` that umbrellas the
-# Xcode framework's PrivateHeaders/. CMake stages those headers as a flat
-# directory instead, and umbrellaing it pulls in headers (ANGLEHeaders.h etc.)
-# whose own dependencies aren't on the Swift Clang importer's search path.
-# Expose only what WebBackForwardList.swift names directly; the rest of the
-# WebCore:: types it uses are reachable transitively via WebKit_Internal headers.
-set(WebKit_CMAKE_MODULEMAP_DIR "${CMAKE_BINARY_DIR}/WebKit/SwiftModules")
-file(MAKE_DIRECTORY "${WebKit_CMAKE_MODULEMAP_DIR}")
-file(CONFIGURE OUTPUT "${WebKit_CMAKE_MODULEMAP_DIR}/module.modulemap" CONTENT
-"module WebCore_Private [system] {
-    requires cplusplus
-    header \"${WebCore_PRIVATE_FRAMEWORK_HEADERS_DIR}/WebCore/DiagnosticLoggingKeys.h\"
-    header \"${WebCore_PRIVATE_FRAMEWORK_HEADERS_DIR}/WebCore/DiagnosticLoggingClient.h\"
-    export *
-}
-")
-
 # Xcode does not set SWIFT_TREAT_WARNINGS_AS_ERRORS; override CMake's -warnings-as-errors.
 # Must go in WebKit_COMPILE_OPTIONS (applied after -warnings-as-errors in _WEBKIT_TARGET_SETUP).
 list(APPEND WebKit_COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:Swift>:-no-warnings-as-errors>")
@@ -112,7 +95,7 @@ set(WebKit_SWIFT_CLANG_INCLUDE_DIRS
     ${bmalloc_FRAMEWORK_HEADERS_DIR}
     ${PAL_FRAMEWORK_HEADERS_DIR}
     ${ICU_INCLUDE_DIRS}
-    ${WebKit_CMAKE_MODULEMAP_DIR}
+    ${WebCore_Private_SWIFT_MODULEMAP_DIR}
     ${WebKit_PRIVATE_INCLUDE_DIRECTORIES}
 )
 
