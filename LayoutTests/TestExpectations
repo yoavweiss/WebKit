@@ -556,6 +556,13 @@ webkit.org/b/176929 imported/w3c/web-platform-tests/html/semantics/embedded-cont
 
 webkit.org/b/311501 imported/w3c/web-platform-tests/mediasession/media-session-artwork-fetch.https.html [ Pass Failure ]
 
+# Media Session tests: rdar://178443322
+imported/w3c/web-platform-tests/mediasession/idlharness.window.html [ Failure ]
+imported/w3c/web-platform-tests/mediasession/mediametadata.html [ Failure ]
+imported/w3c/web-platform-tests/mediasession/setactionhandler.html [ Failure ]
+imported/w3c/web-platform-tests/mediasession/setcameraactive.html [ Pass Failure ]
+imported/w3c/web-platform-tests/mediasession/setmicrophoneactive.html [ Pass Failure ]
+
 # Requires additional test infrastructure.
 imported/w3c/web-platform-tests/service-workers/service-worker/update-after-oneday.https.html [ Skip ]
 
