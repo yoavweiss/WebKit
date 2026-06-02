@@ -229,7 +229,7 @@ struct QuirksData {
 #if PLATFORM(IOS_FAMILY)
         ShouldNavigatorPluginsBeEmpty,
 #endif
-#if ENABLE(TOUCH_EVENTS)
+#if ENABLE(TOUCH_EVENTS) || ENABLE(TOUCH_EVENT_REGIONS)
         ShouldPreventDispatchOfTouchEventQuirk,
 #endif
         ShouldPreventOrientationMediaQueryFromEvaluatingToLandscapeQuirk,
@@ -307,7 +307,7 @@ struct QuirksData {
     std::optional<bool> needsDisableDOMPasteAccessQuirk;
     std::optional<bool> shouldDisableElementFullscreen;
 
-#if ENABLE(TOUCH_EVENTS)
+#if ENABLE(TOUCH_EVENTS) || ENABLE(TOUCH_EVENT_REGIONS)
     enum class ShouldDispatchSimulatedMouseEvents : uint8_t {
         Unknown,
         No,

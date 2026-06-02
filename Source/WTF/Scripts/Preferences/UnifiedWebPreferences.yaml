@@ -5737,7 +5737,7 @@ MouseEventsSimulationEnabled:
   category: dom
   humanReadableName: "Mouse events simulation"
   humanReadableDescription: "Enable mouse events dispatch along with touch events on iOS"
-  condition: ENABLE(TOUCH_EVENTS)
+  condition: ENABLE(TOUCH_EVENTS) || ENABLE(TOUCH_EVENT_REGIONS)
   defaultValue:
     WebKitLegacy:
       default: false

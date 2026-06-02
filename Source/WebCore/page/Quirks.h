@@ -80,11 +80,13 @@ public:
     bool needsExpediaGroupAnimationQuirk(Element&) const;
     bool shouldAutoplayWebAudioForArbitraryUserGesture() const;
     bool hasBrokenEncryptedMediaAPISupportQuirk() const;
-#if ENABLE(TOUCH_EVENTS)
+#if ENABLE(TOUCH_EVENTS) || ENABLE(TOUCH_EVENT_REGIONS)
     bool shouldDispatchSimulatedMouseEvents(const EventTarget*) const;
+    bool shouldPreventDispatchOfTouchEvent(const AtomString&, EventTarget*) const;
+#endif
+#if ENABLE(TOUCH_EVENTS)
     bool shouldDispatchedSimulatedMouseEventsAssumeDefaultPrevented(EventTarget*) const;
     bool shouldComputeSimulatedMouseEventMovementDelta() const;
-    bool shouldPreventDispatchOfTouchEvent(const AtomString&, EventTarget*) const;
 #endif
     bool NODELETE shouldDisablePointerEventsQuirk() const;
     bool NODELETE needsDeferKeyDownAndKeyPressTimersUntilNextEditingCommand() const;

@@ -498,7 +498,7 @@ bool Quirks::shouldDisableElementFullscreenQuirk() const
 #endif
 }
 
-#if ENABLE(TOUCH_EVENTS)
+#if ENABLE(TOUCH_EVENTS) || ENABLE(TOUCH_EVENT_REGIONS)
 // rdar://49124313
 // desmos.com rdar://47068176
 // flipkart.com rdar://49648520
@@ -599,6 +599,42 @@ bool Quirks::shouldDispatchSimulatedMouseEvents(const EventTarget* target) const
     return false;
 }
 
+bool Quirks::shouldPreventDispatchOfTouchEvent(const AtomString& touchEventType, EventTarget* target) const
+{
+    QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
+
+    if (!m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::ShouldPreventDispatchOfTouchEventQuirk))
+        return false;
+
+    // yahoo.com : rdar://142894603
+    if (RefPtr element = dynamicDowncast<Element>(target); element && touchEventType == eventNames().touchendEvent) {
+        if (element->hasClassName("DPvwYc"_s) && element->hasClassName("sm8sCf"_s))
+            return true;
+        if (element->hasClassName("vjs-subs-cap-button"_s) && element->hasClassName("vjs-menu-button"_s))
+            return true;
+    }
+
+    // sites.google.com rdar://58653069
+    if (RefPtr element = dynamicDowncast<Element>(target); element && touchEventType == eventNames().touchendEvent)
+        return element->hasClassName("DPvwYc"_s) && element->hasClassName("sm8sCf"_s);
+
+    // outlook.live.com rdar://48008837
+    if (RefPtr element = dynamicDowncast<Element>(target); element && touchEventType == eventNames().touchmoveEvent) {
+        static constexpr unsigned max_depth = 15;
+        unsigned depth = 0;
+        for (Ref ancestor : lineageOfType<HTMLElement>(*element)) {
+            if (ancestor->hasClassName("ms-Suggestions"_s))
+                return true;
+            if (++depth > max_depth)
+                break;
+        }
+    }
+
+    return false;
+}
+#endif
+
+#if ENABLE(TOUCH_EVENTS)
 // amazon.com rdar://49124529
 // soundcloud.com rdar://52915981
 bool Quirks::shouldDispatchedSimulatedMouseEventsAssumeDefaultPrevented(EventTarget* target) const
@@ -641,41 +677,6 @@ bool Quirks::shouldComputeSimulatedMouseEventMovementDelta() const
 
     return m_quirksData.isTikTok || m_quirksData.isFacebook;
 }
-
-bool Quirks::shouldPreventDispatchOfTouchEvent(const AtomString& touchEventType, EventTarget* target) const
-{
-    QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
-
-    if (!m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::ShouldPreventDispatchOfTouchEventQuirk))
-        return false;
-
-    // yahoo.com : rdar://142894603
-    if (RefPtr element = dynamicDowncast<Element>(target); element && touchEventType == eventNames().touchendEvent) {
-        if (element->hasClassName("DPvwYc"_s) && element->hasClassName("sm8sCf"_s))
-            return true;
-        if (element->hasClassName("vjs-subs-cap-button"_s) && element->hasClassName("vjs-menu-button"_s))
-            return true;
-    }
-
-    // sites.google.com rdar://58653069
-    if (RefPtr element = dynamicDowncast<Element>(target); element && touchEventType == eventNames().touchendEvent)
-        return element->hasClassName("DPvwYc"_s) && element->hasClassName("sm8sCf"_s);
-
-    // outlook.live.com rdar://48008837
-    if (RefPtr element = dynamicDowncast<Element>(target); element && touchEventType == eventNames().touchmoveEvent) {
-        static constexpr unsigned max_depth = 15;
-        unsigned depth = 0;
-        for (Ref ancestor : lineageOfType<HTMLElement>(*element)) {
-            if (ancestor->hasClassName("ms-Suggestions"_s))
-                return true;
-            if (++depth > max_depth)
-                break;
-        }
-    }
-
-    return false;
-}
-
 #endif
 
 // live.com rdar://52116170
@@ -3360,7 +3361,7 @@ static void handleGoogleQuirks(QuirksData& quirksData, const URL& quirksURL, con
 #endif
     // docs.google.com rdar://59893415
     quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::MaybeBypassBackForwardCache);
-#if ENABLE(TOUCH_EVENTS)
+#if ENABLE(TOUCH_EVENTS) || ENABLE(TOUCH_EVENT_REGIONS)
     // sites.google.com rdar://58653069
     bool shouldPreventDispatchOfTouchEventQuirk = topDocumentHost == "sites.google.com"_s;
     quirksData.setQuirkState(QuirksData::SiteSpecificQuirk::ShouldPreventDispatchOfTouchEventQuirk, shouldPreventDispatchOfTouchEventQuirk);
