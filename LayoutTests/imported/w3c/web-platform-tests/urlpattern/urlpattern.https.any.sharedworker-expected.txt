@@ -366,4 +366,5 @@ PASS Pattern: ["((?R)):"] Inputs: undefined
 PASS Pattern: ["(\\H):"] Inputs: undefined
 PASS Pattern: [{"pathname":"/:foo((?<x>a))"}] Inputs: [{"pathname":"/a"}]
 PASS Pattern: [{"pathname":"/foo/(bar(?<x>baz))"}] Inputs: [{"pathname":"/foo/barbaz"}]
+PASS Pattern: [{"pathname":"/:𠀀"}] Inputs: [{"pathname":"/foo"}]
 
