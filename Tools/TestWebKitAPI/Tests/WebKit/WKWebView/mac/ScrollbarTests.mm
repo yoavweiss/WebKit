@@ -61,10 +61,10 @@
 - (NSViewCornerConfiguration *)_cornerConfiguration
 {
     return [NSViewCornerConfiguration
-        configurationWithTopLeftRadius:[_NSCornerRadius fixedRadius:self.topLeftRadius]
-        topRightRadius:[_NSCornerRadius fixedRadius:self.topRightRadius]
-        bottomLeftRadius:[_NSCornerRadius fixedRadius:self.bottomLeftRadius]
-        bottomRightRadius:[_NSCornerRadius fixedRadius:self.bottomRightRadius]];
+        configurationWithTopLeftRadius:(id)[_NSCornerRadius fixedRadius:self.topLeftRadius]
+        topRightRadius:(id)[_NSCornerRadius fixedRadius:self.topRightRadius]
+        bottomLeftRadius:(id)[_NSCornerRadius fixedRadius:self.bottomLeftRadius]
+        bottomRightRadius:(id)[_NSCornerRadius fixedRadius:self.bottomRightRadius]];
 }
 
 @end

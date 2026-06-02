@@ -887,7 +887,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
     if (self.enclosingScrollView)
         return [super _cornerConfiguration];
 
-    return [NSViewCornerConfiguration configurationWithRadius:_NSCornerRadius.containerConcentricRadius];
+    return [NSViewCornerConfiguration configurationWithRadius:(id)_NSCornerRadius.containerConcentricRadius];
 }
 
 #endif
