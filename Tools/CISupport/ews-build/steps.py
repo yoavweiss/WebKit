@@ -7257,6 +7257,119 @@ class MapBranchAlias(shell.ShellCommand):
         return not self.doStepIf(step)
 
 
+class ValidateChangeContent(shell.ShellCommand, AddToLogMixin):
+    name = 'validate-change-content'
+    haltOnFailure = True
+    flunkOnFailure = True
+    MAX_FILES_IN_SUMMARY = 10
+
+    HUNK_HEADER_RE = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@')
+    CONFLICT_MARKER_PREFIXES = ('<<<<<<<', '|||||||', '>>>>>>>')
+
+    @staticmethod
+    def is_conflict_marker(line: str) -> bool:
+        return any(line.startswith(f'{marker} ') for marker in ValidateChangeContent.CONFLICT_MARKER_PREFIXES)
+
+    @staticmethod
+    def conflict_markers_in_diff(diff_text: str) -> list[tuple[str, int]]:
+        """Return (file, line_number) for git conflict markers added by a unified diff.
+
+        Only added lines ('+') are considered, and a marker must begin at column 0
+        so quoted or indented occurrences in fixtures and docs are not flagged. The
+        bare '=======' separator is intentionally ignored to avoid colliding with
+        Markdown/RST headers.
+        """
+        locations = []
+        current_file = None
+        new_line_number = 0
+        for line in diff_text.splitlines():
+            if line.startswith('+++ b/'):
+                current_file = line[len('+++ b/'):]
+                continue
+            if line.startswith('@@'):
+                match = ValidateChangeContent.HUNK_HEADER_RE.match(line)
+                new_line_number = int(match.group(1)) if match else 0
+                continue
+            if line.startswith('+'):
+                if line.startswith('+++'):
+                    continue
+                if current_file and ValidateChangeContent.is_conflict_marker(line[1:]):
+                    locations.append((current_file, new_line_number))
+                new_line_number += 1
+            elif line.startswith(' '):
+                new_line_number += 1
+        return locations
+
+    def __init__(self, block_pr_on_failure: bool = False, **kwargs) -> None:
+        self.summary = ''
+        self.block_pr_on_failure = block_pr_on_failure
+        super().__init__(logEnviron=False, **kwargs)
+        if block_pr_on_failure:
+            self.haltOnFailure = False
+
+    def doStepIf(self, step):
+        return self.getProperty('github.number', False)
+
+    def hideStepIf(self, results, step):
+        return results == SUCCESS or not self.doStepIf(step)
+
+    @defer.inlineCallbacks
+    def run(self, BufferLogObserverClass=logobserver.BufferLogObserver):
+        remote = self.getProperty('remote', DEFAULT_REMOTE)
+        base_ref = self.getProperty('github.base.ref', DEFAULT_BRANCH)
+        self.command = ['git', '-c', 'color.ui=false', 'diff', f'remotes/{remote}/{base_ref}...HEAD']
+
+        self.log_observer = BufferLogObserverClass(wantStderr=True)
+        self.addLogObserver('stdio', self.log_observer)
+
+        rc = yield super().run()
+
+        if rc != SUCCESS:
+            self.summary = 'Failed to check for conflict markers'
+            return defer.returnValue(SKIPPED)
+
+        locations = self.conflict_markers_in_diff(self.log_observer.getStdout())
+        if not locations:
+            self.summary = 'No conflict markers found'
+            return defer.returnValue(SUCCESS)
+
+        files = []
+        for path, _ in locations:
+            if path not in files:
+                files.append(path)
+
+        yield self._addToLog('stdio', '\nConflict markers found at:\n{}\n'.format(
+            '\n'.join(f'{path}:{line}' for path, line in locations)))
+        self.summary = f'Found git conflict markers in {self.format_file_summary(files)}'
+
+        if self.block_pr_on_failure:
+            pr_number = self.getProperty('github.number')
+            file_list = '\n'.join(f'* `{path}`' for path in files)
+            comment = 'This pull request still contains unresolved git conflict markers in the following files ' \
+                      f'and cannot be landed:\n{file_list}\n\nResolve the conflicts, then re-apply the merge-queue label.'
+            self.setProperty('comment_text', comment)
+            self.setProperty('build_finish_summary', self.summary)
+            self.build.addStepsAfterCurrentStep([
+                LeaveComment(),
+                BlockPullRequest()
+            ])
+
+        return defer.returnValue(FAILURE)
+
+    def format_file_summary(self, files) -> str:
+        shown = files[:self.MAX_FILES_IN_SUMMARY]
+        formatted = ', '.join(os.path.basename(path) for path in shown)
+        remaining = len(files) - len(shown)
+        if remaining > 0:
+            formatted = f'{formatted} (and {remaining} more)'
+        return formatted
+
+    def getResultSummary(self):
+        if self.summary:
+            return {'step': self.summary}
+        return super().getResultSummary()
+
+
 class ValidateSquashed(shell.ShellCommand, AddToLogMixin):
     name = 'validate-squashed'
     haltOnFailure = False

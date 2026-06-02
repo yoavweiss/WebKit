@@ -8522,6 +8522,261 @@ class TestMapBranchAlias(BuildStepMixinAdditions, unittest.TestCase):
         return self.run_step()
 
 
+DIFF_NO_MARKERS = (
+    'diff --git a/Source/WebCore/foo.cpp b/Source/WebCore/foo.cpp\n'
+    'index 1234567..89abcde 100644\n'
+    '--- a/Source/WebCore/foo.cpp\n'
+    '+++ b/Source/WebCore/foo.cpp\n'
+    '@@ -10,3 +10,4 @@ void foo()\n'
+    ' {\n'
+    '     int x = 1;\n'
+    '+    int y = 2;\n'
+    ' }\n'
+)
+
+DIFF_WITH_MARKERS = (
+    'diff --git a/Source/WebCore/foo.cpp b/Source/WebCore/foo.cpp\n'
+    'index 1234567..89abcde 100644\n'
+    '--- a/Source/WebCore/foo.cpp\n'
+    '+++ b/Source/WebCore/foo.cpp\n'
+    '@@ -10,3 +10,7 @@ void foo()\n'
+    ' {\n'
+    '     int x = 1;\n'
+    '+<<<<<<< HEAD\n'
+    '+    int y = 2;\n'
+    '+=======\n'
+    '+    int y = 3;\n'
+    '+>>>>>>> branch\n'
+    ' }\n'
+)
+
+DIFF_WITH_MARKERS_MULTI = (
+    'diff --git a/Source/WebCore/Modules/speech/SpeechSynthesis.h b/Source/WebCore/Modules/speech/SpeechSynthesis.h\n'
+    '--- a/Source/WebCore/Modules/speech/SpeechSynthesis.h\n'
+    '+++ b/Source/WebCore/Modules/speech/SpeechSynthesis.h\n'
+    '@@ -105,1 +105,3 @@\n'
+    ' class SpeechSynthesis {\n'
+    '+<<<<<<< HEAD\n'
+    '+>>>>>>> branch\n'
+    'diff --git a/Source/WebCore/Modules/speech/SpeechSynthesisUtterance.cpp b/Source/WebCore/Modules/speech/SpeechSynthesisUtterance.cpp\n'
+    '--- a/Source/WebCore/Modules/speech/SpeechSynthesisUtterance.cpp\n'
+    '+++ b/Source/WebCore/Modules/speech/SpeechSynthesisUtterance.cpp\n'
+    '@@ -105,1 +105,2 @@\n'
+    ' void foo() {\n'
+    '+<<<<<<< HEAD\n'
+)
+
+
+class TestConflictMarkersInDiff(unittest.TestCase):
+    def test_is_conflict_marker_accepts_real_markers(self):
+        self.assertTrue(ValidateChangeContent.is_conflict_marker('<<<<<<< HEAD'))
+        self.assertTrue(ValidateChangeContent.is_conflict_marker('>>>>>>> some-branch'))
+        self.assertTrue(ValidateChangeContent.is_conflict_marker('||||||| merged common ancestors'))
+
+    def test_is_conflict_marker_rejects_lookalikes(self):
+        self.assertFalse(ValidateChangeContent.is_conflict_marker('======='))
+        self.assertFalse(ValidateChangeContent.is_conflict_marker('======= Heading underline'))
+        self.assertFalse(ValidateChangeContent.is_conflict_marker('<<<<<<<<'))
+        self.assertFalse(ValidateChangeContent.is_conflict_marker('<<<<<<<'))
+        self.assertFalse(ValidateChangeContent.is_conflict_marker('    <<<<<<< HEAD'))
+
+    def test_clean_diff_returns_empty(self):
+        self.assertEqual(ValidateChangeContent.conflict_markers_in_diff(DIFF_NO_MARKERS), [])
+
+    def test_detects_opening_and_closing_markers_with_line_numbers(self):
+        self.assertEqual(
+            ValidateChangeContent.conflict_markers_in_diff(DIFF_WITH_MARKERS),
+            [('Source/WebCore/foo.cpp', 12), ('Source/WebCore/foo.cpp', 16)],
+        )
+
+    def test_ignores_bare_separator(self):
+        diff = (
+            '--- a/README.md\n'
+            '+++ b/README.md\n'
+            '@@ -1,2 +1,3 @@\n'
+            ' Title\n'
+            '+=======\n'
+            ' Body\n'
+        )
+        self.assertEqual(ValidateChangeContent.conflict_markers_in_diff(diff), [])
+
+    def test_ignores_markers_on_removed_lines(self):
+        diff = (
+            '--- a/Source/WebCore/foo.cpp\n'
+            '+++ b/Source/WebCore/foo.cpp\n'
+            '@@ -10,5 +10,1 @@\n'
+            ' {\n'
+            '-<<<<<<< HEAD\n'
+            '-    int y = 2;\n'
+            '-=======\n'
+            '-    int y = 3;\n'
+            '->>>>>>> branch\n'
+            '+    int y = 2;\n'
+            ' }\n'
+        )
+        self.assertEqual(ValidateChangeContent.conflict_markers_in_diff(diff), [])
+
+    def test_ignores_indented_and_decorative_markers(self):
+        diff = (
+            '--- a/Source/WebCore/bar.cpp\n'
+            '+++ b/Source/WebCore/bar.cpp\n'
+            '@@ -1,1 +1,3 @@\n'
+            ' code\n'
+            "+    marker = '<<<<<<< HEAD'\n"
+            '+<<<<<<<<<<<<\n'
+        )
+        self.assertEqual(ValidateChangeContent.conflict_markers_in_diff(diff), [])
+
+    def test_detects_diff3_base_marker(self):
+        diff = (
+            '--- a/Source/WebCore/baz.cpp\n'
+            '+++ b/Source/WebCore/baz.cpp\n'
+            '@@ -1,1 +1,2 @@\n'
+            ' code\n'
+            '+||||||| merged common ancestors\n'
+        )
+        self.assertEqual(ValidateChangeContent.conflict_markers_in_diff(diff), [('Source/WebCore/baz.cpp', 2)])
+
+    def test_tracks_files_and_hunks_independently(self):
+        diff = (
+            '--- a/a.cpp\n'
+            '+++ b/a.cpp\n'
+            '@@ -1,1 +1,2 @@\n'
+            ' a\n'
+            '+<<<<<<< HEAD\n'
+            '--- a/b.cpp\n'
+            '+++ b/b.cpp\n'
+            '@@ -5,1 +5,2 @@\n'
+            ' b\n'
+            '+>>>>>>> theirs\n'
+        )
+        self.assertEqual(ValidateChangeContent.conflict_markers_in_diff(diff), [('a.cpp', 2), ('b.cpp', 6)])
+
+
+class TestValidateChangeContent(BuildStepMixinAdditions, unittest.TestCase):
+    def setUp(self):
+        self.longMessage = True
+        return self.setup_test_build_step()
+
+    def tearDown(self):
+        return self.tear_down_test_build_step()
+
+    def configure_pull_request(self, step):
+        self.setup_step(step)
+        self.setProperty('github.number', '1234')
+        self.setProperty('github.base.ref', 'main')
+
+    def test_no_markers(self):
+        self.configure_pull_request(ValidateChangeContent())
+        self.expectRemoteCommands(
+            ExpectShell(workdir='wkdir',
+                        log_environ=False,
+                        command=['git', '-c', 'color.ui=false', 'diff', 'remotes/origin/main...HEAD'],
+                        )
+            .exit(0)
+            .log('stdio', stdout=DIFF_NO_MARKERS),
+        )
+        self.expect_outcome(result=SUCCESS, state_string='No conflict markers found')
+        return self.run_step()
+
+    def test_conflict_markers_found(self):
+        self.configure_pull_request(ValidateChangeContent())
+        self.expectRemoteCommands(
+            ExpectShell(workdir='wkdir',
+                        log_environ=False,
+                        command=['git', '-c', 'color.ui=false', 'diff', 'remotes/origin/main...HEAD'],
+                        )
+            .exit(0)
+            .log('stdio', stdout=DIFF_WITH_MARKERS),
+        )
+        self.expect_outcome(result=FAILURE, state_string='Found git conflict markers in foo.cpp')
+        rc = self.run_step()
+        self.assertIsNone(self.getProperty('comment_text'))
+        return rc
+
+    def test_conflict_markers_multiple_files(self):
+        self.configure_pull_request(ValidateChangeContent())
+        self.expectRemoteCommands(
+            ExpectShell(workdir='wkdir',
+                        log_environ=False,
+                        command=['git', '-c', 'color.ui=false', 'diff', 'remotes/origin/main...HEAD'],
+                        )
+            .exit(0)
+            .log('stdio', stdout=DIFF_WITH_MARKERS_MULTI),
+        )
+        self.expect_outcome(result=FAILURE, state_string='Found git conflict markers in SpeechSynthesis.h, SpeechSynthesisUtterance.cpp')
+        return self.run_step()
+
+    def test_summary_caps_file_list(self):
+        files = [f'Source/F{index}.cpp' for index in range(12)]
+        diff = ''.join(
+            f'--- a/{path}\n+++ b/{path}\n@@ -1,1 +1,2 @@\n code\n+<<<<<<< HEAD\n'
+            for path in files
+        )
+        self.configure_pull_request(ValidateChangeContent())
+        self.expectRemoteCommands(
+            ExpectShell(workdir='wkdir',
+                        log_environ=False,
+                        command=['git', '-c', 'color.ui=false', 'diff', 'remotes/origin/main...HEAD'],
+                        )
+            .exit(0)
+            .log('stdio', stdout=diff),
+        )
+        expected_files = ', '.join(f'F{index}.cpp' for index in range(10))
+        self.expect_outcome(result=FAILURE, state_string=f'Found git conflict markers in {expected_files} (and 2 more)')
+        return self.run_step()
+
+    def test_uses_base_ref_and_remote_properties(self):
+        self.setup_step(ValidateChangeContent())
+        self.setProperty('github.number', '1234')
+        self.setProperty('github.base.ref', 'safari-7620-branch')
+        self.setProperty('remote', 'apple')
+        self.expectRemoteCommands(
+            ExpectShell(workdir='wkdir',
+                        log_environ=False,
+                        command=['git', '-c', 'color.ui=false', 'diff', 'remotes/apple/safari-7620-branch...HEAD'],
+                        )
+            .exit(0)
+            .log('stdio', stdout=DIFF_NO_MARKERS),
+        )
+        self.expect_outcome(result=SUCCESS, state_string='No conflict markers found')
+        return self.run_step()
+
+    def test_skipped_without_pull_request(self):
+        self.setup_step(ValidateChangeContent())
+        self.setProperty('github.base.ref', 'main')
+        self.expect_outcome(result=SKIPPED)
+        return self.run_step()
+
+    def test_git_diff_failure_is_skipped(self):
+        self.configure_pull_request(ValidateChangeContent())
+        self.expectRemoteCommands(
+            ExpectShell(workdir='wkdir',
+                        log_environ=False,
+                        command=['git', '-c', 'color.ui=false', 'diff', 'remotes/origin/main...HEAD'],
+                        )
+            .exit(1),
+        )
+        self.expect_outcome(result=SKIPPED, state_string='Failed to check for conflict markers')
+        return self.run_step()
+
+    def test_merge_queue_blocks_and_comments(self):
+        self.configure_pull_request(ValidateChangeContent(block_pr_on_failure=True))
+        self.expectRemoteCommands(
+            ExpectShell(workdir='wkdir',
+                        log_environ=False,
+                        command=['git', '-c', 'color.ui=false', 'diff', 'remotes/origin/main...HEAD'],
+                        )
+            .exit(0)
+            .log('stdio', stdout=DIFF_WITH_MARKERS_MULTI),
+        )
+        self.expect_outcome(result=FAILURE, state_string='Found git conflict markers in SpeechSynthesis.h, SpeechSynthesisUtterance.cpp')
+        rc = self.run_step()
+        self.expect_property('comment_text', 'This pull request still contains unresolved git conflict markers in the following files and cannot be landed:\n* `Source/WebCore/Modules/speech/SpeechSynthesis.h`\n* `Source/WebCore/Modules/speech/SpeechSynthesisUtterance.cpp`\n\nResolve the conflicts, then re-apply the merge-queue label.')
+        self.expect_property('build_finish_summary', 'Found git conflict markers in SpeechSynthesis.h, SpeechSynthesisUtterance.cpp')
+        return rc
+
+
 class TestValidateSquashed(BuildStepMixinAdditions, unittest.TestCase):
     def setUp(self):
         self.longMessage = True

@@ -60,6 +60,7 @@ class Factory(factory.BuildFactory):
         self.addStep(ShowIdentifier())
         self.addStep(ApplyPatch())
         self.addStep(CheckOutPullRequest())
+        self.addStep(ValidateChangeContent())
         if self.requiresUserValidation:
             self.addStep(ValidateUserForQueue())
         if self.findModifiedLayoutTests:
@@ -81,6 +82,7 @@ class StyleFactory(factory.BuildFactory):
         self.addStep(ShowIdentifier())
         self.addStep(ApplyPatch())
         self.addStep(CheckOutPullRequest())
+        self.addStep(ValidateChangeContent())
         self.addStep(CheckStyle())
 
 
@@ -101,6 +103,7 @@ class SaferCPPStaticAnalyzerFactory(factory.BuildFactory):
         self.addStep(FetchBranches())
         self.addStep(ShowIdentifier())
         self.addStep(CheckOutPullRequest())
+        self.addStep(ValidateChangeContent())
         self.addStep(KillOldProcesses())
         self.addStep(ValidateChange(addURLs=False))
         self.addStep(InstallCMake())
@@ -423,6 +426,7 @@ class MergeQueueFactoryBase(factory.BuildFactory):
         self.addStep(ShowIdentifier())
         self.addStep(InstallHooks())
         self.addStep(CheckOutPullRequest())
+        self.addStep(ValidateChangeContent(block_pr_on_failure=True))
         self.addStep(ValidateRemote())
         self.addStep(ValidateSquashed())
         self.addStep(AddReviewerToCommitMessage())
