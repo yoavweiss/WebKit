@@ -10513,6 +10513,7 @@
         "web-platform-tests/css/cssom/insertRule-from-script-ref.html",
         "web-platform-tests/css/cssom/medialist-dynamic-001-ref.html",
         "web-platform-tests/css/cssom/selectorText-modification-restyle-001-ref.html",
+        "web-platform-tests/css/cssom/style-attr-clone-ref.html",
         "web-platform-tests/css/cssom/stylesheet-replacedata-dynamic-ref.html",
         "web-platform-tests/css/cssom/support/xmlss-pi.xhtml",
         "web-platform-tests/css/filter-effects/backdrop-filter-backdrop-root-animation-in-effect-ref.html",
