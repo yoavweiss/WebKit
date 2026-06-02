@@ -7668,46 +7668,7 @@ void WebViewImpl::didUpdateTransientZoomStateForScrollPocket(std::optional<Trans
     }
 
     m_transientZoomStateForScrollPocket = state;
-#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
     updateWebContentDistancesFromEdges();
-#endif
-}
-
-#endif
-
-#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
-
-void WebViewImpl::setClientImplicitlyRequestedTopScrollPocket()
-{
-    if (m_clientImplicitlyRequestedTopScrollPocket)
-        return;
-
-    m_clientImplicitlyRequestedTopScrollPocket = true;
-    updateScrollPocket();
-}
-
-void WebViewImpl::updatePrefersSolidColorHardPocket()
-{
-    static bool canSetPrefersSolidColorHardPocket = [NSScrollPocket instancesRespondToSelector:@selector(setPrefersSolidColorHardPocket:)];
-    if (!canSetPrefersSolidColorHardPocket)
-        return;
-
-    RetainPtr view = m_view.get();
-    if (!view)
-        return;
-
-    [m_topScrollPocket setPrefersSolidColorHardPocket:^{
-        if ([view _hasVisibleColorExtensionView:BoxSide::Top])
-            return YES;
-
-        if (pageIsScrolledToTop())
-            return YES;
-
-        if (view->_preferSolidColorHardPocketReasons)
-            return YES;
-
-        return NO;
-    }()];
 }
 
 void WebViewImpl::updateWebContentDistancesFromEdges()
@@ -7746,8 +7707,47 @@ void WebViewImpl::updateWebContentDistancesFromEdges()
 
     m_webContentDistanceFromLeftEdge = leftDistance;
     m_webContentDistanceFromRightEdge = rightDistance;
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
     updateScrollPocket();
     [view _updateFixedColorExtensionViewFrames];
+#endif
+}
+
+#endif
+
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+
+void WebViewImpl::setClientImplicitlyRequestedTopScrollPocket()
+{
+    if (m_clientImplicitlyRequestedTopScrollPocket)
+        return;
+
+    m_clientImplicitlyRequestedTopScrollPocket = true;
+    updateScrollPocket();
+}
+
+void WebViewImpl::updatePrefersSolidColorHardPocket()
+{
+    static bool canSetPrefersSolidColorHardPocket = [NSScrollPocket instancesRespondToSelector:@selector(setPrefersSolidColorHardPocket:)];
+    if (!canSetPrefersSolidColorHardPocket)
+        return;
+
+    RetainPtr view = m_view.get();
+    if (!view)
+        return;
+
+    [m_topScrollPocket setPrefersSolidColorHardPocket:^{
+        if ([view _hasVisibleColorExtensionView:BoxSide::Top])
+            return YES;
+
+        if (pageIsScrolledToTop())
+            return YES;
+
+        if (view->_preferSolidColorHardPocketReasons)
+            return YES;
+
+        return NO;
+    }()];
 }
 
 void WebViewImpl::updateScrollPocket()

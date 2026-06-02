@@ -556,7 +556,7 @@ struct PageState {
     double minScrollXCSS;
     double scrollWidthCSS;
     double scale;
-    bool isRTL;
+    BOOL isRTL;
 };
 
 static PageState capturePageState(TestWKWebView *webView)
