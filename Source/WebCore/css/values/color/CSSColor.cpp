@@ -37,6 +37,7 @@
 #include "CSSPrimitiveNumericTypes+CSSValueVisitation.h"
 #include "CSSPrimitiveNumericTypes+ComputedStyleDependencies.h"
 #include "CSSPrimitiveNumericTypes+Serialization.h"
+#include "CSSRelativeAlphaColor.h"
 #include "CSSRelativeColor.h"
 #include "DeprecatedCSSOMPrimitiveValue.h"
 #include "StyleColorResolutionState.h"
@@ -85,6 +86,11 @@ Color::Color(ContrastColor&& color)
 }
 
 Color::Color(LightDarkColor&& color)
+    : value { makeIndirectColor(WTF::move(color)) }
+{
+}
+
+Color::Color(RelativeAlphaColor&& color)
     : value { makeIndirectColor(WTF::move(color)) }
 {
 }

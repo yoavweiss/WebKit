@@ -101,7 +101,7 @@ template<typename Numeric, CSS::SpecificKeyword... Ks> struct LengthWrapperBase 
 
              if (opaqueType == indexForFixed)       return Specified(Fixed { m_value.value() });
         else if (opaqueType == indexForPercentage)  return Specified(Percentage { m_value.value() });
-        else if (opaqueType == indexForCalc)        return Specified(Calc { m_value.calculationValue() });
+        else if (opaqueType == indexForCalc)        SUPPRESS_FORWARD_DECL_ARG return Specified(Calc { m_value.calculationValue() });
         else                                        return { };
     }
 
@@ -145,7 +145,7 @@ template<typename Numeric, CSS::SpecificKeyword... Ks> struct LengthWrapperBase 
 
              if (opaqueType == indexForFixed)       return visitor(Specified(Fixed { m_value.value() }));
         else if (opaqueType == indexForPercentage)  return visitor(Specified(Percentage { m_value.value() }));
-        else if (opaqueType == indexForCalc)        return visitor(Specified(Calc { m_value.calculationValue() }));
+        else if (opaqueType == indexForCalc)        SUPPRESS_FORWARD_DECL_ARG return visitor(Specified(Calc { m_value.calculationValue() }));
 
         RELEASE_ASSERT_NOT_REACHED();
     }

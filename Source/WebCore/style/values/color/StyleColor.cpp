@@ -51,6 +51,7 @@
 #include "StyleHexColor.h"
 #include "StyleKeywordColor.h"
 #include "StyleLightDarkColor.h"
+#include "StyleRelativeAlphaColor.h"
 #include "StyleRelativeColor.h"
 #include <wtf/text/TextStream.h>
 
@@ -124,6 +125,11 @@ Color::Color(ColorMix&& colorMix)
 
 Color::Color(ContrastColor&& contrastColor)
     : value { makeIndirectColor(WTF::move(contrastColor)) }
+{
+}
+
+Color::Color(RelativeAlphaColor&& relativeAlphaColor)
+    : value { makeIndirectColor(WTF::move(relativeAlphaColor)) }
 {
 }
 
@@ -273,6 +279,11 @@ bool Color::isColorMix() const
 bool Color::isContrastColor() const
 {
     return std::holds_alternative<UniqueRef<ContrastColor>>(value);
+}
+
+bool Color::isRelativeAlphaColor() const
+{
+    return std::holds_alternative<UniqueRef<RelativeAlphaColor>>(value);
 }
 
 bool Color::isRelativeColor() const

@@ -230,7 +230,7 @@ template<typename T> auto simplifyUnevaluatedCalc(const T& component, const CSST
 
 template<typename... Ts> auto simplifyUnevaluatedCalc(const Variant<Ts...>& component, const CSSToLengthConversionData& conversionData, const CSSCalcSymbolTable& symbolTable) -> Variant<Ts...>
 {
-    return WTF::switchOn(component, [&](auto alternative) -> bool { return simplifyUnevaluatedCalc(alternative, conversionData, symbolTable); });
+    return WTF::switchOn(component, [&](auto alternative) -> Variant<Ts...> { return simplifyUnevaluatedCalc(alternative, conversionData, symbolTable); });
 }
 
 template<typename T> decltype(auto) simplifyUnevaluatedCalc(const std::optional<T>& component, const CSSToLengthConversionData& conversionData, const CSSCalcSymbolTable& symbolTable)

@@ -57,6 +57,7 @@
 #include "CSSPropertyParserConsumer+Primitives.h"
 #include "CSSPropertyParserConsumer+SymbolDefinitions.h"
 #include "CSSPropertyParsing.h"
+#include "CSSRelativeAlphaColor.h"
 #include "CSSRelativeColor.h"
 #include "CSSResolvedColor.h"
 #include "CSSTokenizer.h"
@@ -676,6 +677,57 @@ static std::optional<CSS::Color> consumeLightDarkFunction(CSSParserTokenRange& r
     };
 }
 
+// MARK: - alpha()
+
+static std::optional<CSS::Color> consumeRelativeAlphaColorFunction(CSSParserTokenRange& range, ColorParserState& state)
+{
+    // alpha() = alpha([from <color>] [ / [<alpha-value> | none] ]? )
+    // https://drafts.csswg.org/css-color-5/#relative-alpha
+
+    ASSERT(range.peek().functionId() == CSSValueAlpha);
+
+    using Descriptor = CSS::RelativeAlphaColor::Descriptor;
+
+    auto args = consumeFunction(range);
+
+    if (!consumeIdentRaw<CSSValueFrom>(args))
+        return std::nullopt;
+
+    auto originColor = consumeColor(args, state);
+    if (!originColor)
+        return { };
+
+    if (args.atEnd()) {
+        return CSS::Color {
+            CSS::RelativeAlphaColor {
+                .origin = WTF::move(*originColor),
+                .alpha = std::nullopt,
+            }
+        };
+    }
+
+    if (!consumeSlashIncludingWhitespace(args))
+        return std::nullopt;
+
+    const CSSCalcSymbolsAllowed symbolsAllowed {
+        { std::get<0>(Descriptor::components).symbol, CSSUnitType::CSS_NUMBER },
+    };
+
+    auto alpha = consumeRelativeComponent<Descriptor, 0>(args, state, symbolsAllowed);
+    if (!alpha)
+        return std::nullopt;
+
+    if (!args.atEnd())
+        return std::nullopt;
+
+    return CSS::Color {
+        CSS::RelativeAlphaColor {
+            .origin = WTF::move(*originColor),
+            .alpha = WTF::move(*alpha),
+        }
+    };
+}
+
 // MARK: - Color function dispatch
 
 // NOTE: This is named "consume*A*ColorFunction" to differentiate if from the
@@ -723,6 +775,9 @@ static std::optional<CSS::Color> consumeAColorFunction(CSSParserTokenRange& rang
         break;
     case CSSValueLightDark:
         color = consumeLightDarkFunction(colorRange, state);
+        break;
+    case CSSValueAlpha:
+        color = consumeRelativeAlphaColorFunction(colorRange, state);
         break;
     default:
         return { };

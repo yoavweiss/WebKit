@@ -1195,6 +1195,8 @@ css/values/color/CSSHexColor.cpp
 css/values/color/CSSKeywordColor.cpp @header:RenderStyleGetters
 css/values/color/CSSLightDarkColor.cpp
 css/values/color/CSSPlatformColorResolutionState.cpp
+css/values/color/CSSRelativeAlphaColor.cpp
+css/values/color/CSSRelativeAlphaColorResolver.cpp
 css/values/color/CSSResolvedColor.cpp
 css/values/content/CSSContent.cpp
 css/values/content/CSSQuotes.cpp
@@ -3330,6 +3332,7 @@ style/values/color/StyleHexColor.cpp
 style/values/color/StyleKeywordColor.cpp @header:RenderStyleGetters
 style/values/color/StyleLightDarkColor.cpp
 style/values/color/StyleOpacity.cpp
+style/values/color/StyleRelativeAlphaColor.cpp
 style/values/color/StyleResolvedColor.cpp
 style/values/contain/StyleContain.cpp
 style/values/contain/StyleContainerType.cpp
