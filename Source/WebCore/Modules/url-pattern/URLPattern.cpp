@@ -217,7 +217,7 @@ ExceptionOr<Ref<URLPattern>> URLPattern::create(ScriptExecutionContext& context,
     URLPatternInit init;
 
     if (std::holds_alternative<String>(input) && !std::get<String>(input).isNull()) {
-        auto maybeInit = URLPatternConstructorStringParser(WTF::move(std::get<String>(input))).parse(context);
+        auto maybeInit = URLPatternConstructorStringParser(std::get<String>(input)).parse(context);
         if (maybeInit.hasException())
             return maybeInit.releaseException();
         init = maybeInit.releaseReturnValue();
