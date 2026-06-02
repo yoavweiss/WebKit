@@ -138,13 +138,10 @@ void HTMLButtonElement::attributeChanged(const QualifiedName& name, const AtomSt
 
 RefPtr<Element> HTMLButtonElement::commandForElement() const
 {
-    auto canInvoke = [](const HTMLFormControlElement& element) -> bool {
-        if (!element.document().settings().commandAttributesEnabled())
-            return false;
-        return is<HTMLButtonElement>(element);
-    };
+    if (!document().settings().commandAttributesEnabled())
+        return nullptr;
 
-    if (!canInvoke(*this))
+    if (isDisabledFormControl())
         return nullptr;
 
     return elementForAttributeInternal(commandforAttr);

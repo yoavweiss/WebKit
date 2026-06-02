@@ -4823,6 +4823,7 @@ imported/w3c/web-platform-tests/uievents/order-of-events/mouse-events/wheel-scro
 webkit.org/b/310625 imported/w3c/web-platform-tests/html/semantics/popovers/popover-light-dismiss.html [ Failure ]
 webkit.org/b/310625 imported/w3c/web-platform-tests/html/semantics/popovers/popover-light-dismiss-input-button.html [ Failure ]
 webkit.org/b/310625 imported/w3c/web-platform-tests/html/semantics/popovers/popover-light-dismiss-input-text.html [ Failure ]
+webkit.org/b/310625 imported/w3c/web-platform-tests/html/semantics/popovers/popover-light-dismiss-disabled-button.html [ Failure ]
 
 # Failing word-break: auto-phrase tests.
 webkit.org/b/257698 imported/w3c/web-platform-tests/css/css-text/word-break/auto-phrase/word-break-auto-phrase-004.html [ ImageOnlyFailure ]
