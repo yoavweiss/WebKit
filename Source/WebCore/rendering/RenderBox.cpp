@@ -5279,6 +5279,22 @@ bool RenderBox::isBlockSizeResolvableForStretch() const
     return false;
 }
 
+bool RenderBox::logicalHeightBehavesAsAuto() const
+{
+    auto height = style().logicalHeight();
+    if (height.isAuto() || height.isIntrinsic() || isUnresolveableStretchSize(height))
+        return true;
+    // A percentage/calc that does not resolve against the containing block behaves as auto. Resolvability
+    // is checked from the containing block's style only (hasDefiniteLogicalHeightForPercentageResolutionFromStyle), so this stays
+    // side-effect-free (no percent-height descendant registration) and independent of transient layout
+    // state - unlike percentageLogicalHeightIsResolvable().
+    if (!isOutOfFlowPositioned() && height.isPercentOrCalculated()) {
+        CheckedPtr containingBlock = this->containingBlock();
+        return containingBlock && !containingBlock->hasDefiniteLogicalHeightForPercentageResolutionFromStyle();
+    }
+    return false;
+}
+
 bool RenderBox::shouldComputeLogicalHeightFromAspectRatio() const
 {
     if (shouldIgnoreAspectRatio())

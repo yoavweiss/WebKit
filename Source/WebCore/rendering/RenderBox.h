@@ -475,6 +475,7 @@ public:
     bool usesCompositedScrolling() const;
     
     bool percentageLogicalHeightIsResolvable() const;
+    bool logicalHeightBehavesAsAuto() const;
     bool hasUnsplittableScrollingOverflow() const;
     bool isUnsplittableForPagination() const;
 

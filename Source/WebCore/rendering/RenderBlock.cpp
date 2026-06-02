@@ -2999,6 +2999,77 @@ bool RenderBlock::hasDefiniteLogicalHeight() const
     return (bool)availableLogicalHeightForPercentageComputation();
 }
 
+bool RenderBlock::hasDefiniteLogicalHeightForPercentageResolutionFromStyle() const
+{
+    // Whether a percentage or stretch block-size on a descendant resolves to a definite value against this
+    // block, from style alone - no transient flex/grid overriding sizes, and no percent-height descendant
+    // registration (unlike percentageLogicalHeightIsResolvable). This answers whether THIS block is a definite
+    // resolution basis for its descendants; it is NOT "is my own height definite" - a viewport-stretched quirks
+    // <body> or an aspect-ratio box answers true while its own height still behaves as auto.
+    if (is<RenderView>(*this) || stretchesToViewport())
+        return true;
+
+    if (isOutOfFlowPositioned() && !style().logicalTop().isAuto() && !style().logicalBottom().isAuto())
+        return true;
+
+    // An out-of-flow box always gets computed used dimensions, even when an ancestor's style height is
+    // auto. Percentage and stretch heights resolve against those used dimensions, so they are definite -
+    // matching the out-of-flow early-bail in containingBlockForAutoHeightDetectionGeneric.
+    if (isOutOfFlowPositioned()) {
+        auto& logicalHeight = style().logicalHeight();
+        if (logicalHeight.isPercentOrCalculated() || logicalHeight.isStretch())
+            return true;
+    }
+
+    if (isGridItem() && gridAreaContentLogicalHeight())
+        return true;
+
+    if (isFlexItem()) {
+        auto hasDefiniteHeight = [&] {
+            auto& flexContainer = downcast<RenderFlexibleBox>(*parent());
+            // §9.8 rule 3: stretched cross-axis items have definite cross size.
+            if (flexContainer.mainAxisIsFlexItemInlineAxis(*this))
+                return flexContainer.alignmentForFlexItem(*this) == ItemPosition::Stretch;
+            // §9.8 rule 2: definite flex-basis makes post-flexing main size definite.
+            auto flexBasis = flexContainer.flexBasisForFlexItem(*this);
+            if (!flexBasis.isAuto() && !flexBasis.isContent() && !flexBasis.isPercentOrCalculated() && !flexBasis.isIntrinsic())
+                return true;
+            // §9.8 rule 1: definite container main size makes all items definite.
+            return flexContainer.hasDefiniteLogicalHeightForPercentageResolutionFromStyle();
+        };
+        if (hasDefiniteHeight())
+            return true;
+    }
+
+    // Percentage and stretch heights are only definite if the ancestor they resolve against is definite.
+    auto ancestorHasDefiniteHeight = [&] {
+        for (CheckedPtr ancestor = containingBlock(); ancestor; ancestor = ancestor->containingBlock()) {
+            if (!ancestor->shouldSkipForPercentageResolution())
+                return ancestor->hasDefiniteLogicalHeightForPercentageResolutionFromStyle();
+        }
+        ASSERT_NOT_REACHED();
+        return false;
+    };
+
+    auto& logicalHeight = style().logicalHeight();
+    if (logicalHeight.isPercentOrCalculated()) {
+        if (document().inQuirksMode()) {
+            // In quirks mode, percentage heights resolve freely unless inside a flex container (does not apply to stretch).
+            CheckedPtr ancestor = containingBlock();
+            return !ancestor || !ancestor->isFlexibleBoxIncludingDeprecated();
+        }
+        return ancestorHasDefiniteHeight();
+    }
+
+    if (logicalHeight.isStretch())
+        return ancestorHasDefiniteHeight();
+
+    if (shouldComputeLogicalHeightFromAspectRatio())
+        return true;
+
+    return !logicalHeight.isAuto() && !logicalHeight.isIntrinsic();
+}
+
 std::optional<LayoutUnit> RenderBlock::availableLogicalHeightForPercentageComputation() const
 {
     // For anonymous blocks that are skipped during percentage height calculation,

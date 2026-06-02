@@ -226,6 +226,7 @@ public:
 
     std::optional<LayoutUnit> availableLogicalHeightForPercentageComputation() const;
     bool hasDefiniteLogicalHeight() const;
+    bool hasDefiniteLogicalHeightForPercentageResolutionFromStyle() const;
 
     static String updateSecurityDiscCharacters(const RenderStyle&, String&&);
 

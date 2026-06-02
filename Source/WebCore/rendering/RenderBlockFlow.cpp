@@ -129,21 +129,20 @@ void RenderBlockFlow::resetInlineContentCache()
 // Our MarginInfo state used when laying out block children.
 RenderBlockFlow::MarginInfo::MarginInfo(const RenderBlockFlow& block, IgnoreScrollbarForAfterMargin ignoreScrollbarForAfterMargin)
 {
-    auto& blockStyle = block.style();
     ASSERT(block.isRenderView() || block.parent());
 
     m_canCollapseWithChildren = !block.createsNewFormattingContext() && !block.isRenderView();
-
     m_canCollapseMarginBeforeWithChildren = m_canCollapseWithChildren && !block.borderAndPaddingBefore();
 
-    // If any height other than auto is specified in CSS, then we don't collapse our bottom
-    // margins with our children's margins. To do otherwise would be to risk odd visual
-    // effects when the children overflow out of the parent block and yet still collapse
-    // with it. We also don't collapse if we have any bottom border/padding.
+    // We only collapse our bottom margin with our children's when our block size "behaves as auto"
+    // (CSS Sizing 3) - auto, an intrinsic keyword, an unresolveable stretch, or a cyclic percentage. A
+    // specified/resolvable height would risk odd visual effects when children overflow the parent yet
+    // still collapse with it. We also don't collapse if we have any bottom border/padding.
     auto canCollapseMarginAfterWithChildren = [&]() -> bool {
         if (!m_canCollapseWithChildren)
             return false;
-        if (!blockStyle.logicalHeight().isAuto())
+
+        if (!block.logicalHeightBehavesAsAuto())
             return false;
         if (block.borderAndPaddingAfter())
             return false;
