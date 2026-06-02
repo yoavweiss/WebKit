@@ -1335,6 +1335,11 @@ void Document::invalidateQuerySelectorAllResultsForClassAttributeChange(Node& st
 
 void Document::clearQuerySelectorAllResults()
 {
+    // The map holds only weak references, so its keyed nodes outlive this clear. Reset their per-node flag too, or a
+    // surviving node keeps claiming valid cached results after its entry is gone, asserting in the invalidation path
+    // (invalidateQuerySelectorAllResultsForClassAttributeChange) when it looks up an entry the clear already removed.
+    for (auto entry : m_querySelectorAllResults)
+        entry.key.setHasValidQuerySelectorAllResults(false);
     m_querySelectorAllResults.clear();
 }
 
