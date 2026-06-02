@@ -2429,6 +2429,8 @@ webkit.org/b/315980 [ Sequoia Release x86_64 ] fast/css/video-poster-zoom.html [
 
 webkit.org/b/315981 [ Sequoia Release x86_64 ] imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/media_fragment_seek.html [ Pass Failure ]
 
+webkit.org/b/316117 [ Tahoe+ Debug ] fast/dom/gc-dom-tree-lifetime-shadow-tree.html [ Pass Failure ]
+
 webkit.org/b/316016 [ Debug ] fast/mediastream/image-capture-take-photo.html [ Skip ]
 
 webkit.org/b/316014 fast/dom/move-embedded-during-update.html [ Pass Failure ]
