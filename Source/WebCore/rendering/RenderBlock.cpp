@@ -778,8 +778,12 @@ bool RenderBlock::simplifiedLayout()
         return false;
 
     LayoutStateMaintainer statePusher(*this, locationOffset(), isTransformed() || hasReflection() || writingMode().isBlockFlipped());
-    if (needsOutOfFlowMovementLayout() && !tryLayoutDoingOutOfFlowMovementOnly())
-        return false;
+    bool didOutOfFlowMovement = false;
+    if (needsOutOfFlowMovementLayout()) {
+        if (!tryLayoutDoingOutOfFlowMovementOnly())
+            return false;
+        didOutOfFlowMovement = true;
+    }
 
     // Lay out positioned descendants or objects that just need to recompute overflow.
     if (needsSimplifiedNormalFlowLayout())
@@ -805,7 +809,12 @@ bool RenderBlock::simplifiedLayout()
         layoutOutOfFlowBoxes(RelayoutChildren::No, !outOfFlowChildNeedsLayout() && canContainFixedPosObjects);
     addOverflowFromOutOfFlowBoxes();
 
-    updateLayerTransform();
+    // Transform-origin depends on box size. When simplified layout doesn't change our
+    // dimensions, the transform computed in styleChanged() is still valid.
+    // However, tryLayoutDoingOutOfFlowMovementOnly() may change our height, requiring a
+    // transform update.
+    if (didOutOfFlowMovement)
+        updateLayerTransform();
 
     {
         RelayoutScopeForScrollbarChange relayoutScope { *this, InOverflowRelayout::No };
