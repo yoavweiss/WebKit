@@ -2179,7 +2179,10 @@ void DocumentLoader::startLoadingMainResource()
     RefPtr frame = m_frame.get();
     m_canUseServiceWorkers = canUseServiceWorkers(frame.get());
     m_mainDocumentError = ResourceError();
-    timing().markStartTime();
+    if (m_originalNavigationStartTime)
+        timing().setStartTime(m_originalNavigationStartTime);
+    else
+        timing().markStartTime();
     ASSERT(!m_mainResource);
     ASSERT(!m_loadingMainResource);
     m_loadingMainResource = true;
