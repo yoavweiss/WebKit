@@ -6496,6 +6496,13 @@ struct WebCore::AcceleratedEffectTransformOrigin {
     WebCore::FloatPoint value;
 };
 
+struct WebCore::AcceleratedEffectClipPath {
+    Variant<WebCore::AcceleratedEffectClipPath::None, WebCore::AcceleratedEffectReferencePath, WebCore::AcceleratedEffectBasicShapePath, WebCore::AcceleratedEffectBoxPath> value;
+};
+
+[Nested] struct WebCore::AcceleratedEffectClipPath::None {
+};
+
 struct WebCore::AcceleratedEffectValues {
     WebCore::AcceleratedEffectOpacity opacity;
     std::optional<WebCore::TransformOperationData> transformOperationData;

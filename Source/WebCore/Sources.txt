@@ -2484,6 +2484,7 @@ platform/animation/AcceleratedEffectStack.cpp @no-unify
 platform/animation/AcceleratedEffectValues.cpp @header:RenderStyleGetters
 platform/animation/AcceleratedTimeline.cpp
 platform/animation/TimingFunction.cpp
+platform/animation/values/AcceleratedEffectClipPath.cpp
 platform/animation/values/AcceleratedEffectOffsetAnchor.cpp
 platform/animation/values/AcceleratedEffectOffsetDistance.cpp
 platform/animation/values/AcceleratedEffectOffsetPath.cpp
