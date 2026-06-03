@@ -4169,6 +4169,8 @@ webkit.org/b/169910 fast/multicol/simple-line-layout-line-index-after-strut.html
 
 webkit.org/b/169917 webgl/1.0.x/conformance/glsl/bugs/temp-expressions-should-not-crash.html [ Slow ]
 webkit.org/b/169917 webgl/1.0.x/conformance/rendering/many-draw-calls.html [ Slow ]
+
+webkit.org/b/316165 workers/bomb.html [ Slow ]
 webkit.org/b/257624 [ Debug ] webgl/2.0.y/conformance/rendering/texture-switch-performance.html [ Failure Pass ]
 webkit.org/b/257624 [ Debug ] webgl/1.0.x/conformance/rendering/texture-switch-performance.html [ Failure Pass ]
 webkit.org/b/169917 webgl/1.0.x/conformance/uniforms/gl-uniform-arrays.html [ Slow ]
