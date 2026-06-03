@@ -29,7 +29,6 @@
 #include "ElementChildIteratorInlines.h"
 #include "LegacyRenderSVGResource.h"
 #include "PathTraversalState.h"
-#include "RenderLayerModelObject.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGImageElement.h"
 #include "SVGMPathElement.h"
@@ -39,6 +38,7 @@
 #include "SVGPathElement.h"
 #include "SVGPathUtilities.h"
 #include "Settings.h"
+#include "StyleUpdate.h"
 #include <wtf/MathExtras.h>
 #include <wtf/StdLibExtras.h>
 #include <wtf/TZoneMallocInlines.h>
@@ -256,9 +256,7 @@ void SVGAnimateMotionElement::applyResultsToTarget()
 
     auto updateTargetElement = [](SVGElement& element) {
         if (element.document().settings().layerBasedSVGEngineEnabled()) {
-            if (CheckedPtr layerRenderer = dynamicDowncast<RenderLayerModelObject>(element.renderer()))
-                layerRenderer->repaintOrRelayoutAfterSVGTransformChange();
-            element.updateSVGRendererForElementChange();
+            element.updateSVGRendererForElementChange(Style::SVGRendererUpdateType::TransformAttributeOnly);
             return;
         }
         if (CheckedPtr renderer = element.renderer())

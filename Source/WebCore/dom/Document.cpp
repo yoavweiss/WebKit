@@ -190,6 +190,7 @@
 #include "LocalFrame.h"
 #include "LocalFrameLoaderClient.h"
 #include "LocalFrameView.h"
+#include "LocalFrameViewLayoutContext.h"
 #include "Logging.h"
 #include "MediaCanStartListener.h"
 #include "MediaProducer.h"
@@ -253,6 +254,7 @@
 #include "RenderElementInlines.h"
 #include "RenderInline.h"
 #include "RenderLayerCompositor.h"
+#include "RenderLayerModelObject.h"
 #include "RenderLayoutState.h"
 #include "RenderLineBreak.h"
 #include "RenderObjectInlines.h"
@@ -323,6 +325,7 @@
 #include "StyleSheetContents.h"
 #include "StyleSheetList.h"
 #include "StyleTreeResolverInlines.h"
+#include "StyleUpdate.h"
 #include "StyleZoomPrimitivesInlines.h"
 #include "SubresourceLoader.h"
 #include "SystemPreviewInfo.h"
@@ -2916,10 +2919,20 @@ void Document::updateTextRenderer(Text& text, unsigned offsetOfReplacedText, uns
     ensurePendingRenderTreeUpdate().addText(text, { offsetOfReplacedText, lengthOfReplacedText, std::nullopt });
 }
 
-void Document::updateSVGRenderer(SVGElement& element)
+void Document::updateSVGRenderer(SVGElement& element, Style::SVGRendererUpdateType kind)
 {
     if (!hasLivingRenderTree())
         return;
+
+    // TransformAttributeOnly bypasses Style::Update so it does not flip needsStyleRecalc()
+    // true and force a resolveStyle pass every animation frame.
+    if (kind == Style::SVGRendererUpdateType::TransformAttributeOnly) {
+        if (CheckedPtr layerRenderer = dynamicDowncast<RenderLayerModelObject>(element.renderer())) {
+            if (RefPtr frameView = view())
+                frameView->layoutContext().addPendingSVGTransformAttributeUpdate(*layerRenderer);
+        }
+        return;
+    }
 
     ensurePendingRenderTreeUpdate().addSVGRendererUpdate(element);
 }
@@ -3062,6 +3075,11 @@ auto Document::updateLayout(OptionSet<LayoutOptions> layoutOptions, const Elemen
         if (updateStyleIfNeeded())
             result = UpdateLayoutResult::ChangesDone;
 
+        // LBSE: drain queued transform-attribute updates after style recalc so updateLayerTransform
+        // sees post-style geometry and re-enqueues from style callbacks land in this pass.
+        if (frameView)
+            frameView->layoutContext().flushPendingSVGTransformAttributeUpdatesIfNeeded();
+
         StackStats::LayoutCheckPoint layoutCheckPoint;
 
         if (frameView && renderView()) {
@@ -3191,6 +3209,12 @@ bool Document::updateLayoutIfDimensionsOutOfDate(Element& element, OptionSet<Dim
 
     // Check for re-entrancy and assert (same code that is in updateLayout()).
     RefPtr frameView = view();
+
+    // LBSE: drain before the re-entrancy early-return so re-entrant geometry queries see
+    // the fresh layer transform.
+    if (frameView)
+        frameView->layoutContext().flushPendingSVGTransformAttributeUpdatesIfNeeded();
+
     if (frameView && frameView->layoutContext().isInRenderTreeLayout()) {
         // View layout should not be re-entrant.
         ASSERT_NOT_REACHED();
@@ -3210,6 +3234,11 @@ bool Document::updateLayoutIfDimensionsOutOfDate(Element& element, OptionSet<Dim
     updateRelevancyOfContentVisibilityElements();
 
     updateStyleIfNeeded();
+
+    // LBSE: drain queued transform-attribute updates after style recalc so updateLayerTransform
+    // sees post-style geometry, and re-enqueues from style callbacks land here.
+    if (frameView)
+        frameView->layoutContext().flushPendingSVGTransformAttributeUpdatesIfNeeded();
 
     if (layoutOptions.containsAll({ LayoutOptions::TreatContentVisibilityHiddenAsVisible, LayoutOptions::TreatContentVisibilityAutoAsVisible })) {
         if (CheckedPtr renderer = element.renderer(); renderer &&  renderer->style().isSkippedRootOrSkippedContent()) {

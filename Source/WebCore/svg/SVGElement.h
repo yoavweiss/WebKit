@@ -57,6 +57,10 @@ enum class CTMScope : bool;
 enum class CalcMode : uint8_t;
 enum class SVGParsingError : uint8_t;
 
+namespace Style {
+enum class SVGRendererUpdateType : bool;
+}
+
 template<typename PropertyType>
 class SVGAnimatedPrimitiveProperty;
 
@@ -113,7 +117,7 @@ public:
 
     inline void setAnimatedSVGAttributesAreDirty();
     inline void setPresentationalHintStyleIsDirty();
-    void updateSVGRendererForElementChange();
+    void updateSVGRendererForElementChange(Style::SVGRendererUpdateType = Style::SVGRendererUpdateType { });
 
     // The instances of an element are clones made in shadow trees to implement <use>.
     const WeakHashSet<SVGElement, WeakPtrImplWithEventTargetData>& NODELETE instances() const;

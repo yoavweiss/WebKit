@@ -324,6 +324,10 @@ public:
     bool renderBoxHasShapeOutsideInfo() const { return m_renderBoxHasShapeOutsideInfo; }
     bool hasCachedSVGResource() const { return m_hasCachedSVGResource; }
 
+    // Dedup flag for LocalFrameViewLayoutContext::m_pendingSVGTransformAttributeUpdates.
+    bool isInPendingSVGTransformAttributeUpdates() const { return m_isInPendingSVGTransformAttributeUpdates; }
+    void setIsInPendingSVGTransformAttributeUpdates(bool b) { m_isInPendingSVGTransformAttributeUpdates = b; }
+
     bool isAnonymousBlock() const;
     bool shouldSkipForPercentageResolution() const { return isAnonymous() && !isViewTransitionPseudo() && !isRenderView(); }
     inline bool isBlockBox() const;
@@ -478,7 +482,8 @@ private:
     unsigned m_visibleInViewportState : 2;
     unsigned m_didContributeToVisuallyNonEmptyPixelCount : 1;
     unsigned m_scrollAnchoringSuppressionStyleChanged : 1 { false };
-    // 11 bits free.
+    unsigned m_isInPendingSVGTransformAttributeUpdates : 1 { false };
+    // 10 bits free.
 
     RenderStyle m_style;
 };

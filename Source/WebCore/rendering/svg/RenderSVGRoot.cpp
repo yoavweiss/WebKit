@@ -278,7 +278,11 @@ void RenderSVGRoot::layoutChildren()
     containerLayout.layoutChildren(selfNeedsLayout());
 
     SVGBoundingBoxComputation boundingBoxComputation(*this);
-    m_objectBoundingBox = boundingBoxComputation.computeDecoratedBoundingBox(SVGBoundingBoxComputation::objectBoundingBoxDecoration);
+    // The transform-dependent bounding boxes (objectBoundingBox / strokeBoundingBox) are
+    // recomputed lazily on demand in updateSVGTransformDependentBoundingBoxesIfNeeded(); layout
+    // only needs the without-transform box below for currentSVGLayoutRect, so just mark them
+    // dirty instead of paying a full subtree walk that is usually never read before the next layout.
+    m_transformDependentBoundingBoxesDirty = true;
     m_strokeBoundingBox = std::nullopt;
     m_cachedVisualOverflowRect = std::nullopt;
 
@@ -288,8 +292,14 @@ void RenderSVGRoot::layoutChildren()
     containerLayout.positionChildrenRelativeToContainer();
 }
 
+void RenderSVGRoot::updateSVGTransformDependentBoundingBoxesIfNeeded() const
+{
+    SVGBoundingBoxComputation::recomputeTransformDependentBoundingBoxes(*this, m_transformDependentBoundingBoxesDirty, m_objectBoundingBox, m_strokeBoundingBox);
+}
+
 FloatRect RenderSVGRoot::strokeBoundingBox() const
 {
+    updateSVGTransformDependentBoundingBoxesIfNeeded();
     if (!m_strokeBoundingBox) {
         // Initialize m_strokeBoundingBox before calling computeDecoratedBoundingBox, since recursively referenced markers can cause us to re-enter here.
         m_strokeBoundingBox = FloatRect { };

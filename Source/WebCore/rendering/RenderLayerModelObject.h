@@ -98,7 +98,14 @@ public:
     void updateHasSVGTransformFlags();
     virtual bool needsHasSVGTransformFlags() const { ASSERT_NOT_REACHED(); return false; }
 
-    void repaintOrRelayoutAfterSVGTransformChange();
+    enum class SVGAttributeChangeRepaintMode : bool {
+        // Issue a full repaint at the new position from inside the function.
+        Issue,
+        // Skip the post-mutation repaint - the caller will emit a delta repaint
+        // (via repaintAfterLayoutIfNeeded()) using a pre-mutation rect snapshot.
+        Defer
+    };
+    void updateTransformAndRepaintForSVGAfterAttributeChange(SVGAttributeChangeRepaintMode = SVGAttributeChangeRepaintMode::Issue);
 
     LayoutPoint nominalSVGLayoutLocation() const { return flooredLayoutPoint(objectBoundingBoxWithoutTransformations().minXMinYCorner()); }
     virtual LayoutPoint currentSVGLayoutLocation() const { ASSERT_NOT_REACHED(); return { }; }
@@ -129,6 +136,12 @@ public:
     void applyTransform(TransformationMatrix&, const RenderStyle&, const FloatRect& boundingBox) const;
 
     virtual void invalidateCachedVisualOverflowRect() { }
+
+    // LBSE: flag the transform-dependent bounding boxes (objectBoundingBox / strokeBoundingBox)
+    // for lazy recomputation. Overridden by RenderSVGContainer / RenderSVGRoot, which cache them.
+    // The deferred SVG transform-attribute flush uses it to dirty the container ancestor chain of
+    // a renderer whose transform changed without a layout. No-op otherwise.
+    virtual void invalidateCachedSVGTransformDependentBoundingBoxes() { }
 
     inline bool shouldUsePositionedClipping() const;
 

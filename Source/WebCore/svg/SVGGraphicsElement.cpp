@@ -50,6 +50,7 @@
 #include "SVGTransformComputation.h"
 #include "Settings.h"
 #include "StyleTransformResolver.h"
+#include "StyleUpdate.h"
 #include "TransformOperationData.h"
 #include "TransformState.h"
 #include <wtf/NeverDestroyed.h>
@@ -231,8 +232,7 @@ void SVGGraphicsElement::svgAttributeChanged(const QualifiedName& attrName)
         InstanceInvalidationGuard guard(*this);
 
         if (document().settings().layerBasedSVGEngineEnabled()) {
-            if (CheckedPtr layerRenderer = dynamicDowncast<RenderLayerModelObject>(renderer()))
-                layerRenderer->repaintOrRelayoutAfterSVGTransformChange();
+            updateSVGRendererForElementChange(Style::SVGRendererUpdateType::TransformAttributeOnly);
             return;
         }
 

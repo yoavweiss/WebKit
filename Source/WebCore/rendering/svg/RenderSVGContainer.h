@@ -38,13 +38,23 @@ public:
 
     void paint(PaintInfo&, const LayoutPoint&) override;
 
-    bool isObjectBoundingBoxValid() const { return m_objectBoundingBoxValid; }
+    bool isObjectBoundingBoxValid() const
+    {
+        updateSVGTransformDependentBoundingBoxesIfNeeded();
+        return m_objectBoundingBoxValid;
+    }
     bool isLayoutSizeChanged() const { return m_isLayoutSizeChanged; }
     bool didTransformToRootUpdate() const { return m_didTransformToRootUpdate; }
 
-    FloatRect objectBoundingBox() const final { return m_objectBoundingBox; }
+    FloatRect objectBoundingBox() const final
+    {
+        updateSVGTransformDependentBoundingBoxesIfNeeded();
+        return m_objectBoundingBox;
+    }
     FloatRect objectBoundingBoxWithoutTransformations() const final { return m_objectBoundingBoxWithoutTransformations; }
     FloatRect strokeBoundingBox() const final;
+
+    void invalidateCachedSVGTransformDependentBoundingBoxes() final { m_transformDependentBoundingBoxesDirty = true; }
     FloatRect repaintRectInLocalCoordinates(RepaintRectCalculation = RepaintRectCalculation::Fast) const final { return SVGBoundingBoxComputation::computeRepaintBoundingBox(*this); }
     FloatRect decoratedBoundingBox() const final { return SVGBoundingBoxComputation::computeDecoratedBoundingBox(*this); }
 
@@ -64,10 +74,19 @@ protected:
     bool nodeAtPoint(const HitTestRequest&, HitTestResult&, const HitTestLocation& locationInContainer, const LayoutPoint& accumulatedOffset, HitTestAction) override;
     void addFocusRingRects(Vector<LayoutRect>& rects, const LayoutPoint& additionalOffset, const RenderLayerModelObject* container) const override;
 
-    bool m_objectBoundingBoxValid { false };
     bool m_isLayoutSizeChanged { false };
     bool m_didTransformToRootUpdate { false };
-    FloatRect m_objectBoundingBox;
+
+private:
+    // Recompute m_objectBoundingBox / m_strokeBoundingBox lazily after a descendant transform
+    // changes via the deferred (layout-free) flush. Both fold in descendant transforms and go
+    // stale, unlike the without-transform and visual-overflow caches. Kept private so every read
+    // funnels through the getters above, which honor m_transformDependentBoundingBoxesDirty.
+    void updateSVGTransformDependentBoundingBoxesIfNeeded() const;
+
+    mutable bool m_objectBoundingBoxValid { false };
+    mutable bool m_transformDependentBoundingBoxesDirty { false };
+    mutable FloatRect m_objectBoundingBox;
     FloatRect m_objectBoundingBoxWithoutTransformations;
     mutable Markable<FloatRect> m_strokeBoundingBox;
 };

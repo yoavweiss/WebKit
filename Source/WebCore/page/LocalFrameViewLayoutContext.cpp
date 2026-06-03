@@ -47,8 +47,11 @@
 #include "RenderDescendantIterator.h"
 #include "RenderElement.h"
 #include "RenderElementInlines.h"
+#include "RenderLayer.h"
 #include "RenderLayerCompositor.h"
+#include "RenderLayerModelObject.h"
 #include "RenderLayoutState.h"
+#include "RenderSVGText.h"
 #include "RenderObjectInlines.h"
 #include "RenderStyle+GettersInlines.h"
 #include "RenderStyle.h"
@@ -399,6 +402,11 @@ void LocalFrameViewLayoutContext::requestUpdateLayerPositions(bool needsFullRepa
 
 void LocalFrameViewLayoutContext::flushUpdateLayerPositions()
 {
+    // LBSE: scroll-driven entry points reach this without going through Document::updateLayout.
+    // Drain pending in-place SVG transform updates first so the position walk sees fresh transforms.
+    // The recursive call from flushPendingSVGTransformAttributeUpdatesIfNeeded finds an empty queue and returns.
+    flushPendingSVGTransformAttributeUpdatesIfNeeded();
+
     if (!m_pendingUpdateLayerPositions)
         return;
 
@@ -447,6 +455,121 @@ void LocalFrameViewLayoutContext::markForUpdateLayerPositionsAfterSVGTransformCh
 
     requestUpdateLayerPositions();
     view->page().scheduleRenderingUpdate({ RenderingUpdateStep::LayerFlush });
+}
+
+void LocalFrameViewLayoutContext::addPendingSVGTransformAttributeUpdate(RenderLayerModelObject& renderer)
+{
+    CheckedPtr view = renderView();
+    if (!view)
+        return;
+
+    if (renderer.isInPendingSVGTransformAttributeUpdates())
+        return;
+    renderer.setIsInPendingSVGTransformAttributeUpdates(true);
+
+    bool wasEmpty = m_pendingSVGTransformAttributeUpdates.isEmpty();
+    m_pendingSVGTransformAttributeUpdates.append(SingleThreadWeakPtr<RenderLayerModelObject> { renderer });
+
+    // Do not call requestUpdateLayerPositions() here - it would make needsLayout() true and
+    // force a layout pass every animation frame. The flush runs the position update inline,
+    // keeping needsLayout() false.
+    if (wasEmpty)
+        view->page().scheduleRenderingUpdate({ RenderingUpdateStep::LayerFlush });
+}
+
+void LocalFrameViewLayoutContext::flushPendingSVGTransformAttributeUpdatesIfNeeded()
+{
+    if (m_pendingSVGTransformAttributeUpdates.isEmpty())
+        return;
+
+    // Drain queue and dedup flags up front so re-enqueues during the flush land in the
+    // now-empty queue.
+    auto pending = std::exchange(m_pendingSVGTransformAttributeUpdates, { });
+    for (auto& weakRenderer : pending) {
+        if (CheckedPtr renderer = weakRenderer.get())
+            renderer->setIsInPendingSVGTransformAttributeUpdates(false);
+    }
+
+    // Pass 1: record each non-layered renderer's repaint rect before its transform changes.
+    // Pass 3 then uses this old rect to emit a delta repaint (just the corner and edge strips
+    // that moved) via repaintAfterLayoutIfNeeded(), rather than repainting the full old rect plus
+    // the full new one. This mirrors the legacy engine's LayoutRepainter, except the old and new
+    // rects span the deferred flush instead of a single layout.
+    //
+    // Three kinds of renderer are skipped here:
+    //   - Layered renderers, handled instead by Pass 2's cached-rect diff.
+    //   - RenderSVGText, whose rect depends on text metrics computed during relayout. A snapshot
+    //     taken now would already hold the new rect, not the old one.
+    //   - Renderers that already need layout, covered by the upcoming layout's own LayoutRepainter.
+    struct NonLayeredSnapshot {
+        SingleThreadWeakPtr<RenderLayerModelObject> renderer;
+        SingleThreadWeakPtr<const RenderLayerModelObject> repaintContainer;
+        RenderObject::RepaintRects oldRects;
+    };
+    Vector<NonLayeredSnapshot> nonLayeredSnapshots;
+    nonLayeredSnapshots.reserveInitialCapacity(pending.size());
+    for (auto& weakRenderer : pending) {
+        CheckedPtr renderer = weakRenderer.get();
+        if (!renderer || renderer->renderTreeBeingDestroyed())
+            continue;
+        if (renderer->hasLayer() || is<RenderSVGText>(*renderer) || renderer->needsLayout())
+            continue;
+        CheckedPtr repaintContainer = renderer->containerForRepaint().renderer;
+        nonLayeredSnapshots.append({
+            SingleThreadWeakPtr<RenderLayerModelObject> { *renderer },
+            SingleThreadWeakPtr<const RenderLayerModelObject> { repaintContainer.get() },
+            renderer->rectsForRepaintingAfterLayout(repaintContainer.get(), RepaintOutlineBounds::Yes)
+        });
+    }
+
+    bool anyWorkDone = false;
+    for (auto& weakRenderer : pending) {
+        CheckedPtr renderer = weakRenderer.get();
+        if (!renderer || renderer->renderTreeBeingDestroyed())
+            continue;
+        // Layered and text renderers issue their own post-mutation invalidation. Non-layered
+        // renderers defer it; Pass 3 emits the delta repaint using the Pass 1 snapshot.
+        auto repaintMode = (renderer->hasLayer() || is<RenderSVGText>(*renderer))
+            ? RenderLayerModelObject::SVGAttributeChangeRepaintMode::Issue
+            : RenderLayerModelObject::SVGAttributeChangeRepaintMode::Defer;
+        renderer->updateTransformAndRepaintForSVGAfterAttributeChange(repaintMode);
+        anyWorkDone = true;
+
+        // A container/root ancestor's objectBoundingBox()/strokeBoundingBox() folds in its
+        // descendants' transforms but is only refreshed at layout, which this path skips. Mark
+        // the container ancestor chain dirty so getBBox()/objectBoundingBox-units resources
+        // recompute lazily. Walking parent() covers layered and non-layered alike. Re-marking an
+        // already-dirty ancestor is a cheap idempotent bool write, so shared chains just re-touch.
+        for (CheckedPtr ancestor = renderer->parent(); ancestor; ancestor = ancestor->parent()) {
+            if (CheckedPtr svgAncestor = dynamicDowncast<RenderLayerModelObject>(ancestor.get()))
+                svgAncestor->invalidateCachedSVGTransformDependentBoundingBoxes();
+            if (ancestor->isRenderSVGRoot())
+                break;
+        }
+    }
+
+    // Pass 3: delta repaint per non-layered renderer. Pass 2 mutated every queued renderer's
+    // transform, so the post-mutation rect we capture here reflects the final state - even
+    // for descendants of other mutated entries.
+    for (auto& snapshot : nonLayeredSnapshots) {
+        CheckedPtr renderer = snapshot.renderer.get();
+        if (!renderer || renderer->renderTreeBeingDestroyed())
+            continue;
+        CheckedPtr repaintContainer = snapshot.repaintContainer.get();
+        auto newRects = renderer->rectsForRepaintingAfterLayout(repaintContainer.get(), RepaintOutlineBounds::Yes);
+        renderer->repaintAfterLayoutIfNeeded(WTF::move(snapshot.repaintContainer), RequiresFullRepaint::No, snapshot.oldRects, newRects);
+    }
+
+    if (!anyWorkDone)
+        return;
+
+    // Defer the position-update walk to the upcoming layout pass if style/layout is already
+    // dirty - walking against stale geometry would emit incorrect intermediate repaints.
+    // The hot path (clean style/layout) runs the walk inline and skips the layout phase.
+    bool deferToLayoutPass = needsLayout() || isInLayout();
+    requestUpdateLayerPositions();
+    if (!deferToLayoutPass)
+        flushUpdateLayerPositions();
 }
 
 void LocalFrameViewLayoutContext::updateCompositingLayersAfterLayout()

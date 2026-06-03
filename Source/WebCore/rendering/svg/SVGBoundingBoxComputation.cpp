@@ -47,6 +47,18 @@ SVGBoundingBoxComputation::SVGBoundingBoxComputation(const RenderLayerModelObjec
 {
 }
 
+void SVGBoundingBoxComputation::recomputeTransformDependentBoundingBoxes(const RenderLayerModelObject& renderer, bool& dirty, FloatRect& objectBoundingBox, Markable<FloatRect>& strokeBoundingBox, bool* objectBoundingBoxValid)
+{
+    if (!dirty)
+        return;
+    // Clear before recomputing so any re-entrant read sees a consistent state.
+    dirty = false;
+
+    SVGBoundingBoxComputation boundingBoxComputation(renderer);
+    objectBoundingBox = boundingBoxComputation.computeDecoratedBoundingBox(objectBoundingBoxDecoration, objectBoundingBoxValid);
+    strokeBoundingBox = std::nullopt;
+}
+
 FloatRect SVGBoundingBoxComputation::computeDecoratedBoundingBox(const SVGBoundingBoxComputation::DecorationOptions& options, bool* boundingBoxValid) const
 {
     // SVG2: Bounding boxes algorithm (https://svgwg.org/svg2-draft/coords.html#BoundingBoxes)

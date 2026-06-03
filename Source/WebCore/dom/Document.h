@@ -383,6 +383,7 @@ class CustomPropertyRegistry;
 class Resolver;
 class Scope;
 class Update;
+enum class SVGRendererUpdateType : bool;
 }
 
 enum class PageshowEventPersistence : bool { NotPersisted, Persisted };
@@ -1625,7 +1626,7 @@ public:
     void NODELETE setIsResolvingTreeStyle(bool);
 
     void updateTextRenderer(Text&, unsigned offsetOfReplacedText, unsigned lengthOfReplacedText);
-    void updateSVGRenderer(SVGElement&);
+    void updateSVGRenderer(SVGElement&, Style::SVGRendererUpdateType = Style::SVGRendererUpdateType { });
 
     // Return a Locale for the default locale if the argument is null or empty.
     Locale& getCachedLocale(const AtomString& locale = nullAtom());

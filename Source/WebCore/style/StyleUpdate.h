@@ -43,6 +43,11 @@ class Text;
 
 namespace Style {
 
+enum class SVGRendererUpdateType : bool {
+    Default, // Routes through Style::Update -> RenderTreeUpdater::updateSVGRenderer.
+    TransformAttributeOnly // LBSE in-place transform refresh, bypasses Style::Update.
+};
+
 struct ElementUpdate {
     std::unique_ptr<RenderStyle> style;
     OptionSet<Change> changes { };

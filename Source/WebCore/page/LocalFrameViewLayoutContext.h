@@ -137,6 +137,11 @@ public:
     void flushUpdateLayerPositions();
     void markForUpdateLayerPositionsAfterSVGTransformChange();
 
+    // LBSE: batches synchronous transform-attribute mutations (SMIL, DOM) so the
+    // transform-refresh + delta-repaint runs once per renderer per frame.
+    void addPendingSVGTransformAttributeUpdate(RenderLayerModelObject&);
+    void flushPendingSVGTransformAttributeUpdatesIfNeeded();
+
     bool updateCompositingLayersAfterStyleChange();
     void updateCompositingLayersAfterLayout();
     // Returns true if a pending compositing layer update was done.
@@ -294,6 +299,10 @@ private:
         bool needsFullRepaint { false };
     };
     std::optional<UpdateLayerPositions> m_pendingUpdateLayerPositions;
+
+    // Vector + per-renderer dedup flag chosen over WeakHashSet - ~10x cheaper on the
+    // LBSE MotionMark/Suits rAF hot path (hash + weak-ptr lookup vs. a bit check).
+    Vector<SingleThreadWeakPtr<RenderLayerModelObject>> m_pendingSVGTransformAttributeUpdates;
 
     struct RepaintRectEnvironment {
         float m_deviceScaleFactor { 0 };

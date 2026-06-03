@@ -68,6 +68,7 @@
 #include "StyleExtractor.h"
 #include "StyleKeyword+Mappings.h"
 #include "StyleResolver.h"
+#include "StyleUpdate.h"
 #include "XMLNames.h"
 #include <wtf/HashMap.h>
 #include <wtf/NeverDestroyed.h>
@@ -1028,10 +1029,10 @@ void SVGElement::collectPresentationalHintsForAttribute(const QualifiedName& nam
         mapLanguageAttributeToLocale(value, style);
 }
 
-void SVGElement::updateSVGRendererForElementChange()
+void SVGElement::updateSVGRendererForElementChange(Style::SVGRendererUpdateType kind)
 {
     Ref<Document> document = this->document();
-    document->updateSVGRenderer(*this);
+    document->updateSVGRenderer(*this, kind);
 }
 
 void SVGElement::svgAttributeChanged(const QualifiedName& attrName)
