@@ -192,7 +192,7 @@ public:
     static void didEvaluateScript(WorkerOrWorkletGlobalScope&);
     static void willFireTimer(ScriptExecutionContext&, int timerId, bool oneShot);
     static void didFireTimer(ScriptExecutionContext&, int timerId, bool oneShot);
-    static void didInvalidateLayout(LocalFrame&);
+    static void didInvalidateLayout(LocalFrame&, const RenderElement&);
     static void willLayout(LocalFrame&);
     static void didLayout(LocalFrame&, const RenderElement&, const Vector<FloatQuad>&);
     static void didScroll(Page&);
@@ -422,16 +422,16 @@ private:
     static void didEvaluateScriptImpl(InstrumentingAgents&);
     static void willFireTimerImpl(InstrumentingAgents&, int timerId, bool oneShot);
     static void didFireTimerImpl(InstrumentingAgents&, int timerId, bool oneShot);
-    static void didInvalidateLayoutImpl(InstrumentingAgents&);
+    static void didInvalidateLayoutImpl(InstrumentingAgents&, const RenderElement&);
     static void willLayoutImpl(InstrumentingAgents&);
     static void didLayoutImpl(InstrumentingAgents&, const RenderElement&, const Vector<FloatQuad>&);
     static void didScrollImpl(InstrumentingAgents&);
     static void willCompositeImpl(InstrumentingAgents&);
-    static void didCompositeImpl(InstrumentingAgents&);
+    static void didCompositeImpl(InstrumentingAgents&, const LocalFrame&);
     static void willPaintImpl(InstrumentingAgents&);
     static void didPaintImpl(InstrumentingAgents&, RenderObject&, const LayoutRect&);
     static void willRecalculateStyleImpl(InstrumentingAgents&);
-    static void didRecalculateStyleImpl(InstrumentingAgents&);
+    static void didRecalculateStyleImpl(InstrumentingAgents&, Document&);
     static void didScheduleStyleRecalculationImpl(InstrumentingAgents&, Document&);
     static void applyUserAgentOverrideImpl(InstrumentingAgents&, String&);
     static void applyEmulatedMediaImpl(InstrumentingAgents&, AtomString&);
@@ -460,7 +460,7 @@ private:
     static void frameDocumentUpdatedImpl(InstrumentingAgents&, LocalFrame&);
     static void loaderDetachedFromFrameImpl(InstrumentingAgents&, DocumentLoader&);
     static void frameStartedLoadingImpl(InstrumentingAgents&, LocalFrame&);
-    static void didCompleteRenderingFrameImpl(InstrumentingAgents&);
+    static void didCompleteRenderingFrameImpl(InstrumentingAgents&, LocalFrame&);
     static void frameStoppedLoadingImpl(InstrumentingAgents&, LocalFrame&);
     static void accessibilitySettingsDidChangeImpl(InstrumentingAgents&);
 #if ENABLE(DARK_MODE_CSS)
@@ -1003,10 +1003,10 @@ inline void InspectorInstrumentation::didFireTimer(ScriptExecutionContext& conte
         didFireTimerImpl(*agents, timerId, oneShot);
 }
 
-inline void InspectorInstrumentation::didInvalidateLayout(LocalFrame& frame)
+inline void InspectorInstrumentation::didInvalidateLayout(LocalFrame& frame, const RenderElement& layoutRoot)
 {
     FAST_RETURN_IF_NO_FRONTENDS(void());
-    didInvalidateLayoutImpl(instrumentingAgents(frame));
+    didInvalidateLayoutImpl(instrumentingAgents(frame), layoutRoot);
 }
 
 inline void InspectorInstrumentation::willLayout(LocalFrame& frame)
@@ -1036,7 +1036,7 @@ inline void InspectorInstrumentation::willComposite(LocalFrame& frame)
 inline void InspectorInstrumentation::didComposite(LocalFrame& frame)
 {
     FAST_RETURN_IF_NO_FRONTENDS(void());
-    didCompositeImpl(instrumentingAgents(frame));
+    didCompositeImpl(instrumentingAgents(frame), frame);
 }
 
 inline void InspectorInstrumentation::willPaint(RenderObject& renderer)
@@ -1062,7 +1062,7 @@ inline void InspectorInstrumentation::didRecalculateStyle(Document& document)
 {
     FAST_RETURN_IF_NO_FRONTENDS(void());
     if (RefPtr agents = instrumentingAgents(document))
-        didRecalculateStyleImpl(*agents);
+        didRecalculateStyleImpl(*agents, document);
 }
 
 inline void InspectorInstrumentation::didScheduleStyleRecalculation(Document& document)
@@ -1274,7 +1274,7 @@ inline void InspectorInstrumentation::frameStartedLoading(LocalFrame& frame)
 inline void InspectorInstrumentation::didCompleteRenderingFrame(LocalFrame& frame)
 {
     FAST_RETURN_IF_NO_FRONTENDS(void());
-    didCompleteRenderingFrameImpl(instrumentingAgents(frame));
+    didCompleteRenderingFrameImpl(instrumentingAgents(frame), frame);
 }
 
 inline void InspectorInstrumentation::frameStoppedLoading(LocalFrame& frame)

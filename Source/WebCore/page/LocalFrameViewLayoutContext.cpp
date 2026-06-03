@@ -677,7 +677,9 @@ void LocalFrameViewLayoutContext::scheduleLayout()
         LOG(Layout, "LocalFrameView %p layout timer scheduled at %.3fs", this, document->timeSinceDocumentCreation().value());
 #endif
 
-    InspectorInstrumentation::didInvalidateLayout(protect(frame()));
+    ASSERT(renderView());
+    InspectorInstrumentation::didInvalidateLayout(protect(frame()), *renderView());
+
     m_layoutTimer.startOneShot(0_s);
 }
 
@@ -714,7 +716,7 @@ void LocalFrameViewLayoutContext::scheduleSubtreeLayout(RenderElement& layoutRoo
     if (!isLayoutPending() && isLayoutSchedulingEnabled()) {
         ASSERT(!layoutRoot.container() || is<RenderView>(layoutRoot.container()) || !layoutRoot.container()->needsLayout());
         setSubtreeLayoutRoot(layoutRoot);
-        InspectorInstrumentation::didInvalidateLayout(protect(frame()));
+        InspectorInstrumentation::didInvalidateLayout(protect(frame()), layoutRoot);
         m_layoutTimer.startOneShot(0_s);
         return;
     }
@@ -726,7 +728,7 @@ void LocalFrameViewLayoutContext::scheduleSubtreeLayout(RenderElement& layoutRoo
     if (!subtreeLayoutRoot) {
         // We already have a pending (full) layout. Just mark the subtree for layout.
         layoutRoot.markContainingBlocksForLayout(renderView.ptr());
-        InspectorInstrumentation::didInvalidateLayout(protect(frame()));
+        InspectorInstrumentation::didInvalidateLayout(protect(frame()), renderView.get());
         return;
     }
 
@@ -742,13 +744,13 @@ void LocalFrameViewLayoutContext::scheduleSubtreeLayout(RenderElement& layoutRoo
         subtreeLayoutRoot->markContainingBlocksForLayout(&layoutRoot);
         setSubtreeLayoutRoot(layoutRoot);
         ASSERT(!layoutRoot.container() || is<RenderView>(layoutRoot.container()) || !layoutRoot.container()->needsLayout());
-        InspectorInstrumentation::didInvalidateLayout(protect(frame()));
+        InspectorInstrumentation::didInvalidateLayout(protect(frame()), layoutRoot);
         return;
     }
     // Two disjoint subtrees need layout. Mark both of them and issue a full layout instead.
     convertSubtreeLayoutToFullLayout();
     layoutRoot.markContainingBlocksForLayout(renderView.ptr());
-    InspectorInstrumentation::didInvalidateLayout(protect(frame()));
+    InspectorInstrumentation::didInvalidateLayout(protect(frame()), renderView.get());
 }
 
 void LocalFrameViewLayoutContext::layoutTimerFired()

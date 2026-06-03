@@ -539,10 +539,10 @@ void InspectorInstrumentation::didFireTimerImpl(InstrumentingAgents& instrumenti
         timelineAgent->didFireTimer();
 }
 
-void InspectorInstrumentation::didInvalidateLayoutImpl(InstrumentingAgents& instrumentingAgents)
+void InspectorInstrumentation::didInvalidateLayoutImpl(InstrumentingAgents& instrumentingAgents, const RenderElement& layoutRoot)
 {
     if (CheckedPtr pageTimelineAgent = instrumentingAgents.trackingPageTimelineAgent())
-        pageTimelineAgent->didInvalidateLayout();
+        pageTimelineAgent->didInvalidateLayout(layoutRoot);
 }
 
 void InspectorInstrumentation::willLayoutImpl(InstrumentingAgents& instrumentingAgents)
@@ -565,10 +565,10 @@ void InspectorInstrumentation::willCompositeImpl(InstrumentingAgents& instrument
         pageTimelineAgent->willComposite();
 }
 
-void InspectorInstrumentation::didCompositeImpl(InstrumentingAgents& instrumentingAgents)
+void InspectorInstrumentation::didCompositeImpl(InstrumentingAgents& instrumentingAgents, const LocalFrame& frame)
 {
     if (CheckedPtr pageTimelineAgent = instrumentingAgents.trackingPageTimelineAgent())
-        pageTimelineAgent->didComposite();
+        pageTimelineAgent->didComposite(frame);
 }
 
 void InspectorInstrumentation::willPaintImpl(InstrumentingAgents& instrumentingAgents)
@@ -594,10 +594,10 @@ void InspectorInstrumentation::willRecalculateStyleImpl(InstrumentingAgents& ins
         networkAgent->willRecalculateStyle();
 }
 
-void InspectorInstrumentation::didRecalculateStyleImpl(InstrumentingAgents& instrumentingAgents)
+void InspectorInstrumentation::didRecalculateStyleImpl(InstrumentingAgents& instrumentingAgents, Document& document)
 {
     if (CheckedPtr pageTimelineAgent = instrumentingAgents.trackingPageTimelineAgent())
-        pageTimelineAgent->didRecalculateStyle();
+        pageTimelineAgent->didRecalculateStyle(document);
     if (CheckedPtr networkAgent = instrumentingAgents.enabledNetworkAgent())
         networkAgent->didRecalculateStyle();
     if (CheckedPtr pageAgent = instrumentingAgents.enabledPageAgent())
@@ -607,7 +607,7 @@ void InspectorInstrumentation::didRecalculateStyleImpl(InstrumentingAgents& inst
 void InspectorInstrumentation::didScheduleStyleRecalculationImpl(InstrumentingAgents& instrumentingAgents, Document& document)
 {
     if (CheckedPtr pageTimelineAgent = instrumentingAgents.trackingPageTimelineAgent())
-        pageTimelineAgent->didScheduleStyleRecalculation();
+        pageTimelineAgent->didScheduleStyleRecalculation(document);
     if (CheckedPtr networkAgent = instrumentingAgents.enabledNetworkAgent())
         networkAgent->didScheduleStyleRecalculation(document);
 }
@@ -862,10 +862,10 @@ void InspectorInstrumentation::frameStartedLoadingImpl(InstrumentingAgents& inst
     }
 }
 
-void InspectorInstrumentation::didCompleteRenderingFrameImpl(InstrumentingAgents& instrumentingAgents)
+void InspectorInstrumentation::didCompleteRenderingFrameImpl(InstrumentingAgents& instrumentingAgents, LocalFrame& frame)
 {
     if (CheckedPtr pageTimelineAgent = instrumentingAgents.enabledPageTimelineAgent())
-        pageTimelineAgent->didCompleteRenderingFrame();
+        pageTimelineAgent->didCompleteRenderingFrame(frame);
 }
 
 void InspectorInstrumentation::frameStoppedLoadingImpl(InstrumentingAgents& instrumentingAgents, LocalFrame& frame)
