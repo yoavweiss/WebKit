@@ -1808,7 +1808,7 @@ void WebProcessProxy::requestTermination(ProcessTerminationReason reason)
         return;
 
     Ref protectedThis { *this };
-    WEBPROCESSPROXY_RELEASE_LOG_ERROR(Process, "requestTermination: reason=%d", static_cast<int>(reason));
+    WEBPROCESSPROXY_RELEASE_LOG_ERROR(Process, "requestTermination: reason=%" PUBLIC_LOG_STRING, processTerminationReasonToString(reason).characters());
 
     AuxiliaryProcessProxy::terminate();
 
