@@ -2096,8 +2096,10 @@ void NetworkStorageManager::commitTransaction(IPC::Connection& connection, const
 
 void NetworkStorageManager::didFinishHandlingVersionChangeTransaction(IPC::Connection& ipcConnection, WebCore::IDBDatabaseConnectionIdentifier databaseConnectionIdentifier, const WebCore::IDBResourceIdentifier& transactionIdentifier)
 {
-    if (RefPtr databaseConnection = m_idbStorageRegistry->connection(databaseConnectionIdentifier, ipcConnection))
+    if (RefPtr databaseConnection = m_idbStorageRegistry->connection(databaseConnectionIdentifier, ipcConnection)) {
+        MESSAGE_CHECK(databaseConnection->checkedDatabase()->isVersionChangeTransactionFinishingOrFinished(transactionIdentifier), ipcConnection);
         databaseConnection->didFinishHandlingVersionChange(transactionIdentifier);
+    }
 }
 
 SUPPRESS_NODELETE RefPtr<WebCore::IDBServer::UniqueIDBDatabaseTransaction> NetworkStorageManager::idbTransaction(const WebCore::IDBRequestData& requestData, IPC::Connection& connection)

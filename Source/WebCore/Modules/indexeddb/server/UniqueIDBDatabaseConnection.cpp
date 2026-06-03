@@ -68,6 +68,11 @@ UniqueIDBDatabaseManager* UniqueIDBDatabaseConnection::manager()
     return m_manager.get();
 }
 
+CheckedPtr<UniqueIDBDatabase> UniqueIDBDatabaseConnection::checkedDatabase()
+{
+    return m_database.get();
+}
+
 bool UniqueIDBDatabaseConnection::hasNonFinishedTransactions() const
 {
     return !m_transactionMap.isEmpty();

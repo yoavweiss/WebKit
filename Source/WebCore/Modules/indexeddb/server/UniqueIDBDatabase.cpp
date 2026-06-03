@@ -1664,5 +1664,13 @@ void UniqueIDBDatabase::handleLowMemoryWarning()
         backingStore->handleLowMemoryWarning();
 }
 
+bool UniqueIDBDatabase::isVersionChangeTransactionFinishingOrFinished(const IDBResourceIdentifier& transactionIdentifier) const
+{
+    if (!m_versionChangeTransaction || m_versionChangeTransaction->info().identifier() != transactionIdentifier)
+        return true;
+
+    return m_versionChangeTransaction->isFinishingOrFinished();
+}
+
 } // namespace IDBServer
 } // namespace WebCore
