@@ -1865,4 +1865,89 @@ TEST(TextExtractionTests, KeyPressInsertsCharactersInOrder)
 
 #endif // PLATFORM(MAC)
 
+#if ENABLE(TEXT_EXTRACTION_FILTER) && HAVE(SAFARI_SAFE_BROWSING_NAMESPACED_LISTS)
+
+static NSString *synchronouslyFilterExtractedString(WKWebView *webView, NSString *string, _WKTextExtractionFilterOptions options)
+{
+    __block bool done = false;
+    __block RetainPtr<NSString> result;
+    [webView _filterExtractedString:string options:options completionHandler:^(NSString *filtered) {
+        result = filtered;
+        done = true;
+    }];
+    TestWebKitAPI::Util::run(&done);
+    return result.autorelease();
+}
+
+static RetainPtr<WKWebView> makeFilterTestWebView()
+{
+    RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    [[configuration preferences] _setTextExtractionEnabled:YES];
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 400) configuration:configuration.get()]);
+    [webView synchronouslyLoadHTMLString:@""];
+    return webView;
+}
+
+TEST(TextExtractionTests, FilterExtractedStringPassthrough)
+{
+    InstanceMethodSwizzler safeBrowsingSwizzler {
+        getSSBLookupContextClassSingleton(),
+        @selector(_getListsForNamespace:collectionId:completionHandler:),
+        reinterpret_cast<IMP>(overrideGetListsForNamespace)
+    };
+
+    RetainPtr webView = makeFilterTestWebView();
+
+    // With no filter options, text passes through unchanged.
+    RetainPtr result = synchronouslyFilterExtractedString(webView.get(), @"Hello world", _WKTextExtractionFilterNone);
+    EXPECT_WK_STREQ("Hello world", result.get());
+}
+
+TEST(TextExtractionTests, FilterExtractedStringRulesApplied)
+{
+    InstanceMethodSwizzler safeBrowsingSwizzler {
+        getSSBLookupContextClassSingleton(),
+        @selector(_getListsForNamespace:collectionId:completionHandler:),
+        reinterpret_cast<IMP>(overrideGetListsForNamespace)
+    };
+
+    RetainPtr webView = makeFilterTestWebView();
+
+    // The swizzled rules replace 'o' with '•' and 'u' with 'v'.
+    RetainPtr result = synchronouslyFilterExtractedString(webView.get(), @"The quick brown fox", _WKTextExtractionFilterRules);
+    EXPECT_WK_STREQ("The qvick br•wn f•x", result.get());
+}
+
+TEST(TextExtractionTests, FilterExtractedStringRulesTruncates)
+{
+    InstanceMethodSwizzler safeBrowsingSwizzler {
+        getSSBLookupContextClassSingleton(),
+        @selector(_getListsForNamespace:collectionId:completionHandler:),
+        reinterpret_cast<IMP>(overrideGetListsForNamespace)
+    };
+
+    RetainPtr webView = makeFilterTestWebView();
+
+    // The swizzled rules replace strings >= 1000 characters with '<too long>'.
+    NSString *longString = [@"x" stringByPaddingToLength:1000 withString:@"x" startingAtIndex:0];
+    RetainPtr result = synchronouslyFilterExtractedString(webView.get(), longString, _WKTextExtractionFilterRules);
+    EXPECT_WK_STREQ("<too long>", result.get());
+}
+
+TEST(TextExtractionTests, FilterExtractedStringEmptyInput)
+{
+    InstanceMethodSwizzler safeBrowsingSwizzler {
+        getSSBLookupContextClassSingleton(),
+        @selector(_getListsForNamespace:collectionId:completionHandler:),
+        reinterpret_cast<IMP>(overrideGetListsForNamespace)
+    };
+
+    RetainPtr webView = makeFilterTestWebView();
+
+    RetainPtr result = synchronouslyFilterExtractedString(webView.get(), @"", _WKTextExtractionFilterRules);
+    EXPECT_WK_STREQ("", result.get());
+}
+
+#endif // ENABLE(TEXT_EXTRACTION_FILTER) && HAVE(SAFARI_SAFE_BROWSING_NAMESPACED_LISTS)
+
 } // namespace TestWebKitAPI
