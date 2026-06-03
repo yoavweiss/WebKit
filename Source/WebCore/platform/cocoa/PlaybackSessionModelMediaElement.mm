@@ -578,7 +578,7 @@ void PlaybackSessionModelMediaElement::maybeUpdateVideoMetadata()
         m_immersiveVideoMetadata = WTF::move(immersiveVideoMetadata);
         ALWAYS_LOG_IF_POSSIBLE(LOGIDENTIFIER, "immersiveVideoMetadata: ", m_immersiveVideoMetadata);
         for (auto& client : m_clients)
-            client->immersiveVideoMetadataChanged(immersiveVideoMetadata);
+            client->immersiveVideoMetadataChanged(m_immersiveVideoMetadata);
     }
 }
 
