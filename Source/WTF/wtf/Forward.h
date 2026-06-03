@@ -162,7 +162,7 @@ template<typename, size_t = 0> class VariantList;
 template<typename, size_t = 0> struct VariantListConstIterator;
 template<typename> struct VariantListProxy;
 template<typename> struct VariantListSizer;
-template<typename, size_t = 0, typename = CrashOnOverflow, size_t = 16, typename = VectorBufferMalloc> class Vector;
+template<typename T, size_t inlineCapacity = 0, typename OverflowHandler = CrashOnOverflow, size_t minCapacity = 16, typename Malloc = VectorBufferMalloc> class Vector;
 template<typename, typename WeakPtrImpl = DefaultWeakPtrImpl, typename = RawPtrTraits<WeakPtrImpl>> class WeakPtr;
 template<typename, typename = DefaultWeakPtrImpl> class WeakRef;
 template<typename T> class InlineWeakPtr;
