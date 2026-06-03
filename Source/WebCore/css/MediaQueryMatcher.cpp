@@ -64,24 +64,11 @@ AtomString MediaQueryMatcher::mediaType() const
     return m_document->frame()->view()->mediaType();
 }
 
-std::unique_ptr<RenderStyle> MediaQueryMatcher::documentElementUserAgentStyle() const
-{
-    if (!m_document || !m_document->frame())
-        return nullptr;
-
-    CheckedPtr documentElement = m_document->documentElement();
-    if (!documentElement)
-        return nullptr;
-
-    return m_document->styleScope().resolver().styleForElement(*documentElement, { m_document->renderStyle() }, RuleMatchingBehavior::MatchOnlyUserAgentRules).style;
-}
-
 bool MediaQueryMatcher::evaluate(const MQ::MediaQueryList& queries)
 {
-    auto style = documentElementUserAgentStyle();
-    if (!style)
+    if (!m_document)
         return false;
-    return MQ::MediaQueryEvaluator { mediaType(), *m_document, style.get() }.evaluate(queries);
+    return MQ::MediaQueryEvaluator { mediaType(), *m_document }.evaluate(queries);
 }
 
 void MediaQueryMatcher::addMediaQueryList(MediaQueryList& list)
@@ -111,13 +98,12 @@ void MediaQueryMatcher::evaluateAll(EventMode eventMode)
 
     ++m_evaluationRound;
 
-    auto style = documentElementUserAgentStyle();
-    if (!style)
+    if (!m_document)
         return;
 
     LOG_WITH_STREAM(MediaQueries, stream << "MediaQueryMatcher::styleResolverChanged " << m_document->url());
 
-    MQ::MediaQueryEvaluator evaluator { mediaType(), *m_document, style.get() };
+    MQ::MediaQueryEvaluator evaluator { mediaType(), *m_document };
 
     auto mediaQueryLists = m_mediaQueryLists;
     for (auto& list : mediaQueryLists) {

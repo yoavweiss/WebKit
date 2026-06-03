@@ -1110,6 +1110,10 @@ void LocalFrame::setPageAndTextZoomFactors(float pageZoomFactor, float textZoomF
     m_pageZoomFactor = pageZoomFactor;
     m_textZoomFactor = textZoomFactor;
 
+    // The RenderStyle cached on Document for initial value fallback must be invalidated on
+    // text zoom changes to ensure default font sizes are updated appropriately.
+    document->invalidateCachedInitialStyle();
+
     document->resolveStyle(Document::ResolveStyleType::Rebuild);
 
     for (RefPtr child = tree().firstChild(); child; child = child->tree().nextSibling()) {

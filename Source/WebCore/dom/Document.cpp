@@ -110,6 +110,7 @@
 #include "FocusController.h"
 #include "FocusEvent.h"
 #include "FocusOptions.h"
+#include "FontCascadeInlines.h"
 #include "FontFaceSet.h"
 #include "FormController.h"
 #include "FragmentDirective.h"
@@ -316,6 +317,7 @@
 #include "StyleAdjuster.h"
 #include "StyleColorOptions.h"
 #include "StyleColorScheme.h"
+#include "StyleFontSizeFunctions.h"
 #include "StyleOriginatedTimelinesController.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StyleProperties.h"
@@ -11381,6 +11383,45 @@ const CSSCounterStyleRegistry& Document::counterStyleRegistry() const
 CSSCounterStyleRegistry& Document::counterStyleRegistry()
 {
     return styleScope().counterStyleRegistry();
+}
+
+const RenderStyle& Document::initialStyle() const
+{
+    if (!m_cachedInitialStyle) {
+        float zoom = 1;
+        float zoomForFontDescription = 1;
+        if (RefPtr frame = this->frame()) {
+            zoom = !printing() ? frame->pageZoomFactor() : 1;
+            zoomForFontDescription = zoom * frame->textZoomFactor();
+        }
+
+        m_cachedInitialStyle = RenderStyle::createPtr();
+
+        m_cachedInitialStyle->setZoom(zoom);
+        m_cachedInitialStyle->setEvaluationTimeZoomEnabled(settings().evaluationTimeZoomEnabled());
+
+        auto initialFontFamily = FontFamily { standardFamily, FontFamilyKind::Generic };
+        auto initialSpecifiedFontSize = Style::fontSizeForKeyword(CSSValueMedium, false, settingsValues(), inQuirksMode());
+        auto initialComputedFontSize = Style::computedFontSizeFromSpecifiedSize(initialSpecifiedFontSize, false, zoomForFontDescription, Style::MinimumFontSizeRule::AbsoluteAndRelative, settingsValues());
+        auto allowUserInstalledFonts = settings().shouldAllowUserInstalledFonts() ? AllowUserInstalledFonts::Yes : AllowUserInstalledFonts::No;
+
+        FontCascadeDescription fontDescription;
+        fontDescription.setSpecifiedLocale(contentLanguage());
+        fontDescription.setOneFamily(WTF::move(initialFontFamily));
+        fontDescription.setKeywordSizeFromIdentifier(CSSValueMedium);
+        fontDescription.setSpecifiedSize(initialSpecifiedFontSize);
+        fontDescription.setComputedSize(initialComputedFontSize, zoomForFontDescription);
+        fontDescription.setShouldAllowUserInstalledFonts(allowUserInstalledFonts);
+        fontDescription.setEvaluationTimeZoomEnabled(settings().evaluationTimeZoomEnabled());
+
+        m_cachedInitialStyle->setFontDescription(WTF::move(fontDescription));
+    }
+    return *m_cachedInitialStyle;
+}
+
+void Document::invalidateCachedInitialStyle()
+{
+    m_cachedInitialStyle = { };
 }
 
 const CSSParserContext& Document::cssParserContext() const

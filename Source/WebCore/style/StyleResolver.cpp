@@ -193,29 +193,11 @@ void Resolver::initialize()
 {
     UserAgentStyle::initDefaultStyleSheet();
 
-    // construct document root element default style. this is needed
-    // to evaluate media queries that contain relative constraints, like "screen and (max-width: 10em)"
-    // This is here instead of constructor, because when constructor is run,
-    // document doesn't have documentElement
-    // NOTE: this assumes that element that gets passed to styleForElement -call
-    // is always from the document that owns the style selector
     CheckedPtr view = document().view();
     if (view)
-        m_mediaQueryEvaluator = MQ::MediaQueryEvaluator { view->mediaType() };
+        m_mediaQueryEvaluator = MQ::MediaQueryEvaluator { view->mediaType(), document() };
     else
         m_mediaQueryEvaluator = MQ::MediaQueryEvaluator { };
-
-    if (RefPtr documentElement = document().documentElement()) {
-        m_rootDefaultStyle = styleForElement(*documentElement, { document().initialContainingBlockStyle() }, RuleMatchingBehavior::MatchOnlyUserAgentRules).style;
-        // Turn off assertion against font lookups during style resolver initialization. We may need root style font for media queries.
-        document().fontSelector().incrementIsComputingRootStyleFont();
-        m_rootDefaultStyle->fontCascade().update(&document().fontSelector());
-        m_rootDefaultStyle->fontCascade().primaryFont();
-        document().fontSelector().decrementIsComputingRootStyleFont();
-    }
-
-    if (m_rootDefaultStyle && view)
-        m_mediaQueryEvaluator = MQ::MediaQueryEvaluator { view->mediaType(), document(), m_rootDefaultStyle.get() };
 
     m_ruleSets.resetAuthorStyle();
     m_ruleSets.resetUserAgentMediaQueryStyle();
@@ -332,11 +314,7 @@ UnadjustedStyle Resolver::unadjustedStyleForElement(Element& element, const Reso
 
     ElementRuleCollector collector(element, m_ruleSets, context.selectorMatchingState);
     collector.setMedium(m_mediaQueryEvaluator);
-
-    if (matchingBehavior == RuleMatchingBehavior::MatchOnlyUserAgentRules)
-        collector.matchUARules();
-    else
-        collector.matchAllRules(m_matchAuthorAndUserStyles, matchingBehavior != RuleMatchingBehavior::MatchAllRulesExcludingSMIL);
+    collector.matchAllRules(m_matchAuthorAndUserStyles, matchingBehavior != RuleMatchingBehavior::MatchAllRulesExcludingSMIL);
 
     if (collector.matchedPseudoElements())
         style.setHasPseudoStyles(collector.matchedPseudoElements());

@@ -60,14 +60,9 @@ class StyleSheetList;
 class TimingFunction;
 class ViewportStyleResolver;
 
-// MatchOnlyUserAgentRules is used in media queries, where relative units
-// are interpreted according to the document root element style, and styled only
-// from the User Agent Stylesheet rules.
-
 enum class RuleMatchingBehavior: uint8_t {
     MatchAllRules,
     MatchAllRulesExcludingSMIL,
-    MatchOnlyUserAgentRules,
 };
 
 namespace Style {
@@ -171,8 +166,6 @@ public:
     bool isSharedBetweenShadowTrees() const { return m_isSharedBetweenShadowTrees; }
     void setSharedBetweenShadowTrees() { m_isSharedBetweenShadowTrees = true; }
 
-    const RenderStyle* rootDefaultStyle() const LIFETIME_BOUND { return m_rootDefaultStyle.get(); }
-
 private:
     Resolver(Document&, ScopeType);
     void initialize();
@@ -194,7 +187,6 @@ private:
 
     std::unique_ptr<Style::CustomFunctionRegistry> m_customFunctionRegistry;
 
-    std::unique_ptr<RenderStyle> m_rootDefaultStyle;
     MQ::MediaQueryEvaluator m_mediaQueryEvaluator;
 
     InspectorCSSOMWrappers m_inspectorCSSOMWrappers;

@@ -670,13 +670,10 @@ bool HTMLLinkElement::mediaAttributeMatches() const
         return true;
 
     Ref document = this->document();
-    std::optional<RenderStyle> documentStyle;
-    if (document->hasLivingRenderTree())
-        documentStyle = Style::resolveForDocument(document.get());
     auto mediaQueryList = MQ::MediaQueryParser::parse(m_media, document->cssParserContext());
     LOG(MediaQueries, "HTMLLinkElement::mediaAttributeMatches");
 
-    MQ::MediaQueryEvaluator evaluator(document->frame()->view()->mediaType(), document.get(), documentStyle ? &*documentStyle : nullptr);
+    MQ::MediaQueryEvaluator evaluator(document->frame()->view()->mediaType(), document.get());
     return evaluator.evaluate(mediaQueryList);
 }
 

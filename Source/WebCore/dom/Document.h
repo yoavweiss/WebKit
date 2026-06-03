@@ -835,6 +835,9 @@ public:
     RenderView* renderView() const { return m_renderView.get(); }
     const RenderStyle* initialContainingBlockStyle() const LIFETIME_BOUND { return m_initialContainingBlockStyle.get(); } // This may end up differing from renderView()->style() due to adjustments.
 
+    const RenderStyle& initialStyle() const LIFETIME_BOUND;
+    void invalidateCachedInitialStyle();
+
     bool renderTreeBeingDestroyed() const { return m_renderTreeBeingDestroyed; }
     bool hasLivingRenderTree() const { return renderView() && !renderTreeBeingDestroyed(); }
     void updateRenderTree(std::unique_ptr<Style::Update> styleUpdate);
@@ -2442,6 +2445,10 @@ private:
 
     RenderPtr<RenderView> m_renderView;
     std::unique_ptr<RenderStyle> m_initialContainingBlockStyle;
+
+    // The `initial style` is used to resolve CSS values used outside of element contexts
+    // such as in media queries.
+    mutable std::unique_ptr<RenderStyle> m_cachedInitialStyle;
 
     WeakHashSet<MediaCanStartListener> m_mediaCanStartListeners;
     WeakHashSet<DisplayChangedObserver> m_displayChangedObservers;

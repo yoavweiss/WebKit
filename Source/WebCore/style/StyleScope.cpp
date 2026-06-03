@@ -884,6 +884,7 @@ void Scope::didChangeStyleSheetEnvironment()
             const_cast<ShadowRoot&>(descendantShadowRoot).styleScope().scheduleUpdate(UpdateType::ContentsOrInterpretation);
 
         m_document->invalidateCachedCSSParserContext();
+        m_document->invalidateCachedInitialStyle();
     }
 
     scheduleUpdate(UpdateType::ContentsOrInterpretation);

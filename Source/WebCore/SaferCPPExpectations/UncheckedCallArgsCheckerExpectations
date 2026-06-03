@@ -164,7 +164,6 @@ html/HTMLFormElement.cpp
 html/HTMLInputElement.cpp
 html/HTMLLinkElement.cpp
 [ iOS ] html/HTMLMediaElement.cpp
-html/HTMLMetaElement.cpp
 html/HTMLOptionsCollection.cpp
 html/HTMLPlugInElement.cpp
 html/HTMLTextFormControlElement.cpp

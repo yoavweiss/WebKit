@@ -375,7 +375,7 @@ RefPtr<LinkPreloadResourceClient> LinkLoader::preloadIfNeeded(const LinkLoadPara
         return nullptr;
     }
     auto queries = MQ::MediaQueryParser::parse(params.media, document.cssParserContext());
-    if (!MQ::MediaQueryEvaluator { screenAtom(), document, document.renderStyle() }.evaluate(queries))
+    if (!MQ::MediaQueryEvaluator { screenAtom(), document }.evaluate(queries))
         return nullptr;
     if (!isSupportedType(type.value(), params.mimeType, document))
         return nullptr;
