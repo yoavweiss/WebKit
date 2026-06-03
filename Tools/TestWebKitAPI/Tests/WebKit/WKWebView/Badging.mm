@@ -105,7 +105,16 @@ return "DONE";
     id innerBadge = badge;
     if (!innerBadge)
         innerBadge = [NSNull null];
-    EXPECT_TRUE([_expectedAppBadgeSequence[_appBadgeIndex++] isEqual:innerBadge]);
+
+    if (_expectedAppBadgeSequence)
+        EXPECT_TRUE([_expectedAppBadgeSequence[_appBadgeIndex++] isEqual:innerBadge]);
+    else {
+        // This badging delegate expects no badge updates, so getting any is bad news.
+        // But we'll still bump the _appBadgeIndex variable to register that we received
+        // a badge update for other parts of the test.
+        ++_appBadgeIndex;
+        FAIL();
+    }
 
     if (_serverURL) {
         if (!_shouldAllowOriginViolations)
@@ -577,11 +586,10 @@ static void runAppBadgeSpoofTest(const String& attackerHTML)
 {
     NSURL *coreIPCURL = [NSBundle.test_resourcesBundle URLForResource:@"coreipc" withExtension:@"js"];
     NSData *coreIPCData = [NSData dataWithContentsOfURL:coreIPCURL];
-    RetainPtr coreIPCString = adoptNS([[NSString alloc] initWithData:coreIPCData encoding:NSUTF8StringEncoding]);
 
     TestWebKitAPI::HTTPServer server({
         { "/"_s, { attackerHTML } },
-        { "/coreipc.js"_s, { { { "Content-Type"_s, "text/javascript"_s } }, coreIPCString.get() } },
+        { "/coreipc.js"_s, { { { "Content-Type"_s, "text/javascript"_s } }, coreIPCData } },
     });
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
