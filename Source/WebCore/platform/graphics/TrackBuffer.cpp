@@ -314,9 +314,18 @@ bool TrackBuffer::reenqueueMediaForTime(const MediaTime& time, const MediaTime& 
 
     // Fill the decode queue with the remaining samples.
     if (currentSampleDTSIterator != m_samples.decodeOrder().end()) {
-        m_decodeQueue.insert(*currentSampleDTSIterator);
-        m_minimumEnqueuedPresentationTime = Ref { currentSampleDTSIterator->second }->presentationTime();
+        Ref sample = currentSampleDTSIterator->second;
+        if (sample->isDivisable() && sample->presentationTime() < time && time < sample->presentationEndTime()) {
+            // Avoid enqueueing content before the current playback position: split the sample
+            // straddling `time` and keep only the tail (sub-entries ending after `time`).
+            auto [head, tail] = sample->divide(time, MediaSample::UseEndTime::Use);
+            if (tail)
+                sample = tail.releaseNonNull();
+        }
+        DecodeOrderSampleMap::KeyType decodeKey(sample->decodeTime(), sample->presentationTime());
+        m_minimumEnqueuedPresentationTime = sample->presentationTime();
         previousSampleTime = m_minimumEnqueuedPresentationTime;
+        m_decodeQueue.insert(DecodeOrderSampleMap::MapType::value_type(decodeKey, WTF::move(sample)));
     }
     for (auto iter = ++currentSampleDTSIterator; iter != m_samples.decodeOrder().end(); ++iter) {
         Ref sample = iter->second;
