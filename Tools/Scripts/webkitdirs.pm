@@ -2552,7 +2552,6 @@ sub maybeEnterWebKitContainerSDK()
     # Mirror the cheap opt-out checks from maybe_enter_webkit_container_sdk so
     # that the overwhelmingly common no-op case avoids forking a Python
     # interpreter on every wrapper invocation. Keep in sync with that function.
-    return if ($ENV{'WEBKIT_FLATPAK'} // '') eq '1';
     return if ($ENV{'WEBKIT_JHBUILD'} // '') eq '1';
     return if ($ENV{'WEBKIT_CONTAINER_SDK_INSIDE_MOUNT_NAMESPACE'} // '') eq '1';
     return unless -f File::Spec->catfile(sourceDir(), ".wkdev-sdk-version");

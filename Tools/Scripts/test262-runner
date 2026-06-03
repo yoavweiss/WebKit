@@ -48,7 +48,7 @@ BEGIN {
 
 use Runner;
 
-if (defined $ENV{'WEBKIT_CONTAINER_SDK_INSIDE_MOUNT_NAMESPACE'}) {
+if (isLinux()) {
     portName();
 }
 
