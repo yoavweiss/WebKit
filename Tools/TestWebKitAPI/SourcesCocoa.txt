@@ -62,6 +62,8 @@ Helpers/cocoa/SiteIsolationUtilities.mm @nonARC
 Helpers/ios/IOSMouseEventTestHarness.mm @nonARC
 Helpers/mac/WKWebViewForTestingImmediateActions.mm @nonARC
 
+Resources/cocoa/MessagePortSecurity.mm @nonARC
+
 Tests/WTF/cocoa/URLExtras.mm @nonARC
 
 Tests/WebCore/cocoa/WebAVPlayerControllerLeakTests.mm @nonARC
