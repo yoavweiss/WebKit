@@ -1916,22 +1916,68 @@ JSValue JSBigInt::remainder(JSGlobalObject* globalObject, int32_t x, JSBigInt* y
 }
 #endif
 
-template <typename BigIntImpl>
-JSBigInt::ImplResult JSBigInt::incImpl(JSGlobalObject* globalObject, BigIntImpl x)
+JSBigInt::ImplResult JSBigInt::absoluteAddOne(JSGlobalObject* globalObject, std::span<const Digit> x, bool resultSign)
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    auto xSpan = x.digits();
-    if (!x.sign()) {
-        Vector<Digit, 16> resultVector(addOneLength(xSpan));
-        auto result = absoluteAddOne(xSpan, resultVector.mutableSpan());
-        RELEASE_AND_RETURN(scope, tryCreateFromImpl(globalObject, vm, false, result));
+    unsigned resultLength = addOneLength(x);
+    if (resultLength > maxLength) [[unlikely]] {
+        Vector<Digit> scratch(resultLength);
+        auto result = absoluteAddOne(x, scratch.mutableSpan());
+        RELEASE_AND_RETURN(scope, tryCreateFromImpl(globalObject, vm, resultSign, result));
     }
 
-    Vector<Digit, 16> resultVector(subOneLength(xSpan));
-    auto result = absoluteSubOne(xSpan, resultVector.mutableSpan());
-    RELEASE_AND_RETURN(scope, tryCreateFromImpl(globalObject, vm, true, result));
+    auto* cell = tryAllocateCell<JSBigInt>(vm, JSBigInt::allocationSize(resultLength));
+    if (!cell) [[unlikely]] {
+        throwOutOfMemoryError(globalObject, scope);
+        return nullptr;
+    }
+
+    JSBigInt* bigInt = new (NotNull, cell) JSBigInt(vm, vm.bigIntStructure.get(), resultLength);
+    bigInt->finishCreation(vm);
+    bigInt->setSign(resultSign);
+
+    auto span = absoluteAddOne(x, bigInt->digits());
+    ASSERT(!span.empty());
+    ASSERT(span.back());
+    if (span.size() < resultLength)
+        bigInt->setLength(span.size());
+    return bigInt;
+}
+
+JSBigInt::ImplResult JSBigInt::absoluteSubOne(JSGlobalObject* globalObject, std::span<const Digit> x, bool resultSign)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    ASSERT(!x.empty());
+    unsigned resultLength = subOneLength(x);
+    auto* cell = tryAllocateCell<JSBigInt>(vm, JSBigInt::allocationSize(resultLength));
+    if (!cell) [[unlikely]] {
+        throwOutOfMemoryError(globalObject, scope);
+        return nullptr;
+    }
+
+    JSBigInt* bigInt = new (NotNull, cell) JSBigInt(vm, vm.bigIntStructure.get(), resultLength);
+    bigInt->finishCreation(vm);
+    bigInt->setSign(resultSign);
+
+    auto span = normalize(absoluteSubOne(x, bigInt->digits()));
+    if (span.empty())
+        RELEASE_AND_RETURN(scope, zeroImpl(vm));
+    if (span.size() < resultLength)
+        bigInt->setLength(span.size());
+    return bigInt;
+}
+
+template <typename BigIntImpl>
+JSBigInt::ImplResult JSBigInt::incImpl(JSGlobalObject* globalObject, BigIntImpl x)
+{
+    auto xSpan = x.digits();
+    if (!x.sign())
+        return absoluteAddOne(globalObject, xSpan, false);
+    return absoluteSubOne(globalObject, xSpan, true);
 }
 
 JSValue JSBigInt::inc(JSGlobalObject* globalObject, JSBigInt* x)
@@ -1942,27 +1988,18 @@ JSValue JSBigInt::inc(JSGlobalObject* globalObject, JSBigInt* x)
 template <typename BigIntImpl>
 JSBigInt::ImplResult JSBigInt::decImpl(JSGlobalObject* globalObject, BigIntImpl x)
 {
-    VM& vm = globalObject->vm();
-    auto scope = DECLARE_THROW_SCOPE(vm);
-
     if (x.isZero()) {
 #if USE(BIGINT32)
         return jsBigInt32(-1);
 #else
-        RELEASE_AND_RETURN(scope, createFrom(globalObject, -1));
+        return createFrom(globalObject, -1);
 #endif
     }
 
     auto xSpan = x.digits();
-    if (!x.sign()) {
-        Vector<Digit, 16> resultVector(subOneLength(xSpan));
-        auto result = absoluteSubOne(xSpan, resultVector.mutableSpan());
-        RELEASE_AND_RETURN(scope, tryCreateFromImpl(globalObject, vm, false, result));
-    }
-
-    Vector<Digit, 16> resultVector(addOneLength(xSpan));
-    auto result = absoluteAddOne(xSpan, resultVector.mutableSpan());
-    RELEASE_AND_RETURN(scope, tryCreateFromImpl(globalObject, vm, true, result));
+    if (!x.sign())
+        return absoluteSubOne(globalObject, xSpan, false);
+    return absoluteAddOne(globalObject, xSpan, true);
 }
 
 JSValue JSBigInt::dec(JSGlobalObject* globalObject, JSBigInt* x)

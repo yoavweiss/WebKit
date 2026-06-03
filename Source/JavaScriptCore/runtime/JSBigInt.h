@@ -571,6 +571,8 @@ private:
     static size_t subOneLength(std::span<const Digit> x) { return x.size(); }
     static std::span<Digit> NODELETE absoluteAddOne(std::span<const Digit> x, std::span<Digit> result);
     static std::span<Digit> NODELETE absoluteSubOne(std::span<const Digit> x, std::span<Digit> result);
+    static ImplResult absoluteAddOne(JSGlobalObject*, std::span<const Digit> x, bool resultSign);
+    static ImplResult absoluteSubOne(JSGlobalObject*, std::span<const Digit> x, bool resultSign);
 
     static Digit NODELETE inplaceAdd(std::span<Digit> z, std::span<const Digit> x);
     static Digit NODELETE inplaceSub(std::span<Digit> z, std::span<const Digit> x);
