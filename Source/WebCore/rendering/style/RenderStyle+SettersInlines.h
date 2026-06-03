@@ -304,6 +304,11 @@ inline bool RenderStyle::setUsedZoom(float zoomLevel)
     return m_computedStyle.setUsedZoom(zoomLevel);
 }
 
+inline void RenderStyle::setDeviceScaleFactor(float deviceScaleFactor)
+{
+    m_computedStyle.setDeviceScaleFactor(deviceScaleFactor);
+}
+
 // MARK: - Aggregates
 
 inline Style::Animations& RenderStyle::ensureAnimations()

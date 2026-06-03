@@ -307,6 +307,11 @@ inline float ComputedStyleBase::usedZoom() const
     return m_inheritedRareData->usedZoom;
 }
 
+inline float ComputedStyleBase::deviceScaleFactor() const
+{
+    return m_inheritedRareData->deviceScaleFactor;
+}
+
 inline ZoomFactor ComputedStyleBase::usedZoomForLength() const
 {
     static constexpr ZoomFactor unzoomed(1.0f);

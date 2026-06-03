@@ -614,6 +614,9 @@ public:
     inline float usedZoom() const;
     inline bool setUsedZoom(float);
 
+    inline float deviceScaleFactor() const;
+    inline void setDeviceScaleFactor(float);
+
     void setZoomFromAnimation(Zoom);
 
     inline ZoomFactor usedZoomForLength() const;

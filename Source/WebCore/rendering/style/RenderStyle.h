@@ -237,6 +237,9 @@ public:
     inline float usedZoom() const;
     inline bool setUsedZoom(float);
 
+    inline float deviceScaleFactor() const;
+    inline void setDeviceScaleFactor(float);
+
     inline Style::ZoomFactor usedZoomForLength() const;
 
     // MARK: - Fonts

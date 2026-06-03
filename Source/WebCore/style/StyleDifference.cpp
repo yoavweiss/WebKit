@@ -343,6 +343,7 @@ public:
             || a.lineFitEdge != b.lineFitEdge
             || a.usedZoom != b.usedZoom
             || a.textZoom != b.textZoom
+            || a.deviceScaleFactor != b.deviceScaleFactor
     #if ENABLE(TEXT_AUTOSIZING)
             || a.textSizeAdjust != b.textSizeAdjust
     #endif

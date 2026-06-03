@@ -251,6 +251,11 @@ inline bool ComputedStyleBase::setUsedZoom(float zoomLevel)
     return true;
 }
 
+inline void ComputedStyleBase::setDeviceScaleFactor(float scaleFactor)
+{
+    SET(m_inheritedRareData, deviceScaleFactor, scaleFactor);
+}
+
 // MARK: - Aggregates
 
 inline Animations& ComputedStyleBase::ensureAnimations()

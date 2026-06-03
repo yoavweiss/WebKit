@@ -115,6 +115,7 @@ RenderStyle resolveForDocument(const Document& document)
     documentStyle.setFontCascade(WTF::move(fontCascade));
 
     documentStyle.setEvaluationTimeZoomEnabled(document.settings().evaluationTimeZoomEnabled());
+    documentStyle.setDeviceScaleFactor(document.deviceScaleFactor());
 
     return documentStyle;
 }

@@ -348,6 +348,11 @@ inline float RenderStyle::usedZoom() const
     return m_computedStyle.usedZoom();
 }
 
+inline float RenderStyle::deviceScaleFactor() const
+{
+    return m_computedStyle.deviceScaleFactor();
+}
+
 inline Style::ZoomFactor RenderStyle::usedZoomForLength() const
 {
     return m_computedStyle.usedZoomForLength();
