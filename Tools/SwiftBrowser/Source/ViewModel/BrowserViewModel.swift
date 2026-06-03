@@ -173,7 +173,9 @@ final class BrowserViewModel {
 
     func exportAsPDF() {
         Task {
-            let data = try await page.exported(as: .pdf)
+            guard let data = try? await page.exported(as: .pdf) else {
+                return
+            }
             exportedPDF = PDF(data: data, title: !page.title.isEmpty ? page.title : nil)
         }
     }
