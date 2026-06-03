@@ -4239,6 +4239,40 @@ auto ByteCodeParser::handleIntrinsicCall(Node* callee, Operand resultOperand, Ca
             return CallOptimizationResult::Inlined;
         }
 
+        case JSSetIteratorNextIntrinsic:
+        case JSMapIteratorNextIntrinsic: {
+            ASSERT(argumentCountIncludingThis == 2);
+
+            insertChecks();
+            Node* mapIterator = get(virtualRegisterForArgumentIncludingThis(1, registerOffset));
+            UseKind useKind = intrinsic == JSMapIteratorNextIntrinsic ? MapIteratorObjectUse : SetIteratorObjectUse;
+            Node* storage = addToGraph(MapIteratorNext, Edge(mapIterator, useKind));
+            setResult(storage);
+            return CallOptimizationResult::Inlined;
+        }
+
+        case JSSetIteratorKeyIntrinsic:
+        case JSMapIteratorKeyIntrinsic: {
+            ASSERT(argumentCountIncludingThis == 2);
+
+            insertChecks();
+            Node* mapIterator = get(virtualRegisterForArgumentIncludingThis(1, registerOffset));
+            UseKind useKind = intrinsic == JSMapIteratorKeyIntrinsic ? MapIteratorObjectUse : SetIteratorObjectUse;
+            Node* storage = addToGraph(MapIteratorKey, OpInfo(0), OpInfo(prediction), Edge(mapIterator, useKind));
+            setResult(storage);
+            return CallOptimizationResult::Inlined;
+        }
+
+        case JSMapIteratorValueIntrinsic: {
+            ASSERT(argumentCountIncludingThis == 2);
+
+            insertChecks();
+            Node* mapIterator = get(virtualRegisterForArgumentIncludingThis(1, registerOffset));
+            Node* storage = addToGraph(MapIteratorValue, OpInfo(0), OpInfo(prediction), Edge(mapIterator, MapIteratorObjectUse));
+            setResult(storage);
+            return CallOptimizationResult::Inlined;
+        }
+
         case JSSetStorageIntrinsic:
         case JSMapStorageIntrinsic: {
             ASSERT(argumentCountIncludingThis == 2);

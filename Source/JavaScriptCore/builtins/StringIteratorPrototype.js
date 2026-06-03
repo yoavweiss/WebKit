@@ -1,5 +1,4 @@
 /*
- * Copyright (C) 2013-2019 Apple, Inc. All rights reserved.
  * Copyright (C) 2015 Yusuke Suzuki <utatane.tea@gmail.com>.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,22 +23,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-#include "StringIteratorPrototype.h"
-
-#include "JSCBuiltins.h"
-#include "JSCInlines.h"
-
-namespace JSC {
-
-const ClassInfo StringIteratorPrototype::s_info = { "String Iterator"_s, &Base::s_info, nullptr, nullptr, CREATE_METHOD_TABLE(StringIteratorPrototype) };
-
-void StringIteratorPrototype::finishCreation(VM& vm, JSGlobalObject* globalObject)
+function next()
 {
-    Base::finishCreation(vm);
-    ASSERT(inherits(info()));
-    JSC_BUILTIN_FUNCTION_WITHOUT_TRANSITION(vm.propertyNames->next, stringIteratorPrototypeNextCodeGenerator, static_cast<unsigned>(PropertyAttribute::DontEnum));
-    JSC_TO_STRING_TAG_WITHOUT_TRANSITION();
-}
+    "use strict";
 
-} // namespace JSC
+    if (!@isStringIterator(this))
+        @throwTypeError("%StringIteratorPrototype%.next requires that |this| be a String Iterator instance");
+
+    var done = true;
+    var value = @undefined;
+
+    var position = @getStringIteratorInternalField(this, @stringIteratorFieldIndex);
+    if (position !== -1) {
+        var string = @getStringIteratorInternalField(this, @stringIteratorFieldIteratedString);
+        var length = string.length >>> 0;
+        if (position >= length)
+            @putStringIteratorInternalField(this, @stringIteratorFieldIndex, -1);
+        else {
+            done = false;
+
+            var first = string.@charCodeAt(position);
+            if (first < 0xD800 || first > 0xDBFF || position + 1 === length)
+                value = string[position];
+            else {
+                var second = string.@charCodeAt(position + 1);
+                if (second < 0xDC00 || second > 0xDFFF)
+                    value = string[position];
+                else
+                    value = string[position] + string[position + 1];
+            }
+            @putStringIteratorInternalField(this, @stringIteratorFieldIndex, position + value.length);
+        }
+    }
+
+    return { value, done };
+}

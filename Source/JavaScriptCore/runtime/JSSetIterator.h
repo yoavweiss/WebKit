@@ -182,4 +182,7 @@ private:
 };
 STATIC_ASSERT_IS_TRIVIALLY_DESTRUCTIBLE(JSSetIterator);
 
+JSC_DECLARE_HOST_FUNCTION(setIteratorPrivateFuncSetIteratorNext);
+JSC_DECLARE_HOST_FUNCTION(setIteratorPrivateFuncSetIteratorKey);
+
 } // namespace JSC

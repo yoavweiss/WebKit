@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2019 Apple, Inc. All rights reserved.
+ * Copyright (C) 2017 Yusuke Suzuki <utatane.tea@gmail.com>.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -20,26 +20,27 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-#include "SetIteratorPrototype.h"
-
-#include "JSCBuiltins.h"
-#include "JSCInlines.h"
-
-namespace JSC {
-
-const ClassInfo SetIteratorPrototype::s_info = { "Set Iterator"_s, &Base::s_info, nullptr, nullptr, CREATE_METHOD_TABLE(SetIteratorPrototype) };
-
-void SetIteratorPrototype::finishCreation(VM& vm, JSGlobalObject* globalObject)
+function next()
 {
-    Base::finishCreation(vm);
-    ASSERT(inherits(info()));
+    "use strict";
 
-    JSC_BUILTIN_FUNCTION_WITHOUT_TRANSITION(vm.propertyNames->next, setIteratorPrototypeNextCodeGenerator, static_cast<unsigned>(PropertyAttribute::DontEnum));
-    JSC_TO_STRING_TAG_WITHOUT_TRANSITION();
-}
+    if (!@isMapIterator(this))
+        @throwTypeError("%MapIteratorPrototype%.next requires that |this| be a Map Iterator instance");
 
+    var value;
+    var done = @mapIteratorNext(this);
+
+    if (!done) {
+        var kind = @getMapIteratorInternalField(this, @mapIteratorFieldKind);
+        if (kind === @iterationKindKey)
+            value = @mapIteratorKey(this);
+        else if (kind === @iterationKindValue)
+            value = @mapIteratorValue(this);
+        else
+            value = [@mapIteratorKey(this), @mapIteratorValue(this)];
+    }
+    return { value, done };
 }

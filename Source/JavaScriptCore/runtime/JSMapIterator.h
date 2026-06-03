@@ -207,4 +207,8 @@ private:
 };
 STATIC_ASSERT_IS_TRIVIALLY_DESTRUCTIBLE(JSMapIterator);
 
+JSC_DECLARE_HOST_FUNCTION(mapIteratorPrivateFuncMapIteratorNext);
+JSC_DECLARE_HOST_FUNCTION(mapIteratorPrivateFuncMapIteratorKey);
+JSC_DECLARE_HOST_FUNCTION(mapIteratorPrivateFuncMapIteratorValue);
+
 } // namespace JSC

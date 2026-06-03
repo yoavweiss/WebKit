@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2019 Apple, Inc. All rights reserved.
+ * Copyright (C) 2017 Yusuke Suzuki <utatane.tea@gmail.com>.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -20,26 +20,24 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-#include "SetIteratorPrototype.h"
-
-#include "JSCBuiltins.h"
-#include "JSCInlines.h"
-
-namespace JSC {
-
-const ClassInfo SetIteratorPrototype::s_info = { "Set Iterator"_s, &Base::s_info, nullptr, nullptr, CREATE_METHOD_TABLE(SetIteratorPrototype) };
-
-void SetIteratorPrototype::finishCreation(VM& vm, JSGlobalObject* globalObject)
+function next()
 {
-    Base::finishCreation(vm);
-    ASSERT(inherits(info()));
+    "use strict";
 
-    JSC_BUILTIN_FUNCTION_WITHOUT_TRANSITION(vm.propertyNames->next, setIteratorPrototypeNextCodeGenerator, static_cast<unsigned>(PropertyAttribute::DontEnum));
-    JSC_TO_STRING_TAG_WITHOUT_TRANSITION();
-}
+    if (!@isSetIterator(this))
+        @throwTypeError("%SetIteratorPrototype%.next requires that |this| be a Set Iterator instance");
 
+    var value;
+    var done = @setIteratorNext(this);
+
+    if (!done) {
+        var kind = @getSetIteratorInternalField(this, @setIteratorFieldKind);
+        value = @setIteratorKey(this);
+        if (kind === @iterationKindEntries)
+            value = [value, value];
+    }
+    return { value, done };
 }

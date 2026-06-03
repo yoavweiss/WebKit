@@ -55,6 +55,9 @@ enum class LinkTimeConstant : int32_t;
     macro(getAsyncGeneratorInternalField) \
     macro(getAbstractModuleRecordInternalField) \
     macro(getArrayIteratorInternalField) \
+    macro(getStringIteratorInternalField) \
+    macro(getMapIteratorInternalField) \
+    macro(getSetIteratorInternalField) \
     macro(getRegExpStringIteratorInternalField) \
     macro(getProxyInternalField) \
     macro(getWrapForValidIteratorInternalField) \
@@ -76,7 +79,10 @@ enum class LinkTimeConstant : int32_t;
     macro(isMap) \
     macro(isSet) \
     macro(isShadowRealm) \
+    macro(isStringIterator) \
     macro(isArrayIterator) \
+    macro(isMapIterator) \
+    macro(isSetIterator) \
     macro(isUndefinedOrNull) \
     macro(isWrapForValidIterator) \
     macro(isRegExpStringIterator) \
@@ -95,6 +101,9 @@ enum class LinkTimeConstant : int32_t;
     macro(putAsyncDisposableStackInternalField) \
     macro(putAsyncGeneratorInternalField) \
     macro(putArrayIteratorInternalField) \
+    macro(putStringIteratorInternalField) \
+    macro(putMapIteratorInternalField) \
+    macro(putSetIteratorInternalField) \
     macro(putRegExpStringIteratorInternalField) \
     macro(putDisposableStackInternalField) \
     macro(superSamplerBegin) \
@@ -150,6 +159,16 @@ enum class LinkTimeConstant : int32_t;
     macro(arrayIteratorFieldIndex) \
     macro(arrayIteratorFieldIteratedObject) \
     macro(arrayIteratorFieldKind) \
+    macro(mapIteratorFieldEntry) \
+    macro(mapIteratorFieldIteratedObject) \
+    macro(mapIteratorFieldStorage) \
+    macro(mapIteratorFieldKind) \
+    macro(setIteratorFieldEntry) \
+    macro(setIteratorFieldIteratedObject) \
+    macro(setIteratorFieldStorage) \
+    macro(setIteratorFieldKind) \
+    macro(stringIteratorFieldIndex) \
+    macro(stringIteratorFieldIteratedString) \
     macro(asyncGeneratorFieldQueue) \
     macro(asyncGeneratorFieldResumeValue) \
     macro(asyncGeneratorFieldResumeMode) \
