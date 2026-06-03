@@ -13600,7 +13600,7 @@
                     {
                         "enable-if": "ENABLE_VARIATION_FONTS",
                         "aliases": ["font-stretch"],
-                        "parser-grammar": "<font-width-absolute> | <percentage [0,inf]>{1,2}",
+                        "parser-grammar": "<font-width-absolute> | <percentage [0,inf]>{1,2}@(type=CSSValuePair default=previous)",
                         "parser-grammar-comment": "Current spec grammar is 'auto | <'font-width'>{1,2}'",
                         "parser-exported": true
                     },
@@ -13657,7 +13657,7 @@
                 "codegen-properties": [
                     {
                         "enable-if": "ENABLE_VARIATION_FONTS",
-                        "parser-grammar": "normal | bold | <number [1,1000]>{1,2}",
+                        "parser-grammar": "normal | bold | <number [1,1000]>{1,2}@(type=CSSValuePair default=previous)",
                         "parser-grammar-comment": "Current spec grammar is 'auto | <font-weight-absolute>{1,2}'",
                         "parser-exported": true
                     },

@@ -36,6 +36,7 @@
 #include "CSSUnicodeRangeValue.h"
 #include "CSSValue.h"
 #include "CSSValueList.h"
+#include "CSSValuePair.h"
 #include "CachedFont.h"
 #include "ContextDestructionObserverInlines.h"
 #include "Document.h"
@@ -169,14 +170,9 @@ FontFace* CSSFontFace::existingWrapper()
 
 static FontSelectionRange calculateWeightRange(CSSValue& value)
 {
-    if (auto* valueList = dynamicDowncast<CSSValueList>(value)) {
-        ASSERT(valueList->length() == 2);
-        if (valueList->length() != 2)
-            return { normalWeightValue(), normalWeightValue() };
-        Ref value0 = *valueList->item(0);
-        Ref value1 = *valueList->item(1);
-        auto result0 = Style::fontWeightFromCSSValueDeprecated(value0);
-        auto result1 = Style::fontWeightFromCSSValueDeprecated(value1);
+    if (auto* pair = dynamicDowncast<CSSValuePair>(value)) {
+        auto result0 = Style::fontWeightFromCSSValueDeprecated(pair->first());
+        auto result1 = Style::fontWeightFromCSSValueDeprecated(pair->second());
         return { result0, result1 };
     }
 
@@ -201,14 +197,9 @@ void CSSFontFace::setWeight(CSSValue& weight)
 
 static FontSelectionRange calculateWidthRange(CSSValue& value)
 {
-    if (auto* valueList = dynamicDowncast<CSSValueList>(value)) {
-        ASSERT(valueList->length() == 2);
-        if (valueList->length() != 2)
-            return { normalWidthValue(), normalWidthValue() };
-        Ref value0 = *valueList->item(0);
-        Ref value1 = *valueList->item(1);
-        auto result0 = Style::fontStretchFromCSSValueDeprecated(value0);
-        auto result1 = Style::fontStretchFromCSSValueDeprecated(value1);
+    if (auto* pair = dynamicDowncast<CSSValuePair>(value)) {
+        auto result0 = Style::fontStretchFromCSSValueDeprecated(pair->first());
+        auto result1 = Style::fontStretchFromCSSValueDeprecated(pair->second());
         return { result0, result1 };
     }
 
@@ -261,11 +252,9 @@ static FontFaceStyleInfo calculateFontFaceStyleInfo(CSSValue& value)
                 return FontSelectionValue { narrowPrecisionToFloat(Style::toStyle(angle, NoConversionDataRequiredToken { }).value) };
             };
 
-            if (!oblique.first)
+            if (!oblique.angle)
                 return { FontSelectionRange { italicValue() }, FontStyleAxis::slnt };
-            if (!oblique.second)
-                return { FontSelectionRange { resolveAngle(*oblique.first) }, FontStyleAxis::slnt };
-            return { FontSelectionRange { resolveAngle(*oblique.first), resolveAngle(*oblique.second) }, FontStyleAxis::slnt };
+            return { FontSelectionRange { resolveAngle(oblique.angle->first()), resolveAngle(oblique.angle->second()) }, FontStyleAxis::slnt };
         }
     );
 }

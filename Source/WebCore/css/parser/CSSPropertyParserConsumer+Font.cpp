@@ -769,18 +769,20 @@ std::optional<CSS::FontStyleRange> consumeUnresolvedFontFaceFontStyle(CSSParserT
 
         if (rangeCopy.atEnd()) {
             range = rangeCopy;
-            return CSS::FontStyleRange { CSS::FontStyleRange::Oblique { std::nullopt, std::nullopt } };
+            return CSS::FontStyleRange { CSS::FontStyleRange::Oblique { std::nullopt } };
         }
 
         auto firstAngle = consumeFontStyleAngleUnresolved(rangeCopy, state);
         if (!firstAngle)
             return std::nullopt;
 
+        using Oblique = CSS::FontStyleRange::Oblique;
+
         if (rangeCopy.atEnd()) {
             range = rangeCopy;
             if (firstAngle->isKnownZero())
                 return CSS::FontStyleRange { CSS::Keyword::Normal { } };
-            return CSS::FontStyleRange { CSS::FontStyleRange::Oblique { WTF::move(firstAngle), std::nullopt } };
+            return CSS::FontStyleRange { Oblique { Oblique::Angles { *firstAngle, *firstAngle } } };
         }
 
         auto secondAngle = consumeFontStyleAngleUnresolved(rangeCopy, state);
@@ -790,7 +792,7 @@ std::optional<CSS::FontStyleRange> consumeUnresolvedFontFaceFontStyle(CSSParserT
         range = rangeCopy;
         if (firstAngle->isKnownZero() && secondAngle->isKnownZero())
             return CSS::FontStyleRange { CSS::Keyword::Normal { } };
-        return CSS::FontStyleRange { CSS::FontStyleRange::Oblique { WTF::move(firstAngle), WTF::move(secondAngle) } };
+        return CSS::FontStyleRange { Oblique { Oblique::Angles { *firstAngle, *secondAngle } } };
     }
 
     default:
