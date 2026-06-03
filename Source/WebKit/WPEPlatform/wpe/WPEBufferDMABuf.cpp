@@ -45,6 +45,12 @@
 /**
  * WPEBufferDMABuf:
  *
+ * A [class@Buffer] backed by a DMA-BUF.
+ *
+ * [class@BufferDMABuf] is a [class@Buffer] that wraps one or more DMA-BUF file
+ * descriptors, identified by a DRM format (FourCC) and a modifier. This is the
+ * buffer type used for hardware-accelerated rendering and, where supported,
+ * direct scanout.
  */
 struct _WPEBufferDMABufPrivate {
     uint32_t format;

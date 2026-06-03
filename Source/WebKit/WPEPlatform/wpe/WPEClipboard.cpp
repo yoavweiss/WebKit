@@ -40,6 +40,15 @@
 /**
  * WPEClipboard:
  *
+ * A clipboard for copy and paste.
+ *
+ * [class@Clipboard] is an abstract class that gives access to the platform's
+ * clipboard. Get the clipboard of a display with [method@Display.get_clipboard].
+ *
+ * Clipboard contents are represented by [struct@ClipboardContent], which can hold
+ * text and arbitrary data identified by MIME type. Set the contents with
+ * [method@Clipboard.set_content] and read them with
+ * [method@Clipboard.read_text] or [method@Clipboard.read_bytes].
  */
 struct _WPEClipboardPrivate {
     GWeakPtr<WPEDisplay> display;

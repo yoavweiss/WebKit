@@ -47,6 +47,18 @@
 /**
  * WPEToplevel:
  *
+ * A toplevel window.
+ *
+ * [class@Toplevel] is an abstract class that platform implementations derive to
+ * represent a native toplevel window (or its equivalent on platforms that do
+ * not have windows). A [class@Toplevel] hosts one or more [class@View] instances; the
+ * maximum is set on construction and returned by [method@Toplevel.get_max_views].
+ *
+ * The toplevel owns the window-level state: its title, size, scale, the
+ * [class@Screen] it is on, and whether it is fullscreen, maximized or minimized
+ * (see [flags@ToplevelState]). Platform implementations notify changes to
+ * this state with functions like [method@Toplevel.resized] and
+ * [method@Toplevel.state_changed].
  */
 struct _WPEToplevelPrivate {
     GWeakPtr<WPEDisplay> display;

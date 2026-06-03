@@ -46,6 +46,19 @@
 /**
  * WPEView:
  *
+ * A view that renders the contents of a WebKitWebView.
+ *
+ * [class@View] is an abstract class that platform implementations derive to
+ * represent the surface where web content is rendered. A [class@View] always
+ * belongs to a [class@Display] and is normally created automatically by a
+ * WebKitWebView when it is constructed with a [class@Display].
+ *
+ * The view receives the buffers produced by the web engine through
+ * [method@View.render_buffer] and notifies their state with the
+ * [signal@View::buffer-rendered] and [signal@View::buffer-released]
+ * signals. It also delivers input to the web content: platform
+ * implementations dispatch events with [method@View.event], which a
+ * browser application can observe through the [signal@View::event] signal.
  */
 struct _WPEViewPrivate {
     GRefPtr<WPEDisplay> display;

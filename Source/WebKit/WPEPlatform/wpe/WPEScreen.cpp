@@ -42,6 +42,14 @@
 /**
  * WPEScreen:
  *
+ * A monitor connected to a [class@Display].
+ *
+ * [class@Screen] is an abstract class that platform implementations derive to
+ * represent a monitor. Enumerate the screens of a display with
+ * [method@Display.get_n_screens] and [method@Display.get_screen].
+ *
+ * A screen exposes its position, size, physical size, scale and refresh rate,
+ * and provides a [class@ScreenSyncObserver] to be notified on vertical sync.
  */
 struct _WPEScreenPrivate {
     guint32 id;

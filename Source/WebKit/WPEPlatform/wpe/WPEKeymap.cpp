@@ -31,6 +31,15 @@
 /**
  * WPEKeymap:
  *
+ * A keyboard mapping.
+ *
+ * [class@Keymap] is an abstract class that platform implementations derive to
+ * translate between hardware keycodes and key symbols, and to track the state
+ * of modifier keys. Get the keymap of a display with [method@Display.get_keymap].
+ *
+ * Use [method@Keymap.get_entries_for_keyval] and
+ * [method@Keymap.translate_keyboard_state] to convert between keycodes and
+ * key symbols.
  */
 struct _WPEKeymapPrivate {
 };

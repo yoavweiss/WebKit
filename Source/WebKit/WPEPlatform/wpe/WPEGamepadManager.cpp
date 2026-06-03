@@ -33,6 +33,15 @@
 /**
  * WPEGamepadManager:
  *
+ * Tracks the available gamepads.
+ *
+ * [class@GamepadManager] is an abstract class that platform implementations derive
+ * to track the set of connected [class@Gamepad] devices. Create the manager for a
+ * display with [method@Display.create_gamepad_manager].
+ *
+ * It notifies device hotplugging with the
+ * [signal@GamepadManager::device-added] and
+ * [signal@GamepadManager::device-removed] signals.
  */
 struct _WPEGamepadManagerPrivate {
     ListHashSet<GRefPtr<WPEGamepad>> gamepads;
