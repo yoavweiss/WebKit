@@ -5550,6 +5550,8 @@ webkit.org/b/316158 fullscreen/full-screen-enter-while-exiting-mid-completion-ha
 
 webkit.org/b/316192 imported/w3c/web-platform-tests/webaudio/the-audio-api/the-mediaelementaudiosourcenode-interface/no-cors.https.html [ Crash Pass ]
 
+webkit.org/b/316197 imported/w3c/web-platform-tests/media-source/mediasource-addsourcebuffer-mode.html [ Crash Pass ]
+
 # Needs picture-in-picture support
 media/media-visible-in-viewport-in-fullscreen.html
 
