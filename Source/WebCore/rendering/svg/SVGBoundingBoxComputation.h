@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "FloatRect.h"
+#include <WebCore/FloatRect.h>
 #include <WebCore/RenderLayerModelObject.h>
 #include <wtf/Markable.h>
 #include <wtf/Noncopyable.h>
