@@ -33,16 +33,6 @@
 
 namespace WebCore {
 
-static EnumSet<ScrollbarOrientation> mapScrollbarChangesToOrientations(OptionSet<ScrollbarUpdateScope::ScrollbarChange> scrollbarChanges)
-{
-    EnumSet<ScrollbarOrientation> orientationsForChangedScrollbars;
-    if (scrollbarChanges.contains(ScrollbarUpdateScope::ScrollbarChange::AutoVerticalScrollBarChanged))
-        orientationsForChangedScrollbars.add(ScrollbarOrientation::Vertical);
-    if (scrollbarChanges.contains(ScrollbarUpdateScope::ScrollbarChange::AutoHorizontalScrollbarChanged))
-        orientationsForChangedScrollbars.add(ScrollbarOrientation::Horizontal);
-    return orientationsForChangedScrollbars;
-}
-
 RelayoutScopeForScrollbarChange::RelayoutScopeForScrollbarChange(RenderBlock& renderBlock, InOverflowRelayout inOverflowRelayout)
     : m_renderBlock(renderBlock)
     , m_inOverflowRelayout(inOverflowRelayout)
@@ -55,9 +45,8 @@ RelayoutScopeForScrollbarChange::~RelayoutScopeForScrollbarChange()
     if (!m_scrollbarUpdateScope)
         return;
 
-    using ScrollbarChange = ScrollbarUpdateScope::ScrollbarChange;
-    auto& scrollbarChanges = m_scrollbarUpdateScope->scrollbarChanges();
-    if (scrollbarChanges.isEmpty())
+    auto& autoScrollbarChanges = m_scrollbarUpdateScope->autoScrollbarChanges();
+    if (autoScrollbarChanges.isEmpty())
         return;
 
     // Scrollbars with auto behavior may need to lay out again if scrollbars got added or removed.
@@ -67,13 +56,12 @@ RelayoutScopeForScrollbarChange::~RelayoutScopeForScrollbarChange()
         if (m_inOverflowRelayout == InOverflowRelayout::No) {
             if (auto& subtreeScrollbarChangesState = m_renderBlock->layoutContext().subtreeScrollbarChangesState(); subtreeScrollbarChangesState && subtreeScrollbarChangesState->isEligibleForScrollbarHandlingByAncestor(m_renderBlock.get())) {
                 ASSERT(m_renderBlock.ptr() != subtreeScrollbarChangesState->subtreeRoot.ptr());
-                auto orientationsForChangedScrollbars = mapScrollbarChangesToOrientations(scrollbarChanges);
-                if (auto sizesAffectedFromScrollbarChanges = subtreeScrollbarChangesState->sizesAffectedForSubtreeRootFromScrollbarChanges(m_renderBlock, orientationsForChangedScrollbars)) {
+                if (auto sizesAffectedFromScrollbarChanges = subtreeScrollbarChangesState->sizesAffectedForSubtreeRootFromScrollbarChanges(m_renderBlock, autoScrollbarChanges)) {
                     subtreeScrollbarChangesState->addRendererWithScrollbarChange(m_renderBlock, sizesAffectedFromScrollbarChanges);
                     return;
                 }
             }
-            m_renderBlock->scrollbarsChanged(scrollbarChanges.contains(ScrollbarChange::AutoHorizontalScrollbarChanged), scrollbarChanges.contains(ScrollbarChange::AutoVerticalScrollBarChanged));
+            m_renderBlock->scrollbarsChanged(autoScrollbarChanges.contains(ScrollbarOrientation::Horizontal), autoScrollbarChanges.contains(ScrollbarOrientation::Vertical));
             RenderBlock::relayoutRenderBlockForScrollbarChange(m_renderBlock.get());
         }
     }

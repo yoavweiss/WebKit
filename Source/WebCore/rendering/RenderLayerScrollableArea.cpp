@@ -1329,20 +1329,20 @@ std::optional<ScrollbarUpdateScope> RenderLayerScrollableArea::updateScrollInfoA
     updateScrollbarPresenceAndState(hasHorizontalOverflow, hasVerticalOverflow);
 
     // Scrollbars with auto behavior may need to lay out again if scrollbars got added or removed.
-    OptionSet<ScrollbarUpdateScope::ScrollbarChange> scrollbarChanges;
+    EnumSet<ScrollbarOrientation> autoScrollbarChanges;
     if (box->hasAutoScrollbar(ScrollbarOrientation::Horizontal) && (hadHorizontalScrollbar != hasHorizontalScrollbar()))
-        scrollbarChanges.add(ScrollbarUpdateScope::ScrollbarChange::AutoHorizontalScrollbarChanged);
+        autoScrollbarChanges.add(ScrollbarOrientation::Horizontal);
 
     if (box->hasAutoScrollbar(ScrollbarOrientation::Vertical) && (hadVerticalScrollbar != hasVerticalScrollbar()))
-        scrollbarChanges.add(ScrollbarUpdateScope::ScrollbarChange::AutoVerticalScrollBarChanged);
+        autoScrollbarChanges.add(ScrollbarOrientation::Vertical);
 
-    if (!scrollbarChanges.isEmpty()) {
-        if (scrollbarChanges.contains(ScrollbarUpdateScope::ScrollbarChange::AutoVerticalScrollBarChanged) && shouldPlaceVerticalScrollbarOnLeft())
+    if (!autoScrollbarChanges.isEmpty()) {
+        if (autoScrollbarChanges.contains(ScrollbarOrientation::Vertical) && shouldPlaceVerticalScrollbarOnLeft())
             computeScrollOrigin();
         m_layer.updateSelfPaintingLayer();
     }
 
-    return ScrollbarUpdateScope { *this, originalScrollPosition, scrollbarChanges, hasHorizontalOverflow ? HasHorizontalOverflow::Yes : HasHorizontalOverflow::No, hasVerticalOverflow ? HasVerticalOverflow::Yes : HasVerticalOverflow::No };
+    return ScrollbarUpdateScope { *this, originalScrollPosition, autoScrollbarChanges, hasHorizontalOverflow ? HasHorizontalOverflow::Yes : HasHorizontalOverflow::No, hasVerticalOverflow ? HasVerticalOverflow::Yes : HasVerticalOverflow::No };
 }
 
 void RenderLayerScrollableArea::updateScrollbarSteps()
