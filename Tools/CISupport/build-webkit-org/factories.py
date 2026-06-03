@@ -173,17 +173,8 @@ class TestAllButJSCFactory(TestFactory):
     JSCTestClass = None
 
 
-class BuildAndTestAndArchiveAllButJSCFactory(BuildAndTestFactory):
+class BuildAndTestAllButJSCFactory(BuildAndTestFactory):
     JSCTestClass = None
-
-    def __init__(self, platform, configuration, architectures, triggers=None, additionalArguments=None, device_model=None, **kwargs):
-        BuildAndTestFactory.__init__(self, platform, configuration, architectures, triggers, additionalArguments, device_model, **kwargs)
-        # The parent class will already archive if triggered
-        if not triggers:
-            self.addStep(ArchiveBuiltProduct())
-            self.addStep(UploadBuiltProduct())
-        if platform == "gtk-3":
-            self.addStep(RunWebDriverTests())
 
 
 class BuildAndGenerateJSCBundleFactory(BuildFactory):
