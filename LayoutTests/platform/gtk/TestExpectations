@@ -1302,3 +1302,8 @@ webkit.org/b/303859 imported/w3c/web-platform-tests/html/canvas/element/manual/t
 webkit.org/b/314817 imported/w3c/web-platform-tests/svg/geometry/reftests/circle-004.svg [ ImageOnlyFailure ]
 
 fast/css-grid-layout/flex-content-sized-columns-resize.html [ ImageOnlyFailure Pass ]
+
+webkit.org/b/315994 imported/w3c/web-platform-tests/css/css-fonts/variations/variable-avar2-rvrn.html [ ImageOnlyFailure Pass ]
+webkit.org/b/315994 imported/w3c/web-platform-tests/css/css-fonts/variations/variable-avar2-warp.html [ ImageOnlyFailure Pass ]
+webkit.org/b/315994 imported/w3c/web-platform-tests/css/css-view-transitions/new-content-inline-with-offset-from-containing-block-clipped.html [ ImageOnlyFailure Pass ]
+webkit.org/b/315994 imported/w3c/web-platform-tests/css/css-view-transitions/old-content-inline-with-offset-from-containing-block-clipped.html [ ImageOnlyFailure Pass ]
