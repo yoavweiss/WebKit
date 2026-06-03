@@ -4537,7 +4537,7 @@ bool MediaPlayerPrivateGStreamer::waitForCDMAttachment()
 
 void MediaPlayerPrivateGStreamer::initializationDataEncountered(InitData&& initData)
 {
-    if (!initData.payload()) {
+    if (!initData.payload() || !initData.payload()->size()) {
         GST_DEBUG("initializationDataEncountered No payload");
         return;
     }
