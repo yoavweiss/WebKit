@@ -716,6 +716,7 @@
 				WebCore/HTTPHeaderMap.cpp,
 				WebCore/HTTPParsers.cpp,
 				WebCore/HysteresisActivityTests.cpp,
+				WebCore/IDBKeyData.cpp,
 				WebCore/IDBSerializationTest.cpp,
 				WebCore/ImageBufferTests.cpp,
 				WebCore/IntPointTests.cpp,
