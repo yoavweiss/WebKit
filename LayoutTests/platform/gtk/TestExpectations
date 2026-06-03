@@ -327,6 +327,9 @@ webkit.org/b/305558 fast/text/non-integral-initial-letter-simple.html [ ImageOnl
 # @font-face: missing integration between size-adjust and optical-size
 webkit.org/b/256457 imported/w3c/web-platform-tests/css/css-fonts/variations/variable-opsz-size-adjust.html [ ImageOnlyFailure ]
 
+# webkit.org/b/315568 Image-only failures from css-fonts WPT resync
+webkit.org/b/315568 imported/w3c/web-platform-tests/css/css-fonts/variations/variable-avar2-warp.html [ ImageOnlyFailure ]
+
 # We render the focus ring differently
 fast/images/image-map-outline-with-scale-transform.html [ ImageOnlyFailure ]
 
