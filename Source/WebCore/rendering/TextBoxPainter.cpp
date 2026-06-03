@@ -758,14 +758,17 @@ TextDecorationPainter TextBoxPainter::createDecorationPainter(const StyledMarked
     };
 }
 
-static inline float computedTextDecorationThickness(const RenderStyle& styleToUse, float deviceScaleFactor)
-{
-    return ceilToDevicePixel(styleToUse.textDecorationThickness().resolve(styleToUse), deviceScaleFactor);
-}
-
 static inline float computedAutoTextDecorationThickness(const RenderStyle& styleToUse, float deviceScaleFactor)
 {
     return ceilToDevicePixel(Style::TextDecorationThickness { CSS::Keyword::Auto { } }.resolve(styleToUse), deviceScaleFactor);
+}
+
+static inline float resolveTextDecorationThicknessForPaintingBox(const std::optional<Style::TextDecorationThickness>& originatorThickness, const RenderStyle& paintingBoxStyle, float deviceScaleFactor)
+{
+    // The originator's text-decoration-thickness propagates to descendants and is resolved against the painting
+    // box so its font size and zoom apply. When the originator did not specify a thickness, fall back to auto.
+    auto thickness = originatorThickness.value_or(Style::TextDecorationThickness { CSS::Keyword::Auto { } });
+    return ceilToDevicePixel(thickness.resolve(paintingBoxStyle), deviceScaleFactor);
 }
 
 static inline float computedLinethroughCenter(const RenderStyle& styleToUse, float textDecorationThickness, float autoTextDecorationThickness)
@@ -893,7 +896,11 @@ void TextBoxPainter::paintBackgroundDecorations(TextDecorationPainter& decoratio
     for (auto& decoratingBox : decoratingBoxList | std::views::reverse) {
         auto computedTextDecorationType = WebCore::computedTextDecorationType(decoratingBox.style.get(), decoratingBox.textDecorationStyles);
         auto computedBackgroundDecorationGeometry = [&] {
-            auto textDecorationThickness = computedTextDecorationThickness(decoratingBox.style.get(), m_document->deviceScaleFactor());
+            // text-decoration-thickness is set on the originating box and applies to every line that box paints,
+            // so the per-line slots in textDecorationStyles all carry the same value. We pick whichever line
+            // we're about to draw just so we have a populated slot to read; the others would do.
+            auto& thicknessDecoration = computedTextDecorationType.hasUnderline() ? decoratingBox.textDecorationStyles.underline : computedTextDecorationType.hasOverline() ? decoratingBox.textDecorationStyles.overline : decoratingBox.textDecorationStyles.linethrough;
+            auto textDecorationThickness = resolveTextDecorationThicknessForPaintingBox(thicknessDecoration.thickness, decoratingBox.style.get(), m_document->deviceScaleFactor());
             auto underlineOffset = [&] {
                 if (!computedTextDecorationType.hasUnderline())
                     return 0.f;
@@ -994,7 +1001,7 @@ void TextBoxPainter::paintForegroundDecorations(TextDecorationPainter& decoratio
         if (!WebCore::computedTextDecorationType(decoratingBox.style.get(), decoratingBox.textDecorationStyles).hasLineThrough())
             continue;
 
-        auto textDecorationThickness = computedTextDecorationThickness(decoratingBox.style.get(), deviceScaleFactor);
+        auto textDecorationThickness = resolveTextDecorationThicknessForPaintingBox(decoratingBox.textDecorationStyles.linethrough.thickness, decoratingBox.style.get(), deviceScaleFactor);
         auto linethroughCenter = computedLinethroughCenter(decoratingBox.style.get(), textDecorationThickness, computedAutoTextDecorationThickness(decoratingBox.style.get(), deviceScaleFactor));
         decorationPainter.paintForegroundDecorations({ decoratingBox.location
             , decoratingBox.contentWidth

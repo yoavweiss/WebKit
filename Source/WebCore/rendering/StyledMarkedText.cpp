@@ -48,19 +48,23 @@ static void computeStyleForPseudoElementStyle(StyledMarkedText::Style& style, co
 
     auto color = TextDecorationPainter::decorationColor(*pseudoElementStyle, paintInfo.paintBehavior);
     auto decorationStyle = pseudoElementStyle->textDecorationStyle();
+    auto thickness = pseudoElementStyle->textDecorationThickness();
     auto decorations = pseudoElementStyle->textDecorationLineInEffect();
 
     if (decorations.hasUnderline()) {
         style.textDecorationStyles.underline.color = color;
         style.textDecorationStyles.underline.decorationStyle = decorationStyle;
+        style.textDecorationStyles.underline.thickness = thickness;
     }
     if (decorations.hasOverline()) {
         style.textDecorationStyles.overline.color = color;
         style.textDecorationStyles.overline.decorationStyle = decorationStyle;
+        style.textDecorationStyles.overline.thickness = thickness;
     }
     if (decorations.hasLineThrough()) {
         style.textDecorationStyles.linethrough.color = color;
         style.textDecorationStyles.linethrough.decorationStyle = decorationStyle;
+        style.textDecorationStyles.linethrough.thickness = thickness;
     }
 }
 
@@ -174,14 +178,17 @@ static TextDecorationPainter::Styles NODELETE computeStylesForTextDecorations(co
     if (textDecorations.hasUnderline()) {
         textDecorationStyles.underline.color = currentTextDecorationStyles.underline.color;
         textDecorationStyles.underline.decorationStyle = currentTextDecorationStyles.underline.decorationStyle;
+        textDecorationStyles.underline.thickness = currentTextDecorationStyles.underline.thickness;
     }
     if (textDecorations.hasOverline()) {
         textDecorationStyles.overline.color = currentTextDecorationStyles.overline.color;
         textDecorationStyles.overline.decorationStyle = currentTextDecorationStyles.overline.decorationStyle;
+        textDecorationStyles.overline.thickness = currentTextDecorationStyles.overline.thickness;
     }
     if (textDecorations.hasLineThrough()) {
         textDecorationStyles.linethrough.color = currentTextDecorationStyles.linethrough.color;
         textDecorationStyles.linethrough.decorationStyle = currentTextDecorationStyles.linethrough.decorationStyle;
+        textDecorationStyles.linethrough.thickness = currentTextDecorationStyles.linethrough.thickness;
     }
     return textDecorationStyles;
 }

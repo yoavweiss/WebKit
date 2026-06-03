@@ -27,6 +27,7 @@
 #include "GraphicsContext.h"
 #include "InlineTextBoxStyle.h"
 #include "RenderStyleConstants.h"
+#include "StyleTextDecorationThickness.h"
 #include <wtf/OptionSet.h>
 
 namespace WebCore {
@@ -46,6 +47,11 @@ public:
         struct DecorationStyleAndColor {
             Color color;
             TextDecorationStyle decorationStyle { TextDecorationStyle::Solid };
+            // The originating box's text-decoration-thickness, kept unresolved so each painting box can resolve it
+            // against its own font size and zoom. Empty when this Styles has no originator (e.g. a default-constructed
+            // override on a marked text that does not set a decoration); the painter then resolves auto against the
+            // painting box.
+            std::optional<Style::TextDecorationThickness> thickness;
         };
         DecorationStyleAndColor underline;
         DecorationStyleAndColor overline;

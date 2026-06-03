@@ -177,7 +177,8 @@ static void strokeWavyTextDecoration(GraphicsContext& context, const FloatRect& 
 bool TextDecorationPainter::Styles::operator==(const Styles& other) const
 {
     return underline.color == other.underline.color && overline.color == other.overline.color && linethrough.color == other.linethrough.color
-        && underline.decorationStyle == other.underline.decorationStyle && overline.decorationStyle == other.overline.decorationStyle && linethrough.decorationStyle == other.linethrough.decorationStyle;
+        && underline.decorationStyle == other.underline.decorationStyle && overline.decorationStyle == other.overline.decorationStyle && linethrough.decorationStyle == other.linethrough.decorationStyle
+        && underline.thickness == other.underline.thickness && overline.thickness == other.overline.thickness && linethrough.thickness == other.linethrough.thickness;
 }
 
 TextDecorationPainter::TextDecorationPainter(GraphicsContext& context, const FontCascade& font, const Style::TextShadows& shadow, const Style::AppleColorFilter& colorFilter, bool isPrinting, WritingMode writingMode)
@@ -327,21 +328,25 @@ static void collectStylesForRenderer(TextDecorationPainter::Styles& result, cons
 
         auto color = TextDecorationPainter::decorationColor(style, paintBehavior);
         auto decorationStyle = style.textDecorationStyle();
+        auto thickness = style.textDecorationThickness();
 
         if (decorations.hasUnderline()) {
             remainingDecorations.remove(Style::TextDecorationLine::Flag::Underline);
             result.underline.color = color;
             result.underline.decorationStyle = decorationStyle;
+            result.underline.thickness = thickness;
         }
         if (decorations.hasOverline()) {
             remainingDecorations.remove(Style::TextDecorationLine::Flag::Overline);
             result.overline.color = color;
             result.overline.decorationStyle = decorationStyle;
+            result.overline.thickness = thickness;
         }
         if (decorations.hasLineThrough()) {
             remainingDecorations.remove(Style::TextDecorationLine::Flag::LineThrough);
             result.linethrough.color = color;
             result.linethrough.decorationStyle = decorationStyle;
+            result.linethrough.thickness = thickness;
         }
     };
 
