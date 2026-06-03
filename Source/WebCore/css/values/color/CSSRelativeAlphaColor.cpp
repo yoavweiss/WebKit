@@ -27,6 +27,9 @@
 #include "CSSRelativeAlphaColor.h"
 
 #include "CSSPlatformColorResolutionState.h"
+#include "CSSPrimitiveNumericTypes+CSSValueVisitation.h"
+#include "CSSPrimitiveNumericTypes+ComputedStyleDependencies.h"
+#include "CSSPrimitiveNumericTypes+Serialization.h"
 #include "CSSRelativeAlphaColorResolver.h"
 
 namespace WebCore {
