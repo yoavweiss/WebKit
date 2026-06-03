@@ -433,6 +433,8 @@ bool SkiaCompositingLayer::paint(SkCanvas& canvas, std::optional<Damage>& damage
         recursivePaint(canvas, context);
     }
 
+    recursiveCleanUpAfterPaint();
+
 #if ENABLE(DAMAGE_TRACKING)
     if (damage && frameDamagePropagationEnabled()) {
         damage->add(*m_sharedFrameDamage);
@@ -464,14 +466,6 @@ void SkiaCompositingLayer::clipRect(SkCanvas& canvas, const FloatRoundedRect& re
 
 void SkiaCompositingLayer::paintSelf(SkCanvas& canvas, PaintContext& context)
 {
-#if ENABLE(DAMAGE_TRACKING)
-    const bool collectsDamage = context.mode == PaintMode::Paint;
-    auto cleanup = WTF::makeScopeExit([&] {
-        if (collectsDamage)
-            m_layerDamage = std::nullopt;
-    });
-#endif
-
     if (m_size.isEmpty() || !m_visible || !m_contentsVisible || !hasVisualContent())
         return;
 
@@ -1175,6 +1169,15 @@ void SkiaCompositingLayer::paintWith3DRenderingContext(SkCanvas& canvas, PaintCo
         else
             layer.recursivePaint(canvas, context);
     });
+}
+
+void SkiaCompositingLayer::recursiveCleanUpAfterPaint()
+{
+#if ENABLE(DAMAGE_TRACKING)
+    m_layerDamage = std::nullopt;
+    for (Ref child : m_children)
+        child->recursiveCleanUpAfterPaint();
+#endif
 }
 
 } // namespace WebCore

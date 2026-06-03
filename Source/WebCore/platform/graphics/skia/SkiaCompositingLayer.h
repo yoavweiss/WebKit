@@ -172,6 +172,7 @@ private:
     IntRect clipBounds(const SkCanvas&, const PaintContext&) const;
     sk_sp<SkImage> maskImage();
     void collect3DRenderingContextLayers(Vector<Ref<SkiaCompositingLayer>>&);
+    void recursiveCleanUpAfterPaint();
 
     void clipRect(SkCanvas&, const FloatRoundedRect&, const TransformationMatrix& = { });
 
