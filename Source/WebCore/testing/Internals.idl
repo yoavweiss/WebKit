@@ -673,6 +673,8 @@ enum ContentsFormat {
     DOMString autofillFieldName(Element formControlElement);
     boolean isSpellcheckDisabledExceptTextReplacement(HTMLInputElement inputElement);
 
+    [CallWith=CurrentGlobalObject] undefined allowAutofillForCurrentWorld();
+
     undefined invalidateControlTints();
 
     undefined scrollElementToRect(Element element, long x, long y, long w, long h);

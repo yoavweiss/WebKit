@@ -113,6 +113,8 @@ private:
     bool isFieldOwnerHorizontal() const;
 
     WeakPtr<DateTimeFieldElementFieldOwner> m_fieldOwner;
+
+    bool m_hadValueAtLastValueUpdate { false };
 };
 
 } // namespace WebCore

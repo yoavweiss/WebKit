@@ -202,6 +202,12 @@ void DateTimeFieldElement::updateVisibleValue(EventBehavior eventBehavior)
     if (textNode->wholeText() != newVisibleValue)
         textNode->replaceWholeText(newVisibleValue);
 
+    auto hasValue = this->hasValue();
+    if (m_hadValueAtLastValueUpdate != hasValue) {
+        m_hadValueAtLastValueUpdate = hasValue;
+        invalidateStyle();
+    }
+
     if (eventBehavior == DispatchInputAndChangeEvents && m_fieldOwner)
         m_fieldOwner->fieldValueChanged();
 }

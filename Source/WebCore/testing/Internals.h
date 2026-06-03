@@ -444,6 +444,8 @@ public:
 
     ExceptionOr<String> autofillFieldName(Element&);
 
+    void allowAutofillForCurrentWorld(JSC::JSGlobalObject&);
+
     ExceptionOr<void> invalidateControlTints();
 
     RefPtr<Range> rangeFromLocationAndLength(Element& scope, unsigned rangeLocation, unsigned rangeLength);
