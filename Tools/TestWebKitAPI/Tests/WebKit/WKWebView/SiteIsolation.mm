@@ -8782,6 +8782,51 @@ TEST(SiteIsolation, MultiProcessBFCacheIframeProcessSurvival)
     EXPECT_TRUE(processStillRunning(iframePID));
 }
 
+// DEBUG-assert regression guard: without the fix the iframe process trips
+// ASSERT(m_rootFrames.isEmpty()) (Page.cpp:577) on the eviction Close. Release has no assert,
+// so the process-alive EXPECT below is only a weak secondary signal there.
+TEST(SiteIsolation, MultiProcessBFCacheCrossSiteEvictionDoesNotCrashIframe)
+{
+    HTTPServer server({
+        { "/a"_s, { "<iframe src='https://b.com/frame'></iframe>"_s } },
+        { "/frame"_s, { "iframe content"_s } },
+        { "/c"_s, { "page c"_s } }
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    // The web process cache keeps the b.com process alive past the navigation, so eviction's
+    // Close reaches a live process and runs ~Page() instead of force-killing it.
+    RetainPtr processPoolConfiguration = adoptNS([[_WKProcessPoolConfiguration alloc] init]);
+    processPoolConfiguration.get().usesWebProcessCache = YES;
+    RetainPtr processPool = adoptNS([[WKProcessPool alloc] _initWithConfiguration:processPoolConfiguration.get()]);
+    RetainPtr configuration = server.httpsProxyConfiguration();
+    [configuration setProcessPool:processPool.get()];
+    enableFeature(configuration.get(), @"MultiProcessBackForwardCacheEnabled");
+    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration.get());
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a"]]];
+    [navigationDelegate waitForDidFinishNavigationAndLoadInSubframe];
+
+    checkFrameTreesInProcesses(webView.get(), {
+        { "https://a.com"_s, { { RemoteFrame } } },
+        { RemoteFrame, { { "https://b.com"_s } } },
+    });
+
+    pid_t iframePID = findFramePID(frameTrees(webView.get()).get(), FrameType::Remote);
+
+    // Cross-site navigation suspends a.com into the BFCache via SuspendedPageProxy; b.com keeps
+    // a CachedPage and stays alive in the web process cache.
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://c.com/c"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+
+    EXPECT_TRUE(processStillRunning(iframePID));
+
+    [webView _clearBackForwardCache];
+
+    // Let the eviction IPC (ClearCachedPage then Close) drain so a crash, if any, lands in-window.
+    Util::runFor(0.5_s);
+    EXPECT_TRUE(processStillRunning(iframePID));
+}
+
 // FIXME: Use openerAndOpenedViews() once MultiProcessBackForwardCacheEnabled is on by default.
 TEST(SiteIsolation, MultiProcessBFCacheOpenerSkipsBFCache)
 {

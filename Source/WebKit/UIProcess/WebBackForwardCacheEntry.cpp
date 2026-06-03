@@ -64,10 +64,9 @@ WebBackForwardCacheEntry::~WebBackForwardCacheEntry()
     // takeForRestoration(), so this skips on the BFCache restore path.
     if (!m_backForwardFrameItemID)
         return;
-    if (RefPtr mainProcess = process())
-        mainProcess->sendWithAsyncReply(Messages::WebProcess::ClearCachedPage(*m_backForwardFrameItemID), [] { });
-    for (auto& iframeProcess : iframeProcesses())
-        iframeProcess->sendWithAsyncReply(Messages::WebProcess::ClearCachedPage(*m_backForwardFrameItemID), [] { });
+
+    for (auto& process : allProcesses())
+        process->sendWithAsyncReply(Messages::WebProcess::ClearCachedPage(*m_backForwardFrameItemID), [] { });
 }
 
 WebBackForwardCache* WebBackForwardCacheEntry::backForwardCache() const
@@ -108,6 +107,18 @@ HashSet<Ref<WebProcessProxy>> WebBackForwardCacheEntry::iframeProcesses() const
         for (RefPtr frame = root->traverseNext().frame; frame; frame = frame->traverseNext().frame)
             result.add(Ref { frame->process() });
     }
+
+    if (RefPtr suspendedPage = m_suspendedPage; suspendedPage && suspendedPage->suspendedFrameItemID() == m_backForwardFrameItemID)
+        result.addAll(suspendedPage->iframeProcesses());
+
+    return result;
+}
+
+HashSet<Ref<WebProcessProxy>> WebBackForwardCacheEntry::allProcesses() const
+{
+    HashSet<Ref<WebProcessProxy>> result = iframeProcesses();
+    if (RefPtr mainProcess = process())
+        result.add(mainProcess.releaseNonNull());
     return result;
 }
 

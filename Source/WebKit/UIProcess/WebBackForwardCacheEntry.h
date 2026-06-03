@@ -76,6 +76,7 @@ private:
     WebBackForwardCacheEntry(WebBackForwardCache&, WebCore::BackForwardItemIdentifier, WebCore::BackForwardFrameItemIdentifier, WebCore::ProcessIdentifier, RefPtr<SuspendedPageProxy>&&);
 
     HashSet<Ref<WebProcessProxy>> iframeProcesses() const;
+    HashSet<Ref<WebProcessProxy>> allProcesses() const;
 
     void expirationTimerFired();
     void markAsTakenForRestoration();

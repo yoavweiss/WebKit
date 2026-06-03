@@ -163,9 +163,10 @@ void SuspendedPageProxy::startSuspension(std::optional<BackForwardFrameItemIdent
     m_process->addSuspendedPageProxy(*this);
     m_suspensionState = SuspensionState::Suspending;
 
-    if (mainFrameItemID)
+    if (mainFrameItemID) {
+        m_suspendedFrameItemID = *mainFrameItemID;
         suspendSubframeProcesses(*mainFrameItemID);
-    else
+    } else
         m_allSubframesSuspended = true;
 
     m_messageReceiverRegistration.startReceivingMessages(m_process, m_webPageID, *this, *this);
@@ -422,6 +423,15 @@ bool SuspendedPageProxy::hasSubframeInProcess(WebCore::ProcessIdentifier process
             return true;
     }
     return false;
+}
+
+HashSet<Ref<WebProcessProxy>> SuspendedPageProxy::iframeProcesses() const
+{
+    // FIXME: Add WebFrameProxy::forEachDescendant() to avoid manual traverseNext() loops.
+    HashSet<Ref<WebProcessProxy>> processes;
+    for (RefPtr frame = m_mainFrame->traverseNext().frame; frame; frame = frame->traverseNext().frame)
+        processes.add(Ref { frame->process() });
+    return processes;
 }
 
 void SuspendedPageProxy::maybeCompleteSuspension()
