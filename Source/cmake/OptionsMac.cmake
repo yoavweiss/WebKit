@@ -203,6 +203,8 @@ set(JavaScriptCore_LIBRARY_TYPE SHARED)
 set(WebCore_LIBRARY_TYPE SHARED)
 set(WebKit_LIBRARY_TYPE SHARED)
 
+set(WEBKIT_MAX_BUNDLE_SIZE 128)
+
 # Add PrivateFrameworks to framework search path (mirrors Base.xcconfig).
 if (CMAKE_OSX_SYSROOT)
     add_compile_options("$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-iframework${CMAKE_OSX_SYSROOT}/System/Library/PrivateFrameworks>")

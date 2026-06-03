@@ -43,6 +43,9 @@ macro(WEBKIT_COMPUTE_SOURCES _framework)
     if (${_framework} STREQUAL "WebCore")
         list(APPEND gusb_args --dense-bundle-filter "JS*=JSBindings" --dense-bundle-filter "bindings/*=JSBindings")
     endif ()
+    if (DEFINED WEBKIT_MAX_BUNDLE_SIZE)
+        list(APPEND gusb_args --max-bundle-size ${WEBKIT_MAX_BUNDLE_SIZE} --enforce-cost)
+    endif ()
 
     if (ENABLE_UNIFIED_BUILDS)
         execute_process(COMMAND ${Python_EXECUTABLE} ${WTF_SCRIPTS_DIR}/generate-unified-source-bundles.py

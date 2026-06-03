@@ -51,7 +51,7 @@ def bundle_prefix_and_size_for_path(path: Path, args) -> tuple[str, int]:
     for filt in args.dense_bundle_filter:
         pattern, _, name = filt.partition('=')
         if fnmatch.fnmatch(path, pattern):
-            return name or sanitize(pattern), MAX_DENSE_BUNDLE_SIZE
+            return name or sanitize(pattern), max(MAX_DENSE_BUNDLE_SIZE, args.max_bundle_size)
     return sanitize(str(top_level_directory)), args.max_bundle_size
 
 
@@ -64,6 +64,7 @@ class SourceFile:
 
     def __init__(self, file_line: str, file_index: int, args):
         self.unifiable = True
+        self.cost = 1
         self.file_index = file_index
         self._non_arc = False
         self._header_group: Optional[str] = None
@@ -81,6 +82,9 @@ class SourceFile:
                     self._non_arc = True
                 elif attribute.startswith('header:'):
                     self._header_group = attribute[7:]
+                elif attribute.startswith('cost:'):
+                    if args.enforce_cost:
+                        self.cost = int(attribute[5:])
                 else:
                     raise RuntimeError("unknown attribute: " + attribute)
             file_line = file_line[:attribute_start]
@@ -179,11 +183,11 @@ class BundleManager:
                     self._bundle_count_by_prefix[self._last_bundling_prefix] = self.bundle_count
                 self.bundle_count = self._bundle_count_by_prefix.get(bundle_prefix, 0)
             self._last_bundling_prefix = bundle_prefix
-        if self.file_count >= bundle_size:
+        if self.file_count > 0 and self.file_count + source_file.cost > bundle_size:
             log(self._args, "Flushing because new bundle is full ({} sources)".format(self.file_count))
             self.flush()
         self.current_bundle_text += '#include "{}"\n'.format(source_file)
-        self.file_count += 1
+        self.file_count += source_file.cost
 
 
 def process_file_for_unified_source_generation(source_file: SourceFile, args, bundle_managers: dict[str, BundleManager], generated_sources: list[str], input_sources: list[str]) -> None:
@@ -236,6 +240,8 @@ def parse_args():
                         help='Use global sequential numbers for header-grouped bundle filenames and set the limit on the number.')
     parser.add_argument('--max-bundle-size', type=int, default=8,
                         help='The number of files to merge into a single bundle (default: 8).')
+    parser.add_argument('--enforce-cost', action='store_true', default=False,
+                        help='Honor @cost annotations when packing bundles.')
     parser.add_argument('--dense-bundle-filter', action='append', default=[],
                         help='Densely bundle files matching the given path glob (repeatable). '
                              'Use GLOB=NAME to set the bundle filename tag explicitly.')
