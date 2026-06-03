@@ -722,6 +722,17 @@ bool Quirks::inputMethodUsesCorrectKeyEventOrder() const
     return false;
 }
 
+bool Quirks::inputMethodMustUseCompositionEvents() const
+{
+#if PLATFORM(MAC)
+    QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
+
+    return m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::InputMethodMustUseCompositionEvents);
+#else
+    return false;
+#endif
+}
+
 bool Quirks::shouldIgnoreInputModeNone() const
 {
 #if PLATFORM(IOS_FAMILY)
@@ -3339,6 +3350,9 @@ static void handleGoogleQuirks(QuirksData& quirksData, const URL& quirksURL, con
     }
     quirksData.isGoogleDocs = topDocumentHost == "docs.google.com"_s;
     quirksData.setQuirkState(QuirksData::SiteSpecificQuirk::InputMethodUsesCorrectKeyEventOrder, quirksData.isGoogleDocs);
+#if PLATFORM(MAC)
+    quirksData.setQuirkState(QuirksData::SiteSpecificQuirk::InputMethodMustUseCompositionEvents, quirksData.isGoogleDocs);
+#endif
 #if PLATFORM(IOS_FAMILY)
     if (quirksData.isGoogleDocs) {
         // docs.google.com rdar://49864669

@@ -70,6 +70,7 @@ struct QuirksData {
         HasBrokenEncryptedMediaAPISupportQuirk,
         ImplicitMuteWhenVolumeSetToZero,
         InputMethodUsesCorrectKeyEventOrder,
+        InputMethodMustUseCompositionEvents,
 #if PLATFORM(MAC)
         IsNeverRichlyEditableForTouchBarQuirk,
         IsTouchBarUpdateSuppressedForHiddenContentEditableQuirk,

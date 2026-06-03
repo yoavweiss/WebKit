@@ -709,6 +709,11 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
     _impl->hasMarkedTextWithCompletionHandler(completionHandlerPtr);
 }
 
+- (void)isMarkedTextRequiredForCompositionWithCompletionHandler:(void(^)(BOOL isMarkedTextRequiredForComposition))completionHandlerPtr
+{
+    _impl->isMarkedTextRequiredForCompositionWithCompletionHandler(completionHandlerPtr);
+}
+
 - (void)attributedSubstringForProposedRange:(NSRange)nsRange completionHandler:(void(^)(NSAttributedString *attrString, NSRange actualRange))completionHandlerPtr
 {
     _impl->attributedSubstringForProposedRange(nsRange, completionHandlerPtr);

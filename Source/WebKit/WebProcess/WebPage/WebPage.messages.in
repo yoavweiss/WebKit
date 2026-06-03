@@ -604,6 +604,7 @@ messages -> WebPage WantsAsyncDispatchMessage {
     ClearDictationStreamingOpacity()
 
     HasMarkedText() -> (bool hasMarkedText)
+    IsMarkedTextRequiredForComposition() -> (bool isMarkedTextRequiredForComposition)
     GetMarkedRangeAsync() -> (struct WebKit::EditingRange range)
     GetSelectedRangeAsync() -> (struct WebKit::EditingRange selectedRange, struct WebKit::EditingRange compositionRange)
     CharacterIndexForPointAsync(WebCore::IntPoint point) -> (uint64_t location)

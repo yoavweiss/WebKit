@@ -5905,6 +5905,15 @@ void WebViewImpl::hasMarkedTextWithCompletionHandler(void(^completionHandler)(BO
     });
 }
 
+void WebViewImpl::isMarkedTextRequiredForCompositionWithCompletionHandler(void(^completionHandler)(BOOL isMarkedTextRequiredForComposition))
+{
+    LOG(TextInput, "isMarkedTextRequiredForComposition");
+    m_page->isMarkedTextRequiredForComposition([completionHandler = makeBlockPtr(completionHandler)] (bool result) {
+        completionHandler(result);
+        LOG(TextInput, "    -> isMarkedTextRequiredForComposition returned %u", result);
+    });
+}
+
 void WebViewImpl::attributedSubstringForProposedRange(NSRange proposedRange, void(^completionHandlerPtr)(NSAttributedString *attrString, NSRange actualRange))
 {
     LOG(TextInput, "attributedSubstringFromRange:(%zu, %zu)", proposedRange.location, proposedRange.length);

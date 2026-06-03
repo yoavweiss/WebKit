@@ -15411,6 +15411,15 @@ void WebPageProxy::hasMarkedText(CompletionHandler<void(bool)>&& callback)
     sendWithAsyncReply(Messages::WebPage::HasMarkedText(), WTF::move(callback));
 }
 
+void WebPageProxy::isMarkedTextRequiredForComposition(CompletionHandler<void(bool)>&& callback)
+{
+    if (!hasRunningProcess()) {
+        callback(false);
+        return;
+    }
+    sendWithAsyncReply(Messages::WebPage::IsMarkedTextRequiredForComposition(), WTF::move(callback));
+}
+
 void WebPageProxy::getMarkedRangeAsync(CompletionHandler<void(const EditingRange&)>&& callbackFunction)
 {
     if (!hasRunningProcess()) {

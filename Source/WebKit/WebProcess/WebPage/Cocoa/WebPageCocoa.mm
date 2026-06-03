@@ -2108,6 +2108,17 @@ void WebPage::hasMarkedText(CompletionHandler<void(bool)>&& completionHandler)
     completionHandler(focusedOrMainFrame->editor().hasComposition());
 }
 
+void WebPage::isMarkedTextRequiredForComposition(CompletionHandler<void(bool)>&& completionHandler)
+{
+    RefPtr focusedOrMainFrame = corePage()->focusController().focusedOrMainFrame();
+    if (!focusedOrMainFrame)
+        return completionHandler(false);
+    RefPtr document = focusedOrMainFrame->document();
+    if (!document)
+        return completionHandler(false);
+    completionHandler(document->quirks().inputMethodMustUseCompositionEvents());
+}
+
 void WebPage::getMarkedRangeAsync(CompletionHandler<void(const EditingRange&)>&& completionHandler)
 {
     RefPtr frame = corePage()->focusController().focusedOrMainFrame();

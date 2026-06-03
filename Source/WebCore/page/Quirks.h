@@ -91,6 +91,7 @@ public:
     bool NODELETE shouldDisablePointerEventsQuirk() const;
     bool NODELETE needsDeferKeyDownAndKeyPressTimersUntilNextEditingCommand() const;
     WEBCORE_EXPORT bool NODELETE inputMethodUsesCorrectKeyEventOrder() const;
+    WEBCORE_EXPORT bool inputMethodMustUseCompositionEvents() const;
     bool shouldExposeShowModalDialog() const;
     bool NODELETE shouldIgnoreInputModeNone() const;
     bool NODELETE shouldNavigatorPluginsBeEmpty() const;

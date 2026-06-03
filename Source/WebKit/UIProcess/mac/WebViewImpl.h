@@ -695,6 +695,7 @@ public:
 
     void selectedRangeWithCompletionHandler(void(^)(NSRange));
     void hasMarkedTextWithCompletionHandler(void(^)(BOOL hasMarkedText));
+    void isMarkedTextRequiredForCompositionWithCompletionHandler(void(^)(BOOL isMarkedTextRequiredForComposition));
     void markedRangeWithCompletionHandler(void(^)(NSRange));
     void attributedSubstringForProposedRange(NSRange, void(^)(NSAttributedString *attrString, NSRange actualRange));
     void firstRectForCharacterRange(NSRange, void(^)(NSRect firstRect, NSRange actualRange));
