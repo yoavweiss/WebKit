@@ -5549,6 +5549,8 @@ webkit.org/b/315934 fast/dom/lazy-image-loading-document-leak.html [ Crash Pass 
 
 webkit.org/b/316158 fullscreen/full-screen-enter-while-exiting-mid-completion-handler.html [ Crash Pass ]
 
+webkit.org/b/316192 imported/w3c/web-platform-tests/webaudio/the-audio-api/the-mediaelementaudiosourcenode-interface/no-cors.https.html [ Crash Pass ]
+
 # Needs picture-in-picture support
 media/media-visible-in-viewport-in-fullscreen.html
 
