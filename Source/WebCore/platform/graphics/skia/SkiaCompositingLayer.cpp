@@ -561,9 +561,9 @@ void SkiaCompositingLayer::collectFrameDamage(SkCanvas& canvas, PaintContext& co
                 damageRect.intersect(clipBounds);
             context.frameDamage->add(damageRect);
         }
-    } else if ((m_contentsSolidColor.isValid() && m_contentsSolidColor.isVisible()) || m_contentsBuffer || m_imageBackingStore)
-        context.frameDamage->add(frameDamage);
+    }
 }
+
 #endif
 
 void SkiaCompositingLayer::paintDebugIndicators(SkCanvas& canvas, PaintContext&)

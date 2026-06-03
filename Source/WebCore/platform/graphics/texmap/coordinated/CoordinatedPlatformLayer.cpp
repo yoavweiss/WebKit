@@ -536,6 +536,8 @@ void CoordinatedPlatformLayer::setContentsBuffer(std::unique_ptr<CoordinatedPlat
 #if ENABLE(DAMAGE_TRACKING)
     if (dirtyRegion)
         addDamage(WTF::move(*dirtyRegion));
+    else
+        addDamage(Damage { m_size, Damage::Mode::Full });
 #else
     UNUSED_PARAM(dirtyRegion);
 #endif
@@ -1297,13 +1299,6 @@ void CoordinatedPlatformLayer::flushCompositingStateOnSkiaTarget(const OptionSet
             m_pendingChanges.remove(Change::ContentsColor);
         }
 
-#if ENABLE(DAMAGE_TRACKING)
-        if (m_pendingChanges.contains(Change::Damage)) {
-            ASSERT(m_damage.has_value());
-            layer.addDamage(*std::exchange(m_damage, std::nullopt));
-            m_pendingChanges.remove(Change::Damage);
-        }
-#endif
         if (m_pendingChanges.contains(Change::ClipPath)) {
             auto clipPath = *m_clipPath.path.platformPath();
             clipPath.setFillType(m_clipPath.windRule == WindRule::EvenOdd ? SkPathFillType::kEvenOdd : SkPathFillType::kWinding);
@@ -1375,6 +1370,13 @@ void CoordinatedPlatformLayer::flushCompositingStateOnSkiaTarget(const OptionSet
     }
 
     if (reasons.containsAny({ CompositionReason::RenderingUpdate, CompositionReason::VideoFrame, CompositionReason::AsyncScrolling })) {
+#if ENABLE(DAMAGE_TRACKING)
+        if (m_pendingChanges.contains(Change::Damage)) {
+            ASSERT(m_damage.has_value());
+            layer.addDamage(*std::exchange(m_damage, std::nullopt));
+            m_pendingChanges.remove(Change::Damage);
+        }
+#endif
         if (m_pendingChanges.contains(Change::ContentsBuffer)) {
             layer.setContentsBuffer(WTF::move(m_contentsBuffer.pending));
             m_pendingChanges.remove(Change::ContentsBuffer);

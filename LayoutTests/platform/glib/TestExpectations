@@ -1512,7 +1512,6 @@ webkit.org/b/305744 imported/w3c/web-platform-tests/html/dom/idlharness.https.ht
 #////////////////////////////////////////////////////////////////////////////////////////
 
 webkit.org/b/307135 platform/glib/damage/animations-opacity-to-invisibility.html [ Failure Pass ]
-webkit.org/b/314299 platform/glib/damage/transform-3d-rotate-in-still-rotate.html [ Failure ]
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Damage Tracking-related bugs
