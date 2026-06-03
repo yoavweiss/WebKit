@@ -934,7 +934,7 @@ if (SWIFT_REQUIRED)
         UIProcess/WebPageProxy.cpp
         UIProcess/Automation/WebAutomationSession.cpp
         WebProcess/WebPage/IPCTestingAPI.cpp
-        ${WebKit_DERIVED_SOURCES_DIR}/WebBackForwardListMessageReceiver.cpp
+        ${WebKit_DERIVED_SOURCES_DIR}/UIProcess/WebBackForwardListMessageReceiver.cpp
     )
     if (APPLE)
         list(APPEND WebKit_SWIFT_INTEROP_SOURCES
@@ -990,6 +990,7 @@ macro(GENERATE_MESSAGE_SOURCES _output_source _inputs)
     unset(_outputs)
     foreach (_file IN ITEMS ${_inputs})
         get_filename_component(_name ${_file} NAME_WE)
+        get_filename_component(_dir ${_file} DIRECTORY)
         # Derived .messages.in (LogStream: two-stage gen from LogMessages.in) lives in
         # DerivedSources, not ${WEBKIT_DIR}. The script searches cwd first so finds either;
         # DEPENDS needs the actual path. Check source tree first, then derived.
@@ -1002,11 +1003,16 @@ macro(GENERATE_MESSAGE_SOURCES _output_source _inputs)
         else ()
             list(APPEND _input_files ${WebKit_DERIVED_SOURCES_DIR}/${_name}.messages.in)
         endif ()
+        if (_dir)
+            set(_receiver_cpp ${_dir}/${_name}MessageReceiver.cpp)
+        else ()
+            set(_receiver_cpp ${_name}MessageReceiver.cpp)
+        endif ()
         list(APPEND _outputs
-            ${WebKit_DERIVED_SOURCES_DIR}/${_name}MessageReceiver.cpp
+            ${WebKit_DERIVED_SOURCES_DIR}/${_receiver_cpp}
             ${WebKit_DERIVED_SOURCES_DIR}/${_name}Messages.h
         )
-        list(APPEND ${_output_source} ${WebKit_DERIVED_SOURCES_DIR}/${_name}MessageReceiver.cpp)
+        list(APPEND ${_output_source} ${WebKit_DERIVED_SOURCES_DIR}/${_receiver_cpp})
     endforeach ()
 
     list(APPEND ${_output_source}
@@ -1027,12 +1033,24 @@ macro(GENERATE_MESSAGE_SOURCES _output_source _inputs)
             ${WEBKIT_DIR}/Scripts/webkit/model.py
             ${WEBKIT_DIR}/Scripts/webkit/parser.py
             ${_input_files}
-        COMMAND ${PYTHON_EXECUTABLE} ${WEBKIT_DIR}/Scripts/generate-message-receiver.py ${WEBKIT_DIR} ${_inputs}
+        COMMAND ${PYTHON_EXECUTABLE} ${WEBKIT_DIR}/Scripts/generate-message-receiver.py --preserve-subdirs ${WEBKIT_DIR} ${_inputs}
         WORKING_DIRECTORY ${WebKit_DERIVED_SOURCES_DIR}
         VERBATIM
     )
+    execute_process(
+        COMMAND ${PYTHON_EXECUTABLE} ${WEBKIT_DIR}/Scripts/generate-message-receiver.py
+            --preserve-subdirs
+            --output-sources ${WebKit_DERIVED_SOURCES_DIR}/SourcesMessageReceivers.txt
+            ${WEBKIT_DIR} ${_inputs}
+        RESULT_VARIABLE _result
+    )
+    if (_result)
+        message(FATAL_ERROR "generate-message-receiver.py --output-sources failed")
+    endif ()
 endmacro()
 GENERATE_MESSAGE_SOURCES(WebKit_DERIVED_SOURCES "${WebKit_MESSAGES_IN_FILES}")
+list(APPEND WebKit_UNIFIED_SOURCE_LIST_FILES SourcesMessageReceivers.txt)
+list(APPEND WebKit_UNIFIED_SOURCE_EXCLUDES "^[A-Za-z0-9_]+MessageReceiver\\.cpp")
 
 # Helper macro which wraps the bindings script
 #   _output_source is a list name which will contain generated sources.(eg. WebKit_SOURCES)
@@ -1320,8 +1338,16 @@ WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebKit WebKitWebProcess
     PREFIX WebKitWebProcessPrefix.h
     PREFIX_LANGUAGES CXX OBJCXX
     DIRS WebProcess)
-WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebKit WebKitMessageReceivers
-    PREFIX WebKitMessageReceiversPrefix.h
+WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebKit WebKitGPUProcess
+    PREFIX WebKitGPUProcessPrefix.h
+    PREFIX_LANGUAGES CXX OBJCXX
+    DIRS GPUProcess)
+WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebKit WebKitNetworkProcess
+    PREFIX WebKitNetworkProcessPrefix.h
+    PREFIX_LANGUAGES CXX OBJCXX
+    DIRS NetworkProcess)
+WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebKit WebKitShared
+    PREFIX WebKitSharedPrefix.h
     PREFIX_LANGUAGES CXX OBJCXX
     DIRS DerivedSources)
 

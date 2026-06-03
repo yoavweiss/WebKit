@@ -73,6 +73,17 @@
 #include "TextFlags.h"
 #include "WebAnimationTime.h"
 
+#include "AcceleratedTimeline.h"
+#include "ApplicationManifest.h"
+#include "ControlFactory.h"
+#include "ControlPart.h"
+#include "ControlStyle.h"
+#include "PlatformControl.h"
+#include "ProgressResolutionData.h"
+#include "StyleAppearance.h"
+#include "Styleable.h"
+#include "WebAnimationTypes.h"
+
 #define new ("if you use new/delete make sure to include config.h at the top of the file"())
 #define delete ("if you use new/delete make sure to include config.h at the top of the file"())
 #endif

@@ -1612,6 +1612,8 @@ WebExtensionContext::WebExtensionContext()
     webExtensionContexts().add(identifier(), *this);
 }
 
+WebExtensionContext::~WebExtensionContext() = default;
+
 WebExtensionContextIdentifier WebExtensionContext::privilegedIdentifier() const
 {
     if (!m_privilegedIdentifier)

@@ -142,6 +142,7 @@
 #include "VMEntryScopeInlines.h"
 #include "VMInlines.h"
 #include "VMManager.h"
+#include "VMTrapsInlines.h"
 #include "VariableEnvironment.h"
 #include "WaiterListManager.h"
 #include "WasmExecutionHandler.h"

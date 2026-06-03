@@ -25,6 +25,7 @@
 #include "JSGlobalObject.h"
 #include "MachineStackMarker.h"
 #include "SamplingProfiler.h"
+#include "VMTrapsInlines.h"
 #include <wtf/StackPointer.h>
 #include <wtf/Threading.h>
 #include <wtf/threads/Signals.h>

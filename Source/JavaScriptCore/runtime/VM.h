@@ -662,117 +662,23 @@ public:
     JSSentinel* fastSetEntriesSentinel() { return m_fastSetEntriesSentinel.get(); }
     JSSentinel* fastStringValuesSentinel() { return m_fastStringValuesSentinel.get(); }
 
-    JSPropertyNameEnumerator* emptyPropertyNameEnumerator()
-    {
-        if (m_emptyPropertyNameEnumerator) [[likely]]
-            return m_emptyPropertyNameEnumerator.get();
-        return emptyPropertyNameEnumeratorSlow();
-    }
+    inline JSPropertyNameEnumerator* emptyPropertyNameEnumerator();
 
-    NativeExecutable* promiseResolvingFunctionResolveExecutable()
-    {
-        if (m_promiseResolvingFunctionResolveExecutable) [[likely]]
-            return m_promiseResolvingFunctionResolveExecutable.get();
-        return promiseResolvingFunctionResolveExecutableSlow();
-    }
-
-    NativeExecutable* promiseResolvingFunctionRejectExecutable()
-    {
-        if (m_promiseResolvingFunctionRejectExecutable) [[likely]]
-            return m_promiseResolvingFunctionRejectExecutable.get();
-        return promiseResolvingFunctionRejectExecutableSlow();
-    }
-
-    NativeExecutable* promiseFirstResolvingFunctionResolveExecutable()
-    {
-        if (m_promiseFirstResolvingFunctionResolveExecutable) [[likely]]
-            return m_promiseFirstResolvingFunctionResolveExecutable.get();
-        return promiseFirstResolvingFunctionResolveExecutableSlow();
-    }
-
-    NativeExecutable* promiseFirstResolvingFunctionRejectExecutable()
-    {
-        if (m_promiseFirstResolvingFunctionRejectExecutable) [[likely]]
-            return m_promiseFirstResolvingFunctionRejectExecutable.get();
-        return promiseFirstResolvingFunctionRejectExecutableSlow();
-    }
-
-    NativeExecutable* promiseResolvingFunctionResolveWithInternalMicrotaskExecutable()
-    {
-        if (m_promiseResolvingFunctionResolveWithInternalMicrotaskExecutable) [[likely]]
-            return m_promiseResolvingFunctionResolveWithInternalMicrotaskExecutable.get();
-        return promiseResolvingFunctionResolveWithInternalMicrotaskExecutableSlow();
-    }
-
-    NativeExecutable* promiseResolvingFunctionRejectWithInternalMicrotaskExecutable()
-    {
-        if (m_promiseResolvingFunctionRejectWithInternalMicrotaskExecutable) [[likely]]
-            return m_promiseResolvingFunctionRejectWithInternalMicrotaskExecutable.get();
-        return promiseResolvingFunctionRejectWithInternalMicrotaskExecutableSlow();
-    }
-
-    NativeExecutable* promiseCapabilityExecutorExecutable()
-    {
-        if (m_promiseCapabilityExecutorExecutable) [[likely]]
-            return m_promiseCapabilityExecutorExecutable.get();
-        return promiseCapabilityExecutorExecutableSlow();
-    }
-
-    NativeExecutable* promiseAllFulfillFunctionExecutable()
-    {
-        if (m_promiseAllFulfillFunctionExecutable) [[likely]]
-            return m_promiseAllFulfillFunctionExecutable.get();
-        return promiseAllFulfillFunctionExecutableSlow();
-    }
-
-    NativeExecutable* promiseAllSlowFulfillFunctionExecutable()
-    {
-        if (m_promiseAllSlowFulfillFunctionExecutable) [[likely]]
-            return m_promiseAllSlowFulfillFunctionExecutable.get();
-        return promiseAllSlowFulfillFunctionExecutableSlow();
-    }
-
-    NativeExecutable* promiseAllSettledFulfillFunctionExecutable()
-    {
-        if (m_promiseAllSettledFulfillFunctionExecutable) [[likely]]
-            return m_promiseAllSettledFulfillFunctionExecutable.get();
-        return promiseAllSettledFulfillFunctionExecutableSlow();
-    }
-
-    NativeExecutable* promiseAllSettledRejectFunctionExecutable()
-    {
-        if (m_promiseAllSettledRejectFunctionExecutable) [[likely]]
-            return m_promiseAllSettledRejectFunctionExecutable.get();
-        return promiseAllSettledRejectFunctionExecutableSlow();
-    }
-
-    NativeExecutable* promiseAllSettledSlowFulfillFunctionExecutable()
-    {
-        if (m_promiseAllSettledSlowFulfillFunctionExecutable) [[likely]]
-            return m_promiseAllSettledSlowFulfillFunctionExecutable.get();
-        return promiseAllSettledSlowFulfillFunctionExecutableSlow();
-    }
-
-    NativeExecutable* promiseAllSettledSlowRejectFunctionExecutable()
-    {
-        if (m_promiseAllSettledSlowRejectFunctionExecutable) [[likely]]
-            return m_promiseAllSettledSlowRejectFunctionExecutable.get();
-        return promiseAllSettledSlowRejectFunctionExecutableSlow();
-    }
-
-    NativeExecutable* promiseAnyRejectFunctionExecutable()
-    {
-        if (m_promiseAnyRejectFunctionExecutable) [[likely]]
-            return m_promiseAnyRejectFunctionExecutable.get();
-        return promiseAnyRejectFunctionExecutableSlow();
-    }
-
-    NativeExecutable* promiseAnySlowRejectFunctionExecutable()
-    {
-        if (m_promiseAnySlowRejectFunctionExecutable) [[likely]]
-            return m_promiseAnySlowRejectFunctionExecutable.get();
-        return promiseAnySlowRejectFunctionExecutableSlow();
-    }
+    inline NativeExecutable* promiseResolvingFunctionResolveExecutable();
+    inline NativeExecutable* promiseResolvingFunctionRejectExecutable();
+    inline NativeExecutable* promiseFirstResolvingFunctionResolveExecutable();
+    inline NativeExecutable* promiseFirstResolvingFunctionRejectExecutable();
+    inline NativeExecutable* promiseResolvingFunctionResolveWithInternalMicrotaskExecutable();
+    inline NativeExecutable* promiseResolvingFunctionRejectWithInternalMicrotaskExecutable();
+    inline NativeExecutable* promiseCapabilityExecutorExecutable();
+    inline NativeExecutable* promiseAllFulfillFunctionExecutable();
+    inline NativeExecutable* promiseAllSlowFulfillFunctionExecutable();
+    inline NativeExecutable* promiseAllSettledFulfillFunctionExecutable();
+    inline NativeExecutable* promiseAllSettledRejectFunctionExecutable();
+    inline NativeExecutable* promiseAllSettledSlowFulfillFunctionExecutable();
+    inline NativeExecutable* promiseAllSettledSlowRejectFunctionExecutable();
+    inline NativeExecutable* promiseAnyRejectFunctionExecutable();
+    inline NativeExecutable* promiseAnySlowRejectFunctionExecutable();
 
     WeakGCMap<WTF::SymbolImpl*, Symbol, PtrHash<WTF::SymbolImpl*>> symbolImplToSymbolMap;
     WeakGCMap<StringImpl*, JSString, PtrHash<StringImpl*>> atomStringToJSStringMap;

@@ -49,7 +49,7 @@
 #include "JSMapIterator.h"
 #include "JSPromise.h"
 #include "JSPromiseConstructor.h"
-#include "JSPropertyNameEnumerator.h"
+#include "JSPropertyNameEnumeratorInlines.h"
 #include "JSSentinel.h"
 #include "JSSet.h"
 #include "JSSetIterator.h"

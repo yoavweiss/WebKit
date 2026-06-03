@@ -39,6 +39,7 @@
 #include "JSWebAssemblyModule.h"
 #include "JSWebAssemblyStruct.h"
 #include "Register.h"
+#include "VMTrapsInlines.h"
 #include "WasmBaselineData.h"
 #include "WasmConstExprGenerator.h"
 #include "WasmDebugServer.h"

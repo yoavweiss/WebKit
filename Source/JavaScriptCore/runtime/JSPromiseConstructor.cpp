@@ -42,6 +42,7 @@
 #include "JSPromisePrototype.h"
 #include "Microtask.h"
 #include "ObjectConstructor.h"
+#include "VMInlines.h"
 
 namespace JSC {
 

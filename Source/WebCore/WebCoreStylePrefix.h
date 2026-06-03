@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2018 Apple Inc. All rights reserved.
+ * Copyright (C) 2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -20,39 +20,32 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "WebCoreDOMAndRenderingPrefix.h"
 
-#include <JavaScriptCore/BlockDirectory.h>
-#include <JavaScriptCore/FreeListInlines.h>
-#include <JavaScriptCore/VM.h>
+#ifdef __cplusplus
+#undef new
+#undef delete
 
-namespace JSC {
+#include <map>
+#include <wtf/BloomFilter.h>
+#include <wtf/OrderedHashMap.h>
 
-inline void BlockDirectory::forEachBlock(const std::invocable<MarkedBlock::Handle*> auto& functor)
-{
-    assertIsMutatorOrMutatorIsStopped();
-    liveBitsView().forEachSetBit(
-        [&] (size_t index) {
-            functor(m_blocks[index]);
-        });
-}
+#include "AnchorPositionEvaluator.h"
+#include "CSSPrimitiveNumericTypes.h"
+#include "CSSPrimitiveValue.h"
+#include "CSSProperty.h"
+#include "CSSSelector.h"
+#include "ColorInterpolationMethod.h"
+#include "PropertyCascade.h"
+#include "RuleFeature.h"
+#include "RuleSet.h"
+#include "StyleBuilderState.h"
+#include "StyleRule.h"
+#include "Styleable.h"
 
-inline void BlockDirectory::forEachNotEmptyBlock(const std::invocable<MarkedBlock::Handle*> auto& functor)
-{
-    assertIsMutatorOrMutatorIsStopped();
-    markingNotEmptyBitsView().forEachSetBit(
-        [&] (size_t index) {
-            functor(m_blocks[index]);
-        });
-}
-
-inline MarkedBlock::Handle* BlockDirectory::findBlockToSweep()
-{
-    return findBlockToSweep(m_unsweptCursor);
-}
-
-} // namespace JSC
-
+#define new ("if you use new/delete make sure to include config.h at the top of the file"())
+#define delete ("if you use new/delete make sure to include config.h at the top of the file"())
+#endif

@@ -56,7 +56,7 @@ public:
     bool isEmpty() const;
     bool isTriviallyDestructible() const;
 
-    void reap();
+    inline void reap();
     void sweep();
     void shrink();
     void resetAllocator();
@@ -118,20 +118,6 @@ inline bool WeakSet::isTriviallyDestructible() const
 ALWAYS_INLINE void WeakSet::deallocate(WeakImpl* weakImpl)
 {
     weakImpl->clear();
-}
-
-inline void WeakSet::lastChanceToFinalize()
-{
-    forEachBlock([](WeakBlock& block) {
-        block.lastChanceToFinalize();
-    });
-}
-
-inline void WeakSet::reap()
-{
-    forEachBlock([](WeakBlock& block) {
-        block.reap();
-    });
 }
 
 inline void WeakSet::resetAllocator()

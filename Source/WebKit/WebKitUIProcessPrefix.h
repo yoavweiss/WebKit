@@ -47,9 +47,18 @@
 #include <WebCore/Element.h>
 #include <WebCore/NetworkStorageSession.h>
 
+#include <WebCore/Document.h>
+#include <WebCore/RenderObject.h>
+#include <WebCore/Settings.h>
+#include "WKPageUIClient.h"
+#include "WebProcessMessages.h"
+
 #if PLATFORM(COCOA)
 #include <pal/spi/cf/CFNetworkSPI.h>
+#include <simd/simd.h>
 #endif
+
+#include <sqlite3.h>
 
 #define new ("if you use new/delete make sure to include config.h at the top of the file"())
 #define delete ("if you use new/delete make sure to include config.h at the top of the file"())

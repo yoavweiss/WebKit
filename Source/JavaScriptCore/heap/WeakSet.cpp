@@ -42,6 +42,13 @@ WeakSet::~WeakSet()
     ASSERT(m_blocks.isEmpty());
 }
 
+void WeakSet::lastChanceToFinalize()
+{
+    forEachBlock([](WeakBlock& block) {
+        block.lastChanceToFinalize();
+    });
+}
+
 void WeakSet::sweep()
 {
     for (WeakBlock* block = m_blocks.head(); block;) {

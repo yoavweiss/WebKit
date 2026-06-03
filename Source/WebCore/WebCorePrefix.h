@@ -251,6 +251,8 @@
 #include "ServiceWorkerIdentifier.h"
 #include "SharedBuffer.h"
 #include "Timer.h"
+
+#include <wtf/DateMath.h>
 #endif
 
 #define new ("if you use new/delete make sure to include config.h at the top of the file"()) 

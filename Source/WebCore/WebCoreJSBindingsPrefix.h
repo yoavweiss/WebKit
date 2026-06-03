@@ -97,6 +97,12 @@
 #include "WebKitFontFamilyNames.h"
 #include "WindowOrWorkerGlobalScope.h"
 
+#include "CSSPrimitiveNumericUnits.h"
+#include "HTMLElement.h"
+#include "HTMLElementTypeHelpers.h"
+#include "HTMLNames.h"
+#include "RenderBox.h"
+
 #define new ("if you use new/delete make sure to include config.h at the top of the file"())
 #define delete ("if you use new/delete make sure to include config.h at the top of the file"())
 #endif

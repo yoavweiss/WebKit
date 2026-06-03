@@ -72,7 +72,7 @@
 #include "JSPromise.h"
 #include "JSPromiseConstructor.h"
 #include "JSPromiseReaction.h"
-#include "JSPropertyNameEnumerator.h"
+#include "JSPropertyNameEnumeratorInlines.h"
 #include "JSRegExpStringIterator.h"
 #include "JSSet.h"
 #include "JSSetIterator.h"

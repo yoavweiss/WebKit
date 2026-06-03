@@ -76,6 +76,16 @@
 #include <wtf/Vector.h>
 #include <wtf/text/StringHash.h>
 #include <wtf/text/WTFString.h>
+
+#include <wtf/NativePromise.h>
+#include <JavaScriptCore/Heap.h>
+#include <JavaScriptCore/JSCJSValue.h>
+#include <JavaScriptCore/OptionsList.h>
+#include <JavaScriptCore/VM.h>
+
+#if PLATFORM(MAC)
+#include <IOKit/hid/IOHIDLib.h>
+#endif
 #endif
 
 #ifdef __OBJC__

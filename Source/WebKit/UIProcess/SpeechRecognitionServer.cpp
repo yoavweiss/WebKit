@@ -68,6 +68,8 @@ SpeechRecognitionServer::SpeechRecognitionServer(WebProcessProxy& process, Speec
 {
 }
 
+SpeechRecognitionServer::~SpeechRecognitionServer() = default;
+
 std::optional<SharedPreferencesForWebProcess> SpeechRecognitionServer::sharedPreferencesForWebProcess() const
 {
     return m_process ? m_process->sharedPreferencesForWebProcess() : std::nullopt;

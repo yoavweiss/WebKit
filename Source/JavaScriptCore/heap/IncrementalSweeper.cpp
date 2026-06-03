@@ -26,6 +26,7 @@
 #include "config.h"
 #include "IncrementalSweeper.h"
 
+#include "BlockDirectoryInlines.h"
 #include "DeferGCInlines.h"
 #include "HeapInlines.h"
 #include "MarkedBlockInlines.h"

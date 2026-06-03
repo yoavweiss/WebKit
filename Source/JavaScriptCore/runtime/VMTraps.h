@@ -217,11 +217,7 @@ public:
     inline void deferTermination(DeferAction);
     inline void undoDeferTermination(DeferAction);
 
-    void notifyGrabAllLocks()
-    {
-        if (needHandling(AsyncEvents))
-            invalidateCodeBlocksOnStack();
-    }
+    inline void notifyGrabAllLocks();
 
     bool hasTrapBit(Event event)
     {
@@ -269,7 +265,7 @@ public:
 #endif
 
     ALWAYS_INLINE void* softStackLimit() const { return m_stack.softStackLimit(); };
-    ALWAYS_INLINE void setStackSoftLimit(void* newLimit) { m_stack.setStackSoftLimit(newLimit); }
+    inline void setStackSoftLimit(void*);
 
     ALWAYS_INLINE void** addressOfSoftStackLimit() { return m_stack.addressOfSoftStackLimit(); }
 
@@ -280,13 +276,13 @@ public:
     }
 
     using Mirror = StackManager::Mirror;
-    ALWAYS_INLINE void registerMirror(Mirror& mirror) { m_stack.registerMirror(mirror); }
-    ALWAYS_INLINE void unregisterMirror(Mirror& mirror) { m_stack.unregisterMirror(mirror); }
+    inline void registerMirror(Mirror&);
+    inline void unregisterMirror(Mirror&);
 
     VM& vm() const;
 
-    void requestStop() { m_stack.requestStop(); }
-    void cancelStop() { m_stack.cancelStop(); }
+    inline void requestStop();
+    inline void cancelStop();
 
 private:
     ALWAYS_INLINE BitField clearTrapWithoutCancellingThreadStop(Event event)

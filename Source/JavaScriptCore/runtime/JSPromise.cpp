@@ -41,6 +41,7 @@
 #include "Microtask.h"
 #include "ObjectConstructor.h"
 #include "TopExceptionScope.h"
+#include "VMInlines.h"
 
 namespace JSC {
 

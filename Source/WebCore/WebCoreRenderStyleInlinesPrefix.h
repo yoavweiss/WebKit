@@ -32,6 +32,17 @@
 #include "RenderStyle+GettersInlines.h"
 #include "RenderStyle+SettersInlines.h"
 
+#include "RenderBlock.h"
+#include "RenderBlockFlow.h"
+
+#include <map>
+#include "GraphicsContext.h"
+#include "NodeName.h"
+#include "Page.h"
+#include "RenderLayer.h"
+#include "ScrollView.h"
+#include "ScrollableArea.h"
+
 #define new ("if you use new/delete make sure to include config.h at the top of the file"())
 #define delete ("if you use new/delete make sure to include config.h at the top of the file"())
 #endif

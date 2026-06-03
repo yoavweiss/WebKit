@@ -4238,8 +4238,10 @@ def check_include_line(filename, file_extension, clean_lines, line_number, inclu
                 'You should not add a blank line before implementation file\'s own header.')
 
     # Check to make sure all headers besides config.h and the primary header are
-    # alphabetically sorted.
-    if not error_message and header_type == _OTHER_HEADER and not search(r'\A#include.*\.lut\.h', line):
+    # alphabetically sorted. Prefix headers are exempt: their include order is
+    # load-bearing (export macros must precede project headers; chain-parent
+    # prefix must precede everything).
+    if not error_message and header_type == _OTHER_HEADER and not search(r'\A#include.*\.lut\.h', line) and not filename.endswith('Prefix.h'):
         previous_line_number = line_number - 1
         previous_line = clean_lines.lines[previous_line_number]
         previous_match = _RE_PATTERN_INCLUDE.search(previous_line)
