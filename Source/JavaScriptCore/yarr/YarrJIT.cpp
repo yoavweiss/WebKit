@@ -5300,7 +5300,8 @@ class YarrGenerator final : public YarrJITInfo {
                     break;
                 }
 
-                // Greedy/NonGreedy path: restore from context and try fewer iterations.
+                // Greedy/NonGreedy path: pop the latest iteration's context and decide
+                // how to continue backtracking based on the quantifier direction.
                 restoreParenContext(currParenContextReg, m_regs.regT2, term->parentheses.subpatternId, term->parentheses.lastSubpatternId, parenthesesFrameLocation);
 
                 m_jit.loadPtr(MacroAssembler::Address(currParenContextReg, ParenContext::nextOffset()), newParenContextReg);
@@ -5310,81 +5311,87 @@ class YarrGenerator final : public YarrJITInfo {
                 const MacroAssembler::RegisterID countTemporary = m_regs.regT0;
                 loadFromFrame(parenthesesFrameLocation + BackTrackInfoParentheses::matchAmountIndex(), countTemporary);
 
-                // We can accept fewer iterations only if count >= min: the next
-                // bt step's restore would land us at "count actual iterations" worth
-                // of position (since restoreParenContext gives state pre-iter (k+1) =
-                // post-iter k where k = count).
-                //
-                // For min == 0 we keep the existing count == 0 branch so the Greedy
-                // "accept zero" / NonGreedy "fail" paths still work and we avoid an
-                // unsigned underflow on the decrement.
-                //
-                // For min > 0 with count < min: we can't accept the current count,
-                // but we may still be able to find a valid match by backtracking into the
-                // latest iter's content (via END.contentBacktrackEntryLabel) — e.g. for
-                // /(?:(?:ab)+){2,}/ against "abab", the outer needs to break iter 1 into
-                // smaller pieces so iter 2 can match.
                 YarrOp& endOp = m_ops[op.m_nextOp];
-                MacroAssembler::Jump cannotAcceptFewer = term->quantityMinCount
-                    ? m_jit.branch32(MacroAssembler::Below, countTemporary, MacroAssembler::Imm32(term->quantityMinCount))
-                    : m_jit.branchTest32(MacroAssembler::Zero, countTemporary);
 
-                // count >= min (or > 0 for min == 0). So mandatory requirement is still passing.
-                // Decrement and try fewer iterations.
+                auto noPreviousIteration = m_jit.branchTest32(MacroAssembler::Zero, countTemporary);
+                m_jit.load32(MacroAssembler::Address(newParenContextReg, ParenContext::beginOffset()), m_regs.regT2);
+                storeToFrame(m_regs.regT2, parenthesesFrameLocation + BackTrackInfoParentheses::beginIndex());
+
                 m_jit.sub32(MacroAssembler::TrustedImm32(1), countTemporary);
                 storeToFrame(countTemporary, parenthesesFrameLocation + BackTrackInfoParentheses::matchAmountIndex());
-                m_jit.jump(endOp.m_reentry);
 
-                cannotAcceptFewer.link(&m_jit);
-                if (term->quantityMinCount) {
-                    // count_loaded < min: can't accept this many iterations. If count > 0
-                    // try retrying the latest iter's content via END's content backtrack;
-                    // if count == 0 there's no prior iter to retry, so propagate failure.
-                    MacroAssembler::Jump noIterToRetry = m_jit.branchTest32(MacroAssembler::Zero, countTemporary);
-
-                    // count > 0: decrement count (END.forward will re-increment after a
-                    // successful retry) and jump to content backtrack entry. The earlier
-                    // restoreParenContext already left m_regs.index at the end of iter k.
-                    m_jit.sub32(MacroAssembler::TrustedImm32(1), countTemporary);
-                    storeToFrame(countTemporary, parenthesesFrameLocation + BackTrackInfoParentheses::matchAmountIndex());
+                switch (term->quantityType) {
+                case QuantifierType::NonGreedy: {
                     ASSERT(endOp.m_op == YarrOpCode::ParenthesesSubpatternEnd);
                     ASSERT(endOp.m_contentBacktrackEntryLabel.isSet());
                     m_jit.jump(endOp.m_contentBacktrackEntryLabel);
 
-                    // Now we are not able to try any backtracking. So parentheses with min-count gets complete failure.
-                    // We need to clear the state, and go back to the further former backtracking.
-                    noIterToRetry.link(&m_jit);
-                    op.m_jumps.link(&m_jit);
+                    // No earlier iteration to retry: the parens fail. Clear captures, mark
+                    // the frame as not-run, and propagate to the previous backtrack point.
+                    //
+                    // Even if quantityMinCount == 0, we should make it a complete failure.
+                    // This is because NonGreedy already tried with count = 0, failing and reaching here.
+                    // So there is no way to proceed further, just propagate a failure.
+                    noPreviousIteration.link(&m_jit);
                     if (shouldRecordSubpatterns() && term->containsAnyCaptures()) {
                         for (unsigned subpattern = term->parentheses.subpatternId; subpattern <= term->parentheses.lastSubpatternId; subpattern++)
                             clearSubpattern(subpattern);
                     }
-                } else {
-                    // Clear the flag in the stackframe indicating we didn't run through the subpattern.
                     storeToFrame(MacroAssembler::TrustedImm32(-1), parenthesesFrameLocation + BackTrackInfoParentheses::beginIndex());
+                    m_backtrackingState.fallthrough();
+                    break;
+                }
 
-                    switch (term->quantityType) {
-                    case QuantifierType::Greedy: {
-                        // If Greedy, jump to the end.
+                case QuantifierType::Greedy: {
+                    // Greedy: we took as many iterations as possible, so backtracking reduces
+                    // the count. We can accept fewer iterations only if count >= min: the next
+                    // bt step's restore would land us at "count actual iterations" worth
+                    // of position (since restoreParenContext gives state pre-iter (k+1) =
+                    // post-iter k where k = count).
+                    if (term->quantityMinCount) {
+                        // countTemporary was decremented above, so it now holds
+                        // (surviving count - 1). Accept fewer iterations when the surviving
+                        // count is still >= min, i.e. countTemporary >= min - 1.
+                        m_jit.branch32(MacroAssembler::AboveOrEqual, countTemporary, MacroAssembler::Imm32(term->quantityMinCount - 1)).linkTo(endOp.m_reentry, &m_jit);
+
+                        // Jump to content backtrack entry. The earlier restoreParenContext already left m_regs.index at the end of iter k.
+                        ASSERT(endOp.m_op == YarrOpCode::ParenthesesSubpatternEnd);
+                        ASSERT(endOp.m_contentBacktrackEntryLabel.isSet());
+                        m_jit.jump(endOp.m_contentBacktrackEntryLabel);
+
+                        // Now we are not able to try any backtracking. So parentheses with min-count gets complete failure.
+                        // We need to clear the state, and go back to the further former backtracking.
+                        noPreviousIteration.link(&m_jit);
+                        op.m_jumps.link(&m_jit);
+                        if (shouldRecordSubpatterns() && term->containsAnyCaptures()) {
+                            for (unsigned subpattern = term->parentheses.subpatternId; subpattern <= term->parentheses.lastSubpatternId; subpattern++)
+                                clearSubpattern(subpattern);
+                        }
+                    } else {
+                        // Try fewer iterations.
+                        m_jit.jump(endOp.m_reentry);
+
+                        noPreviousIteration.link(&m_jit);
+                        // Clear the flag in the stackframe indicating we didn't run through the subpattern.
+                        storeToFrame(MacroAssembler::TrustedImm32(-1), parenthesesFrameLocation + BackTrackInfoParentheses::beginIndex());
+
+                        // After marking parens as not run, jump to reentry to skip the subpattern.
                         m_jit.jump(endOp.m_reentry);
                         // A backtrack from after the parentheses, when skipping the subpattern,
                         // will jump back to here.
                         op.m_jumps.link(&m_jit);
-                        break;
                     }
-                    case QuantifierType::NonGreedy: {
-                        break;
-                    }
-                    case QuantifierType::FixedCount: {
-                        // This case is handled above with early break
-                        RELEASE_ASSERT_NOT_REACHED();
-                        break;
-                    }
-                    }
+
+                    storeToFrame(MacroAssembler::TrustedImm32(-1), parenthesesFrameLocation + BackTrackInfoParentheses::beginIndex());
+                    m_backtrackingState.fallthrough();
+                    break;
                 }
 
-                storeToFrame(MacroAssembler::TrustedImm32(-1), parenthesesFrameLocation + BackTrackInfoParentheses::beginIndex());
-                m_backtrackingState.fallthrough();
+                case QuantifierType::FixedCount: {
+                    RELEASE_ASSERT_NOT_REACHED();
+                    break;
+                }
+                }
 #else // !YARR_JIT_ALL_PARENS_EXPRESSIONS
                 RELEASE_ASSERT_NOT_REACHED();
 #endif
