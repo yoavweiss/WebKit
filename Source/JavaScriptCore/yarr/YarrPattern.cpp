@@ -255,23 +255,28 @@ public:
 
     void putRange(char32_t lo, char32_t hi)
     {
-        // This is ASCII-case-folding fast path. So intentionally using isASCII (not isLatin1).
-        if (isASCII(lo)) {
-            char asciiLo = lo;
-            char asciiHi = std::min<char32_t>(hi, 0x7f);
-            addSortedRange(lo, asciiHi);
+        // The ASCII case-folding fast path is only valid in UCS2 canonical mode. In Unicode
+        // canonical mode, U+212A and U+017F canonicalize into ASCII 'k' and 's', so ASCII
+        // ranges must go through the canonicalization table below.
+        if (!m_isCaseInsensitive || m_canonicalMode == CanonicalMode::UCS2) {
+            // This is ASCII-case-folding fast path. So intentionally using isASCII (not isLatin1).
+            if (isASCII(lo)) {
+                char asciiLo = lo;
+                char asciiHi = std::min<char32_t>(hi, 0x7f);
+                addSortedRange(lo, asciiHi);
 
-            if (m_isCaseInsensitive) {
-                if ((asciiLo <= 'Z') && (asciiHi >= 'A'))
-                    addSortedRange(std::max(asciiLo, 'A')+('a'-'A'), std::min(asciiHi, 'Z')+('a'-'A'));
-                if ((asciiLo <= 'z') && (asciiHi >= 'a'))
-                    addSortedRange(std::max(asciiLo, 'a')+('A'-'a'), std::min(asciiHi, 'z')+('A'-'a'));
+                if (m_isCaseInsensitive) {
+                    if ((asciiLo <= 'Z') && (asciiHi >= 'A'))
+                        addSortedRange(std::max(asciiLo, 'A')+('a'-'A'), std::min(asciiHi, 'Z')+('a'-'A'));
+                    if ((asciiLo <= 'z') && (asciiHi >= 'a'))
+                        addSortedRange(std::max(asciiLo, 'a')+('A'-'a'), std::min(asciiHi, 'z')+('A'-'a'));
+                }
             }
-        }
-        if (isASCII(hi))
-            return;
+            if (isASCII(hi))
+                return;
 
-        lo = std::max<char32_t>(lo, 0x80);
+            lo = std::max<char32_t>(lo, 0x80);
+        }
         addSortedRange(lo, hi);
 
         if (!m_isCaseInsensitive)
