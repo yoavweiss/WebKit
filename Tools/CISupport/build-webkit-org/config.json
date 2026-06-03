@@ -174,6 +174,34 @@
                     "device": "Mac16,11",
                     "xcode": "Xcode 26.2-17C52"
                   },
+                  {
+                    "name": "bot10011",
+                    "platform": "mac-tahoe",
+                    "os": "macOS Tahoe 26.5-25F71",
+                    "device": "Mac16,11",
+                    "xcode": "Xcode 26.5-17F42"
+                  },
+                  {
+                    "name": "bot10012",
+                    "platform": "mac-tahoe",
+                    "os": "macOS Tahoe 26.5-25F71",
+                    "device": "Mac16,11",
+                    "xcode": "Xcode 26.5-17F42"
+                  },
+                  {
+                    "name": "bot10013",
+                    "platform": "mac-tahoe",
+                    "os": "macOS Tahoe 26.5-25F71",
+                    "device": "Mac16,11",
+                    "xcode": "Xcode 26.5-17F42"
+                  },
+                  {
+                    "name": "bot10014",
+                    "platform": "mac-tahoe",
+                    "os": "macOS Tahoe 26.5-25F71",
+                    "device": "Mac16,11",
+                    "xcode": "Xcode 26.5-17F42"
+                  },
 
                   { "name": "wincairo-debug-build-01", "platform": "win" },
                   { "name": "wincairo-debug-tests-01", "platform": "win" },
@@ -306,7 +334,7 @@
                   "platform": "mac-tahoe", "configuration": "debug", "architectures": ["x86_64", "arm64"],
                   "triggers": [
                       "tahoe-debug-tests-wk1", "tahoe-debug-tests-wk2", "tahoe-debug-applesilicon-tests-wk1",
-                      "tahoe-debug-applesilicon-tests-wk2"
+                      "tahoe-debug-applesilicon-tests-wk2", "tahoe-debug-tests-wk2-site-isolation-tree"
                   ],
                   "workernames": ["bot621", "bot10002"]
                   },
@@ -338,6 +366,11 @@
                     "name": "Apple-Tahoe-Safer-CPP-Checks", "factory": "SaferCPPStaticAnalyzerFactory",
                     "platform": "mac-tahoe", "configuration": "release", "architectures": ["arm64"],
                     "workernames": ["bot600", "bot10009", "bot10010"]
+                  },
+                  { "name": "Apple-Tahoe-Debug-WK2-Site-Isolation-Tree-Tests", "factory": "TestAllButJSCFactory",
+                  "platform": "mac-tahoe", "configuration": "debug", "architectures": ["x86_64", "arm64"],
+                  "additionalArguments": ["--no-retry-failures", "--additional-header=SiteIsolationEnabled=true", "--additional-expectations=LayoutTests/platform/mac-site-isolation/TestExpectations"],
+                  "workernames": ["bot10011", "bot10012", "bot10013", "bot10014"]
                   },
                   { "name": "Apple-Sequoia-Release-Build", "factory": "BuildFactory",
                   "platform": "mac-sequoia", "configuration": "release", "architectures": ["x86_64", "arm64"],
@@ -821,6 +854,9 @@
                   },
                   { "type": "Triggerable", "name": "tahoe-release-world-leaks-tests",
                     "builderNames": ["Apple-Tahoe-Release-World-Leaks-Tests"]
+                  },
+                  { "type": "Triggerable", "name": "tahoe-debug-tests-wk2-site-isolation-tree",
+                  "builderNames": ["Apple-Tahoe-Debug-WK2-Site-Isolation-Tree-Tests"]
                   },
                   { "type": "PlatformSpecificScheduler", "platform": "mac-sequoia", "branch": "main", "treeStableTimer": 45.0,
                   "builderNames": ["Apple-Sequoia-Release-Build", "Apple-Sequoia-Debug-Build", "Apple-Sequoia-AppleSilicon-O3-Debug-JSC-BuildAndTest"]
