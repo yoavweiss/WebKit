@@ -55,6 +55,14 @@ extension MTLCaptureDescriptor {
     }
 }
 
+extension LowLevelTextureResource {
+    func replace(commandBuffer: any MTLCommandBuffer, memoryOwner: task_id_token_t) -> any MTLTexture {
+        let texture = replace(commandBuffer: commandBuffer)
+        texture.__setOwnerWithIdentity(memoryOwner)
+        return texture
+    }
+}
+
 private func makeMTLTextureFromImageAsset(
     _ imageAsset: WKBridgeImageAsset,
     device: any MTLDevice,
@@ -244,7 +252,7 @@ private func makeTextureFromImageAsset(
             blitEncoder.generateMipmaps(for: mtlTexture)
         }
 
-        let outTexture = textureResource.replace(commandBuffer: commandBuffer)
+        let outTexture = textureResource.replace(commandBuffer: commandBuffer, memoryOwner: memoryOwner)
         blitEncoder.copy(from: mtlTexture, to: outTexture)
 
         blitEncoder.endEncoding()
@@ -1094,8 +1102,8 @@ extension WKBridgeReceiver {
                 into: cubeMTLTexture
             )
 
-            let diffuseMTLTexture = diffuseTexture.replace(commandBuffer: commandBuffer)
-            let specularMTLTexture = specularTexture.replace(commandBuffer: commandBuffer)
+            let diffuseMTLTexture = diffuseTexture.replace(commandBuffer: commandBuffer, memoryOwner: self.memoryOwner)
+            let specularMTLTexture = specularTexture.replace(commandBuffer: commandBuffer, memoryOwner: self.memoryOwner)
 
             try self.imageBasedLightTextureGenerator.generateDiffuse(
                 using: commandBuffer,
@@ -2375,7 +2383,7 @@ private func makeFallBackTextureResource(
     // Create command buffer to upload white pixel data
     // swift-format-ignore: NeverForceUnwrap
     let fallbackCommandBuffer = commandQueue.makeCommandBuffer()!
-    let fallbackMTLTexture = fallbackTexture.replace(commandBuffer: fallbackCommandBuffer)
+    let fallbackMTLTexture = fallbackTexture.replace(commandBuffer: fallbackCommandBuffer, memoryOwner: memoryOwner)
 
     // Use blit encoder to copy from buffer to texture
     // swift-format-ignore: NeverForceUnwrap

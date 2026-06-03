@@ -53,6 +53,7 @@
 #import <WebCore/PlatformScreen.h>
 #import <WebCore/ScreenProperties.h>
 #import <wtf/RetainPtr.h>
+#import <wtf/cocoa/SpanCocoa.h>
 #import <wtf/threads/BinarySemaphore.h>
 
 #import "WebKitSwiftSoftLink.h"
@@ -171,12 +172,14 @@ double WebModelPlayer::duration() const
     return [m_modelLoader duration];
 }
 
-static Vector<uint8_t> loadData(RetainPtr<CFStringRef> filename)
+static std::optional<WebCore::SharedMemoryHandle> loadData(RetainPtr<CFStringRef> filename)
 {
     RetainPtr<NSBundle> myBundle = [NSBundle bundleWithIdentifier:@"com.apple.WebCore"];
     RetainPtr<NSURL> nsFileURL = [myBundle URLForResource:(__bridge NSString *)filename.get() withExtension:@""];
     RetainPtr<NSData> data = [NSData dataWithContentsOfURL:nsFileURL.get() options:0 error:nil];
-    return makeVector(data.get());
+    if (!data || ![data length])
+        return std::nullopt;
+    return WebCore::SharedMemoryHandle::createCopy(WTF::span(data.get()), WebCore::SharedMemoryProtection::ReadOnly);
 }
 
 // MARK: - ModelPlayer overrides.
@@ -209,7 +212,7 @@ void WebModelPlayer::load(WebCore::Model& modelSource, WebCore::LayoutSize size)
 
     WEBMODEL_WEB_MODEL_PLAYER_DECLARE_DIFFUSE_AND_SPECULAR_TEXTURES
 
-    m_currentModel = static_cast<RemoteGPUProxy&>(gpu->backing()).createModelBacking(m_currentPixelSize.width(), m_currentPixelSize.height(), diffuseTexture, specularTexture, [protectedThis = protect(*this)] (Vector<MachSendRight>&& surfaceHandles) {
+    m_currentModel = static_cast<RemoteGPUProxy&>(gpu->backing()).createModelBacking(m_currentPixelSize.width(), m_currentPixelSize.height(), WTF::move(diffuseTexture), WTF::move(specularTexture), [protectedThis = protect(*this)] (Vector<MachSendRight>&& surfaceHandles) {
         if (surfaceHandles.size()) {
             protectedThis->m_displayBuffers = WTF::move(surfaceHandles);
             protectedThis->updateContentsHeadroom();

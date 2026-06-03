@@ -251,7 +251,6 @@
 		0D433CF52F857D62004ED8DF /* USDModel+Deformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D433CF42F857D62004ED8DF /* USDModel+Deformation.swift */; };
 		0D4599052C86B00F00435F48 /* WKDigitalCredentialsPicker.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D9D28E72C81473B002CB4C7 /* WKDigitalCredentialsPicker.h */; };
 		0D4C005A2F4182F100DF1BBF /* ModelUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D653B392F3453C40022454D /* ModelUtils.swift */; };
-		0D4C005B2F4182F100DF1BBF /* ModelIBLTextures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D653B352F3453C40022454D /* ModelIBLTextures.swift */; };
 		0D4C005C2F4182F100DF1BBF /* ModelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D653B342F3453C40022454D /* ModelBridge.swift */; };
 		0D4C005D2F4182F100DF1BBF /* ModelParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D653B362F3453C40022454D /* ModelParameters.swift */; };
 		0D4C005E2F4182F100DF1BBF /* USDModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D653B3A2F3453C40022454D /* USDModel.swift */; };
@@ -3621,7 +3620,6 @@
 		0D653B322F3453C40022454D /* Float3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Float3.h; sourceTree = "<group>"; };
 		0D653B332F3453C40022454D /* Float4x4.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Float4x4.h; sourceTree = "<group>"; };
 		0D653B342F3453C40022454D /* ModelBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelBridge.swift; sourceTree = "<group>"; };
-		0D653B352F3453C40022454D /* ModelIBLTextures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelIBLTextures.swift; sourceTree = "<group>"; };
 		0D653B362F3453C40022454D /* ModelParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelParameters.swift; sourceTree = "<group>"; };
 		0D653B372F3453C40022454D /* ModelRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelRenderer.swift; sourceTree = "<group>"; };
 		0D653B382F3453C40022454D /* ModelTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModelTypes.h; sourceTree = "<group>"; };
@@ -9942,7 +9940,6 @@
 				0D653B2F2F34517E0022454D /* MeshImpl.cpp */,
 				0D653B2E2F34517E0022454D /* MeshImpl.h */,
 				0D653B342F3453C40022454D /* ModelBridge.swift */,
-				0D653B352F3453C40022454D /* ModelIBLTextures.swift */,
 				0D078EBB2E738BCD00A9B266 /* ModelObjectHeap.cpp */,
 				0D078EBA2E738BCD00A9B266 /* ModelObjectHeap.h */,
 				0D653B362F3453C40022454D /* ModelParameters.swift */,
@@ -22568,7 +22565,6 @@
 				A14F9B772B68CA6C00AD9C56 /* LinearMediaPlayer.swift in Sources */,
 				A14F9B642B686DD300AD9C56 /* LinearMediaTypes.swift in Sources */,
 				0D4C005C2F4182F100DF1BBF /* ModelBridge.swift in Sources */,
-				0D4C005B2F4182F100DF1BBF /* ModelIBLTextures.swift in Sources */,
 				0D4C005D2F4182F100DF1BBF /* ModelParameters.swift in Sources */,
 				0D4C005F2F4182F100DF1BBF /* ModelRenderer.swift in Sources */,
 				0D4C005A2F4182F100DF1BBF /* ModelUtils.swift in Sources */,

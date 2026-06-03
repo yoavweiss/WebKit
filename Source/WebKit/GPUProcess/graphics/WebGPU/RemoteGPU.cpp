@@ -292,7 +292,7 @@ Vector<UniqueRef<WebCore::IOSurface>> RemoteGPU::createRenderBuffers(unsigned wi
 #endif
 
 #if ENABLE(GPU_PROCESS_MODEL)
-static RefPtr<WebKit::Mesh> createModelBackingInternal(unsigned width, unsigned height, const WebModel::ImageAsset& diffuseTexture, const WebModel::ImageAsset& specularTexture, const WebCore::ProcessIdentity& processIdentity, CompletionHandler<void(Vector<MachSendRight>&&)>&& callback)
+static RefPtr<WebKit::Mesh> createModelBackingInternal(unsigned width, unsigned height, WebModel::ImageAsset&& diffuseTexture, WebModel::ImageAsset&& specularTexture, const WebCore::ProcessIdentity& processIdentity, CompletionHandler<void(Vector<MachSendRight>&&)>&& callback)
 {
     auto ioSurfaceVector = RemoteGPU::createRenderBuffers(width, height, processIdentity);
     Vector<RetainPtr<IOSurfaceRef>> ioSurfaces;
@@ -303,8 +303,8 @@ static RefPtr<WebKit::Mesh> createModelBackingInternal(unsigned width, unsigned 
         .width = width,
         .height = height,
         .ioSurfaces = WTF::move(ioSurfaces),
-        .diffuseTexture = diffuseTexture,
-        .specularTexture = specularTexture,
+        .diffuseTexture = WTF::move(diffuseTexture),
+        .specularTexture = WTF::move(specularTexture),
         .processIdentity = &processIdentity
     };
 
@@ -314,7 +314,7 @@ static RefPtr<WebKit::Mesh> createModelBackingInternal(unsigned width, unsigned 
 }
 #endif
 
-void RemoteGPU::createModelBacking(unsigned width, unsigned height, const WebModel::ImageAsset& diffuseTexture, const WebModel::ImageAsset& specularTexture, WebModelIdentifier identifier, CompletionHandler<void(Vector<MachSendRight>&&)>&& callback)
+void RemoteGPU::createModelBacking(unsigned width, unsigned height, WebModel::ImageAsset&& diffuseTexture, WebModel::ImageAsset&& specularTexture, WebModelIdentifier identifier, CompletionHandler<void(Vector<MachSendRight>&&)>&& callback)
 {
 #if ENABLE(GPU_PROCESS_MODEL)
     assertIsCurrent(workQueue());
@@ -324,11 +324,11 @@ void RemoteGPU::createModelBacking(unsigned width, unsigned height, const WebMod
     auto& inputSpecularTexture = specularTexture;
     auto& inputDiffuseTexture = diffuseTexture;
     {
-#define loadData(...) { }
+#define loadData(...) std::nullopt
         WEBMODEL_WEB_MODEL_PLAYER_DECLARE_DIFFUSE_AND_SPECULAR_TEXTURES
 #undef loadData
 #define equalIgnoringDataContents(a, b, dataSize) \
-            a.data.size() == dataSize && \
+            (a.dataHandle ? a.dataHandle->size() : 0) == dataSize && \
             a.width == b.width && \
             a.height == b.height && \
             a.depth == b.depth && \
@@ -347,7 +347,7 @@ void RemoteGPU::createModelBacking(unsigned width, unsigned height, const WebMod
     auto gpuProcessConnection = m_gpuConnectionToWebProcess.get();
     MESSAGE_CHECK(gpuProcessConnection);
 
-    auto mesh = createModelBackingInternal(width, height, diffuseTexture, specularTexture, gpuProcessConnection->webProcessIdentity(), WTF::move(callback));
+    auto mesh = createModelBackingInternal(width, height, WTF::move(diffuseTexture), WTF::move(specularTexture), gpuProcessConnection->webProcessIdentity(), WTF::move(callback));
     auto remoteMesh = RemoteMesh::create(*m_gpuConnectionToWebProcess.get(), *this, *mesh, objectHeap, protect(*m_streamConnection), identifier);
     objectHeap->addObject(identifier, remoteMesh);
 #else

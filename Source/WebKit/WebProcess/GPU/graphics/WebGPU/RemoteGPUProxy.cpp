@@ -220,12 +220,12 @@ void RemoteGPUProxy::requestAdapter(const WebCore::WebGPU::RequestAdapterOptions
     callback(WebGPU::RemoteAdapterProxy::create(WTF::move(response->name), WTF::move(resultSupportedFeatures), WTF::move(resultSupportedLimits), response->isFallbackAdapter, options.xrCompatible, *this, m_convertToBackingContext, identifier));
 }
 
-RefPtr<WebKit::Mesh> RemoteGPUProxy::createModelBacking(unsigned width, unsigned height, const WebModel::ImageAsset& diffuseTexture, const WebModel::ImageAsset& specularTexture, CompletionHandler<void(Vector<MachSendRight>&&)>&& callback)
+RefPtr<WebKit::Mesh> RemoteGPUProxy::createModelBacking(unsigned width, unsigned height, WebModel::ImageAsset&& diffuseTexture, WebModel::ImageAsset&& specularTexture, CompletionHandler<void(Vector<MachSendRight>&&)>&& callback)
 {
 #if ENABLE(GPU_PROCESS_MODEL)
     auto identifier = WebModelIdentifier::generate();
 
-    auto sendResult = sendSync(Messages::RemoteGPU::CreateModelBacking(width, height, diffuseTexture, specularTexture, identifier));
+    auto sendResult = sendSync(Messages::RemoteGPU::CreateModelBacking(width, height, WTF::move(diffuseTexture), WTF::move(specularTexture), identifier));
     if (!sendResult.succeeded()) {
         callback({ });
         return nullptr;

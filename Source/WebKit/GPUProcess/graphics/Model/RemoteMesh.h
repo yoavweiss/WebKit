@@ -98,7 +98,7 @@ private:
     void setFOV(float fovY);
     void setBackgroundColor(const WebModel::Float3&);
     void play(bool);
-    void setEnvironmentMap(const WebModel::UpdateTextureDescriptor&);
+    void setEnvironmentMap(WebModel::UpdateTextureDescriptor&&);
     void updateContentsHeadroom(float);
     void updateRenderBuffers(unsigned, unsigned, CompletionHandler<void(Vector<MachSendRight>&&)>&&);
 

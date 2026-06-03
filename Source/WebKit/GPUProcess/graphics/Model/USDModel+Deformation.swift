@@ -76,11 +76,20 @@ extension MTLDevice {
         memoryOwner: task_id_token_t,
         options: MTLResourceOptions = []
     ) -> any MTLBuffer where T: BitwiseCopyable {
+        let buffer = makeBuffer(length: length, memoryOwner: memoryOwner, options: options)
+        buffer.copyMemory(fromSpan: fromSpan, byteOffset: 0)
+        return buffer
+    }
+
+    func makeBuffer(
+        length: Int,
+        memoryOwner: task_id_token_t,
+        options: MTLResourceOptions = []
+    ) -> any MTLBuffer {
         // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
         // swift-format-ignore: NeverForceUnwrap
         let buffer = makeBuffer(length: length, options: options)!
         buffer.__setOwnerWithIdentity(memoryOwner)
-        buffer.copyMemory(fromSpan: fromSpan, byteOffset: 0)
         return buffer
     }
 }
@@ -534,9 +543,7 @@ func makeMeshDescriptionForDeformation(
 
             let vertexBuffer = meshResource.readVertices(at: bufferIndex, commandBuffer: commandBuffer)
             if isInput {
-                // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
-                // swift-format-ignore: NeverForceUnwrap
-                let mtlBuffer = device.makeBuffer(length: vertexBuffer.length, options: .storageModeShared)!
+                let mtlBuffer = device.makeBuffer(length: vertexBuffer.length, memoryOwner: memoryOwner, options: .storageModeShared)
                 // Copy data from vertexPositionsBuffer to inputPositionsBuffer
                 // FIXME: https://bugs.webkit.org/show_bug.cgi?id=305857
                 // swift-format-ignore: NeverForceUnwrap

@@ -31,6 +31,7 @@
 #include <ImageIO/CGImageSource.h>
 #include <Metal/Metal.h>
 #include <wtf/cf/VectorCF.h>
+#include <wtf/cocoa/SpanCocoa.h>
 #include <wtf/cocoa/VectorCocoa.h>
 
 namespace WebKit {
@@ -896,8 +897,12 @@ static WebModel::ImageAssetSwizzle convert(MTLTextureSwizzleChannels swizzle)
 
 static WebModel::ImageAsset convert(WKBridgeImageAsset *imageAsset)
 {
+    std::optional<WebCore::SharedMemory::Handle> dataHandle;
+    if (NSData *data = imageAsset.data; data && data.length)
+        dataHandle = WebCore::SharedMemoryHandle::createCopy(WTF::span(data), WebCore::SharedMemoryProtection::ReadOnly);
+
     return WebModel::ImageAsset {
-        .data = makeVector(imageAsset.data),
+        .dataHandle = WTF::move(dataHandle),
         .width = imageAsset.width,
         .height = imageAsset.height,
         .depth = imageAsset.depth,

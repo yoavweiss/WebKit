@@ -127,9 +127,9 @@ void RemoteMesh::play(bool playing)
     m_backing->play(playing);
 }
 
-void RemoteMesh::setEnvironmentMap(const WebModel::UpdateTextureDescriptor& imageAsset)
+void RemoteMesh::setEnvironmentMap(WebModel::UpdateTextureDescriptor&& imageAsset)
 {
-    m_backing->setEnvironmentMap(imageAsset);
+    m_backing->setEnvironmentMap(WTF::move(imageAsset));
 }
 
 void RemoteMesh::updateContentsHeadroom(float headroom)

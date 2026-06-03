@@ -98,9 +98,9 @@ void MeshImpl::play(bool play)
     m_backing->play(play);
 }
 
-void MeshImpl::setEnvironmentMap(const WebModel::UpdateTextureDescriptor& imageAsset)
+void MeshImpl::setEnvironmentMap(WebModel::UpdateTextureDescriptor&& imageAsset)
 {
-    m_backing->setEnvironmentMap(imageAsset);
+    m_backing->setEnvironmentMap(WTF::move(imageAsset));
 }
 
 void MeshImpl::updateContentsHeadroom(float headroom)

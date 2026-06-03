@@ -77,7 +77,7 @@ private:
     void setFOV(float) final;
     void setBackgroundColor(const WebModel::Float3&) final;
     void play(bool) final;
-    void setEnvironmentMap(const WebModel::UpdateTextureDescriptor&) final;
+    void setEnvironmentMap(WebModel::UpdateTextureDescriptor&&) final;
     void updateContentsHeadroom(float) final;
 
     void render(uint32_t textureIndex, Function<void(bool)>&&) final;

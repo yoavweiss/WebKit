@@ -662,7 +662,19 @@ static MTLTextureSwizzleChannels convert(ImageAssetSwizzle swizzle)
 static WKBridgeImageAsset* convert(const ImageAsset& imageAsset)
 {
     auto mtlPixelFormat = WebModel::toMetal(imageAsset.pixelFormat);
-    return [WebKit::allocWKBridgeImageAssetInstance() initWithData:convert(imageAsset.data) width:imageAsset.width height:imageAsset.height depth:imageAsset.depth textureType:toMetal(imageAsset.textureType) pixelFormat:mtlPixelFormat mipmapLevelCount:imageAsset.mipmapLevelCount arrayLength:imageAsset.arrayLength textureUsage:toMetal(imageAsset.textureUsage) swizzle:convert(imageAsset.swizzle)];
+
+    NSData *data = nil;
+    if (imageAsset.dataHandle) {
+        if (RefPtr sharedMemory = WebCore::SharedMemory::map(WebCore::SharedMemoryHandle(*imageAsset.dataHandle), WebCore::SharedMemoryProtection::ReadOnly)) {
+            auto span = sharedMemory->span();
+            data = [[NSData alloc] initWithBytesNoCopy:const_cast<uint8_t *>(span.data()) length:span.size() deallocator:^(void *, NSUInteger) {
+                // Capturing the RefPtr keeps the mapping alive for the lifetime of this NSData.
+                UNUSED_PARAM(sharedMemory);
+            }];
+        }
+    }
+
+    return [WebKit::allocWKBridgeImageAssetInstance() initWithData:data width:imageAsset.width height:imageAsset.height depth:imageAsset.depth textureType:toMetal(imageAsset.textureType) pixelFormat:mtlPixelFormat mipmapLevelCount:imageAsset.mipmapLevelCount arrayLength:imageAsset.arrayLength textureUsage:toMetal(imageAsset.textureUsage) swizzle:convert(imageAsset.swizzle)];
 }
 
 static WKBridgeTextureLevelInfo* convert(const TextureLevelInfo& textureLevelInfo)
@@ -1029,7 +1041,7 @@ void WebMesh::setBackgroundColor(const simd_float3& color)
 #endif
 }
 
-void WebMesh::setEnvironmentMap(const WebModel::UpdateTextureDescriptor& imageAsset)
+void WebMesh::setEnvironmentMap(WebModel::UpdateTextureDescriptor&& imageAsset)
 {
 #if ENABLE(GPU_PROCESS_MODEL)
     [m_receiver setEnvironmentMap:convert(imageAsset)];

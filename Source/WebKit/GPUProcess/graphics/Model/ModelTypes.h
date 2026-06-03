@@ -26,7 +26,10 @@
 
 #include <wtf/Platform.h>
 
+#if PLATFORM(COCOA)
+
 #ifdef __cplusplus
+#include <WebCore/SharedMemory.h>
 #include <WebCore/WebGPUPrimitiveTopology.h>
 #include <WebCore/WebGPUTextureFormat.h>
 #include <WebCore/WebGPUTextureUsage.h>
@@ -546,7 +549,7 @@ struct ImageAssetSwizzle {
 };
 
 struct ImageAsset {
-    Vector<uint8_t> data;
+    std::optional<WebCore::SharedMemory::Handle> dataHandle;
     long width { 0 };
     long height { 0 };
     long depth { 0 };
@@ -825,9 +828,11 @@ typedef struct WebModelCreateMeshDescriptor {
     unsigned width;
     unsigned height;
     Vector<RetainPtr<IOSurfaceRef>> ioSurfaces;
-    const WebModel::ImageAsset& diffuseTexture;
-    const WebModel::ImageAsset& specularTexture;
+    WebModel::ImageAsset&& diffuseTexture;
+    WebModel::ImageAsset&& specularTexture;
     const WebCore::ProcessIdentity* processIdentity;
 } WebModelCreateMeshDescriptor;
+
+#endif
 
 #endif

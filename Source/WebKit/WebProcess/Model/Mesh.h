@@ -85,7 +85,7 @@ public:
     virtual void setStageMode(WebCore::StageModeOperation) { }
     virtual void setRotation(float, float = 0.f, float = 0.f) { }
     virtual void play(bool) = 0;
-    virtual void setEnvironmentMap(const WebModel::UpdateTextureDescriptor&) = 0;
+    virtual void setEnvironmentMap(WebModel::UpdateTextureDescriptor&&) = 0;
     virtual void updateContentsHeadroom(float) = 0;
 
     virtual void render(uint32_t textureIndex, Function<void(bool)>&&) = 0;
@@ -114,7 +114,7 @@ private:
 
 #define WEBMODEL_WEB_MODEL_PLAYER_DECLARE_DIFFUSE_AND_SPECULAR_TEXTURES \
 WebModel::ImageAsset diffuseTexture { \
-    .data = loadData(adoptCF(static_cast<CFStringRef>(@"modelDefaultDiffuseData"))), \
+    .dataHandle = loadData(adoptCF(static_cast<CFStringRef>(@"modelDefaultDiffuseData"))), \
     .width = 64, \
     .height = 64, \
     .depth = 1, \
@@ -126,7 +126,7 @@ WebModel::ImageAsset diffuseTexture { \
     .swizzle = { } \
 }; \
 WebModel::ImageAsset specularTexture { \
-    .data = loadData(adoptCF(static_cast<CFStringRef>(@"modelDefaultSpecularData"))), \
+    .dataHandle = loadData(adoptCF(static_cast<CFStringRef>(@"modelDefaultSpecularData"))), \
     .width = 256, \
     .height = 256, \
     .depth = 1, \
