@@ -356,10 +356,10 @@ void Frame::updateFrameTreeSyncData(const FrameTreeSyncSerializationData& data)
             if (!localChild)
                 continue;
 
-            auto oldFrameInfo = oldMap.getOptional(child->frameID());
-            auto newFrameInfo = newMap.getOptional(child->frameID());
+            RefPtr oldFrameInfo = oldMap.get(child->frameID());
+            RefPtr newFrameInfo = newMap.get(child->frameID());
 
-            if (!oldFrameInfo || !newFrameInfo || oldFrameInfo->ownerElementAppearance.contains(FrameOwnerElementAppearance::IsDark) != newFrameInfo->ownerElementAppearance.contains(FrameOwnerElementAppearance::IsDark)) {
+            if (!oldFrameInfo || !newFrameInfo || oldFrameInfo->ownerElementAppearance().contains(FrameOwnerElementAppearance::IsDark) != newFrameInfo->ownerElementAppearance().contains(FrameOwnerElementAppearance::IsDark)) {
                 RefPtr localChildView = localChild->view();
 
                 localChildView->invalidateForBaseBackgroundOrColorSchemeChange();

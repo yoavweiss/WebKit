@@ -2189,25 +2189,17 @@ void Page::syncLocalFrameInfoToRemote()
 
         frameView->updateLayoutViewportRect();
 
-        {
-            HashMap<FrameIdentifier, RemoteFrameLayoutInfo> childrenFrameLayoutInfo;
-
-            for (RefPtr child = frame.tree().firstChild(); child; child = child->tree().nextSibling()) {
-                auto visibleRect = frameView->visibleRectOfChild(*child.get());
-                float usedZoom = frame.usedZoomForChild(*child);
-                auto frameOwnerElementAppearance = frameView->appearanceOfOwnerElementOfChildFrame(*child);
-                auto contentBoxLocation = frameView->childFrameOwnerContentBoxLocation(*child);
-
-                childrenFrameLayoutInfo.add(child->frameID(), RemoteFrameLayoutInfo {
-                    .visibleRectInParent = visibleRect,
-                    .usedZoom = usedZoom,
-                    .contentBoxLocation = contentBoxLocation,
-                    .ownerElementAppearance = frameOwnerElementAppearance
-                });
-            }
-
-            frame.loader().client().broadcastChildrenFrameLayoutInfoToOtherProcesses(childrenFrameLayoutInfo);
+        HashMap<FrameIdentifier, Ref<RemoteFrameLayoutInfo>> childrenFrameLayoutInfo;
+        for (RefPtr child = frame.tree().firstChild(); child; child = child->tree().nextSibling()) {
+            childrenFrameLayoutInfo.add(child->frameID(), RemoteFrameLayoutInfo::create(
+                frameView->visibleRectOfChild(*child.get()),
+                frame.usedZoomForChild(*child),
+                frameView->childFrameOwnerContentBoxLocation(*child),
+                frameView->appearanceOfOwnerElementOfChildFrame(*child)
+            ));
         }
+
+        frame.loader().client().broadcastChildrenFrameLayoutInfoToOtherProcesses(childrenFrameLayoutInfo);
     });
 }
 

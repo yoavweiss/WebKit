@@ -26,6 +26,8 @@
 #pragma once
 
 #include <WebCore/LayoutRect.h>
+#include <wtf/RefCounted.h>
+#include <wtf/TZoneMalloc.h>
 
 namespace WebCore {
 
@@ -41,19 +43,32 @@ enum class FrameOwnerElementAppearance : uint8_t {
 // Collection of style/layout info regarding a (potentially remote) frame.
 // This is synchronized from LocalFrame in one process to RemoteFrames
 // in other processes using FrameTreeSyncData.
-struct RemoteFrameLayoutInfo {
+class RemoteFrameLayoutInfo : public RefCounted<RemoteFrameLayoutInfo> {
+    WTF_MAKE_TZONE_ALLOCATED_EXPORT(RemoteFrameLayoutInfo, WEBCORE_EXPORT);
+
+public:
+    WEBCORE_EXPORT static Ref<RemoteFrameLayoutInfo> create(std::optional<LayoutRect>, float, LayoutPoint, OptionSet<FrameOwnerElementAppearance>);
+
+    std::optional<LayoutRect> visibleRectInParent() const { return m_visibleRectInParent; }
+    float usedZoom() const { return m_usedZoom; }
+    LayoutPoint contentBoxLocation() const { return m_contentBoxLocation; }
+    OptionSet<FrameOwnerElementAppearance> ownerElementAppearance() const { return m_ownerElementAppearance; }
+
+private:
+    RemoteFrameLayoutInfo(std::optional<LayoutRect>, float, LayoutPoint, OptionSet<FrameOwnerElementAppearance>);
+
     // Rectangle of the visible portion of the frame in its parent frame,
     // in the coordinate space of the document of the parent frame.
-    std::optional<LayoutRect> visibleRectInParent;
+    std::optional<LayoutRect> m_visibleRectInParent;
 
     // RenderStyle::usedZoom of the owner renderer of the frame.
-    float usedZoom;
+    float m_usedZoom;
 
     // The offset of the content box of the frame's owner element
     // from its border box.
-    LayoutPoint contentBoxLocation;
+    LayoutPoint m_contentBoxLocation;
 
-    OptionSet<FrameOwnerElementAppearance> ownerElementAppearance;
+    OptionSet<FrameOwnerElementAppearance> m_ownerElementAppearance;
 };
 
 };

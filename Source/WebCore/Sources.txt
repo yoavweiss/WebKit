@@ -2286,6 +2286,7 @@ page/Quirks.cpp @header:RenderStyleGetters
 page/RemoteDOMWindow.cpp
 page/RemoteFrame.cpp
 page/RemoteFrameGeometryTransformer.cpp
+page/RemoteFrameLayoutInfo.cpp
 page/RemoteFrameView.cpp
 page/RenderingUpdateScheduler.cpp
 page/ResizeObservation.cpp @header:RenderStyleGetters

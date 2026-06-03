@@ -2206,11 +2206,11 @@ class WebCore::LayoutRect {
     ExplicitlySet
 };
 
-struct WebCore::RemoteFrameLayoutInfo {
-    std::optional<WebCore::LayoutRect> visibleRectInParent;
-    float usedZoom;
-    WebCore::LayoutPoint contentBoxLocation;
-    OptionSet<WebCore::FrameOwnerElementAppearance> ownerElementAppearance;
+[RefCounted] class WebCore::RemoteFrameLayoutInfo {
+    std::optional<WebCore::LayoutRect> visibleRectInParent();
+    float usedZoom();
+    WebCore::LayoutPoint contentBoxLocation();
+    OptionSet<WebCore::FrameOwnerElementAppearance> ownerElementAppearance();
 };
 
 header: <WebCore/VP9Utilities.h>
