@@ -2490,8 +2490,6 @@ webkit.org/b/292839 media/media-fullscreen-not-in-document.html [ Timeout ]
 
 webkit.org/b/292841 fullscreen/exit-full-screen-video-crash.html [ Timeout ]
 
-webkit.org/b/313985 fullscreen/fullscreen-clears-hover-on-overlay.html [ Failure Pass ]
-
 webkit.org/b/298587 fast/media/mq-inverted-colors-ua-style-on-to-off.html [ ImageOnlyFailure ]
 
 # This test requires generation of progress events during loading
