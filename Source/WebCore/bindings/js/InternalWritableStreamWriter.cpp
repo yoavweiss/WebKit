@@ -190,7 +190,7 @@ void InternalWritableStreamWriter::onClosedPromiseResolution(Function<void()>&& 
     });
 }
 
-static int writableStreamDefaultWriterGetDesiredSize(InternalWritableStreamWriter& writer)
+static std::optional<int> writableStreamDefaultWriterGetDesiredSize(InternalWritableStreamWriter& writer)
 {
     auto* globalObject = writer.globalObject();
     if (!globalObject)
@@ -203,12 +203,18 @@ static int writableStreamDefaultWriterGetDesiredSize(InternalWritableStreamWrite
     arguments.append(writer.guardedObject());
 
     auto result = invokeWritableStreamWriterFunction(*globalObject, privateName, arguments);
+    if (result.hasException())
+        return { };
     return result.returnValue().toNumber(globalObject);
 }
 
 void InternalWritableStreamWriter::whenReady(Function<void (bool)>&& callback)
 {
-    if (writableStreamDefaultWriterGetDesiredSize(*this) > 0) {
+    auto size = writableStreamDefaultWriterGetDesiredSize(*this);
+    if (!size)
+        return;
+
+    if (*size > 0) {
         callback(true);
         return;
     }

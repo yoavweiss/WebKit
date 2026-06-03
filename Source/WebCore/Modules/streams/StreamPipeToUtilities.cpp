@@ -302,6 +302,8 @@ void StreamPipeToState::handleSignal()
                     return nullptr;
 
                 auto value = internalWritableStream->abort(*globalObject, signal->reason().getValue());
+                if (!value)
+                    return nullptr;
                 auto* promise = downcast<JSC::JSPromise>(value);
                 if (!promise)
                     return nullptr;
@@ -407,6 +409,8 @@ void StreamPipeToState::errorsMustBePropagatedForward(JSDOMGlobalObject& globalO
 
                 Ref internalWritableStream = protectedThis->m_destination->internalWritableStream();
                 auto value = internalWritableStream->abort(*globalObject, error.get());
+                if (!value)
+                    return nullptr;
                 auto* promise = downcast<JSC::JSPromise>(value);
                 if (!promise) {
                     auto [result, deferred] = createPromiseAndWrapper(*globalObject);
