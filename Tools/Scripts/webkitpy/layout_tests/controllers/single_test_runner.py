@@ -46,6 +46,12 @@ _log = logging.getLogger(__name__)
 
 _render_tree_dump_pattern = re.compile(r"^layer at \(\d+,\d+\) size \d+x\d+\n")
 
+# A testharness.js subtest result line, e.g. "PASS some subtest name".
+_testharness_result_line_pattern = re.compile(r"^(PASS|FAIL|TIMEOUT|NOTRUN|PRECONDITION_FAILED) ")
+
+# Only imported WPT tests get order-insensitive comparison (see _compare_text).
+_imported_wpt_dir = "imported/w3c/web-platform-tests/"
+
 
 def run_single_test(port, options, results_directory, worker_name, driver, test_input, stop_when_done):
     runner = SingleTestRunner(port, options, results_directory, worker_name, driver, test_input, stop_when_done)
@@ -386,15 +392,38 @@ class SingleTestRunner(object):
         failures = []
         if self._options.ignore_render_tree_dump_results and actual_text and _render_tree_dump_pattern.match(actual_text):
             return failures
-        if (expected_text and actual_text and
-            # Assuming expected_text is already normalized.
-            self._port.do_text_results_differ(expected_text, self._get_normalized_output_text(actual_text))):
+        normalized_actual_text = self._get_normalized_output_text(actual_text) if actual_text else actual_text
+        if (expected_text and actual_text and self._port.do_text_results_differ(expected_text, normalized_actual_text)):
+            # WPT treats testharness subtests as an unordered set matched by
+            # name, but site isolation can change their completion order. Sort
+            # the result lines and re-compare before reporting a mismatch.
+            if (self._is_site_isolation_enabled_by_default_mode() and self._is_wpt_test() and self._normalize_testharness_result_order(expected_text) == self._normalize_testharness_result_order(normalized_actual_text)):
+                _log.warning('%s: passed via order-insensitive testharness comparison' % self._test_name)
+                return failures
             failures.append(test_failures.FailureTextMismatch())
         elif actual_text and not expected_text:
             failures.append(test_failures.FailureMissingResult())
         elif not actual_text and expected_text:
             failures.append(test_failures.FailureNoOutput())
         return failures
+
+    def _is_site_isolation_enabled_by_default_mode(self):
+        return bool(self._options.site_isolation_enabled_by_default)
+
+    def _is_wpt_test(self):
+        return self._test_name.startswith(_imported_wpt_dir)
+
+    def _normalize_testharness_result_order(self, text):
+        """Returns text with testharness subtest result lines sorted in place
+        (all other lines untouched), so outputs with the same results in a
+        different order compare equal."""
+        lines = text.split('\n')
+        indices = [i for i, line in enumerate(lines) if _testharness_result_line_pattern.match(line)]
+        if len(indices) < 2:
+            return text
+        for index, line in zip(indices, sorted(lines[i] for i in indices)):
+            lines[index] = line
+        return '\n'.join(lines)
 
     def _compare_audio(self, expected_audio, actual_audio):
         failures = []

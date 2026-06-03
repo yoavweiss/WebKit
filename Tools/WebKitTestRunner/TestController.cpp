@@ -924,6 +924,8 @@ void TestController::initialize(int argc, const char* argv[])
     m_allowAnyHTTPSCertificateForAllowedHosts = options.allowAnyHTTPSCertificateForAllowedHosts;
     m_enableAllExperimentalFeatures = options.enableAllExperimentalFeatures;
     m_globalFeatures = std::move(options.features);
+    if (options.siteIsolationEnabledByDefault)
+        m_globalFeatures.boolWebPreferenceFeatures.insert_or_assign("SiteIsolationEnabled", true);
 #if ENABLE(WPE_PLATFORM)
     m_useWPELegacyAPI = options.useWPELegacyAPI;
 #endif
