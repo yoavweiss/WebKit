@@ -2664,6 +2664,8 @@ webkit.org/b/307727 webaudio/decode-audio-data-mp3-8000.html [ Failure ]
 webaudio/MediaElementAudioSource/mediaelementaudiosourcenode-playbackrate.html [ Skip ]
 webaudio/MediaElementAudioSource/mediaelementaudiosourcenode-volume.html [ Skip ]
 
+webkit.org/b/316179 webaudio/decode-audio-data-ogg-vorbis.html [ Failure ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of WebAudio-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////

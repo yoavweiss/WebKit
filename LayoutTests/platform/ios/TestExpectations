@@ -304,6 +304,7 @@ webaudio/suspend-context-while-interrupted.html [ Skip ]
 webaudio/codec-tests/vorbis [ Skip ]
 # vorbis decoder not available on simulator.
 webaudio/decode-audio-data-webm-vorbis.html [ Failure ]
+webaudio/decode-audio-data-ogg-vorbis.html  [ Failure ]
 media/track/audio-track-configuration-webm.html
 
 # ogg not available in simulator
