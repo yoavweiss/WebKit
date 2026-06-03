@@ -81,6 +81,8 @@ public:
 
     bool allColorTexturesAreBound() const final;
 
+    void clearTexturesIfNeeded(const IntRect& viewport, std::optional<uint32_t> slice) final;
+
 protected:
     XRWebGLLayerBacking(PlatformXR::LayerHandle, std::unique_ptr<WebXRWebGLSwapchain>&& colorSwapchain, std::unique_ptr<WebXRWebGLSwapchain>&& depthSwapchain, uint32_t colorTextureArrayLength);
 

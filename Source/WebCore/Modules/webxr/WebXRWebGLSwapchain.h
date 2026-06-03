@@ -38,6 +38,7 @@
 
 namespace WebCore {
 
+class IntRect;
 class IntSize;
 class WebGLFramebuffer;
 class WebGLOpaqueTexture;
@@ -92,12 +93,14 @@ public:
 
     virtual GCGLenum textureTarget() const { return GraphicsContextGL::TEXTURE_2D; }
 
+    void clearTextureIfNeeded(const IntRect& viewport, std::optional<GCGLint> slice);
+
 protected:
     WebXRWebGLSwapchain(WebGLRenderingContextBase&, SwapchainTargets, bool clearOnAccess, size_t imageCount);
-    virtual void clearCurrentTexture(GraphicsContextGL&);
+    virtual void clearTextureRegion(GraphicsContextGL&, const IntRect& viewport, std::optional<GCGLint> slice);
 
-    using BindAttachmentFunction = Function<void(GCGLenum attachment, GCGLint layer)>;
-    void clearTextureLayers(GraphicsContextGL&, uint32_t layerCount, NOESCAPE const BindAttachmentFunction&);
+    using BindAttachmentFunction = Function<void(GCGLenum attachment)>;
+    void clearAttachmentRegion(GraphicsContextGL&, const IntRect& viewport, NOESCAPE const BindAttachmentFunction&);
 
     void setupExternalImage(const PlatformXR::FrameData::LayerSetupData&);
     void signalEndFrame(GraphicsContextGL&, PlatformXR::DeviceLayer&);
@@ -174,7 +177,7 @@ private:
     WebXRWebGLStaticImageSwapchain(WebGLRenderingContextBase&, StaticImageAttributes);
     void bindCompositorTexturesForDisplay(GraphicsContextGL&, PlatformXR::FrameData::LayerData&);
     void releaseDisplayImagesAtIndex(size_t);
-    void clearCurrentTexture(GraphicsContextGL&) override;
+    void clearTextureRegion(GraphicsContextGL&, const IntRect& viewport, std::optional<GCGLint> slice) override;
 
     StaticImageAttributes m_imageAttributes;
 #if USE(OPENXR)
@@ -215,7 +218,7 @@ private:
 
     WebXRWebGLTextureArraySwapchain(WebGLRenderingContextBase&, SwapchainTargets, GCGLenum internalFormat, bool clearOnAccess, size_t imageCount, uint32_t arrayLength);
 
-    void clearCurrentTexture(GraphicsContextGL&) override;
+    void clearTextureRegion(GraphicsContextGL&, const IntRect& viewport, std::optional<GCGLint> slice) override;
     void bindCompositorTexturesForDisplay(GraphicsContextGL&, PlatformXR::FrameData::LayerData&);
     void blitTextureArrayToSharedImage(GraphicsContextGL&);
     void releaseTexturesAtIndex(size_t);

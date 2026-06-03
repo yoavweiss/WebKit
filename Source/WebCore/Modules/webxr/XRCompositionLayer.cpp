@@ -130,8 +130,7 @@ void XRCompositionLayer::startFrame(PlatformXR::FrameData& frameData)
     if (it == frameData.layers.end())
         return;
 
-    if (needsRedraw())
-        m_backing->startFrame(frameData);
+    m_backing->startFrame(frameData);
 #else
     UNUSED_PARAM(frameData);
 #endif
@@ -172,14 +171,12 @@ PlatformXR::DeviceLayer XRCompositionLayer::endFrame()
 {
 #if PLATFORM(GTK) || PLATFORM(WPE)
     PlatformXR::DeviceLayer layerData;
-    if (needsRedraw())
-        m_backing->endFrame(layerData);
+    m_backing->endFrame(layerData);
 
     layerData.handle = m_backing->handle();
     layerData.visible = true;
 
-    if (needsRedraw())
-        recomputePose();
+    recomputePose();
 
     fillInCommonDeviceLayerData(layerData);
     fillInTypeSpecificDeviceLayerData(layerData);

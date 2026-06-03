@@ -50,11 +50,10 @@ WebXRWebGLSwapchain::WebXRWebGLSwapchain(WebGLRenderingContextBase& context, Swa
         m_framebufferForClearing = m_context->createFramebuffer();
 }
 
-void WebXRWebGLSwapchain::clearTextureLayers(GraphicsContextGL& gl, uint32_t layerCount, NOESCAPE const BindAttachmentFunction& bindAttachment)
+void WebXRWebGLSwapchain::clearAttachmentRegion(GraphicsContextGL& gl, const IntRect& viewport, NOESCAPE const BindAttachmentFunction& bindAttachment)
 {
     ASSERT(m_context);
     ASSERT(m_framebufferForClearing);
-    ASSERT(layerCount >= 1);
 
     GCGLenum clearMask = 0;
     if (m_targetFlags.contains(SwapchainTargetFlags::Color))
@@ -77,20 +76,19 @@ void WebXRWebGLSwapchain::clearTextureLayers(GraphicsContextGL& gl, uint32_t lay
     ScopedWebGLRestoreFramebuffer restoreFramebuffer { *m_context };
     ScopedDisableRasterizerDiscard disableRasterizerDiscard { *m_context };
     ScopedEnableBackbuffer enableBackBuffer { *m_context };
-    ScopedDisableScissorTest disableScissorTest { *m_context };
+    ScopedScissorTestForRegion scopedScissor { *m_context, viewport };
     ScopedClearColorAndMask zeroClear { *m_context, 0.f, 0.f, 0.f, 0.f, true, true, true, true };
     ScopedClearDepthAndMask zeroDepth { *m_context, 1.0f, true, m_targetFlags.contains(SwapchainTargetFlags::Depth) };
     ScopedClearStencilAndMask zeroStencil { *m_context, 0, 0xFFFFFFFF, m_targetFlags.contains(SwapchainTargetFlags::Stencil) };
 
     gl.bindFramebuffer(GL::FRAMEBUFFER, m_framebufferForClearing->object());
-    for (GCGLint layer = 0; layer < static_cast<GCGLint>(layerCount); ++layer) {
-        bindAttachment(attachment, layer);
-        gl.clear(clearMask);
-    }
+    bindAttachment(attachment);
+    gl.clear(clearMask);
 }
 
-void WebXRWebGLSwapchain::clearCurrentTexture(GraphicsContextGL& gl)
+void WebXRWebGLSwapchain::clearTextureRegion(GraphicsContextGL& gl, const IntRect& viewport, std::optional<GCGLint> slice)
 {
+    UNUSED_PARAM(slice);
     if (!m_framebufferForClearing)
         return;
 
@@ -98,7 +96,7 @@ void WebXRWebGLSwapchain::clearCurrentTexture(GraphicsContextGL& gl)
     if (!texture)
         return;
 
-    clearTextureLayers(gl, 1, [&](GCGLenum attachment, GCGLint) {
+    clearAttachmentRegion(gl, viewport, [&](GCGLenum attachment) {
         gl.framebufferTexture2D(GL::FRAMEBUFFER, attachment, GL::TEXTURE_2D, texture, 0);
     });
 }
@@ -122,6 +120,16 @@ void WebXRWebGLSwapchain::setupExternalImage(const PlatformXR::FrameData::LayerS
     auto rightPhysicalSize = toIntSize(data.physicalSize[1]);
 
     m_texSize = calcImagePhysicalSize(leftPhysicalSize, rightPhysicalSize);
+}
+
+void WebXRWebGLSwapchain::clearTextureIfNeeded(const IntRect& viewport, std::optional<GCGLint> slice)
+{
+    if (!m_clearOnAccess)
+        return;
+    RefPtr gl = m_context->graphicsContextGL();
+    if (!gl)
+        return;
+    clearTextureRegion(*gl, viewport, slice);
 }
 
 void WebXRWebGLSwapchain::signalEndFrame(GraphicsContextGL& gl, PlatformXR::DeviceLayer& layerData)
@@ -289,9 +297,6 @@ void WebXRWebGLSharedImageSwapchain::startFrame(PlatformXR::FrameData::LayerData
         setupExternalImage(*data.layerSetup);
 
     bindCompositorTexturesForDisplay(*gl, data);
-
-    if (m_clearOnAccess)
-        clearCurrentTexture(*gl);
 }
 
 void WebXRWebGLSharedImageSwapchain::endFrame(PlatformXR::DeviceLayer& layerData)
@@ -394,10 +399,10 @@ void WebXRWebGLStaticImageSwapchain::bindCompositorTexturesForDisplay(GraphicsCo
     m_textures[m_currentImageIndex] = texture;
 }
 
-void WebXRWebGLStaticImageSwapchain::clearCurrentTexture(GraphicsContextGL& gl)
+void WebXRWebGLStaticImageSwapchain::clearTextureRegion(GraphicsContextGL& gl, const IntRect& viewport, std::optional<GCGLint> slice)
 {
     if (m_imageAttributes.textureType != GL::TEXTURE_2D_ARRAY) {
-        WebXRWebGLSwapchain::clearCurrentTexture(gl);
+        WebXRWebGLSwapchain::clearTextureRegion(gl, viewport, slice);
         return;
     }
 
@@ -408,8 +413,9 @@ void WebXRWebGLStaticImageSwapchain::clearCurrentTexture(GraphicsContextGL& gl)
     if (!texture)
         return;
 
-    clearTextureLayers(gl, m_imageAttributes.arrayLength, [&](GCGLenum attachment, GCGLint layer) {
-        gl.framebufferTextureLayer(GL::FRAMEBUFFER, attachment, texture, 0, layer);
+    ASSERT(slice);
+    clearAttachmentRegion(gl, viewport, [&](GCGLenum attachment) {
+        gl.framebufferTextureLayer(GL::FRAMEBUFFER, attachment, texture, 0, *slice);
     });
 }
 
@@ -420,9 +426,6 @@ void WebXRWebGLStaticImageSwapchain::startFrame(PlatformXR::FrameData::LayerData
         return;
 
     bindCompositorTexturesForDisplay(*gl, data);
-
-    if (m_clearOnAccess)
-        clearCurrentTexture(*gl);
 }
 
 void WebXRWebGLStaticImageSwapchain::endFrame(PlatformXR::DeviceLayer&)
@@ -588,7 +591,7 @@ void WebXRWebGLTextureArraySwapchain::blitTextureArrayToSharedImage(GraphicsCont
     gl.bindFramebuffer(GL::FRAMEBUFFER, 0);
 }
 
-void WebXRWebGLTextureArraySwapchain::clearCurrentTexture(GraphicsContextGL& gl)
+void WebXRWebGLTextureArraySwapchain::clearTextureRegion(GraphicsContextGL& gl, const IntRect& viewport, std::optional<GCGLint> slice)
 {
     if (!m_framebufferForClearing)
         return;
@@ -597,8 +600,9 @@ void WebXRWebGLTextureArraySwapchain::clearCurrentTexture(GraphicsContextGL& gl)
     if (!texture)
         return;
 
-    clearTextureLayers(gl, m_arrayLength, [&](GCGLenum attachment, GCGLint layer) {
-        gl.framebufferTextureLayer(GL::FRAMEBUFFER, attachment, texture, 0, layer);
+    ASSERT(slice);
+    clearAttachmentRegion(gl, viewport, [&](GCGLenum attachment) {
+        gl.framebufferTextureLayer(GL::FRAMEBUFFER, attachment, texture, 0, *slice);
     });
 }
 
@@ -612,9 +616,6 @@ void WebXRWebGLTextureArraySwapchain::startFrame(PlatformXR::FrameData::LayerDat
         setupExternalImage(*data.layerSetup);
 
     bindCompositorTexturesForDisplay(*gl, data);
-
-    if (m_clearOnAccess)
-        clearCurrentTexture(*gl);
 }
 
 void WebXRWebGLTextureArraySwapchain::endFrame(PlatformXR::DeviceLayer& layerData)

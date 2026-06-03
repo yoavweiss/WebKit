@@ -688,6 +688,8 @@ ExceptionOr<Ref<XRWebGLSubImage>> XRWebGLBinding::getSubImage(XRCompositionLayer
                 });
             }
 
+            const auto& vp = subImage->viewport();
+            layer.backing().clearTexturesIfNeeded(IntRect(vp.x(), vp.y(), vp.width(), vp.height()), subImage->imageIndex());
             return subImage;
         },
         [](const auto&) -> ExceptionOr<Ref<XRWebGLSubImage>> {
@@ -741,6 +743,8 @@ ExceptionOr<Ref<XRWebGLSubImage>> XRWebGLBinding::getViewSubImage(XRProjectionLa
 
     Ref subImage = subImageResult.releaseReturnValue();
     subImage->setImageIndex(textureType == XRTextureType::TextureArray && view.eye() == XREye::Right ? 1 : 0);
+    const auto& vp = subImage->viewport();
+    layer.backing().clearTexturesIfNeeded(IntRect(vp.x(), vp.y(), vp.width(), vp.height()), subImage->imageIndex());
     return subImage;
 }
 

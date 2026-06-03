@@ -290,6 +290,16 @@ bool XRWebGLLayerBacking::allColorTexturesAreBound() const
     return m_colorSwapchain->allTexturesAreBound();
 }
 
+void XRWebGLLayerBacking::clearTexturesIfNeeded(const IntRect& viewport, std::optional<uint32_t> slice)
+{
+    std::optional<GCGLint> glSlice;
+    if (slice)
+        glSlice = static_cast<GCGLint>(*slice);
+    m_colorSwapchain->clearTextureIfNeeded(viewport, glSlice);
+    if (m_depthSwapchain)
+        m_depthSwapchain->clearTextureIfNeeded(viewport, glSlice);
+}
+
 } // namespace WebCore
 
 
