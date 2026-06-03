@@ -8426,4 +8426,6 @@ webkit.org/b/316014 [ Debug ] fast/dom/move-embedded-during-update.html [ Pass F
 imported/w3c/web-platform-tests/css/css-images/gradients-with-border.html [ Skip ]
 imported/w3c/web-platform-tests/css/css-images/multiple-position-color-stop-linear.html [ Skip ]
 
+webkit.org/b/316218 fast/scrolling/ios/scroll-into-view-smooth-after-snap.html [ Pass Failure ]
+
 webkit.org/b/316118 imported/w3c/web-platform-tests/url/IdnaTestV2.any.html [ Failure ]
