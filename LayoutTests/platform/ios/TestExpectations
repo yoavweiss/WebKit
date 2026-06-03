@@ -7667,7 +7667,7 @@ webkit.org/b/289005 imported/w3c/web-platform-tests/css/css-anchor-position/anch
 
 webkit.org/b/289020 imported/w3c/web-platform-tests/webrtc-stats/hardware-capability-stats.https.html [ Pass Failure ]
 
-webkit.org/b/289097 imported/w3c/web-platform-tests/css/css-position/sticky/position-sticky-fixed-ancestor.html [ Pass Failure ]
+webkit.org/b/289097 imported/w3c/web-platform-tests/css/css-position/sticky/position-sticky-fixed-ancestor.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/289094 imported/w3c/web-platform-tests/webcodecs/audio-data.crossOriginIsolated.https.any.html [ Pass Timeout ]
 
