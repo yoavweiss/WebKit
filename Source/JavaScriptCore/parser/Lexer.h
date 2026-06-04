@@ -33,6 +33,8 @@
 #include <wtf/Vector.h>
 #include <wtf/unicode/CharacterNames.h>
 
+#define CACHE_LINE_ALIGNED alignas(64)
+
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 
 namespace JSC {
