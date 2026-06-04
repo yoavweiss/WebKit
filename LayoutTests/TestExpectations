@@ -2310,8 +2310,6 @@ imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/t
 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/cross_origin_parentage.sub.html [ Skip ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/src-repeated-in-ancestor.html [ Skip ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/decode/image-decode-iframe.html [ Skip ]
-imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/decode/image-decode-path-changes.html [ Skip ]
-imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/decode/image-decode.html [ Skip ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/invalid-src.html [ Skip ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/srcset/srcset-w-reselect-on-resize.html [ Skip ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-object-element/object-events.html [ Skip ]
