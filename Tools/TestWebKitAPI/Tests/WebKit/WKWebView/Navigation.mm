@@ -2321,6 +2321,103 @@ TEST(WKNavigation, HTTPSOnlyHTTPFallbackContinue)
     EXPECT_WK_STREQ(@"http://site.example/page3", [webView URL].absoluteString);
 }
 
+TEST(WKNavigation, HTTPSOnlyLocalHostIPAddress)
+{
+    using namespace TestWebKitAPI;
+    HTTPServer httpServer({
+        { "/notsecure"_s, { { }, "not secure"_s } },
+    }, HTTPServer::Protocol::Http);
+
+    RetainPtr configuration = adoptNS([WKWebViewConfiguration new]);
+    configuration.get().defaultWebpagePreferences._networkConnectionIntegrityPolicy = _WKWebsiteNetworkConnectionIntegrityPolicyHTTPSOnly;
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectZero configuration:configuration.get()]);
+
+    __block int errorCode { 0 };
+    __block bool finishedSuccessfully { false };
+    __block bool failedNavigation { false };
+    __block int loadCount { 0 };
+    RetainPtr delegate = adoptNS([TestNavigationDelegate new]);
+    delegate.get().decidePolicyForNavigationAction = ^(WKNavigationAction *action, void (^completionHandler)(WKNavigationActionPolicy)) {
+        ++loadCount;
+        completionHandler(WKNavigationActionPolicyAllow);
+    };
+
+    delegate.get().didFailProvisionalNavigation = ^(WKWebView *, WKNavigation *, NSError *error) {
+        EXPECT_NOT_NULL(error);
+        errorCode = error.code;
+        failedNavigation = true;
+    };
+
+    delegate.get().didFinishNavigation = ^(WKWebView *, WKNavigation *) {
+        finishedSuccessfully = true;
+    };
+    [webView setNavigationDelegate:delegate.get()];
+    RetainPtr url = makeString("http://localhost:"_s, httpServer.port(), "/notsecure"_s).createNSString();
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]];
+
+    EXPECT_NULL([webView _safeBrowsingWarning]);
+    while (![webView _safeBrowsingWarning])
+        TestWebKitAPI::Util::spinRunLoop();
+    EXPECT_NOT_NULL([webView _safeBrowsingWarning]);
+
+    EXPECT_EQ(errorCode, 0);
+    EXPECT_FALSE(finishedSuccessfully);
+    EXPECT_FALSE(failedNavigation);
+
+    EXPECT_WK_STREQ([webView title], "This Connection Is Not Secure");
+    checkTitleAndClick([webView _safeBrowsingWarning].subviews.firstObject.subviews[4], "Continue");
+    Util::run(&finishedSuccessfully);
+
+    EXPECT_EQ(errorCode, 0);
+    EXPECT_FALSE(failedNavigation);
+    EXPECT_EQ(loadCount, 2);
+
+    __block bool doneEvaluatingJavaScript { false };
+    [webView evaluateJavaScript:@"window.location.href" completionHandler:^(id value, NSError *error) {
+        EXPECT_NULL(error);
+        EXPECT_TRUE([value isKindOfClass:[NSString class]]);
+        EXPECT_WK_STREQ(url, (NSString *)value);
+        doneEvaluatingJavaScript = true;
+    }];
+    TestWebKitAPI::Util::run(&doneEvaluatingJavaScript);
+    EXPECT_WK_STREQ(url, [webView URL].absoluteString);
+
+    errorCode  = 0;
+    finishedSuccessfully = false;
+    failedNavigation = false;
+    loadCount = 0;
+
+    url = makeString("http://127.0.0.1:"_s, httpServer.port(), "/notsecure"_s).createNSString();
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]];
+
+    EXPECT_NULL([webView _safeBrowsingWarning]);
+    while (![webView _safeBrowsingWarning])
+        TestWebKitAPI::Util::spinRunLoop();
+    EXPECT_NOT_NULL([webView _safeBrowsingWarning]);
+
+    EXPECT_EQ(errorCode, 0);
+    EXPECT_FALSE(finishedSuccessfully);
+    EXPECT_FALSE(failedNavigation);
+
+    EXPECT_WK_STREQ([webView title], "This Connection Is Not Secure");
+    checkTitleAndClick([webView _safeBrowsingWarning].subviews.firstObject.subviews[4], "Continue");
+    Util::run(&finishedSuccessfully);
+
+    EXPECT_EQ(errorCode, 0);
+    EXPECT_FALSE(failedNavigation);
+    EXPECT_EQ(loadCount, 2);
+
+    doneEvaluatingJavaScript = false;
+    [webView evaluateJavaScript:@"window.location.href" completionHandler:^(id value, NSError *error) {
+        EXPECT_NULL(error);
+        EXPECT_TRUE([value isKindOfClass:[NSString class]]);
+        EXPECT_WK_STREQ(url, (NSString *)value);
+        doneEvaluatingJavaScript = true;
+    }];
+    TestWebKitAPI::Util::run(&doneEvaluatingJavaScript);
+    EXPECT_WK_STREQ(url, [webView URL].absoluteString);
+}
+
 TEST(WKNavigation, HTTPSOnlyHTTPFallbackBypassEnabledCertificateError)
 {
     using namespace TestWebKitAPI;

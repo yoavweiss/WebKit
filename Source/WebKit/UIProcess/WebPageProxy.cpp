@@ -8111,9 +8111,9 @@ void WebPageProxy::didFailProvisionalLoadForFrameShared(Ref<WebProcessProxy>&& p
         };
 #if HAVE(SAFE_BROWSING)
         URL failedURL { m_failingProvisionalLoadURL };
+        bool isHTTPSOnlyError = error.domain() == API::Error::webKitNetworkErrorDomain() && error.errorCode() == API::Error::Network::HTTPNavigationWithHTTPSOnlyError;
         bool canFallbackToHTTP = frame.isMainFrame()
-            && error.errorRecoveryMethod() == ResourceError::ErrorRecoveryMethod::HTTPFallback
-            && failedURL.protocolIs("https"_s)
+            && ((error.errorRecoveryMethod() == ResourceError::ErrorRecoveryMethod::HTTPFallback && failedURL.protocolIs("https"_s)) || (isHTTPSOnlyError && failedURL.protocolIs("http"_s)))
             && !m_configuration->backgroundTextExtractionEnabled();
 
         if (RefPtr websitePolicies = navigation ? navigation->websitePolicies() : nullptr; websitePolicies
