@@ -1339,6 +1339,10 @@ Ref<WebPageProxy> WebProcessPool::createWebPage(PageClient& pageClient, Ref<API:
     RefPtr relatedPage = pageConfiguration->relatedPage();
     bool siteIsolationEnabled = protect(pageConfiguration->preferences())->siteIsolationEnabled();
     if (siteIsolationEnabled) {
+        // These preferences are coupled to Site Isolation here. WebKitTestRunner must
+        // mirror this in TestController::featuresImpliedBySiteIsolation().
+        // FIXME: Find a single shared definition so the product and the test harness
+        // cannot drift out of sync.
         Ref<WebPreferences> preferences = pageConfiguration->preferences();
         preferences->setUseUIProcessForBackForwardItemLoading(true);
         preferences->setMultiProcessBackForwardCacheEnabled(true);
