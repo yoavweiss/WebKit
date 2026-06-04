@@ -293,6 +293,50 @@ void ScopeRuleSets::collectFeatures() const
     m_features.shrinkToFit();
 }
 
+// Classifies a :has() argument for sibling-combinator invalidation. Recurses into logical
+// :is()/:where()/:not()/:has(); other pseudo-classes are leaf "non-logical" pseudos.
+struct HasArgumentSiblingInfo {
+    bool hasSiblingCombinator { false }; // + or ~
+    bool hasPositionalPseudo { false }; // :nth-child(), :first-child, ... (sibling-relative)
+    bool hasNonLogicalPseudo { false }; // any non-logical pseudo-class (positional, stateful, etc.)
+
+    OptionSet<HasArgumentProperty> properties() const
+    {
+        OptionSet<HasArgumentProperty> result;
+        if (hasSiblingCombinator || hasPositionalPseudo)
+            result.add(HasArgumentProperty::OrderSensitive);
+        if (hasSiblingCombinator && !hasNonLogicalPseudo)
+            result.add(HasArgumentProperty::StructuralSibling);
+        return result;
+    }
+};
+
+static void scanHasArgument(const CSSSelector& complexSelector, HasArgumentSiblingInfo& info)
+{
+    for (const CSSSelector* simpleSelector = &complexSelector; simpleSelector; simpleSelector = simpleSelector->precedingInComplexSelector()) {
+        auto relation = simpleSelector->relation();
+        if (relation == CSSSelector::Relation::DirectAdjacent || relation == CSSSelector::Relation::IndirectAdjacent)
+            info.hasSiblingCombinator = true;
+        if (simpleSelector->match() == CSSSelector::Match::PseudoClass && !isLogicalCombinationPseudoClass(simpleSelector->pseudoClass())) {
+            info.hasNonLogicalPseudo = true;
+            if (pseudoClassIsRelativeToSiblings(simpleSelector->pseudoClass()))
+                info.hasPositionalPseudo = true;
+        }
+        if (const CSSSelectorList* selectorList = simpleSelector->selectorList()) {
+            for (const auto& subSelector : *selectorList)
+                scanHasArgument(subSelector, info);
+        }
+    }
+}
+
+static OptionSet<HasArgumentProperty> hasArgumentProperties(const CSSSelectorList& argument)
+{
+    HasArgumentSiblingInfo info;
+    for (const auto& complexSelector : argument)
+        scanHasArgument(complexSelector, info);
+    return info.properties();
+}
+
 template<typename KeyType, typename Hash, typename HashTraits>
 static Vector<InvalidationRuleSet>* ensureInvalidationRuleSets(const KeyType& key, HashMap<KeyType, std::unique_ptr<Vector<InvalidationRuleSet>>, Hash, HashTraits>& ruleSetMap, const HashMap<KeyType, std::unique_ptr<RuleFeatureVector>, Hash, HashTraits>& ruleFeatures)
 {
@@ -353,6 +397,7 @@ static Vector<InvalidationRuleSet>* ensureInvalidationRuleSets(const KeyType& ke
                 WTF::move(invalidationSelector),
                 key.matchElement,
                 key.isNegation,
+                hasArgumentProperties(*key.invalidationSelector),
                 *key.scopeSelector
             };
         }));

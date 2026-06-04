@@ -47,7 +47,7 @@ private:
     void invalidateAfterChange();
     void checkForSiblingStyleChanges();
     using MatchingHasSelectors = HashSet<const CSSSelector*>;
-    enum class ChangedElementRelation : uint8_t { SelfOrDescendant, Sibling };
+    enum class ChangedElementRelation : uint8_t { SelfOrDescendant, Sibling, FirstOrLastChild };
     enum class MutationPhase : bool { Before, After };
     void invalidateForChangedElement(Element&, MatchingHasSelectors&, ChangedElementRelation);
     void invalidateForHasSiblings(MatchingHasSelectors&, MutationPhase);

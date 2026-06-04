@@ -108,18 +108,31 @@ void ChildChangeInvalidation::invalidateForChangedElement(Element& changedElemen
     };
 
     auto hasAlreadyMatchedAndMutationIsIrrelevant = [&](const InvalidationRuleSet& invalidationRuleSet) {
-        // For the first changed element at the mutation point, check if a neighbor already matches the
-        // :has() argument. If so, adding/removing one more matching element doesn't change the :has() result.
+        // Check if a pre-existing neighbor already matches the :has() argument. If so, adding/removing one
+        // more matching element doesn't change the :has() result, so no invalidation is needed.
         // This doesn't apply inside :not() (inverted logic) or for sibling :has() arguments (direction matters).
-        if (!isChild || changedElementRelation != ChangedElementRelation::SelfOrDescendant)
-            return false;
-        if (m_childChange.previousSiblingElement != changedElement.previousElementSibling())
+        if (!isChild)
             return false;
         if (invalidationRuleSet.isNegation == IsNegation::Yes)
             return false;
         if (isSiblingHasRelation(invalidationRuleSet.matchElement))
             return false;
-        return true;
+
+        switch (changedElementRelation) {
+        case ChangedElementRelation::SelfOrDescendant:
+            // The changed element must be exactly at the mutation point so a sibling probe reflects pre-mutation state.
+            return m_childChange.previousSiblingElement == changedElement.previousElementSibling();
+        case ChangedElementRelation::Sibling:
+            // The changed element is itself a pre-existing neighbor. Only safe when the argument is a purely
+            // structural sibling combinator (so an element's match depends only on itself and preceding siblings)
+            // and the mutation is at the end of the element list, so every visited (preceding) sibling's match is
+            // unaffected by it — meaning "it matches now" == "it matched before the mutation".
+            return invalidationRuleSet.hasArgumentProperties.contains(HasArgumentProperty::StructuralSibling) && !m_childChange.nextSiblingElement;
+        case ChangedElementRelation::FirstOrLastChild:
+            return false;
+        }
+        ASSERT_NOT_REACHED();
+        return false;
     };
 
     auto hasMatchingInvalidationSelector = [&](auto& invalidationRuleSet) {
@@ -130,7 +143,12 @@ void ChildChangeInvalidation::invalidateForChangedElement(Element& changedElemen
         for (auto& selector : invalidationRuleSet.invalidationSelectors) {
             if (hasAlreadyMatchedAndMutationIsIrrelevant(invalidationRuleSet)) {
                 // FIXME: We could cache this state across invalidations instead of just testing a single sibling.
-                RefPtr sibling = m_childChange.previousSiblingElement ? m_childChange.previousSiblingElement : m_childChange.nextSiblingElement;
+                // For sibling visits the changed element is itself the pre-existing neighbor to probe.
+                RefPtr<Element> sibling;
+                if (changedElementRelation == ChangedElementRelation::Sibling)
+                    sibling = &changedElement;
+                else
+                    sibling = m_childChange.previousSiblingElement ? m_childChange.previousSiblingElement : m_childChange.nextSiblingElement;
                 if (sibling && selectorChecker.match(selector, *sibling, checkingContext)) {
                     matchingHasSelectors.add(&selector);
                     continue;
@@ -153,6 +171,11 @@ void ChildChangeInvalidation::invalidateForChangedElement(Element& changedElemen
             return;
         for (auto& invalidationRuleSet : *invalidationRuleSets) {
             if (!canAffectElementsWithStyle(invalidationRuleSet))
+                continue;
+            // Order-insensitive :has() arguments can only change when the changed element's own subtree changes,
+            // which the SelfOrDescendant traversal already covers. Re-evaluating them per sibling is redundant
+            // (and re-walks the bearer subtree on every mutation), so skip them on sibling visits.
+            if (changedElementRelation == ChangedElementRelation::Sibling && !invalidationRuleSet.hasArgumentProperties.contains(HasArgumentProperty::OrderSensitive))
                 continue;
             if (!hasMatchingInvalidationSelector(invalidationRuleSet))
                 continue;
@@ -197,10 +220,10 @@ void ChildChangeInvalidation::invalidateForHasSiblings(MatchingHasSelectors& mat
         return;
 
     if (RefPtr next = m_childChange.nextSiblingElement; next && parentElement().childrenAffectedByFirstChildRules() && !next->previousElementSibling())
-        invalidateForChangedElement(*next, matchingHasSelectors, ChangedElementRelation::Sibling);
+        invalidateForChangedElement(*next, matchingHasSelectors, ChangedElementRelation::FirstOrLastChild);
 
     if (RefPtr previous = m_childChange.previousSiblingElement; previous && parentElement().childrenAffectedByLastChildRules() && !previous->nextElementSibling())
-        invalidateForChangedElement(*previous, matchingHasSelectors, ChangedElementRelation::Sibling);
+        invalidateForChangedElement(*previous, matchingHasSelectors, ChangedElementRelation::FirstOrLastChild);
 }
 
 void ChildChangeInvalidation::invalidateForHasBeforeMutation()
