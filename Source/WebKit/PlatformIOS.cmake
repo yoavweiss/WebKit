@@ -598,7 +598,19 @@ list(APPEND WebKit_SOURCES
 )
 
 if (WEBKIT_ADDITIONS_SWIFT_SOURCES)
-    list(APPEND WebKit_SOURCES ${WEBKIT_ADDITIONS_SWIFT_SOURCES})
+    # WebViewRepresentable+Extras.swift belongs to the _WebKit_SwiftUI overlay
+    # module (per the pbxproj); compiling it in main WebKit clashes with
+    # WKMaterialHostingSupport.swift's @_weakLinked SwiftUI import.
+    set(WebKit_SwiftUI_ADDITIONS_SOURCES "")
+    foreach (_f IN LISTS WEBKIT_ADDITIONS_SWIFT_SOURCES)
+        cmake_path(GET _f FILENAME _fn)
+        if (_fn STREQUAL "WebViewRepresentable+Extras.swift")
+            list(APPEND WebKit_SwiftUI_ADDITIONS_SOURCES "${_f}")
+        else ()
+            list(APPEND WebKit_SOURCES "${_f}")
+        endif ()
+    endforeach ()
+    unset(_fn)
 endif ()
 
 set(_log_defines "${FEATURE_DEFINES_WITH_SPACE_SEPARATOR} ENABLE_STREAMING_IPC_IN_LOG_FORWARDING")
@@ -1703,6 +1715,16 @@ add_library(_WebKit_SwiftUI SHARED
 if (ENABLE_MODEL_ELEMENT_IMMERSIVE)
     target_sources(_WebKit_SwiftUI PRIVATE
         ${_swiftui_dir}/API/WebViewImmersiveEnvironmentView.swift
+    )
+endif ()
+
+if (WebKit_SwiftUI_ADDITIONS_SOURCES)
+    target_sources(_WebKit_SwiftUI PRIVATE ${WebKit_SwiftUI_ADDITIONS_SOURCES})
+    # Share WebKit's platform-swift-args.resp so the overlay's #if
+    # conditionals (e.g. ENABLE_WEBVIEW_ADDITIONAL_SETUP) match the main
+    # module. Re-fires propagate via add_dependencies(_WebKit_SwiftUI WebKit).
+    target_compile_options(_WebKit_SwiftUI PRIVATE
+        "$<$<COMPILE_LANGUAGE:Swift>:SHELL:@${CMAKE_CURRENT_BINARY_DIR}/WebKit.platform-swift-args.resp>"
     )
 endif ()
 

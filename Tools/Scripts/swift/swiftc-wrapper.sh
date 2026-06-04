@@ -23,7 +23,7 @@ REAL_SWIFTC=swiftc
 args=()
 
 # CMake's Swift link rule injects <LANGUAGE_COMPILE_FLAGS> into the link
-# command, which includes -g, which causes swiftc to run dsymutil. 
+# command, which includes -g, which causes swiftc to run dsymutil.
 # dsymutil is super expensive, and we don't need it because we have DWARF
 # debug info in our object files.
 linking=
@@ -34,6 +34,18 @@ for arg in "$@"; do
 done
 
 for arg in "$@"; do
+    if [[ "$arg" == @*.platform-swift-args.resp && -f "${arg#@}" ]]; then
+        # Expand our resp in-process: the swift driver doesn't expand @-files
+        # under -explicit-module-build, and emitting tokens directly bypasses
+        # the case-statement's -D doubling — which would otherwise leak
+        # Platform.h-derived defines into the clang importer. Other @-files
+        # (CMake's link/compile rsp) pass through; swiftc expands them.
+        while IFS= read -r line; do
+            [[ -z "$line" ]] && continue
+            args+=("$line")
+        done < "${arg#@}"
+        continue
+    fi
     if [[ -n "$pass_next_verbatim" ]]; then
         args+=("$arg")
         pass_next_verbatim=

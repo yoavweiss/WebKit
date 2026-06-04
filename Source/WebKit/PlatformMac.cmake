@@ -105,7 +105,6 @@ set(WebKit_SWIFT_CLANG_INCLUDE_DIRS
 foreach (_dir IN LISTS WebKit_SWIFT_CLANG_INCLUDE_DIRS)
     target_compile_options(WebKit PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -I${_dir}>")
 endforeach ()
-target_compile_options(WebKit PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:-DHAVE_MATERIAL_HOSTING>")
 foreach (_dir IN LISTS WebKit_SWIFT_INCLUDE_DIRECTORIES)
     target_compile_options(WebKit PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:-I${_dir}>")
 endforeach ()

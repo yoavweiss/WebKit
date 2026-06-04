@@ -1319,12 +1319,6 @@ endif ()
 
 list(APPEND WebKit_SOURCES ${WebKit_DERIVED_SOURCES})
 
-if (SWIFT_REQUIRED)
-    # WebKit_SwiftCxxHeader is created by a DEFER CALL, so defer the dep wiring too.
-    add_custom_target(WebKit_DerivedHeadersForSwift DEPENDS ${WebKit_HEADERS} ${WebKit_DERIVED_SOURCES})
-    cmake_language(DEFER CALL add_dependencies WebKit_SwiftCxxHeader WebKit_DerivedHeadersForSwift)
-endif ()
-
 WEBKIT_COMPUTE_SOURCES(WebKit)
 if (DEFINED WebKit_SWIFT_INTEROP_SOURCES)
     list(REMOVE_ITEM WebKit_SOURCES ${WebKit_SWIFT_INTEROP_SOURCES})
