@@ -296,7 +296,7 @@ bool PlatformTimeRanges::containWithEpsilon(const PlatformTimeRanges& ranges, co
 
     // Ensure that if we have a gap in the buffered range, it is smaller than the fudge factor;
     for (unsigned i = 1; i < bufferedRanges.length(); i++) {
-        if (bufferedRanges.end(i) - bufferedRanges.start(i-1) > epsilon)
+        if (bufferedRanges.start(i) - bufferedRanges.end(i - 1) > epsilon)
             return false;
     }
 
